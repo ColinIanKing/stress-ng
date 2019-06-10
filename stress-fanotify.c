@@ -84,6 +84,9 @@ static const int FAN_STRESS_SETTINGS =
 #endif
 	0;
 
+static char *mnts[MAX_MNTS];
+static int n_mnts;
+
 /*
  *  stress_fanotify_supported()
  *      check if we can run this as root
@@ -105,8 +108,9 @@ static int stress_fanotify_supported(void)
  */
 static int fanotify_event_init(const char *name)
 {
-	int fan_fd, count = 0, n_mnts, i;
-	static char *mnts[MAX_MNTS];
+	int fan_fd, count = 0, i;
+
+	(void)memset(mnts, 0, sizeof(mnts));
 
 	if ((fan_fd = fanotify_init(0, 0)) < 0) {
 		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
@@ -152,8 +156,6 @@ static int fanotify_event_init(const char *name)
 		}
 	}
 
-	mount_free(mnts, n_mnts);
-
 	/* This really should not happen, / is always mounted */
 	if (!count) {
 		pr_err("%s: no mount points could be monitored\n",
@@ -162,6 +164,48 @@ static int fanotify_event_init(const char *name)
 		return -1;
 	}
 	return fan_fd;
+}
+
+/*
+ *  fanotify_event_clear()
+ *	exercise remove and flush fanotify_marking
+ */
+static void fanotify_event_clear(const int fan_fd)
+{
+#if defined(FAN_MARK_REMOVE)
+	int i;
+
+	/*
+	 *  Gather all mounted file systems and monitor them
+	 */
+	for (i = 0; i < n_mnts; i++) {
+		uint64_t mask;
+#if defined(FAN_MARK_MOUNT) || defined(FAN_MARK_FILESYSTEM)
+		int ret;
+#endif
+
+		for (mask = 1ULL << 63; mask; mask >>= 1) {
+			if (!(mask & FAN_STRESS_SETTINGS))
+				continue;
+#if defined(FAN_MARK_MOUNT)
+			ret = fanotify_mark(fan_fd, FAN_MARK_REMOVE | FAN_MARK_MOUNT,
+				mask, AT_FDCWD, mnts[i]);
+			(void)ret;
+#endif
+
+#if defined(FAN_MARK_FILESYSTEM)
+			ret = fanotify_mark(fan_fd, FAN_MARK_REMOVE | FAN_MARK_FILESYSTEM,
+				mask, AT_FDCWD, mnts[i]);
+			(void)ret;
+#endif
+		}
+#if defined(FAN_MARK_FLUSH)
+		ret = fanotify_mark(fan_fd, FAN_MARK_FLUSH | FAN_MARK_FILESYSTEM,
+				0, AT_FDCWD, mnts[i]);
+		(void)ret;
+#endif
+	}
+#endif
 }
 
 /*
@@ -324,6 +368,7 @@ static int stress_fanotify(const args_t *args)
 		} while (keep_stressing());
 
 		free(buffer);
+		fanotify_event_clear(fan_fd);
 		(void)close(fan_fd);
 		pr_inf("%s: "
 			"%" PRIu64 " open, "
@@ -351,6 +396,7 @@ tidy:
 	}
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
+	mount_free(mnts, n_mnts);
 
 	return rc;
 }
