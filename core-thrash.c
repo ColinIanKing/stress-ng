@@ -120,6 +120,25 @@ static inline void compact_memory(void)
 }
 
 /*
+ *  zone_reclaim()
+ *	trigger reclaim when zones run out of memory
+ */
+static inline void zone_reclaim(void)
+{
+#if defined(__linux__)
+	int ret;
+	char mode[2];
+
+	mode[0] = '0' + (mwc8() & 7);
+	mode[1] = '\0';
+
+	ret = system_write("/proc/sys/vm/zone_reclaim_mode", mode, 1);
+	(void)ret;
+#endif
+}
+
+
+/*
  *  merge_memory()
  *	trigger ksm memory merging, Linux only
  */
@@ -188,9 +207,11 @@ int thrash_start(void)
 		(void)ret;
 #endif
 		while (g_keep_stressing_flag) {
-			pagein_all_procs();
+			if ((mwc8() & 0x3f) == 0) 
+				pagein_all_procs();
 			compact_memory();
 			merge_memory();
+			zone_reclaim();
 			(void)sleep(1);
 		}
 		_exit(0);
