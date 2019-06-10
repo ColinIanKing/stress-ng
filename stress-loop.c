@@ -83,6 +83,9 @@ static int stress_loop(const args_t *args)
 		int ctrl_dev, loop_dev;
 		int i;
 		long dev_num;
+#if defined(LOOP_SET_DIRECT_IO)
+		unsigned long dio;
+#endif
 		char dev_name[PATH_MAX];
 #if defined(LOOP_GET_STATUS)
 		struct loop_info info;
@@ -166,6 +169,16 @@ static int stress_loop(const args_t *args)
 		ret = ftruncate(backing_fd, backing_size * 2);
 		(void)ret;
 		ret = ioctl(loop_dev, LOOP_SET_CAPACITY);
+		(void)ret;
+#endif
+
+#if defined(LOOP_SET_DIRECT_IO)
+		dio = 1;
+		ret = ioctl(loop_dev, LOOP_SET_DIRECT_IO, dio);
+		(void)ret;
+
+		dio = 0;
+		ret = ioctl(loop_dev, LOOP_SET_DIRECT_IO, dio);
 		(void)ret;
 #endif
 
