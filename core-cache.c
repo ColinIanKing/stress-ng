@@ -428,14 +428,14 @@ cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
  */
 static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 {
-	uint32_t   i;
-	size_t	   len = cpu_path ? strlen(cpu_path) : 0;
-	size_t     len2 = strlen(SYS_CPU_CACHE_DIR) + 1;
-	glob_t     globbuf;
-	char       glob_path[len + len2];
-	char     **results;
-	int        ret = EXIT_FAILURE;
-	int        ret2;
+	uint32_t     i;
+	size_t	     len = cpu_path ? strlen(cpu_path) : 0;
+	const size_t len2 = strlen(SYS_CPU_CACHE_DIR) + 1;
+	glob_t       globbuf;
+	char         glob_path[len + len2];
+	char       **results;
+	int          ret = EXIT_FAILURE;
+	int          ret2;
 
 	(void)memset(glob_path, 0, sizeof(glob_path));
 	(void)memset(&globbuf, 0, sizeof(globbuf));
