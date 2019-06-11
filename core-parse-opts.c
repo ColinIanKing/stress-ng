@@ -219,7 +219,7 @@ uint64_t get_uint64_percent(
 	const uint64_t max,
 	const char *const errmsg)
 {
-	size_t len = strlen(str);
+	const size_t len = strlen(str);
 
 	/* Convert to % over N instances */
 	if ((len > 1) && (str[len - 1] == '%')) {
@@ -260,7 +260,7 @@ uint64_t get_uint64_byte_memory(
 	const char *const str,
 	const uint32_t instances)
 {
-	uint64_t phys_mem = stress_get_phys_mem_size();
+	const uint64_t phys_mem = stress_get_phys_mem_size();
 
 	return get_uint64_percent(str, instances, phys_mem,
 		"Cannot determine physical memory size");
@@ -277,7 +277,7 @@ uint64_t get_uint64_byte_filesystem(
 	const char *const str,
 	const uint32_t instances)
 {
-	uint64_t bytes = stress_get_filesystem_size();
+	const uint64_t bytes = stress_get_filesystem_size();
 
 	return get_uint64_percent(str, instances, bytes,
 		"Cannot determine available space on file system");
