@@ -442,8 +442,8 @@ char *stress_munge_underscore(const char *str)
 	static char munged[128];
 	char *dst;
 	const char *src;
-	size_t str_len = strlen(str);
-	ssize_t len = STRESS_MINIMUM(str_len, sizeof(munged) - 1);
+	const size_t str_len = strlen(str);
+	const ssize_t len = STRESS_MINIMUM(str_len, sizeof(munged) - 1);
 
 	for (src = str, dst = munged; *src && (dst - munged) < len; src++)
 		*dst++ = (*src == '_' ? '-' : *src);
@@ -688,7 +688,7 @@ const char *stress_strsignal(const int signum)
  */
 void stress_strnrnd(char *str, const size_t len)
 {
-	char *end = str + len;
+	const char *end = str + len;
 
 	while (str < end - 1)
 		*str++ = (mwc8() % 26) + 'a';
@@ -711,7 +711,7 @@ void pr_yaml_runinfo(FILE *yaml)
 	time_t t;
 	struct tm *tm = NULL;
 	char hostname[128];
-	char *user = shim_getlogin();
+	const char *user = shim_getlogin();
 
 	pr_yaml(yaml, "system-info:\n");
 	if (time(&t) != ((time_t)-1))
@@ -1079,9 +1079,8 @@ int stress_sigrestore(
 unsigned int stress_get_cpu(void)
 {
 #if defined(HAVE_SCHED_GETCPU) && !defined(__PPC64__)
-	int cpu;
+	const int cpu = sched_getcpu();
 
-	cpu = sched_getcpu();
 	return (unsigned int)((cpu < 0) ? 0 : cpu);
 #else
 	return 0;
@@ -1425,9 +1424,8 @@ bool stress_is_dot_filename(const char *name)
  */
 char *stress_const_optdup(const char *opt)
 {
-	char *str;
+	char *str = strdup(opt);
 
-	str = strdup(opt);
 	if (!str)
 		fprintf(stderr, "out of memory duplicating option '%s'\n", opt);
 
