@@ -171,14 +171,28 @@ again:
 				if (!(i & 1023)) {
 #if defined(__linux__)
 					char buffer[1024];
-
+					off_t off;
+#if defined(HAVE_POLL_H)
+					struct pollfd fds[1];
+#endif
+					/* On Linux, one can seek on a mq descriptor */
+					off = lseek(mq, 0, SEEK_SET);
+					(void)off;
+#if defined(HAVE_POLL_H)
+					/* ..and poll too */
+					fds[0].fd = mq;
+					fds[0].events = POLLIN;
+					fds[0].revents = 0;
+					ret = poll(fds, 1, 0);
+					(void)ret;
+#endif
 					/* Read state of queue from mq fd */
 					ret = read(mq, buffer, sizeof(buffer));
 					if (ret < 0)
 						pr_fail_dbg("mq read");
 #endif
 
-					mq_notify(mq, &sigev);
+					(void)mq_notify(mq, &sigev);
 				}
 
 				/*
