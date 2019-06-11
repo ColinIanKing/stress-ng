@@ -31,7 +31,8 @@ static const help_t help[] = {
 };
 
 #if defined(SOCK_RAW) &&	\
-    defined(IPPROTO_RAW)
+    defined(IPPROTO_RAW) &&	\
+    defined(__linux__)
 
 typedef struct {
 	struct iphdr	iph;
