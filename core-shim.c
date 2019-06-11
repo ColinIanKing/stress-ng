@@ -675,9 +675,7 @@ char *shim_getlogin(void)
 	return NULL;
 #else
 	static char pw_name[256];
-	struct passwd *pw;
-
-	pw = getpwuid(geteuid());
+	const struct passwd *pw = getpwuid(geteuid());
 	if (!pw)
 		return NULL;
 
