@@ -50,10 +50,9 @@ static inline void mwc_flush(void)
  */
 static uint64_t aux_random_seed(void)
 {
-	uint8_t *ptr;
+	const uint8_t *ptr = (const uint8_t *)getauxval(AT_RANDOM);
 	uint64_t val;
 
-	ptr = (uint8_t *)getauxval(AT_RANDOM);
 	if (!ptr)
 		return 0ULL;
 
