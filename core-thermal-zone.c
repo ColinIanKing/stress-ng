@@ -121,7 +121,7 @@ int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
 	for (tz_info = *tz_info_list; tz_info; tz_info = tz_info->next) {
 		char path[PATH_MAX];
 		FILE *fp;
-		size_t i = tz_info->index;
+		const size_t i = tz_info->index;
 
 		(void)snprintf(path, sizeof(path),
 			"/sys/class/thermal/%s/temp",
@@ -159,9 +159,8 @@ void tz_dump(FILE *yaml, proc_info_t *procs_head)
 
 		for (tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
 			for (j = 0; j < pi->started_procs; j++) {
-				uint64_t temp;
-
-				temp = pi->stats[j]->tz.tz_stat[tz_info->index].temperature;
+				const uint64_t temp = 
+					pi->stats[j]->tz.tz_stat[tz_info->index].temperature;
 				/* Avoid crazy temperatures. e.g. > 250 C */
 				if (temp <= 250000) {
 					total += temp;
@@ -170,7 +169,7 @@ void tz_dump(FILE *yaml, proc_info_t *procs_head)
 			}
 
 			if (total) {
-				double temp = ((double)total / count) / 1000.0;
+				const double temp = ((double)total / count) / 1000.0;
 				char *munged = stress_munge_underscore(pi->stressor->name);
 
 				if (!dumped_heading) {
