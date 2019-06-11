@@ -55,7 +55,7 @@ static inline void format_time(
 	double *duration,		/* Duration left in seconds */
 	size_t *len)			/* Length of string left at ptr */
 {
-	unsigned long val = (unsigned long)(*duration / secs_in_units);
+	const unsigned long val = (unsigned long)(*duration / secs_in_units);
 
 	if (last || val > 0) {
 		int ret;
