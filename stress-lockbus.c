@@ -37,16 +37,16 @@ static const help_t help[] = {
 #define CHUNK_SIZE	(64 * 4)
 
 #if defined(__GNUC__) && NEED_GNUC(4,7,0)
-#define LOCK_AND_INC(ptr, inc)					       \
-	__atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);		       \
-	ptr++;
+#define LOCK(ptr) __atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);
 
 #else
-#define LOCK_AND_INC(ptr, inc)					       \
-	asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));    \
-	ptr++;
+#define LOCK(ptr) asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc)); 
 
 #endif
+
+#define LOCK_AND_INC(ptr, inc)	\
+	LOCK(ptr);		\
+	ptr++;
 
 #define LOCK_AND_INCx8(ptr, inc)	\
 	LOCK_AND_INC(ptr, inc)		\
@@ -58,6 +58,30 @@ static const help_t help[] = {
 	LOCK_AND_INC(ptr, inc)		\
 	LOCK_AND_INC(ptr, inc)
 
+#define LOCKx8(ptr)			\
+	LOCK(ptr)			\
+	LOCK(ptr)			\
+	LOCK(ptr)			\
+	LOCK(ptr)			\
+	LOCK(ptr)			\
+	LOCK(ptr)			\
+	LOCK(ptr)			\
+	LOCK(ptr)
+
+#if defined(STRESS_X86)
+static sigjmp_buf jmp_env;
+static bool do_splitlock;
+
+static void MLOCKED_TEXT stress_sigbus_handler(int signum)
+{
+	(void)signum;
+
+	do_splitlock = false;
+
+	siglongjmp(jmp_env, 1);
+}
+#endif
+
 /*
  *  stress_lockbus()
  *      stress memory with lock and increment
@@ -66,6 +90,11 @@ static int stress_lockbus(const args_t *args)
 {
 	uint32_t *buffer;
 	int flags = MAP_ANONYMOUS | MAP_SHARED;
+
+#if defined(STRESS_X86)
+	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
+		return EXIT_FAILURE;
+#endif
 
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
@@ -77,22 +106,39 @@ static int stress_lockbus(const args_t *args)
 		return rc;
 	}
 
+#if defined(STRESS_X86)
+	do_splitlock = true;
+	if (sigsetjmp(jmp_env, 1) && !keep_stressing())
+		goto done;
+#endif
+
 	do {
 		uint32_t *ptr = buffer + ((mwc32() % (BUFFER_SIZE - CHUNK_SIZE)) >> 2);
+#if defined(STRESS_X86)
+		uint32_t *splitlock_ptr = do_splitlock ?
+			(uint32_t *)(((uint8_t *)buffer) + 64 - (sizeof(uint32_t) >> 1)) : ptr;
+#else
+		uint32_t *splitlock_ptr = ptr;
+#endif
 		const uint32_t inc = 1;
 
 		LOCK_AND_INCx8(ptr, inc);
+		LOCKx8(splitlock_ptr);
+		LOCKx8(splitlock_ptr);
 		LOCK_AND_INCx8(ptr, inc);
+		LOCKx8(splitlock_ptr);
+		LOCKx8(splitlock_ptr);
 		LOCK_AND_INCx8(ptr, inc);
+		LOCKx8(splitlock_ptr);
+		LOCKx8(splitlock_ptr);
 		LOCK_AND_INCx8(ptr, inc);
-		LOCK_AND_INCx8(ptr, inc);
-		LOCK_AND_INCx8(ptr, inc);
-		LOCK_AND_INCx8(ptr, inc);
-		LOCK_AND_INCx8(ptr, inc);
+		LOCKx8(splitlock_ptr);
+		LOCKx8(splitlock_ptr);
 
 		inc_counter(args);
 	} while (keep_stressing());
 
+done:
 	(void)munmap((void *)buffer, BUFFER_SIZE);
 
 	return EXIT_SUCCESS;
