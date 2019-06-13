@@ -259,6 +259,31 @@ static int stress_get(const args_t *args)
 		}
 #endif
 
+#if defined(HAVE_LINUX_SYSCTL_H) &&	\
+    defined(__NR__sysctl)
+		{
+			/*
+			 *  _sysctl is a deprecated API, so it
+			 *  probably will return -ENOSYS
+			 */
+			int name[] = { KERN_VERSION };
+			char kern_version[64];
+			size_t kern_version_len;
+			struct __sysctl_args sysctl_args;
+
+			memset(&sysctl_args, 0, sizeof(sysctl_args));
+			sysctl_args.name = name;
+			sysctl_args.nlen = SIZEOF_ARRAY(name);
+			sysctl_args.oldval = kern_version;
+			sysctl_args.oldlenp = &kern_version_len;
+			sysctl_args.newval = NULL;
+			sysctl_args.newlen = 0;
+
+			ret = syscall(__NR__sysctl, &sysctl_args);
+			(void)ret;
+		}
+#endif
+
 		for (i = 0; i < SIZEOF_ARRAY(rusages); i++) {
 			struct rusage usage;
 

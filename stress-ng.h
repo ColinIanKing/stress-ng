@@ -500,6 +500,10 @@
 #include <linux/socket.h>
 #endif
 
+#if defined(HAVE_LINUX_SYSCTL_H)
+#include <linux/sysctl.h>
+#endif
+
 #if defined(HAVE_LINUX_UNIX_DIAG_H)
 #include <linux/unix_diag.h>
 #endif
