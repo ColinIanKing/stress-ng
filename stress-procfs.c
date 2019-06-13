@@ -414,7 +414,7 @@ static int stress_procfs(const args_t *args)
 
 	i = args->instance;
 	do {
-		i %= 13;
+		i %= 12;
 		switch (i) {
 		case 0:
 			stress_proc_dir(&ctxt, "/proc", false, 0);
@@ -423,37 +423,34 @@ static int stress_procfs(const args_t *args)
 			stress_proc_dir(&ctxt, "/proc/self", true, 0);
 			break;
 		case 2:
-			stress_proc_dir(&ctxt, "/proc/sys", true, 0);
+			stress_proc_dir(&ctxt, "/proc/thread_self", true, 0);
 			break;
 		case 3:
-			stress_proc_dir(&ctxt, "/proc/sysvipc", true, 0);
+			stress_proc_dir(&ctxt, "/proc/sys", true, 0);
 			break;
 		case 4:
-			stress_proc_dir(&ctxt, "/proc/fs", true, 0);
+			stress_proc_dir(&ctxt, "/proc/sysvipc", true, 0);
 			break;
 		case 5:
-			stress_proc_dir(&ctxt, "/proc/bus", true, 0);
+			stress_proc_dir(&ctxt, "/proc/fs", true, 0);
 			break;
 		case 6:
-			stress_proc_dir(&ctxt, "/proc/irq", true, 0);
+			stress_proc_dir(&ctxt, "/proc/bus", true, 0);
 			break;
 		case 7:
-			stress_proc_dir(&ctxt, "/proc/scsi", true, 0);
+			stress_proc_dir(&ctxt, "/proc/irq", true, 0);
 			break;
 		case 8:
-			stress_proc_dir(&ctxt, "/proc/tty", true, 0);
+			stress_proc_dir(&ctxt, "/proc/scsi", true, 0);
 			break;
 		case 9:
-			stress_proc_dir(&ctxt, "/proc/driver", true, 0);
-			break;
-		case 10:
 			stress_proc_dir(&ctxt, "/proc/tty", true, 0);
 			break;
-		case 11:
-			stress_proc_dir(&ctxt, "/proc/self", true, 0);
+		case 10:
+			stress_proc_dir(&ctxt, "/proc/driver", true, 0);
 			break;
-		case 12:
-			stress_proc_dir(&ctxt, "/proc/thread_self", true, 0);
+		case 11:
+			stress_proc_dir(&ctxt, "/proc/tty", true, 0);
 			break;
 		default:
 			break;
