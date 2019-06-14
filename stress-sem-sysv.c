@@ -56,7 +56,6 @@ static const opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(HAVE_SEM_SYSV)
-
 /*
  *  stress_semaphore_sysv_init()
  *	initialise a System V semaphore
@@ -109,16 +108,46 @@ static void stress_semaphore_sysv_deinit(void)
 		(void)semctl(g_shared->sem_sysv.sem_id, 0, IPC_RMID);
 }
 
+
+#if defined(__linux__)
 /*
- *  semaphore_sysv_thrash()
+ *  stress_semaphore_sysv_get_procinfo()
+ *	exercise /proc/sysvipc/sem
+ */
+static void stress_semaphore_sysv_get_procinfo(bool *get_procinfo)
+{
+	int fd;
+
+	fd = open("/proc/sysvipc/sem", O_RDONLY);
+	if (fd < 0) {
+		*get_procinfo = false;
+		return;
+	}
+	for (;;) {
+		ssize_t ret;
+		char buffer[1024];
+
+		ret = read(fd, buffer, sizeof(buffer));
+		if (ret <= 0)
+			break;
+	}
+	(void)close(fd);
+}
+#endif
+
+/*
+ *  stress_semaphore_sysv_thrash()
  *	exercise the semaphore
  */
-static void semaphore_sysv_thrash(const args_t *args)
+static void stress_semaphore_sysv_thrash(const args_t *args)
 {
 	const int sem_id = g_shared->sem_sysv.sem_id;
 
 	do {
 		int i;
+#if defined(__linux__)
+		bool get_procinfo = true;
+#endif
 #if defined(HAVE_SEMTIMEDOP) &&	\
     defined(HAVE_CLOCK_GETTIME)
 		struct timespec timeout;
@@ -128,6 +157,11 @@ static void semaphore_sysv_thrash(const args_t *args)
 			return;
 		}
 		timeout.tv_sec++;
+#endif
+
+#if defined(__linux__)
+		if (get_procinfo)
+			stress_semaphore_sysv_get_procinfo(&get_procinfo);
 #endif
 
 		for (i = 0; i < 1000; i++) {
@@ -241,7 +275,7 @@ again:
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
-		semaphore_sysv_thrash(args);
+		stress_semaphore_sysv_thrash(args);
 		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
