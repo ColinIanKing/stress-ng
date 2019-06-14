@@ -122,7 +122,9 @@ static int stress_msg(const args_t *args)
 	pid_t pid;
 	int msgq_id;
 	int32_t msg_types = 0;
+#if defined(__linux__)
 	bool get_procinfo = true;
+#endif
 
 	(void)get_setting("msg-types", &msg_types);
 
