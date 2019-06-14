@@ -124,6 +124,37 @@ static int stress_shm_sysv_check(
 	return 0;
 }
 
+#if defined(__linux__)
+/*
+ *  stress_shm_get_procinfo()
+ *	exercise /proc/sysvipc/shm
+ */
+static void stress_shm_get_procinfo(bool *get_procinfo)
+{
+	int fd;
+	static int count;
+
+	if (++count & 0x3f)
+		return;
+	count = 0;
+
+	fd = open("/proc/sysvipc/shm", O_RDONLY);
+	if (fd < 0) {
+		*get_procinfo = false;
+		return;
+	}
+	for (;;) {
+		ssize_t ret;
+		char buffer[1024];
+
+		ret = read(fd, buffer, sizeof(buffer));
+		if (ret <= 0)
+			break;
+	}
+	(void)close(fd);
+}
+#endif
+
 /*
  *  stress_shm_sysv_child()
  * 	stress out the shm allocations. This can be killed by
@@ -434,6 +465,9 @@ fork_again:
 		} else if (pid > 0) {
 			/* Parent */
 			int status, shm_ids[MAX_SHM_SYSV_SEGMENTS];
+#if defined(__linux__)
+			bool get_procinfo = true;
+#endif
 
 			(void)setpgid(pid, g_pgrp);
 			set_oom_adjustment(args->name, false);
@@ -469,6 +503,10 @@ fork_again:
 					break;
 				}
 				shm_ids[msg.index] = msg.shm_id;
+#if defined(__linux__)
+				if (get_procinfo)
+					stress_shm_get_procinfo(&get_procinfo);
+#endif
 			}
 			(void)kill(pid, SIGALRM);
 			(void)shim_waitpid(pid, &status, 0);
