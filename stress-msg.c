@@ -53,7 +53,7 @@ typedef struct {
 	uint32_t value;
 } msg_t;
 
-static int stress_msg_getstats(const args_t *args, const int msgq_id)
+static int stress_msg_get_stats(const args_t *args, const int msgq_id)
 {
 	struct msqid_ds buf;
 
@@ -87,6 +87,32 @@ static int stress_msg_getstats(const args_t *args, const int msgq_id)
 	return 0;
 }
 
+#if defined(__linux__)
+/*
+ *  stress_msg_get_procinfo()
+ *	exercise /proc/sysvipc/msg
+ */
+static void stress_msg_get_procinfo(bool *get_procinfo)
+{
+	int fd;
+
+	fd = open("/proc/sysvipc/msg", O_RDONLY);
+	if (fd < 0) {
+		*get_procinfo = false;
+		return;
+	}
+	for (;;) {
+		ssize_t ret;
+		char buffer[1024];
+
+		ret = read(fd, buffer, sizeof(buffer));
+		if (ret <= 0)
+			break;
+	}
+	(void)close(fd);
+}
+#endif
+
 /*
  *  stress_msg
  *	stress by message queues
@@ -96,6 +122,7 @@ static int stress_msg(const args_t *args)
 	pid_t pid;
 	int msgq_id;
 	int32_t msg_types = 0;
+	bool get_procinfo = true;
 
 	(void)get_setting("msg-types", &msg_types);
 
@@ -161,7 +188,7 @@ again:
 			msg.value++;
 			inc_counter(args);
 			if ((msg.value & 0xff) == 0) {
-				if (stress_msg_getstats(args, msgq_id) < 0)
+				if (stress_msg_get_stats(args, msgq_id) < 0)
 					break;
 #if defined(__NetBSD__)
 				/*
@@ -173,6 +200,16 @@ again:
 				(void)shim_sched_yield();
 #endif
 			}
+
+#if defined(__linux__)
+			/*
+			 *  Periodically read /proc/sysvipc/msg to exercise
+			 *  this interface if it exists
+			 */
+			if (get_procinfo && ((msg.value & 0xffff) == 0))
+				stress_msg_get_procinfo(&get_procinfo);
+#endif
+
 		} while (keep_stressing());
 
 		(void)kill(pid, SIGKILL);
