@@ -2402,6 +2402,13 @@ as a bogo op. This stressor can only be run on Linux and with root privilege.
 .B \-\-netlink\-proc\-ops N
 stop the proc netlink connector stressors after N bogo ops.
 .TP
+.B \-\-netlink\-task N
+start N workers that collect task statistics via the netlink taskstats interface.
+This stressor can only be run on Linux and with root privilege.
+.TP
+.B \-\-netlink\-task\-ops N
+stop the taskstats netlink connector stressors after N bogo ops.
+.TP
 .B \-\-nice N
 start N cpu consuming workers that exercise the available nice levels. Each
 iteration forks off a child process that runs through the all the nice levels

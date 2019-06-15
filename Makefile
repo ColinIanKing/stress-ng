@@ -186,6 +186,7 @@ STRESS_SRC = \
 	stress-mq.c \
 	stress-netdev.c \
 	stress-netlink-proc.c \
+	stress-netlink-task.c \
 	stress-nice.c \
 	stress-nop.c \
 	stress-null.c \

@@ -533,6 +533,8 @@ static const struct option long_options[] = {
 	{ "netdev-ops",1,	0,	OPT_netdev_ops },
 	{ "netlink-proc",1,	0,	OPT_netlink_proc },
 	{ "netlink-proc-ops",1,	0,	OPT_netlink_proc_ops },
+	{ "netlink-task",1,	0,	OPT_netlink_task },
+	{ "netlink-task-ops",1,	0,	OPT_netlink_task_ops },
 	{ "nice",	1,	0,	OPT_nice },
 	{ "nice-ops",	1,	0,	OPT_nice_ops },
 	{ "no-madvise",	0,	0,	OPT_no_madvise },

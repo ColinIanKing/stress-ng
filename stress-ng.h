@@ -424,6 +424,10 @@
 #include <linux/dm-ioctl.h>
 #endif
 
+#if defined(HAVE_LINUX_GENETLINK_H)
+#include <linux/genetlink.h>
+#endif
+
 #if defined(HAVE_LINUX_HDREG_H)
 #include <linux/hdreg.h>
 #endif
@@ -502,6 +506,10 @@
 
 #if defined(HAVE_LINUX_SYSCTL_H)
 #include <linux/sysctl.h>
+#endif
+
+#if defined(HAVE_LINUX_TASKSTATS_H)
+#include <linux/taskstats.h>
 #endif
 
 #if defined(HAVE_LINUX_UNIX_DIAG_H)
@@ -1933,6 +1941,7 @@ typedef struct {
 	MACRO(msync)		\
 	MACRO(netdev)		\
 	MACRO(netlink_proc)	\
+	MACRO(netlink_task)	\
 	MACRO(nice)		\
 	MACRO(nop)		\
 	MACRO(null)		\
@@ -2534,6 +2543,9 @@ typedef enum {
 
 	OPT_netlink_proc,
 	OPT_netlink_proc_ops,
+
+	OPT_netlink_task,
+	OPT_netlink_task_ops,
 
 	OPT_nice,
 	OPT_nice_ops,
