@@ -1031,9 +1031,9 @@ stop after N sleeps.
 calculate and print a latency distribution with the interval of N nanoseconds.
 This is helpful to see where the latencies are clustering.
 .TP
-.B \-\-cyclic\-method [ clock_ns | itimer | poll | posix_ns ]
-specify the cyclic method to be used. The available cyclic methods are as
-follows:
+.B \-\-cyclic\-method [ clock_ns | itimer | poll | posix_ns | pselect | usleep ]
+specify the cyclic method to be used, the default is clock_ns. The available
+cyclic methods are as follows:
 .TS
 expand;
 lB2 lBw(\n[SZ]n)
