@@ -62,7 +62,7 @@ static int stress_set_udp_domain(const char *name)
 {
 	int ret, udp_domain;
 
-	ret = stress_set_net_domain(DOMAIN_ALL, "udp-domain", name, &udp_domain);
+	ret = stress_set_net_domain(DOMAIN_INET | DOMAIN_INET6, "udp-domain", name, &udp_domain);
 	set_setting("udp-domain", TYPE_ID_INT, &udp_domain);
 
 	return ret;
