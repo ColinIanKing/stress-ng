@@ -98,7 +98,6 @@ static int stress_netlink_sendcmd(
 
 	na = (struct nlattr *)GENL_MSG_DATA(&nlmsg);
 	na->nla_type = nla_type;
-	na->nla_len = nla_len + 1 + NLA_HDRLEN;
 	na->nla_len = nla_len + NLA_HDRLEN;
 	memcpy(NLA_DATA(na), nla_data, nla_len);
 	nlmsg.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
