@@ -64,7 +64,7 @@ static int stress_set_sctp_domain(const char *name)
 {
 	int ret, sctp_domain;
 
-	ret = stress_set_net_domain(DOMAIN_ALL, "sctp-domain",
+	ret = stress_set_net_domain(DOMAIN_INET | DOMAIN_INET6, "sctp-domain",
 				     name, &sctp_domain);
 	set_setting("sctp-domain", TYPE_ID_INT, &sctp_domain);
 
