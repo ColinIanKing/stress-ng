@@ -59,7 +59,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 
 #define MAX_MOUNTS		(256)
 #define NO_MEM_RETRIES_MAX	(256)
-#define TMPFS_MAGIC		0x01021994
+#define TMPFS_MAGIC		(0x01021994)
 
 /* Misc randomly chosen mmap flags */
 static const int mmap_flags[] = {
