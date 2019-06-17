@@ -91,6 +91,11 @@ _stress_ng()
                 COMPREPLY=( $(compgen -W "$options" -- $cur) )
                 return 0
                 ;;
+	'--stream-madvise')
+                local options=$($1 $prev which 2>&1 | cut -d':' -f2)
+                COMPREPLY=( $(compgen -W "$options" -- $cur) )
+                return 0
+                ;;
 	esac
 
 	case "$cur" in
