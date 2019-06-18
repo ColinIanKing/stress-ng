@@ -99,13 +99,13 @@ static int stress_netlink_sendcmd(
 	na = (struct nlattr *)GENL_MSG_DATA(&nlmsg);
 	na->nla_type = nla_type;
 	na->nla_len = nla_len + NLA_HDRLEN;
-	memcpy(NLA_DATA(na), nla_data, nla_len);
+	(void)memcpy(NLA_DATA(na), nla_data, nla_len);
 	nlmsg.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
 
 	nlmsgbuf = (char *)&nlmsg;
 	nlmsgbuf_len = nlmsg.n.nlmsg_len;
 
-	memset(&addr, 0, sizeof(addr));
+	(void)memset(&addr, 0, sizeof(addr));
 	addr.nl_family = AF_NETLINK;
 
 	while (nlmsgbuf_len > 0) {
@@ -276,7 +276,7 @@ static int stress_netlink_task(const args_t *args)
 		return EXIT_FAILURE;
 	}
 	na = (struct nlattr *)GENL_MSG_DATA(&nlmsg);
-	na = (struct nlattr *) ((char *) na + NLA_ALIGN(na->nla_len));
+	na = (struct nlattr *)((char *) na + NLA_ALIGN(na->nla_len));
 	if (na->nla_type == CTRL_ATTR_FAMILY_ID) {
 		uint16_t *id_ptr = (uint16_t *)NLA_DATA(na);
 
