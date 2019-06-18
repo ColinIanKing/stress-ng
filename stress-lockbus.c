@@ -90,8 +90,9 @@ static int stress_lockbus(const args_t *args)
 {
 	uint32_t *buffer;
 	int flags = MAP_ANONYMOUS | MAP_SHARED;
-
 #if defined(STRESS_X86)
+	uint32_t *splitlock_ptr1, *splitlock_ptr2;
+
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;
 #endif
@@ -107,33 +108,38 @@ static int stress_lockbus(const args_t *args)
 	}
 
 #if defined(STRESS_X86)
+	/* Split lock on a page boundary */
+	splitlock_ptr1 = (uint32_t *)(((uint8_t *)buffer) + args->page_size - (sizeof(uint32_t) >> 1));
+	/* Split lock on a cache boundary */
+	splitlock_ptr2 = (uint32_t *)(((uint8_t *)buffer) + 64 - (sizeof(uint32_t) >> 1));
 	do_splitlock = true;
 	if (sigsetjmp(jmp_env, 1) && !keep_stressing())
 		goto done;
 #endif
 
 	do {
-		uint32_t *ptr = buffer + ((mwc32() % (BUFFER_SIZE - CHUNK_SIZE)) >> 2);
+		uint32_t *ptr0 = buffer + ((mwc32() % (BUFFER_SIZE - CHUNK_SIZE)) >> 2);
 #if defined(STRESS_X86)
-		uint32_t *splitlock_ptr = do_splitlock ?
-			(uint32_t *)(((uint8_t *)buffer) + 64 - (sizeof(uint32_t) >> 1)) : ptr;
+		uint32_t *ptr1 = do_splitlock ? splitlock_ptr1 : ptr0;
+		uint32_t *ptr2 = do_splitlock ? splitlock_ptr2 : ptr0;
 #else
-		uint32_t *splitlock_ptr = ptr;
+		uint32_t *ptr1 = ptr0;
+		uint32_t *ptr2 = ptr0;
 #endif
 		const uint32_t inc = 1;
 
-		LOCK_AND_INCx8(ptr, inc);
-		LOCKx8(splitlock_ptr);
-		LOCKx8(splitlock_ptr);
-		LOCK_AND_INCx8(ptr, inc);
-		LOCKx8(splitlock_ptr);
-		LOCKx8(splitlock_ptr);
-		LOCK_AND_INCx8(ptr, inc);
-		LOCKx8(splitlock_ptr);
-		LOCKx8(splitlock_ptr);
-		LOCK_AND_INCx8(ptr, inc);
-		LOCKx8(splitlock_ptr);
-		LOCKx8(splitlock_ptr);
+		LOCK_AND_INCx8(ptr0, inc);
+		LOCKx8(ptr1);
+		LOCKx8(ptr2);
+		LOCK_AND_INCx8(ptr0, inc);
+		LOCKx8(ptr1);
+		LOCKx8(ptr2);
+		LOCK_AND_INCx8(ptr0, inc);
+		LOCKx8(ptr1);
+		LOCKx8(ptr2);
+		LOCK_AND_INCx8(ptr0, inc);
+		LOCKx8(ptr1);
+		LOCKx8(ptr2);
 
 		inc_counter(args);
 	} while (keep_stressing());
