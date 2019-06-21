@@ -105,8 +105,6 @@ again:
 		pkt.iph.daddr = addr.sin_addr.s_addr;
 
 		do {
-			int rc;
-
 			rc = sendto(fd, &pkt, sizeof(pkt), 0,
 				(const struct sockaddr *)&addr,
 				(socklen_t)sizeof(addr));
