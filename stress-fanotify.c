@@ -219,14 +219,14 @@ static void fanotify_event_clear(const int fan_fd)
  */
 static int stress_fanotify(const args_t *args)
 {
-	char dirname[PATH_MAX - 16], filename[PATH_MAX];
+	char pathname[PATH_MAX - 16], filename[PATH_MAX];
 	int ret, fan_fd, pid, rc = EXIT_SUCCESS;
 	fanotify_account_t account;
 
 	(void)memset(&account, 0, sizeof(account));
 
-	stress_temp_dir_args(args, dirname, sizeof(dirname));
-	(void)snprintf(filename, sizeof(filename), "%s/%s", dirname, "fanotify_file");
+	stress_temp_dir_args(args, pathname, sizeof(pathname));
+	(void)snprintf(filename, sizeof(filename), "%s/%s", pathname, "fanotify_file");
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
