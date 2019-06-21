@@ -1914,7 +1914,8 @@ static void stress_cpu_parity(const char *name)
 	size_t i;
 
 	for (i = 0; i < 1000; i++, val++) {
-		register uint32_t v, parity, p;
+		register uint32_t parity, p;
+		uint32_t v;
 		uint8_t *ptr;
 
 		/*
