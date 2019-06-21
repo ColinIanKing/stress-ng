@@ -108,11 +108,11 @@ static const int syscall_ignore[] = {
 static inline bool HOT OPTIMIZE3 syscall_find(long number)
 {
 	register hash_syscall_t *h;
-	register size_t i;
+	register int i;
 	register const long number16 = number & 0xffff;
 
 	/* Really make sure some syscalls are never called */
-	for (i = 0; i < SIZEOF_ARRAY(syscall_ignore); i++) {
+	for (i = 0; i < (int)SIZEOF_ARRAY(syscall_ignore); i++) {
 		if (number16 == syscall_ignore[i])
 			return true;
 	}
