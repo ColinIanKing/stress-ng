@@ -37,7 +37,7 @@ static const help_t help[] = {
 typedef struct {
 	struct iphdr	iph;
 	uint32_t	data;
-} __attribute__((packed)) raw_packet_t;
+} raw_packet_t;
 
 /*
  *  stress_rawsock_supported()
