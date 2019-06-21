@@ -91,7 +91,7 @@ static uint64_t stress_memrate_read##size(			\
 								\
 	t1 = time_now();					\
 	for (ptr = start; ptr < (uint##size##_t *)end;) {	\
-		double t2, remainder;				\
+		double t2, dur_remainder;				\
 		int32_t i;					\
 								\
 		if (!g_keep_stressing_flag)			\
@@ -110,14 +110,14 @@ static uint64_t stress_memrate_read##size(			\
 		}						\
 		t2 = time_now();				\
 		total_dur += dur;				\
-		remainder = total_dur - (t2 - t1);		\
+		dur_remainder = total_dur - (t2 - t1);		\
 								\
-		if (remainder >= 0.0) {				\
+		if (dur_remainder >= 0.0) {				\
 			struct timespec t;			\
 								\
-			t.tv_sec = (time_t)remainder;		\
-			t.tv_nsec = (remainder -		\
-				(long)remainder) * 1000000000;	\
+			t.tv_sec = (time_t)dur_remainder;		\
+			t.tv_nsec = (dur_remainder -		\
+				(long)dur_remainder) * 1000000000;	\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
@@ -145,7 +145,7 @@ static uint64_t stress_memrate_write##size(			\
 								\
 	t1 = time_now();					\
 	for (ptr = start; ptr < (uint##size##_t *)end;) {	\
-		double t2, remainder;				\
+		double t2, dur_remainder;				\
 		int32_t i;					\
 								\
 		if (!g_keep_stressing_flag)			\
@@ -164,14 +164,14 @@ static uint64_t stress_memrate_write##size(			\
 		}						\
 		t2 = time_now();				\
 		total_dur += dur;				\
-		remainder = total_dur - (t2 - t1);		\
+		dur_remainder = total_dur - (t2 - t1);		\
 								\
-		if (remainder >= 0.0) {				\
+		if (dur_remainder >= 0.0) {			\
 			struct timespec t;			\
 								\
-			t.tv_sec = (time_t)remainder;		\
-			t.tv_nsec = (remainder -		\
-				(long)remainder) * 1000000000;	\
+			t.tv_sec = (time_t)dur_remainder;	\
+			t.tv_nsec = (dur_remainder -		\
+				(long)dur_remainder) * 1000000000;\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
