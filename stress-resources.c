@@ -380,9 +380,9 @@ static void NORETURN waste_resources(
 			info[i].fd_inotify = -1;
 			info[i].wd_inotify = -1;
 		}
-#endif
 		if (!g_keep_stressing_flag)
 			break;
+#endif
 #if defined(HAVE_PTSNAME)
 		info[i].pty_master = open("/dev/ptmx", O_RDWR | flag);
 		info[i].pty_slave = -1;
