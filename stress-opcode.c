@@ -418,7 +418,7 @@ stressor_info_t stress_opcode_info = {
 };
 #else
 
-int stress_set_opcode_method(const char *name)
+static int stress_set_opcode_method(const char *name)
 {
 	(void)name;
 
@@ -434,8 +434,8 @@ static const opt_set_func_t opt_set_funcs[] = {
 
 stressor_info_t stress_opcode_info = {
 	.stressor = stress_not_implemented,
-        .set_default = stress_opcode_set_default,
 	.class = CLASS_CPU | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #endif
