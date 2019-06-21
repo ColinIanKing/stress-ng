@@ -131,7 +131,7 @@ static int stress_chown(const args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd = -1, rc = EXIT_FAILURE, retries = 0;
-	char filename[PATH_MAX], dirname[PATH_MAX];
+	char filename[PATH_MAX], pathname[PATH_MAX];
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
 	bool cap_chown = false;
@@ -142,8 +142,8 @@ static int stress_chown(const args_t *args)
 	/*
 	 *  Allow for multiple workers to chown the *same* file
 	 */
-	stress_temp_dir(dirname, sizeof(dirname), args->name, ppid, 0);
-	if (mkdir(dirname, S_IRUSR | S_IRWXU) < 0) {
+	stress_temp_dir(pathname, sizeof(pathname), args->name, ppid, 0);
+	if (mkdir(pathname, S_IRUSR | S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = exit_status(errno);
 			pr_fail_err("mkdir");
@@ -228,7 +228,7 @@ tidy:
 	if (fd >= 0)
 		(void)close(fd);
 	(void)unlink(filename);
-	(void)rmdir(dirname);
+	(void)rmdir(pathname);
 
 	return rc;
 }
