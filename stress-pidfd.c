@@ -81,9 +81,9 @@ static void stress_pidfd_reap(pid_t pid, int pidfd)
  */
 static int stress_pidfd(const args_t *args)
 {
-	pid_t pid = 0;
-
 	while (keep_stressing()) {
+		pid_t pid;
+
 		pid = fork();
 		if (pid < 0) {
 			if (g_keep_stressing_flag && (errno == EAGAIN))
