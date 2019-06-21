@@ -144,7 +144,9 @@ static int stress_lockbus(const args_t *args)
 		inc_counter(args);
 	} while (keep_stressing());
 
+#if defined(STRESS_X86)
 done:
+#endif
 	(void)munmap((void *)buffer, BUFFER_SIZE);
 
 	return EXIT_SUCCESS;
