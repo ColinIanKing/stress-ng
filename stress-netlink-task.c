@@ -84,7 +84,7 @@ static int stress_netlink_sendcmd(
 {
 	struct nlattr *na;
 	char *nlmsgbuf;
-	ssize_t nlmsgbuf_len, len;
+	ssize_t nlmsgbuf_len;
 	struct sockaddr_nl addr;
 	nlmsg_t nlmsg;
 
@@ -109,6 +109,8 @@ static int stress_netlink_sendcmd(
 	addr.nl_family = AF_NETLINK;
 
 	while (nlmsgbuf_len > 0) {
+		ssize_t len;
+
 		len = sendto(sock, nlmsgbuf, nlmsgbuf_len, 0,
 			(struct sockaddr *)&addr, sizeof(addr));
 		if ((len < 0) &&
