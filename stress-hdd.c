@@ -343,7 +343,7 @@ static int stress_hdd(const args_t *args)
 {
 	uint8_t *buf = NULL;
 	void *alloc_buf;
-	uint64_t i, min_size, remainder;
+	uint64_t i, min_size, size_remainder;
 	int rc = EXIT_FAILURE;
 	ssize_t ret;
 	char filename[PATH_MAX];
@@ -394,9 +394,9 @@ static int stress_hdd(const args_t *args)
 	}
 
 	/* Ensure we get same sized iovec I/O sizes */
-	remainder = hdd_write_size % HDD_IO_VEC_MAX;
-	if ((hdd_flags & HDD_OPT_IOVEC) && (remainder != 0)) {
-		hdd_write_size += HDD_IO_VEC_MAX - remainder;
+	size_remainder = hdd_write_size % HDD_IO_VEC_MAX;
+	if ((hdd_flags & HDD_OPT_IOVEC) && (size_remainder != 0)) {
+		hdd_write_size += HDD_IO_VEC_MAX - size_remainder;
 		pr_inf("%s: increasing read/write size to %"
 			PRIu64 " bytes in iovec mode\n",
 			args->name, hdd_write_size);
