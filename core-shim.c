@@ -504,7 +504,7 @@ int shim_mlock(const void *addr, size_t len)
 {
 #if defined(HAVE_MLOCK)
 #if defined(__sun__)
-	return mlock((caddr_t)addr, len);
+	return mlock((const caddr_t)addr, len);
 #else
 	return mlock(addr, len);
 #endif
@@ -521,7 +521,7 @@ int shim_munlock(const void *addr, size_t len)
 {
 #if defined(HAVE_MUNLOCK)
 #if defined(__sun__)
-	return munlock((caddr_t)addr, len);
+	return munlock((const caddr_t)addr, len);
 #else
 	return munlock(addr, len);
 #endif
