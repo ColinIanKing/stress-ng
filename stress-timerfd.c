@@ -154,7 +154,7 @@ static int stress_timerfd(const args_t *args)
 
 	do {
 		int ret;
-		uint64_t exp;
+		uint64_t expval;
 		struct itimerspec value;
 		struct timeval timeout;
 		fd_set rdfs;
@@ -182,7 +182,7 @@ static int stress_timerfd(const args_t *args)
 			if (!FD_ISSET(timerfd[i], &rdfs))
 				continue;
 
-			ret = read(timerfd[i], &exp, sizeof exp);
+			ret = read(timerfd[i], &expval, sizeof expval);
 			if (ret < 0) {
 				pr_fail_err("timerfd read");
 				break;
