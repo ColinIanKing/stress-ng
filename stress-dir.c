@@ -128,9 +128,9 @@ static int stress_dir(const args_t *args)
 {
 	int ret;
 	uint64_t dir_dirs = DEFAULT_DIR_DIRS;
-	char dirname[PATH_MAX];
+	char pathname[PATH_MAX];
 
-	stress_temp_dir(dirname, sizeof(dirname), args->name, args->pid, args->instance);
+	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 
 	(void)get_setting("dir-dirs", &dir_dirs);
 
@@ -160,10 +160,10 @@ static int stress_dir(const args_t *args)
 
 			inc_counter(args);
 		}
-		stress_dir_sync(dirname);
-		stress_dir_read(args, dirname);
+		stress_dir_sync(pathname);
+		stress_dir_read(args, pathname);
 		stress_dir_tidy(args, n);
-		stress_dir_sync(dirname);
+		stress_dir_sync(pathname);
 		if (!g_keep_stressing_flag)
 			break;
 		(void)sync();
