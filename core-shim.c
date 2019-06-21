@@ -1134,16 +1134,16 @@ int shim_pkey_set(int pkey, unsigned int rights)
  *	wrapper for execveat()
  */
 int shim_execveat(
-        int dirfd,
+        int dir_fd,
         const char *pathname,
         char *const argv[],
         char *const envp[],
         int flags)
 {
 #if defined(__NR_execveat)
-        return syscall(__NR_execveat, dirfd, pathname, argv, envp, flags);
+        return syscall(__NR_execveat, dir_fd, pathname, argv, envp, flags);
 #else
-        return shim_enosys(0, dirfd, pathname, argv, envp, flags);
+        return shim_enosys(0, dir_fd, pathname, argv, envp, flags);
 #endif
 }
 
