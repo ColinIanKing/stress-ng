@@ -142,9 +142,9 @@ static int stress_utime(const args_t *args)
 		(void)utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
 #endif
 #endif
-#endif
 		if (utime_fsync)
 			(void)shim_fsync(fd);
+#endif
 
 #if defined(HAVE_UTIME_H)
 		{
