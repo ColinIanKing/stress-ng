@@ -481,13 +481,13 @@ static int stress_fcntl(const args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd, rc = EXIT_FAILURE, retries = 0;
-	char filename[PATH_MAX], dirname[PATH_MAX];
+	char filename[PATH_MAX], pathname[PATH_MAX];
 
 	/*
 	 *  Allow for multiple workers to chmod the *same* file
 	 */
-	stress_temp_dir(dirname, sizeof(dirname), args->name, ppid, 0);
-	if (mkdir(dirname, S_IRWXU) < 0) {
+	stress_temp_dir(pathname, sizeof(pathname), args->name, ppid, 0);
+	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			pr_fail_err("mkdir");
 			return exit_status(errno);
@@ -534,7 +534,7 @@ tidy:
 	if (fd >= 0)
 		(void)close(fd);
 	(void)unlink(filename);
-	(void)rmdir(dirname);
+	(void)rmdir(pathname);
 
 	return rc;
 }
