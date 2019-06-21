@@ -45,7 +45,6 @@ static int stress_softlockup_supported(void)
 			"rights for this stressor\n");
 		return -1;
 	}
-	return 0;
         return 0;
 }
 
