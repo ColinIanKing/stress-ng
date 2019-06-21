@@ -736,16 +736,16 @@ static const inotify_stress_t inotify_stressors[] = {
  */
 static int stress_inotify(const args_t *args)
 {
-	char dirname[PATH_MAX - 16];
+	char pathname[PATH_MAX - 16];
 	int ret, i;
 
-	stress_temp_dir_args(args, dirname, sizeof(dirname));
+	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 	do {
 		for (i = 0; g_keep_stressing_flag && inotify_stressors[i].func; i++)
-			inotify_stressors[i].func(args, dirname);
+			inotify_stressors[i].func(args, pathname);
 		inc_counter(args);
 	} while (keep_stressing());
 	(void)stress_temp_dir_rm_args(args);
