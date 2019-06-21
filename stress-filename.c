@@ -259,7 +259,7 @@ static int stress_filename(const args_t *args)
 {
 	int ret, rc = EXIT_FAILURE;
 	size_t sz_left, sz_max;
-	char dirname[PATH_MAX - 256];
+	char pathname[PATH_MAX - 256];
 	char filename[PATH_MAX];
 	char *ptr;
 #if defined(HAVE_SYS_STATVFS_H)
@@ -275,8 +275,8 @@ static int stress_filename(const args_t *args)
 
 	(void)get_setting("filename-opts", &filename_opt);
 
-	stress_temp_dir_args(args, dirname, sizeof(dirname));
-	if (mkdir(dirname, S_IRWXU) < 0) {
+	stress_temp_dir_args(args, pathname, sizeof(pathname));
+	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			pr_fail_err("mkdir");
 			return EXIT_FAILURE;
@@ -284,7 +284,7 @@ static int stress_filename(const args_t *args)
 	}
 
 #if defined(HAVE_SYS_STATVFS_H)
-	if (statvfs(dirname, &buf) < 0) {
+	if (statvfs(pathname, &buf) < 0) {
 		pr_fail_err("statvfs");
 		goto tidy_dir;
 	}
@@ -294,8 +294,8 @@ static int stress_filename(const args_t *args)
 			args->name, (long unsigned) buf.f_namemax);
 #endif
 
-	(void)shim_strlcpy(filename, dirname, sizeof(filename) - 1);
-	ptr = filename + strlen(dirname);
+	(void)shim_strlcpy(filename, pathname, sizeof(filename) - 1);
+	ptr = filename + strlen(pathname);
 	*(ptr++) = '/';
 	*(ptr) = '\0';
 	sz_left = sizeof(filename) - (ptr - filename);
@@ -459,7 +459,7 @@ again:
 	rc = EXIT_SUCCESS;
 
 tidy_dir:
-	(void)stress_filename_tidy(dirname);
+	(void)stress_filename_tidy(pathname);
 
 	return rc;
 }
