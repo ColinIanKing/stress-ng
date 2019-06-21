@@ -216,7 +216,7 @@ static int stress_locka(const args_t *args)
 	int fd, ret = EXIT_FAILURE;
 	pid_t cpid = -1;
 	char filename[PATH_MAX];
-	char dirname[PATH_MAX];
+	char pathname[PATH_MAX];
 	char buffer[4096];
 	off_t offset;
 	ssize_t rc;
@@ -227,8 +227,8 @@ static int stress_locka(const args_t *args)
 	 *  There will be a race to create the directory
 	 *  so EEXIST is expected on all but one instance
 	 */
-	(void)stress_temp_dir_args(args, dirname, sizeof(dirname));
-	if (mkdir(dirname, S_IRWXU) < 0) {
+	(void)stress_temp_dir_args(args, pathname, sizeof(pathname));
+	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			ret = exit_status(errno);
 			pr_fail_err("mkdir");
@@ -247,7 +247,7 @@ static int stress_locka(const args_t *args)
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_fail_err("open");
-		(void)rmdir(dirname);
+		(void)rmdir(pathname);
 		return ret;
 	}
 
@@ -307,7 +307,7 @@ tidy:
 
 	(void)close(fd);
 	(void)unlink(filename);
-	(void)rmdir(dirname);
+	(void)rmdir(pathname);
 
 	return ret;
 }
