@@ -50,6 +50,7 @@ typedef struct {
 } lockf_info_list_t;
 
 static lockf_info_list_t lockf_infos;
+#endif
 
 static int stress_lockf_set_nonblock(const char *opt)
 {
@@ -64,6 +65,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
+#if defined(HAVE_LOCKF)
 /*
  *  stress_lockf_info_new()
  *	allocate a new lockf_info, add to end of list
