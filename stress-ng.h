@@ -900,7 +900,7 @@ typedef struct {
 
 typedef struct {
 	const int opt;			/* optarg option*/
-	int (*opt_set_func)(const char *optarg); /* function to set it */
+	int (*opt_set_func)(const char *opt); /* function to set it */
 } opt_set_func_t;
 
 typedef struct {
@@ -3482,7 +3482,7 @@ extern void shim_clear_cache(char* begin, char *end);
 extern ssize_t shim_copy_file_range(int fd_in, shim_loff_t *off_in,
         int fd_out, shim_loff_t *off_out, size_t len, unsigned int flags);
 extern int shim_dup3(int oldfd, int newfd, int flags);
-extern int shim_execveat(int dirfd, const char *pathname, char *const argv[],
+extern int shim_execveat(int dir_fd, const char *pathname, char *const argv[],
 	char *const envp[], int flags);
 extern int shim_fallocate(int fd, int mode, off_t offset, off_t len);
 extern int shim_fdatasync(int fd);
