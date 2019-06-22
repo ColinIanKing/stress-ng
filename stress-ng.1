@@ -436,8 +436,8 @@ the default is 16; 1 to 4096 are allowed.
 .TP
 .B \-\-apparmor N
 start N workers that exercise various parts of the AppArmor interface. Currently
-one needs root permission to run this particular test. This test is only available
-on Linux systems with AppArmor support.
+one needs root permission to run this particular test. Only available
+on Linux systems with AppArmor support and requires the CAP_MAC_ADMIN capability.
 .TP
 .B \-\-apparmor-ops
 stop the AppArmor workers after N bogo operations.
@@ -598,7 +598,8 @@ stop the chown workers after N bogo chown(2) operations.
 .TP
 .B \-\-chroot N
 start N workers that exercise chroot(2) on various valid and invalid
-chroot paths. (Linux only).
+chroot paths. Only available on Linux systems and requires the CAP_SYS_ADMIN
+capability.
 .TP
 .B \-\-chroot\-ops N
 stop the chroot workers after N bogo chroot(2) operations.
@@ -1021,8 +1022,9 @@ with cyclic nanosecond sleeps. Normally one would just use 1 worker instance
 with this stressor to get reliable statistics.  This stressor measures the
 first 10 thousand latencies and calculates the mean, mode, minimum, maximum
 latencies along with various latency percentiles for the just the first
-cyclic stressor instance. One has to run this stressor as root to enable
-the real time scheduling policies. The FIFO scheduling policy is the default.
+cyclic stressor instance. One has to run this stressor with CAP_SYS_NICE
+capability to enable the real time scheduling policies. The FIFO scheduling
+policy is the default.
 .TP
 .B \-\-cyclic\-ops N
 stop after N sleeps.
@@ -1199,8 +1201,9 @@ stop workers after N bogo load/unload cycles.
 .TP
 .B \-\-efivar N
 start N works that exercise the Linux /sys/firmware/efi/vars interface by
-reading the EFI variables. This is a Linux only stress test and only runs
-on platforms that support the EFI vars interface.
+reading the EFI variables. This is a Linux only stress test for platforms
+that support the EFI vars interface and requires the CAP_SYS_ADMIN
+capability.
 .TP
 .B \-\-efivar-ops N
 stop the efivar stressors after N EFI variable read operations.
@@ -1279,8 +1282,9 @@ stop fallocate stress workers after N bogo fallocate operations.
 .B \-\-fanotify N
 start N workers performing file system activities such as creating, opening,
 writing, reading and unlinking files to exercise the fanotify event monitoring
-interface (Linux only).  Each stressor runs a child process to generate file
-events and a parent process to read file events using fanotify.
+interface (Linux only). Each stressor runs a child process to generate file
+events and a parent process to read file events using fanotify. Has to be run
+with CAP_SYS_ADMIN capability.
 .TP
 .B \-\-fanotify-ops N
 stop fanotify stress workers after N bogo fanotify events.
@@ -1626,7 +1630,7 @@ stop the icache workers after N bogo icache operations are completed.
 .TP
 .B \-\-icmp\-flood N
 start N workers that flood localhost with randonly sized ICMP ping packets.
-This option can only be run as root.
+This stressor requires the CAP_NET_RAW capbility.
 .TP
 .B \-\-icmp\-flood\-ops N
 stop icmp flood workers after N ICMP ping packets have been sent.
@@ -1639,6 +1643,14 @@ interface /sys/kernel/mm/page_idle/bitmap.  This is for Linux only.
 .B \-\-idle\-scan\-ops N
 stop after N bogo page scan operations. Currently one bogo page scan
 operation is equivalent to setting and checking 64 physical pages.
+.TP
+.B \-\-idle\-page N
+start N workers that walks through every page exercising the Linux
+/sys/kernel/mm/page_idle/bitmap interface. Requries CAP_SYS_RESOURCE
+capability.
+.TP
+.B \-\-idle\-page\-ops N
+stop after N bogo idle page operations.
 .TP
 .B \-\-inode-flags N
 start N workers that exercise inode flags using the FS_IOC_GETFLAGS and
@@ -1734,7 +1746,8 @@ the timer interval to make the scheduling less predictable.
 .TP
 .B \-\-kcmp N
 start N workers that use kcmp(2) to compare parent and child processes to
-determine if they share kernel resources (Linux only).
+determine if they share kernel resources. Supported only for Linux and
+requires CAP_SYS_PTRACE capability.
 .TP
 .B \-\-kcmp\-ops N
 stop kcmp workers after N bogo kcmp operations.
@@ -1840,7 +1853,8 @@ longjmp calls).
 .B \-\-loop N
 start N workers that exercise the loopback control device. This creates 2MB
 loopback devices, expands them to 4MB, performs some loopback status information
-get and set operations and then destoys them. Linux only.
+get and set operations and then destoys them. Linux only and requires
+CAP_SYS_ADMIN capability.
 .TP
 .B \-\-loop\-ops N
 stop after N bogo loopback creation/deletion operations.
@@ -2397,14 +2411,16 @@ stop after N netdev bogo operations completed.
 .B \-\-netlink\-proc N
 start N workers that spawn child processes and monitor fork/exec/exit
 process events via the proc netlink connector. Each event received is counted
-as a bogo op. This stressor can only be run on Linux and with root privilege.
+as a bogo op. This stressor can only be run on Linux and requires
+CAP_NET_ADMIN capability.
 .TP
 .B \-\-netlink\-proc\-ops N
 stop the proc netlink connector stressors after N bogo ops.
 .TP
 .B \-\-netlink\-task N
-start N workers that collect task statistics via the netlink taskstats interface.
-This stressor can only be run on Linux and with root privilege.
+start N workers that collect task statistics via the netlink taskstats
+interface.  This stressor can only be run on Linux and requires
+CAP_NET_ADMIN capability.
 .TP
 .B \-\-netlink\-task\-ops N
 stop the taskstats netlink connector stressors after N bogo ops.
@@ -2507,7 +2523,7 @@ stop personality stress workers after N bogo personality operations.
 .B \-\-physpage N
 start N workers that use /proc/self/pagemap and /proc/kpagecount to determine
 the physical page and page count of a virtual mapped page and a page that is
-shared among all the stressors. Linux only and must be run with CAP_SYS_ADMIN
+shared among all the stressors. Linux only and requires the CAP_SYS_ADMIN
 capabilities.
 .TP
 .B \-\-physpage\-ops N
@@ -2624,7 +2640,7 @@ specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .B \-\-quota N
 start N workers that exercise the Q_GETQUOTA, Q_GETFMT, Q_GETINFO, Q_GETSTATS
 and Q_SYNC quotactl(2) commands on all the available mounted block based file
-systems.
+systems. Requires CAP_SYS_ADMIN capability to run.
 .TP
 .B \-\-\quota\-ops N
 stop quota stress workers after N bogo quotactl operations.
@@ -2682,7 +2698,7 @@ T}
 .TP
 .B \-\-rawsock N
 start N workers that send and receive packet data using raw sockets on the
-localhost.
+localhost. Requires CAP_NET_RAW to run.
 .TP
 .B \-\-rawsock-ops N
 stop rawsock workers after N packets are received.
@@ -2821,7 +2837,7 @@ worker creates child processes that write a short message to /dev/null and then
 exits. 2% of the child processes have a seccomp filter that disallows
 the write system call and hence it is killed by seccomp with a SIGSYS.  Note
 that this stressor can generate many audit log messages each time the child is
-killed.
+killed.  Requires CAP_SYS_ADMIN to run.
 .TP
 .B \-\-seccomp-ops N
 stop seccomp stress workers after N seccomp filter tests.
@@ -3081,10 +3097,10 @@ stop socket pair stress workers after N bogo operations.
 .B \-\-softlockup N
 start N workers that flip between with the "real-time" SCHED_FIO and SCHED_RR
 scheduling policies at the highest priority to force softlockups. This can
-only be run as root and for best results the number of stressors should be
-at least the number of online CPUs. Once running, this is practically
-impossible to stop and it will force softlockup issues and may trigger
-watchdog timeout reboots.
+only be run with CAP_SYS_NICE capability and for best results the number of
+stressors should be at least the number of online CPUs. Once running, this is
+practically impossible to stop and it will force softlockup issues and may
+trigger watchdog timeout reboots.
 .TP
 .B \-\-softlockup\-ops N
 stop softlockup stress workers after N bogo scheduler policy changes.
@@ -3205,7 +3221,8 @@ advice. The default is 'normal'.
 .B \-\-swap N
 start N workers that add and remove small randomly sizes swap partitions
 (Linux only).  Note that if too many swap partitions are added then the
-stressors may exit with exit code 3 (not enough resources).
+stressors may exit with exit code 3 (not enough resources).  Requires
+CAP_SYS_ADMIN to run.
 .TP
 .B \-\-swap\-ops N
 stop the swap workers after N swapon/swapoff iterations.
@@ -3984,7 +4001,7 @@ measures real time scheduling latencies created by the hdd stressor. This
 uses the high resolution nanosecond clock to measure latencies during
 sleeps of 10,000 nanoseconds. At the end of 1 minute of stressing, the
 latency distribution with 2500 ns intervals will be displayed. NOTE: this
-must be run with super user privileges to enable the real time scheduling
+must be run with the CAP_SYS_NICE capability to enable the real time scheduling
 to get accurate measurements.
 .LP
 stress\-ng \-\-cpu 8 \-\-cpu\-ops 800000
