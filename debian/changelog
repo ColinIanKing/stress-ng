@@ -1,3 +1,88 @@
+stress-ng (0.09.60-0ubuntu1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: add kernel-coverage.sh to make dist rule
+  * Manual: add capabilities requirements and missing idle-page notes
+  * stress-cpu: make val an auto variable, we can't take address of a
+    register
+  * stress-pidfd: reduce scope of variable pid
+  * stress-netlink-task: reduce scope of variable len
+  * stress-utime: move if statement into a #if'def block
+  * stress-softlock: replace spaces with tab in indentation
+  * stress-softlockup: remove a duplicated return statement
+  * stress-resources: move a keep stressing check inside a #if'def block
+  * stress-lockbus: fix build warning on label "done" for non-x86 arches
+  * stress-lockofd: rename dirname to pathname
+  * stress-ng.h: rename a couple of function args to stop name clashing
+  * core-shim: ensure mlock addresses are const arguments
+  * stress-lockf: declare opt_set_funcs for all builds
+  * core-shim: rename dirfd to dir_fd
+  * stress-timerfd: rename exp to expval
+  * stress-memrate: rename remainder to dur_remainder
+  * stress-lockf: rename dirname to pathname
+  * stress-locka: rename dirname to pathname
+  * stress-inotify: rename dirname to pathname
+  * stress-hdd: rename remainder to size_remainder
+  * stress-filename: rename dirname to pathname
+  * stress-fcntl: rename dirname to pathname
+  * stress-fanotify: rename dirname to pathname
+  * stress-dnotify: rename dirname to pathname
+  * stress-chown: rename dirname to pathname
+  * stress-dir: rename dirname to pathname
+  * stress-chmod: rename dirname to pathname
+  * stress-opcode: remove .set_default and add .opt_set_funcs for
+    GNU/Hurd builds
+  * stress-opcode: fix build warning on GNU/Hurd
+  * stress-enosys: fix build warning when array size is zero
+  * stress-rawsock: remove shadowed rc declaration
+  * stress-rawsock: remove redundant __packed__ attribute
+  * stress-netlink-task: fix const build warning
+  * Add kernel coverage test bash script
+  * stress-netlink-task: voidify a few function returns and remove a
+    whitespace
+  * stress-lockbus: add a page boundary split lock
+  * stress-tmpfs: add parentheses around magic number
+  * stress-sctp: limit to ipv4 and ipv6 domains
+  * stress-udp: limit to ipv4 and ipv6 domains
+  * bash-completion: add vm-madvise completion
+  * bash-completion: add --stream-madvise completion
+  * Manual: fix up cyclic-method options
+  * stress-netlink-task: remove unused assignment to na->nla_len
+  * core-perf: fix spinlock error check
+  * README: update number of stressors
+  * Add netlink taskstats stressor
+  * stress-shm-sysv: add occasional reading of /proc/sysvipc/shm for
+    linux
+  * stress-sem-sysv: add occasional reading of /proc/sysvipc/sem for
+    linux
+  * stress-msg: declare get_procinfo only when required for linux
+  * stress-msg: add occasional reading of /proc/sysvipc/msg for linux
+  * stress_get: add deprecated _sysctl call to get sysctl info
+  * stress-sysfs: exercise /proc/thread_self earlier
+  * stress-lockbus: add split locks
+  * stress-mq: add lseek and poll on mq descriptor for Linux
+  * stress-rawsock: limit this to linux for the moment
+  * stress-resources: fix missing guard on fd_ev
+  * core-time: add constification
+  * core-thermal-zone: add constifications
+  * core-shim: add a constification
+  * core-parse-opts: add some constifications
+  * core-mwc: add a constification
+  * core-helper: minor constification clean ups
+  * core-cache: constify len2
+  * Add a raw socket rawsock network stressor
+  * Add HAVE_LINUX_HPET_H config checks
+  * stress-socket: add baroque mmap on socket fd
+  * core-thrash: add zone compaction, make per process paging less
+    aggressive
+  * stress-dev: add hpet HPET_INFO ioctl dev check
+  * stress-loop: add LOOP_SET_DIRECT_IO ioctl
+  * stress-loop: add 64 bit info get/set ioctl calls
+  * stress-fanotify: check if FAN_MARK_FILESYSTEM is defined
+  * stress-fanotify: exercise remove and flush
+
+ -- Colin King <colin.king@canonical.com>  Sat, 22 Jun 2019 09:27:15 +0100
+
 stress-ng (0.09.59.1-0ubuntu1) unstable; urgency=medium
 
   * Makefile: bump version
