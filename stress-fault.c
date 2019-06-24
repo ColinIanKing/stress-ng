@@ -142,7 +142,7 @@ redo:
 		if (i & 1)
 			(void)unlink(filename);
 
-		ptr = mmap(NULL, 1, PROT_READ | PROT_WRITE,
+		ptr = (uint8_t *)mmap(NULL, 1, PROT_READ | PROT_WRITE,
 			MAP_SHARED, fd, 0);
 		(void)close(fd);
 		fd = -1;
@@ -160,7 +160,7 @@ redo:
 		}
 		*ptr = 0;	/* Cause the page fault */
 
-		if (munmap(ptr, 1) < 0) {
+		if (munmap((void *)ptr, 1) < 0) {
 			pr_err("%s: munmap failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
@@ -181,11 +181,11 @@ next:
 			offset &= ~(args->page_size - 1);
 
 			if (mapto != MAP_FAILED) {
-				ptr = mmap(mapto, page_size, PROT_READ,
+				ptr = (uint8_t *)mmap(mapto, page_size, PROT_READ,
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 				if (ptr != MAP_FAILED) {
 					uint8_put(*ptr);
-					(void)munmap(ptr, page_size);
+					(void)munmap((void *)ptr, page_size);
 				}
 			}
 		};
