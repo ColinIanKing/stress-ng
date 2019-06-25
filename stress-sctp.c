@@ -95,7 +95,6 @@ static void stress_sctp_sockopts(const int fd)
 		opt_len = sizeof(info);
 		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_RTOINFO, &info, &opt_len);
 		(void)ret;
-		printf("%d %d %s\n", ret, errno, strerror(errno));
 	}
 #endif
 
@@ -108,7 +107,6 @@ static void stress_sctp_sockopts(const int fd)
 		opt_len = sizeof(info);
 		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_ASSOCINFO, &info, &opt_len);
 		(void)ret;
-		printf("%d %d %s\n", ret, errno, strerror(errno));
 	}
 #endif
 
@@ -121,7 +119,6 @@ static void stress_sctp_sockopts(const int fd)
 		opt_len = sizeof(info);
 		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_INITMSG, &info, &opt_len);
 		(void)ret;
-		printf("%d %d %s\n", ret, errno, strerror(errno));
 	}
 #endif
 
@@ -134,7 +131,6 @@ static void stress_sctp_sockopts(const int fd)
 		opt_len = sizeof(info);
 		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_NODELAY, &info, &opt_len);
 		(void)ret;
-		printf("%d %d %s\n", ret, errno, strerror(errno));
 	}
 #endif
 
@@ -147,7 +143,6 @@ static void stress_sctp_sockopts(const int fd)
 		opt_len = sizeof(info);
 		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_PRIMARY_ADDR, &info, &opt_len);
 		(void)ret;
-		printf("%d %d %s\n", ret, errno, strerror(errno));
 	}
 #endif
 
@@ -159,7 +154,6 @@ static void stress_sctp_sockopts(const int fd)
 
 		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_PEER_ADDR_PARAMS, &info, &opt_len);
 		(void)ret;
-		printf("%d %d %s\n", ret, errno, strerror(errno));
 	}
 #endif
 
@@ -172,7 +166,6 @@ static void stress_sctp_sockopts(const int fd)
 		opt_len = sizeof(info);
 		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS, &info, &opt_len);
 		(void)ret;
-		printf("%d %d %s\n", ret, errno, strerror(errno));
 	}
 #endif
 
@@ -185,7 +178,6 @@ static void stress_sctp_sockopts(const int fd)
 		opt_len = sizeof(info);
 		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_MAXSEG, &info, &opt_len);
 		(void)ret;
-		printf("%d %d %s\n", ret, errno, strerror(errno));
 	}
 #endif
 
@@ -197,7 +189,6 @@ static void stress_sctp_sockopts(const int fd)
 
 		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_STATUS, &info, &opt_len);
 		(void)ret;
-		printf("%d %d %s\n", ret, errno, strerror(errno));
 	}
 #endif
 
@@ -209,7 +200,6 @@ static void stress_sctp_sockopts(const int fd)
 
 		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_GET_PEER_ADDR_INFO, &info, &opt_len);
 		(void)ret;
-		printf("HERE: %d %d %s\n", ret, errno, strerror(errno));
 	}
 #endif
 
@@ -221,7 +211,6 @@ static void stress_sctp_sockopts(const int fd)
 
 		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_GET_ASSOC_STATS, &info, &opt_len);
 		(void)ret;
-		printf("%d %d %s\n", ret, errno, strerror(errno));
 	}
 #endif
 }
