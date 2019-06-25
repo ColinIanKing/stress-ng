@@ -81,6 +81,152 @@ static const opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_NETINET_SCTP_H)
 
 /*
+ *  stress_sctp_sockopts()
+ *	exercise some SCTP specific sockopts
+ */
+static void stress_sctp_sockopts(const int fd)
+{
+#if defined(SCTP_RTOINFO)
+	{
+		struct sctp_rtoinfo info;
+		socklen_t opt_len = sizeof(info);
+		int ret;
+
+		opt_len = sizeof(info);
+		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_RTOINFO, &info, &opt_len);
+		(void)ret;
+		printf("%d %d %s\n", ret, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SCTP_ASSOCINFO)
+	{
+		struct sctp_assocparams info;
+		socklen_t opt_len = sizeof(info);
+		int ret;
+
+		opt_len = sizeof(info);
+		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_ASSOCINFO, &info, &opt_len);
+		(void)ret;
+		printf("%d %d %s\n", ret, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SCTP_INITMSG)
+	{
+		struct sctp_initmsg info;
+		socklen_t opt_len = sizeof(info);
+		int ret;
+
+		opt_len = sizeof(info);
+		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_INITMSG, &info, &opt_len);
+		(void)ret;
+		printf("%d %d %s\n", ret, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SCTP_NODELAY)
+	{
+		int info;
+		socklen_t opt_len = sizeof(info);
+		int ret;
+
+		opt_len = sizeof(info);
+		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_NODELAY, &info, &opt_len);
+		(void)ret;
+		printf("%d %d %s\n", ret, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SCTP_PRIMARY_ADDR)
+	{
+		struct sctp_prim info;
+		socklen_t opt_len = sizeof(info);
+		int ret;
+
+		opt_len = sizeof(info);
+		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_PRIMARY_ADDR, &info, &opt_len);
+		(void)ret;
+		printf("%d %d %s\n", ret, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SCTP_PEER_ADDR_PARAMS)
+	{
+		struct sctp_paddrparams info;
+		socklen_t opt_len = sizeof(info);
+		int ret;
+
+		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_PEER_ADDR_PARAMS, &info, &opt_len);
+		(void)ret;
+		printf("%d %d %s\n", ret, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SCTP_EVENTS)
+	{
+		struct sctp_event_subscribe info;
+		socklen_t opt_len = sizeof(info);
+		int ret;
+
+		opt_len = sizeof(info);
+		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS, &info, &opt_len);
+		(void)ret;
+		printf("%d %d %s\n", ret, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SCTP_MAXSEG)
+	{
+		int info;
+		socklen_t opt_len = sizeof(info);
+		int ret;
+
+		opt_len = sizeof(info);
+		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_MAXSEG, &info, &opt_len);
+		(void)ret;
+		printf("%d %d %s\n", ret, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SCTP_STATUS)
+	{
+		struct sctp_status info;
+		socklen_t opt_len = sizeof(info);
+		int ret;
+
+		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_STATUS, &info, &opt_len);
+		(void)ret;
+		printf("%d %d %s\n", ret, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SCTP_GET_PEER_ADDR_INFO) && 0
+	{
+		struct sctp_paddrinfo info;
+		socklen_t opt_len = sizeof(info);
+		int ret;
+
+		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_GET_PEER_ADDR_INFO, &info, &opt_len);
+		(void)ret;
+		printf("HERE: %d %d %s\n", ret, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SCTP_GET_ASSOC_STATS)
+	{
+		struct sctp_assoc_stats info;
+		socklen_t opt_len = sizeof(info);
+		int ret;
+
+		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_GET_ASSOC_STATS, &info, &opt_len);
+		(void)ret;
+		printf("%d %d %s\n", ret, errno, strerror(errno));
+	}
+#endif
+}
+
+/*
  *  stress_sctp_client()
  *	client reader
  */
@@ -260,6 +406,7 @@ static int stress_sctp_server(
 					msgs++;
 				}
 			}
+			stress_sctp_sockopts(sfd);
 			(void)close(sfd);
 		}
 	} while (keep_stressing());
