@@ -243,8 +243,7 @@ retry:
 			socklen_t mtu_len = sizeof(mtu);
 
 			ret = getsockopt(fd, IPPROTO_IP, IP_MTU, &mtu, &mtu_len);
-			if (ret == 0)
-				printf("MTU: %d\n", mtu);
+			(void)ret;
 		}
 #endif
 
