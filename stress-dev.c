@@ -767,9 +767,19 @@ static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
 	if (read_page) {
 		char buffer[page_size];
 		ssize_t ret;
+		off_t off;
 
-		ret = read(fd, buffer, page_size);
-		(void)ret;
+		/* Try seeking */
+		off = lseek(fd, (off_t)0, SEEK_SET);
+#if defined(STRESS_X86)
+		if (off == 0) {
+			/* And try reading */
+			ret = read(fd, buffer, page_size);
+			(void)ret;
+		}
+#else
+		(void)off;
+#endif
 	}
 
 	ptr = mmap(NULL, page_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
@@ -787,7 +797,7 @@ static void stress_dev_mem_linux(
 	(void)name;
 	(void)devpath;
 
-	stress_dev_mem_mmap_linux(fd, false);
+	stress_dev_mem_mmap_linux(fd, true);
 }
 #endif
 
