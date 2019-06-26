@@ -827,6 +827,19 @@ static void stress_dev_kmsg_linux(
 }
 #endif
 
+#if defined(__linux__)
+static void stress_dev_nvram_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
+{
+	(void)name;
+	(void)devpath;
+
+	stress_dev_mem_mmap_linux(fd, true);
+}
+#endif
+
 #if defined(HAVE_LINUX_HPET_H)
 static void stress_dev_hpet_linux(
 	const char *name,
@@ -1007,6 +1020,7 @@ static const dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/mem",	stress_dev_mem_linux),
 	DEV_FUNC("/dev/kmem",	stress_dev_kmem_linux),
 	DEV_FUNC("/dev/kmsg",	stress_dev_kmsg_linux),
+	DEV_FUNC("/dev/nvram",	stress_dev_nvram_linux),
 #endif
 #if defined(__linux__) && defined(STRESS_X86)
 	DEV_FUNC("/dev/port",	stress_dev_port_linux),
