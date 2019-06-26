@@ -29,6 +29,7 @@ static const help_t help[] = {
 	{ NULL,	"sctp-ops N",	 "stop after N SCTP bogo operations" },
 	{ NULL,	"sctp-domain D", "specify sctp domain, default is ipv4" },
 	{ NULL,	"sctp-port P",	 "use SCTP ports P to P + number of workers - 1" },
+	{ NULL, "sctp-sched S",	 "specify sctp scheduler" },
 	{ NULL,	NULL, 		 NULL }
 };
 
@@ -80,6 +81,20 @@ static const opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_LIB_SCTP) &&	\
     defined(HAVE_NETINET_SCTP_H)
 
+#define STRESS_SCTP_SOCKOPT(opt, type)			\
+{							\
+	type info;					\
+	socklen_t opt_len = sizeof(info);		\
+	int ret;					\
+							\
+	ret = getsockopt(fd, IPPROTO_SCTP, opt,		\
+		 &info, &opt_len);			\
+	if (ret == 0) {					\
+		ret = setsockopt(fd, IPPROTO_SCTP, opt,	\
+			&info, opt_len);		\
+	}						\
+}
+
 /*
  *  stress_sctp_sockopts()
  *	exercise some SCTP specific sockopts
@@ -87,131 +102,37 @@ static const opt_set_func_t opt_set_funcs[] = {
 static void stress_sctp_sockopts(const int fd)
 {
 #if defined(SCTP_RTOINFO)
-	{
-		struct sctp_rtoinfo info;
-		socklen_t opt_len = sizeof(info);
-		int ret;
-
-		opt_len = sizeof(info);
-		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_RTOINFO, &info, &opt_len);
-		(void)ret;
-	}
+	STRESS_SCTP_SOCKOPT(SCTP_RTOINFO, struct sctp_rtoinfo)
 #endif
-
 #if defined(SCTP_ASSOCINFO)
-	{
-		struct sctp_assocparams info;
-		socklen_t opt_len = sizeof(info);
-		int ret;
-
-		opt_len = sizeof(info);
-		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_ASSOCINFO, &info, &opt_len);
-		(void)ret;
-	}
+	STRESS_SCTP_SOCKOPT(SCTP_ASSOCINFO, struct sctp_assocparams)
 #endif
-
 #if defined(SCTP_INITMSG)
-	{
-		struct sctp_initmsg info;
-		socklen_t opt_len = sizeof(info);
-		int ret;
-
-		opt_len = sizeof(info);
-		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_INITMSG, &info, &opt_len);
-		(void)ret;
-	}
+	STRESS_SCTP_SOCKOPT(SCTP_INITMSG, struct sctp_initmsg)
 #endif
-
 #if defined(SCTP_NODELAY)
-	{
-		int info;
-		socklen_t opt_len = sizeof(info);
-		int ret;
-
-		opt_len = sizeof(info);
-		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_NODELAY, &info, &opt_len);
-		(void)ret;
-	}
+	STRESS_SCTP_SOCKOPT(SCTP_NODELAY, int)
 #endif
-
 #if defined(SCTP_PRIMARY_ADDR)
-	{
-		struct sctp_prim info;
-		socklen_t opt_len = sizeof(info);
-		int ret;
-
-		opt_len = sizeof(info);
-		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_PRIMARY_ADDR, &info, &opt_len);
-		(void)ret;
-	}
+	STRESS_SCTP_SOCKOPT(SCTP_PRIMARY_ADDR, struct sctp_prim)
 #endif
-
 #if defined(SCTP_PEER_ADDR_PARAMS)
-	{
-		struct sctp_paddrparams info;
-		socklen_t opt_len = sizeof(info);
-		int ret;
-
-		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_PEER_ADDR_PARAMS, &info, &opt_len);
-		(void)ret;
-	}
+	STRESS_SCTP_SOCKOPT(SCTP_PEER_ADDR_PARAMS, struct sctp_paddrparams)
 #endif
-
 #if defined(SCTP_EVENTS)
-	{
-		struct sctp_event_subscribe info;
-		socklen_t opt_len = sizeof(info);
-		int ret;
-
-		opt_len = sizeof(info);
-		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_EVENTS, &info, &opt_len);
-		(void)ret;
-	}
+	STRESS_SCTP_SOCKOPT(SCTP_EVENTS, struct sctp_event_subscribe)
 #endif
-
 #if defined(SCTP_MAXSEG)
-	{
-		int info;
-		socklen_t opt_len = sizeof(info);
-		int ret;
-
-		opt_len = sizeof(info);
-		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_MAXSEG, &info, &opt_len);
-		(void)ret;
-	}
+	STRESS_SCTP_SOCKOPT(SCTP_MAXSEG, struct sctp_assoc_value)
 #endif
-
 #if defined(SCTP_STATUS)
-	{
-		struct sctp_status info;
-		socklen_t opt_len = sizeof(info);
-		int ret;
-
-		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_STATUS, &info, &opt_len);
-		(void)ret;
-	}
+	STRESS_SCTP_SOCKOPT(SCTP_STATUS, struct sctp_status)
 #endif
-
 #if defined(SCTP_GET_PEER_ADDR_INFO) && 0
-	{
-		struct sctp_paddrinfo info;
-		socklen_t opt_len = sizeof(info);
-		int ret;
-
-		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_GET_PEER_ADDR_INFO, &info, &opt_len);
-		(void)ret;
-	}
+	STRESS_SCTP_SOCKOPT(SCTP_GET_PEER_ADDR_INFO, struct sctp_paddrinfo)
 #endif
-
 #if defined(SCTP_GET_ASSOC_STATS)
-	{
-		struct sctp_assoc_stats info;
-		socklen_t opt_len = sizeof(info);
-		int ret;
-
-		ret = getsockopt(fd, IPPROTO_SCTP, SCTP_GET_ASSOC_STATS, &info, &opt_len);
-		(void)ret;
-	}
+	STRESS_SCTP_SOCKOPT(SCTP_GET_ASSOC_STATS, struct sctp_assoc_stats)
 #endif
 }
 
