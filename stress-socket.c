@@ -233,6 +233,21 @@ retry:
 				break;
 			}
 		} while (keep_stressing());
+
+#if defined(AF_INET) && 	\
+    defined(IPPROTO_IP)	&&	\
+    defined(IP_MTU)
+		/* Exercise IP_MTU */
+		if (socket_domain == AF_INET) {
+			int ret, mtu;
+			socklen_t mtu_len = sizeof(mtu);
+
+			ret = getsockopt(fd, IPPROTO_IP, IP_MTU, &mtu, &mtu_len);
+			if (ret == 0)
+				printf("MTU: %d\n", mtu);
+		}
+#endif
+
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
 	} while (keep_stressing());
