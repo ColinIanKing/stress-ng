@@ -26,45 +26,48 @@
 
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
     !defined(__OpenBSD__) && !defined(__minix__) && !defined(__APPLE__)
+
+typedef struct {
+	const int sched;
+	const char *const name;
+} sched_types_t;
+
+static sched_types_t sched_types[] = {
+#if defined(SCHED_BATCH)
+	{ SCHED_BATCH,		"batch" },
+#endif
+#if defined(SCHED_DEADLINE)
+	{ SCHED_DEADLINE,	"deadline" },
+#endif
+#if defined(SCHED_FIFO)
+	{ SCHED_FIFO,		"fifo" },
+#endif
+#if defined(SCHED_IDLE)
+	{ SCHED_IDLE,		"idle" },
+#endif
+#if defined(SCHED_OTHER)
+	{ SCHED_OTHER,		"other" },
+#endif
+#if defined(SCHED_RR)
+	{ SCHED_RR,		"rr" },
+#endif
+};
+
 /*
  *  get_sched_name()
  *	convert sched class to human readable string
  */
 const char *stress_get_sched_name(const int sched)
 {
-	switch (sched) {
-#if defined(SCHED_IDLE)
-	case SCHED_IDLE:
-		return "idle";
-#endif
-#if defined(SCHED_FIFO)
-	case SCHED_FIFO:
-		return "fifo";
-#endif
-#if defined(SCHED_RR)
-	case SCHED_RR:
-		return "rr";
-#endif
-#if defined(SCHED_OTHER)
-	case SCHED_OTHER:
-		return "other";
-#endif
-#if defined(SCHED_BATCH)
-	case SCHED_BATCH:
-		return "batch";
-#endif
-#if defined(SCHED_DEADLINE)
-	case SCHED_DEADLINE:
-		return "deadline";
-#endif
-	default:
-		return "unknown";
-	}
-}
-#endif
+	size_t i;
 
-#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
-     !defined(__OpenBSD__) && !defined(__minix__) && !defined(__APPLE__)
+	for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
+		if (sched_types[i].sched == sched)
+			return sched_types[i].name;
+	}
+	return "unknown";
+}
+
 /*
  *  set_sched()
  * 	are sched settings valid, if so, set them
@@ -160,7 +163,8 @@ int stress_set_sched(
 		if (rc < 0) {
 			rc = -errno;
 			if (!quiet)
-				pr_inf("Cannot set scheduler: errno=%d (%s)\n",
+				pr_inf("Cannot set scheduler '%s': errno=%d (%s)\n",
+					stress_get_sched_name(sched),
 					errno, strerror(errno));
 			return rc;
 		}
@@ -181,7 +185,8 @@ int stress_set_sched(
 	if (rc < 0) {
 		rc = -errno;
 		if (!quiet)
-			pr_inf("Cannot set scheduler: errno=%d (%s)\n",
+			pr_inf("Cannot set scheduler '%s': errno=%d (%s)\n",
+				stress_get_sched_name(sched),
 				errno, strerror(errno));
 		return rc;
 	}
@@ -209,51 +214,18 @@ int stress_set_sched(
  */
 int32_t get_opt_sched(const char *const str)
 {
-#if defined(SCHED_OTHER)
-	if (!strcmp("other", str))
-		return SCHED_OTHER;
-#endif
-#if defined(SCHED_BATCH)
-	if (!strcmp("batch", str))
-		return SCHED_BATCH;
-#endif
-#if defined(SCHED_IDLE)
-	if (!strcmp("idle", str))
-		return SCHED_IDLE;
-#endif
-#if defined(SCHED_FIFO)
-	if (!strcmp("fifo", str))
-		return SCHED_FIFO;
-#endif
-#if defined(SCHED_RR)
-	if (!strcmp("rr", str))
-		return SCHED_RR;
-#endif
-#if defined(SCHED_DEADLINE)
-	if (!strcmp("deadline", str))
-		return SCHED_DEADLINE;
-#endif
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
+		if (!strcmp(sched_types[i].name, str))
+			return sched_types[i].sched;
+	}
 	if (strcmp("which", str))
 		(void)fprintf(stderr, "Invalid sched option: %s\n", str);
-	(void)fprintf(stderr, "Available scheduler options are:"
-#if defined(SCHED_OTHER)
-		" other"
-#endif
-#if defined(SCHED_BATCH)
-		" batch"
-#endif
-#if defined(SCHED_DEADLINE)
-		" deadline"
-#endif
-#if defined(SCHED_IDLE)
-		" idle"
-#endif
-#if defined(SCHED_FIFO)
-		" fifo"
-#endif
-#if defined(SCHED_FIFO)
-		" rr"
-#endif
-		"\n");
+	(void)fprintf(stderr, "Available scheduler options are:");
+	for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
+		printf(" %s", sched_types[i].name);
+	}
+	printf("\n");
 	_exit(EXIT_FAILURE);
 }
