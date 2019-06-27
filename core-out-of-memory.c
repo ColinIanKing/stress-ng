@@ -77,6 +77,33 @@ bool process_oomed(const pid_t pid)
 }
 
 /*
+ *    set_adjustment()
+ *	try to set OOM adjustment, retry if EAGAIN or EINTR, give up
+ *	after multiple retries.
+ */
+static void set_adjustment(const char *name, const int fd, const char *str)
+{
+	const size_t len = strlen(str);
+	int i;
+
+	for (i = 0; i < 32; i++) {
+		ssize_t n;
+
+		n = write(fd, str, len);
+		if (n > 0)
+			return;
+
+		if ((errno != EAGAIN) && (errno != EINTR)) {
+			pr_dbg("%s: can't set oom_score_adj\n", name);
+			return;
+		}
+	}
+	/* Unexpected failure, report why */
+	pr_dbg("%s: can't set oom_score_adj, errno=%d (%s)\n", name,
+		errno, strerror(errno));
+}
+
+/*
  *  set_oom_adjustment()
  *	attempt to stop oom killer
  *	if we have root privileges then try and make process
@@ -102,21 +129,13 @@ void set_oom_adjustment(const char *name, const bool killable)
 	 */
 	if ((fd = open("/proc/self/oom_score_adj", O_WRONLY)) >= 0) {
 		char *str;
-		ssize_t n;
 
 		if (make_killable)
 			str = OOM_SCORE_ADJ_MAX;
 		else
 			str = high_priv ? OOM_SCORE_ADJ_MIN : "0";
 
-redo_wr1:
-		n = write(fd, str, strlen(str));
-		if (n <= 0) {
-			if ((errno == EAGAIN) || (errno == EINTR))
-				goto redo_wr1;
-			if (errno)
-				pr_dbg("%s: can't set oom_score_adj\n", name);
-		}
+		set_adjustment(name, fd, str);
 		(void)close(fd);
 		return;
 	}
@@ -125,21 +144,13 @@ redo_wr1:
 	 */
 	if ((fd = open("/proc/self/oom_adj", O_WRONLY)) >= 0) {
 		char *str;
-		ssize_t n;
 
 		if (make_killable)
 			str = high_priv ? OOM_ADJ_NO_OOM : OOM_ADJ_MIN;
 		else
 			str = OOM_ADJ_MAX;
 
-redo_wr2:
-		n = write(fd, str, strlen(str));
-		if (n <= 0) {
-			if ((errno == EAGAIN) || (errno == EINTR))
-				goto redo_wr2;
-			if (errno)
-				pr_dbg("%s: can't set oom_adj\n", name);
-		}
+		set_adjustment(name, fd, str);
 		(void)close(fd);
 	}
 	return;
