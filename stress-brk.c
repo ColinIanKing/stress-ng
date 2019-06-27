@@ -136,15 +136,23 @@ again:
 			uint8_t *ptr;
 
 			i++;
-			if (i > 8) {
+			if (i < 8) {
+				/* Expand brk by 1 page */
+				ptr = shim_sbrk((intptr_t)page_size);
+			} else if (i < 9) {
+				/* brk to same brk position */
+				ptr = shim_sbrk(0);
+				if (shim_brk(ptr) < 0)
+					ptr = (void *)-1;
+			} else {
+				/* Shrink brk by 1 page */
 				i = 0;
 				ptr = shim_sbrk(0);
 				ptr -= page_size;
 				if (shim_brk(ptr) < 0)
 					ptr = (void *)-1;
-			} else {
-				ptr = shim_sbrk((intptr_t)page_size);
 			}
+
 			if (ptr == (void *)-1) {
 				if ((errno == ENOMEM) || (errno == EAGAIN)) {
 					nomems++;
