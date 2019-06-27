@@ -47,6 +47,13 @@ static struct dirent **efi_dentries;
 static bool *efi_ignore;
 static int dir_count;
 
+static const char * const efi_sysfs_names[] = {
+	"attributes",
+	"data",
+	"guid",
+	"size"
+};
+
 /*
  *  efi_var_ignore()
  *	check for filenames that are not efi vars
@@ -109,22 +116,73 @@ static inline void efi_get_varname(char *dst, const size_t len, const efi_var *v
 }
 
 /*
+ *  efi_get_data()
+ *	read data from a raw efi sysfs entry
+ */
+static int efi_get_data(
+	const args_t *args,
+	const char *varname,
+	const char *field,
+	void *buf,
+	size_t buf_len)
+{
+	int fd, rc = -1;
+	ssize_t n;
+	char filename[PATH_MAX];
+	struct stat statbuf;
+
+	(void)snprintf(filename, sizeof filename,
+		"%s/%s/%s", vars, varname, field);
+	if ((fd = open(filename, O_RDONLY)) < 0)
+		return rc;
+
+	if (fstat(fd, &statbuf) < 0) {
+		pr_err("%s: failed to stat %s, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		goto err_vars;
+	}
+
+	(void)memset(buf, 0, buf_len);
+
+	n = read(fd, buf, buf_len);
+	if ((n < 0) && (errno != EIO) && (errno != EAGAIN) && (errno != EINTR)) {
+		pr_err("%s: failed to read %s, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		goto err_vars;
+	}
+
+	rc = 0;
+err_vars:
+	(void)close(fd);
+
+	return rc;
+}
+
+/*
  *  efi_get_variable()
  *	fetch a UEFI variable given its name.
  */
 static int efi_get_variable(const args_t *args, const char *varname, efi_var *var)
 {
-	int fd, n, ret, rc = 0;
-	int flags;
+	int fd, ret, rc = 0, flags;
+	size_t i;
+	ssize_t n;
 	char filename[PATH_MAX];
+	static char data[4096];
 	struct stat statbuf;
 
 	if ((!varname) || (!var))
 		return -1;
 
-	(void)snprintf(filename, sizeof filename,
-		"%s/%s/raw_var", vars, varname);
+	if (efi_get_data(args, varname, "raw_var", var, sizeof(efi_var)) < 0)
+		rc = -1;
 
+	/* Exercise reading the efi sysfs files */
+	for (i = 0; i < SIZEOF_ARRAY(efi_sysfs_names); i++) {
+		(void)efi_get_data(args, varname, efi_sysfs_names[i], data, sizeof(data));
+	}
+
+	(void)snprintf(filename, sizeof filename, "%s/%s", efi_vars, varname);
 	if ((fd = open(filename, O_RDONLY)) < 0)
 		return -1;
 
@@ -133,36 +191,17 @@ static int efi_get_variable(const args_t *args, const char *varname, efi_var *va
 		pr_err("%s: failed to stat %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
-		goto err_vars;
+		goto err_efi_vars;
 	}
 
-	(void)memset(var, 0, sizeof(efi_var));
-
-	if ((n = read(fd, var, sizeof(efi_var))) != sizeof(efi_var)) {
-		if (errno != EIO) {
-			pr_err("%s: failed to read %s, errno=%d (%s)\n",
-				args->name, filename, errno, strerror(errno));
-		}
-		rc = -1;
-		goto err_vars;
-	}
-
-err_vars:
-	(void)close(fd);
-
-	(void)snprintf(filename, sizeof filename,
-		"%s/%s", efi_vars, varname);
-
-	if ((fd = open(filename, O_RDONLY)) < 0)
-		return -1;
-
-	ret = fstat(fd, &statbuf);
-	if (ret < 0) {
-		pr_err("%s: failed to stat %s, errno=%d (%s)\n",
+	n = read(fd, data, sizeof(data));
+	if ((n < 0) && (errno != EIO) && (errno != EAGAIN) && (errno != EINTR)) {
+		pr_err("%s: failed to read %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
-		goto err_vars;
+		goto err_efi_vars;
 	}
+
 
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &flags);
 	if (ret < 0) {
@@ -177,7 +216,6 @@ err_vars:
 		pr_err("%s: ioctl FS_IOC_SETFLAGS on %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
-		goto err_efi_vars;
 	}
 
 err_efi_vars:
