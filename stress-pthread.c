@@ -93,11 +93,7 @@ static inline void stop_running(void)
  */
 static bool keep_running(void)
 {
-	sigset_t set;
-
-	(void)sigemptyset(&set);
-	(void)sigpending(&set);
-	if (sigismember(&set, SIGALRM))
+	if (stress_sigalrm_pending())
 		stop_running();
 	return keep_running_flag;
 }
@@ -247,7 +243,7 @@ static int stress_pthread(const args_t *args)
 	uint64_t pthread_max = DEFAULT_PTHREAD;
 	int ret;
 	pthread_args_t pargs = { args, NULL };
-	static sigset_t set;
+	sigset_t set;
 
 	keep_running_flag = true;
 
