@@ -3284,6 +3284,8 @@ extern WARN_UNUSED bool stress_is_dot_filename(const char *name);
 extern WARN_UNUSED char *stress_const_optdup(const char *opt);
 extern size_t stress_text_addr(char **start, char **end);
 extern WARN_UNUSED bool stress_check_capability(const int capability);
+extern WARN_UNUSED bool stress_sigalrm_pending(void);
+extern void stress_sigalrm_block(void);
 
 /*
  *  Indicate a stress test failed because of limited resources

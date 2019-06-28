@@ -1253,6 +1253,35 @@ bool HOT OPTIMIZE3 __keep_stressing(const args_t *args)
 }
 
 /*
+ *  stress_sigalrm_pending()
+ *	return true if SIGALRM is pending
+ */
+bool stress_sigalrm_pending(void)
+{
+	sigset_t set;
+
+	(void)sigemptyset(&set);
+	(void)sigpending(&set);
+	return sigismember(&set, SIGALRM);
+
+}
+
+/*
+ *  stress_sigalrm_block()
+ *	block SIGALRM signals, use in conjunction with
+ *	stress_sigalrm_pending to check if a SIGALRM is
+ *	pending.
+ */
+void stress_sigalrm_block(void)
+{
+	sigset_t set;
+
+	(void)sigemptyset(&set);
+	(void)sigaddset(&set, SIGALRM);
+	(void)sigprocmask(SIG_BLOCK, &set, NULL);
+}
+
+/*
  *  stress_uint64_to_str()
  *	turn 64 bit size to human readable string
  */
