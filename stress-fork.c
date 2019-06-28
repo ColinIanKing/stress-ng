@@ -87,8 +87,6 @@ static int stress_fork_fn(
 	ret = stress_drop_capabilities(args->name);
 	(void)ret;
 
-	stress_sigalrm_block();
-
 	do {
 		uint32_t i, n;
 
@@ -133,7 +131,7 @@ static int stress_fork_fn(
 				}
 			}
 		}
-	} while (keep_stressing() && !stress_sigalrm_pending());
+	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
 }
