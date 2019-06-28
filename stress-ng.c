@@ -2750,7 +2750,9 @@ int main(int argc, char **argv)
 	 */
 	if (get_setting("log-file", &log_filename))
 		pr_openlog(log_filename);
+#if defined(HAVE_SYSLOG_H)
 	openlog("stress-ng", 0, LOG_USER);
+#endif
 	log_args(argc, argv);
 	log_system_info();
 	log_system_mem_info();
@@ -2979,7 +2981,9 @@ int main(int argc, char **argv)
 	/*
 	 *  Close logs
 	 */
+#if defined(HAVE_SYSLOG_H)
 	closelog();
+#endif
 	pr_closelog();
 	if (yaml) {
 		pr_yaml(yaml, "...\n");
