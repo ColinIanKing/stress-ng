@@ -105,7 +105,7 @@ static int stress_fork_fn(
 			if (pid > -1)
 				(void)setpgid(pids[n], g_pgrp);
 			pids[n] = pid;
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing())
 				break;
 		}
 		for (i = 0; i < n; i++) {
