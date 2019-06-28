@@ -41,9 +41,9 @@ typedef struct {
 static pthread_cond_t cond;
 static pthread_mutex_t mutex;
 static shim_pthread_spinlock_t spinlock;
-static bool thread_terminate;
+static volatile bool keep_thread_running_flag;
+static volatile bool keep_running_flag;
 static uint64_t pthread_count;
-static sigset_t set;
 static pthread_info_t pthreads[MAX_PTHREAD];
 
 #endif
@@ -79,6 +79,39 @@ static inline long sys_set_robust_list(struct robust_list_head *head, size_t len
 }
 #endif
 
+static inline void stop_running(void)
+{
+	keep_running_flag = false;
+	keep_thread_running_flag = false;
+}
+
+/*
+ *  keep_running()
+ *  	Check if SIGALRM is pending, set flags
+ * 	to tell pthreads and main pthread stressor
+ *	to stop. Returns false if we need to stop.
+ */
+static bool keep_running(void)
+{
+	sigset_t set;
+
+	(void)sigemptyset(&set);
+	(void)sigpending(&set);
+	if (sigismember(&set, SIGALRM))
+		stop_running();
+	return keep_running_flag;
+}
+
+/*
+ *  keep_thread_running()
+ *	Check if SIGALRM is pending and return false
+ *	if the pthread needs to stop.
+ */
+static bool keep_thread_running(void)
+{
+	return keep_running() & keep_thread_running_flag;
+}
+
 /*
  *  stress_pthread_func()
  *	pthread that exits immediately
@@ -94,14 +127,6 @@ static void *stress_pthread_func(void *parg)
 	size_t len;
 #endif
 	const args_t *args = ((pthread_args_t *)parg)->args;
-
-	/*
-	 *  Block all signals, let controlling thread
-	 *  handle these
-	 */
-#if !defined(__APPLE__) && !defined(__DragonFly__)
-	(void)sigprocmask(SIG_BLOCK, &set, NULL);
-#endif
 
 	/*
 	 *  According to POSIX.1 a thread should have
@@ -160,7 +185,10 @@ static void *stress_pthread_func(void *parg)
 		goto die;
 	}
 
-	if (thread_terminate)
+	/*
+	 *  Did parent inform pthreads to terminate?
+	 */
+	if (!keep_thread_running())
 		goto die;
 
 	/*
@@ -173,7 +201,7 @@ static void *stress_pthread_func(void *parg)
 			args->name, (int)tid, ret, strerror(ret));
 		goto die;
 	}
-	while (!thread_terminate) {
+	while (keep_thread_running()) {
 		ret = pthread_cond_wait(&cond, &mutex);
 		if (ret) {
 			pr_fail("%s: pthread_cond_wait failed, tid=%d, errno=%d (%s)",
@@ -204,6 +232,7 @@ static void *stress_pthread_func(void *parg)
 	}
 #endif
 die:
+	(void)keep_running();
 	return &nowt;
 }
 
@@ -213,18 +242,26 @@ die:
  */
 static int stress_pthread(const args_t *args)
 {
-	bool ok = true;
 	bool locked = false;
-	bool try_unlock = true;
 	uint64_t limited = 0, attempted = 0;
 	uint64_t pthread_max = DEFAULT_PTHREAD;
 	int ret;
 	pthread_args_t pargs = { args, NULL };
+	static sigset_t set;
 
+	keep_running_flag = true;
+
+	/*
+	 *  Block SIGALRM and SIGUSR2, instead
+	 *  use sigpending in pthread or this process
+	 *  to check if SIGALRM has been sent.
+	 */
+	sigemptyset(&set);
+	sigaddset(&set, SIGALRM);
 #if defined(SIGUSR2)
-	if (stress_sighandler(args->name, SIGUSR2, SIG_IGN, NULL) < 0)
-		return EXIT_FAILURE;
+	sigaddset(&set, SIGUSR2);
 #endif
+	sigprocmask(SIG_BLOCK, &set, NULL);
 
 	if (!get_setting("pthread-max", &pthread_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -252,16 +289,15 @@ static int stress_pthread(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	(void)sigfillset(&set);
 	do {
 		uint64_t i, j;
 
-		thread_terminate = false;
+		keep_thread_running_flag = true;
 		pthread_count = 0;
 
 		(void)memset(&pthreads, 0, sizeof(pthreads));
 
-		for (i = 0; (i < pthread_max) && (!args->max_ops || get_counter(args) < args->max_ops); i++) {
+		for (i = 0; i < pthread_max; i++) {
 			pargs.data = (void *)&pthreads[i];
 
 			ret = pthread_create(&pthreads[i].pthread, NULL,
@@ -275,11 +311,11 @@ static int stress_pthread(const args_t *args)
 				/* Something really unexpected */
 				pr_fail("%s: pthread_create failed, errno=%d (%s)",
 					args->name, ret, strerror(ret));
-				ok = false;
+				stop_running();
 				break;
 			}
 			inc_counter(args);
-			if (!g_keep_stressing_flag)
+			if (!(keep_running() && keep_stressing()))
 				break;
 		}
 		attempted++;
@@ -296,7 +332,7 @@ static int stress_pthread(const args_t *args)
 				if (ret) {
 					pr_fail("%s: pthread_mutex_lock failed (parent), errno=%d (%s)",
 						args->name, ret, strerror(ret));
-					ok = false;
+					stop_running();
 					goto reap;
 				}
 				locked = true;
@@ -308,9 +344,8 @@ static int stress_pthread(const args_t *args)
 				if (ret) {
 					pr_fail("%s: pthread_mutex_unlock failed (parent), errno=%d (%s)",
 						args->name, ret, strerror(ret));
-					ok = false;
+					stop_running();
 					/* We failed to unlock, so don't try again on reap */
-					try_unlock = false;
 					goto reap;
 				}
 				locked = false;
@@ -320,51 +355,30 @@ static int stress_pthread(const args_t *args)
 				break;
 		}
 
-		if (!locked) {
-			ret = pthread_mutex_lock(&mutex);
-			if (ret) {
-				pr_fail("%s: pthread_mutex_lock failed (parent), errno=%d (%s)",
-					args->name, ret, strerror(ret));
-				ok = false;
-				goto reap;
-			}
-			locked = true;
-		}
-reap:
-
 #if defined(HAVE_TGKILL) && defined(SIGUSR2)
 		for (j = 0; j < i; j++) {
 			if (pthreads[j].tid)
 				(void)syscall(__NR_tgkill, args->pid, pthreads[j].tid, SIGUSR2);
 		}
 #endif
-		thread_terminate = true;
+reap:
+		keep_thread_running_flag = false;
 		ret = pthread_cond_broadcast(&cond);
 		if (ret) {
 			pr_fail("%s: pthread_cond_broadcast failed (parent), errno=%d (%s)",
 				args->name, ret, strerror(ret));
-			ok = false;
+			stop_running();
 			/* fall through and unlock */
-		}
-		if (locked && try_unlock) {
-			ret = pthread_mutex_unlock(&mutex);
-			if (ret) {
-				pr_fail("%s: pthread_mutex_unlock failed (parent), errno=%d (%s)",
-					args->name, ret, strerror(ret));
-				ok = false;
-			} else {
-				locked = false;
-			}
 		}
 		for (j = 0; j < i; j++) {
 			ret = pthread_join(pthreads[j].pthread, NULL);
 			if ((ret) && (ret != ESRCH)) {
 				pr_fail("%s: pthread_join failed (parent), errno=%d (%s)",
 					args->name, ret, strerror(ret));
-				ok = false;
+				stop_running();
 			}
 		}
-	} while (ok && keep_stressing());
+	} while (keep_running() && keep_stressing());
 
 	if (limited) {
 		pr_inf("%s: %.2f%% of iterations could not reach "
