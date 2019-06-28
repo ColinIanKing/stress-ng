@@ -24,9 +24,6 @@
  */
 #include "stress-ng.h"
 
-#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
-    !defined(__OpenBSD__) && !defined(__minix__) && !defined(__APPLE__)
-
 typedef struct {
 	const int sched;
 	const char *const name;
@@ -52,6 +49,9 @@ static sched_types_t sched_types[] = {
 	{ SCHED_RR,		"rr" },
 #endif
 };
+
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
+    !defined(__OpenBSD__) && !defined(__minix__) && !defined(__APPLE__)
 
 /*
  *  get_sched_name()
@@ -222,10 +222,14 @@ int32_t get_opt_sched(const char *const str)
 	}
 	if (strcmp("which", str))
 		(void)fprintf(stderr, "Invalid sched option: %s\n", str);
-	(void)fprintf(stderr, "Available scheduler options are:");
-	for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
-		printf(" %s", sched_types[i].name);
+	if (SIZEOF_ARRAY(sched_types) == 0) {
+		(void)fprintf(stderr, "No scheduler options are available\n");
+	} else {
+		(void)fprintf(stderr, "Available scheduler options are:");
+		for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
+			fprintf(stderr, " %s", sched_types[i].name);
+		}
+		fprintf(stderr, "\n");
 	}
-	printf("\n");
 	_exit(EXIT_FAILURE);
 }
