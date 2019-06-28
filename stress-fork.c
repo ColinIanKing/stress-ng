@@ -44,12 +44,12 @@ static const help_t vfork_help[] = {
  */
 static int stress_set_fork_max(const char *opt)
 {
-	uint64_t fork_max;
+	uint32_t fork_max;
 
-	fork_max = get_uint64(opt);
+	fork_max = get_uint32(opt);
 	check_range("fork-max", fork_max,
 		MIN_FORKS, MAX_FORKS);
-	return set_setting("fork-max", TYPE_ID_UINT64, &fork_max);
+	return set_setting("fork-max", TYPE_ID_UINT32, &fork_max);
 }
 
 /*
@@ -58,12 +58,12 @@ static int stress_set_fork_max(const char *opt)
  */
 static int stress_set_vfork_max(const char *opt)
 {
-	uint64_t vfork_max;
+	uint32_t vfork_max;
 
-	vfork_max = get_uint64(opt);
+	vfork_max = get_uint32(opt);
 	check_range("vfork-max", vfork_max,
 		MIN_VFORKS, MAX_VFORKS);
-	return set_setting("vfork-max", TYPE_ID_UINT64, &vfork_max);
+	return set_setting("vfork-max", TYPE_ID_UINT32, &vfork_max);
 }
 
 /*
@@ -75,7 +75,7 @@ static int stress_fork_fn(
 	const args_t *args,
 	pid_t (*fork_fn)(void),
 	const char *fork_fn_name,
-	const uint64_t fork_max)
+	const uint32_t fork_max)
 {
 	static pid_t pids[MAX_FORKS];
 	static int errnos[MAX_FORKS];
@@ -88,36 +88,37 @@ static int stress_fork_fn(
 	(void)ret;
 
 	do {
-		unsigned int i;
+		uint32_t i, n;
 
 		(void)memset(pids, 0, sizeof(pids));
 		(void)memset(errnos, 0, sizeof(errnos));
 
-		for (i = 0; i < fork_max; i++) {
+		for (n = 0; n < fork_max; n++) {
 			pid_t pid = fork_fn();
 
 			if (pid == 0) {
 				/* Child, immediately exit */
 				_exit(0);
 			} else if (pid < 0) {
-				errnos[i] = errno;
+				errnos[n] = errno;
 			}
 			if (pid > -1)
-				(void)setpgid(pids[i], g_pgrp);
-			pids[i] = pid;
+				(void)setpgid(pids[n], g_pgrp);
+			pids[n] = pid;
 			if (!g_keep_stressing_flag)
 				break;
 		}
-		for (i = 0; i < fork_max; i++) {
+		for (i = 0; i < n; i++) {
 			if (pids[i] > 0) {
 				int status;
-				/* Parent, wait for child */
+				/* Parent, kill and then wait for child */
+				(void)kill(pids[i], SIGKILL);
 				(void)shim_waitpid(pids[i], &status, 0);
 				inc_counter(args);
 			}
 		}
 
-		for (i = 0; i < fork_max; i++) {
+		for (i = 0; i < n; i++) {
 			if ((pids[i] < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 				switch (errnos[i]) {
 				case EAGAIN:
@@ -141,7 +142,7 @@ static int stress_fork_fn(
  */
 static int stress_fork(const args_t *args)
 {
-	uint64_t fork_max = DEFAULT_FORKS;
+	uint32_t fork_max = DEFAULT_FORKS;
 
 	if (!get_setting("fork-max", &fork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -160,7 +161,7 @@ static int stress_fork(const args_t *args)
  */
 static int stress_vfork(const args_t *args)
 {
-	uint64_t vfork_max = DEFAULT_VFORKS;
+	uint32_t vfork_max = DEFAULT_VFORKS;
 	register int ret;
 
 	if (!get_setting("vfork-max", &vfork_max)) {
