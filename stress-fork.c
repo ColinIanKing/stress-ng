@@ -80,6 +80,9 @@ static int stress_fork_fn(
 	static pid_t pids[MAX_FORKS];
 	static int errnos[MAX_FORKS];
 	int ret;
+#if defined(__APPLE__)
+	double time_end = time_now() + (double)g_opt_timeout;
+#endif
 
 	set_oom_adjustment(args->name, true);
 
@@ -131,6 +134,15 @@ static int stress_fork_fn(
 				}
 			}
 		}
+#if defined(__APPLE__)
+		/*
+		 *  SIGALRMs don't get reliably delivered on OS X on
+		 *  vfork so check the time in case SIGARLM was not
+		 *  delivered.
+		 */
+		if ((fork_fn == vfork) && (time_now() > time_end))
+			break;
+#endif
 	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
