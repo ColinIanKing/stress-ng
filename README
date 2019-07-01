@@ -90,6 +90,10 @@ To build with full warnings enabled:
 	make clean
 	PEDANTIC=1 make
 
+To build with the Tiny C compiler:
+	make clean
+	CC=tcc make
+
 For more information, see: http://kernel.ubuntu.com/~cking/stress-ng/
 
 I am keen to add to the stress-ng project page any citations to research or
