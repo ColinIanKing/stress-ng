@@ -1043,6 +1043,11 @@ void stress_handle_stop_stressing(int signum)
 	(void)signum;
 
 	g_keep_stressing_flag = false;
+	/*
+	 * Trigger another SIGARLM until stressor gets the message
+	 * that it needs to terminate
+	 */
+	(void)alarm(1);
 }
 
 /*
