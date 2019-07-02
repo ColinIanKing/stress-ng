@@ -379,7 +379,7 @@ static void *stress_memthrash_func(void *arg)
 		size_t j;
 
 		for (j = MATRIX_SIZE_MIN_SHIFT; j <= MATRIX_SIZE_MAX_SHIFT &&
-		     keep_stressing(); j++) {
+		     !thread_terminate && keep_stressing(); j++) {
 			size_t mem_size = 1 << (2 * j);
 
 			size_t i;
@@ -388,6 +388,7 @@ static void *stress_memthrash_func(void *arg)
 					break;
 			func(args, mem_size);
 			inc_counter(args);
+			shim_sched_yield();
 		}
 	}
 
