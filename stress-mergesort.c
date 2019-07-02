@@ -57,6 +57,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_LIB_BSD)
 
+#if !defined(__OpenBSD__)
 /*
  *  stress_mergesort_handler()
  *	SIGALRM generic handler
@@ -70,6 +71,7 @@ static void MLOCKED_TEXT stress_mergesort_handler(int signum)
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
 }
+#endif
 
 /*
  *  stress_mergesort_cmp_1()
@@ -136,10 +138,12 @@ static int stress_mergesort(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+#if !defined(__OpenBSD__)
 	if (stress_sighandler(args->name, SIGALRM, stress_mergesort_handler, &old_action) < 0) {
 		free(data);
 		return EXIT_FAILURE;
 	}
+#endif
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
