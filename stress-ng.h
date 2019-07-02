@@ -1034,7 +1034,8 @@ typedef struct {
 #endif
 
 /* print format attribute */
-#if defined(__GNUC__) && NEED_GNUC(3,2,0)
+#if ((defined(__GNUC__) && NEED_GNUC(3,2,0)) ||	\
+     (defined(__clang__) && NEED_CLANG(3, 7, 0)))
 #define FORMAT(func, a, b) __attribute__((format(func, a, b)))
 #else
 #define FORMAT(func, a, b)
