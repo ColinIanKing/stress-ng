@@ -765,14 +765,15 @@ static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
 		(void)munmap(ptr, page_size);
 	}
 	if (read_page) {
-		char buffer[page_size];
-		ssize_t ret;
 		off_t off;
 
 		/* Try seeking */
 		off = lseek(fd, (off_t)0, SEEK_SET);
 #if defined(STRESS_X86)
 		if (off == 0) {
+			char buffer[page_size];
+			ssize_t ret;
+
 			/* And try reading */
 			ret = read(fd, buffer, page_size);
 			(void)ret;
