@@ -2515,7 +2515,38 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 			} while (t2 < slice_end);
 		} else {
 			/* > 0, time slice in milliseconds */
-			double slice_end = t1 +
+
+			double slice_end;
+#if defined(CLOCK_PROCESS_CPUTIME_ID)
+			struct timespec ts;
+			static bool clock_failed = false;
+
+			if (clock_failed)
+				goto poll_time;
+
+			if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) < 0) {
+				clock_failed = true;
+				goto poll_time;
+			}
+			slice_end = (ts.tv_sec + ((double)ts.tv_nsec) / 1000000000.0) +
+				((double)cpu_load_slice / 1000.0);
+
+			do {
+				(void)func(args->name);
+				if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) < 0) {
+					clock_failed = true;
+					goto poll_time;
+				}
+				t2 = ts.tv_sec + ((double)ts.tv_nsec) / 1000000000.0;
+				if (!g_keep_stressing_flag)
+					break;
+				inc_counter(args);
+			} while (t2 < slice_end);
+
+			goto delay_time;
+poll_time:
+#endif
+			slice_end = t1 +
 				((double)cpu_load_slice / 1000.0);
 			do {
 				(void)func(args->name);
@@ -2525,6 +2556,9 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 				inc_counter(args);
 			} while (t2 < slice_end);
 		}
+#if defined(CLOCK_PROCESS_CPUTIME_ID)
+delay_time:
+#endif
 		/* Must not calculate this with zero % load */
 		delay = (((100 - cpu_load) * (t2 - t1)) / (double)cpu_load);
 		delay -= bias;
