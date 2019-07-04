@@ -233,7 +233,7 @@ static int stress_netlink_task(const args_t *args)
 	struct nlattr *na;
 	nlmsg_t nlmsg;
 	const pid_t pid = getpid();
-	uint16_t id = -1;
+	uint16_t id;
 	uint64_t nivcsw = 0ULL;	/* number of involuntary context switches */
 	static char name[] = TASKSTATS_GENL_NAME;
 
