@@ -2528,7 +2528,7 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 		}
 		t = t2 - t1;
 		/* Must not calculate this with zero % load */
-		delay = t * (((100.0 / (double)cpu_load)) - 1.0);
+		delay = (((100 - cpu_load) * (t2 - t1)) / cpu_load);
 		delay -= bias;
 
 		tv.tv_sec = delay;
