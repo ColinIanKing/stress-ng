@@ -177,9 +177,6 @@ next:
 		 *  force reading a byte from the start of the page.
 		 */
 		if (len > (page_size << 1)) {
-			ptrdiff_t offset = (page_size - 1) + mwc64() % (len - (page_size << 1));
-			offset &= ~(args->page_size - 1);
-
 			if (mapto != MAP_FAILED) {
 				ptr = (uint8_t *)mmap(mapto, page_size, PROT_READ,
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
