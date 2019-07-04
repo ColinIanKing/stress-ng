@@ -374,7 +374,7 @@ reap:
 				stop_running();
 			}
 		}
-	} while (keep_running() && keep_stressing());
+	} while (!locked && keep_running() && keep_stressing());
 
 	if (limited) {
 		pr_inf("%s: %.2f%% of iterations could not reach "
