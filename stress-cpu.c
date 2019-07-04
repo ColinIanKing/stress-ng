@@ -2488,8 +2488,7 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 	 */
 	bias = 0.0;
 	do {
-		double t, delay;
-		double t1, t2, t3;
+		double delay, t1, t2, t3;
 		struct timeval tv;
 
 		t1 = time_now();
@@ -2526,9 +2525,8 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 				inc_counter(args);
 			} while (t2 < slice_end);
 		}
-		t = t2 - t1;
 		/* Must not calculate this with zero % load */
-		delay = (((100 - cpu_load) * (t2 - t1)) / cpu_load);
+		delay = (((100 - cpu_load) * (t2 - t1)) / (double)cpu_load);
 		delay -= bias;
 
 		tv.tv_sec = delay;
