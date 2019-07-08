@@ -1,3 +1,50 @@
+stress-ng (0.10.00-1) unstable; urgency=medium
+
+  * Makefile: bump version, change code name
+  * stress-fault: remove redundant variable offset
+  * stress-netlink-task: remove redundant initialization of id
+  * stress-pthread: abort if mutex lock is unlockable
+  * stress-cpu: use CLOCK_PROCESS_CPUTIME_ID to measure CPU consumed
+  * stress-cpu: clean up cpu load variables
+  * stress-cpu: fix CPU loading calculation
+  * stress-dev: move ret and buffer to lower scope
+  * core_shim: Remove caddr casts for __sun__
+  * stress-mergesort: workaround heap corruption on OpenBSD with
+    setjmp/longjmp
+  * core-helper: keeping on ringing SIGALRM until stressors get the
+    message
+  * stress-memthrash: make stressors more yielding
+  * Enable FORMAT macro (__attribute__ format) for clang
+  * Add Tiny C compiler notes in README
+  * stress-fork: add vfork timeout for OS X to workaround SIGARLM
+    issues
+  * stress-fork: do explicit keep_stressing() call rather than
+    simple flag check
+  * stress-pthread: use stress_sigalrm_pending helper and make set
+    non-static
+  * stress-fork: block SIGALRM and check for pending SIGALRMs
+  * Add stress_sigalrm_pending and stress_sigalrm_block helpers
+  * stress-fork: make fork_max a uint32_t and optimize wait and
+    error check loops
+  * Only use openlog/closelog if we have HAVE_SYSLOG_H defined
+  * core-sched: fix build error on some BSD systems
+  * stress-brk: exercise zero expansion of brk
+  * stress-efivar: exercise efi variable interfaces a little more
+  * core-out-of-memory: refactor code, add a set adjustment helper
+  * core-sched: put sched types into a lookup table
+  * stress-socket: remove debug
+  * stress-dev: exercise /dev/nvram
+  * stress-dev: try lseek and read on /dev/mem on x86
+  * stress-socket: exercise IP_MTU if it is available
+  * stress-sctp: use setsockopt for more socket option exercising
+  * stress-sctp: remove some debugging info
+  * stress-sctp: add some sctp related getsockopt calls
+  * stress-fcntl: don't make EPERM a fatal test failure
+  * stress-chroot: don't make EPERM a fatal test failure
+  * stress-fault: fix warnings on open indiania with gcc-8
+
+ -- Colin King <colin.king@canonical.com>  Mon, 8 Jul 2019 20:14:21 +0100
+
 stress-ng (0.09.60-0ubuntu1) unstable; urgency=medium
 
   * Makefile: bump version
