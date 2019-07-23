@@ -42,7 +42,7 @@ typedef struct {
 
 typedef struct {
 	double		duration;
-	double		mbytes;
+	double		kbytes;
 } memrate_stats_t;
 
 static int stress_set_memrate_bytes(const char *opt)
@@ -121,7 +121,7 @@ static uint64_t stress_memrate_read##size(			\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
-	return ((volatile void *)ptr - start) / MB;		\
+	return ((volatile void *)ptr - start) / KB;		\
 }
 
 STRESS_MEMRATE_READ(64)
@@ -175,7 +175,7 @@ static uint64_t stress_memrate_write##size(			\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
-	return ((volatile void *)ptr - start) / MB;		\
+	return ((volatile void *)ptr - start) / KB;		\
 }
 
 STRESS_MEMRATE_WRITE(64)
@@ -266,7 +266,7 @@ static int stress_memrate(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	for (i = 0; i < memrate_items; i++) {
 		stats[i].duration = 0.0;
-		stats[i].mbytes = 0.0;
+		stats[i].kbytes = 0.0;
 	}
 
 	memrate_bytes = (memrate_bytes + 63) & ~(63);
@@ -329,7 +329,7 @@ again:
 				memrate_info_t *info = &memrate_info[i];
 
 				t1 = time_now();
-				stats[i].mbytes += info->func(buffer, buffer_end,
+				stats[i].kbytes += info->func(buffer, buffer_end,
 					memrate_rd_mbs, memrate_wr_mbs);
 				t2 = time_now();
 				stats[i].duration += (t2 - t1);
@@ -350,7 +350,7 @@ again:
 		if (stats[i].duration > 0.001)
 			pr_inf_lock(&lock, "%s: %7.7s: %.2f MB/sec\n",
 				args->name, memrate_info[i].name,
-				stats[i].mbytes / stats[i].duration);
+				stats[i].kbytes / (stats[i].duration * KB));
 		else
 			pr_inf_lock(&lock, "%s: %7.7s: interrupted early\n",
 				args->name, memrate_info[i].name);
