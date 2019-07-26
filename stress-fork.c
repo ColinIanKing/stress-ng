@@ -171,10 +171,11 @@ static int stress_fork(const args_t *args)
  *  stress_vfork()
  *	stress by vforking and exiting
  */
+PRAGMA_PUSH
+PRAGMA_WARN_OFF
 static int stress_vfork(const args_t *args)
 {
 	uint32_t vfork_max = DEFAULT_VFORKS;
-	register int ret;
 
 	if (!get_setting("vfork-max", &vfork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -183,12 +184,9 @@ static int stress_vfork(const args_t *args)
 			vfork_max = MIN_VFORKS;
 	}
 
-PRAGMA_PUSH
-PRAGMA_WARN_OFF
-	ret = stress_fork_fn(args, vfork, "vfork", vfork_max);
-PRAGMA_POP
-	return ret;
+	return stress_fork_fn(args, vfork, "vfork", vfork_max);
 }
+PRAGMA_POP
 
 static const opt_set_func_t fork_opt_set_funcs[] = {
 	{ OPT_fork_max,		stress_set_fork_max },
