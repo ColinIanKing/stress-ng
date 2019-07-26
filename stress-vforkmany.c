@@ -33,6 +33,14 @@ static const help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
+PRAGMA_PUSH
+PRAGMA_WARN_OFF
+static inline pid_t stress_shim_vfork(void)
+{
+	return (pid_t)syscall(__NR_vfork);
+}
+PRAGMA_POP
+
 /*
  *  stress_vforkmany()
  *	stress by vfork'ing as many processes as possible.
@@ -137,14 +145,11 @@ vfork_again:
 			if (first) {
 				pid = fork();
 			} else {
-PRAGMA_PUSH
-PRAGMA_WARN_OFF
 #if defined(__NR_vfork)
-				pid = (pid_t)syscall(__NR_vfork);
+				pid = stress_shim_vfork();
 #else
 				pid = vfork();
 #endif
-PRAGMA_POP
 			}
 
 			if (pid < 0) {
