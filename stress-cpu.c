@@ -167,6 +167,33 @@ static void HOT TARGET_CLONES stress_cpu_sqrt(const char *name)
 	}
 }
 
+static bool stress_is_affinity_set(void)
+{
+#if defined(HAVE_SCHED_GETAFFINITY)
+	cpu_set_t mask;
+	int i;
+	const int cpus_online = (int)stress_get_processors_online();
+
+	CPU_ZERO(&mask);
+        if (sched_getaffinity(0, sizeof(mask), &mask) < 0)
+		return false;	/* Can't tell, so assume not */
+
+	/*
+	 * If any of the CPU affinities across all the CPUs
+	 * are zero then we know the stressor as been pinned
+	 * to some CPUs and not to others, so affinity has been
+	 * set which can lead to load balancing difficulties
+	 */
+	for (i = 0; i < cpus_online; i++) {
+		if (!CPU_ISSET(i, &mask))
+			return true;
+	}
+	return false;
+#else
+	return false;	/* Don't know, so assume not */
+#endif
+}
+
 /*
  *  stress_cpu_loop()
  *	simple CPU busy loop
@@ -2567,10 +2594,16 @@ delay_time:
 		tv.tv_usec = (delay - tv.tv_sec) * 1000000.0;
 		(void)select(0, NULL, NULL, NULL, &tv);
 
+
 		t3 = time_now();
 		/* Bias takes account of the time to do the delay */
 		bias = (t3 - t2) - delay;
 	} while (keep_stressing());
+
+	if (stress_is_affinity_set() && (args->instance == 0)) {
+		pr_inf("%s: CPU affinity probably set, this can affect CPU loading\n",
+			args->name);
+	}
 
 	return EXIT_SUCCESS;
 }
