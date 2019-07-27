@@ -37,7 +37,11 @@ PRAGMA_PUSH
 PRAGMA_WARN_OFF
 static inline pid_t stress_shim_vfork(void)
 {
+#if defined(__NR_vfork)
 	return (pid_t)syscall(__NR_vfork);
+#else
+	return vfork();
+#endif
 }
 PRAGMA_POP
 
@@ -145,11 +149,7 @@ vfork_again:
 			if (first) {
 				pid = fork();
 			} else {
-#if defined(__NR_vfork)
 				pid = stress_shim_vfork();
-#else
-				pid = vfork();
-#endif
 			}
 
 			if (pid < 0) {
