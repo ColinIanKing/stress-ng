@@ -2593,8 +2593,6 @@ delay_time:
 		tv.tv_sec = delay;
 		tv.tv_usec = (delay - tv.tv_sec) * 1000000.0;
 		(void)select(0, NULL, NULL, NULL, &tv);
-
-
 		t3 = time_now();
 		/* Bias takes account of the time to do the delay */
 		bias = (t3 - t2) - delay;
