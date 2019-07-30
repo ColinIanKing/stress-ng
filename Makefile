@@ -539,6 +539,6 @@ else
 	cp stress-ng.1 ${DESTDIR}${MANDIR}
 endif
 	mkdir -p ${DESTDIR}${JOBDIR}
-	cp -rp example-jobs/*.job ${DESTDIR}${JOBDIR}
+	cp -r example-jobs/*.job ${DESTDIR}${JOBDIR}
 	mkdir -p ${DESTDIR}${BASHDIR}
 	cp bash-completion/stress-ng ${DESTDIR}${BASHDIR}
