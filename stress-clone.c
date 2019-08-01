@@ -92,6 +92,9 @@ static const int flags[] = {
 #if defined(CLONE_UNTRACED)
 	CLONE_UNTRACED,
 #endif
+#if defined(CLONE_PIDFD)
+	CLONE_PIDFD,
+#endif
 };
 
 static const int unshare_flags[] = {
