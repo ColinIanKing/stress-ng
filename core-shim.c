@@ -919,8 +919,21 @@ int shim_brk(void *addr)
 {
 #if defined(__APPLE__)
 	return (int)brk(addr);
-#else
+#elif defined(HAVE_BRK)
 	return brk(addr);
+#else
+	uintptr_t brkaddr;
+	intptr_t inc;
+	void *newbrk;
+
+	brkaddr = (uintptr_t)sbrk(0);
+	inc = brkaddr - (intptr_t)addr;
+	newbrk = sbrk(inc);
+	if (newbrk == (void *)-1) {
+		errno = ENOMEM;
+		return -1;
+	}
+	return 0;
 #endif
 }
 #if defined(__APPLE__)
