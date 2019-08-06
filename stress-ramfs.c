@@ -31,6 +31,21 @@ static const help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
+/*
+ *  stress_ramfs_supported()
+ *      check if we can run this as root
+ */
+static int stress_ramfs_supported(void)
+{
+	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+		pr_inf("ramfs stressor will be skipped, "
+			"need to be running with CAP_SYS_ADMIN "
+			"rights for this stressor\n");
+		return -1;
+	}
+	return 0;
+}
+
 #if defined(__linux__) && \
     defined(HAVE_CLONE) && \
     defined(CLONE_NEWUSER) && \
@@ -280,12 +295,14 @@ stressor_info_t stress_ramfs_info = {
 	.stressor = stress_ramfs_mount,
 	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
 	.opt_set_funcs = opt_set_funcs,
+	.supported = stress_ramfs_supported,
 	.help = help
 };
 #else
 stressor_info_t stress_ramfs_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.supported = stress_ramfs_supported,
 	.help = help
 };
 #endif
