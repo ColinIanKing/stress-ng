@@ -293,7 +293,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 
 stressor_info_t stress_ramfs_info = {
 	.stressor = stress_ramfs_mount,
-	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_ramfs_supported,
 	.help = help
@@ -301,7 +301,7 @@ stressor_info_t stress_ramfs_info = {
 #else
 stressor_info_t stress_ramfs_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.supported = stress_ramfs_supported,
 	.help = help
 };
