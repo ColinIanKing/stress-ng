@@ -1,5 +1,3 @@
-#!/bin/bash
-#
 # stress-ng tab completion for bash.
 #
 # Copyright (C) 2019 Canonical
