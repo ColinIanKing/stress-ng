@@ -1210,3 +1210,58 @@ int shim_pidfd_send_signal(
 #endif
 }
 
+/*
+ * If we have the fancy new Linux 5.2 mount system
+ * calls then provide shim wrappers for these
+ */
+int shim_fsopen(const char *fsname, unsigned int flags)
+{
+#if defined(__NR_fsopen)
+	return syscall(__NR_fsopen, fsname, flags);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+int shim_fsmount(int fd, unsigned int flags, unsigned int ms_flags)
+{
+#if defined(__NR_fsmount)
+	return syscall(__NR_fsmount, fd, flags, ms_flags);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+int shim_fsconfig(
+	int fd,
+	unsigned int cmd,
+	const char *key,
+	const void *value,
+	int aux)
+{
+#if defined(__NR_fsconfig)
+	return syscall(__NR_fsconfig, fd, cmd, key, value, aux);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+
+int shim_move_mount(
+	int from_dfd,
+	const char *from_pathname,
+	int to_dfd,
+	const char *to_pathname,
+	unsigned int flags)
+{
+#if defined(__NR_move_mount)
+        return syscall(__NR_move_mount, from_dfd, from_pathname,
+			to_dfd, to_pathname, flags);
+#else
+	errno = ENOSYS;
+	return -1;
+#endif
+}
+

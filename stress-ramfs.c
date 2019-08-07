@@ -56,46 +56,6 @@ static int stress_ramfs_supported(void)
 
 static volatile bool keep_mounting = true;
 
-/*
- * If we have the fancy new Linux 5.2 mount system
- * calls then provide shim wrappers for these
- */
-#if defined(__NR_fsopen) &&	\
-    defined(__NR_fsmount) &&	\
-    defined(__NR_fsconfig) &&	\
-    defined(__NR_move_mount)
-static int shim_fsopen(const char *fsname, unsigned int flags)
-{
-	return syscall(__NR_fsopen, fsname, flags);
-}
-
-static int shim_fsmount(int fd, unsigned int flags, unsigned int ms_flags)
-{
-	return syscall(__NR_fsmount, fd, flags, ms_flags);
-}
-
-static int shim_fsconfig(
-	int fd,
-	unsigned int cmd,
-	const char *key,
-	const void *value,
-	int aux)
-{
-	return syscall(__NR_fsconfig, fd, cmd, key, value, aux);
-}
-
-static int shim_move_mount(
-	int from_dfd,
-	const char *from_pathname,
-	int to_dfd,
-	const char *to_pathname,
-	unsigned int flags)
-{
-        return syscall(__NR_move_mount, from_dfd, from_pathname,
-			to_dfd, to_pathname, flags);
-}
-#endif
-
 static int stress_set_ramfs_size(const char *opt)
 {
         uint64_t ramfs_size;

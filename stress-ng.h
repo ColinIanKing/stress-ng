@@ -3509,6 +3509,10 @@ extern ssize_t shim_getxattr(const char *path, const char *name,
 extern int shim_futex_wait(const void *futex, const int val,
 	const struct timespec *timeout);
 extern int shim_futex_wake(const void *futex, const int n);
+extern int shim_fsconfig(int fd, unsigned int cmd, const char *key,
+	const void *value, int aux);
+extern int shim_fsmount(int fd, unsigned int flags, unsigned int ms_flags);
+extern int shim_fsopen(const char *fsname, unsigned int flags);
 extern int shim_fsync(int fd);
 extern int shim_ioprio_set(int which, int who, int ioprio);
 extern int shim_ioprio_get(int which, int who);
@@ -3526,6 +3530,8 @@ extern int shim_mincore(void *addr, size_t length, unsigned char *vec);
 extern int shim_mlock(const void *addr, size_t len);
 extern int shim_mlock2(const void *addr, size_t len, int flags);
 extern int shim_mlockall(int flags);
+extern int shim_move_mount(int from_dfd, const char *from_pathname,
+	int to_dfd, const char *to_pathname, unsigned int flags);
 extern long shim_move_pages(int pid, unsigned long count,
 	void **pages, const int *nodes, int *status, int flags);
 extern int shim_msync(void *addr, size_t length, int flags);
