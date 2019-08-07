@@ -81,13 +81,61 @@ static void stress_ramfs_child_handler(int signum)
 }
 
 /*
+ *  stress_ramfs_umount()
+ *	umount a path with retries.
+ */
+static void stress_ramfs_umount(const args_t *args, const char *path)
+{
+	int i;
+	static const uint64_t ns = 100000000;	/* 1/10th second */
+
+	/*
+	 *  umount is attempted at least twice, the first successfull mount
+	 *  and then a retry. In theory the EINVAL should be returned
+	 *  on a umount of a path that has already been umounted, so we
+	 *  know that umount been successful and can then return.
+	 */
+	for (i = 0; i < 100; i++) {
+		int ret;
+
+		ret = umount(path);
+		if (ret == 0) {
+			if (i > 1) {
+				shim_nanosleep_uint64(ns);
+			}
+			continue;
+		}
+		switch (errno) {
+		case EAGAIN:
+		case EBUSY:
+		case ENOMEM:
+			/* Wait and then re-try */
+			shim_nanosleep_uint64(ns);
+			break;
+		case EINVAL:
+			/*
+			 *  EINVAL if it's either invalid path or
+			 *  it can't be umounted.  We now assume it
+			 *  has been successfully umounted
+			 */
+			return;
+			break;
+		default:
+			/* Unexpected, so report it */
+			pr_inf("%s: umount failed %s: %d %s\n", args->name,
+				path, errno, strerror(errno));
+			break;
+		}
+	}
+}
+
+/*
  *  stress_ramfs_child()
  *	aggressively perform ramfs mounts, this can force out of memory
  *	situations
  */
-static int stress_ramfs_child(void *parg)
+static int stress_ramfs_child(const args_t *args)
 {
-	const args_t *args = ((pthread_args_t *)parg)->args;
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 	uint64_t ramfs_size = 2 * MB;
 
@@ -138,7 +186,7 @@ static int stress_ramfs_child(void *parg)
 			/* Just in case, force umount */
 			goto cleanup;
 		}
-		(void)umount(realpathname);
+		stress_ramfs_umount(args, realpathname);
 
 #if defined(__NR_fsopen) &&	\
     defined(__NR_fsmount) &&	\
@@ -195,7 +243,7 @@ cleanup_mfd:
 		(void)close(mfd);
 cleanup_fd:
 		(void)close(fd);
-		(void)umount(realpathname);
+		stress_ramfs_umount(args, realpathname);
 skip_fsopen:
 
 #endif
@@ -204,7 +252,7 @@ skip_fsopen:
 		 (!args->max_ops || get_counter(args) < args->max_ops));
 
 cleanup:
-	(void)umount(realpathname);
+	stress_ramfs_umount(args, realpathname);
 	(void)stress_temp_dir_rm_args(args);
 
 	return 0;
@@ -216,31 +264,50 @@ cleanup:
  */
 static int stress_ramfs_mount(const args_t *args)
 {
-	int pid = 0, status;
-	pthread_args_t pargs = { args, NULL };
-	const ssize_t stack_offset =
-		stress_get_stack_direction() *
-		(CLONE_STACK_SIZE - 64);
+	int pid = 0;
 
 	do {
-		int ret;
-		static char stack[CLONE_STACK_SIZE];
-		char *stack_top = stack + stack_offset;
+again:
+		if (!g_keep_stressing_flag)
+			break;
 
-		(void)memset(stack, 0, sizeof stack);
-
-		pid = clone(stress_ramfs_child,
-			align_stack(stack_top),
-			SIGCHLD,
-			(void *)&pargs, 0);
+		pid = fork();
 		if (pid < 0) {
-			int rc = exit_status(errno);
+			if (errno == EAGAIN)
+				goto again;
+			pr_err("%s: fork failed: errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		} else if (pid > 0) {
+			int status, waitret;
 
-			pr_fail_err("clone");
-			return rc;
+			/* Parent, wait for child */
+			(void)setpgid(pid, g_pgrp);
+			waitret = shim_waitpid(pid, &status, 0);
+			if (waitret < 0) {
+				if (errno != EINTR) {
+					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					(void)kill(pid, SIGTERM);
+					(void)kill(pid, SIGKILL);
+				}
+				(void)shim_waitpid(pid, &status, 0);
+			} else if (WIFSIGNALED(status)) {
+				pr_dbg("%s: child died: %s (instance %d)\n",
+					args->name, stress_strsignal(WTERMSIG(status)),
+					args->instance);
+				/* If we got killed by OOM killer, re-start */
+				if (WTERMSIG(status) == SIGKILL) {
+					log_system_mem_info();
+					pr_dbg("%s: assuming killed by OOM killer, "
+						"restarting again (instance %d)\n",
+						args->name, args->instance);
+					goto again;
+				}
+			}
+		} else if (pid == 0) {
+			stress_ramfs_child(args);
+			_exit(EXIT_SUCCESS);
 		}
-		ret = shim_waitpid(pid, &status, 0);
-		(void)ret;
 	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
