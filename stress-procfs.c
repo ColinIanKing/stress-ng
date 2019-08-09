@@ -42,7 +42,7 @@ typedef struct ctxt {
 
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
-static char *proc_path;
+static char proc_path[PATH_MAX];
 static uint32_t mixup;
 
 static uint32_t path_sum(const char *path)
@@ -147,6 +147,8 @@ static inline void stress_proc_rw(
 		ret = read(fd, buffer, 0);
 		if (ret < 0)
 			goto err;
+
+#if 0
 		/*
 		 *  Bad read buffer, should fail!
 		 */
@@ -161,6 +163,7 @@ static inline void stress_proc_rw(
 			(void)close(fd);
 			goto next;
 		}
+#endif
 
 		/*
 		 *  mmap it
@@ -332,7 +335,6 @@ static void stress_proc_dir(
 
 	for (i = 0; i < n; i++) {
 		int ret;
-		char *filename;
 		char tmp[PATH_MAX];
 		struct dirent *d = dlist[i];
 
@@ -351,18 +353,13 @@ static void stress_proc_dir(
 			stress_proc_dir(ctxt, tmp, recurse, depth + 1);
 			break;
 		case DT_REG:
-			filename = malloc(PATH_MAX);
-			if (!filename)
-				break;
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
-				(void)shim_strlcpy(filename, tmp, PATH_MAX);
-				proc_path = filename;
+				(void)shim_strlcpy(proc_path, tmp, sizeof(proc_path));
 				(void)shim_pthread_spin_unlock(&lock);
 				stress_proc_rw(ctxt, loops);
 				inc_counter(args);
 			}
-			free(filename);
 			break;
 		default:
 			break;
@@ -389,7 +386,7 @@ static int stress_procfs(const args_t *args)
 
 	(void)sigfillset(&set);
 
-	proc_path = "/proc/self";
+	shim_strlcpy(proc_path, "/proc/self", sizeof(proc_path));
 
 	ctxt.args = args;
 	ctxt.writeable = (geteuid() != 0);
@@ -469,7 +466,7 @@ static int stress_procfs(const args_t *args)
 	if (rc) {
 		pr_dbg("%s: failed to lock spin lock for sysfs_path\n", args->name);
 	} else {
-		proc_path = "";
+		shim_strlcpy(proc_path, "", sizeof(proc_path));
 		rc = shim_pthread_spin_unlock(&lock);
 		(void)rc;
 	}
