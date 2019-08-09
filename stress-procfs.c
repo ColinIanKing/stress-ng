@@ -332,7 +332,7 @@ static void stress_proc_dir(
 
 	for (i = 0; i < n; i++) {
 		int ret;
-		char filename[PATH_MAX];
+		char *filename;
 		char tmp[PATH_MAX];
 		struct dirent *d = dlist[i];
 
@@ -351,6 +351,9 @@ static void stress_proc_dir(
 			stress_proc_dir(ctxt, tmp, recurse, depth + 1);
 			break;
 		case DT_REG:
+			filename = malloc(PATH_MAX);
+			if (!filename)
+				break;
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
 				(void)shim_strlcpy(filename, tmp, sizeof(filename));
@@ -359,6 +362,7 @@ static void stress_proc_dir(
 				stress_proc_rw(ctxt, loops);
 				inc_counter(args);
 			}
+			free(filename);
 			break;
 		default:
 			break;
