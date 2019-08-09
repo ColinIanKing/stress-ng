@@ -135,7 +135,6 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 
 	while (g_keep_stressing_flag && !segv_abort) {
 		double t_start;
-		char buf[PATH_MAX];
 		uint8_t *ptr;
 
 		ret = shim_pthread_spin_lock(&lock);
@@ -157,9 +156,6 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 			(void)close(fd);
 			goto next;
 		}
-
-		ret = readlink(path, buf, sizeof(buf));
-		(void)ret;
 
 		/*
 		 *  Multiple randomly sized reads
@@ -190,17 +186,8 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			struct stat statbuf;
 
-			if (fstat(fd, &statbuf) < 0) {
+			if (fstat(fd, &statbuf) < 0)
 				pr_fail_err("stat");
-			} else {
-#if 0
-				if ((statbuf.st_mode & S_IROTH) == 0) {
-					pr_fail("%s: read access failed on %s which "
-						"could be opened, errno=%d (%s)\n",
-					args->name, path, errno, strerror(errno));
-				}
-#endif
-			}
 		}
 		(void)close(fd);
 
