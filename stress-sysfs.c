@@ -38,7 +38,7 @@ static const help_t help[] = {
 
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
-static char *sysfs_path;
+static char sysfs_path[PATH_MAX];
 static uint32_t mixup;
 static volatile bool segv_abort = false;
 static volatile bool drain_kmsg = false;
@@ -407,7 +407,7 @@ static void stress_sys_dir(
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
 				(void)shim_strlcpy(filename, tmp, sizeof(filename));
-				sysfs_path = filename;
+				shim_strlcpy(sysfs_path, filename, sizeof(sysfs_path));
 				counter = 0;
 				usr2_killed = false;
 				(void)shim_pthread_spin_unlock(&lock);
@@ -466,6 +466,7 @@ static int stress_sysfs(const args_t *args)
 	(void)memset(&ctxt, 0, sizeof(ctxt));
 	rc = sigsetjmp(jmp_env, 1);
 	if (rc) {
+		/* Potentially racy, but it's good enough for the moment */
 		pr_err("%s: A SIGSEGV occurred while exercising %s, aborting\n",
 			args->name, sysfs_path);
 		return EXIT_FAILURE;
@@ -475,7 +476,7 @@ static int stress_sysfs(const args_t *args)
 	if (stress_sighandler(args->name, SIGUSR2, stress_usr2_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	sysfs_path = signum_path;
+	shim_strlcpy(sysfs_path, signum_path, sizeof(sysfs_path));
 
 	ctxt.args = args;
 	ctxt.writeable = (geteuid() != 0);
@@ -516,7 +517,7 @@ static int stress_sysfs(const args_t *args)
 	if (rc) {
 		pr_dbg("%s: failed to lock spin lock for sysfs_path\n", args->name);
 	} else {
-		sysfs_path = "";
+		shim_strlcpy(sysfs_path, "", sizeof(sysfs_path));
 		rc = shim_pthread_spin_unlock(&lock);
 		(void)rc;
 	}
