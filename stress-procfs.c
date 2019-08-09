@@ -356,7 +356,7 @@ static void stress_proc_dir(
 				break;
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
-				(void)shim_strlcpy(filename, tmp, sizeof(filename));
+				(void)shim_strlcpy(filename, tmp, PATH_MAX);
 				proc_path = filename;
 				(void)shim_pthread_spin_unlock(&lock);
 				stress_proc_rw(ctxt, loops);
