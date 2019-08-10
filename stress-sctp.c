@@ -92,6 +92,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 	if (ret == 0) {					\
 		ret = setsockopt(fd, IPPROTO_SCTP, opt,	\
 			&info, opt_len);		\
+		(void)ret;				\
 	}						\
 }
 
