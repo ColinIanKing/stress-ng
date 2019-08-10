@@ -369,7 +369,6 @@ static void stress_sys_dir(
 	for (i = 0; (i < n) && !segv_abort; i++) {
 		int ret;
 		struct stat buf;
-		char filename[PATH_MAX];
 		char tmp[PATH_MAX];
 		struct dirent *d = dlist[i];
 
@@ -406,8 +405,7 @@ static void stress_sys_dir(
 
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
-				(void)shim_strlcpy(filename, tmp, sizeof(filename));
-				shim_strlcpy(sysfs_path, filename, sizeof(sysfs_path));
+				(void)shim_strlcpy(sysfs_path, tmp, sizeof(sysfs_path));
 				counter = 0;
 				usr2_killed = false;
 				(void)shim_pthread_spin_unlock(&lock);
