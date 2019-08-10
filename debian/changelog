@@ -1,3 +1,36 @@
+stress-ng (0.10.01-1) unstable; urgency=medium
+
+  * Upload as source package (Closes: #934007)
+  * Makefile: bump version
+  * stress-cache: replace globbing with scandir, clean up pathnames
+  * stress-sysfs: remove filename, it is now redundant
+  * stress-sctp: voidify unused return
+  * stress-mcontend: break multistatment lines
+  * stress-sysfs: copy to sysfs_path rather than using sysfs_path as a pointer
+  * stress-procfs: disable read to read-only buffer
+  * stress-procs: fix incorrect strlcpy size
+  * stress-procfs: don't use large filenames on small pthread stacks
+  * stress-sysfs: remove redundant readlink
+  * core-shim: voidify unused args in new mount shim helpers
+  * bash-completion: remove the shebang at the start
+  * stress-ramfs: fix umounting races
+  * Move the "random" option in correct alphabetical order
+  * Move new mount system call shims to core-shim.c
+  * stress-ramfs: remove pathological setting
+  * stress-ramfs: add capability check before running
+  * Add ramfs stressor, this also exercises the new mount system calls
+  * Add brk emulation for systems that don't support brk()
+  * stress-clone: add CLONE_PIDFD (new with Linux 5.2)
+  * stress-cpu: remove blank lines
+  * stress-cpu: warn if CPU affinity may have been set
+  * stress-vforkmany: fix build error
+  * stress-vforkmany: wrap vfork syscall and put pragmas around it
+  * stress-fork: move pragmas to outside the stress_vfork function
+  * stress-opcode: fix missing space and remove redundant parentheses
+  * stress-memrate: handle memory sizes < 1MB
+
+ -- Colin King <colin.king@canonical.com>  Sat, 10 Aug 2019 19:48:23 +0100
+
 stress-ng (0.10.00-1) unstable; urgency=medium
 
   * Makefile: bump version, change code name
