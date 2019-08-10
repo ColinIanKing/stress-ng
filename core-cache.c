@@ -26,23 +26,9 @@ typedef struct {
 	const uint32_t	value;		/* cache type ID */
 } generic_map_t;
 
-#include <glob.h>
-
 #if defined(__linux__)
 #define SYS_CPU_PREFIX               "/sys/devices/system/cpu"
-#define GLOB_PATTERN SYS_CPU_PREFIX  "/cpu[0-9]*"
 #define SYS_CPU_CACHE_DIR            "/cache"
-#define GLOB_PATTERN_INDEX_PREFIX    "/index[0-9]*"
-#endif
-
-/*
- *  GLOB_ONLYDIR is a GNU specific flag, use it if is available
- *  as it is a useful optimization hint, otherwise default to 0.
- */
-#if defined(GLOB_ONLYDIR)
-#define SHIM_GLOB_ONLYDIR	GLOB_ONLYDIR
-#else
-#define SHIM_GLOB_ONLYDIR	(0)
 #endif
 
 static const generic_map_t cache_type_map[] = {
@@ -53,48 +39,14 @@ static const generic_map_t cache_type_map[] = {
 };
 
 /*
- * append @element to array @path (which has len @len)
- */
-static inline void mk_path(char *path, size_t len, const char *element)
-{
-	const size_t e_len = strlen(element);
-
-	path[len] = '\0';
-	(void)strncpy((path) + len, element, e_len + 1);
-	path[len + e_len] = '\0';
-}
-
-/**
- *
  * cache_get_cpu()
  *
- **/
+ */
 static inline unsigned int cache_get_cpu(const cpus_t *cpus)
 {
 	const unsigned int cpu = stress_get_cpu();
 
 	return (cpu >= cpus->count) ? 0 : cpu;
-}
-
-/**
- * file_exists()
- * @path: file to check.
- * Determine if specified file exists.
- *
- * Returns: file type if @path exists, else 0.
- **/
-static int file_exists(const char *path)
-{
-	struct stat st;
-
-	if (!path) {
-		pr_dbg("%s: empty path specified\n", __func__);
-		return 0;
-	}
-	if (stat(path, &st) < 0)
-		return 0;
-
-	return (st.st_mode & S_IFMT);
 }
 
 /*
@@ -261,7 +213,7 @@ out:
  */
 static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 {
-	const size_t index_posn = index_path ? strlen(index_path) : 0;
+	const size_t index_posn = strlen(index_path);
 	const size_t path_len = index_posn + 32;
 	char path[path_len];
 	char *contents = NULL;
@@ -277,49 +229,43 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 		goto out;
 	}
 
-	(void)strncpy(path, index_path, index_posn + 1);
-	mk_path(path, index_posn, "/type");
+	snprintf(path, sizeof(path), "%s/type", index_path);
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
-
 	cache->type = (cache_type_t)get_cache_type(contents);
 	if (cache->type == CACHE_TYPE_UNKNOWN)
 		goto out;
 	free(contents);
 
-	mk_path(path, index_posn, "/size");
+	snprintf(path, sizeof(path), "%s/size", index_path);
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
-
 	cache->size = size_to_bytes(contents);
 	free(contents);
 
-	mk_path(path, index_posn, "/level");
+	snprintf(path, sizeof(path), "%s/level", index_path);
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
-
 	cache->level = (uint16_t)atoi(contents);
 	free(contents);
 
-	mk_path(path, index_posn, "/coherency_line_size");
+	snprintf(path, sizeof(path), "%s/coherency_line_size", index_path);
 	contents = get_string_from_file(path);
 	if (!contents)
 		goto out;
-
 	cache->line_size = (uint32_t)atoi(contents);
 	free(contents);
 
-	mk_path(path, index_posn, "/ways_of_associativity");
+	snprintf(path, sizeof(path), "%s/ways_of_associativity", index_path);
 	contents = get_string_from_file(path);
-
-	/* Don't error if file is not readable: cache may not be
+	/*
+	 * Don't error if file is not readable: cache may not be
 	 * way-based.
 	 */
 	cache->ways = contents ? atoi(contents) : 0;
-
 	ret = EXIT_SUCCESS;
 
 out:
@@ -418,6 +364,15 @@ cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
 	return get_cache_by_cpu(cpu, cache_level);
 }
 
+static void free_scandir_list(struct dirent **namelist, int n)
+{
+	int i;
+
+	for (i = 0; i < n; i++)
+		free(namelist[i]);
+	free(namelist);
+}
+
 /*
  * get_cpu_cache_details()
  * @cpu: cpu to fill in.
@@ -428,17 +383,9 @@ cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
  */
 static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 {
-	uint32_t     i;
-	size_t	     len = cpu_path ? strlen(cpu_path) : 0;
-	const size_t len2 = strlen(SYS_CPU_CACHE_DIR) + 1;
-	glob_t       globbuf;
-	char         glob_path[len + len2];
-	char       **results;
-	int          ret = EXIT_FAILURE;
-	int          ret2;
-
-	(void)memset(glob_path, 0, sizeof(glob_path));
-	(void)memset(&globbuf, 0, sizeof(globbuf));
+	char path[strlen(cpu_path) + strlen(SYS_CPU_CACHE_DIR) + 2];
+	int i, j, n, ret = EXIT_FAILURE;
+	struct dirent **namelist;
 
 	if (!cpu) {
 		pr_dbg("%s: invalid cpu parameter\n", __func__);
@@ -449,43 +396,21 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 		return ret;
 	}
 
-	(void)strncat(glob_path, cpu_path, len);
-	(void)strncat(glob_path, SYS_CPU_CACHE_DIR, len2);
-	len += len2;
-
-	ret2 = file_exists(glob_path);
-	if (!ret2) {
+	(void)snprintf(path, sizeof(path), "%s/%s", cpu_path, SYS_CPU_CACHE_DIR);
+	n = scandir(path, &namelist, NULL, alphasort);
+	if (n < 0) {
 		/*
 		 * Not an error since some platforms don't provide cache
 		 * details * via /sys (ARM).
 		 */
-		/*
-		if (warn_once(WARN_ONCE_NO_CACHE))
-			pr_dbg("%s does not exist\n", glob_path);
-		 */
 		return ret;
 	}
 
-	if (ret2 != S_IFDIR) {
-		if (warn_once(WARN_ONCE_NO_CACHE))
-			pr_err("file %s is not a directory\n",
-				glob_path);
-		return ret;
+	cpu->cache_count = 0;
+	for (i = 0; i < n; i++) {
+		if (!strncmp(namelist[i]->d_name, "index", 5))
+			cpu->cache_count++;
 	}
-
-	(void)strncat(glob_path, GLOB_PATTERN_INDEX_PREFIX,
-		sizeof(glob_path) - len - 1);
-	ret2 = glob(glob_path, SHIM_GLOB_ONLYDIR, NULL, &globbuf);
-	if (ret2 != 0) {
-		if (warn_once(WARN_ONCE_NO_CACHE))
-			pr_err("glob on regex \"%s\" failed: %d\n",
-				glob_path, ret);
-		return ret;
-	}
-
-	results = globbuf.gl_pathv;
-	cpu->cache_count = globbuf.gl_pathc;
-
 	if (!cpu->cache_count) {
 		if (warn_once(WARN_ONCE_NO_CACHE))
 			pr_err("no CPU caches found\n");
@@ -501,19 +426,21 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 		goto err;
 	}
 
-	for (i = 0; i < cpu->cache_count; i++) {
-		ret2 = add_cpu_cache_detail(&cpu->caches[i], results[i]);
-		if (ret2 != EXIT_SUCCESS)
-			goto err;
+	for (i = 0, j = 0; i < n; i++) {
+		const char *name = namelist[i]->d_name;
+
+		if (!strncmp(name, "index", 5) &&
+                    isdigit(name[5])) {
+			char fullpath[strlen(path) + strlen(name) + 2];
+
+			(void)snprintf(fullpath, sizeof(fullpath), "%s/%s", path, name);
+			if (add_cpu_cache_detail(&cpu->caches[j++], fullpath) != EXIT_SUCCESS)
+				goto err;
+		}
 	}
-
 	ret = EXIT_SUCCESS;
-
 err:
-	globfree(&globbuf);
-
-	/* reset */
-	glob_path[0] = '\0';
+	free_scandir_list(namelist, n);
 
 	return ret;
 }
@@ -524,42 +451,28 @@ err:
  *
  * Returns: dynamically-allocated cpus_t object, or NULL on error.
  */
-cpus_t * get_all_cpu_cache_details(void)
+cpus_t *get_all_cpu_cache_details(void)
 {
-	uint32_t   i;
-	int        ret;
-	glob_t     globbuf;
-	char     **results;
-	cpus_t    *cpus = NULL;
-	size_t     cpu_count;
+	int i, j, n, ret, cpu_count;
+	cpus_t *cpus = NULL;
+	struct dirent **namelist;
 
-	(void)memset(&globbuf, 0, sizeof(globbuf));
-
-	ret = file_exists(SYS_CPU_PREFIX);
-	if (!ret) {
-		pr_err("%s does not exist\n", SYS_CPU_PREFIX);
-		return NULL;
-	}
-	if (ret != S_IFDIR) {
-		pr_err("file %s is not a directory\n", SYS_CPU_PREFIX);
-		return NULL;
-	}
-
-	ret = glob(GLOB_PATTERN, SHIM_GLOB_ONLYDIR, NULL, &globbuf);
-	if (ret != 0) {
-		pr_err("glob on regex \"%s\" failed: %d\n",
-			GLOB_PATTERN, ret);
-		return NULL;
-	}
-
-	results = globbuf.gl_pathv;
-	cpu_count = globbuf.gl_pathc;
-	if (!cpu_count) {
-		/* Maybe we should check this? */
+	n = scandir(SYS_CPU_PREFIX, &namelist, NULL, alphasort);
+	if (n < 0) {
 		pr_err("no CPUs found - is /sys mounted?\n");
+		return 0;
+	}
+	for (cpu_count = 0, i = 0; i < n; i++) {
+		const char *name = namelist[i]->d_name;
+
+		if (!strncmp(name, "cpu", 3) && isdigit(name[3]))
+			cpu_count++;
+	}
+	if (cpu_count < 1) {
+		/* Maybe we should check this? */
+		pr_err("no CPUs found in %s\n", SYS_CPU_PREFIX);
 		goto out;
 	}
-
 	cpus = calloc(1, sizeof(cpus_t));
 	if (!cpus)
 		goto out;
@@ -567,48 +480,48 @@ cpus_t * get_all_cpu_cache_details(void)
 	cpus->cpus = calloc(cpu_count, sizeof(cpu_t));
 	if (!cpus->cpus) {
 		free(cpus);
-		cpus = NULL;
 		goto out;
 	}
 	cpus->count = cpu_count;
 
-	for (i = 0; i < cpus->count; i++) {
-		char *contents = NULL;
-		cpu_t *cpu;
+	for (i = 0, j = 0; (i < n) && (j < cpu_count); i++) {
+		const char *name = namelist[i]->d_name;
+		const size_t fullpath_len = strlen(SYS_CPU_PREFIX) + strlen(name) + 2;
 
-		cpu = &cpus->cpus[i];
-		cpu->num = i;
+		if (!strncmp(name, "cpu", 3) && isdigit(name[3])) {
+			char *contents = NULL;
+			char fullpath[fullpath_len];
+			cpu_t *const cpu = &cpus->cpus[j];
 
-		if (i == 0) {
-			/* 1st CPU cannot be taken offline */
-			cpu->online = 1;
-		} else {
-			const size_t len = strlen(results[i]);
-			char path[len + 32];
+			(void)snprintf(fullpath, sizeof(fullpath), "%s/%s", SYS_CPU_PREFIX, name);
+			cpu->num = j;
+			if (j == 0) {
+				/* 1st CPU cannot be taken offline */
+				cpu->online = 1;
+			} else {
+				char onlinepath[fullpath_len + 8];
 
-			(void)memset(path, 0, sizeof(path));
-			(void)strncpy(path, results[i], len);
-			mk_path(path, len, "/online");
+				(void)snprintf(onlinepath, sizeof(onlinepath), "%s/%s/online", SYS_CPU_PREFIX, name);
+				contents = get_string_from_file(onlinepath);
+				if (!contents)
+					goto out;
+				cpu->online = atoi(contents);
+				free(contents);
+			}
 
-			contents = get_string_from_file(path);
-			if (!contents)
+			ret = get_cpu_cache_details(&cpus->cpus[j], fullpath);
+			if (ret != EXIT_SUCCESS) {
+				free(cpus->cpus);
+				free(cpus);
+				cpus = NULL;
 				goto out;
-			cpu->online = atoi(contents);
-			free(contents);
-		}
-
-		ret = get_cpu_cache_details(&cpus->cpus[i], results[i]);
-		if (ret != EXIT_SUCCESS) {
-			free(cpus->cpus);
-			free(cpus);
-			cpus = NULL;
-			goto out;
+			}
+			j++;
 		}
 	}
 
 out:
-	globfree(&globbuf);
-
+	free_scandir_list(namelist, n);
 	return cpus;
 }
 
