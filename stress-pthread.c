@@ -248,15 +248,12 @@ static int stress_pthread(const args_t *args)
 	keep_running_flag = true;
 
 	/*
-	 *  Block SIGALRM and SIGUSR2, instead
-	 *  use sigpending in pthread or this process
-	 *  to check if SIGALRM has been sent.
+	 *  Block SIGALRM, instead use sigpending
+	 *  in pthread or this process to check if
+	 *  SIGALRM has been sent.
 	 */
 	sigemptyset(&set);
 	sigaddset(&set, SIGALRM);
-#if defined(SIGUSR2)
-	sigaddset(&set, SIGUSR2);
-#endif
 	sigprocmask(SIG_BLOCK, &set, NULL);
 
 	if (!get_setting("pthread-max", &pthread_max)) {
@@ -292,7 +289,11 @@ static int stress_pthread(const args_t *args)
 		pthread_count = 0;
 
 		(void)memset(&pthreads, 0, sizeof(pthreads));
-
+		ret = pthread_mutex_lock(&mutex);
+		if (ret) {
+			stop_running();
+			continue;
+		}
 		for (i = 0; i < pthread_max; i++) {
 			pargs.data = (void *)&pthreads[i];
 
@@ -315,7 +316,11 @@ static int stress_pthread(const args_t *args)
 				break;
 		}
 		attempted++;
-
+		ret = pthread_mutex_unlock(&mutex);
+		if (ret) {
+			stop_running();
+			goto reap;
+		}
 		/*
 		 *  Wait until they are all started or
 		 *  we get bored waiting..
@@ -351,12 +356,6 @@ static int stress_pthread(const args_t *args)
 				break;
 		}
 
-#if defined(HAVE_TGKILL) && defined(SIGUSR2)
-		for (j = 0; j < i; j++) {
-			if (pthreads[j].tid)
-				(void)syscall(__NR_tgkill, args->pid, pthreads[j].tid, SIGUSR2);
-		}
-#endif
 reap:
 		keep_thread_running_flag = false;
 		ret = pthread_cond_broadcast(&cond);
