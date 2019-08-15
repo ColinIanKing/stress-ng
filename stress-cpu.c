@@ -2090,6 +2090,30 @@ static void TARGET_CLONES stress_cpu_dither(const char *name)
 }
 
 /*
+ *  stress_cpu_div64
+ *	perform 64 bit divisions, these are traditionally
+ *	really slow ops
+ */
+static void TARGET_CLONES stress_cpu_div64(const char *name)
+{
+	register uint64_t i, j;
+	const uint64_t di = 0x000014ced130f7513LL;
+	const uint64_t dj = 0x000013cba9876543ULL;
+	const uint64_t max = 0xfe00000000000000ULL;
+	int k = 0;
+
+	(void)name;
+
+	for (i = 0, j = 0x7fffffffffffULL; i < max; i += di, j -= dj) {
+		register uint64_t r = i / j;
+		uint64_put(r);
+		k++;
+	}
+
+	printf("%d\n", k);
+}
+
+/*
  *  stress_cpu_union
  *	perform bit field operations on a union
  */
@@ -2351,6 +2375,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "decimal128",		stress_cpu_decimal128 },
 #endif
 	{ "dither",		stress_cpu_dither },
+	{ "div64",		stress_cpu_div64 },
 	{ "djb2a",		stress_cpu_djb2a },
 	{ "double",		stress_cpu_double },
 	{ "euler",		stress_cpu_euler },
