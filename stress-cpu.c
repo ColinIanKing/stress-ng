@@ -2114,6 +2114,73 @@ static void TARGET_CLONES stress_cpu_div64(const char *name)
 }
 
 /*
+ *  stress_cpu_cpuid()
+ *	get CPU id info, x86 only
+ */
+#if defined(STRESS_X86)
+static void TARGET_CLONES stress_cpu_cpuid(const char *name)
+{
+	register int i;
+
+	(void)name;
+
+	for (i = 0; i < 10000; i++) {
+		uint32_t eax, ebx, ecx, edx;
+
+		/*  Highest Function Parameter and Manufacturer ID */
+		__cpuid(0x00, eax, ebx, ecx, edx);
+		uint32_put(eax);
+
+		/* Processor Info and Feature Bits */
+		__cpuid(0x01, eax, ebx, ecx, edx);
+		uint32_put(eax);
+
+		/*  Cache and TLB Descriptor information */
+		__cpuid(0x02, eax, ebx, ecx, edx);
+		uint32_put(eax);
+
+		/* Processor Serial Number */
+		__cpuid(0x03, eax, ebx, ecx, edx);
+		uint32_put(eax);
+
+		/* Intel thread/core and cache topology */
+		__cpuid(0x04, eax, ebx, ecx, edx);
+		uint32_put(eax);
+		__cpuid(0x0b, eax, ebx, ecx, edx);
+		uint32_put(eax);
+
+		/* Get highest extended function index */
+		__cpuid(0x80000000, eax, ebx, ecx, edx);
+		uint32_put(eax);
+
+		/* Extended processor info */
+		__cpuid(0x80000001, eax, ebx, ecx, edx);
+		uint32_put(eax);
+
+		/* Processor brand string */
+		__cpuid(0x80000002, eax, ebx, ecx, edx);
+		uint32_put(eax);
+		__cpuid(0x80000003, eax, ebx, ecx, edx);
+		uint32_put(eax);
+		__cpuid(0x80000004, eax, ebx, ecx, edx);
+		uint32_put(eax);
+
+		/* L1 Cache and TLB Identifiers */
+		__cpuid(0x80000005, eax, ebx, ecx, edx);
+
+		/* Extended L2 Cache Features */
+		__cpuid(0x80000006, eax, ebx, ecx, edx);
+
+		/* Advanced Power Management information */
+		__cpuid(0x80000007, eax, ebx, ecx, edx);
+
+		/* Virtual and Physical address size */
+		__cpuid(0x80000008, eax, ebx, ecx, edx);
+	}
+}
+#endif
+
+/*
  *  stress_cpu_union
  *	perform bit field operations on a union
  */
@@ -2364,6 +2431,9 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "clongdouble",	stress_cpu_complex_long_double },
 #endif
 	{ "correlate",		stress_cpu_correlate },
+#if defined(STRESS_X86)
+	{ "cpuid",		stress_cpu_cpuid },
+#endif
 	{ "crc16",		stress_cpu_crc16 },
 #if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
 	{ "decimal32",		stress_cpu_decimal32 },
