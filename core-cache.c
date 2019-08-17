@@ -51,10 +51,8 @@ static inline unsigned int cache_get_cpu(const cpus_t *cpus)
 
 /*
  * get_string_from_file()
- * @path: file to read contents of.
- *
- * Returns: dynamically-allocated copy of the contents of @path,
- * or NULL on error.
+ * 	read data from file into a fixed size buffer
+ *	and remove any trailing newlines
  */
 static int get_string_from_file(const char *path, char *tmp, const size_t tmp_len)
 {
@@ -75,7 +73,7 @@ static int get_string_from_file(const char *path, char *tmp, const size_t tmp_le
 
 /*
  * size_to_bytes()
- * Convert human-readable integer sizes (such as "32K", "4M") into bytes.
+ * 	Convert human-readable integer sizes (such as "32K", "4M") into bytes.
  *
  * Supports:
  *
