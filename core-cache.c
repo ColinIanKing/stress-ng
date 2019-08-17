@@ -50,72 +50,27 @@ static inline unsigned int cache_get_cpu(const cpus_t *cpus)
 }
 
 /*
- * get_contents()
- * @path: file to read.
- * Reads the contents of @file, returning the value as a string.
- *
- * Returns: dynamically-allocated copy of the contents of @path,
- * or NULL on error.
- */
-static char *get_contents(const char *path)
-{
-	FILE         *fp = NULL;
-	char         *contents = NULL;
-	struct stat   st;
-	size_t        size;
-
-	if (!path) {
-		pr_dbg("%s: empty path specified\n", __func__);
-		return NULL;
-	}
-
-	fp = fopen(path, "r");
-	if (!fp)
-		return NULL;
-
-	if (fstat(fileno(fp), &st) < 0)
-		goto err_close;
-
-	size = st.st_size;
-
-	contents = malloc(size);
-	if (!contents)
-		goto err_close;
-
-	if (!fgets(contents, size, fp))
-		goto err;
-
-	(void)fclose(fp);
-	return contents;
-
-err:
-	free(contents);
-err_close:
-	(void)fclose(fp);
-	return NULL;
-}
-
-/*
  * get_string_from_file()
  * @path: file to read contents of.
  *
  * Returns: dynamically-allocated copy of the contents of @path,
  * or NULL on error.
  */
-static char *get_string_from_file(const char *path)
+static int get_string_from_file(const char *path, char *tmp, const size_t tmp_len)
 {
-	char   *str;
-	ssize_t  len;
+	char *ptr;
+	int ret;
 
-	str = get_contents(path);
-	if (!str)
-		return NULL;
+	/* system read will zero fill tmp */
+	ret = system_read(path, tmp, tmp_len);
+	if (ret < 0)
+		return -1;
 
-	len = strlen(str) - 1;
-	if ((len >= 0) && (str[len] == '\n'))
-		str[len] = '\0';
+	ptr = strchr(tmp, '\n');
+	if (ptr)
+		*ptr = '\0';
 
-	return str;
+	return 0;
 }
 
 /*
@@ -216,7 +171,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	const size_t index_posn = strlen(index_path);
 	const size_t path_len = index_posn + 32;
 	char path[path_len];
-	char *contents = NULL;
+	char tmp[2048];
 	int ret = EXIT_FAILURE;
 
 	(void)memset(path, 0, sizeof(path));
@@ -230,48 +185,34 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	}
 
 	snprintf(path, sizeof(path), "%s/type", index_path);
-	contents = get_string_from_file(path);
-	if (!contents)
+	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->type = (cache_type_t)get_cache_type(contents);
+	cache->type = (cache_type_t)get_cache_type(tmp);
 	if (cache->type == CACHE_TYPE_UNKNOWN)
 		goto out;
-	free(contents);
 
 	snprintf(path, sizeof(path), "%s/size", index_path);
-	contents = get_string_from_file(path);
-	if (!contents)
+	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->size = size_to_bytes(contents);
-	free(contents);
+	cache->size = size_to_bytes(tmp);
 
 	snprintf(path, sizeof(path), "%s/level", index_path);
-	contents = get_string_from_file(path);
-	if (!contents)
+	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->level = (uint16_t)atoi(contents);
-	free(contents);
+	cache->level = (uint16_t)atoi(tmp);
 
 	snprintf(path, sizeof(path), "%s/coherency_line_size", index_path);
-	contents = get_string_from_file(path);
-	if (!contents)
+	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->line_size = (uint32_t)atoi(contents);
-	free(contents);
+	cache->line_size = (uint32_t)atoi(tmp);
 
 	snprintf(path, sizeof(path), "%s/ways_of_associativity", index_path);
-	contents = get_string_from_file(path);
-	/*
-	 * Don't error if file is not readable: cache may not be
-	 * way-based.
-	 */
-	cache->ways = contents ? atoi(contents) : 0;
+	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
+		cache->ways = atoi(tmp);
+	else
+		cache->ways = 0;
 	ret = EXIT_SUCCESS;
-
 out:
-	if (contents)
-		free(contents);
-
 	return ret;
 }
 
@@ -489,7 +430,6 @@ cpus_t *get_all_cpu_cache_details(void)
 		const size_t fullpath_len = strlen(SYS_CPU_PREFIX) + strlen(name) + 2;
 
 		if (!strncmp(name, "cpu", 3) && isdigit(name[3])) {
-			char *contents = NULL;
 			char fullpath[fullpath_len];
 			cpu_t *const cpu = &cpus->cpus[j];
 
@@ -500,13 +440,12 @@ cpus_t *get_all_cpu_cache_details(void)
 				cpu->online = 1;
 			} else {
 				char onlinepath[fullpath_len + 8];
+				char tmp[2048];
 
 				(void)snprintf(onlinepath, sizeof(onlinepath), "%s/%s/online", SYS_CPU_PREFIX, name);
-				contents = get_string_from_file(onlinepath);
-				if (!contents)
+				if (get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0)
 					goto out;
-				cpu->online = atoi(contents);
-				free(contents);
+				cpu->online = atoi(tmp);
 			}
 
 			ret = get_cpu_cache_details(&cpus->cpus[j], fullpath);
