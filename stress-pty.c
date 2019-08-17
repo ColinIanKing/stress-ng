@@ -128,9 +128,9 @@ static int stress_pty(const args_t *args)
 			{
 				struct termios ios;
 
-				if ((ioctl(ptys[i].slave, TCGETS, &ios) < 0) && 
+				if ((ioctl(ptys[i].slave, TCGETS, &ios) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TCGETS on slave pty");	
+					pr_fail_err("ioctl TCGETS on slave pty");
 			}
 #endif
 #if defined(TCSETS)
@@ -138,7 +138,7 @@ static int stress_pty(const args_t *args)
 				struct termios ios;
 
 				if ((ioctl(ptys[i].slave, TCSETS, &ios) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TCSETS on slave pty");
 			}
 #endif
@@ -147,7 +147,7 @@ static int stress_pty(const args_t *args)
 				struct termios ios;
 
 				if ((ioctl(ptys[i].slave, TCSETSW, &ios) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TCSETSW on slave pty");
 			}
 #endif
@@ -156,7 +156,7 @@ static int stress_pty(const args_t *args)
 				struct termios ios;
 
 				if ((ioctl(ptys[i].slave, TCSETSF, &ios) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TCSETSF on slave pty");
 			}
 #endif
@@ -165,7 +165,7 @@ static int stress_pty(const args_t *args)
 				struct termio io;
 
 				if ((ioctl(ptys[i].slave, TCGETA, &io) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TCGETA on slave pty");
 			}
 #endif
@@ -174,7 +174,7 @@ static int stress_pty(const args_t *args)
 				struct termio io;
 
 				if ((ioctl(ptys[i].slave, TCSETA, &io) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TCSETA on slave pty");
 			}
 #endif
@@ -183,7 +183,7 @@ static int stress_pty(const args_t *args)
 				struct termio io;
 
 				if ((ioctl(ptys[i].slave, TCSETAW, &io) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TCSETAW on slave pty");
 			}
 #endif
@@ -192,7 +192,7 @@ static int stress_pty(const args_t *args)
 				struct termio io;
 
 				if ((ioctl(ptys[i].slave, TCSETAF, &io) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TCSETAF on slave pty");
 			}
 #endif
@@ -201,7 +201,7 @@ static int stress_pty(const args_t *args)
 				struct termios ios;
 
 				if ((ioctl(ptys[i].slave, TIOCGLCKTRMIOS, &ios) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TIOCGLCKTRMIOS on slave pty");
 			}
 #endif
@@ -210,16 +210,16 @@ static int stress_pty(const args_t *args)
 				struct termios ios;
 
 				if ((ioctl(ptys[i].slave, TIOCGLCKTRMIOS, &ios) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TIOCGLCKTRMIOS on slave pty");
 			}
 #endif
-#if defined(TIOCGWINSZ)	
+#if defined(TIOCGWINSZ)
 			{
 				struct winsize ws;
 
 				if ((ioctl(ptys[i].slave, TIOCGWINSZ, &ws) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TIOCGWINSZ on slave pty");
 			}
 #endif
@@ -228,7 +228,7 @@ static int stress_pty(const args_t *args)
 				struct winsize ws;
 
 				if ((ioctl(ptys[i].slave, TIOCSWINSZ, &ws) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TIOCSWINSZ on slave pty");
 			}
 #endif
@@ -237,7 +237,7 @@ static int stress_pty(const args_t *args)
 				int arg;
 
 				if ((ioctl(ptys[i].slave, FIONREAD, &arg) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl FIONREAD on slave pty");
 			}
 #endif
@@ -246,7 +246,7 @@ static int stress_pty(const args_t *args)
 				int arg;
 
 				if ((ioctl(ptys[i].slave, TIOCINQ, &arg) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TIOCINQ on slave pty");
 			}
 #endif
@@ -255,7 +255,7 @@ static int stress_pty(const args_t *args)
 				int arg;
 
 				if ((ioctl(ptys[i].slave, TIOCOUTQ, &arg) < 0) &&
-				    (errno != EINTR)) 
+				    (errno != EINTR))
 					pr_fail_err("ioctl TIOCOUTQ on slave pty");
 			}
 #endif
