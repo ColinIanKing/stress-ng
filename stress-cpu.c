@@ -2109,8 +2109,6 @@ static void TARGET_CLONES stress_cpu_div64(const char *name)
 		uint64_put(r);
 		k++;
 	}
-
-	printf("%d\n", k);
 }
 
 /*
