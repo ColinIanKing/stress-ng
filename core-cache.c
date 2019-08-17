@@ -54,13 +54,16 @@ static inline unsigned int cache_get_cpu(const cpus_t *cpus)
  * 	read data from file into a fixed size buffer
  *	and remove any trailing newlines
  */
-static int get_string_from_file(const char *path, char *tmp, const size_t tmp_len)
+static int get_string_from_file(
+	const char *path,
+	char *tmp,
+	const size_t tmp_len)
 {
 	char *ptr;
 	int ret;
 
 	/* system read will zero fill tmp */
-	ret = system_read(path, tmp, tmp_len);
+	ret = system_read(path, tmp, tmp_len - 1);
 	if (ret < 0)
 		return -1;
 
