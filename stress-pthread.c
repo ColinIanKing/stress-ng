@@ -212,7 +212,7 @@ static void *stress_pthread_func(void *parg)
 		ret = pthread_cond_timedwait(&cond, &mutex, &abstime);
 		if (ret) {
 			if (ret != ETIMEDOUT) {
-				pr_fail("%s: HERE: pthread_cond_wait failed, tid=%d, errno=%d (%s)\n",
+				pr_fail("%s: pthread_cond_wait failed, tid=%d, errno=%d (%s)\n",
 					args->name, (int)tid, ret, strerror(ret));
 				break;
 			}
@@ -345,9 +345,9 @@ static int stress_pthread(const args_t *args)
 			bool all_running = false;
 
 			if (!locked) {
-				ret = pthread_mutex_lock(&mutex);
+				ret = shim_pthread_spin_lock(&spinlock);
 				if (ret) {
-					pr_fail("%s: pthread_mutex_lock failed (parent), errno=%d (%s)\n",
+					pr_fail("%s: pthread_spin_lock failed (parent), errno=%d (%s)\n",
 						args->name, ret, strerror(ret));
 					stop_running();
 					goto reap;
@@ -357,9 +357,9 @@ static int stress_pthread(const args_t *args)
 			all_running = (pthread_count == i);
 
 			if (locked) {
-				ret = pthread_mutex_unlock(&mutex);
+				ret = shim_pthread_spin_unlock(&spinlock);
 				if (ret) {
-					pr_fail("%s: pthread_mutex_unlock failed (parent), errno=%d (%s)\n",
+					pr_fail("%s: pthread_spin_unlock failed (parent), errno=%d (%s)\n",
 						args->name, ret, strerror(ret));
 					stop_running();
 					/* We failed to unlock, so don't try again on reap */
