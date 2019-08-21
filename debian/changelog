@@ -1,3 +1,23 @@
+stress-ng (0.10.02-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-pthread: protect counter with spinlock not mutex lock
+  * Manual: update date
+  * stress-pthread: don't block forever on pthread_cond_wait() (LP: #1840867)
+  * stress-pty: remove some white spaces in source
+  * core-cache: ensure read buffer has trailing '\0'
+  * core-cache: update comments
+  * core-cache: use a fixed size buffer for reading in /sys info
+  * stress-cpu: remove a debugging message
+  * stress-pty: don't report a failure on EINTR (LP: #1840512)
+  * stress-cpu: add an x86 cpuid instruction exerciser
+  * stress-cpu: add a 64 bit division stressor
+  * snapcraft: add automatic versioning
+  * snapcraft: bump version
+  * stress-pthread: don't tkill pthreads, can lead to futex blocking
+
+ -- Colin King <colin.king@canonical.com>  Wed, 21 Aug 2019 10:00:01 +0100
+
 stress-ng (0.10.01-1) unstable; urgency=medium
 
   * Upload as source package (Closes: #934007)
