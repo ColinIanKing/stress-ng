@@ -3435,6 +3435,8 @@ struct shim_sched_attr {
 	uint64_t sched_runtime;		/* runtime SCHED_DEADLINE, ns */
 	uint64_t sched_deadline;	/* deadline time, ns */
 	uint64_t sched_period;		/* period, ns */
+	uint32_t sched_util_min;	/* utilization hint, min */
+	uint32_t sched_util_max;	/* utilization hint, max */
 };
 
 /* shim'd STATX flags */
