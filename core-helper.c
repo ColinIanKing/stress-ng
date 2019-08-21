@@ -1083,7 +1083,9 @@ int stress_sigrestore(
  */
 unsigned int stress_get_cpu(void)
 {
-#if defined(HAVE_SCHED_GETCPU) && !defined(__PPC64__)
+#if defined(HAVE_SCHED_GETCPU) &&	\
+    !defined(__PPC64__) &&		\
+    !defined(__s390x__)
 	const int cpu = sched_getcpu();
 
 	return (unsigned int)((cpu < 0) ? 0 : cpu);
