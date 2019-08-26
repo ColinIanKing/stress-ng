@@ -177,7 +177,7 @@ static int stress_ramfs_child(const args_t *args)
 		int fd, mfd;
 #endif
 
-		snprintf(opt, sizeof(opt), "size=%" PRIu64, ramfs_size);
+		(void)snprintf(opt, sizeof(opt), "size=%" PRIu64, ramfs_size);
 		rc = mount("", realpathname, "tmpfs", 0, opt);
 		if (rc < 0) {
 			if ((errno != ENOSPC) && (errno != ENOMEM))
@@ -202,7 +202,7 @@ static int stress_ramfs_child(const args_t *args)
 			pr_fail("%s: fsopen failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
-		snprintf(opt, sizeof(opt), "%" PRIu64, ramfs_size);
+		(void)snprintf(opt, sizeof(opt), "%" PRIu64, ramfs_size);
 		if (shim_fsconfig(fd, FSCONFIG_SET_STRING, "size", opt, 0) < 0) {
 			if (errno == ENOSYS)
 				goto cleanup_fd;
