@@ -1463,7 +1463,7 @@ char *stress_const_optdup(const char *opt)
 	char *str = strdup(opt);
 
 	if (!str)
-		fprintf(stderr, "out of memory duplicating option '%s'\n", opt);
+		(void)fprintf(stderr, "out of memory duplicating option '%s'\n", opt);
 
 	return str;
 }
