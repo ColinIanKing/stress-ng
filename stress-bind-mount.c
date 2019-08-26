@@ -79,8 +79,8 @@ static int stress_bind_mount_child(void *parg)
 			break;
 		}
 		/*
-		 *  The following fails with -EBUSY, but try it anyhow
-	`	 *  just to make the kernel work harder
+		 * The following fails with -EBUSY, but try it anyhow
+		 *  just to make the kernel work harder
 		 */
 		(void)umount("/");
 		inc_counter(args);
