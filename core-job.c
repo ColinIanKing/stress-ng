@@ -92,7 +92,7 @@ static void parse_error(
 	const uint32_t lineno,
 	const char *line)
 {
-	fprintf(stderr, "error in line %" PRIu32 ": '%s'\n",
+	(void)fprintf(stderr, "error in line %" PRIu32 ": '%s'\n",
 		lineno, line);
 }
 
@@ -186,7 +186,7 @@ int parse_jobfile(
 			/* Must check for --job -h option! */
 			if (!strcmp(new_argv[1], "job") ||
 			    !strcmp(new_argv[1], "j")) {
-				fprintf(stderr, "Cannot read job file in from a job script!\n");
+				(void)fprintf(stderr, "Cannot read job file in from a job script!\n");
 				goto err;
 			}
 
