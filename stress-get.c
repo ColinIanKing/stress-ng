@@ -271,7 +271,7 @@ static int stress_get(const args_t *args)
 			size_t kern_version_len;
 			struct __sysctl_args sysctl_args;
 
-			memset(&sysctl_args, 0, sizeof(sysctl_args));
+			(void)memset(&sysctl_args, 0, sizeof(sysctl_args));
 			sysctl_args.name = name;
 			sysctl_args.nlen = SIZEOF_ARRAY(name);
 			sysctl_args.oldval = kern_version;
