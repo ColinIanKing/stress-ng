@@ -185,29 +185,29 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 		goto out;
 	}
 
-	snprintf(path, sizeof(path), "%s/type", index_path);
+	(void)snprintf(path, sizeof(path), "%s/type", index_path);
 	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->type = (cache_type_t)get_cache_type(tmp);
 	if (cache->type == CACHE_TYPE_UNKNOWN)
 		goto out;
 
-	snprintf(path, sizeof(path), "%s/size", index_path);
+	(void)snprintf(path, sizeof(path), "%s/size", index_path);
 	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->size = size_to_bytes(tmp);
 
-	snprintf(path, sizeof(path), "%s/level", index_path);
+	(void)snprintf(path, sizeof(path), "%s/level", index_path);
 	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->level = (uint16_t)atoi(tmp);
 
-	snprintf(path, sizeof(path), "%s/coherency_line_size", index_path);
+	(void)snprintf(path, sizeof(path), "%s/coherency_line_size", index_path);
 	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->line_size = (uint32_t)atoi(tmp);
 
-	snprintf(path, sizeof(path), "%s/ways_of_associativity", index_path);
+	(void)snprintf(path, sizeof(path), "%s/ways_of_associativity", index_path);
 	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		cache->ways = atoi(tmp);
 	else
