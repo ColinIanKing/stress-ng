@@ -227,9 +227,9 @@ int32_t get_opt_sched(const char *const str)
 	} else {
 		(void)fprintf(stderr, "Available scheduler options are:");
 		for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
-			fprintf(stderr, " %s", sched_types[i].name);
+			(void)fprintf(stderr, " %s", sched_types[i].name);
 		}
-		fprintf(stderr, "\n");
+		(void)fprintf(stderr, "\n");
 	}
 	_exit(EXIT_FAILURE);
 }
