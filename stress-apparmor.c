@@ -405,10 +405,10 @@ static inline void apparmor_corrupt_flip_seq(
 {
 	static size_t p = 0;
 
-	if (p > (len * sizeof(char)))
+	if (p > len)
 		p = 0;
 
-	copy[p / sizeof(char)] ^= (1 << (p & 7));
+	copy[p] ^= (1 << (p & 7));
 	p++;
 }
 
@@ -421,10 +421,10 @@ static inline void apparmor_corrupt_clr_seq(
 {
 	static size_t p = 0;
 
-	if (p > (len * sizeof(char)))
+	if (p > len)
 		p = 0;
 
-	copy[p / sizeof(char)] &= ~(1 << (p & 7));
+	copy[p] &= ~(1 << (p & 7));
 	p++;
 }
 
@@ -437,10 +437,10 @@ static inline void apparmor_corrupt_set_seq(
 {
 	static size_t p = 0;
 
-	if (p > (len * sizeof(char)))
+	if (p > len)
 		p = 0;
 
-	copy[p / sizeof(char)] |= (1 << (p & 7));
+	copy[p] |= (1 << (p & 7));
 	p++;
 }
 
@@ -520,10 +520,10 @@ static inline void apparmor_corrupt_flip_bits_random_burst(
 	size_t p = (size_t)mwc32() % (len * sizeof(char));
 
 	for (i = 0; i < 32; i++) {
-		if (p > (len * sizeof(char)))
+		if (p > len)
 			p = 0;
 
-		copy[p / sizeof(char)] ^= (1 << (p & 7));
+		copy[p] ^= (1 << (p & 7));
 		p++;
 	}
 }
