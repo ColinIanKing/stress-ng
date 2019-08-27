@@ -106,9 +106,9 @@ static int stress_numa_get_mem_nodes(node_t **node_ptr,
 	FILE *fp;
 	unsigned long n = 0, node_id = 0;
 	node_t *tail = NULL;
-	*node_ptr = NULL;
 	char buffer[8192], *str = NULL, *ptr;
 
+	*node_ptr = NULL;
 	fp = fopen("/proc/self/status", "r");
 	if (!fp)
 		return -1;
