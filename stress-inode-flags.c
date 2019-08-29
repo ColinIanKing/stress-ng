@@ -92,7 +92,7 @@ static inline void stress_inode_flags_ioctl_sane(const int fd)
  *	toggle these on and off to see if they break rather
  *	than fail.
  */
-static void stress_inode_flags_stressor(
+static int stress_inode_flags_stressor(
 	const args_t *args,
 	char *filename)
 {
@@ -107,14 +107,14 @@ static void stress_inode_flags_stressor(
 	if (fddir < 0) {
 		pr_err("%s: cannot open %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
-		return;
+		return -1;
 	}
 	fdfile = open(filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fdfile < 0) {
 		pr_err("%s: cannot open %s: errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		(void)close(fddir);
-		return;
+		return -1;
 	}
 
 	while (keep_running && keep_stressing()) {
@@ -177,6 +177,8 @@ static void stress_inode_flags_stressor(
 	stress_inode_flags_ioctl_sane(fdfile);
 	(void)close(fdfile);
 	(void)close(fddir);
+
+	return 0;
 }
 
 /*
@@ -205,7 +207,7 @@ static void *stress_inode_flags_thread(void *arg)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
-	stress_inode_flags_stressor(pa->args, (char *)pa->data);
+	pa->pthread_ret = stress_inode_flags_stressor(pa->args, (char *)pa->data);
 
 	return &nowt;
 }
@@ -221,7 +223,7 @@ static int stress_inode_flags(const args_t *args)
 	size_t i;
 	pthread_t pthreads[MAX_INODE_FLAG_THREADS];
 	int rc, ret[MAX_INODE_FLAG_THREADS];
-	pthread_args_t pa;
+	pthread_args_t pa[MAX_INODE_FLAG_THREADS];
 
 	rc = shim_pthread_spin_init(&spinlock, SHIM_PTHREAD_PROCESS_SHARED);
         if (rc) {
@@ -235,15 +237,16 @@ static int stress_inode_flags(const args_t *args)
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), mwc32());
 
-	pa.args = args;
-	pa.data = (void *)filename;
-
 	(void)memset(ret, 0, sizeof(ret));
 	keep_running = true;
 
 	for (i = 0; i < MAX_INODE_FLAG_THREADS; i++) {
+		pa[i].args = args;
+		pa[i].data = (void *)filename;
+		pa[i].pthread_ret = 0;
+
 		ret[i] = pthread_create(&pthreads[i], NULL,
-				stress_inode_flags_thread, &pa);
+				stress_inode_flags_thread, &pa[i]);
 	}
 
 	do {
@@ -251,17 +254,21 @@ static int stress_inode_flags(const args_t *args)
 	} while (keep_stressing());
 
 	keep_running = false;
+	rc = EXIT_SUCCESS;
 
 	for (i = 0; i < MAX_INODE_FLAG_THREADS; i++) {
-		if (ret[i] == 0)
+		if (ret[i] == 0) {
 			pthread_join(pthreads[i], NULL);
+			if (pa[i].pthread_ret < 0)
+				rc = EXIT_FAILURE;
+		}
 	}
 
 	(void)shim_pthread_spin_destroy(&spinlock);
 	(void)unlink(filename);
 	stress_temp_dir_rm_args(args);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_inode_flags_info = {
