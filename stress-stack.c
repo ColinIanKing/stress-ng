@@ -93,11 +93,28 @@ static void stress_stack_alloc(const args_t *args, const bool stack_fill)
  */
 static int stress_stack(const args_t *args)
 {
-	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
+	uint8_t *altstack;
 	pid_t pid;
 	bool stack_fill = false;
+	ssize_t altstack_size = (SIGSTKSZ +
+				 STACK_ALIGNMENT +
+				 args->page_size) & ~(args->page_size -1);
 
 	(void)get_setting("stack-fill", &stack_fill);
+
+	/*
+	 *  Allocate altstack on heap rather than an
+	 *  autoexpanding stack that may trip a segfault
+	 *  if there is no memory to back it later.
+	 */
+	altstack = mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
+		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (altstack == MAP_FAILED) {
+		pr_inf("%s: cannot allocate stack for signal handler, "
+			"skipping test\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+	(void)mincore_touch_pages(altstack, altstack_size);
 
 	/*
 	 *  We need to create an alternative signal
@@ -106,9 +123,11 @@ static int stress_stack(const args_t *args)
 	 *  than try to push onto an already overflowed
 	 *  stack
 	 */
-	(void)memset(stack, 0, sizeof(stack));
-	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
+	if (stress_sigaltstack(altstack, SIGSTKSZ) < 0) {
+		(void)munmap(altstack, altstack_size);
 		return EXIT_FAILURE;
+	}
+
 
 again:
 	pid = fork();
@@ -196,6 +215,7 @@ again:
 		}
 		_exit(0);
 	}
+	(void)munmap(altstack, altstack_size);
 
 	return EXIT_SUCCESS;
 }
