@@ -1304,9 +1304,9 @@ static void stress_dev_dir(
 		/*
 		 * Xen clients hang on hpet when running as root
 		 * see: LP#1741409, so avoid opening /dev/hpet
+		 */
 		if (!euid && !strcmp(d->d_name, "hpet"))
 			continue;
-		 */
 		len = strlen(d->d_name);
 
 		/*
