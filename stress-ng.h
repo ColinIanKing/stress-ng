@@ -917,8 +917,9 @@ typedef struct {
 
 /* pthread wrapped args_t */
 typedef struct {
-	const args_t *args;
-	void *data;
+	const args_t *args;	/* Stress test args */
+	void *data;		/* Per thread private data */
+	int pthread_ret;	/* Per thread return value */
 } pthread_args_t;
 
 /* gcc 4.7 and later support vector ops */

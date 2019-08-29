@@ -257,7 +257,7 @@ static int stress_pthread(const args_t *args)
 	uint64_t limited = 0, attempted = 0;
 	uint64_t pthread_max = DEFAULT_PTHREAD;
 	int ret;
-	pthread_args_t pargs = { args, NULL };
+	pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
 
 	keep_running_flag = true;

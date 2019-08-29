@@ -97,7 +97,7 @@ static int stress_bind_mount_child(void *parg)
 static int stress_bind_mount(const args_t *args)
 {
 	int pid = 0, status;
-	pthread_args_t pargs = { args, NULL };
+	pthread_args_t pargs = { args, NULL, 0 };
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
