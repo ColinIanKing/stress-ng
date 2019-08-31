@@ -577,6 +577,23 @@ static void random_buffer(uint8_t *data, const size_t len)
 }
 
 /*
+ *  stress_cpu_collatz()
+ *	stress test integer collatz conjecture
+ */
+static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_collatz(const char *name)
+{
+	register uint64_t n = 989345275647ULL;	/* Has 1348 steps in cycle */
+	register int i;
+
+	for (i = 0; n != 1; i++) {
+		n = (n & 1) ? (3 * n) + 1 : n / 2;
+	}
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i != 1348))
+		pr_fail("%s: error detected, failed collatz progression\n",
+			name);
+}
+
+/*
  *  stress_cpu_hash_generic()
  *	stress test generic string hash function
  */
@@ -2428,6 +2445,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "cfloat",		stress_cpu_complex_float },
 	{ "clongdouble",	stress_cpu_complex_long_double },
 #endif
+	{ "collatz",		stress_cpu_collatz },
 	{ "correlate",		stress_cpu_correlate },
 #if defined(STRESS_X86)
 	{ "cpuid",		stress_cpu_cpuid },
