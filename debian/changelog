@@ -1,3 +1,11 @@
+stress-ng (0.10.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Remove execute bit on bash completion script
+  * debian: rules: workaround dwz failures on arm64
+
+ -- Colin King <colin.king@canonical.com>  Mon, 2 Sep 2019 18:43:41 +0100
+
 stress-ng (0.10.03-1) unstable; urgency=medium
 
   * Makefile: bump version
