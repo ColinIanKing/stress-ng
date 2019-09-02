@@ -169,11 +169,11 @@ out:
  */
 static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 {
-	const size_t index_posn = strlen(index_path);
+	const size_t index_posn = index_path ? strlen(index_path) : 0;
 	const size_t path_len = index_posn + 32;
-	char path[path_len];
-	char tmp[2048];
 	int ret = EXIT_FAILURE;
+	char tmp[2048];
+	char path[path_len];
 
 	(void)memset(path, 0, sizeof(path));
 	if (!cache) {
@@ -325,7 +325,8 @@ static void free_scandir_list(struct dirent **namelist, int n)
  */
 static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 {
-	char path[strlen(cpu_path) + strlen(SYS_CPU_CACHE_DIR) + 2];
+	const size_t cpu_path_len = cpu_path ? strlen(cpu_path) : 0;
+	char path[cpu_path_len + strlen(SYS_CPU_CACHE_DIR) + 2];
 	int i, j, n, ret = EXIT_FAILURE;
 	struct dirent **namelist;
 
