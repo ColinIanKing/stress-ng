@@ -94,7 +94,7 @@ To build with the Tiny C compiler:
 	make clean
 	CC=tcc make
 
-For more information, see: http://kernel.ubuntu.com/~cking/stress-ng/
+For more information, see: https://kernel.ubuntu.com/~cking/stress-ng/
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
