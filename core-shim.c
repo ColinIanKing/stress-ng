@@ -1182,6 +1182,7 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 	pid_t ret;
 
 	for (;;) {
+		errno = 0;
 		ret = waitpid(pid, wstatus, options);
 		if (ret >= 0)
 			break;
