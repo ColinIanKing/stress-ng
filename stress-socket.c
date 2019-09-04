@@ -391,7 +391,7 @@ static int stress_sctp_server(
 				for (i = 16; i < sizeof(buf); i += 16) {
 					ssize_t ret = send(sfd, buf, i, 0);
 					if (ret < 0) {
-						if (errno != EINTR)
+						if ((errno != EINTR) && (errno != EPIPE))
 							pr_fail_dbg("send");
 						break;
 					} else
@@ -407,7 +407,7 @@ static int stress_sctp_server(
 				msg.msg_iov = vec;
 				msg.msg_iovlen = j;
 				if (sendmsg(sfd, &msg, 0) < 0) {
-					if (errno != EINTR)
+					if ((errno != EINTR) && (errno != EPIPE))
 						pr_fail_dbg("sendmsg");
 				} else
 					msgs += j;
@@ -425,7 +425,7 @@ static int stress_sctp_server(
 					msgvec[i].msg_hdr.msg_iovlen = j;
 				}
 				if (sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0) {
-					if (errno != EINTR)
+					if ((errno != EINTR) && (errno != EPIPE))
 						pr_fail_dbg("sendmmsg");
 				} else
 					msgs += (MSGVEC_SIZE * j);
