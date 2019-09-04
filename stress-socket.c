@@ -466,6 +466,13 @@ die:
 	return rc;
 }
 
+static void stress_sock_sigpipe_handler(int signum)
+{
+	(void)signum;
+
+	g_keep_stressing_flag = false;
+}
+
 /*
  *  stress_sock
  *	stress by heavy socket I/O
@@ -486,6 +493,8 @@ static int stress_sock(const args_t *args)
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, socket_port + args->instance);
 
+	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
 again:
 	pid = fork();
 	if (pid < 0) {
