@@ -80,12 +80,8 @@ static int stress_virt_to_phys(
 		phys_addr |= (virt_addr & (page_size - 1));
 		offset = pfn * sizeof(uint64_t);
 
-		if (phys_addr == 0) {
-			pr_err("%s: got zero physical address from virtual address %p\n",
-				args->name, (void *)virt_addr);
-			goto err;
-		}
-
+		if (phys_addr == 0)
+			return 0;
 		if (fd_pc < 0)
 			return 0;
 
