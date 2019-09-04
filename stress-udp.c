@@ -82,7 +82,7 @@ static int stress_set_udp_lite(const char *opt)
  */
 static int stress_udp(const args_t *args)
 {
-	int udp_port = DEFAULT_SOCKET_PORT;
+	int udp_port = DEFAULT_UDP_PORT;
 	int udp_domain = AF_INET;
 	pid_t pid, ppid = getppid();
 	int rc = EXIT_SUCCESS;
