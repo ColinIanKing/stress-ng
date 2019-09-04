@@ -2844,6 +2844,12 @@ int main(int argc, char **argv)
 	} else {
 		stress_setup_parallel(class);
 	}
+	/*
+	 *  Seq/parallel modes may have added in
+	 *  excluded stressors, so exclude check again
+	 */
+	exclude_unsupported();
+	exclude_pathological();
 
 	set_proc_limits();
 
