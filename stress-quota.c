@@ -306,7 +306,7 @@ static int stress_quota(const args_t *args)
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}
-			
+
 			/* All failed, then give up */
 			if (failed == n_devs)
 				goto tidy;

@@ -235,7 +235,7 @@ recvmsg				socket-fd
 recvmmsg
 remap_file_pages		remap
 removexattr
-rename				rename	
+rename				rename
 renameat			rename
 renameat2			rename
 request_key			key

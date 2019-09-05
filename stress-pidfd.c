@@ -35,7 +35,7 @@ static const help_t help[] = {
 static int stress_pidfd_open_fd(pid_t pid)
 {
 	char buffer[1024];
-			
+
 	(void)snprintf(buffer, sizeof(buffer), "/proc/%d", pid);
 	return open(buffer, O_DIRECTORY | O_CLOEXEC);
 }
@@ -98,7 +98,7 @@ static int stress_pidfd(const args_t *args)
 		} else {
 			/* Parent */
 			int pidfd, ret;
-			
+
 			pidfd = stress_pidfd_open_fd(pid);
 			if (pidfd < 0) {
 				/* Process not found, try again */
@@ -149,7 +149,7 @@ static int stress_pidfd_supported(void)
 	pr_inf("pidfd stressor will be skipped, system call not supported at build time\n");
 	return -1;
 }
-	
+
 stressor_info_t stress_pidfd_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_OS,

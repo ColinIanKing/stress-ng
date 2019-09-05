@@ -229,7 +229,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_trans(
 
 		for (j = 0; j < n; j++) {
 			register size_t i;
-	
+
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[k][j][i];
 			}

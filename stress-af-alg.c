@@ -561,7 +561,6 @@ static void stress_af_alg_init(void)
 		SIZEOF_ARRAY(algo_hash_info), &af_alg_hash_skip_sz);
 	g_shared->af_alg_cipher_skip = stress_af_alg_skip_alloc(
 		SIZEOF_ARRAY(algo_cipher_info), &af_alg_cipher_skip_sz);
-	
 }
 
 static void stress_af_alg_deinit(void)

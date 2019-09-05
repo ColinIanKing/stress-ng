@@ -93,7 +93,7 @@ static int stress_ioprio(const args_t *args)
 				pr_fail("%s: ioprio_get(OPRIO_WHO_PGRP, %d), "
 					"errno = %d (%s)\n",
 					args->name, g_pgrp, errno, strerror(errno));
-				goto cleanup_file;	
+				goto cleanup_file;
 			}
 		}
 		if (!keep_stressing())

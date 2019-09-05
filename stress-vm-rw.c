@@ -64,7 +64,7 @@ static int stress_set_vm_rw_bytes(const char *opt)
 }
 
 static const opt_set_func_t opt_set_funcs[] = {
-	{ OPT_vm_rw_bytes,	stress_set_vm_rw_bytes },	
+	{ OPT_vm_rw_bytes,	stress_set_vm_rw_bytes },
 	{ 0,			NULL }
 };
 

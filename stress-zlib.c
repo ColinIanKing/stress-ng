@@ -57,7 +57,7 @@ typedef struct {
 	bool		pipe_broken;
 	bool		interrupted;
 } xsum_t;
-	
+
 static stress_zlib_rand_data_info_t zlib_rand_data_methods[];
 static volatile bool pipe_broken = false;
 static sigjmp_buf jmpbuf;
@@ -156,7 +156,7 @@ static void stress_rand_data_utf8(const args_t *args, uint32_t *data, const int 
 
 	while (ptr < end) {
 		uint8_t ch = mwc8();
-	
+
 		if (ch <= 0x7f)
 			*ptr++ = ch;
 		else {
