@@ -159,7 +159,7 @@ void tz_dump(FILE *yaml, proc_info_t *procs_head)
 
 		for (tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
 			for (j = 0; j < pi->started_procs; j++) {
-				const uint64_t temp = 
+				const uint64_t temp =
 					pi->stats[j]->tz.tz_stat[tz_info->index].temperature;
 				/* Avoid crazy temperatures. e.g. > 250 C */
 				if (temp <= 250000) {

@@ -89,7 +89,7 @@ static const int clocks_nanosleep[] = {
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_GETTIME) &&	\
     defined(HAVE_TIMER_GETOVERRUN) &&	\
-    defined(HAVE_TIMER_SETTIME) 
+    defined(HAVE_TIMER_SETTIME)
 static const int timers[] = {
 #if defined(CLOCK_REALTIME)
 	CLOCK_REALTIME,
@@ -219,7 +219,7 @@ static int stress_clock(const args_t *args)
     defined(HAVE_TIMER_DELETE) &&	\
     defined(HAVE_TIMER_GETTIME) &&	\
     defined(HAVE_TIMER_GETOVERRUN) &&	\
-    defined(HAVE_TIMER_SETTIME) 
+    defined(HAVE_TIMER_SETTIME)
 		{
 			size_t i;
 

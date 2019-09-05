@@ -40,7 +40,7 @@ static const help_t help[] = {
 #define LOCK(ptr) __atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);
 
 #else
-#define LOCK(ptr) asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc)); 
+#define LOCK(ptr) asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));
 
 #endif
 

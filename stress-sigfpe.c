@@ -32,7 +32,7 @@ static const help_t help[] = {
 
 #if !defined(__UCLIBC__) &&	\
     defined(HAVE_FENV_H) &&     \
-    defined(HAVE_FLOAT_H) 
+    defined(HAVE_FLOAT_H)
 
 #define SNG_INTDIV	(0x40000000)
 #define SNG_FLTDIV	(0x80000000)

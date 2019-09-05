@@ -145,7 +145,7 @@ static void stress_cyclic_stats(
 }
 
 #if defined(HAVE_CLOCK_GETTIME) &&	\
-    defined(HAVE_CLOCK_NANOSLEEP) 
+    defined(HAVE_CLOCK_NANOSLEEP)
 /*
  *  stress_cyclic_clock_nanosleep()
  *	measure latencies with clock_nanosleep
@@ -454,7 +454,7 @@ static void stress_rt_stats(rt_stats_t *rt_stats)
  */
 static const stress_cyclic_method_info_t cyclic_methods[] = {
 #if defined(HAVE_CLOCK_GETTIME) &&	\
-    defined(HAVE_CLOCK_NANOSLEEP) 
+    defined(HAVE_CLOCK_NANOSLEEP)
 	{ "clock_ns",	stress_cyclic_clock_nanosleep },
 #endif
 

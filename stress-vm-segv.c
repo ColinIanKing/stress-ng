@@ -107,7 +107,7 @@ again:
 						inc_counter(args);
 						break;
 					}
-					if (signum & 0x80) 
+					if (signum & 0x80)
 						continue;
 				}
 				if (WIFEXITED(status)) {

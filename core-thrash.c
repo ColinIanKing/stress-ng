@@ -207,7 +207,7 @@ int thrash_start(void)
 		(void)ret;
 #endif
 		while (g_keep_stressing_flag) {
-			if ((mwc8() & 0x3f) == 0) 
+			if ((mwc8() & 0x3f) == 0)
 				pagein_all_procs();
 			compact_memory();
 			merge_memory();

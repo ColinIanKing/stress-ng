@@ -113,7 +113,7 @@ static int stress_pidfd(const args_t *args)
 						args->name);
 					stress_pidfd_reap(pid, pidfd);
 					return EXIT_NOT_IMPLEMENTED;
-				} 
+				}
 				pr_err("%s: pidfd_send_signal failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				stress_pidfd_reap(pid, pidfd);

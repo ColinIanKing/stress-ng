@@ -93,7 +93,7 @@ static int stress_pkey(const args_t *args)
 			int rights;
 
 			rights = shim_pkey_get(pkey);
-			if (rights > -1) 
+			if (rights > -1)
 				(void)shim_pkey_set(pkey, rights);
 			(void)shim_pkey_free(pkey);
 		}

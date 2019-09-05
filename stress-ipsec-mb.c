@@ -39,7 +39,7 @@ static const help_t help[] = {
     defined(IMB_FEATURE_AESNI) &&	\
     defined(IMB_FEATURE_AVX) &&		\
     defined(IMB_FEATURE_AVX2) &&	\
-    defined(IMB_FEATURE_AVX512_SKX) 
+    defined(IMB_FEATURE_AVX512_SKX)
 
 #define FEATURE_SSE		(IMB_FEATURE_SSE4_2 | IMB_FEATURE_CMOV | IMB_FEATURE_AESNI)
 #define FEATURE_AVX		(IMB_FEATURE_AVX | IMB_FEATURE_CMOV | IMB_FEATURE_AESNI)
@@ -593,7 +593,7 @@ static int stress_ipsec_mb(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 	if (imb_get_version() < IMB_VERSION(0, 51, 0)) {
-		pr_inf("%s: version %s of Intel IPSEC MB library is too low, skipping\n", 
+		pr_inf("%s: version %s of Intel IPSEC MB library is too low, skipping\n",
 			args->name, imb_get_version_str());
 		free_mb_mgr(p_mgr);
 		return EXIT_NOT_IMPLEMENTED;

@@ -136,7 +136,7 @@ do_stress --vm 0 --vm-madvise unmergeable
 do_stress --vm 0 --vm-madvise willneed
 
 DURATION=60
- 
+
 for S in $STRESSORS
 do
 	do_stress --${S} 0

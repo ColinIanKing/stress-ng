@@ -178,7 +178,7 @@ static int stress_chroot_test5(const args_t *args)
 	 * so ignore this error
 	 */
 	if ((ret1 >= 0) || ((errno1 != ENOTDIR) &&
-			    (errno1 != ENOENT) && 
+			    (errno1 != ENOENT) &&
 			    (errno1 != EPERM)))  {
 		pr_fail("%s: chroot(\"%s\"), expected ENOTDIR"
 			", got instead errno=%d (%s)\n",

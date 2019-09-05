@@ -371,7 +371,7 @@ static void stress_rand_data_double(const args_t *args, uint32_t *data, const in
 
 /*
  *  stress_rand_data_gray()
- *	fill buffer with gray code of incrementing 16 bit values 
+ *	fill buffer with gray code of incrementing 16 bit values
  *
  */
 static void stress_rand_data_gray(const args_t *args, uint32_t *data, const int size)

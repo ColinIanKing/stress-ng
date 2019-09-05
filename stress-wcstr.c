@@ -702,7 +702,7 @@ static void stress_wcs_set_default(void)
 	stress_set_wcs_method("all");
 }
 
-static const opt_set_func_t opt_set_funcs[] = { 
+static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_wcs_method,	stress_set_wcs_method },
 	{ 0,			NULL }
 };

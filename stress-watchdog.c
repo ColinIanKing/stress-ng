@@ -30,7 +30,7 @@ static const help_t help[] = {
 	{ NULL,	NULL,		  NULL }
 };
 
-#if defined(HAVE_LINUX_WATCHDOG_H) 
+#if defined(HAVE_LINUX_WATCHDOG_H)
 
 static sigjmp_buf jmp_env;
 

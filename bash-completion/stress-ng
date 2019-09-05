@@ -99,7 +99,7 @@ _stress_ng()
 	case "$cur" in
 	#
 	# args without further options
-	# 
+	#
 	'--abort' | '--aggressive' | '--dry-run' | '--help' | '--ignite-cpu' |\
 	'--keep-name' | '--log-brief' | '--maximize' | '--metrics' |\
 	'--metrics-brief' | '--minimize' | '--no-madvise' | '--no-rand-seed' |\

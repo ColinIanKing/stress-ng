@@ -679,7 +679,7 @@ static int stress_apparmor(const args_t *args)
 	}
 
 	for (i = 0; i < n; i++) {
-		pids[i] = apparmor_spawn(args, 
+		pids[i] = apparmor_spawn(args,
 			ops_per_child + ((i == 0) ? ops : 0),
 			&counters[i], apparmor_funcs[i]);
 	}
