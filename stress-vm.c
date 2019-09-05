@@ -664,9 +664,10 @@ static size_t TARGET_CLONES stress_vm_gray(
 	uint8_t v, *buf_end = buf + sz;
 	volatile uint8_t *ptr;
 	size_t bit_errors = 0;
-	uint64_t c = get_counter(args);
+	const uint64_t c_orig = get_counter(args);
+	uint64_t c;
 
-	for (v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
+	for (c = c_orig, v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
 		if (UNLIKELY(!g_keep_stressing_flag))
 			return 0;
 		*ptr = (v >> 1) ^ v;
@@ -677,11 +678,14 @@ static size_t TARGET_CLONES stress_vm_gray(
 	(void)mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	for (v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
+	for (c = c_orig, v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
 		if (UNLIKELY(!g_keep_stressing_flag))
 			break;
 		if (UNLIKELY(*ptr != ((v >> 1) ^ v)))
 			bit_errors++;
+		c++;
+		if (UNLIKELY(max_ops && c >= max_ops))
+			break;
 	}
 	val++;
 
