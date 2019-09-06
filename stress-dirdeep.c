@@ -309,7 +309,7 @@ static int stress_dirdeep(const args_t *args)
 	(void)shim_strlcpy(linkpath, rootpath, sizeof(linkpath));
 	(void)shim_strlcat(linkpath, "/f", sizeof(linkpath) - 3);
 
-	pr_inf("%s: %" PRIu64 " inodes available, exercising up to %" PRIu64 " inodes\n",
+	pr_dbg("%s: %" PRIu64 " inodes available, exercising up to %" PRIu64 " inodes\n",
 		args->name, inodes_avail, inodes_avail - inodes_target_free);
 
 	(void)shim_strlcpy(path, rootpath, sizeof(path));
@@ -324,7 +324,7 @@ static int stress_dirdeep(const args_t *args)
 	pr_tidy("%s: removing directories\n", args->name);
 	stress_dir_tidy(args, path, path_len, sizeof(path));
 
-	pr_inf("%s: %" PRIu64 " inodes exercised\n", args->name, inodes_avail - min_inodes_free);
+	pr_dbg("%s: %" PRIu64 " inodes exercised\n", args->name, inodes_avail - min_inodes_free);
 	if ((args->instance == 0) && (inodes_target_free < min_inodes_free))
 		pr_inf("%s: note: specifying a larger --dirdeep setting or "
 			"running the stressor for longer will use more "
