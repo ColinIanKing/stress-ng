@@ -1125,6 +1125,18 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define pr_fail_errno(msg, err)		pr_fail_errno__(args, msg, err)
 #define pr_fail_dbg(msg)		pr_fail_dbg__(args, msg)
 
+#if defined(HAVE_SYSLOG_H)
+#define shim_syslog(priority, format, ...)	\
+		syslog(priority, format, __VA_ARGS__)
+#define shim_openlog(ident, option, facility) \
+		openlog(ident, option, facility)
+#define shim_closelog()		closelog()
+#else
+#define shim_syslog(priority, format, ...)
+#define shim_openlog(ident, option, facility)
+#define shim_closelog()
+#endif
+
 /* Memory size constants */
 #define KB			(1ULL << 10)
 #define	MB			(1ULL << 20)
@@ -3563,7 +3575,7 @@ extern size_t shim_strlcpy(char *dst, const char *src, size_t len);
 extern int shim_sync_file_range(int fd, shim_off64_t offset,
 	shim_off64_t nbytes, unsigned int flags);
 extern int shim_sysfs(int option, ...);
-extern int shim_syslog(int type, char *bufp, int len);
+extern int shim_klogctl(int type, char *bufp, int len);
 extern int shim_unshare(int flags);
 extern int shim_userfaultfd(int flags);
 extern int shim_usleep(uint64_t usec);

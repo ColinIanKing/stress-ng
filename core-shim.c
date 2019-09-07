@@ -288,10 +288,10 @@ long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned lo
 }
 
 /*
- *  shim_syslog()
+ *  shim_klogctl()
  *	wrapper for syslog(2) (NOT syslog(3))
  */
-int shim_syslog(int type, char *bufp, int len)
+int shim_klogctl(int type, char *bufp, int len)
 {
 #if defined(__NR_syslog)
 	return syscall(__NR_syslog, type, bufp, len);
@@ -1284,4 +1284,3 @@ int shim_move_mount(
 	return -1;
 #endif
 }
-

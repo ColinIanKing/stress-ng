@@ -53,7 +53,7 @@ static int stress_klog(const args_t *args)
 	char *buffer;
 	ssize_t len;
 
-	len  = shim_syslog(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
+	len  = shim_klogctl(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 	if (len < 0) {
 		if (!args->instance)
 			pr_err("%s: cannot determine syslog buffer "
@@ -80,7 +80,7 @@ static int stress_klog(const args_t *args)
 	do {
 		int ret, buflen = (mwc32() % len) + 1;
 
-		ret = shim_syslog(SYSLOG_ACTION_READ_ALL, buffer, buflen);
+		ret = shim_klogctl(SYSLOG_ACTION_READ_ALL, buffer, buflen);
 		if (ret < 0)
 			pr_fail_err("syslog ACTION_READ_ALL");
 		if (ret > buflen)
@@ -88,16 +88,16 @@ static int stress_klog(const args_t *args)
 				"data than was requested.\n", args->name);
 
 		/* open, no-op, ignore failure */
-		(void)shim_syslog(SYSLOG_ACTION_OPEN, NULL, 0);
+		(void)shim_klogctl(SYSLOG_ACTION_OPEN, NULL, 0);
 
 		/* close, no-op, ignore failure */
-		(void)shim_syslog(SYSLOG_ACTION_CLOSE, NULL, 0);
+		(void)shim_klogctl(SYSLOG_ACTION_CLOSE, NULL, 0);
 
 		/* get unread size, ignore failure */
-		(void)shim_syslog(SYSLOG_ACTION_SIZE_UNREAD, NULL, 0);
+		(void)shim_klogctl(SYSLOG_ACTION_SIZE_UNREAD, NULL, 0);
 
 		/* get size of kernel buffer, ignore return */
-		(void)shim_syslog(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
+		(void)shim_klogctl(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 
 		inc_counter(args);
 	} while (keep_stressing());

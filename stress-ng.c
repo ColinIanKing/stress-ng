@@ -1935,9 +1935,7 @@ static void log_args(int argc, char **argv)
 		(void)shim_strlcat(buf + len, argv[i], arglen[i]);
 		len += arglen[i];
 	}
-#if defined(HAVE_SYSLOG_H)
-	syslog(LOG_INFO, "invoked with '%s' by user %d", buf, getuid());
-#endif
+	shim_syslog(LOG_INFO, "invoked with '%s' by user %d", buf, getuid());
 	free(buf);
 }
 
@@ -1953,7 +1951,7 @@ void log_system_mem_info(void)
 	struct sysinfo info;
 
 	if (sysinfo(&info) == 0) {
-		syslog(LOG_INFO, "memory (MB): total %.2f, "
+		shim_syslog(LOG_INFO, "memory (MB): total %.2f, "
 			"free %.2f, "
 			"shared %.2f, "
 			"buffer %.2f, "
@@ -1981,7 +1979,7 @@ static void log_system_info(void)
 	struct utsname buf;
 
 	if (uname(&buf) == 0) {
-		syslog(LOG_INFO, "system: '%s' %s %s %s %s\n",
+		shim_syslog(LOG_INFO, "system: '%s' %s %s %s %s\n",
 			buf.nodename,
 			buf.sysname,
 			buf.release,
@@ -2753,9 +2751,7 @@ int main(int argc, char **argv)
 	 */
 	if (get_setting("log-file", &log_filename))
 		pr_openlog(log_filename);
-#if defined(HAVE_SYSLOG_H)
-	openlog("stress-ng", 0, LOG_USER);
-#endif
+	shim_openlog("stress-ng", 0, LOG_USER);
 	log_args(argc, argv);
 	log_system_info();
 	log_system_mem_info();
@@ -2990,9 +2986,7 @@ int main(int argc, char **argv)
 	/*
 	 *  Close logs
 	 */
-#if defined(HAVE_SYSLOG_H)
-	closelog();
-#endif
+	shim_closelog();
 	pr_closelog();
 	if (yaml) {
 		pr_yaml(yaml, "...\n");
