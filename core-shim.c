@@ -1220,11 +1220,7 @@ int shim_fsopen(const char *fsname, unsigned int flags)
 #if defined(__NR_fsopen)
 	return syscall(__NR_fsopen, fsname, flags);
 #else
-	(void)fsname;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, fsname, flags);
 #endif
 }
 
@@ -1233,12 +1229,7 @@ int shim_fsmount(int fd, unsigned int flags, unsigned int ms_flags)
 #if defined(__NR_fsmount)
 	return syscall(__NR_fsmount, fd, flags, ms_flags);
 #else
-	(void)fd;
-	(void)flags;
-	(void)ms_flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, fd, flags, ms_flags);
 #endif
 }
 
@@ -1252,14 +1243,7 @@ int shim_fsconfig(
 #if defined(__NR_fsconfig)
 	return syscall(__NR_fsconfig, fd, cmd, key, value, aux);
 #else
-	(void)fd;
-	(void)cmd;
-	(void)key;
-	(void)value;
-	(void)aux;
-
-	errno = ENOSYS;
-	return -1;
+	return shim_enosys(0, fd, cmd, key, value, aux);
 #endif
 }
 
@@ -1274,13 +1258,7 @@ int shim_move_mount(
         return syscall(__NR_move_mount, from_dfd, from_pathname,
 			to_dfd, to_pathname, flags);
 #else
-	(void)from_dfd;
-	(void)from_pathname;
-	(void)to_dfd;
-	(void)to_pathname;
-	(void)flags;
-
-	errno = ENOSYS;
-	return -1;
+	return shom_enosys(0, from_dfd, from_pathname,
+			to_dfd, to_pathname, flags);
 #endif
 }
