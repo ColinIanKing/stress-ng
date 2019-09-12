@@ -1,3 +1,24 @@
+stress-ng (0.10.05-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * core-shim: fix typo in shim_move_mount
+  * core-shim: use shim_enosys for more ENOSYS returns
+  * Clean up shims for syslog(2) and syslog(3)
+  * stress-ramfs: remove it from the filesystem test
+  * stress-dirdeep: make inodes info into a debug message
+  * Remove trailing tab from ends of lines
+  * Remove trailing white space after statements
+  * stress-vm: fix verification failure with gray code method
+  * stress-socket: make EPIPE a non-fatal error condition
+  * stress-udp: use correct default UDP port 7000
+  * stress-ng: rescan the exclusion list for --class stressors
+  * core-shim: reset errno before each waitpid call
+  * stress-socket: handle SIGPIPE as non-fatal
+  * stress-physpage: don't abort on zero address physpage
+  * Use HTTPS URL for kernel.ubuntu.com
+
+ -- Colin King <colin.king@canonical.com>  Thu, 12 Sep 2019 15:26:22 +0100
+
 stress-ng (0.10.04-1) unstable; urgency=medium
 
   * Makefile: bump version
