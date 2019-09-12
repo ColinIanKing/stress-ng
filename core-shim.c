@@ -1258,7 +1258,7 @@ int shim_move_mount(
         return syscall(__NR_move_mount, from_dfd, from_pathname,
 			to_dfd, to_pathname, flags);
 #else
-	return shom_enosys(0, from_dfd, from_pathname,
+	return shim_enosys(0, from_dfd, from_pathname,
 			to_dfd, to_pathname, flags);
 #endif
 }
