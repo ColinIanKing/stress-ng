@@ -26,7 +26,7 @@
 
 static const help_t help[] = {
 	{ NULL,	"sigq N",	"start N workers sending sigqueue signals" },
-	{ NULL,	"sigq-ops N",	"stop after N siqqueue bogo operations" },
+	{ NULL,	"sigq-ops N",	"stop after N sigqueue bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
 
