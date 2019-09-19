@@ -40,33 +40,16 @@ static sigset_t set;
 static shim_pthread_spinlock_t lock;
 static char sysfs_path[PATH_MAX];
 static uint32_t mixup;
-static volatile bool segv_abort = false;
 static volatile bool drain_kmsg = false;
-static volatile bool usr2_killed = false;
 static volatile uint32_t counter = 0;
-static sigjmp_buf jmp_env;
 static char signum_path[] = "/sys/kernel/notes";
 static uint32_t os_release;
 
 typedef struct ctxt {
 	const args_t *args;		/* stressor args */
-	char *badbuf;			/* bad mapping for I/O buffer */
 	int kmsgfd;			/* /dev/kmsg file descriptor */
 	bool writeable;			/* is sysfs writeable? */
 } ctxt_t;
-
-static void MLOCKED_TEXT stress_segv_handler(int signum)
-{
-	(void)signum;
-
-	segv_abort = true;
-	siglongjmp(jmp_env, 1);
-}
-
-static void MLOCKED_TEXT stress_usr2_handler(int signum)
-{
-	(void)signum;
-}
 
 static uint32_t path_sum(const char *path)
 {
@@ -133,7 +116,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 	const double threshold = 0.2;
 	size_t page_size = ctxt->args->page_size;
 
-	while (g_keep_stressing_flag && !segv_abort) {
+	while (g_keep_stressing_flag) {
 		double t_start;
 		uint8_t *ptr;
 
@@ -142,8 +125,8 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 			return false;
 		(void)shim_strlcpy(path, sysfs_path, sizeof(path));
 		counter++;
-		if (counter > OPS_PER_SYSFS_FILE)
-			(void)kill(args->pid, SIGUSR2);
+		//if (counter > OPS_PER_SYSFS_FILE)
+			//(void)kill(args->pid, SIGUSR2);
 		(void)shim_pthread_spin_unlock(&lock);
 
 		if (!*path || !g_keep_stressing_flag)
@@ -226,14 +209,6 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 			goto drain;
 		}
 
-		/*
-		 *  Bad read buffer
-		 */
-		if (ctxt->badbuf) {
-			ret = read(fd, ctxt->badbuf, SYS_BUF_SZ);
-			if (ret < 0)
-				goto err;
-		}
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
 			drain_kmsg = true;
 			(void)close(fd);
@@ -286,6 +261,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
+	const args_t *args = ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -303,7 +279,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
-	while (g_keep_stressing_flag && !segv_abort)
+	while (keep_stressing())
 		stress_sys_rw(ctxt);
 
 	return &nowt;
@@ -353,7 +329,7 @@ static void stress_sys_dir(
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int i, n;
 
-	if (!g_keep_stressing_flag || segv_abort)
+	if (!g_keep_stressing_flag)
 		return;
 
 	/* Don't want to go too deep */
@@ -366,7 +342,7 @@ static void stress_sys_dir(
 	if (n <= 0)
 		goto done;
 
-	for (i = 0; (i < n) && !segv_abort; i++) {
+	for (i = 0; i < n; i++) {
 		int ret;
 		struct stat buf;
 		char tmp[PATH_MAX];
@@ -407,7 +383,6 @@ static void stress_sys_dir(
 			if (!ret) {
 				(void)shim_strlcpy(sysfs_path, tmp, sizeof(sysfs_path));
 				counter = 0;
-				usr2_killed = false;
 				(void)shim_pthread_spin_unlock(&lock);
 				drain_kmsg = false;
 
@@ -417,8 +392,6 @@ static void stress_sys_dir(
 				 *  has been reached
 				 */
 				shim_usleep_interruptible(DURATION_PER_SYSFS_FILE);
-				if (segv_abort)
-					break;
 				inc_counter(args);
 			}
 			break;
@@ -462,18 +435,6 @@ static int stress_sysfs(const args_t *args)
 #endif
 
 	(void)memset(&ctxt, 0, sizeof(ctxt));
-	rc = sigsetjmp(jmp_env, 1);
-	if (rc) {
-		/* Potentially racy, but it's good enough for the moment */
-		pr_err("%s: A SIGSEGV occurred while exercising %s, aborting\n",
-			args->name, sysfs_path);
-		return EXIT_FAILURE;
-	}
-	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
-		return EXIT_FAILURE;
-	if (stress_sighandler(args->name, SIGUSR2, stress_usr2_handler, NULL) < 0)
-		return EXIT_FAILURE;
-
 	shim_strlcpy(sysfs_path, signum_path, sizeof(sysfs_path));
 
 	ctxt.args = args;
@@ -492,16 +453,6 @@ static int stress_sysfs(const args_t *args)
 
 	(void)memset(ret, 0, sizeof(ret));
 
-	ctxt.badbuf = mmap(NULL, SYS_BUF_SZ, PROT_READ,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (ctxt.badbuf == MAP_FAILED) {
-		pr_inf("%s: mmap failed: errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		if (ctxt.kmsgfd != -1)
-			(void)close(ctxt.kmsgfd);
-		return EXIT_NO_RESOURCE;
-	}
-
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,
 				stress_sys_rw_thread, &ctxt);
@@ -509,7 +460,7 @@ static int stress_sysfs(const args_t *args)
 
 	do {
 		stress_sys_dir(&ctxt, "/sys", true, 0);
-	} while (keep_stressing() && !segv_abort);
+	} while (keep_stressing());
 
 	rc = shim_pthread_spin_lock(&lock);
 	if (rc) {
@@ -532,7 +483,6 @@ static int stress_sysfs(const args_t *args)
 	}
 	if (ctxt.kmsgfd != -1)
 		(void)close(ctxt.kmsgfd);
-	(void)munmap(ctxt.badbuf, SYS_BUF_SZ);
 	(void)shim_pthread_spin_destroy(&lock);
 
 	return EXIT_SUCCESS;
