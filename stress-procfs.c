@@ -31,7 +31,7 @@ static const help_t help[] = {
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
 #define PROC_BUF_SZ		(4096)
-#define MAX_READ_THREADS	(4)
+#define MAX_PROCFS_THREADS	(4)
 
 typedef struct ctxt {
 	const args_t *args;
@@ -380,8 +380,8 @@ done:
 static int stress_procfs(const args_t *args)
 {
 	size_t i;
-	pthread_t pthreads[MAX_READ_THREADS];
-	int rc, ret[MAX_READ_THREADS];
+	pthread_t pthreads[MAX_PROCFS_THREADS];
+	int rc, ret[MAX_PROCFS_THREADS];
 	ctxt_t ctxt;
 
 	(void)sigfillset(&set);
@@ -408,7 +408,7 @@ static int stress_procfs(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	for (i = 0; i < MAX_READ_THREADS; i++) {
+	for (i = 0; i < MAX_PROCFS_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,
 				stress_proc_rw_thread, &ctxt);
 	}
@@ -471,7 +471,7 @@ static int stress_procfs(const args_t *args)
 		(void)rc;
 	}
 
-	for (i = 0; i < MAX_READ_THREADS; i++) {
+	for (i = 0; i < MAX_PROCFS_THREADS; i++) {
 		if (ret[i] == 0)
 			(void)pthread_join(pthreads[i], NULL);
 	}
