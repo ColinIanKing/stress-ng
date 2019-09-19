@@ -36,7 +36,6 @@ static const help_t help[] = {
 typedef struct ctxt {
 	const args_t *args;
 	const char *path;
-	char *badbuf;
 	bool writeable;
 } ctxt_t;
 
@@ -148,23 +147,6 @@ static inline void stress_proc_rw(
 		if (ret < 0)
 			goto err;
 
-#if 0
-		/*
-		 *  Bad read buffer, should fail!
-		 */
-		if (ctxt->badbuf) {
-			ret = read(fd, ctxt->badbuf, PROC_BUF_SZ);
-			if (ret == 0)
-				goto err;
-		}
-
-		if (time_now() - t_start > threshold) {
-			timeout = true;
-			(void)close(fd);
-			goto next;
-		}
-#endif
-
 		/*
 		 *  mmap it
 		 */
@@ -251,17 +233,6 @@ err:
 			ret = write(fd, buffer, 0);
 			(void)ret;
 			(void)close(fd);
-
-			/*
-			 *  Write using badbuf, expect it to fail
-			 */
-			if (ctxt->badbuf) {
-				if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
-					return;
-				ret = write(fd, ctxt->badbuf, PROC_BUF_SZ);
-				(void)ret;
-				(void)close(fd);
-			}
 		}
 next:
 		if (loops > 0) {
@@ -400,14 +371,6 @@ static int stress_procfs(const args_t *args)
 
 	(void)memset(ret, 0, sizeof(ret));
 
-	ctxt.badbuf = mmap(NULL, PROC_BUF_SZ, PROT_READ,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (ctxt.badbuf == MAP_FAILED) {
-		pr_inf("%s: mmap failed: errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
-	}
-
 	for (i = 0; i < MAX_PROCFS_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,
 				stress_proc_rw_thread, &ctxt);
@@ -475,7 +438,6 @@ static int stress_procfs(const args_t *args)
 		if (ret[i] == 0)
 			(void)pthread_join(pthreads[i], NULL);
 	}
-	(void)munmap(ctxt.badbuf, PROC_BUF_SZ);
 	(void)shim_pthread_spin_destroy(&lock);
 
 	return EXIT_SUCCESS;
