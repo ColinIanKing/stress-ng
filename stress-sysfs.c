@@ -31,7 +31,7 @@ static const help_t help[] = {
 #if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
 
 #define SYS_BUF_SZ		(4096)
-#define MAX_READ_THREADS	(4)	/* threads stressing sysfs */
+#define MAX_SYSFS_THREADS	(4)	/* threads stressing sysfs */
 #define DRAIN_DELAY_US		(50000)	/* backoff in (us) microsecs */
 #define DURATION_PER_SYSFS_FILE	(40000)	/* max duration per file in microsecs */
 #define OPS_PER_SYSFS_FILE	(256)	/* max iterations per sysfs file */
@@ -415,8 +415,8 @@ done:
 static int stress_sysfs(const args_t *args)
 {
 	size_t i;
-	pthread_t pthreads[MAX_READ_THREADS];
-	int rc, ret[MAX_READ_THREADS];
+	pthread_t pthreads[MAX_SYSFS_THREADS];
+	int rc, ret[MAX_SYSFS_THREADS];
 	ctxt_t ctxt;
 
 	os_release = 0;
@@ -453,7 +453,7 @@ static int stress_sysfs(const args_t *args)
 
 	(void)memset(ret, 0, sizeof(ret));
 
-	for (i = 0; i < MAX_READ_THREADS; i++) {
+	for (i = 0; i < MAX_SYSFS_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,
 				stress_sys_rw_thread, &ctxt);
 	}
@@ -472,12 +472,12 @@ static int stress_sysfs(const args_t *args)
 	}
 
 	/* Forcefully kill threads */
-	for (i = 0; i < MAX_READ_THREADS; i++) {
+	for (i = 0; i < MAX_SYSFS_THREADS; i++) {
 		if (ret[i] == 0)
 			(void)pthread_kill(pthreads[i], SIGHUP);
 	}
 
-	for (i = 0; i < MAX_READ_THREADS; i++) {
+	for (i = 0; i < MAX_SYSFS_THREADS; i++) {
 		if (ret[i] == 0)
 			(void)pthread_join(pthreads[i], NULL);
 	}
