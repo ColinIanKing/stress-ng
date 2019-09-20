@@ -2355,6 +2355,7 @@ int parse_opts(int argc, char **argv, const bool jobmode)
 		size_t i;
 
 		opterr = (!jobmode)? opterr: 0;
+
 next_opt:
 		if ((c = getopt_long(argc, argv, "?khMVvqnt:b:c:i:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:Y:x:",
 			long_options, &option_index)) == -1) {
@@ -2719,6 +2720,12 @@ int main(int argc, char **argv)
 	ret = parse_opts(argc, argv, false);
 	if (ret != EXIT_SUCCESS)
 		exit(ret);
+	/*
+	 *  Load in job file options
+	 */
+	(void)get_setting("job", &job_filename);
+	if (parse_jobfile(argc, argv, job_filename) < 0)
+		exit(EXIT_FAILURE);
 
 	/*
 	 *  Sanity check minimize/maximize options
@@ -2739,6 +2746,7 @@ int main(int argc, char **argv)
 		exit(EXIT_FAILURE);
 	}
 	(void)get_setting("class", &class);
+
 	if (class &&
 	    !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
 		(void)fprintf(stderr, "class option is only used with "
@@ -2824,13 +2832,6 @@ int main(int argc, char **argv)
 		ret = stress_sighandler("stress-ng", ignore_signals[i], SIG_IGN, NULL);
 		(void)ret;	/* We don't care if it fails */
 	}
-
-	/*
-	 *  Load in job file options
-	 */
-	(void)get_setting("job", &job_filename);
-	if (parse_jobfile(argc, argv, job_filename) < 0)
-		exit(EXIT_FAILURE);
 
 	/*
 	 *  Setup stressor proc info
