@@ -134,6 +134,7 @@ static int stress_shm_posix_child(
 	do {
 		for (i = 0; ok && (i < (ssize_t)shm_posix_objects); i++) {
 			int shm_fd, ret;
+			pid_t newpid;
 			void *addr;
 			char *shm_name = &shm_names[i * SHM_NAME_LEN];
 			struct stat statbuf;
@@ -189,6 +190,15 @@ static int stress_shm_posix_child(
 				(void)close(shm_fd);
 				goto reap;
 			}
+
+			/*
+			 *  Exercise shm duplication and reaping
+			 *  on a fork and exit
+			 */
+			newpid = fork();
+			if (newpid == 0)
+				_exit(0);
+
 			(void)madvise_random(addr, sz);
 			(void)shim_msync(addr, sz, mwc1() ? MS_ASYNC : MS_SYNC);
 			(void)shim_fsync(shm_fd);
@@ -222,6 +232,11 @@ static int stress_shm_posix_child(
 			}
 
 			(void)close(shm_fd);
+			if (newpid > 0) {
+				int status;
+
+				waitpid(newpid, &status, 0);
+			}
 
 			if (!keep_stressing())
 				goto reap;
