@@ -1,3 +1,23 @@
+stress-ng (0.10.06-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-mcontend: ensure mmap'd file is sync'd with zero
+    data (LP: #1845011)
+  * stress-rmap: don't make fallocate failures a rmap test
+    failure (LP: #1845005)
+  * stress-shm: fork and exit a child to exercise shm dup and
+    removal
+  * stress-ng: fix jobfile with classes (LP: #1706970)
+  * stress-procfs: don't randomly read pci proc info on ARM64
+  * stress-procfs: remove bad buffer test, it's not portable
+  * stress-sysfs: rename MAX_READ_THREADS to MAX_SYSFS_THREADS
+  * stress-sysfs: remove bad address reads, these fault on ARM64
+  * stress-procfs: rename MAX_READ_THREADS to MAX_PROCFS_THREADS
+  * stress-inode-flags: move open/close to controlling process
+  * stress-sig: fix spelling mistake "siqqueue" -> "sigqueue"
+
+ -- Colin King <colin.king@canonical.com>  Mon, 23 Sep 2019 17:40:21 +0100
+
 stress-ng (0.10.05-1) unstable; urgency=medium
 
   * Makefile: bump version
