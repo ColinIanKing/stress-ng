@@ -47,6 +47,32 @@ static inline void cpu_relax(void)
 }
 #endif
 
+/*
+ *  page_write_sync()
+ *	write a whole page of zeros to the backing file and
+ *	ensure it is sync'd to disc for mmap'ing to avoid any
+ *	bus errors on the mmap.
+ */
+static int page_write_sync(const int fd, const size_t page_size)
+{
+	char buffer[256];
+	size_t n = 0;
+
+	(void)memset(buffer, 0, sizeof(buffer));
+
+	while (n < page_size) {
+		ssize_t rc;
+
+		rc = write(fd, buffer, sizeof(buffer));
+		if (rc < (ssize_t)sizeof(buffer))
+			return rc;
+		n += rc;
+	}
+	(void)sync();
+
+	return 0;
+}
+
 static inline HOT OPTIMIZE3 void read64(uint64_t *data)
 {
 	register uint64_t v;
@@ -299,8 +325,11 @@ static int stress_mcontend(const args_t *args)
 	int ret[MAX_READ_THREADS];
 	void *data[MAX_MAPPINGS];
 	char filename[PATH_MAX];
+	char buffer[args->page_size];
 	pthread_args_t pa;
 	int fd, rc;
+
+	(void)memset(buffer, 0, sizeof(buffer));
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
@@ -312,9 +341,20 @@ static int stress_mcontend(const args_t *args)
 	if (fd < 0) {
 		pr_inf("%s: open failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		(void)unlink(filename);
+		(void)stress_temp_dir_rm_args(args);
 		return EXIT_NO_RESOURCE;
 	}
-	(void)shim_fallocate(fd, 0, 0, args->page_size);
+	rc = page_write_sync(fd, args->page_size);
+	if (rc < 0) {
+		pr_inf("%s: mmap backing file write failed: errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		(void)close(fd);
+		(void)unlink(filename);
+		(void)stress_temp_dir_rm_args(args);
+		return EXIT_NO_RESOURCE;
+
+	}
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
@@ -325,7 +365,7 @@ static int stress_mcontend(const args_t *args)
 	 */
 	data[0] = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE, fd, 0);
-	if (data[0] == MAP_FAILED) {
+	if (data[1] == MAP_FAILED) {
 		pr_inf("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
