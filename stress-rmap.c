@@ -173,7 +173,7 @@ static int stress_rmap(const args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		(void)munmap((void *)counters, counters_sz);
 
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
