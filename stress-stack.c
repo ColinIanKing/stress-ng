@@ -105,10 +105,11 @@ static int stress_stack(const args_t *args)
 	/*
 	 *  Allocate altstack on heap rather than an
 	 *  autoexpanding stack that may trip a segfault
-	 *  if there is no memory to back it later.
+	 *  if there is no memory to back it later. Stack
+	 *  must be privately mapped.
 	 */
 	altstack = mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (altstack == MAP_FAILED) {
 		pr_inf("%s: cannot allocate stack for signal handler, "
 			"skipping test\n", args->name);
