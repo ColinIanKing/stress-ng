@@ -294,7 +294,7 @@ static int stress_get(const args_t *args)
 			check_do_run();
 		}
 
-#if _XOPEN_SOURCE >= 500 || _XOPEN_SOURCE && _XOPEN_SOURCE_EXTENDED
+#if defined(HAVE_GETSID)
 		ret = getsid(mypid);
 		if (verify && (ret < 0))
 			pr_fail_err("getsid");
