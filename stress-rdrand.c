@@ -117,6 +117,14 @@ static inline uint64_t rdrand64(void)
 	rdrand64();	\
 	rdrand64();	\
 }
+
+#define RDRAND64x128()	\
+{			\
+	RDRAND64x32()	\
+	RDRAND64x32()	\
+	RDRAND64x32()	\
+	RDRAND64x32()	\
+}
 #else
 /*
  *  rdrand32()
@@ -203,6 +211,14 @@ static inline uint32_t rdrand32(void)
 	rdrand32();	\
 	rdrand32();	\
 }
+
+#define RDRAND32x256()	\
+{			\
+	RDRAND32x64()	\
+	RDRAND32x64()	\
+	RDRAND32x64()	\
+	RDRAND32x64()	\
+}
 #endif
 
 /*
@@ -218,15 +234,15 @@ static int stress_rdrand(const args_t *args)
 		time_start = time_now();
 		do {
 #if defined(__x86_64__) || defined(__x86_64)
-			RDRAND64x32();
+			RDRAND64x128();
 #else
-			RDRAND32x64();
+			RDRAND32x256();
 #endif
 			inc_counter(args);
 		} while (keep_stressing());
 
 		duration = time_now() - time_start;
-		billion_bits = ((double)get_counter(args) * 64.0 * 32.0) / 1000000000.0;
+		billion_bits = ((double)get_counter(args) * 64.0 * 128.0) / 1000000000.0;
 
 		pr_lock(&lock);
 		pr_dbg_lock(&lock, "%s: %.3f billion random bits read "
