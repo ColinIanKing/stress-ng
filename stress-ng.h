@@ -1575,7 +1575,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #endif
 
 /* GCC5.0+ target_clones attribute */
-#if defined(HAVE_TARGET_CLONES)
+#if defined(HAVE_TARGET_CLONES) && defined(STRESS_X86)
 #define TARGET_CLONES	__attribute__((target_clones("mmx","sse","sse2","ssse3", "sse4.1", "sse4a", "avx", "avx2", "avx512f", "default")))
 #else
 #define TARGET_CLONES
