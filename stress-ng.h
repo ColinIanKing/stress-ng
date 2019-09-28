@@ -1618,13 +1618,6 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define HAVE_PRCTL_TIMER_SLACK
 #endif
 
-/*
- *  checks to see if we should keep in running the stressors
- */
-extern bool __keep_stressing(const args_t *args);
-
-#define keep_stressing()	__keep_stressing(args)
-
 /* increment the stessor bogo ops counter */
 static inline void ALWAYS_INLINE inc_counter(const args_t *args)
 {
@@ -3041,6 +3034,18 @@ extern volatile bool g_caught_sigint;	/* true if stopped by SIGINT */
 extern pid_t g_pgrp;			/* proceess group leader */
 extern jmp_buf g_error_env;		/* parsing error env */
 extern put_val_t g_put_val;		/* sync data to somewhere */
+
+/*
+ *  keep_stressing()
+ *      returns true if we can keep on running a stressor
+ */
+static inline bool HOT OPTIMIZE3 __keep_stressing(const args_t *args)
+{
+	return (LIKELY(g_keep_stressing_flag) &&
+		LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
+}
+
+#define keep_stressing()	__keep_stressing(args)
 
 /*
  *  stressor option value handling

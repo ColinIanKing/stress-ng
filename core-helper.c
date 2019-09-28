@@ -1250,16 +1250,6 @@ void *stress_align_address(const void *addr, const size_t alignment)
 }
 
 /*
- *  keep_stressing()
- *	returns true if we can keep on running a stressor
- */
-bool HOT OPTIMIZE3 __keep_stressing(const args_t *args)
-{
-	return (LIKELY(g_keep_stressing_flag) &&
-	        LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
-}
-
-/*
  *  stress_sigalrm_pending()
  *	return true if SIGALRM is pending
  */
