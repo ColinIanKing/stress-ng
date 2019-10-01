@@ -81,26 +81,34 @@ bool process_oomed(const pid_t pid)
  *	try to set OOM adjustment, retry if EAGAIN or EINTR, give up
  *	after multiple retries.
  */
-static void set_adjustment(const char *name, const int fd, const char *str)
+static int set_adjustment(const char *procname, const char *name, const char *str)
 {
 	const size_t len = strlen(str);
 	int i;
 
 	for (i = 0; i < 32; i++) {
 		ssize_t n;
+		int fd;
+
+		fd = open(procname, O_WRONLY);
+		if (fd < 0)
+			return -1;
 
 		n = write(fd, str, len);
+		(void)close(fd);
 		if (n > 0)
-			return;
-
-		if ((errno != EAGAIN) && (errno != EINTR)) {
-			pr_dbg("%s: can't set oom_score_adj\n", name);
-			return;
+			return 0;
+		if (n < 0) {
+			if ((errno != EAGAIN) && (errno != EINTR)) {
+				pr_dbg("%s: can't set oom_score_adj\n", name);
+				return -1;
+			}
 		}
 	}
 	/* Unexpected failure, report why */
 	pr_dbg("%s: can't set oom_score_adj, errno=%d (%s)\n", name,
 		errno, strerror(errno));
+	return -1;
 }
 
 /*
@@ -111,9 +119,9 @@ static void set_adjustment(const char *name, const int fd, const char *str)
  */
 void set_oom_adjustment(const char *name, const bool killable)
 {
-	int fd;
 	bool high_priv;
 	bool make_killable = killable;
+	char *str;
 
 	high_priv = (getuid() == 0) && (geteuid() == 0);
 
@@ -127,33 +135,20 @@ void set_oom_adjustment(const char *name, const bool killable)
 	/*
 	 *  Try modern oom interface
 	 */
-	if ((fd = open("/proc/self/oom_score_adj", O_WRONLY)) >= 0) {
-		char *str;
-
-		if (make_killable)
-			str = OOM_SCORE_ADJ_MAX;
-		else
-			str = high_priv ? OOM_SCORE_ADJ_MIN : "0";
-
-		set_adjustment(name, fd, str);
-		(void)close(fd);
+	if (make_killable)
+		str = OOM_SCORE_ADJ_MAX;
+	else
+		str = high_priv ? OOM_SCORE_ADJ_MIN : "0";
+	if (set_adjustment("/proc/self/oom_score_adj", name, str) == 0)
 		return;
-	}
 	/*
 	 *  Fall back to old oom interface
 	 */
-	if ((fd = open("/proc/self/oom_adj", O_WRONLY)) >= 0) {
-		char *str;
-
-		if (make_killable)
-			str = high_priv ? OOM_ADJ_NO_OOM : OOM_ADJ_MIN;
-		else
-			str = OOM_ADJ_MAX;
-
-		set_adjustment(name, fd, str);
-		(void)close(fd);
-	}
-	return;
+	if (make_killable)
+		str = high_priv ? OOM_ADJ_NO_OOM : OOM_ADJ_MIN;
+	else
+		str = OOM_ADJ_MAX;
+	(void)set_adjustment("/proc/self/oom_adj", name, str);
 }
 #else
 void set_oom_adjustment(const char *name, const bool killable)
