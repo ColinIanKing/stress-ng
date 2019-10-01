@@ -341,7 +341,7 @@ again:
 	} else if (pid == 0) {
 		/* Child */
 		int ret;
-		const size_t mmap_size = args->page_size * 8192;
+		const size_t mmap_size = args->page_size * 32768;
 		void *ptr;
 #if defined(MAP_POPULATE)
 		const int mflags = MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE;
