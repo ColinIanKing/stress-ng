@@ -47,46 +47,56 @@ static inline void stress_fp_clear_error(void)
 	feclearexcept(FE_ALL_EXCEPT);
 }
 
-static inline bool stress_double_same(const double d1, const double d2)
+static inline bool stress_double_same(
+	const double val,
+	const double val_expected,
+	const bool is_nan,
+	const bool is_inf)
 {
-	if (isnan(d1) && isnan(d2))
+	if (is_nan && isnan(val))
 		return true;
-	if (isinf(d1) && isinf(d2))
+	if (is_inf && isinf(val))
 		return true;
-	return (d1 - d2) < 0.0000001;
+	if (isnan(val) && isnan(val_expected))
+		return true;
+	if (isinf(val) && isinf(val_expected))
+		return true;
+	return fabsl(val - val_expected) < 0.0000001;
 }
 
 static void stress_fp_check(
 	const args_t *args,
 	const char *expr,
 	const double val,
-	const double val_wanted,
-	const int errno_wanted,
-	const int excepts_wanted)
+	const double val_expected,
+	const bool is_nan,
+	const bool is_inf,
+	const int errno_expected,
+	const int excepts_expected)
 {
 #if defined(__linux__) && NEED_GNUC(4,8,0)
-	if (stress_double_same(val, val_wanted) &&
-	    (fetestexcept(excepts_wanted) & excepts_wanted) &&
-	    (errno == errno_wanted))
+	if (stress_double_same(val, val_expected, is_nan, is_inf) &&
+	    (fetestexcept(excepts_expected) & excepts_expected) &&
+	    (errno == errno_expected))
 		return;
 
 	pr_fail("%s: %s return was %f (expected %f), "
 		"errno=%d (expected %d), "
 		"excepts=%d (expected %d)\n",
 		args->name, expr,
-		val, val_wanted,
-		errno, errno_wanted,
-		fetestexcept(excepts_wanted), excepts_wanted);
+		val, val_expected,
+		errno, errno_expected,
+		fetestexcept(excepts_expected), excepts_expected);
 #else
-	(void)errno_wanted;
-	(void)excepts_wanted;
+	(void)errno_expected;
+	(void)excepts_expected;
 
-	if (stress_double_same(val, val_wanted))
+	if (stress_double_same(val, val_expected, is_nan, is_inf))
 		return;
 
 	pr_fail("%s: %s return was %f (expected %f)\n",
 		args->name, expr,
-		val, val_wanted);
+		val, val_expected);
 #endif
 }
 
@@ -102,37 +112,37 @@ static int stress_fp_error(const args_t *args)
 #if defined(EDOM)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log(-1.0)", log(-1.0), NAN,
-			EDOM, FE_INVALID);
+			true, false, EDOM, FE_INVALID);
 #endif
 
 #if defined(ERANGE)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log(0.0)", log(0.0), -HUGE_VAL,
-			ERANGE, FE_DIVBYZERO);
+			false, false, ERANGE, FE_DIVBYZERO);
 #endif
 
 #if defined(EDOM)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log2(-1.0)", log2(-1.0), NAN,
-			EDOM, FE_INVALID);
+			true, false, EDOM, FE_INVALID);
 #endif
 
 #if defined(ERANGE)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log2(0.0)", log2(0.0), -HUGE_VAL,
-			ERANGE, FE_DIVBYZERO);
+			false, false, ERANGE, FE_DIVBYZERO);
 #endif
 
 #if defined(EDOM)
 		stress_fp_clear_error();
 		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), NAN,
-			EDOM, FE_INVALID);
+			true, false, EDOM, FE_INVALID);
 #endif
 
 #if defined(EDOM)
 		stress_fp_clear_error();
 		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), NAN,
-			EDOM, FE_INVALID);
+			true, false, EDOM, FE_INVALID);
 #endif
 
 		/*
@@ -143,7 +153,7 @@ static int stress_fp_error(const args_t *args)
 		SET_VOLATILE(d1, 1.0);
 		SET_VOLATILE(d2, M_PI);
 		stress_fp_check(args, "1.0 / M_PI", d1 / d2, d1 / d2,
-			0, FE_INEXACT);
+			false, false, 0, FE_INEXACT);
 
 		/*
 		 * Use volatiles to force compiler to generate code
@@ -154,18 +164,18 @@ static int stress_fp_error(const args_t *args)
 		SET_VOLATILE(d2, DBL_MAX / 2.0);
 		stress_fp_check(args, "DBL_MAX + DBL_MAX / 2.0",
 			DBL_MAX + DBL_MAX / 2.0, INFINITY,
-			0, FE_OVERFLOW | FE_INEXACT);
+			false, true, 0, FE_OVERFLOW | FE_INEXACT);
 
 #if defined(ERANGE)
 		stress_fp_clear_error();
 		stress_fp_check(args, "exp(-1000000.0)", exp(-1000000.0), 0.0,
-			ERANGE, FE_UNDERFLOW);
+			false, false, ERANGE, FE_UNDERFLOW);
 #endif
 
 #if defined(ERANGE)
 		stress_fp_clear_error();
 		stress_fp_check(args, "exp(DBL_MAX)", exp(DBL_MAX), HUGE_VAL,
-			ERANGE, FE_OVERFLOW);
+			false, false, ERANGE, FE_OVERFLOW);
 #endif
 
 		if (fegetround() == -1)
