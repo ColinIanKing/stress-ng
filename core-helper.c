@@ -1499,9 +1499,18 @@ size_t stress_text_addr(char **start, char **end)
 	return text_len;
 }
 
+/*
+ *  stress_is_dev_tty()
+ *	return true if fd is on a /dev/ttyN device. If it can't
+ *	be determined than default to assuming it is.
+ */
 bool stress_is_dev_tty(const int fd)
 {
 #if defined(HAVE_TTYNAME)
+	const char *name = ttyname(fd);
+
+	if (!name)
+		return true;
 	return !strncmp("/dev/tty", ttyname(fd), 8);
 #else
 	/* Assume it is */
