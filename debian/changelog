@@ -1,3 +1,25 @@
+stress-ng (0.10.07-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Remove smatchify script, we now use other tools to static
+    analyse stress-ng
+  * core-helper: add sanity check if ttyname returns NULL to avoid
+    null pointer dereferencing
+  * stress-fp-error: fix checks for NaN and Inf (LP: #1846216)
+  * Don't show utf8 chars on dump consoles (LP: #1846196)
+  * stress-clone: make child process larger to make it more
+    OOM-able (LP: #1845948)
+  * core-out-of-memory: open and close proc interface after each write
+  * Add autobuild detection of getsid() for better portability
+  * stress-ng.h: only use x86 target clones for x86 arches
+  * stress-rdrand: unroll loop x 4 more times for more throughput
+  * inline the __keep_stressing function, reduce call overhead
+    for more throughput
+  * stress-stack: make alternative signal stack privately
+    mapped (LP: #1845464)
+
+ -- Colin King <colin.king@canonical.com>  Tue, 1 Oct 2019 16:39:52 +0100
+
 stress-ng (0.10.06-1) unstable; urgency=medium
 
   * Makefile: bump version
