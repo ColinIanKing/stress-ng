@@ -1498,3 +1498,13 @@ size_t stress_text_addr(char **start, char **end)
 
 	return text_len;
 }
+
+bool stress_is_dev_tty(const int fd)
+{
+#if defined(HAVE_TTYNAME)
+	return !strncmp("/dev/tty", ttyname(fd), 8);
+#else
+	/* Assume it is */
+	return true;
+#endif
+}

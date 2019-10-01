@@ -3310,6 +3310,7 @@ extern size_t stress_text_addr(char **start, char **end);
 extern WARN_UNUSED bool stress_check_capability(const int capability);
 extern WARN_UNUSED bool stress_sigalrm_pending(void);
 extern void stress_sigalrm_block(void);
+extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
 
 /*
  *  Indicate a stress test failed because of limited resources

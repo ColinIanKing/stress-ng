@@ -1143,8 +1143,9 @@ static int stress_set_handler(const char *stress, const bool child)
  */
 static void version(void)
 {
-	(void)printf("%s, version " VERSION " (%s, %s) \U0001F4BB\U0001F525\n",
-		g_app_name, stress_get_compiler(), stress_get_uname_info());
+	(void)printf("%s, version " VERSION " (%s, %s)%s\n",
+		g_app_name, stress_get_compiler(), stress_get_uname_info(),
+		stress_is_dev_tty(STDOUT_FILENO) ? "" : " \U0001F4BB\U0001F525");
 }
 
 /*
