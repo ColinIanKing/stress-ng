@@ -2048,6 +2048,7 @@ typedef struct {
 	MACRO(wait)		\
 	MACRO(watchdog)		\
 	MACRO(wcs)		\
+	MACRO(x86syscall)	\
 	MACRO(xattr)		\
 	MACRO(yield)		\
 	MACRO(zero)		\
@@ -2944,6 +2945,10 @@ typedef enum {
 	OPT_wcs,
 	OPT_wcs_ops,
 	OPT_wcs_method,
+
+	OPT_x86syscall,
+	OPT_x86syscall_ops,
+	OPT_x86syscall_func,
 
 	OPT_xattr,
 	OPT_xattr_ops,

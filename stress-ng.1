@@ -3871,6 +3871,18 @@ The 'all' method is the default and will exercise all the string methods.
 .B \-\-wcs-ops N
 stop after N bogo wide character string operations.
 .TP
+.B \-\-x86syscall N
+start N workers that repeatedly exercise the x86-64 syscall instruction to
+call the getcpu(2), gettimeofday(2) and time(2) system using the Linux
+vsyscall handler. Only for Linux.
+.TP
+.B \-\-x86syscall\-ops N
+stop after N x86syscall system calls.
+.TP
+.B \-\-x86syscall\-func F
+Instead of exercising the 3 syscall system calls, just call the syscall
+function F. The function F must be one of getcpu, gettimeofday and time.
+.TP
 .B \-\-xattr N
 start N workers that create, update and delete batches of extended attributes
 on a file.
