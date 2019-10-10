@@ -94,6 +94,19 @@ static int stress_urandom(const args_t *args)
 				}
 			}
 		}
+
+		/*
+		 *  Exerise mmap'ing to /dev/urandom
+		 */
+		if (fd_urnd >= 0) {
+			void *ptr;
+
+			ptr = mmap(NULL, args->page_size, PROT_READ,
+				MAP_PRIVATE | MAP_ANONYMOUS, fd_urnd, 0);
+			if (ptr != MAP_FAILED)
+				(void)munmap(ptr, args->page_size);
+		}
+
 #if defined(RNDGETENTCNT)
 next:
 #endif
