@@ -567,7 +567,8 @@ static void stress_rand_data_objcode(const args_t *args, uint32_t *const data, c
 	register int i;
 	static bool use_rand_data = false;
 	struct sigaction sigsegv_orig, sigbus_orig;
-	char *text, *dataptr, *text_start, *text_end;
+	char *text, *dataptr;
+	NOCLOBBER char *text_start, *text_end;
 
 	if ((char *)stress_rand_data_bcd < (char *)stress_rand_data_objcode) {
 		text_start = (char *)stress_rand_data_bcd;
