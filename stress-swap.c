@@ -193,15 +193,21 @@ static int stress_swap(const args_t *args)
 		}
 		ret = swapon(filename, swapflags);
 		if (ret < 0) {
-			if (errno == EPERM) {
+			switch (errno) {
+			case EPERM:
+			case EINVAL:
 				/*
 				 * We may hit EPERM if we request
 				 * too many swap files
 				 */
+				pr_inf("%s: cannot enable swap file on the filesystem, skipping test\n",
+					args->name);
 				ret = EXIT_NO_RESOURCE;
-			} else {
+				break;
+			default:
 				pr_fail_err("swapon");
 				ret = EXIT_FAILURE;
+				break;
 			}
 			goto tidy_close;
 		}
