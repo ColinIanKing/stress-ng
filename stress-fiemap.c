@@ -146,6 +146,13 @@ static void stress_fiemap_ioctl(const args_t *args, int fd)
 
 		/* Find out how many extents there are */
 		if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
+			if (errno == EOPNOTSUPP) {
+				pr_inf("%s: FS_IOC_FIEMAP not supported on the file system, skipping stressor\n",
+					args->name);
+				free(fiemap);
+				break;
+			}
+
 			pr_fail_err("FS_IOC_FIEMAP ioctl()");
 			free(fiemap);
 			break;
@@ -221,6 +228,7 @@ static int stress_fiemap(const args_t *args)
 	const uint64_t ops_per_proc = args->max_ops / MAX_FIEMAP_PROCS;
 	const uint64_t ops_remaining = args->max_ops % MAX_FIEMAP_PROCS;
 	uint64_t fiemap_bytes = DEFAULT_FIEMAP_SIZE;
+	struct fiemap fiemap;
 
 	if (!get_setting("fiemap-bytes", &fiemap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -257,6 +265,18 @@ static int stress_fiemap(const args_t *args)
 	}
 	(void)unlink(filename);
 
+	memset(&fiemap, 0, sizeof(fiemap));
+	fiemap.fm_length = ~0;
+	if (ioctl(fd, FS_IOC_FIEMAP, &fiemap) < 0) {
+		errno = EOPNOTSUPP;
+		if (errno == EOPNOTSUPP) {
+			pr_inf("%s: FS_IOC_FIEMAP not supported on the file system, skipping stressor\n",
+				args->name);
+			rc = EXIT_NOT_IMPLEMENTED;
+			goto close_clean;
+		}
+	}
+
 	for (n = 0; n < MAX_FIEMAP_PROCS; n++) {
 		uint64_t proc_max_ops = ops_per_proc +
 			((n == 0) ? ops_remaining : 0);
@@ -289,6 +309,7 @@ reap:
 		(void)shim_waitpid(pids[i], &status, 0);
 		add_counter(args, counters[i]);
 	}
+close_clean:
 	(void)close(fd);
 clean:
 	(void)munmap(counters, counters_sz);
