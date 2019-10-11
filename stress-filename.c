@@ -118,7 +118,9 @@ static int stress_filename_probe(
 			 *  We only expect EINVAL on bad filenames,
 			 *  and WSL on Windows 10 can return ENOENT
 			 */
-			if ((errno != EINVAL) && (errno != ENOENT)) {
+			if ((errno != EINVAL) &&
+			    (errno != ENOENT) &&
+			    (errno != EILSEQ)) {
 				pr_err("%s: creat() failed when probing "
 					"for allowed filename characters, "
 					"errno = %d (%s)\n",
