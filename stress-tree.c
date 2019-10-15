@@ -148,7 +148,7 @@ static void stress_tree_rb(
 
 		find = RB_FIND(stress_rb_tree, &rb_root, node);
 		if (!find)
-			pr_err("%s: rb tree node #%zd node found\n",
+			pr_err("%s: rb tree node #%zd not found\n",
 				args->name, i);
 	}
 	for (node = RB_MIN(stress_rb_tree, &rb_root); node; node = next) {
@@ -179,7 +179,7 @@ static void stress_tree_splay(
 
 		find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 		if (!find)
-			pr_err("%s: splay tree node #%zd node found\n",
+			pr_err("%s: splay tree node #%zd not found\n",
 				args->name, i);
 	}
 	for (node = SPLAY_MIN(stress_splay_tree, &splay_root); node; node = next) {
@@ -243,7 +243,7 @@ static void stress_tree_binary(
 
 		find = binary_find(head, node);
 		if (!find)
-			pr_err("%s: binary tree node #%zd node found\n",
+			pr_err("%s: binary tree node #%zd not found\n",
 				args->name, i);
 	}
 	binary_remove_tree(head);
@@ -418,7 +418,7 @@ static void stress_tree_avl(
 
 		find = avl_find(head, node);
 		if (!find)
-			pr_err("%s: avl tree node #%zd node found\n",
+			pr_err("%s: avl tree node #%zd not found\n",
 				args->name, i);
 	}
 	avl_remove_tree(head);
