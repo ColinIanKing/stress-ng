@@ -346,6 +346,52 @@ static void stress_dev_tty(
 		(void)ret;
 	}
 #endif
+
+#if defined(KDGETLED)
+	{
+		char state;
+
+		ret = ioctl(fd, KDGETLED, &state);
+		(void)ret;
+	}
+#endif
+
+#if defined(KDGKBTYPE)
+	{
+		char type;
+
+		ret = ioctl(fd, KDGKBTYPE, &type);
+		(void)ret;
+	}
+#endif
+
+#if defined(KDGETMODE)
+	{
+		int mode;
+
+		ret = ioctl(fd, KDGETMODE, &mode);
+		(void)ret;
+	}
+#endif
+
+#if defined(KDGKBMODE)
+	{
+		long mode;
+
+		ret = ioctl(fd, KDGKBMODE, &mode);
+		(void)ret;
+	}
+#endif
+
+#if defined(KDGKBMETA)
+	{
+		long mode;
+
+		ret = ioctl(fd, KDGKBMETA, &mode);
+		(void)ret;
+	}
+#endif
+
 }
 #endif
 
@@ -1301,6 +1347,7 @@ static void stress_dev_dir(
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
+
 		/*
 		 * Xen clients hang on hpet when running as root
 		 * see: LP#1741409, so avoid opening /dev/hpet
