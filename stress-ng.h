@@ -1934,6 +1934,7 @@ typedef struct {
 	MACRO(membarrier)	\
 	MACRO(memcpy)		\
 	MACRO(memfd)		\
+	MACRO(memhotplug)	\
 	MACRO(memrate)		\
 	MACRO(memthrash)	\
 	MACRO(mergesort)	\
@@ -2484,6 +2485,9 @@ typedef enum {
 	OPT_memfd_ops,
 	OPT_memfd_bytes,
 	OPT_memfd_fds,
+
+	OPT_memhotplug,
+	OPT_memhotplug_ops,
 
 	OPT_memrate,
 	OPT_memrate_ops,

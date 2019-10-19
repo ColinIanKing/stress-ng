@@ -480,6 +480,8 @@ static const struct option long_options[] = {
 	{ "memfd-ops",	1,	0,	OPT_memfd_ops },
 	{ "memfd-bytes",1,	0,	OPT_memfd_bytes },
 	{ "memfd-fds",	1,	0,	OPT_memfd_fds },
+	{ "memhotplug",	1,	0,	OPT_memhotplug },
+	{ "memhotplug-ops",1,	0,	OPT_memhotplug_ops },
 	{ "memrate",	1,	0,	OPT_memrate },
 	{ "memrate-ops",1,	0,	OPT_memrate_ops },
 	{ "memrate-rd-mbs",1,	0,	OPT_memrate_rd_mbs },

@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "September 2, 2019"
+.TH STRESS-NG 1 "October 19, 2019"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2132,6 +2132,13 @@ memfd file descriptions with this option.
 .TP
 .B \-\-memfd\-ops N
 stop after N memfd-create(2) bogo operations.
+.TP
+.B \-\-memhotplug N
+start N workers that offline and online memory hotplug regions. Linux only
+and requires CAP_SYS_ADMIN capabilities.
+.TP
+.B \-\-memhotplug\-ops N
+stop memhotplug stressors after N memory offline and online bogo operations.
 .TP
 .B \-\-memrate N
 start N workers that exercise a buffer with 64, 32, 16 and 8 bit reads and
