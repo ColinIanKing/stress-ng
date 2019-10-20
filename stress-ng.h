@@ -123,6 +123,10 @@
 #include <grp.h>
 #endif
 
+#if defined(HAVE_JUDY_H)
+#include <Judy.h>
+#endif
+
 #if defined(HAVE_INTEL_IPSEC_MB_H)
 #include <intel-ipsec-mb.h>
 #endif
@@ -1269,6 +1273,10 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_IOMIX_BYTES		(256ULL * GB)
 #define DEFAULT_IOMIX_BYTES	(1 * GB)
 
+#define MIN_JUDY_SIZE		(1 * KB)
+#define MAX_JUDY_SIZE		(4 * MB)
+#define DEFAULT_JUDY_SIZE	(256 * KB)
+
 #define MIN_VFORKS		(1)
 #define MAX_VFORKS		(16000)
 #define DEFAULT_VFORKS		(1)
@@ -1913,6 +1921,7 @@ typedef struct {
 	MACRO(ioprio)		\
 	MACRO(ipsec_mb)		\
 	MACRO(itimer)		\
+	MACRO(judy)		\
 	MACRO(kcmp)		\
 	MACRO(key)		\
 	MACRO(kill)		\
@@ -2402,6 +2411,10 @@ typedef enum {
 	OPT_itimer_ops,
 	OPT_itimer_freq,
 	OPT_itimer_rand,
+
+	OPT_judy,
+	OPT_judy_ops,
+	OPT_judy_size,
 
 	OPT_kcmp,
 	OPT_kcmp_ops,

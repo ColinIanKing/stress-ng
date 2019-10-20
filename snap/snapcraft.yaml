@@ -30,6 +30,7 @@ parts:
             - libaio-dev
             - libcap-dev
             - libsctp-dev
+            - libjudy-dev
 apps:
     stress-ng:
         plugs: [ home, log-observe, system-observe, hardware-observe ]

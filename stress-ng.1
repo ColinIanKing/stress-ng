@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "October 19, 2019"
+.TH STRESS-NG 1 "October 20, 2019"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1753,6 +1753,19 @@ is difficult to attain in practice.
 select an interval timer frequency based around the interval timer
 frequency +/- 12.5% random jitter. This tries to force more variability in
 the timer interval to make the scheduling less predictable.
+.TP
+.B \-\-judy N
+start N workers that insert, search and delete 32 bit integers in a Judy
+array using a predictable yet sparse array index. By default,
+there are 131072 integers used in the Judy array.  This is a useful method
+to exercise random access of memory and processor cache.
+.TP
+.B \-\-judy\-ops N
+stop the judy workers after N bogo judy operations are completed.
+.TP
+.B \-\-judy\-size N
+specify the size (number of 32 bit integers) in the Judy array to exercise.
+Size can be from 1K to 4M 32 bit integers.
 .TP
 .B \-\-kcmp N
 start N workers that use kcmp(2) to compare parent and child processes to
