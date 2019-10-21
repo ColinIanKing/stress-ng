@@ -57,14 +57,16 @@ RHEL, Fedora, Centos:
   * libsctp-devel
   * zlib-devel
 
-SuSE:
-  * libaio-dev
-  * libapparmor-dev
-  * libattr-dev
-  * libbsd-dev
-  * libcap-dev
-  * libgcrypt-dev
-  * zlib1g-dev
+SUSE:
+  * keyutils-devel
+  * libaio-devel
+  * libapparmor-devel
+  * libattr-devel
+  * libbsd-devel
+  * libcap-devel
+  * libseccomp-devel
+  * lksctp-tools-devel
+  * zlib-devel
 
 NOTE: the build will try to detect build depedencies and will build an image
 with functionality disabled if the support libraries are not installed.
