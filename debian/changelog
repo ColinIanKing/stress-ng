@@ -1,3 +1,28 @@
+stress-ng (0.10.08-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * README: Add SuSE package information
+  * stress-x86syscall: use cpuid if it is available
+  * README: Add Judy development library packages
+  * Remove redundant stress-ng snapcraft makefile
+  * stress-judy: Add Judy array stressor
+  * Add memory hotplug stressor
+  * stress-sendfile: add missing line after variable declaration
+  * stress-dev: add some more linux keyboard ioctls to exercise
+  * stress-tree: fix error messages when nodes are not found
+  * stress-swap: detect for EINVAL errors on swapon
+  * stress-filename: don't use chars in filename that throw EILSEQ
+    errors
+  * stress-fiemap: detect if file system can support FIEMAP ioctls
+  * stress-zlib: make some char * pointers non-clobberable by longjmp
+  * stress-urandom: add mmap'ing to /dev/urandom for more exercising
+  * stress-zlib: use text_start and text_end based on stress-zlib
+    object code
+  * Add x86syscall vsyscall stressor
+  * stress-tsc: fix info message when tsc is not supported
+
+ -- Colin King <colin.king@canonical.com>  Mon, 21 Oct 2019 11:47:22 +0100
+
 stress-ng (0.10.07-1) unstable; urgency=medium
 
   * Makefile: bump version
