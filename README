@@ -40,6 +40,7 @@ Debian, Ubuntu:
   * libcap-dev
   * libgcrypt11-dev
   * libipsec-mb-dev
+  * libjudy-dev
   * libkeyutils-dev
   * libsctp-dev
   * zlib1g-dev
@@ -51,6 +52,7 @@ RHEL, Fedora, Centos:
   * libbsd-devel
   * libcap-devel
   * libgcrypt-devel
+  * Judy-devel
   * keyutils-libs
   * libsctp-devel
   * zlib-devel
