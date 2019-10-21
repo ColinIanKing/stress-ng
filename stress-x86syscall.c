@@ -45,8 +45,11 @@ static const opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(__linux__) &&			\
-    (defined(__x86_64__) || defined(__x86_64))
+#if defined(__linux__) &&	\
+    (defined(__x86_64__) || defined(__x86_64)) && \
+    defined(HAVE_CPUID_H) &&    \
+    defined(HAVE_CPUID) &&      \
+    NEED_GNUC(4,6,0)
 
 typedef void (*func_t)(void);
 
