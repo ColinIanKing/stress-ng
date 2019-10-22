@@ -61,7 +61,7 @@ static void stress_iomix_wr_seq_bursts(
 		posn = mwc64() % iomix_bytes;
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret < 0) {
-			pr_fail("seek");
+			pr_fail_err("seek");
 			return;
 		}
 		for (i = 0; (i < n) && (posn < iomix_bytes); i++) {
@@ -73,7 +73,7 @@ static void stress_iomix_wr_seq_bursts(
 
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail("write");
+				pr_fail_err("write");
 				return;
 			}
 			posn += rc;
@@ -110,7 +110,7 @@ static void stress_iomix_wr_rnd_bursts(
 			posn = mwc64() % iomix_bytes;
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret < 0) {
-				pr_fail("seek");
+				pr_fail_err("seek");
 				return;
 			}
 
@@ -145,7 +145,7 @@ static void stress_iomix_wr_seq_slow(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret < 0) {
-			pr_fail("seek");
+			pr_fail_err("seek");
 			return;
 		}
 		while (posn < iomix_bytes) {
@@ -157,7 +157,7 @@ static void stress_iomix_wr_seq_slow(
 
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail("write");
+				pr_fail_err("write");
 				return;
 			}
 			(void)shim_usleep(250000);
@@ -187,7 +187,7 @@ static void stress_iomix_rd_seq_bursts(
 		posn = mwc64() % iomix_bytes;
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret < 0) {
-			pr_fail("seek");
+			pr_fail_err("seek");
 			return;
 		}
 #if defined(HAVE_POSIX_FADVISE)
@@ -200,7 +200,7 @@ static void stress_iomix_rd_seq_bursts(
 
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail("read");
+				pr_fail_err("read");
 				return;
 			}
 			posn += rc;
@@ -240,13 +240,13 @@ static void stress_iomix_rd_rnd_bursts(
 #endif
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret < 0) {
-				pr_fail("seek");
+				pr_fail_err("seek");
 				return;
 			}
 
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail("read");
+				pr_fail_err("read");
 				return;
 			}
 			if (!keep_stressing())
@@ -273,7 +273,7 @@ static void stress_iomix_rd_seq_slow(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret < 0) {
-			pr_fail("seek");
+			pr_fail_err("seek");
 			return;
 		}
 		while (posn < iomix_bytes) {
@@ -286,7 +286,7 @@ static void stress_iomix_rd_seq_slow(
 #endif
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail("read");
+				pr_fail_err("read");
 				return;
 			}
 			(void)shim_usleep(333333);
@@ -425,7 +425,7 @@ static void stress_iomix_wr_bytes(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret < 0) {
-			pr_fail("seek");
+			pr_fail_err("seek");
 			return;
 		}
 		while (posn < iomix_bytes) {
@@ -434,7 +434,7 @@ static void stress_iomix_wr_bytes(
 
 			rc = write(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
-				pr_fail("write");
+				pr_fail_err("write");
 				return;
 			}
 			(void)shim_usleep(1000);
@@ -464,13 +464,13 @@ static void stress_iomix_rd_bytes(
 
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret < 0) {
-				pr_fail("seek");
+				pr_fail_err("seek");
 				return;
 			}
 
 			rc = read(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
-				pr_fail("write");
+				pr_fail_err("write");
 				return;
 			}
 			(void)shim_usleep(1000);
