@@ -824,7 +824,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 	w1 = mwc64();
 
 	if ((swaps = calloc(chunks, sizeof(*swaps))) == NULL) {
-		pr_fail("stress-vm: calloc failed on vm_swap\n");
+		pr_fail("%s: calloc failed on vm_swap\n", args->name);
 		return 0;
 	}
 
