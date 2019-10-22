@@ -202,7 +202,8 @@ rnd_rd_retry:
 						baddata++;
 				}
 				if (baddata) {
-					pr_fail("error in data between %ju and %ju\n",
+					pr_fail("%s: error in data between %ju and %ju\n",
+						args->name,
 						(intmax_t)offsets[i],
 						(intmax_t)offsets[i] + BUF_SIZE - 1);
 				}
