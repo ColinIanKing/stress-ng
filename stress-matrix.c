@@ -914,19 +914,19 @@ static inline int stress_matrix_exercise(
 	a = (matrix_ptr_t)mmap(NULL, matrix_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (a == MAP_FAILED) {
-		pr_fail("matrix allocation");
+		pr_fail_err("matrix allocation");
 		goto tidy_ret;
 	}
 	b = (matrix_ptr_t)mmap(NULL, matrix_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (b == MAP_FAILED) {
-		pr_fail("matrix allocation");
+		pr_fail_err("matrix allocation");
 		goto tidy_a;
 	}
 	r = (matrix_ptr_t)mmap(NULL, matrix_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (r == MAP_FAILED) {
-		pr_fail("matrix allocation");
+		pr_fail_err("matrix allocation");
 		goto tidy_b;
 	}
 
