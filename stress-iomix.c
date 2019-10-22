@@ -117,7 +117,7 @@ static void stress_iomix_wr_rnd_bursts(
 			stress_strnrnd(buffer, len);
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail("write");
+				pr_fail_err("write");
 				return;
 			}
 			if (!keep_stressing())
