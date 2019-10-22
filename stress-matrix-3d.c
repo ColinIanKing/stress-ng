@@ -896,19 +896,19 @@ static inline int stress_matrix_3d_exercise(
 	a = (matrix_3d_ptr_t)mmap(NULL, matrix_3d_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (a == MAP_FAILED) {
-		pr_fail("matrix allocation");
+		pr_fail_err("matrix allocation");
 		goto tidy_ret;
 	}
 	b = (matrix_3d_ptr_t)mmap(NULL, matrix_3d_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (b == MAP_FAILED) {
-		pr_fail("matrix allocation");
+		pr_fail_err("matrix allocation");
 		goto tidy_a;
 	}
 	r = (matrix_3d_ptr_t)mmap(NULL, matrix_3d_size,
 		PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (r == MAP_FAILED) {
-		pr_fail("matrix allocation");
+		pr_fail_err("matrix allocation");
 		goto tidy_b;
 	}
 
