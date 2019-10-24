@@ -79,8 +79,11 @@ static void daemons(const args_t *args, const int fd)
 		pid = fork();
 		if (pid < 0) {
 			/* A slow init? no pids or memory, retry */
-			if ((errno == EAGAIN) || (errno == ENOMEM))
+			if ((errno == EAGAIN) || (errno == ENOMEM)) {
+				/* Minor backoff before retrying */
+				(void)shim_usleep_interruptible(100);
 				continue;
+			}
 			goto tidy;
 		} else if (pid == 0) {
 			/* Child */
