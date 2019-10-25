@@ -135,8 +135,17 @@ static int stress_daemon(const args_t *args)
 		pr_fail_dbg("pipe");
 		return EXIT_FAILURE;
 	}
+
+again:
+	if (!keep_stressing())
+		return EXIT_SUCCESS;
+
 	pid = fork();
 	if (pid < 0) {
+		if ((errno == ENOMEM) || (errno == EAGAIN)) {
+			(void)shim_usleep_interruptible(100);
+			goto again;
+		}
 		pr_fail_dbg("fork");
 		(void)close(fds[0]);
 		(void)close(fds[1]);
