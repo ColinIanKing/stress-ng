@@ -47,6 +47,7 @@ static void daemons(const args_t *args, const int fd)
 	int fds[3];
 	int i;
 	sigset_t set;
+	uint64_t backoff = 100;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
 		goto err;
@@ -81,7 +82,10 @@ static void daemons(const args_t *args, const int fd)
 			/* A slow init? no pids or memory, retry */
 			if ((errno == EAGAIN) || (errno == ENOMEM)) {
 				/* Minor backoff before retrying */
-				(void)shim_usleep_interruptible(100);
+				(void)shim_usleep_interruptible(backoff);
+				backoff += 100;
+				if (backoff > 10000)
+					backoff = 10000;
 				continue;
 			}
 			goto tidy;
