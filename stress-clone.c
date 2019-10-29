@@ -95,6 +95,9 @@ static const int flags[] = {
 #if defined(CLONE_PIDFD)
 	CLONE_PIDFD,
 #endif
+#if defined(CLONE_NEWCGROUP)
+	CLONE_NEWCGROUP,
+#endif
 };
 
 static const int unshare_flags[] = {
@@ -118,6 +121,9 @@ static const int unshare_flags[] = {
 #endif
 #if defined(CLONE_SYSVSEM)
 	CLONE_SYSVSEM,
+#endif
+#if defined(CLONE_NEWCGROUP)
+	CLONE_NEWCGROUP,
 #endif
 };
 #endif
