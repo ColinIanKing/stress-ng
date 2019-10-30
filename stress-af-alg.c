@@ -411,17 +411,17 @@ static int stress_af_alg(const args_t *args)
 			case CRYPTO_AHASH:
 			case CRYPTO_SHASH:
 				rc = stress_af_alg_hash(args, sockfd, info);
-				if (rc) printf("%s %d\n", info->name, rc);
+				(void)rc;
 				break;
 			case CRYPTO_CIPHER:
 			case CRYPTO_AKCIPHER:
 			case CRYPTO_SKCIPHER:
 				rc = stress_af_alg_cipher(args, sockfd, info);
-				if (rc) printf("%s %d\n", info->name, rc);
+				(void)rc;
 				break;
 			case CRYPTO_RNG:
 				rc = stress_af_alg_rng(args, sockfd, info);
-				if (rc) printf("%s %d\n", info->name, rc);
+				(void)rc;
 				break;
 			default:
 				break;
