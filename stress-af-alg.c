@@ -573,7 +573,8 @@ static void stress_af_alg_init(void)
 		else if (!strncmp(buffer, "digestsize", 10))
 			info.digest_size = int_field(buffer);
 		else if (buffer[0] == '\n') {
-			stress_af_alg_add_crypto(&info);
+			if (info.crypto_type != CRYPTO_UNKNOWN)
+				stress_af_alg_add_crypto(&info);
 			(void)memset(&info, 0, sizeof(info));
 		}
 	}
