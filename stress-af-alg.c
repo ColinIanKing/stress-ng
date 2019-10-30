@@ -42,21 +42,6 @@ static const help_t help[] = {
 
 /* See https://lwn.net/Articles/410833/ */
 
-typedef struct {
-	const char *name;
-	const ssize_t digest_size;
-} alg_hash_info_t;
-
-typedef struct {
-	const char *name;
-	const ssize_t block_size;
-	const ssize_t key_size;
-} alg_cipher_info_t;
-
-typedef struct {
-	const char *name;
-} alg_rng_info_t;
-
 typedef enum {
 	CRYPTO_AHASH,
 	CRYPTO_SHASH,
