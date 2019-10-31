@@ -49,6 +49,7 @@ typedef enum {
 	CRYPTO_AKCIPHER,
 	CRYPTO_SKCIPHER,
 	CRYPTO_RNG,
+	CRYPTO_AEAD,
 	CRYPTO_UNKNOWN,
 } crypto_type_t;
 
@@ -58,6 +59,7 @@ typedef struct crypto_info {
 	char 	*name;
 	int 	block_size;
 	int	max_key_size;
+	int	max_auth_size;
 	int	iv_size;
 	int	digest_size;
 	struct crypto_info *next;
@@ -138,9 +140,7 @@ static int stress_af_alg_cipher(
 	int fd;
 	ssize_t j;
 	struct sockaddr_alg sa;
-	const ssize_t key_size = info->max_key_size;
 	const ssize_t iv_size = info->iv_size;
-	char key[key_size];
 	char input[DATA_LEN], output[DATA_LEN];
 
 	(void)memset(&sa, 0, sizeof(sa));
@@ -156,10 +156,26 @@ static int stress_af_alg_cipher(
 		return EXIT_FAILURE;
 	}
 
-	stress_strnrnd(key, sizeof(key));
-	if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, sizeof(key)) < 0) {
-		pr_fail_err("setsockopt");
-		return EXIT_FAILURE;
+	if (info->crypto_type != CRYPTO_AEAD) {
+		char key[info->max_key_size];
+
+		stress_strnrnd(key, sizeof(key));
+		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, sizeof(key)) < 0) {
+			if (errno == ENOPROTOOPT)
+				return EXIT_SUCCESS;
+			pr_fail_err("setsockopt");
+			return EXIT_FAILURE;
+		}
+	} else  {
+		char assocdata[info->max_auth_size];
+
+		stress_strnrnd(assocdata, sizeof(assocdata));
+		if (setsockopt(sockfd, SOL_ALG, ALG_SET_AEAD_ASSOCLEN, assocdata, sizeof(assocdata)) < 0) {
+			if (errno == ENOPROTOOPT)
+				return EXIT_SUCCESS;
+			pr_fail_err("setsockopt");
+			return EXIT_FAILURE;
+		}
 	}
 
 	fd = accept(sockfd, NULL, 0);
@@ -416,6 +432,7 @@ static int stress_af_alg(const args_t *args)
 			case CRYPTO_CIPHER:
 			case CRYPTO_AKCIPHER:
 			case CRYPTO_SKCIPHER:
+			case CRYPTO_AEAD:
 				rc = stress_af_alg_cipher(args, sockfd, info);
 				(void)rc;
 				break;
@@ -474,6 +491,8 @@ static crypto_type_t type_field(const char *buffer)
 		return CRYPTO_SHASH;
 	if (!strncmp("rng", ptr + 2, 3))
 		return CRYPTO_RNG;
+	if (!strncmp("aead", ptr + 2, 4))
+		return CRYPTO_AEAD;
 	return CRYPTO_UNKNOWN;
 }
 
@@ -508,6 +527,7 @@ static void stress_af_alg_add_crypto(crypto_info_t *info)
 		    strcmp(ci->type, info->type) == 0 &&
 		    ci->block_size == info->block_size &&
 		    ci->max_key_size == info->max_key_size &&
+		    ci->max_auth_size == info->max_auth_size &&
 		    ci->iv_size == info->iv_size &&
 		    ci->digest_size == info->digest_size)
 			return;
@@ -553,6 +573,8 @@ static void stress_af_alg_init(void)
 			info.block_size = int_field(buffer);
 		else if (!strncmp(buffer, "max keysize", 11))
 			info.max_key_size = int_field(buffer);
+		else if (!strncmp(buffer, "maxauthsize", 11))
+			info.max_auth_size = int_field(buffer);
 		else if (!strncmp(buffer, "ivsize", 6))
 			info.iv_size = int_field(buffer);
 		else if (!strncmp(buffer, "digestsize", 10))
