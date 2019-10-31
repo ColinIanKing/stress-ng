@@ -157,6 +157,7 @@ static int stress_af_alg_cipher(
 	}
 
 	if (info->crypto_type != CRYPTO_AEAD) {
+#if defined(ALG_SET_KEY)
 		char key[info->max_key_size];
 
 		stress_strnrnd(key, sizeof(key));
@@ -166,7 +167,12 @@ static int stress_af_alg_cipher(
 			pr_fail_err("setsockopt");
 			return EXIT_FAILURE;
 		}
+#else
+		/* Not supported, skip */
+		return EXIT_SUCCESS;
+#endif
 	} else  {
+#if defined(ALG_SET_AEAD_ASSOCLEN)
 		char assocdata[info->max_auth_size];
 
 		stress_strnrnd(assocdata, sizeof(assocdata));
@@ -176,6 +182,10 @@ static int stress_af_alg_cipher(
 			pr_fail_err("setsockopt");
 			return EXIT_FAILURE;
 		}
+#else
+		/* Not supported, skip */
+		return EXIT_SUCCESS;
+#endif
 	}
 
 	fd = accept(sockfd, NULL, 0);
@@ -429,10 +439,12 @@ static int stress_af_alg(const args_t *args)
 				rc = stress_af_alg_hash(args, sockfd, info);
 				(void)rc;
 				break;
+#if defined(ALG_SET_AEAD_ASSOCLEN)
+			case CRYPTO_AEAD:
+#endif
 			case CRYPTO_CIPHER:
 			case CRYPTO_AKCIPHER:
 			case CRYPTO_SKCIPHER:
-			case CRYPTO_AEAD:
 				rc = stress_af_alg_cipher(args, sockfd, info);
 				(void)rc;
 				break;
