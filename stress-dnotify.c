@@ -42,7 +42,7 @@ static volatile int dnotify_fd;
 static int stress_dnotify_supported(void)
 {
 	char buf[64];
-	const char path[] = "/proc/sys/fs/dir-notify-enable";
+	static const char path[] = "/proc/sys/fs/dir-notify-enable";
 	int enabled;
 
 	if (system_read(path, buf, sizeof(buf)) < 0) {

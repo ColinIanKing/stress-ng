@@ -30,8 +30,8 @@
 
 int main(void)
 {
-	const char passwd[] = "somerandomtext";
-	const char salt[] = "examplesalt";
+	static const char passwd[] = "somerandomtext";
+	static const char salt[] = "examplesalt";
 	char *crypted;
 #if defined (__linux__)
 	static struct crypt_data data;
