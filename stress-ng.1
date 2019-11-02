@@ -398,11 +398,8 @@ switch CPU affinity randomly rather than the default of sequentially.
 .TP
 .B \-\-af\-alg N
 start N workers that exercise the AF_ALG socket domain by hashing and encrypting
-various sized random messages. This exercises the SHA1, SHA224, SHA256, SHA384,
-SHA512, MD4, MD5, RMD128, RMD160, RMD256, RMD320, WP256, WP384, WP512, TGR128,
-TGR160, TGR192 hashes and the cbc(aes), lrw(aes), ofb(aes), xts(twofish),
-xts(serpent), xts(cast6), xts(camellia), lrw(twofish), lrw(cast6), lrw(camellia),
-salsa20 skcipers.
+various sized random messages. This exercises the availble hashes, ciphers,
+rng and aead crypto engines in the Linux kernel.
 .TP
 .B \-\-af\-alg\-ops N
 stop af\-alg workers after N AF_ALG messages are hashed.
