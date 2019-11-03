@@ -77,7 +77,8 @@ static const help_t help[] = {
      defined(PR_SET_TSC) ||			\
      defined(PR_GET_TSC) ||			\
      defined(PR_SET_UNALIGN) ||			\
-     defined(PR_GET_UNALIGN))
+     defined(PR_GET_UNALIGN)) ||		\
+     defined(PR_GET_SPECULATION_CTRL)
 
 static int stress_prctl_child(const args_t *args, const pid_t mypid)
 {
@@ -448,6 +449,20 @@ static int stress_prctl_child(const args_t *args, const pid_t mypid)
 #endif
 	}
 #endif
+
+#if defined(PR_GET_SPECULATION_CTRL)
+	{
+#if defined(PR_SPEC_STORE_BYPASS)
+		ret = prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, 0, 0, 0);
+		(void)ret;
+#endif
+#if defined(PR_SPEC_INDIRECT_BRANCH)
+		ret = prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, 0, 0, 0);
+		(void)ret;
+#endif
+	}
+#endif
+
 	(void)ret;
 
 	return 0;
