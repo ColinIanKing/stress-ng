@@ -72,6 +72,12 @@ static const int madvise_options[] = {
 #if defined(MADV_DODUMP)
 	MADV_DODUMP,
 #endif
+#if defined(MADV_COLD)
+	MADV_COLD,
+#endif
+#if defined(MADV_PAGEOUT)
+	MADV_PAGEOUT,
+#endif
 /*
  *  Don't use MADV_FREE as this can zero fill
  *  pages that don't have backing store which
