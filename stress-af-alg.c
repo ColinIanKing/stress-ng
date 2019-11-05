@@ -81,7 +81,7 @@ static int stress_af_alg_hash(
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
-	(void)shim_strlcpy((char *)sa.salg_type, info->type, sizeof(sa.salg_type));
+	(void)shim_strlcpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
 	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
 
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
@@ -145,7 +145,7 @@ static int stress_af_alg_cipher(
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
-	(void)shim_strlcpy((char *)sa.salg_type, info->type, sizeof(sa.salg_type));
+	(void)shim_strlcpy((char *)sa.salg_type, "skcipher", sizeof(sa.salg_type));
 	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
 
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
