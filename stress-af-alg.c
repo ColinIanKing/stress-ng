@@ -142,10 +142,11 @@ static int stress_af_alg_cipher(
 	struct sockaddr_alg sa;
 	const ssize_t iv_size = info->iv_size;
 	char input[DATA_LEN], output[DATA_LEN];
+	char *salg_type = (info->crypto_type != CRYPTO_AEAD) ? "skcipher" : "aead";
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
-	(void)shim_strlcpy((char *)sa.salg_type, "skcipher", sizeof(sa.salg_type));
+	(void)shim_strlcpy((char *)sa.salg_type, salg_type, sizeof(sa.salg_type));
 	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
 
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
