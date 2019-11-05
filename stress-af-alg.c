@@ -93,6 +93,18 @@ typedef struct crypto_info {
 
 static crypto_info_t *crypto_info_list;
 
+/*
+ * Provide some predefined/default configs
+ * to the list generated from /proc/crypto
+ * so some not-loaded cryptographic module
+ * (thus not yet present into /proc/crypto)
+ * is loaded on-demand with bind() syscall.
+ */
+static crypto_info_t crypto_info_defconfigs[] = {
+#include "stress-af-alg-defconfigs.h"
+};
+static void stress_af_alg_add_crypto_defconfigs(void);
+
 static int stress_af_alg_hash(
 	const args_t *args,
 	const int sockfd,
@@ -451,7 +463,7 @@ static int stress_af_alg(const args_t *args)
 {
 	int sockfd = -1, rc = EXIT_FAILURE;
 	int retries = MAX_AF_ALG_RETRIES;
-	const int count = stress_af_alg_count_crypto();
+	int count = stress_af_alg_count_crypto();
 	bool af_alg_dump = false;
 
 	(void)get_setting("af-alg-dump", &af_alg_dump);
@@ -462,9 +474,17 @@ static int stress_af_alg(const args_t *args)
 		stress_af_alg_dump_crypto_list();
 	}
 
-	if (count == 0) {
-		pr_inf("%s: no cryptographic algorithms found in /proc/crypto",
-			args->name);
+	if (args->instance == 0) {
+		pr_inf("%s: %d cryptographic algorithms found in /proc/crypto\n",
+			args->name, count);
+	}
+
+	stress_af_alg_add_crypto_defconfigs();
+	count = stress_af_alg_count_crypto();
+
+	if (args->instance == 0) {
+		pr_inf("%s: %d cryptographic algorithms max (with defconfigs)\n",
+			args->name, count);
 	}
 
 	for (;;) {
@@ -491,11 +511,6 @@ static int stress_af_alg(const args_t *args)
 		 * take some time
 		 */
 		(void)shim_usleep(200000);
-	}
-
-	if (args->instance == 0) {
-		pr_inf("%s: exercising %d cryptographic algorithms\n",
-			args->name, count);
 	}
 
 	do {
@@ -645,6 +660,18 @@ static void stress_af_alg_add_crypto(crypto_info_t *info)
 	*ci = *info;
 	ci->next = crypto_info_list;
 	crypto_info_list = ci;
+}
+
+/*
+ *  stress_af_alg_add_crypto_defconfigs()
+ *	add crypto algorithm predefined/default configs to list
+ */
+static void stress_af_alg_add_crypto_defconfigs(void)
+{
+	unsigned int i;
+
+	for (i = 0; i < SIZEOF_ARRAY(crypto_info_defconfigs); i++)
+		stress_af_alg_add_crypto(&crypto_info_defconfigs[i]);
 }
 
 /*
