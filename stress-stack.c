@@ -93,43 +93,10 @@ static void stress_stack_alloc(const args_t *args, const bool stack_fill)
  */
 static int stress_stack(const args_t *args)
 {
-	uint8_t *altstack;
 	pid_t pid;
 	bool stack_fill = false;
-	ssize_t altstack_size = (SIGSTKSZ +
-				 STACK_ALIGNMENT +
-				 args->page_size) & ~(args->page_size -1);
 
 	(void)get_setting("stack-fill", &stack_fill);
-
-	/*
-	 *  Allocate altstack on heap rather than an
-	 *  autoexpanding stack that may trip a segfault
-	 *  if there is no memory to back it later. Stack
-	 *  must be privately mapped.
-	 */
-	altstack = mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
-		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if (altstack == MAP_FAILED) {
-		pr_inf("%s: cannot allocate stack for signal handler, "
-			"skipping test\n", args->name);
-		return EXIT_NO_RESOURCE;
-	}
-	(void)mincore_touch_pages(altstack, altstack_size);
-
-	/*
-	 *  We need to create an alternative signal
-	 *  stack so when a segfault occurs we use
-	 *  this already allocated signal stack rather
-	 *  than try to push onto an already overflowed
-	 *  stack
-	 */
-	if (stress_sigaltstack(altstack, SIGSTKSZ) < 0) {
-		(void)munmap(altstack, altstack_size);
-		pr_inf("%s: cannot create alternative signal stack, "
-			"skipping test\n", args->name);
-		return EXIT_NO_RESOURCE;
-	}
 
 again:
 	pid = fork();
@@ -167,6 +134,33 @@ again:
 		}
 	} else if (pid == 0) {
 		char *start_ptr = shim_sbrk(0);
+		uint8_t *altstack;
+		ssize_t altstack_size = (SIGSTKSZ +
+					 STACK_ALIGNMENT +
+					 args->page_size) & ~(args->page_size -1);
+		/*
+		 *  Allocate altstack on heap rather than an
+		 *  autoexpanding stack that may trip a segfault
+		 *  if there is no memory to back it later. Stack
+		 *  must be privately mapped.
+		 */
+		altstack = mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+		if (altstack == MAP_FAILED)
+			_exit(EXIT_NO_RESOURCE);
+		(void)mincore_touch_pages(altstack, altstack_size);
+
+		/*
+		 *  We need to create an alternative signal
+		 *  stack so when a segfault occurs we use
+		 *  this already allocated signal stack rather
+		 *  than try to push onto an already overflowed
+		 *  stack
+		 */
+		if (stress_sigaltstack(altstack, SIGSTKSZ) < 0) {
+			(void)munmap(altstack, altstack_size);
+			_exit(EXIT_NO_RESOURCE);
+		}
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -216,9 +210,9 @@ again:
 				stress_stack_alloc(args, stack_fill);
 			}
 		}
+		(void)munmap(altstack, altstack_size);
 		_exit(0);
 	}
-	(void)munmap(altstack, altstack_size);
 
 	return EXIT_SUCCESS;
 }
