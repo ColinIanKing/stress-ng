@@ -192,11 +192,11 @@ again:
 
 			if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
 				pr_fail_err("sigaction");
-				return EXIT_FAILURE;
+				_exit(EXIT_FAILURE);
 			}
 			if (sigaction(SIGBUS, &new_action, NULL) < 0) {
 				pr_fail_err("sigaction");
-				return EXIT_FAILURE;
+				_exit(EXIT_FAILURE);
 			}
 			ret = sigsetjmp(jmp_env, 1);
 			/*
