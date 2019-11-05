@@ -107,7 +107,7 @@ static int stress_af_alg_hash(
 			break;
 		if (send(fd, input, j, 0) != j) {
 			if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT))
-				return EXIT_SUCCESS;
+				continue;
 			pr_fail("%s: send using %s failed: errno=%d (%s)\n",
 					args->name, info->name,
 					errno, strerror(errno));
@@ -126,8 +126,8 @@ static int stress_af_alg_hash(
 			(void)close(fd);
 			return EXIT_SUCCESS;
 		}
-		(void)close(fd);
 	}
+	(void)close(fd);
 
 	return EXIT_SUCCESS;
 }
