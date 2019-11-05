@@ -53,6 +53,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 #endif
 #define DATA_LEN 			(1024)
 #define MAX_AF_ALG_RETRIES		(25)
+#define MAX_AF_ALG_RETRIES_BIND		(3)
 
 /* See https://lwn.net/Articles/410833/ */
 
@@ -116,18 +117,22 @@ static int stress_af_alg_hash(
 	char input[DATA_LEN];
 	char digest[digest_size];
 	struct sockaddr_alg sa;
+	int retries = MAX_AF_ALG_RETRIES_BIND;
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
 	(void)shim_strlcpy((char *)sa.salg_type, "hash", sizeof(sa.salg_type));
 	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
 
+retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 	/* Perhaps the hash does not exist with this kernel */
 		if (errno == ENOENT)
 			return EXIT_SUCCESS;
 		if (errno == EBUSY)
 			return EXIT_SUCCESS;
+		if (errno == ETIMEDOUT && retries-- > 0)
+			goto retry_bind;
 		pr_fail_err("bind");
 		return EXIT_FAILURE;
 	}
@@ -181,16 +186,20 @@ static int stress_af_alg_cipher(
 	const ssize_t iv_size = info->iv_size;
 	char input[DATA_LEN], output[DATA_LEN];
 	char *salg_type = (info->crypto_type != CRYPTO_AEAD) ? "skcipher" : "aead";
+	int retries = MAX_AF_ALG_RETRIES_BIND;
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
 	(void)shim_strlcpy((char *)sa.salg_type, salg_type, sizeof(sa.salg_type));
 	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
 
+retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 		/* Perhaps the cipher does not exist with this kernel */
 		if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT) || (errno == EBUSY))
 			return EXIT_SUCCESS;
+		if (errno == ETIMEDOUT && retries-- > 0)
+			goto retry_bind;
 		pr_fail_err("bind");
 		return EXIT_FAILURE;
 	}
@@ -367,16 +376,20 @@ static int stress_af_alg_rng(
 	int fd;
 	ssize_t j;
 	struct sockaddr_alg sa;
+	int retries = MAX_AF_ALG_RETRIES_BIND;
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
 	(void)shim_strlcpy((char *)sa.salg_type, "rng", sizeof(sa.salg_type));
 	(void)shim_strlcpy((char *)sa.salg_name, info->name, sizeof(sa.salg_name) - 1);
 
+retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 		/* Perhaps the rng does not exist with this kernel */
 		if ((errno == ENOENT) || (errno == EBUSY))
 			return EXIT_SUCCESS;
+		if (errno == ETIMEDOUT && retries-- > 0)
+			goto retry_bind;
 		pr_fail_err("bind");
 		return EXIT_FAILURE;
 	}
