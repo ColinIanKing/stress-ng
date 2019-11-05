@@ -2136,6 +2136,7 @@ typedef enum {
 
 	OPT_af_alg,
 	OPT_af_alg_ops,
+	OPT_af_alg_dump,
 
 	OPT_aggressive,
 

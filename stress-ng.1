@@ -404,6 +404,10 @@ rng and aead crypto engines in the Linux kernel.
 .B \-\-af\-alg\-ops N
 stop af\-alg workers after N AF_ALG messages are hashed.
 .TP
+.B \-\-af\-alg\-dump
+dump the internal list representing cryptographic algorithms
+parsed from the /proc/crypto file to standard output (stdout).
+.TP
 .B \-\-aio N
 start N workers that issue multiple small asynchronous I/O writes and reads on
 a relatively small temporary file using the POSIX aio interface.  This will

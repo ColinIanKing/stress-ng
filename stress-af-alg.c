@@ -27,7 +27,21 @@
 static const help_t help[] = {
 	{ NULL,	"af-alg N",	"start N workers that stress AF_ALG socket domain" },
 	{ NULL,	"af-alg-ops N",	"stop after N af-alg bogo operations" },
+	{ NULL,	"af-alg-dump",	"dump internal list from /proc/crypto to stdout" },
 	{ NULL, NULL,		NULL }
+};
+
+static int stress_set_af_alg_dump(const char *opt)
+{
+	(void)opt;
+	bool af_alg_dump = true;
+
+	return set_setting("af-alg-dump", TYPE_ID_BOOL, &af_alg_dump);
+}
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_af_alg_dump,	stress_set_af_alg_dump },
+	{ 0,			NULL }
 };
 
 #if defined(HAVE_LINUX_IF_ALG_H) && \
@@ -52,6 +66,17 @@ typedef enum {
 	CRYPTO_AEAD,
 	CRYPTO_UNKNOWN,
 } crypto_type_t;
+
+char *crypto_type_string[] = {
+	"CRYPTO_AHASH",
+	"CRYPTO_SHASH",
+	"CRYPTO_CIPHER",
+	"CRYPTO_AKCIPHER",
+	"CRYPTO_SKCIPHER",
+	"CRYPTO_RNG",
+	"CRYPTO_AEAD",
+	"CRYPTO_UNKNOWN",
+};
 
 typedef struct crypto_info {
 	crypto_type_t	crypto_type;
@@ -386,6 +411,39 @@ static int stress_af_alg_count_crypto(void)
 }
 
 /*
+ *  stress_af_alg_dump_crypto_list()
+ *	dump crypto algorithm list to stdout
+ */
+static void stress_af_alg_dump_crypto_list(void)
+{
+	crypto_info_t *ci;
+
+	for (ci = crypto_info_list; ci; ci = ci->next) {
+		if (ci->internal)
+			continue;
+		fprintf(stdout, "{ .crypto_type = %s, .type = \"%s\", .name = \"%s\"",
+			crypto_type_string[ci->crypto_type], ci->type, ci->name);
+		if (ci->block_size)
+			fprintf(stdout, ",\t.block_size = %d",
+				ci->block_size);
+		if (ci->max_key_size)
+			fprintf(stdout, ",\t.max_key_size = %d",
+				ci->max_key_size);
+		if (ci->max_auth_size)
+			fprintf(stdout, ",\t.max_auth_size = %d",
+				ci->max_auth_size);
+		if (ci->iv_size)
+			fprintf(stdout, ",\t.iv_size = %d",
+				ci->iv_size);
+		if (ci->digest_size)
+			fprintf(stdout, ",\t.digest_size = %d",
+				ci->digest_size);
+		fprintf(stdout, " },\n");
+	}
+	fflush(stdout);
+}
+
+/*
  *  stress_af_alg()
  *	stress socket AF_ALG domain
  */
@@ -394,6 +452,15 @@ static int stress_af_alg(const args_t *args)
 	int sockfd = -1, rc = EXIT_FAILURE;
 	int retries = MAX_AF_ALG_RETRIES;
 	const int count = stress_af_alg_count_crypto();
+	bool af_alg_dump = false;
+
+	(void)get_setting("af-alg-dump", &af_alg_dump);
+
+	if (af_alg_dump && args->instance == 0) {
+		pr_inf("%s: dumping cryptographic algorithms found in /proc/crypto to stdout\n",
+			args->name);
+		stress_af_alg_dump_crypto_list();
+	}
 
 	if (count == 0) {
 		pr_inf("%s: no cryptographic algorithms found in /proc/crypto",
@@ -651,6 +718,7 @@ stressor_info_t stress_af_alg_info = {
 	.init = stress_af_alg_init,
 	.deinit = stress_af_alg_deinit,
 	.class = CLASS_CPU | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 
