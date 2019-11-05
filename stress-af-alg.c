@@ -33,9 +33,9 @@ static const help_t help[] = {
 
 static int stress_set_af_alg_dump(const char *opt)
 {
-	(void)opt;
 	bool af_alg_dump = true;
 
+	(void)opt;
 	return set_setting("af-alg-dump", TYPE_ID_BOOL, &af_alg_dump);
 }
 
@@ -68,7 +68,7 @@ typedef enum {
 	CRYPTO_UNKNOWN,
 } crypto_type_t;
 
-char *crypto_type_string[] = {
+static const char *crypto_type_string[] = {
 	"CRYPTO_AHASH",
 	"CRYPTO_SHASH",
 	"CRYPTO_CIPHER",
@@ -104,6 +104,7 @@ static crypto_info_t *crypto_info_list;
 static crypto_info_t crypto_info_defconfigs[] = {
 #include "stress-af-alg-defconfigs.h"
 };
+
 static void stress_af_alg_add_crypto_defconfigs(void);
 
 static int stress_af_alg_hash(
@@ -126,7 +127,7 @@ static int stress_af_alg_hash(
 
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
-	/* Perhaps the hash does not exist with this kernel */
+		/* Perhaps the hash does not exist with this kernel */
 		if (errno == ENOENT)
 			return EXIT_SUCCESS;
 		if (errno == EBUSY)
@@ -185,7 +186,7 @@ static int stress_af_alg_cipher(
 	struct sockaddr_alg sa;
 	const ssize_t iv_size = info->iv_size;
 	char input[DATA_LEN], output[DATA_LEN];
-	char *salg_type = (info->crypto_type != CRYPTO_AEAD) ? "skcipher" : "aead";
+	const char *salg_type = (info->crypto_type != CRYPTO_AEAD) ? "skcipher" : "aead";
 	int retries = MAX_AF_ALG_RETRIES_BIND;
 
 	(void)memset(&sa, 0, sizeof(sa));
