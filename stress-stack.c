@@ -126,9 +126,10 @@ static int stress_stack(const args_t *args)
 	 */
 	if (stress_sigaltstack(altstack, SIGSTKSZ) < 0) {
 		(void)munmap(altstack, altstack_size);
-		return EXIT_FAILURE;
+		pr_inf("%s: cannot create alternative signal stack, "
+			"skipping test\n", args->name);
+		return EXIT_NO_RESOURCE;
 	}
-
 
 again:
 	pid = fork();
