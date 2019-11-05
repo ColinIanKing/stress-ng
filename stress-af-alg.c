@@ -62,6 +62,7 @@ typedef struct crypto_info {
 	int	max_auth_size;
 	int	iv_size;
 	int	digest_size;
+	bool	internal;
 	struct crypto_info *next;
 } crypto_info_t;
 
@@ -434,6 +435,8 @@ static int stress_af_alg(const args_t *args)
 		crypto_info_t *info;
 
 		for (info = crypto_info_list; info; info = info->next) {
+			if (info->internal)
+				continue;
 			switch (info->crypto_type) {
 			case CRYPTO_AHASH:
 			case CRYPTO_SHASH:
@@ -523,6 +526,25 @@ static int int_field(const char *buffer)
 }
 
 /*
+ *  bool_field()
+ *	parse a boolean from a string field
+ *	error/default is false.
+ */
+static bool bool_field(const char *buffer)
+{
+	char *ptr = strchr(buffer, ':');
+
+	if (!ptr)
+		return false;
+	if (!strncmp("yes", ptr + 2, 3))
+		return true;
+	if (!strncmp("no", ptr + 2, 2))
+		return false;
+
+	return false;
+}
+
+/*
  *  stress_af_alg_add_crypto()
  *	add crypto algorithm to list if it is unique
  */
@@ -542,7 +564,8 @@ static void stress_af_alg_add_crypto(crypto_info_t *info)
 		    ci->max_key_size == info->max_key_size &&
 		    ci->max_auth_size == info->max_auth_size &&
 		    ci->iv_size == info->iv_size &&
-		    ci->digest_size == info->digest_size)
+		    ci->digest_size == info->digest_size &&
+		    ci->internal == info->internal)
 			return;
 	}
 	/*
@@ -592,6 +615,8 @@ static void stress_af_alg_init(void)
 			info.iv_size = int_field(buffer);
 		else if (!strncmp(buffer, "digestsize", 10))
 			info.digest_size = int_field(buffer);
+		else if (!strncmp(buffer, "internal", 8))
+			info.internal = bool_field(buffer);
 		else if (buffer[0] == '\n') {
 			if (info.crypto_type != CRYPTO_UNKNOWN)
 				stress_af_alg_add_crypto(&info);
