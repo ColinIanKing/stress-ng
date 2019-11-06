@@ -419,10 +419,10 @@ dist:
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile Makefile.config $(SRC) stress-ng.h stress-ng.1 \
 		core-personality.c COPYING syscalls.txt mascot README \
-		README.Android test snap config TODO \
-		core-perf-event.c usr.bin.pulseaudio.eg stress-version.h \
-		bash-completion example-jobs .travis.yml kernel-coverage.sh \
-		stress-ng-$(VERSION)
+		stress-af-alg-defconfigs.h README.Android test snap config \
+		TODO core-perf-event.c usr.bin.pulseaudio.eg \
+		stress-version.h bash-completion example-jobs .travis.yml \
+		kernel-coverage.sh stress-ng-$(VERSION)
 	tar -Jcf stress-ng-$(VERSION).tar.xz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
