@@ -115,7 +115,7 @@ static int stress_af_alg_hash(
 	int fd;
 	ssize_t j;
 	const ssize_t digest_size = info->digest_size;
-	char input[DATA_LEN];
+	static char input[DATA_LEN];
 	char digest[digest_size];
 	struct sockaddr_alg sa;
 	int retries = MAX_AF_ALG_RETRIES_BIND;
@@ -185,7 +185,7 @@ static int stress_af_alg_cipher(
 	ssize_t j;
 	struct sockaddr_alg sa;
 	const ssize_t iv_size = info->iv_size;
-	char input[DATA_LEN], output[DATA_LEN];
+	static char input[DATA_LEN], output[DATA_LEN];
 	const char *salg_type = (info->crypto_type != CRYPTO_AEAD) ? "skcipher" : "aead";
 	int retries = MAX_AF_ALG_RETRIES_BIND;
 
@@ -402,7 +402,7 @@ retry_bind:
 	}
 
 	for (j = 0; j < 16; j++) {
-		char output[16];
+		static char output[16];
 
 		if (!keep_stressing())
 			break;
