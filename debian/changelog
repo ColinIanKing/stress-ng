@@ -1,3 +1,49 @@
+stress-ng (0.10.09-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: add stress-af-alg-defconfigs.h to the dist rule
+  * stress-af-alg: make buffers static, reduces stack overhead
+  * stress-af-alg: add opt_set_funcs helper for non-linux builds
+  * Manual: update contributors and date
+  * stress-af-alg: some minor code cleanups, no functional change
+  * stress-af-alg: handle bind() ETIMEDOUT failures
+  * stress-af-alg: add default configs to complement /proc/crypto list
+  * stress-af-alg: add defconfigs with --af-alg-dump
+  * stress-af-alg: introduce the --af-alg-dump option
+  * stress-af-alg: skip 'internal' crypto algorithms
+  * stress-af-alg: fix close(fd) to avoid bind() EBUSY
+  * stress-af-alg: use 'aead' salg_type for CRYPTO_AEAD on bind()
+  * stress-af-alg: fix sockaddr algorithm type on bind()
+  * stress-stack: setup alternative stack in child only (LP: #1851316)
+  * stress-stack: check for ENOMEM fork failure and retry
+  * stress-stack: don't throw a fatal error when sigaltstack fails
+  * stress-stack: return error code in child using _exit() and not
+    return
+  * core-madvise: Add 5.4 MADV_COLD and MADV_PAGEOUT hints
+  * stress-prctl: add PR_GET_SPECULATION_CTRL exerciser
+  * Manual: update af-alg description
+  * Make a couple of const strings static
+  * stress-af-alg: fix build errors on undefined macros
+  * stress-af-alg: add aead support
+  * stress-af-alg: remove some debugging messages
+  * stress-af-alg: remove old unused crypto structures
+  * stress-af-alg: only add crypto algorithms that are supported by the
+    stressor
+  * stress-af-alg: use crypto algorithm data from /proc/crypto
+  * stress-clone: Add CLONE_NEWCGROUP
+  * stress-daemon: add expanding backoff timeout
+  * stress-daemon: keep retrying fork if we don't have enough resources
+  * stress-daemon: add minor backoff before fork retry (LP: #1849595)
+  * stress-vm: print stressor name using args->name rather than literal
+    string
+  * stress-readahead: print stressor name in failure message
+  * stress-matrix-3d: use pr_fail for short error failure messages
+  * stress-matrix-3d: use pr_fail_err for short error failure messages
+  * stress-iomix: fix one more pr_fail message
+  * stress-iomix: use pr_fail_err for short error failure messages
+
+ -- Colin King <colin.king@canonical.com>  Wed, 6 Nov 2019 01:03:05 +0000
+
 stress-ng (0.10.08-1) unstable; urgency=medium
 
   * Makefile: bump version
