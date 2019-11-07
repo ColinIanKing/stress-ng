@@ -112,3 +112,8 @@ For more information, see: https://kernel.ubuntu.com/~cking/stress-ng/
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
 bugs or performance regressions found with stress-ng.
+
+Contributing to stress-ng:
+
+Send patches to colin.king@canonical.com or merge reguests at
+https://github.com/ColinIanKing/stress-ng
