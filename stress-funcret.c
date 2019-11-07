@@ -172,16 +172,16 @@ static void NOINLINE stress_funcret_ ## type(const args_t *args);	\
 									\
 static void NOINLINE stress_funcret_ ## type(const args_t *args)	\
 {									\
-	register size_t ii;						\
+	register size_t i;						\
 	type a;								\
 	uint8_t data[sizeof(a)];					\
 									\
-	for (ii = 0; ii < sizeof(data); ii++) 				\
-		data[ii] = mwc8();					\
+	for (i = 0; i < sizeof(data); i++) 				\
+		data[i] = mwc8();					\
 	(void)memcpy(&a, data, sizeof(a));				\
 									\
 	do {								\
-		for (ii = 0; ii < 1000; ii++) {				\
+		for (i = 0; i < 1000; i++) {				\
 			volatile type b;				\
 			a = stress_funcret_ ## type ## 1(a);		\
 			a = stress_funcret_deep_ ## type ## 1(a);	\
