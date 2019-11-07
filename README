@@ -115,5 +115,5 @@ bugs or performance regressions found with stress-ng.
 
 Contributing to stress-ng:
 
-Send patches to colin.king@canonical.com or merge reguests at
+Send patches to colin.king@canonical.com or merge requests at
 https://github.com/ColinIanKing/stress-ng
