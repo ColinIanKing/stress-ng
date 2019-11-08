@@ -111,6 +111,36 @@ static inline void stress_job_empty(struct MB_MGR *mb_mgr)
 		;
 }
 
+/*
+ *  stress_job_check_status()
+ *	check if jobs has completed, report error if not
+ */
+static void stress_job_check_status(
+	const args_t *args,
+	const char *name,
+	struct JOB_AES_HMAC *job)
+{
+	if (job->status != STS_COMPLETED) {
+		pr_err("%s: %s: job not completed\n",
+			args->name, name);
+	}
+}
+
+/*
+ *  stress_jobs_done()
+ *  	check if all the jobs have completed
+ */
+static void stress_jobs_done(
+	const args_t *args, 
+	const char *name,
+	const int jobs,
+	const int jobs_done)
+{
+	if (jobs_done != jobs)
+		pr_err("%s: %s: only processed %d of %d jobs\n",
+			args->name, name, jobs_done, jobs);
+}
+
 static void stress_sha(
 	const args_t *args,
 	struct MB_MGR *mb_mgr,
@@ -118,45 +148,44 @@ static void stress_sha(
 	const size_t data_len,
 	const int jobs)
 {
-	int j;
+	int j, jobs_done = 0;
 	const int sha_digest_size = 64;
 	struct JOB_AES_HMAC *job;
-	uint8_t digest[jobs * sha_digest_size];
-
-	stress_rnd_fill(digest, sizeof(digest));
+	uint8_t padding[16];
+	const size_t alloc_len = sha_digest_size + (sizeof(padding) * 2);
+	uint8_t *auth;
+	uint8_t auth_data[alloc_len * jobs];
+	static const char name[] = "sha";
 
 	stress_job_empty(mb_mgr);
 
-	for (j = 0; j < jobs; j++) {
-		uint8_t *auth = digest + (j * sha_digest_size);
-
+	for (auth = auth_data, j = 0; j < jobs; j++, auth += alloc_len) {
 		job = IMB_GET_NEXT_JOB(mb_mgr);
-		(void)memset(job, 0, sizeof(*job));
 
+		(void)memset(job, 0, sizeof(*job));
 		job->cipher_direction = ENCRYPT;
 		job->chain_order = HASH_CIPHER;
-		job->auth_tag_output = auth;
+		job->auth_tag_output = auth + sizeof(padding);
 		job->auth_tag_output_len_in_bytes = sha_digest_size;
 		job->src = data;
 		job->msg_len_to_hash_in_bytes = data_len;
 		job->cipher_mode = NULL_CIPHER;
 		job->hash_alg = PLAIN_SHA_512;
+		job->user_data = auth;
 		job = IMB_SUBMIT_JOB(mb_mgr);
-		(void)job;
-	}
-
-	for (j = 0; j < jobs; j++) {
-		job = IMB_FLUSH_JOB(mb_mgr);
-		if (!job)
-			break;
-		if (job->status != STS_COMPLETED) {
-			pr_err("%s: sha: job %d not completed\n",
-				args->name, j);
+		if (job) {
+			jobs_done++;
+			stress_job_check_status(args, name, job);
 		}
 	}
-	if (j != jobs)
-		pr_err("%s: sha: only processed %d of %d jobs\n",
-			args->name, j, jobs);
+
+	while ((job = IMB_FLUSH_JOB(mb_mgr)) != NULL) {
+		jobs_done++;
+		stress_job_check_status(args, name, job);
+	}
+
+	stress_jobs_done(args, name, jobs, jobs_done);
+	stress_job_empty(mb_mgr);
 }
 
 static void stress_des(
@@ -166,7 +195,7 @@ static void stress_des(
 	const size_t data_len,
 	const int jobs)
 {
-	int j;
+	int j, jobs_done = 0;
 	struct JOB_AES_HMAC *job;
 
 	uint8_t encoded[jobs * data_len] ALIGNED(16);
@@ -174,15 +203,15 @@ static void stress_des(
 	uint8_t iv[16] ALIGNED(16);
 	uint32_t enc_keys[15*4] ALIGNED(16);
 	uint32_t dec_keys[15*4] ALIGNED(16);
+	uint8_t *dst;
+	static const char name[] = "des";
 
 	stress_rnd_fill(k, sizeof(k));
 	stress_rnd_fill(iv, sizeof(iv));
 	stress_job_empty(mb_mgr);
 	IMB_AES_KEYEXP_256(mb_mgr, k, enc_keys, dec_keys);
 
-	for (j = 0; j < jobs; j++) {
-		uint8_t *dst = encoded + (j * data_len);
-
+	for (dst = encoded, j = 0; j < jobs; j++, dst += data_len) {
 		job = IMB_GET_NEXT_JOB(mb_mgr);
 		(void)memset(job, 0, sizeof(*job));
 
@@ -202,21 +231,19 @@ static void stress_des(
 		job->user_data2 = (void *)((uint64_t)j);
 		job->hash_alg = NULL_HASH;
 		job = IMB_SUBMIT_JOB(mb_mgr);
-		(void)job;
-	}
-
-	for (j = 0; j < jobs; j++) {
-		job = IMB_FLUSH_JOB(mb_mgr);
-		if (!job)
-			break;
-		if (job->status != STS_COMPLETED) {
-			pr_err("%s: des: job %d not completed\n",
-				args->name, j);
+		if (job) {
+			jobs_done++;
+			stress_job_check_status(args, name, job);
 		}
 	}
-	if (j != jobs)
-		pr_err("%s: des: only processed %d of %d jobs\n",
-			args->name, j, jobs);
+
+	while ((job = IMB_FLUSH_JOB(mb_mgr)) != NULL) {
+		jobs_done++;
+		stress_job_check_status(args, name, job);
+	}
+
+	stress_jobs_done(args, name, jobs, jobs_done);
+	stress_job_empty(mb_mgr);
 }
 
 static void stress_cmac(
@@ -226,7 +253,7 @@ static void stress_cmac(
 	const size_t data_len,
 	const int jobs)
 {
-	int j;
+	int j, jobs_done = 0;
 	struct JOB_AES_HMAC *job;
 
 	uint8_t key[16] ALIGNED(16);
@@ -234,15 +261,15 @@ static void stress_cmac(
 	uint32_t dust[4 * 15] ALIGNED(16);
 	uint32_t skey1[4], skey2[4];
 	uint8_t output[jobs * data_len] ALIGNED(16);
+	static const char name[] = "cmac";
+	uint8_t *dst;
 
 	stress_rnd_fill(key, sizeof(key));
 	IMB_AES_KEYEXP_128(mb_mgr, key, expkey, dust);
 	IMB_AES_CMAC_SUBKEY_GEN_128(mb_mgr, expkey, skey1, skey2);
 	stress_job_empty(mb_mgr);
 
-	for (j = 0; j < jobs; j++) {
-		uint8_t *dst = output + (j * 16);
-
+	for (dst = output, j = 0; j < jobs; j++, dst += 16) {
 		job = IMB_GET_NEXT_JOB(mb_mgr);
 		(void)memset(job, 0, sizeof(*job));
 
@@ -260,21 +287,19 @@ static void stress_cmac(
 		job->u.CMAC._skey2 = skey2;
 		job->user_data = dst;
 		job = IMB_SUBMIT_JOB(mb_mgr);
-		(void)job;
-	}
-
-	for (j = 0; j < jobs; j++) {
-		job = IMB_FLUSH_JOB(mb_mgr);
-		if (!job)
-			break;
-		if (job->status != STS_COMPLETED) {
-			pr_err("%s: cmac: job %d not completed\n",
-				args->name, j);
+		if (job) {
+			jobs_done++;
+			stress_job_check_status(args, name, job);
 		}
 	}
-	if (j != jobs)
-		pr_err("%s: cmac: only processed %d of %d jobs\n",
-			args->name, j, jobs);
+
+	while ((job = IMB_FLUSH_JOB(mb_mgr)) != NULL) {
+		jobs_done++;
+		stress_job_check_status(args, name, job);
+	}
+
+	stress_jobs_done(args, name, jobs, jobs_done);
+	stress_job_empty(mb_mgr);
 }
 
 static void stress_ctr(
@@ -284,7 +309,7 @@ static void stress_ctr(
 	const size_t data_len,
 	const int jobs)
 {
-	int j;
+	int j, jobs_done = 0;
 	struct JOB_AES_HMAC *job;
 
 	uint8_t encoded[jobs * data_len] ALIGNED(16);
@@ -292,15 +317,15 @@ static void stress_ctr(
 	uint8_t iv[12] ALIGNED(16);		/* 4 byte nonce + 8 byte IV */
 	uint32_t expkey[4 * 15] ALIGNED(16);
 	uint32_t dust[4 * 15] ALIGNED(16);
+	uint8_t *dst;
+	static const char name[] = "ctr";
 
 	stress_rnd_fill(key, sizeof(key));
 	stress_rnd_fill(iv, sizeof(iv));
 	IMB_AES_KEYEXP_256(mb_mgr, key, expkey, dust);
 	stress_job_empty(mb_mgr);
 
-	for (j = 0; j < jobs; j++) {
-		uint8_t *dst = encoded + (j * data_len);
-
+	for (dst = encoded, j = 0; j < jobs; j++, dst += data_len) {
 		job = IMB_GET_NEXT_JOB(mb_mgr);
 		(void)memset(job, 0, sizeof(*job));
 
@@ -318,21 +343,19 @@ static void stress_ctr(
 		job->cipher_start_src_offset_in_bytes = 0;
 		job->msg_len_to_cipher_in_bytes = data_len;
 		job = IMB_SUBMIT_JOB(mb_mgr);
-		(void)job;
-	}
-
-	for (j = 0; j < jobs; j++) {
-		job = IMB_FLUSH_JOB(mb_mgr);
-		if (!job)
-			break;
-		if (job->status != STS_COMPLETED) {
-			pr_err("%s: ctr: job %d not completed\n",
-				args->name, j);
+		if (job) {
+			jobs_done++;
+			stress_job_check_status(args, name, job);
 		}
 	}
-	if (j != jobs)
-		pr_err("%s: ctr: only processed %d of %d jobs\n",
-			args->name, j, jobs);
+
+	while ((job = IMB_FLUSH_JOB(mb_mgr)) != NULL) {
+		jobs_done++;
+		stress_job_check_status(args, name, job);
+	}
+
+	stress_jobs_done(args, name, jobs, jobs_done);
+	stress_job_empty(mb_mgr);
 }
 
 static void stress_hmac_md5(
@@ -342,7 +365,7 @@ static void stress_hmac_md5(
 	const size_t data_len,
 	const int jobs)
 {
-	int j;
+	int j, jobs_done = 0;
 	size_t i;
 	struct JOB_AES_HMAC *job;
 
@@ -353,6 +376,8 @@ static void stress_hmac_md5(
 	uint8_t ipad_hash[digest_size] ALIGNED(16);
 	uint8_t opad_hash[digest_size] ALIGNED(16);
 	uint8_t output[jobs * digest_size] ALIGNED(16);
+	uint8_t *dst;
+	static const char name[] = "hmac_md5";
 
 	stress_rnd_fill(key, sizeof(key));
 	for (i = 0; i < sizeof(key); i++)
@@ -364,9 +389,7 @@ static void stress_hmac_md5(
 
 	stress_job_empty(mb_mgr);
 
-	for (j = 0; j < jobs; j++) {
-		uint8_t *dst = output + (j * digest_size);
-
+	for (dst = output, j = 0; j < jobs; j++, dst += digest_size) {
 		job = IMB_GET_NEXT_JOB(mb_mgr);
 		(void)memset(job, 0, sizeof(*job));
 
@@ -391,21 +414,19 @@ static void stress_hmac_md5(
 		job->hash_alg = MD5;
 		job->user_data = dst;
 		job = IMB_SUBMIT_JOB(mb_mgr);
-		(void)job;
-	}
-
-	for (j = 0; j < jobs; j++) {
-		job = IMB_FLUSH_JOB(mb_mgr);
-		if (!job)
-			break;
-		if (job->status != STS_COMPLETED) {
-			pr_err("%s: hmac md5: job %d not completed\n",
-				args->name, j);
+		if (job) {
+			jobs_done++;
+			stress_job_check_status(args, name, job);
 		}
 	}
-	if (j != jobs)
-		pr_err("%s: hmac md5: only processed %d of %d jobs\n",
-			args->name, j, jobs);
+
+	while ((job = IMB_FLUSH_JOB(mb_mgr)) != NULL) {
+		jobs_done++;
+		stress_job_check_status(args, name, job);
+	}
+
+	stress_jobs_done(args, name, jobs, jobs_done);
+	stress_job_empty(mb_mgr);
 }
 
 static void stress_hmac_sha1(
@@ -415,7 +436,7 @@ static void stress_hmac_sha1(
 	const size_t data_len,
 	const int jobs)
 {
-	int j;
+	int j, jobs_done = 0;
 	size_t i;
 	struct JOB_AES_HMAC *job;
 
@@ -426,6 +447,8 @@ static void stress_hmac_sha1(
 	uint8_t ipad_hash[digest_size] ALIGNED(16);
 	uint8_t opad_hash[digest_size] ALIGNED(16);
 	uint8_t output[jobs * digest_size] ALIGNED(16);
+	uint8_t *dst;
+	static const char name[] = "hmac_sha1";
 
 	stress_rnd_fill(key, sizeof(key));
 	for (i = 0; i < sizeof(key); i++)
@@ -437,9 +460,7 @@ static void stress_hmac_sha1(
 
 	stress_job_empty(mb_mgr);
 
-	for (j = 0; j < jobs; j++) {
-		uint8_t *dst = output + (j * digest_size);
-
+	for (dst = output, j = 0; j < jobs; j++, dst += digest_size) {
 		job = IMB_GET_NEXT_JOB(mb_mgr);
 		(void)memset(job, 0, sizeof(*job));
 
@@ -464,21 +485,19 @@ static void stress_hmac_sha1(
 		job->hash_alg = SHA1;
 		job->user_data = dst;
 		job = IMB_SUBMIT_JOB(mb_mgr);
-		(void)job;
-	}
-
-	for (j = 0; j < jobs; j++) {
-		job = IMB_FLUSH_JOB(mb_mgr);
-		if (!job)
-			break;
-		if (job->status != STS_COMPLETED) {
-			pr_err("%s: hmac sha1: job %d not completed\n",
-				args->name, j);
+		if (job) {
+			jobs_done++;
+			stress_job_check_status(args, name, job);
 		}
 	}
-	if (j != jobs)
-		pr_err("%s: hmac sha1: only processed %d of %d jobs\n",
-			args->name, j, jobs);
+
+	while ((job = IMB_FLUSH_JOB(mb_mgr)) != NULL) {
+		jobs_done++;
+		stress_job_check_status(args, name, job);
+	}
+
+	stress_jobs_done(args, name, jobs, jobs_done);
+	stress_job_empty(mb_mgr);
 }
 
 static void stress_hmac_sha512(
@@ -488,7 +507,7 @@ static void stress_hmac_sha512(
 	const size_t data_len,
 	const int jobs)
 {
-	int j;
+	int j, jobs_done = 0;
 	size_t i;
 	struct JOB_AES_HMAC *job;
 
@@ -500,6 +519,8 @@ static void stress_hmac_sha512(
 	uint8_t ipad_hash[digest_size] ALIGNED(16);
 	uint8_t opad_hash[digest_size] ALIGNED(16);
 	uint8_t output[jobs * digest_size] ALIGNED(16);
+	uint8_t *dst;
+	static const char name[] = "hmac_sha512";
 
 	stress_rnd_fill(rndkey, sizeof(rndkey));
 
@@ -514,9 +535,7 @@ static void stress_hmac_sha512(
 
 	stress_job_empty(mb_mgr);
 
-	for (j = 0; j < jobs; j++) {
-		uint8_t *dst = output + (j * digest_size);
-
+	for (dst = output, j = 0; j < jobs; j++, dst += digest_size) {
 		job = IMB_GET_NEXT_JOB(mb_mgr);
 		(void)memset(job, 0, sizeof(*job));
 
@@ -541,21 +560,19 @@ static void stress_hmac_sha512(
 		job->hash_alg = SHA_512;
 		job->user_data = dst;
 		job = IMB_SUBMIT_JOB(mb_mgr);
-		(void)job;
-	}
-
-	for (j = 0; j < jobs; j++) {
-		job = IMB_FLUSH_JOB(mb_mgr);
-		if (!job)
-			break;
-		if (job->status != STS_COMPLETED) {
-			pr_err("%s: hmac sha512: job %d not completed\n",
-				args->name, j);
+		if (job) {
+			jobs_done++;
+			stress_job_check_status(args, name, job);
 		}
 	}
-	if (j != jobs)
-		pr_err("%s: hmac sha512: only processed %d of %d jobs\n",
-			args->name, j, jobs);
+
+	while ((job = IMB_FLUSH_JOB(mb_mgr)) != NULL) {
+		jobs_done++;
+		stress_job_check_status(args, name, job);
+	}
+
+	stress_jobs_done(args, name, jobs, jobs_done);
+	stress_job_empty(mb_mgr);
 }
 
 
