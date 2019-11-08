@@ -25,7 +25,7 @@
 #include "stress-ng.h"
 
 static const help_t help[] = {
-	{ NULL,	"ipsec-mb N",	  "start N workers exercising the IPSEC MB encoding" },
+	{ NULL,	"ipsec-mb N",	  "start N workers exercising the IPSec MB encoding" },
 	{ NULL,	"ipsec-mb-ops N", "stop after N ipsec bogo encoding operations" },
 	{ NULL,	NULL,		  NULL }
 };
@@ -577,11 +577,11 @@ static int stress_ipsec_mb(const args_t *args)
 
 	p_mgr = alloc_mb_mgr(0);
 	if (!p_mgr) {
-		pr_inf("%s: failed to setup Intel IPSEC MB library, skipping\n", args->name);
+		pr_inf("%s: failed to setup Intel IPSec MB library, skipping\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	if (imb_get_version() < IMB_VERSION(0, 51, 0)) {
-		pr_inf("%s: version %s of Intel IPSEC MB library is too low, skipping\n",
+		pr_inf("%s: version %s of Intel IPSec MB library is too low, skipping\n",
 			args->name, imb_get_version_str());
 		free_mb_mgr(p_mgr);
 		return EXIT_NOT_IMPLEMENTED;
@@ -597,7 +597,7 @@ static int stress_ipsec_mb(const args_t *args)
 		}
 	}
 	if (!got_features) {
-		pr_inf("%s: not enough CPU features to support Intel IPSEC MB library, skipping\n", args->name);
+		pr_inf("%s: not enough CPU features to support Intel IPSec MB library, skipping\n", args->name);
 		free_mb_mgr(p_mgr);
 		return EXIT_NOT_IMPLEMENTED;
 	}
@@ -649,7 +649,7 @@ stressor_info_t stress_ipsec_mb_info = {
 static int stress_ipsec_mb_supported(void)
 {
 	pr_inf("ipsec_mb stressor will be skipped, CPU "
-		"needs to be an x86-64 and a recent IPSEC MB library is required.\n");
+		"needs to be an x86-64 and a recent IPSec MB library is required.\n");
 	return -1;
 }
 
