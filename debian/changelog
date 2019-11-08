@@ -1,3 +1,16 @@
+stress-ng (0.10.10-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-ipsec-mb: rename IPSEC to IPSec
+  * stress-ipsec-mb: add helper function to get and memset the next job
+  * stress-ipsec-mb: increment jobs count in stress_job_check_status
+  * stress-ipsec-mb: check that jobs are complete as soon as possible
+  * stress-funcret: rename counter ii to i
+  * README: Fix typo in requests
+  * README: Add contributing information
+
+ -- Colin King <colin.king@canonical.com>  Fri, 8 Nov 2019 13:44:15 +0000
+
 stress-ng (0.10.09-1) unstable; urgency=medium
 
   * Makefile: bump version
