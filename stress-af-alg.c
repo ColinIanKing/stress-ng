@@ -530,7 +530,7 @@ static int stress_af_alg(const args_t *args)
 	do {
 		crypto_info_t *info;
 
-		for (info = crypto_info_list; info; info = info->next) {
+		for (info = crypto_info_list; keep_stressing() && info; info = info->next) {
 			if (info->internal)
 				continue;
 			switch (info->crypto_type) {
