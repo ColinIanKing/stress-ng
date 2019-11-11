@@ -89,6 +89,7 @@ typedef struct crypto_info {
 	int	iv_size;
 	int	digest_size;
 	bool	internal;
+	bool	ignore;
 	struct crypto_info *next;
 } crypto_info_t;
 
@@ -107,10 +108,24 @@ static crypto_info_t crypto_info_defconfigs[] = {
 
 static void stress_af_alg_add_crypto_defconfigs(void);
 
+/*
+ *  stress_af_alg_ignore()
+ *	some crypto engines may return EINVAL, so flag these up in
+ *	debug and ignore them for the next iteration
+ */
+static void stress_af_alg_ignore(const args_t *args, crypto_info_t *info)
+{
+	if ((args->instance == 0) && (!info->ignore)) {
+		pr_dbg("%s: sendmsg using %s failed with EINVAL, skipping crypto engine\n",
+			args->name, info->name);
+		info->ignore = true;
+	}
+}
+
 static int stress_af_alg_hash(
 	const args_t *args,
 	const int sockfd,
-	const crypto_info_t *info)
+	crypto_info_t *info)
 {
 	int fd;
 	ssize_t j;
@@ -152,6 +167,10 @@ retry_bind:
 		if (send(fd, input, j, 0) != j) {
 			if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT))
 				continue;
+			if (errno == EINVAL) {
+				stress_af_alg_ignore(args, info);
+				break;
+			}
 			pr_fail("%s: send using %s failed: errno=%d (%s)\n",
 					args->name, info->name,
 					errno, strerror(errno));
@@ -179,7 +198,7 @@ retry_bind:
 static int stress_af_alg_cipher(
 	const args_t *args,
 	const int sockfd,
-	const crypto_info_t *info)
+	crypto_info_t *info)
 {
 	int fd;
 	ssize_t j;
@@ -297,6 +316,10 @@ retry_bind:
 		if (sendmsg(fd, &msg, 0) < 0) {
 			if (errno == ENOMEM)
 				break;
+			if (errno == EINVAL) {
+				stress_af_alg_ignore(args, info);
+				break;
+			}
 			pr_fail("%s: sendmsg using %s failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
@@ -341,6 +364,10 @@ retry_bind:
 		if (sendmsg(fd, &msg, 0) < 0) {
 			if (errno == ENOMEM)
 				break;
+			if (errno == EINVAL) {
+				stress_af_alg_ignore(args, info);
+				break;
+			}
 			pr_fail("%s: sendmsg using %s failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
@@ -372,7 +399,7 @@ retry_bind:
 static int stress_af_alg_rng(
 	const args_t *args,
 	const int sockfd,
-	const crypto_info_t *info)
+	crypto_info_t *info)
 {
 	int fd;
 	ssize_t j;
@@ -531,7 +558,7 @@ static int stress_af_alg(const args_t *args)
 		crypto_info_t *info;
 
 		for (info = crypto_info_list; keep_stressing() && info; info = info->next) {
-			if (info->internal)
+			if (info->internal || info->ignore)
 				continue;
 			switch (info->crypto_type) {
 			case CRYPTO_AHASH:
