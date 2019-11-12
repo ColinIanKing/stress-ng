@@ -313,7 +313,7 @@ retry_bind:
 		free(assocdata);
 #else
 		/* Not supported, skip */
-		rd = EXIT_SUCCESS;
+		rc = EXIT_SUCCESS;
 		goto err;
 #endif
 	}
