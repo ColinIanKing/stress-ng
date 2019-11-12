@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#define ALLOC_SLOP	(64)
+
 static const help_t help[] = {
 	{ NULL,	"af-alg N",	"start N workers that stress AF_ALG socket domain" },
 	{ NULL,	"af-alg-ops N",	"stop after N af-alg bogo operations" },
@@ -127,13 +129,21 @@ static int stress_af_alg_hash(
 	const int sockfd,
 	crypto_info_t *info)
 {
-	int fd;
+	int fd, rc;
 	ssize_t j;
 	const ssize_t digest_size = info->digest_size;
-	static char input[DATA_LEN];
-	char digest[digest_size];
+	char *input, *digest;
 	struct sockaddr_alg sa;
 	int retries = MAX_AF_ALG_RETRIES_BIND;
+
+	input = malloc(DATA_LEN + ALLOC_SLOP);
+	if (!input)
+		return EXIT_NO_RESOURCE;
+	digest = malloc(digest_size + ALLOC_SLOP);
+	if (!digest) {
+		free(digest);
+		return EXIT_NO_RESOURCE;
+	}
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
@@ -143,25 +153,31 @@ static int stress_af_alg_hash(
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 		/* Perhaps the hash does not exist with this kernel */
-		if (errno == ENOENT)
-			return EXIT_SUCCESS;
-		if (errno == EBUSY)
-			return EXIT_SUCCESS;
+		if (errno == ENOENT) {
+			rc = EXIT_SUCCESS;
+			goto err;
+		}
+		if (errno == EBUSY) {
+			rc = EXIT_SUCCESS;
+			goto err;
+		}
 		if (errno == ETIMEDOUT && retries-- > 0)
 			goto retry_bind;
 		pr_fail_err("bind");
-		return EXIT_FAILURE;
+		rc = EXIT_FAILURE;
+		goto err;
 	}
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
 		pr_fail_err("accept");
-		return EXIT_FAILURE;
+		rc = EXIT_FAILURE;
+		goto err;
 	}
 
-	stress_strnrnd(input, sizeof(input));
+	stress_strnrnd(input, DATA_LEN);
 
-	for (j = 32; j < (ssize_t)sizeof(input); j += 32) {
+	for (j = 32; j < DATA_LEN; j += 32) {
 		if (!keep_stressing())
 			break;
 		if (send(fd, input, j, 0) != j) {
@@ -174,25 +190,30 @@ retry_bind:
 			pr_fail("%s: send using %s failed: errno=%d (%s)\n",
 					args->name, info->name,
 					errno, strerror(errno));
-			(void)close(fd);
-			return EXIT_FAILURE;
+			rc = EXIT_FAILURE;
+			goto err_close;
 		}
 		if (recv(fd, digest, digest_size, MSG_WAITALL) != digest_size) {
 			pr_fail("%s: recv using %s failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
-			(void)close(fd);
-			return EXIT_FAILURE;
+			rc = EXIT_FAILURE;
+			goto err_close;
 		}
 		inc_counter(args);
 		if (args->max_ops && (get_counter(args) >= args->max_ops)) {
-			(void)close(fd);
-			return EXIT_SUCCESS;
+			rc = EXIT_SUCCESS;
+			goto err_close;
 		}
 	}
+	rc = EXIT_SUCCESS;
+err_close:
 	(void)close(fd);
+err:
+	free(digest);
+	free(input);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static int stress_af_alg_cipher(
@@ -200,13 +221,30 @@ static int stress_af_alg_cipher(
 	const int sockfd,
 	crypto_info_t *info)
 {
-	int fd;
+	int fd, rc;
 	ssize_t j;
 	struct sockaddr_alg sa;
 	const ssize_t iv_size = info->iv_size;
-	static char input[DATA_LEN], output[DATA_LEN];
+	const ssize_t cbuf_size = CMSG_SPACE(sizeof(__u32)) +
+				  CMSG_SPACE(4) + CMSG_SPACE(iv_size);
+	char *input, *output, *cbuf;
 	const char *salg_type = (info->crypto_type != CRYPTO_AEAD) ? "skcipher" : "aead";
 	int retries = MAX_AF_ALG_RETRIES_BIND;
+
+	input = malloc(DATA_LEN + ALLOC_SLOP);
+	if (!input)
+		return EXIT_NO_RESOURCE;
+	output = malloc(DATA_LEN + ALLOC_SLOP);
+	if (!output) {
+		free(input);
+		return EXIT_NO_RESOURCE;
+	}
+	cbuf = malloc(cbuf_size);
+	if (!cbuf) {
+		free(output);
+		free(input);
+		return EXIT_NO_RESOURCE;
+	}
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
@@ -216,76 +254,99 @@ static int stress_af_alg_cipher(
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 		/* Perhaps the cipher does not exist with this kernel */
-		if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT) || (errno == EBUSY))
-			return EXIT_SUCCESS;
+		if ((errno == 0) || (errno == ENOKEY) ||
+                    (errno == ENOENT) || (errno == EBUSY)) {
+			rc = EXIT_SUCCESS;
+			goto err;
+		}
 		if (errno == ETIMEDOUT && retries-- > 0)
 			goto retry_bind;
 		pr_fail_err("bind");
-		return EXIT_FAILURE;
+		rc = EXIT_FAILURE;
+		goto err;
 	}
 
 	if (info->crypto_type != CRYPTO_AEAD) {
 #if defined(ALG_SET_KEY)
-		char key[info->max_key_size];
+		char *key;
+
+		key = calloc(1, info->max_key_size + ALLOC_SLOP);
+		if (!key) {
+			rc = EXIT_NO_RESOURCE;
+			goto err;
+		}
 
 		stress_strnrnd(key, sizeof(key));
-		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, sizeof(key)) < 0) {
-			if (errno == ENOPROTOOPT)
-				return EXIT_SUCCESS;
+		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, info->max_key_size) < 0) {
+			if (errno == ENOPROTOOPT) {
+				rc = EXIT_SUCCESS;
+				goto err;
+			}
 			pr_fail_err("setsockopt");
-			return EXIT_FAILURE;
+			rc = EXIT_FAILURE;
+			goto err;
 		}
+		free(key);
 #else
 		/* Not supported, skip */
-		return EXIT_SUCCESS;
+		rc = EXIT_SUCCESS;
+		goto err;
 #endif
 	} else  {
 #if defined(ALG_SET_AEAD_ASSOCLEN)
-		char assocdata[info->max_auth_size];
+		char *assocdata;
 
-		stress_strnrnd(assocdata, sizeof(assocdata));
-		if (setsockopt(sockfd, SOL_ALG, ALG_SET_AEAD_ASSOCLEN, assocdata, sizeof(assocdata)) < 0) {
+		assocdata = calloc(1, info->max_auth_size + ALLOC_SLOP);
+		if (!assocdata) {
+			rc = EXIT_NO_RESOURCE;
+			goto err;
+		}
+
+		stress_strnrnd(assocdata, info->max_auth_size);
+		if (setsockopt(sockfd, SOL_ALG, ALG_SET_AEAD_ASSOCLEN, assocdata, info->max_auth_size) < 0) {
 			if (errno == ENOPROTOOPT)
 				return EXIT_SUCCESS;
 			pr_fail_err("setsockopt");
-			return EXIT_FAILURE;
+			rc = EXIT_FAILURE;
+			goto err;
 		}
+		free(assocdata);
 #else
 		/* Not supported, skip */
-		return EXIT_SUCCESS;
+		rd = EXIT_SUCCESS;
+		goto err;
 #endif
 	}
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
 		pr_fail_err("accept");
-		return EXIT_FAILURE;
+		rc = EXIT_FAILURE;
+		goto err;
 	}
 
-	for (j = 32; j < (ssize_t)sizeof(input); j += 32) {
+	for (j = 32; j < (ssize_t)DATA_LEN; j += 32) {
 		__u32 *u32ptr;
 		struct msghdr msg;
 		struct cmsghdr *cmsg;
-		char cbuf[CMSG_SPACE(sizeof(__u32)) +
-			CMSG_SPACE(4) + CMSG_SPACE(iv_size)];
 		struct af_alg_iv *iv;	/* Initialisation Vector */
 		struct iovec iov;
 
 		if (!keep_stressing())
 			break;
 		(void)memset(&msg, 0, sizeof(msg));
-		(void)memset(cbuf, 0, sizeof(cbuf));
+		(void)memset(cbuf, 0, cbuf_size);
 
 		msg.msg_control = cbuf;
-		msg.msg_controllen = sizeof(cbuf);
+		msg.msg_controllen = cbuf_size;
 
 		/* Chosen operation - ENCRYPT */
 		cmsg = CMSG_FIRSTHDR(&msg);
 		/* Keep static analysis happy */
 		if (!cmsg) {
-			(void)close(fd);
 			pr_fail_err("null cmsg");
-			return EXIT_FAILURE;
+			rc = EXIT_FAILURE;
+			goto err_close;
 		}
 		cmsg->cmsg_level = SOL_ALG;
 		cmsg->cmsg_type = ALG_SET_OP;
@@ -306,9 +367,9 @@ retry_bind:
 		stress_strnrnd((char *)iv->iv, iv_size);
 
 		/* Generate random message to encrypt */
-		stress_strnrnd(input, sizeof(input));
+		stress_strnrnd(input, DATA_LEN);
 		iov.iov_base = input;
-		iov.iov_len = sizeof(input);
+		iov.iov_len = DATA_LEN;
 
 		msg.msg_iov = &iov;
 		msg.msg_iovlen = 1;
@@ -323,15 +384,15 @@ retry_bind:
 			pr_fail("%s: sendmsg using %s failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
-			(void)close(fd);
-			return EXIT_FAILURE;
+			rc = EXIT_FAILURE;
+			goto err_close;
 		}
-		if (read(fd, output, sizeof(output)) != sizeof(output)) {
+		if (read(fd, output, DATA_LEN) != DATA_LEN) {
 			pr_fail("%s: read using %s failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
-			(void)close(fd);
-			return EXIT_FAILURE;
+			rc = EXIT_FAILURE;
+			goto err_close;
 		}
 
 		/* Chosen operation - DECRYPT */
@@ -356,7 +417,7 @@ retry_bind:
 		iv->ivlen = iv_size;
 
 		iov.iov_base = output;
-		iov.iov_len = sizeof(output);
+		iov.iov_len = DATA_LEN;
 
 		msg.msg_iov = &iov;
 		msg.msg_iovlen = 1;
@@ -371,17 +432,17 @@ retry_bind:
 			pr_fail("%s: sendmsg using %s failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
-			(void)close(fd);
-			return EXIT_FAILURE;
+			rc = EXIT_FAILURE;
+			goto err_close;
 		}
-		if (read(fd, output, sizeof(output)) != sizeof(output)) {
+		if (read(fd, output, DATA_LEN) != DATA_LEN) {
 			pr_fail("%s: read using %s failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
-			(void)close(fd);
-			return EXIT_FAILURE;
+			rc = EXIT_FAILURE;
+			goto err_close;
 		} else {
-			if (memcmp(input, output, sizeof(input))) {
+			if (memcmp(input, output, DATA_LEN)) {
 				pr_err("%s: decrypted data "
 					"different from original data "
 					"using %s\n",
@@ -390,10 +451,16 @@ retry_bind:
 		}
 	}
 
-	(void)close(fd);
+	rc = EXIT_SUCCESS;
 	inc_counter(args);
+err_close:
+	(void)close(fd);
+err:
+	free(cbuf);
+	free(output);
+	free(input);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static int stress_af_alg_rng(
@@ -401,10 +468,16 @@ static int stress_af_alg_rng(
 	const int sockfd,
 	crypto_info_t *info)
 {
-	int fd;
+	int fd, rc;
 	ssize_t j;
 	struct sockaddr_alg sa;
 	int retries = MAX_AF_ALG_RETRIES_BIND;
+	char *output;
+	const ssize_t output_size = 16;
+
+	output = malloc(output_size + ALLOC_SLOP);
+	if (!output)
+		return EXIT_NO_RESOURCE;
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.salg_family = AF_ALG;
@@ -414,41 +487,47 @@ static int stress_af_alg_rng(
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 		/* Perhaps the rng does not exist with this kernel */
-		if ((errno == ENOENT) || (errno == EBUSY))
-			return EXIT_SUCCESS;
+		if ((errno == ENOENT) || (errno == EBUSY)) {
+			rc = EXIT_SUCCESS;
+			goto err;
+		}
 		if (errno == ETIMEDOUT && retries-- > 0)
 			goto retry_bind;
 		pr_fail_err("bind");
-		return EXIT_FAILURE;
+		rc = EXIT_FAILURE;
+		goto err;
 	}
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
 		pr_fail_err("accept");
-		return EXIT_FAILURE;
+		rc = EXIT_FAILURE;
+		goto err;
 	}
 
 	for (j = 0; j < 16; j++) {
-		static char output[16];
-
 		if (!keep_stressing())
 			break;
-		if (read(fd, output, sizeof(output)) != sizeof(output)) {
+		if (read(fd, output, output_size) != output_size) {
 			if (errno != EINVAL) {
 				pr_fail_err("read");
-				(void)close(fd);
-				return EXIT_FAILURE;
+				rc = EXIT_FAILURE;
+				goto err_close;
 			}
 		}
 		inc_counter(args);
 		if (args->max_ops && (get_counter(args) >= args->max_ops)) {
-			(void)close(fd);
-			return EXIT_SUCCESS;
+			rc = EXIT_SUCCESS;
+			goto err_close;
 		}
 	}
-	(void)close(fd);
+	rc = EXIT_SUCCESS;
 
-	return EXIT_SUCCESS;
+err_close:
+	(void)close(fd);
+err:
+	free(output);
+	return rc;
 }
 
 static int stress_af_alg_count_crypto(void)
