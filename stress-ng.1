@@ -554,6 +554,10 @@ do not change processor affinity when
 .B \-\-cache
 is in effect.
 .TP
+.B \-\-cache\-sfence
+force write serialization on each store operation using the sfence instruction
+(x86 only). This is a no-op for non-x86 architectures.
+.TP
 .B \-\-cache\-ops N
 stop cache thrash workers after N bogo cache thrash operations.
 .TP

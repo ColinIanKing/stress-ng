@@ -24,10 +24,13 @@
  */
 #include "stress-ng.h"
 
+#undef HAVE_BUILTIN_SFENCE
+
 #define FLAGS_CACHE_PREFETCH	(0x01)
 #define FLAGS_CACHE_FLUSH	(0x02)
 #define FLAGS_CACHE_FENCE	(0x04)
-#define FLAGS_CACHE_NOAFF	(0x08)
+#define FLAGS_CACHE_SFENCE	(0x08)
+#define FLAGS_CACHE_NOAFF	(0x10)
 
 static const help_t help[] = {
 	{ "C N","cache N",	 "start N CPU cache thrashing workers" },
@@ -36,6 +39,9 @@ static const help_t help[] = {
 	{ NULL,	"cache-flush",	 "flush cache after every memory write (x86 only)" },
 	{ NULL,	"cache-fence",	 "serialize stores" },
 	{ NULL,	"cache-level N", "only exercise specified cache" },
+#if defined(HAVE_BUILTIN_SFENCE)
+	{ NULL,	"cache-sfence",	 "serialize stores with sfence" },
+#endif
 	{ NULL,	"cache-ways N",	 "only fill specified number of cache ways" },
 	{ NULL,	NULL,		 NULL }
 };
@@ -79,16 +85,44 @@ static int stress_cache_set_noaff(const char *opt)
 	return stress_cache_set_flag(FLAGS_CACHE_NOAFF);
 }
 
+static int stress_cache_set_sfence(const char *opt)
+{
+	(void)opt;
+
+	return stress_cache_set_flag(FLAGS_CACHE_SFENCE);
+}
+
 static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_cache_prefetch,		stress_cache_set_prefetch },
 	{ OPT_cache_flush,		stress_cache_set_flush },
 	{ OPT_cache_fence,		stress_cache_set_fence },
+	{ OPT_cache_sfence,		stress_cache_set_sfence },
 	{ OPT_cache_no_affinity,	stress_cache_set_noaff },
 	{ 0,				NULL }
 };
 
-
 /* The compiler optimises out the unused cache flush and mfence calls */
+#if defined(HAVE_BUILTIN_SFENCE)
+#define CACHE_WRITE(flag)						\
+	for (j = 0; j < mem_cache_size; j++) {				\
+		if ((flag) & FLAGS_CACHE_PREFETCH) {		\
+			__builtin_prefetch(&mem_cache[i + 1], 1, 1);	\
+		}							\
+		mem_cache[i] += mem_cache[(mem_cache_size - 1) - i] + r;\
+		if ((flag) & FLAGS_CACHE_FLUSH) {			\
+			clflush(&mem_cache[i]);				\
+		}							\
+		if ((flag) & FLAGS_CACHE_FENCE) {			\
+			mfence();					\
+		}							\
+		if ((flag) & FLAGS_CACHE_SFENCE) {			\
+			__builtin_ia32_sfence();			\
+		}							\
+		i = (i + 32769) & (mem_cache_size - 1);			\
+		if (!g_keep_stressing_flag)				\
+			break;						\
+	}
+#else
 #define CACHE_WRITE(flag)						\
 	for (j = 0; j < mem_cache_size; j++) {				\
 		if ((flag) & FLAGS_CACHE_PREFETCH) {		\
@@ -105,6 +139,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 		if (!g_keep_stressing_flag)				\
 			break;						\
 	}
+#endif
 
 /*
  *  stress_cache()
@@ -148,6 +183,13 @@ static int stress_cache(const args_t *args)
 	}
 #endif
 
+#if !defined(HAVE_BUILTIN_SFENCE)
+	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_SFENCE)) {
+		pr_inf("%s: sfence is not available, ignoring this option\n",
+			args->name);
+	}
+#endif
+
 	do {
 		uint64_t i = mwc64() % mem_cache_size;
 		uint64_t r = mwc64();
@@ -155,30 +197,56 @@ static int stress_cache(const args_t *args)
 
 		if ((r >> 13) & 1) {
 			switch (cache_flags) {
-			case FLAGS_CACHE_FLUSH:
-				CACHE_WRITE(FLAGS_CACHE_FLUSH);
-				break;
-			case FLAGS_CACHE_FENCE:
-				CACHE_WRITE(FLAGS_CACHE_FENCE);
-				break;
-			case FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH:
-				CACHE_WRITE(FLAGS_CACHE_FLUSH | FLAGS_CACHE_FENCE);
+			default:
+				CACHE_WRITE(0);
 				break;
 			case FLAGS_CACHE_PREFETCH:
 				CACHE_WRITE(FLAGS_CACHE_PREFETCH);
 				break;
+			case FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(FLAGS_CACHE_FLUSH);
+				break;
 			case FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH:
 				CACHE_WRITE(FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH);
 				break;
-			case FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FENCE:
-				CACHE_WRITE(FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FENCE);
+			case FLAGS_CACHE_FENCE:
+				CACHE_WRITE(FLAGS_CACHE_FENCE);
 				break;
-			case FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH | FLAGS_CACHE_FENCE:
-				CACHE_WRITE(FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH | FLAGS_CACHE_FENCE);
+			case FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH:
+				CACHE_WRITE(FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH);
 				break;
-			default:
-				CACHE_WRITE(0);
+			case FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH);
 				break;
+			case FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH);
+				break;
+#if defined(HAVE_BUILTIN_SFENCE)
+			case FLAGS_CACHE_SFENCE:
+				CACHE_WRITE(FLAGS_CACHE_SFENCE);
+				break;
+			case FLAGS_CACHE_SFENCE | FLAGS_CACHE_PREFETCH:
+				CACHE_WRITE(FLAGS_CACHE_SFENCE | FLAGS_CACHE_PREFETCH);
+				break;
+			case FLAGS_CACHE_SFENCE | FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(FLAGS_CACHE_SFENCE | FLAGS_CACHE_FLUSH);
+				break;
+			case FLAGS_CACHE_SFENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(FLAGS_CACHE_SFENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH);
+				break;
+			case FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE:
+				CACHE_WRITE(FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE);
+				break;
+			case FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH:
+				CACHE_WRITE(FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH);
+				break;
+			case FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH);
+				break;
+			case FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH:
+				CACHE_WRITE(FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH);
+				break;
+#endif
 			}
 		} else {
 			for (j = 0; j < mem_cache_size; j++) {
@@ -224,7 +292,7 @@ static int stress_cache(const args_t *args)
 		inc_counter(args);
 	} while (keep_stressing());
 
-	pr_dbg("%s: total [%" PRIu32 "]\n", args->name, total);
+	uint32_put(total);
 	return ret;
 }
 

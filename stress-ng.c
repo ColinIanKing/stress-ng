@@ -240,6 +240,7 @@ static const struct option long_options[] = {
 	{ "cache-flush",0,	0,	OPT_cache_flush },
 	{ "cache-fence",0,	0,	OPT_cache_fence },
 	{ "cache-level",1,	0,	OPT_cache_level},
+	{ "cache-sfence",0,	0,	OPT_cache_sfence },
 	{ "cache-ways",1,	0,	OPT_cache_ways},
 	{ "cache-no-affinity",0,0,	OPT_cache_no_affinity },
 	{ "cap",	1,	0, 	OPT_cap },

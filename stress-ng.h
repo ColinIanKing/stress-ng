@@ -2179,6 +2179,7 @@ typedef enum {
 	OPT_cache_prefetch,
 	OPT_cache_flush,
 	OPT_cache_fence,
+	OPT_cache_sfence,
 	OPT_cache_level,
 	OPT_cache_ways,
 	OPT_cache_no_affinity,
