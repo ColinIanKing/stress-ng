@@ -54,6 +54,10 @@ static const int policies[] = {
 static int stress_schedpolicy(const args_t *args)
 {
 	int policy = 0;
+	uint32_t sched_util_min = ~0;
+	uint32_t sched_util_max = 0;
+	uint32_t sched_util_max_value = 0;
+	int counter = 0;
 
 	if (SIZEOF_ARRAY(policies) == 0) {
 		if (args->instance == 0) {
@@ -179,12 +183,43 @@ static int stress_schedpolicy(const args_t *args)
 			}
 		}
 
+                if (attr.sched_util_max != 0) {
+			/*
+			 *  Newer Linux kernels support a min/max setting,
+			 *  and if supported then find the min/max settings
+			 */
+			if (sched_util_min > attr.sched_util_min)
+				sched_util_min = attr.sched_util_min;
+			if (sched_util_max < attr.sched_util_max)
+				sched_util_max = attr.sched_util_max;
+			/* Sanity check */
+			if (sched_util_min > sched_util_max)
+				sched_util_min = sched_util_max;
+
+			/* Zero value means not initialized yet */
+			if (sched_util_max_value == 0)
+				sched_util_max_value = sched_util_max;
+
+			attr.sched_util_max = sched_util_max_value;
+		}
+
 		attr.size = sizeof(attr);
 		ret = shim_sched_setattr(pid, &attr, 0);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
 				pr_fail_err("sched_getattr");
 			}
+		}
+
+		/*
+		 * Cycle down max value to min value to
+		 * exercise scheduler
+		 */
+		if ((counter++ > 256) &&
+                    (sched_util_max_value > 0) &&
+                    (sched_util_max_value > sched_util_min)) {
+			sched_util_max_value--;
+			counter = 0;
 		}
 #endif
 
