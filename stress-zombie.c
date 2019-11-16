@@ -159,8 +159,10 @@ static int stress_zombie(const args_t *args)
 			zombie_t *zombie;
 
 			zombie = stress_zombie_new();
-			if (!zombie)
-				break;
+			if (!zombie) {
+				stress_zombie_head_remove();
+				continue;
+			}
 
 			zombie->pid = fork();
 			if (zombie->pid == 0) {
