@@ -102,6 +102,15 @@ static int stress_zero(const args_t *args)
 		}
 		(void)munmap(ptr, page_size);
 #endif
+
+
+		/*
+		 *  lseek on /dev/zero just because we can
+		 */
+		(void)lseek(fd, SEEK_SET, 0);
+		(void)lseek(fd, SEEK_END, 0);
+		(void)lseek(fd, SEEK_CUR, 0);
+
 		inc_counter(args);
 	} while (keep_stressing());
 	(void)close(fd);
