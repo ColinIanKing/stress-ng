@@ -5,7 +5,7 @@ was designed to exercise various physical subsystems of a computer as well as
 the various operating system kernel interfaces. Stress-ng features:
 
   * over 220 stress tests
-  * over 50 CPU specific stress tests that exercise floating point, integer,
+  * over 70 CPU specific stress tests that exercise floating point, integer,
     bit manipulation and control flow
   * over 20 virtual memory stress tests
   * portable: builds on Linux, Solaris, *BSD, Minix, Android, MacOS X,
