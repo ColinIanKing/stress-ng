@@ -171,7 +171,7 @@ static int stress_softlockup(const args_t *args)
 
 		/*
 		 * We run the stressor as a child so that
-		 * if we the hard time timits the child is
+		 * if we hit the hard time limits the child is
 		 * terminated with a SIGKILL and we can
 		 * catch that with the parent
 		 */
