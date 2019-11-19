@@ -49,6 +49,10 @@ do_stress()
 sudo lcov --zerocounters
 
 DURATION=10
+do_stress --cpu 0 --taskset 0,2,4,6
+do_stress --cpu 0 --taskset 1,2,3,7
+do_stress --cpu 0 --taskset 0,1,2,3
+
 do_stress --cyclic 0 --cyclic-policy deadline
 do_stress --cyclic 0 --cyclic-policy fifo
 do_stress --cyclic 0 --cyclic-policy rr
@@ -81,6 +85,7 @@ do_stress --hdd 0 --hdd-opts rd-seq,wr-seq
 
 do_stress --itimer 0 --itimer-rand
 
+do_stress --lease 0 --lease-breakers 8
 do_stress --lockf 0 --lockf-nonblock
 
 do_stress --mincore 0 --mincore-random
@@ -89,10 +94,18 @@ do_stress --mmap 0 --mmap-file
 do_stress --mmap 0 --mmap-mprotect
 do_stress --mmap 0 --mmap-async
 
+do_stress --pipe 0 --pipe-size 64K
+do_stress --pipe 0 --pipe-size 1M
+
+do_stress --pthread 0 --pthread-max 512
+do_stress --pthread 0 --pthread-max 1024
+
 do_stress --sctp 0 --sctp-domain ipv4
 do_stress --sctp 0 --sctp-domain ipv6
 
 do_stress --seek 0 --seek-punch
+
+do_stress --shm-sysv 0 --shm-sysv-segs 128
 
 do_stress --sock 0 --sock-nodelay
 do_stress --sock 0 --sock-domain ipv4
@@ -106,6 +119,9 @@ do_stress --stream 0 --stream-madvise nohugepage
 do_stress --stream 0 --stream-madvise normal
 
 do_stress --timer 0 --timer-rand
+do_stress --timer 0 --timer-freq 1000000
+do_stress --timer 0 --timer-freq 100000 --timer-slack
+
 do_stress --timerfd 0 --timerfd-rand
 
 do_stress --tmpfs 0 --tmpfs-mmap-async
@@ -134,6 +150,8 @@ do_stress --vm 0 --vm-madvise random
 do_stress --vm 0 --vm-madvise sequential
 do_stress --vm 0 --vm-madvise unmergeable
 do_stress --vm 0 --vm-madvise willneed
+
+do_stress --zombie 0 --zombie-max 1000000
 
 DURATION=60
 
