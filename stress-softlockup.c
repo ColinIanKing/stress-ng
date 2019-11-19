@@ -77,6 +77,38 @@ static void MLOCKED_TEXT stress_rlimit_handler(int signum)
 	siglongjmp(jmp_env, 1);
 }
 
+/*
+ *  drop_niceness();
+ *	see how low we can go with niceness
+ */
+static void drop_niceness(void)
+{
+	int nice_val, old_nice_val, i;
+
+	errno = 0;
+	nice_val = nice(0);
+	old_nice_val = nice_val + 1;
+
+	/* Should never fail */
+	if (errno)
+		return;
+
+	/*
+	 *  Traditionally no more than -20, but see if we
+	 *  can force it lower if we are originally running
+	 *  at nice level 19
+	 */
+	for (i = 0; i < 40; i++) {
+		errno = 0;
+		old_nice_val = nice_val;
+		nice_val = nice(-1);
+		if (errno)
+			return;
+		if (nice_val == old_nice_val)
+			return;
+	}
+}
+
 static int stress_softlockup(const args_t *args)
 {
 	size_t policy = 0;
@@ -192,6 +224,8 @@ static int stress_softlockup(const args_t *args)
 		if (ret)
 			goto tidy_ok;
 
+		drop_niceness();
+
 		policy = 0;
 		do {
 			/*
@@ -210,6 +244,7 @@ static int stress_softlockup(const args_t *args)
 						policies[policy].name);
 				}
 			}
+			drop_niceness();
 			policy++;
 			policy %= SIZEOF_ARRAY(policies);
 			inc_counter(args);
