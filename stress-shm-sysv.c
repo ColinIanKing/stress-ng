@@ -375,7 +375,7 @@ reap:
 			}
 			if (shm_ids[i] >= 0) {
 				if (shmctl(shm_ids[i], IPC_RMID, NULL) < 0) {
-					if (errno != EIDRM)
+					if ((errno != EIDRM) && (errno != EINVAL))
 						pr_fail_err("shmctl");
 				}
 			}
