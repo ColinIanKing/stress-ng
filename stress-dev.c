@@ -1043,6 +1043,45 @@ static void stress_dev_null_nop(
 	(void)devpath;
 }
 
+/*
+ *  stress_dev_ptp_linux()
+ *	minor exercising of the PTP device
+ */
+static void stress_dev_ptp_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
+{
+#if defined(HAVE_LINUX_PTP_CLOCK_H) &&	\
+    defined(PTP_CLOCK_GETCAPS) &&	\
+    defined(PTP_PIN_GETFUNC)
+	int ret;
+	struct ptp_clock_caps caps;
+
+	(void)name;
+	(void)devpath;
+
+	errno = 0;
+	ret = ioctl(fd, PTP_CLOCK_GETCAPS, &caps);
+	if (ret == 0) {
+		int i, pins = caps.n_pins;
+
+		for (i = 0; i < pins; i++) {
+			struct ptp_pin_desc desc;
+
+			(void)memset(&desc, 0, sizeof(desc));
+			desc.index = i;
+			ret = ioctl(fd, PTP_PIN_GETFUNC, &desc);
+			(void)ret;
+		}
+	}
+#else
+	(void)name;
+	(void)fd;
+	(void)devpath;
+#endif
+}
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -1076,6 +1115,7 @@ static const dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/hpet",	stress_dev_hpet_linux),
 #endif
 	DEV_FUNC("/dev/null",	stress_dev_null_nop),
+	DEV_FUNC("/dev/ptp",	stress_dev_ptp_linux)
 };
 
 /*
