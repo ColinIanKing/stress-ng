@@ -49,6 +49,9 @@ static const int policies[] = {
 #if defined(SCHED_BATCH)
 	SCHED_BATCH,
 #endif
+#if defined(SCHED_DEADLINE)
+	SCHED_DEADLINE,
+#endif
 };
 
 static int stress_schedpolicy(const args_t *args)
@@ -69,7 +72,7 @@ static int stress_schedpolicy(const args_t *args)
 	}
 
 	do {
-#if defined(HAVE_SCHED_GETATTR) && \
+#if defined(HAVE_SCHED_GETATTR) &&	\
     defined(HAVE_SCHED_SETATTR)
 		struct shim_sched_attr attr;
 #endif
@@ -81,6 +84,23 @@ static int stress_schedpolicy(const args_t *args)
 		const char *new_policy_name = stress_get_sched_name(new_policy);
 
 		switch (new_policy) {
+#if defined(SCHED_DEADLINE) &&		\
+    defined(HAVE_SCHED_GETATTR) &&	\
+    defined(HAVE_SCHED_SETATTR)
+		case SCHED_DEADLINE:
+			attr.size = sizeof(attr);
+			attr.sched_flags = 0;
+			attr.sched_nice = 0;
+			attr.sched_priority = 0;
+			attr.sched_policy = SCHED_DEADLINE;
+			attr.sched_runtime = 10 * 1000 * 1000;
+			attr.sched_period = 30 * 1000 * 1000;
+			attr.sched_deadline  = 30 * 1000 * 1000;
+			ret = shim_sched_setattr(0, &attr, 0);
+			(void)ret;
+			break;
+#endif
+
 #if defined(SCHED_IDLE)
 		case SCHED_IDLE:
 #endif

@@ -2846,9 +2846,10 @@ stop after N bogo RTC interface accesses.
 .TP
 .B \-\-schedpolicy N
 start N workers that work set the worker to various available scheduling
-policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO and
-SCHED_RR.  For the real time scheduling policies a random sched priority
-is selected between the minimum and maximum scheduling priority settings.
+policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO, 
+SCHED_RR and SCHED_DEADLINE.  For the real time scheduling policies a
+random sched priority is selected between the minimum and maximum
+scheduling priority settings.
 .TP
 .B \-\-schedpolicy\-ops N
 stop after N bogo scheduling policy changes.
