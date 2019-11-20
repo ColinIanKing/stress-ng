@@ -248,7 +248,7 @@ STRESS_SRC = \
 	stress-sockdiag.c \
 	stress-sockfd.c \
 	stress-sockpair.c \
-	stress-socketmany.c \
+	stress-sockmany.c \
 	stress-softlockup.c \
 	stress-spawn.c \
 	stress-splice.c \
