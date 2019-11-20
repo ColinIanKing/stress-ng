@@ -1445,6 +1445,8 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)
 
+#define DEFAULT_SOCKET_MANY_PORT (10000)
+
 #define MIN_SOCKET_FD_PORT	(1024)
 #define MAX_SOCKET_FD_PORT	(65535)
 #define DEFAULT_SOCKET_FD_PORT	(8000)
@@ -2026,6 +2028,7 @@ typedef struct {
 	MACRO(sockdiag)		\
 	MACRO(sockfd)		\
 	MACRO(sockpair)		\
+	MACRO(sockmany)		\
 	MACRO(softlockup)	\
 	MACRO(spawn)		\
 	MACRO(splice)		\
@@ -2794,9 +2797,13 @@ typedef enum {
 	OPT_sockdiag,
 	OPT_sockdiag_ops,
 
+
 	OPT_sockfd,
 	OPT_sockfd_ops,
 	OPT_sockfd_port,
+
+	OPT_sockmany,
+	OPT_sockmany_ops,
 
 	OPT_sockpair,
 	OPT_sockpair_ops,

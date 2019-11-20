@@ -2846,7 +2846,7 @@ stop after N bogo RTC interface accesses.
 .TP
 .B \-\-schedpolicy N
 start N workers that work set the worker to various available scheduling
-policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO, 
+policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE, SCHED_FIFO,
 SCHED_RR and SCHED_DEADLINE.  For the real time scheduling policies a
 random sched priority is selected between the minimum and maximum
 scheduling priority settings.
@@ -3136,6 +3136,13 @@ stop sockfd stress workers after N bogo operations.
 .B \-\-sockfd\-port P
 start at socket port P. For N socket worker processes, ports P to P - 1 are
 used.
+.TP
+.B \-\-sockmany N
+start N workers that use a client process to attempt to open as many as 100000
+TCP/IP socket connections to a server on port 10000.
+.TP
+.B \-\-sockmany\-ops N
+stop after N connections.
 .TP
 .B \-\-sockpair N
 start N workers that perform socket pair I/O read/writes. This involves a pair

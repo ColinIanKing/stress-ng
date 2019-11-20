@@ -705,6 +705,8 @@ static const struct option long_options[] = {
 	{ "sockfd-port",1,	0,	OPT_sockfd_port },
 	{ "sockpair",	1,	0,	OPT_sockpair },
 	{ "sockpair-ops",1,	0,	OPT_sockpair_ops },
+	{ "sockmany",	1,	0,	OPT_sockmany },
+	{ "sockmany-ops",1,	0,	OPT_sockmany_ops },
 	{ "softlockup",	1,	0,	OPT_softlockup },
 	{ "softlockup-ops",1,	0,	OPT_softlockup_ops },
 	{ "spawn",	1,	0,	OPT_spawn },
