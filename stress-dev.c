@@ -83,21 +83,6 @@ static uint32_t path_sum(const char *path)
  *  mixup_sort()
  *	sort helper based on hash to mix up ordering
  */
-#if defined(__NetBSD__)
-static int mixup_sort(const void *p1, const void *p2)
-{
-	uint32_t s1, s2;
-	const struct dirent *d1 = p1;
-	const struct dirent *d2 = p2;
-
-	s1 = path_sum(d1->d_name);
-	s2 = path_sum(d2->d_name);
-
-	if (s1 == s2)
-		return 0;
-	return (s1 < s2) ? -1 : 1;
-}
-#else
 static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 {
 	uint32_t s1, s2;
@@ -109,7 +94,6 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 		return 0;
 	return (s1 < s2) ? -1 : 1;
 }
-#endif
 
 #if defined(__linux__) && defined(HAVE_LINUX_MEDIA_H) && \
     defined(MEDIA_IOC_DEVICE_INFO)
