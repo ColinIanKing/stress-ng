@@ -57,10 +57,13 @@ static const int policies[] = {
 static int stress_schedpolicy(const args_t *args)
 {
 	int policy = 0;
+#if defined(HAVE_SCHED_GETATTR) && \
+    defined(HAVE_SCHED_SETATTR)
 	uint32_t sched_util_min = ~0;
 	uint32_t sched_util_max = 0;
 	uint32_t sched_util_max_value = 0;
 	int counter = 0;
+#endif
 
 	if (SIZEOF_ARRAY(policies) == 0) {
 		if (args->instance == 0) {
