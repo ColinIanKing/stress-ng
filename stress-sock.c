@@ -150,10 +150,10 @@ static int stress_set_socket_domain(const char *name)
 }
 
 /*
- *  stress_sctp_client()
+ *  stress_sock_client()
  *	client reader
  */
-static void stress_sctp_client(
+static void stress_sock_client(
 	const args_t *args,
 	const pid_t ppid,
 	const int socket_type,
@@ -262,10 +262,10 @@ retry:
 }
 
 /*
- *  stress_sctp_server()
+ *  stress_sock_server()
  *	server writer
  */
-static int stress_sctp_server(
+static int stress_sock_server(
 	const args_t *args,
 	const pid_t pid,
 	const pid_t ppid,
@@ -503,11 +503,11 @@ again:
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_sctp_client(args, ppid, socket_type,
+		stress_sock_client(args, ppid, socket_type,
 			socket_port, socket_domain);
 		_exit(EXIT_SUCCESS);
 	} else {
-		return stress_sctp_server(args, pid, ppid, socket_opts,
+		return stress_sock_server(args, pid, ppid, socket_opts,
 			socket_type, socket_port, socket_domain);
 	}
 }
