@@ -1,3 +1,40 @@
+stress-ng (0.10.11-1) unstable; urgency=medium
+
+  * Makefile: update version
+  * Manual: update date
+  * stress-dev: remove NetBSD mixup_sort variant, NetBSD 8.0 is now
+    compliant
+  * stress-schedpolicy: fix build warnings on BSD systems
+  * Rename stress-socketmany to stress-sockmany to match the stressor
+    name
+  * Rename stress-socketpair to stress-sockpair to match the stressor
+    name
+  * Rename stress-socket-diag to stress-sockdiag to match the stressor
+    name
+  * Rename stress-socket-fd to stress-sockfd to match the stressor name
+  * stress-sock: rename functions with sctp in name to sock
+  * Rename sock stressor stress-socket.c to stress-sock.c
+  * Add sockmany stressor to exercise many open socket connections
+  * stress-dev: add initial /dev/ptp device exercising code
+  * stress-schedpolicy: add SCHED_DEADLINE scheduling
+  * stress-softlockup: force lowest niceness to be less nice
+  * stress-softlockup: clean up a comment
+  * kernel-coverage.sh: Add some more corner case stressors
+  * stress-shm-sysv: silently ignore EINVAL when deleting shared memory
+  * manual: add default number of system V shared memory segments
+  * README: update number of stressors
+  * stress-zero: add lseeks as these are allowed on /dev/zero
+  * stress-zombie: don't give up when we hit out of memory
+  * stress-schedpolicy: exercise sched_util_max if it is useable
+  * stress-cache: add --cpu-sfence sfence instruction support (x86 only)
+  * stress-af-alg: fix typo: rd -> rc
+  * stress-af-alf: fix stack clobbering issue on arm64/armhf
+  * stress-af-alg: report send/sendmsg EINVAL errors as debug, ignore
+    for next time
+  * stress-af-alg: add a preemption point on each crypto iteration
+
+ -- Colin King <colin.king@canonical.com>  Wed, 20 Nov 2019 16:24:11 +0000
+
 stress-ng (0.10.10-1) unstable; urgency=medium
 
   * Makefile: bump version
