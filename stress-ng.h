@@ -2415,6 +2415,7 @@ typedef enum {
 
 	OPT_ipsec_mb,
 	OPT_ipsec_mb_ops,
+	OPT_ipsec_mb_feature,
 
 	OPT_itimer,
 	OPT_itimer_ops,

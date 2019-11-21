@@ -27,7 +27,14 @@
 static const help_t help[] = {
 	{ NULL,	"ipsec-mb N",	  "start N workers exercising the IPSec MB encoding" },
 	{ NULL,	"ipsec-mb-ops N", "stop after N ipsec bogo encoding operations" },
+	{ NULL, "ipsec-mb-feature F","specify CPU feature F" },
 	{ NULL,	NULL,		  NULL }
+};
+
+static int stress_set_ipsec_mb_feature(const char *opt);
+
+static const opt_set_func_t opt_set_funcs[] = {
+        { OPT_ipsec_mb_feature,	stress_set_ipsec_mb_feature },
 };
 
 #if defined(HAVE_INTEL_IPSEC_MB_H) &&	\
@@ -39,12 +46,57 @@ static const help_t help[] = {
     defined(IMB_FEATURE_AESNI) &&	\
     defined(IMB_FEATURE_AVX) &&		\
     defined(IMB_FEATURE_AVX2) &&	\
-    defined(IMB_FEATURE_AVX512_SKX)
+    defined(IMB_FEATURE_AVX512_SKX) && 0
 
 #define FEATURE_SSE		(IMB_FEATURE_SSE4_2 | IMB_FEATURE_CMOV | IMB_FEATURE_AESNI)
 #define FEATURE_AVX		(IMB_FEATURE_AVX | IMB_FEATURE_CMOV | IMB_FEATURE_AESNI)
 #define FEATURE_AVX2		(FEATURE_AVX | IMB_FEATURE_AVX2)
 #define FEATURE_AVX512		(FEATURE_AVX2 | IMB_FEATURE_AVX512_SKX)
+
+typedef struct {
+	const int features;
+	const char *name;
+	void (*init_func)(MB_MGR *p_mgr);
+} init_mb_t;
+
+static init_mb_t init_mb[] = {
+	{ FEATURE_SSE,		"sse",		init_mb_mgr_sse },
+	{ FEATURE_AVX,		"avx",		init_mb_mgr_avx },
+	{ FEATURE_AVX2,		"avx2",		init_mb_mgr_avx2 },
+	{ FEATURE_AVX512,	"avx512",	init_mb_mgr_avx512 },
+};
+
+static int stress_set_ipsec_mb_feature(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(init_mb); i++) {
+		if (!strcmp(opt, init_mb[i].name)) {
+			int ipsec_mb_feature = init_mb[i].features;
+
+			return set_setting("ipsec-mb-feature", TYPE_ID_INT, &ipsec_mb_feature);
+		}
+	}
+
+	(void)fprintf(stderr, "invalid ipsec-mb-feature '%s', allowed options are:", opt);
+	for (i = 0; i < SIZEOF_ARRAY(init_mb); i++) {
+                (void)fprintf(stderr, " %s", init_mb[i].name);
+        }
+        (void)fprintf(stderr, "\n");
+
+	return -1;
+}
+
+static const char *stress_get_ipsec_mb_feature(const int feature)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(init_mb); i++) {
+		if (init_mb[i].features == feature)
+			return init_mb[i].name;
+	}
+	return "(unknown)";
+}
 
 /*
  *  stress_ipsec_mb_features()
@@ -546,20 +598,6 @@ static void stress_hmac_sha512(
 	stress_job_empty(mb_mgr);
 }
 
-
-typedef struct {
-	const int features;
-	const char *name;
-	void (*init_func)(MB_MGR *p_mgr);
-} init_mb_t;
-
-static init_mb_t init_mb[] = {
-	{ FEATURE_SSE,		"sse",		init_mb_mgr_sse },
-	{ FEATURE_AVX,		"avx",		init_mb_mgr_avx },
-	{ FEATURE_AVX2,		"avx2",		init_mb_mgr_avx2 },
-	{ FEATURE_AVX512,	"avx512",	init_mb_mgr_avx512 },
-};
-
 /*
  *  stress_ipsec_mb()
  *      stress Intel ipsec_mb instruction
@@ -574,6 +612,7 @@ static int stress_ipsec_mb(const args_t *args)
 	size_t i;
 	uint64_t count = 0;
 	bool got_features = false;
+	int ipsec_mb_feature = ~0;
 
 	p_mgr = alloc_mb_mgr(0);
 	if (!p_mgr) {
@@ -588,7 +627,6 @@ static int stress_ipsec_mb(const args_t *args)
 	}
 
 	features = stress_ipsec_mb_features(args, p_mgr);
-
 	for (i = 0; i < n_features; i++) {
 		t[i] = 0.0;
 		if ((init_mb[i].features & features) == init_mb[i].features) {
@@ -600,6 +638,21 @@ static int stress_ipsec_mb(const args_t *args)
 		pr_inf("%s: not enough CPU features to support Intel IPSec MB library, skipping\n", args->name);
 		free_mb_mgr(p_mgr);
 		return EXIT_NOT_IMPLEMENTED;
+	}
+
+	if (get_setting("ipsec-mb-feature", &ipsec_mb_feature)) {
+		const char *feature_name = stress_get_ipsec_mb_feature(ipsec_mb_feature);
+
+		if ((ipsec_mb_feature & features) != ipsec_mb_feature) {
+
+			pr_inf("%s: requested ipsec-mb-feature feature '%s' is not supported, skipping\n",
+				args->name, feature_name);
+			free_mb_mgr(p_mgr);
+			return EXIT_NOT_IMPLEMENTED;
+		}
+		features = ipsec_mb_feature;
+		if (args->instance == 0)
+			pr_inf("%s: using just feature '%s'\n", args->name, feature_name);
 	}
 
 	stress_rnd_fill(data, sizeof(data));
@@ -641,10 +694,19 @@ static int stress_ipsec_mb(const args_t *args)
 stressor_info_t stress_ipsec_mb_info = {
 	.stressor = stress_ipsec_mb,
 	.supported = stress_ipsec_mb_supported,
+	.opt_set_funcs = opt_set_funcs,
 	.class = CLASS_CPU,
 	.help = help
 };
 #else
+
+static int stress_set_ipsec_mb_feature(const char *opt)
+{
+	(void)opt;
+
+	pr_inf("option --ipsec-mb-feature not supported on this system.\n");
+	return -1;
+}
 
 static int stress_ipsec_mb_supported(void)
 {
@@ -656,6 +718,7 @@ static int stress_ipsec_mb_supported(void)
 stressor_info_t stress_ipsec_mb_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_ipsec_mb_supported,
+	.opt_set_funcs = opt_set_funcs,
 	.class = CLASS_CPU,
 	.help = help
 };

@@ -1738,6 +1738,10 @@ modern Intel CPUs.
 stop after N rounds of processing of data using the cryptographic
 routines.
 .TP
+.B \-\-ipsec\-mb\-feature [ sse | avx | avx2 | avx512 ]
+Just use the specified processor CPU feature. By default, all the available
+features for the CPU are exercised.
+.TP
 .B \-\-itimer N
 start N workers that exercise the system interval timers. This sets up an
 ITIMER_PROF itimer that generates a SIGPROF signal.  The default frequency for

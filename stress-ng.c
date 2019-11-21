@@ -414,6 +414,7 @@ static const struct option long_options[] = {
 	{ "ioprio-ops",	1,	0,	OPT_ioprio_ops },
 	{ "ipsec-mb",	1,	0,	OPT_ipsec_mb },
 	{ "ipsec-mb-ops",1,	0,	OPT_ipsec_mb_ops },
+	{ "ipsec-mb-feature",1,	0,	OPT_ipsec_mb_feature },
 	{ "itimer",	1,	0,	OPT_itimer },
 	{ "itimer-ops",	1,	0,	OPT_itimer_ops },
 	{ "itimer-freq",1,	0,	OPT_itimer_freq },
