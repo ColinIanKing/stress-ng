@@ -46,7 +46,7 @@ static const opt_set_func_t opt_set_funcs[] = {
     defined(IMB_FEATURE_AESNI) &&	\
     defined(IMB_FEATURE_AVX) &&		\
     defined(IMB_FEATURE_AVX2) &&	\
-    defined(IMB_FEATURE_AVX512_SKX) && 0
+    defined(IMB_FEATURE_AVX512_SKX)
 
 #define FEATURE_SSE		(IMB_FEATURE_SSE4_2 | IMB_FEATURE_CMOV | IMB_FEATURE_AESNI)
 #define FEATURE_AVX		(IMB_FEATURE_AVX | IMB_FEATURE_CMOV | IMB_FEATURE_AESNI)
