@@ -59,7 +59,9 @@ static sigset_t set;
 #endif
 #endif
 
-static inline HOT OPTIMIZE3 void stress_memthrash_random_chunk(const size_t chunk_size, size_t mem_size)
+static inline HOT OPTIMIZE3 void stress_memthrash_random_chunk(
+	const size_t chunk_size,
+	const size_t mem_size)
 {
 	uint32_t i;
 	const uint32_t max = mwc16();
@@ -79,40 +81,52 @@ static inline HOT OPTIMIZE3 void stress_memthrash_random_chunk(const size_t chun
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_random_chunkpage(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_random_chunkpage(
+	const args_t *args,
+	const size_t mem_size)
 {
 	stress_memthrash_random_chunk(args->page_size, mem_size);
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_random_chunk256(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_random_chunk256(
+	const args_t *args,
+	const size_t mem_size)
 {
 	(void)args;
 
 	stress_memthrash_random_chunk(256, mem_size);
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_random_chunk64(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_random_chunk64(
+	const args_t *args,
+	const size_t mem_size)
 {
 	(void)args;
 
 	stress_memthrash_random_chunk(64, mem_size);
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_random_chunk8(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_random_chunk8(
+	const args_t *args,
+	const size_t mem_size)
 {
 	(void)args;
 
 	stress_memthrash_random_chunk(8, mem_size);
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_random_chunk1(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_random_chunk1(
+	const args_t *args,
+	const size_t mem_size)
 {
 	(void)args;
 
 	stress_memthrash_random_chunk(1, mem_size);
 }
 
-static void stress_memthrash_memset(const args_t *args, size_t mem_size)
+static void stress_memthrash_memset(
+	const args_t *args,
+	const size_t mem_size)
 {
 	(void)args;
 
@@ -123,7 +137,9 @@ static void stress_memthrash_memset(const args_t *args, size_t mem_size)
 #endif
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_flip_mem(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
+	const args_t *args,
+	const size_t mem_size)
 {
 	(void)args;
 
@@ -136,7 +152,9 @@ static void HOT OPTIMIZE3 stress_memthrash_flip_mem(const args_t *args, size_t m
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_matrix(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_matrix(
+	const args_t *args,
+	const size_t mem_size)
 {
 	(void)args;
 	(void)mem_size;
@@ -157,7 +175,9 @@ static void HOT OPTIMIZE3 stress_memthrash_matrix(const args_t *args, size_t mem
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_prefetch(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_prefetch(
+	const args_t *args,
+	const size_t mem_size)
 {
 	uint32_t i;
 	const uint32_t max = mwc16();
@@ -175,7 +195,9 @@ static void HOT OPTIMIZE3 stress_memthrash_prefetch(const args_t *args, size_t m
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_flush(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_flush(
+	const args_t *args,
+	const size_t mem_size)
 {
 	uint32_t i;
 	const uint32_t max = mwc16();
@@ -192,7 +214,9 @@ static void HOT OPTIMIZE3 stress_memthrash_flush(const args_t *args, size_t mem_
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_mfence(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_mfence(
+	const args_t *args,
+	const size_t mem_size)
 {
 	uint32_t i;
 	const uint32_t max = mwc16();
@@ -209,7 +233,9 @@ static void HOT OPTIMIZE3 stress_memthrash_mfence(const args_t *args, size_t mem
 }
 
 #if defined(MEM_LOCK)
-static void HOT OPTIMIZE3 stress_memthrash_lock(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_lock(
+	const args_t *args,
+	const size_t mem_size)
 {
 	uint32_t i;
 
@@ -224,7 +250,9 @@ static void HOT OPTIMIZE3 stress_memthrash_lock(const args_t *args, size_t mem_s
 }
 #endif
 
-static void HOT OPTIMIZE3 stress_memthrash_spinread(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_spinread(
+	const args_t *args,
+	const size_t mem_size)
 {
 	uint32_t i;
 	const size_t offset = mwc32() % mem_size;
@@ -245,7 +273,9 @@ static void HOT OPTIMIZE3 stress_memthrash_spinread(const args_t *args, size_t m
 	}
 }
 
-static void HOT OPTIMIZE3 stress_memthrash_spinwrite(const args_t *args, size_t mem_size)
+static void HOT OPTIMIZE3 stress_memthrash_spinwrite(
+	const args_t *args,
+	const size_t mem_size)
 {
 	uint32_t i;
 	const size_t offset = mwc32() % mem_size;
