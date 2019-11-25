@@ -35,6 +35,8 @@ static const help_t help[] = {
     defined(HAVE_CPUID) &&	\
     NEED_GNUC(4,6,0)
 
+#define HAVE_RAND_CAPABILITY
+
 static bool rdrand_supported = false;
 
 /*
@@ -63,12 +65,11 @@ static int stress_rdrand_supported(void)
 }
 
 #if defined(__x86_64__) || defined(__x86_64)
-
 /*
  *  rdrand64()
  *	read 64 bit random value
  */
-static inline uint64_t rdrand64(void)
+static inline uint64_t rand64(void)
 {
 	uint64_t        ret;
 
@@ -78,59 +79,12 @@ static inline uint64_t rdrand64(void)
 
 	return ret;
 }
-
-/*
- *  Unrolled 32 times
- */
-#define RDRAND64x32()	\
-{			\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-	rdrand64();	\
-}
-
-#define RDRAND64x128()	\
-{			\
-	RDRAND64x32()	\
-	RDRAND64x32()	\
-	RDRAND64x32()	\
-	RDRAND64x32()	\
-}
 #else
 /*
  *  rdrand32()
  *	read 32 bit random value
  */
-static inline uint32_t rdrand32(void)
+static inline uint32_t rand32(void)
 {
 	uint32_t        ret;
 
@@ -141,85 +95,172 @@ static inline uint32_t rdrand32(void)
 	return ret;
 }
 
+#endif
+#endif
+
+
+#if defined(STRESS_PPC64) &&	\
+    defined(HAVE_DARN)
+
+#define HAVE_RAND_CAPABILITY
+
+static bool rdrand_supported = false;
+static volatile uint64_t v;
+
+static int stress_rdrand_supported(void)
+{
+#if defined(HAVE_BUILTIN_CPU_IS)
+	if (__builtin_cpu_is("power9")) {
+		rdrand_supported = true;
+		return 0;
+	}
+	pr_inf("rdrand stressor will be skipped, CPU "
+		"does not support the instuction 'darn'n");
+	return -1;
+#else
+	pr_inf("rdrand stressor will be skipped, cannot"
+		"determine if CPU is a power9 the instruction 'darn'\n");
+	return -1;
+#endif
+}
+
+static inline uint64_t rand64(void)
+{
+	uint64_t val;
+
+	/* Unconditioned raw deliver a raw number */
+	asm volatile("darn %0, 0\n" : "=r"(val) :);
+	return val;
+}
+#endif
+
+#if defined(HAVE_RAND_CAPABILITY)
+
+/*
+ *  Unrolled 32 times
+ */
+#define RAND64x32()	\
+{			\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+	rand64();	\
+}
+
+#define RAND64x128()	\
+{			\
+	RAND64x32()	\
+	RAND64x32()	\
+	RAND64x32()	\
+	RAND64x32()	\
+}
+
 /*
  *  Unrolled 64 times
  */
-#define RDRAND32x64()	\
+#define RAND32x64()	\
 {			\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
-	rdrand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
+	rand32();	\
 }
 
-#define RDRAND32x256()	\
+#define RAND32x256()	\
 {			\
-	RDRAND32x64()	\
-	RDRAND32x64()	\
-	RDRAND32x64()	\
-	RDRAND32x64()	\
+	RAND32x64()	\
+	RAND32x64()	\
+	RAND32x64()	\
+	RAND32x64()	\
 }
-#endif
 
 /*
  *  stress_rdrand()
@@ -233,10 +274,10 @@ static int stress_rdrand(const args_t *args)
 
 		time_start = time_now();
 		do {
-#if defined(__x86_64__) || defined(__x86_64)
-			RDRAND64x128();
+#if defined(__x86_64__) || defined(__x86_64) || defined(STRESS_PPC64)
+			RAND64x128();
 #else
-			RDRAND32x256();
+			RAND32x256();
 #endif
 			inc_counter(args);
 		} while (keep_stressing());

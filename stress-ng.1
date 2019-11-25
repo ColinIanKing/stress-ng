@@ -2756,8 +2756,9 @@ localhost. Requires CAP_NET_RAW to run.
 stop rawsock workers after N packets are received.
 .TP
 .B \-\-rdrand N
-start N workers that read the Intel hardware random number generator (Intel
-Ivybridge processors upwards).
+start N workers that read a random number from an on-chip random number generator
+This uses the rdrand instruction on Intel processors or the darn intruction
+on Power9 processors.
 .TP
 .B \-\-rdrand\-ops N
 stop rdrand stress workers after N bogo rdrand operations (1 bogo op = 2048
