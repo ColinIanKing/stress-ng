@@ -134,7 +134,7 @@ again:
 		}
 	} else if (pid == 0) {
 		char *start_ptr = shim_sbrk(0);
-		uint8_t *altstack;
+		void *altstack;
 		ssize_t altstack_size = (SIGSTKSZ +
 					 STACK_ALIGNMENT +
 					 args->page_size) & ~(args->page_size -1);
