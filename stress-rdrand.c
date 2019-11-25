@@ -81,10 +81,10 @@ static inline uint64_t rand64(void)
 }
 #else
 /*
- *  rdrand32()
- *	read 32 bit random value
+ *  rdrand64()
+ *	read 2 x 32 bit random value
  */
-static inline uint32_t rand32(void)
+static inline uint32_t rand64(void)
 {
 	uint32_t        ret;
 
@@ -92,9 +92,12 @@ static inline uint32_t rand32(void)
 	rdrand %0;\n\
 	jnc 1b;\n":"=r"(ret));
 
+	asm volatile("1:;\n\
+	rdrand %0;\n\
+	jnc 1b;\n":"=r"(ret));
+
 	return ret;
 }
-
 #endif
 #endif
 
@@ -175,91 +178,8 @@ static inline uint64_t rand64(void)
 	rand64();	\
 }
 
-#define RAND64x128()	\
+#define RAND64x256()	\
 {			\
-	RAND64x32()	\
-	RAND64x32()	\
-	RAND64x32()	\
-	RAND64x32()	\
-}
-
-/*
- *  Unrolled 64 times
- */
-#define RAND32x64()	\
-{			\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-	rand32();	\
-}
-
-#define RAND32x256()	\
-{			\
-	RAND32x64()	\
-	RAND32x64()	\
-	RAND32x64()	\
-	RAND32x64()	\
 }
 
 /*
@@ -274,16 +194,19 @@ static int stress_rdrand(const args_t *args)
 
 		time_start = time_now();
 		do {
-#if defined(__x86_64__) || defined(__x86_64) || defined(STRESS_PPC64)
-			RAND64x128();
-#else
-			RAND32x256();
-#endif
+			RAND64x32()
+			RAND64x32()
+			RAND64x32()
+			RAND64x32()
+			RAND64x32()
+			RAND64x32()
+			RAND64x32()
+			RAND64x32()
 			inc_counter(args);
 		} while (keep_stressing());
 
 		duration = time_now() - time_start;
-		billion_bits = ((double)get_counter(args) * 64.0 * 128.0) / 1000000000.0;
+		billion_bits = ((double)get_counter(args) * 64.0 * 256.0) / 1000000000.0;
 
 		pr_lock(&lock);
 		pr_dbg_lock(&lock, "%s: %.3f billion random bits read "
