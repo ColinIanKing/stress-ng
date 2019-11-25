@@ -35,6 +35,8 @@ static const help_t help[] = {
     defined(HAVE_CPUID) &&	\
     NEED_GNUC(4,6,0)
 
+#define HAVE_STRESS_TSC_CAPABILITY
+
 static bool tsc_supported = false;
 
 /*
@@ -74,6 +76,28 @@ static inline void rdtsc(void)
 #endif
 }
 
+
+#elif defined(STRESS_PPC64) &&			\
+      defined(HAVE_SYS_PLATFORM_PPC_H) &&	\
+      defined(HAVE_PPC_GET_TIMEBASE)
+
+#define HAVE_STRESS_TSC_CAPABILITY
+
+static bool tsc_supported = true;
+
+static int stress_tsc_supported(void)
+{
+	return 0;
+}
+
+static inline void rdtsc(void)
+{
+	(void)__ppc_get_timebase();
+}
+
+#endif
+
+#if defined(HAVE_STRESS_TSC_CAPABILITY)
 /*
  *  Unrolled 32 times
  */

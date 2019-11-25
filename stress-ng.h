@@ -293,12 +293,12 @@
 #include <sys/mount.h>
 #endif
 
-#if defined(HAVE_SYS_PARAM_H)
-#include <sys/param.h>
-#endif
-
 #if defined(HAVE_SYS_MSG_H)
 #include <sys/msg.h>
+#endif
+
+#if defined(HAVE_SYS_PARAM_H)
+#include <sys/param.h>
 #endif
 
 #if defined(HAVE_SYS_PERSONALITY_H)
@@ -307,6 +307,10 @@
 
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
+#endif
+
+#if defined(HAVE_SYS_PLATFORM_PPC_H)
+#include <sys/platform/ppc.h>
 #endif
 
 #if defined(HAVE_PTRACE)
