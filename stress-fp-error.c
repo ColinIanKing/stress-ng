@@ -178,7 +178,13 @@ static int stress_fp_error(const args_t *args)
 			false, false, ERANGE, FE_OVERFLOW);
 #endif
 
-		if (fegetround() == -1)
+		/*
+		 *  Some implementations of fegetrount return
+		 *  long long unsigned int, so cast the return
+		 *  to int so we can check for -1 without any
+		 *  warnings.
+		 */
+		if ((int)fegetround() == -1)
 			pr_fail("%s: fegetround() returned -1\n", args->name);
 		inc_counter(args);
 	} while (keep_stressing());
