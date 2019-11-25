@@ -271,7 +271,7 @@ static int stress_sockmany(const args_t *args)
 	sock_fds_t *sock_fds;
 	int rc = EXIT_SUCCESS;
 
-	sock_fds = mmap(NULL, sizeof(sock_fds_t), PROT_READ | PROT_WRITE,
+	sock_fds = (sock_fds_t *)mmap(NULL, sizeof(sock_fds_t), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (sock_fds == MAP_FAILED) {
 		pr_inf("%s: could not allocate share memory, errno=%d (%s)\n",
@@ -295,7 +295,7 @@ again:
 		rc = stress_sockmany_server(args, pid, ppid);
 	}
 	pr_dbg("%s: %d sockets opened at one time\n", args->name, sock_fds->max_fd);
-	(void)munmap(sock_fds, args->page_size);
+	(void)munmap((void *)sock_fds, args->page_size);
 	return rc;
 }
 
