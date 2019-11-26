@@ -3466,6 +3466,18 @@ typedef off64_t		shim_off64_t;
 typedef uint64_t	shim_off64_t;
 #endif
 
+/* clone3 clone args */
+struct shim_clone_args {
+	uint64_t flags;			/* Flags bit mask */
+	uint64_t pidfd;			/* (pid_t *) PID fd */
+	uint64_t child_tid;		/* (pid_t *) child TID */
+	uint64_t parent_tid;		/* (pid_t *) parent TID */
+	uint64_t exit_signal;		/* exit signal */
+	uint64_t stack;			/* lowest address of stack */
+	uint64_t stack_size;		/* size of stack */
+	uint64_t tls;			/* tls address */
+};
+
 /*
  *  shim'd abstracted system or library calls
  *  that have a layer of OS abstraction
@@ -3552,8 +3564,9 @@ struct shim_statx {
 };
 
 extern int shim_brk(void *addr);
-extern int shim_cacheflush(char *addr, int nbytes, int cache) ;
+extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern void shim_clear_cache(char* begin, char *end);
+extern int sys_clone3(struct shim_clone_args *cl_args, size_t size);
 extern ssize_t shim_copy_file_range(int fd_in, shim_loff_t *off_in,
         int fd_out, shim_loff_t *off_out, size_t len, unsigned int flags);
 extern int shim_dup3(int oldfd, int newfd, int flags);

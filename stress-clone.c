@@ -26,9 +26,9 @@
 
 #define CLONE_STACK_SIZE	(16*1024)
 
-typedef struct clone_args {
+typedef struct stress_clone_args {
 	const args_t *args;
-} clone_args_t;
+} stress_clone_args_t;
 
 typedef struct clone {
 	struct clone *next;
@@ -152,6 +152,11 @@ static const opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_CLONE)
 
+static inline uint64_t uint64_ptr(const void *ptr)
+{
+	return (uint64_t)(uintptr_t)ptr;
+}
+
 /*
  *  stress_clone_new()
  *	allocate a new clone, add to end of list
@@ -237,7 +242,7 @@ static void stress_clone_free(void)
 static int clone_func(void *arg)
 {
 	size_t i;
-	clone_args_t *clone_arg = arg;
+	stress_clone_args_t *clone_arg = arg;
 
 	(void)arg;
 
@@ -350,6 +355,7 @@ again:
 	} else if (pid == 0) {
 		/* Child */
 		int ret;
+		bool use_clone3 = true;
 		const size_t mmap_size = args->page_size * 32768;
 		void *ptr;
 #if defined(MAP_POPULATE)
@@ -379,16 +385,45 @@ again:
 		do {
 			if (clones.length < clone_max) {
 				clone_t *clone_info;
-				clone_args_t clone_arg = { args };
-				char *stack_top;
-				int flag = flags[mwc32() % SIZEOF_ARRAY(flags)];
+				stress_clone_args_t clone_arg = { args };
+				const int rnd = mwc32();
+				const int flag = flags[rnd % SIZEOF_ARRAY(flags)];
+				const bool try_clone3 = rnd >> 31;
 
 				clone_info = stress_clone_new();
 				if (!clone_info)
 					break;
-				stack_top = clone_info->stack + stack_offset;
-				clone_info->pid = clone(clone_func,
-					align_stack(stack_top), flag, &clone_arg);
+
+				if (use_clone3 && try_clone3) {
+					struct shim_clone_args cl_args;
+					int pidfd = -1;
+					pid_t child_tid = -1, parent_tid = -1;
+
+					memset(&cl_args, 0, sizeof(cl_args));
+
+					cl_args.flags = flag;
+					cl_args.pidfd = uint64_ptr(&pidfd);
+					cl_args.child_tid = uint64_ptr(&child_tid);
+					cl_args.parent_tid = uint64_ptr(&parent_tid);
+					cl_args.exit_signal = SIGCHLD;
+					cl_args.stack = uint64_ptr(NULL);
+					cl_args.stack_size = 0;
+					cl_args.tls = (uint64_t)NULL;
+					clone_info->pid = sys_clone3(&cl_args, sizeof(cl_args));
+					if (clone_info->pid < 0) {
+						/* Not available, don't use it again */
+						if (errno == ENOSYS)
+							use_clone3 = false;
+					} else if (clone_info->pid == 0) {
+						/* child */
+						_exit(clone_func(&clone_arg));
+					}
+				} else {
+					char *stack_top = clone_info->stack + stack_offset;
+
+					clone_info->pid = clone(clone_func,
+						align_stack(stack_top), flag, &clone_arg);
+				}
 				if (clone_info->pid == -1) {
 					/*
 					 * Reached max forks or error

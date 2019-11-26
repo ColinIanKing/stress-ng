@@ -1262,3 +1262,14 @@ int shim_move_mount(
 			to_dfd, to_pathname, flags);
 #endif
 }
+
+int sys_clone3(struct shim_clone_args *cl_args, size_t size)
+{
+#if defined(__NR_clone3)
+        return syscall(__NR_clone3, cl_args, size);
+#else
+	printf("OR HERE\n");
+	return shim_enosys(0, cl_args, size);
+#endif
+}
+
