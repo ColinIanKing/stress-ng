@@ -619,14 +619,14 @@ it expires.  This stressor will cause frequent context switching.
 stop clock stress workers after N bogo operations.
 .TP
 .B \-\-clone N
-start N workers that create clones (via the clone(2) system call). This will
-rapidly try to create a default of 8192 clones that immediately die and wait in
-a zombie state until they are reaped.  Once the maximum number of clones is
-reached (or clone fails because one has reached the maximum allowed) the oldest
-clone thread is reaped and a new clone is then created in a first-in first-out
-manner, and then repeated.  A random clone flag is selected for each clone to
-try to exercise different clone operations.  The clone stressor is a Linux only
-option.
+start N workers that create clones (via the clone(2) and clone3() system calls).
+This will rapidly try to create a default of 8192 clones that immediately die
+and wait in a zombie state until they are reaped.  Once the maximum number of
+clones is reached (or clone fails because one has reached the maximum allowed)
+the oldest clone thread is reaped and a new clone is then created in a first-in
+first-out manner, and then repeated.  A random clone flag is selected for each
+clone to try to exercise different clone operations.  The clone stressor is a Linux
+only option.
 .TP
 .B \-\-clone\-ops N
 stop clone stress workers after N bogo clone operations.
