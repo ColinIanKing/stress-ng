@@ -408,7 +408,7 @@ again:
 					cl_args.exit_signal = SIGCHLD;
 					cl_args.stack = uint64_ptr(NULL);
 					cl_args.stack_size = 0;
-					cl_args.tls = (uint64_t)NULL;
+					cl_args.tls = uint64_ptr(NULL);
 					clone_info->pid = sys_clone3(&cl_args, sizeof(cl_args));
 					if (clone_info->pid < 0) {
 						/* Not available, don't use it again */
