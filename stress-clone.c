@@ -98,6 +98,9 @@ static const int flags[] = {
 #if defined(CLONE_NEWCGROUP)
 	CLONE_NEWCGROUP,
 #endif
+#if defined(CLONE_CLEAR_SIGHAND)
+	CLONE_CLEAR_SIGHAND,
+#endif
 };
 
 static const int unshare_flags[] = {
