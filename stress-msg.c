@@ -61,8 +61,9 @@ static int stress_msg_get_stats(const args_t *args, const int msgq_id)
 		pr_fail_err("msgctl: IPC_STAT");
 		return -errno;
 	}
+
 #if defined(IPC_INFO) &&	\
-    defined(HAVE_MSG_INFO)
+    defined(HAVE_MSGINFO)
 	{
 		struct msginfo info;
 
@@ -73,7 +74,7 @@ static int stress_msg_get_stats(const args_t *args, const int msgq_id)
 	}
 #endif
 #if defined(MSG_INFO) &&	\
-    defined(HAVE_MSG_INFO)
+    defined(HAVE_MSGINFO)
 	{
 		struct msginfo info;
 
