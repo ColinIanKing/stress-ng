@@ -194,15 +194,19 @@ static int stress_rdrand(const args_t *args)
 
 		time_start = time_now();
 		do {
-			RAND64x32()
-			RAND64x32()
-			RAND64x32()
-			RAND64x32()
-			RAND64x32()
-			RAND64x32()
-			RAND64x32()
-			RAND64x32()
-			inc_counter(args);
+			register int i;
+
+			for (i = 0; i < 4096; i++) {
+				RAND64x32()
+				RAND64x32()
+				RAND64x32()
+				RAND64x32()
+				RAND64x32()
+				RAND64x32()
+				RAND64x32()
+				RAND64x32()
+			}
+			add_counter(args, i);
 		} while (keep_stressing());
 
 		duration = time_now() - time_start;
