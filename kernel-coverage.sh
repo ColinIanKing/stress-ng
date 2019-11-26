@@ -129,7 +129,6 @@ do_stress --tmpfs 0 --tmpfs-mmap-file
 
 do_stress --udp 0 --udp-domain ipv4
 do_stress --udp 0 --udp-domain ipv6
-do_stress --udp 0 --udp-domain unix
 do_stress --udp 0 --udp-lite
 
 do_stress --udp-flood 0 --udp-flood-domain ipv4
