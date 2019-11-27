@@ -202,9 +202,24 @@ timed_out:
 			struct semid_ds ds;
 			semun_t s;
 
+			memset(&ds, 0, sizeof(ds));
+
 			s.buf = &ds;
 			if (semctl(sem_id, 0, IPC_STAT, &s) < 0)
 				pr_fail_dbg("semctl IPC_STAT");
+
+#if defined(GETALL)
+			/* Avoid zero array size allocation */
+			if (!ds.sem_nsems)
+				ds.sem_nsems = 1;
+			s.array = calloc((size_t)ds.sem_nsems, sizeof(*s.array));
+			if (s.array) {	
+				if (semctl(sem_id, 0, GETALL, &s) < 0) {
+					pr_fail_dbg("semctl GETALL");
+				}
+				free(s.array);
+			}
+#endif
 		}
 #endif
 #if defined(SEM_STAT)
