@@ -1,3 +1,49 @@
+stress-ng (0.10.12-1) unstable; urgency=medium
+
+  * Manual: update date
+  * stress-sem-sysv: fix GETALL arg, it should not be pass by reference
+  * stress-clock: fix segfault when timer_create fails
+  * kernel-coverage.sh: add more hdd specific advice hints
+  * stress-revio: fix fadv-seq option, it is currently disabled
+  * stress-hdd: fix fadv-seq option, it is currently disabled
+  * stress-sem-sysv: remove trailing whitespace
+  * stress-udp: exercise SIOCOUTQ and SIOCINQ ioctls
+  * stress-sock: exercise SIOCOUTQ and SIOCINQ ioctls
+  * stress-udp-flood: add SIOCOUTQ ioctl
+  * Include linux/sockios.h include if is available
+  * stress-shm: add lseek to exercise shm
+  * stress-sem-sysv: exercise GETALL semctl command
+  * stress-sem-sysv: fix typo GEZCNT -> GETZCNT
+  * stress-sysfs: add poll to sysfs exercising
+  * stress-sysfs: add some more file specific operations on /sysfs
+    files
+  * stress-clock: don't wait for timer completions, makes test more
+    aggressive
+  * stress-madvise: add MADV_COLD and MADV_PAGEOUT advice flags
+  * stress-msg: add random MSG_STAT_ANY msgctl call
+  * stress-msg: check struct msginfo is available with HAVE_MSGINFO
+  * kernel-coverage.sh: remove unix socket domain from udp stressor
+  * stress-rdrand: increase rdrand read rate by adding inner loop
+  * Manual: add clone3() to --clone description
+  * core-shim: remove debug
+  * stress-clone: convert NULL to a uint64_t for tls clone argument
+  * stress-clone: exercise clone3() if it is available
+  * stress-clone: add linux 5.5 CLONE_CLEAR_SIGHAND flag
+  * stress-rdrand: remove rdrand32
+  * stress-rdrand: add support for Power9 darn instruction
+  * stress-tsc: add time stamp counter support for ppc64
+  * stress-sockmany: clean up build warnings on openindiana
+  * stress-stack: make altstack a void pointer, cleans up build warning
+  * Fix --timer-slack from consuming the following arg (LP: #1853832)
+  * stress-ng: add ppc64el target clones for power9 and generic
+  * stress-fp-error: clean up error warning on non-standard fegetround
+    prototypes
+  * stress-memthrash: constify size arguments
+  * stress-ipsec-mb: remove debug disabling of the stressor for x86
+  * stress-ipsec-mb: Add --ipsec-mb-feature option
+
+ -- Colin King <colin.king@canonical.com>  Wed, 27 Nov 2019 19:38:23 +0000
+
 stress-ng (0.10.11-1) unstable; urgency=medium
 
   * Makefile: update version
