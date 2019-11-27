@@ -520,6 +520,10 @@
 #include <linux/socket.h>
 #endif
 
+#if defined(HAVE_LINUX_SOCKIOS_H)
+#include <linux/sockios.h>
+#endif
+
 #if defined(HAVE_LINUX_SYSCTL_H)
 #include <linux/sysctl.h>
 #endif
