@@ -218,6 +218,21 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		if (time_now() - t_start > threshold)
 			goto next;
 
+#if defined(HAVE_POLL_H)
+		{
+			struct pollfd fds[1];
+
+			fds[0].fd = fd;
+			fds[0].events = POLLIN;
+			fds[0].revents = 0;
+
+			ret = poll(fds, 1, 0);
+			(void)ret;
+			if (time_now() - t_start > threshold)
+				goto next;
+		}
+#endif
+
 		/*
 		 *  lseek
 		 */
