@@ -239,14 +239,16 @@ static int stress_clock(const args_t *args)
 				(void)memset(&sevp, 0, sizeof(sevp));
 				sevp.sigev_notify = SIGEV_NONE;
 				ret = timer_create(timers[i], &sevp, &timer_id[i]);
-				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					if ((errno == EINVAL) || (errno == EPERM))
-						continue;
-					pr_fail("%s: timer_create failed for timer '%s', "
-						"errno=%d (%s)\n", args->name,
-						stress_clock_name(timers[i]),
-						errno, strerror(errno));
+				if (ret < 0) {
 					timer_fail[i] = true;
+					if (g_opt_flags & OPT_FLAGS_VERIFY) {
+						if ((errno == EINVAL) || (errno == EPERM))
+							continue;
+						pr_fail("%s: timer_create failed for timer '%s', "
+							"errno=%d (%s)\n", args->name,
+							stress_clock_name(timers[i]),
+							errno, strerror(errno));
+					}
 					continue;
 				}
 
