@@ -165,6 +165,13 @@ again:
 						break;
 					}
 				}
+#if defined(SIOCOUTQ)
+				{
+					int pending;
+
+					(void)ioctl(fd, SIOCOUTQ, &pending);
+				}
+#endif
 			} while (keep_stressing());
 			(void)close(fd);
 		} while (keep_stressing());
@@ -234,7 +241,16 @@ again:
 
 		do {
 			socklen_t len = addr_len;
-			ssize_t n = recvfrom(fd, buf, sizeof(buf), 0, addr, &len);
+			ssize_t n;
+#if defined(SIOCOUTQ)
+			{
+				int pending;
+
+				(void)ioctl(fd, SIOCINQ, &pending);
+			}
+#endif
+
+			n  = recvfrom(fd, buf, sizeof(buf), 0, addr, &len);
 			if (n == 0)
 				break;
 			if (n < 0) {
