@@ -98,6 +98,14 @@ static int stress_udp_flood(const args_t *args)
 		if (++port > 65535)
 			port = 1024;
 
+#if defined(SIOCOUTQ)
+		if ((port & 0x1f) == 0) {
+			int pending;
+
+			(void)ioctl(fd, SIOCOUTQ, &pending);
+		}
+#endif
+
 		if (!keep_stressing())
 			break;
 
