@@ -224,6 +224,13 @@ retry:
 					bytes = sizeof(buf);
 			}
 #endif
+#if defined(SIOCINQ)
+			{
+				int pending;
+
+				(void)ioctl(fd, SIOCINQ, &pending);
+			}
+#endif
 			n = recv(fd, buf, sizeof(buf), 0);
 			if (n == 0)
 				break;
@@ -440,6 +447,13 @@ static int stress_sock_server(
 			if (getpeername(sfd, &saddr, &len) < 0) {
 				pr_fail_dbg("getpeername");
 			}
+#if defined(SIOCOUTQ)
+			{
+				int pending;
+
+				(void)ioctl(sfd, SIOCOUTQ, &pending);
+			}
+#endif
 			(void)close(sfd);
 		}
 		inc_counter(args);
