@@ -214,7 +214,7 @@ timed_out:
 				ds.sem_nsems = 1;
 			s.array = calloc((size_t)ds.sem_nsems, sizeof(*s.array));
 			if (s.array) {
-				if (semctl(sem_id, 0, GETALL, &s) < 0) {
+				if (semctl(sem_id, 0, GETALL, s) < 0) {
 					pr_fail_dbg("semctl GETALL");
 				}
 				free(s.array);
