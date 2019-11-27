@@ -82,6 +82,8 @@ do_stress --hdd 0 --hdd-opts fsync
 do_stress --hdd 0 --hdd-opts fdatasync
 do_stress --hdd 0 --hdd-opts rd-rnd,wr-rnd,fadv-rnd
 do_stress --hdd 0 --hdd-opts rd-seq,wr-seq
+do_stress --hdd 0 --hdd-opts fadv-normal
+do_stress --hdd 0 --hdd-opts fadv-noreuse
 
 do_stress --itimer 0 --itimer-rand
 

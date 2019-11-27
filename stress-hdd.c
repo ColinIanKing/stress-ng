@@ -99,7 +99,7 @@ static const hdd_opts_t hdd_opts[] = {
 		 HDD_OPT_FADV_DONTNEED),
 		POSIX_FADV_NORMAL, 0 },
 #endif
-#if defined(HAVE_POSIX_FADVISE) && defined(POSIX_FADV_SEQ)
+#if defined(HAVE_POSIX_FADVISE) && defined(POSIX_FADV_SEQUENTIAL)
 	{ "fadv-seq",	HDD_OPT_FADV_SEQ,
 		(HDD_OPT_FADV_NORMAL | HDD_OPT_FADV_RND),
 		POSIX_FADV_SEQUENTIAL, 0 },
