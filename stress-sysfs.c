@@ -119,6 +119,9 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 	while (g_keep_stressing_flag) {
 		double t_start;
 		uint8_t *ptr;
+		fd_set rfds;
+		struct timeval tv;
+		off_t lret;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -203,6 +206,44 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		}
 		if (time_now() - t_start > threshold)
 			goto next;
+
+		/*
+		 *  select on proc file
+		 */
+		tv.tv_sec = 0;
+		tv.tv_usec = 0;
+		FD_ZERO(&rfds);
+		ret = select(fd + 1, &rfds, NULL, NULL, &tv);
+		(void)ret;
+		if (time_now() - t_start > threshold)
+			goto next;
+
+		/*
+		 *  lseek
+		 */
+		lret = lseek(fd, (off_t)0, SEEK_SET);
+		(void)lret;
+
+		/*
+		 *  simple ioctls
+		 */
+#if defined(FIGETBSZ)
+		{
+			int isz;
+
+			ret = ioctl(fd, FIGETBSZ, &isz);
+			(void)ret;
+		}
+#endif
+#if defined(FIONREAD)
+		{
+			int isz;
+
+			ret = ioctl(fd, FIONREAD , &isz);
+			(void)ret;
+		}
+#endif
+
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
 			drain_kmsg = true;
 			(void)close(fd);
