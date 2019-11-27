@@ -249,7 +249,7 @@ timed_out:
 		if (semctl(sem_id, 0, GETNCNT) < 0)
 			pr_fail_dbg("semctl GETNCNT");
 #endif
-#if defined(GEZCNT)
+#if defined(GETZCNT)
 		if (semctl(sem_id, 0, GETZCNT) < 0)
 			pr_fail_dbg("semctl GETZCNT");
 #endif
