@@ -138,6 +138,7 @@ static int stress_shm_posix_child(
 			void *addr;
 			char *shm_name = &shm_names[i * SHM_NAME_LEN];
 			struct stat statbuf;
+			off_t off;
 
 			shm_name[0] = '\0';
 
@@ -202,6 +203,8 @@ static int stress_shm_posix_child(
 			(void)madvise_random(addr, sz);
 			(void)shim_msync(addr, sz, mwc1() ? MS_ASYNC : MS_SYNC);
 			(void)shim_fsync(shm_fd);
+			off = lseek(shm_fd, (off_t)0, SEEK_SET);
+			(void)off;
 
 			/* Expand and shrink the mapping */
 			(void)shim_fallocate(shm_fd, 0, 0, sz + page_size);
