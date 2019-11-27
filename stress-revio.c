@@ -84,7 +84,7 @@ static const revio_opts_t revio_opts[] = {
 		 REVIO_OPT_FADV_DONTNEED),
 		POSIX_FADV_NORMAL, 0 },
 #endif
-#if defined(HAVE_POSIX_FADVISE) && defined(POSIX_FADV_SEQ)
+#if defined(HAVE_POSIX_FADVISE) && defined(POSIX_FADV_SEQUENTIAL)
 	{ "fadv-seq",	REVIO_OPT_FADV_SEQ,
 		(REVIO_OPT_FADV_NORMAL | REVIO_OPT_FADV_RND),
 		POSIX_FADV_SEQUENTIAL, 0 },
