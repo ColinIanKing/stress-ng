@@ -100,6 +100,12 @@ static const int madvise_options[] = {
 #if defined(MADV_INHERIT_ZERO)
 	MADV_INHERIT_ZERO,
 #endif
+#if defined(MADV_COLD)
+	MADV_COLD,
+#endif
+#if defined(MADV_PAGEOUT)
+	MADV_PAGEOUT,
+#endif
 };
 
 /*
