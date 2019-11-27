@@ -84,6 +84,10 @@ do_stress --hdd 0 --hdd-opts rd-rnd,wr-rnd,fadv-rnd
 do_stress --hdd 0 --hdd-opts rd-seq,wr-seq
 do_stress --hdd 0 --hdd-opts fadv-normal
 do_stress --hdd 0 --hdd-opts fadv-noreuse
+do_stress --hdd 0 --hdd-opts fadv-rnd
+do_stress --hdd 0 --hdd-opts fadv-seq
+do_stress --hdd 0 --hdd-opts fadv-willneed
+do_stress --hdd 0 --hdd-opts fadv-dontneed
 
 do_stress --itimer 0 --itimer-rand
 
