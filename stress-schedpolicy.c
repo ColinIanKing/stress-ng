@@ -162,7 +162,9 @@ static int stress_schedpolicy(const args_t *args)
 			 *  scheduling policies, silently ignore these
 			 *  failures.
 			 */
-			if ((errno != EPERM) && (errno != EINVAL)) {
+			if ((errno != EPERM) &&
+                            (errno != EINVAL) &&
+                            (errno != EBUSY)) {
 				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
 					"for scheduler policy %s\n",
