@@ -119,6 +119,7 @@ do_stress --sock 0 --sock-domain ipv6
 do_stress --sock 0 --sock-domain unix
 do_stress --sock 0 --sock-type stream
 do_stress --sock 0 --sock-type seqpacket
+do_stress --sock 0 --sock-opts random
 
 do_stress --stream 0 --stream-madvise hugepage
 do_stress --stream 0 --stream-madvise nohugepage
