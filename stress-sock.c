@@ -402,8 +402,6 @@ static int stress_sock_server(
 			else
 				opt = socket_opts;
 
-			printf("%d\n", opt);
-
 			switch (opt) {
 			case SOCKET_OPT_SEND:
 				for (i = 16; i < sizeof(buf); i += 16) {
