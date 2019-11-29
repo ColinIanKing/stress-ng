@@ -158,6 +158,7 @@ static int stress_set_socket_domain(const char *name)
 static void stress_sock_client(
 	const args_t *args,
 	const pid_t ppid,
+	const int socket_opts,
 	const int socket_type,
 	const int socket_port,
 	const int socket_domain)
@@ -204,7 +205,16 @@ retry:
 		}
 
 		do {
-			ssize_t n;
+			ssize_t n = 0;
+			int opt;
+			char *recvfunc;
+			struct msghdr msg;
+			struct iovec vec[sizeof(buf)/16];
+#if defined(HAVE_RECVMMSG)
+			size_t i, j;
+			unsigned int msg_len = 0;
+			struct mmsghdr msgvec[MSGVEC_SIZE];
+#endif
 #if defined(FIONREAD)
 			size_t bytes = sizeof(buf);
 			/*
@@ -233,16 +243,56 @@ retry:
 				(void)ioctl(fd, SIOCINQ, &pending);
 			}
 #endif
-			n = recv(fd, buf, sizeof(buf), 0);
+			if (socket_opts == SOCKET_OPT_RANDOM)
+				opt = mwc8() % 3;
+			else
+				opt = socket_opts;
+
+			/*
+			 *  Receive using equivalent receive method
+			 *  as the send
+			 */
+			switch (opt) {
+			case SOCKET_OPT_SEND:
+				recvfunc = "recv";
+				n = recv(fd, buf, sizeof(buf), 0);
+				break;
+			case SOCKET_OPT_SENDMSG:
+				recvfunc = "recvmsg";
+				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
+					vec[j].iov_base = buf;
+					vec[j].iov_len = i;
+				}
+				(void)memset(&msgvec, 0, sizeof(msgvec));
+				msg.msg_iov = vec;
+				msg.msg_iovlen = j;
+				n = recvmsg(fd, &msg, 0);
+				break;
+#if defined(HAVE_RECVMMSG)
+			case SOCKET_OPT_SENDMMSG:
+				recvfunc = "recvmmsg";
+				(void)memset(msgvec, 0, sizeof(msgvec));
+				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
+					vec[j].iov_base = buf;
+					vec[j].iov_len = i;
+					msg_len += i;
+				}
+				for (i = 0; i < MSGVEC_SIZE; i++) {
+					msgvec[i].msg_hdr.msg_iov = vec;
+					msgvec[i].msg_hdr.msg_iovlen = j;
+				}
+				n = recvmmsg(fd, msgvec, MSGVEC_SIZE, 0, NULL);
+				break;
+#endif
+			}
 			if (n == 0)
 				break;
 			if (n < 0) {
 				if ((errno != EINTR) && (errno != ECONNRESET))
-					pr_fail_dbg("recv");
+					pr_fail_dbg(recvfunc);
 				break;
 			}
 		} while (keep_stressing());
-
 #if defined(AF_INET) && 	\
     defined(IPPROTO_IP)	&&	\
     defined(IP_MTU)
@@ -526,8 +576,8 @@ again:
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_sock_client(args, ppid, socket_type,
-			socket_port, socket_domain);
+		stress_sock_client(args, ppid, socket_opts,
+			socket_type, socket_port, socket_domain);
 		_exit(EXIT_SUCCESS);
 	} else {
 		return stress_sock_server(args, pid, ppid, socket_opts,
