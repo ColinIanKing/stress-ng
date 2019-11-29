@@ -154,7 +154,7 @@ HOT OPTIMIZE3 uint16_t mwc16(void)
 {
 	static uint32_t mwc_saved;
 
-	if (mwc_n16) {
+	if (LIKELY(mwc_n16)) {
 		mwc_n16--;
 		mwc_saved >>= 16;
 	} else {
@@ -194,7 +194,7 @@ HOT OPTIMIZE3 uint8_t mwc1(void)
 		mwc_n1--;
 		mwc_saved >>= 1;
 	} else {
-		mwc_n8 = 31;
+		mwc_n1 = 31;
 		mwc_saved = mwc32();
 	}
 	return mwc_saved & 0x1;
