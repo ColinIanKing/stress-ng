@@ -3110,10 +3110,11 @@ used.
 .B \-\-sock\-ops N
 stop socket stress workers after N bogo operations.
 .TP
-.B \-\-sock\-opts [ send | sendmsg | sendmmsg ]
+.B \-\-sock\-opts [ random | send | sendmsg | sendmmsg ]
 by default, messages are sent using send(2). This option allows one to specify
-the sending method using send(2), sendmsg(2) or sendmmsg(2).  Note that
-sendmmsg is only available for Linux systems that support this system call.
+the sending method using send(2), sendmsg(2), sendmmsg(2) or a random selection
+of one of thse 3 on each iteration.  Note that sendmmsg is only available for
+Linux systems that support this system call.
 .TP
 .B \-\-sock\-type [ stream | seqpacket ]
 specify the socket type to use. The default type is stream. seqpacket currently

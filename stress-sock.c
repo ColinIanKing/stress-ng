@@ -24,9 +24,10 @@
  */
 #include "stress-ng.h"
 
-#define SOCKET_OPT_SEND		0x01
-#define SOCKET_OPT_SENDMSG	0x02
-#define SOCKET_OPT_SENDMMSG	0x03
+#define SOCKET_OPT_SEND		0x00
+#define SOCKET_OPT_SENDMSG	0x01
+#define SOCKET_OPT_SENDMMSG	0x02
+#define SOCKET_OPT_RANDOM	0x03
 
 #define MSGVEC_SIZE		(4)
 
@@ -58,6 +59,7 @@ static const help_t help[] = {
 static int stress_set_socket_opts(const char *opt)
 {
 	static const socket_opts_t socket_opts[] = {
+		{ "random",	SOCKET_OPT_RANDOM },
 		{ "send",	SOCKET_OPT_SEND },
 		{ "sendmsg",	SOCKET_OPT_SENDMSG },
 #if defined(HAVE_SENDMMSG)
@@ -350,6 +352,7 @@ static int stress_sock_server(
 			struct sockaddr saddr;
 			socklen_t len;
 			int sndbuf;
+			int opt;
 			struct msghdr msg;
 			struct iovec vec[sizeof(buf)/16];
 #if defined(HAVE_SENDMMSG)
@@ -393,7 +396,15 @@ static int stress_sock_server(
 			}
 #endif
 			(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
-			switch (socket_opts) {
+
+			if (socket_opts == SOCKET_OPT_RANDOM)
+				opt = mwc8() % 3;
+			else
+				opt = socket_opts;
+
+			printf("%d\n", opt);
+
+			switch (opt) {
 			case SOCKET_OPT_SEND:
 				for (i = 16; i < sizeof(buf); i += 16) {
 					ssize_t ret = send(sfd, buf, i, 0);
