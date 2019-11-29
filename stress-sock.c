@@ -204,6 +204,24 @@ retry:
 			goto retry;
 		}
 
+#if defined(IP_MTU)
+			{
+				int mtu;
+				socklen_t optlen;
+
+				(void)getsockopt(fd, IPPROTO_IP, IP_MTU,
+					&mtu, &optlen);
+			}
+#endif
+#if defined(IP_TOS) && defined(IPTOS_THROUGHPUT)
+			{
+				char tos = IPTOS_THROUGHPUT;
+
+				(void)setsockopt(fd, IPPROTO_IP, IP_TOS,
+					&tos, sizeof(tos));
+			}
+#endif
+
 		do {
 			ssize_t n = 0;
 			int opt;
