@@ -221,6 +221,15 @@ retry:
 					&tos, sizeof(tos));
 			}
 #endif
+#if defined(SO_INCOMING_CPU)
+			{
+				int cpu;
+				socklen_t optlen;
+
+				(void)getsockopt(fd, SOL_SOCKET, SO_INCOMING_CPU,
+					&cpu, &optlen);
+			}
+#endif
 
 		do {
 			ssize_t n = 0;
