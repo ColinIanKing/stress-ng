@@ -234,11 +234,11 @@ retry:
 		do {
 			ssize_t n = 0;
 			int opt;
+			size_t i, j;
 			char *recvfunc;
 			struct msghdr msg;
 			struct iovec vec[sizeof(buf)/16];
 #if defined(HAVE_RECVMMSG)
-			size_t i, j;
 			unsigned int msg_len = 0;
 			struct mmsghdr msgvec[MSGVEC_SIZE];
 #endif
@@ -290,7 +290,7 @@ retry:
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
 				}
-				(void)memset(&msgvec, 0, sizeof(msgvec));
+				(void)memset(&msg, 0, sizeof(msg));
 				msg.msg_iov = vec;
 				msg.msg_iovlen = j;
 				n = recvmsg(fd, &msg, 0);
