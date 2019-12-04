@@ -1492,7 +1492,7 @@ static void MLOCKED_TEXT handle_terminate(int signum)
 	g_keep_stressing_flag = false;
 	kill_procs(SIGALRM);
 
-	switch(signum) {
+	switch (signum) {
 	case SIGILL:
 	case SIGSEGV:
 	case SIGFPE:
