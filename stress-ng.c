@@ -99,6 +99,9 @@ static const int terminate_signals[] = {
 #if defined(SIGINT)
 	SIGINT,
 #endif
+#if defined(SIGILL)
+	SIGILL,
+#endif
 #if defined(SIGQUIT)
 	SIGQUIT,
 #endif
