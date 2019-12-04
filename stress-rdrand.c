@@ -118,7 +118,7 @@ static int stress_rdrand_supported(void)
 		return 0;
 	}
 	pr_inf("rdrand stressor will be skipped, CPU "
-		"does not support the instuction 'darn'n");
+		"does not support the instuction 'darn'\n");
 	return -1;
 #else
 	pr_inf("rdrand stressor will be skipped, cannot"
