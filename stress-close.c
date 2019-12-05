@@ -33,6 +33,7 @@ static const help_t help[] = {
 #if defined(HAVE_LIB_PTHREAD)
 
 #define MAX_PTHREADS	(3)
+#define SHM_NAME_LEN	(128)
 
 static volatile int fd, dupfd;
 static volatile uint64_t max_delay_us = 1;
@@ -66,9 +67,11 @@ static const int domains[] = {
 #if defined(AF_ATMPVC)
 	AF_ATMPVC,
 #endif
+/*
 #if defined(AF_APPLETALK)
 	AF_APPLETALK,
 #endif
+*/
 #if defined(AF_PACKET)
 	AF_PACKET,
 #endif
@@ -117,9 +120,10 @@ static void *stress_close_func(void *arg)
 
 	while (keep_stressing()) {
 		shim_usleep_interruptible(mwc32() % max_delay_us);
-		(void)close(fd);
-		shim_usleep_interruptible(mwc32() % max_delay_us);
-		(void)close(dupfd);
+		if (fd != -1)
+			(void)close(fd);
+		if (dupfd != -1)
+			(void)close(dupfd);
 	}
 
 	return &nowt;
@@ -138,7 +142,17 @@ static int stress_close(const args_t *args)
 	size_t i;
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
+	const bool not_root = !stress_check_capability(0);
 	double max_duration = 0.0;
+#if defined(HAVE_LIB_RT)
+	char shm_name[SHM_NAME_LEN];
+#endif
+
+#if defined(HAVE_LIB_RT)
+	(void)snprintf(shm_name, SHM_NAME_LEN,
+		"stress-ng-%d-%" PRIx32, (int)getpid(), mwc32());
+#endif
+
 	(void)sigfillset(&set);
 
 	fd = -1;
@@ -168,7 +182,7 @@ static int stress_close(const args_t *args)
 
 		t1 = time_now();
 
-		switch (mwc8() % 10) {
+		switch (mwc8() % 13) {
 		case 0:
 			domain = mwc8() % SIZEOF_ARRAY(domains);
 			type = mwc8() % SIZEOF_ARRAY(types);
@@ -233,6 +247,24 @@ static int stress_close(const args_t *args)
 			fd = shim_userfaultfd(0);
 			break;
 #endif
+#if defined(O_PATH)
+		case 10:
+			fd = open("/tmp", O_PATH | O_RDWR);
+			break;
+#endif
+#if defined(O_DIRECTORY) &&	\
+    defined(O_CLOEXEC)
+		case 11:
+			fd = open("/tmp/", O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+			break;
+#endif
+#if defined(HAVE_LIB_RT)
+		case 12:
+			fd = shm_open(shm_name, O_CREAT | O_RDWR | O_TRUNC,
+                                S_IRUSR | S_IWUSR);
+			(void)shm_unlink(shm_name);
+			break;
+#endif
 		default:
 			break;
 		}
@@ -241,12 +273,14 @@ static int stress_close(const args_t *args)
 
 		if (fd != -1) {
 			dupfd = dup(fd);
+			if (not_root) {
 #if defined(HAVE_FCHOWNAT)
-			ret = fchownat(fd, "", uid, gid, 0);
-			(void)ret;
+				ret = fchownat(fd, "", uid, gid, 0);
+				(void)ret;
 #endif
-			ret = fchown(fd, uid, gid);
-			(void)ret;
+				ret = fchown(fd, uid, gid);
+				(void)ret;
+			}
 #if defined(HAVE_FACCESSAT)
 			ret = faccessat(fd, "", F_OK, 0);
 			(void)ret;
