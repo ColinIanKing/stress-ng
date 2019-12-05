@@ -45,15 +45,12 @@ static const int domains[] = {
 #if defined(AF_LOCAL)
 	AF_LOCAL,
 #endif
-/*
 #if defined(AF_INET)
 	AF_INET,
 #endif
 #if defined(AF_INET6)
 	AF_INET6,
 #endif
-*/
-/*
 #if defined(AF_IPX)
 	AF_IPX,
 #endif
@@ -69,7 +66,6 @@ static const int domains[] = {
 #if defined(AF_ATMPVC)
 	AF_ATMPVC,
 #endif
-*/
 #if defined(AF_APPLETALK)
 	AF_APPLETALK,
 #endif
