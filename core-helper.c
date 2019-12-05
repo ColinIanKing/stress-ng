@@ -418,19 +418,42 @@ void stress_set_timer_slack(void)
 }
 
 /*
+ *  stress_set_proc_name_init()
+ *	init setproctitle if supported
+ */
+void stress_set_proc_name_init(int argc, char *argv[], char *envp[])
+{
+#if defined(HAVE_BSD_UNISTD_H) &&	\
+    defined(HAVE_SETPROCTITLE)
+	(void)setproctitle_init(argc, argv, envp);
+#else
+	(void)argc;
+	(void)argv;
+	(void)envp;
+#endif
+}
+
+/*
  *  stress_set_proc_name()
  *	Set process name, we don't care if it fails
  */
 void stress_set_proc_name(const char *name)
 {
+	(void)name;
+
+	if (!(g_opt_flags & OPT_FLAGS_KEEP_NAME)) {
+#if defined(HAVE_BSD_UNISTD_H) &&	\
+    defined(HAVE_SETPROCTITLE)
+		/* Sets argv[0] */
+		setproctitle("-%s", name);
+#endif
 #if defined(HAVE_PRCTL) &&		\
     defined(HAVE_SYS_PRCTL_H) &&	\
     defined(PR_SET_NAME)
-	if (!(g_opt_flags & OPT_FLAGS_KEEP_NAME))
+		/* Sets the comm field */
 		(void)prctl(PR_SET_NAME, name);
-#else
-	(void)name;	/* No-op */
 #endif
+	}
 }
 
 /*

@@ -227,6 +227,10 @@
 #include <bsd/sys/tree.h>
 #endif
 
+#if defined(HAVE_BSD_UNISTD_H)
+#include <bsd/unistd.h>
+#endif
+
 #if defined(HAVE_BSD_WCHAR)
 #include <bsd/wchar.h>
 #endif
@@ -3280,6 +3284,7 @@ extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
 	const int sched_priority, const bool quiet);
 extern const char *stress_get_sched_name(const int sched);
 extern void set_iopriority(const int32_t class, const int32_t level);
+extern void stress_set_proc_name_init(int argc, char *argv[], char *envp[]);
 extern void stress_set_proc_name(const char *name);
 
 /* Memory locking */

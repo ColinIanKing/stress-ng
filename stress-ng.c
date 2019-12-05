@@ -2681,7 +2681,7 @@ static inline void stress_mlock_executable(void)
 #endif
 }
 
-int main(int argc, char **argv)
+int main(int argc, char **argv, char **envp)
 {
 	double duration = 0.0;			/* stressor run time in secs */
 	size_t len;
@@ -2700,6 +2700,8 @@ int main(int argc, char **argv)
 	const uint32_t cpus_online = stress_get_processors_online();
 	const uint32_t cpus_configured = stress_get_processors_configured();
 	int ret;
+
+	stress_set_proc_name_init(argc, argv, envp);
 
 	if (setjmp(g_error_env) == 1)
 		exit(EXIT_FAILURE);
