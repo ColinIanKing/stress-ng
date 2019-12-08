@@ -375,7 +375,34 @@ static void stress_dev_tty(
 		(void)ret;
 	}
 #endif
+#if defined(TIOCMGET)
+	{
+		int status;
 
+		ret = ioctl(fd, TIOCMGET, &status);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCGICOUNT) &&		\
+    defined(HAVE_LINUX_SERIAL_H) &&	\
+    defined(HAVE_SERIAL_ICOUNTER)
+	{
+		struct serial_icounter_struct counter;
+
+		ret = ioctl(fd, TIOCGICOUNT, &counter);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCGSERIAL) &&		\
+    defined(HAVE_LINUX_SERIAL_H) &&	\
+    defined(HAVE_SERIAL_STRUCT)
+	{
+		struct serial_struct serial;
+
+		ret = ioctl(fd, TIOCGSERIAL, &serial);
+		(void)ret;
+	}
+#endif
 }
 #endif
 

@@ -516,6 +516,10 @@
 #include <linux/seccomp.h>
 #endif
 
+#if defined(HAVE_LINUX_SERIAL_H)
+#include <linux/serial.h>
+#endif
+
 #if defined(HAVE_LINUX_SOCK_DIAG_H)
 #include <linux/sock_diag.h>
 #endif
