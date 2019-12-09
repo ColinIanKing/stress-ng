@@ -1,3 +1,28 @@
+stress-ng (0.10.13-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-dev: add TIOCMGET, TIOCGICOUNT and TIOCGSERIAL ioctls
+  * stress-close: add more open types, don't chown files if root,
+    remove AF_APPLETALK
+  * stress-close: enable some more socket domains
+  * test: add test-setproctitle.c, forgot to add this earlier
+  * Where possible set the process title (argv[0])
+  * Change cache size information from info to debug level output
+  * stress-ng: add missing space between switch statement and (
+  * Add SIGILL to signals that need to be handled, it was missing
+  * stress-rdrand: fix typo in \n at end of info message
+  * stress-sock: fix build issues on systems without HAVE_RECVMMSG
+  * stress-sock: get the incoming CPU of the socket
+  * stress-sock: get MTU size and set TOS to IPTOS_THROUGHPUT
+  * kernel-coverage.sh: add random sock-opts flag
+  * stress-sock: also exercice recvmmsg and recvmsg
+  * stress-sock: remove debug
+  * stress-sock: add a random send option for --sock-opt
+  * core-mwc: fix mwc8() being reset when using mwc1()
+  * stress-schedpolicy: silently ignore EBUSY returns (LP: #1853944)
+
+ -- Colin King <colin.king@canonical.com>  Mon, 9 Dec 2019 12:37:21 +0000
+
 stress-ng (0.10.12-1) unstable; urgency=medium
 
   * Manual: update date
