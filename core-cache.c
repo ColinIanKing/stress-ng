@@ -28,7 +28,7 @@ typedef struct {
 
 #if defined(__linux__)
 #define SYS_CPU_PREFIX               "/sys/devices/system/cpu"
-#define SYS_CPU_CACHE_DIR            "/cache"
+#define SYS_CPU_CACHE_DIR            "cache"
 #endif
 
 static const generic_map_t cache_type_map[] = {
