@@ -58,18 +58,42 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		sigset_t mask;
+		int i = 0;
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		(void)sigemptyset(&mask);
 		(void)sigaddset(&mask, SIGUSR1);
+		if (sigprocmask(SIG_SETMASK, &mask, NULL) < 0) {
+			pr_fail_err("sigprocmask");
+			_exit(EXIT_FAILURE);
+		}
 
 		while (g_keep_stressing_flag) {
 			siginfo_t info;
-			if (sigwaitinfo(&mask, &info) < 0)
-				break;
+			int ret;
+
+			if (i++ & 1) {
+				ret = sigwaitinfo(&mask, &info);
+				if (ret < 0)
+					break;
+			} else {
+				struct timespec timeout;
+
+				timeout.tv_sec = 1;
+				timeout.tv_nsec = 0;
+
+				ret = sigtimedwait(&mask, &info, &timeout);
+				if (ret < 0) {
+					if (errno == EAGAIN)
+						continue;
+					break;
+				}
+			}
 			if (info.si_value.sival_int)
+				break;
+			if (info.si_signo != SIGUSR1)
 				break;
 		}
 		pr_dbg("%s: child got termination notice\n", args->name);
