@@ -68,6 +68,11 @@ static void *semaphore_posix_thrash(void *arg)
 		int i;
 
 		for (i = 0; g_keep_stressing_flag && i < 1000; i++) {
+			int value;
+
+			if (sem_getvalue(&sem, &value) < 0)
+				pr_fail("sem_getvalue");
+
 			if (i & 1) {
 				if (sem_trywait(&sem) < 0) {
 					if (errno == 0 ||
