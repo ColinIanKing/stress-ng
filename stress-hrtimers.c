@@ -164,10 +164,13 @@ static int stress_hrtimers(const args_t *args)
                 return EXIT_NO_RESOURCE;
         }
 
-	for (i = 0; i < PROCS_MAX && keep_stressing(); i++) {
-		pids[i] = fork();
-		if (pids[0] < 0)
+	for (i = 0; i < PROCS_MAX; i++) {
+		if (!keep_stressing())
 			goto reap;
+
+		pids[i] = fork();
+		if (pids[i] < 0)
+			continue;
 		else if (pids[i] == 0) {
 			/* Child */
 
