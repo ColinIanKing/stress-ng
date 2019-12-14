@@ -31,7 +31,7 @@ static const help_t help[] = {
 };
 
 /*
- *  Disabled for GNU/Hurd because it this stressor breaks with
+ *  Disabled for GNU/Hurd because this stressor breaks with
  *  the error:
  *    intr-msg.c:387: _hurd_intr_rpc_mach_msg: Assertion
  *    `m->header.msgh_id == msgid + 100'
