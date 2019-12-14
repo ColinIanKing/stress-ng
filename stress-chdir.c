@@ -39,10 +39,10 @@ static int stress_set_chdir_dirs(const char *opt)
 {
 	uint64_t chdir_dirs;
 
-	chdir_dirs = get_uint64(opt);
+	chdir_dirs = get_uint32(opt);
 	check_range("chdir-dirs", chdir_dirs,
 		MIN_CHDIR_DIRS, MAX_CHDIR_DIRS);
-	return set_setting("chdir-dirs", TYPE_ID_UINT64, &chdir_dirs);
+	return set_setting("chdir-dirs", TYPE_ID_UINT32, &chdir_dirs);
 }
 
 /*
@@ -51,15 +51,21 @@ static int stress_set_chdir_dirs(const char *opt)
  */
 static int stress_chdir(const args_t *args)
 {
-	uint64_t i, chdir_dirs = DEFAULT_CHDIR_DIRS;
+	uint32_t i, chdir_dirs = DEFAULT_CHDIR_DIRS;
 	char path[PATH_MAX], cwd[PATH_MAX];
-	int fd = -1, rc, ret = EXIT_FAILURE;
+	int rc, ret = EXIT_FAILURE, *fds;
 	char **paths;
 
 	(void)get_setting("chdir-dirs", &chdir_dirs);
 	paths = calloc(chdir_dirs, sizeof(*paths));
 	if (!paths) {
 		pr_err("%s: out of memory allocating paths\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+	fds = calloc(chdir_dirs, sizeof(*fds));
+	if (!fds) {
+		pr_err("%s: out of memory allocating file descriptors\n", args->name);
+		free(paths);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -76,10 +82,10 @@ static int stress_chdir(const args_t *args)
 
 	/* Populate */
 	for (i = 0; i < chdir_dirs; i++) {
-		uint64_t gray_code = (i >> 1) ^ i;
+		uint64_t rnd = mwc32();
 
 		(void)stress_temp_filename_args(args,
-			path, sizeof(path), gray_code);
+			path, sizeof(path), rnd);
 		paths[i] = strdup(path);
 		if (paths[i] == NULL)
 			goto abort;
@@ -89,18 +95,20 @@ static int stress_chdir(const args_t *args)
 			pr_fail_err("mkdir");
 			goto abort;
 		}
+#if defined(O_DIRECTORY)
+		fds[i] = open(path, O_RDONLY | O_DIRECTORY);
+#else
+		fds[i] = open(paths, O_RDONLY);
+#endif
 		if (!g_keep_stressing_flag)
 			goto done;
 	}
 
-#if defined(O_DIRECTORY)
-	fd = open(paths[0], O_DIRECTORY | O_RDONLY);
-#else
-	fd = open(paths[0], O_RDONLY);
-#endif
-
 	do {
 		for (i = 0; i < chdir_dirs; i++) {
+			uint32_t j = mwc32() % chdir_dirs;
+			const int fd = fds[j] >= 0 ? fds[j] : fds[0];
+
 			if (!keep_stressing())
 				goto done;
 			if (chdir(paths[i]) < 0) {
@@ -110,10 +118,19 @@ static int stress_chdir(const args_t *args)
 				}
 			}
 
-
 			if ((fd >= 0) && (fchdir(fd) < 0)) {
 				if (errno != ENOMEM) {
 					pr_fail_err("fchdir");
+					goto abort;
+				}
+			}
+
+			/*
+			 *  chdir to / should always work, surely?
+			 */
+			if (chdir("/") < 0) {
+				if ((errno != ENOMEM) && (errno != EACCES)) {
+					pr_fail_err("chdir");
 					goto abort;
 				}
 			}
@@ -137,19 +154,18 @@ abort:
 	if (chdir(cwd) < 0)
 		pr_fail_err("chdir");
 
-	if (fd >= 0)
-		(void)close(fd);
-
 	/* force unlink of all files */
-	pr_tidy("%s: removing %" PRIu64 " directories\n",
+	pr_tidy("%s: removing %" PRIu32 " directories\n",
 		args->name, chdir_dirs);
 
 	for (i = 0; (i < chdir_dirs) && paths[i] ; i++) {
+		(void)close(fds[i]);
 		(void)rmdir(paths[i]);
 		free(paths[i]);
 	}
 	(void)stress_temp_dir_rm_args(args);
 err:
+	free(fds);
 	free(paths);
 
 	return ret;
