@@ -82,10 +82,11 @@ static int stress_chdir(const args_t *args)
 
 	/* Populate */
 	for (i = 0; i < chdir_dirs; i++) {
-		uint64_t rnd = mwc32();
+		uint64_t rnd = (uint64_t)mwc32() << 32;
+		uint32_t gray_code = (i >> 1) ^ i;
 
 		(void)stress_temp_filename_args(args,
-			path, sizeof(path), rnd);
+			path, sizeof(path), rnd | gray_code);
 		paths[i] = strdup(path);
 		if (paths[i] == NULL)
 			goto abort;
