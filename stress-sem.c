@@ -68,19 +68,41 @@ static void *semaphore_posix_thrash(void *arg)
 		int i;
 
 		for (i = 0; g_keep_stressing_flag && i < 1000; i++) {
-			if (sem_trywait(&sem) < 0) {
-				if (errno == 0 || errno == EAGAIN)
-					continue;
-				if (errno != EINTR)
-					pr_fail_dbg("sem_trywait");
-				break;
+			if (i & 1) {
+				if (sem_trywait(&sem) < 0) {
+					if (errno == 0 ||
+					    errno == EAGAIN)
+						continue;
+					if (errno != EINTR)
+						pr_fail_dbg("sem_trywait");
+					break;
+				}
+			} else {
+				struct timespec ts;
+
+#if defined(CLOCK_REALTIME)
+				if (clock_gettime(CLOCK_REALTIME, &ts) < 0)
+					(void)memset(&ts, 0, sizeof(ts));
+#else
+				(void)memset(&ts, 0, sizeof(ts));
+#endif
+
+				if (sem_timedwait(&sem, &ts) < 0) {
+					if (errno == 0 ||
+					    errno == EAGAIN ||
+					    errno == ETIMEDOUT)
+						continue;
+					if (errno != EINTR)
+						pr_fail_dbg("sem_timedwait");
+					break;
+				}
 			}
 			inc_counter(args);
 			if (sem_post(&sem) < 0) {
 				pr_fail_dbg("sem_post");
 				break;
 			}
-			if (i & 1)
+			if (mwc1())
 				(void)shim_sched_yield();
 			else
 				(void)shim_usleep(0);
