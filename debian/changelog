@@ -1,3 +1,20 @@
+stress-ng (0.10.14-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-chdir: fix opening of paths[i]
+  * stress-vecmath: don't use TARGET_CLONES on ppc64, it breaks some
+    older compilers
+  * stress-hrtimes: handle fork resource failures more gracefully.
+  * stress-chdir: mix random value and grey code of nth file
+  * stress-chdir: make paths more random and chdir to / for more stress
+  * stress-wait: clean up a comment
+  * stress-sem: add sem_getvalue call to increase coverage
+  * stress-sem: add sem_timedwait to increase test coverage
+  * sigprocmask: fix missing sigprogmask and add sigtimedwait
+  * core-cache: remove / from cache path
+
+ -- Colin King <colin.king@canonical.com>  Mon, 16 Dec 2019 21:22:23 +0000
+
 stress-ng (0.10.13-1) unstable; urgency=medium
 
   * Makefile: bump version
