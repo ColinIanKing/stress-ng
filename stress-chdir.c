@@ -97,9 +97,9 @@ static int stress_chdir(const args_t *args)
 			goto abort;
 		}
 #if defined(O_DIRECTORY)
-		fds[i] = open(path, O_RDONLY | O_DIRECTORY);
+		fds[i] = open(paths[i], O_RDONLY | O_DIRECTORY);
 #else
-		fds[i] = open(paths, O_RDONLY);
+		fds[i] = open(paths[i], O_RDONLY);
 #endif
 		if (!g_keep_stressing_flag)
 			goto done;
