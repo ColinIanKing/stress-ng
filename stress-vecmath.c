@@ -87,7 +87,11 @@ typedef __uint128_t vint128_t __attribute__ ((vector_size (16)));
  *  stress_vecmath()
  *	stress GCC vector maths
  */
+#if defined(STRESS_PPC64)
+static int HOT stress_vecmath(const args_t *args)
+#else
 static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
+#endif
 {
 	vint8_t a8 = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
