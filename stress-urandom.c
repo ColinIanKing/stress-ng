@@ -30,6 +30,16 @@ static const help_t help[] = {
 	{ NULL, NULL,		 NULL }
 };
 
+static void check_eperm(const args_t *args, const int ret, const int err)
+{
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
+	    ((ret == 0) || (err != EPERM))) {
+		pr_fail("%s: expected errno to be EPERM, got "
+			"errno %d (%s) instead\n",
+			args->name, err, strerror(err));
+	}
+}
+
 /*
  *  stress_urandom
  *	stress reading of /dev/urandom and /dev/random
@@ -37,6 +47,11 @@ static const help_t help[] = {
 static int stress_urandom(const args_t *args)
 {
 	int fd_urnd, fd_rnd, rc = EXIT_FAILURE;
+#if defined(CAP_SYS_ADMIN)
+	bool sys_admin = stress_check_capability(CAP_SYS_ADMIN);
+#else
+	bool sys_admin = stress_check_capability(0);
+#endif
 
 	if ((fd_urnd = open("/dev/urandom", O_RDONLY)) < 0) {
 		if (errno != ENOENT) {
@@ -92,6 +107,35 @@ static int stress_urandom(const args_t *args)
 					pr_fail_err("read");
 					goto err;
 				}
+			}
+
+
+			if (!sys_admin) {
+				/*
+				 *  Exercise the following ioctl's
+				 *  that require CAP_SYS_ADMIN capability
+				 *  and hence thse should return -EPERM.
+				 *  We don't want to exericse this with
+				 *  the capability since we don't want to
+				 *  damage the entropy pool.
+				 */
+#if defined(RNDCLEARPOOL)
+				ret = ioctl(fd_rnd, RNDCLEARPOOL, NULL);
+				check_eperm(args, ret, errno);
+#endif
+#if defined(RNDZAPENTCNT)
+				ret = ioctl(fd_rnd, RNDZAPENTCNT, NULL);
+				check_eperm(args, ret, errno);
+#endif
+#if defined(RNDADDTOENTCNT)
+				ret = ioctl(fd_rnd, RNDADDTOENTCNT, mwc32());
+				check_eperm(args, ret, errno);
+#endif
+#if defined(RNDRESEEDCRNG)
+				ret = ioctl(fd_rnd, RNDRESEEDCRNG, mwc32());
+				check_eperm(args, ret, errno);
+#endif
+		
 			}
 		}
 
