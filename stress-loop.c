@@ -93,6 +93,12 @@ static int stress_loop(const args_t *args)
 #if defined(LOOP_GET_STATUS64)
 		struct loop_info64 info64;
 #endif
+#if defined(LOOP_SET_BLOCK_SIZE)
+		unsigned long blk_size;
+		static unsigned long blk_sizes[] = {
+			512, 1024, 2048, 4096,
+		};
+#endif
 
 		/*
 		 *  Open loop control device
@@ -169,6 +175,15 @@ static int stress_loop(const args_t *args)
 		ret = ftruncate(backing_fd, backing_size * 2);
 		(void)ret;
 		ret = ioctl(loop_dev, LOOP_SET_CAPACITY);
+		(void)ret;
+#endif
+
+#if defined(LOOP_SET_BLOCK_SIZE)
+		/*
+		 *  Set block size, ignore error return
+		 */
+		blk_size = blk_sizes[mwc8() % SIZEOF_ARRAY(blk_sizes)];
+		ret = ioctl(loop_dev, LOOP_SET_BLOCK_SIZE, blk_size);
 		(void)ret;
 #endif
 
