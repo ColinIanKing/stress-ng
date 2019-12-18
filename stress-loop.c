@@ -147,6 +147,20 @@ static int stress_loop(const args_t *args)
 #if defined(LOOP_SET_STATUS)
 		ret = ioctl(loop_dev, LOOP_SET_STATUS, &info);
 		(void)ret;
+		switch (mwc1()) {
+		case 0:
+			info.lo_encrypt_type = LO_CRYPT_NONE;
+			info.lo_encrypt_key_size = 0;
+			break;
+		case 1:
+			info.lo_encrypt_type = LO_CRYPT_XOR;
+			stress_strnrnd((char *)info.lo_encrypt_key, LO_KEY_SIZE);
+			info.lo_encrypt_key[LO_KEY_SIZE - 1] = '\0';
+			info.lo_encrypt_key_size = LO_KEY_SIZE - 1;
+			break;
+		}
+		ret = ioctl(loop_dev, LOOP_SET_STATUS, &info);
+		(void)ret;
 #endif
 #endif
 
@@ -180,7 +194,9 @@ static int stress_loop(const args_t *args)
 
 #if defined(LOOP_SET_BLOCK_SIZE)
 		/*
-		 *  Set block size, ignore error return
+		 *  Set block size, ignore error return.  This will
+		 *  produce kernel warnings but should not break the
+		 *  kernel.
 		 */
 		blk_size = blk_sizes[mwc8() % SIZEOF_ARRAY(blk_sizes)];
 		ret = ioctl(loop_dev, LOOP_SET_BLOCK_SIZE, blk_size);
