@@ -78,7 +78,11 @@ static const help_t help[] = {
      defined(PR_GET_TSC) ||			\
      defined(PR_SET_UNALIGN) ||			\
      defined(PR_GET_UNALIGN)) ||		\
-     defined(PR_GET_SPECULATION_CTRL)
+     defined(PR_GET_SPECULATION_CTRL) || 	\
+     defined(PR_SVE_GET_VL) ||			\
+     defined(PR_SVE_SET_VL) ||			\
+     defined(PR_GET_TAGGED_ADDR_CTRL) ||	\
+     defined(PR_SET_TAGGED_ADDR_CTRL)
 
 static int stress_prctl_child(const args_t *args, const pid_t mypid)
 {
@@ -150,19 +154,53 @@ static int stress_prctl_child(const args_t *args, const pid_t mypid)
 #if defined(PR_GET_FP_MODE)
 	/* MIPS only, but try it on all arches */
 	{
-		unsigned int mode;
+		int mode;
 
-		ret = prctl(PR_GET_FP_MODE, &mode);
-		(void)ret;
+		mode = prctl(PR_GET_FP_MODE);
+		(void)mode;
 
 #if defined(PR_SET_FP_MODE)
-		if (ret == 0) {
+		if (mode >= 0) {
 			ret = prctl(PR_SET_FP_MODE, mode);
 			(void)ret;
 		}
 #endif
 	}
 #endif
+
+#if defined(PR_SVE_GET_VL)
+	/* Get vector length */
+	{
+		int vl;
+
+		vl = prctl(PR_SVE_GET_VL);
+		(void)vl;
+
+#if defined(PR_SVE_SET_VL)
+		if (vl >= 0) {
+			ret = prctl(PR_SVE_SET_VL, vl);
+			(void)ret;
+		}
+#endif
+	}
+#endif
+
+#if defined(PR_GET_TAGGED_ADDR_CTRL)
+	{
+		int ctrl;
+
+		ctrl = prctl(PR_GET_TAGGED_ADDR_CTRL, 0, 0, 0, 0);
+		(void)ctrl;
+
+#if defined(PR_SET_TAGGED_ADDR_CTRL)
+		if (ctrl >= 0) {
+			ret = prctl(PR_SET_TAGGED_ADDR_CTRL, ctrl, 0, 0, 0);
+			(void)ret;
+		}
+#endif
+	}
+#endif
+
 
 #if defined(PR_GET_FPEMU)
 	/* ia64 only, but try it on all arches */
