@@ -46,26 +46,31 @@ static void check_eperm(const args_t *args, const int ret, const int err)
  */
 static int stress_urandom(const args_t *args)
 {
-	int fd_urnd, fd_rnd, rc = EXIT_FAILURE;
+	int fd_urnd, fd_rnd, fd_rnd_wr, rc = EXIT_FAILURE;
 #if defined(CAP_SYS_ADMIN)
 	bool sys_admin = stress_check_capability(CAP_SYS_ADMIN);
 #else
 	bool sys_admin = stress_check_capability(0);
 #endif
 
-	if ((fd_urnd = open("/dev/urandom", O_RDONLY)) < 0) {
+	fd_urnd = open("/dev/urandom", O_RDONLY);
+	if (fd_urnd < 0) {
 		if (errno != ENOENT) {
 			pr_fail_err("open");
 			return EXIT_FAILURE;
 		}
 	}
-	if ((fd_rnd = open("/dev/random", O_RDONLY | O_NONBLOCK)) < 0) {
+	fd_rnd = open("/dev/random", O_RDONLY | O_NONBLOCK);
+	if (fd_rnd < 0) {
 		if (errno != ENOENT) {
 			pr_fail_err("open");
 			(void)close(fd_urnd);
 			return EXIT_FAILURE;
 		}
 	}
+
+	/* Maybe we can write, don't report failure if we can't */
+	fd_rnd_wr = open("/dev/random", O_WRONLY | O_NONBLOCK);
 
 	if ((fd_urnd < 0) && (fd_rnd < 0)) {
 		pr_inf("%s: random device(s) do not exist, skipping stressor\n",
@@ -92,6 +97,7 @@ static int stress_urandom(const args_t *args)
 		 * this fails, just skip this part of the stressor
 		 */
 		if (fd_rnd >= 0) {
+			off_t offset;
 #if defined(RNDGETENTCNT)
 			unsigned long val;
 
@@ -109,6 +115,8 @@ static int stress_urandom(const args_t *args)
 				}
 			}
 
+			offset = lseek(fd_rnd, (off_t)0, SEEK_SET);
+			(void)offset;
 
 			if (!sys_admin) {
 				/*
@@ -135,7 +143,12 @@ static int stress_urandom(const args_t *args)
 				ret = ioctl(fd_rnd, RNDRESEEDCRNG, mwc32());
 				check_eperm(args, ret, errno);
 #endif
-		
+
+				if (fd_rnd_wr >= 0) {
+					buffer[0] = mwc8();
+					ret = write(fd_rnd_wr, buffer, 1);
+					check_eperm(args, ret, errno);
+				}
 			}
 		}
 
@@ -163,6 +176,8 @@ err:
 		(void)close(fd_urnd);
 	if (fd_rnd >= 0)
 		(void)close(fd_rnd);
+	if (fd_rnd_wr >= 0)
+		(void)close(fd_rnd_wr);
 
 	return rc;
 }
