@@ -115,6 +115,9 @@ static int stress_urandom(const args_t *args)
 				}
 			}
 
+#if defined(RNDGETENTCNT)
+next:
+#endif
 			offset = lseek(fd_rnd, (off_t)0, SEEK_SET);
 			(void)offset;
 
@@ -164,9 +167,6 @@ static int stress_urandom(const args_t *args)
 				(void)munmap(ptr, args->page_size);
 		}
 
-#if defined(RNDGETENTCNT)
-next:
-#endif
 		inc_counter(args);
 	} while (keep_stressing());
 
