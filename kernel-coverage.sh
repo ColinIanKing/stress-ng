@@ -36,7 +36,6 @@ if [ ! -x "$STRESS_NG" ]; then
 	exit 1
 fi
 STRESSORS=$($STRESS_NG --stressors)
-DURATION=30
 
 do_stress()
 {
@@ -48,7 +47,11 @@ do_stress()
 
 sudo lcov --zerocounters
 
-DURATION=10
+DURATION=120
+
+do_stress --all 1
+
+DURATION=30
 do_stress --cpu 0 --taskset 0,2,4,6
 do_stress --cpu 0 --taskset 1,2,3,7
 do_stress --cpu 0 --taskset 0,1,2,3
