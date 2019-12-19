@@ -41,8 +41,6 @@ static const help_t help[] = {
 /* fanotify stats */
 typedef struct {
 	uint64_t	open;
-	uint64_t	open_exec;
-	uint64_t	open_exec_perm;
 	uint64_t	close_write;
 	uint64_t	close_nowrite;
 	uint64_t	access;
@@ -54,35 +52,78 @@ typedef struct {
 #if defined(HAVE_FANOTIFY) &&	\
     defined(HAVE_SYS_SELECT_H)
 
-static const int FAN_STRESS_SETTINGS =
+static const int fan_stress_settings[] = {
 #if defined(FAN_ACCESS)
-	FAN_ACCESS |
-#endif
-#if defined(FAN_ACCESS)
-	FAN_ACCESS |
+	FAN_ACCESS,
 #endif
 #if defined(FAN_MODIFY)
-	FAN_MODIFY |
+	FAN_MODIFY,
+#endif
+#if defined(FAN_CLOSE_WRITE)
+	FAN_CLOSE_WRITE,
+#endif
+#if defined(FAN_CLOSE_NOWRITE)
+	FAN_CLOSE_NOWRITE,
 #endif
 #if defined(FAN_OPEN)
-	FAN_OPEN |
+	FAN_OPEN,
 #endif
 #if defined(FAN_OPEN_EXEC)
-	FAN_OPEN_EXEC |
+	FAN_OPEN_EXEC,
 #endif
 #if defined(FAN_OPEN_EXEC_PERM)
-	FAN_OPEN_EXEC_PERM |
+	FAN_OPEN_EXEC_PERM,
 #endif
-#if defined(FAN_CLOSE)
-	FAN_CLOSE |
+#if defined(FAN_ATTRIB)
+	FAN_ATTRIB,
 #endif
 #if defined(FAN_ONDIR)
-	FAN_ONDIR |
+	FAN_ONDIR,
+#endif
+#if defined(FAN_CREATE)
+	FAN_CREATE,
+#endif
+#if defined(FAN_DELETE)
+	FAN_DELETE,
+#endif
+#if defined(FAN_DELETE_SELF)
+	FAN_DELETE_SELF,
+#endif
+#if defined(FAN_MOVED_FROM)
+	FAN_MOVED_FROM,
+#endif
+#if defined(FAN_MOVED_TO)
+	FAN_MOVED_TO,
+#endif
+#if defined(FAN_MOVE_SELF)
+	FAN_MOVE_SELF,
+#endif
+#if defined(FAN_Q_OVERFLOW)
+	FAN_Q_OVERFLOW,
+#endif
+#if defined(FAN_OPEN_PERM)
+	FAN_OPEN_PERM,
+#endif
+#if defined(FAN_OPEN_EXEC_PERM)
+	FAN_OPEN_EXEC_PERM,
+#endif
+#if defined(FAN_ACCESS_PERM)
+	FAN_ACCESS_PERM,
+#endif
+#if defined(FAN_ON_DIR)
+	FAN_ON_DIR,
 #endif
 #if defined(FAN_EVENT_ON_CHILD)
-	FAN_EVENT_ON_CHILD |
+	FAN_EVENT_ON_CHILD,
 #endif
-	0;
+#if defined(FAN_CLOSE)
+	FAN_CLOSE,
+#endif
+#if defined(FAN_MOVE)
+	FAN_MOVE,
+#endif
+	0
+};
 
 static char *mnts[MAX_MNTS];
 static int n_mnts;
@@ -132,24 +173,22 @@ static int fanotify_event_init(const char *name)
 	 *  Gather all mounted file systems and monitor them
 	 */
 	for (i = 0; i < n_mnts; i++) {
-		uint64_t mask;
+		size_t j;
 #if defined(FAN_MARK_MOUNT) || defined(FAN_MARK_FILESYSTEM)
 		int ret;
 #endif
 
-		for (mask = 1ULL << 63; mask; mask >>= 1) {
-			if (!(mask & FAN_STRESS_SETTINGS))
-				continue;
+		for (j = 0; j < SIZEOF_ARRAY(fan_stress_settings); j++) {
 #if defined(FAN_MARK_MOUNT)
 			ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
-				mask, AT_FDCWD, mnts[i]);
+				fan_stress_settings[j], AT_FDCWD, mnts[i]);
 			if (ret == 0)
 				count++;
 #endif
 
 #if defined(FAN_MARK_FILESYSTEM)
 			ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_FILESYSTEM,
-				mask, AT_FDCWD, mnts[i]);
+				fan_stress_settings[j], AT_FDCWD, mnts[i]);
 			if (ret == 0)
 				count++;
 #endif
@@ -179,23 +218,21 @@ static void fanotify_event_clear(const int fan_fd)
 	 *  Gather all mounted file systems and monitor them
 	 */
 	for (i = 0; i < n_mnts; i++) {
-		uint64_t mask;
+		size_t j;
 #if defined(FAN_MARK_MOUNT) || defined(FAN_MARK_FILESYSTEM)
 		int ret;
 #endif
 
-		for (mask = 1ULL << 63; mask; mask >>= 1) {
-			if (!(mask & FAN_STRESS_SETTINGS))
-				continue;
+		for (j = 0; j < SIZEOF_ARRAY(fan_stress_settings); j++) {
 #if defined(FAN_MARK_MOUNT)
 			ret = fanotify_mark(fan_fd, FAN_MARK_REMOVE | FAN_MARK_MOUNT,
-				mask, AT_FDCWD, mnts[i]);
+				fan_stress_settings[j], AT_FDCWD, mnts[i]);
 			(void)ret;
 #endif
 
 #if defined(FAN_MARK_FILESYSTEM)
 			ret = fanotify_mark(fan_fd, FAN_MARK_REMOVE | FAN_MARK_FILESYSTEM,
-				mask, AT_FDCWD, mnts[i]);
+				fan_stress_settings[j], AT_FDCWD, mnts[i]);
 			(void)ret;
 #endif
 		}
@@ -340,14 +377,6 @@ static int stress_fanotify(const args_t *args)
 						if (metadata->mask & FAN_OPEN)
 							account.open++;
 #endif
-#if defined(FAN_OPEN_EXEC)
-						if (metadata->mask & FAN_OPEN_EXEC)
-							account.open_exec++;
-#endif
-#if defined(FAN_OPEN_EXEC_PERM)
-						if (metadata->mask & FAN_OPEN_EXEC_PERM)
-							account.open_exec_perm++;
-#endif
 #if defined(FAN_CLOSE_WRITE)
 						if (metadata->mask & FAN_CLOSE_WRITE)
 							account.close_write++;
@@ -377,16 +406,12 @@ static int stress_fanotify(const args_t *args)
 		(void)close(fan_fd);
 		pr_inf("%s: "
 			"%" PRIu64 " open, "
-			"%" PRIu64 " open exec, "
-			"%" PRIu64 " open exec perm, "
 			"%" PRIu64 " close write, "
 			"%" PRIu64 " close nowrite, "
 			"%" PRIu64 " access, "
 			"%" PRIu64 " modify\n",
 			args->name,
 			account.open,
-			account.open_exec,
-			account.open_exec_perm,
 			account.close_write,
 			account.close_nowrite,
 			account.access,
