@@ -217,6 +217,11 @@ timed_out:
 				if (semctl(sem_id, 0, GETALL, s) < 0) {
 					pr_fail_dbg("semctl GETALL");
 				}
+#if defined(SETALL)
+				if (semctl(sem_id, 0, SETALL, s) < 0) {
+					pr_fail_dbg("semctl SETALL");
+				}
+#endif
 				free(s.array);
 			}
 #endif
