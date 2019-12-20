@@ -3462,6 +3462,14 @@ stop the tsearch workers after N bogo tree operations are completed.
 specify the size (number of 32 bit integers) in the array to tsearch. Size
 can be from 1K to 4M.
 .TP
+.B \-\-tun N
+start N workers that create a network tunnel device and sends and receives
+packets over the tunnel using UDP and then destroys it. A new random
+192.168.*.* IPv4 address is used each time a tunnel is created. 
+.TP
+.B \-\-tun\-ops N
+stop after N iterations of creating/sending/receiving/destroying a tunnel.
+.TP
 .B \-\-udp N
 start N workers that transmit data using UDP. This involves a pair of
 client/server processes performing rapid connect, send and receives and

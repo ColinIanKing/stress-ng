@@ -270,6 +270,7 @@ STRESS_SRC = \
 	stress-tree.c \
 	stress-tsc.c \
 	stress-tsearch.c \
+	stress-tun.c \
 	stress-udp.c \
 	stress-udp-flood.c \
 	stress-unshare.c \

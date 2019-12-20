@@ -448,6 +448,10 @@
 #include <linux/if_alg.h>
 #endif
 
+#if defined(HAVE_LINUX_IF_TUN_H)
+#include <linux/if_tun.h>
+#endif
+
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
 #endif
@@ -2069,6 +2073,7 @@ typedef struct {
 	MACRO(tree)		\
 	MACRO(tsc)		\
 	MACRO(tsearch)		\
+	MACRO(tun)		\
 	MACRO(udp)		\
 	MACRO(udp_flood)	\
 	MACRO(unshare)		\
@@ -2925,6 +2930,9 @@ typedef enum {
 	OPT_tsearch,
 	OPT_tsearch_ops,
 	OPT_tsearch_size,
+
+	OPT_tun,
+	OPT_tun_ops,
 
 	OPT_udp,
 	OPT_udp_ops,
