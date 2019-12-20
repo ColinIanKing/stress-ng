@@ -47,11 +47,7 @@ static void check_eperm(const args_t *args, const int ret, const int err)
 static int stress_urandom(const args_t *args)
 {
 	int fd_urnd, fd_rnd, fd_rnd_wr, rc = EXIT_FAILURE;
-#if defined(CAP_SYS_ADMIN)
-	bool sys_admin = stress_check_capability(CAP_SYS_ADMIN);
-#else
-	bool sys_admin = stress_check_capability(0);
-#endif
+	bool sys_admin = stress_check_capability(SHIM_CAP_SYS_ADMIN);
 
 	fd_urnd = open("/dev/urandom", O_RDONLY);
 	if (fd_urnd < 0) {
