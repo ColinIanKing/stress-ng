@@ -39,7 +39,7 @@ STRESSORS=$($STRESS_NG --stressors)
 
 do_stress()
 {
-	ARGS="-t $DURATION --pathological"
+	ARGS="-t $DURATION --pathological --timestamp --tz --syslog --perf"
 	echo running $* $ARGS
 	$STRESS_NG $* $ARGS
 	sudo $STRESS_NG $* $ARGS
@@ -52,9 +52,9 @@ DURATION=120
 do_stress --all 1
 
 DURATION=30
-do_stress --cpu 0 --taskset 0,2,4,6
-do_stress --cpu 0 --taskset 1,2,3,7
-do_stress --cpu 0 --taskset 0,1,2,3
+do_stress --cpu 0 --taskset 0,2 --ignite-cpu
+do_stress --cpu 0 --taskset 1,2,3 
+do_stress --cpu 0 --taskset 0,1,2 --thrash
 
 do_stress --cyclic 0 --cyclic-policy deadline
 do_stress --cyclic 0 --cyclic-policy fifo
@@ -158,7 +158,7 @@ do_stress --vm 0 --vm-madvise normal
 do_stress --vm 0 --vm-madvise random
 do_stress --vm 0 --vm-madvise sequential
 do_stress --vm 0 --vm-madvise unmergeable
-do_stress --vm 0 --vm-madvise willneed
+do_stress --vm 0 --vm-madvise willneed --page-in
 
 do_stress --zombie 0 --zombie-max 1000000
 
