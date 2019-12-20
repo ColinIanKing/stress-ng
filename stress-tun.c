@@ -184,6 +184,7 @@ static int stress_tun(const args_t *args)
 			ret = bind(sfd, &addr, len);
 			if (ret < 0) {
 				switch (errno) {
+				case EADDRINUSE:
 				case ENOMEM:
 					rc = EXIT_NO_RESOURCE;
 					break;
