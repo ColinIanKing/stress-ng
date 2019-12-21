@@ -73,8 +73,10 @@ static void stress_iomix_wr_seq_bursts(
 
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail_err("write");
-				return;
+				if (errno != EPERM) {
+					pr_fail_err("write");
+					return;
+				}
 			}
 			posn += rc;
 			if (!keep_stressing())
@@ -117,8 +119,10 @@ static void stress_iomix_wr_rnd_bursts(
 			stress_strnrnd(buffer, len);
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail_err("write");
-				return;
+				if (errno != EPERM) {
+					pr_fail_err("write");
+					return;
+				}
 			}
 			if (!keep_stressing())
 				return;
@@ -157,8 +161,10 @@ static void stress_iomix_wr_seq_slow(
 
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail_err("write");
-				return;
+				if (errno != EPERM) {
+					pr_fail_err("write");
+					return;
+				}
 			}
 			(void)shim_usleep(250000);
 			posn += rc;
@@ -434,9 +440,10 @@ static void stress_iomix_wr_bytes(
 
 			rc = write(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
-				pr_fail_err("write");
-				return;
-			}
+				if (errno != EPERM) {
+					pr_fail_err("write");
+					return;
+			}	}
 			(void)shim_usleep(1000);
 			posn += rc;
 			if (!keep_stressing())
@@ -470,8 +477,10 @@ static void stress_iomix_rd_bytes(
 
 			rc = read(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
-				pr_fail_err("write");
-				return;
+				if (errno != EPERM) {
+					pr_fail_err("write");
+					return;
+				}
 			}
 			(void)shim_usleep(1000);
 			posn--;
