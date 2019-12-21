@@ -2339,6 +2339,13 @@ change protection settings on each page of memory.  Each time a page or a
 group of pages are mapped or remapped then this option will make the pages
 read-only, write-only, exec-only, and read-write.
 .TP
+.B \-\-mmap\-odirect
+enable file based memory mapping and use O_DIRECT direct I/O.
+.TP
+.B \-\-mmap\-osync
+enable file based memory mapping and used O_SYNC synchronous I/O
+integrity completion.
+.TP
 .B \-\-mmapaddr N
 start N workers that memory map pages at a random memory location that is
 not already mapped.  On 64 bit machines the random address is randomly

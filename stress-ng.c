@@ -518,6 +518,8 @@ static const struct option long_options[] = {
 	{ "mmap-bytes",	1,	0,	OPT_mmap_bytes },
 	{ "mmap-file",	0,	0,	OPT_mmap_file },
 	{ "mmap-mprotect",0,	0,	OPT_mmap_mprotect },
+	{ "mmap-osync",	0,	0,	OPT_mmap_osync },
+	{ "mmap-odirect",0,	0,	OPT_mmap_odirect},
 	{ "mmapaddr",	1,	0,	OPT_mmapaddr },
 	{ "mmapaddr-ops",1,	0,	OPT_mmapaddr_ops },
 	{ "mmapfixed",	1,	0,	OPT_mmapfixed},

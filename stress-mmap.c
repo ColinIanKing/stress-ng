@@ -31,6 +31,8 @@ static const help_t help[] = {
 	{ NULL,	"mmap-bytes N",	 "mmap and munmap N bytes for each stress iteration" },
 	{ NULL,	"mmap-file",	 "mmap onto a file using synchronous msyncs" },
 	{ NULL,	"mmap-mprotect", "enable mmap mprotect stressing" },
+	{ NULL, "mmap-osync",	 "enable O_SYNC on file" },
+	{ NULL, "mmap-odirect",	 "enable O_DIRECT on file" },
 	{ NULL,	NULL,		 NULL }
 };
 
@@ -104,6 +106,22 @@ static int stress_set_mmap_async(const char *opt)
 
 	(void)opt;
 	return set_setting("mmap-async", TYPE_ID_BOOL, &mmap_async);
+}
+
+static int stress_set_mmap_osync(const char *opt)
+{
+	bool mmap_osync = true;
+
+	(void)opt;
+	return set_setting("mmap-osync", TYPE_ID_BOOL, &mmap_osync);
+}
+
+static int stress_set_mmap_odirect(const char *opt)
+{
+	bool mmap_odirect = true;
+
+	(void)opt;
+	return set_setting("mmap-odirect", TYPE_ID_BOOL, &mmap_odirect);
 }
 
 /*
@@ -331,6 +349,8 @@ static int stress_mmap(const args_t *args)
 	bool mmap_async = false;
 	bool mmap_file = false;
 	bool mmap_mprotect = false;
+	bool mmap_osync = false;
+	bool mmap_odirect = false;
 
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
@@ -339,6 +359,11 @@ static int stress_mmap(const args_t *args)
 	(void)get_setting("mmap-async", &mmap_async);
 	(void)get_setting("mmap-file", &mmap_file);
 	(void)get_setting("mmap-mprotect", &mmap_mprotect);
+	(void)get_setting("mmap-osync", &mmap_osync);
+	(void)get_setting("mmap-odirect", &mmap_odirect);
+
+	if (mmap_osync || mmap_odirect)
+		mmap_file = true;
 
 	if (!get_setting("mmap-bytes", &mmap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -358,8 +383,8 @@ static int stress_mmap(const args_t *args)
 	set_oom_adjustment(args->name, true);
 
 	if (mmap_file) {
+		int file_flags = O_CREAT | O_RDWR;
 		ssize_t ret, rc;
-		char ch = '\0';
 
 		rc = stress_temp_dir_mk_args(args);
 		if (rc < 0)
@@ -368,7 +393,22 @@ static int stress_mmap(const args_t *args)
 		(void)stress_temp_filename_args(args,
 			filename, sizeof(filename), mwc32());
 
-		fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+		if (mmap_odirect) {
+#if defined(O_DIRECT)
+			file_flags |= O_DIRECT;
+#else
+			pr_inf("%s: --mmap-odirect selected by not supported by this system\n");
+#endif
+		}
+		if (mmap_osync) {
+#if defined(O_SYNC)
+			file_flags |= O_SYNC;
+#else
+			pr_inf("%s: --mmap-osync selected by not supported by this system\n");
+#endif
+		}
+
+		fd = open(filename, file_flags, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
 			rc = exit_status(errno);
 			pr_fail_err("open");
@@ -378,7 +418,7 @@ static int stress_mmap(const args_t *args)
 			return rc;
 		}
 		(void)unlink(filename);
-		if (lseek(fd, sz - sizeof(ch), SEEK_SET) < 0) {
+		if (lseek(fd, sz - args->page_size, SEEK_SET) < 0) {
 			pr_fail_err("lseek");
 			(void)close(fd);
 			(void)stress_temp_dir_rm_args(args);
@@ -386,8 +426,13 @@ static int stress_mmap(const args_t *args)
 			return EXIT_FAILURE;
 		}
 redo:
-		ret = write(fd, &ch, sizeof(ch));
-		if (ret != sizeof(ch)) {
+		/*
+		 *  Write a page aligned chunk of data, we can
+		 *  use g_shared as this is mmap'd and hence
+		 *  page algned and always available for reading
+		 */
+		ret = write(fd, g_shared, args->page_size);
+		if (ret != (ssize_t)args->page_size) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
 			rc = exit_status(errno);
@@ -494,6 +539,8 @@ static const opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mmap_bytes,	stress_set_mmap_bytes },
 	{ OPT_mmap_file,	stress_set_mmap_file },
 	{ OPT_mmap_mprotect,	stress_set_mmap_mprotect },
+	{ OPT_mmap_osync,	stress_set_mmap_osync },
+	{ OPT_mmap_odirect,	stress_set_mmap_odirect },
 	{ 0,			NULL }
 };
 

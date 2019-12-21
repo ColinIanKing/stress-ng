@@ -2572,6 +2572,8 @@ typedef enum {
 	OPT_mmap_file,
 	OPT_mmap_async,
 	OPT_mmap_mprotect,
+	OPT_mmap_osync,
+	OPT_mmap_odirect,
 
 	OPT_mmapaddr,
 	OPT_mmapaddr_ops,
