@@ -2701,11 +2701,12 @@ stop radixsort stress workers after N bogo radixsorts.
 specify number of strings to sort, default is 262144 (256 \(mu 1024).
 .TP
 .B \-\-ramfs N
-start N workers mounting a ramfs (Linux only). This mounts and umounts
-a ramfs using the traditional mount(2) and umount(2) system call as
-well as the newer Linux 5.2 fsopen(2), fsmount(2), fsconfig(2) and
-move_mount(2) system calls if they are available. The default ramfs
-size is 2MB.
+start N workers mounting a memory based file system using ramfs and
+tmpfs (Linux only). This alternates between mounting and umounting a
+ramfs or tmpfs file system using the traditional mount(2) and
+umount(2) system call as well as the newer Linux 5.2 fsopen(2),
+fsmount(2), fsconfig(2) and move_mount(2) system calls if they
+are available. The default ram file system size is 2MB.
 .TP
 .B \-\-ramfs\-ops N
 stop after N ramfs mount operations.

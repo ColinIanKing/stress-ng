@@ -138,6 +138,7 @@ static int stress_ramfs_child(const args_t *args)
 {
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 	uint64_t ramfs_size = 2 * MB;
+	int i = 0;
 
 	if (stress_sighandler(args->name, SIGALRM,
 	    stress_ramfs_child_handler, NULL) < 0) {
@@ -176,11 +177,14 @@ static int stress_ramfs_child(const args_t *args)
     defined(__NR_move_mount)
 		int fd, mfd;
 #endif
+		const char *fs = (i++ & 1) ? "ramfs" : "tmpfs";
 
 		(void)snprintf(opt, sizeof(opt), "size=%" PRIu64, ramfs_size);
-		rc = mount("", realpathname, "tmpfs", 0, opt);
+		rc = mount("", realpathname, fs, 0, opt);
 		if (rc < 0) {
-			if ((errno != ENOSPC) && (errno != ENOMEM))
+			if ((errno != ENOSPC) &&
+			    (errno != ENOMEM) &&
+			    (errno != ENODEV))
 				pr_fail_err("mount");
 
 			/* Just in case, force umount */
@@ -195,9 +199,10 @@ static int stress_ramfs_child(const args_t *args)
 		/*
 		 *  Use the new Linux 5.2 mount system calls
 		 */
-		fd = shim_fsopen("tmpfs", 0);
+		fd = shim_fsopen(fs, 0);
 		if (fd < 0) {
-			if (errno == ENOSYS)
+			if ((errno == ENOSYS) ||
+			    (errno == ENODEV))
 				goto skip_fsopen;
 			pr_fail("%s: fsopen failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
