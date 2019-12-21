@@ -102,6 +102,8 @@ do_stress --mincore 0 --mincore-random
 do_stress --mmap 0 --mmap-file
 do_stress --mmap 0 --mmap-mprotect
 do_stress --mmap 0 --mmap-async
+do_stress --mmap 0 --mmap-odirect
+do_stress --mmap 0 --mmap-osync
 
 do_stress --pipe 0 --pipe-size 64K
 do_stress --pipe 0 --pipe-size 1M
