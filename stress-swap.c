@@ -187,6 +187,10 @@ static int stress_swap(const args_t *args)
 			swapflags |= SWAP_FLAG_PREFER;
 		}
 #endif
+#if defined(SWAP_FLAG_DISCARD)
+		if (mwc1())
+			swapflags |= SWAP_FLAG_DISCARD;
+#endif
 		if (stress_swap_set_size(args, fd, npages) < 0) {
 			ret = EXIT_FAILURE;
 			goto tidy_close;
