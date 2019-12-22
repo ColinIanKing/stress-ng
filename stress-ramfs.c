@@ -130,6 +130,56 @@ static void stress_ramfs_umount(const args_t *args, const char *path)
 }
 
 /*
+ *  stress_ramfs_fs_ops()
+ *	exercise the ram based file system;
+ */
+static int stress_ramfs_fs_ops(const args_t *args, const char *pathname)
+{
+	char filename[PATH_MAX];
+	struct stat statbuf;
+	int fd, rc = EXIT_SUCCESS;
+
+	(void)snprintf(filename, sizeof(filename), "%s/tmp", pathname);
+
+	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (fd < 0) {
+		pr_fail("%s: cannot create file on ram based file system, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		rc = EXIT_FAILURE;
+	} else {
+		if (fstat(fd, &statbuf) < 0) {
+			pr_fail("%s: cannot fstat file on ram based file system, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
+		if (unlink(filename) < 0) {
+			pr_fail("%s: cannot unlink file on ram based file system, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
+		(void)close(fd);
+	}
+
+	if (mkdir(filename, S_IRUSR | S_IWUSR) < 0) {
+		pr_fail("%s: cannot create directory on ram based file system, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		rc = EXIT_FAILURE;
+	} else {
+		if (lstat(filename, &statbuf) < 0) {
+			pr_fail("%s: cannot lstat directory on ram based file system, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
+		if (rmdir(filename) < 0) {
+			pr_fail("%s: cannot remove directory on ram based file system, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
+	}
+	return rc;
+}
+
+/*
  *  stress_ramfs_child()
  *	aggressively perform ramfs mounts, this can force out of memory
  *	situations
@@ -139,6 +189,7 @@ static int stress_ramfs_child(const args_t *args)
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 	uint64_t ramfs_size = 2 * MB;
 	int i = 0;
+	int rc = EXIT_SUCCESS;
 
 	if (stress_sighandler(args->name, SIGALRM,
 	    stress_ramfs_child_handler, NULL) < 0) {
@@ -169,7 +220,7 @@ static int stress_ramfs_child(const args_t *args)
 	}
 
 	do {
-		int rc;
+		int ret;
 		char opt[32];
 #if defined(__NR_fsopen) &&	\
     defined(__NR_fsmount) &&	\
@@ -180,8 +231,8 @@ static int stress_ramfs_child(const args_t *args)
 		const char *fs = (i++ & 1) ? "ramfs" : "tmpfs";
 
 		(void)snprintf(opt, sizeof(opt), "size=%" PRIu64, ramfs_size);
-		rc = mount("", realpathname, fs, 0, opt);
-		if (rc < 0) {
+		ret = mount("", realpathname, fs, 0, opt);
+		if (ret < 0) {
 			if ((errno != ENOSPC) &&
 			    (errno != ENOMEM) &&
 			    (errno != ENODEV))
@@ -190,6 +241,8 @@ static int stress_ramfs_child(const args_t *args)
 			/* Just in case, force umount */
 			goto cleanup;
 		}
+		if (stress_ramfs_fs_ops(args, realpathname) == EXIT_FAILURE)
+			rc = EXIT_FAILURE;
 		stress_ramfs_umount(args, realpathname);
 
 #if defined(__NR_fsopen) &&	\
@@ -213,6 +266,7 @@ static int stress_ramfs_child(const args_t *args)
 				goto cleanup_fd;
 			pr_fail("%s: fsconfig failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			goto cleanup_fd;
 		}
 		if (shim_fsconfig(fd, FSCONFIG_CMD_CREATE, NULL, NULL, 0) < 0) {
@@ -220,6 +274,7 @@ static int stress_ramfs_child(const args_t *args)
 				goto cleanup_fd;
 			pr_fail("%s: fsconfig failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			goto cleanup_fd;
 		}
 		mfd = shim_fsmount(fd, 0, 0);
@@ -234,6 +289,7 @@ static int stress_ramfs_child(const args_t *args)
 				goto cleanup_fd;
 			pr_fail("%s: fsmount failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			goto cleanup_fd;
 		}
 		if (shim_move_mount(mfd, "", AT_FDCWD, realpathname, MOVE_MOUNT_F_EMPTY_PATH) < 0) {
@@ -241,6 +297,7 @@ static int stress_ramfs_child(const args_t *args)
 				goto cleanup_mfd;
 			pr_fail("%s: move_mount failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
 			goto cleanup_mfd;
 
 		}
@@ -248,19 +305,21 @@ cleanup_mfd:
 		(void)close(mfd);
 cleanup_fd:
 		(void)close(fd);
+		if (stress_ramfs_fs_ops(args, realpathname) == EXIT_FAILURE)
+			rc = EXIT_FAILURE;
 		stress_ramfs_umount(args, realpathname);
 skip_fsopen:
 
 #endif
 		inc_counter(args);
-	} while (keep_mounting && g_keep_stressing_flag &&
+	} while (keep_mounting && keep_stressing() &&
 		 (!args->max_ops || get_counter(args) < args->max_ops));
 
 cleanup:
 	stress_ramfs_umount(args, realpathname);
 	(void)stress_temp_dir_rm_args(args);
 
-	return 0;
+	return rc;
 }
 
 /*
@@ -308,10 +367,12 @@ again:
 						args->name, args->instance);
 					goto again;
 				}
+			} else if (WEXITSTATUS(status) == EXIT_FAILURE) {
+				pr_fail("%s: child mount/umount failed\n", args->name);
+				return EXIT_FAILURE;
 			}
 		} else if (pid == 0) {
-			stress_ramfs_child(args);
-			_exit(EXIT_SUCCESS);
+			_exit(stress_ramfs_child(args));
 		}
 	} while (keep_stressing());
 
