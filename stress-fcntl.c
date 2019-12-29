@@ -275,6 +275,7 @@ static int do_fcntl(const args_t *args, const int fd)
 		struct flock f;
 #endif
 		int ret;
+		off_t lret;
 		const off_t len = (mwc16() + 1) & 0x7fff;
 		const off_t start = mwc16() & 0x7fff;
 
@@ -299,6 +300,9 @@ static int do_fcntl(const args_t *args, const int fd)
 		}
 #endif
 
+		/*
+		 *  lock and unlock at SEEK_SET position
+		 */
 		f.l_type = F_WRLCK;
 		f.l_whence = SEEK_SET;
 		f.l_start = start;
@@ -322,6 +326,9 @@ static int do_fcntl(const args_t *args, const int fd)
 
 		check_return(args, ret, "F_SETLK (F_UNLCK)");
 
+		/*
+		 *  lock and unlock at SEEK_SET position
+		 */
 		f.l_type = F_WRLCK;
 		f.l_whence = SEEK_SET;
 		f.l_start = start;
@@ -336,6 +343,56 @@ static int do_fcntl(const args_t *args, const int fd)
 		f.l_type = F_UNLCK;
 		f.l_whence = SEEK_SET;
 		f.l_start = start;
+		f.l_len = len;
+		f.l_pid = args->pid;
+
+		ret = fcntl(fd, F_SETLK, &f);
+		check_return(args, ret, "F_SETLK (F_UNLCK)");
+
+		f.l_type = F_WRLCK;
+		f.l_whence = SEEK_END;
+		f.l_start = 0;
+		f.l_len = 1;
+		f.l_pid = args->pid;
+
+		ret = fcntl(fd, F_SETLKW, &f);
+		if ((ret < 0) && (errno == EAGAIN))
+			goto lock_abort;
+		check_return(args, ret, "F_SETLKW (F_WRLCK)");
+
+		/*
+		 *  lock and unlock at SEEK_END position
+		 */
+		f.l_type = F_UNLCK;
+		f.l_whence = SEEK_END;
+		f.l_start = 0;
+		f.l_len = 1;
+		f.l_pid = args->pid;
+
+		ret = fcntl(fd, F_SETLK, &f);
+		check_return(args, ret, "F_SETLK (F_UNLCK)");
+
+		lret = lseek(fd, start, SEEK_SET);
+		if (lret == (off_t)-1)
+			goto lock_abort;
+
+		/*
+		 *  lock and unlock at SEEK_CUR position
+		 */
+		f.l_type = F_WRLCK;
+		f.l_whence = SEEK_CUR;
+		f.l_start = 0;
+		f.l_len = len;
+		f.l_pid = args->pid;
+
+		ret = fcntl(fd, F_SETLKW, &f);
+		if ((ret < 0) && (errno == EAGAIN))
+			goto lock_abort;
+		check_return(args, ret, "F_SETLKW (F_WRLCK)");
+
+		f.l_type = F_UNLCK;
+		f.l_whence = SEEK_CUR;
+		f.l_start = 0;
 		f.l_len = len;
 		f.l_pid = args->pid;
 
