@@ -2316,6 +2316,7 @@ typedef enum {
 
 	OPT_eventfd,
 	OPT_eventfd_ops,
+	OPT_eventfd_nonblock,
 
 	OPT_exec,
 	OPT_exec_ops,

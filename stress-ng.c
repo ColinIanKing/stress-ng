@@ -326,6 +326,7 @@ static const struct option long_options[] = {
 	{ "epoll-domain",1,	0,	OPT_epoll_domain },
 	{ "eventfd",	1,	0,	OPT_eventfd },
 	{ "eventfd-ops",1,	0,	OPT_eventfd_ops },
+	{ "eventfd-nonblock",0,	0,	OPT_eventfd_nonblock },
 	{ "exclude",	1,	0,	OPT_exclude },
 	{ "exec",	1,	0,	OPT_exec },
 	{ "exec-ops",	1,	0,	OPT_exec_ops },

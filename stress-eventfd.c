@@ -27,8 +27,17 @@
 static const help_t help[] = {
 	{ NULL,	"eventfd N",	 "start N workers stressing eventfd read/writes" },
 	{ NULL,	"eventfd-ops N", "stop eventfd workers after N bogo operations" },
+	{ NULL, "eventfs-nonblock", "poll with non-blocking I/O on eventfd fd" },
 	{ NULL,	NULL,		 NULL }
 };
+
+static int stress_set_eventfd_nonblock(const char *opt)
+{
+	bool eventfd_nonblock = true;
+
+	(void)opt;
+	return set_setting("eventfd-nonblock", TYPE_ID_BOOL, &eventfd_nonblock);
+}
 
 #if defined(HAVE_SYS_EVENTFD_H) && \
     defined(HAVE_EVENTFD) && \
@@ -42,14 +51,29 @@ static int stress_eventfd(const args_t *args)
 {
 	pid_t pid;
 	int fd1, fd2, rc;
+	int flags = 0;
+	bool eventfd_nonblock = false;
 
-	fd1 = eventfd(0, 0);
+	(void)get_setting("eventfd-nonblock", &eventfd_nonblock);
+
+#if defined(EFD_CLOEXEC)
+	flags |= EFD_CLOEXEC;
+#endif
+#if defined(EFD_SEMAPHORE)
+	flags |= EFD_SEMAPHORE;
+#endif
+#if defined(EFD_NONBLOCK)
+	if (eventfd_nonblock)
+		flags |= EFD_NONBLOCK;
+#endif
+
+	fd1 = eventfd(0, flags);
 	if (fd1 < 0) {
 		rc = exit_status(errno);
 		pr_fail_dbg("eventfd");
 		return rc;
 	}
-	fd2 = eventfd(0, 0);
+	fd2 = eventfd(0, flags);
 	if (fd2 < 0) {
 		rc = exit_status(errno);
 		pr_fail_dbg("eventfd");
@@ -171,15 +195,23 @@ exit_parent:
 	return EXIT_SUCCESS;
 }
 
+
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_eventfd_nonblock,	stress_set_eventfd_nonblock },
+        { 0,			NULL }
+};
+
 stressor_info_t stress_eventfd_info = {
 	.stressor = stress_eventfd,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
 stressor_info_t stress_eventfd_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #endif
