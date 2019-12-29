@@ -78,6 +78,8 @@ do_stress --epoll 0 --epoll-domain ipv4
 do_stress --epoll 0 --epoll-domain ipv6
 do_stress --epoll 0 --epoll-domain unix
 
+do_stress --eventfd 0 --eventfd-nonblock 
+
 do_stress --hdd 0 --hdd-opts direct,utimes
 do_stress --hdd 0 --hdd-opts dsync
 do_stress --hdd 0 --hdd-opts iovec
@@ -138,6 +140,8 @@ do_stress --timerfd 0 --timerfd-rand
 
 do_stress --tmpfs 0 --tmpfs-mmap-async
 do_stress --tmpfs 0 --tmpfs-mmap-file
+
+do_stress --tun 0 --tun-tap
 
 do_stress --udp 0 --udp-domain ipv4
 do_stress --udp 0 --udp-domain ipv6
