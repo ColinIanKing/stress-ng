@@ -24,6 +24,20 @@
  */
 #include "stress-ng.h"
 
+/*
+ *   exec* family of args to pass
+ */
+typedef struct {
+	const args_t *args;
+	const char *path;
+	char **argv_new;
+	char **env_new;
+#if defined(HAVE_EXECVEAT)
+	int fdexec;
+#endif
+	int which;
+} exec_args_t;
+
 static const help_t help[] = {
 	{ NULL,	"exec N",	"start N workers spinning on fork() and exec()" },
 	{ NULL,	"exec-ops N",	"stop after N exec bogo operations" },
@@ -70,6 +84,123 @@ static int stress_exec_supported(void)
         return 0;
 }
 
+/*
+ *  stress_exec_which()
+ *	perform one of the various execs depending on how
+ *	ea->which is set.
+ */
+static int stress_exec_which(const exec_args_t *ea)
+{
+	int ret;
+
+	switch (ea->which) {
+	case 0:
+		CASE_FALLTHROUGH;
+	default:
+		ret = execve(ea->path, ea->argv_new, ea->env_new);
+		break;
+#if defined(HAVE_EXECVEAT)
+	case 1:
+		ret = shim_execveat(0, ea->path, ea->argv_new, ea->env_new, AT_EMPTY_PATH);
+		break;
+	case 2:
+		ret = shim_execveat(ea->fdexec, "", ea->argv_new, ea->env_new, AT_EMPTY_PATH);
+		break;
+#endif
+	}
+	return ret;
+}
+
+#if defined(HAVE_LIB_PTHREAD)
+/*
+ *  stress_exec_from_pthread()
+ *	perform exec calls from inside a pthead. This should cause
+ * 	the kernel to also kill and reap other associated pthreads
+ *	automatically such as the dummy pthead
+ */
+static void *stress_exec_from_pthread(void *arg)
+{
+	const exec_args_t *ea = (const exec_args_t *)arg;
+	static int ret;
+	char buffer[128];
+
+	(void)snprintf(buffer, sizeof(buffer), "%s-pthread-exec", ea->args->name);
+	stress_set_proc_name(buffer);
+	ret = stress_exec_which(ea);
+	pthread_exit((void *)&ret);
+
+	return NULL;
+}
+
+/*
+ *  stress_exec_dummy_pthread()
+ *	dummy pthread that just sleeps and *should* be killed by the
+ *	exec'ing of code from the other pthread
+ */
+static void *stress_exec_dummy_pthread(void *arg)
+{
+	const exec_args_t *ea = (const exec_args_t *)arg;
+	static int ret = 0;
+	char buffer[128];
+
+	(void)snprintf(buffer, sizeof(buffer), "%s-pthread-sleep", ea->args->name);
+	stress_set_proc_name(buffer);
+	(void)sleep(1);
+
+	pthread_exit((void *)&ret);
+
+	return NULL;
+}
+#endif
+
+/*
+ *  stress_do_exec()
+ * 	perform an exec. If we have pthread support then
+ *	exercise exec from inside a pthread 25% of the time
+ *	to add extra work on the kernel to make it reap
+ *	other pthreads.
+ */
+static inline int stress_do_exec(exec_args_t *ea)
+{
+	int ret;
+#if defined(HAVE_LIB_PTHREAD)
+	int ret_dummy = EINVAL;
+	pthread_t pthread_exec, pthread_dummy;
+
+	if ((mwc8() & 3) == 0) {
+		ret_dummy = pthread_create(&pthread_dummy, NULL, stress_exec_dummy_pthread, (void *)ea);
+
+		ret = pthread_create(&pthread_exec, NULL, stress_exec_from_pthread, (void*)ea);
+		if (ret == 0) {
+			int *exec_ret;
+
+			ret = pthread_join(pthread_exec, (void *)&exec_ret);
+			if (ret == 0) {
+				if (ret_dummy)
+					(void)pthread_kill(pthread_dummy, SIGKILL);
+				return *exec_ret;
+			}
+		}
+	}
+
+	/*
+	 *  pthread failure or 75% of the execs just fall back to
+	 *  the normal non-pthread exec
+	 */
+	ret = stress_exec_which(ea);
+	/*
+	 *  If exec fails, we end up here, so kill dummy pthread
+	 */
+	if (ret_dummy == 0)
+		(void)pthread_kill(pthread_dummy, SIGKILL);
+	return ret;
+#else
+	/*
+	 *  non-pthread enable systems just do normal exec
+	 */
+	return stress_exec_which(ea);
+#endif
+}
 
 /*
  *  stress_exec()
@@ -124,6 +255,7 @@ static int stress_exec(const args_t *args)
 			if (pids[i] == 0) {
 				int ret, fd_out, fd_in, rc;
 				const int which = mwc8() % 3;
+				exec_args_t exec_args;
 
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
@@ -147,22 +279,16 @@ static int stress_exec(const args_t *args)
 				ret = stress_drop_capabilities(args->name);
 				(void)ret;
 
-				switch (which) {
-				case 0:
-					CASE_FALLTHROUGH;
-				default:
-					ret = execve(path, argv_new, env_new);
-					break;
+				exec_args.args = args;
+				exec_args.which = which;
+				exec_args.path = path;
+				exec_args.argv_new = argv_new;
+				exec_args.env_new = env_new;
 #if defined(HAVE_EXECVEAT)
-				case 1:
-					ret = shim_execveat(0, path, argv_new, env_new, AT_EMPTY_PATH);
-					break;
-				case 2:
-					ret = shim_execveat(fdexec, "", argv_new, env_new, AT_EMPTY_PATH);
-					break;
+				exec_args.fdexec = fdexec;
 #endif
-				}
 
+				ret = stress_do_exec(&exec_args);
 				rc = EXIT_SUCCESS;
 				if (ret < 0) {
 					switch (errno) {
