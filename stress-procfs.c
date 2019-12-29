@@ -329,6 +329,7 @@ static void stress_proc_dir(
 			stress_proc_dir(ctxt, tmp, recurse, depth + 1);
 			break;
 		case DT_REG:
+		case DT_LNK:
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
 				(void)shim_strlcpy(proc_path, tmp, sizeof(proc_path));
