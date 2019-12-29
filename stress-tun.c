@@ -115,7 +115,7 @@ static int stress_tun(const args_t *args)
 			rc = EXIT_FAILURE;
 			break;
 		}
-#if 1
+#if 0
 		pr_inf("%s: using interface %s\n", args->name, ifr.ifr_name);
 #endif
 
