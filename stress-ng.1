@@ -3478,6 +3478,10 @@ packets over the tunnel using UDP and then destroys it. A new random
 .B \-\-tun\-ops N
 stop after N iterations of creating/sending/receiving/destroying a tunnel.
 .TP
+.B \-\-tun\-tap
+use network tap device using level 2 frames (bridging) rather than a tun device
+for level 3 raw packets (tunnelling).
+.TP
 .B \-\-udp N
 start N workers that transmit data using UDP. This involves a pair of
 client/server processes performing rapid connect, send and receives and

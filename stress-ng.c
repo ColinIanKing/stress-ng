@@ -788,6 +788,7 @@ static const struct option long_options[] = {
 	{ "tz",		0,	0,	OPT_thermal_zones },
 	{ "tun",	1,	0,	OPT_tun},
 	{ "tun-ops",	1,	0,	OPT_tun_ops },
+	{ "tun-tap",	0,	0,	OPT_tun_tap },
 	{ "udp",	1,	0,	OPT_udp },
 	{ "udp-ops",	1,	0,	OPT_udp_ops },
 	{ "udp-domain",1,	0,	OPT_udp_domain },

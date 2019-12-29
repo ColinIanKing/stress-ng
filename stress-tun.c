@@ -29,6 +29,7 @@
 static const help_t help[] = {
 	{ NULL,	"tun N",	"start N workers exercising tun interface" },
 	{ NULL,	"tun-ops N",	"stop after N tun bogo operations" },
+	{ NULL, "tun-tap",	"use TAP interface instead of TUN" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -67,6 +68,14 @@ static int stress_tun_supported(void)
 	return 0;
 }
 
+static int stress_set_tun_tap(const char *opt)
+{
+        bool tun_tap = true;
+
+        (void)opt;
+        return set_setting("tun-tap", TYPE_ID_BOOL, &tun_tap);
+}
+
 /*
  *  stress_tun
  *	stress tun interface
@@ -77,6 +86,9 @@ static int stress_tun(const args_t *args)
 	const uid_t owner = geteuid();
 	const gid_t group = getegid();
 	char ip_addr[32];
+        bool tun_tap = false;
+
+        (void)get_setting("tun-tap", &tun_tap);
 
 	do {
 		int i, fd, sfd, ret, status;
@@ -93,7 +105,7 @@ static int stress_tun(const args_t *args)
 		}
 
 		(void)memset(&ifr, 0, sizeof(ifr));
-		ifr.ifr_flags = IFF_TUN;
+		ifr.ifr_flags = tun_tap ? IFF_TAP : IFF_TUN;
 
 		ret = ioctl(fd, TUNSETIFF, (void *)&ifr);
 		if (ret < 0) {
@@ -103,6 +115,9 @@ static int stress_tun(const args_t *args)
 			rc = EXIT_FAILURE;
 			break;
 		}
+#if 1
+		pr_inf("%s: using interface %s\n", args->name, ifr.ifr_name);
+#endif
 
 		ret = ioctl(fd, TUNSETOWNER, owner);
 		if (ret < 0) {
@@ -263,10 +278,16 @@ clean_up:
 	return rc;
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_tun_tap,		stress_set_tun_tap },
+        { 0,                    NULL }
+};
+
 stressor_info_t stress_tun_info = {
 	.stressor = stress_tun,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.supported = stress_tun_supported,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
