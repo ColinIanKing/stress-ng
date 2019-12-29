@@ -39,6 +39,22 @@ typedef struct ctxt {
 	bool writeable;
 } ctxt_t;
 
+#if !defined(NSIO)
+#define	NSIO		0xb7
+#endif
+#if !defined(NS_GET_USERNS)
+#define NS_GET_USERNS		_IO(NSIO, 0x1)
+#endif
+#if !defined(NS_GET_PARENT)
+#define NS_GET_PARENT		_IO(NSIO, 0x2)
+#endif
+#if !defined(NS_GET_NSTYPE)
+#define NS_GET_NSTYPE		_IO(NSIO, 0x3)
+#endif
+#if !defined(NS_GET_OWNER_UID)
+#define NS_GET_OWNER_UID	_IO(NSIO, 0x4)
+#endif
+
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
 static char proc_path[PATH_MAX];
@@ -89,6 +105,7 @@ static inline void stress_proc_rw(
 		double t_start;
 		bool timeout = false;
 		uint8_t *ptr;
+		struct stat statbuf;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -109,6 +126,36 @@ static inline void stress_proc_rw(
 			(void)close(fd);
 			goto next;
 		}
+
+		/*
+		 *  fstat the file
+		 */
+		ret = fstat(fd, &statbuf);
+
+#if defined(__linux__)
+		/*
+		 *  Linux name space symlinks can be exercised
+		 *  with some special name space ioctls:
+		 */
+		if (statbuf.st_mode & S_IFLNK) {
+			if (!strncmp(path, "/proc/self", 10) && (strstr(path, "/ns/"))) {
+				int ns_fd;
+				uid_t uid;
+
+				ns_fd = ioctl(fd, NS_GET_USERNS);
+				if (ns_fd >= 0)
+					(void)close(ns_fd);
+				ns_fd = ioctl(fd, NS_GET_PARENT);
+				if (ns_fd >= 0)
+					(void)close(ns_fd);
+				ret = ioctl(fd, NS_GET_NSTYPE);
+				(void)ret;
+				/* The following returns -EINVAL */
+				ret = ioctl(fd, NS_GET_OWNER_UID, &uid);
+				(void)ret;
+			}
+		}
+#endif
 
 		/*
 		 *  Multiple randomly sized reads
