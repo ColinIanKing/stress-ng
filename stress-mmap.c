@@ -67,8 +67,7 @@ static const int mmap_flags[] = {
 #if defined(MAP_HASSEMAPHORE)	/* Mac OS X */
 	MAP_HASSEMAPHORE,
 #endif
-/* This will segv if no backing, so don't use it for now */
-#if 0 && defined(MAP_NORESERVE)
+#if defined(MAP_NORESERVE)
 	MAP_NORESERVE,
 #endif
 #if defined(MAP_STACK)
