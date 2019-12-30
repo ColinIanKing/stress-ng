@@ -135,7 +135,7 @@ static void stress_ramfs_umount(const args_t *args, const char *path)
  */
 static int stress_ramfs_fs_ops(const args_t *args, const char *pathname)
 {
-	char filename[PATH_MAX];
+	char filename[PATH_MAX + 5];
 	struct stat statbuf;
 	int fd, rc = EXIT_SUCCESS;
 
