@@ -230,6 +230,11 @@ static void stress_dev_tty(
 #if defined(TCGETS)
 	{
 		ret = ioctl(fd, TCGETS, &t);
+#if defined(TCSETS)
+		if (ret == 0) {
+			ret = ioctl(fd, TCSETS, &t);
+		}
+#endif
 		(void)ret;
 	}
 #endif
@@ -238,6 +243,11 @@ static void stress_dev_tty(
 		int lck;
 
 		ret = ioctl(fd, TIOCGPTLCK, &lck);
+#if defined(TIOCSPTLCK)
+		if (ret == 0) {
+			ret = ioctl(fd, TIOCSPTLCK, &lck);
+		}
+#endif
 		(void)ret;
 	}
 #endif
@@ -262,6 +272,11 @@ static void stress_dev_tty(
 		struct winsize ws;
 
 		ret = ioctl(fd, TIOCGWINSZ, &ws);
+#if defined(TIOCSWINSZ)
+		if (ret == 0) {
+			ret = ioctl(fd, TIOCSWINSZ, &ws);
+		}
+#endif
 		(void)ret;
 	}
 #endif
@@ -294,6 +309,11 @@ static void stress_dev_tty(
 		pid_t pgrp;
 
 		ret = ioctl(fd, TIOCGPGRP, &pgrp);
+#if defined(TIOCSPGRP)
+		if (ret == 0) {
+			ret = ioctl(fd, TIOCSPGRP, &pgrp);
+		}
+#endif
 		(void)ret;
 	}
 #endif
@@ -318,6 +338,11 @@ static void stress_dev_tty(
 		int ldis;
 
 		ret = ioctl(fd, TIOCGETD, &ldis);
+#if defined(TIOCSETD)
+		if (ret == 0) {
+			ret = ioctl(fd, TIOCSETD, &ldis);
+		}
+#endif
 		(void)ret;
 	}
 #endif
@@ -327,6 +352,11 @@ static void stress_dev_tty(
 		int flag;
 
 		ret = ioctl(fd, TIOCGSOFTCAR, &flag);
+#if defined(TIOCSSOFTCAR)
+		if (ret == 0) {
+			ret = ioctl(fd, TIOCSSOFTCAR, &flag);
+		}
+#endif
 		(void)ret;
 	}
 #endif
@@ -380,6 +410,11 @@ static void stress_dev_tty(
 		int status;
 
 		ret = ioctl(fd, TIOCMGET, &status);
+#if defined(TIOCMSET)
+		if (ret == 0) {
+			ret = ioctl(fd, TIOCMSET, &status);
+		}
+#endif
 		(void)ret;
 	}
 #endif
