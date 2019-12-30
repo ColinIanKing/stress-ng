@@ -38,7 +38,7 @@ static const help_t help[] = {
 static void check_eperm(const args_t *args, const int ret, const int err)
 {
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-	    ((ret == 0) || (err != EPERM))) {
+	    ((ret == 0) || ((err != EPERM) && (err != EINVAL)))) {
 		pr_fail("%s: expected errno to be EPERM, got "
 			"errno %d (%s) instead\n",
 			args->name, err, strerror(err));
