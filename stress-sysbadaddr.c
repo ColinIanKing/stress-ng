@@ -133,7 +133,7 @@ static void *text_addr(const args_t *args)
 
 static void *bad_end_addr(const args_t *args)
 {
-	return rw_page + args->page_size - 1;
+	return ((uint8_t *)rw_page) + args->page_size - 1;
 }
 
 static void *bad_max_addr(const args_t *args)
@@ -145,7 +145,7 @@ static void *bad_max_addr(const args_t *args)
 
 static void *unmapped_addr(const args_t *args)
 {
-	return rw_page + args->page_size;
+	return ((uint8_t *)rw_page) + args->page_size;
 }
 
 static bad_addr_t bad_addrs[] = {
@@ -607,7 +607,7 @@ static int stress_sysbadaddr(const args_t *args)
 	 * Unmap last page, so we know we have an unmapped
 	 * page following the r/w page
 	 */
-	(void)munmap(rw_page + page_size, page_size);
+	(void)munmap((void *)(((uint8_t *)rw_page) + page_size), page_size);
 
 again:
 	if (!keep_stressing())
