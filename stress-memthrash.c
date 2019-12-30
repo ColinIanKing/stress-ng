@@ -245,7 +245,7 @@ static void HOT OPTIMIZE3 stress_memthrash_lock(
 
 	for (i = 0; !thread_terminate && (i < 64); i++) {
 		size_t offset = mwc32() % mem_size;
-		volatile uint8_t *ptr = mem + offset;
+		volatile uint8_t *ptr = ((uint8_t *)mem) + offset;
 
 		MEM_LOCK(ptr);
 	}
