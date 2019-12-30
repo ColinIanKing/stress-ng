@@ -443,14 +443,16 @@ static int stress_mmap(const args_t *args)
 #if defined(O_DIRECT)
 			file_flags |= O_DIRECT;
 #else
-			pr_inf("%s: --mmap-odirect selected by not supported by this system\n");
+			pr_inf("%s: --mmap-odirect selected by not supported by this system\n",
+				args->name);
 #endif
 		}
 		if (mmap_osync) {
 #if defined(O_SYNC)
 			file_flags |= O_SYNC;
 #else
-			pr_inf("%s: --mmap-osync selected by not supported by this system\n");
+			pr_inf("%s: --mmap-osync selected by not supported by this system\n",
+				args->name);
 #endif
 		}
 
