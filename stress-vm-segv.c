@@ -40,7 +40,7 @@ static NOINLINE void vm_unmap_child(const size_t page_size)
 		munmap((void *)0, len - page_size);
 		len >>= 1;
 		clflush(addr);
-		shim_clear_cache(addr, addr + 64);
+		shim_clear_cache(addr, (void *)(((uint8_t *)addr) + 64));
 	}
 }
 
@@ -50,7 +50,7 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
 
 	munmap(addr, page_size);
 	clflush(addr);
-	shim_clear_cache(addr, addr + 64);
+	shim_clear_cache(addr, (void *)(((uint8_t *)addr) + 64));
 }
 
 /*
