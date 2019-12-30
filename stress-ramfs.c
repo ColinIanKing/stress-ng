@@ -328,7 +328,7 @@ cleanup:
  */
 static int stress_ramfs_mount(const args_t *args)
 {
-	int pid = 0;
+	int pid;
 
 	do {
 again:
