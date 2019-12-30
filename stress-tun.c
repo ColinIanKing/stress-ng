@@ -251,6 +251,14 @@ child_cleanup:
 			(void)ret;
 #endif
 
+#if defined(TUNGETVNETHDRSZ)
+			{
+				int vnet_hdr_sz;
+	
+				ret = ioctl(fd, TUNGETVNETHDRSZ, &vnet_hdr_sz);
+			}
+#endif
+
 			sfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			if (sfd < 0) {
 				pr_fail("%s: parent socket failed, errno = %d (%s)\n",
