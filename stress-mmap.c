@@ -73,6 +73,15 @@ static const int mmap_flags[] = {
 #if defined(MAP_STACK)
 	MAP_STACK,
 #endif
+#if defined(MAP_EXECUTABLE)
+	MAP_EXECUTABLE,
+#endif
+#if defined(MAP_UNINITIALIZED)
+	MAP_UNINITIALIZED,
+#endif
+#if defined(MAP_DENYWRITE)
+	MAP_DENYWRITE,
+#endif
 	0
 };
 
@@ -209,7 +218,23 @@ retry:
 				goto retry;
 			}
 #endif
-
+#if defined(MAP_UNINITIALIZED)
+			/* Force MAP_UNINITIALIZED off, just in case */
+			if (rnd_flag & MAP_UNINITIALIZED) {
+				rnd_flag &= ~MAP_UNINITIALIZED;
+				no_mem_retries++;
+				goto retry;
+			}
+#endif
+#if defined(MAP_DENYWRITE)
+			/* Force MAP_DENYWRITE off, just in case */
+			if (rnd_flag & MAP_DENYWRITE) {
+				rnd_flag &= ~MAP_DENYWRITE;
+				no_mem_retries++;
+				goto retry;
+			}
+#endif
+			no_mem_retries++;
 			no_mem_retries++;
 			if (no_mem_retries > 1)
 				(void)shim_usleep(100000);
