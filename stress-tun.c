@@ -246,6 +246,11 @@ child_cleanup:
 			(void)ret;
 #endif
 
+#if defined(SIOCGIFHWADDR)
+			ret = ioctl(fd, SIOCGIFHWADDR, &ifr);
+			(void)ret;
+#endif
+
 			sfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			if (sfd < 0) {
 				pr_fail("%s: parent socket failed, errno = %d (%s)\n",
