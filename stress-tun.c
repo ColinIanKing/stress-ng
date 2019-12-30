@@ -256,6 +256,12 @@ child_cleanup:
 				int vnet_hdr_sz;
 
 				ret = ioctl(fd, TUNGETVNETHDRSZ, &vnet_hdr_sz);
+				if (ret == 0) {
+#if defined(TUNSETVNETHDRSZ)
+					ret = ioctl(fd, TUNSETVNETHDRSZ, &vnet_hdr_sz);
+#endif
+				}
+				(void)ret;
 			}
 #endif
 
@@ -264,6 +270,12 @@ child_cleanup:
 				int sndbuf;
 
 				ret = ioctl(fd, TUNGETSNDBUF, &sndbuf);
+				if (ret == 0) {
+#if defined(TUNSETVNETHDRSZ)
+					ret = ioctl(fd, TUNSETSNDBUF, &sndbuf);
+#endif
+				}
+				(void)ret;
 			}
 #endif
 
@@ -272,6 +284,11 @@ child_cleanup:
 				int val;
 
 				ret = ioctl(fd, TUNGETVNETLE, &val);
+				if (ret == 0) {
+#if defined(TUNSETVNETLE)
+					ret = ioctl(fd, TUNSETVNETLE, &val);
+#endif
+				}
 			}
 #endif
 
@@ -280,6 +297,11 @@ child_cleanup:
 				int val;
 
 				ret = ioctl(fd, TUNGETVNETBE, &val);
+				if (ret == 0) {
+#if defined(TUNSETVNETBE)
+					ret = ioctl(fd, TUNSETVNETBE, &val);
+#endif
+				}
 			}
 #endif
 
