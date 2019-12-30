@@ -259,6 +259,14 @@ child_cleanup:
 			}
 #endif
 
+#if defined(TUNGETSNDBUF)
+			{
+				int sndbuf;
+	
+				ret = ioctl(fd, TUNGETSNDBUF, &sndbuf);
+			}
+#endif
+
 			sfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			if (sfd < 0) {
 				pr_fail("%s: parent socket failed, errno = %d (%s)\n",
