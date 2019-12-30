@@ -39,6 +39,7 @@ static const help_t help[] = {
     defined(HAVE_GETXATTR) &&		\
     defined(HAVE_LISTXATTR) &&		\
     defined(HAVE_LGETXATTR) &&		\
+    defined(HAVE_LLISTXATTR) &&		\
     defined(HAVE_LSETXATTR) &&		\
     defined(HAVE_SETXATTR)
 
@@ -188,6 +189,11 @@ static int stress_xattr(const args_t *args)
 				pr_fail_err("fremovexattr");
 				goto out_close;
 			}
+		}
+		sz = llistxattr(filename, NULL, 0);
+		if (sz < 0) {
+			pr_fail_err("flistxattr");
+			goto out_close;
 		}
 		inc_counter(args);
 	} while (keep_stressing());
