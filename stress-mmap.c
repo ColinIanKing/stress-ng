@@ -46,6 +46,9 @@ static const int mmap_flags[] = {
 #if defined(MAP_HUGE_1GB) && defined(MAP_HUGETLB)
 	MAP_HUGE_1GB | MAP_HUGETLB,
 #endif
+#if defined(MAP_HUGETLB)
+	MAP_HUGETLB,
+#endif
 #if defined(MAP_NONBLOCK)
 	MAP_NONBLOCK,
 #endif
@@ -176,9 +179,10 @@ static void stress_mmap_child(
 		uint8_t *mappings[pages4k];
 		size_t n;
 		const int rnd = mwc32() % SIZEOF_ARRAY(mmap_flags);
-		const int rnd_flag = mmap_flags[rnd];
+		int rnd_flag = mmap_flags[rnd];
 		uint8_t *buf = NULL;
 
+retry:
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 			pr_inf("%s: gave up trying to mmap, no available memory\n",
 				args->name);
@@ -190,15 +194,29 @@ static void stress_mmap_child(
 		buf = (uint8_t *)mmap(NULL, sz,
 			PROT_READ | PROT_WRITE, *flags | rnd_flag, fd, 0);
 		if (buf == MAP_FAILED) {
-			/* Force MAP_POPULATE off, just in case */
 #if defined(MAP_POPULATE)
-			*flags &= ~MAP_POPULATE;
+			/* Force MAP_POPULATE off, just in case */
+			if (*flags & MAP_POPULATE) {
+				*flags &= ~MAP_POPULATE;
+				no_mem_retries++;
+				continue;
+			}
 #endif
+#if defined(MAP_HUGETLB)
+			/* Force MAP_HUGETLB off, just in case */
+			if (rnd_flag & MAP_HUGETLB) {
+				rnd_flag &= ~MAP_HUGETLB;
+				no_mem_retries++;
+				goto retry;
+			}
+#endif
+
 			no_mem_retries++;
 			if (no_mem_retries > 1)
 				(void)shim_usleep(100000);
 			continue;	/* Try again */
 		}
+		no_mem_retries = 0;
 		if (mmap_file) {
 			(void)memset(buf, 0xff, sz);
 			(void)shim_msync((void *)buf, sz, ms_flags);
