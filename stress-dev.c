@@ -225,6 +225,9 @@ static void stress_dev_tty(
 	(void)name;
 	(void)devpath;
 
+	if (!isatty(fd))
+		return;
+
 	ret = tcgetattr(fd, &t);
 	(void)ret;
 #if defined(TCGETS)
@@ -1226,7 +1229,10 @@ static inline void stress_dev_rw(
 #endif
 		}
 #if defined(HAVE_TERMIOS_H) && defined(TCGETS)
-		if (ioctl(fd, TCGETS, &tios) == 0)
+		if (S_ISCHR(buf.st_mode) &&
+		    strncmp("/dev/vsock", path, 9) &&
+		    strncmp("/dev/dri", path, 7) &&
+		    (ioctl(fd, TCGETS, &tios) == 0))
 			stress_dev_tty(args->name, fd, path);
 #endif
 
