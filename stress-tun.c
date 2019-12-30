@@ -254,7 +254,7 @@ child_cleanup:
 #if defined(TUNGETVNETHDRSZ)
 			{
 				int vnet_hdr_sz;
-	
+
 				ret = ioctl(fd, TUNGETVNETHDRSZ, &vnet_hdr_sz);
 			}
 #endif
@@ -262,8 +262,24 @@ child_cleanup:
 #if defined(TUNGETSNDBUF)
 			{
 				int sndbuf;
-	
+
 				ret = ioctl(fd, TUNGETSNDBUF, &sndbuf);
+			}
+#endif
+
+#if defined(TUNGETVNETLE)
+			{
+				int val;
+
+				ret = ioctl(fd, TUNGETVNETLE, &val);
+			}
+#endif
+
+#if defined(TUNGETVNETBE)
+			{
+				int val;
+
+				ret = ioctl(fd, TUNGETVNETBE, &val);
 			}
 #endif
 
