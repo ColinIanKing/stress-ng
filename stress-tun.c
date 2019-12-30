@@ -305,6 +305,11 @@ child_cleanup:
 			}
 #endif
 
+#if defined(TUNGETDEVNETNS)
+			ret = ioctl(fd, TUNGETDEVNETNS, NULL /* not required */);
+			(void)ret;
+#endif
+
 			sfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			if (sfd < 0) {
 				pr_fail("%s: parent socket failed, errno = %d (%s)\n",
