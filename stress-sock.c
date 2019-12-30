@@ -235,7 +235,7 @@ retry:
 			ssize_t n = 0;
 			int opt;
 			size_t i, j;
-			char *recvfunc;
+			char *recvfunc = "recv";
 			struct msghdr msg;
 			struct iovec vec[sizeof(buf)/16];
 #if defined(HAVE_RECVMMSG)
