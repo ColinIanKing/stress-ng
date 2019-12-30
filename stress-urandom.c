@@ -46,7 +46,10 @@ static void check_eperm(const args_t *args, const int ret, const int err)
  */
 static int stress_urandom(const args_t *args)
 {
-	int fd_urnd, fd_rnd, fd_rnd_wr, rc = EXIT_FAILURE;
+	int fd_urnd, fd_rnd, rc = EXIT_FAILURE;
+#if defined(__linux__)
+	int fd_rnd_wr;
+#endif
 	bool sys_admin = stress_check_capability(SHIM_CAP_SYS_ADMIN);
 
 	fd_urnd = open("/dev/urandom", O_RDONLY);
@@ -65,8 +68,10 @@ static int stress_urandom(const args_t *args)
 		}
 	}
 
+#if defined(__linux__)
 	/* Maybe we can write, don't report failure if we can't */
 	fd_rnd_wr = open("/dev/random", O_WRONLY | O_NONBLOCK);
+#endif
 
 	if ((fd_urnd < 0) && (fd_rnd < 0)) {
 		pr_inf("%s: random device(s) do not exist, skipping stressor\n",
@@ -143,11 +148,13 @@ next:
 				check_eperm(args, ret, errno);
 #endif
 
+#if defined(__linux__)
 				if (fd_rnd_wr >= 0) {
 					buffer[0] = mwc8();
 					ret = write(fd_rnd_wr, buffer, 1);
 					check_eperm(args, ret, errno);
 				}
+#endif
 			}
 		}
 
@@ -172,8 +179,10 @@ err:
 		(void)close(fd_urnd);
 	if (fd_rnd >= 0)
 		(void)close(fd_rnd);
+#if defined(__linux__)
 	if (fd_rnd_wr >= 0)
 		(void)close(fd_rnd_wr);
+#endif
 
 	return rc;
 }
