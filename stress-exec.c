@@ -162,8 +162,8 @@ static void *stress_exec_dummy_pthread(void *arg)
  */
 static inline int stress_do_exec(exec_args_t *ea)
 {
-	int ret;
 #if defined(HAVE_LIB_PTHREAD)
+	int ret;
 	int ret_dummy = EINVAL;
 	pthread_t pthread_exec, pthread_dummy;
 
