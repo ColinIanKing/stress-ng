@@ -241,6 +241,10 @@ child_cleanup:
 				(void)close(fd);
 				break;
 			}
+#if defined(TUNSETNOCSUM)
+			ret = ioctl(fd, TUNSETNOCSUM, 1);
+			(void)ret;
+#endif
 
 			sfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
 			if (sfd < 0) {
