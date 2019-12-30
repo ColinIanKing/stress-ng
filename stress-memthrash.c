@@ -73,10 +73,12 @@ static inline HOT OPTIMIZE3 void stress_memthrash_random_chunk(
 	for (i = 0; !thread_terminate && (i < max); i++) {
 		const size_t chunk = mwc32() % chunks;
 		const size_t offset = chunk * chunk_size;
+		void *ptr = (void *)(((uint8_t *)mem) + offset);
+		
 #if defined(__GNUC__)
-		(void)__builtin_memset((void *)mem + offset, mwc8(), chunk_size);
+		(void)__builtin_memset(ptr, mwc8(), chunk_size);
 #else
-		(void)memset((void *)mem + offset, mwc8(), chunk_size);
+		(void)memset(ptr, mwc8(), chunk_size);
 #endif
 	}
 }
@@ -144,7 +146,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
 	(void)args;
 
 	volatile uint64_t *ptr = (volatile uint64_t *)mem;
-	const uint64_t *end = (uint64_t *)(mem + mem_size);
+	const uint64_t *end = (uint64_t *)(((uint8_t *)mem) + mem_size);
 
 	while (LIKELY(ptr < end)) {
 		*ptr = *ptr ^ ~0ULL;
@@ -186,7 +188,7 @@ static void HOT OPTIMIZE3 stress_memthrash_prefetch(
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
 		size_t offset = mwc32() % mem_size;
-		uint8_t *const ptr = mem + offset;
+		uint8_t *const ptr = ((uint8_t *)mem) + offset;
 		volatile uint8_t *const vptr = ptr;
 
 		__builtin_prefetch(ptr, 1, 1);
@@ -206,7 +208,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flush(
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
 		size_t offset = mwc32() % mem_size;
-		uint8_t *const ptr = mem + offset;
+		uint8_t *const ptr = ((uint8_t *)mem) + offset;
 		volatile uint8_t *const vptr = ptr;
 
 		*vptr = i & 0xff;
@@ -225,7 +227,7 @@ static void HOT OPTIMIZE3 stress_memthrash_mfence(
 
 	for (i = 0; !thread_terminate && (i < max); i++) {
 		size_t offset = mwc32() % mem_size;
-		volatile uint8_t *ptr = mem + offset;
+		volatile uint8_t *ptr = ((uint8_t *)mem) + offset;
 
 		*ptr = i & 0xff;
 		mfence();
@@ -256,7 +258,7 @@ static void HOT OPTIMIZE3 stress_memthrash_spinread(
 {
 	uint32_t i;
 	const size_t offset = mwc32() % mem_size;
-	volatile uint32_t *ptr = (uint32_t *)(mem + offset);
+	volatile uint32_t *ptr = (uint32_t *)(((uint8_t *)mem) + offset);
 
 	(void)args;
 
@@ -279,7 +281,7 @@ static void HOT OPTIMIZE3 stress_memthrash_spinwrite(
 {
 	uint32_t i;
 	const size_t offset = mwc32() % mem_size;
-	volatile uint32_t *ptr = (uint32_t *)(mem + offset);
+	volatile uint32_t *ptr = (uint32_t *)(((uint8_t *)mem) + offset);
 
 	(void)args;
 
