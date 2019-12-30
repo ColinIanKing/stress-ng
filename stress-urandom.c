@@ -30,6 +30,11 @@ static const help_t help[] = {
 	{ NULL, NULL,		 NULL }
 };
 
+#if defined(RNDCLEARPOOL) ||	\
+    defined(RNDZAPENTCNT) ||	\
+    defined(RNDADDTOENTCNT) ||	\
+    defined(RNDRESEEDCRNG) || 	\
+    defined(__linux__)
 static void check_eperm(const args_t *args, const int ret, const int err)
 {
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
@@ -39,6 +44,7 @@ static void check_eperm(const args_t *args, const int ret, const int err)
 			args->name, err, strerror(err));
 	}
 }
+#endif
 
 /*
  *  stress_urandom
