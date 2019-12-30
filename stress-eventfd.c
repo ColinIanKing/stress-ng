@@ -39,6 +39,11 @@ static int stress_set_eventfd_nonblock(const char *opt)
 	return set_setting("eventfd-nonblock", TYPE_ID_BOOL, &eventfd_nonblock);
 }
 
+static const opt_set_func_t opt_set_funcs[] = {
+	{ OPT_eventfd_nonblock,	stress_set_eventfd_nonblock },
+        { 0,			NULL }
+};
+
 #if defined(HAVE_SYS_EVENTFD_H) && \
     defined(HAVE_EVENTFD) && \
     NEED_GLIBC(2,8,0)
@@ -194,12 +199,6 @@ exit_parent:
 	}
 	return EXIT_SUCCESS;
 }
-
-
-static const opt_set_func_t opt_set_funcs[] = {
-	{ OPT_eventfd_nonblock,	stress_set_eventfd_nonblock },
-        { 0,			NULL }
-};
 
 stressor_info_t stress_eventfd_info = {
 	.stressor = stress_eventfd,
