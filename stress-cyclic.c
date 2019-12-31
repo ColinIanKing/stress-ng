@@ -720,6 +720,7 @@ static int stress_cyclic(const args_t *args)
 redo_policy:
 		ret = stress_set_sched(mypid, policy, rt_stats->max_prio, args->instance != 0);
 		if (ret < 0) {
+#if defined(SCHED_DEADLINE)
 			/*
 			 *  The following occurs if we use an older kernel
 			 *  that does not support the larger newer attr structure
@@ -740,6 +741,7 @@ redo_policy:
 					args->name, policies[cyclic_policy].name);
 				goto redo_policy;
 			}
+#endif
 			if (errno != EPERM) {
 				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
