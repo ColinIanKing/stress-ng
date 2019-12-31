@@ -730,6 +730,7 @@ redo_policy:
 			if ((errno == E2BIG) &&
 			    (policies[cyclic_policy].policy == SCHED_DEADLINE)) {
 				cyclic_policy = 1;
+				policy = policies[cyclic_policy].policy;
 #if defined(HAVE_SCHED_GET_PRIORITY_MAX)
 				rt_stats->max_prio = sched_get_priority_max(policy);
 #else
