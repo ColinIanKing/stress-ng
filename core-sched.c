@@ -159,8 +159,18 @@ int stress_set_sched(
 		attr.sched_deadline = 100000;
 		attr.sched_period = 0;
 
+
 		rc = shim_sched_setattr(pid, &attr, 0);
 		if (rc < 0) {
+			/*
+			 *  Kernel supports older (smaller) attr
+			 *  but userspace supports newer (larger) attr,
+			 *  so report this and pass it back up to re-do
+			 *  the scheduling with a non SCHED_DEADLINE
+			 *  scheduler that requires the larger attr
+			 */
+			if (errno == E2BIG)
+				return -E2BIG;
 			rc = -errno;
 			if (!quiet)
 				pr_inf("Cannot set scheduler '%s': errno=%d (%s)\n",

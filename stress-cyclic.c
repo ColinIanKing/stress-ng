@@ -647,7 +647,7 @@ static int stress_cyclic(const args_t *args)
 	rt_stats->min_prio = 0;
 #endif
 
-#if defined(HAVE_SCHED_GET_PRIORITY_MIN)
+#if defined(HAVE_SCHED_GET_PRIORITY_MAX)
 	rt_stats->max_prio = sched_get_priority_max(policy);
 #else
 	rt_stats->max_prio = 0;
@@ -717,8 +717,28 @@ static int stress_cyclic(const args_t *args)
 
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
     defined(HAVE_SCHED_GET_PRIORITY_MAX)
+redo_policy:
 		ret = stress_set_sched(mypid, policy, rt_stats->max_prio, args->instance != 0);
 		if (ret < 0) {
+			/*
+			 *  The following occurs if we use an older kernel
+			 *  that does not support the larger newer attr structure
+			 *  but userspace does. This currently only occurs with
+			 *  SCHED_DEADLINE; fall back to the next scheduling policy
+			 *  which users the older and smaller attr structure.
+			 */
+			if ((errno == E2BIG) &&
+			    (policies[cyclic_policy].policy == SCHED_DEADLINE)) {
+				cyclic_policy = 1;
+#if defined(HAVE_SCHED_GET_PRIORITY_MAX)
+				rt_stats->max_prio = sched_get_priority_max(policy);
+#else
+				rt_stats->max_prio = 0;
+#endif
+				pr_inf("%s: DEADLINE not supported by kernel, defaulting to %s\n",
+					args->name, policies[cyclic_policy].name);
+				goto redo_policy;
+			}
 			if (errno != EPERM) {
 				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
