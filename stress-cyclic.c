@@ -717,7 +717,9 @@ static int stress_cyclic(const args_t *args)
 
 #if defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
     defined(HAVE_SCHED_GET_PRIORITY_MAX)
+#if defined(SCHED_DEADLINE)
 redo_policy:
+#endif
 		ret = stress_set_sched(mypid, policy, rt_stats->max_prio, args->instance != 0);
 		if (ret < 0) {
 #if defined(SCHED_DEADLINE)
