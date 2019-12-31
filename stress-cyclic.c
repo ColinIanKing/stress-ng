@@ -828,7 +828,7 @@ tidy:
 		} else {
 			pr_inf("%s: %10s: no latency information available\n",
 				args->name,
-				policies[policy].name);
+				policies[cyclic_policy].name);
 		}
 	}
 
