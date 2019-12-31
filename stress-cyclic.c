@@ -782,7 +782,7 @@ tidy:
 
 	stress_rt_stats(rt_stats);
 
-	if (args->instance  == 0) {
+	if (args->instance == 0) {
 		if (rt_stats->index) {
 			size_t i;
 			bool lock = false;
