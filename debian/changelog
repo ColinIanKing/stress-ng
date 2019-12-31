@@ -1,3 +1,82 @@
+stress-ng (0.10.15-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-cyclic: only declare label redo_policy for SCHED_DEADLINE
+  * stress-cyclic: don't perform E2BIG error check if SCHED_DEADLINE is
+    not available
+  * stress-cyclic: print out cyclic policy name using correct index
+  * stress-cyclic: remove space before == operator
+  * stress-cyclic: update to new policy if E2BIG occurs
+  * stress-cyclic: handle differences in sched_attr sizes
+  * stress-sock: ensure pointer recvfunc is ininitialized
+  * stress-vm-segv: avoid void * pointer arithmetic, it is not portable
+  * stress-sysbadaddr: avoid void * pointer arithmetic, it is not
+    portable
+  * stress-memthrash: fix up another void * math portability issue
+  * stress-memthrash: avoid void * pointer arithmetic, it is not
+    portable
+  * stress-madvise: avoid void * pointer arithmetic, it is not portable
+  * stress-clone: make rnd a uint32_t so 31 bit left shift is portable
+  * stress-rds: remove prototype stressor
+  * stress-ramfs: remove unnecessary initialisation of pid
+  * stress-exec: move variable ret into section that requires it
+  * stress-urandom: ignore -EINVAL errors on non-existant ioctls
+  * stress-ramfs: ensure path does not overflow in snprintf
+  * stress-urandom: fix build warning on non-Linux platforms
+  * stress-urandom: only write to /dev/urandom on Linux
+  * stress-mmap: fix missing stressor name in pr_inf messages
+  * stress-mmap: clean up build warning on systems that won't retry
+  * stress-eventfd: fix build issue with systems that don't support
+    eventfd
+  * stress-mmap: add MAP_{EXECUTABLE|UNINITIALIZED|DENYWRITE} flags
+  * stress-mmap: use MAP_NORESERVE as we have a SIGSEGV handler
+  * stress-dev: add some pre-checks before assuming dev is a tty
+  * stress-mmap: add MAP_HUGETLB mmap flag
+  * stress-dev: add more tty ioctls
+  * stress-tun: add TUNGETDEVNETNS ioctl
+  * stress-tun: add various tun related *SET* ioctls
+  * stress-tun: add TUNGETVNET* ioctls
+  * stress-tun: add TUNGETSNDBUF ioctl
+  * stress-tun: add TUNGETVNETHDRSZ ioctl
+  * stress-tun: add SIOCGIFHWADDR ioctl
+  * stress-tun: add TUNSETNOCSUM ioctl
+  * stress-xattr: add llistxattr system call
+  * stress-procfs: add fstat operation on proc file and exercise namespace
+    files
+  * stress-procfs: handle DT_LNK symlinks like regular files
+  * stress-fcntl: F_SETLKW at SEEK_END and SEEK_CUR file positions
+  * kernel-coverage: add a couple more coverage options
+  * stress-exec: add random 1 in 4 chance exec'ing from inside a pthread
+  * stress-eventfd: add non-blocking option --eventfd-nonblock
+  * stress-tun: disable tun/tap device info
+  * stress-tun: add tap support with --tun-tap option
+  * stress-ramfs: add some file/directory activity on ramfs
+  * stress-iomix: silently ignore -EPERM write failures
+  * stress-ramfs: alternate between ramfs and tmpfs memory based
+    filesystems
+  * kernel-coverage: add mmap odirect and osync options
+  * stress-mmap: add --mmap-odirect and --map-osync file options
+  * stress-swap: add random use of SWAP_FLAG_DISCARD if available
+  * kernel-coverage: Add more options to get more kernel coverage
+  * Manual: remove trailing space
+  * stress-run: make bind EADDRINUSE not fatal
+  * stress-tun: Add network tunnelling stressor using the TUN/TAP
+    interface
+  * stress-urandom: use SHIM_CAP_SYS_ADMIN instead of CAP_SYS_ADMIN
+  * kernel-coverage: add --all option
+  * stress-prctl: add 4 more prctl commands to exercise
+  * stress-sem-sysv: add SETALL semctl
+  * stress-fanotify: add more fanotify events, remove exec stats
+  * stress-urandom: move next label to avoid skipping some more stress
+    points
+  * stress-urandom: exercise lseek and write on /dev/random
+  * stress-urandom: add more ioctl calls to exercise kernel coverage
+  * stress-loop: add xor and none crypto on loopback
+  * stress-loop: exercise the LOOP_SET_BLOCK_SIZE ioctl
+
+ -- Colin King <colin.king@canonical.com>  Tue, 31 Dec 2019 01:37:31 +0000
+
 stress-ng (0.10.14-1) unstable; urgency=medium
 
   * Makefile: bump version
