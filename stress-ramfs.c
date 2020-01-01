@@ -136,10 +136,12 @@ static void stress_ramfs_umount(const args_t *args, const char *path)
 static int stress_ramfs_fs_ops(const args_t *args, const char *pathname)
 {
 	char filename[PATH_MAX + 5];
+	char symlinkname[PATH_MAX + 5];
 	struct stat statbuf;
 	int fd, rc = EXIT_SUCCESS;
 
 	(void)snprintf(filename, sizeof(filename), "%s/tmp", pathname);
+	(void)snprintf(symlinkname, sizeof(symlinkname), "%s/lnk", pathname);
 
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
@@ -149,6 +151,21 @@ static int stress_ramfs_fs_ops(const args_t *args, const char *pathname)
 	} else {
 		if (fstat(fd, &statbuf) < 0) {
 			pr_fail("%s: cannot fstat file on ram based file system, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
+		if (symlink(pathname, symlinkname) < 0) {
+			pr_fail("%s: cannot create symbolic link on ram based file system, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
+		if (lstat(symlinkname, &statbuf) < 0) {
+			pr_fail("%s: cannot lstat symbolic link on ram based file system, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
+		if (unlink(symlinkname) < 0) {
+			pr_fail("%s: cannot unlink symbolic file on ram based file system, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
