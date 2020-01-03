@@ -493,7 +493,6 @@ static void stress_sys_dir(
 						break;
 				} while ((counter < OPS_PER_SYSFS_FILE) && keep_stressing());
 
-				//printf("%d %f %s\n", counter, time_now() - time_start, sysfs_path);
 				inc_counter(args);
 			}
 			break;
