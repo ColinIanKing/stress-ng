@@ -33,8 +33,8 @@ static const help_t help[] = {
 #define SYS_BUF_SZ		(4096)
 #define MAX_SYSFS_THREADS	(4)	/* threads stressing sysfs */
 #define DRAIN_DELAY_US		(50000)	/* backoff in (us) microsecs */
-#define DURATION_PER_SYSFS_FILE	(40000)	/* max duration per file in microsecs */
-#define OPS_PER_SYSFS_FILE	(256)	/* max iterations per sysfs file */
+#define DURATION_PER_SYSFS_FILE	(100000)	/* max duration per file in microsecs */
+#define OPS_PER_SYSFS_FILE	(64)	/* max iterations per sysfs file */
 
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
@@ -48,7 +48,7 @@ static uint32_t os_release;
 typedef struct ctxt {
 	const args_t *args;		/* stressor args */
 	int kmsgfd;			/* /dev/kmsg file descriptor */
-	bool writeable;			/* is sysfs writeable? */
+	bool sys_admin;			/* true if sys admin capable */
 } ctxt_t;
 
 static uint32_t path_sum(const char *path)
@@ -99,7 +99,7 @@ static bool stress_kmsg_drain(const int fd)
 
 		count += ret;
 	}
-	return count > 0;
+	return count > 256;
 }
 
 /*
@@ -128,16 +128,17 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 			return false;
 		(void)shim_strlcpy(path, sysfs_path, sizeof(path));
 		counter++;
-		//if (counter > OPS_PER_SYSFS_FILE)
-			//(void)kill(args->pid, SIGUSR2);
 		(void)shim_pthread_spin_unlock(&lock);
+		if (counter > OPS_PER_SYSFS_FILE)
+			shim_sched_yield();
 
 		if (!*path || !g_keep_stressing_flag)
 			break;
 
 		t_start = time_now();
-		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0) {
 			goto next;
+		}
 		if (time_now() - t_start > threshold) {
 			(void)close(fd);
 			goto next;
@@ -279,7 +280,7 @@ err:
 		 *  We only attempt writes if we are not
 		 *  root
 		 */
-		if (ctxt->writeable) {
+		if (!ctxt->sys_admin) {
 			/*
 			 *  Zero sized writes
 			 */
@@ -291,6 +292,36 @@ err:
 
 			if (time_now() - t_start > threshold)
 				goto next;
+		} else {
+			/*
+			 * Special case where we are root and file
+			 * is a sysfd ROM file
+			 */
+			const char *rom = strstr(path, "rom");
+
+			if (rom && rom[3] == '\0') {
+				if ((fd = open(path, O_RDWR | O_NONBLOCK)) < 0)
+					goto next;
+				/* Enable ROM read */
+				ret = write(fd, "1", 1);
+				if (ret < 0) {
+					(void)close(fd);
+					goto next;
+				}
+				/*
+				 *  Accessing ROM memory may be slow,
+				 *  so just do one read for now.
+				 */
+				ret = read(fd, buffer, sizeof(buffer));
+				(void)ret;
+
+				/* Disable ROM read */
+				ret = write(fd, "0", 1);
+				if (ret < 0) {
+					(void)close(fd);
+					goto next;
+				}
+			}
 		}
 next:
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
@@ -382,7 +413,7 @@ static void stress_sys_dir(
 {
 	struct dirent **dlist;
 	const args_t *args = ctxt->args;
-	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+	mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int i, n;
 
 	if (!g_keep_stressing_flag)
@@ -397,6 +428,9 @@ static void stress_sys_dir(
 	n = scandir(path, &dlist, NULL, mixup_sort);
 	if (n <= 0)
 		goto done;
+
+	if (ctxt->sys_admin)
+		flags |= S_IRUSR | S_IWUSR;
 
 	for (i = 0; i < n; i++) {
 		int ret;
@@ -441,13 +475,25 @@ static void stress_sys_dir(
 				counter = 0;
 				(void)shim_pthread_spin_unlock(&lock);
 				drain_kmsg = false;
-
+				const double time_start = time_now();
+				const double time_end = time_start + ((double)DURATION_PER_SYSFS_FILE / 1000000.0);
+				const double time_out = time_start + 1.0;
 				/*
 				 *  wait for a timeout, or until woken up
 				 *  by pthread(s) once maximum iteration count
 				 *  has been reached
 				 */
-				shim_usleep_interruptible(DURATION_PER_SYSFS_FILE);
+				do {
+					shim_usleep_interruptible(50);
+					/* Cater for very long delays */
+					if ((counter == 0) && (time_now() > time_out))
+						break;
+					/* Cater for slower delays */
+					if ((counter > 0) && (time_now() > time_end))
+						break;
+				} while ((counter < OPS_PER_SYSFS_FILE) && keep_stressing());
+
+				//printf("%d %f %s\n", counter, time_now() - time_start, sysfs_path);
 				inc_counter(args);
 			}
 			break;
@@ -494,8 +540,8 @@ static int stress_sysfs(const args_t *args)
 	shim_strlcpy(sysfs_path, signum_path, sizeof(sysfs_path));
 
 	ctxt.args = args;
-	ctxt.writeable = (geteuid() != 0);
 	ctxt.kmsgfd = open("/dev/kmsg", O_RDONLY | O_NONBLOCK);
+	ctxt.sys_admin = stress_check_capability(SHIM_CAP_SYS_ADMIN);
 	(void)stress_kmsg_drain(ctxt.kmsgfd);
 
 	rc = shim_pthread_spin_init(&lock, PTHREAD_PROCESS_PRIVATE);
