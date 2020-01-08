@@ -2963,6 +2963,11 @@ sendfile options are for Linux only.
 .B \-\-sendfile\-ops N
 stop sendfile workers after N sendfile bogo operations.
 .TP
+.B \-\-sendfile\-size S
+specify the size to be copied with each sendfile call. The default size is
+4MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes
+using the suffix b, k, m or g.
+.TP
 .B \-\-set N
 start N workers that call system calls that try to set data in the kernel,
 currently these are: setgid, sethostname, setpgid, setpgrp, setuid,
@@ -2971,11 +2976,6 @@ Some of these system calls are OS specific.
 .TP
 .B \-\-set\-ops N
 stop set workers after N bogo set operations.
-.TP
-.B \-\-sendfile\-size S
-specify the size to be copied with each sendfile call. The default size is
-4MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes
-using the suffix b, k, m or g.
 .TP
 .B \-\-shellsort N
 start N workers that sort 32 bit integers using shellsort.
