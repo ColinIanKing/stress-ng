@@ -259,6 +259,11 @@ static void stress_dev_tty(
 		int pktmode;
 
 		ret = ioctl(fd, TIOCGPKT, &pktmode);
+#if defined(TIOCPKT)
+		if (ret == 0) {
+			ret = ioctl(fd, TIOCPKT, &pktmode);
+		}
+#endif
 		(void)ret;
 	}
 #endif
@@ -267,6 +272,15 @@ static void stress_dev_tty(
 		int ptnum;
 
 		ret = ioctl(fd, TIOCGPTN, &ptnum);
+		(void)ret;
+	}
+#endif
+#if defined(TIOCSIG) && defined(SIGCONT)
+	{
+		int sig = SIGCONT;
+
+		/* generally causes EINVAL */
+		ret = ioctl(fd, TIOCSIG, &sig);
 		(void)ret;
 	}
 #endif
