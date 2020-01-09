@@ -347,6 +347,20 @@ static void stress_dev_tty(
 		int excl;
 
 		ret = ioctl(fd, TIOCGEXCL, &excl);
+		if (ret == 0) {
+#if defined(TIOCNXCL) &&	\
+    defined(TIOCEXCL)
+			if (excl) {
+				ret = ioctl(fd, TIOCNXCL, NULL);
+				(void)ret;
+				ret = ioctl(fd, TIOCEXCL, NULL);
+			} else {
+				ret = ioctl(fd, TIOCEXCL, NULL);
+				(void)ret;
+				ret = ioctl(fd, TIOCNXCL, NULL);
+			}
+#endif
+		}
 		(void)ret;
 	}
 #endif
