@@ -443,6 +443,14 @@ static void stress_dev_tty(
 		ret = ioctl(fd, TIOCMGET, &status);
 #if defined(TIOCMSET)
 		if (ret == 0) {
+#if defined(TIOCMBIC)
+			ret = ioctl(fd, TIOCMBIC, &status);
+			(void)ret;
+#endif
+#if defined(TIOCMBIS)
+			ret = ioctl(fd, TIOCMBIS, &status);
+			(void)ret;
+#endif
 			ret = ioctl(fd, TIOCMSET, &status);
 		}
 #endif
