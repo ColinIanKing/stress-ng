@@ -36,12 +36,12 @@ static const help_t help[] = {
 
 static int stress_set_aio_linux_requests(const char *opt)
 {
-	uint64_t aio_linux_requests;
+	size_t aio_linux_requests;
 
 	aio_linux_requests = get_uint32(opt);
 	check_range("aiol-requests", aio_linux_requests,
 		MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS);
-	return set_setting("aiol-requests", TYPE_ID_UINT64, &aio_linux_requests);
+	return set_setting("aiol-requests", TYPE_ID_SIZE_T, &aio_linux_requests);
 }
 
 static const opt_set_func_t opt_set_funcs[] = {
@@ -73,6 +73,143 @@ static inline void aio_linux_fill_buffer(
 }
 
 /*
+ *  stress_aiol_submit()
+ *	submit async I/O requests
+ */
+static int stress_aiol_submit(
+	const args_t *args,
+	const io_context_t ctx,
+	struct iocb *cbs[],
+	const size_t n)
+{
+	do {
+		int ret;
+
+		ret = io_submit(ctx, (long)n, cbs);
+		if (ret >= 0) {
+			break;
+		} else {
+			errno = -ret;
+			if (errno != EAGAIN) {
+				pr_fail_err("io_submit");
+				return ret;
+			}
+		}
+	} while (keep_stressing());
+
+	return 0;
+}
+
+/*
+ *  stress_aiol_wait()
+ *	wait for async I/O requests to complete
+ */
+static int stress_aiol_wait(
+	const args_t *args,
+	const io_context_t ctx,
+	struct io_event events[],
+	size_t n)
+{
+	do {
+		struct timespec timeout, *timeout_ptr;
+		int ret;
+
+		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
+			timeout_ptr = NULL;
+		} else {
+			timeout.tv_nsec += 1000000;
+			if (timeout.tv_nsec > 1000000000) {
+				timeout.tv_nsec -= 1000000000;
+				timeout.tv_sec++;
+			}
+			timeout_ptr = &timeout;
+		}
+
+		ret = io_getevents(ctx, 1, n, events, timeout_ptr);
+		if (ret < 0) {
+			errno = -ret;
+			if (errno == EINTR) {
+				if (g_keep_stressing_flag) {
+					continue;
+				} else {
+					return 0;
+				}
+			}
+			pr_fail_err("io_getevents");
+			return -1;
+		} else {
+			n -= ret;
+		}
+	} while ((n > 0) && g_keep_stressing_flag);
+
+	return n;
+}
+
+/*
+ *  stress_aiol_alloc()
+ *	allocate various arrays and handle free'ing
+ *	and error reporting on out of memory errors.
+ */
+static int stress_aiol_alloc(
+	const args_t *args,
+	const size_t n,
+	uint8_t **buffer,
+	struct iocb **cb,
+	struct io_event **events,
+	struct iocb ***cbs)
+{
+	int ret;
+
+	ret = posix_memalign((void **)buffer, 4096, n * BUFFER_SZ);
+	if (ret)
+		goto err_msg;
+	*cb = calloc(n, sizeof(**cb));
+	if (!*cb)
+		goto free_buffer;
+	*events = calloc(n, sizeof(**events));
+	if (!*events)
+		goto free_cb;
+	*cbs = calloc(n, sizeof(***cbs));
+	if (!*cbs)
+		goto free_events;
+	return 0;
+
+	free(*cbs);
+free_events:
+	free(*events);
+free_cb:
+	free(*cb);
+free_buffer:
+	free(*buffer);
+err_msg:
+	pr_inf("%s: out of memory allocating memory, errno=%d (%s)",
+		args->name, errno, strerror(errno));
+
+	*buffer = NULL;
+	*cb = NULL;
+	*events = NULL;
+	*cbs = NULL;
+
+	return -1;
+}
+
+/*
+ *  stress_aiol_free()
+ *	free allocated memory
+ */
+static void stress_aiol_free(
+	uint8_t *buffer,
+	struct iocb *cb,
+	struct io_event *events,
+	struct iocb **cbs)
+{
+	free(buffer);
+	free(cb);
+	free(events);
+	free(cbs);
+}
+
+/*
  *  stress_aiol
  *	stress asynchronous I/O using the linux specific aio ABI
  */
@@ -82,9 +219,12 @@ static int stress_aiol(const args_t *args)
 	char filename[PATH_MAX];
 	char buf[64];
 	io_context_t ctx = 0;
-	uint64_t aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
+	size_t aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
 	uint8_t *buffer;
-	uint64_t aio_max_nr = DEFAULT_AIO_MAX_NR;
+	struct iocb *cb;
+	struct io_event *events;
+	struct iocb **cbs;
+	size_t aio_max_nr = DEFAULT_AIO_MAX_NR;
 
 	if (!get_setting("aiol-requests", &aio_linux_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -100,7 +240,7 @@ static int stress_aiol(const args_t *args)
 
 	ret = system_read("/proc/sys/fs/aio-max-nr", buf, sizeof(buf));
 	if (ret > 0) {
-		if (sscanf(buf, "%" SCNu64, &aio_max_nr) != 1) {
+		if (sscanf(buf, "%zd", &aio_max_nr) != 1) {
 			/* Guess max */
 			aio_max_nr = DEFAULT_AIO_MAX_NR;
 		}
@@ -110,7 +250,6 @@ static int stress_aiol(const args_t *args)
 	}
 
 	aio_max_nr /= (args->num_instances == 0) ? 1 : args->num_instances;
-
 	if (aio_max_nr < 1)
 		aio_max_nr = 1;
 	if (aio_linux_requests > aio_max_nr) {
@@ -121,13 +260,11 @@ static int stress_aiol(const args_t *args)
 				args->name, aio_linux_requests);
 	}
 
-	ret = posix_memalign((void **)&buffer, 4096,
-		aio_linux_requests * BUFFER_SZ);
-	if (ret) {
-		pr_inf("%s: Out of memory allocating buffers, errno=%d (%s)",
-			args->name, errno, strerror(errno));
+	if (stress_aiol_alloc(args, aio_linux_requests, &buffer, &cb, &events, &cbs)) {
+		stress_aiol_free(buffer, cb, events, cbs);
 		return EXIT_NO_RESOURCE;
 	}
+
 	ret = io_setup(aio_linux_requests, &ctx);
 	if (ret < 0) {
 		/*
@@ -141,30 +278,30 @@ static int stress_aiol(const args_t *args)
 				"/proc/sys/fs/aio-max-nr, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
-			goto free_buffer;
+			goto free_memory;
 		} else if (errno == ENOMEM) {
 			pr_err("%s: io_setup failed, ran out of "
 				"memory, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
-			goto free_buffer;
+			goto free_memory;
 		} else if (errno == ENOSYS) {
 			pr_err("%s: io_setup failed, no io_setup "
 				"system call with this kernel, "
 				"errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
-			goto free_buffer;
+			goto free_memory;
 		} else {
 			pr_fail_err("io_setup");
 			rc = EXIT_FAILURE;
-			goto free_buffer;
+			goto free_memory;
 		}
 	}
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
 		rc = exit_status(-ret);
-		goto free_buffer;
+		goto free_memory;
 	}
 
 	(void)stress_temp_filename_args(args,
@@ -178,67 +315,47 @@ static int stress_aiol(const args_t *args)
 	(void)unlink(filename);
 
 	do {
-		struct iocb cb[aio_linux_requests];
-		struct iocb *cbs[aio_linux_requests];
-		struct io_event events[aio_linux_requests];
-		uint8_t *buffers[aio_linux_requests];
-		uint8_t *bufptr = buffer;
-		uint64_t i;
-		long n;
+		uint8_t *bufptr;
+		size_t i;
 
-		for (i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
-			buffers[i] = bufptr;
-			aio_linux_fill_buffer(i, buffers[i], BUFFER_SZ);
-		}
+		/*
+		 *  async writes
+		 */
+		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+		for (bufptr = buffer, i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
+			aio_linux_fill_buffer(i, bufptr, BUFFER_SZ);
 
-		(void)memset(cb, 0, sizeof(cb));
-		for (i = 0; i < aio_linux_requests; i++) {
 			cb[i].aio_fildes = fd;
 			cb[i].aio_lio_opcode = IO_CMD_PWRITE;
-			cb[i].u.c.buf = buffers[i];
+			cb[i].u.c.buf = bufptr;
 			cb[i].u.c.offset = mwc16() * BUFFER_SZ;
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
-		ret = io_submit(ctx, (long)aio_linux_requests, cbs);
-		if (ret < 0) {
-			errno = -ret;
-			if (errno == EAGAIN)
-				continue;
-			pr_fail_err("io_submit");
+		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests) < 0)
 			break;
+		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
+			break;
+		inc_counter(args);
+
+		/*
+		 *  async reads
+		 */
+		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+		for (bufptr = buffer, i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
+			aio_linux_fill_buffer(i, bufptr, BUFFER_SZ);
+
+			cb[i].aio_fildes = fd;
+			cb[i].aio_lio_opcode = IO_CMD_PREAD;
+			cb[i].u.c.buf = bufptr;
+			cb[i].u.c.offset = mwc16() * BUFFER_SZ;
+			cb[i].u.c.nbytes = BUFFER_SZ;
+			cbs[i] = &cb[i];
 		}
-
-		n = aio_linux_requests;
-		do {
-			struct timespec timeout, *timeout_ptr;
-
-			if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
-				timeout_ptr = NULL;
-			} else {
-				timeout.tv_nsec += 1000000;
-				if (timeout.tv_nsec > 1000000000) {
-					timeout.tv_nsec -= 1000000000;
-					timeout.tv_sec++;
-				}
-				timeout_ptr = &timeout;
-			}
-
-			ret = io_getevents(ctx, 1, n, events, timeout_ptr);
-			if (ret < 0) {
-				errno = -ret;
-				if (errno == EINTR) {
-					if (g_keep_stressing_flag)
-						continue;
-					else
-						break;
-				}
-				pr_fail_err("io_getevents");
-				break;
-			} else {
-				n -= ret;
-			}
-		} while ((n > 0) && g_keep_stressing_flag);
+		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests) < 0)
+			break;
+		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
+			break;
 		inc_counter(args);
 	} while (keep_stressing());
 
@@ -248,8 +365,8 @@ finish:
 	(void)io_destroy(ctx);
 	(void)stress_temp_dir_rm_args(args);
 
-free_buffer:
-	free(buffer);
+free_memory:
+	stress_aiol_free(buffer, cb, events, cbs);
 	return rc;
 }
 
