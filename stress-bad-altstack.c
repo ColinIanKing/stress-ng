@@ -49,7 +49,7 @@ static inline void stress_bad_altstack_force_fault(uint8_t *stack)
 
 static void MLOCKED_TEXT stress_segv_handler(int signum)
 {
-	uint8_t data[32];
+	uint8_t data[MINSIGSTKSZ * 2];
 
 	(void)signum;
 	(void)munmap(stack, stack_sz);
@@ -82,6 +82,8 @@ static int stress_bad_altstack(const args_t *args)
 	}
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
+		return EXIT_FAILURE;
+	if (stress_sigaltstack(stack, stack_sz) < 0)
 		return EXIT_FAILURE;
 
 	do {
