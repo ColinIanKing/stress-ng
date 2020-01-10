@@ -1,3 +1,31 @@
+stress-ng (0.10.16-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Update copyright year to 2020
+  * Manual: update date
+  * stress-bad-altstack: clean up clang pedantic build warning on
+    variable shadowing
+  * stress-aio-linux: use %zu for size_t instead of %zd
+  * stress-mq: simplify file open and null check for static analysis tools
+  * stress-aio-linux: use correct %zd print format specifier for size_t
+  * stress-bad-altstack: move SIGSEGV handler to child
+  * stress-bad-altstack: ensure we set the mmap'd alternative stack
+  * stress-bad-altstack: aggressively re-try when we can't segfault the
+    handler
+  * stress-aio-linux: perform periodic async fdsync and fsync and use lots
+    of open files
+  * stress-aio-linux: add async reads and allocate buffers
+  * stress-dev: Add TIOCMBIS and TIOCMBIC ioctls
+  * stress-dev: add TIOCNXCL and TIOCEXCL ioctls
+  * stress-dev: add a couple more tty specific ioctls
+  * stress-aio: fix sleepy wait to make it interruptible
+  * Manual: move the --set and --set-ops to the correct place
+  * stress-sysfs: remove commented out debug
+  * stress-sysfs: improve timeout on slow sysfs entries, get more coverage
+  * stress-ramfs: create/lstat/remove symlink file on ramfs filesystem
+
+ -- Colin King <colin.king@canonical.com>  Fri, 10 Jan 2020 17:15:13 +0000
+
 stress-ng (0.10.15-1) unstable; urgency=medium
 
   * Makefile: bump version
