@@ -37,9 +37,9 @@ static void *stack;
 static const size_t stack_sz = MINSIGSTKSZ;
 static sigjmp_buf jmpbuf;
 
-static inline void stress_bad_altstack_force_fault(uint8_t *stack)
+static inline void stress_bad_altstack_force_fault(uint8_t *stack_start)
 {
-	volatile uint8_t *vol_stack = (volatile uint8_t *)stack;
+	volatile uint8_t *vol_stack = (volatile uint8_t *)stack_start;
 	/* trigger segfault on stack */
 
 	uint8_put(*vol_stack);
