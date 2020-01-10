@@ -266,7 +266,7 @@ static int stress_aiol(const args_t *args)
 		aio_linux_requests = aio_max_nr;
 		if (args->instance == 0)
 			pr_inf("%s: Limiting AIO requests to "
-				"%" PRIu64 " per stressor (avoids running out of resources)\n",
+				"%zd per stressor (avoids running out of resources)\n",
 				args->name, aio_linux_requests);
 	}
 
