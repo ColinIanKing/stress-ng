@@ -81,11 +81,6 @@ static int stress_bad_altstack(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
-		return EXIT_FAILURE;
-	if (stress_sigaltstack(stack, stack_sz) < 0)
-		return EXIT_FAILURE;
-
 	do {
 		pid_t pid;
 
@@ -152,7 +147,9 @@ again:
 			}
 
 			if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
-				_exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
+			if (stress_sigaltstack(stack, stack_sz) < 0)
+				return EXIT_FAILURE;
 
 			/* Child */
 			mwc_reseed();
