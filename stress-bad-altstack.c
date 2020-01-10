@@ -35,6 +35,17 @@ static const help_t help[] =
 
 static void *stack;
 static const size_t stack_sz = MINSIGSTKSZ;
+static sigjmp_buf jmpbuf;
+
+static inline void stress_bad_altstack_force_fault(uint8_t *stack)
+{
+	volatile uint8_t *vol_stack = (volatile uint8_t *)stack;
+	/* trigger segfault on stack */
+
+	uint8_put(*vol_stack);
+	*vol_stack = 0;
+	(void)*vol_stack;
+}
 
 static void MLOCKED_TEXT stress_segv_handler(int signum)
 {
@@ -43,7 +54,13 @@ static void MLOCKED_TEXT stress_segv_handler(int signum)
 	(void)signum;
 	(void)munmap(stack, stack_sz);
 	(void)memset(data, 0, sizeof(data));
-	_exit(EXIT_SUCCESS);
+
+	/*
+	 *  If we've not got this far we've not
+	 *  generated a fault inside the stack of the
+	 *  signal handler, so jmp back and re-try
+	 */
+	siglongjmp(jmpbuf, 1);
 }
 
 /*
@@ -122,7 +139,15 @@ again:
 		} else if (pid == 0) {
 			uint32_t rnd;
 			int ret;
-			volatile uint8_t *vol_stack = stack;
+
+			if (sigsetjmp(jmpbuf, 1) != 0) {
+				/*
+				 *  We land here if we get a segfault
+				 *  but not a segfault in the sighandler
+				 */
+				if (!keep_stressing())
+					_exit(0);
+			}
 
 			if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
 				_exit(EXIT_FAILURE);
@@ -139,21 +164,21 @@ again:
 			case 1:
 				ret = mprotect(stack, stack_sz, PROT_NONE);
 				if (ret == 0)
-					break;
+					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing())
 					break;
 				CASE_FALLTHROUGH;
 			case 2:
 				ret = mprotect(stack, stack_sz, PROT_READ);
 				if (ret == 0)
-					break;
+					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing())
 					break;
 				CASE_FALLTHROUGH;
 			case 3:
 				ret = mprotect(stack, stack_sz, PROT_EXEC);
 				if (ret == 0)
-					break;
+					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing())
 					break;
 				CASE_FALLTHROUGH;
@@ -161,29 +186,26 @@ again:
 			case 4:
 				ret = stress_sigaltstack(NULL, SIGSTKSZ);
 				if (ret == 0)
-					break;
+					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing())
 					break;
 				CASE_FALLTHROUGH;
 			case 5:
 				ret = stress_sigaltstack(stress_segv_handler, SIGSTKSZ);
 				if (ret == 0)
-					break;
+					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing())
 					break;
 				CASE_FALLTHROUGH;
 			case 6:
-				vol_stack = NULL;
-				break;
+				stress_bad_altstack_force_fault(NULL);
+				CASE_FALLTHROUGH;
 			default:
 			case 0:
 				(void)munmap(stack, stack_sz);
+				stress_bad_altstack_force_fault(NULL);
 				break;
 			}
-
-			/* trigger segfault */
-			uint8_put(*vol_stack);
-			*vol_stack = 0;
 
 			/* No luck, well that's unexpected.. */
 			_exit(EXIT_FAILURE);
