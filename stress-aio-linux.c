@@ -156,7 +156,8 @@ static int stress_aiol_alloc(
 	uint8_t **buffer,
 	struct iocb **cb,
 	struct io_event **events,
-	struct iocb ***cbs)
+	struct iocb ***cbs,
+	int **fds)
 {
 	int ret;
 
@@ -172,8 +173,12 @@ static int stress_aiol_alloc(
 	*cbs = calloc(n, sizeof(***cbs));
 	if (!*cbs)
 		goto free_events;
+	*fds = calloc(n, sizeof(**fds));
+	if (!*fds)
+		goto free_cbs;
 	return 0;
 
+free_cbs:
 	free(*cbs);
 free_events:
 	free(*events);
@@ -201,12 +206,14 @@ static void stress_aiol_free(
 	uint8_t *buffer,
 	struct iocb *cb,
 	struct io_event *events,
-	struct iocb **cbs)
+	struct iocb **cbs,
+	int *fds)
 {
 	free(buffer);
 	free(cb);
 	free(events);
 	free(cbs);
+	free(fds);
 }
 
 /*
@@ -215,7 +222,7 @@ static void stress_aiol_free(
  */
 static int stress_aiol(const args_t *args)
 {
-	int fd, ret, rc = EXIT_FAILURE;
+	int ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	char buf[64];
 	io_context_t ctx = 0;
@@ -224,7 +231,10 @@ static int stress_aiol(const args_t *args)
 	struct iocb *cb;
 	struct io_event *events;
 	struct iocb **cbs;
+	int *fds;
 	size_t aio_max_nr = DEFAULT_AIO_MAX_NR;
+	uint16_t j;
+	size_t i;
 
 	if (!get_setting("aiol-requests", &aio_linux_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -260,8 +270,8 @@ static int stress_aiol(const args_t *args)
 				args->name, aio_linux_requests);
 	}
 
-	if (stress_aiol_alloc(args, aio_linux_requests, &buffer, &cb, &events, &cbs)) {
-		stress_aiol_free(buffer, cb, events, cbs);
+	if (stress_aiol_alloc(args, aio_linux_requests, &buffer, &cb, &events, &cbs, &fds)) {
+		stress_aiol_free(buffer, cb, events, cbs, fds);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -307,16 +317,28 @@ static int stress_aiol(const args_t *args)
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), mwc32());
 
-	if ((fd = open(filename, O_CREAT | O_RDWR | O_DIRECT, S_IRUSR | S_IWUSR)) < 0) {
+	fds[0] = open(filename, O_CREAT | O_RDWR | O_DIRECT, S_IRUSR | S_IWUSR);
+	if (fds[0] < 0) {
 		rc = exit_status(errno);
 		pr_fail_err("open");
 		goto finish;
 	}
+
+	/*
+	 *  Make aio work harder by using lots of different fds on the
+	 *  same file. If we can't open a file (e.g. out of file descriptors)
+	 *  then use the same fd as fd[0]
+	 */
+	for (i = 1; i < aio_linux_requests; i++) {
+		fds[i] = open(filename, O_RDWR | O_DIRECT, S_IRUSR | S_IWUSR);
+		if (fds[i] < 0)
+			fds[i] = fds[0];
+	}
 	(void)unlink(filename);
 
+	j = 0;
 	do {
 		uint8_t *bufptr;
-		size_t i;
 
 		/*
 		 *  async writes
@@ -325,7 +347,7 @@ static int stress_aiol(const args_t *args)
 		for (bufptr = buffer, i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
 			aio_linux_fill_buffer(i, bufptr, BUFFER_SZ);
 
-			cb[i].aio_fildes = fd;
+			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_PWRITE;
 			cb[i].u.c.buf = bufptr;
 			cb[i].u.c.offset = mwc16() * BUFFER_SZ;
@@ -345,7 +367,7 @@ static int stress_aiol(const args_t *args)
 		for (bufptr = buffer, i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
 			aio_linux_fill_buffer(i, bufptr, BUFFER_SZ);
 
-			cb[i].aio_fildes = fd;
+			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_PREAD;
 			cb[i].u.c.buf = bufptr;
 			cb[i].u.c.offset = mwc16() * BUFFER_SZ;
@@ -357,16 +379,42 @@ static int stress_aiol(const args_t *args)
 		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
 			break;
 		inc_counter(args);
+
+		/*
+		 *  Async fdsync and fsync every 1024 iterations
+		 */
+		if (j++ >= 1024) {
+			j = 0;
+
+			(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+			for (bufptr = buffer, i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
+				aio_linux_fill_buffer(i, bufptr, BUFFER_SZ);
+
+				cb[i].aio_fildes = fds[i];
+				cb[i].aio_lio_opcode = (i & 1) ? IO_CMD_FDSYNC : IO_CMD_FSYNC;
+				cbs[i] = &cb[i];
+			}
+			if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests) < 0)
+				break;
+			if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
+				break;
+		}
+		inc_counter(args);
 	} while (keep_stressing());
 
 	rc = EXIT_SUCCESS;
-	(void)close(fd);
+
+	(void)close(fds[0]);
+	for (i = 1; i < aio_linux_requests; i++) {
+		if (fds[i] != fds[0])
+			(void)close(fds[i]);
+	}
 finish:
 	(void)io_destroy(ctx);
 	(void)stress_temp_dir_rm_args(args);
 
 free_memory:
-	stress_aiol_free(buffer, cb, events, cbs);
+	stress_aiol_free(buffer, cb, events, cbs, fds);
 	return rc;
 }
 
