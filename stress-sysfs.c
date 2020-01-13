@@ -379,6 +379,11 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 static bool stress_sys_skip(const char *path)
 {
 	/*
+	 *  Skip over debug interfaces
+	 */
+	if (!strncmp(path, "/sys/kernel/debug", 17))
+		return true;
+	/*
 	 *  Can OOPS on Azure when reading
 	 *  "/sys/devices/LNXSYSTM:00/LNXSYBUS:00/PNP0A03:00/device:07/" \
 	 *  "VMBUS:01/99221fa0-24ad-11e2-be98-001aa01bbf6e/channels/4/read_avail"
