@@ -51,6 +51,8 @@ static const opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_LIB_RT) &&	\
     defined(HAVE_MQ_POSIX)
 
+#define PRIOS_MAX	(128)
+
 typedef struct {
 	uint64_t	value;
 } msg_t;
@@ -152,6 +154,7 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		struct sigevent sigev;
+		uint64_t values[PRIOS_MAX];
 
 		(void)memset(&sigev, 0, sizeof sigev);
 		sigev.sigev_notify = SIGEV_THREAD;
@@ -161,6 +164,8 @@ again:
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
+		(void)memset(&values, 0, sizeof(values));
+
 		while (g_keep_stressing_flag) {
 			uint64_t i = 0;
 
@@ -168,6 +173,7 @@ again:
 				msg_t ALIGN64 msg;
 				int ret;
 				const uint64_t timed = (i & 1);
+				unsigned int prio;
 
 				if (!(i & 1023)) {
 #if defined(__linux__)
@@ -200,23 +206,27 @@ again:
 				 * toggle between timedreceive and receive
 				 */
 				if (do_timed && (timed))
-					ret = mq_timedreceive(mq, (char *)&msg, sizeof(msg), NULL, &abs_timeout);
+					ret = mq_timedreceive(mq, (char *)&msg, sizeof(msg), &prio, &abs_timeout);
 				else
-					ret = mq_receive(mq, (char *)&msg, sizeof(msg), NULL);
+					ret = mq_receive(mq, (char *)&msg, sizeof(msg), &prio);
 
 				if (ret < 0) {
 					pr_fail_dbg(timed ? "mq_timedreceive" : "mq_receive");
 					break;
 				}
+				if (prio >= PRIOS_MAX) {
+					pr_fail("%s: mq_receive: unexpected priority %u, expected 0..%d\n",
+						args->name, prio, PRIO_MAX - 1);
+				}
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
-					if (msg.value != i) {
+					if (msg.value != values[prio]) {
 						pr_fail("%s: mq_receive: expected message "
 							"containing 0x%" PRIx64
 							" but received 0x%" PRIx64 " instead\n",
-							args->name, i, msg.value);
+							args->name, values[prio], msg.value);
 					}
+					values[prio]++;
 				}
-				i++;
 			}
 			_exit(EXIT_SUCCESS);
 		}
@@ -224,13 +234,18 @@ again:
 		int status;
 		int attr_count = 0;
 		msg_t ALIGN64 msg;
+		uint64_t values[PRIOS_MAX];
 
 		/* Parent */
 		(void)setpgid(pid, g_pgrp);
 		(void)memset(&msg, 0, sizeof(msg));
 
+		(void)memset(&values, 0, sizeof(values));
+
 		do {
 			int ret;
+			unsigned int prio = mwc8() % PRIOS_MAX;
+
 			const uint64_t timed = (msg.value & 1);
 
 			if ((attr_count++ & 31) == 0) {
@@ -238,20 +253,21 @@ again:
 					pr_fail_dbg("mq_getattr");
 			}
 
+			msg.value = values[prio];
+			values[prio]++;
 			/*
 			 * toggle between timedsend and send
 			 */
 			if (do_timed && (timed))
-				ret = mq_timedsend(mq, (char *)&msg, sizeof(msg), 1, &abs_timeout);
+				ret = mq_timedsend(mq, (char *)&msg, sizeof(msg), prio, &abs_timeout);
 			else
-				ret = mq_send(mq, (char *)&msg, sizeof(msg), 1);
+				ret = mq_send(mq, (char *)&msg, sizeof(msg), prio);
 
 			if (ret < 0) {
 				if (errno != EINTR)
 					pr_fail_dbg(timed ? "mq_timedsend" : "mq_send");
 				break;
 			}
-			msg.value++;
 			inc_counter(args);
 		} while (keep_stressing());
 
