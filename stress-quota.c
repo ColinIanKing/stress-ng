@@ -56,6 +56,21 @@ typedef struct {
 #define DO_Q_SYNC	0x0010
 
 /*
+ *  stress_quota_supported()
+ *      check if we can run this as root
+ */
+static int stress_quota_supported(void)
+{
+	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+		pr_inf("quota stressor will be skipped, "
+			"need to be running with CAP_SYS_ADMIN "
+			"rights for this stressor\n");
+		return -1;
+	}
+	return 0;
+}
+
+/*
  *  do_quotactl()
  *	do a quotactl command
  */
@@ -325,6 +340,7 @@ tidy:
 
 stressor_info_t stress_quota_info = {
 	.stressor = stress_quota,
+	.supported = stress_quota_supported,
 	.class = CLASS_OS,
 	.help = help
 };
