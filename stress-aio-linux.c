@@ -80,7 +80,8 @@ static int stress_aiol_submit(
 	const args_t *args,
 	const io_context_t ctx,
 	struct iocb *cbs[],
-	const size_t n)
+	const size_t n,
+	const bool ignore_einval)
 {
 	do {
 		int ret;
@@ -90,6 +91,8 @@ static int stress_aiol_submit(
 			break;
 		} else {
 			errno = -ret;
+			if ((errno == EINVAL) && ignore_einval)
+				return 0;
 			if (errno != EAGAIN) {
 				pr_fail_err("io_submit");
 				return ret;
@@ -354,7 +357,7 @@ static int stress_aiol(const args_t *args)
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
-		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests) < 0)
+		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, false) < 0)
 			break;
 		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
 			break;
@@ -374,14 +377,15 @@ static int stress_aiol(const args_t *args)
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
-		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests) < 0)
+		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, false) < 0)
 			break;
 		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
 			break;
 		inc_counter(args);
 
 		/*
-		 *  Async fdsync and fsync every 1024 iterations
+		 *  Async fdsync and fsync every 1024 iterations, older kernels don't
+		 *  support these, so don't fail if EINVAL is returned.
 		 */
 		if (j++ >= 1024) {
 			j = 0;
@@ -394,8 +398,10 @@ static int stress_aiol(const args_t *args)
 				cb[i].aio_lio_opcode = (i & 1) ? IO_CMD_FDSYNC : IO_CMD_FSYNC;
 				cbs[i] = &cb[i];
 			}
-			if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests) < 0)
+			if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, true) < 0)
 				break;
+			if (errno == EINVAL)
+				continue;
 			if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
 				break;
 		}
