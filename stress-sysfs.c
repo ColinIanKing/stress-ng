@@ -293,6 +293,7 @@ err:
 			if (time_now() - t_start > threshold)
 				goto next;
 		} else {
+#if 0
 			/*
 			 * Special case where we are root and file
 			 * is a sysfd ROM file
@@ -322,6 +323,7 @@ err:
 					goto next;
 				}
 			}
+#endif
 		}
 next:
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
