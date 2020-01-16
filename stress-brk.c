@@ -155,13 +155,10 @@ again:
 
 			if (ptr == (void *)-1) {
 				if ((errno == ENOMEM) || (errno == EAGAIN)) {
+					int ignore;
 					nomems++;
-					if (shim_brk(start_ptr) < 0) {
-						pr_err("%s: brk(%p) failed: errno=%d (%s)\n",
-							args->name, start_ptr, errno,
-							strerror(errno));
-						_exit(EXIT_FAILURE);
-					}
+					ignore = shim_brk(start_ptr);
+					(void)ignore;
 				} else {
 					pr_err("%s: sbrk(%d) failed: errno=%d (%s)\n",
 						args->name, (int)page_size, errno,
