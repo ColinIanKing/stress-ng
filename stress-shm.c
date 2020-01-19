@@ -112,9 +112,12 @@ static int stress_shm_posix_child(
 	int i;
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
+	const uid_t uid = getuid();
+	const gid_t gid = getgid();
 	uint64_t id = 0;
 	const size_t page_size = args->page_size;
+	struct sigaction sa;
 
 	addrs = calloc(shm_posix_objects, sizeof(*addrs));
 	if (!addrs) {
@@ -130,6 +133,14 @@ static int stress_shm_posix_child(
 
 	/* Make sure this is killable by OOM killer */
 	set_oom_adjustment(args->name, true);
+
+	(void)memset(&sa, 0, sizeof(sa));
+	sa.sa_handler = SIG_IGN;
+	sa.sa_flags = SA_NOCLDWAIT;
+	if (sigaction(SIGCHLD, &sa, NULL) < 0) {
+		pr_fail_err("sigactionb on SIGCHLD");
+		return EXIT_NO_RESOURCE;
+	}
 
 	do {
 		for (i = 0; ok && (i < (ssize_t)shm_posix_objects); i++) {
@@ -197,8 +208,13 @@ static int stress_shm_posix_child(
 			 *  on a fork and exit
 			 */
 			newpid = fork();
-			if (newpid == 0)
+			if (newpid == 0) {
+				(void)munmap(addr, page_size);
 				_exit(0);
+			}
+
+			/* Expand the mapping */
+			(void)shim_fallocate(shm_fd, 0, 0, sz + page_size);
 
 			(void)madvise_random(addr, sz);
 			(void)shim_msync(addr, sz, mwc1() ? MS_ASYNC : MS_SYNC);
@@ -206,8 +222,7 @@ static int stress_shm_posix_child(
 			off = lseek(shm_fd, (off_t)0, SEEK_SET);
 			(void)off;
 
-			/* Expand and shrink the mapping */
-			(void)shim_fallocate(shm_fd, 0, 0, sz + page_size);
+			/* Shrink the mapping */
 			(void)shim_fallocate(shm_fd, 0, 0, sz);
 
 			/* Now truncated it back */
@@ -232,6 +247,10 @@ static int stress_shm_posix_child(
 			ret = fchmod(shm_fd, S_IRUSR);
 			if (ret < 0) {
 				pr_fail("%s: failed to fchmod to S_IRUSR on shared memory\n", args->name);
+			}
+			ret = fchown(shm_fd, uid, gid);
+			if (ret < 0) {
+				pr_fail("%s: failed to fchown on shared memory\n", args->name);
 			}
 
 			(void)close(shm_fd);
