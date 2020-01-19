@@ -70,15 +70,21 @@ typedef enum {
 	CRYPTO_UNKNOWN,
 } crypto_type_t;
 
-static const char *crypto_type_string[] = {
-	"CRYPTO_AHASH",
-	"CRYPTO_SHASH",
-	"CRYPTO_CIPHER",
-	"CRYPTO_AKCIPHER",
-	"CRYPTO_SKCIPHER",
-	"CRYPTO_RNG",
-	"CRYPTO_AEAD",
-	"CRYPTO_UNKNOWN",
+typedef struct {
+	const crypto_type_t	type;
+	const char		*type_string;
+	const char		*name;
+} crypto_type_info_t;
+
+static const crypto_type_info_t crypto_type_info[] = {
+	{ CRYPTO_AHASH,		"CRYPTO_AHASH",		"ahash" },
+	{ CRYPTO_SHASH,		"CRYPTO_SHASH",		"shash" },
+	{ CRYPTO_CIPHER,	"CRYPTO_CIPHER",	"cipher" },
+	{ CRYPTO_AKCIPHER,	"CRYPTO_AKCIPHER",	"akcipher" },
+	{ CRYPTO_SKCIPHER,	"CRYPTO_SKCIPHER",	"skciper" },
+	{ CRYPTO_RNG,		"CRYPTO_RNG",		"rng" },
+	{ CRYPTO_AEAD,		"CRYPTO_AEAD",		"aead" },
+	{ CRYPTO_UNKNOWN,	"CRYPTO_UNKNOWN",	"unknown" },
 };
 
 typedef struct crypto_info {
@@ -109,6 +115,42 @@ static crypto_info_t crypto_info_defconfigs[] = {
 };
 
 static void stress_af_alg_add_crypto_defconfigs(void);
+
+/*
+ *   name_to_type()
+ *	map text type name to symbolic enum value
+ */
+static crypto_type_t name_to_type(const char *buffer)
+{
+	char *ptr = strchr(buffer, ':');
+	size_t i;
+
+	if (!ptr)
+		return CRYPTO_UNKNOWN;
+	ptr += 2;
+	for (i = 0; i < SIZEOF_ARRAY(crypto_type_info); i++) {
+		const size_t n = strlen(crypto_type_info[i].name);
+
+		if (!strncmp(crypto_type_info[i].name, ptr, n))
+			return crypto_type_info[i].type;
+	}
+	return CRYPTO_UNKNOWN;
+}
+
+/*
+ *   type_to_name()
+ *	map type to textual name
+ */
+static const char *type_to_name(const crypto_type_t type)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(crypto_type_info); i++) {
+		if (crypto_type_info[i].type == type)
+			return crypto_type_info[i].name;
+	}
+	return "unknown";
+}
 
 /*
  *  stress_af_alg_ignore()
@@ -554,7 +596,7 @@ static void stress_af_alg_dump_crypto_list(void)
 		if (ci->internal)
 			continue;
 		fprintf(stdout, "{ .crypto_type = %s, .type = \"%s\", .name = \"%s\"",
-			crypto_type_string[ci->crypto_type], ci->type, ci->name);
+			type_to_name(ci->crypto_type), ci->type, ci->name);
 		if (ci->block_size)
 			fprintf(stdout, ",\t.block_size = %d",
 				ci->block_size);
@@ -688,35 +730,6 @@ static char *dup_field(const char *buffer)
 }
 
 /*
- *   type_field()
- *	map text type name to symbolic enum value
- */
-static crypto_type_t type_field(const char *buffer)
-{
-	char *ptr = strchr(buffer, ':');
-
-	if (!ptr)
-		return CRYPTO_UNKNOWN;
-
-	ptr += 2;
-	if (!strncmp("cipher", ptr, 6))
-		return CRYPTO_CIPHER;
-	if (!strncmp("akcipher", ptr, 8))
-		return CRYPTO_AKCIPHER;
-	if (!strncmp("skcipher", ptr, 8))
-		return CRYPTO_SKCIPHER;
-	if (!strncmp("ahash", ptr, 5))
-		return CRYPTO_AHASH;
-	if (!strncmp("shash", ptr, 5))
-		return CRYPTO_SHASH;
-	if (!strncmp("rng", ptr, 3))
-		return CRYPTO_RNG;
-	if (!strncmp("aead", ptr, 4))
-		return CRYPTO_AEAD;
-	return CRYPTO_UNKNOWN;
-}
-
-/*
  *  int_field()
  *	parse an integer from a numeric field
  */
@@ -818,7 +831,7 @@ static void stress_af_alg_init(void)
 		if (!strncmp(buffer, "name", 4))
 			info.name = dup_field(buffer);
 		else if (!strncmp(buffer, "type", 4)) {
-			info.crypto_type = type_field(buffer);
+			info.crypto_type = name_to_type(buffer);
 			info.type = dup_field(buffer);
 		}
 		else if (!strncmp(buffer, "blocksize", 9))
