@@ -182,7 +182,7 @@ retry:
 			_exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(socket_domain, socket_type, 0)) < 0) {
-			pr_fail_dbg("socket");
+			pr_fail_err("socket");
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
@@ -378,12 +378,12 @@ static int stress_sock_server(
 	}
 	if ((fd = socket(socket_domain, socket_type, 0)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg("socket");
+		pr_fail_err("socket");
 		goto die;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_dbg("setsockopt");
+		pr_fail_err("setsockopt");
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -393,7 +393,7 @@ static int stress_sock_server(
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg("bind");
+		pr_fail_err("bind");
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {
@@ -531,7 +531,8 @@ static int stress_sock_server(
 				goto die_close;
 			}
 			if (getpeername(sfd, &saddr, &len) < 0) {
-				pr_fail_dbg("getpeername");
+				if (errno != ENOTCONN)
+					pr_fail_dbg("getpeername");
 			}
 #if defined(SIOCOUTQ)
 			{
