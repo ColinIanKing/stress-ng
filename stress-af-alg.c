@@ -697,19 +697,21 @@ static crypto_type_t type_field(const char *buffer)
 
 	if (!ptr)
 		return CRYPTO_UNKNOWN;
-	if (!strncmp("cipher", ptr + 2, 6))
+
+	ptr += 2;
+	if (!strncmp("cipher", ptr, 6))
 		return CRYPTO_CIPHER;
-	if (!strncmp("akcipher", ptr + 2, 8))
+	if (!strncmp("akcipher", ptr, 8))
 		return CRYPTO_AKCIPHER;
-	if (!strncmp("skcipher", ptr + 2, 8))
+	if (!strncmp("skcipher", ptr, 8))
 		return CRYPTO_SKCIPHER;
-	if (!strncmp("ahash", ptr + 2, 5))
+	if (!strncmp("ahash", ptr, 5))
 		return CRYPTO_AHASH;
-	if (!strncmp("shash", ptr + 2, 5))
+	if (!strncmp("shash", ptr, 5))
 		return CRYPTO_SHASH;
-	if (!strncmp("rng", ptr + 2, 3))
+	if (!strncmp("rng", ptr, 3))
 		return CRYPTO_RNG;
-	if (!strncmp("aead", ptr + 2, 4))
+	if (!strncmp("aead", ptr, 4))
 		return CRYPTO_AEAD;
 	return CRYPTO_UNKNOWN;
 }
