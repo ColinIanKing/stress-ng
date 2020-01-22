@@ -149,8 +149,16 @@ static int do_fcntl(const args_t *args, const int fd)
 	{
 		int ret;
 
+#if defined(HAVE_GETPGRP)
+		ret = fcntl(fd, F_SETOWN, -getpgrp());
+		check_return(args, ret, "F_SETOWN");
+#endif
 		ret = fcntl(fd, F_SETOWN, args->pid);
 		check_return(args, ret, "F_SETOWN");
+
+		/* This should return -EINVAL */
+		ret = fcntl(fd, F_SETOWN, INT_MIN);
+		(void)ret;
 	}
 #endif
 
@@ -158,9 +166,30 @@ static int do_fcntl(const args_t *args, const int fd)
 	{
 		int ret;
 
+#if defined(__NR_fcntl)
+		/*
+		 * glibc maps fcntl F_GETOWN to F_GETOWN_EX so
+		 * so try to bypass the glibc altogether
+		 */
+		ret = syscall(__NR_fcntl, fd, F_GETOWN);
+#else
 		ret = fcntl(fd, F_GETOWN);
+#endif
 		check_return(args, ret, "F_GETOWN");
 	}
+#endif
+
+/*
+ *  These mat not yet be defined in libc
+ */
+#if !defined(F_OWNER_TID)
+#define F_OWNER_TID	0
+#endif
+#if !defined(F_OWNER_PID)
+#define F_OWNER_PID     1
+#endif
+#if !defined(F_OWNER_PGRP)
+#define F_OWNER_PGRP    2
 #endif
 
 #if defined(F_SETOWN_EX) &&	\
@@ -176,25 +205,19 @@ static int do_fcntl(const args_t *args, const int fd)
 		owner.type = F_OWNER_PID;
 		owner.pid = args->pid;
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		check_return(args, ret, "F_SETOWN_EX, F_OWNER_PID");
+		(void)ret;
 #endif
 #if defined(HAVE_GETPGRP) && defined(F_OWNER_PGRP)
 		owner.type = F_OWNER_PGRP;
 		owner.pid = getpgrp();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		check_return(args, ret, "F_SETOWN_EX, F_OWNER_PGRP");
-#endif
-#if defined(HAVE_GETPGRP) && defined(F_OWNER_GID)
-		owner.type = F_OWNER_GID;
-		owner.pid = getpgrp();
-		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		check_return(args, ret, "F_SETOWN_EX, F_OWNER_GID");
+		(void)ret;
 #endif
 #if defined(F_OWNER_TID) && defined(__linux__)
 		owner.type = F_OWNER_TID;
 		owner.pid = shim_gettid();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		check_return(args, ret, "F_SETOWN_EX, F_OWNER_TID");
+		(void)ret;
 #endif
 	}
 #endif
@@ -211,17 +234,17 @@ static int do_fcntl(const args_t *args, const int fd)
 #if defined(F_OWNER_PGRP)
 		owner.type = F_OWNER_PGRP;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
-		check_return(args, ret, "F_GETOWN_EX, F_OWNER_PGRP");
+		(void)ret;
 #endif
 #if defined(F_OWNER_GID)
 		owner.type = F_OWNER_GID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
-		check_return(args, ret, "F_GETOWN_EX, F_OWNER_GID");
+		(void)ret;
 #endif
 #if defined(F_OWNER_TID) && defined(__linux__)
 		owner.type = F_OWNER_TID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
-		check_return(args, ret, "F_GETOWN_EX, F_OWNER_TID");
+		(void)ret;
 #endif
 	}
 #endif
