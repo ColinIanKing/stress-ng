@@ -210,7 +210,9 @@ static int stress_exec(const args_t *args)
 {
 	static pid_t pids[MAX_FORKS];
 	char path[PATH_MAX + 1];
+	char filename[PATH_MAX];
 	ssize_t len;
+	int ret, rc = EXIT_FAILURE;
 #if defined(HAVE_EXECVEAT)
 	int fdexec;
 #endif
@@ -233,12 +235,18 @@ static int stress_exec(const args_t *args)
 	path[len] = '\0';
 	argv_new[0] = path;
 
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0)
+		return exit_status(-ret);
+	(void)stress_temp_filename_args(args,
+		filename, sizeof(filename), mwc32());
+
 #if defined(HAVE_EXECVEAT)
 	fdexec = open(path, O_PATH);
 	if (fdexec < 0) {
 		pr_fail("%s: open O_PATH on /proc/self/exe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
+		goto err;
 	}
 #endif
 
@@ -253,8 +261,9 @@ static int stress_exec(const args_t *args)
 			pids[i] = fork();
 
 			if (pids[i] == 0) {
-				int ret, fd_out, fd_in, rc;
+				int ret, fd_out, fd_in, rc, fd;
 				const int which = mwc8() % 3;
+				int exec_garbage = mwc1();
 				exec_args_t exec_args;
 
 				(void)setpgid(0, g_pgrp);
@@ -279,13 +288,47 @@ static int stress_exec(const args_t *args)
 				ret = stress_drop_capabilities(args->name);
 				(void)ret;
 
+				/*
+				 *  Create a garbage executable
+				 */
+				if (exec_garbage) {
+					char buffer[1024];
+					ssize_t n;
+
+					fd = open(filename, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IXUSR);
+					if (fd < 0) {
+						exec_garbage = 0;
+						goto do_exec;
+					}
+
+					stress_strnrnd(buffer, sizeof(buffer));
+					if (mwc1()) {
+						buffer[0] = '#';
+						buffer[1] = '!';
+					}
+
+					n = write(fd, buffer, sizeof(buffer));
+					if (n < (ssize_t)sizeof(buffer)) {
+						exec_garbage = 0;
+						goto do_exec;
+					}
+
+					(void)close(fd);
+					fd = open(filename, O_PATH);
+					if (fd < 0) {
+						exec_garbage = 0;
+						goto do_exec;
+					}
+				}
+do_exec:
+
+				exec_args.path = exec_garbage ? filename : path;
 				exec_args.args = args;
 				exec_args.which = which;
-				exec_args.path = path;
 				exec_args.argv_new = argv_new;
 				exec_args.env_new = env_new;
 #if defined(HAVE_EXECVEAT)
-				exec_args.fdexec = fdexec;
+				exec_args.fdexec = exec_garbage ? fd : fdexec;
 #endif
 
 				ret = stress_do_exec(&exec_args);
@@ -305,6 +348,10 @@ static int stress_exec(const args_t *args)
 						rc = EXIT_FAILURE;
 						break;
 					}
+				}
+				if (exec_garbage) {
+					(void)close(fd);
+					(void)unlink(filename);
 				}
 
 				/* Child, immediately exit */
@@ -338,7 +385,12 @@ static int stress_exec(const args_t *args)
 			(double)exec_fails * 100.0 / (double)(exec_calls));
 	}
 
-	return EXIT_SUCCESS;
+	rc = EXIT_SUCCESS;
+err:
+	(void)unlink(filename);
+	(void)stress_temp_dir_rm_args(args);
+
+	return rc;
 }
 
 stressor_info_t stress_exec_info = {
