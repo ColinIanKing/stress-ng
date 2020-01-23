@@ -69,6 +69,9 @@ static const int mmap_flags[] = {
 #if defined(MAP_HUGE_1GB) && defined(MAP_HUGETLB)
 	MAP_HUGE_1GB | MAP_HUGETLB,
 #endif
+#if defined(MAP_HUGETLB)
+	MAP_HUGETLB,
+#endif
 #if defined(MAP_NONBLOCK)
 	MAP_NONBLOCK,
 #endif
@@ -190,13 +193,25 @@ static void stress_tmpfs_child(
 		buf = (uint8_t *)mmap(NULL, sz,
 			PROT_READ | PROT_WRITE, *flags | rnd_flag, fd, 0);
 		if (buf == MAP_FAILED) {
-			/* Force MAP_POPULATE off, just in case */
 #if defined(MAP_POPULATE)
-			*flags &= ~MAP_POPULATE;
+			/* Force MAP_POPULATE off, just in case */
+			if (*flags & MAP_POPULATE) {
+				*flags &= ~MAP_POPULATE;
+				no_mem_retries++;
+				continue;
+			}
+#endif
+#if defined(MAP_HUGETLB)
+			/* Force MAP_HUGETLB off, just in case */
+			if (*flags & MAP_HUGETLB) {
+				*flags &= ~MAP_HUGETLB;
+				no_mem_retries++;
+				continue;
+			}
 #endif
 			no_mem_retries++;
 			if (no_mem_retries > 1)
-				(void)shim_usleep(100000);
+				(void)shim_usleep(10000);
 			continue;	/* Try again */
 		}
 		if (tmpfs_mmap_file) {
@@ -223,8 +238,10 @@ static void stress_tmpfs_child(
 		(void)mincore_touch_pages(buf, sz);
 		for (n = pages4k; n; ) {
 			uint64_t j, i = mwc64() % pages4k;
+
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
+
 				if (mapped[page] == PAGE_MAPPED) {
 					mapped[page] = 0;
 					(void)madvise_random(mappings[page], page_size);
@@ -243,8 +260,10 @@ static void stress_tmpfs_child(
 		 */
 		for (n = pages4k; n; ) {
 			uint64_t j, i = mwc64() % pages4k;
+
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
+
 				if (!mapped[page]) {
 					off_t offset = tmpfs_mmap_file ? page * page_size : 0;
 					/*
