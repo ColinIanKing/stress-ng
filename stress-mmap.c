@@ -239,7 +239,6 @@ retry:
 			}
 #endif
 			no_mem_retries++;
-			no_mem_retries++;
 			if (no_mem_retries > 1)
 				(void)shim_usleep(100000);
 			continue;	/* Try again */
