@@ -41,11 +41,37 @@ static sigset_t set;
 #if !defined(HAVE_LINUX_MEMBARRIER_H)
 enum membarrier_cmd {
 	MEMBARRIER_CMD_QUERY = 0,
-	MEMBARRIER_CMD_SHARED = (1 << 0),
+	MEMBARRIER_CMD_GLOBAL = (1 << 0),
+	MEMBARRIER_CMD_SHARED = MEMBARRIER_CMD_GLOBAL,
+	MEMBARRIER_CMD_GLOBAL_EXPEDITED = (1 << 1),
+	MEMBARRIER_CMD_REGISTER_GLOBAL_EXPEDITED = (1 << 2),
 	MEMBARRIER_CMD_PRIVATE_EXPEDITED = (1 << 3),
-	MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED = (1 << 4)
+	MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED = (1 << 4),
+	MEMBARRIER_CMD_PRIVATE_EXPEDITED_SYNC_CORE = (1 << 5),
+	MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_SYNC_CORE = (1 << 6),
 };
+
 #endif
+
+static int stress_membarrier_exercise(const args_t *args)
+{
+	int ret;
+	unsigned int i, mask;
+
+	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
+	if (ret < 0) {
+		pr_fail_err("membarrier CMD QUERY");
+		return -1;
+	}
+	mask = (unsigned int)ret;
+	for (i = 1; i; i <<= 1) {
+		if (i & mask) {
+			ret = shim_membarrier(i, 0);
+			(void)ret;
+		}
+	}
+	return 0;
+}
 
 static void *stress_membarrier_thread(void *parg)
 {
@@ -70,20 +96,8 @@ static void *stress_membarrier_thread(void *parg)
 		return &nowt;
 
 	while (keep_running && g_keep_stressing_flag) {
-		int ret;
-
-		ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
-		if (ret < 0) {
-			pr_fail_err("membarrier CMD QUERY");
+		if (stress_membarrier_exercise(args) < 0)
 			break;
-		}
-		/* CMD SHARED not available; skip it */
-		if (!(ret & MEMBARRIER_CMD_SHARED))
-			continue;
-		if (shim_membarrier(MEMBARRIER_CMD_SHARED, 0) < 0) {
-			pr_fail_err("membarrier CMD SHARED");
-			break;
-		}
 	}
 
 	return &nowt;
@@ -130,8 +144,7 @@ static int stress_membarrier(const args_t *args)
 	}
 
 	do {
-		ret = shim_membarrier(MEMBARRIER_CMD_SHARED, 0);
-		if (ret < 0) {
+		if (stress_membarrier_exercise(args) < 0) {
 			pr_err("%s: membarrier failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 		}
