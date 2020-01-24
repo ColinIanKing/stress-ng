@@ -17,6 +17,8 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
+PERF_PARANOID=/proc/sys/kernel/perf_event_paranoid
+
 #
 # stress-ng kernel coverage test:
 #  - requires lcov to be installed
@@ -44,6 +46,11 @@ do_stress()
 	$STRESS_NG $* $ARGS
 	sudo $STRESS_NG $* $ARGS
 }
+
+if [ -e $PERF_PARANOID ]; then
+	paranoid_saved=$(cat /proc/sys/kernel/perf_event_paranoid)
+	(echo 0 | sudo tee $PERF_PARANOID) > /dev/null
+fi
 
 sudo lcov --zerocounters
 
@@ -141,6 +148,7 @@ do_stress --timerfd 0 --timerfd-rand
 do_stress --tmpfs 0 --tmpfs-mmap-async
 do_stress --tmpfs 0 --tmpfs-mmap-file
 
+do_stress --tun 0
 do_stress --tun 0 --tun-tap
 
 do_stress --udp 0 --udp-domain ipv4
@@ -174,5 +182,10 @@ for S in $STRESSORS
 do
 	do_stress --${S} 0
 done
+
+if [ -e $PERF_PARANOID ]; then
+	(echo $paranoid_saved | sudo tee $PERF_PARANOID) > /dev/null
+fi
+
 sudo lcov -c -o kernel.info
 sudo genhtml -o html kernel.info
