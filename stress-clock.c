@@ -324,6 +324,14 @@ static int stress_clock(const args_t *args)
 					pr_fail("%s: clock_gettime failed for /dev/ptp0, errno=%d (%s)",
 					args->name, errno, strerror(errno));
 				}
+#if defined(HAVE_CLOCK_GETRES)
+				ret = clock_getres(clkid, &t);
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
+				    (errno != EINVAL) && (errno != ENOSYS)) {
+					pr_fail("%s: clock_getres failed for /dev/ptp0, errno=%d (%s)",
+					args->name, errno, strerror(errno));
+				}
+#endif
 				(void)close(fd);
 			}
 		}
