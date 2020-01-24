@@ -125,6 +125,8 @@ static const char *stress_clock_name(int id)
 }
 #endif
 
+#define FD_TO_CLOCKID(fd)	((~(clockid_t)(fd) << 3) | 3)
+
 /*
  *  stress_clock()
  *	stress system by rapid clocking system calls
@@ -294,6 +296,35 @@ static int stress_clock(const args_t *args)
 						errno, strerror(errno));
 					break;
 				}
+			}
+		}
+#endif
+
+#if defined(__linux__)
+		{
+			int fd, ret;
+
+			fd = open("/dev/ptp0", O_RDWR);
+			if (fd >= 0) {
+				struct timespec t;
+				int clkid = FD_TO_CLOCKID(fd);
+#if defined(HAVE_POLL_H)
+				struct pollfd pollfds[1];
+
+				pollfds[0].fd = fd;
+				pollfds[0].events = POLLIN;
+				pollfds[0].revents = 0;
+
+				ret = poll(pollfds, 1, 0);
+				(void)ret;
+#endif
+				ret = clock_gettime(clkid, &t);
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
+				    (errno != EINVAL) && (errno != ENOSYS)) {
+					pr_fail("%s: clock_gettime failed for /dev/ptp0, errno=%d (%s)",
+					args->name, errno, strerror(errno));
+				}
+				(void)close(fd);
 			}
 		}
 #endif
