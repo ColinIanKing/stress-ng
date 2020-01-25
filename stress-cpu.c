@@ -219,21 +219,28 @@ static void OPTIMIZE0 stress_cpu_loop(const char *name)
  */
 static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 {
-	uint32_t i, i_sum = 0;
-	const uint32_t sum = 63000868UL;
+	uint32_t i, gcd_sum = 0;
+	const uint32_t gcd_checksum = 63000868UL;
+	uint64_t lcm_sum = 0;
+	const uint64_t lcm_checksum = 41637399273ULL;
 
 	for (i = 0; i < 16384; i++) {
 		register uint32_t a = i, b = i % (3 + (1997 ^ i));
+		register uint64_t lcm = (a * b);
 
 		while (b != 0) {
 			register uint32_t r = b;
 			b = a % b;
 			a = r;
 		}
-		i_sum += a;
+		if (a)
+			lcm_sum += (lcm / a);
+		gcd_sum += a;
 		FORCE_DO_NOTHING();
 	}
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
+            (gcd_sum != gcd_checksum) &&
+            (lcm_sum != lcm_checksum))
 		pr_fail("%s: gcd error detected, failed modulo "
 			"or assignment operations\n", name);
 }
