@@ -1203,16 +1203,17 @@ static const dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/ptp",	stress_dev_ptp_linux)
 };
 
-static void MLOCKED_TEXT stress_timer_handler(int sig)
-{
-	(void)sig;
-}
-
 #if defined(HAVE_LIB_RT) &&             \
     defined(HAVE_TIMER_CREATE) &&       \
     defined(HAVE_TIMER_DELETE) &&       \
     defined(HAVE_TIMER_GETOVERRUN) &&   \
     defined(HAVE_TIMER_SETTIME)
+
+static void MLOCKED_TEXT stress_timer_handler(int sig)
+{
+	(void)sig;
+}
+
 /*
  *  Try to open a device, return 0 if can open it, non-zero
  *  if it cannot be opened within 1.5 seconds.  Some devices
