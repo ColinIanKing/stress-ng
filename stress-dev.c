@@ -1283,8 +1283,9 @@ static int stress_dev_try_open(const args_t *args, char *path)
 	return rc;
 }
 #else
-static inline int stress_dev_try_open(char *path)
+static inline int stress_dev_try_open(const args_t *args, char *path)
 {
+	(void)args;
 	(void)path;
 
 	return 0;
@@ -1328,7 +1329,7 @@ static inline void stress_dev_rw(
 
 
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0) {
-			if (errno = EINTR)
+			if (errno == EINTR)
 				goto next;
 			goto rdwr;
 		}
@@ -1454,7 +1455,7 @@ static inline void stress_dev_rw(
 		}
 
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0) {
-			if (errno = EINTR)
+			if (errno == EINTR)
 				goto next;
 			goto rdwr;
 		}
