@@ -302,12 +302,12 @@ static int stress_clock(const args_t *args)
 
 #if defined(__linux__)
 		{
-			int fd, ret;
+			int fd;
 
 			fd = open("/dev/ptp0", O_RDWR);
 			if (fd >= 0) {
 				struct timespec t;
-				int clkid = FD_TO_CLOCKID(fd);
+				int ret, clkid = FD_TO_CLOCKID(fd);
 #if defined(HAVE_POLL_H)
 				struct pollfd pollfds[1];
 
