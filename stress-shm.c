@@ -141,6 +141,8 @@ static int stress_shm_posix_child(
 #endif
 	if (sigaction(SIGCHLD, &sa, NULL) < 0) {
 		pr_fail_err("sigaction on SIGCHLD");
+		free(addrs);
+		free(shm_names);
 		return EXIT_NO_RESOURCE;
 	}
 
