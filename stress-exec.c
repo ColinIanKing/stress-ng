@@ -261,7 +261,7 @@ static int stress_exec(const args_t *args)
 			pids[i] = fork();
 
 			if (pids[i] == 0) {
-				int fd_out, fd_in, fd;
+				int fd_out, fd_in, fd = -1;
 				const int which = mwc8() % 3;
 				int exec_garbage = mwc1();
 				exec_args_t exec_args;
@@ -350,7 +350,8 @@ do_exec:
 					}
 				}
 				if (exec_garbage) {
-					(void)close(fd);
+					if (fd != -1)
+						(void)close(fd);
 					(void)unlink(filename);
 				}
 
