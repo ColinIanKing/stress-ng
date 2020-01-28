@@ -136,9 +136,11 @@ static int stress_shm_posix_child(
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = SIG_IGN;
+#if defined(SA_NOCLDWAIT)
 	sa.sa_flags = SA_NOCLDWAIT;
+#endif
 	if (sigaction(SIGCHLD, &sa, NULL) < 0) {
-		pr_fail_err("sigactionb on SIGCHLD");
+		pr_fail_err("sigaction on SIGCHLD");
 		return EXIT_NO_RESOURCE;
 	}
 
