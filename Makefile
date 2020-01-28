@@ -302,6 +302,7 @@ CORE_SRC = \
 	core-affinity.c \
 	core-cache.c \
 	core-cpu.c \
+	core-hash.c \
 	core-helper.c \
 	core-ignite-cpu.c \
 	core-io-priority.c \

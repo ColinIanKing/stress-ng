@@ -53,9 +53,7 @@ typedef struct dev_scsi {
 	char *devpath;
 } dev_scsi_t;
 
-#if defined(__linux__)
-static dev_scsi_t *dev_scsi_list;
-#endif
+static stress_hash_table_t *dev_hash_table, *scsi_hash_table;
 
 /*
  *  path_sum()
@@ -638,52 +636,18 @@ static inline const char *dev_basename(const char *devpath)
 
 static inline void add_scsi_dev(const char *devpath)
 {
-	dev_scsi_t *dev_scsi, *dev_scsi_new;
 	int ret;
-
-	/*
-	 *  Try to add new device to cache list, don't
-	 *  cause a failure if we can't do this.
-	 */
-	dev_scsi_new = malloc(sizeof(*dev_scsi));
-	if (!dev_scsi_new)
-		return;
-
-	dev_scsi_new->devpath = strdup(devpath);
-	if (!dev_scsi_new->devpath)
-		goto free_dev_scsi;
 
 	ret = shim_pthread_spin_lock(&lock);
 	if (ret)
-		goto free_devpath;
-
-	/*
-	 *  We may have had another thread add the same devpath to
-	 *  the list, so check first before adding a duplicate
-	 */
-	for (dev_scsi = dev_scsi_list; dev_scsi; dev_scsi = dev_scsi->next) {
-		if (!strcmp(dev_scsi->devpath, devpath))
-			break;
-	}
-	/* Not found, add to list */
-	if (!dev_scsi) {
-		dev_scsi_new->next = dev_scsi_list;
-		dev_scsi_list = dev_scsi_new;
-		(void)shim_pthread_spin_unlock(&lock);
-
 		return;
-	}
-	(void)shim_pthread_spin_unlock(&lock);
 
-free_devpath:
-	free(dev_scsi_new->devpath);
-free_dev_scsi:
-	free(dev_scsi_new);
+	stress_hash_add(scsi_hash_table, devpath);
+	(void)shim_pthread_spin_unlock(&lock);
 }
 
 static inline bool is_scsi_dev_cached(const char *devpath)
 {
-	dev_scsi_t *dev_scsi;
 	int ret;
 	bool is_scsi = false;
 
@@ -691,12 +655,7 @@ static inline bool is_scsi_dev_cached(const char *devpath)
 	if (ret)
 		return false;
 
-	for (dev_scsi = dev_scsi_list; dev_scsi; dev_scsi = dev_scsi->next) {
-		if (!strcmp(dev_scsi->devpath, devpath)) {
-			is_scsi = true;
-			break;
-		}
-	}
+	is_scsi = (stress_hash_get(scsi_hash_table, devpath) != NULL);
 	(void)shim_pthread_spin_unlock(&lock);
 
 	return is_scsi;
@@ -759,34 +718,10 @@ static inline bool is_scsi_dev(const char *devpath)
 	return is_scsi;
 }
 
-static inline void free_scsi_list(void)
-{
-	/*
-	 *  We don't need locking as there is
-	 *  just one thread running at this point
-	 */
-	dev_scsi_t *dev_scsi = dev_scsi_list;
-
-	while (dev_scsi) {
-		dev_scsi_t *next = dev_scsi->next;
-
-		free(dev_scsi->devpath);
-		free(dev_scsi);
-
-		dev_scsi = next;
-	}
-	dev_scsi_list = NULL;
-}
-
 #else
-
-static inline void free_scsi_list(void)
+static inline bool is_scsi_dev(const char *devpath)
 {
-}
-
-static inline bool is_scsi_dev(const char *name)
-{
-	(void)name;
+	(void)devpath;
 
 	/* Assume not */
 	return false;
@@ -1601,22 +1536,32 @@ static void stress_dev_dir(
 		case DT_DIR:
 			if (!recurse)
 				continue;
-
+			if (stress_hash_get(dev_hash_table, tmp))
+				continue;
 			ret = stat(tmp, &buf);
-			if (ret < 0)
+			if (ret < 0) {
+				stress_hash_add(dev_hash_table, tmp);
 				continue;
-			if ((buf.st_mode & flags) == 0)
+			}
+			if ((buf.st_mode & flags) == 0) {
+				stress_hash_add(dev_hash_table, tmp);
 				continue;
-
+			}
 			inc_counter(args);
 			stress_dev_dir(args, tmp, recurse, depth + 1, euid);
 			break;
 		case DT_BLK:
 		case DT_CHR:
-			if (strstr(tmp, "watchdog"))
+			if (stress_hash_get(dev_hash_table, tmp))
 				continue;
-			if (stress_dev_try_open(args, tmp))
+			if (strstr(tmp, "watchdog")) {
+				stress_hash_add(dev_hash_table, tmp);
 				continue;
+			}
+			if (stress_dev_try_open(args, tmp)) {
+				stress_hash_add(dev_hash_table, tmp);
+				continue;
+			}
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
 				(void)shim_strlcpy(filename, tmp, sizeof(filename));
@@ -1671,6 +1616,7 @@ again:
 			(void)setpgid(pid, g_pgrp);
 			/* Parent, wait for child */
 			wret = shim_waitpid(pid, &status, 0);
+			sleep(2);
 			if (wret < 0) {
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
@@ -1689,13 +1635,27 @@ again:
 			size_t i;
 			int r;
 
+			dev_hash_table = stress_hash_create(251);
+			if (!dev_hash_table) {
+				pr_err("%s: cannot create device hash table: %d (%s))\n",
+					args->name, errno, strerror(errno));
+				_exit(EXIT_NO_RESOURCE);
+			}
+			scsi_hash_table = stress_hash_create(251);
+			if (!scsi_hash_table) {
+				pr_err("%s: cannot create scsi device hash table: %d (%s))\n",
+					args->name, errno, strerror(errno));
+				stress_hash_delete(dev_hash_table);
+				_exit(EXIT_NO_RESOURCE);
+			}
+
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			rc = shim_pthread_spin_init(&lock, SHIM_PTHREAD_PROCESS_SHARED);
 			if (rc) {
 				pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
 					args->name, rc, strerror(rc));
-				return EXIT_NO_RESOURCE;
+				_exit(EXIT_NO_RESOURCE);
 			}
 
 			/* Make sure this is killable by OOM killer */
@@ -1724,7 +1684,7 @@ again:
 				if (ret[i] == 0)
 					pthread_join(pthreads[i], NULL);
 			}
-			(void)free_scsi_list();
+			stress_hash_delete(dev_hash_table);
 			_exit(!g_keep_stressing_flag);
 		}
 	} while (keep_stressing());

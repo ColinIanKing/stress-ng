@@ -954,6 +954,17 @@ typedef struct {
 	int pthread_ret;	/* Per thread return value */
 } pthread_args_t;
 
+/* string hash type */
+typedef struct stress_hash {
+	char *str;		/* string */
+	struct stress_hash *next; /* next hash item */
+} stress_hash_t;
+
+typedef struct {
+	stress_hash_t	**table;/* hash table */
+	size_t		n;	/* number of hash items in table */
+} stress_hash_table_t;
+
 /* gcc 4.7 and later support vector ops */
 #if defined(__GNUC__) && NEED_GNUC(4,7,0)
 #define STRESS_VECTOR	1
@@ -3382,6 +3393,11 @@ extern WARN_UNUSED bool stress_check_capability(const int capability);
 extern WARN_UNUSED bool stress_sigalrm_pending(void);
 extern void stress_sigalrm_block(void);
 extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
+extern WARN_UNUSED stress_hash_table_t *stress_hash_create(const size_t n);
+extern stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table, const char *str);
+extern WARN_UNUSED stress_hash_t *stress_hash_get(stress_hash_table_t *hash_table, const char *str);
+extern void stress_hash_delete(stress_hash_table_t *hash_table);
+
 
 /*
  *  Indicate a stress test failed because of limited resources
