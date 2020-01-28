@@ -386,7 +386,9 @@ do_exec:
 	}
 
 	rc = EXIT_SUCCESS;
+#if defined(HAVE_EXECVEAT)
 err:
+#endif
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
