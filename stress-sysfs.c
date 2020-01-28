@@ -136,6 +136,8 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 			break;
 
 		t_start = time_now();
+		if (stress_try_open(args, path, O_RDONLY | O_NONBLOCK, 1500000000))
+			goto next;
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0) {
 			goto next;
 		}

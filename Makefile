@@ -325,6 +325,7 @@ CORE_SRC = \
 	core-thermal-zone.c \
 	core-time.c \
 	core-thrash.c \
+	core-try-open.c \
 	stress-ng.c
 
 SRC = $(STRESS_SRC) $(CORE_SRC)

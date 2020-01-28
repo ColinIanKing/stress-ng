@@ -1138,96 +1138,6 @@ static const dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/ptp",	stress_dev_ptp_linux)
 };
 
-#if defined(HAVE_LIB_RT) &&             \
-    defined(HAVE_TIMER_CREATE) &&       \
-    defined(HAVE_TIMER_DELETE) &&       \
-    defined(HAVE_TIMER_GETOVERRUN) &&   \
-    defined(HAVE_TIMER_SETTIME)
-
-static void MLOCKED_TEXT stress_timer_handler(int sig)
-{
-	(void)sig;
-}
-
-/*
- *  Try to open a device, return 0 if can open it, non-zero
- *  if it cannot be opened within 1.5 seconds.  Some devices
- *  can block indefinitely, so we need to perform this sanity
- *  check with a non-blockable child
- */
-static int stress_dev_try_open(const args_t *args, char *path)
-{
-	pid_t pid;
-	int fd, ret;
-	int rc = -1;
-
-	/*
-	 *  If a handler can't be installed then
-	 *  we can't test, so just return 0 and try
-	 *  it anyhow.
-	 */
-	ret = stress_sighandler(args->name, SIGRTMIN, stress_timer_handler, NULL);
-	if (ret < 0)
-		return 0;
-
-	pid = fork();
-	if (pid < 0) {
-		return -1;
-	} else if (pid == 0) {
-		errno = 0;
-		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
-			_exit(EXIT_FAILURE);
-		_exit(EXIT_SUCCESS);
-	} else {
-		int status, t_ret;
-
-		struct sigevent sev;
-		timer_t timerid;
-		struct itimerspec timer;
-
-		sev.sigev_notify = SIGEV_SIGNAL;
-		sev.sigev_signo = SIGRTMIN;
-		sev.sigev_value.sival_ptr = &timerid;
-
-		t_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
-		if (!t_ret) {
-			/* 1.5 second timeout */
-			timer.it_value.tv_sec = 1;
-			timer.it_value.tv_nsec = 500000000;
-			timer.it_interval.tv_sec = 1;
-			timer.it_interval.tv_nsec = 500000000;
-			t_ret = timer_settime(timerid, 0, &timer, NULL);
-		}
-		ret = waitpid(pid, &status, 0);
-		if (ret < 0) {
-			/*
-			 * EINTR or something else, treat as failed anyhow
-			 * and forcibly kill child and re-wait
-			 */
-			kill(pid, SIGKILL);
-			ret = waitpid(pid, &status, 0);
-			(void)ret;
-			return -1;
-		}
-		if (!t_ret)
-			(void)timer_delete(timerid);
-
-		/* Seems like we can open the device successfully */
-		if ((WIFEXITED(status)) && (WEXITSTATUS(status) == 0))
-			rc = 0;
-	}
-	return rc;
-}
-#else
-static inline int stress_dev_try_open(const args_t *args, char *path)
-{
-	(void)args;
-	(void)path;
-
-	return 0;
-}
-#endif
-
 /*
  *  stress_dev_rw()
  *	exercise a dev entry
@@ -1558,7 +1468,7 @@ static void stress_dev_dir(
 				stress_hash_add(dev_hash_table, tmp);
 				continue;
 			}
-			if (stress_dev_try_open(args, tmp)) {
+			if (stress_try_open(args, tmp, O_RDONLY | O_NONBLOCK, 1500000000)) {
 				stress_hash_add(dev_hash_table, tmp);
 				continue;
 			}
