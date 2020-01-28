@@ -261,7 +261,7 @@ static int stress_exec(const args_t *args)
 			pids[i] = fork();
 
 			if (pids[i] == 0) {
-				int ret, fd_out, fd_in, rc, fd;
+				int fd_out, fd_in, fd;
 				const int which = mwc8() % 3;
 				int exec_garbage = mwc1();
 				exec_args_t exec_args;
