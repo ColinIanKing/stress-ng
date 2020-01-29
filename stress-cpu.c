@@ -629,29 +629,6 @@ static void stress_cpu_hash_generic(
 			name, hash_name, hash_name);
 }
 
-
-/*
- *  jenkin()
- *	Jenkin's hash on random data
- *	http://www.burtleburtle.net/bob/hash/doobs.html
- */
-static uint32_t HOT OPTIMIZE3 jenkin(const uint8_t *data, const size_t len)
-{
-	register size_t i;
-	register uint32_t h = 0;
-
-	for (i = 0; i < len; i++) {
-		h += *data++;
-		h += h << 10;
-		h ^= h >> 6;
-	}
-	h += h << 3;
-	h ^= h >> 11;
-	h += h << 15;
-
-	return h;
-}
-
 /*
  *  stress_cpu_jenkin()
  *	multiple iterations on jenkin hash
@@ -666,32 +643,11 @@ static void stress_cpu_jenkin(const char *name)
 	MWC_SEED();
 	random_buffer(buffer, sizeof(buffer));
 	for (i = 0; i < sizeof(buffer); i++)
-		i_sum += jenkin(buffer, sizeof(buffer));
+		i_sum += stress_hash_jenkin(buffer, sizeof(buffer));
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
 		pr_fail("%s: jenkin error detected, failed hash "
 			"jenkin sum\n", name);
-}
-
-/*
- *  pjw()
- *	Hash a string, from Aho, Sethi, Ullman, Compiling Techniques.
- */
-static uint32_t HOT OPTIMIZE3 pjw(const char *str)
-{
-	register uint32_t h = 0;
-
-	while (*str) {
-		register uint32_t g;
-
-		h = (h << 4) + (*str);
-		if (0 != (g = h & 0xf0000000)) {
-			h = h ^ (g >> 24);
-			h = h ^ g;
-		}
-		str++;
-	}
-	return h;
 }
 
 /*
@@ -700,23 +656,7 @@ static uint32_t HOT OPTIMIZE3 pjw(const char *str)
  */
 static void stress_cpu_pjw(const char *name)
 {
-	stress_cpu_hash_generic(name, "pjw", pjw, 0xa89a91c0);
-}
-
-/*
- *  djb2a()
- *	Hash a string, from Dan Bernstein comp.lang.c (xor version)
- */
-static uint32_t HOT OPTIMIZE3 djb2a(const char *str)
-{
-	register uint32_t hash = 5381;
-	register int c;
-
-	while ((c = *str++)) {
-		/* (hash * 33) ^ c */
-		hash = ((hash << 5) + hash) ^ c;
-	}
-	return hash;
+	stress_cpu_hash_generic(name, "pjw", stress_hash_pjw, 0xa89a91c0);
 }
 
 /*
@@ -725,24 +665,7 @@ static uint32_t HOT OPTIMIZE3 djb2a(const char *str)
  */
 static void stress_cpu_djb2a(const char *name)
 {
-	stress_cpu_hash_generic(name, "djb2a", djb2a, 0x6a60cb5a);
-}
-
-/*
- *  fnv1a()
- *	Hash a string, using the improved 32 bit FNV-1a hash
- */
-static uint32_t HOT OPTIMIZE3 fnv1a(const char *str)
-{
-	register uint32_t hash = 5381;
-	const uint32_t fnv_prime = 16777619; /* 2^24 + 2^9 + 0x93 */
-	register int c;
-
-	while ((c = *str++)) {
-		hash ^= c;
-		hash *= fnv_prime;
-	}
-	return hash;
+	stress_cpu_hash_generic(name, "djb2a", stress_hash_djb2a, 0x6a60cb5a);
 }
 
 /*
@@ -751,22 +674,7 @@ static uint32_t HOT OPTIMIZE3 fnv1a(const char *str)
  */
 static void HOT stress_cpu_fnv1a(const char *name)
 {
-	stress_cpu_hash_generic(name, "fnv1a", fnv1a, 0x8ef17e80);
-}
-
-/*
- *  sdbm()
- *	Hash a string, using the sdbm data base hash and also
- *	apparently used in GNU awk.
- */
-static uint32_t OPTIMIZE3 sdbm(const char *str)
-{
-	register uint32_t hash = 0;
-	register int c;
-
-	while ((c = *str++))
-		hash = c + (hash << 6) + (hash << 16) - hash;
-	return hash;
+	stress_cpu_hash_generic(name, "fnv1a", stress_hash_fnv1a, 0x8ef17e80);
 }
 
 /*
@@ -775,7 +683,7 @@ static uint32_t OPTIMIZE3 sdbm(const char *str)
  */
 static void stress_cpu_sdbm(const char *name)
 {
-	stress_cpu_hash_generic(name, "sdbm", sdbm, 0x46357819);
+	stress_cpu_hash_generic(name, "sdbm", stress_hash_sdbm, 0x46357819);
 }
 
 /*

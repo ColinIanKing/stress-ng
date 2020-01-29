@@ -3399,6 +3399,11 @@ extern WARN_UNUSED stress_hash_t *stress_hash_get(stress_hash_table_t *hash_tabl
 extern void stress_hash_delete(stress_hash_table_t *hash_table);
 extern WARN_UNUSED int stress_try_open(const args_t *args, const char *path,
 	const int flags, const unsigned long timeout_ns);
+extern WARN_UNUSED uint32_t stress_hash_jenkin(const uint8_t *data, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_pjw(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_djb2a(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_fnv1a(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
 
 /*
  *  Indicate a stress test failed because of limited resources
