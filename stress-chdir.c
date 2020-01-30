@@ -84,7 +84,11 @@ static int stress_chdir(const args_t *args)
 	for (i = 0; i < chdir_dirs; i++) {
 		uint64_t rnd = (uint64_t)mwc32() << 32;
 		uint32_t gray_code = (i >> 1) ^ i;
+		int flags = O_RDONLY;
 
+#if defined(O_DIRECTORY)
+		flags |= O_DIRECTORY;
+#endif
 		(void)stress_temp_filename_args(args,
 			path, sizeof(path), rnd | gray_code);
 		paths[i] = strdup(path);
@@ -96,11 +100,7 @@ static int stress_chdir(const args_t *args)
 			pr_fail_err("mkdir");
 			goto abort;
 		}
-#if defined(O_DIRECTORY)
-		fds[i] = open(paths[i], O_RDONLY | O_DIRECTORY);
-#else
-		fds[i] = open(paths[i], O_RDONLY);
-#endif
+		fds[i] = open(paths[i], flags);
 		if (!g_keep_stressing_flag)
 			goto done;
 	}
