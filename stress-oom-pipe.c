@@ -34,6 +34,11 @@ static const help_t help[] = {
     defined(O_NONBLOCK) &&	\
     defined(F_SETFL)
 
+typedef struct {
+	int max_fd;
+	size_t max_pipe_size;
+} stress_oom_pipe_context_t;
+
 /*
  *  pipe_empty()
  *	read data from read end of pipe
@@ -72,131 +77,82 @@ static void pipe_fill(const int fd, const size_t max, const size_t page_size)
 	}
 }
 
-/*
- *  stress_oom_pipe_expander
- *
- */
-static int stress_oom_pipe_expander(
-	const args_t *args,
-	const size_t max_pipe_size,
-	const int max_pipes,
-	const size_t page_size)
+static int stress_oom_pipe_child(const args_t *args, void *ctxt)
 {
-	pid_t pid;
+	stress_oom_pipe_context_t *context = (stress_oom_pipe_context_t *)ctxt;
+	const int max_pipes = context->max_fd / 2;
+	const size_t page_size = args->page_size;
 
-again:
-	pid = fork();
-	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
-			goto again;
-		pr_err("%s: fork failed: errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return -1;
-	} else if (pid > 0) {
-		int status, ret;
+	/* Child */
+	int fds[max_pipes * 2], *fd, i, pipes_open = 0, ret;
+	const bool aggressive = (g_opt_flags & OPT_FLAGS_AGGRESSIVE);
 
-		(void)setpgid(pid, g_pgrp);
-		stress_parent_died_alarm();
+	/* Explicitly drop capabilites, makes it more OOM-able */
+	ret = stress_drop_capabilities(args->name);
+	(void)ret;
 
-		/* Patent, wait for child */
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid() errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg( "%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got kill by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				log_system_mem_info();
-				pr_dbg("%s: assuming killed by OOM "
-					"killer, restarting again "
-					"(instance %d)\n",
-					args->name, args->instance);
-				goto again;
+	for (i = 0; i < max_pipes * 2; i++)
+		fds[i] = -1;
+
+	for (i = 0; i < max_pipes; i++) {
+		int *pfd = fds + (2 * i);
+		if (pipe(pfd) < 0) {
+			pfd[0] = -1;
+			pfd[1] = -1;
+		} else {
+			if (fcntl(pfd[0], F_SETFL, O_NONBLOCK) < 0) {
+				pr_fail_err("fcntl O_NONBLOCK");
+				goto clean;
 			}
-		}
-	} else if (pid == 0) {
-		/* Child */
-		int fds[max_pipes * 2], *fd, i, pipes_open = 0, ret;
-		const bool aggressive = (g_opt_flags & OPT_FLAGS_AGGRESSIVE);
-
-		(void)setpgid(0, g_pgrp);
-		set_oom_adjustment(args->name, true);
-
-		/* Explicitly drop capabilites, makes it more OOM-able */
-		ret = stress_drop_capabilities(args->name);
-		(void)ret;
-
-		for (i = 0; i < max_pipes * 2; i++)
-			fds[i] = -1;
-
-		for (i = 0; i < max_pipes; i++) {
-			int *pfd = fds + (2 * i);
-			if (pipe(pfd) < 0) {
-				pfd[0] = -1;
-				pfd[1] = -1;
-			} else {
-				if (fcntl(pfd[0], F_SETFL, O_NONBLOCK) < 0) {
-					pr_fail_err("fcntl O_NONBLOCK");
-					goto clean;
-				}
-				if (fcntl(pfd[1], F_SETFL, O_NONBLOCK) < 0) {
-					pr_fail_err("fcntl O_NONBLOCK");
-					goto clean;
-				}
-				pipes_open++;
+			if (fcntl(pfd[1], F_SETFL, O_NONBLOCK) < 0) {
+				pr_fail_err("fcntl O_NONBLOCK");
+				goto clean;
 			}
+			pipes_open++;
 		}
-
-		if (!pipes_open) {
-			pr_dbg("%s: failed to open any pipes, aborted\n",
-				args->name);
-			_exit(EXIT_NO_RESOURCE);
-		}
-
-		do {
-			/* Set to maximum size */
-			for (i = 0, fd = fds; i < max_pipes; i++, fd += 2) {
-				size_t max_size = max_pipe_size;
-
-				if ((fd[0] < 0) || (fd[1] < 0))
-					continue;
-				if (fcntl(fd[0], F_SETPIPE_SZ, max_size) < 0)
-					max_size = page_size;
-				if (fcntl(fd[1], F_SETPIPE_SZ, max_size) < 0)
-					max_size = page_size;
-				pipe_fill(fd[1], max_size, page_size);
-				if (!aggressive)
-					pipe_empty(fd[0], max_size, page_size);
-			}
-			/* Set to minimum size */
-			for (i = 0, fd = fds; i < max_pipes; i++, fd += 2) {
-				if ((fd[0] < 0) || (fd[1] < 0))
-					continue;
-				(void)fcntl(fd[0], F_SETPIPE_SZ, page_size);
-				(void)fcntl(fd[1], F_SETPIPE_SZ, page_size);
-				pipe_fill(fd[1], max_pipe_size, page_size);
-				if (!aggressive)
-					pipe_empty(fd[0], page_size, page_size);
-			}
-			inc_counter(args);
-		} while (keep_stressing());
-
-		/* And close the pipes */
-clean:
-		for (i = 0, fd = fds; i < max_pipes * 2; i++, fd++) {
-			if (*fd >= 0)
-				(void)close(*fd);
-		}
-		_exit(EXIT_SUCCESS);
 	}
-	return 0;
+
+	if (!pipes_open) {
+		pr_dbg("%s: failed to open any pipes, aborted\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	do {
+		/* Set to maximum size */
+		for (i = 0, fd = fds; i < max_pipes; i++, fd += 2) {
+			size_t max_size = context->max_pipe_size;
+
+			if ((fd[0] < 0) || (fd[1] < 0))
+				continue;
+			if (fcntl(fd[0], F_SETPIPE_SZ, max_size) < 0)
+				max_size = page_size;
+			if (fcntl(fd[1], F_SETPIPE_SZ, max_size) < 0)
+				max_size = page_size;
+			pipe_fill(fd[1], max_size, page_size);
+			if (!aggressive)
+				pipe_empty(fd[0], max_size, page_size);
+		}
+		/* Set to minimum size */
+		for (i = 0, fd = fds; i < max_pipes; i++, fd += 2) {
+			if ((fd[0] < 0) || (fd[1] < 0))
+				continue;
+			(void)fcntl(fd[0], F_SETPIPE_SZ, page_size);
+			(void)fcntl(fd[1], F_SETPIPE_SZ, page_size);
+			pipe_fill(fd[1], context->max_pipe_size, page_size);
+			if (!aggressive)
+				pipe_empty(fd[0], page_size, page_size);
+		}
+		inc_counter(args);
+	} while (keep_stressing());
+
+	/* And close the pipes */
+clean:
+	for (i = 0, fd = fds; i < max_pipes * 2; i++, fd++) {
+		if (*fd >= 0)
+			(void)close(*fd);
+	}
+	return EXIT_SUCCESS;
 }
 
 
@@ -206,16 +162,18 @@ clean:
  */
 static int stress_oom_pipe(const args_t *args)
 {
-	const size_t max_fd = stress_get_file_limit();
-	const size_t max_pipes = max_fd / 2;
 	const size_t page_size = args->page_size;
-	size_t max_pipe_size = stress_probe_max_pipe_size();
 
-	if (max_pipe_size < page_size)
-		max_pipe_size = page_size;
-	max_pipe_size &= ~(page_size - 1);
+	stress_oom_pipe_context_t context;
 
-	return stress_oom_pipe_expander(args, max_pipe_size, max_pipes, page_size);
+	context.max_fd = stress_get_file_limit();
+	context.max_pipe_size = stress_probe_max_pipe_size();
+
+	if (context.max_pipe_size < page_size)
+		context.max_pipe_size = page_size;
+	context.max_pipe_size &= ~(page_size - 1);
+
+	return stress_oomable_child(args, &context, stress_oom_pipe_child, STRESS_OOMABLE_DROP_CAP);
 }
 
 stressor_info_t stress_oom_pipe_info = {

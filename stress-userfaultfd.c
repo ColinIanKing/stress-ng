@@ -80,10 +80,10 @@ static void MLOCKED_TEXT stress_child_alarm_handler(int signum)
 }
 
 /*
- *  stress_userfaultfd_child()
+ *  stress_userfaultfd_clone()
  *	generate page faults for parent to handle
  */
-static int stress_userfaultfd_child(void *arg)
+static int stress_userfaultfd_clone(void *arg)
 {
 	context_t *c = (context_t *)arg;
 	const args_t *args = c->args;
@@ -161,9 +161,7 @@ static inline int handle_page_fault(
  *	is an OOM-able child process that the
  *	parent can restart
  */
-static int stress_userfaultfd_oomable(
-	const args_t *args,
-	const size_t userfaultfd_bytes)
+static int stress_userfaultfd_child(const args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	size_t sz;
@@ -178,12 +176,25 @@ static int stress_userfaultfd_oomable(
 	context_t c;
 	bool do_poll = true;
 	char filename[PATH_MAX];
-
-	/* Child clone stack */
-	static uint8_t stack[STACK_SIZE];
+	static uint8_t stack[STACK_SIZE]; /* Child clone stack */
 	const ssize_t stack_offset =
 		stress_get_stack_direction() * (STACK_SIZE - 64);
 	uint8_t *stack_top = stack + stack_offset;
+	size_t userfaultfd_bytes = DEFAULT_MMAP_BYTES;
+
+	(void)context;
+
+	if (!get_setting("userfaultfd-bytes", &userfaultfd_bytes)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			userfaultfd_bytes = MAX_MMAP_BYTES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			userfaultfd_bytes = MIN_MMAP_BYTES;
+	}
+	userfaultfd_bytes /= args->num_instances;
+	if (userfaultfd_bytes < MIN_MMAP_BYTES)
+		userfaultfd_bytes = MIN_MMAP_BYTES;
+	if (userfaultfd_bytes < args->page_size)
+		userfaultfd_bytes = args->page_size;
 
 	sz = userfaultfd_bytes & ~(page_size - 1);
 
@@ -274,10 +285,10 @@ static int stress_userfaultfd_oomable(
 	c.parent = getpid();
 
 	/*
-	 *  We need to clone the child and share the same VM address space
+	 *  We need to clone and share the same VM address space
 	 *  as parent so we can perform the page fault handling
 	 */
-	pid = clone(stress_userfaultfd_child, align_stack(stack_top),
+	pid = clone(stress_userfaultfd_clone, align_stack(stack_top),
 		SIGCHLD | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_VM, &c);
 	if (pid < 0) {
 		pr_err("%s: fork failed, errno = %d (%s)\n",
@@ -398,65 +409,7 @@ free_zeropage:
  */
 static int stress_userfaultfd(const args_t *args)
 {
-	pid_t pid;
-	int rc = EXIT_FAILURE;
-	size_t userfaultfd_bytes = DEFAULT_MMAP_BYTES;
-
-	if (!get_setting("userfaultfd-bytes", &userfaultfd_bytes)) {
-		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			userfaultfd_bytes = MAX_MMAP_BYTES;
-		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			userfaultfd_bytes = MIN_MMAP_BYTES;
-	}
-	userfaultfd_bytes /= args->num_instances;
-	if (userfaultfd_bytes < MIN_MMAP_BYTES)
-		userfaultfd_bytes = MIN_MMAP_BYTES;
-	if (userfaultfd_bytes < args->page_size)
-		userfaultfd_bytes = args->page_size;
-
-	pid = fork();
-	if (pid < 0) {
-		if (errno == EAGAIN)
-			return EXIT_NO_RESOURCE;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		/* Parent */
-		int status, ret;
-
-		(void)setpgid(pid, g_pgrp);
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, report this */
-			if (WTERMSIG(status) == SIGKILL) {
-				log_system_mem_info();
-				pr_dbg("%s: assuming killed by OOM "
-					"killer, aborting "
-					"(instance %d)\n",
-					args->name, args->instance);
-				return EXIT_NO_RESOURCE;
-			}
-			return EXIT_FAILURE;
-		}
-		rc = WEXITSTATUS(status);
-	} else if (pid == 0) {
-		/* Child */
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-
-		_exit(stress_userfaultfd_oomable(args, userfaultfd_bytes));
-	}
-	return rc;
+	return stress_oomable_child(args, NULL, stress_userfaultfd_child, STRESS_OOMABLE_NORMAL);
 }
 
 stressor_info_t stress_userfaultfd_info = {

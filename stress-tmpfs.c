@@ -81,6 +81,11 @@ static const int mmap_flags[] = {
 	0
 };
 
+typedef struct {
+	int 	fd;
+	off_t	sz;
+} stress_tmpfs_context_t;
+
 /*
  *  stress_tmpfs_open()
  *	attempts to find a writeable tmpfs file system and opens
@@ -161,18 +166,27 @@ static int stress_tmpfs_open(const args_t *args, off_t *len)
 	return fd;
 }
 
-static void stress_tmpfs_child(
-	const args_t *args,
-	const int fd,
-	int *flags,
-	const size_t page_size,
-	const size_t sz,
-	const size_t pages4k,
-	const bool tmpfs_mmap_file,
-	const bool tmpfs_mmap_async)
+static int stress_tmpfs_child(const args_t *args, void *ctxt)
 {
+	stress_tmpfs_context_t *context = (stress_tmpfs_context_t *)ctxt;
+	const size_t page_size = args->page_size;
+	const size_t sz = context->sz;
+	const size_t pages4k = (size_t)sz / page_size;
+	const int fd = context->fd;
+	bool tmpfs_mmap_async = false;
+	bool tmpfs_mmap_file = false;
 	int no_mem_retries = 0;
-	const int ms_flags = tmpfs_mmap_async ? MS_ASYNC : MS_SYNC;
+	int ms_flags;
+	int flags = MAP_SHARED;
+
+#if defined(MAP_POPULATE)
+	flags |= MAP_POPULATE;
+#endif
+
+	(void)get_setting("tmpfs-mmap-async", &tmpfs_mmap_async);
+	(void)get_setting("tmpfs-mmap-file", &tmpfs_mmap_file);
+
+	ms_flags = tmpfs_mmap_async ? MS_ASYNC : MS_SYNC;
 
 	do {
 		uint8_t mapped[pages4k];
@@ -191,20 +205,20 @@ static void stress_tmpfs_child(
 		if (!g_keep_stressing_flag)
 			break;
 		buf = (uint8_t *)mmap(NULL, sz,
-			PROT_READ | PROT_WRITE, *flags | rnd_flag, fd, 0);
+			PROT_READ | PROT_WRITE, flags | rnd_flag, fd, 0);
 		if (buf == MAP_FAILED) {
 #if defined(MAP_POPULATE)
 			/* Force MAP_POPULATE off, just in case */
-			if (*flags & MAP_POPULATE) {
-				*flags &= ~MAP_POPULATE;
+			if (flags & MAP_POPULATE) {
+				flags &= ~MAP_POPULATE;
 				no_mem_retries++;
 				continue;
 			}
 #endif
 #if defined(MAP_HUGETLB)
 			/* Force MAP_HUGETLB off, just in case */
-			if (*flags & MAP_HUGETLB) {
-				*flags &= ~MAP_HUGETLB;
+			if (flags & MAP_HUGETLB) {
+				flags &= ~MAP_HUGETLB;
 				no_mem_retries++;
 				continue;
 			}
@@ -272,7 +286,7 @@ static void stress_tmpfs_child(
 					 * track of failed mappings too
 					 */
 					mappings[page] = (uint8_t *)mmap((void *)mappings[page],
-						page_size, PROT_READ | PROT_WRITE, MAP_FIXED | *flags, fd, offset);
+						page_size, PROT_READ | PROT_WRITE, MAP_FIXED | flags, fd, offset);
 					if (mappings[page] == MAP_FAILED) {
 						mapped[page] = PAGE_MAPPED_FAIL;
 						mappings[page] = NULL;
@@ -310,6 +324,10 @@ cleanup:
 		}
 		inc_counter(args);
 	} while (keep_stressing());
+
+	(void)close(fd);
+
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -318,105 +336,21 @@ cleanup:
  */
 static int stress_tmpfs(const args_t *args)
 {
-	const size_t page_size = args->page_size;
-	off_t sz;
-	size_t pages4k;
-	pid_t pid;
-	int fd, flags = MAP_SHARED;
-	uint32_t ooms = 0, segvs = 0, buserrs = 0;
-	bool tmpfs_mmap_async = false;
-	bool tmpfs_mmap_file = false;
+	stress_tmpfs_context_t context;
+	int ret;
 
-#if defined(MAP_POPULATE)
-	flags |= MAP_POPULATE;
-#endif
-	fd = stress_tmpfs_open(args, &sz);
-	if (fd < 0) {
+	context.fd = stress_tmpfs_open(args, &context.sz);
+	if (context.fd < 0) {
 		pr_err("%s: cannot find writeable free space on a "
 			"tmpfs filesystem\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	pages4k = (size_t)sz / page_size;
 
-	(void)get_setting("tmpfs-mmap-async", &tmpfs_mmap_async);
-	(void)get_setting("tmpfs-mmap-file", &tmpfs_mmap_file);
+	ret = stress_oomable_child(args, &context, stress_tmpfs_child, STRESS_OOMABLE_NORMAL);
 
-	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(args->name, true);
+	(void)close(context.fd);
 
-again:
-	if (!g_keep_stressing_flag)
-		goto cleanup;
-	pid = fork();
-	if (pid < 0) {
-		if (errno == EAGAIN)
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		int status, ret;
-
-		(void)setpgid(pid, g_pgrp);
-		/* Parent, wait for child */
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			/* If we got killed by sigbus, re-start */
-			if (WTERMSIG(status) == SIGBUS) {
-				/* Happens frequently, so be silent */
-				buserrs++;
-				goto again;
-			}
-
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				log_system_mem_info();
-				pr_dbg("%s: assuming killed by OOM "
-					"killer, restarting again "
-					"(instance %d)\n",
-					args->name, args->instance);
-				ooms++;
-				goto again;
-			}
-			/* If we got killed by sigsegv, re-start */
-			if (WTERMSIG(status) == SIGSEGV) {
-				pr_dbg("%s: killed by SIGSEGV, "
-					"restarting again "
-					"(instance %d)\n",
-					args->name, args->instance);
-				segvs++;
-				goto again;
-			}
-		}
-	} else if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
-
-		stress_tmpfs_child(args, fd, &flags, page_size, sz, pages4k,
-			tmpfs_mmap_file, tmpfs_mmap_async);
-	}
-
-cleanup:
-	(void)close(fd);
-	if (ooms + segvs + buserrs > 0)
-		pr_dbg("%s: OOM restarts: %" PRIu32
-			", SEGV restarts: %" PRIu32
-			", SIGBUS signals: %" PRIu32 "\n",
-			args->name, ooms, segvs, buserrs);
-
-	return EXIT_SUCCESS;
+	return ret;
 }
 stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_tmpfs,

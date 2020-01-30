@@ -75,20 +75,17 @@ static inline size_t stress_alloc_size(const size_t malloc_bytes)
 	return len ? len : 1;
 }
 
-/*
- *  stress_malloc()
- *	stress malloc by performing a mix of
- *	allocation and frees
- */
-static int stress_malloc(const args_t *args)
+static int stress_malloc_child(const args_t *args, void *context)
 {
-	pid_t pid;
-	uint32_t restarts = 0, nomems = 0;
+	size_t j;
 	size_t malloc_bytes = DEFAULT_MALLOC_BYTES;
 	size_t malloc_max = DEFAULT_MALLOC_MAX;
 #if defined(__GNUC__) && defined(M_MMAP_THRESHOLD) && defined(HAVE_MALLOPT)
 	size_t malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
 #endif
+	void **addr;
+
+	(void)context;
 
 	if (!get_setting("malloc-bytes", &malloc_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -112,127 +109,82 @@ static int stress_malloc(const args_t *args)
 	if (get_setting("malloc-threshold", &malloc_threshold))
 		(void)mallopt(M_MMAP_THRESHOLD, (int)malloc_threshold);
 #endif
-
-again:
-	pid = fork();
-	if (pid < 0) {
-		if (g_keep_stressing_flag &&
-		    ((errno == EAGAIN) || (errno == ENOMEM)))
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
+	addr = (void **)calloc(malloc_max, sizeof(void *));
+	if (!addr) {
+		pr_dbg("%s: cannot allocate address buffer: %d (%s)\n",
 			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		int status, ret;
-
-		(void)setpgid(pid, g_pgrp);
-		stress_parent_died_alarm();
-
-		/* Parent, wait for child */
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, bailing out "
-						"(instance %d)\n",
-						args->name, args->instance);
-					_exit(0);
-				} else {
-						log_system_mem_info();
-						pr_dbg("%s: assuming killed by OOM "
-							"killer, restarting again "
-							"(instance %d)\n",
-							args->name, args->instance);
-						restarts++;
-						goto again;
-				}
-			}
-		}
-	} else if (pid == 0) {
-		void *addr[malloc_max];
-		size_t j;
-
-		(void)setpgid(0, g_pgrp);
-		(void)memset(addr, 0, sizeof(addr));
-
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
-
-		do {
-			const unsigned int rnd = mwc32();
-			const unsigned int i = rnd % malloc_max;
-			const unsigned int action = (rnd >> 12) & 1;
-			const unsigned int do_calloc = (rnd >> 14) & 0x1f;
-
-			/*
-			 * With many instances running it is wise to
-			 * double check before the next allocation as
-			 * sometimes process start up is delayed for
-			 * some time and we should bail out before
-			 * exerting any more memory pressure
-			 */
-			if (!g_keep_stressing_flag)
-				goto abort;
-
-			if (addr[i]) {
-				/* 50% free, 50% realloc */
-				if (action) {
-					free(addr[i]);
-					addr[i] = NULL;
-					inc_counter(args);
-				} else {
-					void *tmp;
-					const size_t len = stress_alloc_size(malloc_bytes);
-
-					tmp = realloc(addr[i], len);
-					if (tmp) {
-						addr[i] = tmp;
-						(void)mincore_touch_pages_interruptible(addr[i], len);
-						inc_counter(args);
-					}
-				}
-			} else {
-				/* 50% free, 50% alloc */
-				if (action) {
-					size_t len = stress_alloc_size(malloc_bytes);
-
-					if (do_calloc == 0) {
-						size_t n = ((rnd >> 15) % 17) + 1;
-						addr[i] = calloc(n, len / n);
-						len = n * (len / n);
-					} else {
-						addr[i] = malloc(len);
-					}
-					if (addr[i]) {
-						inc_counter(args);
-						(void)mincore_touch_pages_interruptible(addr[i], len);
-					}
-				}
-			}
-		} while (keep_stressing());
-abort:
-		for (j = 0; j < malloc_max; j++) {
-			free(addr[j]);
-		}
+		return EXIT_NO_RESOURCE;
 	}
-	if (restarts + nomems > 0)
-		pr_dbg("%s: OOM restarts: %" PRIu32
-			", out of memory restarts: %" PRIu32 ".\n",
-			args->name, restarts, nomems);
+
+	do {
+		const unsigned int rnd = mwc32();
+		const unsigned int i = rnd % malloc_max;
+		const unsigned int action = (rnd >> 12) & 1;
+		const unsigned int do_calloc = (rnd >> 14) & 0x1f;
+
+		/*
+		 * With many instances running it is wise to
+		 * double check before the next allocation as
+		 * sometimes process start up is delayed for
+		 * some time and we should bail out before
+		 * exerting any more memory pressure
+		 */
+		if (!g_keep_stressing_flag)
+			goto abort;
+
+		if (addr[i]) {
+			/* 50% free, 50% realloc */
+			if (action) {
+				free(addr[i]);
+				addr[i] = NULL;
+				inc_counter(args);
+			} else {
+				void *tmp;
+				const size_t len = stress_alloc_size(malloc_bytes);
+
+				tmp = realloc(addr[i], len);
+				if (tmp) {
+					addr[i] = tmp;
+					(void)mincore_touch_pages_interruptible(addr[i], len);
+					inc_counter(args);
+				}
+			}
+		} else {
+			/* 50% free, 50% alloc */
+			if (action) {
+				size_t len = stress_alloc_size(malloc_bytes);
+
+				if (do_calloc == 0) {
+					size_t n = ((rnd >> 15) % 17) + 1;
+					addr[i] = calloc(n, len / n);
+					len = n * (len / n);
+				} else {
+					addr[i] = malloc(len);
+				}
+				if (addr[i]) {
+					inc_counter(args);
+					(void)mincore_touch_pages_interruptible(addr[i], len);
+				}
+			}
+		}
+	} while (keep_stressing());
+abort:
+	for (j = 0; j < malloc_max; j++) {
+		free(addr[j]);
+	}
+	free(addr);
 
 	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_malloc()
+ *	stress malloc by performing a mix of
+ *	allocation and frees
+ */
+static int stress_malloc(const args_t *args)
+{
+	return stress_oomable_child(args, NULL, stress_malloc_child, STRESS_OOMABLE_NORMAL);
 }
 
 static const opt_set_func_t opt_set_funcs[] = {

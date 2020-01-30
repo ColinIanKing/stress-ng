@@ -45,6 +45,12 @@ typedef struct {
 	memthrash_func_t	func;	/* the method function */
 } stress_memthrash_method_info_t;
 
+typedef struct {
+	uint32_t total_cpus;
+	uint32_t max_threads;
+	const stress_memthrash_method_info_t *memthrash_method;
+} stress_memthrash_context_t;
+
 static const stress_memthrash_method_info_t memthrash_methods[];
 static void *mem;
 static volatile bool thread_terminate;
@@ -461,6 +467,75 @@ static inline char *plural(uint32_t n)
 	return n > 1 ? "s" : "";
 }
 
+static int stress_memthrash_child(const args_t *args, void *ctxt)
+{
+	stress_memthrash_context_t *context = (stress_memthrash_context_t *)ctxt;
+	const uint32_t max_threads = context->max_threads;
+	uint32_t i;
+	pthread_t pthreads[max_threads];
+	int ret[max_threads];
+	pthread_args_t pargs;
+
+	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+#if defined(MAP_POPULATE)
+	flags |= MAP_POPULATE;
+#endif
+
+	pargs.args = args;
+	pargs.data = context->memthrash_method->func;
+
+	(void)memset(pthreads, 0, sizeof(pthreads));
+	(void)memset(ret, 0, sizeof(ret));
+
+mmap_retry:
+	mem = mmap(NULL, MEM_SIZE, PROT_READ | PROT_WRITE, flags, -1, 0);
+	if (mem == MAP_FAILED) {
+#if defined(MAP_POPULATE)
+		flags &= ~MAP_POPULATE;	/* Less aggressive, more OOMable */
+#endif
+		if (!g_keep_stressing_flag) {
+			pr_dbg("%s: mmap failed: %d %s\n",
+				args->name, errno, strerror(errno));
+			return EXIT_NO_RESOURCE;
+		}
+		(void)shim_usleep(100000);
+		if (!g_keep_stressing_flag)
+			goto reap_mem;
+		goto mmap_retry;
+	}
+
+	for (i = 0; i < max_threads; i++) {
+		ret[i] = pthread_create(&pthreads[i], NULL,
+				stress_memthrash_func, (void *)&pargs);
+		if (ret[i]) {
+			/* Just give up and go to next thread */
+			if (ret[i] == EAGAIN)
+				continue;
+			/* Something really unexpected */
+			pr_fail_errno("pthread create", ret[i]);
+			goto reap;
+		}
+		if (!g_keep_stressing_flag)
+			goto reap;
+	}
+	/* Wait for SIGALRM or SIGINT/SIGHUP etc */
+	(void)pause();
+
+reap:
+	thread_terminate = true;
+	for (i = 0; i < max_threads; i++) {
+		if (!ret[i]) {
+			ret[i] = pthread_join(pthreads[i], NULL);
+			if (ret[i])
+				pr_fail_errno("pthread join", ret[i]);
+		}
+	}
+reap_mem:
+	(void)munmap(mem, MEM_SIZE);
+
+	return EXIT_SUCCESS;
+}
+
 
 /*
  *  stress_memthrash()
@@ -468,132 +543,31 @@ static inline char *plural(uint32_t n)
  */
 static int stress_memthrash(const args_t *args)
 {
-	const stress_memthrash_method_info_t *memthrash_method = &memthrash_methods[0];
-	const uint32_t total_cpus = stress_get_processors_configured();
-	const uint32_t max_threads = stress_memthrash_max(args->num_instances, total_cpus);
-	pthread_t pthreads[max_threads];
-	int ret[max_threads];
-	pthread_args_t pargs;
-	memthrash_func_t func;
-	pid_t pid;
+	stress_memthrash_context_t context;
 
-	(void)get_setting("memthrash-method", &memthrash_method);
-	func = memthrash_method->func;
+	context.total_cpus = stress_get_processors_configured();
+	context.max_threads = stress_memthrash_max(args->num_instances, context.total_cpus);
+	context.memthrash_method = &memthrash_methods[0];
 
-	pr_dbg("%s: using method '%s'\n", args->name, memthrash_method->name);
+	(void)get_setting("memthrash-method", &context.memthrash_method);
+
+	pr_dbg("%s: using method '%s'\n", args->name, context.memthrash_method->name);
 	if (args->instance == 0) {
 		pr_inf("%s: starting %" PRIu32 " thread%s on each of the %"
 			PRIu32 " stressors on a %" PRIu32 " CPU system\n",
-			args->name, max_threads, plural(max_threads),
-			args->num_instances, total_cpus);
-		if (max_threads * args->num_instances > total_cpus) {
+			args->name, context.max_threads, plural(context.max_threads),
+			args->num_instances, context.total_cpus);
+		if (context.max_threads * args->num_instances > context.total_cpus) {
 			pr_inf("%s: this is not an optimal choice of stressors, "
 				"try %" PRIu32 " instead\n",
 			args->name,
-			stress_memthash_optimal(args->num_instances, total_cpus));
+			stress_memthash_optimal(args->num_instances, context.total_cpus));
 		}
 	}
 
-	pargs.args = args;
-	pargs.data = func;
-
-	(void)memset(pthreads, 0, sizeof(pthreads));
-	(void)memset(ret, 0, sizeof(ret));
 	(void)sigfillset(&set);
 
-again:
-	if (!g_keep_stressing_flag)
-		return EXIT_SUCCESS;
-	pid = fork();
-	if (pid < 0) {
-		if ((errno == EAGAIN) || (errno == ENOMEM))
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		int status, waitret;
-
-		/* Parent, wait for child */
-		(void)setpgid(pid, g_pgrp);
-		waitret = shim_waitpid(pid, &status, 0);
-		if (waitret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				log_system_mem_info();
-				pr_dbg("%s: assuming killed by OOM killer, "
-					"restarting again (instance %d)\n",
-					args->name, args->instance);
-				goto again;
-			}
-		}
-	} else if (pid == 0) {
-		uint32_t i;
-
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
-
-		int flags = MAP_PRIVATE | MAP_ANONYMOUS;
-#if defined(MAP_POPULATE)
-		flags |= MAP_POPULATE;
-#endif
-
-mmap_retry:
-		mem = mmap(NULL, MEM_SIZE, PROT_READ | PROT_WRITE, flags, -1, 0);
-		if (mem == MAP_FAILED) {
-#if defined(MAP_POPULATE)
-			flags &= ~MAP_POPULATE;	/* Less aggressive, more OOMable */
-#endif
-			if (!g_keep_stressing_flag) {
-				pr_dbg("%s: mmap failed: %d %s\n",
-					args->name, errno, strerror(errno));
-				return EXIT_NO_RESOURCE;
-			}
-			(void)shim_usleep(100000);
-			if (!g_keep_stressing_flag)
-				goto reap_mem;
-			goto mmap_retry;
-		}
-
-		for (i = 0; i < max_threads; i++) {
-			ret[i] = pthread_create(&pthreads[i], NULL,
-				stress_memthrash_func, (void *)&pargs);
-			if (ret[i]) {
-				/* Just give up and go to next thread */
-				if (ret[i] == EAGAIN)
-					continue;
-				/* Something really unexpected */
-				pr_fail_errno("pthread create", ret[i]);
-				goto reap;
-			}
-			if (!g_keep_stressing_flag)
-				goto reap;
-		}
-		/* Wait for SIGALRM or SIGINT/SIGHUP etc */
-		(void)pause();
-
-reap:
-		thread_terminate = true;
-		for (i = 0; i < max_threads; i++) {
-			if (!ret[i]) {
-				ret[i] = pthread_join(pthreads[i], NULL);
-				if (ret[i])
-					pr_fail_errno("pthread join", ret[i]);
-			}
-		}
-reap_mem:
-		(void)munmap(mem, MEM_SIZE);
-	}
-	return EXIT_SUCCESS;
+	return stress_oomable_child(args, &context, stress_memthrash_child, STRESS_OOMABLE_NORMAL);
 }
 
 static const opt_set_func_t opt_set_funcs[] = {

@@ -33,6 +33,11 @@ static const help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+typedef struct {
+	int fd;
+	double start;
+} stress_rlimit_context_t;
+
 #define MAX_RLIMIT_CPU		(1)
 #define MAX_RLIMIT_FSIZE	(1)
 #define MAX_RLIMIT_AS		(32 * MB)
@@ -80,6 +85,95 @@ static void MLOCKED_TEXT stress_rlimit_handler(int signum)
 		siglongjmp(jmp_env, 1);
 }
 
+static int stress_rlimit_child(const args_t *args, void *ctxt)
+{
+	stress_rlimit_context_t *context = (stress_rlimit_context_t *)ctxt;
+
+	/* Child rlimit stressor */
+	do {
+		int ret;
+		size_t i;
+
+		for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
+			(void)setrlimit(limits[i].resource, &limits[i].new_limit);
+		}
+
+		ret = sigsetjmp(jmp_env, 1);
+
+		/* Check for timer overrun */
+		if ((time_now() - context->start) > (double)g_opt_timeout)
+			break;
+		/* Check for counter limit reached */
+		if (args->max_ops && get_counter(args) >= args->max_ops)
+			break;
+
+		if (ret == 0) {
+			uint8_t *ptr;
+			void *oldbrk;
+			int fds[MAX_RLIMIT_NOFILE];
+
+			switch (mwc32() % 5) {
+			default:
+			case 0:
+				/* Trigger an rlimit signal */
+				if (ftruncate(context->fd, 2) < 0) {
+					/* Ignore error */
+				}
+				break;
+			case 1:
+				/* Trigger RLIMIT_AS */
+				ptr = (uint8_t *)mmap(NULL, MAX_RLIMIT_AS, PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+				if (ptr != MAP_FAILED)
+					(void)munmap((void *)ptr, MAX_RLIMIT_AS);
+				break;
+			case 2:
+				/* Trigger RLIMIT_DATA */
+				oldbrk = shim_sbrk(0);
+				if (oldbrk != (void *)-1) {
+					ptr = shim_sbrk(MAX_RLIMIT_DATA);
+					if (ptr != (void *)-1) {
+						int rc = shim_brk(oldbrk);
+
+						(void)rc;
+					}
+				}
+				break;
+			case 3:
+				/* Trigger RLIMIT_STACK */
+				{
+					static uint8_t stack[MAX_RLIMIT_STACK];
+
+					mincore_touch_pages_interruptible(stack, MAX_RLIMIT_STACK);
+				}
+				break;
+			case 4:
+				/* Hit NOFILE limit */
+				for (i = 0; i < MAX_RLIMIT_NOFILE; i++) {
+					fds[i] = open("/dev/null", O_RDONLY);
+				}
+				for (i = 0; i < MAX_RLIMIT_NOFILE; i++) {
+					if (fds[i] != -1)
+						(void)close(fds[i]);
+				}
+				break;
+			}
+		} else if (ret == 1) {
+			inc_counter(args);	/* SIGSEGV/SIGILL occurred */
+		} else {
+			break;		/* Something went wrong! */
+		}
+
+		for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
+			(void)setrlimit(limits[i].resource, &limits[i].old_limit);
+		}
+	} while (keep_stressing());
+
+	(void)close(context->fd);
+
+	return EXIT_SUCCESS;
+}
+
 /*
  *  stress_rlimit
  *	stress by generating rlimit signals
@@ -87,10 +181,12 @@ static void MLOCKED_TEXT stress_rlimit_handler(int signum)
 static int stress_rlimit(const args_t *args)
 {
 	struct sigaction old_action_xcpu, old_action_xfsz, old_action_segv;
-	int fd, pid;
 	size_t i;
 	char filename[PATH_MAX];
-	const double start = time_now();
+	stress_rlimit_context_t context;
+	int ret;
+
+	context.start = time_now();
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_rlimit_handler, &old_action_segv) < 0)
 		return EXIT_FAILURE;
@@ -103,7 +199,7 @@ static int stress_rlimit(const args_t *args)
 		filename, sizeof(filename), mwc32());
 	if (stress_temp_dir_mk_args(args) < 0)
 		return EXIT_FAILURE;
-	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
+	if ((context.fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		pr_fail_err("creat");
 		(void)stress_temp_dir_rm_args(args);
 		return EXIT_FAILURE;
@@ -114,133 +210,16 @@ static int stress_rlimit(const args_t *args)
 		limits[i].ret = getrlimit(limits[i].resource, &limits[i].old_limit);
 	}
 
-again:
-	pid = fork();
-	if (pid < 0) {
-		if (errno == EAGAIN)
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-		goto tidy;
-	} else if (pid > 0) {
-		int status, waitret;
+	ret = stress_oomable_child(args, NULL, stress_rlimit_child, STRESS_OOMABLE_NORMAL);
 
-		/* Parent, wait for child */
-		(void)setpgid(pid, g_pgrp);
-		waitret = shim_waitpid(pid, &status, 0);
-		if (waitret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				log_system_mem_info();
-				pr_dbg("%s: assuming killed by OOM killer, "
-					"restarting again (instance %d)\n",
-					args->name, args->instance);
-				goto again;
-			}
-		}
-	} else if (pid == 0) {
-		/* Child rlimit stressor */
-		do {
-			int ret;
-
-			for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
-				(void)setrlimit(limits[i].resource, &limits[i].new_limit);
-			}
-
-			ret = sigsetjmp(jmp_env, 1);
-
-			/* Check for timer overrun */
-			if ((time_now() - start) > (double)g_opt_timeout)
-				break;
-			/* Check for counter limit reached */
-			if (args->max_ops && get_counter(args) >= args->max_ops)
-				break;
-
-			if (ret == 0) {
-				uint8_t *ptr;
-				void *oldbrk;
-				int fds[MAX_RLIMIT_NOFILE];
-
-				switch (mwc32() % 5) {
-				default:
-				case 0:
-					/* Trigger an rlimit signal */
-					if (ftruncate(fd, 2) < 0) {
-						/* Ignore error */
-					}
-					break;
-				case 1:
-					/* Trigger RLIMIT_AS */
-					ptr = (uint8_t *)mmap(NULL, MAX_RLIMIT_AS, PROT_READ | PROT_WRITE,
-						MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-					if (ptr != MAP_FAILED)
-						(void)munmap((void *)ptr, MAX_RLIMIT_AS);
-					break;
-				case 2:
-					/* Trigger RLIMIT_DATA */
-					oldbrk = shim_sbrk(0);
-					if (oldbrk != (void *)-1) {
-						ptr = shim_sbrk(MAX_RLIMIT_DATA);
-						if (ptr != (void *)-1) {
-							int rc = shim_brk(oldbrk);
-
-							(void)rc;
-						}
-					}
-					break;
-				case 3:
-					/* Trigger RLIMIT_STACK */
-					{
-						static uint8_t stack[MAX_RLIMIT_STACK];
-
-						mincore_touch_pages_interruptible(stack, MAX_RLIMIT_STACK);
-					}
-					break;
-				case 4:
-					/* Hit NOFILE limit */
-					for (i = 0; i < MAX_RLIMIT_NOFILE; i++) {
-						fds[i] = open("/dev/null", O_RDONLY);
-					}
-					for (i = 0; i < MAX_RLIMIT_NOFILE; i++) {
-						if (fds[i] != -1)
-							(void)close(fds[i]);
-					}
-					break;
-				}
-			} else if (ret == 1) {
-				inc_counter(args);	/* SIGSEGV/SIGILL occurred */
-			} else {
-				break;		/* Something went wrong! */
-			}
-
-			for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
-				(void)setrlimit(limits[i].resource, &limits[i].old_limit);
-			}
-		} while (keep_stressing());
-
-		(void)close(fd);
-		_exit(0);
-	}
-
-tidy:
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGXCPU, &old_action_xcpu);
 	(void)stress_sigrestore(args->name, SIGXFSZ, &old_action_xfsz);
 	(void)stress_sigrestore(args->name, SIGSEGV, &old_action_segv);
-	(void)close(fd);
+	(void)close(context.fd);
 	(void)stress_temp_dir_rm_args(args);
 
-	return EXIT_SUCCESS;
+	return ret;
 }
 
 stressor_info_t stress_rlimit_info = {

@@ -36,6 +36,16 @@ static const help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
+typedef struct {
+	int fd;
+	int flags;
+	size_t sz;
+	size_t mmap_bytes;
+	bool mmap_mprotect;
+	bool mmap_file;
+	bool mmap_async;
+} stress_mmap_context_t;
+
 #define NO_MEM_RETRIES_MAX	(65536)
 
 /* Misc randomly chosen mmap flags */
@@ -167,24 +177,33 @@ static void stress_mmap_mprotect(
 #endif
 }
 
-static void stress_mmap_child(
-	const args_t *args,
-	const int fd,
-	int *flags,
-	const size_t sz,
-	const size_t pages4k,
-	const size_t mmap_bytes,
-	const bool mmap_mprotect,
-	const bool mmap_file,
-	const bool mmap_async)
+static int stress_mmap_child(const args_t *args, void *ctxt)
 {
+	stress_mmap_context_t *context = (stress_mmap_context_t *)ctxt;
 	const size_t page_size = args->page_size;
+	const size_t sz = context->sz;
+	const size_t pages4k = sz / page_size;
+	const bool mmap_file = context->mmap_file;
+	const int fd = context->fd;
 	int no_mem_retries = 0;
-	const int ms_flags = mmap_async ? MS_ASYNC : MS_SYNC;
+	const int ms_flags = context->mmap_async ? MS_ASYNC : MS_SYNC;
+	uint8_t *mapped, **mappings;
+
+	mapped = calloc(pages4k, sizeof(*mapped));
+	if (!mapped) {
+		pr_dbg("%s: cannot allocate mapped buffer: %d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	mappings = calloc(pages4k, sizeof(*mappings));
+	if (!mappings) {
+		pr_dbg("%s: cannot allocate mappings buffer: %d (%s)\n",
+			args->name, errno, strerror(errno));
+		free(mapped);
+		return EXIT_NO_RESOURCE;
+	}
 
 	do {
-		uint8_t mapped[pages4k];
-		uint8_t *mappings[pages4k];
 		size_t n;
 		const int rnd = mwc32() % SIZEOF_ARRAY(mmap_flags);
 		int rnd_flag = mmap_flags[rnd];
@@ -204,12 +223,12 @@ retry:
 		if (!g_keep_stressing_flag)
 			break;
 		buf = (uint8_t *)mmap(NULL, sz,
-			PROT_READ | PROT_WRITE, *flags | rnd_flag, fd, 0);
+			PROT_READ | PROT_WRITE, context->flags | rnd_flag, fd, 0);
 		if (buf == MAP_FAILED) {
 #if defined(MAP_POPULATE)
 			/* Force MAP_POPULATE off, just in case */
-			if (*flags & MAP_POPULATE) {
-				*flags &= ~MAP_POPULATE;
+			if (context->flags & MAP_POPULATE) {
+				context->flags &= ~MAP_POPULATE;
 				no_mem_retries++;
 				continue;
 			}
@@ -249,11 +268,12 @@ retry:
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		(void)madvise_random(buf, sz);
-		(void)mincore_touch_pages(buf, mmap_bytes);
-		stress_mmap_mprotect(args->name, buf, sz, mmap_mprotect);
-		(void)memset(mapped, PAGE_MAPPED, sizeof(mapped));
-		for (n = 0; n < pages4k; n++)
+		(void)mincore_touch_pages(buf, context->mmap_bytes);
+		stress_mmap_mprotect(args->name, buf, sz, context->mmap_mprotect);
+		for (n = 0; n < pages4k; n++) {
+			mapped[n] = PAGE_MAPPED;
 			mappings[n] = buf + (n * page_size);
+		}
 
 		/* Ensure we can write to the mapped pages */
 		mmap_set(buf, sz, page_size);
@@ -286,7 +306,7 @@ retry:
 		/*
 		 *  Step #1, unmap all pages in random order
 		 */
-		(void)mincore_touch_pages(buf, mmap_bytes);
+		(void)mincore_touch_pages(buf, context->mmap_bytes);
 		for (n = pages4k; n; ) {
 			uint64_t j, i = mwc64() % pages4k;
 			for (j = 0; j < n; j++) {
@@ -295,7 +315,7 @@ retry:
 					mapped[page] = 0;
 					(void)madvise_random(mappings[page], page_size);
 					stress_mmap_mprotect(args->name, mappings[page],
-						page_size, mmap_mprotect);
+						page_size, context->mmap_mprotect);
 					(void)munmap((void *)mappings[page], page_size);
 					n--;
 					break;
@@ -329,7 +349,7 @@ retry:
 						fixed_flags = MAP_FIXED_NOREPLACE;
 #endif
 					mappings[page] = (uint8_t *)mmap((void *)mappings[page],
-						page_size, PROT_READ | PROT_WRITE, fixed_flags | *flags, fd, offset);
+						page_size, PROT_READ | PROT_WRITE, fixed_flags | context->flags, fd, offset);
 
 					if (mappings[page] == MAP_FAILED) {
 						mapped[page] = PAGE_MAPPED_FAIL;
@@ -338,7 +358,7 @@ retry:
 						(void)mincore_touch_pages(mappings[page], page_size);
 						(void)madvise_random(mappings[page], page_size);
 						stress_mmap_mprotect(args->name, mappings[page],
-							page_size, mmap_mprotect);
+							page_size, context->mmap_mprotect);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
 						mmap_set(mappings[page], page_size, page_size);
@@ -370,12 +390,17 @@ cleanup:
 			if (mapped[n] & PAGE_MAPPED) {
 				(void)madvise_random(mappings[n], page_size);
 				stress_mmap_mprotect(args->name, mappings[n],
-					page_size, mmap_mprotect);
+					page_size, context->mmap_mprotect);
 				(void)munmap((void *)mappings[n], page_size);
 			}
 		}
 		inc_counter(args);
 	} while (keep_stressing());
+
+	free(mappings);
+	free(mapped);
+
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -385,51 +410,47 @@ cleanup:
 static int stress_mmap(const args_t *args)
 {
 	const size_t page_size = args->page_size;
-	size_t sz, pages4k;
-	size_t mmap_bytes = DEFAULT_MMAP_BYTES;
-	pid_t pid;
-	int fd = -1, flags = MAP_PRIVATE | MAP_ANONYMOUS;
-	uint32_t ooms = 0, segvs = 0, buserrs = 0;
 	char filename[PATH_MAX];
-	bool mmap_async = false;
-	bool mmap_file = false;
-	bool mmap_mprotect = false;
 	bool mmap_osync = false;
 	bool mmap_odirect = false;
+	int ret;
+	stress_mmap_context_t context;
 
+	context.fd = -1;
+	context.mmap_bytes = DEFAULT_MMAP_BYTES;
+	context.mmap_async = false;
+	context.mmap_file = false;
+	context.mmap_mprotect = false;
+	context.flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #if defined(MAP_POPULATE)
-	flags |= MAP_POPULATE;
+	context.flags |= MAP_POPULATE;
 #endif
 
-	(void)get_setting("mmap-async", &mmap_async);
-	(void)get_setting("mmap-file", &mmap_file);
-	(void)get_setting("mmap-mprotect", &mmap_mprotect);
+	(void)get_setting("mmap-async", &context.mmap_async);
+	(void)get_setting("mmap-file", &context.mmap_file);
+	(void)get_setting("mmap-mprotect", &context.mmap_mprotect);
 	(void)get_setting("mmap-osync", &mmap_osync);
 	(void)get_setting("mmap-odirect", &mmap_odirect);
 
 	if (mmap_osync || mmap_odirect)
-		mmap_file = true;
+		context.mmap_file = true;
 
-	if (!get_setting("mmap-bytes", &mmap_bytes)) {
+	if (!get_setting("mmap-bytes", &context.mmap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			mmap_bytes = MAX_MMAP_BYTES;
+			context.mmap_bytes = MAX_MMAP_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			mmap_bytes = MIN_MMAP_BYTES;
+			context.mmap_bytes = MIN_MMAP_BYTES;
 	}
-	mmap_bytes /= args->num_instances;
-	if (mmap_bytes < MIN_MMAP_BYTES)
-		mmap_bytes = MIN_MMAP_BYTES;
-	if (mmap_bytes < page_size)
-		mmap_bytes = page_size;
-	sz = mmap_bytes & ~(page_size - 1);
-	pages4k = sz / page_size;
+	context.mmap_bytes /= args->num_instances;
+	if (context.mmap_bytes < MIN_MMAP_BYTES)
+		context.mmap_bytes = MIN_MMAP_BYTES;
+	if (context.mmap_bytes < page_size)
+		context.mmap_bytes = page_size;
+	context.sz = context.mmap_bytes & ~(page_size - 1);
 
-	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(args->name, true);
-
-	if (mmap_file) {
+	if (context.mmap_file) {
 		int file_flags = O_CREAT | O_RDWR;
-		ssize_t ret, rc;
+		ssize_t wr_ret, rc;
 
 		rc = stress_temp_dir_mk_args(args);
 		if (rc < 0)
@@ -455,8 +476,8 @@ static int stress_mmap(const args_t *args)
 #endif
 		}
 
-		fd = open(filename, file_flags, S_IRUSR | S_IWUSR);
-		if (fd < 0) {
+		context.fd = open(filename, file_flags, S_IRUSR | S_IWUSR);
+		if (context.fd < 0) {
 			rc = exit_status(errno);
 			pr_fail_err("open");
 			(void)unlink(filename);
@@ -465,9 +486,9 @@ static int stress_mmap(const args_t *args)
 			return rc;
 		}
 		(void)unlink(filename);
-		if (lseek(fd, sz - args->page_size, SEEK_SET) < 0) {
+		if (lseek(context.fd, context.sz - args->page_size, SEEK_SET) < 0) {
 			pr_fail_err("lseek");
-			(void)close(fd);
+			(void)close(context.fd);
 			(void)stress_temp_dir_rm_args(args);
 
 			return EXIT_FAILURE;
@@ -478,107 +499,28 @@ redo:
 		 *  use g_shared as this is mmap'd and hence
 		 *  page algned and always available for reading
 		 */
-		ret = write(fd, g_shared, args->page_size);
-		if (ret != (ssize_t)args->page_size) {
+		wr_ret = write(context.fd, g_shared, args->page_size);
+		if (wr_ret != (ssize_t)args->page_size) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
 			rc = exit_status(errno);
 			pr_fail_err("write");
-			(void)close(fd);
+			(void)close(context.fd);
 			(void)stress_temp_dir_rm_args(args);
 
 			return rc;
 		}
-		flags &= ~(MAP_ANONYMOUS | MAP_PRIVATE);
-		flags |= MAP_SHARED;
+		context.flags &= ~(MAP_ANONYMOUS | MAP_PRIVATE);
+		context.flags |= MAP_SHARED;
 	}
 
-again:
-	if (!g_keep_stressing_flag)
-		goto cleanup;
-	pid = fork();
-	if (pid < 0) {
-		if ((errno == EAGAIN) || (errno == ENOMEM))
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		int status, ret;
+	ret = stress_oomable_child(args, &context, stress_mmap_child, STRESS_OOMABLE_NORMAL);
 
-		(void)setpgid(pid, g_pgrp);
-		/* Parent, wait for child */
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			/* If we got killed by sigbus, re-start */
-			if (WTERMSIG(status) == SIGBUS) {
-				/* Happens frequently, so be silent */
-				buserrs++;
-				goto again;
-			}
-
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, bailing out "
-						"(instance %d)\n",
-						args->name, args->instance);
-					_exit(0);
-				} else {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, restarting again "
-						"(instance %d)\n",
-						args->name, args->instance);
-					ooms++;
-					goto again;
-				}
-			}
-			/* If we got killed by sigsegv, re-start */
-			if (WTERMSIG(status) == SIGSEGV) {
-				pr_dbg("%s: killed by SIGSEGV, "
-					"restarting again "
-					"(instance %d)\n",
-					args->name, args->instance);
-				segvs++;
-				goto again;
-			}
-		}
-	} else if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
-
-		stress_mmap_child(args, fd, &flags, sz, pages4k, mmap_bytes,
-			mmap_mprotect, mmap_file, mmap_async);
-		_exit(0);
-	}
-
-cleanup:
-	if (mmap_file) {
-		(void)close(fd);
+	if (context.mmap_file) {
+		(void)close(context.fd);
 		(void)stress_temp_dir_rm_args(args);
 	}
-	if (ooms + segvs + buserrs > 0)
-		pr_dbg("%s: OOM restarts: %" PRIu32
-			", SEGV restarts: %" PRIu32
-			", SIGBUS signals: %" PRIu32 "\n",
-			args->name, ooms, segvs, buserrs);
-
-	return EXIT_SUCCESS;
+	return ret;
 }
 
 static const opt_set_func_t opt_set_funcs[] = {

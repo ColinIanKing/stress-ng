@@ -163,3 +163,109 @@ bool process_oomed(const pid_t pid)
 	return false;
 }
 #endif
+
+/*
+ *  stress_oomable_child()
+ *  	generic way to run a process that is possibly going to be
+ *	OOM'd and we retry if it gets killed.
+ */
+int stress_oomable_child(
+	const args_t *args,
+	void *context,
+	stress_oomable_child_func_t func,
+	const int flag)
+{
+	pid_t pid;
+	int ooms = 0;
+	int segvs = 0;
+	int buserrs = 0;
+
+again:
+	if (!keep_stressing())
+		return EXIT_SUCCESS;
+	pid = fork();
+	if (pid < 0) {
+		/* Keep trying if we are out of resources */
+		if ((errno == EAGAIN) || (errno == ENOMEM))
+			goto again;
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
+			args->name, errno, strerror(errno));
+		return -1;
+	} else if (pid > 0) {
+		/* Parent, wait for child */
+		int status, ret;
+
+		(void)setpgid(pid, g_pgrp);
+		ret = shim_waitpid(pid, &status, 0);
+		if (ret < 0) {
+			if (errno != EINTR)
+				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			(void)kill(pid, SIGTERM);
+			(void)kill(pid, SIGKILL);
+			(void)shim_waitpid(pid, &status, 0);
+		} else if (WIFSIGNALED(status)) {
+			pr_dbg("%s: child died: %s (instance %d)\n",
+				args->name, stress_strsignal(WTERMSIG(status)),
+				args->instance);
+			/* Bus error death? retry */
+			if (WTERMSIG(status) == SIGBUS) {
+                                buserrs++;
+                                goto again;
+                        }
+
+			/* If we got killed by OOM killer, re-start */
+			if (WTERMSIG(status) == SIGKILL) {
+				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
+					log_system_mem_info();
+					pr_dbg("%s: assuming killed by OOM "
+						"killer, bailing out "
+						"(instance %d)\n",
+						args->name, args->instance);
+					_exit(0);
+				} else {
+					log_system_mem_info();
+					pr_dbg("%s: assuming killed by OOM "
+						"killer, restarting again "
+						"(instance %d)\n",
+						args->name, args->instance);
+					ooms++;
+					goto again;
+				}
+			}
+			/* If we got killed by sigsegv, re-start */
+			if (WTERMSIG(status) == SIGSEGV) {
+				pr_dbg("%s: killed by SIGSEGV, "
+					"restarting again "
+					"(instance %d)\n",
+					args->name, args->instance);
+				segvs++;
+				goto again;
+			}
+		}
+	} else if (pid == 0) {
+		/* Child */
+
+		(void)setpgid(0, g_pgrp);
+		stress_parent_died_alarm();
+
+		/* Make sure this is killable by OOM killer */
+		set_oom_adjustment(args->name, true);
+
+		/* Explicitly drop capabilites, makes it more OOM-able */
+		if (flag & STRESS_OOMABLE_DROP_CAP) {
+			int ret;
+
+			ret = stress_drop_capabilities(args->name);
+			(void)ret;
+		}
+		_exit(func(args, context));
+	}
+	if (ooms + segvs + buserrs > 0)
+		pr_dbg("%s: OOM restarts: %d"
+			", SIGSEGV restarts: %d"
+			", SIGBUS restarts: %d\n",
+			args->name, ooms, segvs, buserrs);
+
+	return EXIT_SUCCESS;
+}

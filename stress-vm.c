@@ -50,6 +50,11 @@ typedef struct {
         const int advice;
 } vm_madvise_info_t;
 
+typedef struct {
+	uint64_t *bit_error_count;
+	const stress_vm_method_info_t *vm_method;
+} stress_vm_context_t;
+
 static const stress_vm_method_info_t vm_methods[];
 
 static const help_t help[] = {
@@ -1991,37 +1996,24 @@ static int stress_set_vm_method(const char *name)
 	return -1;
 }
 
-
-/*
- *  stress_vm()
- *	stress virtual memory
- */
-static int stress_vm(const args_t *args)
+static int stress_vm_child(const args_t *args, void *ctxt)
 {
-	uint64_t *bit_error_count = MAP_FAILED;
+	int no_mem_retries = 0;
+	const uint64_t max_ops = args->max_ops << VM_BOGO_SHIFT;
 	uint64_t vm_hang = DEFAULT_VM_HANG;
-	uint64_t tmp_counter;
-	uint32_t restarts = 0, nomems = 0;
-	size_t vm_bytes = DEFAULT_VM_BYTES;
 	uint8_t *buf = NULL;
-	pid_t pid;
-	bool vm_keep = false;
-        const size_t page_size = args->page_size;
-	size_t buf_sz, retries;
-	int err = 0, ret = EXIT_SUCCESS;
 	int vm_flags = 0;                      /* VM mmap flags */
 	int vm_madvise = -1;
-	const stress_vm_method_info_t *vm_method = &vm_methods[0];
-	stress_vm_func func;
+	size_t buf_sz;
+	size_t vm_bytes = DEFAULT_VM_BYTES;
+        const size_t page_size = args->page_size;
+	bool vm_keep = false;
+	stress_vm_context_t *context = (stress_vm_context_t *)ctxt;
+	const stress_vm_func func = context->vm_method->func;
 
 	(void)get_setting("vm-hang", &vm_hang);
-	(void)get_setting("vm-flags", &vm_flags);
 	(void)get_setting("vm-keep", &vm_keep);
-	(void)get_setting("vm-method", &vm_method);
-	(void)get_setting("vm-madvise", &vm_madvise);
-
-	func = vm_method->func;
-	pr_dbg("%s using method '%s'\n", args->name, vm_method->name);
+	(void)get_setting("vm-flags", &vm_flags);
 
 	if (!get_setting("vm-bytes", &vm_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -2033,19 +2025,88 @@ static int stress_vm(const args_t *args)
 	if (vm_bytes < MIN_VM_BYTES)
 		vm_bytes = MIN_VM_BYTES;
 	buf_sz = vm_bytes & ~(page_size - 1);
+	(void)get_setting("vm-madvise", &vm_madvise);
+
+	do {
+		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
+			pr_err("%s: gave up trying to mmap, no available memory\n",
+				args->name);
+			break;
+		}
+		if (!vm_keep || (buf == NULL)) {
+			if (!g_keep_stressing_flag)
+				return EXIT_SUCCESS;
+			buf = (uint8_t *)mmap(NULL, buf_sz,
+				PROT_READ | PROT_WRITE,
+				MAP_PRIVATE | MAP_ANONYMOUS |
+				vm_flags, -1, 0);
+			if (buf == MAP_FAILED) {
+				buf = NULL;
+				no_mem_retries++;
+				(void)shim_usleep(100000);
+				continue;	/* Try again */
+			}
+			if (vm_madvise < 0)
+				(void)madvise_random(buf, buf_sz);
+			else
+				(void)shim_madvise(buf, buf_sz, vm_madvise);
+		}
+
+		no_mem_retries = 0;
+		(void)mincore_touch_pages(buf, buf_sz);
+		*(context->bit_error_count) += func(buf, buf_sz, args, max_ops);
+
+		if (vm_hang == 0) {
+			while (keep_stressing_vm(args)) {
+				(void)sleep(3600);
+			}
+		} else if (vm_hang != DEFAULT_VM_HANG) {
+			(void)sleep((int)vm_hang);
+		}
+
+		if (!vm_keep) {
+			(void)madvise_random(buf, buf_sz);
+			(void)munmap((void *)buf, buf_sz);
+		}
+	} while (keep_stressing_vm(args));
+
+	if (vm_keep && buf != NULL)
+		(void)munmap((void *)buf, buf_sz);
+
+	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_vm()
+ *	stress virtual memory
+ */
+static int stress_vm(const args_t *args)
+{
+	uint64_t tmp_counter;
+        const size_t page_size = args->page_size;
+	size_t retries;
+	int err = 0, ret = EXIT_SUCCESS;
+	stress_vm_context_t context;
+
+	context.vm_method = &vm_methods[0];
+	context.bit_error_count = MAP_FAILED;
+
+	(void)get_setting("vm-method", &context.vm_method);
+
+	pr_dbg("%s using method '%s'\n", args->name, context.vm_method->name);
 
 	for (retries = 0; (retries < 100) && g_keep_stressing_flag; retries++) {
-		bit_error_count = (uint64_t *)
+		context.bit_error_count = (uint64_t *)
 			mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		err = errno;
-		if (bit_error_count != MAP_FAILED)
+		if (context.bit_error_count != MAP_FAILED)
 			break;
 		(void)shim_usleep(100);
 	}
 
 	/* Cannot allocate a single page for bit error counter */
-	if (bit_error_count == MAP_FAILED) {
+	if (context.bit_error_count == MAP_FAILED) {
 		if (g_keep_stressing_flag) {
 			pr_err("%s: could not mmap bit error counter: "
 				"retry count=%zu, errno=%d (%s)\n",
@@ -2054,119 +2115,21 @@ static int stress_vm(const args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	*bit_error_count = 0ULL;
+	*context.bit_error_count = 0ULL;
 
-again:
-	if (!g_keep_stressing_flag)
-		goto clean_up;
-	pid = fork();
-	if (pid < 0) {
-		if (errno == EAGAIN)
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		int status, waitret;
+	ret = stress_oomable_child(args, &context, stress_vm_child, STRESS_OOMABLE_NORMAL);
 
-		/* Parent, wait for child */
-		(void)setpgid(pid, g_pgrp);
-		waitret = shim_waitpid(pid, &status, 0);
-		if (waitret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				log_system_mem_info();
-				pr_dbg("%s: assuming killed by OOM killer, "
-					"restarting again (instance %d)\n",
-					args->name, args->instance);
-				restarts++;
-				goto again;
-			}
-		}
-	} else if (pid == 0) {
-		int no_mem_retries = 0;
-		const uint64_t max_ops = args->max_ops << VM_BOGO_SHIFT;
-
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
-
-		do {
-			if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
-				pr_err("%s: gave up trying to mmap, no available memory\n",
-					args->name);
-				break;
-			}
-			if (!vm_keep || (buf == NULL)) {
-				if (!g_keep_stressing_flag)
-					return EXIT_SUCCESS;
-				buf = (uint8_t *)mmap(NULL, buf_sz,
-					PROT_READ | PROT_WRITE,
-					MAP_PRIVATE | MAP_ANONYMOUS |
-					vm_flags, -1, 0);
-				if (buf == MAP_FAILED) {
-					buf = NULL;
-					no_mem_retries++;
-					(void)shim_usleep(100000);
-					continue;	/* Try again */
-				}
-				if (vm_madvise < 0)
-					(void)madvise_random(buf, buf_sz);
-				else
-					(void)shim_madvise(buf, buf_sz, vm_madvise);
-			}
-
-			no_mem_retries = 0;
-			(void)mincore_touch_pages(buf, buf_sz);
-			*bit_error_count += func(buf, buf_sz, args, max_ops);
-
-			if (vm_hang == 0) {
-				while (keep_stressing_vm(args)) {
-					(void)sleep(3600);
-				}
-			} else if (vm_hang != DEFAULT_VM_HANG) {
-				(void)sleep((int)vm_hang);
-			}
-
-			if (!vm_keep) {
-				(void)madvise_random(buf, buf_sz);
-				(void)munmap((void *)buf, buf_sz);
-			}
-		} while (keep_stressing_vm(args));
-
-		if (vm_keep && buf != NULL)
-			(void)munmap((void *)buf, buf_sz);
-
-		_exit(EXIT_SUCCESS);
-	}
-clean_up:
-	(void)shim_msync(bit_error_count, page_size, MS_SYNC);
-	if (*bit_error_count > 0) {
+	(void)shim_msync(context.bit_error_count, page_size, MS_SYNC);
+	if (*context.bit_error_count > 0) {
 		pr_fail("%s: detected %" PRIu64 " bit errors while "
 			"stressing memory\n",
-			args->name, *bit_error_count);
+			args->name, *context.bit_error_count);
 		ret = EXIT_FAILURE;
 	}
-	(void)munmap((void *)bit_error_count, page_size);
+	(void)munmap((void *)context.bit_error_count, page_size);
 
 	tmp_counter = get_counter(args) >> VM_BOGO_SHIFT;
 	set_counter(args, tmp_counter);
-
-	if (restarts + nomems > 0)
-		pr_dbg("%s: OOM restarts: %" PRIu32
-			", out of memory restarts: %" PRIu32 ".\n",
-			args->name, restarts, nomems);
 
 	return ret;
 }

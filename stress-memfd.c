@@ -71,20 +71,49 @@ static const opt_set_func_t opt_set_funcs[] = {
 /*
  *  Create allocations using memfd_create, ftruncate and mmap
  */
-static void stress_memfd_allocs(
-	const args_t *args,
-	const size_t memfd_bytes,
-	const uint32_t memfd_fds)
+static int stress_memfd_child(const args_t *args, void *context)
 {
-	int fds[memfd_fds];
-	void *maps[memfd_fds];
+	int *fds;
+	void **maps;
 	uint64_t i;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
-	size_t size = memfd_bytes / memfd_fds;
+	size_t size;
+	size_t memfd_bytes = DEFAULT_MEMFD_BYTES;
+	uint32_t memfd_fds = DEFAULT_MEMFD_FDS;
+
+	(void)context;
+
+	if (!get_setting("memfd-bytes", &memfd_bytes)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			memfd_bytes = MAX_MEMFD_BYTES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			memfd_bytes = MIN_MEMFD_BYTES;
+	}
+	memfd_bytes /= args->num_instances;
+	if (memfd_bytes < MIN_MEMFD_BYTES)
+		memfd_bytes = MIN_MEMFD_BYTES;
+
+	(void)get_setting("memfd-fds", &memfd_fds);
+
+	size = memfd_bytes / memfd_fds;
 
 	if (size < min_size)
 		size = min_size;
+
+	fds = calloc(memfd_fds, sizeof(*fds));
+	if (!fds) {
+		pr_dbg("%s: cannot allocate fds buffer: %d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	maps = calloc(memfd_fds, sizeof(*maps));
+	if (!maps) {
+		pr_dbg("%s: cannot allocate maps uffer: %d (%s)\n",
+			args->name, errno, strerror(errno));
+		free(fds);
+		return EXIT_NO_RESOURCE;
+	}
 
 	do {
 		for (i = 0; i < memfd_fds; i++) {
@@ -208,6 +237,11 @@ clean:
 		}
 		inc_counter(args);
 	} while (keep_stressing());
+
+	free(maps);
+	free(fds);
+
+	return EXIT_SUCCESS;
 }
 
 
@@ -217,94 +251,7 @@ clean:
  */
 static int stress_memfd(const args_t *args)
 {
-	size_t memfd_bytes = DEFAULT_MEMFD_BYTES;
-	pid_t pid;
-	uint32_t memfd_fds = DEFAULT_MEMFD_FDS;
-	uint32_t ooms = 0, segvs = 0, nomems = 0;
-
-	if (!get_setting("memfd-bytes", &memfd_bytes)) {
-		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			memfd_bytes = MAX_MEMFD_BYTES;
-		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			memfd_bytes = MIN_MEMFD_BYTES;
-	}
-	memfd_bytes /= args->num_instances;
-	if (memfd_bytes < MIN_MEMFD_BYTES)
-		memfd_bytes = MIN_MEMFD_BYTES;
-
-	(void)get_setting("memfd-fds", &memfd_fds);
-
-again:
-	if (!g_keep_stressing_flag)
-		return EXIT_SUCCESS;
-	pid = fork();
-	if (pid < 0) {
-		if ((errno == EAGAIN) || (errno == ENOMEM))
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		int status, ret;
-
-		(void)setpgid(pid, g_pgrp);
-		stress_parent_died_alarm();
-
-		/* Parent, wait for child */
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)), args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if ((WTERMSIG(status) == SIGKILL) ||
-			    (WTERMSIG(status) == SIGSEGV)) {
-				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, bailing out "
-						"(instance %d)\n",
-						args->name, args->instance);
-					_exit(0);
-				} else {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM killer, "
-						"restarting again (instance %d)\n",
-						args->name, args->instance);
-					ooms++;
-					goto again;
-				}
-			}
-
-		} else if (WTERMSIG(status) == SIGSEGV) {
-			pr_dbg("%s: killed by SIGSEGV, "
-				"restarting again "
-				"(instance %d)\n",
-				args->name, args->instance);
-			segvs++;
-			goto again;
-		}
-	} else if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
-
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
-
-		stress_memfd_allocs(args, memfd_bytes, memfd_fds);
-	}
-
-	if (ooms + segvs + nomems > 0)
-		pr_dbg("%s: OOM restarts: %" PRIu32
-			", SEGV restarts: %" PRIu32
-			", out of memory restarts: %" PRIu32 ".\n",
-			args->name, ooms, segvs, nomems);
-
-	return EXIT_SUCCESS;
+	return stress_oomable_child(args, NULL, stress_memfd_child, STRESS_OOMABLE_NORMAL);
 }
 
 stressor_info_t stress_memfd_info = {

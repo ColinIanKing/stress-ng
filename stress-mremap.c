@@ -75,8 +75,6 @@ static inline void *rand_mremap_addr(const size_t sz, int flags)
 }
 #endif
 
-
-
 /*
  *  try_remap()
  *	try and remap old size to new size
@@ -147,14 +145,30 @@ static int try_remap(
 	return -1;
 }
 
-static int stress_mremap_child(
-	const args_t *args,
-	const size_t sz,
-	size_t new_sz,
-	const size_t page_size,
-	const size_t mremap_bytes,
-	int *flags)
+static int stress_mremap_child(const args_t *args, void *context)
 {
+	size_t new_sz, sz, mremap_bytes = DEFAULT_MREMAP_BYTES;
+	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
+	const size_t page_size = args->page_size;
+
+#if defined(MAP_POPULATE)
+	flags |= MAP_POPULATE;
+#endif
+	(void)context;
+
+	if (!get_setting("mremap-bytes", &mremap_bytes)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			mremap_bytes = MAX_MREMAP_BYTES;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			mremap_bytes = MIN_MREMAP_BYTES;
+	}
+	mremap_bytes /= args->num_instances;
+	if (mremap_bytes < MIN_MREMAP_BYTES)
+		mremap_bytes = MIN_MREMAP_BYTES;
+	if (mremap_bytes < page_size)
+		mremap_bytes = page_size;
+	new_sz = sz = mremap_bytes & ~(page_size - 1);
+
 	do {
 		uint8_t *buf = NULL;
 		size_t old_sz;
@@ -162,11 +176,11 @@ static int stress_mremap_child(
 		if (!g_keep_stressing_flag)
 			break;
 
-		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, *flags, -1, 0);
+		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, flags, -1, 0);
 		if (buf == MAP_FAILED) {
 			/* Force MAP_POPULATE off, just in case */
 #if defined(MAP_POPULATE)
-			*flags &= ~MAP_POPULATE;
+			flags &= ~MAP_POPULATE;
 #endif
 			continue;	/* Try again */
 		}
@@ -231,115 +245,7 @@ static int stress_mremap_child(
  */
 static int stress_mremap(const args_t *args)
 {
-	const size_t page_size = args->page_size;
-	size_t sz, new_sz;
-	int rc = EXIT_SUCCESS, flags = MAP_PRIVATE | MAP_ANONYMOUS;
-	pid_t pid;
-	uint32_t ooms = 0, segvs = 0, buserrs = 0;
-	size_t mremap_bytes = DEFAULT_MREMAP_BYTES;
-
-#if defined(MAP_POPULATE)
-	flags |= MAP_POPULATE;
-#endif
-	if (!get_setting("mremap-bytes", &mremap_bytes)) {
-		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			mremap_bytes = MAX_MREMAP_BYTES;
-		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			mremap_bytes = MIN_MREMAP_BYTES;
-	}
-	mremap_bytes /= args->num_instances;
-	if (mremap_bytes < MIN_MREMAP_BYTES)
-		mremap_bytes = MIN_MREMAP_BYTES;
-	if (mremap_bytes < page_size)
-		mremap_bytes = page_size;
-	new_sz = sz = mremap_bytes & ~(page_size - 1);
-
-	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(args->name, true);
-
-again:
-	if (!g_keep_stressing_flag)
-		return EXIT_SUCCESS;
-	pid = fork();
-	if (pid < 0) {
-		if ((errno == EAGAIN) || (errno == ENOMEM))
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		int status, ret;
-
-		(void)setpgid(pid, g_pgrp);
-		/* Parent, wait for child */
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			/* If we got killed by sigbus, re-start */
-			if (WTERMSIG(status) == SIGBUS) {
-				/* Happens frequently, so be silent */
-				buserrs++;
-				goto again;
-			}
-
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, bailing out "
-						"(instance %d)\n",
-						args->name, args->instance);
-					_exit(0);
-				} else {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, restarting again "
-						"(instance %d)\n",
-						args->name, args->instance);
-					ooms++;
-				}
-				goto again;
-			}
-			/* If we got killed by sigsegv, re-start */
-			if (WTERMSIG(status) == SIGSEGV) {
-				pr_dbg("%s: killed by SIGSEGV, "
-					"restarting again "
-					"(instance %d)\n",
-					args->name, args->instance);
-				segvs++;
-				goto again;
-			}
-		} else {
-			rc = WEXITSTATUS(status);
-		}
-	} else if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
-
-		rc = stress_mremap_child(args, sz,
-			new_sz, page_size, mremap_bytes, &flags);
-		_exit(rc);
-	}
-
-	if (ooms + segvs + buserrs > 0)
-		pr_dbg("%s: OOM restarts: %" PRIu32
-			", SEGV restarts: %" PRIu32
-			", SIGBUS signals: %" PRIu32 "\n",
-			args->name, ooms, segvs, buserrs);
-
-	return rc;
+	return stress_oomable_child(args, NULL, stress_mremap_child, STRESS_OOMABLE_NORMAL);
 }
 
 stressor_info_t stress_mremap_info = {

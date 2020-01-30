@@ -579,14 +579,37 @@ static inline int stress_do_syscall(
 	return rc;
 }
 
+static int stress_sysbadaddr_child(const args_t *args, void *context)
+{
+	(void)context;
+
+	do {
+		size_t i;
+
+		for (i = 0; i < SIZEOF_ARRAY(bad_syscalls); i++) {
+			size_t j;
+
+			for (j = 0; j < SIZEOF_ARRAY(bad_addrs); j++) {
+				int ret;
+				void *addr = bad_addrs[j](args);
+
+				ret = stress_do_syscall(args, bad_syscalls[i], addr);
+				(void)ret;
+			}
+		}
+	} while (keep_stressing());
+
+	return EXIT_SUCCESS;
+}
+
 /*
  *  stress_sysbadaddr
  *	stress system calls with bad addresses
  */
 static int stress_sysbadaddr(const args_t *args)
 {
-	pid_t pid;
 	size_t page_size = args->page_size;
+	int ret;
 
 	ro_page = mmap(NULL, page_size, PROT_READ,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -609,84 +632,12 @@ static int stress_sysbadaddr(const args_t *args)
 	 */
 	(void)munmap((void *)(((uint8_t *)rw_page) + page_size), page_size);
 
-again:
-	if (!keep_stressing())
-		return EXIT_SUCCESS;
-	pid = fork();
-	if (pid < 0) {
-		if (errno == EAGAIN)
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		int status, ret;
-
-		(void)setpgid(pid, g_pgrp);
-		/* Parent, wait for child */
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, bailing out "
-						"(instance %d)\n",
-						args->name, args->instance);
-					_exit(0);
-				} else {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, restarting again "
-						"(instance %d)\n",
-						args->name, args->instance);
-					goto again;
-				}
-			}
-		}
-	} else if (pid == 0) {
-		/* Child, wrapped to catch OOMs */
-		if (!keep_stressing())
-			_exit(0);
-
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
-
-		do {
-			size_t i;
-
-			for (i = 0; i < SIZEOF_ARRAY(bad_syscalls); i++) {
-				size_t j;
-
-				for (j = 0; j < SIZEOF_ARRAY(bad_addrs); j++) {
-					int ret;
-					void *addr = bad_addrs[j](args);
-
-					ret = stress_do_syscall(args, bad_syscalls[i], addr);
-					(void)ret;
-				}
-			}
-		} while (keep_stressing());
-		_exit(EXIT_SUCCESS);
-	}
+	ret = stress_oomable_child(args, NULL, stress_sysbadaddr_child, STRESS_OOMABLE_DROP_CAP);
 
 	(void)munmap(rw_page, page_size);
 	(void)munmap(ro_page, page_size);
 
-	return EXIT_SUCCESS;
+	return ret;
 }
 
 stressor_info_t stress_sysbadaddr_info = {

@@ -45,6 +45,13 @@ typedef struct {
 	double		kbytes;
 } memrate_stats_t;
 
+typedef struct {
+	memrate_stats_t *stats;
+	uint64_t memrate_bytes;
+	uint64_t memrate_rd_mbs;
+	uint64_t memrate_wr_mbs;
+} stress_memrate_context_t;
+
 static int stress_set_memrate_bytes(const char *opt)
 {
 	uint64_t memrate_bytes;
@@ -194,6 +201,8 @@ static memrate_info_t memrate_info[] = {
 	{ "read8",	stress_memrate_read8 }
 };
 
+static const size_t memrate_items = SIZEOF_ARRAY(memrate_info);
+
 static void OPTIMIZE3 stress_memrate_init_data(
 	void *start,
 	void *end)
@@ -236,6 +245,42 @@ static inline void *stress_memrate_mmap(const args_t *args, uint64_t sz)
 	return ptr;
 }
 
+static int stress_memrate_child(const args_t *args, void *ctxt)
+{
+	const stress_memrate_context_t *context = (stress_memrate_context_t *)ctxt;
+	void *buffer, *buffer_end;
+
+	buffer = stress_memrate_mmap(args, context->memrate_bytes);
+	if (buffer == MAP_FAILED)
+		return EXIT_NO_RESOURCE;
+
+	buffer_end = (uint8_t *)buffer + context->memrate_bytes;
+	stress_memrate_init_data(buffer, buffer_end);
+
+	do {
+		size_t i;
+
+		for (i = 0; keep_stressing() && (i < memrate_items); i++) {
+			double t1, t2;
+			memrate_info_t *info = &memrate_info[i];
+
+			t1 = time_now();
+			context->stats[i].kbytes += info->func(buffer, buffer_end,
+				context->memrate_rd_mbs, context->memrate_wr_mbs);
+			t2 = time_now();
+			context->stats[i].duration += (t2 - t1);
+
+			if (!keep_stressing())
+				break;
+		}
+
+		inc_counter(args);
+	} while (keep_stressing());
+
+	(void)munmap(buffer, context->memrate_bytes);
+	return EXIT_SUCCESS;
+}
+
 /*
  *  stress_memrate()
  *	stress cache/memory/CPU with memrate stressors
@@ -243,123 +288,47 @@ static inline void *stress_memrate_mmap(const args_t *args, uint64_t sz)
 static int stress_memrate(const args_t *args)
 {
 	int rc;
-	uint64_t memrate_bytes  = DEFAULT_MEMRATE_BYTES;
-	uint64_t memrate_rd_mbs = ~0;
-	uint64_t memrate_wr_mbs = ~0;
-	size_t i;
-	pid_t pid;
-	memrate_stats_t *stats;
-	size_t stats_size;
-	const size_t memrate_items = SIZEOF_ARRAY(memrate_info);
+	size_t i, stats_size;
 	bool lock = false;
+	stress_memrate_context_t context;
 
-	(void)get_setting("memrate-bytes", &memrate_bytes);
-	(void)get_setting("memrate-rd-mbs", &memrate_rd_mbs);
-	(void)get_setting("memrate-wr-mbs", &memrate_wr_mbs);
+	context.memrate_bytes = DEFAULT_MEMRATE_BYTES;
+	context.memrate_rd_mbs = ~0;
+	context.memrate_wr_mbs = ~0;
+
+	(void)get_setting("memrate-bytes", &context.memrate_bytes);
+	(void)get_setting("memrate-rd-mbs", &context.memrate_rd_mbs);
+	(void)get_setting("memrate-wr-mbs", &context.memrate_wr_mbs);
 
 	stats_size = memrate_items * sizeof(memrate_stats_t);
 	stats_size = (stats_size + args->page_size - 1) & ~(args->page_size - 1);
 
-	stats = (memrate_stats_t *)mmap(NULL, stats_size,
+	context.stats = (memrate_stats_t *)mmap(NULL, stats_size,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (stats == MAP_FAILED)
+	if (context.stats == MAP_FAILED)
 		return EXIT_NO_RESOURCE;
 	for (i = 0; i < memrate_items; i++) {
-		stats[i].duration = 0.0;
-		stats[i].kbytes = 0.0;
+		context.stats[i].duration = 0.0;
+		context.stats[i].kbytes = 0.0;
 	}
 
-	memrate_bytes = (memrate_bytes + 63) & ~(63);
-again:
-	if (!g_keep_stressing_flag) {
-		rc = EXIT_NO_RESOURCE;
-		goto err;
-	}
+	context.memrate_bytes = (context.memrate_bytes + 63) & ~(63);
 
-	pid = fork();
-	if (pid < 0) {
-		if ((errno == EAGAIN) || (errno == ENOMEM))
-			goto again;
-	} else if (pid > 0) {
-		int status, waitret;
-
-		/* Parent, wait for child */
-		(void)setpgid(pid, g_pgrp);
-		waitret = shim_waitpid(pid, &status, 0);
-		if (waitret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				log_system_mem_info();
-				pr_dbg("%s: assuming killed by OOM killer, "
-					"restarting again (instance %d)\n",
-					args->name, args->instance);
-				goto again;
-			}
-		}
-	} else {
-		/* Child */
-		void *buffer, *buffer_end;
-
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
-
-		buffer = stress_memrate_mmap(args, memrate_bytes);
-		if (buffer == MAP_FAILED)
-			_exit(EXIT_NO_RESOURCE);
-		buffer_end = (uint8_t *)buffer + memrate_bytes;
-
-		stress_memrate_init_data(buffer, buffer_end);
-
-		do {
-			for (i = 0; keep_stressing() && (i < memrate_items); i++) {
-				double t1, t2;
-				memrate_info_t *info = &memrate_info[i];
-
-				t1 = time_now();
-				stats[i].kbytes += info->func(buffer, buffer_end,
-					memrate_rd_mbs, memrate_wr_mbs);
-				t2 = time_now();
-				stats[i].duration += (t2 - t1);
-
-				if (!keep_stressing())
-					break;
-			}
-
-			inc_counter(args);
-		} while (keep_stressing());
-
-		(void)munmap(buffer, memrate_bytes);
-		_exit(EXIT_SUCCESS);
-	}
+	rc = stress_oomable_child(args, &context, stress_memrate_child, STRESS_OOMABLE_NORMAL);
 
 	pr_lock(&lock);
 	for (i = 0; i < memrate_items; i++) {
-		if (stats[i].duration > 0.001)
+		if (context.stats[i].duration > 0.001)
 			pr_inf_lock(&lock, "%s: %7.7s: %.2f MB/sec\n",
 				args->name, memrate_info[i].name,
-				stats[i].kbytes / (stats[i].duration * KB));
+				context.stats[i].kbytes / (context.stats[i].duration * KB));
 		else
 			pr_inf_lock(&lock, "%s: %7.7s: interrupted early\n",
 				args->name, memrate_info[i].name);
 	}
 	pr_unlock(&lock);
 
-	rc = EXIT_SUCCESS;
-err:
-	(void)munmap((void *)stats, stats_size);
+	(void)munmap((void *)context.stats, stats_size);
 
 	return rc;
 }

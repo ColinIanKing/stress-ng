@@ -3304,9 +3304,16 @@ extern void perf_init(void);
 /* CPU helpers */
 extern WARN_UNUSED bool cpu_is_x86(void);
 
-/* Misc settings helpers */
+typedef int stress_oomable_child_func_t(const args_t *args, void *context);
+
+#define	STRESS_OOMABLE_NORMAL	(0x00000000)		/* Normal oomability */
+#define STRESS_OOMABLE_DROP_CAP	(0x00000001)		/* Drop capabilities */
+
+/* Misc helpers */
 extern void set_oom_adjustment(const char *name, const bool killable);
 extern WARN_UNUSED bool process_oomed(const pid_t pid);
+extern WARN_UNUSED int stress_oomable_child(const args_t *args, void *context,
+	stress_oomable_child_func_t func, const int flag);
 extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
 	const int sched_priority, const bool quiet);
 extern const char *stress_get_sched_name(const int sched);

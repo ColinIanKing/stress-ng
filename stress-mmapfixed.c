@@ -51,11 +51,13 @@ static void MLOCKED_TEXT stress_sigsegv_handler(int signum)
 	_exit(0);
 }
 
-static void stress_mmapfixed_child(const args_t *args)
+static int stress_mmapfixed_child(const args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	uintptr_t addr = MMAP_TOP;
 	int ret;
+
+	(void)context;
 
 	ret = stress_sighandler(args->name, SIGSEGV,
 				stress_sigsegv_handler, NULL);
@@ -116,6 +118,8 @@ next:
 		if (addr < MMAP_BOTTOM)
 			addr = MMAP_TOP;
 	} while (keep_stressing());
+
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -124,92 +128,7 @@ next:
  */
 static int stress_mmapfixed(const args_t *args)
 {
-	pid_t pid;
-	uint32_t ooms = 0, segvs = 0, buserrs = 0;
-
-	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(args->name, true);
-
-again:
-	if (!g_keep_stressing_flag)
-		goto cleanup;
-	pid = fork();
-	if (pid < 0) {
-		if ((errno == EAGAIN) || (errno == ENOMEM))
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		int status, ret;
-
-		(void)setpgid(pid, g_pgrp);
-		/* Parent, wait for child */
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			/* If we got killed by sigbus, re-start */
-			if (WTERMSIG(status) == SIGBUS) {
-				/* Happens frequently, so be silent */
-				buserrs++;
-				goto again;
-			}
-
-			/*
-			 *  If child got killed by sigsegv then
-			 *  account this and silently restart.
-			 *  "Move along now, nothing to see.."
-			 */
-			if (WTERMSIG(status) == SIGSEGV) {
-				segvs++;
-				goto again;
-			}
-
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, bailing out "
-						"(instance %d)\n",
-						args->name, args->instance);
-					_exit(0);
-				} else {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, restarting again "
-						"(instance %d)\n",
-						args->name, args->instance);
-					ooms++;
-					goto again;
-				}
-			}
-		}
-	} else if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
-		stress_mmapfixed_child(args);
-	}
-
-cleanup:
-	if (ooms + segvs + buserrs > 0)
-		pr_dbg("%s: OOM restarts: %" PRIu32
-			", SEGV restarts: %" PRIu32
-			", SIGBUS signals: %" PRIu32 "\n",
-			args->name, ooms, segvs, buserrs);
-
-	return EXIT_SUCCESS;
+	return stress_oomable_child(args, NULL, stress_mmapfixed_child, STRESS_OOMABLE_NORMAL);
 }
 
 stressor_info_t stress_mmapfixed_info = {

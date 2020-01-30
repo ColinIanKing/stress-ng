@@ -284,18 +284,23 @@ static int clone_func(void *arg)
 	return 0;
 }
 
-/*
- *  stress_clone()
- *	stress by cloning and exiting
- */
-static int stress_clone(const args_t *args)
+static int stress_clone_child(const args_t *args, void *context)
 {
+	/* Child */
 	uint64_t max_clones = 0;
 	uint64_t clone_max = DEFAULT_ZOMBIES;
-	pid_t pid;
+	bool use_clone3 = true;
+	const size_t mmap_size = args->page_size * 32768;
+	void *ptr;
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
+	const int mflags = MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE;
+#else
+	const int mflags = MAP_ANONYMOUS | MAP_PRIVATE;
+#endif
+
+	(void)context;
 
 	if (!get_setting("clone-max", &clone_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -304,158 +309,98 @@ static int stress_clone(const args_t *args)
 			clone_max = MIN_ZOMBIES;
 	}
 
-	set_oom_adjustment(args->name, false);
-again:
-	if (!g_keep_stressing_flag)
-		return EXIT_SUCCESS;
-	pid = fork();
-	if (pid < 0) {
-		if ((errno == EAGAIN) || (errno == ENOMEM))
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		int status, ret;
-
-		(void)setpgid(pid, g_pgrp);
-		/* Parent, wait for child */
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGALRM);
-			(void)shim_waitpid(pid, &status, 0);
-			/* And kill it for sure */
-			(void)kill(pid, SIGKILL);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if ((WTERMSIG(status) == SIGKILL) ||
-			    (WTERMSIG(status) == SIGTERM)) {
-				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, bailing out "
-						"(instance %d)\n",
-						args->name, args->instance);
-					_exit(0);
-				} else {
-					log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, restarting again "
-						"(instance %d)\n",
-						args->name, args->instance);
-					goto again;
-				}
-			}
-		}
-	} else if (pid == 0) {
-		/* Child */
-		int ret;
-		bool use_clone3 = true;
-		const size_t mmap_size = args->page_size * 32768;
-		void *ptr;
 #if defined(MAP_POPULATE)
-		const int mflags = MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE;
-#else
-		const int mflags = MAP_ANONYMOUS | MAP_PRIVATE;
-#endif
 
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
+	/*
+	 * Make child larger than parent to make it more of
+	 * a candidate for a OOMable process
+	 */
+	ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE, mflags, -1, 0);
+	if (ptr != MAP_FAILED)
+		(void)mincore_touch_pages(ptr, mmap_size);
 
-		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
+	do {
+		if (clones.length < clone_max) {
+			clone_t *clone_info;
+			stress_clone_args_t clone_arg = { args };
+			const uint32_t rnd = mwc32();
+			const int flag = flags[rnd % SIZEOF_ARRAY(flags)];
+			const bool try_clone3 = rnd >> 31;
 
-		/* Explicitly drop capabilites, makes it more OOM-able */
-		ret = stress_drop_capabilities(args->name);
-		(void)ret;
+			clone_info = stress_clone_new();
+			if (!clone_info)
+				break;
 
-		/*
-		 * Make child larger than parent to make it more of
-		 * a candidate for a OOMable process
-		 */
-		ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE, mflags, -1, 0);
-		if (ptr != MAP_FAILED)
-			(void)mincore_touch_pages(ptr, mmap_size);
+			if (use_clone3 && try_clone3) {
+				struct shim_clone_args cl_args;
+				int pidfd = -1;
+				pid_t child_tid = -1, parent_tid = -1;
 
-		do {
-			if (clones.length < clone_max) {
-				clone_t *clone_info;
-				stress_clone_args_t clone_arg = { args };
-				const uint32_t rnd = mwc32();
-				const int flag = flags[rnd % SIZEOF_ARRAY(flags)];
-				const bool try_clone3 = rnd >> 31;
+				memset(&cl_args, 0, sizeof(cl_args));
 
-				clone_info = stress_clone_new();
-				if (!clone_info)
-					break;
-
-				if (use_clone3 && try_clone3) {
-					struct shim_clone_args cl_args;
-					int pidfd = -1;
-					pid_t child_tid = -1, parent_tid = -1;
-
-					memset(&cl_args, 0, sizeof(cl_args));
-
-					cl_args.flags = flag;
-					cl_args.pidfd = uint64_ptr(&pidfd);
-					cl_args.child_tid = uint64_ptr(&child_tid);
-					cl_args.parent_tid = uint64_ptr(&parent_tid);
-					cl_args.exit_signal = SIGCHLD;
-					cl_args.stack = uint64_ptr(NULL);
-					cl_args.stack_size = 0;
-					cl_args.tls = uint64_ptr(NULL);
-					clone_info->pid = sys_clone3(&cl_args, sizeof(cl_args));
-					if (clone_info->pid < 0) {
-						/* Not available, don't use it again */
-						if (errno == ENOSYS)
-							use_clone3 = false;
-					} else if (clone_info->pid == 0) {
-						/* child */
-						_exit(clone_func(&clone_arg));
-					}
-				} else {
-					char *stack_top = clone_info->stack + stack_offset;
-
-					clone_info->pid = clone(clone_func,
-						align_stack(stack_top), flag, &clone_arg);
+				cl_args.flags = flag;
+				cl_args.pidfd = uint64_ptr(&pidfd);
+				cl_args.child_tid = uint64_ptr(&child_tid);
+				cl_args.parent_tid = uint64_ptr(&parent_tid);
+				cl_args.exit_signal = SIGCHLD;
+				cl_args.stack = uint64_ptr(NULL);
+				cl_args.stack_size = 0;
+				cl_args.tls = uint64_ptr(NULL);
+				clone_info->pid = sys_clone3(&cl_args, sizeof(cl_args));
+				if (clone_info->pid < 0) {
+					/* Not available, don't use it again */
+					if (errno == ENOSYS)
+						use_clone3 = false;
+				} else if (clone_info->pid == 0) {
+					/* child */
+					_exit(clone_func(&clone_arg));
 				}
-				if (clone_info->pid == -1) {
-					/*
-					 * Reached max forks or error
-					 * (e.g. EPERM)? .. then reap
-					 */
-					stress_clone_head_remove();
-					continue;
-				}
-				if (max_clones < clones.length)
-					max_clones = clones.length;
-				inc_counter(args);
 			} else {
-				stress_clone_head_remove();
+				char *stack_top = clone_info->stack + stack_offset;
+
+				clone_info->pid = clone(clone_func,
+					align_stack(stack_top), flag, &clone_arg);
 			}
-		} while (keep_stressing());
-
-		pr_inf("%s: created a maximum of %" PRIu64 " clones\n",
-			args->name, max_clones);
-
-		if (ptr != MAP_FAILED)
-			(void)munmap(ptr, mmap_size);
-		/* And reap */
-		while (clones.head) {
+			if (clone_info->pid == -1) {
+				/*
+				 * Reached max forks or error
+				 * (e.g. EPERM)? .. then reap
+				 */
+				stress_clone_head_remove();
+				continue;
+			}
+			if (max_clones < clones.length)
+				max_clones = clones.length;
+			inc_counter(args);
+		} else {
 			stress_clone_head_remove();
 		}
-		/* And free */
-		stress_clone_free();
+	} while (keep_stressing());
 
-		_exit(0);
+	pr_inf("%s: created a maximum of %" PRIu64 " clones\n",
+		args->name, max_clones);
+
+	if (ptr != MAP_FAILED)
+		(void)munmap(ptr, mmap_size);
+	/* And reap */
+	while (clones.head) {
+		stress_clone_head_remove();
 	}
+	/* And free */
+	stress_clone_free();
 
 	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_clone()
+ *	stress by cloning and exiting
+ */
+static int stress_clone(const args_t *args)
+{
+	set_oom_adjustment(args->name, false);
+
+	return stress_oomable_child(args, NULL, stress_clone_child, STRESS_OOMABLE_DROP_CAP);
 }
 
 stressor_info_t stress_clone_info = {
