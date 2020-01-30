@@ -34,10 +34,10 @@
 #define OOM_ADJ_MAX		"15"
 
 /*
- *  process_oomed()
+ *  stress_process_oomed()
  *	check if a process has been logged as OOM killed
  */
-bool process_oomed(const pid_t pid)
+bool stress_process_oomed(const pid_t pid)
 {
 	int fd;
 	bool oomed = false;
@@ -77,11 +77,11 @@ bool process_oomed(const pid_t pid)
 }
 
 /*
- *    set_adjustment()
+ *    stress_set_adjustment()
  *	try to set OOM adjustment, retry if EAGAIN or EINTR, give up
  *	after multiple retries.
  */
-static int set_adjustment(const char *procname, const char *name, const char *str)
+static int stress_set_adjustment(const char *procname, const char *name, const char *str)
 {
 	const size_t len = strlen(str);
 	int i;
@@ -112,12 +112,12 @@ static int set_adjustment(const char *procname, const char *name, const char *st
 }
 
 /*
- *  set_oom_adjustment()
+ *  stress_set_oom_adjustment()
  *	attempt to stop oom killer
  *	if we have root privileges then try and make process
  *	unkillable by oom killer
  */
-void set_oom_adjustment(const char *name, const bool killable)
+void stress_set_oom_adjustment(const char *name, const bool killable)
 {
 	bool high_priv;
 	bool make_killable = killable;
@@ -139,7 +139,7 @@ void set_oom_adjustment(const char *name, const bool killable)
 		str = OOM_SCORE_ADJ_MAX;
 	else
 		str = high_priv ? OOM_SCORE_ADJ_MIN : "0";
-	if (set_adjustment("/proc/self/oom_score_adj", name, str) == 0)
+	if (stress_set_adjustment("/proc/self/oom_score_adj", name, str) == 0)
 		return;
 	/*
 	 *  Fall back to old oom interface
@@ -148,15 +148,15 @@ void set_oom_adjustment(const char *name, const bool killable)
 		str = high_priv ? OOM_ADJ_NO_OOM : OOM_ADJ_MIN;
 	else
 		str = OOM_ADJ_MAX;
-	(void)set_adjustment("/proc/self/oom_adj", name, str);
+	(void)stress_set_adjustment("/proc/self/oom_adj", name, str);
 }
 #else
-void set_oom_adjustment(const char *name, const bool killable)
+void stress_set_oom_adjustment(const char *name, const bool killable)
 {
 	(void)name;
 	(void)killable;
 }
-bool process_oomed(const pid_t pid)
+bool stress_process_oomed(const pid_t pid)
 {
 	(void)pid;
 
@@ -250,7 +250,7 @@ again:
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args->name, true);
 
 		/* Explicitly drop capabilites, makes it more OOM-able */
 		if (flag & STRESS_OOMABLE_DROP_CAP) {

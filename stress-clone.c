@@ -246,7 +246,7 @@ static int clone_func(void *arg)
 
 	(void)arg;
 
-	set_oom_adjustment(clone_arg->args->name, true);
+	stress_set_oom_adjustment(clone_arg->args->name, true);
 #if defined(HAVE_SETNS)
 	{
 		int fd;
@@ -398,7 +398,7 @@ static int stress_clone_child(const args_t *args, void *context)
  */
 static int stress_clone(const args_t *args)
 {
-	set_oom_adjustment(args->name, false);
+	stress_set_oom_adjustment(args->name, false);
 
 	return stress_oomable_child(args, NULL, stress_clone_child, STRESS_OOMABLE_DROP_CAP);
 }

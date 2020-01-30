@@ -48,7 +48,7 @@ static int stress_mlockmany(const args_t *args)
 #endif
 	size_t mlock_size, max_mlock_procs;
 
-	set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args->name, true);
 
 	/* Explicitly drop capabilites, makes it more OOM-able */
 	ret = stress_drop_capabilities(args->name);
@@ -101,7 +101,7 @@ static int stress_mlockmany(const args_t *args)
 
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
-				set_oom_adjustment(args->name, true);
+				stress_set_oom_adjustment(args->name, true);
 
 				shim_mlockall(0);
 				stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);

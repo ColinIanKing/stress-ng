@@ -199,7 +199,7 @@ static int stress_madvise(const args_t *args)
 	sz &= ~(page_size - 1);
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args->name, true);
 
 	(void)memset(page, 0xa5, page_size);
 

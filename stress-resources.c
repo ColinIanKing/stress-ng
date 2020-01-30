@@ -640,7 +640,7 @@ static int stress_resources(const args_t *args)
 				int ret;
 
 				(void)setpgid(0, g_pgrp);
-				set_oom_adjustment(args->name, true);
+				stress_set_oom_adjustment(args->name, true);
 				ret = stress_drop_capabilities(args->name);
 				(void)ret;
 

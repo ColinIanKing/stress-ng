@@ -1430,7 +1430,7 @@ redo:
 						 *  so don't necessarily flag that up as a direct
 						 *  failure.
 						 */
-						if (process_oomed(ret)) {
+						if (stress_process_oomed(ret)) {
 							pr_dbg("process [%d] (stress-ng-%s) was killed by the OOM killer\n",
 								ret, stressor_name);
 						} else if (WTERMSIG(status) == SIGKILL) {
@@ -1659,7 +1659,7 @@ again:
 					mwc_reseed();
 					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
 						stress_munge_underscore(g_proc_current->stressor->name));
-					set_oom_adjustment(name, false);
+					stress_set_oom_adjustment(name, false);
 					set_max_limits();
 					set_iopriority(ionice_class, ionice_level);
 					stress_set_proc_name(name);
@@ -2826,7 +2826,7 @@ int main(int argc, char **argv, char **envp)
 	 */
 	stress_process_dumpable(false);
 	stress_cwd_readwriteable();
-	set_oom_adjustment("main", false);
+	stress_set_oom_adjustment("main", false);
 
 	/*
 	 *  Get various user defined settings

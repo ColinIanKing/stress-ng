@@ -403,7 +403,7 @@ again:
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */
-		set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args->name, true);
 
 		i = 0;
 		sz = 1;

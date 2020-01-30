@@ -351,7 +351,7 @@ again:
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		set_oom_adjustment(args->name, false);
+		stress_set_oom_adjustment(args->name, false);
 		stress_socket_client(args, ppid, max_fd, socket_fd_port);
 		_exit(EXIT_SUCCESS);
 	} else {

@@ -124,7 +124,7 @@ static int stress_msync(const args_t *args)
 		sz = min_size;
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args->name, true);
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)

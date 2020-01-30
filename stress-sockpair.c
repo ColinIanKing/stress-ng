@@ -108,7 +108,7 @@ again:
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args->name, true);
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
@@ -198,7 +198,7 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		set_oom_adjustment(args->name, false);
+		stress_set_oom_adjustment(args->name, false);
 
 		/* Parent, wait for child */
 		(void)setpgid(pid, g_pgrp);
@@ -230,7 +230,7 @@ again:
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
-		set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args->name, true);
 
 		ret = stress_sockpair_oomable(args);
 		_exit(ret);

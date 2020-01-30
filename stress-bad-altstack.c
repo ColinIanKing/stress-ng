@@ -71,7 +71,7 @@ static void MLOCKED_TEXT stress_segv_handler(int signum)
  */
 static int stress_bad_altstack(const args_t *args)
 {
-	set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args->name, true);
 
 	stack = mmap(NULL, stack_sz, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -155,7 +155,7 @@ again:
 			mwc_reseed();
 			rnd = mwc32() % 7;
 
-			set_oom_adjustment(args->name, true);
+			stress_set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);
 
 			switch (rnd) {

@@ -147,7 +147,7 @@ static int stress_rmap(const args_t *args)
 	}
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args->name, true);
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
@@ -212,7 +212,7 @@ static int stress_rmap(const args_t *args)
 			stress_parent_died_alarm();
 
 			/* Make sure this is killable by OOM killer */
-			set_oom_adjustment(args->name, true);
+			stress_set_oom_adjustment(args->name, true);
 			stress_rmap_child(&counters[i], (args->max_ops / RMAP_CHILD_MAX) + 1,
 				page_size, mappings);
 		} else {

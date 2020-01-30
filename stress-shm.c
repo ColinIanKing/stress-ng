@@ -132,7 +132,7 @@ static int stress_shm_posix_child(
 	}
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args->name, true);
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = SIG_IGN;

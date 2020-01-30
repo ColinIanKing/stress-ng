@@ -100,7 +100,7 @@ fork_again:
 		 *  We want the children to be OOM'd if we
 		 *  eat up too much memory
 		 */
-		set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args->name, true);
 		stress_parent_died_alarm();
 
 		/*
@@ -185,7 +185,7 @@ vfork_again:
 
 		(void)setpgid(chpid, g_pgrp);
 		g_opt_flags &= ~OPT_FLAGS_OOMABLE;
-		set_oom_adjustment(args->name, false);
+		stress_set_oom_adjustment(args->name, false);
 
 		(void)sleep(g_opt_timeout);
 		*terminate = true;

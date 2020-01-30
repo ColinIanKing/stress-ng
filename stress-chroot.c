@@ -235,7 +235,7 @@ retry:
 			goto retry;
 		} else if (pid == 0) {
 			(void)setpgid(0, g_pgrp);
-			set_oom_adjustment(args->name, true);
+			stress_set_oom_adjustment(args->name, true);
 
 			ret = test_chroot_test_funcs[i](args);
 

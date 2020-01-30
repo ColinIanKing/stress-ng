@@ -352,7 +352,7 @@ again:
 	} else if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
-		set_oom_adjustment(args->name, true);
+		stress_set_oom_adjustment(args->name, true);
 
 		do {
 			efi_vars_get(args);

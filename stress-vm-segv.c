@@ -61,7 +61,7 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
  */
 static int stress_vm_segv(const args_t *args)
 {
-	set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args->name, true);
 
 	do {
 		pid_t pid;
@@ -125,7 +125,7 @@ kill_child:
 			sigset_t set;
 			const size_t page_size = args->page_size;
 
-			set_oom_adjustment(args->name, true);
+			stress_set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);
 
 #if defined(HAVE_PTRACE)

@@ -188,7 +188,7 @@ static int stress_shm_sysv_child(
 		shm_ids[i] = -1;
 
 	/* Make sure this is killable by OOM killer */
-	set_oom_adjustment(args->name, true);
+	stress_set_oom_adjustment(args->name, true);
 
 	/* Should never happen, but be safe */
 	if (instances < 1)
@@ -470,7 +470,7 @@ fork_again:
 #endif
 
 			(void)setpgid(pid, g_pgrp);
-			set_oom_adjustment(args->name, false);
+			stress_set_oom_adjustment(args->name, false);
 			(void)close(pipefds[1]);
 
 			for (i = 0; i < (ssize_t)MAX_SHM_SYSV_SEGMENTS; i++)
