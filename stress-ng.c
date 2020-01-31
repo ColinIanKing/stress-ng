@@ -1338,7 +1338,7 @@ static void MLOCKED_TEXT wait_procs(
 	proc_info_t *pi;
 
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
-		ignite_cpu_start();
+		stress_ignite_cpu_start();
 
 #if defined(HAVE_SCHED_GETAFFINITY) && NEED_GLIBC(2,3,0)
 	/*
@@ -1485,7 +1485,7 @@ redo:
 		}
 	}
 	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
-		ignite_cpu_stop();
+		stress_ignite_cpu_stop();
 }
 
 /*

@@ -58,7 +58,7 @@ static settings_t settings[] = {
 	SETTING(NULL, NULL)
 };
 
-static int ignite_cpu_set(
+static int stress_ignite_cpu_set(
 	const uint32_t cpu,
 	const uint64_t freq,
 	const char *governor)
@@ -87,11 +87,11 @@ static int ignite_cpu_set(
 }
 
 /*
- *  ignite_cpu_start()
+ *  stress_ignite_cpu_start()
  *	crank up the CPUs, start a child process to continually
  *	set the most demanding CPU settings
  */
-void ignite_cpu_start(void)
+void stress_ignite_cpu_start(void)
 {
 	size_t i, n = 0;
 
@@ -232,7 +232,7 @@ void ignite_cpu_start(void)
 					if (cpu_settings[cpu].set_failed)
 						continue;
 
-					ret = ignite_cpu_set(cpu,
+					ret = stress_ignite_cpu_set(cpu,
 						cpu_settings[cpu].max_freq,
 						"performance");
 					if (ret < 0)
@@ -249,10 +249,10 @@ void ignite_cpu_start(void)
 }
 
 /*
- *  ignite_cpu_stop()
+ *  stress_ignite_cpu_stop()
  *	stop updating settings and restore to original settings
  */
-void ignite_cpu_stop(void)
+void stress_ignite_cpu_stop(void)
 {
 	size_t i;
 	int status;
@@ -267,7 +267,7 @@ void ignite_cpu_stop(void)
 		uint32_t cpu;
 
 		for (cpu = 0; cpu < max_cpus; cpu++) {
-			ignite_cpu_set(cpu,
+			stress_ignite_cpu_set(cpu,
 				cpu_settings[cpu].cur_freq,
 				cpu_settings[cpu].cur_governor);
 		}
