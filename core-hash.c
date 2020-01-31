@@ -140,6 +140,16 @@ stress_hash_table_t *stress_hash_create(const size_t n)
 	return hash_table;
 }
 
+static inline stress_hash_t *stress_hash_find(stress_hash_t *hash, const char *str)
+{
+	while (hash) {
+		if (!strcmp(str, hash->str))
+			return hash;
+		hash = hash->next;
+	}
+	return NULL;
+}
+
 /*
  *  stress_hash_get()
  *	get a hash entry based on the given string. returns NULL if it does
@@ -147,22 +157,16 @@ stress_hash_table_t *stress_hash_create(const size_t n)
  */
 stress_hash_t *stress_hash_get(stress_hash_table_t *hash_table, const char *str)
 {
-	stress_hash_t *hash;
 	uint32_t h;
+	stress_hash_t *hash;
 
-	if (!hash_table)
+	if (UNLIKELY(!hash_table))
 		return NULL;
-	if (!str)
+	if (UNLIKELY(!str))
 		return NULL;
 
 	h = stress_hash_sdbm(str) % hash_table->n;
-	hash = hash_table->table[h];
-	while (hash) {
-		if (!strcmp(str, hash->str))
-			return hash;
-		hash = hash->next;
-	}
-	return NULL;
+	return stress_hash_find(hash_table->table[h], str);
 }
 
 /*
@@ -173,33 +177,32 @@ stress_hash_t *stress_hash_get(stress_hash_table_t *hash_table, const char *str)
  */
 stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table, const char *str)
 {
-	stress_hash_t *hash, *new_hash;
+	stress_hash_t *hash;
 	uint32_t h;
+	size_t len;
 
-	if (!hash_table)
+	if (UNLIKELY(!hash_table))
 		return NULL;
-	if (!str)
+	if (UNLIKELY(!str))
 		return NULL;
-
-	new_hash = malloc(sizeof(*new_hash));
-	if (!new_hash)
-		return NULL;
-	new_hash->str = strdup(str);
-	if (!new_hash->str) {
-		free(new_hash);
-		return NULL;
-	}
 
 	h = stress_hash_sdbm(str) % hash_table->n;
-	hash = hash_table->table[h];
-	while (hash) {
-		if (!strcmp(str, hash->str))
-			return hash;
-		hash = hash->next;
-	}
-	new_hash->next = hash_table->table[h];
-	hash_table->table[h] = new_hash;
-	return new_hash;
+	hash = stress_hash_find(hash_table->table[h], str);
+	if (hash)
+		return hash;
+
+	/* Not found, so add a new hash */
+	len = strlen(str) + 1;
+	hash = malloc(sizeof(*hash) + len);
+	if (UNLIKELY(!hash))
+		return NULL;
+
+	hash->next = hash_table->table[h];
+	hash_table->table[h] = hash;
+	hash->str = ((char *)hash) + sizeof(*hash);
+	(void)memcpy(hash->str, str, len);
+	
+	return hash;
 }
 
 /*
@@ -219,7 +222,6 @@ void stress_hash_delete(stress_hash_table_t *hash_table)
 		while (hash) {
 			stress_hash_t *next = hash->next;
 
-			free(hash->str);
 			free(hash);
 			hash = next;
 		}
