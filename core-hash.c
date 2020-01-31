@@ -140,10 +140,12 @@ stress_hash_table_t *stress_hash_create(const size_t n)
 	return hash_table;
 }
 
+#define HASH_STR(hash)	(((char *)hash) + sizeof(*hash))
+
 static inline stress_hash_t *stress_hash_find(stress_hash_t *hash, const char *str)
 {
 	while (hash) {
-		if (!strcmp(str, hash->str))
+		if (!strcmp(str, HASH_STR(hash)))
 			return hash;
 		hash = hash->next;
 	}
@@ -158,7 +160,6 @@ static inline stress_hash_t *stress_hash_find(stress_hash_t *hash, const char *s
 stress_hash_t *stress_hash_get(stress_hash_table_t *hash_table, const char *str)
 {
 	uint32_t h;
-	stress_hash_t *hash;
 
 	if (UNLIKELY(!hash_table))
 		return NULL;
@@ -199,8 +200,7 @@ stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table, const char *str)
 
 	hash->next = hash_table->table[h];
 	hash_table->table[h] = hash;
-	hash->str = ((char *)hash) + sizeof(*hash);
-	(void)memcpy(hash->str, str, len);
+	(void)memcpy(HASH_STR(hash), str, len);
 	
 	return hash;
 }

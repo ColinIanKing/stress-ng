@@ -956,7 +956,6 @@ typedef struct {
 
 /* string hash type */
 typedef struct stress_hash {
-	char *str;		/* string */
 	struct stress_hash *next; /* next hash item */
 } stress_hash_t;
 
