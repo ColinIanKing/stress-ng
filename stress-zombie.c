@@ -33,7 +33,7 @@ typedef struct {
 	zombie_t *head;		/* Head of zombie procs list */
 	zombie_t *tail;		/* Tail of zombie procs list */
 	zombie_t *free;		/* List of free'd zombies */
-	uint64_t length;	/* Length of list */
+	uint32_t length;	/* Length of list */
 } zombie_list_t;
 
 static zombie_list_t zombies;
@@ -130,12 +130,12 @@ static void stress_zombie_free(void)
  */
 static int stress_set_zombie_max(const char *opt)
 {
-	uint64_t zombie_max;
+	uint32_t zombie_max;
 
-	zombie_max = get_uint64(opt);
+	zombie_max = get_uint32(opt);
 	check_range("zombie-max", zombie_max,
 		MIN_ZOMBIES, MAX_ZOMBIES);
-	return set_setting("zombie-max", TYPE_ID_INT64, &zombie_max);
+	return set_setting("zombie-max", TYPE_ID_INT32, &zombie_max);
 }
 
 /*
@@ -144,8 +144,8 @@ static int stress_set_zombie_max(const char *opt)
  */
 static int stress_zombie(const args_t *args)
 {
-	uint64_t max_zombies = 0;
-	uint64_t zombie_max = DEFAULT_ZOMBIES;
+	uint32_t max_zombies = 0;
+	uint32_t zombie_max = DEFAULT_ZOMBIES;
 
 	if (!get_setting("zombie-max", &zombie_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -187,7 +187,7 @@ static int stress_zombie(const args_t *args)
 		}
 	} while (keep_stressing());
 
-	pr_inf("%s: created a maximum of %" PRIu64 " zombies\n",
+	pr_inf("%s: created a maximum of %" PRIu32 " zombies\n",
 		args->name, max_zombies);
 
 	/* And reap */
