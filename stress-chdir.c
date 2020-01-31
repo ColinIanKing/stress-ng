@@ -135,16 +135,15 @@ static int stress_chdir(const args_t *args)
 					goto abort;
 				}
 			}
-redo1:
-			if (!keep_stressing())
-				goto done;
-			/* We need chdir to cwd to always succeed */
-			if (chdir(cwd) < 0) {
+			while (keep_stressing()) {
+				/* We need chdir to cwd to always succeed */
+				if (chdir(cwd) == 0)
+					break;
 				/* Maybe low memory, force retry */
-				if (errno == ENOMEM)
-					goto redo1;
-				pr_fail_err("chdir");
-				goto abort;
+				if (errno != ENOMEM) {
+					pr_fail_err("chdir");
+					goto tidy;
+				}
 			}
 		}
 		inc_counter(args);
@@ -154,7 +153,7 @@ done:
 abort:
 	if (chdir(cwd) < 0)
 		pr_fail_err("chdir");
-
+tidy:
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu32 " directories\n",
 		args->name, chdir_dirs);
