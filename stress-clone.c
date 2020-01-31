@@ -40,7 +40,7 @@ typedef struct {
 	clone_t *head;		/* Head of clone procs list */
 	clone_t *tail;		/* Tail of clone procs list */
 	clone_t *free;		/* List of free'd clones */
-	uint64_t length;	/* Length of list */
+	uint32_t length;	/* Length of list */
 } clone_list_t;
 
 static const help_t help[] = {
@@ -137,12 +137,12 @@ static const int unshare_flags[] = {
  */
 static int stress_set_clone_max(const char *opt)
 {
-	uint64_t clone_max;
+	uint32_t clone_max;
 
-	clone_max = get_uint64(opt);
+	clone_max = get_uint32(opt);
 	check_range("clone-max", clone_max,
 		MIN_ZOMBIES, MAX_ZOMBIES);
-	return set_setting("clone-max", TYPE_ID_UINT64, &clone_max);
+	return set_setting("clone-max", TYPE_ID_UINT32, &clone_max);
 }
 
 static const opt_set_func_t opt_set_funcs[] = {
@@ -287,8 +287,8 @@ static int clone_func(void *arg)
 static int stress_clone_child(const args_t *args, void *context)
 {
 	/* Child */
-	uint64_t max_clones = 0;
-	uint64_t clone_max = DEFAULT_ZOMBIES;
+	uint32_t max_clones = 0;
+	uint32_t clone_max = DEFAULT_ZOMBIES;
 	bool use_clone3 = true;
 	const size_t mmap_size = args->page_size * 32768;
 	void *ptr;
@@ -377,7 +377,7 @@ static int stress_clone_child(const args_t *args, void *context)
 		}
 	} while (keep_stressing());
 
-	pr_inf("%s: created a maximum of %" PRIu64 " clones\n",
+	pr_inf("%s: created a maximum of %" PRIu32 " clones\n",
 		args->name, max_clones);
 
 	if (ptr != MAP_FAILED)
