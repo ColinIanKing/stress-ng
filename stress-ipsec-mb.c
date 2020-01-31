@@ -132,7 +132,7 @@ static int stress_ipsec_mb_features(const args_t *args, MB_MGR *p_mgr)
 static int stress_ipsec_mb_supported(void)
 {
 	/* Intel CPU? */
-	if (!cpu_is_x86()) {
+	if (!stress_cpu_is_x86()) {
 		pr_inf("ipsec_mb stressor will be skipped, "
 			"not a recognised Intel CPU\n");
 		return -1;

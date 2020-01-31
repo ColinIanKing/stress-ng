@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-bool cpu_is_x86(void)
+bool stress_cpu_is_x86(void)
 {
 #if defined(HAVE_CPUID_H) &&	\
     defined(STRESS_X86) && 	\

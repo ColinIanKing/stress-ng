@@ -3301,7 +3301,7 @@ extern void perf_init(void);
 #endif
 
 /* CPU helpers */
-extern WARN_UNUSED bool cpu_is_x86(void);
+extern WARN_UNUSED bool stress_cpu_is_x86(void);
 
 typedef int stress_oomable_child_func_t(const args_t *args, void *context);
 
