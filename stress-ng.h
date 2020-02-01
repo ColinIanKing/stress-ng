@@ -3316,7 +3316,7 @@ extern WARN_UNUSED int stress_oomable_child(const args_t *args, void *context,
 extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
 	const int sched_priority, const bool quiet);
 extern const char *stress_get_sched_name(const int sched);
-extern void set_iopriority(const int32_t class, const int32_t level);
+extern void stress_set_iopriority(const int32_t class, const int32_t level);
 extern void stress_set_proc_name_init(int argc, char *argv[], char *envp[]);
 extern void stress_set_proc_name(const char *name);
 
@@ -3343,8 +3343,8 @@ extern void check_range_bytes(const char *const opt, const uint64_t val,
 extern WARN_UNUSED int stress_set_cpu_affinity(const char *arg);
 extern WARN_UNUSED uint32_t get_uint32(const char *const str);
 extern WARN_UNUSED int32_t  get_int32(const char *const str);
-extern WARN_UNUSED int32_t  get_opt_sched(const char *const str);
-extern WARN_UNUSED int32_t  get_opt_ionice_class(const char *const str);
+extern WARN_UNUSED int32_t  stress_get_opt_sched(const char *const str);
+extern WARN_UNUSED int32_t  stress_get_opt_ionice_class(const char *const str);
 
 /* Misc helper funcs */
 extern void stress_unmap_shared(void);

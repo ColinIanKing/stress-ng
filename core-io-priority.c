@@ -25,10 +25,10 @@
 #include "stress-ng.h"
 
 /*
- *  get_opt_ionice_class()
+ *  stress_get_opt_ionice_class()
  *	string io scheduler to IOPRIO_CLASS
  */
-int32_t get_opt_ionice_class(const char *const str)
+int32_t stress_get_opt_ionice_class(const char *const str)
 {
 #if defined(IOPRIO_CLASS_IDLE)
 	if (!strcmp("idle", str))
@@ -64,10 +64,10 @@ int32_t get_opt_ionice_class(const char *const str)
 
 #if defined(__NR_ioprio_set)
 /*
- *  set_iopriority()
+ *  stress_set_iopriority()
  *	check ioprio settings and set
  */
-void set_iopriority(const int32_t class, const int32_t level)
+void stress_set_iopriority(const int32_t class, const int32_t level)
 {
 	int data = level, rc;
 
@@ -102,7 +102,7 @@ void set_iopriority(const int32_t class, const int32_t level)
 	}
 }
 #else
-void set_iopriority(const int32_t class, const int32_t level)
+void stress_set_iopriority(const int32_t class, const int32_t level)
 {
 	(void)class;
 	(void)level;

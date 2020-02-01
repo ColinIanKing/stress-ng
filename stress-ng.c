@@ -1661,7 +1661,7 @@ again:
 						stress_munge_underscore(g_proc_current->stressor->name));
 					stress_set_oom_adjustment(name, false);
 					set_max_limits();
-					set_iopriority(ionice_class, ionice_level);
+					stress_set_iopriority(ionice_class, ionice_level);
 					stress_set_proc_name(name);
 					(void)umask(0077);
 
@@ -2473,7 +2473,7 @@ next_opt:
 			usage();
 			break;
 		case OPT_ionice_class:
-			i32 = get_opt_ionice_class(optarg);
+			i32 = stress_get_opt_ionice_class(optarg);
 			set_setting("ionice-class", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_ionice_level:
@@ -2506,7 +2506,7 @@ next_opt:
 			set_setting("random", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sched:
-			i32 = get_opt_sched(optarg);
+			i32 = stress_get_opt_sched(optarg);
 			set_setting_global("sched", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sched_prio:
@@ -2837,7 +2837,7 @@ int main(int argc, char **argv, char **envp)
 		exit(EXIT_FAILURE);
 	(void)get_setting("ionice-class", &ionice_class);
 	(void)get_setting("ionice-level", &ionice_level);
-	set_iopriority(ionice_class, ionice_level);
+	stress_set_iopriority(ionice_class, ionice_level);
 
 	stress_mlock_executable();
 

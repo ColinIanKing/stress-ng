@@ -222,7 +222,7 @@ int stress_set_sched(
  *  get_opt_sched()
  *	get scheduler policy
  */
-int32_t get_opt_sched(const char *const str)
+int32_t stress_get_opt_sched(const char *const str)
 {
 	size_t i;
 
