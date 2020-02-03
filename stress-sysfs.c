@@ -44,6 +44,7 @@ static volatile bool drain_kmsg = false;
 static volatile uint32_t counter = 0;
 static char signum_path[] = "/sys/kernel/notes";
 static uint32_t os_release;
+static stress_hash_table_t *sysfs_hash_table;
 
 typedef struct ctxt {
 	const args_t *args;		/* stressor args */
@@ -103,6 +104,19 @@ static bool stress_kmsg_drain(const int fd)
 }
 
 /*
+ *  stress_sys_add_bad()
+ *	add a path onto the bad (omit) hash table
+ */
+static void stress_sys_add_bad(const char *path)
+{
+	if (shim_pthread_spin_lock(&lock))
+		return;	/* Can't lock! */
+
+	stress_hash_add(sysfs_hash_table, path);
+	(void)shim_pthread_spin_unlock(&lock);
+}
+
+/*
  *  stress_sys_rw()
  *	read a proc file
  */
@@ -136,9 +150,12 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 			break;
 
 		t_start = time_now();
-		if (stress_try_open(args, path, O_RDONLY | O_NONBLOCK, 1500000000))
+		if (stress_try_open(args, path, O_RDONLY | O_NONBLOCK, 1500000000)) {
+			stress_sys_add_bad(path);
 			goto next;
+		}
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0) {
+			stress_sys_add_bad(path);
 			goto next;
 		}
 		if (time_now() - t_start > threshold) {
@@ -453,8 +470,13 @@ static void stress_sys_dir(
 			continue;
 
 		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
-		if (stress_sys_skip(tmp))
+		/* Is it in the hash of bad paths? */
+		if (stress_hash_get(sysfs_hash_table, tmp))
 			continue;
+		if (stress_sys_skip(tmp)) {
+			stress_sys_add_bad(tmp);
+			continue;
+		}
 
 		switch (d->d_type) {
 		case DT_DIR:
@@ -543,6 +565,12 @@ static int stress_sysfs(const args_t *args)
 		}
 	}
 #endif
+	sysfs_hash_table = stress_hash_create(1021);
+	if (!sysfs_hash_table) {
+		pr_err("%s: cannot create sysfs hash table: %d (%s))\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
 
 	(void)memset(&ctxt, 0, sizeof(ctxt));
 	shim_strlcpy(sysfs_path, signum_path, sizeof(sysfs_path));
@@ -558,6 +586,7 @@ static int stress_sysfs(const args_t *args)
 			args->name, rc, strerror(rc));
 		if (ctxt.kmsgfd != -1)
 			(void)close(ctxt.kmsgfd);
+		stress_hash_delete(sysfs_hash_table);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -591,6 +620,7 @@ static int stress_sysfs(const args_t *args)
 		if (ret[i] == 0)
 			(void)pthread_join(pthreads[i], NULL);
 	}
+	stress_hash_delete(sysfs_hash_table);
 	if (ctxt.kmsgfd != -1)
 		(void)close(ctxt.kmsgfd);
 	(void)shim_pthread_spin_destroy(&lock);
