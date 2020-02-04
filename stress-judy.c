@@ -101,7 +101,7 @@ static int stress_judy(const args_t *args)
 		}
 
 		/* Step #2, find */
-		for (i = 0; g_keep_stressing_flag && i < n; i++) {
+		for (i = 0; keep_stressing_flag() && i < n; i++) {
 			Word_t idx = gen_index(i);
 
 			JLG(pvalue, PJLArray, idx);

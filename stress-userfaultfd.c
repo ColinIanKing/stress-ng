@@ -302,7 +302,7 @@ static int stress_userfaultfd_child(const args_t *args, void *context)
 		ssize_t ret;
 
 		/* check we should break out before we block on the read */
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 
 		/*
@@ -325,7 +325,7 @@ static int stress_userfaultfd_child(const args_t *args, void *context)
 					continue;
 				if (errno != ENOMEM) {
 					pr_fail_err("poll userfaultfd");
-					if (!g_keep_stressing_flag)
+					if (!keep_stressing_flag())
 						break;
 				}
 				/*
@@ -357,7 +357,7 @@ do_read:
 			if (errno == EINTR)
 				continue;
 			pr_fail_err("read userfaultfd");
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 			continue;
 		}

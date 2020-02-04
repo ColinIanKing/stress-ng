@@ -97,7 +97,7 @@ static int stress_switch(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
@@ -111,7 +111,7 @@ again:
 
 		(void)close(pipefds[1]);
 
-		while (g_keep_stressing_flag) {
+		while (keep_stressing_flag()) {
 			ssize_t ret;
 
 			ret = read(pipefds[0], buf, sizeof(buf));

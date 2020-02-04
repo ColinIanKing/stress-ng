@@ -101,7 +101,7 @@ static int stress_sockpair_oomable(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
 		socket_pair_close(socket_pair_fds, max, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
@@ -113,11 +113,11 @@ again:
 		stress_parent_died_alarm();
 
 		socket_pair_close(socket_pair_fds, max, 1);
-		while (g_keep_stressing_flag) {
+		while (keep_stressing_flag()) {
 			uint8_t buf[SOCKET_PAIR_BUF];
 			ssize_t n;
 
-			for (i = 0; g_keep_stressing_flag && (i < max); i++) {
+			for (i = 0; keep_stressing_flag() && (i < max); i++) {
 				n = read(socket_pair_fds[i][0], buf, sizeof(buf));
 				if (n <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
@@ -193,7 +193,7 @@ static int stress_sockpair(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
 	} else if (pid > 0) {
 		int status, ret;

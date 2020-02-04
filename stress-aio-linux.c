@@ -132,7 +132,7 @@ static int stress_aiol_wait(
 		if (ret < 0) {
 			errno = -ret;
 			if (errno == EINTR) {
-				if (g_keep_stressing_flag) {
+				if (keep_stressing_flag()) {
 					continue;
 				} else {
 					return 0;
@@ -143,7 +143,7 @@ static int stress_aiol_wait(
 		} else {
 			n -= ret;
 		}
-	} while ((n > 0) && g_keep_stressing_flag);
+	} while ((n > 0) && keep_stressing_flag());
 
 	return n;
 }

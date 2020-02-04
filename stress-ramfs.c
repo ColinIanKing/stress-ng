@@ -349,7 +349,7 @@ static int stress_ramfs_mount(const args_t *args)
 
 	do {
 again:
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 
 		pid = fork();

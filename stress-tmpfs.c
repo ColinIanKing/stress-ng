@@ -202,7 +202,7 @@ static int stress_tmpfs_child(const args_t *args, void *ctxt)
 			break;
 		}
 
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		buf = (uint8_t *)mmap(NULL, sz,
 			PROT_READ | PROT_WRITE, flags | rnd_flag, fd, 0);
@@ -263,7 +263,7 @@ static int stress_tmpfs_child(const args_t *args, void *ctxt)
 					n--;
 					break;
 				}
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					goto cleanup;
 			}
 		}
@@ -307,7 +307,7 @@ static int stress_tmpfs_child(const args_t *args, void *ctxt)
 					n--;
 					break;
 				}
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					goto cleanup;
 			}
 		}

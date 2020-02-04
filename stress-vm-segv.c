@@ -67,7 +67,7 @@ static int stress_vm_segv(const args_t *args)
 		pid_t pid;
 
 again:
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			return EXIT_SUCCESS;
 		pid = fork();
 		if (pid < 0) {

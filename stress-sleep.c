@@ -187,7 +187,7 @@ static int stress_sleep(const args_t *args)
 			goto tidy;
 		}
 		/* Timed out? abort! */
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			goto tidy;
 	}
 

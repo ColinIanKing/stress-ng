@@ -41,7 +41,7 @@ static const help_t help[] = {
  */
 static int pipe_read(const args_t *args, const int fd, const int n)
 {
-	while (g_keep_stressing_flag) {
+	while (keep_stressing_flag()) {
 		ssize_t ret;
 		char buf[POLL_BUF];
 
@@ -96,7 +96,7 @@ static int stress_poll(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		rc = EXIT_FAILURE;

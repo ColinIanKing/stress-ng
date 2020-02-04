@@ -31,7 +31,7 @@ static const help_t help[] = {
 };
 
 #define check_do_run()			\
-	if (!g_keep_stressing_flag)	\
+	if (!keep_stressing_flag())	\
 		break;			\
 
 /*

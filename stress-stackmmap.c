@@ -70,7 +70,7 @@ static void stress_stackmmap_push_msync(void)
 			(mwc8() & 1) ? MS_ASYNC : MS_SYNC);
 		laddr = addr;
 	}
-	if (g_keep_stressing_flag)
+	if (keep_stressing_flag())
 		stress_stackmmap_push_msync();
 }
 
@@ -176,7 +176,7 @@ static int stress_stackmmap(const args_t *args)
 	do {
 		pid_t pid;
 again:
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		pid = fork();
 		if (pid < 0) {

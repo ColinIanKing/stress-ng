@@ -360,7 +360,7 @@ do_exec:
 			}
 			if (pids[i] > -1)
 				(void)setpgid(pids[i], g_pgrp);
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 		}
 		for (i = 0; i < exec_max; i++) {

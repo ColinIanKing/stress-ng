@@ -177,7 +177,7 @@ static int stress_pipe(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
@@ -190,7 +190,7 @@ again:
 		stress_parent_died_alarm();
 
 		(void)close(pipefds[1]);
-		while (g_keep_stressing_flag) {
+		while (keep_stressing_flag()) {
 			char buf[pipe_data_size];
 			ssize_t n;
 

@@ -91,7 +91,7 @@ static void MLOCKED_TEXT stress_watchdog_handler(int signum)
 	stress_watchdog_magic_close();
 
 	/* trigger early termination */
-	g_keep_stressing_flag = 0;
+	keep_stressing_set_flag(false);
 
 	/* jump back */
         siglongjmp(jmp_env, 1);

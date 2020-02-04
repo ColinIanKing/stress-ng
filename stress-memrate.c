@@ -103,7 +103,7 @@ static uint64_t stress_memrate_read##size(			\
 		double t2, dur_remainder;			\
 		int32_t i;					\
 								\
-		if (!g_keep_stressing_flag)			\
+		if (!keep_stressing_flag())			\
 			break;					\
 		for (i = 0; (i < (int32_t)MB) &&		\
 		     (ptr < (uint##size##_t *)end);		\
@@ -157,7 +157,7 @@ static uint64_t stress_memrate_write##size(			\
 		double t2, dur_remainder;			\
 		int32_t i;					\
 								\
-		if (!g_keep_stressing_flag)			\
+		if (!keep_stressing_flag())			\
 			break;					\
 		for (i = 0; (i < (int32_t)MB) &&		\
 		     (ptr < (uint##size##_t *)end);		\

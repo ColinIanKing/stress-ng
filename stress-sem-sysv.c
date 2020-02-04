@@ -287,7 +287,7 @@ static pid_t semaphore_sysv_spawn(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
 		return -1;
 	}
@@ -327,7 +327,7 @@ static int stress_sem_sysv(const args_t *args)
 	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		pids[i] = semaphore_sysv_spawn(args);
-		if (!g_keep_stressing_flag || pids[i] < 0)
+		if (!keep_stressing_flag() || pids[i] < 0)
 			goto reap;
 	}
 	/* Wait for termination */

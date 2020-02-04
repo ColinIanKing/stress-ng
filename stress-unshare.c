@@ -101,7 +101,7 @@ static int stress_unshare(const args_t *args)
 		(void)memset(pids, 0, sizeof(pids));
 
 		for (n = 0; n < MAX_PIDS; n++) {
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 			if (!enough_memory()) {
 				/* memory too low, back off */

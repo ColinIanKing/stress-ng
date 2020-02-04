@@ -136,7 +136,7 @@ static void stress_dccp_client(
 		int retries = 0;
 		socklen_t addr_len = 0;
 retry:
-		if (!g_keep_stressing_flag) {
+		if (!keep_stressing_flag()) {
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
 		}
@@ -393,7 +393,7 @@ static int stress_dccp(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag &&
+		if (keep_stressing_flag() &&
 		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 		pr_fail_dbg("fork");

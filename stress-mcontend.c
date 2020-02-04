@@ -297,7 +297,7 @@ static void *stress_memory_contend_thread(void *arg)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
-	while (g_keep_stressing_flag) {
+	while (keep_stressing_flag()) {
 #if defined(HAVE_AFFINITY)
 		cpu_set_t mask;
 #endif

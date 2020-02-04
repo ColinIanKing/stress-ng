@@ -103,7 +103,7 @@ static int stress_dup(const args_t *args)
 		for (i = 1; i < n; i++) {
 			if (fds[i] < 0)
 				break;
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 			(void)close(fds[i]);
 		}

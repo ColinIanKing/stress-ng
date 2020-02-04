@@ -86,7 +86,7 @@ static int stress_mmapfixed_child(const args_t *args, void *context)
 		flags |= mwc1() ? MAP_FIXED : MAP_FIXED_NOREPLACE;
 #endif
 
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		buf = (uint8_t *)mmap((void *)addr, sz,
 			PROT_READ, flags, -1, 0);

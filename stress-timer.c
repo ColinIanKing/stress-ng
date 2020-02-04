@@ -114,7 +114,7 @@ static void stress_timer_set(struct itimerspec *timer)
  */
 static bool HOT OPTIMIZE3 stress_timer_keep_stressing(void)
 {
-        return (LIKELY(g_keep_stressing_flag) &&
+        return (LIKELY(keep_stressing_flag()) &&
                 LIKELY(!max_ops || (timer_counter < max_ops)));
 }
 
@@ -140,7 +140,7 @@ static void MLOCKED_TEXT stress_timer_handler(int sig)
 	if ((timer_counter & 65535) == 0)
 		if ((time_now() - start) > (double)g_opt_timeout)
 			goto cancel;
-	if (g_keep_stressing_flag) {
+	if (keep_stressing_flag()) {
 		int ret = timer_getoverrun(timerid);
 		if (ret > 0)
 			overruns += ret;
@@ -149,7 +149,7 @@ static void MLOCKED_TEXT stress_timer_handler(int sig)
 	}
 
 cancel:
-	g_keep_stressing_flag = false;
+	keep_stressing_set_flag(false);
 	/* Cancel timer if we detect no more runs */
 	(void)memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);

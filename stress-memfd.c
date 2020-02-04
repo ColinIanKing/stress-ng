@@ -138,11 +138,11 @@ static int stress_memfd_child(const args_t *args, void *context)
 				default:
 					pr_err("%s: memfd_create failed: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					g_keep_stressing_flag = false;
+					keep_stressing_set_flag(false);
 					goto clean;
 				}
 			}
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				goto clean;
 		}
 
@@ -155,7 +155,7 @@ static int stress_memfd_child(const args_t *args, void *context)
 			if (fds[i] < 0)
 				continue;
 
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 
 			/* Allocate space */
@@ -188,7 +188,7 @@ static int stress_memfd_child(const args_t *args, void *context)
 				FALLOC_FL_KEEP_SIZE, whence, page_size);
 			(void)ret;
 #endif
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				goto clean;
 		}
 
@@ -225,7 +225,7 @@ static int stress_memfd_child(const args_t *args, void *context)
 					pr_fail_err("lseek SEEK_DATA on memfd");
 			}
 #endif
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				goto clean;
 		}
 clean:

@@ -124,7 +124,7 @@ static int do_quotas(const args_t *args, dev_info_t *const dev)
 {
 	int tested = 0, failed = 0, enosys = 0, esrch = 0;
 #if defined(Q_GETQUOTA)
-	if (g_keep_stressing_flag) {
+	if (keep_stressing_flag()) {
 		struct dqblk dqblk;
 		int err = do_quotactl(args, "Q_GETQUOTA",
 				&tested, &failed, &enosys, &esrch,
@@ -135,7 +135,7 @@ static int do_quotas(const args_t *args, dev_info_t *const dev)
 	}
 #endif
 #if defined(Q_GETFMT)
-	if (g_keep_stressing_flag) {
+	if (keep_stressing_flag()) {
 		uint32_t format;
 		int err = do_quotactl(args, "Q_GETFMT",
 				&tested, &failed, &enosys, &esrch,
@@ -146,7 +146,7 @@ static int do_quotas(const args_t *args, dev_info_t *const dev)
 	}
 #endif
 #if defined(Q_GETINFO)
-	if (g_keep_stressing_flag) {
+	if (keep_stressing_flag()) {
 		struct dqinfo dqinfo;
 		int err = do_quotactl(args, "Q_GETINFO",
 				&tested, &failed, &enosys, &esrch,
@@ -158,7 +158,7 @@ static int do_quotas(const args_t *args, dev_info_t *const dev)
 #endif
 #if defined(Q_GETSTATS)
 	/* Obsolete in recent kernels */
-	if (g_keep_stressing_flag) {
+	if (keep_stressing_flag()) {
 		struct dqstats dqstats;
 		int err = do_quotactl(args, "Q_GETSTATS",
 				&tested, &failed, &enosys, &esrch,
@@ -169,7 +169,7 @@ static int do_quotas(const args_t *args, dev_info_t *const dev)
 	}
 #endif
 #if defined(Q_SYNC)
-	if (g_keep_stressing_flag) {
+	if (keep_stressing_flag()) {
 		int err = do_quotactl(args, "Q_SYNC",
 				&tested, &failed, &enosys, &esrch,
 				QCMD(Q_SYNC, USRQUOTA),
@@ -287,7 +287,7 @@ static int stress_quota(const args_t *args)
 		do {
 			int failed = 0, enosys = 0;
 
-			for (i = 0; g_keep_stressing_flag && (i < n_devs); i++) {
+			for (i = 0; keep_stressing_flag() && (i < n_devs); i++) {
 				int ret;
 
 				/* This failed before, so don't retest */

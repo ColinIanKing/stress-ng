@@ -134,7 +134,7 @@ static int stress_radixsort(const args_t *args)
 	do {
 		/* Sort "random" data */
 		(void)radixsort(data, n, NULL, 0);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 
 		/* Reverse sort */

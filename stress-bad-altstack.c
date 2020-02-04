@@ -86,7 +86,7 @@ static int stress_bad_altstack(const args_t *args)
 
 		(void)mwc32();
 again:
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			return EXIT_SUCCESS;
 		pid = fork();
 		if (pid < 0) {

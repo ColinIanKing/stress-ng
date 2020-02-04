@@ -1081,7 +1081,7 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
 {
 	(void)signum;
 	g_caught_sigint = true;
-	g_keep_stressing_flag = false;
+	keep_stressing_set_flag(false);
 	wait_flag = false;
 
 	(void)kill(-getpid(), SIGALRM);
@@ -1466,7 +1466,7 @@ redo:
 						break;
 					}
 					if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
-						g_keep_stressing_flag = false;
+						keep_stressing_set_flag(false);
 						wait_flag = false;
 						kill_procs(SIGALRM);
 					}
@@ -1495,7 +1495,7 @@ redo:
 static void MLOCKED_TEXT handle_terminate(int signum)
 {
 	terminate_signum = signum;
-	g_keep_stressing_flag = false;
+	keep_stressing_set_flag(false);
 	kill_procs(SIGALRM);
 
 	switch (signum) {
@@ -1628,7 +1628,7 @@ static void MLOCKED_TEXT stress_run(
 
 				proc_stats_t *stats = g_proc_current->stats[j];
 again:
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					break;
 				pid = fork();
 				switch (pid) {
@@ -1678,7 +1678,7 @@ again:
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)perf_enable(&stats->sp);
 #endif
-					if (g_keep_stressing_flag && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
+					if (keep_stressing_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
 						const args_t args = {
 							.counter = &stats->counter,
 							.name = name,
@@ -1718,7 +1718,7 @@ child_exit:
 					stress_cache_free();
 					free_settings();
 					if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
-						g_keep_stressing_flag = false;
+						keep_stressing_set_flag(false);
 						wait_flag = false;
 						(void)kill(getppid(), SIGALRM);
 					}
@@ -1733,7 +1733,7 @@ child_exit:
 					}
 
 					/* Forced early abort during startup? */
-					if (!g_keep_stressing_flag) {
+					if (!keep_stressing_flag()) {
 						pr_dbg("abort signal during startup, cleaning up\n");
 						kill_procs(SIGALRM);
 						goto wait_for_procs;
@@ -2644,7 +2644,7 @@ static inline void stress_run_sequential(
 	/*
 	 *  Step through each stressor one by one
 	 */
-	for (pi = procs_head; pi && g_keep_stressing_flag; pi = pi->next) {
+	for (pi = procs_head; pi && keep_stressing_flag(); pi = pi->next) {
 		proc_info_t *next = pi->next;
 
 		pi->next = NULL;

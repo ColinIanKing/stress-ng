@@ -39,7 +39,7 @@ static inline bool stress_syscall_wait(
 	const args_t *args,
 	const pid_t pid)
 {
-	while (g_keep_stressing_flag) {
+	while (keep_stressing_flag()) {
 		int status;
 
 		if (ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0) {
@@ -93,7 +93,7 @@ static int stress_ptrace(const args_t *args)
 		/*
 		 *  A simple mix of system calls
 		 */
-		while (g_keep_stressing_flag) {
+		while (keep_stressing_flag()) {
 			pid_t pidtmp;
 			gid_t gidtmp;
 			uid_t uidtmp;

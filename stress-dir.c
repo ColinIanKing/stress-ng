@@ -164,7 +164,7 @@ static int stress_dir(const args_t *args)
 		stress_dir_read(args, pathname);
 		stress_dir_tidy(args, n);
 		stress_dir_sync(pathname);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		(void)sync();
 	} while (keep_stressing());

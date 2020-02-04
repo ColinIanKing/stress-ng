@@ -108,7 +108,7 @@ static int stress_fallocate(const args_t *args)
 #else
 		ret = shim_fallocate(fd, 0, (off_t)0, fallocate_bytes);
 #endif
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		(void)shim_fsync(fd);
 		if ((ret == 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
@@ -126,7 +126,7 @@ static int stress_fallocate(const args_t *args)
 
 		if (ftruncate(fd, 0) < 0)
 			ftrunc_errs++;
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		(void)shim_fsync(fd);
 
@@ -155,7 +155,7 @@ static int stress_fallocate(const args_t *args)
 			 */
 			int i;
 			(void)shim_fallocate(fd, 0, (off_t)0, fallocate_bytes);
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 			(void)shim_fsync(fd);
 
@@ -164,7 +164,7 @@ static int stress_fallocate(const args_t *args)
 				int j = (mwc32() >> 8) % SIZEOF_ARRAY(modes);
 
 				(void)shim_fallocate(fd, modes[j], offset, 64 * KB);
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					break;
 				(void)shim_fsync(fd);
 			}

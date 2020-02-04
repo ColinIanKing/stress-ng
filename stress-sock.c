@@ -177,7 +177,7 @@ static void stress_sock_client(
 #endif
 		socklen_t addr_len = 0;
 retry:
-		if (!g_keep_stressing_flag) {
+		if (!keep_stressing_flag()) {
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
 		}
@@ -571,7 +571,7 @@ static void stress_sock_sigpipe_handler(int signum)
 {
 	(void)signum;
 
-	g_keep_stressing_flag = false;
+	keep_stressing_set_flag(false);
 }
 
 /*
@@ -599,7 +599,7 @@ static int stress_sock(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;

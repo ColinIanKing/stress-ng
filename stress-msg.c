@@ -147,7 +147,7 @@ static int stress_msg(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag &&
+		if (keep_stressing_flag() &&
 		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 		pr_fail_dbg("fork");

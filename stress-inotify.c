@@ -70,7 +70,7 @@ static void inotify_exercise(
 retry:
 	n++;
 	if ((fd = inotify_init()) < 0) {
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			return;
 
 		/* This is just so wrong... */
@@ -125,7 +125,7 @@ retry:
 		}
 
 redo:
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		/*
 		 *  Exercise FIOREAD to get inotify code coverage up
@@ -339,7 +339,7 @@ static int inotify_access_helper(
 
 	/* Just want to force an access */
 do_access:
-	if (g_keep_stressing_flag && (read(fd, buffer, 1) < 0)) {
+	if (keep_stressing_flag() && (read(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_access;
 		pr_err("%s: cannot read file %s: errno=%d (%s)\n",
@@ -383,7 +383,7 @@ static int inotify_modify_helper(
 		goto remove;
 	}
 do_modify:
-	if (g_keep_stressing_flag && (write(fd, buffer, 1) < 0)) {
+	if (keep_stressing_flag() && (write(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
 		pr_err("%s: cannot write to file %s: errno=%d (%s)\n",
@@ -744,7 +744,7 @@ static int stress_inotify(const args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 	do {
-		for (i = 0; g_keep_stressing_flag && inotify_stressors[i].func; i++)
+		for (i = 0; keep_stressing_flag() && inotify_stressors[i].func; i++)
 			inotify_stressors[i].func(args, pathname);
 		inc_counter(args);
 	} while (keep_stressing());

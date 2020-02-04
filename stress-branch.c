@@ -60,7 +60,7 @@ static inline uint8_t jmp_mwc8(void)
 	register uint16_t _index = jmp_mwc8();		\
 							\
 	inc_counter(args);				\
-	do_more = LIKELY((int)g_keep_stressing_flag) &	\
+	do_more = LIKELY((int)keep_stressing_flag()) &	\
 		(((int)!args->max_ops) | 		\
 		 (get_counter(args) < args->max_ops));	\
 	_index |= (do_more << 8);			\

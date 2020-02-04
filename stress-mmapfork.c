@@ -88,7 +88,7 @@ static int stress_mmapfork(const args_t *args)
 		(void)memset(pids, 0, sizeof(pids));
 
 		for (n = 0; n < MAX_PIDS; n++) {
-retry:			if (!g_keep_stressing_flag)
+retry:			if (!keep_stressing_flag())
 				goto reap;
 
 			pids[n] = fork();

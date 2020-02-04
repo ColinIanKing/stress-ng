@@ -59,7 +59,7 @@ static int stress_sigfd(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
@@ -67,7 +67,7 @@ again:
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
-		while (g_keep_stressing_flag) {
+		while (keep_stressing_flag()) {
 			union sigval s;
 			int ret;
 

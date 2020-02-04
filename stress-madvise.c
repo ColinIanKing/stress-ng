@@ -233,7 +233,7 @@ static int stress_madvise(const args_t *args)
 			break;
 		}
 
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 
 		if (mwc1()) {

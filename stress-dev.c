@@ -1168,7 +1168,7 @@ static inline void stress_dev_rw(
 		(void)shim_strlcpy(path, dev_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
-		if (!*path || !g_keep_stressing_flag)
+		if (!*path || !keep_stressing_flag())
 			break;
 
 		t_start = time_now();
@@ -1370,7 +1370,7 @@ static void *stress_dev_thread(void *arg)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
-	while (g_keep_stressing_flag)
+	while (keep_stressing_flag())
 		stress_dev_rw(args, -1);
 
 	return &nowt;
@@ -1392,7 +1392,7 @@ static void stress_dev_dir(
 	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
 	int i, n;
 
-	if (!g_keep_stressing_flag)
+	if (!keep_stressing_flag())
 		return;
 
 	/* Don't want to go too deep */
@@ -1595,7 +1595,7 @@ again:
 					pthread_join(pthreads[i], NULL);
 			}
 			stress_hash_delete(dev_hash_table);
-			_exit(!g_keep_stressing_flag);
+			_exit(!keep_stressing_flag());
 		}
 	} while (keep_stressing());
 

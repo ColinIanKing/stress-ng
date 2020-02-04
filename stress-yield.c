@@ -103,7 +103,7 @@ static int stress_yield(const args_t *args)
 	}
 	(void)memset(counters, 0, counters_sz);
 
-	for (i = 0; g_keep_stressing_flag && (i < yielders); i++) {
+	for (i = 0; keep_stressing_flag() && (i < yielders); i++) {
 		pids[i] = fork();
 		if (pids[i] < 0) {
 			pr_dbg("%s: fork failed (instance %" PRIu32
@@ -120,7 +120,7 @@ static int stress_yield(const args_t *args)
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
 					pr_fail_err("sched_yield");
 				counters[i]++;
-			} while (g_keep_stressing_flag && (!max_ops_per_yielder || counters[i] < max_ops_per_yielder));
+			} while (keep_stressing_flag() && (!max_ops_per_yielder || counters[i] < max_ops_per_yielder));
 			_exit(EXIT_SUCCESS);
 		}
 	}

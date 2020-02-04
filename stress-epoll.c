@@ -117,7 +117,7 @@ static void MLOCKED_TEXT epoll_timer_handler(int sig)
 	(void)sig;
 
 	/* Cancel timer if we detect no more runs */
-	if (!g_keep_stressing_flag) {
+	if (!keep_stressing_flag()) {
 		struct itimerspec timer;
 
 		timer.it_value.tv_sec = 0;
@@ -146,7 +146,7 @@ static pid_t epoll_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag &&
+		if (keep_stressing_flag() &&
 		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 		return -1;
@@ -182,7 +182,7 @@ static int epoll_set_fd_nonblock(const int fd)
  */
 static void epoll_recv_data(const int fd)
 {
-	while (g_keep_stressing_flag) {
+	while (keep_stressing_flag()) {
 		char buf[8192];
 		ssize_t n;
 
@@ -294,7 +294,7 @@ static int epoll_client(
 		/* Cycle through the servers */
 		port_counter = (port_counter + 1) % max_servers;
 retry:
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 
 		if ((fd = socket(epoll_domain, SOCK_STREAM, 0)) < 0) {

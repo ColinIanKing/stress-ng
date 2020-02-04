@@ -130,7 +130,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 	const double threshold = 0.2;
 	size_t page_size = ctxt->args->page_size;
 
-	while (g_keep_stressing_flag) {
+	while (keep_stressing_flag()) {
 		double t_start;
 		uint8_t *ptr;
 		fd_set rfds;
@@ -146,7 +146,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		if (counter > OPS_PER_SYSFS_FILE)
 			shim_sched_yield();
 
-		if (!*path || !g_keep_stressing_flag)
+		if (!*path || !keep_stressing_flag())
 			break;
 
 		t_start = time_now();
@@ -168,7 +168,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		 */
 		while (i < (4096 * SYS_BUF_SZ)) {
 			ssize_t sz = 1 + (mwc32() % (sizeof(buffer) - 1));
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 			ret = read(fd, buffer, sz);
 			if (ret < 0)
@@ -442,7 +442,7 @@ static void stress_sys_dir(
 	mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int i, n;
 
-	if (!g_keep_stressing_flag)
+	if (!keep_stressing_flag())
 		return;
 
 	/* Don't want to go too deep */

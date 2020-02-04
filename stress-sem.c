@@ -67,7 +67,7 @@ static void *semaphore_posix_thrash(void *arg)
 	do {
 		int i;
 
-		for (i = 0; g_keep_stressing_flag && i < 1000; i++) {
+		for (i = 0; keep_stressing_flag() && i < 1000; i++) {
 			int value;
 
 			if (sem_getvalue(&sem, &value) < 0)
@@ -154,7 +154,7 @@ static int stress_sem(const args_t *args)
 			pr_fail_errno("pthread create", p_ret[i]);
 			break;
 		}
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		created = true;
 	}

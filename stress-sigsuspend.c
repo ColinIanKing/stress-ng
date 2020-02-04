@@ -75,7 +75,7 @@ static int stress_sigsuspend(const args_t *args)
 again:
 		pid[n] = fork();
 		if (pid[n] < 0) {
-			if (g_keep_stressing_flag && (errno == EAGAIN))
+			if (keep_stressing_flag() && (errno == EAGAIN))
 				goto again;
 			pr_fail_dbg("fork");
 			goto reap;
@@ -83,7 +83,7 @@ again:
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 
-			while (g_keep_stressing_flag) {
+			while (keep_stressing_flag()) {
 				(void)sigsuspend(&mask);
 				v_counters[n << CACHE_STRIDE_SHIFT]++;
 			}

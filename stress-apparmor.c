@@ -134,12 +134,12 @@ static void stress_apparmor_read(const char *path)
 	/*
 	 *  Multiple randomly sized reads
 	 */
-	while (g_keep_stressing_flag &&
+	while (keep_stressing_flag() &&
 	       apparmor_run &&
 	       (i < (4096 * APPARMOR_BUF_SZ))) {
 		ssize_t ret, sz = 1 + (mwc32() % sizeof(buffer));
 redo:
-		if (!g_keep_stressing_flag || !apparmor_run)
+		if (!keep_stressing_flag() || !apparmor_run)
 			break;
 		ret = read(fd, buffer, sz);
 		if (ret < 0) {
@@ -166,7 +166,7 @@ static void stress_apparmor_dir(
 	DIR *dp;
 	struct dirent *d;
 
-	if (!g_keep_stressing_flag || !apparmor_run)
+	if (!keep_stressing_flag() || !apparmor_run)
 		return;
 
 	/* Don't want to go too deep */
@@ -180,7 +180,7 @@ static void stress_apparmor_dir(
 	while ((d = readdir(dp)) != NULL) {
 		char name[PATH_MAX];
 
-		if (!g_keep_stressing_flag || !apparmor_run)
+		if (!keep_stressing_flag() || !apparmor_run)
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
@@ -220,7 +220,7 @@ static pid_t apparmor_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag &&
+		if (keep_stressing_flag() &&
 		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 		return -1;
@@ -228,7 +228,7 @@ again:
 	if (pid == 0) {
 		int ret = EXIT_SUCCESS;
 
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			goto abort;
 
 		if (stress_sighandler(args->name, SIGALRM,
@@ -238,7 +238,7 @@ again:
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
-		if (!g_keep_stressing_flag || !apparmor_run)
+		if (!keep_stressing_flag() || !apparmor_run)
 			goto abort;
 		ret = func(args->name, max_ops, counter);
 abort:
@@ -267,7 +267,7 @@ static int apparmor_stress_profiles(
 	do {
 		stress_apparmor_read(path);
 		(*counter)++;
-	} while (g_keep_stressing_flag &&
+	} while (keep_stressing_flag() &&
 		 apparmor_run &&
 		 (!max_ops || *counter < max_ops));
 
@@ -291,7 +291,7 @@ static int apparmor_stress_features(
 	do {
 		stress_apparmor_dir(path, true, 0);
 		(*counter)++;
-	} while (g_keep_stressing_flag &&
+	} while (keep_stressing_flag() &&
 		 apparmor_run &&
 		 (!max_ops || *counter < max_ops));
 
@@ -372,7 +372,7 @@ static int apparmor_stress_kernel_interface(
 		aa_kernel_interface_unref(kern_if);
 
 		(*counter)++;
-	} while (g_keep_stressing_flag &&
+	} while (keep_stressing_flag() &&
 		 apparmor_run &&
                  (!max_ops || *counter < max_ops));
 
@@ -620,7 +620,7 @@ static int apparmor_stress_corruption(
 		}
 		aa_kernel_interface_unref(kern_if);
 		(*counter)++;
-	} while (g_keep_stressing_flag &&
+	} while (keep_stressing_flag() &&
 		 apparmor_run &&
 		 (!max_ops || *counter < max_ops));
 

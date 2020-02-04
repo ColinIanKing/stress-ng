@@ -52,7 +52,7 @@ static int stress_mmapmany_child(const args_t *args, void *context)
 	do {
 		ssize_t i, n;
 
-		for (n = 0; g_keep_stressing_flag && (n < max); n++) {
+		for (n = 0; keep_stressing_flag() && (n < max); n++) {
 			if (!keep_stressing())
 				break;
 

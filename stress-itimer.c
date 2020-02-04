@@ -93,7 +93,7 @@ static void stress_itimer_set(struct itimerval *timer)
  */
 static bool HOT OPTIMIZE3 stress_itimer_keep_stressing(void)
 {
-        return (LIKELY(g_keep_stressing_flag) &&
+        return (LIKELY(keep_stressing_flag()) &&
                 LIKELY(!max_ops || (itimer_counter < max_ops)));
 }
 
@@ -119,13 +119,13 @@ static void stress_itimer_handler(int sig)
 	if ((itimer_counter & 65535) == 0)
 		if ((time_now() - start) > (double)g_opt_timeout)
 			goto cancel;
-	if (g_keep_stressing_flag) {
+	if (keep_stressing_flag()) {
 		stress_itimer_set(&timer);
 		return;
 	}
 
 cancel:
-	g_keep_stressing_flag = false;
+	keep_stressing_set_flag(false);
 	/* Cancel timer if we detect no more runs */
 	(void)memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);

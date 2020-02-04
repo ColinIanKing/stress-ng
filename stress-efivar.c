@@ -322,7 +322,7 @@ static int stress_efivar(const args_t *args)
 	}
 
 again:
-	if (!g_keep_stressing_flag)
+	if (!keep_stressing_flag())
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {

@@ -219,7 +219,7 @@ static int pr_msg_lockable(
 			if (abort_fails >= ABORT_FAILURES) {
 				if (!abort_msg_emitted) {
 					abort_msg_emitted = true;
-					g_keep_stressing_flag = false;
+					keep_stressing_set_flag(false);
 					(void)fprintf(fp, "info: %d failures "
 						"reached, aborting stress "
 						"process\n", ABORT_FAILURES);

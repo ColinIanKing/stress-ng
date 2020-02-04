@@ -166,7 +166,7 @@ static int stress_chmod(const args_t *args)
 			(void)shim_usleep(100000);
 #endif
 			/* Timed out, then give up */
-			if (!g_keep_stressing_flag) {
+			if (!keep_stressing_flag()) {
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}

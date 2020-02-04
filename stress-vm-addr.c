@@ -57,7 +57,7 @@ static const help_t help[] = {
  */
 static bool HOT OPTIMIZE3 keep_stressing_vm(const args_t *args)
 {
-	return (LIKELY(g_keep_stressing_flag) &&
+	return (LIKELY(keep_stressing_flag()) &&
 	        LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
 }
 
@@ -431,7 +431,7 @@ static int stress_vm_addr(const args_t *args)
 
 	pr_dbg("%s using method '%s'\n", args->name, context.vm_addr_method->name);
 
-	for (retries = 0; (retries < 100) && g_keep_stressing_flag; retries++) {
+	for (retries = 0; (retries < 100) && keep_stressing_flag(); retries++) {
 		context.bit_error_count = (uint64_t *)
 			mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -443,7 +443,7 @@ static int stress_vm_addr(const args_t *args)
 
 	/* Cannot allocate a single page for bit error counter */
 	if (context.bit_error_count == MAP_FAILED) {
-		if (g_keep_stressing_flag) {
+		if (keep_stressing_flag()) {
 			pr_err("%s: could not mmap bit error counter: "
 				"retry count=%zu, errno=%d (%s)\n",
 				args->name, retries, err, strerror(err));

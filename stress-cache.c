@@ -119,7 +119,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 			__builtin_ia32_sfence();			\
 		}							\
 		i = (i + 32769) & (mem_cache_size - 1);			\
-		if (!g_keep_stressing_flag)				\
+		if (!keep_stressing_flag())				\
 			break;						\
 	}
 #else
@@ -136,7 +136,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 			mfence();					\
 		}							\
 		i = (i + 32769) & (mem_cache_size - 1);			\
-		if (!g_keep_stressing_flag)				\
+		if (!keep_stressing_flag())				\
 			break;						\
 	}
 #endif
@@ -253,7 +253,7 @@ static int stress_cache(const args_t *args)
 				total += mem_cache[i] +
 					mem_cache[(mem_cache_size - 1) - i];
 				i = (i + 32769) % mem_cache_size;
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					break;
 			}
 		}

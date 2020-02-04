@@ -375,7 +375,7 @@ static void MLOCKED_TEXT stress_rlimit_handler(int signum)
 {
 	(void)signum;
 
-	g_keep_stressing_flag = 1;
+	keep_stressing_set_flag(false);
 	siglongjmp(jmp_env, 1);
 }
 

@@ -159,7 +159,7 @@ static void stress_sctp_client(
 		socklen_t addr_len = 0;
 		struct sctp_event_subscribe events;
 retry:
-		if (!g_keep_stressing_flag) {
+		if (!keep_stressing_flag()) {
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
 		}
@@ -369,7 +369,7 @@ static int stress_sctp(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		return EXIT_FAILURE;

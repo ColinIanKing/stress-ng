@@ -129,7 +129,7 @@ static int stress_malloc_child(const args_t *args, void *context)
 		 * some time and we should bail out before
 		 * exerting any more memory pressure
 		 */
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			goto abort;
 
 		if (addr[i]) {

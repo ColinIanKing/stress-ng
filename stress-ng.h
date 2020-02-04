@@ -3115,6 +3115,16 @@ extern pid_t g_pgrp;			/* proceess group leader */
 extern jmp_buf g_error_env;		/* parsing error env */
 extern put_val_t g_put_val;		/* sync data to somewhere */
 
+static inline bool HOT OPTIMIZE3 keep_stressing_flag(void)
+{
+	return g_keep_stressing_flag;
+}
+
+static inline void HOT OPTIMIZE3 keep_stressing_set_flag(const bool setting)
+{
+	g_keep_stressing_flag = setting;
+}
+
 /*
  *  keep_stressing()
  *      returns true if we can keep on running a stressor
@@ -3126,6 +3136,7 @@ static inline bool HOT OPTIMIZE3 __keep_stressing(const args_t *args)
 }
 
 #define keep_stressing()	__keep_stressing(args)
+
 
 /*
  *  stressor option value handling

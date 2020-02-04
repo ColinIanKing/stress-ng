@@ -113,7 +113,7 @@ static void dnotify_exercise(
 
 	/* Wait for up to 1 second for event */
 	while ((i < 1000) && (dnotify_fd == -1)) {
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			goto cleanup;
 		i++;
 		(void)shim_usleep(1000);
@@ -240,7 +240,7 @@ static int dnotify_access_helper(
 
 	/* Just want to force an access */
 do_access:
-	if (g_keep_stressing_flag && (read(fd, buffer, 1) < 0)) {
+	if (keep_stressing_flag() && (read(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_access;
 		pr_err("%s: cannot read file %s: errno=%d (%s)\n",
@@ -282,7 +282,7 @@ static int dnotify_modify_helper(
 		goto remove;
 	}
 do_modify:
-	if (g_keep_stressing_flag && (write(fd, buffer, 1) < 0)) {
+	if (keep_stressing_flag() && (write(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
 		pr_err("%s: cannot write to file %s: errno=%d (%s)\n",
@@ -418,7 +418,7 @@ static int stress_dnotify(const args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 	do {
-		for (i = 0; g_keep_stressing_flag && dnotify_stressors[i].func; i++)
+		for (i = 0; keep_stressing_flag() && dnotify_stressors[i].func; i++)
 			dnotify_stressors[i].func(args, pathname);
 		inc_counter(args);
 	} while (keep_stressing());

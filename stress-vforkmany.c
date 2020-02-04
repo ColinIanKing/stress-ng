@@ -80,7 +80,7 @@ static int stress_vforkmany(const args_t *args)
 	*terminate = false;
 
 fork_again:
-	if (!g_keep_stressing_flag)
+	if (!keep_stressing_flag())
 		goto tidy;
 	chpid = fork();
 	if (chpid < 0) {
@@ -115,7 +115,7 @@ fork_again:
 			if (waste != MAP_FAILED)
 				break;
 
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				_exit(0);
 
 			waste_size >>= 1;
@@ -141,7 +141,7 @@ vfork_again:
 			 * of the loop if we've run out of run time
 			 */
 			if (*terminate) {
-				g_keep_stressing_flag = false;
+				keep_stressing_set_flag(false);
 				break;
 			}
 			inc_counter(args);

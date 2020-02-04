@@ -64,7 +64,7 @@ static int stress_sigrt(const args_t *args)
 again:
 		pids[i] = fork();
 		if (pids[i] < 0) {
-			if (g_keep_stressing_flag && (errno == EAGAIN))
+			if (keep_stressing_flag() && (errno == EAGAIN))
 				goto again;
 			pr_fail_dbg("fork");
 			goto reap;
@@ -79,7 +79,7 @@ again:
 			for (i = 0; i < MAX_RTPIDS; i++)
 				(void)sigaddset(&mask, i + SIGRTMIN);
 
-			while (g_keep_stressing_flag) {
+			while (keep_stressing_flag()) {
 				(void)memset(&info, 0, sizeof info);
 
 				if (sigwaitinfo(&mask, &info) < 0) {

@@ -170,7 +170,7 @@ static void NORETURN waste_resources(
 
 	(void)memset(&info, 0, sizeof(info));
 
-	for (i = 0; g_keep_stressing_flag && (i < MAX_LOOPS); i++) {
+	for (i = 0; keep_stressing_flag() && (i < MAX_LOOPS); i++) {
 #if defined(HAVE_MEMFD_CREATE)
 		char name[32];
 #endif
@@ -240,19 +240,19 @@ static void NORETURN waste_resources(
 
 		if ((mwc8() & 0xf) == 0) {
 			info[i].m_malloc = calloc(1, page_size);
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 		}
 		if ((mwc8() & 0xf) == 0) {
 			info[i].m_sbrk = shim_sbrk(page_size);
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 		}
 		if ((mwc8() & 0xf) == 0) {
 			info[i].m_mmap_size = page_size;
 			info[i].m_mmap = mmap(NULL, info[i].m_mmap_size,
 				PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 			if (info[i].m_mmap != MAP_FAILED) {
 				size_t locked = STRESS_MINIMUM(mlock_size, info[i].m_mmap_size);
@@ -275,26 +275,26 @@ static void NORETURN waste_resources(
 #else
 		(void)pipe_size;
 #endif
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		info[i].fd_open = open("/dev/null", O_RDONLY | flag);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 #if defined(HAVE_EVENTFD)
 		info[i].fd_ev = eventfd(0, 0);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 #endif
 #if defined(HAVE_MEMFD_CREATE)
 		(void)snprintf(name, sizeof(name), "memfd-%u-%zu", pid, i);
 		info[i].fd_memfd = shim_memfd_create(name, 0);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 #endif
 		info[i].fd_sock = socket(
 			domains[mwc32() % SIZEOF_ARRAY(domains)],
 			types[mwc32() % SIZEOF_ARRAY(types)], 0);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 
 		if (socketpair(AF_UNIX, SOCK_STREAM, 0,
@@ -305,13 +305,13 @@ static void NORETURN waste_resources(
 
 #if defined(HAVE_USERFAULTFD)
 		info[i].fd_uf = shim_userfaultfd(0);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 #endif
 #if defined(O_TMPFILE)
 		info[i].fd_tmp = open("/tmp", O_TMPFILE | O_RDWR | flag,
 				      S_IRUSR | S_IWUSR);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		if (info[i].fd_tmp != -1) {
 			size_t sz = page_size * mwc32();
@@ -380,7 +380,7 @@ static void NORETURN waste_resources(
 			info[i].fd_inotify = -1;
 			info[i].wd_inotify = -1;
 		}
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 #endif
 #if defined(HAVE_PTSNAME)
@@ -392,7 +392,7 @@ static void NORETURN waste_resources(
 			if (slavename)
 				info[i].pty_slave = open(slavename, O_RDWR | flag);
 		}
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 #endif
 
@@ -401,7 +401,7 @@ static void NORETURN waste_resources(
 			info[i].pthread_ret =
 				pthread_create(&info[i].pthread, NULL,
 					stress_pthread_func, NULL);
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 		}
 #endif
@@ -418,7 +418,7 @@ static void NORETURN waste_resources(
 			sevp.sigev_value.sival_ptr = &info[i].timerid;
 			info[i].timerok =
 				(timer_create(CLOCK_REALTIME, &sevp, &info[i].timerid) == 0);
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 		}
 #endif
@@ -426,7 +426,7 @@ static void NORETURN waste_resources(
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_SEM_POSIX)
 		info[i].semok = (sem_init(&info[i].sem, 1, 1) >= 0);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 #endif
 
@@ -434,7 +434,7 @@ static void NORETURN waste_resources(
 		key_t sem_key = (key_t)mwc32();
 		info[i].sem_id = semget(sem_key, 1,
 			IPC_CREAT | S_IRUSR | S_IWUSR);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 #endif
 
@@ -443,7 +443,7 @@ static void NORETURN waste_resources(
     defined(HAVE_SYS_MSG_H)
 		info[i].msgq_id = msgget(IPC_PRIVATE,
 				S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 #endif
 
@@ -462,7 +462,7 @@ static void NORETURN waste_resources(
 
 		info[i].mq = mq_open(info[i].mq_name,
 			O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR, &attr);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 #endif
 #if defined(HAVE_PKEY_ALLOC) &&	\
@@ -475,7 +475,7 @@ static void NORETURN waste_resources(
 			sleep(10);
 			_exit(0);
 		}
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 	}
 

@@ -94,7 +94,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_add(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] + b[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -121,7 +121,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_add(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[i][j][k] + b[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -148,7 +148,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_sub(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] - b[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -175,7 +175,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_sub(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[i][j][k] + b[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -204,7 +204,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_trans(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[k][j][i];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -233,7 +233,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_trans(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[k][j][i];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -263,7 +263,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_mult(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = v * a[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -293,7 +293,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_mult(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = v * a[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -323,7 +323,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_div(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] / v;
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -353,7 +353,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_div(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[i][j][k] / v;
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -381,7 +381,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_hadamard(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k] * b[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -409,7 +409,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_hadamard(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[i][j][k] * b[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -440,7 +440,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_frobenius(
 			for (k = 0; k < n; k++) {
 				sum += a[i][j][k] * b[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -472,7 +472,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_frobenius(
 			for (i = 0; i < n; i++) {
 				sum += a[i][j][k] * b[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -502,7 +502,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_copy(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = a[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -531,7 +531,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_copy(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = a[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -558,7 +558,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_mean(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = (a[i][j][k] + b[i][j][k]) / 2.0;
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -585,7 +585,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_mean(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = (a[i][j][k] + b[i][j][k]) / 2.0;
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -615,7 +615,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_zero(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = 0.0;
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -645,7 +645,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_zero(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = 0.0;
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -675,7 +675,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_negate(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = -a[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -705,7 +705,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_negate(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = -a[i][j][k];
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -735,7 +735,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_identity(
 			for (k = 0; k < n; k++) {
 				r[i][j][k] = ((i == j) && (j == k)) ? 1.0 : 0.0;
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}
@@ -765,7 +765,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_identity(
 			for (i = 0; i < n; i++) {
 				r[i][j][k] = ((i == j) && (j == k)) ? 1.0 : 0.0;
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return;
 		}
 	}

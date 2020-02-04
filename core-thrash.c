@@ -206,7 +206,7 @@ int thrash_start(void)
 		ret = stress_set_sched(getpid(), SCHED_RR, 10, true);
 		(void)ret;
 #endif
-		while (g_keep_stressing_flag) {
+		while (keep_stressing_flag()) {
 			if ((mwc8() & 0x3f) == 0)
 				pagein_all_procs();
 			compact_memory();

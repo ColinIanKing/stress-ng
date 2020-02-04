@@ -136,7 +136,7 @@ static int stress_readahead(const args_t *args)
 		size_t j;
 		off_t o = i / BUF_SIZE;
 seq_wr_retry:
-		if (!g_keep_stressing_flag) {
+		if (!keep_stressing_flag()) {
 			pr_inf("%s: test expired during test setup "
 				"(writing of data file)\n", args->name);
 			rc = EXIT_SUCCESS;

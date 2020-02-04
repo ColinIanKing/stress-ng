@@ -76,7 +76,7 @@ static pid_t stress_lease_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag &&
+		if (keep_stressing_flag() &&
 		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 		return -1;
@@ -161,7 +161,7 @@ static int stress_lease(const args_t *args)
 			goto reap;
 		}
 		while (fcntl(fd, F_SETLEASE, F_WRLCK) < 0) {
-			if (!g_keep_stressing_flag) {
+			if (!keep_stressing_flag()) {
 				(void)close(fd);
 				goto reap;
 			}

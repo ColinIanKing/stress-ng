@@ -154,7 +154,7 @@ static void stress_socket_client(
 
 		(void)memset(fds, 0, sizeof(fds));
 retry:
-		if (!g_keep_stressing_flag) {
+		if (!keep_stressing_flag()) {
 			ret = EXIT_SUCCESS;
 			goto finish;
 		}
@@ -179,7 +179,7 @@ retry:
 			goto retry;
 		}
 
-		if (!g_keep_stressing_flag) {
+		if (!keep_stressing_flag()) {
 			ret = EXIT_SUCCESS;
 			goto finish;
 		}
@@ -344,7 +344,7 @@ again:
 	pid = fork();
 	if (pid < 0) {
 		if (errno == EAGAIN) {
-			if (g_keep_stressing_flag)
+			if (keep_stressing_flag())
 				goto again;
 			return EXIT_NO_RESOURCE;
 		}

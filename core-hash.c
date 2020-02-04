@@ -126,7 +126,7 @@ stress_hash_table_t *stress_hash_create(const size_t n)
 	if (n == 0)
 		return NULL;
 
-	hash_table = malloc(sizeof(*hash_table));
+	hash_table = calloc(1, sizeof(*hash_table));
 	if (!hash_table)
 		return NULL;
 
@@ -201,7 +201,7 @@ stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table, const char *str)
 	hash->next = hash_table->table[h];
 	hash_table->table[h] = hash;
 	(void)memcpy(HASH_STR(hash), str, len);
-	
+
 	return hash;
 }
 

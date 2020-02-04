@@ -95,7 +95,7 @@ static void *stress_membarrier_thread(void *parg)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
-	while (keep_running && g_keep_stressing_flag) {
+	while (keep_running && keep_stressing_flag()) {
 		if (stress_membarrier_exercise(args) < 0)
 			break;
 	}

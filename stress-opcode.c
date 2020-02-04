@@ -287,7 +287,7 @@ static int stress_opcode(const args_t *args)
 		(void)mwc32();
 		op += 1024;
 again:
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		pid = fork();
 		if (pid < 0) {

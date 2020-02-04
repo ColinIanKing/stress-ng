@@ -211,7 +211,7 @@ static int stress_shm_sysv_child(
 				sz = shmall;
 			if ((freemem > page_size) && sz > freemem)
 				sz = freemem;
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				goto reap;
 
 			for (count = 0; count < KEY_GET_RETRIES; count++) {
@@ -227,7 +227,7 @@ static int stress_shm_sysv_child(
 				do {
 					size_t j;
 
-					if (!g_keep_stressing_flag)
+					if (!keep_stressing_flag())
 						goto reap;
 
 					/* Get a unique random key */
@@ -238,7 +238,7 @@ static int stress_shm_sysv_child(
 							break;
 						}
 					}
-					if (!g_keep_stressing_flag)
+					if (!keep_stressing_flag())
 						goto reap;
 
 				} while (!unique);
@@ -444,7 +444,7 @@ static int stress_shm_sysv(const args_t *args)
 
 	orig_sz = sz = shm_sysv_bytes & ~(page_size - 1);
 
-	while (g_keep_stressing_flag && retry) {
+	while (keep_stressing_flag() && retry) {
 		if (pipe(pipefds) < 0) {
 			pr_fail_dbg("pipe");
 			return EXIT_FAILURE;
@@ -476,7 +476,7 @@ fork_again:
 			for (i = 0; i < (ssize_t)MAX_SHM_SYSV_SEGMENTS; i++)
 				shm_ids[i] = -1;
 
-			while (g_keep_stressing_flag) {
+			while (keep_stressing_flag()) {
 				shm_msg_t 	msg;
 				ssize_t n;
 

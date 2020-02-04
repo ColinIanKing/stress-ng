@@ -106,7 +106,7 @@ static int stress_mknod(const args_t *args)
 			inc_counter(args);
 		}
 		stress_mknod_tidy(args, n);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		(void)sync();
 	} while (keep_stressing());

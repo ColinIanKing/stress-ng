@@ -161,7 +161,7 @@ static void HOT TARGET_CLONES stress_cpu_sqrt(const char *name)
 		    (uint64_t)rint(r) != rnd)) {
 			pr_fail("%s: sqrt error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 		}
 	}
@@ -740,7 +740,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 						name, i, j, (int)idct[i][j]);
 				}
 			}
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				return;
 		}
 	}
@@ -2557,7 +2557,7 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 
 			for (j = 0; j < -cpu_load_slice; j++) {
 				(void)func(args->name);
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					break;
 				inc_counter(args);
 			}
@@ -2568,7 +2568,7 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 			do {
 				(void)func(args->name);
 				t2 = time_now();
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					break;
 				inc_counter(args);
 			} while (t2 < slice_end);
@@ -2597,7 +2597,7 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 					goto poll_time;
 				}
 				t2 = ts.tv_sec + ((double)ts.tv_nsec) / 1000000000.0;
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					break;
 				inc_counter(args);
 			} while (t2 < slice_end);
@@ -2610,7 +2610,7 @@ poll_time:
 			do {
 				(void)func(args->name);
 				t2 = time_now();
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					break;
 				inc_counter(args);
 			} while (t2 < slice_end);

@@ -101,7 +101,7 @@ static int stress_chdir(const args_t *args)
 			goto abort;
 		}
 		fds[i] = open(paths[i], flags);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			goto done;
 	}
 

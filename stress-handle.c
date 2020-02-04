@@ -114,7 +114,7 @@ static int stress_handle(const args_t *args)
 	}
 
 again:
-	if (!g_keep_stressing_flag)
+	if (!keep_stressing_flag())
 		goto tidy;
 	pid = fork();
 	if (pid < 0) {

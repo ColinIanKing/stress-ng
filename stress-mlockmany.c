@@ -167,7 +167,7 @@ unmap:
 			if (pid > -1)
 				(void)setpgid(pids[n], g_pgrp);
 			pids[n] = pid;
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 		}
 		for (i = 0; i < n; i++) {

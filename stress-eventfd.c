@@ -89,7 +89,7 @@ static int stress_eventfd(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag &&
+		if (keep_stressing_flag() &&
                     ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 		pr_fail_dbg("fork");
@@ -100,12 +100,12 @@ again:
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
-		while (g_keep_stressing_flag) {
+		while (keep_stressing_flag()) {
 			uint64_t val;
 			ssize_t ret;
 
 			for (;;) {
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					goto exit_child;
 				ret = read(fd1, &val, sizeof(val));
 				if (ret < 0) {
@@ -124,7 +124,7 @@ again:
 			val = 1;
 
 			for (;;) {
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					goto exit_child;
 				ret = write(fd2, &val, sizeof(val));
 				if (ret < 0) {
@@ -153,7 +153,7 @@ exit_child:
 			int ret;
 
 			for (;;) {
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					goto exit_parent;
 
 				ret = write(fd1, &val, sizeof(val));
@@ -172,7 +172,7 @@ exit_child:
 			}
 
 			for (;;) {
-				if (!g_keep_stressing_flag)
+				if (!keep_stressing_flag())
 					goto exit_parent;
 
 				ret = read(fd2, &val, sizeof(val));

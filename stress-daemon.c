@@ -74,7 +74,7 @@ static void daemons(const args_t *args, const int fd)
 	if ((fds[2] = dup(0)) < 0)
 		goto err1;
 
-	while (g_keep_stressing_flag) {
+	while (keep_stressing_flag()) {
 		pid_t pid;
 
 		pid = fork();

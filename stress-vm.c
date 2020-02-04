@@ -116,7 +116,7 @@ static const vm_madvise_info_t vm_madvise_info[] = {
  */
 static bool HOT OPTIMIZE3 keep_stressing_vm(const args_t *args)
 {
-	return (LIKELY(g_keep_stressing_flag) &&
+	return (LIKELY(keep_stressing_flag()) &&
 	        LIKELY(!args->max_ops || ((get_counter(args) >> VM_BOGO_SHIFT) < args->max_ops)));
 }
 
@@ -352,7 +352,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 
@@ -368,7 +368,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 
@@ -392,7 +392,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 	mwc_seed(w, z);
@@ -400,7 +400,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 		uint64_t val = mwc64();
 		if (UNLIKELY(*--ptr != ~val))
 			bit_errors++;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 
@@ -438,7 +438,7 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 	for (i = 0; i < stride; i++) {
 		for (ptr = buf + i; ptr < buf_end; ptr += stride) {
 			*ptr = pattern;
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				goto abort;
 		}
 		for (ptr = buf; ptr < buf_end; ptr += stride) {
@@ -448,7 +448,7 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 				if (UNLIKELY(max_ops && c >= max_ops))
 					goto abort;
 			}
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				goto abort;
 			ptr++;
 			for (j = i + 1; j < stride && ptr < buf_end; j++) {
@@ -457,7 +457,7 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 				if (UNLIKELY(max_ops && c >= max_ops))
 					goto abort;
 			}
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				goto abort;
 		}
 		inject_random_bit_errors(buf, sz);
@@ -465,7 +465,7 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 		for (ptr = buf + i; ptr < buf_end; ptr += stride) {
 			if (UNLIKELY(*ptr != pattern))
 				bit_errors++;
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				return bit_errors;
 		}
 	}
@@ -505,7 +505,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_data(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			break;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 	stress_vm_check("walking one (data)", bit_errors);
@@ -542,7 +542,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_data(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			break;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 	stress_vm_check("walking zero (data)", bit_errors);
@@ -590,7 +590,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			break;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 	stress_vm_check("walking one (address)", bit_errors);
@@ -644,7 +644,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			break;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 	stress_vm_check("walking zero (address)", bit_errors);
@@ -673,7 +673,7 @@ static size_t TARGET_CLONES stress_vm_gray(
 	uint64_t c;
 
 	for (c = c_orig, v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			return 0;
 		*ptr = (v >> 1) ^ v;
 		c++;
@@ -684,7 +684,7 @@ static size_t TARGET_CLONES stress_vm_gray(
 	inject_random_bit_errors(buf, sz);
 
 	for (c = c_orig, v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 		if (UNLIKELY(*ptr != ((v >> 1) ^ v)))
 			bit_errors++;
@@ -859,7 +859,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 	/* Reverse swaps */
@@ -878,7 +878,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 
@@ -896,7 +896,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 				bit_errors++;
 			p++;
 		}
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 abort:
@@ -943,7 +943,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 
@@ -962,7 +962,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 		bit_errors += (*(ptr + 5) != val);
 		bit_errors += (*(ptr + 6) != val);
 		bit_errors += (*(ptr + 7) != val);
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 abort:
@@ -1010,7 +1010,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -1027,7 +1027,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -1047,7 +1047,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 		bit_errors += (*(ptr + 5) != val);
 		bit_errors += (*(ptr + 6) != val);
 		bit_errors += (*(ptr + 7) != val);
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 abort:
@@ -1102,7 +1102,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -1121,7 +1121,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 			c++;
 			if (UNLIKELY(max_ops && c >= max_ops))
 				goto abort;
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				goto abort;
 		}
 		(void)mincore_touch_pages(buf, sz);
@@ -1148,7 +1148,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 		bit_errors += (*(ptr + 6) != val);
 		ROR8(val);
 		bit_errors += (*(ptr + 7) != val);
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 
@@ -1192,7 +1192,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 		bit_errors += stress_vm_count_bits(*(ptr + 6));
 		bit_errors += stress_vm_count_bits(*(ptr + 7));
 
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 
@@ -1211,7 +1211,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 		bit_errors += stress_vm_count_bits(~*(ptr + 6));
 		bit_errors += stress_vm_count_bits(~*(ptr + 7));
 
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 abort:
@@ -1270,7 +1270,7 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 		bits_set += stress_vm_count_bits(*(ptr + 6));
 		bits_set += stress_vm_count_bits(*(ptr + 7));
 
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 
@@ -1331,7 +1331,7 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 		bits_set += stress_vm_count_bits(~(*(ptr + 5)));
 		bits_set += stress_vm_count_bits(~(*(ptr + 6)));
 		bits_set += stress_vm_count_bits(~(*(ptr + 7)));
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 
@@ -1378,7 +1378,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 
@@ -1394,7 +1394,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 	(void)mincore_touch_pages(buf, sz);
@@ -1409,7 +1409,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 		bit_errors += (*(ptr + 5) != val);
 		bit_errors += (*(ptr + 6) != val);
 		bit_errors += (*(ptr + 7) != val);
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 
@@ -1454,7 +1454,7 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
 
@@ -1471,7 +1471,7 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 		bit_errors += stress_vm_count_bits(*(ptr + 5) ^ mwc64());
 		bit_errors += stress_vm_count_bits(*(ptr + 6) ^ mwc64());
 		bit_errors += stress_vm_count_bits(*(ptr + 7) ^ mwc64());
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 abort:
@@ -1520,7 +1520,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 			c++;
 			if (UNLIKELY(max_ops && c >= max_ops))
 				goto abort;
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				goto abort;
 		}
 	}
@@ -1577,7 +1577,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 			c++;
 			if (UNLIKELY(max_ops && c >= max_ops))
 				goto abort;
-			if (UNLIKELY(!g_keep_stressing_flag))
+			if (UNLIKELY(!keep_stressing_flag()))
 				goto abort;
 		}
 	}
@@ -1586,7 +1586,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 
 	for (i = 0; i < sz; i++) {
 		bit_errors += 8 - stress_vm_count_bits(buf[i]);
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 abort:
@@ -1629,7 +1629,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		 *  memory and cache stalls
 		 */
 		ptr[j % sz] &= ((i >> 1) ^ i);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			goto abort;
 		c++;
 		if (max_ops && c >= max_ops)
@@ -1642,7 +1642,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		 *  memory and cache stalls
 		 */
 		ptr[j % sz] &= ~((i >> 1) ^ i);
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
@@ -1653,7 +1653,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 
 	for (i = 0; i < sz; i++) {
 		bit_errors += stress_vm_count_bits(buf[i]);
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 abort:
@@ -1696,7 +1696,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		 *  memory and cache stalls
 		 */
 		ptr[j % sz] |= ((i >> 1) ^ i);
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
@@ -1710,7 +1710,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		 *  memory and cache stalls
 		 */
 		ptr[j % sz] |= ~((i >> 1) ^ i);
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
@@ -1721,7 +1721,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 
 	for (i = 0; i < sz; i++) {
 		bit_errors += 8 - stress_vm_count_bits(buf[i]);
-		if (UNLIKELY(!g_keep_stressing_flag))
+		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
 abort:
@@ -1783,7 +1783,7 @@ static size_t TARGET_CLONES stress_vm_write64(
 		*ptr++ = v;
 		*ptr++ = v;
 		i++;
-		if (UNLIKELY(!g_keep_stressing_flag || (max_ops && i >= max_ops)))
+		if (UNLIKELY(!keep_stressing_flag() || (max_ops && i >= max_ops)))
 			break;
 	}
 	add_counter(args, i);
@@ -1843,7 +1843,7 @@ static size_t TARGET_CLONES stress_vm_read64(
 		(void)*(ptr++);
 
 		i++;
-		if (UNLIKELY(!g_keep_stressing_flag || (max_ops && i >= max_ops)))
+		if (UNLIKELY(!keep_stressing_flag() || (max_ops && i >= max_ops)))
 			break;
 	}
 	add_counter(args, i);
@@ -2034,7 +2034,7 @@ static int stress_vm_child(const args_t *args, void *ctxt)
 			break;
 		}
 		if (!vm_keep || (buf == NULL)) {
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				return EXIT_SUCCESS;
 			buf = (uint8_t *)mmap(NULL, buf_sz,
 				PROT_READ | PROT_WRITE,
@@ -2095,7 +2095,7 @@ static int stress_vm(const args_t *args)
 
 	pr_dbg("%s using method '%s'\n", args->name, context.vm_method->name);
 
-	for (retries = 0; (retries < 100) && g_keep_stressing_flag; retries++) {
+	for (retries = 0; (retries < 100) && keep_stressing_flag(); retries++) {
 		context.bit_error_count = (uint64_t *)
 			mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -2107,7 +2107,7 @@ static int stress_vm(const args_t *args)
 
 	/* Cannot allocate a single page for bit error counter */
 	if (context.bit_error_count == MAP_FAILED) {
-		if (g_keep_stressing_flag) {
+		if (keep_stressing_flag()) {
 			pr_err("%s: could not mmap bit error counter: "
 				"retry count=%zu, errno=%d (%s)\n",
 				args->name, retries, err, strerror(err));

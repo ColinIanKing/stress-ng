@@ -147,7 +147,7 @@ static int stress_mq(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag &&
+		if (keep_stressing_flag() &&
 		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 		pr_fail_dbg("fork");
@@ -166,7 +166,7 @@ again:
 
 		(void)memset(&values, 0, sizeof(values));
 
-		while (g_keep_stressing_flag) {
+		while (keep_stressing_flag()) {
 			uint64_t i = 0;
 
 			for (;;) {

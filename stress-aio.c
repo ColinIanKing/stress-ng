@@ -138,7 +138,7 @@ static int issue_aio_request(
 	const int request,
 	int (*aio_func)(struct aiocb *aiocbp) )
 {
-	while (g_keep_stressing_flag) {
+	while (keep_stressing_flag()) {
 		int ret;
 
 		io_req->request = request;

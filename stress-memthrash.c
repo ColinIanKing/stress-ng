@@ -521,13 +521,13 @@ mmap_retry:
 #if defined(MAP_POPULATE)
 		flags &= ~MAP_POPULATE;	/* Less aggressive, more OOMable */
 #endif
-		if (!g_keep_stressing_flag) {
+		if (!keep_stressing_flag()) {
 			pr_dbg("%s: mmap failed: %d %s\n",
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
 		(void)shim_usleep(100000);
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			goto reap_mem;
 		goto mmap_retry;
 	}
@@ -543,7 +543,7 @@ mmap_retry:
 			pr_fail_errno("pthread create", ret[i]);
 			goto reap;
 		}
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			goto reap;
 	}
 	/* Wait for SIGALRM or SIGINT/SIGHUP etc */

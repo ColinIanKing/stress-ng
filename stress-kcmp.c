@@ -65,7 +65,7 @@ struct kcmp_epoll_slot {
 		if (errno != EINVAL)				\
 			pr_fail_err("kcmp: " # type);		\
 	}							\
-	if (!g_keep_stressing_flag)				\
+	if (!keep_stressing_flag())				\
 		break;						\
 }
 
@@ -87,7 +87,7 @@ struct kcmp_epoll_slot {
 			args->name, rc, ret);			\
 		}						\
 	}							\
-	if (!g_keep_stressing_flag)				\
+	if (!keep_stressing_flag())				\
 		break;						\
 }
 
@@ -166,7 +166,7 @@ static int stress_kcmp(const args_t *args)
 again:
 	pid1 = fork();
 	if (pid1 < 0) {
-		if (g_keep_stressing_flag &&
+		if (keep_stressing_flag() &&
 		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 
@@ -182,7 +182,7 @@ again:
 		stress_parent_died_alarm();
 
 		/* Child */
-		while (g_keep_stressing_flag)
+		while (keep_stressing_flag())
 			(void)pause();
 
 		/* will never get here */

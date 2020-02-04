@@ -655,7 +655,7 @@ static int stress_af_alg(const args_t *args)
 			break;
 
 		retries--;
-		if ((!g_keep_stressing_flag) || (retries < 0) || (errno != EAFNOSUPPORT)) {
+		if ((!keep_stressing_flag()) || (retries < 0) || (errno != EAFNOSUPPORT)) {
 			if (errno == EAFNOSUPPORT) {
 				/*
 				 *  If we got got here, the protocol is not supported

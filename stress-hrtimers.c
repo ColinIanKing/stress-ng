@@ -59,7 +59,7 @@ static void stress_hrtimers_set(struct itimerspec *timer)
  */
 static bool HOT OPTIMIZE3 stress_hrtimers_keep_stressing(void)
 {
-        return (LIKELY(g_keep_stressing_flag) &&
+        return (LIKELY(keep_stressing_flag()) &&
                 LIKELY(!max_ops || ((*timer_counter) < max_ops)));
 }
 
@@ -89,7 +89,7 @@ static void MLOCKED_TEXT stress_hrtimers_handler(int sig)
 	return;
 
 cancel:
-	g_keep_stressing_flag = false;
+	keep_stressing_set_flag(false);
 	/* Cancel timer if we detect no more runs */
 	(void)memset(&timer, 0, sizeof(timer));
 	(void)timer_settime(timerid, 0, &timer, NULL);

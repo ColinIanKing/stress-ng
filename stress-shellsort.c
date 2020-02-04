@@ -220,7 +220,7 @@ static int stress_shellsort(const args_t *args)
 				}
 			}
 		}
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 
 		/* Reverse sort */
@@ -239,7 +239,7 @@ static int stress_shellsort(const args_t *args)
 				}
 			}
 		}
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		/* And re-order by byte compare */
 		if (shellsort(data, n * 4, sizeof(uint8_t), stress_shellsort_cmp_3) < 0) {
@@ -263,7 +263,7 @@ static int stress_shellsort(const args_t *args)
 				}
 			}
 		}
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 
 		inc_counter(args);

@@ -309,7 +309,7 @@ static int stress_dentry(const args_t *args)
 		stress_dentry_unlink(args, n, dentry_order);
 		stress_dentry_misc(dir_path);
 
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		(void)sync();
 	} while (keep_stressing());

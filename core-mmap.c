@@ -40,7 +40,7 @@ void mmap_set(
 	uint8_t *ptr = buf;
 
 	for (i = 0; i < sz; i += page_size) {
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		for (j = 0; j < page_size; j++)
 			*ptr++ = val++;
@@ -62,7 +62,7 @@ int mmap_check(
 	uint8_t *ptr = buf;
 
 	for (i = 0; i < sz; i += page_size) {
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		for (j = 0; j < page_size; j++)
 			if (*ptr++ != val++)

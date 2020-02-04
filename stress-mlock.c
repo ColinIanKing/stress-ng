@@ -95,7 +95,7 @@ static int stress_mlock_child(const args_t *args, void *context)
 	}
 
 	do {
-		for (n = 0; g_keep_stressing_flag && (n < max); n++) {
+		for (n = 0; keep_stressing_flag() && (n < max); n++) {
 			int ret;
 			if (!keep_stressing())
 				break;
@@ -158,7 +158,7 @@ static int stress_mlock_child(const args_t *args, void *context)
 		(void)shim_mlockall(MCL_ONFAULT);
 #endif
 #endif
-		for (n = 0; g_keep_stressing_flag && (n < max); n++) {
+		for (n = 0; keep_stressing_flag() && (n < max); n++) {
 			if (!keep_stressing())
 				break;
 

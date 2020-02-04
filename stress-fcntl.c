@@ -597,7 +597,7 @@ static int stress_fcntl(const args_t *args)
 		} else {
 			break;
 		}
-	} while (g_keep_stressing_flag && ++retries < 100);
+	} while (keep_stressing_flag() && ++retries < 100);
 
 	if (fd < 0 || retries >= 100) {
 		pr_err("%s: creat: file %s took %d "

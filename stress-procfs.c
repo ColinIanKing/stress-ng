@@ -113,7 +113,7 @@ static inline void stress_proc_rw(
 		(void)shim_strlcpy(path, proc_path, sizeof(path));
 		(void)shim_pthread_spin_unlock(&lock);
 
-		if (!*path || !g_keep_stressing_flag)
+		if (!*path || !keep_stressing_flag())
 			break;
 
 		t_start = time_now();
@@ -162,7 +162,7 @@ static inline void stress_proc_rw(
 		 */
 		while (i < (4096 * PROC_BUF_SZ)) {
 			ssize_t sz = 1 + (mwc32() % sizeof(buffer));
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				break;
 			ret = read(fd, buffer, sz);
 			if (ret < 0)
@@ -317,7 +317,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
 		return &nowt;
 
-	while (g_keep_stressing_flag)
+	while (keep_stressing_flag())
 		stress_proc_rw(ctxt, -1);
 
 	return &nowt;
@@ -338,7 +338,7 @@ static void stress_proc_dir(
 	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
 	int i, n;
 
-	if (!g_keep_stressing_flag)
+	if (!keep_stressing_flag())
 		return;
 
 	/* Don't want to go too deep */
@@ -361,7 +361,7 @@ static void stress_proc_dir(
 		char tmp[PATH_MAX];
 		struct dirent *d = dlist[i];
 
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;

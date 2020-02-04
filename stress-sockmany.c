@@ -83,7 +83,7 @@ static int stress_sockmany_client(
 			int retries = 0;
 			socklen_t addr_len = 0;
 retry:
-			if (!g_keep_stressing_flag) {
+			if (!keep_stressing_flag()) {
 				stress_sockmany_cleanup(fds, i);
 				break;
 			}
@@ -258,7 +258,7 @@ static void stress_sockmany_sigpipe_handler(int signum)
 {
 	(void)signum;
 
-	g_keep_stressing_flag = false;
+	keep_stressing_set_flag(false);
 }
 
 /*
@@ -284,7 +284,7 @@ static int stress_sockmany(const args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (g_keep_stressing_flag && (errno == EAGAIN))
+		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
 		pr_fail_dbg("fork");
 		rc = EXIT_FAILURE;

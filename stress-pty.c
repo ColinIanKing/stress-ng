@@ -115,7 +115,7 @@ static int stress_pty(const args_t *args)
 					}
 				}
 			}
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				goto clean;
 		}
 		/*
@@ -260,7 +260,7 @@ static int stress_pty(const args_t *args)
 			}
 #endif
 
-			if (!g_keep_stressing_flag)
+			if (!keep_stressing_flag())
 				goto clean;
 		}
 clean:

@@ -104,7 +104,7 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 	(void)memset(buffer, 0, buf_sz);
 	n = len;
 
-	while (g_keep_stressing_flag && (n > 0)) {
+	while (keep_stressing_flag() && (n > 0)) {
 		ssize_t ret;
 		size_t count = (size_t)STRESS_MINIMUM(n, buf_sz);
 
@@ -580,7 +580,7 @@ int shim_nanosleep_uint64(uint64_t nsec)
 		if (nanosleep(&t, &trem) < 0) {
 			if (errno == EINTR) {
 				t = trem;
-				if (g_keep_stressing_flag)
+				if (keep_stressing_flag())
 					continue;
 			} else {
 				return -1;
@@ -603,7 +603,7 @@ int shim_nanosleep_uint64(uint64_t nsec)
 				usec = (useconds_t)(t_left * 1000000.0);
 				if (usec == 0)
 					return 0;
-				if (g_keep_stressing_flag)
+				if (keep_stressing_flag())
 					continue;
 			} else {
 				return -1;
@@ -1188,7 +1188,7 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 			break;
 		if (errno != EINTR)
 			break;
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 	}
 	return ret;

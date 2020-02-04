@@ -103,7 +103,7 @@ static int try_remap(
 #if defined(MREMAP_FIXED)
 		void *addr = rand_mremap_addr(new_sz, flags);
 #endif
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			return 0;
 #if defined(MREMAP_FIXED)
 		if (addr) {
@@ -173,7 +173,7 @@ static int stress_mremap_child(const args_t *args, void *context)
 		uint8_t *buf = NULL;
 		size_t old_sz;
 
-		if (!g_keep_stressing_flag)
+		if (!keep_stressing_flag())
 			break;
 
 		buf = mmap(NULL, new_sz, PROT_READ | PROT_WRITE, flags, -1, 0);
