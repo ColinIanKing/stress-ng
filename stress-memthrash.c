@@ -160,6 +160,33 @@ static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
 	}
 }
 
+static void HOT OPTIMIZE3 stress_memthrash_swap(
+	const args_t *args,
+	const size_t mem_size)
+{
+	size_t i;
+	register size_t offset1 = mwc32() % mem_size;
+	register size_t offset2 = mwc32() % mem_size;
+	uint8_t *mem_u8 = (uint8_t *)mem;
+
+	(void)args;
+
+	for (i = 0; !thread_terminate && (i < 65536); i++) {
+		register uint8_t tmp;
+
+		tmp = mem_u8[offset1];
+		mem_u8[offset1] = mem_u8[offset2];
+		mem_u8[offset2] = tmp;
+
+		offset1 += 129;
+		if (offset1 > mem_size)
+			offset1 -= mem_size;
+		offset2 += 65;
+		if (offset2 > mem_size)
+			offset2 -= mem_size;
+	}
+}
+
 static void HOT OPTIMIZE3 stress_memthrash_matrix(
 	const args_t *args,
 	const size_t mem_size)
@@ -327,7 +354,8 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "prefetch",	stress_memthrash_prefetch },
 	{ "random",	stress_memthrash_random },
 	{ "spinread",	stress_memthrash_spinread },
-	{ "spinwrite",	stress_memthrash_spinwrite }
+	{ "spinwrite",	stress_memthrash_spinwrite },
+	{ "swap",	stress_memthrash_swap }
 };
 
 static void stress_memthrash_all(const args_t *args, size_t mem_size)
