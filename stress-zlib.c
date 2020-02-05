@@ -513,6 +513,30 @@ static void stress_rand_data_brown(const args_t *args, uint32_t *data, const int
 }
 
 /*
+ *  stress_rand_data_logmap()
+ *	fills buffer with output from a logistic map of
+ *	x = r * x * (x - 1.0) where r is the accumulation point
+ *	based on A098587. Data is scaled in the range 0..255
+ */
+static void stress_rand_data_logmap(const args_t *args, uint32_t *data, const int size)
+{
+	float x = 0.4;
+	const float scale = 255.0 / 0.571191;
+	const float r = 3.569945671870944901842;
+	register int i;
+	register uint8_t *ptr = (unsigned char *)data;
+
+	(void)args;
+
+	for (i = 0; i < size; i++) {
+		float v = scale * (x - 0.321295);
+
+		*(ptr++) = (uint8_t)v;
+		x = x * r * (1.0 - x);
+	}
+}
+
+/*
  *  stress_rand_data_lrand48()
  *	fills buffer with random data from lrand48
  */
@@ -679,6 +703,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "gray",	stress_rand_data_gray },
 	{ "fixed",	stress_rand_data_fixed },
 	{ "latin",	stress_rand_data_latin },
+	{ "logmap",	stress_rand_data_logmap },
 	{ "lrand48",	stress_rand_data_lrand48 },
 	{ "nybble",	stress_rand_data_nybble },
 	{ "objcode",	stress_rand_data_objcode },
