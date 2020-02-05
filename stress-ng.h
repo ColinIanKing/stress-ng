@@ -3479,8 +3479,8 @@ extern int stress_mincore_touch_pages(void *buf, const size_t buf_len);
 extern int stress_mincore_touch_pages_interruptible(void *buf, const size_t buf_len);
 
 /* Mounts */
-extern void mount_free(char *mnts[], const int n);
-extern WARN_UNUSED int mount_get(char *mnts[], const int max);
+extern void stress_mount_free(char *mnts[], const int n);
+extern WARN_UNUSED int stress_mount_get(char *mnts[], const int max);
 
 /* Thermal Zones */
 #if defined(STRESS_THERMAL_ZONES)

@@ -160,7 +160,7 @@ static int fanotify_event_init(const char *name)
 	}
 
 	/* do all mount points */
-	n_mnts = mount_get(mnts, MAX_MNTS);
+	n_mnts = stress_mount_get(mnts, MAX_MNTS);
 	if (n_mnts < 1) {
 		pr_err("%s: setmntent cannot get mount points from "
 			"/proc/self/mounts, errno=%d (%s)\n",
@@ -426,7 +426,7 @@ tidy:
 	}
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
-	mount_free(mnts, n_mnts);
+	stress_mount_free(mnts, n_mnts);
 
 	return rc;
 }

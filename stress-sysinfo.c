@@ -45,7 +45,7 @@ static int stress_sysinfo(const args_t *args)
 
 	(void)memset(mnts, 0, sizeof(mnts));
 
-	n_mounts = mount_get(mnts, SIZEOF_ARRAY(mnts));
+	n_mounts = stress_mount_get(mnts, SIZEOF_ARRAY(mnts));
 	if (n_mounts < 0) {
 		pr_err("%s: failed to get mount points\n", args->name);
 		return EXIT_FAILURE;
@@ -187,7 +187,7 @@ static int stress_sysinfo(const args_t *args)
 		inc_counter(args);
 	} while (keep_stressing());
 
-	mount_free(mnts, n_mounts);
+	stress_mount_free(mnts, n_mounts);
 
 	return EXIT_SUCCESS;
 }

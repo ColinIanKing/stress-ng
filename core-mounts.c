@@ -25,10 +25,10 @@
 #include "stress-ng.h"
 
 /*
- *  mount_add()
+ *  stress_mount_add()
  *	add a new mount point to table
  */
-static void mount_add(
+static void stress_mount_add(
 	char *mnts[],
 	const int max,
 	int *n,
@@ -46,10 +46,10 @@ static void mount_add(
 }
 
 /*
- *  mount_free()
+ *  stress_mount_free()
  *	free mount info
  */
-void mount_free(char *mnts[], const int n)
+void stress_mount_free(char *mnts[], const int n)
 {
 	int i;
 
@@ -65,7 +65,7 @@ void mount_free(char *mnts[], const int n)
  *	from /etc/mtab
  */
 #if defined(HAVE_GETMNTINFO)
-int mount_get(char *mnts[], const int max)
+int stress_mount_get(char *mnts[], const int max)
 {
 	int i, n = 0, ret;
 #if defined(__NetBSD__) || defined(__minix__)
@@ -79,12 +79,12 @@ int mount_get(char *mnts[], const int max)
 		ret = max;
 
 	for (i = 0; i < ret; i++) {
-		mount_add(mnts, max, &n, statbufs[i].f_mntonname);
+		stress_mount_add(mnts, max, &n, statbufs[i].f_mntonname);
 	}
 	return ret;
 }
 #elif defined(HAVE_GETMNTENT) && defined(HAVE_MNTENT_H)
-int mount_get(char *mnts[], const int max)
+int stress_mount_get(char *mnts[], const int max)
 {
 	FILE *mounts;
 	struct mntent* mnt;
@@ -93,23 +93,23 @@ int mount_get(char *mnts[], const int max)
 	mounts = setmntent("/etc/mtab", "r");
 	/* Failed, so assume / is available */
 	if (!mounts) {
-		mount_add(mnts, max, &n, "/");
+		stress_mount_add(mnts, max, &n, "/");
 		return n;
 	}
 	while ((mnt = getmntent(mounts)) != NULL)
-		mount_add(mnts, max, &n, mnt->mnt_dir);
+		stress_mount_add(mnts, max, &n, mnt->mnt_dir);
 
 	(void)endmntent(mounts);
 	return n;
 }
 #else
-int mount_get(char *mnts[], const int max)
+int stress_mount_get(char *mnts[], const int max)
 {
 	int n = 0;
 
-	mount_add(mnts, max, &n, "/");
-	mount_add(mnts, max, &n, "/dev");
-	mount_add(mnts, max, &n, "/tmp");
+	stress_mount_add(mnts, max, &n, "/");
+	stress_mount_add(mnts, max, &n, "/dev");
+	stress_mount_add(mnts, max, &n, "/tmp");
 
 	return n;
 }

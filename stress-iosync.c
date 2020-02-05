@@ -43,7 +43,7 @@ static int stress_io(const args_t *args)
 	char *mnts[MAX_MNTS];
 	int  fds[MAX_MNTS];
 
-	n_mnts = mount_get(mnts, MAX_MNTS);
+	n_mnts = stress_mount_get(mnts, MAX_MNTS);
 	for (i = 0; i < n_mnts; i++)
 		fds[i] = openat(AT_FDCWD, mnts[i], O_RDONLY | O_NONBLOCK | O_DIRECTORY);
 
@@ -72,7 +72,7 @@ static int stress_io(const args_t *args)
 		if (fds[i] != -1)
 			(void)close(fds[i]);
 
-	mount_free(mnts, n_mnts);
+	stress_mount_free(mnts, n_mnts);
 #endif
 
 	return EXIT_SUCCESS;

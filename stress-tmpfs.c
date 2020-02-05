@@ -103,7 +103,7 @@ static int stress_tmpfs_open(const args_t *args, off_t *len)
 	(void)memset(mnts, 0, sizeof(mnts));
 
 	*len = 0;
-	n = mount_get(mnts, SIZEOF_ARRAY(mnts));
+	n = stress_mount_get(mnts, SIZEOF_ARRAY(mnts));
 	if (n < 0)
 		return -1;
 
@@ -161,7 +161,7 @@ static int stress_tmpfs_open(const args_t *args, off_t *len)
 			break;
 		}
 	}
-	mount_free(mnts, n);
+	stress_mount_free(mnts, n);
 
 	return fd;
 }

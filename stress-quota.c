@@ -220,7 +220,7 @@ static int stress_quota(const args_t *args)
 	(void)memset(mnts, 0, sizeof(mnts));
 	(void)memset(devs, 0, sizeof(devs));
 
-	n_mounts = mount_get(mnts, SIZEOF_ARRAY(mnts));
+	n_mounts = stress_mount_get(mnts, SIZEOF_ARRAY(mnts));
 
 	dir = opendir("/dev/");
 	if (!dir) {
@@ -334,7 +334,7 @@ tidy:
 	for (i = 0; i < n_devs; i++)
 		free(devs[i].name);
 
-	mount_free(mnts, n_mounts);
+	stress_mount_free(mnts, n_mounts);
 	return rc;
 }
 
