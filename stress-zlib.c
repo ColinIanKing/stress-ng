@@ -520,16 +520,27 @@ static void stress_rand_data_brown(const args_t *args, uint32_t *data, const int
  */
 static void stress_rand_data_logmap(const args_t *args, uint32_t *data, const int size)
 {
-	float x = 0.4;
-	const float scale = 255.0 / 0.571191;
-	const float r = 3.569945671870944901842;
+	double x = 0.4;
+	/*
+	 * Use an accumulation point that is slightly larger
+	 * than the point where chaotic behaviour starts
+	 */
+	const double r = 3.569945671870944901842 * 1.0999999;
 	register int i;
 	register uint8_t *ptr = (unsigned char *)data;
 
 	(void)args;
 
 	for (i = 0; i < size; i++) {
-		float v = scale * (x - 0.321295);
+		/*
+		 *  Scale up a fractional part of x
+		 *  by an arbitrary value and take
+		 *  the bottom 8 bits of the result
+		 *  to make a quasi-chaotic random-ish
+		 *  value
+		 */
+		double v = x - (int)x;
+		v *= 1278178.381817673;
 
 		*(ptr++) = (uint8_t)v;
 		x = x * r * (1.0 - x);

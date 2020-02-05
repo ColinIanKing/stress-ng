@@ -4031,9 +4031,9 @@ Random latin sentences from a sample of Lorem Ipsum text.
 T}
 logmap	T{
 Values generated from a logistical map of the equation
-\[*X]n+1 = r \(mu  \[*X]n \(mu (1 - \[*X]n) where r \[~~] 3.56994567
-to produce chaotic data. The values are scaled to the range
-of 0..255.
+\[*X]n+1 = r \(mu  \[*X]n \(mu (1 - \[*X]n) where r > \[~~] 3.56994567
+to produce chaotic data. The values are scaled by a large arbitrary
+value and the lower 8 bits of this value are compressed.
 T}
 lrand48	T{
 Uniformly distributed pseudo-random 32 bit values generated from lrand48(3).
