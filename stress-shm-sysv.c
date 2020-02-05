@@ -297,7 +297,7 @@ static int stress_shm_sysv_child(
 
 			if (!keep_stressing())
 				goto reap;
-			(void)madvise_random(addr, sz);
+			(void)stress_madvise_random(addr, sz);
 
 			if (!keep_stressing())
 				goto reap;

@@ -93,7 +93,7 @@ static int stress_mmapfixed_child(const args_t *args, void *context)
 		if (buf == MAP_FAILED)
 			goto next;
 
-		(void)madvise_random(buf, sz);
+		(void)stress_madvise_random(buf, sz);
 #if defined(HAVE_MREMAP) && NEED_GLIBC(2,4,0) && \
     defined(MREMAP_FIXED) && \
     defined(MREMAP_MAYMOVE)
@@ -108,7 +108,7 @@ static int stress_mmapfixed_child(const args_t *args, void *context)
 			if (newbuf && (newbuf != MAP_FAILED))
 				buf = newbuf;
 
-			(void)madvise_random(buf, sz);
+			(void)stress_madvise_random(buf, sz);
 		}
 #endif
 		(void)munmap((void *)buf, sz);

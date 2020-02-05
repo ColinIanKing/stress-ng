@@ -257,7 +257,7 @@ static void NORETURN waste_resources(
 			if (info[i].m_mmap != MAP_FAILED) {
 				size_t locked = STRESS_MINIMUM(mlock_size, info[i].m_mmap_size);
 
-				(void)madvise_random(info[i].m_mmap, info[i].m_mmap_size);
+				(void)stress_madvise_random(info[i].m_mmap, info[i].m_mmap_size);
 				mincore_touch_pages_interruptible(info[i].m_mmap, info[i].m_mmap_size);
 				if (locked > 0) {
 					shim_mlock(info[i].m_mmap, locked);

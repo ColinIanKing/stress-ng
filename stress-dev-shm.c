@@ -90,7 +90,7 @@ static inline int stress_dev_shm_child(
 				const size_t words = page_size / sizeof(uint32_t);
 				uint32_t *ptr, *end = addr + (sz / sizeof(uint32_t));
 
-				(void)madvise_random(addr, sz);
+				(void)stress_madvise_random(addr, sz);
 
 				/* Touch all pages with random data */
 				for (ptr = addr; ptr < end; ptr += words) {

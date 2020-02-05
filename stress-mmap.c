@@ -267,7 +267,7 @@ retry:
 			(void)memset(buf, 0xff, sz);
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
-		(void)madvise_random(buf, sz);
+		(void)stress_madvise_random(buf, sz);
 		(void)mincore_touch_pages(buf, context->mmap_bytes);
 		stress_mmap_mprotect(args->name, buf, sz, context->mmap_mprotect);
 		for (n = 0; n < pages4k; n++) {
@@ -313,7 +313,7 @@ retry:
 				uint64_t page = (i + j) % pages4k;
 				if (mapped[page] == PAGE_MAPPED) {
 					mapped[page] = 0;
-					(void)madvise_random(mappings[page], page_size);
+					(void)stress_madvise_random(mappings[page], page_size);
 					stress_mmap_mprotect(args->name, mappings[page],
 						page_size, context->mmap_mprotect);
 					(void)munmap((void *)mappings[page], page_size);
@@ -356,7 +356,7 @@ retry:
 						mappings[page] = NULL;
 					} else {
 						(void)mincore_touch_pages(mappings[page], page_size);
-						(void)madvise_random(mappings[page], page_size);
+						(void)stress_madvise_random(mappings[page], page_size);
 						stress_mmap_mprotect(args->name, mappings[page],
 							page_size, context->mmap_mprotect);
 						mapped[page] = PAGE_MAPPED;
@@ -388,7 +388,7 @@ cleanup:
 		 */
 		for (n = 0; n < pages4k; n++) {
 			if (mapped[n] & PAGE_MAPPED) {
-				(void)madvise_random(mappings[n], page_size);
+				(void)stress_madvise_random(mappings[n], page_size);
 				stress_mmap_mprotect(args->name, mappings[n],
 					page_size, context->mmap_mprotect);
 				(void)munmap((void *)mappings[n], page_size);

@@ -177,7 +177,7 @@ static int stress_memfd_child(const args_t *args, void *context)
 				MAP_FILE | MAP_SHARED | MAP_POPULATE,
 				fds[i], 0);
 			mincore_touch_pages(maps[i], size);
-			madvise_random(maps[i], size);
+			stress_madvise_random(maps[i], size);
 
 #if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
 			/*

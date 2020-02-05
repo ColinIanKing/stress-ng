@@ -232,7 +232,7 @@ static int stress_tmpfs_child(const args_t *args, void *ctxt)
 			(void)memset(buf, 0xff, sz);
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
-		(void)madvise_random(buf, sz);
+		(void)stress_madvise_random(buf, sz);
 		(void)mincore_touch_pages(buf, sz);
 		(void)memset(mapped, PAGE_MAPPED, sizeof(mapped));
 		for (n = 0; n < pages4k; n++)
@@ -258,7 +258,7 @@ static int stress_tmpfs_child(const args_t *args, void *ctxt)
 
 				if (mapped[page] == PAGE_MAPPED) {
 					mapped[page] = 0;
-					(void)madvise_random(mappings[page], page_size);
+					(void)stress_madvise_random(mappings[page], page_size);
 					(void)munmap((void *)mappings[page], page_size);
 					n--;
 					break;
@@ -292,7 +292,7 @@ static int stress_tmpfs_child(const args_t *args, void *ctxt)
 						mappings[page] = NULL;
 					} else {
 						(void)mincore_touch_pages(mappings[page], page_size);
-						(void)madvise_random(mappings[page], page_size);
+						(void)stress_madvise_random(mappings[page], page_size);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
 						mmap_set(mappings[page], page_size, page_size);
@@ -318,7 +318,7 @@ cleanup:
 		 */
 		for (n = 0; n < pages4k; n++) {
 			if (mapped[n] & PAGE_MAPPED) {
-				(void)madvise_random(mappings[n], page_size);
+				(void)stress_madvise_random(mappings[n], page_size);
 				(void)munmap((void *)mappings[n], page_size);
 			}
 		}

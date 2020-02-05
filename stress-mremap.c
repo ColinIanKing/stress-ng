@@ -184,7 +184,7 @@ static int stress_mremap_child(const args_t *args, void *context)
 #endif
 			continue;	/* Try again */
 		}
-		(void)madvise_random(buf, new_sz);
+		(void)stress_madvise_random(buf, new_sz);
 		(void)mincore_touch_pages(buf, mremap_bytes);
 
 		/* Ensure we can write to the mapped pages */
@@ -206,7 +206,7 @@ static int stress_mremap_child(const args_t *args, void *context)
 				(void)munmap(buf, old_sz);
 				return EXIT_FAILURE;
 			}
-			(void)madvise_random(buf, new_sz);
+			(void)stress_madvise_random(buf, new_sz);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (mmap_check(buf, new_sz, page_size) < 0) {
 					pr_fail("%s: mremap'd region "
@@ -227,7 +227,7 @@ static int stress_mremap_child(const args_t *args, void *context)
 				(void)munmap(buf, old_sz);
 				return EXIT_FAILURE;
 			}
-			(void)madvise_random(buf, new_sz);
+			(void)stress_madvise_random(buf, new_sz);
 			old_sz = new_sz;
 			new_sz <<= 1;
 		}

@@ -2047,7 +2047,7 @@ static int stress_vm_child(const args_t *args, void *ctxt)
 				continue;	/* Try again */
 			}
 			if (vm_madvise < 0)
-				(void)madvise_random(buf, buf_sz);
+				(void)stress_madvise_random(buf, buf_sz);
 			else
 				(void)shim_madvise(buf, buf_sz, vm_madvise);
 		}
@@ -2065,7 +2065,7 @@ static int stress_vm_child(const args_t *args, void *ctxt)
 		}
 
 		if (!vm_keep) {
-			(void)madvise_random(buf, buf_sz);
+			(void)stress_madvise_random(buf, buf_sz);
 			(void)munmap((void *)buf, buf_sz);
 		}
 	} while (keep_stressing_vm(args));
