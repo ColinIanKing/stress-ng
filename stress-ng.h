@@ -3484,10 +3484,10 @@ extern WARN_UNUSED int stress_mount_get(char *mnts[], const int max);
 
 /* Thermal Zones */
 #if defined(STRESS_THERMAL_ZONES)
-extern int tz_init(tz_info_t **tz_info_list);
-extern void tz_free(tz_info_t **tz_info_list);
-extern int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz);
-extern void tz_dump(FILE *yaml, proc_info_t *procs_head);
+extern int stress_tz_init(tz_info_t **tz_info_list);
+extern void stress_tz_free(tz_info_t **tz_info_list);
+extern int stress_tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz);
+extern void stress_tz_dump(FILE *yaml, proc_info_t *procs_head);
 #endif
 
 /* Network helpers */

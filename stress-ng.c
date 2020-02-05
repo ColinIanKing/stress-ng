@@ -1702,7 +1702,7 @@ again:
 #endif
 #if defined(STRESS_THERMAL_ZONES)
 					if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
-						(void)tz_get_temperatures(&g_shared->tz_info, &stats->tz);
+						(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
 #endif
 
 					stats->finish = time_now();
@@ -2932,7 +2932,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Setup thermal zone data
 	 */
 	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
-		tz_init(&g_shared->tz_info);
+		stress_tz_init(&g_shared->tz_info);
 #endif
 
 	stressors_init();
@@ -2988,8 +2988,8 @@ int main(int argc, char **argv, char **envp)
 	 *  Dump thermal zone measurements
 	 */
 	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES) {
-		tz_dump(yaml, procs_head);
-		tz_free(&g_shared->tz_info);
+		stress_tz_dump(yaml, procs_head);
+		stress_tz_free(&g_shared->tz_info);
 	}
 #endif
 	/*

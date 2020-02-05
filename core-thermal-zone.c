@@ -26,10 +26,10 @@
 
 #if defined(STRESS_THERMAL_ZONES)
 /*
- *  tz_init()
+ *  stress_tz_init()
  *	gather all thermal zones
  */
-int tz_init(tz_info_t **tz_info_list)
+int stress_tz_init(tz_info_t **tz_info_list)
 {
 	DIR *dir;
         struct dirent *entry;
@@ -93,10 +93,10 @@ int tz_init(tz_info_t **tz_info_list)
 }
 
 /*
- *  tz_free()
+ *  stress_tz_free()
  *	free thermal zones
  */
-void tz_free(tz_info_t **tz_info_list)
+void stress_tz_free(tz_info_t **tz_info_list)
 {
 	tz_info_t *tz_info = *tz_info_list;
 
@@ -111,10 +111,10 @@ void tz_free(tz_info_t **tz_info_list)
 }
 
 /*
- *  tz_get_temperatures()
+ *  stress_tz_get_temperatures()
  *	collect valid thermal_zones details
  */
-int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
+int stress_tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
 {
         tz_info_t *tz_info;
 
@@ -140,10 +140,10 @@ int tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
 }
 
 /*
- *  tz_dump()
+ *  stress_tz_dump()
  *	dump thermal zone temperatures
  */
-void tz_dump(FILE *yaml, proc_info_t *procs_head)
+void stress_tz_dump(FILE *yaml, proc_info_t *procs_head)
 {
 	bool no_tz_stats = true;
 	proc_info_t *pi;
