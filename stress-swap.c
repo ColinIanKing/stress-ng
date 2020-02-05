@@ -220,7 +220,7 @@ static int stress_swap(const args_t *args)
 		if (ret < 0) {
 			pr_fail_err("swapoff");
 			ret = EXIT_FAILURE;
-			(void)thrash_stop();
+			(void)stress_thrash_stop();
 			goto tidy_close;
 		}
 

@@ -2939,7 +2939,7 @@ int main(int argc, char **argv, char **envp)
 
 	/* Start thrasher process if required */
 	if (g_opt_flags & OPT_FLAGS_THRASH)
-		thrash_start();
+		stress_thrash_start();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_run_sequential(&duration,
@@ -2951,7 +2951,7 @@ int main(int argc, char **argv, char **envp)
 
 	/* Stop thasher process */
 	if (g_opt_flags & OPT_FLAGS_THRASH)
-		thrash_stop();
+		stress_thrash_stop();
 
 	pr_inf("%s run completed in %.2fs%s\n",
 		success ? "successful" : "unsuccessful",

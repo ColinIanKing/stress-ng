@@ -31,10 +31,10 @@
 static pid_t thrash_pid;
 
 /*
- *  pagein_proc()
+ *  stress_pagein_proc()
  *	force pages into memory for a given process
  */
-static int pagein_proc(const pid_t pid)
+static int stress_pagein_proc(const pid_t pid)
 {
 	char path[PATH_MAX];
 	char buffer[4096];
@@ -106,10 +106,10 @@ static int pagein_proc(const pid_t pid)
 }
 
 /*
- *  compact_memory()
+ *  stress_compact_memory()
  *	trigger memory compaction, Linux only
  */
-static inline void compact_memory(void)
+static inline void stress_compact_memory(void)
 {
 #if defined(__linux__)
 	int ret;
@@ -120,10 +120,10 @@ static inline void compact_memory(void)
 }
 
 /*
- *  zone_reclaim()
+ *  stress_zone_reclaim()
  *	trigger reclaim when zones run out of memory
  */
-static inline void zone_reclaim(void)
+static inline void stress_zone_reclaim(void)
 {
 #if defined(__linux__)
 	int ret;
@@ -139,10 +139,10 @@ static inline void zone_reclaim(void)
 
 
 /*
- *  merge_memory()
+ *  stress_merge_memory()
  *	trigger ksm memory merging, Linux only
  */
-static inline void merge_memory(void)
+static inline void stress_merge_memory(void)
 {
 #if defined(__linux__)
 	int ret;
@@ -153,10 +153,10 @@ static inline void merge_memory(void)
 }
 
 /*
- *  pagein_all_procs()
+ *  stress_pagein_all_procs()
  *	force pages into memory for all processes
  */
-static int pagein_all_procs(void)
+static int stress_pagein_all_procs(void)
 {
 	DIR *dp;
 	struct dirent *d;
@@ -170,7 +170,7 @@ static int pagein_all_procs(void)
 
 		if (isdigit(d->d_name[0]) &&
 		    sscanf(d->d_name, "%d", &pid) == 1) {
-			pagein_proc(pid);
+			stress_pagein_proc(pid);
 		}
 	}
 	(void)closedir(dp);
@@ -179,10 +179,10 @@ static int pagein_all_procs(void)
 }
 
 /*
- *  thrash_start()
+ *  stress_thrash_start()
  *	start paging in thrash process
  */
-int thrash_start(void)
+int stress_thrash_start(void)
 {
 	if (geteuid() != 0) {
 		pr_inf("not running as root, ignoring --thrash option\n");
@@ -208,10 +208,10 @@ int thrash_start(void)
 #endif
 		while (keep_stressing_flag()) {
 			if ((mwc8() & 0x3f) == 0)
-				pagein_all_procs();
-			compact_memory();
-			merge_memory();
-			zone_reclaim();
+				stress_pagein_all_procs();
+			stress_compact_memory();
+			stress_merge_memory();
+			stress_zone_reclaim();
 			(void)sleep(1);
 		}
 		_exit(0);
@@ -220,10 +220,10 @@ int thrash_start(void)
 }
 
 /*
- *  thrash_stop()
+ *  stress_thrash_stop()
  *	stop paging in thrash process
  */
-void thrash_stop(void)
+void stress_thrash_stop(void)
 {
 	int status;
 
@@ -237,12 +237,12 @@ void thrash_stop(void)
 }
 
 #else
-int thrash_start(void)
+int stress_thrash_start(void)
 {
 	return 0;
 }
 
-void thrash_stop(void)
+void stress_thrash_stop(void)
 {
 }
 #endif
