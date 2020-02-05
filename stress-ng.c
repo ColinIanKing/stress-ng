@@ -1671,12 +1671,12 @@ again:
 					stats->start = stats->finish = time_now();
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
-						(void)perf_open(&stats->sp);
+						(void)stress_perf_open(&stats->sp);
 #endif
 					(void)shim_usleep(backoff * n_procs);
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
-						(void)perf_enable(&stats->sp);
+						(void)stress_perf_enable(&stats->sp);
 #endif
 					if (keep_stressing_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
 						const args_t args = {
@@ -1696,8 +1696,8 @@ again:
 					}
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
-						(void)perf_disable(&stats->sp);
-						(void)perf_close(&stats->sp);
+						(void)stress_perf_disable(&stats->sp);
+						(void)stress_perf_close(&stats->sp);
 					}
 #endif
 #if defined(STRESS_THERMAL_ZONES)
@@ -2818,7 +2818,7 @@ int main(int argc, char **argv, char **envp)
 
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
-		perf_init();
+		stress_perf_init();
 #endif
 
 	/*
@@ -2980,7 +2980,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Dump perf statistics
 	 */
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
-		perf_stat_dump(yaml, procs_head, duration);
+		stress_perf_stat_dump(yaml, procs_head, duration);
 #endif
 
 #if defined(STRESS_THERMAL_ZONES)

@@ -296,7 +296,7 @@ static perf_info_t perf_info[STRESS_PERF_MAX] = {
 	{ 0, 0, NULL, NULL }
 };
 
-static inline void perf_type_tracepoint_resolve_config(perf_info_t *pi)
+static inline void stress_perf_type_tracepoint_resolve_config(perf_info_t *pi)
 {
 	char path[PATH_MAX];
 	unsigned long config;
@@ -318,18 +318,18 @@ static inline void perf_type_tracepoint_resolve_config(perf_info_t *pi)
 	pi->config = config;
 }
 
-void perf_init(void)
+void stress_perf_init(void)
 {
 	size_t i;
 
 	for (i = 0; i < STRESS_PERF_MAX; i++) {
 		if (perf_info[i].type == PERF_TYPE_TRACEPOINT) {
-			perf_type_tracepoint_resolve_config(&perf_info[i]);
+			stress_perf_type_tracepoint_resolve_config(&perf_info[i]);
 		}
 	}
 }
 
-static inline int sys_perf_event_open(
+static inline int stress_sys_perf_event_open(
 	struct perf_event_attr *attr,
 	pid_t pid,
 	int cpu,
@@ -340,10 +340,10 @@ static inline int sys_perf_event_open(
 }
 
 /*
- *  perf_yaml_label()
+ *  stress_perf_yaml_label()
  *	turns text into a yaml compatible label.
  */
-static char *perf_yaml_label(char *dst, const char *src, const size_t n)
+static char *stress_perf_yaml_label(char *dst, const char *src, const size_t n)
 {
 	if (n) {
 		char *d = dst;
@@ -370,10 +370,10 @@ static char *perf_yaml_label(char *dst, const char *src, const size_t n)
 }
 
 /*
- *  perf_open()
+ *  stress_perf_open()
  *	open perf, get leader and perf fd's
  */
-int perf_open(stress_perf_t *sp)
+int stress_perf_open(stress_perf_t *sp)
 {
 	size_t i;
 
@@ -403,7 +403,7 @@ int perf_open(stress_perf_t *sp)
 					   PERF_FORMAT_TOTAL_TIME_RUNNING;
 			attr.size = sizeof(attr);
 			sp->perf_stat[i].fd =
-				sys_perf_event_open(&attr, 0, -1, -1, 0);
+				stress_sys_perf_event_open(&attr, 0, -1, -1, 0);
 			if (sp->perf_stat[i].fd > -1)
 				sp->perf_opened++;
 		}
@@ -435,10 +435,10 @@ int perf_open(stress_perf_t *sp)
 }
 
 /*
- *  perf_enable()
+ *  stress_perf_enable()
  *	enable perf counters
  */
-int perf_enable(stress_perf_t *sp)
+int stress_perf_enable(stress_perf_t *sp)
 {
 	size_t i;
 
@@ -468,10 +468,10 @@ int perf_enable(stress_perf_t *sp)
 }
 
 /*
- *  perf_disable()
+ *  stress_perf_disable()
  *	disable perf counters
  */
-int perf_disable(stress_perf_t *sp)
+int stress_perf_disable(stress_perf_t *sp)
 {
 	size_t i;
 
@@ -495,10 +495,10 @@ int perf_disable(stress_perf_t *sp)
 }
 
 /*
- *  perf_close()
+ *  stress_perf_close()
  *	read counters and close
  */
-int perf_close(stress_perf_t *sp)
+int stress_perf_close(stress_perf_t *sp)
 {
 	size_t i = 0;
 	perf_data_t data;
@@ -544,20 +544,20 @@ out_ok:
 }
 
 /*
- *  perf_stat_succeeded()
+ *  stress_perf_stat_succeeded()
  *	did perf event open work OK?
  */
-bool perf_stat_succeeded(const stress_perf_t *sp)
+bool stress_perf_stat_succeeded(const stress_perf_t *sp)
 {
 	return sp->perf_opened > 0;
 }
 
 /*
- *  perf_stat_scale()
+ *  stress_perf_stat_scale()
  *	scale a counter by duration seconds
  *	into a human readable form
  */
-static const char *perf_stat_scale(const uint64_t counter, const double duration)
+static const char *stress_perf_stat_scale(const uint64_t counter, const double duration)
 {
 	static char buffer[40];
 	char *suffix = "E/sec";
@@ -582,7 +582,7 @@ static const char *perf_stat_scale(const uint64_t counter, const double duration
 	return buffer;
 }
 
-void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
+void stress_perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 {
 	bool no_perf_stats = true;
 	proc_info_t *pi;
@@ -609,7 +609,7 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 			int32_t j;
 			stress_perf_t *sp = &pi->stats[0]->sp;
 
-			if (!perf_stat_succeeded(sp))
+			if (!stress_perf_stat_succeeded(sp))
 				continue;
 
 			for (j = 0; j < pi->started_procs; j++) {
@@ -673,10 +673,10 @@ void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
 				}
 
 				pr_inf("%'26" PRIu64 " %-24s %s%s\n",
-					ct, l, perf_stat_scale(ct, duration),
+					ct, l, stress_perf_stat_scale(ct, duration),
 					extra);
 
-				perf_yaml_label(yaml_label, l, sizeof(yaml_label));
+				stress_perf_yaml_label(yaml_label, l, sizeof(yaml_label));
 				pr_yaml(yaml, "      %s_total: %" PRIu64
 					"\n", yaml_label, ct);
 				pr_yaml(yaml, "      %s_per_second: %f\n",

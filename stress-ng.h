@@ -3302,13 +3302,13 @@ extern const char *duration_to_str(const double duration);
 
 /* Perf statistics */
 #if defined(STRESS_PERF_STATS)
-extern int perf_open(stress_perf_t *sp);
-extern int perf_enable(stress_perf_t *sp);
-extern int perf_disable(stress_perf_t *sp);
-extern int perf_close(stress_perf_t *sp);
-extern bool perf_stat_succeeded(const stress_perf_t *sp);
-extern void perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration);
-extern void perf_init(void);
+extern int stress_perf_open(stress_perf_t *sp);
+extern int stress_perf_enable(stress_perf_t *sp);
+extern int stress_perf_disable(stress_perf_t *sp);
+extern int stress_perf_close(stress_perf_t *sp);
+extern bool stress_perf_stat_succeeded(const stress_perf_t *sp);
+extern void stress_perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration);
+extern void stress_perf_init(void);
 #endif
 
 /* CPU helpers */
