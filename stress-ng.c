@@ -1605,11 +1605,11 @@ static void MLOCKED_TEXT stress_run(
 	const int32_t total_procs = get_total_num_procs(procs_list);
 
 	wait_flag = true;
-	time_start = time_now();
+	time_start = stress_time_now();
 	pr_dbg("starting stressors\n");
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
 		for (g_proc_current = procs_list; g_proc_current; g_proc_current = g_proc_current->next) {
-			if (g_opt_timeout && (time_now() - time_start > g_opt_timeout))
+			if (g_opt_timeout && (stress_time_now() - time_start > g_opt_timeout))
 				goto abort;
 
 			j = g_proc_current->started_procs;
@@ -1668,7 +1668,7 @@ again:
 					pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
 						name, (int)getpid(), j);
 
-					stats->start = stats->finish = time_now();
+					stats->start = stats->finish = stress_time_now();
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 						(void)stress_perf_open(&stats->sp);
@@ -1705,7 +1705,7 @@ again:
 						(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
 #endif
 
-					stats->finish = time_now();
+					stats->finish = stress_time_now();
 					if (times(&stats->tms) == (clock_t)-1) {
 						pr_dbg("times failed: errno=%d (%s)\n",
 							errno, strerror(errno));
@@ -1753,7 +1753,7 @@ abort:
 
 wait_for_procs:
 	wait_procs(procs_list, success, resource_success);
-	time_finish = time_now();
+	time_finish = stress_time_now();
 
 	*duration += time_finish - time_start;
 }
@@ -2585,7 +2585,7 @@ static void set_default_timeout(const uint64_t timeout)
 		g_opt_timeout = timeout;
 		pr_inf("defaulting to a %" PRIu64 " second%s run per stressor\n",
 			g_opt_timeout,
-			duration_to_str((double)g_opt_timeout));
+			stress_duration_to_str((double)g_opt_timeout));
 	}
 }
 
@@ -2955,7 +2955,7 @@ int main(int argc, char **argv, char **envp)
 
 	pr_inf("%s run completed in %.2fs%s\n",
 		success ? "successful" : "unsuccessful",
-		duration, duration_to_str(duration));
+		duration, stress_duration_to_str(duration));
 
 	/*
 	 *  Save results to YAML file

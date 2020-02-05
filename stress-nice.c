@@ -34,10 +34,10 @@ static const help_t help[] = {
 
 static void stress_nice_delay(void)
 {
-	double start = time_now();
+	double start = stress_time_now();
 	double delay = 0.01 + (double)mwc16() / 3276800.0;
 
-	while (time_now() - start < delay)
+	while (stress_time_now() - start < delay)
 		(void)shim_sched_yield();
 }
 

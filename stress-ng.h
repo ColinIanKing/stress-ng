@@ -3297,8 +3297,8 @@ static inline WARN_UNUSED double timeval_to_double(const struct timeval *tv)
         return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
 }
 
-extern double time_now(void);
-extern const char *duration_to_str(const double duration);
+extern double stress_time_now(void);
+extern const char *stress_duration_to_str(const double duration);
 
 /* Perf statistics */
 #if defined(STRESS_PERF_STATS)

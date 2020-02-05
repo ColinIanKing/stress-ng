@@ -102,7 +102,7 @@ static void killer(
 	const args_t *args,
 	const pid_t pid)
 {
-	double start = time_now();
+	double start = stress_time_now();
 	uint64_t last_counter = get_counter(args);
 	pid_t ppid = getppid();
 
@@ -121,14 +121,14 @@ static void killer(
 		 *  waiter indefinitely.
 		 */
 		if (last_counter == get_counter(args)) {
-			const double now = time_now();
+			const double now = stress_time_now();
 			if (now - start > ABORT_TIMEOUT) {
 				/* unblock waiting parent */
 				(void)kill(ppid, SIGUSR1);
 				start = now;
 			}
 		} else {
-			start = time_now();
+			start = stress_time_now();
 			last_counter = get_counter(args);
 		}
 	} while (keep_stressing());

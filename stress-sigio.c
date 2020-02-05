@@ -55,7 +55,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 
         (void)signum;
 
-	if (!keep_stressing() || (time_now() > time_end)) {
+	if (!keep_stressing() || (stress_time_now() > time_end)) {
 		if (pid > 0)
 			(void)kill(pid, SIGKILL);
 
@@ -87,7 +87,7 @@ static int stress_sigio(const args_t *args)
 	rd_fd = -1;
 	sigio_args = args;
 
-	time_end = time_now() + (double)g_opt_timeout;
+	time_end = stress_time_now() + (double)g_opt_timeout;
 
 	if (stress_sighandler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
 		return rc;

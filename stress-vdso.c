@@ -449,7 +449,7 @@ static int stress_vdso(const args_t *args)
 		}
 	}
 
-	t1 = time_now();
+	t1 = stress_time_now();
 	do {
 		vdso_sym_t *vdso_sym;
 
@@ -458,7 +458,7 @@ static int stress_vdso(const args_t *args)
 			inc_counter(args);
 		}
 	} while (keep_stressing());
-	t2 = time_now();
+	t2 = stress_time_now();
 
 	pr_inf("%s: %.2f nanoseconds per call\n",
 		args->name,

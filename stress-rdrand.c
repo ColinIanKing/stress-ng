@@ -192,7 +192,7 @@ static int stress_rdrand(const args_t *args)
 		double time_start, duration, billion_bits;
 		bool lock = false;
 
-		time_start = time_now();
+		time_start = stress_time_now();
 		do {
 			register int i;
 
@@ -209,7 +209,7 @@ static int stress_rdrand(const args_t *args)
 			add_counter(args, i);
 		} while (keep_stressing());
 
-		duration = time_now() - time_start;
+		duration = stress_time_now() - time_start;
 		billion_bits = ((double)get_counter(args) * 64.0 * 256.0) / 1000000000.0;
 
 		pr_lock(&lock);

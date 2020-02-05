@@ -522,7 +522,7 @@ static int stress_stream(const args_t *args)
 	stress_stream_init_data(b, n);
 	stress_stream_init_data(c, n);
 
-	t1 = time_now();
+	t1 = stress_time_now();
 	do {
 		switch (stream_index) {
 		case 3:
@@ -553,7 +553,7 @@ static int stress_stream(const args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing());
-	t2 = time_now();
+	t2 = stress_time_now();
 
 	mb = ((double)(get_counter(args) * 10) * (double)sz) / (double)MB;
 	fp = ((double)(get_counter(args) * 4) * (double)sz) / (double)MB;

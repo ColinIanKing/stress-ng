@@ -177,7 +177,7 @@ static void stress_dir_exercise(
 	struct dirent **namelist;
 	int i, n;
 #if defined(HAVE_FUTIMENS)
-	const double now = time_now();
+	const double now = stress_time_now();
 	const time_t sec = (time_t)now;
 	const long nsec = (long)((now - (double)sec) * 1000000000.0);
 	struct timespec timespec[2] = {

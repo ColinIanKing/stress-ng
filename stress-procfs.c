@@ -116,12 +116,12 @@ static inline void stress_proc_rw(
 		if (!*path || !keep_stressing_flag())
 			break;
 
-		t_start = time_now();
+		t_start = stress_time_now();
 
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			return;
 
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
 			goto next;
@@ -171,7 +171,7 @@ static inline void stress_proc_rw(
 				break;
 			i += sz;
 
-			if (time_now() - t_start > threshold) {
+			if (stress_time_now() - t_start > threshold) {
 				timeout = true;
 				(void)close(fd);
 				goto next;
@@ -182,7 +182,7 @@ static inline void stress_proc_rw(
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			return;
 
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
 			goto next;
@@ -204,7 +204,7 @@ static inline void stress_proc_rw(
 			(void)munmap(ptr, page_size);
 		}
 
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
 			goto next;
@@ -220,7 +220,7 @@ static inline void stress_proc_rw(
 			ret = ioctl(fd, FIONREAD, &nbytes);
 			(void)ret;
 		}
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
 			goto next;
@@ -256,7 +256,7 @@ static inline void stress_proc_rw(
 		if (pos == (off_t)-1)
 			goto err;
 
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
 			goto next;
@@ -266,7 +266,7 @@ static inline void stress_proc_rw(
 		(void)ret;
 err:
 		(void)close(fd);
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			goto next;
 		}

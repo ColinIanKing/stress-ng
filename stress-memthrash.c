@@ -361,11 +361,11 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 static void stress_memthrash_all(const args_t *args, size_t mem_size)
 {
 	static size_t i = 1;
-	const double t = time_now();
+	const double t = stress_time_now();
 
 	do {
 		memthrash_methods[i].func(args, mem_size);
-	} while (!thread_terminate && (time_now() - t < 0.01));
+	} while (!thread_terminate && (stress_time_now() - t < 0.01));
 
 	i++;
 	if (UNLIKELY(i >= SIZEOF_ARRAY(memthrash_methods)))

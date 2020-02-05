@@ -150,7 +150,7 @@ static int stress_utime(const args_t *args)
 		{
 			struct utimbuf utbuf;
 
-			utbuf.actime = (time_t)time_now();
+			utbuf.actime = (time_t)stress_time_now();
 			utbuf.modtime = utbuf.actime;
 
 			if (utime(filename, &utbuf) < 0) {

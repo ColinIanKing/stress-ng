@@ -180,7 +180,7 @@ static int stress_close(const args_t *args)
 		fd = -1;
 		double t1, t2, duration;
 
-		t1 = time_now();
+		t1 = stress_time_now();
 
 		switch (mwc8() % 13) {
 		case 0:
@@ -292,7 +292,7 @@ static int stress_close(const args_t *args)
 			if (dupfd != -1)
 				(void)close(dupfd);
 		}
-		t2 = time_now();
+		t2 = stress_time_now();
 		duration = t2 - t1;
 		if (duration > max_duration) {
 			max_duration = duration;

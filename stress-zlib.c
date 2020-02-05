@@ -950,7 +950,7 @@ static int stress_zlib_deflate(
 	stream_def.zfree = Z_NULL;
 	stream_def.opaque = Z_NULL;
 
-	t1 = time_now();
+	t1 = stress_time_now();
 	ret = deflateInit(&stream_def, zlib_level);
 	if (ret != Z_OK) {
 		pr_fail("%s: zlib deflateInit error: %s\n",
@@ -1017,7 +1017,7 @@ static int stress_zlib_deflate(
 	} while (flush != Z_FINISH);
 
 finish:
-	t2 = time_now();
+	t2 = stress_time_now();
 	pr_inf("%s: instance %" PRIu32 ": compression ratio: %5.2f%% (%.2f MB/sec)\n",
 		args->name, args->instance,
 		bytes_in ? 100.0 * (double)bytes_out / (double)bytes_in : 0,

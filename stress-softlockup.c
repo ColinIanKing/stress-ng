@@ -121,7 +121,7 @@ static int stress_softlockup(const args_t *args)
 	struct rlimit rlim;
 	pid_t pid;
 	NOCLOBBER uint64_t timeout;
-	const double start = time_now();
+	const double start = stress_time_now();
 
 	timeout = g_opt_timeout;
 	(void)memset(&param, 0, sizeof(param));
@@ -194,7 +194,7 @@ static int stress_softlockup(const args_t *args)
 		 * Wait until all instances have reached this point
 		 */
 		do {
-			if ((time_now() - start) > (double)timeout)
+			if ((stress_time_now() - start) > (double)timeout)
 				goto tidy_ok;
 			(void)usleep(50000);
 			__atomic_load(&g_shared->softlockup_count, &count, __ATOMIC_RELAXED);
@@ -250,7 +250,7 @@ static int stress_softlockup(const args_t *args)
 			inc_counter(args);
 
 			/* Ensure we NEVER spin forever */
-			if ((time_now() - start) > (double)timeout)
+			if ((stress_time_now() - start) > (double)timeout)
 				break;
 		} while (keep_stressing());
 

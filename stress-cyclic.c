@@ -595,7 +595,7 @@ static int stress_cyclic(const args_t *args)
 	int32_t cyclic_prio = INT32_MAX;
 	int policy;
 	size_t cyclic_policy = 0;
-	const double start = time_now();
+	const double start = stress_time_now();
 	rt_stats_t *rt_stats;
 	const size_t page_size = args->page_size;
 	const size_t size = (sizeof(rt_stats_t) + page_size - 1) & (~(page_size - 1));
@@ -685,7 +685,7 @@ static int stress_cyclic(const args_t *args)
 		 * Wait until all instances have reached this point
 		 */
 		do {
-			if ((time_now() - start) > (double)timeout)
+			if ((stress_time_now() - start) > (double)timeout)
 				goto tidy_ok;
 			(void)usleep(50000);
 			__atomic_load(&g_shared->softlockup_count, &count, __ATOMIC_RELAXED);
@@ -760,7 +760,7 @@ redo_policy:
 			inc_counter(args);
 
 			/* Ensure we NEVER spin forever */
-			if ((time_now() - start) > (double)timeout)
+			if ((stress_time_now() - start) > (double)timeout)
 				break;
 		} while (keep_stressing());
 

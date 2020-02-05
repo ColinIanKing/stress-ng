@@ -142,7 +142,7 @@ again:
 
 		delay = switch_delay;
 
-		t1 = time_now();
+		t1 = stress_time_now();
 		do {
 			ssize_t ret;
 
@@ -175,7 +175,7 @@ again:
 
 					i = 0;
 					t = t1 + ((((double)get_counter(args)) * switch_delay) / NANO_SECS);
-					overrun = (time_now() - t) * (double)NANO_SECS;
+					overrun = (stress_time_now() - t) * (double)NANO_SECS;
 					overrun_by = (double)switch_delay - overrun;
 
 					if (overrun_by < 0.0) {
@@ -193,7 +193,7 @@ again:
 			}
 		} while (keep_stressing());
 
-		t2 = time_now();
+		t2 = stress_time_now();
 		pr_inf("%s: %.2f nanoseconds per context switch (based on parent run time)\n",
 			args->name,
 			((t2 - t1) * NANO_SECS) / (double)get_counter(args));

@@ -2550,7 +2550,7 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 		double delay, t1, t2, t3;
 		struct timeval tv;
 
-		t1 = time_now();
+		t1 = stress_time_now();
 		if (cpu_load_slice < 0) {
 			/* < 0 specifies number of iterations to do per slice */
 			int j;
@@ -2561,13 +2561,13 @@ static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
 					break;
 				inc_counter(args);
 			}
-			t2 = time_now();
+			t2 = stress_time_now();
 		} else if (cpu_load_slice == 0) {
 			/* == 0, random time slices */
 			double slice_end = t1 + (((double)mwc16()) / 131072.0);
 			do {
 				(void)func(args->name);
-				t2 = time_now();
+				t2 = stress_time_now();
 				if (!keep_stressing_flag())
 					break;
 				inc_counter(args);
@@ -2609,7 +2609,7 @@ poll_time:
 				((double)cpu_load_slice / 1000.0);
 			do {
 				(void)func(args->name);
-				t2 = time_now();
+				t2 = stress_time_now();
 				if (!keep_stressing_flag())
 					break;
 				inc_counter(args);
@@ -2625,7 +2625,7 @@ delay_time:
 		tv.tv_sec = delay;
 		tv.tv_usec = (delay - tv.tv_sec) * 1000000.0;
 		(void)select(0, NULL, NULL, NULL, &tv);
-		t3 = time_now();
+		t3 = stress_time_now();
 		/* Bias takes account of the time to do the delay */
 		bias = (t3 - t2) - delay;
 	} while (keep_stressing());

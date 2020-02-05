@@ -83,7 +83,7 @@ static void MLOCKED_TEXT stress_hrtimers_handler(int sig)
 			goto cancel;
 	/* High freq timer, check periodically for timeout */
 	if (((*timer_counter) & 65535) == 0)
-		if ((time_now() - start) > (double)g_opt_timeout)
+		if ((stress_time_now() - start) > (double)g_opt_timeout)
 			goto cancel;
 	stress_hrtimers_set(&timer);
 	return;
@@ -115,7 +115,7 @@ static int stress_hrtimer_process(const args_t *args, uint64_t *counter)
 	ret = stress_set_sched(getpid(), SCHED_RR, UNDEFINED, true);
 	(void)ret;
 
-	start = time_now();
+	start = stress_time_now();
 	if (stress_sighandler(args->name, SIGRTMIN, stress_hrtimers_handler, NULL) < 0)
 		return EXIT_FAILURE;
 

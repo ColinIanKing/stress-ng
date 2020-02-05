@@ -98,7 +98,7 @@ static uint64_t stress_memrate_read##size(			\
 								\
 	(void)wr_mbs;						\
 								\
-	t1 = time_now();					\
+	t1 = stress_time_now();					\
 	for (ptr = start; ptr < (uint##size##_t *)end;) {	\
 		double t2, dur_remainder;			\
 		int32_t i;					\
@@ -117,7 +117,7 @@ static uint64_t stress_memrate_read##size(			\
 			(void)(ptr[6]);				\
 			(void)(ptr[7]);				\
 		}						\
-		t2 = time_now();				\
+		t2 = stress_time_now();				\
 		total_dur += dur;				\
 		dur_remainder = total_dur - (t2 - t1);		\
 								\
@@ -152,7 +152,7 @@ static uint64_t stress_memrate_write##size(			\
 								\
 	(void)rd_mbs;						\
 								\
-	t1 = time_now();					\
+	t1 = stress_time_now();					\
 	for (ptr = start; ptr < (uint##size##_t *)end;) {	\
 		double t2, dur_remainder;			\
 		int32_t i;					\
@@ -171,7 +171,7 @@ static uint64_t stress_memrate_write##size(			\
 			ptr[6] = i;				\
 			ptr[7] = i;				\
 		}						\
-		t2 = time_now();				\
+		t2 = stress_time_now();				\
 		total_dur += dur;				\
 		dur_remainder = total_dur - (t2 - t1);		\
 								\
@@ -266,10 +266,10 @@ static int stress_memrate_child(const args_t *args, void *ctxt)
 			double t1, t2;
 			memrate_info_t *info = &memrate_info[i];
 
-			t1 = time_now();
+			t1 = stress_time_now();
 			context->stats[i].kbytes += info->func(buffer, buffer_end,
 				context->memrate_rd_mbs, context->memrate_wr_mbs);
-			t2 = time_now();
+			t2 = stress_time_now();
 			context->stats[i].duration += (t2 - t1);
 
 			if (!keep_stressing())

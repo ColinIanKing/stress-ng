@@ -138,7 +138,7 @@ static void MLOCKED_TEXT stress_timer_handler(int sig)
 			goto cancel;
 	/* High freq timer, check periodically for timeout */
 	if ((timer_counter & 65535) == 0)
-		if ((time_now() - start) > (double)g_opt_timeout)
+		if ((stress_time_now() - start) > (double)g_opt_timeout)
 			goto cancel;
 	if (keep_stressing_flag()) {
 		int ret = timer_getoverrun(timerid);
@@ -171,7 +171,7 @@ static int stress_timer(const args_t *args)
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
 	max_ops = args->max_ops;
-	start = time_now();
+	start = stress_time_now();
 
 	if (!get_setting("timer-freq", &timer_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

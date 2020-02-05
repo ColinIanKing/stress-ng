@@ -1171,7 +1171,7 @@ static inline void stress_dev_rw(
 		if (!*path || !keep_stressing_flag())
 			break;
 
-		t_start = time_now();
+		t_start = stress_time_now();
 
 
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0) {
@@ -1180,7 +1180,7 @@ static inline void stress_dev_rw(
 			goto rdwr;
 		}
 
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
 			goto next;
@@ -1217,7 +1217,7 @@ static inline void stress_dev_rw(
 		off = lseek(fd, 0, SEEK_END);
 		(void)off;
 
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
 			goto next;
@@ -1229,7 +1229,7 @@ static inline void stress_dev_rw(
 		ret = poll(fds, 1, 0);
 		(void)ret;
 
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
 			goto next;
@@ -1249,7 +1249,7 @@ static inline void stress_dev_rw(
 			ret = select(fd + 1, &rfds, &wfds, NULL, &tv);
 			(void)ret;
 
-			if (time_now() - t_start > threshold) {
+			if (stress_time_now() - t_start > threshold) {
 				timeout = true;
 				(void)close(fd);
 				goto next;
@@ -1261,7 +1261,7 @@ static inline void stress_dev_rw(
 		ret = fcntl(fd, F_GETFD, NULL);
 		(void)ret;
 
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
 			goto next;
@@ -1271,7 +1271,7 @@ static inline void stress_dev_rw(
 		ret = fcntl(fd, F_GETFL, NULL);
 		(void)ret;
 
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
 			goto next;
@@ -1281,7 +1281,7 @@ static inline void stress_dev_rw(
 		ret = fcntl(fd, F_GETSIG, NULL);
 		(void)ret;
 
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
 			goto next;
@@ -1295,7 +1295,7 @@ static inline void stress_dev_rw(
 			(void)munmap(ptr, args->page_size);
 		(void)close(fd);
 
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			goto next;
 		}
@@ -1320,7 +1320,7 @@ static inline void stress_dev_rw(
 				dev_funcs[i].func(args->name, fd, path);
 		}
 		(void)close(fd);
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			goto next;
 		}

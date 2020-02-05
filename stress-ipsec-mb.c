@@ -662,7 +662,7 @@ static int stress_ipsec_mb(const args_t *args)
 			if ((init_mb[i].features & features) == init_mb[i].features) {
 				double t1, t2;
 
-				t1 = time_now();
+				t1 = stress_time_now();
 				init_mb[i].init_func(p_mgr);
 				stress_cmac(args, p_mgr, data, sizeof(data), 1);
 				stress_ctr(args, p_mgr, data, sizeof(data), 1);
@@ -671,7 +671,7 @@ static int stress_ipsec_mb(const args_t *args)
 				stress_hmac_sha1(args, p_mgr, data, sizeof(data), 1);
 				stress_hmac_sha512(args, p_mgr, data, sizeof(data), 1);
 				stress_sha(args, p_mgr, data, sizeof(data), 1);
-				t2 = time_now();
+				t2 = stress_time_now();
 				t[i] += (t2 - t1);
 			}
 		}

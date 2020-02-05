@@ -149,7 +149,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		if (!*path || !keep_stressing_flag())
 			break;
 
-		t_start = time_now();
+		t_start = stress_time_now();
 		if (stress_try_open(args, path, O_RDONLY | O_NONBLOCK, 1500000000)) {
 			stress_sys_add_bad(path);
 			goto next;
@@ -158,7 +158,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 			stress_sys_add_bad(path);
 			goto next;
 		}
-		if (time_now() - t_start > threshold) {
+		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			goto next;
 		}
@@ -182,7 +182,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 				(void)close(fd);
 				goto drain;
 			}
-			if (time_now() - t_start > threshold) {
+			if (stress_time_now() - t_start > threshold) {
 				(void)close(fd);
 				goto next;
 			}
@@ -197,7 +197,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		}
 		(void)close(fd);
 
-		if (time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold)
 			goto next;
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			goto next;
@@ -207,7 +207,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		ret = read(fd, buffer, 0);
 		if (ret < 0)
 			goto err;
-		if (time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold)
 			goto next;
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
 			drain_kmsg = true;
@@ -224,7 +224,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 			uint8_put(*ptr);
 			(void)munmap(ptr, page_size);
 		}
-		if (time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold)
 			goto next;
 
 		/*
@@ -235,7 +235,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		FD_ZERO(&rfds);
 		ret = select(fd + 1, &rfds, NULL, NULL, &tv);
 		(void)ret;
-		if (time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold)
 			goto next;
 
 #if defined(HAVE_POLL_H)
@@ -248,7 +248,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 
 			ret = poll(fds, 1, 0);
 			(void)ret;
-			if (time_now() - t_start > threshold)
+			if (stress_time_now() - t_start > threshold)
 				goto next;
 		}
 #endif
@@ -292,7 +292,7 @@ static inline bool stress_sys_rw(const ctxt_t *ctxt)
 		}
 err:
 		(void)close(fd);
-		if (time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold)
 			goto next;
 
 		/*
@@ -309,7 +309,7 @@ err:
 			(void)ret;
 			(void)close(fd);
 
-			if (time_now() - t_start > threshold)
+			if (stress_time_now() - t_start > threshold)
 				goto next;
 		} else {
 #if 0
@@ -506,7 +506,7 @@ static void stress_sys_dir(
 				counter = 0;
 				(void)shim_pthread_spin_unlock(&lock);
 				drain_kmsg = false;
-				const double time_start = time_now();
+				const double time_start = stress_time_now();
 				const double time_end = time_start + ((double)DURATION_PER_SYSFS_FILE / 1000000.0);
 				const double time_out = time_start + 1.0;
 				/*
@@ -517,10 +517,10 @@ static void stress_sys_dir(
 				do {
 					shim_usleep_interruptible(50);
 					/* Cater for very long delays */
-					if ((counter == 0) && (time_now() > time_out))
+					if ((counter == 0) && (stress_time_now() > time_out))
 						break;
 					/* Cater for slower delays */
-					if ((counter > 0) && (time_now() > time_end))
+					if ((counter > 0) && (stress_time_now() > time_end))
 						break;
 				} while ((counter < OPS_PER_SYSFS_FILE) && keep_stressing());
 

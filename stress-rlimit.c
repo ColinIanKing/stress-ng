@@ -101,7 +101,7 @@ static int stress_rlimit_child(const args_t *args, void *ctxt)
 		ret = sigsetjmp(jmp_env, 1);
 
 		/* Check for timer overrun */
-		if ((time_now() - context->start) > (double)g_opt_timeout)
+		if ((stress_time_now() - context->start) > (double)g_opt_timeout)
 			break;
 		/* Check for counter limit reached */
 		if (args->max_ops && get_counter(args) >= args->max_ops)
@@ -186,7 +186,7 @@ static int stress_rlimit(const args_t *args)
 	stress_rlimit_context_t context;
 	int ret;
 
-	context.start = time_now();
+	context.start = stress_time_now();
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_rlimit_handler, &old_action_segv) < 0)
 		return EXIT_FAILURE;

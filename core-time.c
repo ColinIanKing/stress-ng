@@ -30,10 +30,10 @@
 #define SECONDS_IN_YEAR		(365.2425 * SECONDS_IN_DAY)
 				/* Approx, for Gregorian calendar */
 /*
- *  time_now()
+ *  stress_time_now()
  *	time in seconds as a double
  */
-double time_now(void)
+double stress_time_now(void)
 {
 	struct timeval now;
 
@@ -44,10 +44,10 @@ double time_now(void)
 }
 
 /*
- *  format_time()
+ *  stress_format_time()
  *	format a unit of time into human readable format
  */
-static inline void format_time(
+static inline void stress_format_time(
 	const bool last,		/* Last unit to format */
 	const double secs_in_units,	/* Seconds in the specific time unit */
 	const char *units,		/* Unit of time */
@@ -74,10 +74,10 @@ static inline void format_time(
 }
 
 /*
- *  duration_to_str
+ *  stress_duration_to_str
  *	duration in seconds to a human readable string
  */
-const char *duration_to_str(const double duration)
+const char *stress_duration_to_str(const double duration)
 {
 	static char str[128];
 	char *ptr = str;
@@ -89,11 +89,11 @@ const char *duration_to_str(const double duration)
 		(void)shim_strlcpy(ptr, " (", len);
 		ptr += 2;
 		len -= 2;
-		format_time(false, SECONDS_IN_YEAR, "year", &ptr, &dur, &len);
-		format_time(false, SECONDS_IN_DAY, "day", &ptr, &dur, &len);
-		format_time(false, SECONDS_IN_HOUR, "hour", &ptr, &dur, &len);
-		format_time(false, SECONDS_IN_MINUTE, "min", &ptr, &dur, &len);
-		format_time(true, 1, "sec", &ptr, &dur, &len);
+		stress_format_time(false, SECONDS_IN_YEAR, "year", &ptr, &dur, &len);
+		stress_format_time(false, SECONDS_IN_DAY, "day", &ptr, &dur, &len);
+		stress_format_time(false, SECONDS_IN_HOUR, "hour", &ptr, &dur, &len);
+		stress_format_time(false, SECONDS_IN_MINUTE, "min", &ptr, &dur, &len);
+		stress_format_time(true, 1, "sec", &ptr, &dur, &len);
 		(void)shim_strlcpy(ptr, ")", len);
 	}
 	return str;
