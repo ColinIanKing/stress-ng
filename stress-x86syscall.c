@@ -51,7 +51,7 @@ static const opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_CPUID) &&      \
     NEED_GNUC(4,6,0)
 
-typedef void (*func_t)(void);
+typedef int (*func_t)(void);
 
 /*
  *  syscall symbol mapping name to address and wrapper function
@@ -159,33 +159,44 @@ static inline long x86_64_syscall3(long number, long arg1, long arg2, long arg3)
  *  wrap_getcpu()
  *	invoke getcpu()
  */
-static void wrap_getcpu(void)
+static int wrap_getcpu(void)
 {
 	unsigned cpu, node;
 
-	(void)x86_64_syscall3(__NR_getcpu, (long)&cpu, (long)&node, (long)NULL);
+	return x86_64_syscall3(__NR_getcpu, (long)&cpu, (long)&node, (long)NULL);
 }
 
 /*
  *  wrap_gettimeofday()
  *	invoke gettimeofday()
  */
-static void wrap_gettimeofday(void)
+static int wrap_gettimeofday(void)
 {
 	struct timeval tv;
 
-	(void)x86_64_syscall2(__NR_gettimeofday, (long)&tv, (long)NULL);
+	return x86_64_syscall2(__NR_gettimeofday, (long)&tv, (long)NULL);
 }
 
 /*
  *  wrap_time()
  *	invoke time()
  */
-static void wrap_time(void)
+static int wrap_time(void)
 {
 	time_t t;
 
-	(void)x86_64_syscall1(__NR_time, (long)&t);
+	return x86_64_syscall1(__NR_time, (long)&t);
+}
+
+/*
+ *  wrap_dummy()
+ *	dummy empty function for baseline
+ */
+static int wrap_dummy(void)
+{
+	int ret = -1;
+
+	return ret;
 }
 
 /*
@@ -195,6 +206,15 @@ static x86syscall_t x86syscalls[] = {
 	{ wrap_getcpu,		"getcpu",		true },
 	{ wrap_gettimeofday,	"gettimeofday",		true },
 	{ wrap_time,		"time",			true },
+};
+
+/*
+ *  mapping of wrappers for instrumentation measurement,
+ *  MUST NOT be static to avoid optimizer from removing the
+ *  indirect calls
+ */
+x86syscall_t ___dummy_x86syscalls[] = {
+	{ wrap_dummy,		"dummy",		true },
 };
 
 /*
@@ -267,7 +287,9 @@ static int x86syscall_check_x86syscall_func(void)
 static int stress_x86syscall(const args_t *args)
 {
 	char *str;
-	double t1, t2;
+	double t1, t2, t3, overhead_ns;
+	uint64_t j;
+	uint64_t counter;
 
 	if (x86syscall_check_x86syscall_func() < 0)
 		return EXIT_FAILURE;
@@ -284,7 +306,6 @@ static int stress_x86syscall(const args_t *args)
 	t1 = stress_time_now();
 	do {
 		size_t i;
-
 		for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
 			if (x86syscalls[i].exercise) {
 				x86syscalls[i].func();
@@ -294,9 +315,28 @@ static int stress_x86syscall(const args_t *args)
 	} while (keep_stressing());
 	t2 = stress_time_now();
 
-	pr_inf("%s: %.2f nanoseconds per call\n",
+	/*
+	 *  And spend 1/10th of a second measuring overhead of
+	 *  the test framework
+	 */
+	counter = get_counter(args);
+	do {
+		for (j = 0; j < 1000000; j++) {
+			if (___dummy_x86syscalls[0].exercise) {
+				___dummy_x86syscalls[0].func();
+				inc_counter(args);
+			}
+		}
+		t3 = stress_time_now();
+	} while (t3 - t2 < 0.1);
+
+	overhead_ns = 1000000000.0 * ((t3 - t2) / (double)(get_counter(args) - counter));
+	set_counter(args, counter);
+
+	pr_inf("%s: %.2f nanoseconds per call (excluding %.2f nanoseconds test overhead)\n",
 		args->name,
-		((t2 - t1) * 1000000000.0) / (double)get_counter(args));
+		((((t2 - t1) ) * 1000000000.0) / (double)get_counter(args)) - overhead_ns,
+		overhead_ns);
 
 	return EXIT_SUCCESS;
 }
