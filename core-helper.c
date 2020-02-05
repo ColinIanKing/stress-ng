@@ -1536,6 +1536,8 @@ bool stress_is_dev_tty(const int fd)
 		return true;
 	return !strncmp("/dev/tty", ttyname(fd), 8);
 #else
+	(void)fd;
+
 	/* Assume it is */
 	return true;
 #endif
