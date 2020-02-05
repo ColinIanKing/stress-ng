@@ -288,7 +288,6 @@ static int stress_x86syscall(const args_t *args)
 {
 	char *str;
 	double t1, t2, t3, overhead_ns;
-	uint64_t j;
 	uint64_t counter;
 
 	if (x86syscall_check_x86syscall_func() < 0)
@@ -306,6 +305,7 @@ static int stress_x86syscall(const args_t *args)
 	t1 = stress_time_now();
 	do {
 		size_t i;
+
 		for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
 			if (x86syscalls[i].exercise) {
 				x86syscalls[i].func();
@@ -321,6 +321,8 @@ static int stress_x86syscall(const args_t *args)
 	 */
 	counter = get_counter(args);
 	do {
+		int j;
+
 		for (j = 0; j < 1000000; j++) {
 			if (___dummy_x86syscalls[0].exercise) {
 				___dummy_x86syscalls[0].func();
