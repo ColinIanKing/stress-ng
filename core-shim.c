@@ -590,13 +590,13 @@ int shim_nanosleep_uint64(uint64_t nsec)
 	}
 #else
 	useconds_t usec = nsec / 1000;
-	const double t_end = time_now() + ((double)usec) / 1000000.0;
+	const double t_end = stress_time_now() + ((double)usec) / 1000000.0;
 
 	for (;;) {
 		errno = 0;
 		if (usleep(usec) < 0) {
 			if (errno == EINTR) {
-				double t_left = t_end - time_now();
+				double t_left = t_end - stress_time_now();
 
 				if (t_left < 0.0)
 					return 0;
