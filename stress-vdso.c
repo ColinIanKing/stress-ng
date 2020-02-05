@@ -50,7 +50,7 @@ static const opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_GETAUXVAL) && \
     defined(AT_SYSINFO_EHDR)
 
-typedef void (*func_t)(void *);
+typedef int (*func_t)(void *);
 
 /*
  *  Symbol name to wrapper function lookup
@@ -68,6 +68,7 @@ typedef struct vdso_sym {
 	char *name;		/* Function name */
 	void *addr;		/* Function address in vDSO */
 	func_t func;		/* Wrapper function */
+	func_t dummy_func;	/* Dummy wrapper function for instrumentation */
 	bool duplicate;		/* True if a duplicate call */
 } vdso_sym_t;
 
@@ -77,40 +78,40 @@ static vdso_sym_t *vdso_sym_list;
  *  wrap_getcpu()
  *	invoke getcpu()
  */
-static void wrap_getcpu(void *vdso_func)
+static int wrap_getcpu(void *vdso_func)
 {
 	unsigned cpu, node;
 
 	int (*vdso_getcpu)(unsigned *cpu, unsigned *node, void *tcache);
 
 	*(void **)(&vdso_getcpu) = vdso_func;
-	(void)vdso_getcpu(&cpu, &node, NULL);
+	return vdso_getcpu(&cpu, &node, NULL);
 }
 
 /*
  *  wrap_gettimeofday()
  *	invoke gettimeofday()
  */
-static void wrap_gettimeofday(void *vdso_func)
+static int wrap_gettimeofday(void *vdso_func)
 {
 	int (*vdso_gettimeofday)(struct timeval *tv, struct timezone *tz);
 	struct timeval tv;
 
 	*(void **)(&vdso_gettimeofday) = vdso_func;
-	(void)vdso_gettimeofday(&tv, NULL);
+	return vdso_gettimeofday(&tv, NULL);
 }
 
 /*
  *  wrap_time()
  *	invoke time()
  */
-static void wrap_time(void *vdso_func)
+static int wrap_time(void *vdso_func)
 {
 	time_t (*vdso_time)(time_t *tloc);
 	time_t t;
 
 	*(void **)(&vdso_time) = vdso_func;
-	(void)vdso_time(&t);
+	return vdso_time(&t);
 }
 
 #if defined(HAVE_CLOCK_GETTIME)
@@ -118,15 +119,28 @@ static void wrap_time(void *vdso_func)
  *  wrap_clock_gettime()
  *	invoke clock_gettime()
  */
-static void wrap_clock_gettime(void *vdso_func)
+static int wrap_clock_gettime(void *vdso_func)
 {
 	int (*vdso_clock_gettime)(clockid_t clk_id, struct timespec *tp);
 	struct timespec tp;
 
 	*(void **)(&vdso_clock_gettime) = vdso_func;
-	vdso_clock_gettime(CLOCK_MONOTONIC, &tp);
+	return vdso_clock_gettime(CLOCK_MONOTONIC, &tp);
 }
 #endif
+
+/*
+ *  wrap_dummy()
+ *      dummy empty function for baseline
+ */
+static int wrap_dummy(void *vdso_func)
+{
+	int (*vdso_dummy)(void *ptr);
+
+	*(void **)(&vdso_dummy) = vdso_func;
+
+	return (int)(ptrdiff_t)vdso_dummy;
+}
 
 /*
  *  mapping of wrappers to function symbol name
@@ -254,6 +268,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 							vdso_sym->name = name;
 							vdso_sym->addr = sym->st_value + load_offset;
 							vdso_sym->func = func;
+							vdso_sym->dummy_func = wrap_dummy;
 							vdso_sym->next = vdso_sym_list;
 							vdso_sym_list = vdso_sym;
 						}
@@ -427,7 +442,8 @@ static int vdso_sym_list_check_vdso_func(vdso_sym_t **list)
 static int stress_vdso(const args_t *args)
 {
 	char *str;
-	double t1, t2;
+	double t1, t2, t3, overhead_ns;
+	uint64_t counter;
 
 	if (!vdso_sym_list) {
 		/* Should not fail, but worth checking to avoid breakage */
@@ -460,9 +476,28 @@ static int stress_vdso(const args_t *args)
 	} while (keep_stressing());
 	t2 = stress_time_now();
 
-	pr_inf("%s: %.2f nanoseconds per call\n",
+	counter = get_counter(args);
+	do {
+		int j;
+
+		for (j = 0; j < 1000000; j++) {
+			vdso_sym_t *vdso_sym;
+
+			for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
+				vdso_sym->dummy_func(vdso_sym->addr);
+				inc_counter(args);
+			}
+		}
+		t3 = stress_time_now();
+	} while (t3 - t2 < 0.1);
+
+	overhead_ns = 1000000000.0 * ((t3 - t2) / (double)(get_counter(args) - counter));
+	set_counter(args, counter);
+
+	pr_inf("%s: %.2f nanoseconds per call (excluding %.2f nanoseconds test overhead)\n",
 		args->name,
-		((t2 - t1) * 1000000000.0) / (double)get_counter(args));
+		((t2 - t1) * 1000000000.0) / (double)get_counter(args),
+		overhead_ns);
 
 	vdso_sym_list_free(&vdso_sym_list);
 
