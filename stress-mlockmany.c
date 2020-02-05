@@ -122,7 +122,7 @@ static int stress_mlockmany(const args_t *args)
 					_exit(0);
 
 
-				mincore_touch_pages(ptr, mmap_size);
+				(void)stress_mincore_touch_pages(ptr, mmap_size);
 
 				mlock_size = mmap_size;
 				while (mlock_size > args->page_size) {

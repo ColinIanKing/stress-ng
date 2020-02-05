@@ -109,7 +109,7 @@ static int stress_stack_child(const args_t *args, void *context)
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (altstack == MAP_FAILED)
 		return EXIT_NO_RESOURCE;
-	(void)mincore_touch_pages(altstack, altstack_size);
+	(void)stress_mincore_touch_pages(altstack, altstack_size);
 
 	/*
 	 *  We need to create an alternative signal

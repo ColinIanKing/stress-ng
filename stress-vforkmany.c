@@ -122,7 +122,7 @@ fork_again:
 		} while (waste_size > 4096);
 
 		if (waste != MAP_FAILED)
-			(void)mincore_touch_pages_interruptible(waste, WASTE_SIZE);
+			(void)stress_mincore_touch_pages_interruptible(waste, WASTE_SIZE);
 		do {
 			/*
 			 *  Force pid to be a register, if it's
@@ -158,7 +158,7 @@ vfork_again:
 					_exit(0);
 			} else if (pid == 0) {
 				if (waste != MAP_FAILED)
-					(void)mincore_touch_pages_interruptible(waste, WASTE_SIZE);
+					(void)stress_mincore_touch_pages_interruptible(waste, WASTE_SIZE);
 
 				/* child, parent is blocked, spawn new child */
 				if (!args->max_ops || get_counter(args) < args->max_ops)

@@ -233,7 +233,7 @@ static int stress_tmpfs_child(const args_t *args, void *ctxt)
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		(void)stress_madvise_random(buf, sz);
-		(void)mincore_touch_pages(buf, sz);
+		(void)stress_mincore_touch_pages(buf, sz);
 		(void)memset(mapped, PAGE_MAPPED, sizeof(mapped));
 		for (n = 0; n < pages4k; n++)
 			mappings[n] = buf + (n * page_size);
@@ -249,7 +249,7 @@ static int stress_tmpfs_child(const args_t *args, void *ctxt)
 		/*
 		 *  Step #1, unmap all pages in random order
 		 */
-		(void)mincore_touch_pages(buf, sz);
+		(void)stress_mincore_touch_pages(buf, sz);
 		for (n = pages4k; n; ) {
 			uint64_t j, i = mwc64() % pages4k;
 
@@ -291,7 +291,7 @@ static int stress_tmpfs_child(const args_t *args, void *ctxt)
 						mapped[page] = PAGE_MAPPED_FAIL;
 						mappings[page] = NULL;
 					} else {
-						(void)mincore_touch_pages(mappings[page], page_size);
+						(void)stress_mincore_touch_pages(mappings[page], page_size);
 						(void)stress_madvise_random(mappings[page], page_size);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */

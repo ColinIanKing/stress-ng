@@ -25,10 +25,10 @@
 #include "stress-ng.h"
 
 /*
- * mincore_touch_pages_slow()
+ * stress_mincore_touch_pages_slow()
  *	touch pages, even when they are resident
  */
-static void mincore_touch_pages_slow(
+static void stress_mincore_touch_pages_slow(
 	void *buf,
 	const size_t n_pages,
 	const size_t page_size,
@@ -57,11 +57,11 @@ static void mincore_touch_pages_slow(
 }
 
 /*
- * mincore_touch_pages_generic()
+ * stress_mincore_touch_pages_generic()
  *	touch a range of pages, ensure they are all in memory,
  *	can be interrupted if interruptible is true
  */
-static int mincore_touch_pages_generic(
+static int stress_mincore_touch_pages_generic(
 	void *buf,
 	const size_t buf_len,
 	const bool interruptible)
@@ -71,7 +71,7 @@ static int mincore_touch_pages_generic(
 
 #if !defined(HAVE_MINCORE)
 	/* systems that don't have mincore */
-	mincore_touch_pages_slow(buf, n_pages, page_size, interruptible);
+	stress_mincore_touch_pages_slow(buf, n_pages, page_size, interruptible);
 	return 0;
 #else
 	/* systems that support mincore */
@@ -87,7 +87,7 @@ static int mincore_touch_pages_generic(
 
 	vec = calloc(n_pages, 1);
 	if (!vec) {
-		mincore_touch_pages_slow(buf, n_pages, page_size, interruptible);
+		stress_mincore_touch_pages_slow(buf, n_pages, page_size, interruptible);
 		return 0;
 	}
 
@@ -97,7 +97,7 @@ static int mincore_touch_pages_generic(
 	if (shim_mincore((void *)uintptr, buf_len, vec) < 0) {
 		free(vec);
 
-		mincore_touch_pages_slow(buf, n_pages, page_size, interruptible);
+		stress_mincore_touch_pages_slow(buf, n_pages, page_size, interruptible);
 		return 0;
 	}
 
@@ -134,19 +134,19 @@ static int mincore_touch_pages_generic(
 }
 
 /*
- *  mincore_touch_pages()
+ *  stress_mincore_touch_pages()
  *	touch a range of pages, ensure they are all in memory, non-interruptible
  */
-int mincore_touch_pages(void *buf, const size_t buf_len)
+int stress_mincore_touch_pages(void *buf, const size_t buf_len)
 {
-	return mincore_touch_pages_generic(buf, buf_len, false);
+	return stress_mincore_touch_pages_generic(buf, buf_len, false);
 }
 
 /*
- *  mincore_touch_pages()
+ *  stress_mincore_touch_pages()
  *	touch a range of pages, ensure they are all in memory, interruptible
  */
-int mincore_touch_pages_interruptible(void *buf, const size_t buf_len)
+int stress_mincore_touch_pages_interruptible(void *buf, const size_t buf_len)
 {
-	return mincore_touch_pages_generic(buf, buf_len, true);
+	return stress_mincore_touch_pages_generic(buf, buf_len, true);
 }

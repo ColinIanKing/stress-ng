@@ -268,7 +268,7 @@ retry:
 			(void)shim_msync((void *)buf, sz, ms_flags);
 		}
 		(void)stress_madvise_random(buf, sz);
-		(void)mincore_touch_pages(buf, context->mmap_bytes);
+		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
 		stress_mmap_mprotect(args->name, buf, sz, context->mmap_mprotect);
 		for (n = 0; n < pages4k; n++) {
 			mapped[n] = PAGE_MAPPED;
@@ -306,7 +306,7 @@ retry:
 		/*
 		 *  Step #1, unmap all pages in random order
 		 */
-		(void)mincore_touch_pages(buf, context->mmap_bytes);
+		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
 		for (n = pages4k; n; ) {
 			uint64_t j, i = mwc64() % pages4k;
 			for (j = 0; j < n; j++) {
@@ -355,7 +355,7 @@ retry:
 						mapped[page] = PAGE_MAPPED_FAIL;
 						mappings[page] = NULL;
 					} else {
-						(void)mincore_touch_pages(mappings[page], page_size);
+						(void)stress_mincore_touch_pages(mappings[page], page_size);
 						(void)stress_madvise_random(mappings[page], page_size);
 						stress_mmap_mprotect(args->name, mappings[page],
 							page_size, context->mmap_mprotect);

@@ -200,7 +200,7 @@ static int stress_shm_posix_child(
 				(void)close(shm_fd);
 				goto reap;
 			}
-			(void)mincore_touch_pages(addr, sz);
+			(void)stress_mincore_touch_pages(addr, sz);
 
 			if (!keep_stressing_flag()) {
 				(void)close(shm_fd);

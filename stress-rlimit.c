@@ -144,7 +144,7 @@ static int stress_rlimit_child(const args_t *args, void *ctxt)
 				{
 					static uint8_t stack[MAX_RLIMIT_STACK];
 
-					mincore_touch_pages_interruptible(stack, MAX_RLIMIT_STACK);
+					(void)stress_mincore_touch_pages_interruptible(stack, MAX_RLIMIT_STACK);
 				}
 				break;
 			case 4:

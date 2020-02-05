@@ -262,7 +262,7 @@ static int stress_madvise(const args_t *args)
 		(void)memset(buf, 0xff, sz);
 
 		(void)stress_madvise_random(buf, sz);
-		(void)mincore_touch_pages(buf, sz);
+		(void)stress_mincore_touch_pages(buf, sz);
 
 		for (n = 0; n < sz; n += page_size) {
 			const int advise = stress_random_advise(args);

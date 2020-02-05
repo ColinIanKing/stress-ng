@@ -356,7 +356,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 			goto abort;
 	}
 
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 
 	inject_random_bit_errors(buf, sz);
 
@@ -382,7 +382,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 
 	inject_random_bit_errors(buf, sz);
 
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	mwc_seed(w, z);
 	for (ptr = (uint64_t *)buf_end; ptr > (uint64_t *)buf; ) {
 		uint64_t val = mwc64();
@@ -680,7 +680,7 @@ static size_t TARGET_CLONES stress_vm_gray(
 		if (UNLIKELY(max_ops && c >= max_ops))
 			break;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
 	for (c = c_orig, v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
@@ -728,7 +728,7 @@ static size_t TARGET_CLONES stress_vm_incdec(
 		if (UNLIKELY(max_ops && c >= max_ops))
 			break;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	for (ptr = buf; ptr < buf_end; ptr++) {
 		*ptr -= val;
@@ -781,7 +781,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 		if (UNLIKELY(max_ops && c >= max_ops))
 			break;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	/*
 	 *  Step through memory in prime sized steps
@@ -882,7 +882,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 			goto abort;
 	}
 
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
 	mwc_seed(w1, z1);
@@ -947,7 +947,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 			goto abort;
 	}
 
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
 	mwc_seed(w, z);
@@ -1013,7 +1013,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 
 	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
 		ROR64(*(ptr + 0));
@@ -1030,7 +1030,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 
 	inject_random_bit_errors(buf, sz);
 
@@ -1105,7 +1105,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 
 	for (i = 0; i < 8; i++) {
 		ROR8(bit);
@@ -1124,7 +1124,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 			if (UNLIKELY(!keep_stressing_flag()))
 				goto abort;
 		}
-		(void)mincore_touch_pages(buf, sz);
+		(void)stress_mincore_touch_pages(buf, sz);
 	}
 
 	inject_random_bit_errors(buf, sz);
@@ -1178,7 +1178,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 	(void)max_ops;
 
 	(void)memset(buf, 0x00, sz);
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	c += sz / 8;
 
@@ -1197,7 +1197,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 	}
 
 	(void)memset(buf, 0xff, sz);
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	c += sz / 8;
 
@@ -1257,7 +1257,7 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 		if (UNLIKELY(max_ops && c >= max_ops))
 			break;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
 	for (ptr = (uint64_t *)buf; ptr < buf_end; ptr += 8) {
@@ -1319,7 +1319,7 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 		if (UNLIKELY(max_ops && c >= max_ops))
 			break;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
 	for (ptr = (uint64_t *)buf; ptr < buf_end; ptr += 8) {
@@ -1397,7 +1397,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
 	for (ptr = buf; ptr < buf_end; ptr += 8) {
@@ -1458,7 +1458,7 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 			goto abort;
 	}
 
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
 	mwc_seed(w, z);
@@ -1524,7 +1524,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 				goto abort;
 		}
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
 	for (i = 0; i < sz; i++) {
@@ -1581,7 +1581,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 				goto abort;
 		}
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
 	for (i = 0; i < sz; i++) {
@@ -1648,7 +1648,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
 	for (i = 0; i < sz; i++) {
@@ -1702,7 +1702,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
 		/*
 		 *  Step through memory in prime sized steps
@@ -1716,7 +1716,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
 	}
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
 	for (i = 0; i < sz; i++) {
@@ -1877,7 +1877,7 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 		return 0;
 	}
 
-	(void)mincore_touch_pages(buf, sz);
+	(void)stress_mincore_touch_pages(buf, sz);
 
 	for (j = 0; j < n; j++)
 		buf32[j] = val;
@@ -2053,7 +2053,7 @@ static int stress_vm_child(const args_t *args, void *ctxt)
 		}
 
 		no_mem_retries = 0;
-		(void)mincore_touch_pages(buf, buf_sz);
+		(void)stress_mincore_touch_pages(buf, buf_sz);
 		*(context->bit_error_count) += func(buf, buf_sz, args, max_ops);
 
 		if (vm_hang == 0) {

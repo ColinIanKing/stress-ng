@@ -317,7 +317,7 @@ static int stress_clone_child(const args_t *args, void *context)
 	 */
 	ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE, mflags, -1, 0);
 	if (ptr != MAP_FAILED)
-		(void)mincore_touch_pages(ptr, mmap_size);
+		(void)stress_mincore_touch_pages(ptr, mmap_size);
 
 	do {
 		if (clones.length < clone_max) {

@@ -145,7 +145,7 @@ static int stress_malloc_child(const args_t *args, void *context)
 				tmp = realloc(addr[i], len);
 				if (tmp) {
 					addr[i] = tmp;
-					(void)mincore_touch_pages_interruptible(addr[i], len);
+					(void)stress_mincore_touch_pages_interruptible(addr[i], len);
 					inc_counter(args);
 				}
 			}
@@ -163,7 +163,7 @@ static int stress_malloc_child(const args_t *args, void *context)
 				}
 				if (addr[i]) {
 					inc_counter(args);
-					(void)mincore_touch_pages_interruptible(addr[i], len);
+					(void)stress_mincore_touch_pages_interruptible(addr[i], len);
 				}
 			}
 		}
