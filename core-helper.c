@@ -45,6 +45,130 @@ static unsigned long timer_slack = 0;
 int __dso_handle;
 #endif
 
+typedef struct {
+	const int  signum;
+	const char *name;
+} sig_name_t;
+
+#define SIG_NAME(x) { x, #x }
+
+static const sig_name_t sig_names[] = {
+#if defined(SIGABRT)
+	SIG_NAME(SIGABRT),
+#endif
+#if defined(SIGALRM)
+	SIG_NAME(SIGALRM),
+#endif
+#if defined(SIGBUS)
+	SIG_NAME(SIGBUS),
+#endif
+#if defined(SIGCHLD)
+	SIG_NAME(SIGCHLD),
+#endif
+#if defined(SIGCLD)
+	SIG_NAME(SIGCLD),
+#endif
+#if defined(SIGCONT)
+	SIG_NAME(SIGCONT),
+#endif
+#if defined(SIGEMT)
+	SIG_NAME(SIGEMT),
+#endif
+#if defined(SIGFPE)
+	SIG_NAME(SIGFPE),
+#endif
+#if defined(SIGHUP)
+	SIG_NAME(SIGHUP),
+#endif
+#if defined(SIGILL)
+	SIG_NAME(SIGILL),
+#endif
+#if defined(SIGINFO)
+	SIG_NAME(SIGINFO),
+#endif
+#if defined(SIGINT)
+	SIG_NAME(SIGINT),
+#endif
+#if defined(SIGIO)
+	SIG_NAME(SIGIO),
+#endif
+#if defined(SIGIOT)
+	SIG_NAME(SIGIOT),
+#endif
+#if defined(SIGKILL)
+	SIG_NAME(SIGKILL),
+#endif
+#if defined(SIGLOST)
+	SIG_NAME(SIGLOST),
+#endif
+#if defined(SIGPIPE)
+	SIG_NAME(SIGPIPE),
+#endif
+#if defined(SIGPOLL)
+	SIG_NAME(SIGPOLL),
+#endif
+#if defined(SIGPROF)
+	SIG_NAME(SIGPROF),
+#endif
+#if defined(SIGPWR)
+	SIG_NAME(SIGPWR),
+#endif
+#if defined(SIGQUIT)
+	SIG_NAME(SIGQUIT),
+#endif
+#if defined(SIGSEGV)
+	SIG_NAME(SIGSEGV),
+#endif
+#if defined(SIGSTKFLT)
+	SIG_NAME(SIGSTKFLT),
+#endif
+#if defined(SIGSTOP)
+	SIG_NAME(SIGSTOP),
+#endif
+#if defined(SIGTSTP)
+	SIG_NAME(SIGTSTP),
+#endif
+#if defined(SIGSYS)
+	SIG_NAME(SIGSYS),
+#endif
+#if defined(SIGTERM)
+	SIG_NAME(SIGTERM),
+#endif
+#if defined(SIGTRAP)
+	SIG_NAME(SIGTRAP),
+#endif
+#if defined(SIGTTIN)
+	SIG_NAME(SIGTTIN),
+#endif
+#if defined(SIGTTOU)
+	SIG_NAME(SIGTTOU),
+#endif
+#if defined(SIGUNUSED)
+	SIG_NAME(SIGUNUSED),
+#endif
+#if defined(SIGURG)
+	SIG_NAME(SIGURG),
+#endif
+#if defined(SIGUSR1)
+	SIG_NAME(SIGUSR1),
+#endif
+#if defined(SIGUSR2)
+	SIG_NAME(SIGUSR2),
+#endif
+#if defined(SIGVTALRM)
+	SIG_NAME(SIGVTALRM),
+#endif
+#if defined(SIGXCPU)
+	SIG_NAME(SIGXCPU),
+#endif
+#if defined(SIGXFSZ)
+	SIG_NAME(SIGXFSZ),
+#endif
+#if defined(SIGWINCH)
+	SIG_NAME(SIGWINCH),
+#endif
+};
+
 static const char *stress_temp_path = ".";
 
 /*
@@ -687,20 +811,21 @@ void stress_cwd_readwriteable(void)
  */
 const char *stress_strsignal(const int signum)
 {
-	static char buffer[128];
-#if defined(STRESS_NSIG)
+	static char buffer[40];
 	const char *str = NULL;
+	size_t i;
 
-	if ((signum >= 0) && (signum < STRESS_NSIG))
-		str = strsignal(signum);
+	for (i = 0; i < SIZEOF_ARRAY(sig_names); i++) {
+		if (signum == sig_names[i].signum) {
+			str = sig_names[i].name;
+			break;
+		}
+	}
 	if (str)
-		(void)snprintf(buffer, sizeof(buffer), "signal %d (%s)",
+		(void)snprintf(buffer, sizeof(buffer), "signal %d '%s'",
 			signum, str);
 	else
 		(void)snprintf(buffer, sizeof(buffer), "signal %d", signum);
-#else
-	(void)snprintf(buffer, sizeof(buffer), "signal %d", signum);
-#endif
 	return buffer;
 }
 
