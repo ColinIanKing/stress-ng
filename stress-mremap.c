@@ -189,8 +189,8 @@ static int stress_mremap_child(const args_t *args, void *context)
 
 		/* Ensure we can write to the mapped pages */
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			mmap_set(buf, new_sz, page_size);
-			if (mmap_check(buf, sz, page_size) < 0) {
+			stress_mmap_set(buf, new_sz, page_size);
+			if (stress_mmap_check(buf, sz, page_size) < 0) {
 				pr_fail("%s: mmap'd region of %zu "
 					"bytes does not contain expected data\n",
 					args->name, sz);
@@ -208,7 +208,7 @@ static int stress_mremap_child(const args_t *args, void *context)
 			}
 			(void)stress_madvise_random(buf, new_sz);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				if (mmap_check(buf, new_sz, page_size) < 0) {
+				if (stress_mmap_check(buf, new_sz, page_size) < 0) {
 					pr_fail("%s: mremap'd region "
 						"of %zu bytes does "
 						"not contain expected data\n",

@@ -239,9 +239,9 @@ static int stress_tmpfs_child(const args_t *args, void *ctxt)
 			mappings[n] = buf + (n * page_size);
 
 		/* Ensure we can write to the mapped pages */
-		mmap_set(buf, sz, page_size);
+		stress_mmap_set(buf, sz, page_size);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			if (mmap_check(buf, sz, page_size) < 0)
+			if (stress_mmap_check(buf, sz, page_size) < 0)
 				pr_fail("%s: mmap'd region of %zu bytes does "
 					"not contain expected data\n", args->name, sz);
 		}
@@ -295,8 +295,8 @@ static int stress_tmpfs_child(const args_t *args, void *ctxt)
 						(void)stress_madvise_random(mappings[page], page_size);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
-						mmap_set(mappings[page], page_size, page_size);
-						if (mmap_check(mappings[page], page_size, page_size) < 0)
+						stress_mmap_set(mappings[page], page_size, page_size);
+						if (stress_mmap_check(mappings[page], page_size, page_size) < 0)
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
 						if (tmpfs_mmap_file) {

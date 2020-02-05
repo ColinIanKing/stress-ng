@@ -25,12 +25,12 @@
 #include "stress-ng.h"
 
 /*
- *  mmap_set()
+ *  stress_mmap_set()
  *	set mmap'd data, touching pages in
  *	a specific pattern - check with
  *	mmap_check().
  */
-void mmap_set(
+void stress_mmap_set(
 	uint8_t *buf,
 	const size_t sz,
 	const size_t page_size)
@@ -49,10 +49,10 @@ void mmap_set(
 }
 
 /*
- *  mmap_check()
+ *  stress_mmap_check()
  *	check if mmap'd data is sane
  */
-int mmap_check(
+int stress_mmap_check(
 	uint8_t *buf,
 	const size_t sz,
 	const size_t page_size)

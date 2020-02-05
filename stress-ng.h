@@ -3396,8 +3396,8 @@ extern int stress_sigrestore(const char *name, const int signum, struct sigactio
 extern WARN_UNUSED int stress_not_implemented(const args_t *args);
 extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
 extern WARN_UNUSED void *stress_align_address(const void *addr, const size_t alignment);
-extern void mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
-extern WARN_UNUSED int mmap_check(uint8_t *buf, const size_t sz, const size_t page_size);
+extern void stress_mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
+extern WARN_UNUSED int stress_mmap_check(uint8_t *buf, const size_t sz, const size_t page_size);
 extern WARN_UNUSED uint64_t stress_get_phys_mem_size(void);
 extern WARN_UNUSED uint64_t stress_get_filesystem_size(void);
 extern WARN_UNUSED uint64_t stress_get_filesystem_available_inodes(void);
