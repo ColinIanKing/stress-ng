@@ -37,9 +37,9 @@ static sigjmp_buf jmp_env;
 typedef struct {
 	const char *library;
 	const char *symbol;
-} lib_info_t;
+} stress_lib_info_t;
 
-static const lib_info_t libnames[] = {
+static const stress_lib_info_t libnames[] = {
 #if defined(LIBANL_SO)
 	{ LIBANL_SO, "gai_error" },
 #endif
