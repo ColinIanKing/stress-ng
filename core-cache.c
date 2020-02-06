@@ -24,14 +24,14 @@
 typedef struct {
 	const char	*name;		/* cache type name */
 	const uint32_t	value;		/* cache type ID */
-} generic_map_t;
+} stress_generic_map_t;
 
 #if defined(__linux__)
 #define SYS_CPU_PREFIX               "/sys/devices/system/cpu"
 #define SYS_CPU_CACHE_DIR            "cache"
 #endif
 
-static const generic_map_t cache_type_map[] = {
+static const stress_generic_map_t cache_type_map[] = {
 	{"data"        , CACHE_TYPE_DATA},
 	{"instruction" , CACHE_TYPE_INSTRUCTION},
 	{"unified"     , CACHE_TYPE_UNIFIED},
@@ -142,7 +142,7 @@ out:
  */
 static cache_type_t get_cache_type(const char *name)
 {
-	const generic_map_t *p;
+	const stress_generic_map_t *p;
 
 	if (!name) {
 		pr_dbg("%s: no cache type specified\n", __func__);
