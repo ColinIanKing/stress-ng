@@ -31,7 +31,7 @@ static const help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-typedef void (*rawdev_func)(const args_t *args, const int fd,
+typedef void (*stress_rawdev_func)(const args_t *args, const int fd,
 			   unsigned long blks, unsigned long blksz);
 
 #define	MIN_BLKSZ	((int)512)
@@ -39,7 +39,7 @@ typedef void (*rawdev_func)(const args_t *args, const int fd,
 
 typedef struct {
 	const char              *name;
-	const rawdev_func       func;
+	const stress_rawdev_func func;
 } stress_rawdev_method_info_t;
 
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
@@ -328,7 +328,7 @@ static int stress_rawdev(const args_t *args)
 	int blksz = 0;
 	unsigned long blks;
 	const stress_rawdev_method_info_t *rawdev_method = &rawdev_methods[0];
-	rawdev_func func;
+	stress_rawdev_func func;
 
 	stress_temp_dir_args(args, path, sizeof(path));
 
