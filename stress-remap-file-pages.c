@@ -34,7 +34,7 @@ static const help_t help[] = {
 
 #define N_PAGES		(512)
 
-typedef uint16_t mapdata_t;
+typedef uint16_t stress_mapdata_t;
 
 /*
  *  check_order()
@@ -43,7 +43,7 @@ typedef uint16_t mapdata_t;
 static void check_order(
 	const args_t *args,
 	const size_t stride,
-	const mapdata_t *data,
+	const stress_mapdata_t *data,
 	const size_t *order,
 	const char *ordering)
 {
@@ -68,7 +68,7 @@ static void check_order(
 static int remap_order(
 	const args_t *args,
 	const size_t stride,
-	mapdata_t *data,
+	stress_mapdata_t *data,
 	const size_t *order,
 	const size_t page_size)
 {
@@ -94,7 +94,7 @@ static int remap_order(
  */
 static int stress_remap(const args_t *args)
 {
-	mapdata_t *data;
+	stress_mapdata_t *data;
 	const size_t page_size = args->page_size;
 	const size_t data_size = N_PAGES * page_size;
 	const size_t stride = page_size / sizeof(*data);
