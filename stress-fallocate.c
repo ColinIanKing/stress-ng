@@ -80,7 +80,7 @@ static int stress_fallocate(const args_t *args)
 
 	if (!get_setting("fallocate-bytes", &fallocate_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			fallocate_bytes = MAX_FALLOCATE_BYTES;
+			fallocate_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			fallocate_bytes = MIN_FALLOCATE_BYTES;
 	}

@@ -89,13 +89,13 @@ static int stress_readahead(const args_t *args)
 
 	if (!get_setting("readahead-bytes", &readahead_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			readahead_bytes = MAX_HDD_BYTES;
+			readahead_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			readahead_bytes = MIN_HDD_BYTES;
+			readahead_bytes = MIN_READAHEAD_BYTES;
 	}
 	readahead_bytes /= args->num_instances;
-	if (readahead_bytes < MIN_HDD_BYTES)
-		readahead_bytes = MIN_HDD_BYTES;
+	if (readahead_bytes < MIN_READAHEAD_BYTES)
+		readahead_bytes = MIN_READAHEAD_BYTES;
 
 	if (stress_temp_dir_mk_args(args) < 0)
 		return EXIT_FAILURE;

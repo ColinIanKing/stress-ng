@@ -70,7 +70,7 @@ static int stress_seek(const args_t *args)
 
 	if (!get_setting("seek-size", &seek_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			seek_size = MAX_SEEK_SIZE;
+			seek_size = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			seek_size = MIN_SEEK_SIZE;
 	}

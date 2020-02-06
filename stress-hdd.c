@@ -363,7 +363,7 @@ static int stress_hdd(const args_t *args)
 
 	if (!get_setting("hdd-bytes", &hdd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			hdd_bytes = MAX_HDD_BYTES;
+			hdd_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			hdd_bytes = MIN_HDD_BYTES;
 	}

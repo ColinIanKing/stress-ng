@@ -1205,6 +1205,14 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_MEM_LIMIT		MAX_48
 #endif
 
+#define MAX_FILE_LIMIT		((1UL << ((sizeof(off_t) * 8) - 1)) - 1)
+/*
+ * --maximize files must not be so big that we fill up
+ * a disk, so make them either the MAX_FILE_FILE_LIMIT for
+ * systems with small off_t or 4GB for large off_t systems
+ */
+#define MAXIMIZED_FILE_SIZE	((sizeof(off_t) < 8) ? MAX_FILE_LIMIT : MAX_32)
+
 /* Stressor defaults */
 #define MIN_AIO_REQUESTS	(1)
 #define MAX_AIO_REQUESTS	(4096)
@@ -1231,7 +1239,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_CLONES		(8192)
 
 #define MIN_COPY_FILE_BYTES	(128 * MB)
-#define MAX_COPY_FILE_BYTES	(256ULL * GB)
+#define MAX_COPY_FILE_BYTES	(MAX_FILE_LIMIT)
 #define DEFAULT_COPY_FILE_BYTES	(256 * MB)
 #define DEFAULT_COPY_FILE_SIZE  (2 * MB)
 
@@ -1252,7 +1260,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_EPOLL_PORT	(6000)
 
 #define MIN_HDD_BYTES		(1 * MB)
-#define MAX_HDD_BYTES		(256ULL * GB)
+#define MAX_HDD_BYTES		(MAX_FILE_LIMIT)
 #define DEFAULT_HDD_BYTES	(1 * GB)
 
 #define MIN_HDD_WRITE_SIZE	(1)
@@ -1260,19 +1268,11 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_HDD_WRITE_SIZE	(64 * 1024)
 
 #define MIN_FALLOCATE_BYTES	(1 * MB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_FALLOCATE_BYTES	(MAX_32)
-#else
-#define MAX_FALLOCATE_BYTES	(4 * GB)
-#endif
+#define MAX_FALLOCATE_BYTES	(MAX_FILE_LIMIT)
 #define DEFAULT_FALLOCATE_BYTES	(1 * GB)
 
 #define MIN_FIEMAP_SIZE		(1 * MB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_FIEMAP_SIZE		(0xffffe00)
-#else
-#define MAX_FIEMAP_SIZE		(256ULL * GB)
-#endif
+#define MAX_FIEMAP_SIZE		(MAX_FILE_LIMIT)
 #define DEFAULT_FIEMAP_SIZE	(16 * MB)
 
 #define MIN_FIFO_READERS	(1)
@@ -1304,7 +1304,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_HEAPSORT_SIZE	(256 * KB)
 
 #define MIN_IOMIX_BYTES		(1 * MB)
-#define MAX_IOMIX_BYTES		(256ULL * GB)
+#define MAX_IOMIX_BYTES		(MAX_FILE_LIMIT)
 #define DEFAULT_IOMIX_BYTES	(1 * GB)
 
 #define MIN_JUDY_SIZE		(1 * KB)
@@ -1373,11 +1373,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_MREMAP_BYTES	(256 * MB)
 
 #define MIN_MSYNC_BYTES		(1 * MB)	/* MUST NOT BE page size or less! */
-#if UINTPTR_MAX == MAX_32
-#define MAX_MSYNC_BYTES		(MAX_32)
-#else
-#define MAX_MSYNC_BYTES		(4 * GB)
-#endif
+#define MAX_MSYNC_BYTES		(MAX_FILE_LIMIT)
 #define DEFAULT_MSYNC_BYTES	(256 * MB)
 
 #define MIN_PTHREAD		(1)
@@ -1397,11 +1393,11 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_RADIXSORT_SIZE	(256 * KB)
 
 #define MIN_READAHEAD_BYTES	(1 * MB)
-#define MAX_READAHEAD_BYTES	(256ULL * GB)
+#define MAX_READAHEAD_BYTES	(MAX_FILE_LIMIT)
 #define DEFAULT_READAHEAD_BYTES	(1 * GB)
 
 #define MIN_REVIO_BYTES		(1 * MB)
-#define MAX_REVIO_BYTES		(256ULL * GB)
+#define MAX_REVIO_BYTES		(MAX_FILE_LIMIT)
 #define DEFAULT_REVIO_BYTES	(1 * GB)
 
 #define MIN_SCTP_PORT		(1024)
@@ -1413,11 +1409,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_SENDFILE_SIZE	(4 * MB)
 
 #define MIN_SEEK_SIZE		(1 * MB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_SEEK_SIZE		(0xffffe00)
-#else
-#define MAX_SEEK_SIZE 		(256ULL * GB)
-#endif
+#define MAX_SEEK_SIZE		(MAX_FILE_LIMIT)
 #define DEFAULT_SEEK_SIZE	(16 * MB)
 
 #define MIN_SEQUENTIAL		(0)
@@ -1470,11 +1462,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_STREAM_L3_SIZE	(4 * MB)
 
 #define MIN_SYNC_FILE_BYTES	(1 * MB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_SYNC_FILE_BYTES	(MAX_32)
-#else
-#define MAX_SYNC_FILE_BYTES	(4 * GB)
-#endif
+#define MAX_SYNC_FILE_BYTES	(MAX_FILE_LIMIT)
 #define DEFAULT_SYNC_FILE_BYTES	(1 * GB)
 
 #define MIN_TIMER_FREQ		(1)

@@ -110,7 +110,7 @@ static int stress_msync(const args_t *args)
 
 	if (!get_setting("msync-bytes", &msync_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			msync_bytes = MAX_MSYNC_BYTES;
+			msync_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			msync_bytes = MIN_MSYNC_BYTES;
 	}

@@ -232,9 +232,9 @@ static int stress_fiemap(const args_t *args)
 
 	if (!get_setting("fiemap-bytes", &fiemap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			fiemap_bytes = MAX_SEEK_SIZE;
+			fiemap_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			fiemap_bytes = MIN_SEEK_SIZE;
+			fiemap_bytes = MIN_FIEMAP_SIZE;
 	}
 	fiemap_bytes /= args->num_instances;
 	if (fiemap_bytes < MIN_FIEMAP_SIZE)

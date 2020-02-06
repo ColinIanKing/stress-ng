@@ -312,7 +312,7 @@ static int stress_revio(const args_t *args)
 
 	if (!get_setting("revio-bytes", &revio_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			revio_bytes = MAX_REVIO_BYTES;
+			revio_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			revio_bytes = MIN_REVIO_BYTES;
 	}
@@ -326,7 +326,6 @@ static int stress_revio(const args_t *args)
 			PRIu64 " bytes\n",
 			args->name, revio_bytes);
 	}
-
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)

@@ -675,9 +675,9 @@ static int stress_iomix(const args_t *args)
 
 	if (!get_setting("iomix-bytes", &iomix_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			iomix_bytes = MAX_FALLOCATE_BYTES;
+			iomix_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			iomix_bytes = MIN_FALLOCATE_BYTES;
+			iomix_bytes = MIN_IOMIX_BYTES;
 	}
 	iomix_bytes /= args->num_instances;
 	if (iomix_bytes < (off_t)MIN_IOMIX_BYTES)
