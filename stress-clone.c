@@ -295,6 +295,7 @@ static int stress_clone_child(const args_t *args, void *context)
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
+#if defined(MAP_POPULATE)
 	const int mflags = MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE;
 #else
 	const int mflags = MAP_ANONYMOUS | MAP_PRIVATE;
@@ -308,8 +309,6 @@ static int stress_clone_child(const args_t *args, void *context)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			clone_max = MIN_ZOMBIES;
 	}
-
-#if defined(MAP_POPULATE)
 
 	/*
 	 * Make child larger than parent to make it more of
