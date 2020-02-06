@@ -35,9 +35,9 @@ static const help_t help[] = {
 typedef struct {
 	const char *name;
 	const int whence;
-} whences_t;
+} stress_whences_t;
 
-static const whences_t whences[] = {
+static const stress_whences_t whences[] = {
 	{ "SEEK_SET",	SEEK_SET },
 	{ "SEEK_CUR",	SEEK_CUR },
 	{ "SEEK_END",	SEEK_END }
