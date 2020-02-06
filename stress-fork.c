@@ -81,7 +81,7 @@ static int stress_fork_fn(
 	static int errnos[MAX_FORKS];
 	int ret;
 #if defined(__APPLE__)
-	double time_end = time_now() + (double)g_opt_timeout;
+	double time_end = stress_time_now() + (double)g_opt_timeout;
 #endif
 
 	stress_set_oom_adjustment(args->name, true);
@@ -140,7 +140,7 @@ static int stress_fork_fn(
 		 *  vfork so check the time in case SIGARLM was not
 		 *  delivered.
 		 */
-		if ((fork_fn == vfork) && (time_now() > time_end))
+		if ((fork_fn == vfork) && (stress_time_now() > time_end))
 			break;
 #endif
 	} while (keep_stressing());
