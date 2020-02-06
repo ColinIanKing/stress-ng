@@ -36,7 +36,7 @@ static const help_t help[] = {
 
 #define APPARMOR_BUF_SZ	(4096)
 
-typedef int (*apparmor_func)(const char *name,
+typedef int (*stress_apparmor_func)(const char *name,
 			     const uint64_t max_ops, uint64_t *counter);
 
 static volatile bool apparmor_run = true;
@@ -213,7 +213,7 @@ static pid_t apparmor_spawn(
 	const args_t *args,
 	const uint64_t max_ops,
 	uint64_t *counter,
-	apparmor_func func)
+	stress_apparmor_func func)
 {
 	pid_t pid;
 
@@ -628,7 +628,7 @@ static int apparmor_stress_corruption(
 }
 
 
-static const apparmor_func apparmor_funcs[] = {
+static const stress_apparmor_func apparmor_funcs[] = {
 	apparmor_stress_profiles,
 	apparmor_stress_features,
 	apparmor_stress_kernel_interface,
