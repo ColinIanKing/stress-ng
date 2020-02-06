@@ -55,7 +55,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 
 typedef struct {
 	uint64_t	value;
-} msg_t;
+} stress_msg_t;
 
 static void stress_mq_notify_func(union sigval s)
 {
@@ -109,7 +109,7 @@ static int stress_mq(const args_t *args)
 	while (sz > 0) {
 		attr.mq_flags = 0;
 		attr.mq_maxmsg = sz;
-		attr.mq_msgsize = sizeof(msg_t);
+		attr.mq_msgsize = sizeof(stress_msg_t);
 		attr.mq_curmsgs = 0;
 
 		mq = mq_open(mq_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
@@ -170,7 +170,7 @@ again:
 			uint64_t i = 0;
 
 			for (;;) {
-				msg_t ALIGN64 msg;
+				stress_msg_t ALIGN64 msg;
 				int ret;
 				const uint64_t timed = (i & 1);
 				unsigned int prio;
@@ -233,7 +233,7 @@ again:
 	} else {
 		int status;
 		int attr_count = 0;
-		msg_t ALIGN64 msg;
+		stress_msg_t ALIGN64 msg;
 		uint64_t values[PRIOS_MAX];
 
 		/* Parent */
