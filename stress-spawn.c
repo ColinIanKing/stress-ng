@@ -66,7 +66,7 @@ static int stress_spawn(const args_t *args)
 	/*
 	 *  Don't want to run this when running as root as
 	 *  this could allow somebody to try and run another
-	 *  spawnable as root.
+	 *  spawnable process as root.
 	 */
 	if (geteuid() == 0) {
 		pr_inf("%s: running as root, won't run test.\n", args->name);
