@@ -42,7 +42,7 @@ static const help_t help[] = {
     defined(HAVE_TIMER_SETTIME) &&	\
     NEED_GLIBC(2,3,2)
 
-typedef void (epoll_func_t)(
+typedef void (stress_epoll_func_t)(
 	const args_t *args,
 	const int child,
 	const pid_t ppid,
@@ -135,7 +135,7 @@ static void MLOCKED_TEXT epoll_timer_handler(int sig)
  */
 static pid_t epoll_spawn(
 	const args_t *args,
-	epoll_func_t func,
+	stress_epoll_func_t func,
 	const int child,
 	const pid_t ppid,
 	const int epoll_port,
