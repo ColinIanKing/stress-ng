@@ -54,14 +54,14 @@ typedef struct stat_info {
 	char		*path;		/* path to stat */
 	uint16_t	ignore;		/* true to ignore this path */
 	bool		access;		/* false if we can't access path */
-} stat_info_t;
+} stress_stat_info_t;
 
 /* Thread context information */
 typedef struct ctxt {
 	const args_t 	*args;		/* Stressor args */
-	stat_info_t 	*si;		/* path stat information */
+	stress_stat_info_t *si;		/* path stat information */
 	const uid_t	euid;		/* euid of process */
-} ctxt_t;
+} stress_ctxt_t;
 
 static int stress_set_fstat_dir(const char *opt)
 {
@@ -95,13 +95,13 @@ static bool do_not_stat(const char *filename)
 	return false;
 }
 
-static void stress_fstat_helper(const ctxt_t *ctxt)
+static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 {
 	struct stat buf;
 #if defined(AT_EMPTY_PATH) && defined(AT_SYMLINK_NOFOLLOW)
 	struct shim_statx bufx;
 #endif
-	stat_info_t *si = ctxt->si;
+	stress_stat_info_t *si = ctxt->si;
 
 	if ((stat(si->path, &buf) < 0) && (errno != ENOMEM)) {
 		si->ignore |= IGNORE_STAT;
@@ -145,7 +145,7 @@ static void *stress_fstat_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	const ctxt_t *ctxt = (const ctxt_t *)ctxt_ptr;
+	const stress_ctxt_t *ctxt = (const stress_ctxt_t *)ctxt_ptr;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -184,14 +184,14 @@ static void *stress_fstat_thread(void *ctxt_ptr)
  *  stress_fstat_threads()
  *	create a bunch of threads to thrash a file
  */
-static void stress_fstat_threads(const args_t *args, stat_info_t *si, const uid_t euid)
+static void stress_fstat_threads(const args_t *args, stress_stat_info_t *si, const uid_t euid)
 {
 	size_t i;
 #if defined(HAVE_LIB_PTHREAD)
 	pthread_t pthreads[MAX_FSTAT_THREADS];
 	int ret[MAX_FSTAT_THREADS];
 #endif
-	ctxt_t ctxt = {
+	stress_ctxt_t ctxt = {
 		.args 	= args,
 		.si 	= si,
 		.euid	= euid
@@ -228,8 +228,8 @@ static void stress_fstat_threads(const args_t *args, stat_info_t *si, const uid_
  */
 static int stress_fstat(const args_t *args)
 {
-	stat_info_t *si;
-	static stat_info_t *stat_info;
+	stress_stat_info_t *si;
+	static stress_stat_info_t *stat_info;
 	struct dirent *d;
 	NOCLOBBER int ret = EXIT_FAILURE;
 	bool stat_some;
@@ -299,7 +299,7 @@ static int stress_fstat(const args_t *args)
 free_cache:
 	/* Free cache */
 	for (si = stat_info; si; ) {
-		stat_info_t *next = si->next;
+		stress_stat_info_t *next = si->next;
 
 		free(si->path);
 		free(si);
