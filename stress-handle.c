@@ -44,9 +44,9 @@ static const help_t help[] = {
 typedef struct {
 	char	*mount_path;
 	int	mount_id;
-} mount_info_t;
+} stress_mount_info_t;
 
-static mount_info_t mount_info[MAX_MOUNT_IDS];
+static stress_mount_info_t mount_info[MAX_MOUNT_IDS];
 
 static void free_mount_info(const int mounts)
 {
