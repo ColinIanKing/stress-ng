@@ -2149,9 +2149,9 @@ static void TARGET_CLONES stress_cpu_union(const char *name)
 			uint32_t	b1:1;
 		} bits32;
 		uint32_t	u32:30;
-	} u_t;
+	} stress_u_t;
 
-	static u_t u;
+	static stress_u_t u;
 	size_t i;
 
 	(void)name;
