@@ -44,7 +44,7 @@ typedef struct {
 	struct aiocb	aiocb;			/* AIO cb */
 	uint8_t		buffer[BUFFER_SZ];	/* Associated read/write buffer */
 	volatile uint64_t count;		/* Signal handled count */
-} io_req_t;
+} stress_io_req_t;
 
 static volatile bool do_accounting = true;
 #endif
@@ -88,7 +88,7 @@ static inline void aio_fill_buffer(
  */
 static void MLOCKED_TEXT aio_signal_handler(int sig, siginfo_t *si, void *ucontext)
 {
-	io_req_t *io_req = (io_req_t *)si->si_value.sival_ptr;
+	stress_io_req_t *io_req = (stress_io_req_t *)si->si_value.sival_ptr;
 
 	(void)sig;
 	(void)si;
@@ -102,7 +102,7 @@ static void MLOCKED_TEXT aio_signal_handler(int sig, siginfo_t *si, void *uconte
  *  aio_issue_cancel()
  *	cancel an in-progress async I/O request
  */
-static void aio_issue_cancel(const char *name, io_req_t *io_req)
+static void aio_issue_cancel(const char *name, stress_io_req_t *io_req)
 {
 	int ret;
 
@@ -134,7 +134,7 @@ static int issue_aio_request(
 	const char *name,
 	const int fd,
 	const off_t offset,
-	io_req_t *const io_req,
+	stress_io_req_t *const io_req,
 	const int request,
 	int (*aio_func)(struct aiocb *aiocbp) )
 {
@@ -172,7 +172,7 @@ static int issue_aio_request(
 static int stress_aio(const args_t *args)
 {
 	int ret, fd, rc = EXIT_FAILURE;
-	io_req_t *io_reqs;
+	stress_io_req_t *io_reqs;
 	struct sigaction sa, sa_old;
 	char filename[PATH_MAX];
 	uint64_t total = 0, i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
