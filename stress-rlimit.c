@@ -50,9 +50,9 @@ typedef struct {
 	const struct rlimit new_limit;	/* new rlimit setting */
 	struct rlimit old_limit;	/* original old rlimit setting */
 	int ret;			/* saved old rlimit setting return status */
-} limits_t;
+} stress_limits_t;
 
-static limits_t limits[] = {
+static stress_limits_t limits[] = {
 #if defined(RLIMIT_CPU)
 	{ RLIMIT_CPU,	{ MAX_RLIMIT_CPU, MAX_RLIMIT_CPU }, { 0, 0 }, false },
 #endif
