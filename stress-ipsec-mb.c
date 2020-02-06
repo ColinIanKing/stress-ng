@@ -57,9 +57,9 @@ typedef struct {
 	const int features;
 	const char *name;
 	void (*init_func)(MB_MGR *p_mgr);
-} init_mb_t;
+} stress_init_mb_t;
 
-static init_mb_t init_mb[] = {
+static stress_init_mb_t init_mb[] = {
 	{ FEATURE_SSE,		"sse",		init_mb_mgr_sse },
 	{ FEATURE_AVX,		"avx",		init_mb_mgr_avx },
 	{ FEATURE_AVX2,		"avx2",		init_mb_mgr_avx2 },
