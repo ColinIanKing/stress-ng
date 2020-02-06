@@ -27,9 +27,9 @@
 typedef struct {
 	const int sched;
 	const char *const name;
-} sched_types_t;
+} stress_sched_types_t;
 
-static sched_types_t sched_types[] = {
+static stress_sched_types_t sched_types[] = {
 #if defined(SCHED_BATCH)
 	{ SCHED_BATCH,		"batch" },
 #endif
