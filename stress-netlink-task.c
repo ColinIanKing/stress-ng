@@ -50,7 +50,7 @@ typedef struct {
 	struct nlmsghdr n;
 	struct genlmsghdr g;
 	char data[1024];
-} nlmsg_t;
+} stress_nlmsg_t;
 
 
 /*
@@ -86,7 +86,7 @@ static int stress_netlink_sendcmd(
 	char *nlmsgbuf;
 	ssize_t nlmsgbuf_len;
 	struct sockaddr_nl addr;
-	nlmsg_t nlmsg;
+	stress_nlmsg_t nlmsg;
 
 	nlmsg.n.nlmsg_len = NLMSG_LENGTH(GENL_HDRLEN);
 	nlmsg.n.nlmsg_type = nlmsg_type;
@@ -184,7 +184,7 @@ static int stress_netlink_taskstats_monitor(
 	uint64_t *nivcsw)
 {
 	do {
-		nlmsg_t msg;
+		stress_nlmsg_t msg;
 		ssize_t msg_len, len;
 		int ret;
 		pid_t pid_data = pid;
@@ -231,7 +231,7 @@ static int stress_netlink_task(const args_t *args)
 	ssize_t len;
 	struct sockaddr_nl addr;
 	struct nlattr *na;
-	nlmsg_t nlmsg;
+	stress_nlmsg_t nlmsg;
 	const pid_t pid = getpid();
 	uint16_t id;
 	uint64_t nivcsw = 0ULL;	/* number of involuntary context switches */
