@@ -24,19 +24,19 @@
  */
 #include "stress-ng.h"
 
-typedef struct zombie {
-	struct zombie *next;
+typedef struct stress_zombie {
+	struct stress_zombie *next;
 	pid_t	pid;
-} zombie_t;
+} stress_zombie_t;
 
 typedef struct {
-	zombie_t *head;		/* Head of zombie procs list */
-	zombie_t *tail;		/* Tail of zombie procs list */
-	zombie_t *free;		/* List of free'd zombies */
+	stress_zombie_t *head;	/* Head of zombie procs list */
+	stress_zombie_t *tail;	/* Tail of zombie procs list */
+	stress_zombie_t *free;	/* List of free'd zombies */
 	uint32_t length;	/* Length of list */
-} zombie_list_t;
+} stress_zombie_list_t;
 
-static zombie_list_t zombies;
+static stress_zombie_list_t zombies;
 
 static const help_t help[] = {
 	{ NULL,	"zombie N",	"start N workers that rapidly create and reap zombies" },
@@ -49,9 +49,9 @@ static const help_t help[] = {
  *  stress_zombie_new()
  *	allocate a new zombie, add to end of list
  */
-static zombie_t *stress_zombie_new(void)
+static stress_zombie_t *stress_zombie_new(void)
 {
-	zombie_t *new;
+	stress_zombie_t *new;
 
 	if (zombies.free) {
 		/* Pop an old one off the free list */
@@ -87,7 +87,7 @@ static void stress_zombie_head_remove(void)
 
 		(void)shim_waitpid(zombies.head->pid, &status, 0);
 
-		zombie_t *head = zombies.head;
+		stress_zombie_t *head = zombies.head;
 
 		if (zombies.tail == zombies.head) {
 			zombies.tail = NULL;
@@ -111,13 +111,13 @@ static void stress_zombie_head_remove(void)
 static void stress_zombie_free(void)
 {
 	while (zombies.head) {
-		zombie_t *next = zombies.head->next;
+		stress_zombie_t *next = zombies.head->next;
 
 		free(zombies.head);
 		zombies.head = next;
 	}
 	while (zombies.free) {
-		zombie_t *next = zombies.free->next;
+		stress_zombie_t *next = zombies.free->next;
 
 		free(zombies.free);
 		zombies.free = next;
@@ -156,7 +156,7 @@ static int stress_zombie(const args_t *args)
 
 	do {
 		if (zombies.length < zombie_max) {
-			zombie_t *zombie;
+			stress_zombie_t *zombie;
 
 			zombie = stress_zombie_new();
 			if (!zombie) {
