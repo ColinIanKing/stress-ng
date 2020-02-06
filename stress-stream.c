@@ -38,7 +38,7 @@
 typedef struct {
 	const char *name;
         const int advice;
-} stream_madvise_info_t;
+} stress_stream_madvise_info_t;
 
 static const help_t help[] = {
 	{ NULL,	"stream N",		"start N workers exercising memory bandwidth" },
@@ -49,7 +49,7 @@ static const help_t help[] = {
 	{ NULL,	NULL,                   NULL }
 };
 
-static const stream_madvise_info_t stream_madvise_info[] = {
+static const stress_stream_madvise_info_t stream_madvise_info[] = {
 #if defined(HAVE_MADVISE)
 #if defined(MADV_HUGEPAGE)
 	{ "hugepage",	MADV_HUGEPAGE },
@@ -79,7 +79,7 @@ static int stress_set_stream_L3_size(const char *opt)
 
 static int stress_set_stream_madvise(const char *opt)
 {
-	const stream_madvise_info_t *info;
+	const stress_stream_madvise_info_t *info;
 
 	for (info = stream_madvise_info; info->name; info++) {
 		if (!strcmp(opt, info->name)) {
