@@ -33,7 +33,7 @@ typedef struct {
 	const int	policy;		/* scheduler policy */
 	const char	*name;		/* name of scheduler policy */
 	const char	*opt_name;	/* option name */
-} policy_t;
+} stress_policy_t;
 
 typedef struct {
 	int64_t		min_ns;		/* min latency */
@@ -46,13 +46,13 @@ typedef struct {
 	double		latency_mean;	/* average latency */
 	int64_t		latency_mode;	/* first mode */
 	double		std_dev;	/* standard deviation */
-} rt_stats_t;
+} stress_rt_stats_t;
 
-typedef int (*cyclic_func)(const args_t *args, rt_stats_t *rt_stats, uint64_t cyclic_sleep);
+typedef int (*stress_cyclic_func)(const args_t *args, stress_rt_stats_t *rt_stats, uint64_t cyclic_sleep);
 
 typedef struct {
-	const char 		*name;
-	const cyclic_func	func;
+	const char 		 *name;
+	const stress_cyclic_func func;
 } stress_cyclic_method_info_t;
 
 static const help_t help[] = {
@@ -66,7 +66,7 @@ static const help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static const policy_t policies[] = {
+static const stress_policy_t policies[] = {
 #if defined(SCHED_DEADLINE)
 	{ SCHED_DEADLINE, "SCHED_DEADLINE",  "deadline" },
 #endif
@@ -127,7 +127,7 @@ static int stress_set_cyclic_dist(const char *opt)
 }
 
 static void stress_cyclic_stats(
-	rt_stats_t *rt_stats,
+	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep,
 	const struct timespec *t1,
 	const struct timespec *t2)
@@ -152,7 +152,7 @@ static void stress_cyclic_stats(
  */
 static int stress_cyclic_clock_nanosleep(
 	const args_t *args,
-	rt_stats_t *rt_stats,
+	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
 	struct timespec t1, t2, t, trem;
@@ -179,7 +179,7 @@ static int stress_cyclic_clock_nanosleep(
  */
 static int stress_cyclic_posix_nanosleep(
 	const args_t *args,
-	rt_stats_t *rt_stats,
+	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
 	struct timespec t1, t2, t, trem;
@@ -205,7 +205,7 @@ static int stress_cyclic_posix_nanosleep(
  */
 static int stress_cyclic_poll(
 	const args_t *args,
-	rt_stats_t *rt_stats,
+	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
 	struct timespec t1, t2;
@@ -250,7 +250,7 @@ static int stress_cyclic_poll(
  */
 static int stress_cyclic_pselect(
 	const args_t *args,
-	rt_stats_t *rt_stats,
+	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
 	struct timespec t1, t2, t;
@@ -288,7 +288,7 @@ static void MLOCKED_TEXT stress_cyclic_itimer_handler(int sig)
  */
 static int stress_cyclic_itimer(
 	const args_t *args,
-	rt_stats_t *rt_stats,
+	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
 	struct itimerspec timer;
@@ -348,7 +348,7 @@ restore:
  */
 static int stress_cyclic_usleep(
 	const args_t *args,
-	rt_stats_t *rt_stats,
+	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep)
 {
 	struct timespec t1, t2;
@@ -399,7 +399,7 @@ static int stress_cyclic_cmp(const void *p1, const void *p2)
  *  stress_rt_stats()
  *	compute statistics on gathered latencies
  */
-static void stress_rt_stats(rt_stats_t *rt_stats)
+static void stress_rt_stats(stress_rt_stats_t *rt_stats)
 {
 	size_t i;
 	size_t n = 0, best_n = 0;
@@ -515,7 +515,7 @@ static int stress_set_cyclic_method(const char *name)
 static void stress_rt_dist(
 	const char *name,
 	bool *lock,
-	rt_stats_t *rt_stats,
+	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_dist)
 {
 	ssize_t dist_max_size = (cyclic_dist > 0) ? (rt_stats->max_ns / cyclic_dist) + 1 : 1;
@@ -596,10 +596,10 @@ static int stress_cyclic(const args_t *args)
 	int policy;
 	size_t cyclic_policy = 0;
 	const double start = stress_time_now();
-	rt_stats_t *rt_stats;
+	stress_rt_stats_t *rt_stats;
 	const size_t page_size = args->page_size;
-	const size_t size = (sizeof(rt_stats_t) + page_size - 1) & (~(page_size - 1));
-	cyclic_func func;
+	const size_t size = (sizeof(stress_rt_stats_t) + page_size - 1) & (~(page_size - 1));
+	stress_cyclic_func func;
 
 	timeout  = g_opt_timeout;
 	(void)get_setting("cyclic-sleep", &cyclic_sleep);
@@ -631,7 +631,7 @@ static int stress_cyclic(const args_t *args)
 			"this stressor\n", args->name);
 	}
 
-	rt_stats = (rt_stats_t *)mmap(NULL, size, PROT_READ | PROT_WRITE,
+	rt_stats = (stress_rt_stats_t *)mmap(NULL, size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (rt_stats == MAP_FAILED) {
 		pr_inf("%s: mmap of shared policy data failed: %d (%s)\n",
