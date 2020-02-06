@@ -32,9 +32,9 @@
 typedef struct {
 	const char 	*opt;
 	const uint32_t	flag;
-} ioport_opts_t;
+} stress_ioport_opts_t;
 
-static const ioport_opts_t ioport_opts[] = {
+static const stress_ioport_opts_t ioport_opts[] = {
 	{ "in",		IOPORT_OPT_IN },
 	{ "out",	IOPORT_OPT_OUT },
 	{ "inout",	IOPORT_OPT_IN | IOPORT_OPT_OUT },
