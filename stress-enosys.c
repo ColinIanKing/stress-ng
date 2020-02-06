@@ -43,9 +43,9 @@ static const help_t help[] = {
 typedef struct hash_syscall {
 	struct hash_syscall *next;
 	long	number;
-} hash_syscall_t;
+} stress_hash_syscall_t;
 
-static hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
+static stress_hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
 
 PRAGMA_PUSH
 PRAGMA_WARN_OFF
@@ -107,7 +107,7 @@ static const int syscall_ignore[] = {
 
 static inline bool HOT OPTIMIZE3 syscall_find(long number)
 {
-	register hash_syscall_t *h;
+	register stress_hash_syscall_t *h;
 	register int i;
 	register const long number16 = number & 0xffff;
 
@@ -129,7 +129,7 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 static inline void HOT OPTIMIZE3 syscall_add(long number)
 {
 	const long hash = number % HASH_SYSCALL_SIZE;
-	hash_syscall_t *newh, *h = hash_syscall_table[hash];
+	stress_hash_syscall_t *newh, *h = hash_syscall_table[hash];
 
 	while (h) {
 		if (h->number == number)
@@ -149,13 +149,13 @@ static inline void HOT OPTIMIZE3 syscall_add(long number)
 static inline void syscall_free(void)
 {
 	size_t i;
-	hash_syscall_t *h;
+	stress_hash_syscall_t *h;
 
 	for (i = 0; i < HASH_SYSCALL_SIZE; i++) {
 		h = hash_syscall_table[i];
 
 		while (h) {
-			hash_syscall_t *next = h->next;
+			stress_hash_syscall_t *next = h->next;
 
 			free(h);
 			h = next;
