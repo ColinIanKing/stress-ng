@@ -48,7 +48,7 @@ typedef struct {
 typedef struct {
 	const char *name;
         const int advice;
-} vm_madvise_info_t;
+} stress_vm_madvise_info_t;
 
 typedef struct {
 	uint64_t *bit_error_count;
@@ -74,7 +74,7 @@ static const help_t help[] = {
 	{ NULL,	 NULL,		 NULL }
 };
 
-static const vm_madvise_info_t vm_madvise_info[] = {
+static const stress_vm_madvise_info_t vm_madvise_info[] = {
 #if defined(HAVE_MADVISE)
 #if defined(MADV_DONTNEED)
 	{ "dontneed",	MADV_DONTNEED},
@@ -175,7 +175,7 @@ static int stress_set_vm_mmap_populate(const char *opt)
 
 static int stress_set_vm_madvise(const char *opt)
 {
-	const vm_madvise_info_t *info;
+	const stress_vm_madvise_info_t *info;
 
 	for (info = vm_madvise_info; info->name; info++) {
 		if (!strcmp(opt, info->name)) {
