@@ -40,16 +40,16 @@ static const help_t help[] = {
 typedef struct lockf_info {
 	off_t	offset;
 	struct lockf_info *next;
-} lockf_info_t;
+} stress_lockf_info_t;
 
 typedef struct {
-	lockf_info_t *head;		/* Head of lockf_info procs list */
-	lockf_info_t *tail;		/* Tail of lockf_info procs list */
-	lockf_info_t *free;		/* List of free'd lockf_infos */
+	stress_lockf_info_t *head;	/* Head of lockf_info procs list */
+	stress_lockf_info_t *tail;	/* Tail of lockf_info procs list */
+	stress_lockf_info_t *free;	/* List of free'd lockf_infos */
 	uint64_t length;		/* Length of list */
-} lockf_info_list_t;
+} stress_lockf_info_list_t;
 
-static lockf_info_list_t lockf_infos;
+static stress_lockf_info_list_t lockf_infos;
 #endif
 
 static int stress_lockf_set_nonblock(const char *opt)
@@ -70,9 +70,9 @@ static const opt_set_func_t opt_set_funcs[] = {
  *  stress_lockf_info_new()
  *	allocate a new lockf_info, add to end of list
  */
-static lockf_info_t *stress_lockf_info_new(void)
+static stress_lockf_info_t *stress_lockf_info_new(void)
 {
-	lockf_info_t *new;
+	stress_lockf_info_t *new;
 
 	if (lockf_infos.free) {
 		/* Pop an old one off the free list */
@@ -104,7 +104,7 @@ static lockf_info_t *stress_lockf_info_new(void)
 static void stress_lockf_info_head_remove(void)
 {
 	if (lockf_infos.head) {
-		lockf_info_t *head = lockf_infos.head;
+		stress_lockf_info_t *head = lockf_infos.head;
 
 		if (lockf_infos.tail == lockf_infos.head) {
 			lockf_infos.tail = NULL;
@@ -128,14 +128,14 @@ static void stress_lockf_info_head_remove(void)
 static void stress_lockf_info_free(void)
 {
 	while (lockf_infos.head) {
-		lockf_info_t *next = lockf_infos.head->next;
+		stress_lockf_info_t *next = lockf_infos.head->next;
 
 		free(lockf_infos.head);
 		lockf_infos.head = next;
 	}
 
 	while (lockf_infos.free) {
-		lockf_info_t *next = lockf_infos.free->next;
+		stress_lockf_info_t *next = lockf_infos.free->next;
 
 		free(lockf_infos.free);
 		lockf_infos.free = next;
@@ -183,7 +183,7 @@ static int stress_lockf_contention(
 	do {
 		off_t offset;
 		int rc;
-		lockf_info_t *lockf_info;
+		stress_lockf_info_t *lockf_info;
 
 		if (lockf_infos.length >= LOCK_MAX)
 			if (stress_lockf_unlock(args, fd) < 0)
