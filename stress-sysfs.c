@@ -46,11 +46,11 @@ static char signum_path[] = "/sys/kernel/notes";
 static uint32_t os_release;
 static stress_hash_table_t *sysfs_hash_table;
 
-typedef struct ctxt {
+typedef struct stress_ctxt {
 	const args_t *args;		/* stressor args */
 	int kmsgfd;			/* /dev/kmsg file descriptor */
 	bool sys_admin;			/* true if sys admin capable */
-} ctxt_t;
+} stress_ctxt_t;
 
 static uint32_t path_sum(const char *path)
 {
@@ -120,7 +120,7 @@ static void stress_sys_add_bad(const char *path)
  *  stress_sys_rw()
  *	read a proc file
  */
-static inline bool stress_sys_rw(const ctxt_t *ctxt)
+static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 {
 	int fd;
 	ssize_t i = 0, ret;
@@ -368,7 +368,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
+	stress_ctxt_t *ctxt = (stress_ctxt_t *)ctxt_ptr;
 	const args_t *args = ctxt->args;
 
 	/*
@@ -432,7 +432,7 @@ static bool stress_sys_skip(const char *path)
  *	read directory
  */
 static void stress_sys_dir(
-	const ctxt_t *ctxt,
+	const stress_ctxt_t *ctxt,
 	const char *path,
 	const bool recurse,
 	const int depth)
@@ -549,7 +549,7 @@ static int stress_sysfs(const args_t *args)
 	size_t i;
 	pthread_t pthreads[MAX_SYSFS_THREADS];
 	int rc, ret[MAX_SYSFS_THREADS];
-	ctxt_t ctxt;
+	stress_ctxt_t ctxt;
 
 	os_release = 0;
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
