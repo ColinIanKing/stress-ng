@@ -31,16 +31,16 @@ typedef struct {
 	char *setting;			/* Original setting to restore it */
 	size_t setting_len;		/* Length of setting */
 	bool ignore;			/* true to ignore using this */
-} settings_t;
+} stress_settings_t;
 
 typedef struct {
 	uint64_t max_freq;		/* Max scaling frequency */
 	uint64_t cur_freq;		/* Original scaling frequency */
 	char cur_governor[128];		/* Original governor setting */
 	bool set_failed;		/* True if we can't set the freq */
-} cpu_setting_t;
+} stress_cpu_setting_t;
 
-static cpu_setting_t *cpu_settings;	/* Array of cpu settings */
+static stress_cpu_setting_t *cpu_settings; /* Array of cpu settings */
 
 static pid_t pid;			/* PID of ignite process */
 static bool enabled;			/* true if ignite process running */
@@ -49,7 +49,7 @@ static uint32_t max_cpus;		/* max cpus configured */
 #define SETTING(path, default_setting)	\
 	{ path, default_setting, 0, NULL, 0, false }
 
-static settings_t settings[] = {
+static stress_settings_t settings[] = {
 #if defined(__linux__) && defined(STRESS_X86)
 	/* x86 Intel P-State maximizing settings */
 	SETTING("/sys/devices/system/cpu/intel_pstate/max_perf_pct", "100"),
