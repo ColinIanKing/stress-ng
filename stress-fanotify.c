@@ -45,7 +45,7 @@ typedef struct {
 	uint64_t	close_nowrite;
 	uint64_t	access;
 	uint64_t	modify;
-} fanotify_account_t;
+} stress_fanotify_account_t;
 
 #endif
 
@@ -258,7 +258,7 @@ static int stress_fanotify(const args_t *args)
 {
 	char pathname[PATH_MAX - 16], filename[PATH_MAX];
 	int ret, fan_fd, pid, rc = EXIT_SUCCESS;
-	fanotify_account_t account;
+	stress_fanotify_account_t account;
 
 	(void)memset(&account, 0, sizeof(account));
 
