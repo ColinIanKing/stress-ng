@@ -158,7 +158,7 @@ static int stress_mremap_child(const args_t *args, void *context)
 
 	if (!get_setting("mremap-bytes", &mremap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			mremap_bytes = MAX_MREMAP_BYTES;
+			mremap_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			mremap_bytes = MIN_MREMAP_BYTES;
 	}

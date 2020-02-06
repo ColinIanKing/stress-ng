@@ -89,7 +89,7 @@ static int stress_malloc_child(const args_t *args, void *context)
 
 	if (!get_setting("malloc-bytes", &malloc_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			malloc_bytes = MAX_MALLOC_BYTES;
+			malloc_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			malloc_bytes = MIN_MALLOC_BYTES;
 	}

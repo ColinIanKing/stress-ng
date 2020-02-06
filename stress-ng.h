@@ -1328,11 +1328,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_LSEARCH_SIZE	(8 * KB)
 
 #define MIN_MALLOC_BYTES	(1 * KB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_MALLOC_BYTES	(MAX_32)
-#else
-#define MAX_MALLOC_BYTES	(4 * GB)
-#endif
+#define MAX_MALLOC_BYTES	(MAX_MEM_LIMIT)
 #define DEFAULT_MALLOC_BYTES	(64 * KB)
 
 #define MIN_MALLOC_MAX		(32)
@@ -1352,11 +1348,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_MATRIX3D_SIZE	(64)
 
 #define MIN_MEMFD_BYTES		(2 * MB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_MEMFD_BYTES		(MAX_32)
-#else
-#define MAX_MEMFD_BYTES		(4 * GB)
-#endif
+#define MAX_MEMFD_BYTES		(MAX_MEM_LIMIT)
 #define DEFAULT_MEMFD_BYTES	(256 * MB)
 
 #define MIN_MEMFD_FDS		(8)
@@ -1368,28 +1360,16 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_MERGESORT_SIZE	(256 * KB)
 
 #define MIN_MMAP_BYTES		(4 * KB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_MMAP_BYTES		(MAX_32)
-#else
-#define MAX_MMAP_BYTES		(4 * GB)
-#endif
+#define MAX_MMAP_BYTES		(MAX_MEM_LIMIT)
 #define DEFAULT_MMAP_BYTES	(256 * MB)
 
 #define MIN_MEMRATE_BYTES	(4 * KB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_MEMRATE_BYTES	(MAX_32)
-#else
-#define MAX_MEMRATE_BYTES	(4 * GB)
-#endif
+#define MAX_MEMRATE_BYTES	(MAX_MEM_LIMIT)
 #define DEFAULT_MEMRATE_BYTES	(256 * MB)
 
 #define DEFAULT_MREMAP_BYTES	(256 * MB)
 #define MIN_MREMAP_BYTES	(4 * KB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_MREMAP_BYTES	(MAX_32)
-#else
-#define MAX_MREMAP_BYTES	(4 * GB)
-#endif
+#define MAX_MREMAP_BYTES	(MAX_MEM_LIMIT)
 #define DEFAULT_MREMAP_BYTES	(256 * MB)
 
 #define MIN_MSYNC_BYTES		(1 * MB)	/* MUST NOT BE page size or less! */
@@ -1486,11 +1466,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_SPLICE_BYTES	(64*KB)
 
 #define MIN_STREAM_L3_SIZE	(4 * KB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_STREAM_L3_SIZE	(MAX_32)
-#else
-#define MAX_STREAM_L3_SIZE	(4 * GB)
-#endif
+#define MAX_STREAM_L3_SIZE	(MAX_MEM_LIMIT)
 #define DEFAULT_STREAM_L3_SIZE	(4 * MB)
 
 #define MIN_SYNC_FILE_BYTES	(1 * MB)
@@ -1522,19 +1498,11 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_UDP_PORT	(7000)
 
 #define MIN_USERFAULTFD_BYTES	(4 * KB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_USERFAULTFD_BYTES	(MAX_32)
-#else
-#define MAX_USERFAULTFD_BYTES	(4 * GB)
-#endif
+#define MAX_USERFAULTFD_BYTES	(MAX_MEM_LIMIT)
 #define DEFAULT_USERFAULTFD_BYTES (16 * MB)
 
 #define MIN_VM_BYTES		(4 * KB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_VM_BYTES		(MAX_32)
-#else
-#define MAX_VM_BYTES		(4 * GB)
-#endif
+#define MAX_VM_BYTES		(MAX_MEM_LIMIT)
 #define DEFAULT_VM_BYTES	(256 * MB)
 
 #define MIN_VM_HANG		(0)
@@ -1542,11 +1510,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define DEFAULT_VM_HANG		(~0ULL)
 
 #define MIN_VM_RW_BYTES		(4 * KB)
-#if UINTPTR_MAX == MAX_32
-#define MAX_VM_RW_BYTES		(MAX_32)
-#else
-#define MAX_VM_RW_BYTES		(4 * GB)
-#endif
+#define MAX_VM_RW_BYTES		(MAX_MEM_LIMIT)
 #define DEFAULT_VM_RW_BYTES	(16 * MB)
 
 #define MIN_VM_SPLICE_BYTES	(4*KB)

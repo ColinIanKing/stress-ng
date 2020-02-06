@@ -298,7 +298,7 @@ static int stress_vm_rw(const args_t *args)
 
 	if (!get_setting("vm-rw-bytes", &vm_rw_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			vm_rw_bytes = MAX_VM_RW_BYTES;
+			vm_rw_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			vm_rw_bytes = MIN_VM_RW_BYTES;
 	}

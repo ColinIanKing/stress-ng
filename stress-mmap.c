@@ -437,7 +437,7 @@ static int stress_mmap(const args_t *args)
 
 	if (!get_setting("mmap-bytes", &context.mmap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			context.mmap_bytes = MAX_MMAP_BYTES;
+			context.mmap_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			context.mmap_bytes = MIN_MMAP_BYTES;
 	}

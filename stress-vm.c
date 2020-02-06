@@ -2017,7 +2017,7 @@ static int stress_vm_child(const args_t *args, void *ctxt)
 
 	if (!get_setting("vm-bytes", &vm_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			vm_bytes = MAX_VM_BYTES;
+			vm_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			vm_bytes = MIN_VM_BYTES;
 	}

@@ -86,7 +86,7 @@ static int stress_memfd_child(const args_t *args, void *context)
 
 	if (!get_setting("memfd-bytes", &memfd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			memfd_bytes = MAX_MEMFD_BYTES;
+			memfd_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			memfd_bytes = MIN_MEMFD_BYTES;
 	}

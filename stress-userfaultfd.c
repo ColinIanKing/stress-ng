@@ -186,7 +186,7 @@ static int stress_userfaultfd_child(const args_t *args, void *context)
 
 	if (!get_setting("userfaultfd-bytes", &userfaultfd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			userfaultfd_bytes = MAX_MMAP_BYTES;
+			userfaultfd_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			userfaultfd_bytes = MIN_MMAP_BYTES;
 	}
