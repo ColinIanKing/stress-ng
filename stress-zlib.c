@@ -56,7 +56,7 @@ typedef struct {
 	bool		error;
 	bool		pipe_broken;
 	bool		interrupted;
-} xsum_t;
+} stress_xsum_t;
 
 static stress_zlib_rand_data_info_t zlib_rand_data_methods[];
 static volatile bool pipe_broken = false;
@@ -817,7 +817,7 @@ static int stress_zlib_inflate(
 	uint64_t xsum_chars = 0;
 	static unsigned char in[DATA_SIZE];
 	static unsigned char out[DATA_SIZE];
-	xsum_t xsum;
+	stress_xsum_t xsum;
 
 	xsum.xsum = 0;
 	xsum.error = false;
@@ -937,7 +937,7 @@ static int stress_zlib_deflate(
 	int flush;
 	stress_zlib_rand_data_info_t *opt_zlib_rand_data_func = &zlib_rand_data_methods[0];
 	double t1, t2;
-	xsum_t xsum;
+	stress_xsum_t xsum;
 
 	(void)get_setting("zlib-method", &opt_zlib_rand_data_func);
 
@@ -1052,7 +1052,7 @@ static int stress_zlib(const args_t *args)
 	int ret = EXIT_SUCCESS, fds[2], deflate_xsum_fds[2], inflate_xsum_fds[2], status;
 	int err = 0;
 	pid_t pid;
-	xsum_t deflate_xsum, inflate_xsum;
+	stress_xsum_t deflate_xsum, inflate_xsum;
 	uint32_t zlib_level = Z_BEST_COMPRESSION;	/* best compression */
 	ssize_t n;
 	bool bad_xsum_reads = false;
