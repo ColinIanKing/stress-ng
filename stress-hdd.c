@@ -64,7 +64,7 @@ typedef struct {
 	const int exclude;	/* Excluded HDD_OPT_ flags */
 	const int advice;	/* posix_fadvise value */
 	const int oflag;	/* open O_* flags */
-} hdd_opts_t;
+} stress_hdd_opts_t;
 
 static const help_t help[] = {
 	{ "d N","hdd N",		"start N workers spinning on write()/unlink()" },
@@ -75,7 +75,7 @@ static const help_t help[] = {
 	{ NULL, NULL,			NULL }
 };
 
-static const hdd_opts_t hdd_opts[] = {
+static const stress_hdd_opts_t hdd_opts[] = {
 #if defined(O_SYNC)
 	{ "sync",	HDD_OPT_O_SYNC, 0, 0, O_SYNC },
 #endif
