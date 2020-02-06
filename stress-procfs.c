@@ -33,11 +33,11 @@ static const help_t help[] = {
 #define PROC_BUF_SZ		(4096)
 #define MAX_PROCFS_THREADS	(4)
 
-typedef struct ctxt {
+typedef struct stress_ctxt {
 	const args_t *args;
 	const char *path;
 	bool writeable;
-} ctxt_t;
+} stress_ctxt_t;
 
 #if !defined(NSIO)
 #define	NSIO		0xb7
@@ -90,7 +90,7 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
  *	read a proc file
  */
 static inline void stress_proc_rw(
-	const ctxt_t *ctxt,
+	const stress_ctxt_t *ctxt,
 	int32_t loops)
 {
 	int fd;
@@ -299,7 +299,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	ctxt_t *ctxt = (ctxt_t *)ctxt_ptr;
+	stress_ctxt_t *ctxt = (stress_ctxt_t *)ctxt_ptr;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -328,7 +328,7 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
  *	read directory
  */
 static void stress_proc_dir(
-	const ctxt_t *ctxt,
+	const stress_ctxt_t *ctxt,
 	const char *path,
 	const bool recurse,
 	const int depth)
@@ -406,7 +406,7 @@ static int stress_procfs(const args_t *args)
 	size_t i;
 	pthread_t pthreads[MAX_PROCFS_THREADS];
 	int rc, ret[MAX_PROCFS_THREADS];
-	ctxt_t ctxt;
+	stress_ctxt_t ctxt;
 
 	(void)sigfillset(&set);
 
