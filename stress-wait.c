@@ -230,6 +230,37 @@ static int stress_wait(const args_t *args)
 				pr_fail_dbg("waitpid()");
 				break;
 			}
+			if (info.si_pid != pid_r) {
+				pr_fail("%s: waitid returned pid %d but expected pid %d\n",
+					args->name, info.si_pid, pid_r);
+			}
+			if (info.si_pid != pid_r) {
+				pr_fail("%s: waitid returned pid %d but expected pid %d\n",
+					args->name, info.si_pid, pid_r);
+			}
+			if (info.si_signo != SIGCHLD) {
+				pr_fail("%s: waitid returned si_signo %d (%s) but expected SIGCHLD\n",
+					args->name, info.si_signo, stress_strsignal(info.si_signo));
+			}
+			if ((info.si_status != EXIT_SUCCESS) &&
+			    (info.si_status != SIGSTOP) &&
+			    (info.si_status != SIGCONT) &&
+			    (info.si_status != SIGKILL)) {
+				pr_fail("%s: waitid returned unexpected si_status %d\n",
+					args->name, info.si_status);
+			}
+#if defined(CLD_EXITED) &&	\
+    defined(CLD_KILLED) &&	\
+    defined(CLD_STOPPED) &&	\
+    defined(CLD_CONTINUED)
+			if ((info.si_code != CLD_EXITED) &&
+			    (info.si_code != CLD_KILLED) &&
+			    (info.si_code != CLD_STOPPED) &&
+			    (info.si_code != CLD_CONTINUED)) {
+				pr_fail("%s: waitid returned unexpected si_code %d\n",
+					args->name, info.si_code);
+			}
+#endif
 			stress_wait_continued(args, status);
 			if (!keep_stressing_flag())
 				break;
