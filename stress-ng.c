@@ -27,7 +27,7 @@
 typedef struct {
 	const int opt;			/* optarg option */
 	const uint64_t opt_flag;	/* global options flag bit setting */
-} opt_flag_t;
+} stress_opt_flag_t;
 
 /* Per stressor process information */
 static proc_info_t *procs_head, *procs_tail;
@@ -54,7 +54,7 @@ bool g_unsupported = false;			/* true if stressors are unsupported */
 /*
  *  optarg option to global setting option flags
  */
-static const opt_flag_t opt_flags[] = {
+static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_abort,		OPT_FLAGS_ABORT },
 	{ OPT_aggressive,	OPT_FLAGS_AGGRESSIVE_MASK },
 	{ OPT_cpu_online_all,	OPT_FLAGS_CPU_ONLINE_ALL },
