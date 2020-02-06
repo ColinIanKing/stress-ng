@@ -39,7 +39,7 @@ typedef struct {
 	char *slavename;
 	int master;
 	int slave;
-} pty_info_t;
+} stress_pty_info_t;
 
 #endif
 
@@ -78,7 +78,7 @@ static int stress_pty(const args_t *args)
 
 	do {
 		size_t i, n;
-		pty_info_t ptys[pty_max];
+		stress_pty_info_t ptys[pty_max];
 
 		(void)memset(ptys, 0, sizeof ptys);
 
