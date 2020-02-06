@@ -29,7 +29,7 @@
 typedef struct {
 	ssize_t	index;
 	char	shm_name[SHM_NAME_LEN];
-} shm_msg_t;
+} stress_shm_msg_t;
 
 static const help_t help[] = {
 	{ NULL,	"shm N",	"start N workers that exercise POSIX shared memory" },
@@ -108,7 +108,7 @@ static int stress_shm_posix_child(
 {
 	void **addrs;
 	char *shm_names;
-	shm_msg_t msg;
+	stress_shm_msg_t msg;
 	int i;
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
@@ -386,7 +386,7 @@ fork_again:
 
 			while (keep_stressing_flag()) {
 				ssize_t n;
-				shm_msg_t 	msg;
+				stress_shm_msg_t 	msg;
 				char *shm_name;
 
 				/*
