@@ -34,7 +34,7 @@ static const help_t help[] = {
 
 #define BUF_SIZE	(256 * 1024)
 
-typedef int (getdents_func)(
+typedef int (stress_getdents_func)(
 	const args_t *args,
 	const char *path,
 	const bool recurse,
@@ -42,13 +42,13 @@ typedef int (getdents_func)(
 	const size_t page_size);
 
 #if defined(HAVE_GETDENTS)
-static getdents_func stress_getdents_dir;
+static stress_getdents_func stress_getdents_dir;
 #endif
 #if defined(HAVE_GETDENTS64)
-static getdents_func stress_getdents64_dir;
+static stress_getdents_func stress_getdents64_dir;
 #endif
 
-static getdents_func * getdents_funcs[] = {
+static stress_getdents_func * getdents_funcs[] = {
 #if defined(HAVE_GETDENTS)
 	stress_getdents_dir,
 #endif
@@ -69,7 +69,7 @@ static inline int stress_getdents_rand(
 	size_t i, j = mwc32() % n;
 
 	for (i = 0; i < n; i++) {
-		getdents_func *func = getdents_funcs[j];
+		stress_getdents_func *func = getdents_funcs[j];
 
 		if (func) {
 			ret = func(args, path, recurse, depth, page_size);
