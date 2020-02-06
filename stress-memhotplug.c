@@ -27,7 +27,7 @@
 typedef struct {
 	char *name;
 	bool timeout;
-} mem_info_t;
+} stress_mem_info_t;
 
 static const help_t help[] = {
 	{ NULL,	"memhotplug N",	"start N workers that exercise memory hotplug" },
@@ -87,7 +87,7 @@ static void stress_memhotplug_set_timer(const unsigned int secs)
 	(void)setitimer(ITIMER_PROF, &timer, NULL);
 }
 
-static void stress_memhotplug_mem_toggle(mem_info_t *mem_info)
+static void stress_memhotplug_mem_toggle(stress_mem_info_t *mem_info)
 {
 	char path[PATH_MAX];
 	int fd;
@@ -125,7 +125,7 @@ static void stress_memhotplug_mem_toggle(mem_info_t *mem_info)
 	(void)close(fd);
 }
 
-static void stress_memhotplug_mem_online(mem_info_t *mem_info)
+static void stress_memhotplug_mem_online(stress_mem_info_t *mem_info)
 {
 	char path[PATH_MAX];
 	int fd;
@@ -156,7 +156,7 @@ static int stress_memhotplug(const args_t *args)
 {
 	DIR *dir;
         struct dirent *d;
-	mem_info_t *mem_info;
+	stress_mem_info_t *mem_info;
 	size_t i, n = 0, max;
 
 	if (stress_sighandler(args->name, SIGPROF, stress_itimer_handler, NULL))
