@@ -43,9 +43,9 @@ typedef struct {
 	int	id;
 	int	ret;
 	struct rlimit rlim;
-} rlimit_info_t;
+} stress_rlimit_info_t;
 
-static rlimit_info_t rlimits[] = {
+static stress_rlimit_info_t rlimits[] = {
 #if defined(RLIMIT_AS)
 	{ RLIMIT_AS, 0, { 0, 0 } },
 #endif
