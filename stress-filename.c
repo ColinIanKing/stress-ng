@@ -31,9 +31,9 @@
 typedef struct {
 	const uint8_t opt;
 	const char *opt_text;
-} filename_opts_t;
+} stress_filename_opts_t;
 
-static const filename_opts_t filename_opts[] = {
+static const stress_filename_opts_t filename_opts[] = {
 	{ STRESS_FILENAME_PROBE,	"probe" },
 	{ STRESS_FILENAME_POSIX,	"posix" },
 	{ STRESS_FILENAME_EXT,		"ext" },
