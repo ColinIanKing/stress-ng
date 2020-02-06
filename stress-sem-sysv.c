@@ -32,12 +32,12 @@ static const help_t help[] = {
 };
 
 #if defined(HAVE_SEM_SYSV)
-typedef union _semun {
+typedef union stress_semun {
 	int              val;	/* Value for SETVAL */
 	struct semid_ds *buf;	/* Buffer for IPC_STAT, IPC_SET */
 	unsigned short  *array;	/* Array for GETALL, SETALL */
 	struct seminfo  *__buf;	/* Buffer for IPC_INFO (Linux-specific) */
-} semun_t;
+} stress_semun_t;
 #endif
 
 static int stress_set_semaphore_sysv_procs(const char *opt)
@@ -76,7 +76,7 @@ static void stress_semaphore_sysv_init(void)
 	}
 
 	if (g_shared->sem_sysv.sem_id >= 0) {
-		semun_t arg;
+		stress_semun_t arg;
 
 		arg.val = 1;
 		if (semctl(g_shared->sem_sysv.sem_id, 0, SETVAL, arg) == 0) {
@@ -200,7 +200,7 @@ timed_out:
 #if defined(IPC_STAT)
 		{
 			struct semid_ds ds;
-			semun_t s;
+			stress_semun_t s;
 
 			memset(&ds, 0, sizeof(ds));
 
@@ -230,7 +230,7 @@ timed_out:
 #if defined(SEM_STAT)
 		{
 			struct semid_ds ds;
-			semun_t s;
+			stress_semun_t s;
 
 			s.buf = &ds;
 			if (semctl(sem_id, 0, SEM_STAT, &s) < 0)
@@ -240,7 +240,7 @@ timed_out:
 #if defined(IPC_INFO) && defined(__linux__)
 		{
 			struct seminfo si;
-			semun_t s;
+			stress_semun_t s;
 
 			s.__buf = &si;
 			if (semctl(sem_id, 0, IPC_INFO, &s) < 0)
@@ -250,7 +250,7 @@ timed_out:
 #if defined(SEM_INFO) && defined(__linux__)
 		{
 			struct seminfo si;
-			semun_t s;
+			stress_semun_t s;
 
 			s.__buf = &si;
 			if (semctl(sem_id, 0, SEM_INFO, &s) < 0)
