@@ -37,7 +37,7 @@ static const help_t help[] = {
 typedef struct {
 	struct iphdr	iph;
 	uint32_t	data;
-} raw_packet_t;
+} stress_raw_packet_t;
 
 /*
  *  stress_rawsock_supported()
@@ -73,7 +73,7 @@ again:
 	} else if (pid == 0) {
 		/* Child, client */
 		int fd;
-		raw_packet_t pkt;
+		stress_raw_packet_t pkt;
 		struct sockaddr_in addr;
 
 		(void)setpgid(0, g_pgrp);
@@ -136,7 +136,7 @@ again:
 		(void)memset(&addr, 0, sizeof(addr));
 
 		do {
-			raw_packet_t pkt;
+			stress_raw_packet_t pkt;
 			socklen_t len = sizeof(addr);
 			ssize_t n;
 
