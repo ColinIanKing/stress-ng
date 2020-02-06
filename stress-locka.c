@@ -42,24 +42,24 @@ typedef struct locka_info {
 	off_t	offset;
 	off_t	len;
 	pid_t	pid;
-} locka_info_t;
+} stress_locka_info_t;
 
 typedef struct {
-	locka_info_t *head;		/* Head of locka_info procs list */
-	locka_info_t *tail;		/* Tail of locka_info procs list */
-	locka_info_t *free;		/* List of free'd locka_infos */
+	stress_locka_info_t *head;	/* Head of locka_info procs list */
+	stress_locka_info_t *tail;	/* Tail of locka_info procs list */
+	stress_locka_info_t *free;	/* List of free'd locka_infos */
 	uint64_t length;		/* Length of list */
-} locka_info_list_t;
+} stress_locka_info_list_t;
 
-static locka_info_list_t locka_infos;
+static stress_locka_info_list_t locka_infos;
 
 /*
  *  stress_locka_info_new()
  *	allocate a new locka_info, add to end of list
  */
-static locka_info_t *stress_locka_info_new(void)
+static stress_locka_info_t *stress_locka_info_new(void)
 {
-	locka_info_t *new;
+	stress_locka_info_t *new;
 
 	if (locka_infos.free) {
 		/* Pop an old one off the free list */
@@ -91,7 +91,7 @@ static locka_info_t *stress_locka_info_new(void)
 static void stress_locka_info_head_remove(void)
 {
 	if (locka_infos.head) {
-		locka_info_t *head = locka_infos.head;
+		stress_locka_info_t *head = locka_infos.head;
 
 		if (locka_infos.tail == locka_infos.head) {
 			locka_infos.tail = NULL;
@@ -115,14 +115,14 @@ static void stress_locka_info_head_remove(void)
 static void stress_locka_info_free(void)
 {
 	while (locka_infos.head) {
-		locka_info_t *next = locka_infos.head->next;
+		stress_locka_info_t *next = locka_infos.head->next;
 
 		free(locka_infos.head);
 		locka_infos.head = next;
 	}
 
 	while (locka_infos.free) {
-		locka_info_t *next = locka_infos.free->next;
+		stress_locka_info_t *next = locka_infos.free->next;
 
 		free(locka_infos.free);
 		locka_infos.free = next;
@@ -170,7 +170,7 @@ static int stress_locka_contention(
 		off_t offset;
 		off_t len;
 		int rc;
-		locka_info_t *locka_info;
+		stress_locka_info_t *locka_info;
 		struct flock f;
 
 		if (locka_infos.length >= LOCK_MAX)
