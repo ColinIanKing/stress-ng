@@ -36,7 +36,7 @@ static const help_t help[] = {
 typedef struct {
 	pthread_t pthread;
 	pid_t     tid;
-} pthread_info_t;
+} stress_pthread_info_t;
 
 static pthread_cond_t cond;
 static pthread_mutex_t mutex;
@@ -44,7 +44,7 @@ static shim_pthread_spinlock_t spinlock;
 static volatile bool keep_thread_running_flag;
 static volatile bool keep_running_flag;
 static uint64_t pthread_count;
-static pthread_info_t pthreads[MAX_PTHREAD];
+static stress_pthread_info_t pthreads[MAX_PTHREAD];
 
 #endif
 
@@ -136,7 +136,7 @@ static void *stress_pthread_func(void *parg)
 
 #if defined(HAVE_GETTID)
 	{
-		pthread_info_t *pi = ((pthread_args_t *)parg)->data;
+		stress_pthread_info_t *pi = ((pthread_args_t *)parg)->data;
 		pi->tid = shim_gettid();
 	}
 #endif
