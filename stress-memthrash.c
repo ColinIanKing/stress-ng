@@ -38,11 +38,11 @@ static const help_t help[] = {
 #define MATRIX_SIZE		(1 << MATRIX_SIZE_MAX_SHIFT)
 #define MEM_SIZE		(MATRIX_SIZE * MATRIX_SIZE)
 
-typedef void (*memthrash_func_t)(const args_t *args, size_t mem_size);
+typedef void (*stress_memthrash_func_t)(const args_t *args, size_t mem_size);
 
 typedef struct {
 	const char		*name;	/* human readable form of stressor */
-	memthrash_func_t	func;	/* the method function */
+	stress_memthrash_func_t	func;	/* the method function */
 } stress_memthrash_method_info_t;
 
 typedef struct {
@@ -377,7 +377,7 @@ static void stress_memthrash_random(const args_t *args, size_t mem_size)
 	/* loop until we find a good candidate */
 	for (;;) {
 		size_t i = mwc8() % SIZEOF_ARRAY(memthrash_methods);
-		const memthrash_func_t func = (memthrash_func_t)memthrash_methods[i].func;
+		const stress_memthrash_func_t func = (stress_memthrash_func_t)memthrash_methods[i].func;
 
 		/* Don't run stress_memthrash_random/all to avoid recursion */
 		if ((func != stress_memthrash_random) &&
@@ -423,7 +423,7 @@ static void *stress_memthrash_func(void *arg)
 	static void *nowt = NULL;
 	const pthread_args_t *parg = (pthread_args_t *)arg;
 	const args_t *args = parg->args;
-	const memthrash_func_t func = (memthrash_func_t)parg->data;
+	const stress_memthrash_func_t func = (stress_memthrash_func_t)parg->data;
 
 	/*
 	 *  Block all signals, let controlling thread
