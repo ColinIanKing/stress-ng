@@ -35,20 +35,20 @@ static const help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-typedef uint64_t (*memrate_func_t)(void *start, void *end, uint64_t rd_mbs, uint64_t wr_mbs);
+typedef uint64_t (*stress_memrate_func_t)(void *start, void *end, uint64_t rd_mbs, uint64_t wr_mbs);
 
 typedef struct {
 	const char 	*name;
-	memrate_func_t	func;
-} memrate_info_t;
+	stress_memrate_func_t	func;
+} stress_memrate_info_t;
 
 typedef struct {
 	double		duration;
 	double		kbytes;
-} memrate_stats_t;
+} stress_memrate_stats_t;
 
 typedef struct {
-	memrate_stats_t *stats;
+	stress_memrate_stats_t *stats;
 	uint64_t memrate_bytes;
 	uint64_t memrate_rd_mbs;
 	uint64_t memrate_wr_mbs;
@@ -192,7 +192,7 @@ STRESS_MEMRATE_WRITE(32)
 STRESS_MEMRATE_WRITE(16)
 STRESS_MEMRATE_WRITE(8)
 
-static memrate_info_t memrate_info[] = {
+static stress_memrate_info_t memrate_info[] = {
 	{ "write64",	stress_memrate_write64 },
 	{ "read64",	stress_memrate_read64 },
 	{ "write32",	stress_memrate_write32 },
@@ -264,7 +264,7 @@ static int stress_memrate_child(const args_t *args, void *ctxt)
 
 		for (i = 0; keep_stressing() && (i < memrate_items); i++) {
 			double t1, t2;
-			memrate_info_t *info = &memrate_info[i];
+			stress_memrate_info_t *info = &memrate_info[i];
 
 			t1 = stress_time_now();
 			context->stats[i].kbytes += info->func(buffer, buffer_end,
@@ -302,10 +302,10 @@ static int stress_memrate(const args_t *args)
 	(void)get_setting("memrate-rd-mbs", &context.memrate_rd_mbs);
 	(void)get_setting("memrate-wr-mbs", &context.memrate_wr_mbs);
 
-	stats_size = memrate_items * sizeof(memrate_stats_t);
+	stats_size = memrate_items * sizeof(stress_memrate_stats_t);
 	stats_size = (stats_size + args->page_size - 1) & ~(args->page_size - 1);
 
-	context.stats = (memrate_stats_t *)mmap(NULL, stats_size,
+	context.stats = (stress_memrate_stats_t *)mmap(NULL, stats_size,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (context.stats == MAP_FAILED)
 		return EXIT_NO_RESOURCE;
