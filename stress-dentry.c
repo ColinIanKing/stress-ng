@@ -33,7 +33,7 @@
 typedef struct {
 	const char *name;
 	const uint8_t denty_order;
-} dentry_removal_t;
+} stress_dentry_removal_t;
 
 static const help_t help[] = {
 	{ "D N","dentry N",		"start N dentry thrashing stressors" },
@@ -43,7 +43,7 @@ static const help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static const dentry_removal_t dentry_removals[] = {
+static const stress_dentry_removal_t dentry_removals[] = {
 	{ "forward",	ORDER_FORWARD },
 	{ "reverse",	ORDER_REVERSE },
 	{ "stride",	ORDER_STRIDE },
@@ -67,7 +67,7 @@ static int stress_set_dentries(const char *opt)
  */
 static int stress_set_dentry_order(const char *opt)
 {
-	const dentry_removal_t *dr;
+	const stress_dentry_removal_t *dr;
 
 	for (dr = dentry_removals; dr->name; dr++) {
 		if (!strcmp(dr->name, opt)) {
