@@ -35,9 +35,9 @@ static const help_t help[] = {
 
 typedef struct {
 	uint8_t buffer[STR_SHARED_SIZE + ALIGN_SIZE];
-} buffer_t;
+} stress_buffer_t;
 
-typedef void (*stress_memcpy_func)(buffer_t *b, uint8_t *b_str, uint8_t *str_shared, uint8_t *aligned_buf);
+typedef void (*stress_memcpy_func)(stress_buffer_t *b, uint8_t *b_str, uint8_t *str_shared, uint8_t *aligned_buf);
 
 typedef struct {
         const char *name;
@@ -85,7 +85,7 @@ static inline void *__naive_memmove(void *dest, const void *src, size_t n)
 }
 
 static NOINLINE void stress_memcpy_libc(
-	buffer_t *b,
+	stress_buffer_t *b,
 	uint8_t *b_str,
 	uint8_t *str_shared,
 	uint8_t *aligned_buf)
@@ -101,7 +101,7 @@ static NOINLINE void stress_memcpy_libc(
 }
 
 static NOINLINE void stress_memcpy_builtin(
-	buffer_t *b,
+	stress_buffer_t *b,
 	uint8_t *b_str,
 	uint8_t *str_shared,
 	uint8_t *aligned_buf)
@@ -134,7 +134,7 @@ static NOINLINE void stress_memcpy_builtin(
 }
 
 static NOINLINE void stress_memcpy_naive(
-	buffer_t *b,
+	stress_buffer_t *b,
 	uint8_t *b_str,
 	uint8_t *str_shared,
 	uint8_t *aligned_buf)
@@ -150,7 +150,7 @@ static NOINLINE void stress_memcpy_naive(
 }
 
 static NOINLINE void stress_memcpy_all(
-	buffer_t *b,
+	stress_buffer_t *b,
 	uint8_t *b_str,
 	uint8_t *str_shared,
 	uint8_t *aligned_buf)
@@ -216,7 +216,7 @@ static void stress_memcpy_set_default(void)
  */
 static int stress_memcpy(const args_t *args)
 {
-	static buffer_t b;
+	static stress_buffer_t b;
 	uint8_t *b_str = g_shared->str_shared;
 	uint8_t *str_shared = g_shared->str_shared;
 	uint8_t *aligned_buf = stress_align_address(b.buffer, ALIGN_SIZE);
