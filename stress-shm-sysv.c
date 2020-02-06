@@ -51,7 +51,7 @@ static const help_t help[] = {
 typedef struct {
 	int	index;
 	int	shm_id;
-} shm_msg_t;
+} stress_shm_msg_t;
 
 static const int shm_flags[] = {
 #if defined(SHM_HUGETLB)
@@ -172,7 +172,7 @@ static int stress_shm_sysv_child(
 	void *addrs[MAX_SHM_SYSV_SEGMENTS];
 	key_t keys[MAX_SHM_SYSV_SEGMENTS];
 	int shm_ids[MAX_SHM_SYSV_SEGMENTS];
-	shm_msg_t msg;
+	stress_shm_msg_t msg;
 	size_t i;
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
@@ -477,7 +477,7 @@ fork_again:
 				shm_ids[i] = -1;
 
 			while (keep_stressing_flag()) {
-				shm_msg_t 	msg;
+				stress_shm_msg_t msg;
 				ssize_t n;
 
 				/*
