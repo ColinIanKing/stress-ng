@@ -31,7 +31,7 @@ typedef struct {
 	uint64_t counter;
 	uint64_t sleep_max;
 	pthread_t pthread;
-} ctxt_t;
+} stress_ctxt_t;
 
 static volatile bool thread_terminate;
 static sigset_t set;
@@ -76,7 +76,7 @@ static void *stress_pthread_func(void *c)
 {
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	static void *nowt = NULL;
-	ctxt_t *ctxt = (ctxt_t *)c;
+	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
 	const args_t *args = ctxt->args;
 	const uint64_t max_ops =
 		args->max_ops ? (args->max_ops / ctxt->sleep_max) + 1 : 0;
@@ -154,7 +154,7 @@ static int stress_sleep(const args_t *args)
 {
 	uint64_t i, n, limited = 0;
 	uint64_t sleep_max = DEFAULT_SLEEP;
-	static ctxt_t ctxts[MAX_SLEEP];
+	static stress_ctxt_t ctxts[MAX_SLEEP];
 	int ret = EXIT_SUCCESS;
 
 	if (!get_setting("sleep-max", &sleep_max)) {
