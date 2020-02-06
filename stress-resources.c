@@ -98,7 +98,7 @@ typedef struct {
     defined(HAVE_PKEY_FREE)
 	int pkey;
 #endif
-} info_t;
+} stress_info_t;
 
 static pid_t pids[RESOURCE_FORKS];
 
@@ -135,7 +135,7 @@ static void NORETURN waste_resources(
 #endif
 	static int domains[] = { AF_INET, AF_INET6 };
 	static int types[] = { SOCK_STREAM, SOCK_DGRAM };
-	static info_t info[MAX_LOOPS];
+	static stress_info_t info[MAX_LOOPS];
 #if defined(O_NOATIME)
 	const int flag = O_NOATIME;
 #else
