@@ -34,12 +34,12 @@
 typedef struct {
 	const char *optname;
 	int	   opt;
-} socket_opts_t;
+} stress_socket_opts_t;
 
 typedef struct {
 	const char *typename;
 	const int   type;
-} socket_type_t;
+} stress_socket_type_t;
 
 static const help_t help[] = {
 	{ "S N", "sock N",		"start N workers exercising socket I/O" },
@@ -58,7 +58,7 @@ static const help_t help[] = {
  */
 static int stress_set_socket_opts(const char *opt)
 {
-	static const socket_opts_t socket_opts[] = {
+	static const stress_socket_opts_t socket_opts[] = {
 		{ "random",	SOCKET_OPT_RANDOM },
 		{ "send",	SOCKET_OPT_SEND },
 		{ "sendmsg",	SOCKET_OPT_SENDMSG },
@@ -93,7 +93,7 @@ static int stress_set_socket_opts(const char *opt)
  */
 static int stress_set_socket_type(const char *opt)
 {
-	static const socket_type_t socket_type[] = {
+	static const stress_socket_type_t socket_type[] = {
 #if defined(SOCK_STREAM)
 		{ "stream",	SOCK_STREAM  },
 #endif
