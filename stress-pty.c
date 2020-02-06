@@ -73,14 +73,20 @@ static const opt_set_func_t opt_set_funcs[] = {
 static int stress_pty(const args_t *args)
 {
 	uint64_t pty_max = DEFAULT_PTYS;
+	stress_pty_info_t *ptys;
 
 	(void)get_setting("pty-max", &pty_max);
 
+	ptys = calloc(pty_max, sizeof(*ptys));
+	if (!ptys) {
+		pr_inf("%s: allocation of pty array failed: %d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
 	do {
 		size_t i, n;
-		stress_pty_info_t ptys[pty_max];
 
-		(void)memset(ptys, 0, sizeof ptys);
 
 		for (n = 0; n < pty_max; n++) {
 			ptys[n].slave = -1;
@@ -275,6 +281,8 @@ clean:
 		}
 		inc_counter(args);
 	} while (keep_stressing());
+
+	free(ptys);
 
 	return EXIT_SUCCESS;
 }
