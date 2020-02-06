@@ -30,7 +30,7 @@
 typedef struct {
 	int max_fd;
 	int fds[SOCKET_MANY_FDS];
-} sock_fds_t;
+} stress_sock_fds_t;
 
 static const help_t help[] = {
 	{ NULL, "sockmany N",		"start N workers exercising many socket connections" },
@@ -62,7 +62,7 @@ static void stress_sockmany_cleanup(int fds[], const int n)
 static int stress_sockmany_client(
 	const args_t *args,
 	const pid_t ppid,
-	sock_fds_t *sock_fds)
+	stress_sock_fds_t *sock_fds)
 {
 	struct sockaddr *addr;
 	static int fds[SOCKET_MANY_FDS];
@@ -268,10 +268,10 @@ static void stress_sockmany_sigpipe_handler(int signum)
 static int stress_sockmany(const args_t *args)
 {
 	pid_t pid, ppid = getppid();
-	sock_fds_t *sock_fds;
+	stress_sock_fds_t *sock_fds;
 	int rc = EXIT_SUCCESS;
 
-	sock_fds = (sock_fds_t *)mmap(NULL, sizeof(sock_fds_t), PROT_READ | PROT_WRITE,
+	sock_fds = (stress_sock_fds_t *)mmap(NULL, sizeof(stress_sock_fds_t), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (sock_fds == MAP_FAILED) {
 		pr_inf("%s: could not allocate share memory, errno=%d (%s)\n",
