@@ -45,9 +45,9 @@ static const help_t help[] = {
 #define uint32_t_put	uint32_put
 #define uint64_t_put	uint64_put
 #define __uint128_t_put	uint128_put
-#define long_double_t_put long_double_put
+#define stress_long_double_t_put long_double_put
 
-typedef long double 	long_double_t;
+typedef long double 	stress_long_double_t;
 
 #define stress_funccall_1(type)				\
 static type NOINLINE stress_funccall_ ## type ## _1(	\
@@ -573,24 +573,24 @@ stress_funcdeep_7(double)
 stress_funcdeep_8(double)
 stress_funcdeep_9(double)
 
-stress_funccall_1(long_double_t)
-stress_funccall_2(long_double_t)
-stress_funccall_3(long_double_t)
-stress_funccall_4(long_double_t)
-stress_funccall_5(long_double_t)
-stress_funccall_6(long_double_t)
-stress_funccall_7(long_double_t)
-stress_funccall_8(long_double_t)
-stress_funccall_9(long_double_t)
+stress_funccall_1(stress_long_double_t)
+stress_funccall_2(stress_long_double_t)
+stress_funccall_3(stress_long_double_t)
+stress_funccall_4(stress_long_double_t)
+stress_funccall_5(stress_long_double_t)
+stress_funccall_6(stress_long_double_t)
+stress_funccall_7(stress_long_double_t)
+stress_funccall_8(stress_long_double_t)
+stress_funccall_9(stress_long_double_t)
 
-stress_funcdeep_2(long_double_t)
-stress_funcdeep_3(long_double_t)
-stress_funcdeep_4(long_double_t)
-stress_funcdeep_5(long_double_t)
-stress_funcdeep_6(long_double_t)
-stress_funcdeep_7(long_double_t)
-stress_funcdeep_8(long_double_t)
-stress_funcdeep_9(long_double_t)
+stress_funcdeep_2(stress_long_double_t)
+stress_funcdeep_3(stress_long_double_t)
+stress_funcdeep_4(stress_long_double_t)
+stress_funcdeep_5(stress_long_double_t)
+stress_funcdeep_6(stress_long_double_t)
+stress_funcdeep_7(stress_long_double_t)
+stress_funcdeep_8(stress_long_double_t)
+stress_funcdeep_9(stress_long_double_t)
 
 #if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
 static inline void ALWAYS_INLINE _Decimal32_put(const _Decimal32 a)
@@ -791,7 +791,7 @@ stress_funccall_type(__uint128_t, mwc64)
 #endif
 stress_funccall_type(float, (float)mwc64)
 stress_funccall_type(double, (double)mwc64)
-stress_funccall_type(long_double_t, (long double)mwc64)
+stress_funccall_type(stress_long_double_t, (long double)mwc64)
 #if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
 stress_funccall_type(_Decimal32, (_Decimal32)mwc64)
 #endif
@@ -821,7 +821,7 @@ static const stress_funccall_method_info_t funccall_methods[] = {
 #endif
 	{ "float",	stress_funccall_float },
 	{ "double",	stress_funccall_double },
-	{ "longdouble",	stress_funccall_long_double_t },
+	{ "longdouble",	stress_funccall_stress_long_double_t },
 #if defined(HAVE_FLOAT80) && !defined(__clang__)
 	{ "float80",	stress_funccall___float80 },
 #endif
