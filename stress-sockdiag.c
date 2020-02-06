@@ -39,7 +39,7 @@ static const help_t help[] = {
 typedef struct {
 	struct nlmsghdr nlh;
 	struct unix_diag_req udr;
-} sockdiag_request_t;
+} stress_sockdiag_request_t;
 
 static int sockdiag_send(const args_t *args, const int fd)
 {
@@ -47,9 +47,9 @@ static int sockdiag_send(const args_t *args, const int fd)
 		.nl_family = AF_NETLINK
 	};
 
-	static sockdiag_request_t request = {
+	static stress_sockdiag_request_t request = {
 		.nlh = {
-			.nlmsg_len = sizeof(sockdiag_request_t),
+			.nlmsg_len = sizeof(stress_sockdiag_request_t),
 			.nlmsg_type = SOCK_DIAG_BY_FAMILY,
 			.nlmsg_flags = NLM_F_REQUEST | NLM_F_DUMP
 		},
