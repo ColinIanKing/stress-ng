@@ -37,28 +37,28 @@ static const help_t help[] = {
 #define LOCK_SIZE	(8)
 #define LOCK_MAX	(1024)
 
-typedef struct lockofd_info {
+typedef struct stress_lockofd_info {
 	off_t	offset;
 	off_t	len;
-	struct lockofd_info *next;
-} lockofd_info_t;
+	struct stress_lockofd_info *next;
+} stress_lockofd_info_t;
 
 typedef struct {
-	lockofd_info_t *head;		/* Head of lockofd_info procs list */
-	lockofd_info_t *tail;		/* Tail of lockofd_info procs list */
-	lockofd_info_t *free;		/* List of free'd lockofd_infos */
+	stress_lockofd_info_t *head;	/* Head of lockofd_info procs list */
+	stress_lockofd_info_t *tail;	/* Tail of lockofd_info procs list */
+	stress_lockofd_info_t *free;	/* List of free'd lockofd_infos */
 	uint64_t length;		/* Length of list */
-} lockofd_info_list_t;
+} stress_lockofd_info_list_t;
 
-static lockofd_info_list_t lockofd_infos;
+static stress_lockofd_info_list_t lockofd_infos;
 
 /*
  *  stress_lockofd_info_new()
  *	allocate a new lockofd_info, add to end of list
  */
-static lockofd_info_t *stress_lockofd_info_new(void)
+static stress_lockofd_info_t *stress_lockofd_info_new(void)
 {
-	lockofd_info_t *new;
+	stress_lockofd_info_t *new;
 
 	if (lockofd_infos.free) {
 		/* Pop an old one off the free list */
@@ -90,7 +90,7 @@ static lockofd_info_t *stress_lockofd_info_new(void)
 static void stress_lockofd_info_head_remove(void)
 {
 	if (lockofd_infos.head) {
-		lockofd_info_t *head = lockofd_infos.head;
+		stress_lockofd_info_t *head = lockofd_infos.head;
 
 		if (lockofd_infos.tail == lockofd_infos.head) {
 			lockofd_infos.tail = NULL;
@@ -114,14 +114,14 @@ static void stress_lockofd_info_head_remove(void)
 static void stress_lockofd_info_free(void)
 {
 	while (lockofd_infos.head) {
-		lockofd_info_t *next = lockofd_infos.head->next;
+		stress_lockofd_info_t *next = lockofd_infos.head->next;
 
 		free(lockofd_infos.head);
 		lockofd_infos.head = next;
 	}
 
 	while (lockofd_infos.free) {
-		lockofd_info_t *next = lockofd_infos.free->next;
+		stress_lockofd_info_t *next = lockofd_infos.free->next;
 
 		free(lockofd_infos.free);
 		lockofd_infos.free = next;
@@ -169,7 +169,7 @@ static int stress_lockofd_contention(
 		off_t offset;
 		off_t len;
 		int rc;
-		lockofd_info_t *lockofd_info;
+		stress_lockofd_info_t *lockofd_info;
 		struct flock f;
 
 		if (lockofd_infos.length >= LOCK_MAX)
