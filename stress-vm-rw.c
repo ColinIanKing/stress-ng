@@ -44,12 +44,12 @@ typedef struct {
 	pid_t pid;
 	int pipe_wr[2];
 	int pipe_rd[2];
-} context_t;
+} stress_context_t;
 
 typedef struct {
 	void *addr;	/* Buffer to read/write to */
 	uint8_t val;	/* Value to check */
-} addr_msg_t;
+} stress_addr_msg_t;
 
 #endif
 
@@ -75,12 +75,12 @@ static const opt_set_func_t opt_set_funcs[] = {
 
 static int stress_vm_child(void *arg)
 {
-	const context_t *ctxt = (context_t *)arg;
+	const stress_context_t *ctxt = (stress_context_t *)arg;
 	const args_t *args = ctxt->args;
 
 	uint8_t *buf;
 	int ret = EXIT_SUCCESS;
-	addr_msg_t msg_rd, msg_wr;
+	stress_addr_msg_t msg_rd, msg_wr;
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
@@ -160,13 +160,13 @@ cleanup:
 	return ret;
 }
 
-static int stress_vm_parent(context_t *ctxt)
+static int stress_vm_parent(stress_context_t *ctxt)
 {
 	/* Parent */
 	int status;
 	uint8_t val = 0;
 	uint8_t *localbuf;
-	addr_msg_t msg_rd, msg_wr;
+	stress_addr_msg_t msg_rd, msg_wr;
 	const args_t *args = ctxt->args;
 
 	(void)setpgid(ctxt->pid, g_pgrp);
@@ -289,7 +289,7 @@ fail:
  */
 static int stress_vm_rw(const args_t *args)
 {
-	context_t ctxt;
+	stress_context_t ctxt;
 	uint8_t stack[64*1024];
 	const ssize_t stack_offset =
 		stress_get_stack_direction() * (STACK_SIZE - 64);
