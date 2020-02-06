@@ -68,15 +68,15 @@ typedef enum {
 	CRYPTO_RNG,
 	CRYPTO_AEAD,
 	CRYPTO_UNKNOWN,
-} crypto_type_t;
+} stress_crypto_type_t;
 
 typedef struct {
-	const crypto_type_t	type;
+	const stress_crypto_type_t type;
 	const char		*type_string;
 	const char		*name;
-} crypto_type_info_t;
+} stress_crypto_type_info_t;
 
-static const crypto_type_info_t crypto_type_info[] = {
+static const stress_crypto_type_info_t crypto_type_info[] = {
 	{ CRYPTO_AHASH,		"CRYPTO_AHASH",		"ahash" },
 	{ CRYPTO_SHASH,		"CRYPTO_SHASH",		"shash" },
 	{ CRYPTO_CIPHER,	"CRYPTO_CIPHER",	"cipher" },
@@ -87,8 +87,8 @@ static const crypto_type_info_t crypto_type_info[] = {
 	{ CRYPTO_UNKNOWN,	"CRYPTO_UNKNOWN",	"unknown" },
 };
 
-typedef struct crypto_info {
-	crypto_type_t	crypto_type;
+typedef struct stress_crypto_info {
+	stress_crypto_type_t	crypto_type;
 	char 	*type;
 	char 	*name;
 	int 	block_size;
@@ -98,10 +98,10 @@ typedef struct crypto_info {
 	int	digest_size;
 	bool	internal;
 	bool	ignore;
-	struct crypto_info *next;
-} crypto_info_t;
+	struct stress_crypto_info *next;
+} stress_crypto_info_t;
 
-static crypto_info_t *crypto_info_list;
+static stress_crypto_info_t *crypto_info_list;
 
 /*
  * Provide some predefined/default configs
@@ -110,7 +110,7 @@ static crypto_info_t *crypto_info_list;
  * (thus not yet present into /proc/crypto)
  * is loaded on-demand with bind() syscall.
  */
-static crypto_info_t crypto_info_defconfigs[] = {
+static stress_crypto_info_t crypto_info_defconfigs[] = {
 #include "stress-af-alg-defconfigs.h"
 };
 
@@ -120,7 +120,7 @@ static void stress_af_alg_add_crypto_defconfigs(void);
  *   name_to_type()
  *	map text type name to symbolic enum value
  */
-static crypto_type_t name_to_type(const char *buffer)
+static stress_crypto_type_t name_to_type(const char *buffer)
 {
 	char *ptr = strchr(buffer, ':');
 	size_t i;
@@ -141,7 +141,7 @@ static crypto_type_t name_to_type(const char *buffer)
  *   type_to_name()
  *	map type to textual name
  */
-static const char *type_to_name(const crypto_type_t type)
+static const char *type_to_name(const stress_crypto_type_t type)
 {
 	size_t i;
 
@@ -157,7 +157,7 @@ static const char *type_to_name(const crypto_type_t type)
  *	some crypto engines may return EINVAL, so flag these up in
  *	debug and ignore them for the next iteration
  */
-static void stress_af_alg_ignore(const args_t *args, crypto_info_t *info)
+static void stress_af_alg_ignore(const args_t *args, stress_crypto_info_t *info)
 {
 	if ((args->instance == 0) && (!info->ignore)) {
 		pr_dbg("%s: sendmsg using %s failed with EINVAL, skipping crypto engine\n",
@@ -169,7 +169,7 @@ static void stress_af_alg_ignore(const args_t *args, crypto_info_t *info)
 static int stress_af_alg_hash(
 	const args_t *args,
 	const int sockfd,
-	crypto_info_t *info)
+	stress_crypto_info_t *info)
 {
 	int fd, rc;
 	ssize_t j;
@@ -261,7 +261,7 @@ err:
 static int stress_af_alg_cipher(
 	const args_t *args,
 	const int sockfd,
-	crypto_info_t *info)
+	stress_crypto_info_t *info)
 {
 	int fd, rc;
 	ssize_t j;
@@ -508,7 +508,7 @@ err:
 static int stress_af_alg_rng(
 	const args_t *args,
 	const int sockfd,
-	crypto_info_t *info)
+	stress_crypto_info_t *info)
 {
 	int fd, rc;
 	ssize_t j;
@@ -575,7 +575,7 @@ err:
 static int stress_af_alg_count_crypto(void)
 {
 	int count = 0;
-	crypto_info_t *ci;
+	stress_crypto_info_t *ci;
 
 	/* Scan for duplications */
 	for (ci = crypto_info_list; ci; ci = ci->next)
@@ -590,7 +590,7 @@ static int stress_af_alg_count_crypto(void)
  */
 static void stress_af_alg_dump_crypto_list(void)
 {
-	crypto_info_t *ci;
+	stress_crypto_info_t *ci;
 
 	for (ci = crypto_info_list; ci; ci = ci->next) {
 		if (ci->internal)
@@ -676,7 +676,7 @@ static int stress_af_alg(const args_t *args)
 	}
 
 	do {
-		crypto_info_t *info;
+		stress_crypto_info_t *info;
 
 		for (info = crypto_info_list; keep_stressing() && info; info = info->next) {
 			if (info->internal || info->ignore)
@@ -765,9 +765,9 @@ static bool bool_field(const char *buffer)
  *  stress_af_alg_add_crypto()
  *	add crypto algorithm to list if it is unique
  */
-static void stress_af_alg_add_crypto(crypto_info_t *info)
+static void stress_af_alg_add_crypto(stress_crypto_info_t *info)
 {
-	crypto_info_t *ci;
+	stress_crypto_info_t *ci;
 
 	/* Don't add info with empty text fields */
 	if ((info->name == NULL) || (info->type == NULL))
@@ -817,7 +817,7 @@ static void stress_af_alg_init(void)
 {
 	FILE *fp;
 	char buffer[1024];
-	crypto_info_t info;
+	stress_crypto_info_t info;
 
 	crypto_info_list = NULL;
 	fp = fopen("/proc/crypto", "r");
@@ -862,10 +862,10 @@ static void stress_af_alg_init(void)
  */
 static void stress_af_alg_deinit(void)
 {
-	crypto_info_t *ci = crypto_info_list;
+	stress_crypto_info_t *ci = crypto_info_list;
 
 	while (ci) {
-		crypto_info_t *next = ci->next;
+		stress_crypto_info_t *next = ci->next;
 
 		free(ci->name);
 		free(ci->type);
