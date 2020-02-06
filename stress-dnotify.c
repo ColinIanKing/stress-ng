@@ -71,13 +71,13 @@ static void dnotify_handler(int sig, siginfo_t *si, void *data)
 	dnotify_fd = si->si_fd;
 }
 
-typedef int (*dnotify_helper)(const args_t *args, const char *path, const void *private);
-typedef void (*dnotify_func)(const args_t *args, const char *path);
+typedef int (*stress_dnotify_helper)(const args_t *args, const char *path, const void *private);
+typedef void (*stress_dnotify_func)(const args_t *args, const char *path);
 
 typedef struct {
-	const dnotify_func func;
+	const stress_dnotify_func func;
 	const char*	description;
-} dnotify_stress_t;
+} stress_dnotify_stress_t;
 
 /*
  *  dnotify_exercise()
@@ -88,7 +88,7 @@ static void dnotify_exercise(
 	const args_t *args,	/* Stressor args */
 	const char *filename,	/* Filename in test */
 	const char *watchname,	/* File or directory to watch using dnotify */
-	const dnotify_helper func,	/* Helper func */
+	const stress_dnotify_helper func,	/* Helper func */
 	const int flags,	/* DN_* flags to watch for */
 	void *private)		/* Helper func private data */
 {
@@ -384,7 +384,7 @@ static void dnotify_rename_file(const args_t *args, const char *path)
 	(void)rm_file(args, newfile);
 }
 
-static const dnotify_stress_t dnotify_stressors[] = {
+static const stress_dnotify_stress_t dnotify_stressors[] = {
 	{ dnotify_access_file,		"DN_ACCESS" },
 	{ dnotify_modify_file,		"DN_MODIFY" },
 	{ dnotify_creat_file,		"DN_CREATE" },
