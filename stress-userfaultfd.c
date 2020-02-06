@@ -45,7 +45,7 @@ typedef struct {
 	size_t page_size;
 	size_t sz;
 	pid_t parent;
-} context_t;
+} stress_context_t;
 
 #endif
 
@@ -85,7 +85,7 @@ static void MLOCKED_TEXT stress_child_alarm_handler(int signum)
  */
 static int stress_userfaultfd_clone(void *arg)
 {
-	context_t *c = (context_t *)arg;
+	stress_context_t *c = (stress_context_t *)arg;
 	const args_t *args = c->args;
 
 	(void)setpgid(0, g_pgrp);
@@ -173,7 +173,7 @@ static int stress_userfaultfd_child(const args_t *args, void *context)
 	pid_t pid;
 	struct uffdio_api api;
 	struct uffdio_register reg;
-	context_t c;
+	stress_context_t c;
 	bool do_poll = true;
 	char filename[PATH_MAX];
 	static uint8_t stack[STACK_SIZE]; /* Child clone stack */
