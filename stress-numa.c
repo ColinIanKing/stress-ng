@@ -55,21 +55,21 @@ static const help_t help[] = {
 
 #define MMAP_SZ			(4 * MB)
 
-typedef struct node {
-	struct node	*next;
-	uint32_t	node_id;
-} node_t;
+typedef struct stress_node {
+	struct stress_node	*next;
+	uint32_t		node_id;
+} stress_node_t;
 
 /*
  *  stress_numa_free_nodes()
  *	free circular list of node info
  */
-static void stress_numa_free_nodes(node_t *nodes)
+static void stress_numa_free_nodes(stress_node_t *nodes)
 {
-	node_t *n = nodes;
+	stress_node_t *n = nodes;
 
 	while (n) {
-		node_t *next = n->next;
+		stress_node_t *next = n->next;
 
 		free(n);
 		n = next;
@@ -100,12 +100,12 @@ static inline int hex_to_int(const char ch)
  *	circular linked list - also, return maximum number
  *	of nodes
  */
-static int stress_numa_get_mem_nodes(node_t **node_ptr,
+static int stress_numa_get_mem_nodes(stress_node_t **node_ptr,
 				     unsigned long *max_nodes)
 {
 	FILE *fp;
 	unsigned long n = 0, node_id = 0;
-	node_t *tail = NULL;
+	stress_node_t *tail = NULL;
 	char buffer[8192], *str = NULL, *ptr;
 
 	*node_ptr = NULL;
@@ -148,7 +148,7 @@ static int stress_numa_get_mem_nodes(node_t **node_ptr,
 		/* Each hex digit represent 4 memory nodes */
 		for (i = 0; i < 4; i++) {
 			if (val & (1 << i)) {
-				node_t *node = calloc(1, sizeof(*node));
+				stress_node_t *node = calloc(1, sizeof(*node));
 				if (!node)
 					return -1;
 				node->node_id = node_id;
@@ -180,7 +180,7 @@ static int stress_numa(const args_t *args)
 	const unsigned long page_sz = args->page_size;
 	const unsigned long num_pages = MMAP_SZ / page_sz;
 	uint8_t *buf;
-	node_t *n;
+	stress_node_t *n;
 	int rc = EXIT_FAILURE;
 
 	numa_nodes = stress_numa_get_mem_nodes(&n, &max_nodes);
@@ -213,7 +213,7 @@ static int stress_numa(const args_t *args)
 		unsigned long max_node_id_count;
 		void *pages[num_pages];
 		uint8_t *ptr;
-		node_t *n_tmp;
+		stress_node_t *n_tmp;
 		unsigned cpu, curr_node;
 
 		/*
