@@ -27,9 +27,9 @@
 typedef struct {
 	const mode_t	chmod_mode;
 	const int	access_mode;
-} access_t;
+} stress_access_t;
 
-static const access_t modes[] = {
+static const stress_access_t modes[] = {
 #if defined(S_IRUSR) && defined(R_OK)
 	{ S_IRUSR, R_OK },
 #endif
