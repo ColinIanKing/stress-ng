@@ -58,7 +58,7 @@ typedef struct {
 	uint8_t		sws_volume[SWAP_LABEL_LENGTH];
 	uint32_t	padding[117];
 	uint32_t	badpages[1];
-} swap_info_t;
+} stress_swap_info_t;
 
 /*
  *  stress_swap_supported()
@@ -103,7 +103,7 @@ static int stress_swap_set_size(
 	const uint32_t npages)
 {
 	static const char signature[] = SWAP_SIGNATURE;
-	swap_info_t swap_info;
+	stress_swap_info_t swap_info;
 	size_t i;
 
 	if (npages < MIN_SWAP_PAGES) {
