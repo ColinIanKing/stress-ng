@@ -184,8 +184,22 @@ retry:
 			goto finish;
 		}
 
-		for (n = 0; keep_stressing() && (n < max_fd); n++)
+		for (n = 0; keep_stressing() && (n < max_fd); n++) {
+			int rc, nbytes;
+
 			fds[n] = stress_socket_fd_recv(fd);
+			if (fds[n] < 0)
+				continue;
+
+			/* Attempt to read a byte from the fd */
+			rc = ioctl(fds[n], FIONREAD, &nbytes);
+			if ((rc == 0) && (nbytes >= 1)) {
+				char data;
+
+				rc = read(fds[n], &data, sizeof(data));
+				(void)rc;
+			}
+		}
 
 		for (i = 0; i < n; i++) {
 			if (fds[i] >= 0)
@@ -273,7 +287,7 @@ static int stress_socket_server(
 			for (i = 0; keep_stressing() && (i < max_fd); i++) {
 				int newfd;
 
-				newfd = open("/dev/null", O_RDWR);
+				newfd = open("/dev/zero", O_RDWR);
 				if (newfd >= 0) {
 					int ret;
 
@@ -288,11 +302,11 @@ static int stress_socket_server(
 					}
 					(void)close(newfd);
 					msgs++;
+					inc_counter(args);
 				}
 			}
 			(void)close(sfd);
 		}
-		inc_counter(args);
 	} while (keep_stressing());
 
 die_close:
