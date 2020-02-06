@@ -42,7 +42,7 @@ static const help_t help[] = {
 typedef struct {
 	int dir_fd;
 	int file_fd;
-} data_t;
+} stress_data_t;
 
 static volatile bool keep_running;
 static sigset_t set;
@@ -99,7 +99,7 @@ static inline void stress_inode_flags_ioctl_sane(const int fd)
  */
 static int stress_inode_flags_stressor(
 	const args_t *args,
-	data_t *data)
+	stress_data_t *data)
 {
 	while (keep_running && keep_stressing()) {
 		int ret;
@@ -205,7 +205,7 @@ static int stress_inode_flags(const args_t *args)
 	pthread_t pthreads[MAX_INODE_FLAG_THREADS];
 	int rc, ret[MAX_INODE_FLAG_THREADS];
 	pthread_args_t pa[MAX_INODE_FLAG_THREADS];
-	data_t data;
+	stress_data_t data;
 	char tmp[PATH_MAX], file_name[PATH_MAX];
 	char *dir_name;
 
