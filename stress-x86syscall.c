@@ -51,16 +51,16 @@ static const opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_CPUID) &&      \
     NEED_GNUC(4,6,0)
 
-typedef int (*func_t)(void);
+typedef int (*stress_wfunc_t)(void);
 
 /*
  *  syscall symbol mapping name to address and wrapper function
  */
-typedef struct x86syscall {
-	const func_t func;	/* Wrapper function */
+typedef struct stress_x86syscall {
+	const stress_wfunc_t func;	/* Wrapper function */
 	const char *name;	/* Function name */
 	bool exercise;		/* True = exercise the syscall */
-} x86syscall_t;
+} stress_x86syscall_t;
 
 /*
  *  stress_x86syscall_supported()
@@ -202,7 +202,7 @@ static int wrap_dummy(void)
 /*
  *  mapping of wrappers to function symbol name
  */
-static x86syscall_t x86syscalls[] = {
+static stress_x86syscall_t x86syscalls[] = {
 	{ wrap_getcpu,		"getcpu",		true },
 	{ wrap_gettimeofday,	"gettimeofday",		true },
 	{ wrap_time,		"time",			true },
@@ -213,7 +213,7 @@ static x86syscall_t x86syscalls[] = {
  *  MUST NOT be static to avoid optimizer from removing the
  *  indirect calls
  */
-x86syscall_t ___dummy_x86syscalls[] = {
+stress_x86syscall_t ___dummy_x86syscalls[] = {
 	{ wrap_dummy,		"dummy",		true },
 };
 
