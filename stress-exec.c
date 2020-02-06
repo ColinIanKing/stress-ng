@@ -36,7 +36,7 @@ typedef struct {
 	int fdexec;
 #endif
 	int which;
-} exec_args_t;
+} stress_exec_args_t;
 
 static const help_t help[] = {
 	{ NULL,	"exec N",	"start N workers spinning on fork() and exec()" },
@@ -89,7 +89,7 @@ static int stress_exec_supported(void)
  *	perform one of the various execs depending on how
  *	ea->which is set.
  */
-static int stress_exec_which(const exec_args_t *ea)
+static int stress_exec_which(const stress_exec_args_t *ea)
 {
 	int ret;
 
@@ -120,7 +120,7 @@ static int stress_exec_which(const exec_args_t *ea)
  */
 static void *stress_exec_from_pthread(void *arg)
 {
-	const exec_args_t *ea = (const exec_args_t *)arg;
+	const stress_exec_args_t *ea = (const stress_exec_args_t *)arg;
 	static int ret;
 	char buffer[128];
 
@@ -139,7 +139,7 @@ static void *stress_exec_from_pthread(void *arg)
  */
 static void *stress_exec_dummy_pthread(void *arg)
 {
-	const exec_args_t *ea = (const exec_args_t *)arg;
+	const stress_exec_args_t *ea = (const stress_exec_args_t *)arg;
 	static int ret = 0;
 	char buffer[128];
 
@@ -160,7 +160,7 @@ static void *stress_exec_dummy_pthread(void *arg)
  *	to add extra work on the kernel to make it reap
  *	other pthreads.
  */
-static inline int stress_do_exec(exec_args_t *ea)
+static inline int stress_do_exec(stress_exec_args_t *ea)
 {
 #if defined(HAVE_LIB_PTHREAD)
 	int ret;
@@ -264,7 +264,7 @@ static int stress_exec(const args_t *args)
 				int fd_out, fd_in, fd = -1;
 				const int which = mwc8() % 3;
 				int exec_garbage = mwc1();
-				exec_args_t exec_args;
+				stress_exec_args_t exec_args;
 
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
