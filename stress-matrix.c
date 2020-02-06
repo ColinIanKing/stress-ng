@@ -35,16 +35,16 @@ static const help_t help[] = {
 
 #if defined(HAVE_VLA_ARG)
 
-typedef float	matrix_type_t;
+typedef float	stress_matrix_type_t;
 
 /*
  *  the matrix stress test has different classes of maxtrix stressor
  */
 typedef void (*stress_matrix_func)(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n]);
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n]);
 
 typedef struct {
 	const char			*name;		/* human readable form of stressor */
@@ -78,9 +78,9 @@ static int stress_set_matrix_yx(const char *opt)
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_prod(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	size_t i;
 
@@ -105,9 +105,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_prod(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_prod(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	size_t j;
 
@@ -132,9 +132,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_prod(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_add(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -155,9 +155,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_add(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_add(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
 
@@ -178,9 +178,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_add(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_sub(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -201,9 +201,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_sub(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_sub(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
 
@@ -224,9 +224,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_sub(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_trans(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],	/* Ignored */
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],	/* Ignored */
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -249,9 +249,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_trans(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_trans(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],	/* Ignored */
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],	/* Ignored */
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
 
@@ -274,14 +274,14 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_trans(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_mult(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
 	(void)b;
-	matrix_type_t v = b[0][0];
+	stress_matrix_type_t v = b[0][0];
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -300,14 +300,14 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_mult(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_mult(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
 
 	(void)b;
-	matrix_type_t v = b[0][0];
+	stress_matrix_type_t v = b[0][0];
 
 	for (j = 0; j < n; j++) {
 		register size_t i;
@@ -326,14 +326,14 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_mult(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_div(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
 	(void)b;
-	matrix_type_t v = b[0][0];
+	stress_matrix_type_t v = b[0][0];
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -352,14 +352,14 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_div(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_div(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
 
 	(void)b;
-	matrix_type_t v = b[0][0];
+	stress_matrix_type_t v = b[0][0];
 
 	for (j = 0; j < n; j++) {
 		register size_t i;
@@ -379,9 +379,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_div(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_hadamard(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -403,9 +403,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_hadamard(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_hadamard(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
 
@@ -427,12 +427,12 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_hadamard(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_frobenius(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
-	matrix_type_t sum = 0.0;
+	stress_matrix_type_t sum = 0.0;
 
 	(void)r;
 
@@ -455,12 +455,12 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_frobenius(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_frobenius(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
-	matrix_type_t sum = 0.0;
+	stress_matrix_type_t sum = 0.0;
 
 	(void)r;
 
@@ -482,9 +482,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_frobenius(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_copy(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -507,9 +507,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_copy(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_copy(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
 
@@ -532,9 +532,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_copy(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_mean(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -555,9 +555,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_mean(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_mean(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
 
@@ -578,9 +578,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_mean(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_zero(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -604,9 +604,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_zero(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_zero(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
 
@@ -630,9 +630,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_zero(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_negate(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -656,9 +656,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_negate(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_negate(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
 
@@ -682,9 +682,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_negate(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_identity(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t i;
 
@@ -708,9 +708,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_identity(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_identity(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	register size_t j;
 
@@ -734,9 +734,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_identity(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_square(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	size_t i;
 
@@ -763,9 +763,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_xy_square(
  */
 static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_square(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	size_t j;
 
@@ -793,9 +793,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_yx_square(
  */
 static void OPTIMIZE3 stress_matrix_xy_all(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	static int i = 1;	/* Skip over stress_matrix_all */
 
@@ -810,9 +810,9 @@ static void OPTIMIZE3 stress_matrix_xy_all(
  */
 static void OPTIMIZE3 stress_matrix_yx_all(
 	const size_t n,
-	matrix_type_t a[RESTRICT n][n],
-	matrix_type_t b[RESTRICT n][n],
-	matrix_type_t r[RESTRICT n][n])
+	stress_matrix_type_t a[RESTRICT n][n],
+	stress_matrix_type_t b[RESTRICT n][n],
+	stress_matrix_type_t r[RESTRICT n][n])
 {
 	static int i = 1;	/* Skip over stress_matrix_all */
 
@@ -900,12 +900,12 @@ static inline int stress_matrix_exercise(
 	const size_t n)
 {
 	int ret = EXIT_NO_RESOURCE;
-	typedef matrix_type_t (*matrix_ptr_t)[n];
-	size_t matrix_size = round_up(args->page_size, (sizeof(matrix_type_t) * n * n));
+	typedef stress_matrix_type_t (*matrix_ptr_t)[n];
+	size_t matrix_size = round_up(args->page_size, (sizeof(stress_matrix_type_t) * n * n));
 
 	matrix_ptr_t a, b = NULL, r = NULL;
 	register size_t i;
-	const matrix_type_t v = 65535 / (matrix_type_t)((uint64_t)~0);
+	const stress_matrix_type_t v = 65535 / (stress_matrix_type_t)((uint64_t)~0);
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
@@ -937,8 +937,8 @@ static inline int stress_matrix_exercise(
 		register size_t j;
 
 		for (j = 0; j < n; j++) {
-			a[i][j] = (matrix_type_t)mwc64() * v;
-			b[i][j] = (matrix_type_t)mwc64() * v;
+			a[i][j] = (stress_matrix_type_t)mwc64() * v;
+			b[i][j] = (stress_matrix_type_t)mwc64() * v;
 			r[i][j] = 0.0;
 		}
 	}
