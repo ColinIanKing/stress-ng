@@ -55,12 +55,12 @@ static const help_t help[] = {
 
 #if defined(HAVE_VECMATH)
 
-typedef int8_t  vint8_t  __attribute__ ((vector_size (16)));
-typedef int16_t vint16_t __attribute__ ((vector_size (16)));
-typedef int32_t vint32_t __attribute__ ((vector_size (16)));
-typedef int64_t vint64_t __attribute__ ((vector_size (16)));
+typedef int8_t  stress_vint8_t  __attribute__ ((vector_size (16)));
+typedef int16_t stress_vint16_t __attribute__ ((vector_size (16)));
+typedef int32_t stress_vint32_t __attribute__ ((vector_size (16)));
+typedef int64_t stress_vint64_t __attribute__ ((vector_size (16)));
 #if defined(HAVE_INT128_T)
-typedef __uint128_t vint128_t __attribute__ ((vector_size (16)));
+typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
 #endif
 
 #define INT128(hi, lo)	(((__uint128_t)hi << 64) | (__uint128_t)lo)
@@ -93,76 +93,76 @@ static int HOT stress_vecmath(const args_t *args)
 static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 #endif
 {
-	vint8_t a8 = {
+	stress_vint8_t a8 = {
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-	vint8_t b8 = {
+	stress_vint8_t b8 = {
 		0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
 		0x0f, 0x1e, 0x2d, 0x3c, 0x4b, 0x5a, 0x69, 0x78 };
-	vint8_t c8 = {
+	stress_vint8_t c8 = {
 		0x01, 0x02, 0x03, 0x02, 0x01, 0x02, 0x03, 0x02,
 		0x03, 0x02, 0x01, 0x02, 0x03, 0x02, 0x01, 0x02 };
-	vint8_t s8 = {
+	stress_vint8_t s8 = {
 		0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0x02,
 		0x01, 0x01, 0x02, 0x02, 0x01, 0x01, 0x02, 0x02 };
-	const vint8_t v23_8 = {
+	const stress_vint8_t v23_8 = {
 		0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
 		0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17 };
-	const vint8_t v3_8 = {
+	const stress_vint8_t v3_8 = {
 		0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
 		0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03 };
 
-	vint16_t a16 = {
+	stress_vint16_t a16 = {
 		0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-	vint16_t b16 = {
+	stress_vint16_t b16 = {
 		0x0123, 0x4567, 0x89ab, 0xcdef, 0x0f1e, 0x2d3c, 0x4b5a, 0x6978 };
-	vint16_t c16 = {
+	stress_vint16_t c16 = {
 		0x0102, 0x0302, 0x0102, 0x0302, 0x0302, 0x0102, 0x0302, 0x0102 };
-	vint16_t s16 = {
+	stress_vint16_t s16 = {
 		0x0001, 0x0001, 0x0002, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002 };
-	const vint16_t v23_16 = {
+	const stress_vint16_t v23_16 = {
 		0x0017, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017 };
-	const vint16_t v3_16 = {
+	const stress_vint16_t v3_16 = {
 		0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003 };
 
-	vint32_t a32 = {
+	stress_vint32_t a32 = {
 		0x00000000, 0x00000000, 0x00000000, 0x00000000 };
-	vint32_t b32 = {
+	stress_vint32_t b32 = {
 		0x01234567, 0x89abcdef, 0x0f1e2d3c, 0x4b5a6978 };
-	vint32_t c32 = {
+	stress_vint32_t c32 = {
 		0x01020302, 0x01020302, 0x03020102, 0x03020102 };
-	vint32_t s32 = {
+	stress_vint32_t s32 = {
 		0x00000001, 0x00000002, 0x00000002, 0000000001 };
-	const vint32_t v23_32 = {
+	const stress_vint32_t v23_32 = {
 		0x00000017, 0x00000017, 0x00000017, 0x00000017 };
-	const vint32_t v3_32 = {
+	const stress_vint32_t v3_32 = {
 		0x00000003, 0x00000003, 0x00000003, 0x00000003 };
 
-	vint64_t a64 = {
+	stress_vint64_t a64 = {
 		0x0000000000000000ULL, 0x0000000000000000ULL };
-	vint64_t b64 = {
+	stress_vint64_t b64 = {
 		0x0123456789abcdefULL, 0x0f1e2d3c4b5a6979ULL };
-	vint64_t c64 = {
+	stress_vint64_t c64 = {
 		0x0102030201020302ULL, 0x0302010203020102ULL };
-	vint64_t s64 = {
+	stress_vint64_t s64 = {
 		0x0000000000000001ULL, 0x0000000000000002ULL };
-	const vint64_t v23_64 = {
+	const stress_vint64_t v23_64 = {
 		0x0000000000000023ULL, 0x0000000000000023ULL };
-	const vint64_t v3_64 = {
+	const stress_vint64_t v3_64 = {
 		0x0000000000000003ULL, 0x0000000000000003ULL };
 
 #if defined(HAVE_INT128_T)
-	vint128_t a128 = {
+	stress_vint128_t a128 = {
 		INT128(0x0000000000000000ULL, 0x0000000000000000ULL) };
-	vint128_t b128 = {
+	stress_vint128_t b128 = {
 		INT128(0x0123456789abcdefULL, 0x0f1e2d3c4b5a6979ULL) };
-	vint128_t c128 = {
+	stress_vint128_t c128 = {
 		INT128(0x0102030201020302ULL, 0x0302010203020102ULL) };
-	vint128_t s128 = {
+	stress_vint128_t s128 = {
 		INT128(0x0000000000000001ULL, 0x0000000000000002ULL) };
-	const vint128_t v23_128 = {
+	const stress_vint128_t v23_128 = {
 		INT128(0x0000000000000000ULL, 0x0000000000000023ULL) };
-	const vint128_t v3_128 = {
+	const stress_vint128_t v3_128 = {
 		INT128(0x0000000000000000ULL, 0x0000000000000003ULL) };
 #endif
 
