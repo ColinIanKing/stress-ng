@@ -60,10 +60,17 @@ static void stress_stackmmap_push_msync(void)
 {
 	void *addr = (void *)(((uintptr_t)&addr) & page_mask);
 	static void *laddr;
-	char waste[64];
+	uint32_t waste[2];
 
-	waste[0] = 0;
-	waste[sizeof(waste) - 1] = 0;
+	/*
+	 * Ensure something is written to the stack that
+	 * won't get optimized away
+	 */
+	waste[0] = mwc32();
+	uint32_put(waste[0]);
+	waste[1] = mwc32();
+	uint32_put(waste[1]);
+	uint64_put((uint64_t)(ptrdiff_t)&waste);
 
 	if (addr != laddr) {
 		(void)shim_msync(addr, page_size,
