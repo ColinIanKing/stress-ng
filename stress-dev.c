@@ -42,16 +42,11 @@ static shim_pthread_spinlock_t lock;
 static char *dev_path;
 static uint32_t mixup;
 
-typedef struct dev_func {
+typedef struct stress_dev_func {
 	const char *devpath;
 	const size_t devpath_len;
 	void (*func)(const char *name, const int fd, const char *devpath);
-} dev_func_t;
-
-typedef struct dev_scsi {
-	struct dev_scsi *next;
-	char *devpath;
-} dev_scsi_t;
+} stress_dev_func_t;
 
 static stress_hash_table_t *dev_hash_table, *scsi_hash_table;
 
@@ -1105,7 +1100,7 @@ static void stress_dev_ptp_linux(
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
-static const dev_func_t dev_funcs[] = {
+static const stress_dev_func_t dev_funcs[] = {
 #if defined(__linux__) && defined(HAVE_LINUX_MEDIA_H) && \
     defined(MEDIA_IOC_DEVICE_INFO)
 	DEV_FUNC("/dev/media",	stress_dev_media_linux),
