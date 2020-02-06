@@ -34,14 +34,14 @@ typedef struct clone {
 	struct clone *next;
 	pid_t	pid;
 	char stack[CLONE_STACK_SIZE];
-} clone_t;
+} stress_clone_t;
 
 typedef struct {
-	clone_t *head;		/* Head of clone procs list */
-	clone_t *tail;		/* Tail of clone procs list */
-	clone_t *free;		/* List of free'd clones */
+	stress_clone_t *head;	/* Head of clone procs list */
+	stress_clone_t *tail;	/* Tail of clone procs list */
+	stress_clone_t *free;	/* List of free'd clones */
 	uint32_t length;	/* Length of list */
-} clone_list_t;
+} stress_clone_list_t;
 
 static const help_t help[] = {
 	{ NULL,	"clone N",	"start N workers that rapidly create and reap clones" },
@@ -52,7 +52,7 @@ static const help_t help[] = {
 
 #if defined(HAVE_CLONE)
 
-static clone_list_t clones;
+static stress_clone_list_t clones;
 
 /*
  *  A random selection of clone flags that are worth exercising
@@ -161,9 +161,9 @@ static inline uint64_t uint64_ptr(const void *ptr)
  *  stress_clone_new()
  *	allocate a new clone, add to end of list
  */
-static clone_t *stress_clone_new(void)
+static stress_clone_t *stress_clone_new(void)
 {
-	clone_t *new;
+	stress_clone_t *new;
 
 	if (clones.free) {
 		/* Pop an old one off the free list */
@@ -196,7 +196,7 @@ static void stress_clone_head_remove(void)
 {
 	if (clones.head) {
 		int status;
-		clone_t *head = clones.head;
+		stress_clone_t *head = clones.head;
 
 		(void)shim_waitpid(clones.head->pid, &status, __WCLONE);
 
@@ -222,13 +222,13 @@ static void stress_clone_head_remove(void)
 static void stress_clone_free(void)
 {
 	while (clones.head) {
-		clone_t *next = clones.head->next;
+		stress_clone_t *next = clones.head->next;
 
 		free(clones.head);
 		clones.head = next;
 	}
 	while (clones.free) {
-		clone_t *next = clones.free->next;
+		stress_clone_t *next = clones.free->next;
 
 		free(clones.free);
 		clones.free = next;
@@ -321,7 +321,7 @@ static int stress_clone_child(const args_t *args, void *context)
 
 	do {
 		if (clones.length < clone_max) {
-			clone_t *clone_info;
+			stress_clone_t *clone_info;
 			stress_clone_args_t clone_arg = { args };
 			const uint32_t rnd = mwc32();
 			const int flag = flags[rnd % SIZEOF_ARRAY(flags)];
