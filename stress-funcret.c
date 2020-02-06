@@ -40,19 +40,19 @@ static const help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-typedef long double 	long_double_t;
+typedef long double 	stress_long_double_t;
 
 typedef struct {
 	uint8_t		data[32];
-} uint8x32_t;
+} stress_uint8x32_t;
 
 typedef struct {
 	uint8_t		data[128];
-} uint8x128_t;
+} stress_uint8x128_t;
 
 typedef struct {
 	uint64_t	data[128];
-} uint64x128_t;
+} stress_uint64x128_t;
 
 #define stress_funcret1(type)					\
 static type NOINLINE stress_funcret_ ## type ## 1(type a);	\
@@ -121,9 +121,9 @@ stress_funcret1(double)
 stress_funcret_deep1(double)
 stress_funcret_deeper1(double)
 
-stress_funcret1(long_double_t)
-stress_funcret_deep1(long_double_t)
-stress_funcret_deeper1(long_double_t)
+stress_funcret1(stress_long_double_t)
+stress_funcret_deep1(stress_long_double_t)
+stress_funcret_deeper1(stress_long_double_t)
 
 #if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
 stress_funcret1(_Decimal32)
@@ -155,17 +155,17 @@ stress_funcret_deep1(__float128)
 stress_funcret_deeper1(__float128)
 #endif
 
-stress_funcret1(uint8x32_t)
-stress_funcret_deep1(uint8x32_t)
-stress_funcret_deeper1(uint8x32_t)
+stress_funcret1(stress_uint8x32_t)
+stress_funcret_deep1(stress_uint8x32_t)
+stress_funcret_deeper1(stress_uint8x32_t)
 
-stress_funcret1(uint8x128_t)
-stress_funcret_deep1(uint8x128_t)
-stress_funcret_deeper1(uint8x128_t)
+stress_funcret1(stress_uint8x128_t)
+stress_funcret_deep1(stress_uint8x128_t)
+stress_funcret_deeper1(stress_uint8x128_t)
 
-stress_funcret1(uint64x128_t)
-stress_funcret_deep1(uint64x128_t)
-stress_funcret_deeper1(uint64x128_t)
+stress_funcret1(stress_uint64x128_t)
+stress_funcret_deep1(stress_uint64x128_t)
+stress_funcret_deeper1(stress_uint64x128_t)
 
 #define stress_funcret_type(type)					\
 static void NOINLINE stress_funcret_ ## type(const args_t *args);	\
@@ -202,7 +202,7 @@ stress_funcret_type(__uint128_t)
 #endif
 stress_funcret_type(float)
 stress_funcret_type(double)
-stress_funcret_type(long_double_t)
+stress_funcret_type(stress_long_double_t)
 #if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
 stress_funcret_type(_Decimal32)
 #endif
@@ -218,9 +218,9 @@ stress_funcret_type(__float80)
 #if defined(HAVE_FLOAT128) && !defined(__clang__)
 stress_funcret_type(__float128)
 #endif
-stress_funcret_type(uint8x32_t)
-stress_funcret_type(uint8x128_t)
-stress_funcret_type(uint64x128_t)
+stress_funcret_type(stress_uint8x32_t)
+stress_funcret_type(stress_uint8x128_t)
+stress_funcret_type(stress_uint64x128_t)
 
 /*
  * Table of func call stress methods
@@ -235,7 +235,7 @@ static const stress_funcret_method_info_t funcret_methods[] = {
 #endif
 	{ "float",	stress_funcret_float },
 	{ "double",	stress_funcret_double },
-	{ "longdouble",	stress_funcret_long_double_t },
+	{ "longdouble",	stress_funcret_stress_long_double_t },
 #if defined(HAVE_FLOAT80) && !defined(__clang__)
 	{ "float80",	stress_funcret___float80 },
 #endif
@@ -251,9 +251,9 @@ static const stress_funcret_method_info_t funcret_methods[] = {
 #if defined(HAVE_FLOAT_DECIMAL128) && !defined(__clang__)
 	{ "decimal128",	stress_funcret__Decimal128 },
 #endif
-	{ "uint8x32",	stress_funcret_uint8x32_t },
-	{ "uint8x128",	stress_funcret_uint8x128_t },
-	{ "uint64x128",	stress_funcret_uint64x128_t },
+	{ "uint8x32",	stress_funcret_stress_uint8x32_t },
+	{ "uint8x128",	stress_funcret_stress_uint8x128_t },
+	{ "uint64x128",	stress_funcret_stress_uint64x128_t },
 	{ NULL,		NULL },
 };
 
