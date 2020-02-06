@@ -62,9 +62,9 @@ typedef struct {
 	const int exclude;	/* Excluded REVIO_OPT_ flags */
 	const int advice;	/* posix_fadvise value */
 	const int oflag;	/* open O_* flags */
-} revio_opts_t;
+} stress_revio_opts_t;
 
-static const revio_opts_t revio_opts[] = {
+static const stress_revio_opts_t revio_opts[] = {
 #if defined(O_SYNC)
 	{ "sync",	REVIO_OPT_O_SYNC, 0, 0, O_SYNC },
 #endif
