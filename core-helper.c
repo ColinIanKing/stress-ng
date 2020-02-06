@@ -48,11 +48,11 @@ int __dso_handle;
 typedef struct {
 	const int  signum;
 	const char *name;
-} sig_name_t;
+} stress_sig_name_t;
 
 #define SIG_NAME(x) { x, #x }
 
-static const sig_name_t sig_names[] = {
+static const stress_sig_name_t sig_names[] = {
 #if defined(SIGABRT)
 	SIG_NAME(SIGABRT),
 #endif
@@ -1435,9 +1435,9 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 	typedef struct {
 		uint64_t size;
 		char *suffix;
-	} size_info_t;
+	} stress_size_info_t;
 
-	static const size_info_t size_info[] = {
+	static const stress_size_info_t size_info[] = {
 		{ EB, "E" },
 		{ PB, "P" },
 		{ TB, "T" },
