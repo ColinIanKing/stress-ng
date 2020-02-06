@@ -39,7 +39,7 @@ typedef struct {
         uint8_t         data[1024];
         uint64_t        status;
         uint32_t        attributes;
-} __attribute__((packed)) efi_var;
+} __attribute__((packed)) stress_efi_var_t;
 
 static const char vars[] = "/sys/firmware/efi/vars";
 static const char efi_vars[] = "/sys/firmware/efi/efivars";
@@ -96,7 +96,7 @@ static inline void guid_to_str(const uint8_t *guid, char *guid_str, size_t guid_
  *  efi_get_varname()
  *	fetch the UEFI variable name in terms of a 8 bit C string
  */
-static inline void efi_get_varname(char *dst, const size_t len, const efi_var *var)
+static inline void efi_get_varname(char *dst, const size_t len, const stress_efi_var_t *var)
 {
 	register size_t i = len;
 
@@ -162,7 +162,7 @@ err_vars:
  *  efi_get_variable()
  *	fetch a UEFI variable given its name.
  */
-static int efi_get_variable(const args_t *args, const char *varname, efi_var *var)
+static int efi_get_variable(const args_t *args, const char *varname, stress_efi_var_t *var)
 {
 	int fd, ret, rc = 0, flags;
 	size_t i;
@@ -174,7 +174,7 @@ static int efi_get_variable(const args_t *args, const char *varname, efi_var *va
 	if ((!varname) || (!var))
 		return -1;
 
-	if (efi_get_data(args, varname, "raw_var", var, sizeof(efi_var)) < 0)
+	if (efi_get_data(args, varname, "raw_var", var, sizeof(stress_efi_var_t)) < 0)
 		rc = -1;
 
 	/* Exercise reading the efi sysfs files */
@@ -233,7 +233,7 @@ static int efi_vars_get(const args_t *args)
 	int i;
 
 	for (i = 0; i < dir_count; i++) {
-		efi_var var;
+		stress_efi_var_t var;
 		char *d_name = efi_dentries[i]->d_name;
 		int ret;
 
