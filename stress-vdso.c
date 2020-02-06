@@ -50,15 +50,15 @@ static const opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_GETAUXVAL) && \
     defined(AT_SYSINFO_EHDR)
 
-typedef int (*func_t)(void *);
+typedef int (*stress_vdso_func_t)(void *);
 
 /*
  *  Symbol name to wrapper function lookup
  */
-typedef struct wrap_func {
-	func_t func;		/* Wrapper function */
+typedef struct stress_wrap_func {
+	stress_vdso_func_t func;/* Wrapper function */
 	char *name;		/* Function name */
-} wrap_func_t;
+} stress_wrap_func_t;
 
 /*
  *  vDSO symbol mapping name to address and wrapper function
@@ -67,12 +67,12 @@ typedef struct vdso_sym {
 	struct vdso_sym *next;	/* Next symbol in list */
 	char *name;		/* Function name */
 	void *addr;		/* Function address in vDSO */
-	func_t func;		/* Wrapper function */
-	func_t dummy_func;	/* Dummy wrapper function for instrumentation */
+	stress_vdso_func_t func;/* Wrapper function */
+	stress_vdso_func_t dummy_func;	/* Dummy wrapper function for instrumentation */
 	bool duplicate;		/* True if a duplicate call */
-} vdso_sym_t;
+} stress_vdso_sym_t;
 
-static vdso_sym_t *vdso_sym_list;
+static stress_vdso_sym_t *vdso_sym_list;
 
 /*
  *  wrap_getcpu()
@@ -145,7 +145,7 @@ static int wrap_dummy(void *vdso_func)
 /*
  *  mapping of wrappers to function symbol name
  */
-static wrap_func_t wrap_funcs[] = {
+static stress_wrap_func_t wrap_funcs[] = {
 #if defined(HAVE_CLOCK_GETTIME)
 	{ wrap_clock_gettime,	"clock_gettime" },
 	{ wrap_clock_gettime,	"__vdso_clock_gettime" },
@@ -166,7 +166,7 @@ static wrap_func_t wrap_funcs[] = {
  *  func_find()
  *	find wrapper function by symbol name
  */
-static func_t func_find(char *name)
+static stress_vdso_func_t func_find(char *name)
 {
 	size_t i;
 
@@ -241,9 +241,9 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 
 						for (ch = bucket[j]; ch != STN_UNDEF; ch = chain[ch]) {
 							ElfW(Sym) *sym = &symtab[ch];
-							vdso_sym_t *vdso_sym;
+							stress_vdso_sym_t *vdso_sym;
 							char *name = strtab + sym->st_name;
-							func_t func;
+							stress_vdso_func_t func;
 
 							if ((ELF64_ST_TYPE(sym->st_info) != STT_FUNC) ||
 							    ((ELF64_ST_BIND(sym->st_info) != STB_GLOBAL) &&
@@ -290,7 +290,7 @@ static char *vdso_sym_list_str(void)
 {
 	char *str = NULL;
 	size_t len = 0;
-	vdso_sym_t *vdso_sym;
+	stress_vdso_sym_t *vdso_sym;
 
 	for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
 		char *tmp;
@@ -316,12 +316,12 @@ static char *vdso_sym_list_str(void)
  *  vdso_sym_list_free()
  *	free up the symbols
  */
-static void vdso_sym_list_free(vdso_sym_t **list)
+static void vdso_sym_list_free(stress_vdso_sym_t **list)
 {
-	vdso_sym_t *vdso_sym = *list;
+	stress_vdso_sym_t *vdso_sym = *list;
 
 	while (vdso_sym) {
-		vdso_sym_t *next = vdso_sym->next;
+		stress_vdso_sym_t *next = vdso_sym->next;
 
 		free(vdso_sym);
 		vdso_sym = next;
@@ -333,7 +333,7 @@ static void vdso_sym_list_free(vdso_sym_t **list)
  *  remove_sym
  *	find and remove a symbol from the symbol list
  */
-static void remove_sym(vdso_sym_t **list, vdso_sym_t *dup)
+static void remove_sym(stress_vdso_sym_t **list, stress_vdso_sym_t *dup)
 {
 	while (*list) {
 		if (*list == dup) {
@@ -349,12 +349,12 @@ static void remove_sym(vdso_sym_t **list, vdso_sym_t *dup)
  *  vdso_sym_list_remove_duplicates()
  *	remove duplicated system calls
  */
-static void vdso_sym_list_remove_duplicates(vdso_sym_t **list)
+static void vdso_sym_list_remove_duplicates(stress_vdso_sym_t **list)
 {
-	vdso_sym_t *vs1;
+	stress_vdso_sym_t *vs1;
 
 	for (vs1 = *list; vs1; vs1 = vs1->next) {
-		vdso_sym_t *vs2;
+		stress_vdso_sym_t *vs2;
 
 		if (vs1->name[0] == '_') {
 			for (vs2 = *list; vs2; vs2 = vs2->next) {
@@ -366,7 +366,7 @@ static void vdso_sym_list_remove_duplicates(vdso_sym_t **list)
 
 	vs1 = *list;
 	while (vs1) {
-		vdso_sym_t *next = vs1->next;
+		stress_vdso_sym_t *next = vs1->next;
 
 		if (vs1->duplicate)
 			remove_sym(list, vs1);
@@ -404,9 +404,9 @@ static int stress_vdso_supported(void)
  *	remove all other symbols from the list so just
  *	this one function is used.
  */
-static int vdso_sym_list_check_vdso_func(vdso_sym_t **list)
+static int vdso_sym_list_check_vdso_func(stress_vdso_sym_t **list)
 {
-	vdso_sym_t *vs1;
+	stress_vdso_sym_t *vs1;
 	char *name;
 
 	if (!get_setting("vdso-func", &name))
@@ -426,7 +426,7 @@ static int vdso_sym_list_check_vdso_func(vdso_sym_t **list)
 
 	vs1 = *list;
 	while (vs1) {
-		vdso_sym_t *next = vs1->next;
+		stress_vdso_sym_t *next = vs1->next;
 
 		if (strcmp(vs1->name, name))
 			remove_sym(list, vs1);
@@ -467,7 +467,7 @@ static int stress_vdso(const args_t *args)
 
 	t1 = stress_time_now();
 	do {
-		vdso_sym_t *vdso_sym;
+		stress_vdso_sym_t *vdso_sym;
 
 		for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
 			vdso_sym->func(vdso_sym->addr);
@@ -481,7 +481,7 @@ static int stress_vdso(const args_t *args)
 		int j;
 
 		for (j = 0; j < 1000000; j++) {
-			vdso_sym_t *vdso_sym;
+			stress_vdso_sym_t *vdso_sym;
 
 			for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
 				vdso_sym->dummy_func(vdso_sym->addr);
