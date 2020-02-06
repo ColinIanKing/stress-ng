@@ -24,8 +24,8 @@
  */
 #include "stress-ng.h"
 
-typedef void *(*bad_addr_t)(const args_t *args);
-typedef int (*bad_syscall_t)(void *addr);
+typedef void *(*stress_bad_addr_t)(const args_t *args);
+typedef int (*stress_bad_syscall_t)(void *addr);
 
 static void *ro_page;
 static void *rw_page;
@@ -148,7 +148,7 @@ static void *unmapped_addr(const args_t *args)
 	return ((uint8_t *)rw_page) + args->page_size;
 }
 
-static bad_addr_t bad_addrs[] = {
+static stress_bad_addr_t bad_addrs[] = {
 	unaligned_addr,
 	readonly_addr,
 	null_addr,
@@ -430,7 +430,7 @@ static int bad_writev(void *addr)
 	return ret;
 }
 
-static bad_syscall_t bad_syscalls[] = {
+static stress_bad_syscall_t bad_syscalls[] = {
 	bad_access,
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(CLOCK_REALTIME)
@@ -510,7 +510,7 @@ static bad_syscall_t bad_syscalls[] = {
  */
 static inline int stress_do_syscall(
 	const args_t *args,
-	bad_syscall_t bad_syscall,
+	stress_bad_syscall_t bad_syscall,
 	void *addr)
 {
 	pid_t pid;
