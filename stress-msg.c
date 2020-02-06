@@ -51,7 +51,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 typedef struct {
 	long mtype;
 	uint32_t value;
-} msg_t;
+} stress_msg_t;
 
 static int stress_msg_get_stats(const args_t *args, const int msgq_id)
 {
@@ -157,7 +157,7 @@ again:
 		stress_parent_died_alarm();
 
 		while (keep_stressing()) {
-			msg_t ALIGN64 msg;
+			stress_msg_t ALIGN64 msg;
 			register uint32_t i;
 			register const long mtype = msg_types == 0 ? 0 : -(msg_types + 1);
 
@@ -196,7 +196,7 @@ again:
 			_exit(EXIT_SUCCESS);
 		}
 	} else {
-		msg_t ALIGN64 msg;
+		stress_msg_t ALIGN64 msg;
 		int status;
 
 		/* Parent */
