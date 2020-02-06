@@ -28,9 +28,9 @@ typedef struct {
 	const char *name;
 	const int  domain;
 	const int  domain_flags;
-} domain_t;
+} stress_domain_t;
 
-static const domain_t domains[] = {
+static const stress_domain_t domains[] = {
 	{ "ipv4",	AF_INET,	DOMAIN_INET },
 	{ "ipv6",	AF_INET6,	DOMAIN_INET6 },
 	{ "unix",	AF_UNIX,	DOMAIN_UNIX },
