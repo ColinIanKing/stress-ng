@@ -47,7 +47,7 @@ typedef struct {
 	bool	valid;
 	bool	enosys;
 	bool	esrch;
-} dev_info_t;
+} stress_dev_info_t;
 
 #define DO_Q_GETQUOTA	0x0001
 #define DO_Q_GETFMT	0x0002
@@ -120,7 +120,7 @@ static int do_quotactl(
  *  do_quotas()
  *	do quotactl commands
  */
-static int do_quotas(const args_t *args, dev_info_t *const dev)
+static int do_quotas(const args_t *args, stress_dev_info_t *const dev)
 {
 	int tested = 0, failed = 0, enosys = 0, esrch = 0;
 #if defined(Q_GETQUOTA)
@@ -212,7 +212,7 @@ static int stress_quota(const args_t *args)
 	int i, n_mounts, n_devs = 0;
 	int rc = EXIT_FAILURE;
 	char *mnts[MAX_DEVS];
-	dev_info_t devs[MAX_DEVS];
+	stress_dev_info_t devs[MAX_DEVS];
 	DIR *dir;
 	struct dirent *d;
 	struct stat buf;
