@@ -46,20 +46,20 @@ typedef struct {
 	unsigned long config;		/* perf type specific config */
 	char *path;			/* perf trace point path (only for trace points) */
 	char *label;			/* human readable name for perf type */
-} perf_info_t;
+} stress_perf_info_t;
 
 /* perf data */
 typedef struct {
 	uint64_t counter;		/* perf counter */
 	uint64_t time_enabled;		/* perf time enabled */
 	uint64_t time_running;		/* perf time running */
-} perf_data_t;
+} stress_perf_data_t;
 
 typedef struct {
 	double		threshold;
 	double		scale;
 	char 		*suffix;
-} perf_scale_t;
+} stress_perf_scale_t;
 
 /* Tracepoint */
 #define PERF_INFO_TP(path, label)	\
@@ -87,7 +87,7 @@ typedef struct {
 /*
  *  Perf scaling factors
  */
-static const perf_scale_t perf_scale[] = {
+static const stress_perf_scale_t perf_scale[] = {
 	{ THOUSAND,		1.0,		"/sec" },
 	{ 100 * THOUSAND,	THOUSAND,	"K/sec" },
 	{ 100 * MILLION,	MILLION,	"M/sec" },
@@ -101,7 +101,7 @@ static const perf_scale_t perf_scale[] = {
 };
 
 /* perf counters to be read */
-static perf_info_t perf_info[STRESS_PERF_MAX] = {
+static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	/*
 	 *  Hardware conters
 	 */
@@ -296,7 +296,7 @@ static perf_info_t perf_info[STRESS_PERF_MAX] = {
 	{ 0, 0, NULL, NULL }
 };
 
-static inline void stress_perf_type_tracepoint_resolve_config(perf_info_t *pi)
+static inline void stress_perf_type_tracepoint_resolve_config(stress_perf_info_t *pi)
 {
 	char path[PATH_MAX];
 	unsigned long config;
@@ -501,7 +501,7 @@ int stress_perf_disable(stress_perf_t *sp)
 int stress_perf_close(stress_perf_t *sp)
 {
 	size_t i = 0;
-	perf_data_t data;
+	stress_perf_data_t data;
 	ssize_t ret;
 	double scale;
 
