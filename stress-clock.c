@@ -37,11 +37,11 @@ static const help_t help[] = {
 typedef struct {
 	const int 	id;		/* Clock ID */
 	const char 	*name;		/* Clock name */
-} clock_info_t;
+} stress_clock_info_t;
 
 #define CLOCK_INFO(x)	{ x, #x }
 
-static const clock_info_t clocks[] = {
+static const stress_clock_info_t clocks[] = {
 #if defined(CLOCK_REALTIME)
 	CLOCK_INFO(CLOCK_REALTIME),
 #endif
