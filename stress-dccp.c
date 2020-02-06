@@ -33,7 +33,7 @@
 typedef struct {
 	const char *optname;
 	int	   opt;
-} dccp_opts_t;
+} stress_dccp_opts_t;
 
 static const help_t help[] = {
 	{ NULL,	"dccp N",		"start N workers exercising network DCCP I/O" },
@@ -44,7 +44,7 @@ static const help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static const dccp_opts_t dccp_options[] = {
+static const stress_dccp_opts_t dccp_options[] = {
 	{ "send",	DCCP_OPT_SEND },
 	{ "sendmsg",	DCCP_OPT_SENDMSG },
 #if defined(HAVE_SENDMMSG)
