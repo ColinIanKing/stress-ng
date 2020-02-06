@@ -128,12 +128,12 @@ static int stress_sigfpe(const args_t *args)
 	typedef struct {
 		int	exception;
 		int	err_code;
-	} fpe_err_t;
+	} stress_fpe_err_t;
 
 	/*
 	 *  FPE errors to raise
 	 */
-	static const fpe_err_t fpe_errs[] = {
+	static const stress_fpe_err_t fpe_errs[] = {
 #if defined(FPE_INTDIV)
 		{ SNG_INTDIV,	FPE_INTDIV },
 #endif
