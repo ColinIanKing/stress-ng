@@ -52,9 +52,9 @@ typedef struct {
 	const int	policy;
 	int		max_prio;
 	const char	*name;
-} policy_t;
+} stress_policy_t;
 
-static policy_t policies[] = {
+static stress_policy_t policies[] = {
 #if defined(SCHED_FIFO)
 	{ SCHED_FIFO, 0, "SCHED_FIFO"},
 #endif
