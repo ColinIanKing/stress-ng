@@ -43,13 +43,13 @@ static const help_t help[] = {
 #define TIME_OUT	(10)	/* Secs for inotify to report back */
 #define BUF_SIZE	(4096)
 
-typedef int (*inotify_helper)(const args_t *args, const char *path, const void *private);
-typedef void (*inotify_func)(const args_t *args, const char *path);
+typedef int (*stress_inotify_helper)(const args_t *args, const char *path, const void *private);
+typedef void (*stress_inotify_func)(const args_t *args, const char *path);
 
 typedef struct {
-	const inotify_func func;
+	const stress_inotify_func func;
 	const char*	description;
-} inotify_stress_t;
+} stress_inotify_t;
 
 /*
  *  inotify_exercise()
@@ -61,7 +61,7 @@ static void inotify_exercise(
 	const char *filename,	/* Filename in test */
 	const char *watchname,	/* File or directory to watch using inotify */
 	const char *matchname,	/* Filename we expect inotify event to report */
-	const inotify_helper func,	/* Helper func */
+	const stress_inotify_helper func,	/* Helper func */
 	const int flags,	/* IN_* flags to watch for */
 	void *private)		/* Helper func private data */
 {
@@ -690,7 +690,7 @@ static void inotify_close_nowrite_file(const args_t *args, const char *path)
 }
 #endif
 
-static const inotify_stress_t inotify_stressors[] = {
+static const stress_inotify_t inotify_stressors[] = {
 #if defined(IN_ACCESS)
 	{ inotify_access_file,		"IN_ACCESS" },
 #endif
