@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-typedef int (*open_func_t)(void);
+typedef int (*stress_open_func_t)(void);
 
 static const help_t help[] = {
 	{ "o N", "open N",	"start N workers exercising open/close" },
@@ -131,7 +131,7 @@ static int open_path(void)
 #endif
 
 
-static open_func_t open_funcs[] = {
+static stress_open_func_t open_funcs[] = {
 	open_dev_zero_rd,
 	open_dev_null_wr,
 #if defined(O_TMPFILE)
