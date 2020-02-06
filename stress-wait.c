@@ -142,6 +142,22 @@ static void killer(
 }
 
 /*
+ *  stress_wait_continued()
+ *	check WIFCONTINUED
+ */
+static void stress_wait_continued(const args_t *args, const int status)
+{
+#if defined(WIFCONTINUED)
+	if (WIFCONTINUED(status))
+		inc_counter(args);
+#else
+	(void)status;
+
+	inc_counter(args);
+#endif
+}
+
+/*
  *  stress_wait
  *	stress wait*() family of calls
  */
@@ -178,21 +194,34 @@ static int stress_wait(const args_t *args)
 	}
 
 	do {
+		/*
+		 *  Exercise waitpid
+		 */
 		wret = waitpid(pid_r, &status, options);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail_dbg("waitpid()");
 			break;
 		}
+		stress_wait_continued(args, status);
 		if (!keep_stressing_flag())
 			break;
-#if defined(WIFCONINUED)
-		if (WIFCONTINUED(status))
-			inc_counter(args);
-#else
-		inc_counter(args);
-#endif
+
+		/*
+		 *  Exercise wait
+		 */
+		wret = wait(&status);
+		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+			pr_fail_dbg("wait()");
+			break;
+		}
+		stress_wait_continued(args, status);
+		if (!keep_stressing_flag())
+			break;
 
 #if defined(HAVE_WAITID)
+		/*
+		 *  Exercise waitid if available
+		 */
 		if (options) {
 			siginfo_t info;
 
@@ -201,14 +230,9 @@ static int stress_wait(const args_t *args)
 				pr_fail_dbg("waitpid()");
 				break;
 			}
+			stress_wait_continued(args, status);
 			if (!keep_stressing_flag())
 				break;
-#if defined(WIFCONTINUED)
-			if (WIFCONTINUED(status))
-				inc_counter(args);
-#else
-			inc_counter(args);
-#endif
 		}
 #endif
 	} while (keep_stressing_flag() && (!args->max_ops || get_counter(args) < args->max_ops));
