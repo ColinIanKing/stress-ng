@@ -112,7 +112,7 @@ static void *stress_mmapaddr_get_addr(
 	return addr;
 }
 
-int stress_mmapaddr_child(const args_t *args, void *context)
+static int stress_mmapaddr_child(const args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	const uintptr_t page_mask = ~(page_size - 1);
