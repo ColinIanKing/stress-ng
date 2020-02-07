@@ -1205,7 +1205,7 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #define MAX_MEM_LIMIT		MAX_48
 #endif
 
-#define MAX_FILE_LIMIT		((1UL << ((sizeof(off_t) * 8) - 1)) - 1)
+#define MAX_FILE_LIMIT		((1ULL << ((sizeof(off_t) * 8) - 1)) - 1)
 /*
  * --maximize files must not be so big that we fill up
  * a disk, so make them either the MAX_FILE_FILE_LIMIT for
