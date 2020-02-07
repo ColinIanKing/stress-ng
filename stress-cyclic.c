@@ -27,7 +27,7 @@
 #define DEFAULT_DELAY_NS	(100000)
 #define MAX_SAMPLES		(10000)
 #define MAX_BUCKETS		(250)
-#define NANOSECS		(1000000000)
+#define STRESS_NANOSEC		(1000000000)
 
 typedef struct {
 	const int	policy;		/* scheduler policy */
@@ -86,7 +86,7 @@ static int stress_set_cyclic_sleep(const char *opt)
 
 	cyclic_sleep = get_uint64(opt);
         check_range("cyclic-sleep", cyclic_sleep,
-                1, NANOSECS);
+                1, STRESS_NANOSEC);
         return set_setting("cyclic-sleep", TYPE_ID_UINT64, &cyclic_sleep);
 }
 
@@ -134,7 +134,7 @@ static void stress_cyclic_stats(
 {
 	int64_t delta_ns;
 
-	delta_ns = ((int64_t)(t2->tv_sec - t1->tv_sec) * NANOSECS) +
+	delta_ns = ((int64_t)(t2->tv_sec - t1->tv_sec) * STRESS_NANOSEC) +
 		   (t2->tv_nsec - t1->tv_nsec);
 	delta_ns -= cyclic_sleep;
 
@@ -160,8 +160,8 @@ static int stress_cyclic_clock_nanosleep(
 
 	(void)args;
 
-	t.tv_sec = cyclic_sleep / NANOSECS;
-	t.tv_nsec = cyclic_sleep % NANOSECS;
+	t.tv_sec = cyclic_sleep / STRESS_NANOSEC;
+	t.tv_nsec = cyclic_sleep % STRESS_NANOSEC;
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = clock_nanosleep(CLOCK_REALTIME, 0, &t, &trem);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
@@ -187,8 +187,8 @@ static int stress_cyclic_posix_nanosleep(
 
 	(void)args;
 
-	t.tv_sec = cyclic_sleep / NANOSECS;
-	t.tv_nsec = cyclic_sleep % NANOSECS;
+	t.tv_sec = cyclic_sleep / STRESS_NANOSEC;
+	t.tv_nsec = cyclic_sleep % STRESS_NANOSEC;
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = nanosleep(&t, &trem);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
@@ -226,7 +226,7 @@ static int stress_cyclic_poll(
 
 		(void)clock_gettime(CLOCK_REALTIME, &t2);
 
-		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * NANOSECS) +
+		delta_ns = ((int64_t)(t2.tv_sec - t1.tv_sec) * STRESS_NANOSEC) +
 			   (t2.tv_nsec - t1.tv_nsec);
 		if (delta_ns >= (int64_t)cyclic_sleep) {
 			delta_ns -= cyclic_sleep;
@@ -258,8 +258,8 @@ static int stress_cyclic_pselect(
 
 	(void)args;
 
-	t.tv_sec = cyclic_sleep / NANOSECS;
-	t.tv_nsec = cyclic_sleep % NANOSECS;
+	t.tv_sec = cyclic_sleep / STRESS_NANOSEC;
+	t.tv_nsec = cyclic_sleep % STRESS_NANOSEC;
 	(void)clock_gettime(CLOCK_REALTIME, &t1);
 	ret = pselect(0, NULL, NULL,NULL, &t, NULL);
 	(void)clock_gettime(CLOCK_REALTIME, &t2);
@@ -299,8 +299,8 @@ static int stress_cyclic_itimer(
 	timer_t timerid;
 	int ret = -1;
 
-	timer.it_interval.tv_sec = timer.it_value.tv_sec = cyclic_sleep / NANOSECS;
-	timer.it_interval.tv_nsec = timer.it_value.tv_nsec = cyclic_sleep % NANOSECS;
+	timer.it_interval.tv_sec = timer.it_value.tv_sec = cyclic_sleep / STRESS_NANOSEC;
+	timer.it_interval.tv_nsec = timer.it_value.tv_nsec = cyclic_sleep % STRESS_NANOSEC;
 
 	if (stress_sighandler(args->name, SIGRTMIN, stress_cyclic_itimer_handler, &old_action) < 0)
 		return ret;
@@ -321,7 +321,7 @@ static int stress_cyclic_itimer(
             (itimer_time.tv_nsec == 0))
 		goto tidy;
 
-	delta_ns = ((int64_t)(itimer_time.tv_sec - t1.tv_sec) * NANOSECS) + (itimer_time.tv_nsec - t1.tv_nsec);
+	delta_ns = ((int64_t)(itimer_time.tv_sec - t1.tv_sec) * STRESS_NANOSEC) + (itimer_time.tv_nsec - t1.tv_nsec);
 	delta_ns -= cyclic_sleep;
 
 	if (rt_stats->index < MAX_SAMPLES)
