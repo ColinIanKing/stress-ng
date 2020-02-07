@@ -231,12 +231,8 @@ static int stress_wait(const args_t *args)
 				break;
 			}
 			if (info.si_pid != pid_r) {
-				pr_fail("%s: waitid returned pid %d but expected pid %d\n",
-					args->name, info.si_pid, pid_r);
-			}
-			if (info.si_pid != pid_r) {
-				pr_fail("%s: waitid returned pid %d but expected pid %d\n",
-					args->name, info.si_pid, pid_r);
+				pr_fail("%s: waitid returned PID %ld but expected PID %ld\n",
+					args->name, (long int)info.si_pid, (long int)pid_r);
 			}
 			if (info.si_signo != SIGCHLD) {
 				pr_fail("%s: waitid returned si_signo %d (%s) but expected SIGCHLD\n",
