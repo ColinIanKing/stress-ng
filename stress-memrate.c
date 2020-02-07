@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#define NANOSEC		(1000000000)
+#define STRESS_NANOSEC		(1000000000)
 
 static const help_t help[] = {
 	{ NULL,	"memrate N",		"start N workers exercised memory read/writes" },
@@ -126,7 +126,8 @@ static uint64_t stress_memrate_read##size(			\
 								\
 			t.tv_sec = (time_t)dur_remainder;	\
 			t.tv_nsec = (dur_remainder -		\
-				(long)dur_remainder) * NANOSEC;	\
+				(long)dur_remainder) *		\
+				STRESS_NANOSEC;			\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
@@ -180,7 +181,8 @@ static uint64_t stress_memrate_write##size(			\
 								\
 			t.tv_sec = (time_t)dur_remainder;	\
 			t.tv_nsec = (dur_remainder -		\
-				(long)dur_remainder) * NANOSEC;	\
+				(long)dur_remainder) * 		\
+				STRESS_NANOSEC;			\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
