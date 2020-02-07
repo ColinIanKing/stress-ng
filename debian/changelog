@@ -1,3 +1,71 @@
+stress-ng (0.10.19-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-mmapaddr: make stress_mmapaddr_child static
+  * stress-wait: remove duplicated pr_fail message and cast pid_t to
+    long int
+  * stress-memrate: rename NANOSEC to STRESS_NANOSEC to avoid clashing
+  * stress-cyclic: avoid NANOSEC* name classhes, rename to STRESS_NANOSEC
+  * Fix the MAX_FILE_LIMIT shift, use 1ULL instead of 1UL
+  * stress-sockfd: attempt to read from the fd passed over the socket
+  * stress-fork: fix time_now calls to stress_time_now
+  * stress-clone: move a #if defined that got moved to the wrong place
+  * set maximum file size based on off_t size
+  * set maximum memory limit to MAX_48 and maximized limits to MAX_32
+  * core-sched: prefix typedefs with stress_
+  * core-perf: prefix typedefs with stress_
+  * core-net: prefix typedefs with stress_
+  * core-ignite-cpu: prefix typedefs with stress_
+  * core-cache: prefix typedefs with stress_
+  * core-cache: prefix typedefs with stress_
+  * stress-*: prefix typedefs with stress_
+  * stress-pty: allocate the pty structure on the heap, don't use the
+    stack
+  * stress-stackmmap: ensure random data is pushed onto the stack
+  * stress-stack: fill pages with non-zero content to avoid same-page
+    merges
+  * stress-spawn: fix up a comment
+  * stress-wait: add waitid siginfo sanity checks
+  * stress-wait: fix WIFCONTINUED check because of a typo in the check
+  * core-helper: map signal number to signal name
+  * core-shim: fix renaming of time_now to stress_time_now
+  * core-helper: voidify arg fd in stress_is_dev_tty
+  * stress-x86syscall: move scope of variable j
+  * stress-vdso: measure test overhead to compute more accurate results
+  * stress-x86syscall: measure test overhead to compute more accurate
+    results
+  * core-time: prefix helper functions with stress_
+  * core-thrash: prefix helper functions with stress_
+  * core-thermal-zone: prefix helper functions with stress_
+  * core-perf: prefix perf helper functions with stress_
+  * core-mount: add stress_ to mount helper functions
+  * Add stress_ to mmap_set and mmap_check helper functions
+  * Prefix mincore helper functions with stress_
+  * Rename madvise_random to stress_madvise_random
+  * stress-zlib: scale the logmap value to produce harder to compress
+    data
+  * stress-zlib: add chaotic number generator using a logmap method
+  * replace g_keep_stressing_flag with two helper functions
+  * stress-memthrash: add byte swapping memory stepping thrasher
+  * stress-sysfs: add bad sysfs files to hash table
+  * Makefile: remove need to define __FreeBSD_Kernel__
+  * Add more stress_ prefixes to various core functions
+  * core-ignite-cpu: prefix ignite_* functions with stress_
+  * core-cpu: rename cpu_is_x86 to stress_cpu_is_x86
+  * core-hash: remove need for str pointer
+  * core-hash: optimize hash adding, reduce need for strdup and a free
+  * stress-zombie: make max zombies a 32 bit
+  * stress-clone: make max clones a 32 bit
+  * stress-chdir: cleanup the chdir(cwd) loop
+  * stress-memrate: clean up continuation lines
+  * Rename set_oom_adjustment -> stress_set_oom_adjustment
+  * Add stress_oomable_child helper to catch and restart OOM'd child
+    processes
+  * stress-chdir: use flags rather than #ifdef around the open call
+  * core-hash: move various string hashing functions to core-hash
+
+ -- Colin King <colin.king@canonical.com>  Fri, 7 Feb 2020 14:37:11 +0000
+
 stress-ng (0.10.18-1) unstable; urgency=medium
 
   * Makefile: bump version
