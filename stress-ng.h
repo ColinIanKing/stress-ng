@@ -1964,6 +1964,7 @@ typedef struct {
 	MACRO(physpage)		\
 	MACRO(pidfd)		\
 	MACRO(pipe)		\
+	MACRO(pipeherd)		\
 	MACRO(pkey)		\
 	MACRO(poll)		\
 	MACRO(prctl)		\
@@ -2618,6 +2619,10 @@ typedef enum {
 	OPT_pipe_ops,
 	OPT_pipe_size,
 	OPT_pipe_data_size,
+
+	OPT_pipeherd,
+	OPT_pipeherd_ops,
+	OPT_pipeherd_yield,
 
 	OPT_pkey,
 	OPT_pkey_ops,

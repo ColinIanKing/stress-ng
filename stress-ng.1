@@ -2615,6 +2615,18 @@ to fill and block more frequently, hence increasing the context switch rate
 between the pipe writer and the pipe reader processes. Default size is 512
 bytes.
 .TP
+.B \-\-pipeherd N
+start N workers that pass a 64 bit token counter to/from 100 child processes
+over a shared pipe. This forces a high context switch rate and can trigger
+a "thundering herd" of wakeups on processes that are blocked on pipe waits.
+.TP
+.B \-\-pipeherd\-ops N
+stop pipe stress workers after N bogo pipe write operations.
+.TP
+.B \-\-pipeherd\-yield
+force a scheduling yield after each write, this increases the context
+switch rate.
+.TP
 .B \-\-pkey N
 start N workers that change memory protection using a protection key (pkey) and
 the pkey_mprotect call (Linux only). This will try to allocate a pkey and
