@@ -157,6 +157,43 @@ static int stress_get(const args_t *args)
 		(void)pid;
 		check_do_run();
 
+#if defined(HAVE_SWAPCONTEXT) &&        \
+    defined(HAVE_UCONTEXT_H)
+		{
+			ucontext_t context;
+
+			ret = getcontext(&context);
+			(void)ret;
+		}
+#endif
+
+#if defined(HAVE_GETDOMAINNAME)
+		{
+			char name[128];
+
+			ret = getdomainname(name, sizeof(name));
+			(void)ret;
+		}
+#endif
+
+#if defined(HAVE_GETHOSTID)
+		{
+			long id;
+
+			id = gethostid();
+			(void)id;
+		}
+#endif
+
+#if defined(HAVE_GETHOSTNAME)
+		{
+			char name[128];
+
+			ret = gethostname(name, sizeof(name));
+			(void)ret;
+		}
+#endif
+
 		ptr = getcwd(path, sizeof path);
 		if (verify && !ptr)
 			pr_fail_err("getcwd");
