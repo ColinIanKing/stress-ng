@@ -164,7 +164,19 @@ static int stress_get(const args_t *args)
 
 			ret = getcontext(&context);
 			(void)ret;
+			check_do_run();
 		}
+
+#if defined(HAVE_SWAPCONTEXT) &&        \
+    defined(HAVE_UCONTEXT_H)
+		{
+			ucontext_t context;
+
+			ret = getcontext(&context);
+			(void)ret;
+			check_do_run();
+		}
+#endif
 #endif
 
 #if defined(HAVE_GETDOMAINNAME)
@@ -173,6 +185,7 @@ static int stress_get(const args_t *args)
 
 			ret = getdomainname(name, sizeof(name));
 			(void)ret;
+			check_do_run();
 		}
 #endif
 
@@ -182,6 +195,7 @@ static int stress_get(const args_t *args)
 
 			id = gethostid();
 			(void)id;
+			check_do_run();
 		}
 #endif
 
@@ -191,6 +205,7 @@ static int stress_get(const args_t *args)
 
 			ret = gethostname(name, sizeof(name));
 			(void)ret;
+			check_do_run();
 		}
 #endif
 
