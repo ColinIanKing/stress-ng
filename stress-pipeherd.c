@@ -87,6 +87,10 @@ static int stress_pipeherd(const args_t *args)
 	int i, n, rc;
 	ssize_t sz;
 	bool pipeherd_yield = false;
+#if defined(__linux__)
+	struct rusage usage;
+	double t1, t2;
+#endif
 
 	(void)get_setting("pipeherd-yield", &pipeherd_yield);
 
@@ -106,6 +110,9 @@ static int stress_pipeherd(const args_t *args)
 		return EXIT_FAILURE;
 	}
 
+#if defined(__linux__)
+	t1 = stress_time_now();
+#endif
 	for (i = 0, n = 0; i < PIPE_HERD_MAX; i++) {
 		pid_t pid;
 		pid = fork();
@@ -128,7 +135,11 @@ static int stress_pipeherd(const args_t *args)
 	rc = stress_pipeherd_read_write(args, fd, pipeherd_yield);
 	sz = read(fd[0], &counter, sizeof(counter));
 	if (sz > 0)
-		set_counter(args,counter);
+		set_counter(args, counter);
+
+#if defined(__linux__)
+	t2 = stress_time_now();
+#endif
 
 	for (i = 0, n = 0; i < PIPE_HERD_MAX; i++) {
 		if (pids[i] >= 0) {
@@ -141,6 +152,25 @@ static int stress_pipeherd(const args_t *args)
 
 	(void)close(fd[0]);
 	(void)close(fd[1]);
+
+#if defined(__linux__)
+	(void)memset(&usage, 0, sizeof(usage));
+	if (getrusage(RUSAGE_CHILDREN, &usage) == 0) {
+		long total = usage.ru_nvcsw + usage.ru_nivcsw;
+
+		(void)memset(&usage, 0, sizeof(usage));
+		if (getrusage(RUSAGE_SELF, &usage) == 0) {
+			total += usage.ru_nvcsw + usage.ru_nivcsw;
+			if (total) {
+				pr_inf("%s: %.2f context switchers per bogo operation (%.2f per second)\n",
+					args->name,
+					(float)total / (float)get_counter(args),
+					(float)total / (t2 - t1));
+			}
+		}
+	}
+#endif
+
 	return EXIT_SUCCESS;
 }
 
