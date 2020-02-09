@@ -92,8 +92,7 @@ static int stress_pidfd(const args_t *args)
 			return EXIT_FAILURE;
 		} else if (pid == 0) {
 			(void)setpgid(0, g_pgrp);
-
-			pause();
+			(void)pause();
 			_exit(0);
 		} else {
 			/* Parent */
