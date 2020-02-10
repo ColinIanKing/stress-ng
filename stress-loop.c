@@ -95,7 +95,7 @@ static int stress_loop(const args_t *args)
 #endif
 #if defined(LOOP_SET_BLOCK_SIZE)
 		unsigned long blk_size;
-		static unsigned long blk_sizes[] = {
+		static const uint16_t blk_sizes[] = {
 			512, 1024, 2048, 4096,
 		};
 #endif
@@ -198,7 +198,7 @@ static int stress_loop(const args_t *args)
 		 *  produce kernel warnings but should not break the
 		 *  kernel.
 		 */
-		blk_size = blk_sizes[mwc8() % SIZEOF_ARRAY(blk_sizes)];
+		blk_size = (unsigned long)blk_sizes[mwc8() % SIZEOF_ARRAY(blk_sizes)];
 		ret = ioctl(loop_dev, LOOP_SET_BLOCK_SIZE, blk_size);
 		(void)ret;
 #endif

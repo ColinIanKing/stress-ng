@@ -133,8 +133,8 @@ static void NORETURN waste_resources(
     defined(O_TMPFILE)
 	const pid_t pid = getpid();
 #endif
-	static int domains[] = { AF_INET, AF_INET6 };
-	static int types[] = { SOCK_STREAM, SOCK_DGRAM };
+	static const int domains[] = { AF_INET, AF_INET6 };
+	static const int types[] = { SOCK_STREAM, SOCK_DGRAM };
 	static stress_info_t info[MAX_LOOPS];
 #if defined(O_NOATIME)
 	const int flag = O_NOATIME;

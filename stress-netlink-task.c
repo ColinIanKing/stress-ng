@@ -235,7 +235,7 @@ static int stress_netlink_task(const args_t *args)
 	const pid_t pid = getpid();
 	uint16_t id;
 	uint64_t nivcsw = 0ULL;	/* number of involuntary context switches */
-	static char name[] = TASKSTATS_GENL_NAME;
+	static const char name[] = TASKSTATS_GENL_NAME;
 
 	if ((sock = socket(AF_NETLINK, SOCK_RAW, NETLINK_GENERIC)) < 0) {
 		if (errno == EPROTONOSUPPORT) {

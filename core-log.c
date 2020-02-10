@@ -166,7 +166,7 @@ static int pr_msg_lockable(
 
 	if (g_opt_flags & OPT_FLAGS_TIMESTAMP) {
 		struct timeval tv;
-		static char empty_ts[] = "xx-xx-xx.xxx ";
+		static const char empty_ts[] = "xx-xx-xx.xxx ";
 
 		if (gettimeofday(&tv, NULL) < 0) {
 			strncpy(ts, empty_ts, sizeof(ts));
