@@ -1873,6 +1873,7 @@ typedef struct {
 	MACRO(dynlib)		\
 	MACRO(efivar)		\
 	MACRO(enosys)		\
+	MACRO(env)		\
 	MACRO(epoll)		\
 	MACRO(eventfd) 		\
 	MACRO(exec)		\
@@ -2271,6 +2272,9 @@ typedef enum {
 
 	OPT_enosys,
 	OPT_enosys_ops,
+
+	OPT_env,
+	OPT_env_ops,
 
 	OPT_epoll,
 	OPT_epoll_ops,

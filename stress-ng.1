@@ -1238,6 +1238,15 @@ in a child process with reduced capabilities.
 .B \-\-enosys\-ops N
 stop after N bogo enosys system call attempts
 .TP
+.B \-\-env N
+start N workers that creates numerous large environment variables to try to
+trigger out of memory conditions using setenv(3).  If ENOMEM occurs then the
+enviroment is emptied and another memory filling retry occurs.  The process
+is restarted if it is killed by the Out Of Memory (OOM) killer.
+.TP
+.B \-\-env\-ops N
+stop after N bogo setenv/unsetenv attempts.
+.TP
 .B \-\-epoll N
 start N workers that perform various related socket stress activity using
 epoll_wait(2) to monitor and handle new connections. This involves

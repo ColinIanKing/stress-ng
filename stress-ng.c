@@ -320,6 +320,8 @@ static const struct option long_options[] = {
 	{ "efivar-ops",	1,	0,	OPT_efivar_ops },
 	{ "enosys",	1,	0,	OPT_enosys },
 	{ "enosys-ops",	1,	0,	OPT_enosys_ops },
+	{ "env",	1,	0,	OPT_env },
+	{ "env-ops",	1,	0,	OPT_env_ops },
 	{ "epoll",	1,	0,	OPT_epoll },
 	{ "epoll-ops",	1,	0,	OPT_epoll_ops },
 	{ "epoll-port",	1,	0,	OPT_epoll_port },
