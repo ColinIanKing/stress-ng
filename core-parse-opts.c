@@ -113,14 +113,19 @@ static void ensure_positive(const char *const str)
  */
 uint32_t get_uint32(const char *const str)
 {
-	uint32_t val;
+	uint64_t val;
 
 	ensure_positive(str);
-	if (sscanf(str, "%12" SCNu32, &val) != 1) {
+	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
 	}
-	return val;
+	if (val > UINT32_MAX) {
+		(void)fprintf(stderr, "Invalid number %s too large (> %u)\n",
+			str, UINT32_MAX);
+		longjmp(g_error_env, 1);
+	}
+	return (uint32_t)val;
 }
 
 /*
@@ -129,13 +134,23 @@ uint32_t get_uint32(const char *const str)
  */
 int32_t get_int32(const char *const str)
 {
-	int32_t val;
+	int64_t val;
 
-	if (sscanf(str, "%12" SCNd32, &val) != 1) {
+	if (sscanf(str, "%" SCNd64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
 	}
-	return val;
+	if (val > INT32_MAX) {
+		(void)fprintf(stderr, "Invalid number %s too large (> %d)\n",
+			str, INT32_MAX);
+		longjmp(g_error_env, 1);
+	}
+	if (val < INT32_MIN) {
+		(void)fprintf(stderr, "Invalid number %s too small (< %d)\n",
+			str, INT32_MIN);
+		longjmp(g_error_env, 1);
+	}
+	return (int32_t)val;
 }
 
 /*
