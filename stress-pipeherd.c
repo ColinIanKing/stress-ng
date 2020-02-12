@@ -123,7 +123,7 @@ static int stress_pipeherd(const args_t *args)
 			rc = stress_pipeherd_read_write(args, fd, pipeherd_yield);
 			(void)close(fd[0]);
 			(void)close(fd[1]);
-			return rc;
+			_exit(rc);
 		} else if (pid < 0) {
 			pids[i] = -1;
 		} else {
