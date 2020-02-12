@@ -78,7 +78,6 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_syslog,		OPT_FLAGS_SYSLOG },
 #endif
 	{ OPT_thrash, 		OPT_FLAGS_THRASH },
-	{ OPT_timer_slack,	OPT_FLAGS_TIMER_SLACK },
 	{ OPT_times,		OPT_FLAGS_TIMES },
 	{ OPT_timestamp,	OPT_FLAGS_TIMESTAMP },
 	{ OPT_thermal_zones,	OPT_FLAGS_THERMAL_ZONES },
@@ -772,7 +771,7 @@ static const struct option long_options[] = {
 	{ "timerfd-ops",1,	0,	OPT_timerfd_ops },
 	{ "timerfd-freq",1,	0,	OPT_timerfd_freq },
 	{ "timerfd-rand",0,	0,	OPT_timerfd_rand },
-	{ "timer-slack"	,0,	0,	OPT_timer_slack },
+	{ "timer-slack"	,1,	0,	OPT_timer_slack },
 	{ "tlb-shootdown",1,	0,	OPT_tlb_shootdown },
 	{ "tlb-shootdown-ops",1,0,	OPT_tlb_shootdown_ops },
 	{ "tmpfs",	1,	0,	OPT_tmpfs },
@@ -1656,8 +1655,7 @@ again:
 					}
 					stress_parent_died_alarm();
 					stress_process_dumpable(false);
-					if (g_opt_flags & OPT_FLAGS_TIMER_SLACK)
-						stress_set_timer_slack();
+					stress_set_timer_slack();
 
 					if (g_opt_timeout)
 						(void)alarm(g_opt_timeout);

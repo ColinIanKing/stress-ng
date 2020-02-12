@@ -784,16 +784,15 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_PERF_STATS	 0x00000001000000ULL	/* --perf stats mode */
 #define OPT_FLAGS_LOG_BRIEF	 0x00000002000000ULL	/* --log-brief */
 #define OPT_FLAGS_THERMAL_ZONES  0x00000004000000ULL	/* --tz thermal zones */
-#define OPT_FLAGS_TIMER_SLACK	 0x00000008000000ULL	/* --timer-slack */
-#define OPT_FLAGS_SOCKET_NODELAY 0x00000010000000ULL	/* --sock-nodelay */
-#define OPT_FLAGS_IGNITE_CPU	 0x00000020000000ULL	/* --cpu-ignite */
-#define OPT_FLAGS_PATHOLOGICAL	 0x00000040000000ULL	/* --pathological */
-#define OPT_FLAGS_NO_RAND_SEED	 0x00000080000000ULL	/* --no-rand-seed */
-#define OPT_FLAGS_THRASH	 0x00000100000000ULL	/* --thrash */
-#define OPT_FLAGS_OOMABLE	 0x00000200000000ULL	/* --oomable */
-#define OPT_FLAGS_ABORT		 0x00000400000000ULL	/* --abort */
-#define OPT_FLAGS_CPU_ONLINE_ALL 0x00000800000000ULL	/* --cpu-online-all */
-#define OPT_FLAGS_TIMESTAMP	 0x00001000000000ULL	/* --timestamp */
+#define OPT_FLAGS_SOCKET_NODELAY 0x00000008000000ULL	/* --sock-nodelay */
+#define OPT_FLAGS_IGNITE_CPU	 0x00000010000000ULL	/* --cpu-ignite */
+#define OPT_FLAGS_PATHOLOGICAL	 0x00000020000000ULL	/* --pathological */
+#define OPT_FLAGS_NO_RAND_SEED	 0x00000040000000ULL	/* --no-rand-seed */
+#define OPT_FLAGS_THRASH	 0x00000080000000ULL	/* --thrash */
+#define OPT_FLAGS_OOMABLE	 0x00000100000000ULL	/* --oomable */
+#define OPT_FLAGS_ABORT		 0x00000200000000ULL	/* --abort */
+#define OPT_FLAGS_CPU_ONLINE_ALL 0x00000400000000ULL	/* --cpu-online-all */
+#define OPT_FLAGS_TIMESTAMP	 0x00000800000000ULL	/* --timestamp */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)

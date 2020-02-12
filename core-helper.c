@@ -31,10 +31,6 @@
 #define SUID_DUMP_USER		(1)       /* Dump as user of process */
 #endif
 
-#if defined(HAVE_PRCTL_TIMER_SLACK)
-static unsigned long timer_slack = 0;
-#endif
-
 #if defined(NSIG)
 #define STRESS_NSIG	NSIG
 #elif defined(_NSIG)
@@ -521,7 +517,10 @@ int stress_process_dumpable(const bool dumpable)
 int stress_set_timer_slack_ns(const char *opt)
 {
 #if defined(HAVE_PRCTL_TIMER_SLACK)
+	uint32_t timer_slack;
+
 	timer_slack = get_uint32(opt);
+	(void)set_setting("timer-slack", TYPE_ID_UINT32, &timer_slack);
 #else
 	(void)opt;
 #endif
@@ -537,7 +536,10 @@ void stress_set_timer_slack(void)
 #if defined(HAVE_PRCTL) && 		\
     defined(HAVE_SYS_PRCTL_H) &&	\
     defined(HAVE_PRCTL_TIMER_SLACK)
-	(void)prctl(PR_SET_TIMERSLACK, timer_slack);
+	uint32_t timer_slack;
+
+	if (get_setting("timer-slack", &timer_slack))
+		(void)prctl(PR_SET_TIMERSLACK, timer_slack);
 #endif
 }
 
