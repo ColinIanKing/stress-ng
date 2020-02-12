@@ -141,7 +141,7 @@ do_stress --stream 0 --stream-madvise normal
 
 do_stress --timer 0 --timer-rand
 do_stress --timer 0 --timer-freq 1000000
-do_stress --timer 0 --timer-freq 100000 --timer-slack
+do_stress --timer 0 --timer-freq 100000 --timer-slack 1000
 
 do_stress --timerfd 0 --timerfd-rand
 
