@@ -43,7 +43,7 @@ static inline bool stress_syscall_wait(
 		int status;
 
 		if (ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0) {
-			if ((errno != ESRCH) && (errno != EPERM)) {
+			if ((errno != ESRCH) && (errno != EPERM) && (errno != EACCES)) {
 				pr_fail_dbg("ptrace");
 				return true;
 			}
@@ -144,7 +144,7 @@ static int stress_ptrace(const args_t *args)
 			pr_inf("%s: child cannot be traced, "
 				"skipping stressor: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			if ((errno == ESRCH) || (errno == EPERM)) {
+			if ((errno == ESRCH) || (errno == EPERM) || (errno == EACCES)) {
 				/* Ensure child is really dead and reap */
 				(void)kill(pid, SIGKILL);
 				if (shim_waitpid(pid, &status, 0) < 0) {
