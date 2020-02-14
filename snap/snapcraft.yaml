@@ -33,6 +33,6 @@ parts:
             - libjudy-dev
 apps:
     stress-ng:
-        plugs: [ home, log-observe, system-observe, hardware-observe ]
+        plugs: [ home, log-observe, system-observe, hardware-observe, system-trace, hardware-random-observe ]
         command: usr/bin/stress-ng
 
