@@ -43,7 +43,7 @@ static inline bool stress_syscall_wait(
 		int status;
 
 		if (ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0) {
-			if (errno != ESRCH) {
+			if ((errno != ESRCH) && (errno != EPERM)) {
 				pr_fail_dbg("ptrace");
 				return true;
 			}
