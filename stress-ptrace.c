@@ -43,11 +43,13 @@ static inline bool stress_syscall_wait(
 		int status;
 
 		if (ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0) {
-			pr_fail_dbg("ptrace");
-			return true;
+			if (errno != ESRCH) {
+				pr_fail_dbg("ptrace");
+				return true;
+			}
 		}
 		if (shim_waitpid(pid, &status, 0) < 0) {
-			if (errno != EINTR)
+			if ((errno != EINTR) && (errno != ECHILD))
 				pr_fail_dbg("waitpid");
 			return true;
 		}
@@ -83,9 +85,10 @@ static int stress_ptrace(const args_t *args)
 		 * as this makes life way too complex
 		 */
 		if (ptrace(PTRACE_TRACEME) != 0) {
-			pr_fail("%s: ptrace child being traced "
-				"already, aborting\n", args->name);
-			_exit(0);
+			pr_inf("%s: ptrace cannot be traced, "
+				"aborting: errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			_exit(EXIT_NO_RESOURCE);
 		}
 		/* Wait for parent to start tracing me */
 		(void)kill(getpid(), SIGSTOP);
@@ -130,7 +133,7 @@ static int stress_ptrace(const args_t *args)
 		(void)setpgid(pid, g_pgrp);
 
 		if (shim_waitpid(pid, &status, 0) < 0) {
-			if (errno != EINTR) {
+			if ((errno != EINTR) && (errno != ECHILD)) {
 				pr_fail_dbg("waitpid");
 				return EXIT_FAILURE;
 			}
@@ -138,6 +141,18 @@ static int stress_ptrace(const args_t *args)
 		}
 		if (ptrace(PTRACE_SETOPTIONS, pid,
 			0, PTRACE_O_TRACESYSGOOD) < 0) {
+			if (errno == ESRCH) {
+				/* Ensure child is really dead and reap */
+				(void)kill(pid, SIGKILL);
+				if (shim_waitpid(pid, &status, 0) < 0) {
+					if ((errno != EINTR) && (errno != ECHILD)) {
+						pr_fail_dbg("waitpid");
+						return EXIT_FAILURE;
+					}
+					return EXIT_SUCCESS;
+				}
+				return WEXITSTATUS(status);
+			}
 			pr_fail_dbg("ptrace");
 			return EXIT_FAILURE;
 		}
