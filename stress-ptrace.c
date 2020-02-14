@@ -85,10 +85,10 @@ static int stress_ptrace(const args_t *args)
 		 * as this makes life way too complex
 		 */
 		if (ptrace(PTRACE_TRACEME) != 0) {
-			pr_inf("%s: ptrace cannot be traced, "
-				"aborting: errno=%d (%s)\n",
+			pr_inf("%s: child cannot be traced, "
+				"skipping stressor: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			_exit(EXIT_NO_RESOURCE);
+			_exit(EXIT_SUCCESS);
 		}
 		/* Wait for parent to start tracing me */
 		(void)kill(getpid(), SIGSTOP);
@@ -141,7 +141,10 @@ static int stress_ptrace(const args_t *args)
 		}
 		if (ptrace(PTRACE_SETOPTIONS, pid,
 			0, PTRACE_O_TRACESYSGOOD) < 0) {
-			if (errno == ESRCH) {
+			pr_inf("%s: child cannot be traced, "
+				"skipping stressor: errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			if ((errno == ESRCH) || (errno == EPERM)) {
 				/* Ensure child is really dead and reap */
 				(void)kill(pid, SIGKILL);
 				if (shim_waitpid(pid, &status, 0) < 0) {
