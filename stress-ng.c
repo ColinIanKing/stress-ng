@@ -1361,6 +1361,7 @@ static void MLOCKED_TEXT wait_procs(
 
 		while (wait_flag) {
 			const int32_t cpus = stress_get_processors_configured();
+			bool procs_alive = false;
 
 			/*
 			 *  If we can't get the mask, then don't do
@@ -1371,6 +1372,8 @@ static void MLOCKED_TEXT wait_procs(
 			if (!CPU_COUNT(&proc_mask))	/* Highly unlikely */
 				goto do_wait;
 
+			(void)shim_usleep(usec_sleep);
+
 			for (pi = procs_list; pi; pi = pi->next) {
 				int32_t j;
 
@@ -1379,6 +1382,12 @@ static void MLOCKED_TEXT wait_procs(
 					if (pid) {
 						cpu_set_t mask;
 						int32_t cpu_num;
+						int status, ret;
+
+						ret = waitpid(pid, &status, WNOHANG);
+						if ((ret < 0) && (errno == ESRCH))
+							continue;
+						procs_alive = true;
 
 						do {
 							cpu_num = mwc32() % cpus;
@@ -1391,7 +1400,8 @@ static void MLOCKED_TEXT wait_procs(
 					}
 				}
 			}
-			(void)shim_usleep(usec_sleep);
+			if (!procs_alive)
+				break;
 			cpu++;
 		}
 	}
