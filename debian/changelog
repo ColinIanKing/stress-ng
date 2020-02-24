@@ -1,3 +1,15 @@
+stress-ng (0.11.01-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Ensure --aggressive mode terminates early (LP: #1858858)
+  * stress-ptrace: also check for EACESS errors
+  * stress-ptrace: add one more EPERM check
+  * stress-ptrace: make EPERM non-fatal error, modify pr_info messages
+  * snapcraft: add system-trace, hardware-random-observe interfaces
+  * stress-ptrace: terminate in with failure if child cannot be ptraced
+
+ -- Colin King <colin.king@canonical.com>  Mon, 24 Feb 2020 10:48:23 +0000
+
 stress-ng (0.11.00-1) unstable; urgency=medium
 
   * Makefile: bump version and change codename
