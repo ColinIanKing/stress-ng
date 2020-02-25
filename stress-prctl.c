@@ -82,7 +82,9 @@ static const help_t help[] = {
      defined(PR_SVE_GET_VL) ||			\
      defined(PR_SVE_SET_VL) ||			\
      defined(PR_GET_TAGGED_ADDR_CTRL) ||	\
-     defined(PR_SET_TAGGED_ADDR_CTRL)
+     defined(PR_SET_TAGGED_ADDR_CTRL) ||	\
+     defined(PR_GET_IO_FLUSHER) ||		\
+     defined(PR_SET_IO_FLUSHER)
 
 static int stress_prctl_child(const args_t *args, const pid_t mypid)
 {
@@ -496,6 +498,18 @@ static int stress_prctl_child(const args_t *args, const pid_t mypid)
 #endif
 #if defined(PR_SPEC_INDIRECT_BRANCH)
 		ret = prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, 0, 0, 0);
+		(void)ret;
+#endif
+	}
+#endif
+
+#if defined(PR_GET_IO_FLUSHER)
+	{
+		ret = prctl(PR_GET_IO_FLUSHER, 0, 0, 0, 0);
+		(void)ret;
+
+#if defined(PR_SET_IO_FLUSHER)
+		ret = prctl(PR_SET_IO_FLUSHER, ret, 0, 0, 0);
 		(void)ret;
 #endif
 	}
