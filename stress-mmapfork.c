@@ -150,6 +150,9 @@ unmap:
 				if (errno != EINTR) {
 					pr_err("%s: waitpid errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				} else {
+					/* Probably an SIGARLM, force reap */
+					goto reap;
 				}
 			} else {
 				pids[i] = -1;
