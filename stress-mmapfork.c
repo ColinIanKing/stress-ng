@@ -85,21 +85,17 @@ static int stress_mmapfork(const args_t *args)
 	do {
 		size_t i, n, len;
 
-		(void)memset(pids, 0, sizeof(pids));
+		for (i = 0; i < MAX_PIDS; i++)
+			pids[i] = -1;
 
 		for (n = 0; n < MAX_PIDS; n++) {
-retry:			if (!keep_stressing())
+			if (!keep_stressing())
 				goto reap;
 
 			pids[n] = fork();
-			if (pids[n] < 0) {
-				/* Out of resources for fork, re-do, ugh */
-				if ((errno == EAGAIN) || (errno == ENOMEM)) {
-					(void)shim_usleep(10000);
-					goto retry;
-				}
+			/* Out of resources for fork?, do a reap */
+			if (pids[n] < 0)
 				break;
-			}
 			if (pids[n] == 0) {
 				/* Child */
 				(void)setpgid(0, g_pgrp);
