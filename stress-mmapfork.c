@@ -88,7 +88,7 @@ static int stress_mmapfork(const args_t *args)
 		(void)memset(pids, 0, sizeof(pids));
 
 		for (n = 0; n < MAX_PIDS; n++) {
-retry:			if (!keep_stressing_flag())
+retry:			if (!keep_stressing())
 				goto reap;
 
 			pids[n] = fork();
@@ -118,15 +118,21 @@ retry:			if (!keep_stressing_flag())
 				ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
 					MAP_POPULATE | MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (ptr != MAP_FAILED) {
+					if (!keep_stressing())
+						goto unmap;
 					segv_ret = _EXIT_SEGV_MADV_WILLNEED;
 					(void)shim_madvise(ptr, len, MADV_WILLNEED);
 
+					if (!keep_stressing())
+						goto unmap;
 					segv_ret = _EXIT_SEGV_MEMSET;
 					(void)memset(ptr, 0, len);
 
+					if (!keep_stressing())
+						goto unmap;
 					segv_ret = _EXIT_SEGV_MADV_DONTNEED;
 					(void)shim_madvise(ptr, len, MADV_DONTNEED);
-
+unmap:
 					segv_ret = _EXIT_SEGV_MUNMAP;
 					(void)munmap(ptr, len);
 				}
@@ -137,6 +143,9 @@ retry:			if (!keep_stressing_flag())
 reap:
 		for (i = 0; i < n; i++) {
 			int status;
+
+			if (UNLIKELY(pids[i] < 0))
+				continue;
 
 			if (shim_waitpid(pids[i], &status, 0) < 0) {
 				if (errno != EINTR) {
