@@ -83,20 +83,20 @@ static int stress_mmapfork(const args_t *args)
 	int8_t segv_reasons = 0;
 
 	do {
-		size_t i, n, len;
+		size_t i, len;
 
 		for (i = 0; i < MAX_PIDS; i++)
 			pids[i] = -1;
 
-		for (n = 0; n < MAX_PIDS; n++) {
+		for (i = 0; i < MAX_PIDS; i++) {
 			if (!keep_stressing())
 				goto reap;
 
-			pids[n] = fork();
+			pids[i] = fork();
 			/* Out of resources for fork?, do a reap */
-			if (pids[n] < 0)
+			if (pids[i] < 0)
 				break;
-			if (pids[n] == 0) {
+			if (pids[i] == 0) {
 				/* Child */
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
@@ -134,10 +134,13 @@ unmap:
 				}
 				_exit(EXIT_SUCCESS);
 			}
-			(void)setpgid(pids[n], g_pgrp);
+			(void)setpgid(pids[i], g_pgrp);
 		}
-reap:
-		for (i = 0; i < n; i++) {
+
+		/*
+		 *  Wait for children to terminate
+		 */
+		for (i = 0; i < MAX_PIDS; i++) {
 			int status;
 
 			if (UNLIKELY(pids[i] < 0))
@@ -149,6 +152,7 @@ reap:
 						args->name, errno, strerror(errno));
 				}
 			} else {
+				pids[i] = -1;
 				if (WIFEXITED(status)) {
 					int masked = WEXITSTATUS(status) & _EXIT_MASK;
 
@@ -158,6 +162,18 @@ reap:
 					}
 				}
 			}
+		}
+reap:
+		/*
+		 *  Force child death and reap
+		 */
+		for (i = 0; i < MAX_PIDS; i++) {
+			int status;
+
+			if (UNLIKELY(pids[i] < 0))
+				continue;
+			(void)kill(pids[i], SIGKILL);
+			(void)shim_waitpid(pids[i], &status, 0);
 		}
 		inc_counter(args);
 	} while (keep_stressing());
