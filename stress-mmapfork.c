@@ -71,6 +71,16 @@ static void __strlcat(char *dst, char *src, size_t *n)
 }
 
 /*
+ *  Check that parent hasn't been OOM'd or it is time to die
+ */
+static inline bool should_terminate(const args_t *args, const pid_t ppid)
+{
+	if ((kill(ppid, 0) < 0) && (errno == ESRCH))
+		return true;
+	return !keep_stressing();
+}
+
+/*
  *  stress_mmapfork()
  *	stress mappings + fork VM subystem
  */
@@ -98,6 +108,8 @@ static int stress_mmapfork(const args_t *args)
 				break;
 			if (pids[i] == 0) {
 				/* Child */
+				const pid_t ppid = getppid();
+
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
 
@@ -114,21 +126,23 @@ static int stress_mmapfork(const args_t *args)
 				ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
 					MAP_POPULATE | MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (ptr != MAP_FAILED) {
-					if (!keep_stressing())
-						goto unmap;
+					if (should_terminate(args, ppid))
+						_exit(EXIT_SUCCESS);
 					segv_ret = _EXIT_SEGV_MADV_WILLNEED;
 					(void)shim_madvise(ptr, len, MADV_WILLNEED);
 
-					if (!keep_stressing())
-						goto unmap;
+					if (should_terminate(args, ppid))
+						_exit(EXIT_SUCCESS);
 					segv_ret = _EXIT_SEGV_MEMSET;
 					(void)memset(ptr, 0, len);
 
-					if (!keep_stressing())
-						goto unmap;
+					if (should_terminate(args, ppid))
+						_exit(EXIT_SUCCESS);
 					segv_ret = _EXIT_SEGV_MADV_DONTNEED;
 					(void)shim_madvise(ptr, len, MADV_DONTNEED);
-unmap:
+
+					if (should_terminate(args, ppid))
+						_exit(EXIT_SUCCESS);
 					segv_ret = _EXIT_SEGV_MUNMAP;
 					(void)munmap(ptr, len);
 				}
