@@ -2302,8 +2302,11 @@ static inline void set_random_stressors(void)
 			exit(EXIT_FAILURE);
 		}
 
-		if (!n_procs)
-			n_procs = 1;
+		if (!n_procs) {
+			(void)fprintf(stderr,
+				"No stressors are available, unable to continue\n");
+			exit(EXIT_FAILURE);
+		}
 
 		/* create n randomly chosen stressors */
 		while (n > 0) {
@@ -2805,6 +2808,11 @@ int main(int argc, char **argv, char **envp)
 		cpus_online, cpus_online == 1 ? "" : "s",
 		cpus_configured, cpus_configured == 1 ? "" : "s");
 
+	/*
+	 *  For random mode the stressors must be available
+	 */
+	if (g_opt_flags & OPT_FLAGS_RANDOM)
+		enable_all_stressors(0);
 	/*
 	 *  These two options enable all the stressors
 	 */
