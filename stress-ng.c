@@ -2514,8 +2514,8 @@ next_opt:
 		case OPT_random:
 			g_opt_flags |= OPT_FLAGS_RANDOM;
 			i32 = get_int32(optarg);
-			check_value("random", i32);
 			stress_get_processors(&i32);
+			check_value("random", i32);
 			set_setting("random", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sched:
