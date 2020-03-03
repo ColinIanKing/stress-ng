@@ -89,6 +89,8 @@ static void ensure_numeric(const char *const str)
 {
 	const char *ptr = str;
 
+	if (*ptr == '-')
+		ptr++;
 	while (*ptr) {
 		if (!isdigit(*ptr))
 			break;
