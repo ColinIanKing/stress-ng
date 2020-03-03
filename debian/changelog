@@ -1,3 +1,20 @@
+stress-ng (0.11.02-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * core-parse-opts: cater for -ve values
+  * core-parse-opts: check for non-numeric in numeric args (Closes: #940515)
+  * Manual: update contributors names
+  * Fix --random mode
+  * Allow negative --random for selecting number of online CPUs
+  * stress-prctl: add PR_SET_IO_FLUSHER PR_GET_IO_FLUSHER prctl commands
+  * stress-mmapfork: check if parent is OOM'd and force exit on early abort
+  * stress-mmapfork: force reap on interrupt waiting for pid
+  * stress-mmapfork: ensure we kill and reap child processes
+  * stress-mmapfork: reap when no more process slots are free
+  * stress-mmap: add in more yield points
+
+ -- Colin King <colin.king@canonical.com>  Tue, 3 Mar 2020 14:50:44 +0000
+
 stress-ng (0.11.01-1) unstable; urgency=medium
 
   * Makefile: bump version
