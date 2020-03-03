@@ -81,6 +81,26 @@ void check_range_bytes(
 	}
 }
 
+/*
+ *  ensure_numeric()
+ *	ensure just numeric values
+ */
+static void ensure_numeric(const char *const str)
+{
+	const char *ptr = str;
+
+	while (*ptr) {
+		if (!isdigit(*ptr))
+			break;
+		ptr++;
+	}
+	if (*ptr == '\0')
+		return;
+	(void)fprintf(stderr, "Value %s contains non-numeric: '%s'\n",
+		str, ptr);
+	longjmp(g_error_env, 1);
+}
+
 
 /*
  *  ensure_positive()
@@ -116,6 +136,7 @@ uint32_t get_uint32(const char *const str)
 	uint64_t val;
 
 	ensure_positive(str);
+	ensure_numeric(str);
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
@@ -136,6 +157,7 @@ int32_t get_int32(const char *const str)
 {
 	int64_t val;
 
+	ensure_numeric(str);
 	if (sscanf(str, "%" SCNd64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
@@ -162,6 +184,7 @@ uint64_t get_uint64(const char *const str)
 	uint64_t val;
 
 	ensure_positive(str);
+	ensure_numeric(str);
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
@@ -183,7 +206,12 @@ uint64_t get_uint64_scale(
 	int ch;
 	int i;
 
-	val = get_uint64(str);
+	ensure_positive(str);
+	if (sscanf(str, "%" SCNu64, &val) != 1) {
+		(void)fprintf(stderr, "Invalid number %s\n", str);
+		longjmp(g_error_env, 1);
+	}
+
 	if (!len)  {
 		(void)fprintf(stderr, "Value %s is an invalid size\n", str);
 		longjmp(g_error_env, 1);
