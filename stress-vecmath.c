@@ -59,12 +59,73 @@ typedef int8_t  stress_vint8_t  __attribute__ ((vector_size (16)));
 typedef int16_t stress_vint16_t __attribute__ ((vector_size (16)));
 typedef int32_t stress_vint32_t __attribute__ ((vector_size (16)));
 typedef int64_t stress_vint64_t __attribute__ ((vector_size (16)));
-#if defined(HAVE_INT128_T)
+#if defined(HAVE_INT1x128_T)
 typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
 #endif
 
-#define INT128(hi, lo)	(((__uint128_t)hi << 64) | (__uint128_t)lo)
+/*
+ *  Convert various sized n * 8 bit tuples into n * 8 bit integers
+ */
+#define H8(a0)						\
+	((uint8_t)a0)
+#define H16(a0, a1)     				\
+	(((uint16_t)a0 << 8) |				\
+	 ((uint16_t)a1))
+#define H32(a0, a1, a2, a3)				\
+	(((uint32_t)a0 << 24) | ((uint32_t)a1 << 16) |	\
+	 ((uint32_t)a2 << 8)  | ((uint32_t)a3))
+#define H64(a0, a1, a2, a3, a4, a5, a6, a7)		\
+	(((uint64_t)H32(a0, a1, a2, a3) << 32) |	\
+	 ((uint64_t)H32(a4, a5, a6, a7) << 0))
+#define H128(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)	\
+	(((__uint128_t)H64(a0, a1, a2, a3, a4, a5, a6, a7) << 64) |	\
+	 ((__uint128_t)H64(a8, a9, aa, ab, ac, ad, ae, af) << 0))
 
+/*
+ *  128 bit constants
+ */
+#define A(M)	M(0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,	\
+                  0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00)
+
+#define B(M)	M(0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,	\
+		  0x0f, 0x1e, 0x2d, 0x3c, 0x4b, 0x5a, 0x69, 0x78)
+
+#define C(M)	M(0x01, 0x02, 0x03, 0x02, 0x01, 0x02, 0x03, 0x02,	\
+		  0x03, 0x02, 0x01, 0x02, 0x03, 0x02, 0x01, 0x02)
+
+#define S(M)	M(0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0x02,	\
+		  0x01, 0x01, 0x02, 0x02, 0x01, 0x01, 0x02, 0x02)
+
+#define	V23(M)	M(0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,	\
+		   0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17)
+
+#define V3(M)	M(0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,	\
+		  0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03)
+
+/*
+ *  Convert 16 x 8 bit values into various sized 128 bit vectors
+ */
+#define INT16x8(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)	\
+	a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af
+
+#define INT8x16(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)	\
+	H16(a0, a1), H16(a2, a3), H16(a4, a5), H16(a6, a7),                     \
+	H16(a8, a9), H16(aa, ab), H16(ac, ad), H16(ae, af)
+
+#define INT4x32(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)	\
+	H32(a0, a1, a2, a3), H32(a4, a5, a6, a7),				\
+	H32(a8, a9, aa, ab), H32(ac, ad, ae, af)
+
+#define INT2x64(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)	\
+	H64(a0, a1, a2, a3, a4, a5, a6, a7),					\
+	H64(a8, a9, aa, ab, ac, ad, ae, af)
+
+#define INT1x128(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)\
+	H128(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)
+
+/*
+ *  Operations to run on each vector
+ */
 #define OPS(a, b, c, s, v23, v3) \
 	a += b;		\
 	a |= b;		\
@@ -93,77 +154,41 @@ static int HOT stress_vecmath(const args_t *args)
 static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 #endif
 {
-	stress_vint8_t a8 = {
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
-		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-	stress_vint8_t b8 = {
-		0x01, 0x23, 0x45, 0x67, 0x89, 0xab, 0xcd, 0xef,
-		0x0f, 0x1e, 0x2d, 0x3c, 0x4b, 0x5a, 0x69, 0x78 };
-	stress_vint8_t c8 = {
-		0x01, 0x02, 0x03, 0x02, 0x01, 0x02, 0x03, 0x02,
-		0x03, 0x02, 0x01, 0x02, 0x03, 0x02, 0x01, 0x02 };
-	stress_vint8_t s8 = {
-		0x01, 0x01, 0x01, 0x01, 0x02, 0x02, 0x02, 0x02,
-		0x01, 0x01, 0x02, 0x02, 0x01, 0x01, 0x02, 0x02 };
-	const stress_vint8_t v23_8 = {
-		0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,
-		0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17 };
-	const stress_vint8_t v3_8 = {
-		0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,
-		0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03 };
+	stress_vint8_t a8 = { A(INT16x8) };
+	stress_vint8_t b8 = { B(INT16x8) };
+	stress_vint8_t c8 = { C(INT16x8) };
+	stress_vint8_t s8 = { S(INT16x8) };
+	const stress_vint8_t v23_8 = { V23(INT16x8) };
+	const stress_vint8_t v3_8 = { V3(INT16x8) };
 
-	stress_vint16_t a16 = {
-		0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000, 0x0000 };
-	stress_vint16_t b16 = {
-		0x0123, 0x4567, 0x89ab, 0xcdef, 0x0f1e, 0x2d3c, 0x4b5a, 0x6978 };
-	stress_vint16_t c16 = {
-		0x0102, 0x0302, 0x0102, 0x0302, 0x0302, 0x0102, 0x0302, 0x0102 };
-	stress_vint16_t s16 = {
-		0x0001, 0x0001, 0x0002, 0x0002, 0x0001, 0x0002, 0x0001, 0x0002 };
-	const stress_vint16_t v23_16 = {
-		0x0017, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017, 0x0017 };
-	const stress_vint16_t v3_16 = {
-		0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003, 0x0003 };
+	stress_vint16_t a16 = { A(INT8x16) };
+	stress_vint16_t b16 = { B(INT8x16) };
+	stress_vint16_t c16 = { C(INT8x16) };
+	stress_vint16_t s16 = { S(INT8x16) };
+	const stress_vint16_t v23_16 = { V23(INT8x16) };
+	const stress_vint16_t v3_16 = { V3(INT8x16) };
 
-	stress_vint32_t a32 = {
-		0x00000000, 0x00000000, 0x00000000, 0x00000000 };
-	stress_vint32_t b32 = {
-		0x01234567, 0x89abcdef, 0x0f1e2d3c, 0x4b5a6978 };
-	stress_vint32_t c32 = {
-		0x01020302, 0x01020302, 0x03020102, 0x03020102 };
-	stress_vint32_t s32 = {
-		0x00000001, 0x00000002, 0x00000002, 0000000001 };
-	const stress_vint32_t v23_32 = {
-		0x00000017, 0x00000017, 0x00000017, 0x00000017 };
-	const stress_vint32_t v3_32 = {
-		0x00000003, 0x00000003, 0x00000003, 0x00000003 };
+	stress_vint32_t a32 = { A(INT4x32) };
+	stress_vint32_t b32 = { B(INT4x32) };
+	stress_vint32_t c32 = { C(INT4x32) };
+	stress_vint32_t s32 = { S(INT4x32) };
+	const stress_vint32_t v23_32 = { V23(INT4x32) };
+	const stress_vint32_t v3_32 = { V3(INT4x32) };
 
-	stress_vint64_t a64 = {
-		0x0000000000000000ULL, 0x0000000000000000ULL };
-	stress_vint64_t b64 = {
-		0x0123456789abcdefULL, 0x0f1e2d3c4b5a6979ULL };
-	stress_vint64_t c64 = {
-		0x0102030201020302ULL, 0x0302010203020102ULL };
-	stress_vint64_t s64 = {
-		0x0000000000000001ULL, 0x0000000000000002ULL };
-	const stress_vint64_t v23_64 = {
-		0x0000000000000023ULL, 0x0000000000000023ULL };
-	const stress_vint64_t v3_64 = {
-		0x0000000000000003ULL, 0x0000000000000003ULL };
+	stress_vint64_t a64 = { A(INT2x64) };
+	stress_vint64_t b64 = { B(INT2x64) };
+	stress_vint64_t c64 = { C(INT2x64) };
+	stress_vint64_t s64 = { S(INT2x64) };
+	const stress_vint64_t v23_64 = { V23(INT2x64) };
+	const stress_vint64_t v3_64 = { V3(INT2x64) };
 
-#if defined(HAVE_INT128_T)
-	stress_vint128_t a128 = {
-		INT128(0x0000000000000000ULL, 0x0000000000000000ULL) };
-	stress_vint128_t b128 = {
-		INT128(0x0123456789abcdefULL, 0x0f1e2d3c4b5a6979ULL) };
-	stress_vint128_t c128 = {
-		INT128(0x0102030201020302ULL, 0x0302010203020102ULL) };
-	stress_vint128_t s128 = {
-		INT128(0x0000000000000001ULL, 0x0000000000000002ULL) };
-	const stress_vint128_t v23_128 = {
-		INT128(0x0000000000000000ULL, 0x0000000000000023ULL) };
-	const stress_vint128_t v3_128 = {
-		INT128(0x0000000000000000ULL, 0x0000000000000003ULL) };
+#if defined(HAVE_INT1x128_T)
+	stress_vint128_t a128 = { A(INT1x128) };
+	stress_vint128_t b128 = { B(INT1x128) };
+	stress_vint128_t c128 = { C(INT1x128) };
+	stress_vint128_t s128 = { S(INT1x128) };
+	const stress_vint128_t v23_128 = { V23(INT1x128) };
+	const stress_vint128_t v3_128 = { V3(INT1x128) };
 #endif
 
 	do {
@@ -174,13 +199,13 @@ static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 			OPS(a16, b16, c16, s16, v23_16, v3_16);
 			OPS(a32, b32, c32, s32, v23_32, v3_32);
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
-#if defined(HAVE_INT128_T)
+#if defined(HAVE_INT1x128_T)
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 #endif
 
 			OPS(a32, b32, c32, s32, v23_32, v3_32);
 			OPS(a16, b16, c16, s16, v23_16, v3_16);
-#if defined(HAVE_INT128_T)
+#if defined(HAVE_INT1x128_T)
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 #endif
 			OPS(a8, b8, c8, s8, v23_8, v3_8);
@@ -205,7 +230,7 @@ static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
-#if defined(HAVE_INT128_T)
+#if defined(HAVE_INT1x128_T)
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
@@ -216,19 +241,16 @@ static int HOT TARGET_CLONES stress_vecmath(const args_t *args)
 	} while (keep_stressing());
 
 	/* Forces the compiler to actually compute the terms */
-	uint64_put(a8[0] + a8[1] + a8[2] + a8[3] +
-		   a8[4] + a8[5] + a8[6] + a8[7] +
-		   a8[8] + a8[9] + a8[10] + a8[11] +
-		   a8[12] + a8[13] + a8[14] + a8[15]);
+	uint8_put(a8[0]  ^ a8[1]  ^ a8[2]  ^ a8[3]  ^
+		  a8[4]  ^ a8[5]  ^ a8[6]  ^ a8[7]  ^
+		  a8[8]  ^ a8[9]  ^ a8[10] ^ a8[11] ^
+		  a8[12] ^ a8[13] ^ a8[14] ^ a8[15]);
+	uint16_put(a16[0] ^ a16[1] ^ a16[2] ^ a16[3] ^
+		   a16[4] ^ a16[5] ^ a16[6] ^ a16[7]);
+	uint32_put(a32[0] ^ a32[1] ^ a32[2] ^ a32[3]);
+	uint64_put(a64[0] ^ a64[1]);
 
-	uint64_put(a16[0] + a16[1] + a16[2] + a16[3] +
-		   a16[4] + a16[5] + a16[6] + a16[7]);
-
-	uint64_put(a32[0] + a32[1] + a32[2] + a32[3]);
-
-	uint64_put(a64[0] + a64[1]);
-
-#if defined(HAVE_INT128_T)
+#if defined(HAVE_INT1x128_T)
 	uint128_put(a128[0]);
 #endif
 
