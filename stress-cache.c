@@ -113,7 +113,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 			shim_clflush(&mem_cache[i]);			\
 		}							\
 		if ((flag) & FLAGS_CACHE_FENCE) {			\
-			mfence();					\
+			shim_mfence();					\
 		}							\
 		if ((flag) & FLAGS_CACHE_SFENCE) {			\
 			__builtin_ia32_sfence();			\
@@ -133,7 +133,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 			shim_clflush(&mem_cache[i]);			\
 		}							\
 		if ((flag) & FLAGS_CACHE_FENCE) {			\
-			mfence();					\
+			shim_mfence();					\
 		}							\
 		i = (i + 32769) & (mem_cache_size - 1);			\
 		if (!keep_stressing_flag())				\

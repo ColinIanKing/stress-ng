@@ -3233,10 +3233,10 @@ static inline void ALWAYS_INLINE shim_clflush(volatile void *ptr)
 #endif
 
 /*
- *  mfence()
+ *  shim_mfence()
  *	serializing memory fence
  */
-static inline void ALWAYS_INLINE mfence(void)
+static inline void ALWAYS_INLINE shim_mfence(void)
 {
 #if NEED_GNUC(4, 2, 0) && !defined(__PCC__)
 	__sync_synchronize();

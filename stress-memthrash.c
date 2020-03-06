@@ -263,7 +263,7 @@ static void HOT OPTIMIZE3 stress_memthrash_mfence(
 		volatile uint8_t *ptr = ((uint8_t *)mem) + offset;
 
 		*ptr = i & 0xff;
-		mfence();
+		shim_mfence();
 	}
 }
 
