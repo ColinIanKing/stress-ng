@@ -72,6 +72,7 @@ STRESS_SRC = \
 	stress-bad-altstack.c \
 	stress-bigheap.c \
 	stress-bind-mount.c \
+	stress-binderfs.c \
 	stress-branch.c \
 	stress-brk.c \
 	stress-bsearch.c \

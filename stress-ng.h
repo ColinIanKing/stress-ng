@@ -420,6 +420,14 @@
 /*
  *  Linux specific includes
  */
+#if defined(HAVE_LINUX_ANDROID_BINDER_H)
+#include <linux/android/binder.h>
+#endif
+
+#if defined(HAVE_LINUX_ANDROID_BINDERFS_H)
+#include <linux/android/binderfs.h>
+#endif
+
 #if defined(HAVE_LINUX_AUDIT_H)
 #include <linux/audit.h>
 #endif
@@ -1842,6 +1850,7 @@ typedef struct {
 	MACRO(bad_altstack) 	\
 	MACRO(bigheap)		\
 	MACRO(bind_mount)	\
+	MACRO(binderfs)		\
 	MACRO(branch)		\
 	MACRO(brk)		\
 	MACRO(bsearch)		\
@@ -2166,6 +2175,9 @@ typedef enum {
 
 	OPT_bind_mount,
 	OPT_bind_mount_ops,
+
+	OPT_binderfs,
+	OPT_binderfs_ops,
 
 	OPT_class,
 	OPT_cache_ops,

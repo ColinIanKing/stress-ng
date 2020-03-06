@@ -228,6 +228,8 @@ static const struct option long_options[] = {
 	{ "bigheap-growth",1,	0,	OPT_bigheap_growth },
 	{ "bind-mount",	1,	0,	OPT_bind_mount },
 	{ "bind-mount-ops",1,	0,	OPT_bind_mount_ops },
+	{ "binderfs",	1,	0,	OPT_binderfs },
+	{ "binderfs-opts",1,	0,	OPT_binderfs_ops },
 	{ "branch",	1,	0,	OPT_branch },
 	{ "branch-ops",	1,	0,	OPT_branch_ops },
 	{ "brk",	1,	0,	OPT_brk },

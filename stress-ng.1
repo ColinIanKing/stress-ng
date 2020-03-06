@@ -486,6 +486,13 @@ stop the big heap workers after N bogo allocation operations are completed.
 specify amount of memory to grow heap by per iteration. Size can be from 4K to
 64MB. Default is 64K.
 .TP
+.B \-\-binderfs N
+start N workers that mount, exercise and unmount binderfs. The binder control
+device is exercised with 256 sequential BINDER_CTL_ADD ioctl calls per loop.
+.TP
+.B \-\-binderfs\-ops N
+stop after N binderfs cycles.
+.TP
 .B \-\-bind\-mount N
 start N workers that repeatedly bind mount / to / inside a user namespace. This
 can consume resources rapidly, forcing out of memory situations. Do not use this
