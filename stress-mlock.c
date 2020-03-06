@@ -145,7 +145,7 @@ static int stress_mlock_child(const args_t *args, void *context)
 			 *  Attempt a bogos munlock, ignore failure
 			 */
 			(void)shim_munlock((void *)((uint8_t *)addr + page_size), 0);
-			munmap((void *)addr, page_size * 3);
+			(void)munmap((void *)addr, page_size * 3);
 		}
 #if defined(HAVE_MLOCKALL)
 #if defined(MCL_CURRENT)
@@ -172,7 +172,7 @@ static int stress_mlock_child(const args_t *args, void *context)
 		(void)shim_munlockall();
 #endif
 		for (i = 0; i < n;  i++)
-			munmap((void *)mappings[i], page_size);
+			(void)munmap((void *)mappings[i], page_size);
 	} while (keep_stressing());
 
 	free(mappings);
