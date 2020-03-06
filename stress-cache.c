@@ -110,7 +110,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 		}							\
 		mem_cache[i] += mem_cache[(mem_cache_size - 1) - i] + r;\
 		if ((flag) & FLAGS_CACHE_FLUSH) {			\
-			clflush(&mem_cache[i]);				\
+			shim_clflush(&mem_cache[i]);			\
 		}							\
 		if ((flag) & FLAGS_CACHE_FENCE) {			\
 			mfence();					\
@@ -130,7 +130,7 @@ static const opt_set_func_t opt_set_funcs[] = {
 		}							\
 		mem_cache[i] += mem_cache[(mem_cache_size - 1) - i] + r;\
 		if ((flag) & FLAGS_CACHE_FLUSH) {			\
-			clflush(&mem_cache[i]);				\
+			shim_clflush(&mem_cache[i]);			\
 		}							\
 		if ((flag) & FLAGS_CACHE_FENCE) {			\
 			mfence();					\

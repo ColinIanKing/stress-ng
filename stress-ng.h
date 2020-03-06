@@ -3221,15 +3221,15 @@ extern const char *stress_strsignal(const int signum);
 
 #if defined(STRESS_X86)
 /*
- *  clflush()
+ *  shim_clflush()
  *	flush a cache line
  */
-static inline void ALWAYS_INLINE clflush(volatile void *ptr)
+static inline void ALWAYS_INLINE shim_clflush(volatile void *ptr)
 {
         asm volatile("clflush %0" : "+m" (*(volatile char *)ptr));
 }
 #else
-#define clflush(ptr)	do { } while (0) /* No-op */
+#define shim_clflush(ptr)	do { } while (0) /* No-op */
 #endif
 
 /*

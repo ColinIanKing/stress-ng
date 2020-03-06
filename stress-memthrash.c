@@ -245,7 +245,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flush(
 		volatile uint8_t *const vptr = ptr;
 
 		*vptr = i & 0xff;
-		clflush(ptr);
+		shim_clflush(ptr);
 	}
 }
 

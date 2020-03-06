@@ -186,8 +186,8 @@ static inline HOT OPTIMIZE3 void stress_memory_contend(const pthread_args_t *pa)
 		vdata1[6] = i;
 		vdata0[7] = i;
 		vdata1[7] = i;
-		clflush(data0);
-		clflush(data1);
+		shim_clflush(data0);
+		shim_clflush(data1);
 		read64(data0);
 		read64(data1);
 	}

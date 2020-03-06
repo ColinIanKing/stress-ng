@@ -1890,20 +1890,20 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 	for (j = VM_ROWHAMMER_LOOPS / 4; j; j--) {
 		*addr0;
 		*addr1;
-		clflush(addr0);
-		clflush(addr1);
+		shim_clflush(addr0);
+		shim_clflush(addr1);
 		*addr0;
 		*addr1;
-		clflush(addr0);
-		clflush(addr1);
+		shim_clflush(addr0);
+		shim_clflush(addr1);
 		*addr0;
 		*addr1;
-		clflush(addr0);
-		clflush(addr1);
+		shim_clflush(addr0);
+		shim_clflush(addr1);
 		*addr0;
 		*addr1;
-		clflush(addr0);
-		clflush(addr1);
+		shim_clflush(addr0);
+		shim_clflush(addr1);
 	}
 	for (j = 0; j < n; j++)
 		if (UNLIKELY(buf32[j] != val))
