@@ -1752,12 +1752,12 @@ typedef struct {
 
 #if defined(STRESS_THERMAL_ZONES)
 /* per stressor thermal zone info */
-typedef struct tz_info {
+typedef struct stress_tz_info {
 	char	*path;			/* thermal zone path */
 	char 	*type;			/* thermal zone type */
 	size_t	index;			/* thermal zone # index */
-	struct tz_info *next;		/* next thermal zone in list */
-} tz_info_t;
+	struct stress_tz_info *next;	/* next thermal zone in list */
+} stress_tz_info_t;
 
 typedef struct {
 	uint64_t temperature;		/* temperature in Celsius * 1000 */
@@ -1824,7 +1824,7 @@ typedef struct {
 	bool *af_alg_hash_skip;				/* Shared array of hash skip flags */
 	bool *af_alg_cipher_skip;			/* Shared array of cipher skip flags */
 #if defined(STRESS_THERMAL_ZONES)
-	tz_info_t *tz_info;				/* List of valid thermal zones */
+	stress_tz_info_t *tz_info;			/* List of valid thermal zones */
 #endif
 #if defined(HAVE_ATOMIC)
 	uint32_t softlockup_count;			/* Atomic counter of softlock children */
@@ -3458,9 +3458,9 @@ extern WARN_UNUSED int stress_mount_get(char *mnts[], const int max);
 
 /* Thermal Zones */
 #if defined(STRESS_THERMAL_ZONES)
-extern int stress_tz_init(tz_info_t **tz_info_list);
-extern void stress_tz_free(tz_info_t **tz_info_list);
-extern int stress_tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz);
+extern int stress_tz_init(stress_tz_info_t **tz_info_list);
+extern void stress_tz_free(stress_tz_info_t **tz_info_list);
+extern int stress_tz_get_temperatures(stress_tz_info_t **tz_info_list, stress_tz_t *tz);
 extern void stress_tz_dump(FILE *yaml, stress_proc_info_t *procs_head);
 #endif
 

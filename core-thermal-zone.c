@@ -29,7 +29,7 @@
  *  stress_tz_init()
  *	gather all thermal zones
  */
-int stress_tz_init(tz_info_t **tz_info_list)
+int stress_tz_init(stress_tz_info_t **tz_info_list)
 {
 	DIR *dir;
         struct dirent *entry;
@@ -42,7 +42,7 @@ int stress_tz_init(tz_info_t **tz_info_list)
 	while ((entry = readdir(dir)) != NULL) {
 		char path[PATH_MAX];
 		FILE *fp;
-		tz_info_t *tz_info;
+		stress_tz_info_t *tz_info;
 
 		/* Ignore non TZ interfaces */
 		if (strncmp(entry->d_name, "thermal_zone", 12))
@@ -96,12 +96,12 @@ int stress_tz_init(tz_info_t **tz_info_list)
  *  stress_tz_free()
  *	free thermal zones
  */
-void stress_tz_free(tz_info_t **tz_info_list)
+void stress_tz_free(stress_tz_info_t **tz_info_list)
 {
-	tz_info_t *tz_info = *tz_info_list;
+	stress_tz_info_t *tz_info = *tz_info_list;
 
 	while (tz_info) {
-		tz_info_t *next = tz_info->next;
+		stress_tz_info_t *next = tz_info->next;
 
 		free(tz_info->path);
 		free(tz_info->type);
@@ -114,9 +114,9 @@ void stress_tz_free(tz_info_t **tz_info_list)
  *  stress_tz_get_temperatures()
  *	collect valid thermal_zones details
  */
-int stress_tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
+int stress_tz_get_temperatures(stress_tz_info_t **tz_info_list, stress_tz_t *tz)
 {
-        tz_info_t *tz_info;
+        stress_tz_info_t *tz_info;
 
 	for (tz_info = *tz_info_list; tz_info; tz_info = tz_info->next) {
 		char path[PATH_MAX];
@@ -151,7 +151,7 @@ void stress_tz_dump(FILE *yaml, stress_proc_info_t *procs_head)
 	pr_yaml(yaml, "thermal-zones:\n");
 
 	for (pi = procs_head; pi; pi = pi->next) {
-		tz_info_t *tz_info;
+		stress_tz_info_t *tz_info;
 		int32_t  j;
 		uint64_t total = 0;
 		uint32_t count = 0;
