@@ -838,7 +838,6 @@ typedef unsigned long int __kernel_ulong_t;
 #define CLASS_SECURITY		0x00001000	/* security APIs */
 #define CLASS_PATHOLOGICAL	0x00002000	/* can hang a machine */
 
-typedef struct stress_proc_info *stress_pproc_info_t;
 
 /* Help information for options */
 typedef struct {
@@ -869,6 +868,8 @@ typedef enum {
 	TYPE_ID_BOOL,
 	TYPE_ID_UINTPTR_T
 } stress_type_id_t;
+
+typedef struct stress_proc_info *stress_pproc_info_t;
 
 /* settings for storing opt arg parsed data */
 typedef struct stress_setting {
@@ -3025,9 +3026,9 @@ typedef struct {
 } stress_t;
 
 /* Per process information */
-typedef struct proc_info {
-	struct proc_info *next;		/* next proc info struct in list */
-	struct proc_info *prev;		/* prev proc info struct in list */
+typedef struct stress_proc_info {
+	struct stress_proc_info *next;	/* next proc info struct in list */
+	struct stress_proc_info *prev;	/* prev proc info struct in list */
 	const stress_t *stressor;	/* stressor */
 	pid_t	*pids;			/* process id */
 	proc_stats_t **stats;		/* process proc stats info */
