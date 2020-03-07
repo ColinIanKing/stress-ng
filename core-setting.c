@@ -24,8 +24,8 @@
  */
 #include "stress-ng.h"
 
-static setting_t *setting_head;	/* setting list head */
-static setting_t *setting_tail;	/* setting list tail */
+static stress_setting_t *setting_head;	/* setting list head */
+static stress_setting_t *setting_tail;	/* setting list tail */
 
 #if defined(DEBUG_SETTINGS)
 #define	DBG(...)	pr_inf(__VA_ARGS__)
@@ -39,10 +39,10 @@ static setting_t *setting_tail;	/* setting list tail */
  */
 void free_settings(void)
 {
-	setting_t *setting = setting_head;
+	stress_setting_t *setting = setting_head;
 
 	while (setting) {
-		setting_t *next = setting->next;
+		stress_setting_t *next = setting->next;
 
 		free(setting->name);
 		free(setting);
@@ -63,7 +63,7 @@ static int set_setting_generic(
 	const void *value,
 	const bool global)
 {
-	setting_t *setting;
+	stress_setting_t *setting;
 
 	if (!value) {
 		(void)fprintf(stderr, "invalid setting '%s' value address (null)\n", name);
@@ -209,7 +209,7 @@ int set_setting_global(
  */
 bool get_setting(const char *name, void *value)
 {
-	setting_t *setting;
+	stress_setting_t *setting;
 	bool set = false;
 	bool found = false;
 

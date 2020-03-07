@@ -871,8 +871,8 @@ typedef enum {
 } stress_type_id_t;
 
 /* settings for storing opt arg parsed data */
-typedef struct setting {
-	struct setting *next;		/* next setting in list */
+typedef struct stress_setting {
+	struct stress_setting *next;	/* next setting in list */
 	pproc_info_t	proc;
 	char *name;			/* name of setting */
 	stress_type_id_t type_id;	/* setting type */
@@ -897,7 +897,7 @@ typedef struct setting {
 		bool		boolean;
 		uintptr_t	uintptr;/* for func pointers */
 	} u;
-} setting_t;
+} stress_setting_t;
 
 typedef union {
 	volatile uint8_t	uint8_val;
