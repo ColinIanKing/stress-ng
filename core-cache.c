@@ -227,7 +227,7 @@ out:
  *
  * Returns: stress_cpu_cache_t, or NULL on error.
  */
-static stress_cpu_cache_t * get_cache_by_cpu(const cpu_t *cpu, const int cache_level)
+static stress_cpu_cache_t * get_cache_by_cpu(const stress_cpu_t *cpu, const int cache_level)
 {
 	uint32_t  i;
 
@@ -257,7 +257,7 @@ static stress_cpu_cache_t * get_cache_by_cpu(const cpu_t *cpu, const int cache_l
  */
 uint16_t get_max_cache_level(const cpus_t *cpus)
 {
-	cpu_t    *cpu;
+	stress_cpu_t    *cpu;
 	uint32_t  i;
 	uint16_t  max = 0;
 
@@ -288,7 +288,7 @@ uint16_t get_max_cache_level(const cpus_t *cpus)
  */
 stress_cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
 {
-	cpu_t *cpu;
+	stress_cpu_t *cpu;
 
 	if (!cpus) {
 		pr_dbg("%s: invalid cpus parameter\n", __func__);
@@ -323,7 +323,7 @@ static void free_scandir_list(struct dirent **namelist, int n)
  *
  * Returns: EXIT_FAILURE or EXIT_SUCCESS.
  */
-static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
+static int get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 {
 	const size_t cpu_path_len = cpu_path ? strlen(cpu_path) : 0;
 	char path[cpu_path_len + strlen(SYS_CPU_CACHE_DIR) + 2];
@@ -420,7 +420,7 @@ cpus_t *get_all_cpu_cache_details(void)
 	if (!cpus)
 		goto out;
 
-	cpus->cpus = calloc(cpu_count, sizeof(cpu_t));
+	cpus->cpus = calloc(cpu_count, sizeof(stress_cpu_t));
 	if (!cpus->cpus) {
 		free(cpus);
 		goto out;
@@ -433,7 +433,7 @@ cpus_t *get_all_cpu_cache_details(void)
 
 		if (!strncmp(name, "cpu", 3) && isdigit(name[3])) {
 			char fullpath[fullpath_len];
-			cpu_t *const cpu = &cpus->cpus[j];
+			stress_cpu_t *const cpu = &cpus->cpus[j];
 
 			(void)snprintf(fullpath, sizeof(fullpath), "%s/%s", SYS_CPU_PREFIX, name);
 			cpu->num = j;
@@ -481,7 +481,7 @@ void free_cpu_caches(cpus_t *cpus)
 		return;
 
 	for (i = 0; i < cpus->count; i++) {
-		cpu_t *cpu = &cpus->cpus[i];
+		stress_cpu_t *cpu = &cpus->cpus[i];
 
 		free(cpu->caches);
 	}
