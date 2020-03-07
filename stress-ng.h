@@ -1723,7 +1723,7 @@ typedef int (*stress_func_t)(const args_t *args);
 typedef struct {
 	uint32_t w;
 	uint32_t z;
-} mwc_t;
+} stress_mwc_t;
 
 /* perf related constants */
 #if defined(HAVE_LIB_PTHREAD) &&	\
