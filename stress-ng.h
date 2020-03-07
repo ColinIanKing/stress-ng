@@ -868,14 +868,14 @@ typedef enum {
 	TYPE_ID_STR,
 	TYPE_ID_BOOL,
 	TYPE_ID_UINTPTR_T
-} type_id_t;
+} stress_type_id_t;
 
 /* settings for storing opt arg parsed data */
 typedef struct setting {
 	struct setting *next;		/* next setting in list */
 	pproc_info_t	proc;
 	char *name;			/* name of setting */
-	type_id_t	type_id;	/* setting type */
+	stress_type_id_t type_id;	/* setting type */
 	bool		global;		/* true if global */
 	union {				/* setting value */
 		uint8_t		uint8;
@@ -3113,8 +3113,10 @@ static inline bool HOT OPTIMIZE3 __keep_stressing(const args_t *args)
 /*
  *  stressor option value handling
  */
-extern int set_setting(const char *name, const type_id_t type_id, const void *value);
-extern int set_setting_global(const char *name, const type_id_t type_id, const void *value);
+extern int set_setting(const char *name, const stress_type_id_t type_id,
+	const void *value);
+extern int set_setting_global(const char *name, const stress_type_id_t type_id,
+	const void *value);
 extern bool get_setting(const char *name, void *value);
 extern void free_settings(void);
 

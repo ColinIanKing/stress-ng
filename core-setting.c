@@ -59,7 +59,7 @@ void free_settings(void)
  */
 static int set_setting_generic(
 	const char *name,
-	const type_id_t type_id,
+	const stress_type_id_t type_id,
 	const void *value,
 	const bool global)
 {
@@ -184,7 +184,7 @@ err:
  */
 int set_setting(
 	const char *name,
-	const type_id_t type_id,
+	const stress_type_id_t type_id,
 	const void *value)
 {
 	return set_setting_generic(name, type_id, value, false);
@@ -196,7 +196,7 @@ int set_setting(
  */
 int set_setting_global(
 	const char *name,
-	const type_id_t type_id,
+	const stress_type_id_t type_id,
 	const void *value)
 {
 	return set_setting_generic(name, type_id, value, true);
