@@ -923,7 +923,7 @@ typedef union {
 /* Large prime to stride around large VM regions */
 #define PRIME_64		(0x8f0000000017116dULL)
 
-typedef uint32_t class_t;
+typedef uint32_t stress_class_t;
 
 /* stressor args */
 typedef struct {
@@ -949,7 +949,7 @@ typedef struct {
 	void (*deinit)(void);
 	void (*set_default)(void);
 	void (*set_limit)(uint64_t max);
-	const class_t class;
+	const stress_class_t class;
 	const opt_set_func_t *opt_set_funcs;
 	const help_t *help;
 } stressor_info_t;
@@ -1835,9 +1835,9 @@ typedef struct {
 
 /* Stress test classes */
 typedef struct {
-	class_t class;			/* Class type bit mask */
+	stress_class_t class;		/* Class type bit mask */
 	const char *name;		/* Name of class */
-} class_info_t;
+} stress_class_info_t;
 
 #define STRESSORS(MACRO)	\
 	MACRO(access) 		\
