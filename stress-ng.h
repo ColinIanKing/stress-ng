@@ -1832,7 +1832,7 @@ typedef struct {
 #endif
 	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	stress_proc_stats_t stats[0];			/* Shared statistics */
-} shared_t;
+} stress_shared_t;
 
 /* Stress test classes */
 typedef struct {
@@ -3077,7 +3077,7 @@ typedef struct cpus {
 
 /* Various global option settings and flags */
 extern const char *g_app_name;		/* Name of application */
-extern shared_t *g_shared;		/* shared memory */
+extern stress_shared_t *g_shared;	/* shared memory */
 extern uint64_t	g_opt_timeout;		/* timeout in seconds */
 extern uint64_t	g_opt_flags;		/* option flags */
 extern int32_t g_opt_sequential;	/* Number of sequential stressors */

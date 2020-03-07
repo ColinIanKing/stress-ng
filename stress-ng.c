@@ -46,7 +46,7 @@ volatile bool g_keep_stressing_flag = true;	/* false to exit stressor */
 volatile bool g_caught_sigint = false;		/* true if stopped by SIGINT */
 pid_t g_pgrp;					/* process group leader */
 const char *g_app_name = "stress-ng";		/* Name of application */
-shared_t *g_shared;				/* shared memory */
+stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
 stress_put_val_t g_put_val;			/* sync data to somewhere */
 bool g_unsupported = false;			/* true if stressors are unsupported */
@@ -2039,7 +2039,7 @@ static inline void stress_map_shared(const size_t len)
 	void *last_page;
 #endif
 
-	g_shared = (shared_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
+	g_shared = (stress_shared_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANON, -1, 0);
 	if (g_shared == MAP_FAILED) {
 		pr_err("Cannot mmap to shared memory region: errno=%d (%s)\n",
@@ -2919,7 +2919,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared memory segment for shared data
 	 *  across all the child stressors
 	 */
-	len = sizeof(shared_t) + (sizeof(stress_proc_stats_t) * get_total_num_procs(procs_head));
+	len = sizeof(stress_shared_t) + (sizeof(stress_proc_stats_t) * get_total_num_procs(procs_head));
 	stress_map_shared(len);
 
 	/*
