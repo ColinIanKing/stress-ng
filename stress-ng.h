@@ -1737,12 +1737,12 @@ typedef struct {
 typedef struct {
 	uint64_t counter;		/* perf counter */
 	int	 fd;			/* perf per counter fd */
-} perf_stat_t;
+} stress_perf_stat_t;
 
 /* per stressor perf info */
 typedef struct {
-	perf_stat_t	perf_stat[STRESS_PERF_MAX]; /* perf counters */
-	int		perf_opened;	/* count of opened counters */
+	stress_perf_stat_t	perf_stat[STRESS_PERF_MAX]; /* perf counters */
+	int			perf_opened;	/* count of opened counters */
 } stress_perf_t;
 #endif
 
