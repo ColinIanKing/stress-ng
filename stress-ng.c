@@ -48,7 +48,7 @@ pid_t g_pgrp;					/* process group leader */
 const char *g_app_name = "stress-ng";		/* Name of application */
 shared_t *g_shared;				/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
-put_val_t g_put_val;				/* sync data to somewhere */
+stress_put_val_t g_put_val;			/* sync data to somewhere */
 bool g_unsupported = false;			/* true if stressors are unsupported */
 
 /*

@@ -910,7 +910,7 @@ typedef union {
 	volatile float		float_val;
 	volatile double		double_val;
 	volatile long double	long_double_val;
-} put_val_t;
+} stress_put_val_t;
 
 /* Network domains flags */
 #define DOMAIN_INET		0x00000001	/* AF_INET */
@@ -3085,7 +3085,7 @@ extern volatile bool g_keep_stressing_flag; /* false to exit stressor */
 extern volatile bool g_caught_sigint;	/* true if stopped by SIGINT */
 extern pid_t g_pgrp;			/* proceess group leader */
 extern jmp_buf g_error_env;		/* parsing error env */
-extern put_val_t g_put_val;		/* sync data to somewhere */
+extern stress_put_val_t g_put_val;	/* sync data to somewhere */
 
 static inline bool HOT OPTIMIZE3 keep_stressing_flag(void)
 {
