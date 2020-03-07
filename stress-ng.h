@@ -1761,10 +1761,10 @@ typedef struct stress_tz_info {
 
 typedef struct {
 	uint64_t temperature;		/* temperature in Celsius * 1000 */
-} tz_stat_t;
+} stress_tz_stat_t;
 
 typedef struct {
-	tz_stat_t tz_stat[STRESS_THERMAL_ZONES_MAX];
+	stress_tz_stat_t tz_stat[STRESS_THERMAL_ZONES_MAX];
 } stress_tz_t;
 #endif
 
