@@ -160,14 +160,14 @@ out:
 
 /*
  * add_cpu_cache_detail()
- * @cache: cpu_cache_t pointer.
+ * @cache: stress_cpu_cache_t pointer.
  * @index_path: full /sys path to the particular cpu cache which is to
  *   be represented by @cache.
  * Populate the specified @cache based on the given cache index.
  *
  * Returns: EXIT_FAILURE or EXIT_SUCCESS.
  */
-static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
+static int add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *index_path)
 {
 	const size_t index_posn = index_path ? strlen(index_path) : 0;
 	const size_t path_len = index_posn + 32;
@@ -225,9 +225,9 @@ out:
  *
  * POTENTIAL BUG: assumes only 1 data cache per CPU cache level.
  *
- * Returns: cpu_cache_t, or NULL on error.
+ * Returns: stress_cpu_cache_t, or NULL on error.
  */
-static cpu_cache_t * get_cache_by_cpu(const cpu_t *cpu, const int cache_level)
+static stress_cpu_cache_t * get_cache_by_cpu(const cpu_t *cpu, const int cache_level)
 {
 	uint32_t  i;
 
@@ -235,7 +235,7 @@ static cpu_cache_t * get_cache_by_cpu(const cpu_t *cpu, const int cache_level)
 		return NULL;
 
 	for (i = 0; i < cpu->cache_count; i++) {
-		cpu_cache_t *p;
+		stress_cpu_cache_t *p;
 
 		p = &cpu->caches[i];
 		if (p->level != cache_level)
@@ -269,7 +269,7 @@ uint16_t get_max_cache_level(const cpus_t *cpus)
 	cpu = &cpus->cpus[cache_get_cpu(cpus)];
 
 	for (i = 0; i < cpu->cache_count; i++) {
-		cpu_cache_t *cache;
+		stress_cpu_cache_t *cache;
 
 		cache = &cpu->caches[i];
 		max = cache->level > max ? cache->level : max;
@@ -284,9 +284,9 @@ uint16_t get_max_cache_level(const cpus_t *cpus)
  * @cache_level: numeric cache level (1-indexed).
  * Obtain a cpu cache of level @cache_level.
  *
- * Returns: cpu_cache_t pointer, or NULL on error.
+ * Returns: stress_cpu_cache_t pointer, or NULL on error.
  */
-cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
+stress_cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
 {
 	cpu_t *cpu;
 
@@ -360,9 +360,9 @@ static int get_cpu_cache_details(cpu_t *cpu, const char *cpu_path)
 		goto err;
 	}
 
-	cpu->caches = calloc(cpu->cache_count, sizeof(cpu_cache_t));
+	cpu->caches = calloc(cpu->cache_count, sizeof(stress_cpu_cache_t));
 	if (!cpu->caches) {
-		size_t cache_bytes = cpu->cache_count * sizeof(cpu_cache_t);
+		size_t cache_bytes = cpu->cache_count * sizeof(stress_cpu_cache_t);
 
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			cache_bytes);

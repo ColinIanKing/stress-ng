@@ -914,7 +914,7 @@ int stress_cache_alloc(const char *name)
 {
 #if defined(__linux__)
 	cpus_t *cpu_caches;
-	cpu_cache_t *cache = NULL;
+	stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level = 0;
 #endif
 
