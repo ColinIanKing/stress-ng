@@ -136,11 +136,11 @@ out:
 /*
  * get_cache_type()
  * @name: human-readable cache type.
- * Convert a human-readable cache type into a cache_type_t.
+ * Convert a human-readable cache type into a stress_cache_type_t.
  *
- * Returns: cache_type_t or CACHE_TYPE_UNKNOWN on error.
+ * Returns: stress_cache_type_t or CACHE_TYPE_UNKNOWN on error.
  */
-static cache_type_t get_cache_type(const char *name)
+static stress_cache_type_t get_cache_type(const char *name)
 {
 	const stress_generic_map_t *p;
 
@@ -188,7 +188,7 @@ static int add_cpu_cache_detail(cpu_cache_t *cache, const char *index_path)
 	(void)snprintf(path, sizeof(path), "%s/type", index_path);
 	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->type = (cache_type_t)get_cache_type(tmp);
+	cache->type = (stress_cache_type_t)get_cache_type(tmp);
 	if (cache->type == CACHE_TYPE_UNKNOWN)
 		goto out;
 

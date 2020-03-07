@@ -3047,19 +3047,19 @@ typedef struct {
 } stress_scale_t;
 
 /* Cache types */
-typedef enum cache_type {
+typedef enum stress_cache_type {
 	CACHE_TYPE_UNKNOWN = 0,		/* Unknown type */
 	CACHE_TYPE_DATA,		/* D$ */
 	CACHE_TYPE_INSTRUCTION,		/* I$ */
 	CACHE_TYPE_UNIFIED,		/* D$ + I$ */
-} cache_type_t;
+} stress_cache_type_t;
 
 /* CPU cache information */
 typedef struct cpu_cache {
 	uint64_t           size;      	/* cache size in bytes */
 	uint32_t           line_size;	/* cache line size in bytes */
 	uint32_t           ways;	/* cache ways */
-	cache_type_t       type;	/* cache type */
+	stress_cache_type_t type;	/* cache type */
 	uint16_t           level;	/* cache level, L1, L2 etc */
 } cpu_cache_t;
 
