@@ -42,7 +42,7 @@ static const stress_generic_map_t cache_type_map[] = {
  * cache_get_cpu()
  *
  */
-static inline unsigned int cache_get_cpu(const cpus_t *cpus)
+static inline unsigned int cache_get_cpu(const stress_cpus_t *cpus)
 {
 	const unsigned int cpu = stress_get_cpu();
 
@@ -255,7 +255,7 @@ static stress_cpu_cache_t * get_cache_by_cpu(const stress_cpu_t *cpu, const int 
  *
  * Returns: 1-index value denoting highest cache level, or 0 on error.
  */
-uint16_t get_max_cache_level(const cpus_t *cpus)
+uint16_t get_max_cache_level(const stress_cpus_t *cpus)
 {
 	stress_cpu_t    *cpu;
 	uint32_t  i;
@@ -286,7 +286,7 @@ uint16_t get_max_cache_level(const cpus_t *cpus)
  *
  * Returns: stress_cpu_cache_t pointer, or NULL on error.
  */
-stress_cpu_cache_t * get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level)
+stress_cpu_cache_t * get_cpu_cache(const stress_cpus_t *cpus, const uint16_t cache_level)
 {
 	stress_cpu_t *cpu;
 
@@ -392,12 +392,12 @@ err:
  * get_all_cpu_cache_details()
  * Obtain information on all cpus caches on the system.
  *
- * Returns: dynamically-allocated cpus_t object, or NULL on error.
+ * Returns: dynamically-allocated stress_cpus_t object, or NULL on error.
  */
-cpus_t *get_all_cpu_cache_details(void)
+stress_cpus_t *get_all_cpu_cache_details(void)
 {
 	int i, j, n, ret, cpu_count;
-	cpus_t *cpus = NULL;
+	stress_cpus_t *cpus = NULL;
 	struct dirent **namelist;
 
 	n = scandir(SYS_CPU_PREFIX, &namelist, NULL, alphasort);
@@ -416,7 +416,7 @@ cpus_t *get_all_cpu_cache_details(void)
 		pr_err("no CPUs found in %s\n", SYS_CPU_PREFIX);
 		goto out;
 	}
-	cpus = calloc(1, sizeof(cpus_t));
+	cpus = calloc(1, sizeof(stress_cpus_t));
 	if (!cpus)
 		goto out;
 
@@ -473,7 +473,7 @@ out:
  * Undo the action of get_all_cpu_cache_details() by freeing all
  * associated resources.
  */
-void free_cpu_caches(cpus_t *cpus)
+void free_cpu_caches(stress_cpus_t *cpus)
 {
 	uint32_t  i;
 

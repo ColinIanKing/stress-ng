@@ -3070,10 +3070,10 @@ typedef struct stress_cpu {
 	bool           online;		/* CPU online when true */
 } stress_cpu_t;
 
-typedef struct cpus {
+typedef struct stress_cpus {
 	stress_cpu_t *cpus;		/* CPU data */
 	uint32_t   count;		/* CPU count */
-} cpus_t;
+} stress_cpus_t;
 
 /* Various global option settings and flags */
 extern const char *g_app_name;		/* Name of application */
@@ -3479,10 +3479,10 @@ extern void stress_set_sockaddr(const char *name, const uint32_t instance,
 extern void stress_set_sockaddr_port(const int domain, const int port, struct sockaddr *sockaddr);
 
 /* CPU caches */
-extern cpus_t *get_all_cpu_cache_details(void);
-extern uint16_t get_max_cache_level(const cpus_t *cpus);
-extern stress_cpu_cache_t *get_cpu_cache(const cpus_t *cpus, const uint16_t cache_level);
-extern void free_cpu_caches(cpus_t *cpus);
+extern stress_cpus_t *get_all_cpu_cache_details(void);
+extern uint16_t get_max_cache_level(const stress_cpus_t *cpus);
+extern stress_cpu_cache_t *get_cpu_cache(const stress_cpus_t *cpus, const uint16_t cache_level);
+extern void free_cpu_caches(stress_cpus_t *cpus);
 
 /* CPU thrashing start/stop helpers */
 extern int  stress_thrash_start(void);
