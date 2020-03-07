@@ -1642,7 +1642,7 @@ static void MLOCKED_TEXT stress_run(
 				(void)get_setting("ionice-class", &ionice_class);
 				(void)get_setting("ionice-level", &ionice_level);
 
-				proc_stats_t *stats = g_proc_current->stats[j];
+				stress_proc_stats_t *stats = g_proc_current->stats[j];
 again:
 				if (!keep_stressing_flag())
 					break;
@@ -1843,7 +1843,7 @@ static void metrics_dump(
 		bool run_ok = false;
 
 		for (j = 0; j < pi->started_procs; j++) {
-			const proc_stats_t *const stats = pi->stats[j];
+			const stress_proc_stats_t *const stats = pi->stats[j];
 
 			run_ok  |= stats->run_ok;
 			c_total += stats->counter;
@@ -2273,7 +2273,7 @@ static inline void exclude_pathological(void)
 static inline void setup_stats_buffers(void)
 {
 	stress_proc_info_t *pi;
-	proc_stats_t *stats = g_shared->stats;
+	stress_proc_stats_t *stats = g_shared->stats;
 
 	for (pi = procs_head; pi; pi = pi->next) {
 		int32_t j;
@@ -2574,7 +2574,7 @@ next_opt:
  *  alloc_proc_resources()
  *	allocate array of pids based on n pids required
  */
-static void alloc_proc_resources(pid_t **pids, proc_stats_t ***stats, size_t n)
+static void alloc_proc_resources(pid_t **pids, stress_proc_stats_t ***stats, size_t n)
 {
 	*pids = calloc(n, sizeof(pid_t));
 	if (!*pids) {
@@ -2583,7 +2583,7 @@ static void alloc_proc_resources(pid_t **pids, proc_stats_t ***stats, size_t n)
 		exit(EXIT_FAILURE);
 	}
 
-	*stats = calloc(n, sizeof(proc_stats_t *));
+	*stats = calloc(n, sizeof(stress_proc_stats_t *));
 	if (!*stats) {
 		pr_err("cannot allocate stats list\n");
 		free(*pids);
@@ -2919,7 +2919,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared memory segment for shared data
 	 *  across all the child stressors
 	 */
-	len = sizeof(shared_t) + (sizeof(proc_stats_t) * get_total_num_procs(procs_head));
+	len = sizeof(shared_t) + (sizeof(stress_proc_stats_t) * get_total_num_procs(procs_head));
 	stress_map_shared(len);
 
 	/*

@@ -1782,7 +1782,7 @@ typedef struct {
 	stress_tz_t tz;			/* thermal zones */
 #endif
 	bool run_ok;			/* true if stressor exited OK */
-} proc_stats_t;
+} stress_proc_stats_t;
 
 /* The stress-ng global shared memory segment */
 typedef struct {
@@ -1831,7 +1831,7 @@ typedef struct {
 	uint32_t softlockup_count;			/* Atomic counter of softlock children */
 #endif
 	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
-	proc_stats_t stats[0];				/* Shared statistics */
+	stress_proc_stats_t stats[0];			/* Shared statistics */
 } shared_t;
 
 /* Stress test classes */
@@ -3031,7 +3031,7 @@ typedef struct stress_proc_info {
 	struct stress_proc_info *prev;	/* prev proc info struct in list */
 	const stress_t *stressor;	/* stressor */
 	pid_t	*pids;			/* process id */
-	proc_stats_t **stats;		/* process proc stats info */
+	stress_proc_stats_t **stats;	/* process proc stats info */
 	int32_t started_procs;		/* count of started processes */
 	int32_t num_procs;		/* number of process per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */
