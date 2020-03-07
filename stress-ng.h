@@ -3044,7 +3044,7 @@ extern stress_proc_info_t *g_proc_current;
 typedef struct {
 	const char	ch;		/* Scaling suffix */
 	const uint64_t	scale;		/* Amount to scale by */
-} scale_t;
+} stress_scale_t;
 
 /* Cache types */
 typedef enum cache_type {
@@ -3312,7 +3312,7 @@ extern int stress_mlock_region(const void *addr_start, const void *addr_end);
 /* Argument parsing and range checking */
 extern WARN_UNUSED uint64_t get_uint64(const char *const str);
 extern WARN_UNUSED uint64_t get_uint64_scale(const char *const str,
-	const scale_t scales[], const char *const msg);
+	const stress_scale_t scales[], const char *const msg);
 extern WARN_UNUSED uint64_t get_uint64_percent(const char *const str,
 	const uint32_t instances, const uint64_t max, const char *const errmsg);
 extern WARN_UNUSED uint64_t get_uint64_byte(const char *const str);

@@ -200,7 +200,7 @@ uint64_t get_uint64(const char *const str)
  */
 uint64_t get_uint64_scale(
 	const char *const str,
-	const scale_t scales[],
+	const stress_scale_t scales[],
 	const char *const msg)
 {
 	uint64_t val;
@@ -240,7 +240,7 @@ uint64_t get_uint64_scale(
  */
 uint64_t get_uint64_byte(const char *const str)
 {
-	static const scale_t scales[] = {
+	static const stress_scale_t scales[] = {
 		{ 'b', 	1ULL },		/* bytes */
 		{ 'k',  1ULL << 10 },	/* kilobytes */
 		{ 'm',  1ULL << 20 },	/* megabytes */
@@ -334,7 +334,7 @@ uint64_t get_uint64_byte_filesystem(
  */
 uint64_t get_uint64_time(const char *const str)
 {
-	static const scale_t scales[] = {
+	static const stress_scale_t scales[] = {
 		{ 's', 	1ULL },			/* seconds */
 		{ 'm',  60ULL },		/* minutes */
 		{ 'h',  3600ULL },		/* hours */
