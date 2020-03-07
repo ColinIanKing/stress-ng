@@ -143,10 +143,10 @@ int stress_tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz)
  *  stress_tz_dump()
  *	dump thermal zone temperatures
  */
-void stress_tz_dump(FILE *yaml, proc_info_t *procs_head)
+void stress_tz_dump(FILE *yaml, stress_proc_info_t *procs_head)
 {
 	bool no_tz_stats = true;
-	proc_info_t *pi;
+	stress_proc_info_t *pi;
 
 	pr_yaml(yaml, "thermal-zones:\n");
 

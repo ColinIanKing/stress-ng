@@ -582,10 +582,10 @@ static const char *stress_perf_stat_scale(const uint64_t counter, const double d
 	return buffer;
 }
 
-void stress_perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration)
+void stress_perf_stat_dump(FILE *yaml, stress_proc_info_t *procs_head, const double duration)
 {
 	bool no_perf_stats = true;
-	proc_info_t *pi;
+	stress_proc_info_t *pi;
 
 #if defined(HAVE_LOCALE_H)
 	(void)setlocale(LC_ALL, "");

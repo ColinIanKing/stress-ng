@@ -838,7 +838,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define CLASS_SECURITY		0x00001000	/* security APIs */
 #define CLASS_PATHOLOGICAL	0x00002000	/* can hang a machine */
 
-typedef struct proc_info *pproc_info_t;
+typedef struct stress_proc_info *stress_pproc_info_t;
 
 /* Help information for options */
 typedef struct {
@@ -873,7 +873,7 @@ typedef enum {
 /* settings for storing opt arg parsed data */
 typedef struct stress_setting {
 	struct stress_setting *next;	/* next setting in list */
-	pproc_info_t	proc;
+	stress_pproc_info_t	proc;
 	char *name;			/* name of setting */
 	stress_type_id_t type_id;	/* setting type */
 	bool		global;		/* true if global */
@@ -3034,10 +3034,10 @@ typedef struct proc_info {
 	int32_t started_procs;		/* count of started processes */
 	int32_t num_procs;		/* number of process per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */
-} proc_info_t;
+} stress_proc_info_t;
 
 /* Pointer to current running stressor proc info */
-extern proc_info_t *g_proc_current;
+extern stress_proc_info_t *g_proc_current;
 
 /* Scale lookup mapping, suffix -> scale by */
 typedef struct {
@@ -3281,7 +3281,7 @@ extern int stress_perf_enable(stress_perf_t *sp);
 extern int stress_perf_disable(stress_perf_t *sp);
 extern int stress_perf_close(stress_perf_t *sp);
 extern bool stress_perf_stat_succeeded(const stress_perf_t *sp);
-extern void stress_perf_stat_dump(FILE *yaml, proc_info_t *procs_head, const double duration);
+extern void stress_perf_stat_dump(FILE *yaml, stress_proc_info_t *procs_head, const double duration);
 extern void stress_perf_init(void);
 #endif
 
@@ -3461,7 +3461,7 @@ extern WARN_UNUSED int stress_mount_get(char *mnts[], const int max);
 extern int stress_tz_init(tz_info_t **tz_info_list);
 extern void stress_tz_free(tz_info_t **tz_info_list);
 extern int stress_tz_get_temperatures(tz_info_t **tz_info_list, stress_tz_t *tz);
-extern void stress_tz_dump(FILE *yaml, proc_info_t *procs_head);
+extern void stress_tz_dump(FILE *yaml, stress_proc_info_t *procs_head);
 #endif
 
 /* Network helpers */
