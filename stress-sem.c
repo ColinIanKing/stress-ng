@@ -60,7 +60,7 @@ static int p_ret[MAX_SEMAPHORE_PROCS];
  */
 static void *semaphore_posix_thrash(void *arg)
 {
-	const pthread_args_t *p_args = arg;
+	const stress_pthread_args_t *p_args = arg;
 	const args_t *args = p_args->args;
 	static void *nowt = NULL;
 
@@ -126,7 +126,7 @@ static int stress_sem(const args_t *args)
 	uint64_t semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
 	uint64_t i;
 	bool created = false;
-	pthread_args_t p_args;
+	stress_pthread_args_t p_args;
 
 	if (!get_setting("sem-procs", &semaphore_posix_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)

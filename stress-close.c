@@ -107,7 +107,7 @@ static const int types[] = {
 static void *stress_close_func(void *arg)
 {
 	static void *nowt = NULL;
-	pthread_args_t *pargs = (pthread_args_t *)arg;
+	stress_pthread_args_t *pargs = (stress_pthread_args_t *)arg;
 	const args_t *args = pargs->args;
 
 	/*
@@ -135,7 +135,7 @@ static void *stress_close_func(void *arg)
  */
 static int stress_close(const args_t *args)
 {
-	pthread_args_t pargs;
+	stress_pthread_args_t pargs;
 	pthread_t pthread[MAX_PTHREADS];
 	int rc = EXIT_NO_RESOURCE;
 	int ret, rets[MAX_PTHREADS];

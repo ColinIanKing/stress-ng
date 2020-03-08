@@ -54,7 +54,7 @@ static void stress_bind_mount_child_handler(int signum)
  */
 static int stress_bind_mount_child(void *parg)
 {
-	const args_t *args = ((pthread_args_t *)parg)->args;
+	const args_t *args = ((stress_pthread_args_t *)parg)->args;
 
 	if (stress_sighandler(args->name, SIGALRM,
 	    stress_bind_mount_child_handler, NULL) < 0) {
@@ -97,7 +97,7 @@ static int stress_bind_mount_child(void *parg)
 static int stress_bind_mount(const args_t *args)
 {
 	int pid = 0, status;
-	pthread_args_t pargs = { args, NULL, 0 };
+	stress_pthread_args_t pargs = { args, NULL, 0 };
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);

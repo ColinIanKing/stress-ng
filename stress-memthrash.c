@@ -421,7 +421,7 @@ static void *stress_memthrash_func(void *arg)
 {
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	static void *nowt = NULL;
-	const pthread_args_t *parg = (pthread_args_t *)arg;
+	const stress_pthread_args_t *parg = (stress_pthread_args_t *)arg;
 	const args_t *args = parg->args;
 	const stress_memthrash_func_t func = (stress_memthrash_func_t)parg->data;
 
@@ -502,7 +502,7 @@ static int stress_memthrash_child(const args_t *args, void *ctxt)
 	uint32_t i;
 	pthread_t pthreads[max_threads];
 	int ret[max_threads];
-	pthread_args_t pargs;
+	stress_pthread_args_t pargs;
 
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #if defined(MAP_POPULATE)

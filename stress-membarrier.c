@@ -77,7 +77,7 @@ static void *stress_membarrier_thread(void *parg)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	const args_t *args = ((pthread_args_t *)parg)->args;
+	const args_t *args = ((stress_pthread_args_t *)parg)->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -113,7 +113,7 @@ static int stress_membarrier(const args_t *args)
 	pthread_t pthreads[MAX_MEMBARRIER_THREADS];
 	size_t i;
 	int pthread_ret[MAX_MEMBARRIER_THREADS];
-	pthread_args_t pargs = { args, NULL, 0 };
+	stress_pthread_args_t pargs = { args, NULL, 0 };
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
 	if (ret < 0) {

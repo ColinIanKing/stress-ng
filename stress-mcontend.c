@@ -101,7 +101,7 @@ static inline HOT OPTIMIZE3 void read64(uint64_t *data)
  *  stressmemory_contend()
  *	read a proc file
  */
-static inline HOT OPTIMIZE3 void stress_memory_contend(const pthread_args_t *pa)
+static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args_t *pa)
 {
 	uint64_t **mappings = pa->data;
 	volatile uint64_t *vdata0 = mappings[0];
@@ -276,7 +276,7 @@ static void *stress_memory_contend_thread(void *arg)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	const pthread_args_t *pa = (const pthread_args_t *)arg;
+	const stress_pthread_args_t *pa = (const stress_pthread_args_t *)arg;
 #if defined(HAVE_AFFINITY)
 	const uint32_t cpus = stress_get_processors_configured();
 #endif
@@ -326,7 +326,7 @@ static int stress_mcontend(const args_t *args)
 	void *data[MAX_MAPPINGS];
 	char filename[PATH_MAX];
 	char buffer[args->page_size];
-	pthread_args_t pa;
+	stress_pthread_args_t pa;
 	int fd, rc;
 
 	(void)memset(buffer, 0, sizeof(buffer));

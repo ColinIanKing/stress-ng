@@ -122,7 +122,7 @@ static void *stress_pthread_func(void *parg)
 	struct robust_list_head *head;
 	size_t len;
 #endif
-	const args_t *args = ((pthread_args_t *)parg)->args;
+	const args_t *args = ((stress_pthread_args_t *)parg)->args;
 
 	/*
 	 *  According to POSIX.1 a thread should have
@@ -136,7 +136,7 @@ static void *stress_pthread_func(void *parg)
 
 #if defined(HAVE_GETTID)
 	{
-		stress_pthread_info_t *pi = ((pthread_args_t *)parg)->data;
+		stress_pthread_info_t *pi = ((stress_pthread_args_t *)parg)->data;
 		pi->tid = shim_gettid();
 	}
 #endif
@@ -257,7 +257,7 @@ static int stress_pthread(const args_t *args)
 	uint64_t limited = 0, attempted = 0;
 	uint64_t pthread_max = DEFAULT_PTHREAD;
 	int ret;
-	pthread_args_t pargs = { args, NULL, 0 };
+	stress_pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
 
 	keep_running_flag = true;

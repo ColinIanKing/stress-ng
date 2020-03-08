@@ -1346,7 +1346,7 @@ static void *stress_dev_thread(void *arg)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	const pthread_args_t *pa = (pthread_args_t *)arg;
+	const stress_pthread_args_t *pa = (stress_pthread_args_t *)arg;
 	const args_t *args = pa->args;
 
 	/*
@@ -1497,7 +1497,7 @@ static int stress_dev(const args_t *args)
 	pthread_t pthreads[MAX_DEV_THREADS];
 	int ret[MAX_DEV_THREADS], rc = EXIT_SUCCESS;
 	uid_t euid = geteuid();
-	pthread_args_t pa;
+	stress_pthread_args_t pa;
 
 	dev_path = "/dev/null";
 	pa.args = args;

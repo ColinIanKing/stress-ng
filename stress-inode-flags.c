@@ -171,7 +171,7 @@ static void *stress_inode_flags_thread(void *arg)
 {
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
-	pthread_args_t *pa = (pthread_args_t *)arg;
+	stress_pthread_args_t *pa = (stress_pthread_args_t *)arg;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -204,7 +204,7 @@ static int stress_inode_flags(const args_t *args)
 	size_t i;
 	pthread_t pthreads[MAX_INODE_FLAG_THREADS];
 	int rc, ret[MAX_INODE_FLAG_THREADS];
-	pthread_args_t pa[MAX_INODE_FLAG_THREADS];
+	stress_pthread_args_t pa[MAX_INODE_FLAG_THREADS];
 	stress_data_t data;
 	char tmp[PATH_MAX], file_name[PATH_MAX];
 	char *dir_name;

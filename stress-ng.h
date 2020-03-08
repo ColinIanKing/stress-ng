@@ -960,7 +960,7 @@ typedef struct {
 	const args_t *args;	/* Stress test args */
 	void *data;		/* Per thread private data */
 	int pthread_ret;	/* Per thread return value */
-} pthread_args_t;
+} stress_pthread_args_t;
 
 /* string hash type */
 typedef struct stress_hash {
