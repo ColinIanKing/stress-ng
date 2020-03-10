@@ -633,7 +633,7 @@ static int stress_set_wcs_method(const char *name)
 
 	for (info = wcs_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("wcs-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("wcs-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -665,7 +665,7 @@ static int stress_wcs(const stress_args_t *args)
 	if (SIZEOF_ARRAY(wcs_methods) <= 2)
 		return stress_not_implemented(args);
 
-	(void)get_setting("wcs-method", &wcs_method);
+	(void)stress_get_setting("wcs-method", &wcs_method);
 	func = wcs_method->func;
 	libc_func = wcs_method->libc_func;
 

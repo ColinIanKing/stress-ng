@@ -51,7 +51,7 @@ static int stress_set_udp_port(const char *opt)
 	stress_set_net_port("udp-port", opt,
 		MIN_UDP_PORT, MAX_UDP_PORT - STRESS_PROCS_MAX,
 		&udp_port);
-	return set_setting("udp-port", TYPE_ID_INT, &udp_port);
+	return stress_set_setting("udp-port", TYPE_ID_INT, &udp_port);
 }
 
 /*
@@ -63,7 +63,7 @@ static int stress_set_udp_domain(const char *name)
 	int ret, udp_domain;
 
 	ret = stress_set_net_domain(DOMAIN_INET | DOMAIN_INET6, "udp-domain", name, &udp_domain);
-	set_setting("udp-domain", TYPE_ID_INT, &udp_domain);
+	stress_set_setting("udp-domain", TYPE_ID_INT, &udp_domain);
 
 	return ret;
 }
@@ -73,7 +73,7 @@ static int stress_set_udp_lite(const char *opt)
 	bool udp_lite = true;
 
 	(void)opt;
-	return set_setting("udp-lite", TYPE_ID_BOOL, &udp_lite);
+	return stress_set_setting("udp-lite", TYPE_ID_BOOL, &udp_lite);
 }
 
 /*
@@ -91,10 +91,10 @@ static int stress_udp(const stress_args_t *args)
 	bool udp_lite = false;
 #endif
 
-	(void)get_setting("udp-port", &udp_port);
-	(void)get_setting("udp-domain", &udp_domain);
+	(void)stress_get_setting("udp-port", &udp_port);
+	(void)stress_get_setting("udp-domain", &udp_domain);
 #if defined(IPPROTO_UDPLITE)
-	(void)get_setting("udp-lite", &udp_lite);
+	(void)stress_get_setting("udp-lite", &udp_lite);
 
  	proto = udp_lite ? IPPROTO_UDPLITE : IPPROTO_UDP;
 

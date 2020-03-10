@@ -38,7 +38,7 @@ static int stress_set_fallocate_bytes(const char *opt)
 	fallocate_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("fallocate-bytes", fallocate_bytes,
 		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
-	return set_setting("fallocate-bytes", TYPE_ID_OFF_T, &fallocate_bytes);
+	return stress_set_setting("fallocate-bytes", TYPE_ID_OFF_T, &fallocate_bytes);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -78,7 +78,7 @@ static int stress_fallocate(const stress_args_t *args)
 	uint64_t ftrunc_errs = 0;
 	off_t fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
 
-	if (!get_setting("fallocate-bytes", &fallocate_bytes)) {
+	if (!stress_get_setting("fallocate-bytes", &fallocate_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			fallocate_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

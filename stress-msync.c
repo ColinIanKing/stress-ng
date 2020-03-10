@@ -43,7 +43,7 @@ static int stress_set_msync_bytes(const char *opt)
 	msync_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("msync-bytes", msync_bytes,
 		MIN_MSYNC_BYTES, MAX_MEM_LIMIT);
-	return set_setting("msync-bytes", TYPE_ID_SIZE_T, &msync_bytes);
+	return stress_set_setting("msync-bytes", TYPE_ID_SIZE_T, &msync_bytes);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -108,7 +108,7 @@ static int stress_msync(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	if (!get_setting("msync-bytes", &msync_bytes)) {
+	if (!stress_get_setting("msync-bytes", &msync_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			msync_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

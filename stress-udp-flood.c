@@ -41,7 +41,7 @@ static int stress_set_udp_flood_domain(const char *name)
 
 	ret = stress_set_net_domain(DOMAIN_INET_ALL, "udp-flood-domain",
 		name, &udp_flood_domain);
-	set_setting("udp-flood-domain", TYPE_ID_INT, &udp_flood_domain);
+	stress_set_setting("udp-flood-domain", TYPE_ID_INT, &udp_flood_domain);
 
 	return ret;
 }
@@ -71,7 +71,7 @@ static int stress_udp_flood(const stress_args_t *args)
 		"0123456789ABCDEFGHIJKLMNOPQRSTUV"
 		"WXYZabcdefghijklmnopqrstuvwxyz@!";
 
-	(void)get_setting("udp-flood-domain", &udp_flood_domain);
+	(void)stress_get_setting("udp-flood-domain", &udp_flood_domain);
 
 	if ((fd = socket(udp_flood_domain, SOCK_DGRAM, AF_PACKET)) < 0) {
 		if (errno == EPROTONOSUPPORT) {

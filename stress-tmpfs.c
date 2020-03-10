@@ -37,7 +37,7 @@ static int stress_set_tmpfs_mmap_file(const char *opt)
 	bool tmpfs_mmap_file = true;
 
 	(void)opt;
-	return set_setting("tmpfs-mmap-file", TYPE_ID_BOOL, &tmpfs_mmap_file);
+	return stress_set_setting("tmpfs-mmap-file", TYPE_ID_BOOL, &tmpfs_mmap_file);
 }
 
 static int stress_set_tmpfs_mmap_async(const char *opt)
@@ -45,7 +45,7 @@ static int stress_set_tmpfs_mmap_async(const char *opt)
 	bool tmpfs_mmap_async = true;
 
 	(void)opt;
-	return set_setting("tmpfs-mmap-async", TYPE_ID_BOOL, &tmpfs_mmap_async);
+	return stress_set_setting("tmpfs-mmap-async", TYPE_ID_BOOL, &tmpfs_mmap_async);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -183,8 +183,8 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 	flags |= MAP_POPULATE;
 #endif
 
-	(void)get_setting("tmpfs-mmap-async", &tmpfs_mmap_async);
-	(void)get_setting("tmpfs-mmap-file", &tmpfs_mmap_file);
+	(void)stress_get_setting("tmpfs-mmap-async", &tmpfs_mmap_async);
+	(void)stress_get_setting("tmpfs-mmap-file", &tmpfs_mmap_file);
 
 	ms_flags = tmpfs_mmap_async ? MS_ASYNC : MS_SYNC;
 

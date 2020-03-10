@@ -47,7 +47,7 @@ static int stress_set_pipe_size(const char *opt)
 
 	pipe_size = (size_t)get_uint64_byte(opt);
 	check_range_bytes("pipe-size", pipe_size, 4, 1024 * 1024);
-	return set_setting("pipe-size", TYPE_ID_SIZE_T, &pipe_size);
+	return stress_set_setting("pipe-size", TYPE_ID_SIZE_T, &pipe_size);
 }
 
 #endif
@@ -63,7 +63,7 @@ static int stress_set_pipe_data_size(const char *opt)
 	pipe_data_size = (size_t)get_uint64_byte(opt);
 	check_range_bytes("pipe-data-size", pipe_data_size,
 		4, stress_get_pagesize());
-	return set_setting("pipe-data-size,", TYPE_ID_SIZE_T, &pipe_data_size);
+	return stress_set_setting("pipe-data-size,", TYPE_ID_SIZE_T, &pipe_data_size);
 }
 
 /*
@@ -144,7 +144,7 @@ static int stress_pipe(const stress_args_t *args)
 	int pipefds[2];
 	size_t pipe_data_size = 512;
 
-	(void)get_setting("pipe-data-size", &pipe_data_size);
+	(void)stress_get_setting("pipe-data-size", &pipe_data_size);
 
 #if defined(HAVE_PIPE2) &&	\
     defined(O_DIRECT)
@@ -168,7 +168,7 @@ static int stress_pipe(const stress_args_t *args)
 	{
 		size_t pipe_size = 0;
 
-		(void)get_setting("pipe-size", &pipe_size);
+		(void)stress_get_setting("pipe-size", &pipe_size);
 		pipe_change_size(args, pipefds[0], pipe_size);
 		pipe_change_size(args, pipefds[1], pipe_size);
 	}

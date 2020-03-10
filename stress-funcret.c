@@ -267,7 +267,7 @@ static int stress_set_funcret_method(const char *name)
 
 	for (info = funcret_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("funcret-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("funcret-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -289,7 +289,7 @@ static int stress_funcret(const stress_args_t *args)
 {
         const stress_funcret_method_info_t *funcret_method = &funcret_methods[3];
 
-        (void)get_setting("funcret-method", &funcret_method);
+        (void)stress_get_setting("funcret-method", &funcret_method);
 
         funcret_method->func(args);
 

@@ -38,7 +38,7 @@ static int stress_set_mremap_bytes(const char *opt)
 	mremap_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("mremap-bytes", mremap_bytes,
 		MIN_MREMAP_BYTES, MAX_MEM_LIMIT);
-	return set_setting("mremap-bytes", TYPE_ID_SIZE_T, &mremap_bytes);
+	return stress_set_setting("mremap-bytes", TYPE_ID_SIZE_T, &mremap_bytes);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -156,7 +156,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 #endif
 	(void)context;
 
-	if (!get_setting("mremap-bytes", &mremap_bytes)) {
+	if (!stress_get_setting("mremap-bytes", &mremap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mremap_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

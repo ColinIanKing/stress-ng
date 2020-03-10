@@ -144,7 +144,7 @@ static int stress_set_hdd_bytes(const char *opt)
 	hdd_bytes = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("hdd-bytes", hdd_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
-	return set_setting("hdd-bytes", TYPE_ID_UINT64, &hdd_bytes);
+	return stress_set_setting("hdd-bytes", TYPE_ID_UINT64, &hdd_bytes);
 }
 
 static int stress_set_hdd_write_size(const char *opt)
@@ -154,7 +154,7 @@ static int stress_set_hdd_write_size(const char *opt)
 	hdd_write_size = get_uint64_byte(opt);
 	check_range_bytes("hdd-write-size", hdd_write_size,
 		MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
-	return set_setting("hdd-write-size", TYPE_ID_UINT64, &hdd_write_size);
+	return stress_set_setting("hdd-write-size", TYPE_ID_UINT64, &hdd_write_size);
 }
 
 /*
@@ -298,9 +298,9 @@ static int stress_set_hdd_opts(const char *opts)
 		}
 	}
 
-	set_setting("hdd-flags", TYPE_ID_INT, &hdd_flags);
-	set_setting("hdd-oflags", TYPE_ID_INT, &hdd_oflags);
-	set_setting("hdd-opts-set", TYPE_ID_BOOL, &opts_set);
+	stress_set_setting("hdd-flags", TYPE_ID_INT, &hdd_flags);
+	stress_set_setting("hdd-oflags", TYPE_ID_INT, &hdd_oflags);
+	stress_set_setting("hdd-opts-set", TYPE_ID_BOOL, &opts_set);
 	free(str);
 
 	return 0;
@@ -354,14 +354,14 @@ static int stress_hdd(const stress_args_t *args)
 	int flags, fadvise_flags;
 	bool opts_set = false;
 
-	(void)get_setting("hdd-flags", &hdd_flags);
-	(void)get_setting("hdd-oflags", &hdd_oflags);
-	(void)get_setting("hdd-opts-set", &opts_set);
+	(void)stress_get_setting("hdd-flags", &hdd_flags);
+	(void)stress_get_setting("hdd-oflags", &hdd_oflags);
+	(void)stress_get_setting("hdd-opts-set", &opts_set);
 
 	flags = O_CREAT | O_RDWR | O_TRUNC | hdd_oflags;
 	fadvise_flags = hdd_flags & HDD_OPT_FADV_MASK;
 
-	if (!get_setting("hdd-bytes", &hdd_bytes)) {
+	if (!stress_get_setting("hdd-bytes", &hdd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			hdd_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -372,7 +372,7 @@ static int stress_hdd(const stress_args_t *args)
 	if (hdd_bytes < MIN_HDD_WRITE_SIZE)
 		hdd_bytes = MIN_HDD_WRITE_SIZE;
 
-	if (!get_setting("hdd-write-size", &hdd_write_size)) {
+	if (!stress_get_setting("hdd-write-size", &hdd_write_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			hdd_write_size = MAX_HDD_WRITE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

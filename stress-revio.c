@@ -128,7 +128,7 @@ static int stress_set_revio_bytes(const char *opt)
 	revio_bytes = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("revio-bytes", revio_bytes,
 		MIN_REVIO_BYTES, MAX_REVIO_BYTES);
-	return set_setting("revio-bytes", TYPE_ID_UINT64, &revio_bytes);
+	return stress_set_setting("revio-bytes", TYPE_ID_UINT64, &revio_bytes);
 }
 
 /*
@@ -223,9 +223,9 @@ static int stress_set_revio_opts(const char *opts)
 		}
 	}
 
-	set_setting("revio-flags", TYPE_ID_INT, &revio_flags);
-	set_setting("revio-oflags", TYPE_ID_INT, &revio_oflags);
-	set_setting("revio-opts-set", TYPE_ID_BOOL, &opts_set);
+	stress_set_setting("revio-flags", TYPE_ID_INT, &revio_flags);
+	stress_set_setting("revio-oflags", TYPE_ID_INT, &revio_oflags);
+	stress_set_setting("revio-opts-set", TYPE_ID_BOOL, &opts_set);
 	free(str);
 
 	return 0;
@@ -301,16 +301,16 @@ static int stress_revio(const stress_args_t *args)
 	bool opts_set = false;
 	double avg_extents = 0.0;
 
-	(void)get_setting("revio-flags", &revio_flags);
-	(void)get_setting("revio-oflags", &revio_oflags);
-	(void)get_setting("revio-opts-set", &opts_set);
+	(void)stress_get_setting("revio-flags", &revio_flags);
+	(void)stress_get_setting("revio-oflags", &revio_oflags);
+	(void)stress_get_setting("revio-opts-set", &opts_set);
 
 	revio_flags |= REVIO_OPT_O_DIRECT;	/* HACK */
 
 	flags = O_CREAT | O_RDWR | O_TRUNC | revio_oflags;
 	fadvise_flags = revio_flags & REVIO_OPT_FADV_MASK;
 
-	if (!get_setting("revio-bytes", &revio_bytes)) {
+	if (!stress_get_setting("revio-bytes", &revio_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			revio_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

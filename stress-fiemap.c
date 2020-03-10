@@ -40,7 +40,7 @@ static int stress_set_fiemap_bytes(const char *opt)
 	fiemap_bytes = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("fiemap-bytes", fiemap_bytes,
 		MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE);
-	return set_setting("fiemap-bytes", TYPE_ID_UINT64, &fiemap_bytes);
+	return stress_set_setting("fiemap-bytes", TYPE_ID_UINT64, &fiemap_bytes);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -230,7 +230,7 @@ static int stress_fiemap(const stress_args_t *args)
 	uint64_t fiemap_bytes = DEFAULT_FIEMAP_SIZE;
 	struct fiemap fiemap;
 
-	if (!get_setting("fiemap-bytes", &fiemap_bytes)) {
+	if (!stress_get_setting("fiemap-bytes", &fiemap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			fiemap_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

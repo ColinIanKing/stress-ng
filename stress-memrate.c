@@ -61,7 +61,7 @@ static int stress_set_memrate_bytes(const char *opt)
 	memrate_bytes = get_uint64_byte(opt);
 	check_range_bytes("memrate-bytes", memrate_bytes,
 		MIN_MEMRATE_BYTES, MAX_MEMRATE_BYTES);
-	return set_setting("memrate-bytes", TYPE_ID_UINT64, &memrate_bytes);
+	return stress_set_setting("memrate-bytes", TYPE_ID_UINT64, &memrate_bytes);
 }
 
 static int stress_set_memrate_rd_mbs(const char *opt)
@@ -71,7 +71,7 @@ static int stress_set_memrate_rd_mbs(const char *opt)
 	memrate_rd_mbs = get_uint64(opt);
 	check_range_bytes("memrate-rd-mbs", memrate_rd_mbs,
 		1, 1000000);
-	return set_setting("memrate-rd-mbs", TYPE_ID_UINT64, &memrate_rd_mbs);
+	return stress_set_setting("memrate-rd-mbs", TYPE_ID_UINT64, &memrate_rd_mbs);
 }
 
 static int stress_set_memrate_wr_mbs(const char *opt)
@@ -81,7 +81,7 @@ static int stress_set_memrate_wr_mbs(const char *opt)
 	memrate_wr_mbs = get_uint64(opt);
 	check_range_bytes("memrate-wr-mbs", memrate_wr_mbs,
 		1, 1000000);
-	return set_setting("memrate-wr-mbs", TYPE_ID_UINT64, &memrate_wr_mbs);
+	return stress_set_setting("memrate-wr-mbs", TYPE_ID_UINT64, &memrate_wr_mbs);
 }
 
 #define STRESS_MEMRATE_READ(size)				\
@@ -240,7 +240,7 @@ static inline void *stress_memrate_mmap(const stress_args_t *args, uint64_t sz)
 #if defined(HAVE_MADVISE)
 		int ret, advice = MADV_NORMAL;
 
-		(void)get_setting("memrate-madvise", &advice);
+		(void)stress_get_setting("memrate-madvise", &advice);
 
 		ret = madvise(ptr, sz, advice);
 		(void)ret;
@@ -300,9 +300,9 @@ static int stress_memrate(const stress_args_t *args)
 	context.memrate_rd_mbs = ~0;
 	context.memrate_wr_mbs = ~0;
 
-	(void)get_setting("memrate-bytes", &context.memrate_bytes);
-	(void)get_setting("memrate-rd-mbs", &context.memrate_rd_mbs);
-	(void)get_setting("memrate-wr-mbs", &context.memrate_wr_mbs);
+	(void)stress_get_setting("memrate-bytes", &context.memrate_bytes);
+	(void)stress_get_setting("memrate-rd-mbs", &context.memrate_rd_mbs);
+	(void)stress_get_setting("memrate-wr-mbs", &context.memrate_wr_mbs);
 
 	stats_size = memrate_items * sizeof(stress_memrate_stats_t);
 	stats_size = (stats_size + args->page_size - 1) & ~(args->page_size - 1);

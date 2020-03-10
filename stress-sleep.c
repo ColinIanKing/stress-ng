@@ -51,7 +51,7 @@ static int stress_set_sleep_max(const char *opt)
 	sleep_max = get_uint64(opt);
 	check_range("sleep-max", sleep_max,
 		MIN_SLEEP, MAX_SLEEP);
-	return set_setting("sleep-max", TYPE_ID_UINT64, &sleep_max);
+	return stress_set_setting("sleep-max", TYPE_ID_UINT64, &sleep_max);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -157,7 +157,7 @@ static int stress_sleep(const stress_args_t *args)
 	static stress_ctxt_t ctxts[MAX_SLEEP];
 	int ret = EXIT_SUCCESS;
 
-	if (!get_setting("sleep-max", &sleep_max)) {
+	if (!stress_get_setting("sleep-max", &sleep_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sleep_max = MAX_SLEEP;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

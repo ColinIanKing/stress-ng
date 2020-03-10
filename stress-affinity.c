@@ -36,7 +36,7 @@ static int stress_set_affinity_rand(const char *opt)
 	bool affinity_rand = true;
 
 	(void)opt;
-	return set_setting("affinity-rand", TYPE_ID_BOOL, &affinity_rand);
+	return stress_set_setting("affinity-rand", TYPE_ID_BOOL, &affinity_rand);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -83,7 +83,7 @@ static int stress_affinity(const stress_args_t *args)
 	cpu_set_t mask;
 	bool affinity_rand = false;
 
-	(void)get_setting("affinity-rand", &affinity_rand);
+	(void)stress_get_setting("affinity-rand", &affinity_rand);
 
 	do {
 		cpu = affinity_rand ?  (stress_mwc32() >> 4) : cpu + 1;

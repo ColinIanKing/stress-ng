@@ -47,7 +47,7 @@ static int stress_set_mergesort_size(const char *opt)
 	mergesort_size = get_uint64(opt);
 	check_range("mergesort-size", mergesort_size,
 		MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE);
-	return set_setting("mergesort-size", TYPE_ID_UINT64, &mergesort_size);
+	return stress_set_setting("mergesort-size", TYPE_ID_UINT64, &mergesort_size);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -125,7 +125,7 @@ static int stress_mergesort(const stress_args_t *args)
 	struct sigaction old_action;
 	int ret;
 
-	if (!get_setting("mergesort-size", &mergesort_size)) {
+	if (!stress_get_setting("mergesort-size", &mergesort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mergesort_size = MAX_MERGESORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

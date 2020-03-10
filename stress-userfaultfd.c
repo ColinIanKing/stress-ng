@@ -56,7 +56,7 @@ static int stress_set_userfaultfd_bytes(const char *opt)
 	userfaultfd_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("userfaultfd-bytes", userfaultfd_bytes,
 		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
-	return set_setting("userfaultfd-bytes", TYPE_ID_SIZE_T, &userfaultfd_bytes);
+	return stress_set_setting("userfaultfd-bytes", TYPE_ID_SIZE_T, &userfaultfd_bytes);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -184,7 +184,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
-	if (!get_setting("userfaultfd-bytes", &userfaultfd_bytes)) {
+	if (!stress_get_setting("userfaultfd-bytes", &userfaultfd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			userfaultfd_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

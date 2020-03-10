@@ -47,7 +47,7 @@ static int stress_set_heapsort_size(const char *opt)
 	heapsort_size = get_uint64(opt);
 	check_range("heapsort-size", heapsort_size,
 		MIN_HEAPSORT_SIZE, MAX_HEAPSORT_SIZE);
-	return set_setting("heapsort-size", TYPE_ID_UINT64, &heapsort_size);
+	return stress_set_setting("heapsort-size", TYPE_ID_UINT64, &heapsort_size);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -122,7 +122,7 @@ static int stress_heapsort(const stress_args_t *args)
 	struct sigaction old_action;
 	int ret;
 
-	if (!get_setting("heapsort-size", &heapsort_size)) {
+	if (!stress_get_setting("heapsort-size", &heapsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			heapsort_size = MAX_HEAPSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

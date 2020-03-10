@@ -67,7 +67,7 @@ static int stress_set_epoll_port(const char *opt)
 		MIN_EPOLL_PORT,
 		MAX_EPOLL_PORT - (STRESS_PROCS_MAX * MAX_SERVERS),
 		&epoll_port);
-	return set_setting("epoll-port", TYPE_ID_INT, &epoll_port);
+	return stress_set_setting("epoll-port", TYPE_ID_INT, &epoll_port);
 }
 
 /*
@@ -80,7 +80,7 @@ static int stress_set_epoll_domain(const char *name)
 
 	ret = stress_set_net_domain(DOMAIN_ALL, "epoll-domain",
 		name, &epoll_domain);
-	set_setting("epoll-domain", TYPE_ID_INT, &epoll_domain);
+	stress_set_setting("epoll-domain", TYPE_ID_INT, &epoll_domain);
 
 	switch (epoll_domain) {
 	case AF_INET:
@@ -568,8 +568,8 @@ static int stress_epoll(const stress_args_t *args)
 	int epoll_port = DEFAULT_EPOLL_PORT;
 	int epoll_domain = AF_UNIX;
 
-	(void)get_setting("epoll-port", &epoll_port);
-	(void)get_setting("epoll-domain", &epoll_domain);
+	(void)stress_get_setting("epoll-port", &epoll_port);
+	(void)stress_get_setting("epoll-domain", &epoll_domain);
 
 	if (max_servers == 1) {
 		pr_dbg("%s: process [%d] using socket port %d\n",

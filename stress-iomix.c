@@ -40,7 +40,7 @@ static int stress_set_iomix_bytes(const char *opt)
 	iomix_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("iomix-bytes", iomix_bytes,
 		MIN_IOMIX_BYTES, MAX_IOMIX_BYTES);
-	return set_setting("iomix-bytes", TYPE_ID_OFF_T, &iomix_bytes);
+	return stress_set_setting("iomix-bytes", TYPE_ID_OFF_T, &iomix_bytes);
 }
 
 /*
@@ -673,7 +673,7 @@ static int stress_iomix(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (!get_setting("iomix-bytes", &iomix_bytes)) {
+	if (!stress_get_setting("iomix-bytes", &iomix_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			iomix_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

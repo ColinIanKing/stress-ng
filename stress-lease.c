@@ -42,7 +42,7 @@ static int stress_set_lease_breakers(const char *opt)
 	lease_breakers = get_uint64(opt);
 	check_range("lease-breakers", lease_breakers,
 		MIN_LEASE_BREAKERS, MAX_LEASE_BREAKERS);
-	return set_setting("lease-breakers", TYPE_ID_UINT64, &lease_breakers);
+	return stress_set_setting("lease-breakers", TYPE_ID_UINT64, &lease_breakers);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -116,7 +116,7 @@ static int stress_lease(const stress_args_t *args)
 	pid_t l_pids[MAX_LEASE_BREAKERS];
 	uint64_t i, lease_breakers = DEFAULT_LEASE_BREAKERS;
 
-	if (!get_setting("lease-breakers", &lease_breakers)) {
+	if (!stress_get_setting("lease-breakers", &lease_breakers)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			lease_breakers = MAX_LEASE_BREAKERS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

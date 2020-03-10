@@ -42,7 +42,7 @@ static int stress_set_chdir_dirs(const char *opt)
 	chdir_dirs = get_uint32(opt);
 	check_range("chdir-dirs", chdir_dirs,
 		MIN_CHDIR_DIRS, MAX_CHDIR_DIRS);
-	return set_setting("chdir-dirs", TYPE_ID_UINT32, &chdir_dirs);
+	return stress_set_setting("chdir-dirs", TYPE_ID_UINT32, &chdir_dirs);
 }
 
 /*
@@ -56,7 +56,7 @@ static int stress_chdir(const stress_args_t *args)
 	int rc, ret = EXIT_FAILURE, *fds;
 	char **paths;
 
-	(void)get_setting("chdir-dirs", &chdir_dirs);
+	(void)stress_get_setting("chdir-dirs", &chdir_dirs);
 	paths = calloc(chdir_dirs, sizeof(*paths));
 	if (!paths) {
 		pr_err("%s: out of memory allocating paths\n", args->name);

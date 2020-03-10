@@ -47,7 +47,7 @@ static int stress_set_itimer_freq(const char *opt)
 	itimer_freq = get_uint64(opt);
 	check_range("itimer-freq", itimer_freq,
 		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
-	return set_setting("itimer-freq", TYPE_ID_UINT64, &itimer_freq);
+	return stress_set_setting("itimer-freq", TYPE_ID_UINT64, &itimer_freq);
 }
 
 static int stress_set_itimer_rand(const char *opt)
@@ -55,7 +55,7 @@ static int stress_set_itimer_rand(const char *opt)
 	bool itimer_rand = true;
 
 	(void)opt;
-	return set_setting("itimer-rand", TYPE_ID_BOOL, &itimer_rand);
+	return stress_set_setting("itimer-rand", TYPE_ID_BOOL, &itimer_rand);
 }
 
 /*
@@ -67,7 +67,7 @@ static void stress_itimer_set(struct itimerval *timer)
 	double rate;
 	bool itimer_rand = false;
 
-	(void)get_setting("itimer-rand", &itimer_rand);
+	(void)stress_get_setting("itimer-rand", &itimer_rand);
 
 	if (itimer_rand) {
 		/* Mix in some random variation */
@@ -148,7 +148,7 @@ static int stress_itimer(const stress_args_t *args)
 	max_ops = args->max_ops;
 	start = stress_time_now();
 
-	if (!get_setting("itimer-freq", &itimer_freq)) {
+	if (!stress_get_setting("itimer-freq", &itimer_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			itimer_freq = MAX_ITIMER_FREQ;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

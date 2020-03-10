@@ -283,7 +283,7 @@ static int stress_set_rawdev_method(const char *name)
 
 	for (info = rawdev_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("rawdev-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("rawdev-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -332,7 +332,7 @@ static int stress_rawdev(const stress_args_t *args)
 
 	stress_temp_dir_args(args, path, sizeof(path));
 
-	(void)get_setting("rawdev-method", &rawdev_method);
+	(void)stress_get_setting("rawdev-method", &rawdev_method);
 	func = rawdev_method->func;
 
 	fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);

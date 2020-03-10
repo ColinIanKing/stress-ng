@@ -39,7 +39,7 @@ static int stress_set_mq_size(const char *opt)
 	sz = get_uint64(opt);
 	check_range("mq-size", sz, MIN_MQ_SIZE, MAX_MQ_SIZE);
 	mq_size = (int)sz;
-	return set_setting("mq-size", TYPE_ID_INT, &mq_size);
+	return stress_set_setting("mq-size", TYPE_ID_INT, &mq_size);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -78,7 +78,7 @@ static int stress_mq(const stress_args_t *args)
 	time_t time_start;
 	struct timespec abs_timeout;
 
-	if (!get_setting("mq-size", &mq_size)) {
+	if (!stress_get_setting("mq-size", &mq_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mq_size = MAX_MQ_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

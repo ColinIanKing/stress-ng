@@ -399,7 +399,7 @@ static int stress_set_memthrash_method(const char *name)
 	for (i = 0; i < SIZEOF_ARRAY(memthrash_methods); i++) {
 		const stress_memthrash_method_info_t *info = &memthrash_methods[i];
 		if (!strcmp(memthrash_methods[i].name, name)) {
-			set_setting("memthrash-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("memthrash-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -577,7 +577,7 @@ static int stress_memthrash(const stress_args_t *args)
 	context.max_threads = stress_memthrash_max(args->num_instances, context.total_cpus);
 	context.memthrash_method = &memthrash_methods[0];
 
-	(void)get_setting("memthrash-method", &context.memthrash_method);
+	(void)stress_get_setting("memthrash-method", &context.memthrash_method);
 
 	pr_dbg("%s: using method '%s'\n", args->name, context.memthrash_method->name);
 	if (args->instance == 0) {

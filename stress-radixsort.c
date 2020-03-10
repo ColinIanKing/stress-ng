@@ -64,7 +64,7 @@ static int stress_set_radixsort_size(const char *opt)
 	radixsort_size = get_uint64(opt);
 	check_range("radixsort-size", radixsort_size,
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
-	return set_setting("radixsort-size", TYPE_ID_UINT64, &radixsort_size);
+	return stress_set_setting("radixsort-size", TYPE_ID_UINT64, &radixsort_size);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -87,7 +87,7 @@ static int stress_radixsort(const stress_args_t *args)
 	int ret;
 	unsigned char revtable[256];
 
-	if (!get_setting("radixsort-size", &radixsort_size)) {
+	if (!stress_get_setting("radixsort-size", &radixsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			radixsort_size = MAX_RADIXSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

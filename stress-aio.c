@@ -56,7 +56,7 @@ static int stress_set_aio_requests(const char *opt)
 	aio_requests = get_uint64(opt);
 	check_range("aio-requests", aio_requests,
 		MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
-	return set_setting("aio-requests", TYPE_ID_UINT64, &aio_requests);
+	return stress_set_setting("aio-requests", TYPE_ID_UINT64, &aio_requests);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -177,7 +177,7 @@ static int stress_aio(const stress_args_t *args)
 	char filename[PATH_MAX];
 	uint64_t total = 0, i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
 
-	if (!get_setting("aio-requests", &opt_aio_requests)) {
+	if (!stress_get_setting("aio-requests", &opt_aio_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			opt_aio_requests = MAX_AIO_REQUESTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

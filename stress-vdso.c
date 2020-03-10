@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
  */
 static int stress_set_vdso_func(const char *name)
 {
-	return set_setting("vdso-func", TYPE_ID_STR, name);
+	return stress_set_setting("vdso-func", TYPE_ID_STR, name);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -409,7 +409,7 @@ static int vdso_sym_list_check_vdso_func(stress_vdso_sym_t **list)
 	stress_vdso_sym_t *vs1;
 	char *name;
 
-	if (!get_setting("vdso-func", &name))
+	if (!stress_get_setting("vdso-func", &name))
 		return 0;
 
 	for (vs1 = vdso_sym_list; vs1; vs1 = vs1->next) {

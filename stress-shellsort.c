@@ -45,7 +45,7 @@ static int stress_set_shellsort_size(const char *opt)
 	shellsort_size = get_uint64(opt);
 	check_range("shellsort-size", shellsort_size,
 		MIN_SHELLSORT_SIZE, MAX_SHELLSORT_SIZE);
-	return set_setting("shellsort-size", TYPE_ID_UINT64, &shellsort_size);
+	return stress_set_setting("shellsort-size", TYPE_ID_UINT64, &shellsort_size);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -171,7 +171,7 @@ static int stress_shellsort(const stress_args_t *args)
 	struct sigaction old_action;
 	int ret;
 
-	if (!get_setting("shellsort-size", &shellsort_size)) {
+	if (!stress_get_setting("shellsort-size", &shellsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			shellsort_size = MAX_SHELLSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

@@ -47,7 +47,7 @@ static int stress_set_semaphore_sysv_procs(const char *opt)
 	semaphore_sysv_procs = get_uint64(opt);
 	check_range("sem-sysv-procs", semaphore_sysv_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
-	return set_setting("sem-sysv-procs", TYPE_ID_UINT64, &semaphore_sysv_procs);
+	return stress_set_setting("sem-sysv-procs", TYPE_ID_UINT64, &semaphore_sysv_procs);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -312,7 +312,7 @@ static int stress_sem_sysv(const stress_args_t *args)
 	uint64_t i;
 	uint64_t semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
 
-	if (!get_setting("sem-sysv-procs", &semaphore_sysv_procs)) {
+	if (!stress_get_setting("sem-sysv-procs", &semaphore_sysv_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			semaphore_sysv_procs = MAX_SEMAPHORE_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

@@ -36,7 +36,7 @@ static int stress_set_eventfd_nonblock(const char *opt)
 	bool eventfd_nonblock = true;
 
 	(void)opt;
-	return set_setting("eventfd-nonblock", TYPE_ID_BOOL, &eventfd_nonblock);
+	return stress_set_setting("eventfd-nonblock", TYPE_ID_BOOL, &eventfd_nonblock);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -59,7 +59,7 @@ static int stress_eventfd(const stress_args_t *args)
 	int flags = 0;
 	bool eventfd_nonblock = false;
 
-	(void)get_setting("eventfd-nonblock", &eventfd_nonblock);
+	(void)stress_get_setting("eventfd-nonblock", &eventfd_nonblock);
 
 #if defined(EFD_CLOEXEC)
 	flags |= EFD_CLOEXEC;

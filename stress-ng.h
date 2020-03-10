@@ -3114,12 +3114,12 @@ static inline bool HOT OPTIMIZE3 __keep_stressing(const stress_args_t *args)
 /*
  *  stressor option value handling
  */
-extern int set_setting(const char *name, const stress_type_id_t type_id,
+extern int stress_set_setting(const char *name, const stress_type_id_t type_id,
 	const void *value);
-extern int set_setting_global(const char *name, const stress_type_id_t type_id,
+extern int stress_set_setting_global(const char *name, const stress_type_id_t type_id,
 	const void *value);
-extern bool get_setting(const char *name, void *value);
-extern void free_settings(void);
+extern bool stress_get_setting(const char *name, void *value);
+extern void stress_free_settings(void);
 
 /*
  *  externs to force gcc to stash computed values and hence

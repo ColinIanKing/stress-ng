@@ -58,7 +58,7 @@ static int stress_set_dentries(const char *opt)
 	dentries = get_uint64(opt);
 	check_range("dentries", dentries,
 		MIN_DENTRIES, MAX_DENTRIES);
-	return set_setting("dentries", TYPE_ID_UINT64, &dentries);
+	return stress_set_setting("dentries", TYPE_ID_UINT64, &dentries);
 }
 
 /*
@@ -73,7 +73,7 @@ static int stress_set_dentry_order(const char *opt)
 		if (!strcmp(dr->name, opt)) {
 			uint8_t dentry_order = dr->denty_order;
 
-			set_setting("dentry-order",
+			stress_set_setting("dentry-order",
 				TYPE_ID_UINT8, &dentry_order);
 			return 0;
 		}
@@ -242,13 +242,13 @@ static int stress_dentry(const stress_args_t *args)
 	uint8_t dentry_order = ORDER_RANDOM;
 	char dir_path[PATH_MAX];
 
-	if (!get_setting("dentries", &dentries)) {
+	if (!stress_get_setting("dentries", &dentries)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			dentries = MAX_DENTRIES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			dentries = MIN_DENTRIES;
 	}
-	(void)get_setting("dentry-order", &dentry_order);
+	(void)stress_get_setting("dentry-order", &dentry_order);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)

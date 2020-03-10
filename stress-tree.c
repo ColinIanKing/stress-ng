@@ -89,7 +89,7 @@ static int stress_set_tree_size(const char *opt)
 	tree_size = get_uint64(opt);
 	check_range("tree-size", tree_size,
 		MIN_TREE_SIZE, MAX_TREE_SIZE);
-	return set_setting("tree-size", TYPE_ID_UINT64, &tree_size);
+	return stress_set_setting("tree-size", TYPE_ID_UINT64, &tree_size);
 }
 
 #if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
@@ -460,7 +460,7 @@ static int stress_set_tree_method(const char *name)
 
 	for (info = tree_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("tree-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("tree-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -508,9 +508,9 @@ static int stress_tree(const stress_args_t *args)
 	int ret;
 	stress_tree_method_info_t const *info = &tree_methods[0];
 
-	(void)get_setting("tree-method", &info);
+	(void)stress_get_setting("tree-method", &info);
 
-	if (!get_setting("tree-size", &tree_size)) {
+	if (!stress_get_setting("tree-size", &tree_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			tree_size = MAX_TREE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

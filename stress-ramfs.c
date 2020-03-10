@@ -70,7 +70,7 @@ static int stress_set_ramfs_size(const char *opt)
 		pr_inf("ramfs: rounding ramfs-size to %" PRIu64 " x %" PRId64 "K pages\n",
 			ramfs_size / page_size, page_size >> 10);
 	}
-        return set_setting("ramfs-size", TYPE_ID_UINT64, &ramfs_size);
+        return stress_set_setting("ramfs-size", TYPE_ID_UINT64, &ramfs_size);
 }
 
 static void stress_ramfs_child_handler(int signum)
@@ -221,7 +221,7 @@ static int stress_ramfs_child(const stress_args_t *args)
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 
-	(void)get_setting("ramfs-size", &ramfs_size);
+	(void)stress_get_setting("ramfs-size", &ramfs_size);
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	if (mkdir(pathname, S_IRGRP | S_IWGRP) < 0) {

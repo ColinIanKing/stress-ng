@@ -39,7 +39,7 @@ static int stress_set_seek_size(const char *opt)
 	seek_size = get_uint64_byte(opt);
 	check_range_bytes("seek-size", seek_size,
 		MIN_SEEK_SIZE, MAX_SEEK_SIZE);
-	return set_setting("seek-size", TYPE_ID_UINT64, &seek_size);
+	return stress_set_setting("seek-size", TYPE_ID_UINT64, &seek_size);
 }
 
 
@@ -48,7 +48,7 @@ static int stress_set_seek_punch(const char *opt)
 	(void)opt;
 	bool seek_punch = true;
 
-	return set_setting("seek-punch", TYPE_ID_BOOL, &seek_punch);
+	return stress_set_setting("seek-punch", TYPE_ID_BOOL, &seek_punch);
 }
 
 /*
@@ -65,10 +65,10 @@ static int stress_seek(const stress_args_t *args)
 #if defined(OPT_SEEK_PUNCH)
 	bool seek_punch = false;
 
-	(void)get_setting("seek-punch", TYPE_ID_BOOL, &seek_punch);
+	(void)stress_get_setting("seek-punch", TYPE_ID_BOOL, &seek_punch);
 #endif
 
-	if (!get_setting("seek-size", &seek_size)) {
+	if (!stress_get_setting("seek-size", &seek_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			seek_size = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

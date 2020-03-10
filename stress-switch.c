@@ -45,7 +45,7 @@ static int stress_set_switch_freq(const char *opt)
 
 	switch_freq = get_uint64(opt);
 	check_range("switch-freq", switch_freq, 0, NANO_SECS);
-	return set_setting("switch-freq", TYPE_ID_UINT64, &switch_freq);
+	return stress_set_setting("switch-freq", TYPE_ID_UINT64, &switch_freq);
 }
 
 /*
@@ -59,7 +59,7 @@ static int stress_switch(const stress_args_t *args)
 	size_t buf_size;
 	uint64_t switch_freq = 0;
 
-	(void)get_setting("switch-freq", &switch_freq);
+	(void)stress_get_setting("switch-freq", &switch_freq);
 
 #if defined(HAVE_PIPE2) &&	\
     defined(O_DIRECT)

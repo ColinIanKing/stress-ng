@@ -42,7 +42,7 @@ static int stress_set_readahead_bytes(const char *opt)
 	readahead_bytes = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("readahead-bytes", readahead_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
-	return set_setting("readahead-bytes", TYPE_ID_UINT64, &readahead_bytes);
+	return stress_set_setting("readahead-bytes", TYPE_ID_UINT64, &readahead_bytes);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -87,7 +87,7 @@ static int stress_readahead(const stress_args_t *args)
 	int fd;
 	struct stat statbuf;
 
-	if (!get_setting("readahead-bytes", &readahead_bytes)) {
+	if (!stress_get_setting("readahead-bytes", &readahead_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			readahead_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

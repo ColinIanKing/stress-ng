@@ -57,7 +57,7 @@ static int stress_lockf_set_nonblock(const char *opt)
 	bool lockf_nonblock = true;
 
 	(void)opt;
-	return set_setting("lockf-nonblock", TYPE_ID_BOOL, &lockf_nonblock);
+	return stress_set_setting("lockf-nonblock", TYPE_ID_BOOL, &lockf_nonblock);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -176,7 +176,7 @@ static int stress_lockf_contention(
 	bool lockf_nonblock = false;
 	int lockf_cmd;
 
-	(void)get_setting("lockf-nonblock", &lockf_nonblock);
+	(void)stress_get_setting("lockf-nonblock", &lockf_nonblock);
 	lockf_cmd = lockf_nonblock ?  F_TLOCK : F_LOCK;
 	stress_mwc_reseed();
 

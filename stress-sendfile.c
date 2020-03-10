@@ -38,7 +38,7 @@ static int stress_set_sendfile_size(const char *opt)
 	sendfile_size = get_uint64_byte(opt);
 	check_range_bytes("sendfile-size", sendfile_size,
 		MIN_SENDFILE_SIZE, MAX_SENDFILE_SIZE);
-	return set_setting("sendfile-size", TYPE_ID_UINT64, &sendfile_size);
+	return stress_set_setting("sendfile-size", TYPE_ID_UINT64, &sendfile_size);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -60,7 +60,7 @@ static int stress_sendfile(const stress_args_t *args)
 	size_t sz;
 	int64_t sendfile_size = DEFAULT_SENDFILE_SIZE;
 
-	if (!get_setting("sendfile-size", &sendfile_size)) {
+	if (!stress_get_setting("sendfile-size", &sendfile_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sendfile_size = MAX_SENDFILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

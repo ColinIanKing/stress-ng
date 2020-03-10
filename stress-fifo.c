@@ -42,7 +42,7 @@ static int stress_set_fifo_readers(const char *opt)
 	fifo_readers = get_uint64(opt);
 	check_range("fifo-readers", fifo_readers,
 		MIN_FIFO_READERS, MAX_FIFO_READERS);
-	return set_setting("fifo-readers", TYPE_ID_UINT64, &fifo_readers);
+	return stress_set_setting("fifo-readers", TYPE_ID_UINT64, &fifo_readers);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -164,7 +164,7 @@ static int stress_fifo(const stress_args_t *args)
 	uint64_t fifo_readers = DEFAULT_FIFO_READERS;
 	int rc;
 
-	if (!get_setting("fifo-readers", &fifo_readers)) {
+	if (!stress_get_setting("fifo-readers", &fifo_readers)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			fifo_readers = MAX_FIFO_READERS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

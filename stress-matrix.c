@@ -60,7 +60,7 @@ static int stress_set_matrix_size(const char *opt)
 	matrix_size = get_uint64(opt);
 	check_range("matrix-size", matrix_size,
 		MIN_MATRIX_SIZE, MAX_MATRIX_SIZE);
-	return set_setting("matrix-size", TYPE_ID_SIZE_T, &matrix_size);
+	return stress_set_setting("matrix-size", TYPE_ID_SIZE_T, &matrix_size);
 }
 
 static int stress_set_matrix_yx(const char *opt)
@@ -69,7 +69,7 @@ static int stress_set_matrix_yx(const char *opt)
 
 	(void)opt;
 
-	return set_setting("matrix-yx", TYPE_ID_SIZE_T, &matrix_yx);
+	return stress_set_setting("matrix-yx", TYPE_ID_SIZE_T, &matrix_yx);
 }
 
 /*
@@ -852,7 +852,7 @@ static const stress_matrix_method_info_t *stress_get_matrix_method(
 
 	for (info = matrix_methods; info->name; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("matrix-method", TYPE_ID_STR, name);
+			stress_set_setting("matrix-method", TYPE_ID_STR, name);
 			return info;
 		}
 	}
@@ -879,7 +879,7 @@ static int stress_set_matrix_method(const char *name)
 
 	info = stress_get_matrix_method(name);
 	if (info) {
-		set_setting("matrix-method", TYPE_ID_STR, name);
+		stress_set_setting("matrix-method", TYPE_ID_STR, name);
 		return 0;
 	}
 	stress_matrix_method_error();
@@ -974,8 +974,8 @@ static int stress_matrix(const stress_args_t *args)
 	size_t matrix_size = 128;
 	size_t matrix_yx = 0;
 
-	(void)get_setting("matrix-method", &matrix_method_name);
-	(void)get_setting("matrix-yx", &matrix_yx);
+	(void)stress_get_setting("matrix-method", &matrix_method_name);
+	(void)stress_get_setting("matrix-yx", &matrix_yx);
 
 	matrix_method = stress_get_matrix_method(matrix_method_name);
 	if (!matrix_method) {
@@ -989,7 +989,7 @@ static int stress_matrix(const stress_args_t *args)
 		pr_dbg("%s using method '%s' (%s)\n", args->name, matrix_method->name,
 			matrix_yx ? "y by x" : "x by y");
 
-	if (!get_setting("matrix-size", &matrix_size)) {
+	if (!stress_get_setting("matrix-size", &matrix_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			matrix_size = MAX_MATRIX_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

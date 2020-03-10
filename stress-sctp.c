@@ -54,7 +54,7 @@ static int stress_set_sctp_port(const char *opt)
 	stress_set_net_port("sctp-port", opt,
 		MIN_SCTP_PORT, MAX_SCTP_PORT - STRESS_PROCS_MAX,
 		&sctp_port);
-	return set_setting("sctp-port", TYPE_ID_INT, &sctp_port);
+	return stress_set_setting("sctp-port", TYPE_ID_INT, &sctp_port);
 }
 
 /*
@@ -67,7 +67,7 @@ static int stress_set_sctp_domain(const char *name)
 
 	ret = stress_set_net_domain(DOMAIN_INET | DOMAIN_INET6, "sctp-domain",
 				     name, &sctp_domain);
-	set_setting("sctp-domain", TYPE_ID_INT, &sctp_domain);
+	stress_set_setting("sctp-domain", TYPE_ID_INT, &sctp_domain);
 
 	return ret;
 }
@@ -357,8 +357,8 @@ static int stress_sctp(const stress_args_t *args)
 	int sctp_domain = AF_INET;
 	int ret = EXIT_FAILURE;
 
-	(void)get_setting("sctp-port", &sctp_port);
-	(void)get_setting("sctp-domain", &sctp_domain);
+	(void)stress_get_setting("sctp-port", &sctp_port);
+	(void)stress_get_setting("sctp-domain", &sctp_domain);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sctp_sigpipe, NULL) < 0)
 		return EXIT_FAILURE;

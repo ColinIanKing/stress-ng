@@ -66,7 +66,7 @@ static int stress_set_filename_opts(const char *opt)
 	for (i = 0; filename_opts[i].opt_text; i++) {
 		if (!strcmp(opt, filename_opts[i].opt_text)) {
 			uint8_t filename_opt = filename_opts[i].opt;
-			set_setting("filename-opts", TYPE_ID_UINT8, &filename_opt);
+			stress_set_setting("filename-opts", TYPE_ID_UINT8, &filename_opt);
 			return 0;
 		}
 	}
@@ -275,7 +275,7 @@ static int stress_filename(const stress_args_t *args)
 	uint8_t filename_opt = STRESS_FILENAME_PROBE;
 #endif
 
-	(void)get_setting("filename-opts", &filename_opt);
+	(void)stress_get_setting("filename-opts", &filename_opt);
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	if (mkdir(pathname, S_IRWXU) < 0) {

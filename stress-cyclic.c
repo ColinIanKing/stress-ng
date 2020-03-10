@@ -87,7 +87,7 @@ static int stress_set_cyclic_sleep(const char *opt)
 	cyclic_sleep = get_uint64(opt);
         check_range("cyclic-sleep", cyclic_sleep,
                 1, STRESS_NANOSEC);
-        return set_setting("cyclic-sleep", TYPE_ID_UINT64, &cyclic_sleep);
+        return stress_set_setting("cyclic-sleep", TYPE_ID_UINT64, &cyclic_sleep);
 }
 
 static int stress_set_cyclic_policy(const char *opt)
@@ -96,7 +96,7 @@ static int stress_set_cyclic_policy(const char *opt)
 
 	for (policy = 0; policy < num_policies; policy++) {
 		if (!strcmp(opt, policies[policy].opt_name)) {
-			set_setting("cyclic-policy", TYPE_ID_SIZE_T, &policy);
+			stress_set_setting("cyclic-policy", TYPE_ID_SIZE_T, &policy);
 			return 0;
 		}
 	}
@@ -114,7 +114,7 @@ static int stress_set_cyclic_prio(const char *opt)
 
 	cyclic_prio = get_int32(opt);
         check_range("cyclic-prio", cyclic_prio, 1, 100);
-        return set_setting("cyclic-prio", TYPE_ID_INT32, &cyclic_prio);
+        return stress_set_setting("cyclic-prio", TYPE_ID_INT32, &cyclic_prio);
 }
 
 static int stress_set_cyclic_dist(const char *opt)
@@ -123,7 +123,7 @@ static int stress_set_cyclic_dist(const char *opt)
 
 	cyclic_dist = get_uint64(opt);
         check_range("cyclic-dist", cyclic_dist, 1, 10000000);
-        return set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
+        return stress_set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
 }
 
 static void stress_cyclic_stats(
@@ -494,7 +494,7 @@ static int stress_set_cyclic_method(const char *name)
 
 	for (info = cyclic_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("cyclic-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("cyclic-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -602,11 +602,11 @@ static int stress_cyclic(const stress_args_t *args)
 	stress_cyclic_func func;
 
 	timeout  = g_opt_timeout;
-	(void)get_setting("cyclic-sleep", &cyclic_sleep);
-	(void)get_setting("cyclic-prio", &cyclic_prio);
-	(void)get_setting("cyclic-policy", &cyclic_policy);
-	(void)get_setting("cyclic-dist", &cyclic_dist);
-	(void)get_setting("cyclic-method", &cyclic_method);
+	(void)stress_get_setting("cyclic-sleep", &cyclic_sleep);
+	(void)stress_get_setting("cyclic-prio", &cyclic_prio);
+	(void)stress_get_setting("cyclic-policy", &cyclic_policy);
+	(void)stress_get_setting("cyclic-dist", &cyclic_dist);
+	(void)stress_get_setting("cyclic-method", &cyclic_method);
 
 	func = cyclic_method->func;
 	policy = policies[cyclic_policy].policy;

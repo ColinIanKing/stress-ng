@@ -46,7 +46,7 @@ static int stress_set_timerfd_freq(const char *opt)
 	timerfd_freq = get_uint64(opt);
 	check_range("timerfd-freq", timerfd_freq,
 		MIN_TIMERFD_FREQ, MAX_TIMERFD_FREQ);
-	return set_setting("timerfd-freq", TYPE_ID_UINT64, &timerfd_freq);
+	return stress_set_setting("timerfd-freq", TYPE_ID_UINT64, &timerfd_freq);
 }
 
 static int stress_set_timerfd_rand(const char *opt)
@@ -54,7 +54,7 @@ static int stress_set_timerfd_rand(const char *opt)
 	bool timerfd_rand = true;
 
 	(void)opt;
-	return set_setting("timerfd-rand", TYPE_ID_BOOL, &timerfd_rand);
+	return stress_set_setting("timerfd-rand", TYPE_ID_BOOL, &timerfd_rand);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -108,9 +108,9 @@ static int stress_timerfd(const stress_args_t *args)
 	char filename[PATH_MAX];
 	bool timerfd_rand = false;
 
-	(void)get_setting("timerfd-rand", &timerfd_rand);
+	(void)stress_get_setting("timerfd-rand", &timerfd_rand);
 
-	if (!get_setting("timerfd-freq", &timerfd_freq)) {
+	if (!stress_get_setting("timerfd-freq", &timerfd_freq)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			timerfd_freq = MAX_TIMERFD_FREQ;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

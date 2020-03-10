@@ -42,7 +42,7 @@ static int stress_set_tsearch_size(const char *opt)
 	tsearch_size = get_uint64(opt);
 	check_range("tsearch-size", tsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
-	return set_setting("tsearch-size", TYPE_ID_UINT64, &tsearch_size);
+	return stress_set_setting("tsearch-size", TYPE_ID_UINT64, &tsearch_size);
 }
 
 /*
@@ -72,7 +72,7 @@ static int stress_tsearch(const stress_args_t *args)
 	int32_t *data;
 	size_t i, n;
 
-	if (!get_setting("tsearch-size", &tsearch_size)) {
+	if (!stress_get_setting("tsearch-size", &tsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			tsearch_size = MAX_TSEARCH_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

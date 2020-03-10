@@ -47,7 +47,7 @@ static int stress_set_pipeherd_yield(const char *opt)
 	bool pipeherd_yield  = true;
 	(void)opt;
 
-        return set_setting("pipeherd-yield", TYPE_ID_BOOL, &pipeherd_yield);
+        return stress_set_setting("pipeherd-yield", TYPE_ID_BOOL, &pipeherd_yield);
 }
 
 static int stress_pipeherd_read_write(const stress_args_t *args, const int fd[2], const bool pipeherd_yield)
@@ -92,7 +92,7 @@ static int stress_pipeherd(const stress_args_t *args)
 	double t1, t2;
 #endif
 
-	(void)get_setting("pipeherd-yield", &pipeherd_yield);
+	(void)stress_get_setting("pipeherd-yield", &pipeherd_yield);
 
 	if (pipe(fd) < 0) {
 		pr_fail("%s: pipe failed: %d (%s)\n",

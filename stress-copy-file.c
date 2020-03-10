@@ -39,7 +39,7 @@ static int stress_set_copy_file_bytes(const char *opt)
 	copy_file_bytes = get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("copy-file-bytes", copy_file_bytes,
 		MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES);
-	return set_setting("copy-file-bytes", TYPE_ID_UINT64, &copy_file_bytes);
+	return stress_set_setting("copy-file-bytes", TYPE_ID_UINT64, &copy_file_bytes);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -59,7 +59,7 @@ static int stress_copy_file(const stress_args_t *args)
 	char filename[PATH_MAX - 5], tmp[PATH_MAX];
 	uint64_t copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
 
-	if (!get_setting("copy-file-bytes", &copy_file_bytes)) {
+	if (!stress_get_setting("copy-file-bytes", &copy_file_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			copy_file_bytes = MAX_HDD_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

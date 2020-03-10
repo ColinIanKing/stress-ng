@@ -36,7 +36,7 @@ static int stress_set_utime_fsync(const char *opt)
 	bool utime_fsync = true;
 
 	(void)opt;
-	return set_setting("utime-fsync", TYPE_ID_BOOL, &utime_fsync);
+	return stress_set_setting("utime-fsync", TYPE_ID_BOOL, &utime_fsync);
 }
 
 /*
@@ -49,7 +49,7 @@ static int stress_utime(const stress_args_t *args)
 	int ret, fd;
 	bool utime_fsync = false;
 
-	(void)get_setting("utime-fsync", &utime_fsync);
+	(void)stress_get_setting("utime-fsync", &utime_fsync);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)

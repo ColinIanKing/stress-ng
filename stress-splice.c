@@ -38,7 +38,7 @@ static int stress_set_splice_bytes(const char *opt)
 	splice_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("splice-bytes", splice_bytes,
 		MIN_SPLICE_BYTES, MAX_MEM_LIMIT);
-	return set_setting("splice-bytes", TYPE_ID_SIZE_T, &splice_bytes);
+	return stress_set_setting("splice-bytes", TYPE_ID_SIZE_T, &splice_bytes);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -58,7 +58,7 @@ static int stress_splice(const stress_args_t *args)
 	int fd_in, fd_out, fds[2];
 	size_t splice_bytes = DEFAULT_SPLICE_BYTES;
 
-	if (!get_setting("splice-bytes", &splice_bytes)) {
+	if (!stress_get_setting("splice-bytes", &splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			splice_bytes = MAX_SPLICE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

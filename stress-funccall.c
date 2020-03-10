@@ -852,7 +852,7 @@ static int stress_set_funccall_method(const char *name)
 
 	for (info = funccall_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("funccall-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("funccall-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -874,7 +874,7 @@ static int stress_funccall(const stress_args_t *args)
 {
         const stress_funccall_method_info_t *funccall_method = &funccall_methods[3];
 
-        (void)get_setting("funccall-method", &funccall_method);
+        (void)stress_get_setting("funccall-method", &funccall_method);
 
         funccall_method->func(args);
 

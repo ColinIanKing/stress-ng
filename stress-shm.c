@@ -46,7 +46,7 @@ static int stress_set_shm_posix_bytes(const char *opt)
 	shm_posix_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("shm-bytes", shm_posix_bytes,
 		MIN_SHM_POSIX_BYTES, MAX_MEM_LIMIT);
-	return set_setting("shm-bytes", TYPE_ID_SIZE_T, &shm_posix_bytes);
+	return stress_set_setting("shm-bytes", TYPE_ID_SIZE_T, &shm_posix_bytes);
 }
 
 static int stress_set_shm_posix_objects(const char *opt)
@@ -56,7 +56,7 @@ static int stress_set_shm_posix_objects(const char *opt)
 	shm_posix_objects = (size_t)get_uint64(opt);
 	check_range("shm-objs", shm_posix_objects,
 		MIN_SHM_POSIX_OBJECTS, MAX_48);
-	return set_setting("shm-objs", TYPE_ID_SIZE_T, &shm_posix_objects);
+	return stress_set_setting("shm-objs", TYPE_ID_SIZE_T, &shm_posix_objects);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -332,7 +332,7 @@ static int stress_shm(const stress_args_t *args)
 	size_t shm_posix_bytes = DEFAULT_SHM_POSIX_BYTES;
 	size_t shm_posix_objects = DEFAULT_SHM_POSIX_OBJECTS;
 
-	if (!get_setting("shm-bytes", &shm_posix_bytes)) {
+	if (!stress_get_setting("shm-bytes", &shm_posix_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			shm_posix_bytes = MAX_SHM_POSIX_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -344,7 +344,7 @@ static int stress_shm(const stress_args_t *args)
 	if (shm_posix_bytes < page_size)
 		shm_posix_bytes = page_size;
 
-	if (!get_setting("shm-objs", &shm_posix_objects)) {
+	if (!stress_get_setting("shm-objs", &shm_posix_objects)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			shm_posix_objects = MAX_SHM_POSIX_OBJECTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

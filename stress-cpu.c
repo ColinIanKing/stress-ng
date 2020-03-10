@@ -125,7 +125,7 @@ static int stress_set_cpu_load(const char *opt) {
 
 	cpu_load = get_int32(opt);
 	check_range("cpu-load", cpu_load, 0, 100);
-	return set_setting("cpu-load", TYPE_ID_INT32, &cpu_load);
+	return stress_set_setting("cpu-load", TYPE_ID_INT32, &cpu_load);
 }
 
 /*
@@ -143,7 +143,7 @@ static int stress_set_cpu_load_slice(const char *opt)
 		(void)fprintf(stderr, "cpu-load-slice must in the range -5000 to 5000.\n");
 		_exit(EXIT_FAILURE);
 	}
-	return set_setting("cpu-load-slice", TYPE_ID_INT32, &cpu_load_slice);
+	return stress_set_setting("cpu-load-slice", TYPE_ID_INT32, &cpu_load_slice);
 }
 
 /*
@@ -2487,7 +2487,7 @@ static int stress_set_cpu_method(const char *name)
 
 	for (info = cpu_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("cpu-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("cpu-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -2513,9 +2513,9 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 	int32_t cpu_load = 100;
 	int32_t cpu_load_slice = -64;
 
-	(void)get_setting("cpu-load", &cpu_load);
-	(void)get_setting("cpu-load-slice", &cpu_load_slice);
-	(void)get_setting("cpu-method", &cpu_method);
+	(void)stress_get_setting("cpu-load", &cpu_load);
+	(void)stress_get_setting("cpu-load-slice", &cpu_load_slice);
+	(void)stress_get_setting("cpu-method", &cpu_method);
 
 	func = cpu_method->func;
 

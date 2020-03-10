@@ -42,7 +42,7 @@ static int stress_set_bigheap_growth(const char *opt)
 	bigheap_growth = get_uint64_byte(opt);
 	check_range_bytes("bigheap-growth", bigheap_growth,
 		MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH);
-	return set_setting("bigheap-growth", TYPE_ID_UINT64, &bigheap_growth);
+	return stress_set_setting("bigheap-growth", TYPE_ID_UINT64, &bigheap_growth);
 }
 
 static int stress_bigheap_child(const stress_args_t *args, void *context)
@@ -56,7 +56,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
-	if (!get_setting("bigheap-growth", &bigheap_growth)) {
+	if (!stress_get_setting("bigheap-growth", &bigheap_growth)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			bigheap_growth = MAX_BIGHEAP_GROWTH;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

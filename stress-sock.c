@@ -74,7 +74,7 @@ static int stress_set_socket_opts(const char *opt)
 		if (!strcmp(opt, socket_opts[i].optname)) {
 			int opts = socket_opts[i].opt;
 
-			set_setting("sock-opts", TYPE_ID_INT, &opts);
+			stress_set_setting("sock-opts", TYPE_ID_INT, &opts);
 			return 0;
 		}
 	}
@@ -109,7 +109,7 @@ static int stress_set_socket_type(const char *opt)
 		if (!strcmp(opt, socket_type[i].typename)) {
 			int type = socket_type[i].type;
 
-			set_setting("sock-type", TYPE_ID_INT, &type);
+			stress_set_setting("sock-type", TYPE_ID_INT, &type);
 			return 0;
 		}
 	}
@@ -133,7 +133,7 @@ static int stress_set_socket_port(const char *opt)
 	stress_set_net_port("sock-port", opt,
 		MIN_SOCKET_PORT, MAX_SOCKET_PORT - STRESS_PROCS_MAX,
 		&socket_port);
-	return set_setting("sock-port", TYPE_ID_INT, &socket_port);
+	return stress_set_setting("sock-port", TYPE_ID_INT, &socket_port);
 }
 
 /*
@@ -146,7 +146,7 @@ static int stress_set_socket_domain(const char *name)
 
 	ret = stress_set_net_domain(DOMAIN_ALL, "sock-domain",
 				     name, &socket_domain);
-	set_setting("sock-domain", TYPE_ID_INT, &socket_domain);
+	stress_set_setting("sock-domain", TYPE_ID_INT, &socket_domain);
 
 	return ret;
 }
@@ -586,10 +586,10 @@ static int stress_sock(const stress_args_t *args)
 	int socket_port = DEFAULT_SOCKET_PORT;
 	int socket_domain = AF_INET;
 
-	(void)get_setting("sock-opts", &socket_opts);
-	(void)get_setting("sock-type", &socket_type);
-	(void)get_setting("sock-port", &socket_port);
-	(void)get_setting("sock-domain", &socket_domain);
+	(void)stress_get_setting("sock-opts", &socket_opts);
+	(void)stress_get_setting("sock-type", &socket_type);
+	(void)stress_get_setting("sock-port", &socket_port);
+	(void)stress_get_setting("sock-domain", &socket_domain);
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, socket_port + args->instance);

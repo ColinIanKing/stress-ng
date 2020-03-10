@@ -54,7 +54,7 @@ static int stress_set_ioport_opts(const char *opts)
 		if (!strcmp(opts, ioport_opts[i].opt)) {
 			uint32_t flag = ioport_opts[i].flag;
 
-			set_setting("ioport-opts", TYPE_ID_UINT32, &flag);
+			stress_set_setting("ioport-opts", TYPE_ID_UINT32, &flag);
 			return 0;
 		}
 	}
@@ -111,7 +111,7 @@ static int stress_ioport(const stress_args_t *args)
 	uint32_t flag = 0;
 	unsigned char v;
 
-	(void)get_setting("ioport-opts", &flag);
+	(void)stress_get_setting("ioport-opts", &flag);
 	if (!flag)
 		flag = IOPORT_OPT_IN | IOPORT_OPT_OUT;
 

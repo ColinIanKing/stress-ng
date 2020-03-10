@@ -38,7 +38,7 @@ static int stress_set_stack_fill(const char *opt)
 	bool stack_fill = true;
 
 	(void)opt;
-	return set_setting("stack-fill", TYPE_ID_BOOL, &stack_fill);
+	return stress_set_setting("stack-fill", TYPE_ID_BOOL, &stack_fill);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -105,7 +105,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
-	(void)get_setting("stack-fill", &stack_fill);
+	(void)stress_get_setting("stack-fill", &stack_fill);
 
 	/*
 	 *  Allocate altstack on heap rather than an

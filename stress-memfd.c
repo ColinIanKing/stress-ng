@@ -43,7 +43,7 @@ static int stress_set_memfd_bytes(const char *opt)
 	memfd_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("memfd-bytes", memfd_bytes,
 		MIN_MEMFD_BYTES, MAX_MEM_LIMIT);
-	return set_setting("memfd-bytes", TYPE_ID_SIZE_T, &memfd_bytes);
+	return stress_set_setting("memfd-bytes", TYPE_ID_SIZE_T, &memfd_bytes);
 }
 
 /*
@@ -57,7 +57,7 @@ static int stress_set_memfd_fds(const char *opt)
 	memfd_fds = (uint32_t)get_uint64(opt);
 	check_range("memfd-fds", memfd_fds,
 		MIN_MEMFD_FDS, MAX_MEMFD_FDS);
-	return set_setting("memfd-fds", TYPE_ID_UINT32, &memfd_fds);
+	return stress_set_setting("memfd-fds", TYPE_ID_UINT32, &memfd_fds);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -84,7 +84,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
-	if (!get_setting("memfd-bytes", &memfd_bytes)) {
+	if (!stress_get_setting("memfd-bytes", &memfd_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			memfd_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -94,7 +94,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 	if (memfd_bytes < MIN_MEMFD_BYTES)
 		memfd_bytes = MIN_MEMFD_BYTES;
 
-	(void)get_setting("memfd-fds", &memfd_fds);
+	(void)stress_get_setting("memfd-fds", &memfd_fds);
 
 	size = memfd_bytes / memfd_fds;
 

@@ -36,7 +36,7 @@ static int stress_set_msg_types(const char *opt) {
 
         msg_types = get_int32(opt);
         check_range("msg-types", msg_types, 0, 100);
-        return set_setting("msg-types", TYPE_ID_INT32, &msg_types);
+        return stress_set_setting("msg-types", TYPE_ID_INT32, &msg_types);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -135,7 +135,7 @@ static int stress_msg(const stress_args_t *args)
 	bool get_procinfo = true;
 #endif
 
-	(void)get_setting("msg-types", &msg_types);
+	(void)stress_get_setting("msg-types", &msg_types);
 
 	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0) {

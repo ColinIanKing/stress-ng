@@ -80,7 +80,7 @@ static int stress_set_shm_sysv_bytes(const char *opt)
 	shm_sysv_bytes = (size_t)get_uint64_byte(opt);
 	check_range_bytes("shm-sysv-bytes", shm_sysv_bytes,
 		MIN_SHM_SYSV_BYTES, MAX_MEM_LIMIT);
-	return set_setting("shm-sysv-bytes", TYPE_ID_SIZE_T, &shm_sysv_bytes);
+	return stress_set_setting("shm-sysv-bytes", TYPE_ID_SIZE_T, &shm_sysv_bytes);
 }
 
 static int stress_set_shm_sysv_segments(const char *opt)
@@ -90,7 +90,7 @@ static int stress_set_shm_sysv_segments(const char *opt)
 	shm_sysv_segments = (size_t)get_uint64(opt);
 	check_range("shm-sysv-segs", shm_sysv_segments,
 		MIN_SHM_SYSV_SEGMENTS, MAX_SHM_SYSV_SEGMENTS);
-	return set_setting("shm-sysv-segs", TYPE_ID_SIZE_T, &shm_sysv_segments);
+	return stress_set_setting("shm-sysv-segs", TYPE_ID_SIZE_T, &shm_sysv_segments);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -423,7 +423,7 @@ static int stress_shm_sysv(const stress_args_t *args)
 	size_t shm_sysv_bytes = DEFAULT_SHM_SYSV_BYTES;
 	size_t shm_sysv_segments = DEFAULT_SHM_SYSV_SEGMENTS;
 
-	if (!get_setting("shm-sysv-bytes", &shm_sysv_bytes)) {
+	if (!stress_get_setting("shm-sysv-bytes", &shm_sysv_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			shm_sysv_bytes = MAX_SHM_SYSV_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -432,7 +432,7 @@ static int stress_shm_sysv(const stress_args_t *args)
 	if (shm_sysv_bytes < page_size)
 		shm_sysv_bytes = page_size;
 
-	if (!get_setting("shm-sysv-segs", &shm_sysv_segments)) {
+	if (!stress_get_setting("shm-sysv-segs", &shm_sysv_segments)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			shm_sysv_segments = MAX_SHM_SYSV_SEGMENTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

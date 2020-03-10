@@ -191,7 +191,7 @@ static int stress_set_memcpy_method(const char *name)
 
 	for (info = stress_memcpy_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("memcpy-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("memcpy-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -222,7 +222,7 @@ static int stress_memcpy(const stress_args_t *args)
 	uint8_t *aligned_buf = stress_align_address(b.buffer, ALIGN_SIZE);
 	const stress_memcpy_method_info_t *memcpy_method = &stress_memcpy_methods[1];
 
-	(void)get_setting("memcpy-method", &memcpy_method);
+	(void)stress_get_setting("memcpy-method", &memcpy_method);
 
 	stress_strnrnd((char *)aligned_buf, ALIGN_SIZE);
 

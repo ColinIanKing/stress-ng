@@ -65,7 +65,7 @@ static int stress_set_dccp_opts(const char *opt)
 		if (!strcmp(opt, dccp_options[i].optname)) {
 			int dccp_opt = dccp_options[i].opt;
 
-			set_setting("dccp-opts", TYPE_ID_INT, &dccp_opt);
+			stress_set_setting("dccp-opts", TYPE_ID_INT, &dccp_opt);
 			return 0;
 		}
 	}
@@ -89,7 +89,7 @@ static int stress_set_dccp_port(const char *opt)
 	stress_set_net_port("dccp-port", opt,
 		MIN_DCCP_PORT, MAX_DCCP_PORT - STRESS_PROCS_MAX,
 		&dccp_port);
-	return set_setting("dccp-port", TYPE_ID_INT, &dccp_port);
+	return stress_set_setting("dccp-port", TYPE_ID_INT, &dccp_port);
 }
 
 /*
@@ -102,7 +102,7 @@ static int stress_set_dccp_domain(const char *name)
 
 	ret = stress_set_net_domain(DOMAIN_INET | DOMAIN_INET6,
 				"dccp-domain", name, &dccp_domain);
-	set_setting("dccp-domain", TYPE_ID_INT, &dccp_domain);
+	stress_set_setting("dccp-domain", TYPE_ID_INT, &dccp_domain);
 	return ret;
 }
 
@@ -383,9 +383,9 @@ static int stress_dccp(const stress_args_t *args)
 	int dccp_domain = AF_INET;
 	int dccp_opts = DCCP_OPT_SEND;
 
-	(void)get_setting("dccp-port", &dccp_port);
-	(void)get_setting("dccp-domain", &dccp_domain);
-	(void)get_setting("dccp-opts", &dccp_opts);
+	(void)stress_get_setting("dccp-port", &dccp_port);
+	(void)stress_get_setting("dccp-domain", &dccp_domain);
+	(void)stress_get_setting("dccp-opts", &dccp_opts);
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, dccp_port + args->instance);

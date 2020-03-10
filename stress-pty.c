@@ -54,7 +54,7 @@ static int stress_set_pty_max(const char *opt)
 	pty_max = get_uint64(opt);
 	check_range("pty-max", pty_max,
 		MIN_PTYS, MAX_PTYS);
-	return set_setting("pty-max", TYPE_ID_UINT64, &pty_max);
+	return stress_set_setting("pty-max", TYPE_ID_UINT64, &pty_max);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -75,7 +75,7 @@ static int stress_pty(const stress_args_t *args)
 	uint64_t pty_max = DEFAULT_PTYS;
 	stress_pty_info_t *ptys;
 
-	(void)get_setting("pty-max", &pty_max);
+	(void)stress_get_setting("pty-max", &pty_max);
 
 	ptys = calloc(pty_max, sizeof(*ptys));
 	if (!ptys) {

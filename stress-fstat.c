@@ -65,7 +65,7 @@ typedef struct ctxt {
 
 static int stress_set_fstat_dir(const char *opt)
 {
-	return set_setting("fstat-dir", TYPE_ID_STR, opt);
+	return stress_set_setting("fstat-dir", TYPE_ID_STR, opt);
 }
 
 /*
@@ -237,7 +237,7 @@ static int stress_fstat(const stress_args_t *args)
 	DIR *dp;
 	char *fstat_dir = "/dev";
 
-	(void)get_setting("fstat-dir", &fstat_dir);
+	(void)stress_get_setting("fstat-dir", &fstat_dir);
 
 	if (stress_sighandler(args->name, SIGALRM, handle_fstat_sigalrm, NULL) < 0)
 		return EXIT_FAILURE;

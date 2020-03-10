@@ -50,9 +50,9 @@ static int stress_cache_set_flag(const uint32_t flag)
 {
 	uint32_t cache_flags = 0;
 
-	(void)get_setting("cache-flags", &cache_flags);
+	(void)stress_get_setting("cache-flags", &cache_flags);
 	cache_flags |= flag;
-	(void)set_setting("cache-flags", TYPE_ID_UINT32, &cache_flags);
+	(void)stress_set_setting("cache-flags", TYPE_ID_UINT32, &cache_flags);
 
 	return 0;
 }
@@ -163,7 +163,7 @@ static int stress_cache(const stress_args_t *args)
 	uint8_t *const mem_cache = g_shared->mem_cache;
 	const uint64_t mem_cache_size = g_shared->mem_cache_size;
 
-	(void)get_setting("cache-flags", &cache_flags);
+	(void)stress_get_setting("cache-flags", &cache_flags);
 	if (args->instance == 0)
 		pr_dbg("%s: using cache buffer size of %" PRIu64 "K\n",
 			args->name, mem_cache_size / 1024);

@@ -38,7 +38,7 @@ static int stress_set_semaphore_posix_procs(const char *opt)
 	semaphore_posix_procs = get_uint64(opt);
 	check_range("sem-procs", semaphore_posix_procs,
 		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
-	return set_setting("sem-procs", TYPE_ID_UINT64, &semaphore_posix_procs);
+	return stress_set_setting("sem-procs", TYPE_ID_UINT64, &semaphore_posix_procs);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -128,7 +128,7 @@ static int stress_sem(const stress_args_t *args)
 	bool created = false;
 	stress_pthread_args_t p_args;
 
-	if (!get_setting("sem-procs", &semaphore_posix_procs)) {
+	if (!stress_get_setting("sem-procs", &semaphore_posix_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			semaphore_posix_procs = MAX_SEMAPHORE_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

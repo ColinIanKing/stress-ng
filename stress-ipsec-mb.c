@@ -74,7 +74,7 @@ static int stress_set_ipsec_mb_feature(const char *opt)
 		if (!strcmp(opt, init_mb[i].name)) {
 			int ipsec_mb_feature = init_mb[i].features;
 
-			return set_setting("ipsec-mb-feature", TYPE_ID_INT, &ipsec_mb_feature);
+			return stress_set_setting("ipsec-mb-feature", TYPE_ID_INT, &ipsec_mb_feature);
 		}
 	}
 
@@ -640,7 +640,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
-	if (get_setting("ipsec-mb-feature", &ipsec_mb_feature)) {
+	if (stress_get_setting("ipsec-mb-feature", &ipsec_mb_feature)) {
 		const char *feature_name = stress_get_ipsec_mb_feature(ipsec_mb_feature);
 
 		if ((ipsec_mb_feature & features) != ipsec_mb_feature) {

@@ -110,7 +110,7 @@ static int stress_set_mmap_bytes(const char *opt)
 	mmap_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("mmap-bytes", mmap_bytes,
 		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
-	return set_setting("mmap-bytes", TYPE_ID_SIZE_T, &mmap_bytes);
+	return stress_set_setting("mmap-bytes", TYPE_ID_SIZE_T, &mmap_bytes);
 }
 
 static int stress_set_mmap_mprotect(const char *opt)
@@ -118,7 +118,7 @@ static int stress_set_mmap_mprotect(const char *opt)
 	bool mmap_mprotect = true;
 
 	(void)opt;
-	return set_setting("mmap-mprotect", TYPE_ID_BOOL, &mmap_mprotect);
+	return stress_set_setting("mmap-mprotect", TYPE_ID_BOOL, &mmap_mprotect);
 }
 
 static int stress_set_mmap_file(const char *opt)
@@ -126,7 +126,7 @@ static int stress_set_mmap_file(const char *opt)
 	bool mmap_file = true;
 
 	(void)opt;
-	return set_setting("mmap-file", TYPE_ID_BOOL, &mmap_file);
+	return stress_set_setting("mmap-file", TYPE_ID_BOOL, &mmap_file);
 }
 
 static int stress_set_mmap_async(const char *opt)
@@ -134,7 +134,7 @@ static int stress_set_mmap_async(const char *opt)
 	bool mmap_async = true;
 
 	(void)opt;
-	return set_setting("mmap-async", TYPE_ID_BOOL, &mmap_async);
+	return stress_set_setting("mmap-async", TYPE_ID_BOOL, &mmap_async);
 }
 
 static int stress_set_mmap_osync(const char *opt)
@@ -142,7 +142,7 @@ static int stress_set_mmap_osync(const char *opt)
 	bool mmap_osync = true;
 
 	(void)opt;
-	return set_setting("mmap-osync", TYPE_ID_BOOL, &mmap_osync);
+	return stress_set_setting("mmap-osync", TYPE_ID_BOOL, &mmap_osync);
 }
 
 static int stress_set_mmap_odirect(const char *opt)
@@ -150,7 +150,7 @@ static int stress_set_mmap_odirect(const char *opt)
 	bool mmap_odirect = true;
 
 	(void)opt;
-	return set_setting("mmap-odirect", TYPE_ID_BOOL, &mmap_odirect);
+	return stress_set_setting("mmap-odirect", TYPE_ID_BOOL, &mmap_odirect);
 }
 
 /*
@@ -434,16 +434,16 @@ static int stress_mmap(const stress_args_t *args)
 	context.flags |= MAP_POPULATE;
 #endif
 
-	(void)get_setting("mmap-async", &context.mmap_async);
-	(void)get_setting("mmap-file", &context.mmap_file);
-	(void)get_setting("mmap-mprotect", &context.mmap_mprotect);
-	(void)get_setting("mmap-osync", &mmap_osync);
-	(void)get_setting("mmap-odirect", &mmap_odirect);
+	(void)stress_get_setting("mmap-async", &context.mmap_async);
+	(void)stress_get_setting("mmap-file", &context.mmap_file);
+	(void)stress_get_setting("mmap-mprotect", &context.mmap_mprotect);
+	(void)stress_get_setting("mmap-osync", &mmap_osync);
+	(void)stress_get_setting("mmap-odirect", &mmap_odirect);
 
 	if (mmap_osync || mmap_odirect)
 		context.mmap_file = true;
 
-	if (!get_setting("mmap-bytes", &context.mmap_bytes)) {
+	if (!stress_get_setting("mmap-bytes", &context.mmap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			context.mmap_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

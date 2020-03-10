@@ -38,7 +38,7 @@ static int stress_set_vm_splice_bytes(const char *opt)
 	vm_splice_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("vm-splice-bytes", vm_splice_bytes,
 		MIN_VM_SPLICE_BYTES, MAX_MEM_LIMIT);
-	return set_setting("vm-splice-bytes", TYPE_ID_SIZE_T, &vm_splice_bytes);
+	return stress_set_setting("vm-splice-bytes", TYPE_ID_SIZE_T, &vm_splice_bytes);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -60,7 +60,7 @@ static int stress_vm_splice(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	size_t sz, vm_splice_bytes = DEFAULT_VM_SPLICE_BYTES;
 
-	if (!get_setting("vm-splice-bytes", &vm_splice_bytes)) {
+	if (!stress_get_setting("vm-splice-bytes", &vm_splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			vm_splice_bytes = MAX_VM_SPLICE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

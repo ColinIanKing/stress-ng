@@ -520,7 +520,7 @@ int stress_set_timer_slack_ns(const char *opt)
 	uint32_t timer_slack;
 
 	timer_slack = get_uint32(opt);
-	(void)set_setting("timer-slack", TYPE_ID_UINT32, &timer_slack);
+	(void)stress_set_setting("timer-slack", TYPE_ID_UINT32, &timer_slack);
 #else
 	(void)opt;
 #endif
@@ -538,7 +538,7 @@ void stress_set_timer_slack(void)
     defined(HAVE_PRCTL_TIMER_SLACK)
 	uint32_t timer_slack;
 
-	if (get_setting("timer-slack", &timer_slack))
+	if (stress_get_setting("timer-slack", &timer_slack))
 		(void)prctl(PR_SET_TIMERSLACK, timer_slack);
 #endif
 }

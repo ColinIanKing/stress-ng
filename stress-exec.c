@@ -56,7 +56,7 @@ static int stress_set_exec_max(const char *opt)
 	exec_max = get_uint64(opt);
 	check_range("exec-max", exec_max,
 		MIN_EXECS, MAX_EXECS);
-	return set_setting("exec-max", TYPE_ID_INT64, &exec_max);
+	return stress_set_setting("exec-max", TYPE_ID_INT64, &exec_max);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -221,7 +221,7 @@ static int stress_exec(const stress_args_t *args)
 	char *argv_new[] = { NULL, "--exec-exit", NULL };
 	char *env_new[] = { NULL };
 
-	(void)get_setting("exec-max", &exec_max);
+	(void)stress_get_setting("exec-max", &exec_max);
 
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng

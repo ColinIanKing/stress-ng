@@ -356,7 +356,7 @@ static int stress_set_vm_addr_method(const char *name)
 
 	for (info = vm_addr_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("vm-addr-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("vm-addr-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -427,7 +427,7 @@ static int stress_vm_addr(const stress_args_t *args)
 	context.vm_addr_method = &vm_addr_methods[0];
 	context.bit_error_count = MAP_FAILED;
 
-	(void)get_setting("vm-addr-method", &context.vm_addr_method);
+	(void)stress_get_setting("vm-addr-method", &context.vm_addr_method);
 
 	pr_dbg("%s using method '%s'\n", args->name, context.vm_addr_method->name);
 

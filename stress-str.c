@@ -635,7 +635,7 @@ static int stress_set_str_method(const char *name)
 
 	for (info = str_methods; keep_stressing_flag() && info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("str-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("str-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -664,7 +664,7 @@ static int stress_str(const stress_args_t *args)
 	register size_t len1, len2;
 	const char *name = args->name;
 
-	(void)get_setting("str-method", &str_method);
+	(void)stress_get_setting("str-method", &str_method);
 	func = str_method->func;
 	libc_func = str_method->libc_func;
 

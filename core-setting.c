@@ -34,10 +34,10 @@ static stress_setting_t *setting_tail;	/* setting list tail */
 #endif
 
 /*
- *  free_settings()
+ *  stress_free_settings()
  *	free the saved settings
  */
-void free_settings(void)
+void stress_free_settings(void)
 {
 	stress_setting_t *setting = setting_head;
 
@@ -54,10 +54,10 @@ void free_settings(void)
 
 
 /*
- *  set_setting_generic()
+ *  stress_set_setting_generic()
  *	set a new setting;
  */
-static int set_setting_generic(
+static int stress_set_setting_generic(
 	const char *name,
 	const stress_type_id_t type_id,
 	const void *value,
@@ -179,35 +179,35 @@ err:
 }
 
 /*
- *  set_setting()
+ *  stress_set_setting()
  *	set a new setting;
  */
-int set_setting(
+int stress_set_setting(
 	const char *name,
 	const stress_type_id_t type_id,
 	const void *value)
 {
-	return set_setting_generic(name, type_id, value, false);
+	return stress_set_setting_generic(name, type_id, value, false);
 }
 
 /*
- *  set_setting_global()
+ *  stress_set_setting_global()
  *	set a new global setting;
  */
-int set_setting_global(
+int stress_set_setting_global(
 	const char *name,
 	const stress_type_id_t type_id,
 	const void *value)
 {
-	return set_setting_generic(name, type_id, value, true);
+	return stress_set_setting_generic(name, type_id, value, true);
 }
 
 
 /*
- *  get_setting()
+ *  stress_get_setting()
  *	get an existing setting;
  */
-bool get_setting(const char *name, void *value)
+bool stress_get_setting(const char *name, void *value)
 {
 	stress_setting_t *setting;
 	bool set = false;

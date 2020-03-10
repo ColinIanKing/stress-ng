@@ -127,7 +127,7 @@ static int stress_set_vm_hang(const char *opt)
 	vm_hang = get_uint64_time(opt);
 	check_range("vm-hang", vm_hang,
 		MIN_VM_HANG, MAX_VM_HANG);
-	return set_setting("vm-hang", TYPE_ID_UINT64, &vm_hang);
+	return stress_set_setting("vm-hang", TYPE_ID_UINT64, &vm_hang);
 }
 
 static int stress_set_vm_bytes(const char *opt)
@@ -137,7 +137,7 @@ static int stress_set_vm_bytes(const char *opt)
 	vm_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("vm-bytes", vm_bytes,
 		MIN_VM_BYTES, MAX_MEM_LIMIT);
-	return set_setting("vm-bytes", TYPE_ID_SIZE_T, &vm_bytes);
+	return stress_set_setting("vm-bytes", TYPE_ID_SIZE_T, &vm_bytes);
 }
 
 #if defined(MAP_LOCKED) || defined(MAP_POPULATE)
@@ -145,9 +145,9 @@ static int stress_set_vm_flags(const int flag)
 {
 	int vm_flags = 0;
 
-	(void)get_setting("vm-flags", &vm_flags);
+	(void)stress_get_setting("vm-flags", &vm_flags);
 	vm_flags |= flag;
-	return set_setting("vm-flags", TYPE_ID_INT, &vm_flags);
+	return stress_set_setting("vm-flags", TYPE_ID_INT, &vm_flags);
 }
 #endif
 
@@ -179,7 +179,7 @@ static int stress_set_vm_madvise(const char *opt)
 
 	for (info = vm_madvise_info; info->name; info++) {
 		if (!strcmp(opt, info->name)) {
-			set_setting("vm-madvise", TYPE_ID_INT, &info->advice);
+			stress_set_setting("vm-madvise", TYPE_ID_INT, &info->advice);
 			return 0;
 		}
 	}
@@ -196,7 +196,7 @@ static int stress_set_vm_keep(const char *opt)
 	bool vm_keep = true;
 
 	(void)opt;
-	return set_setting("vm-keep", TYPE_ID_BOOL, &vm_keep);
+	return stress_set_setting("vm-keep", TYPE_ID_BOOL, &vm_keep);
 }
 
 #define SET_AND_TEST(ptr, val, bit_errors)	\
@@ -1982,7 +1982,7 @@ static int stress_set_vm_method(const char *name)
 
 	for (info = vm_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("vm-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("vm-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -2011,11 +2011,11 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 	stress_vm_context_t *context = (stress_vm_context_t *)ctxt;
 	const stress_vm_func func = context->vm_method->func;
 
-	(void)get_setting("vm-hang", &vm_hang);
-	(void)get_setting("vm-keep", &vm_keep);
-	(void)get_setting("vm-flags", &vm_flags);
+	(void)stress_get_setting("vm-hang", &vm_hang);
+	(void)stress_get_setting("vm-keep", &vm_keep);
+	(void)stress_get_setting("vm-flags", &vm_flags);
 
-	if (!get_setting("vm-bytes", &vm_bytes)) {
+	if (!stress_get_setting("vm-bytes", &vm_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			vm_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -2025,7 +2025,7 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 	if (vm_bytes < MIN_VM_BYTES)
 		vm_bytes = MIN_VM_BYTES;
 	buf_sz = vm_bytes & ~(page_size - 1);
-	(void)get_setting("vm-madvise", &vm_madvise);
+	(void)stress_get_setting("vm-madvise", &vm_madvise);
 
 	do {
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
@@ -2091,7 +2091,7 @@ static int stress_vm(const stress_args_t *args)
 	context.vm_method = &vm_methods[0];
 	context.bit_error_count = MAP_FAILED;
 
-	(void)get_setting("vm-method", &context.vm_method);
+	(void)stress_get_setting("vm-method", &context.vm_method);
 
 	pr_dbg("%s using method '%s'\n", args->name, context.vm_method->name);
 

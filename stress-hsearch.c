@@ -42,7 +42,7 @@ static int stress_set_hsearch_size(const char *opt)
 	hsearch_size = get_uint64(opt);
 	check_range("hsearch-size", hsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
-	return set_setting("hsearch-size", TYPE_ID_UINT64, &hsearch_size);
+	return stress_set_setting("hsearch-size", TYPE_ID_UINT64, &hsearch_size);
 }
 
 /*
@@ -56,7 +56,7 @@ static int stress_hsearch(const stress_args_t *args)
 	int ret = EXIT_FAILURE;
 	char **keys;
 
-	if (!get_setting("hsearch-size", &hsearch_size)) {
+	if (!stress_get_setting("hsearch-size", &hsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			hsearch_size = MAX_HSEARCH_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

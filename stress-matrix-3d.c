@@ -61,7 +61,7 @@ static int stress_set_matrix_3d_size(const char *opt)
 	matrix_3d_size = get_uint64(opt);
 	check_range("matrix-3d-size", matrix_3d_size,
 		MIN_MATRIX3D_SIZE, MAX_MATRIX3D_SIZE);
-	return set_setting("matrix-3d-size", TYPE_ID_SIZE_T, &matrix_3d_size);
+	return stress_set_setting("matrix-3d-size", TYPE_ID_SIZE_T, &matrix_3d_size);
 }
 
 static int stress_set_matrix_3d_zyx(const char *opt)
@@ -70,7 +70,7 @@ static int stress_set_matrix_3d_zyx(const char *opt)
 
         (void)opt;
 
-        return set_setting("matrix-3d-zyx", TYPE_ID_SIZE_T, &matrix_3d_zyx);
+        return stress_set_setting("matrix-3d-zyx", TYPE_ID_SIZE_T, &matrix_3d_zyx);
 }
 
 /*
@@ -834,7 +834,7 @@ static const stress_matrix_3d_method_info_t *stress_get_matrix_3d_method(
 
 	for (info = matrix_3d_methods; info->name; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("matrix-3d-method", TYPE_ID_STR, name);
+			stress_set_setting("matrix-3d-method", TYPE_ID_STR, name);
 			return info;
 		}
 	}
@@ -861,7 +861,7 @@ static int stress_set_matrix_3d_method(const char *name)
 
 	info = stress_get_matrix_3d_method(name);
 	if (info) {
-		set_setting("matrix-3d-method", TYPE_ID_STR, name);
+		stress_set_setting("matrix-3d-method", TYPE_ID_STR, name);
 		return 0;
 	}
 	stress_matrix_3d_method_error();
@@ -960,8 +960,8 @@ static int stress_matrix(const stress_args_t *args)
 	size_t matrix_3d_size = 128;
 	size_t matrix_3d_yx = 0;
 
-	(void)get_setting("matrix-3d-method", &matrix_3d_method_name);
-	(void)get_setting("matrix-3d-zyx", &matrix_3d_yx);
+	(void)stress_get_setting("matrix-3d-method", &matrix_3d_method_name);
+	(void)stress_get_setting("matrix-3d-zyx", &matrix_3d_yx);
 
 	matrix_3d_method = stress_get_matrix_3d_method(matrix_3d_method_name);
 	if (!matrix_3d_method) {
@@ -975,7 +975,7 @@ static int stress_matrix(const stress_args_t *args)
 		pr_dbg("%s using method '%s' (%s)\n", args->name, matrix_3d_method->name,
 			matrix_3d_yx ? "z by y by x" : "x by y by z");
 
-	if (!get_setting("matrix-3d-size", &matrix_3d_size)) {
+	if (!stress_get_setting("matrix-3d-size", &matrix_3d_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			matrix_3d_size = MAX_MATRIX_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

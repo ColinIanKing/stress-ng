@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
  */
 static int stress_set_x86syscall_func(const char *name)
 {
-	return set_setting("x86syscall-func", TYPE_ID_STR, name);
+	return stress_set_setting("x86syscall-func", TYPE_ID_STR, name);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -260,7 +260,7 @@ static int x86syscall_check_x86syscall_func(void)
 	size_t i;
 	bool exercise = false;
 
-	if (!get_setting("x86syscall-func", &name))
+	if (!stress_get_setting("x86syscall-func", &name))
 		return 0;
 
 	for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {

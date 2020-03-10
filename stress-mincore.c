@@ -36,7 +36,7 @@ static int stress_set_mincore_rand(const char *opt)
 	bool mincore_rand = true;
 
 	(void)opt;
-	return set_setting("mincore-rand", TYPE_ID_BOOL, &mincore_rand);
+	return stress_set_setting("mincore-rand", TYPE_ID_BOOL, &mincore_rand);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -59,7 +59,7 @@ static int stress_mincore(const stress_args_t *args)
 	const ptrdiff_t mask = ~(page_size - 1);
 	bool mincore_rand = false;
 
-	(void)get_setting("mincore-rand", &mincore_rand);
+	(void)stress_get_setting("mincore-rand", &mincore_rand);
 
 	do {
 		int i;

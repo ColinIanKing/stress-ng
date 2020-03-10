@@ -42,7 +42,7 @@ static int stress_set_judy_size(const char *opt)
 	judy_size = get_uint64(opt);
 	check_range("judy-size", judy_size,
 		MIN_JUDY_SIZE, MAX_JUDY_SIZE);
-	return set_setting("judy-size", TYPE_ID_UINT64, &judy_size);
+	return stress_set_setting("judy-size", TYPE_ID_UINT64, &judy_size);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -71,7 +71,7 @@ static int stress_judy(const stress_args_t *args)
 	size_t n;
 	Word_t i, j;
 
-	if (!get_setting("judy-size", &judy_size)) {
+	if (!stress_get_setting("judy-size", &judy_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			judy_size = MAX_JUDY_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

@@ -42,7 +42,7 @@ static int stress_set_dir_dirs(const char *opt)
 	dir_dirs = get_uint64(opt);
 	check_range("dir-dirs", dir_dirs,
 		MIN_DIR_DIRS, MAX_DIR_DIRS);
-	return set_setting("dir-dirs", TYPE_ID_UINT64, &dir_dirs);
+	return stress_set_setting("dir-dirs", TYPE_ID_UINT64, &dir_dirs);
 }
 
 #if defined(__DragonFly__)
@@ -132,7 +132,7 @@ static int stress_dir(const stress_args_t *args)
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 
-	(void)get_setting("dir-dirs", &dir_dirs);
+	(void)stress_get_setting("dir-dirs", &dir_dirs);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)

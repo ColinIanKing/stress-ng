@@ -38,7 +38,7 @@ static int stress_set_af_alg_dump(const char *opt)
 	bool af_alg_dump = true;
 
 	(void)opt;
-	return set_setting("af-alg-dump", TYPE_ID_BOOL, &af_alg_dump);
+	return stress_set_setting("af-alg-dump", TYPE_ID_BOOL, &af_alg_dump);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -628,7 +628,7 @@ static int stress_af_alg(const stress_args_t *args)
 	int count = stress_af_alg_count_crypto();
 	bool af_alg_dump = false;
 
-	(void)get_setting("af-alg-dump", &af_alg_dump);
+	(void)stress_get_setting("af-alg-dump", &af_alg_dump);
 
 	if (af_alg_dump && args->instance == 0) {
 		pr_inf("%s: dumping cryptographic algorithms found in /proc/crypto to stdout\n",

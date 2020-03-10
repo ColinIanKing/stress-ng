@@ -59,7 +59,7 @@ static int stress_set_qsort_size(const char *opt)
 	qsort_size = get_uint64(opt);
 	check_range("qsort-size", qsort_size,
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
-	return set_setting("qsort-size", TYPE_ID_UINT64, &qsort_size);
+	return stress_set_setting("qsort-size", TYPE_ID_UINT64, &qsort_size);
 }
 
 /*
@@ -113,7 +113,7 @@ static int stress_qsort(const stress_args_t *args)
 	struct sigaction old_action;
 	int ret;
 
-	if (!get_setting("qsort-size", &qsort_size)) {
+	if (!stress_get_setting("qsort-size", &qsort_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			qsort_size = MAX_QSORT_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

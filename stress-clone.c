@@ -142,7 +142,7 @@ static int stress_set_clone_max(const char *opt)
 	clone_max = get_uint32(opt);
 	check_range("clone-max", clone_max,
 		MIN_ZOMBIES, MAX_ZOMBIES);
-	return set_setting("clone-max", TYPE_ID_UINT32, &clone_max);
+	return stress_set_setting("clone-max", TYPE_ID_UINT32, &clone_max);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -303,7 +303,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
-	if (!get_setting("clone-max", &clone_max)) {
+	if (!stress_get_setting("clone-max", &clone_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			clone_max = MAX_ZOMBIES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

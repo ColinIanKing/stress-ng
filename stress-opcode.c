@@ -237,7 +237,7 @@ static int stress_set_opcode_method(const char *name)
 
 	for (info = stress_opcode_methods; info->func; info++) {
 		if (!strcmp(info->name, name)) {
-			set_setting("opcode-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("opcode-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -275,7 +275,7 @@ static int stress_opcode(const stress_args_t *args)
 	}
 #endif
 
-	(void)get_setting("opcode-method", &opcode_method);
+	(void)stress_get_setting("opcode-method", &opcode_method);
 
 	do {
 		pid_t pid;

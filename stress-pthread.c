@@ -55,7 +55,7 @@ static int stress_set_pthread_max(const char *opt)
 	pthread_max = get_uint64(opt);
 	check_range("pthread-max", pthread_max,
 		MIN_PTHREAD, MAX_PTHREAD);
-	return set_setting("pthread-max", TYPE_ID_UINT64, &pthread_max);
+	return stress_set_setting("pthread-max", TYPE_ID_UINT64, &pthread_max);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -271,7 +271,7 @@ static int stress_pthread(const stress_args_t *args)
 	sigaddset(&set, SIGALRM);
 	sigprocmask(SIG_BLOCK, &set, NULL);
 
-	if (!get_setting("pthread-max", &pthread_max)) {
+	if (!stress_get_setting("pthread-max", &pthread_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			pthread_max = MAX_PTHREAD;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

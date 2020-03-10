@@ -49,7 +49,7 @@ static int stress_set_sync_file_bytes(const char *opt)
 	sync_file_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
 	check_range_bytes("sync_file-bytes", sync_file_bytes,
 		MIN_SYNC_FILE_BYTES, MAX_SYNC_FILE_BYTES);
-	return set_setting("sync_file-bytes", TYPE_ID_OFF_T, &sync_file_bytes);
+	return stress_set_setting("sync_file-bytes", TYPE_ID_OFF_T, &sync_file_bytes);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -105,7 +105,7 @@ static int stress_sync_file(const stress_args_t *args)
 	off_t sync_file_bytes = DEFAULT_SYNC_FILE_BYTES;
 	char filename[PATH_MAX];
 
-	if (!get_setting("sync_file-bytes", &sync_file_bytes)) {
+	if (!stress_get_setting("sync_file-bytes", &sync_file_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			sync_file_bytes = MAXIMIZED_FILE_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

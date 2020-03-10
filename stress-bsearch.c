@@ -42,7 +42,7 @@ static int stress_set_bsearch_size(const char *opt)
 	bsearch_size = get_uint64(opt);
 	check_range("bsearch-size", bsearch_size,
 		MIN_BSEARCH_SIZE, MAX_BSEARCH_SIZE);
-	return set_setting("bsearch-size", TYPE_ID_UINT64, &bsearch_size);
+	return stress_set_setting("bsearch-size", TYPE_ID_UINT64, &bsearch_size);
 }
 
 /*
@@ -81,7 +81,7 @@ static int stress_bsearch(const stress_args_t *args)
 	size_t n, n8, i;
 	uint64_t bsearch_size = DEFAULT_BSEARCH_SIZE;
 
-	if (!get_setting("bsearch-size", &bsearch_size)) {
+	if (!stress_get_setting("bsearch-size", &bsearch_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			bsearch_size = MAX_BSEARCH_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)

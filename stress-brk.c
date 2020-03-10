@@ -36,7 +36,7 @@ static int stress_set_brk_notouch(const char *opt)
 	(void)opt;
 	bool brk_notouch = true;
 
-	return set_setting("brk-notouch", TYPE_ID_BOOL, &brk_notouch);
+	return stress_set_setting("brk-notouch", TYPE_ID_BOOL, &brk_notouch);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -53,7 +53,7 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
-	(void)get_setting("brk-notouch", &brk_notouch);
+	(void)stress_get_setting("brk-notouch", &brk_notouch);
 
 	start_ptr = shim_sbrk(0);
 	if (start_ptr == (void *) -1) {

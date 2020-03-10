@@ -40,7 +40,7 @@ static int stress_set_malloc_bytes(const char *opt)
 	malloc_bytes = (size_t)get_uint64_byte_memory(opt, 1);
 	check_range_bytes("malloc-bytes", malloc_bytes,
 		MIN_MALLOC_BYTES, MAX_MEM_LIMIT);
-	return set_setting("malloc-bytes", TYPE_ID_SIZE_T, &malloc_bytes);
+	return stress_set_setting("malloc-bytes", TYPE_ID_SIZE_T, &malloc_bytes);
 }
 
 static int stress_set_malloc_max(const char *opt)
@@ -50,7 +50,7 @@ static int stress_set_malloc_max(const char *opt)
 	malloc_max = (size_t)get_uint64_byte(opt);
 	check_range("malloc-max", malloc_max,
 		MIN_MALLOC_MAX, MAX_MALLOC_MAX);
-	return set_setting("malloc-max", TYPE_ID_SIZE_T, &malloc_max);
+	return stress_set_setting("malloc-max", TYPE_ID_SIZE_T, &malloc_max);
 }
 
 static int stress_set_malloc_threshold(const char *opt)
@@ -60,7 +60,7 @@ static int stress_set_malloc_threshold(const char *opt)
 	malloc_threshold = (size_t)get_uint64_byte(opt);
 	check_range("malloc-threshold", malloc_threshold,
 		MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD);
-	return set_setting("malloc-threshold", TYPE_ID_SIZE_T, &malloc_threshold);
+	return stress_set_setting("malloc-threshold", TYPE_ID_SIZE_T, &malloc_threshold);
 }
 
 /*
@@ -87,7 +87,7 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
-	if (!get_setting("malloc-bytes", &malloc_bytes)) {
+	if (!stress_get_setting("malloc-bytes", &malloc_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			malloc_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -98,7 +98,7 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 	if (malloc_bytes < MIN_MALLOC_BYTES)
 		malloc_bytes = MIN_MALLOC_BYTES;
 
-	if (!get_setting("malloc-max", &malloc_max)) {
+	if (!stress_get_setting("malloc-max", &malloc_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			malloc_max = MAX_MALLOC_MAX;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
@@ -106,7 +106,7 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 	}
 
 #if defined(__GNUC__) && defined(M_MMAP_THRESHOLD) && defined(HAVE_MALLOPT)
-	if (get_setting("malloc-threshold", &malloc_threshold))
+	if (stress_get_setting("malloc-threshold", &malloc_threshold))
 		(void)mallopt(M_MMAP_THRESHOLD, (int)malloc_threshold);
 #endif
 	addr = (void **)calloc(malloc_max, sizeof(void *));

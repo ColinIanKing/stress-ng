@@ -74,7 +74,7 @@ static int stress_set_stream_L3_size(const char *opt)
 	stream_L3_size = get_uint64_byte(opt);
 	check_range_bytes("stream-L3-size", stream_L3_size,
 		MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE);
-	return set_setting("stream-L3-size", TYPE_ID_UINT64, &stream_L3_size);
+	return stress_set_setting("stream-L3-size", TYPE_ID_UINT64, &stream_L3_size);
 }
 
 static int stress_set_stream_madvise(const char *opt)
@@ -83,7 +83,7 @@ static int stress_set_stream_madvise(const char *opt)
 
 	for (info = stream_madvise_info; info->name; info++) {
 		if (!strcmp(opt, info->name)) {
-			set_setting("stream-madvise", TYPE_ID_INT, &info->advice);
+			stress_set_setting("stream-madvise", TYPE_ID_INT, &info->advice);
 			return 0;
 		}
 	}
@@ -101,7 +101,7 @@ static int stress_set_stream_index(const char *opt)
 
 	stream_index = get_int32(opt);
 	check_range("stream-index", stream_index, 0, 3);
-	return set_setting("stream-index", TYPE_ID_UINT32, &stream_index);
+	return stress_set_setting("stream-index", TYPE_ID_UINT32, &stream_index);
 }
 
 static inline void OPTIMIZE3 stress_stream_copy_index0(
@@ -353,7 +353,7 @@ static inline void *stress_stream_mmap(const stress_args_t *args, uint64_t sz)
 #if defined(HAVE_MADVISE)
 		int ret, advice = MADV_NORMAL;
 
-		(void)get_setting("stream-madvise", &advice);
+		(void)stress_get_setting("stream-madvise", &advice);
 
 		ret = madvise(ptr, sz, advice);
 		(void)ret;
@@ -443,12 +443,12 @@ static int stress_stream(const stress_args_t *args)
 	uint64_t stream_L3_size = DEFAULT_STREAM_L3_SIZE;
 	bool guess = false;
 
-	if (get_setting("stream-L3-size", &stream_L3_size))
+	if (stress_get_setting("stream-L3-size", &stream_L3_size))
 		L3 = stream_L3_size;
 	else
 		L3 = get_stream_L3_size(args);
 
-	(void)get_setting("stream-index", &stream_index);
+	(void)stress_get_setting("stream-index", &stream_index);
 
 	/* Have to take a hunch and badly guess size */
 	if (!L3) {

@@ -739,7 +739,7 @@ static int stress_set_zlib_level(const char *opt)
 
         zlib_level = get_uint32(opt);
         check_range("zlib-level", zlib_level, 0, Z_BEST_COMPRESSION);
-        return set_setting("zlib-level", TYPE_ID_UINT32, &zlib_level);
+        return stress_set_setting("zlib-level", TYPE_ID_UINT32, &zlib_level);
 }
 
 /*
@@ -752,7 +752,7 @@ static int stress_set_zlib_method(const char *opt)
 
 	for (info = zlib_rand_data_methods; info->func; info++) {
 		if (!strcmp(info->name, opt)) {
-			set_setting("zlib-method", TYPE_ID_UINTPTR_T, &info);
+			stress_set_setting("zlib-method", TYPE_ID_UINTPTR_T, &info);
 			return 0;
 		}
 	}
@@ -939,7 +939,7 @@ static int stress_zlib_deflate(
 	double t1, t2;
 	stress_xsum_t xsum;
 
-	(void)get_setting("zlib-method", &opt_zlib_rand_data_func);
+	(void)stress_get_setting("zlib-method", &opt_zlib_rand_data_func);
 
 	xsum.xsum = 0;
 	xsum.error = false;
@@ -1065,7 +1065,7 @@ static int stress_zlib(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	(void)get_setting("zlib-level", &zlib_level);
+	(void)stress_get_setting("zlib-level", &zlib_level);
 
 	if (pipe(fds) < 0) {
 		pr_err("%s: pipe failed, errno=%d (%s)\n",

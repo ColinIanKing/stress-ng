@@ -42,7 +42,7 @@ static int stress_set_socket_fd_port(const char *opt)
 	stress_set_net_port("sockfd-port", opt,
 		MIN_SOCKET_FD_PORT, MAX_SOCKET_FD_PORT - STRESS_PROCS_MAX,
 		&socket_fd_port);
-	return set_setting("sockfd-port", TYPE_ID_INT, &socket_fd_port);
+	return stress_set_setting("sockfd-port", TYPE_ID_INT, &socket_fd_port);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -337,7 +337,7 @@ static int stress_sockfd(const stress_args_t *args)
 	int socket_fd_port = DEFAULT_SOCKET_FD_PORT;
 	int ret = EXIT_SUCCESS;
 
-	(void)get_setting("sockfd-port", &socket_fd_port);
+	(void)stress_get_setting("sockfd-port", &socket_fd_port);
 
 	/*
 	 * When run as root, we really don't want to use up all
