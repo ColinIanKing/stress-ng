@@ -3445,8 +3445,8 @@ static inline WARN_UNUSED uint32_t warn_once(const uint32_t flag)
 }
 
 /* Jobfile parsing */
-extern WARN_UNUSED int parse_jobfile(int argc, char **argv, const char *jobfile);
-extern WARN_UNUSED int parse_opts(int argc, char **argv, const bool jobmode);
+extern WARN_UNUSED int stress_parse_jobfile(int argc, char **argv, const char *jobfile);
+extern WARN_UNUSED int stress_parse_opts(int argc, char **argv, const bool jobmode);
 
 /* Memory tweaking */
 extern int stress_madvise_random(void *addr, const size_t length);

@@ -2378,10 +2378,10 @@ static void enable_classes(const uint32_t class)
 
 
 /*
- *  parse_opts
+ *  stress_parse_opts
  *	parse argv[] and set stress-ng options accordingly
  */
-int parse_opts(int argc, char **argv, const bool jobmode)
+int stress_parse_opts(int argc, char **argv, const bool jobmode)
 {
 	optind = 0;
 
@@ -2758,14 +2758,14 @@ int main(int argc, char **argv, char **envp)
 		exit(EXIT_FAILURE);
 	}
 
-	ret = parse_opts(argc, argv, false);
+	ret = stress_parse_opts(argc, argv, false);
 	if (ret != EXIT_SUCCESS)
 		exit(ret);
 	/*
 	 *  Load in job file options
 	 */
 	(void)get_setting("job", &job_filename);
-	if (parse_jobfile(argc, argv, job_filename) < 0)
+	if (stress_parse_jobfile(argc, argv, job_filename) < 0)
 		exit(EXIT_FAILURE);
 
 	/*

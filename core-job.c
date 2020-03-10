@@ -31,10 +31,10 @@
 #define ISBLANK(ch)	isblank((int)(ch))
 
 /*
- *  chop()
+ *  stress_chop()
  *	chop off end of line that matches char ch
  */
-static void chop(char *str, const char ch)
+static void stress_chop(char *str, const char ch)
 {
 	char *ptr = strchr(str, ch);
 
@@ -43,12 +43,12 @@ static void chop(char *str, const char ch)
 }
 
 /*
- *  parse_run()
+ *  stress_parse_run()
  *	parse the special job file "run" command
  *	that informs stress-ng to run the job file
  *	stressors sequentially or in parallel
  */
-static int parse_run(
+static int stress_parse_run(
 	const char *jobfile,
 	int argc,
 	char **argv,
@@ -86,9 +86,10 @@ err:
 }
 
 /*
- *  generic job error message
+ *  stress_parse_error()
+ *	generic job error message
  */
-static void parse_error(
+static void stress_parse_error(
 	const uint32_t lineno,
 	const char *line)
 {
@@ -97,11 +98,11 @@ static void parse_error(
 }
 
 /*
- *  parse_jobfile()
+ *  stress_parse_jobfile()
  *	parse a jobfile, turn job commands into
  *	individual stress-ng options
  */
-int parse_jobfile(
+int stress_parse_jobfile(
 	const int argc,
 	char **argv,
 	const char *jobfile)
@@ -131,7 +132,7 @@ int parse_jobfile(
 	}
 
 	if (setjmp(g_error_env) == 1) {
-		parse_error(lineno, txt);
+		stress_parse_error(lineno, txt);
 		ret = -1;
 		goto err;
 	}
@@ -148,11 +149,11 @@ int parse_jobfile(
 		lineno++;
 
 		/* remove \n */
-		chop(buf, '\n');
+		stress_chop(buf, '\n');
 		(void)shim_strlcpy(txt, buf, sizeof(txt) - 1);
 
 		/* remove comments */
-		chop(buf, '#');
+		stress_chop(buf, '#');
 
 		if (!*ptr)
 			continue;
@@ -191,10 +192,10 @@ int parse_jobfile(
 			}
 
 			/* Check for job run option */
-			rc = parse_run(jobfile, new_argc, new_argv, &flag);
+			rc = stress_parse_run(jobfile, new_argc, new_argv, &flag);
 			if (rc < 0) {
 				ret = -1;
-				parse_error(lineno, txt);
+				stress_parse_error(lineno, txt);
 				goto err;
 			} else if (rc == 1) {
 				continue;
@@ -203,8 +204,8 @@ int parse_jobfile(
 			/* prepend -- to command to make them into stress-ng options */
 			(void)snprintf(tmp, len, "--%s", new_argv[1]);
 			new_argv[1] = tmp;
-			if (parse_opts(new_argc, new_argv, true) != EXIT_SUCCESS) {
-				parse_error(lineno, txt);
+			if (stress_parse_opts(new_argc, new_argv, true) != EXIT_SUCCESS) {
+				stress_parse_error(lineno, txt);
 				ret = -1;
 				goto err;
 			}
