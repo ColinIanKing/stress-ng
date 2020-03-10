@@ -1694,7 +1694,7 @@ again:
 						(void)stress_perf_enable(&stats->sp);
 #endif
 					if (keep_stressing_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
-						const args_t args = {
+						const stress_args_t args = {
 							.counter = &stats->counter,
 							.name = name,
 							.max_ops = g_proc_current->bogo_ops,

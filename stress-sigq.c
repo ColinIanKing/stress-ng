@@ -42,7 +42,7 @@ static void MLOCKED_TEXT stress_sigqhandler(int signum)
  *  stress_sigq
  *	stress by heavy sigqueue message sending
  */
-static int stress_sigq(const args_t *args)
+static int stress_sigq(const stress_args_t *args)
 {
 	pid_t pid;
 

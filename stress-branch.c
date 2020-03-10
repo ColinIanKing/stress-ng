@@ -71,7 +71,7 @@ static inline uint8_t jmp_mwc8(void)
  *  stress_branch()
  *	stress instruction branch prediction
  */
-static int stress_branch(const args_t *args)
+static int stress_branch(const stress_args_t *args)
 {
 	static const void ALIGN64 *labels[] = {
 		&&ret, &&ret, &&ret, &&ret,

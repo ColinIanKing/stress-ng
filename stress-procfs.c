@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
 #define MAX_PROCFS_THREADS	(4)
 
 typedef struct stress_ctxt {
-	const args_t *args;
+	const stress_args_t *args;
 	const char *path;
 	bool writeable;
 } stress_ctxt_t;
@@ -334,7 +334,7 @@ static void stress_proc_dir(
 	const int depth)
 {
 	struct dirent **dlist;
-	const args_t *args = ctxt->args;
+	const stress_args_t *args = ctxt->args;
 	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
 	int i, n;
 
@@ -401,7 +401,7 @@ done:
  *  stress_procfs
  *	stress reading all of /proc
  */
-static int stress_procfs(const args_t *args)
+static int stress_procfs(const stress_args_t *args)
 {
 	size_t i;
 	pthread_t pthreads[MAX_PROCFS_THREADS];

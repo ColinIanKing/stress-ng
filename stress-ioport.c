@@ -105,7 +105,7 @@ static int stress_ioport_supported(void)
  *  stress_ioport()
  *	stress performs I/O port I/O transactions
  */
-static int stress_ioport(const args_t *args)
+static int stress_ioport(const stress_args_t *args)
 {
 	int ret;
 	uint32_t flag = 0;

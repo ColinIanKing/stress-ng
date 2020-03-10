@@ -58,7 +58,7 @@ static int stress_rawsock_supported(void)
  *  stress_rawsock
  *	stress by heavy raw udp ops
  */
-static int stress_rawsock(const args_t *args)
+static int stress_rawsock(const stress_args_t *args)
 {
 	pid_t pid;
 	int rc = EXIT_SUCCESS;

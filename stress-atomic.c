@@ -132,7 +132,7 @@ int main(void)
  *  stress_atomic()
  *      stress gcc atomic memory ops
  */
-static int stress_atomic(const args_t *args)
+static int stress_atomic(const stress_args_t *args)
 {
 	do {
 		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64);

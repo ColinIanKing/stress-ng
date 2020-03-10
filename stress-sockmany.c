@@ -60,7 +60,7 @@ static void stress_sockmany_cleanup(int fds[], const int n)
  *	client reader
  */
 static int stress_sockmany_client(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t ppid,
 	stress_sock_fds_t *sock_fds)
 {
@@ -149,7 +149,7 @@ finish:
  *	server writer
  */
 static int stress_sockmany_server(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t pid,
 	const pid_t ppid)
 {
@@ -265,7 +265,7 @@ static void stress_sockmany_sigpipe_handler(int signum)
  *  stress_sockmany
  *	stress many sockets
  */
-static int stress_sockmany(const args_t *args)
+static int stress_sockmany(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	stress_sock_fds_t *sock_fds;

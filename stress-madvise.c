@@ -125,7 +125,7 @@ static void MLOCKED_TEXT stress_sigbus_handler(int signum)
  *  stress_random_advise()
  *	get a random advise option
  */
-static int stress_random_advise(const args_t *args)
+static int stress_random_advise(const stress_args_t *args)
 {
 	const int idx = mwc32() % SIZEOF_ARRAY(madvise_options);
 	const int advise = madvise_options[idx];
@@ -173,7 +173,7 @@ static int stress_random_advise(const args_t *args)
  *  stress_madvise()
  *	stress madvise
  */
-static int stress_madvise(const args_t *args)
+static int stress_madvise(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	NOCLOBBER size_t sz = 4 *  MB;

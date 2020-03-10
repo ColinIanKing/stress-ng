@@ -93,7 +93,7 @@ static int stress_set_dentry_order(const char *opt)
  *	remove all dentries
  */
 static void stress_dentry_unlink(
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t n,
 	const uint8_t dentry_order)
 {
@@ -235,7 +235,7 @@ static void stress_dentry_misc(const char *path)
  *	on a gray-coded value multiplied by two.
  *	Even numbered files exist, odd don't exist.
  */
-static int stress_dentry(const args_t *args)
+static int stress_dentry(const stress_args_t *args)
 {
 	int ret;
 	uint64_t dentries = DEFAULT_DENTRIES;

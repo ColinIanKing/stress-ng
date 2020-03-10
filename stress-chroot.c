@@ -32,7 +32,7 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_CHROOT)
 
-typedef int (*stress_chroot_test_func)(const args_t *args);
+typedef int (*stress_chroot_test_func)(const stress_args_t *args);
 
 static char temppath[PATH_MAX];
 static char longpath[PATH_MAX + 32];
@@ -75,7 +75,7 @@ static void do_chroot(
 	*errno2 = errno;
 }
 
-static int stress_chroot_test1(const args_t *args)
+static int stress_chroot_test1(const stress_args_t *args)
 {
 	char cwd[PATH_MAX];
 	int ret1, ret2, errno1, errno2;
@@ -106,7 +106,7 @@ static int stress_chroot_test1(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static int stress_chroot_test2(const args_t *args)
+static int stress_chroot_test2(const stress_args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
 
@@ -125,7 +125,7 @@ static int stress_chroot_test2(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static int stress_chroot_test3(const args_t *args)
+static int stress_chroot_test3(const stress_args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
 
@@ -148,7 +148,7 @@ static int stress_chroot_test3(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static int stress_chroot_test4(const args_t *args)
+static int stress_chroot_test4(const stress_args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
 
@@ -167,7 +167,7 @@ static int stress_chroot_test4(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static int stress_chroot_test5(const args_t *args)
+static int stress_chroot_test5(const stress_args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
 
@@ -205,7 +205,7 @@ static const stress_chroot_test_func test_chroot_test_funcs[] =
  *  stress_chroot()
  *	stress chroot system call
  */
-static int stress_chroot(const args_t *args)
+static int stress_chroot(const stress_args_t *args)
 {
 	size_t i = 0;
 	int fd, ret = EXIT_FAILURE;

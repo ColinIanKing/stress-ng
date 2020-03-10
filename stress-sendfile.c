@@ -53,7 +53,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_sendfile
  *	stress reading of a temp file and writing to /dev/null via sendfile
  */
-static int stress_sendfile(const args_t *args)
+static int stress_sendfile(const stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int fdin, fdout, ret, rc = EXIT_SUCCESS;

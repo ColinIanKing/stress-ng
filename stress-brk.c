@@ -44,7 +44,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-static int stress_brk_child(const args_t *args, void *context)
+static int stress_brk_child(const stress_args_t *args, void *context)
 {
 	uint8_t *start_ptr;
 	int i = 0;
@@ -109,7 +109,7 @@ static int stress_brk_child(const args_t *args, void *context)
  *  stress_brk()
  *	stress brk and sbrk
  */
-static int stress_brk(const args_t *args)
+static int stress_brk(const stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_brk_child, STRESS_OOMABLE_DROP_CAP);
 }

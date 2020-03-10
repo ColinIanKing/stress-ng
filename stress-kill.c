@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
  *  stress on sched_kill()
  *	stress system by rapid kills
  */
-static int stress_kill(const args_t *args)
+static int stress_kill(const stress_args_t *args)
 {
 	uint64_t udelay = 5000;
 

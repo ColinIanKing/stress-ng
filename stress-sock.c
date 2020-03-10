@@ -156,7 +156,7 @@ static int stress_set_socket_domain(const char *name)
  *	client reader
  */
 static void stress_sock_client(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t ppid,
 	const int socket_opts,
 	const int socket_type,
@@ -352,7 +352,7 @@ retry:
  *	server writer
  */
 static int stress_sock_server(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t pid,
 	const pid_t ppid,
 	const int socket_opts,
@@ -578,7 +578,7 @@ static void stress_sock_sigpipe_handler(int signum)
  *  stress_sock
  *	stress by heavy socket I/O
  */
-static int stress_sock(const args_t *args)
+static int stress_sock(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	int socket_opts = SOCKET_OPT_SEND;

@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
  *  stress_zero
  *	stress reading of /dev/zero
  */
-static int stress_zero(const args_t *args)
+static int stress_zero(const stress_args_t *args)
 {
 	int fd;
 	const size_t page_size = args->page_size;

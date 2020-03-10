@@ -116,7 +116,7 @@ static void stress_rmap_child(
  *  stress_rmap()
  *	stress mmap
  */
-static int stress_rmap(const args_t *args)
+static int stress_rmap(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t sz = ((MAPPINGS_MAX - 1) + MAPPING_PAGES) * page_size;

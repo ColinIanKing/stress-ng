@@ -80,7 +80,7 @@ static void stress_dir_sync(const char *path)
  *	read all dentries
  */
 static void stress_dir_read(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *path)
 {
 	DIR *dp;
@@ -105,7 +105,7 @@ static void stress_dir_read(
  *	remove all dentries
  */
 static void stress_dir_tidy(
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t n)
 {
 	uint64_t i;
@@ -124,7 +124,7 @@ static void stress_dir_tidy(
  *  stress_dir
  *	stress directory mkdir and rmdir
  */
-static int stress_dir(const args_t *args)
+static int stress_dir(const stress_args_t *args)
 {
 	int ret;
 	uint64_t dir_dirs = DEFAULT_DIR_DIRS;

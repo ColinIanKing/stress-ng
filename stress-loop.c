@@ -55,7 +55,7 @@ static int stress_loop_supported(void)
  *  stress_loop()
  *	stress loopback device
  */
-static int stress_loop(const args_t *args)
+static int stress_loop(const stress_args_t *args)
 {
 	int ret, backing_fd, rc = EXIT_FAILURE;
 	char backing_file[PATH_MAX];

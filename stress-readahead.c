@@ -53,7 +53,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(__linux__) && NEED_GLIBC(2,3,0)
 
 static int do_readahead(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	off_t *offsets,
 	const uint64_t rounded_readahead_bytes)
@@ -74,7 +74,7 @@ static int do_readahead(
  *  stress_readahead
  *	stress file system cache via readahead calls
  */
-static int stress_readahead(const args_t *args)
+static int stress_readahead(const stress_args_t *args)
 {
 	uint8_t *buf = NULL;
 	uint64_t rounded_readahead_bytes, i;

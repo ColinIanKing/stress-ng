@@ -381,7 +381,7 @@ void pr_tidy(const char *fmt, ...)
  *  pr_fail_err__()
  *	helper for macro pr_fail_err to print error with errno
  */
-void pr_fail_err__(const args_t *args, const char *msg)
+void pr_fail_err__(const stress_args_t *args, const char *msg)
 {
 	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, errno);
 }
@@ -390,7 +390,7 @@ void pr_fail_err__(const args_t *args, const char *msg)
  *  pr_fail_errno__()
  *	helper for macro pr_fail_errno to print error with a given errno
  */
-void pr_fail_errno__(const args_t *args, const char *msg, int err)
+void pr_fail_errno__(const stress_args_t *args, const char *msg, int err)
 {
 	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, err);
 }
@@ -399,7 +399,7 @@ void pr_fail_errno__(const args_t *args, const char *msg, int err)
  *  pr_fail_dbg__()
  *	helper for macro pr_fail_dbg to print error
  */
-void pr_fail_dbg__(const args_t *args, const char *msg)
+void pr_fail_dbg__(const stress_args_t *args, const char *msg)
 {
 	pr_msg_fail(PR_DEBUG, args->name, msg, errno);
 }

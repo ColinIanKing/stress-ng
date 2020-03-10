@@ -40,7 +40,7 @@ static const stress_help_t help[] = {
  *	spawn off tee I/O processes
  */
 static pid_t stress_tee_spawn(
-	const args_t *args,
+	const stress_args_t *args,
 	void (*func)(int fds[2]),
 	int fds[2])
 {
@@ -123,7 +123,7 @@ static void stress_tee_pipe_read(int fds[2])
  *  stress_tee()
  *	stress the Linux tee syscall
  */
-static int stress_tee(const args_t *args)
+static int stress_tee(const stress_args_t *args)
 {
 	ssize_t len, slen;
 	int fd, pipe_in[2], pipe_out[2];

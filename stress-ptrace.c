@@ -36,7 +36,7 @@ static const stress_help_t help[] = {
  *  main syscall ptrace loop
  */
 static inline bool stress_syscall_wait(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t pid)
 {
 	while (keep_stressing_flag()) {
@@ -67,7 +67,7 @@ static inline bool stress_syscall_wait(
  *  stress_ptrace()
  *	stress ptracing
  */
-static int stress_ptrace(const args_t *args)
+static int stress_ptrace(const stress_args_t *args)
 {
 	pid_t pid;
 

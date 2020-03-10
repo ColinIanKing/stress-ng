@@ -185,7 +185,7 @@ static void stress_mmap_mprotect(
 #endif
 }
 
-static int stress_mmap_child(const args_t *args, void *ctxt)
+static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 {
 	stress_mmap_context_t *context = (stress_mmap_context_t *)ctxt;
 	const size_t page_size = args->page_size;
@@ -415,7 +415,7 @@ cleanup:
  *  stress_mmap()
  *	stress mmap
  */
-static int stress_mmap(const args_t *args)
+static int stress_mmap(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	char filename[PATH_MAX];

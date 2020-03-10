@@ -45,7 +45,7 @@ static void stress_nice_delay(void)
  *  stress on sched_nice()
  *	stress system by sched_nice
  */
-static int stress_nice(const args_t *args)
+static int stress_nice(const stress_args_t *args)
 {
 #if defined(HAVE_SETPRIORITY)
 	int max_prio, min_prio;

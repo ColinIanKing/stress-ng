@@ -186,7 +186,7 @@ static inline uint64_t rand64(void)
  *  stress_rdrand()
  *      stress Intel rdrand instruction
  */
-static int stress_rdrand(const args_t *args)
+static int stress_rdrand(const stress_args_t *args)
 {
 	if (rdrand_supported) {
 		double time_start, duration, billion_bits;

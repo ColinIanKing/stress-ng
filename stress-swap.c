@@ -76,7 +76,7 @@ static int stress_swap_supported(void)
 }
 
 static int stress_swap_zero(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const uint32_t npages,
 	const uint8_t *page)
@@ -98,7 +98,7 @@ static int stress_swap_zero(
 }
 
 static int stress_swap_set_size(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const uint32_t npages)
 {
@@ -142,7 +142,7 @@ static int stress_swap_set_size(
  *  stress_swap()
  *	stress swap operations
  */
-static int stress_swap(const args_t *args)
+static int stress_swap(const stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int fd, ret;

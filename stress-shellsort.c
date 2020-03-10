@@ -163,7 +163,7 @@ static int shellsort(void *base, size_t nmemb, size_t size,
  *  stress_shellsort()
  *	stress shellsort
  */
-static int stress_shellsort(const args_t *args)
+static int stress_shellsort(const stress_args_t *args)
 {
 	uint64_t shellsort_size = DEFAULT_SHELLSORT_SIZE;
 	int32_t *data, *ptr;

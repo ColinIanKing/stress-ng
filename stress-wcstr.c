@@ -651,7 +651,7 @@ static int stress_set_wcs_method(const char *name)
  *  stress_wcs()
  *	stress CPU by doing wide character string ops
  */
-static int stress_wcs(const args_t *args)
+static int stress_wcs(const stress_args_t *args)
 {
 	stress_wcs_method_info_t const *wcs_method = &wcs_methods[0];
 	stress_wcs_func func;

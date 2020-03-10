@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
 #define MATRIX_SIZE		(1 << MATRIX_SIZE_MAX_SHIFT)
 #define MEM_SIZE		(MATRIX_SIZE * MATRIX_SIZE)
 
-typedef void (*stress_memthrash_func_t)(const args_t *args, size_t mem_size);
+typedef void (*stress_memthrash_func_t)(const stress_args_t *args, size_t mem_size);
 
 typedef struct {
 	const char		*name;	/* human readable form of stressor */
@@ -90,14 +90,14 @@ static inline HOT OPTIMIZE3 void stress_memthrash_random_chunk(
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_random_chunkpage(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	stress_memthrash_random_chunk(args->page_size, mem_size);
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_random_chunk256(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	(void)args;
@@ -106,7 +106,7 @@ static void HOT OPTIMIZE3 stress_memthrash_random_chunk256(
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_random_chunk64(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	(void)args;
@@ -115,7 +115,7 @@ static void HOT OPTIMIZE3 stress_memthrash_random_chunk64(
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_random_chunk8(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	(void)args;
@@ -124,7 +124,7 @@ static void HOT OPTIMIZE3 stress_memthrash_random_chunk8(
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_random_chunk1(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	(void)args;
@@ -133,7 +133,7 @@ static void HOT OPTIMIZE3 stress_memthrash_random_chunk1(
 }
 
 static void stress_memthrash_memset(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	(void)args;
@@ -146,7 +146,7 @@ static void stress_memthrash_memset(
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	(void)args;
@@ -161,7 +161,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_swap(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	size_t i;
@@ -188,7 +188,7 @@ static void HOT OPTIMIZE3 stress_memthrash_swap(
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_matrix(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	(void)args;
@@ -211,7 +211,7 @@ static void HOT OPTIMIZE3 stress_memthrash_matrix(
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_prefetch(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	uint32_t i;
@@ -231,7 +231,7 @@ static void HOT OPTIMIZE3 stress_memthrash_prefetch(
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_flush(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	uint32_t i;
@@ -250,7 +250,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flush(
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_mfence(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	uint32_t i;
@@ -269,7 +269,7 @@ static void HOT OPTIMIZE3 stress_memthrash_mfence(
 
 #if defined(MEM_LOCK)
 static void HOT OPTIMIZE3 stress_memthrash_lock(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	uint32_t i;
@@ -286,7 +286,7 @@ static void HOT OPTIMIZE3 stress_memthrash_lock(
 #endif
 
 static void HOT OPTIMIZE3 stress_memthrash_spinread(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	uint32_t i;
@@ -309,7 +309,7 @@ static void HOT OPTIMIZE3 stress_memthrash_spinread(
 }
 
 static void HOT OPTIMIZE3 stress_memthrash_spinwrite(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t mem_size)
 {
 	uint32_t i;
@@ -332,8 +332,8 @@ static void HOT OPTIMIZE3 stress_memthrash_spinwrite(
 }
 
 
-static void stress_memthrash_all(const args_t *args, size_t mem_size);
-static void stress_memthrash_random(const args_t *args, size_t mem_size);
+static void stress_memthrash_all(const stress_args_t *args, size_t mem_size);
+static void stress_memthrash_random(const stress_args_t *args, size_t mem_size);
 
 static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "all",	stress_memthrash_all },		/* MUST always be first! */
@@ -358,7 +358,7 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "swap",	stress_memthrash_swap }
 };
 
-static void stress_memthrash_all(const args_t *args, size_t mem_size)
+static void stress_memthrash_all(const stress_args_t *args, size_t mem_size)
 {
 	static size_t i = 1;
 	const double t = stress_time_now();
@@ -372,7 +372,7 @@ static void stress_memthrash_all(const args_t *args, size_t mem_size)
 		i = 1;
 }
 
-static void stress_memthrash_random(const args_t *args, size_t mem_size)
+static void stress_memthrash_random(const stress_args_t *args, size_t mem_size)
 {
 	/* loop until we find a good candidate */
 	for (;;) {
@@ -422,7 +422,7 @@ static void *stress_memthrash_func(void *arg)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	static void *nowt = NULL;
 	const stress_pthread_args_t *parg = (stress_pthread_args_t *)arg;
-	const args_t *args = parg->args;
+	const stress_args_t *args = parg->args;
 	const stress_memthrash_func_t func = (stress_memthrash_func_t)parg->data;
 
 	/*
@@ -495,7 +495,7 @@ static inline char *plural(uint32_t n)
 	return n > 1 ? "s" : "";
 }
 
-static int stress_memthrash_child(const args_t *args, void *ctxt)
+static int stress_memthrash_child(const stress_args_t *args, void *ctxt)
 {
 	stress_memthrash_context_t *context = (stress_memthrash_context_t *)ctxt;
 	const uint32_t max_threads = context->max_threads;
@@ -569,7 +569,7 @@ reap_mem:
  *  stress_memthrash()
  *	stress by creating pthreads
  */
-static int stress_memthrash(const args_t *args)
+static int stress_memthrash(const stress_args_t *args)
 {
 	stress_memthrash_context_t context;
 

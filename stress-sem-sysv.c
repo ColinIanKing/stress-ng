@@ -139,7 +139,7 @@ static void stress_semaphore_sysv_get_procinfo(bool *get_procinfo)
  *  stress_semaphore_sysv_thrash()
  *	exercise the semaphore
  */
-static void stress_semaphore_sysv_thrash(const args_t *args)
+static void stress_semaphore_sysv_thrash(const stress_args_t *args)
 {
 	const int sem_id = g_shared->sem_sysv.sem_id;
 
@@ -280,7 +280,7 @@ timed_out:
  *  semaphore_sysv_spawn()
  *	spawn a process
  */
-static pid_t semaphore_sysv_spawn(const args_t *args)
+static pid_t semaphore_sysv_spawn(const stress_args_t *args)
 {
 	pid_t pid;
 
@@ -306,7 +306,7 @@ again:
  *  stress_sem_sysv()
  *	stress system by sem ops
  */
-static int stress_sem_sysv(const args_t *args)
+static int stress_sem_sysv(const stress_args_t *args)
 {
 	pid_t pids[MAX_SEMAPHORE_PROCS];
 	uint64_t i;

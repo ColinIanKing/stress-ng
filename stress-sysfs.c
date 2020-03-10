@@ -47,7 +47,7 @@ static uint32_t os_release;
 static stress_hash_table_t *sysfs_hash_table;
 
 typedef struct stress_ctxt {
-	const args_t *args;		/* stressor args */
+	const stress_args_t *args;		/* stressor args */
 	int kmsgfd;			/* /dev/kmsg file descriptor */
 	bool sys_admin;			/* true if sys admin capable */
 } stress_ctxt_t;
@@ -126,7 +126,7 @@ static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 	ssize_t i = 0, ret;
 	char buffer[SYS_BUF_SZ];
 	char path[PATH_MAX];
-	const args_t *args = ctxt->args;
+	const stress_args_t *args = ctxt->args;
 	const double threshold = 0.2;
 	size_t page_size = ctxt->args->page_size;
 
@@ -369,7 +369,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)ctxt_ptr;
-	const args_t *args = ctxt->args;
+	const stress_args_t *args = ctxt->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -438,7 +438,7 @@ static void stress_sys_dir(
 	const int depth)
 {
 	struct dirent **dlist;
-	const args_t *args = ctxt->args;
+	const stress_args_t *args = ctxt->args;
 	mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int i, n;
 
@@ -544,7 +544,7 @@ done:
  *  stress_sysfs
  *	stress reading all of /sys
  */
-static int stress_sysfs(const args_t *args)
+static int stress_sysfs(const stress_args_t *args)
 {
 	size_t i;
 	pthread_t pthreads[MAX_SYSFS_THREADS];

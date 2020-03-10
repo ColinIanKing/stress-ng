@@ -55,7 +55,7 @@ static const stress_help_t help[] = {
  *  keep_stressing()
  *	returns true if we can keep on running a stressor
  */
-static bool HOT OPTIMIZE3 keep_stressing_vm(const args_t *args)
+static bool HOT OPTIMIZE3 keep_stressing_vm(const stress_args_t *args)
 {
 	return (LIKELY(keep_stressing_flag()) &&
 	        LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
@@ -370,7 +370,7 @@ static int stress_set_vm_addr_method(const char *name)
 	return -1;
 }
 
-static int stress_vm_addr_child(const args_t *args, void *ctxt)
+static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 {
 	int no_mem_retries = 0;
 	void *vm_base_addr;
@@ -417,7 +417,7 @@ next:
  *  stress_vm_addr()
  *	stress virtual memory addressing
  */
-static int stress_vm_addr(const args_t *args)
+static int stress_vm_addr(const stress_args_t *args)
 {
         const size_t page_size = args->page_size;
 	size_t retries;

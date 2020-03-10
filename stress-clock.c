@@ -131,7 +131,7 @@ static const char *stress_clock_name(int id)
  *  stress_clock()
  *	stress system by rapid clocking system calls
  */
-static int stress_clock(const args_t *args)
+static int stress_clock(const stress_args_t *args)
 {
 	do {
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \

@@ -50,7 +50,7 @@ static const stress_help_t help[] = {
  *  stress_nop()
  *	stress that does lots of not a lot
  */
-static int stress_nop(const args_t *args)
+static int stress_nop(const stress_args_t *args)
 {
 	do {
 		register int i = 256;

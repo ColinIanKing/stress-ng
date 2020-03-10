@@ -91,7 +91,7 @@ static const stress_access_t modes[] = {
  *  stress_access
  *	stress access family of system calls
  */
-static int stress_access(const args_t *args)
+static int stress_access(const stress_args_t *args)
 {
 	int fd = -1, ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];

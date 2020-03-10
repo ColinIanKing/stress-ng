@@ -147,7 +147,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	if possible change CPU affinity to try to cause
  *	poor cache behaviour
  */
-static int stress_cache(const args_t *args)
+static int stress_cache(const stress_args_t *args)
 {
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)

@@ -98,7 +98,7 @@ static inline int pipe_memchk(char *buf, char val, const size_t sz)
  *	see if we can change the pipe size
  */
 static void pipe_change_size(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const size_t pipe_size)
 {
@@ -138,7 +138,7 @@ static void pipe_change_size(
  *  stress_pipe
  *	stress by heavy pipe I/O
  */
-static int stress_pipe(const args_t *args)
+static int stress_pipe(const stress_args_t *args)
 {
 	pid_t pid;
 	int pipefds[2];

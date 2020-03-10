@@ -105,7 +105,7 @@ static int stress_qsort_cmp_3(const void *p1, const void *p2)
  *  stress_qsort()
  *	stress qsort
  */
-static int stress_qsort(const args_t *args)
+static int stress_qsort(const stress_args_t *args)
 {
 	uint64_t qsort_size = DEFAULT_QSORT_SIZE;
 	int32_t *data, *ptr;

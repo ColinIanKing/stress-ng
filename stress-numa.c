@@ -172,7 +172,7 @@ static int stress_numa_get_mem_nodes(stress_node_t **node_ptr,
  *  stress_numa()
  *	stress the Linux NUMA interfaces
  */
-static int stress_numa(const args_t *args)
+static int stress_numa(const stress_args_t *args)
 {
 	long numa_nodes;
 	unsigned long max_nodes;

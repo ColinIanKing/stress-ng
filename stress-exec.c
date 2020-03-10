@@ -28,7 +28,7 @@
  *   exec* family of args to pass
  */
 typedef struct {
-	const args_t *args;
+	const stress_args_t *args;
 	const char *path;
 	char **argv_new;
 	char **env_new;
@@ -206,7 +206,7 @@ static inline int stress_do_exec(stress_exec_args_t *ea)
  *  stress_exec()
  *	stress by forking and exec'ing
  */
-static int stress_exec(const args_t *args)
+static int stress_exec(const stress_args_t *args)
 {
 	static pid_t pids[MAX_FORKS];
 	char path[PATH_MAX + 1];

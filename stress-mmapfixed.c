@@ -51,7 +51,7 @@ static void MLOCKED_TEXT stress_sigsegv_handler(int signum)
 	_exit(0);
 }
 
-static int stress_mmapfixed_child(const args_t *args, void *context)
+static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	uintptr_t addr = MMAP_TOP;
@@ -126,7 +126,7 @@ next:
  *  stress_mmapfixed()
  *	stress mmap at fixed hinted addresses
  */
-static int stress_mmapfixed(const args_t *args)
+static int stress_mmapfixed(const stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_mmapfixed_child, STRESS_OOMABLE_NORMAL);
 }

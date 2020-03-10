@@ -439,7 +439,7 @@ static int vdso_sym_list_check_vdso_func(stress_vdso_sym_t **list)
  *  stress_vdso()
  *	stress system wraps in vDSO
  */
-static int stress_vdso(const args_t *args)
+static int stress_vdso(const stress_args_t *args)
 {
 	char *str;
 	double t1, t2, t3, overhead_ns;

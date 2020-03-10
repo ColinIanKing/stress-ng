@@ -54,7 +54,7 @@ static const stress_help_t help[] = {
 /*
  *  unshare with some error checking
  */
-static void check_unshare(const args_t *args, int flags, const char *flags_name)
+static void check_unshare(const stress_args_t *args, int flags, const char *flags_name)
 {
 	int rc;
 	rc = shim_unshare(flags);
@@ -88,7 +88,7 @@ static inline bool enough_memory(void)
  *  stress_unshare()
  *	stress resource unsharing
  */
-static int stress_unshare(const args_t *args)
+static int stress_unshare(const stress_args_t *args)
 {
 	pid_t pids[MAX_PIDS];
 #if defined(CLONE_NEWNET)

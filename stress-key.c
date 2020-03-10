@@ -79,7 +79,7 @@ static key_serial_t sys_request_key(
  *  stress_key
  *	stress key operations
  */
-static int stress_key(const args_t *args)
+static int stress_key(const stress_args_t *args)
 {
 	key_serial_t keys[MAX_KEYS];
 	pid_t ppid = getppid();

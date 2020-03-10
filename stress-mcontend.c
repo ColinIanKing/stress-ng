@@ -318,7 +318,7 @@ static void *stress_memory_contend_thread(void *arg)
  *  stress_mcontend
  *	memory contention stress
  */
-static int stress_mcontend(const args_t *args)
+static int stress_mcontend(const stress_args_t *args)
 {
 	size_t i;
 	pthread_t pthreads[MAX_READ_THREADS];

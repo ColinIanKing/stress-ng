@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
  *  stress_null
  *	stress writing to /dev/null
  */
-static int stress_null(const args_t *args)
+static int stress_null(const stress_args_t *args)
 {
 	int fd;
 	char buffer[4096];

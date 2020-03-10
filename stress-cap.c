@@ -33,7 +33,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_SYS_CAPABILITY_H)
 
 static int stress_capgetset_pid(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t pid,
 	const bool do_set,
 	const bool exists)
@@ -79,7 +79,7 @@ static int stress_capgetset_pid(
  *  stress_cap
  *	stress capabilities (trivial)
  */
-static int stress_cap(const args_t *args)
+static int stress_cap(const stress_args_t *args)
 {
 	do {
 		DIR *dir;

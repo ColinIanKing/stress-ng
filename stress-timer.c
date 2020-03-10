@@ -159,7 +159,7 @@ cancel:
  *  stress_timer
  *	stress timers
  */
-static int stress_timer(const args_t *args)
+static int stress_timer(const stress_args_t *args)
 {
 	struct sigevent sev;
 	struct itimerspec timer;

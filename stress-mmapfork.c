@@ -73,7 +73,7 @@ static void __strlcat(char *dst, char *src, size_t *n)
 /*
  *  Check that parent hasn't been OOM'd or it is time to die
  */
-static inline bool should_terminate(const args_t *args, const pid_t ppid)
+static inline bool should_terminate(const stress_args_t *args, const pid_t ppid)
 {
 	if ((kill(ppid, 0) < 0) && (errno == ESRCH))
 		return true;
@@ -84,7 +84,7 @@ static inline bool should_terminate(const args_t *args, const pid_t ppid)
  *  stress_mmapfork()
  *	stress mappings + fork VM subystem
  */
-static int stress_mmapfork(const args_t *args)
+static int stress_mmapfork(const stress_args_t *args)
 {
 	pid_t pids[MAX_PIDS];
 	struct sysinfo info;

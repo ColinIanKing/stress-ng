@@ -45,7 +45,7 @@ static int stress_set_bigheap_growth(const char *opt)
 	return set_setting("bigheap-growth", TYPE_ID_UINT64, &bigheap_growth);
 }
 
-static int stress_bigheap_child(const args_t *args, void *context)
+static int stress_bigheap_child(const stress_args_t *args, void *context)
 {
 	uint64_t bigheap_growth = DEFAULT_BIGHEAP_GROWTH;
 	void *ptr = NULL, *last_ptr = NULL;
@@ -142,7 +142,7 @@ abort:
  *  stress_bigheap()
  *	stress heap allocation
  */
-static int stress_bigheap(const args_t *args)
+static int stress_bigheap(const stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_bigheap_child, STRESS_OOMABLE_NORMAL);
 }

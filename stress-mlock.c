@@ -79,7 +79,7 @@ static inline int do_mlock(const void *addr, size_t len)
 }
 #endif
 
-static int stress_mlock_child(const args_t *args, void *context)
+static int stress_mlock_child(const stress_args_t *args, void *context)
 {
 	size_t i, n;
 	uint8_t **mappings;
@@ -184,7 +184,7 @@ static int stress_mlock_child(const args_t *args, void *context)
  *  stress_mlock()
  *	stress mlock with pages being locked/unlocked
  */
-static int stress_mlock(const args_t *args)
+static int stress_mlock(const stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_mlock_child, STRESS_OOMABLE_NORMAL);
 }

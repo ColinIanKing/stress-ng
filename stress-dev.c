@@ -1138,7 +1138,7 @@ static const stress_dev_func_t dev_funcs[] = {
  *	exercise a dev entry
  */
 static inline void stress_dev_rw(
-	const args_t *args,
+	const stress_args_t *args,
 	int32_t loops)
 {
 	int fd, ret;
@@ -1347,7 +1347,7 @@ static void *stress_dev_thread(void *arg)
 	static void *nowt = NULL;
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	const stress_pthread_args_t *pa = (stress_pthread_args_t *)arg;
-	const args_t *args = pa->args;
+	const stress_args_t *args = pa->args;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -1376,7 +1376,7 @@ static void *stress_dev_thread(void *arg)
  *	read directory
  */
 static void stress_dev_dir(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth,
@@ -1492,7 +1492,7 @@ done:
  *  stress_dev
  *	stress reading all of /dev
  */
-static int stress_dev(const args_t *args)
+static int stress_dev(const stress_args_t *args)
 {
 	pthread_t pthreads[MAX_DEV_THREADS];
 	int ret[MAX_DEV_THREADS], rc = EXIT_SUCCESS;

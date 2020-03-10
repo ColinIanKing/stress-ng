@@ -51,7 +51,7 @@ static int stress_physpage_supported(void)
 }
 
 static int stress_virt_to_phys(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t page_size,
 	const int fd_pm,
 	const int fd_pc,
@@ -116,7 +116,7 @@ err:
  *  stress_physpage()
  *	stress physical page lookups
  */
-static int stress_physpage(const args_t *args)
+static int stress_physpage(const stress_args_t *args)
 {
 	int fd_pm, fd_pc;
 	const size_t page_size = args->page_size;

@@ -142,7 +142,7 @@ static void stress_sctp_sockopts(const int fd)
  *	client reader
  */
 static void stress_sctp_client(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t ppid,
 	const int sctp_port,
 	const int sctp_domain)
@@ -230,7 +230,7 @@ retry:
  *	server writer
  */
 static int stress_sctp_server(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t pid,
 	const pid_t ppid,
 	const int sctp_port,
@@ -350,7 +350,7 @@ static void stress_sctp_sigpipe(int signum)
  *  stress_sctp
  *	stress SCTP by heavy SCTP network I/O
  */
-static int stress_sctp(const args_t *args)
+static int stress_sctp(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	int sctp_port = DEFAULT_SCTP_PORT;

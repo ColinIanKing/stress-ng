@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-typedef void *(*stress_bad_addr_t)(const args_t *args);
+typedef void *(*stress_bad_addr_t)(const stress_args_t *args);
 typedef int (*stress_bad_syscall_t)(void *addr);
 
 static void *ro_page;
@@ -100,7 +100,7 @@ static void MLOCKED_TEXT stress_badhandler(int signum)
 	_exit(1);
 }
 
-static void *unaligned_addr(const args_t *args)
+static void *unaligned_addr(const stress_args_t *args)
 {
 	static uint64_t data[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
 	uint8_t *ptr = (uint8_t *)data;
@@ -110,40 +110,40 @@ static void *unaligned_addr(const args_t *args)
 	return ptr + 1;
 }
 
-static void *readonly_addr(const args_t *args)
+static void *readonly_addr(const stress_args_t *args)
 {
 	(void)args;
 
 	return ro_page;
 }
 
-static void *null_addr(const args_t *args)
+static void *null_addr(const stress_args_t *args)
 {
 	(void)args;
 
 	return NULL;
 }
 
-static void *text_addr(const args_t *args)
+static void *text_addr(const stress_args_t *args)
 {
 	(void)args;
 
 	return (void *)&write;
 }
 
-static void *bad_end_addr(const args_t *args)
+static void *bad_end_addr(const stress_args_t *args)
 {
 	return ((uint8_t *)rw_page) + args->page_size - 1;
 }
 
-static void *bad_max_addr(const args_t *args)
+static void *bad_max_addr(const stress_args_t *args)
 {
 	(void)args;
 
 	return (void *)~(uintptr_t)0;
 }
 
-static void *unmapped_addr(const args_t *args)
+static void *unmapped_addr(const stress_args_t *args)
 {
 	return ((uint8_t *)rw_page) + args->page_size;
 }
@@ -509,7 +509,7 @@ static stress_bad_syscall_t bad_syscalls[] = {
  *  the parent
  */
 static inline int stress_do_syscall(
-	const args_t *args,
+	const stress_args_t *args,
 	stress_bad_syscall_t bad_syscall,
 	void *addr)
 {
@@ -579,7 +579,7 @@ static inline int stress_do_syscall(
 	return rc;
 }
 
-static int stress_sysbadaddr_child(const args_t *args, void *context)
+static int stress_sysbadaddr_child(const stress_args_t *args, void *context)
 {
 	(void)context;
 
@@ -606,7 +606,7 @@ static int stress_sysbadaddr_child(const args_t *args, void *context)
  *  stress_sysbadaddr
  *	stress system calls with bad addresses
  */
-static int stress_sysbadaddr(const args_t *args)
+static int stress_sysbadaddr(const stress_args_t *args)
 {
 	size_t page_size = args->page_size;
 	int ret;

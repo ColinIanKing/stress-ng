@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
  *  stress_mlockmany()
  *	stress by forking and exiting
  */
-static int stress_mlockmany(const args_t *args)
+static int stress_mlockmany(const stress_args_t *args)
 {
 	pid_t pids[MAX_MLOCK_PROCS];
 	int errnos[MAX_MLOCK_PROCS];

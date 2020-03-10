@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-typedef void (*stress_iomix_func)(const args_t *args, const int fd, const off_t iomix_bytes);
+typedef void (*stress_iomix_func)(const stress_args_t *args, const int fd, const off_t iomix_bytes);
 
 static const stress_help_t help[] = {
 	{ NULL,	"iomix N",	 "start N workers that have a mix of I/O operations" },
@@ -48,7 +48,7 @@ static int stress_set_iomix_bytes(const char *opt)
  *	bursty sequential writes
  */
 static void stress_iomix_wr_seq_bursts(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -94,7 +94,7 @@ static void stress_iomix_wr_seq_bursts(
  *	bursty random writes
  */
 static void stress_iomix_wr_rnd_bursts(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -140,7 +140,7 @@ static void stress_iomix_wr_rnd_bursts(
  *	slow sequential writes
  */
 static void stress_iomix_wr_seq_slow(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -180,7 +180,7 @@ static void stress_iomix_wr_seq_slow(
  *	bursty sequential reads
  */
 static void stress_iomix_rd_seq_bursts(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -225,7 +225,7 @@ static void stress_iomix_rd_seq_bursts(
  *	bursty random reads
  */
 static void stress_iomix_rd_rnd_bursts(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -270,7 +270,7 @@ static void stress_iomix_rd_rnd_bursts(
  *	slow sequential reads
  */
 static void stress_iomix_rd_seq_slow(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -309,7 +309,7 @@ static void stress_iomix_rd_seq_slow(
  *	file syncs
  */
 static void stress_iomix_sync(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -356,7 +356,7 @@ static void stress_iomix_sync(
  *	bad fadvise hints
  */
 static void stress_iomix_bad_advise(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -374,7 +374,7 @@ static void stress_iomix_bad_advise(
  *	random memory mapped read/writes
  */
 static void stress_iomix_rd_wr_mmap(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -422,7 +422,7 @@ static void stress_iomix_rd_wr_mmap(
  *	lots of small 1 byte writes
  */
 static void stress_iomix_wr_bytes(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -458,7 +458,7 @@ static void stress_iomix_wr_bytes(
  *	lots of small 1 byte reads
  */
 static void stress_iomix_rd_bytes(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -509,7 +509,7 @@ static void stress_iomix_rd_bytes(
  *	attempt to set and unset a file based inode flag
  */
 static void stress_iomix_inode_ioctl(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const int flag,
 	bool *ok)
@@ -544,7 +544,7 @@ static void stress_iomix_inode_ioctl(
  *	twiddle various inode flags
  */
 static void stress_iomix_inode_flags(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -598,7 +598,7 @@ static void stress_iomix_inode_flags(
  *	occasional file cache dropping
  */
 static void stress_iomix_drop_caches(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const off_t iomix_bytes)
 {
@@ -654,7 +654,7 @@ static stress_iomix_func iomix_funcs[] = {
  *  stress_iomix
  *	stress I/O via random mix of io ops
  */
-static int stress_iomix(const args_t *args)
+static int stress_iomix(const stress_args_t *args)
 {
 	int fd, ret;
 	char filename[PATH_MAX];
@@ -719,7 +719,7 @@ static int stress_iomix(const args_t *args)
 	(void)memset(counters, 0, sz);
 
 	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
-		const args_t tmp_args = {
+		const stress_args_t tmp_args = {
 			.counter = &counters[i],
 			.name = args->name,
 			.max_ops = args->max_ops,

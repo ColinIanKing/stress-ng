@@ -80,7 +80,7 @@ static int stress_set_udp_lite(const char *opt)
  *  stress_udp
  *	stress by heavy udp ops
  */
-static int stress_udp(const args_t *args)
+static int stress_udp(const stress_args_t *args)
 {
 	int udp_port = DEFAULT_UDP_PORT;
 	int udp_domain = AF_INET;

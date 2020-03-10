@@ -73,7 +73,7 @@ static inline uint32_t checksum(uint16_t *ptr, size_t n)
  *  stress_icmp_flood
  *	stress local host with ICMP flood
  */
-static int stress_icmp_flood(const args_t *args)
+static int stress_icmp_flood(const stress_args_t *args)
 {
 	int fd, rc = EXIT_FAILURE;
 	const int set_on = 1;

@@ -62,7 +62,7 @@ static int stress_getrandom_supported(void)
  *  stress_getrandom
  *	stress reading random values using getrandom()
  */
-static int stress_getrandom(const args_t *args)
+static int stress_getrandom(const stress_args_t *args)
 {
 	do {
 		char buffer[RANDOM_BUFFER_SIZE];

@@ -77,7 +77,7 @@ static inline void aio_linux_fill_buffer(
  *	submit async I/O requests
  */
 static int stress_aiol_submit(
-	const args_t *args,
+	const stress_args_t *args,
 	const io_context_t ctx,
 	struct iocb *cbs[],
 	const size_t n,
@@ -108,7 +108,7 @@ static int stress_aiol_submit(
  *	wait for async I/O requests to complete
  */
 static int stress_aiol_wait(
-	const args_t *args,
+	const stress_args_t *args,
 	const io_context_t ctx,
 	struct io_event events[],
 	size_t n)
@@ -154,7 +154,7 @@ static int stress_aiol_wait(
  *	and error reporting on out of memory errors.
  */
 static int stress_aiol_alloc(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t n,
 	uint8_t **buffer,
 	struct iocb **cb,
@@ -223,7 +223,7 @@ static void stress_aiol_free(
  *  stress_aiol
  *	stress asynchronous I/O using the linux specific aio ABI
  */
-static int stress_aiol(const args_t *args)
+static int stress_aiol(const stress_args_t *args)
 {
 	int ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];

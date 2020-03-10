@@ -2504,7 +2504,7 @@ static int stress_set_cpu_method(const char *name)
  *  stress_cpu()
  *	stress CPU by doing floating point math ops
  */
-static int HOT OPTIMIZE3 stress_cpu(const args_t *args)
+static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 {
 	double bias;
 	const stress_cpu_method_info_t *cpu_method = &cpu_methods[0];

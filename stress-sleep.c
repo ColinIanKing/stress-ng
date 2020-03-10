@@ -27,7 +27,7 @@
 #if defined(HAVE_LIB_PTHREAD)
 
 typedef struct {
-	const args_t *args;
+	const stress_args_t *args;
 	uint64_t counter;
 	uint64_t sleep_max;
 	pthread_t pthread;
@@ -77,7 +77,7 @@ static void *stress_pthread_func(void *c)
 	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
-	const args_t *args = ctxt->args;
+	const stress_args_t *args = ctxt->args;
 	const uint64_t max_ops =
 		args->max_ops ? (args->max_ops / ctxt->sleep_max) + 1 : 0;
 	/*
@@ -150,7 +150,7 @@ die:
  *  stress_sleep()
  *	stress by many sleeping threads
  */
-static int stress_sleep(const args_t *args)
+static int stress_sleep(const stress_args_t *args)
 {
 	uint64_t i, n, limited = 0;
 	uint64_t sleep_max = DEFAULT_SLEEP;

@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
  *	to it once we hit the largest file size allowed.
  */
 static inline int stress_dev_shm_child(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd)
 {
 	int rc = EXIT_SUCCESS;
@@ -115,7 +115,7 @@ static inline int stress_dev_shm_child(
  *  stress_dev_shm()
  *	stress /dev/shm
  */
-static int stress_dev_shm(const args_t *args)
+static int stress_dev_shm(const stress_args_t *args)
 {
 	int fd, rc = EXIT_SUCCESS;
 	char path[PATH_MAX];

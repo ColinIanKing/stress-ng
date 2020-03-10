@@ -102,7 +102,7 @@ static const char *stress_get_ipsec_mb_feature(const int feature)
  *  stress_ipsec_mb_features()
  *	get list of CPU feature bits
  */
-static int stress_ipsec_mb_features(const args_t *args, MB_MGR *p_mgr)
+static int stress_ipsec_mb_features(const stress_args_t *args, MB_MGR *p_mgr)
 {
 	int features;
 
@@ -178,7 +178,7 @@ static inline struct JOB_AES_HMAC *stress_job_get_next(struct MB_MGR *mb_mgr)
  *	check if jobs has completed, report error if not
  */
 static void stress_job_check_status(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *name,
 	struct JOB_AES_HMAC *job,
 	int *jobs_done)
@@ -196,7 +196,7 @@ static void stress_job_check_status(
  *  	check if all the jobs have completed
  */
 static void stress_jobs_done(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *name,
 	const int jobs,
 	const int jobs_done)
@@ -207,7 +207,7 @@ static void stress_jobs_done(
 }
 
 static void stress_sha(
-	const args_t *args,
+	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -248,7 +248,7 @@ static void stress_sha(
 }
 
 static void stress_des(
-	const args_t *args,
+	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -300,7 +300,7 @@ static void stress_des(
 }
 
 static void stress_cmac(
-	const args_t *args,
+	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -350,7 +350,7 @@ static void stress_cmac(
 }
 
 static void stress_ctr(
-	const args_t *args,
+	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -400,7 +400,7 @@ static void stress_ctr(
 }
 
 static void stress_hmac_md5(
-	const args_t *args,
+	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -465,7 +465,7 @@ static void stress_hmac_md5(
 }
 
 static void stress_hmac_sha1(
-	const args_t *args,
+	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -530,7 +530,7 @@ static void stress_hmac_sha1(
 }
 
 static void stress_hmac_sha512(
-	const args_t *args,
+	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
 	const uint8_t *data,
 	const size_t data_len,
@@ -602,7 +602,7 @@ static void stress_hmac_sha512(
  *  stress_ipsec_mb()
  *      stress Intel ipsec_mb instruction
  */
-static int stress_ipsec_mb(const args_t *args)
+static int stress_ipsec_mb(const stress_args_t *args)
 {
 	MB_MGR *p_mgr = NULL;
 	int features;

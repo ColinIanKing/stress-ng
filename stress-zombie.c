@@ -142,7 +142,7 @@ static int stress_set_zombie_max(const char *opt)
  *  stress_zombie()
  *	stress by zombieing and exiting
  */
-static int stress_zombie(const args_t *args)
+static int stress_zombie(const stress_args_t *args)
 {
 	uint32_t max_zombies = 0;
 	uint32_t zombie_max = DEFAULT_ZOMBIES;

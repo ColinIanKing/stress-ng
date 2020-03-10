@@ -53,7 +53,7 @@ typedef struct {
 	uint32_t value;
 } stress_msg_t;
 
-static int stress_msg_get_stats(const args_t *args, const int msgq_id)
+static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 {
 	struct msqid_ds buf;
 
@@ -126,7 +126,7 @@ static void stress_msg_get_procinfo(bool *get_procinfo)
  *  stress_msg
  *	stress by message queues
  */
-static int stress_msg(const args_t *args)
+static int stress_msg(const stress_args_t *args)
 {
 	pid_t pid;
 	int msgq_id;

@@ -71,7 +71,7 @@ static const int modes[] = {
  *  stress_fallocate
  *	stress I/O via fallocate and ftruncate
  */
-static int stress_fallocate(const args_t *args)
+static int stress_fallocate(const stress_args_t *args)
 {
 	int fd, ret;
 	char filename[PATH_MAX];

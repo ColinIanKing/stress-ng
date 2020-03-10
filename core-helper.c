@@ -687,7 +687,7 @@ int stress_temp_filename(
  *      construct a temp filename using info from args
  */
 int stress_temp_filename_args(
-	const args_t *args,
+	const stress_args_t *args,
 	char *path,
 	const size_t len,
 	const uint64_t magic)
@@ -716,7 +716,7 @@ int stress_temp_dir(
  *	create a temporary directory name using info from args
  */
 int stress_temp_dir_args(
-	const args_t *args,
+	const stress_args_t *args,
 	char *path,
 	const size_t len)
 {
@@ -751,7 +751,7 @@ int stress_temp_dir_mk(
  *   stress_temp_dir_mk_args()
  *	create a temporary director using info from args
  */
-int stress_temp_dir_mk_args(const args_t *args)
+int stress_temp_dir_mk_args(const stress_args_t *args)
 {
 	return stress_temp_dir_mk(args->name, args->pid, args->instance);
 }
@@ -783,7 +783,7 @@ int stress_temp_dir_rm(
  *  stress_temp_dir_rm_args()
  *	remove a temporary directory using info from args
  */
-int stress_temp_dir_rm_args(const args_t *args)
+int stress_temp_dir_rm_args(const stress_args_t *args)
 {
 	return stress_temp_dir_rm(args->name, args->pid, args->instance);
 }
@@ -1289,7 +1289,7 @@ const char *stress_get_uname_info(void)
  *	report that a stressor is not implemented
  *	on a particular arch or kernel
  */
-int stress_not_implemented(const args_t *args)
+int stress_not_implemented(const stress_args_t *args)
 {
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 	struct utsname buf;

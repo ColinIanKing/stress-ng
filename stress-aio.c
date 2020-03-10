@@ -169,7 +169,7 @@ static int issue_aio_request(
  *  stress_aio
  *	stress asynchronous I/O
  */
-static int stress_aio(const args_t *args)
+static int stress_aio(const stress_args_t *args)
 {
 	int ret, fd, rc = EXIT_FAILURE;
 	stress_io_req_t *io_reqs;

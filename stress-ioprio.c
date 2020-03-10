@@ -41,7 +41,7 @@ static const stress_help_t help[] = {
  *  stress set/get io priorities
  *	stress system by rapid io priority changes
  */
-static int stress_ioprio(const args_t *args)
+static int stress_ioprio(const stress_args_t *args)
 {
 	const uid_t uid = getuid();
 #if defined(HAVE_GETPGRP)

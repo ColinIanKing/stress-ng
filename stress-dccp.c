@@ -120,7 +120,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	client reader
  */
 static void stress_dccp_client(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t ppid,
 	const int dccp_port,
 	const int dccp_domain)
@@ -202,7 +202,7 @@ retry:
  *	server writer
  */
 static int stress_dccp_server(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t pid,
 	const pid_t ppid,
 	const int dccp_port,
@@ -376,7 +376,7 @@ die:
  *  stress_dccp
  *	stress by heavy dccp  I/O
  */
-static int stress_dccp(const args_t *args)
+static int stress_dccp(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	int dccp_port = DEFAULT_DCCP_PORT;

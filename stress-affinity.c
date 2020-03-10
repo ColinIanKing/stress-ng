@@ -76,7 +76,7 @@ static int stress_affinity_supported(void)
         return 0;
 }
 
-static int stress_affinity(const args_t *args)
+static int stress_affinity(const stress_args_t *args)
 {
 	uint32_t cpu = args->instance;
 	const uint32_t cpus = (uint32_t)stress_get_processors_configured();

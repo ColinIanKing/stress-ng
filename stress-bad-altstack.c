@@ -69,7 +69,7 @@ static void MLOCKED_TEXT stress_segv_handler(int signum)
  *	a SIGSEGV when handling SIGSEGVs. The kernel
  *	should kill these.
  */
-static int stress_bad_altstack(const args_t *args)
+static int stress_bad_altstack(const stress_args_t *args)
 {
 	stress_set_oom_adjustment(args->name, true);
 

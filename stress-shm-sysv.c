@@ -163,7 +163,7 @@ static void stress_shm_get_procinfo(bool *get_procinfo)
  *	be reaped cleanly if this process gets prematurely killed.
  */
 static int stress_shm_sysv_child(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	const size_t max_sz,
 	const size_t page_size,
@@ -410,7 +410,7 @@ reap:
  *  stress_shm_sysv()
  *	stress SYSTEM V shared memory
  */
-static int stress_shm_sysv(const args_t *args)
+static int stress_shm_sysv(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	size_t orig_sz, sz;

@@ -101,7 +101,7 @@ static void MLOCKED_TEXT stress_watchdog_handler(int signum)
  *  stress_watchdog()
  *	stress /dev/watchdog
  */
-static int stress_watchdog(const args_t *args)
+static int stress_watchdog(const stress_args_t *args)
 {
 	int ret, rc = EXIT_SUCCESS;
 	size_t i;

@@ -109,7 +109,7 @@ static void drop_niceness(void)
 	}
 }
 
-static int stress_softlockup(const args_t *args)
+static int stress_softlockup(const stress_args_t *args)
 {
 	size_t policy = 0;
 	int max_prio = 0;

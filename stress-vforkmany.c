@@ -54,7 +54,7 @@ PRAGMA_POP
  *	careful not to overrite shared variables across
  *	all the processes.
  */
-static int stress_vforkmany(const args_t *args)
+static int stress_vforkmany(const stress_args_t *args)
 {
 	static int status;
 	static pid_t chpid;

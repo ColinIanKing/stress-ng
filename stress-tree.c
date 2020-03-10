@@ -26,7 +26,7 @@
 
 struct tree_node;
 
-typedef void (*stress_tree_func)(const args_t *args,
+typedef void (*stress_tree_func)(const stress_args_t *args,
 				 const size_t n,
 				 struct tree_node *data);
 
@@ -127,7 +127,7 @@ SPLAY_PROTOTYPE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
 SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
 
 static void stress_tree_rb(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t n,
 	struct tree_node *data)
 {
@@ -158,7 +158,7 @@ static void stress_tree_rb(
 }
 
 static void stress_tree_splay(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t n,
 	struct tree_node *nodes)
 {
@@ -227,7 +227,7 @@ static void binary_remove_tree(struct tree_node *node)
 
 
 static void stress_tree_binary(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t n,
 	struct tree_node *data)
 {
@@ -402,7 +402,7 @@ static void avl_remove_tree(struct tree_node *node)
 }
 
 static void stress_tree_avl(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t n,
 	struct tree_node *data)
 {
@@ -425,7 +425,7 @@ static void stress_tree_avl(
 }
 
 static void stress_tree_all(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t n,
 	struct tree_node *data)
 {
@@ -499,7 +499,7 @@ static inline uint64_t ror64(const uint64_t val)
  *  stress_tree()
  *	stress tree
  */
-static int stress_tree(const args_t *args)
+static int stress_tree(const stress_args_t *args)
 {
 	uint64_t v, tree_size = DEFAULT_TREE_SIZE;
 	struct tree_node *nodes, *node;

@@ -155,7 +155,7 @@ static stress_open_func_t open_funcs[] = {
  *  stress_open()
  *	stress system by rapid open/close calls
  */
-static int stress_open(const args_t *args)
+static int stress_open(const stress_args_t *args)
 {
 	static int fds[STRESS_FD_MAX];
 	size_t max_fd = stress_get_file_limit();

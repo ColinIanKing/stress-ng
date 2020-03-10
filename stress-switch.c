@@ -52,7 +52,7 @@ static int stress_set_switch_freq(const char *opt)
  *  stress_switch
  *	stress by heavy context switching
  */
-static int stress_switch(const args_t *args)
+static int stress_switch(const stress_args_t *args)
 {
 	pid_t pid;
 	int pipefds[2];

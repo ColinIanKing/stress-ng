@@ -120,7 +120,7 @@ static inline void efi_get_varname(char *dst, const size_t len, const stress_efi
  *	read data from a raw efi sysfs entry
  */
 static int efi_get_data(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *varname,
 	const char *field,
 	void *buf,
@@ -162,7 +162,7 @@ err_vars:
  *  efi_get_variable()
  *	fetch a UEFI variable given its name.
  */
-static int efi_get_variable(const args_t *args, const char *varname, stress_efi_var_t *var)
+static int efi_get_variable(const stress_args_t *args, const char *varname, stress_efi_var_t *var)
 {
 	int fd, ret, rc = 0, flags;
 	size_t i;
@@ -228,7 +228,7 @@ err_efi_vars:
  *  efi_vars_get()
  *	read EFI variables
  */
-static int efi_vars_get(const args_t *args)
+static int efi_vars_get(const stress_args_t *args)
 {
 	int i;
 
@@ -299,7 +299,7 @@ static int stress_efivar_supported(void)
  *  stress_efivar()
  *	stress that does lots of not a lot
  */
-static int stress_efivar(const args_t *args)
+static int stress_efivar(const stress_args_t *args)
 {
 	pid_t pid;
 	int i;

@@ -52,7 +52,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_mincore()
  *	stress mincore system call
  */
-static int stress_mincore(const args_t *args)
+static int stress_mincore(const stress_args_t *args)
 {
 	uint8_t *addr = 0, *prev_addr = 0;
 	const size_t page_size = args->page_size;

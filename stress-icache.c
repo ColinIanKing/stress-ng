@@ -64,7 +64,7 @@ func_name(void)								\
  */
 #define STRESS_ICACHE(func_name, page_sz, icache_func)			\
 static int SECTION(stress_icache_caller) ALIGNED(page_sz) 		\
-func_name(const args_t *args)						\
+func_name(const stress_args_t *args)						\
 {									\
 	uint8_t *addr = (uint8_t *)icache_func;				\
 	const size_t ps = args->page_size;				\
@@ -134,7 +134,7 @@ func_name(const args_t *args)						\
 	return EXIT_SUCCESS;						\
 }
 
-static inline int icache_madvise(const args_t *args, void *addr, size_t size)
+static inline int icache_madvise(const stress_args_t *args, void *addr, size_t size)
 {
 #if defined(MADV_NOHUGEPAGE)
 	if (shim_madvise((void *)addr, size, MADV_NOHUGEPAGE) < 0) {
@@ -176,7 +176,7 @@ STRESS_ICACHE(stress_icache_4K, SIZE_4K, stress_icache_func_4K)
  *	I-cache load misses can be observed using:
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
-static int stress_icache(const args_t *args)
+static int stress_icache(const stress_args_t *args)
 {
         int ret;
 

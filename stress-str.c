@@ -653,7 +653,7 @@ static int stress_set_str_method(const char *name)
  *  stress_str()
  *	stress CPU by doing various string operations
  */
-static int stress_str(const args_t *args)
+static int stress_str(const stress_args_t *args)
 {
 	const stress_str_method_info_t *str_method = &str_methods[0];
 	stress_str_func func;

@@ -64,7 +64,7 @@ static void MLOCKED_TEXT stress_segvhandler(int signum)
  *	so we a large stack with lots of pages not physically
  *	resident.
  */
-static void stress_stack_alloc(const args_t *args, const bool stack_fill)
+static void stress_stack_alloc(const stress_args_t *args, const bool stack_fill)
 {
 	const size_t sz = 256 * KB;
 	const size_t page_size4 = (args->page_size << 2);
@@ -94,7 +94,7 @@ static void stress_stack_alloc(const args_t *args, const bool stack_fill)
 		stress_stack_alloc(args, stack_fill);
 }
 
-static int stress_stack_child(const args_t *args, void *context)
+static int stress_stack_child(const stress_args_t *args, void *context)
 {
 	char *start_ptr = shim_sbrk(0);
 	void *altstack;
@@ -188,7 +188,7 @@ static int stress_stack_child(const args_t *args, void *context)
  *  stress_stack
  *	stress by forcing stack overflows
  */
-static int stress_stack(const args_t *args)
+static int stress_stack(const stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_stack_child, STRESS_OOMABLE_NORMAL);
 }

@@ -47,7 +47,7 @@ static const stress_whences_t whences[] = {
  *  stress_full
  *	stress /dev/full
  */
-static int stress_full(const args_t *args)
+static int stress_full(const stress_args_t *args)
 {
 	do {
 		ssize_t ret;

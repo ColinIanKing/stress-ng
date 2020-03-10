@@ -55,7 +55,7 @@ static int stress_spawn_supported(void)
  *  stress_spawn()
  *	stress by forking and spawn'ing
  */
-static int stress_spawn(const args_t *args)
+static int stress_spawn(const stress_args_t *args)
 {
 	char path[PATH_MAX + 1];
 	ssize_t len;

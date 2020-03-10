@@ -55,7 +55,7 @@ static int stress_set_seek_punch(const char *opt)
  *  stress_seek
  *	stress I/O via random seeks and read/writes
  */
-static int stress_seek(const args_t *args)
+static int stress_seek(const stress_args_t *args)
 {
 	uint64_t len;
 	uint64_t seek_size = DEFAULT_SEEK_SIZE;

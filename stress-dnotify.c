@@ -71,8 +71,8 @@ static void dnotify_handler(int sig, siginfo_t *si, void *data)
 	dnotify_fd = si->si_fd;
 }
 
-typedef int (*stress_dnotify_helper)(const args_t *args, const char *path, const void *private);
-typedef void (*stress_dnotify_func)(const args_t *args, const char *path);
+typedef int (*stress_dnotify_helper)(const stress_args_t *args, const char *path, const void *private);
+typedef void (*stress_dnotify_func)(const stress_args_t *args, const char *path);
 
 typedef struct {
 	const stress_dnotify_func func;
@@ -85,7 +85,7 @@ typedef struct {
  *	required dnotify event flags 'flags'.
  */
 static void dnotify_exercise(
-	const args_t *args,	/* Stressor args */
+	const stress_args_t *args,	/* Stressor args */
 	const char *filename,	/* Filename in test */
 	const char *watchname,	/* File or directory to watch using dnotify */
 	const stress_dnotify_helper func,	/* Helper func */
@@ -133,7 +133,7 @@ cleanup:
  *  rm_file()
  *	remove a file
  */
-static int rm_file(const args_t *args, const char *path)
+static int rm_file(const stress_args_t *args, const char *path)
 {
 	if ((unlink(path) < 0) && errno != ENOENT) {
 		pr_err("%s: cannot remove file %s: errno=%d (%s)\n",
@@ -160,7 +160,7 @@ static inline void mk_filename(
  *  mk_file()
  *	create file of length len bytes
  */
-static int mk_file(const args_t *args, const char *filename, const size_t len)
+static int mk_file(const stress_args_t *args, const char *filename, const size_t len)
 {
 	int fd;
 	size_t sz = len;
@@ -196,7 +196,7 @@ static int mk_file(const args_t *args, const char *filename, const size_t len)
 }
 
 static int dnotify_attrib_helper(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -209,7 +209,7 @@ static int dnotify_attrib_helper(
 	return 0;
 }
 
-static void dnotify_attrib_file(const args_t *args, const char *path)
+static void dnotify_attrib_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -223,7 +223,7 @@ static void dnotify_attrib_file(const args_t *args, const char *path)
 }
 
 static int dnotify_access_helper(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -251,7 +251,7 @@ do_access:
 	return rc;
 }
 
-static void dnotify_access_file(const args_t *args, const char *path)
+static void dnotify_access_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -265,7 +265,7 @@ static void dnotify_access_file(const args_t *args, const char *path)
 }
 
 static int dnotify_modify_helper(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -295,7 +295,7 @@ remove:
 	return rc;
 }
 
-static void dnotify_modify_file(const args_t *args, const char *path)
+static void dnotify_modify_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -305,7 +305,7 @@ static void dnotify_modify_file(const args_t *args, const char *path)
 }
 
 static int dnotify_creat_helper(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -320,7 +320,7 @@ static int dnotify_creat_helper(
 	return 0;
 }
 
-static void dnotify_creat_file(const args_t *args, const char *path)
+static void dnotify_creat_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -331,7 +331,7 @@ static void dnotify_creat_file(const args_t *args, const char *path)
 }
 
 static int dnotify_delete_helper(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *path,
 	const void *signum)
 {
@@ -340,7 +340,7 @@ static int dnotify_delete_helper(
 	return rm_file(args, path);
 }
 
-static void dnotify_delete_file(const args_t *args, const char *path)
+static void dnotify_delete_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
@@ -354,7 +354,7 @@ static void dnotify_delete_file(const args_t *args, const char *path)
 }
 
 static int dnotify_rename_helper(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *oldpath,
 	const void *private)
 {
@@ -368,7 +368,7 @@ static int dnotify_rename_helper(
 	return 0;
 }
 
-static void dnotify_rename_file(const args_t *args, const char *path)
+static void dnotify_rename_file(const stress_args_t *args, const char *path)
 {
 	char oldfile[PATH_MAX], newfile[PATH_MAX];
 
@@ -398,7 +398,7 @@ static const stress_dnotify_stress_t dnotify_stressors[] = {
  *  stress_dnotify()
  *	stress dnotify
  */
-static int stress_dnotify(const args_t *args)
+static int stress_dnotify(const stress_args_t *args)
 {
 	char pathname[PATH_MAX];
 	int ret, i;

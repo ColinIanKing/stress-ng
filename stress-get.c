@@ -123,7 +123,7 @@ static const int priorities[] = {
  *  stress on get*() calls
  *	stress system by rapid get*() system calls
  */
-static int stress_get(const args_t *args)
+static int stress_get(const stress_args_t *args)
 {
 	const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
 #if defined(HAVE_SYS_TIMEX_H)

@@ -65,7 +65,7 @@ static void thread3(void)
 }
 
 static int stress_context_init(
-	const args_t *args,
+	const stress_args_t *args,
 	void (*func)(void),
 	ucontext_t *uctx_link,
 	ucontext_t *uctx,
@@ -89,7 +89,7 @@ static int stress_context_init(
  *  stress_context()
  *	stress that exercises CPU context save/restore
  */
-static int stress_context(const args_t *args)
+static int stress_context(const stress_args_t *args)
 {
 	static char stack_thread1[STACK_SIZE + STACK_ALIGNMENT],
 		    stack_thread2[STACK_SIZE + STACK_ALIGNMENT],

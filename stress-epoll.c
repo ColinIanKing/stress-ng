@@ -43,7 +43,7 @@ static const stress_help_t help[] = {
     NEED_GLIBC(2,3,2)
 
 typedef void (stress_epoll_func_t)(
-	const args_t *args,
+	const stress_args_t *args,
 	const int child,
 	const pid_t ppid,
 	const int epoll_port,
@@ -134,7 +134,7 @@ static void MLOCKED_TEXT epoll_timer_handler(int sig)
  *	spawn a process
  */
 static pid_t epoll_spawn(
-	const args_t *args,
+	const stress_args_t *args,
 	stress_epoll_func_t func,
 	const int child,
 	const pid_t ppid,
@@ -221,7 +221,7 @@ static int epoll_ctl_add(const int efd, const int fd)
  *	fd's to epoll event list
  */
 static int epoll_notification(
-	const args_t *args,
+	const stress_args_t *args,
 	const int efd,
 	const int sfd)
 {
@@ -268,7 +268,7 @@ static int epoll_notification(
  *	send a relatively short message
  */
 static int epoll_client(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t ppid,
 	const int epoll_port,
 	const int epoll_domain)
@@ -397,7 +397,7 @@ retry:
  *	wait on connections and read data
  */
 static void epoll_server(
-	const args_t *args,
+	const stress_args_t *args,
 	const int child,
 	const pid_t ppid,
 	const int epoll_port,
@@ -561,7 +561,7 @@ die:
  *  stress_epoll
  *	stress by heavy socket I/O
  */
-static int stress_epoll(const args_t *args)
+static int stress_epoll(const stress_args_t *args)
 {
 	pid_t pids[MAX_SERVERS], ppid = getppid();
 	int i, rc = EXIT_SUCCESS;

@@ -86,7 +86,7 @@ static const stress_help_t help[] = {
      defined(PR_GET_IO_FLUSHER) ||		\
      defined(PR_SET_IO_FLUSHER)
 
-static int stress_prctl_child(const args_t *args, const pid_t mypid)
+static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 {
 	int ret;
 
@@ -524,7 +524,7 @@ static int stress_prctl_child(const args_t *args, const pid_t mypid)
  *  stress_prctl()
  *	stress seccomp
  */
-static int stress_prctl(const args_t *args)
+static int stress_prctl(const stress_args_t *args)
 {
 	do {
 		pid_t pid;

@@ -68,7 +68,7 @@ static void MLOCKED_TEXT stress_lease_handler(int signum)
  *	spawn a process
  */
 static pid_t stress_lease_spawn(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *filename)
 {
 	pid_t pid;
@@ -109,7 +109,7 @@ again:
  *  stress_lease
  *	stress by fcntl lease activity
  */
-static int stress_lease(const args_t *args)
+static int stress_lease(const stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd, status;

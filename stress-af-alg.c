@@ -157,7 +157,7 @@ static const char *type_to_name(const stress_crypto_type_t type)
  *	some crypto engines may return EINVAL, so flag these up in
  *	debug and ignore them for the next iteration
  */
-static void stress_af_alg_ignore(const args_t *args, stress_crypto_info_t *info)
+static void stress_af_alg_ignore(const stress_args_t *args, stress_crypto_info_t *info)
 {
 	if ((args->instance == 0) && (!info->ignore)) {
 		pr_dbg("%s: sendmsg using %s failed with EINVAL, skipping crypto engine\n",
@@ -167,7 +167,7 @@ static void stress_af_alg_ignore(const args_t *args, stress_crypto_info_t *info)
 }
 
 static int stress_af_alg_hash(
-	const args_t *args,
+	const stress_args_t *args,
 	const int sockfd,
 	stress_crypto_info_t *info)
 {
@@ -259,7 +259,7 @@ err:
 }
 
 static int stress_af_alg_cipher(
-	const args_t *args,
+	const stress_args_t *args,
 	const int sockfd,
 	stress_crypto_info_t *info)
 {
@@ -506,7 +506,7 @@ err:
 }
 
 static int stress_af_alg_rng(
-	const args_t *args,
+	const stress_args_t *args,
 	const int sockfd,
 	stress_crypto_info_t *info)
 {
@@ -621,7 +621,7 @@ static void stress_af_alg_dump_crypto_list(void)
  *  stress_af_alg()
  *	stress socket AF_ALG domain
  */
-static int stress_af_alg(const args_t *args)
+static int stress_af_alg(const stress_args_t *args)
 {
 	int sockfd = -1, rc = EXIT_FAILURE;
 	int retries = MAX_AF_ALG_RETRIES;

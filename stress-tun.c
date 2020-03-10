@@ -80,7 +80,7 @@ static int stress_set_tun_tap(const char *opt)
  *  stress_tun
  *	stress tun interface
  */
-static int stress_tun(const args_t *args)
+static int stress_tun(const stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
 	const uid_t owner = geteuid();

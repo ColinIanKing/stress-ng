@@ -49,7 +49,7 @@ static void MLOCKED_TEXT stress_segvhandler(int signum)
  *  stress_fault()
  *	stress min and max page faulting
  */
-static int stress_fault(const args_t *args)
+static int stress_fault(const stress_args_t *args)
 {
 #if !defined(__HAIKU__)
 	struct rusage usage;

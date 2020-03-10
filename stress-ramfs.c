@@ -84,7 +84,7 @@ static void stress_ramfs_child_handler(int signum)
  *  stress_ramfs_umount()
  *	umount a path with retries.
  */
-static void stress_ramfs_umount(const args_t *args, const char *path)
+static void stress_ramfs_umount(const stress_args_t *args, const char *path)
 {
 	int i;
 	static const uint64_t ns = 100000000;	/* 1/10th second */
@@ -133,7 +133,7 @@ static void stress_ramfs_umount(const args_t *args, const char *path)
  *  stress_ramfs_fs_ops()
  *	exercise the ram based file system;
  */
-static int stress_ramfs_fs_ops(const args_t *args, const char *pathname)
+static int stress_ramfs_fs_ops(const stress_args_t *args, const char *pathname)
 {
 	char filename[PATH_MAX + 5];
 	char symlinkname[PATH_MAX + 5];
@@ -201,7 +201,7 @@ static int stress_ramfs_fs_ops(const args_t *args, const char *pathname)
  *	aggressively perform ramfs mounts, this can force out of memory
  *	situations
  */
-static int stress_ramfs_child(const args_t *args)
+static int stress_ramfs_child(const stress_args_t *args)
 {
 	char pathname[PATH_MAX], realpathname[PATH_MAX];
 	uint64_t ramfs_size = 2 * MB;
@@ -343,7 +343,7 @@ cleanup:
  *  stress_ramfs_mount()
  *      stress ramfs mounting
  */
-static int stress_ramfs_mount(const args_t *args)
+static int stress_ramfs_mount(const stress_args_t *args)
 {
 	int pid;
 

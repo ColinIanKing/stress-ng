@@ -45,7 +45,7 @@ static void MLOCKED_TEXT stress_usr1_handler(int signum)
  *  stress_sigsuspend
  *	stress sigsuspend
  */
-static int stress_sigsuspend(const args_t *args)
+static int stress_sigsuspend(const stress_args_t *args)
 {
 	pid_t pid[MAX_SIGSUSPEND_PIDS];
 	size_t n, i;

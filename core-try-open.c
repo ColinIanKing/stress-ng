@@ -40,7 +40,7 @@ static void MLOCKED_TEXT stress_timer_handler(int sig)
  *  if it cannot be opened within timeout nanoseconds.
  */
 int stress_try_open(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *path,
 	const int flags,
 	const unsigned long timeout_ns)
@@ -107,7 +107,7 @@ int stress_try_open(
 }
 #else
 int stress_try_open(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *path,
 	const int flags,
 	const unsigned long timeout_ns)

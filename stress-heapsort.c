@@ -114,7 +114,7 @@ static int stress_heapsort_cmp_3(const void *p1, const void *p2)
  *  stress_heapsort()
  *	stress heapsort
  */
-static int stress_heapsort(const args_t *args)
+static int stress_heapsort(const stress_args_t *args)
 {
 	uint64_t heapsort_size = DEFAULT_HEAPSORT_SIZE;
 	int32_t *data, *ptr;

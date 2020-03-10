@@ -58,7 +58,7 @@ typedef struct stat_info {
 
 /* Thread context information */
 typedef struct ctxt {
-	const args_t 	*args;		/* Stressor args */
+	const stress_args_t 	*args;		/* Stressor args */
 	stress_stat_info_t *si;		/* path stat information */
 	const uid_t	euid;		/* euid of process */
 } stress_ctxt_t;
@@ -184,7 +184,7 @@ static void *stress_fstat_thread(void *ctxt_ptr)
  *  stress_fstat_threads()
  *	create a bunch of threads to thrash a file
  */
-static void stress_fstat_threads(const args_t *args, stress_stat_info_t *si, const uid_t euid)
+static void stress_fstat_threads(const stress_args_t *args, stress_stat_info_t *si, const uid_t euid)
 {
 	size_t i;
 #if defined(HAVE_LIB_PTHREAD)
@@ -226,7 +226,7 @@ static void stress_fstat_threads(const args_t *args, stress_stat_info_t *si, con
  *  stress_fstat()
  *	stress system with fstat
  */
-static int stress_fstat(const args_t *args)
+static int stress_fstat(const stress_args_t *args)
 {
 	stress_stat_info_t *si;
 	static stress_stat_info_t *stat_info;

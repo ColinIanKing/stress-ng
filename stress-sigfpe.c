@@ -118,7 +118,7 @@ static char *stress_sigfpe_errstr(const int err)
  *  stress_sigfpe
  *	stress by generating floating point errors
  */
-static int stress_sigfpe(const args_t *args)
+static int stress_sigfpe(const stress_args_t *args)
 {
 	struct sigaction action;
 	static int i = 0;

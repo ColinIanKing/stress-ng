@@ -214,7 +214,7 @@ static void stress_memcpy_set_default(void)
  *  stress_memcpy()
  *	stress memory copies
  */
-static int stress_memcpy(const args_t *args)
+static int stress_memcpy(const stress_args_t *args)
 {
 	static stress_buffer_t b;
 	uint8_t *b_str = g_shared->str_shared;

@@ -75,7 +75,7 @@ static int stress_quota_supported(void)
  *	do a quotactl command
  */
 static int do_quotactl(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *cmdname,
 	int *tested,
 	int *failed,
@@ -120,7 +120,7 @@ static int do_quotactl(
  *  do_quotas()
  *	do quotactl commands
  */
-static int do_quotas(const args_t *args, stress_dev_info_t *const dev)
+static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 {
 	int tested = 0, failed = 0, enosys = 0, esrch = 0;
 #if defined(Q_GETQUOTA)
@@ -207,7 +207,7 @@ static int do_quotas(const args_t *args, stress_dev_info_t *const dev)
  *  stress_quota
  *	stress various quota options
  */
-static int stress_quota(const args_t *args)
+static int stress_quota(const stress_args_t *args)
 {
 	int i, n_mounts, n_devs = 0;
 	int rc = EXIT_FAILURE;

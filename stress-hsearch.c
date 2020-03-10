@@ -49,7 +49,7 @@ static int stress_set_hsearch_size(const char *opt)
  *  stress_hsearch()
  *	stress hsearch
  */
-static int stress_hsearch(const args_t *args)
+static int stress_hsearch(const stress_args_t *args)
 {
 	uint64_t hsearch_size = DEFAULT_HSEARCH_SIZE;
 	size_t i, max;

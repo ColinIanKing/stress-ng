@@ -122,7 +122,7 @@ static void *stress_pthread_func(void *parg)
 	struct robust_list_head *head;
 	size_t len;
 #endif
-	const args_t *args = ((stress_pthread_args_t *)parg)->args;
+	const stress_args_t *args = ((stress_pthread_args_t *)parg)->args;
 
 	/*
 	 *  According to POSIX.1 a thread should have
@@ -251,7 +251,7 @@ die:
  *  stress_pthread()
  *	stress by creating pthreads
  */
-static int stress_pthread(const args_t *args)
+static int stress_pthread(const stress_args_t *args)
 {
 	bool locked = false;
 	uint64_t limited = 0, attempted = 0;

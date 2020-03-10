@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const args_t *s_args;
+static const stress_args_t *s_args;
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigpipe N",	 "start N workers exercising SIGPIPE" },
@@ -50,7 +50,7 @@ static int NORETURN pipe_child(void *ptr)
 }
 
 static inline int stress_sigpipe_write(
-	const args_t *args,
+	const stress_args_t *args,
 	const char *buf,
 	const size_t buf_len)
 {
@@ -137,7 +137,7 @@ again:
  *  stress_sigpipe
  *	stress by generating SIGPIPE signals on pipe I/O
  */
-static int stress_sigpipe(const args_t *args)
+static int stress_sigpipe(const stress_args_t *args)
 {
 	s_args = args;
 	char buf[args->page_size * 2];

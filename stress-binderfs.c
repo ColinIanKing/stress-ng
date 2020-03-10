@@ -51,7 +51,7 @@ static int stress_binderfs_supported(void)
 
 #define UNMOUNT_TIMEOUT		(5.0)	/* In seconds */
 
-static int stress_binderfs_umount(const args_t *args, const char *pathname)
+static int stress_binderfs_umount(const stress_args_t *args, const char *pathname)
 {
 	int ret;
 	double t1, t2;
@@ -82,7 +82,7 @@ static int stress_binderfs_umount(const args_t *args, const char *pathname)
  *  stress_binderfs()
  *      stress binderfs
  */
-static int stress_binderfs(const args_t *args)
+static int stress_binderfs(const stress_args_t *args)
 {
 	int rc, ret;
 	char pathname[PATH_MAX];

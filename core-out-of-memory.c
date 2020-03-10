@@ -170,7 +170,7 @@ bool stress_process_oomed(const pid_t pid)
  *	OOM'd and we retry if it gets killed.
  */
 int stress_oomable_child(
-	const args_t *args,
+	const stress_args_t *args,
 	void *context,
 	stress_oomable_child_func_t func,
 	const int flag)

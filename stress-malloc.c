@@ -75,7 +75,7 @@ static inline size_t stress_alloc_size(const size_t malloc_bytes)
 	return len ? len : 1;
 }
 
-static int stress_malloc_child(const args_t *args, void *context)
+static int stress_malloc_child(const stress_args_t *args, void *context)
 {
 	size_t j;
 	size_t malloc_bytes = DEFAULT_MALLOC_BYTES;
@@ -182,7 +182,7 @@ abort:
  *	stress malloc by performing a mix of
  *	allocation and frees
  */
-static int stress_malloc(const args_t *args)
+static int stress_malloc(const stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_malloc_child, STRESS_OOMABLE_NORMAL);
 }

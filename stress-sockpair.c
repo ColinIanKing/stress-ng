@@ -82,7 +82,7 @@ static void socket_pair_close(
  *	this stressor needs to be oom-able in the parent
  *	and child cases
  */
-static int stress_sockpair_oomable(const args_t *args)
+static int stress_sockpair_oomable(const stress_args_t *args)
 {
 	pid_t pid;
 	static int socket_pair_fds[MAX_SOCKET_PAIRS][2];
@@ -185,7 +185,7 @@ abort:
  *  stress_sockpair
  *	stress by heavy socket_pair I/O
  */
-static int stress_sockpair(const args_t *args)
+static int stress_sockpair(const stress_args_t *args)
 {
 	pid_t pid;
 	uint32_t restarts = 0;

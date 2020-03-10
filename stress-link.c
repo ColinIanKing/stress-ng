@@ -41,7 +41,7 @@ static const stress_help_t symlink_help[] = {
  *	remove all links
  */
 static void stress_link_unlink(
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t n)
 {
 	uint64_t i;
@@ -61,7 +61,7 @@ static void stress_link_unlink(
  *	stress links, generic case
  */
 static int stress_link_generic(
-	const args_t *args,
+	const stress_args_t *args,
 	int (*linkfunc)(const char *oldpath, const char *newpath),
 	const char *funcname)
 {
@@ -145,7 +145,7 @@ abort:
  *  stress_link
  *	stress hard links
  */
-static int stress_link(const args_t *args)
+static int stress_link(const stress_args_t *args)
 {
 	return stress_link_generic(args, link, "link");
 }
@@ -155,7 +155,7 @@ static int stress_link(const args_t *args)
  *  stress_symlink
  *	stress symbolic links
  */
-static int stress_symlink(const args_t *args)
+static int stress_symlink(const stress_args_t *args)
 {
 	return stress_link_generic(args, symlink, "symlink");
 }

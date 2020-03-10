@@ -68,7 +68,7 @@ static int stress_idle_page_supported(void)
  *  stress_idle_page
  *	stress kernel logging interface
  */
-static int stress_idle_page(const args_t *args)
+static int stress_idle_page(const stress_args_t *args)
 {
 	int fd;
 	off_t posn = 0, last_posn = 0xfffffffffffffff8ULL;

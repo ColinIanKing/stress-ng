@@ -3042,7 +3042,7 @@ static void MLOCKED_TEXT stress_badhandler(int signum)
  *  Call a system call in a child context so we don't clobber
  *  the parent
  */
-static inline int stress_do_syscall(const args_t *args, const long number)
+static inline int stress_do_syscall(const stress_args_t *args, const long number)
 {
 	pid_t pid;
 	int rc = 0;
@@ -3165,7 +3165,7 @@ static inline int stress_do_syscall(const args_t *args, const long number)
  *  stress_enosys
  *	stress system calls
  */
-static int stress_enosys(const args_t *args)
+static int stress_enosys(const stress_args_t *args)
 {
 	pid_t pid;
 

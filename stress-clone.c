@@ -27,7 +27,7 @@
 #define CLONE_STACK_SIZE	(16*1024)
 
 typedef struct stress_clone_args {
-	const args_t *args;
+	const stress_args_t *args;
 } stress_clone_args_t;
 
 typedef struct clone {
@@ -284,7 +284,7 @@ static int clone_func(void *arg)
 	return 0;
 }
 
-static int stress_clone_child(const args_t *args, void *context)
+static int stress_clone_child(const stress_args_t *args, void *context)
 {
 	/* Child */
 	uint32_t max_clones = 0;
@@ -395,7 +395,7 @@ static int stress_clone_child(const args_t *args, void *context)
  *  stress_clone()
  *	stress by cloning and exiting
  */
-static int stress_clone(const args_t *args)
+static int stress_clone(const stress_args_t *args)
 {
 	stress_set_oom_adjustment(args->name, false);
 

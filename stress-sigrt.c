@@ -46,7 +46,7 @@ static void MLOCKED_TEXT stress_sigrthandler(int signum)
  *  stress_sigrt
  *	stress by heavy real time sigqueue message sending
  */
-static int stress_sigrt(const args_t *args)
+static int stress_sigrt(const stress_args_t *args)
 {
 	pid_t pids[MAX_RTPIDS];
 	union sigval s;

@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
  *  daemons()
  *	fork off a child and let the parent die
  */
-static void daemons(const args_t *args, const int fd)
+static void daemons(const stress_args_t *args, const int fd)
 {
 	int fds[3];
 	int i;
@@ -127,7 +127,7 @@ err:	(void)close(fd);
  *  stress_daemon()
  *	stress by multiple daemonizing forks
  */
-static int stress_daemon(const args_t *args)
+static int stress_daemon(const stress_args_t *args)
 {
 	int fds[2];
 	pid_t pid;

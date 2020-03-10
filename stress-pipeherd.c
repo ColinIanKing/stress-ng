@@ -50,7 +50,7 @@ static int stress_set_pipeherd_yield(const char *opt)
         return set_setting("pipeherd-yield", TYPE_ID_BOOL, &pipeherd_yield);
 }
 
-static int stress_pipeherd_read_write(const args_t *args, const int fd[2], const bool pipeherd_yield)
+static int stress_pipeherd_read_write(const stress_args_t *args, const int fd[2], const bool pipeherd_yield)
 {
 	while (keep_stressing()) {
 		int64_t counter;
@@ -79,7 +79,7 @@ static int stress_pipeherd_read_write(const args_t *args, const int fd[2], const
  *  stress_pipeherd
  *	stress by heavy pipe I/O
  */
-static int stress_pipeherd(const args_t *args)
+static int stress_pipeherd(const stress_args_t *args)
 {
 	int fd[2];
 	int64_t counter;

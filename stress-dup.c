@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
  *  stress_dup()
  *	stress system by rapid dup/close calls
  */
-static int stress_dup(const args_t *args)
+static int stress_dup(const stress_args_t *args)
 {
 	static int fds[STRESS_FD_MAX];
 	size_t max_fd = stress_get_file_limit();

@@ -50,8 +50,8 @@ static void MLOCKED_TEXT stress_usr1_handler(int signum)
  *	spawn a process
  */
 static pid_t spawn(
-	const args_t *args,
-	void (*func)(const args_t *args, const pid_t pid),
+	const stress_args_t *args,
+	void (*func)(const stress_args_t *args, const pid_t pid),
 	pid_t pid_arg)
 {
 	pid_t pid;
@@ -79,7 +79,7 @@ again:
  *	stopped and continued by the killer process
  */
 static void runner(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t pid)
 {
 	(void)pid;
@@ -99,7 +99,7 @@ static void runner(
  *	this continually stops and continues the runner process
  */
 static void killer(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t pid)
 {
 	double start = stress_time_now();
@@ -145,7 +145,7 @@ static void killer(
  *  stress_wait_continued()
  *	check WIFCONTINUED
  */
-static void stress_wait_continued(const args_t *args, const int status)
+static void stress_wait_continued(const stress_args_t *args, const int status)
 {
 #if defined(WIFCONTINUED)
 	if (WIFCONTINUED(status))
@@ -161,7 +161,7 @@ static void stress_wait_continued(const args_t *args, const int status)
  *  stress_wait
  *	stress wait*() family of calls
  */
-static int stress_wait(const args_t *args)
+static int stress_wait(const stress_args_t *args)
 {
 	int status, ret = EXIT_SUCCESS;
 	pid_t pid_r, pid_k, wret;

@@ -48,7 +48,7 @@ static const stress_help_t help[] = {
  *  stress_klog
  *	stress kernel logging interface
  */
-static int stress_klog(const args_t *args)
+static int stress_klog(const stress_args_t *args)
 {
 	char *buffer;
 	ssize_t len;

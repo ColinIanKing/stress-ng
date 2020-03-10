@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
  *  pipe_read()
  *	read a pipe with some verification and checking
  */
-static int pipe_read(const args_t *args, const int fd, const int n)
+static int pipe_read(const stress_args_t *args, const int fd, const int n)
 {
 	while (keep_stressing_flag()) {
 		ssize_t ret;
@@ -75,7 +75,7 @@ static int pipe_read(const args_t *args, const int fd, const int n)
  *  stress_poll()
  *	stress system by rapid polling system calls
  */
-static int stress_poll(const args_t *args)
+static int stress_poll(const stress_args_t *args)
 {
 	int pipefds[MAX_PIPES][2];
 	int i;

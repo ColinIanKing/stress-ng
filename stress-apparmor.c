@@ -210,7 +210,7 @@ static void stress_apparmor_dir(
  *	spawn a process
  */
 static pid_t apparmor_spawn(
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops,
 	uint64_t *counter,
 	stress_apparmor_func func)
@@ -639,7 +639,7 @@ static const stress_apparmor_func apparmor_funcs[] = {
  *  stress_apparmor()
  *	stress AppArmor
  */
-static int stress_apparmor(const args_t *args)
+static int stress_apparmor(const stress_args_t *args)
 {
 	const size_t n = SIZEOF_ARRAY(apparmor_funcs);
 	pid_t pids[n];

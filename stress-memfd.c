@@ -71,7 +71,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 /*
  *  Create allocations using memfd_create, ftruncate and mmap
  */
-static int stress_memfd_child(const args_t *args, void *context)
+static int stress_memfd_child(const stress_args_t *args, void *context)
 {
 	int *fds;
 	void **maps;
@@ -249,7 +249,7 @@ clean:
  *  stress_memfd()
  *	stress memfd
  */
-static int stress_memfd(const args_t *args)
+static int stress_memfd(const stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_memfd_child, STRESS_OOMABLE_NORMAL);
 }

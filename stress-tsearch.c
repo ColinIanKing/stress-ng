@@ -66,7 +66,7 @@ static int cmp(const void *p1, const void *p2)
  *  stress_tsearch()
  *	stress tsearch
  */
-static int stress_tsearch(const args_t *args)
+static int stress_tsearch(const stress_args_t *args)
 {
 	uint64_t tsearch_size = DEFAULT_TSEARCH_SIZE;
 	int32_t *data;

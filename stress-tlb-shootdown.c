@@ -41,7 +41,7 @@ static const stress_help_t help[] = {
  *  stress_tlb_shootdown()
  *	stress out TLB shootdowns
  */
-static int stress_tlb_shootdown(const args_t *args)
+static int stress_tlb_shootdown(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t mmap_size = page_size * MMAP_PAGES;

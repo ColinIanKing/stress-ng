@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
  *  stress_sigfd
  *	stress signalfd reads
  */
-static int stress_sigfd(const args_t *args)
+static int stress_sigfd(const stress_args_t *args)
 {
 	pid_t pid, ppid = args->pid;
 	int sfd;

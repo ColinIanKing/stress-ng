@@ -254,7 +254,7 @@ static void fanotify_event_clear(const int fan_fd)
  *  stress_fanotify()
  *	stress fanotify
  */
-static int stress_fanotify(const args_t *args)
+static int stress_fanotify(const stress_args_t *args)
 {
 	char pathname[PATH_MAX - 16], filename[PATH_MAX];
 	int ret, fan_fd, pid, rc = EXIT_SUCCESS;

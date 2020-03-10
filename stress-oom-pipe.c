@@ -77,7 +77,7 @@ static void pipe_fill(const int fd, const size_t max, const size_t page_size)
 	}
 }
 
-static int stress_oom_pipe_child(const args_t *args, void *ctxt)
+static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 {
 	stress_oom_pipe_context_t *context = (stress_oom_pipe_context_t *)ctxt;
 	const int max_pipes = context->max_fd / 2;
@@ -160,7 +160,7 @@ clean:
  *  stress_oom_pipe
  *	stress pipe memory allocation
  */
-static int stress_oom_pipe(const args_t *args)
+static int stress_oom_pipe(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 

@@ -31,7 +31,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-typedef void (*stress_rawdev_func)(const args_t *args, const int fd,
+typedef void (*stress_rawdev_func)(const stress_args_t *args, const int fd,
 			   unsigned long blks, unsigned long blksz);
 
 #define	MIN_BLKSZ	((int)512)
@@ -96,7 +96,7 @@ static char *stress_rawdev_path(const dev_t dev)
 }
 
 static void stress_rawdev_sweep(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	unsigned long blks,
 	unsigned long blksz)
@@ -128,7 +128,7 @@ static void stress_rawdev_sweep(
 }
 
 static void stress_rawdev_wiggle(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	unsigned long blks,
 	unsigned long blksz)
@@ -155,7 +155,7 @@ static void stress_rawdev_wiggle(
 }
 
 static void stress_rawdev_ends(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	unsigned long blks,
 	unsigned long blksz)
@@ -187,7 +187,7 @@ static void stress_rawdev_ends(
 }
 
 static void stress_rawdev_random(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	unsigned long blks,
 	unsigned long blksz)
@@ -210,7 +210,7 @@ static void stress_rawdev_random(
 }
 
 static void stress_rawdev_burst(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	unsigned long blks,
 	unsigned long blksz)
@@ -242,7 +242,7 @@ static const stress_rawdev_method_info_t rawdev_methods[];
  *      iterate over all rawdev methods
  */
 static void stress_rawdev_all(
-	const args_t *args,
+	const stress_args_t *args,
 	const int fd,
 	unsigned long blks,
 	unsigned long blksz)
@@ -319,7 +319,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(BLKGETSIZE) && 		\
     defined(BLKSSZGET)
 
-static int stress_rawdev(const args_t *args)
+static int stress_rawdev(const stress_args_t *args)
 {
 	int ret;
 	char path[PATH_MAX], *devpath;

@@ -877,7 +877,7 @@ static inline size_t round_up(size_t page_size, size_t n)
 }
 
 static inline int stress_matrix_3d_exercise(
-	const args_t *args,
+	const stress_args_t *args,
 	const stress_matrix_3d_func func,
 	const size_t n)
 {
@@ -952,7 +952,7 @@ tidy_ret:
  *  stress_matrix()
  *	stress CPU by doing floating point math ops
  */
-static int stress_matrix(const args_t *args)
+static int stress_matrix(const stress_args_t *args)
 {
 	char *matrix_3d_method_name;
 	const stress_matrix_3d_method_info_t *matrix_3d_method;

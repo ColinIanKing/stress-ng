@@ -61,7 +61,7 @@ static int p_ret[MAX_SEMAPHORE_PROCS];
 static void *semaphore_posix_thrash(void *arg)
 {
 	const stress_pthread_args_t *p_args = arg;
-	const args_t *args = p_args->args;
+	const stress_args_t *args = p_args->args;
 	static void *nowt = NULL;
 
 	do {
@@ -121,7 +121,7 @@ static void *semaphore_posix_thrash(void *arg)
  *  stress_sem()
  *	stress system by POSIX sem ops
  */
-static int stress_sem(const args_t *args)
+static int stress_sem(const stress_args_t *args)
 {
 	uint64_t semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
 	uint64_t i;

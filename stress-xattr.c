@@ -49,7 +49,7 @@ static const stress_help_t help[] = {
  *  stress_xattr
  *	stress the xattr operations
  */
-static int stress_xattr(const args_t *args)
+static int stress_xattr(const stress_args_t *args)
 {
 	int ret, fd, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];

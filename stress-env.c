@@ -30,7 +30,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int stress_env_child(const args_t *args, void *context)
+static int stress_env_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	uint64_t i = 0;
@@ -119,7 +119,7 @@ reap:
  *  stress_env()
  *	stress environment variables
  */
-static int stress_env(const args_t *args)
+static int stress_env(const stress_args_t *args)
 {
 	return stress_oomable_child(args, NULL, stress_env_child, STRESS_OOMABLE_DROP_CAP);
 }

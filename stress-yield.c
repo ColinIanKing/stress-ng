@@ -36,7 +36,7 @@ static const stress_help_t help[] = {
  *  stress on sched_yield()
  *	stress system by sched_yield
  */
-static int stress_yield(const args_t *args)
+static int stress_yield(const stress_args_t *args)
 {
 	uint64_t *counters;
 	uint64_t max_ops_per_yielder;

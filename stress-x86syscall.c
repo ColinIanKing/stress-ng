@@ -284,7 +284,7 @@ static int x86syscall_check_x86syscall_func(void)
  *  stress_x86syscall()
  *	stress x86 syscall instruction
  */
-static int stress_x86syscall(const args_t *args)
+static int stress_x86syscall(const stress_args_t *args)
 {
 	char *str;
 	double t1, t2, t3, overhead_ns;

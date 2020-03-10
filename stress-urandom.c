@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
     defined(RNDADDTOENTCNT) ||	\
     defined(RNDRESEEDCRNG) || 	\
     defined(__linux__)
-static void check_eperm(const args_t *args, const int ret, const int err)
+static void check_eperm(const stress_args_t *args, const int ret, const int err)
 {
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 	    ((ret == 0) || ((err != EPERM) && (err != EINVAL) && (err != ENOTTY)))) {
@@ -50,7 +50,7 @@ static void check_eperm(const args_t *args, const int ret, const int err)
  *  stress_urandom
  *	stress reading of /dev/urandom and /dev/random
  */
-static int stress_urandom(const args_t *args)
+static int stress_urandom(const stress_args_t *args)
 {
 	int fd_urnd, fd_rnd, rc = EXIT_FAILURE;
 #if defined(__linux__)

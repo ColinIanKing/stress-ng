@@ -41,7 +41,7 @@ static const stress_help_t help[] = {
  *	crypt a password with given seed and id
  */
 static int stress_crypt_id(
-	const args_t *args,
+	const stress_args_t *args,
 	const char id,
 	const char *method,
 	const char *passwd,
@@ -68,7 +68,7 @@ static int stress_crypt_id(
  *  stress_crypt()
  *	stress libc crypt
  */
-static int stress_crypt(const args_t *args)
+static int stress_crypt(const stress_args_t *args)
 {
 	do {
 		static const char seedchars[] =

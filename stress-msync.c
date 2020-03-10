@@ -87,7 +87,7 @@ static void MLOCKED_TEXT stress_sigbus_handler(int signum)
  *  stress_msync()
  *	stress msync
  */
-static int stress_msync(const args_t *args)
+static int stress_msync(const stress_args_t *args)
 {
 	uint8_t *buf = NULL;
 	const size_t page_size = args->page_size;

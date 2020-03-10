@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
  *	set a specified CPUs online or offline
  */
 static int stress_cpu_online_set(
-	const args_t *args,
+	const stress_args_t *args,
 	const int32_t cpu,
 	const int setting)
 {
@@ -86,7 +86,7 @@ static int stress_cpu_online_supported(void)
  *  stress_cpu_online
  *	stress twiddling CPUs online/offline
  */
-static int stress_cpu_online(const args_t *args)
+static int stress_cpu_online(const stress_args_t *args)
 {
 	const int32_t cpus = stress_get_processors_configured();
 	int32_t i, cpu_online_count = 0;

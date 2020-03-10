@@ -217,7 +217,7 @@ static void OPTIMIZE3 stress_memrate_init_data(
 		*ptr = mwc32();
 }
 
-static inline void *stress_memrate_mmap(const args_t *args, uint64_t sz)
+static inline void *stress_memrate_mmap(const stress_args_t *args, uint64_t sz)
 {
 	void *ptr;
 
@@ -249,7 +249,7 @@ static inline void *stress_memrate_mmap(const args_t *args, uint64_t sz)
 	return ptr;
 }
 
-static int stress_memrate_child(const args_t *args, void *ctxt)
+static int stress_memrate_child(const stress_args_t *args, void *ctxt)
 {
 	const stress_memrate_context_t *context = (stress_memrate_context_t *)ctxt;
 	void *buffer, *buffer_end;
@@ -289,7 +289,7 @@ static int stress_memrate_child(const args_t *args, void *ctxt)
  *  stress_memrate()
  *	stress cache/memory/CPU with memrate stressors
  */
-static int stress_memrate(const args_t *args)
+static int stress_memrate(const stress_args_t *args)
 {
 	int rc;
 	size_t i, stats_size;

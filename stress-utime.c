@@ -43,7 +43,7 @@ static int stress_set_utime_fsync(const char *opt)
  *  stress_utime()
  *	stress system by setting file utime
  */
-static int stress_utime(const args_t *args)
+static int stress_utime(const stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd;

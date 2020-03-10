@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-typedef void (*stress_funccall_func)(const args_t *argse);
+typedef void (*stress_funccall_func)(const stress_args_t *argse);
 
 typedef struct {
 	const char              *name;  /* human readable form of stressor */
@@ -723,9 +723,9 @@ stress_funcdeep_9(__float128)
 #endif
 
 #define stress_funccall_type(type, rndfunc)				\
-static void NOINLINE stress_funccall_ ## type(const args_t *args);	\
+static void NOINLINE stress_funccall_ ## type(const stress_args_t *args);	\
 									\
-static void NOINLINE stress_funccall_ ## type(const args_t *args)	\
+static void NOINLINE stress_funccall_ ## type(const stress_args_t *args)	\
 {									\
 	register int ii;						\
 	type a, b, c, d, e, f, g, h, i;					\
@@ -868,7 +868,7 @@ static int stress_set_funccall_method(const char *name)
  *  stress_funccall()
  *	stress various argument sized function calls
  */
-static int stress_funccall(const args_t *args)
+static int stress_funccall(const stress_args_t *args)
 {
         const stress_funccall_method_info_t *funccall_method = &funccall_methods[3];
 

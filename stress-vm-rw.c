@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
 #define STACK_SIZE	(64 * 1024)
 
 typedef struct {
-	const args_t *args;
+	const stress_args_t *args;
 	size_t sz;
 	pid_t pid;
 	int pipe_wr[2];
@@ -76,7 +76,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static int stress_vm_child(void *arg)
 {
 	const stress_context_t *ctxt = (stress_context_t *)arg;
-	const args_t *args = ctxt->args;
+	const stress_args_t *args = ctxt->args;
 
 	uint8_t *buf;
 	int ret = EXIT_SUCCESS;
@@ -167,7 +167,7 @@ static int stress_vm_parent(stress_context_t *ctxt)
 	uint8_t val = 0;
 	uint8_t *localbuf;
 	stress_addr_msg_t msg_rd, msg_wr;
-	const args_t *args = ctxt->args;
+	const stress_args_t *args = ctxt->args;
 
 	(void)setpgid(ctxt->pid, g_pgrp);
 
@@ -287,7 +287,7 @@ fail:
  *  stress_vm_rw
  *	stress vm_read_v/vm_write_v
  */
-static int stress_vm_rw(const args_t *args)
+static int stress_vm_rw(const stress_args_t *args)
 {
 	stress_context_t ctxt;
 	uint8_t stack[64*1024];

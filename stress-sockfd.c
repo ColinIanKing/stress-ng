@@ -136,7 +136,7 @@ static inline int stress_socket_fd_recv(const int fd)
  *	client reader
  */
 static void stress_socket_client(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t ppid,
 	const ssize_t max_fd,
 	const int socket_fd_port)
@@ -228,7 +228,7 @@ finish:
  *	server writer
  */
 static int stress_socket_server(
-	const args_t *args,
+	const stress_args_t *args,
 	const pid_t pid,
 	const pid_t ppid,
 	const ssize_t max_fd,
@@ -330,7 +330,7 @@ die:
  *  stress_sockfd
  *	stress socket fd passing
  */
-static int stress_sockfd(const args_t *args)
+static int stress_sockfd(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	ssize_t max_fd = stress_get_file_limit();

@@ -38,7 +38,7 @@
  *  the VM stress test has diffent methods of vm stressor
  */
 typedef size_t (*stress_vm_func)(uint8_t *buf, const size_t sz,
-		const args_t *args, const uint64_t max_ops);
+		const stress_args_t *args, const uint64_t max_ops);
 
 typedef struct {
 	const char *name;
@@ -114,7 +114,7 @@ static const stress_vm_madvise_info_t vm_madvise_info[] = {
  *  keep_stressing()
  *	returns true if we can keep on running a stressor
  */
-static bool HOT OPTIMIZE3 keep_stressing_vm(const args_t *args)
+static bool HOT OPTIMIZE3 keep_stressing_vm(const stress_args_t *args)
 {
 	return (LIKELY(keep_stressing_flag()) &&
 	        LIKELY(!args->max_ops || ((get_counter(args) >> VM_BOGO_SHIFT) < args->max_ops)));
@@ -324,7 +324,7 @@ static inline size_t stress_vm_count_bits(uint64_t v)
 static size_t TARGET_CLONES stress_vm_moving_inversion(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	uint64_t w, z, *buf_end, c = get_counter(args);
@@ -420,7 +420,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_modulo_x(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	uint32_t i, j;
@@ -485,7 +485,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_walking_one_data(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
@@ -522,7 +522,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_data(
 static size_t TARGET_CLONES stress_vm_walking_zero_data(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
@@ -560,7 +560,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_data(
 static size_t TARGET_CLONES stress_vm_walking_one_addr(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
@@ -608,7 +608,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
 static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
@@ -662,7 +662,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 static size_t TARGET_CLONES stress_vm_gray(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	static uint8_t val;
@@ -710,7 +710,7 @@ static size_t TARGET_CLONES stress_vm_gray(
 static size_t TARGET_CLONES stress_vm_incdec(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
@@ -757,7 +757,7 @@ static size_t TARGET_CLONES stress_vm_incdec(
 static size_t TARGET_CLONES stress_vm_prime_incdec(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
@@ -814,7 +814,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 static size_t TARGET_CLONES stress_vm_swap(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	const size_t chunk_sz = 64, chunks = sz / chunk_sz;
@@ -915,7 +915,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_rand_set(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
@@ -982,7 +982,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_ror(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
@@ -1067,7 +1067,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_flip(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
@@ -1167,7 +1167,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_zero_one(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr;
@@ -1230,7 +1230,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_galpat_zero(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr;
@@ -1292,7 +1292,7 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 static size_t TARGET_CLONES stress_vm_galpat_one(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr;
@@ -1352,7 +1352,7 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 static size_t TARGET_CLONES stress_vm_inc_nybble(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
@@ -1428,7 +1428,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_rand_sum(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr;
@@ -1490,7 +1490,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_prime_zero(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t i;
@@ -1547,7 +1547,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_prime_one(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t i;
@@ -1605,7 +1605,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t i;
@@ -1672,7 +1672,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t i;
@@ -1738,7 +1738,7 @@ abort:
 static size_t TARGET_CLONES stress_vm_write64(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	static uint64_t val;
@@ -1799,7 +1799,7 @@ static size_t TARGET_CLONES stress_vm_write64(
 static size_t TARGET_CLONES stress_vm_read64(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr = (uint64_t *)buf;
@@ -1858,7 +1858,7 @@ static size_t TARGET_CLONES stress_vm_read64(
 static size_t TARGET_CLONES stress_vm_rowhammer(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
@@ -1928,7 +1928,7 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 static size_t stress_vm_all(
 	uint8_t *buf,
 	const size_t sz,
-	const args_t *args,
+	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	static int i = 1;
@@ -1996,7 +1996,7 @@ static int stress_set_vm_method(const char *name)
 	return -1;
 }
 
-static int stress_vm_child(const args_t *args, void *ctxt)
+static int stress_vm_child(const stress_args_t *args, void *ctxt)
 {
 	int no_mem_retries = 0;
 	const uint64_t max_ops = args->max_ops << VM_BOGO_SHIFT;
@@ -2080,7 +2080,7 @@ static int stress_vm_child(const args_t *args, void *ctxt)
  *  stress_vm()
  *	stress virtual memory
  */
-static int stress_vm(const args_t *args)
+static int stress_vm(const stress_args_t *args)
 {
 	uint64_t tmp_counter;
         const size_t page_size = args->page_size;

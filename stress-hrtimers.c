@@ -99,7 +99,7 @@ cancel:
  *  stress_hrtimer_process
  *	stress timer child process
  */
-static int stress_hrtimer_process(const args_t *args, uint64_t *counter)
+static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 {
 	struct sigevent sev;
 	struct itimerspec timer;
@@ -145,7 +145,7 @@ static int stress_hrtimer_process(const args_t *args, uint64_t *counter)
 	return EXIT_SUCCESS;
 }
 
-static int stress_hrtimers(const args_t *args)
+static int stress_hrtimers(const stress_args_t *args)
 {
 	pid_t pids[PROCS_MAX];
 	const size_t page_size = args->page_size;

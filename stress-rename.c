@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
  *  stress_rename()
  *	stress system by renames
  */
-static int stress_rename(const args_t *args)
+static int stress_rename(const stress_args_t *args)
 {
 	char name1[PATH_MAX], name2[PATH_MAX];
 	char *oldname = name1, *newname = name2, *tmpname;

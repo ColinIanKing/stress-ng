@@ -936,7 +936,7 @@ typedef struct {
 	pid_t pid;			/* stressor pid */
 	pid_t ppid;			/* stressor ppid */
 	size_t page_size;		/* page size */
-} args_t;
+} stress_args_t;
 
 typedef struct {
 	const int opt;			/* optarg option*/
@@ -944,7 +944,7 @@ typedef struct {
 } stress_opt_set_func_t;
 
 typedef struct {
-	int (*stressor)(const args_t *args);
+	int (*stressor)(const stress_args_t *args);
 	int (*supported)(void);
 	void (*init)(void);
 	void (*deinit)(void);
@@ -955,9 +955,9 @@ typedef struct {
 	const stress_help_t *help;
 } stressor_info_t;
 
-/* pthread wrapped args_t */
+/* pthread wrapped stress_args_t */
 typedef struct {
-	const args_t *args;	/* Stress test args */
+	const stress_args_t *args;	/* Stress test args */
 	void *data;		/* Per thread private data */
 	int pthread_ret;	/* Per thread return value */
 } stress_pthread_args_t;
@@ -1167,9 +1167,9 @@ extern void pr_unlock(bool *locked);
 extern void pr_inf_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3);
 extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3);
 
-extern void pr_fail_err__(const args_t *args, const char *msg);
-extern void pr_fail_errno__(const args_t *args, const char *msg, int err);
-extern void pr_fail_dbg__(const args_t *args, const char *msg);
+extern void pr_fail_err__(const stress_args_t *args, const char *msg);
+extern void pr_fail_errno__(const stress_args_t *args, const char *msg, int err);
+extern void pr_fail_dbg__(const stress_args_t *args, const char *msg);
 
 #define pr_fail_err(msg)		pr_fail_err__(args, msg)
 #define pr_fail_errno(msg, err)		pr_fail_errno__(args, msg, err)
@@ -1629,22 +1629,22 @@ extern void pr_fail_dbg__(const args_t *args, const char *msg);
 #endif
 
 /* increment the stessor bogo ops counter */
-static inline void ALWAYS_INLINE inc_counter(const args_t *args)
+static inline void ALWAYS_INLINE inc_counter(const stress_args_t *args)
 {
 	(*(args->counter))++;
 }
 
-static inline uint64_t ALWAYS_INLINE get_counter(const args_t *args)
+static inline uint64_t ALWAYS_INLINE get_counter(const stress_args_t *args)
 {
 	return *args->counter;
 }
 
-static inline void ALWAYS_INLINE set_counter(const args_t *args, const uint64_t val)
+static inline void ALWAYS_INLINE set_counter(const stress_args_t *args, const uint64_t val)
 {
 	*args->counter = val;
 }
 
-static inline void ALWAYS_INLINE add_counter(const args_t *args, const uint64_t inc)
+static inline void ALWAYS_INLINE add_counter(const stress_args_t *args, const uint64_t inc)
 {
 	*args->counter += inc;
 }
@@ -1718,7 +1718,7 @@ typedef pthread_mutex_t		shim_pthread_spinlock_t;
 #endif
 
 /* stress process prototype */
-typedef int (*stress_func_t)(const args_t *args);
+typedef int (*stress_func_t)(const stress_args_t *args);
 
 /* Fast random number generator state */
 typedef struct {
@@ -3102,7 +3102,7 @@ static inline void HOT OPTIMIZE3 keep_stressing_set_flag(const bool setting)
  *  keep_stressing()
  *      returns true if we can keep on running a stressor
  */
-static inline bool HOT OPTIMIZE3 __keep_stressing(const args_t *args)
+static inline bool HOT OPTIMIZE3 __keep_stressing(const stress_args_t *args)
 {
 	return (LIKELY(g_keep_stressing_flag) &&
 		LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
@@ -3207,17 +3207,17 @@ static inline void ALWAYS_INLINE long_double_put(const double a)
 extern int stress_temp_filename(char *path, const size_t len,
 	const char *name, const pid_t pid, const uint32_t instance,
 	const uint64_t magic);
-extern int stress_temp_filename_args(const args_t *args, char *path,
+extern int stress_temp_filename_args(const stress_args_t *args, char *path,
 	const size_t len, const uint64_t magic);
 extern int stress_temp_dir(char *path, const size_t len,
 	const char *name, const pid_t pid, const uint32_t instance);
-extern int stress_temp_dir_args(const args_t *args, char *path, const size_t len);
+extern int stress_temp_dir_args(const stress_args_t *args, char *path, const size_t len);
 extern WARN_UNUSED int stress_temp_dir_mk(const char *name, const pid_t pid,
 	const uint32_t instance);
-extern WARN_UNUSED int stress_temp_dir_mk_args(const args_t *args);
+extern WARN_UNUSED int stress_temp_dir_mk_args(const stress_args_t *args);
 extern int stress_temp_dir_rm(const char *name, const pid_t pid,
 	const uint32_t instance);
-extern int stress_temp_dir_rm_args(const args_t *args);
+extern int stress_temp_dir_rm_args(const stress_args_t *args);
 extern void stress_cwd_readwriteable(void);
 
 extern const char *stress_strsignal(const int signum);
@@ -3289,7 +3289,7 @@ extern void stress_perf_init(void);
 /* CPU helpers */
 extern WARN_UNUSED bool stress_cpu_is_x86(void);
 
-typedef int stress_oomable_child_func_t(const args_t *args, void *context);
+typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context);
 
 #define	STRESS_OOMABLE_NORMAL	(0x00000000)		/* Normal oomability */
 #define STRESS_OOMABLE_DROP_CAP	(0x00000001)		/* Drop capabilities */
@@ -3297,7 +3297,7 @@ typedef int stress_oomable_child_func_t(const args_t *args, void *context);
 /* Misc helpers */
 extern void stress_set_oom_adjustment(const char *name, const bool killable);
 extern WARN_UNUSED bool stress_process_oomed(const pid_t pid);
-extern WARN_UNUSED int stress_oomable_child(const args_t *args, void *context,
+extern WARN_UNUSED int stress_oomable_child(const stress_args_t *args, void *context,
 	stress_oomable_child_func_t func, const int flag);
 extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
 	const int sched_priority, const bool quiet);
@@ -3368,7 +3368,7 @@ extern WARN_UNUSED int stress_sighandler(const char *name, const int signum, voi
 extern void stress_handle_stop_stressing(int dummy);
 extern WARN_UNUSED int stress_sig_stop_stressing(const char *name, const int sig);
 extern int stress_sigrestore(const char *name, const int signum, struct sigaction *orig_action);
-extern WARN_UNUSED int stress_not_implemented(const args_t *args);
+extern WARN_UNUSED int stress_not_implemented(const stress_args_t *args);
 extern WARN_UNUSED size_t stress_probe_max_pipe_size(void);
 extern WARN_UNUSED void *stress_align_address(const void *addr, const size_t alignment);
 extern void stress_mmap_set(uint8_t *buf, const size_t sz, const size_t page_size);
@@ -3389,7 +3389,7 @@ extern WARN_UNUSED stress_hash_table_t *stress_hash_create(const size_t n);
 extern stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table, const char *str);
 extern WARN_UNUSED stress_hash_t *stress_hash_get(stress_hash_table_t *hash_table, const char *str);
 extern void stress_hash_delete(stress_hash_table_t *hash_table);
-extern WARN_UNUSED int stress_try_open(const args_t *args, const char *path,
+extern WARN_UNUSED int stress_try_open(const stress_args_t *args, const char *path,
 	const int flags, const unsigned long timeout_ns);
 extern WARN_UNUSED uint32_t stress_hash_jenkin(const uint8_t *data, const size_t len);
 extern WARN_UNUSED uint32_t stress_hash_pjw(const char *str);

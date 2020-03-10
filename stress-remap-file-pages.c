@@ -41,7 +41,7 @@ typedef uint16_t stress_mapdata_t;
  *	check page order
  */
 static void check_order(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t stride,
 	const stress_mapdata_t *data,
 	const size_t *order,
@@ -66,7 +66,7 @@ static void check_order(
  *	remap based on given order
  */
 static int remap_order(
-	const args_t *args,
+	const stress_args_t *args,
 	const size_t stride,
 	stress_mapdata_t *data,
 	const size_t *order,
@@ -92,7 +92,7 @@ static int remap_order(
  *  stress_remap
  *	stress page remapping
  */
-static int stress_remap(const args_t *args)
+static int stress_remap(const stress_args_t *args)
 {
 	stress_mapdata_t *data;
 	const size_t page_size = args->page_size;

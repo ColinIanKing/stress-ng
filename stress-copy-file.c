@@ -53,7 +53,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_copy_file
  *	stress reading chunks of file using copy_file_range()
  */
-static int stress_copy_file(const args_t *args)
+static int stress_copy_file(const stress_args_t *args)
 {
 	int fd_in, fd_out, rc = EXIT_FAILURE;
 	char filename[PATH_MAX - 5], tmp[PATH_MAX];
