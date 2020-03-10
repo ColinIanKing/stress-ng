@@ -29,6 +29,16 @@
 #define SECONDS_IN_DAY		(24.0 * SECONDS_IN_HOUR)
 #define SECONDS_IN_YEAR		(365.2425 * SECONDS_IN_DAY)
 				/* Approx, for Gregorian calendar */
+
+/*
+ *  stress_timeval_to_double()
+ *      convert timeval to seconds as a double
+ */
+double stress_timeval_to_double(const struct timeval *tv)
+{
+	return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
+}
+
 /*
  *  stress_time_now()
  *	time in seconds as a double
@@ -40,7 +50,7 @@ double stress_time_now(void)
 	if (gettimeofday(&now, NULL) < 0)
 		return -1.0;
 
-	return timeval_to_double(&now);
+	return stress_timeval_to_double(&now);
 }
 
 /*

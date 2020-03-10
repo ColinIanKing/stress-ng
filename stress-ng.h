@@ -3262,17 +3262,8 @@ extern void stress_mwc_seed(const uint32_t w, const uint32_t z);
 extern void stress_mwc_reseed(void);
 
 /* Time handling */
-
-/*
- *  timeval_to_double()
- *      convert timeval to seconds as a double
- */
-static inline WARN_UNUSED double timeval_to_double(const struct timeval *tv)
-{
-        return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
-}
-
-extern double stress_time_now(void);
+extern WARN_UNUSED double stress_timeval_to_double(const struct timeval *tv);
+extern WARN_UNUSED double stress_time_now(void);
 extern const char *stress_duration_to_str(const double duration);
 
 /* Perf statistics */
