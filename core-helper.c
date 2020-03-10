@@ -921,7 +921,7 @@ int stress_cache_alloc(const char *name)
 #if !defined(__linux__)
 	g_shared->mem_cache_size = MEM_CACHE_SIZE;
 #else
-	cpu_caches = get_all_cpu_cache_details();
+	cpu_caches = stress_get_all_cpu_cache_details();
 	if (!cpu_caches) {
 		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
 			pr_dbg("%s: using defaults, can't determine cache details from sysfs\n", name);
@@ -929,7 +929,7 @@ int stress_cache_alloc(const char *name)
 		goto init_done;
 	}
 
-	max_cache_level = get_max_cache_level(cpu_caches);
+	max_cache_level = stress_get_max_cache_level(cpu_caches);
 
 	if (g_shared->mem_cache_level > max_cache_level) {
 		if (warn_once(WARN_ONCE_CACHE_REDUCED))
@@ -939,7 +939,7 @@ int stress_cache_alloc(const char *name)
 		g_shared->mem_cache_level = max_cache_level;
 	}
 
-	cache = get_cpu_cache(cpu_caches, g_shared->mem_cache_level);
+	cache = stress_get_cpu_cache(cpu_caches, g_shared->mem_cache_level);
 	if (!cache) {
 		if (warn_once(WARN_ONCE_CACHE_NONE))
 			pr_dbg("%s: using built-in defaults as no suitable "
@@ -975,7 +975,7 @@ int stress_cache_alloc(const char *name)
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
 	}
 init_done:
-	free_cpu_caches(cpu_caches);
+	stress_free_cpu_caches(cpu_caches);
 #endif
 	g_shared->mem_cache = calloc(g_shared->mem_cache_size, 1);
 	if (!g_shared->mem_cache) {

@@ -370,36 +370,36 @@ static inline uint64_t get_stream_L3_size(const stress_args_t *args)
 	stress_cpu_cache_t *cache = NULL;
 	uint16_t max_cache_level;
 
-	cpu_caches = get_all_cpu_cache_details();
+	cpu_caches = stress_get_all_cpu_cache_details();
 	if (!cpu_caches) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as unable to "
 				"determine cache details\n", args->name);
 		return cache_size;
 	}
-	max_cache_level = get_max_cache_level(cpu_caches);
+	max_cache_level = stress_get_max_cache_level(cpu_caches);
 	if ((max_cache_level > 0) && (max_cache_level < 3) && (!args->instance))
 		pr_inf("%s: no L3 cache, using L%" PRIu16 " size instead\n",
 			args->name, max_cache_level);
 
-	cache = get_cpu_cache(cpu_caches, max_cache_level);
+	cache = stress_get_cpu_cache(cpu_caches, max_cache_level);
 	if (!cache) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as no suitable "
 				"cache found\n", args->name);
-		free_cpu_caches(cpu_caches);
+		stress_free_cpu_caches(cpu_caches);
 		return cache_size;
 	}
 	if (!cache->size) {
 		if (!args->instance)
 			pr_inf("%s: using built-in defaults as unable to "
 				"determine cache size\n", args->name);
-		free_cpu_caches(cpu_caches);
+		stress_free_cpu_caches(cpu_caches);
 		return cache_size;
 	}
 	cache_size = cache->size;
 
-	free_cpu_caches(cpu_caches);
+	stress_free_cpu_caches(cpu_caches);
 #else
 	if (!args->instance)
 		pr_inf("%s: using built-in defaults as unable to "

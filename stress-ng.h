@@ -3479,10 +3479,10 @@ extern void stress_set_sockaddr(const char *name, const uint32_t instance,
 extern void stress_set_sockaddr_port(const int domain, const int port, struct sockaddr *sockaddr);
 
 /* CPU caches */
-extern stress_cpus_t *get_all_cpu_cache_details(void);
-extern uint16_t get_max_cache_level(const stress_cpus_t *cpus);
-extern stress_cpu_cache_t *get_cpu_cache(const stress_cpus_t *cpus, const uint16_t cache_level);
-extern void free_cpu_caches(stress_cpus_t *cpus);
+extern stress_cpus_t *stress_get_all_cpu_cache_details(void);
+extern uint16_t stress_get_max_cache_level(const stress_cpus_t *cpus);
+extern stress_cpu_cache_t *stress_get_cpu_cache(const stress_cpus_t *cpus, const uint16_t cache_level);
+extern void stress_free_cpu_caches(stress_cpus_t *cpus);
 
 /* CPU thrashing start/stop helpers */
 extern int  stress_thrash_start(void);

@@ -39,10 +39,10 @@ static const stress_generic_map_t cache_type_map[] = {
 };
 
 /*
- * cache_get_cpu()
+ * stress_cache_get_cpu()
  *
  */
-static inline unsigned int cache_get_cpu(const stress_cpus_t *cpus)
+static inline unsigned int stress_cache_get_cpu(const stress_cpus_t *cpus)
 {
 	const unsigned int cpu = stress_get_cpu();
 
@@ -50,11 +50,11 @@ static inline unsigned int cache_get_cpu(const stress_cpus_t *cpus)
 }
 
 /*
- * get_string_from_file()
+ * stress_get_string_from_file()
  * 	read data from file into a fixed size buffer
  *	and remove any trailing newlines
  */
-static int get_string_from_file(
+static int stress_get_string_from_file(
 	const char *path,
 	char *tmp,
 	const size_t tmp_len)
@@ -75,7 +75,7 @@ static int get_string_from_file(
 }
 
 /*
- * size_to_bytes()
+ * stress_size_to_bytes()
  * 	Convert human-readable integer sizes (such as "32K", "4M") into bytes.
  *
  * Supports:
@@ -87,7 +87,7 @@ static int get_string_from_file(
  *
  * Returns: size in bytes, or 0 on error.
  */
-static uint64_t size_to_bytes(const char *str)
+static uint64_t stress_size_to_bytes(const char *str)
 {
 	uint64_t            bytes;
 	uint64_t            multiplier;
@@ -134,13 +134,13 @@ out:
 }
 
 /*
- * get_cache_type()
+ * stress_get_cache_type()
  * @name: human-readable cache type.
  * Convert a human-readable cache type into a stress_cache_type_t.
  *
  * Returns: stress_cache_type_t or CACHE_TYPE_UNKNOWN on error.
  */
-static stress_cache_type_t get_cache_type(const char *name)
+static stress_cache_type_t stress_get_cache_type(const char *name)
 {
 	const stress_generic_map_t *p;
 
@@ -159,7 +159,7 @@ out:
 }
 
 /*
- * add_cpu_cache_detail()
+ * stress_add_cpu_cache_detail()
  * @cache: stress_cpu_cache_t pointer.
  * @index_path: full /sys path to the particular cpu cache which is to
  *   be represented by @cache.
@@ -167,7 +167,7 @@ out:
  *
  * Returns: EXIT_FAILURE or EXIT_SUCCESS.
  */
-static int add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *index_path)
+static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *index_path)
 {
 	const size_t index_posn = index_path ? strlen(index_path) : 0;
 	const size_t path_len = index_posn + 32;
@@ -186,29 +186,29 @@ static int add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *index_pat
 	}
 
 	(void)snprintf(path, sizeof(path), "%s/type", index_path);
-	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->type = (stress_cache_type_t)get_cache_type(tmp);
+	cache->type = (stress_cache_type_t)stress_get_cache_type(tmp);
 	if (cache->type == CACHE_TYPE_UNKNOWN)
 		goto out;
 
 	(void)snprintf(path, sizeof(path), "%s/size", index_path);
-	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
-	cache->size = size_to_bytes(tmp);
+	cache->size = stress_size_to_bytes(tmp);
 
 	(void)snprintf(path, sizeof(path), "%s/level", index_path);
-	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->level = (uint16_t)atoi(tmp);
 
 	(void)snprintf(path, sizeof(path), "%s/coherency_line_size", index_path);
-	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->line_size = (uint32_t)atoi(tmp);
 
 	(void)snprintf(path, sizeof(path), "%s/ways_of_associativity", index_path);
-	if (get_string_from_file(path, tmp, sizeof(tmp)) < 0)
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		cache->ways = atoi(tmp);
 	else
 		cache->ways = 0;
@@ -218,7 +218,7 @@ out:
 }
 
 /*
- * get_cache_by_cpu()
+ * stress_get_cache_by_cpu()
  * @cpu: cpu to consider.
  * @cache_level: numeric cache level (1-indexed).
  * Obtain the cpu cache indexed by @cache_level.
@@ -227,7 +227,7 @@ out:
  *
  * Returns: stress_cpu_cache_t, or NULL on error.
  */
-static stress_cpu_cache_t * get_cache_by_cpu(const stress_cpu_t *cpu, const int cache_level)
+static stress_cpu_cache_t * stress_get_cache_by_cpu(const stress_cpu_t *cpu, const int cache_level)
 {
 	uint32_t  i;
 
@@ -249,13 +249,13 @@ static stress_cpu_cache_t * get_cache_by_cpu(const stress_cpu_t *cpu, const int 
 }
 
 /*
- * get_max_cache_level()
+ * stress_get_max_cache_level()
  * @cpus: array of cpus to query.
  * Determine the maximum cache level available on the system.
  *
  * Returns: 1-index value denoting highest cache level, or 0 on error.
  */
-uint16_t get_max_cache_level(const stress_cpus_t *cpus)
+uint16_t stress_get_max_cache_level(const stress_cpus_t *cpus)
 {
 	stress_cpu_t    *cpu;
 	uint32_t  i;
@@ -266,7 +266,7 @@ uint16_t get_max_cache_level(const stress_cpus_t *cpus)
 		return 0;
 	}
 
-	cpu = &cpus->cpus[cache_get_cpu(cpus)];
+	cpu = &cpus->cpus[stress_cache_get_cpu(cpus)];
 
 	for (i = 0; i < cpu->cache_count; i++) {
 		stress_cpu_cache_t *cache;
@@ -279,14 +279,14 @@ uint16_t get_max_cache_level(const stress_cpus_t *cpus)
 }
 
 /*
- * get_cpu_cache()
+ * stress_get_cpu_cache()
  * @cpus: array of cpus to query.
  * @cache_level: numeric cache level (1-indexed).
  * Obtain a cpu cache of level @cache_level.
  *
  * Returns: stress_cpu_cache_t pointer, or NULL on error.
  */
-stress_cpu_cache_t * get_cpu_cache(const stress_cpus_t *cpus, const uint16_t cache_level)
+stress_cpu_cache_t * stress_get_cpu_cache(const stress_cpus_t *cpus, const uint16_t cache_level)
 {
 	stress_cpu_t *cpu;
 
@@ -301,12 +301,12 @@ stress_cpu_cache_t * get_cpu_cache(const stress_cpus_t *cpus, const uint16_t cac
 		return NULL;
 	}
 
-	cpu = &cpus->cpus[cache_get_cpu(cpus)];
+	cpu = &cpus->cpus[stress_cache_get_cpu(cpus)];
 
-	return get_cache_by_cpu(cpu, cache_level);
+	return stress_get_cache_by_cpu(cpu, cache_level);
 }
 
-static void free_scandir_list(struct dirent **namelist, int n)
+static void stress_free_scandir_list(struct dirent **namelist, int n)
 {
 	int i;
 
@@ -316,14 +316,14 @@ static void free_scandir_list(struct dirent **namelist, int n)
 }
 
 /*
- * get_cpu_cache_details()
+ * stress_get_cpu_cache_details()
  * @cpu: cpu to fill in.
  * @cpu_path: Full /sys path to cpu which will be represented by @cpu.
  * Populate @cpu with details from @cpu_path.
  *
  * Returns: EXIT_FAILURE or EXIT_SUCCESS.
  */
-static int get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
+static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 {
 	const size_t cpu_path_len = cpu_path ? strlen(cpu_path) : 0;
 	char path[cpu_path_len + strlen(SYS_CPU_CACHE_DIR) + 2];
@@ -377,24 +377,24 @@ static int get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 			char fullpath[strlen(path) + strlen(name) + 2];
 
 			(void)snprintf(fullpath, sizeof(fullpath), "%s/%s", path, name);
-			if (add_cpu_cache_detail(&cpu->caches[j++], fullpath) != EXIT_SUCCESS)
+			if (stress_add_cpu_cache_detail(&cpu->caches[j++], fullpath) != EXIT_SUCCESS)
 				goto err;
 		}
 	}
 	ret = EXIT_SUCCESS;
 err:
-	free_scandir_list(namelist, n);
+	stress_free_scandir_list(namelist, n);
 
 	return ret;
 }
 
 /*
- * get_all_cpu_cache_details()
+ * stress_get_all_cpu_cache_details()
  * Obtain information on all cpus caches on the system.
  *
  * Returns: dynamically-allocated stress_cpus_t object, or NULL on error.
  */
-stress_cpus_t *get_all_cpu_cache_details(void)
+stress_cpus_t *stress_get_all_cpu_cache_details(void)
 {
 	int i, j, n, ret, cpu_count;
 	stress_cpus_t *cpus = NULL;
@@ -445,12 +445,12 @@ stress_cpus_t *get_all_cpu_cache_details(void)
 				char tmp[2048];
 
 				(void)snprintf(onlinepath, sizeof(onlinepath), "%s/%s/online", SYS_CPU_PREFIX, name);
-				if (get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0)
+				if (stress_get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0)
 					goto out;
 				cpu->online = atoi(tmp);
 			}
 
-			ret = get_cpu_cache_details(&cpus->cpus[j], fullpath);
+			ret = stress_get_cpu_cache_details(&cpus->cpus[j], fullpath);
 			if (ret != EXIT_SUCCESS) {
 				free(cpus->cpus);
 				free(cpus);
@@ -462,18 +462,18 @@ stress_cpus_t *get_all_cpu_cache_details(void)
 	}
 
 out:
-	free_scandir_list(namelist, n);
+	stress_free_scandir_list(namelist, n);
 	return cpus;
 }
 
 /*
- * free_cpu_caches()
+ * stress_free_cpu_caches()
  * @cpus: value returned by get_all_cpu_cache_details().
  *
  * Undo the action of get_all_cpu_cache_details() by freeing all
  * associated resources.
  */
-void free_cpu_caches(stress_cpus_t *cpus)
+void stress_free_cpu_caches(stress_cpus_t *cpus)
 {
 	uint32_t  i;
 
