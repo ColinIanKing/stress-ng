@@ -78,7 +78,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 	int dfd;
 #endif
 	const off_t file_sz = 8192;
-	uint32_t rnd = mwc32();
+	uint32_t rnd = stress_mwc32();
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)

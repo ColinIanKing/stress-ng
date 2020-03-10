@@ -299,8 +299,8 @@ static int do_fcntl(const stress_args_t *args, const int fd)
 #endif
 		int ret;
 		off_t lret;
-		const off_t len = (mwc16() + 1) & 0x7fff;
-		const off_t start = mwc16() & 0x7fff;
+		const off_t len = (stress_mwc16() + 1) & 0x7fff;
+		const off_t start = stress_mwc16() & 0x7fff;
 
 		if (ftruncate(fd, 65536) < 0) {
 			pr_fail_err("ftruncate");
@@ -435,8 +435,8 @@ lock_abort:	{ /* Nowt */ }
 		struct flock f;
 #endif
 		int ret;
-		const off_t len = (mwc16() + 1) & 0x7fff;
-		const off_t start = mwc16() & 0x7fff;
+		const off_t len = (stress_mwc16() + 1) & 0x7fff;
+		const off_t start = stress_mwc16() & 0x7fff;
 
 		if (ftruncate(fd, 65536) < 0) {
 			pr_fail_err("ftruncate");

@@ -127,7 +127,7 @@ static void MLOCKED_TEXT stress_sigbus_handler(int signum)
  */
 static int stress_random_advise(const stress_args_t *args)
 {
-	const int idx = mwc32() % SIZEOF_ARRAY(madvise_options);
+	const int idx = stress_mwc32() % SIZEOF_ARRAY(madvise_options);
 	const int advise = madvise_options[idx];
 #if defined(MADV_HWPOISON) || defined(MADV_SOFT_OFFLINE)
 	static int poison_count;
@@ -208,7 +208,7 @@ static int stress_madvise(const stress_args_t *args)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
@@ -236,7 +236,7 @@ static int stress_madvise(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 
-		if (mwc1()) {
+		if (stress_mwc1()) {
 			buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, fd, 0);
 		} else {
 			buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
@@ -272,7 +272,7 @@ static int stress_madvise(const stress_args_t *args)
 			(void)shim_msync(ptr, page_size, MS_ASYNC);
 		}
 		for (n = 0; n < sz; n += page_size) {
-			size_t m = (mwc64() % sz) & ~(page_size - 1);
+			size_t m = (stress_mwc64() % sz) & ~(page_size - 1);
 			const int advise = stress_random_advise(args);
 			void *ptr = (void *)(((uint8_t *)buf) + m);
 

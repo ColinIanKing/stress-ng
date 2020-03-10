@@ -922,8 +922,8 @@ static inline int stress_matrix_3d_exercise(
 			register size_t k;
 
 			for (k = 0; k < n; k++) {
-				a[i][j][k] = (stress_matrix_3d_type_t)mwc64() * v;
-				b[i][j][k] = (stress_matrix_3d_type_t)mwc64() * v;
+				a[i][j][k] = (stress_matrix_3d_type_t)stress_mwc64() * v;
+				b[i][j][k] = (stress_matrix_3d_type_t)stress_mwc64() * v;
 				r[i][j][k] = 0.0;
 			}
 		}

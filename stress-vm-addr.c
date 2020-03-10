@@ -84,7 +84,7 @@ static size_t TARGET_CLONES stress_vm_addr_pwr2(
 	const size_t sz)
 {
 	size_t n, errs = 0;
-	uint8_t rnd = mwc8();
+	uint8_t rnd = stress_mwc8();
 
 	for (n = 1; n < sz; n++) {
 		*(buf + n) = rnd;
@@ -105,7 +105,7 @@ static size_t TARGET_CLONES stress_vm_addr_pwr2inv(
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0;
-	uint8_t rnd = mwc8();
+	uint8_t rnd = stress_mwc8();
 
 	for (n = 1; n < sz; n++) {
 		*(buf + (n ^ mask)) = rnd;
@@ -127,7 +127,7 @@ static size_t TARGET_CLONES stress_vm_addr_gray(
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0;
-	uint8_t rnd = mwc8();
+	uint8_t rnd = stress_mwc8();
 
 	for (n = 0; n < sz; n++) {
 		size_t gray = ((n >> 1) ^ n) & mask;
@@ -151,7 +151,7 @@ static size_t TARGET_CLONES stress_vm_addr_grayinv(
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0;
-	uint8_t rnd = mwc8();
+	uint8_t rnd = stress_mwc8();
 
 	for (n = 0; n < sz; n++) {
 		size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
@@ -177,7 +177,7 @@ static size_t TARGET_CLONES stress_vm_addr_rev(
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0, shift;
-	uint8_t rnd = mwc8();
+	uint8_t rnd = stress_mwc8();
 
 	for (shift = 0, n = sz; n; shift++, n <<= 1)
 		;
@@ -206,7 +206,7 @@ static size_t TARGET_CLONES stress_vm_addr_revinv(
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0, shift;
-	uint8_t rnd = mwc8();
+	uint8_t rnd = stress_mwc8();
 
 	for (shift = 0, n = sz; n; shift++, n <<= 1)
 		;
@@ -232,7 +232,7 @@ static size_t TARGET_CLONES stress_vm_addr_inc(
 	const size_t sz)
 {
 	size_t n, errs = 0;
-	uint8_t rnd = mwc8();
+	uint8_t rnd = stress_mwc8();
 
 	for (n = 0; n < sz; n++) {
 		*(buf + n) = rnd;
@@ -253,7 +253,7 @@ static size_t TARGET_CLONES stress_vm_addr_incinv(
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0;
-	uint8_t rnd = mwc8();
+	uint8_t rnd = stress_mwc8();
 
 	for (n = 0; n < sz; n++) {
 		size_t i = (n ^ mask) & mask;
@@ -276,7 +276,7 @@ static size_t TARGET_CLONES stress_vm_addr_dec(
 	const size_t sz)
 {
 	size_t n, errs = 0;
-	uint8_t rnd = mwc8();
+	uint8_t rnd = stress_mwc8();
 
 	for (n = sz; n; n--) {
 		*(buf + n - 1) = rnd;
@@ -298,7 +298,7 @@ static size_t TARGET_CLONES stress_vm_addr_decinv(
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0;
-	uint8_t rnd = mwc8();
+	uint8_t rnd = stress_mwc8();
 
 	for (n = sz; n; n--) {
 		size_t i = ((n - 1) ^ mask) & mask;

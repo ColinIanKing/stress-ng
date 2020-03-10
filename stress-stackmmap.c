@@ -66,15 +66,15 @@ static void stress_stackmmap_push_msync(void)
 	 * Ensure something is written to the stack that
 	 * won't get optimized away
 	 */
-	waste[0] = mwc32();
+	waste[0] = stress_mwc32();
 	uint32_put(waste[0]);
-	waste[1] = mwc32();
+	waste[1] = stress_mwc32();
 	uint32_put(waste[1]);
 	uint64_put((uint64_t)(ptrdiff_t)&waste);
 
 	if (addr != laddr) {
 		(void)shim_msync(addr, page_size,
-			(mwc8() & 1) ? MS_ASYNC : MS_SYNC);
+			(stress_mwc8() & 1) ? MS_ASYNC : MS_SYNC);
 		laddr = addr;
 	}
 	if (keep_stressing_flag())
@@ -132,7 +132,7 @@ static int stress_stackmmap(const stress_args_t *args)
 	if (stress_temp_dir_mk_args(args) < 0)
 		return EXIT_FAILURE;
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 	fd = open(filename, O_SYNC | O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fd < 0) {

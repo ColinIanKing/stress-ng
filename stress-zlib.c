@@ -135,7 +135,7 @@ static void stress_rand_data_bcd(const stress_args_t *args, uint32_t *data, cons
 	(void)args;
 
 	while (ptr < end) {
-		uint8_t rndval = mwc8() % 100;
+		uint8_t rndval = stress_mwc8() % 100;
 
 		/* Not the most efficient but it works */
 		*ptr++ = (rndval % 10) | ((rndval / 10) << 4);
@@ -155,7 +155,7 @@ static void stress_rand_data_utf8(const stress_args_t *args, uint32_t *data, con
 	(void)args;
 
 	while (ptr < end) {
-		uint8_t ch = mwc8();
+		uint8_t ch = stress_mwc8();
 
 		if (ch <= 0x7f)
 			*ptr++ = ch;
@@ -183,7 +183,7 @@ static void stress_rand_data_binary(const stress_args_t *args, uint32_t *data, c
 	(void)args;
 
 	for (i = 0; i < n; i++, data++)
-		*data = mwc32();
+		*data = stress_mwc32();
 }
 
 /*
@@ -209,7 +209,7 @@ static void stress_rand_data_01(const stress_args_t *args, uint32_t *data, const
 	(void)args;
 
 	for (i = 0; i < size; i += 8, ptr += 8) {
-		uint8_t v = mwc8();
+		uint8_t v = stress_mwc8();
 
 		*(ptr + 0) = '0' + (v & 1);
 		v >>= 1;
@@ -241,7 +241,7 @@ static void stress_rand_data_digits(const stress_args_t *args, uint32_t *data, c
 	(void)args;
 
 	for (i = 0; i < size; i++, ptr++)
-		*ptr = '0' + (mwc32() % 10);
+		*ptr = '0' + (stress_mwc32() % 10);
 }
 
 /*
@@ -256,7 +256,7 @@ static void stress_rand_data_00_ff(const stress_args_t *args, uint32_t *data, co
 	(void)args;
 
 	for (i = 0; i < size; i += 8, ptr += 8) {
-		uint8_t v = mwc8();
+		uint8_t v = stress_mwc8();
 
 		*(ptr + 0) = (v & 1) ? 0x00 : 0xff;
 		*(ptr + 1) = (v & 2) ? 0x00 : 0xff;
@@ -281,7 +281,7 @@ static void stress_rand_data_nybble(const stress_args_t *args, uint32_t *data, c
 	(void)args;
 
 	for (i = 0; i < size; i += 8, ptr += 8) {
-		uint32_t v = mwc32();
+		uint32_t v = stress_mwc32();
 
 		*(ptr + 0) = v & 0xf;
 		v >>= 4;
@@ -313,7 +313,7 @@ static void stress_rand_data_rarely_1(const stress_args_t *args, uint32_t *data,
 	(void)args;
 
 	for (i = 0; i < n; i++, data++)
-		*data = 1 << (mwc32() & 0x1f);
+		*data = 1 << (stress_mwc32() & 0x1f);
 }
 
 /*
@@ -328,7 +328,7 @@ static void stress_rand_data_rarely_0(const stress_args_t *args, uint32_t *data,
 	(void)args;
 
 	for (i = 0; i < n; i++, data++)
-		*data = ~(1 << (mwc32() & 0x1f));
+		*data = ~(1 << (stress_mwc32() & 0x1f));
 }
 
 /*
@@ -403,7 +403,7 @@ static void stress_rand_data_parity(const stress_args_t *args, uint32_t *data, c
 	(void)args;
 
 	for (i = 0; i < size; i++, ptr++) {
-		uint8_t v = mwc8();
+		uint8_t v = stress_mwc8();
 		uint8_t p = v & 0xfe;
 		p ^= p >> 4;
 		p &= 0xf;
@@ -485,11 +485,11 @@ static void stress_rand_data_pink(const stress_args_t *args, uint32_t *data, con
 #endif
 
 			sum -= rows[j];
-			rnd = (int64_t)mwc64() >> PINK_SHIFT;
+			rnd = (int64_t)stress_mwc64() >> PINK_SHIFT;
 			sum += rnd;
 			rows[j] = rnd;
 		}
-		rnd = (int64_t)mwc64() >> PINK_SHIFT;
+		rnd = (int64_t)stress_mwc64() >> PINK_SHIFT;
 		*(ptr++) = (int)((scalar * ((int64_t)sum + rnd)) + 128.0);
 	}
 }
@@ -507,7 +507,7 @@ static void stress_rand_data_brown(const stress_args_t *args, uint32_t *data, co
 	(void)args;
 
 	for (i = 0; i < size; i++) {
-		val += ((mwc8() % 31) - 15);
+		val += ((stress_mwc8() % 31) - 15);
 		*(ptr++) = val;
 	}
 }
@@ -558,7 +558,7 @@ static void stress_rand_data_lrand48(const stress_args_t *args, uint32_t *data, 
 	register int i;
 
 	if (UNLIKELY(!seeded)) {
-		srand48(mwc32());
+		srand48(stress_mwc32());
 		seeded = true;
 	}
 
@@ -581,11 +581,11 @@ static void stress_rand_data_latin(const stress_args_t *args, uint32_t *data, co
 	(void)args;
 
 	if (!ptr)
-		ptr = lorem_ipsum[mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
+		ptr = lorem_ipsum[stress_mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
 
 	for (i = 0; i < size; i++) {
 		if (!*ptr)
-			ptr = lorem_ipsum[mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
+			ptr = lorem_ipsum[stress_mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
 
 		*dataptr++ = *ptr++;
 	}
@@ -643,7 +643,7 @@ static void stress_rand_data_objcode(const stress_args_t *args, uint32_t *const 
 		return;
 	}
 
-	text = text_start + (mwc64() % (text_end - text_start));
+	text = text_start + (stress_mwc64() % (text_end - text_start));
 
 	for (dataptr = (char *)data, i = 0; i < n; i++, dataptr++) {
 		*dataptr = *text;
@@ -694,7 +694,7 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
  */
 static HOT OPTIMIZE3 void stress_zlib_random_test(const stress_args_t *args, uint32_t *data, const int size)
 {
-	rand_data_funcs[mwc32() % SIZEOF_ARRAY(rand_data_funcs)](args, data, size);
+	rand_data_funcs[stress_mwc32() % SIZEOF_ARRAY(rand_data_funcs)](args, data, size);
 }
 
 

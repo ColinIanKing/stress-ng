@@ -782,30 +782,30 @@ static void NOINLINE stress_funccall_ ## type(const stress_args_t *args)	\
 	} while (keep_stressing());					\
 }
 
-stress_funccall_type(uint8_t, mwc8)
-stress_funccall_type(uint16_t, mwc16)
-stress_funccall_type(uint32_t, mwc32)
-stress_funccall_type(uint64_t, mwc64)
+stress_funccall_type(uint8_t, stress_mwc8)
+stress_funccall_type(uint16_t, stress_mwc16)
+stress_funccall_type(uint32_t, stress_mwc32)
+stress_funccall_type(uint64_t, stress_mwc64)
 #if defined(HAVE_INT128_T)
-stress_funccall_type(__uint128_t, mwc64)
+stress_funccall_type(__uint128_t, stress_mwc64)
 #endif
-stress_funccall_type(float, (float)mwc64)
-stress_funccall_type(double, (double)mwc64)
-stress_funccall_type(stress_long_double_t, (long double)mwc64)
+stress_funccall_type(float, (float)stress_mwc64)
+stress_funccall_type(double, (double)stress_mwc64)
+stress_funccall_type(stress_long_double_t, (long double)stress_mwc64)
 #if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
-stress_funccall_type(_Decimal32, (_Decimal32)mwc64)
+stress_funccall_type(_Decimal32, (_Decimal32)stress_mwc64)
 #endif
 #if defined(HAVE_FLOAT_DECIMAL64) && !defined(__clang__)
-stress_funccall_type(_Decimal64, (_Decimal64)mwc64)
+stress_funccall_type(_Decimal64, (_Decimal64)stress_mwc64)
 #endif
 #if defined(HAVE_FLOAT_DECIMAL128) && !defined(__clang__)
-stress_funccall_type(_Decimal128, (_Decimal128)mwc64)
+stress_funccall_type(_Decimal128, (_Decimal128)stress_mwc64)
 #endif
 #if defined(HAVE_FLOAT80) && !defined(__clang__)
-stress_funccall_type(__float80, (__float80)mwc64)
+stress_funccall_type(__float80, (__float80)stress_mwc64)
 #endif
 #if defined(HAVE_FLOAT128) && !defined(__clang__)
-stress_funccall_type(__float128, (__float128)mwc64)
+stress_funccall_type(__float128, (__float128)stress_mwc64)
 #endif
 
 /*

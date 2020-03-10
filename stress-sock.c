@@ -271,7 +271,7 @@ retry:
 			}
 #endif
 			if (socket_opts == SOCKET_OPT_RANDOM)
-				opt = mwc8() % 3;
+				opt = stress_mwc8() % 3;
 			else
 				opt = socket_opts;
 
@@ -416,7 +416,7 @@ static int stress_sock_server(
 
 #if defined(HAVE_ACCEPT4)
 		/*  Randomly use accept or accept4 to exercise both */
-		if (mwc1()) {
+		if (stress_mwc1()) {
 			sfd = accept4(fd, (struct sockaddr *)NULL, NULL, SOCK_CLOEXEC);
 		} else {
 			sfd = accept(fd, (struct sockaddr *)NULL, NULL);
@@ -475,7 +475,7 @@ static int stress_sock_server(
 			(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
 
 			if (socket_opts == SOCKET_OPT_RANDOM)
-				opt = mwc8() % 3;
+				opt = stress_mwc8() % 3;
 			else
 				opt = socket_opts;
 

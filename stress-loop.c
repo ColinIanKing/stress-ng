@@ -66,7 +66,7 @@ static int stress_loop(const stress_args_t *args)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename_args(args,
-		backing_file, sizeof(backing_file), mwc32());
+		backing_file, sizeof(backing_file), stress_mwc32());
 
 	if ((backing_fd = open(backing_file, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		pr_fail_err("open");
@@ -147,7 +147,7 @@ static int stress_loop(const stress_args_t *args)
 #if defined(LOOP_SET_STATUS)
 		ret = ioctl(loop_dev, LOOP_SET_STATUS, &info);
 		(void)ret;
-		switch (mwc1()) {
+		switch (stress_mwc1()) {
 		case 0:
 			info.lo_encrypt_type = LO_CRYPT_NONE;
 			info.lo_encrypt_key_size = 0;
@@ -198,7 +198,7 @@ static int stress_loop(const stress_args_t *args)
 		 *  produce kernel warnings but should not break the
 		 *  kernel.
 		 */
-		blk_size = (unsigned long)blk_sizes[mwc8() % SIZEOF_ARRAY(blk_sizes)];
+		blk_size = (unsigned long)blk_sizes[stress_mwc8() % SIZEOF_ARRAY(blk_sizes)];
 		ret = ioctl(loop_dev, LOOP_SET_BLOCK_SIZE, blk_size);
 		(void)ret;
 #endif

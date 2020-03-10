@@ -155,7 +155,7 @@ static int stress_cpu_online(const stress_args_t *args)
 	 *  Now randomly offline/online them all
 	 */
 	do {
-		unsigned long cpu = mwc32() % cpus;
+		unsigned long cpu = stress_mwc32() % cpus;
 
 		/*
 		 * Only allow CPU 0 to be offlined if OPT_FLAGS_CPU_ONLINE_ALL

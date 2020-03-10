@@ -151,7 +151,7 @@ static int stress_heapsort(const stress_args_t *args)
 
 	/* This is expensive, do it once */
 	for (ptr = data, i = 0; i < n; i++)
-		*ptr++ = mwc32();
+		*ptr++ = stress_mwc32();
 
 	do {
 		/* Sort "random" data */

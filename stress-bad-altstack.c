@@ -84,7 +84,7 @@ static int stress_bad_altstack(const stress_args_t *args)
 	do {
 		pid_t pid;
 
-		(void)mwc32();
+		(void)stress_mwc32();
 again:
 		if (!keep_stressing_flag())
 			return EXIT_SUCCESS;
@@ -152,8 +152,8 @@ again:
 				return EXIT_FAILURE;
 
 			/* Child */
-			mwc_reseed();
-			rnd = mwc32() % 7;
+			stress_mwc_reseed();
+			rnd = stress_mwc32() % 7;
 
 			stress_set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);

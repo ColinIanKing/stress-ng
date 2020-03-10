@@ -191,8 +191,8 @@ static int stress_cache(const stress_args_t *args)
 #endif
 
 	do {
-		uint64_t i = mwc64() % mem_cache_size;
-		uint64_t r = mwc64();
+		uint64_t i = stress_mwc64() % mem_cache_size;
+		uint64_t r = stress_mwc64();
 		register uint64_t j;
 
 		if ((r >> 13) & 1) {

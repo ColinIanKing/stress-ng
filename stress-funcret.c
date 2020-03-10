@@ -177,7 +177,7 @@ static void NOINLINE stress_funcret_ ## type(const stress_args_t *args)	\
 	uint8_t data[sizeof(a)];					\
 									\
 	for (i = 0; i < sizeof(data); i++) 				\
-		data[i] = mwc8();					\
+		data[i] = stress_mwc8();				\
 	(void)memcpy(&a, data, sizeof(a));				\
 									\
 	do {								\

@@ -147,7 +147,7 @@ static void stress_opcode_random(
 	(void)op;
 
 	while (ops < ops_end)
-		*(ops++) = mwc8();
+		*(ops++) = stress_mwc8();
 }
 
 static void stress_opcode_inc(
@@ -173,7 +173,7 @@ static void stress_opcode_mixed(
 	register uint32_t *ops = (uint32_t *)ops_begin;
 
 	while (ops < (uint32_t *)ops_end) {
-		register uint32_t rnd = mwc32();
+		register uint32_t rnd = stress_mwc32();
 
 		*(ops++) = tmp;
 		*(ops++) = tmp ^ 0xffffffff;	/* Inverted */
@@ -204,12 +204,12 @@ static void stress_opcode_text(
 		return;
 	}
 
-	offset = mwc64() % (text_len - ops_len);
+	offset = stress_mwc64() % (text_len - ops_len);
 	offset &= ~(0x7ULL);
 
 	(void)memcpy(ops_begin, text_start + offset, ops_len);
 	for (ops = ops_begin; ops < ops_end; ops++) {
-		uint8_t rnd = mwc8();
+		uint8_t rnd = stress_mwc8();
 
 		/* 1 in 8 chance of random bit corruption */
 		if (rnd < 32) {
@@ -284,7 +284,7 @@ static int stress_opcode(const stress_args_t *args)
 		 *  Force a new random value so that child always
 		 *  gets a different random value on each fork
 		 */
-		(void)mwc32();
+		(void)stress_mwc32();
 		op += 1024;
 again:
 		if (!keep_stressing_flag())

@@ -94,7 +94,7 @@ redo: 			errno = 0;
 				addr = (uint8_t *)(ptrdiff_t)
 					(((ptrdiff_t)addr >> 1) & mask);
 				if (addr == prev_addr)
-					addr = (uint8_t *)((ptrdiff_t)(mwc64() & mask));
+					addr = (uint8_t *)((ptrdiff_t)(stress_mwc64() & mask));
 				prev_addr = addr;
 			}
 			else

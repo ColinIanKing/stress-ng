@@ -327,7 +327,7 @@ static void stress_stream_init_data(
 	uint64_t i;
 
 	for (i = 0; i < n; i++)
-		data[i] = (double)mwc32() / (double)mwc64();
+		data[i] = (double)stress_mwc32() / (double)stress_mwc64();
 }
 
 static inline void *stress_stream_mmap(const stress_args_t *args, uint64_t sz)
@@ -418,7 +418,7 @@ static void stress_stream_init_index(
 		idx[i] = i;
 
 	for (i = 0; i < n; i++) {
-		register uint64_t j = mwc64() % n;
+		register uint64_t j = stress_mwc64() % n;
 		register uint64_t tmp;
 
 		tmp = idx[i];

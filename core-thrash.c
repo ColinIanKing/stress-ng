@@ -129,7 +129,7 @@ static inline void stress_zone_reclaim(void)
 	int ret;
 	char mode[2];
 
-	mode[0] = '0' + (mwc8() & 7);
+	mode[0] = '0' + (stress_mwc8() & 7);
 	mode[1] = '\0';
 
 	ret = system_write("/proc/sys/vm/zone_reclaim_mode", mode, 1);
@@ -207,7 +207,7 @@ int stress_thrash_start(void)
 		(void)ret;
 #endif
 		while (keep_stressing_flag()) {
-			if ((mwc8() & 0x3f) == 0)
+			if ((stress_mwc8() & 0x3f) == 0)
 				stress_pagein_all_procs();
 			stress_compact_memory();
 			stress_merge_memory();

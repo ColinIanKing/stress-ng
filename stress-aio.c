@@ -196,7 +196,7 @@ static int stress_aio(const stress_args_t *args)
 	}
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
@@ -239,7 +239,7 @@ static int stress_aio(const stress_args_t *args)
 				inc_counter(args);
 				if (issue_aio_request(args->name, fd,
 					(off_t)i * BUFFER_SZ, &io_reqs[i], i,
-					mwc1() ? aio_read : aio_write) < 0)
+					stress_mwc1() ? aio_read : aio_write) < 0)
 					goto cancel;
 				break;
 			case EINPROGRESS:

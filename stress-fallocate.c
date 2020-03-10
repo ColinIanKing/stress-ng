@@ -93,7 +93,7 @@ static int stress_fallocate(const stress_args_t *args)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_fail_err("open");
@@ -160,8 +160,8 @@ static int stress_fallocate(const stress_args_t *args)
 			(void)shim_fsync(fd);
 
 			for (i = 0; i < 64; i++) {
-				off_t offset = (mwc64() % fallocate_bytes) & ~0xfff;
-				int j = (mwc32() >> 8) % SIZEOF_ARRAY(modes);
+				off_t offset = (stress_mwc64() % fallocate_bytes) & ~0xfff;
+				int j = (stress_mwc32() >> 8) % SIZEOF_ARRAY(modes);
 
 				(void)shim_fallocate(fd, modes[j], offset, 64 * KB);
 				if (!keep_stressing_flag())

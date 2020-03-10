@@ -1565,7 +1565,7 @@ again:
 
 			/* Make sure this is killable by OOM killer */
 			stress_set_oom_adjustment(args->name, true);
-			mixup = mwc32();
+			mixup = stress_mwc32();
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {
 				ret[i] = pthread_create(&pthreads[i], NULL,

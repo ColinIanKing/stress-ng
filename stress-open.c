@@ -36,19 +36,19 @@ static int open_dev_zero_rd(void)
 {
 	int flags = 0;
 #if defined(O_ASYNC)
-	flags |= (mwc32() & O_ASYNC);
+	flags |= (stress_mwc32() & O_ASYNC);
 #endif
 #if defined(O_CLOEXEC)
-	flags |= (mwc32() & O_CLOEXEC);
+	flags |= (stress_mwc32() & O_CLOEXEC);
 #endif
 #if defined(O_LARGEFILE)
-	flags |= (mwc32() & O_LARGEFILE);
+	flags |= (stress_mwc32() & O_LARGEFILE);
 #endif
 #if defined(O_NOFOLLOW)
-	flags |= (mwc32() & O_NOFOLLOW);
+	flags |= (stress_mwc32() & O_NOFOLLOW);
 #endif
 #if defined(O_NONBLOCK)
-	flags |= (mwc32() & O_NONBLOCK);
+	flags |= (stress_mwc32() & O_NONBLOCK);
 #endif
 
 	return open("/dev/zero", O_RDONLY | flags);
@@ -58,25 +58,25 @@ static int open_dev_null_wr(void)
 {
 	int flags = 0;
 #if defined(O_ASYNC)
-	flags |= (mwc32() & O_ASYNC);
+	flags |= (stress_mwc32() & O_ASYNC);
 #endif
 #if defined(O_CLOEXEC)
-	flags |= (mwc32() & O_CLOEXEC);
+	flags |= (stress_mwc32() & O_CLOEXEC);
 #endif
 #if defined(O_LARGEFILE)
-	flags |= (mwc32() & O_LARGEFILE);
+	flags |= (stress_mwc32() & O_LARGEFILE);
 #endif
 #if defined(O_NOFOLLOW)
-	flags |= (mwc32() & O_NOFOLLOW);
+	flags |= (stress_mwc32() & O_NOFOLLOW);
 #endif
 #if defined(O_NONBLOCK)
-	flags |= (mwc32() & O_NONBLOCK);
+	flags |= (stress_mwc32() & O_NONBLOCK);
 #endif
 #if defined(O_DSYNC)
-	flags |= (mwc32() & O_DSYNC);
+	flags |= (stress_mwc32() & O_DSYNC);
 #endif
 #if defined(O_SYNC)
-	flags |= (mwc32() & O_SYNC);
+	flags |= (stress_mwc32() & O_SYNC);
 #endif
 
 	return open("/dev/null", O_WRONLY | flags);
@@ -87,16 +87,16 @@ static int open_tmp_rdwr(void)
 {
 	int flags = 0;
 #if defined(O_TRUNC)
-	flags |= (mwc32() & O_TRUNC);
+	flags |= (stress_mwc32() & O_TRUNC);
 #endif
 #if defined(O_APPEND)
-	flags |= (mwc32() & O_APPEND);
+	flags |= (stress_mwc32() & O_APPEND);
 #endif
 #if defined(O_NOATIME)
-	flags |= (mwc32() & O_NOATIME);
+	flags |= (stress_mwc32() & O_NOATIME);
 #endif
 #if defined(O_DIRECT)
-	flags |= (mwc32() & O_DIRECT);
+	flags |= (stress_mwc32() & O_DIRECT);
 #endif
 	return open("/tmp", O_TMPFILE | flags | O_RDWR, S_IRUSR | S_IWUSR);
 }
@@ -167,7 +167,7 @@ static int stress_open(const stress_args_t *args)
 		size_t i, n;
 
 		for (i = 0; i < max_fd; i++) {
-			int idx = mwc32() % SIZEOF_ARRAY(open_funcs);
+			int idx = stress_mwc32() % SIZEOF_ARRAY(open_funcs);
 
 			fds[i] = open_funcs[idx]();
 

@@ -56,7 +56,7 @@ static int stress_utime(const stress_args_t *args)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_err("%s: open failed: errno=%d: (%s)\n",

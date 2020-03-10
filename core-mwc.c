@@ -45,10 +45,10 @@ static inline void mwc_flush(void)
 #define VAL(ptr, n)	(((uint64_t)(*(ptr + n))) << (n << 3))
 
 /*
- *  aux_random_seed()
+ *  stress_aux_random_seed()
  *	get a fixed random value via getauxval
  */
-static uint64_t aux_random_seed(void)
+static uint64_t stress_aux_random_seed(void)
 {
 	const uint8_t *ptr = (const uint8_t *)getauxval(AT_RANDOM);
 	uint64_t val;
@@ -62,18 +62,18 @@ static uint64_t aux_random_seed(void)
 	return val;
 }
 #else
-static uint64_t aux_random_seed(void)
+static uint64_t stress_aux_random_seed(void)
 {
 	return 0ULL;
 }
 #endif
 
 /*
- *  mwc_reseed()
+ *  stress_mwc_reseed()
  *	dirty mwc reseed, this is expensive as it
  *	pulls in various system values for the seeding
  */
-void mwc_reseed(void)
+void stress_mwc_reseed(void)
 {
 	if (g_opt_flags & OPT_FLAGS_NO_RAND_SEED) {
 		__mwc.w = MWC_SEED_W;
@@ -83,7 +83,7 @@ void mwc_reseed(void)
 		struct rusage r;
 		double m1, m5, m15;
 		int i, n;
-		uint64_t aux_rnd = aux_random_seed();
+		uint64_t aux_rnd = stress_aux_random_seed();
 		const ptrdiff_t p1 = (ptrdiff_t)&__mwc.z;
 		const ptrdiff_t p2 = (ptrdiff_t)&tv;
 
@@ -106,17 +106,17 @@ void mwc_reseed(void)
 
 		n = (int)__mwc.z % 1733;
 		for (i = 0; i < n; i++) {
-			(void)mwc32();
+			(void)stress_mwc32();
 		}
 	}
 	mwc_flush();
 }
 
 /*
- *  mwc_seed()
+ *  stress_mwc_seed()
  *      set mwc seeds
  */
-void mwc_seed(const uint32_t w, const uint32_t z)
+void stress_mwc_seed(const uint32_t w, const uint32_t z)
 {
 	__mwc.w = w;
 	__mwc.z = z;
@@ -125,12 +125,12 @@ void mwc_seed(const uint32_t w, const uint32_t z)
 }
 
 /*
- *  mwc32()
+ *  stress_mwc32()
  *      Multiply-with-carry random numbers
  *      fast pseudo random number generator, see
  *      http://www.cse.yorku.ca/~oz/marsaglia-rng.html
  */
-HOT OPTIMIZE3 uint32_t mwc32(void)
+HOT OPTIMIZE3 uint32_t stress_mwc32(void)
 {
 	__mwc.z = 36969 * (__mwc.z & 65535) + (__mwc.z >> 16);
 	__mwc.w = 18000 * (__mwc.w & 65535) + (__mwc.w >> 16);
@@ -138,19 +138,19 @@ HOT OPTIMIZE3 uint32_t mwc32(void)
 }
 
 /*
- *  mwc64()
+ *  stress_mwc64()
  *	get a 64 bit pseudo random number
  */
-HOT OPTIMIZE3 uint64_t mwc64(void)
+HOT OPTIMIZE3 uint64_t stress_mwc64(void)
 {
-	return (((uint64_t)mwc32()) << 32) | mwc32();
+	return (((uint64_t)stress_mwc32()) << 32) | stress_mwc32();
 }
 
 /*
- *  mwc16()
+ *  stress_mwc16()
  *	get a 16 bit pseudo random number
  */
-HOT OPTIMIZE3 uint16_t mwc16(void)
+HOT OPTIMIZE3 uint16_t stress_mwc16(void)
 {
 	static uint32_t mwc_saved;
 
@@ -159,16 +159,16 @@ HOT OPTIMIZE3 uint16_t mwc16(void)
 		mwc_saved >>= 16;
 	} else {
 		mwc_n16 = 1;
-		mwc_saved = mwc32();
+		mwc_saved = stress_mwc32();
 	}
 	return mwc_saved & 0xffff;
 }
 
 /*
- *  mwc8()
+ *  stress_mwc8()
  *	get an 8 bit pseudo random number
  */
-HOT OPTIMIZE3 uint8_t mwc8(void)
+HOT OPTIMIZE3 uint8_t stress_mwc8(void)
 {
 	static uint32_t mwc_saved;
 
@@ -177,16 +177,16 @@ HOT OPTIMIZE3 uint8_t mwc8(void)
 		mwc_saved >>= 8;
 	} else {
 		mwc_n8 = 3;
-		mwc_saved = mwc32();
+		mwc_saved = stress_mwc32();
 	}
 	return mwc_saved & 0xff;
 }
 
 /*
- *  mwc1()
+ *  stress_mwc1()
  *	get an 1 bit pseudo random number
  */
-HOT OPTIMIZE3 uint8_t mwc1(void)
+HOT OPTIMIZE3 uint8_t stress_mwc1(void)
 {
 	static uint32_t mwc_saved;
 
@@ -195,7 +195,7 @@ HOT OPTIMIZE3 uint8_t mwc1(void)
 		mwc_saved >>= 1;
 	} else {
 		mwc_n1 = 31;
-		mwc_saved = mwc32();
+		mwc_saved = stress_mwc32();
 	}
 	return mwc_saved & 0x1;
 }

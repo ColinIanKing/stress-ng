@@ -238,17 +238,17 @@ static void NORETURN waste_resources(
 	            (freemem > 0) && (freemem < mem_slack))
 			break;
 
-		if ((mwc8() & 0xf) == 0) {
+		if ((stress_mwc8() & 0xf) == 0) {
 			info[i].m_malloc = calloc(1, page_size);
 			if (!keep_stressing_flag())
 				break;
 		}
-		if ((mwc8() & 0xf) == 0) {
+		if ((stress_mwc8() & 0xf) == 0) {
 			info[i].m_sbrk = shim_sbrk(page_size);
 			if (!keep_stressing_flag())
 				break;
 		}
-		if ((mwc8() & 0xf) == 0) {
+		if ((stress_mwc8() & 0xf) == 0) {
 			info[i].m_mmap_size = page_size;
 			info[i].m_mmap = mmap(NULL, info[i].m_mmap_size,
 				PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -292,8 +292,8 @@ static void NORETURN waste_resources(
 			break;
 #endif
 		info[i].fd_sock = socket(
-			domains[mwc32() % SIZEOF_ARRAY(domains)],
-			types[mwc32() % SIZEOF_ARRAY(types)], 0);
+			domains[stress_mwc32() % SIZEOF_ARRAY(domains)],
+			types[stress_mwc32() % SIZEOF_ARRAY(types)], 0);
 		if (!keep_stressing_flag())
 			break;
 
@@ -314,7 +314,7 @@ static void NORETURN waste_resources(
 		if (!keep_stressing_flag())
 			break;
 		if (info[i].fd_tmp != -1) {
-			size_t sz = page_size * mwc32();
+			size_t sz = page_size * stress_mwc32();
 
 			(void)shim_fallocate(info[i].fd_tmp, 0, 0, sz);
 #if defined(F_GETLK) &&		\
@@ -431,7 +431,7 @@ static void NORETURN waste_resources(
 #endif
 
 #if defined(HAVE_SEM_SYSV)
-		key_t sem_key = (key_t)mwc32();
+		key_t sem_key = (key_t)stress_mwc32();
 		info[i].sem_id = semget(sem_key, 1,
 			IPC_CREAT | S_IRUSR | S_IWUSR);
 		if (!keep_stressing_flag())

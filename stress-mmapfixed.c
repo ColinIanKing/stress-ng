@@ -66,24 +66,24 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 	do {
 		uint8_t *buf;
 		int flags = MAP_FIXED | MAP_ANONYMOUS;
-		size_t  sz = page_size * (1 + (mwc8() % 7));
+		size_t  sz = page_size * (1 + (stress_mwc8() % 7));
 
 #if defined(MAP_SHARED) && defined(MAP_PRIVATE)
-		flags |= mwc1() ? MAP_SHARED : MAP_PRIVATE;
+		flags |= stress_mwc1() ? MAP_SHARED : MAP_PRIVATE;
 #endif
 #if defined(MAP_LOCKED)
-		flags |= mwc1() ? MAP_LOCKED : 0;
+		flags |= stress_mwc1() ? MAP_LOCKED : 0;
 #endif
 #if defined(MAP_NORESERVE)
-		flags |= mwc1() ? MAP_NORESERVE : 0;
+		flags |= stress_mwc1() ? MAP_NORESERVE : 0;
 #endif
 #if defined(MAP_POPULATE)
-		flags |= mwc1() ? MAP_POPULATE : 0;
+		flags |= stress_mwc1() ? MAP_POPULATE : 0;
 #endif
 #if defined(MAP_FIXED_NOREPLACE)
 		/* 4.17 Linux flag */
 		flags &= ~MAP_FIXED;
-		flags |= mwc1() ? MAP_FIXED : MAP_FIXED_NOREPLACE;
+		flags |= stress_mwc1() ? MAP_FIXED : MAP_FIXED_NOREPLACE;
 #endif
 
 		if (!keep_stressing_flag())

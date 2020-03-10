@@ -164,7 +164,7 @@ static int stress_locka_contention(
 	const stress_args_t *args,
 	const int fd)
 {
-	mwc_reseed();
+	stress_mwc_reseed();
 
 	do {
 		off_t offset;
@@ -177,8 +177,8 @@ static int stress_locka_contention(
 			if (stress_locka_unlock(args, fd) < 0)
 				return -1;
 
-		len  = (mwc16() + 1) & 0xfff;
-		offset = mwc64() % (LOCK_FILE_SIZE - len);
+		len  = (stress_mwc16() + 1) & 0xfff;
+		offset = stress_mwc64() % (LOCK_FILE_SIZE - len);
 
 		f.l_type = F_WRLCK;
 		f.l_whence = SEEK_SET;
@@ -242,7 +242,7 @@ static int stress_locka(const stress_args_t *args)
 	 *  stress flock processes
 	 */
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);

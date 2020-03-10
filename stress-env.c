@@ -79,7 +79,7 @@ static int stress_env_child(const stress_args_t *args, void *context)
 		char name[64];
 		char tmp;
 		int ret;
-		const size_t sz = 1 + (mwc32() % (arg_max - 2));
+		const size_t sz = 1 + (stress_mwc32() % (arg_max - 2));
 
 		snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, i);
 		/*

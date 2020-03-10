@@ -90,7 +90,7 @@ static int stress_tsearch(const stress_args_t *args)
 
 		/* Step #1, populate tree */
 		for (i = 0; i < n; i++) {
-			data[i] = ((mwc32() & 0xfff) << 20) ^ i;
+			data[i] = ((stress_mwc32() & 0xfff) << 20) ^ i;
 			if (tsearch(&data[i], &root, cmp) == NULL) {
 				size_t j;
 

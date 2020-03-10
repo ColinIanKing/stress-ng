@@ -32,13 +32,13 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_LABEL_AS_VALUE)
 /*
- *  jmp_mwc8()
- *	special non-overly optimized mwc8 that gets inlined
+ *  jmp_stress_mwc8()
+ *	special non-overly optimized stress_mwc8 that gets inlined
  *	to remove a jmp and hence boost branch miss rates.
  *	Do not optimize this any further as this will lower
  *	the branch miss rate.
  */
-static inline uint8_t jmp_mwc8(void)
+static inline uint8_t jmp_stress_mwc8(void)
 {
 	static uint32_t w = MWC_SEED_W;
 	static uint32_t z = MWC_SEED_Z;
@@ -57,7 +57,7 @@ static inline uint8_t jmp_mwc8(void)
 #define JMP(a)	label ## a: 				\
 {							\
 	register bool do_more;				\
-	register uint16_t _index = jmp_mwc8();		\
+	register uint16_t _index = jmp_stress_mwc8();	\
 							\
 	inc_counter(args);				\
 	do_more = LIKELY((int)keep_stressing_flag()) &	\

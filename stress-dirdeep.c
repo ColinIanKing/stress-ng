@@ -209,7 +209,7 @@ static void stress_dir_exercise(
 			/* This will update atime only */
 			fd = open(path, O_RDONLY);
 			if (fd >= 0) {
-				const uint16_t rnd = mwc16();
+				const uint16_t rnd = stress_mwc16();
 #if defined(HAVE_FUTIMENS)
 				int ret = futimens(fd, timespec);
 				(void)ret;

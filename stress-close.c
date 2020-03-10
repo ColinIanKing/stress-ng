@@ -119,7 +119,7 @@ static void *stress_close_func(void *arg)
 #endif
 
 	while (keep_stressing()) {
-		shim_usleep_interruptible(mwc32() % max_delay_us);
+		shim_usleep_interruptible(stress_mwc32() % max_delay_us);
 		if (fd != -1)
 			(void)close(fd);
 		if (dupfd != -1)
@@ -150,7 +150,7 @@ static int stress_close(const stress_args_t *args)
 
 #if defined(HAVE_LIB_RT)
 	(void)snprintf(shm_name, SHM_NAME_LEN,
-		"stress-ng-%d-%" PRIx32, (int)getpid(), mwc32());
+		"stress-ng-%d-%" PRIx32, (int)getpid(), stress_mwc32());
 #endif
 
 	(void)sigfillset(&set);
@@ -182,10 +182,10 @@ static int stress_close(const stress_args_t *args)
 
 		t1 = stress_time_now();
 
-		switch (mwc8() % 13) {
+		switch (stress_mwc8() % 13) {
 		case 0:
-			domain = mwc8() % SIZEOF_ARRAY(domains);
-			type = mwc8() % SIZEOF_ARRAY(types);
+			domain = stress_mwc8() % SIZEOF_ARRAY(domains);
+			type = stress_mwc8() % SIZEOF_ARRAY(types);
 			fd = socket(domains[domain], types[type], 0);
 			break;
 		case 1:

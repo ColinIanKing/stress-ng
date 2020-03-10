@@ -937,8 +937,8 @@ static inline int stress_matrix_exercise(
 		register size_t j;
 
 		for (j = 0; j < n; j++) {
-			a[i][j] = (stress_matrix_type_t)mwc64() * v;
-			b[i][j] = (stress_matrix_type_t)mwc64() * v;
+			a[i][j] = (stress_matrix_type_t)stress_mwc64() * v;
+			b[i][j] = (stress_matrix_type_t)stress_mwc64() * v;
 			r[i][j] = 0.0;
 		}
 	}

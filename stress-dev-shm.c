@@ -94,7 +94,7 @@ static inline int stress_dev_shm_child(
 
 				/* Touch all pages with random data */
 				for (ptr = addr; ptr < end; ptr += words) {
-					*ptr = mwc32();
+					*ptr = stress_mwc32();
 				}
 				(void)msync(addr, sz, MS_INVALIDATE);
 				(void)munmap(addr, sz);
@@ -140,7 +140,7 @@ static int stress_dev_shm(const stress_args_t *args)
 	}
 
 	(void)snprintf(path, sizeof(path), "/dev/shm/stress-dev-shm-%d-%d-%" PRIu32,
-		args->instance, getpid(), mwc32());
+		args->instance, getpid(), stress_mwc32());
 	fd = open(path, O_CREAT | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
 		pr_inf("%s: cannot create %s, errno=%d (%s)\n",

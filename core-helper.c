@@ -841,7 +841,7 @@ void stress_strnrnd(char *str, const size_t len)
 	const char *end = str + len;
 
 	while (str < end - 1)
-		*str++ = (mwc8() % 26) + 'a';
+		*str++ = (stress_mwc8() % 26) + 'a';
 
 	*str = '\0';
 }

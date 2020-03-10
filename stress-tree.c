@@ -540,7 +540,7 @@ static int stress_tree(const stress_args_t *args)
 	v = 0;
 	for (node = nodes, i = 0, bit = 0; i < n; i++, node++) {
 		if (!bit) {
-			v = mwc64();
+			v = stress_mwc64();
 			bit = 1;
 		} else {
 			v ^= bit;
@@ -555,7 +555,7 @@ static int stress_tree(const stress_args_t *args)
 
 		info->func(args, n, nodes);
 
-		rnd = mwc64();
+		rnd = stress_mwc64();
 		for (node = nodes, i = 0; i < n; i++, node++)
 			node->value = ror64(node->value ^ rnd);
 

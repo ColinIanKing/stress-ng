@@ -61,7 +61,7 @@ static int do_readahead(
 	int i;
 
 	for (i = 0; i < MAX_OFFSETS; i++) {
-		offsets[i] = (mwc64() % (rounded_readahead_bytes - BUF_SIZE)) & ~511;
+		offsets[i] = (stress_mwc64() % (rounded_readahead_bytes - BUF_SIZE)) & ~511;
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
 			pr_fail_err("ftruncate");
 			return -1;
@@ -109,7 +109,7 @@ static int stress_readahead(const stress_args_t *args)
 	}
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 	if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);

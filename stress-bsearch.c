@@ -99,7 +99,7 @@ static int stress_bsearch(const stress_args_t *args)
 	/* Populate with ascending data */
 	prev = 0;
 	for (i = 0; i < n;) {
-		uint64_t v = mwc64();
+		uint64_t v = stress_mwc64();
 
 		SETDATA(data, i, v, prev);
 		SETDATA(data, i, v, prev);

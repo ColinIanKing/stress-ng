@@ -322,7 +322,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 		if (clones.length < clone_max) {
 			stress_clone_t *clone_info;
 			stress_clone_args_t clone_arg = { args };
-			const uint32_t rnd = mwc32();
+			const uint32_t rnd = stress_mwc32();
 			const int flag = flags[rnd % SIZEOF_ARRAY(flags)];
 			const bool try_clone3 = rnd >> 31;
 

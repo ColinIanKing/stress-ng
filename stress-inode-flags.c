@@ -219,7 +219,7 @@ static int stress_inode_flags(const stress_args_t *args)
 	if (rc < 0)
 		return exit_status(-rc);
 	(void)stress_temp_filename_args(args,
-		file_name, sizeof(file_name), mwc32());
+		file_name, sizeof(file_name), stress_mwc32());
 
 	shim_strlcpy(tmp, file_name, sizeof(tmp));
 	dir_name = dirname(tmp);

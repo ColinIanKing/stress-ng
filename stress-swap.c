@@ -116,7 +116,7 @@ static int stress_swap_set_size(
 	}
 	(void)memset(&swap_info, 0, sizeof(swap_info));
 	for (i = 0; i < sizeof(swap_info.sws_uuid); i++)
-		swap_info.sws_uuid[i] = mwc8();
+		swap_info.sws_uuid[i] = stress_mwc8();
 	(void)snprintf((char *)swap_info.sws_volume,
 		sizeof(swap_info.sws_volume),
 		"SNG-SWP-%" PRIx32, args->instance);
@@ -163,7 +163,7 @@ static int stress_swap(const stress_args_t *args)
 	}
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR);
 	if (fd < 0) {
 		ret = exit_status(errno);
@@ -178,17 +178,17 @@ static int stress_swap(const stress_args_t *args)
 
 	do {
 		int swapflags = 0;
-		uint32_t npages = (mwc32() % (MAX_SWAP_PAGES - MIN_SWAP_PAGES)) +
+		uint32_t npages = (stress_mwc32() % (MAX_SWAP_PAGES - MIN_SWAP_PAGES)) +
 				  MIN_SWAP_PAGES;
 
 #if defined(SWAP_FLAG_PREFER)
-		if (mwc1()) {
-			swapflags = (mwc8() << SWAP_FLAG_PRIO_SHIFT) & SWAP_FLAG_PRIO_MASK;
+		if (stress_mwc1()) {
+			swapflags = (stress_mwc8() << SWAP_FLAG_PRIO_SHIFT) & SWAP_FLAG_PRIO_MASK;
 			swapflags |= SWAP_FLAG_PREFER;
 		}
 #endif
 #if defined(SWAP_FLAG_DISCARD)
-		if (mwc1())
+		if (stress_mwc1())
 			swapflags |= SWAP_FLAG_DISCARD;
 #endif
 		if (stress_swap_set_size(args, fd, npages) < 0) {

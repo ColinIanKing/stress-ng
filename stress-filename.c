@@ -218,7 +218,7 @@ static void stress_filename_generate_random(
 	size_t i;
 
 	for (i = 0; i < sz_max; i++) {
-		const int j = mwc32() % chars_allowed;
+		const int j = stress_mwc32() % chars_allowed;
 		filename[i] = allowed[j];
 	}
 	if (*filename == '.')
@@ -409,7 +409,7 @@ again:
 		sz = 1;
 		do {
 			const char ch = allowed[i];
-			const size_t rnd_sz = 1 + (mwc32() % sz_max);
+			const size_t rnd_sz = 1 + (stress_mwc32() % sz_max);
 
 			i++;
 			if (i >= chars_allowed)

@@ -48,7 +48,7 @@ static double start;
 static void stress_hrtimers_set(struct itimerspec *timer)
 {
 	timer->it_value.tv_sec = 0;
-	timer->it_value.tv_nsec = (mwc64() % 50000) + 1;
+	timer->it_value.tv_nsec = (stress_mwc64() % 50000) + 1;
 	timer->it_interval.tv_sec = timer->it_value.tv_sec;
 	timer->it_interval.tv_nsec = timer->it_value.tv_nsec;
 }

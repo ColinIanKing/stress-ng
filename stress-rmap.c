@@ -65,14 +65,14 @@ static void stress_rmap_child(
 
 	do {
 		ssize_t i;
-		const int sync_flag = mwc8() ? MS_ASYNC : MS_SYNC;
+		const int sync_flag = stress_mwc8() ? MS_ASYNC : MS_SYNC;
 
-		switch (mwc32() & 3) {
+		switch (stress_mwc32() & 3) {
 		case 0: for (i = 0; keep_stressing_flag() && (i < MAPPINGS_MAX); i++) {
 				if (max_ops && *counter >= max_ops)
 					break;
 				if (mappings[i] != MAP_FAILED) {
-					(void)memset(mappings[i], mwc8(), sz);
+					(void)memset(mappings[i], stress_mwc8(), sz);
 					(void)shim_msync(mappings[i], sz, sync_flag);
 				}
 			}
@@ -81,17 +81,17 @@ static void stress_rmap_child(
 				if (max_ops && *counter >= max_ops)
 					break;
 				if (mappings[i] != MAP_FAILED) {
-					(void)memset(mappings[i], mwc8(), sz);
+					(void)memset(mappings[i], stress_mwc8(), sz);
 					(void)shim_msync(mappings[i], sz, sync_flag);
 				}
 			}
 			break;
 		case 2: for (i = 0; keep_stressing_flag() && (i < MAPPINGS_MAX); i++) {
-				size_t j = mwc32() % MAPPINGS_MAX;
+				size_t j = stress_mwc32() % MAPPINGS_MAX;
 				if (max_ops && *counter >= max_ops)
 					break;
 				if (mappings[j] != MAP_FAILED) {
-					(void)memset(mappings[j], mwc8(), sz);
+					(void)memset(mappings[j], stress_mwc8(), sz);
 					(void)shim_msync(mappings[j], sz, sync_flag);
 				}
 			}
@@ -154,7 +154,7 @@ static int stress_rmap(const stress_args_t *args)
 		return exit_status(-rc);
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);

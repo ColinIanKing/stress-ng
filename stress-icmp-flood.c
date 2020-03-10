@@ -102,7 +102,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 	(void)memset(&servaddr.sin_zero, 0, sizeof(servaddr.sin_zero));
 
 	do {
-		const size_t payload_len = (mwc32() % MAX_PAYLOAD_SIZE) + 1;
+		const size_t payload_len = (stress_mwc32() % MAX_PAYLOAD_SIZE) + 1;
 		const size_t pkt_len =
 			sizeof(struct iphdr) + sizeof(struct icmphdr) + payload_len;
 		char pkt[pkt_len];
@@ -115,7 +115,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 		ip_hdr->ihl = 5;
 		ip_hdr->tos = 0;
 		ip_hdr->tot_len = htons(pkt_len);
-		ip_hdr->id = mwc32();
+		ip_hdr->id = stress_mwc32();
 		ip_hdr->frag_off = 0;
 		ip_hdr->ttl = 64;
 		ip_hdr->protocol = IPPROTO_ICMP;
@@ -124,8 +124,8 @@ static int stress_icmp_flood(const stress_args_t *args)
 
 		icmp_hdr->type = ICMP_ECHO;
 		icmp_hdr->code = 0;
-		icmp_hdr->un.echo.sequence = mwc32();
-		icmp_hdr->un.echo.id = mwc32();
+		icmp_hdr->un.echo.sequence = stress_mwc32();
+		icmp_hdr->un.echo.id = stress_mwc32();
 
 		/*
 		 * Generating random data is expensive so do it every 64 packets

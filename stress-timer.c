@@ -92,7 +92,7 @@ static void stress_timer_set(struct itimerspec *timer)
 
 	if (timer_rand) {
 		/* Mix in some random variation */
-		double r = ((double)(mwc32() % 10000) - 5000.0) / 40000.0;
+		double r = ((double)(stress_mwc32() % 10000) - 5000.0) / 40000.0;
 		rate = rate_ns + (rate_ns * r);
 	} else {
 		rate = rate_ns;

@@ -105,7 +105,7 @@ static int stress_mergesort_cmp_2(const void *p1, const void *p2)
  */
 static int stress_mergesort_cmp_3(const void *p1, const void *p2)
 {
-	int r = ((int)mwc8() % 3) - 1;
+	int r = ((int)stress_mwc8() % 3) - 1;
 
 	(void)p1;
 	(void)p2;
@@ -156,7 +156,7 @@ static int stress_mergesort(const stress_args_t *args)
 
 	/* This is expensive, do it once */
 	for (ptr = data, i = 0; i < n; i++)
-		*ptr++ = mwc32();
+		*ptr++ = stress_mwc32();
 
 	do {
 		/* Sort "random" data */

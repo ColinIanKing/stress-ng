@@ -167,7 +167,7 @@ static inline int stress_do_exec(stress_exec_args_t *ea)
 	int ret_dummy = EINVAL;
 	pthread_t pthread_exec, pthread_dummy;
 
-	if ((mwc8() & 3) == 0) {
+	if ((stress_mwc8() & 3) == 0) {
 		ret_dummy = pthread_create(&pthread_dummy, NULL, stress_exec_dummy_pthread, (void *)ea);
 
 		ret = pthread_create(&pthread_exec, NULL, stress_exec_from_pthread, (void*)ea);
@@ -239,7 +239,7 @@ static int stress_exec(const stress_args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 #if defined(HAVE_EXECVEAT)
 	fdexec = open(path, O_PATH);
@@ -256,14 +256,14 @@ static int stress_exec(const stress_args_t *args)
 		(void)memset(pids, 0, sizeof(pids));
 
 		for (i = 0; i < exec_max; i++) {
-			(void)mwc8();		/* force new random number */
+			(void)stress_mwc8();		/* force new random number */
 
 			pids[i] = fork();
 
 			if (pids[i] == 0) {
 				int fd_out, fd_in, fd = -1;
-				const int which = mwc8() % 3;
-				int exec_garbage = mwc1();
+				const int which = stress_mwc8() % 3;
+				int exec_garbage = stress_mwc1();
 				stress_exec_args_t exec_args;
 
 				(void)setpgid(0, g_pgrp);
@@ -302,7 +302,7 @@ static int stress_exec(const stress_args_t *args)
 					}
 
 					stress_strnrnd(buffer, sizeof(buffer));
-					if (mwc1()) {
+					if (stress_mwc1()) {
 						buffer[0] = '#';
 						buffer[1] = '!';
 					}

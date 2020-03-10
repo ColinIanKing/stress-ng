@@ -3129,8 +3129,10 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 
 		if (!keep_stressing())
 			_exit(EXIT_SUCCESS);
-		ret = syscall7(number, mwc64(), mwc64(), mwc64(),
-			      mwc64(), mwc64(), mwc64(), mwc64());
+		ret = syscall7(number, stress_mwc64(), stress_mwc64(),
+			      stress_mwc64(), stress_mwc64(),
+			      stress_mwc64(), stress_mwc64(),
+			      stress_mwc64());
 		if ((ret < 0) && (errno != ENOSYS))
 			_exit(errno);
 
@@ -3247,16 +3249,16 @@ again:
 			for (j = 0; j < 1024; j++) {
 				if (!keep_stressing())
 					goto finish;
-				stress_do_syscall(args, mwc8() & mask);
+				stress_do_syscall(args, stress_mwc8() & mask);
 				if (!keep_stressing())
 					goto finish;
-				stress_do_syscall(args, mwc16() & mask);
+				stress_do_syscall(args, stress_mwc16() & mask);
 				if (!keep_stressing())
 					goto finish;
-				stress_do_syscall(args, mwc32() & mask);
+				stress_do_syscall(args, stress_mwc32() & mask);
 				if (!keep_stressing())
 					goto finish;
-				stress_do_syscall(args, mwc64() & mask);
+				stress_do_syscall(args, stress_mwc64() & mask);
 			}
 
 			/* Various bit masks */

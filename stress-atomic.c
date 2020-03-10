@@ -26,7 +26,7 @@
 
 #define DO_ATOMIC_OPS(type, var)			\
 {							\
-	type tmp = mwc64();				\
+	type tmp = stress_mwc64();			\
 							\
 	__atomic_store(var, &tmp, __ATOMIC_RELAXED); 	\
 	__atomic_load(var, &tmp, __ATOMIC_RELAXED);	\
@@ -101,7 +101,7 @@ static const stress_help_t help[] = {
 
 #if defined(TEST_ATOMIC_BUILD)
 
-uint64_t mwc64(void)
+uint64_t stress_mwc64(void)
 {
 	static uint64_t v = 0xdeadbeef;
 

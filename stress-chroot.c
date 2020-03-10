@@ -213,7 +213,7 @@ static int stress_chroot(const stress_args_t *args)
 	stress_strnrnd(longpath, sizeof(longpath));
 	(void)stress_temp_dir(badpath, sizeof(badpath), "badpath", args->pid, 0xbad);
 	(void)stress_temp_dir_args(args, temppath, sizeof(temppath));
-	(void)stress_temp_filename_args(args, filename, sizeof(filename), mwc32());
+	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	if (mkdir(temppath, S_IRWXU) < 0) {
 		pr_fail_err("mkdir");
 		goto tidy_ret;

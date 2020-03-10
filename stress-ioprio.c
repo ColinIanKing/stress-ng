@@ -54,7 +54,7 @@ static int stress_ioprio(const stress_args_t *args)
 		return rc;
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_err("open");
@@ -121,12 +121,12 @@ static int stress_ioprio(const stress_args_t *args)
 			break;
 
 		for (i = 0; i < MAX_IOV; i++) {
-			(void)memset(buffer[i], mwc8(), BUF_SIZE);
+			(void)memset(buffer[i], stress_mwc8(), BUF_SIZE);
 			iov[i].iov_base = buffer[i];
 			iov[i].iov_len = BUF_SIZE;
 		}
 
-		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
+		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
 			pr_fail_err("pwritev");
 			goto cleanup_file;
 		}
@@ -150,7 +150,7 @@ static int stress_ioprio(const stress_args_t *args)
 		if (!keep_stressing())
 			break;
 
-		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
+		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
 			pr_fail_err("pwritev");
 			goto cleanup_file;
 		}
@@ -172,7 +172,7 @@ static int stress_ioprio(const stress_args_t *args)
 					goto cleanup_file;
 				}
 			}
-			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
+			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
 				pr_fail_err("pwritev");
 				goto cleanup_file;
 			}
@@ -192,7 +192,7 @@ static int stress_ioprio(const stress_args_t *args)
 					goto cleanup_file;
 				}
 			}
-			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * mwc16()) < 0) {
+			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
 				pr_fail_err("pwritev");
 				goto cleanup_file;
 			}

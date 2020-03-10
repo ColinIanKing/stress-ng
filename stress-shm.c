@@ -162,7 +162,7 @@ static int stress_shm_posix_child(
 
 			(void)snprintf(shm_name, SHM_NAME_LEN,
 				"/stress-ng-%d-%" PRIx64 "-%" PRIx32,
-					(int)pid, id, mwc32());
+					(int)pid, id, stress_mwc32());
 
 			shm_fd = shm_open(shm_name, O_CREAT | O_RDWR | O_TRUNC,
 				S_IRUSR | S_IWUSR);
@@ -221,7 +221,7 @@ static int stress_shm_posix_child(
 			(void)shim_fallocate(shm_fd, 0, 0, sz + page_size);
 
 			(void)stress_madvise_random(addr, sz);
-			(void)shim_msync(addr, sz, mwc1() ? MS_ASYNC : MS_SYNC);
+			(void)shim_msync(addr, sz, stress_mwc1() ? MS_ASYNC : MS_SYNC);
 			(void)shim_fsync(shm_fd);
 			off = lseek(shm_fd, (off_t)0, SEEK_SET);
 			(void)off;

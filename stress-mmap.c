@@ -213,7 +213,7 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 
 	do {
 		size_t n;
-		const int rnd = mwc32() % SIZEOF_ARRAY(mmap_flags);
+		const int rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags);
 		int rnd_flag = mmap_flags[rnd];
 		uint8_t *buf = NULL;
 
@@ -316,7 +316,7 @@ retry:
 		 */
 		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
 		for (n = pages4k; n; ) {
-			uint64_t j, i = mwc64() % pages4k;
+			uint64_t j, i = stress_mwc64() % pages4k;
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
 				if (mapped[page] == PAGE_MAPPED) {
@@ -338,7 +338,7 @@ retry:
 		 *  Step #2, map them back in random order
 		 */
 		for (n = pages4k; n; ) {
-			uint64_t j, i = mwc64() % pages4k;
+			uint64_t j, i = stress_mwc64() % pages4k;
 
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
@@ -353,7 +353,7 @@ retry:
 					 * track of failed mappings too
 					 */
 #if defined(MAP_FIXED_NOREPLACE)
-					if (mwc1())
+					if (stress_mwc1())
 						fixed_flags = MAP_FIXED_NOREPLACE;
 #endif
 					mappings[page] = (uint8_t *)mmap((void *)mappings[page],
@@ -465,7 +465,7 @@ static int stress_mmap(const stress_args_t *args)
 			return exit_status(-rc);
 
 		(void)stress_temp_filename_args(args,
-			filename, sizeof(filename), mwc32());
+			filename, sizeof(filename), stress_mwc32());
 
 		if (mmap_odirect) {
 #if defined(O_DIRECT)

@@ -161,7 +161,7 @@ static inline void stress_proc_rw(
 		 *  Multiple randomly sized reads
 		 */
 		while (i < (4096 * PROC_BUF_SZ)) {
-			ssize_t sz = 1 + (mwc32() % sizeof(buffer));
+			ssize_t sz = 1 + (stress_mwc32() % sizeof(buffer));
 			if (!keep_stressing_flag())
 				break;
 			ret = read(fd, buffer, sz);
@@ -350,7 +350,7 @@ static void stress_proc_dir(
 		return;
 #endif
 
-	mixup = mwc32();
+	mixup = stress_mwc32();
 	dlist = NULL;
 	n = scandir(path, &dlist, NULL, mixup_sort);
 	if (n <= 0)

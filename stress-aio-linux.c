@@ -318,7 +318,7 @@ static int stress_aiol(const stress_args_t *args)
 	}
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 	fds[0] = open(filename, O_CREAT | O_RDWR | O_DIRECT, S_IRUSR | S_IWUSR);
 	if (fds[0] < 0) {
@@ -353,7 +353,7 @@ static int stress_aiol(const stress_args_t *args)
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_PWRITE;
 			cb[i].u.c.buf = bufptr;
-			cb[i].u.c.offset = mwc16() * BUFFER_SZ;
+			cb[i].u.c.offset = stress_mwc16() * BUFFER_SZ;
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
@@ -373,7 +373,7 @@ static int stress_aiol(const stress_args_t *args)
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_PREAD;
 			cb[i].u.c.buf = bufptr;
-			cb[i].u.c.offset = mwc16() * BUFFER_SZ;
+			cb[i].u.c.offset = stress_mwc16() * BUFFER_SZ;
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}

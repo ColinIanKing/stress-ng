@@ -178,7 +178,7 @@ static int stress_lockf_contention(
 
 	(void)get_setting("lockf-nonblock", &lockf_nonblock);
 	lockf_cmd = lockf_nonblock ?  F_TLOCK : F_LOCK;
-	mwc_reseed();
+	stress_mwc_reseed();
 
 	do {
 		off_t offset;
@@ -189,7 +189,7 @@ static int stress_lockf_contention(
 			if (stress_lockf_unlock(args, fd) < 0)
 				return -1;
 
-		offset = mwc64() % (LOCK_FILE_SIZE - LOCK_SIZE);
+		offset = stress_mwc64() % (LOCK_FILE_SIZE - LOCK_SIZE);
 		if (lseek(fd, offset, SEEK_SET) < 0) {
 			pr_fail_err("lseek");
 			return -1;
@@ -249,7 +249,7 @@ static int stress_lockf(const stress_args_t *args)
 	 *  stress flock processes
 	 */
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);

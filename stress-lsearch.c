@@ -89,7 +89,7 @@ static int stress_lsearch(const stress_args_t *args)
 		for (i = 0; keep_stressing_flag() && i < max; i++) {
 			void *ptr;
 
-			data[i] = ((mwc32() & 0xfff) << 20) ^ i;
+			data[i] = ((stress_mwc32() & 0xfff) << 20) ^ i;
 			ptr = lsearch(&data[i], root, &n, sizeof(*data), cmp);
 			(void)ptr;
 		}

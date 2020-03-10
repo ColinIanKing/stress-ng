@@ -109,7 +109,7 @@ static int stress_udp_flood(const stress_args_t *args)
 		if (!keep_stressing())
 			break;
 
-		rand_port = 1024 + (mwc16() % (65535 - 1024));
+		rand_port = 1024 + (stress_mwc16() % (65535 - 1024));
 		stress_set_sockaddr_port(udp_flood_domain, rand_port, addr);
 		if (sendto(fd, buf, sz, 0, addr, addr_len) > 0)
 			inc_counter(args);

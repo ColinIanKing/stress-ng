@@ -85,7 +85,7 @@ static int stress_zero(const stress_args_t *args)
 		 *  check if we can mmap /dev/zero
 		 */
 		ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS,
-			fd, page_size * mwc16());
+			fd, page_size * stress_mwc16());
 		if (ptr == MAP_FAILED) {
 			if (errno == ENOMEM)
 				continue;

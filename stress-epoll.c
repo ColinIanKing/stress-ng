@@ -451,7 +451,7 @@ static void epoll_server(
 	 *  or the other to get more test coverage
 	 */
 #if defined(HAVE_EPOLL_CREATE1)
-	if (mwc1()) {
+	if (stress_mwc1()) {
 		efd = epoll_create1(0);	/* flag version */
 		if (efd < 0) {
 			pr_fail_err("epoll_create1");
@@ -501,7 +501,7 @@ static void epoll_server(
 		 * to break out if keep_stressing_flag has been changed.
 		 * Note: epoll_wait maps to epoll_pwait in glibc, ho hum.
 		 */
-		if (mwc1()) {
+		if (stress_mwc1()) {
 			n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
 		} else {
 			n = epoll_pwait(efd, events, MAX_EPOLL_EVENTS, 100, &sigmask);

@@ -248,7 +248,7 @@ static int stress_seccomp_set_filter(
 
 	if (do_random) {
 		for (i = 0; i < SIZEOF_ARRAY(filter_random); i++) {
-			struct sock_filter bpf_stmt = BPF_STMT(mwc32(), SECCOMP_RET_KILL);
+			struct sock_filter bpf_stmt = BPF_STMT(stress_mwc32(), SECCOMP_RET_KILL);
 			filter_random[i] = bpf_stmt;
 		}
 	}
@@ -301,8 +301,8 @@ static int stress_seccomp(const stress_args_t *args)
 {
 	do {
 		pid_t pid;
-		const bool allow_write = (mwc32() % 2) != 0;
-		const bool do_random = (mwc32() % 20) != 0;
+		const bool allow_write = (stress_mwc32() % 2) != 0;
+		const bool do_random = (stress_mwc32() % 20) != 0;
 
 		pid = fork();
 		if (pid == -1) {

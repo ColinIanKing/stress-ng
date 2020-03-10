@@ -107,7 +107,7 @@ static void *semaphore_posix_thrash(void *arg)
 				pr_fail_dbg("sem_post");
 				break;
 			}
-			if (mwc1())
+			if (stress_mwc1())
 				(void)shim_sched_yield();
 			else
 				(void)shim_usleep(0);

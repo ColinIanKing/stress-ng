@@ -187,7 +187,7 @@ static int stress_key(const stress_args_t *args)
 			(void)sys_keyctl(KEYCTL_SETPERM, keys[i], KEY_USR_ALL);
 #endif
 #if defined(KEYCTL_REVOKE)
-			if (mwc1())
+			if (stress_mwc1())
 				(void)sys_keyctl(KEYCTL_REVOKE, keys[i]);
 #endif
 #if defined(KEYCTL_INVALIDATE)

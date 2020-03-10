@@ -134,9 +134,9 @@ static int stress_dynlib(const stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			int flags;
 
-			flags = mwc1() ? RTLD_LAZY : RTLD_NOW;
+			flags = stress_mwc1() ? RTLD_LAZY : RTLD_NOW;
 #if defined(RTLD_GLOBAL) && defined(RTLD_LOCAL)
-			flags |= mwc1() ? RTLD_GLOBAL : RTLD_LOCAL;
+			flags |= stress_mwc1() ? RTLD_GLOBAL : RTLD_LOCAL;
 #endif
 			handles[i] = dlopen(libnames[i].library, flags);
 			(void)dlerror();

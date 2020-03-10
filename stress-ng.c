@@ -1392,7 +1392,7 @@ static void MLOCKED_TEXT wait_procs(
 						procs_alive = true;
 
 						do {
-							cpu_num = mwc32() % cpus;
+							cpu_num = stress_mwc32() % cpus;
 						} while (!(CPU_ISSET(cpu_num, &proc_mask)));
 
 						CPU_ZERO(&mask);
@@ -1671,7 +1671,7 @@ again:
 
 					if (g_opt_timeout)
 						(void)alarm(g_opt_timeout);
-					mwc_reseed();
+					stress_mwc_reseed();
 					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
 						stress_munge_underscore(g_proc_current->stressor->name));
 					stress_set_oom_adjustment(name, false);
@@ -2312,8 +2312,8 @@ static inline void set_random_stressors(void)
 
 		/* create n randomly chosen stressors */
 		while (n > 0) {
-			int32_t rnd = mwc32() % ((opt_random >> 5) + 2);
-			int32_t i = mwc32() % n_procs;
+			int32_t rnd = stress_mwc32() % ((opt_random >> 5) + 2);
+			int32_t i = stress_mwc32() % n_procs;
 			stress_proc_info_t *pi = get_nth_proc(i);
 
 			if (!pi)
@@ -2738,7 +2738,7 @@ int main(int argc, char **argv, char **envp)
 
 	procs_head = NULL;
 	procs_tail = NULL;
-	mwc_reseed();
+	stress_mwc_reseed();
 
 	(void)stress_get_pagesize();
 	stressor_set_defaults();

@@ -109,8 +109,8 @@ try_read:
 		/*
 		 *  Seeks will always succeed
 		 */
-		w = mwc32() % 3;
-		offset = (off_t)mwc64();
+		w = stress_mwc32() % 3;
+		offset = (off_t)stress_mwc64();
 		ret = lseek(fd, offset, whences[w].whence);
 		if (ret < 0) {
 			pr_fail("%s: lseek(fd, %jd, %s)\n",

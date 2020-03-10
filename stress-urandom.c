@@ -146,17 +146,17 @@ next:
 				check_eperm(args, ret, errno);
 #endif
 #if defined(RNDADDTOENTCNT)
-				ret = ioctl(fd_rnd, RNDADDTOENTCNT, mwc32());
+				ret = ioctl(fd_rnd, RNDADDTOENTCNT, stress_mwc32());
 				check_eperm(args, ret, errno);
 #endif
 #if defined(RNDRESEEDCRNG)
-				ret = ioctl(fd_rnd, RNDRESEEDCRNG, mwc32());
+				ret = ioctl(fd_rnd, RNDRESEEDCRNG, stress_mwc32());
 				check_eperm(args, ret, errno);
 #endif
 
 #if defined(__linux__)
 				if (fd_rnd_wr >= 0) {
-					buffer[0] = mwc8();
+					buffer[0] = stress_mwc8();
 					ret = write(fd_rnd_wr, buffer, 1);
 					check_eperm(args, ret, errno);
 				}

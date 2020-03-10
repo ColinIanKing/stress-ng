@@ -70,7 +70,7 @@ static int stress_set_malloc_threshold(const char *opt)
  */
 static inline size_t stress_alloc_size(const size_t malloc_bytes)
 {
-	const size_t len = mwc64() % malloc_bytes;
+	const size_t len = stress_mwc64() % malloc_bytes;
 
 	return len ? len : 1;
 }
@@ -117,7 +117,7 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 	}
 
 	do {
-		const unsigned int rnd = mwc32();
+		const unsigned int rnd = stress_mwc32();
 		const unsigned int i = rnd % malloc_max;
 		const unsigned int action = (rnd >> 12) & 1;
 		const unsigned int do_calloc = (rnd >> 14) & 0x1f;

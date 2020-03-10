@@ -131,7 +131,7 @@ static int stress_msync(const stress_args_t *args)
 		return exit_status(-rc);
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
@@ -173,8 +173,8 @@ static int stress_msync(const stress_args_t *args)
 		/*
 		 *  Change data in memory, msync to disk
 		 */
-		offset = (mwc64() % (sz - page_size)) & ~(page_size - 1);
-		val = mwc8();
+		offset = (stress_mwc64() % (sz - page_size)) & ~(page_size - 1);
+		val = stress_mwc8();
 
 		(void)memset(buf + offset, val, page_size);
 		ret = shim_msync(buf + offset, page_size, MS_SYNC);
@@ -208,8 +208,8 @@ do_invalidate:
 		/*
 		 *  Now change data on disc, msync invalidate
 		 */
-		offset = (mwc64() % (sz - page_size)) & ~(page_size - 1);
-		val = mwc8();
+		offset = (stress_mwc64() % (sz - page_size)) & ~(page_size - 1);
+		val = stress_mwc8();
 
 		(void)memset(buf + offset, val, page_size);
 

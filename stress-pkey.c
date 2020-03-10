@@ -55,7 +55,7 @@ static int stress_pkey(const stress_args_t *args)
 
 	do {
 		int pkey, ret;
-		const int page_num = (mwc8() % PAGES_TO_EXERCISE);
+		const int page_num = (stress_mwc8() % PAGES_TO_EXERCISE);
 		const size_t page_offset = page_num * args->page_size;
 		uint8_t *page = pages + page_offset;
 

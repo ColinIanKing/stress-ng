@@ -167,7 +167,7 @@ static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 		 *  Multiple randomly sized reads
 		 */
 		while (i < (4096 * SYS_BUF_SZ)) {
-			ssize_t sz = 1 + (mwc32() % (sizeof(buffer) - 1));
+			ssize_t sz = 1 + (stress_mwc32() % (sizeof(buffer) - 1));
 			if (!keep_stressing_flag())
 				break;
 			ret = read(fd, buffer, sz);
@@ -449,7 +449,7 @@ static void stress_sys_dir(
 	if (depth > 20)
 		return;
 
-	mixup = mwc32();
+	mixup = stress_mwc32();
 	dlist = NULL;
 	n = scandir(path, &dlist, NULL, mixup_sort);
 	if (n <= 0)

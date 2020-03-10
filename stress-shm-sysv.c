@@ -217,7 +217,7 @@ static int stress_shm_sysv_child(
 			for (count = 0; count < KEY_GET_RETRIES; count++) {
 				bool unique = true;
 				const int rnd =
-					mwc32() % SIZEOF_ARRAY(shm_flags);
+					stress_mwc32() % SIZEOF_ARRAY(shm_flags);
 				const int rnd_flag = shm_flags[rnd] & mask;
 
 				if (sz < page_size)
@@ -231,7 +231,7 @@ static int stress_shm_sysv_child(
 						goto reap;
 
 					/* Get a unique random key */
-					key = (key_t)mwc16();
+					key = (key_t)stress_mwc16();
 					for (j = 0; j < i; j++) {
 						if (key == keys[j]) {
 							unique = false;
@@ -293,7 +293,7 @@ static int stress_shm_sysv_child(
 			if (!keep_stressing())
 				goto reap;
 			(void)stress_mincore_touch_pages(addr, sz);
-			(void)shim_msync(addr, sz, mwc1() ? MS_ASYNC : MS_SYNC);
+			(void)shim_msync(addr, sz, stress_mwc1() ? MS_ASYNC : MS_SYNC);
 
 			if (!keep_stressing())
 				goto reap;

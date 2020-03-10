@@ -95,7 +95,7 @@ static int stress_tun(const stress_args_t *args)
 		pid_t pid;
 		struct ifreq ifr;
 		struct sockaddr_in *tun_addr;
-		int port = 2000 + (mwc16() & 0xfff);
+		int port = 2000 + (stress_mwc16() & 0xfff);
 
 		fd = open(tun_dev, O_RDWR);
 		if (fd < 0) {
@@ -146,8 +146,8 @@ static int stress_tun(const stress_args_t *args)
 		 */
 		for (i = 0; i < 32; i++) {
 			(void)snprintf(ip_addr, sizeof(ip_addr), "192.168.%" PRIu8 ".%" PRIu8,
-				(mwc8() % 252) + 2,
-				(mwc8() % 254) + 1);
+				(stress_mwc8() % 252) + 2,
+				(stress_mwc8() % 254) + 1);
 
 			(void)inet_pton(AF_INET, ip_addr, &tun_addr->sin_addr);
 			ret = ioctl(sfd, SIOCSIFADDR, &ifr);

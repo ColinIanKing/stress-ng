@@ -86,7 +86,7 @@ static int stress_affinity(const stress_args_t *args)
 	(void)get_setting("affinity-rand", &affinity_rand);
 
 	do {
-		cpu = affinity_rand ?  (mwc32() >> 4) : cpu + 1;
+		cpu = affinity_rand ?  (stress_mwc32() >> 4) : cpu + 1;
 		cpu %= cpus;
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);

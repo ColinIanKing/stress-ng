@@ -66,9 +66,9 @@ static int stress_null(const stress_args_t *args)
 
 #if defined(__linux__)
 		ptr = mmap(NULL, page_size, PROT_WRITE,
-			MAP_PRIVATE | MAP_ANONYMOUS, fd, mwc64() & ~(page_size - 1));
+			MAP_PRIVATE | MAP_ANONYMOUS, fd, stress_mwc64() & ~(page_size - 1));
 		if (ptr != MAP_FAILED) {
-			(void)memset(ptr, mwc8(), page_size);
+			(void)memset(ptr, stress_mwc8(), page_size);
 			(void)shim_msync(ptr, page_size, MS_SYNC);
 			(void)munmap(ptr, page_size);
 		}

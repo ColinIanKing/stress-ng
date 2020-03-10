@@ -445,7 +445,7 @@ static int stress_hdd(const stress_args_t *args)
 	stress_strnrnd((char *)buf, hdd_write_size);
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 	do {
 		int fd;
 		struct stat statbuf;
@@ -474,7 +474,7 @@ static int stress_hdd(const stress_args_t *args)
 		}
 
 		/* Exercise ftruncate or truncate */
-		if (mwc1()) {
+		if (stress_mwc1()) {
 			if (ftruncate(fd, (off_t)0) < 0) {
 				pr_fail_err("ftruncate");
 				(void)close(fd);
@@ -506,7 +506,7 @@ static int stress_hdd(const stress_args_t *args)
 
 				off_t offset = (i == 0) ?
 					hdd_bytes :
-					(mwc64() % hdd_bytes) & ~511;
+					(stress_mwc64() % hdd_bytes) & ~511;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
 					pr_fail_err("lseek");
@@ -643,7 +643,7 @@ seq_rd_retry:
 
 			for (i = 0; i < hdd_read_size; i += hdd_write_size) {
 				off_t offset = (hdd_bytes > hdd_write_size) ?
-					(mwc64() % (hdd_bytes - hdd_write_size)) & ~511 : 0;
+					(stress_mwc64() % (hdd_bytes - hdd_write_size)) & ~511 : 0;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
 					pr_fail_err("lseek");

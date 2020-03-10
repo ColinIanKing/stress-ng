@@ -1551,7 +1551,7 @@ extern void pr_fail_dbg__(const stress_args_t *args, const char *msg);
 /* MWC random number initial seed */
 #define MWC_SEED_Z		(362436069UL)
 #define MWC_SEED_W		(521288629UL)
-#define MWC_SEED()		mwc_seed(MWC_SEED_W, MWC_SEED_Z)
+#define MWC_SEED()		stress_mwc_seed(MWC_SEED_W, MWC_SEED_Z)
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
 
@@ -3253,13 +3253,13 @@ static inline void ALWAYS_INLINE shim_mfence(void)
 }
 
 /* Fast random numbers */
-extern uint32_t mwc32(void);
-extern uint64_t mwc64(void);
-extern uint16_t mwc16(void);
-extern uint8_t mwc8(void);
-extern uint8_t mwc1(void);
-extern void mwc_seed(const uint32_t w, const uint32_t z);
-extern void mwc_reseed(void);
+extern uint32_t stress_mwc32(void);
+extern uint64_t stress_mwc64(void);
+extern uint16_t stress_mwc16(void);
+extern uint8_t stress_mwc8(void);
+extern uint8_t stress_mwc1(void);
+extern void stress_mwc_seed(const uint32_t w, const uint32_t z);
+extern void stress_mwc_reseed(void);
 
 /* Time handling */
 

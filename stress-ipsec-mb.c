@@ -150,7 +150,7 @@ static void stress_rnd_fill(uint8_t *buf, size_t n)
 	register uint32_t *end = (uint32_t *)(buf + n);
 
 	while (ptr < end)
-		*(ptr++) = mwc32();
+		*(ptr++) = stress_mwc32();
 }
 
 /*

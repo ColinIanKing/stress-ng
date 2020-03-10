@@ -244,7 +244,7 @@ again:
 
 		do {
 			int ret;
-			unsigned int prio = mwc8() % PRIOS_MAX;
+			unsigned int prio = stress_mwc8() % PRIOS_MAX;
 
 			const uint64_t timed = (msg.value & 1);
 

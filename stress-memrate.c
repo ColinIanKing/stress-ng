@@ -214,7 +214,7 @@ static void OPTIMIZE3 stress_memrate_init_data(
 	register volatile uint32_t *ptr;
 
 	for (ptr = start; ptr < (uint32_t *)end; ptr++)
-		*ptr = mwc32();
+		*ptr = stress_mwc32();
 }
 
 static inline void *stress_memrate_mmap(const stress_args_t *args, uint64_t sz)

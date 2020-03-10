@@ -80,7 +80,7 @@ static int stress_fiemap_writer(
 		size_t i;
 		counter = 0;
 
-		offset = (mwc64() % len) & ~0x1fff;
+		offset = (stress_mwc64() % len) & ~0x1fff;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0)
 			break;
 		if (!keep_stressing())
@@ -98,7 +98,7 @@ static int stress_fiemap_writer(
 		if (!punch_hole)
 			continue;
 
-		offset = mwc64() % len;
+		offset = stress_mwc64() % len;
 		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
 				  FALLOC_FL_KEEP_SIZE, offset, 8192) < 0) {
 			if (errno == EOPNOTSUPP)
@@ -257,7 +257,7 @@ static int stress_fiemap(const stress_args_t *args)
 	}
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_err("open");

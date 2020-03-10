@@ -126,7 +126,7 @@ static int stress_remap(const stress_args_t *args)
 		for (i = 0; i < N_PAGES; i++)
 			order[i] = i;
 		for (i = 0; i < N_PAGES; i++) {
-			size_t tmp, j = mwc32() % N_PAGES;
+			size_t tmp, j = stress_mwc32() % N_PAGES;
 
 			tmp = order[i];
 			order[i] = order[j];

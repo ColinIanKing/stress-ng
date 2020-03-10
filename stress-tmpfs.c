@@ -95,7 +95,7 @@ typedef struct {
  */
 static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 {
-	const uint32_t rnd = mwc32();
+	const uint32_t rnd = stress_mwc32();
 	char path[PATH_MAX];
 	char *mnts[MAX_MOUNTS];
 	int i, n, fd = -1;
@@ -192,7 +192,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		uint8_t mapped[pages4k];
 		uint8_t *mappings[pages4k];
 		size_t n;
-		const int rnd = mwc32() % SIZEOF_ARRAY(mmap_flags);
+		const int rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags);
 		const int rnd_flag = mmap_flags[rnd];
 		uint8_t *buf = NULL;
 
@@ -251,7 +251,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		 */
 		(void)stress_mincore_touch_pages(buf, sz);
 		for (n = pages4k; n; ) {
-			uint64_t j, i = mwc64() % pages4k;
+			uint64_t j, i = stress_mwc64() % pages4k;
 
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
@@ -273,7 +273,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		 *  Step #2, map them back in random order
 		 */
 		for (n = pages4k; n; ) {
-			uint64_t j, i = mwc64() % pages4k;
+			uint64_t j, i = stress_mwc64() % pages4k;
 
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;

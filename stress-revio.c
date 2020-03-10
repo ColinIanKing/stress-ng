@@ -354,7 +354,7 @@ static int stress_revio(const stress_args_t *args)
 	stress_strnrnd((char *)buf, DEFAULT_REVIO_WRITE_SIZE);
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 	do {
 		int fd;
@@ -389,7 +389,7 @@ static int stress_revio(const stress_args_t *args)
 		}
 
 		/* Sequential Reverse Write */
-		for (i = 0; i < revio_bytes; i += DEFAULT_REVIO_WRITE_SIZE * (8 + (mwc8() & 7))) {
+		for (i = 0; i < revio_bytes; i += DEFAULT_REVIO_WRITE_SIZE * (8 + (stress_mwc8() & 7))) {
 			size_t j;
 			off_t lseek_ret, offset = revio_bytes - i;
 seq_wr_retry:

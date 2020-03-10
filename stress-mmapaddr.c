@@ -91,7 +91,7 @@ static void *stress_mmapaddr_get_addr(
 		int ret;
 
 		vec[0] = 0;
-		addr = (void *)(intptr_t)(mwc64() & mask);
+		addr = (void *)(intptr_t)(stress_mwc64() & mask);
 		ret = shim_mincore(addr, page_size, vec);
 		if (ret == 0) {
 			addr = NULL;
@@ -123,7 +123,7 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 	do {
 		uint8_t *addr, *map_addr, *remap_addr;
 		int flags;
-		uint8_t rnd = mwc8();
+		uint8_t rnd = stress_mwc8();
 #if defined(MAP_POPULATE)
 		const int mmap_flags = MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS;
 #else

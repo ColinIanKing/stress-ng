@@ -75,7 +75,7 @@ static int stress_copy_file(const stress_args_t *args)
 	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
 		goto tidy_dir;
 	(void)stress_temp_filename_args(args,
-			filename, sizeof(filename), mwc32());
+			filename, sizeof(filename), stress_mwc32());
 	(void)snprintf(tmp, sizeof(tmp), "%s-orig", filename);
 	if ((fd_in = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
@@ -105,8 +105,8 @@ static int stress_copy_file(const stress_args_t *args)
 		ssize_t ret;
 		shim_loff_t off_in, off_out;
 
-		off_in = mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
-		off_out = mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
+		off_in = stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
+		off_out = stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 
 		ret =  shim_copy_file_range(fd_in, &off_in, fd_out,
 			&off_out, DEFAULT_COPY_FILE_SIZE, 0);

@@ -304,7 +304,7 @@ static void *stress_memory_contend_thread(void *arg)
 		stress_memory_contend(pa);
 
 #if defined(HAVE_AFFINITY)
-		const uint32_t cpu = mwc32() % cpus;
+		const uint32_t cpu = stress_mwc32() % cpus;
 
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
@@ -335,7 +335,7 @@ static int stress_mcontend(const stress_args_t *args)
 	if (rc < 0)
 		return exit_status(-rc);
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), mwc32());
+		filename, sizeof(filename), stress_mwc32());
 
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {

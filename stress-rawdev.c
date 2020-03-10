@@ -198,7 +198,7 @@ static void stress_rawdev_random(
 
 	for (i = 0; i < 256 && keep_stressing(); i++) {
 		int ret;
-		off_t offset = (off_t)blksz * (mwc64() % blks);
+		off_t offset = (off_t)blksz * (stress_mwc64() % blks);
 
 		ret = pread(fd, aligned, (size_t)blksz, offset);
 		if (ret < 0) {
@@ -218,7 +218,7 @@ static void stress_rawdev_burst(
 	int i;
 	char buf[blksz << 1];
 	char *aligned = stress_align_address(buf, blksz);
-	off_t blk = (mwc64() % blks);
+	off_t blk = (stress_mwc64() % blks);
 
 	for (i = 0; i < 256 && keep_stressing(); i++) {
 		int ret;

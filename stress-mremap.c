@@ -94,7 +94,7 @@ static int try_remap(
 #endif
 
 #if defined(MREMAP_FIXED) && defined(MREMAP_MAYMOVE)
-	flags = maymove | (mwc32() & MREMAP_FIXED);
+	flags = maymove | (stress_mwc32() & MREMAP_FIXED);
 #else
 	flags = maymove;
 #endif

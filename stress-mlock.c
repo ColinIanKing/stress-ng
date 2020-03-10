@@ -51,7 +51,7 @@ static int do_mlock(const void *addr, size_t len)
 	static bool use_mlock2 = true;
 
 	if (use_mlock2) {
-		uint32_t rnd = mwc32() >> 5;
+		uint32_t rnd = stress_mwc32() >> 5;
 		/* Randomly use mlock2 or mlock */
 		if (rnd & 1) {
 			const int flags = (rnd & 2) ?

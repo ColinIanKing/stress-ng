@@ -83,7 +83,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 		int ret = 0;
 		int max_prio, min_prio, rng_prio;
 		int new_policy = policies[policy];
-		const pid_t pid = mwc1() ? 0 : args->pid;
+		const pid_t pid = stress_mwc1() ? 0 : args->pid;
 		const char *new_policy_name = stress_get_sched_name(new_policy);
 
 		switch (new_policy) {
@@ -148,7 +148,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 					min_prio, max_prio);
 				break;
 			}
-			param.sched_priority = (mwc32() % (rng_prio)) +
+			param.sched_priority = (stress_mwc32() % (rng_prio)) +
 						min_prio;
 			ret = sched_setscheduler(pid, new_policy, &param);
 			break;

@@ -83,8 +83,8 @@ static void stress_stack_alloc(const stress_args_t *args, const bool stack_fill)
 		for (i = 0; i < sz; i += page_size4) {
 			uint32_t *ptr = (uint32_t *)(data + i);
 
-			*ptr = mwc32();
-			*(ptr + 1) = mwc32() | 1;
+			*ptr = stress_mwc32();
+			*(ptr + 1) = stress_mwc32() | 1;
 		}
 	}
 
