@@ -46,7 +46,7 @@ static int stress_set_udp_flood_domain(const char *name)
 	return ret;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_udp_flood_domain,	stress_set_udp_flood_domain },
 	{ 0,			NULL }
 };

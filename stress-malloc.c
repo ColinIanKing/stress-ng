@@ -187,7 +187,7 @@ static int stress_malloc(const args_t *args)
 	return stress_oomable_child(args, NULL, stress_malloc_child, STRESS_OOMABLE_NORMAL);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_malloc_threshold,	stress_set_malloc_threshold },
 	{ OPT_malloc_max,	stress_set_malloc_max },
 	{ OPT_malloc_bytes,	stress_set_malloc_bytes },

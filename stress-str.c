@@ -701,7 +701,7 @@ static void stress_str_set_default(void)
 	stress_set_str_method("all");
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_str_method,	stress_set_str_method },
 	{ 0,			NULL }
 };

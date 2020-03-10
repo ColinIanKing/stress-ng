@@ -208,7 +208,7 @@ again:
 	return EXIT_SUCCESS;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_switch_freq,	stress_set_switch_freq },
 	{ 0,			NULL }
 };

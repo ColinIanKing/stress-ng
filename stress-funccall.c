@@ -885,7 +885,7 @@ static void stress_funccall_set_default(void)
 	stress_set_funccall_method("uint64");
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_funccall_method,	stress_set_funccall_method },
 	{ 0,			NULL }
 };

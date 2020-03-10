@@ -72,7 +72,7 @@ static int stress_set_sctp_domain(const char *name)
 	return ret;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sctp_port,	stress_set_sctp_port },
 	{ OPT_sctp_domain,	stress_set_sctp_domain },
 	{ 0,			NULL }

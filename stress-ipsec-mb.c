@@ -33,7 +33,7 @@ static const stress_help_t help[] = {
 
 static int stress_set_ipsec_mb_feature(const char *opt);
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
         { OPT_ipsec_mb_feature,	stress_set_ipsec_mb_feature },
 };
 

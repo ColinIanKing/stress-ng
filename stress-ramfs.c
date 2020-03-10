@@ -396,7 +396,7 @@ again:
 	return EXIT_SUCCESS;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
         { OPT_ramfs_size,	stress_set_ramfs_size},
         { 0,                    NULL }
 };

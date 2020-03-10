@@ -466,7 +466,7 @@ static int stress_vm_addr(const args_t *args)
 	return ret;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_vm_addr_method,	stress_set_vm_addr_method },
 	{ 0,			NULL }
 };

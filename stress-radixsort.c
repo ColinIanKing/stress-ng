@@ -67,7 +67,7 @@ static int stress_set_radixsort_size(const char *opt)
 	return set_setting("radixsort-size", TYPE_ID_UINT64, &radixsort_size);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_radixsort_size,	stress_set_radixsort_size },
 	{ 0,			NULL }
 };

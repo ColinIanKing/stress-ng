@@ -705,7 +705,7 @@ finish:
 	return rc;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_hdd_bytes,	stress_set_hdd_bytes },
 	{ OPT_hdd_opts,		stress_set_hdd_opts },
 	{ OPT_hdd_write_size,	stress_set_hdd_write_size },

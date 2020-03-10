@@ -200,7 +200,7 @@ static int stress_zombie(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_zombie_max,	stress_set_zombie_max },
 	{ 0,			NULL }
 };

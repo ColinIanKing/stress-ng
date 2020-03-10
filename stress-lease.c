@@ -45,7 +45,7 @@ static int stress_set_lease_breakers(const char *opt)
 	return set_setting("lease-breakers", TYPE_ID_UINT64, &lease_breakers);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_lease_breakers,	stress_set_lease_breakers },
 	{ 0,			NULL }
 };

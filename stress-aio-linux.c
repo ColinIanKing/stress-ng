@@ -44,7 +44,7 @@ static int stress_set_aio_linux_requests(const char *opt)
 	return set_setting("aiol-requests", TYPE_ID_SIZE_T, &aio_linux_requests);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_aiol_requests,	stress_set_aio_linux_requests },
 	{ 0,			NULL }
 };

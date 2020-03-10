@@ -59,7 +59,7 @@ static int stress_set_userfaultfd_bytes(const char *opt)
 	return set_setting("userfaultfd-bytes", TYPE_ID_SIZE_T, &userfaultfd_bytes);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_userfaultfd_bytes,	stress_set_userfaultfd_bytes },
 	{ 0,				NULL }
 };

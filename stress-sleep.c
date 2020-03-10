@@ -54,7 +54,7 @@ static int stress_set_sleep_max(const char *opt)
 	return set_setting("sleep-max", TYPE_ID_UINT64, &sleep_max);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sleep_max,	stress_set_sleep_max },
 	{ 0,			NULL }
 };

@@ -234,7 +234,7 @@ static int stress_memcpy(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_memcpy_method,	stress_set_memcpy_method },
 	{ 0,			NULL }
 };

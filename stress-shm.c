@@ -59,7 +59,7 @@ static int stress_set_shm_posix_objects(const char *opt)
 	return set_setting("shm-objs", TYPE_ID_SIZE_T, &shm_posix_objects);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_shm_bytes,	stress_set_shm_posix_bytes },
 	{ OPT_shm_objects,	stress_set_shm_posix_objects },
 	{ 0,			NULL }

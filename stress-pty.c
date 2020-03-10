@@ -57,7 +57,7 @@ static int stress_set_pty_max(const char *opt)
 	return set_setting("pty-max", TYPE_ID_UINT64, &pty_max);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_pty_max,	stress_set_pty_max },
 	{ 0,		NULL }
 };

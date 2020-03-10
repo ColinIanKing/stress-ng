@@ -466,7 +466,7 @@ tidy_dir:
 	return rc;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_filename_opts,	stress_set_filename_opts },
 	{ 0,			NULL }
 };

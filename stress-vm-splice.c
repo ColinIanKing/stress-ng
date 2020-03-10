@@ -41,7 +41,7 @@ static int stress_set_vm_splice_bytes(const char *opt)
 	return set_setting("vm-splice-bytes", TYPE_ID_SIZE_T, &vm_splice_bytes);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_vm_splice_bytes,	stress_set_vm_splice_bytes },
 	{ 0,			NULL }
 };

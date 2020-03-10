@@ -193,7 +193,7 @@ finish:
 	return rc;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_seek_size,	stress_set_seek_size },
 	{ OPT_seek_punch,	stress_set_seek_punch },
 	{ 0,			NULL }

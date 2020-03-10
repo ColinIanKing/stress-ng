@@ -41,7 +41,7 @@ static int stress_set_stack_fill(const char *opt)
 	return set_setting("stack-fill", TYPE_ID_BOOL, &stack_fill);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_stack_fill,	stress_set_stack_fill },
 	{ 0,			NULL }
 };

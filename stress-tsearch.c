@@ -139,7 +139,7 @@ abort:
 	return EXIT_SUCCESS;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_tsearch_size,	stress_set_tsearch_size },
 	{ 0,			NULL }
 };

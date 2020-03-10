@@ -46,7 +46,7 @@ static int stress_set_msync_bytes(const char *opt)
 	return set_setting("msync-bytes", TYPE_ID_SIZE_T, &msync_bytes);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_msync_bytes,	stress_set_msync_bytes },
 	{ 0,			NULL }
 };

@@ -171,7 +171,7 @@ err:
 	return ret;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_chdir_dirs,	stress_set_chdir_dirs },
 	{ 0,			NULL }
 };

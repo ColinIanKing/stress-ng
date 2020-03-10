@@ -404,7 +404,7 @@ static void stress_opcode_set_default(void)
         stress_set_opcode_method("random");
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_opcode_method,	stress_set_opcode_method },
 	{ 0,			NULL }
 };
@@ -427,7 +427,7 @@ static int stress_set_opcode_method(const char *name)
 	return -1;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_opcode_method,	stress_set_opcode_method },
 	{ 0,			NULL }
 };

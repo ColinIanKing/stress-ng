@@ -346,7 +346,7 @@ clean_up:
 	return rc;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_tun_tap,		stress_set_tun_tap },
         { 0,                    NULL }
 };

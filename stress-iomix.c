@@ -780,7 +780,7 @@ unmap:
 	return ret;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_iomix_bytes,	stress_set_iomix_bytes },
 	{ 0,			NULL }
 };

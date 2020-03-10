@@ -310,7 +310,7 @@ static int stress_set_rawdev_method(const char *name)
 }
 #endif
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_rawdev_method,	stress_set_rawdev_method },
 	{ 0,			NULL }
 };

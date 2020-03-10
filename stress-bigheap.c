@@ -147,7 +147,7 @@ static int stress_bigheap(const args_t *args)
 	return stress_oomable_child(args, NULL, stress_bigheap_child, STRESS_OOMABLE_NORMAL);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_bigheap_growth,	stress_set_bigheap_growth },
 	{ 0,			NULL },
 };

@@ -766,7 +766,7 @@ static int stress_set_zlib_method(const char *opt)
 	return -1;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_zlib_level,	stress_set_zlib_level },
 	{ OPT_zlib_method,	stress_set_zlib_method },
 	{ 0,			NULL }

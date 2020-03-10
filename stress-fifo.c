@@ -45,7 +45,7 @@ static int stress_set_fifo_readers(const char *opt)
 	return set_setting("fifo-readers", TYPE_ID_UINT64, &fifo_readers);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_fifo_readers,	stress_set_fifo_readers },
 	{ 0,			NULL }
 };

@@ -42,7 +42,7 @@ static int stress_set_mq_size(const char *opt)
 	return set_setting("mq-size", TYPE_ID_INT, &mq_size);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mq_size,	stress_set_mq_size },
 	{ 0,		NULL }
 };

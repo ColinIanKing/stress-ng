@@ -106,7 +106,7 @@ static int stress_set_dccp_domain(const char *name)
 	return ret;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_dccp_domain,	stress_set_dccp_domain },
 	{ OPT_dccp_opts,	stress_set_dccp_opts },
 	{ OPT_dccp_port,	stress_set_dccp_port },

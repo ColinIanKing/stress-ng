@@ -2139,7 +2139,7 @@ static void stress_vm_set_default(void)
 	stress_set_vm_method("all");
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_vm_bytes,		stress_set_vm_bytes },
 	{ OPT_vm_hang,		stress_set_vm_hang },
 	{ OPT_vm_keep,		stress_set_vm_keep },

@@ -337,7 +337,7 @@ static int stress_memrate(const args_t *args)
 	return rc;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_memrate_bytes,	stress_set_memrate_bytes },
 	{ OPT_memrate_rd_mbs,	stress_set_memrate_rd_mbs },
 	{ OPT_memrate_wr_mbs,	stress_set_memrate_wr_mbs },

@@ -43,7 +43,7 @@ static int stress_set_fiemap_bytes(const char *opt)
 	return set_setting("fiemap-bytes", TYPE_ID_UINT64, &fiemap_bytes);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_fiemap_bytes,	stress_set_fiemap_bytes },
 	{ 0,			NULL }
 };

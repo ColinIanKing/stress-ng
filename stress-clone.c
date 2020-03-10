@@ -145,7 +145,7 @@ static int stress_set_clone_max(const char *opt)
 	return set_setting("clone-max", TYPE_ID_UINT32, &clone_max);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_clone_max,	stress_set_clone_max },
 	{ 0,			NULL }
 };

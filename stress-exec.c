@@ -59,7 +59,7 @@ static int stress_set_exec_max(const char *opt)
 	return set_setting("exec-max", TYPE_ID_INT64, &exec_max);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_exec_max,	stress_set_exec_max },
 	{ 0,		NULL }
 };

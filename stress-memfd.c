@@ -60,7 +60,7 @@ static int stress_set_memfd_fds(const char *opt)
 	return set_setting("memfd-fds", TYPE_ID_UINT32, &memfd_fds);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_memfd_bytes,	stress_set_memfd_bytes },
 	{ OPT_memfd_fds,	stress_set_memfd_fds },
 	{ 0,			NULL }

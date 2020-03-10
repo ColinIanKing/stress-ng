@@ -134,7 +134,7 @@ static int stress_bsearch(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_bsearch_size,	stress_set_bsearch_size },
 	{ 0,			NULL },
 };

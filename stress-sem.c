@@ -41,7 +41,7 @@ static int stress_set_semaphore_posix_procs(const char *opt)
 	return set_setting("sem-procs", TYPE_ID_UINT64, &semaphore_posix_procs);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sem_procs,	stress_set_semaphore_posix_procs },
 	{ 0,			NULL }
 };

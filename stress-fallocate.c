@@ -41,7 +41,7 @@ static int stress_set_fallocate_bytes(const char *opt)
 	return set_setting("fallocate-bytes", TYPE_ID_OFF_T, &fallocate_bytes);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_fallocate_bytes,	stress_set_fallocate_bytes },
 	{ 0,			NULL }
 };

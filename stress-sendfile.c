@@ -41,7 +41,7 @@ static int stress_set_sendfile_size(const char *opt)
 	return set_setting("sendfile-size", TYPE_ID_UINT64, &sendfile_size);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sendfile_size,	stress_set_sendfile_size },
 	{ 0,			NULL }
 };

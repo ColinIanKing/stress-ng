@@ -45,7 +45,7 @@ static int stress_set_socket_fd_port(const char *opt)
 	return set_setting("sockfd-port", TYPE_ID_INT, &socket_fd_port);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sockfd_port,	stress_set_socket_fd_port },
 	{ 0,			NULL }
 };

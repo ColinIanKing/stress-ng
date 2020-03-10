@@ -41,7 +41,7 @@ static int stress_set_mremap_bytes(const char *opt)
 	return set_setting("mremap-bytes", TYPE_ID_SIZE_T, &mremap_bytes);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mremap_bytes,	stress_set_mremap_bytes },
 	{ 0,			NULL }
 };

@@ -531,7 +531,7 @@ redo:
 	return ret;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mmap_async,	stress_set_mmap_async },
 	{ OPT_mmap_bytes,	stress_set_mmap_bytes },
 	{ OPT_mmap_file,	stress_set_mmap_file },

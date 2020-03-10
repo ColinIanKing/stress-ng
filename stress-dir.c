@@ -179,7 +179,7 @@ abort:
 	return ret;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_dir_dirs,	stress_set_dir_dirs },
 	{ 0,		NULL }
 };

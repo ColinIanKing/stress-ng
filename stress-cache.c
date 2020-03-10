@@ -92,7 +92,7 @@ static int stress_cache_set_sfence(const char *opt)
 	return stress_cache_set_flag(FLAGS_CACHE_SFENCE);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_cache_prefetch,		stress_cache_set_prefetch },
 	{ OPT_cache_flush,		stress_cache_set_flush },
 	{ OPT_cache_fence,		stress_cache_set_fence },

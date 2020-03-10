@@ -68,7 +68,7 @@ static int stress_set_ioport_opts(const char *opts)
 	return -1;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_ioport_opts,	stress_set_ioport_opts },
 	{ 0,			NULL }
 };

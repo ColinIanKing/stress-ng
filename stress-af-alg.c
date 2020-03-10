@@ -41,7 +41,7 @@ static int stress_set_af_alg_dump(const char *opt)
 	return set_setting("af-alg-dump", TYPE_ID_BOOL, &af_alg_dump);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_af_alg_dump,	stress_set_af_alg_dump },
 	{ 0,			NULL }
 };

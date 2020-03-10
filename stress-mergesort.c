@@ -50,7 +50,7 @@ static int stress_set_mergesort_size(const char *opt)
 	return set_setting("mergesort-size", TYPE_ID_UINT64, &mergesort_size);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mergesort_integers,	stress_set_mergesort_size },
 	{ 0,				NULL }
 };

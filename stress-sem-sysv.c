@@ -50,7 +50,7 @@ static int stress_set_semaphore_sysv_procs(const char *opt)
 	return set_setting("sem-sysv-procs", TYPE_ID_UINT64, &semaphore_sysv_procs);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sem_sysv_procs,	stress_set_semaphore_sysv_procs },
 	{ 0,			NULL }
 };

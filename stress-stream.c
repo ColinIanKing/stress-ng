@@ -590,7 +590,7 @@ err_a:
 	return rc;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_stream_index,	stress_set_stream_index },
 	{ OPT_stream_l3_size,	stress_set_stream_L3_size },
 	{ OPT_stream_madvise,	stress_set_stream_madvise },

@@ -39,7 +39,7 @@ static int stress_set_mincore_rand(const char *opt)
 	return set_setting("mincore-rand", TYPE_ID_BOOL, &mincore_rand);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mincore_rand,     stress_set_mincore_rand },
 	{ 0,			NULL }
 };

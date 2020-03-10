@@ -45,7 +45,7 @@ static int stress_set_readahead_bytes(const char *opt)
 	return set_setting("readahead-bytes", TYPE_ID_UINT64, &readahead_bytes);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_readahead_bytes,	stress_set_readahead_bytes },
 	{ 0,			NULL }
 };

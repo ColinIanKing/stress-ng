@@ -39,7 +39,7 @@ static int stress_set_brk_notouch(const char *opt)
 	return set_setting("brk-notouch", TYPE_ID_BOOL, &brk_notouch);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_brk_notouch,	stress_set_brk_notouch },
 	{ 0,			NULL }
 };

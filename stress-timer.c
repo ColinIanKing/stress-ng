@@ -67,7 +67,7 @@ static int stress_set_timer_rand(const char *opt)
 	return set_setting("timer-rand", TYPE_ID_BOOL, &timer_rand);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_timer_freq,	stress_set_timer_freq },
 	{ OPT_timer_rand,	stress_set_timer_rand },
 	{ 0,			NULL }

@@ -39,7 +39,7 @@ static int stress_set_affinity_rand(const char *opt)
 	return set_setting("affinity-rand", TYPE_ID_BOOL, &affinity_rand);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_affinity_rand,    stress_set_affinity_rand },
 	{ 0,			NULL }
 };

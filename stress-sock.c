@@ -613,7 +613,7 @@ again:
 	}
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sock_domain,	stress_set_socket_domain },
 	{ OPT_sock_opts,	stress_set_socket_opts },
 	{ OPT_sock_type,	stress_set_socket_type },

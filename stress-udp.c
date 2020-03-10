@@ -278,7 +278,7 @@ die:
 	return rc;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_udp_domain,	stress_set_udp_domain },
 	{ OPT_udp_port,		stress_set_udp_port },
 	{ OPT_udp_lite,		stress_set_udp_lite },

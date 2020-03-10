@@ -324,7 +324,7 @@ abort:
 	return EXIT_SUCCESS;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_dentries,		stress_set_dentries },
 	{ OPT_dentry_order,	stress_set_dentry_order },
 	{ 0,		NULL }

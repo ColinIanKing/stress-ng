@@ -188,12 +188,12 @@ static int stress_vfork(const args_t *args)
 }
 PRAGMA_POP
 
-static const opt_set_func_t fork_opt_set_funcs[] = {
+static const stress_opt_set_func_t fork_opt_set_funcs[] = {
 	{ OPT_fork_max,		stress_set_fork_max },
 	{ 0,			NULL }
 };
 
-static const opt_set_func_t vfork_opt_set_funcs[] = {
+static const stress_opt_set_func_t vfork_opt_set_funcs[] = {
 	{ OPT_vfork_max,	stress_set_vfork_max },
 	{ 0,			NULL }
 };

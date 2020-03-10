@@ -437,7 +437,7 @@ finish:
 	return rc;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_revio_bytes,	stress_set_revio_bytes },
 	{ OPT_revio_opts,	stress_set_revio_opts },
 	{ 0,			NULL }

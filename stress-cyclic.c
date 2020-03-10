@@ -841,7 +841,7 @@ tidy:
 	return EXIT_SUCCESS;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_cyclic_dist,	stress_set_cyclic_dist },
 	{ OPT_cyclic_method,	stress_set_cyclic_method },
 	{ OPT_cyclic_policy,	stress_set_cyclic_policy },

@@ -58,7 +58,7 @@ static int stress_set_pthread_max(const char *opt)
 	return set_setting("pthread-max", TYPE_ID_UINT64, &pthread_max);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_pthread_max,	stress_set_pthread_max },
 	{ 0,			NULL }
 };

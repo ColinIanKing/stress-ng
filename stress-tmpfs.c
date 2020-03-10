@@ -48,7 +48,7 @@ static int stress_set_tmpfs_mmap_async(const char *opt)
 	return set_setting("tmpfs-mmap-async", TYPE_ID_BOOL, &tmpfs_mmap_async);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_tmpfs_mmap_async,	stress_set_tmpfs_mmap_async },
 	{ OPT_tmpfs_mmap_file,	stress_set_tmpfs_mmap_file },
 	{ 0,			NULL }

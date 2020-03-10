@@ -1004,7 +1004,7 @@ static void stress_matrix_set_default(void)
 	stress_set_matrix_method("all");
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_matrix_method,	stress_set_matrix_method },
 	{ OPT_matrix_size,	stress_set_matrix_size },
 	{ OPT_matrix_yx,	stress_set_matrix_yx },

@@ -203,7 +203,7 @@ tidy:
 	return EXIT_SUCCESS;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_qsort_integers,	stress_set_qsort_size },
 	{ 0,			NULL }
 };

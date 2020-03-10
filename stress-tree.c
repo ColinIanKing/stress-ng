@@ -474,7 +474,7 @@ static int stress_set_tree_method(const char *name)
 	return -1;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_tree_method,	stress_set_tree_method },
 	{ OPT_tree_size,	stress_set_tree_size },
 	{ 0,			NULL }

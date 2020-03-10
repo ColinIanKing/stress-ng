@@ -141,7 +141,7 @@ free_hash:
 	return ret;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_hsearch_size,	stress_set_hsearch_size },
 	{ 0,			NULL }
 };

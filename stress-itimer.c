@@ -183,7 +183,7 @@ static int stress_itimer(const args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_itimer_freq,	stress_set_itimer_freq },
 	{ OPT_itimer_rand,	stress_set_itimer_rand },
 	{ 0,			NULL }

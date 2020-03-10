@@ -941,7 +941,7 @@ typedef struct {
 typedef struct {
 	const int opt;			/* optarg option*/
 	int (*opt_set_func)(const char *opt); /* function to set it */
-} opt_set_func_t;
+} stress_opt_set_func_t;
 
 typedef struct {
 	int (*stressor)(const args_t *args);
@@ -951,7 +951,7 @@ typedef struct {
 	void (*set_default)(void);
 	void (*set_limit)(uint64_t max);
 	const stress_class_t class;
-	const opt_set_func_t *opt_set_funcs;
+	const stress_opt_set_func_t *opt_set_funcs;
 	const stress_help_t *help;
 } stressor_info_t;
 

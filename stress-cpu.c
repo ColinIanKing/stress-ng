@@ -2643,7 +2643,7 @@ static void stress_cpu_set_default(void)
 	stress_set_cpu_method("all");
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_cpu_load,		stress_set_cpu_load },
 	{ OPT_cpu_load_slice,	stress_set_cpu_load_slice },
 	{ OPT_cpu_method,	stress_set_cpu_method },

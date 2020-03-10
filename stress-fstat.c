@@ -309,7 +309,7 @@ free_cache:
 	return ret;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_fstat_dir,	stress_set_fstat_dir },
 	{ 0,			NULL }
 };

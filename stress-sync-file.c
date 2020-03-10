@@ -52,7 +52,7 @@ static int stress_set_sync_file_bytes(const char *opt)
 	return set_setting("sync_file-bytes", TYPE_ID_OFF_T, &sync_file_bytes);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sync_file_bytes,	stress_set_sync_file_bytes },
 	{ 0,			NULL }
 };

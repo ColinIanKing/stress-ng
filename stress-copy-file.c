@@ -42,7 +42,7 @@ static int stress_set_copy_file_bytes(const char *opt)
 	return set_setting("copy-file-bytes", TYPE_ID_UINT64, &copy_file_bytes);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_copy_file_bytes,	stress_set_copy_file_bytes },
 	{ 0,			NULL }
 };

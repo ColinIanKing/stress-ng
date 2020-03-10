@@ -39,7 +39,7 @@ static int stress_set_eventfd_nonblock(const char *opt)
 	return set_setting("eventfd-nonblock", TYPE_ID_BOOL, &eventfd_nonblock);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_eventfd_nonblock,	stress_set_eventfd_nonblock },
         { 0,			NULL }
 };

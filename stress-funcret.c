@@ -301,7 +301,7 @@ static void stress_funcret_set_default(void)
 	stress_set_funcret_method("uint64");
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_funcret_method,	stress_set_funcret_method },
 	{ 0,			NULL }
 };

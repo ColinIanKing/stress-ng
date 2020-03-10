@@ -598,7 +598,7 @@ static int stress_memthrash(const args_t *args)
 	return stress_oomable_child(args, &context, stress_memthrash_child, STRESS_OOMABLE_NORMAL);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_memthrash_method,	stress_set_memthrash_method },
 	{ 0,			NULL }
 };
@@ -619,7 +619,7 @@ static int stress_set_memthrash_method(const char *name)
 	return 0;
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_memthrash_method,	stress_set_memthrash_method },
 	{ 0,			NULL }
 };

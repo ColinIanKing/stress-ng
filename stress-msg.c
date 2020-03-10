@@ -39,7 +39,7 @@ static int stress_set_msg_types(const char *opt) {
         return set_setting("msg-types", TYPE_ID_INT32, &msg_types);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
         { OPT_msg_types,	stress_set_msg_types },
         { 0,                    NULL },
 };

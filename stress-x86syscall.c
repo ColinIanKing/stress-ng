@@ -40,7 +40,7 @@ static int stress_set_x86syscall_func(const char *name)
 	return set_setting("x86syscall-func", TYPE_ID_STR, name);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_x86syscall_func,	stress_set_x86syscall_func },
 	{ 0,			NULL }
 };

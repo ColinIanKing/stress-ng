@@ -59,7 +59,7 @@ static int stress_set_aio_requests(const char *opt)
 	return set_setting("aio-requests", TYPE_ID_UINT64, &aio_requests);
 }
 
-static const opt_set_func_t opt_set_funcs[] = {
+static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_aio_requests,	stress_set_aio_requests },
 	{ 0,			NULL },
 };
