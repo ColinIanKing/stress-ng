@@ -40,12 +40,14 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#define uint8_t_put	uint8_put
-#define uint16_t_put	uint16_put
-#define uint32_t_put	uint32_put
-#define uint64_t_put	uint64_put
-#define __uint128_t_put	uint128_put
-#define stress_long_double_t_put long_double_put
+#define uint8_t_put	stress_uint8_put
+#define uint16_t_put	stress_uint16_put
+#define uint32_t_put	stress_uint32_put
+#define uint64_t_put	stress_uint64_put
+#define __uint128_t_put	stress_uint128_put
+#define float_put	stress_float_put
+#define double_put	stress_double_put
+#define stress_long_double_t_put stress_long_double_put
 
 typedef long double 	stress_long_double_t;
 

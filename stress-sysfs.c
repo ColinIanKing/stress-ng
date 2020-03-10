@@ -221,7 +221,7 @@ static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 		ptr = mmap(NULL, page_size, PROT_READ,
 			MAP_SHARED | MAP_ANONYMOUS, fd, 0);
 		if (ptr != MAP_FAILED) {
-			uint8_put(*ptr);
+			stress_uint8_put(*ptr);
 			(void)munmap(ptr, page_size);
 		}
 		if (stress_time_now() - t_start > threshold)

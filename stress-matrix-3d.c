@@ -444,7 +444,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_frobenius(
 				return;
 		}
 	}
-	double_put(sum);
+	stress_double_put(sum);
 }
 
 /*
@@ -476,7 +476,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_frobenius(
 				return;
 		}
 	}
-	double_put(sum);
+	stress_double_put(sum);
 }
 
 /*

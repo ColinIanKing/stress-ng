@@ -336,7 +336,7 @@ static void HOT stress_cpu_trig(const char *name)
 			d_sum += sinf(theta3);
 		}
 	}
-	double_put(d_sum);
+	stress_double_put(d_sum);
 }
 
 /*
@@ -372,7 +372,7 @@ static void HOT stress_cpu_hyperbolic(const char *name)
 			d_sum += (double)sinhf(theta3);
 		}
 	}
-	double_put(d_sum);
+	stress_double_put(d_sum);
 }
 
 /*
@@ -411,8 +411,8 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 		d += drand48();
 		l += lrand48();
 	}
-	double_put(d);
-	uint64_put(l);
+	stress_double_put(d);
+	stress_uint64_put(l);
 }
 
 /*
@@ -872,7 +872,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 		float_ops(_type, a, b, c, d,		\
 			_sin, _cos);			\
 	}						\
-	double_put(a + b + c + d);			\
+	stress_double_put(a + b + c + d);		\
 }
 
 stress_cpu_fp(float, float, sinf, cosf)
@@ -926,7 +926,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 		float_ops(_type, a, b, c, d,			\
 			_csin, _ccos);				\
 	}							\
-	double_put(a + b + c + d);				\
+	stress_double_put(a + b + c + d);			\
 }
 
 stress_cpu_complex(complex float, f, complex_float, csinf, ccosf)
@@ -1013,7 +1013,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(cons
 			"failed int" # _sz "" # _ftype		\
 			" math operations\n", name);		\
 								\
-	double_put(flt_a + flt_b + flt_c + flt_d);		\
+	stress_double_put(flt_a + flt_b + flt_c + flt_d);	\
 }
 
 stress_cpu_int_fp(uint32_t, 32, float, float,
@@ -1106,7 +1106,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_rgb(const char *name)
 		r += 1;
 		g += 2;
 		b += 3;
-		uint64_put(r + g + b);
+		stress_uint64_put(r + g + b);
 	}
 }
 
@@ -1145,7 +1145,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 	for (i = 0; i < MATRIX_PROD_SIZE; i++)
 		for (j = 0; j < MATRIX_PROD_SIZE; j++)
 			sum += r[i][j];
-	double_put(sum);
+	stress_double_put(sum);
 }
 
 /*
@@ -1201,7 +1201,7 @@ static void HOT OPTIMIZE3 stress_cpu_psi(const char *name)
 				"than expected\n", name);
 	}
 
-	double_put(psi);
+	stress_double_put(psi);
 }
 
 /*
@@ -1233,7 +1233,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ln2(const char *name)
 		pr_fail("%s: calculation of ln(2) took more "
 			"iterations than expected\n", name);
 
-	double_put(ln2);
+	stress_double_put(ln2);
 }
 
 /*
@@ -1288,7 +1288,7 @@ static void HOT stress_cpu_explog(const char *name)
 		v = a;			\
 	else				\
 		v = b;			\
-	uint64_put(next + i);		\
+	stress_uint64_put(next + i);	\
 
 /*
  *   stress_cpu_jmp
@@ -1369,7 +1369,7 @@ static void stress_cpu_crc16(const char *name)
 
 	random_buffer(buffer, sizeof(buffer));
 	for (i = 0; i < sizeof(buffer); i++)
-		uint64_put(ccitt_crc16(buffer, i));
+		stress_uint64_put(ccitt_crc16(buffer, i));
 }
 
 #if defined(HAVE_COMPLEX_H) &&		\
@@ -1407,7 +1407,7 @@ static void stress_cpu_zeta(const char *name)
 	(void)name;
 
 	for (i = 2; i < 11; i++)
-		double_put(zeta((double complex)i, precision));
+		stress_double_put(zeta((double complex)i, precision));
 }
 #endif
 
@@ -1427,7 +1427,7 @@ static void HOT OPTIMIZE3 stress_cpu_gamma(const char *name)
 		k += 1.0L;
 	} while (k < 1e6 && fabsl(_gamma - gammaold) > precision);
 
-	double_put(_gamma);
+	stress_double_put(_gamma);
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		if (fabsl(_gamma - GAMMA) > 1.0e-5L)
@@ -1471,7 +1471,7 @@ static void HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
 				   (data[j] - data_average);
 		}
 		corr[i] /= (double)CORRELATE_LEN;
-		double_put(corr[i]);
+		stress_double_put(corr[i]);
 	}
 }
 
@@ -1613,7 +1613,7 @@ static void stress_cpu_hanoi(const char *name)
 		pr_fail("%s: number of hanoi moves different from "
 			"the expected number\n", name);
 
-	uint64_put(n);
+	stress_uint64_put(n);
 }
 
 /*
@@ -1696,7 +1696,7 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
 				"as good as expected\n", name);
 	}
 
-	double_put(pi);
+	stress_double_put(pi);
 }
 
 /*
@@ -1727,7 +1727,7 @@ static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
 				"not as good as expected\n", name);
 	}
 
-	double_put(omega);
+	stress_double_put(omega);
 }
 
 #define HAMMING(G, i, nybble, code) 			\
@@ -1852,7 +1852,7 @@ static void stress_cpu_callfunc(const char *name)
 		u64arg, u32arg, u16arg, u8arg,
 		&u64arg, &u32arg, &u16arg, &u8arg);
 
-	uint64_put((uint64_t)ret);
+	stress_uint64_put((uint64_t)ret);
 }
 
 
@@ -2039,7 +2039,7 @@ static void TARGET_CLONES stress_cpu_div64(const char *name)
 
 	for (i = 0, j = 0x7fffffffffffULL; i < max; i += di, j -= dj) {
 		register uint64_t r = i / j;
-		uint64_put(r);
+		stress_uint64_put(r);
 		k++;
 	}
 }
@@ -2063,41 +2063,41 @@ static void TARGET_CLONES stress_cpu_cpuid(const char *name)
 
 		/*  Highest Function Parameter and Manufacturer ID */
 		__cpuid(0x00, eax, ebx, ecx, edx);
-		uint32_put(eax);
+		stress_uint32_put(eax);
 
 		/* Processor Info and Feature Bits */
 		__cpuid(0x01, eax, ebx, ecx, edx);
-		uint32_put(eax);
+		stress_uint32_put(eax);
 
 		/*  Cache and TLB Descriptor information */
 		__cpuid(0x02, eax, ebx, ecx, edx);
-		uint32_put(eax);
+		stress_uint32_put(eax);
 
 		/* Processor Serial Number */
 		__cpuid(0x03, eax, ebx, ecx, edx);
-		uint32_put(eax);
+		stress_uint32_put(eax);
 
 		/* Intel thread/core and cache topology */
 		__cpuid(0x04, eax, ebx, ecx, edx);
-		uint32_put(eax);
+		stress_uint32_put(eax);
 		__cpuid(0x0b, eax, ebx, ecx, edx);
-		uint32_put(eax);
+		stress_uint32_put(eax);
 
 		/* Get highest extended function index */
 		__cpuid(0x80000000, eax, ebx, ecx, edx);
-		uint32_put(eax);
+		stress_uint32_put(eax);
 
 		/* Extended processor info */
 		__cpuid(0x80000001, eax, ebx, ecx, edx);
-		uint32_put(eax);
+		stress_uint32_put(eax);
 
 		/* Processor brand string */
 		__cpuid(0x80000002, eax, ebx, ecx, edx);
-		uint32_put(eax);
+		stress_uint32_put(eax);
 		__cpuid(0x80000003, eax, ebx, ecx, edx);
-		uint32_put(eax);
+		stress_uint32_put(eax);
 		__cpuid(0x80000004, eax, ebx, ecx, edx);
-		uint32_put(eax);
+		stress_uint32_put(eax);
 
 		/* L1 Cache and TLB Identifiers */
 		__cpuid(0x80000005, eax, ebx, ecx, edx);
@@ -2315,10 +2315,10 @@ static void stress_cpu_stats(const char *name)
 	/* Standard Deviation */
 	stddev = sqrt(stddev);
 
-	double_put(am);
-	double_put(gm);
-	double_put(hm);
-	double_put(stddev);
+	stress_double_put(am);
+	stress_double_put(gm);
+	stress_double_put(hm);
+	stress_double_put(stddev);
 
 	if (min > hm)
 		pr_fail("%s: stats: minimum %f > harmonic mean %f\n",

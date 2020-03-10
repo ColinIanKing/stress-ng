@@ -402,7 +402,7 @@ static void stress_iomix_rd_wr_mmap(
 				/* Force page data to be read */
 				for (j = 0; j < page_size; j++)
 					sum += buffer[j];
-				uint64_put(sum);
+				stress_uint64_put(sum);
 
 				stress_strnrnd(mmaps[i], page_size);
 				(void)shim_msync(mmaps[i], page_size,

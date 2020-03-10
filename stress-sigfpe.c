@@ -222,10 +222,10 @@ static int stress_sigfpe(const stress_args_t *args)
 
 			switch(exception) {
 			case SNG_FLTDIV:
-				float_put(1.0 / (float)zero);
+				stress_float_put(1.0 / (float)zero);
 				break;
 			case SNG_INTDIV:
-				uint64_put(1 / zero);
+				stress_uint64_put(1 / zero);
 				break;
 			default:
 				/* Raise fault otherwise */

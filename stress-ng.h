@@ -3132,7 +3132,7 @@ extern uint64_t stress_uint64_zero(void);
  *  uint8_put()
  *	stash a uint8_t value
  */
-static inline void ALWAYS_INLINE uint8_put(const uint8_t a)
+static inline void ALWAYS_INLINE stress_uint8_put(const uint8_t a)
 {
 	g_put_val.uint8_val = a;
 }
@@ -3141,63 +3141,63 @@ static inline void ALWAYS_INLINE uint8_put(const uint8_t a)
  *  uint16_put()
  *	stash a uint16_t value
  */
-static inline void ALWAYS_INLINE uint16_put(const uint16_t a)
+static inline void ALWAYS_INLINE stress_uint16_put(const uint16_t a)
 {
 	g_put_val.uint16_val = a;
 }
 
 /*
- *  uint32_put()
+ *  stress_uint32_put()
  *	stash a uint32_t value
  */
-static inline void ALWAYS_INLINE uint32_put(const uint32_t a)
+static inline void ALWAYS_INLINE stress_uint32_put(const uint32_t a)
 {
 	g_put_val.uint32_val = a;
 }
 
 /*
- *  uint64_put()
+ *  stress_uint64_put()
  *	stash a uint64_t value
  */
-static inline void ALWAYS_INLINE uint64_put(const uint64_t a)
+static inline void ALWAYS_INLINE stress_uint64_put(const uint64_t a)
 {
 	g_put_val.uint64_val = a;
 }
 
 #if defined(HAVE_INT128_T)
 /*
- *  uint128_put()
+ *  stress_uint128_put()
  *	stash a uint128_t value
  */
-static inline void ALWAYS_INLINE uint128_put(const __uint128_t a)
+static inline void ALWAYS_INLINE stress_uint128_put(const __uint128_t a)
 {
 	g_put_val.uint128_val = a;
 }
 #endif
 
 /*
- *  float_put()
+ *  stress_float_put()
  *	stash a float value
  */
-static inline void ALWAYS_INLINE float_put(const float a)
+static inline void ALWAYS_INLINE stress_float_put(const float a)
 {
 	g_put_val.float_val = a;
 }
 
 /*
- *  double_put()
+ *  stress_double_put()
  *	stash a double value
  */
-static inline void ALWAYS_INLINE double_put(const double a)
+static inline void ALWAYS_INLINE stress_double_put(const double a)
 {
 	g_put_val.double_val = a;
 }
 
 /*
- *  long_double_put()
+ *  stress_long_double_put()
  *	stash a double value
  */
-static inline void ALWAYS_INLINE long_double_put(const double a)
+static inline void ALWAYS_INLINE stress_long_double_put(const double a)
 {
 	g_put_val.long_double_val = a;
 }

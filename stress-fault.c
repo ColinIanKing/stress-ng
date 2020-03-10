@@ -181,7 +181,7 @@ next:
 				ptr = (uint8_t *)mmap(mapto, page_size, PROT_READ,
 					MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 				if (ptr != MAP_FAILED) {
-					uint8_put(*ptr);
+					stress_uint8_put(*ptr);
 					(void)munmap((void *)ptr, page_size);
 				}
 			}

@@ -154,7 +154,7 @@ static int stress_dynlib(const stress_args_t *args)
 				 * will perfom tidy up if not
 				 */
 				if (ptr)
-					uint8_put(*ptr);
+					stress_uint8_put(*ptr);
 			}
 		}
 tidy:

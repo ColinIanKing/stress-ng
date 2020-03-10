@@ -200,7 +200,7 @@ static inline void stress_proc_rw(
 		ptr = mmap(NULL, page_size, PROT_READ,
 			MAP_SHARED | MAP_ANONYMOUS, fd, 0);
 		if (ptr != MAP_FAILED) {
-			uint8_put(*ptr);
+			stress_uint8_put(*ptr);
 			(void)munmap(ptr, page_size);
 		}
 

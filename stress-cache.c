@@ -292,7 +292,7 @@ static int stress_cache(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing());
 
-	uint32_put(total);
+	stress_uint32_put(total);
 	return ret;
 }
 

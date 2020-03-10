@@ -241,17 +241,17 @@ static int HOT TARGET_CLONES stress_vecmath(const stress_args_t *args)
 	} while (keep_stressing());
 
 	/* Forces the compiler to actually compute the terms */
-	uint8_put(a8[0]  ^ a8[1]  ^ a8[2]  ^ a8[3]  ^
+	stress_uint8_put(a8[0]  ^ a8[1]  ^ a8[2]  ^ a8[3]  ^
 		  a8[4]  ^ a8[5]  ^ a8[6]  ^ a8[7]  ^
 		  a8[8]  ^ a8[9]  ^ a8[10] ^ a8[11] ^
 		  a8[12] ^ a8[13] ^ a8[14] ^ a8[15]);
-	uint16_put(a16[0] ^ a16[1] ^ a16[2] ^ a16[3] ^
+	stress_uint16_put(a16[0] ^ a16[1] ^ a16[2] ^ a16[3] ^
 		   a16[4] ^ a16[5] ^ a16[6] ^ a16[7]);
-	uint32_put(a32[0] ^ a32[1] ^ a32[2] ^ a32[3]);
-	uint64_put(a64[0] ^ a64[1]);
+	stress_uint32_put(a32[0] ^ a32[1] ^ a32[2] ^ a32[3]);
+	stress_uint64_put(a64[0] ^ a64[1]);
 
 #if defined(HAVE_INT1x128_T)
-	uint128_put(a128[0]);
+	stress_uint128_put(a128[0]);
 #endif
 
 	return EXIT_SUCCESS;
