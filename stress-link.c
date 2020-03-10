@@ -24,13 +24,13 @@
  */
 #include "stress-ng.h"
 
-static const help_t hardlink_help[] = {
+static const stress_help_t hardlink_help[] = {
 	{ NULL,	"link N",	 "start N workers creating hard links" },
 	{ NULL,	"link-ops N",	 "stop after N link bogo operations" },
 	{ NULL,	NULL,		 NULL }
 };
 
-static const help_t symlink_help[] = {
+static const stress_help_t symlink_help[] = {
 	{ NULL, "symlink N",	 "start N workers creating symbolic links" },
 	{ NULL, "symlink-ops N", "stop after N symbolic link bogo operations" },
 	{ NULL, NULL,            NULL }

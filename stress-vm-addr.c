@@ -45,7 +45,7 @@ typedef struct {
 
 static const stress_vm_addr_method_info_t vm_addr_methods[];
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"vm-addr N",	 "start N vm address exercising workers" },
 	{ NULL,	"vm-addr-ops N", "stop after N vm address bogo operations" },
 	{ NULL,	NULL,		 NULL }

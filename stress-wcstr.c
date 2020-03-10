@@ -28,7 +28,7 @@
 #define STR1LEN 256
 #define STR2LEN 128
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"wcs N",	   "start N workers on lib C wide char string functions" },
 	{ NULL,	"wcs-method func", "specify the wide character string function to stress" },
 	{ NULL,	"wcs-ops N",	   "stop after N bogo wide character string operations" },

@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"branch N",	"start N workers that force branch misprediction" },
 	{ NULL,	"branch-ops N",	"stop after N branch misprediction branches" },
 	{ NULL,	NULL,		NULL }

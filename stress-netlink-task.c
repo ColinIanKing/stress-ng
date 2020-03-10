@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"netlink-task N",	"start N workers exercising netlink tasks events" },
 	{ NULL,	"netlink-task-ops N",	"stop netlink-task workers after N bogo events" },
 	{ NULL,	NULL,			NULL }

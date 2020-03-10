@@ -35,7 +35,7 @@
  */
 #define PIPE_HERD_MAX	(100)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ "p N", "pipeherd N",		"start N multi-process workers exercising pipes I/O" },
 	{ NULL,	"pipeherd-ops N",	"stop after N pipeherd I/O bogo operations" },
 	{ NULL,	"pipeherd-yield",	"force processes to yield after each write" },

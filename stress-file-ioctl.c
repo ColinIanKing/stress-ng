@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"file-ioctl N",		"start N workers exercising file specific ioctls" },
 	{ NULL,	"file-ioctl-ops N",	"stop after N file ioctl bogo operations" },
 	{ NULL,	NULL,			NULL }

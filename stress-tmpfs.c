@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"tmpfs N",	    "start N workers mmap'ing a file on tmpfs" },
 	{ NULL,	"tmpfs-ops N",	    "stop after N tmpfs bogo ops" },
 	{ NULL,	"tmpfs-mmap-async", "using asynchronous msyncs for tmpfs file based mmap" },

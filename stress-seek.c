@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"seek N",	"start N workers performing random seek r/w IO" },
 	{ NULL,	"seek-ops N",	"stop after N seek bogo operations" },
 	{ NULL,	"seek-punch",	"punch random holes in file to stress extents" },

@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"sigrt N",	"start N workers sending real time signals" },
 	{ NULL,	"sigrt-ops N",	"stop after N real time signal bogo operations" },
 	{ NULL,	NULL,		NULL }

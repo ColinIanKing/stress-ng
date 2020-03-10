@@ -27,7 +27,7 @@
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"rmap N",	"start N workers that stress reverse mappings" },
 	{ NULL,	"rmap-ops N",	"stop after N rmap bogo operations" },
 	{ NULL,	NULL,		NULL }

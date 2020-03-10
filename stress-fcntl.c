@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"fcntl N",	"start N workers exercising fcntl commands" },
 	{ NULL,	"fcntl-ops N",	"stop after N fcntl bogo operations" },
 	{ NULL,	NULL,		NULL }

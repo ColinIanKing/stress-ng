@@ -183,7 +183,7 @@ tidy:
 	return rc;
 }
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"access N",	"start N workers that stress file access permissions" },
 	{ NULL,	"access-ops N",	"stop after N file access bogo operations" },
 	{ NULL, NULL,		NULL }

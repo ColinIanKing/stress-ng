@@ -27,7 +27,7 @@
 static sigjmp_buf jmp_env;
 static volatile bool do_jmp = true;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"fault N",	"start N workers producing page faults" },
 	{ NULL,	"fault-ops N",	"stop after N page fault bogo operations" },
 	{ NULL,	NULL,		NULL }

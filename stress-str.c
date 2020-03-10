@@ -42,7 +42,7 @@ typedef struct {
 	const void 		*libc_func;
 } stress_str_method_info_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"str N",	   "start N workers exercising lib C string functions" },
 	{ NULL,	"str-method func", "specify the string function to stress" },
 	{ NULL,	"str-ops N",	   "stop after N bogo string operations" },

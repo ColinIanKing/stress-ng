@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"malloc N",		"start N workers exercising malloc/realloc/free" },
 	{ NULL,	"malloc-bytes N",	"allocate up to N bytes per allocation" },
 	{ NULL,	"malloc-max N",		"keep up to N allocations at a time" },

@@ -55,7 +55,7 @@ typedef struct {
 	const stress_cyclic_func func;
 } stress_cyclic_method_info_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"cyclic N",		"start N cyclic real time benchmark stressors" },
 	{ NULL,	"cyclic-ops N",		"stop after N cyclic timing cycles" },
 	{ NULL,	"cyclic-method M",	"specify cyclic method M, default is clock_ns" },

@@ -93,7 +93,7 @@
 	__atomic_clear(var, __ATOMIC_RELAXED);		\
 }
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"atomic",	"start N workers exercising GCC atomic operations" },
 	{ NULL, "atomic-ops",	"stop after N bogo atomic bogo operations" },
 	{ NULL, NULL,		NULL }

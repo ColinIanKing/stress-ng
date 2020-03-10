@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"procfs N",	"start N workers reading portions of /proc" },
 	{ NULL,	"procfs-ops N",	"stop procfs workers after N bogo read operations" },
 	{ NULL,	NULL,		NULL }

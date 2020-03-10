@@ -35,7 +35,7 @@ typedef struct {
 	int	   opt;
 } stress_dccp_opts_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"dccp N",		"start N workers exercising network DCCP I/O" },
 	{ NULL,	"dccp-domain D",	"specify DCCP domain, default is ipv4" },
 	{ NULL,	"dccp-ops N",		"stop after N DCCP  bogo operations" },

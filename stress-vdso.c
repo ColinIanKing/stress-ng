@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"vdso N",	"start N workers exercising functions in the VDSO" },
 	{ NULL,	"vdso-ops N",	"stop after N vDSO function calls" },
 	{ NULL,	"vdso-func F",	"use just vDSO function F" },

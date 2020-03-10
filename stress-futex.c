@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"futex N",	"start N workers exercising a fast mutex" },
 	{ NULL,	"futex-ops N",	"stop after N fast mutex bogo operations" },
 	{ NULL,	NULL,		NULL }

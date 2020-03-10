@@ -26,7 +26,7 @@
 
 static const char *bitmap_file = "/sys/kernel/mm/page_idle/bitmap";
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"idle-page N",	   "start N idle page scanning workers" },
 	{ NULL,	"idle-page-ops N", "stop after N idle page scan bogo operations" },
 	{ NULL, NULL,		   NULL }

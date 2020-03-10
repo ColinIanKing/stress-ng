@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"affinity N",	 "start N workers that rapidly change CPU affinity" },
 	{ NULL,	"affinity-ops N","stop after N affinity bogo operations" },
 	{ NULL,	"affinity-rand", "change affinity randomly rather than sequentially" },

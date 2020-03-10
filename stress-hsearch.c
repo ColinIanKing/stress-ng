@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"hsearch N",	  "start N workers that exercise a hash table search" },
 	{ NULL,	"hsearch-ops N",  "stop after N hash search bogo operations" },
 	{ NULL,	"hsearch-size N", "number of integers to insert into hash table" },

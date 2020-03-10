@@ -26,7 +26,7 @@
 
 #define PACKETS_TO_SEND		(64)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"tun N",	"start N workers exercising tun interface" },
 	{ NULL,	"tun-ops N",	"stop after N tun bogo operations" },
 	{ NULL, "tun-tap",	"use TAP interface instead of TUN" },

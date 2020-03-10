@@ -41,7 +41,7 @@ typedef struct {
 	const int   type;
 } stress_socket_type_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ "S N", "sock N",		"start N workers exercising socket I/O" },
 	{ NULL,	"sock-domain D",	"specify socket domain, default is ipv4" },
 	{ NULL,	"sock-nodelay",		"disable Nagle algorithm, send data immediately" },

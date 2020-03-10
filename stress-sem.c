@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"sem N",	"start N workers doing semaphore operations" },
 	{ NULL,	"sem-ops N",	"stop after N semaphore bogo operations" },
 	{ NULL,	"sem-procs N",	"number of processes to start per worker" },

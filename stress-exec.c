@@ -38,7 +38,7 @@ typedef struct {
 	int which;
 } stress_exec_args_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"exec N",	"start N workers spinning on fork() and exec()" },
 	{ NULL,	"exec-ops N",	"stop after N exec bogo operations" },
 	{ NULL,	"exec-max P",	"create P workers per iteration, default is 1" },

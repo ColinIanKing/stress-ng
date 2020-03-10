@@ -35,7 +35,7 @@
 #define UDPLITE_RECV_CSCOV	(11)
 #endif
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"udp N",	"start N workers performing UDP send/receives " },
 	{ NULL,	"udp-ops N",	"stop after N udp bogo operations" },
 	{ NULL,	"udp-domain D",	"specify domain, default is ipv4" },

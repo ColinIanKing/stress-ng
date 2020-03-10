@@ -50,7 +50,7 @@
 #define REVIO_OPT_FDATASYNC	(0x00400000)
 #define REVIO_OPT_SYNCFS	(0x00800000)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"revio N",	"start N workers performing reverse I/O" },
 	{ NULL,	"revio-ops N",	"stop after N revio bogo operations" },
 	{ NULL,	NULL,		NULL }

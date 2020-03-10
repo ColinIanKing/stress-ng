@@ -30,7 +30,7 @@ typedef int (*stress_bad_syscall_t)(void *addr);
 static void *ro_page;
 static void *rw_page;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"sysbadaddr N",	    "start N workers that pass bad addresses to syscalls" },
 	{ NULL,	"sysbadaddr-ops N", "stop after N sysbadaddr bogo syscalls" },
 	{ NULL,	NULL,		    NULL }

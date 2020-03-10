@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"schedpolicy N",	"start N workers that exercise scheduling policy" },
 	{ NULL,	"schedpolicy-ops N",	"stop after N scheduling policy bogo operations" },
 	{ NULL,	NULL,			NULL }

@@ -26,7 +26,7 @@
 
 #define MAX_MNTS	(256)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ "i N", "io N",	"start N workers spinning on sync()" },
 	{ NULL,	 "io-ops N",	"stop sync I/O after N io bogo operations" },
 	{ NULL,	 NULL,		NULL }

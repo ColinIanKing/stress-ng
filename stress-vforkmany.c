@@ -27,7 +27,7 @@
 #define STACK_SIZE      (16384)
 #define WASTE_SIZE	(64 * MB)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"vforkmany N",     "start N workers spawning many vfork children" },
 	{ NULL,	"vforkmany-ops N", "stop after spawning N vfork children" },
 	{ NULL,	NULL,		   NULL }

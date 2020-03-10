@@ -26,7 +26,7 @@
 
 static volatile bool page_fault = false;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"mmapaddr N",	  "start N workers stressing mmap with random addresses" },
 	{ NULL,	"mmapaddr-ops N", "stop after N mmapaddr bogo operations" },
 	{ NULL,	NULL,		  NULL }

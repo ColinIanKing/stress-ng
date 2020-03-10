@@ -27,7 +27,7 @@
 #define BUFFER_SZ		(4096)
 #define DEFAULT_AIO_MAX_NR	(65536)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"aiol N",	   "start N workers that exercise Linux async I/O" },
 	{ NULL,	"aiol-ops N",	   "stop after N bogo Linux aio async I/O requests" },
 	{ NULL,	"aiol-requests N", "number of Linux aio async I/O requests per worker" },

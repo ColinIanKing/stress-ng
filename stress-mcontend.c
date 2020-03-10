@@ -22,7 +22,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"mcontend N",	  "start N workers that produce memory contention" },
 	{ NULL,	"mcontend-ops N", "stop memory contention workers after N bogo-ops" },
 	{ NULL,	NULL,		  NULL }

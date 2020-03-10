@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"bind-mount N",	    "start N workers exercising bind mounts" },
 	{ NULL,	"bind-mount-ops N", "stop after N bogo bind mount operations" },
 	{ NULL,	NULL,		    NULL }

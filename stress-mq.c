@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"mq N",		"start N workers passing messages using POSIX messages" },
 	{ NULL,	"mq-ops N",	"stop mq workers after N bogo messages" },
 	{ NULL,	"mq-size N",	"specify the size of the POSIX message queue" },

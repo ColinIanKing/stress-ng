@@ -26,7 +26,7 @@
 
 typedef int (*stress_open_func_t)(void);
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ "o N", "open N",	"start N workers exercising open/close" },
 	{ NULL,	"open-ops N",	"stop after N open/close bogo operations" },
 	{ NULL,	NULL,		NULL }

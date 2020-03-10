@@ -28,7 +28,7 @@
 static const uint64_t wrap_mask = 0xffff000000000000ULL;
 #endif
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"fifo N",	  "start N workers exercising fifo I/O" },
 	{ NULL,	"fifo-ops N",	  "stop after N fifo bogo operations" },
 	{ NULL,	"fifo-readers N", "number of fifo reader stessors to start" },

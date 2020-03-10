@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"vm-segv N",	 "start N workers that unmap their address space" },
 	{ NULL,	"vm-segv-ops N", "stop after N vm-segv unmap'd SEGV faults" },
 	{ NULL,	NULL,		 NULL }

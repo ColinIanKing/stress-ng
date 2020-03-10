@@ -26,7 +26,7 @@
 
 #define MAX_SOCKET_PAIRS	(32768)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"sockpair N",	  "start N workers exercising socket pair I/O activity" },
 	{ NULL,	"sockpair-ops N", "stop after N socket pair bogo operations" },
 	{ NULL,	NULL,		  NULL }

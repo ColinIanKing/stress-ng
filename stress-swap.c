@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"swap N",	"start N workers exercising swapon/swapoff" },
 	{ NULL,	"swap-ops N",	"stop after N swapon/swapoff operations" },
 	{ NULL,	NULL,		NULL }

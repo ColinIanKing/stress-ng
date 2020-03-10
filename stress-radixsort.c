@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"radixsort N",	    "start N workers radix sorting random strings" },
 	{ NULL,	"radixsort-ops N",  "stop after N radixsort bogo operations" },
 	{ NULL,	"radixsort-size N", "number of strings to sort" },

@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"enosys N",	"start N workers that call non-existent system calls" },
 	{ NULL,	"enosys-ops N",	"stop after N enosys bogo operations" },
 	{ NULL,	NULL,		NULL }

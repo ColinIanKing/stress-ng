@@ -26,7 +26,7 @@
 
 static const args_t *s_args;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"sigpipe N",	 "start N workers exercising SIGPIPE" },
 	{ NULL,	"sigpipe-ops N", "stop after N SIGPIPE bogo operations" },
 	{ NULL,	NULL,		 NULL }

@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"ptrace N",	"start N workers that trace a child using ptrace" },
 	{ NULL,	"ptrace-ops N",	"stop ptrace workers after N system calls are traced" },
 	{ NULL, NULL,		NULL }

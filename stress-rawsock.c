@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"rawsock N",		"start N workers performing raw socket send/receives " },
 	{ NULL,	"rawsock-ops N",	"stop after N raw socket bogo operations" },
 	{ NULL,	NULL,			NULL }

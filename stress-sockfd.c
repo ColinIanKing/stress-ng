@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"sockfd N",	 "start N workers sending file descriptors over sockets" },
 	{ NULL,	"sockfd-ops N",	 "stop after N sockfd bogo operations" },
 	{ NULL,	"sockfd-port P", "use socket fd ports P to P + number of workers - 1" },

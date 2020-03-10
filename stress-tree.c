@@ -37,7 +37,7 @@ typedef struct {
 
 static const stress_tree_method_info_t tree_methods[];
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"tree N",	 "start N workers that exercise tree structures" },
 	{ NULL,	"tree-ops N",	 "stop after N bogo tree operations" },
 	{ NULL,	"tree-method M", "select tree method, all,avl,binary,rb,splay" },

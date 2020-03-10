@@ -37,7 +37,7 @@ static volatile bool thread_terminate;
 static sigset_t set;
 #endif
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"sleep N",	"start N workers performing various duration sleeps" },
 	{ NULL,	"sleep-ops N",	"stop after N bogo sleep operations" },
 	{ NULL,	"sleep-max P",	"create P threads at a time by each worker" },

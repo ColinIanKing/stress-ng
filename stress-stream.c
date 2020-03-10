@@ -40,7 +40,7 @@ typedef struct {
         const int advice;
 } stress_stream_madvise_info_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"stream N",		"start N workers exercising memory bandwidth" },
 	{ NULL,	"stream-ops N",		"stop after N bogo stream operations" },
 	{ NULL,	"stream-index",		"specify number of indices into the data (0..3)" },

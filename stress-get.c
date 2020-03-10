@@ -33,7 +33,7 @@
 
 #define GIDS_MAX 	(1024)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"get N",	"start N workers exercising the get*() system calls" },
 	{ NULL,	"get-ops N",	"stop after N get bogo operations" },
 	{ NULL, NULL,		NULL }

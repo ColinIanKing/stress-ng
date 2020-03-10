@@ -106,7 +106,7 @@ typedef struct {
 	const stress_cpu_func	func;	/* the cpu method function */
 } stress_cpu_method_info_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ "c N", "cpu N",		"start N workers spinning on sqrt(rand())" },
 	{ NULL,  "cpu-ops N",		"stop after N cpu bogo operations" },
 	{ "l P", "cpu-load P",		"load CPU by P %, 0=sleep, 100=full load (see -c)" },

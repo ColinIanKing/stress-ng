@@ -26,7 +26,7 @@
 
 #define PAGES_TO_EXERCISE	(8)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"pkey N",	"start N workers exercising pkey_mprotect" },
 	{ NULL,	"pkey-ops N",	"stop after N bogo pkey_mprotect bogo operations" },
 	{ NULL,	NULL,		NULL }

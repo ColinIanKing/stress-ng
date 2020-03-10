@@ -40,7 +40,7 @@ static const stress_filename_opts_t filename_opts[] = {
 	{ -1,				NULL }
 };
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"filename N",		"start N workers exercising filenames" },
 	{ NULL,	"filename-ops N",	"stop after N filename bogo operations" },
 	{ NULL,	"filename-opts opt",	"specify allowed filename options" },

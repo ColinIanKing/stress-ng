@@ -24,14 +24,14 @@
  */
 #include "stress-ng.h"
 
-static const help_t fork_help[] = {
+static const stress_help_t fork_help[] = {
 	{ "f N","fork N",	"start N workers spinning on fork() and exit()" },
 	{ NULL,	"fork-ops N",	"stop after N fork bogo operations" },
 	{ NULL,	"fork-max P",	"create P workers per iteration, default is 1" },
 	{ NULL,	NULL,		NULL }
 };
 
-static const help_t vfork_help[] = {
+static const stress_help_t vfork_help[] = {
 	{ NULL,	"vfork N",	"start N workers spinning on vfork() and exit()" },
 	{ NULL,	"vfork-ops N",	"stop after N vfork bogo operations" },
 	{ NULL,	"vfork-max P",	"create P processes per iteration, default is 1" },

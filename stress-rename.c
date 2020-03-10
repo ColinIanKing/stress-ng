@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ "R",	"rename N",	"start N workers exercising file renames" },
 	{ NULL,	"rename-ops N",	"stop after N rename bogo operations" },
 	{ NULL,	NULL,		NULL }

@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"chmod N",	"start N workers thrashing chmod file mode bits " },
 	{ NULL,	"chmod-ops N",	"stop chmod workers after N bogo operations" },
 	{ NULL,	NULL,		NULL }

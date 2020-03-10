@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"userfaultfd N",	"start N page faulting workers with userspace handling" },
 	{ NULL,	"userfaultfd-ops N",	"stop after N page faults have been handled" },
 	{ NULL,	NULL,			NULL }

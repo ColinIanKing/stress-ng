@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"fallocate N",		"start N workers fallocating 16MB files" },
 	{ NULL,	"fallocate-ops N",	"stop after N fallocate bogo operations" },
 	{ NULL,	"fallocate-bytes N",	"specify size of file to allocate" },

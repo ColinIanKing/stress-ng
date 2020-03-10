@@ -43,7 +43,7 @@ typedef struct {
 	uint32_t length;	/* Length of list */
 } stress_clone_list_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"clone N",	"start N workers that rapidly create and reap clones" },
 	{ NULL,	"clone-ops N",	"stop after N bogo clone operations" },
 	{ NULL,	"clone-max N",	"set upper limit of N clones per worker" },

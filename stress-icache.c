@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"icache N",	"start N CPU instruction cache thrashing workers" },
 	{ NULL,	"icache-ops N",	"stop after N icache bogo operations" },
 	{ NULL,	NULL,		NULL }

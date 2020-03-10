@@ -31,7 +31,7 @@ typedef struct {
 	char	shm_name[SHM_NAME_LEN];
 } stress_shm_msg_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"shm N",	"start N workers that exercise POSIX shared memory" },
 	{ NULL,	"shm-ops N",	"stop after N POSIX shared memory bogo operations" },
 	{ NULL,	"shm-bytes N",	"allocate/free N bytes of POSIX shared memory" },

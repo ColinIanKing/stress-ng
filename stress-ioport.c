@@ -40,7 +40,7 @@ static const stress_ioport_opts_t ioport_opts[] = {
 	{ "inout",	IOPORT_OPT_IN | IOPORT_OPT_OUT },
 };
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"ioport N",	"start N workers exercising port I/O" },
 	{ NULL,	"ioport-ops N",	"stop ioport workers after N port bogo operations" },
 	{ NULL,	NULL,		NULL }

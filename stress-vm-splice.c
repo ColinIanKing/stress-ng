@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"vm-splice N",		"start N workers reading/writing using vmsplice" },
 	{ NULL,	"vm-splice-ops N",	"stop after N bogo splice operations" },
 	{ NULL,	"vm-splice-bytes N",	"number of bytes to transfer per vmsplice call" },

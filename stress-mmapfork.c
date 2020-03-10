@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"mmapfork N",	  "start N workers stressing many forked mmaps/munmaps" },
 	{ NULL,	"mmapfork-ops N", "stop after N mmapfork bogo operations" },
 	{ NULL,	NULL,		  NULL }

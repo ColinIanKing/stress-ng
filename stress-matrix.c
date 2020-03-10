@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"matrix N",		"start N workers exercising matrix operations" },
 	{ NULL,	"matrix-ops N",		"stop after N maxtrix bogo operations" },
 	{ NULL,	"matrix-method M",	"specify matrix stress method M, default is all" },

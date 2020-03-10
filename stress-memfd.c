@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"memfd N",	 "start N workers allocating memory with memfd_create" },
 	{ NULL,	"memfd-bytes N", "allocate N bytes for each stress iteration" },
 	{ NULL,	"memfd-fds N",	 "number of memory fds to open per stressors" },

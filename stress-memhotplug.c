@@ -29,7 +29,7 @@ typedef struct {
 	bool timeout;
 } stress_mem_info_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"memhotplug N",	"start N workers that exercise memory hotplug" },
 	{ NULL,	"memhotplug-ops N",	"stop after N memory hotplug operations" },
 	{ NULL,	NULL,		NULL }

@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"tsearch N",		"start N workers that exercise a tree search" },
 	{ NULL,	"tsearch-ops N",	"stop after N tree search bogo operations" },
 	{ NULL,	"tsearch-size N",	"number of 32 bit integers to tsearch" },

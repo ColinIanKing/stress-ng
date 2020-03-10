@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ "s N","switch N",	 "start N workers doing rapid context switches" },
 	{ NULL,	"switch-ops N",	 "stop after N context switch bogo operations" },
 	{ NULL, "switch-freq N", "set frequency of context switches" },

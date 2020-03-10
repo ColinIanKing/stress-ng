@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"ipsec-mb N",	  "start N workers exercising the IPSec MB encoding" },
 	{ NULL,	"ipsec-mb-ops N", "stop after N ipsec bogo encoding operations" },
 	{ NULL, "ipsec-mb-feature F","specify CPU feature F" },

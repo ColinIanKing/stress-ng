@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"epoll N",	  "start N workers doing epoll handled socket activity" },
 	{ NULL,	"epoll-ops N",	  "stop after N epoll bogo operations" },
 	{ NULL,	"epoll-port P",	  "use socket ports P upwards" },

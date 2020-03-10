@@ -66,7 +66,7 @@ typedef struct {
 	const int oflag;	/* open O_* flags */
 } stress_hdd_opts_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ "d N","hdd N",		"start N workers spinning on write()/unlink()" },
 	{ NULL,	"hdd-ops N",		"stop after N hdd bogo operations" },
 	{ NULL,	"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },

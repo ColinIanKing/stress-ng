@@ -29,7 +29,7 @@ static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 #endif
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"heapsort N",	   "start N workers heap sorting 32 bit random integers" },
 	{ NULL,	"heapsort-ops N",  "stop after N heap sort bogo operations" },
 	{ NULL,	"heapsort-size N", "number of 32 bit integers to sort" },

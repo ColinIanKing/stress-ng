@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"sigfpe N",	"start N workers generating floating point math faults" },
 	{ NULL,	"sigfpe-ops N",	"stop after N bogo floating point math faults" },
 	{ NULL,	NULL,		NULL }

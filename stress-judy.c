@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"judy N",	"start N workers that exercise a judy array search" },
 	{ NULL,	"judy-ops N",	"stop after N judy array search bogo operations" },
 	{ NULL,	"judy-size N",	"number of 32 bit integers to insert into judy array" },

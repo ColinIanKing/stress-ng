@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"xattr N",	"start N workers stressing file extended attributes" },
 	{ NULL,	"xattr-ops N",	"stop after N bogo xattr operations" },
 	{ NULL,	NULL,		NULL }

@@ -28,7 +28,7 @@
 #define BUF_SIZE		(512)
 #define MAX_OFFSETS		(16)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"readahead N",		"start N workers exercising file readahead" },
 	{ NULL,	"readahead-bytes N",	"size of file to readahead on (default is 1GB)" },
 	{ NULL,	"readahead-ops N",	"stop after N readahead bogo operations" },

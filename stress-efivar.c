@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"efivar N",	"start N workers that read EFI variables" },
 	{ NULL,	"efivar-ops N",	"stop after N EFI variable bogo read operations" },
 	{ NULL,	NULL,		NULL }

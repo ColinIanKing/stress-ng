@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"binderfs N",		"start N workers exercising binderfs" },
 	{ NULL,	"binderfs-ops N",	"stop after N bogo binderfs operations" },
 	{ NULL,	NULL,		    NULL }

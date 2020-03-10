@@ -29,7 +29,7 @@ static uint64_t max_ops;
 static double rate_us;
 static double start;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"itimer N",	"start N workers exercising interval timers" },
 	{ NULL,	"itimer-ops N",	"stop after N interval timer bogo operations" },
 	{ NULL,	"itimer-rand",	"enable random interval timer frequency" },

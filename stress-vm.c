@@ -57,7 +57,7 @@ typedef struct {
 
 static const stress_vm_method_info_t vm_methods[];
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ "m N", "vm N",	 "start N workers spinning on anonymous mmap" },
 	{ NULL,	 "vm-bytes N",	 "allocate N bytes per vm worker (default 256MB)" },
 	{ NULL,	 "vm-hang N",	 "sleep N seconds before freeing memory" },

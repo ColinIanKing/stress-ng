@@ -26,7 +26,7 @@
 
 typedef void (*stress_iomix_func)(const args_t *args, const int fd, const off_t iomix_bytes);
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"iomix N",	 "start N workers that have a mix of I/O operations" },
 	{ NULL,	"iomix-bytes N", "write N bytes per iomix worker (default is 1GB)" },
 	{ NULL,	"iomix-ops N",	 "stop iomix workers after N iomix bogo operations" },

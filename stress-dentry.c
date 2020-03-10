@@ -35,7 +35,7 @@ typedef struct {
 	const uint8_t denty_order;
 } stress_dentry_removal_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ "D N","dentry N",		"start N dentry thrashing stressors" },
 	{ NULL,	"dentry-ops N",		"stop after N dentry bogo operations" },
 	{ NULL,	"dentry-order O",	"specify unlink order (reverse, forward, stride)" },

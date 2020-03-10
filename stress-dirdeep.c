@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"dirdeep N",		"start N directory depth stressors" },
 	{ NULL,	"dirdeep-ops N",	"stop after N directory depth bogo operations" },
 	{ NULL,	"dirdeep-dirs N",	"create N directories per level" },

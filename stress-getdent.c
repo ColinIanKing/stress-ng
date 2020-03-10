@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"getdent N",	 "start N workers reading directories using getdents" },
 	{ NULL,	"getdent-ops N", "stop after N getdents bogo operations" },
 	{ NULL,	NULL,		 NULL }

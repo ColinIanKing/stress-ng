@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"klog N",	"start N workers exercising kernel syslog interface" },
 	{ NULL,	"klog-ops N",	"stop after N klog bogo operations" },
 	{ NULL,	NULL,		NULL }

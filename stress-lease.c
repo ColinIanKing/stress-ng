@@ -28,7 +28,7 @@
 static uint64_t lease_sigio;
 #endif
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"lease N",	    "start N workers holding and breaking a lease" },
 	{ NULL,	"lease-ops N",	    "stop after N lease bogo operations" },
 	{ NULL,	"lease-breakers N", "number of lease breaking workers to start" },

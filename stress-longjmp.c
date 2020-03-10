@@ -26,7 +26,7 @@
 
 static jmp_buf buf;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"longjmp N",	 "start N workers exercising setjmp/longjmp" },
 	{ NULL,	"longjmp-ops N", "stop after N longjmp bogo operations" },
 	{ NULL,	NULL,		 NULL }

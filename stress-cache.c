@@ -32,7 +32,7 @@
 #define FLAGS_CACHE_SFENCE	(0x08)
 #define FLAGS_CACHE_NOAFF	(0x10)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ "C N","cache N",	 "start N CPU cache thrashing workers" },
 	{ NULL,	"cache-ops N",	 "stop after N cache bogo operations" },
 	{ NULL,	"cache-prefetch","prefetch on memory reads/writes" },

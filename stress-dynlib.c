@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"dynlib N",	"start N workers exercising dlopen/dlclose" },
 	{ NULL,	"dynlib-ops N",	"stop after N dlopen/dlclose bogo operations" },
 	{ NULL,	NULL,		NULL }

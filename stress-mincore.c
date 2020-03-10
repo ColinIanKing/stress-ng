@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"mincore N",	  "start N workers exercising mincore" },
 	{ NULL,	"mincore-ops N",  "stop after N mincore bogo operations" },
 	{ NULL,	"mincore-random", "randomly select pages rather than linear scan" },

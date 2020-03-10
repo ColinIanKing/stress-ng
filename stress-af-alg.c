@@ -26,7 +26,7 @@
 
 #define ALLOC_SLOP	(64)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"af-alg N",	"start N workers that stress AF_ALG socket domain" },
 	{ NULL,	"af-alg-ops N",	"stop after N af-alg bogo operations" },
 	{ NULL,	"af-alg-dump",	"dump internal list from /proc/crypto to stdout" },

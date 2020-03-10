@@ -26,7 +26,7 @@
 
 static sigjmp_buf jmp_env;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"stack N",	"start N workers generating stack overflows" },
 	{ NULL,	"stack-ops N",	"stop after N bogo stack overflows" },
 	{ NULL,	"stack-fill",	"fill stack, touches all new pages " },

@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"sync-file N",	     "start N workers exercise sync_file_range" },
 	{ NULL,	"sync-file-ops N",   "stop after N sync_file_range bogo operations" },
 	{ NULL,	"sync-file-bytes N", "size of file to be sync'd" },

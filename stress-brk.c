@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"brk N",	"start N workers performing rapid brk calls" },
 	{ NULL,	"brk-ops N",	"stop after N brk bogo operations" },
 	{ NULL,	"brk-notouch",	"don't touch (page in) new data segment page" },

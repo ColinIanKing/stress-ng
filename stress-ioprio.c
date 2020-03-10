@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"ioprio N",	"start N workers exercising set/get iopriority" },
 	{ NULL,	"ioprio-ops N",	"stop after N io bogo iopriority operations" },
 	{ NULL, NULL,		NULL }

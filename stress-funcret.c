@@ -33,7 +33,7 @@ typedef struct {
 
 static const stress_funcret_method_info_t funcret_methods[];
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"funcret N",		"start N workers exercising function return copying" },
 	{ NULL,	"funcret-ops N",	"stop after N function return bogo operations" },
 	{ NULL,	"funcret-method M",	"select method of exercising a function return type" },

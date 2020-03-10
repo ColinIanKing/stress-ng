@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"sctp N",	 "start N workers performing SCTP send/receives " },
 	{ NULL,	"sctp-ops N",	 "stop after N SCTP bogo operations" },
 	{ NULL,	"sctp-domain D", "specify sctp domain, default is ipv4" },

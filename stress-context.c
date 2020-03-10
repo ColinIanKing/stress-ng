@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static help_t help[] = {
+static stress_help_t help[] = {
 	{ NULL,	"context N",	 "start N workers exercising user context" },
 	{ NULL,	"context-ops N", "stop context workers after N bogo operations" },
 	{ NULL,	NULL,		 NULL }

@@ -28,7 +28,7 @@
 #define MAPPINGS_MAX		(64)
 #define MAPPING_PAGES		(16)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"rmap N",	"start N workers that stress reverse mappings" },
 	{ NULL,	"rmap-ops N",	"stop after N rmap bogo operations" },
 	{ NULL,	NULL,		NULL }

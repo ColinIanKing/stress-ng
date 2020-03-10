@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"zlib N",	 "start N workers compressing data with zlib" },
 	{ NULL,	"zlib-ops N",	 "stop after N zlib bogo compression operations" },
 	{ NULL,	"zlib-level L",	 "specify zlib compression level 0=fast, 9=best" },

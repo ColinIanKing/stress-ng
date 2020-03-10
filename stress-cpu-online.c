@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"cpu-online N",		"start N workers offlining/onlining the CPUs" },
 	{ NULL,	"cpu-online-ops N",	"stop after N offline/online operations" },
 	{ NULL,	NULL,			NULL }

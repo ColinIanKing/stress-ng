@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"rawdev N",	   "start N workers that read a raw device" },
 	{ NULL,	"rawdev-ops N",	   "stop after N rawdev read operations" },
 	{ NULL,	"rawdev-method M", "specify the rawdev reead method to use" },

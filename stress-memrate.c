@@ -26,7 +26,7 @@
 
 #define STRESS_NANOSEC		(1000000000)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"memrate N",		"start N workers exercised memory read/writes" },
 	{ NULL,	"memrate-ops N",	"stop after N memrate bogo operations" },
 	{ NULL,	"memrate-bytes N",	"size of memory buffer being exercised" },

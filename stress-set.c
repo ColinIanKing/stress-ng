@@ -90,7 +90,7 @@ static stress_rlimit_info_t rlimits[] = {
 #endif
 };
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"set N",	"start N workers exercising the set*() system calls" },
 	{ NULL,	"set-ops N",	"stop after N set bogo operations" },
 	{ NULL,	NULL,		NULL }

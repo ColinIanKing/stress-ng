@@ -26,7 +26,7 @@
 
 #define ALIGN_SIZE	(64)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"memcpy N",	   "start N workers performing memory copies" },
 	{ NULL,	"memcpy-ops N",	   "stop after N memcpy bogo operations" },
 	{ NULL,	"memcpy-method M", "set memcpy method (M = all, libc, builtin, naive)" },

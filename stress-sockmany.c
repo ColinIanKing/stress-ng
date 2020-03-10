@@ -32,7 +32,7 @@ typedef struct {
 	int fds[SOCKET_MANY_FDS];
 } stress_sock_fds_t;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL, "sockmany N",		"start N workers exercising many socket connections" },
 	{ NULL,	"sockmany-ops N",	"stop after N sockmany bogo operations" },
 	{ NULL,	NULL,			NULL }

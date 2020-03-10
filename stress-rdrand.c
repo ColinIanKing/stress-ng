@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"rdrand N",	"start N workers exercising rdrand (x86 only)" },
 	{ NULL,	"rdrand-ops N",	"stop after N rdrand bogo operations" },
 	{ NULL,	NULL,		NULL }

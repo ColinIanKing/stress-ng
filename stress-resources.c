@@ -27,7 +27,7 @@
 #define RESOURCE_FORKS 	(1024)
 #define MAX_LOOPS	(1024)
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"resources N",	   "start N workers consuming system resources" },
 	{ NULL,	"resources-ops N", "stop after N resource bogo operations" },
 	{ NULL,	NULL,		   NULL }

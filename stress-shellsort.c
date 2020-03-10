@@ -27,7 +27,7 @@
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"shellsort N",	   "start N workers shell sorting 32 bit random integers" },
 	{ NULL,	"shellsort-ops N",  "stop after N shell sort bogo operations" },
 	{ NULL,	"shellsort-size N", "number of 32 bit integers to sort" },

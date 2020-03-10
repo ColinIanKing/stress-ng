@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"inode-flags N",	"start N workers exercising various inode flags" },
 	{ NULL,	"inode-flags-ops N",	"stop inode-flags workers after N bogo operations" },
 	{ NULL,	NULL,			NULL }

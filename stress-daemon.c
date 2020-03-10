@@ -32,7 +32,7 @@
 #define MAX_SIGNUM      256
 #endif
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"daemon N",	"start N workers creating multiple daemons" },
 	{ NULL,	"daemon-ops N",	"stop when N daemons have been created" },
 	{ NULL,	NULL,		NULL }

@@ -29,7 +29,7 @@ static sigjmp_buf jmp_env;
 static uint64_t sigbus_count;
 #endif
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"msync N",	 "start N workers syncing mmap'd data with msync" },
 	{ NULL,	"msync-ops N",	 "stop msync workers after N bogo msyncs" },
 	{ NULL,	"msync-bytes N", "size of file and memory mapped region to msync" },

@@ -881,7 +881,7 @@ static const struct option long_options[] = {
 /*
  *  Generic help options
  */
-static const help_t help_generic[] = {
+static const stress_help_t help_generic[] = {
 	{ NULL,		"abort",		"abort all stressors if any stressor fails" },
 	{ NULL,		"aggressive",		"enable all aggressive options" },
 	{ "a N",	"all N",		"start N workers of each stress test" },
@@ -1178,7 +1178,7 @@ static void version(void)
  *  usage_help()
  *	show generic help information
  */
-static void usage_help(const help_t help_info[])
+static void usage_help(const stress_help_t help_info[])
 {
 	size_t i;
 

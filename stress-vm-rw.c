@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const help_t help[] = {
+static const stress_help_t help[] = {
 	{ NULL,	"vm-rw N",	 "start N vm read/write process_vm* copy workers" },
 	{ NULL,	"vm-rw-bytes N", "transfer N bytes of memory per bogo operation" },
 	{ NULL,	"vm-rw-ops N",	 "stop after N vm process_vm* copy bogo operations" },

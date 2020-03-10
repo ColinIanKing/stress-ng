@@ -844,7 +844,7 @@ typedef struct {
 	const char *opt_s;		/* short option */
 	const char *opt_l;		/* long option */
 	const char *description;	/* description */
-} help_t;
+} stress_help_t;
 
 /* native setting types */
 typedef enum {
@@ -952,7 +952,7 @@ typedef struct {
 	void (*set_limit)(uint64_t max);
 	const stress_class_t class;
 	const opt_set_func_t *opt_set_funcs;
-	const help_t *help;
+	const stress_help_t *help;
 } stressor_info_t;
 
 /* pthread wrapped args_t */
