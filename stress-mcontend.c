@@ -275,7 +275,6 @@ static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args
 static void *stress_memory_contend_thread(void *arg)
 {
 	static void *nowt = NULL;
-	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	const stress_pthread_args_t *pa = (const stress_pthread_args_t *)arg;
 #if defined(HAVE_AFFINITY)
 	const uint32_t cpus = stress_get_processors_configured();
@@ -286,16 +285,6 @@ static void *stress_memory_contend_thread(void *arg)
 	 *  handle these
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
-
-	/*
-	 *  According to POSIX.1 a thread should have
-	 *  a distinct alternative signal stack.
-	 *  However, we block signals in this thread
-	 *  so this is probably just totally unncessary.
-	 */
-	(void)memset(stack, 0, sizeof(stack));
-	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
-		return &nowt;
 
 	while (keep_stressing_flag()) {
 #if defined(HAVE_AFFINITY)
