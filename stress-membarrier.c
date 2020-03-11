@@ -76,7 +76,6 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 static void *stress_membarrier_thread(void *parg)
 {
 	static void *nowt = NULL;
-	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	const stress_args_t *args = ((stress_pthread_args_t *)parg)->args;
 
 	/*
@@ -84,16 +83,6 @@ static void *stress_membarrier_thread(void *parg)
 	 *  handle these
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
-
-	/*
-	 *  According to POSIX.1 a thread should have
-	 *  a distinct alternative signal stack.
-	 *  However, we block signals in this thread
-	 *  so this is probably just totally unncessary.
-	 */
-	(void)memset(stack, 0, sizeof(stack));
-	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
-		return &nowt;
 
 	while (keep_running && keep_stressing_flag()) {
 		if (stress_membarrier_exercise(args) < 0)
