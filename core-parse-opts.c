@@ -92,7 +92,7 @@ static void ensure_numeric(const char *const str)
 	if (*ptr == '-')
 		ptr++;
 	while (*ptr) {
-		if (!isdigit(*ptr))
+		if (!isdigit((int)*ptr))
 			break;
 		ptr++;
 	}
