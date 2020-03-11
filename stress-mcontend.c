@@ -265,8 +265,8 @@ static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args
 		read64(data0);
 		read64(data1);
 	}
-	(void)shim_cacheflush((void *)data0, 64, DCACHE);
-	(void)shim_cacheflush((void *)data1, 64, DCACHE);
+	(void)shim_cacheflush((void *)data0, 64, SHIM_DCACHE);
+	(void)shim_cacheflush((void *)data1, 64, SHIM_DCACHE);
 }
 
 /*

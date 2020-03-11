@@ -702,11 +702,16 @@ typedef unsigned long int __kernel_ulong_t;
 /*
  *  cacheflush(2) cache options
  */
-#ifndef ICACHE
-#define ICACHE  (1 << 0)
+#ifdef ICACHE
+#define SHIM_ICACHE	(ICACHE)
+#else
+#define SHIM_ICACHE	(1 << 0)
 #endif
-#ifndef DCACHE
-#define DCACHE  (1 << 1)
+
+#ifdef DCACHE
+#define SHIM_DCACHE	(DCACHE)
+#else
+#define SHIM_DCACHE	(1 << 1)
 #endif
 
 #define EXIT_NOT_SUCCESS	(2)

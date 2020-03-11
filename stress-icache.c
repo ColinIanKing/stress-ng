@@ -126,7 +126,7 @@ func_name(const stress_args_t *args)						\
 				return EXIT_FAILURE;			\
 			}						\
 			icache_func();					\
-			(void)shim_cacheflush((char *)addr, page_sz, ICACHE); \
+			(void)shim_cacheflush((char *)addr, page_sz, SHIM_ICACHE); \
 		}							\
 		inc_counter(args);					\
 	} while (keep_stressing());					\

@@ -287,8 +287,8 @@ static int stress_cache(const stress_args_t *args)
 
 		}
 #endif
-		(void)shim_cacheflush((char *)stress_cache, 8192, ICACHE);
-		(void)shim_cacheflush((char *)mem_cache, (int)mem_cache_size, DCACHE);
+		(void)shim_cacheflush((char *)stress_cache, 8192, SHIM_ICACHE);
+		(void)shim_cacheflush((char *)mem_cache, (int)mem_cache_size, SHIM_DCACHE);
 		inc_counter(args);
 	} while (keep_stressing());
 
