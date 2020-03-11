@@ -449,7 +449,6 @@ static void *stress_memthrash_func(void *arg)
 
 	/* Wait parent up, all done! */
 	(void)kill(args->pid, SIGALRM);
-die:
 	return &nowt;
 }
 
