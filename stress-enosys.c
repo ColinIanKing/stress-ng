@@ -47,8 +47,8 @@ typedef struct hash_syscall {
 
 static stress_hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
 
-PRAGMA_PUSH
-PRAGMA_WARN_OFF
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 static inline long syscall7(long number, long arg1, long arg2,
 			    long arg3, long arg4, long arg5,
 			    long arg6, long arg7)
@@ -64,7 +64,7 @@ static inline long syscall7(long number, long arg1, long arg2,
 	}
 	return ret;
 }
-PRAGMA_POP
+STRESS_PRAGMA_POP
 
 static const int syscall_ignore[] = {
 #if defined(SYS_reboot)

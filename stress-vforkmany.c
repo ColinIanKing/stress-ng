@@ -33,8 +33,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-PRAGMA_PUSH
-PRAGMA_WARN_OFF
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 static inline pid_t stress_shim_vfork(void)
 {
 #if defined(__NR_vfork)
@@ -43,7 +43,7 @@ static inline pid_t stress_shim_vfork(void)
 	return vfork();
 #endif
 }
-PRAGMA_POP
+STRESS_PRAGMA_POP
 
 /*
  *  stress_vforkmany()

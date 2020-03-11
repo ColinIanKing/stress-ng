@@ -1135,20 +1135,20 @@ static inline void __builtin_prefetch(const void *addr, ...)
 #endif
 
 #if defined(__clang__) && NEED_CLANG(4, 0, 0)
-#define PRAGMA_PUSH	_Pragma("GCC diagnostic push")
-#define PRAGMA_POP	_Pragma("GCC diagnostic pop")
-#define PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Weverything\"")
+#define STRESS_PRAGMA_PUSH	_Pragma("GCC diagnostic push")
+#define STRESS_PRAGMA_POP	_Pragma("GCC diagnostic pop")
+#define STRESS_PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Weverything\"")
 #elif defined(__GNUC__) && NEED_GNUC(4, 4, 0)
-#define PRAGMA_PUSH	_Pragma("GCC diagnostic push")
-#define PRAGMA_POP	_Pragma("GCC diagnostic pop")
-#define PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Wall\"") \
-			_Pragma("GCC diagnostic ignored \"-Wextra\"") \
-			_Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"") \
-			_Pragma("GCC diagnostic ignored \"-Wcast-qual\"")
+#define STRESS_PRAGMA_PUSH	_Pragma("GCC diagnostic push")
+#define STRESS_PRAGMA_POP	_Pragma("GCC diagnostic pop")
+#define STRESS_PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Wall\"") \
+				_Pragma("GCC diagnostic ignored \"-Wextra\"") \
+				_Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"") \
+				_Pragma("GCC diagnostic ignored \"-Wcast-qual\"")
 #else
-#define PRAGMA_PUSH
-#define PRAGMA_POP
-#define PRAGMA_WARN_OFF
+#define STRESS_PRAGMA_PUSH
+#define STRESS_PRAGMA_POP
+#define STRESS_PRAGMA_WARN_OFF
 #endif
 
 /* Logging helpers */

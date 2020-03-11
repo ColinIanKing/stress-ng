@@ -263,8 +263,8 @@ static inline void __pr_msg_fail(const uint64_t flag, const bool locked, char *f
 	va_end(ap);
 }
 
-PRAGMA_PUSH
-PRAGMA_WARN_OFF
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 /*
  *  pr_msg_fail()
  *	print failure message with errno
@@ -278,7 +278,7 @@ void pr_msg_fail(
 	__pr_msg_fail(flag, false, "%s: %s failed, errno=%d (%s)\n",
 		name, what, err, strerror(err));
 }
-PRAGMA_POP
+STRESS_PRAGMA_POP
 
 /*
  *  pr_dbg()
