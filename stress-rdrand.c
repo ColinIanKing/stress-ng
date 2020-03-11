@@ -31,7 +31,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_CPUID_H) &&	\
-    defined(STRESS_X86) &&	\
+    defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_CPUID) &&	\
     NEED_GNUC(4,6,0)
 
@@ -102,7 +102,7 @@ static inline uint32_t rand64(void)
 #endif
 
 
-#if defined(STRESS_PPC64) &&	\
+#if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_DARN)
 
 #define HAVE_RAND_CAPABILITY

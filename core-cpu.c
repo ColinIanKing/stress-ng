@@ -27,7 +27,7 @@
 bool stress_cpu_is_x86(void)
 {
 #if defined(HAVE_CPUID_H) &&	\
-    defined(STRESS_X86) && 	\
+    defined(STRESS_ARCH_X86) && 	\
     defined(HAVE_CPUID) &&	\
     NEED_GNUC(4,6,0)
 	uint32_t eax, ebx, ecx, edx;

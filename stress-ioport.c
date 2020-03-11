@@ -73,7 +73,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(STRESS_X86) && 	\
+#if defined(STRESS_ARCH_X86) && 	\
     defined(HAVE_IOPORT) &&	\
     defined(HAVE_SYS_IO_H)
 

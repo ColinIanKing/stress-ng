@@ -264,7 +264,7 @@ int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
  */
 void shim_clear_cache(char* begin, char *end)
 {
-#if defined(__GNUC__) && defined(STRESS_ARM)
+#if defined(__GNUC__) && defined(STRESS_ARCH_ARM)
 	__clear_cache(begin, end);
 #else
 	(void)begin;

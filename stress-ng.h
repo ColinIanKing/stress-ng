@@ -1563,7 +1563,7 @@ extern void pr_fail_dbg__(const stress_args_t *args, const char *msg);
 /* Arch specific, x86 */
 #if defined(__x86_64__) || defined(__x86_64) || \
     defined(__i386__)   || defined(__i386)
-#define STRESS_X86	1
+#define STRESS_ARCH_X86		(1)
 #endif
 
 /* Arch specific, ARM */
@@ -1574,17 +1574,17 @@ extern void pr_fail_dbg__(const stress_args_t *args, const char *msg);
     defined(__ARM_ARCH_7A__)  || defined(__ARM_ARCH_7R__)  || \
     defined(__ARM_ARCH_7M__)  || defined(__ARM_ARCH_7EM__) || \
     defined(__ARM_ARCH_8A__)  || defined(__aarch64__)
-#define STRESS_ARM      1
+#define STRESS_ARCH_ARM		(1)
 #endif
 
 /* Arch specific, IBM S390 */
 #if defined(__s390__)
-#define STRESS_S390
+#define STRESS_ARCH_S390	(1)
 #endif
 
 /* Arch specific PPC64 */
 #if defined(__PPC64__)
-#define STRESS_PPC64
+#define STRESS_ARCH_PPC64	(1)
 #endif
 
 /* GCC5.0+ target_clones attribute */

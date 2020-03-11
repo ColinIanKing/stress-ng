@@ -830,7 +830,7 @@ static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
 
 		/* Try seeking */
 		off = lseek(fd, (off_t)0, SEEK_SET);
-#if defined(STRESS_X86)
+#if defined(STRESS_ARCH_X86)
 		if (off == 0) {
 			char buffer[page_size];
 			ssize_t ret;
@@ -925,7 +925,7 @@ static void stress_dev_hpet_linux(
 }
 #endif
 
-#if defined(__linux__) && defined(STRESS_X86)
+#if defined(__linux__) && defined(STRESS_ARCH_X86)
 static void stress_dev_port_linux(
 	const char *name,
 	const int fd,
@@ -1123,7 +1123,7 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/kmsg",	stress_dev_kmsg_linux),
 	DEV_FUNC("/dev/nvram",	stress_dev_nvram_linux),
 #endif
-#if defined(__linux__) && defined(STRESS_X86)
+#if defined(__linux__) && defined(STRESS_ARCH_X86)
 	DEV_FUNC("/dev/port",	stress_dev_port_linux),
 #endif
 #if defined(HAVE_LINUX_HPET_H)

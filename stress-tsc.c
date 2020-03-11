@@ -31,7 +31,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_CPUID_H) &&	\
-    defined(STRESS_X86) && 	\
+    defined(STRESS_ARCH_X86) && 	\
     defined(HAVE_CPUID) &&	\
     NEED_GNUC(4,6,0)
 
@@ -77,7 +77,7 @@ static inline void rdtsc(void)
 }
 
 
-#elif defined(STRESS_PPC64) &&			\
+#elif defined(STRESS_ARCH_PPC64) &&			\
       defined(HAVE_SYS_PLATFORM_PPC_H) &&	\
       defined(HAVE_PPC_GET_TIMEBASE)
 

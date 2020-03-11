@@ -47,7 +47,7 @@ static const stress_help_t help[] = {
  *  PPC64 for some reason with some flavours of the toolchain
  *  so disable this test for now
  */
-#if defined(STRESS_PPC64) && \
+#if defined(STRESS_ARCH_PPC64) && \
     defined(__GNUC__) && \
     __GNUC__ < 6
 #undef HAVE_VECMATH
@@ -148,7 +148,7 @@ typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
  *  stress_vecmath()
  *	stress GCC vector maths
  */
-#if defined(STRESS_PPC64)
+#if defined(STRESS_ARCH_PPC64)
 static int HOT stress_vecmath(const stress_args_t *args)
 #else
 static int HOT TARGET_CLONES stress_vecmath(const stress_args_t *args)

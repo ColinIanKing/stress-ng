@@ -2049,7 +2049,7 @@ static void TARGET_CLONES stress_cpu_div64(const char *name)
  *	get CPU id info, x86 only
  */
 #if defined(HAVE_CPUID_H) &&	\
-    defined(STRESS_X86) &&	\
+    defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_CPUID) &&	\
     NEED_GNUC(4,6,0)
 static void TARGET_CLONES stress_cpu_cpuid(const char *name)
@@ -2367,7 +2367,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "collatz",		stress_cpu_collatz },
 	{ "correlate",		stress_cpu_correlate },
 #if defined(HAVE_CPUID_H) &&	\
-    defined(STRESS_X86) &&	\
+    defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_CPUID) &&	\
     NEED_GNUC(4,6,0)
 	{ "cpuid",		stress_cpu_cpuid },
