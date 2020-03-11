@@ -106,6 +106,18 @@ static const int madvise_options[] = {
 #if defined(MADV_PAGEOUT)
 	MADV_PAGEOUT,
 #endif
+/* FreeBSD */
+#if defined(MADV_AUTOSYNC)
+	MADV_AUTOSYNC,
+#endif
+/* FreeBSD */
+#if defined(MADV_CORE)
+	MADV_CORE,
+#endif
+/* FreeBSD */
+#if defined(MADV_PROTECT)
+	MADV_PROTECT,
+#endif
 };
 
 /*
