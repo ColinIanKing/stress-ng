@@ -419,7 +419,6 @@ static int stress_set_memthrash_method(const char *name)
  */
 static void *stress_memthrash_func(void *arg)
 {
-	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	static void *nowt = NULL;
 	const stress_pthread_args_t *parg = (stress_pthread_args_t *)arg;
 	const stress_args_t *args = parg->args;
@@ -430,16 +429,6 @@ static void *stress_memthrash_func(void *arg)
 	 *  handle these
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
-
-	/*
-	 *  According to POSIX.1 a thread should have
-	 *  a distinct alternative signal stack.
-	 *  However, we block signals in this thread
-	 *  so this is probably just totally unncessary.
-	 */
-	(void)memset(stack, 0, sizeof(stack));
-	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
-		goto die;
 
 	while (!thread_terminate && keep_stressing()) {
 		size_t j;
