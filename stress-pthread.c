@@ -33,9 +33,11 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_LIB_PTHREAD)
 
+/* per pthread data */
 typedef struct {
-	pthread_t pthread;
-	pid_t     tid;
+	pthread_t pthread;	/* The pthread */
+	int	  ret;		/* pthread create return */
+	void 	 *stack;	/* pthread stack */
 } stress_pthread_info_t;
 
 static pthread_cond_t cond;
@@ -116,19 +118,16 @@ static void *stress_pthread_func(void *parg)
 {
 	static void *nowt = NULL;
 	int ret;
+#if defined(HAVE_GETTID)
 	const pid_t tid = shim_gettid();
+#else
+	const pid_t tid = 0;
+#endif
 #if defined(HAVE_GET_ROBUST_LIST) && defined(HAVE_LINUX_FUTEX_H)
 	struct robust_list_head *head;
 	size_t len;
 #endif
 	const stress_args_t *args = ((stress_pthread_args_t *)parg)->args;
-
-#if defined(HAVE_GETTID)
-	{
-		stress_pthread_info_t *pi = ((stress_pthread_args_t *)parg)->data;
-		pi->tid = shim_gettid();
-	}
-#endif
 
 #if defined(HAVE_GET_ROBUST_LIST) && defined(HAVE_LINUX_FUTEX_H)
 	/*
@@ -137,7 +136,7 @@ static void *stress_pthread_func(void *parg)
 	if (sys_get_robust_list(0, &head, &len) < 0) {
 		if (errno != ENOSYS) {
 			pr_fail("%s: get_robust_list failed, tid=%d, errno=%d (%s)\n",
-				args->name, tid, errno, strerror(errno));
+				args->name, (int)tid, errno, strerror(errno));
 			goto die;
 		}
 	} else {
@@ -145,7 +144,7 @@ static void *stress_pthread_func(void *parg)
 		if (sys_set_robust_list(head, len) < 0) {
 			if (errno != ENOSYS) {
 				pr_fail("%s: set_robust_list failed, tid=%d, errno=%d (%s)\n",
-					args->name, tid, errno, strerror(errno));
+					args->name, (int)tid, errno, strerror(errno));
 				goto die;
 			}
 		}
@@ -248,6 +247,7 @@ static int stress_pthread(const stress_args_t *args)
 	int ret;
 	stress_pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
+	const size_t stack_size = STRESS_MAXIMUM(16 * KB, PTHREAD_STACK_MIN);
 
 	keep_running_flag = true;
 
@@ -298,20 +298,50 @@ static int stress_pthread(const stress_args_t *args)
 			stop_running();
 			continue;
 		}
+		for (i = 0; i < pthread_max; i++)
+			pthreads[i].ret = -1;
+
 		for (i = 0; i < pthread_max; i++) {
+			pthread_attr_t attr;
 			pargs.data = (void *)&pthreads[i];
 
-			ret = pthread_create(&pthreads[i].pthread, NULL,
-				stress_pthread_func, (void *)&pargs);
+			/*
+			 *  We mmap our own per pthread stack to ensure we
+			 *  have one available before the pthread is started
+			 *  and this allows us to exercise the pthread stack
+			 *  setting.
+			 */
+			pthreads[i].stack = mmap(NULL, stack_size, PROT_READ | PROT_WRITE,
+				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+			if (pthreads[i].stack == MAP_FAILED)
+				break;
+
+			ret = pthread_attr_init(&attr);
 			if (ret) {
+				pr_fail("%s: pthread_attr_init failed, errno=%d (%s)\n",
+					args->name, ret, strerror(ret));
+				stop_running();
+				break;
+			}
+			ret = pthread_attr_setstack(&attr, pthreads[i].stack, stack_size);
+			if (ret) {
+				pr_fail("%s: pthread_attr_setstack failed, errno=%d (%s)\n",
+					args->name, ret, strerror(ret));
+				stop_running();
+				break;
+			}
+
+			pthreads[i].ret = pthread_create(&pthreads[i].pthread, NULL,
+				stress_pthread_func, (void *)&pargs);
+			if (pthreads[i].ret) {
 				/* Out of resources, don't try any more */
-				if (ret == EAGAIN) {
+				if (pthreads[i].ret == EAGAIN) {
 					limited++;
 					break;
 				}
 				/* Something really unexpected */
 				pr_fail("%s: pthread_create failed, errno=%d (%s)\n",
-					args->name, ret, strerror(ret));
+					args->name, pthreads[i].ret, strerror(ret));
 				stop_running();
 				break;
 			}
@@ -332,6 +362,11 @@ static int stress_pthread(const stress_args_t *args)
 		 */
 		for (j = 0; j < 1000; j++) {
 			bool all_running = false;
+
+			if (!keep_stressing()) {
+				stop_running();
+				goto reap;
+			}
 
 			if (!locked) {
 				ret = shim_pthread_spin_lock(&spinlock);
@@ -371,6 +406,10 @@ reap:
 			/* fall through and unlock */
 		}
 		for (j = 0; j < i; j++) {
+			if (pthreads[j].stack != MAP_FAILED)
+				(void)munmap(pthreads[j].stack, stack_size);
+			if (pthreads[j].ret)
+				continue;
 			ret = pthread_join(pthreads[j].pthread, NULL);
 			if ((ret) && (ret != ESRCH)) {
 				pr_fail("%s: pthread_join failed (parent), errno=%d (%s)\n",
