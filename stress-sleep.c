@@ -74,21 +74,11 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
  */
 static void *stress_pthread_func(void *c)
 {
-	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	static void *nowt = NULL;
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)c;
 	const stress_args_t *args = ctxt->args;
 	const uint64_t max_ops =
 		args->max_ops ? (args->max_ops / ctxt->sleep_max) + 1 : 0;
-	/*
-	 *  According to POSIX.1 a thread should have
-	 *  a distinct alternative signal stack.
-	 *  However, we block signals in this thread
-	 *  so this is probably just totally unncessary.
-	 */
-	(void)memset(stack, 0, sizeof(stack));
-	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
-		goto die;
 
 	while (keep_stressing() &&
 	       !thread_terminate &&
@@ -142,7 +132,6 @@ static void *stress_pthread_func(void *c)
 
 		ctxt->counter++;
 	}
-die:
 	return &nowt;
 }
 
