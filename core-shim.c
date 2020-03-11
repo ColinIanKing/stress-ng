@@ -32,7 +32,7 @@
 #if defined(__sun__)
 static inline void *shim_unconstify_ptr(const void *ptr)
 {
-	(void *)unconst_ptr = (void *)ptr;
+	void *unconst_ptr = (void *)ptr;
 
 	return unconst_ptr;
 }
