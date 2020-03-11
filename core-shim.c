@@ -912,8 +912,8 @@ int shim_ioprio_get(int which, int who)
  *	brk system call shim
  */
 #if defined(__APPLE__)
-PRAGMA_PUSH
-PRAGMA_WARN_OFF
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 #endif
 int shim_brk(void *addr)
 {
@@ -937,7 +937,7 @@ int shim_brk(void *addr)
 #endif
 }
 #if defined(__APPLE__)
-PRAGMA_POP
+STRESS_PRAGMA_POP
 #endif
 
 /*
@@ -945,15 +945,15 @@ PRAGMA_POP
  *	sbrk system call shim
  */
 #if defined(__APPLE__)
-PRAGMA_PUSH
-PRAGMA_WARN_OFF
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 #endif
 void *shim_sbrk(intptr_t increment)
 {
 	return sbrk(increment);
 }
 #if defined(__APPLE__)
-PRAGMA_POP
+STRESS_PRAGMA_POP
 #endif
 
 /*
