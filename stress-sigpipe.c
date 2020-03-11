@@ -86,7 +86,7 @@ again:
 				(CLONE_STACK_SIZE - 64);
 			char *stack_top = stack + stack_offset;
 
-			pid = clone(pipe_child, align_stack(stack_top),
+			pid = clone(pipe_child, stress_align_stack(stack_top),
 				CLONE_VM | CLONE_FS | CLONE_SIGHAND | SIGCHLD, NULL);
 			/*
 			 *  May not have clone, so fall back to fork instead.

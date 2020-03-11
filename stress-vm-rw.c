@@ -322,7 +322,7 @@ static int stress_vm_rw(const stress_args_t *args)
 	}
 
 again:
-	ctxt.pid = clone(stress_vm_child, align_stack(stack_top),
+	ctxt.pid = clone(stress_vm_child, stress_align_stack(stack_top),
 		SIGCHLD | CLONE_VM, &ctxt);
 	if (ctxt.pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))

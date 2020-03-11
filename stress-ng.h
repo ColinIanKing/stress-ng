@@ -3415,7 +3415,7 @@ static inline WARN_UNUSED ALWAYS_INLINE int exit_status(const int err)
  *	align to nearest 16 bytes for aarch64 et al,
  *	assumes we have enough slop to do this
  */
-static inline WARN_UNUSED ALWAYS_INLINE void *align_stack(void *stack_top)
+static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top)
 {
 	return (void *)((uintptr_t)stack_top & ~(uintptr_t)0xf);
 }

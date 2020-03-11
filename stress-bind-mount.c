@@ -110,7 +110,7 @@ static int stress_bind_mount(const stress_args_t *args)
 		(void)memset(stack, 0, sizeof stack);
 
 		pid = clone(stress_bind_mount_child,
-			align_stack(stack_top),
+			stress_align_stack(stack_top),
 			CLONE_NEWUSER | CLONE_NEWNS | CLONE_VM | SIGCHLD,
 			(void *)&pargs, 0);
 		if (pid < 0) {

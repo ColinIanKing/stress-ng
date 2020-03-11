@@ -358,7 +358,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				char *stack_top = clone_info->stack + stack_offset;
 
 				clone_info->pid = clone(clone_func,
-					align_stack(stack_top), flag, &clone_arg);
+					stress_align_stack(stack_top), flag, &clone_arg);
 			}
 			if (clone_info->pid == -1) {
 				/*

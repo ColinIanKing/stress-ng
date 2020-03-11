@@ -288,7 +288,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	 *  We need to clone and share the same VM address space
 	 *  as parent so we can perform the page fault handling
 	 */
-	pid = clone(stress_userfaultfd_clone, align_stack(stack_top),
+	pid = clone(stress_userfaultfd_clone, stress_align_stack(stack_top),
 		SIGCHLD | CLONE_FILES | CLONE_FS | CLONE_SIGHAND | CLONE_VM, &c);
 	if (pid < 0) {
 		pr_err("%s: fork failed, errno = %d (%s)\n",
