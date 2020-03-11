@@ -794,7 +794,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
 	register _type a, b;					\
 	int i;							\
 								\
-	STRESS_MWC_SEED();						\
+	STRESS_MWC_SEED();					\
 	a = stress_mwc32();					\
 	b = stress_mwc32();					\
 								\
@@ -999,7 +999,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(cons
 	_ftype flt_a = 0.18728L, flt_b = stress_mwc32(),	\
 		flt_c = stress_mwc32(), flt_d;			\
 								\
-	STRESS_MWC_SEED();						\
+	STRESS_MWC_SEED();					\
 	int_a = stress_mwc32();					\
 	int_b = stress_mwc32();					\
 								\
