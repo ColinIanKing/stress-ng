@@ -1345,7 +1345,6 @@ next:
 static void *stress_dev_thread(void *arg)
 {
 	static void *nowt = NULL;
-	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	const stress_pthread_args_t *pa = (stress_pthread_args_t *)arg;
 	const stress_args_t *args = pa->args;
 
@@ -1354,16 +1353,6 @@ static void *stress_dev_thread(void *arg)
 	 *  handle these
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
-
-	/*
-	 *  According to POSIX.1 a thread should have
-	 *  a distinct alternative signal stack.
-	 *  However, we block signals in this thread
-	 *  so this is probably just totally unncessary.
-	 */
-	(void)memset(stack, 0, sizeof(stack));
-	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
-		return &nowt;
 
 	while (keep_stressing_flag())
 		stress_dev_rw(args, -1);
