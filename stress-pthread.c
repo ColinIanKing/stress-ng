@@ -114,7 +114,6 @@ static bool keep_thread_running(void)
  */
 static void *stress_pthread_func(void *parg)
 {
-	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	static void *nowt = NULL;
 	int ret;
 	const pid_t tid = shim_gettid();
@@ -123,16 +122,6 @@ static void *stress_pthread_func(void *parg)
 	size_t len;
 #endif
 	const stress_args_t *args = ((stress_pthread_args_t *)parg)->args;
-
-	/*
-	 *  According to POSIX.1 a thread should have
-	 *  a distinct alternative signal stack.
-	 *  However, we block signals in this thread
-	 *  so this is probably just totally unncessary.
-	 */
-	(void)memset(stack, 0, sizeof(stack));
-	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
-		goto die;
 
 #if defined(HAVE_GETTID)
 	{
