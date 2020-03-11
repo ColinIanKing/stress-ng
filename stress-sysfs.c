@@ -367,7 +367,6 @@ drain:
 static void *stress_sys_rw_thread(void *ctxt_ptr)
 {
 	static void *nowt = NULL;
-	uint8_t stack[SIGSTKSZ + STACK_ALIGNMENT];
 	stress_ctxt_t *ctxt = (stress_ctxt_t *)ctxt_ptr;
 	const stress_args_t *args = ctxt->args;
 
@@ -376,16 +375,6 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	 *  handle these
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
-
-	/*
-	 *  According to POSIX.1 a thread should have
-	 *  a distinct alternative signal stack.
-	 *  However, we block signals in this thread
-	 *  so this is probably just totally unncessary.
-	 */
-	(void)memset(stack, 0, sizeof(stack));
-	if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
-		return &nowt;
 
 	while (keep_stressing())
 		stress_sys_rw(ctxt);
