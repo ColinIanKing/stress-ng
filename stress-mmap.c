@@ -100,6 +100,18 @@ static const int mmap_flags[] = {
 #if defined(MAP_INHERIT)
 	MAP_INHERIT,
 #endif
+/* FreeBSD */
+#if defined(MAP_NOCORE)
+	MAP_NOCORE,
+#endif
+/* FreeBSD */
+#if defined(MAP_NOSYNC)
+	MAP_NOSYNC,
+#endif
+/* FreeBSD */
+#if defined(MAP_PREFAULT_READ)
+	MAP_PREFAULT_READ,
+#endif
 	0
 };
 
