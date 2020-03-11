@@ -767,45 +767,45 @@ typedef unsigned long int __kernel_ulong_t;
 #define ABORT_FAILURES		(5)		/* Number of failures before we abort */
 
 /* debug output bitmasks */
-#define PR_ERROR		 0x00000000000001ULL 	/* Print errors */
-#define PR_INFO			 0x00000000000002ULL 	/* Print info */
-#define PR_DEBUG		 0x00000000000004ULL 	/* Print debug */
-#define PR_FAIL			 0x00000000000008ULL 	/* Print test failure message */
+#define PR_ERROR		 (0x00000000000001ULL) 	/* Print errors */
+#define PR_INFO			 (0x00000000000002ULL) 	/* Print info */
+#define PR_DEBUG		 (0x00000000000004ULL) 	/* Print debug */
+#define PR_FAIL			 (0x00000000000008ULL) 	/* Print test failure message */
 #define PR_ALL			 (PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
 
 /* Option bit masks */
-#define OPT_FLAGS_DRY_RUN	 0x00000000000010ULL	/* Don't actually run */
-#define OPT_FLAGS_METRICS	 0x00000000000020ULL	/* Dump metrics at end */
-#define OPT_FLAGS_RANDOM	 0x00000000000040ULL	/* Randomize */
-#define OPT_FLAGS_SET		 0x00000000000080ULL	/* Set if user specifies stress procs */
-#define OPT_FLAGS_KEEP_NAME	 0x00000000000100ULL	/* Keep stress names to stress-ng */
-#define OPT_FLAGS_METRICS_BRIEF	 0x00000000000200ULL	/* dump brief metrics */
-#define OPT_FLAGS_VERIFY	 0x00000000000400ULL	/* verify mode */
-#define OPT_FLAGS_MMAP_MADVISE	 0x00000000000800ULL	/* enable random madvise settings */
-#define OPT_FLAGS_MMAP_MINCORE	 0x00000000001000ULL	/* mincore force pages into mem */
-#define OPT_FLAGS_TIMES		 0x00000000002000ULL	/* user/system time summary */
-#define OPT_FLAGS_HDD_SYNC	 0x00000000004000ULL	/* HDD O_SYNC */
-#define OPT_FLAGS_HDD_DSYNC	 0x00000000008000ULL	/* HDD O_DYNC */
-#define OPT_FLAGS_HDD_DIRECT	 0x00000000010000ULL	/* HDD O_DIRECT */
-#define OPT_FLAGS_HDD_NOATIME	 0x00000000020000ULL	/* HDD O_NOATIME */
-#define OPT_FLAGS_MINIMIZE	 0x00000000040000ULL	/* Minimize */
-#define OPT_FLAGS_MAXIMIZE	 0x00000000080000ULL	/* Maximize */
-#define OPT_FLAGS_SYSLOG	 0x00000000100000ULL	/* log test progress to syslog */
-#define OPT_FLAGS_AGGRESSIVE	 0x00000000200000ULL	/* aggressive mode enabled */
-#define OPT_FLAGS_ALL		 0x00000000400000ULL	/* --all mode */
-#define OPT_FLAGS_SEQUENTIAL	 0x00000000800000ULL	/* --sequential mode */
-#define OPT_FLAGS_PERF_STATS	 0x00000001000000ULL	/* --perf stats mode */
-#define OPT_FLAGS_LOG_BRIEF	 0x00000002000000ULL	/* --log-brief */
-#define OPT_FLAGS_THERMAL_ZONES  0x00000004000000ULL	/* --tz thermal zones */
-#define OPT_FLAGS_SOCKET_NODELAY 0x00000008000000ULL	/* --sock-nodelay */
-#define OPT_FLAGS_IGNITE_CPU	 0x00000010000000ULL	/* --cpu-ignite */
-#define OPT_FLAGS_PATHOLOGICAL	 0x00000020000000ULL	/* --pathological */
-#define OPT_FLAGS_NO_RAND_SEED	 0x00000040000000ULL	/* --no-rand-seed */
-#define OPT_FLAGS_THRASH	 0x00000080000000ULL	/* --thrash */
-#define OPT_FLAGS_OOMABLE	 0x00000100000000ULL	/* --oomable */
-#define OPT_FLAGS_ABORT		 0x00000200000000ULL	/* --abort */
-#define OPT_FLAGS_CPU_ONLINE_ALL 0x00000400000000ULL	/* --cpu-online-all */
-#define OPT_FLAGS_TIMESTAMP	 0x00000800000000ULL	/* --timestamp */
+#define OPT_FLAGS_DRY_RUN	 (0x00000000000010ULL)	/* Don't actually run */
+#define OPT_FLAGS_METRICS	 (0x00000000000020ULL)	/* Dump metrics at end */
+#define OPT_FLAGS_RANDOM	 (0x00000000000040ULL)	/* Randomize */
+#define OPT_FLAGS_SET		 (0x00000000000080ULL)	/* Set if user specifies stress procs */
+#define OPT_FLAGS_KEEP_NAME	 (0x00000000000100ULL)	/* Keep stress names to stress-ng */
+#define OPT_FLAGS_METRICS_BRIEF	 (0x00000000000200ULL)	/* dump brief metrics */
+#define OPT_FLAGS_VERIFY	 (0x00000000000400ULL)	/* verify mode */
+#define OPT_FLAGS_MMAP_MADVISE	 (0x00000000000800ULL)	/* enable random madvise settings */
+#define OPT_FLAGS_MMAP_MINCORE	 (0x00000000001000ULL)	/* mincore force pages into mem */
+#define OPT_FLAGS_TIMES		 (0x00000000002000ULL)	/* user/system time summary */
+#define OPT_FLAGS_HDD_SYNC	 (0x00000000004000ULL)	/* HDD O_SYNC */
+#define OPT_FLAGS_HDD_DSYNC	 (0x00000000008000ULL)	/* HDD O_DYNC */
+#define OPT_FLAGS_HDD_DIRECT	 (0x00000000010000ULL)	/* HDD O_DIRECT */
+#define OPT_FLAGS_HDD_NOATIME	 (0x00000000020000ULL)	/* HDD O_NOATIME */
+#define OPT_FLAGS_MINIMIZE	 (0x00000000040000ULL)	/* Minimize */
+#define OPT_FLAGS_MAXIMIZE	 (0x00000000080000ULL)	/* Maximize */
+#define OPT_FLAGS_SYSLOG	 (0x00000000100000ULL)	/* log test progress to syslog */
+#define OPT_FLAGS_AGGRESSIVE	 (0x00000000200000ULL)	/* aggressive mode enabled */
+#define OPT_FLAGS_ALL		 (0x00000000400000ULL)	/* --all mode */
+#define OPT_FLAGS_SEQUENTIAL	 (0x00000000800000ULL)	/* --sequential mode */
+#define OPT_FLAGS_PERF_STATS	 (0x00000001000000ULL)	/* --perf stats mode */
+#define OPT_FLAGS_LOG_BRIEF	 (0x00000002000000ULL)	/* --log-brief */
+#define OPT_FLAGS_THERMAL_ZONES  (0x00000004000000ULL)	/* --tz thermal zones */
+#define OPT_FLAGS_SOCKET_NODELAY (0x00000008000000ULL)	/* --sock-nodelay */
+#define OPT_FLAGS_IGNITE_CPU	 (0x00000010000000ULL)	/* --cpu-ignite */
+#define OPT_FLAGS_PATHOLOGICAL	 (0x00000020000000ULL)	/* --pathological */
+#define OPT_FLAGS_NO_RAND_SEED	 (0x00000040000000ULL)	/* --no-rand-seed */
+#define OPT_FLAGS_THRASH	 (0x00000080000000ULL)	/* --thrash */
+#define OPT_FLAGS_OOMABLE	 (0x00000100000000ULL)	/* --oomable */
+#define OPT_FLAGS_ABORT		 (0x00000200000000ULL)	/* --abort */
+#define OPT_FLAGS_CPU_ONLINE_ALL (0x00000400000000ULL)	/* --cpu-online-all */
+#define OPT_FLAGS_TIMESTAMP	 (0x00000800000000ULL)	/* --timestamp */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -820,28 +820,28 @@ typedef unsigned long int __kernel_ulong_t;
 	 OPT_FLAGS_AGGRESSIVE |		\
 	 OPT_FLAGS_IGNITE_CPU)
 
-#define WARN_ONCE_NO_CACHE	0x00000001	/* No /sys/../cpu0/cache */
-#define WARN_ONCE_CACHE_DEFAULT	0x00000002	/* default cache size */
-#define WARN_ONCE_CACHE_NONE	0x00000004	/* no cache info */
-#define WARN_ONCE_CACHE_WAY	0x00000008	/* cache way too high */
-#define WARN_ONCE_CACHE_SIZE	0x00000010	/* cache size info */
-#define WARN_ONCE_CACHE_REDUCED	0x00000020	/* reduced cache */
+#define WARN_ONCE_NO_CACHE	(0x00000001)	/* No /sys/../cpu0/cache */
+#define WARN_ONCE_CACHE_DEFAULT	(0x00000002)	/* default cache size */
+#define WARN_ONCE_CACHE_NONE	(0x00000004)	/* no cache info */
+#define WARN_ONCE_CACHE_WAY	(0x00000008)	/* cache way too high */
+#define WARN_ONCE_CACHE_SIZE	(0x00000010)	/* cache size info */
+#define WARN_ONCE_CACHE_REDUCED	(0x00000020)	/* reduced cache */
 
 /* Stressor classes */
-#define CLASS_CPU		0x00000001	/* CPU only */
-#define CLASS_MEMORY		0x00000002	/* Memory thrashers */
-#define CLASS_CPU_CACHE		0x00000004	/* CPU cache */
-#define CLASS_IO		0x00000008	/* I/O read/writes etc */
-#define CLASS_NETWORK		0x00000010	/* Network, sockets, etc */
-#define CLASS_SCHEDULER		0x00000020	/* Scheduling */
-#define CLASS_VM		0x00000040	/* VM stress, big memory, swapping */
-#define CLASS_INTERRUPT		0x00000080	/* interrupt floods */
-#define CLASS_OS		0x00000100	/* generic OS tests */
-#define CLASS_PIPE_IO		0x00000200	/* pipe I/O */
-#define CLASS_FILESYSTEM	0x00000400	/* file system */
-#define CLASS_DEV		0x00000800	/* device (null, zero, etc) */
-#define CLASS_SECURITY		0x00001000	/* security APIs */
-#define CLASS_PATHOLOGICAL	0x00002000	/* can hang a machine */
+#define CLASS_CPU		(0x00000001)	/* CPU only */
+#define CLASS_MEMORY		(0x00000002)	/* Memory thrashers */
+#define CLASS_CPU_CACHE		(0x00000004)	/* CPU cache */
+#define CLASS_IO		(0x00000008)	/* I/O read/writes etc */
+#define CLASS_NETWORK		(0x00000010)	/* Network, sockets, etc */
+#define CLASS_SCHEDULER		(0x00000020)	/* Scheduling */
+#define CLASS_VM		(0x00000040)	/* VM stress, big memory, swapping */
+#define CLASS_INTERRUPT		(0x00000080)	/* interrupt floods */
+#define CLASS_OS		(0x00000100)	/* generic OS tests */
+#define CLASS_PIPE_IO		(0x00000200)	/* pipe I/O */
+#define CLASS_FILESYSTEM	(0x00000400)	/* file system */
+#define CLASS_DEV		(0x00000800)	/* device (null, zero, etc) */
+#define CLASS_SECURITY		(0x00001000)	/* security APIs */
+#define CLASS_PATHOLOGICAL	(0x00002000)	/* can hang a machine */
 
 
 /* Help information for options */
@@ -919,9 +919,9 @@ typedef union {
 } stress_put_val_t;
 
 /* Network domains flags */
-#define DOMAIN_INET		0x00000001	/* AF_INET */
-#define DOMAIN_INET6		0x00000002	/* AF_INET6 */
-#define DOMAIN_UNIX		0x00000004	/* AF_UNIX */
+#define DOMAIN_INET		(0x00000001)	/* AF_INET */
+#define DOMAIN_INET6		(0x00000002)	/* AF_INET6 */
+#define DOMAIN_UNIX		(0x00000004)	/* AF_UNIX */
 
 #define DOMAIN_INET_ALL		(DOMAIN_INET | DOMAIN_INET6)
 #define DOMAIN_ALL		(DOMAIN_INET | DOMAIN_INET6 | DOMAIN_UNIX)
@@ -1213,9 +1213,9 @@ extern void pr_fail_dbg__(const stress_args_t *args, const char *msg);
 
 /* Maximum memory limits, 256TB for 64 bit is good enough for 2017 */
 #if UINTPTR_MAX == MAX_32
-#define MAX_MEM_LIMIT		MAX_32
+#define MAX_MEM_LIMIT		(MAX_32)
 #else
-#define MAX_MEM_LIMIT		MAX_48
+#define MAX_MEM_LIMIT		(MAX_48)
 #endif
 
 #define MAX_FILE_LIMIT		((1ULL << ((sizeof(off_t) * 8) - 1)) - 1)
@@ -3552,20 +3552,20 @@ struct shim_sched_attr {
 };
 
 /* shim'd STATX flags */
-#define SHIM_STATX_TYPE              0x00000001U
-#define SHIM_STATX_MODE              0x00000002U
-#define SHIM_STATX_NLINK             0x00000004U
-#define SHIM_STATX_UID               0x00000008U
-#define SHIM_STATX_GID               0x00000010U
-#define SHIM_STATX_ATIME             0x00000020U
-#define SHIM_STATX_MTIME             0x00000040U
-#define SHIM_STATX_CTIME             0x00000080U
-#define SHIM_STATX_INO               0x00000100U
-#define SHIM_STATX_SIZE              0x00000200U
-#define SHIM_STATX_BLOCKS            0x00000400U
-#define SHIM_STATX_BASIC_STATS       0x000007ffU
-#define SHIM_STATX_BTIME             0x00000800U
-#define SHIM_STATX_ALL               0x00000fffU
+#define SHIM_STATX_TYPE			(0x00000001U)
+#define SHIM_STATX_MODE			(0x00000002U)
+#define SHIM_STATX_NLINK		(0x00000004U)
+#define SHIM_STATX_UID			(0x00000008U)
+#define SHIM_STATX_GID			(0x00000010U)
+#define SHIM_STATX_ATIME		(0x00000020U)
+#define SHIM_STATX_MTIME		(0x00000040U)
+#define SHIM_STATX_CTIME		(0x00000080U)
+#define SHIM_STATX_INO			(0x00000100U)
+#define SHIM_STATX_SIZE			(0x00000200U)
+#define SHIM_STATX_BLOCKS		(0x00000400U)
+#define SHIM_STATX_BASIC_STATS		(0x000007ffU)
+#define SHIM_STATX_BTIME		(0x00000800U)
+#define SHIM_STATX_ALL			(0x00000fffU)
 
 struct shim_statx_timestamp {
         int64_t		tv_sec;
