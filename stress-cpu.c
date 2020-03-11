@@ -385,7 +385,7 @@ static void HOT OPTIMIZE3 stress_cpu_rand(const char *name)
 	uint32_t i_sum = 0;
 	const uint32_t sum = 0xc253698c;
 
-	MWC_SEED();
+	STRESS_MWC_SEED();
 	for (i = 0; i < 16384; i++)
 		i_sum += stress_mwc32();
 
@@ -614,7 +614,7 @@ static void stress_cpu_hash_generic(
 	size_t i;
 	uint32_t i_sum = 0;
 
-	MWC_SEED();
+	STRESS_MWC_SEED();
 	random_buffer((uint8_t *)buffer, sizeof(buffer));
 	/* Make it ASCII range ' '..'_' */
 	for (i = 0; i < sizeof(buffer); i++)
@@ -640,7 +640,7 @@ static void stress_cpu_jenkin(const char *name)
 	uint32_t i_sum = 0;
 	const uint32_t sum = 0x96673680;
 
-	MWC_SEED();
+	STRESS_MWC_SEED();
 	random_buffer(buffer, sizeof(buffer));
 	for (i = 0; i < sizeof(buffer); i++)
 		i_sum += stress_hash_jenkin(buffer, sizeof(buffer));
@@ -794,7 +794,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
 	register _type a, b;					\
 	int i;							\
 								\
-	MWC_SEED();						\
+	STRESS_MWC_SEED();						\
 	a = stress_mwc32();					\
 	b = stress_mwc32();					\
 								\
@@ -999,7 +999,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(cons
 	_ftype flt_a = 0.18728L, flt_b = stress_mwc32(),	\
 		flt_c = stress_mwc32(), flt_d;			\
 								\
-	MWC_SEED();						\
+	STRESS_MWC_SEED();						\
 	int_a = stress_mwc32();					\
 	int_b = stress_mwc32();					\
 								\

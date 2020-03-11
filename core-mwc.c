@@ -25,8 +25,8 @@
 #include "stress-ng.h"
 
 static stress_mwc_t __mwc = {
-	MWC_SEED_W,
-	MWC_SEED_Z
+	STRESS_MWC_SEED_W,
+	STRESS_MWC_SEED_Z
 };
 
 static uint8_t mwc_n1, mwc_n8, mwc_n16;
@@ -76,8 +76,8 @@ static uint64_t stress_aux_random_seed(void)
 void stress_mwc_reseed(void)
 {
 	if (g_opt_flags & OPT_FLAGS_NO_RAND_SEED) {
-		__mwc.w = MWC_SEED_W;
-		__mwc.z = MWC_SEED_Z;
+		__mwc.w = STRESS_MWC_SEED_W;
+		__mwc.z = STRESS_MWC_SEED_Z;
 	} else {
 		struct timeval tv;
 		struct rusage r;

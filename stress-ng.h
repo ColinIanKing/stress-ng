@@ -1554,9 +1554,9 @@ extern void pr_fail_dbg__(const stress_args_t *args, const char *msg);
 #define SIEVE_SIZE 		(10000000)
 
 /* MWC random number initial seed */
-#define MWC_SEED_Z		(362436069UL)
-#define MWC_SEED_W		(521288629UL)
-#define MWC_SEED()		stress_mwc_seed(MWC_SEED_W, MWC_SEED_Z)
+#define STRESS_MWC_SEED_Z	(362436069UL)
+#define STRESS_MWC_SEED_W	(521288629UL)
+#define STRESS_MWC_SEED()	stress_mwc_seed(STRESS_MWC_SEED_W, STRESS_MWC_SEED_Z)
 
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
 
