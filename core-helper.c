@@ -923,7 +923,7 @@ int stress_cache_alloc(const char *name)
 #else
 	cpu_caches = stress_get_all_cpu_cache_details();
 	if (!cpu_caches) {
-		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
+		if (stress_warn_once(WARN_ONCE_CACHE_DEFAULT))
 			pr_dbg("%s: using defaults, can't determine cache details from sysfs\n", name);
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
@@ -932,7 +932,7 @@ int stress_cache_alloc(const char *name)
 	max_cache_level = stress_get_max_cache_level(cpu_caches);
 
 	if (g_shared->mem_cache_level > max_cache_level) {
-		if (warn_once(WARN_ONCE_CACHE_REDUCED))
+		if (stress_warn_once(WARN_ONCE_CACHE_REDUCED))
 			pr_dbg("%s: reducing cache level from L%d (too high) "
 				"to L%d\n", name,
 				g_shared->mem_cache_level, max_cache_level);
@@ -941,7 +941,7 @@ int stress_cache_alloc(const char *name)
 
 	cache = stress_get_cpu_cache(cpu_caches, g_shared->mem_cache_level);
 	if (!cache) {
-		if (warn_once(WARN_ONCE_CACHE_NONE))
+		if (stress_warn_once(WARN_ONCE_CACHE_NONE))
 			pr_dbg("%s: using built-in defaults as no suitable "
 				"cache found\n", name);
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
@@ -952,7 +952,7 @@ int stress_cache_alloc(const char *name)
 		uint64_t way_size;
 
 		if (g_shared->mem_cache_ways > cache->ways) {
-			if (warn_once(WARN_ONCE_CACHE_WAY))
+			if (stress_warn_once(WARN_ONCE_CACHE_WAY))
 				pr_inf("%s: cache way value too high - "
 					"defaulting to %d (the maximum)\n",
 					name, cache->ways);
@@ -969,7 +969,7 @@ int stress_cache_alloc(const char *name)
 	}
 
 	if (!g_shared->mem_cache_size) {
-		if (warn_once(WARN_ONCE_CACHE_DEFAULT))
+		if (stress_warn_once(WARN_ONCE_CACHE_DEFAULT))
 			pr_dbg("%s: using built-in defaults as "
 				"unable to determine cache size\n", name);
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
@@ -983,7 +983,7 @@ init_done:
 			name);
 		return -1;
 	}
-	if (warn_once(WARN_ONCE_CACHE_SIZE))
+	if (stress_warn_once(WARN_ONCE_CACHE_SIZE))
 		pr_dbg("%s: default cache size: %" PRIu64 "K\n",
 			name, g_shared->mem_cache_size / 1024);
 

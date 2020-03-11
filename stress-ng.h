@@ -3423,7 +3423,7 @@ static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top
 /*
  *  Check if flag is set, and set flag
  */
-static inline WARN_UNUSED uint32_t warn_once(const uint32_t flag)
+static inline WARN_UNUSED uint32_t stress_warn_once(const uint32_t flag)
 {
 	uint32_t tmp;
 #if defined(HAVE_LIB_PTHREAD)

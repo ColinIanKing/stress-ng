@@ -355,7 +355,7 @@ static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 			cpu->cache_count++;
 	}
 	if (!cpu->cache_count) {
-		if (warn_once(WARN_ONCE_NO_CACHE))
+		if (stress_warn_once(WARN_ONCE_NO_CACHE))
 			pr_err("no CPU caches found\n");
 		goto err;
 	}
