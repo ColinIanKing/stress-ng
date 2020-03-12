@@ -73,12 +73,12 @@ static const int limits[] = {
 };
 
 /*
- *  set_max_limits()
+ *  stress_set_max_limits()
  *	push rlimits to maximum values allowed
  *	so we can stress a system to the maximum,
  *	we ignore any rlimit errors.
  */
-void set_max_limits(void)
+void stress_set_max_limits(void)
 {
 	size_t i;
 

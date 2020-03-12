@@ -1675,7 +1675,7 @@ again:
 					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
 						stress_munge_underscore(g_proc_current->stressor->name));
 					stress_set_oom_adjustment(name, false);
-					set_max_limits();
+					stress_set_max_limits();
 					stress_set_iopriority(ionice_class, ionice_level);
 					stress_set_proc_name(name);
 					(void)umask(0077);
