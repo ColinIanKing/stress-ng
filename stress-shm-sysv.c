@@ -513,7 +513,7 @@ fork_again:
 			if (WIFSIGNALED(status)) {
 				if ((WTERMSIG(status) == SIGKILL) ||
 				    (WTERMSIG(status) == SIGBUS)) {
-					log_system_mem_info();
+					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM killer, "
 						"restarting again (instance %d)\n",
 						args->name, args->instance);

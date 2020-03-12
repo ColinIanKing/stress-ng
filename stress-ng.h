@@ -3330,7 +3330,7 @@ extern WARN_UNUSED int32_t  stress_get_opt_ionice_class(const char *const str);
 
 /* Misc helper funcs */
 extern void stress_unmap_shared(void);
-extern void log_system_mem_info(void);
+extern void stress_log_system_mem_info(void);
 extern WARN_UNUSED char *stress_munge_underscore(const char *str);
 extern size_t stress_get_pagesize(void);
 extern WARN_UNUSED int32_t stress_get_processors_online(void);

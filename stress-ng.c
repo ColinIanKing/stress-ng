@@ -1976,10 +1976,10 @@ static void log_args(int argc, char **argv)
 }
 
 /*
- *  log_system_mem_info()
+ *  stress_log_system_mem_info()
  *	dump system memory info
  */
-void log_system_mem_info(void)
+void stress_log_system_mem_info(void)
 {
 #if defined(HAVE_SYS_SYSINFO_H) && \
     defined(HAVE_SYSINFO) && \
@@ -2803,7 +2803,7 @@ int main(int argc, char **argv, char **envp)
 	shim_openlog("stress-ng", 0, LOG_USER);
 	log_args(argc, argv);
 	log_system_info();
-	log_system_mem_info();
+	stress_log_system_mem_info();
 
 	pr_dbg("%" PRId32 " processor%s online, %" PRId32
 		" processor%s configured\n",

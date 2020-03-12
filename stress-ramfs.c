@@ -378,7 +378,7 @@ again:
 					args->instance);
 				/* If we got killed by OOM killer, re-start */
 				if (WTERMSIG(status) == SIGKILL) {
-					log_system_mem_info();
+					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM killer, "
 						"restarting again (instance %d)\n",
 						args->name, args->instance);
