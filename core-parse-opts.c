@@ -82,10 +82,10 @@ void stress_check_range_bytes(
 }
 
 /*
- *  ensure_numeric()
+ *  stress_ensure_numeric()
  *	ensure just numeric values
  */
-static void ensure_numeric(const char *const str)
+static void stress_ensure_numeric(const char *const str)
 {
 	const char *ptr = str;
 
@@ -105,10 +105,10 @@ static void ensure_numeric(const char *const str)
 
 
 /*
- *  ensure_positive()
+ *  stress_ensure_positive()
  * 	ensure string contains just a +ve value
  */
-static void ensure_positive(const char *const str)
+static void stress_ensure_positive(const char *const str)
 {
 	const char *ptr;
 	bool negative = false;
@@ -137,8 +137,8 @@ uint32_t get_uint32(const char *const str)
 {
 	uint64_t val;
 
-	ensure_positive(str);
-	ensure_numeric(str);
+	stress_ensure_positive(str);
+	stress_ensure_numeric(str);
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
@@ -159,7 +159,7 @@ int32_t get_int32(const char *const str)
 {
 	int64_t val;
 
-	ensure_numeric(str);
+	stress_ensure_numeric(str);
 	if (sscanf(str, "%" SCNd64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
@@ -185,8 +185,8 @@ uint64_t get_uint64(const char *const str)
 {
 	uint64_t val;
 
-	ensure_positive(str);
-	ensure_numeric(str);
+	stress_ensure_positive(str);
+	stress_ensure_numeric(str);
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
@@ -208,7 +208,7 @@ uint64_t get_uint64_scale(
 	int ch;
 	int i;
 
-	ensure_positive(str);
+	stress_ensure_positive(str);
 	if (sscanf(str, "%" SCNu64, &val) != 1) {
 		(void)fprintf(stderr, "Invalid number %s\n", str);
 		longjmp(g_error_env, 1);
