@@ -40,12 +40,73 @@ static const stress_help_t help[] = {
 #define MAX_SYSCALL	(2048)		/* Guess */
 #endif
 
+#if defined(__linux__) &&       \
+    (defined(__x86_64__) || defined(__x86_64)) && \
+    defined(HAVE_CPUID_H) &&    \
+    defined(HAVE_CPUID) &&      \
+    NEED_GNUC(4,6,0)
+#define STRESS_EXERCISE_X86_SYSCALL
+#endif
+
 typedef struct hash_syscall {
 	struct hash_syscall *next;
 	long	number;
 } stress_hash_syscall_t;
 
 static stress_hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
+
+#if defined(STRESS_EXERCISE_X86_SYSCALL)
+static bool stress_x86syscall_available;
+
+static bool stress_check_x86syscall(void)
+{
+	uint32_t eax, ebx, ecx, edx;
+
+	/* Intel CPU? */
+	if (!stress_cpu_is_x86())
+		return false;
+	/* ..and supports syscall? */
+	__cpuid(0x80000001, eax, ebx, ecx, edx);
+	if (!(edx & (1ULL << 11)))
+		return false;
+        return true;
+}
+
+/*
+ *  x86_64_syscall6()
+ *      syscall 6 arg wrapper
+ */
+static inline long x86_64_syscall6(long number, long arg1, long arg2,
+				   long arg3, long arg4, long arg5,
+				   long arg6)
+{
+	long ret;
+	unsigned long _arg1 = arg1;
+	unsigned long _arg2 = arg2;
+	unsigned long _arg3 = arg3;
+	unsigned long _arg4 = arg4;
+	unsigned long _arg5 = arg5;
+	unsigned long _arg6 = arg6;
+
+	register long __arg1 asm ("rdi") = _arg1;
+	register long __arg2 asm ("rsi") = _arg2;
+	register long __arg3 asm ("rdx") = _arg3;
+	register long __arg4 asm ("r10") = _arg4;
+	register long __arg5 asm ("r8") = _arg5;
+	register long __arg6 asm ("r9") = _arg6;
+
+	asm volatile ("syscall\n\t"
+                        : "=a" (ret)
+                        : "0" (number), "r" (__arg1), "r" (__arg2), "r" (__arg3),
+			  "r" (__arg4), "r" (__arg5), "r" (__arg6)
+                        : "memory", "cc", "r11", "cx");
+        if (ret < 0) {
+                errno = ret;
+                ret = -1;
+        }
+        return ret;
+}
+#endif
 
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
@@ -54,7 +115,7 @@ static inline long syscall7(long number, long arg1, long arg2,
 			    long arg6, long arg7)
 {
 	int ret;
-	pid_t pid = getpid();
+	const pid_t pid = getpid();
 
 	ret = syscall(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 
@@ -65,6 +126,34 @@ static inline long syscall7(long number, long arg1, long arg2,
 	return ret;
 }
 STRESS_PRAGMA_POP
+
+static void exercise_syscall(
+	const stress_args_t *args,
+	long number, long arg1, long arg2,
+	long arg3, long arg4, long arg5,
+	long arg6, long arg7)
+{
+	int ret;
+	bool enosys = false;
+
+	if (!keep_stressing())
+		_exit(EXIT_SUCCESS);
+
+	ret = syscall7(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	if ((ret < 0) && (errno != ENOSYS))
+		enosys = true;
+
+#if defined(STRESS_EXERCISE_X86_SYSCALL)
+	if (stress_x86syscall_available) {
+		ret = x86_64_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
+		if ((ret < 0) && (errno != ENOSYS))
+			enosys = true;
+	}
+#endif
+
+	if (enosys)
+		_exit(errno);
+}
 
 static const int syscall_ignore[] = {
 #if defined(SYS_reboot)
@@ -3057,7 +3146,6 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 		_exit(EXIT_NO_RESOURCE);
 	} else if (pid == 0) {
 		struct itimerval it;
-		int ret;
 		size_t i;
 		unsigned long arg;
 		char buffer[1024];
@@ -3095,52 +3183,30 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 		/*
 		 *  Try various ENOSYS calls
 		 */
-		if (!keep_stressing())
-			_exit(EXIT_SUCCESS);
-		ret = syscall7(number, -1, -1, -1, -1, -1, -1, -1);
-		if ((ret < 0) && (errno != ENOSYS))
-			_exit(errno);
-
-		if (!keep_stressing())
-			_exit(EXIT_SUCCESS);
-		ret = syscall7(number, 0, 0, 0, 0, 0, 0, 0);
-		if ((ret < 0) && (errno != ENOSYS))
-			_exit(errno);
-
-		if (!keep_stressing())
-			_exit(EXIT_SUCCESS);
-		ret = syscall7(number, 1, 1, 1, 1, 1, 1, 1);
-		if ((ret < 0) && (errno != ENOSYS))
-			_exit(errno);
+		exercise_syscall(args, number, -1, -1, -1, -1, -1, -1, -1);
+		exercise_syscall(args, number, 0, 0, 0, 0, 0, 0, 0);
+		exercise_syscall(args, number, 1, 1, 1, 1, 1, 1, 1);
 
 		for (arg = 2; arg;) {
-			if (!keep_stressing())
-				_exit(EXIT_SUCCESS);
-			ret = syscall7(number, arg, arg, arg,
+			exercise_syscall(args, number, arg, arg, arg,
 				      arg, arg, arg, arg);
-			if ((ret < 0) && (errno != ENOSYS))
-				_exit(errno);
 			arg <<= 1;
-			ret = syscall7(number, arg - 1, arg - 1, arg - 1,
+			exercise_syscall(args, number, arg - 1, arg - 1, arg - 1,
 				      arg - 1, arg - 1, arg - 1, arg - 1);
-			if ((ret < 0) && (errno != ENOSYS))
-				_exit(errno);
 		}
 
-		if (!keep_stressing())
-			_exit(EXIT_SUCCESS);
-		ret = syscall7(number, stress_mwc64(), stress_mwc64(),
-			      stress_mwc64(), stress_mwc64(),
-			      stress_mwc64(), stress_mwc64(),
-			      stress_mwc64());
-		if ((ret < 0) && (errno != ENOSYS))
-			_exit(errno);
+		exercise_syscall(args, number,
+			stress_mwc64(), stress_mwc64(),
+			stress_mwc64(), stress_mwc64(),
+			stress_mwc64(), stress_mwc64(),
+			stress_mwc64());
 
-		ret = syscall7(number, (long)buffer, (long)buffer,
-			       (long)buffer, (long)buffer,
-			       (long)buffer, (long)buffer,
-			       (long)buffer);
-		_exit(ret < 0 ? errno : 0);
+		exercise_syscall(args, number,
+			(long)buffer, (long)buffer,
+			(long)buffer, (long)buffer,
+			(long)buffer, (long)buffer,
+			(long)buffer);
+		_exit(0);
 	} else {
 		int ret, status;
 
@@ -3170,6 +3236,10 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 static int stress_enosys(const stress_args_t *args)
 {
 	pid_t pid;
+
+#if defined(STRESS_EXERCISE_X86_SYSCALL)
+	stress_x86syscall_available = stress_check_x86syscall();
+#endif
 
 again:
 	if (!keep_stressing())
