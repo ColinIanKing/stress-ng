@@ -93,7 +93,7 @@ static const int mmap_flags[] = {
 	MAP_DENYWRITE,
 #endif
 /* OpenBSD */
-#if defined(MAP_HASSEMAPHORE)	
+#if defined(MAP_HASSEMAPHORE)
 	 MAP_HASSEMAPHORE,
 #endif
 /* OpenBSD */

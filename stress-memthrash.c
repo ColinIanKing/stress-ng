@@ -80,7 +80,7 @@ static inline HOT OPTIMIZE3 void stress_memthrash_random_chunk(
 		const size_t chunk = stress_mwc32() % chunks;
 		const size_t offset = chunk * chunk_size;
 		void *ptr = (void *)(((uint8_t *)mem) + offset);
-		
+
 #if defined(__GNUC__)
 		(void)__builtin_memset(ptr, stress_mwc8(), chunk_size);
 #else
