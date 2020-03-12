@@ -29,11 +29,11 @@ static const char *option = "taskset";
 #if defined(HAVE_AFFINITY)
 
 /*
- * check_cpu_affinity_range()
+ * stress_check_cpu_affinity_range()
  * @max_cpus: maximum cpus allowed, 0..N-1
  * @cpu: cpu number to check
  */
-static void check_cpu_affinity_range(
+static void stress_check_cpu_affinity_range(
 	const int32_t max_cpus,
 	const int32_t cpu)
 {
@@ -46,12 +46,12 @@ static void check_cpu_affinity_range(
 }
 
 /*
- * get_cpu()
+ * stress_parse_cpu()
  * @str: parse string containing decimal CPU number
  *
  * Returns: cpu number, or exits the program on invalid number in str
  */
-static int get_cpu(char *const str)
+static int stress_parse_cpu(char *const str)
 {
 	int val;
 
@@ -86,11 +86,11 @@ int stress_set_cpu_affinity(const char *arg)
 		int i, lo, hi;
 		char *tmpptr = strstr(token, "-");
 
-		hi = lo = get_cpu(token);
+		hi = lo = stress_parse_cpu(token);
 		if (tmpptr) {
 			tmpptr++;
 			if (*tmpptr)
-				hi = get_cpu(tmpptr);
+				hi = stress_parse_cpu(tmpptr);
 			else {
 				(void)fprintf(stderr, "%s: expecting number following "
 					"'-' in '%s'\n", option, token);
@@ -105,8 +105,8 @@ int stress_set_cpu_affinity(const char *arg)
 				_exit(EXIT_FAILURE);
 			}
 		}
-		check_cpu_affinity_range(max_cpus, lo);
-		check_cpu_affinity_range(max_cpus, hi);
+		stress_check_cpu_affinity_range(max_cpus, lo);
+		stress_check_cpu_affinity_range(max_cpus, hi);
 
 		for (i = lo; i <= hi; i++)
 			CPU_SET(i, &set);
