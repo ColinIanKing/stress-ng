@@ -62,7 +62,7 @@ static int stress_set_ramfs_size(const char *opt)
 	const uint64_t page_size = (uint64_t)stress_get_pagesize();
 	const uint64_t page_mask = ~(page_size - 1);
 
-        ramfs_size = get_uint64_byte(opt);
+        ramfs_size = stress_get_uint64_byte(opt);
         stress_check_range_bytes("ramfs-size", ramfs_size,
                 1 * MB, 1 * GB);
 	if (ramfs_size & (page_size - 1)) {

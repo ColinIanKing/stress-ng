@@ -40,7 +40,7 @@ static int stress_set_memfd_bytes(const char *opt)
 {
 	size_t memfd_bytes;
 
-	memfd_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	memfd_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("memfd-bytes", memfd_bytes,
 		MIN_MEMFD_BYTES, MAX_MEM_LIMIT);
 	return stress_set_setting("memfd-bytes", TYPE_ID_SIZE_T, &memfd_bytes);
@@ -54,7 +54,7 @@ static int stress_set_memfd_fds(const char *opt)
 {
 	uint32_t memfd_fds;
 
-	memfd_fds = (uint32_t)get_uint64(opt);
+	memfd_fds = (uint32_t)stress_get_uint64(opt);
 	stress_check_range("memfd-fds", memfd_fds,
 		MIN_MEMFD_FDS, MAX_MEMFD_FDS);
 	return stress_set_setting("memfd-fds", TYPE_ID_UINT32, &memfd_fds);

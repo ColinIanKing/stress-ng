@@ -43,7 +43,7 @@ static int stress_set_switch_freq(const char *opt)
 {
 	uint64_t switch_freq;
 
-	switch_freq = get_uint64(opt);
+	switch_freq = stress_get_uint64(opt);
 	stress_check_range("switch-freq", switch_freq, 0, NANO_SECS);
 	return stress_set_setting("switch-freq", TYPE_ID_UINT64, &switch_freq);
 }

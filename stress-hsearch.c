@@ -39,7 +39,7 @@ static int stress_set_hsearch_size(const char *opt)
 {
 	uint64_t hsearch_size;
 
-	hsearch_size = get_uint64(opt);
+	hsearch_size = stress_get_uint64(opt);
 	stress_check_range("hsearch-size", hsearch_size,
 		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
 	return stress_set_setting("hsearch-size", TYPE_ID_UINT64, &hsearch_size);

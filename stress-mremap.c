@@ -35,7 +35,7 @@ static int stress_set_mremap_bytes(const char *opt)
 {
 	size_t mremap_bytes;
 
-	mremap_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	mremap_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("mremap-bytes", mremap_bytes,
 		MIN_MREMAP_BYTES, MAX_MEM_LIMIT);
 	return stress_set_setting("mremap-bytes", TYPE_ID_SIZE_T, &mremap_bytes);

@@ -53,7 +53,7 @@ static int stress_set_userfaultfd_bytes(const char *opt)
 {
 	size_t userfaultfd_bytes;
 
-	userfaultfd_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	userfaultfd_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("userfaultfd-bytes", userfaultfd_bytes,
 		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
 	return stress_set_setting("userfaultfd-bytes", TYPE_ID_SIZE_T, &userfaultfd_bytes);

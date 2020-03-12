@@ -130,10 +130,10 @@ static void stress_ensure_positive(const char *const str)
 }
 
 /*
- *  get_uint32()
+ *  stress_get_uint32()
  *	string to uint32_t
  */
-uint32_t get_uint32(const char *const str)
+uint32_t stress_get_uint32(const char *const str)
 {
 	uint64_t val;
 
@@ -152,10 +152,10 @@ uint32_t get_uint32(const char *const str)
 }
 
 /*
- *  get_int32()
+ *  stress_get_int32()
  *	string to int32_t
  */
-int32_t get_int32(const char *const str)
+int32_t stress_get_int32(const char *const str)
 {
 	int64_t val;
 
@@ -178,10 +178,10 @@ int32_t get_int32(const char *const str)
 }
 
 /*
- *  get_uint64()
+ *  stress_get_uint64()
  *	string to uint64_t
  */
-uint64_t get_uint64(const char *const str)
+uint64_t stress_get_uint64(const char *const str)
 {
 	uint64_t val;
 
@@ -195,10 +195,10 @@ uint64_t get_uint64(const char *const str)
 }
 
 /*
- *  get_uint64_scale()
+ *  stress_get_uint64_scale()
  *	get a value and scale it by the given scale factor
  */
-uint64_t get_uint64_scale(
+uint64_t stress_get_uint64_scale(
 	const char *const str,
 	const stress_scale_t scales[],
 	const char *const msg)
@@ -235,10 +235,10 @@ uint64_t get_uint64_scale(
 }
 
 /*
- *  get_uint64_byte()
+ *  stress_get_uint64_byte()
  *	size in bytes, K bytes, M bytes or G bytes
  */
-uint64_t get_uint64_byte(const char *const str)
+uint64_t stress_get_uint64_byte(const char *const str)
 {
 	static const stress_scale_t scales[] = {
 		{ 'b', 	1ULL },		/* bytes */
@@ -251,14 +251,14 @@ uint64_t get_uint64_byte(const char *const str)
 		{ 0,    0 },
 	};
 
-	return get_uint64_scale(str, scales, "length");
+	return stress_get_uint64_scale(str, scales, "length");
 }
 
 /*
- *  get_uint64_percent()
+ *  stress_get_uint64_percent()
  *	get a value by whole number or by percentage
  */
-uint64_t get_uint64_percent(
+uint64_t stress_get_uint64_percent(
 	const char *const str,
 	const uint32_t instances,
 	const uint64_t max,
@@ -291,48 +291,48 @@ uint64_t get_uint64_percent(
 		}
 		return (uint64_t)((double)(max * val) / (100.0 * instances));
         }
-	return get_uint64_byte(str);
+	return stress_get_uint64_byte(str);
 }
 
 /*
- *  get_uint64_byte_memory()
+ *  stress_get_uint64_byte_memory()
  *	get memory size from string. If it contains %
  *	at the end, then covert it into the available
  *	physical memory scaled by that percentage divided
  *	by the number of stressor instances
  */
-uint64_t get_uint64_byte_memory(
+uint64_t stress_get_uint64_byte_memory(
 	const char *const str,
 	const uint32_t instances)
 {
 	const uint64_t phys_mem = stress_get_phys_mem_size();
 
-	return get_uint64_percent(str, instances, phys_mem,
+	return stress_get_uint64_percent(str, instances, phys_mem,
 		"Cannot determine physical memory size");
 }
 
 /*
- *  get_uint64_byte_filesystem()
+ *  stress_get_uint64_byte_filesystem()
  *	get file size from string. If it contains %
  *	at the end, then covert it into the available
  *	file system space scaled by that percentage divided
  *	by the number of stressor instances
  */
-uint64_t get_uint64_byte_filesystem(
+uint64_t stress_get_uint64_byte_filesystem(
 	const char *const str,
 	const uint32_t instances)
 {
 	const uint64_t bytes = stress_get_filesystem_size();
 
-	return get_uint64_percent(str, instances, bytes,
+	return stress_get_uint64_percent(str, instances, bytes,
 		"Cannot determine available space on file system");
 }
 
 /*
- *  get_uint64_time()
+ *  stress_get_uint64_time()
  *	time in seconds, minutes, hours, days or years
  */
-uint64_t get_uint64_time(const char *const str)
+uint64_t stress_get_uint64_time(const char *const str)
 {
 	static const stress_scale_t scales[] = {
 		{ 's', 	1ULL },			/* seconds */
@@ -343,5 +343,5 @@ uint64_t get_uint64_time(const char *const str)
 		{ 'y',  31556926ULL },		/* years (equinoctial) */
 	};
 
-	return get_uint64_scale(str, scales, "time");
+	return stress_get_uint64_scale(str, scales, "time");
 }

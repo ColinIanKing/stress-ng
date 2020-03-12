@@ -46,7 +46,7 @@ static int stress_set_sync_file_bytes(const char *opt)
 {
 	off_t sync_file_bytes;
 
-	sync_file_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
+	sync_file_bytes = (off_t)stress_get_uint64_byte_filesystem(opt, 1);
 	stress_check_range_bytes("sync_file-bytes", sync_file_bytes,
 		MIN_SYNC_FILE_BYTES, MAX_SYNC_FILE_BYTES);
 	return stress_set_setting("sync_file-bytes", TYPE_ID_OFF_T, &sync_file_bytes);

@@ -141,7 +141,7 @@ static int stress_set_hdd_bytes(const char *opt)
 {
 	uint64_t hdd_bytes;
 
-	hdd_bytes = get_uint64_byte_filesystem(opt, 1);
+	hdd_bytes = stress_get_uint64_byte_filesystem(opt, 1);
 	stress_check_range_bytes("hdd-bytes", hdd_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
 	return stress_set_setting("hdd-bytes", TYPE_ID_UINT64, &hdd_bytes);
@@ -151,7 +151,7 @@ static int stress_set_hdd_write_size(const char *opt)
 {
 	uint64_t hdd_write_size;
 
-	hdd_write_size = get_uint64_byte(opt);
+	hdd_write_size = stress_get_uint64_byte(opt);
 	stress_check_range_bytes("hdd-write-size", hdd_write_size,
 		MIN_HDD_WRITE_SIZE, MAX_HDD_WRITE_SIZE);
 	return stress_set_setting("hdd-write-size", TYPE_ID_UINT64, &hdd_write_size);

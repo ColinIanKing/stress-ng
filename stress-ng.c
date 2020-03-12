@@ -2408,7 +2408,7 @@ next_opt:
 				g_proc_current = pi;
 
 				g_opt_flags |= OPT_FLAGS_SET;
-				pi->num_procs = get_int32(optarg);
+				pi->num_procs = stress_get_int32(optarg);
 				stress_get_processors(&pi->num_procs);
 				stress_check_value(name, pi->num_procs);
 
@@ -2417,7 +2417,7 @@ next_opt:
 			if (stressors[i].op == (stress_op_t)c) {
 				uint64_t bogo_ops;
 
-				bogo_ops = get_uint64(optarg);
+				bogo_ops = stress_get_uint64(optarg);
 				stress_check_range(opt_name(c), bogo_ops,
 					MIN_OPS, MAX_OPS);
 				/* We don't need to set this, but it may be useful */
@@ -2451,12 +2451,12 @@ next_opt:
 		switch (c) {
 		case OPT_all:
 			g_opt_flags |= OPT_FLAGS_ALL;
-			g_opt_parallel = get_int32(optarg);
+			g_opt_parallel = stress_get_int32(optarg);
 			stress_get_processors(&g_opt_parallel);
 			stress_check_value("all", g_opt_parallel);
 			break;
 		case OPT_backoff:
-			i64 = (int64_t)get_uint64(optarg);
+			i64 = (int64_t)stress_get_uint64(optarg);
 			stress_set_setting_global("backoff", TYPE_ID_INT64, &i64);
 			break;
 		case OPT_cache_level:
@@ -2470,7 +2470,7 @@ next_opt:
 			stress_set_setting("cache-level", TYPE_ID_INT16, &i16);
 			break;
 		case OPT_cache_ways:
-			u32 = get_uint32(optarg);
+			u32 = stress_get_uint32(optarg);
 			stress_set_setting("cache-ways", TYPE_ID_UINT32, &u32);
 			break;
 		case OPT_class:
@@ -2495,7 +2495,7 @@ next_opt:
 			stress_set_setting("ionice-class", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_ionice_level:
-			i32 = get_int32(optarg);
+			i32 = stress_get_int32(optarg);
 			stress_set_setting("ionice-level", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_job:
@@ -2518,7 +2518,7 @@ next_opt:
 			break;
 		case OPT_random:
 			g_opt_flags |= OPT_FLAGS_RANDOM;
-			i32 = get_int32(optarg);
+			i32 = stress_get_int32(optarg);
 			stress_get_processors(&i32);
 			stress_check_value("random", i32);
 			stress_set_setting("random", TYPE_ID_INT32, &i32);
@@ -2528,12 +2528,12 @@ next_opt:
 			stress_set_setting_global("sched", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sched_prio:
-			i32 = get_int32(optarg);
+			i32 = stress_get_int32(optarg);
 			stress_set_setting_global("sched-prio", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sequential:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
-			g_opt_sequential = get_int32(optarg);
+			g_opt_sequential = stress_get_int32(optarg);
 			stress_get_processors(&g_opt_sequential);
 			stress_check_range("sequential", g_opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
@@ -2550,7 +2550,7 @@ next_opt:
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_timeout:
-			g_opt_timeout = get_uint64_time(optarg);
+			g_opt_timeout = stress_get_uint64_time(optarg);
 			break;
 		case OPT_timer_slack:
 			(void)stress_set_timer_slack_ns(optarg);

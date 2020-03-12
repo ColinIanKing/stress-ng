@@ -42,7 +42,7 @@ static int stress_set_shellsort_size(const char *opt)
 {
 	uint64_t shellsort_size;
 
-	shellsort_size = get_uint64(opt);
+	shellsort_size = stress_get_uint64(opt);
 	stress_check_range("shellsort-size", shellsort_size,
 		MIN_SHELLSORT_SIZE, MAX_SHELLSORT_SIZE);
 	return stress_set_setting("shellsort-size", TYPE_ID_UINT64, &shellsort_size);

@@ -53,7 +53,7 @@ static int stress_set_aio_requests(const char *opt)
 {
 	uint64_t aio_requests;
 
-	aio_requests = get_uint64(opt);
+	aio_requests = stress_get_uint64(opt);
 	stress_check_range("aio-requests", aio_requests,
 		MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
 	return stress_set_setting("aio-requests", TYPE_ID_UINT64, &aio_requests);

@@ -123,7 +123,7 @@ uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
 static int stress_set_cpu_load(const char *opt) {
 	int32_t cpu_load;
 
-	cpu_load = get_int32(opt);
+	cpu_load = stress_get_int32(opt);
 	stress_check_range("cpu-load", cpu_load, 0, 100);
 	return stress_set_setting("cpu-load", TYPE_ID_INT32, &cpu_load);
 }
@@ -138,7 +138,7 @@ static int stress_set_cpu_load_slice(const char *opt)
 {
 	int32_t cpu_load_slice;
 
-	cpu_load_slice = get_int32(opt);
+	cpu_load_slice = stress_get_int32(opt);
 	if ((cpu_load_slice < -5000) || (cpu_load_slice > 5000)) {
 		(void)fprintf(stderr, "cpu-load-slice must in the range -5000 to 5000.\n");
 		_exit(EXIT_FAILURE);

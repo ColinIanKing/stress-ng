@@ -3306,25 +3306,25 @@ extern void stress_set_proc_name(const char *name);
 extern int stress_mlock_region(const void *addr_start, const void *addr_end);
 
 /* Argument parsing and range checking */
-extern WARN_UNUSED uint64_t get_uint64(const char *const str);
-extern WARN_UNUSED uint64_t get_uint64_scale(const char *const str,
+extern WARN_UNUSED uint64_t stress_get_uint64(const char *const str);
+extern WARN_UNUSED uint64_t stress_get_uint64_scale(const char *const str,
 	const stress_scale_t scales[], const char *const msg);
-extern WARN_UNUSED uint64_t get_uint64_percent(const char *const str,
+extern WARN_UNUSED uint64_t stress_get_uint64_percent(const char *const str,
 	const uint32_t instances, const uint64_t max, const char *const errmsg);
-extern WARN_UNUSED uint64_t get_uint64_byte(const char *const str);
-extern WARN_UNUSED uint64_t get_uint64_byte_memory(const char *const str,
+extern WARN_UNUSED uint64_t stress_get_uint64_byte(const char *const str);
+extern WARN_UNUSED uint64_t stress_get_uint64_byte_memory(const char *const str,
 	const uint32_t instances);
-extern WARN_UNUSED uint64_t get_uint64_byte_filesystem(const char *const str,
+extern WARN_UNUSED uint64_t stress_get_uint64_byte_filesystem(const char *const str,
 	const uint32_t instances);
-extern WARN_UNUSED uint64_t get_uint64_time(const char *const str);
+extern WARN_UNUSED uint64_t stress_get_uint64_time(const char *const str);
 extern void stress_check_value(const char *const msg, const int val);
 extern void stress_check_range(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
 extern void stress_check_range_bytes(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
 extern WARN_UNUSED int stress_set_cpu_affinity(const char *arg);
-extern WARN_UNUSED uint32_t get_uint32(const char *const str);
-extern WARN_UNUSED int32_t  get_int32(const char *const str);
+extern WARN_UNUSED uint32_t stress_get_uint32(const char *const str);
+extern WARN_UNUSED int32_t  stress_get_int32(const char *const str);
 extern WARN_UNUSED int32_t  stress_get_opt_sched(const char *const str);
 extern WARN_UNUSED int32_t  stress_get_opt_ionice_class(const char *const str);
 

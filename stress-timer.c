@@ -53,7 +53,7 @@ static int stress_set_timer_freq(const char *opt)
 {
 	uint64_t timer_freq;
 
-	timer_freq = get_uint64(opt);
+	timer_freq = stress_get_uint64(opt);
 	stress_check_range("timer-freq", timer_freq,
 		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
 	return stress_set_setting("timer-freq", TYPE_ID_UINT64, &timer_freq);

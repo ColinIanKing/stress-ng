@@ -36,7 +36,7 @@ static int stress_set_copy_file_bytes(const char *opt)
 {
 	uint64_t copy_file_bytes;
 
-	copy_file_bytes = get_uint64_byte_filesystem(opt, 1);
+	copy_file_bytes = stress_get_uint64_byte_filesystem(opt, 1);
 	stress_check_range_bytes("copy-file-bytes", copy_file_bytes,
 		MIN_COPY_FILE_BYTES, MAX_COPY_FILE_BYTES);
 	return stress_set_setting("copy-file-bytes", TYPE_ID_UINT64, &copy_file_bytes);

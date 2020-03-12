@@ -37,7 +37,7 @@ static int stress_set_fiemap_bytes(const char *opt)
 {
 	uint64_t fiemap_bytes;
 
-	fiemap_bytes = get_uint64_byte_filesystem(opt, 1);
+	fiemap_bytes = stress_get_uint64_byte_filesystem(opt, 1);
 	stress_check_range_bytes("fiemap-bytes", fiemap_bytes,
 		MIN_FIEMAP_SIZE, MAX_FIEMAP_SIZE);
 	return stress_set_setting("fiemap-bytes", TYPE_ID_UINT64, &fiemap_bytes);

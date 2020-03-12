@@ -40,7 +40,7 @@ static int stress_set_dirdeep_dirs(const char *opt)
 {
 	uint32_t dirdeep_dirs;
 
-	dirdeep_dirs = get_uint32(opt);
+	dirdeep_dirs = stress_get_uint32(opt);
 
 	stress_check_range("dirdeep-dirs", dirdeep_dirs, 1, 10);
 	return stress_set_setting("dirdeep-dirs", TYPE_ID_UINT32, &dirdeep_dirs);
@@ -55,7 +55,7 @@ static int stress_set_dirdeep_inodes(const char *opt)
 	uint64_t inodes = stress_get_filesystem_available_inodes();
 	uint64_t dirdeep_inodes;
 
-	dirdeep_inodes = get_uint64_percent(opt, 1, inodes,
+	dirdeep_inodes = stress_get_uint64_percent(opt, 1, inodes,
 		"Cannot determine number of available free inodes");
 	return stress_set_setting("dirdeep-inodes", TYPE_ID_UINT64, &dirdeep_inodes);
 }

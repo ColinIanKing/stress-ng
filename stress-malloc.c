@@ -37,7 +37,7 @@ static int stress_set_malloc_bytes(const char *opt)
 {
 	size_t malloc_bytes;
 
-	malloc_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	malloc_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("malloc-bytes", malloc_bytes,
 		MIN_MALLOC_BYTES, MAX_MEM_LIMIT);
 	return stress_set_setting("malloc-bytes", TYPE_ID_SIZE_T, &malloc_bytes);
@@ -47,7 +47,7 @@ static int stress_set_malloc_max(const char *opt)
 {
 	size_t malloc_max;
 
-	malloc_max = (size_t)get_uint64_byte(opt);
+	malloc_max = (size_t)stress_get_uint64_byte(opt);
 	stress_check_range("malloc-max", malloc_max,
 		MIN_MALLOC_MAX, MAX_MALLOC_MAX);
 	return stress_set_setting("malloc-max", TYPE_ID_SIZE_T, &malloc_max);
@@ -57,7 +57,7 @@ static int stress_set_malloc_threshold(const char *opt)
 {
 	size_t malloc_threshold;
 
-	malloc_threshold = (size_t)get_uint64_byte(opt);
+	malloc_threshold = (size_t)stress_get_uint64_byte(opt);
 	stress_check_range("malloc-threshold", malloc_threshold,
 		MIN_MALLOC_THRESHOLD, MAX_MALLOC_THRESHOLD);
 	return stress_set_setting("malloc-threshold", TYPE_ID_SIZE_T, &malloc_threshold);

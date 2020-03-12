@@ -39,7 +39,7 @@ static int stress_set_lease_breakers(const char *opt)
 {
 	uint64_t lease_breakers;
 
-	lease_breakers = get_uint64(opt);
+	lease_breakers = stress_get_uint64(opt);
 	stress_check_range("lease-breakers", lease_breakers,
 		MIN_LEASE_BREAKERS, MAX_LEASE_BREAKERS);
 	return stress_set_setting("lease-breakers", TYPE_ID_UINT64, &lease_breakers);

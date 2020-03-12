@@ -39,7 +39,7 @@ static int stress_set_judy_size(const char *opt)
 {
 	uint64_t judy_size;
 
-	judy_size = get_uint64(opt);
+	judy_size = stress_get_uint64(opt);
 	stress_check_range("judy-size", judy_size,
 		MIN_JUDY_SIZE, MAX_JUDY_SIZE);
 	return stress_set_setting("judy-size", TYPE_ID_UINT64, &judy_size);

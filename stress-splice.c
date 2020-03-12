@@ -35,7 +35,7 @@ static int stress_set_splice_bytes(const char *opt)
 {
 	size_t splice_bytes;
 
-	splice_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	splice_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("splice-bytes", splice_bytes,
 		MIN_SPLICE_BYTES, MAX_MEM_LIMIT);
 	return stress_set_setting("splice-bytes", TYPE_ID_SIZE_T, &splice_bytes);

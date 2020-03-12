@@ -55,7 +55,7 @@ static int stress_set_dentries(const char *opt)
 {
 	uint64_t dentries;
 
-	dentries = get_uint64(opt);
+	dentries = stress_get_uint64(opt);
 	stress_check_range("dentries", dentries,
 		MIN_DENTRIES, MAX_DENTRIES);
 	return stress_set_setting("dentries", TYPE_ID_UINT64, &dentries);

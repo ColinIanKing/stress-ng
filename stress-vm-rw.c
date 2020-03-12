@@ -57,7 +57,7 @@ static int stress_set_vm_rw_bytes(const char *opt)
 {
 	size_t vm_rw_bytes;
 
-	vm_rw_bytes = (size_t)get_uint64_byte_memory(opt, 1);
+	vm_rw_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("vm-rw-bytes", vm_rw_bytes,
 		MIN_VM_RW_BYTES, MAX_MEM_LIMIT);
 	return stress_set_setting("vm-rw-bytes", TYPE_ID_SIZE_T, &vm_rw_bytes);

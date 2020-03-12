@@ -36,7 +36,7 @@ static int stress_set_seek_size(const char *opt)
 {
 	uint64_t seek_size;
 
-	seek_size = get_uint64_byte(opt);
+	seek_size = stress_get_uint64_byte(opt);
 	stress_check_range_bytes("seek-size", seek_size,
 		MIN_SEEK_SIZE, MAX_SEEK_SIZE);
 	return stress_set_setting("seek-size", TYPE_ID_UINT64, &seek_size);

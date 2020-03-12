@@ -132,7 +132,7 @@ static int stress_set_zombie_max(const char *opt)
 {
 	uint32_t zombie_max;
 
-	zombie_max = get_uint32(opt);
+	zombie_max = stress_get_uint32(opt);
 	stress_check_range("zombie-max", zombie_max,
 		MIN_ZOMBIES, MAX_ZOMBIES);
 	return stress_set_setting("zombie-max", TYPE_ID_INT32, &zombie_max);

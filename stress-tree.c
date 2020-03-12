@@ -86,7 +86,7 @@ static int stress_set_tree_size(const char *opt)
 {
 	uint64_t tree_size;
 
-	tree_size = get_uint64(opt);
+	tree_size = stress_get_uint64(opt);
 	stress_check_range("tree-size", tree_size,
 		MIN_TREE_SIZE, MAX_TREE_SIZE);
 	return stress_set_setting("tree-size", TYPE_ID_UINT64, &tree_size);
