@@ -60,7 +60,7 @@ do_stress --all 1
 
 DURATION=30
 do_stress --cpu 0 --taskset 0,2 --ignite-cpu
-do_stress --cpu 0 --taskset 1,2,3 
+do_stress --cpu 0 --taskset 1,2,3
 do_stress --cpu 0 --taskset 0,1,2 --thrash
 
 do_stress --cyclic 0 --cyclic-policy deadline
@@ -85,7 +85,7 @@ do_stress --epoll 0 --epoll-domain ipv4
 do_stress --epoll 0 --epoll-domain ipv6
 do_stress --epoll 0 --epoll-domain unix
 
-do_stress --eventfd 0 --eventfd-nonblock 
+do_stress --eventfd 0 --eventfd-nonblock
 
 do_stress --hdd 0 --hdd-opts direct,utimes
 do_stress --hdd 0 --hdd-opts dsync

@@ -190,7 +190,7 @@ static int stress_clock(const stress_args_t *args)
 		}
 #endif
 
-#if defined(HAVE_CLOCK_NANOSLEEP) 
+#if defined(HAVE_CLOCK_NANOSLEEP)
 		{
 			size_t i;
 			struct timespec t;
