@@ -39,7 +39,7 @@ static int stress_set_aio_linux_requests(const char *opt)
 	size_t aio_linux_requests;
 
 	aio_linux_requests = get_uint32(opt);
-	check_range("aiol-requests", aio_linux_requests,
+	stress_check_range("aiol-requests", aio_linux_requests,
 		MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS);
 	return stress_set_setting("aiol-requests", TYPE_ID_SIZE_T, &aio_linux_requests);
 }

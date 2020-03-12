@@ -52,7 +52,7 @@ static int stress_set_pty_max(const char *opt)
 	uint64_t pty_max;
 
 	pty_max = get_uint64(opt);
-	check_range("pty-max", pty_max,
+	stress_check_range("pty-max", pty_max,
 		MIN_PTYS, MAX_PTYS);
 	return stress_set_setting("pty-max", TYPE_ID_UINT64, &pty_max);
 }

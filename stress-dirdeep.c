@@ -42,7 +42,7 @@ static int stress_set_dirdeep_dirs(const char *opt)
 
 	dirdeep_dirs = get_uint32(opt);
 
-	check_range("dirdeep-dirs", dirdeep_dirs, 1, 10);
+	stress_check_range("dirdeep-dirs", dirdeep_dirs, 1, 10);
 	return stress_set_setting("dirdeep-dirs", TYPE_ID_UINT32, &dirdeep_dirs);
 }
 

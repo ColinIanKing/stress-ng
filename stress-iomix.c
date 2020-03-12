@@ -38,7 +38,7 @@ static int stress_set_iomix_bytes(const char *opt)
 	off_t iomix_bytes;
 
 	iomix_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
-	check_range_bytes("iomix-bytes", iomix_bytes,
+	stress_check_range_bytes("iomix-bytes", iomix_bytes,
 		MIN_IOMIX_BYTES, MAX_IOMIX_BYTES);
 	return stress_set_setting("iomix-bytes", TYPE_ID_OFF_T, &iomix_bytes);
 }

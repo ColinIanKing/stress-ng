@@ -40,7 +40,7 @@ static int stress_set_bigheap_growth(const char *opt)
 	uint64_t bigheap_growth;
 
 	bigheap_growth = get_uint64_byte(opt);
-	check_range_bytes("bigheap-growth", bigheap_growth,
+	stress_check_range_bytes("bigheap-growth", bigheap_growth,
 		MIN_BIGHEAP_GROWTH, MAX_BIGHEAP_GROWTH);
 	return stress_set_setting("bigheap-growth", TYPE_ID_UINT64, &bigheap_growth);
 }

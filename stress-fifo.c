@@ -40,7 +40,7 @@ static int stress_set_fifo_readers(const char *opt)
 	uint64_t fifo_readers;
 
 	fifo_readers = get_uint64(opt);
-	check_range("fifo-readers", fifo_readers,
+	stress_check_range("fifo-readers", fifo_readers,
 		MIN_FIFO_READERS, MAX_FIFO_READERS);
 	return stress_set_setting("fifo-readers", TYPE_ID_UINT64, &fifo_readers);
 }

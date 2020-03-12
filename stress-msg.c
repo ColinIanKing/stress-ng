@@ -35,7 +35,7 @@ static int stress_set_msg_types(const char *opt) {
         int32_t msg_types;
 
         msg_types = get_int32(opt);
-        check_range("msg-types", msg_types, 0, 100);
+        stress_check_range("msg-types", msg_types, 0, 100);
         return stress_set_setting("msg-types", TYPE_ID_INT32, &msg_types);
 }
 

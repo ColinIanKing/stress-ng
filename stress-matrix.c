@@ -58,7 +58,7 @@ static int stress_set_matrix_size(const char *opt)
 	size_t matrix_size;
 
 	matrix_size = get_uint64(opt);
-	check_range("matrix-size", matrix_size,
+	stress_check_range("matrix-size", matrix_size,
 		MIN_MATRIX_SIZE, MAX_MATRIX_SIZE);
 	return stress_set_setting("matrix-size", TYPE_ID_SIZE_T, &matrix_size);
 }

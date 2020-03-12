@@ -25,10 +25,10 @@
 #include "stress-ng.h"
 
 /*
- *  check_value()
+ *  stress_check_value()
  *	sanity check number of workers
  */
-void check_value(
+void stress_check_value(
 	const char *const msg,
 	const int val)
 {
@@ -41,10 +41,10 @@ void check_value(
 
 
 /*
- *  check_range()
+ *  stress_check_range()
  *	Sanity check val against a lo - hi range
  */
-void check_range(
+void stress_check_range(
 	const char *const opt,
 	const uint64_t val,
 	const uint64_t lo,
@@ -59,10 +59,10 @@ void check_range(
 }
 
 /*
- *  check_range()
+ *  stress_check_range()
  *	Sanity check val against a lo - hi range
  */
-void check_range_bytes(
+void stress_check_range_bytes(
 	const char *const opt,
 	const uint64_t val,
 	const uint64_t lo,

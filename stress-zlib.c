@@ -738,7 +738,7 @@ static int stress_set_zlib_level(const char *opt)
         uint32_t zlib_level;
 
         zlib_level = get_uint32(opt);
-        check_range("zlib-level", zlib_level, 0, Z_BEST_COMPRESSION);
+        stress_check_range("zlib-level", zlib_level, 0, Z_BEST_COMPRESSION);
         return stress_set_setting("zlib-level", TYPE_ID_UINT32, &zlib_level);
 }
 

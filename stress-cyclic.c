@@ -85,7 +85,7 @@ static int stress_set_cyclic_sleep(const char *opt)
 	uint64_t cyclic_sleep;
 
 	cyclic_sleep = get_uint64(opt);
-        check_range("cyclic-sleep", cyclic_sleep,
+        stress_check_range("cyclic-sleep", cyclic_sleep,
                 1, STRESS_NANOSEC);
         return stress_set_setting("cyclic-sleep", TYPE_ID_UINT64, &cyclic_sleep);
 }
@@ -113,7 +113,7 @@ static int stress_set_cyclic_prio(const char *opt)
 	int32_t cyclic_prio;
 
 	cyclic_prio = get_int32(opt);
-        check_range("cyclic-prio", cyclic_prio, 1, 100);
+        stress_check_range("cyclic-prio", cyclic_prio, 1, 100);
         return stress_set_setting("cyclic-prio", TYPE_ID_INT32, &cyclic_prio);
 }
 
@@ -122,7 +122,7 @@ static int stress_set_cyclic_dist(const char *opt)
 	uint64_t cyclic_dist;
 
 	cyclic_dist = get_uint64(opt);
-        check_range("cyclic-dist", cyclic_dist, 1, 10000000);
+        stress_check_range("cyclic-dist", cyclic_dist, 1, 10000000);
         return stress_set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
 }
 

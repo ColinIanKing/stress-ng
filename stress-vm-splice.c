@@ -36,7 +36,7 @@ static int stress_set_vm_splice_bytes(const char *opt)
 	size_t vm_splice_bytes;
 
 	vm_splice_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("vm-splice-bytes", vm_splice_bytes,
+	stress_check_range_bytes("vm-splice-bytes", vm_splice_bytes,
 		MIN_VM_SPLICE_BYTES, MAX_MEM_LIMIT);
 	return stress_set_setting("vm-splice-bytes", TYPE_ID_SIZE_T, &vm_splice_bytes);
 }

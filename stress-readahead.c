@@ -40,7 +40,7 @@ static int stress_set_readahead_bytes(const char *opt)
 	uint64_t readahead_bytes;
 
 	readahead_bytes = get_uint64_byte_filesystem(opt, 1);
-	check_range_bytes("readahead-bytes", readahead_bytes,
+	stress_check_range_bytes("readahead-bytes", readahead_bytes,
 		MIN_HDD_BYTES, MAX_HDD_BYTES);
 	return stress_set_setting("readahead-bytes", TYPE_ID_UINT64, &readahead_bytes);
 }

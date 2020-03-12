@@ -36,7 +36,7 @@ static int stress_set_fallocate_bytes(const char *opt)
 	off_t fallocate_bytes;
 
 	fallocate_bytes = (off_t)get_uint64_byte_filesystem(opt, 1);
-	check_range_bytes("fallocate-bytes", fallocate_bytes,
+	stress_check_range_bytes("fallocate-bytes", fallocate_bytes,
 		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
 	return stress_set_setting("fallocate-bytes", TYPE_ID_OFF_T, &fallocate_bytes);
 }

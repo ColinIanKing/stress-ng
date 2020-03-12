@@ -62,7 +62,7 @@ static int stress_set_radixsort_size(const char *opt)
 	uint64_t radixsort_size;
 
 	radixsort_size = get_uint64(opt);
-	check_range("radixsort-size", radixsort_size,
+	stress_check_range("radixsort-size", radixsort_size,
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
 	return stress_set_setting("radixsort-size", TYPE_ID_UINT64, &radixsort_size);
 }

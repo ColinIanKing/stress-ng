@@ -37,7 +37,7 @@ static int stress_set_mq_size(const char *opt)
 	int mq_size;
 
 	sz = get_uint64(opt);
-	check_range("mq-size", sz, MIN_MQ_SIZE, MAX_MQ_SIZE);
+	stress_check_range("mq-size", sz, MIN_MQ_SIZE, MAX_MQ_SIZE);
 	mq_size = (int)sz;
 	return stress_set_setting("mq-size", TYPE_ID_INT, &mq_size);
 }

@@ -45,7 +45,7 @@ static int stress_set_itimer_freq(const char *opt)
 	uint64_t itimer_freq;
 
 	itimer_freq = get_uint64(opt);
-	check_range("itimer-freq", itimer_freq,
+	stress_check_range("itimer-freq", itimer_freq,
 		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
 	return stress_set_setting("itimer-freq", TYPE_ID_UINT64, &itimer_freq);
 }

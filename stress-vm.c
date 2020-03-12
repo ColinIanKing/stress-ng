@@ -125,7 +125,7 @@ static int stress_set_vm_hang(const char *opt)
 	uint64_t vm_hang;
 
 	vm_hang = get_uint64_time(opt);
-	check_range("vm-hang", vm_hang,
+	stress_check_range("vm-hang", vm_hang,
 		MIN_VM_HANG, MAX_VM_HANG);
 	return stress_set_setting("vm-hang", TYPE_ID_UINT64, &vm_hang);
 }
@@ -135,7 +135,7 @@ static int stress_set_vm_bytes(const char *opt)
 	size_t vm_bytes;
 
 	vm_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("vm-bytes", vm_bytes,
+	stress_check_range_bytes("vm-bytes", vm_bytes,
 		MIN_VM_BYTES, MAX_MEM_LIMIT);
 	return stress_set_setting("vm-bytes", TYPE_ID_SIZE_T, &vm_bytes);
 }

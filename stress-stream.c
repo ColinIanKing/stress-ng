@@ -72,7 +72,7 @@ static int stress_set_stream_L3_size(const char *opt)
 	uint64_t stream_L3_size;
 
 	stream_L3_size = get_uint64_byte(opt);
-	check_range_bytes("stream-L3-size", stream_L3_size,
+	stress_check_range_bytes("stream-L3-size", stream_L3_size,
 		MIN_STREAM_L3_SIZE, MAX_STREAM_L3_SIZE);
 	return stress_set_setting("stream-L3-size", TYPE_ID_UINT64, &stream_L3_size);
 }
@@ -100,7 +100,7 @@ static int stress_set_stream_index(const char *opt)
 	uint32_t stream_index;
 
 	stream_index = get_int32(opt);
-	check_range("stream-index", stream_index, 0, 3);
+	stress_check_range("stream-index", stream_index, 0, 3);
 	return stress_set_setting("stream-index", TYPE_ID_UINT32, &stream_index);
 }
 

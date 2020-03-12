@@ -59,7 +59,7 @@ static int stress_set_matrix_3d_size(const char *opt)
 	size_t matrix_3d_size;
 
 	matrix_3d_size = get_uint64(opt);
-	check_range("matrix-3d-size", matrix_3d_size,
+	stress_check_range("matrix-3d-size", matrix_3d_size,
 		MIN_MATRIX3D_SIZE, MAX_MATRIX3D_SIZE);
 	return stress_set_setting("matrix-3d-size", TYPE_ID_SIZE_T, &matrix_3d_size);
 }

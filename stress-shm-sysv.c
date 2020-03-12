@@ -78,7 +78,7 @@ static int stress_set_shm_sysv_bytes(const char *opt)
 	size_t shm_sysv_bytes;
 
 	shm_sysv_bytes = (size_t)get_uint64_byte(opt);
-	check_range_bytes("shm-sysv-bytes", shm_sysv_bytes,
+	stress_check_range_bytes("shm-sysv-bytes", shm_sysv_bytes,
 		MIN_SHM_SYSV_BYTES, MAX_MEM_LIMIT);
 	return stress_set_setting("shm-sysv-bytes", TYPE_ID_SIZE_T, &shm_sysv_bytes);
 }
@@ -88,7 +88,7 @@ static int stress_set_shm_sysv_segments(const char *opt)
 	size_t shm_sysv_segments;
 
 	shm_sysv_segments = (size_t)get_uint64(opt);
-	check_range("shm-sysv-segs", shm_sysv_segments,
+	stress_check_range("shm-sysv-segs", shm_sysv_segments,
 		MIN_SHM_SYSV_SEGMENTS, MAX_SHM_SYSV_SEGMENTS);
 	return stress_set_setting("shm-sysv-segs", TYPE_ID_SIZE_T, &shm_sysv_segments);
 }

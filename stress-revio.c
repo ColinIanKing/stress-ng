@@ -126,7 +126,7 @@ static int stress_set_revio_bytes(const char *opt)
 	uint64_t revio_bytes;
 
 	revio_bytes = get_uint64_byte_filesystem(opt, 1);
-	check_range_bytes("revio-bytes", revio_bytes,
+	stress_check_range_bytes("revio-bytes", revio_bytes,
 		MIN_REVIO_BYTES, MAX_REVIO_BYTES);
 	return stress_set_setting("revio-bytes", TYPE_ID_UINT64, &revio_bytes);
 }

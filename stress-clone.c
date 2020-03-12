@@ -140,7 +140,7 @@ static int stress_set_clone_max(const char *opt)
 	uint32_t clone_max;
 
 	clone_max = get_uint32(opt);
-	check_range("clone-max", clone_max,
+	stress_check_range("clone-max", clone_max,
 		MIN_ZOMBIES, MAX_ZOMBIES);
 	return stress_set_setting("clone-max", TYPE_ID_UINT32, &clone_max);
 }

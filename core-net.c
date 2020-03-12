@@ -48,7 +48,7 @@ void stress_set_net_port(
 	int *port)
 {
 	*port = get_uint64(opt);
-	check_range(optname, *port,
+	stress_check_range(optname, *port,
 		min_port, max_port - STRESS_PROCS_MAX);
 }
 

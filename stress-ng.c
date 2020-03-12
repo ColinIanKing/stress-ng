@@ -2410,7 +2410,7 @@ next_opt:
 				g_opt_flags |= OPT_FLAGS_SET;
 				pi->num_procs = get_int32(optarg);
 				stress_get_processors(&pi->num_procs);
-				check_value(name, pi->num_procs);
+				stress_check_value(name, pi->num_procs);
 
 				goto next_opt;
 			}
@@ -2418,7 +2418,7 @@ next_opt:
 				uint64_t bogo_ops;
 
 				bogo_ops = get_uint64(optarg);
-				check_range(opt_name(c), bogo_ops,
+				stress_check_range(opt_name(c), bogo_ops,
 					MIN_OPS, MAX_OPS);
 				/* We don't need to set this, but it may be useful */
 				stress_set_setting(opt_name(c), TYPE_ID_UINT64, &bogo_ops);
@@ -2453,7 +2453,7 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_ALL;
 			g_opt_parallel = get_int32(optarg);
 			stress_get_processors(&g_opt_parallel);
-			check_value("all", g_opt_parallel);
+			stress_check_value("all", g_opt_parallel);
 			break;
 		case OPT_backoff:
 			i64 = (int64_t)get_uint64(optarg);
@@ -2520,7 +2520,7 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_RANDOM;
 			i32 = get_int32(optarg);
 			stress_get_processors(&i32);
-			check_value("random", i32);
+			stress_check_value("random", i32);
 			stress_set_setting("random", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sched:
@@ -2535,7 +2535,7 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
 			g_opt_sequential = get_int32(optarg);
 			stress_get_processors(&g_opt_sequential);
-			check_range("sequential", g_opt_sequential,
+			stress_check_range("sequential", g_opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
 		case OPT_stressors:

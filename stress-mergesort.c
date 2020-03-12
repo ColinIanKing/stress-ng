@@ -45,7 +45,7 @@ static int stress_set_mergesort_size(const char *opt)
 	uint64_t mergesort_size;
 
 	mergesort_size = get_uint64(opt);
-	check_range("mergesort-size", mergesort_size,
+	stress_check_range("mergesort-size", mergesort_size,
 		MIN_MERGESORT_SIZE, MAX_MERGESORT_SIZE);
 	return stress_set_setting("mergesort-size", TYPE_ID_UINT64, &mergesort_size);
 }

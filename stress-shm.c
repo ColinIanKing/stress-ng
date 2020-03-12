@@ -44,7 +44,7 @@ static int stress_set_shm_posix_bytes(const char *opt)
 	size_t shm_posix_bytes;
 
 	shm_posix_bytes = (size_t)get_uint64_byte_memory(opt, 1);
-	check_range_bytes("shm-bytes", shm_posix_bytes,
+	stress_check_range_bytes("shm-bytes", shm_posix_bytes,
 		MIN_SHM_POSIX_BYTES, MAX_MEM_LIMIT);
 	return stress_set_setting("shm-bytes", TYPE_ID_SIZE_T, &shm_posix_bytes);
 }
@@ -54,7 +54,7 @@ static int stress_set_shm_posix_objects(const char *opt)
 	size_t shm_posix_objects;
 
 	shm_posix_objects = (size_t)get_uint64(opt);
-	check_range("shm-objs", shm_posix_objects,
+	stress_check_range("shm-objs", shm_posix_objects,
 		MIN_SHM_POSIX_OBJECTS, MAX_48);
 	return stress_set_setting("shm-objs", TYPE_ID_SIZE_T, &shm_posix_objects);
 }

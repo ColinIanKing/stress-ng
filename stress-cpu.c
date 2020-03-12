@@ -124,7 +124,7 @@ static int stress_set_cpu_load(const char *opt) {
 	int32_t cpu_load;
 
 	cpu_load = get_int32(opt);
-	check_range("cpu-load", cpu_load, 0, 100);
+	stress_check_range("cpu-load", cpu_load, 0, 100);
 	return stress_set_setting("cpu-load", TYPE_ID_INT32, &cpu_load);
 }
 
