@@ -165,13 +165,13 @@ int32_t stress_get_int32(const char *const str)
 		longjmp(g_error_env, 1);
 	}
 	if (val > INT32_MAX) {
-		(void)fprintf(stderr, "Invalid number %s too large (> %d)\n",
-			str, INT32_MAX);
+		(void)fprintf(stderr, "Invalid number %s too large (> %ld)\n",
+			str, (long)INT32_MAX);
 		longjmp(g_error_env, 1);
 	}
 	if (val < INT32_MIN) {
-		(void)fprintf(stderr, "Invalid number %s too small (< %d)\n",
-			str, INT32_MIN);
+		(void)fprintf(stderr, "Invalid number %s too small (< %ld)\n",
+			str, (long)INT32_MIN);
 		longjmp(g_error_env, 1);
 	}
 	return (int32_t)val;
