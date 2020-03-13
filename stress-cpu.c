@@ -1667,19 +1667,89 @@ static void TARGET_CLONES stress_cpu_floatconversion(const char *name)
 		d = (double)(float)(long double)f;
 		d_sum += d;
 
-		ld = (long double)(float)i;
+		ld = (long double)(float)d;
 		ld_sum += ld;
-		ld = (long double)(double)i;
+		ld = (long double)(double)d;
 		ld_sum += ld;
-		ld = (long double)(float)(double)i;
+		ld = (long double)(float)(double)d;
 		ld_sum += ld;
-		ld = (long double)(double)(float)i;
+		ld = (long double)(double)(float)d;
 		ld_sum += ld;
 	}
 	stress_long_double_put(ld_sum);
 	stress_double_put(d_sum);
 	stress_float_put(f_sum);
 	stress_uint32_put(j_sum);
+}
+
+/*
+ *  stress_intconversion
+ *	exercise conversion to/from different int values
+ */
+static void stress_cpu_intconversion(const char *name)
+{
+	int16_t i16, i16_sum = stress_mwc16();
+	int32_t i32, i32_sum = stress_mwc32();
+	int64_t i64, i64_sum = stress_mwc64();
+
+	register uint32_t i;
+
+	(void)name;
+
+	for (i = 0; i < 65536; i++) {
+		i16 = (int16_t)i;
+		i32 = (int32_t)i;
+		i64 = (int64_t)i;
+
+		i16_sum += i16;
+		i32_sum += i32;
+		i64_sum += i64;
+
+		i16 = -(int16_t)(uint32_t)-(int64_t)(uint64_t)i64_sum;
+		i16_sum -= i16;
+		i32 = -(int16_t)(uint32_t)-(int64_t)(uint64_t)i16_sum;
+		i32_sum -= i32;
+		i64 = -(int16_t)(uint32_t)-(int64_t)(uint64_t)i32_sum;
+		i64_sum -= i64;
+
+		i16 = -(int16_t)(uint64_t)-(int32_t)(uint64_t)i64_sum;
+		i16_sum += i16;
+		i32 = -(int16_t)(uint64_t)-(int32_t)(uint64_t)i16_sum;
+		i32_sum += i32;
+		i64 = -(int16_t)(uint64_t)-(int32_t)(uint64_t)i32_sum;
+		i64_sum += i64;
+
+		i16 = -(int32_t)(uint16_t)-(int64_t)(uint64_t)i64_sum;
+		i16_sum -= i16;
+		i32 = -(int32_t)(uint16_t)-(int64_t)(uint64_t)i16_sum;
+		i32_sum -= i32;
+		i64 = -(int32_t)(uint16_t)-(int64_t)(uint64_t)i32_sum;
+		i64_sum -= i64;
+
+		i16 = -(int32_t)(uint64_t)-(int16_t)(uint64_t)i64_sum;
+		i16_sum += i16;
+		i32 = -(int32_t)(uint64_t)-(int16_t)(uint64_t)i16_sum;
+		i32_sum += i32;
+		i64 = -(int32_t)(uint64_t)-(int16_t)(uint64_t)i32_sum;
+		i64_sum += i64;
+
+		i16 = -(int64_t)(uint16_t)-(int32_t)(uint64_t)i64_sum;
+		i16_sum -= i16;
+		i32 = -(int64_t)(uint16_t)-(int32_t)(uint64_t)i16_sum;
+		i32_sum -= i32;
+		i32 = (int64_t)(uint16_t)-(int32_t)(uint64_t)i32_sum;
+		i32_sum -= i32;
+
+		i16 = -(int64_t)(uint32_t)-(int16_t)(uint64_t)i64_sum;
+		i16_sum += i16;
+		i32 = -(int64_t)(uint32_t)-(int16_t)(uint64_t)i16_sum;
+		i32_sum += i32;
+		i64 = -(int64_t)(uint32_t)-(int16_t)(uint64_t)i32_sum;
+		i64_sum += i32;
+	}
+	stress_uint16_put(i16_sum);
+	stress_uint32_put(i32_sum);
+	stress_uint64_put(i64_sum);
 }
 
 /*
@@ -2511,6 +2581,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "int32float",		stress_cpu_int32_float },
 	{ "int32double",	stress_cpu_int32_double },
 	{ "int32longdouble",	stress_cpu_int32_longdouble },
+	{ "intconversion",	stress_cpu_intconversion },
 	{ "jenkin",		stress_cpu_jenkin },
 	{ "jmp",		stress_cpu_jmp },
 	{ "ln2",		stress_cpu_ln2 },
