@@ -1589,9 +1589,9 @@ extern void pr_fail_dbg__(const stress_args_t *args, const char *msg);
 #endif
 
 /* GCC5.0+ target_clones attribute */
-#if defined(HAVE_TARGET_CLONES) && defined(STRESS_X86)
+#if defined(HAVE_TARGET_CLONES) && defined(STRESS_ARCH_X86)
 #define TARGET_CLONES	__attribute__((target_clones("mmx","sse","sse2","ssse3", "sse4.1", "sse4a", "avx", "avx2", "avx512f", "default")))
-#elif defined(HAVE_TARGET_CLONES) && defined(STRESS_PPC64)
+#elif defined(HAVE_TARGET_CLONES) && defined(STRESS_ARCH_PPC64)
 #define TARGET_CLONES	__attribute__((target_clones("cpu=power9,default")))
 #else
 #define TARGET_CLONES
@@ -3229,7 +3229,7 @@ extern void stress_cwd_readwriteable(void);
 
 extern const char *stress_strsignal(const int signum);
 
-#if defined(STRESS_X86)
+#if defined(STRESS_ARCH_X86)
 /*
  *  shim_clflush()
  *	flush a cache line
@@ -3251,7 +3251,7 @@ static inline void ALWAYS_INLINE shim_mfence(void)
 #if NEED_GNUC(4, 2, 0) && !defined(__PCC__)
 	__sync_synchronize();
 #else
-#if defined(STRESS_X86)
+#if defined(STRESS_ARCH_X86)
 	asm volatile("mfence" : : : "memory");
 #else
 	/* Other arches not yet implemented for older GCC flavours */
