@@ -156,10 +156,20 @@ static void HOT TARGET_CLONES stress_cpu_sqrt(const char *name)
 
 	for (i = 0; i < 16384; i++) {
 		uint64_t rnd = stress_mwc32();
-		double r = sqrt((double)rnd) * sqrt((double)rnd);
+		double r_d = sqrt((double)rnd) * sqrt((double)rnd);
+                long double r_ld = sqrtl((long double)rnd) * sqrtl((long double)rnd);
+
 		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
-		    (uint64_t)rint(r) != rnd)) {
+		    (uint64_t)rint(r_d) != rnd)) {
 			pr_fail("%s: sqrt error detected on "
+				"sqrt(%" PRIu64 ")\n", name, rnd);
+			if (!keep_stressing_flag())
+				break;
+		}
+
+		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
+		    (uint64_t)rint(r_ld) != rnd)) {
+			pr_fail("%s: sqrtf error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
 			if (!keep_stressing_flag())
 				break;
