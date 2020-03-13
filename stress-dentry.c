@@ -153,16 +153,20 @@ static void stress_dentry_misc(const char *path)
 	off_t offset;
 	struct stat statbuf;
 	struct timeval timeout;
+	struct utimbuf utim;
 	fd_set rdfds;
 	char buf[1024];
 
 #if defined(O_DIRECTORY)
 	flags |= O_DIRECTORY;
 #endif
-
 	fd = open(path, flags);
 	if (fd < 0)
 		return;
+
+	(void)utime(path, NULL);
+	(void)memset(&utim, 0, sizeof(utim));
+	(void)utime(path, &utim);
 
 	ret = fstat(fd, &statbuf);
 	(void)ret;
