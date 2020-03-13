@@ -1627,6 +1627,62 @@ static void stress_cpu_hanoi(const char *name)
 }
 
 /*
+ *  stress_floatconversion
+ *	exercise conversion to/from different floating point values
+ */
+static void TARGET_CLONES stress_cpu_floatconversion(const char *name)
+{
+	float f, f_sum = 0.0;
+	double d, d_sum = 0.0;
+	long double ld, ld_sum = 0.0;
+	register uint32_t i, j_sum = 0;
+
+	(void)name;
+
+	for (i = 0; i < 65536; i++) {
+		f = (float)i;
+		d = (double)f;
+		ld = (long double)d;
+
+		f_sum += f;
+		d_sum += d;
+		ld_sum += ld;
+		j_sum += (uint32_t)ld;
+
+		f = (float)(double)i;
+		f_sum += i;
+		f = (float)(long double)i;
+		f_sum += i;
+		f = (float)(double)(long double)i;
+		f_sum += i;
+		f = (float)(long double)(double)i;
+		f_sum += i;
+
+		d = (double)(long double)f;
+		d_sum += d;
+		d = (double)(float)f;
+		d_sum += d;
+		d = (double)(long double)(float)f;
+		d_sum += d;
+		d = (double)(float)(long double)f;
+		d_sum += d;
+
+		ld = (long double)(float)i;
+		ld_sum += ld;
+		ld = (long double)(double)i;
+		ld_sum += ld;
+		ld = (long double)(float)(double)i;
+		ld_sum += ld;
+		ld = (long double)(double)(float)i;
+		ld_sum += ld;
+	}
+	stress_long_double_put(ld_sum);
+	stress_double_put(d_sum);
+	stress_float_put(f_sum);
+	stress_uint32_put(j_sum);
+}
+
+/*
  *  factorial()
  *	compute n!
  */
@@ -2419,6 +2475,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 #if defined(HAVE_FLOAT128) && !defined(__clang__)
 	{ "float128",		stress_cpu_float128 },
 #endif
+	{ "floatconversion",	stress_cpu_floatconversion },
 	{ "fnv1a",		stress_cpu_fnv1a },
 	{ "gamma",		stress_cpu_gamma },
 	{ "gcd",		stress_cpu_gcd },
