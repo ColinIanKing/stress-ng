@@ -71,13 +71,28 @@ static void __strlcat(char *dst, char *src, size_t *n)
 }
 
 /*
- *  Check that parent hasn't been OOM'd or it is time to die
+ *  should_terminate()
+ *	check that parent hasn't been OOM'd or it is time to die
  */
 static inline bool should_terminate(const stress_args_t *args, const pid_t ppid)
 {
 	if ((kill(ppid, 0) < 0) && (errno == ESRCH))
 		return true;
 	return !keep_stressing();
+}
+
+/*
+ *  stress_memory_is_not_zero()
+ *	return true if memory is non-zero
+ */
+static bool stress_memory_is_not_zero(uint8_t *ptr, const size_t size)
+{
+	size_t i;
+
+	for (i = 0; i < size; i++)
+		if (ptr[i])
+			return true;
+	return false;
 }
 
 /*
@@ -91,6 +106,24 @@ static int stress_mmapfork(const stress_args_t *args)
 	void *ptr;
 	uint64_t segv_count = 0;
 	int8_t segv_reasons = 0;
+#if defined(MADV_WIPEONFORK)
+	uint8_t *wipe_ptr;
+	const size_t wipe_size = args->page_size;
+	bool wipe_ok = false;
+#endif
+
+#if defined(MADV_WIPEONFORK)
+	/*
+	 *  Setup a page that should be wiped if MADV_WIPEONFORK works
+	 */
+	wipe_ptr = mmap(NULL, wipe_size, PROT_READ | PROT_WRITE,
+		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (wipe_ptr != MAP_FAILED) {
+		(void)memset(wipe_ptr, 0xff, wipe_size);
+		if (shim_madvise(wipe_ptr, wipe_size, MADV_WIPEONFORK) == 0)
+			wipe_ok = true;
+	}
+#endif
 
 	do {
 		size_t i, len;
@@ -120,6 +153,14 @@ static int stress_mmapfork(const stress_args_t *args)
 					pr_fail_err("sysinfo");
 					_exit(_EXIT_FAILURE);
 				}
+#if defined(MADV_WIPEONFORK)
+				if (wipe_ok && (wipe_ptr != MAP_FAILED) &&
+				    stress_memory_is_not_zero(wipe_ptr, wipe_size)) {
+					pr_fail("%s: madvise MADV_WIPEONFORK didn't wipe page %p\n",
+						args->name, wipe_ptr);
+					_exit(_EXIT_FAILURE);
+				}
+#endif
 
 				len = ((size_t)info.freeram / (args->num_instances * MAX_PIDS)) / 2;
 				segv_ret = _EXIT_SEGV_MMAP;
@@ -194,6 +235,11 @@ reap:
 		}
 		inc_counter(args);
 	} while (keep_stressing());
+
+#if defined(MADV_WIPEONFORK)
+	if (wipe_ptr != MAP_FAILED)
+		munmap(wipe_ptr, wipe_size);
+#endif
 
 	if (segv_count) {
 		char buffer[1024];
