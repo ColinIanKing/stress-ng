@@ -948,33 +948,35 @@ typedef struct {
 	int (*opt_set_func)(const char *opt); /* function to set it */
 } stress_opt_set_func_t;
 
+/* stressor information */
 typedef struct {
-	int (*stressor)(const stress_args_t *args);
-	int (*supported)(void);
-	void (*init)(void);
-	void (*deinit)(void);
-	void (*set_default)(void);
-	void (*set_limit)(uint64_t max);
-	const stress_class_t class;
-	const stress_opt_set_func_t *opt_set_funcs;
-	const stress_help_t *help;
+	int (*stressor)(const stress_args_t *args);	/* stressor function */
+	int (*supported)(void);		/* return 0 = supported, -1, not */
+	void (*init)(void);		/* stressor init, NULL = ignore */
+	void (*deinit)(void);		/* stressor de-init, NULL = ignore */
+	void (*set_default)(void);	/* default set-up */
+	void (*set_limit)(uint64_t max);/* set limits */
+	const stress_class_t class;	/* stressor class */
+	const stress_opt_set_func_t *opt_set_funcs;	/* option functions */
+	const stress_help_t *help;	/* stressor help options */
 } stressor_info_t;
 
 /* pthread wrapped stress_args_t */
 typedef struct {
 	const stress_args_t *args;	/* Stress test args */
-	void *data;		/* Per thread private data */
-	int pthread_ret;	/* Per thread return value */
+	void *data;			/* Per thread private data */
+	int pthread_ret;		/* Per thread return value */
 } stress_pthread_args_t;
 
-/* string hash type */
+/* string hash linked list type */
 typedef struct stress_hash {
-	struct stress_hash *next; /* next hash item */
+	struct stress_hash *next; 	/* next hash item */
 } stress_hash_t;
 
+/* string hash table */
 typedef struct {
-	stress_hash_t	**table;/* hash table */
-	size_t		n;	/* number of hash items in table */
+	stress_hash_t	**table;	/* hash table */
+	size_t		n;		/* number of hash items in table */
 } stress_hash_table_t;
 
 /* gcc 4.7 and later support vector ops */
@@ -1114,6 +1116,7 @@ typedef struct {
 #endif
 
 #if !defined(HAVE_BUILTIN_PREFETCH)
+/* a fake prefetch var-args no-op */
 static inline void __builtin_prefetch(const void *addr, ...)
 {
 	va_list ap;
