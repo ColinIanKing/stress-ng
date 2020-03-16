@@ -7,6 +7,8 @@ description: stress-ng can stress various subsystems of a computer.  It can stre
 confinement: strict
 grade: stable
 type: app
+base: core18
+assumes: [snapd2.37]
 
 environment:
     CFLAGS: '-fstack-protector-strong -Wformat -Werror=format-security'
@@ -23,7 +25,6 @@ parts:
             - make
             - zlib1g-dev
             - libbsd-dev
-            - libattr1-dev
             - libgcrypt20-dev
             - libkeyutils-dev
             - libapparmor-dev
