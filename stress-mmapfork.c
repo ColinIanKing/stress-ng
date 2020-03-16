@@ -81,6 +81,7 @@ static inline bool should_terminate(const stress_args_t *args, const pid_t ppid)
 	return !keep_stressing();
 }
 
+#if defined(MADV_WIPEONFORK)
 /*
  *  stress_memory_is_not_zero()
  *	return true if memory is non-zero
@@ -94,6 +95,7 @@ static bool stress_memory_is_not_zero(uint8_t *ptr, const size_t size)
 			return true;
 	return false;
 }
+#endif
 
 /*
  *  stress_mmapfork()
