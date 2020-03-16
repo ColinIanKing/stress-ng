@@ -37,7 +37,9 @@ static const stress_help_t help[] = {
 typedef struct {
 	pthread_t pthread;	/* The pthread */
 	int	  ret;		/* pthread create return */
+#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
 	void 	 *stack;	/* pthread stack */
+#endif
 } stress_pthread_info_t;
 
 static pthread_cond_t cond;
@@ -252,7 +254,9 @@ static int stress_pthread(const stress_args_t *args)
 	int ret;
 	stress_pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
+#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
 	const size_t stack_size = STRESS_MAXIMUM(16 * KB, PTHREAD_STACK_MIN);
+#endif
 
 	keep_running_flag = true;
 
@@ -307,9 +311,12 @@ static int stress_pthread(const stress_args_t *args)
 			pthreads[i].ret = -1;
 
 		for (i = 0; i < pthread_max; i++) {
+#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
 			pthread_attr_t attr;
+#endif
 			pargs.data = (void *)&pthreads[i];
 
+#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
 			/*
 			 *  We mmap our own per pthread stack to ensure we
 			 *  have one available before the pthread is started
@@ -335,6 +342,7 @@ static int stress_pthread(const stress_args_t *args)
 				stop_running();
 				break;
 			}
+#endif
 
 			pthreads[i].ret = pthread_create(&pthreads[i].pthread, NULL,
 				stress_pthread_func, (void *)&pargs);
@@ -411,8 +419,10 @@ reap:
 			/* fall through and unlock */
 		}
 		for (j = 0; j < i; j++) {
+#if defined(HAVE_PTHREAD_ATTR_SETSTACK)
 			if (pthreads[j].stack != MAP_FAILED)
 				(void)munmap(pthreads[j].stack, stack_size);
+#endif
 			if (pthreads[j].ret)
 				continue;
 			ret = pthread_join(pthreads[j].pthread, NULL);
