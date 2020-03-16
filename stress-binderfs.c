@@ -96,8 +96,9 @@ static int stress_binderfs(const stress_args_t *args)
 		return exit_status(-ret);
 
 	do {
-		int fd, i;
+		int fd;
 #if defined(BINDER_CTL_ADD)
+		int i;
 		struct binderfs_device device;
 #endif
 
