@@ -2320,6 +2320,7 @@ static void TARGET_CLONES stress_cpu_union(const char *name)
 		u.bits16.b15 ^= 0xbeef;
 		u.bits64.b9++;
 		u.bits64.b10 *= 5;
+		u.u32 += 1;
 	}
 }
 
