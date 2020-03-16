@@ -1632,14 +1632,18 @@ static void stress_cpu_hanoi(const char *name)
  */
 static void TARGET_CLONES stress_cpu_floatconversion(const char *name)
 {
-	float f, f_sum = 0.0;
-	double d, d_sum = 0.0;
-	long double ld, ld_sum = 0.0;
+	float f_sum = 0.0;
+	double d_sum = 0.0;
+	long double ld_sum = 0.0;
 	register uint32_t i, j_sum = 0;
 
 	(void)name;
 
 	for (i = 0; i < 65536; i++) {
+		float f;
+		double d;
+		long double ld;
+		
 		f = (float)i;
 		d = (double)f;
 		ld = (long double)d;
