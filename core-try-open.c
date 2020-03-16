@@ -63,7 +63,8 @@ int stress_try_open(
 		return -1;
 	} else if (pid == 0) {
 		errno = 0;
-		if ((fd = open(path, flags)) < 0)
+		fd = open(path, flags);
+		if (fd < 0)
 			_exit(EXIT_FAILURE);
 		_exit(EXIT_SUCCESS);
 	} else {
