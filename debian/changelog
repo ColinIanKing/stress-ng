@@ -1,3 +1,109 @@
+stress-ng (0.11.03-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * core-try-open: break up assignment and check into two statements
+  * stress-softlockup: reduce scope of old_nice_val
+  * stress-softlockup: remove redundant assignment to old_nice_val
+  * stress-cpu: workaround a cppcheck warning
+  * stress-cpu: replace pointer casting with union type
+  * stress-cpu: exercise struct element u32
+  * stress-cpu: fix incorrect assignment
+  * stress-cpu: fix type on assignment of i64
+  * stress-cpu: reduce scope of some integer variables in a for-loop
+  * stress-cpu: reduce scope of variables in a for-loop
+  * stress-binderfs: move declaration of variable i into #if block
+  * stress-binderfs: move label close_control to clear up warning
+  * stress-binderfs: reduce scope of ret and t2 variables
+  * stress-netlink-task.c: ensure pointer is const
+  * stress-pthread: add build time check for pthread_attr_setstack
+  * stress-pthread: define PTHREAD_STACK_MIN if it is not defined
+  * stress-mmapfork: make stress_memory_is_not_zero a conditional build
+  * snapcraft: add base info and remove need for libxattr1
+  * Debian: control: remove need for libxattr1 (Closes: #953905)
+  * stress-ng.h: add more comments
+  * stress-mmapfork: add madvise MADV_WIPEONFORK sanity check
+  * stress-dentry: exercise with utime setting
+  * Add intconversion cpu stressor method
+  * Fix _ARCH macros not being used because of bad rename
+  * Add a floatconversion cpu stressor method
+  * stress-cpu: add long double sqrt to the sqrt stress method
+  * Remove trailing tabs, minor tidy up
+  * Remove trailing spaces, minor tidy up
+  * core-parse-opts: fix a cppcheck warning, cast values to long and
+    use %ld
+  * stress-enosys: add x86 syscall calls
+  * stress-ng.h: clean up some overly long function prototypes
+  * Rename all get_{int|uint}* helpers to stress_{int|uint}*
+  * core-parse-opts: add stress_ prefix to ensure helper functions
+  * core-affinity: add stress_ prefix to helper functions
+  * core-parse-opts: add stress_ prefix before check_* helper functions
+  * Rename set_max_limits to stress_set_max_limits
+  * Rename log_system_mem_info to stress_log_system_mem_info
+  * stress-sleep: remove alternative stack
+  * stress-procfs: remove alternative stack
+  * stress-memthrash: remove unused label 'die'
+  * stress-sysfs: remove alternative stack
+  * stress-memthrash: remove alternative stack
+  * stress-membarrier: remove alternative stack
+  * stress-mcontend: remove alternative stack
+  * stress-inode-flags: remove alternative stack
+  * stress-fstat: remove alternative stack
+  * stress-pthread: mmap each pthread's stack and improve failure checking
+  * stress-dev: remove alternative stack
+  * stress-pthread: remove alternative stack
+  * core-parse-opts: cast *ptr to int to avoid clang 3.4 warning
+  * stress-madvise: add FreeBSD madvise options
+  * stress-mmap: add some FreeBSD mmap options
+  * core-shim: fix braino on pointer declaration
+  * core-shim: add unconstify helper for mlock on older sun systems
+  * Fix PRAGMA_* macros that are missing STRESS_ prefix
+  * Macros: put all values in ( )
+  * Add STRESS_ to PRAGMA macros
+  * Rename warn_once to stress_warn_once
+  * Rename align_stack to stress_align_stack
+  * stress-cpu: remove tabs to keep continutation markers aligned
+  * Rename MWC_ macros to STRESS_MWC_
+  * Rename arch macros, add _ARCH to signify they are architecture specific
+    settings
+  * Add SHIM_ prefix to ICACHE and DCACHE macros
+  * core-time: rename timeval_to_double to stress_timeval_to_double and
+    un-inline it
+  * core-setting: stress_ prefix before settings helper functions
+  * put*: add stress_ prefix before put* helper functions
+  * mwc: add stress_ prefix before mwc random number helper functions
+  * jobs: add stress_ prefix before job helper functions
+  * cache: add stress_ prefix before cache helper functions
+  * Rename args_t to stress_args_t
+  * Rename opt_set_func_t to stress_opt_set_func_t
+  * Rename help_t to stress_help_t
+  * Rename pthread_args_t to stress_pthread_args_t
+  * Rename cpus_t to stress_cpus_t
+  * Rename cpu_t to stress_cpu_t
+  * Rename cpu_cache_t to stress_cpu_cache_t
+  * Rename cache_t to stress_cache_t
+  * Rename scale_t to stress_scale_t
+  * Rename shared_t to stress_shared_t
+  * Rename proc_stats_t to stress_proc_stats_t
+  * Fix typedef / struct type warning on proc_info
+  * Rename tz_stat_t to stress_tz_stat_t
+  * Rename tz_info_t to stress_tz_info_t
+  * Rename proc_info_t to stress_proc_info_t
+  * Rename mwc_t to stress_mwc_t
+  * Rename put_val_t to stress_put_val_t
+  * Rename setting_t to stress_setting_t
+  * Rename perf_stat_t to stress_perf_stat_t
+  * Rename class_info_t and class_t
+  * Rename type_id_t to stress_type_id_t to avoid future name clashes
+  * stress-mmap: add two OpenBSD mmap options
+  * voidify return from munmap()
+  * Rename helper mfence to shim_mfence
+  * Rename helper shim cflush to shim_cflush
+  * stress-binderfs: fix typo in non-linux build
+  * stress-binderfs: add binder file system stressor
+  * stress-vecmath: use macros to simplify vector initialization
+
+ -- Colin King <colin.king@canonical.com>  Mon, 16 Mar 2020 16:40:22 +0000
+
 stress-ng (0.11.02-1) unstable; urgency=medium
 
   * Makefile: bump version
