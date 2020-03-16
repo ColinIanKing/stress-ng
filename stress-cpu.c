@@ -1654,13 +1654,13 @@ static void TARGET_CLONES stress_cpu_floatconversion(const char *name)
 		j_sum += (uint32_t)ld;
 
 		f = (float)(double)i;
-		f_sum += i;
+		f_sum += f;
 		f = (float)(long double)i;
-		f_sum += i;
+		f_sum += f;
 		f = (float)(double)(long double)i;
-		f_sum += i;
+		f_sum += f;
 		f = (float)(long double)(double)i;
-		f_sum += i;
+		f_sum += f;
 
 		d = (double)(long double)f;
 		d_sum += d;
