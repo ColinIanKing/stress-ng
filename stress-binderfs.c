@@ -134,8 +134,8 @@ static int stress_binderfs(const stress_args_t *args)
 			if (ret < 0)
 				goto close_control;
 		}
-#endif
 close_control:
+#endif
 		(void)close(fd);
 
 		rc = stress_binderfs_umount(args, pathname);
