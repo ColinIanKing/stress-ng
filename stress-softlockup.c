@@ -87,7 +87,6 @@ static void drop_niceness(void)
 
 	errno = 0;
 	nice_val = nice(0);
-	old_nice_val = nice_val + 1;
 
 	/* Should never fail */
 	if (errno)
