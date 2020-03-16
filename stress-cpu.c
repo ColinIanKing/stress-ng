@@ -1692,15 +1692,19 @@ static void TARGET_CLONES stress_cpu_floatconversion(const char *name)
  */
 static void stress_cpu_intconversion(const char *name)
 {
-	int16_t i16, i16_sum = stress_mwc16();
-	int32_t i32, i32_sum = stress_mwc32();
-	int64_t i64, i64_sum = stress_mwc64();
+	int16_t i16_sum = stress_mwc16();
+	int32_t i32_sum = stress_mwc32();
+	int64_t i64_sum = stress_mwc64();
 
 	register uint32_t i;
 
 	(void)name;
 
 	for (i = 0; i < 65536; i++) {
+		int16_t i16;
+		int32_t i32;
+		int64_t	i64;
+
 		i16 = (int16_t)i;
 		i32 = (int32_t)i;
 		i64 = (int64_t)i;
