@@ -67,6 +67,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_LIB_PTHREAD)
 
+/* Some systems such as GNU/HURD don't define PTHREAD_STACK_MIN */
+#if !defined(PTHREAD_STACK_MIN)
+#define PTHREAD_STACK_MIN		(16 * KB)
+#endif
+
 #if defined(HAVE_GET_ROBUST_LIST) && defined(HAVE_LINUX_FUTEX_H)
 static inline long sys_get_robust_list(int pid, struct robust_list_head **head_ptr, size_t *len_ptr)
 {
