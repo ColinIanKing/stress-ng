@@ -259,7 +259,7 @@ static int stress_netlink_task(const stress_args_t *args)
 	}
 
 	ret = stress_netlink_sendcmd(args, sock, GENL_ID_CTRL, pid, CTRL_CMD_GETFAMILY,
-		CTRL_ATTR_FAMILY_NAME, (void *)name, sizeof(name));
+		CTRL_ATTR_FAMILY_NAME, (const void *)name, sizeof(name));
 	if (ret < 0) {
 		pr_err("%s: sendto CTRL_CMD_GETFAMILY failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
