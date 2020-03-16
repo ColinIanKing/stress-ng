@@ -2345,7 +2345,8 @@ static uint32_t queens_try(
 	register uint32_t poss = ~(left_diag | cols | right_diag) & all;
 
 	while (poss) {
-		register uint32_t bit = poss & -poss;
+		register uint32_t inv = -poss;
+		register uint32_t bit = poss & inv;
 		register uint32_t new_cols = cols | bit;
 
 		poss -= bit;
