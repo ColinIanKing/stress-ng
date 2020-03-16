@@ -83,7 +83,7 @@ static void MLOCKED_TEXT stress_rlimit_handler(int signum)
  */
 static void drop_niceness(void)
 {
-	int nice_val, old_nice_val, i;
+	int nice_val, i;
 
 	errno = 0;
 	nice_val = nice(0);
@@ -98,8 +98,9 @@ static void drop_niceness(void)
 	 *  at nice level 19
 	 */
 	for (i = 0; i < 40; i++) {
+		int old_nice_val = nice_val;
+
 		errno = 0;
-		old_nice_val = nice_val;
 		nice_val = nice(-1);
 		if (errno)
 			return;
