@@ -1745,8 +1745,8 @@ static void stress_cpu_intconversion(const char *name)
 		i16_sum -= i16;
 		i32 = -(int64_t)(uint16_t)-(int32_t)(uint64_t)i16_sum;
 		i32_sum -= i32;
-		i32 = (int64_t)(uint16_t)-(int32_t)(uint64_t)i32_sum;
-		i32_sum -= i32;
+		i64 = (int64_t)(uint16_t)-(int32_t)(uint64_t)i32_sum;
+		i64_sum -= i64;
 
 		i16 = -(int64_t)(uint32_t)-(int16_t)(uint64_t)i64_sum;
 		i16_sum += i16;
