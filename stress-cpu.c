@@ -2020,7 +2020,10 @@ static void stress_cpu_parity(const char *name)
 	for (i = 0; i < 1000; i++, val++) {
 		register uint32_t parity, p;
 		uint32_t v;
-		uint8_t *ptr;
+		union {
+			uint32_t v32;
+			uint8_t  v8[4];
+		} u;
 
 		/*
 		 * Naive way
@@ -2093,8 +2096,8 @@ static void stress_cpu_parity(const char *name)
 		 * https://graphics.stanford.edu/~seander/bithacks.html
 		 * Variation #2
 		 */
-		ptr = (uint8_t *)&val;
-		p = stress_cpu_parity_table[ptr[0] ^ ptr[1] ^ ptr[2] ^ ptr[3]];
+		u.v32 = val;
+		p = stress_cpu_parity_table[u.v8[0] ^ u.v8[1] ^ u.v8[2] ^ u.v8[3]];
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
 			pr_fail("%s: parity error detected, using the "
 				"lookup method, variation 1\n",  name);
