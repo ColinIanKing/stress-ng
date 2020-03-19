@@ -1643,7 +1643,7 @@ static void TARGET_CLONES stress_cpu_floatconversion(const char *name)
 		float f;
 		double d;
 		long double ld;
-		
+
 		f = (float)i;
 		d = (double)f;
 		ld = (long double)d;
