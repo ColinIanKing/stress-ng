@@ -150,7 +150,24 @@ exit_child:
 
 		do {
 			uint64_t val = 1;
-			int ret;
+			int ret, procfd;
+			char path[PATH_MAX];
+
+			(void)snprintf(path, sizeof(path), "/proc/self/fdinfo/%d",
+				stress_mwc1() ? fd1 : fd2);
+			/*
+			 *  Accessing /proc/self/fdinfo/[fd1|fd2] will exercise
+			 *  eventfd-count and eventfd-id proc interfaces.
+			 */
+			procfd = open(path, O_RDONLY);
+			if (procfd) {
+				char buffer[4096];
+				ssize_t n;
+
+				n = read(procfd, buffer, sizeof(buffer));
+				(void)n;
+				(void)close(procfd);
+			}
 
 			for (;;) {
 				if (!keep_stressing_flag())
