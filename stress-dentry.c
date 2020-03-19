@@ -140,7 +140,6 @@ static void stress_dentry_unlink(
 		}
 		break;
 	}
-	(void)sync();
 }
 
 /*
@@ -243,6 +242,7 @@ static int stress_dentry(const stress_args_t *args)
 {
 	int ret;
 	uint64_t dentries = DEFAULT_DENTRIES;
+	uint64_t dentry_offset = dentries;
 	uint8_t dentry_order = ORDER_RANDOM;
 	char dir_path[PATH_MAX];
 
@@ -300,12 +300,19 @@ static int stress_dentry(const stress_args_t *args)
 				goto abort;
 
 			stress_temp_filename_args(args,
-				path, sizeof(path), (gray_code * 2) + 1);
+				path, sizeof(path), dentry_offset + (gray_code * 2) + 1);
 
 			/* The following should fail, ignore error return */
 			rc = access(path, R_OK);
 			(void)rc;
+
+			stress_temp_filename_args(args,
+				path, sizeof(path), dentry_offset + i);
+			/* The following should fail, ignore error return */
+			rc = access(path, R_OK);
+			(void)rc;
 		}
+		dentry_offset += dentries;
 
 		/*
 		 *  And remove
@@ -315,7 +322,6 @@ static int stress_dentry(const stress_args_t *args)
 
 		if (!keep_stressing_flag())
 			break;
-		(void)sync();
 	} while (keep_stressing());
 
 abort:
