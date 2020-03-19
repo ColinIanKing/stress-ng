@@ -72,7 +72,7 @@ fchown				chown
 fchownat
 fcntl				open, lockf, fcntl
 fdatasync			hdd
-fgetxattr			xattr`
+fgetxattr			xattr
 finit_module
 flistxattr			xattr
 flock				flock
