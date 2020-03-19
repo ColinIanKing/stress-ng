@@ -249,6 +249,8 @@ static const struct option long_options[] = {
 	{ "cache-no-affinity",0,0,	OPT_cache_no_affinity },
 	{ "cap",	1,	0, 	OPT_cap },
 	{ "cap-ops",	1,	0, 	OPT_cap_ops },
+	{ "chattr",	1,	0, 	OPT_chattr },
+	{ "chattr-ops",	1,	0,	OPT_chattr_ops },
 	{ "chdir",	1,	0, 	OPT_chdir },
 	{ "chdir-ops",	1,	0, 	OPT_chdir_ops },
 	{ "chdir-dirs",	1,	0,	OPT_chdir_dirs },

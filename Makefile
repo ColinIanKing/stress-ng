@@ -78,6 +78,7 @@ STRESS_SRC = \
 	stress-bsearch.c \
 	stress-cache.c \
 	stress-cap.c \
+	stress-chattr.c \
 	stress-chdir.c \
 	stress-chmod.c \
 	stress-chown.c \

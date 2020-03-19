@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "January 10, 2020"
+.TH STRESS-NG 1 "March 19, 2020"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -582,6 +582,15 @@ start N workers that read per process capabilities via calls to capget(2)
 .TP
 .B \-\-cap\-ops N
 stop after N cap bogo operations.
+.TP
+.B \-\-chattr N
+start N workers that attempt to exercise file attributes via the
+EXT2_IOC_SETFLAGS ioctl. This is indended to be intentionally racy and
+exercise a range of chattr attributes by enabling and disabling them on
+a file shared amongst the N chattr stressor processes. (Linux only).
+.TP
+.B \-\-chattr\-ops N
+stop after N chattr bogo operations.
 .TP
 .B \-\-chdir N
 start N workers that change directory between directories using chdir(2).

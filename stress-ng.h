@@ -1866,6 +1866,7 @@ typedef struct {
 	MACRO(bsearch)		\
 	MACRO(cache)		\
 	MACRO(cap)		\
+	MACRO(chattr)		\
 	MACRO(chdir)		\
 	MACRO(chmod)		\
 	MACRO(chown)		\
@@ -2201,6 +2202,9 @@ typedef enum {
 
 	OPT_cap,
 	OPT_cap_ops,
+
+	OPT_chattr,
+	OPT_chattr_ops,
 
 	OPT_chdir,
 	OPT_chdir_dirs,
