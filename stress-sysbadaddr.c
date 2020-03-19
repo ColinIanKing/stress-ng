@@ -373,14 +373,18 @@ static int bad_times(void *addr)
 	return times(addr);
 }
 
-#if defined(HAVE_USTAT)
 static int bad_ustat(void *addr)
 {
 	dev_t dev = { 0 };
+	int ret;
 
-	return ustat(dev, addr);
+	ret = shim_ustat(dev, addr);
+	if ((ret < 0) && (errno == ENOSYS)) {
+		ret = 0;
+		errno = 0;
+	}
+	return ret;
 }
-#endif
 
 #if defined(HAVE_UTIME_H)
 static int bad_utime(void *addr)
@@ -488,9 +492,7 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_timer_create,
 #endif
 	bad_times,
-#if defined(HAVE_USTAT)
 	bad_ustat,
-#endif
 #if defined(HAVE_UTIME_H)
 	bad_utime,
 #endif

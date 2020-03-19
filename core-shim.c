@@ -1288,3 +1288,13 @@ int sys_clone3(struct shim_clone_args *cl_args, size_t size)
 #endif
 }
 
+int shim_ustat(dev_t dev, struct shim_ustat *ubuf)
+{
+#if defined(HAVE_USTAT)
+	return ustat(dev, ubuf);
+#elif defined(__NR_ustat)
+	return syscall(__NR_ustat, dev, ubuf);
+#else
+	return shim_enosys(0, dev, ubuf)
+#endif
+}

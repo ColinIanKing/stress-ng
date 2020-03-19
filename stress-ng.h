@@ -3627,6 +3627,14 @@ struct shim_statx {
         uint64_t   __spare2[14];
 };
 
+/* old ustat struct */
+struct shim_ustat {
+	daddr_t	f_tfree;
+	ino_t	f_tinode;
+	char	f_fname[6];
+	char	f_fpack[6];
+};
+
 extern int shim_brk(void *addr);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern void shim_clear_cache(char* begin, char *end);
@@ -3710,6 +3718,7 @@ extern int shim_unshare(int flags);
 extern int shim_userfaultfd(int flags);
 extern int shim_usleep(uint64_t usec);
 extern int shim_usleep_interruptible(uint64_t usec);
+extern int shim_ustat(dev_t dev, struct shim_ustat *ubuf);
 extern pid_t shim_waitpid(pid_t pid, int *wstatus, int options);
 
 #endif

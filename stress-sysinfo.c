@@ -120,7 +120,6 @@ static int stress_sysinfo(const stress_args_t *args)
 		}
 #endif
 
-#if defined(HAVE_USTAT)
 		{
 			int i;
 
@@ -128,14 +127,14 @@ static int stress_sysinfo(const stress_args_t *args)
 
 			for (i = 0; i < n_mounts; i++) {
 				struct stat sbuf;
-				struct ustat ubuf;
+				struct shim_ustat ubuf;
 				int ret;
 
 				ret = stat(mnts[i], &sbuf);
 				if (ret < 0)
 					continue;
 
-				ret = ustat(sbuf.st_dev, &ubuf);
+				ret = shim_ustat(sbuf.st_dev, &ubuf);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 					if (errno != EINVAL &&
 					    errno != ENOSYS) {
@@ -147,7 +146,7 @@ static int stress_sysinfo(const stress_args_t *args)
 				}
 			}
 		}
-#endif
+
 		check_do_run();
 
 #if defined(HAVE_SYS_STATVFS_H)
