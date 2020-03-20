@@ -35,6 +35,14 @@ static const stress_help_t help[] = {
 #define NUM_MEM_RETRIES_MAX	(256)
 #define NUM_POISON_MAX		(2)
 #define NUM_SOFT_OFFLINE_MAX	(2)
+#define NUM_PTHREADS		(8)
+
+typedef struct madvise_ctxt {
+	const stress_args_t *args;
+	const void *buf;
+	size_t sz;
+	bool  is_thread;
+} madvise_ctxt_t;
 
 static sigjmp_buf jmp_env;
 static uint64_t sigbus_count;
@@ -130,7 +138,7 @@ static void MLOCKED_TEXT stress_sigbus_handler(int signum)
 
 	sigbus_count++;
 
-	siglongjmp(jmp_env, 1); /* bounce back */
+	siglongjmp(jmp_env, 1);
 }
 
 /*
@@ -182,32 +190,76 @@ static int stress_random_advise(const stress_args_t *args)
 }
 
 /*
+ *  stress_madvise_pages()
+ *	exercise madvise settings
+ */
+static void *stress_madvise_pages(void *arg)
+{
+	size_t n;
+	const madvise_ctxt_t *ctxt = (const madvise_ctxt_t *)arg;
+	const stress_args_t *args = ctxt->args;
+	const void *buf = ctxt->buf;
+	const size_t sz = ctxt->sz;
+	const size_t page_size = args->page_size;
+	static void *nowt = NULL;
+
+	if (ctxt->is_thread) {
+		sigset_t set;
+
+		sigemptyset(&set);
+		sigaddset(&set, SIGBUS);
+
+		(void)pthread_sigmask(SIG_SETMASK, &set, NULL);
+	}
+
+	for (n = 0; n < sz; n += page_size) {
+		const int advise = stress_random_advise(args);
+		void *ptr = (void *)(((uint8_t *)buf) + n);
+
+		(void)shim_madvise(ptr, page_size, advise);
+		(void)shim_msync(ptr, page_size, MS_ASYNC);
+	}
+	for (n = 0; n < sz; n += page_size) {
+		size_t m = (stress_mwc64() % sz) & ~(page_size - 1);
+		const int advise = stress_random_advise(args);
+		void *ptr = (void *)(((uint8_t *)buf) + m);
+
+		(void)shim_madvise(ptr, page_size, advise);
+		(void)shim_msync(ptr, page_size, MS_ASYNC);
+	}
+
+	return &nowt;
+}
+
+/*
  *  stress_madvise()
  *	stress madvise
  */
 static int stress_madvise(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
-	NOCLOBBER size_t sz = 4 *  MB;
+	size_t sz = 4 *  MB;
 	int fd = -1;
-	NOCLOBBER int ret;
+	int ret;
 	NOCLOBBER int flags = MAP_PRIVATE;
 	NOCLOBBER int num_mem_retries = 0;
 	char filename[PATH_MAX];
 	char page[page_size];
 	size_t n;
+	madvise_ctxt_t ctxt;
 
-#if defined(MAP_POPULATE)
-	flags |= MAP_POPULATE;
-#endif
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		pr_fail_err("sigsetjmp");
 		return EXIT_FAILURE;
-	}
+       }
+
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
+#if defined(MAP_POPULATE)
+	flags |= MAP_POPULATE;
+#endif
 	sz &= ~(page_size - 1);
 
 	/* Make sure this is killable by OOM killer */
@@ -272,25 +324,37 @@ static int stress_madvise(const stress_args_t *args)
 		}
 
 		(void)memset(buf, 0xff, sz);
-
 		(void)stress_madvise_random(buf, sz);
 		(void)stress_mincore_touch_pages(buf, sz);
 
-		for (n = 0; n < sz; n += page_size) {
-			const int advise = stress_random_advise(args);
-			void *ptr = (void *)(((uint8_t *)buf) + n);
+		ctxt.args = args;
+		ctxt.buf = buf;
+		ctxt.sz = sz;
 
-			(void)shim_madvise(ptr, page_size, advise);
-			(void)shim_msync(ptr, page_size, MS_ASYNC);
-		}
-		for (n = 0; n < sz; n += page_size) {
-			size_t m = (stress_mwc64() % sz) & ~(page_size - 1);
-			const int advise = stress_random_advise(args);
-			void *ptr = (void *)(((uint8_t *)buf) + m);
+#if defined(HAVE_LIB_PTHREAD)
+		{
+			pthread_t pthreads[NUM_PTHREADS];
+			int rets[NUM_PTHREADS];
+			size_t i;
 
-			(void)shim_madvise(ptr, page_size, advise);
-			(void)shim_msync(ptr, page_size, MS_ASYNC);
+			ctxt.is_thread = true;
+
+			for (i = 0; i < NUM_PTHREADS; i++) {
+				rets[i] = pthread_create(&pthreads[i], NULL,
+						stress_madvise_pages, (void *)&ctxt);
+			}
+			for (i = 0; i < NUM_PTHREADS; i++) {
+				if (rets[i] == 0)
+					pthread_join(pthreads[i], NULL);
+			}
 		}
+#else
+		{
+			ctxt.is_thread = false;
+			stress_madvise_pages(&ctxt);
+		}
+#endif
+
 		(void)munmap((void *)buf, sz);
 		inc_counter(args);
 	} while (keep_stressing());
