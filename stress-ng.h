@@ -2030,6 +2030,7 @@ typedef struct {
 	MACRO(sigsuspend)	\
 	MACRO(sleep)		\
 	MACRO(sock)		\
+	MACRO(sockabuse)	\
 	MACRO(sockdiag)		\
 	MACRO(sockfd)		\
 	MACRO(sockpair)		\
@@ -2817,9 +2818,11 @@ typedef enum {
 	OPT_sock_port,
 	OPT_sock_type,
 
+	OPT_sockabuse,
+	OPT_sockabuse_ops,
+
 	OPT_sockdiag,
 	OPT_sockdiag_ops,
-
 
 	OPT_sockfd,
 	OPT_sockfd_ops,

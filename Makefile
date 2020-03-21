@@ -242,6 +242,7 @@ STRESS_SRC = \
 	stress-sigsuspend.c \
 	stress-sleep.c \
 	stress-sock.c \
+	stress-sockabuse.c \
 	stress-sockdiag.c \
 	stress-sockfd.c \
 	stress-sockpair.c \

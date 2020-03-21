@@ -713,6 +713,8 @@ static const struct option long_options[] = {
 	{ "sock-opts",	1,	0,	OPT_sock_opts },
 	{ "sock-port",	1,	0,	OPT_sock_port },
 	{ "sock-type",	1,	0,	OPT_sock_type },
+	{ "sockabuse",	1,	0,	OPT_sockabuse },
+	{ "sockabuse-ops",1,	0,	OPT_sockabuse_ops },
 	{ "sockdiag",	1,	0,	OPT_sockdiag },
 	{ "sockdiag-ops",1,	0,	OPT_sockdiag_ops },
 	{ "sockfd",	1,	0,	OPT_sockfd },

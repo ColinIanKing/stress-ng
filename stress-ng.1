@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "March 19, 2020"
+.TH STRESS-NG 1 "March 21, 2020"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3182,6 +3182,14 @@ Linux systems that support this system call.
 .B \-\-sock\-type [ stream | seqpacket ]
 specify the socket type to use. The default type is stream. seqpacket currently
 only works for the unix socket domain.
+.TP
+.B \-\-sockabuse N
+start N workers that abuse a socket file desciptor with various file based
+system that don't normally act on sockets. The kernel should handle these
+illegal and unexpected calls gracefully.
+.TP
+.B \-\-sockabuse\-ops N
+stop after N iterations of the socket abusing stressor loop.
 .TP
 .B \-\-sockdiag N
 start N workers that exercise the Linux sock_diag netlink socket diagnostics
