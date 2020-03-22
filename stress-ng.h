@@ -1456,6 +1456,10 @@ extern void pr_fail_dbg__(const stress_args_t *args, const char *msg);
 
 #define MAX_SIGSUSPEND_PIDS	(4)
 
+#define MIN_SKIPLIST_SIZE	(1 * KB)
+#define MAX_SKIPLIST_SIZE	(4 * MB)
+#define DEFAULT_SKIPLIST_SIZE	(64 * KB)
+
 #define MIN_SLEEP		(1)
 #define MAX_SLEEP		(30000)
 #define DEFAULT_SLEEP		(1024)
@@ -2028,6 +2032,7 @@ typedef struct {
 	MACRO(sigrt)		\
 	MACRO(sigsegv)		\
 	MACRO(sigsuspend)	\
+	MACRO(skiplist)		\
 	MACRO(sleep)		\
 	MACRO(sock)		\
 	MACRO(sockabuse)	\
@@ -2806,6 +2811,10 @@ typedef enum {
 
 	OPT_sigsuspend,
 	OPT_sigsuspend_ops,
+
+	OPT_skiplist,
+	OPT_skiplist_ops,
+	OPT_skiplist_size,
 
 	OPT_sleep,
 	OPT_sleep_ops,

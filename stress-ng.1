@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "March 21, 2020"
+.TH STRESS-NG 1 "March 22, 2020"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3138,6 +3138,18 @@ other child processes also via sigqueue(2).
 .TP
 .B \-\-sigrt\-ops N
 stop sigrt stress workers after N bogo sigqueue signal send operations.
+.TP
+.B \-\-skiplist N
+start N workers that store and then search for integers using a skiplist.
+By default, 65536 integers are added and searched.  This is a useful method
+to exercise random access of memory and processor cache.
+.TP
+.B \-\-skiplist\-ops N
+stop the skiplist worker after N skiplist store and search cycles are completed.
+.TP
+.B \-\-skiplist\-size N
+specify the size (number of integers) to store and search in the skiplist. Size can
+be from 1K to 4M.
 .TP
 .B \-\-sleep N
 start N workers that spawn off multiple threads that each perform multiple
