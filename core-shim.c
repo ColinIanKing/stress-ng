@@ -1295,6 +1295,6 @@ int shim_ustat(dev_t dev, struct shim_ustat *ubuf)
 #elif defined(__NR_ustat)
 	return syscall(__NR_ustat, dev, ubuf);
 #else
-	return shim_enosys(0, dev, ubuf)
+	return shim_enosys(0, dev, ubuf);
 #endif
 }
