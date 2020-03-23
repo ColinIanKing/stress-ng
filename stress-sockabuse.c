@@ -53,7 +53,7 @@ static void stress_sockabuse_fd(const int fd)
 	struct sockaddr addr;
 	socklen_t addrlen;
 #if defined(HAVE_FUTIMENS)
-	struct timespec times[2];
+	struct timespec timespec[2];
 #endif
 
 	(void)memset(&addr, 0, sizeof(addr));
@@ -89,7 +89,7 @@ static void stress_sockabuse_fd(const int fd)
 	}
 #endif
 #if defined(HAVE_FUTIMENS)
-	VOID_RET(futimens(fd, times));
+	VOID_RET(futimens(fd, timespec));
 #endif
 	VOID_RET(getpeername(fd, &addr, &addrlen));
 #if defined(FIONREAD)
@@ -118,7 +118,9 @@ static void stress_sockabuse_fd(const int fd)
 	VOID_RET(posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM));
 #endif
 	VOID_RET(shim_sync_file_range(fd, 0, 1, 0));
-	(void)memset(&times, 0, sizeof(times));
+#if defined(HAVE_FUTIMENS)
+	(void)memset(&timespec, 0, sizeof(timespec));
+#endif
 }
 
 /*
