@@ -137,6 +137,7 @@ static int stress_sysinfo(const stress_args_t *args)
 				ret = shim_ustat(sbuf.st_dev, &ubuf);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 					if (errno != EINVAL &&
+					    errno != EFAULT &&
 					    errno != ENOSYS) {
 						pr_fail("%s: ustat on %s "
 							"failed: errno=%d (%s)\n",
