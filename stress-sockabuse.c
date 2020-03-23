@@ -231,9 +231,10 @@ static int stress_sockabuse_server(
 			AF_INET, socket_port,
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (bind(fd, addr, addr_len) < 0) {
-			rc = exit_status(errno);
-			pr_fail_err("bind");
-
+			if (errno != EADDRINUSE) {
+				rc = exit_status(errno);
+				pr_fail_err("bind");
+			}
 			stress_sockabuse_fd(fd);
 			(void)close(fd);
 			continue;
