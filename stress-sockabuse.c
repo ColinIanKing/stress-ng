@@ -49,7 +49,7 @@ static void stress_sockabuse_fd(const int fd)
 	const gid_t gid = getgid();
 	struct stat statbuf;
 	void *ptr;
-	int n, nfd;
+	int nfd;
 	struct sockaddr addr;
 	socklen_t addrlen;
 #if defined(HAVE_FUTIMENS)
@@ -93,7 +93,11 @@ static void stress_sockabuse_fd(const int fd)
 #endif
 	VOID_RET(getpeername(fd, &addr, &addrlen));
 #if defined(FIONREAD)
-	VOID_RET(ioctl(fd, FIONREAD, &n));
+	{
+		int n;
+
+		VOID_RET(ioctl(fd, FIONREAD, &n));
+	}
 #endif
 #if defined(SEEK_SET)
 	VOID_RET(lseek(fd, 0, SEEK_SET));
