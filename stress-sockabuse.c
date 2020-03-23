@@ -312,7 +312,7 @@ static void stress_sockabuse_sigpipe_handler(int signum)
 static int stress_sockabuse(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
-	int socket_port = DEFAULT_SOCKET_PORT;
+	int socket_port = DEFAULT_SOCKABUSE_PORT;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, socket_port + args->instance);
