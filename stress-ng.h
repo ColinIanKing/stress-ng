@@ -1468,7 +1468,8 @@ extern void pr_fail_dbg__(const stress_args_t *args, const char *msg);
 #define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)
 
-#define DEFAULT_SOCKET_MANY_PORT (10000)
+#define DEFAULT_SOCKET_MANY_PORT (11000)
+#define DEFAULT_SOCKABUSE_PORT	(12000)
 
 #define MIN_SOCKET_FD_PORT	(1024)
 #define MAX_SOCKET_FD_PORT	(65535)
