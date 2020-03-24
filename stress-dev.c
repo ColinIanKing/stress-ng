@@ -370,6 +370,21 @@ static void stress_dev_tty(
 		(void)ret;
 	}
 #endif
+
+#if defined(TIOCGETC)
+	{
+		struct tchars tc;
+
+		ret = ioctl(fd, TIOCGETC, &tc);
+#if defined(TIOCSETC)
+		if (ret == 0) {
+			ret = ioctl(fd, TIOCGETC, &tc);
+		}
+		(void)ret;
+#endif
+	}
+#endif
+
 	/* Modem */
 #if defined(TIOCGSOFTCAR)
 	{
