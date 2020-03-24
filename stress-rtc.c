@@ -75,6 +75,11 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 			ret = -errno;
 			goto err;
 		}
+	} else {
+		int r;
+
+		r = ioctl(fd, RTC_SET_TIME, &rtc_tm);
+		(void)r;
 	}
 #endif
 
@@ -105,6 +110,11 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 			ret = -errno;
 			goto err;
 		}
+	} else {
+		int r;
+
+		r = ioctl(fd, RTC_IRQP_SET, tmp);
+		(void)r;
 	}
 #endif
 
@@ -118,6 +128,16 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 	FD_ZERO(&rfds);
 	FD_SET(fd, &rfds);
 	(void)select(fd + 1, &rfds, NULL, NULL, &timeout);
+
+#if defined(RTC_VL_READ)
+	if (ioctl(fd, RTC_VL_READ, &tmp) < 0) {
+		if (errno != ENOTTY) {
+			pr_fail_err("ioctl RTC_IRQP_READ");
+			ret = -errno;
+			goto err;
+		}
+	}
+#endif
 
 #if defined(RTC_RD_TIME) || defined(RTC_ALM_READ) || \
     defined(RTC_WKALM_RD) || defined(RTC_IRQP_READ)
