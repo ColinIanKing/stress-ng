@@ -385,6 +385,26 @@ static void stress_dev_tty(
 	}
 #endif
 
+#if defined(TCOOFF) && defined(TCOON)
+	{
+		ret = ioctl(fd, TCOOFF, 0);
+		if (ret == 0)
+			ret = ioctl(fd, TCOON, 0);
+		(void)ret;
+	}
+#endif
+
+#if defined(TCIOFF) && defined(TCION)
+	{
+		ret = ioctl(fd, TCIOFF, 0);
+		if (ret == 0)
+			ret = ioctl(fd, TCION, 0);
+		(void)ret;
+	}
+#endif
+
+	/* Modem */
+
 	/* Modem */
 #if defined(TIOCGSOFTCAR)
 	{
