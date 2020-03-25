@@ -39,7 +39,6 @@ static const stress_help_t help[] = {
     defined(HAVE_GETXATTR) &&		\
     defined(HAVE_LISTXATTR) &&		\
     defined(HAVE_LGETXATTR) &&		\
-    defined(HAVE_LSETXATTR) &&		\
     defined(HAVE_SETXATTR)
 
 #define MAX_XATTRS		(4096)
@@ -111,6 +110,7 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_close;
 			}
 
+#if defined(HAVE_LSETXATTR)
 			/* Although not a link, it's good to exercise this call */
 			ret = shim_lsetxattr(filename, attrname, value, strlen(value),
 				XATTR_REPLACE);
@@ -120,6 +120,7 @@ static int stress_xattr(const stress_args_t *args)
 				pr_fail_err("lsetxattr");
 				goto out_close;
 			}
+#endif
 		}
 		for (j = 0; j < i; j++) {
 			char tmp[sizeof(value)];
