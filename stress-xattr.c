@@ -76,7 +76,7 @@ static int stress_xattr(const stress_args_t *args)
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", i);
 			(void)snprintf(value, sizeof(value), "orig-value-%d", i);
 
-			ret = fsetxattr(fd, attrname, value, strlen(value), XATTR_CREATE);
+			ret = shim_fsetxattr(fd, attrname, value, strlen(value), XATTR_CREATE);
 			if (ret < 0) {
 				if (errno == ENOTSUP) {
 					pr_inf("%s stressor will be "
@@ -93,7 +93,7 @@ static int stress_xattr(const stress_args_t *args)
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
 
-			ret = fsetxattr(fd, attrname, value, strlen(value),
+			ret = shim_fsetxattr(fd, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
 				if (errno == ENOSPC || errno == EDQUOT)
@@ -103,7 +103,7 @@ static int stress_xattr(const stress_args_t *args)
 			}
 
 			/* ..and do it again using setxattr */
-			ret = setxattr(filename, attrname, value, strlen(value),
+			ret = shim_setxattr(filename, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
 				if (errno == ENOSPC || errno == EDQUOT)
@@ -113,7 +113,7 @@ static int stress_xattr(const stress_args_t *args)
 			}
 
 			/* Although not a link, it's good to exercise this call */
-			ret = lsetxattr(filename, attrname, value, strlen(value),
+			ret = shim_lsetxattr(filename, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
 				if (errno == ENOSPC || errno == EDQUOT)
@@ -128,7 +128,7 @@ static int stress_xattr(const stress_args_t *args)
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
 
-			ret = fgetxattr(fd, attrname, tmp, sizeof(tmp));
+			ret = shim_fgetxattr(fd, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
 				pr_fail_err("fgetxattr");
 				goto out_close;
@@ -152,7 +152,7 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_close;
 			}
 
-			ret = lgetxattr(filename, attrname, tmp, sizeof(tmp));
+			ret = shim_lgetxattr(filename, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
 				pr_fail_err("getxattr");
 				goto out_close;
@@ -165,7 +165,7 @@ static int stress_xattr(const stress_args_t *args)
 			}
 		}
 		/* Determine how large a buffer we required... */
-		sz = flistxattr(fd, NULL, 0);
+		sz = shim_flistxattr(fd, NULL, 0);
 		if (sz < 0) {
 			pr_fail_err("flistxattr");
 			goto out_close;
@@ -173,7 +173,7 @@ static int stress_xattr(const stress_args_t *args)
 		buffer = malloc(sz);
 		if (buffer) {
 			/* ...and fetch */
-			sz = listxattr(filename, buffer, sz);
+			sz = shim_listxattr(filename, buffer, sz);
 			free(buffer);
 
 			if (sz < 0) {
@@ -184,13 +184,13 @@ static int stress_xattr(const stress_args_t *args)
 		for (j = 0; j < i; j++) {
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 
-			ret = fremovexattr(fd, attrname);
+			ret = shim_fremovexattr(fd, attrname);
 			if (ret < 0) {
 				pr_fail_err("fremovexattr");
 				goto out_close;
 			}
 		}
-		sz = llistxattr(filename, NULL, 0);
+		sz = shim_llistxattr(filename, NULL, 0);
 		if (sz < 0) {
 			pr_fail_err("flistxattr");
 			goto out_close;

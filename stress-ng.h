@@ -3659,6 +3659,18 @@ extern int shim_execveat(int dir_fd, const char *pathname, char *const argv[],
 	char *const envp[], int flags);
 extern int shim_fallocate(int fd, int mode, off_t offset, off_t len);
 extern int shim_fdatasync(int fd);
+extern ssize_t shim_fgetxattr(int fd, const char *name, void *value, size_t size);
+extern ssize_t shim_flistxattr(int fd, char *list, size_t size);
+extern int shim_fsconfig(int fd, unsigned int cmd, const char *key,
+	const void *value, int aux);
+extern int shim_fsetxattr(int fd, const char *name, const void *value,
+	size_t size, int flags);
+extern int shim_fsmount(int fd, unsigned int flags, unsigned int ms_flags);
+extern int shim_fsopen(const char *fsname, unsigned int flags);
+extern int shim_fsync(int fd);
+extern int shim_futex_wait(const void *futex, const int val,
+	const struct timespec *timeout);
+extern int shim_futex_wake(const void *futex, const int n);
 extern long shim_getcpu(unsigned *cpu, unsigned *node, void *tcache);
 extern int shim_getdents(unsigned int fd, struct shim_linux_dirent *dirp,
 	unsigned int count);
@@ -3671,18 +3683,17 @@ extern int shim_getrandom(void *buff, size_t buflen, unsigned int flags);
 extern int shim_gettid(void);
 extern ssize_t shim_getxattr(const char *path, const char *name,
 	void *value, size_t size);
-extern int shim_futex_wait(const void *futex, const int val,
-	const struct timespec *timeout);
-extern int shim_futex_wake(const void *futex, const int n);
-extern int shim_fsconfig(int fd, unsigned int cmd, const char *key,
-	const void *value, int aux);
-extern int shim_fsmount(int fd, unsigned int flags, unsigned int ms_flags);
-extern int shim_fsopen(const char *fsname, unsigned int flags);
-extern int shim_fsync(int fd);
 extern int shim_ioprio_set(int which, int who, int ioprio);
 extern int shim_ioprio_get(int which, int who);
 extern long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1,
 	unsigned long idx2);
+extern int shim_klogctl(int type, char *bufp, int len);
+extern ssize_t shim_lgetxattr(const char *path, const char *name, void *value,
+	size_t size);
+extern ssize_t shim_llistxattr(const char *path, char *list, size_t size);
+extern int shim_lsetxattr(const char *path, const char *name,
+	const void *value, size_t size, int flags);
+extern ssize_t shim_listxattr(const char *path, char *list, size_t size);
 extern int shim_madvise(void *addr, size_t length, int advice);
 extern long shim_mbind(void *addr, unsigned long len,
 	int mode, const unsigned long *nodemask,
@@ -3721,12 +3732,14 @@ extern int shim_set_mempolicy(int mode, unsigned long *nodemask,
 extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
 extern ssize_t shim_statx(int dfd, const char *filename, unsigned int flags,
 	unsigned int mask, struct shim_statx *buffer);
+extern int shim_setxattr(const char *path, const char *name, const void *value,
+	size_t size, int flags);
 extern size_t shim_strlcat(char *dst, const char *src, size_t len);
 extern size_t shim_strlcpy(char *dst, const char *src, size_t len);
 extern int shim_sync_file_range(int fd, shim_off64_t offset,
 	shim_off64_t nbytes, unsigned int flags);
 extern int shim_sysfs(int option, ...);
-extern int shim_klogctl(int type, char *bufp, int len);
+extern int shim_fremovexattr(int fd, const char *name);
 extern int shim_unshare(int flags);
 extern int shim_userfaultfd(int flags);
 extern int shim_usleep(uint64_t usec);

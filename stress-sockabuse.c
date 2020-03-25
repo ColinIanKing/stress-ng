@@ -74,20 +74,18 @@ static void stress_sockabuse_fd(const int fd)
 #if (defined(HAVE_SYS_XATTR_H) ||       \
      defined(HAVE_ATTR_XATTR_H)) &&     \
     defined(HAVE_SETXATTR) &&		\
-    defined(XATTR_CREATE) &&		\
-    !defined(__APPLE__)
-	VOID_RET(fsetxattr(fd, "test", "value", 5, XATTR_CREATE));
+    defined(XATTR_CREATE)
+	VOID_RET(shim_fsetxattr(fd, "test", "value", 5, XATTR_CREATE));
 #endif
 	VOID_RET(fstat(fd, &statbuf));
 	VOID_RET(ftruncate(fd, 0));
 #if (defined(HAVE_SYS_XATTR_H) ||       \
      defined(HAVE_ATTR_XATTR_H)) &&     \
-    defined(HAVE_FLISTXATTR) &&		\
-    !defined(__APPLE__)
+    defined(HAVE_FLISTXATTR)
 	{
 		char list[4096];
 
-		VOID_RET(flistxattr(fd, list, sizeof(list)));
+		VOID_RET(shim_flistxattr(fd, list, sizeof(list)));
 	}
 #endif
 #if defined(HAVE_FUTIMENS)

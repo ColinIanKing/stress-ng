@@ -1169,27 +1169,6 @@ int shim_execveat(
 }
 
 /*
- *   shim_getxattr
- *	wrapper for getxattr
- */
-ssize_t shim_getxattr(
-	const char *path,
-	const char *name,
-	void *value,
-	size_t size)
-{
-#if defined(HAVE_GETXATTR)
-#if defined(__APPLE__)
-	return getxattr(path, name, value, size, 0, 0);
-#else
-	return getxattr(path, name, value, size);
-#endif
-#else
-	return shim_enosys(0, path, name, value, size);
-#endif
-}
-
-/*
  *   shim_waitpid()
  *	wrapper for waitpid with EINTR retry
  */
@@ -1296,5 +1275,167 @@ int shim_ustat(dev_t dev, struct shim_ustat *ubuf)
 	return syscall(__NR_ustat, dev, ubuf);
 #else
 	return shim_enosys(0, dev, ubuf);
+#endif
+}
+
+/*
+ *   shim_getxattr
+ *	wrapper for getxattr
+ */
+ssize_t shim_getxattr(
+	const char *path,
+	const char *name,
+	void *value,
+	size_t size)
+{
+#if defined(HAVE_GETXATTR)
+#if defined(__APPLE__)
+	return getxattr(path, name, value, size, 0, 0);
+#else
+	return getxattr(path, name, value, size);
+#endif
+#else
+	return shim_enosys(0, path, name, value, size);
+#endif
+}
+
+/*
+ *  shim_listxattr
+ *	wrapper for listxattr
+ */
+ssize_t shim_listxattr(const char *path, char *list, size_t size)
+{
+#if defined(HAVE_LISTXATTR)
+#if defined(__APPLE__)
+	return listxattr(path, list, size, 0);
+#else
+	return listxattr(path, list, size);
+#endif
+#else
+	return shim_enosys(0, path, list, size);
+#endif
+}
+
+/*
+ *  shim_flistxattr
+ *	wrapper for flistxattr
+ */
+ssize_t shim_flistxattr(int fd, char *list, size_t size)
+{
+#if defined(HAVE_FLISTXATTR)
+#if defined(__APPLE__)
+	return flistxattr(fd, list, size, 0);
+#else
+	return flistxattr(fd, list, size);
+#endif
+#else
+	return shim_enosys(0, fd, list, size);
+#endif
+}
+
+/*
+ *  shim_setxattr
+ *	wrapper for setxattr
+ */
+int shim_setxattr(const char *path, const char *name, const void *value, size_t size, int flags)
+{
+#if defined(HAVE_SETXATTR)
+#if defined(__APPLE__)
+	return setxattr(path, name, value, size, 0, flags);
+#else
+	return setxattr(path, name, value, size, flags);
+#endif
+#else
+	return shim_enosys(0, path, name, value, size, flags);
+#endif
+}
+
+/*
+ *  shim_fsetxattr
+ *	wrapper for fsetxattr
+ */
+int shim_fsetxattr(int fd, const char *name, const void *value, size_t size, int flags)
+{
+#if defined(HAVE_FSETXATTR)
+#if defined(__APPLE__)
+	return fsetxattr(fd, name, value, size, 0, flags);
+#else
+	return fsetxattr(fd, name, value, size, flags);
+#endif
+#else
+	return shim_enosys(0, fd, name, value, size, flags);
+#endif
+}
+
+/*
+ *  shim_lsetxattr
+ *	wrapper for lsetxattr
+ */
+int shim_lsetxattr(const char *path, const char *name, const void *value, size_t size, int flags)
+{
+#if defined(HAVE_LSETXATTR)
+	return lsetxattr(path, name, value, size, flags);
+#else
+	return shim_enosys(0, path, name, value, size, flags);
+#endif
+}
+
+/*
+ *  shim_lgetxattr
+ *	wrapper for lgetxattr
+ */
+ssize_t shim_lgetxattr(const char *path, const char *name, void *value, size_t size)
+{
+#if defined(HAVE_LGETXATTR)
+	return lgetxattr(path, name, value, size);
+#else
+	return shim_enosys(0, path, name, value, size);
+#endif
+}
+
+/*
+ *  shim_fgetxattr
+ *	wrapper for fgetxattr
+ */
+ssize_t shim_fgetxattr(int fd, const char *name, void *value, size_t size)
+{
+#if defined(HAVE_FGETXATTR)
+#if defined(__APPLE__)
+	return fgetxattr(fd, name, value, size, 0, 0);
+#else
+	return fgetxattr(fd, name, value, size);
+#endif
+#else
+	return shim_enosys(0, fd, name, value, size);
+#endif
+}
+
+/*
+ *  shim_fremovexattr
+ *	wrapper for fremovexattr
+ */
+int shim_fremovexattr(int fd, const char *name)
+{
+#if defined(HAVE_FREMOVEXATTR)
+#if defined(__APPLE__)
+	return fremovexattr(fd, name, 0);
+#else
+	return fremovexattr(fd, name);
+#endif
+#else
+	return shim_enosys(0, fd, name);
+#endif
+}
+
+/*
+ *  shim_llistxattr
+ *	wrapper for fllistxattr
+ */
+ssize_t shim_llistxattr(const char *path, char *list, size_t size)
+{
+#if defined(HAVE_FLISTXATTR)
+	return llistxattr(path, list, size);
+#else
+	return shim_enosys(0, path, list, size);
 #endif
 }
