@@ -38,7 +38,6 @@ static const stress_help_t help[] = {
     defined(HAVE_FSETXATTR) &&		\
     defined(HAVE_GETXATTR) &&		\
     defined(HAVE_LISTXATTR) &&		\
-    defined(HAVE_LGETXATTR) &&		\
     defined(HAVE_SETXATTR)
 
 #define MAX_XATTRS		(4096)
@@ -152,6 +151,7 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_close;
 			}
 
+#if defined(HAVE_LGETXATTR)
 			ret = shim_lgetxattr(filename, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
 				pr_fail_err("getxattr");
@@ -163,6 +163,7 @@ static int stress_xattr(const stress_args_t *args)
 					args->name, ret, value, ret, tmp);
 				goto out_close;
 			}
+#endif
 		}
 		/* Determine how large a buffer we required... */
 		sz = shim_flistxattr(fd, NULL, 0);
