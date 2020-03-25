@@ -39,7 +39,6 @@ static const stress_help_t help[] = {
     defined(HAVE_GETXATTR) &&		\
     defined(HAVE_LISTXATTR) &&		\
     defined(HAVE_LGETXATTR) &&		\
-    defined(HAVE_LLISTXATTR) &&		\
     defined(HAVE_LSETXATTR) &&		\
     defined(HAVE_SETXATTR)
 
@@ -190,11 +189,13 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_close;
 			}
 		}
+#if defined(HAVE_LLISTXATTR)
 		sz = shim_llistxattr(filename, NULL, 0);
 		if (sz < 0) {
 			pr_fail_err("flistxattr");
 			goto out_close;
 		}
+#endif
 		inc_counter(args);
 	} while (keep_stressing());
 
