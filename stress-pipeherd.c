@@ -162,7 +162,7 @@ static int stress_pipeherd(const stress_args_t *args)
 		if (getrusage(RUSAGE_SELF, &usage) == 0) {
 			total += usage.ru_nvcsw + usage.ru_nivcsw;
 			if (total) {
-				pr_inf("%s: %.2f context switchers per bogo operation (%.2f per second)\n",
+				pr_inf("%s: %.2f context switches per bogo operation (%.2f per second)\n",
 					args->name,
 					(float)total / (float)get_counter(args),
 					(float)total / (t2 - t1));
