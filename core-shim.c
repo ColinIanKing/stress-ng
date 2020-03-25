@@ -1433,7 +1433,7 @@ int shim_fremovexattr(int fd, const char *name)
  */
 ssize_t shim_llistxattr(const char *path, char *list, size_t size)
 {
-#if defined(HAVE_FLISTXATTR)
+#if defined(HAVE_LLISTXATTR)
 	return llistxattr(path, list, size);
 #else
 	return shim_enosys(0, path, list, size);
