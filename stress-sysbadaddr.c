@@ -241,10 +241,12 @@ static int bad_connect(void *addr)
 	return connect(0, (const struct sockaddr *)addr, sizeof(struct sockaddr));
 }
 
+/*
 static int bad_creat(void *addr)
 {
 	return creat(addr, 0);
 }
+*/
 
 static int bad_execve(void *addr)
 {
@@ -718,7 +720,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_clone,
 #endif
 	bad_connect,
+/*
 	bad_creat,
+*/
 	bad_execve,
 #if defined(HAVE_FACCESSAT)
 	bad_faccessat,
