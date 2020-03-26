@@ -274,8 +274,9 @@ static int do_fcntl(const stress_args_t *args, const int fd)
 #if defined(F_GETOWNER_UIDS)
 	{
 		int ret;
+		uid_t uids[2];
 
-		ret = fcntl(fd, F_GETOWNER_UIDS);
+		ret = fcntl(fd, F_GETOWNER_UIDS, uids);
 		check_return(args, ret, "F_GETOWNER_UIDS");
 	}
 #endif
