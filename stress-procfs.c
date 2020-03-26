@@ -334,11 +334,6 @@ static void stress_proc_dir(
 	if (depth > 20)
 		return;
 
-#if defined(STRESS_ARCH_ARM)
-	if (!strncmp(path, "/proc/bus/pci", 13))
-		return;
-#endif
-
 	mixup = stress_mwc32();
 	dlist = NULL;
 	n = scandir(path, &dlist, NULL, mixup_sort);
