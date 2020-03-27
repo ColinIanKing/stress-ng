@@ -66,24 +66,32 @@ again:
 	} else if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		int val = 0;
 
 		while (keep_stressing_flag()) {
 			union sigval s;
 			int ret;
 
 			(void)memset(&s, 0, sizeof(s));
-			s.sival_int = 0;
+			s.sival_int = val++;
 			ret = sigqueue(ppid, SIGRTMIN, s);
-			if (ret < 0)
+			if ((ret < 0) && (errno != EAGAIN)) {
 				break;
+			}
+
 		}
 		(void)close(sfd);
 		_exit(0);
 	} else {
 		/* Parent */
 		int status;
+		char path[PATH_MAX];
 
 		(void)setpgid(pid, g_pgrp);
+
+		(void)snprintf(path, sizeof(path), "/proc/%d/fdinfo/%d",
+			pid, sfd);
+
 		do {
 			int ret;
 			struct signalfd_siginfo fdsi;
@@ -99,13 +107,28 @@ again:
 				}
 				continue;
 			}
-			if (ret == 0)
+			if (ret == 0) 
 				break;
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (fdsi.ssi_signo != (uint32_t)SIGRTMIN) {
 					pr_fail("%s: unexpected signal %d",
 						args->name, fdsi.ssi_signo);
 					break;
+				}
+			}
+			/*
+			 *  periodically exercise the /proc info for
+			 *  the signal fd to exercise the sigmask setting
+			 *  for this specific kind of fd info.
+			 */
+			if ((fdsi.ssi_int & 0xffff) == 0) {
+				int fd;
+				char data[4096];
+
+				fd = open(path, O_RDONLY);
+				if (fd) {
+					ret = read(fd, data, sizeof(data));
+					(void)close(fd);
 				}
 			}
 			inc_counter(args);
