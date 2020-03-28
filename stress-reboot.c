@@ -24,16 +24,16 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && 	\
-    defined(__NR_reboot)
-
-#define CLONE_STACK_SIZE	(16*1024)
-
 static const stress_help_t help[] = {
 	{ NULL,	"reboot N",	"start N workers that exercise bad reboot calls" },
 	{ NULL,	"reboot-ops N",	"stop after N bogo reboot operations" },
 	{ NULL,	NULL,		NULL }
 };
+
+#if defined(__linux__) && 	\
+    defined(__NR_reboot)
+
+#define CLONE_STACK_SIZE	(16*1024)
 
 #define SHIM_LINUX_BOOT_MAGIC1		(0xfee1dead)
 #define SHIM_LINUX_REBOOT_MAGIC2	(0x28121969)
