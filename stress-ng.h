@@ -1731,6 +1731,12 @@ typedef pthread_mutex_t		shim_pthread_spinlock_t;
 #define SHIM_CAP_SYS_TIME	(0)
 #endif
 
+#if defined(CAP_SYS_BOOT)
+#define SHIM_CAP_SYS_BOOT	CAP_SYS_BOOT
+#else
+#define SHIM_CAP_SYS_BOOT	(0)
+#endif
+
 /* stress process prototype */
 typedef int (*stress_func_t)(const stress_args_t *args);
 

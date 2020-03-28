@@ -86,7 +86,7 @@ static int stress_reboot(const stress_args_t *args)
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
-	const bool reboot_capable = stress_check_capability(CAP_SYS_BOOT);
+	const bool reboot_capable = stress_check_capability(SHIM_CAP_SYS_BOOT);
 
 	do {
 #if defined(HAVE_CLONE)
