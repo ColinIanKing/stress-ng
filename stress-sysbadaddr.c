@@ -168,10 +168,12 @@ static int bad_access(void *addr)
 	return access((char *)addr, R_OK);
 }
 
+/*
 static int bad_acct(void *addr)
 {
 	return acct((char *)addr);
 }
+*/
 
 static int bad_bind(void *addr)
 {
