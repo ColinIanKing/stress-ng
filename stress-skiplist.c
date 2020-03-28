@@ -197,7 +197,7 @@ static void skip_list_dump(skip_list_t *list)
  *  skip_list_free()
  *	free a skip list
  */
-void skip_list_free(skip_list_t *list)
+static void skip_list_free(skip_list_t *list)
 {
 	skip_node_t *head = list->head;
 	skip_node_t *skip_node = head;
