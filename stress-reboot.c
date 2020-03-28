@@ -59,12 +59,13 @@ static const uint32_t boot_magic[] = {
 static int reboot_clone_func(void *arg)
 {
 	size_t i, j = stress_mwc8() % SIZEOF_ARRAY(boot_magic);
-	int ret;
 
 	(void)arg;
 
 	/* Random starting reboot command */
 	for (i = 0; i < SIZEOF_ARRAY(boot_magic); i++) {
+		int ret;
+
 		errno = 0;
 		ret = shim_reboot(SHIM_LINUX_BOOT_MAGIC1, boot_magic[j],
 			SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL);
