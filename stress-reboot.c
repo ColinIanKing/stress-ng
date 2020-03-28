@@ -84,13 +84,13 @@ static int reboot_clone_func(void *arg)
  */
 static int stress_reboot(const stress_args_t *args)
 {
-	int ret;
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
 	const bool reboot_capable = stress_check_capability(SHIM_CAP_SYS_BOOT);
 
 	do {
+		int ret;
 #if defined(HAVE_CLONE)
 		char stack[CLONE_STACK_SIZE];
 		char *stack_top = stack + stack_offset;
