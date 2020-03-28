@@ -234,7 +234,8 @@ static int bad_clock_settime(void *addr)
 }
 #endif
 
-#if defined(HAVE_CLONE)
+#if defined(HAVE_CLONE) && 	\
+    defined(__linux__)
 static int bad_clone(void *addr)
 {
 	typedef int (*fn)(void *);
@@ -738,7 +739,8 @@ static stress_bad_syscall_t bad_syscalls[] = {
     defined(HAVE_CLOCK_SETTIME)
 	bad_clock_settime,
 #endif
-#if defined(HAVE_CLONE)
+#if defined(HAVE_CLONE) && 	\
+    defined(__linux__)
 	bad_clone,
 #endif
 	bad_connect,
