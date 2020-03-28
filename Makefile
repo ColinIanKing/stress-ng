@@ -212,6 +212,7 @@ STRESS_SRC = \
 	stress-rawsock.c \
 	stress-rdrand.c \
 	stress-readahead.c \
+	stress-reboot.c \
 	stress-remap-file-pages.c \
 	stress-rename.c \
 	stress-resources.c \

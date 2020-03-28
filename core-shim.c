@@ -1439,3 +1439,16 @@ ssize_t shim_llistxattr(const char *path, char *list, size_t size)
 	return shim_enosys(0, path, list, size);
 #endif
 }
+
+/*
+ *  shim_reboot
+ *	wrapper for linux reboot system call
+ */
+int shim_reboot(int magic, int magic2, int cmd, void *arg)
+{
+#if defined(__linux__) && defined(__NR_reboot)
+        return syscall(__NR_reboot, magic, magic2, cmd, arg);
+#else
+	return shim_enosys(0, magic, magic2, cmd, arg);
+#endif
+}

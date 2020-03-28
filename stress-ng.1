@@ -2840,6 +2840,16 @@ GBytes using the suffix b, k, m or g.
 .B \-\-readahead\-ops N
 stop readahead stress workers after N bogo read operations.
 .TP
+.B \-\-reboot N
+start N workers that exercise the reboot(2) system call. When possible, it
+will create a process in a PID namespace and perform a reboot power off command
+that should shutdown the process.  Also, the stressor exercises invalid
+reboot magic values and invalid reboots when there are insufficient privileges
+that will not actually reboot the system.
+.TP
+.B \-\-reboot\-ops N
+stop the reboot stress workers after N bogo reboot cycles.
+.TP
 .B \-\-remap N
 start N workers that map 512 pages and re-order these pages using the
 deprecated system call remap_file_pages(2). Several page re-orderings are

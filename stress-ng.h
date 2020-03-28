@@ -2005,6 +2005,7 @@ typedef struct {
 	MACRO(rawsock)		\
 	MACRO(rdrand)		\
 	MACRO(readahead)	\
+	MACRO(reboot)		\
 	MACRO(remap)		\
 	MACRO(rename)		\
 	MACRO(resources)	\
@@ -2707,9 +2708,13 @@ typedef enum {
 	OPT_rdrand,
 	OPT_rdrand_ops,
 
+
 	OPT_readahead,
 	OPT_readahead_ops,
 	OPT_readahead_bytes,
+
+	OPT_reboot,
+	OPT_reboot_ops,
 
 	OPT_remap,
 	OPT_remap_ops,
@@ -3721,6 +3726,7 @@ extern int shim_pkey_free(int pkey);
 extern int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey);
 extern int shim_pkey_get(int pkey);
 extern int shim_pkey_set(int pkey, unsigned int rights);
+extern int shim_reboot(int magic, int magic2, int cmd, void *arg);
 extern void *shim_sbrk(intptr_t increment);
 extern int shim_sched_getattr(pid_t pid, struct shim_sched_attr *attr,
 	unsigned int size, unsigned int flags);

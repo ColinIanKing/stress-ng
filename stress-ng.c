@@ -630,6 +630,8 @@ static const struct option long_options[] = {
 	{ "readahead",	1,	0,	OPT_readahead },
 	{ "readahead-ops",1,	0,	OPT_readahead_ops },
 	{ "readahead-bytes",1,	0,	OPT_readahead_bytes },
+	{ "reboot",	1,	0,	OPT_reboot },
+	{ "reboot-ops",	1,	0,	OPT_reboot_ops },
 	{ "remap",	1,	0,	OPT_remap },
 	{ "remap-ops",	1,	0,	OPT_remap_ops },
 	{ "rename",	1,	0,	OPT_rename },
