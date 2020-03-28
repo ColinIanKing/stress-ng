@@ -100,6 +100,11 @@ static void MLOCKED_TEXT stress_badhandler(int signum)
 	_exit(1);
 }
 
+static inline void *inc_addr(void *ptr, const size_t inc)
+{
+	return (void *)((char *)ptr + inc);
+}
+
 static void *unaligned_addr(const stress_args_t *args)
 {
 	static uint64_t data[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
@@ -234,8 +239,10 @@ static int bad_clone(void *addr)
 {
 	typedef int (*fn)(void *);
 
-	return clone((fn)addr, (void *)addr, 0, (void *)addr, (pid_t *)addr,
-		(void *)addr, (pid_t *)addr);
+	return clone((fn)addr, (void *)addr, 0, (void *)addr,
+		(pid_t *)inc_addr(addr, 1),
+		(void *)inc_addr(addr, 2),
+		(pid_t *)inc_addr(addr, 3));
 }
 #endif
 
@@ -253,7 +260,8 @@ static int bad_creat(void *addr)
 
 static int bad_execve(void *addr)
 {
-	return execve((char *)addr, (char **)addr, (char **)addr);
+	return execve((char *)addr, (char **)inc_addr(addr, 1),
+		(char **)inc_addr(addr, 2));
 }
 
 #if defined(HAVE_FACCESSAT)
@@ -270,7 +278,8 @@ static int bad_fstat(void *addr)
 
 static int bad_getcpu(void *addr)
 {
-	return shim_getcpu((unsigned *)addr, (unsigned *)addr, (void *)addr);
+	return shim_getcpu((unsigned *)addr, (unsigned *)inc_addr(addr, 2),
+		(void *)inc_addr(addr, 2));
 }
 
 static int bad_getcwd(void *addr)
@@ -307,12 +316,14 @@ static int bad_getitimer(void *addr)
 
 static int bad_getpeername(void *addr)
 {
-	return getpeername(0, (struct sockaddr *)addr, (socklen_t *)addr);
+	return getpeername(0, (struct sockaddr *)addr, (socklen_t *)inc_addr(addr, 1));
 }
 
 static int bad_get_mempolicy(void *addr)
 {
-	return shim_get_mempolicy((int *)addr, (unsigned long *)addr, 1, (unsigned long)addr, 0UL);
+	return shim_get_mempolicy((int *)addr,
+		(unsigned long *)inc_addr(addr, 1), 1,
+		(unsigned long)inc_addr(addr, 2), 0UL);
 }
 
 static int bad_getrandom(void *addr)
@@ -323,14 +334,16 @@ static int bad_getrandom(void *addr)
 #if defined(HAVE_GETRESGID)
 static int bad_getresgid(void *addr)
 {
-	return getresgid((gid_t *)addr, (gid_t *)addr, (gid_t *)addr);
+	return getresgid((gid_t *)addr, (gid_t *)inc_addr(addr, 1),
+		(gid_t *)inc_addr(addr, 2));
 }
 #endif
 
 #if defined(HAVE_GETRESUID)
 static int bad_getresuid(void *addr)
 {
-	return getresuid((uid_t *)addr, (uid_t *)addr, (uid_t *)addr);
+	return getresuid((uid_t *)addr, (uid_t *)inc_addr(addr, 1),
+		(uid_t *)inc_addr(addr, 2));
 }
 #endif
 
@@ -346,12 +359,12 @@ static int bad_getrusage(void *addr)
 
 static int bad_getsockname(void *addr)
 {
-	return getsockname(0, (struct sockaddr *)addr, (socklen_t *)addr);
+	return getsockname(0, (struct sockaddr *)addr, (socklen_t *)inc_addr(addr, 1));
 }
 
 static int bad_gettimeofday(void *addr)
 {
-	struct timezone *tz = ((struct timezone *)addr) + 1;
+	struct timezone *tz = (struct timezone *)inc_addr(addr, 1);
 	return gettimeofday((struct timeval *)addr, tz);
 }
 
@@ -359,7 +372,8 @@ static int bad_gettimeofday(void *addr)
     (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
 static int bad_getxattr(void *addr)
 {
-	return shim_getxattr((char *)addr, (char *)addr, (void *)addr, (size_t)32);
+	return shim_getxattr((char *)addr, (char *)inc_addr(addr, 1),
+		(void *)inc_addr(addr, 2), (size_t)32);
 }
 #endif
 
@@ -377,12 +391,12 @@ static int bad_lchown(void *addr)
 
 static int bad_link(void *addr)
 {
-	return link((char *)addr, (char *)addr);
+	return link((char *)addr, (char *)inc_addr(addr, 1));
 }
 
 static int bad_lstat(void *addr)
 {
-	return lstat((const char *)addr, (struct stat *)addr);
+	return lstat((const char *)addr, (struct stat *)inc_addr(addr, 1));
 }
 
 #if defined(HAVE_MADVISE)
@@ -395,7 +409,7 @@ static int bad_madvise(void *addr)
 static int bad_migrate_pages(void *addr)
 {
 	return shim_migrate_pages(getpid(), 1, (unsigned long *)addr,
-		(unsigned long *)addr);
+		(unsigned long *)inc_addr(addr, 1));
 }
 
 static int bad_mincore(void *addr)
@@ -421,7 +435,7 @@ static int bad_mlock2(void *addr)
 static int bad_move_pages(void *addr)
 {
 	return shim_move_pages(getpid(), (unsigned long)1, (void **)addr,
-		(const int *)addr, (int *)addr, 0);
+		(const int *)inc_addr(addr, 1), (int *)inc_addr(addr, 2), 0);
 }
 #endif
 
@@ -451,7 +465,8 @@ static int bad_msync(void *addr)
 #if defined(HAVE_NANOSLEEP)
 static int bad_nanosleep(void *addr)
 {
-	return nanosleep((struct timespec *)addr, (struct timespec *)addr);
+	return nanosleep((struct timespec *)addr,
+		(struct timespec *)inc_addr(addr, 1));
 }
 #endif
 
@@ -487,7 +502,8 @@ static int bad_pread(void *addr)
     defined(PTRACE_GETREGS)
 static int bad_ptrace(void *addr)
 {
-	return ptrace(PTRACE_GETREGS, getpid(), (void *)addr, (void *)addr);
+	return ptrace(PTRACE_GETREGS, getpid(), (void *)addr,
+		(void *)inc_addr(addr, 1));
 }
 #endif
 
@@ -524,7 +540,7 @@ static int bad_read(void *addr)
 
 static int bad_readlink(void *addr)
 {
-	return readlink((const char *)addr, (char *)(addr + 1), 8192);
+	return readlink((const char *)addr, (char *)inc_addr(addr, 1), 8192);
 }
 
 static int bad_readv(void *addr)
@@ -541,7 +557,7 @@ static int bad_readv(void *addr)
 
 static int bad_rename(void *addr)
 {
-	return rename((char *)addr, (char *)addr);
+	return rename((char *)addr, (char *)inc_addr(addr, 1));
 }
 
 #if defined(HAVE_SCHED_GETAFFINITY)
@@ -560,7 +576,7 @@ static int bad_select(void *addr)
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
-		ret = select(fd, readfds, writefds, exceptfds, (struct timeval *)addr);
+		ret = select(fd, readfds, writefds, exceptfds, (struct timeval *)inc_addr(addr, 4));
 		(void)close(fd);
 	}
 	return ret;
@@ -569,7 +585,7 @@ static int bad_select(void *addr)
 static int bad_setitimer(void *addr)
 {
 	return setitimer(ITIMER_PROF, (struct itimerval *)addr,
-		(struct itimerval *)((char *)addr + 1));
+		(struct itimerval *)inc_addr(addr, 1));
 }
 
 static int bad_setrlimit(void *addr)
@@ -579,7 +595,7 @@ static int bad_setrlimit(void *addr)
 
 static int bad_stat(void *addr)
 {
-	return stat((char *)addr, (struct stat *)addr);
+	return stat((char *)addr, (struct stat *)inc_addr(addr, 1));
 }
 
 #if defined(HAVE_STATFS)
