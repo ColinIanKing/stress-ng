@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
 
 typedef struct madvise_ctxt {
 	const stress_args_t *args;
-	const void *buf;
+	void *buf;
 	size_t sz;
 	bool  is_thread;
 } madvise_ctxt_t;
@@ -198,7 +198,7 @@ static void *stress_madvise_pages(void *arg)
 	size_t n;
 	const madvise_ctxt_t *ctxt = (const madvise_ctxt_t *)arg;
 	const stress_args_t *args = ctxt->args;
-	const void *buf = ctxt->buf;
+	void *buf = ctxt->buf;
 	const size_t sz = ctxt->sz;
 	const size_t page_size = args->page_size;
 	static void *nowt = NULL;
