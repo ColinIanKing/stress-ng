@@ -83,6 +83,7 @@ static int reboot_clone_func(void *arg)
  */
 static int stress_reboot(const stress_args_t *args)
 {
+	int ret;
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
@@ -93,12 +94,11 @@ static int stress_reboot(const stress_args_t *args)
 		char stack[CLONE_STACK_SIZE];
 		char *stack_top = stack + stack_offset;
 		pid_t pid;
-		int ret;
 
 		pid = clone(reboot_clone_func, stress_align_stack(stack_top),
 			CLONE_NEWPID | CLONE_NEWNS, (void *)args);
 		if (pid >= 0) {
-			int status, ret;
+			int status;
 
 			(void)stress_mwc8();
 
