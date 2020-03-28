@@ -212,7 +212,7 @@ static int stress_sockabuse_server(
 	}
 
 	do {
-		int i, sfd;
+		int i;
 
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			rc = exit_status(errno);
@@ -250,6 +250,8 @@ static int stress_sockabuse_server(
 		}
 
 		for (i = 0; i < 16; i++) {
+			int sfd;
+
 			if (!keep_stressing())
 				break;
 
