@@ -717,7 +717,9 @@ static int bad_writev(void *addr)
 
 static stress_bad_syscall_t bad_syscalls[] = {
 	bad_access,
+/*
 	bad_acct,
+*/
 	bad_bind,
 	bad_chdir,
 	bad_chmod,
@@ -756,7 +758,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_fstat,
 	bad_getcpu,
 	bad_getcwd,
+#if defined(HAVE_GETDOMAINNAME)
 	bad_getdomainname,
+#endif
 	bad_getgroups,
 	bad_get_mempolicy,
 	bad_gethostname,
