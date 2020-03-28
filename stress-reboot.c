@@ -96,7 +96,7 @@ static int stress_reboot(const stress_args_t *args)
 		pid_t pid;
 
 		pid = clone(reboot_clone_func, stress_align_stack(stack_top),
-			CLONE_NEWPID | CLONE_NEWNS, (void *)args);
+			CLONE_NEWPID | CLONE_NEWNS, NULL);
 		if (pid >= 0) {
 			int status;
 
