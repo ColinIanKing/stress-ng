@@ -1,3 +1,12 @@
+stress-ng (0.11.06-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-dev: remove TIOCGETC and TIOCSETC ioctl to fix FTBFS on alpha
+    - this is the 2nd attempt to fix this issue, this time I'm removing
+      the use these specific ioctl commands.
+
+ -- Colin King <colin.king@canonical.com>  Mon, 30 Mar 2020 09:46:35 +0100
+
 stress-ng (0.11.05-1) unstable; urgency=medium
 
   * Makefile: bump version
