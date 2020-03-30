@@ -371,27 +371,6 @@ static void stress_dev_tty(
 	}
 #endif
 
-#if defined(TIOCGETC)
-	{
-		struct shim_tchars {
-			char    t_intrc;
-			char    t_quitc;
-			char    t_startc;
-			char    t_stopc;
-			char    t_eofc;
-			char    t_brkc;
-		} tc;
-
-		ret = ioctl(fd, TIOCGETC, &tc);
-#if defined(TIOCSETC)
-		if (ret == 0) {
-			ret = ioctl(fd, TIOCGETC, &tc);
-		}
-		(void)ret;
-#endif
-	}
-#endif
-
 #if defined(TCOOFF) && defined(TCOON)
 	{
 		ret = ioctl(fd, TCOOFF, 0);
