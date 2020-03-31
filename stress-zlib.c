@@ -58,6 +58,51 @@ typedef struct {
 	bool		interrupted;
 } stress_xsum_t;
 
+typedef struct morse {
+	char ch;
+	char *str;
+} morse_t;
+
+static const morse_t morse[] = {
+	{ 'a', ".-" },
+	{ 'b', "-.." },
+	{ 'c', "-.-." },
+	{ 'd', "-.." },
+	{ 'e', "." },
+	{ 'f', "..-." },
+	{ 'g', "--." },
+	{ 'h', "...." },
+	{ 'i', ".." },
+	{ 'j', ".---" },
+	{ 'k', "-.-" },
+	{ 'l', ".-.." },
+	{ 'm', "--" },
+	{ 'n', "-." },
+	{ 'o', "---" },
+	{ 'p', ".--." },
+	{ 'q', "--.-" },
+	{ 'r', ".-." },
+	{ 's', "..." },
+	{ 't', "-" },
+	{ 'u', "..-" },
+	{ 'v', "...-" },
+	{ 'w', ".--" },
+	{ 'x', "-..-" },
+	{ 'y', "-.--" },
+	{ 'z', "--.." },
+	{ '0', "-----" },
+	{ '1', ".----" },
+	{ '2', "..---" },
+	{ '3', "...--" },
+	{ '4', "....-" },
+	{ '5', "....." },
+	{ '6', "-...." },
+	{ '7', "--..." },
+	{ '8', "---.." },
+	{ '9', "----." },
+	{ ' ', " " }
+};
+
 static stress_zlib_rand_data_info_t zlib_rand_data_methods[];
 static volatile bool pipe_broken = false;
 static sigjmp_buf jmpbuf;
@@ -591,6 +636,51 @@ static void stress_rand_data_latin(const stress_args_t *args, uint32_t *data, co
 	}
 }
 
+/*
+ *  stress_rand_data_morse()
+ *	fill buffer with morse encoded random latin Lorum Ipsum text.
+ */
+static void stress_rand_data_morse(const stress_args_t *args, uint32_t *data, const int size)
+{
+	register int i;
+	static const char *ptr = NULL;
+	char *dataptr = (char *)data;
+	static char *morse_table[256];
+	static bool morse_table_init = false;
+
+	(void)args;
+
+	if (!morse_table_init) {
+		(void)memset(morse_table, 0, sizeof(morse_table));
+		for (i = 0; i < (int)SIZEOF_ARRAY(morse); i++)
+			morse_table[tolower((int)morse[i].ch)] = morse[i].str;
+		morse_table_init = true;
+	}
+
+	ptr = "";
+	for (i = 0; i < size; ) {
+		register int ch;
+		register char *mptr;
+
+		if (!*ptr)
+			ptr = lorem_ipsum[stress_mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
+
+		ch = tolower(*ptr);
+		mptr = morse_table[ch];
+		if (mptr) {
+			for (; *mptr && (i < size); mptr++) {
+				*dataptr++ = *mptr;
+				i++;
+			}
+			for (mptr = " "; *mptr && (i < size); mptr++) {
+				*dataptr++ = *mptr;
+				i++;
+			}
+		}
+		ptr++;
+	}
+}
+
 
 /*
  *  stress_rand_data_objcode()
@@ -716,6 +806,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "latin",	stress_rand_data_latin },
 	{ "logmap",	stress_rand_data_logmap },
 	{ "lrand48",	stress_rand_data_lrand48 },
+	{ "morse",	stress_rand_data_morse },
 	{ "nybble",	stress_rand_data_nybble },
 	{ "objcode",	stress_rand_data_objcode },
 	{ "parity",	stress_rand_data_parity },
