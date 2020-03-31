@@ -497,6 +497,32 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
 			name);
 }
 
+/*
+ *  stress_cpu_apery()
+ *      compute Apéry's constant
+ */
+static void HOT OPTIMIZE3 stress_cpu_apery(const char *name)
+{
+	uint32_t n;
+	long double a = 0.0, a_;
+	const long double precision = 1.0e-14L;
+
+	(void)name;
+
+	for (n = 1; n < 100000; n++) {
+		long double n3 = (long double)n;
+
+		a_ = a;
+		n3 = n3 * n3 * n3;
+		a += (1.0L / n3);
+		if (fabsl(a - a_) < precision)
+			break;
+	}
+	if (fabsl(a - a_) > precision)
+		pr_fail("%s: Apéry's const not accurate enough\n", name);
+}
+
+
 #if defined(HAVE_COMPLEX_H) &&		\
     defined(HAVE_COMPLEX) &&		\
     defined(__STDC_IEC_559_COMPLEX__) &&\
@@ -2503,6 +2529,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "all",		stress_cpu_all },	/* Special "all test */
 
 	{ "ackermann",		stress_cpu_ackermann },
+	{ "apery",		stress_cpu_apery },
 	{ "bitops",		stress_cpu_bitops },
 	{ "callfunc",		stress_cpu_callfunc },
 #if defined(HAVE_COMPLEX_H) &&		\
