@@ -187,7 +187,7 @@ static int stress_tun(const stress_args_t *args)
 					rc = EXIT_FAILURE;
 					break;
 				}
-				goto child_cleanup;
+				goto child_cleanup_fd;
 			}
 
 			(void)memset(&addr, 0, sizeof(addr));
@@ -212,7 +212,6 @@ static int stress_tun(const stress_args_t *args)
 					rc = EXIT_FAILURE;
 					break;
 				}
-				(void)close(sfd);
 				goto child_cleanup;
 			}
 
@@ -224,6 +223,7 @@ static int stress_tun(const stress_args_t *args)
 			}
 child_cleanup:
 			(void)close(sfd);
+child_cleanup_fd:
 			(void)close(fd);
 			_exit(rc);
 		} else {
