@@ -91,6 +91,7 @@ static void stress_sockabuse_fd(const int fd)
 #if defined(HAVE_FUTIMENS)
 	VOID_RET(futimens(fd, timespec));
 #endif
+	addrlen = sizeof(addr);
 	VOID_RET(getpeername(fd, &addr, &addrlen));
 #if defined(FIONREAD)
 	{
