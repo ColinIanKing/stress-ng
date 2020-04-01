@@ -126,7 +126,7 @@ again:
 				char data[4096];
 
 				fd = open(path, O_RDONLY);
-				if (fd) {
+				if (fd >= 0) {
 					ret = read(fd, data, sizeof(data));
 					(void)close(fd);
 				}
