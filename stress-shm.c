@@ -261,7 +261,7 @@ static int stress_shm_posix_child(
 			if (newpid > 0) {
 				int status;
 
-				waitpid(newpid, &status, 0);
+				(void)shim_waitpid(newpid, &status, 0);
 			}
 
 			if (!keep_stressing())
