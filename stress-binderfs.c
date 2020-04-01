@@ -125,7 +125,7 @@ static int stress_binderfs(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 			(void)stress_binderfs_umount(args, pathname);
 			rc = EXIT_FAILURE;
-			break;
+			goto clean;
 		}
 #if defined(BINDER_CTL_ADD)
 		for (i = 0; i < 256; i++) {
