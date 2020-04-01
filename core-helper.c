@@ -1040,9 +1040,12 @@ int system_read(
 	if (fd < 0)
 		return -errno;
 	ret = read(fd, buf, buf_len);
-	if (ret < 0)
+	if (ret < 0) {
+		buf[0] = '\0';
 		ret = -errno;
+	}
 	(void)close(fd);
+	buf[(size_t)ret == buf_len ? buf_len - 1 : ret] = '\0';
 
 	return ret;
 }
