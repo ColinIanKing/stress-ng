@@ -216,16 +216,17 @@ again:
 				}
 				if (prio >= PRIOS_MAX) {
 					pr_fail("%s: mq_receive: unexpected priority %u, expected 0..%d\n",
-						args->name, prio, PRIO_MAX - 1);
-				}
-				if (g_opt_flags & OPT_FLAGS_VERIFY) {
-					if (msg.value != values[prio]) {
-						pr_fail("%s: mq_receive: expected message "
-							"containing 0x%" PRIx64
-							" but received 0x%" PRIx64 " instead\n",
-							args->name, values[prio], msg.value);
+						args->name, prio, PRIOS_MAX - 1);
+				} else {
+					if (g_opt_flags & OPT_FLAGS_VERIFY) {
+						if (msg.value != values[prio]) {
+							pr_fail("%s: mq_receive: expected message "
+								"containing 0x%" PRIx64
+								" but received 0x%" PRIx64 " instead\n",
+								args->name, values[prio], msg.value);
+						}
+						values[prio]++;
 					}
-					values[prio]++;
 				}
 			}
 			_exit(EXIT_SUCCESS);
