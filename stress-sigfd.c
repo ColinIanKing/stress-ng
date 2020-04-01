@@ -128,6 +128,7 @@ again:
 				fd = open(path, O_RDONLY);
 				if (fd >= 0) {
 					ret = read(fd, data, sizeof(data));
+					(void)ret;
 					(void)close(fd);
 				}
 			}
