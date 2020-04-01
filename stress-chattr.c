@@ -97,6 +97,8 @@ static int do_chattr(
 		}
 
 		fdw = open(filename, O_RDWR);
+		if (fdw < 0)
+			goto tidy;
 		n = write(fdw, &zero, sizeof(zero));
 		(void)n;
 
