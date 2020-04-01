@@ -247,6 +247,7 @@ static int stress_sockabuse_server(
 
 			stress_sockabuse_fd(fd);
 			(void)close(fd);
+			continue;
 		}
 
 		for (i = 0; i < 16; i++) {
