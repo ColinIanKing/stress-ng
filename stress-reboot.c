@@ -84,15 +84,23 @@ static int reboot_clone_func(void *arg)
  */
 static int stress_reboot(const stress_args_t *args)
 {
+	const bool reboot_capable = stress_check_capability(SHIM_CAP_SYS_BOOT);
+#if defined(HAVE_CLONE)
 	const ssize_t stack_offset =
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
-	const bool reboot_capable = stress_check_capability(SHIM_CAP_SYS_BOOT);
+	char *stack;
+
+	stack = malloc(CLONE_STACK_SIZE);
+	if (!stack) {
+		pr_inf("%s: out of memory allocating stack\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+#endif
 
 	do {
 		int ret;
 #if defined(HAVE_CLONE)
-		char stack[CLONE_STACK_SIZE];
 		char *stack_top = stack + stack_offset;
 		pid_t pid;
 
@@ -146,6 +154,9 @@ static int stress_reboot(const stress_args_t *args)
 		
 		inc_counter(args);
 	} while (keep_stressing());
+#if defined(HAVE_CLONE)
+	free(stack);
+#endif
 
 	return EXIT_SUCCESS;
 }
