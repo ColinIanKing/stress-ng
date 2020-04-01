@@ -376,6 +376,7 @@ static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
                     isdigit(name[5])) {
 			char fullpath[strlen(path) + strlen(name) + 2];
 
+			(void)memset(fullpath, 0, sizeof(fullpath));
 			(void)snprintf(fullpath, sizeof(fullpath), "%s/%s", path, name);
 			if (stress_add_cpu_cache_detail(&cpu->caches[j++], fullpath) != EXIT_SUCCESS)
 				goto err;
@@ -436,6 +437,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 			char fullpath[fullpath_len];
 			stress_cpu_t *const cpu = &cpus->cpus[j];
 
+			(void)memset(fullpath, 0, sizeof(fullpath));
 			(void)snprintf(fullpath, sizeof(fullpath), "%s/%s", SYS_CPU_PREFIX, name);
 			cpu->num = j;
 			if (j == 0) {
@@ -445,6 +447,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 				char onlinepath[fullpath_len + 8];
 				char tmp[2048];
 
+				(void)memset(onlinepath, 0, sizeof(onlinepath));
 				(void)snprintf(onlinepath, sizeof(onlinepath), "%s/%s/online", SYS_CPU_PREFIX, name);
 				if (stress_get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0)
 					goto out;
