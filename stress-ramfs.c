@@ -276,6 +276,7 @@ static int stress_ramfs_child(const stress_args_t *args)
 				goto skip_fsopen;
 			pr_fail("%s: fsopen failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			goto skip_fsopen;
 		}
 		(void)snprintf(opt, sizeof(opt), "%" PRIu64, ramfs_size);
 		if (shim_fsconfig(fd, FSCONFIG_SET_STRING, "size", opt, 0) < 0) {
