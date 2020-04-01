@@ -234,6 +234,7 @@ static int stress_sockmany_server(
 			if (sret < 0) {
 				if ((errno != EINTR) && (errno != EPIPE))
 					pr_fail_dbg("send");
+				(void)close(sfd);
 				break;
 			} else {
 				msgs++;
