@@ -665,7 +665,7 @@ static void stress_rand_data_morse(const stress_args_t *args, uint32_t *data, co
 		if (!*ptr)
 			ptr = lorem_ipsum[stress_mwc32() % SIZEOF_ARRAY(lorem_ipsum)];
 
-		ch = tolower(*ptr);
+		ch = tolower((int)*ptr);
 		mptr = morse_table[ch];
 		if (mptr) {
 			for (; *mptr && (i < size); mptr++) {
