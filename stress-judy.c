@@ -89,7 +89,7 @@ static int stress_judy(const stress_args_t *args)
 			Word_t idx = gen_index(i);
 
 			JLI(pvalue, PJLArray, idx);
-			if (pvalue == PJERR) {
+			if ((pvalue == NULL) || (pvalue == PJERR)) {
 				pr_err("%s: cannot allocate new "
 					"judy node\n", args->name);
 				for (j = 0; j < n; j++) {
