@@ -318,7 +318,7 @@ retry_bind:
 			goto err;
 		}
 
-		stress_strnrnd(key, sizeof(key));
+		stress_strnrnd(key, info->max_key_size);
 		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, info->max_key_size) < 0) {
 			if (errno == ENOPROTOOPT) {
 				rc = EXIT_SUCCESS;
