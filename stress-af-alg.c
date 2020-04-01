@@ -183,7 +183,7 @@ static int stress_af_alg_hash(
 		return EXIT_NO_RESOURCE;
 	digest = malloc(digest_size + ALLOC_SLOP);
 	if (!digest) {
-		free(digest);
+		free(input);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -320,6 +320,7 @@ retry_bind:
 
 		stress_strnrnd(key, info->max_key_size);
 		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, info->max_key_size) < 0) {
+			free(key);
 			if (errno == ENOPROTOOPT) {
 				rc = EXIT_SUCCESS;
 				goto err;
@@ -346,8 +347,11 @@ retry_bind:
 
 		stress_strnrnd(assocdata, info->max_auth_size);
 		if (setsockopt(sockfd, SOL_ALG, ALG_SET_AEAD_ASSOCLEN, assocdata, info->max_auth_size) < 0) {
-			if (errno == ENOPROTOOPT)
-				return EXIT_SUCCESS;
+			free(assocdata);
+			if (errno == ENOPROTOOPT) {
+				rc = EXIT_SUCCESS;
+				goto err;
+			}
 			pr_fail_err("setsockopt");
 			rc = EXIT_FAILURE;
 			goto err;
@@ -810,6 +814,18 @@ static void stress_af_alg_add_crypto_defconfigs(void)
 }
 
 /*
+ *  stress_af_alg_info_free()
+ *	free and clear stress_crypto_info_t data
+ */
+static void stress_af_alg_info_free(stress_crypto_info_t *info)
+{
+	if (info->name)
+		free(info->name);
+	if (info->type)
+		free(info->type);
+}
+
+/*
  *  stress_af_alg_init()
  *	populate cryto info list from data from /proc/crypto
  */
@@ -828,10 +844,15 @@ static void stress_af_alg_init(void)
 	(void)memset(&info, 0, sizeof(info));
 
 	while (fgets(buffer, sizeof(buffer) - 1, fp)) {
-		if (!strncmp(buffer, "name", 4))
+		if (!strncmp(buffer, "name", 4)) {
+			if (info.name)
+				free(info.name);
 			info.name = dup_field(buffer);
+		}
 		else if (!strncmp(buffer, "type", 4)) {
 			info.crypto_type = name_to_type(buffer);
+			if (info.type)
+				free(info.type);
 			info.type = dup_field(buffer);
 		}
 		else if (!strncmp(buffer, "blocksize", 9))
@@ -849,9 +870,12 @@ static void stress_af_alg_init(void)
 		else if (buffer[0] == '\n') {
 			if (info.crypto_type != CRYPTO_UNKNOWN)
 				stress_af_alg_add_crypto(&info);
+			else
+				stress_af_alg_info_free(&info);
 			(void)memset(&info, 0, sizeof(info));
 		}
 	}
+	stress_af_alg_info_free(&info);
 
 	(void)fclose(fp);
 }
