@@ -1664,7 +1664,7 @@ bool stress_is_dev_tty(const int fd)
 
 	if (!name)
 		return true;
-	return !strncmp("/dev/tty", ttyname(fd), 8);
+	return !strncmp("/dev/tty", name, 8);
 #else
 	(void)fd;
 
