@@ -207,7 +207,7 @@ retry:
 #if defined(IP_MTU)
 			{
 				int mtu;
-				socklen_t optlen;
+				socklen_t optlen = sizeof(mtu);
 
 				(void)getsockopt(fd, IPPROTO_IP, IP_MTU,
 					&mtu, &optlen);
@@ -224,7 +224,7 @@ retry:
 #if defined(SO_INCOMING_CPU)
 			{
 				int cpu;
-				socklen_t optlen;
+				socklen_t optlen = sizeof(cpu);
 
 				(void)getsockopt(fd, SOL_SOCKET, SO_INCOMING_CPU,
 					&cpu, &optlen);
