@@ -423,6 +423,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 	cpus->cpus = calloc(cpu_count, sizeof(stress_cpu_t));
 	if (!cpus->cpus) {
 		free(cpus);
+		cpus = NULL;
 		goto out;
 	}
 	cpus->count = cpu_count;
