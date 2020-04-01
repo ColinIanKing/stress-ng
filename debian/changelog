@@ -1,3 +1,47 @@
+stress-ng (0.11.07-1) unstable; urgency=medium
+
+  * Address multiple issues found with pedantic static analysis (LP: #1870193)
+    - enabled higher static analysis settings and found and fixed
+      a lot of bugs..
+  * Makefile: bump version
+  * Manual: fix lintian warning on undefined macro
+  * stress-zlib: fix clang warning of array subscripted by char
+  * core-helper: make end-of-string assignment easier to comprehend
+  * stress-reboot: use heap for clone stack, cleans up static analysis warning
+  * core-cache: clean up pedantic warnings from static analysis
+  * stress-af-alg: fix several memory leaks
+  * stress-tun: fix close issues on sfd
+  * stress-xattr: be overly pedantic and memset array tmp
+  * stress-urandom: fix fd leak on fd_rnd_wr
+  * stress-sysbadaddr: fix incorrect 2nd parameter to utimes call
+  * stress-sockmany: fix fd leak, close file descriptor on error
+  * stress-sockabuse: ensure addrlen is set to the length of addr
+  * stress-sockabuse: close fd even when it is zero
+  * stress-sockabuse: avoid closing unopened fd on error
+  * stress-sock: ensure socklen setting is set before calling getsockopt
+  * stress-sigfd: voidify return of read, we don't care if it fails
+  * stress-sigfd: fix open error check
+  * stress-shm: use shim helper and ignore error return
+  * stress-ramfs: fix close of a -ve file descriptor
+  * stress-pipeherd: remove redundant variable n
+  * stress-mq: don't check values[prio] if prio is out of range
+  * stress-memhotplug: fix leak of opendir descriptor
+  * stress-judy: check allocated pvalue is not-null
+  * stress-eventfd: fix incorrect open failure check
+  * stress-cpu: gcd: fix potential multiply overflow
+  * stress-cpu: ensure i64 is stashed in stress_cpu_intconversion
+  * stress-clock: be extra pedantic and set and check timer_id values
+  * stress-chattr: handle open failure correctly
+  * stress-binderfs: fix failure error return path
+  * stress-af-alg: fix incorrect size of buffer to randomize
+  * core-helper: don't call ttyname a second time, use name instead
+  * core-helper: ensure data is null terminated
+  * core-cache: nullify a free'd cpus pointer before returning
+  * stress-cpu: add missing Apéry constant cpu method
+  * stress-zlib: add missing morse code generated text
+
+ -- Colin King <colin.king@canonical.com>  Wed, 1 Apr 2020 18:23:41 +0100
+
 stress-ng (0.11.06-1) unstable; urgency=medium
 
   * Makefile: bump version
