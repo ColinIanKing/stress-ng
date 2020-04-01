@@ -127,6 +127,7 @@ static int stress_xattr(const stress_args_t *args)
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
 
+			(void)memset(tmp, 0, sizeof(tmp));
 			ret = shim_fgetxattr(fd, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
 				pr_fail_err("fgetxattr");
