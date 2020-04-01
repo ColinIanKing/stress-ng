@@ -1045,7 +1045,10 @@ int system_read(
 		ret = -errno;
 	}
 	(void)close(fd);
-	buf[(size_t)ret == buf_len ? buf_len - 1 : ret] = '\0';
+	if ((ssize_t)buf_len == ret)
+		buf[buf_len - 1] = '\0';
+	else
+		buf[ret] = '\0';
 
 	return ret;
 }
