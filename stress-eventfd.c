@@ -160,7 +160,7 @@ exit_child:
 			 *  eventfd-count and eventfd-id proc interfaces.
 			 */
 			procfd = open(path, O_RDONLY);
-			if (procfd) {
+			if (procfd >= 0) {
 				char buffer[4096];
 				ssize_t n;
 
