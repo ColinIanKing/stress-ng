@@ -236,7 +236,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 
 	for (i = 0; i < 16384; i++) {
 		register uint32_t a = i, b = i % (3 + (1997 ^ i));
-		register uint64_t lcm = (a * b);
+		register uint64_t lcm = ((uint64_t)a * b);
 
 		while (b != 0) {
 			register uint32_t r = b;
