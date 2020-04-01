@@ -111,7 +111,7 @@ static void stress_sockabuse_fd(const int fd)
 		munmap(ptr, 4096);
 	nfd = dup(fd);
 	VOID_RET(shim_copy_file_range(fd, 0, nfd, 0, 16, 0));
-	if (nfd > 0)
+	if (nfd >= 0)
 		(void)close(nfd);
 #if defined(HAVE_POSIX_FADVISE) &&	\
     defined(POSIX_FADV_RANDOM)
@@ -281,6 +281,8 @@ static int stress_sockabuse_server(
 				if (n < 0) {
 					if ((errno != EINTR) && (errno != EPIPE))
 						pr_fail_dbg("send");
+					stress_sockabuse_fd(sfd);
+					(void)close(sfd);
 					break;
 				} else {
 					msgs++;
