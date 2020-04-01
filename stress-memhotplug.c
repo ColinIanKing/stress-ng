@@ -186,6 +186,7 @@ static int stress_memhotplug(const stress_args_t *args)
 	mem_info = calloc(n, sizeof(*mem_info));
 	if (!mem_info) {
 		pr_inf("%s: out of memory\n", args->name);
+		(void)closedir(dir);
 		return EXIT_NO_RESOURCE;
 	}
 
