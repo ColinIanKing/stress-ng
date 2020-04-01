@@ -671,7 +671,7 @@ static int bad_utime(void *addr)
 
 static int bad_utimes(void *addr)
 {
-	return utimes(addr, (const struct timeval *)utimes);
+	return utimes(addr, (const struct timeval *)inc_addr(addr, 1));
 }
 
 static int bad_wait(void *addr)
