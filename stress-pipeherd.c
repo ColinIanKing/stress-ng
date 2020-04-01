@@ -84,7 +84,7 @@ static int stress_pipeherd(const stress_args_t *args)
 	int fd[2];
 	int64_t counter;
 	pid_t pids[PIPE_HERD_MAX];
-	int i, n, rc;
+	int i, rc;
 	ssize_t sz;
 	bool pipeherd_yield = false;
 #if defined(__linux__)
@@ -113,7 +113,7 @@ static int stress_pipeherd(const stress_args_t *args)
 #if defined(__linux__)
 	t1 = stress_time_now();
 #endif
-	for (i = 0, n = 0; i < PIPE_HERD_MAX; i++) {
+	for (i = 0; i < PIPE_HERD_MAX; i++) {
 		pid_t pid;
 		pid = fork();
 
@@ -128,11 +128,11 @@ static int stress_pipeherd(const stress_args_t *args)
 			pids[i] = -1;
 		} else {
 			pids[i] = pid;
-			n++;
 		}
 	}
 
 	rc = stress_pipeherd_read_write(args, fd, pipeherd_yield);
+	(void)rc;
 	sz = read(fd[0], &counter, sizeof(counter));
 	if (sz > 0)
 		set_counter(args, counter);
@@ -141,7 +141,7 @@ static int stress_pipeherd(const stress_args_t *args)
 	t2 = stress_time_now();
 #endif
 
-	for (i = 0, n = 0; i < PIPE_HERD_MAX; i++) {
+	for (i = 0; i < PIPE_HERD_MAX; i++) {
 		if (pids[i] >= 0) {
 			int status;
 
