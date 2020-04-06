@@ -65,6 +65,9 @@ static const int fan_stress_settings[] = {
 #if defined(FAN_CLOSE_NOWRITE)
 	FAN_CLOSE_NOWRITE,
 #endif
+#if defined(FAN_DIR_MODIFY)
+	FAN_DIR_MODIFY,
+#endif
 #if defined(FAN_OPEN)
 	FAN_OPEN,
 #endif
