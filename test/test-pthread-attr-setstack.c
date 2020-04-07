@@ -30,7 +30,7 @@ int main(void)
 {
 	pthread_attr_t attr;
 	int ret;
-	unsigned char stack[65536];
+	static unsigned char stack[65536];
 
 	ret = pthread_attr_init(&attr);
 	if (ret)
