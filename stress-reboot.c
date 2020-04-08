@@ -113,7 +113,6 @@ static int stress_reboot(const stress_args_t *args)
 
 			(void)shim_waitpid(pid, &status, __WCLONE);
 			ret = WEXITSTATUS(status);
-			
 			if (WIFEXITED(status) && (ret != 0)) {
 				pr_fail("%s: reboot in PID namespace failed, errno = %d (%s)\n",
 					args->name, ret, strerror(ret));
@@ -151,7 +150,6 @@ static int stress_reboot(const stress_args_t *args)
 				(void)ret;
 			}
 		}
-		
 		inc_counter(args);
 	} while (keep_stressing());
 #if defined(HAVE_CLONE)
