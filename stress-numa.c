@@ -222,16 +222,20 @@ static int stress_numa(const stress_args_t *args)
 		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
 			(unsigned long)buf, MPOL_F_ADDR);
 		if (ret < 0) {
-			pr_fail_err("get_mempolicy");
-			goto err;
+			if (errno != ENOSYS) {
+				pr_fail_err("get_mempolicy");
+				goto err;
+			}
 		}
 		if (!keep_stressing_flag())
 			break;
 
 		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, max_nodes);
 		if (ret < 0) {
-			pr_fail_err("set_mempolicy");
-			goto err;
+			if (errno != ENOSYS) {
+				pr_fail_err("set_mempolicy");
+				goto err;
+			}
 		}
 		(void)memset(buf, 0xff, MMAP_SZ);
 		if (!keep_stressing_flag())
@@ -252,7 +256,7 @@ static int stress_numa(const stress_args_t *args)
 		ret = shim_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_MF_STRICT);
 		if (ret < 0) {
-			if (errno != EIO) {
+			if ((errno != EIO) && (errno != ENOSYS)) {
 				pr_fail_err("mbind");
 				goto err;
 			}
@@ -270,7 +274,7 @@ static int stress_numa(const stress_args_t *args)
 		ret = shim_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_DEFAULT);
 		if (ret < 0) {
-			if (errno != EIO) {
+			if ((errno != EIO) && (errno != ENOSYS)) {
 				pr_fail_err("mbind");
 				goto err;
 			}
@@ -299,8 +303,10 @@ static int stress_numa(const stress_args_t *args)
 		ret = shim_migrate_pages(args->pid, max_nodes,
 			old_node_mask, node_mask);
 		if (ret < 0) {
-			pr_fail_err("migrate_pages");
-			goto err;
+			if (errno != ENOSYS) {
+				pr_fail_err("migrate_pages");
+				goto err;
+			}
 		}
 		if (!keep_stressing_flag())
 			break;
@@ -318,8 +324,10 @@ static int stress_numa(const stress_args_t *args)
 			ret = shim_move_pages(args->pid, num_pages, pages,
 				dest_nodes, status, MPOL_MF_MOVE);
 			if (ret < 0) {
-				pr_fail_err("move_pages");
-				goto err;
+				if (errno != ENOSYS) {
+					pr_fail_err("move_pages");
+					goto err;
+				}
 			}
 			(void)memset(buf, j, MMAP_SZ);
 			if (!keep_stressing_flag())
