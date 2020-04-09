@@ -53,42 +53,42 @@ struct kcmp_epoll_slot {
 	uint32_t toff;
 };
 
-#define KCMP(pid1, pid2, type, idx1, idx2)			\
-{								\
-	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);	\
-								\
-	if (rc < 0) {	 					\
-		if (errno == EPERM) {				\
-			pr_inf("%s: %s", capfail, args->name);	\
-			break;					\
-		}						\
-		if (errno != EINVAL)				\
-			pr_fail_err("kcmp: " # type);		\
-	}							\
-	if (!keep_stressing_flag())				\
-		break;						\
+#define KCMP(pid1, pid2, type, idx1, idx2)				\
+{									\
+	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);		\
+									\
+	if (rc < 0) {	 						\
+		if (errno == EPERM) {					\
+			pr_inf("%s: %s", capfail, args->name);		\
+			break;						\
+		}							\
+		if ((errno != EINVAL) && (errno != ENOSYS))		\
+			pr_fail_err("kcmp: " # type);			\
+	}								\
+	if (!keep_stressing_flag())					\
+		break;							\
 }
 
-#define KCMP_VERIFY(pid1, pid2, type, idx1, idx2, res)		\
-{								\
-	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);	\
-								\
-	if (rc != res) {					\
-		if (rc < 0) {					\
-			if (errno == EPERM) {			\
+#define KCMP_VERIFY(pid1, pid2, type, idx1, idx2, res)			\
+{									\
+	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);		\
+									\
+	if (rc != res) {						\
+		if (rc < 0) {						\
+			if (errno == EPERM) {				\
 				pr_inf("%s: %s", capfail, args->name);	\
-				break;				\
-			}					\
-			if (errno != EINVAL)			\
-				pr_fail_err("kcmp: " # type);	\
-		} else {					\
-			pr_fail( "%s: kcmp " # type		\
-			" returned %d, expected: %d\n",		\
-			args->name, rc, ret);			\
-		}						\
-	}							\
-	if (!keep_stressing_flag())				\
-		break;						\
+				break;					\
+			}						\
+			if ((errno != EINVAL) && (errno != ENOSYS))	\
+				pr_fail_err("kcmp: " # type);		\
+		} else {						\
+			pr_fail( "%s: kcmp " # type			\
+			" returned %d, expected: %d\n",			\
+			args->name, rc, ret);				\
+		}							\
+	}								\
+	if (!keep_stressing_flag())					\
+		break;							\
 }
 
 /*
