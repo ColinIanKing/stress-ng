@@ -218,6 +218,12 @@ static int stress_netlink_proc(const stress_args_t *args)
 	iov[2].iov_len = sizeof(op);
 
 	if (writev(sock, iov, 3) < 0) {
+		if (errno == ECONNREFUSED) {
+			pr_inf("%s: net link write failed, errno=%d (%s), skipping stress test\n",
+				args->name, errno, strerror(errno));
+			(void)close(sock);
+			return EXIT_NO_RESOURCE;
+		}
 		pr_err("%s: writev failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(sock);
