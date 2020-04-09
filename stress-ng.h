@@ -2755,6 +2755,10 @@ typedef enum {
 	OPT_schedpolicy,
 	OPT_schedpolicy_ops,
 
+	OPT_sched_period,
+	OPT_sched_runtime,
+	OPT_sched_deadline,
+
 	OPT_sctp,
 	OPT_sctp_ops,
 	OPT_sctp_domain,
@@ -3336,6 +3340,8 @@ extern WARN_UNUSED int stress_oomable_child(const stress_args_t *args,
 	void *context, stress_oomable_child_func_t func, const int flag);
 extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
 	const int sched_priority, const bool quiet);
+extern WARN_UNUSED int stress_set_deadline_sched(const pid_t, const uint64_t period,
+	const uint64_t runtime, const uint64_t deadline, const bool quiet);
 extern const char *stress_get_sched_name(const int sched);
 extern void stress_set_iopriority(const int32_t class, const int32_t level);
 extern void stress_set_proc_name_init(int argc, char *argv[], char *envp[]);
