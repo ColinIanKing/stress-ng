@@ -137,12 +137,44 @@ static int n_mnts;
  */
 static int stress_fanotify_supported(void)
 {
+	int fan_fd;
+	static const char skipped[] = 
+		"fanotify stressor will be skipped, ";
+	static const char noperm[] = 
+		"need to be running with CAP_SYS_ADMIN "
+		"rights for this stressor";
+	static const char noresource[] = 
+		"no resources (out of descriptors or memory)";
+	static const char nosyscall[] =
+		"system call not supported";
+
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-		pr_inf("fanotify stressor will be skipped, "
-			"need to be running with CAP_SYS_ADMIN "
-			"rights for this stressor\n");
+		pr_inf("%s%s\n", skipped, noperm);
 		return -1;
 	}
+	fan_fd = fanotify_init(0, 0);
+	if (fan_fd < 0) {
+		int rc = -1;
+
+		switch (errno) {
+		case EPERM:
+			pr_inf("%s%s\n", skipped, noperm);
+			break;
+		case EMFILE:
+		case ENOMEM:
+			pr_inf("%s%s\n", skipped, noresource);
+			break;
+		case ENOSYS:
+			pr_inf("%s%s\n", skipped, nosyscall);
+			break;
+		default:
+			rc = 0;
+			break;
+		}
+		return rc;
+	}
+	(void)close(fan_fd);
+
 	return 0;
 }
 
@@ -156,7 +188,9 @@ static int fanotify_event_init(const char *name)
 
 	(void)memset(mnts, 0, sizeof(mnts));
 
-	if ((fan_fd = fanotify_init(0, 0)) < 0) {
+		
+	fan_fd = fanotify_init(0, 0);
+	if (fan_fd < 0) {
 		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return -1;
