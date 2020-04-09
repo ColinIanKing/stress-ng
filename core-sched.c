@@ -68,6 +68,75 @@ const char *stress_get_sched_name(const int sched)
 	return "unknown";
 }
 
+#if defined(SCHED_DEADLINE) && defined(__linux__)
+int stress_set_deadline_sched(
+	const pid_t pid,
+	const uint64_t period,
+	const uint64_t runtime,
+	const uint64_t deadline,
+	const bool quiet)
+{
+	int rc;
+	struct shim_sched_attr attr;
+
+	attr.size = sizeof(attr);
+	attr.sched_policy = SCHED_DEADLINE;
+	/* make sched_deadline task be able to fork*/
+	attr.sched_flags = SCHED_FLAG_RESET_ON_FORK;
+	attr.sched_nice = 0;
+	attr.sched_priority = 0;
+	if (!quiet)
+		pr_inf("%s: setting scheduler class '%s'(period=%lu,runtime=%lu,deadline=%lu)\n",
+			__func__, "deadline", period, runtime, deadline);
+	attr.sched_runtime = runtime;
+	attr.sched_deadline = deadline;
+	attr.sched_period = period;
+
+	rc = shim_sched_setattr(pid, &attr, 0);
+	if (rc < 0) {
+		rc = -errno;
+		if (!quiet)
+			pr_inf("Cannot set scheduler: errno=%d (%s)\n",
+				errno, strerror(errno));
+		return rc;
+	}
+	return 0;
+}
+
+int sched_deadline_init(void *params)
+{
+	long sched_period, sched_runtime, sched_deadline;
+	struct shim_sched_attr *attr;
+	int rc;
+
+	if (params) {
+		attr = params;
+		sched_period = attr->sched_period;
+		sched_runtime = attr->sched_runtime;
+		sched_deadline = attr->sched_deadline;
+	} else {
+		(void)stress_get_setting("sched-period", &sched_period);
+		(void)stress_get_setting("sched-runtime", &sched_runtime);
+		(void)stress_get_setting("sched-deadline", &sched_deadline);
+	}
+	pr_inf("%s: setting scheduler class '%s'(period=%lu,runtime=%lu,deadline=%lu)\n",
+		__func__, "deadline", sched_period, sched_runtime, sched_deadline);
+	rc = stress_set_deadline_sched(getpid(), sched_period,
+		sched_runtime, sched_deadline, false);
+	return rc;
+}
+#else
+int stress_set_deadline_sched(
+	const pid_t pid,
+	const uint64_t period,
+	const uint64_t runtime,
+	const uint64_t deadline,
+	const bool quiet)
+{
+	return 0;
+}
+#endif
+
 /*
  *  set_sched()
  * 	are sched settings valid, if so, set them
@@ -87,6 +156,10 @@ int stress_set_sched(
 	int rc;
 	struct sched_param param;
 	const char *name = stress_get_sched_name(sched);
+
+	long sched_period = 0;
+	long sched_runtime = 0;
+	long sched_deadline = 0;
 
 	(void)memset(&param, 0, sizeof(param));
 
@@ -132,7 +205,7 @@ int stress_set_sched(
 		max = sched_get_priority_max(sched);
 		attr.size = sizeof(attr);
 		attr.sched_policy = SCHED_DEADLINE;
-		attr.sched_flags = 0;
+		attr.sched_flags = SCHED_FLAG_RESET_ON_FORK;
 		attr.sched_nice = SCHED_OTHER;
 		attr.sched_priority = sched_priority;
 		if (sched_priority == UNDEFINED) {
@@ -152,12 +225,24 @@ int stress_set_sched(
 				min, max);
 			return -EINVAL;
 		}
-		if (!quiet)
-			pr_dbg("sched: setting scheduler class '%s'\n",
-				name);
-		attr.sched_runtime = 10000;
-		attr.sched_deadline = 100000;
-		attr.sched_period = 0;
+		if (!quiet) {
+			pr_dbg("%s: setting scheduler class '%s'\n",
+					__func__, name);
+		}
+		(void)stress_get_setting("sched-period", &sched_period);
+		(void)stress_get_setting("sched-runtime", &sched_runtime);
+		(void)stress_get_setting("sched-deadline", &sched_deadline);
+		if (sched_deadline <= 0) {
+			attr.sched_runtime = 10000;
+			attr.sched_deadline = 100000;
+			attr.sched_period = 0;
+		} else {
+			attr.sched_runtime = sched_runtime;
+			attr.sched_deadline = sched_deadline;
+			attr.sched_period = sched_period;
+		}
+		pr_inf("%s: setting scheduler class '%s'(period=%lu,runtime=%lu,deadline=%lu)\n",
+				__func__, "deadline", attr.sched_period, attr.sched_runtime, attr.sched_deadline);
 
 
 		rc = shim_sched_setattr(pid, &attr, 0);

@@ -652,6 +652,10 @@ static const struct option long_options[] = {
 	{ "sched-prio",	1,	0,	OPT_sched_prio },
 	{ "schedpolicy",1,	0,	OPT_schedpolicy },
 	{ "schedpolicy-ops",1,	0,	OPT_schedpolicy_ops },
+	{ "sched-period",1,	0,	OPT_sched_period },
+	{ "sched-runtime",1,	0,	OPT_sched_runtime },
+	{ "sched-deadline",1,	0,	OPT_sched_deadline },
+	{ "schedpolicy",1,	0,	OPT_schedpolicy },
 	{ "sctp",	1,	0,	OPT_sctp },
 	{ "sctp-ops",	1,	0,	OPT_sctp_ops },
 	{ "sctp-domain",1,	0,	OPT_sctp_domain },
@@ -921,6 +925,9 @@ static const stress_help_t help_generic[] = {
 	{ "r",		"random N",		"start N random workers" },
 	{ NULL,		"sched type",		"set scheduler type" },
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
+	{ NULL,		"sched-period N",	"set period for SCHED_DEADLINE to N nanosecs (Linux only)" },
+	{ NULL,		"sched-runtime N",	"set runtime for SCHED_DEADLINE to N nanosecs (Linux only)" },
+	{ NULL,		"sched-deadline N",	"set deadline for SCHED_DEADLINE to N nanosecs (Liunx only)" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"stressors",		"show available stress tests" },
 #if defined(HAVE_SYSLOG_H)
@@ -1629,6 +1636,14 @@ static void MLOCKED_TEXT stress_run(
 	int32_t n_procs, j;
 	const int32_t total_procs = get_total_num_procs(procs_list);
 
+	int32_t sched;
+
+	/*deadline scheduler*/
+	long sched_period = -1;
+	long sched_runtime = -1;
+	long sched_deadline = -1;
+
+
 	wait_flag = true;
 	time_start = stress_time_now();
 	pr_dbg("starting stressors\n");
@@ -1667,6 +1682,25 @@ again:
 					kill_procs(SIGALRM);
 					goto wait_for_procs;
 				case 0:
+					(void)stress_get_setting("sched", &sched);
+					(void)stress_get_setting("sched-period", &sched_period);
+					(void)stress_get_setting("sched-runtime", &sched_runtime);
+					(void)stress_get_setting("sched-deadline", &sched_deadline);
+					/* SCHED_DEADLINE */
+					if (sched == 6) {
+						if (sched_deadline < 0)
+							sched_deadline = 100000;
+
+						if (sched_runtime < 0)
+							sched_runtime = 10000;
+
+						if (sched_period < 0)
+							sched_period = 0;
+
+						if (stress_set_deadline_sched(getpid(),
+							sched_period, sched_runtime, sched_deadline, false) < 0)
+						exit(EXIT_FAILURE);
+					}
 					/* Child */
 					(void)atexit(stress_child_atexit);
 					(void)setpgid(0, g_pgrp);
@@ -2539,6 +2573,18 @@ next_opt:
 		case OPT_sched_prio:
 			i32 = stress_get_int32(optarg);
 			stress_set_setting_global("sched-prio", TYPE_ID_INT32, &i32);
+			break;
+		case OPT_sched_period:
+			i64 = stress_get_uint64(optarg);
+			stress_set_setting_global("sched-period", TYPE_ID_INT64, &i64);
+			break;
+		case OPT_sched_runtime:
+			i64 = stress_get_uint64(optarg);
+			stress_set_setting_global("sched-runtime", TYPE_ID_INT64, &i64);
+			break;
+		case OPT_sched_deadline:
+			i64 = stress_get_uint64(optarg);
+			stress_set_setting_global("sched-deadline", TYPE_ID_INT64, &i64);
 			break;
 		case OPT_sequential:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;

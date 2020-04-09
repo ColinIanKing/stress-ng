@@ -292,6 +292,15 @@ schedulers use: stress\-ng \-\-sched which
 .B \-\-sched\-prio prio
 select the scheduler priority level (only on Linux). If the scheduler does
 not support this then the default priority level of 0 is chosen.
+.B \-\-sched\-period period
+select the period parameter for deadline scheduler (only on Linux). Default
+value is 0 (in nanosecond).
+.B \-\-sched\-runtime runtime
+select the runtime parameter for deadline scheduler (only on Linux). Default
+value is 10000 (in nanosecond).
+.B \-\-sched\-deadline deadline
+select the deadline parameter for deadline scheduler (only on Linux). Default
+value is 100000 (in nanosecond).
 .TP
 .B \-\-sequential N
 sequentially run all the stressors one by one for a default of 60 seconds. The
