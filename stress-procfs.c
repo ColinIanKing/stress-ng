@@ -106,6 +106,7 @@ static inline void stress_proc_rw(
 		bool timeout = false;
 		uint8_t *ptr;
 		struct stat statbuf;
+		bool writeable = true;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -115,6 +116,11 @@ static inline void stress_proc_rw(
 
 		if (!*path || !keep_stressing_flag())
 			break;
+
+		if (!strncmp(path, "/proc/self", 10))
+			writeable = false;
+		if (!strncmp(path, "/proc", 5) && isdigit(path[5]))
+			writeable = false;
 
 		t_start = stress_time_now();
 
@@ -271,7 +277,7 @@ err:
 			goto next;
 		}
 
-		if (ctxt->writeable) {
+		if (writeable && ctxt->writeable) {
 			/*
 			 *  Zero sized writes
 			 */
@@ -382,6 +388,48 @@ done:
 }
 
 /*
+ *  stress_random_pid()
+ *	return /proc/$pid where pid is a random existing process ID
+ */
+static char *stress_random_pid(void)
+{
+	struct dirent **dlist = NULL;
+	static char path[PATH_MAX];
+	int i, n;
+	unsigned int j;
+
+	(void)strcpy(path, "/proc/self");
+
+	n = scandir("/proc", &dlist, NULL, mixup_sort);
+	if (!n)
+		goto clean;
+
+	/*
+	 *  try 32 random probes before giving up
+	 */
+	for (i = 0, j = 0; i < 32; i++) {
+		char *name;
+		j += stress_mwc32();
+		j %= n;
+
+		name = dlist[j]->d_name;
+
+		if (isdigit(name[0])) {
+			(void)snprintf(path, sizeof(path), "/proc/%s", name);
+			break;
+		}
+	}
+
+clean:
+	if (dlist) {
+		for (i = 0; i < n; i++)
+			free(dlist[i]);
+		free(dlist);
+	}
+	return path;
+}
+
+/*
  *  stress_procfs
  *	stress reading all of /proc
  */
@@ -415,7 +463,7 @@ static int stress_procfs(const stress_args_t *args)
 
 	i = args->instance;
 	do {
-		i %= 12;
+		i %= 15;
 		switch (i) {
 		case 0:
 			stress_proc_dir(&ctxt, "/proc", false, 0);
@@ -452,6 +500,15 @@ static int stress_procfs(const stress_args_t *args)
 			break;
 		case 11:
 			stress_proc_dir(&ctxt, "/proc/tty", true, 0);
+			break;
+		case 12:
+			stress_proc_dir(&ctxt, "/proc/self", true, 0);
+			break;
+		case 13:
+			stress_proc_dir(&ctxt, "/proc/1", true, 0);
+			break;
+		case 14:
+			stress_proc_dir(&ctxt, stress_random_pid(), true, 0);
 			break;
 		default:
 			break;
