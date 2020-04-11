@@ -200,6 +200,41 @@ static inline void stress_proc_rw(
 		if (ret < 0)
 			goto err;
 
+		if (stress_time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
+		/*
+		 *  Broken offset reads, see Linux commit
+		 *  3bfa7e141b0bbb818b25e0daafb65aee92e49ac4
+		 *  "fs/seq_file.c: seq_read(): add info message
+		 *  about buggy .next functions"
+		 */
+		pos = lseek(fd, 0, SEEK_SET);
+		if (pos < 0)
+			goto mmap_test;
+		ret = read(fd, buffer, sizeof(buffer));
+		if (ret < 0)
+			goto mmap_test;
+		if (ret < (ssize_t)(sizeof(buffer) >> 1)) {
+			char *ptr;
+
+			for (ptr = buffer; *ptr && *ptr != '\n'; ptr++)
+				;
+			if (*ptr == '\n') {
+				const off_t offset = 2 + (ptr - buffer);
+
+				pos = lseek(fd, offset, SEEK_SET);
+				if (pos == offset) {
+					/* Causes incorrect 2nd read */
+					ret = read(fd, buffer, sizeof(buffer));
+					(void)ret;
+				}
+			}
+		}
+
+mmap_test:
 		/*
 		 *  mmap it
 		 */
