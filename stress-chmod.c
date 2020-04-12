@@ -75,9 +75,9 @@ static const mode_t modes[] = {
  *  as a "known" error on invalid chmod mode bits
  */
 #if defined(EFTYPE)
-#define CHECK(x) if ((x) && (errno != EFTYPE)) return -1
+#define CHECK(x) if ((x) && ((errno != ENOSYS) || (errno != EFTYPE))) return -1
 #else
-#define CHECK(x) if (x) return -1
+#define CHECK(x) if ((x) && (errno != ENOSYS)) return -1
 #endif
 
 /*
@@ -110,6 +110,8 @@ static int do_fchmod(
  *		inverse all mode flags or'd together
  */
 static int do_chmod(
+	const int dfd,
+	const char *filebase,
 	const char *filename,
 	const int i,
 	const mode_t mask,
@@ -119,6 +121,18 @@ static int do_chmod(
 	CHECK(chmod(filename, mask) < 0);
 	CHECK(chmod(filename, modes[i] ^ all_mask) < 0);
 	CHECK(chmod(filename, mask ^ all_mask) < 0);
+
+#if defined(HAVE_FCHMODAT)
+	if (dfd >= 0) {
+		CHECK(fchmodat(dfd, filebase, modes[i], 0) < 0);
+		CHECK(fchmodat(dfd, filebase, mask, 0) < 0);
+		CHECK(fchmodat(dfd, filebase, modes[i] ^ all_mask, 0) < 0);
+		CHECK(fchmodat(dfd, filebase, mask ^ all_mask, 0) < 0);
+	}
+#else
+	(void)dfd;
+	(void)filebase;
+#endif
 	return 0;
 }
 
@@ -129,9 +143,10 @@ static int do_chmod(
 static int stress_chmod(const stress_args_t *args)
 {
 	const pid_t ppid = getppid();
-	int i, fd = -1, rc = EXIT_FAILURE, retries = 0;
+	int i, fd = -1, rc = EXIT_FAILURE, retries = 0, dfd = -1;
 	mode_t all_mask = 0;
 	char filename[PATH_MAX], pathname[PATH_MAX];
+	char tmp[PATH_MAX], *filebase;
 
 	/*
 	 *  Allow for multiple workers to chmod the *same* file
@@ -144,8 +159,12 @@ static int stress_chmod(const stress_args_t *args)
 			return rc;
 		}
 	}
+	dfd = open(pathname, O_DIRECTORY | O_RDONLY);
+
 	(void)stress_temp_filename(filename, sizeof(filename),
 		args->name, ppid, 0, 0);
+	(void)strcpy(tmp, filename);
+	filebase = basename(tmp);
 
 	if (args->instance == 0) {
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
@@ -192,7 +211,7 @@ static int stress_chmod(const stress_args_t *args)
 			if (do_fchmod(fd, i, mask, all_mask) < 0) {
 				pr_fail_err("fchmod");
 			}
-			if (do_chmod(filename, i, mask, all_mask) < 0) {
+			if (do_chmod(dfd, filebase, filename, i, mask, all_mask) < 0) {
 				if (errno == ENOENT || errno == ENOTDIR) {
 					/*
 					 * File was removed during test by
@@ -209,6 +228,8 @@ static int stress_chmod(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 tidy:
+	if (dfd >= 0)
+		(void)close(dfd);
 	if (fd >= 0) {
 		(void)fchmod(fd, 0666);
 		(void)close(fd);
