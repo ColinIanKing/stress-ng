@@ -129,10 +129,7 @@ static void NORETURN waste_resources(
 	size_t mlock_size;
 	size_t i, n;
 	size_t shmall, freemem, totalmem, freeswap;
-#if defined(HAVE_MEMFD_CREATE) || 	\
-    defined(O_TMPFILE)
 	const pid_t pid = getpid();
-#endif
 	static const int domains[] = { AF_INET, AF_INET6 };
 	static const int types[] = { SOCK_STREAM, SOCK_DGRAM };
 	static stress_info_t info[MAX_LOOPS];
@@ -171,6 +168,9 @@ static void NORETURN waste_resources(
 	(void)memset(&info, 0, sizeof(info));
 
 	for (i = 0; keep_stressing_flag() && (i < MAX_LOOPS); i++) {
+		int j;
+		size_t posn;
+		char tmpfilename[64];
 #if defined(HAVE_MEMFD_CREATE)
 		char name[32];
 #endif
@@ -233,6 +233,18 @@ static void NORETURN waste_resources(
 		info[i].pid  = 1;
 
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+
+		(void)snprintf(tmpfilename, sizeof(tmpfilename),
+			"/tmp/stress-ng-%8.8x%8.8x-", (int)pid, (int)stress_mwc32());
+		posn = strlen(tmpfilename);
+		for (j = 0; j < 256; j++) {
+			int fd;
+			stress_strnrnd(tmpfilename + posn, sizeof(tmpfilename) - posn - 1);
+			tmpfilename[sizeof(tmpfilename) - 1] = '\0';
+			fd = open(tmpfilename, O_RDONLY);
+			if (fd)
+				(void)close(fd);
+		}
 
 		if ((shmall + freemem + totalmem > 0) &&
 	            (freemem > 0) && (freemem < mem_slack))
