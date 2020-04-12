@@ -60,16 +60,16 @@ execve				exec
 execveat			exec
 exit				fork
 exit_group
-faccessat
+faccessat			access, close
 fadvise				readahead
 fallocate			fallocate
 fanotify_init			fanotify
 fanotify_mark			fanotify
 fchdir				chdir
 fchmod				chmod
-fchmodat
+fchmodat			chmod
 fchown				chown
-fchownat
+fchownat			close
 fcntl				open, lockf, fcntl
 fdatasync			hdd
 fgetxattr			xattr
