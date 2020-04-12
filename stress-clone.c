@@ -101,6 +101,9 @@ static const int flags[] = {
 #if defined(CLONE_CLEAR_SIGHAND)
 	CLONE_CLEAR_SIGHAND,
 #endif
+#if defined(CLONE_NEWTIME)
+	CLONE_NEWTIME,
+#endif
 };
 
 static const int unshare_flags[] = {
