@@ -232,7 +232,7 @@ reboot				[ need privilege, ignore for now ]
 recv				sock
 recvfrom			udp
 recvmsg				socket-fd
-recvmmsg
+recvmmsg			sock
 remap_file_pages		remap
 removexattr
 rename				rename
