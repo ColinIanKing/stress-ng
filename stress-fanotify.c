@@ -138,12 +138,12 @@ static int n_mnts;
 static int stress_fanotify_supported(void)
 {
 	int fan_fd;
-	static const char skipped[] = 
+	static const char skipped[] =
 		"fanotify stressor will be skipped, ";
-	static const char noperm[] = 
+	static const char noperm[] =
 		"need to be running with CAP_SYS_ADMIN "
 		"rights for this stressor";
-	static const char noresource[] = 
+	static const char noresource[] =
 		"no resources (out of descriptors or memory)";
 	static const char nosyscall[] =
 		"system call not supported";
@@ -188,7 +188,6 @@ static int fanotify_event_init(const char *name)
 
 	(void)memset(mnts, 0, sizeof(mnts));
 
-		
 	fan_fd = fanotify_init(0, 0);
 	if (fan_fd < 0) {
 		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
