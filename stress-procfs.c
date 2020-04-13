@@ -218,12 +218,12 @@ static inline void stress_proc_rw(
 		if (ret < 0)
 			goto mmap_test;
 		if (ret < (ssize_t)(sizeof(buffer) >> 1)) {
-			char *ptr;
+			char *bptr;
 
-			for (ptr = buffer; *ptr && *ptr != '\n'; ptr++)
+			for (bptr = buffer; *bptr && *bptr != '\n'; bptr++)
 				;
-			if (*ptr == '\n') {
-				const off_t offset = 2 + (ptr - buffer);
+			if (*bptr == '\n') {
+				const off_t offset = 2 + (bptr - buffer);
 
 				pos = lseek(fd, offset, SEEK_SET);
 				if (pos == offset) {
