@@ -417,6 +417,23 @@ static bool stress_sys_skip(const char *path)
 }
 
 /*
+ *  stress_sys_dir_free
+ *	free dirent list
+ */
+static void stress_sys_dir_free(struct dirent **dlist, const int n)
+{
+	if (dlist) {
+		int i;
+
+		for (i = 0; i < n; i++) {
+			if (dlist[i])
+				free(dlist[i]);
+		}
+		free(dlist);
+	}
+}
+
+/*
  *  stress_sys_dir()
  *	read directory
  */
@@ -441,91 +458,106 @@ static void stress_sys_dir(
 	mixup = stress_mwc32();
 	dlist = NULL;
 	n = scandir(path, &dlist, NULL, mixup_sort);
-	if (n <= 0)
-		goto done;
+	if (n <= 0) {
+		stress_sys_dir_free(dlist, n);
+		return;
+	}
 
 	if (ctxt->sys_admin)
 		flags |= S_IRUSR | S_IWUSR;
 
-	for (i = 0; i < n; i++) {
+	/* Non-directories first */
+	for (i = 0; (i < n) && keep_stressing(); i++) {
 		int ret;
 		struct stat buf;
 		char tmp[PATH_MAX];
 		struct dirent *d = dlist[i];
+		double time_start, time_end, time_out;
 
-		if (!keep_stressing())
-			break;
 		if (stress_is_dot_filename(d->d_name))
-			continue;
+			goto dt_reg_free;
 
 		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
 		/* Is it in the hash of bad paths? */
 		if (stress_hash_get(sysfs_hash_table, tmp))
+			goto dt_reg_free;
+
+		if (stress_sys_skip(tmp))
+			goto dt_reg_free;
+
+		if (d->d_type != DT_REG)
 			continue;
-		if (stress_sys_skip(tmp)) {
-			stress_sys_add_bad(tmp);
+
+		ret = stat(tmp, &buf);
+		if (ret < 0)
+			goto dt_reg_free;
+
+		if ((buf.st_mode & flags) == 0)
+			goto dt_reg_free;
+
+		ret = shim_pthread_spin_lock(&lock);
+		if (ret)
+			goto dt_reg_free;
+
+		(void)shim_strlcpy(sysfs_path, tmp, sizeof(sysfs_path));
+		counter = 0;
+		(void)shim_pthread_spin_unlock(&lock);
+		drain_kmsg = false;
+		time_start = stress_time_now();
+		time_end = time_start + ((double)DURATION_PER_SYSFS_FILE / 1000000.0);
+		time_out = time_start + 1.0;
+		/*
+		 *  wait for a timeout, or until woken up
+		 *  by pthread(s) once maximum iteration count
+		 *  has been reached
+		 */
+		do {
+			shim_usleep_interruptible(50);
+			/* Cater for very long delays */
+			if ((counter == 0) && (stress_time_now() > time_out))
+				break;
+			/* Cater for slower delays */
+			if ((counter > 0) && (stress_time_now() > time_end))
+				break;
+		} while ((counter < OPS_PER_SYSFS_FILE) && keep_stressing());
+
+		inc_counter(args);
+dt_reg_free:
+		free(dlist[i]);
+		dlist[i] = NULL;
+	}
+
+	if (!recurse) {
+		stress_sys_dir_free(dlist, n);
+		return;
+	}
+
+	/* Now directories.. */
+	for (i = 0; (i < n) && keep_stressing(); i++) {
+		struct dirent *d = dlist[i];
+		struct stat buf;
+		int ret;
+		char tmp[PATH_MAX];
+
+		if (!d)
 			continue;
-		}
+		if (d->d_type != DT_DIR)
+			goto dt_dir_free;
 
-		switch (d->d_type) {
-		case DT_DIR:
-			if (!recurse)
-				continue;
+		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
+		ret = stat(tmp, &buf);
+		if (ret < 0)
+			goto dt_dir_free;
+		if ((buf.st_mode & flags) == 0)
+			goto dt_dir_free;
 
-			ret = stat(tmp, &buf);
-			if (ret < 0)
-				continue;
-			if ((buf.st_mode & flags) == 0)
-				continue;
-
-			inc_counter(args);
-			stress_sys_dir(ctxt, tmp, recurse, depth + 1);
-			break;
-		case DT_REG:
-			ret = stat(tmp, &buf);
-			if (ret < 0)
-				continue;
-
-			if ((buf.st_mode & flags) == 0)
-				continue;
-
-			ret = shim_pthread_spin_lock(&lock);
-			if (!ret) {
-				(void)shim_strlcpy(sysfs_path, tmp, sizeof(sysfs_path));
-				counter = 0;
-				(void)shim_pthread_spin_unlock(&lock);
-				drain_kmsg = false;
-				const double time_start = stress_time_now();
-				const double time_end = time_start + ((double)DURATION_PER_SYSFS_FILE / 1000000.0);
-				const double time_out = time_start + 1.0;
-				/*
-				 *  wait for a timeout, or until woken up
-				 *  by pthread(s) once maximum iteration count
-				 *  has been reached
-				 */
-				do {
-					shim_usleep_interruptible(50);
-					/* Cater for very long delays */
-					if ((counter == 0) && (stress_time_now() > time_out))
-						break;
-					/* Cater for slower delays */
-					if ((counter > 0) && (stress_time_now() > time_end))
-						break;
-				} while ((counter < OPS_PER_SYSFS_FILE) && keep_stressing());
-
-				inc_counter(args);
-			}
-			break;
-		default:
-			break;
-		}
+		inc_counter(args);
+		stress_sys_dir(ctxt, tmp, recurse, depth + 1);
+dt_dir_free:
+		free(dlist[i]);
+		dlist[i] = NULL;
 	}
-done:
-	if (dlist) {
-		for (i = 0; i < n; i++)
-			free(dlist[i]);
-		free(dlist);
-	}
+	stress_sys_dir_free(dlist, n);
 }
 
 
