@@ -1155,16 +1155,16 @@ int shim_pkey_set(int pkey, unsigned int rights)
  *	wrapper for execveat()
  */
 int shim_execveat(
-        int dir_fd,
-        const char *pathname,
-        char *const argv[],
-        char *const envp[],
-        int flags)
+	int dir_fd,
+	const char *pathname,
+	char *const argv[],
+	char *const envp[],
+	int flags)
 {
 #if defined(__NR_execveat)
-        return syscall(__NR_execveat, dir_fd, pathname, argv, envp, flags);
+	return syscall(__NR_execveat, dir_fd, pathname, argv, envp, flags);
 #else
-        return shim_enosys(0, dir_fd, pathname, argv, envp, flags);
+	return shim_enosys(0, dir_fd, pathname, argv, envp, flags);
 #endif
 }
 
@@ -1250,18 +1250,18 @@ int shim_move_mount(
 	unsigned int flags)
 {
 #if defined(__NR_move_mount)
-        return syscall(__NR_move_mount, from_dfd, from_pathname,
-			to_dfd, to_pathname, flags);
+	return syscall(__NR_move_mount, from_dfd, from_pathname,
+		to_dfd, to_pathname, flags);
 #else
 	return shim_enosys(0, from_dfd, from_pathname,
-			to_dfd, to_pathname, flags);
+		to_dfd, to_pathname, flags);
 #endif
 }
 
 int sys_clone3(struct shim_clone_args *cl_args, size_t size)
 {
 #if defined(__NR_clone3)
-        return syscall(__NR_clone3, cl_args, size);
+	return syscall(__NR_clone3, cl_args, size);
 #else
 	return shim_enosys(0, cl_args, size);
 #endif
@@ -1447,7 +1447,7 @@ ssize_t shim_llistxattr(const char *path, char *list, size_t size)
 int shim_reboot(int magic, int magic2, int cmd, void *arg)
 {
 #if defined(__linux__) && defined(__NR_reboot)
-        return syscall(__NR_reboot, magic, magic2, cmd, arg);
+	return syscall(__NR_reboot, magic, magic2, cmd, arg);
 #else
 	return shim_enosys(0, magic, magic2, cmd, arg);
 #endif

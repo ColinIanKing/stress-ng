@@ -210,9 +210,9 @@ again:
 				args->instance);
 			/* Bus error death? retry */
 			if (WTERMSIG(status) == SIGBUS) {
-                                buserrs++;
-                                goto again;
-                        }
+				buserrs++;
+				goto again;
+			}
 
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {

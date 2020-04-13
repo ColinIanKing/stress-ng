@@ -191,8 +191,8 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 	for (i = 0; i < info->dlpi_phnum; i++) {
 		if (info->dlpi_phdr[i].p_type == PT_LOAD) {
 			load_offset = (void *)(info->dlpi_addr +
-                                + (uintptr_t)info->dlpi_phdr[i].p_offset
-                                - (uintptr_t)info->dlpi_phdr[i].p_vaddr);
+				+ (uintptr_t)info->dlpi_phdr[i].p_offset
+				- (uintptr_t)info->dlpi_phdr[i].p_vaddr);
 
 		}
 		if (info->dlpi_phdr[i].p_type == PT_DYNAMIC) {
@@ -419,10 +419,10 @@ static int vdso_sym_list_check_vdso_func(stress_vdso_sym_t **list)
 	if (!vs1) {
 		(void)fprintf(stderr, "invalid vdso-func '%s', must be one of:", name);
 		for (vs1 = vdso_sym_list; vs1; vs1 = vs1->next)
-                	(void)fprintf(stderr, " %s", vs1->name);
-        	(void)fprintf(stderr, "\n");
+			(void)fprintf(stderr, " %s", vs1->name);
+		(void)fprintf(stderr, "\n");
 		return -1;
-        }
+	}
 
 	vs1 = *list;
 	while (vs1) {

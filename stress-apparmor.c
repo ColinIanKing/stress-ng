@@ -115,9 +115,8 @@ static void MLOCKED_TEXT stress_apparmor_alrm_handler(int signum)
 
 static void MLOCKED_TEXT stress_apparmor_usr1_handler(int signum)
 {
-        (void)signum;
+	(void)signum;
 }
-
 
 /*
  *  stress_apparmor_read()

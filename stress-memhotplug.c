@@ -155,7 +155,7 @@ static void stress_memhotplug_mem_online(stress_mem_info_t *mem_info)
 static int stress_memhotplug(const stress_args_t *args)
 {
 	DIR *dir;
-        struct dirent *d;
+	struct dirent *d;
 	stress_mem_info_t *mem_info;
 	size_t i, n = 0, max;
 
@@ -172,7 +172,7 @@ static int stress_memhotplug(const stress_args_t *args)
 	/* Figure out number of potential hotplug memory regsions */
 	while ((d = readdir(dir)) != NULL) {
 		if ((strncmp(d->d_name, "memory", 6) == 0) &&
-                     stress_memhotplug_removable(d->d_name))
+		     stress_memhotplug_removable(d->d_name))
 			n++;
 	}
 	if (n == 0) {
@@ -193,7 +193,7 @@ static int stress_memhotplug(const stress_args_t *args)
 	max = 0;
 	while ((max < n) && ((d = readdir(dir)) != NULL)) {
 		if ((strncmp(d->d_name, "memory", 6) == 0) &&
-                    stress_memhotplug_removable(d->d_name)) {
+		     stress_memhotplug_removable(d->d_name)) {
 			mem_info[max].name = strdup(d->d_name);
 			mem_info[max].timeout = false;
 			max++;

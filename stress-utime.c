@@ -179,7 +179,7 @@ static int stress_utime(const stress_args_t *args)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_utime_fsync,	stress_set_utime_fsync },
+	{ OPT_utime_fsync,	stress_set_utime_fsync },
 	{ 0,			NULL }
 };
 

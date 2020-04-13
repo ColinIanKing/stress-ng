@@ -96,7 +96,7 @@ static int stress_udp(const stress_args_t *args)
 #if defined(IPPROTO_UDPLITE)
 	(void)stress_get_setting("udp-lite", &udp_lite);
 
- 	proto = udp_lite ? IPPROTO_UDPLITE : IPPROTO_UDP;
+	proto = udp_lite ? IPPROTO_UDPLITE : IPPROTO_UDP;
 
 	if ((proto == IPPROTO_UDPLITE) &&
 	    (udp_domain == AF_UNIX)) {

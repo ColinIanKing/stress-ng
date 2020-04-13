@@ -32,16 +32,16 @@ static const stress_help_t help[] = {
 };
 
 static int stress_set_msg_types(const char *opt) {
-        int32_t msg_types;
+	int32_t msg_types;
 
-        msg_types = stress_get_int32(opt);
-        stress_check_range("msg-types", msg_types, 0, 100);
-        return stress_set_setting("msg-types", TYPE_ID_INT32, &msg_types);
+	msg_types = stress_get_int32(opt);
+	stress_check_range("msg-types", msg_types, 0, 100);
+	return stress_set_setting("msg-types", TYPE_ID_INT32, &msg_types);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_msg_types,	stress_set_msg_types },
-        { 0,                    NULL },
+	{ OPT_msg_types,	stress_set_msg_types },
+	{ 0,                    NULL },
 };
 
 #if defined(HAVE_SYS_IPC_H) &&	\

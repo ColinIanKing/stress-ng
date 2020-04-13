@@ -252,7 +252,7 @@ static int stress_madvise(const stress_args_t *args)
 	if (ret) {
 		pr_fail_err("sigsetjmp");
 		return EXIT_FAILURE;
-       }
+	}
 
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;

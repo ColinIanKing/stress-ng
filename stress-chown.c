@@ -170,7 +170,7 @@ static int stress_chown(const stress_args_t *args)
 			(void)shim_sched_yield();
 			retries = 0;
 #else
- 			(void)shim_usleep(100000);
+			(void)shim_usleep(100000);
 #endif
 			/* Timed out, then give up */
 			if (!keep_stressing_flag()) {

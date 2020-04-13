@@ -163,8 +163,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 			 *  failures.
 			 */
 			if ((errno != EPERM) &&
-                            (errno != EINVAL) &&
-                            (errno != EBUSY)) {
+			    (errno != EINVAL) &&
+			    (errno != EBUSY)) {
 				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
 					"for scheduler policy %s\n",
@@ -208,7 +208,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 			}
 		}
 
-                if (attr.sched_util_max != 0) {
+		if (attr.sched_util_max != 0) {
 			/*
 			 *  Newer Linux kernels support a min/max setting,
 			 *  and if supported then find the min/max settings
@@ -241,8 +241,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 		 * exercise scheduler
 		 */
 		if ((counter++ > 256) &&
-                    (sched_util_max_value > 0) &&
-                    (sched_util_max_value > sched_util_min)) {
+		    (sched_util_max_value > 0) &&
+		    (sched_util_max_value > sched_util_min)) {
 			sched_util_max_value--;
 			counter = 0;
 		}

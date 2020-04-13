@@ -276,7 +276,7 @@ static int x86syscall_check_x86syscall_func(void)
 			(void)fprintf(stderr, " %s", x86syscalls[i].name);
 		(void)fprintf(stderr, "\n");
 		return -1;
-        }
+	}
 	return 0;
 }
 

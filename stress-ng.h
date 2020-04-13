@@ -3267,7 +3267,7 @@ extern const char *stress_strsignal(const int signum);
  */
 static inline void ALWAYS_INLINE shim_clflush(volatile void *ptr)
 {
-        asm volatile("clflush %0" : "+m" (*(volatile char *)ptr));
+	asm volatile("clflush %0" : "+m" (*(volatile char *)ptr));
 }
 #else
 #define shim_clflush(ptr)	do { } while (0) /* No-op */
@@ -3622,34 +3622,34 @@ struct shim_sched_attr {
 #define SHIM_STATX_ALL			(0x00000fffU)
 
 struct shim_statx_timestamp {
-        int64_t		tv_sec;
-        int32_t		tv_nsec;
-        int32_t		__reserved;
+	int64_t	tv_sec;
+	int32_t	tv_nsec;
+	int32_t	__reserved;
 };
 
 /* shim'd statx */
 struct shim_statx {
-        uint32_t   stx_mask;
-        uint32_t   stx_blksize;
-        uint64_t   stx_attributes;
-        uint32_t   stx_nlink;
-        uint32_t   stx_uid;
-        uint32_t   stx_gid;
-        uint16_t   stx_mode;
-        uint16_t   __spare0[1];
-        uint64_t   stx_ino;
-        uint64_t   stx_size;
-        uint64_t   stx_blocks;
-        uint64_t   __spare1[1];
-        struct shim_statx_timestamp  stx_atime;
-        struct shim_statx_timestamp  stx_btime;
-        struct shim_statx_timestamp  stx_ctime;
-        struct shim_statx_timestamp  stx_mtime;
-        uint32_t   stx_rdev_major;
-        uint32_t   stx_rdev_minor;
-        uint32_t   stx_dev_major;
-        uint32_t   stx_dev_minor;
-        uint64_t   __spare2[14];
+	uint32_t stx_mask;
+	uint32_t stx_blksize;
+	uint64_t stx_attributes;
+	uint32_t stx_nlink;
+	uint32_t stx_uid;
+	uint32_t stx_gid;
+	uint16_t stx_mode;
+	uint16_t __spare0[1];
+	uint64_t stx_ino;
+	uint64_t stx_size;
+	uint64_t stx_blocks;
+	uint64_t __spare1[1];
+	struct shim_statx_timestamp stx_atime;
+	struct shim_statx_timestamp stx_btime;
+	struct shim_statx_timestamp stx_ctime;
+	struct shim_statx_timestamp stx_mtime;
+	uint32_t stx_rdev_major;
+	uint32_t stx_rdev_minor;
+	uint32_t stx_dev_major;
+	uint32_t stx_dev_minor;
+	uint64_t __spare2[14];
 };
 
 /* old ustat struct */
@@ -3665,7 +3665,7 @@ extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern void shim_clear_cache(char* begin, char *end);
 extern int sys_clone3(struct shim_clone_args *cl_args, size_t size);
 extern ssize_t shim_copy_file_range(int fd_in, shim_loff_t *off_in,
-        int fd_out, shim_loff_t *off_out, size_t len, unsigned int flags);
+	int fd_out, shim_loff_t *off_out, size_t len, unsigned int flags);
 extern int shim_dup3(int oldfd, int newfd, int flags);
 extern int shim_execveat(int dir_fd, const char *pathname, char *const argv[],
 	char *const envp[], int flags);

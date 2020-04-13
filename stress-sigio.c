@@ -53,7 +53,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 	static char buffer[BUFFER_SIZE];
 	const stress_args_t *args = sigio_args;
 
-        (void)signum;
+	(void)signum;
 
 	if (!keep_stressing() || (stress_time_now() > time_end)) {
 		if (pid > 0)
@@ -128,10 +128,10 @@ static int stress_sigio(const stress_args_t *args)
 		char buffer[BUFFER_SIZE >> 4];
 
 		(void)setpgid(0, g_pgrp);
-                stress_parent_died_alarm();
+		stress_parent_died_alarm();
 
-                /* Make sure this is killable by OOM killer */
-                stress_set_oom_adjustment(args->name, true);
+		/* Make sure this is killable by OOM killer */
+		stress_set_oom_adjustment(args->name, true);
 
 		(void)close(fds[0]);
 

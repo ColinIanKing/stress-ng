@@ -47,7 +47,7 @@ typedef struct {
 
 typedef struct {
 	const char *name;
-        const int advice;
+	const int advice;
 } stress_vm_madvise_info_t;
 
 typedef struct {
@@ -103,7 +103,7 @@ static const stress_vm_madvise_info_t vm_madvise_info[] = {
 #if defined(MADV_WILLNEED)
 	{ "willneed",	MADV_WILLNEED},
 #endif
-        { NULL,         0 },
+	{ NULL,         0 },
 #else
 	/* No MADVISE, default to normal, ignored */
 	{ "normal",	0 },
@@ -186,7 +186,7 @@ static int stress_set_vm_madvise(const char *opt)
 	(void)fprintf(stderr, "invalid vm-madvise advice '%s', allowed advice options are:", opt);
 	for (info = vm_madvise_info; info->name; info++) {
 		(void)fprintf(stderr, " %s", info->name);
-        }
+	}
 	(void)fprintf(stderr, "\n");
 	return -1;
 }
@@ -2006,7 +2006,7 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 	int vm_madvise = -1;
 	size_t buf_sz;
 	size_t vm_bytes = DEFAULT_VM_BYTES;
-        const size_t page_size = args->page_size;
+	const size_t page_size = args->page_size;
 	bool vm_keep = false;
 	stress_vm_context_t *context = (stress_vm_context_t *)ctxt;
 	const stress_vm_func func = context->vm_method->func;
@@ -2083,7 +2083,7 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 static int stress_vm(const stress_args_t *args)
 {
 	uint64_t tmp_counter;
-        const size_t page_size = args->page_size;
+	const size_t page_size = args->page_size;
 	size_t retries;
 	int err = 0, ret = EXIT_SUCCESS;
 	stress_vm_context_t context;

@@ -127,8 +127,8 @@ stressor_info_t stress_mknod_info = {
 };
 #else
 stressor_info_t stress_mknod_info = {
-        .stressor = stress_not_implemented,
-        .class = CLASS_FILESYSTEM | CLASS_OS,
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.help = help
 };
 #endif

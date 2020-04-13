@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
 static int stress_set_ipsec_mb_feature(const char *opt);
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_ipsec_mb_feature,	stress_set_ipsec_mb_feature },
+	{ OPT_ipsec_mb_feature,	stress_set_ipsec_mb_feature },
 };
 
 #if defined(HAVE_INTEL_IPSEC_MB_H) &&	\
@@ -80,9 +80,9 @@ static int stress_set_ipsec_mb_feature(const char *opt)
 
 	(void)fprintf(stderr, "invalid ipsec-mb-feature '%s', allowed options are:", opt);
 	for (i = 0; i < SIZEOF_ARRAY(init_mb); i++) {
-                (void)fprintf(stderr, " %s", init_mb[i].name);
-        }
-        (void)fprintf(stderr, "\n");
+		(void)fprintf(stderr, " %s", init_mb[i].name);
+	}
+	(void)fprintf(stderr, "\n");
 
 	return -1;
 }

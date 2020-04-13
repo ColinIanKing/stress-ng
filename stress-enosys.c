@@ -69,7 +69,7 @@ static bool stress_check_x86syscall(void)
 	__cpuid(0x80000001, eax, ebx, ecx, edx);
 	if (!(edx & (1ULL << 11)))
 		return false;
-        return true;
+	return true;
 }
 
 /*
@@ -96,15 +96,15 @@ static inline long x86_64_syscall6(long number, long arg1, long arg2,
 	register long __arg6 asm ("r9") = _arg6;
 
 	asm volatile ("syscall\n\t"
-                        : "=a" (ret)
-                        : "0" (number), "r" (__arg1), "r" (__arg2), "r" (__arg3),
+			: "=a" (ret)
+			: "0" (number), "r" (__arg1), "r" (__arg2), "r" (__arg3),
 			  "r" (__arg4), "r" (__arg5), "r" (__arg6)
-                        : "memory", "cc", "r11", "cx");
-        if (ret < 0) {
-                errno = ret;
-                ret = -1;
-        }
-        return ret;
+			: "memory", "cc", "r11", "cx");
+	if (ret < 0) {
+		errno = ret;
+		ret = -1;
+	}
+	return ret;
 }
 #endif
 

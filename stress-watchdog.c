@@ -94,7 +94,7 @@ static void MLOCKED_TEXT stress_watchdog_handler(int signum)
 	keep_stressing_set_flag(false);
 
 	/* jump back */
-        siglongjmp(jmp_env, 1);
+	siglongjmp(jmp_env, 1);
 }
 
 /*

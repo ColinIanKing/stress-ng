@@ -157,7 +157,7 @@ static void HOT TARGET_CLONES stress_cpu_sqrt(const char *name)
 	for (i = 0; i < 16384; i++) {
 		uint64_t rnd = stress_mwc32();
 		double r_d = sqrt((double)rnd) * sqrt((double)rnd);
-                long double r_ld = sqrtl((long double)rnd) * sqrtl((long double)rnd);
+		long double r_ld = sqrtl((long double)rnd) * sqrtl((long double)rnd);
 
 		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
 		    (uint64_t)rint(r_d) != rnd)) {
@@ -185,7 +185,7 @@ static bool stress_is_affinity_set(void)
 	const int cpus_online = (int)stress_get_processors_online();
 
 	CPU_ZERO(&mask);
-        if (sched_getaffinity(0, sizeof(mask), &mask) < 0)
+	if (sched_getaffinity(0, sizeof(mask), &mask) < 0)
 		return false;	/* Can't tell, so assume not */
 
 	/*
@@ -249,8 +249,8 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_gcd(const char *name)
 		FORCE_DO_NOTHING();
 	}
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-            (gcd_sum != gcd_checksum) &&
-            (lcm_sum != lcm_checksum))
+	    (gcd_sum != gcd_checksum) &&
+	    (lcm_sum != lcm_checksum))
 		pr_fail("%s: gcd error detected, failed modulo "
 			"or assignment operations\n", name);
 }
@@ -2425,7 +2425,7 @@ static void stress_cpu_factorial(const char *name)
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 		    ((f - fact) / fact > precision)) {
 			pr_fail("%s: Stirling's approximation of factorial(%d) out of range\n",
-                                name, n);
+				name, n);
 		}
 
 		/* Ramanujan */
@@ -2435,7 +2435,7 @@ static void stress_cpu_factorial(const char *name)
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 		    ((f - fact) / fact > precision)) {
 			pr_fail("%s: Ramanujan's approximation of factorial(%d) out of range\n",
-                                name, n);
+				name, n);
 		}
 	}
 }

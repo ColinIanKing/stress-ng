@@ -73,7 +73,7 @@ static int stress_affinity_supported(void)
 			return -1;
 		}
 	}
-        return 0;
+	return 0;
 }
 
 static int stress_affinity(const stress_args_t *args)

@@ -826,11 +826,11 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
  */
 static int stress_set_zlib_level(const char *opt)
 {
-        uint32_t zlib_level;
+	uint32_t zlib_level;
 
-        zlib_level = stress_get_uint32(opt);
-        stress_check_range("zlib-level", zlib_level, 0, Z_BEST_COMPRESSION);
-        return stress_set_setting("zlib-level", TYPE_ID_UINT32, &zlib_level);
+	zlib_level = stress_get_uint32(opt);
+	stress_check_range("zlib-level", zlib_level, 0, Z_BEST_COMPRESSION);
+	return stress_set_setting("zlib-level", TYPE_ID_UINT32, &zlib_level);
 }
 
 /*
@@ -944,7 +944,7 @@ static int stress_zlib_inflate(
 			} else {
 				if (errno == EINTR)
 					xsum.interrupted = true;
-		 		if (errno == EPIPE)
+				if (errno == EPIPE)
 					xsum.pipe_broken = true;
 				break;
 			}

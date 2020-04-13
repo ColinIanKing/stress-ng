@@ -70,10 +70,10 @@ static int stress_tun_supported(void)
 
 static int stress_set_tun_tap(const char *opt)
 {
-        bool tun_tap = true;
+	bool tun_tap = true;
 
-        (void)opt;
-        return stress_set_setting("tun-tap", TYPE_ID_BOOL, &tun_tap);
+	(void)opt;
+	return stress_set_setting("tun-tap", TYPE_ID_BOOL, &tun_tap);
 }
 
 /*
@@ -86,9 +86,9 @@ static int stress_tun(const stress_args_t *args)
 	const uid_t owner = geteuid();
 	const gid_t group = getegid();
 	char ip_addr[32];
-        bool tun_tap = false;
+	bool tun_tap = false;
 
-        (void)stress_get_setting("tun-tap", &tun_tap);
+	(void)stress_get_setting("tun-tap", &tun_tap);
 
 	do {
 		int i, fd, sfd, ret, status;
@@ -348,7 +348,7 @@ clean_up:
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_tun_tap,		stress_set_tun_tap },
-        { 0,                    NULL }
+	{ 0,                    NULL }
 };
 
 stressor_info_t stress_tun_info = {

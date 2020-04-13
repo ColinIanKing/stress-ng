@@ -114,8 +114,8 @@ static void stress_timer_set(struct itimerspec *timer)
  */
 static bool HOT OPTIMIZE3 stress_timer_keep_stressing(void)
 {
-        return (LIKELY(keep_stressing_flag()) &&
-                LIKELY(!max_ops || (timer_counter < max_ops)));
+	return (LIKELY(keep_stressing_flag()) &&
+		LIKELY(!max_ops || (timer_counter < max_ops)));
 }
 
 /*

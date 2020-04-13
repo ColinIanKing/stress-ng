@@ -26,7 +26,7 @@
 
 int main(void)
 {
-       	if (eventfd(0, 0) < 0)
+	if (eventfd(0, 0) < 0)
 		return -1;
 
 	return 0;

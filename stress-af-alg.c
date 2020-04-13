@@ -297,7 +297,7 @@ retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 		/* Perhaps the cipher does not exist with this kernel */
 		if ((errno == 0) || (errno == ENOKEY) ||
-                    (errno == ENOENT) || (errno == EBUSY)) {
+		    (errno == ENOENT) || (errno == EBUSY)) {
 			rc = EXIT_SUCCESS;
 			goto err;
 		}

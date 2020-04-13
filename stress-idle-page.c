@@ -45,18 +45,18 @@ static int stress_idle_page_supported(void)
 			"rights for this stressor\n");
 		return -1;
 	}
-        if (geteuid() != 0) {
-                pr_inf("idle_page stressor will be skipped, "
-                        "need to be running as root for this stressor\n");
-                return -1;
-        }
+	if (geteuid() != 0) {
+		pr_inf("idle_page stressor will be skipped, "
+		       "need to be running as root for this stressor\n");
+		return -1;
+	}
 
 	if (access(bitmap_file, R_OK) != 0) {
 		pr_inf("idle_page stressor will be skipped, "
 			"cannot access file %s\n", bitmap_file);
 		return -1;
 	}
-        return 0;
+	return 0;
 }
 
 #if defined(__linux__)

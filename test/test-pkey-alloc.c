@@ -37,10 +37,10 @@ int main(void)
 	int ret;
 
 #if NEED_GLIBC(2,27,0)
-        ret = pkey_alloc(0, 0);
+	ret = pkey_alloc(0, 0);
 	(void)ret;
 #endif
-        ret = syscall(__NR_pkey_alloc, 0, 0);
+	ret = syscall(__NR_pkey_alloc, 0, 0);
 	(void)ret;
 
 	return 0;

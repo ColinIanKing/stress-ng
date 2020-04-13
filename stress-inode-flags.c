@@ -199,10 +199,10 @@ static int stress_inode_flags(const stress_args_t *args)
 	char *dir_name;
 
 	rc = shim_pthread_spin_init(&spinlock, SHIM_PTHREAD_PROCESS_SHARED);
-        if (rc) {
-                pr_fail_errno("pthread_spin_init", rc);
-                return EXIT_FAILURE;
-        }
+	if (rc) {
+		pr_fail_errno("pthread_spin_init", rc);
+		return EXIT_FAILURE;
+	}
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)

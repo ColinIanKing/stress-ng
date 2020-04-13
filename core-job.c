@@ -61,7 +61,7 @@ static int stress_parse_run(
 
 	if (!strcmp(argv[2], "sequential") ||
 	    !strcmp(argv[2], "sequentially") ||
-            !strcmp(argv[2], "seq")) {
+	    !strcmp(argv[2], "seq")) {
 		if (*flag & RUN_PARALLEL)
 			goto err;
 		*flag |= RUN_SEQUENTIAL;
@@ -69,7 +69,7 @@ static int stress_parse_run(
 		return 1;
 	}
 	if (!strcmp(argv[2], "parallel") ||
-            !strcmp(argv[2], "par") ||
+	    !strcmp(argv[2], "par") ||
 	    !strcmp(argv[2], "together")) {
 		if (*flag & RUN_SEQUENTIAL)
 			goto err;

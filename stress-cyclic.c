@@ -85,9 +85,9 @@ static int stress_set_cyclic_sleep(const char *opt)
 	uint64_t cyclic_sleep;
 
 	cyclic_sleep = stress_get_uint64(opt);
-        stress_check_range("cyclic-sleep", cyclic_sleep,
-                1, STRESS_NANOSEC);
-        return stress_set_setting("cyclic-sleep", TYPE_ID_UINT64, &cyclic_sleep);
+	stress_check_range("cyclic-sleep", cyclic_sleep,
+		1, STRESS_NANOSEC);
+	return stress_set_setting("cyclic-sleep", TYPE_ID_UINT64, &cyclic_sleep);
 }
 
 static int stress_set_cyclic_policy(const char *opt)
@@ -113,8 +113,8 @@ static int stress_set_cyclic_prio(const char *opt)
 	int32_t cyclic_prio;
 
 	cyclic_prio = stress_get_int32(opt);
-        stress_check_range("cyclic-prio", cyclic_prio, 1, 100);
-        return stress_set_setting("cyclic-prio", TYPE_ID_INT32, &cyclic_prio);
+	stress_check_range("cyclic-prio", cyclic_prio, 1, 100);
+	return stress_set_setting("cyclic-prio", TYPE_ID_INT32, &cyclic_prio);
 }
 
 static int stress_set_cyclic_dist(const char *opt)
@@ -122,8 +122,8 @@ static int stress_set_cyclic_dist(const char *opt)
 	uint64_t cyclic_dist;
 
 	cyclic_dist = stress_get_uint64(opt);
-        stress_check_range("cyclic-dist", cyclic_dist, 1, 10000000);
-        return stress_set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
+	stress_check_range("cyclic-dist", cyclic_dist, 1, 10000000);
+	return stress_set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
 }
 
 static void stress_cyclic_stats(
@@ -318,7 +318,7 @@ static int stress_cyclic_itimer(
 
 	(void)pause();
 	if ((itimer_time.tv_sec == 0) &&
-            (itimer_time.tv_nsec == 0))
+	    (itimer_time.tv_nsec == 0))
 		goto tidy;
 
 	delta_ns = ((int64_t)(itimer_time.tv_sec - t1.tv_sec) * STRESS_NANOSEC) + (itimer_time.tv_nsec - t1.tv_nsec);
@@ -577,9 +577,9 @@ static int stress_cyclic_supported(void)
 		pr_inf("stress-cyclic stressor needs to be run with CAP_SYS_NICE "
 			"set SCHED_RR, SCHED_FIFO or SCHED_DEADLINE priorities, "
 			"skipping this stressor\n");
-                return -1;
-        }
-        return 0;
+		return -1;
+	}
+	return 0;
 }
 
 static int stress_cyclic(const stress_args_t *args)

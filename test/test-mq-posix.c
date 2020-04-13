@@ -38,12 +38,12 @@
 #endif
 
 typedef struct {
-        unsigned int	value;
+	unsigned int	value;
 } msg_t;
 
 static void notify_func(union sigval s)
 {
-        (void)s;
+	(void)s;
 }
 
 int main(int argc, char **argv)

@@ -33,12 +33,12 @@ static const stress_help_t help[] = {
 #if defined(__linux__)
 
 typedef struct {
-        uint16_t        varname[512];
-        uint8_t         guid[16];
-        uint64_t        datalen;
-        uint8_t         data[1024];
-        uint64_t        status;
-        uint32_t        attributes;
+	uint16_t	varname[512];
+	uint8_t		guid[16];
+	uint64_t	datalen;
+	uint8_t		data[1024];
+	uint64_t	status;
+	uint32_t	attributes;
 } __attribute__((packed)) stress_efi_var_t;
 
 static const char vars[] = "/sys/firmware/efi/vars";
@@ -70,7 +70,7 @@ static inline bool efi_var_ignore(char *d_name)
 		return true;
 	if (strstr(d_name, "MokListRT"))
 		return true;
-        return false;
+	return false;
 }
 
 /*

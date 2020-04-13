@@ -597,7 +597,7 @@ stress_funcdeep_9(stress_long_double_t)
 #if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
 static inline void ALWAYS_INLINE _Decimal32_put(const _Decimal32 a)
 {
-        g_put_val.double_val = (double)a;
+	g_put_val.double_val = (double)a;
 }
 
 stress_funccall_1(_Decimal32)
@@ -623,7 +623,7 @@ stress_funcdeep_9(_Decimal32)
 #if defined(HAVE_FLOAT_DECIMAL64) && !defined(__clang__)
 static inline void ALWAYS_INLINE _Decimal64_put(const _Decimal64 a)
 {
-        g_put_val.double_val = (double)a;
+	g_put_val.double_val = (double)a;
 }
 
 stress_funccall_1(_Decimal64)
@@ -649,7 +649,7 @@ stress_funcdeep_9(_Decimal64)
 #if defined(HAVE_FLOAT_DECIMAL128) && !defined(__clang__)
 static inline void ALWAYS_INLINE _Decimal128_put(const _Decimal128 a)
 {
-        g_put_val.double_val = (double)a;
+	g_put_val.double_val = (double)a;
 }
 
 stress_funccall_1(_Decimal128)
@@ -675,7 +675,7 @@ stress_funcdeep_9(_Decimal128)
 #if defined(HAVE_FLOAT80) && !defined(__clang__)
 static inline void ALWAYS_INLINE __float80_put(const __float80 a)
 {
-        g_put_val.double_val = (double)a;
+	g_put_val.double_val = (double)a;
 }
 
 stress_funccall_1(__float80)
@@ -701,7 +701,7 @@ stress_funcdeep_9(__float80)
 #if defined(HAVE_FLOAT128) && !defined(__clang__)
 static inline void ALWAYS_INLINE __float128_put(const __float128 a)
 {
-        g_put_val.double_val = (double)a;
+	g_put_val.double_val = (double)a;
 }
 
 stress_funccall_1(__float128)
@@ -872,12 +872,11 @@ static int stress_set_funccall_method(const char *name)
  */
 static int stress_funccall(const stress_args_t *args)
 {
-        const stress_funccall_method_info_t *funccall_method = &funccall_methods[3];
+	const stress_funccall_method_info_t *funccall_method = &funccall_methods[3];
 
-        (void)stress_get_setting("funccall-method", &funccall_method);
+	(void)stress_get_setting("funccall-method", &funccall_method);
 
-        funccall_method->func(args);
-
+	funccall_method->func(args);
 	return EXIT_SUCCESS;
 }
 

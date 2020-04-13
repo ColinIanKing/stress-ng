@@ -59,8 +59,8 @@ static void stress_hrtimers_set(struct itimerspec *timer)
  */
 static bool HOT OPTIMIZE3 stress_hrtimers_keep_stressing(void)
 {
-        return (LIKELY(keep_stressing_flag()) &&
-                LIKELY(!max_ops || ((*timer_counter) < max_ops)));
+	return (LIKELY(keep_stressing_flag()) &&
+		LIKELY(!max_ops || ((*timer_counter) < max_ops)));
 }
 
 /*
@@ -150,19 +150,19 @@ static int stress_hrtimers(const stress_args_t *args)
 	pid_t pids[PROCS_MAX];
 	const size_t page_size = args->page_size;
 	const size_t counters_sz = sizeof(uint64_t) * PROCS_MAX;
-        const size_t sz = (counters_sz + page_size) & ~(page_size - 1);
+	const size_t sz = (counters_sz + page_size) & ~(page_size - 1);
 	size_t i;
 	uint64_t *counters;
 
 	max_ops = args->max_ops / PROCS_MAX;
 
 	(void)memset(pids, 0, sizeof(pids));
-        counters = (uint64_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
-                        MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-        if (counters == MAP_FAILED) {
-                pr_fail_dbg("mmap");
-                return EXIT_NO_RESOURCE;
-        }
+	counters = (uint64_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (counters == MAP_FAILED) {
+		pr_fail_dbg("mmap");
+		return EXIT_NO_RESOURCE;
+	}
 
 	for (i = 0; i < PROCS_MAX; i++) {
 		if (!keep_stressing())

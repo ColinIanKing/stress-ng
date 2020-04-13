@@ -419,7 +419,7 @@ next:
  */
 static int stress_vm_addr(const stress_args_t *args)
 {
-        const size_t page_size = args->page_size;
+	const size_t page_size = args->page_size;
 	size_t retries;
 	int err = 0, ret = EXIT_SUCCESS;
 	stress_vm_addr_context_t context;

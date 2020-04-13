@@ -181,7 +181,7 @@ static int stress_mergesort(const stress_args_t *args)
 		/* Reverse sort */
 		if (mergesort(data, n, sizeof(*data), stress_mergesort_cmp_2) < 0) {
 			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
-                                args->name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 		} else {
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				for (ptr = data, i = 0; i < n - 1; i++, ptr++) {

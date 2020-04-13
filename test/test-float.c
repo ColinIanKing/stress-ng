@@ -42,24 +42,24 @@
 
 /* From stress-cpu.c */
 #define float_ops(_type, a, b, c, d, _sin, _cos)        \
-        do {                                            \
-                a = a + b;                              \
-                b = a * c;                              \
-                c = a - b;                              \
-                d = a / b;                              \
-                a = c / (_type)0.1923L;                 \
-                b = c + a;                              \
-                c = b * (_type)3.12L;                   \
-                d = d + b + (_type)_sin(a);             \
-                a = (b + c) / c;                        \
-                b = b * c;                              \
-                c = c + (_type)1.0L;                    \
-                d = d - (_type)_sin(c);                 \
-                a = a * (_type)_cos(b);                 \
-                b = b + (_type)_cos(c);                 \
-                c = (_type)_sin(a + b) / (_type)2.344L; \
-                b = d - (_type)1.0L;                    \
-        } while (0)
+	do {                                            \
+		a = a + b;                              \
+		b = a * c;                              \
+		c = a - b;                              \
+		d = a / b;                              \
+		a = c / (_type)0.1923L;                 \
+		b = c + a;                              \
+		c = b * (_type)3.12L;                   \
+		d = d + b + (_type)_sin(a);             \
+		a = (b + c) / c;                        \
+		b = b * c;                              \
+		c = c + (_type)1.0L;                    \
+		d = d - (_type)_sin(c);                 \
+		a = a * (_type)_cos(b);                 \
+		b = b + (_type)_cos(c);                 \
+		c = (_type)_sin(a + b) / (_type)2.344L; \
+		b = d - (_type)1.0L;                    \
+	} while (0)
 
 static FLOAT HOT OPTIMIZE3 test(void)
 {

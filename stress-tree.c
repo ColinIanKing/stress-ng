@@ -31,8 +31,8 @@ typedef void (*stress_tree_func)(const stress_args_t *args,
 				 struct tree_node *data);
 
 typedef struct {
-        const char              *name;  /* human readable form of stressor */
-        const stress_tree_func   func;	/* the tree method function */
+	const char              *name;  /* human readable form of stressor */
+	const stress_tree_func   func;	/* the tree method function */
 } stress_tree_method_info_t;
 
 static const stress_tree_method_info_t tree_methods[];
@@ -492,7 +492,7 @@ static inline uint64_t ror64(const uint64_t val)
 	register const uint64_t bit0 = (tmp & 1) << 63;
 
 	tmp >>= 1;
-        return (tmp | bit0);
+	return (tmp | bit0);
 }
 
 /*

@@ -162,7 +162,7 @@ static void NORETURN waste_resources(
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 
 	if ((shmall + freemem + totalmem > 0) &&
-            (freemem > 0) && (freemem < mem_slack))
+	    (freemem > 0) && (freemem < mem_slack))
 		_exit(0);
 
 	(void)memset(&info, 0, sizeof(info));
@@ -247,7 +247,7 @@ static void NORETURN waste_resources(
 		}
 
 		if ((shmall + freemem + totalmem > 0) &&
-	            (freemem > 0) && (freemem < mem_slack))
+		    (freemem > 0) && (freemem < mem_slack))
 			break;
 
 		if ((stress_mwc8() & 0xf) == 0) {

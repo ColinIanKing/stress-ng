@@ -37,7 +37,7 @@
 
 typedef struct {
 	const char *name;
-        const int advice;
+	const int advice;
 } stress_stream_madvise_info_t;
 
 static const stress_help_t help[] = {
@@ -64,7 +64,7 @@ static const stress_stream_madvise_info_t stream_madvise_info[] = {
 	/* No MADVISE, default to normal, ignored */
 	{ "normal",	0 },
 #endif
-        { NULL,         0 },
+	{ NULL,         0 },
 };
 
 static int stress_set_stream_L3_size(const char *opt)
@@ -90,7 +90,7 @@ static int stress_set_stream_madvise(const char *opt)
 	(void)fprintf(stderr, "invalid stream-madvise advice '%s', allowed advice options are:", opt);
 	for (info = stream_madvise_info; info->name; info++) {
 		(void)fprintf(stderr, " %s", info->name);
-        }
+	}
 	(void)fprintf(stderr, "\n");
 	return -1;
 }

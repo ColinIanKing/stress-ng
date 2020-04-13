@@ -178,7 +178,7 @@ STRESS_ICACHE(stress_icache_4K, SIZE_4K, stress_icache_func_4K)
  */
 static int stress_icache(const stress_args_t *args)
 {
-        int ret;
+	int ret;
 
 	switch (args->page_size) {
 	case SIZE_4K:
@@ -204,7 +204,7 @@ static int stress_icache(const stress_args_t *args)
 #endif
 		ret = EXIT_NO_RESOURCE;
 	}
-        return ret;
+	return ret;
 }
 
 stressor_info_t stress_icache_info = {

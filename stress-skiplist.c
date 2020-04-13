@@ -136,7 +136,7 @@ static skip_node_t *skip_list_insert(skip_list_t *list, const int value)
 			skip_nodes[i] = list->head;
 
 		list->level = level;
-        }
+	}
 
 	skip_node = skip_node_alloc(level);
 	if (!skip_node)

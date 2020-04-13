@@ -290,7 +290,7 @@ uint64_t stress_get_uint64_percent(
 			longjmp(g_error_env, 1);
 		}
 		return (uint64_t)((double)(max * val) / (100.0 * instances));
-        }
+	}
 	return stress_get_uint64_byte(str);
 }
 

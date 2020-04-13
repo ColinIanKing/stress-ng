@@ -261,7 +261,7 @@ static int stress_close(const stress_args_t *args)
 #if defined(HAVE_LIB_RT)
 		case 12:
 			fd = shm_open(shm_name, O_CREAT | O_RDWR | O_TRUNC,
-                                S_IRUSR | S_IWUSR);
+				S_IRUSR | S_IWUSR);
 			(void)shm_unlink(shm_name);
 			break;
 #endif

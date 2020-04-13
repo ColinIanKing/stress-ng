@@ -50,8 +50,8 @@ static const stress_help_t help[] = {
 typedef void(*stress_opcode_func)(uint8_t *ops_begin, uint8_t *ops_end, uint32_t *op);
 
 typedef struct {
-        const char *name;
-        const stress_opcode_func func;
+	const char *name;
+	const stress_opcode_func func;
 } stress_opcode_method_info_t;
 
 static const int sigs[] = {
@@ -100,8 +100,8 @@ static struct sock_filter filter[] = {
 };
 
 static struct sock_fprog prog = {
-        .len = (unsigned short)SIZEOF_ARRAY(filter),
-        .filter = filter
+	.len = (unsigned short)SIZEOF_ARRAY(filter),
+	.filter = filter
 };
 
 #endif
@@ -401,7 +401,7 @@ err:
 
 static void stress_opcode_set_default(void)
 {
-        stress_set_opcode_method("random");
+	stress_set_opcode_method("random");
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -411,7 +411,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 stressor_info_t stress_opcode_info = {
 	.stressor = stress_opcode,
-        .set_default = stress_opcode_set_default,
+	.set_default = stress_opcode_set_default,
 	.class = CLASS_CPU | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help

@@ -63,9 +63,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 {
-        (void)signum;
+	(void)signum;
 
-        thread_terminate = true;
+	thread_terminate = true;
 }
 
 /*
@@ -82,7 +82,7 @@ static void *stress_pthread_func(void *c)
 
 	while (keep_stressing() &&
 	       !thread_terminate &&
-               (!max_ops || ctxt->counter < max_ops)) {
+	       (!max_ops || ctxt->counter < max_ops)) {
 		struct timespec tv;
 #if defined(HAVE_SYS_SELECT_H)
 		struct timeval timeout;

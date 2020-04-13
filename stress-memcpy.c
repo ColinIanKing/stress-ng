@@ -40,8 +40,8 @@ typedef struct {
 typedef void (*stress_memcpy_func)(stress_buffer_t *b, uint8_t *b_str, uint8_t *str_shared, uint8_t *aligned_buf);
 
 typedef struct {
-        const char *name;
-        const stress_memcpy_func func;
+	const char *name;
+	const stress_memcpy_func func;
 } stress_memcpy_method_info_t;
 
 static NOINLINE void *__memcpy(void *dest, const void *src, size_t n)
@@ -175,10 +175,10 @@ static NOINLINE void stress_memcpy_all(
 
 static const stress_memcpy_method_info_t stress_memcpy_methods[] = {
 	{ "all",	stress_memcpy_all },
-        { "libc",	stress_memcpy_libc },
-        { "builtin",	stress_memcpy_builtin },
-        { "naive",      stress_memcpy_naive },
-        { NULL,         NULL }
+	{ "libc",	stress_memcpy_libc },
+	{ "builtin",	stress_memcpy_builtin },
+	{ "naive",      stress_memcpy_naive },
+	{ NULL,         NULL }
 };
 
 /*
@@ -207,7 +207,7 @@ static int stress_set_memcpy_method(const char *name)
 
 static void stress_memcpy_set_default(void)
 {
-        stress_set_memcpy_method("libc");
+	stress_set_memcpy_method("libc");
 }
 
 /*

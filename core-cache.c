@@ -364,7 +364,7 @@ static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 		const char *name = namelist[i]->d_name;
 
 		if (!strncmp(name, "index", 5) &&
-                    isdigit(name[5])) {
+		    isdigit(name[5])) {
 			char fullpath[strlen(path) + strlen(name) + 2];
 
 			(void)memset(fullpath, 0, sizeof(fullpath));

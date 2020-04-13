@@ -28,10 +28,10 @@ static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
 
 static const stress_help_t help[] = {
-        { "Q N", "qsort N",	"start N workers qsorting 32 bit random integers" },
-        { NULL,	"qsort-ops N",	"stop after N qsort bogo operations" },
-        { NULL,	"qsort-size N",	"number of 32 bit integers to sort" },
-        { NULL,	NULL,		NULL }
+	{ "Q N", "qsort N",	"start N workers qsorting 32 bit random integers" },
+	{ NULL,	"qsort-ops N",	"stop after N qsort bogo operations" },
+	{ NULL,	"qsort-size N",	"number of 32 bit integers to sort" },
+	{ NULL,	NULL,		NULL }
 };
 
 /*

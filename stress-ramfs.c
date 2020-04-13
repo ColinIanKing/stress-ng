@@ -58,19 +58,19 @@ static volatile bool keep_mounting = true;
 
 static int stress_set_ramfs_size(const char *opt)
 {
-        uint64_t ramfs_size;
+	uint64_t ramfs_size;
 	const uint64_t page_size = (uint64_t)stress_get_pagesize();
 	const uint64_t page_mask = ~(page_size - 1);
 
-        ramfs_size = stress_get_uint64_byte(opt);
-        stress_check_range_bytes("ramfs-size", ramfs_size,
-                1 * MB, 1 * GB);
+	ramfs_size = stress_get_uint64_byte(opt);
+	stress_check_range_bytes("ramfs-size", ramfs_size,
+		1 * MB, 1 * GB);
 	if (ramfs_size & (page_size - 1)) {
 		ramfs_size &= page_mask;
 		pr_inf("ramfs: rounding ramfs-size to %" PRIu64 " x %" PRId64 "K pages\n",
 			ramfs_size / page_size, page_size >> 10);
 	}
-        return stress_set_setting("ramfs-size", TYPE_ID_UINT64, &ramfs_size);
+	return stress_set_setting("ramfs-size", TYPE_ID_UINT64, &ramfs_size);
 }
 
 static void stress_ramfs_child_handler(int signum)
@@ -398,8 +398,8 @@ again:
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-        { OPT_ramfs_size,	stress_set_ramfs_size},
-        { 0,                    NULL }
+	{ OPT_ramfs_size,	stress_set_ramfs_size},
+	{ 0,                    NULL }
 };
 
 stressor_info_t stress_ramfs_info = {

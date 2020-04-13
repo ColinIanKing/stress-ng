@@ -41,7 +41,7 @@ static int stress_set_eventfd_nonblock(const char *opt)
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_eventfd_nonblock,	stress_set_eventfd_nonblock },
-        { 0,			NULL }
+	{ 0,			NULL }
 };
 
 #if defined(HAVE_SYS_EVENTFD_H) && \
@@ -90,7 +90,7 @@ again:
 	pid = fork();
 	if (pid < 0) {
 		if (keep_stressing_flag() &&
-                    ((errno == EAGAIN) || (errno == ENOMEM)))
+		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 		pr_fail_dbg("fork");
 		(void)close(fd1);

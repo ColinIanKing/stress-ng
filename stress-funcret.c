@@ -287,12 +287,11 @@ static int stress_set_funcret_method(const char *name)
  */
 static int stress_funcret(const stress_args_t *args)
 {
-        const stress_funcret_method_info_t *funcret_method = &funcret_methods[3];
+	const stress_funcret_method_info_t *funcret_method = &funcret_methods[3];
 
-        (void)stress_get_setting("funcret-method", &funcret_method);
+	(void)stress_get_setting("funcret-method", &funcret_method);
 
-        funcret_method->func(args);
-
+	funcret_method->func(args);
 	return EXIT_SUCCESS;
 }
 

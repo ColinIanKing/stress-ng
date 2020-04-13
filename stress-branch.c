@@ -43,9 +43,9 @@ static inline uint8_t jmp_stress_mwc8(void)
 	static uint32_t w = STRESS_MWC_SEED_W;
 	static uint32_t z = STRESS_MWC_SEED_Z;
 
-        z = 36969 * (z & 65535) + (z >> 16);
-        w = 18000 * (w & 65535) + (w >> 16);
-        return (w >> 3) & 0xff;
+	z = 36969 * (z & 65535) + (z >> 16);
+	w = 18000 * (w & 65535) + (w >> 16);
+	return (w >> 3) & 0xff;
 }
 
 /*

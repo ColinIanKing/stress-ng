@@ -77,11 +77,11 @@ static int stress_exec_supported(void)
 	 *  this could allow somebody to try and run another
 	 *  executable as root.
 	 */
-        if (geteuid() == 0) {
+	if (geteuid() == 0) {
 		pr_inf("exec stressor must not run as root, skipping the stressor\n");
-                return -1;
-        }
-        return 0;
+		return -1;
+	}
+	return 0;
 }
 
 /*

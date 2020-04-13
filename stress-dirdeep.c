@@ -293,8 +293,8 @@ static int stress_dirdeep(const stress_args_t *args)
 	uint64_t inodes_target_free;
 	uint64_t min_inodes_free = ~0ULL;
 
-        (void)stress_get_setting("dirdeep-dirs", &dirdeep_dirs);
-        (void)stress_get_setting("dirdeep-inodes", &dirdeep_inodes);
+	(void)stress_get_setting("dirdeep-dirs", &dirdeep_dirs);
+	(void)stress_get_setting("dirdeep-inodes", &dirdeep_inodes);
 
 	inodes_target_free = (inodes_avail > dirdeep_inodes) ?
 		inodes_avail - dirdeep_inodes : 0;

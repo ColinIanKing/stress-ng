@@ -68,9 +68,9 @@ static int stress_set_matrix_3d_zyx(const char *opt)
 {
 	size_t matrix_3d_zyx = 1;
 
-        (void)opt;
+	(void)opt;
 
-        return stress_set_setting("matrix-3d-zyx", TYPE_ID_SIZE_T, &matrix_3d_zyx);
+	return stress_set_setting("matrix-3d-zyx", TYPE_ID_SIZE_T, &matrix_3d_zyx);
 }
 
 /*

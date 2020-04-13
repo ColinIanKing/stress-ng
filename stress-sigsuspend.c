@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
  */
 static void MLOCKED_TEXT stress_usr1_handler(int signum)
 {
-        (void)signum;
+	(void)signum;
 }
 
 /*

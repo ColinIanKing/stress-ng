@@ -35,5 +35,5 @@ int main(void)
         struct statfs *statbufs;
 #endif
 
-        return getmntinfo(&statbufs, 0);
+	return getmntinfo(&statbufs, 0);
 }

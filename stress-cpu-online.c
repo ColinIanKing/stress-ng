@@ -51,7 +51,7 @@ static int stress_cpu_online_set(
 	ret = system_write(filename, data, sizeof data);
 	if ((ret < 0) &&
 	    ((ret != -EAGAIN) && (ret != -EINTR) &&
-             (ret != -EBUSY) && (ret != -EOPNOTSUPP))) {
+	     (ret != -EBUSY) && (ret != -EOPNOTSUPP))) {
 		pr_fail_err("write");
 		return EXIT_FAILURE;
 	}
@@ -66,20 +66,20 @@ static int stress_cpu_online_supported(void)
 {
 	int ret;
 
-        if (geteuid() != 0) {
-                pr_inf("cpu-online stressor will be skipped, "
-                        "need to be running as root for this stressor\n");
-                return -1;
-        }
+	if (geteuid() != 0) {
+		pr_inf("cpu-online stressor will be skipped, "
+		       "need to be running as root for this stressor\n");
+		return -1;
+	}
 
 	ret = system_write("/sys/devices/system/cpu/cpu1/online", "1\n", 2);
 	if (ret < 0) {
-                pr_inf("cpu-online stressor will be skipped, "
-                        "cannot write to cpu1 online sysfs control file\n");
-                return -1;
+		pr_inf("cpu-online stressor will be skipped, "
+		       "cannot write to cpu1 online sysfs control file\n");
+		return -1;
 	}
 
-        return 0;
+	return 0;
 }
 
 /*

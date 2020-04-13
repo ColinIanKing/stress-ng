@@ -49,16 +49,16 @@ static int stress_dnotify_supported(void)
 		pr_inf("dnotify stressor will be skipped, cannot "
 			"open '%s', CONFIG_DNOTIFY is probably not set\n",
 			path);
-                return -1;
+		return -1;
 	}
 	if (sscanf(buf, "%d", &enabled) != 1) {
 		pr_inf("dnotify stressor will be skipped, cannot "
 			"parse '%s'\n", path);
-                return -1;
+		return -1;
 	}
 	if (enabled != 1) {
 		pr_inf("dnotify stressor will be skipped, dnotify is not enabled\n");
-                return -1;
+		return -1;
 	}
 	return 0;
 }
