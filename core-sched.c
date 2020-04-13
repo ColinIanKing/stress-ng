@@ -83,6 +83,9 @@ int stress_set_deadline_sched(
 	attr.sched_policy = SCHED_DEADLINE;
 	/* make sched_deadline task be able to fork*/
 	attr.sched_flags = SCHED_FLAG_RESET_ON_FORK;
+	if (g_opt_flags & OPT_FLAGS_DEADLINE_GRUB)
+		attr.sched_flags |= SCHED_FLAG_RECLAIM;
+
 	attr.sched_nice = 0;
 	attr.sched_priority = 0;
 	if (!quiet)

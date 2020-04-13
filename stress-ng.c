@@ -655,6 +655,7 @@ static const struct option long_options[] = {
 	{ "sched-period",1,	0,	OPT_sched_period },
 	{ "sched-runtime",1,	0,	OPT_sched_runtime },
 	{ "sched-deadline",1,	0,	OPT_sched_deadline },
+	{ "sched-reclaim",0,    0,      OPT_sched_reclaim },
 	{ "schedpolicy",1,	0,	OPT_schedpolicy },
 	{ "sctp",	1,	0,	OPT_sctp },
 	{ "sctp-ops",	1,	0,	OPT_sctp_ops },
@@ -928,6 +929,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"sched-period N",	"set period for SCHED_DEADLINE to N nanosecs (Linux only)" },
 	{ NULL,		"sched-runtime N",	"set runtime for SCHED_DEADLINE to N nanosecs (Linux only)" },
 	{ NULL,		"sched-deadline N",	"set deadline for SCHED_DEADLINE to N nanosecs (Liunx only)" },
+	{ NULL,		"sched-reclaim",        "set reclaim cpu bandwidth for deadline schduler (Liunx only)" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"stressors",		"show available stress tests" },
 #if defined(HAVE_SYSLOG_H)
@@ -2585,6 +2587,9 @@ next_opt:
 		case OPT_sched_deadline:
 			i64 = stress_get_uint64(optarg);
 			stress_set_setting_global("sched-deadline", TYPE_ID_INT64, &i64);
+			break;
+		case OPT_sched_reclaim:
+			g_opt_flags |= OPT_FLAGS_DEADLINE_GRUB;
 			break;
 		case OPT_sequential:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
