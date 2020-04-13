@@ -719,14 +719,10 @@ static inline bool is_scsi_dev(const char *devpath)
 			}
 		}
 
-		for (j = 0; j < m; j++)
-			free(scsi_block_list[j]);
-		free(scsi_block_list);
+		stress_dirent_list_free(scsi_block_list, m);
 	}
 
-	for (i = 0; i < n; i++)
-		free(scsi_device_list[i]);
-	free(scsi_device_list);
+	stress_dirent_list_free(scsi_device_list, n);
 
 	if (is_scsi)
 		add_scsi_dev(devpath);
@@ -1491,11 +1487,7 @@ static void stress_dev_dir(
 		}
 	}
 done:
-	if (dlist) {
-		for (i = 0; i < n; i++)
-			free(dlist[i]);
-		free(dlist);
-	}
+	stress_dirent_list_free(dlist, n);
 }
 
 /*

@@ -230,11 +230,7 @@ static void stress_dir_exercise(
 		}
 	}
 	path[len] = '\0';
-	if (namelist) {
-		for (i = 0; i < n; i++)
-			free(namelist[i]);
-		free(namelist);
-	}
+	stress_dirent_list_free(namelist, n);
 }
 
 
@@ -274,7 +270,7 @@ static void stress_dir_tidy(
 		free(namelist[n]);
 	}
 	path[len] = '\0';
-	free(namelist);
+	stress_dirent_list_free(namelist, n);
 
 	(void)rmdir(path);
 }

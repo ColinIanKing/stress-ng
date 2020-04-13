@@ -306,15 +306,6 @@ stress_cpu_cache_t * stress_get_cpu_cache(const stress_cpus_t *cpus, const uint1
 	return stress_get_cache_by_cpu(cpu, cache_level);
 }
 
-static void stress_free_scandir_list(struct dirent **namelist, int n)
-{
-	int i;
-
-	for (i = 0; i < n; i++)
-		free(namelist[i]);
-	free(namelist);
-}
-
 /*
  * stress_get_cpu_cache_details()
  * @cpu: cpu to fill in.
@@ -384,7 +375,7 @@ static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 	}
 	ret = EXIT_SUCCESS;
 err:
-	stress_free_scandir_list(namelist, n);
+	stress_dirent_list_free(namelist, n);
 
 	return ret;
 }
@@ -466,7 +457,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 	}
 
 out:
-	stress_free_scandir_list(namelist, n);
+	stress_dirent_list_free(namelist, n);
 	return cpus;
 }
 

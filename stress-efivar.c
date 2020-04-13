@@ -302,7 +302,6 @@ static int stress_efivar_supported(void)
 static int stress_efivar(const stress_args_t *args)
 {
 	pid_t pid;
-	int i;
 	size_t sz;
 
 	efi_dentries = NULL;
@@ -361,8 +360,7 @@ again:
 	}
 
 	(void)munmap(efi_ignore, sz);
-	for (i = 0; i < dir_count; i++)
-		free(efi_dentries[i]);
+	stress_dirent_list_free(efi_dentries, dir_count);
 	free(efi_dentries);
 
 	return EXIT_SUCCESS;
