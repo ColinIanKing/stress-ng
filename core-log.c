@@ -249,12 +249,12 @@ static int pr_msg_lockable(
 }
 
 /*
- *  __pr_msg_fail()
+ *  pr_msg_fail_vargs()
  *	wrapper helper for pr_msg_fail
  */
-static inline void __pr_msg_fail(const uint64_t flag, const bool locked, char *fmt, ...) FORMAT(printf, 3, 0);
+static inline void pr_msg_fail_vargs(const uint64_t flag, const bool locked, char *fmt, ...) FORMAT(printf, 3, 0);
 
-static inline void __pr_msg_fail(const uint64_t flag, const bool locked, char *fmt, ...)
+static inline void pr_msg_fail_vargs(const uint64_t flag, const bool locked, char *fmt, ...)
 {
 	va_list ap;
 
@@ -275,7 +275,7 @@ void pr_msg_fail(
 	const char *what,
 	const int err)
 {
-	__pr_msg_fail(flag, false, "%s: %s failed, errno=%d (%s)\n",
+	pr_msg_fail_vargs(flag, false, "%s: %s failed, errno=%d (%s)\n",
 		name, what, err, strerror(err));
 }
 STRESS_PRAGMA_POP
@@ -378,28 +378,28 @@ void pr_tidy(const char *fmt, ...)
 }
 
 /*
- *  pr_fail_err__()
+ *  pr_fail_args_err()
  *	helper for macro pr_fail_err to print error with errno
  */
-void pr_fail_err__(const stress_args_t *args, const char *msg)
+void pr_fail_args_err(const stress_args_t *args, const char *msg)
 {
 	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, errno);
 }
 
 /*
- *  pr_fail_errno__()
+ *  pr_fail_args_errno()
  *	helper for macro pr_fail_errno to print error with a given errno
  */
-void pr_fail_errno__(const stress_args_t *args, const char *msg, int err)
+void pr_fail_args_errno(const stress_args_t *args, const char *msg, int err)
 {
 	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, err);
 }
 
 /*
- *  pr_fail_dbg__()
+ *  pr_fail_args_dbg()
  *	helper for macro pr_fail_dbg to print error
  */
-void pr_fail_dbg__(const stress_args_t *args, const char *msg)
+void pr_fail_args_dbg(const stress_args_t *args, const char *msg)
 {
 	pr_msg_fail(PR_DEBUG, args->name, msg, errno);
 }
