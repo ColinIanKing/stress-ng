@@ -69,6 +69,22 @@
 #include <time.h>
 #include <unistd.h>
 
+
+#ifndef SCHED_FLAG_RESET_ON_FORK
+#define SCHED_FLAG_RESET_ON_FORK	(0x01)
+#endif
+
+/*
+ * SCHED_DEADLINE
+ */
+#ifndef  SCHED_FLAG_RECLAIM
+#define SCHED_FLAG_RECLAIM  		(0x02)
+#endif
+
+#ifndef SCHED_FLAG_DL_OVERRUN
+#define SCHED_FLAG_DL_OVERRUN   	(0x04)
+#endif
+
 /*
  *  Networking includes that are part of
  *  Single UNIX Specification V2
@@ -806,6 +822,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_ABORT		 (0x00000200000000ULL)	/* --abort */
 #define OPT_FLAGS_CPU_ONLINE_ALL (0x00000400000000ULL)	/* --cpu-online-all */
 #define OPT_FLAGS_TIMESTAMP	 (0x00000800000000ULL)	/* --timestamp */
+#define OPT_FLAGS_DEADLINE_GRUB  (0x00001000000000ULL)   /* --sched-reclaim */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -2753,6 +2770,7 @@ typedef enum {
 	OPT_sched_period,
 	OPT_sched_runtime,
 	OPT_sched_deadline,
+	OPT_sched_reclaim,
 
 	OPT_sctp,
 	OPT_sctp_ops,
