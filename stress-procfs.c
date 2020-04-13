@@ -391,19 +391,19 @@ static void stress_proc_dir(
 		if (stress_is_dot_filename(d->d_name))
 			continue;
 
-		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
 		switch (d->d_type) {
 		case DT_DIR:
-			if (!recurse)
-				continue;
-
-			inc_counter(args);
-			stress_proc_dir(ctxt, tmp, recurse, depth + 1);
+			if (recurse) {
+				inc_counter(args);
+				(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
+				stress_proc_dir(ctxt, tmp, recurse, depth + 1);
+			}
 			break;
 		case DT_REG:
 		case DT_LNK:
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
+				(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
 				(void)shim_strlcpy(proc_path, tmp, sizeof(proc_path));
 				(void)shim_pthread_spin_unlock(&lock);
 				stress_proc_rw(ctxt, loops);
