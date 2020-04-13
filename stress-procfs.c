@@ -354,23 +354,6 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 }
 
 /*
- *  stress_proc_dir_free
- *	free dirent list
- */
-static void stress_proc_dir_free(struct dirent **dlist, const int n)
-{
-	if (dlist) {
-		int i;
-
-		for (i = 0; i < n; i++) {
-			if (dlist[i])
-				free(dlist[i]);
-		}
-		free(dlist);
-	}
-}
-
-/*
  *  stress_proc_dir()
  *	read directory
  */
@@ -397,7 +380,7 @@ static void stress_proc_dir(
 	dlist = NULL;
 	n = scandir(path, &dlist, NULL, mixup_sort);
 	if (n <= 0) {
-		stress_proc_dir_free(dlist, n);
+		stress_dirent_list_free(dlist, n);
 		return;
 	}
 
@@ -427,7 +410,7 @@ static void stress_proc_dir(
 	}
 
 	if (!recurse) {
-		stress_proc_dir_free(dlist, n);
+		stress_dirent_list_free(dlist, n);
 		return;
 	}
 
@@ -445,7 +428,7 @@ static void stress_proc_dir(
 			inc_counter(args);
 		}
 	}
-	stress_proc_dir_free(dlist, n);
+	stress_dirent_list_free(dlist, n);
 }
 
 /*
@@ -463,7 +446,7 @@ static char *stress_random_pid(void)
 
 	n = scandir("/proc", &dlist, NULL, mixup_sort);
 	if (!n) {
-		stress_proc_dir_free(dlist, n);
+		stress_dirent_list_free(dlist, n);
 		return path;
 	}
 
@@ -483,7 +466,7 @@ static char *stress_random_pid(void)
 		}
 	}
 
-	stress_proc_dir_free(dlist, n);
+	stress_dirent_list_free(dlist, n);
 	return path;
 }
 

@@ -3438,6 +3438,7 @@ extern WARN_UNUSED uint32_t stress_hash_pjw(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_djb2a(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_fnv1a(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
+extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 
 /*
  *  Indicate a stress test failed because of limited resources

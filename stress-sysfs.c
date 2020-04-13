@@ -417,23 +417,6 @@ static bool stress_sys_skip(const char *path)
 }
 
 /*
- *  stress_sys_dir_free
- *	free dirent list
- */
-static void stress_sys_dir_free(struct dirent **dlist, const int n)
-{
-	if (dlist) {
-		int i;
-
-		for (i = 0; i < n; i++) {
-			if (dlist[i])
-				free(dlist[i]);
-		}
-		free(dlist);
-	}
-}
-
-/*
  *  stress_sys_dir()
  *	read directory
  */
@@ -459,7 +442,7 @@ static void stress_sys_dir(
 	dlist = NULL;
 	n = scandir(path, &dlist, NULL, mixup_sort);
 	if (n <= 0) {
-		stress_sys_dir_free(dlist, n);
+		stress_dirent_list_free(dlist, n);
 		return;
 	}
 
@@ -528,7 +511,7 @@ dt_reg_free:
 	}
 
 	if (!recurse) {
-		stress_sys_dir_free(dlist, n);
+		stress_dirent_list_free(dlist, n);
 		return;
 	}
 
@@ -557,7 +540,7 @@ dt_dir_free:
 		free(dlist[i]);
 		dlist[i] = NULL;
 	}
-	stress_sys_dir_free(dlist, n);
+	stress_dirent_list_free(dlist, n);
 }
 
 

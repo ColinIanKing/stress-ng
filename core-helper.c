@@ -1675,3 +1675,20 @@ bool stress_is_dev_tty(const int fd)
 	return true;
 #endif
 }
+
+/*
+ *  stress_dirent_list_free
+ *	free dirent list
+ */
+void stress_dirent_list_free(struct dirent **dlist, const int n)
+{
+	if (dlist) {
+		int i;
+
+		for (i = 0; i < n; i++) {
+			if (dlist[i])
+				free(dlist[i]);
+		}
+		free(dlist);
+	}
+}
