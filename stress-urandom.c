@@ -52,7 +52,7 @@ static void check_eperm(const stress_args_t *args, const int ret, const int err)
  */
 static int stress_urandom(const stress_args_t *args)
 {
-	int fd_urnd, fd_rnd, rc = EXIT_FAILURE;
+	int fd_urnd, fd_rnd, fd_rnd_blk, rc = EXIT_FAILURE;
 #if defined(__linux__)
 	int fd_rnd_wr;
 #endif
@@ -65,10 +65,25 @@ static int stress_urandom(const stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 	}
+	/*
+	 *  non-blockable /dev/random
+	 */
 	fd_rnd = open("/dev/random", O_RDONLY | O_NONBLOCK);
 	if (fd_rnd < 0) {
 		if (errno != ENOENT) {
 			pr_fail_err("open");
+			(void)close(fd_urnd);
+			return EXIT_FAILURE;
+		}
+	}
+	/*
+	 *  blockable /dev/random
+	 */
+	fd_rnd_blk = open("/dev/random", O_RDONLY);
+	if (fd_rnd_blk < 0) {
+		if (errno != ENOENT) {
+			pr_fail_err("open");
+			(void)close(fd_rnd);
 			(void)close(fd_urnd);
 			return EXIT_FAILURE;
 		}
@@ -92,12 +107,14 @@ static int stress_urandom(const stress_args_t *args)
 	do {
 		char buffer[8192];
 		ssize_t ret;
+		struct timeval timeout;
+		fd_set rdfds;
 
 		if (fd_urnd >= 0) {
 			ret = read(fd_urnd, buffer, sizeof(buffer));
 			if (ret < 0) {
 				if ((errno != EAGAIN) && (errno != EINTR)) {
-					pr_fail_err("read");
+					pr_fail_err("read /dev/urandom");
 					goto err;
 				}
 			}
@@ -121,7 +138,7 @@ static int stress_urandom(const stress_args_t *args)
 			ret = read(fd_rnd, buffer, 1);
 			if (ret < 0) {
 				if ((errno != EAGAIN) && (errno != EINTR)) {
-					pr_fail_err("read");
+					pr_fail_err("read /dev/random");
 					goto err;
 				}
 			}
@@ -180,6 +197,28 @@ next:
 				(void)munmap(ptr, args->page_size);
 		}
 
+		/*
+		 *  Peek if data is available on blockable /dev/random and
+		 *  try to read it.
+		 */
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 0;
+		FD_ZERO(&rdfds);
+		FD_SET(fd_rnd_blk, &rdfds);
+
+		ret = select(fd_rnd_blk + 1, &rdfds, NULL, NULL, &timeout);
+		if (ret > 0) {
+			if (FD_ISSET(fd_rnd_blk, &rdfds)) {
+				ret = read(fd_rnd, buffer, 1);
+				if (ret < 0) {
+					if ((errno != EAGAIN) && (errno != EINTR)) {
+						pr_fail_err("read of /dev/random");
+						goto err;
+					}
+				}
+			}
+		}
+
 		inc_counter(args);
 	} while (keep_stressing());
 
@@ -189,6 +228,8 @@ err:
 		(void)close(fd_urnd);
 	if (fd_rnd >= 0)
 		(void)close(fd_rnd);
+	if (fd_rnd_blk >= 0)
+		(void)close(fd_rnd_blk);
 #if defined(__linux__)
 	if (fd_rnd_wr >= 0)
 		(void)close(fd_rnd_wr);
