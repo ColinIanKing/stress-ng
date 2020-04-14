@@ -402,7 +402,8 @@ personality.h:
 stress-personality.c: personality.h
 
 core-perf.o: core-perf.c core-perf-event.c
-	@$(CC) $(CFLAGS) -E core-perf-event.c | grep "PERF_COUNT" | sed 's/,/ /' | \
+	@$(CC) $(CFLAGS) -E core-perf-event.c | grep "PERF_COUNT" | \
+	sed 's/,/ /' | sed s/'^ *//' | \
 	awk {'print "#define _SNG_" $$1 " (1)"'} > core-perf-event.h
 	@echo CC $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
