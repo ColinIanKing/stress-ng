@@ -2049,6 +2049,7 @@ typedef struct {
 	MACRO(sem)		\
 	MACRO(sem_sysv)		\
 	MACRO(sendfile)		\
+	MACRO(session)		\
 	MACRO(set)		\
 	MACRO(shellsort)	\
 	MACRO(shm)		\
@@ -2736,7 +2737,6 @@ typedef enum {
 	OPT_rdrand,
 	OPT_rdrand_ops,
 
-
 	OPT_readahead,
 	OPT_readahead_ops,
 	OPT_readahead_bytes,
@@ -2804,6 +2804,9 @@ typedef enum {
 	OPT_sem_sysv,
 	OPT_sem_sysv_ops,
 	OPT_sem_sysv_procs,
+
+	OPT_session,
+	OPT_session_ops,
 
 	OPT_set,
 	OPT_set_ops,

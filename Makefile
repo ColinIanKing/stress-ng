@@ -228,6 +228,7 @@ STRESS_SRC = \
 	stress-sem.c \
 	stress-sem-sysv.c \
 	stress-sendfile.c \
+	stress-session.c \
 	stress-set.c \
 	stress-shellsort.c \
 	stress-shm.c \

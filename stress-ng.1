@@ -3044,6 +3044,14 @@ specify the size to be copied with each sendfile call. The default size is
 4MB. One can specify the size in units of Bytes, KBytes, MBytes and GBytes
 using the suffix b, k, m or g.
 .TP
+.B \-\-session N
+start N workers that create child and grandchild processes that set and
+get their session ids. 25% of the grandchild processes are not waited for
+by the child to create orphaned sessions that need to be reaped by init.
+.TP
+.B \-\-session\-ops N
+stop session workers after N child processes are spawned and reaped.
+.TP
 .B \-\-set N
 start N workers that call system calls that try to set data in the kernel,
 currently these are: setgid, sethostname, setpgid, setpgrp, setuid,

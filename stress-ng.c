@@ -679,6 +679,8 @@ static const struct option long_options[] = {
 	{ "sendfile-ops",1,	0,	OPT_sendfile_ops },
 	{ "sendfile-size",1,	0,	OPT_sendfile_size },
 	{ "sequential",	1,	0,	OPT_sequential },
+	{ "session",	1,	0,	OPT_session },
+	{ "session-ops",1,	0,	OPT_session_ops },
 	{ "set",	1,	0,	OPT_set },
 	{ "set-ops",	1,	0,	OPT_set_ops },
 	{ "shellsort",	1,	0,	OPT_shellsort },
