@@ -50,9 +50,6 @@ static stress_sched_types_t sched_types[] = {
 #endif
 };
 
-#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
-    !defined(__OpenBSD__) && !defined(__minix__) && !defined(__APPLE__)
-
 /*
  *  get_sched_name()
  *	convert sched class to human readable string
@@ -68,7 +65,12 @@ const char *stress_get_sched_name(const int sched)
 	return "unknown";
 }
 
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
+    !defined(__OpenBSD__) && !defined(__minix__) && !defined(__APPLE__)
+
 #if defined(SCHED_DEADLINE) && defined(__linux__)
+#define HAVE_STRESS_SET_DEADLINE_SCHED	(1)
+
 int stress_set_deadline_sched(
 	const pid_t pid,
 	const uint64_t period,
@@ -128,24 +130,9 @@ int sched_deadline_init(void *params)
 		sched_runtime, sched_deadline, false);
 	return rc;
 }
-#else
-int stress_set_deadline_sched(
-	const pid_t pid,
-	const uint64_t period,
-	const uint64_t runtime,
-	const uint64_t deadline,
-	const bool quiet)
-{
-	(void)pid;
-	(void)period;
-	(void)runtime;
-	(void)deadline;
-	(void)quiet;
-
-	return 0;
-}
 #endif
 
+#define HAVE_STRESS_SET_SCHED	(1)
 /*
  *  set_sched()
  * 	are sched settings valid, if so, set them
@@ -297,7 +284,12 @@ int stress_set_sched(
 	}
 	return 0;
 }
-#else
+#endif
+
+#if !defined(HAVE_STRESS_SET_SCHED)
+#define HAVE_STRESS_SET_SCHED	(1)
+
+/* No-op shim */
 int stress_set_sched(
 	const pid_t pid,
 	const int sched,
@@ -307,6 +299,27 @@ int stress_set_sched(
 	(void)pid;
 	(void)sched;
 	(void)sched_priority;
+	(void)quiet;
+
+	return 0;
+}
+#endif
+
+#if !defined(HAVE_STRESS_SET_DEADLINE_SCHED)
+#define HAVE_STRESS_SET_DEADLINE_SCHED	(1)
+
+/* No-op shim */
+int stress_set_deadline_sched(
+	const pid_t pid,
+	const uint64_t period,
+	const uint64_t runtime,
+	const uint64_t deadline,
+	const bool quiet)
+{
+	(void)pid;
+	(void)period;
+	(void)runtime;
+	(void)deadline;
 	(void)quiet;
 
 	return 0;
