@@ -159,7 +159,9 @@ static int stress_chmod(const stress_args_t *args)
 			return rc;
 		}
 	}
+#if defined(O_DIRECTORY)
 	dfd = open(pathname, O_DIRECTORY | O_RDONLY);
+#endif
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		args->name, ppid, 0, 0);
@@ -228,8 +230,10 @@ static int stress_chmod(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 tidy:
+#if defined(O_DIRECTORY)
 	if (dfd >= 0)
 		(void)close(dfd);
+#endif
 	if (fd >= 0) {
 		(void)fchmod(fd, 0666);
 		(void)close(fd);
