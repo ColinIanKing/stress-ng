@@ -75,7 +75,7 @@ static const mode_t modes[] = {
  *  as a "known" error on invalid chmod mode bits
  */
 #if defined(EFTYPE)
-#define CHECK(x) if ((x) && ((errno != ENOSYS) || (errno != EFTYPE))) return -1
+#define CHECK(x) if ((x) && ((errno != ENOSYS) && (errno != EFTYPE))) return -1
 #else
 #define CHECK(x) if ((x) && (errno != ENOSYS)) return -1
 #endif
