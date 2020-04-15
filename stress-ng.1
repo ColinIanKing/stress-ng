@@ -292,16 +292,20 @@ schedulers use: stress\-ng \-\-sched which
 .B \-\-sched\-prio prio
 select the scheduler priority level (only on Linux). If the scheduler does
 not support this then the default priority level of 0 is chosen.
+.TP
 .B \-\-sched\-period period
 select the period parameter for deadline scheduler (only on Linux). Default
-value is 0 (in nanosecond).
+value is 0 (in nanoseconds).
+.TP
 .B \-\-sched\-runtime runtime
 select the runtime parameter for deadline scheduler (only on Linux). Default
-value is 10000 (in nanosecond).
+value is 10000 (in nanoseconds).
+.TP
 .B \-\-sched\-deadline deadline
 select the deadline parameter for deadline scheduler (only on Linux). Default
-value is 100000 (in nanosecond).
-.B \-\-sched\-recleaim
+value is 100000 (in nanoseconds).
+.TP
+.B \-\-sched\-reclaim
 use cpu bandwidth reclaim feature for deadline scheduler (only on Linux).
 .TP
 .B \-\-sequential N
