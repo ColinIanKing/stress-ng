@@ -165,7 +165,7 @@ static int stress_chmod(const stress_args_t *args)
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		args->name, ppid, 0, 0);
-	(void)strcpy(tmp, filename);
+	(void)shim_strlcpy(tmp, filename, sizeof(tmp));
 	filebase = basename(tmp);
 
 	if (args->instance == 0) {
