@@ -77,7 +77,7 @@ static void stress_session_set_and_get(const stress_args_t *args)
 	}
 	if (gsid != sid) {
 		pr_inf("%s getsid failed, got %d, expected %d\n",
-			args->name, gsid, sid);
+			args->name, (int)gsid, (int)sid);
 		_exit(STRESS_SESSION_GETSID_FAILED);
 	}
 }
