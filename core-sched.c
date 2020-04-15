@@ -136,6 +136,12 @@ int stress_set_deadline_sched(
 	const uint64_t deadline,
 	const bool quiet)
 {
+	(void)pid;
+	(void)period;
+	(void)runtime;
+	(void)deadline;
+	(void)quiet;
+
 	return 0;
 }
 #endif
@@ -160,9 +166,11 @@ int stress_set_sched(
 	struct sched_param param;
 	const char *name = stress_get_sched_name(sched);
 
+#if defined(SCHED_DEADLINE) && defined(__linux__)
 	long sched_period = 0;
 	long sched_runtime = 0;
 	long sched_deadline = 0;
+#endif
 
 	(void)memset(&param, 0, sizeof(param));
 
@@ -246,7 +254,6 @@ int stress_set_sched(
 		}
 		pr_inf("%s: setting scheduler class '%s'(period=%lu,runtime=%lu,deadline=%lu)\n",
 				__func__, "deadline", attr.sched_period, attr.sched_runtime, attr.sched_deadline);
-
 
 		rc = shim_sched_setattr(pid, &attr, 0);
 		if (rc < 0) {
