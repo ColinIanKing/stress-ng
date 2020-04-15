@@ -1192,6 +1192,20 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 }
 
 /*
+ *   shim_wait4(()
+ *	wrapper for wait4()
+ *
+ */
+pid_t shim_wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage)
+{
+#if defined(HAVE_WAIT4)
+	return wait4(pid, wstatus, options, rusage);
+#else
+	return shim_enosys(0, pid, wstatus, options, rusage);
+#endif
+}
+
+/*
  *   shim_pidfd_send_signal()
  *	wrapper for pidfd_send_signal added to Linux 5.1
  */
