@@ -958,6 +958,7 @@ typedef struct {
 	pid_t pid;			/* stressor pid */
 	pid_t ppid;			/* stressor ppid */
 	size_t page_size;		/* page size */
+	uint64_t flags;			/* child reinit flags */
 } stress_args_t;
 
 typedef struct {
@@ -3573,6 +3574,9 @@ extern void stress_thrash_stop(void);
 /* Used to set options for specific stressors */
 extern void stress_adjust_pthread_max(const uint64_t max);
 extern void stress_adjust_sleep_max(const uint64_t max);
+
+extern void stress_child_reinit(const stress_args_t *args);
+
 
 /* loff_t and off64_t porting shims */
 #if defined(HAVE_LOFF_T)

@@ -1647,6 +1647,8 @@ static void MLOCKED_TEXT stress_run(
 	long sched_runtime = -1;
 	long sched_deadline = -1;
 
+	uint32_t flags = 0;
+
 
 	wait_flag = true;
 	time_start = stress_time_now();
@@ -1703,7 +1705,9 @@ again:
 
 						if (stress_set_deadline_sched(getpid(),
 							sched_period, sched_runtime, sched_deadline, false) < 0)
-						exit(EXIT_FAILURE);
+							exit(EXIT_FAILURE);
+						/* reinit child with deadline sched */
+						flags = 1;
 					}
 					/* Child */
 					(void)atexit(stress_child_atexit);
@@ -1750,6 +1754,7 @@ again:
 							.pid = getpid(),
 							.ppid = getppid(),
 							.page_size = stress_get_pagesize(),
+							.flags = flags,
 						};
 
 						rc = g_proc_current->stressor->info->stressor(&args);
@@ -2765,6 +2770,19 @@ static inline void stress_mlock_executable(void)
 	stress_mlock_region(&__start_mlocked_text, &__stop_mlocked_text);
 	stress_mlock_region(&__start_mlocked_data, &__stop_mlocked_data);
 #endif
+}
+
+
+/* if stressor() forked child, execute this in the forked child to reinit
+ * something, such as currently deadline scheduler need to reinit from SCHED_CFS
+ * to SCHED_DEALINE
+ */
+void stress_child_reinit(const stress_args_t *args)
+{
+	if (args->flags & 1) {
+		extern int sched_deadline_reinit(void);
+		sched_deadline_reinit();
+	}
 }
 
 int main(int argc, char **argv, char **envp)

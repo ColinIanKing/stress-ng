@@ -79,7 +79,8 @@ int stress_set_deadline_sched(
 	const bool quiet)
 {
 	int rc;
-	struct shim_sched_attr attr;
+	/* initiate with 0 in case sched_setattr() hit E2BIG error */
+	struct shim_sched_attr attr = {0};
 
 	attr.size = sizeof(attr);
 	attr.sched_policy = SCHED_DEADLINE;
@@ -105,6 +106,46 @@ int stress_set_deadline_sched(
 				errno, strerror(errno));
 		return rc;
 	}
+	return 0;
+}
+
+int sched_deadline_reinit(void)
+{
+	long sched_deadline = -1;
+	long sched_runtime = -1;
+	long sched_period = -1;
+	int rc;
+
+	(void)stress_get_setting("sched-period", &sched_period);
+	(void)stress_get_setting("sched-runtime", &sched_runtime);
+	(void)stress_get_setting("sched-deadline", &sched_deadline);
+
+	if (sched_deadline < 0)
+		sched_deadline = 100000;
+
+	if (sched_runtime < 0)
+		sched_runtime = 10000;
+
+	if (sched_period < 0)
+		sched_period = 0;
+
+	rc = stress_set_deadline_sched(getpid(), sched_period,
+			sched_runtime, sched_deadline, false);
+	return rc;
+}
+#else
+int stress_set_deadline_sched(
+	const pid_t pid,
+	const uint64_t period,
+	const uint64_t runtime,
+	const uint64_t deadline,
+	const bool quiet)
+{
+	return 0;
+}
+
+int sched_deadline_reinit(void)
+{
 	return 0;
 }
 #endif

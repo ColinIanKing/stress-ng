@@ -154,6 +154,7 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
+		stress_child_reinit(args);
 		stress_parent_died_alarm();
 
 		while (keep_stressing()) {
