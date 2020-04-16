@@ -119,7 +119,9 @@ static void *stress_close_func(void *arg)
 #endif
 
 	while (keep_stressing()) {
-		shim_usleep_interruptible(stress_mwc32() % max_delay_us);
+		const uint64_t delay =
+			max_delay_us ? stress_mwc32() % max_delay_us : 0;
+		shim_usleep_interruptible(delay);
 		if (fd != -1)
 			(void)close(fd);
 		if (dupfd != -1)
