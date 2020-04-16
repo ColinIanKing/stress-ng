@@ -110,15 +110,19 @@ static int stress_session_child(const stress_args_t *args)
 		/* 25% of calls will be ophans */
 		stress_mwc_reseed();
 		if (stress_mwc8() >= 64) {
+			int ret;
 #if defined(HAVE_WAIT4)
 			struct rusage usage;
 
-			if (shim_wait4(pid, &status, 0, &usage) < 0)
-				_exit(STRESS_SESSION_WAITPID_FAILED);
+			if (stress_mwc1())
+				ret = shim_wait4(pid, &status, 0, &usage);
+			else
+				ret = shim_waitpid(pid, &status, 0);
 #else
-			if (shim_waitpid(pid, &status, 0) < 0)
-				_exit(STRESS_SESSION_WAITPID_FAILED);
+			ret = shim_waitpid(pid, &status, 0);
 #endif
+			if (ret < 0)
+				_exit(STRESS_SESSION_WAITPID_FAILED);
 		}
 	}
 	_exit(STRESS_SESSION_SUCCESS);
