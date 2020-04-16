@@ -234,7 +234,7 @@ recvfrom			udp
 recvmsg				socket-fd
 recvmmsg			sock
 remap_file_pages		remap
-removexattr
+removexattr			xattr
 rename				rename
 renameat			rename
 renameat2			rename

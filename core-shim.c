@@ -1441,6 +1441,23 @@ ssize_t shim_fgetxattr(int fd, const char *name, void *value, size_t size)
 }
 
 /*
+ *  shim_removexattr
+ *	wrapper for removexattr
+ */
+int shim_removexattr(const char *path, const char *name)
+{
+#if defined(HAVE_REMOVEXATTR)
+#if defined(__APPLE__)
+	return removexattr(path, name, 0);
+#else
+	return removexattr(path, name);
+#endif
+#else
+	return shim_enosys(0, path, name);
+#endif
+}
+
+/*
  *  shim_fremovexattr
  *	wrapper for fremovexattr
  */

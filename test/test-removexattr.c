@@ -25,11 +25,9 @@
 
 #include <sys/types.h>
 
-extern int fremovexattr(int fd, const char *name);
+extern int removexattr(const char *path, const char *name);
 
 int main(void)
 {
-	int fd = 3;
-
-	return fremovexattr(fd, "name");
+	return removexattr("examplefile", "name");
 }

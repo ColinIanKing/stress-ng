@@ -184,11 +184,19 @@ static int stress_xattr(const stress_args_t *args)
 			}
 		}
 		for (j = 0; j < i; j++) {
+			char *errmsg;
+
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 
-			ret = shim_fremovexattr(fd, attrname);
+			if (j & 1) {
+				ret = shim_fremovexattr(fd, attrname);
+				errmsg = "fremovexattr";
+			} else {
+				ret = shim_removexattr(filename, attrname);
+				errmsg = "removexattr";
+			}
 			if (ret < 0) {
-				pr_fail_err("fremovexattr");
+				pr_fail_err(errmsg);
 				goto out_close;
 			}
 		}
