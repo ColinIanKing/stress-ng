@@ -107,29 +107,6 @@ int stress_set_deadline_sched(
 	}
 	return 0;
 }
-
-int sched_deadline_init(void *params)
-{
-	long sched_period, sched_runtime, sched_deadline;
-	struct shim_sched_attr *attr;
-	int rc;
-
-	if (params) {
-		attr = params;
-		sched_period = attr->sched_period;
-		sched_runtime = attr->sched_runtime;
-		sched_deadline = attr->sched_deadline;
-	} else {
-		(void)stress_get_setting("sched-period", &sched_period);
-		(void)stress_get_setting("sched-runtime", &sched_runtime);
-		(void)stress_get_setting("sched-deadline", &sched_deadline);
-	}
-	pr_inf("%s: setting scheduler class '%s'(period=%lu,runtime=%lu,deadline=%lu)\n",
-		__func__, "deadline", sched_period, sched_runtime, sched_deadline);
-	rc = stress_set_deadline_sched(getpid(), sched_period,
-		sched_runtime, sched_deadline, false);
-	return rc;
-}
 #endif
 
 #define HAVE_STRESS_SET_SCHED	(1)
