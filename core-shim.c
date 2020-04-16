@@ -1192,6 +1192,20 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 }
 
 /*
+ *   shim_wait3(()
+ *	wrapper for wait3()
+ *
+ */
+pid_t shim_wait3(int *wstatus, int options, struct rusage *rusage)
+{
+#if defined(HAVE_WAIT3)
+	return wait3(wstatus, options, rusage);
+#else
+	return shim_enosys(0, wstatus, options, rusage);
+#endif
+}
+
+/*
  *   shim_wait4(()
  *	wrapper for wait4()
  *
