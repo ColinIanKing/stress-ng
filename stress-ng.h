@@ -3765,6 +3765,8 @@ extern int shim_pkey_free(int pkey);
 extern int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey);
 extern int shim_pkey_get(int pkey);
 extern int shim_pkey_set(int pkey, unsigned int rights);
+extern int shim_process_madvise(int which, pid_t pid, void *addr,
+        size_t length, int advise, unsigned long flag);
 extern int shim_reboot(int magic, int magic2, int cmd, void *arg);
 extern void *shim_sbrk(intptr_t increment);
 extern int shim_sched_getattr(pid_t pid, struct shim_sched_attr *attr,

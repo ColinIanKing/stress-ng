@@ -1468,3 +1468,18 @@ int shim_reboot(int magic, int magic2, int cmd, void *arg)
 	return shim_enosys(0, magic, magic2, cmd, arg);
 #endif
 }
+
+/*
+ *   shim_process_madvise
+ *	wrapper for linux process_madvise system call
+ */
+int shim_process_madvise(int which, pid_t pid, void *addr,
+	size_t length, int advise, unsigned long flag)
+{
+#if defined(__linux__) && defined(__NR_process_madvise)
+	return syscall(__NR_process_madvise, which, pid, addr,
+		length, advise, flag);
+#else
+	return shim_enosys(0, which, pid, addr, length, advise, flag);
+#endif
+}
