@@ -194,7 +194,7 @@ static int stress_wait(const stress_args_t *args)
 	}
 
 	do {
-#if defined(HAVE_WAIT4)
+#if defined(HAVE_WAIT4) || defined(HAVE_WAIT3)
 		struct rusage usage;
 #endif
 		/*
@@ -220,13 +220,27 @@ static int stress_wait(const stress_args_t *args)
 		stress_wait_continued(args, status);
 		if (!keep_stressing_flag())
 			break;
+#if defined(HAVE_WAIT3)
+		/*
+		 *  Exercise wait3 if available
+		 */
+		wret = shim_wait3(&status, options, &usage);
+		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+			pr_fail_dbg("wait3()");
+			break;
+		}
+		stress_wait_continued(args, status);
+		if (!keep_stressing_flag())
+			break;
+#endif
+
 #if defined(HAVE_WAIT4)
 		/*
 		 *  Exercise wait4 if available
 		 */
 		wret = shim_wait4(pid_r, &status, options, &usage);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
-			pr_fail_dbg("wait()");
+			pr_fail_dbg("wait4()");
 			break;
 		}
 		stress_wait_continued(args, status);
