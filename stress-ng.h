@@ -3692,6 +3692,11 @@ struct shim_ustat {
 	char	f_fpack[6];
 };
 
+/* waitid/pidfd shims */
+#if !defined(P_PIDFD)
+#define P_PIDFD		(3)
+#endif
+
 extern int shim_brk(void *addr);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern void shim_clear_cache(char* begin, char *end);
