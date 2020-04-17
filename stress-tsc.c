@@ -85,8 +85,10 @@ static inline void rdtsc(void)
 
 static bool tsc_supported = true;
 
-static int stress_tsc_supported(void)
+static int stress_tsc_supported(const char *name)
 {
+	(void)name;
+
 	return 0;
 }
 
@@ -163,10 +165,10 @@ stressor_info_t stress_tsc_info = {
 };
 #else
 
-static int stress_tsc_supported(void)
+static int stress_tsc_supported(const char *name)
 {
-	pr_inf("tsc stressor will be skipped, CPU "
-		"does not support the rdtsc instruction.\n");
+	pr_inf("%s stressor will be skipped, CPU "
+		"does not support the rdtsc instruction.\n", name);
 	return -1;
 }
 

@@ -110,19 +110,19 @@ static inline uint32_t rand64(void)
 static bool rdrand_supported = false;
 static volatile uint64_t v;
 
-static int stress_rdrand_supported(void)
+static int stress_rdrand_supported(const char *name)
 {
 #if defined(HAVE_BUILTIN_CPU_IS)
 	if (__builtin_cpu_is("power9")) {
 		rdrand_supported = true;
 		return 0;
 	}
-	pr_inf("rdrand stressor will be skipped, CPU "
-		"does not support the instuction 'darn'\n");
+	pr_inf("%s stressor will be skipped, CPU "
+		"does not support the instuction 'darn'\n", name);
 	return -1;
 #else
-	pr_inf("rdrand stressor will be skipped, cannot"
-		"determine if CPU is a power9 the instruction 'darn'\n");
+	pr_inf("%s stressor will be skipped, cannot"
+		"determine if CPU is a power9 the instruction 'darn'\n", name);
 	return -1;
 #endif
 }
@@ -236,10 +236,10 @@ stressor_info_t stress_rdrand_info = {
 };
 #else
 
-static int stress_rdrand_supported(void)
+static int stress_rdrand_supported(const char *name)
 {
-	pr_inf("rdrand stressor will be skipped, CPU "
-		"does not support the rdrand instruction.\n");
+	pr_inf("%s stressor will be skipped, CPU "
+		"does not support the rdrand instruction.\n", name);
 	return -1;
 }
 
