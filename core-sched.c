@@ -101,7 +101,7 @@ int stress_set_deadline_sched(
 	if (rc < 0) {
 		rc = -errno;
 		if (!quiet)
-			pr_inf("Cannot set scheduler: errno=%d (%s)\n",
+			pr_inf("cannot set scheduler: errno=%d (%s)\n",
 				errno, strerror(errno));
 		return rc;
 	}
@@ -164,7 +164,7 @@ int stress_set_sched(
 		if ((param.sched_priority < min) ||
 		    (param.sched_priority > max)) {
 			if (!quiet)
-				pr_inf("Scheduler priority level must be "
+				pr_inf("scheduler priority level must be "
 					"set between %d and %d\n",
 					min, max);
 			return -EINVAL;
@@ -195,7 +195,7 @@ int stress_set_sched(
 		if ((attr.sched_priority < (uint32_t)min) ||
 		    (attr.sched_priority > (uint32_t)max)) {
 			if (!quiet)
-				pr_inf("Scheduler priority level must be "
+				pr_inf("scheduler priority level must be "
 				"set between %d and %d\n",
 				min, max);
 			return -EINVAL;
@@ -232,7 +232,7 @@ int stress_set_sched(
 				return -E2BIG;
 			rc = -errno;
 			if (!quiet)
-				pr_inf("Cannot set scheduler '%s': errno=%d (%s)\n",
+				pr_inf("cannot set scheduler '%s': errno=%d (%s)\n",
 					stress_get_sched_name(sched),
 					errno, strerror(errno));
 			return rc;
@@ -254,7 +254,7 @@ int stress_set_sched(
 	if (rc < 0) {
 		rc = -errno;
 		if (!quiet)
-			pr_inf("Cannot set scheduler '%s': errno=%d (%s)\n",
+			pr_inf("cannot set scheduler '%s': errno=%d (%s)\n",
 				stress_get_sched_name(sched),
 				errno, strerror(errno));
 		return rc;
