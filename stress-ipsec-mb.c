@@ -708,10 +708,11 @@ static int stress_set_ipsec_mb_feature(const char *opt)
 	return -1;
 }
 
-static int stress_ipsec_mb_supported(void)
+static int stress_ipsec_mb_supported(const char *name)
 {
-	pr_inf("ipsec_mb stressor will be skipped, CPU "
-		"needs to be an x86-64 and a recent IPSec MB library is required.\n");
+	pr_inf("%s: stressor will be skipped, CPU "
+		"needs to be an x86-64 and a recent IPSec MB library "
+		"is required.\n", name);
 	return -1;
 }
 
