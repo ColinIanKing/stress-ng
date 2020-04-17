@@ -298,6 +298,11 @@ retry:
 			break;
 
 		if ((fd = socket(epoll_domain, SOCK_STREAM, 0)) < 0) {
+			if ((errno == EMFILE) ||
+			    (errno == ENFILE) ||
+			    (errno == ENOMEM) ||
+			    (errno == ENOBUFS))
+				continue;
 			pr_fail_dbg("socket");
 			return -1;
 		}
@@ -306,6 +311,10 @@ retry:
 		sev.sigev_signo = SIGRTMIN;
 		sev.sigev_value.sival_ptr = &epoll_timerid;
 		if (timer_create(CLOCK_REALTIME, &sev, &epoll_timerid) < 0) {
+			if ((errno == EAGAIN) || (errno == ENOMEM)) {
+				(void)close(fd);
+				continue;
+			}
 			pr_fail_err("timer_create");
 			(void)close(fd);
 			return -1;
