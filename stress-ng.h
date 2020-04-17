@@ -968,7 +968,7 @@ typedef struct {
 /* stressor information */
 typedef struct {
 	int (*stressor)(const stress_args_t *args);	/* stressor function */
-	int (*supported)(void);		/* return 0 = supported, -1, not */
+	int (*supported)(const char *name);	/* return 0 = supported, -1, not */
 	void (*init)(void);		/* stressor init, NULL = ignore */
 	void (*deinit)(void);		/* stressor de-init, NULL = ignore */
 	void (*set_default)(void);	/* default set-up */

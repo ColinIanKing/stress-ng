@@ -378,12 +378,12 @@ static void vdso_sym_list_remove_duplicates(stress_vdso_sym_t **list)
  *  stress_vdso_supported()
  *	early sanity check to see if functionality is supported
  */
-static int stress_vdso_supported(void)
+static int stress_vdso_supported(const char *name)
 {
 	void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
 
 	if (vdso == NULL) {
-		pr_inf("vdso stressor will be skipped, failed to find vDSO address\n");
+		pr_inf("%s stressor will be skipped, failed to find vDSO address\n", name);
 		return -1;
 	}
 
@@ -391,7 +391,8 @@ static int stress_vdso_supported(void)
 	dl_iterate_phdr(dl_wrapback, vdso);
 
 	if (!vdso_sym_list) {
-		pr_inf("vsdo stressor will be skipped, failed to find relevant vDSO functions\n");
+		pr_inf("%s stressor will be skipped, failed to find relevant vDSO i"
+			"functions\n", name);
 		return -1;
 	}
 

@@ -126,15 +126,16 @@ static struct sock_fprog prog_random = {
 	.filter = filter_random
 };
 
-static int stress_seccomp_supported(void)
+static int stress_seccomp_supported(const char *name)
 {
 	pid_t pid;
 	int status;
 
 	pid = fork();
 	if (pid < 0) {
-		pr_inf("seccomp stressor will be skipped, the check for seccomp failed, fork failed: errno=%d (%s)\n",
-			errno, strerror(errno));
+		pr_inf("%s stressor will be skipped, the check for seccomp "
+			"failed, fork failed: errno=%d (%s)\n",
+			name, errno, strerror(errno));
 		return -1;
 	}
 	if (pid == 0) {
@@ -144,18 +145,21 @@ static int stress_seccomp_supported(void)
 		_exit(errno);
 	}
 	if (shim_waitpid(pid, &status, 0) < 0) {
-		pr_inf("seccomp stressor will be skipped, the check for seccomp failed, wait failed: errno=%d (%s)\n",
-			errno, strerror(errno));
+		pr_inf("%s stressor will be skipped, the check for seccomp "
+			"failed, wait failed: errno=%d (%s)\n",
+			name, errno, strerror(errno));
 		return -1;
 	}
 	if (WIFEXITED(status) && (WEXITSTATUS(status) != 0)) {
 		errno = WEXITSTATUS(status);
 		if (errno == EACCES) {
-			pr_inf("seccomp stressor will be skipped, SECCOMP_SET_MODE_FILTER requires CAP_SYS_ADMIN capability\n");
+			pr_inf("%s stressor will be skipped, SECCOMP_SET_MODE_FILTER "
+				"requires CAP_SYS_ADMIN capability\n", name);
 			return -1;
 		} else {
-			pr_inf("seccomp stressor will be skipped, SECCOMP_SET_MODE_FILTER is not supported, errno=%d (%s)\n",
-				errno, strerror(errno));
+			pr_inf("%s: seccomp stressor will be skipped, "
+				"SECCOMP_SET_MODE_FILTER is not supported, errno=%d (%s)\n",
+				name, errno, strerror(errno));
 		}
 		return -1;
 	}

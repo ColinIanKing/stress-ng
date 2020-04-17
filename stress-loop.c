@@ -40,12 +40,12 @@ static const stress_help_t help[] = {
  *  stress_loot_supported()
  *      check if we can run this as root
  */
-static int stress_loop_supported(void)
+static int stress_loop_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-		pr_inf("loop stressor will be skipped, "
+		pr_inf("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
-			"rights for this stressor\n");
+			"rights for this stressor\n", name);
 		return -1;
 	}
 	return 0;

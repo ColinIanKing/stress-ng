@@ -57,14 +57,14 @@ typedef struct {
 
 /*
  *  stress_quota_supported()
- *      check if we can run this as root
+ *      check if we can run this with SHIM_CAP_SYS_ADMIN capability
  */
-static int stress_quota_supported(void)
+static int stress_quota_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-		pr_inf("quota stressor will be skipped, "
+		pr_inf("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
-			"rights for this stressor\n");
+			"rights for this stressor\n", name);
 		return -1;
 	}
 	return 0;

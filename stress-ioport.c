@@ -77,7 +77,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_IOPORT) &&	\
     defined(HAVE_SYS_IO_H)
 
-static int stress_ioport_supported(void)
+static int stress_ioport_supported(const char *name)
 {
 	int ret;
 
@@ -85,15 +85,16 @@ static int stress_ioport_supported(void)
 	if (ret < 0) {
 		switch (errno) {
 		case ENOMEM:
-			pr_inf("ioport: out of memory, skipping stressor\n");
+			pr_inf("%s: ioperm out of memory, skipping stressor\n", name);
 			return -1;
 		case EPERM:
-			pr_inf("ioport: insufficient privilege, invoke with CAP_SYS_RAWIO privilege, skipping stressor\n");
+			pr_inf("%s has insufficient privilege, invoke with CAP_SYS_RAWIO privilege, skipping stressor\n", name);
 			return -1;
 		case EINVAL:
 		case EIO:
 		default:
-			pr_inf("ioport: cannot access port 0x%x, not skipping stressor\n", IO_PORT);
+			pr_inf("%s cannot access port 0x%x, not skipping stressor\n",
+				name, IO_PORT);
 			return -1;
 		}
 	}

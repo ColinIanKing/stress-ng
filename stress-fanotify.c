@@ -135,11 +135,11 @@ static int n_mnts;
  *  stress_fanotify_supported()
  *      check if we can run this as root
  */
-static int stress_fanotify_supported(void)
+static int stress_fanotify_supported(const char *name)
 {
 	int fan_fd;
 	static const char skipped[] =
-		"fanotify stressor will be skipped, ";
+		"stressor will be skipped, ";
 	static const char noperm[] =
 		"need to be running with CAP_SYS_ADMIN "
 		"rights for this stressor";
@@ -158,14 +158,14 @@ static int stress_fanotify_supported(void)
 
 		switch (errno) {
 		case EPERM:
-			pr_inf("%s%s\n", skipped, noperm);
+			pr_inf("%s %s%s\n", name, skipped, noperm);
 			break;
 		case EMFILE:
 		case ENOMEM:
-			pr_inf("%s%s\n", skipped, noresource);
+			pr_inf("%s %s%s\n", name, skipped, noresource);
 			break;
 		case ENOSYS:
-			pr_inf("%s%s\n", skipped, nosyscall);
+			pr_inf("%s %s%s\n", name, skipped, nosyscall);
 			break;
 		default:
 			rc = 0;

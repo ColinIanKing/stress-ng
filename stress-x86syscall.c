@@ -66,21 +66,21 @@ typedef struct stress_x86syscall {
  *  stress_x86syscall_supported()
  *	check if tsc is supported
  */
-static int stress_x86syscall_supported(void)
+static int stress_x86syscall_supported(const char *name)
 {
 	uint32_t eax, ebx, ecx, edx;
 
 	/* Intel CPU? */
 	if (!stress_cpu_is_x86()) {
-		pr_inf("x86syscall stressor will be skipped, "
-			"not a recognised Intel CPU\n");
+		pr_inf("%s stressor will be skipped, "
+			"not a recognised Intel CPU\n", name);
 		return -1;
 	}
 	/* ..and supports syscall? */
 	__cpuid(0x80000001, eax, ebx, ecx, edx);
 	if (!(edx & (1ULL << 11))) {
-		pr_inf("x86syscall stressor will be skipped, CPU "
-			"does not support the syscall instruction\n");
+		pr_inf("%s stressor will be skipped, CPU "
+			"does not support the syscall instruction\n", name);
 		return -1;
 	}
 	return 0;

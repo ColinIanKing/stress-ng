@@ -43,12 +43,12 @@ static const stress_help_t help[] = {
  *  stress_netlink_proc_supported()
  *	check if we can run this as root
  */
-static int stress_netlink_proc_supported(void)
+static int stress_netlink_proc_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_NET_ADMIN)) {
-		pr_inf("netlink-proc stressor will be skipped, "
+		pr_inf("%s stressor will be skipped, "
 			"need to be running with CAP_NET_ADMIN "
-			"rights for this stressor\n");
+			"rights for this stressor\n", name);
 		return -1;
 	}
 	return 0;

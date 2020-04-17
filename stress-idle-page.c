@@ -36,24 +36,24 @@ static const stress_help_t help[] = {
  *  stress_idle_page_supported()
  *      check if we can run this as root
  */
-static int stress_idle_page_supported(void)
+static int stress_idle_page_supported(const char *name)
 {
 
 	if (!stress_check_capability(SHIM_CAP_SYS_RESOURCE)) {
-		pr_inf("idle-page stressor will be skipped, "
+		pr_inf("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_RESOURCE "
-			"rights for this stressor\n");
+			"rights for this stressor\n", name);
 		return -1;
 	}
 	if (geteuid() != 0) {
-		pr_inf("idle_page stressor will be skipped, "
-		       "need to be running as root for this stressor\n");
+		pr_inf("%s stressor will be skipped, "
+		       "need to be running as root for this stressor\n", name);
 		return -1;
 	}
 
 	if (access(bitmap_file, R_OK) != 0) {
-		pr_inf("idle_page stressor will be skipped, "
-			"cannot access file %s\n", bitmap_file);
+		pr_inf("%s stressor will be skipped, "
+			"cannot access file %s\n", bitmap_file, name);
 		return -1;
 	}
 	return 0;

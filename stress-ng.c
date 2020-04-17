@@ -2151,7 +2151,7 @@ static inline void exclude_unsupported(void)
 
 				if ((pi->stressor->id == id) &&
 				    pi->num_procs &&
-				    (stressors[i].info->supported() < 0)) {
+				    (stressors[i].info->supported(stressors[i].name) < 0)) {
 					remove_proc(pi);
 					g_unsupported = true;
 				}

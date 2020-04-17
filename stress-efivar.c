@@ -272,22 +272,22 @@ static int efi_vars_get(const stress_args_t *args)
  *  stress_efivar_supported()
  *      check if we can run this as root
  */
-static int stress_efivar_supported(void)
+static int stress_efivar_supported(const char *name)
 {
 	DIR *dir;
 
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-		pr_inf("efivar stressor will be skipped, "
+		pr_inf("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
-			"rights for this stressor\n");
+			"rights for this stressor\n", name);
 		return -1;
 	}
 
 	dir = opendir(efi_vars);
 	if (!dir) {
-		pr_inf("efivar stressor will be skipped, "
+		pr_inf("%s stressor will be skipped, "
 			"need to have access to EFI vars in %s\n",
-			vars);
+			name, vars);
 		return -1;
 	}
 	(void)closedir(dir);

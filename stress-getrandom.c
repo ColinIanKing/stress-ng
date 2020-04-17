@@ -45,14 +45,14 @@ static const stress_help_t help[] = {
  *  stress_getrandom_supported()
  *      check if getrandom is supported
  */
-static int stress_getrandom_supported(void)
+static int stress_getrandom_supported(const char *name)
 {
 	int ret;
 	char buffer[RANDOM_BUFFER_SIZE];
 
 	ret = shim_getrandom(buffer, sizeof(buffer), 0);
 	if ((ret < 0) && (errno == ENOSYS)) {
-		pr_inf("getrandom stressor will be skipped, getrandom() not supported\n");
+		pr_inf("%s stressor will be skipped, getrandom() not supported\n", name);
 		return -1;
 	}
 	return 0;

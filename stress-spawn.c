@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
  *  stress_spawn_supported()
  *      check that we don't run this as root
  */
-static int stress_spawn_supported(void)
+static int stress_spawn_supported(const char *name)
 {
 	/*
 	 *  Don't want to run this when running as root as
@@ -45,7 +45,7 @@ static int stress_spawn_supported(void)
 	 *  executable as root.
 	 */
 	if (geteuid() == 0) {
-		pr_inf("spawn stressor must not run as root, skipping the stressor\n");
+		pr_inf("%s stressor must not run as root, skipping the stressor\n", name);
 		return -1;
 	}
 	return 0;

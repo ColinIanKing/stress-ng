@@ -56,20 +56,20 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_affinity_supported()
  *      check that we can set affinity
  */
-static int stress_affinity_supported(void)
+static int stress_affinity_supported(const char *name)
 {
 	cpu_set_t mask;
 
 	CPU_ZERO(&mask);
 
 	if (sched_getaffinity(0, sizeof(mask), &mask) < 0) {
-		pr_inf("affinity stressor cannot get CPU affinity, skipping the stressor\n");
+		pr_inf("%s stressor cannot get CPU affinity, skipping the stressor\n", name);
 		return -1;
 	}
 	if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
 		if (errno == EPERM) {
-			pr_inf("affinity stressor cannot set CPU affinity, "
-			       "process lacks privilege, skipping the stressor\n");
+			pr_inf("%s stressor cannot set CPU affinity, "
+			       "process lacks privilege, skipping the stressor\n", name);
 			return -1;
 		}
 	}

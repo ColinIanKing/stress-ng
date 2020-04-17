@@ -46,20 +46,20 @@ static const char tun_dev[] = "/dev/net/tun";
  *  stress_tun_supported()
  *      check if we can run this
  */
-static int stress_tun_supported(void)
+static int stress_tun_supported(const char *name)
 {
 	int fd;
 
 	if (!stress_check_capability(SHIM_CAP_NET_ADMIN)) {
-		pr_inf("tun stressor will be skipped, "
+		pr_inf("%s stressor will be skipped, "
 			"need to be running with CAP_NET_RAW "
-			"rights for this stressor\n");
+			"rights for this stressor\n", name);
 		return -1;
 	}
 
 	fd = open(tun_dev, O_RDWR);
 	if (fd < 0) {
-		pr_inf("tun stressor will be skipped, cannot open %s\n", tun_dev);
+		pr_inf("%s stressor will be skipped, cannot open %s\n", name, tun_dev);
 		return -1;
 
 	}

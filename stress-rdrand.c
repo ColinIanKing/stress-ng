@@ -43,21 +43,21 @@ static bool rdrand_supported = false;
  *  stress_rdrand_supported()
  *	check if rdrand is supported
  */
-static int stress_rdrand_supported(void)
+static int stress_rdrand_supported(const char *name)
 {
 	uint32_t eax, ebx, ecx, edx;
 
 	/* Intel CPU? */
 	if (!stress_cpu_is_x86()) {
-		pr_inf("rdrand stressor will be skipped, "
-			"not a recognised Intel CPU\n");
+		pr_inf("%s stressor will be skipped, "
+			"not a recognised Intel CPU\n", name);
 		return -1;
 	}
 	/* ..and supports rdrand? */
 	__cpuid(1, eax, ebx, ecx, edx);
 	if (!(ecx & 0x40000000)) {
-		pr_inf("rdrand stressor will be skipped, CPU "
-			"does not support the rdrand instruction\n");
+		pr_inf("%s stressor will be skipped, CPU "
+			"does not support the rdrand instruction\n", name);
 		return -1;
 	}
 	rdrand_supported = true;

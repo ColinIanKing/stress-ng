@@ -571,12 +571,12 @@ static void stress_rt_dist(
  *  stress_cyclic_supported()
  *      check if we can run this as root
  */
-static int stress_cyclic_supported(void)
+static int stress_cyclic_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_SYS_NICE)) {
-		pr_inf("stress-cyclic stressor needs to be run with CAP_SYS_NICE "
+		pr_inf("%s stressor needs to be run with CAP_SYS_NICE "
 			"set SCHED_RR, SCHED_FIFO or SCHED_DEADLINE priorities, "
-			"skipping this stressor\n");
+			"skipping this stressor\n", name);
 		return -1;
 	}
 	return 0;

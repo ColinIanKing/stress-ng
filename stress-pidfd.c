@@ -40,14 +40,15 @@ static int stress_pidfd_open_fd(pid_t pid)
 	return open(buffer, O_DIRECTORY | O_CLOEXEC);
 }
 
-static int stress_pidfd_supported(void)
+static int stress_pidfd_supported(const char *name)
 {
 	int pidfd, ret;
 	const pid_t pid = getpid();
 
 	pidfd = stress_pidfd_open_fd(pid);
 	if (pidfd < 0) {
-		pr_inf("pidfd stressor will be skipped, cannot open proc entry on procfs\n");
+		pr_inf("%s stressor will be skipped, cannot open proc entry on procfs\n",
+			name);
 		return -1;
 	}
 	ret = shim_pidfd_send_signal(pidfd, 0, NULL, 0);

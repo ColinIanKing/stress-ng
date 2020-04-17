@@ -43,12 +43,12 @@ static char filename[PATH_MAX];
  *  stress_chroot_supported()
  *      check if we can run this as root
  */
-static int stress_chroot_supported(void)
+static int stress_chroot_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-		pr_inf("chroot stressor will be skipped, "
+		pr_inf("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
-			"rights for this stressor\n");
+			"rights for this stressor\n", name);
 		return -1;
 	}
 	return 0;

@@ -62,20 +62,20 @@ static int stress_cpu_online_set(
  *  stress_cpu_online_supported()
  *      check if we can run this as root
  */
-static int stress_cpu_online_supported(void)
+static int stress_cpu_online_supported(const char *name)
 {
 	int ret;
 
 	if (geteuid() != 0) {
-		pr_inf("cpu-online stressor will be skipped, "
-		       "need to be running as root for this stressor\n");
+		pr_inf("%s stressor will be skipped, "
+		       "need to be running as root for this stressor\n", name);
 		return -1;
 	}
 
 	ret = system_write("/sys/devices/system/cpu/cpu1/online", "1\n", 2);
 	if (ret < 0) {
-		pr_inf("cpu-online stressor will be skipped, "
-		       "cannot write to cpu1 online sysfs control file\n");
+		pr_inf("%s stressor will be skipped, "
+		       "cannot write to cpu1 online sysfs control file\n", name);
 		return -1;
 	}
 

@@ -40,12 +40,12 @@ static const stress_help_t help[] = {
  *  stress_icmp_flood_supported()
  *      check if we can run this as root
  */
-static int stress_icmp_flood_supported(void)
+static int stress_icmp_flood_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_NET_RAW)) {
-		pr_inf("icmp-flood stressor will be skipped, "
+		pr_inf("%s stressor will be skipped, "
 			"need to be running with CAP_NET_RAW "
-			"rights for this stressor\n");
+			"rights for this stressor\n", name);
 		return -1;
 	}
 	return 0;
