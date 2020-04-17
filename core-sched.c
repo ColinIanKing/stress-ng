@@ -26,7 +26,7 @@
 
 typedef struct {
 	const int sched;
-	const char *const name;
+	const char *const sched_name;
 } stress_sched_types_t;
 
 static stress_sched_types_t sched_types[] = {
@@ -50,6 +50,8 @@ static stress_sched_types_t sched_types[] = {
 #endif
 };
 
+static const char *prefix = "sched";
+
 /*
  *  get_sched_name()
  *	convert sched class to human readable string
@@ -60,7 +62,7 @@ const char *stress_get_sched_name(const int sched)
 
 	for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
 		if (sched_types[i].sched == sched)
-			return sched_types[i].name;
+			return sched_types[i].sched_name;
 	}
 	return "unknown";
 }
@@ -92,7 +94,7 @@ int stress_set_deadline_sched(
 	attr.sched_priority = 0;
 	if (!quiet)
 		pr_dbg("%s: setting scheduler class '%s' (period=%lu, runtime=%lu, deadline=%lu)\n",
-			__func__, "deadline", period, runtime, deadline);
+			prefix, "deadline", period, runtime, deadline);
 	attr.sched_runtime = runtime;
 	attr.sched_deadline = deadline;
 	attr.sched_period = period;
@@ -101,8 +103,8 @@ int stress_set_deadline_sched(
 	if (rc < 0) {
 		rc = -errno;
 		if (!quiet)
-			pr_inf("cannot set scheduler: errno=%d (%s)\n",
-				errno, strerror(errno));
+			pr_inf("%s: cannot set scheduler: errno=%d (%s)\n",
+				prefix, errno, strerror(errno));
 		return rc;
 	}
 	return 0;
@@ -128,7 +130,7 @@ int stress_set_sched(
 #endif
 	int rc;
 	struct sched_param param;
-	const char *name = stress_get_sched_name(sched);
+	const char *sched_name = stress_get_sched_name(sched);
 
 #if defined(SCHED_DEADLINE) && defined(__linux__)
 	long sched_period = 0;
@@ -158,20 +160,20 @@ int stress_set_sched(
 			else
 				param.sched_priority = (max - min) / 2;
 			if (!quiet)
-				pr_inf("priority not given, defaulting to %d\n",
-					param.sched_priority);
+				pr_inf("%s: priority not given, defaulting to %d\n",
+					prefix, param.sched_priority);
 		}
 		if ((param.sched_priority < min) ||
 		    (param.sched_priority > max)) {
 			if (!quiet)
-				pr_inf("scheduler priority level must be "
+				pr_inf("%s: scheduler priority level must be "
 					"set between %d and %d\n",
-					min, max);
+					prefix, min, max);
 			return -EINVAL;
 		}
 		if (!quiet)
-			pr_dbg("sched: setting scheduler class '%s', priority %d\n",
-				name, param.sched_priority);
+			pr_dbg("%s: setting scheduler class '%s', priority %d\n",
+				prefix, sched_name, param.sched_priority);
 		break;
 #endif
 #if defined(SCHED_DEADLINE) && defined(__linux__)
@@ -189,21 +191,20 @@ int stress_set_sched(
 			else
 				attr.sched_priority = (max - min) / 2;
 			if (!quiet)
-				pr_inf("priority not given, defaulting to %d\n",
-					attr.sched_priority);
+				pr_inf("%s: priority not given, defaulting to %d\n",
+					prefix, attr.sched_priority);
 		}
 		if ((attr.sched_priority < (uint32_t)min) ||
 		    (attr.sched_priority > (uint32_t)max)) {
 			if (!quiet)
-				pr_inf("scheduler priority level must be "
-				"set between %d and %d\n",
-				min, max);
+				pr_inf("%s: scheduler priority level must be "
+					"set between %d and %d\n",
+					prefix, min, max);
 			return -EINVAL;
 		}
-		if (!quiet) {
-			pr_dbg("%s: setting scheduler class '%s'\n",
-					__func__, name);
-		}
+		if (!quiet)
+			pr_dbg("%s: setting scheduler class '%s'\n", prefix, sched_name);
+
 		(void)stress_get_setting("sched-period", &sched_period);
 		(void)stress_get_setting("sched-runtime", &sched_runtime);
 		(void)stress_get_setting("sched-deadline", &sched_deadline);
@@ -217,7 +218,7 @@ int stress_set_sched(
 			attr.sched_period = sched_period;
 		}
 		pr_dbg("%s: setting scheduler class '%s' (period=%lu, runtime=%lu, deadline=%lu)\n",
-				__func__, "deadline", attr.sched_period, attr.sched_runtime, attr.sched_deadline);
+			"deadline", prefix, attr.sched_period, attr.sched_runtime, attr.sched_deadline);
 
 		rc = shim_sched_setattr(pid, &attr, 0);
 		if (rc < 0) {
@@ -232,8 +233,8 @@ int stress_set_sched(
 				return -E2BIG;
 			rc = -errno;
 			if (!quiet)
-				pr_inf("cannot set scheduler '%s': errno=%d (%s)\n",
-					stress_get_sched_name(sched),
+				pr_inf("%s: cannot set scheduler '%s': errno=%d (%s)\n",
+					prefix, stress_get_sched_name(sched),
 					errno, strerror(errno));
 			return rc;
 		}
@@ -244,17 +245,18 @@ int stress_set_sched(
 		param.sched_priority = 0;
 		if (sched_priority != UNDEFINED)
 			if (!quiet)
-				pr_inf("ignoring priority level for "
-					"scheduler class '%s'\n", name);
+				pr_inf("%s: ignoring priority level for "
+					"scheduler class '%s'\n", prefix, sched_name);
 		if (!quiet)
-			pr_dbg("sched: setting scheduler class '%s'\n", name);
+			pr_dbg("%s: setting scheduler class '%s'\n", prefix, sched_name);
 		break;
 	}
 	rc = sched_setscheduler(pid, sched, &param);
 	if (rc < 0) {
 		rc = -errno;
 		if (!quiet)
-			pr_inf("cannot set scheduler '%s': errno=%d (%s)\n",
+			pr_inf("%s: cannot set scheduler '%s': errno=%d (%s)\n",
+				prefix,
 				stress_get_sched_name(sched),
 				errno, strerror(errno));
 		return rc;
@@ -312,7 +314,7 @@ int32_t stress_get_opt_sched(const char *const str)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
-		if (!strcmp(sched_types[i].name, str))
+		if (!strcmp(sched_types[i].sched_name, str))
 			return sched_types[i].sched;
 	}
 	if (strcmp("which", str))
@@ -322,7 +324,7 @@ int32_t stress_get_opt_sched(const char *const str)
 	} else {
 		(void)fprintf(stderr, "Available scheduler options are:");
 		for (i = 0; i < SIZEOF_ARRAY(sched_types); i++) {
-			(void)fprintf(stderr, " %s", sched_types[i].name);
+			(void)fprintf(stderr, " %s", sched_types[i].sched_name);
 		}
 		(void)fprintf(stderr, "\n");
 	}
