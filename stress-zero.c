@@ -30,6 +30,19 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+static inline bool stress_is_not_zero(char *buffer, size_t len)
+{
+	register const char *end = buffer + len;
+	register char *ptr = buffer;
+
+	while (ptr < end) {
+		if (*ptr)
+			return true;
+		ptr++;
+	}
+	return false;
+}
+
 /*
  *  stress_zero
  *	stress reading of /dev/zero
@@ -67,6 +80,10 @@ static int stress_zero(const stress_args_t *args)
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
+		if (stress_is_not_zero(rd_buffer, (size_t)ret)) {
+			pr_fail("%s: non-zero value from a read of /dev/zero\n",
+				args->name);
+		}
 
 #if !defined(__minix__)
 		/* One can also write to /dev/zero w/o failure */
@@ -87,18 +104,15 @@ static int stress_zero(const stress_args_t *args)
 		ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS,
 			fd, page_size * stress_mwc16());
 		if (ptr == MAP_FAILED) {
-			if (errno == ENOMEM)
+			if ((errno == ENOMEM) || (errno == EAGAIN))
 				continue;
 			pr_fail_err("mmap /dev/zero");
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
-		/* Quick sanity check if first 32 bits are zero */
-		if (*ptr != 0) {
-			pr_fail_err("mmap'd /dev/zero not null");
-			(void)munmap(ptr, page_size);
-			(void)close(fd);
-			return EXIT_FAILURE;
+		if (stress_is_not_zero(rd_buffer, (size_t)ret)) {
+			pr_fail("%s: memory mapped page of /dev/zero is not zero",
+				args->name);
 		}
 		(void)munmap(ptr, page_size);
 #endif
