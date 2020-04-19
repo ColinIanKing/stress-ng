@@ -2054,6 +2054,7 @@ typedef struct {
 	MACRO(shellsort)	\
 	MACRO(shm)		\
 	MACRO(shm_sysv)		\
+	MACRO(sigabrt)		\
 	MACRO(sigfd)		\
 	MACRO(sigfpe)		\
 	MACRO(sigio)		\
@@ -2826,6 +2827,9 @@ typedef enum {
 	OPT_shm_sysv_segments,
 
 	OPT_sequential,
+
+	OPT_sigabrt,
+	OPT_sigabrt_ops,
 
 	OPT_sigfd,
 	OPT_sigfd_ops,

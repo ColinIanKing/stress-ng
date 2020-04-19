@@ -3104,6 +3104,13 @@ and GBytes using the suffix b, k, m or g.
 specify the number of shared memory segments to be created. The default is
 8 segments.
 .TP
+.B \-\-sigabrt N
+start N workers that create children that are killed by SIGABRT signals or
+by calling abort(3).
+.TP
+.B \-\-sigabrt\-ops N
+stop the sigabrt workers after N SIGABRT signals are successfully handled.
+.TP
 .B \-\-sigfd N
 start N workers that generate SIGRT signals and are handled by reads by a child
 process using a file descriptor set up using signalfd(2).  (Linux only). This

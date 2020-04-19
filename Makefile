@@ -233,6 +233,7 @@ STRESS_SRC = \
 	stress-shellsort.c \
 	stress-shm.c \
 	stress-shm-sysv.c \
+	stress-sigabrt.c \
 	stress-sigfd.c \
 	stress-sigfpe.c \
 	stress-sigio.c \
