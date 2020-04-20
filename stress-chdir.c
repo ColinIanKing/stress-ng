@@ -96,6 +96,12 @@ static int stress_chdir(const stress_args_t *args)
 			goto abort;
 		rc = mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR);
 		if (rc < 0) {
+			if ((errno == ENOMEM) || (errno == ENOSPC)) {
+				free(paths[i]);
+				paths[i] = NULL;
+				fds[i] = -1;
+				continue;
+			}
 			ret = exit_status(errno);
 			if (ret == EXIT_FAILURE)
 				pr_fail_err("mkdir");
@@ -113,7 +119,7 @@ static int stress_chdir(const stress_args_t *args)
 
 			if (!keep_stressing())
 				goto done;
-			if (chdir(paths[i]) < 0) {
+			if ((paths[i] != NULL) && (chdir(paths[i]) < 0)) {
 				if (errno != ENOMEM) {
 					pr_fail_err("chdir");
 					goto abort;
