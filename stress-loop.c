@@ -276,9 +276,9 @@ stressor_info_t stress_loop_info = {
 };
 #else
 
-static int stress_loop_supported(void)
+static int stress_loop_supported(const char *name)
 {
-	pr_inf("loop stressor will be skipped, loop is not available\n");
+	pr_inf("%s: stressor will be skipped, loop is not available\n", name);
 	return -1;
 }
 

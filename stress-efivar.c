@@ -373,10 +373,10 @@ stressor_info_t stress_efivar_info = {
 	.help = help
 };
 #else
-static int stress_efivar_supported(void)
+static int stress_efivar_supported(const char *name)
 {
-	pr_inf("efivar stressor will be skipped, "
-		"it is not implemented on this platform\n");
+	pr_inf("%s stressor will be skipped, "
+		"it is not implemented on this platform\n", name);
 
 	return -1;
 }

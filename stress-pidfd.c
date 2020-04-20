@@ -144,9 +144,9 @@ stressor_info_t stress_pidfd_info = {
 };
 #else
 
-static int stress_pidfd_supported(void)
+static int stress_pidfd_supported(const char *name)
 {
-	pr_inf("pidfd stressor will be skipped, system call not supported at build time\n");
+	pr_inf("%s: stressor will be skipped, system call not supported at build time\n", name);
 	return -1;
 }
 

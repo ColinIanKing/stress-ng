@@ -282,9 +282,9 @@ stressor_info_t stress_chroot_info = {
  *  stress_chroot_supported()
  *      check if we can run this as root
  */
-static int stress_chroot_supported(void)
+static int stress_chroot_supported(const char *name)
 {
-	pr_inf("chroot stressor is not supported on this system\n");
+	pr_inf("%s: stressor is not supported on this system\n", name);
 	return -1;
 }
 
