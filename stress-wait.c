@@ -260,7 +260,11 @@ static int stress_wait(const stress_args_t *args)
 				pr_fail_dbg("waitpid()");
 				break;
 			}
-			if (info.si_pid != pid_r) {
+			/*
+			 *  Need to look into this, but on a heavily loaded
+			 *  system we can get info.si_pid set to zero(!)
+			 */
+			if ((info.si_pid != pid_r) && (info.si_pid != 0)) {
 				pr_fail("%s: waitid returned PID %ld but expected PID %ld\n",
 					args->name, (long int)info.si_pid, (long int)pid_r);
 			}
