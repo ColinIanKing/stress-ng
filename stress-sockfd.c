@@ -271,6 +271,12 @@ static int stress_socket_server(
 		AF_UNIX, socket_fd_port,
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
+		if (errno == EADDRINUSE) {
+			rc = EXIT_NO_RESOURCE;
+			pr_inf("%s: cannot bind, skipping stressor, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto die_close;
+		}
 		rc = exit_status(errno);
 		pr_fail_dbg("bind");
 		goto die_close;
