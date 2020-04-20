@@ -153,6 +153,9 @@ static int stress_key(const stress_args_t *args)
 #if defined(EKEYEXPIRED)
 				    (errno != EKEYEXPIRED) &&
 #endif
+#if defined(ENOKEY)
+				    (errno != ENOKEY) &&
+#endif
 				    (errno != EDQUOT)) {
 					pr_fail_err("keyctl KEYCTL_UPDATE");
 				}
@@ -168,6 +171,9 @@ static int stress_key(const stress_args_t *args)
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
 				    (errno != EKEYEXPIRED) &&
+#endif
+#if defined(ENOKEY)
+				    (errno != ENOKEY) &&
 #endif
 				    (errno != EDQUOT)) {
 					pr_fail_err("keyctl KEYCTL_READ");
@@ -186,6 +192,9 @@ static int stress_key(const stress_args_t *args)
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
 				    (errno != EKEYEXPIRED) &&
+#endif
+#if defined(ENOKEY)
+				    (errno != ENOKEY) &&
 #endif
 				    (errno != EDQUOT)) {
 					pr_fail_err("request_key");
