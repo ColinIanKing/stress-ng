@@ -86,6 +86,8 @@ static int stress_fiemap_writer(
 		if (!keep_stressing())
 			break;
 		if (write(fd, buf, sizeof(buf)) < 0) {
+			if (errno == ENOSPC)
+				continue;
 			if ((errno != EAGAIN) && (errno != EINTR)) {
 				pr_fail_err("write");
 				goto tidy;
@@ -101,6 +103,8 @@ static int stress_fiemap_writer(
 		offset = stress_mwc64() % len;
 		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
 				  FALLOC_FL_KEEP_SIZE, offset, 8192) < 0) {
+			if (errno == ENOSPC)
+				continue;
 			if (errno == EOPNOTSUPP)
 				punch_hole = false;
 		}
