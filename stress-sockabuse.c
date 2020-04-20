@@ -159,11 +159,14 @@ retry:
 			AF_INET, socket_port,
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
+			int tmp = errno;
+
 			(void)close(fd);
 			(void)shim_usleep(10000);
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */
+				errno = tmp;
 				pr_fail_dbg("connect");
 				(void)kill(getppid(), SIGALRM);
 				_exit(EXIT_FAILURE);
