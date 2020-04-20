@@ -726,10 +726,10 @@ stressor_info_t stress_apparmor_info = {
 
 #else
 
-static int stress_apparmor_supported(void)
+static int stress_apparmor_supported(const char *name)
 {
-	pr_inf("apparmor stressor will be skipped, "
-		"AppArmor is not available\n");
+	pr_inf("%s: stressor will be skipped, "
+		"AppArmor is not available\n", name);
 	return -1;
 }
 
