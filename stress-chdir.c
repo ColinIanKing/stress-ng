@@ -97,7 +97,8 @@ static int stress_chdir(const stress_args_t *args)
 		rc = mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR);
 		if (rc < 0) {
 			ret = exit_status(errno);
-			pr_fail_err("mkdir");
+			if (ret == EXIT_FAILURE)
+				pr_fail_err("mkdir");
 			goto abort;
 		}
 		fds[i] = open(paths[i], flags);
