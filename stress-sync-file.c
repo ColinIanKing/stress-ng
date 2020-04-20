@@ -143,7 +143,6 @@ static int stress_sync_file(const stress_args_t *args)
 		shim_off64_t i, offset;
 		const size_t mode_index = stress_mwc32() % SIZEOF_ARRAY(sync_modes);
 		const int mode = sync_modes[mode_index];
-		int ret;
 
 		ret = stress_sync_allocate(args, fd, sync_file_bytes);
 		if (ret < 0) {
