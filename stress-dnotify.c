@@ -168,6 +168,8 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 	char buffer[BUF_SIZE];
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, FILE_FLAGS)) < 0) {
+		if ((errno == ENFILE) || (errno == ENOMEM) || (errno == ENOSPC))
+			return -1;
 		pr_err("%s: cannot create file %s: errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		return -1;
@@ -179,6 +181,8 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 		int ret;
 
 		if ((ret = write(fd, buffer, n)) < 0) {
+			if (errno == ENOSPC)
+				continue;
 			pr_err("%s: error writing to file %s: errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)close(fd);
