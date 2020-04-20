@@ -158,6 +158,8 @@ static int stress_seal(const stress_args_t *args)
 		 *  Now write seal the file, no more writes allowed
 		 */
 		if (fcntl(fd, F_ADD_SEALS, F_SEAL_WRITE) < 0) {
+			if (errno == EBUSY)
+				goto next;
 			pr_fail_err("fcntl F_ADD_SEALS F_SEAL_WRITE");
 			(void)close(fd);
 			goto err;
