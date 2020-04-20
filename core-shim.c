@@ -1177,14 +1177,25 @@ int shim_execveat(
 pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 {
 	pid_t ret;
+	int count = 0;
 
 	for (;;) {
 		errno = 0;
 		ret = waitpid(pid, wstatus, options);
 		if (ret >= 0)
 			break;
-		if (errno != EINTR)
+
+		/*
+		 *  Retry if EINTR unless we've have 100
+		 *  consequtive EINTRs then give up.
+		 */
+		if (errno == EINTR) {
+			count++;
+			if (count < 100)
+				continue;
 			break;
+		}
+		count = 0;
 		if (!keep_stressing_flag())
 			break;
 	}
