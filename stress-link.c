@@ -75,10 +75,11 @@ static int stress_link_generic(
 		return exit_status(-ret);
 	(void)stress_temp_filename_args(args, oldpath, sizeof(oldpath), ~0);
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		ret = exit_status(errno);
+		if ((errno == ENFILE) || (errno == ENOMEM) || (errno == ENOSPC))
+			return EXIT_NO_RESOURCE;
 		pr_fail_err("open");
 		(void)stress_temp_dir_rm_args(args);
-		return ret;
+		return EXIT_FAILURE;
 	}
 	(void)close(fd);
 
@@ -95,6 +96,12 @@ static int stress_link_generic(
 			(void)stress_temp_filename_args(args,
 				newpath, sizeof(newpath), i);
 			if (linkfunc(oldpath, newpath) < 0) {
+				if ((errno == EDQUOT) ||
+				    (errno == ENOMEM) ||
+				    (errno == ENOSPC)) {
+					/* Try again */
+					continue;
+				}
 				rc = exit_status(errno);
 				pr_fail_err(funcname);
 				n = i;
