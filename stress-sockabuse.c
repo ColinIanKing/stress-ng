@@ -140,9 +140,11 @@ static void stress_sockabuse_client(
 
 	do {
 		char buf[SOCKET_BUF];
-		int fd, retries = 0;
+		int fd;
 		ssize_t n;
 		socklen_t addr_len = 0;
+		uint64_t delay = 10000;
+		
 retry:
 		if (!keep_stressing_flag()) {
 			(void)kill(getppid(), SIGALRM);
@@ -159,18 +161,14 @@ retry:
 			AF_INET, socket_port,
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
-			int tmp = errno;
-
+			(void)shutdown(fd, SHUT_RDWR);
 			(void)close(fd);
-			(void)shim_usleep(10000);
-			retries++;
-			if (retries > 100) {
-				/* Give up.. */
-				errno = tmp;
-				pr_fail_dbg("connect");
-				(void)kill(getppid(), SIGALRM);
-				_exit(EXIT_FAILURE);
-			}
+			(void)shim_usleep(delay);
+
+			/* Backoff */
+			delay += 10000;
+			if (delay > 250000)
+				delay = 250000;
 			goto retry;
 		}
 
