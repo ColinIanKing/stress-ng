@@ -149,8 +149,13 @@ static int stress_key(const stress_args_t *args)
 #if defined(KEYCTL_UPDATE)
 			if (sys_keyctl(KEYCTL_UPDATE, keys[i],
 			    payload, strlen(payload)) < 0) {
-				if ((errno != ENOMEM) && (errno != EDQUOT))
+				if ((errno != ENOMEM) &&
+#if defined(EKEYEXPIRED)
+				    (errno != EKEYEXPIRED) &&
+#endif
+				    (errno != EDQUOT)) {
 					pr_fail_err("keyctl KEYCTL_UPDATE");
+				}
 			}
 			if (!keep_stressing_flag())
 				goto tidy;
@@ -159,8 +164,15 @@ static int stress_key(const stress_args_t *args)
 #if defined(KEYCTL_READ)
 			(void)memset(payload, 0, sizeof(payload));
 			if (sys_keyctl(KEYCTL_READ, keys[i],
-			    payload, sizeof(payload)) < 0)
-				pr_fail_err("keyctl KEYCTL_READ");
+			    payload, sizeof(payload)) < 0) {
+				if ((errno != ENOMEM) &&
+#if defined(EKEYEXPIRED)
+				    (errno != EKEYEXPIRED) &&
+#endif
+				    (errno != EDQUOT)) {
+					pr_fail_err("keyctl KEYCTL_READ");
+				}
+			}
 			if (!keep_stressing_flag())
 				goto tidy;
 #endif
@@ -171,7 +183,13 @@ static int stress_key(const stress_args_t *args)
 				"-%zu", ppid, args->instance, i);
 			if (sys_request_key("user", description, NULL,
 				KEY_SPEC_PROCESS_KEYRING) < 0) {
-				pr_fail_err("request_key");
+				if ((errno != ENOMEM) &&
+#if defined(EKEYEXPIRED)
+				    (errno != EKEYEXPIRED) &&
+#endif
+				    (errno != EDQUOT)) {
+					pr_fail_err("request_key");
+				}
 			}
 			if (!keep_stressing_flag())
 				goto tidy;
