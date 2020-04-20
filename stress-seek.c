@@ -97,8 +97,12 @@ static int stress_seek(const stress_args_t *args)
 		goto close_finish;
 	}
 	if (write(fd, buf, sizeof(buf)) < 0) {
-		rc = exit_status(errno);
-		pr_fail_err("write");
+		if (errno == ENOSPC) {
+			rc = EXIT_NO_RESOURCE;
+		} else {
+			rc = exit_status(errno);
+			pr_fail_err("write");
+		}
 		goto close_finish;
 	}
 
@@ -117,6 +121,8 @@ re_write:
 			break;
 		rwret = write(fd, buf, sizeof(buf));
 		if (rwret <= 0) {
+			if (errno == ENOSPC)
+				goto do_read;
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_write;
 			if (errno) {
@@ -125,6 +131,7 @@ re_write:
 			}
 		}
 
+do_read:
 		offset = stress_mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
 			pr_fail_err("lseek SEEK_SET");
