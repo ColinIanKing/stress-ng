@@ -231,6 +231,8 @@ static int rm_dir(const stress_args_t *args, const char *path)
 static int mk_dir(const stress_args_t *args, const char *path)
 {
 	if (mkdir(path, DIR_FLAGS) < 0) {
+		if ((errno == ENOMEM) || (errno == ENOSPC))
+			return -1;
 		pr_err("%s: cannot mkdir %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
@@ -264,6 +266,8 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 
 	(void)rm_file(args, filename);
 	if ((fd = open(filename, O_CREAT | O_RDWR, FILE_FLAGS)) < 0) {
+		if ((errno == ENFILE) || (errno == ENOMEM) || (errno == ENOSPC))
+			return -1;
 		pr_err("%s: cannot create file %s: errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		return -1;
