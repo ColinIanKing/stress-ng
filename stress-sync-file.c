@@ -80,6 +80,8 @@ static int stress_sync_allocate(
 #if defined(HAVE_FDATASYNC)
 	ret = shim_fdatasync(fd);
 	if (ret < 0) {
+		if (errno == ENOSPC)
+			return -errno;
 		pr_err("%s: fdatasync failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -errno;
@@ -88,6 +90,8 @@ static int stress_sync_allocate(
 
 	ret = shim_fallocate(fd, 0, (off_t)0, sync_file_bytes);
 	if (ret < 0) {
+		if (errno == ENOSPC)
+			return -errno;
 		pr_err("%s: fallocate failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -errno;
@@ -122,6 +126,12 @@ static int stress_sync_file(const stress_args_t *args)
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+		if ((errno == ENFILE) || (errno == ENOMEM) || (errno == ENOSPC)) {
+			pr_inf("%s: cannot create file to sync on, skipping stressor: errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			return EXIT_NO_RESOURCE;
+		}
+
 		ret = exit_status(errno);
 		pr_fail_err("open");
 		(void)stress_temp_dir_rm_args(args);
@@ -133,9 +143,14 @@ static int stress_sync_file(const stress_args_t *args)
 		shim_off64_t i, offset;
 		const size_t mode_index = stress_mwc32() % SIZEOF_ARRAY(sync_modes);
 		const int mode = sync_modes[mode_index];
+		int ret;
 
-		if (stress_sync_allocate(args, fd, sync_file_bytes) < 0)
+		ret = stress_sync_allocate(args, fd, sync_file_bytes);
+		if (ret < 0) {
+			if (ret == -ENOSPC)
+				continue;
 			break;
+		}
 		for (offset = 0; keep_stressing_flag() &&
 		     (offset < (shim_off64_t)sync_file_bytes); ) {
 			shim_off64_t sz = (stress_mwc32() & 0x1fc00) + KB;
@@ -155,8 +170,12 @@ static int stress_sync_file(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 
-		if (stress_sync_allocate(args, fd, sync_file_bytes) < 0)
+		ret = stress_sync_allocate(args, fd, sync_file_bytes);
+		if (ret < 0) {
+			if (ret == -ENOSPC)
+				continue;
 			break;
+		}
 		for (offset = 0; keep_stressing_flag() &&
 		     (offset < (shim_off64_t)sync_file_bytes); ) {
 			shim_off64_t sz = (stress_mwc32() & 0x1fc00) + KB;
@@ -176,8 +195,12 @@ static int stress_sync_file(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 
-		if (stress_sync_allocate(args, fd, sync_file_bytes) < 0)
+		ret = stress_sync_allocate(args, fd, sync_file_bytes);
+		if (ret < 0) {
+			if (ret == -ENOSPC)
+				continue;
 			break;
+		}
 		for (i = 0; i < keep_stressing_flag() &&
 		     ((shim_off64_t)(sync_file_bytes / (128 * KB))); i++) {
 			offset = (stress_mwc64() % sync_file_bytes) & ~((128 * KB) - 1);
