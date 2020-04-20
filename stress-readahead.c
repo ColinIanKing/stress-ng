@@ -97,8 +97,9 @@ static int stress_readahead(const stress_args_t *args)
 	if (readahead_bytes < MIN_READAHEAD_BYTES)
 		readahead_bytes = MIN_READAHEAD_BYTES;
 
-	if (stress_temp_dir_mk_args(args) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0)
+		return exit_status(-rc);
 
 	ret = posix_memalign((void **)&buf, BUF_ALIGNMENT, BUF_SIZE);
 	if (ret || !buf) {

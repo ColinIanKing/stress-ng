@@ -121,7 +121,7 @@ static void stress_stackmmap_push_start(void)
  */
 static int stress_stackmmap(const stress_args_t *args)
 {
-	int fd;
+	int fd, ret;
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
 	char filename[PATH_MAX];
 
@@ -129,8 +129,9 @@ static int stress_stackmmap(const stress_args_t *args)
 	page_mask = ~(page_size - 1);
 
 	/* Create file back'd mmaping for the stack */
-	if (stress_temp_dir_mk_args(args) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0)
+		return exit_status(-ret);
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 

@@ -197,8 +197,9 @@ static int stress_rlimit(const stress_args_t *args)
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
-	if (stress_temp_dir_mk_args(args) < 0)
-		return EXIT_FAILURE;
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0)
+		return exit_status(-ret);
 	if ((context.fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		pr_fail_err("creat");
 		(void)stress_temp_dir_rm_args(args);

@@ -47,11 +47,12 @@ static int stress_ioprio(const stress_args_t *args)
 #if defined(HAVE_GETPGRP)
 	const pid_t grp = getpgrp();
 #endif
-	int fd, rc = EXIT_FAILURE;
+	int fd, rc = EXIT_FAILURE, ret;
 	char filename[PATH_MAX];
 
-	if (stress_temp_dir_mk_args(args) < 0)
-		return rc;
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0)
+		return exit_status(-ret);
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
