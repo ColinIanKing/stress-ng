@@ -139,7 +139,16 @@ static int stress_key(const stress_args_t *args)
 				"-%zu", ppid, args->instance, i);
 #if defined(KEYCTL_DESCRIBE)
 			if (sys_keyctl(KEYCTL_DESCRIBE, keys[i], description) < 0)
-				pr_fail_err("keyctl KEYCTL_DESCRIBE");
+				if ((errno != ENOMEM) &&
+#if defined(EKEYEXPIRED)
+				    (errno != EKEYEXPIRED) &&
+#endif
+#if defined(ENOKEY)
+				    (errno != ENOKEY) &&
+#endif
+				    (errno != EDQUOT)) {
+					pr_fail_err("keyctl KEYCTL_DESCRIBE");
+			}
 			if (!keep_stressing_flag())
 				goto tidy;
 #endif
