@@ -153,8 +153,10 @@ static int stress_ioprio(const stress_args_t *args)
 			break;
 
 		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
-			pr_fail_err("pwritev");
-			goto cleanup_file;
+			if (errno != ENOSPC) {
+				pr_fail_err("pwritev");
+				goto cleanup_file;
+			}
 		}
 		if (!keep_stressing())
 			break;
@@ -175,8 +177,10 @@ static int stress_ioprio(const stress_args_t *args)
 				}
 			}
 			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
-				pr_fail_err("pwritev");
-				goto cleanup_file;
+				if (errno != ENOSPC) {
+					pr_fail_err("pwritev");
+					goto cleanup_file;
+				}
 			}
 			(void)shim_fsync(fd);
 		}
@@ -195,8 +199,10 @@ static int stress_ioprio(const stress_args_t *args)
 				}
 			}
 			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
-				pr_fail_err("pwritev");
-				goto cleanup_file;
+				if (errno != ENOSPC) {
+					pr_fail_err("pwritev");
+					goto cleanup_file;
+				}
 			}
 			(void)shim_fsync(fd);
 		}
