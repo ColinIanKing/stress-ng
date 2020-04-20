@@ -265,7 +265,7 @@ again:
 				ret = mq_send(mq, (char *)&msg, sizeof(msg), prio);
 
 			if (ret < 0) {
-				if (errno != EINTR)
+				if ((errno != EINTR) && (errno != ETIMEDOUT))
 					pr_fail_dbg(timed ? "mq_timedsend" : "mq_send");
 				break;
 			}
