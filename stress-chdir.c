@@ -55,6 +55,7 @@ static int stress_chdir(const stress_args_t *args)
 	char path[PATH_MAX], cwd[PATH_MAX];
 	int rc, ret = EXIT_FAILURE, *fds;
 	char **paths;
+	bool *mkdir_ok;
 
 	(void)stress_get_setting("chdir-dirs", &chdir_dirs);
 	paths = calloc(chdir_dirs, sizeof(*paths));
@@ -65,6 +66,13 @@ static int stress_chdir(const stress_args_t *args)
 	fds = calloc(chdir_dirs, sizeof(*fds));
 	if (!fds) {
 		pr_err("%s: out of memory allocating file descriptors\n", args->name);
+		free(paths);
+		return EXIT_NO_RESOURCE;
+	}
+	mkdir_ok = calloc(chdir_dirs, sizeof(*mkdir_ok));
+	if (!mkdir_ok) {
+		pr_err("%s: out of memory allocating file descriptors\n", args->name);
+		free(fds);
 		free(paths);
 		return EXIT_NO_RESOURCE;
 	}
@@ -97,8 +105,7 @@ static int stress_chdir(const stress_args_t *args)
 		rc = mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR);
 		if (rc < 0) {
 			if ((errno == ENOMEM) || (errno == ENOSPC)) {
-				free(paths[i]);
-				paths[i] = NULL;
+				mkdir_ok[i] = false;
 				fds[i] = -1;
 				continue;
 			}
@@ -107,6 +114,7 @@ static int stress_chdir(const stress_args_t *args)
 				pr_fail_err("mkdir");
 			goto abort;
 		}
+		mkdir_ok[i] = true;
 		fds[i] = open(paths[i], flags);
 		if (!keep_stressing_flag())
 			goto done;
@@ -119,7 +127,7 @@ static int stress_chdir(const stress_args_t *args)
 
 			if (!keep_stressing())
 				goto done;
-			if ((paths[i] != NULL) && (chdir(paths[i]) < 0)) {
+			if (mkdir_ok[i] && (chdir(paths[i]) < 0)) {
 				if (errno != ENOMEM) {
 					pr_fail_err("chdir");
 					goto abort;
@@ -172,6 +180,7 @@ tidy:
 	}
 	(void)stress_temp_dir_rm_args(args);
 err:
+	free(mkdir_ok);
 	free(fds);
 	free(paths);
 
