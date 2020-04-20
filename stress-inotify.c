@@ -279,6 +279,8 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 		int ret;
 
 		if ((ret = write(fd, buffer, n)) < 0) {
+			if (errno == ENOSPC)
+				continue;
 			pr_err("%s: error writing to file %s: errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)close(fd);
