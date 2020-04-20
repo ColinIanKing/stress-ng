@@ -168,11 +168,17 @@ static int stress_lease(const stress_args_t *args)
 		}
 		inc_counter(args);
 		(void)shim_sched_yield();
-		if (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
-			pr_err("%s: fcntl failed: errno=%d: (%s)\n",
-				args->name, errno, strerror(errno));
-			(void)close(fd);
-			break;
+		while (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
+			if (!keep_stressing_flag()) {
+				(void)close(fd);
+				goto reap;
+			}
+			if (errno != EAGAIN) {
+				pr_err("%s: fcntl failed: errno=%d: (%s)\n",
+					args->name, errno, strerror(errno));
+				(void)close(fd);
+				break;
+			}
 		}
 		(void)close(fd);
 	} while (keep_stressing());
