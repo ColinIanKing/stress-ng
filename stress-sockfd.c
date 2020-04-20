@@ -151,6 +151,7 @@ static void stress_socket_client(
 		int fd, retries = 0, fds[max_fd];
 		ssize_t i, n;
 		socklen_t addr_len = 0;
+		int so_reuseaddr = 1;
 
 		(void)memset(fds, 0, sizeof(fds));
 retry:
@@ -162,6 +163,12 @@ retry:
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
 			pr_fail_dbg("socket");
 			goto finish;
+		}
+		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
+				&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+			(void)close(fd);
+			pr_fail_dbg("setsockopt SO_REUSEADDR");
+			ret = EXIT_FAILURE;
 		}
 
 		stress_set_sockaddr(args->name, args->instance, ppid,
