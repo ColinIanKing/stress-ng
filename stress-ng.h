@@ -837,13 +837,6 @@ typedef unsigned long int __kernel_ulong_t;
 	 OPT_FLAGS_AGGRESSIVE |		\
 	 OPT_FLAGS_IGNITE_CPU)
 
-#define WARN_ONCE_NO_CACHE	(0x00000001)	/* No /sys/../cpu0/cache */
-#define WARN_ONCE_CACHE_DEFAULT	(0x00000002)	/* default cache size */
-#define WARN_ONCE_CACHE_NONE	(0x00000004)	/* no cache info */
-#define WARN_ONCE_CACHE_WAY	(0x00000008)	/* cache way too high */
-#define WARN_ONCE_CACHE_SIZE	(0x00000010)	/* cache size info */
-#define WARN_ONCE_CACHE_REDUCED	(0x00000020)	/* reduced cache */
-
 /* Stressor classes */
 #define CLASS_CPU		(0x00000001)	/* CPU only */
 #define CLASS_MEMORY		(0x00000002)	/* Memory thrashers */
@@ -1826,6 +1819,8 @@ typedef struct {
 	bool run_ok;			/* true if stressor exited OK */
 } stress_proc_stats_t;
 
+#define	STRESS_WARN_HASH_MAX		(128)
+
 /* The stress-ng global shared memory segment */
 typedef struct {
 	size_t length;					/* Size of segment */
@@ -1836,7 +1831,7 @@ typedef struct {
 	uint32_t mem_cache_ways;			/* cache ways size */
 	uint64_t zero;					/* zero'd data */
 	struct {
-		uint32_t	flags;			/* flag bits */
+		uint32_t hash[STRESS_WARN_HASH_MAX];	/* hash patterns */
 #if defined(HAVE_LIB_PTHREAD)
 		shim_pthread_spinlock_t lock;		/* protection lock */
 #endif
@@ -3504,24 +3499,12 @@ static inline WARN_UNUSED ALWAYS_INLINE void *stress_align_stack(void *stack_top
 }
 
 /*
- *  Check if flag is set, and set flag
+ *  stress_warn_once hashes the current filename and line where
+ *  the macro is used and returns true if it's never been called
+ *  there before across all threads and child processes
  */
-static inline WARN_UNUSED uint32_t stress_warn_once(const uint32_t flag)
-{
-	uint32_t tmp;
-#if defined(HAVE_LIB_PTHREAD)
-	int ret;
-
-	ret = shim_pthread_spin_lock(&g_shared->warn_once.lock);
-#endif
-	tmp = !(g_shared->warn_once.flags & flag);
-	g_shared->warn_once.flags |= flag;
-#if defined(HAVE_LIB_PTHREAD)
-	if (!ret)
-		shim_pthread_spin_unlock(&g_shared->warn_once.lock);
-#endif
-	return tmp;
-}
+extern WARN_UNUSED bool stress_warn_once_hash(const char *filename, const int line);
+#define stress_warn_once()	stress_warn_once_hash(__FILE__, __LINE__)
 
 /* Jobfile parsing */
 extern WARN_UNUSED int stress_parse_jobfile(int argc, char **argv,

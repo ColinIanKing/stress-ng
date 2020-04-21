@@ -923,7 +923,7 @@ int stress_cache_alloc(const char *name)
 #else
 	cpu_caches = stress_get_all_cpu_cache_details();
 	if (!cpu_caches) {
-		if (stress_warn_once(WARN_ONCE_CACHE_DEFAULT))
+		if (stress_warn_once())
 			pr_dbg("%s: using defaults, can't determine cache details from sysfs\n", name);
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
@@ -932,7 +932,7 @@ int stress_cache_alloc(const char *name)
 	max_cache_level = stress_get_max_cache_level(cpu_caches);
 
 	if (g_shared->mem_cache_level > max_cache_level) {
-		if (stress_warn_once(WARN_ONCE_CACHE_REDUCED))
+		if (stress_warn_once())
 			pr_dbg("%s: reducing cache level from L%d (too high) "
 				"to L%d\n", name,
 				g_shared->mem_cache_level, max_cache_level);
@@ -941,7 +941,7 @@ int stress_cache_alloc(const char *name)
 
 	cache = stress_get_cpu_cache(cpu_caches, g_shared->mem_cache_level);
 	if (!cache) {
-		if (stress_warn_once(WARN_ONCE_CACHE_NONE))
+		if (stress_warn_once())
 			pr_dbg("%s: using built-in defaults as no suitable "
 				"cache found\n", name);
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
@@ -952,7 +952,7 @@ int stress_cache_alloc(const char *name)
 		uint64_t way_size;
 
 		if (g_shared->mem_cache_ways > cache->ways) {
-			if (stress_warn_once(WARN_ONCE_CACHE_WAY))
+			if (stress_warn_once())
 				pr_inf("%s: cache way value too high - "
 					"defaulting to %d (the maximum)\n",
 					name, cache->ways);
@@ -969,7 +969,7 @@ int stress_cache_alloc(const char *name)
 	}
 
 	if (!g_shared->mem_cache_size) {
-		if (stress_warn_once(WARN_ONCE_CACHE_DEFAULT))
+		if (stress_warn_once())
 			pr_dbg("%s: using built-in defaults as "
 				"unable to determine cache size\n", name);
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
@@ -983,7 +983,7 @@ init_done:
 			name);
 		return -1;
 	}
-	if (stress_warn_once(WARN_ONCE_CACHE_SIZE))
+	if (stress_warn_once())
 		pr_dbg("%s: default cache size: %" PRIu64 "K\n",
 			name, g_shared->mem_cache_size / 1024);
 
@@ -1691,4 +1691,57 @@ void stress_dirent_list_free(struct dirent **dlist, const int n)
 		}
 		free(dlist);
 	}
+}
+
+/*
+ *  stress_warn_once_hash()
+ *	computes a hash for a filename and a line and stores it,
+ *	returns true if this is the first time this has been
+ *	called for that specific filename and line
+ *
+ *	Without libpthread this is potentially racy.
+ */
+bool stress_warn_once_hash(const char *filename, const int line)
+{
+	uint32_t free_slot, i, j, h = (stress_hash_pjw(filename) + line);
+	bool not_warned_yet = true;
+#if defined(HAVE_LIB_PTHREAD)
+        int ret;
+#endif
+	if (!g_shared)
+		return true;
+
+#if defined(HAVE_LIB_PTHREAD)
+        ret = shim_pthread_spin_lock(&g_shared->warn_once.lock);
+#endif
+	free_slot = STRESS_WARN_HASH_MAX;
+
+	/*
+	 * Ensure hash is never zero so that it does not
+	 * match and empty slot value of zero
+	 */
+	if (h == 0)
+		h += STRESS_WARN_HASH_MAX;
+
+	j = h % STRESS_WARN_HASH_MAX;
+	for (i = 0; i < STRESS_WARN_HASH_MAX; i++) {
+		if (g_shared->warn_once.hash[j] == h) {
+			not_warned_yet = false;
+			goto unlock;
+		}
+		if ((free_slot == STRESS_WARN_HASH_MAX) &&
+		    (g_shared->warn_once.hash[j] == 0)) {
+			free_slot = j;
+		}
+		j = (j + 1) % STRESS_WARN_HASH_MAX;
+	}
+	if (free_slot != STRESS_WARN_HASH_MAX) {
+		g_shared->warn_once.hash[free_slot] = h;
+	}
+unlock:
+#if defined(HAVE_LIB_PTHREAD)
+        if (!ret)
+                shim_pthread_spin_unlock(&g_shared->warn_once.lock);
+#endif
+        return not_warned_yet;
 }
