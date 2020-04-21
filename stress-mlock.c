@@ -95,6 +95,8 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	}
 
 	do {
+		int flag = 0;
+
 		for (n = 0; keep_stressing_flag() && (n < max); n++) {
 			int ret;
 			if (!keep_stressing())
@@ -150,14 +152,24 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 #if defined(HAVE_MLOCKALL)
 #if defined(MCL_CURRENT)
 		(void)shim_mlockall(MCL_CURRENT);
+		flag |= MCL_CURRENT;
 #endif
 #if defined(MCL_FUTURE)
 		(void)shim_mlockall(MCL_FUTURE);
+		flag |= MCL_FUTURE;
 #endif
-#if defined(MCL_ONFAULT)
-		(void)shim_mlockall(MCL_ONFAULT);
+#if defined(MCL_ONFAULT) && defined(MCL_CURRENT)
+		if (shim_mlockall(MCL_ONFAULT | MCL_CURRENT) == 0)
+			flag |= (MCL_ONFAULT | MCL_CURRENT);
+#endif
+#if defined(MCL_FUTURE) && defined(MCL_FUTURE)
+		if (shim_mlockall(MCL_ONFAULT | MCL_FUTURE) == 0)
+			flag |= (MCL_ONFAULT | MCL_FUTURE);
 #endif
 #endif
+		if (flag)
+			(void)shim_mlockall(flag);
+
 		for (n = 0; keep_stressing_flag() && (n < max); n++) {
 			if (!keep_stressing())
 				break;
