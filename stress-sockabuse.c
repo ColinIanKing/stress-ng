@@ -144,7 +144,7 @@ static void stress_sockabuse_client(
 		ssize_t n;
 		socklen_t addr_len = 0;
 		uint64_t delay = 10000;
-		
+
 retry:
 		if (!keep_stressing_flag()) {
 			(void)kill(getppid(), SIGALRM);
