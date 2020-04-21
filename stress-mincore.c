@@ -58,8 +58,21 @@ static int stress_mincore(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const ptrdiff_t mask = ~(page_size - 1);
 	bool mincore_rand = false;
+	int rc = EXIT_SUCCESS;
+	uint8_t *mapped, *unmapped;
 
 	(void)stress_get_setting("mincore-rand", &mincore_rand);
+
+	/* Don't worry if we can't map a page, it is not critical */
+	mapped = mmap(NULL, page_size , PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	/* Map then unmap a page to get an unmapped page address */
+	unmapped = mmap(NULL, page_size , PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (unmapped != MAP_FAILED) {
+		if (munmap(unmapped, page_size) < 0)
+			unmapped = MAP_FAILED;
+	}
 
 	do {
 		int i;
@@ -78,16 +91,40 @@ redo: 			errno = 0;
 				case EAGAIN:
 					if (++redo < 100)
 						goto redo;
-					/* fall through */
+					break;
 				case ENOSYS:
 					pr_inf("%s: mincore no not implemented, skipping stressor\n",
 						args->name);
 					return EXIT_NOT_IMPLEMENTED;
 				default:
-					pr_fail("%s: mincore on address %p error: %d %s\n",
+					pr_fail("%s: mincore on address %p errno=%d %s\n",
 						args->name, addr, errno,
 						strerror(errno));
-					return EXIT_FAILURE;
+					rc = EXIT_FAILURE;
+					break;
+				}
+			}
+			if (mapped != MAP_FAILED) {
+				/* Force page to be resident */
+				*mapped = 0xff;
+				ret = shim_mincore((void *)mapped, page_size, vec);
+				if (ret < 0) {
+					/* Should no return ENOMEM on a mapped page */
+					if (errno == ENOMEM) {
+						pr_fail("%s: mincore on address %p failed, errno=$%d (%s)\n",
+							args->name, mapped, errno,
+							strerror(errno));
+						rc = EXIT_FAILURE;
+					}
+				}
+			}
+			if (unmapped != MAP_FAILED) {
+				/* mincore on unmapped page should fail */
+				ret = shim_mincore((void *)unmapped, page_size, vec);
+				if (ret == 0) {
+					pr_fail("%s: mincore on unmapped address %p should have failed but did not\n",
+						args->name, unmapped);
+					rc = EXIT_FAILURE;
 				}
 			}
 			if (mincore_rand) {
@@ -103,7 +140,10 @@ redo: 			errno = 0;
 		inc_counter(args);
 	} while (keep_stressing());
 
-	return EXIT_SUCCESS;
+	if (mapped != MAP_FAILED)
+		(void)munmap((void *)mapped, page_size);
+
+	return rc;
 }
 
 stressor_info_t stress_mincore_info = {

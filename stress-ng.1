@@ -2325,12 +2325,13 @@ stop mergesort stress workers after N bogo mergesorts.
 specify number of 32 bit integers to sort, default is 262144 (256 \(mu 1024).
 .TP
 .B \-\-mincore N
-start N workers that walk through all of memory 1 page at a time checking of
-the page mapped and also is resident in memory using mincore(2).
+start N workers that walk through all of memory 1 page at a time checking if
+the page mapped and also is resident in memory using mincore(2). It also
+maps and unmaps a page to check if the page is mapped or not using mincore(2).
 .TP
 .B \-\-mincore\-ops N
 stop after N mincore bogo operations. One mincore bogo op is equivalent to a
-1000 mincore(2) calls.
+300 mincore(2) calls.
 .TE
 .B \-\-mincore\-random
 instead of walking through pages sequentially, select pages at random. The
