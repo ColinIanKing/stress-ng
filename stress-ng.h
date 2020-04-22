@@ -3687,6 +3687,9 @@ struct shim_ustat {
 extern int shim_brk(void *addr);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern void shim_clear_cache(char* begin, char *end);
+extern int shim_clock_getres(clockid_t clk_id, struct timespec *res);
+extern int shim_clock_gettime(clockid_t clk_id, struct timespec *tp);
+extern int shim_clock_settime(clockid_t clk_id, struct timespec *tp);
 extern int sys_clone3(struct shim_clone_args *cl_args, size_t size);
 extern ssize_t shim_copy_file_range(int fd_in, shim_loff_t *off_in,
 	int fd_out, shim_loff_t *off_out, size_t len, unsigned int flags);

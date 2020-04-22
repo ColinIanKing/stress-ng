@@ -147,7 +147,7 @@ static int stress_clock(const stress_args_t *args)
 			/*
 			 *  Exercise setting local thread CPU timer
 			 */
-			ret = clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);
+			ret = shim_clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);
 			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (errno != EINVAL) && (errno != ENOSYS))
 				pr_fail("%s: clock_gettime failed for "
@@ -171,19 +171,20 @@ static int stress_clock(const stress_args_t *args)
 			size_t i;
 			struct timespec t;
 
+
 			/*
 			 *  Exercise clock_getres and clock_gettime for each clock
 			 */
 			for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
 				int ret;
 
-				ret = clock_getres(clocks[i].id, &t);
+				ret = shim_clock_getres(clocks[i].id, &t);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 			            (errno != EINVAL) && (errno != ENOSYS))
 					pr_fail("%s: clock_getres failed for "
 						"timer '%s', errno=%d (%s)\n",
 							args->name, clocks[i].name, errno, strerror(errno));
-				ret = clock_gettime(clocks[i].id, &t);
+				ret = shim_clock_gettime(clocks[i].id, &t);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 			            (errno != EINVAL) && (errno != ENOSYS))
 					pr_fail("%s: clock_gettime failed for "
@@ -329,7 +330,7 @@ static int stress_clock(const stress_args_t *args)
 					args->name, errno, strerror(errno));
 				}
 #if defined(HAVE_CLOCK_GETRES)
-				ret = clock_getres(clkid, &t);
+				ret = shim_clock_getres(clkid, &t);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 				    (errno != EINVAL) && (errno != ENOSYS)) {
 					pr_fail("%s: clock_getres failed for /dev/ptp0, errno=%d (%s)",

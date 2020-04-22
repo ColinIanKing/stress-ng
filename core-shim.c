@@ -1525,3 +1525,57 @@ int shim_process_madvise(int which, pid_t pid, void *addr,
 	return shim_enosys(0, which, pid, addr, length, advise, flag);
 #endif
 }
+
+/*
+ *   shim_clock_getres
+ *	wrapper for linux clock_getres system call
+ */
+int shim_clock_getres(clockid_t clk_id, struct timespec *res)
+{
+#if defined(CLOCK_THREAD_CPUTIME_ID) && \
+    defined(HAVE_CLOCK_GETRES)
+#if defined(__NR_clock_getres)
+	return syscall(__NR_clock_getres, clk_id, res);
+#else
+	return clock_getres(clk_id, res);
+#endif
+#else
+	return shim_enosys(0, clk_id, res);
+#endif
+}
+
+/*
+ *   shim_clock_gettime
+ *	wrapper for linux clock_gettime system call
+ */
+int shim_clock_gettime(clockid_t clk_id, struct timespec *tp)
+{
+#if defined(CLOCK_THREAD_CPUTIME_ID) && \
+    defined(HAVE_CLOCK_GETTIME)
+#if defined(__NR_clock_gettime)
+	return syscall(__NR_clock_gettime, clk_id, tp);
+#else
+	return clock_gettime(clk_id, tp);
+#endif
+#else
+	return shim_enosys(0, clk_id, tp);
+#endif
+}
+
+/*
+ *   shim_clock_settime
+ *	wrapper for linux clock_settime system call
+ */
+int shim_clock_settime(clockid_t clk_id, struct timespec *tp)
+{
+#if defined(CLOCK_THREAD_CPUTIME_ID) && \
+    defined(HAVE_CLOCK_SETTIME)
+#if defined(__NR_clock_settime)
+	return syscall(__NR_clock_settime, clk_id, tp);
+#else
+	return clock_settime(clk_id, tp);
+#endif
+#else
+	return shim_enosys(0, clk_id, tp);
+#endif
+}
