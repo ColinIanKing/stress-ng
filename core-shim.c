@@ -1528,7 +1528,9 @@ int shim_process_madvise(int which, pid_t pid, void *addr,
 
 /*
  *   shim_clock_getres
- *	wrapper for linux clock_getres system call
+ *	wrapper for linux clock_getres system call,
+ *	prefer to use the system call to avoid and
+ *	glibc avoidance of the system call
  */
 int shim_clock_getres(clockid_t clk_id, struct timespec *res)
 {
@@ -1546,7 +1548,9 @@ int shim_clock_getres(clockid_t clk_id, struct timespec *res)
 
 /*
  *   shim_clock_gettime
- *	wrapper for linux clock_gettime system call
+ *	wrapper for linux clock_gettime system call,
+ *	prefer to use the system call to avoid and
+ *	glibc avoidance of the system call
  */
 int shim_clock_gettime(clockid_t clk_id, struct timespec *tp)
 {
@@ -1564,7 +1568,9 @@ int shim_clock_gettime(clockid_t clk_id, struct timespec *tp)
 
 /*
  *   shim_clock_settime
- *	wrapper for linux clock_settime system call
+ *	wrapper for linux clock_settime system call,
+ *	prefer to use the system call to avoid and
+ *	glibc avoidance of the system call
  */
 int shim_clock_settime(clockid_t clk_id, struct timespec *tp)
 {
