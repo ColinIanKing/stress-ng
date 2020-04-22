@@ -59,7 +59,7 @@ static int stress_pkey(const stress_args_t *args)
 		const size_t page_offset = page_num * args->page_size;
 		uint8_t *page = pages + page_offset;
 
-		pkey = shim_pkey_alloc(0, 0);
+		pkey = shim_pkey_alloc(0, PKEY_DISABLE_WRITE);
 		if (pkey < 0) {
 			/*
 			 *  Can't allocate, perhaps we don't have any, or
@@ -96,6 +96,13 @@ static int stress_pkey(const stress_args_t *args)
 			if (rights > -1)
 				(void)shim_pkey_set(pkey, rights);
 			(void)shim_pkey_free(pkey);
+		} else {
+			/*
+			 * Perform an invalid pkey free to exercise the
+			 * kernel a bit, will return -EINVAL, we ignore
+			 * failures for now.
+			 */
+			(void)shim_pkey_free(-1);
 		}
 		inc_counter(args);
 	} while (keep_stressing());
