@@ -445,6 +445,19 @@ static int bad_madvise(void *addr)
 }
 #endif
 
+#if defined(HAVE_MEMFD_CREATE)
+static int bad_memfd_create(void *addr)
+{
+	int fd;
+
+	fd = memfd_create(addr, 0);
+	if (fd > 0)
+		(void)close(fd);
+
+	return fd;
+}
+#endif
+
 static int bad_migrate_pages(void *addr)
 {
 	return shim_migrate_pages(getpid(), 1, (unsigned long *)addr,
@@ -826,6 +839,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_lstat,
 #if defined(HAVE_MADVISE)
 	bad_madvise,
+#endif
+#if defined(HAVE_MEMFD_CREATE)
+	bad_memfd_create,
 #endif
 	bad_migrate_pages,
 	bad_mincore,
