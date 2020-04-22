@@ -50,8 +50,6 @@ static stress_sched_types_t sched_types[] = {
 #endif
 };
 
-static const char *prefix = "sched";
-
 /*
  *  get_sched_name()
  *	convert sched class to human readable string
@@ -67,8 +65,12 @@ const char *stress_get_sched_name(const int sched)
 	return "unknown";
 }
 
-#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
-    !defined(__OpenBSD__) && !defined(__minix__) && !defined(__APPLE__)
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && 	\
+    !defined(__OpenBSD__) && 						\
+    !defined(__minix__) &&						\
+    !defined(__APPLE__)
+
+static const char *prefix = "sched";
 
 #if defined(SCHED_DEADLINE) && defined(__linux__)
 #define HAVE_STRESS_SET_DEADLINE_SCHED	(1)
