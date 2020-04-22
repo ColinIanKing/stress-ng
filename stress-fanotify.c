@@ -56,32 +56,20 @@ static const int fan_stress_settings[] = {
 #if defined(FAN_ACCESS)
 	FAN_ACCESS,
 #endif
-#if defined(FAN_MODIFY)
-	FAN_MODIFY,
-#endif
-#if defined(FAN_CLOSE_WRITE)
-	FAN_CLOSE_WRITE,
-#endif
-#if defined(FAN_CLOSE_NOWRITE)
-	FAN_CLOSE_NOWRITE,
-#endif
-#if defined(FAN_DIR_MODIFY)
-	FAN_DIR_MODIFY,
-#endif
-#if defined(FAN_OPEN)
-	FAN_OPEN,
-#endif
-#if defined(FAN_OPEN_EXEC)
-	FAN_OPEN_EXEC,
-#endif
-#if defined(FAN_OPEN_EXEC_PERM)
-	FAN_OPEN_EXEC_PERM,
+#if defined(FAN_ACCESS_PERM)
+	FAN_ACCESS_PERM,
 #endif
 #if defined(FAN_ATTRIB)
 	FAN_ATTRIB,
 #endif
-#if defined(FAN_ONDIR)
-	FAN_ONDIR,
+#if defined(FAN_CLOSE)
+	FAN_CLOSE,
+#endif
+#if defined(FAN_CLOSE_NOWRITE)
+	FAN_CLOSE_NOWRITE,
+#endif
+#if defined(FAN_CLOSE_WRITE)
+	FAN_CLOSE_WRITE,
 #endif
 #if defined(FAN_CREATE)
 	FAN_CREATE,
@@ -92,38 +80,44 @@ static const int fan_stress_settings[] = {
 #if defined(FAN_DELETE_SELF)
 	FAN_DELETE_SELF,
 #endif
-#if defined(FAN_MOVED_FROM)
-	FAN_MOVED_FROM,
-#endif
-#if defined(FAN_MOVED_TO)
-	FAN_MOVED_TO,
-#endif
-#if defined(FAN_MOVE_SELF)
-	FAN_MOVE_SELF,
-#endif
-#if defined(FAN_Q_OVERFLOW)
-	FAN_Q_OVERFLOW,
-#endif
-#if defined(FAN_OPEN_PERM)
-	FAN_OPEN_PERM,
-#endif
-#if defined(FAN_OPEN_EXEC_PERM)
-	FAN_OPEN_EXEC_PERM,
-#endif
-#if defined(FAN_ACCESS_PERM)
-	FAN_ACCESS_PERM,
-#endif
-#if defined(FAN_ON_DIR)
-	FAN_ON_DIR,
+#if defined(FAN_DIR_MODIFY)
+	FAN_DIR_MODIFY,
 #endif
 #if defined(FAN_EVENT_ON_CHILD)
 	FAN_EVENT_ON_CHILD,
 #endif
-#if defined(FAN_CLOSE)
-	FAN_CLOSE,
+#if defined(FAN_MODIFY)
+	FAN_MODIFY,
 #endif
 #if defined(FAN_MOVE)
 	FAN_MOVE,
+#endif
+#if defined(FAN_MOVED_FROM)
+	FAN_MOVED_FROM,
+#endif
+#if defined(FAN_MOVE_SELF)
+	FAN_MOVE_SELF,
+#endif
+#if defined(FAN_MOVED_TO)
+	FAN_MOVED_TO,
+#endif
+#if defined(FAN_ONDIR)
+	FAN_ONDIR,
+#endif
+#if defined(FAN_OPEN)
+	FAN_OPEN,
+#endif
+#if defined(FAN_OPEN_EXEC)
+	FAN_OPEN_EXEC,
+#endif
+#if defined(FAN_OPEN_EXEC_PERM)
+	FAN_OPEN_EXEC_PERM,
+#endif
+#if defined(FAN_OPEN_PERM)
+	FAN_OPEN_PERM,
+#endif
+#if defined(FAN_Q_OVERFLOW)
+	FAN_Q_OVERFLOW,
 #endif
 	0
 };
