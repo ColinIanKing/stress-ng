@@ -27,8 +27,12 @@
 typedef void *(*stress_bad_addr_t)(const stress_args_t *args);
 typedef int (*stress_bad_syscall_t)(void *addr);
 
-static void *ro_page;
-static void *rw_page;
+static void *no_page;	/* no protect page */
+static void *ro_page;	/* Read only page */
+static void *rw_page;	/* Read-Write page */
+static void *rx_page;	/* Read-eXecute page */
+static void *wo_page;	/* Write only page */
+static void *wx_page;	/* Write-eXecute page */
 
 static const stress_help_t help[] = {
 	{ NULL,	"sysbadaddr N",	    "start N workers that pass bad addresses to syscalls" },
@@ -153,6 +157,34 @@ static void *unmapped_addr(const stress_args_t *args)
 	return ((uint8_t *)rw_page) + args->page_size;
 }
 
+static void *exec_addr(const stress_args_t *args)
+{
+	(void)args;
+
+	return rx_page;
+}
+
+static void *none_addr(const stress_args_t *args)
+{
+	(void)args;
+
+	return no_page;
+}
+
+static void *write_addr(const stress_args_t *args)
+{
+	(void)args;
+
+	return wo_page;
+}
+
+static void *write_exec_addr(const stress_args_t *args)
+{
+	(void)args;
+
+	return wx_page;
+}
+
 static stress_bad_addr_t bad_addrs[] = {
 	unaligned_addr,
 	readonly_addr,
@@ -161,6 +193,10 @@ static stress_bad_addr_t bad_addrs[] = {
 	bad_end_addr,
 	bad_max_addr,
 	unmapped_addr,
+	exec_addr,
+	none_addr,
+	write_addr,
+	write_exec_addr,
 };
 
 static int bad_access(void *addr)
@@ -963,6 +999,12 @@ static int stress_sysbadaddr_child(const stress_args_t *args, void *context)
 	return EXIT_SUCCESS;
 }
 
+static void stress_munmap(void *addr, size_t sz)
+{
+	if ((addr != NULL) && (addr != MAP_FAILED))
+		(void)munmap(addr, sz);
+}
+
 /*
  *  stress_sysbadaddr
  *	stress system calls with bad addresses
@@ -976,16 +1018,49 @@ static int stress_sysbadaddr(const stress_args_t *args)
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (ro_page == MAP_FAILED) {
 		pr_inf("%s: cannot mmap anonymous read-only page: "
-		       "errno=%d (%s)\n", args->name,errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
+		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
+		ret = EXIT_NO_RESOURCE;
+		goto cleanup;
 	}
-	rw_page = mmap(NULL, page_size << 1, PROT_READ,
+	rw_page = mmap(NULL, page_size << 1, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rw_page == MAP_FAILED) {
-		(void)munmap(ro_page, page_size);
 		pr_inf("%s: cannot mmap anonymous read-write page: "
-		       "errno=%d (%s)\n", args->name,errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
+		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
+		ret = EXIT_NO_RESOURCE;
+		goto cleanup;
+	}
+	rx_page = mmap(NULL, page_size, PROT_EXEC | PROT_READ,
+		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (rx_page == MAP_FAILED) {
+		pr_inf("%s: cannot mmap anonymous excute-only page: "
+		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
+		ret = EXIT_NO_RESOURCE;
+		goto cleanup;
+	}
+	no_page = mmap(NULL, page_size, PROT_NONE,
+		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (no_page == MAP_FAILED) {
+		pr_inf("%s: cannot mmap anonymous prot-none page: "
+		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
+		ret = EXIT_NO_RESOURCE;
+		goto cleanup;
+	}
+	wo_page = mmap(NULL, page_size, PROT_WRITE,
+		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (wo_page == MAP_FAILED) {
+		pr_inf("%s: cannot mmap anonymous write-only page: "
+		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
+		ret = EXIT_NO_RESOURCE;
+		goto cleanup;
+	}
+	wx_page = mmap(NULL, page_size, PROT_WRITE | PROT_EXEC,
+		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (wx_page == MAP_FAILED) {
+		pr_inf("%s: cannot mmap anonymous write-execute page: "
+		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
+		ret = EXIT_NO_RESOURCE;
+		goto cleanup;
 	}
 	/*
 	 * Unmap last page, so we know we have an unmapped
@@ -995,8 +1070,13 @@ static int stress_sysbadaddr(const stress_args_t *args)
 
 	ret = stress_oomable_child(args, NULL, stress_sysbadaddr_child, STRESS_OOMABLE_DROP_CAP);
 
-	(void)munmap(rw_page, page_size);
-	(void)munmap(ro_page, page_size);
+cleanup:
+	stress_munmap(wx_page, page_size);
+	stress_munmap(wo_page, page_size);
+	stress_munmap(no_page, page_size);
+	stress_munmap(rx_page, page_size);
+	stress_munmap(rw_page, page_size);
+	stress_munmap(ro_page, page_size);
 
 	return ret;
 }
