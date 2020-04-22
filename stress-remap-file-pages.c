@@ -36,6 +36,19 @@ static const stress_help_t help[] = {
 
 typedef uint16_t stress_mapdata_t;
 
+static inline void *stress_get_umapped_addr(const size_t sz)
+{
+	void *addr;
+
+	addr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (addr == MAP_FAILED)
+		return NULL;
+
+	(void)munmap(addr, sz);
+	return addr;
+}
+
 /*
  *  check_order()
  *	check page order
@@ -95,10 +108,11 @@ static int remap_order(
 static int stress_remap(const stress_args_t *args)
 {
 	stress_mapdata_t *data;
+	void *unmapped, *mapped;
 	const size_t page_size = args->page_size;
 	const size_t data_size = N_PAGES * page_size;
 	const size_t stride = page_size / sizeof(*data);
-	size_t i;
+	size_t i, mapped_size = page_size + page_size;
 
 	data = mmap(NULL, data_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -111,8 +125,31 @@ static int stress_remap(const stress_args_t *args)
 	for (i = 0; i < N_PAGES; i++)
 		data[i * stride] = i;
 
+	unmapped = stress_get_umapped_addr(page_size);
+	mapped = mmap(NULL, mapped_size, PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (mapped != MAP_FAILED) {
+		/*
+		 * attempt to unmap last page so we know there
+		 * is an unmapped page following the
+		 * mapped address space
+		 */
+		if (munmap(mapped + page_size, page_size) == 0) {
+			mapped_size = page_size;
+		} else {
+			/* failed */
+			(void)munmap(mapped, mapped_size);
+			mapped_size = 0;
+			mapped = NULL;
+		}
+	} else {
+		/* we tried and failed */
+		mapped = NULL;
+	}
+
 	do {
 		size_t order[N_PAGES];
+		int ret;
 
 		/* Reverse pages */
 		for (i = 0; i < N_PAGES; i++)
@@ -151,10 +188,26 @@ static int stress_remap(const stress_args_t *args)
 			break;
 		check_order(args, stride, data, order, "forward");
 
+		/*
+		 *  exercise some illegal remapping calls
+		 */
+		if (unmapped) {
+			ret = remap_file_pages(unmapped, page_size, 0, 0, 0);
+			(void)ret;
+		}
+		if (mapped) {
+			ret = remap_file_pages(mapped + page_size, page_size, 0, 0, 0);
+			(void)ret;
+		}
+
 		inc_counter(args);
 	} while (keep_stressing());
 
 	(void)munmap(data, data_size);
+	if (mapped)
+		(void)munmap(mapped, mapped_size);
+	if (unmapped)
+		(void)munmap(unmapped, page_size);
 
 	return EXIT_SUCCESS;
 }
