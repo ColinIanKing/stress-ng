@@ -1003,10 +1003,11 @@ static int stress_sysbadaddr_child(const stress_args_t *args, void *context)
 			size_t j;
 
 			for (j = 0; j < SIZEOF_ARRAY(bad_addrs); j++) {
-				int ret;
 				void *addr = bad_addrs[j](args);
 
 				if (addr != MAP_FAILED) {
+					int ret;
+
 					ret = stress_do_syscall(args, bad_syscalls[i], addr);
 					(void)ret;
 				}
