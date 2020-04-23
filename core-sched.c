@@ -95,7 +95,8 @@ int stress_set_deadline_sched(
 	attr.sched_nice = 0;
 	attr.sched_priority = 0;
 	if (!quiet)
-		pr_dbg("%s: setting scheduler class '%s' (period=%lu, runtime=%lu, deadline=%lu)\n",
+		pr_dbg("%s: setting scheduler class '%s' (period=%" PRIu64
+			", runtime=%" PRIu64 ", deadline=%" PRIu64 ")\n",
 			prefix, "deadline", period, runtime, deadline);
 	attr.sched_runtime = runtime;
 	attr.sched_deadline = deadline;
@@ -219,8 +220,10 @@ int stress_set_sched(
 			attr.sched_deadline = sched_deadline;
 			attr.sched_period = sched_period;
 		}
-		pr_dbg("%s: setting scheduler class '%s' (period=%lu, runtime=%lu, deadline=%lu)\n",
-			"deadline", prefix, attr.sched_period, attr.sched_runtime, attr.sched_deadline);
+		pr_dbg("%s: setting scheduler class '%s' (period=%" PRIu64
+			", runtime=%" PRIu64 ", deadline=%" PRIu64 ")\n",
+			"deadline", prefix, attr.sched_period,
+			attr.sched_runtime, attr.sched_deadline);
 
 		rc = shim_sched_setattr(pid, &attr, 0);
 		if (rc < 0) {
