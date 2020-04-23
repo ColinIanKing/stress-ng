@@ -1,3 +1,130 @@
+stress-ng (0.11.08-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-sysbaddaddr: reduce scope of variable ret
+  * core-sched: print uint64_t using PRIu64 format specifiers
+  * stress-sysbadaddr: don't abort if write/exec mappings can't be made
+  * stress-sysbaddaddr: use shim'd memfd_create
+  * stress-pkey: only use PKEY_DISABLE_WRITE if it is defined
+  * stress-filename: add more yield point checks to abort faster
+  * core-shim: don't retry EINTR on termination flag (LP:# 1874367)
+  * core-shim: expand comments on the posix clock comments
+  * core-sched: move declaration of prefix to avoid build warnings
+  * stress-fanotify: reorder FAN masks to alphabetical order
+  * core-shim: wrap the posix clock calls to use system call
+  * stress-sysbadaddr: add memfd_create system call
+  * stress-pkey: exercise an invalid pkey_free call
+  * stress-sysbadaddr: add some more mapped page protection variations
+  * stress-remap-file-pages: exercise invalid remappings
+  * stress-mlock: use MCL_ONFAULT option correctly
+  * stress-mincore: exercise pages that are known to be mapped and
+    unmapped
+  * helper: make stress_warn_once simpler to use and remove flags
+  * stress-sockabuse: remove tabs from empty line
+  * stress-sync-file: remove shadowed variable ret
+  * stress-wait: skip over sanity check of returned zero pid
+  * Fix more supported helpers that are missing new name parameter
+  * stress-apparmor: supported helper that s missing new name parameter
+  * stress-sockfd: make bind failure on EADDRINUSE a resource issue
+  * stress-sockfd: use SO_REUSEADDR to avoid bind failures
+  * Handle ENOSPC mkdir failures as a resource allocation termination
+  * stress-ioprio: don't terminate if we run out of resources
+  * stress-chdir: use mkdir_ok array to track mkdir paths that are OK
+  * stress-mq: ignore timeouts on timed message sends
+  * stress-sockabuse: don't make connect failures terminal
+  * stress-chdir: don't abort all the temporary directories can't be
+    setup
+  * stress-link: silently ignore out of resource limit failures
+  * stress-key: skip over some expected non-fatal errors that should
+    not abort the stressor
+  * stress-chdir: make ENOSPC on setup a resource failure termination
+  * stress-key: silently ignore ENOKEY
+  * stress-key: skip over some expected non-fatal errors that should
+    not abort the stressor
+  * core-shim: re-try on EINTR a little more if they keep on occurring
+  * stress-sockfd: use incrementing ports per stressor
+  * stress-sockabuse: ensure correct errno value is reported on a
+    connect failure
+  * stress-sync-file: don't fail on ENOSPC, instead retry
+  * stress-seal: don't fail on EBUSY on a F_SEAL_WRITE add fcntl
+  * stress-lease: don't fail on EAGAIN error from fcntl
+  * stress-ioprio: don't terminate if we run out of resources
+  * stress-dnotify: don't terminate if we run out of resources
+  * stress-inotify: also ignore test file write failures on ENOSPC
+  * stress-inotify: don't terminate if we run out of resources
+  * stress-seek: handle ENOSPC errors on write
+  * stress-fiemap: make ENOSPC on writes non-fatal
+  * Add SIGABRT stressor. Exercise SIGABRT sending via raise() and
+    abort()
+  * stress-zero: fully check if data from /dev/zero is zero
+  * stress-epoll: retry on low resources causing system call failures
+  * Fix one more arch specific supported helpers that is missing the
+    new name parameter
+  * Fix some arch specific supported helpers that are missing new name
+    parameter
+  * Pass the name of the stressor into the supported() handler
+  * core-sched: prefix all messages with "sched: " rather than nothing
+    or __func__ names
+  * core-sched: remove some capitalization
+  * core-sched: add spacing in messages, make the dbg only
+  * stress-close: don't assume max_delay_us is non-zero
+  * xattr: add removexattr system call
+  * stress-session: randomly select the wait call if wait4 is available
+  * stress-ng: remove unused sched_deadline_init
+  * syscalls: add wait3 and wait4
+  * stress-wait: use wait3 if it is available
+  * Add wait3 system call detection and shim wrapper
+  * Add P_PIDFD #define for older linux/wait.h that don't yet define it
+  * core-shim: add new process_madvise() shim
+  * stress-chmod: use strlcpy instead of strcpy as it's safer
+  * stress-session: cast pid to int to print it portably
+  * stress-chmod: make dfd open optional if O_DIRECTORY is not supported
+  * stress-wait: add wait4 call if it is available
+  * stress-session: use wait4 if it is available
+  * stress-chmod: fix BSD EFTYPE error failure
+  * stress-session: add stressor to set and get session ids
+  * core-sched: fix build errors with missing stress_set_deadline_sched
+    on GNU/HURD
+  * core-sched: fix unused parameter and unused variable warnings
+  * manual: update contributors information
+  * manual: fix some missing .TP commands and minor spelling clean up
+  * stress-ng: add sched-reclaim option for deadline scheduler
+  * stress-ng: support sched deadline
+  * core-shim: disable native nanosleep for risc-v
+  * Add STRESS_RISC_V arch macro and don't yield on this arch
+  * Makefile: ensure spaces are removed before perf macros
+  * stress-urandom: add select and read on blockable opened /dev/random
+  * Replace white space with tabs before statements
+  * Rename helpers, remove __ suffix and prefixes
+  * stress-procfs: clean up name shadowing by renaming ptr to bptr
+  * Use stress_dirent_list_free to free dirent lists
+  * core-helper: add stress_dirent_list_free helper
+  * stress-sysfs: process non-directory files before handling directories
+  * stress-procfs: process non-directory files before handling directories
+  * stress-procfs: only format path when required
+  * syscalls.txt: update recvmmsg to note it is being exercised by sock
+    stressor
+  * stress-fanotify: remove some white spaces and empty lines
+  * stress-resources: open non-existent files to expand dcache false
+    hits
+  * syscalls.txt: Update, add faccessat, fchmodat and fchownat
+  * stress-chmod: Add fchmodat check and add it to chmod testing
+  * stress-clock: add CLOCK_TAI
+  * stress-clone: add CLONE_NEWTIME
+  * stress-procfs: exercise known buggy seek and read issues
+  * stress-procfs: add process /proc exercising
+  * stress-numa: cater for systems where numa system calls are not
+    provided
+  * stress-netlink-proc: cater for connection refused on writev
+  * stress-fanotify: add more fanotify support sanity checks
+  * stress-kcmp: treat ENOSYS as a non-fatal error return from kcmp
+  * stress-reboot: remove some blank lines
+  * test/test-pthread-attr-setstack.c: make stack static
+  * stress-fanotify: add FAN_DIR_MODIFY
+
+ -- Colin King <colin.king@canonical.com>  Thu, 23 Apr 2020 19:44:12 +0100
+
 stress-ng (0.11.07-1) unstable; urgency=medium
 
   * Address multiple issues found with pedantic static analysis (LP: #1870193)
