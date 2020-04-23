@@ -59,7 +59,13 @@ static int stress_pkey(const stress_args_t *args)
 		const size_t page_offset = page_num * args->page_size;
 		uint8_t *page = pages + page_offset;
 
+#if defined(PKEY_DISABLE_WRITE)
+		/* Use PKEY_DISABLE_WRITE if it's defined */
 		pkey = shim_pkey_alloc(0, PKEY_DISABLE_WRITE);
+#else
+		/* Try 0 flags intead */
+		pkey = shim_pkey_alloc(0, 0);
+#endif
 		if (pkey < 0) {
 			/*
 			 *  Can't allocate, perhaps we don't have any, or
