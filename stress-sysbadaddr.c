@@ -1006,8 +1006,10 @@ static int stress_sysbadaddr_child(const stress_args_t *args, void *context)
 				int ret;
 				void *addr = bad_addrs[j](args);
 
-				ret = stress_do_syscall(args, bad_syscalls[i], addr);
-				(void)ret;
+				if (addr != MAP_FAILED) {
+					ret = stress_do_syscall(args, bad_syscalls[i], addr);
+					(void)ret;
+				}
 			}
 		}
 	} while (keep_stressing());
@@ -1070,14 +1072,13 @@ static int stress_sysbadaddr(const stress_args_t *args)
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
 	}
+	/*
+	 * write-execute pages are not supported by some kernels
+	 * so make this failure non-fatal to the stress testing
+	 * and skip MAP_FAILED addresses in the main stressor
+	 */
 	wx_page = mmap(NULL, page_size, PROT_WRITE | PROT_EXEC,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (wx_page == MAP_FAILED) {
-		pr_inf("%s: cannot mmap anonymous write-execute page: "
-		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
-		ret = EXIT_NO_RESOURCE;
-		goto cleanup;
-	}
 	/*
 	 * Unmap last page, so we know we have an unmapped
 	 * page following the r/w page
@@ -1087,7 +1088,6 @@ static int stress_sysbadaddr(const stress_args_t *args)
 	ret = stress_oomable_child(args, NULL, stress_sysbadaddr_child, STRESS_OOMABLE_DROP_CAP);
 
 cleanup:
-	stress_munmap(wx_page, page_size);
 	stress_munmap(wo_page, page_size);
 	stress_munmap(no_page, page_size);
 	stress_munmap(rx_page, page_size);
