@@ -450,7 +450,7 @@ static int bad_memfd_create(void *addr)
 {
 	int fd;
 
-	fd = memfd_create(addr, 0);
+	fd = shim_memfd_create(addr, 0);
 	if (fd > 0)
 		(void)close(fd);
 
