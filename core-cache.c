@@ -478,9 +478,13 @@ void stress_free_cpu_caches(stress_cpus_t *cpus)
 	for (i = 0; i < cpus->count; i++) {
 		stress_cpu_t *cpu = &cpus->cpus[i];
 
-		free(cpu->caches);
+		if (cpu->caches) {
+			free(cpu->caches);
+			cpu->caches = NULL;
+		}
 	}
 	free(cpus->cpus);
+	cpus->cpus = NULL;
 	free(cpus);
 }
 
