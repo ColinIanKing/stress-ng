@@ -30,9 +30,9 @@
 #define PACKET_SIZE	(2048)
 
 static const stress_help_t help[] = {
-	{ NULL, "rawudp N",		"start N workers exercisingr raw UDP socket I/O" },
-	{ NULL,	"rawudp-ops N",	"stop after N raw socket bogo operations" },
-	{ NULL,	"rawudp-port P",	"use raw socket ports P to P + number of workers - 1" },
+	{ NULL, "rawudp N",	"start N workers exercising raw UDP socket I/O" },
+	{ NULL,	"rawudp-ops N",	"stop after N raw socket UDP bogo operations" },
+	{ NULL,	"rawudp-port P","use raw socket ports P to P + number of workers - 1" },
 	{ NULL,	NULL,			NULL }
 };
 
