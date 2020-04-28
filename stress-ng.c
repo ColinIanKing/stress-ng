@@ -1691,6 +1691,9 @@ again:
 					kill_procs(SIGALRM);
 					goto wait_for_procs;
 				case 0:
+					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
+						stress_munge_underscore(g_proc_current->stressor->name));
+
 					(void)stress_get_setting("sched", &sched);
 					(void)stress_get_setting("sched-period", &sched_period);
 					(void)stress_get_setting("sched-runtime", &sched_runtime);
@@ -1724,8 +1727,6 @@ again:
 					if (g_opt_timeout)
 						(void)alarm(g_opt_timeout);
 					stress_mwc_reseed();
-					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
-						stress_munge_underscore(g_proc_current->stressor->name));
 					stress_set_oom_adjustment(name, false);
 					stress_set_max_limits();
 					stress_set_iopriority(ionice_class, ionice_level);
