@@ -83,17 +83,37 @@ static void stress_rawudp_client(
 	const unsigned long addr,
 	const int port)
 {
-	(void)setpgid(0, g_pgrp);
-	stress_parent_died_alarm();
 	int rc = EXIT_FAILURE;
 	uint16_t id = 12345;
+	char buf[PACKET_SIZE];
+	struct iphdr *ip = (struct iphdr *)buf;
+	struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct iphdr));
+	struct sockaddr_in sin;
+	int one = 1;
+
+	(void)setpgid(0, g_pgrp);
+	stress_parent_died_alarm();
+
+	(void)memset(buf, 0, sizeof(buf));
+
+	sin.sin_family = AF_INET;
+	sin.sin_port = port;
+	sin.sin_addr.s_addr = addr;
+
+	ip->ihl      = 5;	/* Header length in 32 bit words */
+	ip->version  = 4;	/* IPv4 */
+	ip->tos      = stress_mwc8() & 0x1e;
+	ip->tot_len  = sizeof(struct iphdr) + sizeof(struct udphdr);
+	ip->ttl      = 16;  	/* Not too many hops! */
+	ip->protocol = SOL_UDP;	/* UDP protocol */
+	ip->saddr = addr;
+	ip->daddr = addr;
+
+	udp->source = htons(port);
+	udp->dest = htons(port);
+	udp->len = htons(sizeof(struct udphdr));
 
 	do {
-		char buf[PACKET_SIZE];
-		struct iphdr *ip = (struct iphdr *)buf;
-		struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct iphdr));
-		struct sockaddr_in sin;
-		int one = 1;
 		int fd;
 		ssize_t n;
 
@@ -107,25 +127,8 @@ static void stress_rawudp_client(
 			goto err;
 		}
 
-		sin.sin_family = AF_INET;
-		sin.sin_port = port;
-		sin.sin_addr.s_addr = addr;
-
-		(void)memset(buf, 0, sizeof(buf));
-
-		udp->source = htons(port);
-		udp->dest = htons(port);
-		udp->len = htons(sizeof(struct udphdr));
-
-		ip->ihl      = 5;	/* Header length in 32 bit words */
-		ip->version  = 4;	/* IPv4 */
-		ip->tos      = stress_mwc8() & 0x1e;
-		ip->tot_len  = sizeof(struct iphdr) + sizeof(struct udphdr);
-		ip->id       = htons(id++);
-		ip->ttl      = 16;  	/* Not too many hops! */
-		ip->protocol = SOL_UDP;	/* UDP protocol */
-		ip->saddr = addr;
-		ip->daddr = addr;
+		ip->tos = stress_mwc8() & 0x1e;
+		ip->id = htons(id++);
 		ip->check = stress_ip_checksum((uint16_t *)buf, sizeof(struct iphdr) + sizeof(struct udphdr));
 
 		n = sendto(fd, buf, ip->tot_len, 0, (struct sockaddr *)&sin, sizeof(sin));
@@ -133,7 +136,6 @@ static void stress_rawudp_client(
 			pr_err("%s: raw socket sendto failed on port %d, errno=%d (%s)\n",
 				args->name, port, errno, strerror(errno));
 		}
-
 		(void)close(fd);
 	} while (keep_stressing());
 
@@ -161,13 +163,13 @@ static int stress_rawudp_server(
 	struct sockaddr_in sin;
 	char buf[PACKET_SIZE];
 	const struct iphdr *ip = (struct iphdr *)buf;
+	const struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct iphdr));
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}
-	fd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP);
-	if (fd < 0) {
+	if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) < 0) {
 		rc = exit_status(errno);
 		pr_fail_err("socket");
 		goto die;
@@ -186,7 +188,6 @@ static int stress_rawudp_server(
 
 	do {
 		ssize_t n;
-		const struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct iphdr));
 
 		n = recv(fd, buf, sizeof(buf), 0);
 		if (n > 0) {
