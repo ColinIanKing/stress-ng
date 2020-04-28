@@ -2837,6 +2837,17 @@ localhost. Requires CAP_NET_RAW to run.
 .B \-\-rawsock-ops N
 stop rawsock workers after N packets are received.
 .TP
+.B \-\-rawudp N
+start N workers that send and receive UDP packets using raw sockets on the
+localhost. Requires CAP_NET_RAW to run.
+.TP
+.B \-\-rawudp\-ops N
+stop rawudp workers after N packets are received.
+.TP
+.B \-\-rawudp\-port N
+start at port P. For N rawudp worker processes, ports P to (P * 4) - 1
+are used. The default starting port is port 13000.
+.TP
 .B \-\-rdrand N
 start N workers that read a random number from an on-chip random number generator
 This uses the rdrand instruction on Intel processors or the darn intruction

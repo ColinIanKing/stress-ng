@@ -1745,3 +1745,26 @@ unlock:
 #endif
         return not_warned_yet;
 }
+
+/*
+ *  stress_ip_checksum()
+ *	ip data checksum
+ */
+uint16_t stress_ip_checksum(uint16_t *ptr, const size_t sz)
+{
+	uint32_t sum = 0;
+	register size_t n = sz;
+
+	while (n > 1) {
+		sum += *ptr++;
+		n -= 2;
+	}
+
+	if (n)
+		sum += *(uint8_t*)ptr;
+
+	sum = (sum >> 16) + (sum & 0xffff);
+	sum += (sum >> 16);
+
+	return ~sum;
+}

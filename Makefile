@@ -210,6 +210,7 @@ STRESS_SRC = \
 	stress-ramfs.c \
 	stress-rawdev.c \
 	stress-rawsock.c \
+	stress-rawudp.c \
 	stress-rdrand.c \
 	stress-readahead.c \
 	stress-reboot.c \

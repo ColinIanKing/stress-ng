@@ -51,24 +51,6 @@ static int stress_icmp_flood_supported(const char *name)
 	return 0;
 }
 
-static inline uint32_t checksum(uint16_t *ptr, size_t n)
-{
-	uint32_t sum = 0;
-
-	while (n > 1) {
-		sum += *ptr++;
-		n -= 2;
-	}
-
-	if (n)
-		sum += *(uint8_t*)ptr;
-
-	sum = (sum >> 16) + (sum & 0xffff);
-	sum += (sum >> 16);
-
-	return ~sum;
-}
-
 /*
  *  stress_icmp_flood
  *	stress local host with ICMP flood
@@ -133,7 +115,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 		if ((get_counter(args) & 0x3f) == 0)
 			stress_strnrnd(pkt + sizeof(struct iphdr) +
 				sizeof(struct icmphdr), payload_len);
-		icmp_hdr->checksum = checksum((uint16_t *)icmp_hdr,
+		icmp_hdr->checksum = stress_ip_checksum((uint16_t *)icmp_hdr,
 			sizeof(struct icmphdr) + payload_len);
 
 		if ((sendto(fd, pkt, pkt_len, 0,

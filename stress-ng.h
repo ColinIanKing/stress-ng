@@ -568,6 +568,10 @@
 #include <linux/taskstats.h>
 #endif
 
+#if defined(HAVE_LINUX_UDP_H)
+#include <linux/udp.h>
+#endif
+
 #if defined(HAVE_LINUX_UNIX_DIAG_H)
 #include <linux/unix_diag.h>
 #endif
@@ -1481,6 +1485,10 @@ extern void pr_fail_args_dbg(const stress_args_t *args, const char *msg);
 #define DEFAULT_SOCKET_MANY_PORT (11000)
 #define DEFAULT_SOCKABUSE_PORT	(12000)
 
+#define MIN_RAWUDP_PORT		(1024)
+#define MAX_RAWUDP_PORT		(65535)
+#define DEFAULT_RAWUDP_PORT	(13000)
+
 #define MIN_SOCKET_FD_PORT	(1024)
 #define MAX_SOCKET_FD_PORT	(65535)
 #define DEFAULT_SOCKET_FD_PORT	(8000)
@@ -2026,6 +2034,7 @@ typedef struct {
 	MACRO(ramfs)		\
 	MACRO(rawdev)		\
 	MACRO(rawsock)		\
+	MACRO(rawudp)		\
 	MACRO(rdrand)		\
 	MACRO(readahead)	\
 	MACRO(reboot)		\
@@ -2729,6 +2738,10 @@ typedef enum {
 
 	OPT_rawsock,
 	OPT_rawsock_ops,
+
+	OPT_rawudp,
+	OPT_rawudp_ops,
+	OPT_rawudp_port,
 
 	OPT_rdrand,
 	OPT_rdrand_ops,
@@ -3470,6 +3483,7 @@ extern WARN_UNUSED uint32_t stress_hash_djb2a(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_fnv1a(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
+extern WARN_UNUSED uint16_t stress_ip_checksum(uint16_t *ptr, const size_t n);
 
 /*
  *  Indicate a stress test failed because of limited resources
