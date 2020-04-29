@@ -79,11 +79,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  */
 static void stress_rawpkt_getsockopts(const int fd)
 {
-#if defined(PACKET_STATISTICS)	
+#if defined(PACKET_STATISTICS)
 	{
 		struct tpacket_stats stats;
 		socklen_t len = sizeof(stats);
-		
+
 		(void)getsockopt(fd, SOL_PACKET, PACKET_STATISTICS, &stats, &len);
 	}
 #endif
