@@ -124,6 +124,7 @@ static void stress_rawudp_client(
 
 		if (setsockopt(fd,  IPPROTO_IP, IP_HDRINCL, &one, sizeof(one)) < 0) {
 			pr_fail_err("setsockopt");
+			(void)close(fd);
 			goto err;
 		}
 
