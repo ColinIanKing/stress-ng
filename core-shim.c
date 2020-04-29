@@ -1182,14 +1182,14 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 	for (;;) {
 		errno = 0;
 		ret = waitpid(pid, wstatus, options);
-		if (ret >= 0)
+		if ((ret >= 0) || (errno != EINTR))
 			break;
 
 		/*
 		 *  Retry if EINTR unless we've have 100
 		 *  consequtive EINTRs then give up.
 		 */
-		if ((errno == EINTR) && (keep_stressing_flag())) {
+		if (keep_stressing_flag()) {
 			count++;
 			if (count < 100)
 				continue;
