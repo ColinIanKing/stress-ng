@@ -159,7 +159,6 @@ static int stress_rawudp_server(
 {
 	int fd;
 	socklen_t addr_len;
-	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 	struct sockaddr_in sin;
 	char buf[PACKET_SIZE];
@@ -203,9 +202,6 @@ static int stress_rawudp_server(
 die_close:
 	(void)close(fd);
 die:
-	pr_dbg("%s: %" PRIu64 " messages received\n", args->name, msgs);
-
-
 	return rc;
 }
 
