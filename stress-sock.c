@@ -563,7 +563,6 @@ die:
 	}
 	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
 
-
 	return rc;
 }
 
