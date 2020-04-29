@@ -1187,16 +1187,11 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 
 		/*
 		 *  Retry if EINTR unless we've have 100
-		 *  consequtive EINTRs then give up.
+		 *  consecutive EINTRs then give up.
 		 */
-		if (keep_stressing_flag()) {
-			count++;
-			if (count < 100)
-				continue;
-			break;
-		}
-		count = 0;
 		if (!keep_stressing_flag())
+			break;
+		if (count++ > 100)
 			break;
 	}
 	return ret;
