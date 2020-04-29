@@ -80,7 +80,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static void stress_rawudp_client(
 	const stress_args_t *args,
 	const pid_t ppid,
-	const unsigned long addr,
+	unsigned long addr,
 	const int port)
 {
 	int rc = EXIT_FAILURE;
@@ -154,7 +154,7 @@ err:
  */
 static int stress_rawudp_server(
 	const stress_args_t *args,
-	const unsigned long addr,
+	unsigned long addr,
 	const int port)
 {
 	int fd;
@@ -225,7 +225,7 @@ static int stress_rawudp(const stress_args_t *args)
 	pid_t pid;
 	int port = DEFAULT_RAWUDP_PORT;
 	int rc = EXIT_FAILURE;
-	const unsigned long addr = inet_addr("127.0.0.1");
+	unsigned long addr = inet_addr("127.0.0.1");
 
 	(void)stress_get_setting("rawudp-port", &port);
 
