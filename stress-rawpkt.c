@@ -72,10 +72,129 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
+/*
+ *  stress_rawpkt_getsockopts()
+ *	fetch some SOL_PACKET specific stats, ignore failures
+ *	just exercise the interface.
+ */
+static void stress_rawpkt_getsockopts(const int fd)
+{
+#if defined(PACKET_STATISTICS)	
+	{
+		struct tpacket_stats stats;
+		socklen_t len = sizeof(stats);
+		
+		(void)getsockopt(fd, SOL_PACKET, PACKET_STATISTICS, &stats, &len);
+	}
+#endif
+#if defined(PACKET_AUXDATA)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_AUXDATA, &val, &len);
+	}
+#endif
+#if defined(PACKET_ORIGDEV)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, &len);
+	}
+#endif
+#if defined(PACKET_VNET_HDR)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_VNET_HDR, &val, &len);
+	}
+#endif
+#if defined(PACKET_VERSION)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_VERSION, &val, &len);
+	}
+#endif
+#if defined(PACKET_HDRLEN)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_HDRLEN, &val, &len);
+	}
+#endif
+#if defined(PACKET_RESERVE)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_RESERVE, &val, &len);
+	}
+#endif
+#if defined(PACKET_LOSS)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_LOSS, &val, &len);
+	}
+#endif
+#if defined(PACKET_TIMESTAMP)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_TIMESTAMP, &val, &len);
+	}
+#endif
+#if defined(PACKET_FANOUT)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_FANOUT, &val, &len);
+	}
+#endif
+#if defined(PACKET_IGNORE_OUTGOING)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_IGNORE_OUTGOING, &val, &len);
+	}
+#endif
+#if defined(PACKET_ROLLOVER_STATS)
+	{
+		struct tpacket_rollover_stats rstats;
+		socklen_t len = sizeof(rstats);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_ROLLOVER_STATS, &rstats, &len);
+	}
+#endif
+#if defined(PACKET_TX_HAS_OFF)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_TX_HAS_OFF, &val, &len);
+	}
+#endif
+#if defined(PACKET_QDISC_BYPASS)
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, PACKET_QDISC_BYPASS, &val, &len);
+	}
+#endif
+}
 
 #if defined(HAVE_LINUX_UDP_H) &&	\
     defined(HAVE_LINUX_IF_PACKET_H)
-
 /*
  *  stress_rawpkt_client()
  *	client sender
@@ -139,6 +258,7 @@ static void stress_rawpkt_client(
 		}
 	} while (keep_stressing());
 
+	stress_rawpkt_getsockopts(fd);
 	(void)close(fd);
 
 	rc = EXIT_SUCCESS;
@@ -194,6 +314,7 @@ static int stress_rawpkt_server(
 		}
 	} while (keep_stressing());
 
+	stress_rawpkt_getsockopts(fd);
 	(void)close(fd);
 die:
 	pr_dbg("%s: %" PRIu64 " packets sent, %" PRIu64 " packets received\n", args->name, get_counter(args), all_pkts);
