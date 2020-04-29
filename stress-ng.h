@@ -472,6 +472,10 @@
 #include <linux/if_alg.h>
 #endif
 
+#if defined(HAVE_LINUX_IF_PACKET_H)
+#include <linux/if_packet.h>
+#endif
+
 #if defined(HAVE_LINUX_IF_TUN_H)
 #include <linux/if_tun.h>
 #endif
@@ -1489,6 +1493,10 @@ extern void pr_fail_args_dbg(const stress_args_t *args, const char *msg);
 #define MAX_RAWUDP_PORT		(65535)
 #define DEFAULT_RAWUDP_PORT	(13000)
 
+#define MIN_RAWPKT_PORT		(1024)
+#define MAX_RAWPKT_PORT		(65535)
+#define DEFAULT_RAWPKT_PORT	(14000)
+
 #define MIN_SOCKET_FD_PORT	(1024)
 #define MAX_SOCKET_FD_PORT	(65535)
 #define DEFAULT_SOCKET_FD_PORT	(8000)
@@ -2033,6 +2041,7 @@ typedef struct {
 	MACRO(radixsort)	\
 	MACRO(ramfs)		\
 	MACRO(rawdev)		\
+	MACRO(rawpkt)		\
 	MACRO(rawsock)		\
 	MACRO(rawudp)		\
 	MACRO(rdrand)		\
@@ -2735,6 +2744,10 @@ typedef enum {
 	OPT_rawdev,
 	OPT_rawdev_method,
 	OPT_rawdev_ops,
+
+	OPT_rawpkt,
+	OPT_rawpkt_ops,
+	OPT_rawpkt_port,
 
 	OPT_rawsock,
 	OPT_rawsock_ops,

@@ -1,0 +1,283 @@
+/*
+ * Copyright (C) 2013-2020 Canonical, Ltd.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * This code is a complete clean re-write of the stress tool by
+ * Colin Ian King <colin.king@canonical.com> and attempts to be
+ * backwardly compatible with the stress tool by Amos Waterland
+ * <apw@rossby.metr.ou.edu> but has more stress tests and more
+ * functionality.
+ *
+ */
+#include "stress-ng.h"
+
+#include <linux/if_packet.h>
+
+#if !defined(SOL_UDP)
+#define SOL_UDP 	(17)
+#endif
+#define PACKET_SIZE	(2048)
+
+static const stress_help_t help[] = {
+	{ NULL, "rawpkt N",		"start N workers exercising raw packets" },
+	{ NULL,	"rawpkt-ops N",		"stop after N raw packet bogo operations" },
+	{ NULL,	"rawpkt-port P",	"use raw packet ports P to P + number of workers - 1" },
+	{ NULL,	NULL,			NULL }
+};
+
+/*
+ *  stress_rawpkt_supported()
+ *      check if we can run this as root
+ */
+static int stress_rawpkt_supported(const char *name)
+{
+	if (!stress_check_capability(SHIM_CAP_NET_RAW)) {
+		pr_inf("%s stressor will be skipped, "
+			"need to be running with CAP_NET_RAW "
+			"rights for this stressor\n", name);
+		return -1;
+	}
+	return 0;
+}
+
+/*
+ *  stress_set_rawpkt_port()
+ *	set port to use
+ */
+static int stress_set_port(const char *opt)
+{
+	int port;
+
+	stress_set_net_port("rawpkt-port", opt,
+		MIN_RAWPKT_PORT, MAX_RAWPKT_PORT - STRESS_PROCS_MAX,
+		&port);
+	return stress_set_setting("rawpkt-port", TYPE_ID_INT, &port);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_rawpkt_port,	stress_set_port },
+	{ 0,			NULL }
+};
+
+
+#if defined(HAVE_LINUX_UDP_H) &&	\
+    defined(HAVE_LINUX_IF_PACKET_H)
+
+/*
+ *  stress_rawpkt_client()
+ *	client sender
+ */
+static void stress_rawpkt_client(
+	const stress_args_t *args,
+	const pid_t ppid,
+	struct ifreq *ifr,
+	const int port)
+{
+	int rc = EXIT_FAILURE;
+	uint16_t id = 12345;
+	char buf[PACKET_SIZE];
+	struct ethhdr *eth = (struct ethhdr *)buf;
+	struct iphdr *ip = (struct iphdr *)(buf + sizeof(struct ethhdr));
+	struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
+	struct sockaddr_ll sadr;
+	int fd;
+
+	(void)setpgid(0, g_pgrp);
+	stress_parent_died_alarm();
+
+	(void)memset(buf, 0, sizeof(buf));
+
+	(void)memcpy(eth->h_dest, ifr->ifr_hwaddr.sa_data, sizeof(eth->h_dest));
+	(void)memcpy(eth->h_source, ifr->ifr_hwaddr.sa_data, sizeof(eth->h_dest));
+	eth->h_proto = htons(ETH_P_IP);
+
+	ip->ihl = 5;		/* Header length in 32 bit words */
+	ip->version = 4;	/* IPv4 */
+	ip->tos = 0;
+	ip->tot_len = sizeof(struct iphdr) + sizeof(struct udphdr);
+	ip->ttl = 16;  		/* Not too many hops! */
+	ip->protocol = SOL_UDP;	/* UDP protocol */
+	ip->saddr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifr->ifr_addr))->sin_addr)));
+	ip->daddr = ip->saddr;
+
+	udp->source = htons(port);
+	udp->dest = htons(port);
+	udp->len = htons(sizeof(struct udphdr));
+
+	sadr.sll_ifindex = ifr->ifr_ifindex;
+	sadr.sll_halen = ETH_ALEN;
+	(void)memcpy(&sadr.sll_addr, eth->h_dest, sizeof(eth->h_dest));
+
+	if ((fd = socket(PF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0) {
+		pr_fail_err("socket");
+		goto err;
+	}
+
+	do {
+		ssize_t n;
+
+		ip->id = htons(id++);
+		ip->check = stress_ip_checksum((uint16_t *)ip, sizeof(struct iphdr) + sizeof(struct udphdr));
+
+		n = sendto(fd, buf, sizeof(struct ethhdr) + ip->tot_len, 0, (struct sockaddr *)&sadr, sizeof(sadr));
+		if (n < 0) {
+			pr_err("%s: raw socket sendto failed on port %d, errno=%d (%s)\n",
+				args->name, port, errno, strerror(errno));
+		}
+	} while (keep_stressing());
+
+	(void)close(fd);
+
+	rc = EXIT_SUCCESS;
+
+err:
+	/* Inform parent we're all done */
+	(void)kill(ppid, SIGALRM);
+	_exit(rc);
+}
+
+/*
+ *  stress_rawpkt_server()
+ *	server reader
+ */
+static int stress_rawpkt_server(
+	const stress_args_t *args,
+	struct ifreq *ifr,
+	const int port)
+{
+	int fd;
+	int rc = EXIT_SUCCESS;
+	char buf[PACKET_SIZE];
+	struct ethhdr *eth = (struct ethhdr *)buf;
+	const struct iphdr *ip = (struct iphdr *)(buf + sizeof(struct ethhdr));
+	const struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
+	struct sockaddr saddr;
+	int saddr_len = sizeof(saddr);
+	const uint32_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifr->ifr_addr))->sin_addr)));
+	uint64_t all_pkts = 0;
+
+	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
+		rc = EXIT_FAILURE;
+		goto die;
+	}
+	if ((fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0) {
+		rc = exit_status(errno);
+		pr_fail_err("socket");
+		goto die;
+	}
+
+	do {
+		ssize_t n;
+
+		n = recvfrom(fd, buf, sizeof(buf), 0, &saddr, (socklen_t *)&saddr_len);
+		if (n > 0) {
+			all_pkts++;
+			if ((eth->h_proto == htons(ETH_P_IP)) &&
+			    (ip->saddr == addr) &&
+			    (ip->protocol == SOL_UDP) &&
+			    (ntohs(udp->source) == port)) {
+				inc_counter(args);
+			}
+		}
+	} while (keep_stressing());
+
+	(void)close(fd);
+die:
+	pr_dbg("%s: %" PRIu64 " packets sent, %" PRIu64 " packets received\n", args->name, get_counter(args), all_pkts);
+
+	return rc;
+}
+
+static void stress_sock_sigpipe_handler(int signum)
+{
+	(void)signum;
+
+	keep_stressing_set_flag(false);
+}
+
+/*
+ *  stress_rawpkt
+ *	stress raw socket I/O UDP packet send/receive
+ */
+static int stress_rawpkt(const stress_args_t *args)
+{
+	pid_t pid;
+	int port = DEFAULT_RAWPKT_PORT;
+	int fd, rc = EXIT_FAILURE;
+	struct ifreq ifr;
+
+	(void)stress_get_setting("rawpkt-port", &port);
+
+	pr_dbg("%s: process [%d] using socket port %d\n",
+		args->name, (int)args->pid, port + args->instance);
+
+	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+
+	(void)memset(&ifr, 0, sizeof(ifr));
+	strcpy(ifr.ifr_name, "lo");
+	if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+		pr_fail_err("socket");
+		return EXIT_FAILURE;
+	}
+	if (ioctl(fd, SIOCGIFHWADDR, &ifr) < 0) {
+		pr_fail_err("ioctl SIOCGIFHWADDR on lo");
+		(void)close(fd);
+		return EXIT_FAILURE;
+	}
+
+	if (ioctl(fd, SIOCGIFADDR, &ifr) < 0) {
+		pr_fail_err("ioctl SIGHGIFADDR on lo");
+		(void)close(fd);
+		return EXIT_FAILURE;
+	}
+	(void)close(fd);
+again:
+	pid = fork();
+	if (pid < 0) {
+		if (keep_stressing_flag() && (errno == EAGAIN))
+			goto again;
+		pr_fail_dbg("fork");
+		return rc;
+	} else if (pid == 0) {
+		stress_rawpkt_client(args, args->pid, &ifr, port);
+		_exit(EXIT_SUCCESS);
+	} else {
+		int status;
+
+		rc = stress_rawpkt_server(args, &ifr, port);
+		(void)kill(pid, SIGKILL);
+		(void)shim_waitpid(pid, &status, 0);
+	}
+	return rc;
+}
+
+stressor_info_t stress_rawpkt_info = {
+	.stressor = stress_rawpkt,
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
+	.supported = stress_rawpkt_supported,
+	.help = help
+};
+#else
+stressor_info_t stress_rawpkt_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
+	.supported = stress_rawpkt_supported,
+	.help = help
+};
+#endif

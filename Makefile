@@ -209,6 +209,7 @@ STRESS_SRC = \
 	stress-radixsort.c \
 	stress-ramfs.c \
 	stress-rawdev.c \
+	stress-rawpkt.c \
 	stress-rawsock.c \
 	stress-rawudp.c \
 	stress-rdrand.c \

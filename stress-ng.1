@@ -2837,6 +2837,18 @@ localhost. Requires CAP_NET_RAW to run.
 .B \-\-rawsock-ops N
 stop rawsock workers after N packets are received.
 .TP
+.B \-\-rawpkt N
+start N workers that sends and receives ethernet packets 
+using raw packets on the localhost via the loopback device. Requires
+CAP_NET_RAW to run.
+.TP
+.B \-\-rawpkt\-ops N
+stop rawpkt workers after N packets from the sender process are received.
+.TP
+.B \-\-rawpkt\-port N
+start at port P. For N rawpkt worker processes, ports P to (P * 4) - 1
+are used. The default starting port is port 14000.
+.TP
 .B \-\-rawudp N
 start N workers that send and receive UDP packets using raw sockets on the
 localhost. Requires CAP_NET_RAW to run.
