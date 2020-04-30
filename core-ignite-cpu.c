@@ -211,7 +211,6 @@ void stress_ignite_cpu_start(void)
 		stress_set_proc_name("stress-ng-ignite");
 
 		while (keep_stressing_flag()) {
-
 			for (i = 0; settings[i].path; i++) {
 				if (settings[i].ignore)
 					continue;
