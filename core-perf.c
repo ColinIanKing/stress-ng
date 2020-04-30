@@ -242,7 +242,8 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("raw_syscalls/sys_enter",		"System Call Enter"),
 	PERF_INFO_TP("raw_syscalls/sys_exit",		"System Call Exit"),
 
-	PERF_INFO_TP("tlb/tlb_flush",			"TLB Flushes"),
+	/* This perf metric causes 5.4+ kernel hangs, disble it for now */
+	/* PERF_INFO_TP("tlb/tlb_flush",		"TLB Flushes"), */
 	PERF_INFO_TP("kmem/kmalloc",			"Kmalloc"),
 	PERF_INFO_TP("kmem/kmalloc_node",		"Kmalloc Node"),
 	PERF_INFO_TP("kmem/kfree",			"Kfree"),
