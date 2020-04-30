@@ -1042,7 +1042,7 @@ static int get_class(char *const class_str, uint32_t *class)
 		uint32_t cl = get_class_id(token);
 		if (!cl) {
 			size_t i;
-			size_t len = strlen(token);
+			const size_t len = strlen(token);
 
 			if ((len > 1) && (token[len - 1] == '?')) {
 				token[len - 1] = '\0';
@@ -1087,7 +1087,7 @@ static int stress_exclude(void)
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_id_t id;
 		stress_proc_info_t *pi = procs_head;
-		uint32_t i = stressor_name_find(token);
+		const uint32_t i = stressor_name_find(token);
 
 		if (!stressors[i].name) {
 			(void)fprintf(stderr, "Unknown stressor: '%s', "
@@ -1409,6 +1409,7 @@ static void MLOCKED_TEXT wait_procs(
 
 				for (j = 0; j < pi->started_procs; j++) {
 					const pid_t pid = pi->pids[j];
+
 					if (pid) {
 						cpu_set_t mask;
 						int32_t cpu_num;
@@ -1845,9 +1846,8 @@ static int show_stressors(void)
 		const int32_t n = pi->num_procs;
 
 		if (n) {
-			ssize_t buffer_len;
-
-			buffer_len = snprintf(buffer, sizeof(buffer),
+			const ssize_t buffer_len =
+				snprintf(buffer, sizeof(buffer),
 					"%s %" PRId32 " %s",
 					previous ? "," : "", n,
 					stress_munge_underscore(pi->stressor->name));
@@ -1894,7 +1894,7 @@ static void metrics_dump(
 		uint64_t c_total = 0, u_total = 0, s_total = 0, us_total;
 		double   r_total = 0.0;
 		int32_t  j;
-		char *munged = stress_munge_underscore(pi->stressor->name);
+		const char *munged = stress_munge_underscore(pi->stressor->name);
 		double u_time, s_time, bogo_rate_r_time, bogo_rate;
 		bool run_ok = false;
 
@@ -2351,7 +2351,7 @@ static inline void set_random_stressors(void)
 
 	if (g_opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
-		int32_t n_procs = get_num_procs();
+		const int32_t n_procs = get_num_procs();
 
 		if (g_opt_flags & OPT_FLAGS_SET) {
 			(void)fprintf(stderr, "Cannot specify random "
@@ -2369,7 +2369,7 @@ static inline void set_random_stressors(void)
 		/* create n randomly chosen stressors */
 		while (n > 0) {
 			int32_t rnd = stress_mwc32() % ((opt_random >> 5) + 2);
-			int32_t i = stress_mwc32() % n_procs;
+			const int32_t i = stress_mwc32() % n_procs;
 			stress_proc_info_t *pi = get_nth_proc(i);
 
 			if (!pi)
