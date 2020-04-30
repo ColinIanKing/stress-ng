@@ -83,7 +83,7 @@ void stress_mwc_reseed(void)
 		struct rusage r;
 		double m1, m5, m15;
 		int i, n;
-		uint64_t aux_rnd = stress_aux_random_seed();
+		const uint64_t aux_rnd = stress_aux_random_seed();
 		const ptrdiff_t p1 = (ptrdiff_t)&__mwc.z;
 		const ptrdiff_t p2 = (ptrdiff_t)&tv;
 
