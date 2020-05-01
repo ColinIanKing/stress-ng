@@ -70,6 +70,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
+#if defined(HAVE_LINUX_UDP_H) &&	\
+    defined(HAVE_LINUX_IF_PACKET_H)
 /*
  *  stress_rawpkt_getsockopts()
  *	fetch some SOL_PACKET specific stats, ignore failures
@@ -191,8 +193,6 @@ static void stress_rawpkt_getsockopts(const int fd)
 #endif
 }
 
-#if defined(HAVE_LINUX_UDP_H) &&	\
-    defined(HAVE_LINUX_IF_PACKET_H)
 /*
  *  stress_rawpkt_client()
  *	client sender
