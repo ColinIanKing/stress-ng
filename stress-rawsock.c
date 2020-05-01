@@ -111,6 +111,15 @@ again:
 			if (rc < 0)
 				break;
 			pkt.data++;
+#if defined(SIOCOUTQ)
+			/* Occasionally exercise SIOCINQ */
+			if ((pkt.data & 0xff) == 0) {
+				int ret, queued;
+
+				ret = ioctl(fd, SIOCOUTQ, &queued);
+				(void)ret;
+			}
+#endif
 		} while (keep_stressing());
 		(void)close(fd);
 
@@ -148,6 +157,16 @@ again:
 					pr_fail_dbg("recvfrom");
 				break;
 			}
+
+#if defined(SIOCINQ)
+			/* Occasionally exercise SIOCINQ */
+			if ((pkt.data & 0xff) == 0) {
+				int ret, queued;
+
+				ret = ioctl(fd, SIOCINQ, &queued);
+				(void)ret;
+			}
+#endif
 			inc_counter(args);
 		} while (keep_stressing());
 
