@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#include <linux/if_packet.h>
-
 #if !defined(SOL_UDP)
 #define SOL_UDP 	(17)
 #endif
