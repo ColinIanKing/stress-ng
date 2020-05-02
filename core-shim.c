@@ -586,8 +586,7 @@ int shim_munlockall(void)
  */
 int shim_nanosleep_uint64(uint64_t nsec)
 {
-#if defined(HAVE_NANOSLEEP) &&	\
-    !defined(STRESS_RISC_V)
+#if defined(HAVE_NANOSLEEP)
 	struct timespec t, trem;
 
 	t.tv_sec = nsec / 1000000000;
