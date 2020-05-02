@@ -59,8 +59,7 @@ static inline int shim_enosys(long arg1, ...)
  */
 int shim_sched_yield(void)
 {
-#if defined(HAVE_SCHED_YIELD) &&	\
-    !defined(STRESS_RISC_V)
+#if defined(HAVE_SCHED_YIELD)
 	return sched_yield();
 #else
 	return sleep(0);
