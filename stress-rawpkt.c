@@ -284,7 +284,6 @@ err:
  */
 static int stress_rawpkt_server(
 	const stress_args_t *args,
-	struct ifreq *hwaddr,
 	struct ifreq *ifaddr,
 	const int port)
 {
@@ -294,7 +293,6 @@ static int stress_rawpkt_server(
 	struct ethhdr *eth = (struct ethhdr *)buf;
 	const struct iphdr *ip = (struct iphdr *)(buf + sizeof(struct ethhdr));
 	const struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
-	struct ifreq ifr;
 	struct sockaddr saddr;
 	int saddr_len = sizeof(saddr);
 	const uint32_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifaddr->ifr_addr))->sin_addr)));
@@ -325,7 +323,7 @@ static int stress_rawpkt_server(
 		}
 #if defined(SIOCINQ)
 		/* Exercise SIOCINQ */
-		{
+		if ((all_pkts & 0xff) == 0) {
 			int ret, queued;
 
 			ret = ioctl(fd, SIOCINQ, &queued);
@@ -409,7 +407,7 @@ again:
 	} else {
 		int status;
 
-		rc = stress_rawpkt_server(args, &hwaddr, &ifaddr, port);
+		rc = stress_rawpkt_server(args, &ifaddr, port);
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
