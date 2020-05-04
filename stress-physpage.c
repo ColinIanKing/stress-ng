@@ -59,6 +59,7 @@ static int stress_virt_to_phys(
 {
 	off_t offset;
 	uint64_t pageinfo;
+	ssize_t n;
 
 	offset = (virt_addr / page_size) * sizeof(uint64_t);
 	if (lseek(fd_pm, offset, SEEK_SET) != offset) {
@@ -66,9 +67,14 @@ static int stress_virt_to_phys(
 			args->name, (void *)virt_addr, errno, strerror(errno));
 		goto err;
 	}
-	if (read(fd_pm, &pageinfo, sizeof(pageinfo)) != sizeof(pageinfo)) {
+	n = read(fd_pm, &pageinfo, sizeof(pageinfo));
+	if (n < 0) {
 		pr_err("%s: cannot read address %p in /proc/self/pagemap, errno=%d (%s)\n",
 			args->name, (void *)virt_addr, errno, strerror(errno));
+		goto err;
+	} else if (n != (ssize_t)sizeof(pageinfo)) {
+		pr_err("%s: read address %p in /proc/self/pagemap returned %zd bytes, expected %zd\n",
+			args->name, (void *)virt_addr, (size_t)n, sizeof(pageinfo));
 		goto err;
 	}
 
