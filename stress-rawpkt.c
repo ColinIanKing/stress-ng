@@ -199,8 +199,10 @@ static void stress_rawpkt_getsockopts(const int fd)
  */
 static void stress_rawpkt_client(
 	const stress_args_t *args,
+	struct ifreq *hwaddr,
+	struct ifreq *ifaddr,
+	struct ifreq *idx,
 	const pid_t ppid,
-	struct ifreq *ifr,
 	const int port)
 {
 	int rc = EXIT_FAILURE;
@@ -217,8 +219,8 @@ static void stress_rawpkt_client(
 
 	(void)memset(buf, 0, sizeof(buf));
 
-	(void)memcpy(eth->h_dest, ifr->ifr_hwaddr.sa_data, sizeof(eth->h_dest));
-	(void)memcpy(eth->h_source, ifr->ifr_hwaddr.sa_data, sizeof(eth->h_dest));
+	(void)memcpy(eth->h_dest, hwaddr->ifr_addr.sa_data, sizeof(eth->h_dest));
+	(void)memcpy(eth->h_source, hwaddr->ifr_addr.sa_data, sizeof(eth->h_dest));
 	eth->h_proto = htons(ETH_P_IP);
 
 	ip->ihl = 5;		/* Header length in 32 bit words */
@@ -227,14 +229,14 @@ static void stress_rawpkt_client(
 	ip->tot_len = sizeof(struct iphdr) + sizeof(struct udphdr);
 	ip->ttl = 16;  		/* Not too many hops! */
 	ip->protocol = SOL_UDP;	/* UDP protocol */
-	ip->saddr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifr->ifr_addr))->sin_addr)));
+	ip->saddr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifaddr->ifr_addr))->sin_addr)));
 	ip->daddr = ip->saddr;
 
 	udp->source = htons(port);
 	udp->dest = htons(port);
 	udp->len = htons(sizeof(struct udphdr));
 
-	sadr.sll_ifindex = ifr->ifr_ifindex;
+	sadr.sll_ifindex = idx->ifr_ifindex;
 	sadr.sll_halen = ETH_ALEN;
 	(void)memcpy(&sadr.sll_addr, eth->h_dest, sizeof(eth->h_dest));
 
@@ -282,7 +284,8 @@ err:
  */
 static int stress_rawpkt_server(
 	const stress_args_t *args,
-	struct ifreq *ifr,
+	struct ifreq *hwaddr,
+	struct ifreq *ifaddr,
 	const int port)
 {
 	int fd;
@@ -291,9 +294,10 @@ static int stress_rawpkt_server(
 	struct ethhdr *eth = (struct ethhdr *)buf;
 	const struct iphdr *ip = (struct iphdr *)(buf + sizeof(struct ethhdr));
 	const struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
+	struct ifreq ifr;
 	struct sockaddr saddr;
 	int saddr_len = sizeof(saddr);
-	const uint32_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifr->ifr_addr))->sin_addr)));
+	const uint32_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifaddr->ifr_addr))->sin_addr)));
 	uint64_t all_pkts = 0;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
@@ -325,7 +329,6 @@ static int stress_rawpkt_server(
 			int ret, queued;
 
 			ret = ioctl(fd, SIOCINQ, &queued);
-			printf("%d\n", queued);
 			(void)ret;
 		}
 #endif
@@ -355,7 +358,7 @@ static int stress_rawpkt(const stress_args_t *args)
 	pid_t pid;
 	int port = DEFAULT_RAWPKT_PORT;
 	int fd, rc = EXIT_FAILURE;
-	struct ifreq ifr;
+	struct ifreq hwaddr, ifaddr, idx;
 
 	(void)stress_get_setting("rawpkt-port", &port);
 
@@ -365,19 +368,29 @@ static int stress_rawpkt(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	(void)memset(&ifr, 0, sizeof(ifr));
-	strcpy(ifr.ifr_name, "lo");
 	if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
 		pr_fail_err("socket");
 		return EXIT_FAILURE;
 	}
-	if (ioctl(fd, SIOCGIFHWADDR, &ifr) < 0) {
+	(void)memset(&hwaddr, 0, sizeof(hwaddr));
+	strcpy(hwaddr.ifr_name, "lo");
+	if (ioctl(fd, SIOCGIFHWADDR, &hwaddr) < 0) {
 		pr_fail_err("ioctl SIOCGIFHWADDR on lo");
 		(void)close(fd);
 		return EXIT_FAILURE;
 	}
 
-	if (ioctl(fd, SIOCGIFADDR, &ifr) < 0) {
+	(void)memset(&ifaddr, 0, sizeof(ifaddr));
+	strcpy(ifaddr.ifr_name, "lo");
+	if (ioctl(fd, SIOCGIFADDR, &ifaddr) < 0) {
+		pr_fail_err("ioctl SIGHGIFADDR on lo");
+		(void)close(fd);
+		return EXIT_FAILURE;
+	}
+
+	(void)memset(&idx, 0, sizeof(idx));
+	strcpy(idx.ifr_name, "lo");
+	if (ioctl(fd, SIOCGIFINDEX, &idx) < 0) {
 		pr_fail_err("ioctl SIGHGIFADDR on lo");
 		(void)close(fd);
 		return EXIT_FAILURE;
@@ -391,12 +404,12 @@ again:
 		pr_fail_dbg("fork");
 		return rc;
 	} else if (pid == 0) {
-		stress_rawpkt_client(args, args->pid, &ifr, port);
+		stress_rawpkt_client(args, &hwaddr, &ifaddr, &idx, args->pid, port);
 		_exit(EXIT_SUCCESS);
 	} else {
 		int status;
 
-		rc = stress_rawpkt_server(args, &ifr, port);
+		rc = stress_rawpkt_server(args, &hwaddr, &ifaddr, port);
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
