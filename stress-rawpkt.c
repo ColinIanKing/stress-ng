@@ -254,6 +254,15 @@ static void stress_rawpkt_client(
 			pr_err("%s: raw socket sendto failed on port %d, errno=%d (%s)\n",
 				args->name, port, errno, strerror(errno));
 		}
+#if defined(SIOCOUTQ)
+			/* Occasionally exercise SIOCOUTQ */
+			if ((id & 0xff) == 0) {
+				int ret, queued;
+
+				ret = ioctl(fd, SIOCOUTQ, &queued);
+				(void)ret;
+			}
+#endif
 	} while (keep_stressing());
 
 	stress_rawpkt_getsockopts(fd);
@@ -310,6 +319,16 @@ static int stress_rawpkt_server(
 				inc_counter(args);
 			}
 		}
+#if defined(SIOCINQ)
+		/* Exercise SIOCINQ */
+		{
+			int ret, queued;
+
+			ret = ioctl(fd, SIOCINQ, &queued);
+			printf("%d\n", queued);
+			(void)ret;
+		}
+#endif
 	} while (keep_stressing());
 
 	stress_rawpkt_getsockopts(fd);
