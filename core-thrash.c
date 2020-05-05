@@ -29,6 +29,15 @@
 #define KSM_RUN_MERGE		"1"
 
 static pid_t thrash_pid;
+static pid_t parent_pid;
+volatile bool thrash_run;
+
+static void MLOCKED_TEXT stress_thrash_handler(int signum)
+{
+	(void)signum;
+
+	thrash_run = false;
+}
 
 /*
  *  stress_pagein_proc()
@@ -38,14 +47,12 @@ static int stress_pagein_proc(const pid_t pid)
 {
 	char path[PATH_MAX];
 	char buffer[4096];
-	int fdmem, ret;
+	int fdmem, rc = 0;
 	FILE *fpmap;
 	const size_t page_size = stress_get_pagesize();
-	size_t pages = 0;
 
-	ret = ptrace(PTRACE_ATTACH, pid, NULL, NULL);
-	if (ret < 0)
-		return -errno;
+	if ((pid == parent_pid) || (pid == getpid()))
+		return 0;
 
 	(void)snprintf(path, sizeof(path), "/proc/%d/mem", pid);
 	fdmem = open(path, O_RDONLY);
@@ -55,14 +62,14 @@ static int stress_pagein_proc(const pid_t pid)
 	(void)snprintf(path, sizeof(path), "/proc/%d/maps", pid);
 	fpmap = fopen(path, "r");
 	if (!fpmap) {
-		(void)close(fdmem);
-		return -errno;
+		rc = -errno;
+		goto exit_fdmem;
 	}
 
 	/*
 	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
 	 */
-	while (fgets(buffer, sizeof(buffer), fpmap)) {
+	while (thrash_run && fgets(buffer, sizeof(buffer), fpmap)) {
 		uintmax_t begin, end, len;
 		uintptr_t off;
 		char tmppath[1024];
@@ -84,12 +91,11 @@ static int stress_pagein_proc(const pid_t pid)
 		if (len > 0x80000000UL)
 			continue;
 
-		for (off = begin; off < end; off += page_size, pages++) {
+		for (off = begin; thrash_run && (off < end); off += page_size) {
 			unsigned long data;
 			off_t pos;
 			size_t sz;
 
-			(void)ptrace(PTRACE_PEEKDATA, pid, (void *)off, &data);
 			pos = lseek(fdmem, off, SEEK_SET);
 			if (pos != (off_t)off)
 				continue;
@@ -98,11 +104,11 @@ static int stress_pagein_proc(const pid_t pid)
 		}
 	}
 
-	(void)ptrace(PTRACE_DETACH, pid, NULL, NULL);
 	(void)fclose(fpmap);
+exit_fdmem:
 	(void)close(fdmem);
 
-	return 0;
+	return rc;
 }
 
 /*
@@ -113,6 +119,9 @@ static inline void stress_compact_memory(void)
 {
 #if defined(__linux__)
 	int ret;
+
+	if (!thrash_run)
+		return;
 
 	ret = system_write("/proc/sys/vm/compact_memory", "1", 1);
 	(void)ret;
@@ -128,6 +137,9 @@ static inline void stress_zone_reclaim(void)
 #if defined(__linux__)
 	int ret;
 	char mode[2];
+
+	if (!thrash_run)
+		return;
 
 	mode[0] = '0' + (stress_mwc8() & 7);
 	mode[1] = '\0';
@@ -147,6 +159,9 @@ static inline void stress_merge_memory(void)
 #if defined(__linux__)
 	int ret;
 
+	if (!thrash_run)
+		return;
+
 	ret = system_write("/proc/sys/mm/ksm/run", KSM_RUN_MERGE, 1);
 	(void)ret;
 #endif
@@ -165,11 +180,21 @@ static int stress_pagein_all_procs(void)
 	if (!dp)
 		return -1;
 
-	while ((d = readdir(dp)) != NULL) {
+	while (thrash_run && ((d = readdir(dp)) != NULL)) {
 		pid_t pid;
 
 		if (isdigit(d->d_name[0]) &&
 		    sscanf(d->d_name, "%d", &pid) == 1) {
+			char procpath[128];
+			struct stat statbuf;
+
+			(void)snprintf(procpath, sizeof(procpath), "/proc/%d", pid);
+			if (stat(procpath, &statbuf) < 0)
+				continue;
+
+			if (statbuf.st_uid == 0)
+				continue;
+
 			stress_pagein_proc(pid);
 		}
 	}
@@ -192,8 +217,11 @@ int stress_thrash_start(void)
 		pr_err("thrash background process already started\n");
 		return -1;
 	}
+	parent_pid = getpid();
+	thrash_run = true;
 	thrash_pid = fork();
 	if (thrash_pid < 0) {
+		thrash_run = false;
 		pr_err("thrash background process failed to fork: %d (%s)\n",
 			errno, strerror(errno));
 		return -1;
@@ -201,19 +229,22 @@ int stress_thrash_start(void)
 #if defined(SCHED_RR)
 		int ret;
 
-		stress_set_proc_name("stress-ng-thrash");
-
 		ret = stress_set_sched(getpid(), SCHED_RR, 10, true);
 		(void)ret;
 #endif
-		while (keep_stressing_flag()) {
-			if ((stress_mwc8() & 0x3f) == 0)
+		stress_set_proc_name("stress-ng-thrash");
+		if (stress_sighandler("main", SIGALRM, stress_thrash_handler, NULL) < 0)
+			_exit(0);
+
+		while (thrash_run) {
+			if ((stress_mwc8() & 0x3) == 0)
 				stress_pagein_all_procs();
 			stress_compact_memory();
 			stress_merge_memory();
 			stress_zone_reclaim();
 			(void)sleep(1);
 		}
+		thrash_run = false;
 		_exit(0);
 	}
 	return 0;
@@ -227,11 +258,18 @@ void stress_thrash_stop(void)
 {
 	int status;
 
+	thrash_run = false;
+
 	if (!thrash_pid)
 		return;
 
-	(void)kill(thrash_pid, SIGKILL);
+	(void)kill(thrash_pid, SIGALRM);
 	(void)shim_waitpid(thrash_pid, &status, 0);
+	if (kill(thrash_pid, 0) == 0) {
+		shim_usleep(250000);
+		(void)kill(thrash_pid, SIGKILL);
+		(void)shim_waitpid(thrash_pid, &status, 0);
+	}
 
 	thrash_pid = 0;
 }
