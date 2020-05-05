@@ -174,7 +174,7 @@ static int stress_access(const stress_args_t *args)
 	rc = EXIT_SUCCESS;
 tidy:
 	if (fd >= 0) {
-		(void)fchmod(fd, 0666);
+		(void)fchmod(fd, S_IRUSR | S_IWUSR);
 		(void)close(fd);
 	}
 	(void)unlink(filename);
