@@ -925,19 +925,27 @@ static void stress_dev_hpet_linux(
 	const int fd,
 	const char *devpath)
 {
-#if defined(HPET_INFO)
-	struct hpet_info info;
-	int ret;
-
-	(void)name;
-	(void)devpath;
-
-	ret = ioctl(fd, HPET_INFO, &info);
-	(void)ret;
-#else
 	(void)name;
 	(void)fd;
 	(void)devpath;
+
+#if defined(HPET_INFO)
+	{
+		struct hpet_info info;
+		int ret;
+
+		ret = ioctl(fd, HPET_INFO, &info);
+		(void)ret;
+	}
+#endif
+#if defined(HPET_IRQFREQ)
+	{
+		unsigned long freq;
+		int ret;
+
+		ret = ioctl(fd, HPET_IRQFREQ, &freq);
+		(void)ret;
+	}
 #endif
 }
 #endif
