@@ -442,7 +442,7 @@ static char *stress_random_pid(void)
 	int i, n;
 	unsigned int j;
 
-	(void)strcpy(path, "/proc/self");
+	(void)shim_strlcpy(path, "/proc/self", sizeof(path));
 
 	n = scandir("/proc", &dlist, NULL, mixup_sort);
 	if (!n) {
