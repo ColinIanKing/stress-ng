@@ -371,7 +371,7 @@ static int stress_rawpkt(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 	(void)memset(&hwaddr, 0, sizeof(hwaddr));
-	strcpy(hwaddr.ifr_name, "lo");
+	(void)shim_strlcpy(hwaddr.ifr_name, "lo", sizeof(hwaddr.ifr_name));
 	if (ioctl(fd, SIOCGIFHWADDR, &hwaddr) < 0) {
 		pr_fail_err("ioctl SIOCGIFHWADDR on lo");
 		(void)close(fd);
@@ -379,7 +379,7 @@ static int stress_rawpkt(const stress_args_t *args)
 	}
 
 	(void)memset(&ifaddr, 0, sizeof(ifaddr));
-	strcpy(ifaddr.ifr_name, "lo");
+	(void)shim_strlcpy(ifaddr.ifr_name, "lo", sizeof(ifaddr.ifr_name));
 	if (ioctl(fd, SIOCGIFADDR, &ifaddr) < 0) {
 		pr_fail_err("ioctl SIGHGIFADDR on lo");
 		(void)close(fd);
@@ -387,7 +387,7 @@ static int stress_rawpkt(const stress_args_t *args)
 	}
 
 	(void)memset(&idx, 0, sizeof(idx));
-	strcpy(idx.ifr_name, "lo");
+	(void)shim_strlcpy(idx.ifr_name, "lo", sizeof(idx.ifr_name));
 	if (ioctl(fd, SIOCGIFINDEX, &idx) < 0) {
 		pr_fail_err("ioctl SIGHGIFADDR on lo");
 		(void)close(fd);
