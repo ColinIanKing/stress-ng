@@ -44,7 +44,8 @@ static const stress_help_t help[] = {
 
 #define DATA_SIZE DATA_SIZE_64K
 
-typedef void (*stress_zlib_rand_data_func)(const stress_args_t *args, uint32_t *data, const int size);
+typedef void (*stress_zlib_rand_data_func)(const stress_args_t *args,
+	uint32_t *data, const int size);
 
 typedef struct {
 	const char *name;			/* human readable form of random data generation selection */
@@ -172,7 +173,10 @@ static void MLOCKED_TEXT stress_bad_read_handler(int signum)
  *  stress_rand_data_bcd()
  *	fill buffer with random binary coded decimal digits
  */
-static void stress_rand_data_bcd(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_bcd(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	register uint8_t *ptr = (uint8_t *)data;
 	const uint8_t *end = ptr + size;
@@ -191,7 +195,10 @@ static void stress_rand_data_bcd(const stress_args_t *args, uint32_t *data, cons
  *  stress_rand_data_utf8()
  *	fill buffer with random bytes converted into utf8
  */
-static void stress_rand_data_utf8(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_utf8(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	const int n = size / sizeof(uint16_t);
 	register uint8_t *ptr = (uint8_t *)data;
@@ -220,7 +227,10 @@ static void stress_rand_data_utf8(const stress_args_t *args, uint32_t *data, con
  *  stress_rand_data_binary()
  *	fill buffer with random binary data
  */
-static void stress_rand_data_binary(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_binary(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	const int n = size / sizeof(*data);
 	register int i;
@@ -235,7 +245,10 @@ static void stress_rand_data_binary(const stress_args_t *args, uint32_t *data, c
  *  stress_rand_data_text()
  *	fill buffer with random ASCII text
  */
-static void stress_rand_data_text(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_text(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	(void)args;
 
@@ -246,7 +259,10 @@ static void stress_rand_data_text(const stress_args_t *args, uint32_t *data, con
  *  stress_rand_data_01()
  *	fill buffer with random ASCII 0 or 1
  */
-static void stress_rand_data_01(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_01(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	unsigned char *ptr = (unsigned char *)data;
 	register int i;
@@ -278,7 +294,10 @@ static void stress_rand_data_01(const stress_args_t *args, uint32_t *data, const
  *  stress_rand_data_digits()
  *	fill buffer with random ASCII '0' .. '9'
  */
-static void stress_rand_data_digits(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_digits(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	unsigned char *ptr = (unsigned char *)data;
 	register int i;
@@ -293,7 +312,10 @@ static void stress_rand_data_digits(const stress_args_t *args, uint32_t *data, c
  *  stress_rand_data_00_ff()
  *	fill buffer with random 0x00 or 0xff
  */
-static void stress_rand_data_00_ff(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_00_ff(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	unsigned char *ptr = (unsigned char *)data;
 	register int i;
@@ -318,7 +340,10 @@ static void stress_rand_data_00_ff(const stress_args_t *args, uint32_t *data, co
  *  stress_rand_data_nybble()
  *	fill buffer with 0x00..0x0f
  */
-static void stress_rand_data_nybble(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_nybble(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	unsigned char *ptr = (unsigned char *)data;
 	register int i;
@@ -350,7 +375,10 @@ static void stress_rand_data_nybble(const stress_args_t *args, uint32_t *data, c
  *  stress_rand_data_rarely_1()
  *	fill buffer with data that is 1 in every 32 bits 1
  */
-static void stress_rand_data_rarely_1(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_rarely_1(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	const int n = size / sizeof(*data);
 	register int i;
@@ -365,7 +393,10 @@ static void stress_rand_data_rarely_1(const stress_args_t *args, uint32_t *data,
  *  stress_rand_data_rarely_0()
  *	fill buffer with data that is 1 in every 32 bits 0
  */
-static void stress_rand_data_rarely_0(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_rarely_0(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	const int n = size / sizeof(*data);
 	register int i;
@@ -380,7 +411,10 @@ static void stress_rand_data_rarely_0(const stress_args_t *args, uint32_t *data,
  *  stress_rand_data_fixed()
  *	fill buffer with data that is 0x04030201
  */
-static void stress_rand_data_fixed(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_fixed(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	const int n = size / sizeof(*data);
 	register int i;
@@ -395,7 +429,10 @@ static void stress_rand_data_fixed(const stress_args_t *args, uint32_t *data, co
  *  stress_rand_data_double()
  *	fill buffer with double precision floating point binary data
  */
-static void stress_rand_data_double(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_double(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	const int n = size / sizeof(double);
 	uint8_t *ptr = (uint8_t *)data;
@@ -419,7 +456,10 @@ static void stress_rand_data_double(const stress_args_t *args, uint32_t *data, c
  *	fill buffer with gray code of incrementing 16 bit values
  *
  */
-static void stress_rand_data_gray(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_gray(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	const int n = size / sizeof(uint16_t);
 	static uint16_t val = 0;
@@ -440,7 +480,10 @@ static void stress_rand_data_gray(const stress_args_t *args, uint32_t *data, con
  *  stress_rand_data_parity()
  *	fill buffer with 7 bit data + 1 parity bit
  */
-static void stress_rand_data_parity(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_parity(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	uint8_t *ptr = (uint8_t *)data;
 	register int i;
@@ -504,7 +547,10 @@ static inline uint32_t stress_builtin_ctz(register uint32_t x)
  *	the Gardner method with the McCartney
  *	selection tree optimization
  */
-static void stress_rand_data_pink(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_pink(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	int i;
 	unsigned char *ptr = (unsigned char *)data;
@@ -543,7 +589,10 @@ static void stress_rand_data_pink(const stress_args_t *args, uint32_t *data, con
  *  stress_rand_data_brown()
  *	fills buffer with brown noise.
  */
-static void stress_rand_data_brown(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_brown(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	static uint8_t val = 127;
 	register int i;
@@ -563,7 +612,10 @@ static void stress_rand_data_brown(const stress_args_t *args, uint32_t *data, co
  *	x = r * x * (x - 1.0) where r is the accumulation point
  *	based on A098587. Data is scaled in the range 0..255
  */
-static void stress_rand_data_logmap(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_logmap(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	double x = 0.4;
 	/*
@@ -596,7 +648,10 @@ static void stress_rand_data_logmap(const stress_args_t *args, uint32_t *data, c
  *  stress_rand_data_lrand48()
  *	fills buffer with random data from lrand48
  */
-static void stress_rand_data_lrand48(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_lrand48(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	static bool seeded = false;
 	const int n = size / sizeof(*data);
@@ -617,7 +672,10 @@ static void stress_rand_data_lrand48(const stress_args_t *args, uint32_t *data, 
  *  stress_rand_data_latin()
  *	fill buffer with random latin Lorum Ipsum text.
  */
-static void stress_rand_data_latin(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_latin(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	register int i;
 	static const char *ptr = NULL;
@@ -640,7 +698,10 @@ static void stress_rand_data_latin(const stress_args_t *args, uint32_t *data, co
  *  stress_rand_data_morse()
  *	fill buffer with morse encoded random latin Lorum Ipsum text.
  */
-static void stress_rand_data_morse(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_morse(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	register int i;
 	static const char *ptr = NULL;
@@ -686,7 +747,10 @@ static void stress_rand_data_morse(const stress_args_t *args, uint32_t *data, co
  *  stress_rand_data_objcode()
  *	fill buffer with object code data from stress-ng
  */
-static void stress_rand_data_objcode(const stress_args_t *args, uint32_t *const data, const int size)
+static void stress_rand_data_objcode(
+	const stress_args_t *args,
+	uint32_t *const data,
+	const int size)
 {
 	const int n = size / sizeof(*data);
 	register int i;
@@ -748,7 +812,10 @@ static void stress_rand_data_objcode(const stress_args_t *args, uint32_t *const 
  *  stress_rand_data_zero()
  *	fill buffer with zeros
  */
-static void stress_rand_data_zero(const stress_args_t *args, uint32_t *data, const int size)
+static void stress_rand_data_zero(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	(void)args;
 	(void)memset(data, 0, size);
@@ -782,7 +849,10 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
  *  stress_zlib_random_test()
  *	randomly select data generation function
  */
-static HOT OPTIMIZE3 void stress_zlib_random_test(const stress_args_t *args, uint32_t *data, const int size)
+static HOT OPTIMIZE3 void stress_zlib_random_test(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
 {
 	rand_data_funcs[stress_mwc32() % SIZEOF_ARRAY(rand_data_funcs)](args, data, size);
 }
@@ -899,9 +969,9 @@ static const char *stress_zlib_err(const int zlib_err)
  *	end of a pipe fd
  */
 static int stress_zlib_inflate(
-		const stress_args_t *args,
-		const int fd,
-		const int xsum_fd)
+	const stress_args_t *args,
+	const int fd,
+	const int xsum_fd)
 {
 	int ret, err = 0;
 	z_stream stream_inf;
@@ -1015,10 +1085,10 @@ xsum_error:
  *	write end of a pipe fd
  */
 static int stress_zlib_deflate(
-		const stress_args_t *args,
-		const int fd,
-		const int xsum_fd,
-		const int zlib_level)
+	const stress_args_t *args,
+	const int fd,
+	const int xsum_fd,
+	const int zlib_level)
 {
 	int ret, err = 0;
 	bool do_run;
@@ -1140,7 +1210,8 @@ xsum_error:
  */
 static int stress_zlib(const stress_args_t *args)
 {
-	int ret = EXIT_SUCCESS, fds[2], deflate_xsum_fds[2], inflate_xsum_fds[2], status;
+	int ret = EXIT_SUCCESS, fds[2];
+	int deflate_xsum_fds[2], inflate_xsum_fds[2], status;
 	int err = 0;
 	pid_t pid;
 	stress_xsum_t deflate_xsum, inflate_xsum;
