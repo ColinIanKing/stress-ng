@@ -336,7 +336,7 @@ again:
 			opcode_method->func(ops_begin, ops_end, &op);
 
 			(void)mprotect(ops_begin, page_size, PROT_READ | PROT_EXEC);
-			shim_clear_cache((char *)ops_begin, (char *)ops_end);
+			shim_flush_icache((char *)ops_begin, (char *)ops_end);
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 

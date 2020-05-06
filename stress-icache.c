@@ -111,9 +111,9 @@ func_name(const stress_args_t *args)						\
 			 * as the default code assumes smart x86 style	\
 			 * I$ behaviour.				\
 			 */						\
-			shim_clear_cache((char *)addr, (char *)addr + 64);\
+			shim_flush_icache((char *)addr, (char *)addr + 64);\
 			*vaddr = val;					\
-			shim_clear_cache((char *)addr, (char *)addr + 64);\
+			shim_flush_icache((char *)addr, (char *)addr + 64);\
 			/*						\
 			 *  Set back to a text segment READ/EXEC page	\
 			 *  attributes, this really should not fail.	\

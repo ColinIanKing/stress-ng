@@ -275,16 +275,18 @@ int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
 }
 
 /*
- *  shim_clear_cache()
- *	wrapper for ARM GNUC clear cache intrinsic
+ *  shim_flush_icache()
+ *	wrapper for RISC-V icache flush and ARM __clear_cache gcc intrinsic
  */
-void shim_clear_cache(char* begin, char *end)
+void shim_flush_icache(void *begin, void *end)
 {
 #if defined(__GNUC__) && defined(STRESS_ARCH_ARM)
+	(void)flags;
 	__clear_cache(begin, end);
+#elif defined(STRESS_ARCH_RISC_V) && defined(__NR_riscv_flush_icache)
+	riscv_flush_icache(begin, end, 0)
 #else
-	(void)begin;
-	(void)end;
+	(void)shim_enosys(0, begin, end);
 #endif
 }
 

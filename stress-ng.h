@@ -1612,6 +1612,11 @@ extern void pr_fail_args_dbg(const stress_args_t *args, const char *msg);
 #define STRESS_ARCH_ARM		(1)
 #endif
 
+/* Arch specific RISC-V */
+#if defined(__riscv)
+#define STRESS_ARCH_RISC_V	(1)
+#endif
+
 /* Arch specific, IBM S390 */
 #if defined(__s390__)
 #define STRESS_ARCH_S390	(1)
@@ -3716,7 +3721,7 @@ struct shim_timex {
 
 extern int shim_brk(void *addr);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
-extern void shim_clear_cache(char* begin, char *end);
+extern void shim_flush_icache(void *begin, void *end);
 extern int shim_clock_adjtime(clockid_t clk_id, struct shim_timex *tx);
 extern int shim_clock_getres(clockid_t clk_id, struct timespec *res);
 extern int shim_clock_gettime(clockid_t clk_id, struct timespec *tp);
