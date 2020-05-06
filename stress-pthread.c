@@ -170,7 +170,13 @@ static void *stress_pthread_func(void *parg)
 		 *  Exercise get_thread_area only for x86
 		 */
 		ret = syscall(__NR_get_thread_area, &u_info);
+#if defined(HAVE_GET_THREAD_AREA)
+		if (ret == 0) {
+			ret = syscall(__NR_set_thread_area, &u_info);
+		}
+#else
 		(void)ret;
+#endif
 	}
 #endif
 

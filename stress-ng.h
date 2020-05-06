@@ -698,6 +698,10 @@
 #define HAVE_SET_ROBUST_LIST
 #endif
 
+#if defined(__NR_set_thread_area)
+#define HAVE_SET_THREAD_AREA
+#endif
+
 #if defined(__NR_syslog)
 #define HAVE_SYSLOG
 #endif
