@@ -284,7 +284,7 @@ void shim_flush_icache(void *begin, void *end)
 	(void)flags;
 	__clear_cache(begin, end);
 #elif defined(STRESS_ARCH_RISC_V) && defined(__NR_riscv_flush_icache)
-	riscv_flush_icache(begin, end, 0)
+	riscv_flush_icache(begin, end, 0);
 #else
 	(void)shim_enosys(0, begin, end);
 #endif
