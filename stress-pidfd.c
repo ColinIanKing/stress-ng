@@ -35,9 +35,18 @@ static const stress_help_t help[] = {
 static int stress_pidfd_open_fd(pid_t pid)
 {
 	char buffer[1024];
+	int fd = -1;
 
-	(void)snprintf(buffer, sizeof(buffer), "/proc/%d", pid);
-	return open(buffer, O_DIRECTORY | O_CLOEXEC);
+	/* Randomly try pidfd_open first */
+	if (stress_mwc1()) {
+		fd = shim_pidfd_open(pid, 0);
+	}
+	if (fd < 0) {
+		/* ..or fallback to open on /proc/$PID */
+		(void)snprintf(buffer, sizeof(buffer), "/proc/%d", pid);
+		fd = open(buffer, O_DIRECTORY | O_CLOEXEC);
+	}
+	return fd;
 }
 
 static int stress_pidfd_supported(const char *name)
