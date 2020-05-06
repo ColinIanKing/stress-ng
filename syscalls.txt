@@ -245,7 +245,7 @@ readdir				fstat, inotitfy, proc
 readlink			symlink
 readlinkat
 readv				hdd
-reboot				[ need privilege, ignore for now ]
+reboot				reboot
 recv				sock
 recvfrom			udp
 recvmsg				socket-fd
