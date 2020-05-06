@@ -154,9 +154,9 @@ link				link
 linkat
 listen				sock
 listxattr			xattr
-llistxattr
+llistxattr			xattr
 lookup_dcookie
-lremovexattr
+lremovexattr			xattr
 lseek				hdd, lockf, mmap, seek
 lsetxattr			xattr
 lstat				fstat

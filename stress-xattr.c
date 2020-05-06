@@ -188,12 +188,21 @@ static int stress_xattr(const stress_args_t *args)
 
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 
-			if (j & 1) {
+			switch (j % 3) {
+			case 0:
 				ret = shim_fremovexattr(fd, attrname);
 				errmsg = "fremovexattr";
-			} else {
+				break;
+#if defined(HAVE_LREMOVEXATTR)
+			case 1:
+				ret = shim_lremovexattr(filename, attrname);
+				errmsg = "lremovexattr";
+				break;
+#endif
+			default:
 				ret = shim_removexattr(filename, attrname);
 				errmsg = "removexattr";
+				break;
 			}
 			if (ret < 0) {
 				pr_fail_err(errmsg);

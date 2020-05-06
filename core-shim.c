@@ -1507,6 +1507,19 @@ int shim_removexattr(const char *path, const char *name)
 }
 
 /*
+ *  shim_lremovexattr
+ *	wrapper for lremovexattr
+ */
+int shim_lremovexattr(const char *path, const char *name)
+{
+#if defined(HAVE_LREMOVEXATTR)
+	return lremovexattr(path, name);
+#else
+	return shim_enosys(0, path, name);
+#endif
+}
+
+/*
  *  shim_fremovexattr
  *	wrapper for fremovexattr
  */
