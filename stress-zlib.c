@@ -184,10 +184,15 @@ static void stress_rand_data_bcd(
 	(void)args;
 
 	while (ptr < end) {
-		uint8_t rndval = stress_mwc8() % 100;
-
-		/* Not the most efficient but it works */
-		*ptr++ = (rndval % 10) | ((rndval / 10) << 4);
+		register uint32_t r = stress_mwc32();
+		register uint32_t t = (r * 0x290) >> 16;
+		/* v = r % 100 using multiplication rather than division */
+		register uint32_t v = r - (t * 100);
+		register uint32_t d1 = (v * 0x199a) >> 16;
+		/* d1 = v / 10 using multiplication rather than division */
+		register uint8_t  d0 = v - (d1 * 10);
+		/* d0 = v % 10 using multiplication rather than division */
+		*ptr++ = (d1 << 4 | d0);
 	}
 }
 
