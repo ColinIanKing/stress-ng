@@ -299,7 +299,7 @@ set_mempolicy			numa
 set_robust_list			pthread
 set_thread_area			pthread
 set_tid_address
-setdomainname			[ need privilege, ignore for now ]
+setdomainname			set
 setfsgid
 setfsuid
 setgid				set

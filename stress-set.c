@@ -34,7 +34,7 @@
 #endif
 
 #define check_do_run()			\
-	if (!keep_stressing_flag())	\
+	if (!keep_stressing())		\
 		break;			\
 
 #define GIDS_MAX 	(1024)
@@ -194,6 +194,19 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETRESGID)
 		ret = setresgid(-1, -1, -1);
 		(void)ret;
+#endif
+
+#if defined(HAVE_GETDOMAINNAME) &&	\
+    defined(HAVE_SETDOMAINNAME)
+		{
+			char name[128];
+
+			ret = getdomainname(name, sizeof(name));
+			if (ret == 0)
+				ret = setdomainname(name, strlen(name));
+			(void)ret;
+			check_do_run();
+		}
 #endif
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
