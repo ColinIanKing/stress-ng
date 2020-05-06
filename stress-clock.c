@@ -171,7 +171,6 @@ static int stress_clock(const stress_args_t *args)
 			size_t i;
 			struct timespec t;
 
-
 			/*
 			 *  Exercise clock_getres and clock_gettime for each clock
 			 */
@@ -220,6 +219,38 @@ static int stress_clock(const stress_args_t *args)
 			}
 		}
 #endif
+
+#if defined(__NR_clock_adjtime) &&	\
+    defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(ADJ_SETOFFSET)
+		{
+			size_t i;
+			struct shim_timex tx;
+
+			/*
+			 *  Exercise clock_adjtime
+			 */
+			for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
+				int ret;
+
+				(void)memset(&tx, 0, sizeof(tx));
+
+				tx.modes = ADJ_SETOFFSET;
+				tx.time.tv_sec = 0;
+				tx.time.tv_usec = 0;
+
+				ret = shim_clock_adjtime(clocks[i].id, &tx);
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
+			            (errno != EINVAL) && (errno != ENOSYS) &&
+				    (errno != EPERM) && (errno != EOPNOTSUPP)) {
+					pr_fail("%s: clock_adjtime failed for "
+						"timer '%s', errno=%d (%s)\n",
+							args->name, clocks[i].name, errno, strerror(errno));
+				}
+			}
+		}
+#endif
+
 
 #if defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\

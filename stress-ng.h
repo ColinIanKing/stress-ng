@@ -3706,9 +3706,18 @@ struct shim_ustat {
 #define P_PIDFD		(3)
 #endif
 
+#if defined(HAVE_SYS_TIMEX_H)
+#define shim_timex	timex
+#else
+struct shim_timex {
+	char data[128];
+};
+#endif
+
 extern int shim_brk(void *addr);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern void shim_clear_cache(char* begin, char *end);
+extern int shim_clock_adjtime(clockid_t clk_id, struct shim_timex *tx);
 extern int shim_clock_getres(clockid_t clk_id, struct timespec *res);
 extern int shim_clock_gettime(clockid_t clk_id, struct timespec *tp);
 extern int shim_clock_settime(clockid_t clk_id, struct timespec *tp);
