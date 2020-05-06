@@ -121,7 +121,7 @@ init_module
 inotify_add_watch		inotify
 inotify_init			inotify
 inotify_rm_watch		inotify
-io_cancel
+io_cancel			aiol
 io_destroy			aiol
 io_getevents			aiol
 io_setup			aiol
