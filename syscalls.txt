@@ -175,7 +175,7 @@ mlock				mlock
 mlock2				mlock
 mlockall			mlock
 mmap				bigheap, mmap
-mmap2
+mmap2				mmap
 modify_ldt			clone
 mount				bind-mount
 move_mount
