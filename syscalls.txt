@@ -61,7 +61,7 @@ eventfd2
 execve				exec
 execveat			exec
 exit				fork
-exit_group
+exit_group			daemon
 faccessat			access, close
 fadvise				readahead
 fallocate			fallocate

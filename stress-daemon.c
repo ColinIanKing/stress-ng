@@ -104,7 +104,6 @@ static void daemons(const stress_args_t *args, const int fd)
 			sz = write(fd, buf, sizeof(buf));
 			if (sz != sizeof(buf))
 				goto err2;
-
 		} else {
 			/* Parent, will be reaped by init */
 			break;
@@ -159,6 +158,7 @@ again:
 		(void)close(fds[0]);
 		daemons(args, fds[1]);
 		(void)close(fds[1]);
+		shim_exit_group(0);
 	} else {
 		/* Parent */
 		(void)close(fds[1]);

@@ -1224,6 +1224,20 @@ pid_t shim_wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage)
 }
 
 /*
+ *   shim_exit_group()
+ *	wrapper for exit_group(), fall back to _exit() if it does
+ *	not exist
+ */
+void shim_exit_group(int status)
+{
+#if defined(__NR_exit_group)
+	syscall(__NR_exit_group, status);
+#else
+	_exit(status);
+#endif
+}
+
+/*
  *   shim_pidfd_send_signal()
  *	wrapper for pidfd_send_signal added to Linux 5.1
  */
