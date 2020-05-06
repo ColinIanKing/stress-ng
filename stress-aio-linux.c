@@ -103,6 +103,25 @@ static int stress_aiol_submit(
 	return 0;
 }
 
+#if defined(__NR_io_cancel)
+static void stress_aiol_cancel(
+	const stress_args_t *args,
+	const io_context_t ctx,
+	struct io_event events[],
+	size_t n)
+{
+	size_t i;
+
+	for (i = 0; i < n && keep_stressing(); i++) {
+		int ret;
+		struct io_event event;
+
+		ret = io_cancel(ctx, events[i].obj, &event);
+		(void)ret;
+	}
+}
+#endif
+
 /*
  *  stress_aiol_wait()
  *	wait for async I/O requests to complete
@@ -141,7 +160,16 @@ static int stress_aiol_wait(
 			pr_fail_err("io_getevents");
 			return -1;
 		} else {
+			static int cancel;
+
 			n -= ret;
+#if defined(__NR_io_cancel)
+			cancel++;
+			if (cancel == 126) {
+				stress_aiol_cancel(args, ctx, events, ret);
+				cancel = 0;
+			}
+#endif
 		}
 	} while ((n > 0) && keep_stressing_flag());
 
