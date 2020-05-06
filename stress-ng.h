@@ -674,6 +674,10 @@
 #define HAVE_MEMBARRIER
 #endif
 
+#if defined(__NR_mmap2)
+#define HAVE_MMAP2
+#endif
+
 #if defined(__NR_pkey_get)
 #define HAVE_PKEY_GET
 #endif
@@ -2626,6 +2630,7 @@ typedef enum {
 	OPT_mmap_mprotect,
 	OPT_mmap_osync,
 	OPT_mmap_odirect,
+	OPT_mmap_mmap2,
 
 	OPT_mmapaddr,
 	OPT_mmapaddr_ops,

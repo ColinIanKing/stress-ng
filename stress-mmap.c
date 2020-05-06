@@ -44,6 +44,8 @@ typedef struct {
 	bool mmap_mprotect;
 	bool mmap_file;
 	bool mmap_async;
+	void * (*mmap)(void *addr, size_t length, int prot,
+		       int flags, int fd, off_t offset);
 } stress_mmap_context_t;
 
 #define NO_MEM_RETRIES_MAX	(65536)
@@ -115,6 +117,32 @@ static const int mmap_flags[] = {
 	0
 };
 
+/*
+ *   mmap2_try()
+ *	If mmap2 is requested then try to use it for 4K page aligned
+ *	offsets. Fall back to mmap() if not possible.
+ */
+#if defined(HAVE_MMAP2)
+static void *mmap2_try(void *addr, size_t length, int prot, int flags,
+	int fd, off_t offset)
+{
+	void *ptr;
+	offset_t pgoffset;
+
+	/* Non 4K-page aligned offsets need to use mmap() */
+	if (offset & 4095)
+		return mmap(addr, length, prot, flags, fd, offset);
+	pgoffset = offset >> 12;
+	ptr = syscall(__NR_mmap2, addr, length, prot, flags, fd, pgoffset);
+	if (ptr == MAP_FAILED) {
+		/* For specific failure cases retry with mmap() */
+		if ((errno == ENOSYS) || (errno == EINVAL))
+			ptr = mmap(addr, length, prot, flags, fd, offset);
+	}
+	return ptr;
+}
+#endif
+
 static int stress_set_mmap_bytes(const char *opt)
 {
 	size_t mmap_bytes;
@@ -163,6 +191,14 @@ static int stress_set_mmap_odirect(const char *opt)
 
 	(void)opt;
 	return stress_set_setting("mmap-odirect", TYPE_ID_BOOL, &mmap_odirect);
+}
+
+static int stress_set_mmap_mmap2(const char *opt)
+{
+	bool mmap_mmap2 = true;
+
+	(void)opt;
+	return stress_set_setting("mmap-mmap2", TYPE_ID_BOOL, &mmap_mmap2);
 }
 
 /*
@@ -242,7 +278,7 @@ retry:
 
 		if (!keep_stressing_flag())
 			break;
-		buf = (uint8_t *)mmap(NULL, sz,
+		buf = (uint8_t *)context->mmap(NULL, sz,
 			PROT_READ | PROT_WRITE, context->flags | rnd_flag, fd, 0);
 		if (buf == MAP_FAILED) {
 #if defined(MAP_POPULATE)
@@ -368,7 +404,7 @@ retry:
 					if (stress_mwc1())
 						fixed_flags = MAP_FIXED_NOREPLACE;
 #endif
-					mappings[page] = (uint8_t *)mmap((void *)mappings[page],
+					mappings[page] = (uint8_t *)context->mmap((void *)mappings[page],
 						page_size, PROT_READ | PROT_WRITE, fixed_flags | context->flags, fd, offset);
 
 					if (mappings[page] == MAP_FAILED) {
@@ -433,10 +469,12 @@ static int stress_mmap(const stress_args_t *args)
 	char filename[PATH_MAX];
 	bool mmap_osync = false;
 	bool mmap_odirect = false;
+	bool mmap_mmap2 = false;
 	int ret;
 	stress_mmap_context_t context;
 
 	context.fd = -1;
+	context.mmap = mmap;
 	context.mmap_bytes = DEFAULT_MMAP_BYTES;
 	context.mmap_async = false;
 	context.mmap_file = false;
@@ -451,9 +489,19 @@ static int stress_mmap(const stress_args_t *args)
 	(void)stress_get_setting("mmap-mprotect", &context.mmap_mprotect);
 	(void)stress_get_setting("mmap-osync", &mmap_osync);
 	(void)stress_get_setting("mmap-odirect", &mmap_odirect);
+	(void)stress_get_setting("mmap-mmap2", &mmap_mmap2);
 
 	if (mmap_osync || mmap_odirect)
 		context.mmap_file = true;
+
+	if (mmap_mmap2) {
+#if defined(HAVE_MMAP2)
+		context.mmap = mmap2_try;
+#else
+		pr_inf("%s: using mmap instead of mmap2 as it is not available\n",
+			args->name);
+#endif
+	}
 
 	if (!stress_get_setting("mmap-bytes", &context.mmap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -550,6 +598,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mmap_mprotect,	stress_set_mmap_mprotect },
 	{ OPT_mmap_osync,	stress_set_mmap_osync },
 	{ OPT_mmap_odirect,	stress_set_mmap_odirect },
+	{ OPT_mmap_mmap2,	stress_set_mmap_mmap2 },
 	{ 0,			NULL }
 };
 

@@ -2396,6 +2396,10 @@ and GBytes using the suffix b, k, m or g.
 enable file based memory mapping and by default use synchronous msync'ing on
 each page.
 .TP
+.B \-\-mmap\-mmap2
+use mmap2 for 4K page aligned offsets if mmap2 is available, otherwise fall back
+to mmap.
+.TP
 .B \-\-mmap\-mprotect
 change protection settings on each page of memory.  Each time a page or a
 group of pages are mapped or remapped then this option will make the pages
