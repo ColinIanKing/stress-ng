@@ -211,7 +211,7 @@ open_tree
 pause				kcmp, wait
 perf_event_open			--perf option
 personality			personality
-pidfd_getfd
+pidfd_getfd			pidfd
 pidfd_open			pidfd
 pidfd_send_signal		pidfd
 pipe				pipe, switch, etc

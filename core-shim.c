@@ -1256,6 +1256,21 @@ int shim_pidfd_open(pid_t pid, unsigned int flags)
 }
 
 /*
+ *   shim_pidfd_getfd()
+ *	wrapper for pidfd_getfd
+ */
+int shim_pidfd_getfd(int pidfd, int targetfd, unsigned int flags)
+{
+#if defined(HAVE_PIDFD_GETFD)
+	return pidfd_getfd(pidfd, targetfd, flags);
+#elif defined(__NR_pidfd_getfd)
+	return syscall(__NR_pidfd_getfd, pidfd, targetfd, flags);
+#else
+	return shim_enosys(0, pidfd, targetfd, flags);
+#endif
+}
+
+/*
  * If we have the fancy new Linux 5.2 mount system
  * calls then provide shim wrappers for these
  */

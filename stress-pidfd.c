@@ -114,6 +114,11 @@ static int stress_pidfd(const stress_args_t *args)
 				stress_pidfd_reap(pid, pidfd);
 				continue;
 			}
+			/* Try to get fd 0 on child pid */
+			ret = shim_pidfd_getfd(pidfd, 0, 0);
+			/* Ignore failures for now, need to sanity check this */
+			if (ret >= 0)
+				(void)close(ret);
 
 			ret = shim_pidfd_send_signal(pidfd, 0, NULL, 0);
 			if (ret != 0) {
