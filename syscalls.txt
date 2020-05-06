@@ -26,6 +26,7 @@ add_key				key
 adjtimex			get (modes = 0 only)
 alarm				generic run duration timers
 bind				sock
+bpf
 brk				bigheap, brk
 cacheflush			cache
 capget				cap
@@ -34,12 +35,13 @@ chdir				chdir
 chmod				chmod
 chown				chown
 chroot				chroot
-clock_adjtime
+clock_adjtime			clock
 clock_getres			clock
 clock_gettime			clock
 clock_nanosleep			clock
 clock_settime			clock
 clone				clone
+clone3
 close				dentry
 connect				sock
 copy_file_range			copy_file
@@ -78,12 +80,17 @@ flistxattr			xattr
 flock				flock
 fork				fork
 fremovexattr			xattr
+fsconfig
 fsetxattr			xattr
+fsmount
+fsopen
+fspick
 fstat				fallocate
 fstatfs				sysinfo
 fsync				fallocate, hdd
 ftruncate			fallocate
 futex				futex
+futex_time64
 futimens			wait
 get_mempolicy			numa
 get_robust_list			pthread
@@ -126,6 +133,9 @@ io_destroy			aiol
 io_getevents			aiol
 io_setup			aiol
 io_submit			aiol
+io_uring_enter
+io_uring_register
+io_uring_setup
 ioctl				pty, fiemap, rtc, urandom, userfaultfd
 ioperm				ditto
 iopl				ditto
@@ -168,6 +178,7 @@ mmap				bigheap, mmap
 mmap2
 modify_ldt			clone
 mount				bind-mount
+move_mount
 move_pages			numa
 mprotect			mmap
 mq_getsetattr			mq
@@ -190,13 +201,19 @@ munlockall			mlock
 munmap				mmap, mremap
 name_to_handle_at		handle
 nanosleep			timer
+nfsservctl
 nice				nice
 open				dentry, open, etc
 open_by_handle_at		handle
 openat				io
+openat2
+open_tree
 pause				kcmp, wait
 perf_event_open			--perf option
 personality			personality
+pidfd_getfd
+pidfd_iopen
+pidfd_send_signal
 pipe				pipe, switch, etc
 pipe2				pipe
 pivot_root			[ need privilege, ignore for now ]
@@ -240,7 +257,9 @@ renameat			rename
 renameat2			rename
 request_key			key
 restart_syscall			[ ignore this ]
+riscv_flush_icache
 rmdir				dir
+rseq
 rt_sigaction
 rt_sigpending
 rt_sigprocmask
