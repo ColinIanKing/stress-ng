@@ -257,7 +257,7 @@ renameat			rename
 renameat2			rename
 request_key			key
 restart_syscall			[ ignore this ]
-riscv_flush_icache
+riscv_flush_icache		icache
 rmdir				dir
 rseq
 rt_sigaction
