@@ -94,7 +94,7 @@ futex_time64
 futimens			wait
 get_mempolicy			numa
 get_robust_list			pthread
-get_thread_area
+get_thread_area			pthread
 getcpu				numa
 getcwd				get
 getdents			getdent

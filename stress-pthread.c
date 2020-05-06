@@ -159,6 +159,21 @@ static void *stress_pthread_func(void *parg)
 	}
 #endif
 
+#if defined(HAVE_ASM_LDT_H) && 	\
+    defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_USER_DESC) && 	\
+    defined(HAVE_GET_THREAD_AREA)
+	{
+		struct user_desc u_info;
+
+		/*
+		 *  Exercise get_thread_area only for x86
+		 */
+		ret = syscall(__NR_get_thread_area, &u_info);
+		(void)ret;
+	}
+#endif
+
 	/*
 	 *  Bump count of running threads
 	 */

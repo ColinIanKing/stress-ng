@@ -642,6 +642,10 @@
 #define HAVE_GETDENTS64
 #endif
 
+#if defined(__NR_get_thread_area)
+#define HAVE_GET_THREAD_AREA
+#endif
+
 #if defined(__NR_gettid)
 #define HAVE_GETTID
 #endif
