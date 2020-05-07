@@ -34,7 +34,6 @@ static const stress_help_t help[] = {
 
 static int stress_pidfd_open_fd(pid_t pid)
 {
-	char buffer[1024];
 	int fd = -1;
 
 	/* Randomly try pidfd_open first */
@@ -42,6 +41,8 @@ static int stress_pidfd_open_fd(pid_t pid)
 		fd = shim_pidfd_open(pid, 0);
 	}
 	if (fd < 0) {
+		char buffer[1024];
+
 		/* ..or fallback to open on /proc/$PID */
 		(void)snprintf(buffer, sizeof(buffer), "/proc/%d", pid);
 		fd = open(buffer, O_DIRECTORY | O_CLOEXEC);
