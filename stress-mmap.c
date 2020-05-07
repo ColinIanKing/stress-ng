@@ -127,7 +127,7 @@ static void *mmap2_try(void *addr, size_t length, int prot, int flags,
 	int fd, off_t offset)
 {
 	void *ptr;
-	offset_t pgoffset;
+	off_t pgoffset;
 
 	/* Non 4K-page aligned offsets need to use mmap() */
 	if (offset & 4095)
