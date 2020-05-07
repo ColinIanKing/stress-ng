@@ -133,7 +133,7 @@ static void *mmap2_try(void *addr, size_t length, int prot, int flags,
 	if (offset & 4095)
 		return mmap(addr, length, prot, flags, fd, offset);
 	pgoffset = offset >> 12;
-	ptr = syscall(__NR_mmap2, addr, length, prot, flags, fd, pgoffset);
+	ptr = (void *)syscall(__NR_mmap2, addr, length, prot, flags, fd, pgoffset);
 	if (ptr == MAP_FAILED) {
 		/* For specific failure cases retry with mmap() */
 		if ((errno == ENOSYS) || (errno == EINVAL))
