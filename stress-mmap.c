@@ -36,6 +36,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
+typedef void * (*mmap_func_t)(void *addr, size_t length, int prot, int flags, int fd, off_t offset);
+
 typedef struct {
 	int fd;
 	int flags;
@@ -44,8 +46,7 @@ typedef struct {
 	bool mmap_mprotect;
 	bool mmap_file;
 	bool mmap_async;
-	void * (*mmap)(void *addr, size_t length, int prot,
-		       int flags, int fd, off_t offset);
+	mmap_func_t mmap;
 } stress_mmap_context_t;
 
 #define NO_MEM_RETRIES_MAX	(65536)
@@ -474,7 +475,7 @@ static int stress_mmap(const stress_args_t *args)
 	stress_mmap_context_t context;
 
 	context.fd = -1;
-	context.mmap = mmap;
+	context.mmap = (mmap_func_t)mmap;
 	context.mmap_bytes = DEFAULT_MMAP_BYTES;
 	context.mmap_async = false;
 	context.mmap_file = false;
@@ -496,7 +497,7 @@ static int stress_mmap(const stress_args_t *args)
 
 	if (mmap_mmap2) {
 #if defined(HAVE_MMAP2)
-		context.mmap = mmap2_try;
+		context.mmap = (mmap_func_t)mmap2_try;
 #else
 		pr_inf("%s: using mmap instead of mmap2 as it is not available\n",
 			args->name);
