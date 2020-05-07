@@ -1,3 +1,78 @@
+stress-ng (0.11.09-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-mmap: use a mmap_func_t prototype to simplify function pointers
+  * stress-pidfd: reduce scope of buffer
+  * stress-mmap: cast return from syscall to void *
+  * stress-mmap: fix typo on off_t type name
+  * syscalls.txt: update information on reboot system call
+  * stress-xattr: add lremovexattr for more kernel coverage
+  * stress-set: exercise setdomainname
+  * syscalls: update mmap2 usage
+  * stress-mmap: add --mmap-mmap2 to try to use mmap2 if it is available
+  * syscalls: update riscv_flush_icache status
+  * core-shim: remove flags, this was in an older API and I forgot to
+    remove it
+  * stress-pthread: add call to set_thread_area for x86 only
+  * stress-pthread: add call to get_thread_area for x86 only
+  * stress-icache: add RISC-V to the allowed arches that can run this
+    stressor
+  * core-shim: use system call to __NR_riscv_flush_icache
+  * core-shim: add missing ; on risc-v flush
+  * Rename shim_clear_cache to shim_flush_icache, add RISC-V support
+  * stress-daemon: add shim wrapper for exit_group and call it on child
+    exit
+  * stress-pidfd: try to exercise pidfd_getfd if it exists
+  * stress-pidfd: add pidfd_open shim and exercise it on opening pid fds
+  * syscalls: add missing syscalls to syscalls list
+  * stress-clock: exercise clock_adjtime by adjusting clock by zero
+    seconds
+  * syscalls: update io_cancel
+  * stress-aio-linux: add aio_cancel and ignore failures
+  * stress-zlib: optimize BCD conversion and extend range of source random
+    value
+  * stress-zlib: wrap some overly long function declarations
+  * stress-rawpkt: use strlcpy instead of strcpy
+  * stress-procfs: use strlcpy instead of strcpy
+  * stress-access: fchmod should be S_IRUSR | S_IWUSR and not 0666
+  * stress-dev: add HPET_IRQFREQ ioctl
+  * core-thrash: remove ptrace as this can cause lockups
+  * stress-hdd: add medium write lifetime hint if it is available
+  * stress-rawpkt: perform SIOCINQ every 256 packets and clean up code
+  * stress-rawpkt: ensure mac address is being used for mac src and dst
+    addresses
+  * stress-rawpkg: exercise SIOCOUTQ and SIOCINQ ioctls
+  * stress-physpage: report incorrect read sizes correctly
+  * Revert "Add STRESS_RISC_V arch macro and don't yield on this arch"
+  * Revert "core-shim: disable native nanosleep for risc-v"
+  * stress-rawpkt: move stress-rawpkt_getsockopts to correct #ifdef section
+  * stress-rawpkt: remove include <linux/if_packet.h>
+  * stress-rawsock: occasionally exercise SIOCINQ and SIOCOUTQ ioctls
+  * Manual: remove trailing space
+  * core-ignite-cpu: remove an empty line
+  * core: constify some variables
+  * stress-ng: constify some variables
+  * core-perf: disable TLB perf metric
+  * core-shim: simplify the waitpid logic
+  * core-shim: break out of shim_wait on non EINTR error
+  * stress-sock: remove empty line
+  * stress-rawpkt: remove some white spaces
+  * stress-rawpkt: add getsockopt relevant settings fetches
+  * stress-rawudp: remove debug raw messages received counter
+  * stress-rawudp: fix clang-10 pedantic warning on const addr
+  * Add rawpkt stressor to exercise raw packet tx and rx over loopback
+    device
+  * stress-rawudp: close socket on error return
+  * core-helper: add some optimization hints to stress_ip_checksum
+  * stress-rawudp: re-organize code to remove repeated data structure
+    setting
+  * stress-rawudp: fix option help info, fix spelling mistake
+  * stress-ng: set the stressor name as early as possible
+  * Add rawudp stressor to exercise raw UDP packet tx and rx
+  * core-cache: clean up gcc-10 -fanalyzer warning
+
+ -- Colin King <colin.king@canonical.com>  Thu, 7 May 2020 12:33:53 +0100
+
 stress-ng (0.11.08-1) unstable; urgency=medium
 
   * Makefile: bump version
