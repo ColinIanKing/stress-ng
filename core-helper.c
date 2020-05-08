@@ -740,6 +740,7 @@ int stress_temp_dir_mk(
 	ret = mkdir(tmp, S_IRWXU);
 	if (ret < 0) {
 		ret = -errno;
+		(void)unlink(tmp);
 		pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 			name, tmp, errno, strerror(errno));
 	}
