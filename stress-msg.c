@@ -139,7 +139,8 @@ static int stress_msg(const stress_args_t *args)
 
 	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0) {
-		pr_fail_dbg("msgget");
+		pr_fail("%s: msgget failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return exit_status(errno);
 	}
 	pr_dbg("%s: System V message queue created, id: %d\n", args->name, msgq_id);
@@ -150,7 +151,8 @@ again:
 		if (keep_stressing_flag() &&
 		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
@@ -178,7 +180,8 @@ again:
 				}
 #endif
 				if (msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, 0) < 0) {
-					pr_fail_dbg("msgrcv");
+					pr_fail("%s: msgrcv failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					break;
 				}
 				/*
@@ -208,7 +211,8 @@ again:
 			msg.mtype = (msg_types) ? (stress_mwc8() % msg_types) + 1 : 1;
 			if (msgsnd(msgq_id, &msg, sizeof(msg.value), 0) < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg("msgsnd");
+					pr_fail("%s: msgsnd failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				break;
 			}
 			msg.value++;
@@ -242,7 +246,8 @@ again:
 		(void)shim_waitpid(pid, &status, 0);
 
 		if (msgctl(msgq_id, IPC_RMID, NULL) < 0)
-			pr_fail_dbg("msgctl");
+			pr_fail("%s: msgctl failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 		else
 			pr_dbg("%s: System V message queue deleted, id: %d\n", args->name, msgq_id);
 	}

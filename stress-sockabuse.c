@@ -151,7 +151,8 @@ retry:
 			_exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-			pr_fail_err("socket");
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
@@ -175,7 +176,8 @@ retry:
 		n = recv(fd, buf, sizeof(buf), 0);
 		if (n < 0) {
 			if ((errno != EINTR) && (errno != ECONNRESET))
-				pr_fail_dbg("recv");
+				pr_fail("%s: recv failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 
 		stress_sockabuse_fd(fd);
@@ -218,14 +220,15 @@ static int stress_sockabuse_server(
 
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			rc = exit_status(errno);
-			pr_fail_err("socket");
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			continue;
 		}
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 			rc = exit_status(errno);
-			pr_fail_err("setsockopt");
-
+			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			stress_sockabuse_fd(fd);
 			(void)close(fd);
 			continue;
@@ -237,14 +240,16 @@ static int stress_sockabuse_server(
 		if (bind(fd, addr, addr_len) < 0) {
 			if (errno != EADDRINUSE) {
 				rc = exit_status(errno);
-				pr_fail_err("bind");
+				pr_fail("%s: bind failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			}
 			stress_sockabuse_fd(fd);
 			(void)close(fd);
 			continue;
 		}
 		if (listen(fd, 10) < 0) {
-			pr_fail_dbg("listen");
+			pr_fail("%s: listen failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 
 			stress_sockabuse_fd(fd);
@@ -267,13 +272,15 @@ static int stress_sockabuse_server(
 
 				len = sizeof(saddr);
 				if (getsockname(fd, &saddr, &len) < 0) {
-					pr_fail_dbg("getsockname");
+					pr_fail("%s: getsockname failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					(void)close(sfd);
 					break;
 				}
 				len = sizeof(sndbuf);
 				if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
-					pr_fail_dbg("getsockopt");
+					pr_fail("%s: getsockopt failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					(void)close(sfd);
 					break;
 				}
@@ -282,7 +289,8 @@ static int stress_sockabuse_server(
 				n = send(sfd, buf, sizeof(buf), 0);
 				if (n < 0) {
 					if ((errno != EINTR) && (errno != EPIPE))
-						pr_fail_dbg("send");
+						pr_fail("%s: send failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 					stress_sockabuse_fd(sfd);
 					(void)close(sfd);
 					break;
@@ -334,7 +342,8 @@ again:
 	if (pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_sockabuse_client(args, ppid,

@@ -135,7 +135,8 @@ static int stress_daemon(const stress_args_t *args)
 		return EXIT_FAILURE;
 
 	if (pipe(fds) < 0) {
-		pr_fail_dbg("pipe");
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -149,7 +150,8 @@ again:
 			(void)shim_usleep_interruptible(100);
 			goto again;
 		}
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(fds[0]);
 		(void)close(fds[1]);
 		return EXIT_FAILURE;

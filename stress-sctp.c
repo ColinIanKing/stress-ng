@@ -170,7 +170,8 @@ retry:
 				(void)kill(getppid(), SIGALRM);
 				_exit(EXIT_NOT_IMPLEMENTED);
 			}
-			pr_fail_dbg("socket");
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
@@ -185,7 +186,8 @@ retry:
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */
-				pr_fail_dbg("connect");
+				pr_fail("%s: connect failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				(void)kill(getppid(), SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
@@ -196,7 +198,8 @@ retry:
 		if (setsockopt(fd, SOL_SCTP, SCTP_EVENTS, &events,
 			sizeof(events)) < 0) {
 			(void)close(fd);
-			pr_fail_dbg("setsockopt");
+			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
 		}
@@ -258,12 +261,14 @@ static int stress_sctp_server(
 			goto die;
 		}
 		rc = exit_status(errno);
-		pr_fail_dbg("socket");
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto die;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_dbg("setsockopt");
+		pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -272,11 +277,13 @@ static int stress_sctp_server(
 		sctp_domain, sctp_port, &addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg("bind");
+		pr_fail("%s: bind failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {
-		pr_fail_dbg("listen");
+		pr_fail("%s: listen failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -371,7 +378,8 @@ again:
 	if (pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_sctp_client(args, ppid,

@@ -316,7 +316,7 @@ tidy:
 			continue;
 		ret = pthread_join(pthread[i], NULL);
 		if ((ret) && (ret != ESRCH)) {
-			pr_fail("%s: pthread_join failed (parent), errno=%d (%s)",
+			pr_fail("%s: pthread_join failed (parent), errno=%d (%s)\n",
 				args->name, ret, strerror(ret));
 		}
 	}

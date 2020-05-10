@@ -47,12 +47,14 @@ static int stress_sigfd(const stress_args_t *args)
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGRTMIN);
 	if (sigprocmask(SIG_BLOCK, &mask, NULL) < 0) {
-		pr_fail_dbg("sigprocmask");
+		pr_fail("%s: sigprocmask failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	sfd = signalfd(-1, &mask, 0);
 	if (sfd < 0) {
-		pr_fail_dbg("signalfd");
+		pr_fail("%s: signalfd failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -61,7 +63,8 @@ again:
 	if (pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
@@ -101,7 +104,8 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg("signalfd read");
+					pr_fail("%s: read failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					(void)close(sfd);
 					_exit(EXIT_FAILURE);
 				}

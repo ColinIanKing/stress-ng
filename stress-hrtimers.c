@@ -123,13 +123,15 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0) {
-		pr_fail_err("timer_create");
+		pr_fail("%s: timer_create failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
 	stress_hrtimers_set(&timer);
 	if (timer_settime(timerid, 0, &timer, NULL) < 0) {
-		pr_fail_err("timer_settime");
+		pr_fail("%s: timer_settime failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -139,7 +141,8 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 	} while (stress_hrtimers_keep_stressing());
 
 	if (timer_delete(timerid) < 0) {
-		pr_fail_err("timer_delete");
+		pr_fail("%s: timer_delete failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
@@ -160,7 +163,7 @@ static int stress_hrtimers(const stress_args_t *args)
 	counters = (uint64_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
-		pr_fail_dbg("mmap");
+		pr_fail("mmap");
 		return EXIT_NO_RESOURCE;
 	}
 

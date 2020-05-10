@@ -325,7 +325,8 @@ static int stress_shm_sysv_child(
 				struct shmid_ds ds;
 
 				if (shmctl(shm_id, IPC_STAT, &ds) < 0)
-					pr_fail_dbg("shmctl IPC_STAT");
+					pr_fail("%s: shmctl IPC_STAT failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 #if defined(SHM_SET)
 				else {
 					int ret;
@@ -342,7 +343,8 @@ static int stress_shm_sysv_child(
 				struct shminfo s;
 
 				if (shmctl(shm_id, IPC_INFO, (struct shmid_ds *)&s) < 0)
-					pr_fail_dbg("semctl IPC_INFO");
+					pr_fail("%s: shmctl IPC_INFO failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(SHM_INFO) && \
@@ -351,7 +353,8 @@ static int stress_shm_sysv_child(
 				struct shm_info s;
 
 				if (shmctl(shm_id, SHM_INFO, (struct shmid_ds *)&s) < 0)
-					pr_fail_dbg("semctl SHM_INFO");
+					pr_fail("%s: shmctl SHM_INFO failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(SHM_LOCK) && \
@@ -446,7 +449,8 @@ static int stress_shm_sysv(const stress_args_t *args)
 
 	while (keep_stressing_flag() && retry) {
 		if (pipe(pipefds) < 0) {
-			pr_fail_dbg("pipe");
+			pr_fail("%s: pipe failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 fork_again:
@@ -491,10 +495,11 @@ fork_again:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
-						pr_fail_dbg("read");
+						pr_fail("%s: read failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						break;
 					}
-					pr_fail_dbg("zero byte read");
+					pr_fail("%s: zero bytes read\n", args->name);
 					break;
 				}
 				if ((msg.index < 0) ||

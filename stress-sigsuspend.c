@@ -63,7 +63,8 @@ static int stress_sigsuspend(const stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
-		pr_fail_dbg("mmap");
+		pr_fail("%s: mmap failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	(void)memset(counters, 0, counters_size);
@@ -77,7 +78,8 @@ again:
 		if (pid[n] < 0) {
 			if (keep_stressing_flag() && (errno == EAGAIN))
 				goto again;
-			pr_fail_dbg("fork");
+			pr_fail("%s: fork failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto reap;
 		} else if (pid[n] == 0) {
 			(void)setpgid(0, g_pgrp);

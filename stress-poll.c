@@ -50,7 +50,8 @@ static int pipe_read(const stress_args_t *args, const int fd, const int n)
 			if (ret < 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
-				pr_fail("%s: pipe read error detected\n", args->name);
+				pr_fail("%s: pipe read error detected, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return ret;
 			}
 			if (ret > 0) {
@@ -84,7 +85,8 @@ static int stress_poll(const stress_args_t *args)
 
 	for (i = 0; i < MAX_PIPES; i++) {
 		if (pipe(pipefds[i]) < 0) {
-			pr_fail_dbg("pipe");
+			pr_fail("%s: pipe failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			while (--i >= 0) {
 				(void)close(pipefds[i][0]);
 				(void)close(pipefds[i][1]);
@@ -98,7 +100,8 @@ again:
 	if (pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto tidy;
 	}
@@ -122,7 +125,8 @@ again:
 			if (ret < (ssize_t)sizeof(buf)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
-				pr_fail_dbg("write");
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto abort;
 			}
 		 } while (keep_stressing());

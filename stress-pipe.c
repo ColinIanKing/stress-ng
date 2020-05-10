@@ -153,13 +153,15 @@ static int stress_pipe(const stress_args_t *args)
 		 *  Failed, fall back to standard pipe
 		 */
 		if (pipe(pipefds) < 0) {
-			pr_fail_dbg("pipe");
+			pr_fail("%s: pipe failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
 #else
 	if (pipe(pipefds) < 0) {
-		pr_fail_dbg("pipe");
+		pr_fail("%s: pipe failed, errno=%d (%s)\n");
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 #endif
@@ -181,7 +183,8 @@ again:
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		int val = 0;
@@ -199,10 +202,11 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg("read");
+					pr_fail("%s: read failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					break;
 				}
-				pr_fail_dbg("zero byte read");
+				pr_fail("%s: zero bytes read\n", args->name);
 				break;
 			}
 			if (!strncmp(buf, PIPE_STOP, 3))
@@ -232,7 +236,8 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg("write");
+					pr_fail("%s: write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					break;
 				}
 				continue;
@@ -244,7 +249,8 @@ again:
 		(void)memcpy(buf, PIPE_STOP, sizeof(PIPE_STOP));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0) {
 			if (errno != EPIPE)
-				pr_fail_dbg("termination write");
+				pr_fail("%s: termination write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);

@@ -519,7 +519,7 @@ static int stress_tree(const stress_args_t *args)
 	n = (size_t)tree_size;
 
 	if ((nodes = calloc(n, sizeof(struct tree_node))) == NULL) {
-		pr_fail_dbg("malloc");
+		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

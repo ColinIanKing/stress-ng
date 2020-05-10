@@ -48,8 +48,9 @@ static int stress_dup(const stress_args_t *args)
 
 	fds[0] = open("/dev/zero", O_RDONLY);
 	if (fds[0] < 0) {
-		pr_fail_dbg("open on /dev/zero");
-		return EXIT_FAILURE;
+		pr_dbg("%s: open failed on /dev/zero, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
 	}
 
 	do {

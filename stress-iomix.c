@@ -669,7 +669,8 @@ static int stress_iomix(const stress_args_t *args)
 	counters = (void *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
-		pr_fail_dbg("mmap");
+		pr_fail("%s: mmap failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 

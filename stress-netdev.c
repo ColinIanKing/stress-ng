@@ -63,7 +63,8 @@ static int stress_netdev(const stress_args_t *args)
 	int fd, rc = EXIT_SUCCESS;
 
 	if ((fd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
-		pr_fail_dbg("socket");
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		/* failed, kick parent to finish */
 		return EXIT_NO_RESOURCE;
 	}

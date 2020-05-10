@@ -68,7 +68,8 @@ again:
 	if (pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, client */
@@ -80,7 +81,8 @@ again:
 		stress_parent_died_alarm();
 
 		if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
-			pr_fail_dbg("socket");
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
@@ -137,7 +139,8 @@ again:
 			goto die;
 		}
 		if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
-			pr_fail_dbg("socket");
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto die;
 		}
@@ -154,7 +157,8 @@ again:
 				break;
 			} else if (UNLIKELY(n < 0)) {
 				if (errno != EINTR)
-					pr_fail_dbg("recvfrom");
+					pr_fail("%s: recvfrom failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				break;
 			}
 

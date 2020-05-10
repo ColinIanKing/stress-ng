@@ -280,7 +280,7 @@ static int epoll_client(
 	struct sockaddr *addr = NULL;
 
 	if (stress_sighandler(args->name, SIGRTMIN, epoll_timer_handler, NULL) < 0)
-		return -1;
+		return EXIT_FAILURE;
 
 	do {
 		char buf[4096];
@@ -303,8 +303,9 @@ retry:
 			    (errno == ENOMEM) ||
 			    (errno == ENOBUFS))
 				continue;
-			pr_fail_dbg("socket");
-			return -1;
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			return EXIT_FAILURE;
 		}
 
 		sev.sigev_notify = SIGEV_SIGNAL;
@@ -315,9 +316,10 @@ retry:
 				(void)close(fd);
 				continue;
 			}
-			pr_fail_err("timer_create");
+			pr_fail("%s: timer_create failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
-			return -1;
+			return EXIT_FAILURE;
 		}
 
 		/*
@@ -331,9 +333,10 @@ retry:
 		timer.it_interval.tv_sec = timer.it_value.tv_sec;
 		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
 		if (timer_settime(epoll_timerid, 0, &timer, NULL) < 0) {
-			pr_fail_err("timer_settime");
+			pr_fail("%s: timer_settime failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
-			return -1;
+			return EXIT_FAILURE;
 		}
 
 		stress_set_sockaddr(args->name, args->instance, ppid,
@@ -345,9 +348,10 @@ retry:
 
 		/* No longer need timer */
 		if (timer_delete(epoll_timerid) < 0) {
-			pr_fail_err("timer_delete");
+			pr_fail("%s: timer_delete failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
-			return -1;
+			return EXIT_FAILURE;
 		}
 
 		if (ret < 0) {
@@ -369,9 +373,9 @@ retry:
 			retries++;
 			if (retries > 1000) {
 				/* Sigh, give up.. */
-				errno = saved_errno;
-				pr_fail_dbg("too many connects");
-				return -1;
+				pr_fail("%s: giving up too many failed connects;, errno = %d (%s)\n",
+					args->name, saved_errno, strerror(saved_errno));
+				return EXIT_FAILURE;
 			}
 			goto retry;
 		}
@@ -379,7 +383,8 @@ retry:
 		(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
 		if (send(fd, buf, sizeof(buf), 0) < 0) {
 			(void)close(fd);
-			pr_fail_dbg("send");
+			pr_dbg("%s: send failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 		(void)close(fd);
@@ -609,7 +614,8 @@ static int stress_epoll(const stress_args_t *args)
 	for (i = 0; i < max_servers; i++) {
 		pids[i] = epoll_spawn(args, epoll_server, i, ppid, epoll_port, epoll_domain);
 		if (pids[i] < 0) {
-			pr_fail_dbg("fork");
+			pr_fail("%s: fork failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto reap;
 		}
 	}
@@ -622,7 +628,8 @@ reap:
 		if (pids[i] > 0) {
 			(void)kill(pids[i], SIGKILL);
 			if (shim_waitpid(pids[i], &status, 0) < 0) {
-				pr_fail_dbg("waitpid");
+				pr_dbg("%s: waitpid failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			}
 		}
 	}

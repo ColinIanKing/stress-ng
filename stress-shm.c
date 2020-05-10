@@ -121,13 +121,13 @@ static int stress_shm_posix_child(
 
 	addrs = calloc(shm_posix_objects, sizeof(*addrs));
 	if (!addrs) {
-		pr_fail_err("calloc on addrs");
+		pr_fail("%s: calloc on addrs failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	shm_names = calloc(shm_posix_objects, SHM_NAME_LEN);
 	if (!shm_names) {
 		free(addrs);
-		pr_fail_err("calloc on shm_names");
+		pr_fail("%s: calloc on shm_names, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -354,7 +354,8 @@ static int stress_shm(const stress_args_t *args)
 
 	while (keep_stressing_flag() && retry) {
 		if (pipe(pipefds) < 0) {
-			pr_fail_dbg("pipe");
+			pr_fail("%s: pipe failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 fork_again:
@@ -401,10 +402,11 @@ fork_again:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
-						pr_fail_dbg("read");
+						pr_fail("%s: read failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						break;
 					}
-					pr_fail_dbg("zero byte read");
+					pr_fail("%s: zero bytes read\n", args->name);
 					break;
 				}
 				if ((msg.index < 0) ||

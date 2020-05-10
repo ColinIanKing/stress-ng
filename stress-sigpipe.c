@@ -58,7 +58,8 @@ static inline int stress_sigpipe_write(
 	int pipefds[2];
 
 	if (UNLIKELY(pipe(pipefds) < 0)) {
-		pr_fail_dbg("pipe");
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -105,7 +106,8 @@ again:
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, only for non-clone path */

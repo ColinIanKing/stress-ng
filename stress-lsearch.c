@@ -73,12 +73,12 @@ static int stress_lsearch(const stress_args_t *args)
 	max = (size_t)lsearch_size;
 
 	if ((data = calloc(max, sizeof(*data))) == NULL) {
-		pr_fail_dbg("malloc");
+		pr_fail("%s: malloc failed, out of memory", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	if ((root = calloc(max, sizeof(*data))) == NULL) {
 		free(data);
-		pr_fail_dbg("malloc");
+		pr_fail("%s: malloc failed, out of memory", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

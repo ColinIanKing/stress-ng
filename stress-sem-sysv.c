@@ -153,7 +153,8 @@ static void stress_semaphore_sysv_thrash(const stress_args_t *args)
 		struct timespec timeout;
 
 		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
-			pr_fail_dbg("clock_gettime");
+			pr_fail("%s: clock_gettime failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return;
 		}
 		timeout.tv_sec++;
@@ -184,12 +185,14 @@ static void stress_semaphore_sysv_thrash(const stress_args_t *args)
 				if (errno == EAGAIN)
 					goto timed_out;
 				if (errno != EINTR)
-					pr_fail_dbg("semop wait");
+					pr_fail("%s: semop wait failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				break;
 			}
 			if (semop(sem_id, &semsignal, 1) < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg("semop signal");
+					pr_fail("%s: semop signal failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				break;
 			}
 timed_out:
@@ -206,7 +209,8 @@ timed_out:
 
 			s.buf = &ds;
 			if (semctl(sem_id, 0, IPC_STAT, &s) < 0)
-				pr_fail_dbg("semctl IPC_STAT");
+				pr_fail("%s: semctl IPC_STAT failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 
 #if defined(GETALL)
 			/* Avoid zero array size allocation */
@@ -215,11 +219,13 @@ timed_out:
 			s.array = calloc((size_t)ds.sem_nsems, sizeof(*s.array));
 			if (s.array) {
 				if (semctl(sem_id, 0, GETALL, s) < 0) {
-					pr_fail_dbg("semctl GETALL");
+					pr_fail("%s: semctl GETALL failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				}
 #if defined(SETALL)
 				if (semctl(sem_id, 0, SETALL, s) < 0) {
-					pr_fail_dbg("semctl SETALL");
+					pr_fail("%s: semctl SETALL failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				}
 #endif
 				free(s.array);
@@ -234,7 +240,8 @@ timed_out:
 
 			s.buf = &ds;
 			if (semctl(sem_id, 0, SEM_STAT, &s) < 0)
-				pr_fail_dbg("semctl SEM_STAT");
+				pr_fail("%s: semctl SET_STAT failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 #endif
 #if defined(IPC_INFO) && defined(__linux__)
@@ -244,7 +251,8 @@ timed_out:
 
 			s.__buf = &si;
 			if (semctl(sem_id, 0, IPC_INFO, &s) < 0)
-				pr_fail_dbg("semctl IPC_INFO");
+				pr_fail("%s: semctl IPC_INFO failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 #endif
 #if defined(SEM_INFO) && defined(__linux__)
@@ -254,24 +262,29 @@ timed_out:
 
 			s.__buf = &si;
 			if (semctl(sem_id, 0, SEM_INFO, &s) < 0)
-				pr_fail_dbg("semctl SEM_INFO");
+				pr_fail("%s: semctl SEM_INFO failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 #endif
 #if defined(GETVAL)
 		if (semctl(sem_id, 0, GETVAL) < 0)
-			pr_fail_dbg("semctl GETVAL");
+			pr_fail("%s: semctl GETVAL failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 #endif
 #if defined(GETPID)
 		if (semctl(sem_id, 0, GETPID) < 0)
-			pr_fail_dbg("semctl GETPID");
+			pr_fail("%s: semctl GETPID failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 #endif
 #if defined(GETNCNT)
 		if (semctl(sem_id, 0, GETNCNT) < 0)
-			pr_fail_dbg("semctl GETNCNT");
+			pr_fail("%s: semctl GETNCNT failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 #endif
 #if defined(GETZCNT)
 		if (semctl(sem_id, 0, GETZCNT) < 0)
-			pr_fail_dbg("semctl GETZCNT");
+			pr_fail("%s: semctl GETZCNT failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 #endif
 	} while (keep_stressing());
 }

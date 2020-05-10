@@ -81,7 +81,7 @@ static int stress_tsearch(const stress_args_t *args)
 	n = (size_t)tsearch_size;
 
 	if ((data = calloc(n, sizeof(*data))) == NULL) {
-		pr_fail_dbg("calloc");
+		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

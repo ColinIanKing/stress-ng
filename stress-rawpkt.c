@@ -399,7 +399,8 @@ again:
 	if (pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return rc;
 	} else if (pid == 0) {
 		stress_rawpkt_client(args, &hwaddr, &ifaddr, &idx, args->pid, port);

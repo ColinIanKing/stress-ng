@@ -161,13 +161,15 @@ retry:
 		}
 
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-			pr_fail_dbg("socket");
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto finish;
 		}
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 				&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 			(void)close(fd);
-			pr_fail_dbg("setsockopt SO_REUSEADDR");
+			pr_fail("%s: setsockopt SO_REUSEADDR failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
 		}
 
@@ -180,7 +182,8 @@ retry:
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */
-				pr_fail_dbg("connect");
+				pr_fail("%s: connect failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto finish;
 			}
 			goto retry;
@@ -257,12 +260,14 @@ static int stress_socket_server(
 	}
 	if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg("socket");
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto die;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_dbg("setsockopt");
+		pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -278,11 +283,13 @@ static int stress_socket_server(
 			goto die_close;
 		}
 		rc = exit_status(errno);
-		pr_fail_dbg("bind");
+		pr_fail("%s: bind failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {
-		pr_fail_dbg("listen");
+		pr_fail("%s: listen failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -309,7 +316,8 @@ static int stress_socket_server(
 					     ((errno != EAGAIN) && (errno != EINTR) &&
 					      (errno != EWOULDBLOCK) && (errno != ECONNRESET) &&
 					      (errno != ENOMEM) && (errno != EPIPE))) {
-						pr_fail_dbg("sendmsg");
+						pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						(void)close(newfd);
 						break;
 					}
@@ -377,7 +385,8 @@ again:
 				goto again;
 			return EXIT_NO_RESOURCE;
 		}
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_set_oom_adjustment(args->name, false);

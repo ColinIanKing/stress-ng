@@ -97,12 +97,12 @@ static int stress_radixsort(const stress_args_t *args)
 
 	text = calloc(n, STR_SIZE);
 	if (!text) {
-		pr_fail_dbg("calloc");
+		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	data = calloc(n, sizeof(*data));
 	if (!data) {
-		pr_fail_dbg("calloc");
+		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		free(text);
 		return EXIT_NO_RESOURCE;
 	}

@@ -182,7 +182,8 @@ retry:
 			_exit(EXIT_FAILURE);
 		}
 		if ((fd = socket(socket_domain, socket_type, 0)) < 0) {
-			pr_fail_err("socket");
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			/* failed, kick parent to finish */
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
@@ -197,7 +198,8 @@ retry:
 			retries++;
 			if (retries > 100) {
 				/* Give up.. */
-				pr_fail_dbg("connect");
+				pr_fail("%s: connect failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				(void)kill(getppid(), SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
@@ -316,7 +318,9 @@ retry:
 				break;
 			if (n < 0) {
 				if ((errno != EINTR) && (errno != ECONNRESET))
-					pr_fail_dbg(recvfunc);
+					pr_fail("%s: %s failed, errno=%d (%s)\n",
+						recvfunc, args->name,
+						errno, strerror(errno));
 				break;
 			}
 		} while (keep_stressing());
@@ -378,12 +382,14 @@ static int stress_sock_server(
 	}
 	if ((fd = socket(socket_domain, socket_type, 0)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("socket");
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto die;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 		&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_err("setsockopt");
+		pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -393,11 +399,13 @@ static int stress_sock_server(
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("bind");
+		pr_fail("%s: bind failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {
-		pr_fail_dbg("listen");
+		pr_fail("%s: listen failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -438,13 +446,15 @@ static int stress_sock_server(
 #endif
 			len = sizeof(saddr);
 			if (getsockname(fd, &saddr, &len) < 0) {
-				pr_fail_dbg("getsockname");
+				pr_fail("%s: getsockname failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				(void)close(sfd);
 				break;
 			}
 			len = sizeof(sndbuf);
 			if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
-				pr_fail_dbg("getsockopt");
+				pr_fail("%s: getsockopt failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				(void)close(sfd);
 				break;
 			}
@@ -485,7 +495,8 @@ static int stress_sock_server(
 					ssize_t ret = send(sfd, buf, i, 0);
 					if (ret < 0) {
 						if ((errno != EINTR) && (errno != EPIPE))
-							pr_fail_dbg("send");
+							pr_fail("%s: send failed, errno=%d (%s)\n",
+								args->name, errno, strerror(errno));
 						break;
 					} else
 						msgs++;
@@ -501,7 +512,8 @@ static int stress_sock_server(
 				msg.msg_iovlen = j;
 				if (sendmsg(sfd, &msg, 0) < 0) {
 					if ((errno != EINTR) && (errno != EPIPE))
-						pr_fail_dbg("sendmsg");
+						pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 				} else
 					msgs += j;
 				break;
@@ -519,7 +531,8 @@ static int stress_sock_server(
 				}
 				if (sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0) {
 					if ((errno != EINTR) && (errno != EPIPE))
-						pr_fail_dbg("sendmmsg");
+						pr_fail("%s: sendmmsg failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 				} else
 					msgs += (MSGVEC_SIZE * j);
 				break;
@@ -532,7 +545,8 @@ static int stress_sock_server(
 			}
 			if (getpeername(sfd, &saddr, &len) < 0) {
 				if (errno != ENOTCONN)
-					pr_fail_dbg("getpeername");
+					pr_fail("%s: getpeername failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #if defined(SIOCOUTQ)
 			{
@@ -600,7 +614,8 @@ again:
 	if (pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_sock_client(args, ppid, socket_opts,

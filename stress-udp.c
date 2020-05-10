@@ -117,7 +117,8 @@ again:
 	if (pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, client */
@@ -133,7 +134,8 @@ again:
 			int j = 0;
 
 			if ((fd = socket(udp_domain, SOCK_DGRAM, proto)) < 0) {
-				pr_fail_dbg("socket");
+				pr_fail("%s: socket failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				/* failed, kick parent to finish */
 				(void)kill(getppid(), SIGALRM);
 				_exit(EXIT_FAILURE);
@@ -145,7 +147,8 @@ again:
 			if (proto == IPPROTO_UDPLITE) {
 				int val = 8;	/* Just the 8 byte header */
 				if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(val)) < 0) {
-					pr_fail_dbg("setsockopt");
+					pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					(void)close(fd);
 					(void)kill(getppid(), SIGALRM);
 					_exit(EXIT_FAILURE);
@@ -161,7 +164,8 @@ again:
 					if (ret < 0) {
 						if ((errno == EINTR) || (errno == ENETUNREACH))
 							break;
-						pr_fail_dbg("sendto");
+						pr_fail("%s: sendto failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						break;
 					}
 				}
@@ -203,7 +207,8 @@ again:
 			goto die;
 		}
 		if ((fd = socket(udp_domain, SOCK_DGRAM, proto)) < 0) {
-			pr_fail_dbg("socket");
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto die;
 		}
@@ -215,14 +220,16 @@ again:
 			int val = 8;	/* Just the 8 byte header */
 
 			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(val)) < 0) {
-				pr_fail_dbg("setsockopt");
+				pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto die_close;
 			}
 		}
 #endif
 		if (bind(fd, addr, addr_len) < 0) {
-			pr_fail_dbg("bind");
+			pr_fail("%s: bind failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
@@ -232,7 +239,8 @@ again:
 			 *  Some systems don't support SO_REUSEADDR
 			 */
 			if (errno != EINVAL) {
-				pr_fail_dbg("setsockopt");
+				pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto die_close;
 			}
@@ -255,7 +263,8 @@ again:
 				break;
 			if (n < 0) {
 				if (errno != EINTR)
-					pr_fail_dbg("recvfrom");
+					pr_fail("%s: recvfrom failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				break;
 			}
 			inc_counter(args);

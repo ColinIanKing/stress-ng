@@ -965,7 +965,8 @@ static inline int stress_do_syscall(
 		it.it_value.tv_sec = 0;
 		it.it_value.tv_usec = 100000;
 		if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
-			pr_fail_dbg("setitimer");
+			pr_fail("%s: setitimer failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			_exit(EXIT_NO_RESOURCE);
 		}
 

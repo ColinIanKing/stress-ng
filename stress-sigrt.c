@@ -66,7 +66,8 @@ again:
 		if (pids[i] < 0) {
 			if (keep_stressing_flag() && (errno == EAGAIN))
 				goto again;
-			pr_fail_dbg("fork");
+			pr_fail("%s: fork failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto reap;
 		} else if (pids[i] == 0) {
 			sigset_t mask;

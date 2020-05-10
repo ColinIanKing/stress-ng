@@ -270,7 +270,8 @@ static int stress_opcode(const stress_args_t *args)
 	sig_count = (uint64_t *)mmap(NULL, sig_count_size, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (sig_count == MAP_FAILED) {
-		pr_fail_dbg("mmap");
+		pr_fail("%s: mmap failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 #endif
@@ -294,7 +295,8 @@ again:
 			if (errno == EAGAIN)
 				goto again;
 
-			pr_fail_dbg("fork");
+			pr_fail("%s: fork failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
@@ -320,7 +322,8 @@ again:
 			opcodes = mmap(NULL, page_size * PAGES, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (opcodes == MAP_FAILED) {
-				pr_fail_dbg("mmap");
+				pr_fail("%s: mmap failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				_exit(EXIT_NO_RESOURCE);
 			}
 			/* Force pages resident */
@@ -349,7 +352,8 @@ again:
 			it.it_value.tv_sec = 0;
 			it.it_value.tv_usec = 50000;
 			if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
-				pr_fail_dbg("setitimer");
+				pr_fail("%s: setitimer failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				_exit(EXIT_NO_RESOURCE);
 			}
 

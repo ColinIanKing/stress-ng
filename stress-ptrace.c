@@ -44,13 +44,15 @@ static inline bool stress_syscall_wait(
 
 		if (ptrace(PTRACE_SYSCALL, pid, 0, 0) < 0) {
 			if ((errno != ESRCH) && (errno != EPERM) && (errno != EACCES)) {
-				pr_fail_dbg("ptrace");
+				pr_fail("%s: ptrace failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return true;
 			}
 		}
 		if (shim_waitpid(pid, &status, 0) < 0) {
 			if ((errno != EINTR) && (errno != ECHILD))
-				pr_fail_dbg("waitpid");
+				pr_fail("%s: waitpid failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			return true;
 		}
 
@@ -73,7 +75,8 @@ static int stress_ptrace(const stress_args_t *args)
 
 	pid = fork();
 	if (pid < 0) {
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
@@ -134,7 +137,8 @@ static int stress_ptrace(const stress_args_t *args)
 
 		if (shim_waitpid(pid, &status, 0) < 0) {
 			if ((errno != EINTR) && (errno != ECHILD)) {
-				pr_fail_dbg("waitpid");
+				pr_fail("%s: waitpid failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return EXIT_FAILURE;
 			}
 			return EXIT_SUCCESS;
@@ -149,14 +153,16 @@ static int stress_ptrace(const stress_args_t *args)
 				(void)kill(pid, SIGKILL);
 				if (shim_waitpid(pid, &status, 0) < 0) {
 					if ((errno != EINTR) && (errno != ECHILD)) {
-						pr_fail_dbg("waitpid");
+						pr_fail("%s: waitpid failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						return EXIT_FAILURE;
 					}
 					return EXIT_SUCCESS;
 				}
 				return WEXITSTATUS(status);
 			}
-			pr_fail_dbg("ptrace");
+			pr_fail("%s: ptrace failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 
@@ -176,7 +182,8 @@ static int stress_ptrace(const stress_args_t *args)
 		/* Terminate child */
 		(void)kill(pid, SIGKILL);
 		if (shim_waitpid(pid, &status, 0) < 0)
-			pr_fail_dbg("waitpid");
+			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 	}
 	return EXIT_SUCCESS;
 }

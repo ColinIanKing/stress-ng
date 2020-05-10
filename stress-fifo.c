@@ -162,7 +162,7 @@ static int stress_fifo(const stress_args_t *args)
 	char fifoname[PATH_MAX];
 	uint64_t i, val = 0ULL;
 	uint64_t fifo_readers = DEFAULT_FIFO_READERS;
-	int rc;
+	int rc = EXIT_SUCCESS;
 
 	if (!stress_get_setting("fifo-readers", &fifo_readers)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -219,7 +219,9 @@ static int stress_fifo(const stress_args_t *args)
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			if (errno) {
-				pr_fail_dbg("write");
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
 				break;
 			}
 			continue;
@@ -230,7 +232,6 @@ static int stress_fifo(const stress_args_t *args)
 	} while (keep_stressing());
 
 	(void)close(fd);
-	rc = EXIT_SUCCESS;
 reap:
 	for (i = 0; i < fifo_readers; i++) {
 		if (pids[i] > 0) {

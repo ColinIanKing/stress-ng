@@ -79,7 +79,8 @@ static void *semaphore_posix_thrash(void *arg)
 					    errno == EAGAIN)
 						continue;
 					if (errno != EINTR)
-						pr_fail_dbg("sem_trywait");
+						pr_fail("%s: sem_trywait failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 					break;
 				}
 			} else {
@@ -98,13 +99,15 @@ static void *semaphore_posix_thrash(void *arg)
 					    errno == ETIMEDOUT)
 						continue;
 					if (errno != EINTR)
-						pr_fail_dbg("sem_timedwait");
+						pr_fail("%s: sem_timedwait failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 					break;
 				}
 			}
 			inc_counter(args);
 			if (sem_post(&sem) < 0) {
-				pr_fail_dbg("sem_post");
+				pr_fail("%s: sem_post failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				break;
 			}
 			if (stress_mwc1())

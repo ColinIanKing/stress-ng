@@ -68,14 +68,16 @@ static int stress_switch(const stress_args_t *args)
 		 *  Fallback to pipe if pipe2 fails
 		 */
 		if (pipe(pipefds) < 0) {
-			pr_fail_dbg("pipe");
+			pr_fail("%s: pipe failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
 	buf_size = 1;
 #else
 	if (pipe(pipefds) < 0) {
-		pr_fail_dbg("pipe");
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	buf_size = args->page_size;
@@ -101,7 +103,8 @@ again:
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		char buf[buf_size];
@@ -118,7 +121,8 @@ again:
 			if (ret < 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
-				pr_fail_dbg("read");
+				pr_fail("%s: read failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				break;
 			}
 			if (ret == 0)
@@ -153,7 +157,8 @@ again:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
-					pr_fail_dbg("write");
+					pr_fail("%s: write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					break;
 				}
 				continue;
@@ -200,7 +205,8 @@ again:
 
 		(void)memset(buf, SWITCH_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
-			pr_fail_dbg("termination write");
+			pr_fail("%s: write failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}

@@ -180,7 +180,7 @@ static int stress_shellsort(const stress_args_t *args)
 	n = (size_t)shellsort_size;
 
 	if ((data = calloc(n, sizeof(*data))) == NULL) {
-		pr_fail_dbg("malloc");
+		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

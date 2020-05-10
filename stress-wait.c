@@ -182,13 +182,15 @@ static int stress_wait(const stress_args_t *args)
 
 	pid_r = spawn(args, runner, 0);
 	if (pid_r < 0) {
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
 	pid_k = spawn(args, killer, pid_r);
 	if (pid_k < 0) {
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		ret = EXIT_FAILURE;
 		goto tidy;
 	}
@@ -202,7 +204,8 @@ static int stress_wait(const stress_args_t *args)
 		 */
 		wret = waitpid(pid_r, &status, options);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
-			pr_fail_dbg("waitpid()");
+			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 		stress_wait_continued(args, status);
@@ -214,7 +217,8 @@ static int stress_wait(const stress_args_t *args)
 		 */
 		wret = wait(&status);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
-			pr_fail_dbg("wait()");
+			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 		stress_wait_continued(args, status);
@@ -226,7 +230,8 @@ static int stress_wait(const stress_args_t *args)
 		 */
 		wret = shim_wait3(&status, options, &usage);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
-			pr_fail_dbg("wait3()");
+			pr_fail("%s: wait3 failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 		stress_wait_continued(args, status);
@@ -240,7 +245,8 @@ static int stress_wait(const stress_args_t *args)
 		 */
 		wret = shim_wait4(pid_r, &status, options, &usage);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
-			pr_fail_dbg("wait4()");
+			pr_fail("%s: wait4 failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 		stress_wait_continued(args, status);
@@ -257,7 +263,8 @@ static int stress_wait(const stress_args_t *args)
 
 			wret = waitid(P_PID, pid_r, &info, options);
 			if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
-				pr_fail_dbg("waitpid()");
+				pr_fail("%s: waitpid failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				break;
 			}
 			/*

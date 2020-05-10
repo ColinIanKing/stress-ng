@@ -79,7 +79,8 @@ static int stress_udp_flood(const stress_args_t *args)
 				args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
-		pr_fail_dbg("socket");
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	stress_set_sockaddr(args->name, args->instance, args->pid,

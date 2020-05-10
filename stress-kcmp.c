@@ -170,7 +170,8 @@ again:
 		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
 
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(fd1);
 #if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
 		if (sfd != -1)

@@ -99,7 +99,8 @@ static int stress_pidfd(const stress_args_t *args)
 		if (pid < 0) {
 			if (keep_stressing_flag() && (errno == EAGAIN))
 				continue;
-			pr_fail_dbg("fork");
+			pr_fail("%s: fork failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		} else if (pid == 0) {
 			(void)setpgid(0, g_pgrp);

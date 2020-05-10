@@ -123,7 +123,8 @@ static int stress_mq(const stress_args_t *args)
 		sz--;
 	}
 	if (mq < 0) {
-		pr_fail_dbg("mq_open");
+		pr_fail("%s: mq_open failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	if (sz < mq_size) {
@@ -136,7 +137,8 @@ static int stress_mq(const stress_args_t *args)
 
 	if (time(&time_start) == ((time_t)-1)) {
 		do_timed = false;
-		pr_fail_dbg("mq_timed send and receive skipped, can't get time");
+		pr_inf("%s: mq_timed send and receive skipped, can't get time, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 	} else {
 		do_timed = true;
 		abs_timeout.tv_sec = time_start + g_opt_timeout + 1;
@@ -150,7 +152,8 @@ again:
 		if (keep_stressing_flag() &&
 		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		struct sigevent sigev;
@@ -196,7 +199,8 @@ again:
 					/* Read state of queue from mq fd */
 					ret = read(mq, buffer, sizeof(buffer));
 					if (ret < 0)
-						pr_fail_dbg("mq read");
+						pr_fail("%s: mq read failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 #endif
 
 					(void)mq_notify(mq, &sigev);
@@ -211,7 +215,10 @@ again:
 					ret = mq_receive(mq, (char *)&msg, sizeof(msg), &prio);
 
 				if (ret < 0) {
-					pr_fail_dbg(timed ? "mq_timedreceive" : "mq_receive");
+					pr_fail("%s: %s failed, errno=%d (%s)\n",
+						args->name,
+						timed ? "mq_timedreceive" : "mq_receive",
+						errno, strerror(errno));
 					break;
 				}
 				if (prio >= PRIOS_MAX) {
@@ -251,7 +258,8 @@ again:
 
 			if ((attr_count++ & 31) == 0) {
 				if (mq_getattr(mq, &attr) < 0)
-					pr_fail_dbg("mq_getattr");
+					pr_fail("%s: mq_getattr failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 
 			msg.value = values[prio];
@@ -266,7 +274,10 @@ again:
 
 			if (ret < 0) {
 				if ((errno != EINTR) && (errno != ETIMEDOUT))
-					pr_fail_dbg(timed ? "mq_timedsend" : "mq_send");
+					pr_fail("%s: %s failed, errno=%d (%s)\n",
+						args->name,
+						timed ? "mq_timedsend" : "mq_send",
+						errno, strerror(errno));
 				break;
 			}
 			inc_counter(args);
@@ -276,9 +287,11 @@ again:
 		(void)shim_waitpid(pid, &status, 0);
 
 		if (mq_close(mq) < 0)
-			pr_fail_dbg("mq_close");
+			pr_fail("%s: mq_close failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 		if (mq_unlink(mq_name) < 0)
-			pr_fail_dbg("mq_unlink");
+			pr_fail("%s: mq_unlink failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 	}
 	return EXIT_SUCCESS;
 }

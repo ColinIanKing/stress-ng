@@ -93,7 +93,8 @@ static int stress_vm_child(void *arg)
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
 		ret = exit_status(errno);
-		pr_fail_dbg("mmap");
+		pr_fail("%s: mmap failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto cleanup;
 	}
 
@@ -112,7 +113,8 @@ redo_wr1:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr1;
 			if (errno != EBADF)
-				pr_fail_dbg("write");
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			break;
 		}
 redo_rd1:
@@ -121,13 +123,15 @@ redo_rd1:
 		if (rwret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_rd1;
-			pr_fail_dbg("read");
+			pr_fail("%s: read failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 		if (rwret == 0)
 			break;
 		if (rwret != sizeof(msg_rd)) {
-			pr_fail_dbg("read");
+			pr_fail("%s: read failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 
@@ -174,11 +178,12 @@ static int stress_vm_parent(stress_context_t *ctxt)
 	localbuf = mmap(NULL, ctxt->sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (localbuf == MAP_FAILED) {
+		pr_fail("%s: mmap failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(ctxt->pipe_wr[0]);
 		(void)close(ctxt->pipe_wr[1]);
 		(void)close(ctxt->pipe_rd[0]);
 		(void)close(ctxt->pipe_rd[1]);
-		pr_fail_dbg("mmap");
 		return EXIT_FAILURE;
 	}
 
@@ -199,13 +204,15 @@ redo_rd2:
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_rd2;
-			pr_fail_dbg("read");
+			pr_fail("%s: read failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 		if (ret == 0)
 			break;
 		if (ret != sizeof(msg_rd)) {
-			pr_fail_dbg("read");
+			pr_fail("%s: read failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 		/* Child telling us it's terminating? */
@@ -218,7 +225,8 @@ redo_rd2:
 		remote[0].iov_base = msg_rd.addr;
 		remote[0].iov_len = ctxt->sz;
 		if (process_vm_readv(ctxt->pid, local, 1, remote, 1, 0) < 0) {
-			pr_fail_dbg("process_vm_readv");
+			pr_fail("%s: process_vm_readv failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 
@@ -244,7 +252,8 @@ redo_rd2:
 		remote[0].iov_base = msg_rd.addr;
 		remote[0].iov_len = ctxt->sz;
 		if (process_vm_writev(ctxt->pid, local, 1, remote, 1, 0) < 0) {
-			pr_fail_dbg("process_vm_writev");
+			pr_fail("%s: process_vm_writev failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 		msg_wr.val = val;
@@ -258,7 +267,8 @@ redo_wr2:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr2;
 			if (errno != EBADF)
-				pr_fail_dbg("write");
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			break;
 		}
 		inc_counter(args);
@@ -311,13 +321,15 @@ static int stress_vm_rw(const stress_args_t *args)
 	ctxt.sz = vm_rw_bytes & ~(args->page_size - 1);
 
 	if (pipe(ctxt.pipe_wr) < 0) {
-		pr_fail_dbg("pipe");
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	if (pipe(ctxt.pipe_rd) < 0) {
 		(void)close(ctxt.pipe_wr[0]);
 		(void)close(ctxt.pipe_wr[1]);
-		pr_fail_dbg("pipe");
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -327,11 +339,12 @@ again:
 	if (ctxt.pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
+		pr_fail("%s: clone  failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(ctxt.pipe_wr[0]);
 		(void)close(ctxt.pipe_wr[1]);
 		(void)close(ctxt.pipe_rd[0]);
 		(void)close(ctxt.pipe_rd[1]);
-		pr_fail_dbg("clone");
 		return EXIT_NO_RESOURCE;
 	}
 	return stress_vm_parent(&ctxt);

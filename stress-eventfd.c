@@ -75,13 +75,15 @@ static int stress_eventfd(const stress_args_t *args)
 	fd1 = eventfd(0, flags);
 	if (fd1 < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg("eventfd");
+		pr_fail("%s: eventfd failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return rc;
 	}
 	fd2 = eventfd(0, flags);
 	if (fd2 < 0) {
 		rc = exit_status(errno);
-		pr_fail_dbg("eventfd");
+		pr_fail("%s: eventfd failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(fd1);
 		return rc;
 	}
@@ -92,7 +94,8 @@ again:
 		if (keep_stressing_flag() &&
 		    ((errno == EAGAIN) || (errno == ENOMEM)))
 			goto again;
-		pr_fail_dbg("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(fd1);
 		(void)close(fd2);
 		return EXIT_FAILURE;
@@ -112,11 +115,13 @@ again:
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
-					pr_fail_dbg("child read");
+					pr_fail("%s child read failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto exit_child;
 				}
 				if (ret < (ssize_t)sizeof(val)) {
-					pr_fail_dbg("child short read");
+					pr_fail("%s child short read, got %zd, expecting %zd bytes\n",
+						args->name, ret, (ssize_t)sizeof(val));
 					goto exit_child;
 				}
 				break;
@@ -131,11 +136,13 @@ again:
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
-					pr_fail_dbg("child write");
+					pr_fail("%s: child write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto exit_child;
 				}
 				if (ret  < (ssize_t)sizeof(val)) {
-					pr_fail_dbg("child short write");
+					pr_fail("%s child short write, got %zd, expecting %zd bytes\n",
+						args->name, ret, (ssize_t)sizeof(val));
 					goto exit_child;
 				}
 				break;
@@ -150,8 +157,9 @@ exit_child:
 
 		do {
 			uint64_t val = 1;
-			int ret, procfd;
+			int procfd;
 			char path[PATH_MAX];
+			ssize_t ret;
 
 			(void)snprintf(path, sizeof(path), "/proc/self/fdinfo/%d",
 				stress_mwc1() ? fd1 : fd2);
@@ -178,11 +186,13 @@ exit_child:
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
-					pr_fail_dbg("parent write");
+					pr_fail("%s: parent write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto exit_parent;
 				}
 				if (ret < (ssize_t)sizeof(val)) {
-					pr_fail_dbg("parent short write");
+					pr_fail("%s parent short write, got %zd, expecting %zd bytes\n",
+						args->name, ret, (ssize_t)sizeof(val));
 					goto exit_parent;
 				}
 				break;
@@ -197,11 +207,13 @@ exit_child:
 					if ((errno == EAGAIN) ||
 					    (errno == EINTR))
 						continue;
-					pr_fail_dbg("parent read");
+					pr_fail("%s: parent read failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto exit_parent;
 				}
 				if (ret < (ssize_t)sizeof(val)) {
-					pr_fail_dbg("parent short read");
+					pr_fail("%s parent short read, got %zd, expecting %zd bytes\n",
+						args->name, ret, (ssize_t)sizeof(val));
 					goto exit_parent;
 				}
 				break;

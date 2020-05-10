@@ -94,7 +94,8 @@ static int stress_sockpair_oomable(const stress_args_t *args)
 	}
 
 	if (max == 0) {
-		pr_fail_dbg("socket_pair");
+		pr_fail("%s: socketpair failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -103,9 +104,10 @@ again:
 	if (pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		socket_pair_close(socket_pair_fds, max, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
-		pr_fail_dbg("fork");
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_set_oom_adjustment(args->name, true);
@@ -129,7 +131,8 @@ again:
 					else if (errno == EPERM)  /* Occurs on socket closure */
 						goto abort;
 					else if (errno) {
-						pr_fail_dbg("read");
+						pr_fail("%s: read failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						goto abort;
 					}
 					continue;
@@ -161,7 +164,8 @@ abort:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
-						pr_fail_dbg("write");
+						pr_fail("%s: write failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						break;
 					}
 					continue;
@@ -172,7 +176,8 @@ abort:
 
 		for (i = 0; i < max; i++) {
 			if (shutdown(socket_pair_fds[i][1], SHUT_RDWR) < 0)
-				pr_fail_dbg("socket shutdown");
+				pr_fail("%s: shutdown failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);

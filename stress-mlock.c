@@ -90,7 +90,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	(void)context;
 
 	if ((mappings = calloc(max, sizeof(*mappings))) == NULL) {
-		pr_fail_dbg("malloc");
+		pr_fail("%s: malloc failed, out of memory", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
