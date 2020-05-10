@@ -151,7 +151,8 @@ static int stress_sem(const stress_args_t *args)
 		p_ret[i] = pthread_create(&pthreads[i], NULL,
                                 semaphore_posix_thrash, (void *)&p_args);
 		if ((p_ret[i]) && (p_ret[i] != EAGAIN)) {
-			pr_fail_errno("pthread create", p_ret[i]);
+			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
+				args->name, p_ret[i], strerror(p_ret[i]));
 			break;
 		}
 		if (!keep_stressing_flag())

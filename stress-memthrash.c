@@ -528,7 +528,8 @@ mmap_retry:
 			if (ret[i] == EAGAIN)
 				continue;
 			/* Something really unexpected */
-			pr_fail_errno("pthread create", ret[i]);
+			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
+				args->name, ret[i], strerror(ret[i]));
 			goto reap;
 		}
 		if (!keep_stressing_flag())
@@ -543,7 +544,8 @@ reap:
 		if (!ret[i]) {
 			ret[i] = pthread_join(pthreads[i], NULL);
 			if (ret[i])
-				pr_fail_errno("pthread join", ret[i]);
+				pr_fail("%s: pthread join failed, errno=%d (%s)\n",
+					args->name, ret[i], strerror(ret[i]));
 		}
 	}
 reap_mem:

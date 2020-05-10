@@ -92,7 +92,8 @@ static int stress_chroot_test1(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 	if (ret2 < 0) {
-		pr_fail_errno("chdir(\"/\")\n", errno2);
+		pr_fail("%s: chdir(\"%s/\") failed, errno=%d (%s)\n",
+			args->name, temppath, errno2, strerror(errno2));
 		return EXIT_FAILURE;
 	}
 	if (!getcwd(cwd, sizeof(cwd))) {
@@ -113,13 +114,9 @@ static int stress_chroot_test2(const stress_args_t *args)
 	do_chroot((void *)1, &ret1, &ret2, &errno1, &errno2);
 
 	if ((ret1 >= 0) || (errno1 != EFAULT))  {
-		pr_fail("%s: chroot(\"%s\"), expected EFAULT"
+		pr_fail("%s: chroot(\"(void *)1\"), expected EFAULT"
 			", got instead errno=%d (%s)\n",
-			args->name, temppath, errno1, strerror(errno1));
-		return EXIT_FAILURE;
-	}
-	if (ret2 < 0) {
-		pr_fail_errno("chdir(\"/\")\n", errno2);
+			args->name, errno1, strerror(errno1));
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
@@ -141,10 +138,6 @@ static int stress_chroot_test3(const stress_args_t *args)
 			args->name, errno1, strerror(errno1));
 		return EXIT_FAILURE;
 	}
-	if (ret2 < 0) {
-		pr_fail_errno("chdir(\"/\")\n", errno2);
-		return EXIT_FAILURE;
-	}
 	return EXIT_SUCCESS;
 }
 
@@ -159,10 +152,6 @@ static int stress_chroot_test4(const stress_args_t *args)
 			", got instead errno=%d (%s)\n",
 			args->name, badpath, errno1, strerror(errno1));
 		return EXIT_SUCCESS;
-	}
-	if (ret2 < 0) {
-		pr_fail_errno("chdir(\"/\")\n", errno2);
-		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }
@@ -184,10 +173,6 @@ static int stress_chroot_test5(const stress_args_t *args)
 			", got instead errno=%d (%s)\n",
 			args->name, filename, errno1, strerror(errno1));
 		return EXIT_SUCCESS;
-	}
-	if (ret2 < 0) {
-		pr_fail_errno("chdir(\"/\")\n", errno2);
-		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }

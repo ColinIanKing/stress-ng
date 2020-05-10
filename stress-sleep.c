@@ -171,7 +171,8 @@ static int stress_sleep(const stress_args_t *args)
 				break;
 			}
 			/* Something really unexpected */
-			pr_fail_errno("pthread create", ret);
+			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
+				args->name, ret, strerror(ret));
 			ret = EXIT_NO_RESOURCE;
 			goto tidy;
 		}

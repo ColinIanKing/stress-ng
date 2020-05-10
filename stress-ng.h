@@ -1207,11 +1207,9 @@ extern void pr_inf_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3);
 
 extern void pr_fail_args_err(const stress_args_t *args, const char *msg);
-extern void pr_fail_args_errno(const stress_args_t *args, const char *msg, int err);
 extern void pr_fail_args_dbg(const stress_args_t *args, const char *msg);
 
 #define pr_fail_err(msg)		pr_fail_args_err(args, msg)
-#define pr_fail_errno(msg, err)		pr_fail_args_errno(args, msg, err)
 #define pr_fail_dbg(msg)		pr_fail_args_dbg(args, msg)
 
 #if defined(HAVE_SYSLOG_H)

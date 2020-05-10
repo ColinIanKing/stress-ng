@@ -246,8 +246,11 @@ static int stress_aio(const stress_args_t *args)
 				break;
 			default:
 				/* Something went wrong */
-				pr_fail_errno("aio_error",
-					io_reqs[i].status);
+				pr_fail("%s: aio_error, io_reqs[%" PRIu64 "].status = %d (%s\n)",
+					args->name, i,
+					io_reqs[i].status,
+					strerror(io_reqs[i].status));
+
 				goto cancel;
 			}
 		}

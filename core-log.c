@@ -387,15 +387,6 @@ void pr_fail_args_err(const stress_args_t *args, const char *msg)
 }
 
 /*
- *  pr_fail_args_errno()
- *	helper for macro pr_fail_errno to print error with a given errno
- */
-void pr_fail_args_errno(const stress_args_t *args, const char *msg, int err)
-{
-	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, err);
-}
-
-/*
  *  pr_fail_args_dbg()
  *	helper for macro pr_fail_dbg to print error
  */

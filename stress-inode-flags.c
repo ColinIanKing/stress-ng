@@ -200,7 +200,8 @@ static int stress_inode_flags(const stress_args_t *args)
 
 	rc = shim_pthread_spin_init(&spinlock, SHIM_PTHREAD_PROCESS_SHARED);
 	if (rc) {
-		pr_fail_errno("pthread_spin_init", rc);
+		pr_fail("%s: pthread_spin_init failed, errno = %d (%s)\n",
+			args->name, rc, strerror(rc));
 		return EXIT_FAILURE;
 	}
 
