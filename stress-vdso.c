@@ -294,6 +294,7 @@ static char *vdso_sym_list_str(void)
 
 	for (vdso_sym = vdso_sym_list; vdso_sym; vdso_sym = vdso_sym->next) {
 		char *tmp;
+
 		len += (strlen(vdso_sym->name) + 2);
 		tmp = realloc(str, len);
 		if (!tmp) {
