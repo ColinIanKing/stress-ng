@@ -96,7 +96,8 @@ static int stress_fallocate(const stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
@@ -115,11 +116,10 @@ static int stress_fallocate(const stress_args_t *args)
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
-				pr_fail("%s: fstat on file failed", args->name);
+				pr_fail("%s: fstat failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			else if (buf.st_size != fallocate_bytes)
-				pr_fail("%s: file size %jd does not "
-					"match size the expected file "
-					"size of %jd\n",
+				pr_fail("%s: file size %jd does not match size the expected file size of %jd\n",
 					args->name, (intmax_t)buf.st_size,
 					(intmax_t)fallocate_bytes);
 		}
@@ -134,7 +134,8 @@ static int stress_fallocate(const stress_args_t *args)
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
-				pr_fail("%s: fstat on file failed", args->name);
+				pr_fail("%s: fstat failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			else if (buf.st_size != (off_t)0)
 				pr_fail("%s: file size %jd does not "
 					"match size the expected file size "

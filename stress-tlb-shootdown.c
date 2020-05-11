@@ -49,7 +49,8 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 	cpu_set_t proc_mask_initial;
 
 	if (sched_getaffinity(0, sizeof(proc_mask_initial), &proc_mask_initial) < 0) {
-		pr_fail_err("could not get CPU affinity");
+		pr_fail("%s: sched_getaffinity could not get CPU affinity, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -79,7 +80,8 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 					if (--retry < 0)
 						return EXIT_NO_RESOURCE;
 				} else {
-					pr_fail_err("mmap");
+					pr_fail("%s: mmap failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				}
 			} else {
 				break;

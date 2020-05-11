@@ -58,7 +58,8 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 	struct msqid_ds buf;
 
 	if (msgctl(msgq_id, IPC_STAT, &buf) < 0) {
-		pr_fail_err("msgctl: IPC_STAT");
+		pr_fail("%s: msgctl IPC_STAT failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return -errno;
 	}
 
@@ -76,7 +77,8 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 		struct msginfo info;
 
 		if (msgctl(msgq_id, IPC_INFO, (struct msqid_ds *)&info) < 0) {
-			pr_fail_err("msgctl: IPC_INFO");
+			pr_fail("%s: msgctl IPC_INFO failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return -errno;
 		}
 	}
@@ -87,7 +89,8 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 		struct msginfo info;
 
 		if (msgctl(msgq_id, MSG_INFO, (struct msqid_ds *)&info) < 0) {
-			pr_fail_err("msgctl: MSG_INFO");
+			pr_fail("%s: msgctl MSG_INFO failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return -errno;
 		}
 	}

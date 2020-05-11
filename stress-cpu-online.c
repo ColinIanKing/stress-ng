@@ -52,7 +52,8 @@ static int stress_cpu_online_set(
 	if ((ret < 0) &&
 	    ((ret != -EAGAIN) && (ret != -EINTR) &&
 	     (ret != -EBUSY) && (ret != -EOPNOTSUPP))) {
-		pr_fail_err("write");
+		pr_fail("%s: write failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;

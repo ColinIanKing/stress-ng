@@ -167,7 +167,8 @@ static int stress_itimer(const stress_args_t *args)
 				args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
-		pr_fail_err("setitimer");
+		pr_fail("%s: setitimer failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 

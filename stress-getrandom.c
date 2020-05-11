@@ -80,7 +80,8 @@ static int stress_getrandom(const stress_args_t *args)
 					args->name);
 				return EXIT_NOT_IMPLEMENTED;
 			}
-			pr_fail_err("getrandom");
+			pr_fail("%s: getrandom failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 		inc_counter(args);

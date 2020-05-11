@@ -280,14 +280,16 @@ static int stress_filename(const stress_args_t *args)
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_fail_err("mkdir");
+			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+				args->name, pathname, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
 
 #if defined(HAVE_SYS_STATVFS_H)
 	if (statvfs(pathname, &buf) < 0) {
-		pr_fail_err("statvfs");
+		pr_fail("%s: statvfs %s failed, errno=%d (%s)\n",
+			args->name, pathname, errno, strerror(errno));
 		goto tidy_dir;
 	}
 

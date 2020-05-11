@@ -376,12 +376,3 @@ void pr_tidy(const char *fmt, ...)
 	(void)pr_msg_lockable(stderr, g_caught_sigint ? PR_INFO : PR_DEBUG, true, fmt, ap);
 	va_end(ap);
 }
-
-/*
- *  pr_fail_args_err()
- *	helper for macro pr_fail_err to print error with errno
- */
-void pr_fail_args_err(const stress_args_t *args, const char *msg)
-{
-	pr_msg_fail(PR_FAIL | PR_ERROR, args->name, msg, errno);
-}

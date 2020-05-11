@@ -94,7 +94,8 @@ static int stress_aiol_submit(
 			if ((errno == EINVAL) && ignore_einval)
 				return 0;
 			if (errno != EAGAIN) {
-				pr_fail_err("io_submit");
+				pr_fail("%s: io_submit failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return ret;
 			}
 		}
@@ -157,7 +158,8 @@ static int stress_aiol_wait(
 					return 0;
 				}
 			}
-			pr_fail_err("io_getevents");
+			pr_fail("%s: io_getevents failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return -1;
 		} else {
 			static int cancel;
@@ -334,7 +336,8 @@ static int stress_aiol(const stress_args_t *args)
 			rc = EXIT_NO_RESOURCE;
 			goto free_memory;
 		} else {
-			pr_fail_err("io_setup");
+			pr_fail("%s: io_setup failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto free_memory;
 		}
@@ -351,7 +354,8 @@ static int stress_aiol(const stress_args_t *args)
 	fds[0] = open(filename, O_CREAT | O_RDWR | O_DIRECT, S_IRUSR | S_IWUSR);
 	if (fds[0] < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		goto finish;
 	}
 

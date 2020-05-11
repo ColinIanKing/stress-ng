@@ -97,7 +97,8 @@ static int stress_chroot_test1(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 	if (!getcwd(cwd, sizeof(cwd))) {
-		pr_fail_err("getcwd");
+		pr_fail("%s: getcwd failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	if (strcmp(cwd, "/")) {
@@ -200,11 +201,13 @@ static int stress_chroot(const stress_args_t *args)
 	(void)stress_temp_dir_args(args, temppath, sizeof(temppath));
 	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	if (mkdir(temppath, S_IRWXU) < 0) {
-		pr_fail_err("mkdir");
+		pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+			args->name, temppath, errno, strerror(errno));
 		goto tidy_ret;
 	}
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
-		pr_fail_err("creat");
+		pr_fail("%s: create %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		goto tidy_dir;
 	}
 	(void)close(fd);
@@ -234,7 +237,8 @@ retry:
 			if (waitret < 0) {
 				if (errno == EINTR)
 					break;
-				pr_fail_err("waitpid waiting on chroot child");
+				pr_fail("%s: waitpid waiting on chroot child failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto tidy_all;
 			}
 			if (WEXITSTATUS(status) != EXIT_SUCCESS)

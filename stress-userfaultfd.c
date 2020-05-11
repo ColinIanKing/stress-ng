@@ -98,7 +98,8 @@ static int stress_userfaultfd_clone(void *arg)
 
 		/* hint we don't need these pages */
 		if (shim_madvise(c->data, c->sz, MADV_DONTNEED) < 0) {
-			pr_fail_err("userfaultfd madvise failed");
+			pr_fail("%s: madvise failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)kill(c->parent, SIGALRM);
 			return -1;
 		}
@@ -124,7 +125,7 @@ static inline int handle_page_fault(
 	const size_t page_size)
 {
 	if ((addr < data_start) || (addr >= data_end)) {
-		pr_fail_err("userfaultfd page fault address out of range");
+		pr_fail("%s: page fault address is out of range\n", args->name);
 		return -1;
 	}
 
@@ -138,7 +139,8 @@ static inline int handle_page_fault(
 		copy.len = page_size;
 
 		if (ioctl(fd, UFFDIO_COPY, &copy) < 0) {
-			pr_fail_err("userfaultfd page fault copy ioctl failed");
+			pr_fail("%s: page fault ioctl UFFDIO_COPY failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return -1;
 		}
 	} else {
@@ -148,7 +150,8 @@ static inline int handle_page_fault(
 		zeropage.range.len = page_size;
 		zeropage.mode = 0;
 		if (ioctl(fd, UFFDIO_ZEROPAGE, &zeropage) < 0) {
-			pr_fail_err("userfaultfd page fault zeropage ioctl failed");
+			pr_fail("%s: page fault ioctl UFFDIO_ZEROPAGE failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return -1;
 		}
 	}
@@ -324,7 +327,8 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 				if (errno == EINTR)
 					continue;
 				if (errno != ENOMEM) {
-					pr_fail_err("poll userfaultfd");
+					pr_fail("%s: poll failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					if (!keep_stressing_flag())
 						break;
 				}
@@ -356,19 +360,20 @@ do_read:
 		if ((ret = read(fd, &msg, sizeof(msg))) < 0) {
 			if (errno == EINTR)
 				continue;
-			pr_fail_err("read userfaultfd");
+			pr_fail("%s: read failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			if (!keep_stressing_flag())
 				break;
 			continue;
 		}
 		/* We only expect a page fault event */
 		if (msg.event != UFFD_EVENT_PAGEFAULT) {
-			pr_fail_err("userfaultfd msg not pagefault event");
+			pr_fail("%s: msg event not a pagefault event\n", args->name);
 			continue;
 		}
 		/* We only expect a write fault */
 		if (!(msg.arg.pagefault.flags & UFFD_PAGEFAULT_FLAG_WRITE)) {
-			pr_fail_err("userfaultfd msg not write page fault event");
+			pr_fail("%s: msg event not write page fault event\n", args->name);
 			continue;
 		}
 		/* Go handle the page fault */

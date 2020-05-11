@@ -58,7 +58,8 @@ static int stress_ioprio(const stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		goto cleanup_dir;
 	}
 	(void)unlink(filename);
@@ -129,7 +130,8 @@ static int stress_ioprio(const stress_args_t *args)
 
 		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
 			if (errno != ENOSPC) {
-				pr_fail_err("pwritev");
+				pr_fail("%s: pwritev failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto cleanup_file;
 			}
 		}
@@ -155,7 +157,8 @@ static int stress_ioprio(const stress_args_t *args)
 
 		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
 			if (errno != ENOSPC) {
-				pr_fail_err("pwritev");
+				pr_fail("%s: pwritev failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto cleanup_file;
 			}
 		}
@@ -179,7 +182,8 @@ static int stress_ioprio(const stress_args_t *args)
 			}
 			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
 				if (errno != ENOSPC) {
-					pr_fail_err("pwritev");
+					pr_fail("%s: pwritev failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto cleanup_file;
 				}
 			}
@@ -201,7 +205,8 @@ static int stress_ioprio(const stress_args_t *args)
 			}
 			if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
 				if (errno != ENOSPC) {
-					pr_fail_err("pwritev");
+					pr_fail("%s: pwritev failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto cleanup_file;
 				}
 			}

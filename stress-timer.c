@@ -188,13 +188,15 @@ static int stress_timer(const stress_args_t *args)
 	sev.sigev_signo = SIGRTMIN;
 	sev.sigev_value.sival_ptr = &timerid;
 	if (timer_create(CLOCK_REALTIME, &sev, &timerid) < 0) {
-		pr_fail_err("timer_create");
+		pr_fail("%s: timer_create failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
 	stress_timer_set(&timer);
 	if (timer_settime(timerid, 0, &timer, NULL) < 0) {
-		pr_fail_err("timer_settime");
+		pr_fail("%s: timer_settime failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -208,7 +210,8 @@ static int stress_timer(const stress_args_t *args)
 	} while (keep_stressing());
 
 	if (timer_delete(timerid) < 0) {
-		pr_fail_err("timer_delete");
+		pr_fail("%s: timer_delete failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	pr_dbg("%s: %" PRIu64 " timer overruns (instance %" PRIu32 ")\n",

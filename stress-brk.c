@@ -57,7 +57,8 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 
 	start_ptr = shim_sbrk(0);
 	if (start_ptr == (void *) -1) {
-		pr_fail_err("sbrk(0)");
+		pr_fail("%s: sbrk(0) failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 

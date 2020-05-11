@@ -149,7 +149,8 @@ static int stress_dir(const stress_args_t *args)
 				path, sizeof(path), gray_code);
 			if (mkdir(path, S_IRUSR | S_IWUSR) < 0) {
 				if ((errno != ENOSPC) && (errno != ENOMEM)) {
-					pr_fail_err("mkdir");
+					pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+						args->name, path, errno, strerror(errno));
 					n = i;
 					break;
 				}

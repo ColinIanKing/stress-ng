@@ -250,7 +250,7 @@ static int stress_madvise(const stress_args_t *args)
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
-		pr_fail_err("sigsetjmp");
+		pr_fail("%s: sigsetjmp failed\n", args->name);
 		return EXIT_FAILURE;
 	}
 
@@ -276,7 +276,8 @@ static int stress_madvise(const stress_args_t *args)
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		(void)unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 		return ret;

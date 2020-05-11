@@ -682,8 +682,8 @@ static void stress_cpu_jenkin(const char *name)
 		i_sum += stress_hash_jenkin(buffer, sizeof(buffer));
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
-		pr_fail("%s: jenkin error detected, failed hash "
-			"jenkin sum\n", name);
+		pr_fail("%s: jenkin error detected, failed hash jenkin sum\n",
+			name);
 }
 
 /*

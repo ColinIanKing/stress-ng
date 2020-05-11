@@ -242,19 +242,22 @@ static int epoll_notification(
 				/* out of file descriptors! */
 				return 0;
 			}
-			pr_fail_err("accept");
+			pr_fail("%s: accept failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return -1;
 		}
 		/*
 		 *  Add non-blocking fd to epoll event list
 		 */
 		if (epoll_set_fd_nonblock(fd) < 0) {
-			pr_fail_err("setting socket to non-blocking");
+			pr_fail("%s: setting socket to non-blocking failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
 			return -1;
 		}
 		if (epoll_ctl_add(efd, fd) < 0) {
-			pr_fail_err("epoll ctl add");
+			pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
 			return -1;
 		}
@@ -429,13 +432,15 @@ static void epoll_server(
 		goto die;
 	}
 	if ((sfd = socket(epoll_domain, SOCK_STREAM, 0)) < 0) {
-		pr_fail_err("socket");
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die;
 	}
 	if (setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR,
 			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-		pr_fail_err("setsockopt");
+		pr_fail("%s: setsockopt SO_REUSEADDR failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -444,17 +449,20 @@ static void epoll_server(
 		epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
 
 	if (bind(sfd, addr, addr_len) < 0) {
-		pr_fail_err("bind");
+		pr_fail("%s: bind failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (epoll_set_fd_nonblock(sfd) < 0) {
-		pr_fail_err("setting socket to non-blocking");
+		pr_fail("%s: setting socket to non-blocking failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if (listen(sfd, SOMAXCONN) < 0) {
-		pr_fail_err("listen");
+		pr_fail("%s: listen failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -468,14 +476,16 @@ static void epoll_server(
 	if (stress_mwc1()) {
 		efd = epoll_create1(0);	/* flag version */
 		if (efd < 0) {
-			pr_fail_err("epoll_create1");
+			pr_fail("%s: epoll_create1 failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
 	} else {
 		efd = epoll_create(1);	/* size version */
 		if (efd < 0) {
-			pr_fail_err("epoll_create");
+			pr_fail("%s: epoll_create failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
@@ -483,19 +493,21 @@ static void epoll_server(
 #else
 	efd = epoll_create(1);	/* size version */
 	if (efd < 0) {
-		pr_fail_err("epoll_create");
+		pr_fail("%s: epoll_create failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 #endif
 	if (epoll_ctl_add(efd, sfd) < 0) {
-		pr_fail_err("epoll ctl add");
+		pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
 	if ((events = calloc(MAX_EPOLL_EVENTS,
 				sizeof(struct epoll_event))) == NULL) {
-		pr_fail_err("epoll ctl add");
+		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
@@ -522,7 +534,8 @@ static void epoll_server(
 		}
 		if (n < 0) {
 			if (errno != EINTR) {
-				pr_fail_err("epoll_wait");
+				pr_fail("%s: epoll_wait failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto die_close;
 			}

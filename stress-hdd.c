@@ -323,7 +323,8 @@ static int stress_hdd_advise(const stress_args_t *args, const int fd, const int 
 	for (i = 0; i < SIZEOF_ARRAY(hdd_opts); i++) {
 		if (hdd_opts[i].flag & flags) {
 			if (posix_fadvise(fd, 0, 0, hdd_opts[i].advice) < 0) {
-				pr_fail_err("posix_fadvise");
+				pr_fail("%s: posix_fadvise failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return -1;
 			}
 		}
@@ -469,7 +470,8 @@ static int stress_hdd(const stress_args_t *args)
 		if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Retry */
-			pr_fail_err("open");
+			pr_fail("%s: open %s failed, errno=%d (%s)\n",
+				args->name, filename, errno, strerror(errno));
 			goto finish;
 		}
 
@@ -482,13 +484,15 @@ static int stress_hdd(const stress_args_t *args)
 		/* Exercise ftruncate or truncate */
 		if (stress_mwc1()) {
 			if (ftruncate(fd, (off_t)0) < 0) {
-				pr_fail_err("ftruncate");
+				pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				(void)close(fd);
 				goto finish;
 			}
 		} else {
 			if (truncate(filename, (off_t)0) < 0) {
-				pr_fail_err("truncate");
+				pr_fail("%s: truncate failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				(void)close(fd);
 				goto finish;
 			}
@@ -515,7 +519,8 @@ static int stress_hdd(const stress_args_t *args)
 					(stress_mwc64() % hdd_bytes) & ~511;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
-					pr_fail_err("lseek");
+					pr_fail("%s: lseek failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					(void)close(fd);
 					goto finish;
 				}
@@ -536,7 +541,8 @@ rnd_wr_retry:
 					if (errno == ENOSPC)
 						break;
 					if (errno) {
-						pr_fail_err("write");
+						pr_fail("%s: write failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						(void)close(fd);
 						goto finish;
 					}
@@ -565,7 +571,8 @@ seq_wr_retry:
 					if (errno == ENOSPC)
 						break;
 					if (errno) {
-						pr_fail_err("write");
+						pr_fail("%s: write failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						(void)close(fd);
 						goto finish;
 					}
@@ -576,7 +583,8 @@ seq_wr_retry:
 		}
 
 		if (fstat(fd, &statbuf) < 0) {
-			pr_fail_err("fstat");
+			pr_fail("%s: fstat failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
 			continue;
 		}
@@ -590,7 +598,8 @@ seq_wr_retry:
 			uint64_t baddata = 0;
 
 			if (lseek(fd, 0, SEEK_SET) < 0) {
-				pr_fail_err("lseek");
+				pr_fail("%s: lseek failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				(void)close(fd);
 				goto finish;
 			}
@@ -607,7 +616,8 @@ seq_rd_retry:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_rd_retry;
 					if (errno) {
-						pr_fail_err("read");
+						pr_fail("%s: read failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						(void)close(fd);
 						goto finish;
 					}
@@ -639,8 +649,8 @@ seq_rd_retry:
 					" incomplete sequential reads\n",
 					args->name, misreads);
 			if (baddata)
-				pr_fail("%s: incorrect data found %"
-					PRIu64 " times\n", args->name, baddata);
+				pr_fail("%s: incorrect data found %" PRIu64 " times\n",
+					args->name, baddata);
 		}
 		/* Random Read */
 		if (hdd_flags & HDD_OPT_RD_RND) {
@@ -652,7 +662,8 @@ seq_rd_retry:
 					(stress_mwc64() % (hdd_bytes - hdd_write_size)) & ~511 : 0;
 
 				if (lseek(fd, offset, SEEK_SET) < 0) {
-					pr_fail_err("lseek");
+					pr_fail("%s: lseek failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					(void)close(fd);
 					goto finish;
 				}
@@ -667,7 +678,8 @@ rnd_rd_retry:
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_rd_retry;
 					if (errno) {
-						pr_fail_err("read");
+						pr_fail("%s: read failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						(void)close(fd);
 						goto finish;
 					}

@@ -248,7 +248,8 @@ static int stress_revio_advise(const stress_args_t *args, const int fd, const in
 	for (i = 0; i < SIZEOF_ARRAY(revio_opts); i++) {
 		if (revio_opts[i].flag & flags) {
 			if (posix_fadvise(fd, 0, 0, revio_opts[i].advice) < 0) {
-				pr_fail_err("posix_fadvise");
+				pr_fail("%s: posix_fadvise failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return -1;
 			}
 		}
@@ -373,11 +374,13 @@ static int stress_revio(const stress_args_t *args)
 		if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Retry */
-			pr_fail_err("open");
+			pr_fail("%s: open %s failed, errno=%d (%s)\n",
+				args->name, filename, errno, strerror(errno));
 			goto finish;
 		}
 		if (ftruncate(fd, (off_t)revio_bytes) < 0) {
-			pr_fail_err("ftruncate");
+			pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
 			goto finish;
 		}
@@ -398,7 +401,8 @@ seq_wr_retry:
 
 			lseek_ret = lseek(fd, offset, SEEK_SET);
 			if (lseek_ret < 0) {
-				pr_fail_err("write");
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				(void)close(fd);
 				goto finish;
 			}
@@ -412,7 +416,8 @@ seq_wr_retry:
 				if (errno == ENOSPC)
 					break;
 				if (errno) {
-					pr_fail_err("write");
+					pr_fail("%s: write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					(void)close(fd);
 					goto finish;
 				}

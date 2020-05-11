@@ -531,7 +531,8 @@ static int stress_prctl(const stress_args_t *args)
 
 		pid = fork();
 		if (pid == -1) {
-			pr_fail_err("fork");
+			pr_fail("%s: fork failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 		if (pid == 0) {

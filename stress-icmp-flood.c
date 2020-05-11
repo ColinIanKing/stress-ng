@@ -65,17 +65,20 @@ static int stress_icmp_flood(const stress_args_t *args)
 
 	fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (fd < 0) {
-		pr_fail_err("socket");
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto err;
 	}
 	if (setsockopt(fd, IPPROTO_IP, IP_HDRINCL,
 		(const char *)&set_on, sizeof(set_on)) < 0) {
-		pr_fail_err("setsockopt IP_HDRINCL");
+		pr_fail("%s: setsockopt IP_HDRINCL  failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto err_socket;
 	}
 	if (setsockopt(fd, SOL_SOCKET, SO_BROADCAST,
 		(const char *)&set_on, sizeof(set_on)) < 0) {
-		pr_fail_err("setsockopt SO_BROADCAST");
+		pr_fail("%s: setsockopt SO_BROADCAST failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto err_socket;
 	}
 

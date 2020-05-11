@@ -152,7 +152,8 @@ static int stress_mmapfork(const stress_args_t *args)
 					_exit(_EXIT_FAILURE);
 
 				if (sysinfo(&info) < 0) {
-					pr_fail_err("sysinfo");
+					pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					_exit(_EXIT_FAILURE);
 				}
 #if defined(MADV_WIPEONFORK)

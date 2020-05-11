@@ -60,7 +60,8 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
 	if (ret < 0) {
-		pr_fail_err("membarrier CMD QUERY");
+		pr_fail("%s: membarrier CMD QUERY failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return -1;
 	}
 	mask = (unsigned int)ret;

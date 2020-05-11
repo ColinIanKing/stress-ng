@@ -548,7 +548,8 @@ static int stress_mmap(const stress_args_t *args)
 		context.fd = open(filename, file_flags, S_IRUSR | S_IWUSR);
 		if (context.fd < 0) {
 			rc = exit_status(errno);
-			pr_fail_err("open");
+			pr_fail("%s: open %s failed, errno=%d (%s)\n",
+				args->name, filename, errno, strerror(errno));
 			(void)unlink(filename);
 			(void)stress_temp_dir_rm_args(args);
 
@@ -556,7 +557,8 @@ static int stress_mmap(const stress_args_t *args)
 		}
 		(void)unlink(filename);
 		if (lseek(context.fd, context.sz - args->page_size, SEEK_SET) < 0) {
-			pr_fail_err("lseek");
+			pr_fail("%s: lseek failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(context.fd);
 			(void)stress_temp_dir_rm_args(args);
 
@@ -573,7 +575,8 @@ redo:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
 			rc = exit_status(errno);
-			pr_fail_err("write");
+			pr_fail("%s: write failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(context.fd);
 			(void)stress_temp_dir_rm_args(args);
 

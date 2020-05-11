@@ -113,7 +113,8 @@ static int stress_key(const stress_args_t *args)
 				}
 				if ((errno == ENOMEM) || (errno == EDQUOT))
 					break;
-				pr_fail_err("add_key");
+				pr_fail("%s: add_key failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto tidy;
 			}
 #if defined(KEYCTL_SET_TIMEOUT)
@@ -123,7 +124,8 @@ static int stress_key(const stress_args_t *args)
 					if (errno == ENOSYS) {
 						timeout_supported = false;
 					} else {
-						pr_fail_err("keyctl KEYCTL_SET_TIMEOUT");
+						pr_fail("%s: keyctl KEYCTL_SET_TIMEOUT failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 					}
 				}
 			}
@@ -147,7 +149,8 @@ static int stress_key(const stress_args_t *args)
 				    (errno != ENOKEY) &&
 #endif
 				    (errno != EDQUOT)) {
-					pr_fail_err("keyctl KEYCTL_DESCRIBE");
+					pr_fail("%s: keyctl KEYCTL_DESCRIBE failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 			if (!keep_stressing_flag())
 				goto tidy;
@@ -166,7 +169,8 @@ static int stress_key(const stress_args_t *args)
 				    (errno != ENOKEY) &&
 #endif
 				    (errno != EDQUOT)) {
-					pr_fail_err("keyctl KEYCTL_UPDATE");
+					pr_fail("%s: keyctl KEYCTL_UPDATE failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				}
 			}
 			if (!keep_stressing_flag())
@@ -185,7 +189,8 @@ static int stress_key(const stress_args_t *args)
 				    (errno != ENOKEY) &&
 #endif
 				    (errno != EDQUOT)) {
-					pr_fail_err("keyctl KEYCTL_READ");
+					pr_fail("%s: keyctl KEYCTL_READ failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				}
 			}
 			if (!keep_stressing_flag())
@@ -206,7 +211,8 @@ static int stress_key(const stress_args_t *args)
 				    (errno != ENOKEY) &&
 #endif
 				    (errno != EDQUOT)) {
-					pr_fail_err("request_key");
+					pr_fail("%s: request_key failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				}
 			}
 			if (!keep_stressing_flag())

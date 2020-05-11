@@ -270,13 +270,13 @@ static int stress_exec(const stress_args_t *args)
 				stress_parent_died_alarm();
 
 				if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
-					pr_fail("%s: child open on "
-						"/dev/null failed\n", args->name);
+					pr_fail("%s: child open on /dev/null failed\n",
+						args->name);
 					_exit(EXIT_FAILURE);
 				}
 				if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
-					pr_fail("%s: child open on "
-						"/dev/zero failed\n", args->name);
+					pr_fail("%s: child open on /dev/zero failed\n",
+						args->name);
 					(void)close(fd_out);
 					_exit(EXIT_FAILURE);
 				}

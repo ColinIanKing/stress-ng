@@ -62,8 +62,7 @@ static void check_return(const stress_args_t *args, const int ret, const char *c
 		if ((errno != EINVAL) &&
 		    (errno != EINTR) &&
 		    (errno != EPERM)) {
-			pr_fail("%s: fcntl %s failed: "
-				"errno=%d (%s)\n",
+			pr_fail("%s: fcntl %s failed: errno=%d (%s)\n",
 				args->name, cmd, errno, strerror(errno));
 		}
 	}
@@ -304,7 +303,8 @@ static int do_fcntl(const stress_args_t *args, const int fd)
 		const off_t start = stress_mwc16() & 0x7fff;
 
 		if (ftruncate(fd, 65536) < 0) {
-			pr_fail_err("ftruncate");
+			pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto lock_abort;
 		}
 
@@ -319,7 +319,8 @@ static int do_fcntl(const stress_args_t *args, const int fd)
 
 #if 0
 		if (f.l_type != F_UNLCK) {
-			pr_fail_err("fcntl F_GETLK");
+			pr_fail("%s: fcntl F_GETLCK failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto lock_abort;
 		}
 #endif
@@ -440,7 +441,8 @@ lock_abort:	{ /* Nowt */ }
 		const off_t start = stress_mwc16() & 0x7fff;
 
 		if (ftruncate(fd, 65536) < 0) {
-			pr_fail_err("ftruncate");
+			pr_fail("%s: ftuncate failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto ofd_lock_abort;
 		}
 
@@ -572,7 +574,8 @@ static int stress_fcntl(const stress_args_t *args)
 	stress_temp_dir(pathname, sizeof(pathname), args->name, ppid, 0);
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			pr_fail_err("mkdir");
+			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+				args->name, pathname, errno, strerror(errno));
 			return exit_status(errno);
 		}
 	}
@@ -593,7 +596,8 @@ static int stress_fcntl(const stress_args_t *args)
 				(void)shim_usleep(100000);
 				continue;
 			}
-			pr_fail_err("open");
+			pr_fail("%s: creat %s failed, errno=%d (%s)\n",
+				args->name, filename, errno, strerror(errno));
 			goto tidy;
 		} else {
 			break;

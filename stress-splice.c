@@ -69,21 +69,24 @@ static int stress_splice(const stress_args_t *args)
 		splice_bytes = MIN_SPLICE_BYTES;
 
 	if (pipe(fds) < 0) {
-		pr_fail_err("pipe");
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
 	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
+		pr_fail("%s: open /dev/zero failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_fail_err("open");
 		return EXIT_FAILURE;
 	}
 	if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
+		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(fd_in);
 		(void)close(fds[0]);
 		(void)close(fds[1]);
-		pr_fail_err("open");
 		return EXIT_FAILURE;
 	}
 

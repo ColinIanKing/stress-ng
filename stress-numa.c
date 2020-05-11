@@ -202,7 +202,7 @@ static int stress_numa(const stress_args_t *args)
 		MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
 	if (buf == MAP_FAILED) {
 		rc = exit_status(errno);
-		pr_fail("%s: mmap'd region of %zu bytes failed",
+		pr_fail("%s: mmap'd region of %zu bytes failed\n",
 			args->name, (size_t)MMAP_SZ);
 		goto numa_free;
 	}
@@ -223,7 +223,8 @@ static int stress_numa(const stress_args_t *args)
 			(unsigned long)buf, MPOL_F_ADDR);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
-				pr_fail_err("get_mempolicy");
+				pr_fail("%s: get_mempolicy failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto err;
 			}
 		}
@@ -233,7 +234,8 @@ static int stress_numa(const stress_args_t *args)
 		ret = shim_set_mempolicy(MPOL_PREFERRED, NULL, max_nodes);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
-				pr_fail_err("set_mempolicy");
+				pr_fail("%s: set_mempolicy failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto err;
 			}
 		}
@@ -257,7 +259,8 @@ static int stress_numa(const stress_args_t *args)
 			max_nodes, MPOL_MF_STRICT);
 		if (ret < 0) {
 			if ((errno != EIO) && (errno != ENOSYS)) {
-				pr_fail_err("mbind");
+				pr_fail("%s: mbind failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto err;
 			}
 		} else {
@@ -275,7 +278,8 @@ static int stress_numa(const stress_args_t *args)
 			max_nodes, MPOL_DEFAULT);
 		if (ret < 0) {
 			if ((errno != EIO) && (errno != ENOSYS)) {
-				pr_fail_err("mbind");
+				pr_fail("%s: mbind failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto err;
 			}
 		} else {
@@ -304,7 +308,8 @@ static int stress_numa(const stress_args_t *args)
 			old_node_mask, node_mask);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
-				pr_fail_err("migrate_pages");
+				pr_fail("%s: migrate_pages failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto err;
 			}
 		}
@@ -325,7 +330,8 @@ static int stress_numa(const stress_args_t *args)
 				dest_nodes, status, MPOL_MF_MOVE);
 			if (ret < 0) {
 				if (errno != ENOSYS) {
-					pr_fail_err("move_pages");
+					pr_fail("%s: move_pages failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto err;
 				}
 			}

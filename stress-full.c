@@ -62,7 +62,8 @@ static int stress_full(const stress_args_t *args)
 					args->name);
 				return EXIT_NOT_IMPLEMENTED;
 			}
-			pr_fail_err("open");
+			pr_fail("%s: open /dev/full failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 
@@ -81,7 +82,8 @@ static int stress_full(const stress_args_t *args)
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto try_read;
 		if (errno != ENOSPC) {
-			pr_fail_err("write");
+			pr_fail("%s: write failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -92,14 +94,14 @@ static int stress_full(const stress_args_t *args)
 try_read:
 		ret = read(fd, buffer, sizeof(buffer));
 		if (ret < 0) {
-			pr_fail_err("read");
+			pr_fail("%s: read failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 		for (i = 0; i < ret; i++) {
 			if (buffer[i] != 0) {
-				pr_fail("%s: buffer does not "
-					"contain all zeros\n",
+				pr_fail("%s: buffer does not contain all zeros\n",
 					args->name);
 				(void)close(fd);
 				return EXIT_FAILURE;

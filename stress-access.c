@@ -109,7 +109,8 @@ static int stress_access(const stress_args_t *args)
 	(void)umask(0700);
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("creat");
+		pr_fail("%s: creat failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto tidy;
 	}
 

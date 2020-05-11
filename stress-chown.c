@@ -146,7 +146,8 @@ static int stress_chown(const stress_args_t *args)
 	if (mkdir(pathname, S_IRUSR | S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = exit_status(errno);
-			pr_fail_err("mkdir");
+			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+				args->name, pathname, errno, strerror(errno));
 			return rc;
 		}
 	}
@@ -156,7 +157,8 @@ static int stress_chown(const stress_args_t *args)
 	if (args->instance == 0) {
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 			rc = exit_status(errno);
-			pr_fail_err("creat");
+			pr_fail("%s: creat %s failed, errno=%d (%s)\n",
+				args->name, filename, errno, strerror(errno));
 			goto tidy;
 		}
 	} else {
@@ -192,7 +194,8 @@ static int stress_chown(const stress_args_t *args)
 
 		ret = do_fchown(fd, cap_chown, uid, gid);
 		if ((ret < 0) && (ret != -EPERM))
-			pr_fail_err("fchown");
+			pr_fail("%s: fchown failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 
 		ret = do_chown(chown, filename, cap_chown, uid, gid);
 		if (ret < 0) {
@@ -205,7 +208,8 @@ static int stress_chown(const stress_args_t *args)
 				goto tidy;
 			}
 			if (ret != -EPERM)
-				pr_fail_err("chown");
+				pr_fail("%s: chown %s failed, errno=%d (%s)\n",
+					args->name, filename, errno, strerror(errno));
 		}
 		ret = do_chown(lchown, filename, cap_chown, uid, gid);
 		if (ret < 0) {
@@ -218,7 +222,8 @@ static int stress_chown(const stress_args_t *args)
 				goto tidy;
 			}
 			if (ret != -EPERM)
-				pr_fail_err("chown");
+				pr_fail("%s: chown %s failed, errno=%d (%s)\n",
+					args->name, filename, errno, strerror(errno));
 		}
 		inc_counter(args);
 	} while (keep_stressing());

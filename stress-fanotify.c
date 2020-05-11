@@ -315,7 +315,8 @@ static int stress_fanotify(const stress_args_t *args)
 			/* Force FAN_CLOSE_NOWRITE */
 			fd = creat(filename, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
-				pr_fail_err("creat");
+				pr_fail("%s: creat %s failed, errno=%d (%s)\n",
+					args->name, filename, errno, strerror(errno));
 				(void)kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
@@ -324,7 +325,8 @@ static int stress_fanotify(const stress_args_t *args)
 			/* Force FAN_CLOSE_WRITE */
 			fd = open(filename, O_WRONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
-				pr_fail_err("open O_WRONLY");
+				pr_fail("%s: open %s O_WRONLY failed, errno=%d (%s)\n",
+					args->name, filename, errno, strerror(errno));
 				(void)kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
@@ -335,7 +337,8 @@ static int stress_fanotify(const stress_args_t *args)
 			/* Force FAN_ACCESS */
 			fd = open(filename, O_RDONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
-				pr_fail_err("open O_RDONLY");
+				pr_fail("%s: open %s O_RDONLY failed, errno=%d (%s)\n",
+					args->name, filename, errno, strerror(errno));
 				(void)kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
@@ -376,7 +379,8 @@ static int stress_fanotify(const stress_args_t *args)
 			if (ret == -1) {
 				if (errno == EINTR)
 					continue;
-				pr_fail_err("select");
+				pr_fail("%s: select failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				continue;
 			}
 			if (ret == 0)

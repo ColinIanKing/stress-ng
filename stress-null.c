@@ -40,7 +40,8 @@ static int stress_null(const stress_args_t *args)
 	char buffer[4096];
 
 	if ((fd = open("/dev/null", O_RDWR)) < 0) {
-		pr_fail_err("open");
+		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -57,7 +58,8 @@ static int stress_null(const stress_args_t *args)
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			if (errno) {
-				pr_fail_err("write");
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}

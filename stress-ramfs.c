@@ -210,12 +210,14 @@ static int stress_ramfs_child(const stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGALRM,
 	    stress_ramfs_child_handler, NULL) < 0) {
-		pr_fail_err("sighandler SIGALRM");
+		pr_fail("%s: SIGALRM sighandler failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	if (stress_sighandler(args->name, SIGSEGV,
 	    stress_ramfs_child_handler, NULL) < 0) {
-		pr_fail_err("sighandler SIGSEGV");
+		pr_fail("%s: SIGSEGV sighandler failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	(void)setpgid(0, g_pgrp);
@@ -253,8 +255,8 @@ static int stress_ramfs_child(const stress_args_t *args)
 			if ((errno != ENOSPC) &&
 			    (errno != ENOMEM) &&
 			    (errno != ENODEV))
-				pr_fail_err("mount");
-
+				pr_fail("%s: mount failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			/* Just in case, force umount */
 			goto cleanup;
 		}

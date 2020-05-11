@@ -118,12 +118,14 @@ static void stress_rawudp_client(
 		ssize_t n;
 
 		if ((fd = socket(PF_INET, SOCK_RAW, IPPROTO_UDP)) < 0) {
-			pr_fail_err("socket");
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto err;
 		}
 
 		if (setsockopt(fd,  IPPROTO_IP, IP_HDRINCL, &one, sizeof(one)) < 0) {
-			pr_fail_err("setsockopt");
+			pr_fail("%s: setsocketopt failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
 			goto err;
 		}
@@ -171,7 +173,8 @@ static int stress_rawudp_server(
 	}
 	if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("socket");
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto die;
 	}
 
@@ -182,7 +185,8 @@ static int stress_rawudp_server(
 
 	if ((bind(fd, (struct sockaddr *)&addr, addr_len) < 0)) {
 		rc = exit_status(errno);
-		pr_fail_err("bind");
+		pr_fail("%s: bind failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto die_close;
 	}
 

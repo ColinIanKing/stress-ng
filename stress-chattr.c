@@ -139,7 +139,8 @@ static int stress_chattr(const stress_args_t *args)
 	if (mkdir(pathname, S_IRUSR | S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			rc = exit_status(errno);
-			pr_fail_err("mkdir");
+			pr_fail("%s: mkdir of %s failed, errno=%d (%s)\n",
+				args->name, pathname, errno, strerror(errno));
 			return rc;
 		}
 	}

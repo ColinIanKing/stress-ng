@@ -118,8 +118,7 @@ static int stress_bsearch(const stress_args_t *args)
 			result = bsearch(ptr, data, n, sizeof(*ptr), cmp);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
-					pr_fail("%s: element %zu could "
-						"not be found\n",
+					pr_fail("%s: element %zu could not be found\n",
 						args->name, i);
 				else if (*result != *ptr)
 					pr_fail("%s: element %zu "

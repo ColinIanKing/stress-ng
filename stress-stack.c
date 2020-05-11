@@ -156,11 +156,13 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 		new_action.sa_flags = SA_ONSTACK;
 
 		if (sigaction(SIGSEGV, &new_action, NULL) < 0) {
-			pr_fail_err("sigaction");
+			pr_fail("%s: sigaction on SIGSEGV failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 		if (sigaction(SIGBUS, &new_action, NULL) < 0) {
-			pr_fail_err("sigaction");
+			pr_fail("%s: sigaction on SIGBUS failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 		ret = sigsetjmp(jmp_env, 1);

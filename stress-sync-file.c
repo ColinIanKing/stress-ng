@@ -133,7 +133,8 @@ static int stress_sync_file(const stress_args_t *args)
 		}
 
 		ret = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
@@ -161,7 +162,8 @@ static int stress_sync_file(const stress_args_t *args)
 						args->name);
 					goto err;
 				}
-				pr_fail_err("sync_file_range (forward)");
+				pr_fail("%s: sync_file_range (forward), errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				break;
 			}
 			offset += sz;
@@ -186,7 +188,8 @@ static int stress_sync_file(const stress_args_t *args)
 						args->name);
 					goto err;
 				}
-				pr_fail_err("sync_file_range (reverse)");
+				pr_fail("%s: sync_file_range (reverse), errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				break;
 			}
 			offset += sz;
@@ -210,7 +213,8 @@ static int stress_sync_file(const stress_args_t *args)
 						args->name);
 					goto err;
 				}
-				pr_fail_err("sync_file_range (random)");
+				pr_fail("%s: sync_file_range (random), errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				break;
 			}
 		}

@@ -67,7 +67,8 @@ static int stress_sysinfo(const stress_args_t *args)
 
 			ret = sysinfo(&sysinfo_buf);
 			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
-			 	pr_fail_err("sysinfo");
+			 	pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 
 			check_do_run();
 
@@ -91,8 +92,7 @@ static int stress_sysinfo(const stress_args_t *args)
 					if (errno != ENOSYS &&
 					    errno != EOVERFLOW &&
 					    errno != EACCES) {
-						pr_fail("%s: statfs on %s "
-							"failed: errno=%d (%s)\n",
+						pr_fail("%s: statfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
 					}
@@ -110,8 +110,7 @@ static int stress_sysinfo(const stress_args_t *args)
 					if (errno != ENOSYS &&
 					    errno != EOVERFLOW &&
 					    errno != EACCES) {
-						pr_fail("%s: fstatfs on %s "
-							"failed: errno=%d (%s)\n",
+						pr_fail("%s: fstatfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
 					}
@@ -139,8 +138,7 @@ static int stress_sysinfo(const stress_args_t *args)
 					if (errno != EINVAL &&
 					    errno != EFAULT &&
 					    errno != ENOSYS) {
-						pr_fail("%s: ustat on %s "
-							"failed: errno=%d (%s)\n",
+						pr_fail("%s: ustat on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
 					}
@@ -169,8 +167,7 @@ static int stress_sysinfo(const stress_args_t *args)
 					if (errno != ENOSYS &&
 					    errno != EOVERFLOW &&
 					    errno != EACCES) {
-						pr_fail("%s: statvfs on %s "
-							"failed: errno=%d (%s)\n",
+						pr_fail("%s: statvfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
 					}
@@ -182,7 +179,8 @@ static int stress_sysinfo(const stress_args_t *args)
 		check_do_run();
 		clk = times(&tms_buf);
 		if ((clk == (clock_t)-1) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-			 pr_fail_err("times");
+			 pr_fail("%s: times failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 		}
 		inc_counter(args);
 	} while (keep_stressing());

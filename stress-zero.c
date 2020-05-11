@@ -59,7 +59,8 @@ static int stress_zero(const stress_args_t *args)
 	char wr_buffer[page_size];
 
 	if ((fd = open("/dev/zero", flags)) < 0) {
-		pr_fail_err("open /dev/zero");
+		pr_fail("%s: open /dev/zero failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -76,7 +77,8 @@ static int stress_zero(const stress_args_t *args)
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_fail_err("read");
+			pr_fail("%s: read failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -91,7 +93,8 @@ static int stress_zero(const stress_args_t *args)
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_fail_err("write");
+			pr_fail("%s: write failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
@@ -106,12 +109,13 @@ static int stress_zero(const stress_args_t *args)
 		if (ptr == MAP_FAILED) {
 			if ((errno == ENOMEM) || (errno == EAGAIN))
 				continue;
-			pr_fail_err("mmap /dev/zero");
+			pr_fail("%s: mmap /dev/zero failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 		if (stress_is_not_zero(rd_buffer, (size_t)ret)) {
-			pr_fail("%s: memory mapped page of /dev/zero is not zero",
+			pr_fail("%s: memory mapped page of /dev/zero is not zero\n",
 				args->name);
 		}
 		(void)munmap(ptr, page_size);

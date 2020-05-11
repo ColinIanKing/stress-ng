@@ -89,7 +89,8 @@ static int stress_fiemap_writer(
 			if (errno == ENOSPC)
 				continue;
 			if ((errno != EAGAIN) && (errno != EINTR)) {
-				pr_fail_err("write");
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto tidy;
 			}
 		}
@@ -156,8 +157,8 @@ static void stress_fiemap_ioctl(const stress_args_t *args, int fd)
 				free(fiemap);
 				break;
 			}
-
-			pr_fail_err("FS_IOC_FIEMAP ioctl()");
+			pr_fail("%s: ioctl FS_IOC_FIEMAP failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			free(fiemap);
 			break;
 		}
@@ -174,7 +175,8 @@ static void stress_fiemap_ioctl(const stress_args_t *args, int fd)
 		tmp = (struct fiemap *)realloc(fiemap,
 			sizeof(*fiemap) + extents_size);
 		if (!tmp) {
-			pr_fail_err("FS_IOC_FIEMAP ioctl()");
+			pr_fail("%s: ioctl FS_IOC_FIEMAP failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			free(fiemap);
 			break;
 		}
@@ -185,7 +187,8 @@ static void stress_fiemap_ioctl(const stress_args_t *args, int fd)
 		fiemap->fm_mapped_extents = 0;
 
 		if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
-			pr_fail_err("FS_IOC_FIEMAP ioctl()");
+			pr_fail("%s: ioctl FS_IOC_FIEMAP failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			free(fiemap);
 			break;
 		}
@@ -264,7 +267,8 @@ static int stress_fiemap(const stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		goto clean;
 	}
 	(void)unlink(filename);

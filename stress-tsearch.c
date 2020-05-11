@@ -108,8 +108,7 @@ static int stress_tsearch(const stress_args_t *args)
 			result = tfind(&data[i], &root, cmp);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
-					pr_fail("%s: element %zu "
-						"could not be found\n",
+					pr_fail("%s: element %zu could not be found\n",
 						args->name, i);
 				else {
 					int32_t *val;
@@ -128,8 +127,8 @@ static int stress_tsearch(const stress_args_t *args)
 
 			result = tdelete(&data[i], &root, cmp);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) && (result == NULL))
-				pr_fail("%s: element %zu could not "
-					"be found\n", args->name, i);
+				pr_fail("%s: element %zu could not be found\n",
+					args->name, i);
 		}
 		inc_counter(args);
 	} while (keep_stressing());

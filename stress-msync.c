@@ -102,7 +102,7 @@ static int stress_msync(const stress_args_t *args)
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
-		pr_fail_err("sigsetjmp");
+		pr_fail("%s: sigsetjmp failed\n", args->name);
 		return EXIT_FAILURE;
 	}
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
@@ -135,7 +135,8 @@ static int stress_msync(const stress_args_t *args)
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		(void)unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 
@@ -196,7 +197,8 @@ static int stress_msync(const stress_args_t *args)
 		}
 		ret = read(fd, data, sizeof(data));
 		if (ret < (ssize_t)sizeof(data)) {
-			pr_fail_err("read");
+			pr_fail("%s: read failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto do_invalidate;
 		}
 		if (stress_page_check(data, val, sizeof(data)) < 0) {
@@ -223,7 +225,8 @@ do_invalidate:
 		}
 		ret = read(fd, data, sizeof(data));
 		if (ret < (ssize_t)sizeof(data)) {
-			pr_fail_err("read");
+			pr_fail("%s: read failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto do_next;
 		}
 		ret = shim_msync(buf + offset, page_size, MS_INVALIDATE);

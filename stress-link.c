@@ -77,7 +77,8 @@ static int stress_link_generic(
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		if ((errno == ENFILE) || (errno == ENOMEM) || (errno == ENOSPC))
 			return EXIT_NO_RESOURCE;
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, oldpath, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
 		return EXIT_FAILURE;
 	}
@@ -103,7 +104,8 @@ static int stress_link_generic(
 					continue;
 				}
 				rc = exit_status(errno);
-				pr_fail_err(funcname);
+				pr_fail("%s: %s failed, errno=%d (%s)\n",
+					args->name, funcname, errno, strerror(errno));
 				n = i;
 				break;
 			}
@@ -114,19 +116,23 @@ static int stress_link_generic(
 				rret = readlink(newpath, buf, sizeof(buf) - 1);
 				if (rret < 0) {
 					rc = exit_status(errno);
-					pr_fail_err("readlink");
+					pr_fail("%s: readlink failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				} else {
 					newpath[rret] = '\0';
 					if ((size_t)rret != oldpathlen)
-						pr_fail_err("readlink length error");
+						pr_fail("%s: readlink length error, got %zd, expected: %zd\n",
+							args->name, (size_t)rret, oldpathlen);
 					else
 						if (strncmp(oldpath, buf, rret))
-							pr_fail_err("readlink path error");
+							pr_fail("%s: readlink path error, got %s, exepected %s\n",
+								args->name, buf, oldpath);
 				}
 			}
 			if (lstat(newpath, &stbuf) < 0) {
 				rc = exit_status(errno);
-				pr_fail_err("lstat");
+				pr_fail("%s: lstat failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			}
 
 			if (!keep_stressing())

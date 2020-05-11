@@ -69,11 +69,13 @@ static int stress_loop(const stress_args_t *args)
 		backing_file, sizeof(backing_file), stress_mwc32());
 
 	if ((backing_fd = open(backing_file, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, backing_file, errno, strerror(errno));
 		goto tidy;
 	}
 	if (ftruncate(backing_fd, backing_size) < 0) {
-		pr_fail_err("ftruncate");
+		pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(backing_fd);
 		goto tidy;
 	}

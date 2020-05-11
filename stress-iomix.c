@@ -61,7 +61,8 @@ static void stress_iomix_wr_seq_bursts(
 		posn = stress_mwc64() % iomix_bytes;
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret < 0) {
-			pr_fail_err("seek");
+			pr_fail("%s: lseek failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return;
 		}
 		for (i = 0; (i < n) && (posn < iomix_bytes); i++) {
@@ -74,7 +75,8 @@ static void stress_iomix_wr_seq_bursts(
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
 				if (errno != EPERM) {
-					pr_fail_err("write");
+					pr_fail("%s: write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					return;
 				}
 			}
@@ -112,7 +114,8 @@ static void stress_iomix_wr_rnd_bursts(
 			posn = stress_mwc64() % iomix_bytes;
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret < 0) {
-				pr_fail_err("seek");
+				pr_fail("%s: lseek failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return;
 			}
 
@@ -120,7 +123,8 @@ static void stress_iomix_wr_rnd_bursts(
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
 				if (errno != EPERM) {
-					pr_fail_err("write");
+					pr_fail("%s: write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					return;
 				}
 			}
@@ -149,7 +153,8 @@ static void stress_iomix_wr_seq_slow(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret < 0) {
-			pr_fail_err("seek");
+			pr_fail("%s: lseek failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return;
 		}
 		while (posn < iomix_bytes) {
@@ -162,7 +167,8 @@ static void stress_iomix_wr_seq_slow(
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
 				if (errno != EPERM) {
-					pr_fail_err("write");
+					pr_fail("%s: write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					return;
 				}
 			}
@@ -193,7 +199,8 @@ static void stress_iomix_rd_seq_bursts(
 		posn = stress_mwc64() % iomix_bytes;
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret < 0) {
-			pr_fail_err("seek");
+			pr_fail("%s: lseek failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return;
 		}
 #if defined(HAVE_POSIX_FADVISE)
@@ -206,7 +213,8 @@ static void stress_iomix_rd_seq_bursts(
 
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail_err("read");
+				pr_fail("%s: read failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return;
 			}
 			posn += rc;
@@ -246,13 +254,15 @@ static void stress_iomix_rd_rnd_bursts(
 #endif
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret < 0) {
-				pr_fail_err("seek");
+				pr_fail("%s: lseek failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return;
 			}
 
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail_err("read");
+				pr_fail("%s: read failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return;
 			}
 			if (!keep_stressing())
@@ -279,7 +289,8 @@ static void stress_iomix_rd_seq_slow(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret < 0) {
-			pr_fail_err("seek");
+			pr_fail("%s: lseek failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return;
 		}
 		while (posn < iomix_bytes) {
@@ -292,7 +303,8 @@ static void stress_iomix_rd_seq_slow(
 #endif
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail_err("read");
+				pr_fail("%s: read failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return;
 			}
 			(void)shim_usleep(333333);
@@ -431,7 +443,8 @@ static void stress_iomix_wr_bytes(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret < 0) {
-			pr_fail_err("seek");
+			pr_fail("%s: lseek failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return;
 		}
 		while (posn < iomix_bytes) {
@@ -441,7 +454,8 @@ static void stress_iomix_wr_bytes(
 			rc = write(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
 				if (errno != EPERM) {
-					pr_fail_err("write");
+					pr_fail("%s: write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					return;
 			}	}
 			(void)shim_usleep(1000);
@@ -471,14 +485,16 @@ static void stress_iomix_rd_bytes(
 
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret < 0) {
-				pr_fail_err("seek");
+				pr_fail("%s: lseek failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return;
 			}
 
 			rc = read(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
 				if (errno != EPERM) {
-					pr_fail_err("write");
+					pr_fail("%s: write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					return;
 				}
 			}
@@ -696,7 +712,8 @@ static int stress_iomix(const stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR | O_SYNC, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		goto unmap;
 	}
 	(void)unlink(filename);
@@ -711,7 +728,8 @@ static int stress_iomix(const stress_args_t *args)
 			ret = EXIT_NO_RESOURCE;
 		} else {
 			ret = EXIT_FAILURE;
-			pr_fail_err("fallocate");
+			pr_fail("%s: fallocate failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 		}
 		goto tidy;
 	}

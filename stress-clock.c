@@ -150,8 +150,7 @@ static int stress_clock(const stress_args_t *args)
 			ret = shim_clock_gettime(CLOCK_THREAD_CPUTIME_ID, &t);
 			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (errno != EINVAL) && (errno != ENOSYS))
-				pr_fail("%s: clock_gettime failed for "
-					"timer 'CLOCK_THREAD_CPUTIME_ID', errno=%d (%s)\n",
+				pr_fail("%s: clock_gettime failed for timer 'CLOCK_THREAD_CPUTIME_ID', errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 
 			/*
@@ -180,14 +179,12 @@ static int stress_clock(const stress_args_t *args)
 				ret = shim_clock_getres(clocks[i].id, &t);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 			            (errno != EINVAL) && (errno != ENOSYS))
-					pr_fail("%s: clock_getres failed for "
-						"timer '%s', errno=%d (%s)\n",
+					pr_fail("%s: clock_getres failed for timer '%s', errno=%d (%s)\n",
 							args->name, clocks[i].name, errno, strerror(errno));
 				ret = shim_clock_gettime(clocks[i].id, &t);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 			            (errno != EINVAL) && (errno != ENOSYS))
-					pr_fail("%s: clock_gettime failed for "
-						"timer '%s', errno=%d (%s)\n",
+					pr_fail("%s: clock_gettime failed for timer '%s', errno=%d (%s)\n",
 						args->name, clocks[i].name, errno, strerror(errno));
 			}
 		}
@@ -212,8 +209,8 @@ static int stress_clock(const stress_args_t *args)
 				 */
 				ret = clock_nanosleep(clocks_nanosleep[i], TIMER_ABSTIME, &t, NULL);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
-					pr_fail("%s: clock_nanosleep failed for timer '%s', "
-						"errno=%d (%s)\n", args->name,
+					pr_fail("%s: clock_nanosleep failed for timer '%s', errno=%d (%s)\n",
+						args->name,
 						stress_clock_name(clocks_nanosleep[i]),
 						errno, strerror(errno));
 			}
@@ -243,9 +240,8 @@ static int stress_clock(const stress_args_t *args)
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
 			            (errno != EINVAL) && (errno != ENOSYS) &&
 				    (errno != EPERM) && (errno != EOPNOTSUPP)) {
-					pr_fail("%s: clock_adjtime failed for "
-						"timer '%s', errno=%d (%s)\n",
-							args->name, clocks[i].name, errno, strerror(errno));
+					pr_fail("%s: clock_adjtime failed for timer '%s', errno=%d (%s)\n",
+						args->name, clocks[i].name, errno, strerror(errno));
 				}
 			}
 		}
@@ -282,8 +278,8 @@ static int stress_clock(const stress_args_t *args)
 					if (g_opt_flags & OPT_FLAGS_VERIFY) {
 						if ((errno == EINVAL) || (errno == EPERM))
 							continue;
-						pr_fail("%s: timer_create failed for timer '%s', "
-							"errno=%d (%s)\n", args->name,
+						pr_fail("%s: timer_create failed for timer '%s', errno=%d (%s)\n",
+							args->name,
 							stress_clock_name(timers[i]),
 							errno, strerror(errno));
 					}
@@ -298,8 +294,8 @@ static int stress_clock(const stress_args_t *args)
 
 				ret = timer_settime(timer_id[i], 0, &its, NULL);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					pr_fail("%s: timer_settime failed for timer '%s', "
-						"errno=%d (%s)\n", args->name,
+					pr_fail("%s: timer_settime failed for timer '%s', errno=%d (%s)\n",
+						args->name,
 						stress_clock_name(timers[i]),
 						errno, strerror(errno));
 				}
@@ -311,8 +307,8 @@ static int stress_clock(const stress_args_t *args)
 
 				ret = timer_gettime(timer_id[i], &its);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					pr_fail("%s: timer_gettime failed for timer '%s', "
-						"errno=%d (%s)\n", args->name,
+					pr_fail("%s: timer_gettime failed for timer '%s', errno=%d (%s)\n",
+						args->name,
 						stress_clock_name(timers[i]),
 						errno, strerror(errno));
 					break;
@@ -326,8 +322,8 @@ static int stress_clock(const stress_args_t *args)
 					continue;
 				ret = timer_delete(timer_id[i]);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					pr_fail("%s: timer_delete failed for timer '%s', "
-						"errno=%d (%s)\n", args->name,
+					pr_fail("%s: timer_delete failed for timer '%s', errno=%d (%s)\n",
+						args->name,
 						stress_clock_name(timers[i]),
 						errno, strerror(errno));
 					break;

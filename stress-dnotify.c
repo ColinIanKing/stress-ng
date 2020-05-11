@@ -95,15 +95,18 @@ static void dnotify_exercise(
 	int fd, i = 0;
 
 	if ((fd = open(watchname, O_RDONLY)) < 0) {
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, watchname, errno, strerror(errno));
 		return;
 	}
 	if (fcntl(fd, F_SETSIG, SIGRTMIN + 1) < 0) {
-		pr_fail_err("fcntl F_SETSIG");
+		pr_fail("%s: fcntl F_SETSIG failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto cleanup;
 	}
 	if (fcntl(fd, F_NOTIFY, flags) < 0) {
-		pr_fail_err("fcntl F_NOTIFY");
+		pr_fail("%s: fcntl F_NOTIFY failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto cleanup;
 	}
 
@@ -120,8 +123,8 @@ static void dnotify_exercise(
 	}
 
 	if (dnotify_fd != fd) {
-		pr_fail("%s: did not get expected dnotify "
-			"file descriptor\n", args->name);
+		pr_fail("%s: did not get expected dnotify file descriptor\n",
+			args->name);
 	}
 
 cleanup:

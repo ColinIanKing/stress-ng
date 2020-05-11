@@ -149,7 +149,8 @@ static int stress_lockofd_unlock(const stress_args_t *args, const int fd)
 	stress_lockofd_info_head_remove();
 
 	if (fcntl(fd, F_OFD_SETLK, &f) < 0) {
-		pr_fail_err("F_SETLK");
+		pr_fail("%s: fcntl F_OFD_SETLK failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -193,7 +194,7 @@ static int stress_lockofd_contention(
 
 		lockofd_info = stress_lockofd_info_new();
 		if (!lockofd_info) {
-			pr_fail_err("calloc");
+			pr_fail("%s: calloc failed, out of memory\n", args->name);
 			return -1;
 		}
 		lockofd_info->offset = offset;
@@ -229,7 +230,8 @@ static int stress_lockofd(const stress_args_t *args)
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			ret = exit_status(errno);
-			pr_fail_err("mkdir");
+			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+				args->name, pathname, errno, strerror(errno));
 			return ret;
 		}
 	}
@@ -244,13 +246,15 @@ static int stress_lockofd(const stress_args_t *args)
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, pathname, errno, strerror(errno));
 		(void)rmdir(pathname);
 		return ret;
 	}
 
 	if (lseek(fd, 0, SEEK_SET) < 0) {
-		pr_fail_err("lseek");
+		pr_fail("%s: lseek failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto tidy;
 	}
 	for (offset = 0; offset < LOCK_FILE_SIZE; offset += sizeof(buffer)) {
@@ -264,7 +268,8 @@ redo:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
 			ret = exit_status(errno);
-			pr_fail_err("write");
+			pr_fail("%s: write failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto tidy;
 		}
 	}
@@ -278,7 +283,8 @@ again:
 		}
 		if ((errno == EAGAIN) || (errno == ENOMEM))
 			goto again;
-		pr_fail_err("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto tidy;
 	}
 	if (cpid == 0) {

@@ -183,8 +183,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 			if (ret == 0) {
 				ret = ioctl(fd, FIOQSIZE, &sz);
 				if ((ret == 0) && (file_sz != buf.st_size))
-					pr_fail("%s: ioctl FIOQSIZE failed, size "
-						"%jd (filesize) vs %jd (reported)\n",
+					pr_fail("%s: ioctl FIOQSIZE failed, size %jd (filesize) vs %jd (reported)\n",
 						args->name,
 						(intmax_t)file_sz, (intmax_t)sz);
 			}
@@ -212,8 +211,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 			ret = ioctl(fd, FIGETBSZ, &isz);
 			if ((ret == 0) && (isz < 1))
-				pr_fail("%s: ioctl FIGETBSZ returned unusual "
-					"block size %d\n", args->name, isz);
+				pr_fail("%s: ioctl FIGETBSZ returned unusual block size %d\n",
+					args->name, isz);
 
 			exercised++;
 		}

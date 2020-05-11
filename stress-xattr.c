@@ -58,7 +58,8 @@ static int stress_xattr(const stress_args_t *args)
 	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		goto out;
 	}
 
@@ -82,7 +83,8 @@ static int stress_xattr(const stress_args_t *args)
 				}
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
-				pr_fail_err("fsetxattr");
+				pr_fail("%s: fsetxattr failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto out_close;
 			}
 		}
@@ -95,7 +97,8 @@ static int stress_xattr(const stress_args_t *args)
 			if (ret < 0) {
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
-				pr_fail_err("fsetxattr");
+				pr_fail("%s: fsetxattr failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto out_close;
 			}
 
@@ -105,7 +108,8 @@ static int stress_xattr(const stress_args_t *args)
 			if (ret < 0) {
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
-				pr_fail_err("setxattr");
+				pr_fail("%s: setxattr failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto out_close;
 			}
 
@@ -116,7 +120,8 @@ static int stress_xattr(const stress_args_t *args)
 			if (ret < 0) {
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
-				pr_fail_err("lsetxattr");
+				pr_fail("%s: lsetxattr failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto out_close;
 			}
 #endif
@@ -130,24 +135,24 @@ static int stress_xattr(const stress_args_t *args)
 			(void)memset(tmp, 0, sizeof(tmp));
 			ret = shim_fgetxattr(fd, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
-				pr_fail_err("fgetxattr");
+				pr_fail("%s: fgetxattr failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto out_close;
 			}
 			if (strncmp(value, tmp, ret)) {
-				pr_fail("%s: fgetxattr values "
-					"different %.*s vs %.*s\n",
+				pr_fail("%s: fgetxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, ret, tmp);
 				goto out_close;
 			}
 
 			ret = shim_getxattr(filename, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
-				pr_fail_err("getxattr");
+				pr_fail("%s: getxattr failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto out_close;
 			}
 			if (strncmp(value, tmp, ret)) {
-				pr_fail("%s: getxattr values "
-					"different %.*s vs %.*s\n",
+				pr_fail("%s: getxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, ret, tmp);
 				goto out_close;
 			}
@@ -155,12 +160,12 @@ static int stress_xattr(const stress_args_t *args)
 #if defined(HAVE_LGETXATTR)
 			ret = shim_lgetxattr(filename, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
-				pr_fail_err("getxattr");
+				pr_fail("%s: lgetxattr failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto out_close;
 			}
 			if (strncmp(value, tmp, ret)) {
-				pr_fail("%s: lgetxattr values "
-					"different %.*s vs %.*s\n",
+				pr_fail("%s: lgetxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, ret, tmp);
 				goto out_close;
 			}
@@ -169,7 +174,8 @@ static int stress_xattr(const stress_args_t *args)
 		/* Determine how large a buffer we required... */
 		sz = shim_flistxattr(fd, NULL, 0);
 		if (sz < 0) {
-			pr_fail_err("flistxattr");
+			pr_fail("%s: flistxattr failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto out_close;
 		}
 		buffer = malloc(sz);
@@ -179,7 +185,8 @@ static int stress_xattr(const stress_args_t *args)
 			free(buffer);
 
 			if (sz < 0) {
-				pr_fail_err("listxattr");
+				pr_fail("%s: listxattr failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto out_close;
 			}
 		}
@@ -205,14 +212,16 @@ static int stress_xattr(const stress_args_t *args)
 				break;
 			}
 			if (ret < 0) {
-				pr_fail_err(errmsg);
+				pr_fail("%s: %s failed, errno=%d (%s)\n",
+					args->name, errmsg, errno, strerror(errno));
 				goto out_close;
 			}
 		}
 #if defined(HAVE_LLISTXATTR)
 		sz = shim_llistxattr(filename, NULL, 0);
 		if (sz < 0) {
-			pr_fail_err("flistxattr");
+			pr_fail("%s: llistxattr failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto out_close;
 		}
 #endif

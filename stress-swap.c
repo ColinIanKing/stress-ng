@@ -84,13 +84,15 @@ static int stress_swap_zero(
 	uint32_t i;
 
 	if (lseek(fd, 0, SEEK_SET) < 0) {
-		pr_fail_err("lseek");
+		pr_fail("%s: lseek failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return -1;
 	}
 
 	for (i = 0; i < npages; i++) {
 		if (write(fd, page, args->page_size) < 0) {
-			pr_fail_err("write");
+			pr_fail("%s: write failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return -1;
 		}
 	}
@@ -111,7 +113,8 @@ static int stress_swap_set_size(
 		return -1;
 	}
 	if (lseek(fd, 0, SEEK_SET) < 0) {
-		pr_fail_err("lseek");
+		pr_fail("%s: lseek failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return -1;
 	}
 	(void)memset(&swap_info, 0, sizeof(swap_info));
@@ -124,15 +127,18 @@ static int stress_swap_set_size(
 	swap_info.last_page = npages - 1;
 	swap_info.nr_badpages = 0;
 	if (write(fd, &swap_info, sizeof(swap_info)) < 0) {
-		pr_fail_err("write swap info");
+		pr_fail("%s: write of swap info failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return -1;
 	}
 	if (lseek(fd, args->page_size - SWAP_SIGNATURE_SZ, SEEK_SET) < 0) {
-		pr_fail_err("lseek");
+		pr_fail("%s: lseek failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return -1;
 	}
 	if (write(fd, signature, SWAP_SIGNATURE_SZ) < 0) {
-		pr_fail_err("write swap info");
+		pr_fail("%s: write of swap signature failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return -1;
 	}
 	return 0;
@@ -167,7 +173,8 @@ static int stress_swap(const stress_args_t *args)
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR);
 	if (fd < 0) {
 		ret = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open swap file %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		goto tidy_rm;
 	}
 
@@ -209,7 +216,8 @@ static int stress_swap(const stress_args_t *args)
 				ret = EXIT_NO_RESOURCE;
 				break;
 			default:
-				pr_fail_err("swapon");
+				pr_fail("%s: swapon failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				ret = EXIT_FAILURE;
 				break;
 			}
@@ -218,7 +226,8 @@ static int stress_swap(const stress_args_t *args)
 
 		ret = swapoff(filename);
 		if (ret < 0) {
-			pr_fail_err("swapoff");
+			pr_fail("%s: swapoff failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
 			(void)stress_thrash_stop();
 			goto tidy_close;

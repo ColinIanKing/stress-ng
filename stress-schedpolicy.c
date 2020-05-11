@@ -174,7 +174,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 		} else {
 			ret = sched_getscheduler(pid);
 			if (ret < 0) {
-				pr_fail_err("sched_getscheduler");
+				pr_fail("%s: sched_getscheduler failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			} else if (ret != policies[policy]) {
 				pr_fail("%s: sched_getscheduler "
 					"failed: pid %d has policy %d (%s) "
@@ -187,11 +188,13 @@ static int stress_schedpolicy(const stress_args_t *args)
 		(void)memset(&param, 0, sizeof param);
 		ret = sched_getparam(pid, &param);
 		if ((ret < 0) && ((errno != EINVAL) && (errno != EPERM)))
-			pr_fail_err("sched_getparam failed");
+			pr_fail("%s: sched_getparam failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 
 		ret = sched_setparam(pid, &param);
 		if ((ret < 0) && ((errno != EINVAL) && (errno != EPERM)))
-			pr_fail_err("sched_setparam");
+			pr_fail("%s: sched_setparam failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 #endif
 
 #if defined(HAVE_SCHED_GETATTR) && \
@@ -204,7 +207,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 		ret = shim_sched_getattr(pid, &attr, sizeof(attr), 0);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
-				pr_fail_err("sched_getattr");
+				pr_fail("%s: sched_getattr failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			}
 		}
 
@@ -232,7 +236,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 		ret = shim_sched_setattr(pid, &attr, 0);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
-				pr_fail_err("sched_getattr");
+				pr_fail("%s: sched_setattr failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			}
 		}
 

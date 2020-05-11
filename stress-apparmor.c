@@ -315,9 +315,8 @@ static int apparmor_stress_kernel_interface(
 	do {
 		int ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
 		if (ret < 0) {
-			pr_fail("%s: aa_kernel_interface_new() failed, "
-				"errno=%d (%s)\n", name,
-				errno, strerror(errno));
+			pr_fail("%s: aa_kernel_interface_new() failed, errno=%d (%s)\n",
+				name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -330,8 +329,8 @@ static int apparmor_stress_kernel_interface(
 			g_apparmor_data, g_apparmor_data_len);
 		if (ret < 0) {
 			if (errno != EEXIST) {
-				pr_fail("%s: aa_kernel_interface_load_policy() failed, "
-					"errno=%d (%s)\n", name, errno, strerror(errno));
+				pr_fail("%s: aa_kernel_interface_load_policy() failed, errno=%d (%s)\n",
+					name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
 		}
@@ -361,9 +360,8 @@ static int apparmor_stress_kernel_interface(
 			if (errno != ENOENT) {
 				aa_kernel_interface_unref(kern_if);
 
-				pr_fail("%s: aa_kernel_interface_remove_policy() failed, "
-					"errno=%d (%s)\n", name, errno,
-					strerror(errno));
+				pr_fail("%s: aa_kernel_interface_remove_policy() failed, errno=%d (%s)\n",
+					name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				break;
 			}
@@ -599,9 +597,8 @@ static int apparmor_stress_corruption(
 
 		ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
 		if (ret < 0) {
-			pr_fail("%s: aa_kernel_interface_new() failed, "
-				"errno=%d (%s)\n", name, errno,
-				strerror(errno));
+			pr_fail("%s: aa_kernel_interface_new() failed, errno=%d (%s)\n",
+				name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 		/*

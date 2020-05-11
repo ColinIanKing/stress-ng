@@ -200,7 +200,8 @@ static int stress_aio(const stress_args_t *args)
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open on %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		goto finish;
 	}
 	(void)unlink(filename);
@@ -209,7 +210,8 @@ static int stress_aio(const stress_args_t *args)
 	sa.sa_flags = SA_RESTART | SA_SIGINFO;
 	sa.sa_sigaction = aio_signal_handler;
 	if (sigaction(SIGUSR1, &sa, &sa_old) < 0)
-		pr_fail_err("sigaction");
+		pr_fail("%s: sigaction on SIGUSR1 failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 
 	/* Kick off requests */
 	for (i = 0; i < opt_aio_requests; i++) {
@@ -246,7 +248,7 @@ static int stress_aio(const stress_args_t *args)
 				break;
 			default:
 				/* Something went wrong */
-				pr_fail("%s: aio_error, io_reqs[%" PRIu64 "].status = %d (%s\n)",
+				pr_fail("%s: aio_error, io_reqs[%" PRIu64 "].status = %d (%s)\n",
 					args->name, i,
 					io_reqs[i].status,
 					strerror(io_reqs[i].status));

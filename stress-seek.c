@@ -86,14 +86,16 @@ static int stress_seek(const stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		goto finish;
 	}
 	(void)unlink(filename);
 	/* Generate file with hole at the end */
 	if (lseek(fd, (off_t)len, SEEK_SET) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("lseek");
+		pr_fail("%s: lseek failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto close_finish;
 	}
 	if (write(fd, buf, sizeof(buf)) < 0) {
@@ -101,7 +103,8 @@ static int stress_seek(const stress_args_t *args)
 			rc = EXIT_NO_RESOURCE;
 		} else {
 			rc = exit_status(errno);
-			pr_fail_err("write");
+			pr_fail("%s: write failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 		}
 		goto close_finish;
 	}
@@ -113,7 +116,8 @@ static int stress_seek(const stress_args_t *args)
 
 		offset = stress_mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
-			pr_fail_err("lseek");
+			pr_fail("%s: lseek failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto close_finish;
 		}
 re_write:
@@ -126,7 +130,8 @@ re_write:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_write;
 			if (errno) {
-				pr_fail_err("write");
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto close_finish;
 			}
 		}
@@ -134,7 +139,8 @@ re_write:
 do_read:
 		offset = stress_mwc64() % len;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
-			pr_fail_err("lseek SEEK_SET");
+			pr_fail("%s: lseek SEEK_SET failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto close_finish;
 		}
 re_read:
@@ -145,36 +151,41 @@ re_read:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto re_read;
 			if (errno) {
-				pr_fail_err("read");
+				pr_fail("%s: read failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				goto close_finish;
 			}
 		}
 		if ((rwret != sizeof(tmp)) &&
 		    (g_opt_flags & OPT_FLAGS_VERIFY)) {
-			pr_fail("%s: incorrect read size, expecting 512 bytes", args->name);
+			pr_fail("%s: incorrect read size, expecting 512 bytes\n", args->name);
 		}
 #if defined(SEEK_END)
 		if (lseek(fd, 0, SEEK_END) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err("lseek SEEK_END");
+				pr_fail("%s: lseek SEEK_END failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 #endif
 #if defined(SEEK_CUR)
 		if (lseek(fd, 0, SEEK_CUR) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err("lseek SEEK_CUR");
+				pr_fail("%s: lseek SEEK_CUR failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 #endif
 #if defined(SEEK_HOLE) && !defined(__APPLE__)
 		if (lseek(fd, 0, SEEK_HOLE) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err("lseek SEEK_HOLE");
+				pr_fail("%s: lseek SEEK_HOLE failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 #endif
 #if defined(SEEK_DATA) && !defined(__APPLE__)
 		if (lseek(fd, 0, SEEK_DATA) < 0) {
 			if (errno != EINVAL)
-				pr_fail_err("lseek SEEK_DATA");
+				pr_fail("%s: lseek SEEK_DATA failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 #endif
 

@@ -77,7 +77,8 @@ static int stress_sendfile(const stress_args_t *args)
 
 	if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		goto dir_out;
 	}
 #if defined(HAVE_POSIX_FALLOCATE)
@@ -87,11 +88,13 @@ static int stress_sendfile(const stress_args_t *args)
 #endif
 	if (ret < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: fallocate failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto dir_out;
 	}
 	if ((fdout = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail_err("open");
+		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto close_in;
 	}
@@ -108,7 +111,8 @@ static int stress_sendfile(const stress_args_t *args)
 			}
 			if (errno == EINTR)
 				continue;
-			pr_fail_err("sendfile");
+			pr_fail("%s: sendfile failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto close_out;
 		}

@@ -94,7 +94,8 @@ static int stress_fault(const stress_args_t *args)
 		if (fd < 0) {
 			if ((errno == ENOSPC) || (errno == ENOMEM))
 				continue;	/* Try again */
-			pr_fail_err("open");
+			pr_fail("%s: open %s failed, errno=%d (%s)\n",
+				args->name, filename, errno, strerror(errno));
 			break;
 		}
 #if defined(HAVE_POSIX_FALLOCATE)
@@ -104,7 +105,8 @@ static int stress_fault(const stress_args_t *args)
 				continue;	/* Try again */
 			}
 			(void)close(fd);
-			pr_fail_err("posix_fallocate");
+			pr_fail("%s: posix_fallocate failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 #else
@@ -121,7 +123,8 @@ redo:
 					continue;
 				}
 				(void)close(fd);
-				pr_fail_err("write");
+				pr_fail("%s: write failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				break;
 			}
 		}

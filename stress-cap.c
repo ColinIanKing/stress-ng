@@ -52,8 +52,7 @@ static int stress_capgetset_pid(
 	if (ret < 0) {
 		if (((errno == ESRCH) && exists) ||
 		    (errno != ESRCH)) {
-			pr_fail("%s: capget on pid %d failed: "
-				"errno=%d (%s)\n",
+			pr_fail("%s: capget on pid %d failed: errno=%d (%s)\n",
 				args->name, pid, errno, strerror(errno));
 		}
 	}
@@ -63,8 +62,7 @@ static int stress_capgetset_pid(
 		if (ret < 0) {
 			if (((errno == ESRCH) && exists) ||
 			    (errno != ESRCH)) {
-				pr_fail("%s: capget on pid %d failed: "
-					"errno=%d (%s)\n",
+				pr_fail("%s: capget on pid %d failed: errno=%d (%s)\n",
 					args->name, pid, errno, strerror(errno));
 			}
 		}

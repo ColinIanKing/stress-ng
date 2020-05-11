@@ -140,7 +140,8 @@ static int stress_shm_posix_child(
 	sa.sa_flags = SA_NOCLDWAIT;
 #endif
 	if (sigaction(SIGCHLD, &sa, NULL) < 0) {
-		pr_fail_err("sigaction on SIGCHLD");
+		pr_fail("%s: sigaction on SIGCHLD failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		free(addrs);
 		free(shm_names);
 		return EXIT_NO_RESOURCE;
@@ -168,7 +169,8 @@ static int stress_shm_posix_child(
 				S_IRUSR | S_IWUSR);
 			if (shm_fd < 0) {
 				ok = false;
-				pr_fail_err("shm_open");
+				pr_fail("%s: shm_open %s failed, errno=%d (%s)\n",
+					args->name, shm_name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
@@ -189,7 +191,8 @@ static int stress_shm_posix_child(
 				MAP_PRIVATE | MAP_ANONYMOUS, shm_fd, 0);
 			if (addr == MAP_FAILED) {
 				ok = false;
-				pr_fail_err("mmap");
+				pr_fail("%s: mmap failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				(void)close(shm_fd);
 				goto reap;
@@ -283,7 +286,8 @@ reap:
 				(void)munmap(addrs[i], sz);
 			if (*shm_name) {
 				if (shm_unlink(shm_name) < 0) {
-					pr_fail_err("shm_unlink");
+					pr_fail("%s: shm_unlink failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				}
 			}
 
@@ -378,7 +382,7 @@ fork_again:
 
 			shm_names = calloc(shm_posix_objects, SHM_NAME_LEN);
 			if (!shm_names) {
-				pr_fail_err("calloc on shm_names");
+				pr_fail("%s: calloc failed, out of memory\n", args->name);
 				rc = EXIT_NO_RESOURCE;
 				goto err;
 			}

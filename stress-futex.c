@@ -72,8 +72,10 @@ again:
 				break;
 			ret = shim_futex_wake(futex, 1);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				if (ret < 0)
-					pr_fail_err("futex wake");
+				if (ret < 0) {
+					pr_fail("%s: futex_wake failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
 			}
 		} while (keep_stressing());
 
@@ -113,7 +115,8 @@ again:
 				}
 			} else {
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					pr_fail_err("futex wait");
+					pr_fail("%s: futex_wait failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				}
 				inc_counter(args);
 			}

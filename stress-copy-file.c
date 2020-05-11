@@ -79,24 +79,28 @@ static int stress_copy_file(const stress_args_t *args)
 	(void)snprintf(tmp, sizeof(tmp), "%s-orig", filename);
 	if ((fd_in = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, tmp, errno, strerror(errno));
 		goto tidy_dir;
 	}
 	(void)unlink(tmp);
 	if (ftruncate(fd_in, copy_file_bytes) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("ftruncate");
+		pr_fail("%s: ftruncated failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto tidy_in;
 	}
 	if (shim_fsync(fd_in) < 0) {
-		pr_fail_err("fsync");
+		pr_fail("%s: fsync failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto tidy_in;
 	}
 
 	(void)snprintf(tmp, sizeof(tmp), "%s-copy", filename);
 	if ((fd_out = open(tmp, O_CREAT | O_WRONLY,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail_err("open");
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, tmp, errno, strerror(errno));
 		goto tidy_in;
 	}
 	(void)unlink(tmp);
@@ -115,7 +119,8 @@ static int stress_copy_file(const stress_args_t *args)
 			    (errno == EINTR) ||
 			    (errno == ENOSPC))
 				continue;
-			pr_fail_err("copy_file_range");
+			pr_fail("%s: copy_file_range failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto tidy_out;
 		}
 		(void)shim_fsync(fd_out);

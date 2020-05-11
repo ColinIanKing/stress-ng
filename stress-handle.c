@@ -175,7 +175,8 @@ again:
 			fhp->handle_bytes = 0;
 			if ((name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) != -1) &&
 			    (errno != EOVERFLOW)) {
-				pr_fail_err("name_to_handle_at: failed to get file handle size");
+				pr_fail("%s: name_to_handle_at failed to get file handle size, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				free(fhp);
 				break;
 			}
@@ -186,7 +187,8 @@ again:
 			}
 			fhp = tmp;
 			if (name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) < 0) {
-				pr_fail_err("name_to_handle_at: failed to get file handle");
+				pr_fail("%s: name_to_handle_at failed to get file handle, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				free(fhp);
 				break;
 			}

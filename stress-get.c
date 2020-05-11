@@ -211,7 +211,8 @@ static int stress_get(const stress_args_t *args)
 
 		ptr = getcwd(path, sizeof path);
 		if (verify && !ptr)
-			pr_fail_err("getcwd");
+			pr_fail("%s: getcwd %s failed, errno=%d (%s)\n",
+				args->name, path, errno, strerror(errno));
 		check_do_run();
 
 		gid = getgid();
@@ -232,7 +233,8 @@ static int stress_get(const stress_args_t *args)
 
 		ret = getgroups(GIDS_MAX, gids);
 		if (verify && (ret < 0) && (errno != EINVAL))
-			pr_fail_err("getgroups");
+			pr_fail("%s: getgroups failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 		check_do_run();
 
 #if defined(HAVE_GETPGRP)
@@ -252,7 +254,8 @@ static int stress_get(const stress_args_t *args)
 			errno = 0;
 			ret = getpriority(priorities[i], 0);
 			if (verify && errno && (errno != EINVAL) && (ret < 0))
-				pr_fail_err("getpriority");
+				pr_fail("%s: getpriority failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			check_do_run();
 		}
 #endif
@@ -263,7 +266,8 @@ static int stress_get(const stress_args_t *args)
 
 			ret = getresgid(&rgid, &egid, &sgid);
 			if (verify && (ret < 0))
-				pr_fail_err("getresgid");
+				pr_fail("%s: getresgid failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			check_do_run();
 		}
 #endif
@@ -274,7 +278,8 @@ static int stress_get(const stress_args_t *args)
 
 			ret = getresuid(&ruid, &euid, &suid);
 			if (verify && (ret < 0))
-				pr_fail_err("getresuid");
+				pr_fail("%s: getresuid failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			check_do_run();
 		}
 #endif
@@ -349,7 +354,8 @@ static int stress_get(const stress_args_t *args)
 #if defined(HAVE_GETSID)
 		ret = getsid(mypid);
 		if (verify && (ret < 0))
-			pr_fail_err("getsid");
+			pr_fail("%s: getsid failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 		check_do_run();
 #endif
 
@@ -364,18 +370,21 @@ static int stress_get(const stress_args_t *args)
 
 		t = time(NULL);
 		if (verify && (t == (time_t)-1))
-			pr_fail_err("time");
+			pr_fail("%s: time failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 
 		ret = gettimeofday(&tv, NULL);
 		if (verify && (ret < 0))
-			pr_fail_err("gettimeval");
+			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 		{
 			struct utsname utsbuf;
 
 			ret = uname(&utsbuf);
 			if (verify && (ret < 0))
-				pr_fail_err("uname");
+				pr_fail("%s: uname failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 #endif
 
@@ -405,7 +414,8 @@ static int stress_get(const stress_args_t *args)
 			timexbuf.modes = 0;
 			ret = adjtimex(&timexbuf);
 			if (cap_sys_time && verify && (ret < 0))
-				pr_fail_err("adjtimex");
+				pr_fail("%s: adjtimex failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 #endif
 
@@ -413,7 +423,8 @@ static int stress_get(const stress_args_t *args)
 		(void)memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
 		if (cap_sys_time && verify && (ret < 0))
-			pr_fail_err("adjtime");
+			pr_fail("%s: adjtime failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 #endif
 
 		/* Get number of file system types */

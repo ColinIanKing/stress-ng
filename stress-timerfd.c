@@ -124,7 +124,8 @@ static int stress_timerfd(const stress_args_t *args)
 			if ((errno != EMFILE) &&
 			    (errno != ENFILE) &&
 			    (errno != ENOMEM)) {
-				pr_fail_err("timerfd_create");
+				pr_fail("%s: timerfd_create failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				return EXIT_FAILURE;
 			}
 		}
@@ -134,7 +135,7 @@ static int stress_timerfd(const stress_args_t *args)
 	}
 
 	if (count == 0) {
-		pr_fail_err("timerfd_create, no timers created");
+		pr_fail("%s: timerfd_create failed, no timers created\n", args->name);
 		return EXIT_FAILURE;
 	}
 	count = 0;
@@ -142,7 +143,8 @@ static int stress_timerfd(const stress_args_t *args)
 	stress_timerfd_set(&timer, timerfd_rand);
 	for (i = 0; i < TIMERFD_MAX; i++) {
 		if (timerfd_settime(timerfd[i], 0, &timer, NULL) < 0) {
-			pr_fail_err("timer_settime");
+			pr_fail("%s: timerfsd_settime failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(timerfd[i]);
 			return EXIT_FAILURE;
 		}
@@ -172,7 +174,8 @@ static int stress_timerfd(const stress_args_t *args)
 		if (ret < 0) {
 			if (errno == EINTR)
 				continue;
-			pr_fail_err("select");
+			pr_fail("%s: select failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			break;
 		}
 		if (ret < 1)
@@ -184,17 +187,20 @@ static int stress_timerfd(const stress_args_t *args)
 
 			ret = read(timerfd[i], &expval, sizeof expval);
 			if (ret < 0) {
-				pr_fail_err("timerfd read");
+				pr_fail("%s: read of timerfd failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				break;
 			}
 			if (timerfd_gettime(timerfd[i], &value) < 0) {
-				pr_fail_err("timerfd_gettime");
+				pr_fail("%s: timerfd_gettime failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				break;
 			}
 			if (timerfd_rand) {
 				stress_timerfd_set(&timer, timerfd_rand);
 				if (timerfd_settime(timerfd[i], 0, &timer, NULL) < 0) {
-					pr_fail_err("timer_settime");
+					pr_fail("%s: timerfd_settime failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					break;
 				}
 			}

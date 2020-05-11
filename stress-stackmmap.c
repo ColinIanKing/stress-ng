@@ -137,12 +137,14 @@ static int stress_stackmmap(const stress_args_t *args)
 
 	fd = open(filename, O_SYNC | O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		pr_fail_err("mmap'd stack file open");
+		pr_fail("%s: open %s mmap'd stack file failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		goto tidy_dir;
 	}
 	(void)unlink(filename);
 	if (ftruncate(fd, MMAPSTACK_SIZE) < 0) {
-		pr_fail_err("ftruncate");
+		pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(fd);
 		goto tidy_dir;
 	}
@@ -156,7 +158,8 @@ static int stress_stackmmap(const stress_args_t *args)
 			(void)close(fd);
 			goto tidy_dir;
 		}
-		pr_fail_err("mmap");
+		pr_fail("%s: mmap failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(fd);
 		goto tidy_dir;
 	}
@@ -169,7 +172,8 @@ static int stress_stackmmap(const stress_args_t *args)
 	(void)memset(stack_mmap, 0, MMAPSTACK_SIZE);
 	(void)memset(&c_test, 0, sizeof(c_test));
 	if (getcontext(&c_test) < 0) {
-		pr_fail_err("getcontext");
+		pr_fail("%s: getcontext failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto tidy_mmap;
 	}
 	c_test.uc_stack.ss_sp = stack_mmap;

@@ -63,7 +63,9 @@ struct kcmp_epoll_slot {
 			break;						\
 		}							\
 		if ((errno != EINVAL) && (errno != ENOSYS))		\
-			pr_fail_err("kcmp: " # type);			\
+			pr_fail("%s kcmp " # type " failed, "		\
+				"errno=%d (%s)\n", args->name,		\
+				errno, strerror(errno));		\
 	}								\
 	if (!keep_stressing_flag())					\
 		break;							\
@@ -80,7 +82,9 @@ struct kcmp_epoll_slot {
 				break;					\
 			}						\
 			if ((errno != EINVAL) && (errno != ENOSYS))	\
-				pr_fail_err("kcmp: " # type);		\
+				pr_fail("%s kcmp " # type " failed, "	\
+					"errno=%d (%s)\n", args->name,	\
+					errno, strerror(errno));	\
 		} else {						\
 			pr_fail( "%s: kcmp " # type			\
 			" returned %d, expected: %d\n",			\
@@ -114,7 +118,8 @@ static int stress_kcmp(const stress_args_t *args)
 		"aborting stress test\n";
 
 	if ((fd1 = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail_err("open");
+		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -202,7 +207,8 @@ again:
 		(void)setpgid(pid1, g_pgrp);
 		pid2 = getpid();
 		if ((fd2 = open("/dev/null", O_WRONLY)) < 0) {
-			pr_fail_err("open");
+			pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
 			goto reap;
 		}

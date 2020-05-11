@@ -58,12 +58,14 @@ static int stress_bind_mount_child(void *parg)
 
 	if (stress_sighandler(args->name, SIGALRM,
 	    stress_bind_mount_child_handler, NULL) < 0) {
-		pr_fail_err("sighandler SIGALRM");
+		pr_fail("%s: SIGALRM sighandler failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	if (stress_sighandler(args->name, SIGSEGV,
 	    stress_bind_mount_child_handler, NULL) < 0) {
-		pr_fail_err("sighandler SIGSEGV");
+		pr_fail("%s: SIGSEGV sighandler failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	(void)setpgid(0, g_pgrp);
@@ -75,7 +77,8 @@ static int stress_bind_mount_child(void *parg)
 		rc = mount("/", "/", "", MS_BIND | MS_REC, 0);
 		if (rc < 0) {
 			if (errno != ENOSPC)
-				pr_fail_err("mount");
+				pr_fail("%s: bind mount failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			break;
 		}
 		/*
@@ -116,7 +119,8 @@ static int stress_bind_mount(const stress_args_t *args)
 		if (pid < 0) {
 			int rc = exit_status(errno);
 
-			pr_fail_err("clone");
+			pr_fail("%s: clone failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return rc;
 		}
 		ret = shim_waitpid(pid, &status, 0);

@@ -124,7 +124,8 @@ static void stress_dirdeep_make(
 		    (errno == EMLINK)) {
 			return;
 		}
-		pr_fail_err("mkdir");
+		pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+			args->name, path, errno, strerror(errno));
 		return;
 	}
 	inc_counter(args);
@@ -137,7 +138,8 @@ static void stress_dirdeep_make(
 
 		fd = creat(linkpath, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP);
 		if (fd < 0) {
-			pr_fail_err("create");
+			pr_fail("%s: create %s failed, errno=%d (%s)\n",
+				args->name, linkpath, errno, strerror(errno));
 			return;
 		}
 		(void)close(fd);

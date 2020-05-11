@@ -125,8 +125,7 @@ static int stress_netdev(const stress_args_t *args)
 
 			/* Check index is sane */
 			if (ifr->ifr_ifindex != i) {
-				pr_fail("%s: interface '%s' returned "
-					"index %d, expected %d\n",
+				pr_fail("%s: interface '%s' returned index %d, expected %d\n",
 					args->name, ifr->ifr_name,
 					ifr->ifr_ifindex, i);
 			}

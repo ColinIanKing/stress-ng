@@ -54,18 +54,20 @@ static int stress_sigpending(const stress_args_t *args)
 		(void)sigemptyset(&_sigset);
 		(void)sigaddset(&_sigset, SIGUSR1);
 		if (sigprocmask(SIG_SETMASK, &_sigset, NULL) < 0) {
-			pr_fail_err("sigprocmask");
+			pr_fail("%s: sigprocmask failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 
 		(void)kill(args->pid, SIGUSR1);
 		if (sigpending(&_sigset) < 0) {
-			pr_fail_err("sigpending");
+			pr_fail("%s: sigpending failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			continue;
 		}
 		/* We should get a SIGUSR1 here */
 		if (!sigismember(&_sigset, SIGUSR1)) {
-			pr_fail_err("sigismember");
+			pr_fail("%s: did not get a SIGUSR1 pending signal\n", args->name);
 			continue;
 		}
 
@@ -75,14 +77,13 @@ static int stress_sigpending(const stress_args_t *args)
 
 		/* And it is no longer pending */
 		if (sigpending(&_sigset) < 0) {
-			pr_fail_err("sigpending");
+			pr_fail("%s: got an unexpected SIGUSR1 pending signal\n", args->name);
 			continue;
 		}
 		if (sigismember(&_sigset, SIGUSR1)) {
-			pr_fail_err("sigismember");
+			pr_fail("%s: got an unexpected SIGUSR1 signal\n", args->name);
 			continue;
 		}
-
 		inc_counter(args);
 	} while (keep_stressing());
 

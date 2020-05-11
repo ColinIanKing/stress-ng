@@ -96,27 +96,32 @@ static int stress_pty(const stress_args_t *args)
 				    (errno != ENOSPC) &&
 				    (errno != EIO) &&
 				    (errno != EMFILE)) {
-					pr_fail_err("open /dev/ptmx");
+					pr_fail("%s: open /dev/ptmx failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto clean;
 				}
 			} else {
 				ptys[n].slavename = ptsname(ptys[n].master);
 				if (!ptys[n].slavename) {
-					pr_fail_err("ptsname");
+					pr_fail("%s: ptsname failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto clean;
 				}
 				if (grantpt(ptys[n].master) < 0) {
-					pr_fail_err("grantpt");
+					pr_fail("%s: grantpt failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto clean;
 				}
 				if (unlockpt(ptys[n].master) < 0) {
-					pr_fail_err("unlockpt");
+					pr_fail("%s: unlockpt failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto clean;
 				}
 				ptys[n].slave = open(ptys[n].slavename, O_RDWR);
 				if (ptys[n].slave < 0) {
 					if (errno != EMFILE) {
-						pr_fail_err("open slave pty");
+						pr_fail("%s: open %s failed, errno=%d (%s)\n",
+							args->name, ptys[n].slavename, errno, strerror(errno));
 						goto clean;
 					}
 				}
@@ -136,7 +141,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TCGETS, &ios) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TCGETS on slave pty");
+					pr_fail("%s: ioctl TCGETS on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TCSETS)
@@ -145,7 +151,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TCSETS, &ios) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TCSETS on slave pty");
+					pr_fail("%s: ioctl TCSETS on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TCSETSW)
@@ -154,7 +161,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TCSETSW, &ios) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TCSETSW on slave pty");
+					pr_fail("%s: ioctl TCSETSW on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TCSETSF)
@@ -163,7 +171,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TCSETSF, &ios) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TCSETSF on slave pty");
+					pr_fail("%s: ioctl TCSETSF on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TCGETA)
@@ -172,7 +181,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TCGETA, &io) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TCGETA on slave pty");
+					pr_fail("%s: ioctl TCGETA on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TCSETA)
@@ -181,7 +191,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TCSETA, &io) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TCSETA on slave pty");
+					pr_fail("%s: ioctl TCSETA on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TCSETAW)
@@ -190,7 +201,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TCSETAW, &io) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TCSETAW on slave pty");
+					pr_fail("%s: ioctl TCSETAW on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TCSETAF)
@@ -199,7 +211,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TCSETAF, &io) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TCSETAF on slave pty");
+					pr_fail("%s: ioctl TCSETAF on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TIOCGLCKTRMIOS)
@@ -208,16 +221,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TIOCGLCKTRMIOS, &ios) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TIOCGLCKTRMIOS on slave pty");
-			}
-#endif
-#if defined(TIOCGLCKTRMIOS)
-			{
-				struct termios ios;
-
-				if ((ioctl(ptys[i].slave, TIOCGLCKTRMIOS, &ios) < 0) &&
-				    (errno != EINTR))
-					pr_fail_err("ioctl TIOCGLCKTRMIOS on slave pty");
+					pr_fail("%s: ioctl TIOCGLCKTRMIOS on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TIOCGWINSZ)
@@ -226,7 +231,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TIOCGWINSZ, &ws) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TIOCGWINSZ on slave pty");
+					pr_fail("%s: ioctl TIOCGWINSZ on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TIOCSWINSZ)
@@ -235,7 +241,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TIOCSWINSZ, &ws) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TIOCSWINSZ on slave pty");
+					pr_fail("%s: ioctl TIOCSWINSZ on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(FIONREAD)
@@ -244,7 +251,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, FIONREAD, &arg) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl FIONREAD on slave pty");
+					pr_fail("%s: ioctl FIONREAD on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TIOCINQ)
@@ -253,7 +261,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TIOCINQ, &arg) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TIOCINQ on slave pty");
+					pr_fail("%s: ioctl TIOCINQ on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 #if defined(TIOCOUTQ)
@@ -262,7 +271,8 @@ static int stress_pty(const stress_args_t *args)
 
 				if ((ioctl(ptys[i].slave, TIOCOUTQ, &arg) < 0) &&
 				    (errno != EINTR))
-					pr_fail_err("ioctl TIOCOUTQ on slave pty");
+					pr_fail("%s: ioctl TIOCOUTQ on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 			}
 #endif
 

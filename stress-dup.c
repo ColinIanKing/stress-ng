@@ -85,7 +85,8 @@ static int stress_dup(const stress_args_t *args)
 			/* dup2 on the same fd should be a no-op */
 			tmp = dup2(fds[n], fds[n]);
 			if (tmp != fds[n]) {
-				pr_fail_err("dup2 with same fds");
+				pr_fail("%s: dup2 failed with same fds, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				break;
 			}
 #if defined(F_DUPFD)

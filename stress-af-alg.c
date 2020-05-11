@@ -205,14 +205,16 @@ retry_bind:
 		}
 		if (errno == ETIMEDOUT && retries-- > 0)
 			goto retry_bind;
-		pr_fail_err("bind");
+		pr_fail("%s: bind failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
-		pr_fail_err("accept");
+		pr_fail("%s: accept failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -303,7 +305,8 @@ retry_bind:
 		}
 		if (errno == ETIMEDOUT && retries-- > 0)
 			goto retry_bind;
-		pr_fail_err("bind");
+		pr_fail("%s: bind failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -325,7 +328,8 @@ retry_bind:
 				rc = EXIT_SUCCESS;
 				goto err;
 			}
-			pr_fail_err("setsockopt");
+			pr_fail("%s: setsockopt ALG_SET_KEY failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err;
 		}
@@ -352,7 +356,8 @@ retry_bind:
 				rc = EXIT_SUCCESS;
 				goto err;
 			}
-			pr_fail_err("setsockopt");
+			pr_fail("%s: setsockopt ALG_SET_AEAD_ASSOCLEN failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto err;
 		}
@@ -366,7 +371,8 @@ retry_bind:
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
-		pr_fail_err("accept");
+		pr_fail("%s: accept failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -390,7 +396,8 @@ retry_bind:
 		cmsg = CMSG_FIRSTHDR(&msg);
 		/* Keep static analysis happy */
 		if (!cmsg) {
-			pr_fail_err("null cmsg");
+			pr_fail("%s: unexpected null cmsg found\n",
+				args->name);
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
@@ -539,14 +546,16 @@ retry_bind:
 		}
 		if (errno == ETIMEDOUT && retries-- > 0)
 			goto retry_bind;
-		pr_fail_err("bind");
+		pr_fail("%s: bind failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
 
 	fd = accept(sockfd, NULL, 0);
 	if (fd < 0) {
-		pr_fail_err("accept");
+		pr_fail("%s: accept failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto err;
 	}
@@ -556,7 +565,8 @@ retry_bind:
 			break;
 		if (read(fd, output, output_size) != output_size) {
 			if (errno != EINVAL) {
-				pr_fail_err("read");
+				pr_fail("%s: read failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto err_close;
 			}
@@ -667,7 +677,8 @@ static int stress_af_alg(const stress_args_t *args)
 				 */
 				return EXIT_NOT_IMPLEMENTED;
 			}
-			pr_fail_err("socket");
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return rc;
 		}
 		/*

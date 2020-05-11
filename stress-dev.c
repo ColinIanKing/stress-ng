@@ -1207,7 +1207,8 @@ static inline void stress_dev_rw(
 		}
 
 		if (fstat(fd, &buf) < 0) {
-			pr_fail_err("stat");
+			pr_fail("%s: stat failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 		} else {
 			if ((S_ISBLK(buf.st_mode) | (S_ISCHR(buf.st_mode))) == 0) {
 				(void)close(fd);

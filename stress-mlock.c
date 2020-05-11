@@ -90,7 +90,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	(void)context;
 
 	if ((mappings = calloc(max, sizeof(*mappings))) == NULL) {
-		pr_fail("%s: malloc failed, out of memory", args->name);
+		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -121,7 +121,8 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 					continue;
 				if (errno == ENOMEM)
 					break;
-				pr_fail_err("mlock");
+				pr_fail("%s: mlock failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 				break;
 			} else {
 				/*

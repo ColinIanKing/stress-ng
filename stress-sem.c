@@ -71,7 +71,8 @@ static void *semaphore_posix_thrash(void *arg)
 			int value;
 
 			if (sem_getvalue(&sem, &value) < 0)
-				pr_fail("sem_getvalue");
+				pr_fail("%s: sem_getvalue failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 
 			if (i & 1) {
 				if (sem_trywait(&sem) < 0) {

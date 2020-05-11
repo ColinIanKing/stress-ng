@@ -201,7 +201,8 @@ static int stress_rlimit(const stress_args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 	if ((context.fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
-		pr_fail_err("creat");
+		pr_fail("%s: creat %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
 		return EXIT_FAILURE;
 	}

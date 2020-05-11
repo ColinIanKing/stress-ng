@@ -1539,8 +1539,7 @@ int stress_drop_capabilities(const char *name)
 
 	ret = capget(&uch, ucd);
 	if (ret < 0) {
-		pr_fail("%s: capget on pid %d failed: "
-			"errno=%d (%s)\n",
+		pr_fail("%s: capget on pid %d failed: errno=%d (%s)\n",
 			name, uch.pid, errno, strerror(errno));
 		return -1;
 	}
@@ -1561,8 +1560,7 @@ int stress_drop_capabilities(const char *name)
 
 	ret = capset(&uch, ucd);
 	if (ret < 0) {
-		pr_fail("%s: capset on pid %d failed: "
-			"errno=%d (%s)\n",
+		pr_fail("%s: capset on pid %d failed: errno=%d (%s)\n",
 			name, uch.pid, errno, strerror(errno));
 		return -1;
 	}

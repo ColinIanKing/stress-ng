@@ -93,7 +93,8 @@ static int stress_sigio(const stress_args_t *args)
 		return rc;
 
 	if (pipe(fds) < 0) {
-		pr_fail_err("pipe");
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return rc;
 	}
 	rd_fd = fds[0];
@@ -102,25 +103,29 @@ static int stress_sigio(const stress_args_t *args)
 	ret = fcntl(fds[0], F_SETOWN, getpid());
 	if (ret < 0) {
 		if (errno != EINVAL) {
-			pr_fail_err("fcntl F_SETOWN");
+			pr_fail("%s: fcntl F_SETOWN failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			goto err;
 		}
 	}
 #endif
 	ret = fcntl(fds[0], F_GETFL);
 	if (ret < 0) {
-		pr_fail_err("fcntl F_GETFL");
+		pr_fail("%s: fcntl F_GETFL failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto err;
 	}
 	ret = fcntl(fds[0], F_SETFL, ret | O_ASYNC | O_NONBLOCK);
 	if (ret < 0) {
-		pr_fail_err("fcntl F_SETFL");
+		pr_fail("%s: fcntl F_SETFL failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto err;
 	}
 
 	pid = fork();
 	if (pid < 0) {
-		pr_fail_err("fork");
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto err;
 	} else if (pid == 0) {
 		/* Child */

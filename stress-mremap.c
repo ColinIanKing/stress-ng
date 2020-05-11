@@ -141,7 +141,8 @@ static int try_remap(
 			break;
 		}
 	}
-	pr_fail_err("mremap");
+	pr_fail("%s: mremap failed, errno=%d (%s)\n",
+		args->name, errno, strerror(errno));
 	return -1;
 }
 

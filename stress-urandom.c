@@ -39,8 +39,7 @@ static void check_eperm(const stress_args_t *args, const int ret, const int err)
 {
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 	    ((ret == 0) || ((err != EPERM) && (err != EINVAL) && (err != ENOTTY)))) {
-		pr_fail("%s: expected errno to be EPERM, got "
-			"errno %d (%s) instead\n",
+		pr_fail("%s: expected errno to be EPERM, got errno %d (%s) instead\n",
 			args->name, err, strerror(err));
 	}
 }
@@ -61,7 +60,8 @@ static int stress_urandom(const stress_args_t *args)
 	fd_urnd = open("/dev/urandom", O_RDONLY);
 	if (fd_urnd < 0) {
 		if (errno != ENOENT) {
-			pr_fail_err("open");
+			pr_fail("%s: open /dev/urandom failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 	}
@@ -71,7 +71,8 @@ static int stress_urandom(const stress_args_t *args)
 	fd_rnd = open("/dev/random", O_RDONLY | O_NONBLOCK);
 	if (fd_rnd < 0) {
 		if (errno != ENOENT) {
-			pr_fail_err("open");
+			pr_fail("%s: open /dev/random failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd_urnd);
 			return EXIT_FAILURE;
 		}
@@ -82,7 +83,8 @@ static int stress_urandom(const stress_args_t *args)
 	fd_rnd_blk = open("/dev/random", O_RDONLY);
 	if (fd_rnd_blk < 0) {
 		if (errno != ENOENT) {
-			pr_fail_err("open");
+			pr_fail("%s: open /dev/random failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 			(void)close(fd_rnd);
 			(void)close(fd_urnd);
 			return EXIT_FAILURE;
@@ -114,7 +116,8 @@ static int stress_urandom(const stress_args_t *args)
 			ret = read(fd_urnd, buffer, sizeof(buffer));
 			if (ret < 0) {
 				if ((errno != EAGAIN) && (errno != EINTR)) {
-					pr_fail_err("read /dev/urandom");
+					pr_fail("%s: read of /dev/urandom failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto err;
 				}
 			}
@@ -138,7 +141,8 @@ static int stress_urandom(const stress_args_t *args)
 			ret = read(fd_rnd, buffer, 1);
 			if (ret < 0) {
 				if ((errno != EAGAIN) && (errno != EINTR)) {
-					pr_fail_err("read /dev/random");
+					pr_fail("%s: read of /dev/urandom failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto err;
 				}
 			}
@@ -212,7 +216,8 @@ next:
 				ret = read(fd_rnd, buffer, 1);
 				if (ret < 0) {
 					if ((errno != EAGAIN) && (errno != EINTR)) {
-						pr_fail_err("read of /dev/random");
+						pr_fail("%s: read of /dev/random failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
 						goto err;
 					}
 				}

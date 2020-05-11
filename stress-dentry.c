@@ -274,7 +274,8 @@ static int stress_dentry(const stress_args_t *args)
 			if ((fd = open(path, O_CREAT | O_RDWR,
 					S_IRUSR | S_IWUSR)) < 0) {
 				if (errno != ENOSPC)
-					pr_fail_err("open");
+					pr_fail("%s open %s failed, errno=%d (%s)\n",
+						args->name, path, errno, strerror(errno));
 				n = i;
 				break;
 			}

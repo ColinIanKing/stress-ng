@@ -193,7 +193,8 @@ static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 			struct stat statbuf;
 
 			if (fstat(fd, &statbuf) < 0)
-				pr_fail_err("stat");
+				pr_fail("%s: stat failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 		}
 		(void)close(fd);
 

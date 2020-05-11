@@ -169,7 +169,8 @@ abort:
 			ret = poll(fds, MAX_PIPES, 1);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail_err("poll");
+				pr_fail("%s: poll failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {
@@ -196,7 +197,8 @@ abort:
 			ret = ppoll(fds, MAX_PIPES, &ts, &sigmask);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail_err("ppoll");
+				pr_fail("%s: ppoll failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {
@@ -217,7 +219,8 @@ abort:
 			ret = select(maxfd + 1, &rfds, NULL, NULL, &tv);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail_err("select");
+				pr_fail("%s: select failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {
@@ -242,7 +245,8 @@ abort:
 			ret = pselect(maxfd + 1, &rfds, NULL, NULL, &ts, &sigmask);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
-				pr_fail_err("pselect");
+				pr_fail("%s: pselect failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			}
 			if (ret > 0) {
 				for (i = 0; i < MAX_PIPES; i++) {

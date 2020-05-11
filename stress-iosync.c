@@ -54,7 +54,8 @@ static int stress_io(const stress_args_t *args)
 		(void)sync();
 #if defined(HAVE_SYNCFS)
 		if ((fd != -1) && (syncfs(fd) < 0))
-			pr_fail_err("syncfs");
+			pr_fail("%s: syncfs failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 
 		/* try to sync on all the mount points */
 		for (i = 0; i < n_mnts; i++)

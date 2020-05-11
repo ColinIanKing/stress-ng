@@ -78,7 +78,8 @@ static int stress_chdir(const stress_args_t *args)
 	}
 
 	if (getcwd(cwd, sizeof(cwd)) == NULL) {
-		pr_fail_err("getcwd");
+		pr_fail("%s: getcwd failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		goto err;
 	}
 
@@ -111,7 +112,8 @@ static int stress_chdir(const stress_args_t *args)
 			}
 			ret = exit_status(errno);
 			if (ret == EXIT_FAILURE)
-				pr_fail_err("mkdir");
+				pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+					args->name, path, errno, strerror(errno));
 			goto abort;
 		}
 		mkdir_ok[i] = true;
@@ -129,14 +131,16 @@ static int stress_chdir(const stress_args_t *args)
 				goto done;
 			if (mkdir_ok[i] && (chdir(paths[i]) < 0)) {
 				if (errno != ENOMEM) {
-					pr_fail_err("chdir");
+					pr_fail("%s: chdir %s failed, errno=%d (%s)\n",
+						args->name, paths[i], errno, strerror(errno));
 					goto abort;
 				}
 			}
 
 			if ((fd >= 0) && (fchdir(fd) < 0)) {
 				if (errno != ENOMEM) {
-					pr_fail_err("fchdir");
+					pr_fail("%s: fchdir failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto abort;
 				}
 			}
@@ -146,7 +150,8 @@ static int stress_chdir(const stress_args_t *args)
 			 */
 			if (chdir("/") < 0) {
 				if ((errno != ENOMEM) && (errno != EACCES)) {
-					pr_fail_err("chdir");
+					pr_fail("%s: chdir / failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 					goto abort;
 				}
 			}
@@ -156,7 +161,8 @@ static int stress_chdir(const stress_args_t *args)
 					break;
 				/* Maybe low memory, force retry */
 				if (errno != ENOMEM) {
-					pr_fail_err("chdir");
+					pr_fail("%s: chdir %s failed, errno=%d (%s)\n",
+						args->name, cwd, errno, strerror(errno));
 					goto tidy;
 				}
 			}
@@ -167,7 +173,8 @@ done:
 	ret = EXIT_SUCCESS;
 abort:
 	if (chdir(cwd) < 0)
-		pr_fail_err("chdir");
+		pr_fail("%s: chdir %s failed, errno=%d (%s)\n",
+			args->name, cwd, errno, strerror(errno));
 tidy:
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu32 " directories\n",
