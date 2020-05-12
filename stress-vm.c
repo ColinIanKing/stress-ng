@@ -256,23 +256,23 @@ static void inject_random_bit_errors(uint8_t *buf, const size_t sz)
 
 	for (i = 0; i < 8; i++) {
 		/* 1 bit errors */
-		buf[random() % sz] ^= (1 << i);
-		buf[random() % sz] |= (1 << i);
-		buf[random() % sz] &= ~(1 << i);
+		buf[stress_mwc64() % sz] ^= (1 << i);
+		buf[stress_mwc64() % sz] |= (1 << i);
+		buf[stress_mwc64() % sz] &= ~(1 << i);
 	}
 
 	for (i = 0; i < 7; i++) {
 		/* 2 bit errors */
-		buf[random() % sz] ^= (3 << i);
-		buf[random() % sz] |= (3 << i);
-		buf[random() % sz] &= ~(3 << i);
+		buf[stress_mwc64() % sz] ^= (3 << i);
+		buf[stress_mwc64() % sz] |= (3 << i);
+		buf[stress_mwc64() % sz] &= ~(3 << i);
 	}
 
 	for (i = 0; i < 6; i++) {
 		/* 3 bit errors */
-		buf[random() % sz] ^= (7 << i);
-		buf[random() % sz] |= (7 << i);
-		buf[random() % sz] &= ~(7 << i);
+		buf[stress_mwc64() % sz] ^= (7 << i);
+		buf[stress_mwc64() % sz] |= (7 << i);
+		buf[stress_mwc64() % sz] &= ~(7 << i);
 	}
 }
 #else
