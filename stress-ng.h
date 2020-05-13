@@ -842,7 +842,8 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_ABORT		 (0x00000200000000ULL)	/* --abort */
 #define OPT_FLAGS_CPU_ONLINE_ALL (0x00000400000000ULL)	/* --cpu-online-all */
 #define OPT_FLAGS_TIMESTAMP	 (0x00000800000000ULL)	/* --timestamp */
-#define OPT_FLAGS_DEADLINE_GRUB  (0x00001000000000ULL)   /* --sched-reclaim */
+#define OPT_FLAGS_DEADLINE_GRUB  (0x00001000000000ULL)  /* --sched-reclaim */
+#define OPT_FLAGS_FTRACE	 (0x00002000000000ULL)  /* --ftrace */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -2409,6 +2410,8 @@ typedef enum {
 	OPT_fstat_ops,
 	OPT_fstat_dir,
 
+	OPT_ftrace,
+
 	OPT_full,
 	OPT_full_ops,
 
@@ -3502,6 +3505,9 @@ extern WARN_UNUSED uint32_t stress_hash_fnv1a(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED uint16_t stress_ip_checksum(uint16_t *ptr, const size_t n);
+
+extern int stress_ftrace_start(void);
+extern int stress_ftrace_stop(void);
 
 /*
  *  Indicate a stress test failed because of limited resources

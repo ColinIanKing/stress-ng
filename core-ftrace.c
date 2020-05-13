@@ -1,0 +1,380 @@
+/*
+ * Copyright (C) 2013-2020 Canonical, Ltd.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * This code is a complete clean re-write of the stress tool by
+ * Colin Ian King <colin.king@canonical.com> and attempts to be
+ * backwardly compatible with the stress tool by Amos Waterland
+ * <apw@rossby.metr.ou.edu> but has more stress tests and more
+ * functionality.
+ *
+ */
+#include "stress-ng.h"
+
+#if defined(HAVE_LIB_BSD) &&	\
+    defined(__linux__)
+
+#define MAX_MOUNTS	(256)
+#if !defined(DEBUGFS_MAGIC)
+#define DEBUGFS_MAGIC	(0x64626720)
+#endif
+
+struct rb_node {
+	RB_ENTRY(rb_node) rb;	/* red/black node entry */
+	char *func_name;	/* ftrace'd kernel function name */
+	int64_t start_count;	/* start number of calls to func */
+	int64_t end_count;	/* end number of calls to func */
+	double	start_time_us;	/* start time used by func in microsecs */
+	double	end_time_us;	/* end time used by func microsecs */
+};
+
+static bool tracing_enabled;
+
+/*
+ *  rb_node_cmp()
+ *	used for sorting functions by name
+ */
+static int rb_node_cmp(struct rb_node *n1, struct rb_node *n2)
+{
+	return strcmp(n1->func_name, n2->func_name);
+}
+
+static RB_HEAD(rb_tree, rb_node) rb_root;
+RB_PROTOTYPE(rb_tree, rb_node, rb, rb_node_cmp);
+RB_GENERATE(rb_tree, rb_node, rb, rb_node_cmp);
+
+/*
+ *  stress_ftrace_get_debugfs_path()
+ *	find debugfs mount path, returns NULL if not found
+ */
+static char *stress_ftrace_get_debugfs_path(void)
+{
+	int i, n;
+	char *mnts[MAX_MOUNTS];
+	static char debugfs_path[1024];
+
+	/* Cached copy */
+	if (*debugfs_path)
+		return debugfs_path;
+
+	*debugfs_path = '\0';
+	n = stress_mount_get(mnts, MAX_MOUNTS);
+	for (i = 0; i < n; i++) {
+		struct statfs buf;
+
+		if (statfs(mnts[i], &buf) < 0)
+			continue;
+		if (buf.f_type == DEBUGFS_MAGIC) {
+			shim_strlcpy(debugfs_path, mnts[i], sizeof(debugfs_path));
+			stress_mount_free(mnts, n);
+			return debugfs_path;
+		}
+	}
+	stress_mount_free(mnts, n);
+
+	return NULL;
+}
+
+/*
+ *  stress_ftrace_rb_tree_free()
+ *	free up rb tree
+ */
+void stress_ftrace_rb_tree_free()
+{
+	struct rb_node *tn, *next;
+
+	for (tn = RB_MIN(rb_tree, &rb_root); tn; tn = next) {
+                next = RB_NEXT(rb_tree, &rb_root, tn);
+                RB_REMOVE(rb_tree, &rb_root, tn);
+		free(tn->func_name);
+		free(tn);
+	}
+	RB_INIT(&rb_root);
+}
+
+/*
+ *  stress_ftrace_parse_trace_stat_file()
+ *	parse the ftrace files for function timing stats
+ */
+int stress_ftrace_parse_trace_stat_file(const char *path, const bool start)
+{
+	FILE *fp;
+	char buffer[4096];
+
+	fp = fopen(path, "r");
+	if (!fp)
+		return 0;
+
+	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
+		struct rb_node *tn, node;
+		char *ptr, *func_name, *num = "0";
+		uint64_t count;
+		double time_us;
+
+		if (strstr(buffer, "Function"))
+			continue;
+		if (strstr(buffer, "----"))
+			continue;
+
+		/*
+		 *  Skip over leading spaces and find function name
+		 */
+		for (ptr = buffer; *ptr && isspace(*ptr); ptr++)
+			;
+		if (!*ptr)
+			continue;
+		func_name = ptr;
+
+		/*
+		 *  Skip over leading spaces and find hit count
+		 */
+		for (; *ptr && !isspace(*ptr); ptr++)
+			;
+		if (!*ptr)
+			continue;
+		*ptr++ = '\0';
+		for (; *ptr && isspace(*ptr); ptr++)
+			;
+		num = ptr;
+		for (; *ptr && !isspace(*ptr); ptr++)
+			;
+		if (!*ptr)
+			continue;
+		*ptr++ = '\0';
+		count = (uint64_t)atoll(num);
+
+		/*
+		 *  Skip over leading spaces and find time consumed
+		 */
+		for (; *ptr && isspace(*ptr); ptr++)
+			;
+		if (!*ptr)
+			continue;
+		sscanf(ptr, "%lf", &time_us);
+
+		node.func_name = func_name;
+
+		tn = RB_FIND(rb_tree, &rb_root, &node);
+		if (tn) {
+			if (start) {
+				tn->start_count += count;
+				tn->start_time_us += time_us;
+			} else {
+				tn->end_count += count;
+				tn->end_time_us += time_us;
+			}
+		} else {
+			tn = malloc(sizeof(*tn));
+			if (!tn)
+				goto memory_fail;
+			tn->func_name = strdup(func_name);
+			if (!tn->func_name) {
+				free(tn);
+				goto memory_fail;
+			}
+			tn->start_count = 0;
+			tn->end_count = 0;
+			tn->start_time_us = 0.0;
+			tn->end_time_us = 0.0;
+
+			if (start) {
+				tn->start_count = count;
+				tn->start_time_us = time_us;
+			} else {
+				tn->end_count = count;
+				tn->end_time_us = time_us;
+			}
+			RB_INSERT(rb_tree, &rb_root, tn);
+		}
+	}
+	return 0;
+
+memory_fail:
+	pr_inf("ftrace: disabled, out of memory collecting function information\n");
+	stress_ftrace_rb_tree_free();
+	return -1;
+}
+
+/*
+ *  stress_ftrace_parse_stat_files()
+ *	read trace stat files and parse the data into the rb tree
+ */
+int stress_ftrace_parse_stat_files(const char *path, const bool start)
+{
+	DIR *dp;
+	struct dirent *de;
+	char filename[PATH_MAX];
+
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/trace_stat", path);
+	dp = opendir(filename);
+	if (!dp)
+		return -1;
+	while ((de = readdir(dp)) != NULL) {
+		if (strncmp(de->d_name, "function", 8) == 0) {
+			char funcfile[PATH_MAX];
+
+			(void)snprintf(funcfile, sizeof(funcfile),
+				"%s/tracing/trace_stat/%s", path, de->d_name);
+			stress_ftrace_parse_trace_stat_file(funcfile, start);
+		}
+	}
+	(void)closedir(dp);
+
+	return 0;
+}
+
+
+/*
+ *  stress_ftrace_start()
+ *	start ftracing function calls
+ */
+int stress_ftrace_start(void)
+{
+	char *path, filename[PATH_MAX];
+
+	RB_INIT(&rb_root);
+
+	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
+		pr_inf("ftrace: requires CAP_SYS_ADMIN capability for tracing\n");
+		return -1;
+	}
+
+	path = stress_ftrace_get_debugfs_path();
+	if (!path) {
+		pr_inf("ftrace: cannot find a mounted debugfs\n");
+		return -1;
+	}
+
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/current_tracer", path);
+	if (system_write(filename, "nop", 3) < 0) {
+		pr_inf("ftrace: cannot disable the current tracer, errno=%d (%s)\n",
+			errno, strerror(errno));
+		return -1;
+	}
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
+	if (system_write(filename, "0", 1) < 0) {
+		pr_inf("ftrace: cannot enable function profiling, errno=%d (%s)\n",
+			errno, strerror(errno));
+		return -1;
+	}
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
+	if (system_write(filename, "1", 1) < 0) {
+		pr_inf("ftrace: cannot enable function profiling, errno=%d (%s)\n",
+			errno, strerror(errno));
+		return -1;
+	}
+	if (stress_ftrace_parse_stat_files(path, true) < 0)
+		return -1;
+
+	tracing_enabled = true;
+
+	return 0;
+}
+
+/*
+ *  strace_ftrace_is_syscall()
+ *	return true if function name looks like a system call
+ */
+static inline bool strace_ftrace_is_syscall(const char *func_name)
+{
+	if (*func_name == '_' &&
+	    strstr(func_name, "_sys_") &&
+	    !strstr(func_name, "do_sys") &&
+	    strncmp(func_name, "___", 3))
+		return true;
+
+	return false;
+}
+
+/*
+ *  stress_ftrace_start()
+ *	start ftracing function calls
+ */
+void stress_ftrace_analyze(void)
+{
+	struct rb_node *tn, *next;
+	uint64_t sys_calls = 0, func_calls = 0;
+
+	pr_inf("ftrace: %-30.30s %15.15s %20.20s\n", "System Call", "Number of Calls", "Total Time (us)");
+
+	for (tn = RB_MIN(rb_tree, &rb_root); tn; tn = next) {
+		int64_t count = tn->end_count - tn->start_count;
+		if (count > 0) {
+			func_calls++;
+			if (strace_ftrace_is_syscall(tn->func_name)) {
+				double time_us = tn->end_time_us -
+						 tn->start_time_us;
+
+				pr_inf("ftrace: %-30.30s %15" PRIu64 " %20.2f\n", tn->func_name, count, time_us);
+				sys_calls++;
+			}
+		}
+
+                next = RB_NEXT(rb_tree, &rb_root, tn);
+                RB_REMOVE(rb_tree, &rb_root, tn);
+	}
+	RB_INIT(&rb_root);
+
+	pr_inf("ftrace: %" PRIu64 " kernel functions called, %" PRIu64 " were system calls\n",
+		func_calls, sys_calls);
+}
+
+/*
+ *  stress_ftrace_start()
+ *	stop ftracing function calls and analyze the collected
+ *	stats
+ */
+int stress_ftrace_stop(void)
+{
+	char *path, filename[PATH_MAX];
+
+	if (!tracing_enabled)
+		return -1;
+
+	path = stress_ftrace_get_debugfs_path();
+	if (!path)
+		return -1;
+
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
+	if (system_write(filename, "0", 1) < 0) {
+		pr_inf("ftrace: cannot disable function profiling, errno=%d (%s)\n",
+			errno, strerror(errno));
+		return -1;
+	}
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/set_ftrace_pid", path);
+	(void)system_write(filename, "0", 1);
+
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/trace_stat", path);
+
+	if (stress_ftrace_parse_stat_files(path, false) < 0)
+		return -1;
+	stress_ftrace_analyze();
+	stress_ftrace_rb_tree_free();
+
+	return 0;
+}
+
+#else
+int stress_ftrace_start(void)
+{
+	return 0;
+}
+
+int stress_ftrace_stop(void)
+{
+	return 0;
+}
+#endif

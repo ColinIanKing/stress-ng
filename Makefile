@@ -329,6 +329,7 @@ CORE_SRC = \
 	core-thermal-zone.c \
 	core-time.c \
 	core-thrash.c \
+	core-ftrace.c \
 	core-try-open.c \
 	stress-ng.c
 

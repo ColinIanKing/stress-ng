@@ -59,6 +59,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_aggressive,	OPT_FLAGS_AGGRESSIVE_MASK },
 	{ OPT_cpu_online_all,	OPT_FLAGS_CPU_ONLINE_ALL },
 	{ OPT_dry_run,		OPT_FLAGS_DRY_RUN },
+	{ OPT_ftrace,		OPT_FLAGS_FTRACE },
 	{ OPT_ignite_cpu,	OPT_FLAGS_IGNITE_CPU },
 	{ OPT_keep_name, 	OPT_FLAGS_KEEP_NAME },
 	{ OPT_log_brief,	OPT_FLAGS_LOG_BRIEF },
@@ -366,6 +367,7 @@ static const struct option long_options[] = {
 	{ "fstat",	1,	0,	OPT_fstat },
 	{ "fstat-ops",	1,	0,	OPT_fstat_ops },
 	{ "fstat-dir",	1,	0,	OPT_fstat_dir },
+	{ "ftrace",	0,	0,	OPT_ftrace },
 	{ "full",	1,	0,	OPT_full },
 	{ "full-ops",	1,	0,	OPT_full_ops },
 	{ "funccall",	1,	0,	OPT_funccall },
@@ -2911,6 +2913,8 @@ int main(int argc, char **argv, char **envp)
 	 */
 	set_random_stressors();
 
+	if (g_opt_flags & OPT_FLAGS_FTRACE)
+		(void)stress_ftrace_start();
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 		stress_perf_init();
@@ -3092,6 +3096,9 @@ int main(int argc, char **argv, char **envp)
 	 */
 	if (g_opt_flags & OPT_FLAGS_TIMES)
 		times_dump(yaml, ticks_per_sec, duration);
+
+	if (g_opt_flags & OPT_FLAGS_FTRACE)
+		(void)stress_ftrace_stop();
 
 	/*
 	 *  Tidy up

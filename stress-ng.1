@@ -1478,6 +1478,15 @@ stop fstat stress workers after N bogo fstat operations.
 specify the directory to fstat to override the default of /dev.
 All the files in the directory will be fstat'd repeatedly.
 .TP
+.B \-\-ftrace
+enable kernel function call tracing (Linux only).  This will use the
+kernel debugfs ftrace mechanism to record all the kernel functions
+used on the system while stress-ng is running. Note that this will not
+filter out function calls made by non-stress-ng processes, so this is
+an approximation of stress-ng activity.  Note that full monitoring of
+just stress-ng related activity is too CPU intensive and a light weight
+approximation is used of all system activity instead.
+.TP
 .B \-\-full N
 start N workers that exercise /dev/full.  This attempts to write to
 the device (which should always get error ENOSPC), to read from the device
