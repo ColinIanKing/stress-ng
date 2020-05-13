@@ -135,6 +135,75 @@ static int stress_pty(const stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			if ((ptys[i].master < 0) || (ptys[i].slave < 0))
 				continue;
+
+#if defined(DHAVE_TCGETATTR)
+			{
+				struct termios ios;
+
+				if (tcgetattr(ptys[i].master, &ios) < 0) {
+					pr_fail("%s: tcgetattr on master pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+			}
+#endif
+#if defined(HAVE_TCDRAIN)
+			{
+				if (tcdrain(ptys[i].slave) < 0) {
+					pr_fail("%s: tcdrain on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+			}
+#endif
+#if defined(HAVE_TCFLUSH)
+			{
+#if defined(TCIFLUSH)
+				if (tcflush(ptys[i].slave, TCIFLUSH) < 0) {
+					pr_fail("%s: tcflush TCIFLUSH on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+#endif
+#if defined(TCOFLUSH)
+				if (tcflush(ptys[i].slave, TCOFLUSH) < 0) {
+					pr_fail("%s: tcflush TCOFLUSH on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+#endif
+#if defined(TCIOFLUSH)
+				if (tcflush(ptys[i].slave, TCIOFLUSH) < 0) {
+					pr_fail("%s: tcflush TCOOFLUSH on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+#endif
+			}
+#endif
+#if defined(HAVE_TCFLOW)
+#if defined(TCOOFF) && \
+    defined(TCOON)
+			{
+				if (tcflow(ptys[i].slave, TCOOFF) < 0) {
+					pr_fail("%s: tcflow TCOOFF on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+				if (tcflow(ptys[i].slave, TCOON) < 0) {
+					pr_fail("%s: tcflow TCOON on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+#endif
+			}
+#if defined(TCIOFF) && \
+    defined(TCION)
+			{
+				if (tcflow(ptys[i].slave, TCIOFF) < 0) {
+					pr_fail("%s: tcflow TCIOFF on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+				if (tcflow(ptys[i].slave, TCION) < 0) {
+					pr_fail("%s: tcflow TCION on slave pty failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+#endif
+			}
+#endif
 #if defined(TCGETS)
 			{
 				struct termios ios;
