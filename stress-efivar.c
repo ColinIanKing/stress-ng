@@ -60,13 +60,11 @@ static const char * const efi_sysfs_names[] = {
  */
 static inline bool efi_var_ignore(char *d_name)
 {
+	if (*d_name == '.')
+		return true;
 	if (strcmp(d_name, "del_var") == 0)
 		return true;
 	if (strcmp(d_name, "new_var") == 0)
-		return true;
-	if (strcmp(d_name, ".") == 0)
-		return true;
-	if (strcmp(d_name, "..") == 0)
 		return true;
 	if (strstr(d_name, "MokListRT"))
 		return true;
