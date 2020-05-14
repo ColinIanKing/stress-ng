@@ -1792,6 +1792,9 @@ child_exit:
 					free_procs();
 					stress_cache_free();
 					stress_free_settings();
+					if (g_opt_flags & OPT_FLAGS_FTRACE)
+						(void)stress_ftrace_free();
+
 					if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
 						keep_stressing_set_flag(false);
 						wait_flag = false;
@@ -3097,8 +3100,10 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_TIMES)
 		times_dump(yaml, ticks_per_sec, duration);
 
-	if (g_opt_flags & OPT_FLAGS_FTRACE)
+	if (g_opt_flags & OPT_FLAGS_FTRACE) {
 		(void)stress_ftrace_stop();
+		(void)stress_ftrace_free();
+	}
 
 	/*
 	 *  Tidy up

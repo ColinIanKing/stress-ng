@@ -89,17 +89,17 @@ static char *stress_ftrace_get_debugfs_path(void)
 }
 
 /*
- *  stress_ftrace_rb_tree_free()
+ *  stress_ftrace_free()
  *	free up rb tree
  */
-void stress_ftrace_rb_tree_free()
+void stress_ftrace_free(void)
 {
 	struct rb_node *tn, *next;
 
 	for (tn = RB_MIN(rb_tree, &rb_root); tn; tn = next) {
+		free(tn->func_name);
                 next = RB_NEXT(rb_tree, &rb_root, tn);
                 RB_REMOVE(rb_tree, &rb_root, tn);
-		free(tn->func_name);
 		free(tn);
 	}
 	RB_INIT(&rb_root);
@@ -109,7 +109,7 @@ void stress_ftrace_rb_tree_free()
  *  stress_ftrace_parse_trace_stat_file()
  *	parse the ftrace files for function timing stats
  */
-int stress_ftrace_parse_trace_stat_file(const char *path, const bool start)
+static int stress_ftrace_parse_trace_stat_file(const char *path, const bool start)
 {
 	FILE *fp;
 	char buffer[4096];
@@ -200,11 +200,13 @@ int stress_ftrace_parse_trace_stat_file(const char *path, const bool start)
 			RB_INSERT(rb_tree, &rb_root, tn);
 		}
 	}
+	(void)fclose(fp);
 	return 0;
 
 memory_fail:
+	(void)fclose(fp);
 	pr_inf("ftrace: disabled, out of memory collecting function information\n");
-	stress_ftrace_rb_tree_free();
+	stress_ftrace_free();
 	return -1;
 }
 
@@ -212,7 +214,7 @@ memory_fail:
  *  stress_ftrace_parse_stat_files()
  *	read trace stat files and parse the data into the rb tree
  */
-int stress_ftrace_parse_stat_files(const char *path, const bool start)
+static int stress_ftrace_parse_stat_files(const char *path, const bool start)
 {
 	DIR *dp;
 	struct dirent *de;
@@ -324,10 +326,7 @@ void stress_ftrace_analyze(void)
 		}
 
                 next = RB_NEXT(rb_tree, &rb_root, tn);
-                RB_REMOVE(rb_tree, &rb_root, tn);
 	}
-	RB_INIT(&rb_root);
-
 	pr_inf("ftrace: %" PRIu64 " kernel functions called, %" PRIu64 " were system calls\n",
 		func_calls, sys_calls);
 }
@@ -362,12 +361,15 @@ int stress_ftrace_stop(void)
 	if (stress_ftrace_parse_stat_files(path, false) < 0)
 		return -1;
 	stress_ftrace_analyze();
-	stress_ftrace_rb_tree_free();
 
 	return 0;
 }
 
 #else
+void stress_ftrace_free(void)
+{
+}
+
 int stress_ftrace_start(void)
 {
 	return 0;
