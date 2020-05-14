@@ -3509,6 +3509,7 @@ extern WARN_UNUSED uint16_t stress_ip_checksum(uint16_t *ptr, const size_t n);
 extern int stress_ftrace_start(void);
 extern int stress_ftrace_stop(void);
 extern void stress_ftrace_free(void);
+extern void stress_ftrace_add_pid(const pid_t pid);
 
 /*
  *  Indicate a stress test failed because of limited resources

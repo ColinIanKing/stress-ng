@@ -238,6 +238,43 @@ static int stress_ftrace_parse_stat_files(const char *path, const bool start)
 	return 0;
 }
 
+/*
+ *  stress_ftrace_set_pid_file()
+ *	enable/append/stop tracing on specific events.
+ *	if pid < 0 then tracing pids are all removed otherwise
+ *	the pid is added to the tracing events
+ */
+static void stress_ftrace_set_pid_file(const pid_t pid, const char *file)
+{
+	char filename[PATH_MAX];
+	char *path;
+	char buffer[32];
+	int fd;
+	ssize_t ret;
+
+	path = stress_ftrace_get_debugfs_path();
+	if (!path)
+		return;
+
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/%s", path, file);
+	fd = open(filename, O_WRONLY | (pid < 0 ? O_TRUNC :  O_APPEND));
+	if (fd < 0)
+		return;
+	if (pid == -1) {
+		strcpy(buffer, " ");
+	} else {
+		snprintf(buffer, sizeof(buffer), "%d", (int)pid);
+	}
+	ret = write(fd, buffer, strlen(buffer));
+	(void)ret;
+	(void)close(fd);
+}
+
+void stress_ftrace_add_pid(const pid_t pid)
+{
+	stress_ftrace_set_pid_file(pid, "set_event_pid");
+	stress_ftrace_set_pid_file(pid, "set_ftrace_pid");
+}
 
 /*
  *  stress_ftrace_start()
@@ -272,6 +309,8 @@ int stress_ftrace_start(void)
 			errno, strerror(errno));
 		return -1;
 	}
+	stress_ftrace_add_pid(-1);
+	stress_ftrace_add_pid(getpid());
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
 	if (system_write(filename, "1", 1) < 0) {
 		pr_inf("ftrace: cannot enable function profiling, errno=%d (%s)\n",
@@ -348,14 +387,13 @@ int stress_ftrace_stop(void)
 	if (!path)
 		return -1;
 
+	stress_ftrace_add_pid(-1);
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
 	if (system_write(filename, "0", 1) < 0) {
 		pr_inf("ftrace: cannot disable function profiling, errno=%d (%s)\n",
 			errno, strerror(errno));
 		return -1;
 	}
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/set_ftrace_pid", path);
-	(void)system_write(filename, "0", 1);
 
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/trace_stat", path);
 
@@ -367,6 +405,10 @@ int stress_ftrace_stop(void)
 }
 
 #else
+void stress_ftrace_add_pid(const pid_t pid)
+{
+}
+
 void stress_ftrace_free(void)
 {
 }

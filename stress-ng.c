@@ -1808,6 +1808,8 @@ child_exit:
 						(void)setpgid(pid, g_pgrp);
 						g_proc_current->pids[j] = pid;
 						g_proc_current->started_procs++;
+						if (g_opt_flags & OPT_FLAGS_FTRACE)
+							stress_ftrace_add_pid(pid);
 					}
 
 					/* Forced early abort during startup? */
