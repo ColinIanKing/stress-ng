@@ -54,9 +54,18 @@ fi
 
 sudo lcov --zerocounters
 
-DURATION=120
+DURATION=60
 
 do_stress --all 1
+
+#
+#  Quick spin through all the classes of stressors with ftrace enabled
+# 
+DURATION=1
+for CLASS in cpu-cache cpu device filesystem interrupt io memory network os pipe scheduler security vm
+do
+	sudo $STRESS_NG --class $CLASS --ftrace --seq 1 -v --timestamp --syslog -t $DURATION
+done
 
 DURATION=30
 do_stress --cpu 0 --taskset 0,2 --ignite-cpu
