@@ -361,7 +361,6 @@ again:
 
 	(void)munmap(efi_ignore, sz);
 	stress_dirent_list_free(efi_dentries, dir_count);
-	free(efi_dentries);
 
 	return EXIT_SUCCESS;
 }
