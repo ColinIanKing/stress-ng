@@ -88,6 +88,10 @@ static int stress_chdir(const stress_args_t *args)
 		ret = exit_status(-rc);
 		goto err;
 	}
+	for (i = 0; i < chdir_dirs; i++) {
+		fds[i] = -1;
+		paths[i] = NULL;
+	}
 
 	/* Populate */
 	for (i = 0; i < chdir_dirs; i++) {
@@ -181,9 +185,12 @@ tidy:
 		args->name, chdir_dirs);
 
 	for (i = 0; (i < chdir_dirs) && paths[i] ; i++) {
-		(void)close(fds[i]);
-		(void)rmdir(paths[i]);
-		free(paths[i]);
+		if (fds[i] >= 0)
+			(void)close(fds[i]);
+		if (paths[i]) {
+			(void)rmdir(paths[i]);
+			free(paths[i]);
+		}
 	}
 	(void)stress_temp_dir_rm_args(args);
 err:
