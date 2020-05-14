@@ -1792,8 +1792,7 @@ child_exit:
 					free_procs();
 					stress_cache_free();
 					stress_free_settings();
-					if (g_opt_flags & OPT_FLAGS_FTRACE)
-						(void)stress_ftrace_free();
+					(void)stress_ftrace_free();
 
 					if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
 						keep_stressing_set_flag(false);
@@ -1808,8 +1807,7 @@ child_exit:
 						(void)setpgid(pid, g_pgrp);
 						g_proc_current->pids[j] = pid;
 						g_proc_current->started_procs++;
-						if (g_opt_flags & OPT_FLAGS_FTRACE)
-							stress_ftrace_add_pid(pid);
+						stress_ftrace_add_pid(pid);
 					}
 
 					/* Forced early abort during startup? */
@@ -2918,8 +2916,7 @@ int main(int argc, char **argv, char **envp)
 	 */
 	set_random_stressors();
 
-	if (g_opt_flags & OPT_FLAGS_FTRACE)
-		(void)stress_ftrace_start();
+	(void)stress_ftrace_start();
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 	if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 		stress_perf_init();
@@ -3102,10 +3099,8 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_TIMES)
 		times_dump(yaml, ticks_per_sec, duration);
 
-	if (g_opt_flags & OPT_FLAGS_FTRACE) {
-		(void)stress_ftrace_stop();
-		(void)stress_ftrace_free();
-	}
+	(void)stress_ftrace_stop();
+	(void)stress_ftrace_free();
 
 	/*
 	 *  Tidy up

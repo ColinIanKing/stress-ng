@@ -96,6 +96,9 @@ void stress_ftrace_free(void)
 {
 	struct rb_node *tn, *next;
 
+	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
+		return;
+
 	for (tn = RB_MIN(rb_tree, &rb_root); tn; tn = next) {
 		free(tn->func_name);
                 next = RB_NEXT(rb_tree, &rb_root, tn);
@@ -272,6 +275,9 @@ static void stress_ftrace_set_pid_file(const pid_t pid, const char *file)
 
 void stress_ftrace_add_pid(const pid_t pid)
 {
+	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
+		return;
+
 	stress_ftrace_set_pid_file(pid, "set_event_pid");
 	stress_ftrace_set_pid_file(pid, "set_ftrace_pid");
 }
@@ -283,6 +289,9 @@ void stress_ftrace_add_pid(const pid_t pid)
 int stress_ftrace_start(void)
 {
 	char *path, filename[PATH_MAX];
+
+	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
+		return 0;
 
 	RB_INIT(&rb_root);
 
@@ -344,7 +353,7 @@ static inline bool strace_ftrace_is_syscall(const char *func_name)
  *  stress_ftrace_start()
  *	start ftracing function calls
  */
-void stress_ftrace_analyze(void)
+static void stress_ftrace_analyze(void)
 {
 	struct rb_node *tn, *next;
 	uint64_t sys_calls = 0, func_calls = 0;
@@ -379,6 +388,9 @@ void stress_ftrace_analyze(void)
 int stress_ftrace_stop(void)
 {
 	char *path, filename[PATH_MAX];
+
+	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
+		return 0;
 
 	if (!tracing_enabled)
 		return -1;
