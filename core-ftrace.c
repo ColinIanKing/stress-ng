@@ -428,6 +428,11 @@ void stress_ftrace_free(void)
 
 int stress_ftrace_start(void)
 {
+	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
+		return 0;
+	pr_inf("ftrace: this option is not implemented on this system: %s %s\n",
+		stress_get_uname_info(), stress_get_compiler());
+
 	return 0;
 }
 
