@@ -419,6 +419,7 @@ int stress_ftrace_stop(void)
 #else
 void stress_ftrace_add_pid(const pid_t pid)
 {
+	(void)pid;
 }
 
 void stress_ftrace_free(void)
