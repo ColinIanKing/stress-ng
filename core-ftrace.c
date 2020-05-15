@@ -377,7 +377,6 @@ static void stress_ftrace_analyze(void)
 	}
 	pr_inf("ftrace: %" PRIu64 " kernel functions called, %" PRIu64 " were system calls\n",
 		func_calls, sys_calls);
-	pr_inf("ftrace: this includes all kernel activity including processes other than stress-ng\n");
 }
 
 /*

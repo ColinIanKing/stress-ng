@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "April 23, 2020"
+.TH STRESS-NG 1 "May 15, 2020"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -96,6 +96,13 @@ print out all the stressors in that specific class.
 .TP
 .B \-n, \-\-dry\-run
 parse options, but do not run stress tests. A no-op.
+.TP
+.B \-\-ftrace
+enable kernel function call tracing (Linux only).  This will use the
+kernel debugfs ftrace mechanism to record all the kernel functions
+used on the system while stress-ng is running.  This is only as accurate
+as the kernel ftrace output, so there may be some variability on the
+data reported.
 .TP
 .B \-h, \-\-help
 show help.
@@ -1477,15 +1484,6 @@ stop fstat stress workers after N bogo fstat operations.
 .B \-\-fstat\-dir directory
 specify the directory to fstat to override the default of /dev.
 All the files in the directory will be fstat'd repeatedly.
-.TP
-.B \-\-ftrace
-enable kernel function call tracing (Linux only).  This will use the
-kernel debugfs ftrace mechanism to record all the kernel functions
-used on the system while stress-ng is running. Note that this will not
-filter out function calls made by non-stress-ng processes, so this is
-an approximation of stress-ng activity.  Note that full monitoring of
-just stress-ng related activity is too CPU intensive and a light weight
-approximation is used of all system activity instead.
 .TP
 .B \-\-full N
 start N workers that exercise /dev/full.  This attempts to write to
