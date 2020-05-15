@@ -43,7 +43,7 @@ int main(void)
 	iov.iov_base = buffer;
 	iov.iov_len = sizeof(buffer);
 
-	rc = pwritev(fd, &iov, 1, 0);
+	rc = pwritev2(fd, &iov, 1, -1, 0);
 	(void)close(fd);
 
 	return rc;

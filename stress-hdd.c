@@ -180,6 +180,9 @@ static ssize_t stress_hdd_write(
 		size_t i;
 		uint8_t *data = buf;
 		const uint64_t sz = hdd_write_size / HDD_IO_VEC_MAX;
+		off_t offset;
+
+		(void)offset;
 
 		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
 			iov[i].iov_base = (void *)data;
@@ -187,7 +190,27 @@ static ssize_t stress_hdd_write(
 
 			data += sz;
 		}
-		ret = writev(fd, iov, HDD_IO_VEC_MAX);
+		switch (stress_mwc8() & 3) {
+#if defined(HAVE_PWRITEV2)
+		case 0:
+			/* 25% */
+			ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, -1, 0);
+			break;
+#endif
+#if defined(HAVE_PWRITEV)
+		case 1:
+			/* 25% */
+			offset = lseek(fd, SEEK_CUR, 0);
+			if (offset != (off_t)-1) {
+				ret = pwritev(fd, iov, HDD_IO_VEC_MAX, offset);
+				break;
+			}
+			CASE_FALLTHROUGH;
+#endif
+		default:
+			ret = writev(fd, iov, HDD_IO_VEC_MAX);
+			break;
+		}
 	} else {
 		ret = write(fd, buf, count);
 	}
@@ -229,6 +252,9 @@ static ssize_t stress_hdd_read(
 		size_t i;
 		uint8_t *data = buf;
 		const uint64_t sz = hdd_write_size / HDD_IO_VEC_MAX;
+		off_t offset;
+
+		(void)offset;
 
 		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
 			iov[i].iov_base = (void *)data;
@@ -236,7 +262,24 @@ static ssize_t stress_hdd_read(
 
 			data += sz;
 		}
-		return readv(fd, iov, HDD_IO_VEC_MAX);
+		switch (stress_mwc8() & 3) {
+#if defined(HAVE_PREADV2)
+		case 0:
+			/* 25% */
+			return preadv2(fd, iov, HDD_IO_VEC_MAX, -1, 0);
+#endif
+#if defined(HAVE_PREADV)
+		case 1:
+			/* 25% */
+			offset = lseek(fd, SEEK_CUR, 0);
+			if (offset != (off_t)-1)
+				return preadv(fd, iov, HDD_IO_VEC_MAX, offset);
+			CASE_FALLTHROUGH;
+#endif
+		default:
+			/* 50% */
+			return readv(fd, iov, HDD_IO_VEC_MAX);
+		}
 	} else {
 		return read(fd, buf, count);
 	}
