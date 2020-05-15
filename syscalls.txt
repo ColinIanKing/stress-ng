@@ -227,8 +227,8 @@ posix_fallocate			fallocate
 ppoll				poll
 prctl				process name setting
 pread				readahead
-preadv
-preadv2
+preadv				hdd
+preadv2				hdd
 prlimit				get
 /proc				proc
 process_vm_readv		vm_rw
@@ -236,8 +236,8 @@ process_vm_writev		vm_rw
 pselect6			poll
 ptrace				ptrace
 pwrite				readahead, aio
-pwritev				ioprio
-pwritev2
+pwritev				hdd, ioprio
+pwritev2			hdd
 quotactl			quota
 read				pipe, zero, ..
 readahead			readahead
