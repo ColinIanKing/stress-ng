@@ -1,3 +1,34 @@
+stress-ng (0.11.10-1) unstable; urgency=medium
+
+  * Makefile: bump minor version
+  * Debian: remove compat, use debhelper-compat in Build-Depends
+  * core-ftrace + manual: update caveat about ftrace stats
+  * stress-pty: fix incorrect placing of #endif's
+  * core-ftrace: warn when --ftrace is used on systems that don't
+    support it
+  * core-ftrace: voidify unused argument in stress_ftrace_add_pid
+  * kernel-coverage: add ftrace and class exercising
+  * core-ftrace: move OPT_FLAGS_FTRACE check to core-ftrace
+  * core-ftrace: try to filter by parent and child process IDs
+  * core-ftrace: add caveat about tracing stats captured
+  * core-ftrace: fix some resource free'ing issues
+  * stress-efi-var: optimize check for . files
+  * stress-efivar: remove free of efi_dentries
+  * stress-chdir: ensure all fd's and filenames are invalid before
+    testing
+  * Add --ftrace option to get some kernel function tracing metrics
+  * stress-pty: exercise tcdrain, tcflush, tcflow and tcgetattr
+  * stress-vm: use mwc64() for random numbers rather than random()
+  * stresss-vdso: add missing line
+  * stress-pipe: fix build failure on non-Linux platforms on pr_fail
+  * Replace pr_fail_err with pr_fail to allow more flexible error
+    messages
+  * Remove pr_fail_dbg and replace with pr_fail
+  * Remove pr_fail_args_errno and pr_fail_errno
+  * core-helper: remove directory if an error occurs on mkdir
+
+ -- Colin King <colin.king@canonical.com>  Fri, 15 May 2020 14:10:41 +0100
+
 stress-ng (0.11.09-1) unstable; urgency=medium
 
   * Makefile: bump version
