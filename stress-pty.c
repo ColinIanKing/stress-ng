@@ -188,8 +188,8 @@ static int stress_pty(const stress_args_t *args)
 					pr_fail("%s: tcflow TCOON on slave pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
-#endif
 			}
+#endif
 #if defined(TCIOFF) && \
     defined(TCION)
 			{
@@ -201,8 +201,8 @@ static int stress_pty(const stress_args_t *args)
 					pr_fail("%s: tcflow TCION on slave pty failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
-#endif
 			}
+#endif
 #endif
 #if defined(TCGETS)
 			{
