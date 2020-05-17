@@ -139,12 +139,13 @@ static void stress_semaphore_sysv_get_procinfo(bool *get_procinfo)
  *  stress_semaphore_sysv_thrash()
  *	exercise the semaphore
  */
-static void stress_semaphore_sysv_thrash(const stress_args_t *args)
+static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 {
 	const int sem_id = g_shared->sem_sysv.sem_id;
+	int rc = EXIT_SUCCESS;
 
 	do {
-		int i;
+		int i, ret;
 #if defined(__linux__)
 		bool get_procinfo = true;
 #endif
@@ -155,7 +156,7 @@ static void stress_semaphore_sysv_thrash(const stress_args_t *args)
 		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
 			pr_fail("%s: clock_gettime failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			return;
+			return EXIT_NO_RESOURCE;
 		}
 		timeout.tv_sec++;
 #endif
@@ -184,15 +185,19 @@ static void stress_semaphore_sysv_thrash(const stress_args_t *args)
 #endif
 				if (errno == EAGAIN)
 					goto timed_out;
-				if (errno != EINTR)
+				if (errno != EINTR) {
 					pr_fail("%s: semop wait failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+				}
 				break;
 			}
 			if (semop(sem_id, &semsignal, 1) < 0) {
-				if (errno != EINTR)
+				if (errno != EINTR) {
 					pr_fail("%s: semop signal failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
+				}
 				break;
 			}
 timed_out:
@@ -208,9 +213,11 @@ timed_out:
 			memset(&ds, 0, sizeof(ds));
 
 			s.buf = &ds;
-			if (semctl(sem_id, 0, IPC_STAT, &s) < 0)
+			if (semctl(sem_id, 0, IPC_STAT, &s) < 0) {
 				pr_fail("%s: semctl IPC_STAT failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 
 #if defined(GETALL)
 			/* Avoid zero array size allocation */
@@ -221,11 +228,13 @@ timed_out:
 				if (semctl(sem_id, 0, GETALL, s) < 0) {
 					pr_fail("%s: semctl GETALL failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 #if defined(SETALL)
 				if (semctl(sem_id, 0, SETALL, s) < 0) {
 					pr_fail("%s: semctl SETALL failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+					rc = EXIT_FAILURE;
 				}
 #endif
 				free(s.array);
@@ -239,9 +248,11 @@ timed_out:
 			stress_semun_t s;
 
 			s.buf = &ds;
-			if (semctl(sem_id, 0, SEM_STAT, &s) < 0)
+			if (semctl(sem_id, 0, SEM_STAT, &s) < 0) {
 				pr_fail("%s: semctl SET_STAT failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 		}
 #endif
 #if defined(IPC_INFO) && defined(__linux__)
@@ -250,9 +261,11 @@ timed_out:
 			stress_semun_t s;
 
 			s.__buf = &si;
-			if (semctl(sem_id, 0, IPC_INFO, &s) < 0)
+			if (semctl(sem_id, 0, IPC_INFO, &s) < 0) {
 				pr_fail("%s: semctl IPC_INFO failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 		}
 #endif
 #if defined(SEM_INFO) && defined(__linux__)
@@ -261,32 +274,103 @@ timed_out:
 			stress_semun_t s;
 
 			s.__buf = &si;
-			if (semctl(sem_id, 0, SEM_INFO, &s) < 0)
+			if (semctl(sem_id, 0, SEM_INFO, &s) < 0) {
 				pr_fail("%s: semctl SEM_INFO failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
 		}
 #endif
 #if defined(GETVAL)
-		if (semctl(sem_id, 0, GETVAL) < 0)
+		if (semctl(sem_id, 0, GETVAL) < 0) {
 			pr_fail("%s: semctl GETVAL failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
 #endif
 #if defined(GETPID)
-		if (semctl(sem_id, 0, GETPID) < 0)
+		if (semctl(sem_id, 0, GETPID) < 0) {
 			pr_fail("%s: semctl GETPID failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
 #endif
 #if defined(GETNCNT)
-		if (semctl(sem_id, 0, GETNCNT) < 0)
+		if (semctl(sem_id, 0, GETNCNT) < 0) {
 			pr_fail("%s: semctl GETNCNT failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
 #endif
 #if defined(GETZCNT)
-		if (semctl(sem_id, 0, GETZCNT) < 0)
+		if (semctl(sem_id, 0, GETZCNT) < 0) {
 			pr_fail("%s: semctl GETZCNT failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
 #endif
-	} while (keep_stressing());
+		/*
+		 * Now exercise invalid options and arguments
+		 */
+		ret = semctl(sem_id, -1, SETVAL, 0);
+		if ((ret == 0) || ((ret < 0) && (errno != EINVAL))) {
+			pr_fail("%s: semctl SETVAL with semnum = -1 did not fail with EINVAL as expected, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
+#if defined(GETVAL)
+		ret = semctl(sem_id, -1, GETVAL);
+		if ((ret == 0) || ((ret < 0) && (errno != EINVAL))) {
+			pr_fail("%s: semctl GETVAL with semnum = -1 did not fail with EINVAL as expected, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
+#endif
+#if defined(HAVE_SEMTIMEDOP) &&	\
+    defined(HAVE_CLOCK_GETTIME)
+		{
+			/*
+			 *  Exercise illegal timeout
+			 */
+			struct sembuf semwait;
+
+			timeout.tv_sec = -1;
+			timeout.tv_nsec = -1;
+			semwait.sem_num = 0;
+			semwait.sem_op = -1;
+			semwait.sem_flg = SEM_UNDO;
+
+			ret = semtimedop(sem_id, &semwait, 1, &timeout);
+			if ((ret == 0) || ((ret < 0) && (errno != EINVAL))) {
+				pr_fail("%s: semtimedop  with invalid timeout did not fail with EINVAL as expected, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
+		}
+#endif
+		/*
+		 *  Exercise illegal semwait
+		 */
+		{
+			struct sembuf semwait;
+
+			semwait.sem_num = -1;
+			semwait.sem_op = -1;
+			semwait.sem_flg = SEM_UNDO;
+
+			ret = semop(sem_id, &semwait, 1);
+			if ((ret == 0) || ((ret < 0) && (errno != EFBIG))) {
+				pr_fail("%s: semop  with invalid sem_num  did not fail with EFBIG as expected, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+			}
+		}
+	} while ((rc == EXIT_SUCCESS)  && keep_stressing());
+
+	if (rc == EXIT_FAILURE)
+		kill(getppid(), SIGALRM);
+
+	return rc;
 }
 
 /*
@@ -308,8 +392,7 @@ again:
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
-		stress_semaphore_sysv_thrash(args);
-		_exit(EXIT_SUCCESS);
+		_exit(stress_semaphore_sysv_thrash(args));
 	}
 	(void)setpgid(pid, g_pgrp);
 	return pid;
@@ -324,6 +407,7 @@ static int stress_sem_sysv(const stress_args_t *args)
 	pid_t pids[MAX_SEMAPHORE_PROCS];
 	uint64_t i;
 	uint64_t semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
+	int rc = EXIT_SUCCESS;
 
 	if (!stress_get_setting("sem-sysv-procs", &semaphore_sysv_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -356,10 +440,14 @@ reap:
 			int status;
 
 			(void)shim_waitpid(pids[i], &status, 0);
+			if (WIFEXITED(status) &&
+			    (WEXITSTATUS(status) != EXIT_SUCCESS)) {
+				rc = EXIT_FAILURE;
+			}
 		}
 	}
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_sem_sysv_info = {
