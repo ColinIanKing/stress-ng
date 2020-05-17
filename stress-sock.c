@@ -151,6 +151,44 @@ static int stress_set_socket_domain(const char *name)
 	return ret;
 }
 
+static void stress_sock_ioctl(const int fd)
+{
+#if defined(FIOGETOWN)
+	{
+		int ret, own;
+
+		ret = ioctl(fd, FIOGETOWN, &own);
+		(void)ret;
+	}
+#endif
+#if defined(SIOCGPGRP)
+	{
+		int ret, own;
+
+		ret = ioctl(fd, SIOCGPGRP, &own);
+		(void)ret;
+	}
+#endif
+#if defined(SIOCGIFCONF)
+	{
+		int ret;
+		struct ifconf ifc;
+
+		ret = ioctl(fd, SIOCGIFCONF, &ifc);
+		(void)ret;
+	}
+#endif
+#if defined(SIOCGSTAMP)
+	{
+		int ret;
+		struct timeval tv;
+
+		ret = ioctl(fd, SIOCGSTAMP, &tv);
+		(void)ret;
+	}
+#endif
+}
+
 /*
  *  stress_sock_client()
  *	client reader
@@ -324,6 +362,8 @@ retry:
 				break;
 			}
 		} while (keep_stressing());
+
+		stress_sock_ioctl(fd);
 #if defined(AF_INET) && 	\
     defined(IPPROTO_IP)	&&	\
     defined(IP_MTU)
