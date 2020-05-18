@@ -37,6 +37,10 @@ static const stress_help_t help[] = {
     defined(HAVE_SHM_SYSV)
 
 #define KEY_GET_RETRIES		(40)
+#define BITS_PER_BYTE		(8)
+#define NUMA_LONG_BITS		(sizeof(unsigned long) * BITS_PER_BYTE)
+#define MPOL_F_ADDR		(1 << 1)
+#define MPOL_DEFAULT		(0)
 
 /*
  *  Note, running this test with the --maximize option on
@@ -369,6 +373,25 @@ static int stress_shm_sysv_child(
 
 			}
 #endif
+		/*
+		 *  Exercise NUMA mem_policy on shm
+		 */
+#if defined(__NR_get_mempolicy) &&	\
+    defined(__NR_set_mempolicy)
+			{
+				int ret, mode;
+				unsigned long node_mask[NUMA_LONG_BITS];
+
+				ret = shim_get_mempolicy(&mode, node_mask, 1,
+					(unsigned long)addrs[i], MPOL_F_ADDR);
+				if (ret == 0) {
+					ret = shim_set_mempolicy(MPOL_DEFAULT, NULL, 1);
+					(void)ret;
+				}
+				(void)ret;
+			}
+#endif
+
 			inc_counter(args);
 		}
 reap:
