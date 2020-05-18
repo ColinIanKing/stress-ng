@@ -907,6 +907,20 @@ typedef enum {
 
 typedef struct stress_proc_info *stress_pproc_info_t;
 
+/*
+ *  Per ELISA request, we have a duplicated counter
+ *  and run_ok flag in a different shared memory region
+ *  so we can sanity check these just in case the stats
+ *  have got corrupted.
+ */
+typedef struct {
+	struct {
+		uint64_t counter;	/* Copy of stats counter */
+		bool     run_ok;	/* Copy of run_ok */
+	} data;
+	uint32_t	hash;		/* Hash of data */
+} stress_checksum_t;
+
 /* settings for storing opt arg parsed data */
 typedef struct stress_setting {
 	struct stress_setting *next;	/* next setting in list */
@@ -1838,6 +1852,7 @@ typedef struct {
 	stress_tz_t tz;			/* thermal zones */
 #endif
 	bool run_ok;			/* true if stressor exited OK */
+	stress_checksum_t *checksum;	/* pointer to checksum data */
 } stress_proc_stats_t;
 
 #define	STRESS_WARN_HASH_MAX		(128)
@@ -1889,6 +1904,8 @@ typedef struct {
 	uint32_t softlockup_count;			/* Atomic counter of softlock children */
 #endif
 	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
+	stress_checksum_t *checksums;			/* per stressor counter checksum */
+	size_t	checksums_length;			/* size of checksums mapping */
 	stress_proc_stats_t stats[0];			/* Shared statistics */
 } stress_shared_t;
 
@@ -3125,7 +3142,7 @@ typedef struct {
 	const char *name;		/* name of stress test */
 } stress_t;
 
-/* Per process information */
+/* Per stressor process information */
 typedef struct stress_proc_info {
 	struct stress_proc_info *next;	/* next proc info struct in list */
 	struct stress_proc_info *prev;	/* prev proc info struct in list */
@@ -3133,7 +3150,7 @@ typedef struct stress_proc_info {
 	pid_t	*pids;			/* process id */
 	stress_proc_stats_t **stats;	/* process proc stats info */
 	int32_t started_procs;		/* count of started processes */
-	int32_t num_procs;		/* number of process per stressor */
+	int32_t num_procs;		/* number of processes per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */
 } stress_proc_info_t;
 

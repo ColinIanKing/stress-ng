@@ -967,6 +967,16 @@ static const stress_help_t help_generic[] = {
 };
 
 /*
+ *  stress_hash_checksum()
+ *	generate a hash of the checksum data
+ */
+static inline void stress_hash_checksum(stress_checksum_t *checksum)
+{
+	checksum->hash = stress_hash_jenkin((uint8_t *)&checksum->data,
+				sizeof(checksum->data));
+}
+
+/*
  *  stressor_name_find()
  *  	Find index into stressors by name
  */
@@ -1651,6 +1661,7 @@ static void MLOCKED_TEXT stress_run(
 	double time_start, time_finish;
 	int32_t n_procs, j;
 	const int32_t total_procs = get_total_num_procs(procs_list);
+	stress_checksum_t *checksum = g_shared->checksums;
 
 	int32_t sched;
 
@@ -1659,12 +1670,11 @@ static void MLOCKED_TEXT stress_run(
 	long sched_runtime = -1;
 	long sched_deadline = -1;
 
-
 	wait_flag = true;
 	time_start = stress_time_now();
 	pr_dbg("starting stressors\n");
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
-		for (g_proc_current = procs_list; g_proc_current; g_proc_current = g_proc_current->next) {
+		for (g_proc_current = procs_list; g_proc_current; g_proc_current = g_proc_current->next, checksum++) {
 			if (g_opt_timeout && (stress_time_now() - time_start > g_opt_timeout))
 				goto abort;
 
@@ -1765,9 +1775,16 @@ again:
 							.page_size = stress_get_pagesize(),
 						};
 
+						(void)memset(checksum, 0, sizeof(*checksum));
 						rc = g_proc_current->stressor->info->stressor(&args);
 						pr_fail_check(&rc);
-						stats->run_ok = (rc == EXIT_SUCCESS);
+						if (rc == EXIT_SUCCESS) {
+							stats->run_ok = true;
+							checksum->data.run_ok = true;
+						}
+						stats->checksum = checksum;
+						checksum->data.counter = *args.counter;
+						stress_hash_checksum(checksum);
 					}
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
@@ -1876,6 +1893,65 @@ static int show_stressors(void)
 	(void)fflush(stdout);
 
 	return 0;
+}
+
+/*
+ *  metrics_check()
+ *	as per ELISA request, sanity check bogo ops and run flag
+ *	to see if corruption occurred and print failure messages
+ *	and set *success to false if hash and data is dubious.
+ */
+static void metrics_check(bool *success)
+{
+	stress_proc_info_t *pi;
+	bool ok = true;
+
+	for (pi = procs_head; pi; pi = pi->next) {
+		int32_t j;
+
+		for (j = 0; j < pi->started_procs; j++) {
+			const stress_proc_stats_t *const stats = pi->stats[j];
+			const stress_checksum_t *checksum = stats->checksum;
+			stress_checksum_t stats_checksum;
+
+			if (checksum == NULL) {
+				pr_fail("%s instance %d unexpected null checksum data\n",
+					pi->stressor->name, j);
+				ok = false;
+				continue;
+			}
+
+			(void)memset(&stats_checksum, 0, sizeof(stats_checksum));
+			stats_checksum.data.counter = stats->counter;
+			stats_checksum.data.run_ok = stats->run_ok;
+			stress_hash_checksum(&stats_checksum);
+
+			if (stats->counter != checksum->data.counter) {
+				pr_fail("%s instance %d corrupted bogo-ops counter, %" PRIu64 " vs %" PRIu64 "\n",
+					pi->stressor->name, j,
+					stats->counter, checksum->data.counter);
+				ok = false;
+			}
+			if (stats->run_ok != checksum->data.run_ok) {
+				pr_fail("%s instance %d corrupted run flag, %d vs %d\n",
+					pi->stressor->name, j,
+					stats->run_ok, checksum->data.run_ok);
+				ok = false;
+			}
+			if (stats_checksum.hash != checksum->hash) {
+				pr_fail("%s instance %d hash error in bogo-ops counter and run flag, %" PRIu32 " vs %" PRIu32 "\n",
+					pi->stressor->name, j,
+					stats_checksum.hash, checksum->hash);
+				ok = false;
+			}
+		}
+	}
+	if (ok) {
+		pr_dbg("metrics check: all stressor metrics validated and sane\n");
+	} else {
+		pr_fail("metrics check: stressor metrics corrupted, data is compromised\n");
+		*success = false;
+	}
 }
 
 /*
@@ -2093,10 +2169,11 @@ static void log_system_info(void)
  *	that is marked read-only to stop accidental smashing
  *	from a run-away stack expansion
  */
-static inline void stress_map_shared(const size_t len)
+static inline void stress_map_shared(const size_t num_procs)
 {
 	const size_t page_size = stress_get_pagesize();
-	const size_t sz = (len + (page_size << 1)) & ~(page_size - 1);
+	size_t len = sizeof(stress_shared_t) + (sizeof(stress_proc_stats_t) * num_procs);
+	size_t sz = (len + (page_size << 1)) & ~(page_size - 1);
 #if defined(HAVE_MPROTECT)
 	void *last_page;
 #endif
@@ -2104,7 +2181,7 @@ static inline void stress_map_shared(const size_t len)
 	g_shared = (stress_shared_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANON, -1, 0);
 	if (g_shared == MAP_FAILED) {
-		pr_err("Cannot mmap to shared memory region: errno=%d (%s)\n",
+		pr_err("Cannot mmap to shared memory region, errno=%d (%s)\n",
 			errno, strerror(errno));
 		free_procs();
 		exit(EXIT_FAILURE);
@@ -2137,6 +2214,25 @@ static inline void stress_map_shared(const size_t len)
 			g_shared->length -= sz;
 	}
 #endif
+
+	/*
+	 *  copy of checksums and run data in a different shared
+	 *  memory segment so that we can sanity check these for
+	 *  any form of corruption
+	 */
+	len = sizeof(stress_checksum_t) * STRESS_PROCS_MAX;
+	sz = (len + page_size) & ~(page_size - 1);
+	g_shared->checksums = (stress_checksum_t *)mmap(NULL, sz,
+		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
+	if (g_shared->checksums == MAP_FAILED) {
+		pr_err("Cannot mmap checksums, errno=%d (%s)\n",
+			errno, strerror(errno));
+		(void)munmap((void *)g_shared, g_shared->length);
+		free_procs();
+		exit(EXIT_FAILURE);
+	}
+	(void)memset(g_shared->checksums, 0, sz);
+	g_shared->checksums_length = sz;
 }
 
 /*
@@ -2145,6 +2241,7 @@ static inline void stress_map_shared(const size_t len)
  */
 void stress_unmap_shared(void)
 {
+	(void)munmap((void *)g_shared->checksums, g_shared->checksums_length);
 	(void)munmap((void *)g_shared, g_shared->length);
 }
 
@@ -2785,7 +2882,6 @@ static inline void stress_mlock_executable(void)
 int main(int argc, char **argv, char **envp)
 {
 	double duration = 0.0;			/* stressor run time in secs */
-	size_t len;
 	bool success = true, resource_success = true;
 	FILE *yaml;				/* YAML output file */
 	char *yaml_filename;			/* YAML file name */
@@ -2997,8 +3093,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared memory segment for shared data
 	 *  across all the child stressors
 	 */
-	len = sizeof(stress_shared_t) + (sizeof(stress_proc_stats_t) * get_total_num_procs(procs_head));
-	stress_map_shared(len);
+	stress_map_shared(get_total_num_procs(procs_head));
 
 	/*
 	 *  Setup spinlocks
@@ -3075,6 +3170,8 @@ int main(int argc, char **argv, char **envp)
 	 */
 	if (g_opt_flags & OPT_FLAGS_METRICS)
 		metrics_dump(yaml, ticks_per_sec);
+
+	metrics_check(&success);
 
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 	/*
