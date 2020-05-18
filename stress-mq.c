@@ -62,6 +62,13 @@ static void stress_mq_notify_func(union sigval s)
 	(void)s;
 }
 
+#if defined(SIGUSR2)
+static void MLOCKED_TEXT stress_sigusr2_handler(int signum)
+{
+	(void)signum;
+}
+#endif
+
 /*
  *  stress_mq
  *	stress POSIX message queues
@@ -77,6 +84,11 @@ static int stress_mq(const stress_args_t *args)
 	bool do_timed;
 	time_t time_start;
 	struct timespec abs_timeout;
+
+#if defined(SIGUSR2)
+	if (stress_sighandler(args->name, SIGUSR2, stress_sigusr2_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+#endif
 
 	if (!stress_get_setting("mq-size", &mq_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -159,10 +171,6 @@ again:
 		struct sigevent sigev;
 		uint64_t values[PRIOS_MAX];
 
-		(void)memset(&sigev, 0, sizeof sigev);
-		sigev.sigev_notify = SIGEV_THREAD;
-		sigev.sigev_notify_function = stress_mq_notify_func;
-		sigev.sigev_notify_attributes = NULL;
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -203,6 +211,22 @@ again:
 							args->name, errno, strerror(errno));
 #endif
 
+					(void)memset(&sigev, 0, sizeof sigev);
+					switch (stress_mwc1()) {
+					case 0:
+#if defined(SIGUSR2)
+						sigev.sigev_notify = SIGEV_SIGNAL;
+						sigev.sigev_signo = SIGUSR2;
+						break;
+#else
+						CASE_FALLTHROUGH;
+#endif
+					default:
+						sigev.sigev_notify = SIGEV_THREAD;
+						sigev.sigev_notify_function = stress_mq_notify_func;
+						sigev.sigev_notify_attributes = NULL;
+						break;
+					}
 					(void)mq_notify(mq, &sigev);
 				}
 
