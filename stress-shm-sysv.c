@@ -200,6 +200,7 @@ static int stress_shm_sysv_child(
 
 	do {
 		size_t sz = max_sz;
+		pid_t pid = -1;
 
 		for (i = 0; i < shm_sysv_segments; i++) {
 			int shm_id, count = 0;
@@ -325,7 +326,7 @@ static int stress_shm_sysv_child(
 				}
 			}
 #endif
-#if defined(IPC_STAT) && \
+#if defined(IPC_STAT) &&	\
     defined(HAVE_SHMID_DS)
 			{
 				struct shmid_ds ds;
@@ -343,7 +344,7 @@ static int stress_shm_sysv_child(
 #endif
 			}
 #endif
-#if defined(IPC_INFO) && \
+#if defined(IPC_INFO) &&	\
     defined(HAVE_SHMINFO)
 			{
 				struct shminfo s;
@@ -353,7 +354,7 @@ static int stress_shm_sysv_child(
 						args->name, errno, strerror(errno));
 			}
 #endif
-#if defined(SHM_INFO) && \
+#if defined(SHM_INFO) &&	\
     defined(HAVE_SHMINFO)
 			{
 				struct shm_info s;
@@ -363,7 +364,7 @@ static int stress_shm_sysv_child(
 						args->name, errno, strerror(errno));
 			}
 #endif
-#if defined(SHM_LOCK) && \
+#if defined(SHM_LOCK) &&	\
     defined(SHM_UNLOCK)
 			if (shmctl(shm_id, SHM_LOCK, (struct shmid_ds *)NULL) < 0) {
 				int ret;
@@ -394,6 +395,25 @@ static int stress_shm_sysv_child(
 
 			inc_counter(args);
 		}
+
+		pid = fork();
+		if (pid == 0) {
+			for (i = 0; i < shm_sysv_segments; i++) {
+				int ret;
+#if defined(IPC_STAT) &&	\
+    defined(HAVE_SHMID_DS)
+
+				if (shm_ids[i] >= 0) {
+					struct shmid_ds ds;
+					ret = shmctl(shm_ids[i], IPC_STAT, &ds);
+					(void)ret;
+				}
+#endif
+				ret = shmdt(addrs[i]);
+				(void)ret;
+			}
+			_exit(EXIT_SUCCESS);
+		}
 reap:
 		for (i = 0; i < shm_sysv_segments; i++) {
 			if (addrs[i]) {
@@ -421,6 +441,12 @@ reap:
 			addrs[i] = NULL;
 			shm_ids[i] = -1;
 			keys[i] = 0;
+		}
+
+		if (pid >= 0) {
+			int status;
+
+			(void)waitpid(pid, &status, 0);
 		}
 	} while (ok && keep_stressing());
 
