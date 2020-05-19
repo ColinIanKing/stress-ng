@@ -503,6 +503,8 @@ static void stress_dev_blk(
 	const int fd,
 	const char *devpath)
 {
+	off_t offset;
+
 	(void)name;
 	(void)fd;
 	(void)devpath;
@@ -633,6 +635,14 @@ static void stress_dev_blk(
 		(void)ret;
 	}
 #endif
+	offset = lseek(fd, 0, SEEK_END);
+	stress_uint64_put((uint64_t)offset);
+
+	offset = lseek(fd, 0, SEEK_SET);
+	stress_uint64_put((uint64_t)offset);
+
+	offset = lseek(fd, 0, SEEK_CUR);
+	stress_uint64_put((uint64_t)offset);
 }
 
 #if defined(__linux__)
@@ -1167,7 +1177,7 @@ static inline void stress_dev_rw(
 	int32_t loops)
 {
 	int fd, ret;
-	off_t off;
+	off_t offset;
 	struct stat buf;
 	struct pollfd fds[1];
 	fd_set rfds;
@@ -1231,12 +1241,12 @@ static inline void stress_dev_rw(
 			stress_dev_tty(args->name, fd, path);
 #endif
 
-		off = lseek(fd, 0, SEEK_SET);
-		(void)off;
-		off = lseek(fd, 0, SEEK_CUR);
-		(void)off;
-		off = lseek(fd, 0, SEEK_END);
-		(void)off;
+		offset = lseek(fd, 0, SEEK_SET);
+		stress_uint64_put((uint64_t)offset);
+		offset = lseek(fd, 0, SEEK_CUR);
+		stress_uint64_put((uint64_t)offset);
+		offset = lseek(fd, 0, SEEK_END);
+		stress_uint64_put((uint64_t)offset);
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
