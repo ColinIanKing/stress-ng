@@ -1766,6 +1766,7 @@ again:
 					if (keep_stressing_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
 						const stress_args_t args = {
 							.counter = &stats->counter,
+							.counter_ready = &stats->counter_ready,
 							.name = name,
 							.max_ops = g_proc_current->bogo_ops,
 							.instance = j,
@@ -1775,12 +1776,25 @@ again:
 							.page_size = stress_get_pagesize(),
 						};
 
+						stats->counter_ready = true;
+						stats->counter = 0;
+
 						(void)memset(checksum, 0, sizeof(*checksum));
 						rc = g_proc_current->stressor->info->stressor(&args);
 						pr_fail_check(&rc);
 						if (rc == EXIT_SUCCESS) {
 							stats->run_ok = true;
 							checksum->data.run_ok = true;
+						}
+						/*
+						 *  Bogo ops counter should be OK for reading,
+						 *  if not then flag up that the counter may
+						 *  be untrustyworthy
+						 */
+						if (!stats->counter_ready) {
+							pr_fail("%s: bogo-ops counter in non-read state, metrics are untrustworthy\n",
+								name);
+							rc = EXIT_FAILURE;
 						}
 						stats->checksum = checksum;
 						checksum->data.counter = *args.counter;

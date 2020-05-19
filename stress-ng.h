@@ -979,6 +979,7 @@ typedef uint32_t stress_class_t;
 /* stressor args */
 typedef struct {
 	uint64_t *const counter;	/* stressor counter */
+	bool *counter_ready;		/* counter can be read */
 	const char *name;		/* stressor name */
 	const uint64_t max_ops;		/* max number of bogo ops */
 	const uint32_t instance;	/* stressor instance # */
@@ -1692,10 +1693,20 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define HAVE_PRCTL_TIMER_SLACK
 #endif
 
+static inline void ALWAYS_INLINE shim_mb(void)
+{
+	asm volatile ("" ::: "memory");
+}
+
 /* increment the stessor bogo ops counter */
 static inline void ALWAYS_INLINE inc_counter(const stress_args_t *args)
 {
+	*args->counter_ready = false;
+	shim_mb();
 	(*(args->counter))++;
+	shim_mb();
+	*args->counter_ready = true;
+	shim_mb();
 }
 
 static inline uint64_t ALWAYS_INLINE get_counter(const stress_args_t *args)
@@ -1705,12 +1716,22 @@ static inline uint64_t ALWAYS_INLINE get_counter(const stress_args_t *args)
 
 static inline void ALWAYS_INLINE set_counter(const stress_args_t *args, const uint64_t val)
 {
+	*args->counter_ready = false;
+	shim_mb();
 	*args->counter = val;
+	shim_mb();
+	*args->counter_ready = true;
+	shim_mb();
 }
 
 static inline void ALWAYS_INLINE add_counter(const stress_args_t *args, const uint64_t inc)
 {
+	*args->counter_ready = false;
+	shim_mb();
 	*args->counter += inc;
+	shim_mb();
+	*args->counter_ready = true;
+	shim_mb();
 }
 
 /* pthread porting shims, spinlock or fallback to mutex */
@@ -1842,6 +1863,7 @@ typedef struct {
 /* Per process statistics and accounting info */
 typedef struct {
 	uint64_t counter;		/* number of bogo ops */
+	bool counter_ready;		/* counter can be read */
 	struct tms tms;			/* run time stats of process */
 	double start;			/* wall clock start time */
 	double finish;			/* wall clock stop time */
