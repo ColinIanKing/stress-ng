@@ -1532,7 +1532,6 @@ again:
 			(void)setpgid(pid, g_pgrp);
 			/* Parent, wait for child */
 			wret = shim_waitpid(pid, &status, 0);
-			sleep(2);
 			if (wret < 0) {
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
@@ -1601,7 +1600,7 @@ again:
 					pthread_join(pthreads[i], NULL);
 			}
 			stress_hash_delete(dev_hash_table);
-			_exit(!keep_stressing_flag());
+			_exit(EXIT_SUCCESS);
 		}
 	} while (keep_stressing());
 
