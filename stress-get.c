@@ -388,7 +388,7 @@ static int stress_get(const stress_args_t *args)
 		}
 #endif
 
-#if defined(HAVE_GETPAGESISE)
+#if defined(HAVE_GETPAGESIZE)
 		ret = getpagesize();
 		(void)ret;
 #endif
