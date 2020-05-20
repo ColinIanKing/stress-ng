@@ -222,7 +222,7 @@ again:
 						"killer, bailing out "
 						"(instance %d)\n",
 						args->name, args->instance);
-					_exit(0);
+					return EXIT_NO_RESOURCE;
 				} else {
 					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM "
