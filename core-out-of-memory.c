@@ -216,13 +216,20 @@ again:
 
 			/* If we got killed by OOM killer, re-start */
 			if (WTERMSIG(status) == SIGKILL) {
+				/*
+				 *  The --oomable flag was enabled, so
+				 *  the behaviour here is to no longer
+				 *  retry.  The exit return is EXIT_SUCCESS
+				 *  because the child is allowed to terminate
+				 *  by being OOM'd.
+				 */
 				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
 					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM "
 						"killer, bailing out "
 						"(instance %d)\n",
 						args->name, args->instance);
-					return EXIT_NO_RESOURCE;
+					return EXIT_SUCCESS;
 				} else {
 					stress_log_system_mem_info();
 					pr_dbg("%s: assuming killed by OOM "
