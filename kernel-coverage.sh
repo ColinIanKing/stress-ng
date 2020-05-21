@@ -58,15 +58,6 @@ DURATION=60
 
 do_stress --all 1
 
-#
-#  Quick spin through all the classes of stressors with ftrace enabled
-# 
-DURATION=1
-for CLASS in cpu-cache cpu device filesystem interrupt io memory network os pipe scheduler security vm
-do
-	sudo $STRESS_NG --class $CLASS --ftrace --seq 1 -v --timestamp --syslog -t $DURATION
-done
-
 DURATION=30
 do_stress --cpu 0 --taskset 0,2 --ignite-cpu
 do_stress --cpu 0 --taskset 1,2,3
@@ -195,6 +186,15 @@ done
 if [ -e $PERF_PARANOID ]; then
 	(echo $paranoid_saved | sudo tee $PERF_PARANOID) > /dev/null
 fi
+
+#
+#  Quick spin through all the classes of stressors with ftrace enabled
+# 
+DURATION=1
+for CLASS in cpu-cache cpu device filesystem interrupt io memory network os pipe scheduler security vm
+do
+	sudo $STRESS_NG --class $CLASS --ftrace --seq 1 -v --timestamp --syslog -t $DURATION
+done
 
 sudo lcov -c -o kernel.info
 sudo genhtml -o html kernel.info
