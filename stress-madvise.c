@@ -346,7 +346,7 @@ static int stress_madvise(const stress_args_t *args)
 			}
 			for (i = 0; i < NUM_PTHREADS; i++) {
 				if (rets[i] == 0)
-					pthread_join(pthreads[i], NULL);
+					(void)pthread_join(pthreads[i], NULL);
 			}
 		}
 #else
