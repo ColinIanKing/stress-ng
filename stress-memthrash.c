@@ -543,9 +543,10 @@ reap:
 	for (i = 0; i < max_threads; i++) {
 		if (!ret[i]) {
 			ret[i] = pthread_join(pthreads[i], NULL);
-			if (ret[i])
+			if (ret[i] && (ret[i] != ESRCH)) {
 				pr_fail("%s: pthread join failed, errno=%d (%s)\n",
 					args->name, ret[i], strerror(ret[i]));
+			}
 		}
 	}
 reap_mem:
