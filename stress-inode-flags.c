@@ -250,7 +250,7 @@ static int stress_inode_flags(const stress_args_t *args)
 
 	for (i = 0; i < MAX_INODE_FLAG_THREADS; i++) {
 		if (ret[i] == 0) {
-			pthread_join(pthreads[i], NULL);
+			(void)pthread_join(pthreads[i], NULL);
 			if (pa[i].pthread_ret < 0)
 				rc = EXIT_FAILURE;
 		}
