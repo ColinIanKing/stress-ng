@@ -1655,13 +1655,13 @@ static void MLOCKED_TEXT stress_run(
 	stress_proc_info_t *procs_list,
 	double *duration,
 	bool *success,
-	bool *resource_success
+	bool *resource_success,
+	stress_checksum_t **checksum
 )
 {
 	double time_start, time_finish;
 	int32_t n_procs, j;
 	const int32_t total_procs = get_total_num_procs(procs_list);
-	stress_checksum_t *checksum = g_shared->checksums;
 
 	int32_t sched;
 
@@ -1674,7 +1674,7 @@ static void MLOCKED_TEXT stress_run(
 	time_start = stress_time_now();
 	pr_dbg("starting stressors\n");
 	for (n_procs = 0; n_procs < total_procs; n_procs++) {
-		for (g_proc_current = procs_list; g_proc_current; g_proc_current = g_proc_current->next, checksum++) {
+		for (g_proc_current = procs_list; g_proc_current; g_proc_current = g_proc_current->next, (*checksum)++) {
 			if (g_opt_timeout && (stress_time_now() - time_start > g_opt_timeout))
 				goto abort;
 
@@ -1779,12 +1779,12 @@ again:
 						stats->counter_ready = true;
 						stats->counter = 0;
 
-						(void)memset(checksum, 0, sizeof(*checksum));
+						(void)memset(*checksum, 0, sizeof(**checksum));
 						rc = g_proc_current->stressor->info->stressor(&args);
 						pr_fail_check(&rc);
 						if (rc == EXIT_SUCCESS) {
 							stats->run_ok = true;
-							checksum->data.run_ok = true;
+							(*checksum)->data.run_ok = true;
 						}
 						/*
 						 *  Bogo ops counter should be OK for reading,
@@ -1796,9 +1796,9 @@ again:
 								name);
 							rc = EXIT_FAILURE;
 						}
-						stats->checksum = checksum;
-						checksum->data.counter = *args.counter;
-						stress_hash_checksum(checksum);
+						stats->checksum = *checksum;
+						(*checksum)->data.counter = *args.counter;
+						stress_hash_checksum(*checksum);
 					}
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
 					if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
@@ -2846,6 +2846,7 @@ static inline void stress_run_sequential(
 	bool *resource_success)
 {
 	stress_proc_info_t *pi;
+	stress_checksum_t *checksum = g_shared->checksums;
 
 	/*
 	 *  Step through each stressor one by one
@@ -2854,7 +2855,7 @@ static inline void stress_run_sequential(
 		stress_proc_info_t *next = pi->next;
 
 		pi->next = NULL;
-		stress_run(pi, duration, success, resource_success);
+		stress_run(pi, duration, success, resource_success, &checksum);
 		pi->next = next;
 
 	}
@@ -2869,10 +2870,12 @@ static inline void stress_run_parallel(
 	bool *success,
 	bool *resource_success)
 {
+	stress_checksum_t *checksum = g_shared->checksums;
+
 	/*
 	 *  Run all stressors in parallel
 	 */
-	stress_run(procs_head, duration, success, resource_success);
+	stress_run(procs_head, duration, success, resource_success, &checksum);
 }
 
 /*
