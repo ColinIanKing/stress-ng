@@ -242,12 +242,12 @@ static int stress_ftrace_parse_stat_files(const char *path, const bool start)
 }
 
 /*
- *  stress_ftrace_set_pid_file()
+ *  stress_ftrace_add_pid()
  *	enable/append/stop tracing on specific events.
  *	if pid < 0 then tracing pids are all removed otherwise
  *	the pid is added to the tracing events
  */
-static void stress_ftrace_set_pid_file(const pid_t pid, const char *file)
+void stress_ftrace_add_pid(const pid_t pid)
 {
 	char filename[PATH_MAX];
 	char *path;
@@ -255,11 +255,14 @@ static void stress_ftrace_set_pid_file(const pid_t pid, const char *file)
 	int fd;
 	ssize_t ret;
 
+	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
+		return;
+
 	path = stress_ftrace_get_debugfs_path();
 	if (!path)
 		return;
 
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/%s", path, file);
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/set_ftrace_pid", path);
 	fd = open(filename, O_WRONLY | (pid < 0 ? O_TRUNC :  O_APPEND));
 	if (fd < 0)
 		return;
@@ -271,15 +274,6 @@ static void stress_ftrace_set_pid_file(const pid_t pid, const char *file)
 	ret = write(fd, buffer, strlen(buffer));
 	(void)ret;
 	(void)close(fd);
-}
-
-void stress_ftrace_add_pid(const pid_t pid)
-{
-	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
-		return;
-
-	stress_ftrace_set_pid_file(pid, "set_event_pid");
-	stress_ftrace_set_pid_file(pid, "set_ftrace_pid");
 }
 
 /*
@@ -306,13 +300,6 @@ int stress_ftrace_start(void)
 		return -1;
 	}
 
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/current_tracer", path);
-	if (system_write(filename, "nop", 3) < 0) {
-		pr_inf("ftrace: cannot disable the current tracer, errno=%d (%s)\n",
-			errno, strerror(errno));
-		return -1;
-	}
-	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
 	if (system_write(filename, "0", 1) < 0) {
 		pr_inf("ftrace: cannot enable function profiling, errno=%d (%s)\n",
 			errno, strerror(errno));
@@ -407,7 +394,6 @@ int stress_ftrace_stop(void)
 	}
 
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/trace_stat", path);
-
 	if (stress_ftrace_parse_stat_files(path, false) < 0)
 		return -1;
 	stress_ftrace_analyze();
