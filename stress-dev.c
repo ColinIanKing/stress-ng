@@ -1607,7 +1607,7 @@ again:
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {
 				if (ret[i] == 0)
-					pthread_join(pthreads[i], NULL);
+					(void)pthread_join(pthreads[i], NULL);
 			}
 			stress_hash_delete(dev_hash_table);
 			_exit(EXIT_SUCCESS);
