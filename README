@@ -54,7 +54,7 @@ RHEL, Fedora, Centos:
   * libgcrypt-devel
   * Judy-devel
   * keyutils-libs
-  * libsctp-devel
+  * lksctp-tools-devel
   * zlib-devel
 
 SUSE:
