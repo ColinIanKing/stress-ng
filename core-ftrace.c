@@ -300,6 +300,7 @@ int stress_ftrace_start(void)
 		return -1;
 	}
 
+	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
 	if (system_write(filename, "0", 1) < 0) {
 		pr_inf("ftrace: cannot enable function profiling, errno=%d (%s)\n",
 			errno, strerror(errno));
