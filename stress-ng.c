@@ -962,7 +962,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"verify",		"verify results (not available on all tests)" },
 	{ "V",		"version",		"show version" },
 	{ "Y",		"yaml file",		"output results to YAML formatted filed" },
-	{ "x",		"list",			"list of stressors to exclude (not run)" },
+	{ "x",		"exclude",		"list of stressors to exclude (not run)" },
 	{ NULL,		NULL,			NULL }
 };
 
