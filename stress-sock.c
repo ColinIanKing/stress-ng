@@ -153,6 +153,8 @@ static int stress_set_socket_domain(const char *name)
 
 static void stress_sock_ioctl(const int fd)
 {
+	(void)fd;
+
 #if defined(FIOGETOWN)
 	{
 		int ret, own;
