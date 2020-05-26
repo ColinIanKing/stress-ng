@@ -170,14 +170,20 @@ static int stress_stackmmap(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 	}
 	(void)memset(stack_mmap, 0, MMAPSTACK_SIZE);
+	/*
+	 *  Make ends of stack inaccessible
+	 */
+	(void)mprotect(stack_mmap, page_size, PROT_NONE);
+	(void)mprotect(stack_mmap + MMAPSTACK_SIZE - page_size, page_size, PROT_NONE);
+
 	(void)memset(&c_test, 0, sizeof(c_test));
 	if (getcontext(&c_test) < 0) {
 		pr_fail("%s: getcontext failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto tidy_mmap;
 	}
-	c_test.uc_stack.ss_sp = stack_mmap;
-	c_test.uc_stack.ss_size = MMAPSTACK_SIZE;
+	c_test.uc_stack.ss_sp = stack_mmap + page_size;
+	c_test.uc_stack.ss_size = MMAPSTACK_SIZE - (page_size * 2);
 	c_test.uc_link = &c_main;
 
 	/*
