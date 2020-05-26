@@ -242,7 +242,7 @@ timed_out:
 #endif
 		}
 #endif
-#if defined(SEM_STAT)
+#if defined(SEM_STAT) && defined(__linux__)
 		{
 			struct semid_ds ds;
 			stress_semun_t s;
