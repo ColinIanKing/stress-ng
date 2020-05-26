@@ -427,7 +427,7 @@ dist:
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile Makefile.config $(SRC) stress-ng.h stress-ng.1 \
 		core-personality.c COPYING syscalls.txt mascot README \
-		stress-af-alg-defconfigs.h README.Android test snap config \
+		stress-af-alg-defconfigs.h README.Android test snap \
 		TODO core-perf-event.c usr.bin.pulseaudio.eg \
 		stress-version.h bash-completion example-jobs .travis.yml \
 		kernel-coverage.sh stress-ng-$(VERSION)
