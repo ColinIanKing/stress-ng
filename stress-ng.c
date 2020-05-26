@@ -2901,7 +2901,7 @@ int main(int argc, char **argv, char **envp)
 	double duration = 0.0;			/* stressor run time in secs */
 	bool success = true, resource_success = true;
 	FILE *yaml;				/* YAML output file */
-	char *yaml_filename;			/* YAML file name */
+	char *yaml_filename = NULL;		/* YAML file name */
 	char *log_filename;			/* log filename */
 	char *job_filename = NULL;		/* job filename */
 	int32_t ticks_per_sec;			/* clock ticks per second (jiffies) */
@@ -3052,6 +3052,7 @@ int main(int argc, char **argv, char **envp)
 	(void)stress_get_setting("ionice-class", &ionice_class);
 	(void)stress_get_setting("ionice-level", &ionice_level);
 	stress_set_iopriority(ionice_class, ionice_level);
+	stress_get_setting("yaml", &yaml_filename);
 
 	stress_mlock_executable();
 
@@ -3173,7 +3174,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Save results to YAML file
 	 */
-	if (stress_get_setting("yaml", &yaml_filename)) {
+	if (yaml_filename) {
 		yaml = fopen(yaml_filename, "w");
 		if (!yaml)
 			pr_err("Cannot output YAML data to %s\n", yaml_filename);
