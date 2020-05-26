@@ -447,7 +447,7 @@ clean:
 	@rm -f perf-event.h
 	@rm -f apparmor-data.bin
 	@rm -f *.o
-	@rm config
+	@rm -f config
 
 .PHONY: fast-test-all
 fast-test-all: all
