@@ -357,7 +357,12 @@ static void stress_dev_tty(
 		(void)ret;
 	}
 #endif
-#if defined(TIOCGETD)
+/*
+ *  On some older 3.13 kernels this can lock up, need to add
+ *  a method to detect and skip this somehow. For the moment
+ *  disable this stress test.
+ */
+#if defined(TIOCGETD) && 0
 	{
 		int ldis;
 
