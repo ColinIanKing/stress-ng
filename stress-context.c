@@ -46,6 +46,8 @@ static void thread1(void)
 		__counter++;
 		(void)swapcontext(&uctx_thread1, &uctx_thread2);
 	} while (keep_stressing_flag() && (!__max_ops || __counter < __max_ops));
+
+	(void)swapcontext(&uctx_thread1, &uctx_main);
 }
 
 static void thread2(void)
@@ -54,6 +56,7 @@ static void thread2(void)
 		__counter++;
 		(void)swapcontext(&uctx_thread2, &uctx_thread3);
 	} while (keep_stressing_flag() && (!__max_ops || __counter < __max_ops));
+	(void)swapcontext(&uctx_thread2, &uctx_main);
 }
 
 static void thread3(void)
@@ -62,6 +65,7 @@ static void thread3(void)
 		__counter++;
 		(void)swapcontext(&uctx_thread3, &uctx_thread1);
 	} while (keep_stressing_flag() && (!__max_ops || __counter < __max_ops));
+	(void)swapcontext(&uctx_thread3, &uctx_main);
 }
 
 static int stress_context_init(
