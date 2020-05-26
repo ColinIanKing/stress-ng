@@ -31,7 +31,8 @@ static const stress_help_t help[] = {
 };
 
 #if defined(__linux__) &&	\
-    defined(SIOCGIFCONF)
+    defined(SIOCGIFCONF) &&	\
+    defined(HAVE_IFCONF)
 
 /*
  *  stress_netdev_check()
@@ -56,7 +57,7 @@ static void stress_netdev_check(
 
 /*
  *  stress_netdev
- *	stress by heavy socket I/O
+ *	stress netdev
  */
 static int stress_netdev(const stress_args_t *args)
 {

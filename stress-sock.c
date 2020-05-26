@@ -169,7 +169,8 @@ static void stress_sock_ioctl(const int fd)
 		(void)ret;
 	}
 #endif
-#if defined(SIOCGIFCONF)
+#if defined(SIOCGIFCONF) && \
+    defined(HAVE_IFCONF)
 	{
 		int ret;
 		struct ifconf ifc;
