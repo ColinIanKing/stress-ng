@@ -341,7 +341,7 @@ timed_out:
 #endif
 #if defined(HAVE_SEMTIMEDOP) &&	\
     defined(HAVE_CLOCK_GETTIME)
-		{
+		if (got_semtimedop) {
 			/*
 			 *  Exercise illegal timeout
 			 */
