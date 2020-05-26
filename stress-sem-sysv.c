@@ -143,6 +143,10 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 {
 	const int sem_id = g_shared->sem_sysv.sem_id;
 	int rc = EXIT_SUCCESS;
+#if defined(HAVE_SEMTIMEDOP) &&	\
+    defined(HAVE_CLOCK_GETTIME)
+	bool got_semtimedop = true;
+#endif
 
 	do {
 		int i, ret;
@@ -179,10 +183,19 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 
 #if defined(HAVE_SEMTIMEDOP) &&	\
     defined(HAVE_CLOCK_GETTIME)
-			if (semtimedop(sem_id, &semwait, 1, &timeout) < 0) {
+			if (got_semtimedop) {
+				ret = semtimedop(sem_id, &semwait, 1, &timeout);
+				if (ret < 0 && (errno == ENOSYS)) {
+					got_semtimedop = false;
+					ret = semop(sem_id, &semwait, 1);
+				}
+			} else {
+				ret = semop(sem_id, &semwait, 1);
+			}
 #else
-			if (semop(sem_id, &semwait, 1) < 0) {
+			ret = semop(sem_id, &semwait, 1);
 #endif
+			if (ret < 0) {
 				if (errno == EAGAIN)
 					goto timed_out;
 				if (errno != EINTR) {
