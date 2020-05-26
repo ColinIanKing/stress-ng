@@ -1,3 +1,61 @@
+stress-ng (0.11.11-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: remove config from make dist rule
+  * stress-stackmmap: make ends of stack inaccessible to stop clobbering
+    non-stack regions
+  * stress-dev: disable TIOCGETD for the moment as it causes some hang
+    issues
+  * stress-context: always swap context back to main microthread on
+    termination
+  * stress-sock: voidify fd arg to clean up build warning on Solaris
+  * Add run-time autoconfig check for struct ifconf
+  * stress-sem-sysv: test illegal semtimedop only if it is exists
+  * stress-sem-sysv: workaround kfreebsd8 EINVAL on semtimedop
+  * stress-sem-sysv: don't use semtimedop if it returns -ENOSYS
+  * stress-sem-sysv: only exercise SEM_STAT on linux
+  * stress-ng: fetch yaml filename before running stress tests
+  * Makefile: rm -f the makefile on clean
+  * stress-ng: Don't track config or show in diff
+  * Makefile: remove the need for an empty config file
+  * stress-ng: fix long form if -x option, use "exclude" instead of "list"
+  * stress-ng: README: update libsctp name for RHEL, fedora, related
+    distros
+  * stress-memthrash: silently ignore ESRCH pthread_join failures
+  * stress-madvise: voidify pthread_join return, we don't care about it
+  * stress-inode-flags: voidify pthread_join return, we don't care
+    about it
+  * stress-dev: voidify pthread_join return, we don't care about it
+  * shim_waitpid: allow a few retries before throttling retry
+  * kernel-coverage.sh: move the quick spin through stressors to the end
+    of the test
+  * Fix --seq mode checksum with multiple stressors and sanity checking
+  * stress-vm: fix bit error checking when bogo-ops limits reached
+  * core-ftrace: fix removed filename setting statement
+  * core-ftrace: remove setting of set_event_pid and refactor code
+  * core-out-of-memory: return EXIT_SUCCESS on --oomable
+    option (LP: #1879782)
+  * stress-get: fix #ifdef check on getpagesize
+  * core-out-of-memory: return EXIT_NO_RESOUCE on --oomable
+    option (LP: #1879696)
+  * core-shim: add delay before re-waiting
+  * stress-dev: add block device lseeks and force return to be stashed
+  * Add memory barriers an ready flag to check if counter is in a sane
+    state
+  * core-shim: rework waitpid again, terminate child on EINTR (LP: #1879447)
+  * stress-dev: remove sleep and return EXIT_SUCCESS on child exit
+  * stress-ng: add checksum sanity check on bogo ops stats and run flag
+  * stress-mq: add SIGEV_SIGNAL events to exercise kernel
+  * stress-shm-sysv: exercise shmctl and shmdt race on child exit
+  * stress-shm-sysv: exercise NUMA mempolicy on shm
+  * stress-sem-sysv: exercise some invalid options to get more kernel
+    coverage
+  * stress-sock: add a few more ioctls to exercise
+  * syscalls: update preadv/preadv2 and pwritev entries
+  * stress-hdd: use preadv, preadv2, pwritev, pwritev2
+
+ -- Colin King <colin.king@canonical.com>  Tue, 26 May 2020 15:46:23 +0100
+
 stress-ng (0.11.10-1) unstable; urgency=medium
 
   * Makefile: bump minor version
