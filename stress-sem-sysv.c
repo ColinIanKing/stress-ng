@@ -185,7 +185,7 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
     defined(HAVE_CLOCK_GETTIME)
 			if (got_semtimedop) {
 				ret = semtimedop(sem_id, &semwait, 1, &timeout);
-				if (ret < 0 && (errno == ENOSYS)) {
+				if (ret < 0 && ((errno == ENOSYS) || (errno == EINVAL))) {
 					got_semtimedop = false;
 					ret = semop(sem_id, &semwait, 1);
 				}
