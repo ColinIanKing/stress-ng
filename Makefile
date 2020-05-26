@@ -348,6 +348,10 @@ LIB_AIO = -laio
 LIB_SCTP = -lsctp
 LIB_DL = -ldl
 
+all:
+	$(MAKE) makeconfig
+	$(MAKE) stress-ng
+
 #
 #  Load in and set flags based on config
 #
@@ -355,12 +359,6 @@ LIB_DL = -ldl
 CFLAGS += $(CONFIG_CFLAGS)
 LDFLAGS += $(CONFIG_LDFLAGS)
 OBJS += $(CONFIG_OBJS)
-
-all:
-ifneq ("$(wildcard config)","")
-	$(MAKE) makeconfig
-endif
-	$(MAKE) stress-ng
 
 .SUFFIXES: .c .o
 
@@ -376,7 +374,7 @@ stress-ng: $(OBJS)
 	@sync
 
 makeconfig:
-	@if [ ! -s config ]; then \
+	@if [ ! -e config ]; then \
 		STATIC=$(STATIC) $(MAKE) -f Makefile.config; \
 	fi
 
@@ -449,7 +447,7 @@ clean:
 	@rm -f perf-event.h
 	@rm -f apparmor-data.bin
 	@rm -f *.o
-	@:> config
+	@rm config
 
 .PHONY: fast-test-all
 fast-test-all: all
