@@ -1687,12 +1687,15 @@ static void MLOCKED_TEXT stress_run(
 				int64_t backoff = DEFAULT_BACKOFF;
 				int32_t ionice_class = UNDEFINED;
 				int32_t ionice_level = UNDEFINED;
+				stress_proc_stats_t *stats = g_proc_current->stats[j];
 
 				(void)stress_get_setting("backoff", &backoff);
 				(void)stress_get_setting("ionice-class", &ionice_class);
 				(void)stress_get_setting("ionice-level", &ionice_level);
 
-				stress_proc_stats_t *stats = g_proc_current->stats[j];
+				stats->counter_ready = true;
+				stats->counter = 0;
+				stats->checksum = *checksum;
 again:
 				if (!keep_stressing_flag())
 					break;
@@ -1776,9 +1779,6 @@ again:
 							.page_size = stress_get_pagesize(),
 						};
 
-						stats->counter_ready = true;
-						stats->counter = 0;
-
 						(void)memset(*checksum, 0, sizeof(**checksum));
 						rc = g_proc_current->stressor->info->stressor(&args);
 						pr_fail_check(&rc);
@@ -1796,7 +1796,6 @@ again:
 								name);
 							rc = EXIT_FAILURE;
 						}
-						stats->checksum = *checksum;
 						(*checksum)->data.counter = *args.counter;
 						stress_hash_checksum(*checksum);
 					}
