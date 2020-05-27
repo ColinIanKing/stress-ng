@@ -1649,7 +1649,7 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 
 /* GCC5.0+ target_clones attribute */
 #if defined(HAVE_TARGET_CLONES) && defined(STRESS_ARCH_X86)
-#define TARGET_CLONES	__attribute__((target_clones("mmx","sse","sse2","ssse3", "sse4.1", "sse4a", "avx", "avx2", "avx512f", "default")))
+#define TARGET_CLONES	__attribute__((target_clones("mmx","sse","sse2","ssse3", "sse4.1", "sse4a", "avx", "avx2", "arch=skylake-avx512", "default")))
 #elif defined(HAVE_TARGET_CLONES) && defined(STRESS_ARCH_PPC64)
 #define TARGET_CLONES	__attribute__((target_clones("cpu=power9,default")))
 #else
