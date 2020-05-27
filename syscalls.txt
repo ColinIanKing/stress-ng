@@ -231,6 +231,7 @@ preadv				hdd
 preadv2				hdd
 prlimit				get
 /proc				proc
+process_madvise				
 process_vm_readv		vm_rw
 process_vm_writev		vm_rw
 pselect6			poll
