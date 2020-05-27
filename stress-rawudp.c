@@ -183,7 +183,7 @@ static int stress_rawudp_server(
 	sin.sin_addr.s_addr = addr;
 	addr_len = (socklen_t)sizeof(sin);
 
-	if ((bind(fd, (struct sockaddr *)&addr, addr_len) < 0)) {
+	if ((bind(fd, (struct sockaddr *)&sin, addr_len) < 0)) {
 		rc = exit_status(errno);
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
