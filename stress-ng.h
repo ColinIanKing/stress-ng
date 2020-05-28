@@ -3752,7 +3752,11 @@ struct shim_statx {
 
 /* old ustat struct */
 struct shim_ustat {
+#if defined(HAVE_DADDR_T)
 	daddr_t	f_tfree;
+#else
+	long	f_tfree;
+#endif
 	ino_t	f_tinode;
 	char	f_fname[6];
 	char	f_fpack[6];
