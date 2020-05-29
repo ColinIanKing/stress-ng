@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+static const stress_help_t help[] = {
+	{ NULL,	"sysinval N",		"start N workers that pass invalid args to syscalls" },
+	{ NULL,	"sysinval-ops N",	"stop after N sysinval bogo syscalls" },
+	{ NULL,	NULL,		    NULL }
+};
+
+#if defined(__linux__)
+
 #define ARG_MASK(x, mask)	(((x) & (mask)) == (mask))
 
 #define SYSCALL_HASH_TABLE_SIZE	(10007)	/* Hash table size (prime) */
@@ -174,12 +182,6 @@ static const int sigs[] = {
 #if defined(SIGHUP)
 	SIGHUP
 #endif
-};
-
-static const stress_help_t help[] = {
-	{ NULL,	"sysinval N",		"start N workers that pass invalid args to syscalls" },
-	{ NULL,	"sysinval-ops N",	"stop after N sysinval bogo syscalls" },
-	{ NULL,	NULL,		    NULL }
 };
 
 static uint8_t *small_ptr;
@@ -1736,3 +1738,10 @@ stressor_info_t stress_sysinval_info = {
 	.class = CLASS_OS,
 	.help = help
 };
+#else
+stressor_info_t stress_sysinval_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS,
+	.help = help
+};
+#endif
