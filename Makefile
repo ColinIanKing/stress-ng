@@ -265,6 +265,7 @@ STRESS_SRC = \
 	stress-sync-file.c \
 	stress-sysbadaddr.c \
 	stress-sysinfo.c \
+	stress-sysinval.c \
 	stress-sysfs.c \
 	stress-tee.c \
 	stress-timer.c \

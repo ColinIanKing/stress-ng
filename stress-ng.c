@@ -784,6 +784,8 @@ static const struct option long_options[] = {
 	{ "sysfs-ops",1,	0,	OPT_sysfs_ops },
 	{ "sysinfo",	1,	0,	OPT_sysinfo },
 	{ "sysinfo-ops",1,	0,	OPT_sysinfo_ops },
+	{ "sysinval",	1,	0,	OPT_sysinval },
+	{ "sysinval-ops",1,	0,	OPT_sysinval_ops },
 #if defined(HAVE_SYSLOG_H)
 	{ "syslog",	0,	0,	OPT_syslog },
 #endif

@@ -3503,6 +3503,17 @@ using statfs(2).
 .B \-\-sysinfo\-ops N
 stop the sysinfo workers after N bogo operations.
 .TP
+.B \-\-sysinval N
+start N workers that exercise system calls in random order with permutations
+of invalid arguments to force kernel error handling checks. The stress test
+autodetects system calls that cause processes to crash or exit prematurely
+and will blacklist these after several repeated breakages. System call
+arguments that cause system calls to work successfully are also detected an
+blacklisted too.
+.TP
+.B \-\-sysinval-ops N
+stop systinval workers after N system call attempts.
+.TP
 .B \-\-sysfs N
 start N workers that recursively read files from /sys (Linux only).  This may
 cause specific kernel drivers to emit messages into the kernel log.

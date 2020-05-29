@@ -2142,6 +2142,7 @@ typedef struct {
 	MACRO(sync_file)	\
 	MACRO(sysbadaddr)	\
 	MACRO(sysinfo)		\
+	MACRO(sysinval)		\
 	MACRO(sysfs)		\
 	MACRO(tee)		\
 	MACRO(timer)		\
@@ -3004,6 +3005,9 @@ typedef enum {
 
 	OPT_sysinfo,
 	OPT_sysinfo_ops,
+
+	OPT_sysinval,
+	OPT_sysinval_ops,
 
 	OPT_sysfs,
 	OPT_sysfs_ops,
