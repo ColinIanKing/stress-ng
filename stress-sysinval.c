@@ -85,6 +85,8 @@ do {								\
 	val = tmp;                              		\
 } while (0)
 
+#define SHR_UL(v, shift) ((unsigned long)(((unsigned long long)v) << shift))
+
 /*
  *  per system call testing information, each system call
  *  to be exercised has one or more of these records.
@@ -1247,16 +1249,16 @@ static unsigned long mode_values[] = { -1, INT_MAX, INT_MIN, ~(long)0, 1ULL << 2
 static long sockfds[] = { /* sockfd */ 0, 0, -1, INT_MAX, INT_MIN, ~(long)0 };
 static long fds[] = { -1, INT_MAX, INT_MIN, ~(long)0 };
 static long dirfds[] = { -1, AT_FDCWD, INT_MIN, ~(long)0 };
-static long clockids[] = { -1, INT_MAX, INT_MIN, ~(long)0, 0xfe23ULL << 18 };
+static long clockids[] = { -1, INT_MAX, INT_MIN, ~(long)0, SHR_UL(0xfe23ULL, 18) };
 static long sockaddrs[] = { /*small_ptr*/ 0, /*page_ptr*/ 0, 0, -1, INT_MAX, INT_MIN };
 static unsigned long brk_addrs[] = { 0, -1, INT_MAX, INT_MIN, ~(unsigned long)0, 4096 };
 static unsigned long empty_filenames[] = { (unsigned long)"", (unsigned long)NULL };
 static unsigned long zero_filenames[] = { (unsigned long)"/dev/zero" };
 static unsigned long null_filenames[] = { (unsigned long)"/dev/null" };
-static long flags[] = { -1, -2, INT_MIN, 0xffffULL << 20 };
-static unsigned long lengths[] = { -1, -2, INT_MIN, INT_MAX, ~(unsigned long)0, -(1ULL << 31) };
-static long ints[] = { 0, -1, -2, INT_MIN, INT_MAX, 1ULL << 60, 1ULL << 30, -(1ULL << 60), -(1ULL << 30) };
-static unsigned long uints[] = { INT_MAX, 1ULL << 60, 1ULL << 30, ~(0ULL) };
+static long flags[] = { -1, -2, INT_MIN, SHR_UL(0xffffULL, 20) };
+static unsigned long lengths[] = { -1, -2, INT_MIN, INT_MAX, ~(unsigned long)0, -SHR_UL(1, 31) };
+static long ints[] = { 0, -1, -2, INT_MIN, INT_MAX, SHR_UL(0xff, 30), SHR_UL(1, 30), -SHR_UL(0xff, 30), -SHR_UL(1, 30) };
+static unsigned long uints[] = { INT_MAX, SHR_UL(0xff, 30), -SHR_UL(0xff, 30), ~(unsigned long)0 };
 static unsigned long func_ptrs[] = { (unsigned long)func_exit };
 static unsigned long ptrs[] = { /*small_ptr*/ 0, /*page_ptr*/ 0, 0, -1, INT_MAX, INT_MIN, ~(long)4096 };
 static unsigned long futex_ptrs[] = { /*small_ptr*/ 0, /*page_ptr*/ 0 };
@@ -1456,7 +1458,7 @@ static void syscall_permute(
 		 *  Provide some 'random' values
 		 */
 		rnd_values[0] = stress_mwc64();
-		rnd_values[1] = stress_mwc32() << 20;
+		rnd_values[1] = SHR_UL(stress_mwc32(), 20);
 		rnd_values[2] = (unsigned long)small_ptr;
 		rnd_values[3] = (unsigned long)page_ptr;
 		values = rnd_values;
