@@ -1650,6 +1650,7 @@ static int stress_sysinval(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const size_t current_context_size =
 		(sizeof(*current_context) + page_size) & ~(page_size - 1);
+	size_t small_ptr_size = page_size << 1;
 
 	sockfds[0] = socket(AF_UNIX, SOCK_STREAM, 0);
 
@@ -1662,7 +1663,7 @@ static int stress_sysinval(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	small_ptr = (uint8_t *)mmap(NULL, page_size << 1, PROT_READ | PROT_WRITE,
+	small_ptr = (uint8_t *)mmap(NULL, small_ptr_size, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (small_ptr == MAP_FAILED) {
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
@@ -1670,14 +1671,19 @@ static int stress_sysinval(const stress_args_t *args)
 		(void)munmap((void *)current_context, page_size);
 		return EXIT_NO_RESOURCE;
 	}
+#if defined(HAVE_MPROTECT)
 	(void)mprotect(small_ptr + page_size, page_size, PROT_NONE);
+#else
+	(void)munmap((void *)(small_ptr + page_size), page_size);
+	small_ptr_size -= page_size;
+#endif
 
 	page_ptr = (uint8_t *)mmap(NULL, page_size, PROT_NONE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (page_ptr == MAP_FAILED) {
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap((void *)small_ptr, page_size);
+		(void)munmap((void *)small_ptr, small_ptr_size);
 		(void)munmap((void *)current_context, page_size);
 		return EXIT_NO_RESOURCE;
 	}
@@ -1704,7 +1710,7 @@ static int stress_sysinval(const stress_args_t *args)
 	set_counter(args, current_context->counter);
 
 	(void)munmap((void *)page_ptr, page_size);
-	(void)munmap((void *)small_ptr, page_size << 1);
+	(void)munmap((void *)small_ptr, small_ptr_size);
 	(void)munmap((void *)current_context, current_context_size);
 	if (sockfds[0] >= 0)
 		(void)close(sockfds[0]);
