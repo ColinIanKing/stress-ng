@@ -1543,12 +1543,14 @@ static inline int stress_do_syscall(const stress_args_t *args)
 		}
 
 		while (keep_stressing_flag()) {
+			const size_t sz = SIZEOF_ARRAY(reorder);
 			/*
 			 *  Shuffle syscall order
 			 */
 			for (n = 0; n < 5; n++) {
 				for (i = 0; i < SIZEOF_ARRAY(reorder); i++) {
-					register size_t tmp, j = stress_mwc32() % SIZEOF_ARRAY(reorder);
+					register size_t tmp;
+					register size_t j = (sz == 0) ? 0 : stress_mwc32() % sz;
 
 					tmp = reorder[i];
 					reorder[i] = reorder[j];
