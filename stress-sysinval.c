@@ -36,7 +36,16 @@
 /*
  *  tuple of system call number and stringified system call
  */
-#define SYS(x)	__NR_ ## x, # x
+#if defined(__NR_exit)
+#define SYS(x)		__NR_ ## x, # x
+#define DEFSYS(x)	__NR_ ## x
+#elif defined(SYS_exit)
+#define SYS(x)		SYS_ ## x, # x
+#define DEFSYS(x)	SYS_ ## x
+#else
+#define SYS(x) 		0, "unknown"
+#define DEFSYS(x) 	0
+#endif
 
 #define ARG_VALUE(x, v)	{ (x), SIZEOF_ARRAY(v), (unsigned long *)v }
 
@@ -177,1039 +186,1039 @@ static uint8_t *small_ptr;
 static uint8_t *page_ptr;
 
 static const syscall_arg_t syscall_args[] = {
-#if defined(__NR_accept)
+#if DEFSYS(accept)
 	{ SYS(accept), 3, { ARG_SOCKFD, ARG_PTR | ARG_STRUCT_SOCKADDR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_accept4)
+#if DEFSYS(accept4)
 	{ SYS(accept4), 4, { ARG_SOCKFD, ARG_PTR | ARG_STRUCT_SOCKADDR, ARG_PTR, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_access)
+#if DEFSYS(access)
 	{ SYS(access), 2, { ARG_PTR | ARG_EMPTY_FILENAME, ARG_MODE, 0, 0, 0, 0 } },
 	{ SYS(access), 2, { ARG_PTR | ARG_DEVZERO_FILENAME, ARG_MODE, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_acct)
+#if DEFSYS(acct)
 	{ SYS(acct), 1, { ARG_PTR | ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_add_key)
+#if DEFSYS(add_key)
 	{ SYS(add_key), 5, { ARG_PTR, ARG_PTR, ARG_PTR, ARG_LEN, ARG_UINT, 0 } },
 #endif
-#if defined(__NR_adjtimex)
+#if DEFSYS(adjtimex)
 	{ SYS(adjtimex), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_alarm) && 0
+#if DEFSYS(alarm) && 0
 	{ SYS(alarm), 1, { ARG_SECONDS, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_bind)
+#if DEFSYS(bind)
 	{ SYS(bind), 3, { ARG_SOCKFD, ARG_PTR | ARG_STRUCT_SOCKADDR, ARG_SOCKLEN_T, 0, 0, 0 } },
 #endif
-#if defined(__NR_bpf)
+#if DEFSYS(bpf)
 	{ SYS(bpf), 3, { ARG_INT, ARG_PTR | ARG_BPF_ATTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_brk)
+#if DEFSYS(brk)
 	{ SYS(brk), 1, { ARG_PTR | ARG_BRK_ADDR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_cacheflush)
+#if DEFSYS(cacheflush)
 	{ SYS(cacheflush), 3, { ARG_PTR, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_capget)
+#if DEFSYS(capget)
 	{ SYS(capget), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_capset)
+#if DEFSYS(capset)
 	{ SYS(capset), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_chdir)
+#if DEFSYS(chdir)
 	{ SYS(chdir), 1, { ARG_PTR | ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 	{ SYS(chdir), 1, { ARG_PTR | ARG_DEVZERO_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_chmod)
+#if DEFSYS(chmod)
 	{ SYS(chmod), 2, { ARG_PTR | ARG_EMPTY_FILENAME, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_chown)
+#if DEFSYS(chown)
 	{ SYS(chown), 2, { ARG_PTR | ARG_EMPTY_FILENAME, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_chroot)
+#if DEFSYS(chroot)
 	{ SYS(chroot), 1, { ARG_PTR | ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 	{ SYS(chroot), 1, { ARG_PTR | ARG_DEVZERO_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_clock_getres)
+#if DEFSYS(clock_getres)
 	{ SYS(clock_getres), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_clock_gettime)
+#if DEFSYS(clock_gettime)
 	{ SYS(clock_gettime), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_clock_nanosleep)
+#if DEFSYS(clock_nanosleep)
 	{ SYS(clock_nanosleep), 4, { ARG_CLOCKID_T, ARG_UINT, ARG_PTR, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_clock_settime)
+#if DEFSYS(clock_settime)
 	{ SYS(clock_settime), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_clone)
+#if DEFSYS(clone)
 	{ SYS(clone), 6, { ARG_FUNC_PTR, ARG_PTR, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
 #endif
-#if defined(__NR_clone3)
+#if DEFSYS(clone3)
 	{ SYS(clone3), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_close)
+#if DEFSYS(close)
 	{ SYS(close), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_connect)
+#if DEFSYS(connect)
 	{ SYS(connect), 3, { ARG_SOCKFD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_copy_file_range)
+#if DEFSYS(copy_file_range)
 	{ SYS(copy_file_range), 6, { ARG_FD, ARG_PTR, ARG_FD, ARG_PTR, ARG_LEN, ARG_FLAG } },
 #endif
-#if defined(__NR_creat)
+#if DEFSYS(creat)
 	{ SYS(creat), 3, { ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, 0, 0, 0 } },
 #endif
-#if defined(__NR_dup)
+#if DEFSYS(dup)
 	{ SYS(dup), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_dup2)
+#if DEFSYS(dup2)
 	{ SYS(dup2), 2, { ARG_FD, ARG_FD, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_dup3)
+#if DEFSYS(dup3)
 	{ SYS(dup3), 3, { ARG_FD, ARG_FD, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_epoll_create)
+#if DEFSYS(epoll_create)
 	{ SYS(epoll_create), 1, { ARG_LEN,  0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_epoll_create1)
+#if DEFSYS(epoll_create1)
 	{ SYS(epoll_create1), 1, { ARG_FLAG, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_epoll_ctl)
+#if DEFSYS(epoll_ctl)
 	{ SYS(epoll_ctl), 4, { ARG_FD, ARG_INT, ARG_FD, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_epoll_ctl_add)
+#if DEFSYS(epoll_ctl_add)
 	{ SYS(epoll_ctl_add), 4, { ARG_FD, ARG_INT, ARG_FD, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_epoll_wait)
+#if DEFSYS(epoll_wait)
 	{ SYS(epoll_wait), 4, { ARG_FD, ARG_PTR, ARG_INT, ARG_TIMEOUT, 0, 0 } },
 #endif
-#if defined(__NR_epoll_pwait)
+#if DEFSYS(epoll_pwait)
 	{ SYS(epoll_pwait), 5, { ARG_FD, ARG_PTR, ARG_INT, ARG_TIMEOUT, ARG_PTR, 0 } },
 #endif
-#if defined(__NR_evendfd)
+#if DEFSYS(evendfd)
 	{ SYS(eventfd), 2, { ARG_INT, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_evendfd2)
+#if DEFSYS(evendfd2)
 	{ SYS(eventfd2), 2, { ARG_INT, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_exec)
+#if DEFSYS(exec)
 #endif
-#if defined(__NR_execve)
+#if DEFSYS(execve)
 #endif
-#if defined(__NR_exit)
+#if DEFSYS(exit)
 #endif
-#if defined(__NR_exit_group)
+#if DEFSYS(exit_group)
 #endif
-#if defined(__NR_faccessat)
+#if DEFSYS(faccessat)
 	{ SYS(faccessat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_MODE, ARG_FLAG, 0, 0 } },
 	{ SYS(faccessat), 4, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_MODE, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_fallocate)
+#if DEFSYS(fallocate)
 	{ SYS(fallocate), 4, { ARG_FD, ARG_MODE, ARG_INT, ARG_INT, 0, 0 } },
 #endif
-#if defined(__NR_fanotify_init)
+#if DEFSYS(fanotify_init)
 	{ SYS(fanotify_init), 2, { ARG_FLAG, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_fanotify_mark)
+#if DEFSYS(fanotify_mark)
 	{ SYS(fanotify_mark), 5, { ARG_FD, ARG_FLAG, ARG_UINT, ARG_FD, ARG_EMPTY_FILENAME, 0 } },
 #endif
-#if defined(__NR_fchdir)
+#if DEFSYS(fchdir)
 	{ SYS(fchdir), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_fchmod)
+#if DEFSYS(fchmod)
 	{ SYS(fchmod), 2, { ARG_FD, ARG_MODE, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_fchmodat)
+#if DEFSYS(fchmodat)
 	{ SYS(fchmod), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_MODE, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_fchown)
+#if DEFSYS(fchown)
 	// { SYS(fchown), 3, { ARG_FD, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_fchownat)
+#if DEFSYS(fchownat)
 	{ SYS(fchownat), 5, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_UINT, ARG_UINT, ARG_UINT, 0 } },
 #endif
-#if defined(__NR_fcntl)
+#if DEFSYS(fcntl)
 	{ SYS(fcntl), 6, { ARG_FD, ARG_RND, ARG_RND, ARG_RND, ARG_RND, ARG_RND } },
 #endif
-#if defined(__NR_fdatasync)
+#if DEFSYS(fdatasync)
 	{ SYS(fdatasync), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_fgetxattr)
+#if DEFSYS(fgetxattr)
 	{ SYS(fgetxattr), 4, { ARG_FD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0 } },
 	{ SYS(fgetxattr), 4, { ARG_FD, ARG_DEVNULL_FILENAME, ARG_PTR, ARG_LEN, 0, 0 } },
 #endif
-#if defined(__NR_finit_module)
+#if DEFSYS(finit_module)
 	{ SYS(finit_module), 3, { ARG_PTR, ARG_LEN, ARG_PTR, 0, 0, 0 } },
 #endif
 #if defined(HAVE_FLISTXATTR)
 #endif
-#if defined(__NR_flock)
+#if DEFSYS(flock)
 	{ SYS(flock), 2, { ARG_FD, ARG_INT, 0, 0, 0, 0 } },
 #endif
 #if defined(HAVE_FREMOVEXATTR)
 #endif
-#if defined(__NR_fsconfig)
+#if DEFSYS(fsconfig)
 #endif
 #if defined(HAVE_FSETXATTR)
 #endif
-#if defined(__NR_fsmount)
+#if DEFSYS(fsmount)
 #endif
-#if defined(__NR_fsopen)
+#if DEFSYS(fsopen)
 #endif
-#if defined(__NR_fspick)
+#if DEFSYS(fspick)
 #endif
-#if defined(__NR_fstat)
+#if DEFSYS(fstat)
 	{ SYS(fstat), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_fstatfs)
+#if DEFSYS(fstatfs)
 	{ SYS(fstatfs), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_fsync)
+#if DEFSYS(fsync)
 	{ SYS(fsync), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_ftruncate)
+#if DEFSYS(ftruncate)
 	{ SYS(ftruncate), 2, { ARG_FD, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_futex)
+#if DEFSYS(futex)
 	{ SYS(futex), 6, { ARG_FUTEX_PTR, ARG_INT, ARG_INT, ARG_FUTEX_PTR, ARG_FUTEX_PTR, ARG_INT } },
 #endif
-#if defined(__NR_futimens)
+#if DEFSYS(futimens)
 	{ SYS(futimens), 4, { ARG_FD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_get_mempolicy)
+#if DEFSYS(get_mempolicy)
 	{ SYS(get_mempolicy), 5, { ARG_PTR, ARG_PTR, ARG_UINT, ARG_PTR, ARG_FLAG, 0 } },
 #endif
-#if defined(__NR_get_robust_list)
+#if DEFSYS(get_robust_list)
 	{ SYS(get_robust_list), 3, { ARG_PID, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_get_thread_area)
+#if DEFSYS(get_thread_area)
 	{ SYS(get_thread_area), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_getcpu)
+#if DEFSYS(getcpu)
 	{ SYS(getcpu), 3, { ARG_NON_NULL_PTR, ARG_NON_NULL_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_getcwd)
+#if DEFSYS(getcwd)
 	{ SYS(getcwd), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_getdents)
+#if DEFSYS(getdents)
 	{ SYS(getdents), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_getdomainname)
+#if DEFSYS(getdomainname)
 	{ SYS(getdomainname), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_getgroups)
+#if DEFSYS(getgroups)
 	{ SYS(getgroups), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_gethostname)
+#if DEFSYS(gethostname)
 	{ SYS(gethostname), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_getitimer)
+#if DEFSYS(getitimer)
 #endif
-#if defined(__NR_getpeername)
+#if DEFSYS(getpeername)
 	{ SYS(getpeername), 3, { ARG_SOCKFD, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_getpgid)
+#if DEFSYS(getpgid)
 	{ SYS(getpgid), 1, { ARG_PID, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_getpriority)
+#if DEFSYS(getpriority)
 	// static const int args[] = { INT_MIN, -1, INT_MAX, ~0, 0xdeadc0de };
 #endif
-#if defined(__NR_getrandom)
+#if DEFSYS(getrandom)
 	{ SYS(getrandom), 3, { ARG_PTR, ARG_INT, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_getresgid)
+#if DEFSYS(getresgid)
 	{ SYS(getresgid), 3, { ARG_PTR, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_getresuid)
+#if DEFSYS(getresuid)
 	{ SYS(getresuid), 3, { ARG_PTR, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_getrlimit)
+#if DEFSYS(getrlimit)
 	{ SYS(getrlimit), 2, { ARG_RND, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(getrlimit), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_getrusage)
+#if DEFSYS(getrusage)
 	{ SYS(getrusage), 2, { ARG_RND, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(getrusage), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_getsid)
+#if DEFSYS(getsid)
 	{ SYS(getsid), 1, { ARG_PID, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_getsockname)
+#if DEFSYS(getsockname)
 	{ SYS(getsockname), 3, { ARG_SOCKFD, ARG_PTR | ARG_STRUCT_SOCKADDR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_gettimeofday)
+#if DEFSYS(gettimeofday)
 	{ SYS(gettimeofday), 2, { ARG_NON_NULL_PTR, ARG_NON_NULL_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_getxattr)
+#if DEFSYS(getxattr)
 	{ SYS(getxattr), 4, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_PTR, ARG_LEN, 0, 0 } },
 	{ SYS(getxattr), 4, { ARG_DEVNULL_FILENAME, ARG_PTR, ARG_PTR, ARG_LEN, 0, 0 } },
 #endif
-#if defined(__NR_inotify_add_watch)
+#if DEFSYS(inotify_add_watch)
 	{ SYS(inotify_add_watch), 3, { ARG_FD, ARG_EMPTY_FILENAME, ARG_UINT, 0, 0, 0 } },
 	{ SYS(inotify_add_watch), 3, { ARG_FD, ARG_DEVNULL_FILENAME, ARG_UINT, 0, 0, 0 } },
 #endif
-#if defined(__NR_inotify_init1)
+#if DEFSYS(inotify_init1)
 	{ SYS(inotify_init1), 3, { ARG_FLAG, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_io_cancel)
+#if DEFSYS(io_cancel)
 	{ SYS(io_destroy), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_io_destroy)
+#if DEFSYS(io_destroy)
 	{ SYS(io_cancel), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_io_getevents)
+#if DEFSYS(io_getevents)
 	{ SYS(io_getevents), 5, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, 0 } },
 #endif
-#if defined(__NR_io_setup)
+#if DEFSYS(io_setup)
 	{ SYS(io_setup), 2, { ARG_UINT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_io_submit)
+#if DEFSYS(io_submit)
 	{ SYS(io_setup), 3, { ARG_UINT, ARG_INT, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_io_uring_enter)
+#if DEFSYS(io_uring_enter)
 #endif
-#if defined(__NR_io_uring_register)
+#if DEFSYS(io_uring_register)
 #endif
-#if defined(__NR_io_uring_setup)
+#if DEFSYS(io_uring_setup)
 #endif
-#if defined(__NR_ioperm)
+#if DEFSYS(ioperm)
 	{ SYS(ioperm), 3, { ARG_UINT, ARG_UINT, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_iopl)
+#if DEFSYS(iopl)
 	{ SYS(iopl), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_ioprio_get)
+#if DEFSYS(ioprio_get)
 	{ SYS(ioprio_get), 2, { ARG_INT, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_ioprio_set)
+#if DEFSYS(ioprio_set)
 	{ SYS(ioprio_set), 3, { ARG_INT, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_ipc)
+#if DEFSYS(ipc)
 	{ SYS(ipc), 6, { ARG_UINT, ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_UINT } },
 #endif
-#if defined(__NR_kcmp)
+#if DEFSYS(kcmp)
 	{ SYS(kcmp), 5, { ARG_PID, ARG_PID, ARG_INT, ARG_UINT, ARG_UINT, 0 } },
 #endif
-#if defined(__NR_kern_features)
+#if DEFSYS(kern_features)
 #endif
-#if defined(__NR_kexec_file_load)
+#if DEFSYS(kexec_file_load)
 #endif
-#if defined(__NR_kexec_load)
+#if DEFSYS(kexec_load)
 #endif
-#if defined(__NR_keyctl)
+#if DEFSYS(keyctl)
 	{ SYS(keyctl), 6, { ARG_INT, ARG_UINT, ARG_UINT, ARG_UINT, ARG_UINT, ARG_UINT } },
 #endif
-#if defined(__NR_ioctl)
+#if DEFSYS(ioctl)
 	{ SYS(ioctl), 4, { ARG_FD, ARG_UINT, ARG_PTR, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_kill)
+#if DEFSYS(kill)
 #endif
-#if defined(__NR_lchown)
+#if DEFSYS(lchown)
 	{ SYS(lchown), 3, { ARG_EMPTY_FILENAME, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_link)
+#if DEFSYS(link)
 	{ SYS(link), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_linkat)
+#if DEFSYS(linkat)
 	{ SYS(linkat), 5, { ARG_FD, ARG_EMPTY_FILENAME, ARG_FD, ARG_EMPTY_FILENAME, ARG_INT, 0 } },
 #endif
-#if defined(__NR_listen)
+#if DEFSYS(listen)
 	{ SYS(listen), 2, { ARG_SOCKFD, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_listxattr)
+#if DEFSYS(listxattr)
 	{ SYS(listxattr), 3, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_llistxattr)
+#if DEFSYS(llistxattr)
 	{ SYS(llistxattr), 3, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_lookup_dcookie)
+#if DEFSYS(lookup_dcookie)
 	{ SYS(lookup_dcookie), 3, { ARG_UINT, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_lremovexattr)
+#if DEFSYS(lremovexattr)
 	{ SYS(lremovexattr), 3, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_lseek)
+#if DEFSYS(lseek)
 	{ SYS(lseek), 3, { ARG_FD, ARG_UINT, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_lsetxattr)
+#if DEFSYS(lsetxattr)
 	{ SYS(lsetxattr), 5, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_PTR, ARG_LEN, ARG_INT, 0 } },
 #endif
-#if defined(__NR_lstat)
+#if DEFSYS(lstat)
 	{ SYS(lstat), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_madvise)
+#if DEFSYS(madvise)
 	{ SYS(madvise), 3, { ARG_PTR, ARG_LEN, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_mbind)
+#if DEFSYS(mbind)
 	{ SYS(mbind), 6, { ARG_PTR, ARG_UINT, ARG_INT, ARG_PTR, ARG_UINT, ARG_UINT } },
 #endif
-#if defined(__NR_membarrier)
+#if DEFSYS(membarrier)
 	{ SYS(membarrier), 2, { ARG_INT, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_memfd_create)
+#if DEFSYS(memfd_create)
 	{ SYS(memfd_create), 2, { ARG_EMPTY_FILENAME, ARG_UINT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_migrate_pages)
+#if DEFSYS(migrate_pages)
 	{ SYS(migrate_pages), 4, { ARG_PID, ARG_UINT, ARG_PTR, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_mincore)
+#if DEFSYS(mincore)
 	{ SYS(mincore), 3, { ARG_PTR, ARG_LEN, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_mkdir)
+#if DEFSYS(mkdir)
 	{ SYS(mkdir), 2, { ARG_EMPTY_FILENAME, ARG_MODE, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_mkdirat)
+#if DEFSYS(mkdirat)
 	{ SYS(mkdirat), 3, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_MODE, 0, 0, 0 } },
 #endif
-#if defined(__NR_mknod)
+#if DEFSYS(mknod)
 	{ SYS(mknod), 3, { ARG_EMPTY_FILENAME, ARG_MODE, ARG_UINT, 0, 0, 0 } },
 #endif
-#if defined(__NR_mknodat)
+#if DEFSYS(mknodat)
 	{ SYS(mknodat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_MODE, ARG_UINT, 0, 0 } },
 #endif
-#if defined(__NR_mlock)
+#if DEFSYS(mlock)
 	{ SYS(mlock), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_mlock2)
+#if DEFSYS(mlock2)
 	{ SYS(mlock2), 2, { ARG_PTR, ARG_LEN, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_mlockall)
+#if DEFSYS(mlockall)
 	{ SYS(mlockall), 1, { ARG_FLAG, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_mmap)
+#if DEFSYS(mmap)
 	{ SYS(mmap), 6, { ARG_PTR, ARG_LEN, ARG_INT, ARG_FLAG, ARG_FD, ARG_UINT } },
 #endif
-#if defined(__NR_mmap2)
+#if DEFSYS(mmap2)
 	{ SYS(mmap2), 6, { ARG_PTR, ARG_LEN, ARG_INT, ARG_FLAG, ARG_FD, ARG_UINT } },
 #endif
-#if defined(__NR_modify_ldt)
+#if DEFSYS(modify_ldt)
 	{ SYS(modify_ldt), 3, { ARG_INT, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_mount)
+#if DEFSYS(mount)
 	{ SYS(mount), 5, { ARG_EMPTY_FILENAME, ARG_EMPTY_FILENAME, ARG_PTR, ARG_UINT, ARG_UINT, 0 } },
 #endif
-#if defined(__NR_move_mount)
+#if DEFSYS(move_mount)
 	//{ SYS(move_mount), 1, { 0, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_move_pages)
+#if DEFSYS(move_pages)
 	{ SYS(move_pages), 6, { ARG_PID, ARG_UINT, ARG_PTR, ARG_PTR, ARG_PTR, ARG_FLAG } },
 #endif
-#if defined(__NR_mprotect)
+#if DEFSYS(mprotect)
 	{ SYS(mprotect), 3, { ARG_PTR, ARG_LEN, ARG_UINT, 0, 0, 0 } },
 #endif
-#if defined(__NR_mq_close)
+#if DEFSYS(mq_close)
 	{ SYS(), mq_close, 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_mq_getsetattr)
+#if DEFSYS(mq_getsetattr)
 	{ SYS(mq_getsetattr), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_mq_notify)
+#if DEFSYS(mq_notify)
 	{ SYS(mq_notify), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_mq_open)
+#if DEFSYS(mq_open)
 	{ SYS(mq_open), 4, { ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_mq_receive)
+#if DEFSYS(mq_receive)
 	{ SYS(mq_receive), 4, { ARG_INT, ARG_PTR, ARG_LEN, ARG_INT, 0, 0 } },
 #endif
-#if defined(__NR_mq_send)
+#if DEFSYS(mq_send)
 	{ SYS(mq_send), 4, { ARG_INT, ARG_PTR, ARG_LEN, ARG_UINT, 0, 0 } },
 #endif
-#if defined(__NR_mq_timedreceive)
+#if DEFSYS(mq_timedreceive)
 	{ SYS(mq_timedreceive), 4, { ARG_INT, ARG_PTR, ARG_LEN, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_mq_timedsend)
+#if DEFSYS(mq_timedsend)
 	{ SYS(mq_timedsend), 4, { ARG_INT, ARG_PTR, ARG_LEN, ARG_INT, 0, 0 } },
 #endif
-#if defined(__NR_mq_unlink)
+#if DEFSYS(mq_unlink)
 	{ SYS(mq_unlink), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_mremap)
+#if DEFSYS(mremap)
 	{ SYS(mremap), 5, { ARG_PTR, ARG_LEN, ARG_PTR, ARG_LEN, ARG_FLAG, ARG_PTR } },
 #endif
-#if defined(__NR_msgctl)
+#if DEFSYS(msgctl)
 	{ SYS(msgctl), 3, { ARG_INT, ARG_INT, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_msgget)
+#if DEFSYS(msgget)
 	{ SYS(msgget), 2, { ARG_INT, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_msgrcv)
+#if DEFSYS(msgrcv)
 	{ SYS(msgrcv), 5, { ARG_INT, ARG_PTR, ARG_LEN, ARG_INT, ARG_INT, 0 } },
 #endif
-#if defined(__NR_msgsnd)
+#if DEFSYS(msgsnd)
 	{ SYS(msgsnd), 4, { ARG_INT, ARG_PTR, ARG_LEN, ARG_INT, 0, 0 } },
 #endif
-#if defined(__NR_msync)
+#if DEFSYS(msync)
 	{ SYS(msync), 3, { ARG_PTR, ARG_LEN, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_munlock)
+#if DEFSYS(munlock)
 	{ SYS(munlock), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_munlockall)
+#if DEFSYS(munlockall)
 	{ SYS(munlockall), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_munmap)
+#if DEFSYS(munmap)
 	//{ SYS(munmap), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_name_to_handle_at)
+#if DEFSYS(name_to_handle_at)
 	{ SYS(name_to_handle_at), 5, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_PTR, ARG_FLAG } },
 #endif
-#if defined(__NR_nanosleep)
+#if DEFSYS(nanosleep)
 	{ SYS(nanosleep), 2, { ARG_PTR, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_nfsservctl)
+#if DEFSYS(nfsservctl)
 	{ SYS(nfsservctl), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_nice)
+#if DEFSYS(nice)
 	{ SYS(nice), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_open)
+#if DEFSYS(open)
 	{ SYS(open), 3, { ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, 0, 0, 0 } },
 #endif
-#if defined(__NR_open_by_handle_at)
+#if DEFSYS(open_by_handle_at)
 	{ SYS(open_by_handle_at), 3, { ARG_FD, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_openat)
+#if DEFSYS(openat)
 	{ SYS(openat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, 0, 0 } },
 #endif
-#if defined(__NR_openat2)
+#if DEFSYS(openat2)
 	{ SYS(openat2), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0 } },
 #endif
-#if defined(__NR_open_tree)
+#if DEFSYS(open_tree)
 	//{ SYS(open_tree), 1, { 0, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_perf_event_open)
+#if DEFSYS(perf_event_open)
 	{ SYS(perf_event_open), 5, { ARG_PTR, ARG_PID, ARG_INT, ARG_INT, ARG_FLAG, 0 } },
 #endif
-#if defined(__NR_personality)
+#if DEFSYS(personality)
 	{ SYS(personality), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_pidfd_getfd)
+#if DEFSYS(pidfd_getfd)
 	{ SYS(pidfd_getfd), 3, { ARG_INT, ARG_INT, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_pidfd_open)
+#if DEFSYS(pidfd_open)
 	{ SYS(pidfd_open), 2, { ARG_PID, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_pidfd_send_signal)
+#if DEFSYS(pidfd_send_signal)
 	{ SYS(pidfd_send_signal), 4, { ARG_INT, ARG_INT, ARG_PTR, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_pipe)
+#if DEFSYS(pipe)
 	{ SYS(pipe), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_pipe2)
+#if DEFSYS(pipe2)
 	{ SYS(pipe2), 2, { ARG_PTR, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_pivot_root)
+#if DEFSYS(pivot_root)
 	{ SYS(pivot_root), 2, { ARG_EMPTY_FILENAME, ARG_EMPTY_FILENAME, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_pkey_alloc)
+#if DEFSYS(pkey_alloc)
 	{ SYS(pkey_alloc), 2, { ARG_FLAG, ARG_UINT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_pkey_free)
+#if DEFSYS(pkey_free)
 	{ SYS(pkey_free), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_pkey_get)
+#if DEFSYS(pkey_get)
 	{ SYS(pkey_get), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_pkey_mprotect)
+#if DEFSYS(pkey_mprotect)
 	{ SYS(pkey_mprotect), 3, { ARG_PTR, ARG_LEN, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_pkey_set)
+#if DEFSYS(pkey_set)
 	{ SYS(pkey_set), 2, { ARG_INT, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_poll)
+#if DEFSYS(poll)
 	{ SYS(poll), 3, { ARG_PTR, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_ppoll)
+#if DEFSYS(ppoll)
 	{ SYS(ppoll), 4, { ARG_PTR, ARG_INT, ARG_PTR, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_prctl)
+#if DEFSYS(prctl)
 	{ SYS(prctl), 5, { ARG_INT, ARG_UINT, ARG_UINT, ARG_UINT, ARG_UINT, 0 } },
 #endif
-#if defined(__NR_pread)
+#if DEFSYS(pread)
 	{ SYS(pread), 4, { ARG_FD, ARG_PTR, ARG_LEN, ARG_UINT, 0, 0 } },
 #endif
-#if defined(__NR_preadv)
+#if DEFSYS(preadv)
 	{ SYS(preadv), 4, { ARG_FD, ARG_PTR, ARG_INT, ARG_UINT, 0, 0 } },
 #endif
-#if defined(__NR_preadv2)
+#if DEFSYS(preadv2)
 	{ SYS(preadv2), 4, { ARG_FD, ARG_PTR, ARG_INT, ARG_UINT, ARG_FLAG, 0 } },
 #endif
-#if defined(__NR_prlimit)
+#if DEFSYS(prlimit)
 	{ SYS(prlimit), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_process_madvise)
+#if DEFSYS(process_madvise)
 	{ SYS(process_madvise), 6, { ARG_INT, ARG_PID, ARG_PTR, ARG_LEN, ARG_INT, ARG_FLAG } },
 #endif
-#if defined(__NR_vm_readv)
+#if DEFSYS(vm_readv)
 	{ SYS(vm_readv), 6, { ARG_PID, ARG_PTR, ARG_UINT, ARG_PTR, ARG_UINT, ARG_UINT } },
 #endif
-#if defined(__NR_vm_writev)
+#if DEFSYS(vm_writev)
 	{ SYS(vm_writev), 6, { ARG_PID, ARG_PTR, ARG_UINT, ARG_PTR, ARG_UINT, ARG_UINT } },
 #endif
-#if defined(__NR_pselect)
+#if DEFSYS(pselect)
 	{ SYS(pselect), 6, { ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR, ARG_PTR, ARG_PTR } },
 #endif
-#if defined(__NR_ptrace)
+#if DEFSYS(ptrace)
 	{ SYS(ptrace), 4, { ARG_INT, ARG_PID, ARG_PTR, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_pwrite)
+#if DEFSYS(pwrite)
 	{ SYS(pwrite), 4, { ARG_FD, ARG_PTR, ARG_LEN, ARG_UINT, 0, 0 } },
 #endif
-#if defined(__NR_pwritev)
+#if DEFSYS(pwritev)
 	{ SYS(pwritev), 4, { ARG_FD, ARG_PTR, ARG_INT, ARG_UINT, 0, 0 } },
 #endif
-#if defined(__NR_pwritev2)
+#if DEFSYS(pwritev2)
 	{ SYS(pwritev2), 4, { ARG_FD, ARG_PTR, ARG_INT, ARG_UINT, ARG_FLAG, 0 } },
 #endif
-#if defined(__NR_quotactl)
+#if DEFSYS(quotactl)
 	{ SYS(quotactl), 5, { ARG_INT, ARG_PTR, ARG_INT, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_read)
+#if DEFSYS(read)
 	{ SYS(read), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_readahead)
+#if DEFSYS(readahead)
 	{ SYS(readahead), 3, { ARG_FD, ARG_UINT, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_readdir)
+#if DEFSYS(readdir)
 	{ SYS(readdir), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_readlink)
+#if DEFSYS(readlink)
 	{ SYS(readlink), 3, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_readlinkat)
+#if DEFSYS(readlinkat)
 	{ SYS(readlinkat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0 } },
 #endif
-#if defined(__NR_readv)
+#if DEFSYS(readv)
 	{ SYS(readv), 3, { ARG_FD, ARG_PTR, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_reboot)
+#if DEFSYS(reboot)
 	// { SYS(reboot), 3, { ARG_INT, ARG_INT, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_recv)
+#if DEFSYS(recv)
 	{ SYS(recv), 4, { ARG_SOCKFD, ARG_PTR, ARG_LEN, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_recvfrom)
+#if DEFSYS(recvfrom)
 	{ SYS(recvfrom), 6, { ARG_SOCKFD, ARG_PTR, ARG_LEN, ARG_FLAG, ARG_PTR, ARG_PTR } },
 #endif
-#if defined(__NR_recvmsg)
+#if DEFSYS(recvmsg)
 	{ SYS(recvmsg), 3, { ARG_SOCKFD, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_recvmmsg)
+#if DEFSYS(recvmmsg)
 	{ SYS(recvmmsg), 5, { ARG_SOCKFD, ARG_PTR, ARG_LEN, ARG_FLAG, ARG_PTR, 0 } },
 #endif
-#if defined(__NR_remap_file_pages)
+#if DEFSYS(remap_file_pages)
 	{ SYS(remap_file_pages), 5, { ARG_PTR, ARG_LEN, ARG_INT, ARG_UINT, ARG_FLAG, 0 } },
 #endif
-#if defined(__NR_removexattr)
+#if DEFSYS(removexattr)
 	{ SYS(removexattr), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_rename)
+#if DEFSYS(rename)
 	{ SYS(rename), 2, { ARG_EMPTY_FILENAME, ARG_EMPTY_FILENAME, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_renameat)
+#if DEFSYS(renameat)
 	{ SYS(renameat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_DIRFD, ARG_EMPTY_FILENAME, 0, 0 } },
 #endif
-#if defined(__NR_renameat2)
+#if DEFSYS(renameat2)
 	{ SYS(renameat2), 5, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_FLAG, 0 } },
 #endif
-#if defined(__NR_request_key)
+#if DEFSYS(request_key)
 	{ SYS(request_key), 4, { ARG_PTR, ARG_PTR, ARG_PTR, ARG_INT, 0, 0 } },
 #endif
-#if defined(__NR_riscv_flush_icache)
+#if DEFSYS(riscv_flush_icache)
 	{ SYS(riscv_flush_icache), 3, { ARG_PTR, ARG_PTR, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_rmdir)
+#if DEFSYS(rmdir)
 	//{ SYS(rmdir), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_rseq)
+#if DEFSYS(rseq)
 	{ SYS(rseq), 4, { ARG_PTR, ARG_LEN, ARG_FLAG, ARG_UINT, 0, 0 } },
 #endif
-#if defined(__NR_sigaction)
+#if DEFSYS(sigaction)
 	{ SYS(sigaction), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_rt_sigaction)
+#if DEFSYS(rt_sigaction)
 	{ SYS(rt_sigaction), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_rt_sigpending)
+#if DEFSYS(rt_sigpending)
 	{ SYS(rt_sigpending), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_rt_sigprocmask)
+#if DEFSYS(rt_sigprocmask)
 	{ SYS(rt_sigprocmask), 4, { ARG_INT, ARG_PTR, ARG_PTR, ARG_LEN, 0, 0 } },
 #endif
-#if defined(__NR_rt_sigqueueinfo)
+#if DEFSYS(rt_sigqueueinfo)
 	{ SYS(rt_sigqueueinfo), 3, { ARG_PID, ARG_INT, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_rt_sigreturn)
+#if DEFSYS(rt_sigreturn)
 	//{ SYS(rt_sigreturn), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_rt_sigsuspend)
+#if DEFSYS(rt_sigsuspend)
 	{ SYS(rt_sigsuspend), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_rt_sigtimedwait)
+#if DEFSYS(rt_sigtimedwait)
 	{ SYS(rt_sigtimedwait), 3, { ARG_PTR, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_rt_tgsigqueueinfo)
+#if DEFSYS(rt_tgsigqueueinfo)
 	{ SYS(rt_tgsigqueueinfo), 4, { ARG_PID, ARG_PID, ARG_INT, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_sched_get_priority_max)
+#if DEFSYS(sched_get_priority_max)
 	{ SYS(sched_get_priority_max), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sched_get_priority_min)
+#if DEFSYS(sched_get_priority_min)
 	{ SYS(sched_get_priority_min), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sched_getaffinity)
+#if DEFSYS(sched_getaffinity)
 	{ SYS(sched_getaffinity), 3, { ARG_PID, ARG_LEN, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_sched_getattr)
+#if DEFSYS(sched_getattr)
 	{ SYS(sched_getattr), 3, { ARG_PID, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_sched_param)
+#if DEFSYS(sched_param)
 	{ SYS(sched_param), 2, { ARG_PID, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sched_getscheduler)
+#if DEFSYS(sched_getscheduler)
 	{ SYS(sched_getscheduler), 1, { ARG_PID, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sched_get_rr_interval)
+#if DEFSYS(sched_get_rr_interval)
 	{ SYS(sched_get_rr_interval), 2, { ARG_PID, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sched_setaffinity)
+#if DEFSYS(sched_setaffinity)
 	{ SYS(sched_setaffinity), 3, { ARG_PID, ARG_LEN, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_sched_setattr)
+#if DEFSYS(sched_setattr)
 	{ SYS(sched_setattr), 3, { ARG_PID, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_sched_setparam)
+#if DEFSYS(sched_setparam)
 	{ SYS(sched_setparam), 2, { ARG_PID, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sched_yield)
+#if DEFSYS(sched_yield)
 	//{ SYS(sched_yield), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_seccomp)
+#if DEFSYS(seccomp)
 	{ SYS(seccomp), 3, { ARG_UINT, ARG_FLAG, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_select)
+#if DEFSYS(select)
 	{ SYS(select), 5, { ARG_FD, ARG_PTR, ARG_PTR, ARG_PTR, ARG_PTR, 0 } },
 #endif
-#if defined(__NR_semctl)
+#if DEFSYS(semctl)
 	{ SYS(semctl), 6, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
 #endif
-#if defined(__NR_semget)
+#if DEFSYS(semget)
 	{ SYS(semget), 3, { ARG_INT, ARG_INT, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_semop)
+#if DEFSYS(semop)
 	{ SYS(semop), 3, { ARG_INT, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_semtimedop)
+#if DEFSYS(semtimedop)
 	{ SYS(semtimedop), 4, { ARG_INT, ARG_PTR, ARG_LEN, ARG_PTR, 0, 0 } },
 #endif
 /*
  *  The following are not system calls, ignored for now
  */
 #if 0
-#if defined(__NR_sem_destroy)
+#if DEFSYS(sem_destroy)
 	{ SYS(sem_destroy), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sem_init)
+#if DEFSYS(sem_init)
 	{ SYS(sem_init), 3, { ARG_PTR, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_sem_post)
+#if DEFSYS(sem_post)
 	{ SYS(sem_post), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sem_wait)
+#if DEFSYS(sem_wait)
 	{ SYS(sem_wait), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sem_trywait)
+#if DEFSYS(sem_trywait)
 	{ SYS(sem_trywait), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sem_timedwait)
+#if DEFSYS(sem_timedwait)
 	{ SYS(sem_timedwait), 2, { ARG_PTR, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #endif
-#if defined(__NR_send)
+#if DEFSYS(send)
 	{ SYS(send), 4, { ARG_SOCKFD, ARG_PTR, ARG_LEN, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_sendfile)
+#if DEFSYS(sendfile)
 	{ SYS(sendfile), 4, { ARG_FD, ARG_FD, ARG_UINT, ARG_LEN, 0, 0 } },
 #endif
-#if defined(__NR_sendmmsg)
+#if DEFSYS(sendmmsg)
 	{ SYS(sendmmsg), 4, { ARG_SOCKFD, ARG_PTR, ARG_INT, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_sendmsg)
+#if DEFSYS(sendmsg)
 	{ SYS(sendmsg), 3, { ARG_SOCKFD, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_sendto)
+#if DEFSYS(sendto)
 	{ SYS(sendto), 6, { ARG_SOCKFD, ARG_PTR, ARG_LEN, ARG_FLAG, ARG_PTR, ARG_LEN } },
 #endif
-#if defined(__NR_set_mempolicy)
+#if DEFSYS(set_mempolicy)
 	{ SYS(set_mempolicy), 3, { ARG_INT, ARG_PTR, ARG_UINT, 0, 0, 0 } },
 #endif
-#if defined(__NR_set_robust_list)
+#if DEFSYS(set_robust_list)
 	{ SYS(set_robust_list), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_set_thread_area)
+#if DEFSYS(set_thread_area)
 	{ SYS(set_thread_area), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_set_tid_address)
+#if DEFSYS(set_tid_address)
 	{ SYS(set_tid_address), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setdomainname)
+#if DEFSYS(setdomainname)
 	//{ SYS(setdomainname), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setfsgid)
+#if DEFSYS(setfsgid)
 	{ SYS(setfsgid), 1, { ARG_GID, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setfsuid)
+#if DEFSYS(setfsuid)
 	{ SYS(setfsuid), 1, { ARG_GID, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_gid)
+#if DEFSYS(gid)
 	{ SYS(setgid), 1, { ARG_GID, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setgroups)
+#if DEFSYS(setgroups)
 	{ SYS(setgroups), 2, { ARG_LEN, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sethostname)
+#if DEFSYS(sethostname)
 	{ SYS(sethostname), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setitimer)
+#if DEFSYS(setitimer)
 	{ SYS(setitimer), 3, { ARG_INT, ARG_NON_NULL_PTR, ARG_NON_NULL_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_setmntent)
+#if DEFSYS(setmntent)
 	{ SYS(setmntent), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setns)
+#if DEFSYS(setns)
 	{ SYS(setns), 2, { ARG_FD, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setpgid)
+#if DEFSYS(setpgid)
 	{ SYS(setpgid), 2, { ARG_PID, ARG_PID, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setpriority)
+#if DEFSYS(setpriority)
 	{ SYS(setpriority), 3, { ARG_INT, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_setregid)
+#if DEFSYS(setregid)
 	{ SYS(setregid), 2, { ARG_GID, ARG_GID, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setresgid)
+#if DEFSYS(setresgid)
 	{ SYS(setresgid), 3, { ARG_GID, ARG_GID, ARG_GID, 0, 0, 0 } },
 #endif
-#if defined(__NR_setresuid)
+#if DEFSYS(setresuid)
 	{ SYS(setresuid), 3, { ARG_UID, ARG_UID, ARG_UID, 0, 0, 0 } },
 #endif
-#if defined(__NR_setreuid)
+#if DEFSYS(setreuid)
 	{ SYS(setreuid), 2, { ARG_UID, ARG_UID, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setrlimit)
+#if DEFSYS(setrlimit)
 	{ SYS(setrlimit), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setsid)
+#if DEFSYS(setsid)
 	//{ SYS(setsid), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setsockopt)
+#if DEFSYS(setsockopt)
 	{ SYS(setsockopt), 5, { ARG_SOCKFD, ARG_INT, ARG_INT, ARG_PTR, ARG_LEN, 0 } },
 #endif
-#if defined(__NR_settimeofday)
+#if DEFSYS(settimeofday)
 	{ SYS(settimeofday), 2, { ARG_PTR, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setuid)
+#if DEFSYS(setuid)
 	{ SYS(setuid), 1, { ARG_UID, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_setxattr)
+#if DEFSYS(setxattr)
 	{ SYS(setxattr), 5, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_PTR, ARG_LEN, ARG_FLAG, 0 } },
 #endif
-#if defined(__NR_sgetmask)
+#if DEFSYS(sgetmask)
 	{ SYS(sgetmask), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_shmat)
+#if DEFSYS(shmat)
 	{ SYS(shmat), 3, { ARG_INT, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_shmctl)
+#if DEFSYS(shmctl)
 	{ SYS(shmctl), 3, { ARG_INT, ARG_INT, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_shmdt)
+#if DEFSYS(shmdt)
 	{ SYS(shmdt), 3, { ARG_INT, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_shmget)
+#if DEFSYS(shmget)
 	{ SYS(shmget), 3, { ARG_INT, ARG_LEN, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_shutdown)
+#if DEFSYS(shutdown)
 	{ SYS(shutdown), 2, { ARG_SOCKFD, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sigaction)
+#if DEFSYS(sigaction)
 	{ SYS(sigaction), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_sigaltstack)
+#if DEFSYS(sigaltstack)
 	{ SYS(sigaltstack), 3, { ARG_NON_NULL_PTR, ARG_NON_NULL_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_signal)
+#if DEFSYS(signal)
 	{ SYS(signal), 2, { ARG_INT, ARG_NON_NULL_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_signalfd)
+#if DEFSYS(signalfd)
 	{ SYS(signalfd), 3, { ARG_FD, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_sigpending)
+#if DEFSYS(sigpending)
 	{ SYS(sigpending), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sigreturn)
+#if DEFSYS(sigreturn)
 	{ SYS(sigreturn), 4, { ARG_PTR, ARG_PTR, ARG_PTR, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_sigsuspend)
+#if DEFSYS(sigsuspend)
 	{ SYS(sigsuspend), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sigtimedwait)
+#if DEFSYS(sigtimedwait)
 	{ SYS(sigtimedwait), 3, { ARG_PTR, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_sigwaitinfo)
+#if DEFSYS(sigwaitinfo)
 	{ SYS(sigwaitinfo), 2, { ARG_PTR, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_socket)
+#if DEFSYS(socket)
 	{ SYS(socket), 3, { ARG_INT, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_socketcall)
+#if DEFSYS(socketcall)
 	{ SYS(socketcall), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_socketpair)
+#if DEFSYS(socketpair)
 	{ SYS(socketpair), 4, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_splice)
+#if DEFSYS(splice)
 	{ SYS(splice), 6, { ARG_FD, ARG_PTR, ARG_FD, ARG_PTR, ARG_LEN, ARG_FLAG } },
 #endif
-#if defined(__NR_ssetmask)
+#if DEFSYS(ssetmask)
 	{ SYS(ssetmask), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_stat)
+#if DEFSYS(stat)
 	{ SYS(stat), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_statfs)
+#if DEFSYS(statfs)
 	{ SYS(statfs), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_statx)
+#if DEFSYS(statx)
 	{ SYS(statx), 5, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_FLAG, ARG_UINT, ARG_PTR, 0 } },
 #endif
-#if defined(__NR_stime)
+#if DEFSYS(stime)
 	{ SYS(stime), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_swapon)
+#if DEFSYS(swapon)
 	{ SYS(swapon), 2, { ARG_EMPTY_FILENAME, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_swapoff)
+#if DEFSYS(swapoff)
 	{ SYS(swapoff), 1, { ARG_EMPTY_FILENAME, 0 , 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_symlink)
+#if DEFSYS(symlink)
 	{ SYS(symlink), 2, { ARG_EMPTY_FILENAME, ARG_EMPTY_FILENAME, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_symlinkat)
+#if DEFSYS(symlinkat)
 	{ SYS(symlinkat), 3, { ARG_EMPTY_FILENAME, ARG_FD, ARG_EMPTY_FILENAME, 0, 0, 0 } },
 #endif
-#if defined(__NR_sync)
+#if DEFSYS(sync)
 	//{ SYS(sync), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sync_file_range)
+#if DEFSYS(sync_file_range)
 	{ SYS(sync_file_range), 4, { ARG_FD, ARG_UINT, ARG_UINT, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_sync_file_range2)
+#if DEFSYS(sync_file_range2)
 	{ SYS(sync_file_range2), 4, { ARG_FD, ARG_FLAG, ARG_UINT, ARG_UINT, 0, 0 } },
 #endif
-#if defined(__NR_syncfs)
+#if DEFSYS(syncfs)
 	{ SYS(syncfs), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sysfs)
+#if DEFSYS(sysfs)
 	{ SYS(sysfs), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(sysfs), 3, { ARG_INT, ARG_UINT, ARG_PTR, 0, 0, 0 } },
 	{ SYS(sysfs), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_sysinfo)
+#if DEFSYS(sysinfo)
 	{ SYS(sysinfo), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_syslog)
+#if DEFSYS(syslog)
 	{ SYS(syslog), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_tee)
+#if DEFSYS(tee)
 	{ SYS(tee), 4, { ARG_FD, ARG_FD, ARG_LEN, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_tgkill)
+#if DEFSYS(tgkill)
 	//{ SYS(tgkill), 3, { ARG_PID, ARG_PID, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_time)
+#if DEFSYS(time)
 	{ SYS(time), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_timer_create)
+#if DEFSYS(timer_create)
 	{ SYS(timer_create), 3, { ARG_CLOCKID_T, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_timer_delete)
+#if DEFSYS(timer_delete)
 	{ SYS(timer_delete), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_timer_getoverrun)
+#if DEFSYS(timer_getoverrun)
 	{ SYS(timer_getoverrun), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_timer_gettime)
+#if DEFSYS(timer_gettime)
 	{ SYS(timer_gettime), 2, { ARG_UINT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_timer_settime)
+#if DEFSYS(timer_settime)
 	{ SYS(timer_settime), 4, { ARG_UINT, ARG_FLAG, ARG_PTR, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_times)
+#if DEFSYS(times)
 	{ SYS(times), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_tkill)
+#if DEFSYS(tkill)
 	//{ SYS(tkill), 2, { ARG_PID, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_truncate)
+#if DEFSYS(truncate)
 	{ SYS(truncate), 2, { ARG_EMPTY_FILENAME, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_umask)
+#if DEFSYS(umask)
 	{ SYS(umask), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_umount)
+#if DEFSYS(umount)
 	{ SYS(umount), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_uname)
+#if DEFSYS(uname)
 	{ SYS(uname), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_unlink)
+#if DEFSYS(unlink)
 	{ SYS(unlink), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_unlinkat)
+#if DEFSYS(unlinkat)
 	{ SYS(unlinkat), 3, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if defined(__NR_unshare)
+#if DEFSYS(unshare)
 	{ SYS(unshare), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_uselib)
+#if DEFSYS(uselib)
 	{ SYS(uselib), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_userfaultfd)
+#if DEFSYS(userfaultfd)
 	{ SYS(userfaultfd), 1, { ARG_FLAG, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_ustat)
+#if DEFSYS(ustat)
 	{ SYS(ustat), 2, { ARG_UINT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_utimensat)
+#if DEFSYS(utimensat)
 	{ SYS(utimensat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_vmsplice)
+#if DEFSYS(vmsplice)
 	{ SYS(vmsplice), 4, { ARG_FD, ARG_PTR, ARG_UINT, ARG_FLAG, 0, 0 } },
 #endif
-#if defined(__NR_wait)
+#if DEFSYS(wait)
 	{ SYS(wait), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
-#if defined(__NR_wait3)
+#if DEFSYS(wait3)
 	{ SYS(wait3), 3, { ARG_PTR, ARG_INT, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(__NR_wait4)
+#if DEFSYS(wait4)
 	{ SYS(wait4), 4, { ARG_PID, ARG_PTR, ARG_INT, ARG_PTR, 0, 0 } },
 #endif
-#if defined(__NR_waitid)
+#if DEFSYS(waitid)
 	{ SYS(waitid), 4, { ARG_INT, ARG_INT, ARG_PTR, ARG_INT, 0, 0 } },
 #endif
-#if defined(__NR_waitpid)
+#if DEFSYS(waitpid)
 	{ SYS(waitpid), 3, { ARG_PID, ARG_PTR, ARG_INT, 0, 0, 0 } },
 #endif
-#if defined(__NR_write)
+#if DEFSYS(write)
 	{ SYS(write), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
-#if defined(__NR_writev)
+#if DEFSYS(writev)
 	{ SYS(writev), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
 };
