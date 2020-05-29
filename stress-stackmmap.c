@@ -170,11 +170,14 @@ static int stress_stackmmap(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 	}
 	(void)memset(stack_mmap, 0, MMAPSTACK_SIZE);
+
+#if defined(HAVE_MPROTECT)
 	/*
 	 *  Make ends of stack inaccessible
 	 */
 	(void)mprotect(stack_mmap, page_size, PROT_NONE);
 	(void)mprotect(stack_mmap + MMAPSTACK_SIZE - page_size, page_size, PROT_NONE);
+#endif
 
 	(void)memset(&c_test, 0, sizeof(c_test));
 	if (getcontext(&c_test) < 0) {
