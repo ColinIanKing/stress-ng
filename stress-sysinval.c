@@ -2084,9 +2084,9 @@ static int stress_sysinval(const stress_args_t *args)
 
 	ret = stress_oomable_child(args, NULL, stress_sysinval_child, STRESS_OOMABLE_DROP_CAP);
 
-	pr_inf("%s: %" PRIu64 " syscalls causing child termination\n",
+	pr_dbg("%s: %" PRIu64 " unique syscalls patterns causing child termination\n",
 		args->name, current_context->skip_crashed);
-	pr_inf("%s: %" PRIu64 " syscalls not failing\n",
+	pr_dbg("%s: %" PRIu64 " unique syscall patterns not failing\n",
 		args->name, current_context->skip_errno_zero);
 
 	set_counter(args, current_context->counter);
