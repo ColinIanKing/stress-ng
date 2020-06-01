@@ -188,6 +188,12 @@ static uint8_t *small_ptr;
 static uint8_t *page_ptr;
 
 static const syscall_arg_t syscall_args[] = {
+#if DEFSYS(_llseek)
+	{ SYS(_llseek), 5, { ARG_FD, ARG_UINT, ARG_UINT, ARG_PTR, ARG_INT } },
+#endif
+#if DEFSYS(_sysctl)
+	{ SYS(_sysctl), 1, { ARG_PTR } },
+#endif
 #if DEFSYS(accept)
 	{ SYS(accept), 3, { ARG_SOCKFD, ARG_PTR | ARG_STRUCT_SOCKADDR, ARG_PTR, 0, 0, 0 } },
 #endif
@@ -210,6 +216,37 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(alarm) && 0
 	{ SYS(alarm), 1, { ARG_SECONDS, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(alloc_hugepages)
+	/* removed in 2.5.44 */
+	{ SYS(alloc_hugepages), 5, { ARG_INT, ARG_PTR, ARG_LEN, ARG_INT, ARG_FLAG) } },
+#endif
+#if DEFSYS(arc_gettls)
+	/* ARC only */
+#endif
+#if DEFSYS(arc_settls)
+	/* ARC only */
+#endif
+#if DEFSYS(arc_usr_cmpxchg)
+	/* ARC only */
+#endif
+#if DEFSYS(arch_prctl)
+	{ SYS(arch_prctl), 2, { ARG_INT, ARG_UINT } },
+	{ SYS(arch_prctl), 2, { ARG_INT, ARG_PTR } },
+#endif
+#if DEFSYS(atomic_barrier)
+	/* m68k only */
+#endif
+#if DEFSYS(atomic_cmpxchg_32)
+	/* m68k only */
+#endif
+#if DEFSYS(bdflush)
+	/* deprecated */
+	{ SYS(bdflush), 2, { ARG_INT, ARG_PTR } },
+	{ SYS(bdflush), 2, { ARG_INT, ARG_UINT } },
+#endif
+#if DEFSYS(bfin_spinlock)
+	/* blackfin, removed in 4.17 */
+#endif
 #if DEFSYS(bind)
 	{ SYS(bind), 3, { ARG_SOCKFD, ARG_PTR | ARG_STRUCT_SOCKADDR, ARG_SOCKLEN_T, 0, 0, 0 } },
 #endif
@@ -218,6 +255,9 @@ static const syscall_arg_t syscall_args[] = {
 #endif
 #if DEFSYS(brk)
 	{ SYS(brk), 1, { ARG_PTR | ARG_BRK_ADDR, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(breakpoint)
+	/* ARM OABI only */
 #endif
 #if DEFSYS(cacheflush)
 	{ SYS(cacheflush), 3, { ARG_PTR, ARG_INT, ARG_INT, 0, 0, 0 } },
@@ -242,6 +282,9 @@ static const syscall_arg_t syscall_args[] = {
 	{ SYS(chroot), 1, { ARG_PTR | ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 	{ SYS(chroot), 1, { ARG_PTR | ARG_DEVZERO_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(clock_adjtime)
+	{ SYS(clock_adjtime), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(clock_getres)
 	{ SYS(clock_getres), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
 #endif
@@ -257,11 +300,17 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(clone)
 	{ SYS(clone), 6, { ARG_FUNC_PTR, ARG_PTR, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
 #endif
+#if DEFSYS(clone2)
+	/* IA-64 only */
+#endif
 #if DEFSYS(clone3)
 	{ SYS(clone3), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(close)
 	{ SYS(close), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(cmpxchg_badaddr)
+	/* Tile only, removed 4.17 */
 #endif
 #if DEFSYS(connect)
 	{ SYS(connect), 3, { ARG_SOCKFD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
@@ -271,6 +320,15 @@ static const syscall_arg_t syscall_args[] = {
 #endif
 #if DEFSYS(creat)
 	{ SYS(creat), 3, { ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, 0, 0, 0 } },
+#endif
+#if DEFSYS(create_module)
+	{ SYS(create_module), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(create_module)
+	{ SYS(delete_module), 2, { ARG_PTR, ARG_FLAG, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(dma_memcpy)
+	/* blackfin, removed in 4.17 */
 #endif
 #if DEFSYS(dup)
 	{ SYS(dup), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
@@ -306,16 +364,29 @@ static const syscall_arg_t syscall_args[] = {
 	{ SYS(eventfd2), 2, { ARG_INT, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(exec)
+	/* too risky for now */
+#endif
+#if DEFSYS(execv)
+	/* too risky for now */
 #endif
 #if DEFSYS(execve)
+	/* too risky for now */
 #endif
 #if DEFSYS(exit)
+	/* exiting the testing child is not a good idea */
 #endif
 #if DEFSYS(exit_group)
+	/* exiting the testing child is not a good idea */
 #endif
 #if DEFSYS(faccessat)
 	{ SYS(faccessat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_MODE, ARG_FLAG, 0, 0 } },
 	{ SYS(faccessat), 4, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_MODE, ARG_FLAG, 0, 0 } },
+#endif
+#if DEFSYS(fadvise64)
+	{ SYS(fadvise64), 4, { ARG_FD, ARG_UINT, ARG_LEN, ARG_INT, 0, 0 } },
+#endif
+#if DEFSYS(fadvise64_64)
+	/* TODO */
 #endif
 #if DEFSYS(fallocate)
 	{ SYS(fallocate), 4, { ARG_FD, ARG_MODE, ARG_INT, ARG_INT, 0, 0 } },
@@ -333,7 +404,7 @@ static const syscall_arg_t syscall_args[] = {
 	{ SYS(fchmod), 2, { ARG_FD, ARG_MODE, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(fchmodat)
-	{ SYS(fchmod), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_MODE, ARG_FLAG, 0, 0 } },
+	{ SYS(fchmodat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_MODE, ARG_FLAG, 0, 0 } },
 #endif
 #if DEFSYS(fchown)
 	// { SYS(fchown), 3, { ARG_FD, 0, 0, 0, 0, 0 } },
@@ -343,6 +414,9 @@ static const syscall_arg_t syscall_args[] = {
 #endif
 #if DEFSYS(fcntl)
 	{ SYS(fcntl), 6, { ARG_FD, ARG_RND, ARG_RND, ARG_RND, ARG_RND, ARG_RND } },
+#endif
+#if DEFSYS(fcntl64)
+	{ SYS(fcntl64), 6, { ARG_FD, ARG_RND, ARG_RND, ARG_RND, ARG_RND, ARG_RND } },
 #endif
 #if DEFSYS(fdatasync)
 	{ SYS(fdatasync), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
@@ -354,16 +428,19 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(finit_module)
 	{ SYS(finit_module), 3, { ARG_PTR, ARG_LEN, ARG_PTR, 0, 0, 0 } },
 #endif
-#if defined(HAVE_FLISTXATTR)
+#if DEFSYS(flistxattr) || defined(HAVE_FLISTXATTR)
+	{ SYS(flistxattr), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
 #if DEFSYS(flock)
 	{ SYS(flock), 2, { ARG_FD, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if defined(HAVE_FREMOVEXATTR)
+#if DEFSYS(fremovexattr) || defined(HAVE_FREMOVEXATTR)
+	{ SYS(fremovexattr), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(fsconfig)
 #endif
-#if defined(HAVE_FSETXATTR)
+#if defined(fsetxattr) || defined(HAVE_FSETXATTR)
+	{ SYS(fsetxattr), 5, { ARG_FD, ARG_PTR, ARG_PTR, ARG_LEN, ARG_FLAG, 0, } },
 #endif
 #if DEFSYS(fsmount)
 #endif
@@ -374,6 +451,14 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(fstat)
 	{ SYS(fstat), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(fstat64)
+#endif
+#if DEFSYS(fstatat)
+	{ SYS(fstatat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
+#endif
+#if DEFSYS(fstatat64)
+	{ SYS(fstatat64), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
+#endif
 #if DEFSYS(fstatfs)
 	{ SYS(fstatfs), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
 #endif
@@ -383,11 +468,18 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(ftruncate)
 	{ SYS(ftruncate), 2, { ARG_FD, ARG_LEN, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(ftruncate64)
+	{ SYS(ftruncate64), 2, { ARG_FD, ARG_LEN, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(futex)
 	{ SYS(futex), 6, { ARG_FUTEX_PTR, ARG_INT, ARG_INT, ARG_FUTEX_PTR, ARG_FUTEX_PTR, ARG_INT } },
 #endif
 #if DEFSYS(futimens)
 	{ SYS(futimens), 4, { ARG_FD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
+#endif
+#if DEFSYS(get_kernel_syms)
+	/* deprecated in 2.6 */
+	{ SYS(get_kernel_syms), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(get_mempolicy)
 	{ SYS(get_mempolicy), 5, { ARG_PTR, ARG_PTR, ARG_UINT, ARG_PTR, ARG_FLAG, 0 } },
@@ -398,25 +490,59 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(get_thread_area)
 	{ SYS(get_thread_area), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(get_tls)
+	/* ARM OABI only */
+#endif
 #if DEFSYS(getcpu)
 	{ SYS(getcpu), 3, { ARG_NON_NULL_PTR, ARG_NON_NULL_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
 #if DEFSYS(getcwd)
 	{ SYS(getcwd), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(getdtablesize)
+	/* SPARC, removed in 2.6.26 */
+#endif
 #if DEFSYS(getdents)
 	{ SYS(getdents), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
+#endif
+#if DEFSYS(getdents64)
+	{ SYS(getdents64), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
 #if DEFSYS(getdomainname)
 	{ SYS(getdomainname), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(getegid)
+	/* { SYS(getegid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(getegid32)
+	/* { SYS(getegid32), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(geteuid)
+	/* { SYS(geteuid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(geteuid32)
+	/* { SYS(geteuid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(getgid)
+	/* { SYS(getgid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(getgid32)
+	/* { SYS(getgid32), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
 #if DEFSYS(getgroups)
 	{ SYS(getgroups), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(getgroups32)
+	{ SYS(getgroups32), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(gethostname)
 	{ SYS(gethostname), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getitimer)
+	{ SYS(getitimer), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(getpagesize)
+	/* { SYS(getpagesize), 0, { 0, 0, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(getpeername)
 	{ SYS(getpeername), 3, { ARG_SOCKFD, ARG_PTR, ARG_PTR, 0, 0, 0 } },
@@ -424,8 +550,14 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(getpgid)
 	{ SYS(getpgid), 1, { ARG_PID, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(getpid)
+	/* { SYS(getpid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(getppid)
+	/* { SYS(getppid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
 #if DEFSYS(getpriority)
-	// static const int args[] = { INT_MIN, -1, INT_MAX, ~0, 0xdeadc0de };
+	{ SYS(getpriority), 2, { ARG_INT, ARG_INT, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getrandom)
 	{ SYS(getrandom), 3, { ARG_PTR, ARG_INT, ARG_FLAG, 0, 0, 0 } },
@@ -433,7 +565,13 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(getresgid)
 	{ SYS(getresgid), 3, { ARG_PTR, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
+#if DEFSYS(getresgid32)
+	{ SYS(getresgid32), 3, { ARG_PTR, ARG_PTR, ARG_PTR, 0, 0, 0 } },
+#endif
 #if DEFSYS(getresuid)
+	{ SYS(getresuid), 3, { ARG_PTR, ARG_PTR, ARG_PTR, 0, 0, 0 } },
+#endif
+#if DEFSYS(getresuid32)
 	{ SYS(getresuid), 3, { ARG_PTR, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
 #if DEFSYS(getrlimit)
@@ -450,6 +588,22 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(getsockname)
 	{ SYS(getsockname), 3, { ARG_SOCKFD, ARG_PTR | ARG_STRUCT_SOCKADDR, ARG_PTR, 0, 0, 0 } },
 #endif
+#if DEFSYS(getsockopt)
+	{ SYS(getsockopt), 5, { ARG_SOCKFD, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, 0 } },
+#endif
+#if DEFSYS(gettid)
+	/* { SYS(gettid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(getuid)
+	/* { SYS(getuid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(getuid32)
+	/* { SYS(getuid32), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(getunwind)
+	/* IA-64-specific, obsolete too */
+	{ SYS(getunwind), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(gettimeofday)
 	{ SYS(gettimeofday), 2, { ARG_NON_NULL_PTR, ARG_NON_NULL_PTR, 0, 0, 0, 0 } },
 #endif
@@ -457,21 +611,42 @@ static const syscall_arg_t syscall_args[] = {
 	{ SYS(getxattr), 4, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_PTR, ARG_LEN, 0, 0 } },
 	{ SYS(getxattr), 4, { ARG_DEVNULL_FILENAME, ARG_PTR, ARG_PTR, ARG_LEN, 0, 0 } },
 #endif
+#if DEFSYS(getxgid)
+	/* Alpha only */
+#endif
+#if DEFSYS(getxpid)
+	/* Alpha only */
+#endif
+#if DEFSYS(getxuid)
+	/* Alpha only */
+#endif
+#if DEFSYS(init_module)
+	{ SYS(init_module), 3, { ARG_PTR, ARG_LEN, ARG_PTR } },
+#endif
 #if DEFSYS(inotify_add_watch)
 	{ SYS(inotify_add_watch), 3, { ARG_FD, ARG_EMPTY_FILENAME, ARG_UINT, 0, 0, 0 } },
 	{ SYS(inotify_add_watch), 3, { ARG_FD, ARG_DEVNULL_FILENAME, ARG_UINT, 0, 0, 0 } },
 #endif
+#if DEFSYS(inotify_init)
+	/* { SYS(inotify_init), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
 #if DEFSYS(inotify_init1)
 	{ SYS(inotify_init1), 3, { ARG_FLAG, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(inotify_rm_watch)
+	{ SYS(inotify_rm_watch), 2, { ARG_FD, ARG_INT, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(io_cancel)
-	{ SYS(io_destroy), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
+	{ SYS(io_cancel), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
 #if DEFSYS(io_destroy)
-	{ SYS(io_cancel), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
+	{ SYS(io_destroy), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(io_getevents)
 	{ SYS(io_getevents), 5, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, 0 } },
+#endif
+#if DEFSYS(io_pgetevents)
+	/* TODO */
 #endif
 #if DEFSYS(io_setup)
 	{ SYS(io_setup), 2, { ARG_UINT, ARG_PTR, 0, 0, 0, 0 } },
@@ -484,6 +659,9 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(io_uring_register)
 #endif
 #if DEFSYS(io_uring_setup)
+#endif
+#if DEFSYS(ioctl)
+	{ SYS(ioctl), 4, { ARG_FD, ARG_UINT, ARG_PTR, ARG_PTR, 0, 0 } },
 #endif
 #if DEFSYS(ioperm)
 	{ SYS(ioperm), 3, { ARG_UINT, ARG_UINT, ARG_INT, 0, 0, 0 } },
@@ -504,21 +682,25 @@ static const syscall_arg_t syscall_args[] = {
 	{ SYS(kcmp), 5, { ARG_PID, ARG_PID, ARG_INT, ARG_UINT, ARG_UINT, 0 } },
 #endif
 #if DEFSYS(kern_features)
+	/* SPARC64 only */
 #endif
 #if DEFSYS(kexec_file_load)
+	/* { SYS(kexec_file_load), 5, { ARG_FD, ARG_FD, ARG_UINT, ARG_PTR, ARG_FLAG, 0 } }, */
 #endif
 #if DEFSYS(kexec_load)
+	/* { SYS(kexec_load), 4, { ARG_UINT, ARG_UINT, ARG_PTR, ARG_FLAG, 0, 0 } }, */
 #endif
 #if DEFSYS(keyctl)
 	{ SYS(keyctl), 6, { ARG_INT, ARG_UINT, ARG_UINT, ARG_UINT, ARG_UINT, ARG_UINT } },
 #endif
-#if DEFSYS(ioctl)
-	{ SYS(ioctl), 4, { ARG_FD, ARG_UINT, ARG_PTR, ARG_PTR, 0, 0 } },
-#endif
 #if DEFSYS(kill)
+	/* { SYS(kill), ARG_PID, ARG_INT, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(lchown)
 	{ SYS(lchown), 3, { ARG_EMPTY_FILENAME, ARG_INT, ARG_INT, 0, 0, 0 } },
+#endif
+#if DEFSYS(lchown32)
+	{ SYS(lchown32), 3, { ARG_EMPTY_FILENAME, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
 #if DEFSYS(link)
 	{ SYS(link), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
@@ -550,11 +732,17 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(lstat)
 	{ SYS(lstat), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(lstat64)
+	{ SYS(lstat64), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(madvise)
 	{ SYS(madvise), 3, { ARG_PTR, ARG_LEN, ARG_INT, 0, 0, 0 } },
 #endif
 #if DEFSYS(mbind)
 	{ SYS(mbind), 6, { ARG_PTR, ARG_UINT, ARG_INT, ARG_PTR, ARG_UINT, ARG_UINT } },
+#endif
+#if DEFSYS(memory_ordering)
+	/* SPARC64 only */
 #endif
 #if DEFSYS(membarrier)
 	{ SYS(membarrier), 2, { ARG_INT, ARG_FLAG, 0, 0, 0, 0 } },
@@ -611,7 +799,7 @@ static const syscall_arg_t syscall_args[] = {
 	{ SYS(mprotect), 3, { ARG_PTR, ARG_LEN, ARG_UINT, 0, 0, 0 } },
 #endif
 #if DEFSYS(mq_close)
-	{ SYS(), mq_close, 1, { ARG_INT, 0, 0, 0, 0, 0 } },
+	{ SYS(mq_close), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(mq_getsetattr)
 	{ SYS(mq_getsetattr), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
@@ -670,11 +858,32 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(nanosleep)
 	{ SYS(nanosleep), 2, { ARG_PTR, ARG_PTR, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(newfstatat)
+	/* TODO */
+#endif
 #if DEFSYS(nfsservctl)
 	{ SYS(nfsservctl), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
 #if DEFSYS(nice)
 	{ SYS(nice), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(old_adjtimex)
+	/* TODO */
+#endif
+#if DEFSYS(old_getrlimit)
+	/* TODO */
+#endif
+#if DEFSYS(oldolduname)
+	/* TODO */
+#endif
+#if DEFSYS(oldstat)
+	/* TODO */
+#endif
+#if DEFSYS(oldumount)
+	/* TODO */
+#endif
+#if DEFSYS(olduname)
+	/* TODO */
 #endif
 #if DEFSYS(open)
 	{ SYS(open), 3, { ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, 0, 0, 0 } },
@@ -682,14 +891,29 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(open_by_handle_at)
 	{ SYS(open_by_handle_at), 3, { ARG_FD, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
 #endif
+#if DEFSYS(open_tree)
+	//{ SYS(open_tree), 1, { 0, 0, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(openat)
 	{ SYS(openat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, 0, 0 } },
 #endif
 #if DEFSYS(openat2)
 	{ SYS(openat2), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0 } },
 #endif
-#if DEFSYS(open_tree)
-	//{ SYS(open_tree), 1, { 0, 0, 0, 0, 0, 0 } },
+#if DEFSYS(or1k_atomic)
+	/* OpenRISC 1000 only */
+#endif
+#if DEFSYS(pause)
+	/* { SYS(pause), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(pciconfig_iobase)
+	/* { SYS(pciconfig_iobase), 3, { ARG_UINT, ARG_UINT, ARG_UINT, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(pciconfig_read)
+	/* { SYS(pciconfig_read), 3, { ARG_UINT, ARG_UINT, ARG_UINT, ARG_LEN, ARG_PTR, 0 } }, */
+#endif
+#if DEFSYS(pciconfig_write)
+	/* { SYS(pciconfig_write), 3, { ARG_UINT, ARG_UINT, ARG_UINT, ARG_LEN, ARG_PTR, 0 } }, */
 #endif
 #if DEFSYS(perf_event_open)
 	{ SYS(perf_event_open), 5, { ARG_PTR, ARG_PID, ARG_INT, ARG_INT, ARG_FLAG, 0 } },
@@ -742,6 +966,9 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(pread)
 	{ SYS(pread), 4, { ARG_FD, ARG_PTR, ARG_LEN, ARG_UINT, 0, 0 } },
 #endif
+#if DEFSYS(pread64)
+	{ SYS(pread64), 4, { ARG_FD, ARG_PTR, ARG_LEN, ARG_UINT, 0, 0 } },
+#endif
 #if DEFSYS(preadv)
 	{ SYS(preadv), 4, { ARG_FD, ARG_PTR, ARG_INT, ARG_UINT, 0, 0 } },
 #endif
@@ -751,14 +978,17 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(prlimit)
 	{ SYS(prlimit), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(prlimit64)
+	{ SYS(prlimit64), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(process_madvise)
 	{ SYS(process_madvise), 6, { ARG_INT, ARG_PID, ARG_PTR, ARG_LEN, ARG_INT, ARG_FLAG } },
 #endif
-#if DEFSYS(vm_readv)
-	{ SYS(vm_readv), 6, { ARG_PID, ARG_PTR, ARG_UINT, ARG_PTR, ARG_UINT, ARG_UINT } },
+#if DEFSYS(process_vm_readv)
+	{ SYS(process_vm_readv), 6, { ARG_PID, ARG_PTR, ARG_UINT, ARG_PTR, ARG_UINT, ARG_UINT } },
 #endif
-#if DEFSYS(vm_writev)
-	{ SYS(vm_writev), 6, { ARG_PID, ARG_PTR, ARG_UINT, ARG_PTR, ARG_UINT, ARG_UINT } },
+#if DEFSYS(process_vm_writev)
+	{ SYS(process_vm_writev), 6, { ARG_PID, ARG_PTR, ARG_UINT, ARG_PTR, ARG_UINT, ARG_UINT } },
 #endif
 #if DEFSYS(pselect)
 	{ SYS(pselect), 6, { ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR, ARG_PTR, ARG_PTR } },
@@ -774,6 +1004,9 @@ static const syscall_arg_t syscall_args[] = {
 #endif
 #if DEFSYS(pwritev2)
 	{ SYS(pwritev2), 4, { ARG_FD, ARG_PTR, ARG_INT, ARG_UINT, ARG_FLAG, 0 } },
+#endif
+#if DEFSYS(query_module)
+	{ SYS(query_module), 5, { ARG_PTR, ARG_INT, ARG_PTR, ARG_LEN, ARG_PTR, 0 } },
 #endif
 #if DEFSYS(quotactl)
 	{ SYS(quotactl), 5, { ARG_INT, ARG_PTR, ARG_INT, ARG_PTR, 0, 0 } },
@@ -865,6 +1098,24 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(rt_tgsigqueueinfo)
 	{ SYS(rt_tgsigqueueinfo), 4, { ARG_PID, ARG_PID, ARG_INT, ARG_PTR, 0, 0 } },
 #endif
+#if DEFSYS(rtas)
+	/* TODO s390x */
+#endif
+#if DEFSYS(s390_runtime_instr)
+	{ SYS(s390_runtime_instr), 2, { ARG_INT, ARG_INT, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(s390_pci_mmio_read)
+	{ SYS(s390_pci_mmio_read), 3, { ARG_UINT, ARG_PTR, ARG_LEN, 0, 0, 0 } },
+#endif
+#if DEFSYS(s390_pci_mmio_write)
+	{ SYS(s390_pci_mmio_write), 3, { ARG_UINT, ARG_PTR, ARG_LEN, 0, 0, 0 } },
+#endif
+#if DEFSYS(s390_sthyi)
+	{ SYS(s390_sthyi), 4, { ARG_UINT, ARG_PTR, ARG_PTR, ARG_FLAG, 0, 0 } },
+#endif
+#if DEFSYS(s390_guarded_storage)
+	{ SYS(s390_guarded_storage), 4, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(sched_get_priority_max)
 	{ SYS(sched_get_priority_max), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
@@ -877,14 +1128,18 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(sched_getattr)
 	{ SYS(sched_getattr), 3, { ARG_PID, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
 #endif
-#if DEFSYS(sched_param)
-	{ SYS(sched_param), 2, { ARG_PID, ARG_PTR, 0, 0, 0, 0 } },
+#if DEFSYS(sched_getparam)
+	{ SYS(sched_getparam), 2, { ARG_PID, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(sched_getscheduler)
 	{ SYS(sched_getscheduler), 1, { ARG_PID, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(sched_get_rr_interval)
 	{ SYS(sched_get_rr_interval), 2, { ARG_PID, ARG_PTR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(sched_set_affinity)
+	/* SPARC & SPARC64 */
+	{ SYS(sched_set_affinity), 3, { ARG_PID, ARG_LEN, ARG_PTR, 0, 0, 0 } },
 #endif
 #if DEFSYS(sched_setaffinity)
 	{ SYS(sched_setaffinity), 3, { ARG_PID, ARG_LEN, ARG_PTR, 0, 0, 0 } },
@@ -945,6 +1200,9 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(sendfile)
 	{ SYS(sendfile), 4, { ARG_FD, ARG_FD, ARG_UINT, ARG_LEN, 0, 0 } },
 #endif
+#if DEFSYS(sendfile64)
+	{ SYS(sendfile64), 4, { ARG_FD, ARG_FD, ARG_UINT, ARG_LEN, 0, 0 } },
+#endif
 #if DEFSYS(sendmmsg)
 	{ SYS(sendmmsg), 4, { ARG_SOCKFD, ARG_PTR, ARG_INT, ARG_FLAG, 0, 0 } },
 #endif
@@ -972,14 +1230,29 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(setfsgid)
 	{ SYS(setfsgid), 1, { ARG_GID, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(setfsgid32)
+	{ SYS(setfsgid32), 1, { ARG_GID, 0, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(setfsuid)
 	{ SYS(setfsuid), 1, { ARG_GID, 0, 0, 0, 0, 0 } },
 #endif
-#if DEFSYS(gid)
+#if DEFSYS(setfsuid32)
+	{ SYS(setfsuid32), 1, { ARG_GID, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(setgid)
 	{ SYS(setgid), 1, { ARG_GID, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(setgid32)
+	{ SYS(setgid32), 1, { ARG_GID, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(setgroups)
 	{ SYS(setgroups), 2, { ARG_LEN, ARG_PTR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(setgroups32)
+	{ SYS(setgroups32), 2, { ARG_LEN, ARG_PTR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(sethae)
+	/* ALPHA only */
 #endif
 #if DEFSYS(sethostname)
 	{ SYS(sethostname), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
@@ -996,20 +1269,36 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(setpgid)
 	{ SYS(setpgid), 2, { ARG_PID, ARG_PID, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(setpgrp)
+	/* ALPHA, alternative to setpgid */
+	{ SYS(setpgrp), 2, { ARG_PID, ARG_PID, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(setpriority)
 	{ SYS(setpriority), 3, { ARG_INT, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
 #if DEFSYS(setregid)
 	{ SYS(setregid), 2, { ARG_GID, ARG_GID, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(setregid32)
+	{ SYS(setregid32), 2, { ARG_GID, ARG_GID, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(setresgid)
 	{ SYS(setresgid), 3, { ARG_GID, ARG_GID, ARG_GID, 0, 0, 0 } },
+#endif
+#if DEFSYS(setresgid32)
+	{ SYS(setresgid32), 3, { ARG_GID, ARG_GID, ARG_GID, 0, 0, 0 } },
 #endif
 #if DEFSYS(setresuid)
 	{ SYS(setresuid), 3, { ARG_UID, ARG_UID, ARG_UID, 0, 0, 0 } },
 #endif
+#if DEFSYS(setresuid32)
+	{ SYS(setresuid32), 3, { ARG_UID, ARG_UID, ARG_UID, 0, 0, 0 } },
+#endif
 #if DEFSYS(setreuid)
 	{ SYS(setreuid), 2, { ARG_UID, ARG_UID, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(setreuid32)
+	{ SYS(setreuid32), 2, { ARG_UID, ARG_UID, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(setrlimit)
 	{ SYS(setrlimit), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
@@ -1025,6 +1314,9 @@ static const syscall_arg_t syscall_args[] = {
 #endif
 #if DEFSYS(setuid)
 	{ SYS(setuid), 1, { ARG_UID, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(setuid32)
+	{ SYS(setuid32), 1, { ARG_UID, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(setxattr)
 	{ SYS(setxattr), 5, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_PTR, ARG_LEN, ARG_FLAG, 0 } },
@@ -1057,7 +1349,10 @@ static const syscall_arg_t syscall_args[] = {
 	{ SYS(signal), 2, { ARG_INT, ARG_NON_NULL_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(signalfd)
-	{ SYS(signalfd), 3, { ARG_FD, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
+	{ SYS(signalfd), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
+#endif
+#if DEFSYS(signalfd4)
+	{ SYS(signalfd4), 3, { ARG_FD, ARG_PTR, ARG_LEN, ARG_FLAG, 0, 0 } },
 #endif
 #if DEFSYS(sigpending)
 	{ SYS(sigpending), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
@@ -1083,8 +1378,26 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(socketpair)
 	{ SYS(socketpair), 4, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, 0, 0 } },
 #endif
+#if DEFSYS(spill)
+	/* Xtensa only */
+#endif
 #if DEFSYS(splice)
 	{ SYS(splice), 6, { ARG_FD, ARG_PTR, ARG_FD, ARG_PTR, ARG_LEN, ARG_FLAG } },
+#endif
+#if DEFSYS(spu_create)
+	/* PowerPC/PowerPC64 only */
+	{ SYS(spu_create), 3, { ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, 0, 0, 0 } },
+	{ SYS(spu_create), 4, { ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, ARG_INT, 0, 0 } },
+#endif
+#if DEFSYS(spu_run)
+	/* PowerPC/PowerPC64 only */
+	{ SYS(spu_run), 3, { ARG_FD, ARG_PTR, ARG_PTR, 0, 0, 0 } },
+#endif
+#if DEFSYS(sram_alloc)
+	/* Blackfin, remove 4.17 */
+#endif
+#if DEFSYS(sram_free)
+	/* Blackfin, remove 4.17 */
 #endif
 #if DEFSYS(ssetmask)
 	{ SYS(ssetmask), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
@@ -1092,14 +1405,30 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(stat)
 	{ SYS(stat), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(stat64)
+	{ SYS(stat64), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(statfs)
 	{ SYS(statfs), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(statfs64)
+	{ SYS(statfs64), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(statx)
 	{ SYS(statx), 5, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_FLAG, ARG_UINT, ARG_PTR, 0 } },
 #endif
 #if DEFSYS(stime)
 	{ SYS(stime), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(subpage_prot)
+	/* PowerPC/PowerPC64 only */
+	{ SYS(subpage_prot), 3, { ARG_UINT, ARG_LEN, ARG_PTR, 0, 0, 0 } },
+#endif
+#if DEFSYS(swapcontext)
+	/* PowerPC/PowerPC64 only, TODO */
+#endif
+#if DEFSYS(switch_endian)
+	/* PowerPC/PowerPC64 only, TODO */
 #endif
 #if DEFSYS(swapon)
 	{ SYS(swapon), 2, { ARG_EMPTY_FILENAME, ARG_INT, 0, 0, 0, 0 } },
@@ -1136,11 +1465,14 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(syslog)
 	{ SYS(syslog), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
 #endif
+#if DEFSYS(sysmips)
+	/* ARM OABI and MIPS O32 ABI, TODO */
+#endif
 #if DEFSYS(tee)
 	{ SYS(tee), 4, { ARG_FD, ARG_FD, ARG_LEN, ARG_FLAG, 0, 0 } },
 #endif
 #if DEFSYS(tgkill)
-	//{ SYS(tgkill), 3, { ARG_PID, ARG_PID, ARG_INT, 0, 0, 0 } },
+	/* { SYS(tgkill), 3, { ARG_PID, ARG_PID, ARG_INT, 0, 0, 0 } },*/
 #endif
 #if DEFSYS(time)
 	{ SYS(time), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
@@ -1160,20 +1492,38 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(timer_settime)
 	{ SYS(timer_settime), 4, { ARG_UINT, ARG_FLAG, ARG_PTR, ARG_PTR, 0, 0 } },
 #endif
+#if DEFSYS(timerfd_create)
+	{ SYS(timerfd_create), 2, { ARG_CLOCKID_T, ARG_FLAG, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(timerfd_gettime)
+	{ SYS(timerfd_gettime), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(timerfd_settime)
+	{ SYS(timer_settime), 4, { ARG_FD, ARG_FLAG, ARG_PTR, ARG_PTR, 0, 0 } },
+#endif
 #if DEFSYS(times)
 	{ SYS(times), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(tkill)
-	//{ SYS(tkill), 2, { ARG_PID, ARG_INT, 0, 0, 0, 0 } },
+	/* { SYS(tkill), 2, { ARG_PID, ARG_INT, 0, 0, 0, 0 }, */
 #endif
 #if DEFSYS(truncate)
 	{ SYS(truncate), 2, { ARG_EMPTY_FILENAME, ARG_LEN, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(truncate64)
+	{ SYS(truncate64), 2, { ARG_EMPTY_FILENAME, ARG_LEN, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(ugetrlimit)
+	/* TODO */
 #endif
 #if DEFSYS(umask)
 	{ SYS(umask), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(umount)
 	{ SYS(umount), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(umount2)
+	/* TODO */
 #endif
 #if DEFSYS(uname)
 	{ SYS(uname), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
@@ -1193,11 +1543,27 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(userfaultfd)
 	{ SYS(userfaultfd), 1, { ARG_FLAG, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(usr26)
+	/* ARM OABI only */
+#endif
 #if DEFSYS(ustat)
 	{ SYS(ustat), 2, { ARG_UINT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(utime)
+	{ SYS(utime), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(utimensat)
 	{ SYS(utimensat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
+#endif
+#if DEFSYS(utimes)
+	{ SYS(utimes), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(utrap_install)
+	/* SPARC64 */
+#endif
+#if DEFSYS(vm86old)
+#endif
+#if DEFSYS(vm86)
 #endif
 #if DEFSYS(vmsplice)
 	{ SYS(vmsplice), 4, { ARG_FD, ARG_PTR, ARG_UINT, ARG_FLAG, 0, 0 } },
@@ -1222,6 +1588,9 @@ static const syscall_arg_t syscall_args[] = {
 #endif
 #if DEFSYS(writev)
 	{ SYS(writev), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
+#endif
+#if DEFSYS(xtensa)
+	/* xtensa only */
 #endif
 };
 
