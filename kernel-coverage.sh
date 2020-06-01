@@ -58,7 +58,7 @@ DURATION=60
 
 do_stress --all 1
 
-DURATION=30
+DURATION=60
 do_stress --cpu 0 --taskset 0,2 --ignite-cpu
 do_stress --cpu 0 --taskset 1,2,3
 do_stress --cpu 0 --taskset 0,1,2 --thrash
@@ -183,18 +183,28 @@ do
 	do_stress --${S} 0
 done
 
-if [ -e $PERF_PARANOID ]; then
-	(echo $paranoid_saved | sudo tee $PERF_PARANOID) > /dev/null
-fi
+SWP=/tmp/swap.img
+dd if=/dev/zero of=$SWP bs=1M count=1024
+chmod 0600 $SWP
+sudo chown root:root $SWP
+sudo mkswap $SWP
+sudo swapon $SWP
 
 #
 #  Quick spin through all the classes of stressors with ftrace enabled
 # 
-DURATION=1
+DURATION=5
 for CLASS in cpu-cache cpu device filesystem interrupt io memory network os pipe scheduler security vm
 do
-	sudo $STRESS_NG --class $CLASS --ftrace --seq 1 -v --timestamp --syslog -t $DURATION
+	sudo $STRESS_NG --class $CLASS --ftrace --seq 0 -v --timestamp --syslog -t $DURATION
 done
+
+sudo swapoff $SWP
+sudo rm $SWP
+
+if [ -e $PERF_PARANOID ]; then
+	(echo $paranoid_saved | sudo tee $PERF_PARANOID) > /dev/null
+fi
 
 sudo lcov -c -o kernel.info
 sudo genhtml -o html kernel.info
