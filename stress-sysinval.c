@@ -1358,7 +1358,7 @@ static const syscall_arg_t syscall_args[] = {
 	{ SYS(sigpending), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(sigreturn)
-	{ SYS(sigreturn), 4, { ARG_PTR, ARG_PTR, ARG_PTR, ARG_PTR, 0, 0 } },
+	/* { SYS(sigreturn), 4, { ARG_PTR, ARG_PTR, ARG_PTR, ARG_PTR, 0, 0 } }, */
 #endif
 #if DEFSYS(sigsuspend)
 	{ SYS(sigsuspend), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
