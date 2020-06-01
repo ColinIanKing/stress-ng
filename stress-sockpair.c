@@ -161,7 +161,7 @@ abort:
 				socket_pair_memset(buf, val++, sizeof(buf));
 				ret = write(socket_pair_fds[i][1], buf, sizeof(buf));
 				if (ret <= 0) {
-					if ((errno == EAGAIN) || (errno == EINTR))
+					if ((errno == EAGAIN) || (errno == EINTR) || (errno == EPIPE))
 						continue;
 					if (errno) {
 						pr_fail("%s: write failed, errno=%d (%s)\n",
