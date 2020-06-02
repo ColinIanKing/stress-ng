@@ -470,10 +470,14 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(fstatat)
 	{ SYS(fstatat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
 	{ SYS(fstatat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR_WR, ARG_FLAG, 0, 0 } },
+	{ SYS(fstatat), 4, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
+	{ SYS(fstatat), 4, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_PTR_WR, ARG_FLAG, 0, 0 } },
 #endif
 #if DEFSYS(fstatat64)
 	{ SYS(fstatat64), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
 	{ SYS(fstatat64), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR_WR, ARG_FLAG, 0, 0 } },
+	{ SYS(fstatat64), 4, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
+	{ SYS(fstatat64), 4, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_PTR_WR, ARG_FLAG, 0, 0 } },
 #endif
 #if DEFSYS(fstatfs)
 	{ SYS(fstatfs), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
@@ -761,10 +765,16 @@ static const syscall_arg_t syscall_args[] = {
 	{ SYS(listen), 2, { ARG_SOCKFD, ARG_INT, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(listxattr)
+	{ SYS(listxattr), 3, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 	{ SYS(listxattr), 3, { ARG_EMPTY_FILENAME, ARG_PTR_WR, ARG_LEN, 0, 0, 0 } },
+	{ SYS(listxattr), 3, { ARG_DEVNULL_FILENAME, ARG_PTR, ARG_LEN, 0, 0, 0 } },
+	{ SYS(listxattr), 3, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, ARG_LEN, 0, 0, 0 } },
 #endif
 #if DEFSYS(llistxattr)
 	{ SYS(llistxattr), 3, { ARG_EMPTY_FILENAME, ARG_PTR_WR, ARG_LEN, 0, 0, 0 } },
+	{ SYS(llistxattr), 3, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0, 0 } },
+	{ SYS(llistxattr), 3, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, ARG_LEN, 0, 0, 0 } },
+	{ SYS(llistxattr), 3, { ARG_DEVNULL_FILENAME, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
 #if DEFSYS(lookup_dcookie)
 	{ SYS(lookup_dcookie), 3, { ARG_UINT, ARG_PTR, ARG_LEN, 0, 0, 0 } },
@@ -782,10 +792,14 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(lstat)
 	{ SYS(lstat), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(lstat), 2, { ARG_EMPTY_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
+	{ SYS(lstat), 2, { ARG_DEVNULL_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(lstat), 2, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(lstat64)
 	{ SYS(lstat64), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(lstat64), 2, { ARG_EMPTY_FILENAME, ARG_PTR__WR, 0, 0, 0, 0 } },
+	{ SYS(lstat64), 2, { ARG_DEVNULL_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(lstat64), 2, { ARG_DEVNULL_FILENAME, ARG_PTR__WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(madvise)
 	{ SYS(madvise), 3, { ARG_PTR, ARG_LEN, ARG_INT, 0, 0, 0 } },
@@ -863,6 +877,7 @@ static const syscall_arg_t syscall_args[] = {
 #endif
 #if DEFSYS(mq_open)
 	{ SYS(mq_open), 4, { ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, ARG_PTR, 0, 0 } },
+	{ SYS(mq_open), 4, { ARG_DEVNULL_FILENAME, ARG_FLAG, ARG_MODE, ARG_PTR, 0, 0 } },
 #endif
 #if DEFSYS(mq_receive)
 	{ SYS(mq_receive), 4, { ARG_INT, ARG_PTR, ARG_LEN, ARG_INT, 0, 0 } },
@@ -997,6 +1012,9 @@ static const syscall_arg_t syscall_args[] = {
 #endif
 #if DEFSYS(pivot_root)
 	{ SYS(pivot_root), 2, { ARG_EMPTY_FILENAME, ARG_EMPTY_FILENAME, 0, 0, 0, 0 } },
+	{ SYS(pivot_root), 2, { ARG_DEVNULL_FILENAME, ARG_EMPTY_FILENAME, 0, 0, 0, 0 } },
+	{ SYS(pivot_root), 2, { ARG_EMPTY_FILENAME, ARG_DEVNULL_FILENAME, 0, 0, 0, 0 } },
+	{ SYS(pivot_root), 2, { ARG_DEVNULL_FILENAME, ARG_DEVNULL_FILENAME, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(pkey_alloc)
 	{ SYS(pkey_alloc), 2, { ARG_FLAG, ARG_UINT, 0, 0, 0, 0 } },
@@ -1098,10 +1116,14 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(readlink)
 	{ SYS(readlink), 3, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 	{ SYS(readlink), 3, { ARG_EMPTY_FILENAME, ARG_PTR_WR, ARG_LEN, 0, 0, 0 } },
+	{ SYS(readlink), 3, { ARG_DEVNULL_FILENAME, ARG_PTR, ARG_LEN, 0, 0, 0 } },
+	{ SYS(readlink), 3, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, ARG_LEN, 0, 0, 0 } },
 #endif
 #if DEFSYS(readlinkat)
 	{ SYS(readlinkat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0 } },
 	{ SYS(readlinkat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR_WR, ARG_LEN, 0, 0 } },
+	{ SYS(readlinkat), 4, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_PTR, ARG_LEN, 0, 0 } },
+	{ SYS(readlinkat), 4, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_PTR_WR, ARG_LEN, 0, 0 } },
 #endif
 #if DEFSYS(readv)
 	{ SYS(readv), 3, { ARG_FD, ARG_PTR, ARG_INT, 0, 0, 0 } },
@@ -1491,22 +1513,32 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(stat)
 	{ SYS(stat), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(stat), 2, { ARG_EMPTY_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
+	{ SYS(stat), 2, { ARG_DEVNULL_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(stat), 2, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(stat64)
 	{ SYS(stat64), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(stat64), 2, { ARG_EMPTY_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
+	{ SYS(stat64), 2, { ARG_DEVNULL_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(stat64), 2, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(statfs)
 	{ SYS(statfs), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(statfs), 2, { ARG_EMPTY_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
+	{ SYS(statfs), 2, { ARG_DEVNULL_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(statfs), 2, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(statfs64)
 	{ SYS(statfs64), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(statfs64), 2, { ARG_EMPTY_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
+	{ SYS(statfs64), 2, { ARG_DEVNULL_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(statfs64), 2, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(statx)
 	{ SYS(statx), 5, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_FLAG, ARG_UINT, ARG_PTR, 0 } },
 	{ SYS(statx), 5, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_FLAG, ARG_UINT, ARG_PTR_WR, 0 } },
+	{ SYS(statx), 5, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_FLAG, ARG_UINT, ARG_PTR, 0 } },
+	{ SYS(statx), 5, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_FLAG, ARG_UINT, ARG_PTR_WR, 0 } },
 #endif
 #if DEFSYS(stime)
 	{ SYS(stime), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
@@ -1619,6 +1651,7 @@ static const syscall_arg_t syscall_args[] = {
 #endif
 #if DEFSYS(umount)
 	{ SYS(umount), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
+	{ SYS(umount), 1, { ARG_DEVNULL_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(umount2)
 	/* TODO */
@@ -1638,6 +1671,7 @@ static const syscall_arg_t syscall_args[] = {
 #endif
 #if DEFSYS(uselib)
 	{ SYS(uselib), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
+	{ SYS(uselib), 1, { ARG_DEVNULL_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(userfaultfd)
 	{ SYS(userfaultfd), 1, { ARG_FLAG, 0, 0, 0, 0, 0 } },
