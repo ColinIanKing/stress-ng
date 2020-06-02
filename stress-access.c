@@ -132,8 +132,17 @@ static int stress_access(const stress_args_t *args)
 			}
 #if defined(HAVE_FACCESSAT)
 			ret = faccessat(AT_FDCWD, filename, modes[i].access_mode, 0);
-			if (ret < 0) {
+			if ((ret < 0) && (errno != ENOSYS)) {
 				pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed: %d (%s)\n",
+					args->name,
+					modes[i].access_mode, (unsigned int)modes[i].chmod_mode,
+					errno, strerror(errno));
+			}
+#endif
+#if defined(HAVE_FACCESSAT2) && defined(AT_SYMLINK_NOFOLLOW)
+			ret = faccessat2(AT_FDCWD, filename, modes[i].access_mode, AT_SYMLINK_NOFOLLOW);
+			if ((ret < 0) && (errno != ENOSYS)) {
+				pr_fail("%s: faccessat2 %3.3o on chmod mode %3.3o failed: %d (%s)\n",
 					args->name,
 					modes[i].access_mode, (unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno));
