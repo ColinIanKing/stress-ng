@@ -101,7 +101,7 @@ static inline long x86_64_syscall6(long number, long arg1, long arg2,
 			  "r" (__arg4), "r" (__arg5), "r" (__arg6)
 			: "memory", "cc", "r11", "cx");
 	if (ret < 0) {
-		errno = ret;
+		errno = -ret;
 		ret = -1;
 	}
 	return ret;
