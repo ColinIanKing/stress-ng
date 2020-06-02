@@ -1737,7 +1737,7 @@ static const syscall_arg_t syscall_args[] = {
  *  running context shared between parent and child
  *  this allows us to have enough data about a system call that
  *  caused the child to crash. Also contains running stats
- *  of the number of system calls made. Must be 1 page or smaller
+ *  of the number of system calls made.
  */
 typedef struct {
 	uint64_t hash;
