@@ -797,9 +797,9 @@ static const syscall_arg_t syscall_args[] = {
 #endif
 #if DEFSYS(lstat64)
 	{ SYS(lstat64), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
-	{ SYS(lstat64), 2, { ARG_EMPTY_FILENAME, ARG_PTR__WR, 0, 0, 0, 0 } },
+	{ SYS(lstat64), 2, { ARG_EMPTY_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
 	{ SYS(lstat64), 2, { ARG_DEVNULL_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
-	{ SYS(lstat64), 2, { ARG_DEVNULL_FILENAME, ARG_PTR__WR, 0, 0, 0, 0 } },
+	{ SYS(lstat64), 2, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(madvise)
 	{ SYS(madvise), 3, { ARG_PTR, ARG_LEN, ARG_INT, 0, 0, 0 } },
