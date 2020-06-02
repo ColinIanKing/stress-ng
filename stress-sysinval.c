@@ -1627,7 +1627,7 @@ static void func_exit(void)
 static unsigned long none_values[] = { 0 };
 static unsigned long mode_values[] = { -1, INT_MAX, INT_MIN, ~(long)0, 1ULL << 20 };
 static long sockfds[] = { /* sockfd */ 0, 0, -1, INT_MAX, INT_MIN, ~(long)0 };
-static long fds[] = { -1, INT_MAX, INT_MIN, ~(long)0 };
+static long fds[] = { /* fd */ 0, -1, INT_MAX, INT_MIN, ~(long)0 };
 static long dirfds[] = { -1, AT_FDCWD, INT_MIN, ~(long)0 };
 static long clockids[] = { -1, INT_MAX, INT_MIN, ~(long)0, SHR_UL(0xfe23ULL, 18) };
 static long sockaddrs[] = { /*small_ptr*/ 0, /*page_ptr*/ 0, 0, -1, INT_MAX, INT_MIN };
@@ -2039,8 +2039,23 @@ static int stress_sysinval(const stress_args_t *args)
 	const size_t current_context_size =
 		(sizeof(*current_context) + page_size) & ~(page_size - 1);
 	size_t small_ptr_size = page_size << 1;
+	char filename[PATH_MAX];
 
 	sockfds[0] = socket(AF_UNIX, SOCK_STREAM, 0);
+
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0)
+		return exit_status(-ret);
+
+	(void)stress_temp_filename_args(args,
+		filename, sizeof(filename), stress_mwc32());
+	fds[0] = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (fds[0] < 0) {
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		goto err_dir;
+	}
+	(void)unlink(filename);
 
 	current_context = (syscall_current_context_t*)
 		mmap(NULL, current_context_size, PROT_READ | PROT_WRITE,
@@ -2103,6 +2118,10 @@ static int stress_sysinval(const stress_args_t *args)
 	if (sockfds[0] >= 0)
 		(void)close(sockfds[0]);
 
+	if (fds[0] >= 0)
+		(void)close(fds[0]);
+err_dir:
+	(void)stress_temp_dir_rm_args(args);
 	hash_table_free();
 
 	return ret;
