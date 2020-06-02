@@ -2266,13 +2266,13 @@ static int stress_sysinval(const stress_args_t *args)
 	futex_ptrs[1] = (long)page_ptr;
 
 	if (args->instance == 0)
-		pr_dbg("%s: exercising %zd system calls\n", args->name, SIZEOF_ARRAY(syscall_args));
+		pr_dbg("%s: exercising %zd syscall test patterns\n", args->name, SIZEOF_ARRAY(syscall_args));
 
 	ret = stress_oomable_child(args, NULL, stress_sysinval_child, STRESS_OOMABLE_DROP_CAP);
 
-	pr_dbg("%s: %" PRIu64 " unique syscalls patterns causing child termination\n",
+	pr_dbg("%s: %" PRIu64 " unique syscalls argument combinations causing premature child termination\n",
 		args->name, current_context->skip_crashed);
-	pr_dbg("%s: %" PRIu64 " unique syscall patterns not failing\n",
+	pr_dbg("%s: %" PRIu64 " unique syscall patterns not failing and are ignored\n",
 		args->name, current_context->skip_errno_zero);
 
 	set_counter(args, current_context->counter);
