@@ -124,7 +124,7 @@ static int stress_urandom(const stress_args_t *args)
 		}
 
 		/*
-		 * Fetch entropy pool count, not considered fatal
+		 * Fetch entropy pool count, not considered fatal if
 		 * this fails, just skip this part of the stressor
 		 */
 		if (fd_rnd >= 0) {
@@ -157,7 +157,7 @@ next:
 				/*
 				 *  Exercise the following ioctl's
 				 *  that require CAP_SYS_ADMIN capability
-				 *  and hence thse should return -EPERM.
+				 *  and hence these should return -EPERM.
 				 *  We don't want to exericse this with
 				 *  the capability since we don't want to
 				 *  damage the entropy pool.
