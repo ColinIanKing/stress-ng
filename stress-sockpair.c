@@ -192,60 +192,7 @@ abort:
  */
 static int stress_sockpair(const stress_args_t *args)
 {
-	pid_t pid;
-	uint32_t restarts = 0;
-
-again:
-	pid = fork();
-	if (pid < 0) {
-		if (keep_stressing_flag() && (errno == EAGAIN))
-			goto again;
-	} else if (pid > 0) {
-		int status, ret;
-
-		stress_set_oom_adjustment(args->name, false);
-
-		/* Parent, wait for child */
-		(void)setpgid(pid, g_pgrp);
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				stress_log_system_mem_info();
-				pr_dbg("%s: assuming killed by OOM killer, "
-					"restarting again (instance %d)\n",
-					args->name, args->instance);
-				restarts++;
-				goto again;
-			}
-		}
-	 } else if (pid == 0) {
-		/* Child, lets do some sockpair stressing... */
-		int ret;
-
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-		stress_set_oom_adjustment(args->name, true);
-
-		ret = stress_sockpair_oomable(args);
-		_exit(ret);
-	}
-
-	if (restarts > 0) {
-		pr_dbg("%s: OOM restarts: %" PRIu32 "\n",
-			args->name, restarts);
-	}
-	return EXIT_SUCCESS;
+	return stress_sockpair_oomable(args);
 }
 
 stressor_info_t stress_sockpair_info = {
