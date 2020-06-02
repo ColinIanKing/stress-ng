@@ -812,7 +812,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 #endif
 	bad_getgroups,
 	bad_get_mempolicy,
+#if defined(HAVE_GETHOSTNAME)
 	bad_gethostname,
+#endif
 	bad_getitimer,
 	bad_getpeername,
 	bad_getrandom,
