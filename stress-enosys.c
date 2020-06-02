@@ -50,7 +50,7 @@ static const stress_help_t help[] = {
 
 typedef struct hash_syscall {
 	struct hash_syscall *next;
-	long	number;
+	unsigned long	number;
 } stress_hash_syscall_t;
 
 static stress_hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
@@ -194,7 +194,7 @@ static const int syscall_ignore[] = {
 #endif
 };
 
-static inline bool HOT OPTIMIZE3 syscall_find(long number)
+static inline bool HOT OPTIMIZE3 syscall_find(unsigned long number)
 {
 	register stress_hash_syscall_t *h;
 	register int i;
@@ -215,7 +215,7 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 	return false;
 }
 
-static inline void HOT OPTIMIZE3 syscall_add(long number)
+static inline void HOT OPTIMIZE3 syscall_add(unsigned long number)
 {
 	const long hash = number % HASH_SYSCALL_SIZE;
 	stress_hash_syscall_t *newh, *h = hash_syscall_table[hash];
