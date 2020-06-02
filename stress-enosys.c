@@ -174,6 +174,12 @@ static const int syscall_ignore[] = {
 #if defined(__NR_clone2)
 	__NR_clone2,
 #endif
+#if defined(SYS_clone3)
+	SYS_clone3,
+#endif
+#if defined(__NR_clone3)
+	__NR_clone3,
+#endif
 #if defined(SYS_fork)
 	SYS_fork,
 #endif
@@ -371,6 +377,9 @@ static const long skip_syscalls[] = {
 #if defined(SYS_clone2)
 	SYS_clone2,
 #endif
+#if defined(SYS_clone3)
+	SYS_clone3,
+#endif
 #if defined(SYS_close)
 	SYS_close,
 #endif
@@ -500,8 +509,20 @@ static const long skip_syscalls[] = {
 #if defined(SYS_fremovexattr)
 	SYS_fremovexattr,
 #endif
+#if defined(SYS_fsconfig)
+	SYS_fsconfig,
+#endif
 #if defined(SYS_fsetxattr)
 	SYS_fsetxattr,
+#endif
+#if defined(SYS_fsmount)
+	SYS_fsmount,
+#endif
+#if defined(SYS_fsopen)
+	SYS_fsopen,
+#endif
+#if defined(SYS_fspick)
+	SYS_fspick,
 #endif
 #if defined(SYS_fstat)
 	SYS_fstat,
@@ -707,6 +728,15 @@ static const long skip_syscalls[] = {
 #if defined(SYS_io_submit)
 	SYS_io_submit,
 #endif
+#if defined(SYS_io_uring_enter)
+	SYS_io_uring_enter,
+#endif
+#if defined(SYS_io_uring_register)
+	SYS_io_uring_register,
+#endif
+#if defined(SYS_io_uring_setup)
+	SYS_io_uring_setup,
+#endif
 #if defined(SYS_ipc)
 	SYS_ipc,
 #endif
@@ -824,6 +854,9 @@ static const long skip_syscalls[] = {
 #if defined(SYS_mount)
 	SYS_mount,
 #endif
+#if defined(SYS_move_mount)
+	SYS_move_mount,
+#endif
 #if defined(SYS_move_pages)
 	SYS_move_pages,
 #endif
@@ -920,6 +953,9 @@ static const long skip_syscalls[] = {
 #if defined(SYS_open_by_handle_at)
 	SYS_open_by_handle_at,
 #endif
+#if defined(SYS_open_tree)
+	SYS_open_tree,
+#endif
 #if defined(SYS_pause)
 	SYS_pause,
 #endif
@@ -928,6 +964,12 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(SYS_personality)
 	SYS_personality,
+#endif
+#if defined(SYS_pidfd_open)
+	SYS_pidfd_open,
+#endif
+#if defined(SYS_pidfd_send_signal)
+	SYS_pidfd_send_signal,
 #endif
 #if defined(SYS_pipe)
 	SYS_pipe,
@@ -1108,6 +1150,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(SYS_sched_getscheduler)
 	SYS_sched_getscheduler,
+#endif
+#if defined(SYS_sched_rr_get_interval)
+	SYS_sched_rr_get_interval,
 #endif
 #if defined(SYS_sched_rr_stress_get_interval)
 	SYS_sched_rr_stress_get_interval,
@@ -1630,6 +1675,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_clone2)
 	__NR_clone2,
 #endif
+#if defined(__NR_clone3)
+	__NR_clone3,
+#endif
 #if defined(__NR_close)
 	__NR_close,
 #endif
@@ -1804,8 +1852,20 @@ static const long skip_syscalls[] = {
 #if defined(__NR_fremovexattr)
 	__NR_fremovexattr,
 #endif
+#if defined(__NR_fsconfig)
+	__NR_fsconfig,
+#endif
 #if defined(__NR_fsetxattr)
 	__NR_fsetxattr,
+#endif
+#if defined(__NR_fsmount)
+	__NR_fsmount,
+#endif
+#if defined(__NR_fsopen)
+	__NR_fsopen,
+#endif
+#if defined(__NR_fspick)
+	__NR_fspick,
 #endif
 #if defined(__NR_fstat)
 	__NR_fstat,
@@ -2035,6 +2095,15 @@ static const long skip_syscalls[] = {
 #if defined(__NR_io_submit)
 	__NR_io_submit,
 #endif
+#if defined(__NR_io_uring_enter)
+	__NR_io_uring_enter,
+#endif
+#if defined(__NR_io_uring_register)
+	__NR_io_uring_register,
+#endif
+#if defined(__NR_io_uring_setup)
+	__NR_io_uring_setup,
+#endif
 #if defined(__NR_ipc)
 	__NR_ipc,
 #endif
@@ -2185,6 +2254,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_mount)
 	__NR_mount,
 #endif
+#if defined(__NR_move_mount)
+	__NR_move_mount,
+#endif
 #if defined(__NR_move_pages)
 	__NR_move_pages,
 #endif
@@ -2323,6 +2395,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_open_by_handle_at)
 	__NR_open_by_handle_at,
 #endif
+#if defined(__NR_open_tree)
+	__NR_open_tree,
+#endif
 #if defined(__NR_or1k_atomic)
 	__NR_or1k_atomic,
 #endif
@@ -2349,6 +2424,12 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_personality)
 	__NR_personality,
+#endif
+#if defined(__NR_pidfd_open)
+	__NR_pidfd_open,
+#endif
+#if defined(__NR_pidfd_send_signal)
+	__NR_pidfd_send_signal,
 #endif
 #if defined(__NR_pipe)
 	__NR_pipe,
@@ -2583,6 +2664,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_sched_getscheduler)
 	__NR_sched_getscheduler,
+#endif
+#if defined(__NR_sched_rr_get_interval)
+	__NR_sched_rr_get_interval,
 #endif
 #if defined(__NR_sched_rr_stress_get_interval)
 	__NR_sched_rr_stress_get_interval,
