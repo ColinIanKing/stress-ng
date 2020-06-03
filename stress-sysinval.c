@@ -38,8 +38,10 @@ static const stress_help_t help[] = {
 #define SYSCALL_FAIL		(0x00)	/* Expected behaviour */
 #define	SYSCALL_CRASH		(0x01)	/* Syscalls that crash the child */
 #define SYSCALL_ERRNO_ZERO	(0x02)	/* Syscalls that return 0 */
+#define SYSCALL_TIMED_OUT	(0x03)	/* Syscalls that time out */
 
 #define MAX_CRASHES		(10)
+#define SYSCALL_TIMEOUT_USEC	(10000)	/* Timeout syscalls duration */
 
 /*
  *  tuple of system call number and stringified system call
@@ -308,13 +310,13 @@ static const syscall_arg_t syscall_args[] = {
 	{ SYS(clock_settime), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(clone)
-	{ SYS(clone), 6, { ARG_FUNC_PTR, ARG_PTR, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
+	/* { SYS(clone), 6, { ARG_FUNC_PTR, ARG_PTR, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } }, */
 #endif
 #if DEFSYS(clone2)
 	/* IA-64 only */
 #endif
 #if DEFSYS(clone3)
-	{ SYS(clone3), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
+	/* { SYS(clone3), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(close)
 	{ SYS(close), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
@@ -1753,6 +1755,7 @@ typedef struct {
 	int64_t counter;
 	uint64_t skip_crashed;
 	uint64_t skip_errno_zero;
+	uint64_t skip_timed_out;
 	uint64_t crash_count[SIZEOF_ARRAY(syscall_args)];
 	unsigned long args[6];
 	unsigned char filler[4096];
@@ -1910,6 +1913,15 @@ static void hash_table_free(void)
 	}
 }
 
+static void MLOCKED_TEXT stress_syscall_itimer_handler(int sig)
+{
+	(void)sig;
+
+	if (current_context) {
+		current_context->type = SYSCALL_TIMED_OUT;
+	}
+}
+
 /*
  *  syscall_permute()
  *	recursively permute all possible system call invalid arguments
@@ -1937,6 +1949,7 @@ static void syscall_permute(
 		const unsigned long syscall_num = syscall_arg->syscall;
 		const unsigned long hash = stress_syscall_hash(syscall_num, current_context->args);
 		syscall_arg_hash_t *h = hash_table[hash];
+		struct itimerval it;
 
 		while (h) {
 			if (!memcmp(h->args, current_context->args, sizeof(h->args))) {
@@ -1946,6 +1959,9 @@ static void syscall_permute(
 					break;
 				case SYSCALL_ERRNO_ZERO:
 					current_context->skip_errno_zero++;
+					break;
+				case SYSCALL_TIMED_OUT:
+					current_context->skip_timed_out++;
 					break;
 				default:
 					break;
@@ -1960,6 +1976,16 @@ static void syscall_permute(
 		current_context->hash = hash;
 		current_context->type = SYSCALL_CRASH;	/* Assume it will crash */
 
+		/*
+		 * Force abort if we take too long
+		 */
+		it.it_interval.tv_sec = 0;
+		it.it_interval.tv_usec = SYSCALL_TIMEOUT_USEC;
+		it.it_value.tv_sec = 0;
+		it.it_value.tv_usec = SYSCALL_TIMEOUT_USEC;
+		ret = setitimer(ITIMER_REAL, &it, NULL);
+		(void)ret;
+
 		ret = syscall(syscall_num,
 			current_context->args[0],
 			current_context->args[1],
@@ -1967,12 +1993,19 @@ static void syscall_permute(
 			current_context->args[3],
 			current_context->args[4],
 			current_context->args[5]);
-		/*
-		 *  For this child we remember syscalls that don't fail
-		 *  so we don't retry them
-		 */
-		if (ret == 0)
+
+		if (current_context->type == SYSCALL_TIMED_OUT) {
+			/*
+			 *  Remember syscalls that block for too long so we don't retry them
+			 */
+			hash_table_add(hash, syscall_num, current_context->args, SYSCALL_TIMED_OUT);
+		} else if (ret == 0) {
+			/*
+			 *  For this child we remember syscalls that don't fail
+			 *  so we don't retry them
+			 */
 			hash_table_add(hash, syscall_num, current_context->args, SYSCALL_ERRNO_ZERO);
+		}
 		current_context->type = SYSCALL_FAIL;	/* it just failed */
 		return;
 	}
@@ -2066,6 +2099,9 @@ static inline int stress_do_syscall(const stress_args_t *args)
 				_exit(EXIT_FAILURE);
 		}
 
+		if (stress_sighandler(args->name, SIGALRM, stress_syscall_itimer_handler, NULL) < 0)
+			_exit(EXIT_FAILURE);
+
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		stress_mwc_reseed();
@@ -2088,7 +2124,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 					for (i = 0; i < SIZEOF_ARRAY(reorder); i++) {
 						register size_t tmp;
 						register size_t j = (sz == 0) ? 0 : stress_mwc32() % sz;
-	
+
 						tmp = reorder[i];
 						reorder[i] = reorder[j];
 						reorder[j] = tmp;
@@ -2099,8 +2135,6 @@ static inline int stress_do_syscall(const stress_args_t *args)
 			for (i = 0; keep_stressing() && (i < SIZEOF_ARRAY(syscall_args)); i++) {
 				size_t idx;
 				const size_t j = reorder[i];
-				struct itimerval it;
-
 
 				(void)memset(current_context->args, 0, sizeof(current_context->args));
 				current_context->syscall = syscall_args[j].syscall;
@@ -2111,18 +2145,6 @@ static inline int stress_do_syscall(const stress_args_t *args)
 				/* Ignore too many crashes from this system call */
 				if (current_context->crash_count[idx] >= MAX_CRASHES)
 					continue;
-				/*
-				 * Force abort if we take too long
-				 */
-				it.it_interval.tv_sec = 0;
-				it.it_interval.tv_usec = 100000;
-				it.it_value.tv_sec = 0;
-				it.it_value.tv_usec = 100000;
-				if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
-					pr_fail("%s: setitimer failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					continue;
-				}
 				syscall_permute(args, 0, &syscall_args[j]);
 			}
 			hash_table_free();
@@ -2295,8 +2317,8 @@ static int stress_sysinval(const stress_args_t *args)
 
 	pr_dbg("%s: %" PRIu64 " unique syscalls argument combinations causing premature child termination\n",
 		args->name, current_context->skip_crashed);
-	pr_dbg("%s: %" PRIu64 " unique syscall patterns not failing and are ignored\n",
-		args->name, current_context->skip_errno_zero);
+	pr_dbg("%s: ignored %" PRIu64 " unique syscall patterns that were not failing and %" PRIu64 " that timed out\n",
+		args->name, current_context->skip_errno_zero, current_context->skip_timed_out);
 
 	set_counter(args, current_context->counter);
 
