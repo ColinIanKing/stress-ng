@@ -79,8 +79,8 @@ static int monitor(const stress_args_t *args, const int sock)
 	}
 
 	for (nlmsghdr = (struct nlmsghdr *)buf;
-		NLMSG_OK (nlmsghdr, len);
-		nlmsghdr = NLMSG_NEXT (nlmsghdr, len)) {
+		NLMSG_OK(nlmsghdr, len);
+		nlmsghdr = NLMSG_NEXT(nlmsghdr, len)) {
 
 		struct cn_msg *cn_msg;
 		struct proc_event *proc_ev;
