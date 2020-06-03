@@ -203,7 +203,7 @@ static int stress_netlink_taskstats_monitor(
 		if (msg_len < 0)
 			continue;
 
-		if (!NLMSG_OK((&msg.n), msg_len)) {
+		if (!NLMSG_OK((&msg.n), (unsigned int)msg_len)) {
 			pr_fail("%s: recv failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
@@ -271,7 +271,7 @@ static int stress_netlink_task(const stress_args_t *args)
 		(void)close(sock);
 		return EXIT_FAILURE;
 	}
-	if (!NLMSG_OK((&nlmsg.n), len)) {
+	if (!NLMSG_OK((&nlmsg.n), (unsigned int)len)) {
 		pr_err("%s: recv NLMSG error\n",
 			args->name);
 		(void)close(sock);
