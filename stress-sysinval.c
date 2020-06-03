@@ -2070,7 +2070,6 @@ static inline int stress_do_syscall(const stress_args_t *args)
 		stress_parent_died_alarm();
 		stress_mwc_reseed();
 
-
 		while (keep_stressing_flag()) {
 			const size_t sz = SIZEOF_ARRAY(reorder);
 
@@ -2200,6 +2199,16 @@ static int stress_sysinval(const stress_args_t *args)
 	size_t small_ptr_size = page_size << 1;
 	size_t page_ptr_wr_size = page_size << 1;
 	char filename[PATH_MAX];
+
+	/*
+	 *  Run-time sanity check of zero syscalls, maybe __NR or SYS_ is not
+	 *  defined.
+	 */
+	if (SIZEOF_ARRAY(syscall_args) == 0) {
+		pr_inf("%s: no system calls detected during build, skipping stressor\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	sockfds[0] = socket(AF_UNIX, SOCK_STREAM, 0);
 
