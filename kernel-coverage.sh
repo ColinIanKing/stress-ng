@@ -58,6 +58,10 @@ DURATION=60
 
 do_stress --all 1
 
+DURATION=180
+
+do_stress --sysinval 0
+
 DURATION=60
 do_stress --cpu 0 --taskset 0,2 --ignite-cpu
 do_stress --cpu 0 --taskset 1,2,3
@@ -175,6 +179,7 @@ do_stress --vm 0 --vm-madvise unmergeable
 do_stress --vm 0 --vm-madvise willneed --page-in
 
 do_stress --zombie 0 --zombie-max 1000000
+
 
 DURATION=60
 
