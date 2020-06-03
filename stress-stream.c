@@ -566,7 +566,7 @@ static int stress_stream(const stress_args_t *args)
 			args->name, mb_rate, fp_rate, args->instance);
 	} else {
 		if (args->instance == 0)
-			pr_inf("%s: run too short to determine memory rate\n", args->name);
+			pr_inf("%s: run duration too short to determine memory rate\n", args->name);
 	}
 
 	rc = EXIT_SUCCESS;
