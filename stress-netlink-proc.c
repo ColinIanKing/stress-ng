@@ -62,7 +62,7 @@ static int monitor(const stress_args_t *args, const int sock)
 {
 	struct nlmsghdr *nlmsghdr;
 
-	ssize_t len;
+	int len;
 	char __attribute__ ((aligned(NLMSG_ALIGNTO)))buf[4096];
 
 	if ((len = recv(sock, buf, sizeof(buf), 0)) == 0)
@@ -79,7 +79,7 @@ static int monitor(const stress_args_t *args, const int sock)
 	}
 
 	for (nlmsghdr = (struct nlmsghdr *)buf;
-		NLMSG_OK(nlmsghdr, len);
+		NLMSG_OK(nlmsghdr, (unsigned int)len);
 		nlmsghdr = NLMSG_NEXT(nlmsghdr, len)) {
 
 		struct cn_msg *cn_msg;
