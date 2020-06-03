@@ -89,6 +89,7 @@ static const stress_help_t help[] = {
 #define ARG_UID			0x08000000
 #define ARG_FUTEX_PTR		0x10000000
 #define ARG_PTR_WR		0x20000000	/* kernel writes data to ptr */
+#define ARG_ACCESS_MODE		0x40000000	/* faccess modes */
 
 /*
  *  rotate right for hashing
@@ -206,6 +207,8 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(access)
 	{ SYS(access), 2, { ARG_PTR | ARG_EMPTY_FILENAME, ARG_MODE, 0, 0, 0, 0 } },
 	{ SYS(access), 2, { ARG_PTR | ARG_DEVZERO_FILENAME, ARG_MODE, 0, 0, 0, 0 } },
+	{ SYS(access), 2, { ARG_PTR | ARG_EMPTY_FILENAME, ARG_ACCESS_MODE, 0, 0, 0, 0 } },
+	{ SYS(access), 2, { ARG_PTR | ARG_DEVZERO_FILENAME, ARG_ACCESS_MODE, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(acct)
 	{ SYS(acct), 1, { ARG_PTR | ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
@@ -391,6 +394,8 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(faccessat)
 	{ SYS(faccessat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_MODE, ARG_FLAG, 0, 0 } },
 	{ SYS(faccessat), 4, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_MODE, ARG_FLAG, 0, 0 } },
+	{ SYS(faccessat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_ACCESS_MODE, ARG_FLAG, 0, 0 } },
+	{ SYS(faccessat), 4, { ARG_DIRFD, ARG_DEVNULL_FILENAME, ARG_ACCESS_MODE, ARG_FLAG, 0, 0 } },
 #endif
 #if DEFSYS(fadvise64)
 	{ SYS(fadvise64), 4, { ARG_FD, ARG_UINT, ARG_LEN, ARG_INT, 0, 0 } },
@@ -1764,7 +1769,8 @@ static void func_exit(void)
  *  Various invalid argument values
  */
 static unsigned long none_values[] = { 0 };
-static unsigned long mode_values[] = { -1, INT_MAX, INT_MIN, ~(long)0, 1ULL << 20 };
+static unsigned long mode_values[] = { -1, INT_MAX, INT_MIN, ~(long)0, 1ULL << 20, };
+static unsigned long access_mode_values[] = { ~(F_OK | R_OK | W_OK | X_OK) };
 static long sockfds[] = { /* sockfd */ 0, 0, -1, INT_MAX, INT_MIN, ~(long)0 };
 static long fds[] = { /* fd */ 0, -1, INT_MAX, INT_MIN, ~(long)0 };
 static long dirfds[] = { -1, AT_FDCWD, INT_MIN, ~(long)0 };
@@ -1817,6 +1823,7 @@ static const syscall_arg_values_t arg_values[] = {
 	ARG_VALUE(ARG_FUTEX_PTR, futex_ptrs),
 	ARG_VALUE(ARG_PTR_WR, ptrs_wr),
 	ARG_VALUE(ARG_PTR, ptrs),
+	ARG_VALUE(ARG_ACCESS_MODE, access_mode_values),
 };
 
 static void MLOCKED_TEXT stress_inval_handler(int signum)
