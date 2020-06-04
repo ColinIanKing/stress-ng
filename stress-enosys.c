@@ -3295,13 +3295,15 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 	} else {
 		int ret, status;
 
-		ret = shim_waitpid(pid, &status, 0);
+		/*
+		 * Don't use shim_waitpid here, we want to force
+		 * kill the child no matter what happens at this point
+		 */
+		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
 			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
+			ret = waitpid(pid, &status, 0);
+			(void)ret;
 
 		}
 		rc = WEXITSTATUS(status);
