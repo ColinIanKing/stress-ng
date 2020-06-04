@@ -206,9 +206,12 @@ again:
 #endif
 					/* Read state of queue from mq fd */
 					ret = read(mq, buffer, sizeof(buffer));
-					if (ret < 0)
+					if (ret < 0) {
+						if (errno == EINTR)
+							break;
 						pr_fail("%s: mq read failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
+					}
 #endif
 
 					(void)memset(&sigev, 0, sizeof sigev);
@@ -239,10 +242,12 @@ again:
 					ret = mq_receive(mq, (char *)&msg, sizeof(msg), &prio);
 
 				if (ret < 0) {
-					pr_fail("%s: %s failed, errno=%d (%s)\n",
-						args->name,
-						timed ? "mq_timedreceive" : "mq_receive",
-						errno, strerror(errno));
+					if (errno != EINTR) {
+						pr_fail("%s: %s failed, errno=%d (%s)\n",
+							args->name,
+							timed ? "mq_timedreceive" : "mq_receive",
+							errno, strerror(errno));
+					}
 					break;
 				}
 				if (prio >= PRIOS_MAX) {
