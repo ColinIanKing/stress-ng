@@ -211,8 +211,8 @@ redo_rd2:
 		if (ret == 0)
 			break;
 		if (ret != sizeof(msg_rd)) {
-			pr_fail("%s: read failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: read failed, expected %zd bytes, got %d\n",
+				args->name, sizeof(msg_rd), ret);
 			break;
 		}
 		/* Child telling us it's terminating? */
