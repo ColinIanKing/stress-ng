@@ -246,6 +246,9 @@ static int stress_aio(const stress_args_t *args)
 				break;
 			case EINPROGRESS:
 				break;
+			case ENOSPC:
+				/* Silently ignore ENOSPC write failures */
+				break;
 			default:
 				/* Something went wrong */
 				pr_fail("%s: aio_error, io_reqs[%" PRIu64 "].status = %d (%s)\n",
