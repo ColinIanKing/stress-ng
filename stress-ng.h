@@ -978,10 +978,10 @@ typedef uint32_t stress_class_t;
 
 /* stressor args */
 typedef struct {
-	uint64_t *const counter;	/* stressor counter */
+	uint64_t *counter;		/* stressor counter */
 	bool *counter_ready;		/* counter can be read */
 	const char *name;		/* stressor name */
-	const uint64_t max_ops;		/* max number of bogo ops */
+	uint64_t max_ops;		/* max number of bogo ops */
 	const uint32_t instance;	/* stressor instance # */
 	const uint32_t num_instances;	/* number of instances */
 	pid_t pid;			/* stressor pid */

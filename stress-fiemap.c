@@ -288,18 +288,9 @@ static int stress_fiemap(const stress_args_t *args)
 	for (n = 0; n < MAX_FIEMAP_PROCS; n++) {
 		uint64_t proc_max_ops = ops_per_proc +
 			((n == 0) ? ops_remaining : 0);
+		stress_args_t new_args = *args;
 
-		const stress_args_t new_args = {
-			.counter = &counters[n],
-			.name = args->name,
-			.max_ops = proc_max_ops,
-			.instance = args->instance,
-			.num_instances = args->num_instances,
-			.pid = args->pid,
-			.ppid = args->ppid,
-			.page_size = args->page_size
-		};
-
+		new_args.max_ops = proc_max_ops;
 		if (!keep_stressing()) {
 			rc = EXIT_SUCCESS;
 			goto reap;

@@ -738,16 +738,9 @@ static int stress_iomix(const stress_args_t *args)
 	(void)memset(counters, 0, sz);
 
 	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
-		const stress_args_t tmp_args = {
-			.counter = &counters[i],
-			.name = args->name,
-			.max_ops = args->max_ops,
-			.instance = args->instance,
-			.num_instances = args->num_instances,
-			.pid = args->pid,
-			.ppid = args->ppid,
-			.page_size = args->page_size
-		};
+		stress_args_t tmp_args = *args;
+
+		tmp_args.counter = &counters[i];
 
 		pids[i] = fork();
 		if (pids[i] < 0) {
