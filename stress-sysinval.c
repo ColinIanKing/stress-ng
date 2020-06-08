@@ -117,7 +117,7 @@ typedef struct {
 	const char *name;		/* text name of system call */
 	const int num_args;		/* number of arguments */
 	unsigned long args[6];		/* semantic info about each argument */
-} syscall_arg_t;
+} stress_syscall_arg_t;
 
 /*
  *  argument semantic information, unique argument types
@@ -130,20 +130,20 @@ typedef struct {
 	unsigned long mask;		/* bitmask representing arg type */
 	size_t num_values;		/* number of different invalid values */
 	unsigned long *values;		/* invalid values */
-} syscall_arg_values_t;
+} stress_syscall_arg_values_t;
 
 /*
  *  hash table entry for syscalls and arguments that need
  *  to be skipped either because they crash the child or
  *  because the system call succeeds
  */
-typedef struct syscall_args_hash {
-	struct syscall_args_hash *next;	/* next item in list */
+typedef struct stress_syscall_args_hash {
+	struct stress_syscall_args_hash *next;	/* next item in list */
 	unsigned long hash;		/* has of system call and args */
 	unsigned long syscall;		/* system call number */
 	unsigned long args[6];		/* arguments */
 	uint8_t	 type;			/* type of failure */
-} syscall_arg_hash_t;
+} stress_syscall_arg_hash_t;
 
 /*
  *  hash table - in the parent context this records system
@@ -153,7 +153,7 @@ typedef struct syscall_args_hash {
  *  want to retest - this child cached data is lost when the
   * child crashes.
  */
-static syscall_arg_hash_t *hash_table[SYSCALL_HASH_TABLE_SIZE];
+static stress_syscall_arg_hash_t *hash_table[SYSCALL_HASH_TABLE_SIZE];
 
 static const int sigs[] = {
 #if defined(SIGILL)
@@ -193,7 +193,7 @@ static uint8_t *small_ptr_wr;
 static uint8_t *page_ptr;
 static uint8_t *page_ptr_wr;
 
-static const syscall_arg_t syscall_args[] = {
+static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(_llseek)
 	{ SYS(_llseek), 5, { ARG_FD, ARG_UINT, ARG_UINT, ARG_PTR, ARG_INT } },
 #endif
@@ -1756,7 +1756,7 @@ typedef struct {
 	uint64_t skip_crashed;
 	uint64_t skip_errno_zero;
 	uint64_t skip_timed_out;
-	uint64_t crash_count[SIZEOF_ARRAY(syscall_args)];
+	uint64_t crash_count[SIZEOF_ARRAY(stress_syscall_args)];
 	unsigned long args[6];
 	unsigned char filler[4096];
 } syscall_current_context_t;
@@ -1801,7 +1801,7 @@ static uid_t uids[] = { ~(long)0, INT_MAX };
 /*
  *  mapping of invalid arg types to invalid arg values
  */
-static const syscall_arg_values_t arg_values[] = {
+static const stress_syscall_arg_values_t arg_values[] = {
 	ARG_VALUE(ARG_MODE, mode_values),
 	ARG_VALUE(ARG_SOCKFD, sockfds),
 	ARG_VALUE(ARG_FD, fds),
@@ -1879,7 +1879,7 @@ static void hash_table_add(
 	const unsigned long *args,
 	const uint8_t type)
 {
-	syscall_arg_hash_t *h;
+	stress_syscall_arg_hash_t *h;
 
 	h = calloc(1, sizeof(*h));
 	if (!h)
@@ -1901,10 +1901,10 @@ static void hash_table_free(void)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(hash_table); i++) {
-		syscall_arg_hash_t *h = hash_table[i];
+		stress_syscall_arg_hash_t *h = hash_table[i];
 
 		while (h) {
-			syscall_arg_hash_t *next = h->next;
+			stress_syscall_arg_hash_t *next = h->next;
 
 			free(h);
 			h = next;
@@ -1936,19 +1936,19 @@ static void MLOCKED_TEXT stress_syscall_itimer_handler(int sig)
 static void syscall_permute(
 	const stress_args_t *args,
 	const int arg_num,
-	const syscall_arg_t *syscall_arg)
+	const stress_syscall_arg_t *stress_syscall_arg)
 {
-	unsigned long arg = syscall_arg->args[arg_num];
+	unsigned long arg = stress_syscall_arg->args[arg_num];
 	size_t i;
 	unsigned long *values = NULL;
 	unsigned long rnd_values[4];
 	size_t num_values = 0;
 
-	if (arg_num >= syscall_arg->num_args) {
+	if (arg_num >= stress_syscall_arg->num_args) {
 		int ret;
-		const unsigned long syscall_num = syscall_arg->syscall;
+		const unsigned long syscall_num = stress_syscall_arg->syscall;
 		const unsigned long hash = stress_syscall_hash(syscall_num, current_context->args);
-		syscall_arg_hash_t *h = hash_table[hash];
+		stress_syscall_arg_hash_t *h = hash_table[hash];
 		struct itimerval it;
 
 		while (h) {
@@ -2057,7 +2057,7 @@ static void syscall_permute(
 	 */
 	for (i = 0; i < num_values; i++) {
 		current_context->args[arg_num] = values[i];
-		syscall_permute(args, arg_num + 1, syscall_arg);
+		syscall_permute(args, arg_num + 1, stress_syscall_arg);
 		current_context->args[arg_num] = 0;
 	}
 }
@@ -2084,7 +2084,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 		_exit(EXIT_NO_RESOURCE);
 	} else if (pid == 0) {
 		size_t i, n;
-		size_t reorder[SIZEOF_ARRAY(syscall_args)];
+		size_t reorder[SIZEOF_ARRAY(stress_syscall_args)];
 
 		/* We don't want bad ops clobbering this region */
 		stress_unmap_shared();
@@ -2132,20 +2132,20 @@ static inline int stress_do_syscall(const stress_args_t *args)
 				}
 			}
 
-			for (i = 0; keep_stressing() && (i < SIZEOF_ARRAY(syscall_args)); i++) {
+			for (i = 0; keep_stressing() && (i < SIZEOF_ARRAY(stress_syscall_args)); i++) {
 				size_t idx;
 				const size_t j = reorder[i];
 
 				(void)memset(current_context->args, 0, sizeof(current_context->args));
-				current_context->syscall = syscall_args[j].syscall;
-				idx = &syscall_args[j] - syscall_args;
+				current_context->syscall = stress_syscall_args[j].syscall;
+				idx = &stress_syscall_args[j] - stress_syscall_args;
 				current_context->idx = idx;
-				current_context->name = syscall_args[j].name;
+				current_context->name = stress_syscall_args[j].name;
 
 				/* Ignore too many crashes from this system call */
 				if (current_context->crash_count[idx] >= MAX_CRASHES)
 					continue;
-				syscall_permute(args, 0, &syscall_args[j]);
+				syscall_permute(args, 0, &stress_syscall_args[j]);
 			}
 			hash_table_free();
 		}
@@ -2188,7 +2188,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 				current_context->args,
 				SYSCALL_CRASH);
 
-			if (idx < SIZEOF_ARRAY(syscall_args))
+			if (idx < SIZEOF_ARRAY(stress_syscall_args))
 				current_context->crash_count[idx]++;
 		}
 		rc = WEXITSTATUS(status);
@@ -2226,7 +2226,7 @@ static int stress_sysinval(const stress_args_t *args)
 	 *  Run-time sanity check of zero syscalls, maybe __NR or SYS_ is not
 	 *  defined.
 	 */
-	if (SIZEOF_ARRAY(syscall_args) == 0) {
+	if (SIZEOF_ARRAY(stress_syscall_args) == 0) {
 		pr_inf("%s: no system calls detected during build, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
@@ -2311,7 +2311,7 @@ static int stress_sysinval(const stress_args_t *args)
 	futex_ptrs[1] = (long)page_ptr;
 
 	if (args->instance == 0)
-		pr_dbg("%s: exercising %zd syscall test patterns\n", args->name, SIZEOF_ARRAY(syscall_args));
+		pr_dbg("%s: exercising %zd syscall test patterns\n", args->name, SIZEOF_ARRAY(stress_syscall_args));
 
 	ret = stress_oomable_child(args, NULL, stress_sysinval_child, STRESS_OOMABLE_DROP_CAP);
 
