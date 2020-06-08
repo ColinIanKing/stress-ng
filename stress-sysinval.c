@@ -448,19 +448,19 @@ static const syscall_arg_t syscall_args[] = {
 #if DEFSYS(finit_module)
 	{ SYS(finit_module), 3, { ARG_PTR, ARG_LEN, ARG_PTR, 0, 0, 0 } },
 #endif
-#if DEFSYS(flistxattr) || defined(HAVE_FLISTXATTR)
+#if DEFSYS(flistxattr)
 	{ SYS(flistxattr), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 	{ SYS(flistxattr), 3, { ARG_FD, ARG_PTR_WR, ARG_LEN, 0, 0, 0 } },
 #endif
 #if DEFSYS(flock)
 	{ SYS(flock), 2, { ARG_FD, ARG_INT, 0, 0, 0, 0 } },
 #endif
-#if DEFSYS(fremovexattr) || defined(HAVE_FREMOVEXATTR)
+#if DEFSYS(fremovexattr)
 	{ SYS(fremovexattr), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(fsconfig)
 #endif
-#if defined(fsetxattr) || defined(HAVE_FSETXATTR)
+#if defined(fsetxattr)
 	{ SYS(fsetxattr), 5, { ARG_FD, ARG_PTR, ARG_PTR, ARG_LEN, ARG_FLAG, 0, } },
 #endif
 #if DEFSYS(fsmount)
