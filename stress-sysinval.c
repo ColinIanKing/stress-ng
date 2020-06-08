@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		    NULL }
 };
 
-#if defined(__linux__)
+#if defined(HAVE_SYSCALL_H) &&	\
+    defined(__linux__)
 
 #define ARG_MASK(x, mask)	(((x) & (mask)) == (mask))
 
