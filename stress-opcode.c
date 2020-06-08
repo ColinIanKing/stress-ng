@@ -304,6 +304,8 @@ again:
 			struct itimerval it;
 			uint8_t *opcodes, *ops_begin, *ops_end;
 
+			(void)sched_settings_apply(true);
+
 			/* We don't want bad ops clobbering this region */
 			stress_unmap_shared();
 

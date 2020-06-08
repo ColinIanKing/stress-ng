@@ -3251,6 +3251,7 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 
 		/*
 		 * Force abort if we take too long
@@ -3383,6 +3384,7 @@ again:
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 
 		/* Make sure this is killable by OOM killer */
 		stress_set_oom_adjustment(args->name, true);

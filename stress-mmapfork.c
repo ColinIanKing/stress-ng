@@ -147,6 +147,7 @@ static int stress_mmapfork(const stress_args_t *args)
 
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
+				(void)sched_settings_apply(true);
 
 				if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 					_exit(_EXIT_FAILURE);

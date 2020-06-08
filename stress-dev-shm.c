@@ -188,6 +188,7 @@ fork_again:
 			/* Child, stress memory */
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
+			(void)sched_settings_apply(true);
 
 			rc = stress_dev_shm_child(args, fd);
 			_exit(rc);

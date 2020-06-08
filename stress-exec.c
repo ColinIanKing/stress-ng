@@ -268,6 +268,7 @@ static int stress_exec(const stress_args_t *args)
 
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
+				(void)sched_settings_apply(true);
 
 				if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
 					pr_fail("%s: child open on /dev/null failed\n",

@@ -403,6 +403,7 @@ again:
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 
 		/* Make sure this is killable by OOM killer */
 		stress_set_oom_adjustment(args->name, true);

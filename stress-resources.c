@@ -655,6 +655,7 @@ static int stress_resources(const stress_args_t *args)
 				stress_set_oom_adjustment(args->name, true);
 				ret = stress_drop_capabilities(args->name);
 				(void)ret;
+				(void)sched_settings_apply(true);
 
 				waste_resources(args, page_size, pipe_size, mem_slack);
 				_exit(0); /* should never get here */

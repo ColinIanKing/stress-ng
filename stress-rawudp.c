@@ -93,6 +93,7 @@ static void stress_rawudp_client(
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
+	(void)sched_settings_apply(true);
 
 	(void)memset(buf, 0, sizeof(buf));
 

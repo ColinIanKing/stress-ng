@@ -126,6 +126,7 @@ again:
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 
 		do {
 			char buf[UDP_BUF];

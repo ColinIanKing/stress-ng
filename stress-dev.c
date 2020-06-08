@@ -1581,6 +1581,7 @@ again:
 
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
+			(void)sched_settings_apply(true);
 			rc = shim_pthread_spin_init(&lock, SHIM_PTHREAD_PROCESS_SHARED);
 			if (rc) {
 				pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",

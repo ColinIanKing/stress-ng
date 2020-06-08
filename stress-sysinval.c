@@ -2105,6 +2105,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 		stress_mwc_reseed();
 
 		while (keep_stressing_flag()) {

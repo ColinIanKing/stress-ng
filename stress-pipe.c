@@ -191,6 +191,7 @@ again:
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 
 		(void)close(pipefds[1]);
 		while (keep_stressing_flag()) {

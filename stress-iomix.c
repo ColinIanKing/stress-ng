@@ -747,6 +747,7 @@ static int stress_iomix(const stress_args_t *args)
 			goto reap;
 		} else if (pids[i] == 0) {
 			/* Child */
+			(void)sched_settings_apply(true);
 			iomix_funcs[i](&tmp_args, fd, iomix_bytes);
 			_exit(EXIT_SUCCESS);
 		}

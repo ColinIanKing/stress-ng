@@ -121,6 +121,7 @@ static int stress_flock(const stress_args_t *args)
 		} else if (pids[i] == 0) {
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
+			(void)sched_settings_apply(true);
 
 			stress_flock_child(args, fd);
 			_exit(EXIT_SUCCESS);

@@ -404,6 +404,7 @@ again:
 	if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 
 		_exit(stress_semaphore_sysv_thrash(args));
 	}

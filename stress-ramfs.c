@@ -222,6 +222,7 @@ static int stress_ramfs_child(const stress_args_t *args)
 	}
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
+	(void)sched_settings_apply(true);
 
 	(void)stress_get_setting("ramfs-size", &ramfs_size);
 

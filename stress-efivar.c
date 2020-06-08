@@ -350,6 +350,7 @@ again:
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		stress_set_oom_adjustment(args->name, true);
+		(void)sched_settings_apply(true);
 
 		do {
 			efi_vars_get(args);

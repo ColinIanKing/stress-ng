@@ -307,6 +307,8 @@ static int stress_fanotify(const stress_args_t *args)
 	} else if (pid == 0) {
 		/* Child */
 
+		(void)sched_settings_apply(true);
+
 		do {
 			int fd;
 			ssize_t n;

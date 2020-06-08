@@ -146,6 +146,7 @@ static void stress_socket_client(
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
+	(void)sched_settings_apply(true);
 
 	do {
 		int fd, retries = 0, fds[max_fd];

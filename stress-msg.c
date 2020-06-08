@@ -160,6 +160,7 @@ again:
 	} else if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 
 		while (keep_stressing()) {
 			stress_msg_t ALIGN64 msg;

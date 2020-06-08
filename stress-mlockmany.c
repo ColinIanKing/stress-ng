@@ -102,6 +102,7 @@ static int stress_mlockmany(const stress_args_t *args)
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
 				stress_set_oom_adjustment(args->name, true);
+				(void)sched_settings_apply(true);
 
 				shim_mlockall(0);
 				stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);

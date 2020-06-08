@@ -154,6 +154,7 @@ again:
 	if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 		func(args, child, ppid, epoll_port, epoll_domain);
 		_exit(EXIT_SUCCESS);
 	}

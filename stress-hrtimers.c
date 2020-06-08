@@ -181,6 +181,7 @@ static int stress_hrtimers(const stress_args_t *args)
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			stress_set_oom_adjustment(args->name, true);
+			(void)sched_settings_apply(true);
 			stress_hrtimer_process(args, &counters[i]);
 			_exit(EXIT_SUCCESS);
 		}

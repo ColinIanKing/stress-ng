@@ -236,6 +236,7 @@ again:
 		}
 
 		(void)setpgid(0, g_pgrp);
+		(void)sched_settings_apply(true);
 		stress_parent_died_alarm();
 		if (!keep_stressing_flag() || !apparmor_run)
 			goto abort;

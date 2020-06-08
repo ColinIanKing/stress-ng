@@ -958,6 +958,7 @@ static inline int stress_do_syscall(
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 
 		/*
 		 * Force abort if we take too long

@@ -71,6 +71,7 @@ static int stress_sockmany_client(
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
+	(void)sched_settings_apply(true);
 
 	sock_fds->max_fd = 0;
 

@@ -539,6 +539,8 @@ static int stress_prctl(const stress_args_t *args)
 			int rc;
 			pid_t mypid = getpid();
 
+			(void)sched_settings_apply(true);
+
 			rc = stress_prctl_child(args, mypid);
 			_exit(rc);
 		}

@@ -127,6 +127,7 @@ kill_child:
 
 			stress_set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);
+			(void)sched_settings_apply(true);
 
 #if defined(HAVE_PTRACE)
 			(void)ptrace(PTRACE_TRACEME);

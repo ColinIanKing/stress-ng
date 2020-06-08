@@ -157,6 +157,7 @@ again:
 
 			stress_set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);
+			(void)sched_settings_apply(true);
 
 			switch (rnd) {
 #if defined(HAVE_MPROTECT)

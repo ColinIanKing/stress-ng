@@ -81,6 +81,7 @@ static int stress_nice(const stress_args_t *args)
 			/* Child */
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
+			(void)sched_settings_apply(true);
 
 			switch (which) {
 #if defined(HAVE_SETPRIORITY)

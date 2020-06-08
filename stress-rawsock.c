@@ -79,6 +79,7 @@ again:
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 
 		if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",

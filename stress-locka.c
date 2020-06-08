@@ -292,6 +292,7 @@ again:
 	if (cpid == 0) {
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 
 		if (stress_locka_contention(args, fd) < 0)
 			_exit(EXIT_FAILURE);

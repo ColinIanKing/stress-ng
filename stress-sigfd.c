@@ -67,9 +67,11 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		int val = 0;
+
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
-		int val = 0;
+		(void)sched_settings_apply(true);
 
 		while (keep_stressing_flag()) {
 			union sigval s;

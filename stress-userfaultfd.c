@@ -90,6 +90,8 @@ static int stress_userfaultfd_clone(void *arg)
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
+	(void)sched_settings_apply(true);
+
 	if (stress_sighandler(args->name, SIGALRM, stress_child_alarm_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 

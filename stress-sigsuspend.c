@@ -84,6 +84,7 @@ again:
 		} else if (pid[n] == 0) {
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
+			(void)sched_settings_apply(true);
 
 			while (keep_stressing_flag()) {
 				(void)sigsuspend(&mask);

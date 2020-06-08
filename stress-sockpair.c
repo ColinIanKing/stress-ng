@@ -113,6 +113,7 @@ again:
 		stress_set_oom_adjustment(args->name, true);
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
 
 		socket_pair_close(socket_pair_fds, max, 1);
 		while (keep_stressing_flag()) {

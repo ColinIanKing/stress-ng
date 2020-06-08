@@ -168,6 +168,7 @@ static int stress_zombie(const stress_args_t *args)
 			if (zombie->pid == 0) {
 				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
+				(void)sched_settings_apply(true);
 
 				stress_zombie_free();
 				_exit(0);

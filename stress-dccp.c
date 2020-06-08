@@ -413,6 +413,7 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
+		(void)sched_settings_apply(true);
 		stress_dccp_client(args, ppid, dccp_port, dccp_domain);
 		_exit(EXIT_SUCCESS);
 	} else {
