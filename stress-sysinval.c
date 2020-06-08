@@ -156,6 +156,8 @@ typedef struct stress_syscall_args_hash {
  */
 static stress_syscall_arg_hash_t *hash_table[SYSCALL_HASH_TABLE_SIZE];
 
+static double time_end;
+
 static const int sigs[] = {
 #if defined(SIGILL)
 	SIGILL,
@@ -1945,6 +1947,7 @@ static void syscall_permute(
 	unsigned long rnd_values[4];
 	size_t num_values = 0;
 
+
 	if (arg_num >= stress_syscall_arg->num_args) {
 		int ret;
 		const unsigned long syscall_num = stress_syscall_arg->syscall;
@@ -1994,6 +1997,14 @@ static void syscall_permute(
 			current_context->args[3],
 			current_context->args[4],
 			current_context->args[5]);
+
+		/*
+		 *  Full stress test timeout?
+		 */
+		if ((ret < 0) && (errno == EINTR)) {
+			if (stress_time_now() > time_end)
+				_exit(EXIT_SUCCESS);
+		}
 
 		if (current_context->type == SYSCALL_TIMED_OUT) {
 			/*
@@ -2223,6 +2234,8 @@ static int stress_sysinval(const stress_args_t *args)
 	size_t small_ptr_size = page_size << 1;
 	size_t page_ptr_wr_size = page_size << 1;
 	char filename[PATH_MAX];
+
+	time_end = stress_time_now() + (double)g_opt_timeout;
 
 	/*
 	 *  Run-time sanity check of zero syscalls, maybe __NR or SYS_ is not
