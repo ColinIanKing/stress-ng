@@ -136,9 +136,9 @@ int stress_set_sched(
 	const char *sched_name = stress_get_sched_name(sched);
 
 #if defined(SCHED_DEADLINE) && defined(__linux__)
-	long sched_period = 0;
-	long sched_runtime = 0;
-	long sched_deadline = 0;
+	long sched_period = -1;
+	long sched_runtime = -1;
+	long sched_deadline = -1;
 #endif
 
 	(void)memset(&param, 0, sizeof(param));
@@ -209,10 +209,14 @@ int stress_set_sched(
 			pr_dbg("%s: setting scheduler class '%s'\n", prefix, sched_name);
 
 		(void)stress_get_setting("sched-period", &sched_period);
+		if (sched_period < 0)
+			sched_period = 0;
 		(void)stress_get_setting("sched-runtime", &sched_runtime);
+		if (sched_runtime < 0)
+			sched_runtime = 10000;
 		(void)stress_get_setting("sched-deadline", &sched_deadline);
 		if (sched_deadline <= 0) {
-			attr.sched_runtime = 10000;
+			attr.sched_runtime =   99999;
 			attr.sched_deadline = 100000;
 			attr.sched_period = 0;
 		} else {
@@ -334,4 +338,22 @@ int32_t stress_get_opt_sched(const char *const str)
 		(void)fprintf(stderr, "\n");
 	}
 	_exit(EXIT_FAILURE);
+}
+
+/*
+ *  sched_settings_apply()
+ *	fetch scheduler settings and apply them, useful for fork'd
+ *	child stressor processes to set the scheduling settings
+ *	rather than assuming that they are inherited from the
+ *	parent
+ */
+int sched_settings_apply(const bool quiet)
+{
+	int32_t sched = UNDEFINED;
+	int32_t sched_prio = UNDEFINED;
+
+	(void)stress_get_setting("sched", &sched);
+	(void)stress_get_setting("sched-prio", &sched_prio);
+
+        return stress_set_sched(getpid(), (int)sched, sched_prio, quiet);
 }

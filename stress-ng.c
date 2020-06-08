@@ -1665,13 +1665,6 @@ static void MLOCKED_TEXT stress_run(
 	int32_t n_procs, j;
 	const int32_t total_procs = get_total_num_procs(procs_list);
 
-	int32_t sched;
-
-	/*deadline scheduler*/
-	long sched_period = -1;
-	long sched_runtime = -1;
-	long sched_deadline = -1;
-
 	wait_flag = true;
 	time_start = stress_time_now();
 	pr_dbg("starting stressors\n");
@@ -1713,34 +1706,11 @@ again:
 					kill_procs(SIGALRM);
 					goto wait_for_procs;
 				case 0:
+					/* Child */
 					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
 						stress_munge_underscore(g_proc_current->stressor->name));
 
-					(void)stress_get_setting("sched", &sched);
-					(void)stress_get_setting("sched-period", &sched_period);
-					(void)stress_get_setting("sched-runtime", &sched_runtime);
-					(void)stress_get_setting("sched-deadline", &sched_deadline);
-
-#if defined(SCHED_DEADLINE)
-					/* SCHED_DEADLINE */
-					if (sched == SCHED_DEADLINE) {
-						if (sched_deadline < 0)
-							sched_deadline = 100000;
-
-						if (sched_runtime < 0)
-							sched_runtime = 10000;
-
-						if (sched_period < 0)
-							sched_period = 0;
-
-						if (stress_set_deadline_sched(getpid(),
-						    sched_period, sched_runtime, sched_deadline, false) < 0) {
-							rc = EXIT_FAILURE;
-							goto child_exit;
-						}
-					}
-#endif
-					/* Child */
+					(void)sched_settings_apply(true);
 					(void)atexit(stress_child_atexit);
 					(void)setpgid(0, g_pgrp);
 					if (stress_set_handler(name, true) < 0) {
@@ -2911,8 +2881,6 @@ int main(int argc, char **argv, char **envp)
 	char *log_filename;			/* log filename */
 	char *job_filename = NULL;		/* job filename */
 	int32_t ticks_per_sec;			/* clock ticks per second (jiffies) */
-	int32_t sched = UNDEFINED;		/* scheduler type */
-	int32_t sched_prio = UNDEFINED;		/* scheduler priority */
 	int32_t ionice_class = UNDEFINED;	/* ionice class */
 	int32_t ionice_level = UNDEFINED;	/* ionice level */
 	size_t i;
@@ -3051,9 +3019,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Get various user defined settings
 	 */
-	(void)stress_get_setting("sched", &sched);
-	(void)stress_get_setting("sched-prio", &sched_prio);
-	if (stress_set_sched(getpid(), sched, sched_prio, false) < 0)
+	if (sched_settings_apply(false) < 0)
 		exit(EXIT_FAILURE);
 	(void)stress_get_setting("ionice-class", &ionice_class);
 	(void)stress_get_setting("ionice-level", &ionice_level);

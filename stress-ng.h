@@ -3439,6 +3439,7 @@ extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
 	const int sched_priority, const bool quiet);
 extern WARN_UNUSED int stress_set_deadline_sched(const pid_t, const uint64_t period,
 	const uint64_t runtime, const uint64_t deadline, const bool quiet);
+extern int sched_settings_apply(const bool quiet);
 extern const char *stress_get_sched_name(const int sched);
 extern void stress_set_iopriority(const int32_t class, const int32_t level);
 extern void stress_set_proc_name_init(int argc, char *argv[], char *envp[]);
