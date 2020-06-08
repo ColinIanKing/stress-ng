@@ -2267,7 +2267,7 @@ static int stress_sysinval(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 #if defined(HAVE_MPROTECT)
-	(void)mprotect(small_ptr + page_size, page_size, PROT_NONE);
+	(void)mprotect((void *)(small_ptr + page_size), page_size, PROT_NONE);
 #else
 	(void)munmap((void *)(small_ptr + page_size), page_size);
 	small_ptr_size -= page_size;
@@ -2295,7 +2295,7 @@ static int stress_sysinval(const stress_args_t *args)
 	}
 	small_ptr_wr = page_ptr_wr + page_size - 1;
 #if defined(HAVE_MPROTECT)
-	(void)mprotect(page_ptr_wr + page_size, page_size, PROT_NONE);
+	(void)mprotect((void *)(page_ptr_wr + page_size), page_size, PROT_NONE);
 #else
 	(void)munmap((void *)(page_ptr_wr + page_size), page_size);
 	page_ptr_wr_size -= page_size;
