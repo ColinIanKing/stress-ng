@@ -1720,8 +1720,10 @@ again:
 					(void)stress_get_setting("sched-period", &sched_period);
 					(void)stress_get_setting("sched-runtime", &sched_runtime);
 					(void)stress_get_setting("sched-deadline", &sched_deadline);
+
+#if defined(SCHED_DEADLINE)
 					/* SCHED_DEADLINE */
-					if (sched == 6) {
+					if (sched == SCHED_DEADLINE) {
 						if (sched_deadline < 0)
 							sched_deadline = 100000;
 
@@ -1732,9 +1734,12 @@ again:
 							sched_period = 0;
 
 						if (stress_set_deadline_sched(getpid(),
-							sched_period, sched_runtime, sched_deadline, false) < 0)
-						exit(EXIT_FAILURE);
+						    sched_period, sched_runtime, sched_deadline, false) < 0) {
+							rc = EXIT_FAILURE;
+							goto child_exit;
+						}
 					}
+#endif
 					/* Child */
 					(void)atexit(stress_child_atexit);
 					(void)setpgid(0, g_pgrp);
