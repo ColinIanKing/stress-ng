@@ -1937,9 +1937,9 @@ static void metrics_check(bool *success)
 		}
 	}
 	if (ok) {
-		pr_dbg("metrics check: all stressor metrics validated and sane\n");
+		pr_dbg("metrics-check: all stressor metrics validated and sane\n");
 	} else {
-		pr_fail("metrics check: stressor metrics corrupted, data is compromised\n");
+		pr_fail("metrics-check: stressor metrics corrupted, data is compromised\n");
 		*success = false;
 	}
 }
