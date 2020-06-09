@@ -33,7 +33,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_SYSCALL_H) && \
     !defined(__APPLE__)
 
-#define ARG_MASK(x, mask)	(((x) & (mask)) == (mask))
+#define ARG_BITMASK(x, bitmask)	(((x) & (bitmask)) == (bitmask))
 
 #define SYSCALL_HASH_TABLE_SIZE	(10007)	/* Hash table size (prime) */
 #define SYSCALL_FAIL		(0x00)	/* Expected behaviour */
@@ -58,41 +58,51 @@ static const stress_help_t help[] = {
 #define DEFSYS(x) 	0
 #endif
 
-#define ARG_VALUE(x, v)	{ (x), SIZEOF_ARRAY(v), (unsigned long *)v }
-
 /*
  *  system call argument types
  */
-#define ARG_NONE		0x00000000
-#define ARG_PTR			0x00000001
-#define ARG_INT			0x00000002
-#define ARG_UINT		0x00000004
-#define ARG_SOCKFD		0x00000010
-#define ARG_STRUCT_SOCKADDR	0x00000020
-#define ARG_SOCKLEN_T		0x00000040
-#define ARG_FLAG		0x00000080
-#define ARG_BRK_ADDR		0x00000100
-#define ARG_MODE		0x00000200
-#define ARG_LEN			0x00000400
-#define ARG_SECONDS		0x00001000
-#define ARG_BPF_ATTR		0x00002000
-#define ARG_EMPTY_FILENAME	0x00004000	/* "" */
-#define ARG_DEVZERO_FILENAME	0x00008000	/* /dev/zero */
-#define ARG_CLOCKID_T		0x00010000
-#define ARG_FUNC_PTR		0x00020000
-#define ARG_FD			0x00040000
-#define ARG_TIMEOUT		0x00080000
-#define ARG_DIRFD		0x00100000
-#define ARG_DEVNULL_FILENAME	0x00200000	/* /dev/null */
-#define ARG_RND			0x00400000
-#define ARG_PID			0x00800000
-#define ARG_NON_NULL_PTR	0x01000000
-#define ARG_NON_ZERO_LEN	0x02000000
-#define ARG_GID			0x04000000
-#define ARG_UID			0x08000000
-#define ARG_FUTEX_PTR		0x10000000
-#define ARG_PTR_WR		0x20000000	/* kernel writes data to ptr */
-#define ARG_ACCESS_MODE		0x40000000	/* faccess modes */
+#define ARG_NONE		0x00000000UL
+#define ARG_PTR			0x00000002UL
+#define ARG_INT			0x00000004UL
+#define ARG_UINT		0x00000008UL
+#define ARG_SOCKFD		0x00000010UL
+#define ARG_STRUCT_SOCKADDR	0x00000020UL
+#define ARG_SOCKLEN_T		0x00000040UL
+#define ARG_FLAG		0x00000080UL
+#define ARG_BRK_ADDR		0x00000100UL
+#define ARG_MODE		0x00000200UL
+#define ARG_LEN			0x00000400UL
+#define ARG_SECONDS		0x00001000UL
+#define ARG_BPF_ATTR		0x00002000UL
+#define ARG_EMPTY_FILENAME	0x00004000UL	/* "" */
+#define ARG_DEVZERO_FILENAME	0x00008000UL	/* /dev/zero */
+#define ARG_CLOCKID_T		0x00010000UL
+#define ARG_FUNC_PTR		0x00020000UL
+#define ARG_FD			0x00040000UL
+#define ARG_TIMEOUT		0x00080000UL
+#define ARG_DIRFD		0x00100000UL
+#define ARG_DEVNULL_FILENAME	0x00200000UL	/* /dev/null */
+#define ARG_RND			0x00400000UL
+#define ARG_PID			0x00800000UL
+#define ARG_NON_NULL_PTR	0x01000000UL
+#define ARG_NON_ZERO_LEN	0x02000000UL
+#define ARG_GID			0x04000000UL
+#define ARG_UID			0x08000000UL
+#define ARG_FUTEX_PTR		0x10000000UL
+#define ARG_PTR_WR		0x20000000UL	/* kernel writes data to ptr */
+#define ARG_ACCESS_MODE		0x40000000UL	/* faccess modes */
+#define ARG_MISC		0x80000000UL
+
+/*
+ *  misc system call args
+ */
+#define ARG_ADD_KEY_TYPES	0x00000001UL | ARG_MISC
+#define ARG_ADD_KEY_DESCRS	0x00000002UL | ARG_MISC
+#define ARG_BPF_CMDS		0x00000003UL | ARG_MISC
+#define ARG_BPF_LEN		0x00000004UL | ARG_MISC
+
+#define ARG_VALUE(x, v)		{ (x), SIZEOF_ARRAY(v), (unsigned long *)v }
+#define ARG_MISC_ID(x)		((x) & ~ARG_MISC)
 
 /*
  *  rotate right for hashing
@@ -117,7 +127,7 @@ typedef struct {
 	const unsigned long syscall;	/* system call number */
 	const char *name;		/* text name of system call */
 	const int num_args;		/* number of arguments */
-	unsigned long args[6];		/* semantic info about each argument */
+	unsigned long arg_bitmasks[6];	/* semantic info about each argument */
 } stress_syscall_arg_t;
 
 /*
@@ -128,7 +138,7 @@ typedef struct {
  *  permutations
  */
 typedef struct {
-	unsigned long mask;		/* bitmask representing arg type */
+	unsigned long bitmask;		/* bitmask representing arg type */
 	size_t num_values;		/* number of different invalid values */
 	unsigned long *values;		/* invalid values */
 } stress_syscall_arg_values_t;
@@ -219,9 +229,17 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(acct), 1, { ARG_PTR | ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(add_key)
+	{ SYS(add_key), 5, { ARG_ADD_KEY_TYPES, ARG_ADD_KEY_DESCRS, ARG_PTR, ARG_LEN, ARG_UINT, 0 } },
 	{ SYS(add_key), 5, { ARG_PTR, ARG_PTR, ARG_PTR, ARG_LEN, ARG_UINT, 0 } },
 #endif
 #if DEFSYS(adjtimex)
+	/* Need to also test invalid args:
+		time.tv_usec < 0
+		time.tv_usec > 1000000
+		tick <  900000/USER_HZ 
+		tick > 100000/USER_HZ
+		(txc->modes & ADJ_NANO) and txc->time.tv_usec >= NSEC_PER_SEC
+	*/
 	{ SYS(adjtimex), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(alarm) && 0
@@ -262,7 +280,10 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(bind), 3, { ARG_SOCKFD, ARG_PTR | ARG_STRUCT_SOCKADDR, ARG_SOCKLEN_T, 0, 0, 0 } },
 #endif
 #if DEFSYS(bpf)
+	{ SYS(bpf), 3, { ARG_BPF_CMDS, ARG_PTR | ARG_BPF_ATTR, ARG_BPF_LEN, 0, 0, 0 } },
+	{ SYS(bpf), 3, { ARG_BPF_CMDS, ARG_PTR | ARG_BPF_ATTR, ARG_LEN, 0, 0, 0 } },
 	{ SYS(bpf), 3, { ARG_INT, ARG_PTR | ARG_BPF_ATTR, ARG_LEN, 0, 0, 0 } },
+
 #endif
 #if DEFSYS(brk)
 	{ SYS(brk), 1, { ARG_PTR | ARG_BRK_ADDR, 0, 0, 0, 0, 0 } },
@@ -1802,6 +1823,21 @@ static gid_t gids[] = { ~(long)0, INT_MAX };
 static uid_t uids[] = { ~(long)0, INT_MAX };
 
 /*
+ *  Misc per system-call args
+ */
+static char *add_key_types[] = { "key_ring" };
+static char *add_key_descrs[] = { "." };
+static unsigned long bpf_cmds[] = {
+	0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,
+	0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f,
+	0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+	0x18, 0x19, 0x1a, 0x1b, 0x1c, 0x1d, 0x1e, 0x1f,
+	0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+	0x28, 0x29, 0x2a, 0x2b, 0x2c, 0x2d, 0x2e, 0x2f,
+};
+static int bpf_lengths[] = { 0, 16, 256, 1024, 4096, 65536, 1024 * 1024 };
+
+/*
  *  mapping of invalid arg types to invalid arg values
  */
 static const stress_syscall_arg_values_t arg_values[] = {
@@ -1830,6 +1866,13 @@ static const stress_syscall_arg_values_t arg_values[] = {
 	ARG_VALUE(ARG_PTR_WR, ptrs_wr),
 	ARG_VALUE(ARG_PTR, ptrs),
 	ARG_VALUE(ARG_ACCESS_MODE, access_mode_values),
+
+	/* Misc per-system call values */
+	ARG_VALUE(ARG_ADD_KEY_TYPES, add_key_types),
+	ARG_VALUE(ARG_ADD_KEY_DESCRS, add_key_descrs),
+	ARG_VALUE(ARG_BPF_CMDS, bpf_cmds),
+	ARG_VALUE(ARG_BPF_LEN, bpf_lengths),
+
 };
 
 static void MLOCKED_TEXT stress_inval_handler(int signum)
@@ -1941,12 +1984,14 @@ static void syscall_permute(
 	const int arg_num,
 	const stress_syscall_arg_t *stress_syscall_arg)
 {
-	unsigned long arg = stress_syscall_arg->args[arg_num];
+	unsigned long arg_bitmask = stress_syscall_arg->arg_bitmasks[arg_num];
 	size_t i;
 	unsigned long *values = NULL;
 	unsigned long rnd_values[4];
 	size_t num_values = 0;
 
+	if (stress_time_now() > time_end)
+		_exit(EXIT_SUCCESS);
 
 	if (arg_num >= stress_syscall_arg->num_args) {
 		int ret;
@@ -1999,12 +2044,16 @@ static void syscall_permute(
 			current_context->args[5]);
 
 		/*
-		 *  Full stress test timeout?
-		 */
-		if ((ret < 0) && (errno == EINTR)) {
-			if (stress_time_now() > time_end)
-				_exit(EXIT_SUCCESS);
-		}
+		printf("syscall: %s(%lx,%lx,%lx,%lx,%lx,%lx) -> %d\n",
+			current_context->name,
+			current_context->args[0],
+			current_context->args[1],
+			current_context->args[2],
+			current_context->args[3],
+			current_context->args[4],
+			current_context->args[5], ret);
+		*/
+
 
 		if (current_context->type == SYSCALL_TIMED_OUT) {
 			/*
@@ -2022,7 +2071,7 @@ static void syscall_permute(
 		return;
 	}
 
-	switch (arg) {
+	switch (arg_bitmask) {
 	case ARG_NONE:
 		values = none_values;
 		num_values = 1;
@@ -2042,23 +2091,39 @@ static void syscall_permute(
 		/*
 		 *  Find the arg type to determine the arguments to use
 		 */
-		for (i = 0; i < SIZEOF_ARRAY(arg_values); i++) {
-			if (ARG_MASK(arg, arg_values[i].mask)) {
-				values = arg_values[i].values;
-				num_values = arg_values[i].num_values;
-				break;
+		if (ARG_BITMASK(arg_bitmask, ARG_MISC)) {
+			/*
+			 *  Misc enumarated values
+			 */
+			for (i = 0; i < SIZEOF_ARRAY(arg_values); i++) {
+				if (ARG_MISC_ID(arg_bitmask) == ARG_MISC_ID(arg_values[i].bitmask)) {
+					values = arg_values[i].values;
+					num_values = arg_values[i].num_values;
+					break;
+				}
+			}
+		} else {
+			/*
+			 *  Mixed bitmask vlaues
+			 */
+			for (i = 0; i < SIZEOF_ARRAY(arg_values); i++) {
+				if (ARG_BITMASK(arg_bitmask, arg_values[i].bitmask)) {
+					values = arg_values[i].values;
+					num_values = arg_values[i].num_values;
+					break;
+				}
 			}
 		}
 		break;
 	}
 
-	if (arg & ARG_PTR_WR)
+	if (arg_bitmask & ARG_PTR_WR)
 		(void)memset(page_ptr_wr, 0, args->page_size);
 	/*
 	 *  This should not fail!
 	 */
 	if (!num_values) {
-		pr_dbg("%s: argument %d has bad mask %lx\n", args->name, arg_num, arg);
+		pr_dbg("%s: argument %d has bad bitmask %lx\n", args->name, arg_num, arg_bitmask);
 		current_context->args[arg_num] = 0;
 		return;
 	}
@@ -2129,7 +2194,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 			/*
 			 * 50% of the time we do syscalls in shuffled order
 			 */
-			if (stress_mwc1()) {
+			if (0 && stress_mwc1()) {
 				/*
 				 *  Shuffle syscall order
 				 */
@@ -2184,18 +2249,6 @@ static inline int stress_do_syscall(const stress_args_t *args)
 		if (current_context->type == SYSCALL_CRASH) {
 			const size_t idx = current_context->idx;
 
-#if 0
-			printf("CRASHED: %s(%" PRIx64 ",%" PRIx64 ",%" PRIx64
-					   ",%" PRIx64 ",%" PRIx64 ",%" PRIx64 ") %zd\n",
-				current_context->name,
-				current_context->args[0],
-				current_context->args[1],
-				current_context->args[2],
-				current_context->args[3],
-				current_context->args[4],
-				current_context->args[5],
-				idx);
-#endif
 			hash_table_add(current_context->hash,
 				current_context->syscall,
 				current_context->args,
