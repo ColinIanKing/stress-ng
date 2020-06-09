@@ -56,6 +56,8 @@ static int stress_chdir(const stress_args_t *args)
 	int rc, ret = EXIT_FAILURE, *fds;
 	char **paths;
 	bool *mkdir_ok;
+	struct stat statbuf;
+	const bool is_root = stress_check_capability(0);
 
 	(void)stress_get_setting("chdir-dirs", &chdir_dirs);
 	paths = calloc(chdir_dirs, sizeof(*paths));
@@ -88,6 +90,7 @@ static int stress_chdir(const stress_args_t *args)
 		ret = exit_status(-rc);
 		goto err;
 	}
+
 	for (i = 0; i < chdir_dirs; i++) {
 		fds[i] = -1;
 		paths[i] = NULL;
@@ -124,6 +127,11 @@ static int stress_chdir(const stress_args_t *args)
 		fds[i] = open(paths[i], flags);
 		if (!keep_stressing_flag())
 			goto done;
+
+		if ((i == 0) && (stat(path, &statbuf) < 0)) {
+			pr_fail("%s: fstat on %s failed, errno=%d (%s)\n",
+				args->name, path, errno, strerror(errno));
+		}
 	}
 
 	do {
@@ -159,6 +167,19 @@ static int stress_chdir(const stress_args_t *args)
 					goto abort;
 				}
 			}
+			/*
+			 *  chdir to path that won't allow to access,
+			 *  this is designed to exercise a failure. Don't
+			 *  exercise this if root as this won't fail for
+			 *  root.
+			 */
+			if (!is_root && (fchmod(fd, 0000) == 0)) {
+				ret = fchdir(fd);
+				(void)ret;
+				ret = fchmod(fd, statbuf.st_mode & 0777);
+				(void)ret;
+			}
+
 			while (keep_stressing()) {
 				/* We need chdir to cwd to always succeed */
 				if (chdir(cwd) == 0)
