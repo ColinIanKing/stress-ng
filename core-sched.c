@@ -85,6 +85,8 @@ int stress_set_deadline_sched(
 	int rc;
 	struct shim_sched_attr attr;
 
+	(void)memset(&attr, 0, sizeof(attr));
+
 	attr.size = sizeof(attr);
 	attr.sched_policy = SCHED_DEADLINE;
 	/* make sched_deadline task be able to fork*/
@@ -183,6 +185,7 @@ int stress_set_sched(
 	case SCHED_DEADLINE:
 		min = sched_get_priority_min(sched);
 		max = sched_get_priority_max(sched);
+		(void)memset(&attr, 0, sizeof(attr));
 		attr.size = sizeof(attr);
 		attr.sched_policy = SCHED_DEADLINE;
 		attr.sched_flags = SCHED_FLAG_RESET_ON_FORK;
