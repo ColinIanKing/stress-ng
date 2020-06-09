@@ -79,12 +79,14 @@ static const stress_help_t help[] = {
      defined(PR_SET_UNALIGN) ||			\
      defined(PR_GET_UNALIGN)) ||		\
      defined(PR_GET_SPECULATION_CTRL) || 	\
+     defined(PR_SET_SPECULATION_CTRL) || 	\
      defined(PR_SVE_GET_VL) ||			\
      defined(PR_SVE_SET_VL) ||			\
      defined(PR_GET_TAGGED_ADDR_CTRL) ||	\
      defined(PR_SET_TAGGED_ADDR_CTRL) ||	\
      defined(PR_GET_IO_FLUSHER) ||		\
-     defined(PR_SET_IO_FLUSHER)
+     defined(PR_SET_IO_FLUSHER) ||		\
+     defined(PR_PAC_RESET_KEYS)
 
 static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 {
@@ -191,11 +193,17 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 	{
 		int ctrl;
 
+		/* exercise invalid args */
+		ctrl = prctl(PR_GET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0);
+		(void)ctrl;
 		ctrl = prctl(PR_GET_TAGGED_ADDR_CTRL, 0, 0, 0, 0);
 		(void)ctrl;
 
 #if defined(PR_SET_TAGGED_ADDR_CTRL)
 		if (ctrl >= 0) {
+			/* exercise invalid args */
+			ret = prctl(PR_SET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0);
+			(void)ret;
 			ret = prctl(PR_SET_TAGGED_ADDR_CTRL, ctrl, 0, 0, 0);
 			(void)ret;
 		}
@@ -255,11 +263,23 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #endif
 
 #if defined(PR_MCE_KILL_GET)
+	/* exercise invalid args */
+	ret = prctl(PR_MCE_KILL_GET, ~0, ~0, ~0, ~0);
+	(void)ret;
+	/* now exercise what is expected */
 	ret = prctl(PR_MCE_KILL_GET, 0, 0, 0, 0);
 	(void)ret;
 #endif
 
 #if defined(PR_MCE_KILL)
+	/* exercise invalid args */
+	ret = prctl(PR_MCE_KILL, PR_MCE_KILL_CLEAR, ~0, ~0, ~0);
+	(void)ret;
+	ret = prctl(PR_MCE_KILL, PR_MCE_KILL_SET, ~0, ~0, ~0);
+	(void)ret;
+	ret = prctl(PR_MCE_KILL, ~0, ~0, ~0, ~0);
+	(void)ret;
+	/* now exercise what is expected */
 	ret = prctl(PR_MCE_KILL, PR_MCE_KILL_CLEAR, 0, 0, 0);
 	(void)ret;
 #endif
@@ -302,11 +322,15 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #endif
 
 #if defined(PR_MPX_ENABLE_MANAGEMENT)
-	/* skip this for now */
+	/* no longer implemented, use invalid args to force -EINVAL */
+	ret = prctl(PR_MPX_ENABLE_MANAGEMENT, ~0, ~0, ~0, ~0);
+	(void)ret;
 #endif
 
 #if defined(PR_MPX_DISABLE_MANAGEMENT)
-	/* skip this for now */
+	/* no longer implemented, use invalid args to force -EINVAL */
+	ret = prctl(PR_MPX_DISABLE_MANAGEMENT, ~0, ~0, ~0, ~0);
+	(void)ret;
 #endif
 
 #if defined(PR_GET_NAME)
@@ -334,6 +358,10 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_NO_NEW_PRIVS)
 		if (ret >= 0) {
+			/* exercise invalid args */
+			ret = prctl(PR_SET_NO_NEW_PRIVS, ret, ~0, ~0, ~0);
+			(void)ret;
+			/* now exercise what is expected */
 			ret = prctl(PR_SET_NO_NEW_PRIVS, ret, 0, 0, 0);
 			(void)ret;
 		}
@@ -350,6 +378,9 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_PDEATHSIG)
 		if (ret == 0) {
+			/* Exercise invalid signal */
+			ret = prctl(PR_SET_PDEATHSIG, 0x10000);
+			(void)ret;
 			ret = prctl(PR_SET_PDEATHSIG, sig);
 			(void)ret;
 		}
@@ -402,6 +433,10 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_THP_DISABLE)
 		if (ret >= 0) {
+			/* exercise invalid args */
+			ret = prctl(PR_SET_THP_DISABLE, 0, 0, ~0, ~0);
+			(void)ret;
+			/* now exercise what is expected */
 			ret = prctl(PR_SET_THP_DISABLE, 0, 0, 0, 0);
 			(void)ret;
 		}
@@ -492,6 +527,9 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_GET_SPECULATION_CTRL)
 	{
+		/* exercise invalid args */
+		ret = prctl(PR_GET_SPECULATION_CTRL, ~0, ~0, ~0, ~0);
+		(void)ret;
 #if defined(PR_SPEC_STORE_BYPASS)
 		ret = prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, 0, 0, 0);
 		(void)ret;
@@ -500,6 +538,14 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		ret = prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, 0, 0, 0);
 		(void)ret;
 #endif
+	}
+#endif
+
+#if defined(PR_SET_SPECULATION_CTRL)
+	{
+		/* exercise invalid args */
+		ret = prctl(PR_SET_SPECULATION_CTRL, ~0, ~0, ~0, ~0);
+		(void)ret;
 	}
 #endif
 
@@ -514,6 +560,22 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #endif
 	}
 #endif
+
+#if defined(PR_PAC_RESET_KEYS)
+	{
+		/* exercise invalid args */
+		ret = prctl(PR_PAC_RESET_KEYS, ~0, ~0, ~0, ~0);
+		(void)ret;
+	}
+#endif
+
+	/* exercise bad ptrcl command */
+	{
+		ret = prctl(-1, ~0, ~0, ~0, ~0);
+		(void)ret;
+		ret = prctl(0xf00000, ~0, ~0, ~0, ~0);
+		(void)ret;
+	}
 
 	(void)ret;
 
