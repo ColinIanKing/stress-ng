@@ -1,3 +1,98 @@
+stress-ng (0.11.13-1) unstable; urgency=medium
+
+  [Arjan van de Ven]
+  * Use "arch=skylake-avx512" instead of "avx512f" in the TARGET_CLONES list
+
+  [Chunyu Hu]
+  * core-sched: init shim_sched_attr with zero
+
+  [Thadeu Lima de Souza Cascardo]
+  * stress-sysinval: fix build failure on 32-bit systems
+  * stress-sysbadaddr: fix build when HAVE_GETHOSTNAME is not defined
+  * stress-enosys: add some missing syscalls
+  * stress-enosys: negate errno
+  * stress-enosys: prevent segfault when doing syscall_find
+  * stress-rawudp: fix bind sockaddr
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Makefile: add code of conduct text file to make dist rule
+  * stress-sysinval: disable for GNU/HURD
+  * tests/control: disable tests as these are causing testing issues,
+    a better test mechanism is required (Closes: #962620)
+  * stress-dup: force invalid dups by using large fd
+  * stress-sysinval: fix a cut-n-paste error with delete_module
+  * fast-test-all: add checks for all the missing exit status values
+  * Add a new exit status EXIT_METRICS_UNTRUSTWORTHY
+  * stress-ng: fix typo "read" -> "ready"
+  * stress-chdir: exercise chdir to a directory that does not allow
+    access
+  * stress-sysinval: add MISC args allowing finer system call argument
+    passing
+  * stress-prctl: exercise prctl interface with some invalid arguments
+  * stress-sysinval: double check run time timeout
+  * stress-ng: rename "metrics check" to "metrics-check"
+  * stress-*: make child processes call sched_settings_apply
+  * core-sched: add new sched settings helper sched_settings_apply
+  * stress-ng: check and set sched DEADLINE settings if SCHED_DEADLINE
+    is defined
+  * stress-sysinval: disable OS X builds as syscall() has been deprecated
+  * stress-sysinval: prefix syscall_arg* with stress_ to avoid OS X name
+    clashing
+  * core-out-of-memory: use waitpid rather than the shim delay'd wait
+    wrapper
+  * stress-sysinval: remove linux only check; it builds now on all
+    supported platforms
+  * stress-sysinval: cast pointers to void * for madvise call
+  * stress-sysinval: remove the xattr checks, they are not required
+  * stress-sysinval: only build tests syscall.h syscall() is available
+  * stress-vm-rw: fix up unexpected read size error message
+  * stress-mq: don't report EINTR errors as fatal issues
+  * stress-aio: silently ignore ENOSPC write failures
+  * stress-enosys: force child to be killed and reap
+  * stress-{iomix,fiemap}: fix copying of args struct
+  * Add a code of conduct document
+  * stress-stream: make short duration message clearer
+  * kernel-coverage: run sysinval stressor for 3 minutes on all cpus
+  * stress-sysinval: improve syscall timeout metrics
+  * stress-sysinval: add run-time sanity check for zero system calls
+    being detected
+  * stress-sysinval: shuffle system call order 50% of the time
+  * stress-sysinval: add illegal access mode flags
+  * stress-netlink-task: clean up build warning on 32 builds with
+    gcc 4.6.3
+  * stress-nelink-proc: clean up build warning on 32 builds with
+    gcc 4.6.3
+  * stress-netlink-proc: remove space between macro and open parenthesis
+  * stress-urandom: fix some grammar mistakes in comments
+  * stress-sysinval: remove incorrect comment about size of structure
+  * Manual: add Thadeu to the list of contributors
+  * stress-access: add Linux 5.8 faccessat2 system call
+  * stress-sysinval: make the syscall stats more descriptive
+  * stress-sysinval: allo some read/stat actions on filenames
+  * stress-sysinval: add ARG_PTR_WR - writeable destination arguments
+  * stress-inval: use a valid file descriptor for ARG_FD
+  * stress-sockpair: remove double oom detection, we're using the
+    oomable API already
+  * stress-sysinval: don't call sigreturn, this spams the kernel log
+  * stress-sysinval: force child to be killed and reap
+  * stress-sysinval: make syscall stats debug level
+  * stress-sysinval: add some more missing system calls
+  * stress-sock: save and report the correct errno status
+  * stress-sock*: handle EPIPE gracefully
+  * kernel-coverage: add swap to fast seq tests
+  * Make sysinval stressor Linux only for now
+  * stress-sysinval: use alternative system call naming
+  * stress-sysinval: don't modulo by zero if reorder size is 0
+  * stress-sysinval: unmap page if mprotect PROT_NONE  is not available
+  * stress-stackmmap: only mprotect stack ends if mprotect is available
+  * stress-sysinval: clean up some 32 bit build warnings
+  * Add sysinval invalid system call stress test
+  * Add autoconfig detection and workaround for daddr_t
+  * syscalls: add process_madvise to syscalls
+
+ -- Colin King <colin.king@canonical.com>  Wed, 10 Jun 2020 23:55:23 +0100
+
 stress-ng (0.11.12-1) unstable; urgency=medium
 
   * Makefile: bump minor version
