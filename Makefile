@@ -431,7 +431,7 @@ dist:
 		stress-af-alg-defconfigs.h README.Android test snap \
 		TODO core-perf-event.c usr.bin.pulseaudio.eg \
 		stress-version.h bash-completion example-jobs .travis.yml \
-		kernel-coverage.sh stress-ng-$(VERSION)
+		kernel-coverage.sh code-of-conduct.txt stress-ng-$(VERSION)
 	tar -Jcf stress-ng-$(VERSION).tar.xz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
 
