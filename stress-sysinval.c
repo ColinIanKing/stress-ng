@@ -360,7 +360,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(create_module)
 	{ SYS(create_module), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
-#if DEFSYS(create_module)
+#if DEFSYS(delete_module)
 	{ SYS(delete_module), 2, { ARG_PTR, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(dma_memcpy)
