@@ -1769,9 +1769,9 @@ again:
 						 *  be untrustyworthy
 						 */
 						if (!stats->counter_ready) {
-							pr_fail("%s: bogo-ops counter in non-ready state, metrics are untrustworthy\n",
+							pr_inf("%s: NOTE: bogo-ops counter in non-ready state, metrics are untrustworthy (process may have been terminated prematurely)\n",
 								name);
-							rc = EXIT_FAILURE;
+							rc = EXIT_METRICS_UNTRUSTWORTHY;
 						}
 						(*checksum)->data.counter = *args.counter;
 						stress_hash_checksum(*checksum);

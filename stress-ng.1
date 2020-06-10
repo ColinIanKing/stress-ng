@@ -4366,6 +4366,12 @@ T}
 A stressor exited by exit(2) which was not expected and timing metrics
 could not be gathered.
 T}
+7	T{
+The bogo ops metrics maybe untrustworthy. This is most likely to occur when
+a stress test is terminated during the update of a bogo-ops counter such
+as when it has been OOM killed. A less likely reason is that the counter
+ready indicator has been corrupted.
+T}
 .TE
 .SH BUGS
 File bug reports at:

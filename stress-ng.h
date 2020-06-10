@@ -750,11 +750,18 @@ typedef unsigned long int __kernel_ulong_t;
 #define SHIM_DCACHE	(1 << 1)
 #endif
 
-#define EXIT_NOT_SUCCESS	(2)
-#define EXIT_NO_RESOURCE	(3)
-#define EXIT_NOT_IMPLEMENTED	(4)
-#define EXIT_SIGNALED		(5)
-#define EXIT_BY_SYS_EXIT	(6)
+#if !defined(EXIT_SUCCESS)
+#define EXIT_SUCESSS			(0)
+#endif
+#if !defined(EXIT_FAILURE)
+#define EXIT_FAILURE			(1)
+#endif
+#define EXIT_NOT_SUCCESS		(2)
+#define EXIT_NO_RESOURCE		(3)
+#define EXIT_NOT_IMPLEMENTED		(4)
+#define EXIT_SIGNALED			(5)
+#define EXIT_BY_SYS_EXIT		(6)
+#define EXIT_METRICS_UNTRUSTWORTHY	(7)
 
 /*
  * STRESS_ASSERT(test)
