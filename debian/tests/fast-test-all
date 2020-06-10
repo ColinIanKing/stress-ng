@@ -81,6 +81,18 @@ do
 			sk=$((sk + 1))
 			skipped="$skipped $s"
 			;;
+		5)	echo "$s SKIPPED (premature signal killed stressor)"
+			sk=$((sk + 1))
+			skipped="$skipped $s"
+			;;
+		6)	echo "$s SKIPPED (premature child exit, this is a bug in the stress test)"
+			sk=$((sk + 1))
+			skipped="$skipped $s"
+			;;
+		7)	echo "$s PASSED (child bogo-ops metrics were not accurate)"
+			sk=$((sk + 1))
+			skipped="$skipped $s"
+			;;
 		*)	echo "$s SKIPPED (unknown error return $ret)"
 			sk=$((sk + 1))
 			skipped="$skipped $s"
