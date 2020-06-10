@@ -30,8 +30,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		    NULL }
 };
 
-#if defined(HAVE_SYSCALL_H) && \
-    !defined(__APPLE__)
+#if defined(HAVE_SYSCALL_H) &&	\
+    !defined(__APPLE__) && 	\
+    !defined(__gnu_hurd__)
 
 #define ARG_BITMASK(x, bitmask)	(((x) & (bitmask)) == (bitmask))
 
