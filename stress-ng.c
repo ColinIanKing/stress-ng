@@ -1769,7 +1769,7 @@ again:
 						 *  be untrustyworthy
 						 */
 						if (!stats->counter_ready) {
-							pr_fail("%s: bogo-ops counter in non-read state, metrics are untrustworthy\n",
+							pr_fail("%s: bogo-ops counter in non-ready state, metrics are untrustworthy\n",
 								name);
 							rc = EXIT_FAILURE;
 						}
