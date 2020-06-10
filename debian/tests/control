@@ -1,2 +1,2 @@
-Tests: fast-test-all
-Depends: stress-ng, @
+#Tests: fast-test-all
+#Depends: stress-ng, @
