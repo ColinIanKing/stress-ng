@@ -120,7 +120,7 @@ static int stress_membarrier(const stress_args_t *args)
 	if (!(ret & MEMBARRIER_CMD_SHARED)) {
 		pr_inf("%s: membarrier MEMBARRIER_CMD_SHARED "
 			"not supported\n", args->name);
-		return EXIT_FAILURE;
+		return EXIT_NOT_IMPLEMENTED;
 	}
 
 	(void)sigfillset(&set);
