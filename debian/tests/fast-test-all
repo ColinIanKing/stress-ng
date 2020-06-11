@@ -24,7 +24,8 @@ fi
 #
 # Tests that can lock up some kernels or are CPU / arch specific, so exclude them for now
 #
-EXCLUDE="sysfs procfs rdrand numa quota apparmor cpu-online kcmp copy-file mmapmany userfaultfd getrandom aio aiol tsc membarrier bind-mount sockpair remap pty exec seccomp oom-pipe resources spawn dccp vforkmany xattr mlockmany watchdog"
+#EXCLUDE="sysfs procfs rdrand numa quota apparmor cpu-online kcmp copy-file mmapmany userfaultfd getrandom aio aiol tsc membarrier bind-mount sockpair remap pty exec seccomp oom-pipe resources spawn dccp vforkmany xattr mlockmany watchdog"
+EXCLUDE=""
 #
 # Get built-in stressor names
 #
