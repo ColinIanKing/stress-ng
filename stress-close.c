@@ -132,10 +132,9 @@ static void *stress_close_func(void *arg)
 		/*
 		 *  close random unused fd to force EBADF
 		 */
-		if (fcntl((int)fd_rnd, F_GETFL) == -1)	
+		if (fcntl((int)fd_rnd, F_GETFL) == -1)
 			(void)close(fd_rnd);
 #endif
-			
 	}
 
 	return &nowt;
