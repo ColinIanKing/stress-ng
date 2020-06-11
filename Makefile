@@ -454,6 +454,10 @@ clean:
 fast-test-all: all
 	STRESS_NG=./stress-ng debian/tests/fast-test-all
 
+.PHONY: lite-test
+lite-test: all
+	STRESS_NG=./stress-ng debian/tests/lite-test
+
 .PHONY: slow-test-all
 slow-test-all: all
 	./stress-ng --seq 0 -t 15 --pathological --verbose --times --tz --metrics

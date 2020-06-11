@@ -1,0 +1,2 @@
+Tests: lite-test
+Depends: stress-ng, @

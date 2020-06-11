@@ -1,0 +1,96 @@
+#!/bin/sh
+#
+# Copyright (C) 2016-2020 Canonical
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+#
+
+if [ -z $STRESS_NG ]; then
+	STRESS_NG=stress-ng
+fi
+
+#
+#  Quick sanity check that a handful of stress tests work
+#
+STRESSORS="af-alg atomic branch cache context cpu cyclic funccall funcret get getrandom heapsort hsearch icache judy longjmp lsearch matrix matrix-3d memcpy mergesort nop null pthread qsort radixsort rdrand shellsort skiplist sleep str stream switch sysinfo tree tsc tsearch vdso vecmath wait wcs x86syscall zlib"
+rc=0
+
+p=0
+f=0
+sk=0
+failed=""
+skipped=""
+echo ""
+uname -a
+echo ""
+for s in ${STRESSORS}
+do
+	echo "$s at $(date)"
+	${STRESS_NG} -v -t 1 --${s} 4 --verify --timestamp 2>&1
+	ret=$?
+
+	case $ret in
+	0)	echo "$s PASSED"
+		p=$((p + 1))
+		;;
+	1)	echo "$s SKIPPED (test framework out of resources or test should not be run)"
+		sk=$((sk + 1))
+		skipped="$skipped $s"
+		;;
+	2)	echo "$s FAILED"
+		f=$((f + 1))
+		failed="$failed $s"
+		rc=1
+		;;
+	3)	echo "$s SKIPPED (out of resources or missing syscall)"
+		sk=$((sk + 1))
+		skipped="$skipped $s"
+		;;
+	4)	echo "$s SKIPPED (stressor not implemented on this machine)"
+		sk=$((sk + 1))
+		skipped="$skipped $s"
+		;;
+	5)	echo "$s SKIPPED (premature signal killed stressor)"
+		sk=$((sk + 1))
+		skipped="$skipped $s"
+		;;
+	6)	echo "$s SKIPPED (premature child exit, this is a bug in the stress test)"
+		sk=$((sk + 1))
+		skipped="$skipped $s"
+		;;
+	7)	echo "$s PASSED (child bogo-ops metrics were not accurate)"
+		sk=$((sk + 1))
+		skipped="$skipped $s"
+		;;
+	*)	echo "$s SKIPPED (unknown error return $ret)"
+		sk=$((sk + 1))
+		skipped="$skipped $s"
+		;;
+	esac
+done
+
+echo "$p PASSED"
+if [ $f -eq 0 ]; then
+	echo "$f FAILED"
+else
+	echo "$f FAILED,$failed"
+fi
+if [ $sk -eq 0 ]; then
+	echo "$sk SKIPPED"
+else
+	echo "$sk SKIPPED,$skipped"
+fi
+
+exit $rc
