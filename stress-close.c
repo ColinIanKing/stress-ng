@@ -119,6 +119,7 @@ static void *stress_close_func(void *arg)
 #endif
 
 	while (keep_stressing()) {
+		int fd_rnd = (int)stress_mwc32();
 		const uint64_t delay =
 			max_delay_us ? stress_mwc32() % max_delay_us : 0;
 		shim_usleep_interruptible(delay);
@@ -126,6 +127,15 @@ static void *stress_close_func(void *arg)
 			(void)close(fd);
 		if (dupfd != -1)
 			(void)close(dupfd);
+
+#if defined(F_GETFL)
+		/*
+		 *  close random unused fd to force EBADF
+		 */
+		if (fcntl((int)fd_rnd, F_GETFL) == -1)	
+			(void)close(fd_rnd);
+#endif
+			
 	}
 
 	return &nowt;
