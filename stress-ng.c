@@ -1382,7 +1382,8 @@ static char *str_exitstatus(const int status)
 static void MLOCKED_TEXT wait_procs(
 	stress_proc_info_t *procs_list,
 	bool *success,
-	bool *resource_success)
+	bool *resource_success,
+	bool *metrics_success)
 {
 	stress_proc_info_t *pi;
 
@@ -1516,6 +1517,9 @@ redo:
 						pr_dbg("process [%d] (stress-ng-%s) aborted via exit() which was not expected\n",
 							ret, stressor_name);
 						do_abort = true;
+						break;
+					case EXIT_METRICS_UNTRUSTWORTHY:
+						*metrics_success = false;
 						break;
 					default:
 						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
@@ -1658,6 +1662,7 @@ static void MLOCKED_TEXT stress_run(
 	double *duration,
 	bool *success,
 	bool *resource_success,
+	bool *metrics_success,
 	stress_checksum_t **checksum
 )
 {
@@ -1837,7 +1842,7 @@ abort:
 		n_procs == 1 ? "" : "s");
 
 wait_for_procs:
-	wait_procs(procs_list, success, resource_success);
+	wait_procs(procs_list, success, resource_success, metrics_success);
 	time_finish = stress_time_now();
 
 	*duration += time_finish - time_start;
@@ -2819,7 +2824,8 @@ static void stress_setup_parallel(const uint32_t class)
 static inline void stress_run_sequential(
 	double *duration,
 	bool *success,
-	bool *resource_success)
+	bool *resource_success,
+	bool *metrics_success)
 {
 	stress_proc_info_t *pi;
 	stress_checksum_t *checksum = g_shared->checksums;
@@ -2831,7 +2837,8 @@ static inline void stress_run_sequential(
 		stress_proc_info_t *next = pi->next;
 
 		pi->next = NULL;
-		stress_run(pi, duration, success, resource_success, &checksum);
+		stress_run(pi, duration, success, resource_success,
+			metrics_success, &checksum);
 		pi->next = next;
 
 	}
@@ -2844,14 +2851,16 @@ static inline void stress_run_sequential(
 static inline void stress_run_parallel(
 	double *duration,
 	bool *success,
-	bool *resource_success)
+	bool *resource_success,
+	bool *metrics_success)
 {
 	stress_checksum_t *checksum = g_shared->checksums;
 
 	/*
 	 *  Run all stressors in parallel
 	 */
-	stress_run(procs_head, duration, success, resource_success, &checksum);
+	stress_run(procs_head, duration, success, resource_success,
+			metrics_success, &checksum);
 }
 
 /*
@@ -2875,7 +2884,9 @@ static inline void stress_mlock_executable(void)
 int main(int argc, char **argv, char **envp)
 {
 	double duration = 0.0;			/* stressor run time in secs */
-	bool success = true, resource_success = true;
+	bool success = true;
+	bool resource_success = true;
+	bool metrics_success = true;
 	FILE *yaml;				/* YAML output file */
 	char *yaml_filename = NULL;		/* YAML file name */
 	char *log_filename;			/* log filename */
@@ -3129,10 +3140,10 @@ int main(int argc, char **argv, char **envp)
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_run_sequential(&duration,
-			&success, &resource_success);
+			&success, &resource_success, &metrics_success);
 	} else {
 		stress_run_parallel(&duration,
-			&success, &resource_success);
+			&success, &resource_success, &metrics_success);
 	}
 
 	/* Stop thasher process */
@@ -3215,5 +3226,7 @@ int main(int argc, char **argv, char **envp)
 		exit(EXIT_NOT_SUCCESS);
 	if (!resource_success)
 		exit(EXIT_NO_RESOURCE);
+	if (!metrics_success)
+		exit(EXIT_METRICS_UNTRUSTWORTHY);
 	exit(EXIT_SUCCESS);
 }
