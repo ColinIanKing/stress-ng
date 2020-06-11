@@ -181,7 +181,14 @@ static void stress_sock_ioctl(const int fd)
 		(void)ret;
 	}
 #endif
-#if defined(SIOCGSTAMP)
+
+/*
+ *  On some 32 bit arches on some kernels/libc flavours
+ *  struct __kernel_old_timeval is not defined and causes
+ *  this ioctl to break the build. So only build it for
+ *  64 bit arches as a workaround.
+ */
+#if defined(SIOCGSTAMP) && (ULONG_MAX > 4294967295UL)
 	{
 		int ret;
 		struct timeval tv;
