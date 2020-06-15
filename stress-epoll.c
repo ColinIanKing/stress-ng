@@ -226,6 +226,8 @@ static int epoll_notification(
 	const int efd,
 	const int sfd)
 {
+	const int bad_fd = stress_get_bad_fd();
+
 	for (;;) {
 		struct sockaddr saddr;
 		socklen_t slen = sizeof(saddr);
@@ -262,6 +264,10 @@ static int epoll_notification(
 			(void)close(fd);
 			return -1;
 		}
+		/*
+		 *  Exercise kernel, force add on a bad fd, ignore error
+		 */
+		(void)epoll_ctl_add(efd, bad_fd);
 	}
 	return 0;
 }
@@ -427,6 +433,7 @@ static void epoll_server(
 	struct epoll_event *events = NULL;
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
+	const int bad_fd = stress_get_bad_fd();
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -565,6 +572,14 @@ static void epoll_server(
 				 */
 				epoll_recv_data(events[i].data.fd);
 			}
+		}
+		/*
+		 *  Exercise kernel on epoll wait with a bad fd, ignore error
+		 */
+		if (stress_mwc1()) {
+			n = epoll_wait(bad_fd, events, MAX_EPOLL_EVENTS, 100);
+		} else {
+			n = epoll_pwait(bad_fd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
 		}
 	} while (keep_stressing());
 
