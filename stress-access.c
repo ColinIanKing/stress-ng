@@ -97,6 +97,7 @@ static int stress_access(const stress_args_t *args)
 	char filename[PATH_MAX];
 	const mode_t all_mask = 0700;
 	size_t i;
+	const int bad_fd = stress_get_bad_fd();
 	const bool is_root = (geteuid() == 0);
 
 	ret = stress_temp_dir_mk_args(args);
@@ -138,6 +139,11 @@ static int stress_access(const stress_args_t *args)
 					modes[i].access_mode, (unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno));
 			}
+			/*
+			 *  Exercise bad dirfd
+			 */
+			ret = faccessat(bad_fd, filename, modes[i].access_mode, 0);
+			(void)ret;
 #endif
 #if defined(HAVE_FACCESSAT2) && defined(AT_SYMLINK_NOFOLLOW)
 			ret = faccessat2(AT_FDCWD, filename, modes[i].access_mode, AT_SYMLINK_NOFOLLOW);
@@ -147,6 +153,11 @@ static int stress_access(const stress_args_t *args)
 					modes[i].access_mode, (unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno));
 			}
+			/*
+			 *  Exercise bad dirfd
+			 */
+			ret = faccessat2(bad_fd, filename, modes[i].access_mode, AT_SYMLINK_NOFOLLOW);
+			(void)ret;
 #endif
 			if (modes[i].access_mode != 0) {
 				const mode_t chmod_mode = modes[i].chmod_mode ^ all_mask;
