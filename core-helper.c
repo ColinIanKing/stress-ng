@@ -1118,6 +1118,38 @@ size_t stress_get_file_limit(void)
 }
 
 /*
+ *  stress_get_bad_fd()
+ *	return a fd that will produce -EINVAL when using it
+ *	either because it is not open or it is just out of range
+ */
+int stress_get_bad_fd(void)
+{
+#if defined(RLIMIT_NOFILE) && defined(F_GETFL)
+	struct rlimit rlim;
+
+	(void)memset(&rlim, 0, sizeof(rlim));
+
+	if (getrlimit(RLIMIT_NOFILE, &rlim) == 0) {
+		if (rlim.rlim_cur < INT_MAX - 1) {
+			if (fcntl((int)rlim.rlim_cur, F_GETFL) == -1) {
+				return rlim.rlim_cur + 1;
+			}
+		}
+	}
+#elif defined(F_GETFL)
+	int i;
+
+	for (i = 0; i < 1024; i++) {
+		if (fcntl((int)i, F_GETFL) == -1)
+			return i;
+	}
+#endif
+	return -1;
+}
+
+
+
+/*
  *  stress_sigaltstack()
  *	attempt to set up an alternative signal stack
  *	  stack - must be at least 4K
