@@ -42,10 +42,7 @@ static int stress_dup(const stress_args_t *args)
 #if defined(HAVE_DUP3)
 	bool do_dup3 = true;
 #endif
-#if defined(RLIMIT_NOFILE)
-	int max_rlimit_fd = -1;
-	struct rlimit rlim;
-#endif
+	const int bad_fd = stress_get_bad_fd();
 
 	if (max_fd > SIZEOF_ARRAY(fds))
 		max_fd =  SIZEOF_ARRAY(fds);
@@ -56,13 +53,6 @@ static int stress_dup(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-#if defined(RLIMIT_NOFILE)
-	(void)memset(&rlim, 0, sizeof(rlim));
-	if (getrlimit(RLIMIT_NOFILE, &rlim) == 0) {
-		if (rlim.rlim_cur < INT_MAX - 1)
-			max_rlimit_fd = rlim.rlim_cur + 1;
-	}
-#endif
 
 	do {
 		size_t n;
@@ -73,20 +63,17 @@ static int stress_dup(const stress_args_t *args)
 			fds[n] = dup(fds[0]);
 			if (fds[n] < 0)
 				break;
-#if defined(RLIMIT_NOFILE)
-			/* do an invalid dup on a large fd */
-			tmp = dup(max_rlimit_fd);
+
+			/* do an invalid dup on an invalid fd */
+			tmp = dup(bad_fd);
 			if (tmp >= 0)
 				(void)close(tmp);
-#endif
 
 #if defined(HAVE_DUP3)
-#if defined(RLIMIT_NOFILE)
-			/* do an invalid dup3 on a large fd */
-			tmp = shim_dup3(fds[0], max_rlimit_fd, O_CLOEXEC);
+			/* do an invalid dup3 on an invalid fd */
+			tmp = shim_dup3(fds[0], bad_fd, O_CLOEXEC);
 			if (tmp >= 0)
 				(void)close(tmp);
-#endif
 
 			if (do_dup3 && stress_mwc1()) {
 				int fd;
@@ -114,12 +101,10 @@ static int stress_dup(const stress_args_t *args)
 					args->name, errno, strerror(errno));
 				break;
 			}
-#if defined(RLIMIT_NOFILE)
-			/* do an invalid dup2 on a large fd */
-			tmp = dup2(fds[0], max_rlimit_fd);
+			/* do an invalid dup2 on an invalid fd */
+			tmp = dup2(fds[0], bad_fd);
 			if (tmp >= 0)
 				(void)close(tmp);
-#endif
 
 #if defined(F_DUPFD)
 			/* POSIX.1-2001 fcntl() */
