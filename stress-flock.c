@@ -36,11 +36,16 @@ static const stress_help_t help[] = {
 
 #define MAX_FLOCK_STRESSORS	(3)
 
-static void stress_flock_child(const stress_args_t *args, const int fd)
+static void stress_flock_child(
+	const stress_args_t *args,
+	const int fd,
+	const int bad_fd)
 {
 	bool cont;
 
 	for (;;) {
+		int ret;
+
 		if (flock(fd, LOCK_EX) == 0) {
 			cont = keep_stressing();
 			if (cont)
@@ -49,6 +54,14 @@ static void stress_flock_child(const stress_args_t *args, const int fd)
 			if (!cont)
 				break;
 		}
+
+		/*
+		 *  Exercise flock wit invalid fd
+		 */
+		ret = flock(bad_fd, LOCK_EX);
+		(void)ret;
+		ret = flock(bad_fd, LOCK_UN);
+		(void)ret;
 
 #if defined(LOCK_NB)
 		if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
@@ -96,6 +109,7 @@ static void stress_flock_child(const stress_args_t *args, const int fd)
 static int stress_flock(const stress_args_t *args)
 {
 	int fd, ret, rc = EXIT_FAILURE;
+	const int bad_fd = stress_get_bad_fd();
 	size_t i;
 	pid_t pids[MAX_FLOCK_STRESSORS];
 	char filename[PATH_MAX];
@@ -123,12 +137,12 @@ static int stress_flock(const stress_args_t *args)
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
-			stress_flock_child(args, fd);
+			stress_flock_child(args, fd, bad_fd);
 			_exit(EXIT_SUCCESS);
 		}
 	}
 
-	stress_flock_child(args, fd);
+	stress_flock_child(args, fd, bad_fd);
 	rc = EXIT_SUCCESS;
 reap:
 	(void)close(fd);
