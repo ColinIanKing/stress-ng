@@ -25,10 +25,13 @@
 #define _GNU_SOURCE
 
 #include <asm/ldt.h>
+#include <string.h>
 
 int main(void)
 {
 	struct user_desc u_info;
+
+	(void)memset(&u_info, 0, sizeof(u_info));
 
 	(void)u_info;
 
