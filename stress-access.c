@@ -100,6 +100,8 @@ static int stress_access(const stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 	const bool is_root = (geteuid() == 0);
 
+	(void)bad_fd;
+
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
