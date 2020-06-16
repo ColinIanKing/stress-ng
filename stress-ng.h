@@ -3657,7 +3657,7 @@ extern void stress_adjust_sleep_max(const uint64_t max);
 #if defined(HAVE_LOFF_T)
 typedef	loff_t		shim_loff_t;
 #else
-typedef uint64_t	shim_loff_t;	/* Assume 64 bit */
+typedef long		shim_loff_t;
 #endif
 
 #if defined(HAVE_OFF64_T)
