@@ -106,6 +106,7 @@ static int stress_sync_allocate(
 static int stress_sync_file(const stress_args_t *args)
 {
 	int fd, ret;
+	const int bad_fd = stress_get_bad_fd();
 	off_t sync_file_bytes = DEFAULT_SYNC_FILE_BYTES;
 	char filename[PATH_MAX];
 
@@ -170,6 +171,12 @@ static int stress_sync_file(const stress_args_t *args)
 		}
 		if (!keep_stressing_flag())
 			break;
+
+		/*
+		 *  Exercise sync_file_range with a bad fd
+		 */
+		ret = shim_sync_file_range(bad_fd, 0, 4096, mode);
+		(void)ret;
 
 		ret = stress_sync_allocate(args, fd, sync_file_bytes);
 		if (ret < 0) {
