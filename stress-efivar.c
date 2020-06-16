@@ -162,7 +162,11 @@ err_vars:
  */
 static int efi_get_variable(const stress_args_t *args, const char *varname, stress_efi_var_t *var)
 {
-	int fd, ret, rc = 0, flags;
+#if defined(FS_IOC_GETFLAGS) &&	\
+    defined(FS_IOC_SETFLAGS)
+	int flags;
+#endif
+	int fd, ret, rc = 0;
 	size_t i;
 	ssize_t n;
 	char filename[PATH_MAX];
@@ -200,7 +204,8 @@ static int efi_get_variable(const stress_args_t *args, const char *varname, stre
 		goto err_efi_vars;
 	}
 
-
+#if defined(FS_IOC_GETFLAGS) &&	\
+    defined(FS_IOC_SETFLAGS)
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &flags);
 	if (ret < 0) {
 		pr_err("%s: ioctl FS_IOC_GETFLAGS on %s failed, errno=%d (%s)\n",
@@ -215,6 +220,7 @@ static int efi_get_variable(const stress_args_t *args, const char *varname, stre
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
 	}
+#endif
 
 err_efi_vars:
 	(void)close(fd);
