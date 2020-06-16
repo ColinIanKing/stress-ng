@@ -213,7 +213,6 @@ static int stress_lockf_contention(
 			return -1;
 		}
 		lockf_info->offset = offset;
-		
 		/*
 		 *  Occasionally exercise lock on a bad fd, ignore error
 		 */
