@@ -289,7 +289,7 @@ static int stress_sockabuse_server(
 
 				n = send(sfd, buf, sizeof(buf), 0);
 				if (n < 0) {
-					if ((errno != EINTR) && (errno != EPIPE) && (errno != EPIPE))
+					if ((errno != EINTR) && (errno != EPIPE))
 						pr_fail("%s: send failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 					stress_sockabuse_fd(sfd);
