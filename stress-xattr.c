@@ -49,6 +49,7 @@ static const stress_help_t help[] = {
 static int stress_xattr(const stress_args_t *args)
 {
 	int ret, fd, rc = EXIT_FAILURE;
+	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX];
 
 	ret = stress_temp_dir_mk_args(args);
@@ -67,6 +68,7 @@ static int stress_xattr(const stress_args_t *args)
 		int i, j;
 		char attrname[32];
 		char value[32];
+		char tmp[sizeof(value)];
 		ssize_t sz;
 		char *buffer;
 
@@ -88,6 +90,12 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_close;
 			}
 		}
+		/*
+		 *  Exercise bad/invalid fd
+		 */
+		ret = shim_fsetxattr(bad_fd, attrname, value, strlen(value), XATTR_CREATE);
+		(void)ret;
+
 		for (j = 0; j < i; j++) {
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
@@ -127,8 +135,6 @@ static int stress_xattr(const stress_args_t *args)
 #endif
 		}
 		for (j = 0; j < i; j++) {
-			char tmp[sizeof(value)];
-
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
 
@@ -171,6 +177,13 @@ static int stress_xattr(const stress_args_t *args)
 			}
 #endif
 		}
+
+		/*
+		 *  Exercise bad/invalid fd
+		 */
+		ret = shim_fgetxattr(bad_fd, "user.var_bad", tmp, sizeof(tmp));
+		(void)ret;
+
 		/* Determine how large a buffer we required... */
 		sz = shim_flistxattr(fd, NULL, 0);
 		if (sz < 0) {
@@ -190,6 +203,13 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_close;
 			}
 		}
+
+		/*
+		 *  Exercise bad/invalid fd
+		 */
+		ret = shim_flistxattr(bad_fd, NULL, 0);
+		(void)ret;
+
 		for (j = 0; j < i; j++) {
 			char *errmsg;
 
@@ -217,6 +237,13 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_close;
 			}
 		}
+
+		/*
+		 *  Exercise bad/invalid fd
+		 */
+		ret = shim_fremovexattr(bad_fd, "user.var_bad");
+		(void)ret;
+
 #if defined(HAVE_LLISTXATTR)
 		sz = shim_llistxattr(filename, NULL, 0);
 		if (sz < 0) {
