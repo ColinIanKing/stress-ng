@@ -39,7 +39,8 @@ typedef int (stress_getdents_func)(
 	const char *path,
 	const bool recurse,
 	const int depth,
-	const size_t page_size);
+	const size_t page_size,
+	const int bad_fd);
 
 #if defined(HAVE_GETDENTS)
 static stress_getdents_func stress_getdents_dir;
@@ -62,7 +63,8 @@ static inline int stress_getdents_rand(
 	const char *path,
 	const bool recurse,
 	const int depth,
-	const size_t page_size)
+	const size_t page_size,
+	const int bad_fd)
 {
 	int ret = -ENOSYS;
 	const size_t n = SIZEOF_ARRAY(getdents_funcs);
@@ -72,7 +74,7 @@ static inline int stress_getdents_rand(
 		stress_getdents_func *func = getdents_funcs[j];
 
 		if (func) {
-			ret = func(args, path, recurse, depth, page_size);
+			ret = func(args, path, recurse, depth, page_size, bad_fd);
 			if (ret == -ENOSYS)
 				getdents_funcs[j] = NULL;
 			else
@@ -97,9 +99,10 @@ static int stress_getdents_dir(
 	const char *path,
 	const bool recurse,
 	const int depth,
-	const size_t page_size)
+	const size_t page_size,
+	const int bad_fd)
 {
-	int fd, rc = 0;
+	int fd, rc = 0, nread;
 	char *buf;
 	size_t buf_sz;
 
@@ -115,8 +118,13 @@ static int stress_getdents_dir(
 	if (!buf)
 		goto exit_close;
 
+	/*
+	 *  exercise getdents on bad fd
+	 */
+	nread = shim_getdents(bad_fd, (struct shim_linux_dirent *)buf, buf_sz);
+	(void)nread;
+
 	do {
-		int nread;
 		char *ptr = buf;
 
 		nread = shim_getdents(fd, (struct shim_linux_dirent *)buf, buf_sz);
@@ -141,7 +149,7 @@ static int stress_getdents_dir(
 				char newpath[PATH_MAX];
 
 				(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
-				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size);
+				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size, bad_fd);
 				if (rc < 0)
 					goto exit_free;
 			}
@@ -167,9 +175,10 @@ static int stress_getdents64_dir(
 	const char *path,
 	const bool recurse,
 	const int depth,
-	const size_t page_size)
+	const size_t page_size,
+	const int bad_fd)
 {
-	int fd, rc = 0;
+	int fd, rc = 0, nread;
 	char *buf;
 	size_t buf_sz;
 
@@ -185,8 +194,13 @@ static int stress_getdents64_dir(
 	if (!buf)
 		goto exit_close;
 
+	/*
+	 *  exercise getdents64 on bad fd
+	 */
+	nread = shim_getdents64(bad_fd, (struct shim_linux_dirent64 *)buf, buf_sz);
+	(void)nread;
+
 	do {
-		int nread;
 		char *ptr = buf;
 
 		nread = shim_getdents64(fd, (struct shim_linux_dirent64 *)buf, buf_sz);
@@ -210,7 +224,7 @@ static int stress_getdents64_dir(
 				char newpath[PATH_MAX];
 
 				(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
-				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size);
+				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size, bad_fd);
 				if (rc < 0)
 					goto exit_free;
 			}
@@ -233,23 +247,24 @@ exit_close:
 static int stress_getdent(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
+	const int bad_fd = stress_get_bad_fd();
 
 	do {
 		int ret;
 
-		ret = stress_getdents_rand(args, "/proc", true, 8, page_size);
+		ret = stress_getdents_rand(args, "/proc", true, 8, page_size, bad_fd);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(args, "/dev", true, 1, page_size);
+		ret = stress_getdents_rand(args, "/dev", true, 1, page_size, bad_fd);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(args, "/tmp", true, 4, page_size);
+		ret = stress_getdents_rand(args, "/tmp", true, 4, page_size, bad_fd);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(args, "/sys", true, 8, page_size);
+		ret = stress_getdents_rand(args, "/sys", true, 8, page_size, bad_fd);
 		if (ret == -ENOSYS)
 			break;
-		ret = stress_getdents_rand(args, "/run", true, 2, page_size);
+		ret = stress_getdents_rand(args, "/run", true, 2, page_size, bad_fd);
 		if (ret == -ENOSYS)
 			break;
 	} while (keep_stressing());
