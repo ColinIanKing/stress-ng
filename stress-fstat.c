@@ -58,9 +58,10 @@ typedef struct stat_info {
 
 /* Thread context information */
 typedef struct ctxt {
-	const stress_args_t 	*args;		/* Stressor args */
+	const stress_args_t *args;	/* Stressor args */
 	stress_stat_info_t *si;		/* path stat information */
-	const uid_t	euid;		/* euid of process */
+	const uid_t euid;		/* euid of process */
+	const int bad_fd;		/* bad/invalid fd */
 } stress_ctxt_t;
 
 static int stress_set_fstat_dir(const char *opt)
@@ -102,6 +103,7 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 	struct shim_statx bufx;
 #endif
 	stress_stat_info_t *si = ctxt->si;
+	int ret;
 
 	if ((stat(si->path, &buf) < 0) && (errno != ENOMEM)) {
 		si->ignore |= IGNORE_STAT;
@@ -133,6 +135,11 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 			si->ignore |= IGNORE_FSTAT;
 		(void)close(fd);
 	}
+	/*
+	 *  Exercise fstat on an invalid fd
+	 */
+	ret = fstat(ctxt->bad_fd, &buf);
+	(void)ret;
 }
 
 #if defined(HAVE_LIB_PTHREAD)
@@ -183,7 +190,8 @@ static void stress_fstat_threads(const stress_args_t *args, stress_stat_info_t *
 	stress_ctxt_t ctxt = {
 		.args 	= args,
 		.si 	= si,
-		.euid	= euid
+		.euid	= euid,
+		.bad_fd = stress_get_bad_fd()
 	};
 
 	keep_running = true;
