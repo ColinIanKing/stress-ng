@@ -60,6 +60,7 @@ static int stress_seek(const stress_args_t *args)
 	uint64_t len;
 	uint64_t seek_size = DEFAULT_SEEK_SIZE;
 	int ret, fd, rc = EXIT_FAILURE;
+	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX];
 	uint8_t buf[512];
 #if defined(OPT_SEEK_PUNCH)
@@ -200,6 +201,12 @@ re_read:
 				seek_punch_hole = false;
 		}
 #endif
+		/*
+		 *  Exercise lseek on an invalid fd
+		 */
+		offset = lseek(bad_fd, (off_t)offset, SEEK_SET);
+		(void)offset;
+
 		inc_counter(args);
 	} while (keep_stressing());
 
