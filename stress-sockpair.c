@@ -88,7 +88,7 @@ static int stress_sockpair_oomable(const stress_args_t *args)
 	static int socket_pair_fds[MAX_SOCKET_PAIRS][2];
 	int i, max;
 
-	for (max = 0; max < MAX_SOCKET_PAIRS; max++) {
+	for (max = 0; keep_stressing() && (max < MAX_SOCKET_PAIRS); max++) {
 		if (socketpair(AF_UNIX, SOCK_STREAM, 0, socket_pair_fds[max]) < 0)
 			break;
 	}
@@ -102,7 +102,7 @@ static int stress_sockpair_oomable(const stress_args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag() && (errno == EAGAIN))
+		if (keep_stressing() && (errno == EAGAIN))
 			goto again;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -116,11 +116,11 @@ again:
 		(void)sched_settings_apply(true);
 
 		socket_pair_close(socket_pair_fds, max, 1);
-		while (keep_stressing_flag()) {
+		while (keep_stressing()) {
 			uint8_t buf[SOCKET_PAIR_BUF];
 			ssize_t n;
 
-			for (i = 0; keep_stressing_flag() && (i < max); i++) {
+			for (i = 0; keep_stressing() && (i < max); i++) {
 				n = read(socket_pair_fds[i][0], buf, sizeof(buf));
 				if (n <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
