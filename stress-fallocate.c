@@ -74,6 +74,7 @@ static const int modes[] = {
 static int stress_fallocate(const stress_args_t *args)
 {
 	int fd, ret;
+	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
 	off_t fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
@@ -173,6 +174,18 @@ static int stress_fallocate(const stress_args_t *args)
 				ftrunc_errs++;
 			(void)shim_fsync(fd);
 		}
+
+		/*
+		 *  Exercise fallocate on a bad fd for more kernel
+		 *  coverage
+		 */
+#if defined(HAVE_POSIX_FALLOCATE)
+		ret = posix_fallocate(bad_fd, (off_t)0, fallocate_bytes);
+#else
+		ret = shim_fallocate(bad_fd, 0, (off_t)0, fallocate_bytes);
+#endif
+		(void)ret;
+		
 		inc_counter(args);
 	} while (keep_stressing());
 	if (ftrunc_errs)
