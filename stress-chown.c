@@ -36,6 +36,7 @@ static const stress_help_t help[] = {
  */
 static int do_fchown(
 	const int fd,
+	const int bad_fd,
 	const bool cap_chown,
 	const uid_t uid,
 	const gid_t gid)
@@ -65,6 +66,12 @@ static int do_fchown(
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
+
+	/*
+	 *  Exercise fchown with invalid fd
+	 */
+	ret = fchown(bad_fd, uid, gid);
+	(void)ret;
 
 	return 0;
 
@@ -131,6 +138,7 @@ static int stress_chown(const stress_args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd = -1, rc = EXIT_FAILURE, retries = 0;
+	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX], pathname[PATH_MAX];
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
@@ -192,7 +200,7 @@ static int stress_chown(const stress_args_t *args)
 	do {
 		int ret;
 
-		ret = do_fchown(fd, cap_chown, uid, gid);
+		ret = do_fchown(fd, bad_fd, cap_chown, uid, gid);
 		if ((ret < 0) && (ret != -EPERM))
 			pr_fail("%s: fchown failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
