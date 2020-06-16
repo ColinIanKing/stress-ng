@@ -339,7 +339,7 @@ retry_bind:
 		rc = EXIT_SUCCESS;
 		goto err;
 #endif
-	} else  {
+	} else {
 #if defined(ALG_SET_AEAD_ASSOCLEN)
 		char *assocdata;
 

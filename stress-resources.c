@@ -230,7 +230,7 @@ static void NORETURN waste_resources(
     defined(HAVE_PKEY_FREE)
 		info[i].pkey = -1;
 #endif
-		info[i].pid  = 1;
+		info[i].pid = 1;
 
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 

@@ -114,7 +114,7 @@ static int stress_chroot_test2(const stress_args_t *args)
 
 	do_chroot((void *)1, &ret1, &ret2, &errno1, &errno2);
 
-	if ((ret1 >= 0) || (errno1 != EFAULT))  {
+	if ((ret1 >= 0) || (errno1 != EFAULT)) {
 		pr_fail("%s: chroot(\"(void *)1\"), expected EFAULT"
 			", got instead errno=%d (%s)\n",
 			args->name, errno1, strerror(errno1));
@@ -130,9 +130,9 @@ static int stress_chroot_test3(const stress_args_t *args)
 	do_chroot(longpath, &ret1, &ret2, &errno1, &errno2);
 
 #if defined(__HAIKU__)
-	if ((ret1 >= 0) || (errno1 != EINVAL))  {
+	if ((ret1 >= 0) || (errno1 != EINVAL)) {
 #else
-	if ((ret1 >= 0) || (errno1 != ENAMETOOLONG))  {
+	if ((ret1 >= 0) || (errno1 != ENAMETOOLONG)) {
 #endif
 		pr_fail("%s: chroot(\"<very long path>\"), expected "
 			"ENAMETOOLONG, got instead errno=%d (%s)\n",
@@ -148,7 +148,7 @@ static int stress_chroot_test4(const stress_args_t *args)
 
 	do_chroot(badpath, &ret1, &ret2, &errno1, &errno2);
 
-	if ((ret1 >= 0) || (errno1 != ENOENT))  {
+	if ((ret1 >= 0) || (errno1 != ENOENT)) {
 		pr_fail("%s: chroot(\"%s\"), expected ENOENT"
 			", got instead errno=%d (%s)\n",
 			args->name, badpath, errno1, strerror(errno1));
@@ -169,7 +169,7 @@ static int stress_chroot_test5(const stress_args_t *args)
 	 */
 	if ((ret1 >= 0) || ((errno1 != ENOTDIR) &&
 			    (errno1 != ENOENT) &&
-			    (errno1 != EPERM)))  {
+			    (errno1 != EPERM))) {
 		pr_fail("%s: chroot(\"%s\"), expected ENOTDIR"
 			", got instead errno=%d (%s)\n",
 			args->name, filename, errno1, strerror(errno1));

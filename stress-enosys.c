@@ -238,7 +238,7 @@ static inline void HOT OPTIMIZE3 syscall_add(unsigned long number)
 
 	newh->number = number;
 	newh->next = hash_syscall_table[hash];
-	hash_syscall_table[hash]  = newh;
+	hash_syscall_table[hash] = newh;
 }
 
 static inline void syscall_free(void)

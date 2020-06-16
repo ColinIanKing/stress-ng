@@ -137,7 +137,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			}
 		}
 
-		for (i = 0; i < n;  i++) {
+		for (i = 0; i < n; i++) {
 			ptrdiff_t addr = (ptrdiff_t)mappings[i];
 			ptrdiff_t mlocked = addr & 1;
 
@@ -184,7 +184,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 #if defined(HAVE_MLOCKALL)
 		(void)shim_munlockall();
 #endif
-		for (i = 0; i < n;  i++)
+		for (i = 0; i < n; i++)
 			(void)munmap((void *)mappings[i], page_size);
 	} while (keep_stressing());
 

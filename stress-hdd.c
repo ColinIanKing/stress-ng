@@ -501,7 +501,7 @@ static int stress_hdd(const stress_args_t *args)
 		if (!opts_set && (g_opt_flags & OPT_FLAGS_AGGRESSIVE)) {
 			opt_index = (opt_index + 1) % SIZEOF_ARRAY(hdd_opts);
 
-			hdd_flags  = hdd_opts[opt_index].flag;
+			hdd_flags = hdd_opts[opt_index].flag;
 			hdd_oflags = hdd_opts[opt_index].oflag;
 			if ((hdd_flags & HDD_OPT_WR_MASK) == 0)
 				hdd_flags |= HDD_OPT_WR_SEQ;

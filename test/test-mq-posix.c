@@ -93,7 +93,7 @@ int main(int argc, char **argv)
 	(void)ret;
 	ret = mq_close(mq);
 	(void)ret;
-	ret =  mq_unlink(mq_name);
+	ret = mq_unlink(mq_name);
 	(void)ret;
 
 	return 0;

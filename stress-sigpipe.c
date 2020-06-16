@@ -80,7 +80,7 @@ again:
 
 		if (UNLIKELY(clone_enosys)) {
 			pid = fork();
-		} else  {
+		} else {
 			static char stack[CLONE_STACK_SIZE];
 			const ssize_t stack_offset =
 				stress_get_stack_direction() *

@@ -214,7 +214,7 @@ uint64_t stress_get_uint64_scale(
 		longjmp(g_error_env, 1);
 	}
 
-	if (!len)  {
+	if (!len) {
 		(void)fprintf(stderr, "Value %s is an invalid size\n", str);
 		longjmp(g_error_env, 1);
 	}

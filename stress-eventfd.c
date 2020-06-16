@@ -141,7 +141,7 @@ again:
 						args->name, errno, strerror(errno));
 					goto exit_child;
 				}
-				if (ret  < (ssize_t)sizeof(val)) {
+				if (ret < (ssize_t)sizeof(val)) {
 					pr_fail("%s child short write, got %zd, expecting %zd bytes\n",
 						args->name, ret, (ssize_t)sizeof(val));
 					goto exit_child;

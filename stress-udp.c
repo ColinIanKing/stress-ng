@@ -259,7 +259,7 @@ again:
 			}
 #endif
 
-			n  = recvfrom(fd, buf, sizeof(buf), 0, addr, &len);
+			n = recvfrom(fd, buf, sizeof(buf), 0, addr, &len);
 			if (n == 0)
 				break;
 			if (n < 0) {

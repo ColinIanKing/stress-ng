@@ -45,7 +45,7 @@ static int stress_dup(const stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 
 	if (max_fd > SIZEOF_ARRAY(fds))
-		max_fd =  SIZEOF_ARRAY(fds);
+		max_fd = SIZEOF_ARRAY(fds);
 
 	fds[0] = open("/dev/zero", O_RDONLY);
 	if (fds[0] < 0) {

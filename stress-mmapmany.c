@@ -68,7 +68,7 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 			inc_counter(args);
 		}
 
-		for (i = 0; i < n;  i++) {
+		for (i = 0; i < n; i++) {
 			(void)munmap((void *)mappings[i], page_size);
 			(void)munmap((void *)(mappings[i] + page_size), page_size);
 			(void)munmap((void *)(mappings[i] + page_size + page_size), page_size);

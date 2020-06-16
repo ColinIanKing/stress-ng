@@ -35,7 +35,7 @@ typedef struct {
 	skip_node_t *head;
 } skip_list_t;
 
-static const stress_help_t help[] =  {
+static const stress_help_t help[] = {
 	{ NULL,	"skiplist N",	  "start N workers that exercise a skiplist search" },
 	{ NULL,	"skiplist-ops N", "stop after N skiplist search bogo operations" },
 	{ NULL,	"skiplist-size N", "number of 32 bit integers to add to skiplist" },

@@ -88,7 +88,7 @@ static type NOINLINE stress_funcret_deeper_ ## type ## 1(type a)\
 	(void)memset(&a, 0, sizeof(a));				\
 								\
 	return stress_funcret_deep_ ## type ## 1(		\
-		stress_funcret_ ## type ## 1(b) );		\
+		stress_funcret_ ## type ## 1(b));		\
 }
 
 stress_funcret1(uint8_t)

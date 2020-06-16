@@ -86,7 +86,7 @@ static inline int stress_dev_shm_child(
 				break;
 			addr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 				MAP_SHARED, fd, 0);
-			if (addr != MAP_FAILED)  {
+			if (addr != MAP_FAILED) {
 				const size_t words = page_size / sizeof(uint32_t);
 				uint32_t *ptr, *end = addr + (sz / sizeof(uint32_t));
 

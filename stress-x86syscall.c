@@ -337,7 +337,7 @@ static int stress_x86syscall(const stress_args_t *args)
 
 	pr_inf("%s: %.2f nanoseconds per call (excluding %.2f nanoseconds test overhead)\n",
 		args->name,
-		((((t2 - t1) ) * 1000000000.0) / (double)get_counter(args)) - overhead_ns,
+		((((t2 - t1)) * 1000000000.0) / (double)get_counter(args)) - overhead_ns,
 		overhead_ns);
 
 	return EXIT_SUCCESS;

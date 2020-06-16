@@ -136,7 +136,7 @@ static int issue_aio_request(
 	const off_t offset,
 	stress_io_req_t *const io_req,
 	const int request,
-	int (*aio_func)(struct aiocb *aiocbp) )
+	int (*aio_func)(struct aiocb *aiocbp))
 {
 	while (keep_stressing_flag()) {
 		int ret;

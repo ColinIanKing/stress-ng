@@ -164,7 +164,7 @@ static void *stress_fstat_thread(void *ctxt_ptr)
 	while (keep_running && keep_stressing_flag()) {
 		size_t i;
 
-		for (i = 0; i < FSTAT_LOOPS; i++)  {
+		for (i = 0; i < FSTAT_LOOPS; i++) {
 			if (!keep_stressing_flag())
 				break;
 			stress_fstat_helper(ctxt);

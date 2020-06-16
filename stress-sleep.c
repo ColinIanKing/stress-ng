@@ -159,7 +159,7 @@ static int stress_sleep(const stress_args_t *args)
 	(void)memset(ctxts, 0, sizeof(ctxts));
 	(void)sigfillset(&set);
 
-	for (n = 0; n < sleep_max;  n++) {
+	for (n = 0; n < sleep_max; n++) {
 		ctxts[n].args = args;
 		ctxts[n].sleep_max = sleep_max;
 		ret = pthread_create(&ctxts[n].pthread, NULL,

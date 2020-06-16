@@ -98,7 +98,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 			attr.sched_policy = SCHED_DEADLINE;
 			attr.sched_runtime = 10 * 1000 * 1000;
 			attr.sched_period = 30 * 1000 * 1000;
-			attr.sched_deadline  = 30 * 1000 * 1000;
+			attr.sched_deadline = 30 * 1000 * 1000;
 			ret = shim_sched_setattr(0, &attr, 0);
 			(void)ret;
 			break;

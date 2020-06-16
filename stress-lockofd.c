@@ -177,7 +177,7 @@ static int stress_lockofd_contention(
 			if (stress_lockofd_unlock(args, fd) < 0)
 				return -1;
 
-		len  = (stress_mwc16() + 1) & 0xfff;
+		len = (stress_mwc16() + 1) & 0xfff;
 		offset = stress_mwc64() % (LOCK_FILE_SIZE - len);
 
 		f.l_type = F_WRLCK;
