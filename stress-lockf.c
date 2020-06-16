@@ -173,10 +173,12 @@ static int stress_lockf_unlock(const stress_args_t *args, const int fd)
  */
 static int stress_lockf_contention(
 	const stress_args_t *args,
-	const int fd)
+	const int fd,
+	const int bad_fd)
 {
 	bool lockf_nonblock = false;
 	int lockf_cmd;
+	int counter = 0;
 
 	(void)stress_get_setting("lockf-nonblock", &lockf_nonblock);
 	lockf_cmd = lockf_nonblock ?  F_TLOCK : F_LOCK;
@@ -203,14 +205,24 @@ static int stress_lockf_contention(
 				return -1;
 			continue;
 		}
-		/* Locked OK, add to lock list */
 
+		/* Locked OK, add to lock list */
 		lockf_info = stress_lockf_info_new();
 		if (!lockf_info) {
 			pr_fail("%s: calloc failed, out of memory\n", args->name);
 			return -1;
 		}
 		lockf_info->offset = offset;
+		
+		/*
+		 *  Occasionally exercise lock on a bad fd, ignore error
+		 */
+		if (counter++ >= 65536) {
+			rc = lockf(bad_fd, lockf_cmd, LOCK_SIZE);
+			(void)rc;
+			counter = 0;
+		}
+
 		inc_counter(args);
 	} while (keep_stressing());
 
@@ -224,6 +236,7 @@ static int stress_lockf_contention(
 static int stress_lockf(const stress_args_t *args)
 {
 	int fd, ret = EXIT_FAILURE;
+	const int bad_fd = stress_get_bad_fd();
 	pid_t cpid = -1;
 	char filename[PATH_MAX];
 	char pathname[PATH_MAX];
@@ -303,14 +316,14 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
-		if (stress_lockf_contention(args, fd) < 0)
+		if (stress_lockf_contention(args, fd, bad_fd) < 0)
 			_exit(EXIT_FAILURE);
 		stress_lockf_info_free();
 		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(cpid, g_pgrp);
 
-	if (stress_lockf_contention(args, fd) == 0)
+	if (stress_lockf_contention(args, fd, bad_fd) == 0)
 		ret = EXIT_SUCCESS;
 tidy:
 	if (cpid > 0) {
