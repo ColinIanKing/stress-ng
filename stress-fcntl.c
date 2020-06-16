@@ -564,10 +564,10 @@ ofd_lock_abort:	{ /* Nowt */ }
 		 */
 		ret = fcntl(bad_fd, F_GETFD, F_GETFD);
 		(void)ret;
-#else
-		(void)bad_fd;
-#endif
 	}
+#else
+	(void)bad_fd;
+#endif
 	return 0;
 }
 
