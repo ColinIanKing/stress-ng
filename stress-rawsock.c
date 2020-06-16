@@ -153,7 +153,8 @@ again:
 			socklen_t len = sizeof(addr);
 			ssize_t n;
 
-			n = recvfrom(fd, &pkt, sizeof(pkt), 0, &addr, &len);
+			n = recvfrom(fd, &pkt, sizeof(pkt), 0,
+					(struct sockaddr *)&addr, &len);
 			if (UNLIKELY(n == 0)) {
 				break;
 			} else if (UNLIKELY(n < 0)) {
