@@ -25,10 +25,13 @@
 #define _GNU_SOURCE
 
 #include <linux/serial.h>
+#include <string.h>
 
 int main(void)
 {
 	struct serial_struct serial;
+	
+	(void)memset(&serial, 0, sizeof(serial));
 
 	(void)serial;
 
