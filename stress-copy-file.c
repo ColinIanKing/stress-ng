@@ -112,7 +112,7 @@ static int stress_copy_file(const stress_args_t *args)
 		off_in = stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 		off_out = stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 
-		ret =  shim_copy_file_range(fd_in, &off_in, fd_out,
+		ret = shim_copy_file_range(fd_in, &off_in, fd_out,
 			&off_out, DEFAULT_COPY_FILE_SIZE, 0);
 		if (ret < 0) {
 			if ((errno == EAGAIN) ||
