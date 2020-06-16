@@ -565,6 +565,7 @@ static void stress_iomix_inode_flags(
 	const off_t iomix_bytes)
 {
 	(void)args;
+	(void)fd;
 	(void)iomix_bytes;
 
 	do {
