@@ -150,6 +150,7 @@ static int stress_close(const stress_args_t *args)
 	pthread_t pthread[MAX_PTHREADS];
 	int rc = EXIT_NO_RESOURCE;
 	int ret, rets[MAX_PTHREADS];
+	const int bad_fd = stress_get_bad_fd();
 	size_t i;
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
@@ -193,7 +194,7 @@ static int stress_close(const stress_args_t *args)
 
 		t1 = stress_time_now();
 
-		switch (stress_mwc8() % 13) {
+		switch (stress_mwc8() % 14) {
 		case 0:
 			domain = stress_mwc8() % SIZEOF_ARRAY(domains);
 			type = stress_mwc8() % SIZEOF_ARRAY(types);
@@ -276,6 +277,9 @@ static int stress_close(const stress_args_t *args)
 			(void)shm_unlink(shm_name);
 			break;
 #endif
+		case 13:
+			fd = bad_fd;
+			break;
 		default:
 			break;
 		}
