@@ -242,10 +242,13 @@ static int stress_ramfs_child(const stress_args_t *args)
 	do {
 		int ret;
 		char opt[32];
-#if defined(__NR_fsopen) &&	\
-    defined(__NR_fsmount) &&	\
-    defined(__NR_fsconfig) &&	\
-    defined(__NR_move_mount)
+#if defined(__NR_fsopen) &&		\
+    defined(__NR_fsmount) &&		\
+    defined(__NR_fsconfig) &&		\
+    defined(__NR_move_mount) &&		\
+    defined(FSCONFIG_SET_STRING) &&	\
+    defined(FSCONFIG_CMD_CREATE) &&	\
+    defined(MOVE_MOUNT_F_EMPTY_PATH)
 		int fd, mfd;
 #endif
 		const char *fs = (i++ & 1) ? "ramfs" : "tmpfs";
@@ -265,10 +268,13 @@ static int stress_ramfs_child(const stress_args_t *args)
 			rc = EXIT_FAILURE;
 		stress_ramfs_umount(args, realpathname);
 
-#if defined(__NR_fsopen) &&	\
-    defined(__NR_fsmount) &&	\
-    defined(__NR_fsconfig) &&	\
-    defined(__NR_move_mount)
+#if defined(__NR_fsopen) &&		\
+    defined(__NR_fsmount) &&		\
+    defined(__NR_fsconfig) &&		\
+    defined(__NR_move_mount) &&		\
+    defined(FSCONFIG_SET_STRING) &&	\
+    defined(FSCONFIG_CMD_CREATE) &&	\
+    defined(MOVE_MOUNT_F_EMPTY_PATH)
 		/*
 		 *  Use the new Linux 5.2 mount system calls
 		 */
