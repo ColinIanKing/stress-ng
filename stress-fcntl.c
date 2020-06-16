@@ -74,7 +74,7 @@ static void check_return(const stress_args_t *args, const int ret, const char *c
 /*
  *  do_fcntl()
  */
-static int do_fcntl(const stress_args_t *args, const int fd)
+static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 {
 #if defined(F_DUPFD)
 	{
@@ -499,7 +499,6 @@ lock_abort:	{ /* Nowt */ }
 		if ((ret < 0) && (errno == EAGAIN))
 			goto ofd_lock_abort;
 		check_return(args, ret, "F_OFD_SETLK (F_UNLCK)");
-
 ofd_lock_abort:	{ /* Nowt */ }
 	}
 #endif
@@ -555,6 +554,20 @@ ofd_lock_abort:	{ /* Nowt */ }
 	}
 #endif
 
+
+#if defined(F_GETFD)
+	{
+		int ret;
+
+		/*
+		 *  and exercise with an invalid fd
+		 */
+		ret = fcntl(bad_fd, F_GETFD, F_GETFD);
+		(void)ret;
+#else
+		(void)bad_fd;
+#endif
+	}
 	return 0;
 }
 
@@ -566,6 +579,7 @@ static int stress_fcntl(const stress_args_t *args)
 {
 	const pid_t ppid = getppid();
 	int fd, rc = EXIT_FAILURE, retries = 0;
+	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX], pathname[PATH_MAX];
 
 	/*
@@ -604,7 +618,7 @@ static int stress_fcntl(const stress_args_t *args)
 		}
 	} while (keep_stressing_flag() && ++retries < 100);
 
-	if (fd < 0 || retries >= 100) {
+	if ((fd < 0) || (retries >= 100)) {
 		pr_err("%s: creat: file %s took %d "
 			"retries to create (instance %" PRIu32 ")\n",
 			args->name, filename, retries, args->instance);
@@ -612,7 +626,7 @@ static int stress_fcntl(const stress_args_t *args)
 	}
 
 	do {
-		do_fcntl(args, fd);
+		do_fcntl(args, fd, bad_fd);
 		inc_counter(args);
 	} while (keep_stressing());
 
