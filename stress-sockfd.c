@@ -252,6 +252,7 @@ static int stress_socket_server(
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
+	const int bad_fd = stress_get_bad_fd();
 
 	(void)setpgid(pid, g_pgrp);
 
@@ -306,23 +307,25 @@ static int stress_socket_server(
 			ssize_t i;
 
 			for (i = 0; keep_stressing() && (i < max_fd); i++) {
-				int newfd;
+				int new_fd;
 
-				newfd = open("/dev/zero", O_RDWR);
-				if (newfd >= 0) {
+				new_fd = open("/dev/zero", O_RDWR);
+				if (new_fd >= 0) {
 					int ret;
 
-					ret = stress_socket_fd_sendmsg(sfd, newfd);
+					ret = stress_socket_fd_sendmsg(sfd, new_fd);
 					if ((ret < 0) &&
 					     ((errno != EAGAIN) && (errno != EINTR) &&
 					      (errno != EWOULDBLOCK) && (errno != ECONNRESET) &&
 					      (errno != ENOMEM) && (errno != EPIPE))) {
 						pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
-						(void)close(newfd);
+						(void)close(new_fd);
 						break;
 					}
-					(void)close(newfd);
+					(void)close(new_fd);
+					ret = stress_socket_fd_sendmsg(sfd, bad_fd);
+					(void)ret;
 					msgs++;
 					inc_counter(args);
 				}
