@@ -185,7 +185,7 @@ static int stress_fallocate(const stress_args_t *args)
 		ret = shim_fallocate(bad_fd, 0, (off_t)0, fallocate_bytes);
 #endif
 		(void)ret;
-		
+
 		inc_counter(args);
 	} while (keep_stressing());
 	if (ftrunc_errs)
