@@ -53,7 +53,7 @@ static int stress_klog(const stress_args_t *args)
 	char *buffer;
 	ssize_t len;
 
-	len  = shim_klogctl(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
+	len = shim_klogctl(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 	if (len < 0) {
 		if (!args->instance)
 			pr_err("%s: cannot determine syslog buffer "
