@@ -177,8 +177,10 @@ abort:
 
 		for (i = 0; i < max; i++) {
 			if (shutdown(socket_pair_fds[i][1], SHUT_RDWR) < 0)
-				pr_fail("%s: shutdown failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				if (errno != ENOTCONN) {
+					pr_fail("%s: shutdown failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
 		}
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
