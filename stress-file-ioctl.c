@@ -74,6 +74,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd;
+	const int bad_fd = stress_get_bad_fd();
 #if defined(FICLONE) || defined(FICLONERANGE)
 	int dfd;
 #endif
@@ -108,6 +109,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 	(void)shim_fallocate(dfd, 0, 0, file_sz);
 #endif
 	(void)shim_fsync(fd);
+
+	(void)bad_fd;
 
 	do {
 		int exercised = 0;
@@ -278,6 +281,15 @@ static int stress_file_ioctl(const stress_args_t *args)
 			(void)ret;
 
 			exercised++;
+
+			/*
+			 *  exercise invalid fd
+			 */
+			ret = ioctl(bad_fd, FIONREAD, &isz);
+			(void)ret;
+
+			exercised++;
+			
 		}
 #endif
 
