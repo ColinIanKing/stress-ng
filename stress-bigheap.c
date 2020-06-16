@@ -108,6 +108,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 				size_t sz = page_size - 1;
 				uintptr_t pg_ptr = ((uintptr_t)ptr + sz) & ~sz;
 				size_t len = size - (pg_ptr - (uintptr_t)ptr);
+
 				(void)stress_mincore_touch_pages_interruptible((void *)pg_ptr, len);
 			}
 
