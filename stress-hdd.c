@@ -251,9 +251,6 @@ static ssize_t stress_hdd_read(
 		size_t i;
 		uint8_t *data = buf;
 		const uint64_t sz = hdd_write_size / HDD_IO_VEC_MAX;
-		off_t offset;
-
-		(void)offset;
 
 		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
 			iov[i].iov_base = (void *)data;
@@ -270,9 +267,12 @@ static ssize_t stress_hdd_read(
 #if defined(HAVE_PREADV)
 		case 1:
 			/* 25% */
-			offset = lseek(fd, SEEK_CUR, 0);
-			if (offset != (off_t)-1)
-				return preadv(fd, iov, HDD_IO_VEC_MAX, offset);
+			{
+				off_t offset = lseek(fd, SEEK_CUR, 0);
+
+				if (offset != (off_t)-1)
+					return preadv(fd, iov, HDD_IO_VEC_MAX, offset);
+			}
 			CASE_FALLTHROUGH;
 #endif
 		default:
