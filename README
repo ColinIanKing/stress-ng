@@ -107,6 +107,9 @@ To build with the Tiny C compiler:
 	make clean
 	CC=tcc make
 
+To build with the musl C library:
+	CC=musl-gcc make 
+
 For more information, see: https://kernel.ubuntu.com/~cking/stress-ng/
 
 I am keen to add to the stress-ng project page any citations to research or
