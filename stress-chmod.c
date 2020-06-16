@@ -90,14 +90,24 @@ static const mode_t modes[] = {
  */
 static int do_fchmod(
 	const int fd,
+	const int bad_fd,
 	const int i,
 	const mode_t mask,
 	const mode_t all_mask)
 {
+	int ret;
+
 	CHECK(fchmod(fd, modes[i]) < 0);
 	CHECK(fchmod(fd, mask) < 0);
 	CHECK(fchmod(fd, modes[i] ^ all_mask) < 0);
 	CHECK(fchmod(fd, mask ^ all_mask) < 0);
+
+	/*
+	 *  Exercise bad fchmod, ignore failure
+	 */
+	ret = fchmod(bad_fd, modes[i]);
+	(void)ret;
+
 	return 0;
 }
 
@@ -111,6 +121,7 @@ static int do_fchmod(
  */
 static int do_chmod(
 	const int dfd,
+	const int bad_fd,
 	const char *filebase,
 	const char *filename,
 	const int i,
@@ -124,13 +135,22 @@ static int do_chmod(
 
 #if defined(HAVE_FCHMODAT)
 	if (dfd >= 0) {
+		int ret;
+
 		CHECK(fchmodat(dfd, filebase, modes[i], 0) < 0);
 		CHECK(fchmodat(dfd, filebase, mask, 0) < 0);
 		CHECK(fchmodat(dfd, filebase, modes[i] ^ all_mask, 0) < 0);
 		CHECK(fchmodat(dfd, filebase, mask ^ all_mask, 0) < 0);
+
+		/*
+		 *  Exercise bad fchmodat, ignore failure
+		 */
+		ret = fchmodat(bad_fd, filebase, modes[i], 0);
+		(void)ret;
 	}
 #else
 	(void)dfd;
+	(void)bad_fd;
 	(void)filebase;
 #endif
 	return 0;
@@ -144,6 +164,7 @@ static int stress_chmod(const stress_args_t *args)
 {
 	const pid_t ppid = getppid();
 	int i, fd = -1, rc = EXIT_FAILURE, retries = 0, dfd = -1;
+	const int bad_fd = stress_get_bad_fd();
 	mode_t all_mask = 0;
 	char filename[PATH_MAX], pathname[PATH_MAX];
 	char tmp[PATH_MAX], *filebase;
@@ -212,11 +233,11 @@ static int stress_chmod(const stress_args_t *args)
 
 		for (i = 0; modes[i]; i++) {
 			mask |= modes[i];
-			if (do_fchmod(fd, i, mask, all_mask) < 0) {
+			if (do_fchmod(fd, bad_fd, i, mask, all_mask) < 0) {
 				pr_fail("%s: fchmod failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-			if (do_chmod(dfd, filebase, filename, i, mask, all_mask) < 0) {
+			if (do_chmod(dfd, bad_fd, filebase, filename, i, mask, all_mask) < 0) {
 				if (errno == ENOENT || errno == ENOTDIR) {
 					/*
 					 * File was removed during test by
