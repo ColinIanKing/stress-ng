@@ -57,14 +57,14 @@ static inline uint8_t jmp_stress_mwc8(void)
 #define JMP(a)	label ## a: 				\
 {							\
 	register bool do_more;				\
-	register uint16_t _index = jmp_stress_mwc8();	\
+	register uint16_t index = jmp_stress_mwc8();	\
 							\
 	inc_counter(args);				\
 	do_more = LIKELY((int)keep_stressing_flag()) &	\
 		(((int)!args->max_ops) | 		\
 		 (get_counter(args) < args->max_ops));	\
-	_index |= (do_more << 8);			\
-	goto *labels[_index];				\
+	index |= (do_more << 8);			\
+	goto *labels[index];				\
 }
 
 /*
