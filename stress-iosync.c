@@ -41,7 +41,8 @@ static int stress_io(const stress_args_t *args)
 #if defined(HAVE_SYNCFS)
 	int i, fd, n_mnts;
 	char *mnts[MAX_MNTS];
-	int  fds[MAX_MNTS];
+	int fds[MAX_MNTS];
+	const int bad_fd = stress_get_bad_fd();
 
 	n_mnts = stress_mount_get(mnts, MAX_MNTS);
 	for (i = 0; i < n_mnts; i++)
@@ -61,6 +62,11 @@ static int stress_io(const stress_args_t *args)
 		for (i = 0; i < n_mnts; i++)
 			if (fds[i] != -1)
 				(void)syncfs(fds[i]);
+
+		/*
+		 *  exercise with an invalid fd
+		 */
+		(void)syncfs(bad_fd);
 #endif
 		inc_counter(args);
 	} while (keep_stressing());
