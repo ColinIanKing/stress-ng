@@ -1370,6 +1370,10 @@ static char *stress_exit_status_to_string(const int status)
 		return "not implemented";
 	case EXIT_SIGNALED:
 		return "killed by signal";
+	case EXIT_BY_SYS_EXIT:
+		return "stressor terminated using _exit()";
+	case EXIT_METRICS_UNTRUSTWORTHY:
+		return "metrics may be untrustyworthy";
 	default:
 		return "unknown";
 	}
