@@ -1,3 +1,75 @@
+stress-ng (0.11.14-1) unstable; urgency=medium
+
+  [Rob Colclaser III]
+  * stress-membarrier: return EXIT_NOT_IMPLEMENTED ifi
+   MEMBARRIER_CMD_SHARED is not set
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: update date
+  * stress-ng: add translation of 2 missing exit types to string
+  * stress-ng: prefix local functions with stress_ to avoid name
+    clashing
+  * stress-bigheap: add in missing new line between declaration
+    and statement
+  * stress-*, core-*: remove some extraneous spaces
+  * tests/test-user-desc: memset u_info object to clear up cppcheck
+    warning
+  * tests/test-serial-struct: memset serial object to clear up
+    cppcheck warning
+  * stress-sockabuse: remove duplicated EPIPE error check
+  * stress-pthread: voidify return in ret, clean up a cppcheck style
+    warning
+  * stress-hdd: clean up another cppcheck style warning:
+  * stress-hdd: clean up cppcheck style warning
+  * stress-fcntl: fix incorrect location of braces { } in #if defs
+  * README: add notes on how to build with musl C library
+  * stress-rawsock: ensure addr argument to recvfrom is struct
+    sockaddr *
+  * stress-ng: fix shim_loff_t type, it should be long
+  * core-shim: use futex call if FUTEX_WAIT is defined
+  * stress-ramfs: exercise new mount system calls if specific #defines
+    are defined
+  * stress-iomix: voidify fd to fix build warnings if it is not used
+  * stress-efivar: only exercise FS_IOC_*FLAGS if they are defined
+  * stress-sockpair: improve preemption points
+  * stress-sockpair: ignore ENOTCONN error on shutdown
+  * stress-access: voidify bad_fd to workaround build warning on Minix
+  * stress-xattr: exercise fxattr* with bad fd
+  * stress-sync-file: exercise sync_file_range with bad fd
+  * stress-sockfd: exercise sockfd with bad fd
+  * stress-seek: exercise lseek with bad fd
+  * stress-lockf: remove empty line
+  * stress-lockf: exercise lockf with bad fd
+  * stress-klog: remove whitespace
+  * stress-iosync: exercise fsyncfs with bad fd
+  * stress-getdent: exercise getdent* with bad fd
+  * stress-fstat: exercise fstat with bad fd
+  * stress-file-flock: exercise flock with bad fd
+  * stress-file-ioctl: exercise ioctl with bad fd
+  * stress-fcntl: exercise fcntl with bad fd
+  * stress-copy-file: remove extraneous space
+  * stress-close: exercise close with bad fd
+  * stress-chown: exercise fchown with bad fd
+  * stress-fallocate: remove whitespace
+  * stress-chmod: exercise fchmod* with bad fd
+  * stress-fallocate: exercise fallocate with bad fd
+  * stress-access: exercise faccessat* with an invalid dir fd
+  * stress-epoll: exercise epoll_ctl and epoll_wait with bad fd
+  * core-helper: use the stress_get_bad_fd helper
+  * core-helper: add stress_get_bad_fd helper (part 2)
+  * core-helper: add stress_get_bad_fd helper
+  * stress-close: remove white space pollution
+  * stress-ng: propagate EXIT_METRICS_UNTRUSTWORTHY to exit status
+  * stress-sysinfo: get a file system label if FS_IOC_GETFSLABEL
+    ioctl is available
+  * stress-close: close random unopened fd to exercise EBADF
+  * fast-test-all: make it really test *all* stressors
+  * Add a light weight ADT regression test
+  * stress-sock: fix build failure on some 32 bit arches
+
+ -- Colin King <colin.king@canonical.com>  Wed, 17 Jun 2020 14:18:22 +0100
+
 stress-ng (0.11.13-1) unstable; urgency=medium
 
   [Arjan van de Ven]
