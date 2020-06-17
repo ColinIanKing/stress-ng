@@ -1003,10 +1003,10 @@ static inline int32_t stressor_name_find(const char *name)
 }
 
 /*
- *  remove_proc()
+ *  stress_remove_proc()
  *	remove proc from proc list
  */
-static void remove_proc(stress_proc_info_t *pi)
+static void stress_remove_proc(stress_proc_info_t *pi)
 {
 	if (procs_head == pi) {
 		procs_head = pi->next;
@@ -1029,10 +1029,10 @@ static void remove_proc(stress_proc_info_t *pi)
 }
 
 /*
- *  get_class_id()
+ *  stress_get_class_id()
  *	find the class id of a given class name
  */
-static uint32_t get_class_id(char *const str)
+static uint32_t stress_get_class_id(char *const str)
 {
 	size_t i;
 
@@ -1044,17 +1044,17 @@ static uint32_t get_class_id(char *const str)
 }
 
 /*
- *  get_class()
+ *  stress_get_class()
  *	parse for allowed class types, return bit mask of types, 0 if error
  */
-static int get_class(char *const class_str, uint32_t *class)
+static int stress_get_class(char *const class_str, uint32_t *class)
 {
 	char *str, *token;
 	int ret = 0;
 
 	*class = 0;
 	for (str = class_str; (token = strtok(str, ",")) != NULL; str = NULL) {
-		uint32_t cl = get_class_id(token);
+		uint32_t cl = stress_get_class_id(token);
 		if (!cl) {
 			size_t i;
 			const size_t len = strlen(token);
@@ -1062,7 +1062,7 @@ static int get_class(char *const class_str, uint32_t *class)
 			if ((len > 1) && (token[len - 1] == '?')) {
 				token[len - 1] = '\0';
 
-				cl = get_class_id(token);
+				cl = stress_get_class_id(token);
 				if (cl) {
 					size_t j;
 
@@ -1115,7 +1115,7 @@ static int stress_exclude(void)
 			stress_proc_info_t *next = pi->next;
 
 			if (pi->stressor->id == id)
-				remove_proc(pi);
+				stress_remove_proc(pi);
 			pi = next;
 		}
 	}
@@ -1207,10 +1207,10 @@ static int stress_set_handler(const char *stress, const bool child)
 }
 
 /*
- *  version()
+ *  stress_version()
  *	print program version info
  */
-static void version(void)
+static void stress_version(void)
 {
 	(void)printf("%s, version " VERSION " (%s, %s)%s\n",
 		g_app_name, stress_get_compiler(), stress_get_uname_info(),
@@ -1218,10 +1218,10 @@ static void version(void)
 }
 
 /*
- *  usage_help()
+ *  stress_usage_help()
  *	show generic help information
  */
-static void usage_help(const stress_help_t help_info[])
+static void stress_usage_help(const stress_help_t help_info[])
 {
 	size_t i;
 
@@ -1237,24 +1237,24 @@ static void usage_help(const stress_help_t help_info[])
 }
 
 /*
- *  usage_help_stressors()
+ *  stress_usage_help_stressors()
  *	show per stressor help information
  */
-static void usage_help_stressors(void)
+static void stress_usage_help_stressors(void)
 {
 	size_t i;
 
 	for (i = 0; stressors[i].id != STRESS_MAX; i++) {
 		if (stressors[i].info->help)
-			usage_help(stressors[i].info->help);
+			stress_usage_help(stressors[i].info->help);
 	}
 }
 
 /*
- *  show_stressor_names()
+ *  stress_show_stressor_names()
  *	show stressor names
  */
-static inline void show_stressor_names(void)
+static inline void stress_show_stressor_names(void)
 {
 	size_t i;
 
@@ -1265,17 +1265,17 @@ static inline void show_stressor_names(void)
 }
 
 /*
- *  usage()
+ *  stress_usage()
  *	print some help
  */
-static void usage(void)
+static void stress_usage(void)
 {
-	version();
+	stress_version();
 	(void)printf("\nUsage: %s [OPTION [ARG]]\n", g_app_name);
 	(void)printf("\nGeneral control options:\n");
-	usage_help(help_generic);
+	stress_usage_help(help_generic);
 	(void)printf("\nStressor specific options:\n");
-	usage_help_stressors();
+	stress_usage_help_stressors();
 	(void)printf("\nExample: %s --cpu 8 --io 4 --vm 2 --vm-bytes 128M "
 		"--fork 4 --timeout 10s\n\n"
 		"Note: Sizes can be suffixed with B,K,M,G and times with "
@@ -1285,10 +1285,10 @@ static void usage(void)
 }
 
 /*
- *  opt_name()
+ *  stress_opt_name()
  *	find name associated with an option value
  */
-static const char *opt_name(const int opt_val)
+static const char *stress_opt_name(const int opt_val)
 {
 	size_t i;
 
@@ -1314,19 +1314,19 @@ static void stress_get_processors(int32_t *count)
 }
 
 /*
- *  proc_finished()
+ *  stress_proc_finished()
  *	mark a process as complete
  */
-static inline void proc_finished(pid_t *pid)
+static inline void stress_proc_finished(pid_t *pid)
 {
 	*pid = 0;
 }
 
 /*
- *  kill_procs()
+ *  stress_kill_procs()
  * 	kill tasks using signal
  */
-static void kill_procs(const int sig)
+static void stress_kill_procs(const int sig)
 {
 	static int count = 0;
 	int signum = sig;
@@ -1352,10 +1352,10 @@ static void kill_procs(const int sig)
 }
 
 /*
- *  str_exitstatus()
+ *  stress_exit_status_to_string()
  *	map stress-ng exit status returns into text
  */
-static char *str_exitstatus(const int status)
+static char *stress_exit_status_to_string(const int status)
 {
 	switch (status) {
 	case EXIT_SUCCESS:
@@ -1376,10 +1376,10 @@ static char *str_exitstatus(const int status)
 }
 
 /*
- *  wait_procs()
+ *  stress_wait_procs()
  * 	wait for procs
  */
-static void MLOCKED_TEXT wait_procs(
+static void MLOCKED_TEXT stress_wait_procs(
 	stress_proc_info_t *procs_list,
 	bool *success,
 	bool *resource_success,
@@ -1524,7 +1524,7 @@ redo:
 					default:
 						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
 							ret, stressor_name, WEXITSTATUS(status),
-							str_exitstatus(WEXITSTATUS(status)));
+							stress_exit_status_to_string(WEXITSTATUS(status)));
 						*success = false;
 						do_abort = true;
 						break;
@@ -1532,10 +1532,10 @@ redo:
 					if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
 						keep_stressing_set_flag(false);
 						wait_flag = false;
-						kill_procs(SIGALRM);
+						stress_kill_procs(SIGALRM);
 					}
 
-					proc_finished(&pi->pids[j]);
+					stress_proc_finished(&pi->pids[j]);
 					pr_dbg("process [%d] terminated\n", ret);
 				} else if (ret == -1) {
 					/* Somebody interrupted the wait */
@@ -1543,7 +1543,7 @@ redo:
 						goto redo;
 					/* This child did not exist, mark it done anyhow */
 					if (errno == ECHILD)
-						proc_finished(&pi->pids[j]);
+						stress_proc_finished(&pi->pids[j]);
 				}
 			}
 		}
@@ -1553,14 +1553,14 @@ redo:
 }
 
 /*
- *  handle_terminate()
+ *  stress_handle_terminate()
  *	catch terminating signals
  */
-static void MLOCKED_TEXT handle_terminate(int signum)
+static void MLOCKED_TEXT stress_handle_terminate(int signum)
 {
 	terminate_signum = signum;
 	keep_stressing_set_flag(false);
-	kill_procs(SIGALRM);
+	stress_kill_procs(SIGALRM);
 
 	switch (signum) {
 	case SIGILL:
@@ -1578,10 +1578,10 @@ static void MLOCKED_TEXT handle_terminate(int signum)
 }
 
 /*
- *  get_proc()
+ *  stress_get_nth_proc()
  *	return nth proc from list
  */
-static stress_proc_info_t *get_nth_proc(const uint32_t n)
+static stress_proc_info_t *stress_get_nth_proc(const uint32_t n)
 {
 	stress_proc_info_t *pi = procs_head;
 	uint32_t i;
@@ -1593,10 +1593,10 @@ static stress_proc_info_t *get_nth_proc(const uint32_t n)
 }
 
 /*
- *  get_num_procs()
+ *  stress_get_num_procs()
  *	return number of procs in proc list
  */
-static uint32_t get_num_procs(void)
+static uint32_t stress_get_num_procs(void)
 {
 	uint32_t n = 0;
 	stress_proc_info_t *pi;
@@ -1608,10 +1608,10 @@ static uint32_t get_num_procs(void)
 }
 
 /*
- *  free_procs()
+ *  stress_free_procs()
  *	free proc info in procs table
  */
-static void free_procs(void)
+static void stress_free_procs(void)
 {
 	stress_proc_info_t *pi = procs_head;
 
@@ -1630,10 +1630,10 @@ static void free_procs(void)
 }
 
 /*
- *  get_total_num_procs()
+ *  stress_get_total_num_procs()
  *	deterimine number of runnable procs from list
  */
-static uint32_t get_total_num_procs(stress_proc_info_t *procs_list)
+static uint32_t stress_get_total_num_procs(stress_proc_info_t *procs_list)
 {
 	uint32_t total_num_procs = 0;
 	stress_proc_info_t *pi;
@@ -1668,7 +1668,7 @@ static void MLOCKED_TEXT stress_run(
 {
 	double time_start, time_finish;
 	int32_t n_procs, j;
-	const int32_t total_procs = get_total_num_procs(procs_list);
+	const int32_t total_procs = stress_get_total_num_procs(procs_list);
 
 	wait_flag = true;
 	time_start = stress_time_now();
@@ -1708,7 +1708,7 @@ again:
 					}
 					pr_err("Cannot fork: errno=%d (%s)\n",
 						errno, strerror(errno));
-					kill_procs(SIGALRM);
+					stress_kill_procs(SIGALRM);
 					goto wait_for_procs;
 				case 0:
 					/* Child */
@@ -1801,7 +1801,7 @@ again:
 						name, (int)getpid(), j);
 
 child_exit:
-					free_procs();
+					stress_free_procs();
 					stress_cache_free();
 					stress_free_settings();
 					(void)stress_ftrace_free();
@@ -1825,7 +1825,7 @@ child_exit:
 					/* Forced early abort during startup? */
 					if (!keep_stressing_flag()) {
 						pr_dbg("abort signal during startup, cleaning up\n");
-						kill_procs(SIGALRM);
+						stress_kill_procs(SIGALRM);
 						goto wait_for_procs;
 					}
 					break;
@@ -1842,17 +1842,17 @@ abort:
 		n_procs == 1 ? "" : "s");
 
 wait_for_procs:
-	wait_procs(procs_list, success, resource_success, metrics_success);
+	stress_wait_procs(procs_list, success, resource_success, metrics_success);
 	time_finish = stress_time_now();
 
 	*duration += time_finish - time_start;
 }
 
 /*
- *  show_stressors()
+ *  stress_show_stressors()
  *	show names of stressors that are going to be run
  */
-static int show_stressors(void)
+static int stress_show_stressors(void)
 {
 	char *newstr, *str = NULL;
 	ssize_t len = 0;
@@ -2178,7 +2178,7 @@ static inline void stress_map_shared(const size_t num_procs)
 	if (g_shared == MAP_FAILED) {
 		pr_err("Cannot mmap to shared memory region, errno=%d (%s)\n",
 			errno, strerror(errno));
-		free_procs();
+		stress_free_procs();
 		exit(EXIT_FAILURE);
 	}
 
@@ -2223,7 +2223,7 @@ static inline void stress_map_shared(const size_t num_procs)
 		pr_err("Cannot mmap checksums, errno=%d (%s)\n",
 			errno, strerror(errno));
 		(void)munmap((void *)g_shared, g_shared->length);
-		free_procs();
+		stress_free_procs();
 		exit(EXIT_FAILURE);
 	}
 	(void)memset(g_shared->checksums, 0, sz);
@@ -2259,7 +2259,7 @@ static inline void exclude_unsupported(void)
 				if ((pi->stressor->id == id) &&
 				    pi->num_procs &&
 				    (stressors[i].info->supported(stressors[i].name) < 0)) {
-					remove_proc(pi);
+					stress_remove_proc(pi);
 					g_unsupported = true;
 				}
 				pi = next;
@@ -2413,7 +2413,7 @@ static inline void exclude_pathological(void)
 						"--pathological option)\n",
 						stress_munge_underscore(pi->stressor->name));
 				}
-				remove_proc(pi);
+				stress_remove_proc(pi);
 			}
 			pi = next;
 		}
@@ -2449,7 +2449,7 @@ static inline void set_random_stressors(void)
 
 	if (g_opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
-		const int32_t n_procs = get_num_procs();
+		const int32_t n_procs = stress_get_num_procs();
 
 		if (g_opt_flags & OPT_FLAGS_SET) {
 			(void)fprintf(stderr, "Cannot specify random "
@@ -2468,7 +2468,7 @@ static inline void set_random_stressors(void)
 		while (n > 0) {
 			int32_t rnd = stress_mwc32() % ((opt_random >> 5) + 2);
 			const int32_t i = stress_mwc32() % n_procs;
-			stress_proc_info_t *pi = get_nth_proc(i);
+			stress_proc_info_t *pi = stress_get_nth_proc(i);
 
 			if (!pi)
 				continue;
@@ -2557,7 +2557,7 @@ next_opt:
 
 		for (i = 0; stressors[i].id != STRESS_MAX; i++) {
 			if (stressors[i].short_getopt == c) {
-				const char *name = opt_name(c);
+				const char *name = stress_opt_name(c);
 				stress_proc_info_t *pi = find_proc_info(&stressors[i]);
 				g_proc_current = pi;
 
@@ -2572,10 +2572,10 @@ next_opt:
 				uint64_t bogo_ops;
 
 				bogo_ops = stress_get_uint64(optarg);
-				stress_check_range(opt_name(c), bogo_ops,
+				stress_check_range(stress_opt_name(c), bogo_ops,
 					MIN_OPS, MAX_OPS);
 				/* We don't need to set this, but it may be useful */
-				stress_set_setting(opt_name(c), TYPE_ID_UINT64, &bogo_ops);
+				stress_set_setting(stress_opt_name(c), TYPE_ID_UINT64, &bogo_ops);
 				if (g_proc_current)
 					g_proc_current->bogo_ops = bogo_ops;
 				goto next_opt;
@@ -2628,7 +2628,7 @@ next_opt:
 			stress_set_setting("cache-ways", TYPE_ID_UINT32, &u32);
 			break;
 		case OPT_class:
-			ret = get_class(optarg, &u32);
+			ret = stress_get_class(optarg, &u32);
 			if (ret < 0)
 				return EXIT_FAILURE;
 			else if (ret > 0)
@@ -2642,7 +2642,7 @@ next_opt:
 			stress_set_setting_global("exclude", TYPE_ID_STR, (void *)optarg);
 			break;
 		case OPT_help:
-			usage();
+			stress_usage();
 			break;
 		case OPT_ionice_class:
 			i32 = stress_get_opt_ionice_class(optarg);
@@ -2708,7 +2708,7 @@ next_opt:
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
 		case OPT_stressors:
-			show_stressor_names();
+			stress_show_stressor_names();
 			exit(EXIT_SUCCESS);
 		case OPT_taskset:
 			if (stress_set_cpu_affinity(optarg) < 0)
@@ -2725,7 +2725,7 @@ next_opt:
 			(void)stress_set_timer_slack_ns(optarg);
 			break;
 		case OPT_version:
-			version();
+			stress_version();
 			exit(EXIT_SUCCESS);
 		case OPT_yaml:
 			stress_set_setting_global("yaml", TYPE_ID_STR, (void *)optarg);
@@ -2748,7 +2748,7 @@ static void alloc_proc_resources(pid_t **pids, stress_proc_stats_t ***stats, siz
 	*pids = calloc(n, sizeof(pid_t));
 	if (!*pids) {
 		pr_err("cannot allocate pid list\n");
-		free_procs();
+		stress_free_procs();
 		exit(EXIT_FAILURE);
 	}
 
@@ -2757,7 +2757,7 @@ static void alloc_proc_resources(pid_t **pids, stress_proc_stats_t ***stats, siz
 		pr_err("cannot allocate stats list\n");
 		free(*pids);
 		*pids = NULL;
-		free_procs();
+		stress_free_procs();
 		exit(EXIT_FAILURE);
 	}
 }
@@ -3043,7 +3043,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Enable signal handers
 	 */
 	for (i = 0; i < SIZEOF_ARRAY(terminate_signals); i++) {
-		if (stress_sighandler("stress-ng", terminate_signals[i], handle_terminate, NULL) < 0)
+		if (stress_sighandler("stress-ng", terminate_signals[i], stress_handle_terminate, NULL) < 0)
 			exit(EXIT_FAILURE);
 	}
 	/*
@@ -3074,7 +3074,7 @@ int main(int argc, char **argv, char **envp)
 	if (!procs_head) {
 		pr_err("No stress workers invoked%s\n",
 			g_unsupported ? " (one or more were unsupported)" : "");
-		free_procs();
+		stress_free_procs();
 		/*
 		 *  If some stressors were given but marked as
 		 *  unsupported then this is not an error.
@@ -3085,8 +3085,8 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Show the stressors we're going to run
 	 */
-	if (show_stressors() < 0) {
-		free_procs();
+	if (stress_show_stressors() < 0) {
+		stress_free_procs();
 		exit(EXIT_FAILURE);
 	}
 
@@ -3094,7 +3094,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared memory segment for shared data
 	 *  across all the child stressors
 	 */
-	stress_map_shared(get_total_num_procs(procs_head));
+	stress_map_shared(stress_get_total_num_procs(procs_head));
 
 	/*
 	 *  Setup spinlocks
@@ -3120,7 +3120,7 @@ int main(int argc, char **argv, char **envp)
 	(void)stress_get_setting("cache-ways", &g_shared->mem_cache_ways);
 	if (stress_cache_alloc("cache allocate") < 0) {
 		stress_unmap_shared();
-		free_procs();
+		stress_free_procs();
 		exit(EXIT_FAILURE);
 	}
 
@@ -3204,7 +3204,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Tidy up
 	 */
 	stressors_deinit();
-	free_procs();
+	stress_free_procs();
 	stress_cache_free();
 	stress_unmap_shared();
 	stress_free_settings();
