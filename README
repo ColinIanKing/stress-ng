@@ -35,7 +35,6 @@ Debian, Ubuntu:
 
   * libaio-dev
   * libapparmor-dev
-  * libattr1-dev
   * libbsd-dev
   * libcap-dev
   * libgcrypt11-dev
@@ -48,7 +47,6 @@ Debian, Ubuntu:
 RHEL, Fedora, Centos:
 
   * libaio-devel
-  * libattr-devel
   * libbsd-devel
   * libcap-devel
   * libgcrypt-devel
@@ -61,7 +59,6 @@ SUSE:
   * keyutils-devel
   * libaio-devel
   * libapparmor-devel
-  * libattr-devel
   * libbsd-devel
   * libcap-devel
   * libseccomp-devel
