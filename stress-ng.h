@@ -387,6 +387,8 @@
 
 #if defined(HAVE_SYS_SYSINFO_H)
 #include <sys/sysinfo.h>
+/* Suppress kernel sysinfo to avoid collision with musl */
+#define _LINUX_SYSINFO_H
 #endif
 
 #if defined(HAVE_SYS_SYSMACROS_H)
