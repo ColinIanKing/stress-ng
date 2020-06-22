@@ -387,8 +387,10 @@
 
 #if defined(HAVE_SYS_SYSINFO_H)
 #include <sys/sysinfo.h>
+#if defined(__GNUC__) && !defined(__GLIBC__)
 /* Suppress kernel sysinfo to avoid collision with musl */
 #define _LINUX_SYSINFO_H
+#endif
 #endif
 
 #if defined(HAVE_SYS_SYSMACROS_H)
