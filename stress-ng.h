@@ -2618,6 +2618,7 @@ typedef enum {
 	OPT_matrix_3d_zyx,
 
 	OPT_maximize,
+	OPT_max_fd,
 
 	OPT_mcontend,
 	OPT_mcontend_ops,

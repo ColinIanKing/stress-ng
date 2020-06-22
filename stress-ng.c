@@ -484,6 +484,7 @@ static const struct option long_options[] = {
 	{ "matrix-3d-size",1,	0,	OPT_matrix_3d_size },
 	{ "matrix-3d-zyx",0,	0,	OPT_matrix_3d_zyx },
 	{ "maximize",	0,	0,	OPT_maximize },
+	{ "max-fd",	1,	0,	OPT_max_fd },
 	{ "mcontend",	1,	0,	OPT_mcontend },
 	{ "mcontend-ops",1,	0,	OPT_mcontend_ops },
 	{ "membarrier",	1,	0,	OPT_membarrier },
@@ -926,6 +927,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"log-brief",		"less verbose log messages" },
 	{ NULL,		"log-file filename",	"log messages to a log file" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
+	{ NULL,		"max-fd",		"set maximum file descriptior limit" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"minimize",		"enable minimal stress options" },
@@ -2547,6 +2549,7 @@ int stress_parse_opts(int argc, char **argv, const bool jobmode)
 		int64_t i64;
 		int32_t i32;
 		uint32_t u32;
+		uint64_t u64, max_fds;
 		int16_t i16;
 		int c, option_index, ret;
 		size_t i;
@@ -2661,6 +2664,13 @@ next_opt:
 			break;
 		case OPT_log_file:
 			stress_set_setting_global("log-file", TYPE_ID_STR, (void *)optarg);
+			break;
+		case OPT_max_fd:
+			max_fds = (uint64_t)stress_get_file_limit();
+			u64 = stress_get_uint64_percent(optarg, 1, max_fds,
+				"Cannot determine maximum file descriptor limit");
+			stress_check_range(optarg, u64, 8, max_fds);
+			stress_set_setting_global("max-fd", TYPE_ID_UINT64, &u64);
 			break;
 		case OPT_no_madvise:
 			g_opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;

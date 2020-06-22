@@ -81,14 +81,27 @@ static const int limits[] = {
 void stress_set_max_limits(void)
 {
 	size_t i;
+	struct rlimit rlim;
 
 	for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
-		struct rlimit rlim;
-
 		if (getrlimit(limits[i], &rlim) < 0)
 			continue;
 		rlim.rlim_cur = rlim.rlim_max;
 		(void)setrlimit(limits[i], &rlim);
 	}
+
+#if defined(RLIMIT_NOFILE)
+	{
+		uint64_t max_fd;
+
+		(void)stress_get_setting("max-fd", &max_fd);
+		if (max_fd != 0) {
+			rlim.rlim_cur = (rlim_t)max_fd + 1;
+			rlim.rlim_max = (rlim_t)max_fd + 1;
+			(void)setrlimit(RLIMIT_NOFILE, &rlim);
+		}
+	}
+#endif
+
 }
 
