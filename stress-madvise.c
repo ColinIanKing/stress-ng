@@ -238,7 +238,7 @@ static void *stress_madvise_pages(void *arg)
 static int stress_madvise(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
-	size_t sz = 4 *  MB;
+	const size_t sz = (4 *  MB) & ~(page_size - 1);
 	int fd = -1;
 	int ret;
 	NOCLOBBER int flags = MAP_PRIVATE;
@@ -260,7 +260,6 @@ static int stress_madvise(const stress_args_t *args)
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
-	sz &= ~(page_size - 1);
 
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args->name, true);
