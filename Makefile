@@ -365,7 +365,7 @@ OBJS += $(CONFIG_OBJS)
 
 .o: stress-ng.h Makefile
 
-.c.o: stress-ng.h Makefile $(SRC)
+.c.o:
 	@echo "CC $<"
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
