@@ -30,6 +30,61 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+
+#if defined(STRESS_ARCH_RISC_V) &&	\
+    defined(SIGILL)
+
+#define HAVE_STRESS_TSC_CAPABILITY
+
+static sigjmp_buf jmpbuf;
+static bool tsc_supported = false;
+
+static inline unsigned long rdtsc(void)
+{
+	register unsigned long cycles;
+
+        __asm__ __volatile__("rdcycle %0"
+                              : "=r" (cycles)
+			      :
+                              : "memory");
+	return cycles;
+}
+
+static void stress_sigill_handler(int signum)
+{
+	(void)signum;
+
+	siglongjmp(jmpbuf, 1);
+}
+
+/*
+ *  stress_tsc_supported()
+ *	check if tsc is supported, riscv variant
+ */
+static int stress_tsc_supported(const char *name)
+{
+	unsigned long cycles;
+
+	if (stress_sighandler(name, SIGILL, stress_sigill_handler, NULL) < 0)
+		return -1;
+
+	/*
+	 *  We get here with non-zero return if SIGILL occurs
+	 */
+	if (sigsetjmp(jmpbuf, 1) != 0) {
+		pr_inf("%s stressor will be skipped, "
+			"rdcycle not allowed\n", name);
+		return -1;
+	}
+
+	cycles = rdtsc();
+	(void)cycles;
+	tsc_supported = true;
+
+	return 0;
+}
+#endif
+
 #if defined(HAVE_CPUID_H) &&	\
     defined(STRESS_ARCH_X86) && 	\
     defined(HAVE_CPUID) &&	\
@@ -41,7 +96,7 @@ static bool tsc_supported = false;
 
 /*
  *  stress_tsc_supported()
- *	check if tsc is supported
+ *	check if tsc is supported, x86 variant
  */
 static int stress_tsc_supported(const char *name)
 {
@@ -85,6 +140,10 @@ static inline void rdtsc(void)
 
 static bool tsc_supported = true;
 
+/*
+ *  stress_tsc_supported()
+ *	check if tsc is supported, ppc variant
+ */
 static int stress_tsc_supported(const char *name)
 {
 	(void)name;
