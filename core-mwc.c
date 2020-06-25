@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static stress_mwc_t __mwc = {
+static stress_mwc_t mwc = {
 	STRESS_MWC_SEED_W,
 	STRESS_MWC_SEED_Z
 };
@@ -76,35 +76,35 @@ static uint64_t stress_aux_random_seed(void)
 void stress_mwc_reseed(void)
 {
 	if (g_opt_flags & OPT_FLAGS_NO_RAND_SEED) {
-		__mwc.w = STRESS_MWC_SEED_W;
-		__mwc.z = STRESS_MWC_SEED_Z;
+		mwc.w = STRESS_MWC_SEED_W;
+		mwc.z = STRESS_MWC_SEED_Z;
 	} else {
 		struct timeval tv;
 		struct rusage r;
 		double m1, m5, m15;
 		int i, n;
 		const uint64_t aux_rnd = stress_aux_random_seed();
-		const ptrdiff_t p1 = (ptrdiff_t)&__mwc.z;
+		const ptrdiff_t p1 = (ptrdiff_t)&mwc.z;
 		const ptrdiff_t p2 = (ptrdiff_t)&tv;
 
-		__mwc.z = aux_rnd >> 32;
-		__mwc.w = aux_rnd & 0xffffffff;
+		mwc.z = aux_rnd >> 32;
+		mwc.w = aux_rnd & 0xffffffff;
 		if (gettimeofday(&tv, NULL) == 0)
-			__mwc.z ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
-		__mwc.z += ~(p1 - p2);
-		__mwc.w += (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
+			mwc.z ^= (uint64_t)tv.tv_sec ^ (uint64_t)tv.tv_usec;
+		mwc.z += ~(p1 - p2);
+		mwc.w += (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
 		if (stress_get_load_avg(&m1, &m5, &m15) == 0) {
-			__mwc.z += (128 * (m1 + m15));
-			__mwc.w += (256 * (m5));
+			mwc.z += (128 * (m1 + m15));
+			mwc.w += (256 * (m5));
 		}
 		if (getrusage(RUSAGE_SELF, &r) == 0) {
-			__mwc.z += r.ru_utime.tv_usec;
-			__mwc.w += r.ru_utime.tv_sec;
+			mwc.z += r.ru_utime.tv_usec;
+			mwc.w += r.ru_utime.tv_sec;
 		}
-		__mwc.z ^= stress_get_cpu();
-		__mwc.w ^= stress_get_phys_mem_size();
+		mwc.z ^= stress_get_cpu();
+		mwc.w ^= stress_get_phys_mem_size();
 
-		n = (int)__mwc.z % 1733;
+		n = (int)mwc.z % 1733;
 		for (i = 0; i < n; i++) {
 			(void)stress_mwc32();
 		}
@@ -118,8 +118,8 @@ void stress_mwc_reseed(void)
  */
 void stress_mwc_seed(const uint32_t w, const uint32_t z)
 {
-	__mwc.w = w;
-	__mwc.z = z;
+	mwc.w = w;
+	mwc.z = z;
 
 	mwc_flush();
 }
@@ -132,9 +132,9 @@ void stress_mwc_seed(const uint32_t w, const uint32_t z)
  */
 HOT OPTIMIZE3 uint32_t stress_mwc32(void)
 {
-	__mwc.z = 36969 * (__mwc.z & 65535) + (__mwc.z >> 16);
-	__mwc.w = 18000 * (__mwc.w & 65535) + (__mwc.w >> 16);
-	return (__mwc.z << 16) + __mwc.w;
+	mwc.z = 36969 * (mwc.z & 65535) + (mwc.z >> 16);
+	mwc.w = 18000 * (mwc.w & 65535) + (mwc.w >> 16);
+	return (mwc.z << 16) + mwc.w;
 }
 
 /*
