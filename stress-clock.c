@@ -136,6 +136,13 @@ static const char *stress_clock_name(int id)
  */
 static int stress_clock(const stress_args_t *args)
 {
+	/*
+	 * Use same random number seed for each
+	 * test run to ensure predictable repeatable
+	 * 'random' sleep duration timings
+	 */
+	stress_mwc_seed(0xf238, 0x1872);
+
 	do {
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \
     defined(HAVE_CLOCK_GETTIME) &&	\
@@ -202,7 +209,7 @@ static int stress_clock(const stress_args_t *args)
 				int ret;
 
 				t.tv_sec = 0;
-				t.tv_nsec = 2500;
+				t.tv_nsec = (stress_mwc32() % 2500) + 1;
 				/*
 				 *  Calling with TIMER_ABSTIME will force
 				 *  clock_nanosleep() to return immediately
@@ -286,9 +293,9 @@ static int stress_clock(const stress_args_t *args)
 					continue;
 				}
 
-				/* One shot mode, for 5000 ns */
+				/* One shot mode, for random time 0..5000 ns */
 				its.it_value.tv_sec = 0;
-				its.it_value.tv_nsec = 5000;
+				its.it_value.tv_nsec = (stress_mwc32() % 5000) + 1;
 				its.it_interval.tv_sec = 0;
 				its.it_interval.tv_nsec = 0;
 
