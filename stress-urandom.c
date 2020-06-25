@@ -178,7 +178,11 @@ next:
 				ret = ioctl(fd_rnd, RNDRESEEDCRNG, stress_mwc32());
 				check_eperm(args, ret, errno);
 #endif
-
+				/*
+				 *  Exercise invalid ioctl command
+				 */
+				ret = ioctl(fd_rnd, 0xffff, NULL);
+				(void)ret;
 #if defined(__linux__)
 				if (fd_rnd_wr >= 0) {
 					buffer[0] = stress_mwc8();
