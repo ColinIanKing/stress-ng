@@ -58,6 +58,23 @@ static int stress_getrandom_supported(const char *name)
 	return 0;
 }
 
+typedef struct {
+	const int flag;
+	const char *flag_str;
+} getrandom_flags_t ;
+
+#define GETRANDOM_FLAG_INFO(x)      { x, # x }
+
+static const getrandom_flags_t getrandom_flags[] = {
+	GETRANDOM_FLAG_INFO(0),
+#if defined(GRND_NONBLOCK) && defined(__linux__)
+	GETRANDOM_FLAG_INFO(GRND_NONBLOCK),
+#endif
+#if defined(GRND_NONBLOCK) && defined(GRND_RANDOM) && defined(__linux__)
+	GETRANDOM_FLAG_INFO(GRND_NONBLOCK | GRND_RANDOM),
+#endif
+};
+
 /*
  *  stress_getrandom
  *	stress reading random values using getrandom()
@@ -66,23 +83,26 @@ static int stress_getrandom(const stress_args_t *args)
 {
 	do {
 		char buffer[RANDOM_BUFFER_SIZE];
-
 		ssize_t ret;
+		size_t i;
 
-		ret = shim_getrandom(buffer, sizeof(buffer), 0);
-		if (ret < 0) {
-			if ((errno == EAGAIN) || (errno == EINTR))
-				continue;
-			if (errno == ENOSYS) {
-				/* Should not happen.. */
-				pr_inf("%s: stressor will be skipped, "
-					"getrandom() not supported\n",
-					args->name);
-				return EXIT_NOT_IMPLEMENTED;
+		for (i = 0; i < SIZEOF_ARRAY(getrandom_flags); i++) {
+			ret = shim_getrandom(buffer, sizeof(buffer), getrandom_flags[i].flag);
+			if (ret < 0) {
+				if ((errno == EAGAIN) || (errno == EINTR))
+					continue;
+				if (errno == ENOSYS) {
+					/* Should not happen.. */
+					pr_inf("%s: stressor will be skipped, "
+						"getrandom() not supported\n",
+						args->name);
+					return EXIT_NOT_IMPLEMENTED;
+				}
+				pr_fail("%s: getrandom using flags %s failed, errno=%d (%s)\n",
+					args->name, getrandom_flags[i].flag_str,
+					errno, strerror(errno));
+				return EXIT_FAILURE;
 			}
-			pr_fail("%s: getrandom failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			return EXIT_FAILURE;
 		}
 		inc_counter(args);
 	} while (keep_stressing());
