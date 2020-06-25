@@ -43,6 +43,32 @@ static inline bool stress_is_not_zero(char *buffer, size_t len)
 	return false;
 }
 
+#if defined(__linux__)
+
+typedef struct {
+	const int flag;
+	const char *flag_str;
+} mmap_flags_t;
+
+#define MMAP_FLAG_INFO(x)	{ x, # x }
+
+/*
+ *  A subset of mmap flags to exercise on /dev/zero mmap'ings
+ */
+static const mmap_flags_t mmap_flags[] = {
+	MMAP_FLAG_INFO(MAP_PRIVATE | MAP_ANONYMOUS),
+	MMAP_FLAG_INFO(MAP_SHARED | MAP_ANONYMOUS),
+#if defined(MAP_LOCKED)
+	MMAP_FLAG_INFO(MAP_PRIVATE | MAP_ANONYMOUS | MAP_LOCKED),
+	MMAP_FLAG_INFO(MAP_SHARED | MAP_ANONYMOUS | MAP_LOCKED),
+#endif
+#if defined(MAP_POPULATE)
+	MMAP_FLAG_INFO(MAP_PRIVATE | MAP_ANONYMOUS | MAP_POPULATE),
+	MMAP_FLAG_INFO(MAP_SHARED | MAP_ANONYMOUS | MAP_POPULATE),
+#endif
+};
+#endif
+
 /*
  *  stress_zero
  *	stress reading of /dev/zero
@@ -71,6 +97,7 @@ static int stress_zero(const stress_args_t *args)
 		ssize_t ret;
 #if defined(__linux__)
 		int32_t *ptr;
+		size_t i;
 #endif
 
 		ret = read(fd, rd_buffer, sizeof(rd_buffer));
@@ -101,24 +128,26 @@ static int stress_zero(const stress_args_t *args)
 #endif
 
 #if defined(__linux__)
-		/*
-		 *  check if we can mmap /dev/zero
-		 */
-		ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS,
-			fd, page_size * stress_mwc16());
-		if (ptr == MAP_FAILED) {
-			if ((errno == ENOMEM) || (errno == EAGAIN))
-				continue;
-			pr_fail("%s: mmap /dev/zero failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			(void)close(fd);
-			return EXIT_FAILURE;
+		for (i = 0; i < SIZEOF_ARRAY(mmap_flags); i++) {
+			/*
+			 *  check if we can mmap /dev/zero
+			 */
+			ptr = mmap(NULL, page_size, PROT_READ, mmap_flags[i].flag,
+				fd, page_size * stress_mwc16());
+			if (ptr == MAP_FAILED) {
+				if ((errno == ENOMEM) || (errno == EAGAIN))
+					continue;
+				pr_fail("%s: mmap /dev/zero using %s failed, errno=%d (%s)\n",
+					args->name, mmap_flags[i].flag_str, errno, strerror(errno));
+				(void)close(fd);
+				return EXIT_FAILURE;
+			}
+			if (stress_is_not_zero(rd_buffer, (size_t)ret)) {
+				pr_fail("%s: memory mapped page of /dev/zero using %s is not zero\n",
+					args->name, mmap_flags[i].flag_str);
+			}
+			(void)munmap(ptr, page_size);
 		}
-		if (stress_is_not_zero(rd_buffer, (size_t)ret)) {
-			pr_fail("%s: memory mapped page of /dev/zero is not zero\n",
-				args->name);
-		}
-		(void)munmap(ptr, page_size);
 #endif
 
 
