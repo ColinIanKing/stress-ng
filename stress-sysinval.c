@@ -882,6 +882,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(mmap2)
 	{ SYS(mmap2), 6, { ARG_PTR, ARG_LEN, ARG_INT, ARG_FLAG, ARG_FD, ARG_UINT } },
 #endif
+#if DEFSYS(mmap_pgoff)
+	{ SYS(mmap_pgoff), 6, { ARG_PTR, ARG_LEN, ARG_INT, ARG_FLAG, ARG_FD, ARG_UINT } },
+#endif
 #if DEFSYS(modify_ldt)
 	{ SYS(modify_ldt), 3, { ARG_INT, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 	{ SYS(modify_ldt), 3, { ARG_INT, ARG_PTR_WR, ARG_LEN, 0, 0, 0 } },
