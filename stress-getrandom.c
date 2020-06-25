@@ -86,7 +86,7 @@ static int stress_getrandom(const stress_args_t *args)
 		ssize_t ret;
 		size_t i;
 
-		for (i = 0; i < SIZEOF_ARRAY(getrandom_flags); i++) {
+		for (i = 0; keep_stressing() && (i < SIZEOF_ARRAY(getrandom_flags)); i++) {
 			ret = shim_getrandom(buffer, sizeof(buffer), getrandom_flags[i].flag);
 			if (ret < 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
@@ -103,8 +103,8 @@ static int stress_getrandom(const stress_args_t *args)
 					errno, strerror(errno));
 				return EXIT_FAILURE;
 			}
+			inc_counter(args);
 		}
-		inc_counter(args);
 	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
