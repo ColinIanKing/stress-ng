@@ -44,17 +44,17 @@ typedef struct {
 	const stress_memcpy_func func;
 } stress_memcpy_method_info_t;
 
-static NOINLINE void *__memcpy(void *dest, const void *src, size_t n)
+static NOINLINE void *test_memcpy(void *dest, const void *src, size_t n)
 {
 	return memcpy(dest, src, n);
 }
 
-static NOINLINE void *__memmove(void *dest, const void *src, size_t n)
+static NOINLINE void *test_memmove(void *dest, const void *src, size_t n)
 {
 	return memmove(dest, src, n);
 }
 
-static inline void *__naive_memcpy(void *dest, const void *src, size_t n)
+static inline void *test_naive_memcpy(void *dest, const void *src, size_t n)
 {
 	register size_t i;
 	register char *cdest = (char *)dest;
@@ -65,7 +65,7 @@ static inline void *__naive_memcpy(void *dest, const void *src, size_t n)
 	return dest;
 }
 
-static inline void *__naive_memmove(void *dest, const void *src, size_t n)
+static inline void *test_naive_memmove(void *dest, const void *src, size_t n)
 {
 	register size_t i;
 	register char *cdest = (char *)dest;
@@ -90,14 +90,14 @@ static NOINLINE void stress_memcpy_libc(
 	uint8_t *str_shared,
 	uint8_t *aligned_buf)
 {
-	(void)__memcpy(aligned_buf, str_shared, STR_SHARED_SIZE);
-	(void)__memcpy(str_shared, aligned_buf, STR_SHARED_SIZE / 2);
-	(void)__memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
-	(void)__memcpy(b_str, b, STR_SHARED_SIZE);
-	(void)__memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
-	(void)__memcpy(b, b_str, STR_SHARED_SIZE);
-	(void)__memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
-	(void)__memmove(aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
+	(void)test_memcpy(aligned_buf, str_shared, STR_SHARED_SIZE);
+	(void)test_memcpy(str_shared, aligned_buf, STR_SHARED_SIZE / 2);
+	(void)test_memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
+	(void)test_memcpy(b_str, b, STR_SHARED_SIZE);
+	(void)test_memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
+	(void)test_memcpy(b, b_str, STR_SHARED_SIZE);
+	(void)test_memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
+	(void)test_memmove(aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
 }
 
 static NOINLINE void stress_memcpy_builtin(
@@ -139,14 +139,14 @@ static NOINLINE void stress_memcpy_naive(
 	uint8_t *str_shared,
 	uint8_t *aligned_buf)
 {
-	(void)__naive_memcpy(aligned_buf, str_shared, STR_SHARED_SIZE);
-	(void)__naive_memcpy(str_shared, aligned_buf, STR_SHARED_SIZE / 2);
-	(void)__naive_memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
-	(void)__naive_memcpy(b_str, b, STR_SHARED_SIZE);
-	(void)__naive_memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
-	(void)__naive_memcpy(b, b_str, STR_SHARED_SIZE);
-	(void)__naive_memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
-	(void)__naive_memmove(aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
+	(void)test_naive_memcpy(aligned_buf, str_shared, STR_SHARED_SIZE);
+	(void)test_naive_memcpy(str_shared, aligned_buf, STR_SHARED_SIZE / 2);
+	(void)test_naive_memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
+	(void)test_naive_memcpy(b_str, b, STR_SHARED_SIZE);
+	(void)test_naive_memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
+	(void)test_naive_memcpy(b, b_str, STR_SHARED_SIZE);
+	(void)test_naive_memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
+	(void)test_naive_memmove(aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
 }
 
 static NOINLINE void stress_memcpy_all(
