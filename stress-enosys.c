@@ -50,7 +50,7 @@ static const stress_help_t help[] = {
 
 #if defined(__linux__) &&       \
     defined(STRESS_ARCH_X86) &&	\
-    NEED_GNUC(4,6,0)
+    NEED_GNUC(9,3,0)
 #define STRESS_EXERCISE_X86_0X80
 #endif
 
