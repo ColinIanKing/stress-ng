@@ -48,6 +48,12 @@ static const stress_help_t help[] = {
 #define STRESS_EXERCISE_X86_SYSCALL
 #endif
 
+#if defined(__linux__) &&       \
+    defined(STRESS_ARCH_X86) &&	\
+    NEED_GNUC(4,6,0)
+#define STRESS_EXERCISE_X86_0X80
+#endif
+
 typedef struct hash_syscall {
 	struct hash_syscall *next;
 	unsigned long	number;
@@ -108,6 +114,41 @@ static inline long x86_64_syscall6(long number, long arg1, long arg2,
 }
 #endif
 
+#if defined(STRESS_EXERCISE_X86_0X80)
+static inline long x86_0x80_syscall6(long number, long arg1, long arg2,
+				   long arg3, long arg4, long arg5,
+				   long arg6)
+{
+	long ret;
+	unsigned int _num  = number;
+	unsigned int _arg1 = arg1;
+	unsigned int _arg2 = arg2;
+	unsigned int _arg3 = arg3;
+	unsigned int _arg4 = arg4;
+	unsigned int _arg5 = arg5;
+	unsigned int _arg6 = arg6;
+
+	register int __num  asm ("eax") = _num;
+	register int __arg1 asm ("ebx") = _arg1;
+	register int __arg2 asm ("ecx") = _arg2;
+	register int __arg3 asm ("edx") = _arg3;
+	register int __arg4 asm ("esi") = _arg4;
+	register int __arg5 asm ("edi") = _arg5;
+	register int __arg6 asm ("ebp") = _arg6;
+
+	asm volatile ("int $0x80\n\t"
+			: "=a" (ret)
+			: "0" (__num), "r" (__arg1), "r" (__arg2), "r" (__arg3),
+			  "r" (__arg4), "r" (__arg5), "r" (__arg6)
+			: "memory");
+	if (ret < 0) {
+		errno = -ret;
+		ret = -1;
+	}
+	return ret;
+}
+#endif
+
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
 static inline long syscall7(long number, long arg1, long arg2,
@@ -150,7 +191,11 @@ static void exercise_syscall(
 			enosys = true;
 	}
 #endif
-
+#if defined(STRESS_EXERCISE_X86_0X80)
+	ret = x86_0x80_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
+	if ((ret < 0) && (errno != ENOSYS))
+		enosys = true;
+#endif
 	if (enosys)
 		_exit(errno);
 }
