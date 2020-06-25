@@ -108,7 +108,7 @@ static int stress_ioport_supported(const char *name)
  */
 static int stress_ioport(const stress_args_t *args)
 {
-	int ret;
+	int ret, fd;
 	uint32_t flag = 0;
 	unsigned char v;
 
@@ -122,6 +122,8 @@ static int stress_ioport(const stress_args_t *args)
 			args->name, IO_PORT, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
+
+	fd = open("/dev/port", O_RDWR);
 
 	v = inb(IO_PORT);
 	do {
@@ -144,25 +146,55 @@ static int stress_ioport(const stress_args_t *args)
 			(void)inb(IO_PORT);
 		}
 		if (flag & IOPORT_OPT_OUT) {
+			outb(v + 15, IO_PORT);
+			outb(v + 14, IO_PORT);
+			outb(v + 13, IO_PORT);
+			outb(v + 12, IO_PORT);
+			outb(v + 11, IO_PORT);
+			outb(v + 10, IO_PORT);
+			outb(v + 9, IO_PORT);
+			outb(v + 8, IO_PORT);
+			outb(v + 7, IO_PORT);
+			outb(v + 6, IO_PORT);
+			outb(v + 5, IO_PORT);
+			outb(v + 4, IO_PORT);
+			outb(v + 3, IO_PORT);
+			outb(v + 2, IO_PORT);
+			outb(v + 1, IO_PORT);
 			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
-			outb(v, IO_PORT);
+		}
+
+		if (fd >= 0) {
+			off_t offset = IO_PORT;
+
+			offset = lseek(fd, offset, SEEK_SET);
+			if (offset != (off_t)-1) {
+				ssize_t ret;
+				unsigned char val;
+
+				ret = read(fd, &val, sizeof(val));
+				if (ret == sizeof(val)) {
+					offset = lseek(fd, offset, SEEK_SET);
+					if (offset != (off_t)-1) {
+						val = ~v;
+						ret = write(fd, &val, sizeof(val));
+						(void)ret;
+					}
+					offset = lseek(fd, offset, SEEK_SET);
+					if (offset != (off_t)-1) {
+						val = v;
+						ret = write(fd, &val, sizeof(val));
+						(void)ret;
+					}
+				}
+			}
+
 		}
 		inc_counter(args);
 	} while (keep_stressing());
+
+	if (fd >= 0)
+		(void)close(fd);
 
 	(void)ioperm(IO_PORT, 1, 0);
 
