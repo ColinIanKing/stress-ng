@@ -25,7 +25,7 @@
 #include "stress-ng.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"tsc N",	"start N workers reading the TSC (x86 only)" },
+	{ NULL,	"tsc N",	"start N workers reading the time stamp counter" },
 	{ NULL,	"tsc-ops N",	"stop after N TSC bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
