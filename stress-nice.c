@@ -100,7 +100,7 @@ static int stress_nice(const stress_args_t *args)
 				for (i = -19; i < 20; i++) {
 					int ret;
 
-					ret = nice(1);
+					ret = shim_nice(1);
 					if (ret == 0)
 						stress_nice_delay();
 					inc_counter(args);

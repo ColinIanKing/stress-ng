@@ -1655,3 +1655,19 @@ int shim_clock_settime(clockid_t clk_id, struct timespec *tp)
 	return shim_enosys(0, clk_id, tp);
 #endif
 }
+
+/*
+ *  shim_nice
+ *	wrapper for nice.  Some C libraries may use setpriority
+ *	and hence the nice system call is not being used. Directly
+ *	call the nice system call if it's available, else use the
+ *	libc version.
+ */
+int shim_nice(int inc)
+{
+#if defined(__NR_nice)
+	return (int)syscall(__NR_nice, inc);
+#else
+	return nice(inc);
+#endif
+}
