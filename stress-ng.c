@@ -1669,8 +1669,7 @@ static void MLOCKED_TEXT stress_run(
 	bool *success,
 	bool *resource_success,
 	bool *metrics_success,
-	stress_checksum_t **checksum
-)
+	stress_checksum_t **checksum)
 {
 	double time_start, time_finish;
 	int32_t n_procs, j;
