@@ -171,7 +171,6 @@ again:
 		struct sigevent sigev;
 		uint64_t values[PRIOS_MAX];
 
-
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
