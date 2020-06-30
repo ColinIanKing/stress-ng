@@ -61,7 +61,6 @@ static int stress_netlink_proc_supported(const char *name)
 static int monitor(const stress_args_t *args, const int sock)
 {
 	struct nlmsghdr *nlmsghdr;
-
 	int len;
 	char __attribute__ ((aligned(NLMSG_ALIGNTO)))buf[4096];
 
