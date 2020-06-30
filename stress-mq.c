@@ -240,7 +240,6 @@ again:
 					ret = mq_timedreceive(mq, (char *)&msg, sizeof(msg), &prio, &abs_timeout);
 				else
 					ret = mq_receive(mq, (char *)&msg, sizeof(msg), &prio);
-
 				if (ret < 0) {
 					if (errno != EINTR) {
 						pr_fail("%s: %s failed, errno=%d (%s)\n",
@@ -282,7 +281,6 @@ again:
 		do {
 			int ret;
 			unsigned int prio = stress_mwc8() % PRIOS_MAX;
-
 			const uint64_t timed = (msg.value & 1);
 
 			if ((attr_count++ & 31) == 0) {
@@ -300,7 +298,6 @@ again:
 				ret = mq_timedsend(mq, (char *)&msg, sizeof(msg), prio, &abs_timeout);
 			else
 				ret = mq_send(mq, (char *)&msg, sizeof(msg), prio);
-
 			if (ret < 0) {
 				if ((errno != EINTR) && (errno != ETIMEDOUT))
 					pr_fail("%s: %s failed, errno=%d (%s)\n",
