@@ -84,6 +84,11 @@ static int stress_kill(const stress_args_t *args)
 			pr_fail("%s: kill PID -1 with signal 0 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 
+		/*
+		 * Exercise the kernel by sending an illegal signal number
+		 */
+		ret = kill(args->pid, -1);
+		(void)ret;
 		inc_counter(args);
 	} while (keep_stressing());
 
