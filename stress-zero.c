@@ -30,15 +30,24 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static inline bool stress_is_not_zero(char *buffer, size_t len)
+/*
+ *  stress_is_not_zero()
+ *	checks if buffer is zero, buffer must be 64 bit aligned
+ */
+static bool stress_is_not_zero(uint64_t *buffer, const size_t len)
 {
-	register const char *end = buffer + len;
-	register char *ptr = buffer;
+	register const uint8_t *end8 = ((uint8_t *)buffer) + len;
+	register uint8_t *ptr8;
+	register const uint64_t *end64 = buffer + (len / sizeof(uint64_t));
+	register uint64_t *ptr64 = buffer;
 
-	while (ptr < end) {
-		if (*ptr)
+	for (ptr64 = buffer; ptr64 < end64; ptr64++) {
+		if (*ptr64)
 			return true;
-		ptr++;
+	}
+	for (ptr8 = (uint8_t *)ptr64; ptr8 < end8; ptr8++) {
+		if (*ptr8)
+			return true;
 	}
 	return false;
 }
@@ -93,7 +102,7 @@ static int stress_zero(const stress_args_t *args)
 	(void)memset(wr_buffer, 0, sizeof wr_buffer);
 
 	do {
-		char rd_buffer[page_size];
+		uint64_t ALIGN64 rd_buffer[page_size / sizeof(uint64_t)];
 		ssize_t ret;
 #if defined(__linux__)
 		int32_t *ptr;
