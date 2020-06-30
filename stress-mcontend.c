@@ -365,7 +365,7 @@ static int stress_mcontend(const stress_args_t *args)
 	if (data[1] == MAP_FAILED) {
 		pr_inf("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap(data[1], args->page_size);
+		(void)munmap(data[0], args->page_size);
 		(void)close(fd);
 		return EXIT_NO_RESOURCE;
 	}
