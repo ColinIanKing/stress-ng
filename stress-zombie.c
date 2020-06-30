@@ -166,11 +166,11 @@ static int stress_zombie(const stress_args_t *args)
 
 			zombie->pid = fork();
 			if (zombie->pid == 0) {
-				(void)setpgid(0, g_pgrp);
-				stress_parent_died_alarm();
-				(void)sched_settings_apply(true);
-
+				/*
+				 * No need to free, we're going to die
+				 *
 				stress_zombie_free();
+				 */
 				_exit(0);
 			}
 			if (zombie->pid == -1) {
