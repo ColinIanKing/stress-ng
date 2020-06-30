@@ -95,7 +95,8 @@ redo: 			errno = 0;
 				case ENOSYS:
 					pr_inf("%s: mincore no not implemented, skipping stressor\n",
 						args->name);
-					return EXIT_NOT_IMPLEMENTED;
+					rc = EXIT_NOT_IMPLEMENTED;
+					goto err;
 				default:
 					pr_fail("%s: mincore on address %p errno=%d %s\n",
 						args->name, addr, errno,
@@ -140,6 +141,7 @@ redo: 			errno = 0;
 		inc_counter(args);
 	} while (keep_stressing());
 
+err:
 	if (mapped != MAP_FAILED)
 		(void)munmap((void *)mapped, page_size);
 
