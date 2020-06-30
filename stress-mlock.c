@@ -108,7 +108,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			if (mappings[n] == MAP_FAILED)
 				break;
 			/*
-			 *  Attempt a bogos mlock, ignore failure
+			 *  Attempt a bogus mlock, ignore failure
 			 */
 			(void)do_mlock((void *)(mappings[n] + page_size), 0);
 
