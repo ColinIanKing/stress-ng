@@ -109,7 +109,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 	}
 	maps = calloc(memfd_fds, sizeof(*maps));
 	if (!maps) {
-		pr_dbg("%s: cannot allocate maps uffer: %d (%s)\n",
+		pr_dbg("%s: cannot allocate maps buffer: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		free(fds);
 		return EXIT_NO_RESOURCE;
