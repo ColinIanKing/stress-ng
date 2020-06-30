@@ -650,6 +650,27 @@ static void stress_rand_data_logmap(
 }
 
 /*
+ *  stress_rand_data_lfsr32()
+ *	fills buffer with 2^32-1 values (all 2^32 except for zero)
+ *	using the Galois polynomial: x^32 + x^31 + x^29 + x + 1
+ */
+static void stress_rand_data_lfsr32(
+	const stress_args_t *args,
+	uint32_t *data,
+	const int size)
+{
+	const uint32_t *end = data + (size / sizeof(*data));
+	static uint32_t lfsr = 0xf63acb01;
+
+	(void)args;
+
+	while (data < end) {
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+		*data++ = lfsr;
+	}
+}
+
+/*
  *  stress_rand_data_lrand48()
  *	fills buffer with random data from lrand48
  */
@@ -880,6 +901,7 @@ static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "fixed",	stress_rand_data_fixed },
 	{ "latin",	stress_rand_data_latin },
 	{ "logmap",	stress_rand_data_logmap },
+	{ "lfsr32",	stress_rand_data_lfsr32 },
 	{ "lrand48",	stress_rand_data_lrand48 },
 	{ "morse",	stress_rand_data_morse },
 	{ "nybble",	stress_rand_data_nybble },
