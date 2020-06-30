@@ -98,7 +98,7 @@ static inline HOT OPTIMIZE3 void read64(uint64_t *data)
 }
 
 /*
- *  stressmemory_contend()
+ *  stress_memory_contend()
  *	read a proc file
  */
 static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args_t *pa)
@@ -354,7 +354,7 @@ static int stress_mcontend(const stress_args_t *args)
 	 */
 	data[0] = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE, fd, 0);
-	if (data[1] == MAP_FAILED) {
+	if (data[0] == MAP_FAILED) {
 		pr_inf("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
