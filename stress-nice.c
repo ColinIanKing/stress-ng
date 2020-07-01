@@ -87,7 +87,8 @@ static int stress_nice(const stress_args_t *args)
 			 *  Exercise illegal maximum priority
 			 *  to get more kernel test coverage
 			 */
-            (void)setpriority(PRIO_PROCESS, 0, max_prio + 1);
+            
+			(void)setpriority(PRIO_PROCESS, 0, max_prio + 1);
 
 			switch (which) {
 #if defined(HAVE_SETPRIORITY)
