@@ -123,7 +123,7 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		}
 #endif
 		/* Exercise invalid fd */
-		old_flags = fctnl(bad_fd, F_GETFD);
+		old_flags = fcntl(bad_fd, F_GETFD);
 		(void)old_flags;
 	}
 #endif
@@ -267,7 +267,7 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		check_return(args, ret, "F_SETSIG");
 
 		/* Exercise illegal signal number */
-		ret = fcntl(fd, F_SET_SIG, ~0);
+		ret = fcntl(fd, F_SETSIG, ~0);
 		(void)ret;
 	}
 #endif
@@ -575,7 +575,7 @@ ofd_lock_abort:	{ /* Nowt */ }
 		/* Exercise invalid hint type */
 		hint = ~0;
 		ret = fcntl(fd, F_SET_FILE_RW_HINT, &hint);
-		(void);
+		(void)ret;
 #endif
 #if defined(F_GET_RW_HINT) && defined(F_SET_RW_HINT)
 		ret = fcntl(fd, F_GET_RW_HINT, &hint);
