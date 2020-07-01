@@ -155,18 +155,17 @@ static inline long syscall7(long number, long arg1, long arg2,
 			    long arg3, long arg4, long arg5,
 			    long arg6, long arg7)
 {
-	int ret;
-	const pid_t pid = getpid();
+	return syscall(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+}
+STRESS_PRAGMA_POP
 
-	ret = syscall(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
-
+static void exit_if_child(const pid_t pid)
+{
 	if (getpid() != pid) {
 		/* Somehow we forked/cloned ourselves, so exit */
 		_exit(0);
 	}
-	return ret;
 }
-STRESS_PRAGMA_POP
 
 static void exercise_syscall(
 	const stress_args_t *args,
@@ -176,23 +175,32 @@ static void exercise_syscall(
 {
 	int ret;
 	bool enosys = false;
+	const pid_t pid = getpid();
 
 	if (!keep_stressing())
 		_exit(EXIT_SUCCESS);
 
 	ret = syscall7(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	exit_if_child(pid);
 	if ((ret < 0) && (errno != ENOSYS))
 		enosys = true;
+	
+	if (getpid() != pid) {
+		/* Somehow we forked/cloned ourselves, so exit */
+		_exit(0);
+	}
 
 #if defined(STRESS_EXERCISE_X86_SYSCALL)
 	if (stress_x86syscall_available) {
 		ret = x86_64_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
+		exit_if_child(pid);
 		if ((ret < 0) && (errno != ENOSYS))
 			enosys = true;
 	}
 #endif
 #if defined(STRESS_EXERCISE_X86_0X80)
 	ret = x86_0x80_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
+	exit_if_child(pid);
 	if ((ret < 0) && (errno != ENOSYS))
 		enosys = true;
 #endif
