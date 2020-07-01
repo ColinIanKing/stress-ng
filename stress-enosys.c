@@ -229,6 +229,11 @@ static void exercise_syscall(
 		_exit(errno);
 }
 
+/* Dodgy hack */
+#if defined(__linux__) && !defined(__NR_sigsuspend)
+#define __NR_sigsuspend 72
+#endif
+
 static const int syscall_ignore[] = {
 #if defined(SYS_reboot)
 	SYS_reboot,
@@ -259,6 +264,12 @@ static const int syscall_ignore[] = {
 #endif
 #if defined(__NR_fork)
 	__NR_fork,
+#endif
+#if defined(SYS_sigsuspend)
+	SYS_sigsuspend,
+#endif
+#if defined(__NR_sigsuspend)
+	__NR_sigsuspend,
 #endif
 #if defined(SYS_vfork)
 	SYS_vfork,
@@ -364,11 +375,6 @@ static const int sigs[] = {
 	SIGHUP
 #endif
 };
-
-/* Dodgy hack */
-#if defined(__linux__) && !defined(__NR_sigsuspend)
-#define __NR_sigsuspend 72
-#endif
 
 static const long skip_syscalls[] = {
 /* Traditional SYS_ syscall interface */
