@@ -173,6 +173,42 @@ static int stress_fanotify_supported(const char *name)
 }
 
 /*
+ *  fanotify_event_init_invalid_call()
+ *	perform init call and close fd if call succeeded (which should
+ *	not happen).
+ */
+static void fanotify_event_init_invalid_call(unsigned int flags, unsigned int event_f_flags)
+{
+	int fan_fd;
+
+	fan_fd = fanotify_init(flags, event_f_flags);
+	if (fan_fd >= 0)
+		(void)close(fan_fd);
+}
+
+#define FANOTIFY_CLASS_BITS
+
+/*
+ *  fanotify_event_init_invalid()
+ *  exercise invalid ways to call fanotify_init to
+ *  get more kernel coverage
+ */
+static void fanotify_event_init_invalid(void)
+{
+	fanotify_event_init_invalid_call(0, ~0);
+	fanotify_event_init_invalid_call(~0, ~0);
+	fanotify_event_init_invalid_call(~0, 0);
+
+#if defined(FAN_CLASS_NOTIF) &&		\
+    defined(FAN_CLASS_CONTENT) && 	\
+    defined(FAN_CLASS_PRE_CONTENT)	
+	fanotify_event_init_invalid_call(FAN_CLASS_NOTIF |
+					 FAN_CLASS_CONTENT |
+					 FAN_CLASS_PRE_CONTENT, ~0);
+#endif
+}
+
+/*
  *  fanotify_event_init()
  *	initialize fanotify
  */
@@ -355,6 +391,8 @@ static int stress_fanotify(const stress_args_t *args)
 		_exit(EXIT_SUCCESS);
 	} else {
 		void *buffer;
+
+		fanotify_event_init_invalid();
 
 		ret = posix_memalign(&buffer, BUFFER_SIZE, BUFFER_SIZE);
 		if (ret != 0 || buffer == NULL) {
