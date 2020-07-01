@@ -167,6 +167,24 @@ static void exit_if_child(const pid_t pid)
 	}
 }
 
+static void itimer_set(const stress_args_t *args)
+{
+	struct itimerval it;
+
+	/*
+	 * Force abort if we take too long
+	 */
+	it.it_interval.tv_sec = 0;
+	it.it_interval.tv_usec = 100000;
+	it.it_value.tv_sec = 0;
+	it.it_value.tv_usec = 100000;
+	if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
+		pr_dbg("%s setitimer failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		_exit(EXIT_NO_RESOURCE);
+	}
+}
+
 static void exercise_syscall(
 	const stress_args_t *args,
 	long number, long arg1, long arg2,
@@ -180,6 +198,7 @@ static void exercise_syscall(
 	if (!keep_stressing())
 		_exit(EXIT_SUCCESS);
 
+	itimer_set(args);
 	ret = syscall7(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 	exit_if_child(pid);
 	if ((ret < 0) && (errno != ENOSYS))
@@ -191,6 +210,7 @@ static void exercise_syscall(
 	}
 
 #if defined(STRESS_EXERCISE_X86_SYSCALL)
+	itimer_set(args);
 	if (stress_x86syscall_available) {
 		ret = x86_64_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
 		exit_if_child(pid);
@@ -199,6 +219,7 @@ static void exercise_syscall(
 	}
 #endif
 #if defined(STRESS_EXERCISE_X86_0X80)
+	itimer_set(args);
 	ret = x86_0x80_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
 	exit_if_child(pid);
 	if ((ret < 0) && (errno != ENOSYS))
@@ -3287,7 +3308,6 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 	if (pid < 0) {
 		_exit(EXIT_NO_RESOURCE);
 	} else if (pid == 0) {
-		struct itimerval it;
 		size_t i;
 		unsigned long arg;
 		char buffer[1024];
@@ -3310,19 +3330,6 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
-
-		/*
-		 * Force abort if we take too long
-		 */
-		it.it_interval.tv_sec = 0;
-		it.it_interval.tv_usec = 100000;
-		it.it_value.tv_sec = 0;
-		it.it_value.tv_usec = 100000;
-		if (setitimer(ITIMER_REAL, &it, NULL) < 0) {
-			pr_dbg("%s setitimer failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			_exit(EXIT_NO_RESOURCE);
-		}
 
 		/*
 		 *  Try various ENOSYS calls
