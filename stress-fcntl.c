@@ -84,6 +84,10 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		check_return(args, ret, "F_DUPFD");
 		if (ret > -1)
 			(void)close(ret);
+
+		/* Exercise invalid fd */
+		ret = fcntl(fd, F_DUPFD, bad_fd);
+		(void)ret;
 	}
 #endif
 
@@ -118,6 +122,9 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 			check_return(args, ret, "F_SETFD");
 		}
 #endif
+		/* Exercise invalid fd */
+		old_flags = fctnl(bad_fd, F_GETFD);
+		(void)old_flags;
 	}
 #endif
 
@@ -179,7 +186,7 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 #endif
 
 /*
- *  These mat not yet be defined in libc
+ *  These may not yet be defined in libc
  */
 #if !defined(F_OWNER_TID)
 #define F_OWNER_TID	0
@@ -258,6 +265,10 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		check_return(args, ret, "F_SETSIG");
 		ret = fcntl(fd, F_SETSIG, SIGIO);
 		check_return(args, ret, "F_SETSIG");
+
+		/* Exercise illegal signal number */
+		ret = fcntl(fd, F_SET_SIG, ~0);
+		(void)ret;
 	}
 #endif
 
@@ -424,6 +435,28 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		ret = fcntl(fd, F_SETLK, &f);
 		check_return(args, ret, "F_SETLK (F_UNLCK)");
 
+		/* Exercise various invalid locks */
+		f.l_type = ~0;
+		f.l_whence = SEEK_CUR;
+		f.l_start = 0;
+		f.l_len = len;
+		f.l_pid = args->pid;
+		ret = fcntl(fd, F_SETLK, &f);
+
+		f.l_type = F_SETLK;
+		f.l_whence = ~0;
+		f.l_start = 0;
+		f.l_len = len;
+		f.l_pid = args->pid;
+		ret = fcntl(fd, F_SETLK, &f);
+
+		f.l_type = F_SETLK;
+		f.l_whence = SEEK_SET;
+		f.l_start = 0;
+		f.l_len = 0;
+		f.l_pid = 0;
+		ret = fcntl(fd, F_SETLK, &f);
+
 lock_abort:	{ /* Nowt */ }
 	}
 #endif
@@ -539,6 +572,10 @@ ofd_lock_abort:	{ /* Nowt */ }
 				(void)ret;
 			}
 		}
+		/* Exercise invalid hint type */
+		hint = ~0;
+		ret = fcntl(fd, F_SET_FILE_RW_HINT, &hint);
+		(void);
 #endif
 #if defined(F_GET_RW_HINT) && defined(F_SET_RW_HINT)
 		ret = fcntl(fd, F_GET_RW_HINT, &hint);
