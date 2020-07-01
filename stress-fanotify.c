@@ -201,7 +201,7 @@ static void fanotify_event_init_invalid(void)
 
 #if defined(FAN_CLASS_NOTIF) &&		\
     defined(FAN_CLASS_CONTENT) && 	\
-    defined(FAN_CLASS_PRE_CONTENT)	
+    defined(FAN_CLASS_PRE_CONTENT)
 	fanotify_event_init_invalid_call(FAN_CLASS_NOTIF |
 					 FAN_CLASS_CONTENT |
 					 FAN_CLASS_PRE_CONTENT, ~0);
