@@ -344,6 +344,11 @@ static const int sigs[] = {
 #endif
 };
 
+/* Dodgy hack */
+#if defined(__linux__) && !defined(__NR_sigsuspend)
+#define __NR_sigsuspend 72
+#endif
+
 static const long skip_syscalls[] = {
 /* Traditional SYS_ syscall interface */
 #if defined(SYS_accept)
