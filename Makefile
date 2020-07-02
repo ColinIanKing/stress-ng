@@ -339,16 +339,6 @@ OBJS = $(SRC:.c=.o)
 
 APPARMOR_PARSER=/sbin/apparmor_parser
 
-LIB_APPARMOR := -lapparmor
-LIB_BSD := -lbsd
-LIB_Z := -lz
-LIB_CRYPT := -lcrypt
-LIB_RT := -lrt
-LIB_PTHREAD := -pthread
-LIB_AIO = -laio
-LIB_SCTP = -lsctp
-LIB_DL = -ldl
-
 all:
 	$(MAKE) makeconfig
 	$(MAKE) stress-ng
