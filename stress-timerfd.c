@@ -143,8 +143,8 @@ static int stress_timerfd(const stress_args_t *args)
 	stress_timerfd_set(&timer, timerfd_rand);
 	for (i = 0; i < TIMERFD_MAX; i++) {
 		if (timerfd_settime(timerfd[i], 0, &timer, NULL) < 0) {
-			pr_fail("%s: timerfsd_settime failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: timerfd_settime failed on fd %d, errno=%d (%s)\n",
+				args->name, timerfd[i], errno, strerror(errno));
 			(void)close(timerfd[i]);
 			return EXIT_FAILURE;
 		}
