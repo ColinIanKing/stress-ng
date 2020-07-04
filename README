@@ -54,9 +54,9 @@ RHEL, Fedora, Centos:
   * libcap-devel
   * libgcrypt-devel
   * Judy-devel
-  * keyutils-libs
+  * keyutils-libs-devel
   * lksctp-tools-devel
-  * libatomic1
+  * libatomic
   * zlib-devel
 
 SUSE:
