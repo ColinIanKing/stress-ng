@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
 };
 
 /* paths we should never stat */
-static const char *blacklist[] = {
+static const char *blocklist[] = {
 	"/dev/watchdog"
 };
 
@@ -89,8 +89,8 @@ static bool do_not_stat(const char *filename)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(blacklist); i++) {
-		if (!strncmp(filename, blacklist[i], strlen(blacklist[i])))
+	for (i = 0; i < SIZEOF_ARRAY(blocklist); i++) {
+		if (!strncmp(filename, blocklist[i], strlen(blocklist[i])))
 			return true;
 	}
 	return false;
