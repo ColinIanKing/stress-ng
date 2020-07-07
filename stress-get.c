@@ -144,6 +144,7 @@ static int stress_get(const stress_args_t *args)
 		struct timeval delta;
 #endif
 		struct timeval tv;
+		struct timezone tz;
 		time_t t, t1, t2;
 		pid_t pid;
 		gid_t gid;
@@ -391,6 +392,15 @@ static int stress_get(const stress_args_t *args)
 		if (verify && (ret < 0))
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+		/*
+		 *  Exercise gettimeofday call with a
+		 *  non-null pointer to timezone variable
+		 */
+		ret = gettimeofday(&tv, &tz);
+		if (verify && (ret < 0))
+			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 		{
 			struct utsname utsbuf;
