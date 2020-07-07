@@ -144,7 +144,7 @@ static int stress_get(const stress_args_t *args)
 		struct timeval delta;
 #endif
 		struct timeval tv;
-		time_t t;
+		time_t t, t1, t2;
 		pid_t pid;
 		gid_t gid;
 		uid_t uid;
@@ -372,6 +372,20 @@ static int stress_get(const stress_args_t *args)
 		if (verify && (t == (time_t)-1))
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+		/*
+		 *  Exercise time calls with a pointer to time_t
+		 *  variable and check equality with returned value
+		 *  with it to increase kernel test coverage
+		 */
+		t1 = time(&t2);
+
+		if (memcmp(&t1, &t2, sizeof(t1))) {
+
+			/* Test Fails */
+			pr_fail("%s: time failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+
+		}
 
 		ret = gettimeofday(&tv, NULL);
 		if (verify && (ret < 0))
