@@ -1686,3 +1686,18 @@ time_t shim_time(time_t *tloc)
 	return (time_t)shim_enosys(0, tloc);
 #endif
 }
+
+/*
+ *  shim_gettimeofday
+ *	wrapper for gettimeofday system call to
+ *	avoid libc calling gettimeofday via
+ *	the VDSO and force the time system call
+ */
+int shim_gettimeofday(struct timeval *tv, struct timezone *tz)
+{
+#if defined(__NR_gettimeofday)
+	return (time_t)syscall(__NR_gettimeofday, tv, tz);
+#else
+	return (int)shim_enosys(0, tv, tz);
+#endif
+}

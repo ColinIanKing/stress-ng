@@ -419,6 +419,23 @@ static int stress_get(const stress_args_t *args)
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 
+		/*
+		 *  Exercise the gettimeofday system call using the
+		 *  syscall() function to increase kernel test coverage
+		 */
+		ret = shim_gettimeofday(&tv, NULL);
+		if (verify && (ret < 0))
+			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		/*
+		 *  Exercise gettimeofday call with a
+		 *  non-null pointer to timezone variable
+		 */
+		ret = shim_gettimeofday(&tv, &tz);
+		if (verify && (ret < 0))
+			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 		{
 			struct utsname utsbuf;
