@@ -1671,3 +1671,18 @@ int shim_nice(int inc)
 	return nice(inc);
 #endif
 }
+
+/*
+ *  shim_time
+ *	wrapper for time system call to
+ *	avoid libc calling gettimeofday via
+ *	the VDSO and force the time system call
+ */
+time_t shim_time(time_t *tloc)
+{
+#if defined(__NR_time)
+	return (time_t)syscall(__NR_time, tloc);
+#else
+	return (time_t)shim_enosys(0, tloc);
+#endif
+}

@@ -387,6 +387,24 @@ static int stress_get(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 
 		}
+		/*
+		 *  Exercise the time system call using the syscall()
+		 *  function to increase kernel test coverage
+		 */
+		t = shim_time(NULL);
+		if (verify && (t == (time_t)-1))
+			pr_fail("%s: time failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+
+		t1 = shim_time(&t2);
+
+		if (memcmp(&t1, &t2, sizeof(t1))) {
+
+			/* Test Fails */
+			pr_fail("%s: time failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+
+		}
 
 		ret = gettimeofday(&tv, NULL);
 		if (verify && (ret < 0))

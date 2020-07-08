@@ -3866,6 +3866,7 @@ extern int shim_munlock(const void *addr, size_t len);
 extern int shim_munlockall(void);
 extern int shim_nanosleep_uint64(uint64_t usec);
 extern int shim_nice(int inc);
+extern time_t shim_time(time_t *tloc);
 extern int shim_pidfd_getfd(int pidfd, int targetfd, unsigned int flags);
 extern int shim_pidfd_open(pid_t pid, unsigned int flags);
 extern int shim_pidfd_send_signal(int pidfd, int sig, siginfo_t *info,
