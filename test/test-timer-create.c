@@ -30,7 +30,7 @@
 
 int main(void)
 {
-	struct sigevent sev;
+	struct sigevent sev = { 0 };
 	struct timespec t = { 0 };
 	timer_t timerid;
 
