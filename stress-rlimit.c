@@ -52,6 +52,16 @@ typedef struct {
 	int ret;			/* saved old rlimit setting return status */
 } stress_limits_t;
 
+typedef struct {
+	const int resource;
+	const char *name;
+} stress_resource_id_t;
+
+#define RESOURCE_ID(x)	{ x, # x }
+
+/*
+ *  limits that are tested to see if we can hit these limits
+ */
 static stress_limits_t limits[] = {
 #if defined(RLIMIT_CPU)
 	{ RLIMIT_CPU,	{ MAX_RLIMIT_CPU, MAX_RLIMIT_CPU }, { 0, 0 }, false },
@@ -74,6 +84,54 @@ static stress_limits_t limits[] = {
 };
 
 /*
+ *  all known resource id types
+ */
+static const stress_resource_id_t resource_ids[] = {
+#if defined(RLIMIT_AS)
+	RESOURCE_ID(RLIMIT_AS),
+#endif
+#if defined(RLIMIT_CORE)
+	RESOURCE_ID(RLIMIT_CORE),
+#endif
+#if defined(RLIMIT_CPU)
+	RESOURCE_ID(RLIMIT_CPU),
+#endif
+#if defined(RLIMIT_DATA)
+	RESOURCE_ID(RLIMIT_DATA),
+#endif
+#if defined(RLIMIT_FSIZE)
+	RESOURCE_ID(RLIMIT_FSIZE),
+#endif
+#if defined(RLIMIT_LOCKS)
+	RESOURCE_ID(RLIMIT_LOCKS),
+#endif
+#if defined(RLIMIT_MEMLOCK)
+	RESOURCE_ID(RLIMIT_MEMLOCK),
+#endif
+#if defined(RLIMIT_MSGQUEUE)
+	RESOURCE_ID(RLIMIT_MSGQUEUE),
+#endif
+#if defined(RLIMIT_NICE)
+	RESOURCE_ID(RLIMIT_NICE),
+#endif
+#if defined(RLIMIT_NPROC)
+	RESOURCE_ID(RLIMIT_NPROC),
+#endif
+#if defined(RLIMIT_RSS)
+	RESOURCE_ID(RLIMIT_RSS),
+#endif
+#if defined(RLIMIT_RTTIME)
+	RESOURCE_ID(RLIMIT_RTTIME),
+#endif
+#if defined(RLIMIT_SIGPENDING)
+	RESOURCE_ID(RLIMIT_SIGPENDING),
+#endif
+#if defined(RLIMIT_STACK)
+	RESOURCE_ID(RLIMIT_STACK),
+#endif
+};
+
+/*
  *  stress_rlimit_handler()
  *	rlimit generic handler
  */
@@ -85,15 +143,48 @@ static void MLOCKED_TEXT stress_rlimit_handler(int signum)
 		siglongjmp(jmp_env, 1);
 }
 
+
 static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 {
 	stress_rlimit_context_t *context = (stress_rlimit_context_t *)ctxt;
+	static unsigned char stack[MINSIGSTKSZ];
+
+	if (stress_sigaltstack(stack, MINSIGSTKSZ) < 0)
+		return EXIT_NO_RESOURCE;
 
 	/* Child rlimit stressor */
 	do {
 		int ret;
 		size_t i;
+		struct rlimit rlim;
 
+		/*
+		 *  Exercise all known good resource ids
+		 */
+		for (i = 0; i < SIZEOF_ARRAY(resource_ids); i++) {
+
+			ret = getrlimit(resource_ids[i].resource, &rlim);
+			if (ret < 0)
+				continue;
+
+			ret = setrlimit(resource_ids[i].resource, &rlim);
+			if (ret < 0) {
+				pr_fail("%s: setrlimit %s failed, errno=%d (%s)\n",
+					args->name, resource_ids[i].name,
+					errno, strerror(errno));
+				return EXIT_FAILURE;
+			}
+		}
+		/*
+		 *  Exercise illegal bad resource id
+		 */
+		ret = getrlimit(~0, &rlim);
+		(void)ret;
+
+
+		/*
+		 *  Now set limits and see if we can hit them
+		 */
 		for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
 			(void)setrlimit(limits[i].resource, &limits[i].new_limit);
 		}
@@ -163,10 +254,6 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 		} else {
 			break;		/* Something went wrong! */
 		}
-
-		for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
-			(void)setrlimit(limits[i].resource, &limits[i].old_limit);
-		}
 	} while (keep_stressing());
 
 	(void)close(context->fd);
@@ -212,7 +299,7 @@ static int stress_rlimit(const stress_args_t *args)
 		limits[i].ret = getrlimit(limits[i].resource, &limits[i].old_limit);
 	}
 
-	ret = stress_oomable_child(args, NULL, stress_rlimit_child, STRESS_OOMABLE_NORMAL);
+	ret = stress_oomable_child(args, &context, stress_rlimit_child, STRESS_OOMABLE_NORMAL);
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGXCPU, &old_action_xcpu);
