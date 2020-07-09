@@ -251,6 +251,13 @@ static int stress_get(const stress_args_t *args)
 #endif
 
 #if defined(HAVE_GETPRIORITY)
+		/*
+		 *  Exercise getpriority calls that uses illegal
+		 *  arguments to get more kernel test coverage
+		 */
+		(void)getpriority(INT_MIN, 0);
+		(void)getpriority(INT_MAX, 0);
+
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++) {
 			errno = 0;
 			ret = getpriority(priorities[i], 0);
