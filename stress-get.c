@@ -211,9 +211,19 @@ static int stress_get(const stress_args_t *args)
 #endif
 
 		ptr = getcwd(path, sizeof path);
-		if (verify && !ptr)
-			pr_fail("%s: getcwd %s failed, errno=%d (%s)\n",
-				args->name, path, errno, strerror(errno));
+		if (verify) {
+			if (!ptr) {
+				pr_fail("%s: getcwd %s failed, errno=%d (%s)\n",
+					args->name, path, errno, strerror(errno));
+			} else {
+				/* getcwd returned a string: is it the same as path? */
+				if (strncmp(ptr, path, sizeof(path))) {
+					pr_fail("%s: getcwd returned a string that "
+						"is different from the expected path\n",
+						args->name);
+				}
+			}
+		}
 		check_do_run();
 
 		gid = getgid();
