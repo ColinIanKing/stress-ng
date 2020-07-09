@@ -370,19 +370,17 @@ static int stress_get(const stress_args_t *args)
 		check_do_run();
 
 		t = time(NULL);
-		if (verify && (t == (time_t)-1))
+		if (t == (time_t)-1) {
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+		}
 		/*
 		 *  Exercise time calls with a pointer to time_t
 		 *  variable and check equality with returned value
 		 *  with it to increase kernel test coverage
 		 */
 		t1 = time(&t2);
-
 		if (memcmp(&t1, &t2, sizeof(t1))) {
-
-			/* Test Fails */
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 
@@ -392,49 +390,51 @@ static int stress_get(const stress_args_t *args)
 		 *  function to increase kernel test coverage
 		 */
 		t = shim_time(NULL);
-		if (verify && (t == (time_t)-1))
+		if ((t == (time_t)-1) && (errno != ENOSYS))
 			pr_fail("%s: time failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 
 		t1 = shim_time(&t2);
-
-		if (memcmp(&t1, &t2, sizeof(t1))) {
-
-			/* Test Fails */
-			pr_fail("%s: time failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-
+		if ((t == (time_t)-1) && (errno != ENOSYS)) {
+			if (memcmp(&t1, &t2, sizeof(t1))) {
+				pr_fail("%s: time failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			}
 		}
 
 		ret = gettimeofday(&tv, NULL);
-		if (verify && (ret < 0))
+		if (ret < 0) {
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+		}
 		/*
 		 *  Exercise gettimeofday call with a
 		 *  non-null pointer to timezone variable
 		 */
 		ret = gettimeofday(&tv, &tz);
-		if (verify && (ret < 0))
+		if (ret < 0) {
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+		}
 
 		/*
 		 *  Exercise the gettimeofday system call using the
 		 *  syscall() function to increase kernel test coverage
 		 */
 		ret = shim_gettimeofday(&tv, NULL);
-		if (verify && (ret < 0))
+		if ((ret < 0) && (errno != ENOSYS)) {
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+		}
 		/*
 		 *  Exercise gettimeofday call with a
 		 *  non-null pointer to timezone variable
 		 */
 		ret = shim_gettimeofday(&tv, &tz);
-		if (verify && (ret < 0))
+		if ((ret < 0) && (errno != ENOSYS)) {
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+		}
 
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 		{
