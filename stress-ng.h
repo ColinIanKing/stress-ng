@@ -1668,6 +1668,16 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #endif
 
 /*
+ *  Arch specific syscall workarounds, some abi headers are
+ *  ommitting some syscall defines, so define them here.
+ */
+#if defined(__linux__) &&      \
+    defined(STRESS_ARCH_ARM) &&        \
+    !defined(__NR_sysfs)
+#define __NR_sysfs		135
+#endif
+
+/*
  *  See ioprio_set(2) and linux/ioprio.h, glibc has no definitions
  *  for these at present. Also refer to Documentation/block/ioprio.txt
  *  in the Linux kernel source.
