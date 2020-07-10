@@ -340,7 +340,7 @@ OBJS = $(SRC:.c=.o)
 APPARMOR_PARSER=/sbin/apparmor_parser
 
 all:
-	$(MAKE) makeconfig
+	$(MAKE) makeconfig -j1 
 	$(MAKE) stress-ng
 
 #
