@@ -83,10 +83,11 @@ static int stress_getrandom(const stress_args_t *args)
 {
 	do {
 		char buffer[RANDOM_BUFFER_SIZE];
-		ssize_t ret;
 		size_t i;
 
 		for (i = 0; keep_stressing() && (i < SIZEOF_ARRAY(getrandom_flags)); i++) {
+			ssize_t ret;
+
 			ret = shim_getrandom(buffer, sizeof(buffer), getrandom_flags[i].flag);
 			if (ret < 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
