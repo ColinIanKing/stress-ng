@@ -51,7 +51,7 @@ STRESS_PRAGMA_POP
  *	vfork has interesting semantics, the parent blocks
  *	until the child has exited, plus child processes
  *	share the same address space. So we need to be
- *	careful not to overrite shared variables across
+ *	careful not to overwrite shared variables across
  *	all the processes.
  */
 static int stress_vforkmany(const stress_args_t *args)
@@ -130,6 +130,7 @@ fork_again:
 			 *  then waitpid will pick up the one
 			 *  shared by all the vfork children
 			 *  which is problematic on the wait
+			 *  This is a dirty hack.
 			 */
 			register pid_t pid;
 			register bool first = (instance == 0);
