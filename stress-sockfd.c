@@ -315,9 +315,15 @@ static int stress_socket_server(
 
 					ret = stress_socket_fd_sendmsg(sfd, new_fd);
 					if ((ret < 0) &&
-					     ((errno != EAGAIN) && (errno != EINTR) &&
-					      (errno != EWOULDBLOCK) && (errno != ECONNRESET) &&
-					      (errno != ENOMEM) && (errno != EPIPE))) {
+					     ((errno != EAGAIN) &&
+					      (errno != EINTR) &&
+					      (errno != EWOULDBLOCK) &&
+					      (errno != ECONNRESET) &&
+					      (errno != ENOMEM) &&
+#if defined(ETOOMANYREFS)
+					      (errno != ETOOMANYREFS) &&
+#endif
+					      (errno != EPIPE))) {
 						pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 						(void)close(new_fd);
