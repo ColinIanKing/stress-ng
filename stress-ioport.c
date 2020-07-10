@@ -169,22 +169,22 @@ static int stress_ioport(const stress_args_t *args)
 
 			offset = lseek(fd, offset, SEEK_SET);
 			if (offset != (off_t)-1) {
-				ssize_t ret;
+				ssize_t n;
 				unsigned char val;
 
-				ret = read(fd, &val, sizeof(val));
-				if (ret == sizeof(val)) {
+				n = read(fd, &val, sizeof(val));
+				if (n == sizeof(val)) {
 					offset = lseek(fd, offset, SEEK_SET);
 					if (offset != (off_t)-1) {
 						val = ~v;
-						ret = write(fd, &val, sizeof(val));
-						(void)ret;
+						n = write(fd, &val, sizeof(val));
+						(void)n;
 					}
 					offset = lseek(fd, offset, SEEK_SET);
 					if (offset != (off_t)-1) {
 						val = v;
-						ret = write(fd, &val, sizeof(val));
-						(void)ret;
+						n = write(fd, &val, sizeof(val));
+						(void)n;
 					}
 				}
 			}
