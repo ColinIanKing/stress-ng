@@ -145,6 +145,20 @@ static void stress_memthrash_memset(
 #endif
 }
 
+static void stress_memthrash_memmove(
+	const stress_args_t *args,
+	const size_t mem_size)
+{
+	char *dst = ((char *)mem) + 1;
+
+	(void)args;
+#if defined(__GNUC__)
+	(void)__builtin_memmove((void *)dst, mem, mem_size - 1);
+#else
+	(void)memmove((void *)dst, mem, mem_size - 1);
+#endif
+}
+
 static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
 	const stress_args_t *args,
 	const size_t mem_size)
@@ -349,6 +363,7 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "lock",	stress_memthrash_lock },
 #endif
 	{ "matrix",	stress_memthrash_matrix },
+	{ "memmove",	stress_memthrash_memmove },
 	{ "memset",	stress_memthrash_memset },
 	{ "mfence",	stress_memthrash_mfence },
 	{ "prefetch",	stress_memthrash_prefetch },
