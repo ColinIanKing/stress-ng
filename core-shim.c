@@ -1662,13 +1662,19 @@ int shim_clock_settime(clockid_t clk_id, struct timespec *tp)
  *	and hence the nice system call is not being used. Directly
  *	call the nice system call if it's available, else use the
  *	libc version.
+ *
+ *	Some operating systems like Hiaku don't even support nice,
+ *	so handle these cases too.
  */
 int shim_nice(int inc)
 {
 #if defined(__NR_nice)
 	return (int)syscall(__NR_nice, inc);
-#else
+#elif defined(HAVE_NICE)
 	return nice(inc);
+#else
+	errno = -ENOSYS;
+	return -1;
 #endif
 }
 
