@@ -1,7 +1,4 @@
 name: stress-ng
-version: git
-version-script: |
-    echo $(git describe --tags)
 summary: tool to load and stress a computer
 description: stress-ng can stress various subsystems of a computer.  It can stress load CPU, cache, disk, memory, socket and pipe I/O, scheduling and much more.  stress-ng is a re-write of the original stress tool by Amos Waterland but has many additional features such as specifying the number of bogo operations to run, execution metrics, a stress verification on memory and compute operations and considerably more stress mechanisms.
 confinement: strict
@@ -9,6 +6,7 @@ grade: stable
 type: app
 base: core18
 assumes: [snapd2.37]
+adopt-info: stress-ng
 
 environment:
     CFLAGS: '-fstack-protector-strong -Wformat -Werror=format-security'
@@ -18,6 +16,20 @@ parts:
     stress-ng:
         plugin: make
         source: git://kernel.ubuntu.com/cking/stress-ng
+        override-pull: |
+            snapcraftctl pull
+            description="$(git describe HEAD --tags)"
+            sha=$(echo $description | tr '-' ' ' | awk '{print $NF}')
+            version=${description%$sha}
+            commits=$(git log --oneline | wc -l)
+            date=$(date +'%Y%m%d')
+            if test "$description" = "$sha"
+            then
+                version="$description"
+            else
+                version=$(echo $version$date-$commits-$sha | cut -c1-32)
+            fi
+            snapcraftctl set-version "$version"
         make-parameters:
             - STATIC=1
         build-packages:
