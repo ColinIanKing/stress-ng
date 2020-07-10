@@ -1673,6 +1673,8 @@ int shim_nice(int inc)
 #elif defined(HAVE_NICE)
 	return nice(inc);
 #else
+	(void)inc;
+
 	errno = -ENOSYS;
 	return -1;
 #endif
