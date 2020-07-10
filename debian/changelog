@@ -1,3 +1,108 @@
+stress-ng (0.11.15-1) unstable; urgency=medium
+
+  [bybug]
+  * stress-sysinval: fix build failure for getresuid32
+
+  [Christopher Brown]
+  * README: Fix some requirement names for RHEL/Centos/Fedora
+
+  [Piyush Goyal]
+  * syscalls.txt: Corrected typo in the name of getcwd syscall
+  * stress-get: Added check for equality of return value and pointer
+    passed in getcwd syscall
+  * stress-get: Added tests exercising getpriority calls using illegal
+    arguments
+  * stress-get: Added tests exercising gettimeofday system calls using
+    syscall()
+  * stress-get: exercise gettimeofday syscall by passing a pointer to
+    timezone
+  * stress-get: handle ENOSYS from shim wrappers as no fatal, remove verify
+    check
+  * stress-get: Added tests exercising time system calls using syscall()
+  * stress-get: exercise time syscall by passing a pointer to time_t
+  * stress-nice: exercise illegal maximum priority to get more kernel
+    test coverage (1)
+  * stress-nice: exercise illegal maximum priority to get more kernel
+    test coverage (2)
+
+  [Colin Ian King ]
+  * Makefile: bump version
+  * Makefile: only build Makefile.config with one thread
+  * Makefile.config: remove duplicate Android binder checks
+  * stress-zero: remove duplicated assignment to ptr64
+  * stress-rlimit: rename array stack to avoid shadowing
+  * stress-ioport: clean up shadowing of variable ret
+  * stress-getrandom: reduce scope of variable ret
+  * core-shim: voidify inc argument to shim_nice
+  * core-shim: handle nice not being available
+  * core-limit: ensire max_fd is initialized
+  * stress-sockfd: silently ignore ETOOMANYREFS failures
+  * stress-vm-addr: make helper function reverse64 inlined
+  * stress-vforkmany: fix typo in comment, add notes about dirty hack
+  * stress-memthrash: add memmove option to copy data
+  * stress-seek: exercise invalid lseek system calls
+  * stress-rlimit: fix segv caused by passing a NULL context and exercise all
+    rlimit resource ids
+  * test/test-timer-create: memset sev to set all fields to zero
+  * Makefile.config: remove need for HAVE_NOT, and add MAKE_OPTS
+  * Manual: update names of contributors
+  * stress-fstat/manual: replace inaccurate language
+  * stress-fcntl: exercise fcntl with some invalid arguments
+  * stress-timerfd: don't set timers or exercise timers with an invalid fd
+  * stress-timerfd: fix typo in timerfd error message and also print bad fd
+  * README: add libatomic1 requirement
+  * Add requirement for libatomic1 for atomic builds
+  * Makefile: drop duplicated lib variables, they are picked up in
+    Makefile.config
+  * Makefile*: use -pthread instead of -lpthread
+  * stress-enosys: ignore sigsuspend, it will stop the child
+  * stress-enosys: set itimer before every type of system call
+  * stress-enosys: cater for 32 bit compat sigsuspend syscall
+  * stress-enosys: exit after a system call if process has forked
+  * stress-fnctl: fix broken build, I pushed the wrong development change
+  * stress-fanotify: remove trailing tab
+  * stress-fanotify: exercise fanotify_init with invalid flags
+  * stress-oom-pipe: optimize buffer writes, set buffer up once
+  * stress-netlink-proc: remove empty line
+  * stress-mq: remove some more white spaces and empty lines
+  * stress-mq: remove blank line
+  * stress-mlock: fix typo in comment "bogos" -> "bogus"
+  * stress-mincore: munmap mapped page on ENOSYS error from mincore
+  * stress-memfd: fix typo "uffer" -> "buffer"
+  * stress-mcontend: unmap data[0] if data[1] fails to allocate
+  * stress-mcontend: fix data[0] mmap failure
+  * stress-kill: kill pid with signal -1 to force -EINVAL error
+  * stress-ng: remove line feed before )
+  * stress-zlib: add a lfsr32 zlib option to generate 2^32-1 unique values
+  * stress-zero: make buffer 64 bit aligned and optimize zero check
+  * stress-zombie: remove zombie child overheads to increase zombie loading
+  * core-shim: add shim to nice() system call
+  * stress-tsc: remove x86 only notes to tsc option
+  * stress-tsc: add rdcycle support for RISC-V
+  * stress-enosys: bump compiler version requirement
+  * stress-enosys: add legacy int 0x80 method of calling system calls
+  * stress-urandom: exercise an invalid ioctl to get more kernel coverage
+  * stress-getrandom: move bogo-op counter to inner loop
+  * stress-getrandom: exercise GRND_RANDOM and GRND_NONBLOCK
+  * stress-zero: include a range of /dev/zero mmap'ing flags to exercise
+  * stress-ioport: exercise /dev/port if it can be opened
+  * stress-sysinval: add mmap_pgoff system call
+  * stress-memcpy: remove __ prefix, rename with test_ instead
+  * stress-wcstr: remove __ prefix, rename with test_ instead
+  * stress-str: remove __ prefix, rename with test_ instead
+  * core-mwc: rename __mwc to mwc, there is no need for __ prefix
+  * stress-clock: 'randomize' delays to mix in more unpredictability
+  * stress-madvise: constify variable sz
+  * Makefile: clean up POSIX suffix rule warning
+  * README: fix typo
+  * stress-ng: add --max-fd soft limit on file descriptors
+  * Add note about libattr.
+  * stress-ng.h: define _LINUX_SYSINFO_H only when using gcc with non-glibc
+    libc (such as musl)
+  * stress-ng.h: suppress kernel sysinfo.h
+
+ -- Colin King <colin.king@canonical.com>  Fri, 10 Jul 2020 13:53:34 +0100
+
 stress-ng (0.11.14-1) unstable; urgency=medium
 
   [Rob Colclaser III]
