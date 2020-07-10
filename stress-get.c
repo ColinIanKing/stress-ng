@@ -276,6 +276,11 @@ static int stress_get(const stress_args_t *args)
 					args->name, errno, strerror(errno));
 			check_do_run();
 		}
+		/* Exercise getpriority calls using non-zero who argument */
+		for (i = 0; i < SIZEOF_ARRAY(priorities); i++){
+			ret = getpriority(priorities[i], ~(id_t)0);
+			(void)ret;
+		}
 #endif
 
 #if defined(HAVE_GETRESGID)
