@@ -92,7 +92,7 @@ void stress_set_max_limits(void)
 
 #if defined(RLIMIT_NOFILE)
 	{
-		uint64_t max_fd;
+		uint64_t max_fd = 0;
 
 		(void)stress_get_setting("max-fd", &max_fd);
 		if (max_fd != 0) {
