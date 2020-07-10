@@ -51,6 +51,16 @@ static int stress_set_seek_punch(const char *opt)
 	return stress_set_setting("seek-punch", TYPE_ID_BOOL, &seek_punch);
 }
 
+static inline off_t max_off_t(void)
+{
+	off_t v, nv = 1;
+
+	for (v = 1; (nv = ((v << 1) | 1)) > 0; v = nv)
+		;
+
+	return v;
+}
+
 /*
  *  stress_seek
  *	stress I/O via random seeks and read/writes
@@ -63,6 +73,7 @@ static int stress_seek(const stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX];
 	uint8_t buf[512];
+	const off_t bad_off_t = max_off_t();
 #if defined(OPT_SEEK_PUNCH)
 	bool seek_punch = false;
 
@@ -205,6 +216,34 @@ re_read:
 		 *  Exercise lseek on an invalid fd
 		 */
 		offset = lseek(bad_fd, (off_t)offset, SEEK_SET);
+		(void)offset;
+
+		/*
+		 *  Exercise lseek with invalid offsets, EINVAL
+		 */
+		offset = lseek(fd, ~(off_t)0, SEEK_SET);
+		(void)offset;
+		offset = lseek(fd, bad_off_t, SEEK_SET);
+		(void)offset;
+		offset = lseek(fd, bad_off_t, SEEK_CUR);
+		(void)offset;
+		offset = lseek(fd, bad_off_t, SEEK_END);
+		(void)offset;
+		/*
+		 *  Exercise lseek with invalid offsets, ENXIO
+		 */
+#if defined(SEEK_DATA) && !defined(__APPLE__)
+		offset = lseek(fd, len + sizeof(buf) + 1, SEEK_DATA);
+		(void)offset;
+#endif
+#if defined(SEEK_HOLE) && !defined(__APPLE__)
+		offset = lseek(fd, len + sizeof(buf) + 1, SEEK_HOLE);
+		(void)offset;
+#endif
+		/*
+		 *  Exercise lseek with invalid whence
+		 */
+		offset = lseek(fd, 0, ~0);
 		(void)offset;
 
 		inc_counter(args);
