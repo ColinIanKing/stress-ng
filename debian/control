@@ -1,4 +1,5 @@
 Source: stress-ng
+Rules-Requires-Root: no
 Section: devel
 Priority: optional
 Maintainer: Colin King <colin.king@canonical.com>
