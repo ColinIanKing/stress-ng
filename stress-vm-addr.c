@@ -65,7 +65,7 @@ static bool HOT OPTIMIZE3 keep_stressing_vm(const stress_args_t *args)
  *  reverse64
  *	generic fast-ish 64 bit reverse
  */
-static uint64_t reverse64(register uint64_t x)
+static inline uint64_t reverse64(register uint64_t x)
 {
 	x = (((x & 0xaaaaaaaaaaaaaaaaULL) >> 1)  | ((x & 0x5555555555555555ULL) << 1));
 	x = (((x & 0xccccccccccccccccULL) >> 2)  | ((x & 0x3333333333333333ULL) << 2));
