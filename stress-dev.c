@@ -51,28 +51,6 @@ typedef struct stress_dev_func {
 static stress_hash_table_t *dev_hash_table, *scsi_hash_table;
 
 /*
- *  path_sum()
- *	simple hash on path (hash pjw), from
- *	from Aho, Sethi, Ullman, Compiling Techniques.
- */
-static uint32_t path_sum(const char *path)
-{
-	const char *ptr = path;
-	register uint32_t h = mixup;
-
-	while (*ptr) {
-		register uint32_t g;
-
-		h = (h << 4) + (*(ptr++));
-		if (0 != (g = h & 0xf0000000)) {
-			h ^= (g >> 24);
-			h ^= g;
-		}
-	}
-	return h;
-}
-
-/*
  *  mixup_sort()
  *	sort helper based on hash to mix up ordering
  */
@@ -80,8 +58,8 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 {
 	uint32_t s1, s2;
 
-	s1 = path_sum((*d1)->d_name);
-	s2 = path_sum((*d2)->d_name);
+	s1 = stress_hash_pjw((*d1)->d_name);
+	s2 = stress_hash_pjw((*d2)->d_name);
 
 	if (s1 == s2)
 		return 0;
