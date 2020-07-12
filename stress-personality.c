@@ -68,7 +68,6 @@ static int stress_personality(const stress_args_t *args)
 				fails++;
 				continue;
 			}
-
 			ret = personality(p);
 			if (ret < 0) {
 				failed[i] = true;
@@ -79,6 +78,13 @@ static int stress_personality(const stress_args_t *args)
 				pr_fail("%s: failed to get personality, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
+			/*
+			 *  Exercise invalid personalities
+			 */
+			ret = personality(0xbad00000 | stress_mwc32());
+			(void)ret;
+			ret = personality(p);
+			(void)ret;
 		}
 		if (fails == n) {
 			pr_fail("%s: all %zu personalities failed "
