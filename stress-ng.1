@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "Jul 10, 2020"
+.TH STRESS-NG 1 "Jul 13, 2020"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -2527,6 +2527,14 @@ stop after N msync bogo operations completed.
 allocate N bytes for the memory mapped file, the default is 256MB. One
 can specify the size as % of total available memory or in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
+.TP
+.B \-\-nanosleep N
+start N workers that each run 256 pthreads that call nanosleep with random
+delays from 1 to 2^18 nanoseconds. This should exercise the high resolution
+timers and scheduler.
+.TP
+.B \-\-nanosleep\-ops N
+stop the nanosleep stressor after N bobo nanosleep operations.
 .TP
 .B \-\-netdev N
 start N workers that exercise various netdevice ioctl commands across
