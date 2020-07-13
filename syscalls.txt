@@ -111,7 +111,6 @@ getpgrp				get
 getpid				get
 getppid				get
 getpriority			get
-getcwd				get
 getrandom			getrandom
 getresgid			get
 getresuid			get
