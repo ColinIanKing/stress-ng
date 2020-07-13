@@ -39,6 +39,9 @@ static int stress_pidfd_open_fd(pid_t pid)
 	/* Exercise pidfd_open with illegal flags */
 	(void)shim_pidfd_open(pid, ~(1U));
 
+	/* Exercise pidfd_open with illegal PID */
+	(void)shim_pidfd_open((pid_t)-1, 0);
+
 	/* Randomly try pidfd_open first */
 	if (stress_mwc1()) {
 		fd = shim_pidfd_open(pid, 0);
