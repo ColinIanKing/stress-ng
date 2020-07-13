@@ -73,6 +73,10 @@ static int stress_pidfd_supported(const char *name)
 		}
 		/* Something went wrong, but let stressor fail on that */
 	}
+
+	/* Exercise pidfd_send_signal with illegal flags */
+	(void)shim_pidfd_send_signal(pidfd, 0, NULL, ~(1U));
+
 	(void)close(pidfd);
 	return 0;
 }
