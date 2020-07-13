@@ -60,6 +60,7 @@ static int stress_pidfd_supported(const char *name)
 {
 	int pidfd, ret;
 	const pid_t pid = getpid();
+	siginfo_t info;
 
 	pidfd = stress_pidfd_open_fd(pid);
 	if (pidfd < 0) {
@@ -76,6 +77,15 @@ static int stress_pidfd_supported(const char *name)
 		}
 		/* Something went wrong, but let stressor fail on that */
 	}
+
+	/* initialized info to be safe */
+	(void)memset(&info, 0, sizeof(info));
+
+	/*
+	 * Exercise pidfd_send_signal with
+	 * non-null pointer to info variable
+	 */
+	(void)shim_pidfd_send_signal(pidfd, 0, &info, 0);
 
 	/* Exercise pidfd_send_signal with illegal flags */
 	(void)shim_pidfd_send_signal(pidfd, 0, NULL, ~(1U));
