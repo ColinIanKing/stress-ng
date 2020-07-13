@@ -199,7 +199,7 @@ munlock				mlock
 munlockall			mlock
 munmap				mmap, mremap
 name_to_handle_at		handle
-nanosleep			timer
+nanosleep			timer, nanosecond
 nfsservctl
 nice				nice
 open				dentry, open, etc
