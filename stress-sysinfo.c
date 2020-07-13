@@ -42,6 +42,7 @@ static int stress_sysinfo(const stress_args_t *args)
 {
 	int n_mounts;
 	char *mnts[128];
+	const int bad_fd = stress_get_bad_fd();
 
 	(void)memset(mnts, 0, sizeof(mnts));
 
@@ -98,6 +99,12 @@ static int stress_sysinfo(const stress_args_t *args)
 					}
 				}
 
+				/*
+				 *  Exercise invalid mount pount
+				 */
+				ret = statfs("/invalid_stress_ng", &statfs_buf);
+				(void)ret;
+
 				fd = open(mnts[i], O_RDONLY | O_DIRECTORY);
 				if (fd < 0)
 					continue;
@@ -123,6 +130,11 @@ static int stress_sysinfo(const stress_args_t *args)
 							strerror(errno));
 					}
 				}
+				/*
+				 *  Exercise invalid fd
+				 */
+				ret = fstatfs(bad_fd, &statfs_buf);
+				(void)ret;
 			}
 		}
 #endif
@@ -180,6 +192,11 @@ static int stress_sysinfo(const stress_args_t *args)
 							strerror(errno));
 					}
 				}
+				/*
+				 *  Exercise invalid mount pount
+				 */
+				ret = statvfs("/invalid_stress_ng", &statvfs_buf);
+				(void)ret;
 			}
 		}
 #endif
