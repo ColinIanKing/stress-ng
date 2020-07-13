@@ -83,6 +83,7 @@ static int stress_nice(const stress_args_t *args)
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
+#if defined(HAVE_SETPRIORITY)
 			/*
 			 *  Exercise illegal maximum priority
 			 *  to get more kernel test coverage
@@ -95,6 +96,7 @@ static int stress_nice(const stress_args_t *args)
 			 */
 			(void)setpriority(INT_MIN, 0, max_prio - 1);
 			(void)setpriority(INT_MAX, 0, max_prio - 1);
+#endif
 
 			switch (which) {
 #if defined(HAVE_SETPRIORITY)
