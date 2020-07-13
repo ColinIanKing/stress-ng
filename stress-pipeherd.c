@@ -115,9 +115,9 @@ static int stress_pipeherd(const stress_args_t *args)
 #endif
 	for (i = 0; i < PIPE_HERD_MAX; i++) {
 		pid_t pid;
-		pid = fork();
 
-		if (pid == 0) {
+		pid = fork();
+		if (pid == 1) {
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
