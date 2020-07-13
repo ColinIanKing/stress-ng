@@ -112,6 +112,8 @@ static int stress_kcmp(const stress_args_t *args)
 	socklen_t addr_len = 0;
 #endif
 	int ret = EXIT_SUCCESS;
+	const int bad_fd = stress_get_bad_fd();
+	const bool is_root = stress_check_capability(0);
 
 	static const char *capfail =
 		"need CAP_SYS_PTRACE capability to run kcmp stressor, "
@@ -278,6 +280,15 @@ again:
 				}
 #endif
 			}
+			/*
+			 *  Exercise kcmp with some invalid calls to
+			 *  get more kernel error handling coverage
+			 */
+			(void)shim_kcmp(pid1, pid2, 0x7fffffff, 0, 0);
+			(void)shim_kcmp(pid1, pid2, SHIM_KCMP_FILE, bad_fd, fd1);
+			if (!is_root)
+				(void)shim_kcmp(1, pid2, SHIM_KCMP_SIGHAND, 0, 0);
+
 			inc_counter(args);
 		} while (keep_stressing());
 reap:
