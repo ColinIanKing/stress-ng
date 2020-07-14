@@ -3192,7 +3192,7 @@ typedef struct stress_proc_info {
 	pid_t	*pids;			/* process id */
 	stress_proc_stats_t **stats;	/* process proc stats info */
 	int32_t started_procs;		/* count of started processes */
-	int32_t num_procs;		/* number of processes per stressor */
+	int32_t num_instances;		/* number of instances per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */
 } stress_proc_info_t;
 

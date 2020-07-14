@@ -1638,18 +1638,18 @@ static void stress_free_procs(void)
 }
 
 /*
- *  stress_get_total_num_procs()
+ *  stress_get_total_num_instances()
  *	deterimine number of runnable procs from list
  */
-static uint32_t stress_get_total_num_procs(stress_proc_info_t *procs_list)
+static uint32_t stress_get_total_num_instances(stress_proc_info_t *procs_list)
 {
-	uint32_t total_num_procs = 0;
+	uint32_t total_num_instances = 0;
 	stress_proc_info_t *pi;
 
 	for (pi = procs_list; pi; pi = pi->next)
-		total_num_procs += pi->num_procs;
+		total_num_instances += pi->num_instances;
 
-	return total_num_procs;
+	return total_num_instances;
 }
 
 /*
@@ -1689,7 +1689,7 @@ static void MLOCKED_TEXT stress_run(
 		/*
 		 *  Each stressor has 1 or more instances to run
 		 */
-		for (j = 0; j < g_proc_current->num_procs; j++, (*checksum)++) {
+		for (j = 0; j < g_proc_current->num_instances; j++, (*checksum)++) {
 			int rc = EXIT_SUCCESS;
 			pid_t pid;
 			char name[64];
@@ -1767,7 +1767,7 @@ again:
 						.name = name,
 						.max_ops = g_proc_current->bogo_ops,
 						.instance = j,
-						.num_instances = g_proc_current->num_procs,
+						.num_instances = g_proc_current->num_instances,
 						.pid = getpid(),
 						.ppid = getppid(),
 						.page_size = stress_get_pagesize(),
@@ -1872,7 +1872,7 @@ static int stress_show_stressors(void)
 	stress_proc_info_t *pi;
 
 	for (pi = procs_head; pi; pi = pi->next) {
-		const int32_t n = pi->num_procs;
+		const int32_t n = pi->num_instances;
 
 		if (n) {
 			const ssize_t buffer_len =
@@ -2268,7 +2268,7 @@ static inline void exclude_unsupported(void)
 				stress_proc_info_t *next = pi->next;
 
 				if ((pi->stressor->id == id) &&
-				    pi->num_procs &&
+				    pi->num_instances &&
 				    (stressors[i].info->supported(stressors[i].name) < 0)) {
 					stress_remove_proc(pi);
 					g_unsupported = true;
@@ -2299,8 +2299,8 @@ static void set_proc_limits(void)
 			if (stressors[i].info &&
 			    stressors[i].info->set_limit &&
 			    (stressors[i].id == pi->stressor->id) &&
-			    pi->num_procs) {
-				const uint64_t max = (uint64_t)limit.rlim_cur / pi->num_procs;
+			    pi->num_instances) {
+				const uint64_t max = (uint64_t)limit.rlim_cur / pi->num_instances;
 
 				stressors[i].info->set_limit(max);
 			}
@@ -2417,7 +2417,7 @@ static inline void exclude_pathological(void)
 			stress_proc_info_t *next = pi->next;
 
 			if (pi->stressor->info->class & CLASS_PATHOLOGICAL) {
-				if (pi->num_procs > 0) {
+				if (pi->num_instances > 0) {
 					pr_inf("disabled '%s' as it "
 						"may hang or reboot the machine "
 						"(enable it with the "
@@ -2443,7 +2443,7 @@ static inline void setup_stats_buffers(void)
 	for (pi = procs_head; pi; pi = pi->next) {
 		int32_t j;
 
-		for (j = 0; j < pi->num_procs; j++, stats++)
+		for (j = 0; j < pi->num_instances; j++, stats++)
 			pi->stats[j] = stats;
 	}
 }
@@ -2486,7 +2486,7 @@ static inline void set_random_stressors(void)
 
 			if (rnd > n)
 				rnd = n;
-			pi->num_procs += rnd;
+			pi->num_instances += rnd;
 			n -= rnd;
 		}
 	}
@@ -2511,7 +2511,7 @@ static void enable_all_stressors(const uint32_t instances)
 			(void)fprintf(stderr, "Cannot allocate stressor state info\n");
 			exit(EXIT_FAILURE);
 		}
-		pi->num_procs = instances;
+		pi->num_instances = instances;
 	}
 }
 
@@ -2534,9 +2534,9 @@ static void enable_classes(const uint32_t class)
 			stress_proc_info_t *pi = find_proc_info(&stressors[i]);
 
 			if (g_opt_flags & OPT_FLAGS_SEQUENTIAL)
-				pi->num_procs = g_opt_sequential;
+				pi->num_instances = g_opt_sequential;
 			if (g_opt_flags & OPT_FLAGS_ALL)
-				pi->num_procs = g_opt_parallel;
+				pi->num_instances = g_opt_parallel;
 		}
 	}
 }
@@ -2574,9 +2574,9 @@ next_opt:
 				g_proc_current = pi;
 
 				g_opt_flags |= OPT_FLAGS_SET;
-				pi->num_procs = stress_get_int32(optarg);
-				stress_get_processors(&pi->num_procs);
-				stress_check_value(name, pi->num_procs);
+				pi->num_instances = stress_get_int32(optarg);
+				stress_get_processors(&pi->num_instances);
+				stress_check_value(name, pi->num_instances);
 
 				goto next_opt;
 			}
@@ -2807,8 +2807,8 @@ static void stress_setup_sequential(const uint32_t class)
 
 	for (pi = procs_head; pi; pi = pi->next) {
 		if (pi->stressor->info->class & class)
-			pi->num_procs = g_opt_sequential;
-		alloc_proc_resources(&pi->pids, &pi->stats, pi->num_procs);
+			pi->num_instances = g_opt_sequential;
+		alloc_proc_resources(&pi->pids, &pi->stats, pi->num_instances);
 	}
 }
 
@@ -2824,15 +2824,15 @@ static void stress_setup_parallel(const uint32_t class)
 
 	for (pi = procs_head; pi; pi = pi->next) {
 		if (pi->stressor->info->class & class)
-			pi->num_procs = g_opt_parallel;
+			pi->num_instances = g_opt_parallel;
 		/*
 		 * Share bogo ops between processes equally, rounding up
 		 * if nonzero bogo_ops
 		 */
-		pi->bogo_ops = pi->num_procs ?
-			(pi->bogo_ops + (pi->num_procs - 1)) / pi->num_procs : 0;
-		if (pi->num_procs)
-			alloc_proc_resources(&pi->pids, &pi->stats, pi->num_procs);
+		pi->bogo_ops = pi->num_instances ?
+			(pi->bogo_ops + (pi->num_instances - 1)) / pi->num_instances : 0;
+		if (pi->num_instances)
+			alloc_proc_resources(&pi->pids, &pi->stats, pi->num_instances);
 	}
 }
 
@@ -3113,7 +3113,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared memory segment for shared data
 	 *  across all the child stressors
 	 */
-	stress_map_shared(stress_get_total_num_procs(procs_head));
+	stress_map_shared(stress_get_total_num_instances(procs_head));
 
 	/*
 	 *  Setup spinlocks
