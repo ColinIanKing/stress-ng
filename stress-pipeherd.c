@@ -117,7 +117,7 @@ static int stress_pipeherd(const stress_args_t *args)
 		pid_t pid;
 
 		pid = fork();
-		if (pid == 1) {
+		if (pid == 0) {
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
