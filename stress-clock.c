@@ -142,6 +142,7 @@ static int stress_clock(const stress_args_t *args)
 	 * 'random' sleep duration timings
 	 */
 	stress_mwc_seed(0xf238, 0x1872);
+	bool test_invalid_timespec = true;
 
 	do {
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \
@@ -202,6 +203,64 @@ static int stress_clock(const stress_args_t *args)
 			            (errno != EINVAL) && (errno != ENOSYS))
 					pr_fail("%s: clock_gettime failed for timer '%s', errno=%d (%s)\n",
 						args->name, clocks[i].name, errno, strerror(errno));
+			}
+		}
+#endif
+
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(HAVE_CLOCK_SETTIME)
+		if (test_invalid_timespec) {
+			size_t i;
+
+			for (i = 0; i < SIZEOF_ARRAY(clocks); i++) {
+				struct timespec t, t1;
+				int ret;
+
+				/* Save current time to reset later if required */
+				ret = shim_clock_gettime(clocks[i].id, &t1);
+				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
+				    (errno != EINVAL) && (errno != ENOSYS)) {
+					pr_fail("%s: clock_getres failed for timer '%s', errno=%d (%s)\n",
+					args->name, clocks[i].name, errno, strerror(errno));
+				}
+				if (ret < 0)
+					continue;
+
+				/*
+				 * Exercise clock_settime with illegal tv sec
+				 * and nsec values
+				 */
+				t.tv_sec = -1;
+				t.tv_nsec = -1;
+
+				/*
+				 * Test only if time fields are invalid
+				 * negative values (some systems may
+				 * represent tv_* files as unsigned hence
+				 * this sanity check)
+				 */
+				if ((t.tv_sec < 0) && (t.tv_nsec < 0)) {
+					ret = shim_clock_settime(clocks[i].id, &t);
+					if (ret < 0)
+						continue;
+
+					/* Expected a failure, but it succeeded(!) */
+					pr_fail("%s: clock_settime was able to set an "
+						"invalid negative time for timer '%s'\n",
+						args->name, clocks[i].name);
+
+					/* Restore the correct time */
+					ret = shim_clock_settime(clocks[i].id, &t1);
+					if ((ret < 0) && (errno != EINVAL) && (errno != ENOSYS)) {
+						pr_fail("%s: clock_gettime failed for timer '%s', errno=%d (%s)\n",
+							args->name, clocks[i].name, errno, strerror(errno));
+					}
+					/*
+					 * Ensuring invalid clock_settime runs
+					 * only single time to minimize time lag
+					 */
+					test_invalid_timespec = false;
+				}
 			}
 		}
 #endif
