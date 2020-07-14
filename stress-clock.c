@@ -160,6 +160,9 @@ static int stress_clock(const stress_args_t *args)
 				pr_fail("%s: clock_gettime failed for timer 'CLOCK_THREAD_CPUTIME_ID', errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 
+			/* Exercise clock_settime with illegal clockid */
+			(void)shim_clock_settime((clockid_t)-1, &t);
+
 			/*
 			 *  According to clock_settime(2), setting the timer
 			 *  CLOCK_THREAD_CPUTIME_ID is not possible on Linux.
