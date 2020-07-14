@@ -1674,169 +1674,173 @@ static void MLOCKED_TEXT stress_run(
 	stress_checksum_t **checksum)
 {
 	double time_start, time_finish;
-	int32_t n_procs, j;
-	const int32_t total_procs = stress_get_total_num_procs(procs_list);
+	int32_t stressors_started = 0;
 
 	wait_flag = true;
 	time_start = stress_time_now();
 	pr_dbg("starting stressors\n");
-	for (n_procs = 0; n_procs < total_procs; n_procs++) {
-		for (g_proc_current = procs_list; g_proc_current; g_proc_current = g_proc_current->next, (*checksum)++) {
+
+	/*
+	 *  Work through the list of stressors to run
+	 */
+	for (g_proc_current = procs_list; g_proc_current; g_proc_current = g_proc_current->next) {
+		int32_t j;
+
+		/*
+		 *  Each stressor has 1 or more instances to run
+		 */
+		for (j = 0; j < g_proc_current->num_procs; j++, (*checksum)++) {
+			int rc = EXIT_SUCCESS;
+			pid_t pid;
+			char name[64];
+			int64_t backoff = DEFAULT_BACKOFF;
+			int32_t ionice_class = UNDEFINED;
+			int32_t ionice_level = UNDEFINED;
+			stress_proc_stats_t *stats = g_proc_current->stats[j];
+
 			if (g_opt_timeout && (stress_time_now() - time_start > g_opt_timeout))
 				goto abort;
 
-			j = g_proc_current->started_procs;
+			(void)stress_get_setting("backoff", &backoff);
+			(void)stress_get_setting("ionice-class", &ionice_class);
+			(void)stress_get_setting("ionice-level", &ionice_level);
 
-			if (j < g_proc_current->num_procs) {
-				int rc = EXIT_SUCCESS;
-				pid_t pid;
-				char name[64];
-				int64_t backoff = DEFAULT_BACKOFF;
-				int32_t ionice_class = UNDEFINED;
-				int32_t ionice_level = UNDEFINED;
-				stress_proc_stats_t *stats = g_proc_current->stats[j];
-
-				(void)stress_get_setting("backoff", &backoff);
-				(void)stress_get_setting("ionice-class", &ionice_class);
-				(void)stress_get_setting("ionice-level", &ionice_level);
-
-				stats->counter_ready = true;
-				stats->counter = 0;
-				stats->checksum = *checksum;
+			stats->counter_ready = true;
+			stats->counter = 0;
+			stats->checksum = *checksum;
 again:
-				if (!keep_stressing_flag())
-					break;
-				pid = fork();
-				switch (pid) {
-				case -1:
-					if (errno == EAGAIN) {
-						(void)shim_usleep(100000);
-						goto again;
-					}
-					pr_err("Cannot fork: errno=%d (%s)\n",
-						errno, strerror(errno));
-					stress_kill_procs(SIGALRM);
-					goto wait_for_procs;
-				case 0:
-					/* Child */
-					(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
-						stress_munge_underscore(g_proc_current->stressor->name));
+			if (!keep_stressing_flag())
+				break;
+			pid = fork();
+			switch (pid) {
+			case -1:
+				if (errno == EAGAIN) {
+					(void)shim_usleep(100000);
+					goto again;
+				}
+				pr_err("Cannot fork: errno=%d (%s)\n",
+					errno, strerror(errno));
+				stress_kill_procs(SIGALRM);
+				goto wait_for_procs;
+			case 0:
+				/* Child */
+				(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
+					stress_munge_underscore(g_proc_current->stressor->name));
 
-					(void)sched_settings_apply(true);
-					(void)atexit(stress_child_atexit);
-					(void)setpgid(0, g_pgrp);
-					if (stress_set_handler(name, true) < 0) {
-						rc = EXIT_FAILURE;
-						goto child_exit;
-					}
-					stress_parent_died_alarm();
-					stress_process_dumpable(false);
-					stress_set_timer_slack();
+				(void)sched_settings_apply(true);
+				(void)atexit(stress_child_atexit);
+				(void)setpgid(0, g_pgrp);
+				if (stress_set_handler(name, true) < 0) {
+					rc = EXIT_FAILURE;
+					goto child_exit;
+				}
+				stress_parent_died_alarm();
+				stress_process_dumpable(false);
+				stress_set_timer_slack();
 
-					if (g_opt_timeout)
-						(void)alarm(g_opt_timeout);
-					stress_mwc_reseed();
-					stress_set_oom_adjustment(name, false);
-					stress_set_max_limits();
-					stress_set_iopriority(ionice_class, ionice_level);
-					stress_set_proc_name(name);
-					(void)umask(0077);
+				if (g_opt_timeout)
+					(void)alarm(g_opt_timeout);
+				stress_mwc_reseed();
+				stress_set_oom_adjustment(name, false);
+				stress_set_max_limits();
+				stress_set_iopriority(ionice_class, ionice_level);
+				stress_set_proc_name(name);
+				(void)umask(0077);
 
-					pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
-						name, (int)getpid(), j);
+				pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
+					name, (int)getpid(), j);
 
-					stats->start = stats->finish = stress_time_now();
+				stats->start = stats->finish = stress_time_now();
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
-					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
-						(void)stress_perf_open(&stats->sp);
+				if (g_opt_flags & OPT_FLAGS_PERF_STATS)
+					(void)stress_perf_open(&stats->sp);
 #endif
-					(void)shim_usleep(backoff * n_procs);
+				(void)shim_usleep(backoff * stressors_started);
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
-					if (g_opt_flags & OPT_FLAGS_PERF_STATS)
-						(void)stress_perf_enable(&stats->sp);
+				if (g_opt_flags & OPT_FLAGS_PERF_STATS)
+					(void)stress_perf_enable(&stats->sp);
 #endif
-					if (keep_stressing_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
-						const stress_args_t args = {
-							.counter = &stats->counter,
-							.counter_ready = &stats->counter_ready,
-							.name = name,
-							.max_ops = g_proc_current->bogo_ops,
-							.instance = j,
-							.num_instances = g_proc_current->num_procs,
-							.pid = getpid(),
-							.ppid = getppid(),
-							.page_size = stress_get_pagesize(),
-						};
+				if (keep_stressing_flag() && !(g_opt_flags & OPT_FLAGS_DRY_RUN)) {
+					const stress_args_t args = {
+						.counter = &stats->counter,
+						.counter_ready = &stats->counter_ready,
+						.name = name,
+						.max_ops = g_proc_current->bogo_ops,
+						.instance = j,
+						.num_instances = g_proc_current->num_procs,
+						.pid = getpid(),
+						.ppid = getppid(),
+						.page_size = stress_get_pagesize(),
+					};
 
-						(void)memset(*checksum, 0, sizeof(**checksum));
-						rc = g_proc_current->stressor->info->stressor(&args);
-						pr_fail_check(&rc);
-						if (rc == EXIT_SUCCESS) {
-							stats->run_ok = true;
-							(*checksum)->data.run_ok = true;
-						}
-						/*
-						 *  Bogo ops counter should be OK for reading,
-						 *  if not then flag up that the counter may
-						 *  be untrustyworthy
-						 */
-						if (!stats->counter_ready) {
-							pr_inf("%s: NOTE: bogo-ops counter in non-ready state, metrics are untrustworthy (process may have been terminated prematurely)\n",
-								name);
-							rc = EXIT_METRICS_UNTRUSTWORTHY;
-						}
-						(*checksum)->data.counter = *args.counter;
-						stress_hash_checksum(*checksum);
+					(void)memset(*checksum, 0, sizeof(**checksum));
+					rc = g_proc_current->stressor->info->stressor(&args);
+					pr_fail_check(&rc);
+					if (rc == EXIT_SUCCESS) {
+						stats->run_ok = true;
+						(*checksum)->data.run_ok = true;
 					}
+					/*
+					 *  Bogo ops counter should be OK for reading,
+					 *  if not then flag up that the counter may
+					 *  be untrustyworthy
+					 */
+					if (!stats->counter_ready) {
+						pr_inf("%s: NOTE: bogo-ops counter in non-ready state, metrics are untrustworthy (process may have been terminated prematurely)\n",
+							name);
+						rc = EXIT_METRICS_UNTRUSTWORTHY;
+					}
+					(*checksum)->data.counter = *args.counter;
+					stress_hash_checksum(*checksum);
+				}
 #if defined(STRESS_PERF_STATS) && defined(HAVE_LINUX_PERF_EVENT_H)
-					if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
-						(void)stress_perf_disable(&stats->sp);
-						(void)stress_perf_close(&stats->sp);
-					}
+				if (g_opt_flags & OPT_FLAGS_PERF_STATS) {
+					(void)stress_perf_disable(&stats->sp);
+					(void)stress_perf_close(&stats->sp);
+				}
 #endif
 #if defined(STRESS_THERMAL_ZONES)
-					if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
-						(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
+				if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
+					(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
 #endif
-
-					stats->finish = stress_time_now();
-					if (times(&stats->tms) == (clock_t)-1) {
-						pr_dbg("times failed: errno=%d (%s)\n",
-							errno, strerror(errno));
-					}
-					pr_dbg("%s: exited [%d] (instance %" PRIu32 ")\n",
-						name, (int)getpid(), j);
+				stats->finish = stress_time_now();
+				if (times(&stats->tms) == (clock_t)-1) {
+					pr_dbg("times failed: errno=%d (%s)\n",
+						errno, strerror(errno));
+				}
+				pr_dbg("%s: exited [%d] (instance %" PRIu32 ")\n",
+					name, (int)getpid(), j);
 
 child_exit:
-					stress_free_procs();
-					stress_cache_free();
-					stress_free_settings();
-					(void)stress_ftrace_free();
+				stress_free_procs();
+				stress_cache_free();
+				stress_free_settings();
+				(void)stress_ftrace_free();
 
-					if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
-						keep_stressing_set_flag(false);
-						wait_flag = false;
-						(void)kill(getppid(), SIGALRM);
-					}
-					if (terminate_signum)
-						rc = EXIT_SIGNALED;
-					_exit(rc);
-				default:
-					if (pid > -1) {
-						(void)setpgid(pid, g_pgrp);
-						g_proc_current->pids[j] = pid;
-						g_proc_current->started_procs++;
-						stress_ftrace_add_pid(pid);
-					}
-
-					/* Forced early abort during startup? */
-					if (!keep_stressing_flag()) {
-						pr_dbg("abort signal during startup, cleaning up\n");
-						stress_kill_procs(SIGALRM);
-						goto wait_for_procs;
-					}
-					break;
+				if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
+					keep_stressing_set_flag(false);
+					wait_flag = false;
+					(void)kill(getppid(), SIGALRM);
 				}
+				if (terminate_signum)
+					rc = EXIT_SIGNALED;
+				_exit(rc);
+			default:
+				if (pid > -1) {
+					(void)setpgid(pid, g_pgrp);
+					g_proc_current->pids[j] = pid;
+					g_proc_current->started_procs++;
+					stressors_started++;
+					stress_ftrace_add_pid(pid);
+				}
+
+				/* Forced early abort during startup? */
+				if (!keep_stressing_flag()) {
+					pr_dbg("abort signal during startup, cleaning up\n");
+					stress_kill_procs(SIGALRM);
+					goto wait_for_procs;
+				}
+				break;
 			}
 		}
 	}
@@ -1845,8 +1849,8 @@ child_exit:
 		(void)alarm(g_opt_timeout);
 
 abort:
-	pr_dbg("%d stressor%s spawned\n", n_procs,
-		n_procs == 1 ? "" : "s");
+	pr_dbg("%d stressor%s spawned\n", stressors_started,
+		 stressors_started == 1 ? "" : "s");
 
 wait_for_procs:
 	stress_wait_procs(procs_list, success, resource_success, metrics_success);
