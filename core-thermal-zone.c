@@ -143,14 +143,14 @@ int stress_tz_get_temperatures(stress_tz_info_t **tz_info_list, stress_tz_t *tz)
  *  stress_tz_dump()
  *	dump thermal zone temperatures
  */
-void stress_tz_dump(FILE *yaml, stress_proc_info_t *procs_head)
+void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 {
 	bool no_tz_stats = true;
-	stress_proc_info_t *pi;
+	stress_stressor_t *ss;
 
 	pr_yaml(yaml, "thermal-zones:\n");
 
-	for (pi = procs_head; pi; pi = pi->next) {
+	for (ss = stressors_list; ss; ss = ss->next) {
 		stress_tz_info_t *tz_info;
 		int32_t  j;
 		uint64_t total = 0;
@@ -158,9 +158,9 @@ void stress_tz_dump(FILE *yaml, stress_proc_info_t *procs_head)
 		bool dumped_heading = false;
 
 		for (tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
-			for (j = 0; j < pi->started_procs; j++) {
+			for (j = 0; j < ss->started_instances; j++) {
 				const uint64_t temp =
-					pi->stats[j]->tz.tz_stat[tz_info->index].temperature;
+					ss->stats[j]->tz.tz_stat[tz_info->index].temperature;
 				/* Avoid crazy temperatures. e.g. > 250 C */
 				if (temp <= 250000) {
 					total += temp;
@@ -170,7 +170,7 @@ void stress_tz_dump(FILE *yaml, stress_proc_info_t *procs_head)
 
 			if (total) {
 				const double temp = ((double)total / count) / 1000.0;
-				char *munged = stress_munge_underscore(pi->stressor->name);
+				char *munged = stress_munge_underscore(ss->stressor->name);
 
 				if (!dumped_heading) {
 					dumped_heading = true;

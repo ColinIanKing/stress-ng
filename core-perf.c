@@ -583,10 +583,10 @@ static const char *stress_perf_stat_scale(const uint64_t counter, const double d
 	return buffer;
 }
 
-void stress_perf_stat_dump(FILE *yaml, stress_proc_info_t *procs_head, const double duration)
+void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const double duration)
 {
 	bool no_perf_stats = true;
-	stress_proc_info_t *pi;
+	stress_stressor_t *ss;
 
 #if defined(HAVE_LOCALE_H)
 	(void)setlocale(LC_ALL, "");
@@ -594,7 +594,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_proc_info_t *procs_head, const dou
 
 	pr_yaml(yaml, "perfstats:\n");
 
-	for (pi = procs_head; pi; pi = pi->next) {
+	for (ss = stressors_list; ss; ss = ss->next) {
 		int p;
 		uint64_t counter_totals[STRESS_PERF_MAX];
 		uint64_t total_cpu_cycles = 0;
@@ -608,12 +608,12 @@ void stress_perf_stat_dump(FILE *yaml, stress_proc_info_t *procs_head, const dou
 		/* Sum totals across all instances of the stressor */
 		for (p = 0; p < STRESS_PERF_MAX && perf_info[p].label; p++) {
 			int32_t j;
-			stress_perf_t *sp = &pi->stats[0]->sp;
+			stress_perf_t *sp = &ss->stats[0]->sp;
 
 			if (!stress_perf_stat_succeeded(sp))
 				continue;
 
-			for (j = 0; j < pi->started_procs; j++) {
+			for (j = 0; j < ss->started_instances; j++) {
 				const uint64_t counter = sp->perf_stat[p].counter;
 
 				if (counter == STRESS_PERF_INVALID) {
@@ -638,7 +638,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_proc_info_t *procs_head, const dou
 		if (!got_data)
 			continue;
 
-		munged = stress_munge_underscore(pi->stressor->name);
+		munged = stress_munge_underscore(ss->stressor->name);
 		pr_inf("%s:\n", munged);
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
 		pr_yaml(yaml, "      duration: %f\n", duration);
