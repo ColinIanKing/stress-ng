@@ -177,6 +177,9 @@ static int stress_clock(const stress_args_t *args)
 			size_t i;
 			struct timespec t;
 
+			/* Exercise clock_getres with illegal clockid */
+			(void)shim_clock_getres((clockid_t)-1, &t);
+
 			/*
 			 *  Exercise clock_getres and clock_gettime for each clock
 			 */
