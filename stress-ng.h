@@ -1871,7 +1871,7 @@ typedef struct {
 } stress_tz_t;
 #endif
 
-/* Per process statistics and accounting info */
+/* Per stressor statistics and accounting info */
 typedef struct {
 	uint64_t counter;		/* number of bogo ops */
 	bool counter_ready;		/* counter can be read */
@@ -1886,7 +1886,7 @@ typedef struct {
 #endif
 	bool run_ok;			/* true if stressor exited OK */
 	stress_checksum_t *checksum;	/* pointer to checksum data */
-} stress_proc_stats_t;
+} stress_stats_t;
 
 #define	STRESS_WARN_HASH_MAX		(128)
 
@@ -1939,7 +1939,7 @@ typedef struct {
 	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	stress_checksum_t *checksums;			/* per stressor counter checksum */
 	size_t	checksums_length;			/* size of checksums mapping */
-	stress_proc_stats_t stats[0];			/* Shared statistics */
+	stress_stats_t stats[0];			/* Shared statistics */
 } stress_shared_t;
 
 /* Stress test classes */
@@ -3189,8 +3189,8 @@ typedef struct stress_stressor_info {
 	struct stress_stressor_info *next;	/* next proc info struct in list */
 	struct stress_stressor_info *prev;	/* prev proc info struct in list */
 	const stress_t *stressor;	/* stressor */
-	pid_t	*pids;			/* process id */
-	stress_proc_stats_t **stats;	/* process proc stats info */
+	pid_t	*pids;			/* stressor process id */
+	stress_stats_t **stats;		/* stressor stats info */
 	int32_t started_instances;	/* count of started instances */
 	int32_t num_instances;		/* number of instances per stressor */
 	uint64_t bogo_ops;		/* number of bogo ops */

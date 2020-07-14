@@ -1696,7 +1696,7 @@ static void MLOCKED_TEXT stress_run(
 			int64_t backoff = DEFAULT_BACKOFF;
 			int32_t ionice_class = UNDEFINED;
 			int32_t ionice_level = UNDEFINED;
-			stress_proc_stats_t *stats = g_stressor_current->stats[j];
+			stress_stats_t *stats = g_stressor_current->stats[j];
 
 			if (g_opt_timeout && (stress_time_now() - time_start > g_opt_timeout))
 				goto abort;
@@ -1916,7 +1916,7 @@ static void metrics_check(bool *success)
 		int32_t j;
 
 		for (j = 0; j < ss->started_instances; j++) {
-			const stress_proc_stats_t *const stats = ss->stats[j];
+			const stress_stats_t *const stats = ss->stats[j];
 			const stress_checksum_t *checksum = stats->checksum;
 			stress_checksum_t stats_checksum;
 
@@ -1987,7 +1987,7 @@ static void metrics_dump(
 		bool run_ok = false;
 
 		for (j = 0; j < ss->started_instances; j++) {
-			const stress_proc_stats_t *const stats = ss->stats[j];
+			const stress_stats_t *const stats = ss->stats[j];
 
 			run_ok  |= stats->run_ok;
 			c_total += stats->counter;
@@ -2178,7 +2178,7 @@ static void log_system_info(void)
 static inline void stress_map_shared(const size_t num_procs)
 {
 	const size_t page_size = stress_get_pagesize();
-	size_t len = sizeof(stress_shared_t) + (sizeof(stress_proc_stats_t) * num_procs);
+	size_t len = sizeof(stress_shared_t) + (sizeof(stress_stats_t) * num_procs);
 	size_t sz = (len + (page_size << 1)) & ~(page_size - 1);
 #if defined(HAVE_MPROTECT)
 	void *last_page;
@@ -2438,7 +2438,7 @@ static inline void exclude_pathological(void)
 static inline void setup_stats_buffers(void)
 {
 	stress_stressor_t *ss;
-	stress_proc_stats_t *stats = g_shared->stats;
+	stress_stats_t *stats = g_shared->stats;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
 		int32_t j;
@@ -2762,7 +2762,7 @@ next_opt:
  *  alloc_proc_resources()
  *	allocate array of pids based on n pids required
  */
-static void alloc_proc_resources(pid_t **pids, stress_proc_stats_t ***stats, size_t n)
+static void alloc_proc_resources(pid_t **pids, stress_stats_t ***stats, size_t n)
 {
 	*pids = calloc(n, sizeof(pid_t));
 	if (!*pids) {
@@ -2771,7 +2771,7 @@ static void alloc_proc_resources(pid_t **pids, stress_proc_stats_t ***stats, siz
 		exit(EXIT_FAILURE);
 	}
 
-	*stats = calloc(n, sizeof(stress_proc_stats_t *));
+	*stats = calloc(n, sizeof(stress_stats_t *));
 	if (!*stats) {
 		pr_err("cannot allocate stats list\n");
 		free(*pids);
