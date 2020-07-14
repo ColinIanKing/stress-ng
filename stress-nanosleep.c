@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#define MAX_NANOSLEEP_THREADS	(256)
+#define MAX_NANOSLEEP_THREADS	(8)
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_NANOSLEEP)
