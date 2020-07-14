@@ -72,6 +72,9 @@ static void MLOCKED_TEXT stress_segv_handler(int signum)
 static int stress_bad_altstack(const stress_args_t *args)
 {
 	stress_set_oom_adjustment(args->name, true);
+#if defined(AT_SYSINFO_EHDR)
+	const void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
+#endif
 
 	stack = mmap(NULL, stack_sz, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -153,7 +156,7 @@ again:
 
 			/* Child */
 			stress_mwc_reseed();
-			rnd = stress_mwc32() % 7;
+			rnd = stress_mwc32() % 8;
 
 			stress_set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);
@@ -162,6 +165,7 @@ again:
 			switch (rnd) {
 #if defined(HAVE_MPROTECT)
 			case 1:
+				/* Illegal stack with no protection */
 				ret = mprotect(stack, stack_sz, PROT_NONE);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
@@ -169,6 +173,7 @@ again:
 					break;
 				CASE_FALLTHROUGH;
 			case 2:
+				/* Illegal read-only stack */
 				ret = mprotect(stack, stack_sz, PROT_READ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
@@ -176,6 +181,7 @@ again:
 					break;
 				CASE_FALLTHROUGH;
 			case 3:
+				/* Illegal exec-only stack */
 				ret = mprotect(stack, stack_sz, PROT_EXEC);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
@@ -184,6 +190,7 @@ again:
 				CASE_FALLTHROUGH;
 #endif
 			case 4:
+				/* Illegal NULL stack */
 				ret = stress_sigaltstack(NULL, SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
@@ -191,6 +198,7 @@ again:
 					break;
 				CASE_FALLTHROUGH;
 			case 5:
+				/* Illegal text segment stack */
 				ret = stress_sigaltstack(stress_segv_handler, SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
@@ -198,10 +206,22 @@ again:
 					break;
 				CASE_FALLTHROUGH;
 			case 6:
+				/* Small stack */
 				stress_bad_altstack_force_fault(NULL);
+				CASE_FALLTHROUGH;
+			case 7:
+#if defined(AT_SYSINFO_EHDR)
+				/* Illegal stack on VDSO, otherwises NULL stack */
+				ret = stress_sigaltstack(vdso, SIGSTKSZ);
+				if (ret == 0)
+					stress_bad_altstack_force_fault(stack);
+				if (!keep_stressing())
+					break;
+#endif
 				CASE_FALLTHROUGH;
 			default:
 			case 0:
+				/* Illegal unmapped stack */
 				(void)munmap(stack, stack_sz);
 				stress_bad_altstack_force_fault(NULL);
 				break;
