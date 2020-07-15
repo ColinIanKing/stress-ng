@@ -61,6 +61,8 @@ int shim_sched_yield(void)
 {
 #if defined(HAVE_SCHED_YIELD)
 	return sched_yield();
+#elif defined(__NR_sched_yield)
+	return syscall(__NR_sched_yield);
 #else
 	return sleep(0);
 #endif
@@ -521,6 +523,8 @@ int shim_mlock(const void *addr, size_t len)
 {
 #if defined(HAVE_MLOCK)
 	return mlock(shim_unconstify_ptr(addr), len);
+#elif defined(__NR_mlock)
+	return syscall(__NR_mlock, addr, len);
 #else
 	return shim_enosys(0, addr, len);
 #endif
@@ -534,6 +538,8 @@ int shim_munlock(const void *addr, size_t len)
 {
 #if defined(HAVE_MUNLOCK)
 	return munlock(shim_unconstify_ptr(addr), len);
+#elif defined(__NR_munlock)
+	return syscall(__NR_munlock, addr, len);
 #else
 	return shim_enosys(0, addr, len);
 #endif
@@ -560,6 +566,8 @@ int shim_mlockall(int flags)
 {
 #if defined(HAVE_MLOCKALL)
 	return mlockall(flags);
+#elif defined(__NR_mlockall)
+	return syscall(__NR_mlockall, flags);
 #else
 	return shim_enosys(0, flags);
 #endif
@@ -574,6 +582,8 @@ int shim_munlockall(void)
 /* if HAVE_MLOCKALL defined we also have munlockall */
 #if defined(HAVE_MLOCKALL)
 	return munlockall();
+#elif defined(__NR_munlockall)
+	return syscall(__NR_munlockall);
 #else
 	return shim_enosys(0);
 #endif
@@ -703,6 +713,8 @@ int shim_msync(void *addr, size_t length, int flags)
 {
 #if defined(HAVE_MSYNC)
 	return msync(addr, length, flags);
+#elif defined(__NR_msync)
+	return syscall(__NR_msync, addr, length, flags);
 #else
 	return shim_enosys(0, addr, length, flags);
 #endif
@@ -757,6 +769,8 @@ int shim_madvise(void *addr, size_t length, int advice)
 {
 #if defined(HAVE_MADVISE)
 	return madvise(addr, length, advice);
+#elif defined(__NR_madvise)
+	return syscall(__NR_madvise, addr, length, advice);
 #elif defined(HAVE_POSIX_MADVISE)
 	int posix_advice;
 
@@ -809,6 +823,8 @@ int shim_mincore(void *addr, size_t length, unsigned char *vec)
 #else
 	return mincore(addr, length, vec);
 #endif
+#elif defined(__NR_mincore)
+	return syscall(__NR_mincore, addr, length, vec);
 #else
 	return shim_enosys(0, addr, length, vec);
 #endif
@@ -940,6 +956,8 @@ int shim_brk(void *addr)
 	return (int)brk(addr);
 #elif defined(HAVE_BRK)
 	return brk(addr);
+#elif defined(__NR_brk)
+	return syscall(__NR_brk, addr);
 #else
 	uintptr_t brkaddr;
 	intptr_t inc;
@@ -1083,6 +1101,8 @@ int shim_fdatasync(int fd)
 	extern int fdatasync(int fd);
 #endif
 	return fdatasync(fd);
+#elif defined(__NR_fdatasync)
+	return syscall(__NR_fdatasync, fd);
 #else
 	return shim_enosys(0, fd);
 #endif
@@ -1211,6 +1231,8 @@ pid_t shim_wait3(int *wstatus, int options, struct rusage *rusage)
 {
 #if defined(HAVE_WAIT3)
 	return wait3(wstatus, options, rusage);
+#elif defined(__NR_wait3)
+	return syscall(__NR_wait3, wstatus, options, rusage);
 #else
 	return shim_enosys(0, wstatus, options, rusage);
 #endif
@@ -1225,6 +1247,8 @@ pid_t shim_wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage)
 {
 #if defined(HAVE_WAIT4)
 	return wait4(pid, wstatus, options, rusage);
+#elif defined(__NR_wait4)
+	return syscall(__NR_wait4, pid, wstatus, options, rusage);
 #else
 	return shim_enosys(0, pid, wstatus, options, rusage);
 #endif
@@ -1379,6 +1403,8 @@ ssize_t shim_getxattr(
 #else
 	return getxattr(path, name, value, size);
 #endif
+#elif defined(__NR_getxattr)
+	return syscall(__NR_getxattr, path, name, value, size);
 #else
 	return shim_enosys(0, path, name, value, size);
 #endif
@@ -1396,6 +1422,8 @@ ssize_t shim_listxattr(const char *path, char *list, size_t size)
 #else
 	return listxattr(path, list, size);
 #endif
+#elif defined(__NR_listxattr)
+	return syscall(__NR_listxattr, path, list, size);
 #else
 	return shim_enosys(0, path, list, size);
 #endif
@@ -1413,6 +1441,8 @@ ssize_t shim_flistxattr(int fd, char *list, size_t size)
 #else
 	return flistxattr(fd, list, size);
 #endif
+#elif defined(__NR_flistxattr)
+	return syscall(__NR_flistxattr, fd, list, size);
 #else
 	return shim_enosys(0, fd, list, size);
 #endif
@@ -1430,6 +1460,8 @@ int shim_setxattr(const char *path, const char *name, const void *value, size_t 
 #else
 	return setxattr(path, name, value, size, flags);
 #endif
+#elif defined(__NR_setxattr)
+	return syscall(__NR_setxattr, path, name, value, size, flags);
 #else
 	return shim_enosys(0, path, name, value, size, flags);
 #endif
@@ -1447,6 +1479,8 @@ int shim_fsetxattr(int fd, const char *name, const void *value, size_t size, int
 #else
 	return fsetxattr(fd, name, value, size, flags);
 #endif
+#elif defined(__NR_fsetxattr)
+	return syscall(__NR_fsetxattr, fd, name, value, size, flags);
 #else
 	return shim_enosys(0, fd, name, value, size, flags);
 #endif
@@ -1460,6 +1494,8 @@ int shim_lsetxattr(const char *path, const char *name, const void *value, size_t
 {
 #if defined(HAVE_LSETXATTR)
 	return lsetxattr(path, name, value, size, flags);
+#elif defined(__NR_lsetxattr)
+	return syscall(__NR_lsetxattr, path, name, value, size, flags);
 #else
 	return shim_enosys(0, path, name, value, size, flags);
 #endif
@@ -1473,6 +1509,8 @@ ssize_t shim_lgetxattr(const char *path, const char *name, void *value, size_t s
 {
 #if defined(HAVE_LGETXATTR)
 	return lgetxattr(path, name, value, size);
+#elif defined(__NR_lgetxattr)
+	return syscall(__NR_lgetxattr, path, name, value, size);
 #else
 	return shim_enosys(0, path, name, value, size);
 #endif
@@ -1490,6 +1528,8 @@ ssize_t shim_fgetxattr(int fd, const char *name, void *value, size_t size)
 #else
 	return fgetxattr(fd, name, value, size);
 #endif
+#elif defined(__NR_fgetxattr)
+	return syscall(__NR_fgetxattr, fd, name, value, size);
 #else
 	return shim_enosys(0, fd, name, value, size);
 #endif
@@ -1507,6 +1547,8 @@ int shim_removexattr(const char *path, const char *name)
 #else
 	return removexattr(path, name);
 #endif
+#elif defined(__NR_removexattr)
+	return syscall(__NR_removexattr, path, name);
 #else
 	return shim_enosys(0, path, name);
 #endif
@@ -1520,6 +1562,8 @@ int shim_lremovexattr(const char *path, const char *name)
 {
 #if defined(HAVE_LREMOVEXATTR)
 	return lremovexattr(path, name);
+#elif defined(__NR_lremovexattr)
+	return syscall(__NR_lremovexattr, path, name);
 #else
 	return shim_enosys(0, path, name);
 #endif
@@ -1537,6 +1581,8 @@ int shim_fremovexattr(int fd, const char *name)
 #else
 	return fremovexattr(fd, name);
 #endif
+#elif defined(__NR_fremovexattr)
+	return syscall(__NR_fremovexattr, fd, name);
 #else
 	return shim_enosys(0, fd, name);
 #endif
@@ -1550,6 +1596,8 @@ ssize_t shim_llistxattr(const char *path, char *list, size_t size)
 {
 #if defined(HAVE_LLISTXATTR)
 	return llistxattr(path, list, size);
+#elif defined(__NR_llistxattr)
+	return syscall(__NR_llistxattr, path, list, size);
 #else
 	return shim_enosys(0, path, list, size);
 #endif
