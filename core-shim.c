@@ -859,12 +859,14 @@ int shim_futex_wait(
 
 /*
  *  dup3()
- *	linux special dup
+ *	linux special dup3
  */
 int shim_dup3(int oldfd, int newfd, int flags)
 {
 #if defined(HAVE_DUP3)
 	return dup3(oldfd, newfd, flags);
+#elif defined(__NR_dup3)
+	return syscall(__NR_dup3, oldfd, newfd, flags);
 #else
 	return shim_enosys(0, oldfd, newfd, flags);
 #endif
