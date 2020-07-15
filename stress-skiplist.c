@@ -180,19 +180,6 @@ static size_t skip_list_ln2(size_t n)
 	return i;
 }
 
-#if 0
-static void skip_list_dump(skip_list_t *list)
-{
-	skip_node_t *head = list->head;
-	skip_node_t *skip_node = head;
-
-	while (skip_node && skip_node->skip_nodes[1] != head) {
-		printf("DUMP: %d\n", skip_node->skip_nodes[1]->value);
-		skip_node = skip_node->skip_nodes[1];
-	}
-}
-#endif
-
 /*
  *  skip_list_free()
  *	free a skip list
