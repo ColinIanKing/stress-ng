@@ -85,6 +85,11 @@ static int stress_dup(const stress_args_t *args)
 			if (tmp >= 0)
 				(void)close(tmp);
 
+			/* do an invalid dup3 with same oldfd and newfd */
+			tmp = shim_dup3(fds[0], fds[0], O_CLOEXEC);
+			if (tmp >= 0)
+				(void)close(tmp);
+
 			if (do_dup3 && stress_mwc1()) {
 				int fd;
 
