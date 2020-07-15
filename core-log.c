@@ -205,12 +205,22 @@ static int pr_msg_lockable(
 			type = "fail: ";
 
 		if (g_opt_flags & OPT_FLAGS_LOG_BRIEF) {
-			ret = vfprintf(fp, fmt, ap);
+			int n = vsnprintf(buf, sizeof(buf), fmt, ap);
+			if (log_file) {
+				ret = fwrite(buf, 1, n, log_file);
+				(void)ret;
+				(void)fflush(log_file);
+			}
+			ret = fwrite(buf, 1, n, fp);
 		} else {
 			int n = snprintf(buf, sizeof(buf), "%s%s [%d] ",
 				ts, type, (int)getpid());
 			ret = vsnprintf(buf + n, sizeof(buf) - n, fmt, ap);
 			(void)fprintf(fp, "%s: %s", g_app_name, buf);
+			if (log_file) {
+				(void)fprintf(log_file, "%s: %s", g_app_name, buf);
+				(void)fflush(log_file);
+			}
 		}
 		(void)fflush(fp);
 
@@ -226,12 +236,6 @@ static int pr_msg_lockable(
 					(void)fflush(fp);
 				}
 			}
-		}
-
-		/* Log messages to log file if --log-file specified */
-		if (log_file) {
-			(void)fprintf(log_file, "%s: %s", g_app_name, buf);
-			(void)fflush(log_file);
 		}
 
 #if defined(HAVE_SYSLOG_H)
