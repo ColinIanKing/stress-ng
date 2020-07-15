@@ -104,8 +104,7 @@ again:
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto tidy;
-	}
-	else if (pid == 0) {
+	} else if (pid == 0) {
 		/* Child writer */
 
 		(void)setpgid(0, g_pgrp);
