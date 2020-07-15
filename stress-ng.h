@@ -3687,6 +3687,10 @@ struct shim_clone_args {
 	uint64_t tls;			/* tls address */
 };
 
+struct shim_getcpu_cache {
+        unsigned long blob[128 / sizeof(long)];
+};
+
 /*
  *  shim'd abstracted system or library calls
  *  that have a layer of OS abstraction

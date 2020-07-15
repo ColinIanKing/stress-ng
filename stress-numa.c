@@ -215,6 +215,7 @@ static int stress_numa(const stress_args_t *args)
 		uint8_t *ptr;
 		stress_node_t *n_tmp;
 		unsigned cpu, curr_node;
+		struct shim_getcpu_cache cache;
 
 		/*
 		 *  Fetch memory policy
@@ -248,6 +249,17 @@ static int stress_numa(const stress_args_t *args)
 		 *  doing this for stress reasons only
 		 */
 		(void)shim_getcpu(&cpu, &curr_node, NULL);
+
+		/* Initialised cache to be safe */
+		(void)memset(&cache, 0, sizeof(cache));
+
+		/*
+		* tcache argument is unused in getcpu currently.
+		* Exercise getcpu syscall with non-null tcache
+		* pointer to ensure kernel doesn't break even
+		* when this argument is used in future.
+		*/
+		(void)shim_getcpu(&cpu, &curr_node, &cache);
 
 		/*
 		 *  mbind the buffer, first try MPOL_STRICT which
