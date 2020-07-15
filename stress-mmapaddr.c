@@ -179,6 +179,25 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 		if (remap_addr && (remap_addr != MAP_FAILED))
 			map_addr = remap_addr;
 #endif
+
+#if defined(MAP_FIXED_NOREPLACE)
+		{
+			uint8_t *noreplace_addr;
+
+			/*
+			 *  mmap on to an existing address, force -EEXIST
+			 */
+			noreplace_addr = (uint8_t *)mmap((void *)addr, page_size, PROT_NONE,
+							MAP_FIXED_NOREPLACE | flags,
+							-1, 0);
+			/*
+			 * Should never succeed, but unmap just in case
+			 * it got mapped
+			 */
+			if (noreplace_addr != MAP_FAILED)
+				(void)munmap(noreplace_addr, page_size);
+		}
+#endif
 unmap:
 		(void)munmap((void *)map_addr, page_size);
 		inc_counter(args);
