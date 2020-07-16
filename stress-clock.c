@@ -261,6 +261,17 @@ static int stress_clock(const stress_args_t *args)
 					 */
 					test_invalid_timespec = false;
 				}
+
+				/* Ensuring clock_settime cannot succeed without privilege */
+				if (!stress_check_capability(SHIM_CAP_IS_ROOT)){
+					ret = shim_clock_settime(clocks[i].id, &t);
+					if (ret != -EPERM) {
+						/* This is an error, report it! */
+						pr_fail("%s: clock_settime failed, did not have privilege to "
+							"set time, expected -EPERM, instead got errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+					}
+				}
 			}
 		}
 #endif
