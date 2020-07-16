@@ -160,8 +160,9 @@ static int stress_set(const stress_args_t *args)
 				ret = settimeofday(&tv, NULL);
 				if (ret != -EPERM) {
 					/* This is an error, report it! :-) */
-					pr_fail("%s: settimeofday failed, time set without "
-						"having privileges", args->name);
+					pr_fail("%s: settimeofday failed, did not have privilege to "
+						"set time, expected -EPERM, instead got errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
 				}
 			}
 		}
