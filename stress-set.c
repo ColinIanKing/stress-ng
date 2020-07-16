@@ -123,7 +123,6 @@ static int stress_set(const stress_args_t *args)
 		pid_t pid;
 		gid_t gid;
 		uid_t uid;
-		struct timeval tv;
 
 		/* setsid will fail, ignore return */
 		pid = setsid();
@@ -153,6 +152,7 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETTIMEOFDAY)
 		if (!stress_check_capability(SHIM_CAP_SYS_TIME)) {
 			int ret;
+			struct timeval tv;
 
 			/* We should not be able to set the time of day */
 			ret = gettimeofday(&tv, NULL);
@@ -160,8 +160,8 @@ static int stress_set(const stress_args_t *args)
 				ret = settimeofday(&tv, NULL);
 				if (ret != -EPERM) {
 					/* This is an error, report it! :-) */
-					pr_fail("%s: settimeofday failed, time set without"
-					"having privileges", args->name);
+					pr_fail("%s: settimeofday failed, time set without "
+						"having privileges", args->name);
 				}
 			}
 		}
