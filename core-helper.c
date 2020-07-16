@@ -1518,7 +1518,7 @@ static bool stress_check_root(void)
 /*
  *  stress_check_capability()
  *	returns true if process has the given capability,
- *	if capability is 0 then just check if process is
+ *	if capability is SHIM_CAP_IS_ROOT then just check if process is
  *	root.
  */
 bool stress_check_capability(const int capability)
@@ -1528,7 +1528,7 @@ bool stress_check_capability(const int capability)
 	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
 	uint32_t idx, mask;
 
-	if (capability == 0)
+	if (capability == SHIM_CAP_IS_ROOT)
 		return stress_check_root();
 
 	(void)memset(&uch, 0, sizeof uch);

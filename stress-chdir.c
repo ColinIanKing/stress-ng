@@ -57,7 +57,7 @@ static int stress_chdir(const stress_args_t *args)
 	char **paths;
 	bool *mkdir_ok;
 	struct stat statbuf;
-	const bool is_root = stress_check_capability(0);
+	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 
 	(void)stress_get_setting("chdir-dirs", &chdir_dirs);
 	paths = calloc(chdir_dirs, sizeof(*paths));

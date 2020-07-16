@@ -113,7 +113,7 @@ static int stress_kcmp(const stress_args_t *args)
 #endif
 	int ret = EXIT_SUCCESS;
 	const int bad_fd = stress_get_bad_fd();
-	const bool is_root = stress_check_capability(0);
+	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 
 	static const char *capfail =
 		"need CAP_SYS_PTRACE capability to run kcmp stressor, "

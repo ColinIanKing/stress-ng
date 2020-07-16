@@ -154,7 +154,7 @@ static int stress_close(const stress_args_t *args)
 	size_t i;
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
-	const bool not_root = !stress_check_capability(0);
+	const bool not_root = !stress_check_capability(SHIM_CAP_IS_ROOT);
 	double max_duration = 0.0;
 #if defined(HAVE_LIB_RT)
 	char shm_name[SHM_NAME_LEN];
