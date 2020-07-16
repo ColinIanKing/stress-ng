@@ -91,8 +91,10 @@ static int do_chattr(
 
 		ret = ioctl(fd, EXT2_IOC_SETFLAGS, &zero);
 		if (ret < 0) {
-			pr_inf("%s: ioctl failed: errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			rc = -1;
+			if (errno != EOPNOTSUPP)
+				pr_inf("%s: ioctl failed: errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
 			goto tidy;
 		}
 
@@ -105,7 +107,6 @@ static int do_chattr(
 		ret = ioctl(fd, EXT2_IOC_SETFLAGS, &flag);
 		if ((ret < 0) && (errno == EOPNOTSUPP))
 			rc = -1;
-		(void)ret;
 
 		n = write(fdw, &zero, sizeof(zero));
 		(void)n;
