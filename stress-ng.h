@@ -1770,54 +1770,250 @@ typedef pthread_mutex_t		shim_pthread_spinlock_t;
 #endif
 #endif
 
-/* capabilities shim */
-#if defined(CAP_MAC_ADMIN)
-#define SHIM_CAP_MAC_ADMIN	CAP_MAC_ADMIN
+/* Capabilities shim */
+
+/* POSIX-draft defined capabilities */
+#if defined(CAP_CHOWN)
+#define SHIM_CAP_CHOWN			CAP_CHOWN
 #else
-#define SHIM_CAP_MAC_ADMIN	(0)
+#define SHIM_CAP_CHOWN			(0)
+#endif
+
+#if defined(CAP_DAC_OVERRIDE)
+#define SHIM_CAP_DAC_OVERRIDE		CAP_DAC_OVERRIDE
+#else
+#define SHIM_CAP_DAC_OVERRIDE		(0)
+#endif
+
+#if defined(CAP_DAC_READ_SEARCH)
+#define SHIM_CAP_DAC_READ_SEARCH	CAP_DAC_READ_SEARCH
+#else
+#define SHIM_CAP_DAC_READ_SEARCH	(0)
+#endif
+
+#if defined(CAP_FOWNER)
+#define SHIM_CAP_FOWNER			CAP_FOWNER
+#else
+#define SHIM_CAP_FOWNER			(0)
+#endif
+
+#if defined(CAP_FSETID)
+#define SHIM_CAP_FSETID			CAP_FSETID
+#else
+#define SHIM_CAP_FSETID			(0)
+#endif
+
+#if defined(CAP_KILL)
+#define SHIM_CAP_KILL			CAP_KILL
+#else
+#define SHIM_CAP_KILL			(0)
+#endif
+
+#if defined(CAP_SETGID)
+#define SHIM_CAP_SETGID			CAP_SETGID
+#else
+#define SHIM_CAP_SETGID			(0)
+#endif
+
+#if defined(CAP_SETUID)
+#define SHIM_CAP_SETUID			CAP_SETUID
+#else
+#define SHIM_CAP_SETUID			(0)
+#endif
+
+/* Linux specific capabilities */
+#if defined(CAP_SETPCAP)
+#define SHIM_CAP_SETPCAP		CAP_SETPCAP
+#else
+#define SHIM_CAP_SETPCAP		(0)
+#endif
+
+#if defined(CAP_LINUX_IMMUTABLE)
+#define SHIM_CAP_LINUX_IMMUTABLE	CAP_LINUX_IMMUTABLE
+#else
+#define SHIM_CAP_LINUX_IMMUTABLE	(0)
+#endif
+
+#if defined(CAP_NET_BIND_SERVICE)
+#define SHIM_CAP_NET_BIND_SERVICE	CAP_NET_BIND_SERVICE
+#else
+#define SHIM_CAP_NET_BIND_SERVICE	(0)
+#endif
+
+#if defined(CAP_NET_BROADCAST)
+#define SHIM_CAP_NET_BROADCAST		CAP_NET_BROADCAST
+#else
+#define SHIM_CAP_NET_BROADCAST		(0)
 #endif
 
 #if defined(CAP_NET_ADMIN)
-#define SHIM_CAP_NET_ADMIN	CAP_NET_ADMIN
+#define SHIM_CAP_NET_ADMIN		CAP_NET_ADMIN
 #else
-#define SHIM_CAP_NET_ADMIN	(0)
+#define SHIM_CAP_NET_ADMIN		(0)
 #endif
 
 #if defined(CAP_NET_RAW)
-#define SHIM_CAP_NET_RAW	CAP_NET_RAW
+#define SHIM_CAP_NET_RAW		CAP_NET_RAW
 #else
-#define SHIM_CAP_NET_RAW	(0)
+#define SHIM_CAP_NET_RAW		(0)
+#endif
+
+#if defined(CAP_IPC_LOCK)
+#define SHIM_CAP_IPC_LOCK		CAP_IPC_LOCK
+#else
+#define SHIM_CAP_IPC_LOCK		(0)
+#endif
+
+#if defined(CAP_IPC_OWNER)
+#define SHIM_CAP_IPC_OWNER		CAP_IPC_OWNER
+#else
+#define SHIM_CAP_IPC_OWNER		(0)
+#endif
+
+#if defined(CAP_SYS_MODULE)
+#define SHIM_CAP_SYS_MODULE		CAP_SYS_MODULE
+#else
+#define SHIM_CAP_SYS_MODULE		(0)
+#endif
+
+#if defined(CAP_SYS_RAWIO)
+#define SHIM_CAP_SYS_RAWIO		CAP_SYS_RAWIO
+#else
+#define SHIM_CAP_SYS_RAWIO		(0)
+#endif
+
+#if defined(CAP_SYS_CHROOT)
+#define SHIM_CAP_SYS_CHROOT		CAP_SYS_CHROOT
+#else
+#define SHIM_CAP_SYS_CHROOT		(0)
+#endif
+
+#if defined(CAP_SYS_PTRACE)
+#define SHIM_CAP_SYS_PTRACE		CAP_SYS_PTRACE
+#else
+#define SHIM_CAP_SYS_PTRACE		(0)
+#endif
+
+#if defined(CAP_SYS_PACCT)
+#define SHIM_CAP_SYS_PACCT		CAP_SYS_PACCT
+#else
+#define SHIM_CAP_SYS_PACCT		(0)
 #endif
 
 #if defined(CAP_SYS_ADMIN)
-#define SHIM_CAP_SYS_ADMIN	CAP_SYS_ADMIN
+#define SHIM_CAP_SYS_ADMIN		CAP_SYS_ADMIN
 #else
-#define SHIM_CAP_SYS_ADMIN	(0)
-#endif
-
-#if defined(CAP_SYS_NICE)
-#define SHIM_CAP_SYS_NICE	CAP_SYS_NICE
-#else
-#define SHIM_CAP_SYS_NICE	(0)
-#endif
-
-#if defined(CAP_SYS_RESOURCE)
-#define SHIM_CAP_SYS_RESOURCE	CAP_SYS_RESOURCE
-#else
-#define SHIM_CAP_SYS_RESOURCE	(0)
-#endif
-
-#if defined(CAP_SYS_TIME)
-#define SHIM_CAP_SYS_TIME	CAP_SYS_TIME
-#else
-#define SHIM_CAP_SYS_TIME	(0)
+#define SHIM_CAP_SYS_ADMIN		(0)
 #endif
 
 #if defined(CAP_SYS_BOOT)
-#define SHIM_CAP_SYS_BOOT	CAP_SYS_BOOT
+#define SHIM_CAP_SYS_BOOT		CAP_SYS_BOOT
 #else
-#define SHIM_CAP_SYS_BOOT	(0)
+#define SHIM_CAP_SYS_BOOT		(0)
 #endif
+
+#if defined(CAP_SYS_NICE)
+#define SHIM_CAP_SYS_NICE		CAP_SYS_NICE
+#else
+#define SHIM_CAP_SYS_NICE		(0)
+#endif
+
+#if defined(CAP_SYS_RESOURCE)
+#define SHIM_CAP_SYS_RESOURCE		CAP_SYS_RESOURCE
+#else
+#define SHIM_CAP_SYS_RESOURCE		(0)
+#endif
+
+#if defined(CAP_SYS_TIME)
+#define SHIM_CAP_SYS_TIME		CAP_SYS_TIME
+#else
+#define SHIM_CAP_SYS_TIME		(0)
+#endif
+
+#if defined(CAP_SYS_TTY_CONFIG)
+#define SHIM_CAP_SYS_TTY_CONFIG		CAP_SYS_TTY_CONFIG
+#else
+#define SHIM_CAP_SYS_TTY_CONFIG		(0)
+#endif
+
+#if defined(CAP_MKNOD)
+#define SHIM_CAP_MKNOD			CAP_MKNOD
+#else
+#define SHIM_CAP_MKNOD			(0)
+#endif
+
+#if defined(CAP_LEASE)
+#define SHIM_CAP_LEASE			CAP_LEASE
+#else
+#define SHIM_CAP_LEASE			(0)
+#endif
+
+#if defined(CAP_AUDIT_WRITE)
+#define SHIM_CAP_AUDIT_WRITE		CAP_AUDIT_WRITE
+#else
+#define SHIM_CAP_AUDIT_WRITE		(0)
+#endif
+
+#if defined(CAP_AUDIT_CONTROL)
+#define SHIM_CAP_AUDIT_CONTROL		CAP_AUDIT_CONTROL
+#else
+#define SHIM_CAP_AUDIT_CONTROL		(0)
+#endif
+
+#if defined(CAP_SETFCAP)
+#define SHIM_CAP_SETFCAP		CAP_SETFCAP
+#else
+#define SHIM_CAP_SETFCAP		(0)
+#endif
+
+#if defined(CAP_MAC_OVERRIDE)
+#define SHIM_CAP_MAC_OVERRIDE		CAP_MAC_OVERRIDE
+#else
+#define SHIM_CAP_MAC_OVERRIDE		(0)
+#endif
+
+#if defined(CAP_MAC_ADMIN)
+#define SHIM_CAP_MAC_ADMIN		CAP_MAC_ADMIN
+#else
+#define SHIM_CAP_MAC_ADMIN		(0)
+#endif
+
+#if defined(CAP_SYSLOG)
+#define SHIM_CAP_SYSLOG			CAP_SYSLOG
+#else
+#define SHIM_CAP_SYSLOG			(0)
+#endif
+
+#if defined(CAP_WAKE_ALARM)
+#define SHIM_CAP_WAKE_ALARM		CAP_WAKE_ALARM
+#else
+#define SHIM_CAP_WAKE_ALARM		(0)
+#endif
+
+#if defined(CAP_BLOCK_SUSPEND)
+#define SHIM_CAP_BLOCK_SUSPEND		CAP_BLOCK_SUSPEND
+#else
+#define SHIM_CAP_BLOCK_SUSPEND		(0)
+#endif
+
+#if defined(CAP_AUDIT_READ)
+#define SHIM_CAP_AUDIT_READ		CAP_AUDIT_READ
+#else
+#define SHIM_CAP_AUDIT_READ		(0)
+#endif
+
+#if defined(CAP_PERFMON)
+#define SHIM_CAP_PERFMON		CAP_PERFMON
+#else
+#define SHIM_CAP_PERFMON		(0)
+#endif
+
+#if defined(CAP_BPF)
+#define SHIM_CAP_BPF			CAP_BPF
+#else
+#define SHIM_CAP_BPF			(0)
+#endif
+
 
 /* stress process prototype */
 typedef int (*stress_func_t)(const stress_args_t *args);
