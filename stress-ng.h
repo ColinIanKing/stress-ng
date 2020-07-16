@@ -1772,7 +1772,7 @@ typedef pthread_mutex_t		shim_pthread_spinlock_t;
 
 /* Capabilities shim */
 
-#define SHIM_CAP_IS_ROOT		(0)
+#define SHIM_CAP_IS_ROOT		(-1)
 
 /* POSIX-draft defined capabilities */
 #if defined(CAP_CHOWN)
