@@ -143,6 +143,7 @@ static int stress_clock(const stress_args_t *args)
 	 */
 	stress_mwc_seed(0xf238, 0x1872);
 	bool test_invalid_timespec = true;
+	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 
 	do {
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \
@@ -226,6 +227,17 @@ static int stress_clock(const stress_args_t *args)
 				if (ret < 0)
 					continue;
 
+				/* Ensuring clock_settime cannot succeed without privilege */
+				if (!is_root) {
+					ret = shim_clock_settime(clocks[i].id, &t);
+					if (ret != -EPERM) {
+						/* This is an error, report it! */
+						pr_fail("%s: clock_settime failed, did not have privilege to "
+							"set time, expected -EPERM, instead got errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+					}
+				}
+
 				/*
 				 * Exercise clock_settime with illegal tv sec
 				 * and nsec values
@@ -260,17 +272,6 @@ static int stress_clock(const stress_args_t *args)
 					 * only single time to minimize time lag
 					 */
 					test_invalid_timespec = false;
-				}
-
-				/* Ensuring clock_settime cannot succeed without privilege */
-				if (!stress_check_capability(SHIM_CAP_IS_ROOT)){
-					ret = shim_clock_settime(clocks[i].id, &t);
-					if (ret != -EPERM) {
-						/* This is an error, report it! */
-						pr_fail("%s: clock_settime failed, did not have privilege to "
-							"set time, expected -EPERM, instead got errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-					}
 				}
 			}
 		}
