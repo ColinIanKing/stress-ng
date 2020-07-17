@@ -39,9 +39,7 @@ static int stress_dup(const stress_args_t *args)
 	static int fds[STRESS_FD_MAX];
 	size_t max_fd = stress_get_file_limit();
 	size_t i;
-#if defined(HAVE_DUP3)
 	bool do_dup3 = true;
-#endif
 	const int bad_fd = stress_get_bad_fd();
 
 	if (max_fd > SIZEOF_ARRAY(fds))
