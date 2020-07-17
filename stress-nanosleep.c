@@ -160,7 +160,6 @@ stressor_info_t stress_nanosleep_info = {
 stressor_info_t stress_nanosleep_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #endif
