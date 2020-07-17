@@ -42,7 +42,11 @@ static int stress_sysinfo(const stress_args_t *args)
 {
 	int n_mounts;
 	char *mnts[128];
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO) &&		\
+    defined(HAVE_SYS_STATFS_H)
 	const int bad_fd = stress_get_bad_fd();
+#endif
 
 	(void)memset(mnts, 0, sizeof(mnts));
 
