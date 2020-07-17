@@ -1,0 +1,136 @@
+/*
+ * Copyright (C) 2013-2020 Canonical, Ltd.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * This code is a complete clean re-write of the stress tool by
+ * Colin Ian King <colin.king@canonical.com> and attempts to be
+ * backwardly compatible with the stress tool by Amos Waterland
+ * <apw@rossby.metr.ou.edu> but has more stress tests and more
+ * functionality.
+ *
+ */
+#include "stress-ng.h"
+
+static const stress_help_t help[] = {
+	{ NULL,	"sigchld N",	 "start N workers that handle SIGCHLD" },
+	{ NULL,	"sigchld-ops N", "stop after N bogo SIGCHLD signals" },
+	{ NULL,	NULL,		 NULL }
+};
+
+static uint64_t counter;
+static uint64_t cld_exited;
+static uint64_t cld_killed;
+static uint64_t cld_stopped;
+static uint64_t cld_continued;
+
+static void MLOCKED_TEXT stress_sigchld_handler(
+	int sig,
+	siginfo_t *info,
+	void *ucontext)
+{
+	(void)ucontext;
+
+	if (sig != SIGCHLD)
+		return;
+
+	switch (info->si_code) {
+	case CLD_EXITED:
+		cld_exited++;
+		break;
+	case CLD_KILLED:
+		cld_killed++;
+		break;
+	case CLD_STOPPED:
+		cld_stopped++;
+		break;
+	case CLD_CONTINUED:
+		cld_continued++;
+		break;
+	default:
+		break;
+	}
+	counter++;
+}
+
+/*
+ *  stress_sigchld
+ *	stress by generating SIGCHLD signals on exiting
+ *	child processes.
+ */
+static int stress_sigchld(const stress_args_t *args)
+{
+	struct sigaction sa;
+
+	counter = 0;
+	cld_exited = 0;
+	cld_killed = 0;
+	cld_stopped = 0;
+	cld_continued = 0;
+
+	(void)memset(&sa, 0, sizeof(sa));
+	sa.sa_sigaction = stress_sigchld_handler;
+	sa.sa_flags = SA_SIGINFO;
+	if (sigaction(SIGCHLD, &sa, NULL) < 0) {
+		pr_err("%s: cannot install SIGCHLD handler, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_FAILURE;
+	}
+
+	do {
+		pid_t pid;
+
+		pid = fork();
+		if (pid < 0) {
+			if ((errno == EAGAIN) || (errno == ENOMEM))
+				continue;
+			pr_fail("%s: fork failed: %d (%s)\n",
+				args->name, errno, strerror(errno));
+			return EXIT_FAILURE;
+		} else if (pid == 0) {
+			/* Child immediately exits */
+			_exit(EXIT_FAILURE);
+		} else {
+			/* Parent wait and reap for child */
+			int wstatus, ret;
+
+			ret = kill(pid, SIGSTOP);
+			if (ret == 0) {
+				ret = kill(pid, SIGCONT);
+				(void)ret;
+			}
+			ret = kill(pid, SIGKILL);
+			(void)ret;
+
+			ret = waitpid(pid, &wstatus, 0);
+			(void)ret;
+		}
+		set_counter(args, counter);
+	} while (keep_stressing());
+
+	pr_dbg("%s: exit: %" PRIu64 ", kill: %" PRIu64
+		", stop: %" PRIu64 ", continue: %" PRIu64 "\n",
+		args->name,
+		cld_exited, cld_killed,
+		cld_stopped, cld_continued);
+
+	return EXIT_SUCCESS;
+}
+
+stressor_info_t stress_sigchld_info = {
+	.stressor = stress_sigchld,
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
+};

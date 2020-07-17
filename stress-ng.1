@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "Jul 13, 2020"
+.TH STRESS-NG 1 "Jul 17, 2020"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3165,6 +3165,14 @@ by calling abort(3).
 .TP
 .B \-\-sigabrt\-ops N
 stop the sigabrt workers after N SIGABRT signals are successfully handled.
+.TP
+.B \-\-sigchld N
+start N workers that create children to generate SIGCHLD signals. This exercises
+children that exit (CLD_EXITED), get killed (CLD_KILLED), get stopped
+(CLD_STOPPED) or continued (CLD_CONTINUED).
+.TP
+.B \-\-sigcld\-ops N
+stop the sigchld workers after N SIGCHLD signals are successfully handled.
 .TP
 .B \-\-sigfd N
 start N workers that generate SIGRT signals and are handled by reads by a child
