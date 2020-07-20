@@ -52,6 +52,8 @@ static int stress_klog(const stress_args_t *args)
 {
 	char *buffer;
 	ssize_t len;
+	const bool klog_capable = stress_check_capability(CAP_SYS_ADMIN) |
+				  stress_check_capability(CAP_SYSLOG);
 
 	len = shim_klogctl(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 	if (len < 0) {
@@ -77,6 +79,7 @@ static int stress_klog(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+
 	do {
 		int ret, buflen = (stress_mwc32() % len) + 1;
 
@@ -99,6 +102,34 @@ static int stress_klog(const stress_args_t *args)
 
 		/* get size of kernel buffer, ignore return */
 		(void)shim_klogctl(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
+
+		/*
+		 *  exercise klog commands that only can be performed with
+		 *  the correct capability without that capability to force
+		 *  -EPERM errors
+		 */
+		if (!klog_capable) {
+			(void)shim_klogctl(SYSLOG_ACTION_CLEAR, NULL, 0);
+			(void)shim_klogctl(SYSLOG_ACTION_READ_CLEAR, buffer, buflen);
+			(void)shim_klogctl(SYSLOG_ACTION_CONSOLE_OFF, NULL, 0);
+			(void)shim_klogctl(SYSLOG_ACTION_CONSOLE_ON, NULL, 0);
+		}
+
+		/* set invalid console levels */
+		(void)shim_klogctl(SYSLOG_ACTION_CONSOLE_LEVEL, NULL, -1);
+		(void)shim_klogctl(SYSLOG_ACTION_CONSOLE_LEVEL, NULL, 0x7ffffff);
+
+		/* invalid command type */
+		(void)shim_klogctl(-1, NULL, 0);
+
+		/* invalid buffer */
+		(void)shim_klogctl(SYSLOG_ACTION_READ_ALL, NULL, buflen);
+
+		/* invalid lengths */
+		(void)shim_klogctl(SYSLOG_ACTION_READ_ALL, buffer, -1);
+
+		/* unusual length */
+		(void)shim_klogctl(SYSLOG_ACTION_READ_ALL, buffer, 0);
 
 		inc_counter(args);
 	} while (keep_stressing());
