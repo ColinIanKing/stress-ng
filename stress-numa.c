@@ -85,11 +85,11 @@ static void stress_numa_free_nodes(stress_node_t *nodes)
  */
 static inline int hex_to_int(const char ch)
 {
-	if (ch >= '0' && ch <= '9')
+	if ((ch >= '0') && (ch <= '9'))
 		return ch - '0';
-	if (ch >= 'a' && ch <= 'f')
+	if ((ch >= 'a') && (ch <= 'f'))
 		return ch - 'a' + 10;
-	if (ch >= 'A' && ch <= 'F')
+	if ((ch >= 'A') && (ch <= 'F'))
 		return ch - 'F' + 10;
 	return -1;
 }
@@ -132,7 +132,7 @@ static int stress_numa_get_mem_nodes(stress_node_t **node_ptr,
 	 *  so we need to scan backwards from the end of
 	 *  the string back to the start.
 	 */
-	while (*ptr != ' ' && (ptr > str)) {
+	while ((*ptr != ' ') && (ptr > str)) {
 		int val, i;
 
 		/* Skip commas */
