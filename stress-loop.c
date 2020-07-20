@@ -73,13 +73,13 @@ static int stress_loop(const stress_args_t *args)
 			args->name, backing_file, errno, strerror(errno));
 		goto tidy;
 	}
+	(void)unlink(backing_file);
 	if (ftruncate(backing_fd, backing_size) < 0) {
 		pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(backing_fd);
 		goto tidy;
 	}
-	(void)unlink(backing_file);
 
 	do {
 		int ctrl_dev, loop_dev;
