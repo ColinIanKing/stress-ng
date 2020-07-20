@@ -510,7 +510,7 @@ static void epoll_server(
 				"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		}
 
-		 /* Exercise epoll_create1 syscall with non-zero flag */
+		/* Exercise epoll_create1 syscall with non-zero flag */
 		efd = epoll_create1(EPOLL_CLOEXEC);
 		if (efd < 0) {
 			pr_fail("%s: epoll_create1 failed, errno=%d (%s)\n",
