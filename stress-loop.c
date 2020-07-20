@@ -36,6 +36,15 @@ static const stress_help_t help[] = {
     defined(LOOP_CLR_FD) && \
     defined(LOOP_CTL_REMOVE)
 
+static const char *loop_attr[] = {
+	"backing_file",
+	"offset",
+	"sizelimit",
+	"autoclear",
+	"partscan",
+	"dio"
+};
+
 /*
  *  stress_loot_supported()
  *      check if we can run this as root
@@ -84,7 +93,7 @@ static int stress_loop(const stress_args_t *args)
 
 	do {
 		int ctrl_dev, loop_dev;
-		int i;
+		size_t i;
 		long dev_num;
 #if defined(LOOP_SET_DIRECT_IO)
 		unsigned long dio;
@@ -148,6 +157,16 @@ static int stress_loop(const stress_args_t *args)
 		ret = ioctl(loop_dev, LOOP_SET_FD, backing_fd);
 		if (ret < 0)
 			goto close_loop;
+
+		for (i = 0; i < SIZEOF_ARRAY(loop_attr); i++) {
+			char attr_path[PATH_MAX];
+			char buf[4096];
+
+			(void)snprintf(attr_path, sizeof(attr_path), "/sys/devices/virtual/block/loop%ld/loop/%s",
+				dev_num, loop_attr[i]);
+			ret = system_read(attr_path, buf, sizeof(buf));
+			(void)ret;
+		}
 
 #if defined(LOOP_GET_STATUS)
 		/*
