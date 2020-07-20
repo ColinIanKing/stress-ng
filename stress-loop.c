@@ -60,6 +60,7 @@ static int stress_loop(const stress_args_t *args)
 	int ret, backing_fd, rc = EXIT_FAILURE;
 	char backing_file[PATH_MAX];
 	size_t backing_size = 2 * MB;
+	const int bad_fd = stress_get_bad_fd();
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -126,6 +127,13 @@ static int stress_loop(const stress_args_t *args)
 		loop_dev = open(dev_name, O_RDWR);
 		if (loop_dev < 0)
 			goto destroy_loop;
+
+		/*
+		 *  Associate loop device with bad backing storage fd
+		 */
+		ret = ioctl(loop_dev, LOOP_SET_FD, bad_fd);
+		if (ret == 0)
+			ioctl(loop_dev, LOOP_CLR_FD, bad_fd);
 
 		/*
 		 *  Associate loop device with backing storage
