@@ -233,6 +233,21 @@ static int stress_loop(const stress_args_t *args)
 		(void)ret;
 #endif
 
+#if defined(LOOP_CHANGE_FD)
+		/*
+		 *  Attempt to change fd using a known illegal
+		 *  fd to force a failure.
+		 */
+		ret = ioctl(loop_dev, LOOP_CHANGE_FD, bad_fd);
+		(void)ret;
+		/*
+		 *  This should fail because backing store is
+		 *  not read-only.
+		 */
+		ret = ioctl(loop_dev, LOOP_CHANGE_FD, backing_fd);
+		(void)ret;
+#endif
+
 #if defined(LOOP_GET_STATUS)
 clr_loop:
 #endif
