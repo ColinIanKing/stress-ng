@@ -482,6 +482,14 @@ static void epoll_server(
 	 */
 #if defined(HAVE_EPOLL_CREATE1)
 	if (stress_mwc1()) {
+		/* Invalid epoll_create1 syscall with invalid flag */
+		efd = epoll_create1(INT_MIN);
+		if (efd >= 0) {
+			(void)close(efd);
+			pr_fail("%s: epoll_create1 unexpectedly succeeded with an invalid flag,"
+				"errno=%d (%s)\n", args->name, errno, strerror(errno));
+		}
+
 		efd = epoll_create1(0);	/* flag version */
 		if (efd < 0) {
 			pr_fail("%s: epoll_create1 failed, errno=%d (%s)\n",
