@@ -490,6 +490,14 @@ static void epoll_server(
 			goto die_close;
 		}
 	} else {
+		/* Invalid epoll_create syscall with invalid size */
+		efd = epoll_create(INT_MIN);
+		if (efd >= 0) {
+			(void)close(efd);
+			pr_fail("%s: epoll_create unexpectedly succeeded with an invalid size,"
+				"errno=%d (%s)\n", args->name, errno, strerror(errno));
+		}
+
 		efd = epoll_create(1);	/* size version */
 		if (efd < 0) {
 			pr_fail("%s: epoll_create failed, errno=%d (%s)\n",
@@ -499,6 +507,14 @@ static void epoll_server(
 		}
 	}
 #else
+	/* Invalid epoll_create syscall with invalid size */
+	efd = epoll_create(INT_MIN);
+	if (efd >= 0) {
+		(void)close(efd);
+		pr_fail("%s: epoll_create unexpectedly succeeded with an invalid size,"
+			"errno=%d (%s)\n", args->name, errno, strerror(errno));
+	}
+
 	efd = epoll_create(1);	/* size version */
 	if (efd < 0) {
 		pr_fail("%s: epoll_create failed, errno=%d (%s)\n",
