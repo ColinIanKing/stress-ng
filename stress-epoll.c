@@ -268,6 +268,18 @@ static int epoll_notification(
 		 *  Exercise kernel, force add on a bad fd, ignore error
 		 */
 		(void)epoll_ctl_add(efd, bad_fd);
+
+		/*
+		 *  Exercise illegal epoll_ctl_add having fd
+		 *  same as efd, resulting in EINVAL error
+		 */
+		if (epoll_ctl_add(efd, efd) == 0) {
+			pr_fail("%s: epoll_ctl_add unexpectedly succeeded with "
+				"invalid arguments, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			(void)close(fd);
+			return -1;
+		}
 	}
 	return 0;
 }
