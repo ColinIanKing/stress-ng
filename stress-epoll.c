@@ -227,11 +227,15 @@ static int epoll_notification(
 	const int sfd)
 {
 	const int bad_fd = stress_get_bad_fd();
+	struct epoll_event event;
+
+	(void)memset(&event, 0, sizeof(event));
 
 	for (;;) {
 		struct sockaddr saddr;
 		socklen_t slen = sizeof(saddr);
 		int fd;
+		struct epoll_event event;
 
 		if (!keep_stressing())
 			return -1;
@@ -268,6 +272,10 @@ static int epoll_notification(
 		 *  Exercise kernel, force add on a bad fd, ignore error
 		 */
 		(void)epoll_ctl_add(efd, bad_fd);
+
+		/* Exercise epoll_ctl syscall with invalid operation */
+		(void)memset(&event, 0, sizeof(event));
+		(void)epoll_ctl(efd, INT_MIN, fd, &event);
 
 		/*
 		 *  Exercise illegal epoll_ctl_add having fd
