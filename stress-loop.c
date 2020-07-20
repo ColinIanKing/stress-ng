@@ -194,6 +194,9 @@ static int stress_loop(const stress_args_t *args)
 		(void)ret;
 #endif
 
+		ret = fsync(backing_fd);
+		(void)backing_fd;
+
 #if defined(LOOP_SET_BLOCK_SIZE)
 		/*
 		 *  Set block size, ignore error return.  This will
