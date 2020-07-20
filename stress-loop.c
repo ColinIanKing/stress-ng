@@ -114,11 +114,18 @@ static int stress_loop(const stress_args_t *args)
 		}
 
 		/*
-		 *  Attempt to get a free loop device
+		 *  Try for a random loop number first...
 		 */
-		dev_num = ioctl(ctrl_dev, LOOP_CTL_GET_FREE);
-		if (dev_num < 0)
-			goto next;
+		dev_num = stress_mwc1() ? -1 :
+				ioctl(ctrl_dev, LOOP_CTL_ADD, stress_mwc16() + 1024);
+		if (dev_num < 0) {
+			/*
+			 *  then attempt to get a free loop device
+			 */
+			dev_num = ioctl(ctrl_dev, LOOP_CTL_GET_FREE);
+			if (dev_num < 0)
+				goto next;
+		}
 
 		/*
 		 *  Open new loop device
