@@ -32,15 +32,20 @@ static const stress_help_t help[] = {
 
 #if defined(__linux__)
 
-static const int modes[] = {
+typedef struct {
+	const mode_t	mode;
+	const char 	*mode_str;
+} stress_mknod_modes_t;
+
+static const stress_mknod_modes_t modes[] = {
 #if defined(S_IFIFO)
-	S_IFIFO,	/* FIFO */
+	{ S_IFIFO,	"S_IFIFO" },	/* FIFO */
 #endif
 #if defined(S_IFREG)
-	S_IFREG,	/* Regular file */
+	{ S_IFREG,	"S_IFREG" },	/* Regular file */
 #endif
 #if defined(S_IFSOCK)
-	S_IFSOCK	/* named socket */
+	{ S_IFSOCK,	"S_IFSOCK" },	/* named socket */
 #endif
 };
 
@@ -65,6 +70,96 @@ static void stress_mknod_tidy(
 }
 
 /*
+ *  stress_mknod_find_dev()
+ *	find the first device that matches the mode flag so that
+ *	the dev major/minor can be copied when creating a special
+ *	device file. This is instead of randomly guessing a wrong
+ *	device dev number.
+ */
+static int stress_mknod_find_dev(mode_t mode, dev_t *dev)
+{
+	DIR *dir;
+	struct dirent *d;
+	int rc = -1;
+
+	(void)memset(dev, 0, sizeof(*dev));
+
+	dir = opendir("/dev");
+	if (!dir)
+		return -1;
+
+	while ((d = readdir(dir)) != NULL) {
+		char path[PATH_MAX];
+		struct stat statbuf;
+
+		(void)snprintf(path, sizeof(path), "/dev/%s", d->d_name);
+		if (stat(path, &statbuf) < 0)
+			continue;
+
+		/* A match, cope it */
+		if ((statbuf.st_mode & S_IFMT) == mode) {
+			printf("PATH %s %x %x\n", path, mode, statbuf.st_mode);
+			(void)memcpy(dev, &statbuf.st_dev, sizeof(*dev));
+			rc = 0;
+			break;
+		}
+	}
+
+	(void)closedir(dir);
+	return rc;
+}
+
+/*
+ *  stress_mknod_check_errno()
+ * 	silently ignore errno numbers that are resource related
+ *	and not the fault of the underlying mknod for failing.
+ */
+static int stress_mknod_check_errno(
+	const stress_args_t *args,
+	const char *mode_str,
+	const char *path,
+	const int err)
+{
+	switch (err) {
+	case EDQUOT:
+	case ENOMEM:
+	case ENOSPC:
+	case EPERM:
+	case EROFS:
+		/* Don't care about these */
+		return 0;
+	default:
+		/* An error occurred that is worth reporting */
+		pr_fail("%s: mknod %s on %s failed: errno=%d (%s)\n",
+			args->name, mode_str, path, errno, strerror(errno));
+		break;
+	}
+	return -1;
+}
+
+/*
+ *  stress_mknod_test_dev()
+ *	test char or block mknod special nodes
+ */
+static void stress_mknod_test_dev(
+	const stress_args_t *args,
+	const mode_t mode,
+	const char *mode_str,
+	dev_t dev)
+{
+	char path[PATH_MAX];
+	int ret;
+
+	(void)stress_temp_filename_args(args, path, sizeof(path), stress_mwc32());
+
+	ret = mknod(path, mode, dev);
+	if (ret < 0)
+		(void)stress_mknod_check_errno(args, mode_str, path, errno);
+
+	(void)unlink(path);
+}
+
+/*
  *  stress_mknod
  *	stress mknod creates
  */
@@ -72,12 +167,18 @@ static int stress_mknod(const stress_args_t *args)
 {
 	const size_t num_nodes = SIZEOF_ARRAY(modes);
 	int ret;
+	dev_t chr_dev, blk_dev;
+	int chr_dev_ret, blk_dev_ret;
 
 	if (num_nodes == 0) {
 		pr_err("%s: aborting, no valid mknod modes.\n",
 			args->name);
 		return EXIT_FAILURE;
 	}
+
+	chr_dev_ret = stress_mknod_find_dev(S_IFCHR, &chr_dev);
+	blk_dev_ret = stress_mknod_find_dev(S_IFBLK, &blk_dev);
+
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
@@ -85,34 +186,36 @@ static int stress_mknod(const stress_args_t *args)
 	do {
 		uint64_t i, n = DEFAULT_DIRS;
 
+		if (chr_dev_ret == 0)
+			stress_mknod_test_dev(args, S_IFCHR, "S_IFCHR", chr_dev);
+		if (blk_dev_ret == 0)
+			stress_mknod_test_dev(args, S_IFBLK, "S_IFBLK", blk_dev);
+
 		for (i = 0; i < n; i++) {
 			char path[PATH_MAX];
 			const uint64_t gray_code = (i >> 1) ^ i;
-			int mode = modes[stress_mwc32() % num_nodes];
+			int mode = modes[stress_mwc32() % num_nodes].mode;
 
 			(void)stress_temp_filename_args(args,
 				path, sizeof(path), gray_code);
 			if (mknod(path, mode | S_IRUSR | S_IWUSR, 0) < 0) {
-				if ((errno == ENOSPC) || (errno == ENOMEM))
+				if (stress_mknod_check_errno(args, modes[i].mode_str, path, errno) < 0)
 					continue;	/* Try again */
-				pr_fail("%s: mknod %s failed, errno=%d (%s)\n",
-					args->name, path, errno, strerror(errno));
-				n = i;
 				break;
 			}
 
 			if (!keep_stressing())
-				goto abort;
+				break;
 
 			inc_counter(args);
 		}
-		stress_mknod_tidy(args, n);
+
+		stress_mknod_tidy(args, i);
 		if (!keep_stressing_flag())
 			break;
 		(void)sync();
 	} while (keep_stressing());
 
-abort:
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu32 " nodes\n", args->name, DEFAULT_DIRS);
 	stress_mknod_tidy(args, DEFAULT_DIRS);
