@@ -297,19 +297,18 @@ static int epoll_notification(
 			return -1;
 		}
 
-        /*
-         *  Exercised illegal epoll_ctl_add by adding
-         *  fd which is already registered with efd
-         *  resulting in EEXIST error
-         */
+		/*
+		 *  Exercised illegal epoll_ctl_add by adding
+		 *  fd which is already registered with efd
+		 *  resulting in EEXIST error
+		 */
 		if (epoll_ctl_add(efd, fd) == 0) {
 			pr_fail("%s: epoll_ctl_add unexpectedly succeeded "
-					"with fd already registered, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				(void)close(fd);
-				return -1;
+				"with fd already registered, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			(void)close(fd);
+			return -1;
 		}
-
 	}
 	return 0;
 }
