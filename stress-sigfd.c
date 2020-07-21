@@ -42,6 +42,7 @@ static int stress_sigfd(const stress_args_t *args)
 {
 	pid_t pid, ppid = args->pid;
 	int sfd;
+	const int bad_fd = stress_get_bad_fd();
 	sigset_t mask;
 
 	(void)sigemptyset(&mask);
@@ -51,12 +52,27 @@ static int stress_sigfd(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
+
+	/*
+	 *  Exercise with a bad fd
+	 */
+	sfd = signalfd(bad_fd, &mask, 0);
+	if (sfd >= 0)
+		(void)close(sfd);
+	/*
+	 *  Exercise with bad flags
+	 */
+	sfd = signalfd(-1, &mask, ~0);
+	if (sfd >= 0)
+		(void)close(sfd);
+
 	sfd = signalfd(-1, &mask, 0);
 	if (sfd < 0) {
 		pr_fail("%s: signalfd failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
+
 
 again:
 	pid = fork();
