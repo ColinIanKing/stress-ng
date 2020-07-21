@@ -53,7 +53,7 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 			break;
 
 		if ((tz_info = calloc(1, sizeof(*tz_info))) == NULL) {
-			pr_err("Cannot allocate thermal information\n");
+			pr_err("cannot allocate thermal information\n");
 			(void)closedir(dir);
 			return -1;
 		}
