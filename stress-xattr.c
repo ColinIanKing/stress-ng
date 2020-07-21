@@ -82,6 +82,8 @@ static int stress_xattr(const stress_args_t *args)
 					pr_inf("%s stressor will be "
 						"skipped, filesystem does not "
 						"support xattr.\n", args->name);
+					rc = EXIT_NO_RESOURCE;
+					goto out_close;
 				}
 				if (errno == ENOSPC || errno == EDQUOT)
 					break;
