@@ -262,6 +262,14 @@ static int epoll_notification(
 			(void)close(fd);
 			return -1;
 		}
+
+		/*
+		 *  Exercise invalid epoll_ctl syscall with
+		 *  EPOLL_CTL_DEL on fd not registered with efd
+		 */
+		(void)memset(&event, 0, sizeof(event));
+		(void)epoll_ctl(efd, EPOLL_CTL_DEL, fd, &event);
+
 		if (epoll_ctl_add(efd, fd) < 0) {
 			pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -276,13 +284,6 @@ static int epoll_notification(
 		/* Exercise epoll_ctl syscall with invalid operation */
 		(void)memset(&event, 0, sizeof(event));
 		(void)epoll_ctl(efd, INT_MIN, fd, &event);
-
-		/*
-		 *  Exercise invalid epoll_ctl syscall with
-		 *  EPOLL_CTL_DEL on fd not registered with efd
-		 */
-		(void)memset(&event, 0, sizeof(event));
-		(void)epoll_ctl(efd, EPOLL_CTL_DEL, fd, &event);
 
 		/*
 		 *  Exercise illegal epoll_ctl_add having fd
