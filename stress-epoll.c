@@ -264,11 +264,12 @@ static int epoll_notification(
 		}
 
 		/*
-		 *  Exercise invalid epoll_ctl syscall with
-		 *  EPOLL_CTL_DEL on fd not registered with efd
+		 *  Exercise invalid epoll_ctl syscall with EPOLL_CTL_DEL
+		 *  and EPOLL_CTL_MOD on fd not registered with efd
 		 */
 		(void)memset(&event, 0, sizeof(event));
 		(void)epoll_ctl(efd, EPOLL_CTL_DEL, fd, &event);
+		(void)epoll_ctl(efd, EPOLL_CTL_MOD, fd, &event);
 
 		if (epoll_ctl_add(efd, fd) < 0) {
 			pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
