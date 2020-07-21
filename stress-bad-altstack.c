@@ -31,6 +31,12 @@ static const stress_help_t help[] =
 	{ NULL, NULL,			NULL }
 };
 
+#if defined(HAVE_SYS_AUXV_H) && \
+    defined(HAVE_GETAUXVAL) && \
+    defined(AT_SYSINFO_EHDR)
+#define HAVE_VDSO_VIA_GETAUXVAL	(1)
+#endif
+
 #if defined(HAVE_SIGALTSTACK)
 
 static void *stack;
@@ -72,7 +78,7 @@ static void MLOCKED_TEXT stress_segv_handler(int signum)
 static int stress_bad_altstack(const stress_args_t *args)
 {
 	stress_set_oom_adjustment(args->name, true);
-#if defined(AT_SYSINFO_EHDR)
+#if defined(HAVE_VDSO_VIA_GETAUXVAL)
 	const void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
 #endif
 
@@ -210,7 +216,7 @@ again:
 				stress_bad_altstack_force_fault(NULL);
 				CASE_FALLTHROUGH;
 			case 7:
-#if defined(AT_SYSINFO_EHDR)
+#if defined(HAVE_VDSO_VIA_GETAUXVAL)
 				/* Illegal stack on VDSO, otherwises NULL stack */
 				ret = stress_sigaltstack(vdso, SIGSTKSZ);
 				if (ret == 0)
