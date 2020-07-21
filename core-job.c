@@ -34,7 +34,7 @@
  *  stress_chop()
  *	chop off end of line that matches char ch
  */
-static void stress_chop(char *str, const char ch)
+static inline void stress_chop(char *str, const char ch)
 {
 	char *ptr = strchr(str, ch);
 
