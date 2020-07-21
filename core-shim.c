@@ -46,9 +46,15 @@ static inline void *shim_unconstify_ptr(const void *ptr)
  *  kernels or versions of different C libraries.
  */
 
-static inline int shim_enosys(long arg1, ...)
+/*
+ *  shim_enosys()
+ *	simulate unimplemented system call. Ignores
+ *	the sysnr argument and all following 1..N syscall
+ *	arguements.  Returns -1 and sets errno to ENOSYS
+ */
+static inline int shim_enosys(long sysnr, ...)
 {
-	(void)arg1;
+	(void)sysnr;
 	errno = ENOSYS;
 	return -1;
 }
