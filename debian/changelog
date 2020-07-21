@@ -1,3 +1,129 @@
+stress-ng (0.11.16-1) unstable; urgency=medium
+
+  [Piyush Goyal]
+  * stress-epoll: Exercise epoll_ctl syscall with EPOLL_CTL_MOD on fd
+    not registered
+  * stress-epoll: Exercise invalid epoll_ctl_add by adding already
+    registered fd
+  * stress-epoll: Reorder invalid epoll_ctl syscall with EPOLL_CTL_DEL
+    operation
+  * stress-epoll: Exercise epoll_ctl syscall with EPOLL_CTL_DEL on fd not
+    registered
+  * stress-epoll: Exercise epoll_ctl syscall with Invalid Operation
+  * stress-epoll: Exercise epoll_create1 syscall with valid non-zero
+    flags argument
+  * stress-epoll: Exercise invalid epoll_ctl syscall with same fd and epfd
+  * stress-epoll: Exercise epoll_create1 syscall with invalid flags
+    argument
+  * stress-epoll: Exercise epoll_create syscall with invalid size argument
+  * stress-clock: Ensure clock_settime cannot proceed without privilege
+  * stress-set: Added test checking settimeofday syscall cannot proceed
+    without privileges
+  * stress-numa: Exercise getcpu syscall with a non-null pointer to tcache
+    argument
+  * stress-dup: Exercise dup3 syscall with same oldfd and newfd
+  * stress-dup: Added test exercising invalid dup3 syscall with closed fd
+  * stress-dup: Added test exercising invalid dup3 syscall with invalid
+    flag
+  * stress-clock: Added test exercising clock_settime syscall with negative
+    time
+  * stress-clock: Added test exercising clock_settime syscall having an
+    illegal clockid
+  * stress-clock: Added test exercising clock_gettime syscall having an
+    illegal clockid
+  * stress-clock: Added test exercising clock_getres syscall having an
+    illegal clockid
+  * stress-pidfd: exercise pidfd_send_signal syscall by passing a pointer
+    to info argument
+  * stress-pidfd: Added tests exercising pidfd_open syscall with negative
+    pid argument
+  * stress-pidfd: Added tests exercising pidfd_send_signal syscall with
+    illegal flags argument
+  * stress-pidfd: Added tests exercising pidfd_open syscall with illegal
+    flags argument
+  * syscalls.txt: Removing the extra occurrence of getcwd
+  * stress-get: Added Tests exercising getpriority calls having non-zero
+    who argument
+
+  [Colin Ian King ]
+  * Makefile: bump version
+  * stress-bad-altstack: add check for getauxval
+  * stress-sigchld: only set SA_SIGINFO if it is available
+  * stress-xattr: terminate with EXIT_NO_RESOURCE if system call not
+    supported
+  * stress-xattr: skip test if ENOSYS is detected
+  * stress-mknod: remove debug message
+  * stress-epoll: clean up some indentation
+  * stress-sigfd: exercise with an invalid non-signal fd file descriptor
+  * stress-sigfd: exercise signalfd with invalid fd and flags
+  * stress-loop: add LOOP_CONFIGURE ioctl
+  * stress-bsearch: add in missing empty line between declaration and
+    statement
+  * core-time: add ( ) to keep to the informal stress-ng coding style
+  * core-thermal-zone: uncapitalize error message
+  * core-shim: add comments for enosys wrapper
+  * core-perf: constify some read-only structure fields
+  * core-mlock: constify m_addr_start as it never changes
+  * core-mincore: make uintptr const as it never changes
+  * core-limit: remove blank line
+  * core-job: make stress_chop an inlined helper function
+  * stress-dccp: constify opt field in stress_dccp_opts_t
+  * stress-dev: remove duplicated comment
+  * stress-klog: use SHIM_* for CAP_SYS settings
+  * stress-numa: add some ( ) according to the informal coding style
+  * stress-klog: exercise more klogctl commands to improve kernel coverage
+  * stress-mknod: exercise char and block device mknod calls
+  * stress-epoll: remove extraneous space before a comment
+  * stress-loop: exercise loop /sys/devices/virtual/block/loopX/loop/*
+    attributes
+  * stress-loop: exercise LOOP_CHANGE_FD with invalid fd
+  * stress-loop: exercise LOOP_CTL_ADD
+  * stress-loop: try to associate loop with a file backing with invalid fd
+  * stress-loop: fsync on loop backed device
+  * stress-loop: unlink backing file as soon as possible
+  * stress-sysinfo: only define bad_fd when it is required
+  * stress-nanosleep: remove unused opt_set_funcs
+  * stress-dup: don't make do_dup3 conditional on HAVE_DUP3
+  * stress-sigchld: add new stressor that exercises SIGCHLD handling
+  * stress-chattr: handle EOPNOTSUPP failures
+  * stress-clock: cache the capability setting and move test
+  * stress-set: rework error message to provide some extra info
+  * stress-set: move tv to local scope to fix any build warnings
+  * stress-ng.h: redefine SHIM_CAP_IS_ROOT to -1
+  * use SHIM_CAP_IS_ROOT instead of 0 for root capability checks
+  * stress-ng.h: Add a SHIM_CAP_IS_ROOT shim capability
+  * stress-ng.h: Update to the current full list of capabilities
+  * stress-skiplist: remove debug helper function
+  * core-shim: perform syscall if libc does not provide call but __NR_* is
+    available
+  * stress-dup: remove need for HAVE_DUP3 since this is handled in shim
+  * core-shim: add syscall to dup3 if HAVE_DUP3 is not available
+  * core-log: fix corrupted log when using --log-file and --log-brief
+    options
+  * stress-mmapaddr: exercise MAP_FIXED_NOREPLACE flag
+  * stress-poll: else if statement braces
+  * stress-pipeherd: fix typo on child pid comparison
+  * rename stress_proc_stats_t to stress_stats
+  * stress-ng: rename proc to stressor
+  * rename num_procs to num_instances
+  * stress-ng: rework the stressor startup loops
+  * stress-nanosleep: drop number of pthreads to 8
+  * stress-bad-altstack: add VDSO as a target for the stack, add comments
+    too
+  * stress-pipeherd: fix where empty line is located
+  * syscalls.txt: update nanosleep syscall
+  * stress-nanosleep: add new nanosleep stressor
+  * stress-sysinfo: exercise system calls with invalid path and fd
+  * exercise kernel a little more to improve kernel coverage
+  * stress-nice: ensure setpriority is called only if we have this system
+    call
+  * stress-kcmp: exercise some invalid kcmp calls
+  * stress-dev: refactorization: use stress_hash_pjw
+  * stress-personality: exercise invalid personalities
+  * snap: remove deprecated version-script from snapcraft
+
+ -- Colin King <colin.king@canonical.com>  Tue, 21 Jul 2020 19:32:11 +0100
+
 stress-ng (0.11.15-1) unstable; urgency=medium
 
   [bybug]
