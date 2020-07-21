@@ -36,6 +36,37 @@ static const stress_help_t help[] = {
     defined(LOOP_CLR_FD) && \
     defined(LOOP_CTL_REMOVE)
 
+#if !defined(LOOP_CONFIGURE)
+#define LOOP_CONFIGURE	(0x4C0A)
+#endif
+
+/*
+ *  See include/uapi/linux/loop.h
+ */
+struct shim_loop_info64 {
+        uint64_t	lo_device;
+        uint64_t	lo_inode;
+        uint64_t	lo_rdevice;
+        uint64_t	lo_offset;
+        uint64_t	lo_sizelimit;
+        uint32_t	lo_number;
+        uint32_t	lo_encrypt_type;
+        uint32_t	lo_encrypt_key_size;
+        uint32_t	lo_flags;
+        uint8_t		lo_file_name[LO_NAME_SIZE];
+        uint8_t		lo_crypt_name[LO_NAME_SIZE];
+        uint8_t		lo_encrypt_key[LO_KEY_SIZE];
+        uint64_t	lo_init[2];
+};
+
+struct shim_loop_config {
+        uint32_t		fd;
+        uint32_t		block_size;
+        struct loop_info64      info;
+        uint64_t 		__reserved[8];
+};
+
+
 static const char *loop_attr[] = {
 	"backing_file",
 	"offset",
@@ -265,6 +296,26 @@ static int stress_loop(const stress_args_t *args)
 		 */
 		ret = ioctl(loop_dev, LOOP_CHANGE_FD, backing_fd);
 		(void)ret;
+#endif
+
+#if defined(LOOP_CONFIGURE)
+		{
+			struct shim_loop_config config;
+			/*
+			 *  Attempt to configure with illegal fd
+			 */
+			(void)memset(&config, 0, sizeof(config));
+			config.fd = bad_fd;
+
+			ret = ioctl(loop_dev, LOOP_CONFIGURE, &config);
+			(void)ret;
+
+			/*
+			 *  Attempt to configure with NULL config
+			 */
+			ret = ioctl(loop_dev, LOOP_CONFIGURE, NULL);
+			(void)ret;
+		}
 #endif
 
 #if defined(LOOP_GET_STATUS)
