@@ -42,10 +42,10 @@
 
 /* used for table of perf events to gather */
 typedef struct {
-	unsigned long type;		/* perf types */
-	unsigned long config;		/* perf type specific config */
-	char *path;			/* perf trace point path (only for trace points) */
-	char *label;			/* human readable name for perf type */
+	const unsigned long type;	/* perf types */
+	unsigned long config;	/* perf type specific config */
+	const char *path;		/* perf trace point path (only for trace points) */
+	const char *label;		/* human readable name for perf type */
 } stress_perf_info_t;
 
 /* perf data */
@@ -56,9 +56,9 @@ typedef struct {
 } stress_perf_data_t;
 
 typedef struct {
-	double		threshold;
-	double		scale;
-	char 		*suffix;
+	const double	threshold;
+	const double	scale;
+	const char 	*suffix;
 } stress_perf_scale_t;
 
 /* Tracepoint */
@@ -561,7 +561,7 @@ bool stress_perf_stat_succeeded(const stress_perf_t *sp)
 static const char *stress_perf_stat_scale(const uint64_t counter, const double duration)
 {
 	static char buffer[40];
-	char *suffix = "E/sec";
+	const char *suffix = "E/sec";
 	double scale = QUINTILLION;
 	size_t i;
 
