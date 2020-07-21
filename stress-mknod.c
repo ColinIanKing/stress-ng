@@ -98,7 +98,6 @@ static int stress_mknod_find_dev(mode_t mode, dev_t *dev)
 
 		/* A match, cope it */
 		if ((statbuf.st_mode & S_IFMT) == mode) {
-			printf("PATH %s %x %x\n", path, mode, statbuf.st_mode);
 			(void)memcpy(dev, &statbuf.st_dev, sizeof(*dev));
 			rc = 0;
 			break;
