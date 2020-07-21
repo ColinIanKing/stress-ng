@@ -115,6 +115,7 @@ static int stress_bsearch(const stress_args_t *args)
 	do {
 		for (ptr = data, i = 0; i < n; i++, ptr++) {
 			int32_t *result;
+
 			result = bsearch(ptr, data, n, sizeof(*ptr), cmp);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
