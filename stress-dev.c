@@ -373,8 +373,6 @@ static void stress_dev_tty(
 #endif
 
 	/* Modem */
-
-	/* Modem */
 #if defined(TIOCGSOFTCAR)
 	{
 		int flag;
