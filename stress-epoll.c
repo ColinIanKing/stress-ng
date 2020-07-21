@@ -278,6 +278,13 @@ static int epoll_notification(
 		(void)epoll_ctl(efd, INT_MIN, fd, &event);
 
 		/*
+		 *  Exercise invalid epoll_ctl syscall with
+		 *  EPOLL_CTL_DEL on fd not registered with efd
+		 */
+		(void)memset(&event, 0, sizeof(event));
+		(void)epoll_ctl(efd, EPOLL_CTL_DEL, fd, &event);
+
+		/*
 		 *  Exercise illegal epoll_ctl_add having fd
 		 *  same as efd, resulting in EINVAL error
 		 */
