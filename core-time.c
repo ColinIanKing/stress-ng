@@ -67,7 +67,7 @@ static inline void stress_format_time(
 {
 	const unsigned long val = (unsigned long)(*duration / secs_in_units);
 
-	if (last || val > 0) {
+	if (last || (val > 0)) {
 		int ret;
 
 		if (last)
