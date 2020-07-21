@@ -32,7 +32,7 @@
 
 typedef struct {
 	const char *optname;
-	int	   opt;
+	const int   opt;
 } stress_dccp_opts_t;
 
 static const stress_help_t help[] = {
