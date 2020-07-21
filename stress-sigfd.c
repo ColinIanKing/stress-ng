@@ -65,6 +65,12 @@ static int stress_sigfd(const stress_args_t *args)
 	sfd = signalfd(-1, &mask, ~0);
 	if (sfd >= 0)
 		(void)close(sfd);
+	/*
+	 *  Exercise with invalid fd (stdout)
+	 */
+	sfd = signalfd(fileno(stdout), &mask, 0);
+	if (sfd >= 0)
+		(void)close(sfd);
 
 	sfd = signalfd(-1, &mask, 0);
 	if (sfd < 0) {
