@@ -82,7 +82,9 @@ static int stress_sigchld(const stress_args_t *args)
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.sa_sigaction = stress_sigchld_handler;
+#if defined(SA_SIGINFO)
 	sa.sa_flags = SA_SIGINFO;
+#endif
 	if (sigaction(SIGCHLD, &sa, NULL) < 0) {
 		pr_err("%s: cannot install SIGCHLD handler, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
