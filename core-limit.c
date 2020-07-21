@@ -102,6 +102,5 @@ void stress_set_max_limits(void)
 		}
 	}
 #endif
-
 }
 
