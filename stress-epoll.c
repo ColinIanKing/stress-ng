@@ -616,6 +616,10 @@ static void epoll_server(
 			n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
 		} else {
 			n = epoll_pwait(efd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
+
+			/* Invalid epoll_pwait syscall having invalid maxevents argument */
+			(void)epoll_pwait(efd, events, INT_MIN, 100, &sigmask);
+
 		}
 		if (n < 0) {
 			if (errno != EINTR) {
