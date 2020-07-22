@@ -614,6 +614,10 @@ static void epoll_server(
 		 */
 		if (stress_mwc1()) {
 			n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
+
+			/* Invalid epoll_wait syscall having invalid maxevents argument */
+			(void)epoll_wait(efd, events, INT_MIN, 100);
+
 		} else {
 			n = epoll_pwait(efd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
 
