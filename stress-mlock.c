@@ -107,6 +107,14 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 			if (mappings[n] == MAP_FAILED)
 				break;
+
+#if defined(HAVE_MLOCK2)
+
+		/* Invalid mlock2 syscall with invalid flags and ignoring failure*/
+		(void)shim_mlock2((void *)(mappings[n] + page_size), page_size, ~0);
+
+#endif
+
 			/*
 			 *  Attempt a bogus mlock, ignore failure
 			 */
