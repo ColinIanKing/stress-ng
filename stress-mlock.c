@@ -205,6 +205,8 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	/* Exercising Invalid mlockall syscall and ignoring failure */
 	(void)shim_mlockall(MCL_ONFAULT);
 #endif
+		/* Exercise Invalid mlockall syscall with invalid flag */
+		(void)shim_mlockall(~0);
 #endif
 		if (flag)
 			(void)shim_mlockall(flag);
