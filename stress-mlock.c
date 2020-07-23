@@ -84,7 +84,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	size_t i, n;
 	uint8_t **mappings;
 	const size_t page_size = args->page_size;
-	size_t max = sysconf(_SC_MAPPED_FILES);
+	size_t max = sysconf(_SC_MEMLOCK );
 	max = max > MLOCK_MAX ? MLOCK_MAX : max;
 
 	(void)context;
