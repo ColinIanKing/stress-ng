@@ -79,13 +79,39 @@ static inline int do_mlock(const void *addr, size_t len)
 }
 #endif
 
+/*
+ *  stress_mlock_max_lockable()
+ *	find maximum mlockable region size
+ */
+static size_t stress_mlock_max_lockable(void)
+{
+	size_t sysconf_max = 0;
+	size_t rlimit_max = 0;
+	size_t max = MLOCK_MAX;
+
+#if defined(_SC_MEMLOCK)
+	sysconf_max = sysconf(_SC_MEMLOCK);
+#endif
+#if defined(RLIMIT_MEMLOCK)
+	{
+		struct rlimit rlim;
+
+		if (getrlimit(RLIMIT_MEMLOCK, &rlim) == 0)
+			rlimit_max = (size_t)rlim.rlim_max;
+	}
+#endif
+	max = STRESS_MAXIMUM(max, sysconf_max);
+	max = STRESS_MAXIMUM(max, rlimit_max);
+
+	return max;
+}
+
 static int stress_mlock_child(const stress_args_t *args, void *context)
 {
 	size_t i, n;
 	uint8_t **mappings;
 	const size_t page_size = args->page_size;
-	size_t max = sysconf(_SC_MEMLOCK );
-	max = max > MLOCK_MAX ? MLOCK_MAX : max;
+	const size_t max = stress_mlock_max_lockable();
 
 	(void)context;
 
