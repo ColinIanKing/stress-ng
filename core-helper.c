@@ -1097,9 +1097,34 @@ uint64_t stress_get_prime64(const uint64_t n)
 }
 
 /*
+ *  stress_get_max_file_limit()
+ *	get max number of files that the current
+ *	process can open not counting the files that
+ *	may already been opened.
+ */
+size_t stress_get_max_file_limit(void)
+{
+	struct rlimit rlim;
+	size_t max_rlim = ~0;
+	size_t max_sysconf = ~0;
+
+#if defined(RLIMIT_NOFILE)
+	if (!getrlimit(RLIMIT_NOFILE, &rlim))
+		max_rlim = (size_t)rlim.rlim_cur;
+#endif
+#if defined(_SC_OPEN_MAX)
+	max_sysconf = (size_t)sysconf(_SC_OPEN_MAX);
+#endif
+	printf("%zd %zd %zd\n", max_rlim, max_sysconf, STRESS_MINIMUM(max_rlim, max_sysconf));
+	/* return the lowest of these two */
+	return STRESS_MINIMUM(max_rlim, max_sysconf);
+}
+
+/*
  *  stress_get_file_limit()
  *	get max number of files that the current
- *	process can open;
+ *	process can open exluding currently opened
+ *	files.
  */
 size_t stress_get_file_limit(void)
 {
