@@ -1115,7 +1115,6 @@ size_t stress_get_max_file_limit(void)
 #if defined(_SC_OPEN_MAX)
 	max_sysconf = (size_t)sysconf(_SC_OPEN_MAX);
 #endif
-	printf("%zd %zd %zd\n", max_rlim, max_sysconf, STRESS_MINIMUM(max_rlim, max_sysconf));
 	/* return the lowest of these two */
 	return STRESS_MINIMUM(max_rlim, max_sysconf);
 }
