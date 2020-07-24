@@ -102,6 +102,14 @@ static int open_tmp_rdwr(void)
 }
 #endif
 
+#if defined(O_TMPFILE)
+static int open_tmpfile_no_rdwr(void)
+{
+	/* Force -EINVAL, need O_WRONLY or O_RDWR to succeed */
+	return open("/tmp", O_TMPFILE, S_IRUSR | S_IWUSR);
+}
+#endif
+
 #if defined(HAVE_POSIX_OPENPT) && defined(O_RDWR) && defined(N_NOCTTY)
 static int open_pt(void)
 {
@@ -130,6 +138,12 @@ static int open_path(void)
 }
 #endif
 
+#if defined(O_CREAT)
+static int open_create_eisdir(void)
+{
+	return open(".", O_CREAT, S_IRUSR | S_IWUSR);
+}
+#endif
 
 static stress_open_func_t open_funcs[] = {
 	open_dev_zero_rd,
@@ -140,6 +154,9 @@ static stress_open_func_t open_funcs[] = {
 #if defined(O_TMPFILE) && defined(O_EXCL)
 	open_tmp_rdwr_excl,
 #endif
+#if defined(O_TMPFILE)
+	open_tmpfile_no_rdwr,
+#endif
 #if defined(O_DIRECTORY)
 	open_dir,
 #endif
@@ -147,7 +164,10 @@ static stress_open_func_t open_funcs[] = {
 	open_path,
 #endif
 #if defined(HAVE_POSIX_OPENPT) && defined(O_RDWR) && defined(N_NOCTTY)
-	open_pt
+	open_pt,
+#endif
+#if defined(O_CREAT)
+	open_create_eisdir,
 #endif
 };
 
