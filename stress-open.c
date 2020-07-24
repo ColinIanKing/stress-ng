@@ -167,18 +167,27 @@ static int stress_open(const stress_args_t *args)
 		size_t i, n;
 
 		for (i = 0; i < max_fd; i++) {
-			int idx = stress_mwc32() % SIZEOF_ARRAY(open_funcs);
+			for (;;) {
+				int idx;
 
-			fds[i] = open_funcs[idx]();
+				if (!keep_stressing())
+					goto close_all;
 
-			/* Keep on opening until we hit the open file limit */
-			if ((fds[i] < 0) &&
-			    ((errno == EMFILE) || (errno == ENFILE)))
-				break;
-			if (!keep_stressing())
-				break;
+				idx = stress_mwc32() % SIZEOF_ARRAY(open_funcs);
+				fds[i] = open_funcs[idx]();
+
+				if (fds[i] >= 0)
+					break;
+
+				/* Check if we hit the open file limit */
+				if ((errno == EMFILE) || (errno == ENFILE))
+					goto close_all;
+
+				/* Other error occurred, retry */
+			}
 			inc_counter(args);
 		}
+close_all:
 		n = i;
 
 		for (i = 0; i < n; i++) {
