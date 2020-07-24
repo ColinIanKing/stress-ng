@@ -134,9 +134,29 @@ redo: 			errno = 0;
 				if (addr == prev_addr)
 					addr = (uint8_t *)((ptrdiff_t)(stress_mwc64() & mask));
 				prev_addr = addr;
-			}
-			else
+			} else {
 				addr += page_size;
+			}
+
+			/*
+			 *  Exercise with zero length, ignore return
+			 */
+			(void)shim_mincore((void *)addr, 0, vec);
+
+			/*
+			 *  Exercise with NULL vec, ignore return
+			 */
+			(void)shim_mincore((void *)addr, page_size, NULL);
+
+			/*
+			 *  Exercise with NULL address
+			 */
+			(void)shim_mincore(NULL, page_size, vec);
+
+			/*
+			 *  Exercise with zero arguments
+			 */
+			(void)shim_mincore(NULL, 0, NULL);
 		}
 		inc_counter(args);
 	} while (keep_stressing());
