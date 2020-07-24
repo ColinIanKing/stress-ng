@@ -254,11 +254,11 @@ static int stress_numa(const stress_args_t *args)
 		(void)memset(&cache, 0, sizeof(cache));
 
 		/*
-		* tcache argument is unused in getcpu currently.
-		* Exercise getcpu syscall with non-null tcache
-		* pointer to ensure kernel doesn't break even
-		* when this argument is used in future.
-		*/
+		 * tcache argument is unused in getcpu currently.
+		 * Exercise getcpu syscall with non-null tcache
+		 * pointer to ensure kernel doesn't break even
+		 * when this argument is used in future.
+		 */
 		(void)shim_getcpu(&cpu, &curr_node, &cache);
 
 		/*
