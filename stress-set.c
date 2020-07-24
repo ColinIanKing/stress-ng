@@ -237,8 +237,10 @@ static int stress_set(const stress_args_t *args)
 			if (rlimits[i].ret == 0) {
 				/* Bogus setrlimit syscall with invalid rlim attribute */
 				rlim.rlim_cur = rlimits[i].rlim.rlim_cur;
-				rlim.rlim_max = rlimits[i].rlim.rlim_cur - 1;
-				(void)setrlimit(rlimits[i].id, &rlim);
+				if (rlim.rlim_cur > 1) {
+					rlim.rlim_max = rlim.rlim_cur - 1;
+					(void)setrlimit(rlimits[i].id, &rlim);
+				}
 
 				ret = setrlimit(rlimits[i].id, &rlimits[i].rlim);
 				(void)ret;
