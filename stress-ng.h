@@ -987,6 +987,12 @@ typedef union {
 
 typedef uint32_t stress_class_t;
 
+typedef struct {
+	void *page_none;		/* mmap'd PROT_NONE page */
+	void *page_ro;			/* mmap'd PROT_RO page */
+	void *page_wo;			/* mmap'd PROT_WO page */
+} stress_mapped_t;
+
 /* stressor args */
 typedef struct {
 	uint64_t *counter;		/* stressor counter */
@@ -998,6 +1004,7 @@ typedef struct {
 	pid_t pid;			/* stressor pid */
 	pid_t ppid;			/* stressor ppid */
 	size_t page_size;		/* page size */
+	stress_mapped_t *mapped;	/* mmap'd pages, addr of g_shared mapped */
 } stress_args_t;
 
 typedef struct {
@@ -2097,6 +2104,7 @@ typedef struct {
 	uint16_t padding1;				/* alignment padding */
 	uint32_t mem_cache_ways;			/* cache ways size */
 	uint64_t zero;					/* zero'd data */
+	stress_mapped_t mapped;				/* mmap'd pages to help testing */
 	struct {
 		uint32_t hash[STRESS_WARN_HASH_MAX];	/* hash patterns */
 #if defined(HAVE_LIB_PTHREAD)

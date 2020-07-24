@@ -1773,6 +1773,7 @@ again:
 						.pid = getpid(),
 						.ppid = getppid(),
 						.page_size = stress_get_pagesize(),
+						.mapped = &g_shared->mapped
 					};
 
 					(void)memset(*checksum, 0, sizeof(**checksum));
@@ -2171,6 +2172,19 @@ static void log_system_info(void)
 #endif
 }
 
+static void *stress_map_page(int prot, char *prot_str, size_t page_size)
+{
+	void *ptr;
+
+	ptr = mmap(NULL, page_size, prot,
+		MAP_PRIVATE | MAP_ANON, -1, 0);
+	if (ptr == MAP_FAILED) {
+		pr_err("cannot mmap %s shared page, errno=%d (%s)\n",
+			prot_str, errno, strerror(errno));
+	}
+	return ptr;
+}
+
 /*
  *  stress_map_shared()
  *	mmap shared region, with an extra page at the end
@@ -2189,7 +2203,7 @@ static inline void stress_map_shared(const size_t num_procs)
 	g_shared = (stress_shared_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANON, -1, 0);
 	if (g_shared == MAP_FAILED) {
-		pr_err("Cannot mmap to shared memory region, errno=%d (%s)\n",
+		pr_err("cannot mmap to shared memory region, errno=%d (%s)\n",
 			errno, strerror(errno));
 		stress_free_stressors();
 		exit(EXIT_FAILURE);
@@ -2233,14 +2247,44 @@ static inline void stress_map_shared(const size_t num_procs)
 	g_shared->checksums = (stress_checksum_t *)mmap(NULL, sz,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
 	if (g_shared->checksums == MAP_FAILED) {
-		pr_err("Cannot mmap checksums, errno=%d (%s)\n",
+		pr_err("cannot mmap checksums, errno=%d (%s)\n",
 			errno, strerror(errno));
+		goto err_unmap_shared;
 		(void)munmap((void *)g_shared, g_shared->length);
 		stress_free_stressors();
 		exit(EXIT_FAILURE);
 	}
 	(void)memset(g_shared->checksums, 0, sz);
 	g_shared->checksums_length = sz;
+
+	/*
+	 *  mmap some pages for testing invalid arguments in
+	 *  various stressors, get the allocations done early
+	 *  to avoid later mmap failures on stressor child
+	 *  processes
+	 */
+	g_shared->mapped.page_none = stress_map_page(PROT_NONE, "PROT_NONE", page_size);
+	if (g_shared->mapped.page_none == MAP_FAILED)
+		goto err_unmap_checksums;
+	g_shared->mapped.page_ro = stress_map_page(PROT_READ, "PROT_READ", page_size);
+	if (g_shared->mapped.page_ro == MAP_FAILED)
+		goto err_unmap_page_none;
+	g_shared->mapped.page_wo = stress_map_page(PROT_READ, "PROT_WRITE", page_size);
+	if (g_shared->mapped.page_wo == MAP_FAILED)
+		goto err_unmap_page_ro;
+	return;
+
+err_unmap_page_ro:
+	(void)munmap((void *)g_shared->mapped.page_ro, page_size);
+err_unmap_page_none:
+	(void)munmap((void *)g_shared->mapped.page_none, page_size);
+err_unmap_checksums:
+	(void)munmap((void *)g_shared->checksums, g_shared->checksums_length);
+err_unmap_shared:
+	(void)munmap((void *)g_shared, g_shared->length);
+	stress_free_stressors();
+	exit(EXIT_FAILURE);
+
 }
 
 /*
@@ -2249,6 +2293,11 @@ static inline void stress_map_shared(const size_t num_procs)
  */
 void stress_unmap_shared(void)
 {
+	const size_t page_size = stress_get_pagesize();
+
+	(void)munmap((void *)g_shared->mapped.page_wo, page_size);
+	(void)munmap((void *)g_shared->mapped.page_ro, page_size);
+	(void)munmap((void *)g_shared->mapped.page_none, page_size);
 	(void)munmap((void *)g_shared->checksums, g_shared->checksums_length);
 	(void)munmap((void *)g_shared, g_shared->length);
 }
