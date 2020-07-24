@@ -123,6 +123,7 @@ static int stress_set(const stress_args_t *args)
 		pid_t pid;
 		gid_t gid;
 		uid_t uid;
+		struct rlimit rlim;
 
 		/* setsid will fail, ignore return */
 		pid = setsid();
@@ -227,6 +228,10 @@ static int stress_set(const stress_args_t *args)
 			check_do_run();
 		}
 #endif
+		(void)memset(&rlim, 0, sizeof(rlim));
+		if ((getrlimit(INT_MAX, &rlim) < 0) && (errno == EINVAL)) {
+			(void)setrlimit(INT_MAX, &rlim);
+		}
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 			if (rlimits[i].ret == 0) {
