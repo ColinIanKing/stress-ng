@@ -145,6 +145,7 @@ static int stress_get(const stress_args_t *args)
 #endif
 		struct timeval tv;
 		struct timezone tz;
+		struct rlimit rlim;
 		time_t t, t1, t2;
 		pid_t pid;
 		gid_t gid;
@@ -306,13 +307,10 @@ static int stress_get(const stress_args_t *args)
 			check_do_run();
 		}
 #endif
+		/* Invalid getrlimit syscall and ignoring failure */
+		(void)getrlimit(INT_MAX, &rlim);
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
-			struct rlimit rlim;
-
-			/* Invalid getrlimit syscall and ignoring failure */
-			(void)getrlimit(INT_MAX, &rlim);
-
 			ret = getrlimit(rlimits[i], &rlim);
 			if (verify && (ret < 0))
 				pr_fail("%s: getrlimit(%zu, ..) failed, errno=%d (%s)\n",
