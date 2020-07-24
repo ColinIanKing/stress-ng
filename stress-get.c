@@ -319,6 +319,9 @@ static int stress_get(const stress_args_t *args)
 		}
 
 #if defined(HAVE_PRLIMIT) && NEED_GLIBC(2,13,0) && defined(EOVERFLOW)
+		/* Invalid prlimit syscall and ignoring failure */
+		(void)prlimit(mypid, INT_MAX, NULL, &rlim);
+
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 			struct rlimit rlim[2];
 
