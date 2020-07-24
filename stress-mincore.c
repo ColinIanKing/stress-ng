@@ -157,6 +157,11 @@ redo: 			errno = 0;
 			 *  Exercise with zero arguments
 			 */
 			(void)shim_mincore(NULL, 0, NULL);
+
+			/*
+			 *  Exercise with invalid page
+			 */
+			(void)shim_mincore(NULL, page_size, args->mapped->page_none);
 		}
 		inc_counter(args);
 	} while (keep_stressing());
