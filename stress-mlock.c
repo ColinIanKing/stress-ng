@@ -112,6 +112,10 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	uint8_t **mappings;
 	const size_t page_size = args->page_size;
 	const size_t max = stress_mlock_max_lockable();
+	size_t shmall, freemem, totalmem, freeswap;
+	const bool cap_ipc_lock = stress_check_capability(SHIM_CAP_IPC_LOCK);
+
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 
 	(void)context;
 
@@ -143,6 +147,19 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			 *  Attempt a bogus mlock, ignore failure
 			 */
 			(void)do_mlock((void *)(mappings[n] + page_size), 0);
+
+			/*
+			 *  Verify mlock syscall cannot succeed
+			 *  without CAP_IPC_LOCK Permissions
+			 */
+			if (!cap_ipc_lock && (max < totalmem)) {
+				ret = do_mlock((void *)(mappings[n]), max + 1);
+				if (ret == 0) {
+					pr_fail("%s: mlock unexpectedly succeeded, "
+						"without permissions, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+			}
 
 			/*
 			 *  Attempt a correct mlock
