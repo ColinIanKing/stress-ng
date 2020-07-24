@@ -158,7 +158,7 @@ static stress_open_func_t open_funcs[] = {
 static int stress_open(const stress_args_t *args)
 {
 	static int fds[STRESS_FD_MAX];
-	size_t max_fd = stress_get_file_limit();
+	size_t max_fd = stress_get_max_file_limit();
 
 	if (max_fd > SIZEOF_ARRAY(fds))
 		max_fd = SIZEOF_ARRAY(fds);
