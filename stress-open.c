@@ -171,7 +171,9 @@ static int stress_open(const stress_args_t *args)
 
 			fds[i] = open_funcs[idx]();
 
-			if (fds[i] < 0)
+			/* Keep on opening until we hit the open file limit */
+			if ((fds[i] < 0) &&
+			    ((errno == EMFILE) || (errno == ENFILE)))
 				break;
 			if (!keep_stressing())
 				break;
