@@ -119,6 +119,15 @@ static const int priorities[] = {
 };
 #endif
 
+static sigjmp_buf jmp_env;
+
+static void MLOCKED_TEXT stress_segv_handler(int num)
+{
+	(void)num;
+
+	siglongjmp(jmp_env, 1);
+}
+
 /*
  *  stress on get*() calls
  *	stress system by rapid get*() system calls
@@ -131,6 +140,9 @@ static int stress_get(const stress_args_t *args)
 	const bool cap_sys_time = stress_check_capability(SHIM_CAP_SYS_TIME);
 #endif
 #endif
+
+	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
 
 	do {
 		char path[PATH_MAX];
@@ -465,12 +477,22 @@ static int stress_get(const stress_args_t *args)
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
 		{
 			struct utsname utsbuf;
+			static bool uname_segv = false;
 
-			ret = uname(args->mapped->page_none);
-			if (ret == 0) {
-				pr_fail("%s: uname unexpectedly succeeded, "
-					"expected -EFAULT, instead got errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+			if (!uname_segv) {
+				ret = sigsetjmp(jmp_env, 1);
+				if (!keep_stressing())
+					break;
+				if (ret != 0) {
+					uname_segv = true;
+				} else {
+					ret = uname(args->mapped->page_none);
+					if (ret == 0) {
+						pr_fail("%s: uname unexpectedly succeeded with read only utsbuf, "
+							"expected -EFAULT, instead got errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+					}
+				}
 			}
 
 			ret = uname(&utsbuf);
