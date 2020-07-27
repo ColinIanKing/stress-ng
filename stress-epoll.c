@@ -108,6 +108,15 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_TIMER_SETTIME) &&	\
     NEED_GLIBC(2,3,2)
 
+static sigjmp_buf jmp_env;
+
+static void MLOCKED_TEXT stress_segv_handler(int num)
+{
+	(void)num;
+
+	siglongjmp(jmp_env, 1);
+}
+
 /*
  * epoll_timer_handler()
  *	catch timer signal and cancel if no more runs flagged
@@ -469,13 +478,18 @@ static void epoll_server(
 	const int epoll_port,
 	const int epoll_domain)
 {
-	int efd = -1, sfd = -1, rc = EXIT_SUCCESS;
+	NOCLOBBER int efd = -1, sfd = -1, rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
 	int port = epoll_port + child + (max_servers * args->instance);
-	struct epoll_event *events = NULL;
+	NOCLOBBER struct epoll_event *events = NULL;
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
 	const int bad_fd = stress_get_bad_fd();
+
+	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0) {
+		rc = EXIT_NO_RESOURCE;
+		goto die;
+	}
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -598,8 +612,9 @@ static void epoll_server(
 	}
 
 	do {
-		int n, i;
+		int n, i, ret;
 		sigset_t sigmask;
+		static bool wait_segv = false;
 
 		(void)sigemptyset(&sigmask);
 		(void)sigaddset(&sigmask, SIGALRM);
@@ -607,22 +622,30 @@ static void epoll_server(
 		(void)memset(events, 0, MAX_EPOLL_EVENTS * sizeof(struct epoll_event));
 		errno = 0;
 
+		ret = sigsetjmp(jmp_env, 1);
+		if (!keep_stressing())
+			break;
+		if (ret != 0)
+			wait_segv = true;
+
 		/*
 		 * Wait for 100ms for an event, allowing us to
 		 * to break out if keep_stressing_flag has been changed.
 		 * Note: epoll_wait maps to epoll_pwait in glibc, ho hum.
 		 */
 		if (stress_mwc1()) {
-			/*
-			 *  Exercise an unmapped page for the events buffer, it should
-			 *  never return more than 0 events and if it does we were expecting
-			 *  -EFAULT.
-			 */
-			n = epoll_wait(efd, args->mapped->page_none, 1, 100);
-			if (n > 0) {
-				pr_fail("%s: epoll_wait unexpectedly succeeded, "
-					"expected -EFAULT, instead got errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+			if (!wait_segv) {
+				/*
+				 *  Exercise an unmapped page for the events buffer, it should
+				 *  never return more than 0 events and if it does we were expecting
+				 *  -EFAULT.
+				 */
+				n = epoll_wait(efd, args->mapped->page_none, 1, 100);
+				if (n > 0) {
+					pr_fail("%s: epoll_wait unexpectedly succeeded, "
+						"expected -EFAULT, instead got errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
 			}
 			n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
 
@@ -630,16 +653,18 @@ static void epoll_server(
 			(void)epoll_wait(efd, events, INT_MIN, 100);
 
 		} else {
-			/*
-			 *  Exercise an unmapped page for the events buffer, it should
-			 *  never return more than 0 events and if it does we were expecting
-			 *  -EFAULT.
-			 */
-			n = epoll_pwait(efd, args->mapped->page_none, 1, 100, &sigmask);
-			if (n > 1) {
-				pr_fail("%s: epoll_pwait unexpectedly succeeded, "
-					"expected -EFAULT, instead got errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+			if (!wait_segv) {
+				/*
+				 *  Exercise an unmapped page for the events buffer, it should
+				 *  never return more than 0 events and if it does we were expecting
+				 *  -EFAULT.
+				 */
+				n = epoll_pwait(efd, args->mapped->page_none, 1, 100, &sigmask);
+				if (n > 1) {
+					pr_fail("%s: epoll_pwait unexpectedly succeeded, "
+						"expected -EFAULT, instead got errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
 			}
 			n = epoll_pwait(efd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
 
