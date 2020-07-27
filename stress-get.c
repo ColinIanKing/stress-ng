@@ -466,6 +466,13 @@ static int stress_get(const stress_args_t *args)
 		{
 			struct utsname utsbuf;
 
+			ret = uname(args->mapped->page_none);
+			if (ret == 0) {
+				pr_fail("%s: uname unexpectedly succeeded, "
+					"expected -EFAULT, instead got errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			}
+
 			ret = uname(&utsbuf);
 			if (verify && (ret < 0))
 				pr_fail("%s: uname failed, errno=%d (%s)\n",
