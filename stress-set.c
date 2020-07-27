@@ -108,6 +108,7 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_GETPGID) && defined(HAVE_SETPGID)
 	const pid_t mypid = getpid();
 #endif
+	const bool cap_sys_resource = stress_check_capability(SHIM_CAP_SYS_RESOURCE);
 
 	for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 		rlimits[i].ret = getrlimit(rlimits[i].id, &rlimits[i].rlim);
@@ -244,6 +245,29 @@ static int stress_set(const stress_args_t *args)
 
 				ret = setrlimit(rlimits[i].id, &rlimits[i].rlim);
 				(void)ret;
+			}
+		}
+
+		/*
+		 *  Invalid setrlimit syscalls exercised
+		 *  to increase the current hard limit
+		 *  without CAP_SYS_RESOURCE capability
+		 */
+		if (!cap_sys_resource) {
+			for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
+				if ((rlimits[i].ret == 0) && (rlimits[i].rlim.rlim_max < RLIM_INFINITY)) {
+					rlim.rlim_cur = rlimits[i].rlim.rlim_cur;
+					rlim.rlim_max = RLIM_INFINITY;
+					ret = setrlimit(rlimits[i].id, &rlim);
+					if (ret != -EPERM) {
+						pr_fail("%s: setrlimit failed, did not have privilege to set "
+							"hard limit, expected -EPERM, instead got errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+					}
+					if (ret == 0) {
+						(void)setrlimit(rlimits[i].id, &rlimits[i].rlim);
+					}
+				}
 			}
 		}
 		inc_counter(args);
