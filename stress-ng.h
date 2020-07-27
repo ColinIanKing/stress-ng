@@ -2340,6 +2340,7 @@ typedef struct {
 	MACRO(sigrt)		\
 	MACRO(sigsegv)		\
 	MACRO(sigsuspend)	\
+	MACRO(sigtrap)		\
 	MACRO(skiplist)		\
 	MACRO(sleep)		\
 	MACRO(sock)		\
@@ -3152,6 +3153,9 @@ typedef enum {
 
 	OPT_sigsuspend,
 	OPT_sigsuspend_ops,
+
+	OPT_sigtrap,
+	OPT_sigtrap_ops,
 
 	OPT_skiplist,
 	OPT_skiplist_ops,
