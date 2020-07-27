@@ -613,8 +613,13 @@ static void epoll_server(
 		 * Note: epoll_wait maps to epoll_pwait in glibc, ho hum.
 		 */
 		if (stress_mwc1()) {
-			n = epoll_wait(efd, args->mapped->page_none, MAX_EPOLL_EVENTS, 100);
-			if (n == 0) {
+			/*
+			 *  Exercise an unmapped page for the events buffer, it should
+			 *  never return more than 0 events and if it does we were expecting
+			 *  -EFAULT.
+			 */
+			n = epoll_wait(efd, args->mapped->page_none, 1, 100);
+			if (n > 0) {
 				pr_fail("%s: epoll_wait unexpectedly succeeded, "
 					"expected -EFAULT, instead got errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
