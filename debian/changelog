@@ -1,3 +1,53 @@
+stress-ng (0.11.17-1) unstable; urgency=medium
+
+  [Colin Ian King ]
+  * Makefile: bump version
+  * Close build issue (fixed on previous upload) (Closes: #964638)
+  * handle EFAULT for kernels that generate SIGSEGV
+  * stress-get: handle EFAULT for kernels that generate SIGSEGV
+  * stress-epoll: flag an error on bad events buffer if it returns more
+    than 0 events
+  * stress-open: add invalid O_TMPDIR and O_CREATE tests
+  * stress-open: use stress_get_max_file_limit to get max file limit
+  * core-helper: add stress_get_max_file_limit to return max file open
+    limit
+  * stress-open: retry opening on a failed open
+  * stress-open: keep opening until the maximum open file limit is hit
+  * stress-numa: fix indentation issue with comment
+  * stress-get: move invalid getrlimit test to ouside of the loop
+  * stress-mincore: exercise mincore with MAP_NONE vec argument
+  * Add some pages that can be used for invalid argument system call tests
+  * stress-mincore: exercise some invalid and unexpected mincore arguments
+  * stress-mlock: clean up some indentations
+  * stress-mlock: improve the method of finding maximum mlockable size
+  * stress-mlock: fix max limit on mlocked region size
+
+  [Piyush Goyal]
+  * stress-epoll: Exercise illegal epoll_pwait syscall with bad address
+  * stress-epoll: Exercise illegal epoll_wait syscall with bad address
+  * stress-get: Exercise illegal uname call with bad address
+  * stress-set: Verify hard limit cannot be increased without capability
+  * stress-set: Add condition to test rlim_curr > 1
+  * stress-set: Exercise invalid setrlimit syscall with invalid rlim
+    argument
+  * stress-get: Exercise invalid prlimit syscall with invalid resource
+    argument
+  * stress-set: Exercise invalid setrlimit syscall with invalid resource
+    argument
+  * stress-get: Exercise invalid getrlimit syscall with invalid resource
+    argument
+  * stress-mlock: Test mlock syscall cannot proceed without permission
+  * stress-mlock: Exercise invalid mlockall syscall with invalid flag
+  * stress-mlock: Exercise invalid mlockall syscall with only MCL_ONFAULT
+    flag
+  * stress-mlock: Exercise invalid mlock2 syscall with invalid flags
+  * stress-epoll: Exercised Invalid epoll_wait syscall with invalid
+    maxevents argument
+  * stress-epoll: Exercised Invalid epoll_pwait syscall with invalid
+    maxevents argument
+
+ -- Colin King <colin.king@canonical.com>  Mon, 27 Jul 2020 19:32:11 +0100
+
 stress-ng (0.11.16-1) unstable; urgency=medium
 
   [Piyush Goyal]
