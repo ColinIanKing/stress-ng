@@ -630,8 +630,13 @@ static void epoll_server(
 			(void)epoll_wait(efd, events, INT_MIN, 100);
 
 		} else {
-			n = epoll_pwait(efd, args->mapped->page_none, MAX_EPOLL_EVENTS, 100, &sigmask);
-			if (n == 0) {
+			/*
+			 *  Exercise an unmapped page for the events buffer, it should
+			 *  never return more than 0 events and if it does we were expecting
+			 *  -EFAULT.
+			 */
+			n = epoll_pwait(efd, args->mapped->page_none, 1, 100, &sigmask);
+			if (n > 1) {
 				pr_fail("%s: epoll_pwait unexpectedly succeeded, "
 					"expected -EFAULT, instead got errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
