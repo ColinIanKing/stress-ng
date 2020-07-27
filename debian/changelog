@@ -5997,7 +5997,7 @@ stress-ng (0.05.19-1) unstable; urgency=medium
   * helper: fix comment on system_read()
   * stress-fallocate: add in default mode 0
   * stress-iosync: fix build warning when using old glibc:
-  * stress-fstat: add blacklist of paths not to open/fstat/close
+  * stress-fstat: add blocklist of paths not to open/fstat/close
   * correctly spell stress_adjust_pthread_max
   * stress-str: make some statics into static const
   * stress-socket: make socket_opts static const
