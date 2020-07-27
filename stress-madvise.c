@@ -198,10 +198,11 @@ static void *stress_madvise_pages(void *arg)
 	size_t n;
 	const madvise_ctxt_t *ctxt = (const madvise_ctxt_t *)arg;
 	const stress_args_t *args = ctxt->args;
-	void *buf = ctxt->buf;
+	void *buf = ctxt->buf, *unmapped;
 	const size_t sz = ctxt->sz;
 	const size_t page_size = args->page_size;
 	static void *nowt = NULL;
+	int ret;
 
 	if (ctxt->is_thread) {
 		sigset_t set;
@@ -227,6 +228,48 @@ static void *stress_madvise_pages(void *arg)
 		(void)shim_madvise(ptr, page_size, advise);
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
 	}
+
+	/*
+	 *  Exercise a highly likely bad advice option
+	 */
+	(void)shim_madvise(buf, page_size, ~0);
+
+#if defined(MADV_NORMAL)
+	/*
+	 *  Exercise with non-page aligned address
+	 */
+	(void)shim_madvise(((uint8_t *)buf) + 1, page_size, MADV_NORMAL);
+#endif
+#if defined(_POSIX_MEMLOCK_RANGE) &&	\
+    defined(HAVE_MLOCK) &&		\
+    (defined(MADV_REMOVE) || defined(MADV_DONTNEED))
+	/*
+	 *  Exercise MADV_REMOVE on locked page, should
+	 *  generate EINVAL
+	 */
+	ret = shim_mlock(buf, page_size);
+	if (ret == 0) {
+#if defined(MADV_REMOVE)
+		(void)shim_madvise(buf, page_size, MADV_REMOVE);
+#endif
+#if defined(MADV_DONTNEED)
+		(void)shim_madvise(buf, page_size, MADV_DONTNEED);
+#endif
+		shim_munlock(buf, page_size);
+	}
+#endif
+
+#if defined(MADV_NORMAL)
+	/*
+	 *  Exercise an unmapped page
+	 */
+	unmapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (unmapped != MAP_FAILED) {
+		(void)munmap(unmapped, page_size);
+		(void)shim_madvise(unmapped, page_size, MADV_NORMAL);
+	}
+#endif
 
 	return &nowt;
 }
