@@ -630,6 +630,12 @@ static void epoll_server(
 			(void)epoll_wait(efd, events, INT_MIN, 100);
 
 		} else {
+			n = epoll_pwait(efd, args->mapped->page_none, MAX_EPOLL_EVENTS, 100, &sigmask);
+			if (n == 0) {
+				pr_fail("%s: epoll_pwait unexpectedly succeeded, "
+					"expected -EFAULT, instead got errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			}
 			n = epoll_pwait(efd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
 
 			/* Invalid epoll_pwait syscall having invalid maxevents argument */
