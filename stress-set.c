@@ -118,6 +118,8 @@ static int stress_set(const stress_args_t *args)
 	if (ret_hostname == 0)
 		hostname[sizeof(hostname) - 1 ] = '\0';
 
+	bool cap_sys_resource = stress_check_capability(SHIM_CAP_SYS_RESOURCE);
+
 	do {
 		int ret;
 		pid_t pid;
@@ -246,6 +248,28 @@ static int stress_set(const stress_args_t *args)
 				(void)ret;
 			}
 		}
+
+		/*
+		 *  Invalid setrlimit syscalls exercised
+		 *  to increase the current hard limit
+		 *  without CAP_SYS_RESOURCE capability
+		 */
+		if (!cap_sys_resource) {
+			for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
+				if ((rlimits[i].ret == 0) && (rlimits[i].rlim.rlim_max < RLIM_INFINITY)) {
+					rlim.rlim_cur = rlimits[i].rlim.rlim_cur;
+					rlim.rlim_max = RLIM_INFINITY;
+					ret = setrlimit(rlimits[i].id, &rlim);
+					if (ret != -EPERM) {
+						pr_fail("%s: setrlimit failed, did not have privilege to set "
+							"hard limit, expected -EPERM, instead got errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+					}
+					if (ret == 0) {
+						(void)setrlimit(rlimits[i].id, &rlimits[i].rlim);
+					}
+				}
+			}
 		inc_counter(args);
 	} while (keep_stressing());
 
