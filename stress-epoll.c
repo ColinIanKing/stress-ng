@@ -613,6 +613,12 @@ static void epoll_server(
 		 * Note: epoll_wait maps to epoll_pwait in glibc, ho hum.
 		 */
 		if (stress_mwc1()) {
+			n = epoll_wait(efd, args->mapped->page_none, MAX_EPOLL_EVENTS, 100);
+			if (n == 0) {
+				pr_fail("%s: epoll_wait unexpectedly succeeded, "
+					"expected -EFAULT, instead got errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			}
 			n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
 
 			/* Invalid epoll_wait syscall having invalid maxevents argument */
