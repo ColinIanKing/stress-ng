@@ -361,6 +361,29 @@ static int test_eloop(const stress_args_t *args, const int efd)
 }
 
 /*
+ * test_epoll_exclusive()
+ *      tests all EPOLL_CTL operations resulting in
+ *      an error due to the EPOLL_EXCLUSIVE event type
+ */
+static int test_epoll_exclusive(
+	const stress_args_t *args,
+	const int efd,
+	const int sfd)
+{
+	struct epoll_event event;
+
+	(void)memset(&event, 0, sizeof(event));
+	event.events = EPOLLEXCLUSIVE;
+
+	if (epoll_ctl(efd, EPOLL_CTL_MOD, sfd, &event) == 0) {
+		pr_fail("%s: epoll_ctl failed, expected , EINVAL instead got "
+			"errno=%d (%s)\n", args->name, errno, strerror(errno));
+		return -1;
+	}
+	return 0;
+}
+
+/*
  *  epoll_client()
  *	rapidly try to connect to server(s) and
  *	send a relatively short message
@@ -736,6 +759,8 @@ static void epoll_server(
 				if (epoll_notification(args, efd, sfd) < 0)
 					break;
 				if (test_eloop(args, efd) < 0)
+					break;
+				if (test_epoll_exclusive(args, efd, sfd) < 0)
 					break;
 			} else {
 				/*
