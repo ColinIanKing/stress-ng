@@ -357,6 +357,7 @@ static int test_eloop(const stress_args_t *args, const int efd)
 	return 0;
 }
 
+#if defined(EPOLLEXCLUSIVE)
 /*
  * test_epoll_exclusive()
  *      tests all EPOLL_CTL operations resulting in
@@ -379,6 +380,7 @@ static int test_epoll_exclusive(
 	}
 	return 0;
 }
+#endif
 
 /*
  *  epoll_client()
@@ -757,8 +759,10 @@ static void epoll_server(
 					break;
 				if (test_eloop(args, efd) < 0)
 					break;
+#if defined(EPOLLEXCLUSIVE)
 				if (test_epoll_exclusive(args, efd, sfd) < 0)
 					break;
+#endif
 			} else {
 				/*
 				 *  The fd has data available, so read it
