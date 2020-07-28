@@ -324,6 +324,43 @@ static int epoll_notification(
 }
 
 /*
+ * test_eloop()
+ *	test if EPOLL_CTL_ADD operation resulting in
+ *	a circular loop of epoll instances monitoring
+ *	one another could not succeed.
+ */
+static int test_eloop(const stress_args_t *args, const int efd)
+{
+	int efd2, ret;
+
+	efd2 = epoll_create(1);	/* size version */
+	if (efd2 < 0) {
+		pr_fail("%s: epoll_create failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		(void)close(efd2);
+		return -1;
+	}
+
+	ret = epoll_ctl_add(efd, efd2);
+	if (ret < 0) {
+		pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		(void)close(efd2);
+	}
+
+	ret = epoll_ctl_add(efd2, efd);
+	if (ret == 0) {
+		pr_fail("%s: epoll_ctl_add failed, expected ELOOP, instead got "
+			"errno=%d (%s)\n", args->name, errno, strerror(errno));
+		(void)close(efd2);
+		return -1;
+	}
+
+	(void)close(efd2);
+	return 0;
+}
+
+/*
  *  epoll_client()
  *	rapidly try to connect to server(s) and
  *	send a relatively short message
@@ -697,6 +734,8 @@ static void epoll_server(
 				 *  pending, so handle incoming connections
 				 */
 				if (epoll_notification(args, efd, sfd) < 0)
+					break;
+				if (test_eloop(args, efd) < 0)
 					break;
 			} else {
 				/*
