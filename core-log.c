@@ -253,38 +253,6 @@ static int pr_msg_lockable(
 }
 
 /*
- *  pr_msg_fail_vargs()
- *	wrapper helper for pr_msg_fail
- */
-static inline void pr_msg_fail_vargs(const uint64_t flag, const bool locked, char *fmt, ...) FORMAT(printf, 3, 0);
-
-static inline void pr_msg_fail_vargs(const uint64_t flag, const bool locked, char *fmt, ...)
-{
-	va_list ap;
-
-	va_start(ap, fmt);
-	(void)pr_msg_lockable(stderr, flag, locked, fmt, ap);
-	va_end(ap);
-}
-
-STRESS_PRAGMA_PUSH
-STRESS_PRAGMA_WARN_OFF
-/*
- *  pr_msg_fail()
- *	print failure message with errno
- */
-void pr_msg_fail(
-	const uint64_t flag,
-	const char *name,
-	const char *what,
-	const int err)
-{
-	pr_msg_fail_vargs(flag, false, "%s: %s failed, errno=%d (%s)\n",
-		name, what, err, strerror(err));
-}
-STRESS_PRAGMA_POP
-
-/*
  *  pr_dbg()
  *	print debug messages
  */
