@@ -39,12 +39,28 @@ if [ ! -x "$STRESS_NG" ]; then
 fi
 STRESSORS=$($STRESS_NG --stressors)
 
+#
+#  The stressors can potentially spam the logs so
+#  keep them truncated as much as possible. Hammer to
+#  crack the nut.
+#
+clear_journal()
+{
+	which journalctl >& /dev/null
+	if [ $? -eq 0 ]; then
+		sudo journalctl --rotate >& /dev/null
+		sudo journalctl --vacuum-time 1s >& /dev/null
+		sudo journalctl --rotate >& /dev/null
+	fi
+}
+
 do_stress()
 {
 	ARGS="-t $DURATION --pathological --timestamp --tz --syslog --perf"
 	echo running $* $ARGS
 	$STRESS_NG $* $ARGS
 	sudo $STRESS_NG $* $ARGS
+	clear_journal
 }
 
 if [ -e $PERF_PARANOID ]; then
@@ -52,11 +68,38 @@ if [ -e $PERF_PARANOID ]; then
 	(echo 0 | sudo tee $PERF_PARANOID) > /dev/null
 fi
 
+#
+#  Try to ensure that this script and parent won't be oom'd
+#
+if [ -e /proc/self/oom_score_adj ]; then
+	echo -900 | sudo tee /proc/self/oom_score_adj >& /dev/null
+	echo -900 | sudo tee /proc/$PPID/oom_score_adj >& /dev/null
+elif [ -e /proc/self/oom_adj ]; then
+	echo -14 | sudo tee /proc/self/oom_adj >& /dev/null
+	echo -14 | sudo tee /proc/$PPID/oom_adj >& /dev/null
+fi
+#
+# Ensure oom killer kills the stressor hogs rather
+# than the wrong random process (e.g. this script)
+#
+if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
+	echo 0 | sudo tee /proc/sys/vm/oom_kill_allocating_task >& /dev/null
+fi
+
+SWP=/tmp/swap.img
+dd if=/dev/zero of=$SWP bs=1M count=1024
+chmod 0600 $SWP
+sudo chown root:root $SWP
+sudo mkswap $SWP
+sudo swapon $SWP
+
 sudo lcov --zerocounters
 
 DURATION=60
 
 do_stress --all 1
+
+if [ 1 -eq 0 ]; then
 
 DURATION=180
 
@@ -180,20 +223,12 @@ do_stress --vm 0 --vm-madvise willneed --page-in
 
 do_stress --zombie 0 --zombie-max 1000000
 
-
 DURATION=60
 
 for S in $STRESSORS
 do
 	do_stress --${S} 0
 done
-
-SWP=/tmp/swap.img
-dd if=/dev/zero of=$SWP bs=1M count=1024
-chmod 0600 $SWP
-sudo chown root:root $SWP
-sudo mkswap $SWP
-sudo swapon $SWP
 
 #
 #  Quick spin through all the classes of stressors with ftrace enabled
@@ -203,6 +238,8 @@ for CLASS in cpu-cache cpu device filesystem interrupt io memory network os pipe
 do
 	sudo $STRESS_NG --class $CLASS --ftrace --seq 0 -v --timestamp --syslog -t $DURATION
 done
+
+fi
 
 sudo swapoff $SWP
 sudo rm $SWP
