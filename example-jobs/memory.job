@@ -63,7 +63,7 @@ timeout 60s
 #
 # atomic stressor options:
 #   start  N workers that exercise various GCC __atomic_*() built in
-#   operations on 8, 16, 32 and 64 bit  intergers  that  are  shared
+#   operations on 8, 16, 32 and 64 bit  integers  that  are  shared
 #   among  the N workers. This stressor is only available for builds
 #   using GCC 4.7.4 or higher. The stressor forces  many  front  end
 #   cache stalls and cache references.
@@ -153,7 +153,7 @@ lsearch 0		# 0 means 1 stressor per CPU
 #   Allocation sizes are also random, with  the  maximum  allocation
 #   size  controlled  by the --malloc-bytes option, the default size
 #   being 64K.  The worker is re-started if it is killed by the  out
-#   of mememory (OOM) killer.
+#   of memory (OOM) killer.
 #
 malloc 0		# 0 means 1 stressor per CPU
 # malloc-bytes 64K	# maximum allocation chunk size

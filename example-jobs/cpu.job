@@ -75,7 +75,7 @@ af-alg 0		# 0 means 1 stressor per CPU
 #
 # atomic stressor options:
 #   start  N workers that exercise various GCC __atomic_*() built in
-#   operations on 8, 16, 32 and 64 bit  intergers  that  are  shared
+#   operations on 8, 16, 32 and 64 bit  integers  that  are  shared
 #   among  the N workers. This stressor is only available for builds
 #   using GCC 4.7.4 or higher. The stressor forces  many  front  end
 #   cache stalls and cache references.

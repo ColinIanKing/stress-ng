@@ -267,7 +267,7 @@ pthread 0		# 0 means 1 stressor per CPU
 #   scheduling policies out of SCHED_OTHER, SCHED_BATCH, SCHED_IDLE,
 #   SCHED_FIFO and SCHED_RR.  For the real time scheduling  policies
 #   a random sched priority is selected between the minimum and max‐
-#   imum scheduling prority settings.
+#   imum scheduling priority settings.
 #
 schedpolicy 0		# 0 means 1 stressor per CPU
 # schedpolicy-ops 1000000 # stop after 1000000 bogo ops
