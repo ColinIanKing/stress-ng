@@ -153,7 +153,6 @@ static int stress_set(const stress_args_t *args)
 
 #if defined(HAVE_SETTIMEOFDAY)
 		if (!stress_check_capability(SHIM_CAP_SYS_TIME)) {
-			int ret;
 			struct timeval tv;
 
 			/* We should not be able to set the time of day */
