@@ -93,4 +93,5 @@ stressor_info_t stress_sigtrap_info = {
         .supported = stress_sigtrap_supported,
 	.class = CLASS_INTERRUPT | CLASS_OS,
         .help = help
+};
 #endif
