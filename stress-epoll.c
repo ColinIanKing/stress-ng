@@ -699,7 +699,7 @@ static void epoll_server(
 	}
 
 	do {
-		int n, i, ret;
+		int n, i, ret, saved_errno;
 		sigset_t sigmask;
 		static bool wait_segv = false;
 
@@ -735,6 +735,7 @@ static void epoll_server(
 				}
 			}
 			n = epoll_wait(efd, events, MAX_EPOLL_EVENTS, 100);
+			saved_errno = errno;
 
 			/* Invalid epoll_wait syscall having invalid maxevents argument */
 			(void)epoll_wait(efd, events, INT_MIN, 100);
@@ -754,15 +755,16 @@ static void epoll_server(
 				}
 			}
 			n = epoll_pwait(efd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
+			saved_errno = errno;
 
 			/* Invalid epoll_pwait syscall having invalid maxevents argument */
 			(void)epoll_pwait(efd, events, INT_MIN, 100, &sigmask);
 
 		}
 		if (n < 0) {
-			if (errno != EINTR) {
+			if (saved_errno != EINTR) {
 				pr_fail("%s: epoll_wait failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+					args->name, saved_errno, strerror(saved_errno));
 				rc = EXIT_FAILURE;
 				goto die_close;
 			}
