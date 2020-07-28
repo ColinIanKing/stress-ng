@@ -99,8 +99,6 @@ DURATION=60
 
 do_stress --all 1
 
-if [ 1 -eq 0 ]; then
-
 DURATION=180
 
 do_stress --sysinval 0
@@ -238,8 +236,6 @@ for CLASS in cpu-cache cpu device filesystem interrupt io memory network os pipe
 do
 	sudo $STRESS_NG --class $CLASS --ftrace --seq 0 -v --timestamp --syslog -t $DURATION
 done
-
-fi
 
 sudo swapoff $SWP
 sudo rm $SWP
