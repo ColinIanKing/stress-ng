@@ -236,9 +236,6 @@ static int epoll_notification(
 	const int sfd)
 {
 	const int bad_fd = stress_get_bad_fd();
-	struct epoll_event event;
-
-	(void)memset(&event, 0, sizeof(event));
 
 	for (;;) {
 		struct sockaddr saddr;
