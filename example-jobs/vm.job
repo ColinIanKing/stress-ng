@@ -110,7 +110,7 @@ madvise 0		# 0 means 1 stressor per CPU
 #   Allocation sizes are also random, with  the  maximum  allocation
 #   size  controlled  by the --malloc-bytes option, the default size
 #   being 64K.  The worker is re-started if it is killed by the  out
-#   of mememory (OOM) killer.
+#   of memory (OOM) killer.
 #
 malloc 0		# 0 means 1 stressor per CPU
 # malloc-bytes 64K	# maximum allocation chunk size
