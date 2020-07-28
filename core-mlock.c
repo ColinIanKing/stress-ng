@@ -40,7 +40,7 @@ int stress_mlock_region(const void *addr_start, const void *addr_end)
 		~(page_size - 1));
 	const size_t len = (ptrdiff_t)m_addr_end - (ptrdiff_t)m_addr_start;
 
-	return mlock((void *)m_addr_start, len);
+	return mlock((const void *)m_addr_start, len);
 #else
 	(void)addr_start;
 	(void)addr_end;
