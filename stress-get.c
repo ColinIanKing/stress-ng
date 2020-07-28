@@ -335,18 +335,18 @@ static int stress_get(const stress_args_t *args)
 		(void)prlimit(mypid, INT_MAX, NULL, &rlim);
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
-			struct rlimit rlim[2];
+			struct rlimit rlims[2];
 
-			ret = prlimit(mypid, rlimits[i], NULL, &rlim[0]);
+			ret = prlimit(mypid, rlimits[i], NULL, &rlims[0]);
 			if (verify && (ret < 0) && (errno != EOVERFLOW))
 				pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 					args->name, mypid, i, errno, strerror(errno));
 			if (!ret) {
-				ret = prlimit(mypid, rlimits[i], &rlim[0], NULL);
+				ret = prlimit(mypid, rlimits[i], &rlims[0], NULL);
 				if (verify && (ret < 0) && (errno != EOVERFLOW))
 					pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 						args->name, mypid, i, errno, strerror(errno));
-				ret = prlimit(mypid, rlimits[i], &rlim[0], &rlim[1]);
+				ret = prlimit(mypid, rlimits[i], &rlims[0], &rlims[1]);
 				if (verify && (ret < 0) && (errno != EOVERFLOW))
 					pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
 						args->name, mypid, i, errno, strerror(errno));
