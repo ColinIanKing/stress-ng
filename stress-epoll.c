@@ -368,16 +368,44 @@ static int test_epoll_exclusive(
 	const int efd,
 	const int sfd)
 {
-	struct epoll_event event;
+	struct epoll_event event1, event2;
 
-	(void)memset(&event, 0, sizeof(event));
-	event.events = EPOLLEXCLUSIVE;
+	(void)memset(&event1, 0, sizeof(event1));
+	(void)memset(&event2, 0, sizeof(event2));
+	event1.events = EPOLLEXCLUSIVE;
 
-	if (epoll_ctl(efd, EPOLL_CTL_MOD, sfd, &event) == 0) {
+	/*
+	 *  Deleting sfd from efd so that following
+	 *  test does not face any interruption
+	 */
+	(void)epoll_ctl(efd, EPOLL_CTL_DEL, sfd, &event2);
+
+	/*
+	 *  Invalid epoll_ctl syscall as EPOLLEXCLUSIVE event
+	 *  cannot be operated by EPOLL_CTL_MOD operation
+	 */
+	if (epoll_ctl(efd, EPOLL_CTL_MOD, sfd, &event1) == 0) {
 		pr_fail("%s: epoll_ctl failed, expected , EINVAL instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		return -1;
 	}
+
+	if (epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &event1) < 0) {
+		pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return -1;
+	}
+
+	/*
+	 *  Invalid epoll_ctl syscall as sfd was registered
+	 *  as EPOLLEXCLUSIVE event so it can't be modified
+	 */
+	if (epoll_ctl(efd, EPOLL_CTL_MOD, sfd, &event2) == 0) {
+		pr_fail("%s: epoll_ctl failed, expected , EINVAL instead got "
+			"errno=%d (%s)\n", args->name, errno, strerror(errno));
+		return -1;
+	}
+
 	return 0;
 }
 #endif
