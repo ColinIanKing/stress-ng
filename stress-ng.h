@@ -3761,7 +3761,6 @@ extern WARN_UNUSED char *stress_const_optdup(const char *opt);
 extern size_t stress_text_addr(char **start, char **end);
 extern WARN_UNUSED bool stress_check_capability(const int capability);
 extern WARN_UNUSED bool stress_sigalrm_pending(void);
-extern void stress_sigalrm_block(void);
 extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
 extern WARN_UNUSED stress_hash_table_t *stress_hash_create(const size_t n);
 extern stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table,
