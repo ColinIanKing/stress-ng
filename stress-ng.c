@@ -2252,9 +2252,6 @@ static inline void stress_map_shared(const size_t num_procs)
 		pr_err("cannot mmap checksums, errno=%d (%s)\n",
 			errno, strerror(errno));
 		goto err_unmap_shared;
-		(void)munmap((void *)g_shared, g_shared->length);
-		stress_free_stressors();
-		exit(EXIT_FAILURE);
 	}
 	(void)memset(g_shared->checksums, 0, sz);
 	g_shared->checksums_length = sz;
