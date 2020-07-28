@@ -56,7 +56,7 @@ static void stress_flock_child(
 		}
 
 		/*
-		 *  Exercise flock wit invalid fd
+		 *  Exercise flock with invalid fd
 		 */
 		ret = flock(bad_fd, LOCK_EX);
 		(void)ret;

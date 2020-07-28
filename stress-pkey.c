@@ -63,7 +63,7 @@ static int stress_pkey(const stress_args_t *args)
 		/* Use PKEY_DISABLE_WRITE if it's defined */
 		pkey = shim_pkey_alloc(0, PKEY_DISABLE_WRITE);
 #else
-		/* Try 0 flags intead */
+		/* Try 0 flags instead */
 		pkey = shim_pkey_alloc(0, 0);
 #endif
 		if (pkey < 0) {

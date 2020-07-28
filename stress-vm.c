@@ -1605,7 +1605,7 @@ abort:
  *  stress_vm_prime_gray_zero()
  *	step through memory in non-contiguous large steps
  *	and first clear just one bit (based on gray code) and then
- *	clear all the other bits and finally check if thay are all clear
+ *	clear all the other bits and finally check if they are all clear
  */
 static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	uint8_t *buf,
@@ -1672,7 +1672,7 @@ abort:
  *  stress_vm_prime_one()
  *	step through memory in non-contiguous large steps
  *	and first set just one bit (based on gray code) and then
- *	set all the other bits and finally check if thay are all set
+ *	set all the other bits and finally check if they are all set
  */
 static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	uint8_t *buf,

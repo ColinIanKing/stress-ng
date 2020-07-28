@@ -90,7 +90,7 @@ static void stress_ramfs_umount(const stress_args_t *args, const char *path)
 	static const uint64_t ns = 100000000;	/* 1/10th second */
 
 	/*
-	 *  umount is attempted at least twice, the first successfull mount
+	 *  umount is attempted at least twice, the first successful mount
 	 *  and then a retry. In theory the EINVAL should be returned
 	 *  on a umount of a path that has already been umounted, so we
 	 *  know that umount been successful and can then return.

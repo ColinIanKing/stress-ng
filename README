@@ -71,7 +71,7 @@ SUSE:
   * libatomic1
   * zlib-devel
 
-NOTE: the build will try to detect build depedencies and will build an image
+NOTE: the build will try to detect build dependencies and will build an image
 with functionality disabled if the support libraries are not installed.
 
 To build on BSD systems, one requires gcc and GNU make:

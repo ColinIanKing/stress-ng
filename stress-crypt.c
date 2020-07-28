@@ -48,16 +48,16 @@ static int stress_crypt_id(
 	char *salt)
 {
 	salt[1] = id;
-	char *crypted;
+	char *encrypted;
 #if defined (HAVE_CRYPT_R)
 	static struct crypt_data data;
 
 	(void)memset(&data, 0, sizeof(data));
-	crypted = crypt_r(passwd, salt, &data);
+	encrypted = crypt_r(passwd, salt, &data);
 #else
-	crypted = crypt(passwd, salt);
+	encrypted = crypt(passwd, salt);
 #endif
-	if (!crypted) {
+	if (!encrypted) {
 		pr_fail("%s: cannot encrypt with %s\n", args->name, method);
 		return -1;
 	}

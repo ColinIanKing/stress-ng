@@ -98,7 +98,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 	}
 	(void)memset(buffer, 'X', page_size);
 
-	/* Explicitly drop capabilites, makes it more OOM-able */
+	/* Explicitly drop capabilities, makes it more OOM-able */
 	ret = stress_drop_capabilities(args->name);
 	(void)ret;
 

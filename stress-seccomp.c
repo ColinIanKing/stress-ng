@@ -374,7 +374,7 @@ static int stress_seccomp(const stress_args_t *args)
 						"was not expected\n",
 						args->name);
 				}
-				/* ..exited with a SIGSYS but we expexted OK exit? */
+				/* ..exited with a SIGSYS but we expected OK exit? */
 				if (WIFSIGNALED(status) && allow_write) {
 					if (WTERMSIG(status) == SIGSYS) {
 						pr_fail("%s: expecting a successful exit "

@@ -63,7 +63,7 @@ static int stress_vforkmany(const stress_args_t *args)
 	static volatile bool *terminate;
 	static bool *terminate_mmap;
 
-	/* We should use an alterative signal stack */
+	/* We should use an alternative signal stack */
 	(void)memset(stack_sig, 0, sizeof(stack_sig));
 	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
 		return EXIT_FAILURE;

@@ -14,7 +14,7 @@ stress-ng (0.11.17-1) unstable; urgency=medium
   * stress-open: retry opening on a failed open
   * stress-open: keep opening until the maximum open file limit is hit
   * stress-numa: fix indentation issue with comment
-  * stress-get: move invalid getrlimit test to ouside of the loop
+  * stress-get: move invalid getrlimit test to outside of the loop
   * stress-mincore: exercise mincore with MAP_NONE vec argument
   * Add some pages that can be used for invalid argument system call tests
   * stress-mincore: exercise some invalid and unexpected mincore arguments
@@ -1193,7 +1193,7 @@ stress-ng (0.10.15-1) unstable; urgency=medium
   * stress-rds: remove prototype stressor
   * stress-ramfs: remove unnecessary initialisation of pid
   * stress-exec: move variable ret into section that requires it
-  * stress-urandom: ignore -EINVAL errors on non-existant ioctls
+  * stress-urandom: ignore -EINVAL errors on non-existent ioctls
   * stress-ramfs: ensure path does not overflow in snprintf
   * stress-urandom: fix build warning on non-Linux platforms
   * stress-urandom: only write to /dev/urandom on Linux
@@ -2692,7 +2692,7 @@ stress-ng (0.09.43-1) unstable; urgency=medium
   * Makefile.config: minor cleanups
   * Makefile.config: use more generic rules for checking
   * Makefile.config: use generic have_test_prog rule for asm nop test
-  * Makefile.config: use generic have_test_prog rule for aligment build
+  * Makefile.config: use generic have_test_prog rule for alignment build
     checks
   * Makefile.config: add and use generic have_test_prog rule
   * stress-ng.h: re-order shim_ function declarations
@@ -4192,7 +4192,7 @@ stress-ng (0.08.13-1) unstable; urgency=medium
   * manual: fix several spelling mistakes
   * stress-cpu: fix spelling mistake "assigment" -> "assignment"
   * stress-ng: fix spelling mistake "afer" -> "after"
-  * stress-opcode: drop all capabilties so we can't do much
+  * stress-opcode: drop all capabilities so we can't do much
     damage (LP: #1714044)
   * helper: add stress_drop_capabilities to drop all capabilities
   * stress-socket-diag: use new HAVE_SOCK_DIAG_H build time check flag
@@ -4480,7 +4480,7 @@ stress-ng (0.08.03-1) unstable; urgency=medium
   * manual: update contributors list, add Abdul Haleem
   * stress-ng: help: fix typo and replace method m with method M
   * stress-cpu-online: EBUSY shouldn't be a fatal error
-  * Fix: Macro defination for SECCOMP_SET_MODE_FILTER
+  * Fix: Macro definition for SECCOMP_SET_MODE_FILTER
   * stress-socket-fd: fix fork failures correctly, make child oomable
   * stress-memthrash: try harder to get mmap'd memory
   * Update documentation and help for timeout, specify times in T
@@ -4901,7 +4901,7 @@ stress-ng (0.07.19-1) unstable; urgency=medium
   * Manual: update date
   * stress-iomix: don't use fdatasync on non-linux systems
   * stress-chroot: make this unsupported for non-Linux systems
-  * stress-iomix: use shim_msync instread of msync for portability reasons
+  * stress-iomix: use shim_msync instead of msync for portability reasons
   * stress-iomix: only use fadvise on linux
   * stress-iomix: only use MAP_POPULATE on systems that provide this flag
   * stress-iomix: only use FALLOC_FL_ZERO_RANGE on systems where it is available
@@ -6559,7 +6559,7 @@ stress-ng (0.04.18-1) unstable; urgency=medium
 
   * Makefile: bump version
   * Fix singular/plural of "stressors spawned" message (LP: #1494797)
-  * stress-ureadahead: provide feed back when timout occurs (LP: #1494784)
+  * stress-ureadahead: provide feed back when timeout occurs (LP: #1494784)
   * stress-timer, itimer: fix termination hangs (LP: #1494751)
 
  -- Colin King <colin.king@canonical.com>  Fri, 11 Sep 2015 16:24:42 +0100
@@ -6864,7 +6864,7 @@ stress-ng (0.04.05-1) unstable; urgency=medium
 
   [ Christian Ehrhardt ]
   * stress-ng: avoid builtins when libs shall be tested
-  * stress-ng: add stressor for wide character sting operations
+  * stress-ng: add stressor for wide character string operations
   * stress-ng: fix string names
   * stress-ng: avoid compiler error in stress-vector
   * stress-ng: fix EPOLL build
@@ -6909,7 +6909,7 @@ stress-ng (0.04.03-1) unstable; urgency=medium
   * Manual, call stressors and processes "workers"
   * Sync up syscalls.txt with latest changes to stressors
   * Add chdir stressor
-  * Add syncfs otion to hdd stressor
+  * Add syncfs option to hdd stressor
   * stress-mlock: add mlockall/munlockall stressing too
   * Add fsync, fdatasync hdd stressor options
   * stress-cpu: add rand48 random number generator family cpu method
@@ -7045,7 +7045,7 @@ stress-ng (0.03.21-1) unstable; urgency=medium
   * Add xattr stressor
   * stress-kill: Add some more kill variations
   * Update syscalls table
-  * stress-mmap: unmap buf, fixes resouce leak
+  * stress-mmap: unmap buf, fixes resource leak
   * Add readahead I/O stressor
   * Add deep function call cpu stressor method
   * stress-vm: add rowhammer memory stressor
@@ -7523,7 +7523,7 @@ stress-ng (0.03.02-1) unstable; urgency=medium
   * Makefile: bump version
   * free procs array in child stressor, stops valgrind complaining
   * stress-vm: don't use abs, use UNSIGNED_ABS instead
-  * Ensure mwc internal state is intialised.
+  * Ensure mwc internal state is initialised.
   * stress-memcpy: copy back buffer to share memory region
   * stress-affinity: add --affinity-rand option
   * man page: fix - hypenations
@@ -8127,7 +8127,7 @@ stress-ng (0.01.30-1) unstable; urgency=medium
   * Add --vm-locked option and force cpu affinity changes on cache stress
   * Fix spelling mistake in man page
   * Remove some extraneous white spaces
-  * Remove commas from nunbers in help
+  * Remove commas from numbers in help
   * Align help info
   * Remove redundant code that got accidentally left in
   * Simplify hogs message
@@ -8406,7 +8406,7 @@ stress-ng (0.01.04) trusty; urgency=low
 
   * Makefile: bump version
   * ensure ret is initialized in print()
-  * Fix some signed / unsinged comparison warnings
+  * Fix some signed / unsigned comparison warnings
   * Make print return number of chars emitted and ignore some func returns
   * Makefile: add -Wextra
   * Set shm mem name to be unique on parent pid

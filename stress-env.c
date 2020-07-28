@@ -25,7 +25,7 @@
 #include "stress-ng.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"env N",	"start N workers setting enironment vars" },
+	{ NULL,	"env N",	"start N workers setting environment vars" },
 	{ NULL,	"env-ops N",	"stop after N env bogo operations" },
 	{ NULL,	NULL,		NULL }
 };

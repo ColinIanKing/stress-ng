@@ -1111,14 +1111,14 @@ typedef struct {
 #define ALIGNED(a)
 #endif
 
-/* Force aligment to nearest 128 bytes */
+/* Force alignment to nearest 128 bytes */
 #if defined(__GNUC__) && NEED_GNUC(3,3,0) && defined(HAVE_ALIGNED_128)
 #define ALIGN128	ALIGNED(128)
 #else
 #define ALIGN128
 #endif
 
-/* Force aligment to nearest 64 bytes */
+/* Force alignment to nearest 64 bytes */
 #if defined(__GNUC__) && NEED_GNUC(3,3,0) && defined(HAVE_ALIGNED_64)
 #define ALIGN64		ALIGNED(64)
 #else

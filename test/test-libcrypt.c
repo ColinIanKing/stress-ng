@@ -32,16 +32,16 @@ int main(void)
 {
 	static const char passwd[] = "somerandomtext";
 	static const char salt[] = "examplesalt";
-	char *crypted;
+	char *encrypted;
 #if defined (__linux__)
 	static struct crypt_data data;
 
 	(void)memset(&data, 0, sizeof(data));
-	crypted = crypt_r(passwd, salt, &data);
+	encrypted = crypt_r(passwd, salt, &data);
 #else
-	crypted = crypt(passwd, salt);
+	encrypted = crypt(passwd, salt);
 #endif
-	(void)crypted;
+	(void)encrypted;
 
 	return 0;
 }

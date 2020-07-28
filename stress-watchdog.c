@@ -144,7 +144,7 @@ static int stress_watchdog(const stress_args_t *args)
 	while (keep_stressing()) {
 		fd = open(dev_watchdog, O_RDWR);
 
-		/* Mutiple stressors can lock the device, so retry */
+		/* Multiple stressors can lock the device, so retry */
 		if (fd < 0) {
 			struct timespec tv;
 

@@ -151,7 +151,7 @@ static int stress_dynlib(const stress_args_t *args)
 				/*
 				 * The function pointer should be readable,
 				 * however, we have a SIGSEGV handler that
-				 * will perfom tidy up if not
+				 * will perform tidy up if not
 				 */
 				if (ptr)
 					stress_uint8_put(*ptr);

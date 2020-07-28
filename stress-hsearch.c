@@ -121,7 +121,7 @@ static int stress_hsearch(const stress_args_t *args)
 
 free_all:
 	/*
-	 * The sematics to hdestroy are rather varied from
+	 * The semantics to hdestroy are rather varied from
 	 * system to system.  OpenBSD will free the keys,
 	 * where as NetBSD provides traditional functionality
 	 * that does not free them, plus hdestroy1 where

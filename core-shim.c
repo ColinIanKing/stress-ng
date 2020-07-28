@@ -50,7 +50,7 @@ static inline void *shim_unconstify_ptr(const void *ptr)
  *  shim_enosys()
  *	simulate unimplemented system call. Ignores
  *	the sysnr argument and all following 1..N syscall
- *	arguements.  Returns -1 and sets errno to ENOSYS
+ *	arguments.  Returns -1 and sets errno to ENOSYS
  */
 static inline int shim_enosys(long sysnr, ...)
 {
@@ -299,7 +299,7 @@ void shim_flush_icache(void *begin, void *end)
 
 /*
  *  shim_kcmp()
- *	wrapper for Linux kcmp(2) - compre two processes to
+ *	wrapper for Linux kcmp(2) - compare two processes to
  *	see if they share a kernel resource.
  */
 long shim_kcmp(pid_t pid1, pid_t pid2, int type, unsigned long idx1, unsigned long idx2)
@@ -566,7 +566,7 @@ int shim_mlock2(const void *addr, size_t len, int flags)
 
 /*
  *  shim_mlockall()
- * 	wrapper for mlockall() - lock all memmory
+ * 	wrapper for mlockall() - lock all memory
  */
 int shim_mlockall(int flags)
 {
@@ -581,7 +581,7 @@ int shim_mlockall(int flags)
 
 /*
  *  shim_munlockall()
- * 	wrapper for munlockall() - unlock all memmory
+ * 	wrapper for munlockall() - unlock all memory
  */
 int shim_munlockall(void)
 {

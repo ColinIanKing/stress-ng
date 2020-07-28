@@ -104,7 +104,7 @@ static int stress_sysinfo(const stress_args_t *args)
 				}
 
 				/*
-				 *  Exercise invalid mount pount
+				 *  Exercise invalid mount point
 				 */
 				ret = statfs("/invalid_stress_ng", &statfs_buf);
 				(void)ret;
@@ -197,7 +197,7 @@ static int stress_sysinfo(const stress_args_t *args)
 					}
 				}
 				/*
-				 *  Exercise invalid mount pount
+				 *  Exercise invalid mount point
 				 */
 				ret = statvfs("/invalid_stress_ng", &statvfs_buf);
 				(void)ret;

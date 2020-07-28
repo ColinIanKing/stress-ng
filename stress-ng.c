@@ -933,7 +933,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"log-brief",		"less verbose log messages" },
 	{ NULL,		"log-file filename",	"log messages to a log file" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
-	{ NULL,		"max-fd",		"set maximum file descriptior limit" },
+	{ NULL,		"max-fd",		"set maximum file descriptor limit" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"minimize",		"enable minimal stress options" },

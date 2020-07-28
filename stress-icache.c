@@ -48,7 +48,7 @@ static const stress_help_t help[] = {
  *  STRESS_ICACHE_FUNC()
  *	generates a simple function that is page aligned in its own
  *	section so we can change the code mapping and make it
- *	modifyable to force I-cache refreshes by modifying the code
+ *	modifiable to force I-cache refreshes by modifying the code
  */
 #define STRESS_ICACHE_FUNC(func_name, page_sz)				\
 static void SECTION(stress_icache_callee) ALIGNED(page_sz)		\
@@ -85,7 +85,7 @@ func_name(const stress_args_t *args)						\
 			volatile uint8_t *vaddr =			\
 				(volatile uint8_t *)addr;		\
 			/*						\
-			 *  Change protection to make page modifyable.  \
+			 *  Change protection to make page modifiable.  \
 			 *  It may be that some architectures don't 	\
 			 *  allow this, so don't bail out on an		\
 			 *  EXIT_FAILURE; this is a not necessarily a 	\
@@ -103,7 +103,7 @@ func_name(const stress_args_t *args)						\
 			/*						\
 			 *  Modifying executable code on x86 will	\
 			 *  call a I-cache reload when we execute	\
-			 *  the modfied ops.				\
+			 *  the modified ops.				\
 			 */						\
 			val = *vaddr;					\
 			*vaddr ^= ~0;					\

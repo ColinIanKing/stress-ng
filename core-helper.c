@@ -490,7 +490,7 @@ int stress_process_dumpable(const bool dumpable)
 	 *  changing PR_SET_DUMPABLE also affects the
 	 *  oom adjust capability, so for now, we disable
 	 *  this as I'd rather have a oom'able process when
-	 *  memory gets contrained. Don't enable this
+	 *  memory gets constrained. Don't enable this
 	 *  unless one checks that processes able oomable!
 	 */
 #if 0 && defined(HAVE_PRCTL) &&		\
@@ -1122,7 +1122,7 @@ size_t stress_get_max_file_limit(void)
 /*
  *  stress_get_file_limit()
  *	get max number of files that the current
- *	process can open exluding currently opened
+ *	process can open excluding currently opened
  *	files.
  */
 size_t stress_get_file_limit(void)
@@ -1396,7 +1396,7 @@ static inline size_t stress_check_max_pipe_size(
 
 /*
  *  stress_probe_max_pipe_size()
- *	determine the maximim allowed pipe size
+ *	determine the maximum allowed pipe size
  */
 size_t stress_probe_max_pipe_size(void)
 {
@@ -1602,7 +1602,7 @@ int stress_drop_capabilities(const char *name)
 
 	/*
 	 *  We could just memset ucd to zero, but
-	 *  lets explicity set all the capability
+	 *  lets explicitly set all the capability
 	 *  bits to zero to show the intent
 	 */
 	for (i = 0; i <= CAP_LAST_CAP; i++) {
@@ -1657,7 +1657,7 @@ bool stress_is_dot_filename(const char *name)
 
 /*
  *  stress_const_optdup(const char *opt)
- *	duplicate a modifyable copy of a const option string opt
+ *	duplicate a modifiable copy of a const option string opt
  */
 char *stress_const_optdup(const char *opt)
 {

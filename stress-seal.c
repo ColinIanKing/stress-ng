@@ -177,7 +177,7 @@ static int stress_seal(const stress_args_t *args)
 		(void)memset(buf, 0xff, sizeof(buf));
 		ret = write(fd, buf, sizeof(buf));
 		if ((ret == 0) || ((ret < 0) && (errno != EPERM))) {
-			pr_fail("%s: write on sealed file did not fail with EPERM as exected, errno=%d (%s)\n",
+			pr_fail("%s: write on sealed file did not fail with EPERM as expected, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
 			goto err;

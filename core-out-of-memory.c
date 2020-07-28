@@ -259,7 +259,7 @@ again:
 		/* Make sure this is killable by OOM killer */
 		stress_set_oom_adjustment(args->name, true);
 
-		/* Explicitly drop capabilites, makes it more OOM-able */
+		/* Explicitly drop capabilities, makes it more OOM-able */
 		if (flag & STRESS_OOMABLE_DROP_CAP) {
 			int ret;
 

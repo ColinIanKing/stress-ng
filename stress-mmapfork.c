@@ -99,7 +99,7 @@ static bool stress_memory_is_not_zero(uint8_t *ptr, const size_t size)
 
 /*
  *  stress_mmapfork()
- *	stress mappings + fork VM subystem
+ *	stress mappings + fork VM subsystem
  */
 static int stress_mmapfork(const stress_args_t *args)
 {

@@ -838,7 +838,7 @@ static void stress_af_alg_info_free(stress_crypto_info_t *info)
 
 /*
  *  stress_af_alg_init()
- *	populate cryto info list from data from /proc/crypto
+ *	populate crypto info list from data from /proc/crypto
  */
 static void stress_af_alg_init(void)
 {

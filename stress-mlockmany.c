@@ -50,7 +50,7 @@ static int stress_mlockmany(const stress_args_t *args)
 
 	stress_set_oom_adjustment(args->name, true);
 
-	/* Explicitly drop capabilites, makes it more OOM-able */
+	/* Explicitly drop capabilities, makes it more OOM-able */
 	ret = stress_drop_capabilities(args->name);
 	(void)ret;
 

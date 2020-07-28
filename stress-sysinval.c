@@ -2097,7 +2097,7 @@ static void syscall_permute(
 		 */
 		if (ARG_BITMASK(arg_bitmask, ARG_MISC)) {
 			/*
-			 *  Misc enumarated values
+			 *  Misc enumerated values
 			 */
 			for (i = 0; i < SIZEOF_ARRAY(arg_values); i++) {
 				if (ARG_MISC_ID(arg_bitmask) == ARG_MISC_ID(arg_values[i].bitmask)) {
@@ -2108,7 +2108,7 @@ static void syscall_permute(
 			}
 		} else {
 			/*
-			 *  Mixed bitmask vlaues
+			 *  Mixed bitmask values
 			 */
 			for (i = 0; i < SIZEOF_ARRAY(arg_values); i++) {
 				if (ARG_BITMASK(arg_bitmask, arg_values[i].bitmask)) {

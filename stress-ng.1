@@ -429,7 +429,7 @@ switch CPU affinity randomly rather than the default of sequentially.
 .TP
 .B \-\-af\-alg N
 start N workers that exercise the AF_ALG socket domain by hashing and encrypting
-various sized random messages. This exercises the availble hashes, ciphers,
+various sized random messages. This exercises the available hashes, ciphers,
 rng and aead crypto engines in the Linux kernel.
 .TP
 .B \-\-af\-alg\-ops N
@@ -616,7 +616,7 @@ stop after N cap bogo operations.
 .TP
 .B \-\-chattr N
 start N workers that attempt to exercise file attributes via the
-EXT2_IOC_SETFLAGS ioctl. This is indended to be intentionally racy and
+EXT2_IOC_SETFLAGS ioctl. This is intended to be intentionally racy and
 exercise a range of chattr attributes by enabling and disabling them on
 a file shared amongst the N chattr stressor processes. (Linux only).
 .TP
@@ -1299,7 +1299,7 @@ stop after N bogo enosys system call attempts
 .B \-\-env N
 start N workers that creates numerous large environment variables to try to
 trigger out of memory conditions using setenv(3).  If ENOMEM occurs then the
-enviroment is emptied and another memory filling retry occurs.  The process
+environment is emptied and another memory filling retry occurs.  The process
 is restarted if it is killed by the Out Of Memory (OOM) killer.
 .TP
 .B \-\-env\-ops N
@@ -3310,7 +3310,7 @@ specify the socket type to use. The default type is stream. seqpacket currently
 only works for the unix socket domain.
 .TP
 .B \-\-sockabuse N
-start N workers that abuse a socket file desciptor with various file based
+start N workers that abuse a socket file descriptor with various file based
 system that don't normally act on sockets. The kernel should handle these
 illegal and unexpected calls gracefully.
 .TP
