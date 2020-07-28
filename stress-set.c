@@ -229,6 +229,10 @@ static int stress_set(const stress_args_t *args)
 			check_do_run();
 		}
 #endif
+		/*
+		 *  Invalid setrlimit syscall with invalid
+		 *  resource attribute resulting in EINVAL error
+		 */
 		(void)memset(&rlim, 0, sizeof(rlim));
 		if ((getrlimit(INT_MAX, &rlim) < 0) && (errno == EINVAL)) {
 			(void)setrlimit(INT_MAX, &rlim);
@@ -243,6 +247,7 @@ static int stress_set(const stress_args_t *args)
 					(void)setrlimit(rlimits[i].id, &rlim);
 				}
 
+				/* Valid setrlimit syscall and ignoring failure */
 				ret = setrlimit(rlimits[i].id, &rlimits[i].rlim);
 				(void)ret;
 			}
