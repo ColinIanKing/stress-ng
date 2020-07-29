@@ -57,9 +57,9 @@ static int stress_sigtrap(const stress_args_t *args)
 		(void)ret;
 
 		switch (stress_mwc1()) {
+		case 0:
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_X86)
-		case 0:
 			asm("int $3");
 			break;
 #endif
