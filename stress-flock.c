@@ -72,6 +72,16 @@ static void stress_flock_child(
 			if (!cont)
 				break;
 		}
+
+		/*
+		 *  Exercise flock with invalid operation
+		 */
+		ret = flock(fd, LOCK_NB);
+		if (ret == 0) {
+			pr_err("%s: flock failed expected EINVAL, instead got "
+				"errno=%d (%s)\n", args->name, errno, strerror(errno));
+			(void)flock(fd, LOCK_UN);
+		}
 #endif
 
 #if defined(LOCK_SH)
