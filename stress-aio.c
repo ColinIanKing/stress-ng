@@ -31,9 +31,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_LIB_RT) && \
-    defined(HAVE_AIO_H) && \
-    NEED_GLIBC(2,1,0)
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_AIO_H)  &&	\
+    defined(HAVE_AIO_CANCEL) && \
+    defined(HAVE_AIO_READ) &&	\
+    defined(HAVE_AIO_WRITE)
 
 #define BUFFER_SZ	(16)
 
@@ -64,9 +66,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL },
 };
 
-#if defined(HAVE_LIB_RT) && \
-    defined(HAVE_AIO_H) && \
-    NEED_GLIBC(2,1,0)
+#if defined(HAVE_LIB_RT) &&	\
+    defined(HAVE_AIO_H) &&	\
+    defined(HAVE_AIO_CANCEL) && \
+    defined(HAVE_AIO_READ) &&	\
+    defined(HAVE_AIO_WRITE)
 /*
  *  aio_fill_buffer()
  *	fill buffer with some known pattern
