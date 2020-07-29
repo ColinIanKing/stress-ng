@@ -79,12 +79,13 @@ bool stress_process_oomed(const pid_t pid)
 /*
  *    stress_set_adjustment()
  *	try to set OOM adjustment, retry if EAGAIN or EINTR, give up
- *	after multiple retries.
+ *	after multiple retries.  Returns 0 for success, -errno for
+ *	on failure.
  */
 static int stress_set_adjustment(const char *procname, const char *name, const char *str)
 {
 	const size_t len = strlen(str);
-	int i;
+	int i, saved_errno;
 
 	for (i = 0; i < 32; i++) {
 		ssize_t n;
@@ -92,22 +93,25 @@ static int stress_set_adjustment(const char *procname, const char *name, const c
 
 		fd = open(procname, O_WRONLY);
 		if (fd < 0)
-			return -1;
+			return -errno;
 
 		n = write(fd, str, len);
+		saved_errno = errno;
+
 		(void)close(fd);
 		if (n > 0)
 			return 0;
 		if (n < 0) {
-			if ((errno != EAGAIN) && (errno != EINTR)) {
+			if ((saved_errno != EAGAIN) &&
+			    (saved_errno != EINTR)) {
 				pr_dbg("%s: can't set oom_score_adj\n", name);
-				return -1;
+				return -saved_errno;
 			}
 		}
 	}
 	/* Unexpected failure, report why */
 	pr_dbg("%s: can't set oom_score_adj, errno=%d (%s)\n", name,
-		errno, strerror(errno));
+		saved_errno, strerror(saved_errno));
 	return -1;
 }
 
@@ -122,6 +126,7 @@ void stress_set_oom_adjustment(const char *name, const bool killable)
 	bool high_priv;
 	bool make_killable = killable;
 	char *str;
+	int ret;
 
 	high_priv = (getuid() == 0) && (geteuid() == 0);
 
@@ -139,15 +144,20 @@ void stress_set_oom_adjustment(const char *name, const bool killable)
 		str = OOM_SCORE_ADJ_MAX;
 	else
 		str = high_priv ? OOM_SCORE_ADJ_MIN : "0";
-	if (stress_set_adjustment("/proc/self/oom_score_adj", name, str) == 0)
+	ret = stress_set_adjustment("/proc/self/oom_score_adj", name, str);
+	/*
+	 *  Success or some random failure that's not -ENOENT
+	 */
+	if ((ret == 0) || (ret != -ENOENT))
 		return;
 	/*
-	 *  Fall back to old oom interface
+	 *  Fall back to old oom interface if we got -ENOENT
 	 */
 	if (make_killable)
 		str = high_priv ? OOM_ADJ_NO_OOM : OOM_ADJ_MIN;
 	else
 		str = OOM_ADJ_MAX;
+
 	(void)stress_set_adjustment("/proc/self/oom_adj", name, str);
 }
 #else
