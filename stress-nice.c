@@ -115,6 +115,12 @@ static int stress_nice(const stress_args_t *args)
 				for (i = -19; i < 20; i++) {
 					int ret;
 
+					/*
+					 *  Invalid nice syscall with invalid
+					 *  inc argument and ignoring failure
+					 */
+					(void)shim_nice(INT_MAX);
+
 					ret = shim_nice(1);
 					if (ret == 0)
 						stress_nice_delay();
