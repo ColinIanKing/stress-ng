@@ -326,34 +326,26 @@ static int epoll_notification(
  *	a circular loop of epoll instances monitoring
  *	one another could not succeed.
  */
-static int test_eloop(const stress_args_t *args, const int efd)
+static int test_eloop(
+	const stress_args_t *args,
+	const int efd,
+	const int efd2)
 {
-	int efd2, ret;
-
-	efd2 = epoll_create(1);	/* size version */
-	if (efd2 < 0) {
-		pr_fail("%s: epoll_create failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		(void)close(efd2);
-		return -1;
-	}
+	int ret;
 
 	ret = epoll_ctl_add(efd, efd2);
 	if (ret < 0) {
 		pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)close(efd2);
 	}
 
 	ret = epoll_ctl_add(efd2, efd);
 	if (ret == 0) {
 		pr_fail("%s: epoll_ctl_add failed, expected ELOOP, instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
-		(void)close(efd2);
 		return -1;
 	}
 
-	(void)close(efd2);
 	return 0;
 }
 
@@ -819,7 +811,7 @@ static void epoll_server(
 				 */
 				if (epoll_notification(args, efd, sfd) < 0)
 					break;
-				if (test_eloop(args, efd) < 0)
+				if (test_eloop(args, efd, efd2) < 0)
 					break;
 #if defined(EPOLLEXCLUSIVE)
 				if (test_epoll_exclusive(args, efd, efd2, sfd) < 0)
