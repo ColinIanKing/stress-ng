@@ -49,6 +49,9 @@ static int stress_nice(const stress_args_t *args)
 {
 #if defined(HAVE_SETPRIORITY)
 	int max_prio, min_prio;
+	bool cap_sys_nice;
+
+	cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 
 #if defined(RLIMIT_NICE)
 	{
@@ -77,6 +80,15 @@ static int stress_nice(const stress_args_t *args)
 		pid = fork();
 		if (pid == 0) {
 			int i;
+
+			/*
+			 *  Test if calling process has CAP_SYS_NICE
+			 *  capability then only it can increase
+			 *  its priority by decreasing nice value
+			 */
+			if (!cap_sys_nice) {
+				(void)shim_nice(-1);
+			}
 
 			/* Child */
 			(void)setpgid(0, g_pgrp);
