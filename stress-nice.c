@@ -47,11 +47,9 @@ static void stress_nice_delay(void)
  */
 static int stress_nice(const stress_args_t *args)
 {
+	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 #if defined(HAVE_SETPRIORITY)
 	int max_prio, min_prio;
-	bool cap_sys_nice;
-
-	cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 
 #if defined(RLIMIT_NICE)
 	{
