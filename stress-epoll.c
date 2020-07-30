@@ -366,6 +366,7 @@ static int test_eloop(const stress_args_t *args, const int efd)
 static int test_epoll_exclusive(
 	const stress_args_t *args,
 	const int efd,
+	const int efd2,
 	const int sfd)
 {
 	struct epoll_event event1, event2;
@@ -401,6 +402,16 @@ static int test_epoll_exclusive(
 	 *  as EPOLLEXCLUSIVE event so it can't be modified
 	 */
 	if (epoll_ctl(efd, EPOLL_CTL_MOD, sfd, &event2) == 0) {
+		pr_fail("%s: epoll_ctl failed, expected , EINVAL instead got "
+			"errno=%d (%s)\n", args->name, errno, strerror(errno));
+		return -1;
+	}
+
+	/*
+	 *  Invalid epoll_ctl syscall as EPOLLEXCLUSIVE was
+	 *  specified in event and fd refers to an epoll instance.
+	 */
+	if (epoll_ctl(efd, EPOLL_CTL_ADD, efd2, &event1) == 0) {
 		pr_fail("%s: epoll_ctl failed, expected , EINVAL instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		return -1;
@@ -565,7 +576,7 @@ static void epoll_server(
 	const int epoll_port,
 	const int epoll_domain)
 {
-	NOCLOBBER int efd = -1, sfd = -1, rc = EXIT_SUCCESS;
+	NOCLOBBER int efd = -1, efd2 = -1, sfd = -1, rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
 	int port = epoll_port + child + (max_servers * args->instance);
 	NOCLOBBER struct epoll_event *events = NULL;
@@ -651,6 +662,13 @@ static void epoll_server(
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
+		efd2 = epoll_create1(0);	/* flag version */
+		if (efd2 < 0) {
+			pr_fail("%s: epoll_create1 failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			goto die_close;
+		}
 	} else {
 		/* Invalid epoll_create syscall with invalid size */
 		efd = epoll_create(INT_MIN);
@@ -662,6 +680,13 @@ static void epoll_server(
 
 		efd = epoll_create(1);	/* size version */
 		if (efd < 0) {
+			pr_fail("%s: epoll_create failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			goto die_close;
+		}
+		efd2 = epoll_create(1);	/* size version */
+		if (efd2 < 0) {
 			pr_fail("%s: epoll_create failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -679,6 +704,13 @@ static void epoll_server(
 
 	efd = epoll_create(1);	/* size version */
 	if (efd < 0) {
+		pr_fail("%s: epoll_create failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		rc = EXIT_FAILURE;
+		goto die_close;
+	}
+	efd2 = epoll_create(1);	/* size version */
+	if (efd2 < 0) {
 		pr_fail("%s: epoll_create failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
@@ -790,7 +822,7 @@ static void epoll_server(
 				if (test_eloop(args, efd) < 0)
 					break;
 #if defined(EPOLLEXCLUSIVE)
-				if (test_epoll_exclusive(args, efd, sfd) < 0)
+				if (test_epoll_exclusive(args, efd, efd2, sfd) < 0)
 					break;
 #endif
 			} else {
@@ -813,6 +845,8 @@ static void epoll_server(
 die_close:
 	if (efd != -1)
 		(void)close(efd);
+	if (efd2 != -1)
+		(void)close(efd2);
 	if (sfd != -1)
 		(void)close(sfd);
 die:
