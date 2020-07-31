@@ -109,6 +109,7 @@ static int stress_set(const stress_args_t *args)
 	const pid_t mypid = getpid();
 #endif
 	const bool cap_sys_resource = stress_check_capability(SHIM_CAP_SYS_RESOURCE);
+	const bool cap_setuid = stress_check_capability(SHIM_CAP_SETUID);
 
 	for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 		rlimits[i].ret = getrlimit(rlimits[i].id, &rlimits[i].rlim);
@@ -123,7 +124,7 @@ static int stress_set(const stress_args_t *args)
 		int ret;
 		pid_t pid;
 		gid_t gid;
-		uid_t uid;
+		uid_t uid, bad_uid;
 		struct rlimit rlim;
 
 		/* setsid will fail, ignore return */
@@ -202,6 +203,18 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETREUID)
 		ret = setreuid(-1, -1);
 		(void)ret;
+
+		/*
+		 *  Validate setreuid syscalls exercised to increase the current
+		 *  ruid and euid without CAP_SETUID capability cannot succeed
+		 */
+		if ((!cap_setuid) && (stress_get_unused_uid(&bad_uid) >= 0)) {
+			if (setreuid(bad_uid, bad_uid) == 0) {
+				pr_fail("%s: setreuid failed, did not have privilege to set "
+					"ruid and euid, expected -EPERM, instead got errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			}
+		}
 #endif
 #if defined(HAVE_SETREGID)
 		ret = setregid(-1, -1);
