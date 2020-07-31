@@ -1807,3 +1807,98 @@ uint16_t HOT OPTIMIZE3 stress_ip_checksum(uint16_t *ptr, const size_t sz)
 
 	return ~sum;
 }
+
+#if defined(HAVE_SETPWENT) &&	\
+    defined(HAVE_GETPWENT) &&	\
+    defined(HAVE_ENDPWENT)
+static int stress_uid_comp(const void *p1, const void *p2)
+{
+	const uid_t *uid1 = (uid_t *)p1;
+	const uid_t *uid2 = (uid_t *)p2;
+
+	if (*uid1 > *uid2)
+		return 1;
+	else if (*uid1 < *uid2)
+		return -1;
+	else
+		return 0;
+}
+
+/*
+ *  stress_get_unused_uid()
+ *	find the lowest free unused UID greater than 100,
+ *	returns -1 if it can't find one and uid is set to 0;
+ *      if successful it returns 0 and sets uid to the free uid.
+ *
+ *	This also caches the uid so this can be called
+ *	frequently. If the cached uid is in use it will
+ *	perform the expensive lookup again.
+ */
+int stress_get_unused_uid(uid_t *uid)
+{
+	static uid_t cached_uid = 0;
+	uid_t *uids;
+
+	*uid = 0;
+
+	/*
+	 *  If we have a cached unused uid and it's no longer
+	 *  unused then force a rescan for a new one
+	 */
+	if ((cached_uid != 0) && (getpwuid(cached_uid) != NULL))
+		cached_uid = 0;
+
+	if (cached_uid == 0) {
+		struct passwd *pw;
+		size_t i, n;
+
+		setpwent();
+		for (n = 0; getpwent() != NULL; n++) {
+		}
+		endpwent();
+
+		uids = calloc(n, sizeof(*uids));
+		if (!uids)
+			return -1;
+
+		setpwent();
+		for (i = 0; i < n && (pw = getpwent()) != NULL; i++) {
+			uids[i] = pw->pw_uid;
+		}
+		endpwent();
+		n = i;
+
+		qsort(uids, n, sizeof(*uids), stress_uid_comp);
+
+		/* Look for a suitable gap from uid 100 upwards */
+		for (i = 0; i < n - 1; i++) {
+			const uid_t uid_try = uids[i] + 1;
+
+			if ((uid_try > 100) && uids[i + 1] > uid_try) {
+				if (getpwuid(uid_try) == NULL) {
+					cached_uid = uid_try;
+					break;
+				}
+			}
+		}
+		free(uids);
+	}
+
+	/*
+	 *  Not found?
+	 */
+	if (cached_uid == 0)
+		return -1;
+
+	*uid = cached_uid;
+
+	return 0;
+}
+#else
+int stress_get_unused_uid(uid_t *uid)
+{
+	*uid = 0;
+
+	return -1;
+}
+#endif
