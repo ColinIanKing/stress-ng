@@ -1826,7 +1826,7 @@ static int stress_uid_comp(const void *p1, const void *p2)
 
 /*
  *  stress_get_unused_uid()
- *	find the lowest free unused UID greater than 100,
+ *	find the lowest free unused UID greater than 250,
  *	returns -1 if it can't find one and uid is set to 0;
  *      if successful it returns 0 and sets uid to the free uid.
  *
@@ -1870,11 +1870,15 @@ int stress_get_unused_uid(uid_t *uid)
 
 		qsort(uids, n, sizeof(*uids), stress_uid_comp);
 
-		/* Look for a suitable gap from uid 100 upwards */
+		/* Look for a suitable gap from uid 250 upwards */
 		for (i = 0; i < n - 1; i++) {
-			const uid_t uid_try = uids[i] + 1;
+			/*
+			 *  Add a large gap in case new uids
+			 *  are added to reduce free uid race window
+			 */
+			const uid_t uid_try = uids[i] + 250;
 
-			if ((uid_try > 100) && uids[i + 1] > uid_try) {
+			if (uids[i + 1] > uid_try) {
 				if (getpwuid(uid_try) == NULL) {
 					cached_uid = uid_try;
 					break;
