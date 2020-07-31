@@ -85,6 +85,12 @@ static int stress_getrandom(const stress_args_t *args)
 		char buffer[RANDOM_BUFFER_SIZE];
 		size_t i;
 
+		/*
+		 * Invalid getrandom syscall with invalid
+		 * flag argument and ignoring failure
+		 */
+		(void)shim_getrandom(buffer, sizeof(buffer), ~0);
+
 		for (i = 0; keep_stressing() && (i < SIZEOF_ARRAY(getrandom_flags)); i++) {
 			ssize_t ret;
 
