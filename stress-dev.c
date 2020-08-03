@@ -181,6 +181,16 @@ static void stress_dev_video_linux(
 		(void)ret;
 	}
 #endif
+#if defined(VIDIOC_G_FBUF)
+	{
+		struct v4l2_framebuffer f;
+		int ret;
+
+		(void)memset(&f, 0, sizeof(f));
+		ret = ioctl(fd, VIDIOC_G_FBUF, &f);
+		(void)ret;
+	}
+#endif
 }
 #endif
 
