@@ -177,6 +177,7 @@ static void stress_dev_video_linux(
 		struct v4l2_capability c;
 		int ret;
 
+		(void)memset(&c, 0, sizeof(c));
 		ret = ioctl(fd, VIDIOC_QUERYCAP, &c);
 		(void)ret;
 	}
