@@ -316,15 +316,14 @@ static int stress_numa(const stress_args_t *args)
 			old_node_mask[i] = (1UL << max_node_id_count) - 1;
 		(void)memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
+
+		/*
+	 	 *  Ignore any failures, this is not strictly important
+		 */
 		ret = shim_migrate_pages(args->pid, max_nodes,
 			old_node_mask, node_mask);
-		if (ret < 0) {
-			if (errno != ENOSYS) {
-				pr_fail("%s: migrate_pages failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				goto err;
-			}
-		}
+		(void)ret;
+
 		if (!keep_stressing_flag())
 			break;
 
