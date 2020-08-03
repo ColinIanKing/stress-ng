@@ -277,6 +277,26 @@ static void stress_dev_video_linux(
 		(void)ret;
 	}
 #endif
+#if defined(VIDIOC_G_ENC_INDEX)
+	{
+		struct v4l2_event a;
+		int ret;
+
+		(void)memset(&a, 0, sizeof(a));
+		ret = ioctl(fd, VIDIOC_G_ENC_INDEX, &a);
+		(void)ret;
+	}
+#endif
+#if defined(VIDIOC_QUERY_DV_TIMINGS)
+	{
+		struct v4l2_dv_timings a;
+		int ret;
+
+		(void)memset(&a, 0, sizeof(a));
+		ret = ioctl(fd, VIDIOC_QUERY_DV_TIMINGS, &a);
+		(void)ret;
+	}
+#endif
 }
 #endif
 
