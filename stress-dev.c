@@ -192,6 +192,32 @@ static void stress_dev_video_linux(
 		(void)ret;
 	}
 #endif
+#if defined(VIDIOC_G_AUDIO)
+	{
+		struct v4l2_audio a;
+		int ret;
+
+		(void)memset(&a, 0, sizeof(a));
+		ret = ioctl(fd, VIDIOC_G_AUDIO, &a);
+		(void)ret;
+	}
+#endif
+#if defined(VIDIOC_G_INPUT)
+	{
+		int in = 0, ret;
+
+		ret = ioctl(fd, VIDIOC_G_INPUT, &in);
+		(void)ret;
+	}
+#endif
+#if defined(VIDIOC_G_OUTPUT)
+	{
+		int in = 0, ret;
+
+		ret = ioctl(fd, VIDIOC_G_OUTPUT, &in);
+		(void)ret;
+	}
+#endif
 }
 #endif
 
