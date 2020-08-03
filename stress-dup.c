@@ -67,12 +67,18 @@ static int stress_dup(const stress_args_t *args)
 			if (tmp >= 0)
 				(void)close(tmp);
 
+			if (!keep_stressing())
+				break;
+
 			/* do an invalid dup3 on an invalid fd */
 			tmp = shim_dup3(fds[0], bad_fd, O_CLOEXEC);
 			if (tmp >= 0)
 				(void)close(tmp);
 			else if (errno == ENOSYS)
 				do_dup3 = false;
+
+			if (!keep_stressing())
+				break;
 
 			/* do an invalid dup3 with an invalid flag */
 			tmp = shim_dup3(fds[0], fds[n], INT_MIN);
@@ -81,6 +87,9 @@ static int stress_dup(const stress_args_t *args)
 			else if (errno == ENOSYS)
 				do_dup3 = false;
 
+			if (!keep_stressing())
+				break;
+
 			/* do an invalid dup3 with an invalid fd */
 			tmp = shim_dup3(bad_fd, fds[n], INT_MIN);
 			if (tmp >= 0)
@@ -88,12 +97,18 @@ static int stress_dup(const stress_args_t *args)
 			else if (errno == ENOSYS)
 				do_dup3 = false;
 
+			if (!keep_stressing())
+				break;
+
 			/* do an invalid dup3 with same oldfd and newfd */
 			tmp = shim_dup3(fds[0], fds[0], O_CLOEXEC);
 			if (tmp >= 0)
 				(void)close(tmp);
 			else if (errno == ENOSYS)
 				do_dup3 = false;
+
+			if (!keep_stressing())
+				break;
 
 			if (do_dup3 && stress_mwc1()) {
 				int fd;
@@ -109,8 +124,14 @@ static int stress_dup(const stress_args_t *args)
 				fds[n] = dup2(fds[0], fds[n]);
 			}
 
+			if (!keep_stressing())
+				break;
+
 			fds[n] = dup2(fds[0], fds[n]);
 			if (fds[n] < 0)
+				break;
+
+			if (!keep_stressing())
 				break;
 
 			/* dup2 on the same fd should be a no-op */
@@ -125,6 +146,9 @@ static int stress_dup(const stress_args_t *args)
 			if (tmp >= 0)
 				(void)close(tmp);
 
+			if (!keep_stressing())
+				break;
+
 #if defined(F_DUPFD)
 			/* POSIX.1-2001 fcntl() */
 
@@ -132,10 +156,10 @@ static int stress_dup(const stress_args_t *args)
 			fds[n] = fcntl(fds[0], F_DUPFD, fds[0]);
 			if (fds[n] < 0)
 				break;
-#endif
 
 			if (!keep_stressing())
 				break;
+#endif
 			inc_counter(args);
 		}
 		for (i = 1; i < n; i++) {
