@@ -25,8 +25,8 @@
 #include "stress-ng.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"dev N",	"start N device entry thrashing stressors" },
-	{ NULL,	"dev-ops N",	"stop after N device thrashing bogo ops" },
+	{ NULL,	"bad-ioctl N",		"start N stressors that perform illegal read ioctls on devices" },
+	{ NULL,	"bad-ioctl-ops  N",	"stop after N bad ioctl bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -87,6 +87,11 @@ static inline void stress_bad_ioctl_rw(
 	uint16_t *buf16;
 	uint32_t *buf32;
 	uint64_t *buf64;
+	uint32_t *ptr, *buf_end;
+
+	typedef struct {
+			uint8_t page[4096];
+	} stress_4k_page_t;
 
 	buf = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -97,11 +102,17 @@ static inline void stress_bad_ioctl_rw(
 	buf16 = (uint16_t *)(buf + page_size - sizeof(uint16_t));
 	buf32 = (uint32_t *)(buf + page_size - sizeof(uint32_t));
 	buf64 = (uint64_t *)(buf + page_size - sizeof(uint64_t));
+	buf_end	= (uint32_t *)(buf + page_size);
+
+	for (ptr = (uint32_t *)buf; ptr < buf_end; ptr++) {
+		*ptr = stress_mwc32();
+	}
 
 	do {
 		double t_start;
 		uint8_t type = (i >> 8) & 0xff;
 		uint8_t nr = i & 0xff;
+		uint64_t rnd = stress_mwc32();
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -113,6 +124,10 @@ static inline void stress_bad_ioctl_rw(
 			break;
 
 		t_start = stress_time_now();
+
+		for (ptr = (uint32_t *)buf; ptr < buf_end; ptr++) {
+			*ptr ^= rnd;
+		}
 
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			break;
@@ -139,6 +154,11 @@ static inline void stress_bad_ioctl_rw(
 			break;
 
 		ret = ioctl(fd, _IOR(type, nr, uint8_t), buf8);
+		(void)ret;
+		if (stress_time_now() - t_start > threshold)
+			break;
+
+		ret = ioctl(fd, _IOR(type, nr, stress_4k_page_t), buf);
 		(void)ret;
 		if (stress_time_now() - t_start > threshold)
 			break;
