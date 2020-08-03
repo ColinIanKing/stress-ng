@@ -57,6 +57,9 @@ clear_journal()
 do_stress()
 {
 	ARGS="-t $DURATION --pathological --timestamp --tz --syslog --perf"
+	if grep -q "\-\-oom\-pipe" <<< "$*"; then
+		ARGS="$ARGS --oomable"
+	fi
 	echo running $* $ARGS
 	$STRESS_NG $* $ARGS
 	sudo $STRESS_NG $* $ARGS
