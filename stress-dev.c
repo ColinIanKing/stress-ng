@@ -228,6 +228,36 @@ static void stress_dev_video_linux(
 		(void)ret;
 	}
 #endif
+#if defined(VIDIOC_G_AUDOUT)
+	{
+		struct v4l2_audioout a;
+		int ret;
+
+		(void)memset(&a, 0, sizeof(a));
+		ret = ioctl(fd, VIDIOC_G_AUDOUT, &a);
+		(void)ret;
+	}
+#endif
+#if defined(VIDIOC_G_JPEGCOMP)
+	{
+		struct v4l2_jpegcompression a;
+		int ret;
+
+		(void)memset(&a, 0, sizeof(a));
+		ret = ioctl(fd, VIDIOC_G_JPEGCOMP, &a);
+		(void)ret;
+	}
+#endif
+#if defined(VIDIOC_QUERYSTD)
+	{
+		v4l2_std_id a;
+		int ret;
+
+		(void)memset(&a, 0, sizeof(a));
+		ret = ioctl(fd, VIDIOC_QUERYSTD, &a);
+		(void)ret;
+	}
+#endif
 }
 #endif
 
