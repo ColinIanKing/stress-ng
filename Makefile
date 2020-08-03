@@ -70,6 +70,7 @@ STRESS_SRC = \
 	stress-apparmor.c \
 	stress-atomic.c \
 	stress-bad-altstack.c \
+	stress-bad-ioctl.c \
 	stress-bigheap.c \
 	stress-bind-mount.c \
 	stress-binderfs.c \

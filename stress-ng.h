@@ -2161,6 +2161,7 @@ typedef struct {
 	MACRO(apparmor) 	\
 	MACRO(atomic)		\
 	MACRO(bad_altstack) 	\
+	MACRO(bad_ioctl) 	\
 	MACRO(bigheap)		\
 	MACRO(bind_mount)	\
 	MACRO(binderfs)		\
@@ -2483,6 +2484,9 @@ typedef enum {
 
 	OPT_bad_altstack,
 	OPT_bad_altstack_ops,
+
+	OPT_bad_ioctl,
+	OPT_bad_ioctl_ops,
 
 	OPT_branch,
 	OPT_branch_ops,

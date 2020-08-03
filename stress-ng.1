@@ -503,6 +503,16 @@ Unmapping the alternative signal stack during execution of the signal handler.
 .B \-\-bad\-altstack\-ops N
 stop the bad alternative stack stressors after N SIGSEGV bogo operations.
 .TP
+.TP
+.B \-\-bad\-ioctl N
+start N workers that perform a range of illegal bad read ioctls (using _IOR) across the
+device drivers. This exercises page size, 64 bit, 32 bit, 16 bit and 8 bit reads as
+well as NULL addresses, non-readable pages and PROT_NONE mapped pages. Currently only
+for Linux and requires the --pathological option.
+.TP
+.B \-\-bad\-ioctl\-ops N
+stop the bad ioctl stressors after N bogo ioctl operations.
+.TP
 .B \-B N, \-\-bigheap N
 start N workers that grow their heaps by reallocating memory. If the out of
 memory killer (OOM) on Linux kills the worker or the allocation fails then the
