@@ -1116,6 +1116,40 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
+#if defined(CDROM_GET_CAPABILITY)
+	{
+		int ret;
+
+		ret = ioctl(fd, CDROM_GET_CAPABILITY, 0);
+		(void)ret;
+	}
+#endif
+#if defined(CDROM_CHANGER_NSLOTS)
+	{
+		int ret;
+
+		ret = ioctl(fd, CDROM_CHANGER_NSLOTS, 0);
+		(void)ret;
+	}
+#endif
+#if defined(CDROM_NEXT_WRITABLE)
+	{
+		int ret;
+		long next;
+
+		ret = ioctl(fd, CDROM_NEXT_WRITABLE, &next);
+		(void)ret;
+	}
+#endif
+#if defined(CDROM_LAST_WRITTEN)
+	{
+		int ret;
+		long last;
+
+		ret = ioctl(fd, CDROM_LAST_WRITTEN, &last);
+		(void)ret;
+	}
+#endif
 }
 #endif
 
