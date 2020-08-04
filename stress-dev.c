@@ -1069,6 +1069,53 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
+#if defined(CDROMREADCOOKED) && defined(CD_FRAMESIZE)
+	{
+		uint8_t buffer[CD_FRAMESIZE];
+		int ret;
+
+		(void)memset(&buffer, 0, sizeof(buffer));
+		ret = ioctl(fd, CDROMREADCOOKED, buffer);
+		(void)ret;
+	}
+#endif
+#if defined(CDROMREADALL) && defined(CD_FRAMESIZE)
+	{
+		uint8_t buffer[CD_FRAMESIZE];
+		int ret;
+
+		(void)memset(&buffer, 0, sizeof(buffer));
+		ret = ioctl(fd, CDROMREADALL, buffer);
+		(void)ret;
+	}
+#endif
+#if defined(CDROMSEEK)
+	{
+		struct cdrom_msf msf;
+		int ret;
+
+		(void)memset(&msf, 0, sizeof(msf));
+		ret = ioctl(fd, CDROMSEEK, &msf);
+		(void)ret;
+	}
+#endif
+#if defined(CDROMGETSPINDOWN)
+	{
+		char spindown;
+		int ret;
+
+		ret = ioctl(fd, CDROMGETSPINDOWN, &spindown);
+		(void)ret;
+	}
+#endif
+#if defined(CDROM_DISC_STATUS)
+	{
+		int ret;
+
+		ret = ioctl(fd, CDROM_DISC_STATUS, 0);
+		(void)ret;
+	}
+#endif
 }
 #endif
 
