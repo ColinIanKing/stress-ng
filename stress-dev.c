@@ -1019,6 +1019,56 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
+#if defined(CDROMREADTOCHDR)
+	{
+		struct cdrom_tochdr header;
+		int ret;
+
+		(void)memset(&header, 0, sizeof(header));
+		ret = ioctl(fd, CDROMREADTOCHDR, &header);
+		(void)ret;
+	}
+#endif
+#if defined(CDROMREADTOCENTRY)
+	{
+		struct cdrom_tocentry entry;
+		int ret;
+
+		(void)memset(&entry, 0, sizeof(entry));
+		ret = ioctl(fd, CDROMREADTOCENTRY, &entry);
+		(void)ret;
+	}
+#endif
+#if defined(CDROMVOLREAD)
+	{
+		struct cdrom_volctrl volume;
+		int ret;
+
+		(void)memset(&volume, 0, sizeof(volume));
+		ret = ioctl(fd, CDROMVOLREAD, &volume);
+		(void)ret;
+	}
+#endif
+#if defined(CDROMSUBCHNL)
+	{
+		struct cdrom_subchnl q;
+		int ret;
+
+		(void)memset(&q, 0, sizeof(q));
+		ret = ioctl(fd, CDROMSUBCHNL, &q);
+		(void)ret;
+	}
+#endif
+#if defined(CDROMREADAUDIO)
+	{
+		struct cdrom_read_audio ra;
+		int ret;
+
+		(void)memset(&ra, 0, sizeof(ra));
+		ret = ioctl(fd, CDROMREADAUDIO, &ra);
+		(void)ret;
+	}
+#endif
 }
 #endif
 
