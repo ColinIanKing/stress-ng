@@ -1150,6 +1150,44 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
+#if defined(CDROM_MEDIA_CHANGED)
+	{
+		int ret, slot = 0;
+
+		ret = ioctl(fd, CDROM_MEDIA_CHANGED, slot);
+		(void)ret;
+
+#if defined(CDSL_NONE)
+		slot = CDSL_NONE;
+		ret = ioctl(fd, CDROM_MEDIA_CHANGED, slot);
+		(void)ret;
+#endif
+#if defined(CDSL_CURRENT)
+		slot = CDSL_CURRENT;
+		ret = ioctl(fd, CDROM_MEDIA_CHANGED, slot);
+		(void)ret;
+#endif
+	}
+#endif
+#if defined(CDROM_DRIVE_STATUS)
+	{
+		int ret, slot = 0;
+
+		ret = ioctl(fd, CDROM_DRIVE_STATUS, slot);
+		(void)ret;
+
+#if defined(CDSL_NONE)
+		slot = CDSL_NONE;
+		ret = ioctl(fd, CDROM_DRIVE_STATUS, slot);
+		(void)ret;
+#endif
+#if defined(CDSL_CURRENT)
+		slot = CDSL_CURRENT;
+		ret = ioctl(fd, CDROM_DRIVE_STATUS, slot);
+		(void)ret;
+#endif
+	}
+#endif
 }
 #endif
 
