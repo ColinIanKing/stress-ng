@@ -18,6 +18,10 @@
 #
 
 PERF_PARANOID=/proc/sys/kernel/perf_event_paranoid
+LOG=stress-ng-$(date '+%Y%m%d-%H%M').log
+echo "Logging to $LOG"
+
+rm -f $LOG
 
 #
 # stress-ng kernel coverage test:
@@ -60,9 +64,13 @@ do_stress()
 	if grep -q "\-\-oom\-pipe" <<< "$*"; then
 		ARGS="$ARGS --oomable"
 	fi
+	echo "STARTED:  $(date '+%F %X') using $* $ARGS" >> $LOG
+	sync
 	echo running $* $ARGS
 	$STRESS_NG $* $ARGS
 	sudo $STRESS_NG $* $ARGS
+	echo "FINISHED: $(date '+%F %X') using $* $ARGS (return $?)" >> $LOG
+	sync
 	clear_journal
 }
 
