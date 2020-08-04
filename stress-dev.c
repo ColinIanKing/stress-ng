@@ -1001,6 +1001,28 @@ static void stress_dev_kmem_linux(
 #endif
 
 #if defined(__linux__)
+static void stress_dev_cdrom_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
+{
+	(void)name;
+	(void)devpath;
+
+#if defined(CDROM_GET_MCN)
+	{
+		struct cdrom_mcn mcn;
+		int ret;
+
+		(void)memset(&mcn, 0, sizeof(mcn));
+		ret = ioctl(fd, CDROM_GET_MCN, &mcn);
+		(void)ret;
+	}
+#endif
+}
+#endif
+
+#if defined(__linux__)
 static void stress_dev_kmsg_linux(
 	const char *name,
 	const int fd,
@@ -1254,6 +1276,7 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/kmem",	stress_dev_kmem_linux),
 	DEV_FUNC("/dev/kmsg",	stress_dev_kmsg_linux),
 	DEV_FUNC("/dev/nvram",	stress_dev_nvram_linux),
+	DEV_FUNC("/dev/cdrom",  stress_dev_cdrom_linux),
 #endif
 #if defined(__linux__) && defined(STRESS_ARCH_X86)
 	DEV_FUNC("/dev/port",	stress_dev_port_linux),
