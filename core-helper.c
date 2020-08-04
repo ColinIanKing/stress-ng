@@ -1813,8 +1813,8 @@ uint16_t HOT OPTIMIZE3 stress_ip_checksum(uint16_t *ptr, const size_t sz)
     defined(HAVE_ENDPWENT)
 static int stress_uid_comp(const void *p1, const void *p2)
 {
-	const uid_t *uid1 = (uid_t *)p1;
-	const uid_t *uid2 = (uid_t *)p2;
+	const uid_t *uid1 = (const uid_t *)p1;
+	const uid_t *uid2 = (const uid_t *)p2;
 
 	if (*uid1 > *uid2)
 		return 1;
