@@ -362,10 +362,10 @@ again:
 			}
 		} else if (pid == 0) {
 			size_t i;
-			int r, rc;
+			int r, ssjret;
 
-			rc = sigsetjmp(jmp_env, 1);
-			if (rc != 0) {
+			ssjret = sigsetjmp(jmp_env, 1);
+			if (ssjret != 0) {
 				pr_err("%s: caught an unexpected segmentation fault\n", args->name);
 				_exit(EXIT_FAILURE);
 			}
