@@ -1216,6 +1216,7 @@ static inline void __builtin_prefetch(const void *addr, ...)
 				_Pragma("GCC diagnostic ignored \"-Wextra\"") \
 				_Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"") \
 				_Pragma("GCC diagnostic ignored \"-Wcast-qual\"")
+				_Pragma("GCC diagnostic ignored \"-Wnonnull\"")
 #else
 #define STRESS_PRAGMA_PUSH
 #define STRESS_PRAGMA_POP
