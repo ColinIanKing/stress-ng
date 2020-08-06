@@ -1172,6 +1172,8 @@ static void stress_dev_cdrom_linux(
 		ret = ioctl(fd, CDROM_MEDIA_CHANGED, slot);
 		(void)ret;
 #endif
+	}
+#endif
 #if defined(CDROMPAUSE)
 	{
 		int ret;
@@ -1186,8 +1188,6 @@ static void stress_dev_cdrom_linux(
 
 		ret = ioctl(fd, CDROMRESUME, 0);
 		(void)ret;
-	}
-#endif
 	}
 #endif
 #if defined(CDROM_DRIVE_STATUS)
