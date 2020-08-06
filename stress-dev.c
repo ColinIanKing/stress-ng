@@ -1007,6 +1007,7 @@ static void stress_dev_cdrom_linux(
 	const char *devpath)
 {
 	(void)name;
+	(void)fd;
 	(void)devpath;
 
 #if defined(CDROM_GET_MCN)
