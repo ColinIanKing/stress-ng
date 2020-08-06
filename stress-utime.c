@@ -45,6 +45,12 @@ static int stress_set_utime_fsync(const char *opt)
  */
 static int stress_utime(const stress_args_t *args)
 {
+#if defined(O_DIRECTORY) &&	\
+    defined(O_PATH) &&		\
+    defined(UTIME_NOW)
+	char path[PATH_MAX];
+	int dir_fd = -1;
+#endif
 	char filename[PATH_MAX];
 	int ret, fd;
 	bool utime_fsync = false;
@@ -54,6 +60,13 @@ static int stress_utime(const stress_args_t *args)
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
+
+#if defined(O_DIRECTORY) &&	\
+    defined(O_PATH) &&		\
+    defined(UTIME_NOW)
+	(void)stress_temp_dir_args(args, path, sizeof(path));
+	dir_fd = open(path, O_DIRECTORY | O_PATH);
+#endif
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
@@ -127,10 +140,28 @@ static int stress_utime(const stress_args_t *args)
 		(void)utimensat(AT_FDCWD, filename, ts, 0);
 #endif
 
+#if defined(O_DIRECTORY) &&	\
+    defined(O_PATH) &&		\
+    defined(UTIME_NOW)
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
+		if (dir_fd >= 0) {
+			ts[0].tv_sec = UTIME_NOW;
+			ts[0].tv_nsec = UTIME_NOW;
+
+			ts[1].tv_sec = UTIME_NOW;
+			ts[1].tv_nsec = UTIME_NOW;
+
+			(void)utimensat(dir_fd, NULL, ts, 0);
+		}
+STRESS_PRAGMA_POP
+#endif
+
 #if defined(UTIME_OMIT)
 		ts[1].tv_nsec = UTIME_OMIT;
 		(void)utimensat(AT_FDCWD, filename, ts, 0);
 #endif
+
 
 #if defined(AT_SYMLINK_NOFOLLOW)
 #if defined(UTIME_NOW)
@@ -171,6 +202,12 @@ static int stress_utime(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing());
 
+#if defined(O_DIRECTORY) &&	\
+    defined(O_PATH) &&		\
+    defined(UTIME_NOW)
+	if (dir_fd >= 0)
+		(void)close(dir_fd);
+#endif
 	(void)close(fd);
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
