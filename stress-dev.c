@@ -1047,7 +1047,11 @@ static void stress_dev_cdrom_linux(
 
 		(void)memset(&volume, 0, sizeof(volume));
 		ret = ioctl(fd, CDROMVOLREAD, &volume);
-		(void)ret;
+		if (ret == 0) {
+#if defined(CDROMVOLCTRL)
+			(void)ioctl(fd, CDROMVOLCTRL, &volume);
+#endif
+		}
 	}
 #endif
 #if defined(CDROMSUBCHNL)
