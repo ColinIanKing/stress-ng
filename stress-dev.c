@@ -1378,6 +1378,32 @@ static void stress_dev_hpet_linux(
 		(void)ret;
 	}
 #endif
+#if defined(CDROMMULTISESSION)
+	{
+		int ret;
+		struct cdrom_multisession ms_info;
+
+		/*
+		 *  Invalid CDROMMULTISESSION ioctl syscall with
+		 *  invalid format number resulting in EINVAL
+		 */
+		(void)memset(&ms_info, 0, sizeof(ms_info));
+		ms_info.addr_format = UINT8_MAX;
+		ret = ioctl(fd, CDROMMULTISESSION, &ms_info);
+		(void)ret;
+
+		/* Valid CDROMMULTISESSION with address formats */
+		(void)memset(&ms_info, 0, sizeof(ms_info));
+		ms_info.addr_format = CDROM_MSF;
+		ret = ioctl(fd, CDROMMULTISESSION, &ms_info);
+		(void)ret;
+
+		(void)memset(&ms_info, 0, sizeof(ms_info));
+		ms_info.addr_format = CDROM_LBA;
+		ret = ioctl(fd, CDROMMULTISESSION, &ms_info);
+		(void)ret;
+	}
+#endif
 }
 #endif
 
