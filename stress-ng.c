@@ -145,6 +145,15 @@ static const int ignore_signals[] = {
 #if defined(SIGUSR2)
 	SIGUSR2,
 #endif
+#if defined(SIGTTOU)
+	SIGTTOU,
+#endif
+#if defined(SIGTTIN)
+	SIGTTIN,
+#endif
+#if defined(SIGWINCH)
+	SIGWINCH,
+#endif
 };
 
 /*
