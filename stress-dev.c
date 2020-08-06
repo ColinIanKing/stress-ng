@@ -1252,6 +1252,75 @@ static void stress_dev_cdrom_linux(
 		(void)ioctl(fd, DVD_READ_STRUCT, &s);
 	}
 #endif
+#if defined(CDROMAUDIOBUFSIZ)
+	{
+		int val = INT_MIN, ret;
+
+		/* Invalid CDROMAUDIOBUFSIZ call with negative buffer size */
+		ret = ioctl(fd, CDROMAUDIOBUFSIZ, val);
+		(void)ret;
+	}
+#endif
+#if defined(DVD_AUTH)
+	{
+		int ret;
+		dvd_authinfo ai;
+
+		/* Invalid DVD_AUTH call with no credentials */
+		(void)memset(&ai, 0, sizeof(ai));
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
+
+		/*
+		 *  Exercise each DVD AUTH type to cover all the
+		 *  respective code to increase kernel coverage
+		 */
+		(void)memset(&ai, 0, sizeof(ai));
+		ai.type = DVD_LU_SEND_AGID;
+		(void)ioctl(fd, DVD_AUTH, &ai);
+
+		(void)memset(&ai, 0, sizeof(ai));
+		ai.type = DVD_LU_SEND_KEY1;
+		(void)ioctl(fd, DVD_AUTH, &ai);
+
+		(void)memset(&ai, 0, sizeof(ai));
+		ai.type = DVD_LU_SEND_CHALLENGE;
+		(void)ioctl(fd, DVD_AUTH, &ai);
+
+		(void)memset(&ai, 0, sizeof(ai));
+		ai.type = DVD_LU_SEND_TITLE_KEY;
+		(void)ioctl(fd, DVD_AUTH, &ai);
+
+		(void)memset(&ai, 0, sizeof(ai));
+		ai.type = DVD_LU_SEND_ASF;
+		(void)ioctl(fd, DVD_AUTH, &ai);
+
+		(void)memset(&ai, 0, sizeof(ai));
+		ai.type = DVD_HOST_SEND_CHALLENGE;
+		(void)ioctl(fd, DVD_AUTH, &ai);
+
+		(void)memset(&ai, 0, sizeof(ai));
+		ai.type = DVD_HOST_SEND_KEY2;
+		(void)ioctl(fd, DVD_AUTH, &ai);
+
+		(void)memset(&ai, 0, sizeof(ai));
+		ai.type = DVD_INVALIDATE_AGID;
+		(void)ioctl(fd, DVD_AUTH, &ai);
+
+		(void)memset(&ai, 0, sizeof(ai));
+		ai.type = DVD_LU_SEND_RPC_STATE;
+		(void)ioctl(fd, DVD_AUTH, &ai);
+
+		(void)memset(&ai, 0, sizeof(ai));
+		ai.type = DVD_HOST_SEND_RPC_STATE;
+		(void)ioctl(fd, DVD_AUTH, &ai);
+
+		/* Invalid DVD_READ_STRUCT call with invalid type argument */
+		(void)memset(&ai, 0, sizeof(ai));
+		ai.type = ~0;
+		(void)ioctl(fd, DVD_AUTH, &ai);
+	}
+#endif
 }
 #endif
 
