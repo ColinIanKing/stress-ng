@@ -1467,6 +1467,7 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/kmsg",	stress_dev_kmsg_linux),
 	DEV_FUNC("/dev/nvram",	stress_dev_nvram_linux),
 	DEV_FUNC("/dev/cdrom",  stress_dev_cdrom_linux),
+	DEV_FUNC("/dev/sr0",  stress_dev_cdrom_linux),
 #endif
 #if defined(__linux__) && defined(STRESS_ARCH_X86)
 	DEV_FUNC("/dev/port",	stress_dev_port_linux),
