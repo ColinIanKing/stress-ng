@@ -1209,6 +1209,49 @@ static void stress_dev_cdrom_linux(
 #endif
 	}
 #endif
+#if defined(DVD_READ_STRUCT)
+	{
+		dvd_struct s;
+
+		/*
+		 *  Invalid DVD_READ_STRUCT ioctl syscall with
+		 *  invalid layer number resulting in EINVAL
+		 */
+		(void)memset(&s, 0, sizeof(s));
+		s.type = DVD_STRUCT_PHYSICAL;
+		s.physical.layer_num = UINT8_MAX;
+		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+
+		/*
+		 *  Exercise each DVD structure type to cover all the
+		 *  respective functions to increase kernel coverage
+		 */
+		(void)memset(&s, 0, sizeof(s));
+		s.type = DVD_STRUCT_PHYSICAL;
+		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+
+		(void)memset(&s, 0, sizeof(s));
+		s.type = DVD_STRUCT_COPYRIGHT;
+		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+
+		(void)memset(&s, 0, sizeof(s));
+		s.type = DVD_STRUCT_DISCKEY;
+		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+
+		(void)memset(&s, 0, sizeof(s));
+		s.type = DVD_STRUCT_BCA;
+		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+
+		(void)memset(&s, 0, sizeof(s));
+		s.type = DVD_STRUCT_MANUFACT;
+		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+
+		/* Invalid DVD_READ_STRUCT call with invalid type argument */
+		(void)memset(&s, 0, sizeof(s));
+		s.type = UINT8_MAX;
+		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+	}
+#endif
 }
 #endif
 
