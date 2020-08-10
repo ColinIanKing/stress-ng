@@ -283,7 +283,7 @@ static int stress_aiol(const stress_args_t *args)
 
 	ret = system_read("/proc/sys/fs/aio-max-nr", buf, sizeof(buf));
 	if (ret > 0) {
-		if (sscanf(buf, "%zd", &aio_max_nr) != 1) {
+		if (sscanf(buf, "%zu", &aio_max_nr) != 1) {
 			/* Guess max */
 			aio_max_nr = DEFAULT_AIO_MAX_NR;
 		}
