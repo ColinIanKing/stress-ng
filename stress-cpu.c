@@ -453,7 +453,10 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 {
 	int i;
 	double d = 0;
-	long int l = 0;
+	long long int l = 0;
+	double d_expected_sum = 8184.618041;
+	long long int l_expected_sum = 17522760427916;
+	double d_error;
 
 	(void)name;
 
@@ -462,6 +465,14 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 		d += drand48();
 		l += lrand48();
 	}
+
+	d_error = d - d_expected_sum;
+
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && fabs(d_error) > 0.0001)
+		pr_fail("%s: drand48 error detected, failed sum\n", name);
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (l != l_expected_sum))
+		pr_fail("%s: lrand48 error detected, failed sum\n", name);
+
 	stress_double_put(d);
 	stress_uint64_put((uint64_t)l);
 }
