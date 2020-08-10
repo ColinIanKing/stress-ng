@@ -1000,6 +1000,32 @@ static void stress_dev_kmem_linux(
 }
 #endif
 
+#if defined(__linux__) && defined(CDROMREADTOCENTRY)
+/*
+ * cdrom_get_address_msf()
+ *      Given a track and fd, the function returns
+ *      the address of the track in MSF format
+ */
+static void cdrom_get_address_msf(
+	const int fd,
+	int track,
+	__u8* min,
+	__u8* seconds,
+	__u8* frames)
+	{
+		struct cdrom_tocentry entry;
+
+		(void)memset(&entry, 0, sizeof(entry));
+		entry.cdte_track = track;
+		entry.cdte_format = CDROM_MSF;
+		if (ioctl(fd, CDROMREADTOCENTRY, &entry) == 0) {
+			*min = entry.cdte_addr.msf.minute;
+			*seconds = entry.cdte_addr.msf.second;
+			*frames = entry.cdte_addr.msf.frame;
+		}
+	}
+#endif
+
 #if defined(__linux__)
 /*
  * stress_cdrom_ioctl_msf()
@@ -1040,6 +1066,30 @@ static void stress_cdrom_ioctl_msf(const int fd) {
 
 		}
 	}
+#endif
+
+#if defined(CDROMREADTOCENTRY)
+
+	struct cdrom_msf msf;
+
+	/* Fetch address of start and end track in MSF format */
+	(void)memset(&msf, 0, sizeof(msf));
+	cdrom_get_address_msf(fd, starttrk, &msf.cdmsf_min0,
+		&msf.cdmsf_sec0, &msf.cdmsf_frame0);
+	cdrom_get_address_msf(fd, endtrk, &msf.cdmsf_min1,
+		&msf.cdmsf_sec1, &msf.cdmsf_frame1);
+
+#if defined(CDROMPLAYMSF)
+	{
+		if (ioctl(fd, CDROMPLAYMSF, &msf) == 0) {
+
+#if defined(CDROMPAUSE)
+			(void)ioctl(fd, CDROMPAUSE, 0);
+#endif
+		}
+	}
+#endif
+
 #endif
 }
 #endif
