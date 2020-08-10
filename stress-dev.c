@@ -1090,6 +1090,18 @@ static void stress_cdrom_ioctl_msf(const int fd) {
 	}
 #endif
 
+#if defined(CDROMREADRAW) && defined(CD_FRAMESIZE_RAW)
+	{
+		union {
+			struct cdrom_msf msf;		/* input */
+			char buffer[CD_FRAMESIZE_RAW];	/* return */
+		} arg;
+
+		arg.msf = msf;
+		(void)ioctl(fd, CDROMREADRAW, &arg);
+	}
+#endif
+
 #endif
 }
 #endif
