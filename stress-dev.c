@@ -1102,6 +1102,30 @@ static void stress_cdrom_ioctl_msf(const int fd) {
 	}
 #endif
 
+#if defined(CDROMREADMODE1) && defined(CD_FRAMESIZE)
+	{
+		union {
+			struct cdrom_msf msf;		/* input */
+			char buffer[CD_FRAMESIZE];	/* return */
+		} arg;
+
+		arg.msf = msf;
+		(void)ioctl(fd, CDROMREADMODE1, &arg);
+	}
+#endif
+
+#if defined(CDROMREADMODE2) && defined(CD_FRAMESIZE_RAW0)
+	{
+		union {
+			struct cdrom_msf msf;		/* input */
+			char buffer[CD_FRAMESIZE_RAW0];	/* return */
+		} arg;
+
+		arg.msf = msf;
+		(void)ioctl(fd, CDROMREADMODE2, &arg);
+	}
+#endif
+
 #endif
 }
 #endif
