@@ -1001,6 +1001,50 @@ static void stress_dev_kmem_linux(
 #endif
 
 #if defined(__linux__)
+/*
+ * stress_cdrom_ioctl_msf()
+ *      tests all CDROM ioctl syscalls that
+ *      requires address argument in MSF Format
+ */
+static void stress_cdrom_ioctl_msf(const int fd) {
+	int starttrk = 0, endtrk = 0;
+	struct cdrom_tochdr header;
+
+#if defined(CDROMREADTOCHDR)
+
+	/* Reading the number of tracks on disc */
+	(void)memset(&header, 0, sizeof(header));
+	if (ioctl(fd, CDROMREADTOCHDR, &header) == 0) {
+		starttrk = header.cdth_trk0;
+		endtrk = header.cdth_trk1;
+	}
+
+#endif
+
+	/* Return if endtrack is not set or starttrk is invalid*/
+	if ((endtrk == 0) && (starttrk != 0)) {
+		return;
+	}
+
+#if defined(CDROMPLAYTRKIND)
+	{
+		struct cdrom_ti ti;
+
+		(void)memset(&ti, 0, sizeof(ti));
+		ti.cdti_trk1 = endtrk;
+		if (ioctl(fd, CDROMPLAYTRKIND, &ti) == 0) {
+
+#if defined(CDROMPAUSE)
+			(void)ioctl(fd, CDROMPAUSE, 0);
+#endif
+
+		}
+	}
+#endif
+}
+#endif
+
+#if defined(__linux__)
 static void stress_dev_cdrom_linux(
 	const char *name,
 	const int fd,
@@ -1009,6 +1053,8 @@ static void stress_dev_cdrom_linux(
 	(void)name;
 	(void)fd;
 	(void)devpath;
+
+	stress_cdrom_ioctl_msf(fd);
 
 #if defined(CDROM_GET_MCN)
 	{
