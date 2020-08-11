@@ -144,7 +144,8 @@ static void stress_dev_dm_linux(
 	(void)fd;
 	(void)devpath;
 
-#if defined(DM_VERSION)
+#if defined(DM_VERSION) &&	\
+    defined(HAVE_DM_IOCTL)
 	{
 		struct dm_ioctl dm;
 		int ret;
@@ -153,7 +154,8 @@ static void stress_dev_dm_linux(
 		(void)ret;
 	}
 #endif
-#if defined(DM_STATUS)
+#if defined(DM_STATUS) &&	\
+    defined(HAVE_DM_IOCTL)
 	{
 		struct dm_ioctl dm;
 		int ret;
