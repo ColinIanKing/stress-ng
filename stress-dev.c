@@ -1173,7 +1173,7 @@ static void stress_dev_cdrom_linux(
 	}
 #endif
 #if defined(CDROMREADTOCENTRY) &&	\
-    defined(HAVE_CDROM_TOCENTR)
+    defined(HAVE_CDROM_TOCENTRY)
 	{
 		struct cdrom_tocentry entry;
 		int ret;
@@ -1183,7 +1183,8 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
-#if defined(CDROMVOLREAD)
+#if defined(CDROMVOLREAD) &&	\
+    defined(HAVE_CDROM_VOLCTRL)
 	{
 		struct cdrom_volctrl volume;
 		int ret;
