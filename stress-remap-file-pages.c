@@ -109,7 +109,7 @@ static int remap_order(
 static int stress_remap(const stress_args_t *args)
 {
 	stress_mapdata_t *data;
-	void *unmapped, *mapped;
+	uint8_t *unmapped, *mapped;
 	const size_t page_size = args->page_size;
 	const size_t data_size = N_PAGES * page_size;
 	const size_t stride = page_size / sizeof(*data);
@@ -193,11 +193,11 @@ static int stress_remap(const stress_args_t *args)
 		 *  exercise some illegal remapping calls
 		 */
 		if (unmapped) {
-			ret = remap_file_pages(unmapped, page_size, 0, 0, 0);
+			ret = remap_file_pages((void *)unmapped, page_size, 0, 0, 0);
 			(void)ret;
 		}
 		if (mapped) {
-			ret = remap_file_pages(mapped + page_size, page_size, 0, 0, 0);
+			ret = remap_file_pages((void *)(mapped + page_size), page_size, 0, 0, 0);
 			(void)ret;
 		}
 
@@ -206,9 +206,9 @@ static int stress_remap(const stress_args_t *args)
 
 	(void)munmap(data, data_size);
 	if (mapped)
-		(void)munmap(mapped, mapped_size);
+		(void)munmap((void *)mapped, mapped_size);
 	if (unmapped)
-		(void)munmap(unmapped, page_size);
+		(void)munmap((void *)unmapped, page_size);
 
 	return EXIT_SUCCESS;
 }
