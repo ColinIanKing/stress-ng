@@ -1476,6 +1476,28 @@ static void stress_dev_cdrom_linux(
 #endif
 
 #if defined(__linux__)
+static void stress_dev_console_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
+{
+	(void)name;
+	(void)fd;
+	(void)devpath;
+
+#if defined(KDGETLED)
+	{
+		char argp;
+		int ret;
+
+		ret = ioctl(fd, KDGETLED, &argp);
+		(void)ret;
+	}
+#endif
+}
+#endif
+
+#if defined(__linux__)
 static void stress_dev_kmsg_linux(
 	const char *name,
 	const int fd,
@@ -1757,6 +1779,7 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/nvram",	stress_dev_nvram_linux),
 	DEV_FUNC("/dev/cdrom",  stress_dev_cdrom_linux),
 	DEV_FUNC("/dev/sr0",  stress_dev_cdrom_linux),
+	DEV_FUNC("/dev/console",  stress_dev_console_linux),
 #endif
 #if defined(__linux__) && defined(STRESS_ARCH_X86)
 	DEV_FUNC("/dev/port",	stress_dev_port_linux),
