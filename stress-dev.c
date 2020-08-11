@@ -1198,7 +1198,8 @@ static void stress_dev_cdrom_linux(
 #endif
 	}
 #endif
-#if defined(CDROMSUBCHNL)
+#if defined(CDROMSUBCHNL) &&	\
+    defined(HAVE_CDROM_SUBCHNL)
 	{
 		struct cdrom_subchnl q;
 		int ret;
