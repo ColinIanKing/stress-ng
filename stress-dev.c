@@ -111,7 +111,8 @@ static void stress_dev_vcs_linux(
 	(void)fd;
 	(void)devpath;
 
-#if defined(VT_GETMODE)
+#if defined(VT_GETMODE) &&	\
+    defined(HAVE_VT_MODE)
 	{
 		struct vt_mode mode;
 		int ret;
