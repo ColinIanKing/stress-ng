@@ -1411,7 +1411,8 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
-#if defined(DVD_AUTH)
+#if defined(DVD_AUTH) &&	\
+    defined(HAVE_DVD_AUTHINFO)
 	{
 		int ret;
 		dvd_authinfo ai;
