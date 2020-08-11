@@ -1508,6 +1508,31 @@ static void stress_dev_console_linux(
 
 	}
 #endif
+
+#if defined(KDGKBLED)
+	{
+		char argp;
+		int ret;
+
+		ret = ioctl(fd, KDGKBLED, &argp);
+
+#if defined(KDSKBLED)
+		if (ret == 0) {
+			unsigned long bad_val = ~0, val;
+
+			val = (unsigned long)argp;
+			(void)ioctl(fd, KDSKBLED, val);
+
+			/* Exercise Invalid KDSKBLED ioctl call with invalid flags */
+			if (ioctl(fd, KDSKBLED, bad_val) == 0) {
+				/* Unexpected success, so set it back */
+				(void)ioctl(fd, KDSKBLED, val);
+			}
+		}
+#endif
+
+	}
+#endif
 }
 #endif
 
