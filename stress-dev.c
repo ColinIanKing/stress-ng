@@ -1491,7 +1491,21 @@ static void stress_dev_console_linux(
 		int ret;
 
 		ret = ioctl(fd, KDGETLED, &argp);
-		(void)ret;
+
+#if defined(KDSETLED)
+		if (ret == 0) {
+			const char bad_val = ~0;
+
+			(void)ioctl(fd, KDSETLED, &argp);
+
+			/* Exercise Invalid KDSETLED ioctl call with invalid flags */
+			if (ioctl(fd, KDSETLED, &bad_val) == 0) {
+				/* Unexpected success, so set it back */
+				(void)ioctl(fd, KDSETLED, &argp);
+			}
+		}
+#endif
+
 	}
 #endif
 }
