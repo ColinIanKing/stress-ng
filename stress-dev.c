@@ -260,7 +260,7 @@ static void stress_dev_video_linux(
 #endif
 #if defined(VIDIOC_G_PRIORITY)
 	{
-		__u32 a;
+		uint32_t a;
 		int ret;
 
 		ret = ioctl(fd, VIDIOC_G_PRIORITY, &a);
@@ -1012,9 +1012,9 @@ static void stress_dev_kmem_linux(
 static void cdrom_get_address_msf(
 	const int fd,
 	int track,
-	__u8* min,
-	__u8* seconds,
-	__u8* frames)
+	uint8_t *min,
+	uint8_t *seconds,
+	uint8_t *frames)
 {
 	struct cdrom_tocentry entry;
 
