@@ -1034,17 +1034,19 @@ static void cdrom_get_address_msf(
  */
 static void stress_cdrom_ioctl_msf(const int fd) {
 	int starttrk = 0, endtrk = 0;
-	struct cdrom_tochdr header;
 
-#if defined(CDROMREADTOCHDR)
+#if defined(CDROMREADTOCHDR) &&	\
+    defined(HAVE_CDROM_TOCHDR)
+	{
+		struct cdrom_tochdr header;
+		/* Reading the number of tracks on disc */
 
-	/* Reading the number of tracks on disc */
-	(void)memset(&header, 0, sizeof(header));
-	if (ioctl(fd, CDROMREADTOCHDR, &header) == 0) {
-		starttrk = header.cdth_trk0;
-		endtrk = header.cdth_trk1;
+		(void)memset(&header, 0, sizeof(header));
+		if (ioctl(fd, CDROMREADTOCHDR, &header) == 0) {
+			starttrk = header.cdth_trk0;
+			endtrk = header.cdth_trk1;
+		}
 	}
-
 #endif
 
 	/* Return if endtrack is not set or starttrk is invalid*/
@@ -1152,7 +1154,8 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
-#if defined(CDROMREADTOCHDR)
+#if defined(CDROMREADTOCHDR) &&	\
+    defined(HAVE_CDROM_TOCHDR)
 	{
 		struct cdrom_tochdr header;
 		int ret;
