@@ -1035,8 +1035,11 @@ static void cdrom_get_address_msf(
  *      tests all CDROM ioctl syscalls that
  *      requires address argument in MSF Format
  */
-static void stress_cdrom_ioctl_msf(const int fd) {
+static void stress_cdrom_ioctl_msf(const int fd)
+{
 	int starttrk = 0, endtrk = 0;
+
+	(void)fd;
 
 #if defined(CDROMREADTOCHDR) &&	\
     defined(HAVE_CDROM_MSF) &&	\
