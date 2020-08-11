@@ -1062,6 +1062,7 @@ static void stress_cdrom_ioctl_msf(const int fd)
 	}
 
 #if defined(CDROMPLAYTRKIND) &&	\
+    defined(HAVE_CDROM_TI) &&	\
     defined(CDROMPAUSE)
 	{
 		struct cdrom_ti ti;
