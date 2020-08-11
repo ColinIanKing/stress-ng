@@ -1150,7 +1150,8 @@ static void stress_dev_cdrom_linux(
 
 	stress_cdrom_ioctl_msf(fd);
 
-#if defined(CDROM_GET_MCN)
+#if defined(CDROM_GET_MCN) &&	\
+    defined(HAVE_CDROM_MCN)
 	{
 		struct cdrom_mcn mcn;
 		int ret;
