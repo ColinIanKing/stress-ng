@@ -1000,7 +1000,9 @@ static void stress_dev_kmem_linux(
 }
 #endif
 
-#if defined(__linux__) && defined(CDROMREADTOCENTRY)
+#if defined(__linux__) &&		\
+    defined(CDROMREADTOCENTRY) &&	\
+    defined(HAVE_CDROM_TOCENTRY)
 /*
  * cdrom_get_address_msf()
  *      Given a track and fd, the function returns
@@ -1054,80 +1056,77 @@ static void stress_cdrom_ioctl_msf(const int fd) {
 		return;
 	}
 
-#if defined(CDROMPLAYTRKIND)
+#if defined(CDROMPLAYTRKIND) &&	\
+    defined(CDROMPAUSE)
 	{
 		struct cdrom_ti ti;
 
 		(void)memset(&ti, 0, sizeof(ti));
 		ti.cdti_trk1 = endtrk;
 		if (ioctl(fd, CDROMPLAYTRKIND, &ti) == 0) {
-
-#if defined(CDROMPAUSE)
 			(void)ioctl(fd, CDROMPAUSE, 0);
-#endif
-
 		}
 	}
 #endif
 
-#if defined(CDROMREADTOCENTRY)
-
-	struct cdrom_msf msf;
-
-	/* Fetch address of start and end track in MSF format */
-	(void)memset(&msf, 0, sizeof(msf));
-	cdrom_get_address_msf(fd, starttrk, &msf.cdmsf_min0,
-		&msf.cdmsf_sec0, &msf.cdmsf_frame0);
-	cdrom_get_address_msf(fd, endtrk, &msf.cdmsf_min1,
-		&msf.cdmsf_sec1, &msf.cdmsf_frame1);
-
-#if defined(CDROMPLAYMSF)
+#if defined(CDROMREADTOCENTRY) &&	\
+    defined(HAVE_CDROM_TOCENTRY)
 	{
+		struct cdrom_msf msf;
+
+		/* Fetch address of start and end track in MSF format */
+		(void)memset(&msf, 0, sizeof(msf));
+		cdrom_get_address_msf(fd, starttrk, &msf.cdmsf_min0,
+			&msf.cdmsf_sec0, &msf.cdmsf_frame0);
+		cdrom_get_address_msf(fd, endtrk, &msf.cdmsf_min1,
+			&msf.cdmsf_sec1, &msf.cdmsf_frame1);
+
+#if defined(CDROMPLAYMSF) && 	\
+    defined(CDROMPAUSE)
 		if (ioctl(fd, CDROMPLAYMSF, &msf) == 0) {
-
-#if defined(CDROMPAUSE)
 			(void)ioctl(fd, CDROMPAUSE, 0);
-#endif
 		}
-	}
 #endif
 
-#if defined(CDROMREADRAW) && defined(CD_FRAMESIZE_RAW)
-	{
-		union {
-			struct cdrom_msf msf;		/* input */
-			char buffer[CD_FRAMESIZE_RAW];	/* return */
-		} arg;
+#if defined(CDROMREADRAW) &&	\
+    defined(CD_FRAMESIZE_RAW)
+		{
+			union {
+				struct cdrom_msf msf;		/* input */
+				char buffer[CD_FRAMESIZE_RAW];	/* return */
+			} arg;
 
-		arg.msf = msf;
-		(void)ioctl(fd, CDROMREADRAW, &arg);
-	}
+			arg.msf = msf;
+			(void)ioctl(fd, CDROMREADRAW, &arg);
+		}
 #endif
 
-#if defined(CDROMREADMODE1) && defined(CD_FRAMESIZE)
-	{
-		union {
-			struct cdrom_msf msf;		/* input */
-			char buffer[CD_FRAMESIZE];	/* return */
-		} arg;
+#if defined(CDROMREADMODE1) &&	\
+    defined(CD_FRAMESIZE)
+		{
+			union {
+				struct cdrom_msf msf;		/* input */
+				char buffer[CD_FRAMESIZE];	/* return */
+			} arg;
 
-		arg.msf = msf;
-		(void)ioctl(fd, CDROMREADMODE1, &arg);
-	}
+			arg.msf = msf;
+			(void)ioctl(fd, CDROMREADMODE1, &arg);
+		}
 #endif
 
-#if defined(CDROMREADMODE2) && defined(CD_FRAMESIZE_RAW0)
-	{
-		union {
-			struct cdrom_msf msf;		/* input */
-			char buffer[CD_FRAMESIZE_RAW0];	/* return */
-		} arg;
+#if defined(CDROMREADMODE2) &&	\
+    defined(CD_FRAMESIZE_RAW0)
+		{
+			union {
+				struct cdrom_msf msf;		/* input */
+				char buffer[CD_FRAMESIZE_RAW0];	/* return */
+			} arg;
 
-		arg.msf = msf;
-		(void)ioctl(fd, CDROMREADMODE2, &arg);
-	}
+			arg.msf = msf;
+			(void)ioctl(fd, CDROMREADMODE2, &arg);
+		}
 #endif
-
+	}
 #endif
 }
 #endif
@@ -1154,7 +1153,7 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
-#if defined(CDROMREADTOCHDR) &&	\
+#if defined(CDROMREADTOCHDR) &&		\
     defined(HAVE_CDROM_TOCHDR)
 	{
 		struct cdrom_tochdr header;
@@ -1165,7 +1164,8 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
-#if defined(CDROMREADTOCENTRY)
+#if defined(CDROMREADTOCENTRY) &&	\
+    defined(HAVE_CDROM_TOCENTR)
 	{
 		struct cdrom_tocentry entry;
 		int ret;
@@ -1182,11 +1182,11 @@ static void stress_dev_cdrom_linux(
 
 		(void)memset(&volume, 0, sizeof(volume));
 		ret = ioctl(fd, CDROMVOLREAD, &volume);
-		if (ret == 0) {
 #if defined(CDROMVOLCTRL)
+		if (ret == 0) {
 			(void)ioctl(fd, CDROMVOLCTRL, &volume);
-#endif
 		}
+#endif
 	}
 #endif
 #if defined(CDROMSUBCHNL)
