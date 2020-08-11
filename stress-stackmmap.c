@@ -36,7 +36,7 @@ static const stress_help_t help[] = {
 #define MMAPSTACK_SIZE		(256 * KB)
 
 static ucontext_t c_main, c_test;
-static void *stack_mmap;			/* mmap'd stack */
+static uint8_t *stack_mmap;		/* mmap'd stack */
 static uintptr_t page_mask;
 static size_t page_size;
 
@@ -165,7 +165,7 @@ static int stress_stackmmap(const stress_args_t *args)
 	}
 	(void)close(fd);
 
-	if (shim_madvise(stack_mmap, MMAPSTACK_SIZE, MADV_RANDOM) < 0) {
+	if (shim_madvise((void *)stack_mmap, MMAPSTACK_SIZE, MADV_RANDOM) < 0) {
 		pr_dbg("%s: madvise failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
@@ -175,8 +175,8 @@ static int stress_stackmmap(const stress_args_t *args)
 	/*
 	 *  Make ends of stack inaccessible
 	 */
-	(void)mprotect(stack_mmap, page_size, PROT_NONE);
-	(void)mprotect(stack_mmap + MMAPSTACK_SIZE - page_size, page_size, PROT_NONE);
+	(void)mprotect((void *)stack_mmap, page_size, PROT_NONE);
+	(void)mprotect((void *)(stack_mmap + MMAPSTACK_SIZE - page_size), page_size, PROT_NONE);
 #endif
 
 	(void)memset(&c_test, 0, sizeof(c_test));
@@ -240,7 +240,7 @@ again:
 	rc = EXIT_SUCCESS;
 
 tidy_mmap:
-	(void)munmap(stack_mmap, MMAPSTACK_SIZE);
+	(void)munmap((void *)stack_mmap, MMAPSTACK_SIZE);
 tidy_dir:
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
