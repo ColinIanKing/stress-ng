@@ -305,7 +305,8 @@ static void stress_dev_video_linux(
 }
 #endif
 
-#if defined(HAVE_TERMIOS_H) && defined(TCGETS)
+#if defined(HAVE_TERMIOS_H) &&	\
+    defined(TCGETS)
 static void stress_dev_tty(
 	const char *name,
 	const int fd,
@@ -367,7 +368,8 @@ static void stress_dev_tty(
 		(void)ret;
 	}
 #endif
-#if defined(TIOCSIG) && defined(SIGCONT)
+#if defined(TIOCSIG) &&	\
+    defined(SIGCONT)
 	{
 		int sig = SIGCONT;
 
