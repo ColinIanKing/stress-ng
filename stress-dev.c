@@ -121,7 +121,8 @@ static void stress_dev_vcs_linux(
 		(void)ret;
 	}
 #endif
-#if defined(VT_GETSTATE)
+#if defined(VT_GETSTATE) &&	\
+    defined(HAVE_VT_STAT)
 	{
 		struct vt_stat vt_stat;
 		int ret;
