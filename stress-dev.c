@@ -1209,7 +1209,8 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
-#if defined(CDROMREADAUDIO)
+#if defined(CDROMREADAUDIO) &&	\
+    defined(HAVE_CDROM_READ_AUDIO)
 	{
 		struct cdrom_read_audio ra;
 		int ret;
