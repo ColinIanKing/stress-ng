@@ -1358,7 +1358,8 @@ static void stress_dev_cdrom_linux(
 #endif
 	}
 #endif
-#if defined(DVD_READ_STRUCT)
+#if defined(DVD_READ_STRUCT) &&	\
+    defined(HAVE_DVD_STRUCT)
 	{
 		dvd_struct s;
 
