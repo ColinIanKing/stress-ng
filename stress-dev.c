@@ -66,7 +66,8 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 	return (s1 < s2) ? -1 : 1;
 }
 
-#if defined(__linux__) && defined(HAVE_LINUX_MEDIA_H) && \
+#if defined(__linux__) && 		\
+    defined(HAVE_LINUX_MEDIA_H) && 	\
     defined(MEDIA_IOC_DEVICE_INFO)
 static void stress_dev_media_linux(
 	const char *name,
@@ -470,7 +471,8 @@ static void stress_dev_tty(
 	}
 #endif
 
-#if defined(TCOOFF) && defined(TCOON)
+#if defined(TCOOFF) && 	\
+    defined(TCOON)
 	{
 		ret = ioctl(fd, TCOOFF, 0);
 		if (ret == 0)
@@ -479,7 +481,8 @@ static void stress_dev_tty(
 	}
 #endif
 
-#if defined(TCIOFF) && defined(TCION)
+#if defined(TCIOFF) &&	\
+    defined(TCION)
 	{
 		ret = ioctl(fd, TCIOFF, 0);
 		if (ret == 0)
@@ -1619,7 +1622,8 @@ static void stress_dev_hpet_linux(
 }
 #endif
 
-#if defined(__linux__) && defined(STRESS_ARCH_X86)
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_X86)
 static void stress_dev_port_linux(
 	const char *name,
 	const int fd,
@@ -1795,7 +1799,8 @@ static void stress_dev_ptp_linux(
 	{ dev, sizeof(dev) - 1, func }
 
 static const stress_dev_func_t dev_funcs[] = {
-#if defined(__linux__) && defined(HAVE_LINUX_MEDIA_H) && \
+#if defined(__linux__) &&		\
+    defined(HAVE_LINUX_MEDIA_H) &&	\
     defined(MEDIA_IOC_DEVICE_INFO)
 	DEV_FUNC("/dev/media",	stress_dev_media_linux),
 #endif
@@ -1820,7 +1825,8 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/sr0",  stress_dev_cdrom_linux),
 	DEV_FUNC("/dev/console",  stress_dev_console_linux),
 #endif
-#if defined(__linux__) && defined(STRESS_ARCH_X86)
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_X86)
 	DEV_FUNC("/dev/port",	stress_dev_port_linux),
 #endif
 #if defined(HAVE_LINUX_HPET_H)
@@ -1851,7 +1857,8 @@ static inline void stress_dev_rw(
 	while (loops == -1 || loops > 0) {
 		double t_start;
 		bool timeout = false;
-#if defined(HAVE_TERMIOS_H) && defined(TCGETS)
+#if defined(HAVE_TERMIOS_H) &&	\
+    defined(TCGETS)
 		struct termios tios;
 #endif
 		ret = shim_pthread_spin_lock(&lock);
@@ -1895,7 +1902,8 @@ static inline void stress_dev_rw(
 			stress_dev_hd_linux(args->name, fd, path);
 #endif
 		}
-#if defined(HAVE_TERMIOS_H) && defined(TCGETS)
+#if defined(HAVE_TERMIOS_H) &&	\
+    defined(TCGETS)
 		if (S_ISCHR(buf.st_mode) &&
 		    strncmp("/dev/vsock", path, 9) &&
 		    strncmp("/dev/dri", path, 7) &&
