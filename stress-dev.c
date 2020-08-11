@@ -1215,7 +1215,8 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
-#if defined(CDROMREADCOOKED) && defined(CD_FRAMESIZE)
+#if defined(CDROMREADCOOKED) &&	\
+    defined(CD_FRAMESIZE)
 	{
 		uint8_t buffer[CD_FRAMESIZE];
 		int ret;
@@ -1225,7 +1226,8 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
-#if defined(CDROMREADALL) && defined(CD_FRAMESIZE)
+#if defined(CDROMREADALL) &&	\
+    defined(CD_FRAMESIZE)
 	{
 		uint8_t buffer[CD_FRAMESIZE];
 		int ret;
@@ -1235,7 +1237,8 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
-#if defined(CDROMSEEK)
+#if defined(CDROMSEEK) &&	\
+    defined(HAVE_CDROM_MSF)
 	{
 		struct cdrom_msf msf;
 		int ret;
