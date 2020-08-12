@@ -1,3 +1,119 @@
+stress-ng (0.11.18-1) unstable; urgency=medium
+
+  [Colin Ian King ]
+  * Makefile: bump version
+  * stress-stackmmap: cast mmap return to uint8_t to clean up build warning
+  * stress-set: declare bad_uid and cap-setuid only for HAVE_SETREUID case
+  * stress-dev: break multi #if defined checks across multiple lines (2)
+  * stress-dev: add auto build config check for struct dm_ioctl
+  * stress-dev: add auto build config check for struct vt_stat
+  * stress-dev: add auto build config check for struct vt_mode
+  * stress-dev: break multi #if defined checks across multiple lines
+  * stress-dev: add auto build config check for dvd_authinfo
+  * stress-dev: add auto build config check for dvd_struct
+  * stress-dev: add auto build config check for cdrom_read_audio
+  * Makefile.config: re-order cdrom checks into correct alphabetical order
+  * stress-dev: add auto build config check for cdrom_subchnl
+  * stress-dev: add auto build config check for cdrom_volctrl
+  * stress-dev: add auto build config check for cdrom_mcn
+  * Makefile.config: move cdrom struct checks to struct checking part of
+    autodection
+  * stress-dev: add auto build config check for cdrom_ti
+  * stress-dev: add one more HAVE_CDROM_MSF check and break up #if defined
+    checks
+  * stress-dev: fix musl gcc build warning
+  * stress-dev: use uint8_t and uint32_t instead of __u8 and __u32 types
+  * stress-dev: add auto build config check for cdrom_msf
+  * stress-dev: add auto build config check for cdrom_tocentry
+  * stress-dev: add auto build config check for cdrom_tochdr
+  * stress-stackmmap: don't use void * pointer arithmetic
+  * stress-remap-file-pages: don't use void * pointer arithmetic
+  * stress-aio-linux: use correct format specifier for size_t
+  * stress-dev: fix matching #endif and } causing build warnings
+  * stress-utime: add O_PATH fd test case for utimensat
+  * stress-ng.h: add -Wnonnull to disabled warnings
+  * stress-ng: Add SIGTTOU, SIGTTIN and SIGWINCH to the signal ignore array
+  * stress-dev: voidify fd in cdrom stressor to avoid build warnings
+  * core-helper: fix build warnings, add in missing const
+  * stress-bad-ioctl: rename rc to ssjret to avoid name shadowing
+  * Add auto build detection of linux/cdrom.h and define HAVE_LINUX_CDROM_H
+  * test/test-aio-{read|write}: memset structs to avoid static analysis
+    warnings
+  * kernel-coverage.sh: add log file to capture test times
+  * kernel-coverage.sh: make oom-pipe oomable
+  * stress-dup: add more yield points
+  * stress-numa: silently ignore migrate pages failures
+  * stress-bad-ioctl: add random page data to the mix
+  * Add a --bad-ioctl stressor that performs _IOR ioctl read commands
+  * core-helper: make uid gap at least 250 to reduce race window
+  * Add helper stress_get_unused_uid to find an unused uid
+  * stress-nice: fix build issue when HAVE_SETPRIORITY is not defined
+  * stress-aio: add autoconfig checks for aio-{cancel|read|write}
+  * Makefile.config: ensure libatomic is linked in correctly
+  * stress-sigtrap: move case statement to fix fallthrough build warning
+  * core-out-of-memory: only fall back to old oom interface if new one
+    does not exist
+  * core-helper: remove stress_sigalrm_block()
+  * core-log: remove pr_msg_fail()
+  * stress-ng: remove dead code
+  * stress-sigtrap: fix build error when SIGTRAP is not defined
+  * fix a lot of spelling mistakes and typos
+  * example-jobs: fix a couple more spelling mistakes
+  * example-jobs: fix some spelling mistakes
+  * stress-epoll: check for failure against the intended errno
+  * stress-pty: rename struct fields to use follower/leader instead
+  * kernel-coverage.sh: remove debug if/endif
+  * kernel-coverage.sh: ensure log does not overflow and make script less
+    OOM-able
+  * core-mlock: ensure mlock address arg is const
+  * stress-set: remove shadowed declaration of variable ret
+  * stress-epoll: only build EPOLLEXCLUSIVE if it is defined
+  * stress-get: rename array rlim to rlims to avoid name shadowing
+  * stress-epoll: fix pedantic build mode failure
+
+  [Piyush Goyal]
+  * stress-dev: Exercise KDGKBTYPE ioctl call
+  * stress-dev: Exercise KDGETMODE and KDSETMODE ioctl syscalls
+  * stress-dev: Exercise KDGKBLED and KDSKBLED ioctl syscalls
+  * stress-dev: Exercise valid and invalid KDSETLED ioctl calls
+  * stress-dev: Add Stressor for Console Driver
+  * stress-dev: Exercise CDROMREADMODE1 and CDROMREADMODE2 ioctl syscalls
+  * stress-dev: Exercise CDROMREADRAW ioctl syscall
+  * stress-dev: Exercise CDROMPLAYMSF ioctl syscall
+  * stress-dev: Exercise CDROMPLAYTRKIND ioctl syscall
+  * stress-dev: Exercise CDROMMULTISESSION ioctl sycall for CDROM driver
+  * stress-dev: Add ioctl calls for CDROM driver
+  * stress-dev: Exercise all possible DVD_READ_STRUCT ioctl syscalls
+  * stress-dev: Add in the /dev/sr0 to the dev_funcs array
+  * stress-dev: Exercise ioctl syscall for CDROM driver
+  * stress-dev: Exercise CDROMVOLCTRL ioctl syscall
+  * stress-dev: Add ioctl syscalls for cdrom driver
+  * stress-dev: Add more readable ioctl calls for CDROM driver
+  * stress-dev: Add readable ioctl calls for CDROM driver
+  * stress-dev: Add ioctl calls for CDROM driver
+  * stress-dev: Add stressor for CDROM driver
+  * stress-dev: Add v4l ioctl tests
+  * stress-dev: Add test for ioctl command VIDIOC_G_STD
+  * stress-dev: Add test for ioctl command VIDIOC_G_AUDIO
+  * stress-dev: Add test for ioctl command VIDIOC_G_INPUT
+  * stress-dev: Add test for ioctl command VIDIOC_G_OUTPUT
+  * stress-dev: Add memset for structure v4l2_capability
+  * stress-dev: Add test for ioctl command VIDIOC_G_FBUF
+  * stress-set: Test setreuid cannot succeed without capability
+  * stress-getrandom: Exercise invalid getrandom syscall
+  * stress-eloop: Pass efd2 as argument to test_eloop()
+  * stress-nice: Test nice cannot increase priority with capability
+  * stress-epoll: Test epoll instance cannot be added with EPOLLEXCLUSIVE
+    flag
+  * stress-nice: Exercise invalid nice syscall with invalid inc argument
+  * stress-flock: Exercise invalid flock syscall
+  * stress-epoll: Test EPOLL_CTL_MOD cannot be applied to EPOLLEXCLUSIVE
+  * stress-epoll: Test for modification of EPOLL_EXCLUSIVE in epoll_ctl
+  * stress-eloop: Add test for ELOOP error
+  * stress-set: Add comment for setrlimit syscall
+
+ -- Colin King <colin.king@canonical.com>  Wed, 12 Aug 2020 15:41:22 +0100
+
 stress-ng (0.11.17-1) unstable; urgency=medium
 
   [Colin Ian King ]
