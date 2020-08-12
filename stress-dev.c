@@ -1564,6 +1564,14 @@ static void stress_dev_console_linux(
 		}
 #endif
 
+#if defined(KDGKBTYPE)
+		{
+			int val = 0;
+
+			(void)ioctl(fd, KDGKBTYPE, &val);
+		}
+#endif
+
 	}
 #endif
 }
