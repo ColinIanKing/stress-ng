@@ -148,7 +148,7 @@ static int stress_stackmmap(const stress_args_t *args)
 		(void)close(fd);
 		goto tidy_dir;
 	}
-	stack_mmap = mmap(NULL, MMAPSTACK_SIZE, PROT_READ | PROT_WRITE,
+	stack_mmap = (uint8_t *)mmap(NULL, MMAPSTACK_SIZE, PROT_READ | PROT_WRITE,
 		MAP_SHARED, fd, 0);
 	if (stack_mmap == MAP_FAILED) {
 		if (errno == ENXIO) {
