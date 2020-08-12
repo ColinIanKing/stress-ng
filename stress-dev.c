@@ -1542,6 +1542,30 @@ static void stress_dev_console_linux(
 
 	}
 #endif
+
+#if defined(KDGETMODE)
+	{
+		int ret;
+		unsigned long argp = 0;
+
+		ret = ioctl(fd, KDGETMODE, &argp);
+
+#if defined(KDSETMODE)
+		if (ret == 0) {
+			unsigned long bad_val = ~0;
+
+			(void)ioctl(fd, KDSETMODE, argp);
+
+			/* Exercise Invalid KDSETMODE ioctl call with invalid flags */
+			if (ioctl(fd, KDSETMODE, bad_val) == 0) {
+				/* Unexpected success, so set it back */
+				(void)ioctl(fd, KDSETMODE, argp);
+			}
+		}
+#endif
+
+	}
+#endif
 }
 #endif
 
