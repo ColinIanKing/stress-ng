@@ -1564,6 +1564,9 @@ static void stress_dev_console_linux(
 		}
 #endif
 
+	}
+#endif
+
 #if defined(KDGKBTYPE)
 		{
 			int val = 0;
@@ -1572,8 +1575,6 @@ static void stress_dev_console_linux(
 		}
 #endif
 
-	}
-#endif
 }
 #endif
 
