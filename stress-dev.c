@@ -1575,6 +1575,22 @@ static void stress_dev_console_linux(
 		}
 #endif
 
+#if defined(GIO_CMAP)
+	{
+		unsigned char colormap[3*16];
+		int ret;
+
+		ret = ioctl(fd, GIO_CMAP, colormap);
+
+#if defined(PIO_CMAP)
+		if (ret == 0) {
+			(void)ioctl(fd, PIO_CMAP, colormap);
+		}
+#endif
+
+	}
+#endif
+
 }
 #endif
 
