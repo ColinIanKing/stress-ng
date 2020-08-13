@@ -93,10 +93,21 @@ static inline void stress_bad_ioctl_rw(
 			uint8_t page[4096];
 	} stress_4k_page_t;
 
-	buf = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+	/*
+	 *  Map in 2 pages, the last page will be unmapped to
+	 *  create a single mapped page with an unmapped page
+	 *  following it.
+	 */
+	buf = mmap(NULL, page_size << 1, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (buf == MAP_FAILED)
 		return;
+
+	/*
+	 *  Unmap last page so we know that the page following
+	 *  buf is definitely not read/writeable
+	 */
+	(void)munmap(buf + page_size, page_size);
 
 	buf8 = (uint8_t *)(buf + page_size - sizeof(uint8_t));
 	buf16 = (uint16_t *)(buf + page_size - sizeof(uint16_t));
