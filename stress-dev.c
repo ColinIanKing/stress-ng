@@ -78,7 +78,8 @@ static void stress_dev_media_linux(
 	(void)fd;
 	(void)devpath;
 
-#if defined(MEDIA_IOC_DEVICE_INFO)
+#if defined(MEDIA_IOC_DEVICE_INFO) &&	\
+    defined(HAVE_MEDIA_DEVICE_INFO)
 	{
 		struct media_device_info mdi;
 		int ret;
