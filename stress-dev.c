@@ -1556,7 +1556,8 @@ static void stress_dev_cdrom_linux(
 	}
 #endif
 
-#if defined(CDROMPLAYBLK)
+#if defined(CDROMPLAYBLK) &&	\
+    defined(HAVE_CDROM_BLK)
 	{
 		struct cdrom_blk blk;
 		int ret;
