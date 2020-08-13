@@ -78,7 +78,7 @@ static inline HOT OPTIMIZE3 void read64(uint64_t *data)
 	register uint64_t v;
 	volatile uint64_t *vdata = data;
 
-	__builtin_prefetch(data);
+	shim_builtin_prefetch(data);
 	v = vdata[0];
 	(void)v;
 	v = vdata[1];

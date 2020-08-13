@@ -37,7 +37,7 @@
 #define STRESS_NSIG	_NSIG
 #endif
 
-#if defined(__TINYC__)
+#if defined(__TINYC__) || defined(__PCC__)
 int __dso_handle;
 #endif
 

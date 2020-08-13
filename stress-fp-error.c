@@ -47,6 +47,12 @@ static inline void stress_fp_clear_error(void)
 	feclearexcept(FE_ALL_EXCEPT);
 }
 
+#if defined(__PCC__)
+#define shim_isinf(x)	(!isnan(x) && isnan(x - x))
+#else
+#define shim_isinf(x)	isinf(x)
+#endif
+
 static inline bool stress_double_same(
 	const double val,
 	const double val_expected,
@@ -55,11 +61,11 @@ static inline bool stress_double_same(
 {
 	if (is_nan && isnan(val))
 		return true;
-	if (is_inf && isinf(val))
+	if (is_inf && shim_isinf(val))
 		return true;
 	if (isnan(val) && isnan(val_expected))
 		return true;
-	if (isinf(val) && isinf(val_expected))
+	if (shim_isinf(val) && shim_isinf(val_expected))
 		return true;
 	return fabsl(val - val_expected) < 0.0000001;
 }

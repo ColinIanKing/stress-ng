@@ -153,7 +153,7 @@ static void stress_memthrash_memmove(
 
 	(void)args;
 #if defined(__GNUC__)
-	(void)__builtin_memmove((void *)dst, mem, mem_size - 1);
+	(void)shim_builtin_memmove((void *)dst, mem, mem_size - 1);
 #else
 	(void)memmove((void *)dst, mem, mem_size - 1);
 #endif
@@ -238,7 +238,7 @@ static void HOT OPTIMIZE3 stress_memthrash_prefetch(
 		uint8_t *const ptr = ((uint8_t *)mem) + offset;
 		volatile uint8_t *const vptr = ptr;
 
-		__builtin_prefetch(ptr, 1, 1);
+		shim_builtin_prefetch(ptr, 1, 1);
 		//(void)*vptr;
 		*vptr = i & 0xff;
 	}

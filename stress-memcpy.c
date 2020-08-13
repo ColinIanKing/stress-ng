@@ -110,12 +110,12 @@ static NOINLINE void stress_memcpy_builtin(
     defined(HAVE_BUILTIN_MEMMOVE)
 	(void)__builtin_memcpy(aligned_buf, str_shared, STR_SHARED_SIZE);
 	(void)__builtin_memcpy(str_shared, aligned_buf, STR_SHARED_SIZE / 2);
-	(void)__builtin_memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
+	(void)shim_builtin_memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
 	(void)__builtin_memcpy(b_str, b, STR_SHARED_SIZE);
-	(void)__builtin_memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
+	(void)shim_builtin_memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
 	(void)__builtin_memcpy(b, b_str, STR_SHARED_SIZE);
-	(void)__builtin_memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
-	(void)__builtin_memmove(aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
+	(void)shim_builtin_memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
+	(void)shim_builtin_memmove(aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
 #else
 	/*
 	 *  Compiler may fall back to turning these into inline'd
