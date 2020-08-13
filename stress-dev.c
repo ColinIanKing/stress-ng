@@ -1075,11 +1075,13 @@ static void stress_cdrom_ioctl_msf(const int fd)
     defined(CDROMPAUSE)
 	{
 		struct cdrom_ti ti;
+		int ret;
 
 		(void)memset(&ti, 0, sizeof(ti));
 		ti.cdti_trk1 = endtrk;
 		if (ioctl(fd, CDROMPLAYTRKIND, &ti) == 0) {
-			(void)ioctl(fd, CDROMPAUSE, 0);
+			ret = ioctl(fd, CDROMPAUSE, 0);
+			(void)ret;
 		}
 	}
 #endif
@@ -1089,6 +1091,7 @@ static void stress_cdrom_ioctl_msf(const int fd)
     defined(HAVE_CDROM_TOCENTRY)
 	{
 		struct cdrom_msf msf;
+		int ret;
 
 		/* Fetch address of start and end track in MSF format */
 		(void)memset(&msf, 0, sizeof(msf));
@@ -1100,7 +1103,8 @@ static void stress_cdrom_ioctl_msf(const int fd)
 #if defined(CDROMPLAYMSF) && 	\
     defined(CDROMPAUSE)
 		if (ioctl(fd, CDROMPLAYMSF, &msf) == 0) {
-			(void)ioctl(fd, CDROMPAUSE, 0);
+			ret = ioctl(fd, CDROMPAUSE, 0);
+			(void)ret;
 		}
 #endif
 
@@ -1113,7 +1117,8 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			} arg;
 
 			arg.msf = msf;
-			(void)ioctl(fd, CDROMREADRAW, &arg);
+			ret = ioctl(fd, CDROMREADRAW, &arg);
+			(void)ret;
 		}
 #endif
 
@@ -1126,7 +1131,8 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			} arg;
 
 			arg.msf = msf;
-			(void)ioctl(fd, CDROMREADMODE1, &arg);
+			ret = ioctl(fd, CDROMREADMODE1, &arg);
+			(void)ret;
 		}
 #endif
 
@@ -1139,7 +1145,8 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			} arg;
 
 			arg.msf = msf;
-			(void)ioctl(fd, CDROMREADMODE2, &arg);
+			ret = ioctl(fd, CDROMREADMODE2, &arg);
+			(void)ret;
 		}
 #endif
 	}
@@ -1202,9 +1209,10 @@ static void stress_dev_cdrom_linux(
 		ret = ioctl(fd, CDROMVOLREAD, &volume);
 #if defined(CDROMVOLCTRL)
 		if (ret == 0) {
-			(void)ioctl(fd, CDROMVOLCTRL, &volume);
+			ret = ioctl(fd, CDROMVOLCTRL, &volume);
 		}
 #endif
+		(void)ret;
 	}
 #endif
 #if defined(CDROMSUBCHNL) &&	\
@@ -1371,6 +1379,7 @@ static void stress_dev_cdrom_linux(
     defined(HAVE_DVD_STRUCT)
 	{
 		dvd_struct s;
+		int ret;
 
 		/*
 		 *  Invalid DVD_READ_STRUCT ioctl syscall with
@@ -1379,7 +1388,8 @@ static void stress_dev_cdrom_linux(
 		(void)memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_PHYSICAL;
 		s.physical.layer_num = UINT8_MAX;
-		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+		ret = ioctl(fd, DVD_READ_STRUCT, &s);
+		(void)ret;
 
 		/*
 		 *  Exercise each DVD structure type to cover all the
@@ -1387,28 +1397,34 @@ static void stress_dev_cdrom_linux(
 		 */
 		(void)memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_PHYSICAL;
-		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+		ret = ioctl(fd, DVD_READ_STRUCT, &s);
+		(void)ret;
 
 		(void)memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_COPYRIGHT;
-		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+		ret = ioctl(fd, DVD_READ_STRUCT, &s);
+		(void)ret;
 
 		(void)memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_DISCKEY;
-		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+		ret = ioctl(fd, DVD_READ_STRUCT, &s);
+		(void)ret;
 
 		(void)memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_BCA;
-		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+		ret = ioctl(fd, DVD_READ_STRUCT, &s);
+		(void)ret;
 
 		(void)memset(&s, 0, sizeof(s));
 		s.type = DVD_STRUCT_MANUFACT;
-		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+		ret = ioctl(fd, DVD_READ_STRUCT, &s);
+		(void)ret;
 
 		/* Invalid DVD_READ_STRUCT call with invalid type argument */
 		(void)memset(&s, 0, sizeof(s));
 		s.type = UINT8_MAX;
-		(void)ioctl(fd, DVD_READ_STRUCT, &s);
+		ret = ioctl(fd, DVD_READ_STRUCT, &s);
+		(void)ret;
 	}
 #endif
 #if defined(CDROMAUDIOBUFSIZ)
@@ -1437,48 +1453,59 @@ static void stress_dev_cdrom_linux(
 		 */
 		(void)memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_AGID;
-		(void)ioctl(fd, DVD_AUTH, &ai);
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
 
 		(void)memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_KEY1;
-		(void)ioctl(fd, DVD_AUTH, &ai);
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
 
 		(void)memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_CHALLENGE;
-		(void)ioctl(fd, DVD_AUTH, &ai);
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
 
 		(void)memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_TITLE_KEY;
-		(void)ioctl(fd, DVD_AUTH, &ai);
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
 
 		(void)memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_ASF;
-		(void)ioctl(fd, DVD_AUTH, &ai);
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
 
 		(void)memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_HOST_SEND_CHALLENGE;
-		(void)ioctl(fd, DVD_AUTH, &ai);
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
 
 		(void)memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_HOST_SEND_KEY2;
-		(void)ioctl(fd, DVD_AUTH, &ai);
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
 
 		(void)memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_INVALIDATE_AGID;
-		(void)ioctl(fd, DVD_AUTH, &ai);
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
 
 		(void)memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_LU_SEND_RPC_STATE;
-		(void)ioctl(fd, DVD_AUTH, &ai);
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
 
 		(void)memset(&ai, 0, sizeof(ai));
 		ai.type = DVD_HOST_SEND_RPC_STATE;
-		(void)ioctl(fd, DVD_AUTH, &ai);
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
 
 		/* Invalid DVD_READ_STRUCT call with invalid type argument */
 		(void)memset(&ai, 0, sizeof(ai));
 		ai.type = ~0;
-		(void)ioctl(fd, DVD_AUTH, &ai);
+		ret = ioctl(fd, DVD_AUTH, &ai);
+		(void)ret;
 	}
 #endif
 }
@@ -1500,21 +1527,22 @@ static void stress_dev_console_linux(
 		int ret;
 
 		ret = ioctl(fd, KDGETLED, &argp);
-
 #if defined(KDSETLED)
 		if (ret == 0) {
 			const char bad_val = ~0;
 
-			(void)ioctl(fd, KDSETLED, &argp);
+			ret = ioctl(fd, KDSETLED, &argp);
+			(void)ret;
 
 			/* Exercise Invalid KDSETLED ioctl call with invalid flags */
-			if (ioctl(fd, KDSETLED, &bad_val) == 0) {
+			ret = ioctl(fd, KDSETLED, &bad_val);
+			if (ret == 0) {
 				/* Unexpected success, so set it back */
-				(void)ioctl(fd, KDSETLED, &argp);
+				ret = ioctl(fd, KDSETLED, &argp);
 			}
 		}
 #endif
-
+		(void)ret;
 	}
 #endif
 
@@ -1524,22 +1552,23 @@ static void stress_dev_console_linux(
 		int ret;
 
 		ret = ioctl(fd, KDGKBLED, &argp);
-
 #if defined(KDSKBLED)
 		if (ret == 0) {
 			unsigned long bad_val = ~0, val;
 
 			val = (unsigned long)argp;
-			(void)ioctl(fd, KDSKBLED, val);
+			ret = ioctl(fd, KDSKBLED, val);
+			(void)ret;
 
 			/* Exercise Invalid KDSKBLED ioctl call with invalid flags */
-			if (ioctl(fd, KDSKBLED, bad_val) == 0) {
+			ret = ioctl(fd, KDSKBLED, bad_val);
+			if (ret == 0) {
 				/* Unexpected success, so set it back */
-				(void)ioctl(fd, KDSKBLED, val);
+				ret = ioctl(fd, KDSKBLED, val);
 			}
 		}
 #endif
-
+		(void)ret;
 	}
 #endif
 
@@ -1549,30 +1578,32 @@ static void stress_dev_console_linux(
 		unsigned long argp = 0;
 
 		ret = ioctl(fd, KDGETMODE, &argp);
-
 #if defined(KDSETMODE)
 		if (ret == 0) {
 			unsigned long bad_val = ~0;
 
-			(void)ioctl(fd, KDSETMODE, argp);
+			ret = ioctl(fd, KDSETMODE, argp);
+			(void)ret;
 
 			/* Exercise Invalid KDSETMODE ioctl call with invalid flags */
-			if (ioctl(fd, KDSETMODE, bad_val) == 0) {
+			ret = ioctl(fd, KDSETMODE, bad_val);
+			if (ret == 0) {
 				/* Unexpected success, so set it back */
-				(void)ioctl(fd, KDSETMODE, argp);
+				ret = ioctl(fd, KDSETMODE, argp);
 			}
 		}
 #endif
-
+		(void)ret;
 	}
 #endif
 
 #if defined(KDGKBTYPE)
-		{
-			int val = 0;
+	{
+		int val = 0, ret;
 
-			(void)ioctl(fd, KDGKBTYPE, &val);
-		}
+		ret = ioctl(fd, KDGKBTYPE, &val);
+		(void)ret;
+	}
 #endif
 
 #if defined(GIO_CMAP)
@@ -1581,13 +1612,12 @@ static void stress_dev_console_linux(
 		int ret;
 
 		ret = ioctl(fd, GIO_CMAP, colormap);
-
 #if defined(PIO_CMAP)
 		if (ret == 0) {
-			(void)ioctl(fd, PIO_CMAP, colormap);
+			ret = ioctl(fd, PIO_CMAP, colormap);
 		}
 #endif
-
+		(void)ret;
 	}
 #endif
 
