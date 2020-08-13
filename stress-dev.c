@@ -1276,6 +1276,24 @@ static void stress_dev_cdrom_linux(
 		int ret;
 
 		ret = ioctl(fd, CDROMGETSPINDOWN, &spindown);
+#if defined(CDROMSETSPINDOWN)
+		if (ret == 0) {
+			char bad_val = ~0;
+
+			ret = ioctl(fd, CDROMSETSPINDOWN, &spindown);
+			(void)ret;
+
+			/*
+			 * Exercise Invalid CDROMSETSPINDOWN ioctl call with
+			 * invalid spindown as it could contain only 4 set bits
+			 */
+			ret = ioctl(fd, CDROMSETSPINDOWN, bad_val);
+			if (ret == 0) {
+				/* Unexpected success, so set it back */
+				ret = ioctl(fd, CDROMSETSPINDOWN, &spindown);
+			}
+		}
+#endif
 		(void)ret;
 	}
 #endif
