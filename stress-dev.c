@@ -1524,6 +1524,19 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
+
+#if defined(CDROM_SELECT_SPEED)
+	{
+		int ret, i;
+		unsigned int speed;
+
+		for (i = 8; i < 16; i++) {
+			speed = 1UL << i;
+			ret = ioctl(fd, CDROM_SELECT_SPEED, speed);
+			(void)ret;
+		}
+	}
+#endif
 }
 #endif
 
