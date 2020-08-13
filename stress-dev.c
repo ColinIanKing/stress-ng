@@ -1508,6 +1508,22 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
+
+#if defined(CDROM_DEBUG)
+	{
+		int debug, ret;
+
+		/* Enable the DEBUG Messages */
+		debug = 1;
+		ret = ioctl(fd, CDROM_DEBUG, debug);
+		(void)ret;
+
+		/* Disable the DEBUG Messages */
+		debug = 0;
+		ret = ioctl(fd, CDROM_DEBUG, debug);
+		(void)ret;
+	}
+#endif
 }
 #endif
 
