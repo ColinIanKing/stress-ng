@@ -1555,6 +1555,17 @@ static void stress_dev_cdrom_linux(
 		}
 	}
 #endif
+
+#if defined(CDROMPLAYBLK)
+	{
+		struct cdrom_blk blk;
+		int ret;
+
+		(void)memset(&blk, 0, sizeof(blk));
+		ret = ioctl(fd, CDROMPLAYBLK, &blk);
+		(void)ret;
+	}
+#endif
 }
 #endif
 
