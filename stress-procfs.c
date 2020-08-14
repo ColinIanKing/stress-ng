@@ -107,6 +107,7 @@ static inline void stress_proc_rw(
 		uint8_t *ptr;
 		struct stat statbuf;
 		bool writeable = true;
+		size_t len;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -322,6 +323,35 @@ err:
 			(void)ret;
 			(void)close(fd);
 		}
+
+		/*
+		 *  Create /proc/ filename with - corruption to force
+		 *  ENOENT procfs open failures
+		 */
+		len = strlen(path);
+
+		/* /proc + ... */
+		if (len > 5) {
+			char *ptr = path + 5 + (stress_mwc16() % (len - 5));
+
+			/* Skip over / */
+			while (*ptr && (*ptr == '/'))
+				ptr++;
+
+			if (*ptr) {
+				*ptr = '-';
+
+				/*
+				 *  Expect ENOENT, but if it does open then
+				 *  close it immediately
+				 */
+				fd = open(path, O_WRONLY | O_NONBLOCK);
+				if (fd >= 0)
+					(void)close(fd);
+			}
+		}
+		
+
 next:
 		if (loops > 0) {
 			if (timeout)
