@@ -1681,6 +1681,22 @@ static void stress_dev_console_linux(
 	}
 #endif
 
+#if defined(GIO_FONTX)
+	{
+		struct consolefontdesc font;
+		int ret;
+
+		(void)memset(&font, 0, sizeof(font));
+		ret = ioctl(fd, GIO_FONTX, &font);
+#if defined(PIO_FONTX)
+		if (ret == 0) {
+			ret = ioctl(fd, PIO_FONTX, &font);
+		}
+#endif
+		(void)ret;
+	}
+#endif
+
 }
 #endif
 
