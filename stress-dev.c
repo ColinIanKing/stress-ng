@@ -1697,6 +1697,40 @@ static void stress_dev_console_linux(
 	}
 #endif
 
+#if defined(KDGETKEYCODE)
+	{
+		int ret;
+		struct kbkeycode argp;
+
+		(void)memset(&argp, 0, sizeof(argp));
+		ret = ioctl(fd, KDGETKEYCODE, &argp);
+#if defined(KDSETKEYCODE)
+		if (ret == 0) {
+			struct kbkeycode bad_arg;
+
+			ret = ioctl(fd, KDSETKEYCODE, &argp);
+			(void)ret;
+
+			/*
+			 * Exercise Invalid KDSETKEYCODE ioctl call
+			 * with invalid keycode having different values
+			 * of scancode and keycode for scancode < 89
+			 */
+			(void)memset(&bad_arg, 0, sizeof(bad_arg));
+			bad_arg.scancode = 1;
+			bad_arg.keycode = 2;
+
+			ret = ioctl(fd, KDSETKEYCODE, bad_arg);
+			if (ret == 0) {
+				/* Unexpected success, so set it back */
+				ret = ioctl(fd, KDSETKEYCODE, &argp);
+			}
+		}
+#endif
+		(void)ret;
+	}
+#endif
+
 }
 #endif
 
