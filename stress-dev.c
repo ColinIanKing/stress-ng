@@ -1731,6 +1731,21 @@ static void stress_dev_console_linux(
 	}
 #endif
 
+#if defined(GIO_FONT)
+	{
+		unsigned char argp[8192];
+		int ret;
+
+		ret = ioctl(fd, GIO_FONT, argp);
+#if defined(PIO_FONT)
+		if (ret == 0) {
+			ret = ioctl(fd, PIO_FONT, argp);
+		}
+#endif
+		(void)ret;
+	}
+#endif
+
 }
 #endif
 
