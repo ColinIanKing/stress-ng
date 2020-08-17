@@ -1746,6 +1746,31 @@ static void stress_dev_console_linux(
 	}
 #endif
 
+#if defined(KDGKBMODE)
+	{
+		int ret;
+		unsigned long argp = 0;
+
+		ret = ioctl(fd, KDGKBMODE, &argp);
+#if defined(KDSKBMODE)
+		if (ret == 0) {
+			unsigned long bad_val = ~0;
+
+			ret = ioctl(fd, KDSKBMODE, argp);
+			(void)ret;
+
+			/* Exercise Invalid KDSKBMODE ioctl call with invalid key mode */
+			ret = ioctl(fd, KDSKBMODE, bad_val);
+			if (ret == 0) {
+				/* Unexpected success, so set it back */
+				ret = ioctl(fd, KDSKBMODE, argp);
+			}
+		}
+#endif
+		(void)ret;
+	}
+#endif
+
 }
 #endif
 
