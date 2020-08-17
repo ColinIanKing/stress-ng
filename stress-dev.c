@@ -27,6 +27,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"dev N",	"start N device entry thrashing stressors" },
 	{ NULL,	"dev-ops N",	"stop after N device thrashing bogo ops" },
+	{ NULL, "dev-file name","specify the /dev/ file to exercise" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -47,6 +48,16 @@ typedef struct stress_dev_func {
 	const size_t devpath_len;
 	void (*func)(const char *name, const int fd, const char *devpath);
 } stress_dev_func_t;
+
+static int stress_set_dev_file(const char *opt)
+{
+	return stress_set_setting("dev-file", TYPE_ID_STR, opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_dev_file,         stress_set_dev_file },
+        { 0,                    NULL },
+};
 
 static stress_hash_table_t *dev_hash_table, *scsi_hash_table;
 
@@ -2302,6 +2313,24 @@ static void *stress_dev_thread(void *arg)
 }
 
 /*
+ *  stress_dev_file()
+ *	stress a specific device file
+ */
+static void stress_dev_file(const stress_args_t *args, char *path)
+{
+	int ret;
+	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
+
+	ret = shim_pthread_spin_lock(&lock);
+	if (!ret) {
+		dev_path = path;
+		(void)shim_pthread_spin_unlock(&lock);
+		stress_dev_rw(args, loops);
+		inc_counter(args);
+	}
+}
+
+/*
  *  stress_dev_dir()
  *	read directory
  */
@@ -2424,12 +2453,31 @@ static int stress_dev(const stress_args_t *args)
 	int ret[MAX_DEV_THREADS], rc = EXIT_SUCCESS;
 	uid_t euid = geteuid();
 	stress_pthread_args_t pa;
+	char *dev_file = NULL;
 
 	dev_path = "/dev/null";
 	pa.args = args;
 	pa.data = NULL;
 
 	(void)memset(ret, 0, sizeof(ret));
+
+	stress_get_setting("dev-file", &dev_file);
+	if (dev_file) {
+		mode_t mode;
+		struct stat statbuf;
+
+		if (stat(dev_file, &statbuf) < 0) {
+			pr_fail("%s: cannot access file %s\n",
+				args->name, dev_file);
+			return EXIT_FAILURE;
+		}
+		mode = statbuf.st_mode & S_IFMT;
+		if ((mode != S_IFBLK) && (mode != S_IFCHR)) {
+			pr_fail("%s: file %s is not a character or block device\n",
+				args->name, dev_file);
+			return EXIT_FAILURE;
+		}
+	}
 
 	do {
 		pid_t pid;
@@ -2499,7 +2547,10 @@ again:
 			}
 
 			do {
-				stress_dev_dir(args, "/dev", true, 0, euid);
+				if (dev_file)
+					stress_dev_file(args, dev_file);
+				else
+					stress_dev_dir(args, "/dev", true, 0, euid);
 			} while (keep_stressing());
 
 			r = shim_pthread_spin_lock(&lock);
@@ -2527,12 +2578,14 @@ again:
 stressor_info_t stress_dev_info = {
 	.stressor = stress_dev,
 	.class = CLASS_DEV | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
 stressor_info_t stress_dev_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_DEV | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #endif

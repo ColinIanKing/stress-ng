@@ -2601,6 +2601,7 @@ typedef enum {
 
 	OPT_dev,
 	OPT_dev_ops,
+	OPT_dev_file,
 
 	OPT_dev_shm,
 	OPT_dev_shm_ops,

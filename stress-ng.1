@@ -1220,6 +1220,11 @@ Note that watchdog devices are not exercised.
 .B \-\-dev\-ops N
 stop dev workers after N bogo device exercising operations.
 .TP
+.B \-\-dev\-file filename
+specify the device file to exercise, for example, /dev/null. By default
+the stressor will work through all the device files it can fine, however,
+this option allows a single device file to be exercised.
+.TP
 .B \-\-dev\-shm N
 start N workers that fallocate large files in /dev/shm and then mmap
 these into memory and touch all the pages. This exercises pages being

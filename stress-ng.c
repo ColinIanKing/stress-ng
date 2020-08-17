@@ -315,6 +315,7 @@ static const struct option long_options[] = {
 	{ "dentry-order",1,	0,	OPT_dentry_order },
 	{ "dev",	1,	0,	OPT_dev },
 	{ "dev-ops",	1,	0,	OPT_dev_ops },
+	{ "dev-file",	1,	0,	OPT_dev_file },
 	{ "dev-shm",	1,	0,	OPT_dev_shm },
 	{ "dev-shm-ops",1,	0,	OPT_dev_shm_ops },
 	{ "dir",	1,	0,	OPT_dir },
