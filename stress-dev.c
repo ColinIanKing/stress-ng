@@ -1841,6 +1841,47 @@ static void stress_dev_console_linux(
 	}
 #endif
 
+#if defined(KDGKBENT)
+	{
+		int ret;
+		struct kbentry entry;
+
+		(void)memset(&entry, 0, sizeof(entry));
+		ret = ioctl(fd, KDGKBENT, &entry);
+#if defined(KDSKBENT)
+		if (ret == 0) {
+			ret = ioctl(fd, KDSKBENT, &entry);
+			(void)ret;
+
+#if defined(MAX_NR_KEYMAPS)
+			struct kbentry bad_entry;
+
+			(void)memset(&bad_entry, 0, sizeof(bad_entry));
+			bad_entry.kb_table = MAX_NR_KEYMAPS;
+			ret = ioctl(fd, KDSKBENT, &bad_entry);
+			if (ret == 0) {
+				/* Unexpected success, so set it back */
+				ret = ioctl(fd, KDSKBENT, &entry);
+			}
+#endif
+
+#if defined(NR_KEYS)
+			struct kbentry bad_entry;
+
+			(void)memset(&entry, 0, sizeof(entry));
+			bad_entry.kb_index = NR_KEYS;
+			ret = ioctl(fd, KDSKBENT, &bad_entry);
+			if (ret == 0) {
+				/* Unexpected success, so set it back */
+				ret = ioctl(fd, KDSKBENT, &entry);
+			}
+#endif
+		}
+#endif
+		(void)ret;
+	}
+#endif
+
 }
 #endif
 
