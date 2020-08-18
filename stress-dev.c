@@ -1824,6 +1824,23 @@ static void stress_dev_console_linux(
 	}
 #endif
 
+#if defined(VT_GETMODE)
+	{
+		int ret;
+		struct vt_mode mode;
+
+		(void)memset(&mode, 0, sizeof(mode));
+		ret = ioctl(fd, VT_GETMODE, &mode);
+#if defined(VT_SETMODE)
+		if (ret == 0) {
+			ret = ioctl(fd, VT_SETMODE, &mode);
+			(void)ret;
+		}
+#endif
+		(void)ret;
+	}
+#endif
+
 }
 #endif
 
