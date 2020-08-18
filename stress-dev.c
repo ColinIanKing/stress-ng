@@ -1807,6 +1807,23 @@ static void stress_dev_console_linux(
 	}
 #endif
 
+#if defined(GIO_UNIMAP)
+	{
+		int ret;
+		struct unimapdesc argp;
+
+		(void)memset(&argp, 0, sizeof(argp));
+		ret = ioctl(fd, GIO_UNIMAP, &argp);
+#if defined(PIO_UNIMAP)
+		if (ret == 0) {
+			ret = ioctl(fd, PIO_UNIMAP, &argp);
+			(void)ret;
+		}
+#endif
+		(void)ret;
+	}
+#endif
+
 }
 #endif
 
