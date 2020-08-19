@@ -1715,7 +1715,8 @@ static void stress_dev_console_linux(
 #endif
 
 #if defined(HAVE_LINUX_KD_H) &&	\
-    defined(KDGETKEYCODE)
+    defined(KDGETKEYCODE) &&	\
+    defined(HAVE_KBKEYCODE)
 	{
 		int ret;
 		struct kbkeycode argp;
