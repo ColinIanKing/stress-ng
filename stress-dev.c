@@ -260,7 +260,8 @@ static void stress_dev_video_linux(
 		(void)ret;
 	}
 #endif
-#if defined(VIDIOC_G_JPEGCOMP)
+#if defined(VIDIOC_G_JPEGCOMP) && \
+    defined(HAVE_V4L2_JPEGCOMPRESSION)
 	{
 		struct v4l2_jpegcompression a;
 		int ret;
