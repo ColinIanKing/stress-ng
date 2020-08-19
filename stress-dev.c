@@ -291,7 +291,8 @@ static void stress_dev_video_linux(
 		(void)ret;
 	}
 #endif
-#if defined(VIDIOC_G_ENC_INDEX)
+#if defined(VIDIOC_G_ENC_INDEX) &&	\
+    defined(HAVE_V4L2_ENC_IDX)
 	{
 		struct v4l2_enc_idx a;
 		int ret;
