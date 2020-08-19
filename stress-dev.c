@@ -1857,7 +1857,8 @@ static void stress_dev_console_linux(
 #endif
 
 #if defined(HAVE_LINUX_KD_H) &&	\
-    defined(KDGKBENT)
+    defined(KDGKBENT) && 	\
+    defined(HAVE_KBENTRY)
 	{
 		int ret;
 		struct kbentry entry;
@@ -1883,7 +1884,8 @@ static void stress_dev_console_linux(
 
 #if defined(HAVE_LINUX_KD_H) &&	\
     defined(KDSKBENT) &&	\
-    defined(NR_KEYS)
+    defined(HAVE_KBENTRY) &&	\
+    defined(NR_KEYS) 
 			struct kbentry bad_entry;
 
 			(void)memset(&entry, 0, sizeof(entry));
