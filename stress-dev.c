@@ -1819,7 +1819,8 @@ static void stress_dev_console_linux(
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
-    defined(GIO_UNIMAP)
+    defined(GIO_UNIMAP) &&	\
+    defined(HAVE_UNIMAPDESC)
 	{
 		int ret;
 		struct unimapdesc argp;
