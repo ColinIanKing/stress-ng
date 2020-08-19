@@ -390,7 +390,8 @@ static void stress_dev_tty(
 		(void)ret;
 	}
 #endif
-#if defined(TIOCGWINSZ)
+#if defined(TIOCGWINSZ) && \
+    defined(HAVE_WINSIZE)
 	{
 		struct winsize ws;
 
