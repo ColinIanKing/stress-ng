@@ -249,7 +249,8 @@ static void stress_dev_video_linux(
 		(void)ret;
 	}
 #endif
-#if defined(VIDIOC_G_AUDOUT)
+#if defined(VIDIOC_G_AUDOUT) &&	\
+    defined(HAVE_V4L2_AUDIOOUT)
 	{
 		struct v4l2_audioout a;
 		int ret;
