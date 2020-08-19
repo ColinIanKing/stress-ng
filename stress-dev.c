@@ -1885,7 +1885,7 @@ static void stress_dev_console_linux(
 #if defined(HAVE_LINUX_KD_H) &&	\
     defined(KDSKBENT) &&	\
     defined(HAVE_KBENTRY) &&	\
-    defined(NR_KEYS) 
+    defined(NR_KEYS)
 			struct kbentry bad_entry;
 
 			(void)memset(&entry, 0, sizeof(entry));
