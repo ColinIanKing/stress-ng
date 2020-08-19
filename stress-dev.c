@@ -200,7 +200,8 @@ static void stress_dev_video_linux(
 		(void)ret;
 	}
 #endif
-#if defined(VIDIOC_G_FBUF)
+#if defined(VIDIOC_G_FBUF) &&	\
+    defined(HAVE_V4L2_FRAMEBUFFER)
 	{
 		struct v4l2_framebuffer f;
 		int ret;
