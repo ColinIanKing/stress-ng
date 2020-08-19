@@ -271,7 +271,8 @@ static void stress_dev_video_linux(
 		(void)ret;
 	}
 #endif
-#if defined(VIDIOC_QUERYSTD)
+#if defined(VIDIOC_QUERYSTD) &&	\
+    defined(HAVE_V4L2_STD_ID)
 	{
 		v4l2_std_id a;
 		int ret;
