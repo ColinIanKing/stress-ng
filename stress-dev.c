@@ -317,7 +317,8 @@ static void stress_dev_video_linux(
 #endif
 
 #if defined(HAVE_TERMIOS_H) &&	\
-    defined(TCGETS)
+    defined(TCGETS) &&		\
+    defined(HAVE_TERMIOS)
 static void stress_dev_tty(
 	const char *name,
 	const int fd,
