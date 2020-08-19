@@ -1697,7 +1697,8 @@ static void stress_dev_console_linux(
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
-    defined(GIO_FONTX)
+    defined(GIO_FONTX) &&	\
+    defined(HAVE_CONSOLEFONTDESC)
 	{
 		struct consolefontdesc font;
 		int ret;
