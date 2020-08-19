@@ -1591,7 +1591,8 @@ static void stress_dev_console_linux(
 	(void)fd;
 	(void)devpath;
 
-#if defined(KDGETLED)
+#if defined(HAVE_LINUX_KD_H) &&	\
+    defined(KDGETLED)
 	{
 		char argp;
 		int ret;
@@ -1616,7 +1617,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(KDGKBLED)
+#if defined(HAVE_LINUX_KD_H) &&	\
+    defined(KDGKBLED)
 	{
 		char argp;
 		int ret;
@@ -1642,7 +1644,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(KDGETMODE)
+#if defined(HAVE_LINUX_KD_H) &&	\
+    defined(KDGETMODE)
 	{
 		int ret;
 		unsigned long argp = 0;
@@ -1667,7 +1670,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(KDGKBTYPE)
+#if defined(HAVE_LINUX_KD_H) && \
+    defined(KDGKBTYPE)
 	{
 		int val = 0, ret;
 
@@ -1676,7 +1680,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(GIO_CMAP)
+#if defined(HAVE_LINUX_KD_H) && \
+    defined(GIO_CMAP)
 	{
 		unsigned char colormap[3*16];
 		int ret;
@@ -1691,7 +1696,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(GIO_FONTX)
+#if defined(HAVE_LINUX_KD_H) && \
+    defined(GIO_FONTX)
 	{
 		struct consolefontdesc font;
 		int ret;
@@ -1707,7 +1713,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(KDGETKEYCODE)
+#if defined(HAVE_LINUX_KD_H) &&	\
+    defined(KDGETKEYCODE)
 	{
 		int ret;
 		struct kbkeycode argp;
@@ -1741,7 +1748,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(GIO_FONT)
+#if defined(HAVE_LINUX_KD_H) && \
+    defined(GIO_FONT)
 	{
 		unsigned char argp[8192];
 		int ret;
@@ -1756,7 +1764,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(KDGKBMODE)
+#if defined(HAVE_LINUX_KD_H) &&	\
+    defined(KDGKBMODE)
 	{
 		int ret;
 		unsigned long argp = 0;
@@ -1781,7 +1790,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(KDGKBMETA)
+#if defined(HAVE_LINUX_KD_H) &&	\
+    defined(KDGKBMETA)
 	{
 		int ret;
 		unsigned long argp = 0;
@@ -1806,7 +1816,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(GIO_UNIMAP)
+#if defined(HAVE_LINUX_KD_H) && \
+    defined(GIO_UNIMAP)
 	{
 		int ret;
 		struct unimapdesc argp;
@@ -1823,7 +1834,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(VT_GETMODE)
+#if defined(HAVE_LINUX_VT_H) &&	\
+    defined(VT_GETMODE)
 	{
 		int ret;
 		struct vt_mode mode;
@@ -1840,7 +1852,8 @@ static void stress_dev_console_linux(
 	}
 #endif
 
-#if defined(KDGKBENT)
+#if defined(HAVE_LINUX_KD_H) &&	\
+    defined(KDGKBENT)
 	{
 		int ret;
 		struct kbentry entry;
@@ -1864,7 +1877,9 @@ static void stress_dev_console_linux(
 			}
 #endif
 
-#if defined(NR_KEYS)
+#if defined(HAVE_LINUX_KD_H) &&	\
+    defined(KDSKBENT) &&	\
+    defined(NR_KEYS)
 			struct kbentry bad_entry;
 
 			(void)memset(&entry, 0, sizeof(entry));
