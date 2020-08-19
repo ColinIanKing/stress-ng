@@ -302,7 +302,8 @@ static void stress_dev_video_linux(
 		(void)ret;
 	}
 #endif
-#if defined(VIDIOC_QUERY_DV_TIMINGS)
+#if defined(VIDIOC_QUERY_DV_TIMINGS) &&	\
+    defined(HAVE_V4L2_DV_TIMINGS)
 	{
 		struct v4l2_dv_timings a;
 		int ret;
