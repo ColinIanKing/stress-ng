@@ -1838,7 +1838,8 @@ static void stress_dev_console_linux(
 #endif
 
 #if defined(HAVE_LINUX_VT_H) &&	\
-    defined(VT_GETMODE)
+    defined(VT_GETMODE) &&	\
+    defined(HAVE_VT_MODE)
 	{
 		int ret;
 		struct vt_mode mode;
