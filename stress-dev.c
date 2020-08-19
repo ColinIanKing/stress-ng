@@ -189,7 +189,8 @@ static void stress_dev_video_linux(
 	(void)fd;
 	(void)devpath;
 
-#if defined(VIDIOC_QUERYCAP)
+#if defined(VIDIOC_QUERYCAP) &&	\
+    defined(HAVE_V4L2_CAPABILITY)
 	{
 		struct v4l2_capability c;
 		int ret;
