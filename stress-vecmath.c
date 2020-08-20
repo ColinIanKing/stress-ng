@@ -67,19 +67,42 @@ typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
  *  Convert various sized n * 8 bit tuples into n * 8 bit integers
  */
 #define H8(a0)						\
-	((uint8_t)a0)
+	((int8_t)((int8_t)a0))
 #define H16(a0, a1)     				\
-	(((uint16_t)a0 << 8) |				\
-	 ((uint16_t)a1))
+	((int16_t)(((int16_t)a0 << 8) |			\
+		   ((int16_t)a1 << 0)))
 #define H32(a0, a1, a2, a3)				\
-	(((uint32_t)a0 << 24) | ((uint32_t)a1 << 16) |	\
-	 ((uint32_t)a2 << 8)  | ((uint32_t)a3))
+	((int32_t)(((int32_t)a0 << 24) |		\
+		   ((int32_t)a1 << 16) |		\
+		   ((int32_t)a2 <<  8) |		\
+		   ((int32_t)a3 <<  0)))
 #define H64(a0, a1, a2, a3, a4, a5, a6, a7)		\
-	(((uint64_t)H32(a0, a1, a2, a3) << 32) |	\
-	 ((uint64_t)H32(a4, a5, a6, a7) << 0))
+	((int64_t)(((int64_t)a0 << 56) |		\
+		   ((int64_t)a1 << 48) |		\
+		   ((int64_t)a2 << 40) |		\
+		   ((int64_t)a3 << 32) |		\
+		   ((int64_t)a4 << 24) |		\
+		   ((int64_t)a5 << 16) |		\
+		   ((int64_t)a6 <<  8) | 		\
+		   ((int64_t)a7 <<  0)))
+
 #define H128(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)	\
-	(((__uint128_t)H64(a0, a1, a2, a3, a4, a5, a6, a7) << 64) |	\
-	 ((__uint128_t)H64(a8, a9, aa, ab, ac, ad, ae, af) << 0))
+	((__int128t)(((__int128_t)a0 << 120) |		\
+		     ((__int128_t)a1 << 112) |		\
+		     ((__int128_t)a2 << 104) |		\
+		     ((__int128_t)a3 <<  96) |		\
+		     ((__int128_t)a4 <<  88) |		\
+		     ((__int128_t)a5 <<  80) |		\
+		     ((__int128_t)a6 <<  72) |		\
+		     ((__int128_t)a7 <<  64) |		\
+		     ((__int128_t)a8 <<  56) |		\
+		     ((__int128_t)a9 <<  48) |		\
+		     ((__int128_t)aa <<  40) |		\
+		     ((__int128_t)ab <<  32) |		\
+		     ((__int128_t)ac <<  24) |		\
+		     ((__int128_t)ad <<  16) |		\
+		     ((__int128_t)ae <<   8) |		\
+		     ((__int128_t)af << 0)))		\
 
 /*
  *  128 bit constants
@@ -97,7 +120,7 @@ typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
 		  0x01, 0x01, 0x02, 0x02, 0x01, 0x01, 0x02, 0x02)
 
 #define	V23(M)	M(0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17,	\
-		   0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17)
+		  0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17, 0x17)
 
 #define V3(M)	M(0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03,	\
 		  0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03, 0x03)
