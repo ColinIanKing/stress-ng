@@ -332,14 +332,14 @@ err:
 
 		/* /proc + ... */
 		if (len > 5) {
-			char *ptr = path + 5 + (stress_mwc16() % (len - 5));
+			char *pptr = path + 5 + (stress_mwc16() % (len - 5));
 
 			/* Skip over / */
-			while (*ptr && (*ptr == '/'))
-				ptr++;
+			while (*pptr && (*pptr == '/'))
+				pptr++;
 
-			if (*ptr) {
-				*ptr = '-';
+			if (*pptr) {
+				*pptr = '-';
 
 				/*
 				 *  Expect ENOENT, but if it does open then
