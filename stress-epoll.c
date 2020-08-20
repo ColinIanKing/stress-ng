@@ -212,14 +212,45 @@ static void epoll_recv_data(const int fd)
  *  epoll_ctl_add()
  *	add fd to epoll list
  */
-static int epoll_ctl_add(const int efd, const int fd)
+static int epoll_ctl_add(const int efd, const int fd, const uint32_t events)
 {
 	struct epoll_event event;
 
 	(void)memset(&event, 0, sizeof(event));
 	event.data.fd = fd;
-	event.events = EPOLLIN | EPOLLET;
+	event.events = events;
 	if (epoll_ctl(efd, EPOLL_CTL_ADD, fd, &event) < 0)
+		return -1;
+
+	return 0;
+}
+
+/*
+ *  epoll_ctl_mod()
+ *      epoll modify
+ */
+static int epoll_ctl_mod(const int efd, const int fd, const uint32_t events)
+{
+	struct epoll_event event;
+
+	(void)memset(&event, 0, sizeof(event));
+	event.events = events;
+	if (epoll_ctl(efd, EPOLL_CTL_MOD, fd, &event) < 0)
+		return -1;
+
+	return 0;
+}
+
+/*
+ *  epoll_ctl_del()
+ *	del fd from epoll list
+ */
+static int epoll_ctl_del(const int efd, const int fd)
+{
+	struct epoll_event event;
+
+	(void)memset(&event, 0, sizeof(event));
+	if (epoll_ctl(efd, EPOLL_CTL_DEL, fd, &event) < 0)
 		return -1;
 
 	return 0;
@@ -269,6 +300,7 @@ static int epoll_notification(
 			return -1;
 		}
 
+#if 0
 		/*
 		 *  Exercise invalid epoll_ctl syscall with EPOLL_CTL_DEL
 		 *  and EPOLL_CTL_MOD on fd not registered with efd
@@ -276,17 +308,19 @@ static int epoll_notification(
 		(void)memset(&event, 0, sizeof(event));
 		(void)epoll_ctl(efd, EPOLL_CTL_DEL, fd, &event);
 		(void)epoll_ctl(efd, EPOLL_CTL_MOD, fd, &event);
+#endif
 
-		if (epoll_ctl_add(efd, fd) < 0) {
+		if (epoll_ctl_add(efd, fd, EPOLLIN | EPOLLET) < 0) {
 			pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
 			return -1;
 		}
+
 		/*
 		 *  Exercise kernel, force add on a bad fd, ignore error
 		 */
-		(void)epoll_ctl_add(efd, bad_fd);
+		(void)epoll_ctl_add(efd, bad_fd, EPOLLIN | EPOLLET);
 
 		/* Exercise epoll_ctl syscall with invalid operation */
 		(void)memset(&event, 0, sizeof(event));
@@ -296,7 +330,7 @@ static int epoll_notification(
 		 *  Exercise illegal epoll_ctl_add having fd
 		 *  same as efd, resulting in EINVAL error
 		 */
-		if (epoll_ctl_add(efd, efd) == 0) {
+		if (epoll_ctl_add(efd, efd, EPOLLIN | EPOLLET) == 0) {
 			pr_fail("%s: epoll_ctl_add unexpectedly succeeded with "
 				"invalid arguments, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -309,7 +343,7 @@ static int epoll_notification(
 		 *  fd which is already registered with efd
 		 *  resulting in EEXIST error
 		 */
-		if (epoll_ctl_add(efd, fd) == 0) {
+		if (epoll_ctl_add(efd, fd, EPOLLIN | EPOLLET) == 0) {
 			pr_fail("%s: epoll_ctl_add unexpectedly succeeded "
 				"with fd already registered, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -333,18 +367,21 @@ static int test_eloop(
 {
 	int ret;
 
-	ret = epoll_ctl_add(efd, efd2);
+	ret = epoll_ctl_add(efd, efd2, EPOLLIN | EPOLLET);
 	if (ret < 0) {
 		pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
 
-	ret = epoll_ctl_add(efd2, efd);
+	ret = epoll_ctl_add(efd2, efd, EPOLLIN | EPOLLET);
 	if (ret == 0) {
 		pr_fail("%s: epoll_ctl_add failed, expected ELOOP, instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
+		(void)epoll_ctl_del(efd2, efd);
+		(void)epoll_ctl_del(efd, efd2);
 		return -1;
 	}
+	(void)epoll_ctl_del(efd, efd2);
 
 	return 0;
 }
@@ -361,55 +398,57 @@ static int test_epoll_exclusive(
 	const int efd2,
 	const int sfd)
 {
-	struct epoll_event event1, event2;
-
-	(void)memset(&event1, 0, sizeof(event1));
-	(void)memset(&event2, 0, sizeof(event2));
-	event1.events = EPOLLEXCLUSIVE;
+	int rc = -1;
 
 	/*
 	 *  Deleting sfd from efd so that following
 	 *  test does not face any interruption
 	 */
-	(void)epoll_ctl(efd, EPOLL_CTL_DEL, sfd, &event2);
+	(void)epoll_ctl_del(efd, sfd);
 
 	/*
 	 *  Invalid epoll_ctl syscall as EPOLLEXCLUSIVE event
 	 *  cannot be operated by EPOLL_CTL_MOD operation
 	 */
-	if (epoll_ctl(efd, EPOLL_CTL_MOD, sfd, &event1) == 0) {
+	if (epoll_ctl_mod(efd, sfd, EPOLLEXCLUSIVE) == 0) {
 		pr_fail("%s: epoll_ctl failed, expected , EINVAL instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
-		return -1;
+		goto err;
 	}
 
-	if (epoll_ctl(efd, EPOLL_CTL_ADD, sfd, &event1) < 0) {
+	if (epoll_ctl_add(efd, sfd, EPOLLEXCLUSIVE) < 0) {
 		pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		return -1;
+		goto err;
 	}
 
 	/*
 	 *  Invalid epoll_ctl syscall as sfd was registered
 	 *  as EPOLLEXCLUSIVE event so it can't be modified
 	 */
-	if (epoll_ctl(efd, EPOLL_CTL_MOD, sfd, &event2) == 0) {
+	if (epoll_ctl_mod(efd, sfd, 0) == 0) {
 		pr_fail("%s: epoll_ctl failed, expected , EINVAL instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
-		return -1;
+		goto err;
 	}
 
 	/*
 	 *  Invalid epoll_ctl syscall as EPOLLEXCLUSIVE was
 	 *  specified in event and fd refers to an epoll instance.
 	 */
-	if (epoll_ctl(efd, EPOLL_CTL_ADD, efd2, &event1) == 0) {
+	if (epoll_ctl_add(efd, efd2, EPOLLEXCLUSIVE) == 0) {
 		pr_fail("%s: epoll_ctl failed, expected , EINVAL instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
-		return -1;
+		goto err;
 	}
 
-	return 0;
+	rc = 0;
+err:
+	epoll_ctl_del(efd, sfd);
+	if (epoll_ctl_add(efd, sfd, EPOLLIN | EPOLLET) < 0)
+		rc = -1;
+
+	return rc;
 }
 #endif
 
@@ -709,7 +748,7 @@ static void epoll_server(
 		goto die_close;
 	}
 #endif
-	if (epoll_ctl_add(efd, sfd) < 0) {
+	if (epoll_ctl_add(efd, sfd, EPOLLIN | EPOLLET) < 0) {
 		pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
