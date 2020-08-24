@@ -225,6 +225,7 @@ static int epoll_ctl_add(const int efd, const int fd, const uint32_t events)
 	return 0;
 }
 
+#if defined(EPOLLEXCLUSIVE)
 /*
  *  epoll_ctl_mod()
  *      epoll modify
@@ -240,6 +241,7 @@ static int epoll_ctl_mod(const int efd, const int fd, const uint32_t events)
 
 	return 0;
 }
+#endif
 
 /*
  *  epoll_ctl_del()
