@@ -31,6 +31,16 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+static int stress_set_dev_file(const char *opt)
+{
+	return stress_set_setting("dev-file", TYPE_ID_STR, opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_dev_file,         stress_set_dev_file },
+        { 0,                    NULL },
+};
+
 #if defined(HAVE_POLL_H) &&		\
     defined(HAVE_LIB_PTHREAD) && 	\
     !defined(__sun__) && 		\
@@ -48,16 +58,6 @@ typedef struct stress_dev_func {
 	const size_t devpath_len;
 	void (*func)(const char *name, const int fd, const char *devpath);
 } stress_dev_func_t;
-
-static int stress_set_dev_file(const char *opt)
-{
-	return stress_set_setting("dev-file", TYPE_ID_STR, opt);
-}
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_dev_file,         stress_set_dev_file },
-        { 0,                    NULL },
-};
 
 static stress_hash_table_t *dev_hash_table, *scsi_hash_table;
 
