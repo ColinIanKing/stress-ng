@@ -2319,7 +2319,11 @@ static void TARGET_CLONES stress_cpu_union(const char *name)
 		struct {
 			uint32_t	b10:10;
 			uint32_t	b20:20;
+#if defined(__TINYC__)
+			uint32_t	f:1;
+#else
 			uint32_t	:1;
+#endif
 			uint32_t	b1:1;
 		} bits32;
 		uint32_t	u32:30;
