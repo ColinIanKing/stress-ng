@@ -25,11 +25,15 @@
 #include "stress-ng.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"zlib N",	 "start N workers compressing data with zlib" },
-	{ NULL,	"zlib-ops N",	 "stop after N zlib bogo compression operations" },
-	{ NULL,	"zlib-level L",	 "specify zlib compression level 0=fast, 9=best" },
-	{ NULL,	"zlib-method M", "specify zlib random data generation method M" },
-	{ NULL,	NULL,		 NULL }
+	{ NULL,	"zlib N",		"start N workers compressing data with zlib" },
+	{ NULL,	"zlib-level L",		"specify zlib compression level 0=fast, 9=best" },
+	{ NULL,	"zlib-mem-level L",	"specify zlib compression state memory usage 1=minimum, 9=maximum" },
+	{ NULL,	"zlib-method M",	"specify zlib random data generation method M" },
+	{ NULL,	"zlib-ops N",		"stop after N zlib bogo compression operations" },
+	{ NULL,	"zlib-strategy S",	"specify zlib strategy 0=default, 1=filtered, 2=huffman only, 3=rle, 4=fixed" },
+	{ NULL,	"zlib-stream-bytes S",	"specify the number of bytes to deflate until the current stream will be closed" },
+	{ NULL,	"zlib-window-bits W",	"specify zlib window bits -8-(-15) | 8-15 | 24-31 | 40-47" },
+	{ NULL,	NULL,			NULL }
 };
 
 #if defined(HAVE_LIB_Z)
@@ -58,6 +62,15 @@ typedef struct {
 	bool		pipe_broken;
 	bool		interrupted;
 } stress_xsum_t;
+
+typedef struct {
+	char		*data_func;	/* pointer to data generator fucntion */
+	int32_t		window_bits;	/* zlib window bits */
+	uint32_t	level;		/* zlib compression level */
+	uint32_t	mem_level;	/* zlib memory usage */
+	uint32_t	strategy;	/* zlib strategy */
+	uint64_t	stream_bytes;	/* size of generated data until deflate should generate Z_STREAM_END */
+} stress_zlib_args_t;
 
 typedef struct morse {
 	char ch;
@@ -931,6 +944,20 @@ static int stress_set_zlib_level(const char *opt)
 }
 
 /*
+ *  stress_set_zlib_mem_level
+ *	set the amount of reserved memory for the compression state, 1..9,
+ *	1 = minimum, 9 = maximum
+ */
+static int stress_set_zlib_mem_level(const char *opt)
+{
+	uint32_t zlib_mem_level;
+
+	zlib_mem_level = stress_get_uint32(opt);
+	stress_check_range("zlib-mem-level", zlib_mem_level, 1, 9);
+	return stress_set_setting("zlib-mem-level", TYPE_ID_UINT32, &zlib_mem_level);
+}
+
+/*
  *  stress_set_zlib_method()
  *	set the default zlib random data method
  */
@@ -954,10 +981,71 @@ static int stress_set_zlib_method(const char *opt)
 	return -1;
 }
 
+/*
+ *  stress_set_zlib_window_bits
+ *	specify the window bits used to allocate the history buffer size. The value is
+ * 	specified as the base two logarithm of the buffer size (e.g. value 9 is 2^9 =
+ * 	512 bytes).
+ * 	8-(-15): raw format
+ * 	   8-15: zlib format
+ * 	  24-31: gzip format (zlib format +16)
+ * 	  40-47: autodetect format when using inflate (zlib format +32)
+ *	         hint: stress-ng uses zlib format as default for deflate
+ */
+static int stress_set_zlib_window_bits(const char *opt)
+{
+	int32_t zlib_window_bits;
+
+	zlib_window_bits = stress_get_int32(opt);
+	if (zlib_window_bits > 31) {
+		/* auto detect inflate format */
+		stress_check_range("zlib-window-bits", zlib_window_bits, 40, 47);
+	} else if (zlib_window_bits > 15) {
+		/* gzip format */
+		stress_check_range("zlib-window-bits", zlib_window_bits, 24, 31);
+	} else if (zlib_window_bits > 0) {
+		/* zlib format */
+		stress_check_range("zlib-window-bits", zlib_window_bits, 8, 15);
+	} else {
+		stress_check_range("zlib-window-bits", zlib_window_bits, -15, -8);
+	}
+	return stress_set_setting("zlib-window-bits", TYPE_ID_INT32, &zlib_window_bits);
+}
+
+/*
+ *  stress_set_zlib_stream_bytes
+ *	create chunks instead of an endless deflate stream
+ */
+static int stress_set_zlib_stream_bytes(const char *opt)
+{
+	uint64_t zlib_stream_bytes;
+
+	zlib_stream_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
+	stress_check_range_bytes("zlib-stream-bytes", zlib_stream_bytes, 0, MAX_MEM_LIMIT);
+	return stress_set_setting("zlib-stream-bytes", TYPE_ID_UINT64, &zlib_stream_bytes);
+}
+
+/*
+ *  stress_set_zlib_strategy
+ *	set the zlib compression strategy to be used for compression
+ */
+static int stress_set_zlib_strategy(const char *opt)
+{
+	uint32_t zlib_strategy;
+
+	zlib_strategy = stress_get_uint32(opt);
+	stress_check_range("zlib-strategy", zlib_strategy, Z_DEFAULT_STRATEGY, Z_FIXED);
+	return stress_set_setting("zlib-strategy", TYPE_ID_UINT32, &zlib_strategy);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_zlib_level,	stress_set_zlib_level },
-	{ OPT_zlib_method,	stress_set_zlib_method },
-	{ 0,			NULL }
+	{ OPT_zlib_level,		stress_set_zlib_level },
+	{ OPT_zlib_mem_level,		stress_set_zlib_mem_level },
+	{ OPT_zlib_method,		stress_set_zlib_method },
+	{ OPT_zlib_window_bits,		stress_set_zlib_window_bits },
+	{ OPT_zlib_stream_bytes,	stress_set_zlib_stream_bytes },
+	{ OPT_zlib_strategy,		stress_set_zlib_strategy },
+	{ 0,				NULL }
 };
 
 /*
@@ -976,19 +1064,31 @@ static const char *stress_zlib_err(const int zlib_err)
 			errno, strerror(errno));
 		return buf;
 	case Z_STREAM_ERROR:
-		return "invalid compression level";
+		return "inconsistent stream or invalid parameter level/memory/strategy/window-bits (Z_STREAM_ERROR)";
 	case Z_DATA_ERROR:
-		return "invalid or incomplete deflate data";
+		return "invalid or incomplete deflate data or stream was freed prematurely (Z_DATA_ERROR)";
 	case Z_MEM_ERROR:
-		return "out of memory";
+		return "out of memory (Z_MEM_ERROR)";
 	case Z_VERSION_ERROR:
-		return "zlib version mismatch";
+		return "zlib version mismatch (Z_VERSION_ERROR)";
 	default:
 		(void)snprintf(buf, sizeof(buf), "unknown zlib error %d\n", zlib_err);
 		return buf;
 	}
 }
 
+/*
+ *  stress_zlib_get_args()
+ *	get all zlib arguments at once
+ */
+static void stress_zlib_get_args(stress_zlib_args_t *parms) {
+	(void)stress_get_setting("zlib-level", &parms->level);
+	(void)stress_get_setting("zlib-mem-level", &parms->mem_level);
+	(void)stress_get_setting("zlib-method", &parms->data_func);
+	(void)stress_get_setting("zlib-window-bits", &parms->window_bits);
+	(void)stress_get_setting("zlib-stream-bytes", &parms->stream_bytes);
+	(void)stress_get_setting("zlib-strategy", &parms->strategy);
+}
 
 /*
  *  stress_zlib_inflate()
@@ -1000,12 +1100,16 @@ static int stress_zlib_inflate(
 	const int fd,
 	const int xsum_fd)
 {
+	ssize_t sz;
 	int ret, err = 0;
 	z_stream stream_inf;
 	uint64_t xsum_chars = 0;
 	static unsigned char in[DATA_SIZE];
 	static unsigned char out[DATA_SIZE];
 	stress_xsum_t xsum;
+	stress_zlib_args_t zlib_args;
+
+	(void)stress_zlib_get_args(&zlib_args);
 
 	xsum.xsum = 0;
 	xsum.error = false;
@@ -1018,77 +1122,109 @@ static int stress_zlib_inflate(
 	stream_inf.avail_in = 0;
 	stream_inf.next_in = Z_NULL;
 
-	ret = inflateInit(&stream_inf);
-	if (ret != Z_OK) {
-		pr_fail("%s: zlib inflateInit error: %s\n",
-			args->name, stress_zlib_err(ret));
-		xsum.error = true;
-		goto xsum_error;
-	}
-
+	pr_dbg("INF: lvl=%d mem-lvl=%d wbits=%d strategy=%d\n",
+		zlib_args.level, zlib_args.mem_level, zlib_args.window_bits,
+		zlib_args.strategy);
 	do {
-		ssize_t sz;
-
-		sz = read(fd, in, DATA_SIZE);
-		if (sz < 0) {
-			if ((errno != EINTR) && (errno != EPIPE)) {
-				pr_fail("%s: zlib inflate pipe read error: errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				(void)inflateEnd(&stream_inf);
-				xsum.error = true;
-				goto xsum_error;
-			} else {
-				if (errno == EINTR)
-					xsum.interrupted = true;
-				if (errno == EPIPE)
-					xsum.pipe_broken = true;
-				break;
-			}
+		ret = inflateInit2(&stream_inf, zlib_args.window_bits);
+		if (ret != Z_OK) {
+			pr_fail("%s: zlib inflateInit error: %s\n",
+				args->name, stress_zlib_err(ret));
+			xsum.error = true;
+			goto xsum_error;
 		}
-
-		if (sz == 0) {
-			xsum.pipe_broken = true;
-			break;
-		}
-
-		stream_inf.avail_in = sz;
-		stream_inf.next_in = in;
 
 		do {
-			stream_inf.avail_out = DATA_SIZE;
-			stream_inf.next_out = out;
-
-			ret = inflate(&stream_inf, Z_NO_FLUSH);
-			switch (ret) {
-			case Z_NEED_DICT:
-			case Z_DATA_ERROR:
-			case Z_MEM_ERROR:
-				(void)inflateEnd(&stream_inf);
-				goto xsum_error;
-			}
-
-			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				size_t i;
-
-				for (i = 0; i < DATA_SIZE - stream_inf.avail_out; i++) {
-					xsum.xsum += (uint64_t)out[i];
-					xsum_chars++;
+			int def_size;
+			/* read buffer size first */
+			sz = read(fd, &def_size, sizeof(def_size));
+			if (sz == 0)
+				break;
+			if (sz != sizeof(def_size)) {
+				if ((errno != EINTR) && (errno != EPIPE)) {
+					pr_fail("%s: zlib pipe read error: errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					(void)inflateEnd(&stream_inf);
+					xsum.error = true;
+					goto xsum_error;
+				} else {
+					if (errno == EINTR)
+						xsum.interrupted = true;
+					if (errno == EPIPE)
+						xsum.pipe_broken = true;
+					break;
 				}
 			}
-		} while (stream_inf.avail_out == 0);
-	} while (ret != Z_STREAM_END);
+			/* read deflated buffer */
+			sz = read(fd, in, def_size);
+			if (sz == 0)
+				break;
+			if (sz != def_size) {
+				if ((errno != EINTR) && (errno != EPIPE)) {
+					pr_fail("%s: zlib pipe read error: errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					(void)inflateEnd(&stream_inf);
+					xsum.error = true;
+					goto xsum_error;
+				} else {
+					if (errno == EINTR)
+						xsum.interrupted = true;
+					if (errno == EPIPE)
+						xsum.pipe_broken = true;
+					break;
+				}
+			}
 
-	/*
+			stream_inf.avail_in = sz;
+			stream_inf.next_in = in;
+			do {
+				stream_inf.avail_out = DATA_SIZE;
+				stream_inf.next_out = out;
+
+				pr_dbg_v("INF: %6d %6d\n", stream_inf.avail_in,
+					stream_inf.avail_out);
+				ret = inflate(&stream_inf, Z_NO_FLUSH);
+				pr_dbg_v("INF: %6d %6d written=%6lld rc=%2d\n",
+					stream_inf.avail_in,
+					stream_inf.avail_out,
+					DATA_SIZE - stream_inf.avail_out, ret);
+
+				switch (ret) {
+				case Z_BUF_ERROR:
+					pr_dbg_v("%s: zlib inflate error: %s\n",
+						args->name, stress_zlib_err(ret));
+					break;
+				case Z_NEED_DICT:
+				case Z_DATA_ERROR:
+				case Z_MEM_ERROR:
+					pr_fail("%s: zlib inflate error: %s\n",
+						args->name, stress_zlib_err(ret));
+					(void)inflateEnd(&stream_inf);
+					goto xsum_error;
+				}
+
+				if (g_opt_flags & OPT_FLAGS_VERIFY) {
+					size_t i;
+
+					for (i = 0; i < DATA_SIZE - stream_inf.avail_out; i++) {
+						xsum.xsum += (uint64_t)out[i];
+						xsum_chars++;
+					}
+				}
+			} while (stream_inf.avail_out == 0);
+		} while (ret != Z_STREAM_END);
+
+		(void)inflateEnd(&stream_inf);
+	} while (sz > 0);
+
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		pr_dbg("%s: inflate xsum value %" PRIu64
+		pr_dbg_v("%s: inflate xsum value %" PRIu64
 			", xsum_chars %" PRIu64 "\n",
 			args->name, xsum.xsum, xsum_chars);
 	}
-	*/
-	(void)inflateEnd(&stream_inf);
 
 	if (write(xsum_fd, &xsum, sizeof(xsum)) < 0) {
-		pr_fail("%s: zlib inflate pipe write failed, errno=%d (%s)\n",
+		pr_fail("%s: zlib inflate pipe write failed for xsum, errno=%d (%s)\n",
 			args->name, err, strerror(err));
 	}
 	return ((ret == Z_OK) || (ret == Z_STREAM_END)) ?
@@ -1111,20 +1247,20 @@ xsum_error:
 static int stress_zlib_deflate(
 	const stress_args_t *args,
 	const int fd,
-	const int xsum_fd,
-	const int zlib_level)
+	const int xsum_fd)
 {
+	uint64_t stream_bytes_out = 0;
 	int ret, err = 0;
-	bool do_run;
 	z_stream stream_def;
 	uint64_t bytes_in = 0, bytes_out = 0;
 	uint64_t xsum_chars = 0;
 	int flush;
 	stress_zlib_rand_data_info_t *opt_zlib_rand_data_func = &zlib_rand_data_methods[0];
+	stress_zlib_args_t zlib_args;
 	double t1, t2;
 	stress_xsum_t xsum;
 
-	(void)stress_get_setting("zlib-method", &opt_zlib_rand_data_func);
+	(void)stress_zlib_get_args(&zlib_args);
 
 	xsum.xsum = 0;
 	xsum.error = false;
@@ -1136,70 +1272,129 @@ static int stress_zlib_deflate(
 	stream_def.opaque = Z_NULL;
 
 	t1 = stress_time_now();
-	ret = deflateInit(&stream_def, zlib_level);
-	if (ret != Z_OK) {
-		pr_fail("%s: zlib deflateInit error: %s\n",
-			args->name, stress_zlib_err(ret));
-		xsum.error = true;
-		ret = EXIT_FAILURE;
-		goto xsum_error;
-	}
 
+	/* default to zlib format if inflate auto detect has been used */
+	if (zlib_args.window_bits > 31)
+		zlib_args.window_bits = zlib_args.window_bits - 32;
+
+	pr_dbg("DEF: lvl=%d mem-lvl=%d wbits=%d strategy=%d stream-bytes=%ld\n",
+		zlib_args.level, zlib_args.mem_level, zlib_args.window_bits,
+		zlib_args.strategy, zlib_args.stream_bytes);
 	do {
-		static uint32_t in[DATA_SIZE / sizeof(uint32_t)];
-		unsigned char *xsum_in = (unsigned char *)in;
-
-		opt_zlib_rand_data_func->func(args, in, DATA_SIZE);
-
-		stream_def.avail_in = DATA_SIZE;
-		stream_def.next_in = (unsigned char *)in;
-
-		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			for (int i = 0; i < (int)(DATA_SIZE / sizeof(unsigned char)); i++) {
-				xsum.xsum += (uint64_t)xsum_in[i];
-				xsum_chars++;
-			}
+		if (stream_def.zalloc != Z_NULL) {
+			(void)deflateEnd(&stream_def);
+			stream_def.zalloc = Z_NULL;
+			stream_def.zfree = Z_NULL;
+			stream_def.opaque = Z_NULL;
+		}
+		ret = deflateInit2(&stream_def, zlib_args.level,
+				Z_DEFLATED, zlib_args.window_bits,
+				zlib_args.mem_level, zlib_args.strategy);
+		if (ret != Z_OK) {
+			pr_fail("%s: zlib deflateInit error: %s\n",
+				args->name, stress_zlib_err(ret));
+			xsum.error = true;
+			ret = EXIT_FAILURE;
+			goto xsum_error;
 		}
 
-		do_run = keep_stressing();
-		flush = do_run ? Z_NO_FLUSH : Z_FINISH;
-		bytes_in += DATA_SIZE;
-
+		stream_bytes_out = 0;
 		do {
-			static unsigned char out[DATA_SIZE];
-			int def_size, rc;
+			static unsigned char in[DATA_SIZE];
+			unsigned char *xsum_in = (unsigned char *)in;
 
-			stream_def.avail_out = DATA_SIZE;
-			stream_def.next_out = out;
-			rc = deflate(&stream_def, flush);
+			int gen_sz = (zlib_args.stream_bytes - stream_bytes_out >= DATA_SIZE
+					|| zlib_args.stream_bytes - stream_bytes_out == 0
+					|| zlib_args.stream_bytes  == 0)
+				? DATA_SIZE : (zlib_args.stream_bytes - stream_bytes_out);
 
-			if (rc == Z_STREAM_ERROR) {
-				pr_fail("%s: zlib deflate error: %s\n",
-					args->name, stress_zlib_err(rc));
-				(void)deflateEnd(&stream_def);
-				ret = EXIT_FAILURE;
-				goto xsum_error;
+			if (zlib_args.stream_bytes > 0)
+				flush = (stream_bytes_out + gen_sz < zlib_args.stream_bytes)
+					? Z_NO_FLUSH : Z_FINISH;
+			else
+				flush = keep_stressing() ? Z_NO_FLUSH : Z_FINISH;
+
+			opt_zlib_rand_data_func->func(args, (uint32_t *)in, (DATA_SIZE/sizeof(uint32_t)));
+
+			stream_def.avail_in = gen_sz;
+			stream_def.next_in = (unsigned char *)in;
+
+			if (g_opt_flags & OPT_FLAGS_VERIFY) {
+				for (int i = 0; i < gen_sz; i++) {
+					xsum.xsum += xsum_in[i];
+					xsum_chars++;
+				}
 			}
-			def_size = DATA_SIZE - stream_def.avail_out;
-			bytes_out += def_size;
-			if (write(fd, out, def_size) != def_size) {
-				if ((errno != EINTR) && (errno != EPIPE) && (errno != 0)) {
-					pr_fail("%s: write failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+
+			bytes_in += DATA_SIZE;
+			do {
+				static unsigned char out[DATA_SIZE];
+				int def_size;
+
+				stream_def.avail_out = DATA_SIZE;
+				stream_def.next_out = out;
+
+				pr_dbg_v("DEF: %6d %6d\n", stream_def.avail_in,
+					stream_def.avail_out);
+				ret = deflate(&stream_def, flush);
+				pr_dbg_v("DEF: %6d %6d written=%6lld rc=%2d\n",
+					stream_def.avail_in,
+					stream_def.avail_out,
+					DATA_SIZE - stream_def.avail_out, ret);
+
+				if (ret == Z_STREAM_ERROR) {
+					pr_fail("%s: zlib deflate error: %s\n",
+						args->name, stress_zlib_err(ret));
 					(void)deflateEnd(&stream_def);
 					ret = EXIT_FAILURE;
 					goto xsum_error;
-				} else {
-					if (errno == EINTR)
-						xsum.interrupted = true;
- 					if (errno == EPIPE)
-						xsum.pipe_broken = true;
-					goto finish;
 				}
-			}
-			inc_counter(args);
-		} while (stream_def.avail_out == 0);
-	} while (flush != Z_FINISH);
+				def_size = DATA_SIZE - stream_def.avail_out;
+				bytes_out += def_size;
+				stream_bytes_out += (def_size) ? gen_sz : 0;
+
+				/* continue if nothing has been deflated */
+				if (def_size == 0)
+					continue;
+
+				/* write buffer length value */
+				ssize_t sz = write(fd, &def_size, sizeof(def_size));
+				if (sz != sizeof(def_size)) {
+					if ((errno != EINTR) && (errno != EPIPE) && (errno != 0)) {
+						pr_fail("%s: zlib write pipe failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+						(void)deflateEnd(&stream_def);
+						ret = EXIT_FAILURE;
+						goto xsum_error;
+					} else {
+						if (errno == EINTR)
+							xsum.interrupted = true;
+						if (errno == EPIPE)
+							xsum.pipe_broken = true;
+						goto finish;
+					}
+				}
+				/* write deflate buffer */
+				sz = write(fd, out, def_size);
+				if (sz != def_size) {
+					if ((errno != EINTR) && (errno != EPIPE) && (errno != 0)) {
+						pr_fail("%s: zlib write pipe failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+						(void)deflateEnd(&stream_def);
+						ret = EXIT_FAILURE;
+						goto xsum_error;
+					} else {
+						if (errno == EINTR)
+							xsum.interrupted = true;
+						if (errno == EPIPE)
+							xsum.pipe_broken = true;
+						goto finish;
+					}
+				}
+				inc_counter(args);
+			} while (stream_def.avail_out == 0);
+		} while (ret != Z_STREAM_END);
+	} while (keep_stressing());
 
 finish:
 	t2 = stress_time_now();
@@ -1208,19 +1403,17 @@ finish:
 		bytes_in ? 100.0 * (double)bytes_out / (double)bytes_in : 0,
 		(t2 - t1 > 0.0) ? (bytes_in / (t2 - t1)) / MB : 0.0);
 
-	/*
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		pr_dbg("%s: deflate xsum value %" PRIu64
+		pr_dbg_v("%s: deflate xsum value %" PRIu64
 			", xsum_chars %" PRIu64 "\n",
 			args->name, xsum.xsum, xsum_chars);
 	}
-	*/
 
 	(void)deflateEnd(&stream_def);
 	ret = EXIT_SUCCESS;
 xsum_error:
 	if (write(xsum_fd, &xsum, sizeof(xsum)) < 0 ) {
-		pr_fail("%s: zlib deflate pipe write error: errno=%d (%s)\n",
+		pr_fail("%s: zlib deflate pipe write error for xsum: errno=%d (%s)\n",
 			args->name, err, strerror(err));
 	}
 
@@ -1238,7 +1431,6 @@ static int stress_zlib(const stress_args_t *args)
 	int err = 0;
 	pid_t pid;
 	stress_xsum_t deflate_xsum, inflate_xsum;
-	uint32_t zlib_level = Z_BEST_COMPRESSION;	/* best compression */
 	ssize_t n;
 	bool bad_xsum_reads = false;
 	bool error = false;
@@ -1249,8 +1441,6 @@ static int stress_zlib(const stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_FAILURE;
-
-	(void)stress_get_setting("zlib-level", &zlib_level);
 
 	if (pipe(fds) < 0) {
 		pr_err("%s: pipe failed, errno=%d (%s)\n",
@@ -1298,7 +1488,7 @@ static int stress_zlib(const stress_args_t *args)
 		_exit(ret);
 	} else {
 		(void)close(fds[0]);
-		ret = stress_zlib_deflate(args, fds[1], deflate_xsum_fds[1], (int)zlib_level);
+		ret = stress_zlib_deflate(args, fds[1], deflate_xsum_fds[1]);
 		(void)close(fds[1]);
 	}
 
@@ -1362,7 +1552,16 @@ static int stress_zlib(const stress_args_t *args)
 
 static void stress_zlib_set_default(void)
 {
+	char value[21];
+
+	(void)snprintf(value, 21, "%d", Z_BEST_COMPRESSION);
+	stress_set_zlib_level(value);
+	stress_set_zlib_mem_level("8");
 	stress_set_zlib_method("random");
+	stress_set_zlib_window_bits("15");
+	stress_set_zlib_stream_bytes("0");
+	(void)snprintf(value, 21, "%d", Z_DEFAULT_STRATEGY);
+	stress_set_zlib_strategy(value);
 }
 
 stressor_info_t stress_zlib_info = {
