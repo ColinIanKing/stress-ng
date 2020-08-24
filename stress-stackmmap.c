@@ -185,7 +185,7 @@ static int stress_stackmmap(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		goto tidy_mmap;
 	}
-	c_test.uc_stack.ss_sp = stack_mmap + page_size;
+	c_test.uc_stack.ss_sp = (void *)(stack_mmap + page_size);
 	c_test.uc_stack.ss_size = MMAPSTACK_SIZE - (page_size * 2);
 	c_test.uc_link = &c_main;
 
