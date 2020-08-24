@@ -1,3 +1,62 @@
+stress-ng (0.11.19-1) unstable; urgency=medium
+
+  [Colin Ian King ]
+  * Makefile: bump version
+  * stress-cpu: add workaround for unnamed bit-fields
+  * stress-dev: move opt_set_funcs and stress_set_dev_file to fix build issue
+  * stress-stackmmap: cast stack to void * to avoid build warnings
+  * stress-epoll: only declare epoll_ctl_mode if EPOLLEXCLUSIVE is defined
+  * stress-epoll: fix broken epoll controls, add helpers
+  * stress-vecmath: re-work vectorization of setup values
+  * stress-procfs: rename ptr to pptr (path ptr) to avoid variable shadowing
+  * stress-dev: add build autodetection for struct winsize
+  * stress-dev: add build autodetection for struct termios
+  * stress-dev: remove trailing whitespace
+  * stress-dev: add build autodetection for struct kbentry
+  * Makefile.config: re-order dm_ioctl check
+  * Makefile.config: re-order vt_stat check
+  * stress-dev: add build autodetection for struct vt_mode
+  * stress-dev: add build autodetection for struct unimapdesc
+  * stress-dev: add build autodetection for struct kbkeycode
+  * stress-dev: add build autodetection for struct consolefontdesc
+  * stress-dev: add ioctl header checks for console and vt ioctls
+  * stress-dev: add build autodetection for struct v4l2_dv_timings
+  * stress-dev: remove incorrect v4l2 ioctl test that's using wrong struct type
+  * stress-dev: add build autodetection for struct v4l2_enc_idx
+  * stress-dev: add check for v4l2_std_id
+  * stress-dev: add build autodetection for struct v4l2_jpegcompression
+  * stress-dev: add build autodetection for struct v4l2_audioout
+  * stress-dev: add build autodetection for struct v4l2_audio
+  * stress-dev: add build autodetection for type v4l2_std_id
+  * stress-dev: add build autodetection for struct v4l2_framebuffer
+  * stress-dev: add build autodetection for struct v4l2_capability
+  * stress-dev: Add a new --dev-file option to specify the device to exercise
+  * stress-procfs: force ENOENT on invalid procfs path traversal
+  * stress-dev: add auto build config check for struct media_device_info
+  * stress-dev: add auto build config check for cdrom_blk
+  * stress-bad-ioctl: ensure we have a bad page without a following mapped page
+  * Add PCC compiler build notes to README file
+  * Add support to build with the pcc compiler
+  * stress-dev: replace (void)ioctl with ret = ioctl()
+
+  [Piyush Goyal]
+  * stress-dev: Exercise KDGKBENT and KDSKBENT ioctl syscalls
+  * stress-dev: Exercise VT_GETMODE and VT_SETMODE ioctl syscalls
+  * stress-dev: Exercise GIO_UNIMAP and PIO_UNIMAP ioctl syscalls
+  * stress-dev: Exercise KDGKBMETA and KDSKBMETA ioctl syscalls
+  * stress-dev: Exercise KDGKBMODE and KDSKBMODE ioctl syscalls
+  * stress-dev: Exercise GIO_FONT and PIO_FONT ioctl syscalls
+  * stress-dev: Exercise KDGETKEYCODE and KDSETKEYCODE ioctl syscalls
+  * stress-dev: Exercise GIO_FONTX and PIO_FONTX ioctl syscalls
+  * stress-dev: Exercise CDROMPLAYBLK ioctl syscall
+  * stress-dev: Exercise CDROMSETSPINDOWN ioctl syscall
+  * stress-dev: Exercise CDROM_SELECT_SPEED ioctl syscall
+  * stress-dev: Exercise CDROM_DEBUG ioctl call
+  * stress-dev: Exercise GIO_CMAP and PIO_CMAP ioctl syscalls
+  * stress-dev: Reorder the KDGKBTYPE ioctl call
+
+ -- Colin King <colin.king@canonical.com>  Mon, 24 Aug 2020 15:13:11 +0100
+
 stress-ng (0.11.18-1) unstable; urgency=medium
 
   [Colin Ian King ]
