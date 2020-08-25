@@ -145,6 +145,43 @@ static int open_create_eisdir(void)
 }
 #endif
 
+#if defined(HAVE_OPENAT) && defined(AT_FDCWD)
+static int open_with_openat_cwd(void)
+{
+	char filename[PATH_MAX];
+	int fd;
+
+	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
+		getpid(), stress_mwc32());
+
+	fd = openat(AT_FDCWD, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (fd >= 0)
+		(void)unlink(filename);
+	return fd;
+}
+#endif
+
+#if defined(HAVE_OPENAT) && defined(AT_FDCWD) && defined(O_DIRECTORY)
+static int open_with_openat_dirfd(void)
+{
+	char filename[PATH_MAX];
+	int fd, dirfd;
+
+	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
+		getpid(), stress_mwc32());
+
+	dirfd = open(".", O_DIRECTORY | O_PATH);
+	if (dirfd < 0)
+		return -1;
+
+	fd = openat(dirfd, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (fd >= 0)
+		(void)unlink(filename);
+	(void)close(dirfd);
+	return fd;
+}
+#endif
+
 static stress_open_func_t open_funcs[] = {
 	open_dev_zero_rd,
 	open_dev_null_wr,
@@ -168,6 +205,12 @@ static stress_open_func_t open_funcs[] = {
 #endif
 #if defined(O_CREAT)
 	open_create_eisdir,
+#endif
+#if defined(HAVE_OPENAT) && defined(AT_FDCWD)
+	open_with_openat_cwd,
+#endif
+#if defined(HAVE_OPENAT) && defined(AT_FDCWD) && defined(O_DIRECTORY)
+	open_with_openat_dirfd,
 #endif
 };
 
