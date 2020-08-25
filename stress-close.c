@@ -34,6 +34,8 @@ static const stress_help_t help[] = {
 
 #define MAX_PTHREADS	(3)
 #define SHM_NAME_LEN	(128)
+#define FDS_START	(1024)
+#define FDS_TO_DUP	(8)
 
 static volatile int fd, dupfd;
 static volatile uint64_t max_delay_us = 1;
@@ -119,9 +121,15 @@ static void *stress_close_func(void *arg)
 #endif
 
 	while (keep_stressing()) {
-		int fd_rnd = (int)stress_mwc32();
+		int fd_rnd = (int)stress_mwc32() + 64;
 		const uint64_t delay =
 			max_delay_us ? stress_mwc32() % max_delay_us : 0;
+		int fds[FDS_TO_DUP], i, ret;
+
+		for (i = 0; i < FDS_TO_DUP; i++) {
+			fds[i] = dup2(fileno(stderr), i + FDS_START);
+		}
+
 		shim_usleep_interruptible(delay);
 		if (fd != -1)
 			(void)close(fd);
@@ -135,6 +143,19 @@ static void *stress_close_func(void *arg)
 		if (fcntl((int)fd_rnd, F_GETFL) == -1)
 			(void)close(fd_rnd);
 #endif
+		/*
+		 *  close a range of fds
+		 */
+		ret = shim_close_range(FDS_START, FDS_START + FDS_TO_DUP);
+		if ((ret < 1) && (errno == ENOSYS)) {
+			for (i = 0; i < FDS_TO_DUP; i++)
+				(void)close(fds[i]);
+		}
+		/*
+		 *  close an invalid range of fds
+		 */
+		ret = shim_close_range(FDS_START + FDS_TO_DUP, FDS_START);
+		(void)ret;
 	}
 
 	return &nowt;

@@ -1765,3 +1765,17 @@ int shim_gettimeofday(struct timeval *tv, struct timezone *tz)
 	return (int)shim_enosys(0, tv, tz);
 #endif
 }
+
+/*
+ *  shim_close_range()
+ *	wrapper for close_range - close a range of
+ *	file descriptors
+ */
+int shim_close_range(unsigned int fd, unsigned int max_fd)
+{
+#if defined(__NR_close_range)
+	return (int)syscall(__NR_close_range, fd, max_fd);
+#else
+	return (int)shim_enosys(0, fd, max_fd);
+#endif
+}
