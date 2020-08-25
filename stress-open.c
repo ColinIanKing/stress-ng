@@ -32,6 +32,24 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+static inline int open_arg2(const char *pathname, int flags)
+{
+#if defined(__NR_open)
+	return syscall(__NR_open, pathname, flags);
+#else
+	return open(pathname, flags);
+#endif
+}
+
+static inline int open_arg3(const char *pathname, int flags, mode_t mode)
+{
+#if defined(__NR_open)
+	return syscall(__NR_open, pathname, flags, mode);
+#else
+	return open(pathname, flags, mode);
+#endif
+}
+
 static int open_dev_zero_rd(void)
 {
 	int flags = 0;
@@ -51,7 +69,7 @@ static int open_dev_zero_rd(void)
 	flags |= (stress_mwc32() & O_NONBLOCK);
 #endif
 
-	return open("/dev/zero", O_RDONLY | flags);
+	return open_arg2("/dev/zero", O_RDONLY | flags);
 }
 
 static int open_dev_null_wr(void)
@@ -79,7 +97,7 @@ static int open_dev_null_wr(void)
 	flags |= (stress_mwc32() & O_SYNC);
 #endif
 
-	return open("/dev/null", O_WRONLY | flags);
+	return open_arg2("/dev/null", O_WRONLY | flags);
 }
 
 #if defined(O_TMPFILE)
@@ -98,7 +116,7 @@ static int open_tmp_rdwr(void)
 #if defined(O_DIRECT)
 	flags |= (stress_mwc32() & O_DIRECT);
 #endif
-	return open("/tmp", O_TMPFILE | flags | O_RDWR, S_IRUSR | S_IWUSR);
+	return open_arg3("/tmp", O_TMPFILE | flags | O_RDWR, S_IRUSR | S_IWUSR);
 }
 #endif
 
@@ -106,7 +124,7 @@ static int open_tmp_rdwr(void)
 static int open_tmpfile_no_rdwr(void)
 {
 	/* Force -EINVAL, need O_WRONLY or O_RDWR to succeed */
-	return open("/tmp", O_TMPFILE, S_IRUSR | S_IWUSR);
+	return open_arg3("/tmp", O_TMPFILE, S_IRUSR | S_IWUSR);
 }
 #endif
 
@@ -120,28 +138,28 @@ static int open_pt(void)
 #if defined(O_TMPFILE) && defined(O_EXCL)
 static int open_tmp_rdwr_excl(void)
 {
-	return open("/tmp", O_TMPFILE | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
+	return open_arg3("/tmp", O_TMPFILE | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
 }
 #endif
 
 #if defined(O_DIRECTORY)
 static int open_dir(void)
 {
-	return open(".", O_DIRECTORY | O_RDONLY);
+	return open_arg2(".", O_DIRECTORY | O_RDONLY);
 }
 #endif
 
 #if defined(O_PATH)
 static int open_path(void)
 {
-	return open(".", O_DIRECTORY | O_PATH);
+	return open_arg2(".", O_DIRECTORY | O_PATH);
 }
 #endif
 
 #if defined(O_CREAT)
 static int open_create_eisdir(void)
 {
-	return open(".", O_CREAT, S_IRUSR | S_IWUSR);
+	return open_arg3(".", O_CREAT, S_IRUSR | S_IWUSR);
 }
 #endif
 
@@ -170,7 +188,7 @@ static int open_with_openat_dirfd(void)
 	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
 		getpid(), stress_mwc32());
 
-	dirfd = open(".", O_DIRECTORY | O_PATH);
+	dirfd = open_arg2(".", O_DIRECTORY | O_PATH);
 	if (dirfd < 0)
 		return -1;
 
