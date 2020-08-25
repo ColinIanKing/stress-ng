@@ -204,8 +204,8 @@ nfsservctl
 nice				nice
 open				dentry, open, etc
 open_by_handle_at		handle
-openat				io
-openat2
+openat				io, open
+openat2				waiting for open_how struct in glibc
 open_tree
 pause				kcmp, wait
 perf_event_open			--perf option
