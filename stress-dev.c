@@ -1785,6 +1785,23 @@ static void stress_dev_console_linux(
 	}
 #endif
 
+#if defined(HAVE_LINUX_KD_H) && \
+    defined(GIO_UNISCRNMAP) && \
+    defined(E_TABSZ)
+	{
+		unsigned short argp[E_TABSZ];
+		int ret;
+
+		ret = ioctl(fd, GIO_UNISCRNMAP, argp);
+#if defined(PIO_UNISCRNMAP)
+		if (ret == 0) {
+			ret = ioctl(fd, PIO_UNISCRNMAP, argp);
+		}
+#endif
+		(void)ret;
+	}
+#endif
+
 #if defined(HAVE_LINUX_KD_H) &&	\
     defined(KDGKBMODE)
 	{
