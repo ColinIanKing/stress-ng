@@ -1770,7 +1770,7 @@ static void stress_dev_console_linux(
 
 #if defined(HAVE_LINUX_KD_H) && \
     defined(GIO_SCRNMAP) && \
-	defined(E_TABSZ)
+    defined(E_TABSZ)
 	{
 		unsigned char argp[E_TABSZ];
 		int ret;
