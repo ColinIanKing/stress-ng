@@ -1873,6 +1873,25 @@ static void stress_dev_console_linux(
 	}
 #endif
 
+#if defined(HAVE_LINUX_KD_H) && \
+    defined(KDGKBSENT) &&	\
+    defined(HAVE_KBSENTRY)
+	{
+		int ret;
+		struct kbsentry argp;
+
+		(void)memset(&argp, 0, sizeof(argp));
+		ret = ioctl(fd, KDGKBSENT, &argp);
+#if defined(KDSKBSENT)
+		if (ret == 0) {
+			ret = ioctl(fd, KDSKBSENT, &argp);
+			(void)ret;
+		}
+#endif
+		(void)ret;
+	}
+#endif
+
 #if defined(HAVE_LINUX_VT_H) &&	\
     defined(VT_GETMODE) &&	\
     defined(HAVE_VT_MODE)
