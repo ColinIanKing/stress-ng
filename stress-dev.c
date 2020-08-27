@@ -1874,6 +1874,19 @@ static void stress_dev_console_linux(
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
+    defined(KDGKBDIACR) &&	\
+    defined(HAVE_KBDIACRS)
+	{
+		int ret;
+		struct kbdiacrs argp;
+
+		(void)memset(&argp, 0, sizeof(argp));
+		ret = ioctl(fd, KDGKBDIACR, &argp);
+		(void)ret;
+	}
+#endif
+
+#if defined(HAVE_LINUX_KD_H) && \
     defined(KDGKBSENT) &&	\
     defined(HAVE_KBSENTRY)
 	{
