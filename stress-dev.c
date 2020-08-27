@@ -1887,6 +1887,42 @@ static void stress_dev_console_linux(
 #endif
 
 #if defined(HAVE_LINUX_KD_H) && \
+    defined(VT_RESIZE) &&	\
+    defined(HAVE_VT_SIZES) && \
+    defined(CAP_SYS_TTY_CONFIG)
+	{
+		int ret;
+		struct vt_sizes argp;
+		bool perm = stress_check_capability(CAP_SYS_TTY_CONFIG);
+
+		/* Exercise only if permission is not present */
+		if (!perm) {
+			(void)memset(&argp, 0, sizeof(argp));
+			ret = ioctl(fd, VT_RESIZE, &argp);
+			(void)ret;
+		}
+	}
+#endif
+
+#if defined(HAVE_LINUX_KD_H) && \
+    defined(VT_RESIZEX) &&	\
+    defined(HAVE_VT_CONSIZE) && \
+    defined(CAP_SYS_TTY_CONFIG)
+	{
+		int ret;
+		struct vt_consize argp;
+		bool perm = stress_check_capability(CAP_SYS_TTY_CONFIG);
+
+		/* Exercise only if permission is not present */
+		if (!perm) {
+			(void)memset(&argp, 0, sizeof(argp));
+			ret = ioctl(fd, VT_RESIZEX, &argp);
+			(void)ret;
+		}
+	}
+#endif
+
+#if defined(HAVE_LINUX_KD_H) && \
     defined(KDGKBSENT) &&	\
     defined(HAVE_KBSENTRY)
 	{
