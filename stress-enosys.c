@@ -82,9 +82,9 @@ static bool stress_check_x86syscall(void)
  *  x86_64_syscall6()
  *      syscall 6 arg wrapper
  */
-static inline long x86_64_syscall6(long number, long arg1, long arg2,
-				   long arg3, long arg4, long arg5,
-				   long arg6)
+static inline long x86_64_syscall6(
+	long number, long arg1, long arg2,
+	long arg3, long arg4, long arg5, long arg6)
 {
 	long ret;
 	unsigned long _arg1 = arg1;
@@ -115,32 +115,34 @@ static inline long x86_64_syscall6(long number, long arg1, long arg2,
 #endif
 
 #if defined(STRESS_EXERCISE_X86_0X80)
-static inline long x86_0x80_syscall6(long number, long arg1, long arg2,
-				   long arg3, long arg4, long arg5,
-				   long arg6)
+static inline int x86_0x80_syscall6(
+	long number, long arg1, long arg2,
+	long arg3, long arg4, long arg5,
+	long arg6)
 {
-	long ret;
-	unsigned int _num  = number;
-	unsigned int _arg1 = arg1;
-	unsigned int _arg2 = arg2;
-	unsigned int _arg3 = arg3;
-	unsigned int _arg4 = arg4;
-	unsigned int _arg5 = arg5;
-	unsigned int _arg6 = arg6;
+	int ret;
 
-	register int __num  asm ("eax") = _num;
-	register int __arg1 asm ("ebx") = _arg1;
-	register int __arg2 asm ("ecx") = _arg2;
-	register int __arg3 asm ("edx") = _arg3;
-	register int __arg4 asm ("esi") = _arg4;
-	register int __arg5 asm ("edi") = _arg5;
-	register int __arg6 asm ("ebp") = _arg6;
+	asm (
+	     "movl %6, %%eax\n"
+	     "movl %%eax, %%ebp\n"
+	     "movl %0, %%eax\n"
+	     "movl %1, %%ebx\n"
+	     "movl %2, %%ecx\n"
+	     "movl %3, %%edx\n"
+	     "movl %4, %%esi\n"
+	     "movl %5, %%edi\n"
+             "int $0x80\n"
+	     ""
+	      : [ret] "=rm" (ret)
+	      : "m" (number),
+	        "m" (arg1),
+	        "m" (arg2),
+	        "m" (arg3),
+	        "m" (arg4),
+	        "m" (arg5),
+	        "m" (arg6)
+	      : "memory");
 
-	asm volatile ("int $0x80\n\t"
-			: "=a" (ret)
-			: "0" (__num), "r" (__arg1), "r" (__arg2), "r" (__arg3),
-			  "r" (__arg4), "r" (__arg5), "r" (__arg6)
-			: "memory");
 	if (ret < 0) {
 		errno = -ret;
 		ret = -1;
