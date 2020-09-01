@@ -1686,7 +1686,67 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 
 /* GCC5.0+ target_clones attribute */
 #if defined(HAVE_TARGET_CLONES) && defined(STRESS_ARCH_X86)
-#define TARGET_CLONES	__attribute__((target_clones("mmx","sse","sse2","ssse3", "sse4.1", "sse4a", "avx", "avx2", "arch=skylake-avx512", "default")))
+#if defined(__MMX_WITH_SSE__)
+#define TARGET_CLONE_MMX	"mmx",
+#else
+#define TARGET_CLONE_MMX
+#endif
+
+#if defined(__AVX__)
+#define TARGET_CLONE_AVX	"avx",
+#else
+#define TARGET_CLONE_AVX
+#endif
+
+#if defined(__AVX2__)
+#define TARGET_CLONE_AVX2	"avx2",
+#else
+#define TARGET_CLONE_AVX2
+#endif
+
+#if defined(__SSE__)
+#define TARGET_CLONE_SSE	"sse",
+#else
+#define TARGET_CLONE_SSE
+#endif
+
+#if defined(__SSE2__)
+#define TARGET_CLONE_SSE2	"sse2",
+#else
+#define TARGET_CLONE_SSE2
+#endif
+
+#if defined(__SSE3__)
+#define TARGET_CLONE_SSE3	"sse3",
+#else
+#define TARGET_CLONE_SSE3
+#endif
+
+#if defined(__SSSE3__)
+#define TARGET_CLONE_SSSE3	"ssse3",
+#else
+#define TARGET_CLONE_SSSE3
+#endif
+
+#if defined(__SSE4_1__)
+#define TARGET_CLONE_SSE4_1	"sse4.1",
+#else
+#define TARGET_CLONE_SSE4_1
+#endif
+
+#if defined(__SSE4_2__)
+#define TARGET_CLONE_SSE4_2	"sse4.2",
+#else
+#define TARGET_CLONE_SSE4_2
+#endif
+
+#if defined(__AVX512F__)
+#define TARGET_CLONE_SKYLAKE_AVX512	"arch=skylake-avx512",
+#else
+#define TARGET_CLONE_SKYLAKE_AVX512
+#endif
+
+#define TARGET_CLONES	__attribute__((target_clones(TARGET_CLONE_AVX TARGET_CLONE_AVX2 TARGET_CLONE_MMX TARGET_CLONE_SSE TARGET_CLONE_SSE2 TARGET_CLONE_SSE3 TARGET_CLONE_SSSE3 TARGET_CLONE_SSE4_1 TARGET_CLONE_SSE4_2 TARGET_CLONE_SKYLAKE_AVX512 "default")))
 #elif defined(HAVE_TARGET_CLONES) && defined(STRESS_ARCH_PPC64)
 #define TARGET_CLONES	__attribute__((target_clones("cpu=power9,default")))
 #else
