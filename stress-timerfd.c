@@ -107,6 +107,8 @@ static int stress_timerfd(const stress_args_t *args)
 	int timerfd[TIMERFD_MAX], procfd, count = 0, i, max_timerfd = -1;
 	char filename[PATH_MAX];
 	bool timerfd_rand = false;
+	const bool cap_wake_alarm = stress_check_capability(SHIM_CAP_WAKE_ALARM);
+	int ret;
 
 	(void)stress_get_setting("timerfd-rand", &timerfd_rand);
 
@@ -132,6 +134,16 @@ static int stress_timerfd(const stress_args_t *args)
 		count++;
 		if (max_timerfd < timerfd[i])
 			max_timerfd = timerfd[i];
+	}
+
+	/* Check timerfd_create cannot succeed without capability */
+	if (!cap_wake_alarm) {
+		ret = timerfd_create(CLOCK_REALTIME_ALARM, 0);
+		if (ret >= 0) {
+			pr_fail("%s: timerfd_create without capability CAP_WAKE_ALARM unexpectedly"
+					"succeeded, errno=%d (%s)\n", args->name, errno, strerror(errno));
+			(void)close(ret);
+		}
 	}
 
 	if (count == 0) {
