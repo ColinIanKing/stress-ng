@@ -315,6 +315,11 @@ static int stress_numa(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 
+		/* Exercise invalid flag */
+		ret = shim_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
+			max_nodes, ~0);
+		(void)ret;
+
 		/* Move to next node */
 		n = n->next;
 
