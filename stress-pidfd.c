@@ -112,6 +112,8 @@ static void stress_pidfd_reap(pid_t pid, int pidfd)
  */
 static int stress_pidfd(const stress_args_t *args)
 {
+	const int bad_fd = stress_get_bad_fd();
+
 	while (keep_stressing()) {
 		pid_t pid;
 
@@ -139,6 +141,12 @@ static int stress_pidfd(const stress_args_t *args)
 			/* Try to get fd 0 on child pid */
 			ret = shim_pidfd_getfd(pidfd, 0, 0);
 			/* Ignore failures for now, need to sanity check this */
+			if (ret >= 0)
+				(void)close(ret);
+
+			/* Exercise with bad_fd */
+			ret = shim_pidfd_getfd(pidfd, bad_fd, 0);
+			/* Ignore failure, close fd if success */
 			if (ret >= 0)
 				(void)close(ret);
 
