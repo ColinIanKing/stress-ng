@@ -146,6 +146,12 @@ static int stress_timerfd(const stress_args_t *args)
 		}
 	}
 
+	/* Exercise timerfd_create with invalid flags */
+	ret = timerfd_create(CLOCK_REALTIME, ~0);
+	if (ret >= 0) {
+		(void)close(ret);
+	}
+
 	if (count == 0) {
 		pr_fail("%s: timerfd_create failed, no timers created\n", args->name);
 		return EXIT_FAILURE;
