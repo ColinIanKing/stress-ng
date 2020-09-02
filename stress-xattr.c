@@ -182,6 +182,10 @@ static int stress_xattr(const stress_args_t *args)
 					args->name, ret, value, ret, tmp);
 				goto out_close;
 			}
+
+			/* Invalid attribute name */
+			(void)memset(&bad_attrname, 0, sizeof(bad_attrname));
+			ret = shim_lgetxattr(filename, bad_attrname, tmp, sizeof(tmp));
 #endif
 		}
 
