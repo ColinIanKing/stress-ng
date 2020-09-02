@@ -1494,11 +1494,12 @@ static int stress_zlib(const stress_args_t *args)
 		(void)close(fds[0]);
 		_exit(ret);
 	} else {
+		int retval;
+
 		(void)close(fds[0]);
 		ret = stress_zlib_deflate(args, fds[1], deflate_xsum_fds[1]);
 		(void)close(fds[1]);
-		int retval;
-		waitpid(pid, &retval, 0);
+		(void)waitpid(pid, &retval, 0);
 	}
 
 	n = stress_read_buffer(deflate_xsum_fds[0], &deflate_xsum, sizeof(deflate_xsum), false);
