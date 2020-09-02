@@ -35,6 +35,7 @@ static int stress_set_ipsec_mb_feature(const char *opt);
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_ipsec_mb_feature,	stress_set_ipsec_mb_feature },
+	{ 0,                    NULL }
 };
 
 #if defined(HAVE_INTEL_IPSEC_MB_H) &&	\
