@@ -71,6 +71,7 @@ static int stress_xattr(const stress_args_t *args)
 		char tmp[sizeof(value)];
 		ssize_t sz;
 		char *buffer;
+		char bad_attrname[32];
 
 		for (i = 0; i < MAX_XATTRS; i++) {
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", i);
@@ -152,6 +153,10 @@ static int stress_xattr(const stress_args_t *args)
 					args->name, ret, value, ret, tmp);
 				goto out_close;
 			}
+
+			/* Invalid attribute name */
+			(void)memset(&bad_attrname, 0, sizeof(bad_attrname));
+			ret = shim_fgetxattr(fd, bad_attrname, tmp, sizeof(tmp));
 
 			ret = shim_getxattr(filename, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
