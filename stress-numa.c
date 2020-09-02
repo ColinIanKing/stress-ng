@@ -235,6 +235,15 @@ static int stress_numa(const stress_args_t *args)
 			(unsigned long)buf, ~0);
 		(void)ret;
 
+		/* Exercise invalid NULL addr condition */
+		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
+			(unsigned long)NULL, ~0);
+		(void)ret;
+
+		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
+			(unsigned long)buf, MPOL_F_NODE);
+		(void)ret;
+
 		if (!keep_stressing_flag())
 			break;
 
