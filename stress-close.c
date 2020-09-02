@@ -212,7 +212,6 @@ static int stress_close(const stress_args_t *args)
 		struct stat statbuf;
 		fd = -1;
 		double t1, t2, duration;
-		const int bad_fd = stress_get_bad_fd();
 
 		t1 = stress_time_now();
 
