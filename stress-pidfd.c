@@ -144,6 +144,12 @@ static int stress_pidfd(const stress_args_t *args)
 			if (ret >= 0)
 				(void)close(ret);
 
+			/* Exercise with invalid flags */
+			ret = shim_pidfd_getfd(pidfd, 0, ~0);
+			/* Ignore failure, close fd if success */
+			if (ret >= 0)
+				(void)close(ret);
+
 			/* Exercise with bad_fd */
 			ret = shim_pidfd_getfd(pidfd, bad_fd, 0);
 			/* Ignore failure, close fd if success */
