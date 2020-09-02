@@ -58,6 +58,7 @@ typedef struct {
 
 typedef struct {
 	uint64_t	xsum;
+	uint64_t	xchars;
 	bool		error;
 	bool		pipe_broken;
 	bool		interrupted;
@@ -1103,7 +1104,6 @@ static int stress_zlib_inflate(
 	ssize_t sz;
 	int ret, err = 0;
 	z_stream stream_inf;
-	uint64_t xsum_chars = 0;
 	static unsigned char in[DATA_SIZE];
 	static unsigned char out[DATA_SIZE];
 	stress_xsum_t xsum;
@@ -1112,6 +1112,7 @@ static int stress_zlib_inflate(
 	(void)stress_zlib_get_args(&zlib_args);
 
 	xsum.xsum = 0;
+	xsum.xchars = 0;
 	xsum.error = false;
 	xsum.pipe_broken = false;
 	xsum.interrupted = false;
@@ -1137,14 +1138,14 @@ static int stress_zlib_inflate(
 		do {
 			int def_size;
 			/* read buffer size first */
-			sz = read(fd, &def_size, sizeof(def_size));
-			if (sz == 0)
+			sz = stress_read_buffer(fd, &def_size, sizeof(def_size), false);
+			if (sz == 0) {
 				break;
-			if (sz != sizeof(def_size)) {
+			} else if (sz != sizeof(def_size)) {
+				(void)inflateEnd(&stream_inf);
 				if ((errno != EINTR) && (errno != EPIPE)) {
-					pr_fail("%s: zlib pipe read error: errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					(void)inflateEnd(&stream_inf);
+					pr_fail("%s: zlib pipe read size error: %s (ret=%ld errno=%d)\n",
+						args->name, strerror(errno), sz, errno);
 					xsum.error = true;
 					goto xsum_error;
 				} else {
@@ -1152,18 +1153,18 @@ static int stress_zlib_inflate(
 						xsum.interrupted = true;
 					if (errno == EPIPE)
 						xsum.pipe_broken = true;
-					break;
+					goto finish;
 				}
 			}
 			/* read deflated buffer */
-			sz = read(fd, in, def_size);
-			if (sz == 0)
+			sz = stress_read_buffer(fd, in, def_size, false);
+			if (sz == 0) {
 				break;
-			if (sz != def_size) {
+			} else if (sz != def_size) {
+				(void)inflateEnd(&stream_inf);
 				if ((errno != EINTR) && (errno != EPIPE)) {
-					pr_fail("%s: zlib pipe read error: errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					(void)inflateEnd(&stream_inf);
+					pr_fail("%s: zlib pipe read buffer error: %s (ret=%ld errno=%d)\n",
+						args->name, strerror(errno), sz, errno);
 					xsum.error = true;
 					goto xsum_error;
 				} else {
@@ -1171,7 +1172,7 @@ static int stress_zlib_inflate(
 						xsum.interrupted = true;
 					if (errno == EPIPE)
 						xsum.pipe_broken = true;
-					break;
+					goto finish;
 				}
 			}
 
@@ -1208,19 +1209,22 @@ static int stress_zlib_inflate(
 
 					for (i = 0; i < DATA_SIZE - stream_inf.avail_out; i++) {
 						xsum.xsum += (uint64_t)out[i];
-						xsum_chars++;
+						xsum.xchars++;
 					}
 				}
 			} while (stream_inf.avail_out == 0);
 		} while (ret != Z_STREAM_END);
-
 		(void)inflateEnd(&stream_inf);
+		stream_inf.zalloc = Z_NULL;
+		stream_inf.zfree = Z_NULL;
+		stream_inf.opaque = Z_NULL;
 	} while (sz > 0);
 
+finish:
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		pr_dbg_v("%s: inflate xsum value %" PRIu64
-			", xsum_chars %" PRIu64 "\n",
-			args->name, xsum.xsum, xsum_chars);
+			", xsum.xchars %" PRIu64 "\n",
+			args->name, xsum.xsum, xsum.xchars);
 	}
 
 	if (write(xsum_fd, &xsum, sizeof(xsum)) < 0) {
@@ -1253,7 +1257,6 @@ static int stress_zlib_deflate(
 	int ret, err = 0;
 	z_stream stream_def;
 	uint64_t bytes_in = 0, bytes_out = 0;
-	uint64_t xsum_chars = 0;
 	int flush;
 	stress_zlib_rand_data_info_t *opt_zlib_rand_data_func = &zlib_rand_data_methods[0];
 	stress_zlib_args_t zlib_args;
@@ -1263,6 +1266,7 @@ static int stress_zlib_deflate(
 	(void)stress_zlib_get_args(&zlib_args);
 
 	xsum.xsum = 0;
+	xsum.xchars = 0;
 	xsum.error = false;
 	xsum.pipe_broken = false;
 	xsum.interrupted = false;
@@ -1281,12 +1285,6 @@ static int stress_zlib_deflate(
 		zlib_args.level, zlib_args.mem_level, zlib_args.window_bits,
 		zlib_args.strategy, (unsigned long long)zlib_args.stream_bytes);
 	do {
-		if (stream_def.zalloc != Z_NULL) {
-			(void)deflateEnd(&stream_def);
-			stream_def.zalloc = Z_NULL;
-			stream_def.zfree = Z_NULL;
-			stream_def.opaque = Z_NULL;
-		}
 		ret = deflateInit2(&stream_def, zlib_args.level,
 				Z_DEFLATED, zlib_args.window_bits,
 				zlib_args.mem_level, zlib_args.strategy);
@@ -1309,7 +1307,8 @@ static int stress_zlib_deflate(
 				? DATA_SIZE : (zlib_args.stream_bytes - stream_bytes_out);
 
 			if (zlib_args.stream_bytes > 0)
-				flush = (stream_bytes_out + gen_sz < zlib_args.stream_bytes)
+				flush = (stream_bytes_out + gen_sz < zlib_args.stream_bytes
+					&& keep_stressing())
 					? Z_NO_FLUSH : Z_FINISH;
 			else
 				flush = keep_stressing() ? Z_NO_FLUSH : Z_FINISH;
@@ -1322,13 +1321,14 @@ static int stress_zlib_deflate(
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				for (int i = 0; i < gen_sz; i++) {
 					xsum.xsum += xsum_in[i];
-					xsum_chars++;
+					xsum.xchars++;
 				}
 			}
 
 			bytes_in += DATA_SIZE;
 			do {
 				static unsigned char out[DATA_SIZE];
+				ssize_t sz;
 				int def_size;
 
 				stream_def.avail_out = DATA_SIZE;
@@ -1358,12 +1358,14 @@ static int stress_zlib_deflate(
 					continue;
 
 				/* write buffer length value */
-				ssize_t sz = write(fd, &def_size, sizeof(def_size));
-				if (sz != sizeof(def_size)) {
+				sz = stress_write_buffer(fd, &def_size, sizeof(def_size), true);
+				if (sz == 0) {
+					break;
+				} else if (sz != sizeof(def_size)) {
+					(void)deflateEnd(&stream_def);
 					if ((errno != EINTR) && (errno != EPIPE) && (errno != 0)) {
-						pr_fail("%s: zlib write pipe failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-						(void)deflateEnd(&stream_def);
+						pr_fail("%s: zlib pipe write size error: %s (ret=%ld errno=%d)\n",
+							args->name, strerror(errno), sz, errno);
 						ret = EXIT_FAILURE;
 						goto xsum_error;
 					} else {
@@ -1375,12 +1377,14 @@ static int stress_zlib_deflate(
 					}
 				}
 				/* write deflate buffer */
-				sz = write(fd, out, def_size);
-				if (sz != def_size) {
+				sz = stress_write_buffer(fd, out, def_size, true);
+				if (sz == 0) {
+					break;
+				} else if (sz != def_size) {
+					(void)deflateEnd(&stream_def);
 					if ((errno != EINTR) && (errno != EPIPE) && (errno != 0)) {
-						pr_fail("%s: zlib write pipe failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-						(void)deflateEnd(&stream_def);
+						pr_fail("%s: zlib pipe write buffer error: %s (ret=%ld errno=%d)\n",
+							args->name, strerror(errno), sz, errno);
 						ret = EXIT_FAILURE;
 						goto xsum_error;
 					} else {
@@ -1394,6 +1398,10 @@ static int stress_zlib_deflate(
 				inc_counter(args);
 			} while (stream_def.avail_out == 0);
 		} while (ret != Z_STREAM_END);
+		(void)deflateEnd(&stream_def);
+		stream_def.zalloc = Z_NULL;
+		stream_def.zfree = Z_NULL;
+		stream_def.opaque = Z_NULL;
 	} while (keep_stressing());
 
 finish:
@@ -1405,11 +1413,10 @@ finish:
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		pr_dbg_v("%s: deflate xsum value %" PRIu64
-			", xsum_chars %" PRIu64 "\n",
-			args->name, xsum.xsum, xsum_chars);
+			", xsum.xchars %" PRIu64 "\n",
+			args->name, xsum.xsum, xsum.xchars);
 	}
 
-	(void)deflateEnd(&stream_def);
 	ret = EXIT_SUCCESS;
 xsum_error:
 	if (write(xsum_fd, &xsum, sizeof(xsum)) < 0 ) {
@@ -1490,9 +1497,11 @@ static int stress_zlib(const stress_args_t *args)
 		(void)close(fds[0]);
 		ret = stress_zlib_deflate(args, fds[1], deflate_xsum_fds[1]);
 		(void)close(fds[1]);
+		int retval;
+		waitpid(pid, &retval, 0);
 	}
 
-	n = read(deflate_xsum_fds[0], &deflate_xsum, sizeof(deflate_xsum));
+	n = stress_read_buffer(deflate_xsum_fds[0], &deflate_xsum, sizeof(deflate_xsum), false);
 	if (n != sizeof(deflate_xsum)) {
 		bad_xsum_reads = true;
 		if ((errno != EINTR) && (errno != EPIPE)) {
@@ -1505,7 +1514,7 @@ static int stress_zlib(const stress_args_t *args)
 		error       |= deflate_xsum.error;
 	}
 
-	n = read(inflate_xsum_fds[0], &inflate_xsum, sizeof(inflate_xsum));
+	n = stress_read_buffer(inflate_xsum_fds[0], &inflate_xsum, sizeof(inflate_xsum), false);
 	if (n != sizeof(inflate_xsum)) {
 		bad_xsum_reads = true;
 		if ((errno != EINTR) && (errno != EPIPE)) {
@@ -1519,8 +1528,9 @@ static int stress_zlib(const stress_args_t *args)
 	}
 
 	if (pipe_broken || bad_xsum_reads || interrupted || error) {
-		pr_inf("%s: cannot verify inflate/deflate checksums:%s%s%s%s%s%s%s\n",
+		pr_inf("%s: cannot verify inflate(%d)/deflate checksums:%s%s%s%s%s%s%s\n",
 			args->name,
+			pid,
 			interrupted ? " interrupted" : "",
 			(interrupted & pipe_broken) ? " and" : "",
 			pipe_broken ? " broken pipe" : "",
@@ -1529,16 +1539,26 @@ static int stress_zlib(const stress_args_t *args)
 			((interrupted | pipe_broken | error) & bad_xsum_reads) ? " and" : "",
 			bad_xsum_reads ? " could not read checksums" : "");
 	} else {
-		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-		    (deflate_xsum.xsum != inflate_xsum.xsum)) {
-			pr_fail("%s: zlib xsum values do NOT match "
-				"deflate xsum %" PRIu64
-				" vs inflate xsum %" PRIu64 "\n",
-				args->name, deflate_xsum.xsum, inflate_xsum.xsum);
-			ret = EXIT_FAILURE;
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			if (deflate_xsum.xsum != inflate_xsum.xsum) {
+				pr_fail("%s: zlib xsum values do NOT match "
+					"%" PRIu64 "/%" PRIu64
+					"(deflate/inflate)"
+					" vs "
+					"%" PRIu64 "/%" PRIu64
+					"(deflated/inflated bytes)\n",
+					args->name, deflate_xsum.xsum,
+					inflate_xsum.xsum, deflate_xsum.xchars,
+					inflate_xsum.xchars);
+				ret = EXIT_FAILURE;
+			} else {
+				pr_inf("%s: zlib xsum values matches "
+					"%" PRIu64"/%" PRIu64
+					"(deflate/inflate)\n", args->name,
+					deflate_xsum.xsum, inflate_xsum.xsum);
+			}
 		}
 	}
-
 	(void)close(deflate_xsum_fds[0]);
 	(void)close(deflate_xsum_fds[1]);
 	(void)close(inflate_xsum_fds[0]);
