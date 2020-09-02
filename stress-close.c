@@ -327,6 +327,11 @@ static int stress_close(const stress_args_t *args)
 			ret = faccessat(bad_fd, "", F_OK, 0);
 			(void)ret;
 
+			/*
+			 * Exercise invalid flags syscall
+			 */
+			ret = faccessat(fd, "", ~0, 0);
+			(void)ret;
 #endif
 			ret = fstat(fd, &statbuf);
 			(void)ret;
