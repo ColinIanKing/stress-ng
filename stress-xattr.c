@@ -69,6 +69,7 @@ static int stress_xattr(const stress_args_t *args)
 		char attrname[32];
 		char value[32];
 		char tmp[sizeof(value)];
+		char small_tmp[1];
 		ssize_t sz;
 		char *buffer;
 		char bad_attrname[32];
@@ -157,6 +158,10 @@ static int stress_xattr(const stress_args_t *args)
 			/* Invalid attribute name */
 			(void)memset(&bad_attrname, 0, sizeof(bad_attrname));
 			ret = shim_fgetxattr(fd, bad_attrname, tmp, sizeof(tmp));
+
+			/* Exercise getxattr syscall having small value buffer */
+			ret = shim_getxattr(filename, attrname, small_tmp, sizeof(small_tmp));
+			(void)ret;
 
 			ret = shim_getxattr(filename, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
