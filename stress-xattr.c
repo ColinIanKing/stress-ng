@@ -155,10 +155,6 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_close;
 			}
 
-			/* Invalid attribute name */
-			(void)memset(&bad_attrname, 0, sizeof(bad_attrname));
-			ret = shim_fgetxattr(fd, bad_attrname, tmp, sizeof(tmp));
-
 			/* Exercise getxattr syscall having small value buffer */
 			ret = shim_getxattr(filename, attrname, small_tmp, sizeof(small_tmp));
 			(void)ret;
@@ -198,6 +194,15 @@ static int stress_xattr(const stress_args_t *args)
 		 *  Exercise bad/invalid fd
 		 */
 		ret = shim_fgetxattr(bad_fd, "user.var_bad", tmp, sizeof(tmp));
+		(void)ret;
+
+		/* Invalid attribute name */
+		(void)memset(&bad_attrname, 0, sizeof(bad_attrname));
+		ret = shim_fgetxattr(fd, bad_attrname, tmp, sizeof(tmp));
+		(void)ret;
+
+		/* Exercise fgetxattr syscall having small value buffer */
+		ret = shim_fgetxattr(fd, attrname, small_tmp, sizeof(small_tmp));
 		(void)ret;
 
 		/* Determine how large a buffer we required... */
