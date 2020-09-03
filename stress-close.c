@@ -177,6 +177,10 @@ static int stress_close(const stress_args_t *args)
 	const gid_t gid = getgid();
 	const bool not_root = !stress_check_capability(SHIM_CAP_IS_ROOT);
 	double max_duration = 0.0;
+#if defined(HAVE_FACCESSAT)
+	int file_fd = -1;
+	char filename[PATH_MAX];
+#endif
 #if defined(HAVE_LIB_RT)
 	char shm_name[SHM_NAME_LEN];
 #endif
@@ -205,6 +209,23 @@ static int stress_close(const stress_args_t *args)
 			goto tidy;
 		}
 	}
+
+#if defined(HAVE_FACCESSAT)
+	{
+		int ret;
+
+		ret = stress_temp_dir_mk_args(args);
+		if (ret < 0)
+			return exit_status(-ret);
+		(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
+		file_fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+		if (file_fd < 0) {
+			pr_err("%s: cannot create %s\n", args->name, filename);
+			return exit_status(errno);
+		}
+		(void)unlink(filename);
+	}
+#endif
 
 	do {
 		size_t domain, type;
@@ -332,6 +353,18 @@ static int stress_close(const stress_args_t *args)
 			 */
 			ret = faccessat(fd, "", ~0, 0);
 			(void)ret;
+
+			/*
+			 * Invalid faccessat syscall with pathname is relative and dirfd
+			 * is a file descriptor referring to a file other than a directory
+			 */
+			ret = faccessat(file_fd, "./", F_OK, 0);
+			if (ret >= 0) {
+				pr_fail("%s: faccessat opened file descriptor succeeded unexpectedly, "
+					"errno=%d (%s)\n", args->name, errno, strerror(errno));
+				(void)close(ret);
+				goto tidy;
+			}
 #endif
 			ret = fstat(fd, &statbuf);
 			(void)ret;
@@ -366,6 +399,12 @@ tidy:
 				args->name, ret, strerror(ret));
 		}
 	}
+
+#if defined(HAVE_FACCESSAT)
+	if (file_fd != -1) {
+		(void)close(file_fd);
+	}
+#endif
 
 	return rc;
 }
