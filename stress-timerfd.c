@@ -107,6 +107,8 @@ static int stress_timerfd(const stress_args_t *args)
 	int timerfd[TIMERFD_MAX], procfd, count = 0, i, max_timerfd = -1;
 	char filename[PATH_MAX];
 	bool timerfd_rand = false;
+	int file_fd = -1;
+	char file_fd_name[PATH_MAX];
 	const bool cap_wake_alarm = stress_check_capability(SHIM_CAP_WAKE_ALARM);
 	const int bad_fd = stress_get_bad_fd();
 	int ret;
@@ -136,6 +138,18 @@ static int stress_timerfd(const stress_args_t *args)
 		if (max_timerfd < timerfd[i])
 			max_timerfd = timerfd[i];
 	}
+
+	/* Create a non valid timerfd file descriptor */
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0)
+		return exit_status(-ret);
+	(void)stress_temp_filename_args(args, file_fd_name, sizeof(file_fd_name), stress_mwc32());
+	file_fd = open(file_fd_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (file_fd < 0) {
+		pr_err("%s: cannot create %s\n", args->name, file_fd_name);
+		return exit_status(errno);
+	}
+	(void)unlink(file_fd_name);
 
 	/* Check timerfd_create cannot succeed without capability */
 	if (!cap_wake_alarm) {
@@ -234,6 +248,9 @@ static int stress_timerfd(const stress_args_t *args)
 		ret = timerfd_gettime(bad_fd, &value);
 		(void)ret;
 
+		ret = timerfd_gettime(file_fd, &value);
+		(void)ret;
+
 		/*
 		 *  Periodically read /proc/$pid/fdinfo/$timerfd,
 		 *  we don't care about failures, we just want to
@@ -257,6 +274,8 @@ static int stress_timerfd(const stress_args_t *args)
 	}
 	if (procfd > -1)
 		(void)close(procfd);
+	(void)close(file_fd);
+	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
 }
