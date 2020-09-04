@@ -147,7 +147,8 @@ static int stress_access(const stress_args_t *args)
 			ret = faccessat(bad_fd, filename, modes[i].access_mode, 0);
 			(void)ret;
 #endif
-#if defined(HAVE_FACCESSAT2) && defined(AT_SYMLINK_NOFOLLOW)
+#if defined(HAVE_FACCESSAT2) &&	\
+    defined(AT_SYMLINK_NOFOLLOW)
 			ret = faccessat2(AT_FDCWD, filename, modes[i].access_mode, AT_SYMLINK_NOFOLLOW);
 			if ((ret < 0) && (errno != ENOSYS)) {
 				pr_fail("%s: faccessat2 %3.3o on chmod mode %3.3o failed: %d (%s)\n",
