@@ -401,9 +401,8 @@ tidy:
 	}
 
 #if defined(HAVE_FACCESSAT)
-	if (file_fd != -1) {
-		(void)close(file_fd);
-	}
+	(void)close(file_fd);
+	(void)stress_temp_dir_rm_args(args);
 #endif
 
 	return rc;
