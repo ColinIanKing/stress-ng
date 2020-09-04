@@ -182,6 +182,7 @@ static int stress_numa(const stress_args_t *args)
 	uint8_t *buf;
 	stress_node_t *n;
 	int rc = EXIT_FAILURE;
+	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 
 	numa_nodes = stress_numa_get_mem_nodes(&n, &max_nodes);
 	if (numa_nodes < 1) {
@@ -328,6 +329,16 @@ static int stress_numa(const stress_args_t *args)
 		ret = shim_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, ~0);
 		(void)ret;
+
+		/* Check mbind syscall cannot succeed without capability */
+		if (!cap_sys_nice) {
+			ret = shim_mbind(buf, MMAP_SZ, MPOL_BIND, node_mask,
+				max_nodes, MPOL_MF_MOVE_ALL);
+			if (ret >= 0) {
+				pr_fail("%s: mbind without capability CAP_SYS_NICE unexpectedly succeeded, "
+						"errno=%d (%s)\n", args->name, errno, strerror(errno));
+			}
+		}
 
 		/* Move to next node */
 		n = n->next;
