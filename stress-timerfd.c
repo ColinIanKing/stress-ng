@@ -108,6 +108,7 @@ static int stress_timerfd(const stress_args_t *args)
 	char filename[PATH_MAX];
 	bool timerfd_rand = false;
 	const bool cap_wake_alarm = stress_check_capability(SHIM_CAP_WAKE_ALARM);
+	const int bad_fd = stress_get_bad_fd();
 	int ret;
 
 	(void)stress_get_setting("timerfd-rand", &timerfd_rand);
@@ -228,6 +229,10 @@ static int stress_timerfd(const stress_args_t *args)
 			}
 			inc_counter(args);
 		}
+
+		/* Exercise invalid timerfd_gettime syscalls on bad fd */
+		ret = timerfd_gettime(bad_fd, &value);
+		(void)ret;
 
 		/*
 		 *  Periodically read /proc/$pid/fdinfo/$timerfd,
