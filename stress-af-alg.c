@@ -123,11 +123,14 @@ static void stress_af_alg_add_crypto_defconfigs(void);
 static stress_crypto_type_t name_to_type(const char *buffer)
 {
 	char *ptr = strchr(buffer, ':');
+        const char *end = ptr + strlen(buffer);
 	size_t i;
 
 	if (!ptr)
 		return CRYPTO_UNKNOWN;
 	ptr += 2;
+	if (ptr >= end)
+		return CRYPTO_UNKNOWN;
 	for (i = 0; i < SIZEOF_ARRAY(crypto_type_info); i++) {
 		const size_t n = strlen(crypto_type_info[i].name);
 
