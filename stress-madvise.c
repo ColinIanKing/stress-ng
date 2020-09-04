@@ -406,8 +406,8 @@ static int stress_madvise(const stress_args_t *args)
 	(void)stress_temp_dir_rm_args(args);
 
 	if (sigbus_count)
-		pr_inf("%s: caught %" PRIu64 " SIGBUS signals\n",
-			args->name, sigbus_count);
+		pr_inf("%s: caught %" PRIu64 " SIGBUS signal%s\n",
+			args->name, sigbus_count, sigbus_count == 1 ? "" : "s");
 	return EXIT_SUCCESS;
 }
 
