@@ -418,11 +418,15 @@ of the file using access(2) and faccessat(2) are sane.
 stop access workers after N bogo access sanity checks.
 .TP
 .B \-\-affinity N
-start N workers that rapidly change CPU affinity (only on Linux). Rapidly
-switching CPU affinity can contribute to poor cache behaviour.
+start N workers that run 16 processes that rapidly change CPU affinity
+(only on Linux). Rapidly switching CPU affinity can contribute to
+poor cache behaviour and high context switch rate.
 .TP
 .B \-\-affinity\-ops N
-stop affinity workers after N bogo affinity operations (only on Linux).
+stop affinity workers after N bogo affinity operations (only on Linux). Note
+that the counters across the 16 processes are not locked to improve affinity
+test rates so the final number of bogo-ops will be equal or more than the
+specified ops stop threshold because of racy unlocked bogo-op counting.
 .TP
 .B \-\-affinity\-rand
 switch CPU affinity randomly rather than the default of sequentially.

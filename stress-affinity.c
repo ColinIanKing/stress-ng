@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#define STRESS_AFFINITY_PROCS	(16)
+
 static const stress_help_t help[] = {
 	{ NULL,	"affinity N",	 "start N workers that rapidly change CPU affinity" },
 	{ NULL,	"affinity-ops N","stop after N affinity bogo operations" },
@@ -76,16 +78,71 @@ static int stress_affinity_supported(const char *name)
 	return 0;
 }
 
-static int stress_affinity(const stress_args_t *args)
+static void stress_affinity_reap(pid_t *pids)
+{
+	size_t i;
+	const pid_t mypid = getpid();
+
+	/*
+	 *  Kill and reap children
+	 */
+	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
+		if ((pids[i] > 1) && (pids[i] != mypid))
+			kill(pids[i], SIGKILL);
+	}
+	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
+		if ((pids[i] > 1) && (pids[i] != mypid)) {
+			int status;
+
+			(void)waitpid(pids[i], &status, 0);
+		}
+	}
+}
+
+/*
+ *  stress_affinity_racy_count()
+ *	racy bogo op counter, we have a lot of contention
+ *	if we lock the args->counter, so sum per-process
+ *	counters in a racy way.
+ */
+static uint64_t stress_affinity_racy_count(uint64_t *counters)
+{
+	register uint64_t count = 0;
+	register size_t i;
+
+	for (i = 0; i < STRESS_AFFINITY_PROCS; i++)
+		count += counters[i];
+
+	return count;
+}
+
+/*
+ *  affinity_keep_stressing()
+ *	check if SIGALRM has triggered to the bogo ops count
+ *	has been reached, counter is racy, but that's OK
+ */
+static bool HOT OPTIMIZE3 affinity_keep_stressing(
+	const stress_args_t *args,
+	uint64_t *counters)
+{
+	return (LIKELY(g_keep_stressing_flag) &&
+		LIKELY(!args->max_ops ||
+                (stress_affinity_racy_count(counters) < args->max_ops)));
+}
+
+static void stress_affinity_child(
+	const stress_args_t *args,
+	const bool affinity_rand,
+	const uint32_t cpus,
+	uint64_t *counters,
+	pid_t *pids,
+	size_t instance)
 {
 	uint32_t cpu = args->instance;
-	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
-	cpu_set_t mask;
-	bool affinity_rand = false;
-
-	(void)stress_get_setting("affinity-rand", &affinity_rand);
 
 	do {
+		cpu_set_t mask;
+
 		cpu = affinity_rand ? (stress_mwc32() >> 4) : cpu + 1;
 		cpu %= cpus;
 		CPU_ZERO(&mask);
@@ -113,8 +170,61 @@ static int stress_affinity(const stress_args_t *args)
 						args->name, cpu);
 			}
 		}
-		inc_counter(args);
-	} while (keep_stressing());
+		counters[instance]++;
+	} while (affinity_keep_stressing(args, counters));
+
+	stress_affinity_reap(pids);
+}
+
+static int stress_affinity(const stress_args_t *args)
+{
+	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
+	bool affinity_rand = false;
+	pid_t pids[STRESS_AFFINITY_PROCS];
+	size_t i;
+	size_t counters_sz = ((sizeof(uint64_t) * (STRESS_AFFINITY_PROCS)) + args->page_size)
+				& ~(args->page_size - 1);
+	uint64_t *counters;
+
+	(void)stress_get_setting("affinity-rand", &affinity_rand);
+
+	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (!counters) {
+		pr_inf("%s: cannot mmap %zd bytes for shared counters, skipping stressor\n",
+			args->name, counters_sz);
+		return EXIT_NO_RESOURCE;
+	}
+
+	/*
+	 *  process slots 1..STRESS_AFFINITY_PROCS are the children,
+	 *  slot 0 is the parent.
+	 */
+	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
+		pids[i] = fork();
+
+		if (pids[i] == 0) {
+			stress_affinity_child(args, affinity_rand, cpus, counters, pids, i);
+			_exit(EXIT_SUCCESS);
+		}
+	}
+
+	stress_affinity_child(args, affinity_rand, cpus, counters, pids, 0);
+
+	/*
+	 *  The first process to hit the bogo op limit or get a SIGALRM
+	 *  will have reap'd the processes, but to be safe, reap again
+	 *  to ensure all processes are really dead and reaped.
+	 */
+	stress_affinity_reap(pids);
+
+	/*
+	 *  Set counter, this is always going to be >= the bogo_ops
+	 *  threshold because it is racy, but that is OK
+	 */
+	set_counter(args, stress_affinity_racy_count(counters));
+
+	(void)munmap((void *)counters, counters_sz);
 
 	return EXIT_SUCCESS;
 }
