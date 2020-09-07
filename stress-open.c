@@ -170,7 +170,7 @@ static int open_with_openat_cwd(void)
 	int fd;
 
 	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
-		getpid(), stress_mwc32());
+		(int)getpid(), stress_mwc32());
 
 	fd = openat(AT_FDCWD, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd >= 0)
@@ -189,7 +189,7 @@ static int open_with_openat_dirfd(void)
 	int fd, dirfd;
 
 	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
-		getpid(), stress_mwc32());
+		(int)getpid(), stress_mwc32());
 
 	dirfd = open_arg2(".", O_DIRECTORY | O_PATH);
 	if (dirfd < 0)
