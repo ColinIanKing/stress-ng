@@ -1,3 +1,71 @@
+stress-ng (0.11.20-1) unstable; urgency=medium
+
+  [André Wild]
+  * Fix error if only HAVE_TERMIOS is not set
+  * stress-zlib: Fixes race conditions during deflate/inflate
+  * stress-ipsec-mb: Fixes out of bounds access of unterminated funcs
+    array
+  * stress-zlib: new zlib stressor options
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-zlib: cast pid_t to int for %d format specifier
+  * stress-timerfd: only define cap_wake_alarm when it is required
+  * stress-open: cast pid_t to int for %d format specifier
+  * stress-timerfd: add build checks for CLOCK_REALTIME_* timers
+  * stress-memthrash: fix premature termination by OOM handler
+  * stress-memthrash: fix typo in comment "Wait" -> "Wake"
+  * stress-zlib: use %zd for ssize_t, fixes build warning on GNU/HURD
+  * stress-vforkmany: improve waiting by terminating child
+  * stress-open: fix build failures on systems that don't support O_PATH
+  * stress-close: add directory clean up at end
+  * stress-affinity: use 16 processes to hammer affinity changes per
+    stressor
+  * stress-af-alg: break some overly long lines
+  * stress-af-alg: add string overflow sanity check
+  * stress-access: break wide defined() checks to 2 lines
+  * stress-madvise: make signal message text plural on > 1 SIGBUS signals
+  * stress-zlib: move declaration of reval, voidify return from waitpid
+  * stress-close: remove duplicated bad_fd declaration
+  * stress-zlib: print args.stream_bytes as unsigned long long
+  * stress-ng.h: build in target clone types if gcc supports the feature
+  * stress-enosys: re-write int $80 x86-64 syscall
+  * stress-dev: clean up intentation
+  * syscalls.txt: add openat2 notes
+  * Makefile.config: add config test for struct open_how
+  * stress-open: call open() directly if possible
+  * stress-open: add openat system call check and exercise it
+  * stress-close: exercise new close_range system call
+
+  [Piyush Goyal]
+  * stress-timerfd: Exercise non valid timerfd file descriptor
+  * stress-timerfd: Add invalid timerfd_gettime syscalls on bad fd
+  * stress-numa: Add check mbind cannot succeed without capability
+  * stress-pidfd: Exercise invalid pidfd_getfd syscall
+  * stress-numa: Add MPOL_F_MEMS_ALLOWED flag get_mempolicy syscalls
+  * stress-close: Exercise faccessat syscall on file fd
+  * stress-xattr: Reorganise and exercise invalid fgetxattr syscall
+  * stress-xattr: Exercise getxattr with small value buffer
+  * stress-timerfd: Exercise invalid timerfd_create syscall
+  * stress-timerfd: Add check timerfd_create cannot succeed without
+    capability
+  * stress-xattr: Exercise invalid lgetxattr syscall
+  * stress-pidfd: Exercise pidfd_getfd syscall with bad_fd
+  * stress-numa: Exercise invalid mbind syscall
+  * stress-numa: Add invalid get_mempolicy syscalls
+  * stress-numa: Exercise invalid get_mempolicy syscall
+  * stress-xattr: Exercise invalid fgetxattr syscall
+  * stress-close: Exercise faccessat syscall with invalid flags
+  * stress-close: Exercise faccessat syscall on bad dirfd
+  * stress-dev: Exercise VT_RESIZE and VT_RESIZEX ioctl syscall
+  * stress-dev: Exercise KDGKBDIACR ioctl syscall
+  * Makefile.config: Define Macros HAVE_UNIMAPDESC
+  * stress-dev: Exercise KDGKBSENT and KDSKBSENT ioctl syscalls
+  * stress-dev: Exercise GIO_UNISCRNMAP and PIO_UNISCRNMAP ioctl syscalls
+  * stress-dev: Exercise GIO_SCRNMAP and PIO_SCRNMAP ioctl syscalls
+
+ -- Colin King <colin.king@canonical.com>  Mon,  7 Sep 2020 17:41:24 +0100
+
 stress-ng (0.11.19-1) unstable; urgency=medium
 
   [Colin Ian King ]
