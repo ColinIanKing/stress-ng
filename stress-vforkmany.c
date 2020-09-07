@@ -46,6 +46,27 @@ static inline pid_t stress_shim_vfork(void)
 STRESS_PRAGMA_POP
 
 /*
+ *  vforkmany_wait()
+ *	wait and then kill
+ */
+static void vforkmany_wait(const pid_t pid)
+{
+	int sig = SIGALRM;
+
+	for (;;) {
+		int ret, status;
+
+		errno = 0;
+		ret = waitpid(pid, &status, 0);
+		if ((ret >= 0) || (errno != EINTR))
+			break;
+
+		(void)kill(pid, sig);
+		sig = SIGKILL;
+	}
+}
+
+/*
  *  stress_vforkmany()
  *	stress by vfork'ing as many processes as possible.
  *	vfork has interesting semantics, the parent blocks
@@ -56,7 +77,6 @@ STRESS_PRAGMA_POP
  */
 static int stress_vforkmany(const stress_args_t *args)
 {
-	static int status;
 	static pid_t chpid;
 	static volatile int instance = 0;
 	static uint8_t stack_sig[SIGSTKSZ + SIGSTKSZ];
@@ -167,7 +187,7 @@ vfork_again:
 				_exit(0);
 			}
 			/* parent, wait for child, and exit if not top parent */
-			(void)shim_waitpid(pid, &status, 0);
+			(void)vforkmany_wait(pid);
 			if (!first)
 				_exit(0);
 		} while (keep_stressing());
@@ -192,7 +212,7 @@ vfork_again:
 		*terminate = true;
 		(void)kill(chpid, SIGALRM);
 
-		(void)shim_waitpid(chpid, &chstatus, 0);
+		(void)waitpid(chpid, &chstatus, 0);
 	}
 tidy:
 	(void)munmap((void *)terminate_mmap, args->page_size);
