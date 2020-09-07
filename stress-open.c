@@ -179,7 +179,10 @@ static int open_with_openat_cwd(void)
 }
 #endif
 
-#if defined(HAVE_OPENAT) && defined(AT_FDCWD) && defined(O_DIRECTORY)
+#if defined(HAVE_OPENAT) &&	\
+    defined(AT_FDCWD) &&	\
+    defined(O_PATH) &&		\
+    defined(O_DIRECTORY)
 static int open_with_openat_dirfd(void)
 {
 	char filename[PATH_MAX];
@@ -206,7 +209,8 @@ static stress_open_func_t open_funcs[] = {
 #if defined(O_TMPFILE)
 	open_tmp_rdwr,
 #endif
-#if defined(O_TMPFILE) && defined(O_EXCL)
+#if defined(O_TMPFILE) &&	\
+    defined(O_EXCL)
 	open_tmp_rdwr_excl,
 #endif
 #if defined(O_TMPFILE)
@@ -218,16 +222,22 @@ static stress_open_func_t open_funcs[] = {
 #if defined(O_PATH)
 	open_path,
 #endif
-#if defined(HAVE_POSIX_OPENPT) && defined(O_RDWR) && defined(N_NOCTTY)
+#if defined(HAVE_POSIX_OPENPT) &&	\
+    defined(O_RDWR) &&			\
+    defined(N_NOCTTY)
 	open_pt,
 #endif
 #if defined(O_CREAT)
 	open_create_eisdir,
 #endif
-#if defined(HAVE_OPENAT) && defined(AT_FDCWD)
+#if defined(HAVE_OPENAT) &&		\
+    defined(AT_FDCWD)
 	open_with_openat_cwd,
 #endif
-#if defined(HAVE_OPENAT) && defined(AT_FDCWD) && defined(O_DIRECTORY)
+#if defined(HAVE_OPENAT) &&	\
+    defined(AT_FDCWD) &&	\
+    defined(O_PATH) &&		\
+    defined(O_DIRECTORY)
 	open_with_openat_dirfd,
 #endif
 };
