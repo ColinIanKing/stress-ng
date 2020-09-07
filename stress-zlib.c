@@ -1144,7 +1144,7 @@ static int stress_zlib_inflate(
 			} else if (sz != sizeof(def_size)) {
 				(void)inflateEnd(&stream_inf);
 				if ((errno != EINTR) && (errno != EPIPE)) {
-					pr_fail("%s: zlib pipe read size error: %s (ret=%ld errno=%d)\n",
+					pr_fail("%s: zlib pipe read size error: %s (ret=%zd errno=%d)\n",
 						args->name, strerror(errno), sz, errno);
 					xsum.error = true;
 					goto xsum_error;
@@ -1163,7 +1163,7 @@ static int stress_zlib_inflate(
 			} else if (sz != def_size) {
 				(void)inflateEnd(&stream_inf);
 				if ((errno != EINTR) && (errno != EPIPE)) {
-					pr_fail("%s: zlib pipe read buffer error: %s (ret=%ld errno=%d)\n",
+					pr_fail("%s: zlib pipe read buffer error: %s (ret=%zd errno=%d)\n",
 						args->name, strerror(errno), sz, errno);
 					xsum.error = true;
 					goto xsum_error;
@@ -1364,7 +1364,7 @@ static int stress_zlib_deflate(
 				} else if (sz != sizeof(def_size)) {
 					(void)deflateEnd(&stream_def);
 					if ((errno != EINTR) && (errno != EPIPE) && (errno != 0)) {
-						pr_fail("%s: zlib pipe write size error: %s (ret=%ld errno=%d)\n",
+						pr_fail("%s: zlib pipe write size error: %s (ret=%zd errno=%d)\n",
 							args->name, strerror(errno), sz, errno);
 						ret = EXIT_FAILURE;
 						goto xsum_error;
@@ -1383,7 +1383,7 @@ static int stress_zlib_deflate(
 				} else if (sz != def_size) {
 					(void)deflateEnd(&stream_def);
 					if ((errno != EINTR) && (errno != EPIPE) && (errno != 0)) {
-						pr_fail("%s: zlib pipe write buffer error: %s (ret=%ld errno=%d)\n",
+						pr_fail("%s: zlib pipe write buffer error: %s (ret=%zd errno=%d)\n",
 							args->name, strerror(errno), sz, errno);
 						ret = EXIT_FAILURE;
 						goto xsum_error;
