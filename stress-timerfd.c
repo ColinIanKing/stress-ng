@@ -151,6 +151,7 @@ static int stress_timerfd(const stress_args_t *args)
 	}
 	(void)unlink(file_fd_name);
 
+#if defined(CLOCK_BOOTTIME_ALARM)
 	/* Check timerfd_create cannot succeed without capability */
 	if (!cap_wake_alarm) {
 		ret = timerfd_create(CLOCK_REALTIME_ALARM, 0);
@@ -160,12 +161,14 @@ static int stress_timerfd(const stress_args_t *args)
 			(void)close(ret);
 		}
 	}
+#endif
 
+#if defined(CLOCK_REALTIME)
 	/* Exercise timerfd_create with invalid flags */
 	ret = timerfd_create(CLOCK_REALTIME, ~0);
-	if (ret >= 0) {
+	if (ret >= 0)
 		(void)close(ret);
-	}
+#endif
 
 	if (count == 0) {
 		pr_fail("%s: timerfd_create failed, no timers created\n", args->name);
