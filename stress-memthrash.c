@@ -498,13 +498,20 @@ static inline char *plural(uint32_t n)
 	return n > 1 ? "s" : "";
 }
 
+static void stress_memthrash_sigalrm_handler(int signum)
+{
+	(void)signum;
+
+	thread_terminate = true;
+}
+
 static int stress_memthrash_child(const stress_args_t *args, void *ctxt)
 {
 	stress_memthrash_context_t *context = (stress_memthrash_context_t *)ctxt;
 	const uint32_t max_threads = context->max_threads;
 	uint32_t i;
 	pthread_t pthreads[max_threads];
-	int ret[max_threads];
+	int pthreads_ret[max_threads], ret;
 	stress_pthread_args_t pargs;
 
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
@@ -512,11 +519,14 @@ static int stress_memthrash_child(const stress_args_t *args, void *ctxt)
 	flags |= MAP_POPULATE;
 #endif
 
+	ret = stress_sighandler(args->name, SIGALRM, stress_memthrash_sigalrm_handler, NULL);
+	(void)ret;
+
 	pargs.args = args;
 	pargs.data = context->memthrash_method->func;
 
 	(void)memset(pthreads, 0, sizeof(pthreads));
-	(void)memset(ret, 0, sizeof(ret));
+	(void)memset(pthreads_ret, 0, sizeof(pthreads_ret));
 
 mmap_retry:
 	mem = mmap(NULL, MEM_SIZE, PROT_READ | PROT_WRITE, flags, -1, 0);
@@ -536,15 +546,15 @@ mmap_retry:
 	}
 
 	for (i = 0; i < max_threads; i++) {
-		ret[i] = pthread_create(&pthreads[i], NULL,
+		pthreads_ret[i] = pthread_create(&pthreads[i], NULL,
 				stress_memthrash_func, (void *)&pargs);
-		if (ret[i]) {
+		if (pthreads_ret[i]) {
 			/* Just give up and go to next thread */
-			if (ret[i] == EAGAIN)
+			if (pthreads_ret[i] == EAGAIN)
 				continue;
 			/* Something really unexpected */
 			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
-				args->name, ret[i], strerror(ret[i]));
+				args->name, pthreads_ret[i], strerror(pthreads_ret[i]));
 			goto reap;
 		}
 		if (!keep_stressing_flag())
@@ -556,11 +566,11 @@ mmap_retry:
 reap:
 	thread_terminate = true;
 	for (i = 0; i < max_threads; i++) {
-		if (!ret[i]) {
-			ret[i] = pthread_join(pthreads[i], NULL);
-			if (ret[i] && (ret[i] != ESRCH)) {
+		if (!pthreads_ret[i]) {
+			pthreads_ret[i] = pthread_join(pthreads[i], NULL);
+			if (pthreads_ret[i] && (pthreads_ret[i] != ESRCH)) {
 				pr_fail("%s: pthread join failed, errno=%d (%s)\n",
-					args->name, ret[i], strerror(ret[i]));
+					args->name, pthreads_ret[i], strerror(pthreads_ret[i]));
 			}
 		}
 	}

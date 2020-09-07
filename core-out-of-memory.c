@@ -189,6 +189,19 @@ int stress_oomable_child(
 	int ooms = 0;
 	int segvs = 0;
 	int buserrs = 0;
+	size_t signal = 0;
+
+	/*
+	 *  Kill child multiple times, start with SIGALRM and work up
+	 */
+	static const int signals[] = {
+		SIGALRM,
+		SIGALRM,
+		SIGALRM,
+		SIGALRM,
+		SIGTERM,
+		SIGKILL
+	};
 
 again:
 	if (!keep_stressing())
@@ -206,14 +219,25 @@ again:
 		int status, ret;
 
 		(void)setpgid(pid, g_pgrp);
+
+rewait:
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
+			/* No longer alive? */
+			if (errno == ECHILD)
+				goto report;
 			if (errno != EINTR)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)waitpid(pid, &status, 0);
+
+			(void)kill(pid, signals[signal]);
+			if (signal < SIZEOF_ARRAY(signals))
+				signal++;
+			else
+				goto report;
+
+			shim_usleep(500000);
+			goto rewait;
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg("%s: child died: %s (instance %d)\n",
 				args->name, stress_strsignal(WTERMSIG(status)),
@@ -225,7 +249,7 @@ again:
 			}
 
 			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
+			if ((signals[signal] != SIGKILL) && (WTERMSIG(status) == SIGKILL)) {
 				/*
 				 *  The --oomable flag was enabled, so
 				 *  the behaviour here is to no longer
@@ -278,6 +302,8 @@ again:
 		}
 		_exit(func(args, context));
 	}
+
+report:
 	if (ooms + segvs + buserrs > 0)
 		pr_dbg("%s: OOM restarts: %d"
 			", SIGSEGV restarts: %d"
