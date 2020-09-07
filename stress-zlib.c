@@ -1531,7 +1531,7 @@ static int stress_zlib(const stress_args_t *args)
 	if (pipe_broken || bad_xsum_reads || interrupted || error) {
 		pr_inf("%s: cannot verify inflate(%d)/deflate checksums:%s%s%s%s%s%s%s\n",
 			args->name,
-			pid,
+			(int)pid,
 			interrupted ? " interrupted" : "",
 			(interrupted & pipe_broken) ? " and" : "",
 			pipe_broken ? " broken pipe" : "",
