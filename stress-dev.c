@@ -2328,7 +2328,8 @@ static inline void stress_dev_rw(
 		double t_start;
 		bool timeout = false;
 #if defined(HAVE_TERMIOS_H) &&	\
-    defined(TCGETS)
+    defined(TCGETS) && \
+    defined(HAVE_TERMIOS)
 		struct termios tios;
 #endif
 		ret = shim_pthread_spin_lock(&lock);
@@ -2373,7 +2374,8 @@ static inline void stress_dev_rw(
 #endif
 		}
 #if defined(HAVE_TERMIOS_H) &&	\
-    defined(TCGETS)
+    defined(TCGETS) && \
+    defined(HAVE_TERMIOS)
 		if (S_ISCHR(buf.st_mode) &&
 		    strncmp("/dev/vsock", path, 9) &&
 		    strncmp("/dev/dri", path, 7) &&
