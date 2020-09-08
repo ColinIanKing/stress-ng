@@ -263,6 +263,10 @@ static int stress_timerfd(const stress_args_t *args)
 		ret = timerfd_settime(file_fd, 0, &timer, NULL);
 		(void)ret;
 
+		/* Exercise timerfd_settime with invalid flags */
+		ret = timerfd_settime(bad_fd, ~0, &timer, NULL);;
+		(void)ret;
+
 		/*
 		 *  Periodically read /proc/$pid/fdinfo/$timerfd,
 		 *  we don't care about failures, we just want to
