@@ -153,7 +153,7 @@ static int stress_timerfd(const stress_args_t *args)
 	}
 	(void)unlink(file_fd_name);
 
-#if defined(CLOCK_BOOTTIME_ALARM)
+#if defined(CLOCK_REALTIME_ALARM)
 	/* Check timerfd_create cannot succeed without capability */
 	if (!cap_wake_alarm) {
 		ret = timerfd_create(CLOCK_REALTIME_ALARM, 0);
