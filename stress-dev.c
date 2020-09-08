@@ -77,6 +77,67 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 	return (s1 < s2) ? -1 : 1;
 }
 
+/*
+ *  linux_xen_guest()
+ *	return true if stress-ng is running
+ *	as a Linux Xen guest.
+ */
+static bool linux_xen_guest(void)
+{
+#if defined(__linux__)
+	static bool xen_guest = false;
+	static bool xen_guest_cached = false;
+	struct stat statbuf;
+	int ret;
+	DIR *dp;
+	struct dirent *de;
+
+	if (xen_guest_cached)
+		return xen_guest;
+	
+	/*
+	 *  The features file is a good indicator for a Xen guest
+	 */
+	ret = stat("/sys/hypervisor/properties/features", &statbuf);
+	if (ret == 0) {
+		xen_guest = true;
+		goto done;
+	}
+	if (errno == EACCES) {
+		xen_guest = true;
+		goto done;
+	}
+
+	/*
+	 *  Non-dot files in /sys/bus/xen/devices indicate a Xen guest too
+	 */
+	dp = opendir("/sys/bus/xen/devices");
+	if (dp) {
+		while ((de = readdir(dp)) != NULL) {
+			if (de->d_name[0] != '.') {
+				xen_guest = true;
+				break;
+			}
+		}
+		(void)closedir(dp);
+		if (xen_guest)
+			goto done;
+	}
+
+	/*
+	 *  At this point Xen is being sneaky and pretending, so
+	 *  apart from inspecting dmesg (which may not be possible),
+	 *  assume it's not a Xen hosted guest.
+	 */
+#endif
+	xen_guest = false;
+done:
+	xen_guest_cached = true;
+
+	return xen_guest;
+}
+
+
 #if defined(__linux__) && 		\
     defined(HAVE_LINUX_MEDIA_H) && 	\
     defined(MEDIA_IOC_DEVICE_INFO)
@@ -2045,6 +2106,12 @@ static void stress_dev_hpet_linux(
 	(void)fd;
 	(void)devpath;
 
+	/*
+	 *  Avoid https://bugs.xenserver.org/browse/XSO-809
+	 */
+	if (linux_xen_guest())
+		return;
+
 #if defined(HPET_INFO)
 	{
 		struct hpet_info info;
@@ -2598,10 +2665,10 @@ static void stress_dev_dir(
 			continue;
 
 		/*
-		 * Xen clients hang on hpet when running as root
-		 * see: LP#1741409, so avoid opening /dev/hpet
-		 */
-		if (!euid && !strcmp(d->d_name, "hpet"))
+	 	 *  Avoid https://bugs.xenserver.org/browse/XSO-809
+		 *  see: LP#1741409, so avoid opening /dev/hpet
+	 	 */
+		if (!strcmp(d->d_name, "hpet") && linux_xen_guest())
 			continue;
 		len = strlen(d->d_name);
 
