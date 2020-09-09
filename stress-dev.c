@@ -78,6 +78,65 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 }
 
 /*
+ *  ioctl_set_timeout()
+ *	set a itimer to interrupt ioctl call after secs seconds
+ */
+static void ioctl_set_timeout(const double secs)
+{
+#if defined(ITIMER_REAL)
+	struct itimerval it;
+	int ret;
+
+	it.it_interval.tv_sec = (time_t)secs;
+	it.it_interval.tv_usec = (suseconds_t)(1000000.0 * (secs - (time_t)secs));
+	it.it_value.tv_sec = it.it_interval.tv_sec;
+	it.it_value.tv_usec = it.it_interval.tv_usec;
+	ret = setitimer(ITIMER_REAL, &it, NULL);
+	(void)ret;
+#endif
+}
+
+/*
+ *  ioctl_clr_timeout()
+ *	clear itimer ioctl timeout alarm
+ */
+static void ioctl_clr_timeout(void)
+{
+#if defined(ITIMER_REAL)
+	struct itimerval it;
+	int ret;
+
+	(void)memset(&it, 0, sizeof(it));
+	ret = setitimer(ITIMER_REAL, &it, NULL);
+	(void)ret;
+#endif
+}
+
+/*
+ *   IOCTL_TIMEOUT()
+ *	execute code, if time taken is > secs then
+ *	execute the action.  Note there are limitations
+ *	to the code that can be passed into the macro,
+ *	variable declarations must be one variable at a
+ *	time without any commas
+ */
+#define IOCTL_TIMEOUT(secs, code, action)		\
+{							\
+	static bool timed_out_ = false;			\
+	double timeout_t_ = stress_time_now();		\
+							\
+	if (!timed_out_) {				\
+		ioctl_set_timeout(secs);		\
+		code					\
+		ioctl_clr_timeout();			\
+	}						\
+	if (stress_time_now() >= timeout_t_ + secs) {	\
+		timed_out_ = true;			\
+		action;					\
+	}						\
+}
+
+/*
  *  linux_xen_guest()
  *	return true if stress-ng is running
  *	as a Linux Xen guest.
@@ -1104,6 +1163,7 @@ static void cdrom_get_address_msf(
 	(void)memset(&entry, 0, sizeof(entry));
 	entry.cdte_track = track;
 	entry.cdte_format = CDROM_MSF;
+
 	if (ioctl(fd, CDROMREADTOCENTRY, &entry) == 0) {
 		*min = entry.cdte_addr.msf.minute;
 		*seconds = entry.cdte_addr.msf.second;
@@ -1127,6 +1187,7 @@ static void stress_cdrom_ioctl_msf(const int fd)
 #if defined(CDROMREADTOCHDR) &&	\
     defined(HAVE_CDROM_MSF) &&	\
     defined(HAVE_CDROM_TOCHDR)
+	IOCTL_TIMEOUT(0.10,
 	{
 		struct cdrom_tochdr header;
 		/* Reading the number of tracks on disc */
@@ -1136,7 +1197,7 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			starttrk = header.cdth_trk0;
 			endtrk = header.cdth_trk1;
 		}
-	}
+	}, return);
 #endif
 
 	/* Return if endtrack is not set or starttrk is invalid */
@@ -1147,7 +1208,7 @@ static void stress_cdrom_ioctl_msf(const int fd)
 #if defined(CDROMPLAYTRKIND) &&	\
     defined(HAVE_CDROM_TI) &&	\
     defined(CDROMPAUSE)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_ti ti;
 		int ret;
 
@@ -1157,7 +1218,7 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			ret = ioctl(fd, CDROMPAUSE, 0);
 			(void)ret;
 		}
-	}
+	}, return);
 #endif
 
 #if defined(CDROMREADTOCENTRY) &&	\
@@ -1176,15 +1237,17 @@ static void stress_cdrom_ioctl_msf(const int fd)
 
 #if defined(CDROMPLAYMSF) && 	\
     defined(CDROMPAUSE)
-		if (ioctl(fd, CDROMPLAYMSF, &msf) == 0) {
-			ret = ioctl(fd, CDROMPAUSE, 0);
-			(void)ret;
-		}
+		IOCTL_TIMEOUT(0.10, {
+			if (ioctl(fd, CDROMPLAYMSF, &msf) == 0) {
+				ret = ioctl(fd, CDROMPAUSE, 0);
+				(void)ret;
+			}
+		}, return);
 #endif
 
 #if defined(CDROMREADRAW) &&	\
     defined(CD_FRAMESIZE_RAW)
-		{
+		IOCTL_TIMEOUT(0.10, {
 			union {
 				struct cdrom_msf msf;		/* input */
 				char buffer[CD_FRAMESIZE_RAW];	/* return */
@@ -1193,12 +1256,12 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			arg.msf = msf;
 			ret = ioctl(fd, CDROMREADRAW, &arg);
 			(void)ret;
-		}
+		}, return);
 #endif
 
 #if defined(CDROMREADMODE1) &&	\
     defined(CD_FRAMESIZE)
-		{
+		IOCTL_TIMEOUT(0.10, {
 			union {
 				struct cdrom_msf msf;		/* input */
 				char buffer[CD_FRAMESIZE];	/* return */
@@ -1207,12 +1270,12 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			arg.msf = msf;
 			ret = ioctl(fd, CDROMREADMODE1, &arg);
 			(void)ret;
-		}
+		}, return);
 #endif
 
 #if defined(CDROMREADMODE2) &&	\
     defined(CD_FRAMESIZE_RAW0)
-		{
+		IOCTL_TIMEOUT(0.10, {
 			union {
 				struct cdrom_msf msf;		/* input */
 				char buffer[CD_FRAMESIZE_RAW0];	/* return */
@@ -1221,7 +1284,7 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			arg.msf = msf;
 			ret = ioctl(fd, CDROMREADMODE2, &arg);
 			(void)ret;
-		}
+		}, return);
 #endif
 	}
 #endif
@@ -1242,40 +1305,40 @@ static void stress_dev_cdrom_linux(
 
 #if defined(CDROM_GET_MCN) &&	\
     defined(HAVE_CDROM_MCN)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_mcn mcn;
 		int ret;
 
 		(void)memset(&mcn, 0, sizeof(mcn));
 		ret = ioctl(fd, CDROM_GET_MCN, &mcn);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROMREADTOCHDR) &&		\
     defined(HAVE_CDROM_TOCHDR)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_tochdr header;
 		int ret;
 
 		(void)memset(&header, 0, sizeof(header));
 		ret = ioctl(fd, CDROMREADTOCHDR, &header);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROMREADTOCENTRY) &&	\
     defined(HAVE_CDROM_TOCENTRY)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_tocentry entry;
 		int ret;
 
 		(void)memset(&entry, 0, sizeof(entry));
 		ret = ioctl(fd, CDROMREADTOCENTRY, &entry);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROMVOLREAD) &&	\
     defined(HAVE_CDROM_VOLCTRL)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_volctrl volume;
 		int ret;
 
@@ -1287,62 +1350,62 @@ static void stress_dev_cdrom_linux(
 		}
 #endif
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROMSUBCHNL) &&	\
     defined(HAVE_CDROM_SUBCHNL)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_subchnl q;
 		int ret;
 
 		(void)memset(&q, 0, sizeof(q));
 		ret = ioctl(fd, CDROMSUBCHNL, &q);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROMREADAUDIO) &&	\
     defined(HAVE_CDROM_READ_AUDIO)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_read_audio ra;
 		int ret;
 
 		(void)memset(&ra, 0, sizeof(ra));
 		ret = ioctl(fd, CDROMREADAUDIO, &ra);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROMREADCOOKED) &&	\
     defined(CD_FRAMESIZE)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		uint8_t buffer[CD_FRAMESIZE];
 		int ret;
 
 		(void)memset(&buffer, 0, sizeof(buffer));
 		ret = ioctl(fd, CDROMREADCOOKED, buffer);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROMREADALL) &&	\
     defined(CD_FRAMESIZE)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		uint8_t buffer[CD_FRAMESIZE];
 		int ret;
 
 		(void)memset(&buffer, 0, sizeof(buffer));
 		ret = ioctl(fd, CDROMREADALL, buffer);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROMSEEK) &&	\
     defined(HAVE_CDROM_MSF)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_msf msf;
 		int ret;
 
 		(void)memset(&msf, 0, sizeof(msf));
 		ret = ioctl(fd, CDROMSEEK, &msf);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROMGETSPINDOWN)
 	{
@@ -1371,105 +1434,123 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}
 #endif
+
+
 #if defined(CDROM_DISC_STATUS)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		int ret;
 
 		ret = ioctl(fd, CDROM_DISC_STATUS, 0);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROM_GET_CAPABILITY)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		int ret;
 
 		ret = ioctl(fd, CDROM_GET_CAPABILITY, 0);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROM_CHANGER_NSLOTS)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		int ret;
 
 		ret = ioctl(fd, CDROM_CHANGER_NSLOTS, 0);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROM_NEXT_WRITABLE)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		int ret;
 		long next;
 
 		ret = ioctl(fd, CDROM_NEXT_WRITABLE, &next);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROM_LAST_WRITTEN)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		int ret;
 		long last;
 
 		ret = ioctl(fd, CDROM_LAST_WRITTEN, &last);
 		(void)ret;
-	}
+	}, return);
 #endif
-#if defined(CDROM_MEDIA_CHANGED)
-	{
-		int ret, slot = 0;
+#if defined(CDROM_MEDIA_CHANGED) && 0
+	IOCTL_TIMEOUT(0.10, {
+		int ret;
+		int slot = 0;
 
 		ret = ioctl(fd, CDROM_MEDIA_CHANGED, slot);
 		(void)ret;
-
+	}, return);
+#endif
 #if defined(CDSL_NONE)
-		slot = CDSL_NONE;
+	IOCTL_TIMEOUT(0.10, {
+		int ret;
+		int slot = CDSL_NONE;
+
 		ret = ioctl(fd, CDROM_MEDIA_CHANGED, slot);
 		(void)ret;
+	}, return);
 #endif
 #if defined(CDSL_CURRENT)
-		slot = CDSL_CURRENT;
+	IOCTL_TIMEOUT(0.10, {
+		int ret;
+		int slot = CDSL_CURRENT;
+
 		ret = ioctl(fd, CDROM_MEDIA_CHANGED, slot);
 		(void)ret;
-#endif
-	}
+	}, return);
 #endif
 #if defined(CDROMPAUSE)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		int ret;
 
 		ret = ioctl(fd, CDROMPAUSE, 0);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROMRESUME)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		int ret;
 
 		ret = ioctl(fd, CDROMRESUME, 0);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROM_DRIVE_STATUS)
-	{
-		int ret, slot = 0;
+	IOCTL_TIMEOUT(0.10, {
+		int ret;
+		int slot = 0;
 
 		ret = ioctl(fd, CDROM_DRIVE_STATUS, slot);
 		(void)ret;
-
+	}, return);
 #if defined(CDSL_NONE)
-		slot = CDSL_NONE;
+	IOCTL_TIMEOUT(0.10, {
+		int ret;
+		int slot = CDSL_NONE;
+
 		ret = ioctl(fd, CDROM_DRIVE_STATUS, slot);
 		(void)ret;
+	}, return);
 #endif
 #if defined(CDSL_CURRENT)
-		slot = CDSL_CURRENT;
+	IOCTL_TIMEOUT(0.10, {
+		int ret;
+		int slot = CDSL_CURRENT;
+
 		ret = ioctl(fd, CDROM_DRIVE_STATUS, slot);
 		(void)ret;
+	}, return);
 #endif
-	}
 #endif
 #if defined(DVD_READ_STRUCT) &&	\
     defined(HAVE_DVD_STRUCT)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		dvd_struct s;
 		int ret;
 
@@ -1517,20 +1598,21 @@ static void stress_dev_cdrom_linux(
 		s.type = UINT8_MAX;
 		ret = ioctl(fd, DVD_READ_STRUCT, &s);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(CDROMAUDIOBUFSIZ)
-	{
-		int val = INT_MIN, ret;
+	IOCTL_TIMEOUT(0.10, {
+		int val = INT_MIN;
+		int ret;
 
 		/* Invalid CDROMAUDIOBUFSIZ call with negative buffer size */
 		ret = ioctl(fd, CDROMAUDIOBUFSIZ, val);
 		(void)ret;
-	}
+	}, return);
 #endif
 #if defined(DVD_AUTH) &&	\
     defined(HAVE_DVD_AUTHINFO)
-	{
+	IOCTL_TIMEOUT(0.40, {
 		int ret;
 		dvd_authinfo ai;
 
@@ -1598,12 +1680,13 @@ static void stress_dev_cdrom_linux(
 		ai.type = ~0;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
-	}
+	}, return);
 #endif
 
 #if defined(CDROM_DEBUG)
-	{
-		int debug, ret;
+	IOCTL_TIMEOUT(0.10, {
+		int debug;
+		int ret;
 
 		/* Enable the DEBUG Messages */
 		debug = 1;
@@ -1614,32 +1697,33 @@ static void stress_dev_cdrom_linux(
 		debug = 0;
 		ret = ioctl(fd, CDROM_DEBUG, debug);
 		(void)ret;
-	}
+	}, return);
 #endif
 
 #if defined(CDROM_SELECT_SPEED)
-	{
-		int ret, i;
+	IOCTL_TIMEOUT(0.10, {
+		unsigned int i;
 		unsigned int speed;
+		int ret;
 
 		for (i = 8; i < 16; i++) {
 			speed = 1UL << i;
 			ret = ioctl(fd, CDROM_SELECT_SPEED, speed);
 			(void)ret;
 		}
-	}
+	}, return);
 #endif
 
 #if defined(CDROMPLAYBLK) &&	\
     defined(HAVE_CDROM_BLK)
-	{
+	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_blk blk;
 		int ret;
 
 		(void)memset(&blk, 0, sizeof(blk));
 		ret = ioctl(fd, CDROMPLAYBLK, &blk);
 		(void)ret;
-	}
+	}, return);
 #endif
 }
 #endif
@@ -2409,7 +2493,6 @@ static inline void stress_dev_rw(
 			break;
 
 		t_start = stress_time_now();
-
 
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0) {
 			if (errno == EINTR)
