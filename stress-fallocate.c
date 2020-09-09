@@ -68,6 +68,25 @@ static const int modes[] = {
 };
 
 /*
+ *  illegal mode flags mixes
+ */
+static const int illegal_modes[] = {
+	~0,
+#if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_ZERO_RANGE)
+	FALLOC_FL_PUNCH_HOLE | FALLOC_FL_ZERO_RANGE,
+#endif
+#if defined(FALLOC_FL_PUNCH_HOLE)
+	FALLOC_FL_PUNCH_HOLE,
+#endif
+#if defined(FALLOC_FL_COLLAPSE_RANGE) && defined(FALLOC_FL_ZERO_RANGE)
+	FALLOC_FL_COLLAPSE_RANGE | FALLOC_FL_ZERO_RANGE,
+#endif
+#if defined(FALLOC_FL_INSERT_RANGE) && defined(FALLOC_FL_ZERO_RANGE)
+	FALLOC_FL_INSERT_RANGE | FALLOC_FL_ZERO_RANGE,
+#endif
+};
+
+/*
  *  stress_fallocate
  *	stress I/O via fallocate and ftruncate
  */
@@ -163,7 +182,7 @@ static int stress_fallocate(const stress_args_t *args)
 
 			for (i = 0; i < 64; i++) {
 				off_t offset = (stress_mwc64() % fallocate_bytes) & ~0xfff;
-				int j = (stress_mwc32() >> 8) % SIZEOF_ARRAY(modes);
+				size_t j = (stress_mwc32() >> 8) % SIZEOF_ARRAY(modes);
 
 				(void)shim_fallocate(fd, modes[j], offset, 64 * KB);
 				if (!keep_stressing_flag())
@@ -185,6 +204,18 @@ static int stress_fallocate(const stress_args_t *args)
 		ret = shim_fallocate(bad_fd, 0, (off_t)0, fallocate_bytes);
 #endif
 		(void)ret;
+
+		/*
+		 *  Exercise with various illegal mode flags
+		 */
+		if (SIZEOF_ARRAY(illegal_modes) > 1) {
+			size_t i;
+
+			for (i = 0; i < SIZEOF_ARRAY(illegal_modes); i++) {
+				ret = shim_fallocate(fd, illegal_modes[i], (off_t)0, fallocate_bytes);
+				(void)ret;
+			}
+		}
 
 		inc_counter(args);
 	} while (keep_stressing());
