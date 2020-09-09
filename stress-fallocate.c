@@ -98,7 +98,6 @@ static int stress_fallocate(const stress_args_t *args)
 	uint64_t ftrunc_errs = 0;
 	off_t fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
 	int pipe_fds[2], pipe_ret;
-	
 
 	if (!stress_get_setting("fallocate-bytes", &fallocate_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -240,7 +239,6 @@ static int stress_fallocate(const stress_args_t *args)
 		(void)ret;
 		ret = posix_fallocate(fd, (off_t)-1, (off_t)-1);
 		(void)ret;
-		
 
 		inc_counter(args);
 	} while (keep_stressing());
