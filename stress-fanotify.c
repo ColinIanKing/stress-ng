@@ -473,6 +473,32 @@ static int stress_fanotify(const stress_args_t *args)
 					metadata = FAN_EVENT_NEXT(metadata, len);
 				}
 			}
+
+			/*
+			 * Exercise fanotify_init with all possible values
+			 * of flag argument to increase kernel coverage
+			 */
+#if defined(FAN_CLASS_CONTENT)
+			{
+				int ret_fd;
+
+				ret_fd = fanotify_init(FAN_CLASS_CONTENT, 0);
+				if (ret_fd != -1) {
+					(void)close(ret_fd);
+				}
+			}
+#endif
+
+#if defined(FAN_CLASS_PRE_CONTENT)
+			{
+				int ret_fd;
+
+				ret_fd = fanotify_init(FAN_CLASS_PRE_CONTENT, 0);
+				if (ret_fd != -1) {
+					(void)close(ret_fd);
+				}
+			}
+#endif
 		} while (keep_stressing());
 
 		free(buffer);
