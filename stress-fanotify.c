@@ -499,6 +499,61 @@ static int stress_fanotify(const stress_args_t *args)
 				}
 			}
 #endif
+
+#if defined(FAN_UNLIMITED_QUEUE)
+			{
+				int ret_fd;
+
+				ret_fd = fanotify_init(FAN_UNLIMITED_QUEUE, 0);
+				if (ret_fd != -1) {
+					(void)close(ret_fd);
+				}
+			}
+#endif
+
+#if defined(FAN_UNLIMITED_MARKS)
+			{
+				int ret_fd;
+
+				ret_fd = fanotify_init(FAN_UNLIMITED_MARKS, 0);
+				if (ret_fd != -1) {
+					(void)close(ret_fd);
+				}
+			}
+#endif
+
+#if defined(FAN_CLOEXEC)
+			{
+				int ret_fd;
+
+				ret_fd = fanotify_init(FAN_CLOEXEC, 0);
+				if (ret_fd != -1) {
+					(void)close(ret_fd);
+				}
+			}
+#endif
+
+#if defined(FAN_NONBLOCK)
+			{
+				int ret_fd;
+
+				ret_fd = fanotify_init(FAN_NONBLOCK, 0);
+				if (ret_fd != -1) {
+					(void)close(ret_fd);
+				}
+			}
+#endif
+
+#if defined(FAN_ENABLE_AUDIT)
+			{
+				int ret_fd;
+
+				ret_fd = fanotify_init(FAN_ENABLE_AUDIT, 0);
+				if (ret_fd != -1) {
+					(void)close(ret_fd);
+				}
+			}
+#endif
 		} while (keep_stressing());
 
 		free(buffer);
