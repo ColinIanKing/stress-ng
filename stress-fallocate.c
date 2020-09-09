@@ -231,6 +231,16 @@ static int stress_fallocate(const stress_args_t *args)
 			ret = posix_fallocate(pipe_fds[1], (off_t)0, fallocate_bytes);
 			(void)ret;
 		}
+		/*
+		 *  exercise illegal negative offset and lengths
+		 */
+		ret = posix_fallocate(fd, (off_t)-1, (off_t)0);
+		(void)ret;
+		ret = posix_fallocate(fd, (off_t)0, (off_t)-1);
+		(void)ret;
+		ret = posix_fallocate(fd, (off_t)-1, (off_t)-1);
+		(void)ret;
+		
 
 		inc_counter(args);
 	} while (keep_stressing());
