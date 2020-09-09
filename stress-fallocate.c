@@ -175,6 +175,7 @@ static int stress_fallocate(const stress_args_t *args)
 			 *  non-portable Linux fallocate()
 			 */
 			int i;
+
 			(void)shim_fallocate(fd, 0, (off_t)0, fallocate_bytes);
 			if (!keep_stressing_flag())
 				break;
