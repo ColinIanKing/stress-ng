@@ -97,6 +97,8 @@ static int stress_fallocate(const stress_args_t *args)
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
 	off_t fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
+	int pipe_fds[2], pipe_ret;
+	
 
 	if (!stress_get_setting("fallocate-bytes", &fallocate_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -122,6 +124,8 @@ static int stress_fallocate(const stress_args_t *args)
 		return ret;
 	}
 	(void)unlink(filename);
+
+	pipe_ret = pipe(pipe_fds);
 
 	do {
 #if defined(HAVE_POSIX_FALLOCATE)
@@ -218,11 +222,25 @@ static int stress_fallocate(const stress_args_t *args)
 			}
 		}
 
+		/*
+		 *  fallocate on a pipe is illegal
+		 */
+		if (pipe_ret == 0) {
+			ret = posix_fallocate(pipe_fds[0], (off_t)0, fallocate_bytes);
+			(void)ret;
+			ret = posix_fallocate(pipe_fds[1], (off_t)0, fallocate_bytes);
+			(void)ret;
+		}
+
 		inc_counter(args);
 	} while (keep_stressing());
 	if (ftrunc_errs)
 		pr_dbg("%s: %" PRIu64
 			" ftruncate errors occurred.\n", args->name, ftrunc_errs);
+	if (pipe_ret == 0) {
+		(void)close(pipe_fds[0]);
+		(void)close(pipe_fds[1]);
+	}
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 
