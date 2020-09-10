@@ -227,9 +227,11 @@ static int test_fanotify_mark(const char *name, char *mounts[])
 	}
 
 	/* Exercise fanotify_mark with invalid mask */
+#if defined(FAN_MARK_MOUNT)
 	ret = fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
 			~0, AT_FDCWD, mounts[0]);
 	(void)ret;
+#endif
 
 	/* Exercise fanotify_mark with invalid flag */
 	ret = fanotify_mark(ret_fd, ~0, FAN_ACCESS, AT_FDCWD, mounts[0]);
