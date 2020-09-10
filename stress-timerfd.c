@@ -195,7 +195,6 @@ static int stress_timerfd(const stress_args_t *args)
 	procfd = open(filename, O_RDONLY);
 
 	do {
-		int ret;
 		uint64_t expval;
 		struct itimerspec value;
 		struct timeval timeout;
