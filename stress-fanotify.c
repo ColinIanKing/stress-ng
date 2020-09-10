@@ -262,6 +262,17 @@ static int test_fanotify_mark(const char *name, char *mounts[])
 	(void)ret;
 #endif
 
+	/* Exercise other invalid combinations of flags */
+	ret = fanotify_mark(ret_fd, FAN_MARK_REMOVE,
+		0, AT_FDCWD, mnts[0]);
+	(void)ret;
+
+#if defined(FAN_MARK_ONLYDIR)
+	ret = fanotify_mark(ret_fd, FAN_MARK_FLUSH | FAN_MARK_ONLYDIR,
+		FAN_ACCESS, AT_FDCWD, mnts[0]);
+	(void)ret;
+#endif
+
 	(void)close(ret_fd);
 
 	return 0;
