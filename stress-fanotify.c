@@ -215,7 +215,9 @@ static void fanotify_event_init_invalid(void)
 static int test_fanotify_mark(const char *name, char *mounts[])
 {
 	int ret_fd, ret;
+#if defined(FAN_MARK_INODE)
 	const int bad_fd = stress_get_bad_fd();
+#endif
 
 	ret_fd = fanotify_init(0, 0);
 	if (ret_fd < 0) {
