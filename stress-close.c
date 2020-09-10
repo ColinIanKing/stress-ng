@@ -212,8 +212,6 @@ static int stress_close(const stress_args_t *args)
 
 #if defined(HAVE_FACCESSAT)
 	{
-		int ret;
-
 		ret = stress_temp_dir_mk_args(args);
 		if (ret < 0)
 			return exit_status(-ret);
