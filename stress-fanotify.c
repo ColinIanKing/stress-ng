@@ -228,6 +228,10 @@ static int test_fanotify_mark(const char *name, char *mnts[])
 			~0, AT_FDCWD, mnts[0]);
 	(void)ret;
 
+	/* Exercise fanotify_mark with invalid flag */
+	ret = fanotify_mark(ret_fd, ~0, FAN_ACCESS, AT_FDCWD, mnts[0]);
+	(void)ret;
+
 	(void)close(ret_fd);
 
 	return 0;
