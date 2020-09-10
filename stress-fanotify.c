@@ -212,7 +212,7 @@ static void fanotify_event_init_invalid(void)
  *  test_fanotify_mark()
  *     tests fanotify_mark syscall
  */
-static int test_fanotify_mark(const char *name, char *mnts[])
+static int test_fanotify_mark(const char *name, char *mounts[])
 {
 	int ret_fd, ret;
 	const int bad_fd = stress_get_bad_fd();
@@ -226,33 +226,33 @@ static int test_fanotify_mark(const char *name, char *mnts[])
 
 	/* Exercise fanotify_mark with invalid mask */
 	ret = fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
-			~0, AT_FDCWD, mnts[0]);
+			~0, AT_FDCWD, mounts[0]);
 	(void)ret;
 
 	/* Exercise fanotify_mark with invalid flag */
-	ret = fanotify_mark(ret_fd, ~0, FAN_ACCESS, AT_FDCWD, mnts[0]);
+	ret = fanotify_mark(ret_fd, ~0, FAN_ACCESS, AT_FDCWD, mounts[0]);
 	(void)ret;
 
 	/* Exercise fanotify_mark on bad fd */
 	ret = fanotify_mark(bad_fd, FAN_MARK_ADD | FAN_MARK_INODE,
-		FAN_ACCESS, AT_FDCWD, mnts[0]);
+		FAN_ACCESS, AT_FDCWD, mounts[0]);
 	(void)ret;
 
 	/* Exercise fanotify_mark by passing two operations simultaneously */
 	ret = fanotify_mark(ret_fd, FAN_MARK_REMOVE | FAN_MARK_ADD,
-		FAN_ACCESS, AT_FDCWD, mnts[0]);
+		FAN_ACCESS, AT_FDCWD, mounts[0]);
 	(void)ret;
 
 	/* Exercise valid fanotify_mark to increase kernel coverage */
 #if defined(FAN_MARK_INODE)
 	ret = fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_INODE,
-		FAN_ACCESS, AT_FDCWD, mnts[0]);
+		FAN_ACCESS, AT_FDCWD, mounts[0]);
 	(void)ret;
 #endif
 
 #if defined(FAN_MARK_IGNORED_MASK)
 	ret = fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_IGNORED_MASK,
-		FAN_ACCESS, AT_FDCWD, mnts[0]);
+		FAN_ACCESS, AT_FDCWD, mounts[0]);
 	(void)ret;
 #endif
 
@@ -265,7 +265,7 @@ static int test_fanotify_mark(const char *name, char *mnts[])
  *  fanotify_event_init()
  *	initialize fanotify
  */
-static int fanotify_event_init(const char *name, char *mnts[])
+static int fanotify_event_init(const char *name, char *mounts[])
 {
 	int fan_fd, count = 0, i;
 
@@ -288,14 +288,14 @@ static int fanotify_event_init(const char *name, char *mnts[])
 		for (j = 0; j < SIZEOF_ARRAY(fan_stress_settings); j++) {
 #if defined(FAN_MARK_MOUNT)
 			ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
-				fan_stress_settings[j], AT_FDCWD, mnts[i]);
+				fan_stress_settings[j], AT_FDCWD, mounts[i]);
 			if (ret == 0)
 				count++;
 #endif
 
 #if defined(FAN_MARK_FILESYSTEM)
 			ret = fanotify_mark(fan_fd, FAN_MARK_ADD | FAN_MARK_FILESYSTEM,
-				fan_stress_settings[j], AT_FDCWD, mnts[i]);
+				fan_stress_settings[j], AT_FDCWD, mounts[i]);
 			if (ret == 0)
 				count++;
 #endif
