@@ -234,9 +234,11 @@ static int test_fanotify_mark(const char *name, char *mounts[])
 	(void)ret;
 
 	/* Exercise fanotify_mark on bad fd */
+#if defined(FAN_MARK_INODE)
 	ret = fanotify_mark(bad_fd, FAN_MARK_ADD | FAN_MARK_INODE,
 		FAN_ACCESS, AT_FDCWD, mounts[0]);
 	(void)ret;
+#endif
 
 	/* Exercise fanotify_mark by passing two operations simultaneously */
 	ret = fanotify_mark(ret_fd, FAN_MARK_REMOVE | FAN_MARK_ADD,
