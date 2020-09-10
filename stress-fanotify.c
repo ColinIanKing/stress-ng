@@ -215,6 +215,7 @@ static void fanotify_event_init_invalid(void)
 static int test_fanotify_mark(const char *name, char *mnts[])
 {
 	int ret_fd, ret;
+	const int bad_fd = stress_get_bad_fd();
 
 	ret_fd = fanotify_init(0, 0);
 	if (ret_fd < 0) {
@@ -230,6 +231,11 @@ static int test_fanotify_mark(const char *name, char *mnts[])
 
 	/* Exercise fanotify_mark with invalid flag */
 	ret = fanotify_mark(ret_fd, ~0, FAN_ACCESS, AT_FDCWD, mnts[0]);
+	(void)ret;
+
+	/* Exercise fanotify_mark on bad fd */
+	ret = fanotify_mark(bad_fd, FAN_MARK_ADD | FAN_MARK_INODE,
+		FAN_ACCESS, AT_FDCWD, mnts[0]);
 	(void)ret;
 
 	(void)close(ret_fd);
