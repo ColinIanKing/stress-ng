@@ -238,6 +238,11 @@ static int test_fanotify_mark(const char *name, char *mnts[])
 		FAN_ACCESS, AT_FDCWD, mnts[0]);
 	(void)ret;
 
+	/* Exercise fanotify_mark by passing two operations simultaneously */
+	ret = fanotify_mark(ret_fd, FAN_MARK_REMOVE | FAN_MARK_ADD,
+		FAN_ACCESS, AT_FDCWD, mnts[0]);
+	(void)ret;
+
 	(void)close(ret_fd);
 
 	return 0;
