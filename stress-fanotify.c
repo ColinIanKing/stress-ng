@@ -209,29 +209,42 @@ static void fanotify_event_init_invalid(void)
 }
 
 /*
- *  fanotify_event_init()
- *	initialize fanotify
+ *  test_fanotify_mark()
+ *     tests fanotify_mark syscall
  */
-static int fanotify_event_init(const char *name)
+static int test_fanotify_mark(const char *name, char *mnts[])
 {
-	int fan_fd, count = 0, i;
+	int ret_fd, ret;
 
-	(void)memset(mnts, 0, sizeof(mnts));
-
-	fan_fd = fanotify_init(0, 0);
-	if (fan_fd < 0) {
+	ret_fd = fanotify_init(0, 0);
+	if (ret_fd < 0) {
 		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return -1;
 	}
 
-	/* do all mount points */
-	n_mnts = stress_mount_get(mnts, MAX_MNTS);
-	if (n_mnts < 1) {
-		pr_err("%s: setmntent cannot get mount points from "
-			"/proc/self/mounts, errno=%d (%s)\n",
+	/* Exercise fanotify_mark with invalid mask */
+	ret = fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
+			~0, AT_FDCWD, mnts[0]);
+	(void)ret;
+
+	(void)close(ret_fd);
+
+	return 0;
+}
+
+/*
+ *  fanotify_event_init()
+ *	initialize fanotify
+ */
+static int fanotify_event_init(const char *name, char *mnts[])
+{
+	int fan_fd, count = 0, i;
+
+	fan_fd = fanotify_init(0, 0);
+	if (fan_fd < 0) {
+		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
 			name, errno, strerror(errno));
-		(void)close(fan_fd);
 		return -1;
 	}
 
@@ -335,6 +348,17 @@ static int stress_fanotify(const stress_args_t *args)
 		return exit_status(-ret);
 
 	pid = fork();
+
+	/* do all mount points */
+	(void)memset(mnts, 0, sizeof(mnts));
+
+	n_mnts = stress_mount_get(mnts, MAX_MNTS);
+	if (n_mnts < 1) {
+		pr_err("%s: cannot get mount point information\n", args->name);
+		rc = EXIT_NO_RESOURCE;
+		goto tidy;
+	}
+
 	if (pid < 0) {
 		pr_err("%s: fork failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -402,8 +426,15 @@ static int stress_fanotify(const stress_args_t *args)
 			goto tidy;
 		}
 
-		fan_fd = fanotify_event_init(args->name);
+		fan_fd = fanotify_event_init(args->name, mnts);
 		if (fan_fd < 0) {
+			free(buffer);
+			rc = EXIT_FAILURE;
+			goto tidy;
+		}
+
+		ret = test_fanotify_mark(args->name, mnts);
+		if (ret < 0) {
 			free(buffer);
 			rc = EXIT_FAILURE;
 			goto tidy;
