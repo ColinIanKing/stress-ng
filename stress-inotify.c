@@ -70,6 +70,12 @@ static void exercise_inotify1()
 	if (fd >= 0) {
 		(void)close(fd);
 	}
+
+	/* Exercise inotify1 with invalid flag */
+	fd = inotify_init1(~0);
+	if (fd >= 0) {
+		(void)close(fd);
+	}
 #endif
 }
 
