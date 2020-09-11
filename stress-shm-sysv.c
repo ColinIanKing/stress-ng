@@ -159,6 +159,58 @@ static void stress_shm_get_procinfo(bool *get_procinfo)
 }
 #endif
 
+#if defined(__linux__)
+/*
+ *  stress_shm_sysv_linux_proc_map()
+ *	exercise the correspronding /proc/$PID/map_files/ mapping
+ *	with the shm address space.  Ignore errors, we just want
+ *	to exercise the kernel
+ */
+static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
+{
+	int fd;
+	char path[PATH_MAX];
+	const int len = (int)sizeof(void *);
+	const ptrdiff_t start = (ptrdiff_t)addr, end = start + sz;
+
+	(void)snprintf(path, sizeof(path), "/proc/%d/map_files/%*.*tx-%*.*tx",
+		getpid(), len, len, start, len, len, end);
+
+	/*
+	 *  Normally can only open if we have PTRACE_MODE_READ_FSCREDS,
+	 *  silently ignore failure
+	 */
+	fd = open(path, O_RDONLY);
+	if (fd) {
+		char pathlink[PATH_MAX];
+		void *ptr;
+		int ret;
+
+		/*
+		 *  Readlink will return the /SYSV key info, but since this kind
+		 *  of interface may change format, we skip checking it against
+		 *  the key
+		 */
+		ret = readlink(path, pathlink, sizeof(pathlink));
+		(void)ret;
+
+		/*
+		 *  The vfs allows us to mmap this file, which corresponds
+		 *  to the same physical pages of the shm allocation
+		 */
+		ptr = mmap(NULL, sz, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS,
+			-1, 0);
+		if (ptr != MAP_FAILED)
+			munmap(ptr, sz);
+
+		/*
+		 *  We can fsync it to..
+		 */
+		(void)fsync(fd);
+		(void)close(fd);
+	}
+}
+#endif
 /*
  *  stress_shm_sysv_child()
  * 	stress out the shm allocations. This can be killed by
@@ -374,9 +426,9 @@ static int stress_shm_sysv_child(
 
 			}
 #endif
-		/*
-		 *  Exercise NUMA mem_policy on shm
-		 */
+			/*
+			 *  Exercise NUMA mem_policy on shm
+			 */
 #if defined(__NR_get_mempolicy) &&	\
     defined(__NR_set_mempolicy)
 			{
@@ -392,7 +444,9 @@ static int stress_shm_sysv_child(
 				(void)ret;
 			}
 #endif
-
+#if defined(__linux__)
+			stress_shm_sysv_linux_proc_map(addr, sz);
+#endif
 			inc_counter(args);
 		}
 
