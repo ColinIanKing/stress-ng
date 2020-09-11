@@ -33,6 +33,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_INOTIFY) &&		\
+    defined(HAVE_INOTIFY1) &&		\
     defined(HAVE_SYS_INOTIFY_H) &&	\
     defined(HAVE_SYS_SELECT_H) && 	\
     NEED_GLIBC(2,9,0)
@@ -52,6 +53,27 @@ typedef struct {
 } stress_inotify_t;
 
 /*
+ * exercise_inotify1()
+ * exercise inotify1 with all valid and invalid flags
+ */
+static void exercise_inotify1()
+{
+#if defined(IN_NONBLOCK) && defined(IN_CLOEXEC)
+	int fd;
+
+	fd = inotify_init1(IN_NONBLOCK);
+	if (fd >= 0) {
+		(void)close(fd);
+	}
+
+	fd = inotify_init1(IN_CLOEXEC);
+	if (fd >= 0) {
+		(void)close(fd);
+	}
+#endif
+}
+
+/*
  *  inotify_exercise()
  *	run a given test helper function 'func' and see if this triggers the
  *	required inotify event flags 'flags'.
@@ -67,6 +89,9 @@ static void inotify_exercise(
 {
 	int fd, wd, check_flags = flags, n = 0;
 	char buffer[1024];
+
+	exercise_inotify1();
+
 retry:
 	n++;
 	if ((fd = inotify_init()) < 0) {
