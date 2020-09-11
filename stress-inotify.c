@@ -54,7 +54,7 @@ typedef struct {
 
 /*
  * exercise_inotify1()
- * exercise inotify1 with all valid and invalid flags
+ * 	exercise inotify1 with all valid and invalid flags
  */
 static void exercise_inotify1()
 {
@@ -62,26 +62,23 @@ static void exercise_inotify1()
 	int fd;
 
 	fd = inotify_init1(IN_NONBLOCK);
-	if (fd >= 0) {
+	if (fd >= 0)
 		(void)close(fd);
-	}
 
 	fd = inotify_init1(IN_CLOEXEC);
-	if (fd >= 0) {
+	if (fd >= 0)
 		(void)close(fd);
-	}
 
 	/* Exercise inotify1 with invalid flag */
 	fd = inotify_init1(~0);
-	if (fd >= 0) {
+	if (fd >= 0)
 		(void)close(fd);
-	}
 #endif
 }
 
 /*
  * exercise_inotify_add_watch()
- * exercise inotify_add_watch with all valid and invalid mask
+ * 	exercise inotify_add_watch with all valid and invalid mask
  */
 static void exercise_inotify_add_watch(
 	const char *watchname,
@@ -97,22 +94,19 @@ static void exercise_inotify_add_watch(
 
 	/* Exercise inotify_add_watch on invalid mask */
 	wd = inotify_add_watch(fd, watchname, 0);
-	if (wd >= 0) {
+	if (wd >= 0)
 		(void)inotify_rm_watch(fd, wd);
-	}
 
 	wd = inotify_add_watch(fd, watchname, ~0);
-	if (wd >= 0) {
+	if (wd >= 0)
 		(void)inotify_rm_watch(fd, wd);
-	}
 
 #if defined(IN_MASK_CREATE) &&	\
     defined(IN_MASK_ADD)
 	/* Exercise inotify_add_watch with two operations */
 	wd = inotify_add_watch(fd, watchname, IN_MASK_CREATE | IN_MASK_ADD);
-	if (wd >= 0) {
+	if (wd >= 0)
 		(void)inotify_rm_watch(fd, wd);
-	}
 #endif
 
 #if defined(IN_MASK_CREATE) &&	\
@@ -123,20 +117,17 @@ static void exercise_inotify_add_watch(
 	 */
 	wd = inotify_add_watch(fd, watchname, IN_MASK_ADD);
 	wd2 = inotify_add_watch(fd, watchname, IN_MASK_CREATE);
-	if (wd >= 0) {
+	if (wd >= 0)
 		(void)inotify_rm_watch(fd, wd);
-	}
-	if (wd2 >= 0) {
+	if (wd2 >= 0)
 		(void)inotify_rm_watch(fd, wd2);
-	}
 #endif
 
 #if defined(IN_MASK_ADD)
 	/* Exercise inotify_add_watch on bad_fd */
 	wd = inotify_add_watch(bad_fd, watchname, IN_MASK_ADD);
-	if (wd >= 0) {
+	if (wd >= 0)
 		(void)inotify_rm_watch(fd, wd);
-	}
 #endif
 
 	(void)close(fd);
