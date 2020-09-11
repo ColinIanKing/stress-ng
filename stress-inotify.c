@@ -102,6 +102,12 @@ static void exercise_inotify_add_watch(const char *watchname)
 		(void)inotify_rm_watch(fd, wd);
 	}
 
+	/* Exercise inotify_add_watch with two operations */
+	wd = inotify_add_watch(fd, watchname, IN_MASK_CREATE | IN_MASK_ADD);
+	if (wd >= 0) {
+		(void)inotify_rm_watch(fd, wd);
+	}
+
 	(void)close(fd);
 }
 
