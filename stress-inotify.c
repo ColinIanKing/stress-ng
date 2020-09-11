@@ -103,12 +103,17 @@ static void exercise_inotify_add_watch(const char *watchname)
 		(void)inotify_rm_watch(fd, wd);
 	}
 
+#if defined(IN_MASK_CREATE) &&	\
+    defined(IN_MASK_ADD)
 	/* Exercise inotify_add_watch with two operations */
 	wd = inotify_add_watch(fd, watchname, IN_MASK_CREATE | IN_MASK_ADD);
 	if (wd >= 0) {
 		(void)inotify_rm_watch(fd, wd);
 	}
+#endif
 
+#if defined(IN_MASK_CREATE) &&	\
+    defined(IN_MASK_ADD)
 	/*
 	 * Exercise invalid inotify_add_watch by passing IN_MASK_CREATE in mask
 	 * and pathname refers to a file already being watched by the same fd
@@ -121,12 +126,15 @@ static void exercise_inotify_add_watch(const char *watchname)
 	if (wd2 >= 0) {
 		(void)inotify_rm_watch(fd, wd2);
 	}
+#endif
 
+#if defined(IN_MASK_ADD)
 	/* Exercise inotify_add_watch on bad_fd */
 	wd = inotify_add_watch(bad_fd, watchname, IN_MASK_ADD);
 	if (wd >= 0) {
 		(void)inotify_rm_watch(fd, wd);
 	}
+#endif
 
 	(void)close(fd);
 }
