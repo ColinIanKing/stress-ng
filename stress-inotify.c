@@ -80,6 +80,32 @@ static void exercise_inotify1()
 }
 
 /*
+ * exercise_inotify_add_watch()
+ * exercise inotify_add_watch with all valid and invalid mask
+ */
+static void exercise_inotify_add_watch(const char *watchname)
+{
+	int fd, wd;
+
+	fd = inotify_init();
+	if (fd < 0)
+		return;
+
+	/* Exercise inotify_add_watch on invalid mask */
+	wd = inotify_add_watch(fd, watchname, 0);
+	if (wd >= 0) {
+		(void)inotify_rm_watch(fd, wd);
+	}
+
+	wd = inotify_add_watch(fd, watchname, ~0);
+	if (wd >= 0) {
+		(void)inotify_rm_watch(fd, wd);
+	}
+
+	(void)close(fd);
+}
+
+/*
  *  inotify_exercise()
  *	run a given test helper function 'func' and see if this triggers the
  *	required inotify event flags 'flags'.
@@ -97,6 +123,7 @@ static void inotify_exercise(
 	char buffer[1024];
 
 	exercise_inotify1();
+	exercise_inotify_add_watch(watchname);
 
 retry:
 	n++;
