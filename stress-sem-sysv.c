@@ -443,7 +443,7 @@ static int stress_sem_sysv(const stress_args_t *args)
 	}
 	/* Wait for termination */
 	while (keep_stressing())
-		(void)shim_usleep(100000);
+		pause();
 reap:
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		if (pids[i] > 0)
