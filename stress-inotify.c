@@ -86,6 +86,7 @@ static void exercise_inotify1()
 static void exercise_inotify_add_watch(const char *watchname)
 {
 	int fd, wd, wd2;
+	const int bad_fd = stress_get_bad_fd();
 
 	fd = inotify_init();
 	if (fd < 0)
@@ -119,6 +120,12 @@ static void exercise_inotify_add_watch(const char *watchname)
 	}
 	if (wd2 >= 0) {
 		(void)inotify_rm_watch(fd, wd2);
+	}
+
+	/* Exercise inotify_add_watch on bad_fd */
+	wd = inotify_add_watch(bad_fd, watchname, IN_MASK_ADD);
+	if (wd >= 0) {
+		(void)inotify_rm_watch(fd, wd);
 	}
 
 	(void)close(fd);
