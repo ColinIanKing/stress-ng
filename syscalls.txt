@@ -126,6 +126,7 @@ getxattr			xattr
 init_module
 inotify_add_watch		inotify
 inotify_init			inotify
+inotify_init1			inotify
 inotify_rm_watch		inotify
 io_cancel			aiol
 io_destroy			aiol
