@@ -45,7 +45,7 @@ static const stress_help_t help[] = {
 #define BUF_SIZE	(4096)
 
 typedef int (*stress_inotify_helper)(const stress_args_t *args, const char *path, const void *private);
-typedef void (*stress_inotify_func)(const stress_args_t *args, const char *path);
+typedef void (*stress_inotify_func)(const stress_args_t *args, const char *path, const int bad_fd);
 
 typedef struct {
 	const stress_inotify_func func;
@@ -83,10 +83,13 @@ static void exercise_inotify1()
  * exercise_inotify_add_watch()
  * exercise inotify_add_watch with all valid and invalid mask
  */
-static void exercise_inotify_add_watch(const char *watchname)
+static void exercise_inotify_add_watch(
+	const char *watchname,
+	const int bad_fd)
 {
 	int fd, wd, wd2;
-	const int bad_fd = stress_get_bad_fd();
+
+	(void)bad_fd;
 
 	fd = inotify_init();
 	if (fd < 0)
@@ -151,13 +154,14 @@ static void inotify_exercise(
 	const char *matchname,	/* Filename we expect inotify event to report */
 	const stress_inotify_helper func,	/* Helper func */
 	const int flags,	/* IN_* flags to watch for */
-	void *private)		/* Helper func private data */
+	void *private,		/* Helper func private data */
+	const int bad_fd)	/* A bad file descriptor */
 {
 	int fd, wd, check_flags = flags, n = 0;
 	char buffer[1024];
 
 	exercise_inotify1();
-	exercise_inotify_add_watch(watchname);
+	exercise_inotify_add_watch(watchname, bad_fd);
 
 retry:
 	n++;
@@ -406,7 +410,10 @@ static int inotify_attrib_helper(
 	return 0;
 }
 
-static void inotify_attrib_file(const stress_args_t *args, const char *path)
+static void inotify_attrib_file(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char filepath[PATH_MAX];
 
@@ -415,7 +422,7 @@ static void inotify_attrib_file(const stress_args_t *args, const char *path)
 		return;
 
 	inotify_exercise(args, filepath, path, "inotify_file",
-		inotify_attrib_helper, IN_ATTRIB, NULL);
+		inotify_attrib_helper, IN_ATTRIB, NULL, bad_fd);
 	(void)rm_file(args, filepath);
 }
 #endif
@@ -450,7 +457,10 @@ do_access:
 	return rc;
 }
 
-static void inotify_access_file(const stress_args_t *args, const char *path)
+static void inotify_access_file(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char filepath[PATH_MAX];
 
@@ -459,7 +469,7 @@ static void inotify_access_file(const stress_args_t *args, const char *path)
 		return;
 
 	inotify_exercise(args, filepath, path, "inotify_file",
-		inotify_access_helper, IN_ACCESS, NULL);
+		inotify_access_helper, IN_ACCESS, NULL, bad_fd);
 	(void)rm_file(args, filepath);
 }
 #endif
@@ -496,13 +506,16 @@ remove:
 	return rc;
 }
 
-static void inotify_modify_file(const stress_args_t *args, const char *path)
+static void inotify_modify_file(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, sizeof(filepath), path, "inotify_file");
 	inotify_exercise(args, filepath, path, "inotify_file",
-		inotify_modify_helper, IN_MODIFY, NULL);
+		inotify_modify_helper, IN_MODIFY, NULL, bad_fd);
 }
 #endif
 
@@ -523,13 +536,16 @@ static int inotify_creat_helper(
 	return 0;
 }
 
-static void inotify_creat_file(const stress_args_t *args, const char *path)
+static void inotify_creat_file(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char filepath[PATH_MAX];
 
 	mk_filename(filepath, sizeof(filepath), path, "inotify_file");
 	inotify_exercise(args, filepath, path, "inotify_file",
-		inotify_creat_helper, IN_CREATE, NULL);
+		inotify_creat_helper, IN_CREATE, NULL, bad_fd);
 	(void)rm_file(args, filepath);
 }
 #endif
@@ -552,7 +568,10 @@ static int inotify_open_helper(
 	return 0;
 }
 
-static void inotify_open_file(const stress_args_t *args, const char *path)
+static void inotify_open_file(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char filepath[PATH_MAX];
 
@@ -560,7 +579,7 @@ static void inotify_open_file(const stress_args_t *args, const char *path)
 	if (mk_file(args, filepath, 4096) < 0)
 		return;
 	inotify_exercise(args, filepath, path, "inotify_file",
-		inotify_open_helper, IN_OPEN, NULL);
+		inotify_open_helper, IN_OPEN, NULL, bad_fd);
 	(void)rm_file(args, filepath);
 }
 #endif
@@ -576,7 +595,10 @@ static int inotify_delete_helper(
 	return rm_file(args, path);
 }
 
-static void inotify_delete_file(const stress_args_t *args, const char *path)
+static void inotify_delete_file(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char filepath[PATH_MAX];
 
@@ -584,7 +606,7 @@ static void inotify_delete_file(const stress_args_t *args, const char *path)
 	if (mk_file(args, filepath, 4096) < 0)
 		return;
 	inotify_exercise(args, filepath, path, "inotify_file",
-		inotify_delete_helper, IN_DELETE, NULL);
+		inotify_delete_helper, IN_DELETE, NULL, bad_fd);
 	/* We remove (again) it just in case the test failed */
 	(void)rm_file(args, filepath);
 }
@@ -601,7 +623,10 @@ static int inotify_delete_self_helper(
 	return rm_dir(args, path);
 }
 
-static void inotify_delete_self(const stress_args_t *args, const char *path)
+static void inotify_delete_self(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char filepath[PATH_MAX];
 
@@ -609,7 +634,7 @@ static void inotify_delete_self(const stress_args_t *args, const char *path)
 	if (mk_dir(args, filepath) < 0)
 		return;
 	inotify_exercise(args, filepath, filepath, "inotify_dir",
-		inotify_delete_self_helper, IN_DELETE_SELF, NULL);
+		inotify_delete_self_helper, IN_DELETE_SELF, NULL, bad_fd);
 	/* We remove (again) in case the test failed */
 	(void)rm_dir(args, filepath);
 }
@@ -632,7 +657,10 @@ static int inotify_move_self_helper(
 }
 #endif
 
-static void inotify_move_self(const stress_args_t *args, const char *path)
+static void inotify_move_self(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char filepath[PATH_MAX], newpath[PATH_MAX];
 
@@ -642,7 +670,7 @@ static void inotify_move_self(const stress_args_t *args, const char *path)
 	mk_filename(newpath, sizeof(newpath), path, "renamed_dir");
 
 	inotify_exercise(args, filepath, filepath, "inotify_dir",
-		inotify_move_self_helper, IN_MOVE_SELF, newpath);
+		inotify_move_self_helper, IN_MOVE_SELF, newpath, bad_fd);
 	(void)rm_dir(args, newpath);
 	(void)rm_dir(args, filepath);	/* In case rename failed */
 }
@@ -663,7 +691,10 @@ static int inotify_moved_to_helper(
 	return 0;
 }
 
-static void inotify_moved_to(const stress_args_t *args, const char *path)
+static void inotify_moved_to(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char olddir[PATH_MAX - 16], oldfile[PATH_MAX], newfile[PATH_MAX];
 
@@ -677,7 +708,7 @@ static void inotify_moved_to(const stress_args_t *args, const char *path)
 
 	mk_filename(newfile, sizeof(newfile), path, "inotify_file");
 	inotify_exercise(args, newfile, path, "inotify_dir",
-		inotify_moved_to_helper, IN_MOVED_TO, oldfile);
+		inotify_moved_to_helper, IN_MOVED_TO, oldfile, bad_fd);
 	(void)rm_file(args, newfile);
 	(void)rm_dir(args, olddir);
 }
@@ -699,7 +730,10 @@ static int inotify_moved_from_helper(
 	return 0;
 }
 
-static void inotify_moved_from(const stress_args_t *args, const char *path)
+static void inotify_moved_from(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char oldfile[PATH_MAX], newdir[PATH_MAX - 16], newfile[PATH_MAX];
 
@@ -712,7 +746,7 @@ static void inotify_moved_from(const stress_args_t *args, const char *path)
 		return;
 	mk_filename(newfile, sizeof(newfile), newdir, "inotify_file");
 	inotify_exercise(args, oldfile, path, "inotify_dir",
-		inotify_moved_from_helper, IN_MOVED_FROM, newfile);
+		inotify_moved_from_helper, IN_MOVED_FROM, newfile, bad_fd);
 	(void)rm_file(args, newfile);
 	(void)rm_file(args, oldfile);	/* In case rename failed */
 	(void)rm_dir(args, newdir);
@@ -732,7 +766,10 @@ static int inotify_close_write_helper(
 	return 0;
 }
 
-static void inotify_close_write_file(const stress_args_t *args, const char *path)
+static void inotify_close_write_file(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char filepath[PATH_MAX];
 	int fd;
@@ -748,7 +785,7 @@ static void inotify_close_write_file(const stress_args_t *args, const char *path
 	}
 
 	inotify_exercise(args, filepath, path, "inotify_file",
-		inotify_close_write_helper, IN_CLOSE_WRITE, (void*)&fd);
+		inotify_close_write_helper, IN_CLOSE_WRITE, (void*)&fd, bad_fd);
 	(void)rm_file(args, filepath);
 	(void)close(fd);
 }
@@ -767,7 +804,10 @@ static int inotify_close_nowrite_helper(
 	return 0;
 }
 
-static void inotify_close_nowrite_file(const stress_args_t *args, const char *path)
+static void inotify_close_nowrite_file(
+	const stress_args_t *args,
+	const char *path,
+	const int bad_fd)
 {
 	char filepath[PATH_MAX];
 	int fd;
@@ -784,7 +824,7 @@ static void inotify_close_nowrite_file(const stress_args_t *args, const char *pa
 	}
 
 	inotify_exercise(args, filepath, path, "inotify_file",
-		inotify_close_nowrite_helper, IN_CLOSE_NOWRITE, (void*)&fd);
+		inotify_close_nowrite_helper, IN_CLOSE_NOWRITE, (void*)&fd, bad_fd);
 	(void)rm_file(args, filepath);
 	(void)close(fd);
 }
@@ -838,6 +878,7 @@ static int stress_inotify(const stress_args_t *args)
 {
 	char pathname[PATH_MAX - 16];
 	int ret, i;
+	const int bad_fd = stress_get_bad_fd();
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	ret = stress_temp_dir_mk_args(args);
@@ -845,7 +886,7 @@ static int stress_inotify(const stress_args_t *args)
 		return exit_status(-ret);
 	do {
 		for (i = 0; keep_stressing_flag() && inotify_stressors[i].func; i++)
-			inotify_stressors[i].func(args, pathname);
+			inotify_stressors[i].func(args, pathname, bad_fd);
 		inc_counter(args);
 	} while (keep_stressing());
 	(void)stress_temp_dir_rm_args(args);
