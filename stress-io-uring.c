@@ -78,8 +78,13 @@ typedef struct {
 typedef struct {
 	stress_uring_io_sq_ring_t sq_ring;
 	stress_uring_io_cq_ring_t cq_ring;
-	struct io_uring_sqe *sqes;
+	struct io_uring_sqe *sqes_mmap;
+	void *sq_mmap;
+	void *cq_mmap;
 	int io_uring_fd;
+	size_t sq_size;
+	size_t cq_size;
+	size_t sqes_size;
 } stress_io_uring_submit_t;
 
 /*
@@ -130,9 +135,7 @@ static int stress_setup_io_uring(
 {
 	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
 	stress_uring_io_cq_ring_t *cring = &submit->cq_ring;
-	int sring_size, cring_size;
 	struct io_uring_params p;
-	void *sq_ptr, *cq_ptr;
 
 	(void)memset(&p, 0, sizeof(p));
 	submit->io_uring_fd = shim_io_uring_setup(1, &p);
@@ -141,62 +144,77 @@ static int stress_setup_io_uring(
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	sring_size = p.sq_off.array + p.sq_entries * sizeof(unsigned);
-	cring_size = p.cq_off.cqes + p.cq_entries * sizeof(struct io_uring_cqe);
+	submit->sq_size = p.sq_off.array + p.sq_entries * sizeof(unsigned);
+	submit->cq_size = p.cq_off.cqes + p.cq_entries * sizeof(struct io_uring_cqe);
 	if (p.features & IORING_FEAT_SINGLE_MMAP) {
-		if (cring_size > sring_size)
-			sring_size = cring_size;
-		cring_size = sring_size;
+		if (submit->cq_size > submit->sq_size)
+			submit->sq_size = submit->cq_size;
+		submit->cq_size = submit->sq_size;
 	}
 
-	sq_ptr = mmap(NULL, sring_size, PROT_READ | PROT_WRITE,
+	submit->sq_mmap = mmap(NULL, submit->sq_size, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_POPULATE,
 		submit->io_uring_fd, IORING_OFF_SQ_RING);
-	if (sq_ptr == MAP_FAILED) {
+	if (submit->sq_mmap == MAP_FAILED) {
 		pr_inf("%s: could not mmap submission queue buffer, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
 	if (p.features & IORING_FEAT_SINGLE_MMAP) {
-		cq_ptr = sq_ptr;
+		submit->cq_mmap = submit->sq_mmap;
 	} else {
-		cq_ptr = mmap(NULL, cring_size, PROT_READ | PROT_WRITE,
+		submit->cq_mmap = mmap(NULL, submit->cq_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_POPULATE,
 				submit->io_uring_fd, IORING_OFF_CQ_RING);
-		if (cq_ptr == MAP_FAILED) {
+		if (submit->cq_mmap == MAP_FAILED) {
 			pr_inf("%s: could not mmap completion queue buffer, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			(void)munmap(sq_ptr, cring_size);
+			(void)munmap(submit->sq_mmap, submit->cq_size);
 			return EXIT_NO_RESOURCE;
 		}
 	}
 
-	sring->head = sq_ptr + p.sq_off.head;
-	sring->tail = sq_ptr + p.sq_off.tail;
-	sring->ring_mask = sq_ptr + p.sq_off.ring_mask;
-	sring->ring_entries = sq_ptr + p.sq_off.ring_entries;
-	sring->flags = sq_ptr + p.sq_off.flags;
-	sring->array = sq_ptr + p.sq_off.array;
+	sring->head = submit->sq_mmap + p.sq_off.head;
+	sring->tail = submit->sq_mmap + p.sq_off.tail;
+	sring->ring_mask = submit->sq_mmap + p.sq_off.ring_mask;
+	sring->ring_entries = submit->sq_mmap + p.sq_off.ring_entries;
+	sring->flags = submit->sq_mmap + p.sq_off.flags;
+	sring->array = submit->sq_mmap + p.sq_off.array;
 
-	submit->sqes = mmap(NULL, p.sq_entries * sizeof(struct io_uring_sqe),
+	submit->sqes_size = p.sq_entries * sizeof(struct io_uring_sqe);
+	submit->sqes_mmap = mmap(NULL, submit->sqes_size,
 			PROT_READ | PROT_WRITE, MAP_SHARED | MAP_POPULATE,
 			submit->io_uring_fd, IORING_OFF_SQES);
-	if (submit->sqes == MAP_FAILED) {
+	if (submit->sqes_mmap == MAP_FAILED) {
 		pr_inf("%s: count not mmap submission queue buffer, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap(cq_ptr, cring_size);
-		(void)munmap(sq_ptr, sring_size);
+		(void)munmap(submit->cq_mmap, submit->cq_size);
+		(void)munmap(submit->sq_mmap, submit->sq_size);
 		return EXIT_NO_RESOURCE;
 	}
 
-	cring->head = cq_ptr + p.cq_off.head;
-	cring->tail = cq_ptr + p.cq_off.tail;
-	cring->ring_mask = cq_ptr + p.cq_off.ring_mask;
-	cring->ring_entries = cq_ptr + p.cq_off.ring_entries;
-	cring->cqes = cq_ptr + p.cq_off.cqes;
+	cring->head = submit->cq_mmap + p.cq_off.head;
+	cring->tail = submit->cq_mmap + p.cq_off.tail;
+	cring->ring_mask = submit->cq_mmap + p.cq_off.ring_mask;
+	cring->ring_entries = submit->cq_mmap + p.cq_off.ring_entries;
+	cring->cqes = submit->cq_mmap + p.cq_off.cqes;
 
 	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_close_io_uring()
+ *	close and cleanup behind us
+ */
+static void stress_close_io_uring(stress_io_uring_submit_t *submit)
+{
+	(void)close(submit->io_uring_fd);
+
+	(void)munmap(submit->sqes_mmap, submit->sqes_size);
+	if (submit->cq_mmap != submit->sq_mmap)
+		(void)munmap(submit->cq_mmap, submit->cq_size);
+	(void)munmap(submit->sq_mmap, submit->sq_size);
 }
 
 /*
@@ -220,7 +238,7 @@ static int stress_io_uring_iovec_submit(
 	shim_mb();
 
 	index = tail & *submit->sq_ring.ring_mask;
-	sqe = &submit->sqes[index];
+	sqe = &submit->sqes_mmap[index];
 	sqe->fd = io_uring_file->fd;
 	sqe->flags = 0;
 	sqe->opcode = opcode;
@@ -236,7 +254,8 @@ static int stress_io_uring_iovec_submit(
 		shim_mb();
 	}
 
-	ret = shim_io_uring_enter(submit->io_uring_fd, 1,1, IORING_ENTER_GETEVENTS);
+	ret = shim_io_uring_enter(submit->io_uring_fd, 1,
+		1, IORING_ENTER_GETEVENTS);
 	if (ret < 0) {
 		pr_fail("%s: io_uring_enter failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -281,6 +300,24 @@ static int stress_io_uring_iovec_complete(
 	shim_mb();
 
 	return ret;
+}
+
+/*
+ *  stress_io_uring_fdinfo()
+ *	io_uring provides an fdinfo handler, so exercise this
+ * 	and silently ignore failyues
+ */
+static void stress_io_uring_fdinfo(const int io_uring_fd)
+{
+	char path[PATH_MAX];
+	char buf[4096];
+	int ret;
+
+	(void)snprintf(path, sizeof(path), "/proc/%d/fdinfo/%d",
+		getpid(), io_uring_fd);
+
+	ret = system_read(path, buf, sizeof(buf));
+	(void)ret;
 }
 
 /*
@@ -353,11 +390,14 @@ static int stress_io_uring(const stress_args_t *args)
 		if (rc != EXIT_SUCCESS)
 			break;
 
+		stress_io_uring_fdinfo(submit.io_uring_fd);
+
 		inc_counter(args);
 	} while (keep_stressing());
 
 	(void)close(io_uring_file.fd);
 clean:
+	stress_close_io_uring(&submit);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
