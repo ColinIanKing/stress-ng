@@ -36,6 +36,7 @@ static const stress_help_t help[] = {
 #define MAX_SERVERS		(4)
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
+    defined(HAVE_EPOLL_CREATE) &&	\
     defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
@@ -102,6 +103,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
+    defined(HAVE_EPOLL_CREATE) &&	\
     defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
