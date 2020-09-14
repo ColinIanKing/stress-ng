@@ -196,8 +196,8 @@ static void stress_filename_tidy(const char *path)
 
 			if (stress_is_dot_filename(d->d_name))
 				continue;
-			(void)snprintf(filename, sizeof(filename),
-				"%s/%s", path, d->d_name);
+			(void)stress_mk_filename(filename, sizeof(filename),
+				path, d->d_name);
 			(void)unlink(filename);
 		}
 		(void)closedir(dir);

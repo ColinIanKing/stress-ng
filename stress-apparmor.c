@@ -74,7 +74,7 @@ static int stress_apparmor_supported(const char *name)
 		return -1;
 	}
 	/* ..and see if profiles are accessible */
-	(void)snprintf(path, sizeof(path), "%s/%s", apparmor_path, "profiles");
+	(void)stress_mk_filename(path, sizeof(path), apparmor_path, "profiles");
 	if ((fd = open(path, O_RDONLY)) < 0) {
 		switch (errno) {
 		case EACCES:
@@ -186,14 +186,12 @@ static void stress_apparmor_dir(
 		switch (d->d_type) {
 		case DT_DIR:
 			if (recurse) {
-				(void)snprintf(name, sizeof(name),
-					"%s/%s", path, d->d_name);
+				(void)stress_mk_filename(name, sizeof(name), path, d->d_name);
 				stress_apparmor_dir(name, recurse, depth + 1);
 			}
 			break;
 		case DT_REG:
-			(void)snprintf(name, sizeof(name),
-				"%s/%s", path, d->d_name);
+			(void)stress_mk_filename(name, sizeof(name), path, d->d_name);
 			stress_apparmor_read(name);
 			break;
 		default:
@@ -262,7 +260,7 @@ static int apparmor_stress_profiles(
 	char path[PATH_MAX];
 
 	(void)name;
-	(void)snprintf(path, sizeof(path), "%s/%s", apparmor_path, "profiles");
+	(void)stress_mk_filename(path, sizeof(path), apparmor_path, "profiles");
 
 	do {
 		stress_apparmor_read(path);
@@ -286,7 +284,7 @@ static int apparmor_stress_features(
 	char path[PATH_MAX];
 
 	(void)name;
-	(void)snprintf(path, sizeof(path), "%s/%s", apparmor_path, "features");
+	(void)stress_mk_filename(path, sizeof(path), apparmor_path, "features");
 
 	do {
 		stress_apparmor_dir(path, true, 0);
@@ -346,9 +344,11 @@ static int apparmor_stress_kernel_interface(
 		if (ret < 0) {
 			aa_kernel_interface_unref(kern_if);
 
-			pr_inf("%s: aa_kernel_interface_replace_policy() failed, "
-				"errno=%d (%s)\n", name, errno,
-				strerror(errno));
+			if (errno == ENOENT) {
+				pr_inf("%s: aa_kernel_interface_replace_policy() failed, "
+					"errno=%d (%s)\n", name, errno,
+					strerror(errno));
+			}
 		}
 
 		/*

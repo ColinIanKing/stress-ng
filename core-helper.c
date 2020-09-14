@@ -168,6 +168,26 @@ static const stress_sig_name_t sig_names[] = {
 static const char *stress_temp_path = ".";
 
 /*
+ *  stress_mk_filename()
+ *	generate a full file name from a path and filename
+ */
+size_t stress_mk_filename(
+	char *fullname,
+	const size_t fullname_len,
+	const char *pathname,
+	const char *filename)
+{
+	/*
+	 *  This may not be efficient, but it works. Do not
+	 *  be tempted to optimize this, it is not used frequently
+	 *  and is not a CPU bottleneck.
+	 */
+	(void)strlcpy(fullname, pathname, fullname_len);
+	(void)strlcat(fullname, "/", fullname_len);
+	return strlcat(fullname, filename, fullname_len);
+}
+
+/*
  *  stress_get_pagesize()
  *	get pagesize
  */

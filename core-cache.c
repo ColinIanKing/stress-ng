@@ -185,29 +185,29 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 		goto out;
 	}
 
-	(void)snprintf(path, sizeof(path), "%s/type", index_path);
+	(void)stress_mk_filename(path, sizeof(path), index_path, "type");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->type = (stress_cache_type_t)stress_get_cache_type(tmp);
 	if (cache->type == CACHE_TYPE_UNKNOWN)
 		goto out;
 
-	(void)snprintf(path, sizeof(path), "%s/size", index_path);
+	(void)stress_mk_filename(path, sizeof(path), index_path, "size");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->size = stress_size_to_bytes(tmp);
 
-	(void)snprintf(path, sizeof(path), "%s/level", index_path);
+	(void)stress_mk_filename(path, sizeof(path), index_path, "level");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->level = (uint16_t)atoi(tmp);
 
-	(void)snprintf(path, sizeof(path), "%s/coherency_line_size", index_path);
+	(void)stress_mk_filename(path, sizeof(path), index_path, "coherency_line_size");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
 	cache->line_size = (uint32_t)atoi(tmp);
 
-	(void)snprintf(path, sizeof(path), "%s/ways_of_associativity", index_path);
+	(void)stress_mk_filename(path, sizeof(path), index_path, "ways_of_associativity");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		cache->ways = atoi(tmp);
 	else
@@ -330,7 +330,7 @@ static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 		return ret;
 	}
 
-	(void)snprintf(path, sizeof(path), "%s/%s", cpu_path, SYS_CPU_CACHE_DIR);
+	(void)stress_mk_filename(path, sizeof(path), cpu_path, SYS_CPU_CACHE_DIR);
 	n = scandir(path, &namelist, NULL, alphasort);
 	if (n < 0) {
 		/*
@@ -368,7 +368,7 @@ static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 			char fullpath[strlen(path) + strlen(name) + 2];
 
 			(void)memset(fullpath, 0, sizeof(fullpath));
-			(void)snprintf(fullpath, sizeof(fullpath), "%s/%s", path, name);
+			(void)stress_mk_filename(fullpath, sizeof(fullpath), path, name);
 			if (stress_add_cpu_cache_detail(&cpu->caches[j++], fullpath) != EXIT_SUCCESS)
 				goto err;
 		}
@@ -429,7 +429,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 			stress_cpu_t *const cpu = &cpus->cpus[j];
 
 			(void)memset(fullpath, 0, sizeof(fullpath));
-			(void)snprintf(fullpath, sizeof(fullpath), "%s/%s", SYS_CPU_PREFIX, name);
+			(void)stress_mk_filename(fullpath, sizeof(fullpath), SYS_CPU_PREFIX, name);
 			cpu->num = j;
 			if (j == 0) {
 				/* 1st CPU cannot be taken offline */

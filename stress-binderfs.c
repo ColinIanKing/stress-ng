@@ -117,7 +117,7 @@ static int stress_binderfs(const stress_args_t *args)
 			}
 		}
 
-		(void)snprintf(filename, sizeof(filename), "%s/%s",
+		(void)stress_mk_filename(filename, sizeof(filename),
 			pathname, "binder-control");
 		fd = open(filename, O_RDONLY | O_CLOEXEC);
 		if (fd < 0) {

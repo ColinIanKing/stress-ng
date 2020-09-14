@@ -461,7 +461,7 @@ static void stress_sys_dir(
 		if (stress_is_dot_filename(d->d_name))
 			goto dt_reg_free;
 
-		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
+		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
 		/* Is it in the hash of bad paths? */
 		if (stress_hash_get(sysfs_hash_table, tmp))
 			goto dt_reg_free;
@@ -528,7 +528,7 @@ dt_reg_free:
 		if (d->d_type != DT_DIR)
 			goto dt_dir_free;
 
-		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
+		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
 		ret = stat(tmp, &buf);
 		if (ret < 0)
 			goto dt_dir_free;

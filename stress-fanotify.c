@@ -387,7 +387,7 @@ static int stress_fanotify(const stress_args_t *args)
 	(void)memset(&account, 0, sizeof(account));
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
-	(void)snprintf(filename, sizeof(filename), "%s/%s", pathname, "fanotify_file");
+	(void)stress_mk_filename(filename, sizeof(filename), pathname, "fanotify_file");
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);

@@ -129,7 +129,7 @@ static int efi_get_data(
 	char filename[PATH_MAX];
 	struct stat statbuf;
 
-	(void)snprintf(filename, sizeof filename,
+	(void)snprintf(filename, sizeof(filename),
 		"%s/%s/%s", vars, varname, field);
 	if ((fd = open(filename, O_RDONLY)) < 0)
 		return rc;
@@ -184,7 +184,7 @@ static int efi_get_variable(const stress_args_t *args, const char *varname, stre
 		(void)efi_get_data(args, varname, efi_sysfs_names[i], data, sizeof(data));
 	}
 
-	(void)snprintf(filename, sizeof filename, "%s/%s", efi_vars, varname);
+	(void)stress_mk_filename(filename, sizeof(filename), efi_vars, varname);
 	if ((fd = open(filename, O_RDONLY)) < 0)
 		return -1;
 

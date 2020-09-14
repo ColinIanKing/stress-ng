@@ -147,19 +147,6 @@ static int rm_file(const stress_args_t *args, const char *path)
 }
 
 /*
- *  mk_filename()
- *	simple helper to create a filename
- */
-static inline void mk_filename(
-	char *filename,
-	const size_t len,
-	const char *path,
-	const char *name)
-{
-	(void)snprintf(filename, len, "%s/%s", path, name);
-}
-
-/*
  *  mk_file()
  *	create file of length len bytes
  */
@@ -220,7 +207,7 @@ static void dnotify_attrib_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "dnotify_file");
+	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return;
 
@@ -262,7 +249,7 @@ static void dnotify_access_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "dnotify_file");
+	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return;
 
@@ -306,7 +293,7 @@ static void dnotify_modify_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "dnotify_file");
+	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	dnotify_exercise(args, filepath, path,
 		dnotify_modify_helper, DN_MODIFY, NULL);
 }
@@ -331,7 +318,7 @@ static void dnotify_creat_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "dnotify_file");
+	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	dnotify_exercise(args, filepath, path,
 		dnotify_creat_helper, DN_CREATE, NULL);
 	(void)rm_file(args, filepath);
@@ -351,7 +338,7 @@ static void dnotify_delete_file(const stress_args_t *args, const char *path)
 {
 	char filepath[PATH_MAX];
 
-	mk_filename(filepath, PATH_MAX, path, "dnotify_file");
+	stress_mk_filename(filepath, sizeof(filepath), path, "dnotify_file");
 	if (mk_file(args, filepath, 4096) < 0)
 		return;
 	dnotify_exercise(args, filepath, path,
@@ -379,8 +366,8 @@ static void dnotify_rename_file(const stress_args_t *args, const char *path)
 {
 	char oldfile[PATH_MAX], newfile[PATH_MAX];
 
-	mk_filename(oldfile, PATH_MAX, path, "dnotify_file");
-	mk_filename(newfile, PATH_MAX, path, "dnotify_file_renamed");
+	stress_mk_filename(oldfile, sizeof(oldfile), path, "dnotify_file");
+	stress_mk_filename(newfile, sizeof(newfile), path, "dnotify_file_renamed");
 
 	if (mk_file(args, oldfile, 4096) < 0)
 		return;

@@ -255,7 +255,7 @@ static int stress_fstat(const stress_args_t *args)
 			goto free_cache;
 		}
 
-		(void)snprintf(path, sizeof(path), "%s/%s", fstat_dir, d->d_name);
+		(void)stress_mk_filename(path, sizeof(path), fstat_dir, d->d_name);
 		if (do_not_stat(path))
 			continue;
 		if ((si = calloc(1, sizeof(*si))) == NULL) {

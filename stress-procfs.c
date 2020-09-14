@@ -427,7 +427,7 @@ static void stress_proc_dir(
 		if ((d->d_type == DT_REG) || (d->d_type == DT_LNK)) {
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
-				(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
+				(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
 				(void)shim_strlcpy(proc_path, tmp, sizeof(proc_path));
 				(void)shim_pthread_spin_unlock(&lock);
 
@@ -449,7 +449,7 @@ static void stress_proc_dir(
 		struct dirent *d = dlist[i];
 
 		if (d && d->d_type == DT_DIR) {
-			(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
+			(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
 
 			free(d);
 			dlist[i] = NULL;
@@ -491,7 +491,7 @@ static char *stress_random_pid(void)
 		name = dlist[j]->d_name;
 
 		if (isdigit(name[0])) {
-			(void)snprintf(path, sizeof(path), "/proc/%s", name);
+			(void)stress_mk_filename(path, sizeof(path), "/proc", name);
 			break;
 		}
 	}

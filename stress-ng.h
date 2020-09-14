@@ -3757,6 +3757,8 @@ typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context
 #define STRESS_OOMABLE_DROP_CAP	(0x00000001)		/* Drop capabilities */
 
 /* Misc helpers */
+extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,
+	const char *pathname, const char *filename);
 extern void stress_set_oom_adjustment(const char *name, const bool killable);
 extern WARN_UNUSED bool stress_process_oomed(const pid_t pid);
 extern WARN_UNUSED int stress_oomable_child(const stress_args_t *args,

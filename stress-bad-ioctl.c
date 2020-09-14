@@ -277,7 +277,7 @@ static void stress_bad_ioctl_dir(
 				continue;
 		}
 
-		(void)snprintf(tmp, sizeof(tmp), "%s/%s", path, d->d_name);
+		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
 		switch (d->d_type) {
 		case DT_DIR:
 			if (!recurse)

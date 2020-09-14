@@ -148,7 +148,7 @@ static int stress_getdents_dir(
 			    stress_is_dot_filename(d->d_name)) {
 				char newpath[PATH_MAX];
 
-				(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
+				(void)stress_mk_filename(newpath, sizeof(newpath), path, d->d_name);
 				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size, bad_fd);
 				if (rc < 0)
 					goto exit_free;
@@ -223,7 +223,7 @@ static int stress_getdents64_dir(
 			    stress_is_dot_filename(d->d_name)) {
 				char newpath[PATH_MAX];
 
-				(void)snprintf(newpath, sizeof(newpath), "%s/%s", path, d->d_name);
+				(void)stress_mk_filename(newpath, sizeof(newpath), path, d->d_name);
 				rc = stress_getdents_rand(args, newpath, recurse, depth - 1, page_size, bad_fd);
 				if (rc < 0)
 					goto exit_free;

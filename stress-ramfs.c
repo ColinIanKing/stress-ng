@@ -140,8 +140,8 @@ static int stress_ramfs_fs_ops(const stress_args_t *args, const char *pathname)
 	struct stat statbuf;
 	int fd, rc = EXIT_SUCCESS;
 
-	(void)snprintf(filename, sizeof(filename), "%s/mnt", pathname);
-	(void)snprintf(symlinkname, sizeof(symlinkname), "%s/lnk", pathname);
+	(void)stress_mk_filename(filename, sizeof(filename), pathname, "mnt");
+	(void)stress_mk_filename(symlinkname, sizeof(symlinkname), pathname, "lnk");
 
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
