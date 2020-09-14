@@ -155,6 +155,18 @@ static void exercise_inotify_rm_watch(const int bad_fd)
 	ret = inotify_rm_watch(fd, 1);
 	(void)ret;
 
+	/* Close inotify file descriptor */
+	(void)close(fd);
+
+	/* Exercise inotify_rm_watch on non inotify fd */
+#if defined(HAVE_EPOLL_CREATE1)
+	fd = epoll_create1(0);
+	if (fd < 0)
+		return;
+	ret = inotify_rm_watch(fd, 1);
+	(void)ret;
+#endif
+
 	(void)close(fd);
 }
 
