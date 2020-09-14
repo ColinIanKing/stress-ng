@@ -142,6 +142,7 @@ STRESS_SRC = \
 	stress-ioport.c \
 	stress-ioprio.c \
 	stress-iosync.c \
+	stress-io-uring.c \
 	stress-ipsec-mb.c \
 	stress-itimer.c \
 	stress-judy.c \

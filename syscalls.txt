@@ -133,9 +133,9 @@ io_destroy			aiol
 io_getevents			aiol
 io_setup			aiol
 io_submit			aiol
-io_uring_enter
+io_uring_enter			io_uring
 io_uring_register
-io_uring_setup
+io_uring_setup			io_uring
 ioctl				pty, fiemap, rtc, urandom, userfaultfd
 ioperm				ditto
 iopl				ditto

@@ -488,6 +488,10 @@
 #include <linux/if_tun.h>
 #endif
 
+#if defined(HAVE_LINUX_IO_URING_H)
+#include <linux/io_uring.h>
+#endif
+
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
 #endif
@@ -2314,6 +2318,7 @@ typedef struct {
 	MACRO(iomix)		\
 	MACRO(ioport)		\
 	MACRO(ioprio)		\
+	MACRO(io_uring)		\
 	MACRO(ipsec_mb)		\
 	MACRO(itimer)		\
 	MACRO(judy)		\
@@ -2830,6 +2835,9 @@ typedef enum {
 	OPT_ioprio_ops,
 
 	OPT_io_ops,
+
+	OPT_io_uring,
+	OPT_io_uring_ops,
 
 	OPT_ipsec_mb,
 	OPT_ipsec_mb_ops,

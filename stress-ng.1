@@ -1819,6 +1819,14 @@ start N workers that exercise the ioprio_get(2) and ioprio_set(2) system calls
 .B \-\-ioprio\-ops N
 stop after N io priority bogo operations.
 .TP
+.B \-\-io\-uring N
+start N workers that perform iovec write and read I/O operations using the
+Linux io-uring interface. On each bogo-loop 1024 \(mu 512 byte writes and
+1024 \(mu reads are performed on a temporary file.
+.TP
+.B \-\-io\-uring\-ops
+stop after N rounds of write and reads.
+.TP
 .B \-\-ipsec\-mb N
 start N workers that perform cryptographic processing using the highly
 optimized Intel Multi-Buffer Crypto for IPsec library. Depending on the

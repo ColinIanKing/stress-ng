@@ -435,6 +435,8 @@ static const struct option long_options[] = {
 	{ "ioport-opts",1,	0,	OPT_ioport_opts },
 	{ "ioprio",	1,	0,	OPT_ioprio },
 	{ "ioprio-ops",	1,	0,	OPT_ioprio_ops },
+	{ "io-uring",	1,	0,	OPT_io_uring },
+	{ "io-uring-ops",1,	0,	OPT_io_uring_ops },
 	{ "ipsec-mb",	1,	0,	OPT_ipsec_mb },
 	{ "ipsec-mb-ops",1,	0,	OPT_ipsec_mb_ops },
 	{ "ipsec-mb-feature",1,	0,	OPT_ipsec_mb_feature },
