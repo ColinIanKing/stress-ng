@@ -84,7 +84,11 @@ static void exercise_inotify_add_watch(
 	const char *watchname,
 	const int bad_fd)
 {
-	int fd, wd, wd2;
+	int fd, wd;
+#if defined(IN_MASK_CREATE) &&	\
+    defined(IN_MASK_ADD)
+	int wd2;
+#endif
 
 	(void)bad_fd;
 
