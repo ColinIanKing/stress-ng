@@ -134,6 +134,21 @@ static void exercise_inotify_add_watch(
 }
 
 /*
+ * exercise_inotify_rm_watch()
+ * 	exercise inotify_rm_watch with all valid and invalid mask
+ */
+static void exercise_inotify_rm_watch(const int bad_fd)
+{
+	int ret;
+
+	(void)bad_fd;
+
+	/* Exercise inotify_rm_watch on bad fd */
+	ret = inotify_rm_watch(bad_fd, -1);
+	(void)ret;
+}
+
+/*
  *  inotify_exercise()
  *	run a given test helper function 'func' and see if this triggers the
  *	required inotify event flags 'flags'.
@@ -153,6 +168,7 @@ static void inotify_exercise(
 
 	exercise_inotify1();
 	exercise_inotify_add_watch(watchname, bad_fd);
+	exercise_inotify_rm_watch(bad_fd);
 
 retry:
 	n++;
