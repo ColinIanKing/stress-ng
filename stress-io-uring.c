@@ -25,8 +25,8 @@
 #include "stress-ng.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"aio N",	"start N workers that issue async I/O requests" },
-	{ NULL,	"aio-ops N",	"stop after N bogo async I/O requests" },
+	{ NULL,	"io-uring N",		"start N workers that issue io-uring I/O requests" },
+	{ NULL,	"io-uring-ops N",	"stop after N bogo io-uring I/O requests" },
 	{ NULL,	NULL,		NULL }
 };
 
