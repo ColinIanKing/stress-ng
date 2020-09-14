@@ -364,13 +364,13 @@ clean:
 
 stressor_info_t stress_io_uring_info = {
 	.stressor = stress_io_uring,
-	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
+	.class = CLASS_IO | CLASS_OS,
 	.help = help
 };
 #else
 stressor_info_t stress_io_uring_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
+	.class = CLASS_IO | CLASS_OS,
 	.help = help
 };
 #endif
