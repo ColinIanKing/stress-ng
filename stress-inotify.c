@@ -139,13 +139,23 @@ static void exercise_inotify_add_watch(
  */
 static void exercise_inotify_rm_watch(const int bad_fd)
 {
-	int ret;
+	int fd, ret;
 
 	(void)bad_fd;
+
+	fd = inotify_init();
+	if (fd < 0)
+		return;
 
 	/* Exercise inotify_rm_watch on bad fd */
 	ret = inotify_rm_watch(bad_fd, -1);
 	(void)ret;
+
+	/* Exercise inotify_rm_watch on invalid wd */
+	ret = inotify_rm_watch(fd, 1);
+	(void)ret;
+
+	(void)close(fd);
 }
 
 /*
