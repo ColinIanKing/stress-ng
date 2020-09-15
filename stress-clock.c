@@ -128,6 +128,18 @@ static const char *stress_clock_name(int id)
 }
 #endif
 
+/*
+ * check_invalid_clock_id()
+ * function to check if given clock_id is valid
+ */
+static inline bool check_invalid_clock_id(const clockid_t id) {
+        struct timespec tp;
+
+        (void)memset(&tp, 0, sizeof(tp));
+        return (clock_gettime(id, &tp) != 0);
+}
+
+
 #define FD_TO_CLOCKID(fd)	((~(clockid_t)(fd) << 3) | 3)
 
 /*
@@ -144,6 +156,7 @@ static int stress_clock(const stress_args_t *args)
 	stress_mwc_seed(0xf238, 0x1872);
 	bool test_invalid_timespec = true;
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
+	const bool invalid_clock_id = check_invalid_clock_id(INT_MAX);
 
 	do {
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \
@@ -310,6 +323,15 @@ static int stress_clock(const stress_args_t *args)
 		{
 			size_t i;
 			struct shim_timex tx;
+
+			/* Exercise clock_adjtime on invalid clock id */
+			if (invalid_clock_id) {
+				int ret_st;
+
+				(void)memset(&tx, 0, sizeof(tx));
+				ret_st = shim_clock_adjtime(INT_MAX, &tx);
+				(void)ret_st;
+			}
 
 			/*
 			 *  Exercise clock_adjtime
