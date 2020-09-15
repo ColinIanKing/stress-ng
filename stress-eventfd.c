@@ -138,8 +138,17 @@ again:
 				}
 				break;
 			}
-			val = 1;
 
+			/* Exercise write using small buffer */
+			ret = write(fd1, re, sizeof(re));
+			(void)ret;
+
+			/* Exercise write on buffer out of range */
+			val = ~0;
+			ret = write(fd1, &val, sizeof(val));
+			(void)ret;
+
+			val = 1;
 			for (;;) {
 				if (!keep_stressing_flag())
 					goto exit_child;
