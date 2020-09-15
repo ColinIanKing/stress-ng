@@ -298,15 +298,25 @@ static int stress_clock(const stress_args_t *args)
 
 			if (n++ >= 1024) {
 				n = 0;
+				int ret_st;
 
 				/* Exercise clock_nanosleep on invalid clock id */
 				if (invalid_clock_id) {
-					int ret_st;
-
 					(void)memset(&t, 0, sizeof(t));
 					ret_st = clock_nanosleep(INT_MAX, TIMER_ABSTIME, &t, NULL);
 					(void)ret_st;
 				}
+
+				/* Exercise clock_adjtime on non-permitted timespec object values */
+				(void)memset(&t, 0, sizeof(t));
+				t.tv_sec = -1;
+				ret_st = clock_nanosleep(clocks_nanosleep[0], TIMER_ABSTIME, &t, NULL);
+				(void)ret_st;
+
+				(void)memset(&t, 0, sizeof(t));
+				t.tv_nsec = 1000000000;
+				ret_st = clock_nanosleep(clocks_nanosleep[0], TIMER_ABSTIME, &t, NULL);
+				(void)ret_st;
 			}
 
 			/*
