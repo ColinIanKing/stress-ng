@@ -55,7 +55,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static int stress_eventfd(const stress_args_t *args)
 {
 	pid_t pid;
-	int fd1, fd2, rc;
+	int fd1, fd2, test_fd, rc;
 	int flags = 0;
 	bool eventfd_nonblock = false;
 
@@ -86,6 +86,12 @@ static int stress_eventfd(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		(void)close(fd1);
 		return rc;
+	}
+
+	/* Exercise eventfd on invalid flags */
+	test_fd = eventfd(0, ~0);
+	if (test_fd >= 0) {
+		(void)close(test_fd);
 	}
 
 again:
