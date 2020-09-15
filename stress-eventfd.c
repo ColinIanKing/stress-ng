@@ -90,9 +90,8 @@ static int stress_eventfd(const stress_args_t *args)
 
 	/* Exercise eventfd on invalid flags */
 	test_fd = eventfd(0, ~0);
-	if (test_fd >= 0) {
+	if (test_fd >= 0)
 		(void)close(test_fd);
-	}
 
 again:
 	pid = fork();
