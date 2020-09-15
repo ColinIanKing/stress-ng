@@ -113,6 +113,11 @@ again:
 		while (keep_stressing_flag()) {
 			uint64_t val;
 			ssize_t ret;
+			char re[7];
+
+			/* Exercise read on small buffer */
+			ret = read(fd1, re, sizeof(re));
+			(void)ret;
 
 			for (;;) {
 				if (!keep_stressing_flag())
