@@ -157,6 +157,7 @@ static int stress_clock(const stress_args_t *args)
 	bool test_invalid_timespec = true;
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 	const bool invalid_clock_id = check_invalid_clock_id(INT_MAX);
+	int n = 0;
 
 	do {
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \
@@ -294,6 +295,19 @@ static int stress_clock(const stress_args_t *args)
 		{
 			size_t i;
 			struct timespec t;
+
+			if (n++ >= 1024) {
+				n = 0;
+
+				/* Exercise clock_nanosleep on invalid clock id */
+				if (invalid_clock_id) {
+					int ret_st;
+
+					(void)memset(&t, 0, sizeof(t));
+					ret_st = clock_nanosleep(INT_MAX, TIMER_ABSTIME, &t, NULL);
+					(void)ret_st;
+				}
+			}
 
 			/*
 			 *  Exercise clock_nanosleep for each clock
