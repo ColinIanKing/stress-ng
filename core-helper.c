@@ -182,9 +182,9 @@ size_t stress_mk_filename(
 	 *  be tempted to optimize this, it is not used frequently
 	 *  and is not a CPU bottleneck.
 	 */
-	(void)strlcpy(fullname, pathname, fullname_len);
-	(void)strlcat(fullname, "/", fullname_len);
-	return strlcat(fullname, filename, fullname_len);
+	(void)shim_strlcpy(fullname, pathname, fullname_len);
+	(void)shim_strlcat(fullname, "/", fullname_len);
+	return shim_strlcat(fullname, filename, fullname_len);
 }
 
 /*
