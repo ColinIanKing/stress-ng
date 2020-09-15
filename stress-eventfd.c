@@ -111,7 +111,7 @@ again:
 		(void)sched_settings_apply(true);
 
 		while (keep_stressing_flag()) {
-			uint64_t val;
+			uint64_t val = 0;
 			ssize_t ret;
 			char re[7];
 
