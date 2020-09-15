@@ -106,6 +106,8 @@ again:
 		(void)close(fd2);
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
+		int n = 0;
+
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
@@ -139,14 +141,21 @@ again:
 				break;
 			}
 
-			/* Exercise write using small buffer */
-			ret = write(fd1, re, sizeof(re));
-			(void)ret;
+			/*
+			 *  Periodically exercise with invalid writes
+			 */
+			if (n++ >= 64) {
+				n = 0;
 
-			/* Exercise write on buffer out of range */
-			val = ~0;
-			ret = write(fd1, &val, sizeof(val));
-			(void)ret;
+				/* Exercise write using small buffer */
+				ret = write(fd1, re, sizeof(re));
+				(void)ret;
+
+				/* Exercise write on buffer out of range */
+				val = ~0;
+				ret = write(fd1, &val, sizeof(val));
+				(void)ret;
+			}
 
 			val = 1;
 			for (;;) {
