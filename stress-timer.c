@@ -165,6 +165,7 @@ static int stress_timer(const stress_args_t *args)
 	struct itimerspec timer;
 	sigset_t mask;
 	uint64_t timer_freq = DEFAULT_TIMER_FREQ;
+	int n = 0;
 
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
@@ -202,11 +203,28 @@ static int stress_timer(const stress_args_t *args)
 
 	do {
 		struct timespec req;
+		int ret;
+
+		if (n++ >= 1024) {
+			n = 0;
+
+			/* Exercise nanosleep on non-permitted timespec object values */
+			(void)memset(&req, 0, sizeof(req));
+			req.tv_sec = -1;
+			ret= nanosleep(&req, NULL);
+			(void)ret;
+
+			(void)memset(&req, 0, sizeof(req));
+			req.tv_nsec = 1000000000;
+			ret = nanosleep(&req, NULL);
+			(void)ret;
+		}
 
 		req.tv_sec = 0;
 		req.tv_nsec = 10000000;
 		(void)nanosleep(&req, NULL);
 		set_counter(args, timer_counter);
+
 	} while (keep_stressing());
 
 	if (timer_delete(timerid) < 0) {
