@@ -339,7 +339,7 @@ CORE_SRC = \
 	core-try-open.c \
 	stress-ng.c
 
-SRC = $(STRESS_SRC) $(CORE_SRC)
+SRC = $(CORE_SRC) $(STRESS_SRC)
 OBJS = $(SRC:.c=.o)
 
 APPARMOR_PARSER=/sbin/apparmor_parser
