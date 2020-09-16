@@ -397,7 +397,7 @@ apparmor-data.o: usr.bin.pulseaudio.eg
 personality.h:
 	@$(CPP) $(CONFIG_CFLAGS) core-personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
 	| sed "s/.$$/,/" > personality.h
-	@echo "MK personality.h, $$(wc -l personality.h | cut -d' ' -f1) personalities"
+	@echo "MK personality.h"
 
 stress-personality.c: personality.h
 
