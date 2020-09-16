@@ -239,6 +239,17 @@ static int stress_schedpolicy(const stress_args_t *args)
 			attr.sched_util_max = sched_util_max_value;
 		}
 
+		/*
+		 * Exercise invalid sched_getattr syscalls, even if the
+		 * syscalls succeed only correct value will be set,
+		 * hence ignoring whether syscall succeeds or fails
+		 */
+		ret = shim_sched_setattr(pid, &attr, ~0);
+		(void)ret;
+
+		ret = shim_sched_setattr(-1, &attr, 0);
+		(void)ret;
+
 		attr.size = sizeof(attr);
 		ret = shim_sched_setattr(pid, &attr, 0);
 		if (ret < 0) {
