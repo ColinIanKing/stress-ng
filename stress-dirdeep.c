@@ -61,32 +61,6 @@ static int stress_set_dirdeep_inodes(const char *opt)
 }
 
 /*
- *  stress_dirdeep_sync()
- *	attempt to sync a directory
- */
-static void stress_dirdeep_sync(const char *path)
-{
-#if defined(O_DIRECTORY)
-	int fd;
-
-	fd = open(path, O_RDONLY | O_DIRECTORY);
-	if (fd < 0)
-		return;
-
-	/*
-	 *  The interesting part of fsync is that in
-	 *  theory we can fsync a read only file and
-	 *  this could be a directory too. So try and
-	 *  sync.
-	 */
-	(void)shim_fsync(fd);
-	(void)close(fd);
-#else
-	(void)path;
-#endif
-}
-
-/*
  *  stress_dirdeep_make()
  *	depth-first tree creation, create lots of sub-trees with
  *	dirdeep_dir number of subtress per level.
@@ -105,6 +79,9 @@ static void stress_dirdeep_make(
 {
 	uint32_t i;
 	int ret;
+#if defined(O_DIRECTORY)
+	int dirfd;
+#endif
 	const uint64_t inodes_avail = stress_get_filesystem_available_inodes();
 
 	if (*min_inodes_free > inodes_avail)
@@ -145,6 +122,7 @@ static void stress_dirdeep_make(
 		(void)close(fd);
 	}
 
+
 	path[len] = '/';
 	path[len + 1] = 's';	/* symlink */
 	path[len + 2] = '\0';
@@ -157,13 +135,66 @@ static void stress_dirdeep_make(
 
 	for (i = 0; i < dirdeep_dirs; i++) {
 		path[len + 1] = '0' + i;
-		stress_dirdeep_make(args, linkpath, path, len + 2, path_len,
-				dirdeep_dirs, dirdeep_inodes, inodes_target_free,
-				min_inodes_free, depth + 1);
+		stress_dirdeep_make(args, linkpath, path, len + 2,
+				path_len, dirdeep_dirs, dirdeep_inodes,
+				inodes_target_free, min_inodes_free,
+				depth + 1);
 	}
 	path[len] = '\0';
 
-	stress_dirdeep_sync(path);
+#if defined(HAVE_LINKAT) &&	\
+    defined(O_DIRECTORY)
+
+	dirfd = open(path, O_RDONLY | O_DIRECTORY);
+	if (dirfd >= 0) {
+#if defined(AT_EMPTY_PATH) &&	\
+    defined(O_PATH)
+		int pathfd;
+#endif
+
+		/*
+		 *  Exercise linkat onto hardlink h
+		 */
+		ret = linkat(dirfd, "h", dirfd, "a", 0);
+		(void)ret;
+#if defined(AT_SYMLINK_FOLLOW)
+		/*
+		 *  Exercise linkat AT_SYMLINK_FOLLOW onto hardlink h
+		 */
+		ret = linkat(dirfd, "h", dirfd, "b", AT_SYMLINK_FOLLOW);
+		(void)ret;
+#endif
+#if defined(AT_EMPTY_PATH) &&	\
+    defined(O_PATH)
+		/*
+		 *  Exercise linkat AT_EMPTY_PATH onto hardlink h
+		 */
+		path[len] = '/';
+		path[len + 1] = 'h';
+		path[len + 2] = '\0';
+
+		pathfd = open(path, O_PATH | O_RDONLY);
+		if (pathfd >= 0) {
+			/*
+			 * Need CAP_DAC_READ_SEARCH for this to work,
+			 * ignore return for now
+			 */
+			ret = linkat(pathfd, "", dirfd, "c", AT_EMPTY_PATH);
+			(void)ret;
+			(void)close(pathfd);
+		}
+		path[len] = '\0';
+#endif
+		/*
+		 *  The interesting part of fsync is that in
+		 *  theory we can fsync a read only file and
+		 *  this could be a directory too. So try and
+		 *  sync.
+		 */
+		(void)shim_fsync(dirfd);
+		(void)close(dirfd);
+	}
+#endif
 }
 
 /*
@@ -304,8 +335,7 @@ static int stress_dirdeep(const stress_args_t *args)
 	(void)stress_temp_dir_args(args, rootpath, sizeof(rootpath));
 	path_len = strlen(rootpath);
 
-	(void)shim_strlcpy(linkpath, rootpath, sizeof(linkpath));
-	(void)shim_strlcat(linkpath, "/f", sizeof(linkpath) - 3);
+	(void)stress_mk_filename(linkpath, sizeof(linkpath), rootpath, "/f");
 
 	pr_dbg("%s: %" PRIu64 " inodes available, exercising up to %" PRIu64 " inodes\n",
 		args->name, inodes_avail, inodes_avail - inodes_target_free);

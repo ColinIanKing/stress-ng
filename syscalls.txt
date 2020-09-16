@@ -151,7 +151,7 @@ kill				kill
 lchown				chown
 lgetxattr			xattr
 link				link
-linkat
+linkat				dirdeep
 listen				sock
 listxattr			xattr
 llistxattr			xattr
