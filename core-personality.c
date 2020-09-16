@@ -23,8 +23,7 @@
  *
  */
 
-#include "stress-ng.h"
-
-#if defined(__linux__)
+#if defined(__linux__) &&	\
+    defined(HAVE_SYS_PERSONALITY_H)
 #include <sys/personality.h>
 #endif
