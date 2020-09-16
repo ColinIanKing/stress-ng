@@ -64,6 +64,9 @@ static int stress_schedpolicy(const stress_args_t *args)
 	uint32_t sched_util_max_value = 0;
 	int counter = 0;
 #endif
+#if defined(_POSIX_PRIORITY_SCHEDULING)
+	int n = 0;
+#endif
 
 	if (SIZEOF_ARRAY(policies) == 0) {
 		if (args->instance == 0) {
@@ -185,6 +188,17 @@ static int stress_schedpolicy(const stress_args_t *args)
 			}
 		}
 #if defined(_POSIX_PRIORITY_SCHEDULING)
+		if (n++ >= 1024) {
+			n = 0;
+
+			/* Exercise invalid sched_getparam syscall*/
+			(void)memset(&param, 0, sizeof param);
+			ret = sched_getparam(-1, &param);
+			(void)ret;
+
+			ret = sched_getparam(pid, NULL);
+			(void)ret;
+		}
 		(void)memset(&param, 0, sizeof param);
 		ret = sched_getparam(pid, &param);
 		if ((ret < 0) && ((errno != EINVAL) && (errno != EPERM)))
