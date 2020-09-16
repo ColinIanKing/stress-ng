@@ -79,7 +79,8 @@ static void stress_dirdeep_make(
 {
 	uint32_t i;
 	int ret;
-#if defined(O_DIRECTORY)
+#if defined(HAVE_LINKAT) &&	\
+    defined(O_DIRECTORY)
 	int dirfd;
 #endif
 	const uint64_t inodes_avail = stress_get_filesystem_available_inodes();
