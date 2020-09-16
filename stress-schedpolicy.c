@@ -199,6 +199,13 @@ static int stress_schedpolicy(const stress_args_t *args)
 
 #if defined(HAVE_SCHED_GETATTR) && \
     defined(HAVE_SCHED_SETATTR)
+		/* Exercise invalid sched_getattr syscalls */
+		ret = shim_sched_getattr(pid, &attr, sizeof(attr), ~0);
+		(void)ret;
+
+		ret = shim_sched_getattr(-1, &attr, sizeof(attr), 0);
+		(void)ret;
+
 		/*
 		 *  Nothing too clever here, just get and set for now
 		 */
