@@ -1,3 +1,92 @@
+stress-ng (0.11.21-1) unstable; urgency=medium
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: update date
+  * stress-unshare: don't report ENOSPC as a failure in the unshare
+  * Makefile: remove personality info, it is distracting
+  * stress-clock: fix build warnings BSD systems
+  * Makefile: remove -DHAVE_LINUX_IO_URING_H, it was included for testing
+  * stress-dev: fix build warnings on non-Linux platforms
+  * stress-dev: fix build error on non-linux systems with Xen guest
+    checking
+  * README: update number of stress tests
+  * stress-dirdeep: add post recursion yield point check
+  * stress-io-uring: add built-time checking for io-uring opcode enums
+  * Makefile: provide personality build information
+  * Makefile: make core first to keep order alphabetic
+  * stress-io-uring: exercise NOP and FSYNC IO opcodes
+  * stress-sysfs: skip over gcov sysfs debug files
+  * stress-dirdeep: declare dirfd when HAVE_LINKAT is also defined
+  * stress-dirdeep: exercise linkat in a few different ways
+  * stress-clock: add build time check for TIMER_ABSTIME
+  * core-helper: use shim strl* functions
+  * stress-eventfd: remove { } for one line block statement
+  * stress-eventfd: perform illegal writes periodically
+  * stress-unshare: add in missing empty line
+  * stress-io-uring: reap resources at end of test, exercise fdinfo
+  * stress-io-uring: remove CLASS_INTERRUPT from stressor classes
+  * Add stress_mk_filename to make a filename from full path and name
+  * stress-inotify: fix build warning
+  * io-uring: fix help, it was cut-n-pasted from io async stressor
+  * Add io-uring stressor to exercise io-uring system calls
+  * stress-inotify: some minor code style changes, no functional changes
+  * stress-inotify: optimization: get bad fd just once
+  * stress-inotify: fix build failures on systems without IN_MASK_CREATE
+    and IN_MASK_ADD
+  * stress-shm-sysv: exercise SYSV namespace objects
+  * stress-sem-sysv: remove busy loop, replace it with pause
+  * stress-sem: remove busy loop, replace it with pause
+  * stress-fanotify: fix build warning on declaration of bad_fd
+  * stress-fanotify: fix build failure with systems where FAN_MARK_INODE
+    is not defined
+  * stress-fanotify: fix name shadowing on function parameter mnts
+  * stress-timerfd: fix shadowing of variable ret
+  * stress-close: fix variable shadowing of ret
+  * stress-dev: add some device timeouts on slow optical devices
+  * stress-fallocate: remove some whitespaces/lines
+  * stress-fallocate: exercise illegal offset and lengths
+  * stress-fallocate: exercise illegal fallocate on a pipe
+  * stress-fallocate: add a blank line
+  * stress-fallocate: exercise some illegal modes
+  * stress-dev: allow hpet checking if not a Xen guest
+  * stress-timerfd: fix check of CLOCK_REALTIME_ALARM
+
+  [Piyush Goyal]
+  * stress-schedpolicy: exercise invalid sched_getattr syscalls
+  * stress-timer:exercise nanosleep on invalid timespec
+  * stress-clock: exercise clock_nanosleep on invalid timespec
+  * stress-clock: Exercise clock_nanosleep on invalid clock id
+  * stress-clock: exercise clock_adjtime on invalid clock id
+  * stress-eventfd: exercise illegal writes on event fd
+  * stress-eventfd: initialise the value written in event fd
+  * stress-eventfd: read from event fd on a small buffer
+  * stress-eventfd: exercise eventfd with invalid flags
+  * Makefile.config: add build time check for epoll_create
+  * stress-inotify: exercise inotify_rm_watch on non-inotify fd
+  * stress-inotify: exercise inotify_rm_watch on invalid wd
+  * stress-inotify: exercise inotify_rm_watch on bad fd
+  * stress-inotify: Exercise inotify_add_watch on bad_fd
+  * stress-inotify: exercise inotify_add_watch on already existing fd
+  * stress-inotify: exercise inotify_add_watch with two operations
+  * stress-inotify: exercise inotify_add_watch with bad mask
+  * stress-inotify: exercise invalid inotify_init1
+  * syscalls.txt: add inotify_init syscall
+  * stress-inotify: add syscall inotify1 and exercise it
+  * stress-fanotify: exercise invalid combination of flags
+  * stress-fanotify: add build time check for FAN_MARK_MOUNT
+  * stress-fanotify: Add fanotify syscalls
+  * stress-fanotify: Add test for fanotify_mark syscall
+  * stress-fanotify: Exercise fanotify_mark on bad fd
+  * stress-fanotify: Exercise fanotify_mark with invalid flag
+  * stress-fanotify: add test_fanotify_mark
+  * stress-fanotify: Exercise fanotify_init syscalls with different flags
+  * stress-fanotify: Add fanotify_init syscalls
+  * stress-timerfd: Exercise timerfd_settime with invalid flags
+  * stress-timerfd: Exercise non valid timerfd file descriptor
+
+ -- Colin King <colin.king@canonical.com>  Wed, 16 Sep 2020 22:58:21 +0100
+
 stress-ng (0.11.20-1) unstable; urgency=medium
 
   [André Wild]
