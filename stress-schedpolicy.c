@@ -198,6 +198,14 @@ static int stress_schedpolicy(const stress_args_t *args)
 
 			ret = sched_getparam(pid, NULL);
 			(void)ret;
+
+			/* Exercise invalid sched_setparam syscall*/
+			(void)memset(&param, 0, sizeof param);
+			ret = sched_setparam(-1, &param);
+			(void)ret;
+
+			ret = sched_setparam(pid, NULL);
+			(void)ret;
 		}
 		(void)memset(&param, 0, sizeof param);
 		ret = sched_getparam(pid, &param);
