@@ -84,15 +84,19 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 static void ioctl_set_timeout(const double secs)
 {
 #if defined(ITIMER_REAL)
-	struct itimerval it;
-	int ret;
+	if (secs > 0.0) {
+		struct itimerval it;
+		int ret;
 
-	it.it_interval.tv_sec = (time_t)secs;
-	it.it_interval.tv_usec = (suseconds_t)(1000000.0 * (secs - (time_t)secs));
-	it.it_value.tv_sec = it.it_interval.tv_sec;
-	it.it_value.tv_usec = it.it_interval.tv_usec;
-	ret = setitimer(ITIMER_REAL, &it, NULL);
-	(void)ret;
+		it.it_interval.tv_sec = (time_t)secs;
+		it.it_interval.tv_usec = (suseconds_t)(1000000.0 * (secs - (time_t)secs));
+		it.it_value.tv_sec = it.it_interval.tv_sec;
+		it.it_value.tv_usec = it.it_interval.tv_usec;
+		ret = setitimer(ITIMER_REAL, &it, NULL);
+		(void)ret;
+	}
+#else
+	(void)secs;
 #endif
 }
 
@@ -2950,6 +2954,13 @@ again:
 	} while (keep_stressing());
 
 	(void)shim_pthread_spin_destroy(&lock);
+
+	/*
+	 *  Ensure we don't get build warnings if these are not
+	 *  referenced.
+	 */
+	(void)ioctl_set_timeout;
+	(void)ioctl_clr_timeout;
 
 	return rc;
 }
