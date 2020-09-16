@@ -401,6 +401,17 @@ personality.h:
 
 stress-personality.c: personality.h
 
+#
+#  extract IORING_OP enums and #define HAVE_ prefixed values
+#  so we can check if these enums exist
+#
+io-uring.h:
+	@$(CPP) $(CONFIG_CLFAGS) -DHAVE_LINUX_IO_URING_H core-io-uring.c  | grep IORING_OP | sed 's/,//' | \
+	sed 's/IORING_OP_/#define HAVE_IORING_OP_/' > io-uring.h
+	@echo "MK io-uring.h"
+
+stress-io-uring.c: io-uring.h
+
 core-perf.o: core-perf.c core-perf-event.c
 	@$(CC) $(CFLAGS) -E core-perf-event.c | grep "PERF_COUNT" | \
 	sed 's/,/ /' | sed s/'^ *//' | \
@@ -423,7 +434,8 @@ dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile Makefile.config $(SRC) stress-ng.h stress-ng.1 \
-		core-personality.c COPYING syscalls.txt mascot README \
+		core-personality.c core-io-uring.c \
+		COPYING syscalls.txt mascot README \
 		stress-af-alg-defconfigs.h README.Android test snap \
 		TODO core-perf-event.c usr.bin.pulseaudio.eg \
 		stress-version.h bash-completion example-jobs .travis.yml \
@@ -441,6 +453,7 @@ clean:
 	@rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
 	@rm -f stress-ng-$(VERSION).tar.xz
 	@rm -f personality.h
+	@rm -f io-uring.h
 	@rm -f perf-event.h
 	@rm -f apparmor-data.bin
 	@rm -f *.o

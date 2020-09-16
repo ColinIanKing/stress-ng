@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include "io-uring.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"io-uring N",		"start N workers that issue io-uring I/O requests" },
@@ -36,7 +37,11 @@ static const stress_help_t help[] = {
     defined(IORING_OFF_SQ_RING) &&	\
     defined(IORING_OFF_CQ_RING) &&	\
     defined(IORING_OFF_SQES) &&		\
-    defined(HAVE_POSIX_MEMALIGN)
+    defined(HAVE_POSIX_MEMALIGN) &&	\
+    (defined(HAVE_IORING_OP_WRITEV) ||	\
+     defined(HAVE_IORING_OP_READV) ||	\
+     defined(HAVE_IORING_OP_FSYNC) ||	\
+     defined(HAVE_IORING_OP_NOP))
 
 /*
  *  io uring file info
@@ -236,6 +241,8 @@ static int stress_io_uring_submit(
 	return EXIT_SUCCESS;
 }
 
+#if defined(HAVE_IORING_OP_READV) ||	\
+    defined(HAVE_IORING_OP_WRITEV)
 /*
  *  stress_io_uring_iovec_submit()
  *	perform a iovec submit over io_uring
@@ -274,7 +281,9 @@ static int stress_io_uring_iovec_submit(
 
 	return stress_io_uring_submit(args, submit, io_uring_file, opcode);
 }
+#endif
 
+#if defined(HAVE_IORING_OP_FSYNC)
 /*
  *  stress_io_uring_fsync_submit()
  *	perform a fsync submit over io_uring
@@ -309,7 +318,9 @@ static int stress_io_uring_fsync_submit(
 	}
 	return stress_io_uring_submit(args, submit, io_uring_file, IORING_OP_FSYNC);
 }
+#endif
 
+#if defined(HAVE_IORING_OP_NOP)
 /*
  *  stress_io_uring_nop_submit()
  *	perform a nop submit over io_uring
@@ -340,6 +351,7 @@ static int stress_io_uring_nop_submit(
 	}
 	return stress_io_uring_submit(args, submit, io_uring_file, IORING_OP_NOP);
 }
+#endif
 
 /*
  *  stress_io_uring_iovec_complete()
@@ -453,43 +465,49 @@ static int stress_io_uring(const stress_args_t *args)
 	rc = EXIT_SUCCESS;
 	i = 0;
 	do {
+#if defined(HAVE_IORING_OP_WRITEV)
 		rc = stress_io_uring_iovec_submit(args, &submit, &io_uring_file, IORING_OP_WRITEV);
 		if (rc != EXIT_SUCCESS)
 			break;
 		rc = stress_io_uring_iovec_complete(args, &submit);
 		if (rc != EXIT_SUCCESS)
 			break;
+#endif
 
+#if defined(HAVE_IORING_OP_READV)
 		rc = stress_io_uring_iovec_submit(args, &submit, &io_uring_file, IORING_OP_READV);
 		if (rc != EXIT_SUCCESS)
 			break;
 		rc = stress_io_uring_iovec_complete(args, &submit);
 		if (rc != EXIT_SUCCESS)
 			break;
+#endif
 
+#if defined(HAVE_IORING_OP_NOP)
 		rc = stress_io_uring_nop_submit(args, &submit, &io_uring_file);
 		if (rc != EXIT_SUCCESS)
 			break;
 		rc = stress_io_uring_iovec_complete(args, &submit);
 		if (rc != EXIT_SUCCESS)
 			break;
+#endif
 
 		/*
 		 *  occasional sync and fdinfo reads
 		 */
 		if (i++ > 1024) {
 			i = 0;
+#if defined(HAVE_IORING_OP_FSYNC)
 			rc = stress_io_uring_fsync_submit(args, &submit, &io_uring_file);
 			if (rc != EXIT_SUCCESS)
 				break;
 			rc = stress_io_uring_iovec_complete(args, &submit);
 			if (rc != EXIT_SUCCESS)
 				break;
+#endif
 
 			stress_io_uring_fdinfo(submit.io_uring_fd);
 		}
-	
-
 		inc_counter(args);
 	} while (keep_stressing());
 
