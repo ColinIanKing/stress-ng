@@ -188,12 +188,14 @@ static bool linux_xen_guest(void)
 	 *  apart from inspecting dmesg (which may not be possible),
 	 *  assume it's not a Xen hosted guest.
 	 */
-#endif
 	xen_guest = false;
 done:
 	xen_guest_cached = true;
 
 	return xen_guest;
+#else
+	return false;
+#endif
 }
 
 
