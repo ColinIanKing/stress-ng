@@ -439,6 +439,10 @@ static void stress_sys_dir(
 	if (depth > 20)
 		return;
 
+	/* Don't want to reset any GCOV metrics */
+	if (!strcmp(path, "/sys/kernel/debug/gcov"))
+		return;
+
 	mixup = stress_mwc32();
 	dlist = NULL;
 	n = scandir(path, &dlist, NULL, mixup_sort);
