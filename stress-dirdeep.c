@@ -134,13 +134,15 @@ static void stress_dirdeep_make(
 	ret = link(linkpath, path);
 	(void)ret;
 
-	for (i = 0; i < dirdeep_dirs; i++) {
+	for (i = 0; keep_stressing() && (i < dirdeep_dirs); i++) {
 		path[len + 1] = '0' + i;
 		stress_dirdeep_make(args, linkpath, path, len + 2,
 				path_len, dirdeep_dirs, dirdeep_inodes,
 				inodes_target_free, min_inodes_free,
 				depth + 1);
 	}
+	if (!keep_stressing())
+		return;
 	path[len] = '\0';
 
 #if defined(HAVE_LINKAT) &&	\
@@ -219,6 +221,8 @@ static void stress_dir_exercise(
 		{ sec, nsec }
 	};
 #endif
+	if (!keep_stressing())
+		return;
 
 	if (len + 2 >= path_len)
 		return;
