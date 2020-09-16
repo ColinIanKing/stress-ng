@@ -406,7 +406,7 @@ stress-personality.c: personality.h
 #  so we can check if these enums exist
 #
 io-uring.h:
-	@$(CPP) $(CONFIG_CLFAGS) -DHAVE_LINUX_IO_URING_H core-io-uring.c  | grep IORING_OP | sed 's/,//' | \
+	@$(CPP) $(CONFIG_CLFAGS) core-io-uring.c  | grep IORING_OP | sed 's/,//' | \
 	sed 's/IORING_OP_/#define HAVE_IORING_OP_/' > io-uring.h
 	@echo "MK io-uring.h"
 
