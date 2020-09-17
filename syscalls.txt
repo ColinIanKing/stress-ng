@@ -378,7 +378,7 @@ umask				aio, mmap, sendfile, etc
 umount				bind-mount
 uname				get
 unlink				dentry, hdd, unlink
-unlinkat
+unlinkat			dirdeep
 unshare				clone, unshare
 uselib				[ deprecated ]
 userfaultfd			userfaultfd
