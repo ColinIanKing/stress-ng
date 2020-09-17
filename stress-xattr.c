@@ -125,6 +125,19 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 
+		/*
+		 * Check fsetxattr syscall cannot succeed in creating
+		 * attribute name and value pair which already exist
+		 */
+		(void)snprintf(attrname, sizeof(attrname), "user.var_%d", 0);
+		(void)snprintf(value, sizeof(value), "orig-value-%d", 0);
+		ret = shim_fsetxattr(fd, attrname, value, strlen(value), XATTR_CREATE);
+		if (ret >= 0) {
+			pr_fail("%s: fsetxattr succeded unexpectedly, created attribute which "
+				"already exists, errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto out_close;
+		}
+
 		for (j = 0; j < i; j++) {
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
