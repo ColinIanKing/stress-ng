@@ -131,7 +131,7 @@ static int stress_mkdir(const int dirfd, const char *path, const int mode)
 	if ((dirfd >= 0) && stress_mwc1()) {
 		char tmp[PATH_MAX], *filename;
 
-		(void)strlcpy(tmp, path, sizeof(tmp));
+		(void)shim_strlcpy(tmp, path, sizeof(tmp));
 		filename = basename(tmp);
 
 		ret = mkdirat(dirfd, filename, mode);
