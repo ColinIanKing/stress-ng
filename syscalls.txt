@@ -167,7 +167,7 @@ memfd_create			memfd
 migrate_pages			numa
 mincore				bigheap, mincore, mmap, vm
 mkdir				dir
-mkdirat
+mkdirat				dir
 mknod				mknod
 mknodat
 mkstemp				hdd

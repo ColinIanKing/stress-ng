@@ -120,6 +120,32 @@ static void stress_dir_tidy(
 	}
 }
 
+static int stress_mkdir(const int dirfd, const char *path, const int mode)
+{
+	int ret;
+
+#if defined(HAVE_MKDIRAT)
+	/*
+	 *  50% of the time use mkdirat rather than mkdir
+	 */
+	if ((dirfd >= 0) && stress_mwc1()) {
+		char tmp[PATH_MAX], *filename;
+
+		(void)strlcpy(tmp, path, sizeof(tmp));
+		filename = basename(tmp);
+
+		ret = mkdirat(dirfd, filename, mode);
+	} else {
+		ret = mkdir(path, mode);
+	}
+#else
+	ret = mkdir(path, mode);
+#endif
+	(void)dirfd;
+
+	return ret;
+}
+
 /*
  *  stress_dir
  *	stress directory mkdir and rmdir
@@ -129,14 +155,19 @@ static int stress_dir(const stress_args_t *args)
 	int ret;
 	uint64_t dir_dirs = DEFAULT_DIR_DIRS;
 	char pathname[PATH_MAX];
+	int dirfd = -1;
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
-
 	(void)stress_get_setting("dir-dirs", &dir_dirs);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
+
+#if defined(HAVE_MKDIRAT) &&	\
+    defined(O_DIRECTORY)
+	dirfd = open(pathname, O_DIRECTORY | O_RDONLY);
+#endif
 
 	do {
 		uint64_t i, n = dir_dirs;
@@ -147,7 +178,7 @@ static int stress_dir(const stress_args_t *args)
 
 			(void)stress_temp_filename_args(args,
 				path, sizeof(path), gray_code);
-			if (mkdir(path, S_IRUSR | S_IWUSR) < 0) {
+			if (stress_mkdir(dirfd, path, S_IRUSR | S_IWUSR) < 0) {
 				if ((errno != ENOSPC) && (errno != ENOMEM)) {
 					pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
 						args->name, path, errno, strerror(errno));
@@ -171,6 +202,9 @@ static int stress_dir(const stress_args_t *args)
 	} while (keep_stressing());
 
 abort:
+	if (dirfd >= 0)
+		(void)close(dirfd);
+
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu64 " directories\n",
 		args->name, dir_dirs);
