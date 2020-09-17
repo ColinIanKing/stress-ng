@@ -155,7 +155,7 @@ linkat				dirdeep
 listen				sock
 listxattr			xattr
 llistxattr			xattr
-lookup_dcookie
+lookup_dcookie			get
 lremovexattr			xattr
 lseek				hdd, lockf, mmap, seek
 lsetxattr			xattr
