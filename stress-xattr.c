@@ -94,11 +94,25 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_close;
 			}
 		}
+
+		(void)snprintf(attrname, sizeof(attrname), "user.var_%d", MAX_XATTRS);
+		(void)snprintf(value, sizeof(value), "orig-value-%d", MAX_XATTRS);
+
 		/*
 		 *  Exercise bad/invalid fd
 		 */
 		ret = shim_fsetxattr(bad_fd, attrname, value, strlen(value), XATTR_CREATE);
 		(void)ret;
+
+		/*
+		 *  Exercise invalid flags
+		 */
+		ret = shim_fsetxattr(fd, attrname, value, strlen(value), ~0);
+		if (ret >= 0) {
+			pr_fail("%s: fsetxattr unexpectedly succeeded on invalid flags, "
+				"errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto out_close;
+		}
 
 		for (j = 0; j < i; j++) {
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
