@@ -555,6 +555,15 @@ static int stress_get(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 #endif
 
+#if defined(__NR_lookup_dcookie)
+		/*
+		 *  Exercise some random cookie lookups, really likely
+		 *  to fail.
+		 */
+		ret = shim_lookup_dcookie(stress_mwc64(), path, sizeof(path));
+		(void)ret;
+#endif
+
 		/* Get number of file system types */
 		n = shim_sysfs(3);
 		for (fs_index = 0; fs_index < n; fs_index++) {

@@ -4168,6 +4168,7 @@ extern ssize_t shim_llistxattr(const char *path, char *list, size_t size);
 extern int shim_lsetxattr(const char *path, const char *name,
 	const void *value, size_t size, int flags);
 extern ssize_t shim_listxattr(const char *path, char *list, size_t size);
+extern int shim_lookup_dcookie(uint64_t cookie, char *buffer, size_t len);
 extern int shim_lremovexattr(const char *path, const char *name);
 extern int shim_madvise(void *addr, size_t length, int advice);
 extern long shim_mbind(void *addr, unsigned long len,

@@ -1779,3 +1779,16 @@ int shim_close_range(unsigned int fd, unsigned int max_fd)
 	return (int)shim_enosys(0, fd, max_fd);
 #endif
 }
+
+/*
+ *  shim_lookup_dcookie()
+ *	wrapper for linux lookup_dcookie
+ */
+int shim_lookup_dcookie(uint64_t cookie, char *buffer, size_t len)
+{
+#if defined(__NR_lookup_dcookie)
+	return (int)syscall(__NR_lookup_dcookie, cookie, buffer, len);
+#else
+	return (int)shim_enosys(0, cookie, buffer, len);
+#endif
+}
