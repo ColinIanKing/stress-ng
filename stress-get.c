@@ -330,6 +330,20 @@ static int stress_get(const stress_args_t *args)
 			check_do_run();
 		}
 
+#if defined(__NR_ugetrlimit)
+		/*
+		 * Legacy system call, most probably __NR_ugetrlimit
+		 * is not defined, ignore return as it's most probably
+		 * ENOSYS too
+		 */
+		(void)syscall(__NR_ugetrlimit, INT_MAX, &rlim);
+
+		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
+			ret = syscall(__NR_ugetrlimit, rlimits[i], &rlim);
+			(void)ret;
+		}
+#endif
+
 #if defined(HAVE_PRLIMIT) && NEED_GLIBC(2,13,0) && defined(EOVERFLOW)
 		/* Invalid prlimit syscall and ignoring failure */
 		(void)prlimit(mypid, INT_MAX, NULL, &rlim);

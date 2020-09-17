@@ -373,7 +373,7 @@ timerfd_settime			timerfd
 times				sysinfo
 tkill				[ obsolete ]
 truncate			hdd
-ugetrlimit			[ ignore ]
+ugetrlimit			get (now obsolete)
 umask				aio, mmap, sendfile, etc
 umount				bind-mount
 uname				get
