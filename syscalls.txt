@@ -169,7 +169,7 @@ mincore				bigheap, mincore, mmap, vm
 mkdir				dir
 mkdirat				dir
 mknod				mknod
-mknodat
+mknodat				mknod
 mkstemp				hdd
 mlock				mlock
 mlock2				mlock
