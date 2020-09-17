@@ -114,6 +114,17 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 
+		/*
+		 * Check fsetxattr syscall cannot succeed in replacing
+		 * attribute name and value pair which doesn't exist
+		 */
+		ret = shim_fsetxattr(fd, attrname, value, strlen(value), XATTR_REPLACE);
+		if (ret >= 0) {
+			pr_fail("%s: fsetxattr succeded unexpectedly, replaced attribute which "
+				"doesn't exist, errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto out_close;
+		}
+
 		for (j = 0; j < i; j++) {
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
