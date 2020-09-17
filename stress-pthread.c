@@ -118,6 +118,40 @@ static bool keep_thread_running(void)
 }
 
 /*
+ *  stress_pthread_tid_address()
+ *	exercise tid address kernel interfaces. Fetch tid addr
+ *	if prctl() allows and set this back using set_tid_address.
+ *	Sanity check the current pthread tid is the same as the
+ *	one returned by set_tid_address.
+ */
+static void stress_pthread_tid_address(const stress_args_t *args)
+{
+#if defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(HAVE_PRCTL) &&		\
+    defined(PR_GET_TID_ADDRESS) &&	\
+    defined(__NR_set_tid_address) &&	\
+    defined(HAVE_KERNEL_ULONG_T)
+	__kernel_ulong_t tid_addr = 0;
+
+	if (prctl(PR_GET_TID_ADDRESS, &tid_addr) == 0) {
+		if (tid_addr) {
+			pid_t tid1, tid2;
+
+			/* This always succeeds */
+			tid1 = syscall(__NR_set_tid_address, tid_addr);
+
+			errno = 0;
+			tid2 = shim_gettid();
+			if ((errno == 0) && (tid1 != tid2)) {
+				pr_fail("%s: set_tid_address failed, returned tid %d, expecting tid %d\n",
+					args->name, (int)tid1, (int)tid2);
+			}
+		}
+	}
+#endif
+}
+
+/*
  *  stress_pthread_func()
  *	pthread that exits immediately
  */
@@ -261,6 +295,9 @@ yield:
 #endif
 die:
 	(void)keep_running();
+
+	stress_pthread_tid_address(args);
+
 	return &nowt;
 }
 
