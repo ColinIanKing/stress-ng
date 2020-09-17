@@ -188,6 +188,13 @@ static void stress_dirdeep_make(
 		}
 		path[len] = '\0';
 #endif
+#if defined(HAVE_UNLINKAT)
+		ret = linkat(dirfd, "h", dirfd, "u", 0);
+		if (ret == 0) {
+			ret = unlinkat(dirfd, "u", 0);
+			(void)ret;
+		}
+#endif
 		/*
 		 *  The interesting part of fsync is that in
 		 *  theory we can fsync a read only file and
