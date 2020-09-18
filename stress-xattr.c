@@ -122,6 +122,13 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 #endif
+		ret = shim_setxattr(filename, attrname, value, strlen(value), ~0);
+		if (ret >= 0) {
+			pr_fail("%s: setxattr unexpectedly succeeded on invalid flags, "
+				"errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto out_close;
+		}
+
 		/*
 		 * Check fsetxattr syscall cannot succeed in replacing
 		 * attribute name and value pair which doesn't exist
