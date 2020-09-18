@@ -172,6 +172,15 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 
+#if defined(HAVE_LSETXATTR)
+		ret = shim_lsetxattr(filename, attrname, value, strlen(value), XATTR_CREATE);
+		if (ret >= 0) {
+			pr_fail("%s: lsetxattr succeded unexpectedly, created attribute which "
+				"already exists, errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto out_close;
+		}
+#endif
+
 		for (j = 0; j < i; j++) {
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
 			(void)snprintf(value, sizeof(value), "value-%d", j);
