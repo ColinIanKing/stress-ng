@@ -148,6 +148,12 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 #endif
+		ret = shim_setxattr(filename, attrname, value, strlen(value), XATTR_REPLACE);
+		if (ret >= 0) {
+			pr_fail("%s: setxattr succeded unexpectedly, replaced attribute which "
+				"doesn't exist, errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto out_close;
+		}
 
 		/* Exercise invalid size argument fsetxattr syscall */
 		ret = shim_fsetxattr(fd, attrname, value, XATTR_SIZE_MAX + 1, XATTR_CREATE);
