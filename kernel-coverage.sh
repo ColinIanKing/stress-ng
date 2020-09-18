@@ -230,7 +230,7 @@ do_stress --vm 0 --vm-madvise sequential
 do_stress --vm 0 --vm-madvise unmergeable
 do_stress --vm 0 --vm-madvise willneed --page-in
 
-do_stress --zombie 0 --zombie-max 1000000
+#do_stress --zombie 0 --zombie-max 1000000
 
 DURATION=60
 
