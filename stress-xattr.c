@@ -171,6 +171,12 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 #endif
+		ret = shim_setxattr(filename, attrname, value, XATTR_SIZE_MAX + 1, XATTR_CREATE);
+		if (ret >= 0) {
+			pr_fail("%s: setxattr succeded unexpectedly, created attribute with size greater "
+				"than permitted size, errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto out_close;
+		}
 
 		/*
 		 * Check fsetxattr syscall cannot succeed in creating
