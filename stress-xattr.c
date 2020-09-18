@@ -150,6 +150,15 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 
+#if defined(HAVE_LSETXATTR)
+		ret = shim_lsetxattr(filename, attrname, value, XATTR_SIZE_MAX + 1, XATTR_CREATE);
+		if (ret >= 0) {
+			pr_fail("%s: lsetxattr succeded unexpectedly, created attribute with size greater "
+				"than permitted size, errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto out_close;
+		}
+#endif
+
 		/*
 		 * Check fsetxattr syscall cannot succeed in creating
 		 * attribute name and value pair which already exist
