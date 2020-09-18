@@ -199,6 +199,12 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 #endif
+		ret = shim_setxattr(filename, attrname, value, strlen(value), XATTR_CREATE);
+		if (ret >= 0) {
+			pr_fail("%s: setxattr succeded unexpectedly, created attribute which "
+				"already exists, errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto out_close;
+		}
 
 		for (j = 0; j < i; j++) {
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
