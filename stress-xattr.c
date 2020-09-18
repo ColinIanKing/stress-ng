@@ -114,6 +114,14 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 
+#if defined(HAVE_LSETXATTR)
+		ret = shim_lsetxattr(filename, attrname, value, strlen(value), ~0);
+		if (ret >= 0) {
+			pr_fail("%s: lsetxattr unexpectedly succeeded on invalid flags, "
+				"errno=%d (%s)\n", args->name, errno, strerror(errno));
+			goto out_close;
+		}
+#endif
 		/*
 		 * Check fsetxattr syscall cannot succeed in replacing
 		 * attribute name and value pair which doesn't exist
