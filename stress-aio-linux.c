@@ -308,6 +308,14 @@ static int stress_aiol(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	/*
+	 * Exercise invalid io_setup syscall
+	 * on invalid(zero) nr_events
+	 */
+	ret = io_setup(0, &ctx);
+	if (ret >= 0)
+		(void)io_destroy(ctx);
+
 	ret = io_setup(aio_linux_requests, &ctx);
 	if (ret < 0) {
 		/*
