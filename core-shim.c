@@ -1792,3 +1792,18 @@ int shim_lookup_dcookie(uint64_t cookie, char *buffer, size_t len)
 	return (int)shim_enosys(0, cookie, buffer, len);
 #endif
 }
+
+/*
+ *  shim_readlink()
+ *	wrapper for readlink because some libc wrappers call
+ *	readlinkat
+ */
+ssize_t shim_readlink(const char *pathname, char *buf, size_t bufsiz)
+{
+#if defined(__NR_readlink)
+	return (ssize_t)syscall(__NR_readlink, pathname, buf, bufsiz);
+#else
+	return readlink(pathname, buf, bufsiz);
+#endif
+}
+

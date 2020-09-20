@@ -113,7 +113,7 @@ static int stress_link_generic(
 				char buf[PATH_MAX];
 				ssize_t rret;
 
-				rret = readlink(newpath, buf, sizeof(buf) - 1);
+				rret = shim_readlink(newpath, buf, sizeof(buf) - 1);
 				if (rret < 0) {
 					rc = exit_status(errno);
 					pr_fail("%s: readlink failed, errno=%d (%s)\n",

@@ -191,7 +191,7 @@ static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
 		 *  of interface may change format, we skip checking it against
 		 *  the key
 		 */
-		ret = readlink(path, pathlink, sizeof(pathlink));
+		ret = shim_readlink(path, pathlink, sizeof(pathlink));
 		(void)ret;
 
 		/*

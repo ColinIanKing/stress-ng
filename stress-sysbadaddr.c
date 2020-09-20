@@ -592,7 +592,7 @@ static int bad_read(void *addr)
 
 static int bad_readlink(void *addr)
 {
-	return readlink((const char *)addr, (char *)inc_addr(addr, 1), 8192);
+	return shim_readlink((const char *)addr, (char *)inc_addr(addr, 1), 8192);
 }
 
 static int bad_readv(void *addr)

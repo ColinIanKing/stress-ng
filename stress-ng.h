@@ -4204,6 +4204,7 @@ extern int shim_pkey_get(int pkey);
 extern int shim_pkey_set(int pkey, unsigned int rights);
 extern int shim_process_madvise(int which, pid_t pid, void *addr,
         size_t length, int advise, unsigned long flag);
+extern ssize_t shim_readlink(const char *pathname, char *buf, size_t bufsiz);
 extern int shim_reboot(int magic, int magic2, int cmd, void *arg);
 extern int shim_removexattr(const char *path, const char *name);
 extern void *shim_sbrk(intptr_t increment);
