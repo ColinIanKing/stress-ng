@@ -736,6 +736,35 @@ static void stress_dev_tty(
 		(void)ret;
 	}
 #endif
+
+#if defined(HAVE_SHIM_TERMIOS2) &&	\
+    defined(TCGETS2)
+	{
+#define termios2 shim_termios2
+		struct termios2 t2;
+
+		ret = ioctl(fd, TCGETS2, &t2);
+		(void)ret;
+#if defined(TCSETS2) ||		\
+    defined(TCSETSW2) ||	\
+    defined(TCSETSF2)
+		if (ret == 0) {
+#if defined(TCSETSF2)
+			ret = ioctl(fd, TCSETSF2, &t2);
+			(void)ret;
+#endif
+#if defined(TCSETSW2)
+			ret = ioctl(fd, TCSETSW2, &t2);
+			(void)ret;
+#endif
+#if defined(TCSETS2)
+			ret = ioctl(fd, TCSETS2, &t2);
+			(void)ret;
+#endif
+		}
+#endif
+	}
+#endif
 }
 #endif
 
