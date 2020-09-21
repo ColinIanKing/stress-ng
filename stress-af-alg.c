@@ -98,6 +98,7 @@ typedef struct stress_crypto_info {
 	int	digest_size;
 	bool	internal;
 	bool	ignore;
+	bool	selftest;		/* true if passed */
 	struct stress_crypto_info *next;
 } stress_crypto_info_t;
 
@@ -204,6 +205,22 @@ retry_bind:
 			rc = EXIT_SUCCESS;
 			goto err;
 		}
+		if (errno == ELIBBAD) {
+			if (info->selftest) {
+				pr_fail("%s: bind failed but %s self test passed, errno=%d (%s)\n",
+					args->name, info->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+				goto err;
+			} else {
+				/*
+				 *  self test was not marked as passed, this
+				 *  could be because algo was not allowed, e.g.
+				 *  FIPS enabled, so silently ignore bind failure
+				 */
+				rc = EXIT_SUCCESS;
+				goto err;
+			}
+		}
 		if (errno == EBUSY) {
 			rc = EXIT_SUCCESS;
 			goto err;
@@ -303,6 +320,22 @@ static int stress_af_alg_cipher(
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
 		/* Perhaps the cipher does not exist with this kernel */
+		if (errno == ELIBBAD) {
+			if (info->selftest) {
+				pr_fail("%s: bind failed but %s self test passed, errno=%d (%s)\n",
+					args->name, info->name, errno, strerror(errno));
+				rc = EXIT_FAILURE;
+				goto err;
+			} else {
+				/*
+				 *  self test was not marked as passed, this
+				 *  could be because algo was not allowed, e.g.
+				 *  FIPS enabled, so silently ignore bind failure
+				 */
+				rc = EXIT_SUCCESS;
+				goto err;
+			}
+		}
 		if ((errno == 0) || (errno == ENOKEY) ||
 		    (errno == ENOENT) || (errno == EBUSY)) {
 			rc = EXIT_SUCCESS;
@@ -885,6 +918,8 @@ static void stress_af_alg_init(void)
 			info.digest_size = int_field(buffer);
 		else if (!strncmp(buffer, "internal", 8))
 			info.internal = bool_field(buffer);
+		else if (!strncmp(buffer, "selftest", 8))
+			info.selftest = bool_field(buffer);
 		else if (buffer[0] == '\n') {
 			if (info.crypto_type != CRYPTO_UNKNOWN)
 				stress_af_alg_add_crypto(&info);
