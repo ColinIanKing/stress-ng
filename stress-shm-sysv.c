@@ -201,7 +201,7 @@ static void exercise_shmat(const int shm_id, const size_t page_size)
  *  exercise_shmget()
  *	exercise shmget syscall with all possible values of arguments
  */
-static void exercise_shmget(const size_t sz)
+static void exercise_shmget(const size_t sz, const char *name)
 {
 	key_t key;
 	int shm_id;
@@ -213,6 +213,24 @@ static void exercise_shmget(const size_t sz)
 	shm_id = shmget(key, sz, ~0);
 	if (shm_id >= 0)
 		shmctl(shm_id, IPC_RMID, NULL);
+
+	shm_id = shmget(key, sz, IPC_CREAT);
+	if (shm_id >= 0) {
+		int shm_id2;
+		/*
+		 * Exercise invalid shmget by creating an already
+		 * existing shared memory segment and IPC_EXCL flag
+		 */
+		shm_id2 = shmget(key, sz, IPC_CREAT | IPC_EXCL);
+		if (shm_id2 >= 0) {
+			pr_fail("%s: shmget unexpectedly succeeded and re-created "
+				"shared memory segment even with IPC_EXCL flag "
+				"specified, errno=%d (%s)\n", name, errno, strerror(errno));
+			shmctl(shm_id2, IPC_RMID, NULL);
+		}
+
+		shmctl(shm_id, IPC_RMID, NULL);
+	}
 
     /* Exercise shmget on invalid sizes argument*/
 #if defined(SHMMIN)
@@ -360,7 +378,7 @@ static int stress_shm_sysv_child(
 		size_t sz = max_sz;
 		pid_t pid = -1;
 
-		exercise_shmget(sz);
+		exercise_shmget(sz, args->name);
 
 		for (i = 0; i < shm_sysv_segments; i++) {
 			int shm_id, count = 0;
