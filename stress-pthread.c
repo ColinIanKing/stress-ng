@@ -148,6 +148,8 @@ static void stress_pthread_tid_address(const stress_args_t *args)
 			}
 		}
 	}
+#else
+	(void)args;
 #endif
 }
 
