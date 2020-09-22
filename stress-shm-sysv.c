@@ -135,6 +135,11 @@ static int stress_shm_sysv_check(
 static void exercise_shmat(int shm_id)
 {
 	void *addr;
+	uint64_t buffer[(102400 / sizeof(uint64_t)) + 1];
+	uint8_t  *unaligned;
+
+	/* Unaligned buffer */
+	unaligned = ((uint8_t *)buffer) + 1;
 
 	/* Exercise shmat syscall on invalid shm_id */
 	addr = shmat(-1, NULL, 0);
@@ -172,6 +177,12 @@ static void exercise_shmat(int shm_id)
 		(void)shmdt(addr);
 	}
 #endif
+
+	/* Exercise invalid shmat with unaligned page address */
+	(void)memset(unaligned, 0, 1024);
+	addr = shmat(shm_id, unaligned, 0);
+	if (addr != (void *) -1)
+		(void)shmdt(addr);
 }
 
 #if defined(__linux__)
