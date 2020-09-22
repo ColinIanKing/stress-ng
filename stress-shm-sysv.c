@@ -213,6 +213,25 @@ static void exercise_shmget(const size_t sz)
 	shm_id = shmget(key, sz, ~0);
 	if (shm_id >= 0)
 		shmctl(shm_id, IPC_RMID, NULL);
+
+    /* Exercise shmget on invalid sizes argument*/
+#if defined(SHMMIN)
+	shm_id = shmget(key, SHMMIN - 1, IPC_CREAT);
+	if ((SHMMIN > 0) && (shm_id >= 0)) {
+		shmctl(shm_id, IPC_RMID, NULL);
+		pr_fail("%s: shmget unexpectedly succeeded on invalid value of"
+			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SHMMAX)
+	shm_id = shmget(key, SHMMAX + 1, IPC_CREAT);
+	if (SHMMAX < ~(size_t)0) && (shm_id >= 0)) {
+		shmctl(shm_id, IPC_RMID, NULL);
+		pr_fail("%s: shmget unexpectedly succeeded on invalid value of"
+			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
+	}
+#endif
 }
 
 #if defined(__linux__)
