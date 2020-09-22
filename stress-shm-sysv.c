@@ -137,6 +137,7 @@ static void exercise_shmat(int shm_id)
 	void *addr;
 	uint64_t buffer[(102400 / sizeof(uint64_t)) + 1];
 	uint8_t  *unaligned;
+	int ret;
 
 	/* Unaligned buffer */
 	unaligned = ((uint8_t *)buffer) + 1;
@@ -183,6 +184,10 @@ static void exercise_shmat(int shm_id)
 	addr = shmat(shm_id, unaligned, 0);
 	if (addr != (void *) -1)
 		(void)shmdt(addr);
+
+	/* Exercise invalid shmdt with unaligned page address */
+	ret = shmdt(unaligned);
+	(void)ret;
 }
 
 #if defined(__linux__)
