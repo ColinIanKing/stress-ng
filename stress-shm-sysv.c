@@ -188,6 +188,17 @@ static void exercise_shmat(int shm_id)
 	/* Exercise invalid shmdt with unaligned page address */
 	ret = shmdt(unaligned);
 	(void)ret;
+
+	/*
+	 * Exercise valid shmat syscall with unaligned
+	 * page address but specifying SHM_RND flag
+	 */
+#if defined(SHM_RND)
+	(void)memset(unaligned, 0, 1024);
+	addr = shmat(shm_id, unaligned, SHM_RND);
+	if (addr != (void *) -1)
+		(void)shmdt(addr);
+#endif
 }
 
 #if defined(__linux__)
