@@ -504,6 +504,10 @@
 #include <linux/fs.h>
 #endif
 
+#if defined(HAVE_LINUX_FSVERITY_H)
+#include <linux/fsverity.h>
+#endif
+
 #if defined(HAVE_LINUX_FUTEX_H)
 #include <linux/futex.h>
 #endif
@@ -2466,6 +2470,7 @@ typedef struct {
 	MACRO(utime)		\
 	MACRO(vdso)		\
 	MACRO(vecmath)		\
+	MACRO(verity)		\
 	MACRO(vfork)		\
 	MACRO(vforkmany)	\
 	MACRO(vm)		\
@@ -3417,6 +3422,9 @@ typedef enum {
 	OPT_vecmath_ops,
 
 	OPT_verify,
+
+	OPT_verity,
+	OPT_verity_ops,
 
 	OPT_vfork,
 	OPT_vfork_ops,

@@ -871,6 +871,8 @@ static const struct option long_options[] = {
 	{ "vecmath-ops",1,	0,	OPT_vecmath_ops },
 	{ "verbose",	0,	0,	OPT_verbose },
 	{ "verify",	0,	0,	OPT_verify },
+	{ "verity",	1,	0,	OPT_verity },
+	{ "verity-ops",	1,	0,	OPT_verity_ops },
 	{ "version",	0,	0,	OPT_version },
 	{ "vfork",	1,	0,	OPT_vfork },
 	{ "vfork-ops",	1,	0,	OPT_vfork_ops },
