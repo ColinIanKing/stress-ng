@@ -132,15 +132,13 @@ static int stress_shm_sysv_check(
  *  exercise_shmat()
  *	exercise shmat syscall with all possible values of arguments
  */
-static void exercise_shmat(int shm_id)
+static void exercise_shmat(const int shm_id, const size_t page_size)
 {
 	void *addr;
-	uint64_t buffer[(102400 / sizeof(uint64_t)) + 1];
-	uint8_t  *unaligned;
-	int ret;
-
+	uint64_t buffer[(page_size / sizeof(uint64_t)) + 1];
 	/* Unaligned buffer */
-	unaligned = ((uint8_t *)buffer) + 1;
+	const uint8_t *unaligned = ((uint8_t *)buffer) + 1;
+	int ret;
 
 	/* Exercise shmat syscall on invalid shm_id */
 	addr = shmat(-1, NULL, 0);
@@ -149,40 +147,39 @@ static void exercise_shmat(int shm_id)
 
 	/* Exercise shmat syscall on invalid flags */
 	addr = shmat(shm_id, NULL, ~0);
-	if (addr != (void *) -1)
+	if (addr != (void *)-1)
 		(void)shmdt(addr);
 
 	/* Exercise valid shmat with all possible values of flags */
 #if defined(SHM_RDONLY)
 	addr = shmat(shm_id, NULL, SHM_RDONLY);
-	if (addr != (void *) -1)
+	if (addr != (void *)-1)
 		(void)shmdt(addr);
 #endif
 
 #if defined(SHM_EXEC)
 	addr = shmat(shm_id, NULL, SHM_EXEC);
-	if (addr != (void *) -1)
+	if (addr != (void *)-1)
 		(void)shmdt(addr);
 #endif
 
 #if defined(SHM_RND)
 	addr = shmat(shm_id, NULL, SHM_RND);
-	if (addr != (void *) -1)
+	if (addr != (void *)-1)
 		(void)shmdt(addr);
 #endif
 
 	/* Exercise shmat with SHM_REMAP flag on NULL address */
 #if defined(SHM_REMAP)
 	addr = shmat(shm_id, NULL, SHM_REMAP);
-	if (addr != (void *) -1) {
+	if (addr != (void *)-1) {
 		(void)shmdt(addr);
 	}
 #endif
 
 	/* Exercise invalid shmat with unaligned page address */
-	(void)memset(unaligned, 0, 1024);
 	addr = shmat(shm_id, unaligned, 0);
-	if (addr != (void *) -1)
+	if (addr != (void *)-1)
 		(void)shmdt(addr);
 
 	/* Exercise invalid shmdt with unaligned page address */
@@ -194,7 +191,6 @@ static void exercise_shmat(int shm_id)
 	 * page address but specifying SHM_RND flag
 	 */
 #if defined(SHM_RND)
-	(void)memset(unaligned, 0, 1024);
 	addr = shmat(shm_id, unaligned, SHM_RND);
 	if (addr != (void *) -1)
 		(void)shmdt(addr);
@@ -410,7 +406,7 @@ static int stress_shm_sysv_child(
 				goto reap;
 			}
 
-			exercise_shmat(shm_id);
+			exercise_shmat(shm_id, args->page_size);
 
 			addr = shmat(shm_id, NULL, 0);
 			if (addr == (char *) -1) {
