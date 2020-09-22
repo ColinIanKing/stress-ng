@@ -132,13 +132,18 @@ static int stress_shm_sysv_check(
  *  exercise_shmat()
  *	exercise shmat syscall with all possible values of arguments
  */
-static void exercise_shmat()
+static void exercise_shmat(int shm_id)
 {
 	void *addr;
 
 	/* Exercise shmat syscall on invalid shm_id */
 	addr = shmat(-1, NULL, 0);
 	if (addr != (void *)-1)
+		(void)shmdt(addr);
+
+	/* Exercise shmat syscall on invalid flags */
+	addr = shmat(shm_id, NULL, ~0);
+	if (addr != (void *) -1)
 		(void)shmdt(addr);
 }
 
@@ -351,7 +356,7 @@ static int stress_shm_sysv_child(
 				goto reap;
 			}
 
-			exercise_shmat();
+			exercise_shmat(shm_id);
 
 			addr = shmat(shm_id, NULL, 0);
 			if (addr == (char *) -1) {
