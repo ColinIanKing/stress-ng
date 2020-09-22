@@ -229,6 +229,18 @@ static void exercise_shmget(const size_t sz, const char *name)
 			shmctl(shm_id2, IPC_RMID, NULL);
 		}
 
+		/*
+		 * Exercise invalid shmget by creating an already
+		 * existing shared memory segment but of greater size
+		 */
+		shm_id2 = shmget(key, sz + 1, IPC_CREAT);
+		if (shm_id2 >= 0) {
+			shmctl(shm_id2, IPC_RMID, NULL);
+			pr_fail("%s: shmget unexpectedly succeeded and again "
+				"created shared memory segment with a greater "
+				"size, errno=%d (%s)\n", name, errno, strerror(errno));
+		}
+
 		shmctl(shm_id, IPC_RMID, NULL);
 	}
 
