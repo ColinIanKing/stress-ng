@@ -145,6 +145,25 @@ static void exercise_shmat(int shm_id)
 	addr = shmat(shm_id, NULL, ~0);
 	if (addr != (void *) -1)
 		(void)shmdt(addr);
+
+	/* Exercise valid shmat with all possible values of flags */
+#if defined(SHM_RDONLY)
+	addr = shmat(shm_id, NULL, SHM_RDONLY);
+	if (addr != (void *) -1)
+		(void)shmdt(addr);
+#endif
+
+#if defined(SHM_EXEC)
+	addr = shmat(shm_id, NULL, SHM_EXEC);
+	if (addr != (void *) -1)
+		(void)shmdt(addr);
+#endif
+
+#if defined(SHM_RND)
+	addr = shmat(shm_id, NULL, SHM_RND);
+	if (addr != (void *) -1)
+		(void)shmdt(addr);
+#endif
 }
 
 #if defined(__linux__)
