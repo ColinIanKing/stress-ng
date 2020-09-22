@@ -164,6 +164,14 @@ static void exercise_shmat(int shm_id)
 	if (addr != (void *) -1)
 		(void)shmdt(addr);
 #endif
+
+	/* Exercise shmat with SHM_REMAP flag on NULL address */
+#if defined(SHM_REMAP)
+	addr = shmat(shm_id, NULL, SHM_REMAP);
+	if (addr != (void *) -1) {
+		(void)shmdt(addr);
+	}
+#endif
 }
 
 #if defined(__linux__)
