@@ -226,14 +226,17 @@ static int stress_set(const stress_args_t *args)
 		ret = setregid(-1, -1);
 		(void)ret;
 #endif
+
 #if defined(HAVE_SETRESUID)
 		ret = setresuid(-1, -1, -1);
 		(void)ret;
 #endif
+
 #if defined(HAVE_SETRESGID)
 		ret = setresgid(-1, -1, -1);
 		(void)ret;
 #endif
+
 #if defined(HAVE_SETFSGID) && 	\
     defined(HAVE_SYS_FSUID_H)
 		{
@@ -253,11 +256,41 @@ static int stress_set(const stress_args_t *args)
 					ret = setfsgid(gid);
 					(void)ret;
 
-					ret = setfsgid((int)geteuid());
+					ret = setfsgid((int)getegid());
 					(void)ret;
 
 					/* And restore */
 					ret = setfsgid(fsgid);
+					(void)ret;
+				}
+			}
+	}
+#endif
+
+#if defined(HAVE_SETFSUID) && 	\
+    defined(HAVE_SYS_FSUID_H)
+		{
+			int fsuid;
+
+			/* Passing -1 will return the current fsuid */
+			fsuid = setfsuid(-1);
+			if (fsuid >= 0) {
+				/* Set the current fsuid, should work */
+				ret = setfsuid(fsuid);
+				if (ret == fsuid) {
+					/*
+					 * we can try changing it to
+					 * something else knowing it can
+					 * be restored successfully
+					 */
+					ret = setfsuid(uid);
+					(void)ret;
+
+					ret = setfsuid((int)geteuid());
+					(void)ret;
+
+					/* And restore */
+					ret = setfsuid(fsuid);
 					(void)ret;
 				}
 			}

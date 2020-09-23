@@ -302,7 +302,7 @@ set_thread_area			pthread
 set_tid_address			pthread
 setdomainname			set
 setfsgid			set
-setfsuid
+setfsuid			set
 setgid				set
 setgroups			set
 sethostname			set
