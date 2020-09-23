@@ -236,7 +236,15 @@ rewait:
 			else
 				goto report;
 
-			shim_usleep(500000);
+			/*
+			 *  First time round do fast re-wait
+			 *  in case child can be reeped quickly,
+			 *  there after do slow backoff on each
+			 *  iteration until we give up and do
+			 *  the final SIGKILL
+			 */
+			if (signal > 1)
+				shim_usleep(500000);
 			goto rewait;
 		} else if (WIFSIGNALED(status)) {
 			pr_dbg("%s: child died: %s (instance %d)\n",
