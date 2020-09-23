@@ -198,6 +198,31 @@ static void exercise_shmat(const int shm_id, const size_t page_size)
 }
 
 /*
+ *  exercise_shmctl()
+ *	exercise shmctl syscall with all possible values of arguments
+ */
+static void exercise_shmctl(const size_t sz)
+{
+	key_t key;
+	int shm_id, ret;
+
+	/* Get a unique random key */
+	key = (key_t)stress_mwc16();
+
+	shm_id = shmget(key, sz, IPC_CREAT);
+	if (shm_id < 0)
+		return;
+
+	/* Exercise invalid commands */
+	ret = shmctl(shm_id, -1, NULL);
+	(void)ret;
+
+	ret = shmctl(shm_id, IPC_SET | IPC_RMID, NULL);
+	(void)ret;
+
+	(void)shmctl(shm_id, IPC_RMID, NULL);
+}
+/*
  *  exercise_shmget()
  *	exercise shmget syscall with all possible values of arguments
  */
@@ -418,6 +443,7 @@ static int stress_shm_sysv_child(
 		pid_t pid = -1;
 
 		exercise_shmget(sz, args->name, cap_ipc_lock);
+		exercise_shmctl(sz);
 
 		for (i = 0; i < shm_sysv_segments; i++) {
 			int shm_id, count = 0;
