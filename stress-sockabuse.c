@@ -106,10 +106,10 @@ static void stress_sockabuse_fd(const int fd)
 	VOID_RET(shim_pidfd_send_signal(fd, SIGUSR1, NULL, 0));
 	ptr = mmap(NULL, 4096, PROT_READ, MAP_SHARED, fd, 0);
 	if (ptr != MAP_FAILED)
-		munmap(ptr, 4096);
+		(void)munmap(ptr, 4096);
 	ptr = mmap(NULL, 4096, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (ptr != MAP_FAILED)
-		munmap(ptr, 4096);
+		(void)munmap(ptr, 4096);
 	nfd = dup(fd);
 	VOID_RET(shim_copy_file_range(fd, 0, nfd, 0, 16, 0));
 	if (nfd >= 0)
