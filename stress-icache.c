@@ -68,7 +68,7 @@ func_name(void)								\
  */
 #define STRESS_ICACHE(func_name, page_sz, icache_func)			\
 static int SECTION(stress_icache_caller) ALIGNED(page_sz) 		\
-func_name(const stress_args_t *args)						\
+func_name(const stress_args_t *args)					\
 {									\
 	uint8_t *addr = (uint8_t *)icache_func;				\
 	const size_t ps = args->page_size;				\
