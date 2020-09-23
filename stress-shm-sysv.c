@@ -280,6 +280,14 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 	if (shm_id >= 0)
 		(void)shmctl(shm_id, IPC_RMID, NULL);
 #endif
+
+	shm_id = shmget(key, sz, IPC_EXCL);
+	if (shm_id >= 0) {
+		(void)shmctl(shm_id, IPC_RMID, NULL);
+		pr_fail("%s: shmget unexpectedly succeeded on non-existed shared"
+			"memory segment, errno=%d (%s)\n", name, errno, strerror(errno));
+	}
+
 }
 
 #if defined(__linux__)
