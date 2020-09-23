@@ -565,7 +565,7 @@ static int stress_get(const stress_args_t *args)
 #endif
 
 #if defined(__NR_sgetmask)
-		ret = shim_sgetmask(void);
+		ret = shim_sgetmask();
 		(void)ret;
 #endif
 
