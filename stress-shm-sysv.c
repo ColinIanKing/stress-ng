@@ -198,16 +198,41 @@ static void exercise_shmat(const int shm_id, const size_t page_size)
 }
 
 /*
+ *  get_bad_shmid()
+ *	find invalid shared memory segment id
+ */
+int get_bad_shmid(const stress_args_t *args)
+{
+	int id = ~0;
+
+	while (keep_stressing()) {
+		int ret;
+		struct shmid_ds ds;
+
+		ret = shmctl(id, IPC_STAT, &ds);
+		if ((ret < 0) && ((errno == EINVAL) || (errno == EIDRM)))
+			return id;
+
+		/* Try again with a random guess */
+		id = stress_mwc64();
+	}
+
+	return -1;
+}
+
+/*
  *  exercise_shmctl()
  *	exercise shmctl syscall with all possible values of arguments
  */
-static void exercise_shmctl(const size_t sz)
+static void exercise_shmctl(const size_t sz, const stress_args_t *args)
 {
 	key_t key;
-	int shm_id, ret;
+	int shm_id, ret, bad_shmid;
 
 	/* Get a unique random key */
 	key = (key_t)stress_mwc16();
+
+	bad_shmid = get_bad_shmid(args);
 
 	shm_id = shmget(key, sz, IPC_CREAT);
 	if (shm_id < 0)
@@ -220,8 +245,13 @@ static void exercise_shmctl(const size_t sz)
 	ret = shmctl(shm_id, IPC_SET | IPC_RMID, NULL);
 	(void)ret;
 
+	/* Exercise invalid shmid */
+	ret = shmctl(bad_shmid, IPC_RMID, NULL);
+	(void)ret;
+
 	(void)shmctl(shm_id, IPC_RMID, NULL);
 }
+
 /*
  *  exercise_shmget()
  *	exercise shmget syscall with all possible values of arguments
@@ -443,7 +473,7 @@ static int stress_shm_sysv_child(
 		pid_t pid = -1;
 
 		exercise_shmget(sz, args->name, cap_ipc_lock);
-		exercise_shmctl(sz);
+		exercise_shmctl(sz, args);
 
 		for (i = 0; i < shm_sysv_segments; i++) {
 			int shm_id, count = 0;
