@@ -249,7 +249,21 @@ static void exercise_shmctl(const size_t sz, const stress_args_t *args)
 	ret = shmctl(bad_shmid, IPC_RMID, NULL);
 	(void)ret;
 
+	/* Cleaning up the shared memory segment */
 	(void)shmctl(shm_id, IPC_RMID, NULL);
+
+	/* Check for EIDRM error */
+#if defined(IPC_STAT) &&	\
+    defined(HAVE_SHMID_DS)
+	{
+		struct shmid_ds buf;
+
+		ret = shmctl(shm_id, IPC_STAT, &buf);
+		if (ret >= 0)
+			pr_fail("%s: shmctl unexpectedly succeeded on non-existed shared"
+				"memory segment, errno=%d (%s)\n", args->name, errno, strerror(errno));
+	}
+#endif
 }
 
 /*
