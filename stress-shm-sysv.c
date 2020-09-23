@@ -274,6 +274,12 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 		}
 	}
 #endif
+
+#if defined(IPC_PRIVATE)
+	shm_id = shmget(IPC_PRIVATE, sz, IPC_CREAT);
+	if (shm_id >= 0)
+		(void)shmctl(shm_id, IPC_RMID, NULL);
+#endif
 }
 
 #if defined(__linux__)
