@@ -201,7 +201,7 @@ static void exercise_shmat(const int shm_id, const size_t page_size)
  *  exercise_shmget()
  *	exercise shmget syscall with all possible values of arguments
  */
-static void exercise_shmget(const size_t sz, const char *name)
+static void exercise_shmget(const size_t sz, const char *name, const bool cap_ipc_lock)
 {
 	key_t key;
 	int shm_id;
@@ -260,6 +260,18 @@ static void exercise_shmget(const size_t sz, const char *name)
 		shmctl(shm_id, IPC_RMID, NULL);
 		pr_fail("%s: shmget unexpectedly succeeded on invalid value of"
 			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
+	}
+#endif
+
+#if defined(SHM_HUGETLB)
+	/* Check shmget cannot succeed without capabilities */
+	if (!cap_ipc_lock) {;
+		shm_id = shmget(IPC_PRIVATE, sz, IPC_CREAT | SHM_HUGETLB | SHM_R | SHM_W);
+		if (shm_id >= 0) {
+			(void)shmctl(shm_id, IPC_RMID, NULL);
+			pr_fail("%s: shmget unexpectedly succeeded on without suitable"
+				"capability, errno=%d (%s)\n", name, errno, strerror(errno));
+		}
 	}
 #endif
 }
@@ -370,6 +382,7 @@ static int stress_shm_sysv_child(
 	bool ok = true;
 	int mask = ~0;
 	int32_t instances = args->num_instances;
+	const bool cap_ipc_lock = stress_check_capability(SHIM_CAP_IPC_LOCK);
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
 		return EXIT_FAILURE;
@@ -390,7 +403,7 @@ static int stress_shm_sysv_child(
 		size_t sz = max_sz;
 		pid_t pid = -1;
 
-		exercise_shmget(sz, args->name);
+		exercise_shmget(sz, args->name, cap_ipc_lock);
 
 		for (i = 0; i < shm_sysv_segments; i++) {
 			int shm_id, count = 0;
