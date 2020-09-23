@@ -212,7 +212,7 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 	/* Exercise invalid flags */
 	shm_id = shmget(key, sz, ~0);
 	if (shm_id >= 0)
-		shmctl(shm_id, IPC_RMID, NULL);
+		(void)shmctl(shm_id, IPC_RMID, NULL);
 
 	shm_id = shmget(key, sz, IPC_CREAT);
 	if (shm_id >= 0) {
@@ -226,7 +226,7 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 			pr_fail("%s: shmget unexpectedly succeeded and re-created "
 				"shared memory segment even with IPC_EXCL flag "
 				"specified, errno=%d (%s)\n", name, errno, strerror(errno));
-			shmctl(shm_id2, IPC_RMID, NULL);
+			(void)shmctl(shm_id2, IPC_RMID, NULL);
 		}
 
 		/*
@@ -235,20 +235,20 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 		 */
 		shm_id2 = shmget(key, sz + 1, IPC_CREAT);
 		if (shm_id2 >= 0) {
-			shmctl(shm_id2, IPC_RMID, NULL);
+			(void)shmctl(shm_id2, IPC_RMID, NULL);
 			pr_fail("%s: shmget unexpectedly succeeded and again "
 				"created shared memory segment with a greater "
 				"size, errno=%d (%s)\n", name, errno, strerror(errno));
 		}
 
-		shmctl(shm_id, IPC_RMID, NULL);
+		(void)shmctl(shm_id, IPC_RMID, NULL);
 	}
 
     /* Exercise shmget on invalid sizes argument*/
 #if defined(SHMMIN)
 	shm_id = shmget(key, SHMMIN - 1, IPC_CREAT);
 	if ((SHMMIN > 0) && (shm_id >= 0)) {
-		shmctl(shm_id, IPC_RMID, NULL);
+		(void)shmctl(shm_id, IPC_RMID, NULL);
 		pr_fail("%s: shmget unexpectedly succeeded on invalid value of"
 			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
 	}
@@ -257,7 +257,7 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 #if defined(SHMMAX)
 	shm_id = shmget(key, SHMMAX + 1, IPC_CREAT);
 	if (SHMMAX < ~(size_t)0) && (shm_id >= 0)) {
-		shmctl(shm_id, IPC_RMID, NULL);
+		(void)shmctl(shm_id, IPC_RMID, NULL);
 		pr_fail("%s: shmget unexpectedly succeeded on invalid value of"
 			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
 	}
@@ -363,7 +363,7 @@ static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
 		ptr = mmap(NULL, sz, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS,
 			-1, 0);
 		if (ptr != MAP_FAILED)
-			munmap(ptr, sz);
+			(void)munmap(ptr, sz);
 
 		/*
 		 *  We can fsync it to..
