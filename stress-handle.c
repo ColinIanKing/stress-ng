@@ -42,12 +42,16 @@ static const stress_help_t help[] = {
 #define STR(s) #s
 
 typedef struct {
-	char	*mount_path;
-	int	mount_id;
+	char	*mount_path;	/* mount full path, e.g. /boot */
+	int	mount_id;	/* unique mount id */
 } stress_mount_info_t;
 
 static stress_mount_info_t mount_info[MAX_MOUNT_IDS];
 
+/*
+ *  free_mount_info()
+ *	free allocated mount information
+ */
 static void free_mount_info(const int mounts)
 {
 	int i;
@@ -56,6 +60,10 @@ static void free_mount_info(const int mounts)
 		free(mount_info[i].mount_path);
 }
 
+/*
+ *  get_mount_info()
+ *	parse mount information from /proc/self/mountinfo
+ */
 static int get_mount_info(const stress_args_t *args)
 {
 	FILE *fp;
@@ -66,20 +74,23 @@ static int get_mount_info(const stress_args_t *args)
 		return -1;
 	}
 
-	for (;;) {
+	(void)memset(&mount_info, 0, sizeof(mount_info));
+
+	while (mounts < MAX_MOUNT_IDS) {
 		char mount_path[PATH_MAX + 1];
 		char *line = NULL;
 		size_t line_len = 0;
+		ssize_t nread;
 
-		ssize_t nread = getline(&line, &line_len, fp);
+		nread = getline(&line, &line_len, fp);
 		if (nread == -1) {
 			free(line);
 			break;
 		}
 
 		nread = sscanf(line, "%12d %*d %*s %*s %" XSTR(PATH_MAX) "s",
-			&mount_info[mounts].mount_id,
-			mount_path);
+				&mount_info[mounts].mount_id,
+				mount_path);
 		free(line);
 		if (nread != 2)
 			continue;
@@ -94,9 +105,9 @@ static int get_mount_info(const stress_args_t *args)
 		mounts++;
 	}
 	(void)fclose(fp);
+
 	return mounts;
 }
-
 
 /*
  *  stress_handle()
