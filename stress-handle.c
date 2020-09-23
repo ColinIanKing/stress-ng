@@ -110,141 +110,104 @@ static int get_mount_info(const stress_args_t *args)
 }
 
 /*
+ *  stress_handle_child()
+ *	exercise name_to_handle_at inside an oomble child
+ *	wrapper because the allocations may cause memory
+ *	failures on high memory pressure environments.
+ */
+static int stress_handle_child(const stress_args_t *args, void *context)
+{
+	const int mounts = *((int *)context);
+
+	do {
+		struct file_handle *fhp, *tmp;
+		int mount_id, mount_fd, fd, i;
+
+		if ((fhp = malloc(sizeof(*fhp))) == NULL)
+			continue;
+
+		fhp->handle_bytes = 0;
+		if ((name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) != -1) &&
+		    (errno != EOVERFLOW)) {
+			pr_fail("%s: name_to_handle_at failed to get file handle size, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			free(fhp);
+			break;
+		}
+		tmp = realloc(fhp, sizeof(struct file_handle) + fhp->handle_bytes);
+		if (tmp == NULL) {
+			free(fhp);
+			continue;
+		}
+		fhp = tmp;
+		if (name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) < 0) {
+			pr_fail("%s: name_to_handle_at failed to get file handle, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			free(fhp);
+			break;
+		}
+
+		mount_fd = -2;
+		for (i = 0; i < mounts; i++) {
+			if (mount_info[i].mount_id == mount_id) {
+				mount_fd = open(mount_info[i].mount_path, O_RDONLY);
+				break;
+			}
+		}
+		if (mount_fd == -2) {
+			pr_fail("%s: cannot find mount id %d\n", args->name, mount_id);
+			free(fhp);
+			break;
+		}
+		if (mount_fd < 0) {
+			pr_fail("%s: failed to open mount path '%s': errno=%d (%s)\n",
+				args->name, mount_info[i].mount_path, errno, strerror(errno));
+			free(fhp);
+			break;
+		}
+		if ((fd = open_by_handle_at(mount_fd, fhp, O_RDONLY)) < 0) {
+			/* We don't abort if EPERM occurs, that's not a test failure */
+			if (errno != EPERM) {
+				pr_fail("%s: open_by_handle_at: failed to open: errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				(void)close(mount_fd);
+				free(fhp);
+				break;
+			}
+		} else {
+			(void)close(fd);
+		}
+		(void)close(mount_fd);
+		free(fhp);
+		inc_counter(args);
+	} while (keep_stressing());
+
+	pr_inf("%s: ended\n", args->name);
+
+	return EXIT_SUCCESS;
+}
+
+/*
  *  stress_handle()
  *	stress system by rapid open/close calls via
  *	name_to_handle_at and open_by_handle_at
  */
 static int stress_handle(const stress_args_t *args)
 {
-	int mounts;
-	pid_t pid;
+	int mounts, ret;
 
-	if ((mounts = get_mount_info(args)) < 0) {
+	mounts = get_mount_info(args);
+	if (mounts < 0) {
 		pr_fail("%s: failed to parse /proc/self/mountinfo\n", args->name);
 		return EXIT_FAILURE;
 	}
 
-again:
-	if (!keep_stressing_flag())
-		goto tidy;
-	pid = fork();
-	if (pid < 0) {
-		if ((errno == EAGAIN) || (errno == ENOMEM))
-			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
-	} else if (pid > 0) {
-		int status, ret;
+	ret = stress_oomable_child(args, &mounts,
+		stress_handle_child, STRESS_OOMABLE_NORMAL);
 
-		(void)setpgid(pid, g_pgrp);
-		/* Parent, wait for child */
-		ret = shim_waitpid(pid, &status, 0);
-		if (ret < 0) {
-			if (errno != EINTR)
-				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
-			/* If we got killed by OOM killer, re-start */
-			if (WTERMSIG(status) == SIGKILL) {
-				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
-					stress_log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, bailing out "
-						"(instance %d)\n",
-						args->name, args->instance);
-					_exit(0);
-				} else {
-					stress_log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, restarting again "
-						"(instance %d)\n",
-						args->name, args->instance);
-					goto again;
-				}
-			}
-		}
-	} else if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
-
-		/* Make sure this is killable by OOM killer */
-		stress_set_oom_adjustment(args->name, true);
-
-		do {
-			struct file_handle *fhp, *tmp;
-			int mount_id, mount_fd, fd, i;
-
-			if ((fhp = malloc(sizeof(*fhp))) == NULL)
-				continue;
-
-			fhp->handle_bytes = 0;
-			if ((name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) != -1) &&
-			    (errno != EOVERFLOW)) {
-				pr_fail("%s: name_to_handle_at failed to get file handle size, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				free(fhp);
-				break;
-			}
-			tmp = realloc(fhp, sizeof(struct file_handle) + fhp->handle_bytes);
-			if (tmp == NULL) {
-				free(fhp);
-				continue;
-			}
-			fhp = tmp;
-			if (name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0) < 0) {
-				pr_fail("%s: name_to_handle_at failed to get file handle, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				free(fhp);
-				break;
-			}
-
-			mount_fd = -2;
-			for (i = 0; i < mounts; i++) {
-				if (mount_info[i].mount_id == mount_id) {
-					mount_fd = open(mount_info[i].mount_path, O_RDONLY);
-					break;
-				}
-			}
-			if (mount_fd == -2) {
-				pr_fail("%s: cannot find mount id %d\n", args->name, mount_id);
-				free(fhp);
-				break;
-			}
-			if (mount_fd < 0) {
-				pr_fail("%s: failed to open mount path '%s': errno=%d (%s)\n",
-					args->name, mount_info[i].mount_path, errno, strerror(errno));
-				free(fhp);
-				break;
-			}
-			if ((fd = open_by_handle_at(mount_fd, fhp, O_RDONLY)) < 0) {
-				/* We don't abort if EPERM occurs, that's not a test failure */
-				if (errno != EPERM) {
-					pr_fail("%s: open_by_handle_at: failed to open: errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					(void)close(mount_fd);
-					free(fhp);
-					break;
-				}
-			} else {
-				(void)close(fd);
-			}
-			(void)close(mount_fd);
-			free(fhp);
-			inc_counter(args);
-		} while (keep_stressing());
-		_exit(EXIT_SUCCESS);
-	}
-tidy:
 	free_mount_info(mounts);
 
-	return EXIT_SUCCESS;
+	return ret;
 }
 
 stressor_info_t stress_handle_info = {
