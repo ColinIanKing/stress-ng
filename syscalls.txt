@@ -321,7 +321,7 @@ setsockopt			sock
 settimeofday			set
 setuid				set
 setxattr			xattr
-sgetmask			[obsolete]
+sgetmask			get,set (obsolete)
 shmat				shm-sysv
 shmctl				shm-sysv
 shmdt				shm-sysv
@@ -343,7 +343,7 @@ socket				sock
 socketcall			[ implicit ]
 socketpair			sockpair
 splice				splice
-ssetmask			[ obsolete ]
+ssetmask			set (obsolete)
 stat				fstat
 statfs				sysinfo
 statx				fstat

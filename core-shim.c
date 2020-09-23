@@ -1807,3 +1807,28 @@ ssize_t shim_readlink(const char *pathname, char *buf, size_t bufsiz)
 #endif
 }
 
+/*
+ *  shim_sgetmask
+ *	wrapper for obsolute linux system call sgetmask()
+ */
+long shim_sgetmask(void)
+{
+#if defined(__NR_sgetmask)
+	return (long)syscall(__NR_sgetmask);
+#else
+	return shim_enosys(0);
+#endif
+}
+
+/*
+ *  shim_ssetmask
+ *	wrapper for obsolute linux system call ssetmask()
+ */
+long shim_ssetmask(long newmask)
+{
+#if defined(__NR_ssetmask)
+	return (long)syscall(__NR_ssetmask, newmask);
+#else
+	return shim_enosys(0, newmask);
+#endif
+}

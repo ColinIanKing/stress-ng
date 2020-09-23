@@ -264,7 +264,7 @@ static int stress_set(const stress_args_t *args)
 					(void)ret;
 				}
 			}
-	}
+		}
 #endif
 
 #if defined(HAVE_SETFSUID) && 	\
@@ -294,7 +294,17 @@ static int stress_set(const stress_args_t *args)
 					(void)ret;
 				}
 			}
-	}
+		}
+#endif
+
+#if defined(__NR_sgetmask) &&	\
+    defined(__NR_ssetmask)
+		{
+			long mask;
+
+			mask = shim_sgetmask();
+			shim_ssetmask(mask);
+		}
 #endif
 
 #if defined(HAVE_GETDOMAINNAME) &&	\
