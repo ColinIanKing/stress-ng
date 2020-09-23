@@ -105,7 +105,8 @@ static int stress_set(const stress_args_t *args)
 	size_t i;
 	int ret_hostname;
 	char hostname[STRESS_HOST_NAME_LEN];
-#if defined(HAVE_GETPGID) && defined(HAVE_SETPGID)
+#if defined(HAVE_GETPGID) && 	\
+    defined(HAVE_SETPGID)
 	const pid_t mypid = getpid();
 #endif
 	const bool cap_sys_resource = stress_check_capability(SHIM_CAP_SYS_RESOURCE);
@@ -232,6 +233,35 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETRESGID)
 		ret = setresgid(-1, -1, -1);
 		(void)ret;
+#endif
+#if defined(HAVE_SETFSGID) && 	\
+    defined(HAVE_SYS_FSUID_H)
+		{
+			int fsgid;
+
+			/* Passing -1 will return the current fsgid */
+			fsgid = setfsgid(-1);
+			if (fsgid >= 0) {
+				/* Set the current fsgid, should work */
+				ret = setfsgid(fsgid);
+				if (ret == fsgid) {
+					/*
+					 * we can try changing it to
+					 * something else knowing it can
+					 * be restored successfully
+					 */
+					ret = setfsgid(gid);
+					(void)ret;
+
+					ret = setfsgid((int)geteuid());
+					(void)ret;
+
+					/* And restore */
+					ret = setfsgid(fsgid);
+					(void)ret;
+				}
+			}
+	}
 #endif
 
 #if defined(HAVE_GETDOMAINNAME) &&	\

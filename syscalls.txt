@@ -301,7 +301,7 @@ set_robust_list			pthread
 set_thread_area			pthread
 set_tid_address			pthread
 setdomainname			set
-setfsgid
+setfsgid			set
 setfsuid
 setgid				set
 setgroups			set

@@ -293,6 +293,10 @@
 #include <sys/fanotify.h>
 #endif
 
+#if defined(HAVE_SYS_FSUID_H)
+#include <sys/fsuid.h>
+#endif
+
 #if defined(HAVE_SYS_IO_H)
 #include <sys/io.h>
 #endif
