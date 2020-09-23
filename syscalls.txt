@@ -201,7 +201,7 @@ munlockall			mlock
 munmap				mmap, mremap
 name_to_handle_at		handle
 nanosleep			timer, nanosecond
-nfsservctl
+nfsservctl			ignore, since Linux 3.1, this system call no longer exists
 nice				nice
 open				dentry, open, etc
 open_by_handle_at		handle
