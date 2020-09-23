@@ -112,6 +112,32 @@ static int stress_link_generic(
 			if (symlink_func) {
 				char buf[PATH_MAX];
 				ssize_t rret;
+#if defined(O_DIRECTORY) &&	\
+    defined(HAVE_READLINKAT)
+				{
+					char tmpfile[PATH_MAX], *filename;
+					char tmpdir[PATH_MAX], *dir;
+					int dirfd;
+
+					shim_strlcpy(tmpfile, newpath, sizeof(tmpfile));
+					filename = basename(tmpfile);
+					shim_strlcpy(tmpdir, newpath, sizeof(tmpdir));
+					dir = dirname(tmpdir);
+
+					/*
+					 *   Relatively naive readlinkat exercising
+					 */
+					dirfd = open(dir, O_DIRECTORY | O_RDONLY);
+					if (dirfd >= 0) {
+						rret = readlinkat(dirfd, filename, buf, sizeof(buf) - 1);
+						if ((rret < 0) && (errno != ENOSYS)) {
+							pr_fail("%s: readlinkat failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+						}
+						(void)close(dirfd);
+					}
+				}
+#endif
 
 				rret = shim_readlink(newpath, buf, sizeof(buf) - 1);
 				if (rret < 0) {
