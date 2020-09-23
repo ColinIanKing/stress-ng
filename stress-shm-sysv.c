@@ -343,7 +343,7 @@ static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
 	 *  silently ignore failure
 	 */
 	fd = open(path, O_RDONLY);
-	if (fd) {
+	if (fd >= 0) {
 		char pathlink[PATH_MAX];
 		void *ptr;
 		int ret;
