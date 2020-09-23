@@ -244,7 +244,7 @@ read				pipe, zero, ..
 readahead			readahead
 readdir				fstat, inotitfy, proc
 readlink			symlink
-readlinkat
+readlinkat			symlink
 readv				hdd
 reboot				reboot
 recv				sock
