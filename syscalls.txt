@@ -318,7 +318,7 @@ setreuid			set
 setrlimit			limit, rlimit, set
 setsid				set
 setsockopt			sock
-settimeofday			[ need privilege, ignore for now ]
+settimeofday			set
 setuid				set
 setxattr			xattr
 sgetmask			[obsolete]
