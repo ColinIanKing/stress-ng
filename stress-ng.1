@@ -3222,6 +3222,18 @@ SIGIO signals. This exercises asynchronous I/O via SIGIO.
 .B \-\-sigio\-ops N
 stop sigio stress workers after handling N SIGIO signals.
 .TP
+.B \-\-signal N
+start N workers that exercise the signal system call three different signal
+handlers, SIG_IGN (ignore), a SIGCHLD handler and SIG_DFL (default action).
+For the SIGCHLD handler, the stressor sends itself a SIGCHLD signal and checks
+if it has been handled. For other handlers, the stressor checks that the
+SIGCHLD handler has not been called.  This stress test calls the signal system
+call directly when possible and will try to avoid the C library attempt to
+replace signal with the more modern sigaction system call.
+.TP
+.B \-\-signal\-ops N
+stop signal stress workers after N rounds of signal handler setting.
+.TP
 .B \-\-sigpending N
 start N workers that check if SIGUSR1 signals are pending. This stressor masks
 SIGUSR1, generates a SIGUSR1 signal and uses sigpending(2) to see if the signal

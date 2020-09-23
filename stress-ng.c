@@ -730,6 +730,8 @@ static const struct option long_options[] = {
 	{ "sigio-ops",	1,	0,	OPT_sigio_ops },
 	{ "sigfpe",	1,	0,	OPT_sigfpe },
 	{ "sigfpe-ops",	1,	0,	OPT_sigfpe_ops },
+	{ "signal",	1,	0,	OPT_signal },
+	{ "signal-ops",	1,	0,	OPT_signal_ops },
 	{ "sigpending",	1,	0,	OPT_sigpending},
 	{ "sigpending-ops",1,	0,	OPT_sigpending_ops },
 	{ "sigpipe",	1,	0,	OPT_sigpipe },

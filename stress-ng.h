@@ -2427,6 +2427,7 @@ typedef struct {
 	MACRO(sigfd)		\
 	MACRO(sigfpe)		\
 	MACRO(sigio)		\
+	MACRO(signal)		\
 	MACRO(sigpending)	\
 	MACRO(sigpipe)		\
 	MACRO(sigq)		\
@@ -3236,6 +3237,9 @@ typedef enum {
 
 	OPT_sigio,
 	OPT_sigio_ops,
+
+	OPT_signal,
+	OPT_signal_ops,
 
 	OPT_sigpending,
 	OPT_sigpending_ops,

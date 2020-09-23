@@ -329,7 +329,7 @@ shmget				shm-sysv
 shutdown			sock, sockpair
 sigaction			sigfpe
 sigaltstack			pthread, stack
-signal				[ Avoid  its  use: use sigaction(2) instead ]
+signal				signal
 signalfd			sigfd
 siglongjmp			sigfpe
 sigpending			sigpending
