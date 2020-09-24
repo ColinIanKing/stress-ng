@@ -92,7 +92,8 @@ again:
 			errno = 0;
 			fd = open(filename, O_NONBLOCK | O_WRONLY, S_IRUSR | S_IWUSR);
 			if (fd < 0) {
-				if (errno != EWOULDBLOCK && errno != EACCES) {
+				if ((errno != EWOULDBLOCK) &&
+                                    (errno != EACCES)) {
 					pr_dbg("%s: open failed (child): errno=%d: (%s)\n",
 						args->name, errno, strerror(errno));
 				}
@@ -107,8 +108,63 @@ again:
 }
 
 /*
+ *  stress_try_lease()
+ *	try and get a lease with lock type 'lock'
+ */
+static int stress_try_lease(
+	const stress_args_t *args,
+	const char *filename,
+	const int flags,
+	const int lock)
+{
+	int fd;
+
+	fd = open(filename, flags, S_IRUSR | S_IWUSR);
+	if (fd < 0) {
+		int ret;
+
+		ret = exit_status(errno);
+		pr_err("%s: open failed (parent): errno=%d: (%s)\n",
+			args->name, errno, strerror(errno));
+		return ret;
+	}
+
+	/*
+	 *  attempt a lease lock
+	 */
+	while (fcntl(fd, F_SETLEASE, lock) < 0) {
+		if (!keep_stressing_flag()) {
+			(void)close(fd);
+			return EXIT_FAILURE;
+		}
+	}
+
+	inc_counter(args);
+	(void)shim_sched_yield();
+
+	/*
+	 *  attempt a lease unlock
+	 */
+	while (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
+		if (!keep_stressing_flag()) {
+			(void)close(fd);
+			return EXIT_FAILURE;
+		}
+		if (errno != EAGAIN) {
+			pr_err("%s: fcntl failed: errno=%d: (%s)\n",
+				args->name, errno, strerror(errno));
+			(void)close(fd);
+			break;
+		}
+	}
+	(void)close(fd);
+
+	return EXIT_SUCCESS;
+}
+
+/*
  *  stress_lease
- *	stress by fcntl lease activity
+ *	stress fcntl lease activity
  */
 static int stress_lease(const stress_args_t *args)
 {
@@ -145,6 +201,9 @@ static int stress_lease(const stress_args_t *args)
 	}
 	(void)close(fd);
 
+	/*
+	 *  start lease breaker child processes
+	 */
 	for (i = 0; i < lease_breakers; i++) {
 		l_pids[i] = stress_lease_spawn(args, filename);
 		if (l_pids[i] < 0) {
@@ -154,37 +213,13 @@ static int stress_lease(const stress_args_t *args)
 	}
 
 	do {
-		fd = open(filename, O_WRONLY | O_APPEND, S_IRUSR | S_IWUSR);
-		if (fd < 0) {
-			ret = exit_status(errno);
-			pr_err("%s: open failed (parent): errno=%d: (%s)\n",
-				args->name, errno, strerror(errno));
-			goto reap;
-		}
-		while (fcntl(fd, F_SETLEASE, F_WRLCK) < 0) {
-			if (!keep_stressing_flag()) {
-				(void)close(fd);
-				goto reap;
-			}
-		}
-		inc_counter(args);
-		(void)shim_sched_yield();
-		while (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
-			if (!keep_stressing_flag()) {
-				(void)close(fd);
-				goto reap;
-			}
-			if (errno != EAGAIN) {
-				pr_err("%s: fcntl failed: errno=%d: (%s)\n",
-					args->name, errno, strerror(errno));
-				(void)close(fd);
-				break;
-			}
-		}
-		(void)close(fd);
+		ret = stress_try_lease(args, filename, O_WRONLY | O_APPEND, F_WRLCK);
+		if (ret != EXIT_SUCCESS)
+			break;
+		ret = stress_try_lease(args, filename, O_RDONLY, F_RDLCK);
+		if (ret != EXIT_SUCCESS)
+			break;
 	} while (keep_stressing());
-
-	ret = EXIT_SUCCESS;
 
 reap:
 	for (i = 0; i < lease_breakers; i++) {
