@@ -35,7 +35,12 @@ static const stress_help_t help[] = {
  *  exercise_renameat2()
  *	exercise renameat2 with various tricky argument combination
  */
-static void exercise_renameat(int oldfd, char *old_name, char *new_name, const stress_args_t *args, int bad_fd)
+static void exercise_renameat(
+	int oldfd,
+	char *old_name,
+	char *new_name,
+	const stress_args_t *args,
+	const int bad_fd)
 {
 	int ret, newfd = AT_FDCWD, file_fd;
 	char *oldname = old_name, *newname = new_name;
@@ -70,7 +75,12 @@ static void exercise_renameat(int oldfd, char *old_name, char *new_name, const s
  *  exercise_renameat2()
  *	exercise renameat2 with various tricky argument combination
  */
-static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const stress_args_t *args, int bad_fd)
+static void exercise_renameat2(
+	const stress_args_t *args,
+	int oldfd,
+	char *old_name,
+	char *new_name,
+	const int bad_fd)
 {
 	int ret, newfd = AT_FDCWD, tmpfd, file_fd;
 	char *tempname, *oldname = old_name, *newname = new_name;
@@ -88,7 +98,8 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const 
 
 #if defined(RENAME_EXCHANGE)
 	/* Exercise with invalid combination of flags */
-	ret = renameat2(oldfd, oldname, newfd, newname, RENAME_EXCHANGE | RENAME_NOREPLACE);
+	ret = renameat2(oldfd, oldname, newfd, newname,
+		RENAME_EXCHANGE | RENAME_NOREPLACE);
 	if (ret >= 0) {
 		tmpfd = newfd;
 		newfd = oldfd;
@@ -99,7 +110,8 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const 
 	}
 
 #if defined(RENAME_WHITEOUT)
-	ret = renameat2(oldfd, oldname, newfd, newname, RENAME_EXCHANGE | RENAME_WHITEOUT);
+	ret = renameat2(oldfd, oldname, newfd, newname,
+		RENAME_EXCHANGE | RENAME_WHITEOUT);
 	if (ret >= 0) {
 		tmpfd = newfd;
 		newfd = oldfd;
@@ -113,8 +125,10 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const 
 	/* Exercise RENAME_EXCHANGE on non-existed directory */
 	ret = renameat2(oldfd, oldname, newfd, newname, RENAME_EXCHANGE);
 	if (ret >= 0) {
-		pr_fail("%s: renameat2 unexpectedly succeeded on non-existed directory with "
-			"RENAME_EXCHANGE flag, errno=%d (%s)\n", args->name, errno, strerror(errno));
+		pr_fail("%s: renameat2 unexpectedly succeeded on "
+			"non-existent directory with RENAME_EXCHANGE "
+			"flag, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return;
 	}
 
@@ -122,7 +136,8 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const 
 	 * Exercise RENAME_EXCHANGE on same file creating absolutely
 	 * no difference other than increase in kernel test coverage
 	 */
-	ret = renameat2(oldfd, oldname, oldfd, oldname, RENAME_EXCHANGE);
+	ret = renameat2(oldfd, oldname, oldfd, oldname,
+		RENAME_EXCHANGE);
 	(void)ret;
 
 #endif
@@ -130,8 +145,10 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const 
 	/* Exercise RENAME_NOREPLACE on same file */
 	ret = renameat2(oldfd, oldname, oldfd, oldname, RENAME_NOREPLACE);
 	if (ret >= 0) {
-		pr_fail("%s: renameat2 unexpectedly succeeded on existed directory/file with "
-			"RENAME_NOREPLACE flag, errno=%d (%s)\n", args->name, errno, strerror(errno));
+		pr_fail("%s: renameat2 unexpectedly succeeded on existent "
+			"directory/file with RENAME_NOREPLACE flag, "
+			"errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return;
 	}
 
@@ -139,7 +156,8 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const 
 	ret = renameat2(bad_fd, oldname, newfd, newname, RENAME_NOREPLACE);
 	if (ret >= 0) {
 		pr_fail("%s: renameat2 unexpectedly succeeded on bad file "
-			"descriptor, errno=%d (%s)\n", args->name, errno, strerror(errno));
+			"descriptor, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return;
 	}
 
@@ -149,8 +167,10 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const 
 		return;
 	ret = renameat2(file_fd, oldname, newfd, newname, RENAME_NOREPLACE);
 	if (ret >= 0) {
-		pr_fail("%s: renameat2 unexpectedly succeeded on file descriptor rather than"
-			"directory descriptor, errno=%d (%s)\n", args->name, errno, strerror(errno));
+		pr_fail("%s: renameat2 unexpectedly succeeded on file "
+			"descriptor rather than" "directory descriptor, "
+			"errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		(void)close(file_fd);
 		return;
 	}
@@ -271,7 +291,7 @@ restart:
 				goto restart;
 			}
 
-			exercise_renameat2(oldfd, oldname, newname, args, bad_fd);
+			exercise_renameat2(args, oldfd, oldname, newname, bad_fd);
 
 			if (renameat2(oldfd, oldname, AT_FDCWD, newname, RENAME_NOREPLACE) < 0) {
 				(void)close(oldfd);
