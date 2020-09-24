@@ -30,6 +30,29 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+#if defined(HAVE_RENAMEAT2) && defined(O_DIRECTORY) && defined(RENAME_NOREPLACE)
+/*
+ *  exercise_renameat2()
+ *	exercise renameat2 with various tricky argument combination
+ */
+static void exercise_renameat2(int oldfd, char *old_name, char *new_name)
+{
+	int ret, newfd = AT_FDCWD, tmpfd;
+	char *tempname, *oldname = old_name, *newname = new_name;
+
+	/* Exercise with invalid flags */
+	ret = renameat2(oldfd, oldname, newfd, newname, ~0);
+	if (ret >= 0) {
+		tmpfd = newfd;
+		newfd = oldfd;
+		oldfd = tmpfd;
+		tempname = newname;
+		newname = oldname;
+		oldname = tempname;
+	}
+}
+#endif
+
 /*
  *  stress_rename()
  *	stress system by renames
@@ -138,6 +161,9 @@ restart:
 				(void)unlink(newname);
 				goto restart;
 			}
+
+			exercise_renameat2(oldfd, oldname, newname);
+
 			if (renameat2(oldfd, oldname, AT_FDCWD, newname, RENAME_NOREPLACE) < 0) {
 				(void)close(oldfd);
 				(void)unlink(oldname);
