@@ -188,7 +188,9 @@ static void stress_dentry_misc(const char *path)
 	ret = select(fd + 1, &rdfds, NULL, NULL, &timeout);
 	(void)ret;
 
-#if defined(HAVE_FLOCK) && defined(LOCK_EX) && defined(LOCK_UN)
+#if defined(HAVE_FLOCK) &&	\
+    defined(LOCK_EX) &&		\
+    defined(LOCK_UN)
 	/*
 	 *  flock capable systems..
 	 */
@@ -197,7 +199,9 @@ static void stress_dentry_misc(const char *path)
 		ret = flock(fd, LOCK_UN);
 		(void)ret;
 	}
-#elif defined(F_SETLKW) && defined(F_RDLCK) && defined(F_UNLCK)
+#elif defined(F_SETLKW) &&	\
+      defined(F_RDLCK) &&	\
+      defined(F_UNLCK)
 	/*
 	 *  ..otherwise fall back to fcntl (e.g. Solaris)
 	 */
