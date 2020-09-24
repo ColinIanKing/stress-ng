@@ -88,7 +88,7 @@ static inline void stress_dir_mmap(const int dirfd, const size_t page_size)
 
 /*
  *  stress_dir_read()
- *	read all dentries
+ *	read and stat all dentries
  */
 static void stress_dir_read(
 	const stress_args_t *args,
@@ -101,11 +101,16 @@ static void stress_dir_read(
 	if (!dp)
 		return;
 
-	while ((de = readdir(dp)) != NULL) {
+	while (keep_stressing() && ((de = readdir(dp)) != NULL)) {
+		char filename[PATH_MAX];
+		struct stat statbuf;
+	
 		if (de->d_reclen == 0) {
 			pr_fail("%s: read a zero sized directory entry\n", args->name);
 			break;
 		}
+		stress_mk_filename(filename, sizeof(filename), path, de->d_name);
+		(void)stat(filename, &statbuf);
 	}
 
 	(void)closedir(dp);
