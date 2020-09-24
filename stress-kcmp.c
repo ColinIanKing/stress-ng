@@ -47,7 +47,7 @@ enum {
 };
 
 /* Slot for KCMP_EPOLL_TFD */
-struct kcmp_epoll_slot {
+struct shim_kcmp_epoll_slot {
 	uint32_t efd;
 	uint32_t tfd;
 	uint32_t toff;
@@ -248,7 +248,7 @@ again:
 
 #if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
 			if (efd != -1) {
-				struct kcmp_epoll_slot slot;
+				struct shim_kcmp_epoll_slot slot;
 
 				slot.efd = efd;
 				slot.tfd = sfd;
@@ -271,7 +271,7 @@ again:
 				KCMP_VERIFY(pid1, pid2, SHIM_KCMP_SYSVSEM, 0, 0, 0);
 #if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
 				if (efd != -1) {
-					struct kcmp_epoll_slot slot;
+					struct shim_kcmp_epoll_slot slot;
 
 					slot.efd = efd;
 					slot.tfd = sfd;
