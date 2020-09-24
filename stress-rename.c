@@ -84,6 +84,14 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const 
 	}
 
 #endif
+
+	/* Exercise RENAME_NOREPLACE on same file */
+	ret = renameat2(oldfd, oldname, oldfd, oldname, RENAME_NOREPLACE);
+	if (ret >= 0) {
+		pr_fail("%s: renameat2 unexpectedly succeeded on existed directory/file with "
+			"RENAME_NOREPLACE flag, errno=%d (%s)\n", args->name, errno, strerror(errno));
+		return;
+	}
 }
 #endif
 
