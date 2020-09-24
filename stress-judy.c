@@ -63,7 +63,7 @@ static inline Word_t gen_index(const Word_t index)
 
 /*
  *  stress_judy()
- *	stress judy
+ *	stress a judy array, exercises cache/memory
  */
 static int stress_judy(const stress_args_t *args)
 {
