@@ -60,15 +60,24 @@ static int stress_rawdev_supported(const char *name)
 	return 0;
 }
 
+/*
+ *  shift_ul()
+ *	shift v by shift bits, always return non-zero
+ */
 static inline unsigned long shift_ul(unsigned long v, unsigned int shift)
 {
 	v >>= shift;
 	return (v == 0) ? 1 : v;
 }
 
-static char *stress_rawdev_path(const dev_t dev)
+/*
+ *  stress_rawdev_path()
+ */
+static char *stress_rawdev_path(
+	const dev_t dev,
+	char *devpath,
+	const size_t devpath_len)
 {
-	static char path[PATH_MAX];
 	DIR *dir;
 	struct dirent *d;
 	const dev_t majdev = makedev(major(dev), 0);
@@ -81,13 +90,13 @@ static char *stress_rawdev_path(const dev_t dev)
 		int ret;
 		struct stat stat_buf;
 
-		(void)snprintf(path, sizeof(path), "/dev/%s", d->d_name);
-		ret = stat(path, &stat_buf);
+		stress_mk_filename(devpath, devpath_len, "/dev", d->d_name);
+		ret = stat(devpath, &stat_buf);
 		if ((ret == 0) &&
 		    (S_ISBLK(stat_buf.st_mode)) &&
 		    (stat_buf.st_rdev == majdev)) {
 			(void)closedir(dir);
-			return path;
+			return devpath;
 		}
 	}
 	(void)closedir(dir);
@@ -95,6 +104,10 @@ static char *stress_rawdev_path(const dev_t dev)
 	return NULL;
 }
 
+/*
+ *  stress_rawdev_sweep()
+ *	sweep reads across raw block device
+ */
 static void stress_rawdev_sweep(
 	const stress_args_t *args,
 	const int fd,
@@ -127,6 +140,10 @@ static void stress_rawdev_sweep(
 	}
 }
 
+/*
+ *  stress_rawdev_wiggle()
+ *	sweep reads with non-linear wiggles across device
+ */
 static void stress_rawdev_wiggle(
 	const stress_args_t *args,
 	const int fd,
@@ -154,6 +171,11 @@ static void stress_rawdev_wiggle(
 	}
 }
 
+/*
+ *  stress_rawdev_ends()
+ *	read start/end of raw device, will case excessive
+ *	sweeping of heads on physical device
+ */
 static void stress_rawdev_ends(
 	const stress_args_t *args,
 	const int fd,
@@ -186,6 +208,10 @@ static void stress_rawdev_ends(
 	}
 }
 
+/*
+ *  stress_rawdev_random()
+ *	read at random locations across a device
+ */
 static void stress_rawdev_random(
 	const stress_args_t *args,
 	const int fd,
@@ -209,6 +235,10 @@ static void stress_rawdev_random(
 	}
 }
 
+/*
+ *  stress_rawdev_burst()
+ *	bursts of reads from random places on a device
+ */
 static void stress_rawdev_burst(
 	const stress_args_t *args,
 	const int fd,
@@ -322,7 +352,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static int stress_rawdev(const stress_args_t *args)
 {
 	int ret;
-	char path[PATH_MAX], *devpath;
+	char path[PATH_MAX], devpath[PATH_MAX];
 	struct stat stat_buf;
 	int fd;
 	int blksz = 0;
@@ -354,8 +384,7 @@ static int stress_rawdev(const stress_args_t *args)
 	(void)unlink(path);
 	(void)close(fd);
 
-	devpath = stress_rawdev_path(stat_buf.st_dev);
-	if (!devpath) {
+	if (!stress_rawdev_path(stat_buf.st_dev, devpath, sizeof(devpath))) {
 		pr_inf("%s: cannot determine raw block device\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
