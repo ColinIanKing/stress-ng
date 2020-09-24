@@ -30,6 +30,28 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+#if defined(HAVE_RENAMEAT) && defined(O_DIRECTORY)
+/*
+ *  exercise_renameat2()
+ *	exercise renameat2 with various tricky argument combination
+ */
+static void exercise_renameat(int oldfd, char *old_name, char *new_name, const stress_args_t *args, int bad_fd)
+{
+	int ret, newfd = AT_FDCWD;
+	char *oldname = old_name, *newname = new_name;
+
+	(void)oldfd;
+
+	/* Exercise on bad_fd */
+	ret = renameat(bad_fd, oldname, newfd, newname);
+	if (ret >= 0) {
+		pr_fail("%s: renameat unexpectedly succeeded on bad file "
+			"descriptor, errno=%d (%s)\n", args->name, errno, strerror(errno));
+		return;
+	}
+}
+#endif
+
 #if defined(HAVE_RENAMEAT2) && defined(O_DIRECTORY) && defined(RENAME_NOREPLACE)
 /*
  *  exercise_renameat2()
@@ -201,6 +223,9 @@ restart:
 				(void)unlink(newname);
 				goto restart;
 			}
+
+			exercise_renameat(oldfd, oldname, newname, args, bad_fd);
+
 			if (renameat(oldfd, oldname, AT_FDCWD, newname) < 0) {
 				(void)close(oldfd);
 				(void)unlink(oldname);
