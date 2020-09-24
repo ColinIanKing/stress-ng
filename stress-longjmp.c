@@ -24,7 +24,16 @@
  */
 #include "stress-ng.h"
 
-static jmp_buf buf;
+#define JMP_BUF_MAGIC0	(0x
+
+typedef struct {
+	double ts;		/* timestamp */
+	uint32_t check0;	/* memory clobbering check canary */
+	jmp_buf buf;		/* jmpbuf itself */
+	uint32_t check1;	/* memory clobbering check canary */
+} jmp_buf_check_t;
+
+static jmp_buf_check_t bufchk;
 
 static const stress_help_t help[] = {
 	{ NULL,	"longjmp N",	 "start N workers exercising setjmp/longjmp" },
@@ -34,7 +43,8 @@ static const stress_help_t help[] = {
 
 static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_func(void)
 {
-	longjmp(buf, 1);	/* Jump out */
+	bufchk.ts = stress_time_now();
+	longjmp(bufchk.buf, 1);	/* Jump out */
 
 	_exit(EXIT_FAILURE);	/* Never get here */
 }
@@ -46,20 +56,48 @@ static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_func(void)
 static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 {
 	int ret;
+	static uint32_t check0, check1;
+	static double t_total;
+	static uint64_t n = 0;
 
-	ret = setjmp(buf);
+	check0 = stress_mwc32();
+	check1 = stress_mwc32();
+
+	bufchk.check0 = check0;
+	bufchk.check1 = check1;
+
+	ret = setjmp(bufchk.buf);
 
 	if (ret) {
 		static int c = 0;
 
-		c++;
-		if (c >= 1000) {
+		t_total += (stress_time_now() - bufchk.ts);
+		n++;
+		/*
+		 *  Sanity check to see if setjmp clobbers regions
+		 *  before/after the jmpbuf
+		 */
+		if (bufchk.check0 != check0) {
+			pr_err("%s: memory corrupted before jmpbuf region\n",
+				args->name);
+		}
+		if (bufchk.check1 != check1) {
+			pr_err("%s: memory corrupted before jmpbuf region\n",
+				args->name);
+		}
+
+		if (c++ >= 1000) {
 			inc_counter(args);
 			c = 0;
 		}
 	}
 	if (keep_stressing())
 		stress_longjmp_func();
+
+	if (n) {
+		pr_dbg("%s: about %.3f nanoseconds per longjmp call\n",
+			args->name, 1000000000.0 * t_total / n);
+	}
 
 	return EXIT_SUCCESS;
 }
