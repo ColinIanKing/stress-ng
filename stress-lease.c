@@ -64,6 +64,15 @@ static void MLOCKED_TEXT stress_lease_handler(int signum)
 }
 
 /*
+ *  stress_get_lease()
+ *	exercise getting the lease on fd
+ */
+static int stress_get_lease(const int fd)
+{
+	return fcntl(fd, F_GETLEASE);
+}
+
+/*
  *  stress_lease_spawn()
  *	spawn a process
  */
@@ -99,6 +108,7 @@ again:
 				}
 				continue;
 			}
+			(void)stress_get_lease(fd);
 			(void)close(fd);
 		} while (keep_stressing());
 		_exit(EXIT_SUCCESS);
@@ -138,6 +148,7 @@ static int stress_try_lease(
 			return EXIT_FAILURE;
 		}
 	}
+	(void)stress_get_lease(fd);
 
 	inc_counter(args);
 	(void)shim_sched_yield();
