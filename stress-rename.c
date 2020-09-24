@@ -50,6 +50,32 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name)
 		newname = oldname;
 		oldname = tempname;
 	}
+
+#if defined(RENAME_EXCHANGE)
+	/* Exercise with invalid combination of flags */
+	ret = renameat2(oldfd, oldname, newfd, newname, RENAME_EXCHANGE | RENAME_NOREPLACE);
+	if (ret >= 0) {
+		tmpfd = newfd;
+		newfd = oldfd;
+		oldfd = tmpfd;
+		tempname = newname;
+		newname = oldname;
+		oldname = tempname;
+	}
+
+#if defined(RENAME_WHITEOUT)
+	ret = renameat2(oldfd, oldname, newfd, newname, RENAME_EXCHANGE | RENAME_WHITEOUT);
+	if (ret >= 0) {
+		tmpfd = newfd;
+		newfd = oldfd;
+		oldfd = tmpfd;
+		tempname = newname;
+		newname = oldname;
+		oldname = tempname;
+	}
+#endif
+
+#endif
 }
 #endif
 
