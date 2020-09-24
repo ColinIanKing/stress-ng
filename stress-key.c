@@ -37,7 +37,11 @@ static const stress_help_t help[] = {
 #define MAX_KEYS 	(256)
 #define KEYCTL_TIMEOUT	(2)
 
-static long sys_keyctl(int cmd, ...)
+/*
+ *  shim_keyctl()
+ *	wrapper for the keyctl system call
+ */
+static long shim_keyctl(int cmd, ...)
 {
 	va_list args;
 	long int arg0, arg1, arg2, ret;
@@ -52,7 +56,11 @@ static long sys_keyctl(int cmd, ...)
 	return ret;
 }
 
-static key_serial_t sys_add_key(
+/*
+ *  shim_add_key()
+ *	wrapper for the add_key system call
+ */
+static key_serial_t shim_add_key(
 	const char *type,
 	const char *description,
 	const void *payload,
@@ -64,7 +72,11 @@ static key_serial_t sys_add_key(
 }
 
 #if defined(HAVE_REQUEST_KEY)
-static key_serial_t sys_request_key(
+/*
+ *  shim_request_key()
+ *	wrapper for the request_key system call
+ */
+static key_serial_t shim_request_key(
 	const char *type,
 	const char *description,
 	const char *callout_info,
@@ -100,7 +112,7 @@ static int stress_key(const stress_args_t *args)
 			(void)snprintf(payload, sizeof(payload),
 				"somedata-%zu", n);
 
-			keys[n] = sys_add_key("user", description,
+			keys[n] = shim_add_key("user", description,
 				payload, strlen(payload),
 				KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] < 0) {
@@ -119,7 +131,7 @@ static int stress_key(const stress_args_t *args)
 			}
 #if defined(KEYCTL_SET_TIMEOUT)
 			if (timeout_supported) {
-				if (sys_keyctl(KEYCTL_SET_TIMEOUT, keys[n], KEYCTL_TIMEOUT) < 0) {
+				if (shim_keyctl(KEYCTL_SET_TIMEOUT, keys[n], KEYCTL_TIMEOUT) < 0) {
 					/* Some platforms don't support this */
 					if (errno == ENOSYS) {
 						timeout_supported = false;
@@ -140,7 +152,7 @@ static int stress_key(const stress_args_t *args)
 				"stress-ng-key-%u-%" PRIu32
 				"-%zu", ppid, args->instance, i);
 #if defined(KEYCTL_DESCRIBE)
-			if (sys_keyctl(KEYCTL_DESCRIBE, keys[i], description) < 0)
+			if (shim_keyctl(KEYCTL_DESCRIBE, keys[i], description) < 0)
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
 				    (errno != EKEYEXPIRED) &&
@@ -159,7 +171,7 @@ static int stress_key(const stress_args_t *args)
 			(void)snprintf(payload, sizeof(payload),
 				"somedata-%zu", n);
 #if defined(KEYCTL_UPDATE)
-			if (sys_keyctl(KEYCTL_UPDATE, keys[i],
+			if (shim_keyctl(KEYCTL_UPDATE, keys[i],
 			    payload, strlen(payload)) < 0) {
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
@@ -179,7 +191,7 @@ static int stress_key(const stress_args_t *args)
 
 #if defined(KEYCTL_READ)
 			(void)memset(payload, 0, sizeof(payload));
-			if (sys_keyctl(KEYCTL_READ, keys[i],
+			if (shim_keyctl(KEYCTL_READ, keys[i],
 			    payload, sizeof(payload)) < 0) {
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
@@ -201,7 +213,7 @@ static int stress_key(const stress_args_t *args)
 			(void)snprintf(description, sizeof(description),
 				"stress-ng-key-%u-%" PRIu32
 				"-%zu", ppid, args->instance, i);
-			if (sys_request_key("user", description, NULL,
+			if (shim_request_key("user", description, NULL,
 				KEY_SPEC_PROCESS_KEYRING) < 0) {
 				if ((errno != ENOMEM) &&
 #if defined(EKEYEXPIRED)
@@ -221,19 +233,19 @@ static int stress_key(const stress_args_t *args)
 
 
 #if defined(KEYCTL_CHOWN)
-			(void)sys_keyctl(KEYCTL_CHOWN, keys[i], getuid(), -1);
-			(void)sys_keyctl(KEYCTL_CHOWN, keys[i], -1, getgid());
+			(void)shim_keyctl(KEYCTL_CHOWN, keys[i], getuid(), -1);
+			(void)shim_keyctl(KEYCTL_CHOWN, keys[i], -1, getgid());
 #endif
 
 #if defined(KEYCTL_SETPERM)
-			(void)sys_keyctl(KEYCTL_SETPERM, keys[i], KEY_USR_ALL);
+			(void)shim_keyctl(KEYCTL_SETPERM, keys[i], KEY_USR_ALL);
 #endif
 #if defined(KEYCTL_REVOKE)
 			if (stress_mwc1())
-				(void)sys_keyctl(KEYCTL_REVOKE, keys[i]);
+				(void)shim_keyctl(KEYCTL_REVOKE, keys[i]);
 #endif
 #if defined(KEYCTL_INVALIDATE)
-			(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
+			(void)shim_keyctl(KEYCTL_INVALIDATE, keys[i]);
 #endif
 		}
 tidy:
@@ -242,7 +254,7 @@ tidy:
 		for (i = 0; i < n; i++) {
 			if (keys[i] >= 0) {
 #if defined(KEYCTL_INVALIDATE)
-				(void)sys_keyctl(KEYCTL_INVALIDATE, keys[i]);
+				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[i]);
 #endif
 			}
 		}
