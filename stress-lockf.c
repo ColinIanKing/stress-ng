@@ -220,7 +220,12 @@ static int stress_lockf_contention(
 			rc = lockf(bad_fd, lockf_cmd, LOCK_SIZE);
 			(void)rc;
 			counter = 0;
+
+			/* Exercise F_TEST, ignore result */
+			rc = lockf(fd, F_TEST, LOCK_SIZE);
+			(void)rc;
 		}
+
 
 		inc_counter(args);
 	} while (keep_stressing());
