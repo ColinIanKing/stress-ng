@@ -69,6 +69,20 @@ static inline void stress_dir_sync(const int dirfd)
 }
 
 /*
+ *  stress_dir_flock()
+ *	naive exercising of a flock on a directory fd
+ */
+static inline void stress_dir_flock(const int dirfd)
+{
+#if defined(O_DIRECTORY)
+	if (flock(dirfd, LOCK_EX) == 0)
+		(void)flock(dirfd, LOCK_UN);
+#else
+	(void)dirfd;
+#endif
+}
+
+/*
  *  stress_dir_mmap()
  *	attempt to mmap a directory
  */
@@ -188,6 +202,7 @@ static int stress_dir(const stress_args_t *args)
 		uint64_t i, n = dir_dirs;
 
 		stress_dir_mmap(dirfd, args->page_size);
+		stress_dir_flock(dirfd);
 
 		for (i = 0; keep_stressing() && (i < n); i++) {
 			char path[PATH_MAX];
