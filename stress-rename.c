@@ -83,6 +83,13 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const 
 		return;
 	}
 
+	/*
+	 * Exercise RENAME_EXCHANGE on same file creating absolutely
+	 * no difference other than increase in kernel test coverage
+	 */
+	ret = renameat2(oldfd, oldname, oldfd, oldname, RENAME_EXCHANGE);
+	(void)ret;
+
 #endif
 
 	/* Exercise RENAME_NOREPLACE on same file */
