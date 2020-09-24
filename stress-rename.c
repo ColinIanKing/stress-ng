@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
  *  exercise_renameat2()
  *	exercise renameat2 with various tricky argument combination
  */
-static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const stress_args_t *args)
+static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const stress_args_t *args, int bad_fd)
 {
 	int ret, newfd = AT_FDCWD, tmpfd;
 	char *tempname, *oldname = old_name, *newname = new_name;
@@ -92,6 +92,14 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const 
 			"RENAME_NOREPLACE flag, errno=%d (%s)\n", args->name, errno, strerror(errno));
 		return;
 	}
+
+	/* Exercise on bad_fd */
+	ret = renameat2(bad_fd, oldname, newfd, newname, RENAME_NOREPLACE);
+	if (ret >= 0) {
+		pr_fail("%s: renameat2 unexpectedly succeeded on bad file "
+			"descriptor, errno=%d (%s)\n", args->name, errno, strerror(errno));
+		return;
+	}
 }
 #endif
 
@@ -107,6 +115,7 @@ static int stress_rename(const stress_args_t *args)
 	uint64_t i = 0;
 	const uint32_t inst1 = args->instance * 2;
 	const uint32_t inst2 = inst1 + 1;
+	const int bad_fd = stress_get_bad_fd();
 
 	if (stress_temp_dir_mk(args->name, args->pid, inst1) < 0)
 		return EXIT_FAILURE;
@@ -204,7 +213,7 @@ restart:
 				goto restart;
 			}
 
-			exercise_renameat2(oldfd, oldname, newname, args);
+			exercise_renameat2(oldfd, oldname, newname, args, bad_fd);
 
 			if (renameat2(oldfd, oldname, AT_FDCWD, newname, RENAME_NOREPLACE) < 0) {
 				(void)close(oldfd);
