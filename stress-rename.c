@@ -34,40 +34,42 @@ static const stress_help_t help[] = {
     defined(O_DIRECTORY)
 /*
  *  exercise_renameat2()
- *	exercise renameat2 with various tricky argument combination
+ *	exercise renameat2 with various illegal argument combinations
  */
-static void exercise_renameat(
-	int oldfd,
+static int exercise_renameat(
+	const stress_args_t *args,
 	char *old_name,
 	char *new_name,
-	const stress_args_t *args,
 	const int bad_fd)
 {
-	int ret, newfd = AT_FDCWD, file_fd;
+	int ret, file_fd;
 	char *oldname = old_name, *newname = new_name;
 
-	(void)oldfd;
-
 	/* Exercise on bad_fd */
-	ret = renameat(bad_fd, oldname, newfd, newname);
+	ret = renameat(bad_fd, oldname, AT_FDCWD, newname);
 	if (ret >= 0) {
-		pr_fail("%s: renameat unexpectedly succeeded on bad file "
-			"descriptor, errno=%d (%s)\n", args->name, errno, strerror(errno));
-		return;
+		pr_fail("%s: renameat unexpectedly succeeded on a bad file "
+			"descriptor, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return -1;
 	}
 
 	/* Exercise on file fd */
 	file_fd = open(oldname, O_RDONLY);
 	if (file_fd < 0)
-		return;
-	ret = renameat(file_fd, oldname, newfd, newname);
+		return -1;
+	ret = renameat(file_fd, oldname, AT_FDCWD, newname);
 	if (ret >= 0) {
-		pr_fail("%s: renameat unexpectedly succeeded on file descriptor rather than"
-			"directory descriptor, errno=%d (%s)\n", args->name, errno, strerror(errno));
+		pr_fail("%s: renameat unexpectedly succeeded on a file "
+			"descriptor rather than a directory descriptor, "
+			"errno=%d (%s)\n",
+			 args->name, errno, strerror(errno));
 		(void)close(file_fd);
-		return;
+		return -1;
 	}
 	(void)close(file_fd);
+
+	return 0;
 }
 #endif
 
@@ -76,7 +78,7 @@ static void exercise_renameat(
     defined(RENAME_NOREPLACE)
 /*
  *  exercise_renameat2()
- *	exercise renameat2 with various tricky argument combination
+ *	exercise renameat2 with various illegal argument combination
  */
 static void exercise_renameat2(
 	const stress_args_t *args,
@@ -250,6 +252,7 @@ restart:
     defined(O_DIRECTORY)
 		{
 			int oldfd;
+			int newfd = AT_FDCWD;
 
 			(void)stress_temp_filename(newname, PATH_MAX,
 				args->name, args->pid, inst1, i++);
@@ -261,9 +264,14 @@ restart:
 				goto restart;
 			}
 
-			exercise_renameat(oldfd, oldname, newname, args, bad_fd);
+			if (exercise_renameat(args, oldname, newname, bad_fd) < 0) {
+				(void)close(oldfd);
+				(void)unlink(oldname);
+				(void)unlink(newname);
+				goto restart;
+			}
 
-			if (renameat(oldfd, oldname, AT_FDCWD, newname) < 0) {
+			if (renameat(oldfd, oldname, newfd, newname) < 0) {
 				(void)close(oldfd);
 				(void)unlink(oldname);
 				(void)unlink(newname);
