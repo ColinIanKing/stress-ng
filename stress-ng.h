@@ -77,7 +77,7 @@
 /*
  * SCHED_DEADLINE
  */
-#ifndef  SCHED_FLAG_RECLAIM
+#ifndef SCHED_FLAG_RECLAIM
 #define SCHED_FLAG_RECLAIM  		(0x02)
 #endif
 
@@ -3549,7 +3549,7 @@ typedef struct stress_cpu_cache {
 } stress_cpu_cache_t;
 
 typedef struct stress_cpu {
-	stress_cpu_cache_t *caches;		/* CPU cache data */
+	stress_cpu_cache_t *caches;	/* CPU cache data */
 	uint32_t       num;		/* CPU # number */
 	uint32_t       cache_count;	/* CPU cache #  */
 	bool           online;		/* CPU online when true */
