@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
  */
 static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const stress_args_t *args, int bad_fd)
 {
-	int ret, newfd = AT_FDCWD, tmpfd;
+	int ret, newfd = AT_FDCWD, tmpfd, file_fd;
 	char *tempname, *oldname = old_name, *newname = new_name;
 
 	/* Exercise with invalid flags */
@@ -100,6 +100,19 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const 
 			"descriptor, errno=%d (%s)\n", args->name, errno, strerror(errno));
 		return;
 	}
+
+	/* Exercise on file fd */
+	file_fd = open(oldname, O_RDONLY);
+	if (file_fd < 0)
+		return;
+	ret = renameat2(file_fd, oldname, newfd, newname, RENAME_NOREPLACE);
+	if (ret >= 0) {
+		pr_fail("%s: renameat2 unexpectedly succeeded on file descriptor rather than"
+			"directory descriptor, errno=%d (%s)\n", args->name, errno, strerror(errno));
+		(void)close(file_fd);
+		return;
+	}
+	(void)close(file_fd);
 }
 #endif
 
