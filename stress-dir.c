@@ -53,25 +53,36 @@ static int stress_set_dir_dirs(const char *opt)
  *  stress_dir_sync()
  *	attempt to sync a directory
  */
-static void stress_dir_sync(const char *path)
+static inline void stress_dir_sync(const int dirfd)
 {
 #if defined(O_DIRECTORY)
-	int fd;
-
-	fd = open(path, O_RDONLY | O_DIRECTORY);
-	if (fd < 0)
-		return;
-
 	/*
 	 *  The interesting part of fsync is that in
 	 *  theory we can fsync a read only file and
 	 *  this could be a directory too. So try and
 	 *  sync.
 	 */
-	(void)shim_fsync(fd);
-	(void)close(fd);
+	(void)shim_fsync(dirfd);
 #else
-	(void)path;
+	(void)dirfd;
+#endif
+}
+
+/*
+ *  stress_dir_mmap()
+ *	attempt to mmap a directory
+ */
+static inline void stress_dir_mmap(const int dirfd, const size_t page_size)
+{
+#if defined(O_DIRECTORY)
+	void *ptr;
+
+	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, dirfd, 0);
+	if (ptr != MAP_FAILED)
+		(void)munmap(ptr, page_size);
+#else
+	(void)dirfd;
+	(void)page_size;
 #endif
 }
 
@@ -164,15 +175,16 @@ static int stress_dir(const stress_args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 
-#if defined(HAVE_MKDIRAT) &&	\
-    defined(O_DIRECTORY)
+#if defined(O_DIRECTORY)
 	dirfd = open(pathname, O_DIRECTORY | O_RDONLY);
 #endif
 
 	do {
 		uint64_t i, n = dir_dirs;
 
-		for (i = 0; i < n; i++) {
+		stress_dir_mmap(dirfd, args->page_size);
+
+		for (i = 0; keep_stressing() && (i < n); i++) {
 			char path[PATH_MAX];
 			uint64_t gray_code = (i >> 1) ^ i;
 
@@ -182,33 +194,29 @@ static int stress_dir(const stress_args_t *args)
 				if ((errno != ENOSPC) && (errno != ENOMEM)) {
 					pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
 						args->name, path, errno, strerror(errno));
-					n = i;
 					break;
 				}
 			}
-
-			if (!keep_stressing())
-				goto abort;
-
 			inc_counter(args);
 		}
-		stress_dir_sync(pathname);
-		stress_dir_read(args, pathname);
-		stress_dir_tidy(args, n);
-		stress_dir_sync(pathname);
-		if (!keep_stressing_flag())
+		if (!keep_stressing()) {
+			stress_dir_tidy(args, i);
 			break;
+		}
+		stress_dir_read(args, pathname);
+		stress_dir_tidy(args, i);
+
+		if (!keep_stressing())
+			break;
+		stress_dir_sync(dirfd);
 		(void)sync();
+
+		inc_counter(args);
 	} while (keep_stressing());
 
-abort:
 	if (dirfd >= 0)
 		(void)close(dirfd);
 
-	/* force unlink of all files */
-	pr_tidy("%s: removing %" PRIu64 " directories\n",
-		args->name, dir_dirs);
-	stress_dir_tidy(args, dir_dirs);
 	(void)stress_temp_dir_rm_args(args);
 
 	return ret;
