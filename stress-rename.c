@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
  *  exercise_renameat2()
  *	exercise renameat2 with various tricky argument combination
  */
-static void exercise_renameat2(int oldfd, char *old_name, char *new_name)
+static void exercise_renameat2(int oldfd, char *old_name, char *new_name, const stress_args_t *args)
 {
 	int ret, newfd = AT_FDCWD, tmpfd;
 	char *tempname, *oldname = old_name, *newname = new_name;
@@ -74,6 +74,14 @@ static void exercise_renameat2(int oldfd, char *old_name, char *new_name)
 		oldname = tempname;
 	}
 #endif
+
+	/* Exercise RENAME_EXCHANGE on non-existed directory */
+	ret = renameat2(oldfd, oldname, newfd, newname, RENAME_EXCHANGE);
+	if (ret >= 0) {
+		pr_fail("%s: renameat2 unexpectedly succeeded on non-existed directory with "
+			"RENAME_EXCHANGE flag, errno=%d (%s)\n", args->name, errno, strerror(errno));
+		return;
+	}
 
 #endif
 }
@@ -188,7 +196,7 @@ restart:
 				goto restart;
 			}
 
-			exercise_renameat2(oldfd, oldname, newname);
+			exercise_renameat2(oldfd, oldname, newname, args);
 
 			if (renameat2(oldfd, oldname, AT_FDCWD, newname, RENAME_NOREPLACE) < 0) {
 				(void)close(oldfd);
