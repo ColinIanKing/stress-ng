@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_RENAMEAT) && defined(O_DIRECTORY)
+#if defined(HAVE_RENAMEAT) &&	\
+    defined(O_DIRECTORY)
 /*
  *  exercise_renameat2()
  *	exercise renameat2 with various tricky argument combination
@@ -70,7 +71,9 @@ static void exercise_renameat(
 }
 #endif
 
-#if defined(HAVE_RENAMEAT2) && defined(O_DIRECTORY) && defined(RENAME_NOREPLACE)
+#if defined(HAVE_RENAMEAT2) &&	\
+    defined(O_DIRECTORY) &&	\
+    defined(RENAME_NOREPLACE)
 /*
  *  exercise_renameat2()
  *	exercise renameat2 with various tricky argument combination
@@ -243,7 +246,8 @@ restart:
 		if (!keep_stressing())
 			break;
 
-#if defined(HAVE_RENAMEAT) && defined(O_DIRECTORY)
+#if defined(HAVE_RENAMEAT) &&	\
+    defined(O_DIRECTORY)
 		{
 			int oldfd;
 
@@ -277,7 +281,9 @@ restart:
 		}
 #endif
 
-#if defined(HAVE_RENAMEAT2) && defined(O_DIRECTORY) && defined(RENAME_NOREPLACE)
+#if defined(HAVE_RENAMEAT2) &&	\
+    defined(O_DIRECTORY) &&	\
+    defined(RENAME_NOREPLACE)
 		{
 			int oldfd;
 
