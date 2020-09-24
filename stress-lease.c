@@ -81,6 +81,7 @@ static pid_t stress_lease_spawn(
 	const char *filename)
 {
 	pid_t pid;
+	int count = 0;
 
 again:
 	pid = fork();
@@ -105,6 +106,8 @@ again:
                                     (errno != EACCES)) {
 					pr_dbg("%s: open failed (child): errno=%d: (%s)\n",
 						args->name, errno, strerror(errno));
+					if (count++ > 3)
+						break;
 				}
 				continue;
 			}
