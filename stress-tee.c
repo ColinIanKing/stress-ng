@@ -149,6 +149,18 @@ static int exercise_tee(
 		return -1;
 	}
 
+	/*
+	 * Exercise tee on with 0 len argument creating absolutely
+	 * no difference other than increase in kernel test coverage
+	 */
+	ret = tee(fd_in, fd_out, 0, 0);
+	if (ret < 0) {
+		pr_fail("%s: tee with 0 len argument "
+			"unexpectedly failed\n",
+			args->name);
+		return -1;
+	}
+
 	return 0;
 }
 
