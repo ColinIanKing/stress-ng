@@ -121,6 +121,29 @@ static void stress_tee_pipe_read(int fds[2])
 }
 
 /*
+ *  exercise_tee()
+ *	exercise the tee syscall in most possible ways
+ */
+static int exercise_tee(
+	const stress_args_t *args,
+	const int fd_in,
+	const int fd_out)
+{
+	ssize_t ret;
+
+	/* Exercise with invalid flags */
+	ret = tee(fd_in, fd_out, INT_MAX, ~0);
+	if (ret >= 0) {
+		pr_fail("%s: tee with illegal flags "
+			"unexpectedly succeeded\n",
+			args->name);
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
  *  stress_tee()
  *	stress the Linux tee syscall
  */
@@ -185,6 +208,10 @@ static int stress_tee(const stress_args_t *args)
 			}
 			len -= slen;
 		}
+
+		if (exercise_tee(args, pipe_in[0], pipe_out[1]) < 0)
+			goto tidy_child2;
+
 		inc_counter(args);
 	} while (keep_stressing());
 
