@@ -140,6 +140,15 @@ static int exercise_tee(
 		return -1;
 	}
 
+	/* Exercise on same pipe */
+	ret = tee(fd_in, fd_in, INT_MAX, 0);
+	if (ret >= 0) {
+		pr_fail("%s: tee on same fd_out and fd_in "
+			"unexpectedly succeeded\n",
+			args->name);
+		return -1;
+	}
+
 	return 0;
 }
 
