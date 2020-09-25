@@ -118,7 +118,7 @@ static void stress_dir_read(
 	while (keep_stressing() && ((de = readdir(dp)) != NULL)) {
 		char filename[PATH_MAX];
 		struct stat statbuf;
-	
+
 		if (de->d_reclen == 0) {
 			pr_fail("%s: read a zero sized directory entry\n", args->name);
 			break;
