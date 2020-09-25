@@ -33,8 +33,8 @@ static const stress_help_t help[] = {
 #if defined(HAVE_RENAMEAT) &&	\
     defined(O_DIRECTORY)
 /*
- *  exercise_renameat2()
- *	exercise renameat2 with various illegal argument combinations
+ *  exercise_renameat()
+ *	exercise renameat with various illegal argument combinations
  */
 static int exercise_renameat(
 	const stress_args_t *args,
