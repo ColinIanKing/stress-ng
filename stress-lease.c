@@ -146,10 +146,8 @@ static int stress_try_lease(
 	 *  attempt a lease lock
 	 */
 	while (fcntl(fd, F_SETLEASE, lock) < 0) {
-		if (!keep_stressing_flag()) {
-			(void)close(fd);
-			return EXIT_FAILURE;
-		}
+		if (!keep_stressing_flag())
+			goto tidy;
 	}
 	(void)stress_get_lease(fd);
 
@@ -160,10 +158,8 @@ static int stress_try_lease(
 	 *  attempt a lease unlock
 	 */
 	while (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
-		if (!keep_stressing_flag()) {
-			(void)close(fd);
-			return EXIT_FAILURE;
-		}
+		if (!keep_stressing_flag())
+			goto tidy;
 		if (errno != EAGAIN) {
 			pr_err("%s: fcntl failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
@@ -171,6 +167,8 @@ static int stress_try_lease(
 			break;
 		}
 	}
+
+tidy:
 	(void)close(fd);
 
 	return EXIT_SUCCESS;
