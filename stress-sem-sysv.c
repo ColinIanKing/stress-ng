@@ -223,7 +223,7 @@ timed_out:
 			struct semid_ds ds;
 			stress_semun_t s;
 
-			memset(&ds, 0, sizeof(ds));
+			(void)memset(&ds, 0, sizeof(ds));
 
 			s.buf = &ds;
 			if (semctl(sem_id, 0, IPC_STAT, &s) < 0) {
