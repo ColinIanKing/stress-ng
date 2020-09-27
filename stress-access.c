@@ -97,10 +97,10 @@ static int stress_access(const stress_args_t *args)
 	char filename[PATH_MAX];
 	const mode_t all_mask = 0700;
 	size_t i;
+#if defined(HAVE_FACCESSAT)
 	const int bad_fd = stress_get_bad_fd();
+#endif
 	const bool is_root = (geteuid() == 0);
-
-	(void)bad_fd;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -130,7 +130,8 @@ static int stress_access(const stress_args_t *args)
 			if (ret < 0) {
 				pr_fail("%s: access %3.3o on chmod mode %3.3o failed: %d (%s)\n",
 					args->name,
-					modes[i].access_mode, (unsigned int)modes[i].chmod_mode,
+					modes[i].access_mode,
+					(unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno));
 			}
 #if defined(HAVE_FACCESSAT)
@@ -138,7 +139,8 @@ static int stress_access(const stress_args_t *args)
 			if ((ret < 0) && (errno != ENOSYS)) {
 				pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed: %d (%s)\n",
 					args->name,
-					modes[i].access_mode, (unsigned int)modes[i].chmod_mode,
+					modes[i].access_mode,
+					(unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno));
 			}
 			/*
@@ -149,17 +151,20 @@ static int stress_access(const stress_args_t *args)
 #endif
 #if defined(HAVE_FACCESSAT2) &&	\
     defined(AT_SYMLINK_NOFOLLOW)
-			ret = faccessat2(AT_FDCWD, filename, modes[i].access_mode, AT_SYMLINK_NOFOLLOW);
+			ret = faccessat2(AT_FDCWD, filename, modes[i].access_mode,
+				AT_SYMLINK_NOFOLLOW);
 			if ((ret < 0) && (errno != ENOSYS)) {
 				pr_fail("%s: faccessat2 %3.3o on chmod mode %3.3o failed: %d (%s)\n",
 					args->name,
-					modes[i].access_mode, (unsigned int)modes[i].chmod_mode,
+					modes[i].access_mode,
+					(unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno));
 			}
 			/*
 			 *  Exercise bad dirfd
 			 */
-			ret = faccessat2(bad_fd, filename, modes[i].access_mode, AT_SYMLINK_NOFOLLOW);
+			ret = faccessat2(bad_fd, filename, modes[i].access_mode,
+				AT_SYMLINK_NOFOLLOW);
 			(void)ret;
 #endif
 			if (modes[i].access_mode != 0) {
@@ -178,15 +183,18 @@ static int stress_access(const stress_args_t *args)
 				if ((ret == 0) && dont_ignore) {
 					pr_fail("%s: access %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)\n",
 						args->name,
-						modes[i].access_mode, (unsigned int)chmod_mode,
+						modes[i].access_mode,
+						(unsigned int)chmod_mode,
 						errno, strerror(errno));
 				}
 #if defined(HAVE_FACCESSAT)
-				ret = faccessat(AT_FDCWD, filename, modes[i].access_mode, AT_SYMLINK_NOFOLLOW);
+				ret = faccessat(AT_FDCWD, filename, modes[i].access_mode,
+					AT_SYMLINK_NOFOLLOW);
 				if ((ret == 0) && dont_ignore) {
 					pr_fail("%s: faccessat %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)\n",
 						args->name,
-						modes[i].access_mode, (unsigned int)chmod_mode,
+						modes[i].access_mode,
+						(unsigned int)chmod_mode,
 						errno, strerror(errno));
 				}
 #endif
