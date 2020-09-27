@@ -35,56 +35,77 @@ static stress_help_t help[] = {
 
 #define STACK_SIZE	(16384)
 
-static uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT];
+typedef struct {
+	uint32_t check0;	/* memory clobbering check canary */
+	ucontext_t uctx;	/* swapcontext context */
+	uint32_t check1;	/* memory clobbering check canary */
+} chk_ucontext_t;
 
-static ucontext_t uctx_main, uctx_thread1, uctx_thread2, uctx_thread3;
+typedef struct {
+	uint32_t check0;	/* copy of original check1 canary */
+	uint32_t check1;	/* copy of original check1 canary */
+} chk_canary_t;
+
+typedef struct {
+	chk_ucontext_t	cu;	/* check ucontext */
+	uint8_t		stack[SIGSTKSZ + STACK_ALIGNMENT]; /* stack */
+	chk_canary_t	canary;	/* copy of canary */
+} context_info_t;
+
+static context_info_t context[3];
+static ucontext_t uctx_main;
 static uint64_t __counter, __max_ops;
 
 static void thread1(void)
 {
 	do {
 		__counter++;
-		(void)swapcontext(&uctx_thread1, &uctx_thread2);
+		(void)swapcontext(&context[0].cu.uctx, &context[1].cu.uctx);
 	} while (keep_stressing_flag() && (!__max_ops || __counter < __max_ops));
 
-	(void)swapcontext(&uctx_thread1, &uctx_main);
+	(void)swapcontext(&context[0].cu.uctx, &uctx_main);
 }
 
 static void thread2(void)
 {
 	do {
 		__counter++;
-		(void)swapcontext(&uctx_thread2, &uctx_thread3);
+		(void)swapcontext(&context[1].cu.uctx, &context[2].cu.uctx);
 	} while (keep_stressing_flag() && (!__max_ops || __counter < __max_ops));
-	(void)swapcontext(&uctx_thread2, &uctx_main);
+	(void)swapcontext(&context[1].cu.uctx, &uctx_main);
 }
 
 static void thread3(void)
 {
 	do {
 		__counter++;
-		(void)swapcontext(&uctx_thread3, &uctx_thread1);
+		(void)swapcontext(&context[2].cu.uctx, &context[0].cu.uctx);
 	} while (keep_stressing_flag() && (!__max_ops || __counter < __max_ops));
-	(void)swapcontext(&uctx_thread3, &uctx_main);
+	(void)swapcontext(&context[2].cu.uctx, &uctx_main);
 }
 
 static int stress_context_init(
 	const stress_args_t *args,
 	void (*func)(void),
 	ucontext_t *uctx_link,
-	ucontext_t *uctx,
-	void *stack,
-	const size_t stack_size)
+	context_info_t *context)
 {
-	if (getcontext(uctx) < 0) {
+	if (getcontext(&context->cu.uctx) < 0) {
 		pr_err("%s: getcontext failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	}
-	uctx->uc_stack.ss_sp = (void *)stack;
-	uctx->uc_stack.ss_size = stack_size;
-	uctx->uc_link = uctx_link;
-	makecontext(uctx, func, 0);
+
+	context->canary.check0 = stress_mwc32();
+	context->canary.check1 = stress_mwc32();
+
+	context->cu.check0 = context->canary.check0;
+	context->cu.check1 = context->canary.check1;
+	context->cu.uctx.uc_stack.ss_sp =
+		(void *)stress_align_address(context->stack, STACK_ALIGNMENT);
+	context->cu.uctx.uc_stack.ss_size = STACK_SIZE;
+	context->cu.uctx.uc_link = uctx_link;
+	makecontext(&context->cu.uctx, func, 0);
 
 	return 0;
 }
@@ -95,9 +116,8 @@ static int stress_context_init(
  */
 static int stress_context(const stress_args_t *args)
 {
-	static char stack_thread1[STACK_SIZE + STACK_ALIGNMENT],
-		    stack_thread2[STACK_SIZE + STACK_ALIGNMENT],
-		    stack_thread3[STACK_SIZE + STACK_ALIGNMENT];
+	static uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT];
+	size_t i;
 
 	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
@@ -106,30 +126,32 @@ static int stress_context(const stress_args_t *args)
 	__max_ops = args->max_ops * 1000;
 
 	/* Create 3 micro threads */
-	if (stress_context_init(args, thread1, &uctx_main,
-				&uctx_thread1,
-				stress_align_address(stack_thread1, STACK_ALIGNMENT),
-				STACK_SIZE) < 0)
+	if (stress_context_init(args, thread1, &uctx_main, &context[0]) < 0)
 		return EXIT_FAILURE;
-	if (stress_context_init(args, thread2, &uctx_main,
-				&uctx_thread2,
-				stress_align_address(stack_thread2, STACK_ALIGNMENT),
-				STACK_SIZE) < 0)
+	if (stress_context_init(args, thread2, &uctx_main, &context[1]) < 0)
 		return EXIT_FAILURE;
-	if (stress_context_init(args, thread3, &uctx_main,
-				&uctx_thread3,
-				stress_align_address(stack_thread3, STACK_ALIGNMENT),
-				STACK_SIZE) < 0)
+	if (stress_context_init(args, thread3, &uctx_main, &context[2]) < 0)
 		return EXIT_FAILURE;
 
 	/* And start.. */
-	if (swapcontext(&uctx_main, &uctx_thread1) < 0) {
+	if (swapcontext(&uctx_main, &context[0].cu.uctx) < 0) {
 		pr_err("%s: swapcontext failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
 	set_counter(args, __counter / 1000);
+
+	for (i = 0; i < SIZEOF_ARRAY(context); i++) {
+		if (context[i].canary.check0 != context[i].cu.check0) {
+			pr_fail("%s: swapcontext clobbered data before context region\n",
+				args->name);
+		}
+		if (context[i].canary.check1 != context[i].cu.check1) {
+			pr_fail("%s: swapcontext clobbered data after context region\n",
+				args->name);
+		}
+	}
 
 	return EXIT_SUCCESS;
 }
