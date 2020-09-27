@@ -32,41 +32,41 @@ static const stress_help_t help[] = {
 
 #if defined(__linux__)
 
-#define EXT2_SECRM_FL			0x00000001 /* Secure deletion */
-#define EXT2_UNRM_FL			0x00000002 /* Undelete */
-#define EXT2_COMPR_FL			0x00000004 /* Compress file */
-#define EXT2_SYNC_FL			0x00000008 /* Synchronous updates */
-#define EXT2_IMMUTABLE_FL		0x00000010 /* Immutable file */
-#define EXT2_APPEND_FL			0x00000020 /* Writes to file may only append */
-#define EXT2_NODUMP_FL			0x00000040 /* Do not dump file */
-#define EXT2_NOATIME_FL			0x00000080 /* Do not update atime */
-#define EXT3_JOURNAL_DATA_FL		0x00004000 /* File data should be journaled */
-#define EXT2_NOTAIL_FL			0x00008000 /* File tail should not be merged */
-#define EXT2_DIRSYNC_FL			0x00010000 /* Synchronous directory modifications */
-#define EXT2_TOPDIR_FL			0x00020000 /* Top of directory hierarchies*/
-#define EXT4_EXTENTS_FL			0x00080000 /* Inode uses extents */
-#define FS_NOCOW_FL			0x00800000 /* Do not cow file */
-#define EXT4_PROJINHERIT_FL		0x20000000 /* Create with parents projid */
+#define SHIM_EXT2_SECRM_FL		0x00000001 /* Secure deletion */
+#define SHIM_EXT2_UNRM_FL		0x00000002 /* Undelete */
+#define SHIM_EXT2_COMPR_FL		0x00000004 /* Compress file */
+#define SHIM_EXT2_SYNC_FL		0x00000008 /* Synchronous updates */
+#define SHIM_EXT2_IMMUTABLE_FL		0x00000010 /* Immutable file */
+#define SHIM_EXT2_APPEND_FL		0x00000020 /* Writes to file may only append */
+#define SHIM_EXT2_NODUMP_FL		0x00000040 /* Do not dump file */
+#define SHIM_EXT2_NOATIME_FL		0x00000080 /* Do not update atime */
+#define SHIM_EXT3_JOURNAL_DATA_FL	0x00004000 /* File data should be journaled */
+#define SHIM_EXT2_NOTAIL_FL		0x00008000 /* File tail should not be merged */
+#define SHIM_EXT2_DIRSYNC_FL		0x00010000 /* Synchronous directory modifications */
+#define SHIM_EXT2_TOPDIR_FL		0x00020000 /* Top of directory hierarchies*/
+#define SHIM_EXT4_EXTENTS_FL		0x00080000 /* Inode uses extents */
+#define SHIM_FS_NOCOW_FL		0x00800000 /* Do not cow file */
+#define SHIM_EXT4_PROJINHERIT_FL	0x20000000 /* Create with parents projid */
 
-#define EXT2_IOC_GETFLAGS		_IOR('f', 1, long)
-#define EXT2_IOC_SETFLAGS		_IOW('f', 2, long)
+#define SHIM_EXT2_IOC_GETFLAGS		_IOR('f', 1, long)
+#define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long)
 
 static const unsigned long flags[] = {
-	EXT2_NOATIME_FL,	/* chattr 'A' */
-	EXT2_SYNC_FL, 		/* chattr 'S' */
-	EXT2_DIRSYNC_FL,	/* chattr 'D' */
-	EXT2_APPEND_FL,		/* chattr 'a' */
-	EXT2_COMPR_FL,		/* chattr 'c' */
-	EXT2_NODUMP_FL,		/* chattr 'd' */
-	EXT4_EXTENTS_FL, 	/* chattr 'e' */
-	EXT2_IMMUTABLE_FL, 	/* chattr 'i' */
-	EXT3_JOURNAL_DATA_FL, 	/* chattr 'j' */
-	EXT4_PROJINHERIT_FL, 	/* chattr 'P' */
-	EXT2_SECRM_FL, 		/* chattr 's' */
-	EXT2_UNRM_FL, 		/* chattr 'u' */
-	EXT2_NOTAIL_FL, 	/* chattr 't' */
-	EXT2_TOPDIR_FL, 	/* chattr 'T' */
-	FS_NOCOW_FL, 		/* chattr 'C' */
+	SHIM_EXT2_NOATIME_FL,		/* chattr 'A' */
+	SHIM_EXT2_SYNC_FL, 		/* chattr 'S' */
+	SHIM_EXT2_DIRSYNC_FL,		/* chattr 'D' */
+	SHIM_EXT2_APPEND_FL,		/* chattr 'a' */
+	SHIM_EXT2_COMPR_FL,		/* chattr 'c' */
+	SHIM_EXT2_NODUMP_FL,		/* chattr 'd' */
+	SHIM_EXT4_EXTENTS_FL, 		/* chattr 'e' */
+	SHIM_EXT2_IMMUTABLE_FL, 	/* chattr 'i' */
+	SHIM_EXT3_JOURNAL_DATA_FL, 	/* chattr 'j' */
+	SHIM_EXT4_PROJINHERIT_FL, 	/* chattr 'P' */
+	SHIM_EXT2_SECRM_FL, 		/* chattr 's' */
+	SHIM_EXT2_UNRM_FL, 		/* chattr 'u' */
+	SHIM_EXT2_NOTAIL_FL, 		/* chattr 't' */
+	SHIM_EXT2_TOPDIR_FL, 		/* chattr 'T' */
+	SHIM_FS_NOCOW_FL, 		/* chattr 'C' */
 };
 
 /*
@@ -89,7 +89,7 @@ static int do_chattr(
 		if (fd < 0)
 			continue;
 
-		ret = ioctl(fd, EXT2_IOC_SETFLAGS, &zero);
+		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero);
 		if (ret < 0) {
 			rc = -1;
 			if (errno != EOPNOTSUPP)
@@ -104,14 +104,14 @@ static int do_chattr(
 		n = write(fdw, &zero, sizeof(zero));
 		(void)n;
 
-		ret = ioctl(fd, EXT2_IOC_SETFLAGS, &flag);
+		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flag);
 		if ((ret < 0) && (errno == EOPNOTSUPP))
 			rc = -1;
 
 		n = write(fdw, &zero, sizeof(zero));
 		(void)n;
 
-		ret = ioctl(fd, EXT2_IOC_SETFLAGS, &zero);
+		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero);
 		(void)ret;
 
 		(void)close(fdw);
