@@ -969,11 +969,12 @@ int shim_brk(void *addr)
 	intptr_t inc;
 	void *newbrk;
 
-	brkaddr = (uintptr_t)sbrk(0);
+	brkaddr = (uintptr_t)shim_sbrk(0);
 	inc = brkaddr - (intptr_t)addr;
-	newbrk = sbrk(inc);
+	newbrk = shim_sbrk(inc);
 	if (newbrk == (void *)-1) {
-		errno = ENOMEM;
+		if (errno != ENOSYS)
+			errno = ENOMEM;
 		return -1;
 	}
 	return 0;
@@ -993,7 +994,13 @@ STRESS_PRAGMA_WARN_OFF
 #endif
 void *shim_sbrk(intptr_t increment)
 {
+#if defined(HAVE_SBRK)
 	return sbrk(increment);
+#elif defined(__NR_sbrk)
+	return (void *)syscall(__NR_sbrk, increment);
+#else
+	return (void *)shim_enosys(0, increment);
+#endif
 }
 #if defined(__APPLE__)
 STRESS_PRAGMA_POP

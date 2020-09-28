@@ -44,6 +44,33 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
+static int stress_brk_supported(const char *name)
+{
+	void *ptr;
+
+	/*
+	 *  Some flavours of FreeBSD don't support sbrk()
+	 *  so check for this
+	 */
+	ptr = shim_sbrk(0);
+	if ((ptr == (void *)-1) && (errno == ENOSYS)) {
+		pr_inf("%s: stressor will be skipped, sbrk() is not "
+			"implemented on this system\n", name);
+		return -1;
+	}
+
+	/*
+	 *  check for brk() not being implemented too
+	 */
+	if ((shim_brk(ptr) < 0) && (errno == ENOSYS)) {
+		pr_inf("%s: stressor will be skipped, brk() is not "
+			"implemented on this system\n", name);
+		return -1;
+	}
+
+	return 0;
+}
+
 static int stress_brk_child(const stress_args_t *args, void *context)
 {
 	uint8_t *start_ptr;
@@ -117,6 +144,7 @@ static int stress_brk(const stress_args_t *args)
 
 stressor_info_t stress_brk_info = {
 	.stressor = stress_brk,
+	.supported = stress_brk_supported,
 	.class = CLASS_OS | CLASS_VM,
 	.opt_set_funcs = opt_set_funcs,
 	.help = help
