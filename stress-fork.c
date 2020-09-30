@@ -67,6 +67,26 @@ static int stress_set_vfork_max(const char *opt)
 }
 
 /*
+ *  local_shim_fork()
+ *	wrapper to fork. If native system call is available then
+ *	use this 50% of the time and use the libc wrapped fork 50%
+ *	of the time. Otherwise use the libc wrapper version 100%
+ *	of the time. Linux implementations of libc fork map to
+ *	using clone().
+ */
+static int local_shim_fork(void)
+{
+#if defined(__NR_fork)
+	static int which;
+
+	return (++which & 1) ? 
+		syscall(__NR_fork) : fork();
+#else
+	return fork();
+#endif
+}
+
+/*
  *  stress_fork_fn()
  *	stress by forking and exiting using
  *	fork function fork_fn (fork or vfork)
@@ -163,7 +183,7 @@ static int stress_fork(const stress_args_t *args)
 			fork_max = MIN_FORKS;
 	}
 
-	return stress_fork_fn(args, fork, "fork", fork_max);
+	return stress_fork_fn(args, local_shim_fork, "fork", fork_max);
 }
 
 
