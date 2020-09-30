@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
  */
 #if !defined(__gnu_hurd__)
 
-#define ABORT_TIMEOUT	(1.0)
+#define ABORT_TIMEOUT	(0.0025)
 
 static void MLOCKED_TEXT stress_usr1_handler(int signum)
 {
@@ -158,6 +158,20 @@ static void stress_wait_continued(const stress_args_t *args, const int status)
 }
 
 /*
+ *  _shim_waitpid
+ *	waitpid that prefers waitpid syscall if it is available
+ *	over the libc waitpid that may use wait4 instead
+ */
+static pid_t _shim_waitpid(pid_t pid, int *wstatus, int options)
+{
+#if defined(__NR_waitpid)
+	return (pid_t)syscall(__NR_waitpid, pid, wstatus, options)
+#else
+	return waitpid(pid, wstatus, options);
+#endif
+}
+
+/*
  *  stress_wait
  *	stress wait*() family of calls
  */
@@ -202,7 +216,7 @@ static int stress_wait(const stress_args_t *args)
 		/*
 		 *  Exercise waitpid
 		 */
-		wret = waitpid(pid_r, &status, options);
+		wret = _shim_waitpid(pid_r, &status, options);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -215,9 +229,9 @@ static int stress_wait(const stress_args_t *args)
 		/*
 		 *  Exercise wait
 		 */
-		wret = wait(&status);
+		wret = shim_wait(&status);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
-			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
+			pr_fail("%s: wait failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
@@ -252,6 +266,25 @@ static int stress_wait(const stress_args_t *args)
 		stress_wait_continued(args, status);
 		if (!keep_stressing_flag())
 			break;
+
+		wret = shim_wait4(-1, &status, options, &usage);
+		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+			pr_fail("%s: wait4 on pid -1 failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			break;
+		}
+		stress_wait_continued(args, status);
+		if (!keep_stressing_flag())
+			break;
+
+		wret = shim_wait4(0, &status, options, &usage);
+		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+			pr_fail("%s: wait4 on pid 0 failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			break;
+		}
+		stress_wait_continued(args, status);
+		if (!keep_stressing_flag())
 #endif
 
 #if defined(HAVE_WAITID)
@@ -263,7 +296,7 @@ static int stress_wait(const stress_args_t *args)
 
 			wret = waitid(P_PID, pid_r, &info, options);
 			if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
-				pr_fail("%s: waitpid failed, errno=%d (%s)\n",
+				pr_fail("%s: waitid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}

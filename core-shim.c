@@ -1236,16 +1236,30 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 }
 
 /*
+ *   shim_wait()
+ *	shim wrapper for wait, try waitpid if available
+ */
+pid_t shim_wait(int *wstatus)
+{
+#if defined(__NR_waitpid)
+foo
+	return syscall(__NR_waitpid, -1, wstatus, 0);
+#else
+	return wait(wstatus);
+#endif
+}
+
+/*
  *   shim_wait3(()
  *	wrapper for wait3()
  *
  */
 pid_t shim_wait3(int *wstatus, int options, struct rusage *rusage)
 {
-#if defined(HAVE_WAIT3)
-	return wait3(wstatus, options, rusage);
-#elif defined(__NR_wait3)
+#if defined(__NR_wait3)
 	return syscall(__NR_wait3, wstatus, options, rusage);
+#elif defined(HAVE_WAIT3)
+	return wait3(wstatus, options, rusage);
 #else
 	return shim_enosys(0, wstatus, options, rusage);
 #endif
@@ -1258,10 +1272,10 @@ pid_t shim_wait3(int *wstatus, int options, struct rusage *rusage)
  */
 pid_t shim_wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage)
 {
-#if defined(HAVE_WAIT4)
-	return wait4(pid, wstatus, options, rusage);
-#elif defined(__NR_wait4)
+#if defined(__NR_wait4)
 	return syscall(__NR_wait4, pid, wstatus, options, rusage);
+#elif defined(HAVE_WAIT4)
+	return wait4(pid, wstatus, options, rusage);
 #else
 	return shim_enosys(0, pid, wstatus, options, rusage);
 #endif
