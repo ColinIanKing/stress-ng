@@ -1645,16 +1645,23 @@ int shim_reboot(int magic, int magic2, int cmd, void *arg)
 
 /*
  *   shim_process_madvise
- *	wrapper for linux process_madvise system call
+ *	wrapper for the new linux 5.10 process_madvise system call
+ *	ref: commit 28a305ae24da ("mm/madvise: introduce process_madvise()
+ *	syscall: an external memory hinting API"
  */
-int shim_process_madvise(int which, pid_t pid, void *addr,
-	size_t length, int advise, unsigned long flag)
+ssize_t shim_process_madvise(
+	int pidfd,
+	const struct iovec *iovec,
+	unsigned long vlen,
+	int advice,
+	unsigned int flags)
 {
-#if defined(__linux__) && defined(__NR_process_madvise)
-	return syscall(__NR_process_madvise, which, pid, addr,
-		length, advise, flag);
+#if defined(__NR_process_madvise)
+	return (ssize_t)syscall(__process_madvise, pidfd,
+		iovec, vlen, advice, flags);
 #else
-	return shim_enosys(0, which, pid, addr, length, advise, flag);
+	return (ssize_t)shim_enosys(0, pidfd,
+		iovec, vlen, advice, flags);
 #endif
 }
 
