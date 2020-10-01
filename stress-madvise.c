@@ -274,6 +274,32 @@ static void *stress_madvise_pages(void *arg)
 	return &nowt;
 }
 
+static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
+{
+#if defined(HAVE_PIDFD_OPEN)
+	int pidfd, ret;
+	struct iovec vec;
+
+	pidfd = shim_pidfd_open(pid, 0);
+	if (pidfd < 0)
+		return;
+
+	vec.iov_base = buf;
+	vec.iov_len = sz;
+
+	ret = shim_process_madvise(pidfd, &vec, 1, MADV_PAGEOUT, 0);
+	(void)ret;
+	ret = shim_process_madvise(pidfd, &vec, 1, MADV_COLD, 0);
+	(void)ret;
+	
+	(void)close(pidfd);
+#else
+	(void)pid;
+	(void)buf;
+	(void)sz;
+#endif
+}
+
 /*
  *  stress_madvise()
  *	stress madvise
@@ -282,6 +308,7 @@ static int stress_madvise(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t sz = (4 *  MB) & ~(page_size - 1);
+	const pid_t pid = getpid();
 	int fd = -1;
 	int ret;
 	NOCLOBBER int flags = MAP_PRIVATE;
@@ -369,6 +396,7 @@ static int stress_madvise(const stress_args_t *args)
 		(void)memset(buf, 0xff, sz);
 		(void)stress_madvise_random(buf, sz);
 		(void)stress_mincore_touch_pages(buf, sz);
+		stress_process_madvise(pid, buf, sz);
 
 		ctxt.args = args;
 		ctxt.buf = buf;
