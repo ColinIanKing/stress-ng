@@ -1967,3 +1967,35 @@ ignore_eintr:
 	pr_dbg_v("stress_write_buffer: size=%ld written=%ld sz2=%ld\n", size, wbytes, ret);
 	return (ret <= 0)? ret:wbytes;
 }
+
+/*
+ *  stress_kernel_release()
+ *	turn release major.minor.patchlevel triplet into base 100 value
+ */
+int stress_kernel_release(const int major, const int minor, const int patchlevel)
+{
+	return (major * 10000) + (minor * 100) + patchlevel;
+}
+
+/*
+ *  stress_get_kernel_release()
+ *	return kernel relase number in base 100, e.g.
+ *	 4.15.2 -> 401502, return -1 if failed.
+ */
+int stress_get_kernel_release(void)
+{
+#if defined(HAVE_UNAME)
+	struct utsname buf;
+	int major = 0, minor = 0, patchlevel = 0;
+
+	if (uname(&buf) < 0)
+		return -1;
+
+	if (sscanf(buf.release, "%d.%d.%d\n", &major, &minor, &patchlevel) < 1)
+		return -1;
+
+	return stress_kernel_release(major, minor, patchlevel);
+#else
+	return -1;
+#endif
+}
