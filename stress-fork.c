@@ -79,7 +79,7 @@ static int local_shim_fork(void)
 #if defined(__NR_fork)
 	static int which;
 
-	return (++which & 1) ? 
+	return (++which & 1) ?
 		syscall(__NR_fork) : fork();
 #else
 	return fork();
