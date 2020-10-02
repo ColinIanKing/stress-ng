@@ -1242,7 +1242,6 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 pid_t shim_wait(int *wstatus)
 {
 #if defined(__NR_waitpid)
-foo
 	return syscall(__NR_waitpid, -1, wstatus, 0);
 #else
 	return wait(wstatus);
