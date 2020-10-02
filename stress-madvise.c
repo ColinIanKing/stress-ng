@@ -291,7 +291,6 @@ static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
 	(void)ret;
 	ret = shim_process_madvise(pidfd, &vec, 1, MADV_COLD, 0);
 	(void)ret;
-	
 	(void)close(pidfd);
 #else
 	(void)pid;
