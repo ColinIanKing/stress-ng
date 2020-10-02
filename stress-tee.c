@@ -126,27 +126,29 @@ static void stress_tee_pipe_read(int fds[2])
  */
 static int exercise_tee(
 	const stress_args_t *args,
+	const int release,
 	const int fd_in,
 	const int fd_out)
 {
 	ssize_t ret;
 
-#if 0
-	/* 
-	 *  Linux commit 3d6ea290f337
-	 *  ("splice/tee/vmsplice: validate flags")
-  	 *  added a check for flags against ~SPLICE_F_ALL
-	 *  in Linux 4.10.  For now disable this test
-	 *  as it is throwing errors for pre-4.10 kernels
-	 */
-	ret = tee(fd_in, fd_out, INT_MAX, ~0);
-	if (ret >= 0) {
-		pr_fail("%s: tee with illegal flags "
-			"unexpectedly succeeded\n",
-			args->name);
-		return -1;
+	if ((release != -1) &&
+            (release >= stress_kernel_release(4, 10, 0))) {
+		/*
+		 *  Linux commit 3d6ea290f337
+		 *  ("splice/tee/vmsplice: validate flags")
+		 *  added a check for flags against ~SPLICE_F_ALL
+		 *  in Linux 4.10.  For now disable this test
+		 *  as it is throwing errors for pre-4.10 kernels
+		 */
+		ret = tee(fd_in, fd_out, INT_MAX, ~0);
+		if (ret >= 0) {
+			pr_fail("%s: tee with illegal flags "
+				"unexpectedly succeeded\n",
+				args->name);
+			return -1;
+		}
 	}
-#endif
 
 	/* Exercise on same pipe */
 	ret = tee(fd_in, fd_in, INT_MAX, 0);
@@ -182,6 +184,7 @@ static int stress_tee(const stress_args_t *args)
 	int fd, pipe_in[2], pipe_out[2];
 	pid_t pids[2];
 	int ret = EXIT_FAILURE, status;
+	const int release = stress_get_kernel_release();
 
 	fd = open("/dev/null", O_WRONLY);
 	if (fd < 0) {
@@ -238,7 +241,7 @@ static int stress_tee(const stress_args_t *args)
 			len -= slen;
 		}
 
-		if (exercise_tee(args, pipe_in[0], pipe_out[1]) < 0)
+		if (exercise_tee(args, release, pipe_in[0], pipe_out[1]) < 0)
 			goto tidy_child2;
 
 		inc_counter(args);
