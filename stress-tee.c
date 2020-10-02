@@ -131,7 +131,14 @@ static int exercise_tee(
 {
 	ssize_t ret;
 
-	/* Exercise with invalid flags */
+#if 0
+	/* 
+	 *  Linux commit 3d6ea290f337
+	 *  ("splice/tee/vmsplice: validate flags")
+  	 *  added a check for flags against ~SPLICE_F_ALL
+	 *  in Linux 4.10.  For now disable this test
+	 *  as it is throwing errors for pre-4.10 kernels
+	 */
 	ret = tee(fd_in, fd_out, INT_MAX, ~0);
 	if (ret >= 0) {
 		pr_fail("%s: tee with illegal flags "
@@ -139,6 +146,7 @@ static int exercise_tee(
 			args->name);
 		return -1;
 	}
+#endif
 
 	/* Exercise on same pipe */
 	ret = tee(fd_in, fd_in, INT_MAX, 0);
