@@ -103,6 +103,7 @@ static int stress_session_child(const stress_args_t *args)
 		_exit(STRESS_SESSION_FORK_FAILED);
 	} else if (pid == 0) {
 		stress_session_set_and_get(args);
+		(void)shim_vhangup();
 		_exit(STRESS_SESSION_SUCCESS);
 	} else {
 		int status;
