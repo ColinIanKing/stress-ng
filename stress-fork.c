@@ -124,7 +124,14 @@ static int stress_fork_fn(
 			pid_t pid = fork_fn();
 
 			if (pid == 0) {
-				/* Child, immediately exit */
+				/*
+				 *  With new session and capabilities
+				 *  dropped vhangup will always fail
+				 *  but it's useful to exercise this
+				 *  to get more kernel coverage
+				 */
+				if (setsid() != (pid_t) -1)
+					shim_vhangup();
 				_exit(0);
 			} else if (pid < 0) {
 				info[n].err = errno;
