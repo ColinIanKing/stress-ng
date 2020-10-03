@@ -387,7 +387,7 @@ utime				utime
 utimensat			utimes
 utimes				utime
 vfork				vfork
-vhangup				[ ignore ]
+vhangup				fork, session
 vmsplice			vm-splice
 wait				various
 wait3				wait
