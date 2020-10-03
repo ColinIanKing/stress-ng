@@ -541,7 +541,7 @@ static int stress_get(const stress_args_t *args)
 
 			timexbuf.modes = 0;
 			ret = adjtimex(&timexbuf);
-			if (cap_sys_time && verify && (ret < 0))
+			if (cap_sys_time && verify && (ret < 0) && (errno != EPERM))
 				pr_fail("%s: adjtimex failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 		}
@@ -550,7 +550,7 @@ static int stress_get(const stress_args_t *args)
 #if defined(HAVE_SYS_TIMEX_H) && defined(HAVE_ADJTIME)
 		(void)memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
-		if (cap_sys_time && verify && (ret < 0))
+		if (cap_sys_time && verify && (ret < 0) && (errno != EPERM))
 			pr_fail("%s: adjtime failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 #endif
