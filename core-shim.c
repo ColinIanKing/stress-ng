@@ -1874,3 +1874,18 @@ int shim_stime(const time_t *t)
 	return shim_enosys(0, t);
 #endif
 }
+
+/*
+ *  shim_vhangup()
+ *	wrapper for linux vhangup system call
+ */
+int shim_vhangup(void)
+{
+#if defined(HAVE_VHANGUP)
+	return vhangup();
+#elif defined(__NR_vhangup)
+	return syscall(__NR_vhangup);
+#else
+	return shim_enosys(0);
+#endif
+}

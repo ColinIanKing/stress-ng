@@ -4272,6 +4272,7 @@ extern int shim_userfaultfd(int flags);
 extern int shim_usleep(uint64_t usec);
 extern int shim_usleep_interruptible(uint64_t usec);
 extern int shim_ustat(dev_t dev, struct shim_ustat *ubuf);
+extern int shim_vhangup(void);
 extern pid_t shim_waitpid(pid_t pid, int *wstatus, int options);
 extern pid_t shim_wait(int *wstatus);
 extern pid_t shim_wait3(int *wstatus, int options, struct rusage *rusage);
