@@ -86,6 +86,11 @@ static int local_shim_fork(void)
 #endif
 }
 
+typedef struct {
+	pid_t	pid;	/* Child PID */
+	int	err;	/* Saved fork errno */
+} fork_info_t;
+
 /*
  *  stress_fork_fn()
  *	stress by forking and exiting using
@@ -97,8 +102,8 @@ static int stress_fork_fn(
 	const char *fork_fn_name,
 	const uint32_t fork_max)
 {
-	static pid_t pids[MAX_FORKS];
-	static int errnos[MAX_FORKS];
+	static fork_info_t info[MAX_FORKS];
+
 	int ret;
 #if defined(__APPLE__)
 	double time_end = stress_time_now() + (double)g_opt_timeout;
@@ -113,8 +118,7 @@ static int stress_fork_fn(
 	do {
 		uint32_t i, n;
 
-		(void)memset(pids, 0, sizeof(pids));
-		(void)memset(errnos, 0, sizeof(errnos));
+		(void)memset(info, 0, sizeof(info));
 
 		for (n = 0; n < fork_max; n++) {
 			pid_t pid = fork_fn();
@@ -123,33 +127,33 @@ static int stress_fork_fn(
 				/* Child, immediately exit */
 				_exit(0);
 			} else if (pid < 0) {
-				errnos[n] = errno;
+				info[n].err = errno;
 			}
 			if (pid > -1)
-				(void)setpgid(pids[n], g_pgrp);
-			pids[n] = pid;
+				(void)setpgid(pid, g_pgrp);
+			info[n].pid  = pid;
 			if (!keep_stressing())
 				break;
 		}
 		for (i = 0; i < n; i++) {
-			if (pids[i] > 0) {
+			if (info[i].pid > 0) {
 				int status;
 				/* Parent, kill and then wait for child */
-				(void)kill(pids[i], SIGKILL);
-				(void)shim_waitpid(pids[i], &status, 0);
+				(void)kill(info[i].pid, SIGKILL);
+				(void)shim_waitpid(info[i].pid, &status, 0);
 				inc_counter(args);
 			}
 		}
 
 		for (i = 0; i < n; i++) {
-			if ((pids[i] < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-				switch (errnos[i]) {
+			if ((info[i].pid < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
+				switch (info[i].err) {
 				case EAGAIN:
 				case ENOMEM:
 					break;
 				default:
 					pr_fail("%s: %s failed, errno=%d (%s)\n", args->name,
-						fork_fn_name, errnos[i], strerror(errnos[i]));
+						fork_fn_name, info[i].err, strerror(info[i].err));
 					break;
 				}
 			}
