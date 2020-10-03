@@ -1859,3 +1859,18 @@ long shim_ssetmask(long newmask)
 	return shim_enosys(0, newmask);
 #endif
 }
+
+/*
+ *  shim_stime()
+ *	wrapper for obsolete SVr4 stime system call
+ */
+int shim_stime(const time_t *t)
+{
+#if defined(HAVE_STIME)
+	return stime(t);
+#elif defined(__NR_stime)
+	return syscall(__NR_stime, t);
+#else
+	return shim_enosys(0, t);
+#endif
+}

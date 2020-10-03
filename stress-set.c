@@ -365,6 +365,24 @@ static int stress_set(const stress_args_t *args)
 				}
 			}
 		}
+
+		{
+			/*
+			 *  Exercise stime if it is available and
+			 *  ignore CAP_SYS_TIME requirement to call
+			 *  it.  Exercise this just once as constantly
+			 *  setting the time may cause excessive
+			 *  time drift.
+			 */
+			time_t t;
+			static bool test_stime = true;
+
+			if (test_stime && (time(&t) != ((time_t)-1))) {
+				ret = shim_stime(&t);
+				(void)ret;
+				test_stime = false;
+			}
+		}
 		inc_counter(args);
 	} while (keep_stressing());
 

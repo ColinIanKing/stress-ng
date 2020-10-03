@@ -4252,6 +4252,7 @@ extern int shim_sched_setattr(pid_t pid, struct shim_sched_attr *attr,
 	unsigned int flags);
 extern long shim_sgetmask(void);
 extern long shim_ssetmask(long newmask);
+extern int shim_stime(const time_t *t);
 extern int shim_sched_yield(void);
 extern int shim_set_mempolicy(int mode, unsigned long *nodemask,
 	unsigned long maxnode);
