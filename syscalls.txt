@@ -231,7 +231,7 @@ preadv				hdd
 preadv2				hdd
 prlimit				get
 /proc				proc
-process_madvise				
+process_madvise			madvise
 process_vm_readv		vm_rw
 process_vm_writev		vm_rw
 pselect6			poll
@@ -347,7 +347,7 @@ ssetmask			set (obsolete)
 stat				fstat
 statfs				sysinfo
 statx				fstat
-stime				[ need privilege, ignore for now ]
+stime				set
 swapoff				swap
 swapon				swap
 symlink				symlink
