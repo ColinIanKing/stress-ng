@@ -64,13 +64,13 @@ static void stress_session_set_and_get(const stress_args_t *args)
 	pid_t sid, gsid;
 
 	sid = setsid();
-	if (sid < 0) {
+	if (sid == (pid_t)-1) {
 		pr_inf("%s: setsid failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		_exit(STRESS_SESSION_SETSID_FAILED);
 	}
 	gsid = getsid(getpid());
-	if (gsid < 0) {
+	if (gsid == (pid_t)-1) {
 		pr_inf("%s: getsid failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		_exit(STRESS_SESSION_GETSID_FAILED);
