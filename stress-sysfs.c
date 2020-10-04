@@ -247,7 +247,7 @@ static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 			fds[0].events = POLLIN;
 			fds[0].revents = 0;
 
-			ret = poll(fds, 1, 0);
+			ret = poll(fds, 1, 1);
 			(void)ret;
 			if (stress_time_now() - t_start > threshold)
 				goto next;
