@@ -408,14 +408,14 @@ stress-personality.c: personality.h
 #  so we can check if these enums exist
 #
 io-uring.h:
-	@$(CPP) $(CONFIG_CLFAGS) core-io-uring.c  | grep IORING_OP | sed 's/,//' | \
+	@$(CPP) $(CONFIG_CFLAGS) core-io-uring.c  | $(GREP) IORING_OP | sed 's/,//' | \
 	sed 's/IORING_OP_/#define HAVE_IORING_OP_/' > io-uring.h
 	@echo "MK io-uring.h"
 
 stress-io-uring.c: io-uring.h
 
 core-perf.o: core-perf.c core-perf-event.c
-	@$(CC) $(CFLAGS) -E core-perf-event.c | grep "PERF_COUNT" | \
+	@$(CC) $(CFLAGS) -E core-perf-event.c | $(GREP) "PERF_COUNT" | \
 	sed 's/,/ /' | sed s/'^ *//' | \
 	awk {'print "#define _SNG_" $$1 " (1)"'} > core-perf-event.h
 	@echo CC $<
