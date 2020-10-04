@@ -254,6 +254,25 @@ static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 		}
 #endif
 
+#if defined(HAVE_PPOLL)
+		{
+			struct timespec ts;
+			sigset_t sigmask;
+			struct pollfd fds[1];
+
+			fds[0].fd = fd;
+			fds[0].events = POLLIN;
+			fds[0].revents = 0;
+
+			ts.tv_sec = 0;
+			ts.tv_nsec = 1000;
+
+			(void)sigemptyset(&sigmask);
+			ret = ppoll(fds, 1, &ts, &sigmask);
+			(void)ts;
+		}
+#endif
+
 		/*
 		 *  lseek
 		 */
