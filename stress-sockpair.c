@@ -88,7 +88,12 @@ static int stress_sockpair_oomable(const stress_args_t *args)
 	static int socket_pair_fds[MAX_SOCKET_PAIRS][2];
 	int i, max;
 
-	for (max = 0; keep_stressing() && (max < MAX_SOCKET_PAIRS); max++) {
+	for (max = 0; max < MAX_SOCKET_PAIRS; max++) {
+		if (!keep_stressing()) {
+			socket_pair_close(socket_pair_fds, max, 0);
+			socket_pair_close(socket_pair_fds, max, 1);
+			return EXIT_SUCCESS;
+		}
 		if (socketpair(AF_UNIX, SOCK_STREAM, 0, socket_pair_fds[max]) < 0)
 			break;
 	}
