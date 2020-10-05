@@ -335,7 +335,7 @@ err:
 			char *pptr = path + 5 + (stress_mwc16() % (len - 5));
 
 			/* Skip over / */
-			while (*pptr && (*pptr == '/'))
+			while (*pptr == '/')
 				pptr++;
 
 			if (*pptr) {
