@@ -198,7 +198,7 @@ static void *stress_madvise_pages(void *arg)
 	size_t n;
 	const madvise_ctxt_t *ctxt = (const madvise_ctxt_t *)arg;
 	const stress_args_t *args = ctxt->args;
-	void *buf = ctxt->buf, *unmapped;
+	void *buf = ctxt->buf;
 	const size_t sz = ctxt->sz;
 	const size_t page_size = args->page_size;
 	static void *nowt = NULL;
@@ -260,14 +260,17 @@ static void *stress_madvise_pages(void *arg)
 #endif
 
 #if defined(MADV_NORMAL)
-	/*
-	 *  Exercise an unmapped page
-	 */
-	unmapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (unmapped != MAP_FAILED) {
-		(void)munmap(unmapped, page_size);
-		(void)shim_madvise(unmapped, page_size, MADV_NORMAL);
+	{
+		void *unmapped;
+		/*
+		 *  Exercise an unmapped page
+		 */
+		unmapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		if (unmapped != MAP_FAILED) {
+			(void)munmap(unmapped, page_size);
+			(void)shim_madvise(unmapped, page_size, MADV_NORMAL);
+		}
 	}
 #endif
 
