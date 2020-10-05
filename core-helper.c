@@ -1124,7 +1124,9 @@ uint64_t stress_get_prime64(const uint64_t n)
  */
 size_t stress_get_max_file_limit(void)
 {
+#if defined(RLIMIT_NOFILE)
 	struct rlimit rlim;
+#endif
 	size_t max_rlim = ~0;
 	size_t max_sysconf = ~0;
 
