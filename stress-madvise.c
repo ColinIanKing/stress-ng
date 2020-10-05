@@ -202,7 +202,6 @@ static void *stress_madvise_pages(void *arg)
 	const size_t sz = ctxt->sz;
 	const size_t page_size = args->page_size;
 	static void *nowt = NULL;
-	int ret;
 
 	if (ctxt->is_thread) {
 		sigset_t set;
@@ -243,25 +242,30 @@ static void *stress_madvise_pages(void *arg)
 #if defined(_POSIX_MEMLOCK_RANGE) &&	\
     defined(HAVE_MLOCK) &&		\
     (defined(MADV_REMOVE) || defined(MADV_DONTNEED))
-	/*
-	 *  Exercise MADV_REMOVE on locked page, should
-	 *  generate EINVAL
-	 */
-	ret = shim_mlock(buf, page_size);
-	if (ret == 0) {
+	{
+		int ret;
+
+		/*
+		 *  Exercise MADV_REMOVE on locked page, should
+		 *  generate EINVAL
+		 */
+		ret = shim_mlock(buf, page_size);
+		if (ret == 0) {
 #if defined(MADV_REMOVE)
-		(void)shim_madvise(buf, page_size, MADV_REMOVE);
+			(void)shim_madvise(buf, page_size, MADV_REMOVE);
 #endif
 #if defined(MADV_DONTNEED)
-		(void)shim_madvise(buf, page_size, MADV_DONTNEED);
+			(void)shim_madvise(buf, page_size, MADV_DONTNEED);
 #endif
-		shim_munlock(buf, page_size);
+			shim_munlock(buf, page_size);
+		}
+#endif
 	}
-#endif
 
 #if defined(MADV_NORMAL)
 	{
 		void *unmapped;
+
 		/*
 		 *  Exercise an unmapped page
 		 */
