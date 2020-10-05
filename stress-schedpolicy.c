@@ -196,16 +196,22 @@ static int stress_schedpolicy(const stress_args_t *args)
 			ret = sched_getparam(-1, &param);
 			(void)ret;
 
+#if defined(__linux__)
+			/* Linux allows NULL param, will return EFAULT */
 			ret = sched_getparam(pid, NULL);
 			(void)ret;
+#endif
 
 			/* Exercise invalid sched_setparam syscall*/
 			(void)memset(&param, 0, sizeof param);
 			ret = sched_setparam(-1, &param);
 			(void)ret;
 
+#if defined(__linux__)
+			/* Linux allows NULL param, will return EFAULT */
 			ret = sched_setparam(pid, NULL);
 			(void)ret;
+#endif
 		}
 		(void)memset(&param, 0, sizeof param);
 		ret = sched_getparam(pid, &param);
