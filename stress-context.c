@@ -88,24 +88,24 @@ static int stress_context_init(
 	const stress_args_t *args,
 	void (*func)(void),
 	ucontext_t *uctx_link,
-	context_info_t *context)
+	context_info_t *context_info)
 {
-	if (getcontext(&context->cu.uctx) < 0) {
+	if (getcontext(&context_info->cu.uctx) < 0) {
 		pr_err("%s: getcontext failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	}
 
-	context->canary.check0 = stress_mwc32();
-	context->canary.check1 = stress_mwc32();
+	context_info->canary.check0 = stress_mwc32();
+	context_info->canary.check1 = stress_mwc32();
 
-	context->cu.check0 = context->canary.check0;
-	context->cu.check1 = context->canary.check1;
-	context->cu.uctx.uc_stack.ss_sp =
-		(void *)stress_align_address(context->stack, STACK_ALIGNMENT);
-	context->cu.uctx.uc_stack.ss_size = STACK_SIZE;
-	context->cu.uctx.uc_link = uctx_link;
-	makecontext(&context->cu.uctx, func, 0);
+	context_info->cu.check0 = context_info->canary.check0;
+	context_info->cu.check1 = context_info->canary.check1;
+	context_info->cu.uctx.uc_stack.ss_sp =
+		(void *)stress_align_address(context_info->stack, STACK_ALIGNMENT);
+	context_info->cu.uctx.uc_stack.ss_size = STACK_SIZE;
+	context_info->cu.uctx.uc_link = uctx_link;
+	makecontext(&context_info->cu.uctx, func, 0);
 
 	return 0;
 }
