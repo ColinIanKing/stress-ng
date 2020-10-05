@@ -334,7 +334,7 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 
 #if defined(SHM_HUGETLB)
 	/* Check shmget cannot succeed without capabilities */
-	if (!cap_ipc_lock) {;
+	if (!cap_ipc_lock) {
 		shm_id = shmget(IPC_PRIVATE, sz, IPC_CREAT | SHM_HUGETLB | SHM_R | SHM_W);
 		if (shm_id >= 0) {
 			(void)shmctl(shm_id, IPC_RMID, NULL);
@@ -342,6 +342,8 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 				"capability, errno=%d (%s)\n", name, errno, strerror(errno));
 		}
 	}
+#else
+	(void)cap_ipc_lock;
 #endif
 
 #if defined(IPC_PRIVATE)
