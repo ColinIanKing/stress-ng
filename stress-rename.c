@@ -24,14 +24,24 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_RENAMEAT) &&	\
+    defined(O_DIRECTORY)
+#define EXERCISE_RENAMEAT	(1)
+#endif
+
+#if defined(HAVE_RENAMEAT2) &&	\
+    defined(O_DIRECTORY) &&	\
+    defined(RENAME_NOREPLACE)
+#define EXERCISE_RENAMEAT2	(1)
+#endif
+
 static const stress_help_t help[] = {
 	{ "R",	"rename N",	"start N workers exercising file renames" },
 	{ NULL,	"rename-ops N",	"stop after N rename bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_RENAMEAT) &&	\
-    defined(O_DIRECTORY)
+#if defined(EXERCISE_RENAMEAT)
 /*
  *  exercise_renameat()
  *	exercise renameat with various illegal argument combinations
@@ -72,9 +82,7 @@ static int exercise_renameat(
 }
 #endif
 
-#if defined(HAVE_RENAMEAT2) &&	\
-    defined(O_DIRECTORY) &&	\
-    defined(RENAME_NOREPLACE)
+#if defined(EXERCISE_RENAMEAT2)
 /*
  *  exercise_renameat2()
  *	exercise renameat2 with various illegal argument combinations
@@ -186,7 +194,10 @@ static int stress_rename(const stress_args_t *args)
 	uint64_t i = 0;
 	const uint32_t inst1 = args->instance * 2;
 	const uint32_t inst2 = inst1 + 1;
+#if defined(EXERCISE_RENAMEAT) ||	\
+    defined(EXERCISE_RENAMEAT2)
 	const int bad_fd = stress_get_bad_fd();
+#endif
 
 	if (stress_temp_dir_mk(args->name, args->pid, inst1) < 0)
 		return EXIT_FAILURE;
@@ -239,8 +250,7 @@ restart:
 		if (!keep_stressing())
 			break;
 
-#if defined(HAVE_RENAMEAT) &&	\
-    defined(O_DIRECTORY)
+#if defined(EXERCISE_RENAMEAT)
 		{
 			int oldfd;
 			int newfd = AT_FDCWD;
@@ -280,9 +290,7 @@ restart:
 		}
 #endif
 
-#if defined(HAVE_RENAMEAT2) &&	\
-    defined(O_DIRECTORY) &&	\
-    defined(RENAME_NOREPLACE)
+#if defined(EXERCISE_RENAMEAT2)
 		{
 			int oldfd;
 
