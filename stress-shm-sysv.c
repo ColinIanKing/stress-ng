@@ -201,7 +201,7 @@ static void exercise_shmat(const int shm_id, const size_t page_size)
  *  get_bad_shmid()
  *	find invalid shared memory segment id
  */
-int get_bad_shmid(const stress_args_t *args)
+static int get_bad_shmid(const stress_args_t *args)
 {
 	int id = ~0;
 
