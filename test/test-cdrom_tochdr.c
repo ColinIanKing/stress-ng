@@ -23,11 +23,13 @@
  *
  */
 #include <linux/cdrom.h>
+#include <string.h>
 
 int main(void)
 {
 	struct cdrom_tochdr header;
 
+	(void)memset(&header, 0, sizeof(header));
 	(void)header;
 
 	return sizeof(struct cdrom_tochdr);
