@@ -74,7 +74,7 @@ static int stress_set_vfork_max(const char *opt)
  *	of the time. Linux implementations of libc fork map to
  *	using clone().
  */
-static int local_shim_fork(void)
+static pid_t local_shim_fork(void)
 {
 #if defined(__NR_fork)
 	static int which;
