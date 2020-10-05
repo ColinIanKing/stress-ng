@@ -327,7 +327,8 @@ static int stress_wait(const stress_args_t *args)
 			if ((info.si_code != CLD_EXITED) &&
 			    (info.si_code != CLD_KILLED) &&
 			    (info.si_code != CLD_STOPPED) &&
-			    (info.si_code != CLD_CONTINUED)) {
+			    (info.si_code != CLD_CONTINUED) &&
+			    (info.si_code != 0)) {
 				pr_fail("%s: waitid returned unexpected si_code %d\n",
 					args->name, info.si_code);
 			}
