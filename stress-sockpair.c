@@ -99,9 +99,38 @@ static int stress_sockpair_oomable(const stress_args_t *args)
 	}
 
 	if (max == 0) {
-		pr_fail("%s: socketpair failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
+		int rc;
+
+		switch (errno) {
+		case EAFNOSUPPORT:
+			pr_inf("%s: socketpair: address family not supported, "
+				"skipping stressor\n", args->name);
+			rc = EXIT_NO_RESOURCE;
+			break;
+		case EMFILE:
+		case ENFILE:
+			pr_inf("%s: socketpair: out of file descriptors\n",
+				args->name);
+			rc = EXIT_NO_RESOURCE;
+			break;
+		case EPROTONOSUPPORT:
+			pr_inf("%s: socketpair: protocol not supported, "
+				"skipping stressor\n", args->name);
+			rc = EXIT_NO_RESOURCE;
+			break;
+		case EOPNOTSUPP:
+			pr_inf("%s: socketpair: protocol does not support "
+				"socket pairs, skipping stressor\n", args->name);
+			rc = EXIT_NO_RESOURCE;
+			break;
+		default:
+			pr_fail("%s: socketpair failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+		}
+		socket_pair_close(socket_pair_fds, max, 0);
+		socket_pair_close(socket_pair_fds, max, 1);
+		return rc;
 	}
 
 again:
