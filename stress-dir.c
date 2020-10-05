@@ -74,7 +74,10 @@ static inline void stress_dir_sync(const int dirfd)
  */
 static inline void stress_dir_flock(const int dirfd)
 {
-#if defined(O_DIRECTORY)
+#if defined(HAVE_FLOCK) &&	\
+    defined(LOCK_EX) &&		\
+    defined(LOCK_UN) &&		\
+    defined(O_DIRECTORY)
 	if (flock(dirfd, LOCK_EX) == 0)
 		(void)flock(dirfd, LOCK_UN);
 #else
