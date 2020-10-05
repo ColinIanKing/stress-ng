@@ -24,10 +24,13 @@
  */
 
 #include <time.h>
+#include <string.h>
 
 int main(void)
 {
-	time_t *t = NULL;
+	time_t *t;
+
+	(void)memset(&t, 0, sizeof(t));
 
 	return stime(t);
 }
