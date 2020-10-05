@@ -155,6 +155,7 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 
+#if defined(XATTR_SIZE_MAX)
 		/* Exercise invalid size argument fsetxattr syscall */
 		ret = shim_fsetxattr(fd, attrname, value, XATTR_SIZE_MAX + 1, XATTR_CREATE);
 		if (ret >= 0) {
@@ -162,8 +163,10 @@ static int stress_xattr(const stress_args_t *args)
 				"than permitted size, errno=%d (%s)\n", args->name, errno, strerror(errno));
 			goto out_close;
 		}
+#endif
 
-#if defined(HAVE_LSETXATTR)
+#if defined(HAVE_LSETXATTR) && \
+    defined(XATTR_SIZE_MAX)
 		ret = shim_lsetxattr(filename, attrname, value, XATTR_SIZE_MAX + 1, XATTR_CREATE);
 		if (ret >= 0) {
 			pr_fail("%s: lsetxattr succeded unexpectedly, created attribute with size greater "
@@ -171,12 +174,15 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 #endif
+
+#if defined(XATTR_SIZE_MAX)
 		ret = shim_setxattr(filename, attrname, value, XATTR_SIZE_MAX + 1, XATTR_CREATE);
 		if (ret >= 0) {
 			pr_fail("%s: setxattr succeded unexpectedly, created attribute with size greater "
 				"than permitted size, errno=%d (%s)\n", args->name, errno, strerror(errno));
 			goto out_close;
 		}
+#endif
 
 		/*
 		 * Check fsetxattr syscall cannot succeed in creating
