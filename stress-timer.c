@@ -203,9 +203,10 @@ static int stress_timer(const stress_args_t *args)
 
 	do {
 		struct timespec req;
-		int ret;
 
 		if (n++ >= 1024) {
+			int ret;
+
 			n = 0;
 
 			/* Exercise nanosleep on non-permitted timespec object values */
