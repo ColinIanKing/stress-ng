@@ -103,6 +103,7 @@ static int stress_verity(const stress_args_t *args)
 		ret = ioctl(fd, FS_IOC_ENABLE_VERITY, &enable);
 		if (ret < 0) {
 			switch (errno) {
+			case ENOTTY:
 			case EOPNOTSUPP:
 				pr_inf("%s: verity is not supported on the "
 					"file system or by the kernel, skipping stress test\n",
