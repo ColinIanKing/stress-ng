@@ -237,8 +237,10 @@ static int stress_dir(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing());
 
+#if defined(O_DIRECTORY)
 	if (dirfd >= 0)
 		(void)close(dirfd);
+#endif
 
 	(void)stress_temp_dir_rm_args(args);
 
