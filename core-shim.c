@@ -1867,7 +1867,18 @@ long shim_ssetmask(long newmask)
 int shim_stime(const time_t *t)
 {
 #if defined(HAVE_STIME)
+#if defined(__minix__)
+	/*
+	 *  Minix does not provide the prototype for stime
+	 *  and does not use a const time_t * argument
+	 */
+	int stime(time_t *t);
+	time_t *ut = (time_t *)shim_unconstify_ptr(t);
+
+	return stime(ut);
+#else
 	return stime(t);
+#endif
 #elif defined(__NR_stime)
 	return syscall(__NR_stime, t);
 #else
