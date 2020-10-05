@@ -285,6 +285,7 @@ static int stress_wait(const stress_args_t *args)
 		}
 		stress_wait_continued(args, status);
 		if (!keep_stressing_flag())
+			break;
 #endif
 
 #if defined(HAVE_WAITID)
