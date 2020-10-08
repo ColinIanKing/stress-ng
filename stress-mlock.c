@@ -119,6 +119,14 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
+	/*
+	 *  In low-memory scenarios we should check if we should
+	 *  keep stressing before attempting a calloc that can
+	 *  for a OOM and a respawn if this function
+	 */
+	if (!keep_stressing())
+		return EXIT_SUCCESS;
+
 	if ((mappings = calloc(max, sizeof(*mappings))) == NULL) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
@@ -127,7 +135,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	do {
 		int flag = 0;
 
-		for (n = 0; keep_stressing_flag() && (n < max); n++) {
+		for (n = 0; n < max; n++) {
 			int ret;
 			if (!keep_stressing())
 				break;
@@ -139,6 +147,8 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 				break;
 
 #if defined(HAVE_MLOCK2)
+			if (!keep_stressing())
+				break;
 			/* Invalid mlock2 syscall with invalid flags and ignoring failure*/
 			(void)shim_mlock2((void *)(mappings[n] + page_size), page_size, ~0);
 #endif
@@ -146,6 +156,8 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			/*
 			 *  Attempt a bogus mlock, ignore failure
 			 */
+			if (!keep_stressing())
+				break;
 			(void)do_mlock((void *)(mappings[n] + page_size), 0);
 
 			/*
@@ -164,6 +176,8 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			/*
 			 *  Attempt a correct mlock
 			 */
+			if (!keep_stressing())
+				break;
 			ret = do_mlock((void *)(mappings[n] + page_size), page_size);
 			if (ret < 0) {
 				if (errno == EAGAIN)
@@ -190,43 +204,60 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			ptrdiff_t addr = (ptrdiff_t)mappings[i];
 			ptrdiff_t mlocked = addr & 1;
 
-			addr ^= mlocked;
-			if (mlocked)
-				(void)shim_munlock((void *)((uint8_t *)addr + page_size), page_size);
-			/*
-			 *  Attempt a bogus munlock, ignore failure
-			 */
-			(void)shim_munlock((void *)((uint8_t *)addr + page_size), 0);
+			if (keep_stressing()) {
+				addr ^= mlocked;
+				if (mlocked)
+					(void)shim_munlock((void *)((uint8_t *)addr + page_size), page_size);
+				/*
+				 *  Attempt a bogus munlock, ignore failure
+				 */
+				(void)shim_munlock((void *)((uint8_t *)addr + page_size), 0);
+			}
 			(void)munmap((void *)addr, page_size * 3);
 		}
 #if defined(HAVE_MLOCKALL)
 #if defined(MCL_CURRENT)
+		if (!keep_stressing())
+			break;
 		(void)shim_mlockall(MCL_CURRENT);
 		flag |= MCL_CURRENT;
 #endif
 #if defined(MCL_FUTURE)
+		if (!keep_stressing())
+			break;
 		(void)shim_mlockall(MCL_FUTURE);
 		flag |= MCL_FUTURE;
 #endif
 #if defined(MCL_ONFAULT) && defined(MCL_CURRENT)
+		if (!keep_stressing())
+			break;
 		if (shim_mlockall(MCL_ONFAULT | MCL_CURRENT) == 0)
 			flag |= (MCL_ONFAULT | MCL_CURRENT);
 #endif
 #if defined(MCL_FUTURE) && defined(MCL_FUTURE)
+		if (!keep_stressing())
+			break;
 		if (shim_mlockall(MCL_ONFAULT | MCL_FUTURE) == 0)
 			flag |= (MCL_ONFAULT | MCL_FUTURE);
 #endif
 #if defined(MCL_ONFAULT)
 		/* Exercising Invalid mlockall syscall and ignoring failure */
+		if (!keep_stressing())
+			break;
 		(void)shim_mlockall(MCL_ONFAULT);
 #endif
 		/* Exercise Invalid mlockall syscall with invalid flag */
+		if (!keep_stressing())
+			break;
 		(void)shim_mlockall(~0);
 #endif
-		if (flag)
+		if (flag) {
+			if (!keep_stressing())
+				break;
 			(void)shim_mlockall(flag);
+		}
 
-		for (n = 0; keep_stressing_flag() && (n < max); n++) {
+		for (n = 0; n < max; n++) {
 			if (!keep_stressing())
 				break;
 
