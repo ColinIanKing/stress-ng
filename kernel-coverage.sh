@@ -60,7 +60,7 @@ clear_journal()
 
 do_stress()
 {
-	ARGS="-t $DURATION --pathological --timestamp --tz --syslog --perf"
+	ARGS="-t $DURATION --pathological --timestamp --tz --syslog --perf --no-rand-seed --times --metrics"
 	if grep -q "\-\-oom\-pipe" <<< "$*"; then
 		ARGS="$ARGS --oomable"
 	fi
@@ -106,15 +106,54 @@ sudo swapon $SWP
 
 sudo lcov --zerocounters
 
-DURATION=60
+if [ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]; then
+	sudo cat  /sys/kernel/debug/tracing/trace_stat/branch_all > branch_all.start
+fi
 
+#
+#  Exercise I/O schedulers
+#
+DURATION=20
+scheds=$(${STRESS_NG} --sched which 2>&1 | tail -1 | cut -d':' -f2-)
+for s in ${scheds}
+do
+	sudo ${STRESS_NG} --sched $s --cpu 0 -t 5 --timestamp --tz --syslog --perf --no-rand-seed --times --metrics
+	sudo ${STRESS_NG} --sched $s --cpu 0 -t 5 --sched-reclaim --timestamp --tz --syslog --perf --no-rand-seed --times --metrics
+done
+
+#
+#  Exercise ionice classes
+#
+ionices=$(${STRESS_NG} --ionice-class which 2>&1 | tail -1 | cut -d':' -f2-)
+for i in ${innices}
+do
+	do_stress --ionice-class $i --iomix 0 -t 20
+done
+
+#
+#  Exercise all stressors, limit to 1 CPU for ones that
+#  can spawn way too many processes
+#
+DURATION=15
+for S in $STRESSORS
+do
+	case $S in
+		clone|fork|vfork)
+			do_stress --${S} 1
+			;;
+		*)
+			do_stress --${S} 8
+			;;
+	esac
+done
+
+DURATION=60
 do_stress --all 1
 
-DURATION=180
-
-do_stress --sysinval 0
-
-DURATION=60
+#
+#  Exercise varios stressor options
+#
+do_stress --cpu 0 --sched batch
 do_stress --cpu 0 --taskset 0,2 --ignite-cpu
 do_stress --cpu 0 --taskset 1,2,3
 do_stress --cpu 0 --taskset 0,1,2 --thrash
@@ -230,23 +269,33 @@ do_stress --vm 0 --vm-madvise sequential
 do_stress --vm 0 --vm-madvise unmergeable
 do_stress --vm 0 --vm-madvise willneed --page-in
 
-#do_stress --zombie 0 --zombie-max 1000000
+#
+#  Longer duration stress testing to get more
+#  coverage because of the large range of files to
+#  traverse
+#
+DURATION=180
+do_stress --dev 32
+do_stress --sysinval 0
 
-DURATION=60
+DURATION=300
+do_stress --sysfs 16
+do_stress --procfs 32
 
-for S in $STRESSORS
-do
-	do_stress --${S} 0
-done
+DURATION=120
+do_stress --bad-ioctl 0 --pathological
 
 #
-#  Quick spin through all the classes of stressors with ftrace enabled
-# 
-DURATION=5
-for CLASS in cpu-cache cpu device filesystem interrupt io memory network os pipe scheduler security vm
-do
-	sudo $STRESS_NG --class $CLASS --ftrace --seq 0 -v --timestamp --syslog -t $DURATION
-done
+#  And exercise I/O with plenty of time for file setup
+#  overhead.
+#
+DURATION=60
+sudo $STRESS_NG --class filesystem --ftrace --seq 0 -v --timestamp --syslog -t $DURATION
+sudo $STRESS_NG --class io --ftrace --seq 0 -v --timestamp --syslog -t $DURATION
+
+if [ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]; then
+	sudo cat  /sys/kernel/debug/tracing/trace_stat/branch_all > branch_all.finish
+fi
 
 sudo swapoff $SWP
 sudo rm $SWP
@@ -255,5 +304,5 @@ if [ -e $PERF_PARANOID ]; then
 	(echo $paranoid_saved | sudo tee $PERF_PARANOID) > /dev/null
 fi
 
-sudo lcov -c -o kernel.info
+sudo lcov -c -o kernel.info >& /dev/null
 sudo genhtml -o html kernel.info
