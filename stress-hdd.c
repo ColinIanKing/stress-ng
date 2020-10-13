@@ -519,8 +519,11 @@ static int stress_hdd(const stress_args_t *args)
 
 #if defined(F_SET_FILE_RW_HINT) &&	\
     defined(RWH_WRITE_LIFE_SHORT)
-		ret = fcntl(fd, F_SET_FILE_RW_HINT, RWH_WRITE_LIFE_SHORT);
-		(void)ret;
+		{
+			uint64_t hint = RWH_WRITE_LIFE_SHORT;
+			ret = fcntl(fd, F_SET_FILE_RW_HINT, &hint);
+			(void)ret;
+		}
 #endif
 
 		/* Exercise ftruncate or truncate */
