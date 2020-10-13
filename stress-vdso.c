@@ -392,7 +392,7 @@ static int stress_vdso_supported(const char *name)
 	dl_iterate_phdr(dl_wrapback, vdso);
 
 	if (!vdso_sym_list) {
-		pr_inf("%s stressor will be skipped, failed to find relevant vDSO i"
+		pr_inf("%s stressor will be skipped, failed to find relevant vDSO "
 			"functions\n", name);
 		return -1;
 	}
