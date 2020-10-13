@@ -89,7 +89,7 @@ func_name(const stress_args_t *args)					\
 			 *  It may be that some architectures don't 	\
 			 *  allow this, so don't bail out on an		\
 			 *  EXIT_FAILURE; this is a not necessarily a 	\
-			 *  fault in the the stressor, just an arch 	\
+			 *  fault in the stressor, just an arch 	\
 			 *  resource protection issue.			\
 			 */						\
 			if (mprotect((void *)page_addr, page_sz,	\
