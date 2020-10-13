@@ -96,9 +96,9 @@ static int stress_verity(const stress_args_t *args)
 		enable.hash_algorithm = FS_VERITY_HASH_ALG_SHA256;
 		enable.block_size = args->page_size;
 		enable.salt_size = 0;
-		enable.salt_ptr = (uint64_t)NULL;
+		enable.salt_ptr = (ptrdiff_t)NULL;
 		enable.sig_size = 0;
-		enable.sig_ptr = (uint64_t)NULL;
+		enable.sig_ptr = (ptrdiff_t)NULL;
 
 		ret = ioctl(fd, FS_IOC_ENABLE_VERITY, &enable);
 		if (ret < 0) {
