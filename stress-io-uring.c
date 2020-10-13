@@ -308,7 +308,7 @@ static int stress_io_uring_fsync_submit(
 	sqe->opcode = IORING_OP_FSYNC;
 	sqe->len = 512;
 	sqe->off = 0;
-	sqe->user_data = (unsigned long long)io_uring_file;
+	sqe->user_data = (ptrdiff_t)io_uring_file;
 	sring->array[index] = index;
 	tail = next_tail;
 
