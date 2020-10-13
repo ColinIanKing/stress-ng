@@ -404,7 +404,7 @@ static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
 	int fd;
 	char path[PATH_MAX];
 	const int len = (int)sizeof(void *);
-	const ptrdiff_t start = (ptrdiff_t)addr, end = start + sz;
+	const intptr_t start = (intptr_t)addr, end = start + sz;
 
 	(void)snprintf(path, sizeof(path), "/proc/%d/map_files/%*.*tx-%*.*tx",
 		getpid(), len, len, start, len, len, end);

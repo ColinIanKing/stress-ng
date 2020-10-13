@@ -139,7 +139,7 @@ static int wrap_dummy(void *vdso_func)
 
 	*(void **)(&vdso_dummy) = vdso_func;
 
-	return (int)(ptrdiff_t)vdso_dummy;
+	return (int)(intptr_t)vdso_dummy;
 }
 
 /*

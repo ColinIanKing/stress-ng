@@ -84,8 +84,8 @@ void stress_mwc_reseed(void)
 		double m1, m5, m15;
 		int i, n;
 		const uint64_t aux_rnd = stress_aux_random_seed();
-		const ptrdiff_t p1 = (ptrdiff_t)&mwc.z;
-		const ptrdiff_t p2 = (ptrdiff_t)&tv;
+		const intptr_t p1 = (intptr_t)&mwc.z;
+		const intptr_t p2 = (intptr_t)&tv;
 
 		mwc.z = aux_rnd >> 32;
 		mwc.w = aux_rnd & 0xffffffff;

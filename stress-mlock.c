@@ -195,14 +195,14 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 				 * mlocked or not
 				 */
 				mappings[n] = (uint8_t *)
-					((ptrdiff_t)mappings[n] | 1);
+					((intptr_t)mappings[n] | 1);
 				inc_counter(args);
 			}
 		}
 
 		for (i = 0; i < n; i++) {
-			ptrdiff_t addr = (ptrdiff_t)mappings[i];
-			ptrdiff_t mlocked = addr & 1;
+			intptr_t addr = (intptr_t)mappings[i];
+			intptr_t mlocked = addr & 1;
 
 			if (keep_stressing()) {
 				addr ^= mlocked;

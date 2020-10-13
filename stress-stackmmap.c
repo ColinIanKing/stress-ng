@@ -70,7 +70,7 @@ static void stress_stackmmap_push_msync(void)
 	stress_uint32_put(waste[0]);
 	waste[1] = stress_mwc32();
 	stress_uint32_put(waste[1]);
-	stress_uint64_put((uint64_t)(ptrdiff_t)&waste);
+	stress_uint64_put((uint64_t)(intptr_t)&waste);
 
 	if (addr != laddr) {
 		(void)shim_msync(addr, page_size,

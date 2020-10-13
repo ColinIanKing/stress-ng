@@ -295,16 +295,16 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
     defined(PR_SET_MM_END_CODE)
 	{
 		char *start, *end;
-		const ptrdiff_t mask = ~(args->page_size - 1);
-		ptrdiff_t addr;
+		const intptr_t mask = ~(args->page_size - 1);
+		intptr_t addr;
 
 		(void)stress_text_addr(&start, &end);
 
-		addr = ((ptrdiff_t)start) & mask;
+		addr = ((intptr_t)start) & mask;
 		ret = prctl(PR_SET_MM, PR_SET_MM_START_CODE, addr, 0, 0);
 		(void)ret;
 
-		addr = ((ptrdiff_t)end) & mask;
+		addr = ((intptr_t)end) & mask;
 		ret = prctl(PR_SET_MM, PR_SET_MM_END_CODE, addr, 0, 0);
 		(void)ret;
 	}
@@ -313,8 +313,8 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #if defined(PR_SET_MM) &&		\
     defined(PR_SET_MM_ENV_START)
 	{
-		const ptrdiff_t mask = ~(args->page_size - 1);
-		const ptrdiff_t addr = ((ptrdiff_t)environ) & mask;
+		const intptr_t mask = ~(args->page_size - 1);
+		const intptr_t addr = ((intptr_t)environ) & mask;
 
 		ret = prctl(PR_SET_MM, PR_SET_MM_ENV_START, addr, 0, 0);
 		(void)ret;

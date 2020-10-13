@@ -1684,27 +1684,27 @@ size_t stress_text_addr(char **start, char **end)
 {
 #if defined(__APPLE__)
         extern void *get_etext(void);
-        ptrdiff_t text_start = (ptrdiff_t)get_etext();
+        intptr_t text_start = (intptr_t)get_etext();
 #elif defined(__OpenBSD__)
         extern char _start[];
-        ptrdiff_t text_start = (ptrdiff_t)&_start[0];
+        intptr_t text_start = (intptr_t)&_start[0];
 #elif defined(__TINYC__)
         extern char _etext;
-        ptrdiff_t text_start = (ptrdiff_t)&_etext;
+        intptr_t text_start = (intptr_t)&_etext;
 #else
         extern char etext;
-        ptrdiff_t text_start = (ptrdiff_t)&etext;
+        intptr_t text_start = (intptr_t)&etext;
 #endif
 
 #if defined(__APPLE__)
         extern void *get_edata(void);
-        ptrdiff_t text_end = (ptrdiff_t)get_edata();
+        intptr_t text_end = (intptr_t)get_edata();
 #elif defined(__TINYC__)
         extern char _edata;
-        ptrdiff_t text_end = (ptrdiff_t)&_edata;
+        intptr_t text_end = (intptr_t)&_edata;
 #else
         extern char edata;
-        ptrdiff_t text_end = (ptrdiff_t)&edata;
+        intptr_t text_end = (intptr_t)&edata;
 #endif
         const size_t text_len = text_end - text_start;
 

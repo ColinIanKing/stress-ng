@@ -267,10 +267,10 @@ static int stress_io_uring_iovec_submit(
 	sqe->fd = io_uring_file->fd;
 	sqe->flags = 0;
 	sqe->opcode = opcode;
-	sqe->addr = (ptrdiff_t)io_uring_file->iovecs;
+	sqe->addr = (intptr_t)io_uring_file->iovecs;
 	sqe->len = io_uring_file->blocks;
 	sqe->off = 0;
-	sqe->user_data = (ptrdiff_t)io_uring_file;
+	sqe->user_data = (intptr_t)io_uring_file;
 	sring->array[index] = index;
 	tail = next_tail;
 
@@ -308,7 +308,7 @@ static int stress_io_uring_fsync_submit(
 	sqe->opcode = IORING_OP_FSYNC;
 	sqe->len = 512;
 	sqe->off = 0;
-	sqe->user_data = (ptrdiff_t)io_uring_file;
+	sqe->user_data = (intptr_t)io_uring_file;
 	sring->array[index] = index;
 	tail = next_tail;
 

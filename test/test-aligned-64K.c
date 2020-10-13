@@ -22,13 +22,13 @@
  * functionality.
  *
  */
-#include <stddef.h>
+#include <stdint.h>
 
 int __attribute__ ((aligned(65536))) test_align64K(void);
 
 int main(void)
 {
-	const ptrdiff_t addr = (ptrdiff_t)test_align64K;
+	const intptr_t addr = (intptr_t)test_align64K;
 
 	(void)test_align64K();
 

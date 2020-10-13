@@ -379,7 +379,7 @@ do_read:
 			continue;
 		}
 		/* Go handle the page fault */
-		if (handle_page_fault(args, fd, (uint8_t *)(ptrdiff_t)msg.arg.pagefault.address,
+		if (handle_page_fault(args, fd, (uint8_t *)(intptr_t)msg.arg.pagefault.address,
 				zero_page, data, data + sz, page_size) < 0)
 			break;
 		inc_counter(args);
