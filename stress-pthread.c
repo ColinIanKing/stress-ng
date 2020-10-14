@@ -295,6 +295,27 @@ yield:
 		}
 	}
 #endif
+
+#if defined(HAVE_PTHREAD_SIGQUEUE) &&	\
+    defined(HAVE_SIGWAITINFO)
+	{
+		siginfo_t info;
+		sigset_t mask;
+		struct timespec timeout;
+
+		(void)memset(&info, 0, sizeof(info));
+		(void)sigemptyset(&mask);
+		(void)sigaddset(&mask, SIGUSR1);
+
+		timeout.tv_sec = 0;
+		timeout.tv_nsec = 1000000;
+
+		/* Ignore error return, just exercise the call */
+		ret = sigtimedwait(&mask, &info, &timeout);
+		(void)ret;
+	}
+#endif
+
 die:
 	(void)keep_running();
 
@@ -469,6 +490,20 @@ static int stress_pthread(const stress_args_t *args)
 			if (all_running)
 				break;
 		}
+
+#if defined(HAVE_PTHREAD_SIGQUEUE) &&	\
+    defined(HAVE_SIGWAITINFO)
+		for (j = 0; j < i; j++) {
+			union sigval value;
+
+			if (pthreads[j].ret)
+				continue;
+
+			(void)memset(&value, 0, sizeof(value));
+			ret = pthread_sigqueue(pthreads[j].pthread, SIGUSR1, value);
+			(void)ret;
+		}
+#endif
 
 reap:
 		keep_thread_running_flag = false;
