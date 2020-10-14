@@ -745,12 +745,15 @@ redo_policy:
 			}
 #endif
 			if (errno != EPERM) {
+				const char *msg = (errno == EBUSY) ?
+					", (recommend running with less instances)" : "";
+
 				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
-					"for scheduler policy %s, stressor instance %" PRIu32 "\n",
+					"for scheduler policy %s%s\n",
 					args->name, errno, strerror(errno),
 					policies[cyclic_policy].name,
-					args->instance);
+					msg);
 			}
 			goto tidy;
 		}
