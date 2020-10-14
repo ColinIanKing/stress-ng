@@ -720,7 +720,7 @@ static int stress_cyclic(const stress_args_t *args)
 #if defined(SCHED_DEADLINE)
 redo_policy:
 #endif
-		ret = stress_set_sched(mypid, policy, rt_stats->max_prio, args->instance != 0);
+		ret = stress_set_sched(mypid, policy, rt_stats->max_prio, true);
 		if (ret < 0) {
 #if defined(SCHED_DEADLINE)
 			/*
@@ -747,14 +747,14 @@ redo_policy:
 			if (errno != EPERM) {
 				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
-					"for scheduler policy %s\n",
+					"for scheduler policy %s, stressor instance %" PRIu32 "\n",
 					args->name, errno, strerror(errno),
-					policies[cyclic_policy].name);
+					policies[cyclic_policy].name,
+					args->instance);
 			}
 			goto tidy;
 		}
 #endif
-
 		do {
 			func(args, rt_stats, cyclic_sleep);
 			inc_counter(args);
