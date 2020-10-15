@@ -294,6 +294,9 @@ rewait:
 		}
 	} else if (pid == 0) {
 		/* Child */
+	
+		if (!keep_stressing())
+			_exit(EXIT_SUCCESS);
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -308,6 +311,8 @@ rewait:
 			ret = stress_drop_capabilities(args->name);
 			(void)ret;
 		}
+		if (!keep_stressing())
+			_exit(EXIT_SUCCESS);
 		_exit(func(args, context));
 	}
 
