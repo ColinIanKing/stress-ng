@@ -151,7 +151,7 @@ static int stress_set_socket_domain(const char *name)
 	return ret;
 }
 
-static void stress_sock_ioctl(const int fd)
+static void stress_sock_ioctl(const int fd, const int socket_domain)
 {
 	(void)fd;
 
@@ -226,6 +226,22 @@ static void stress_sock_ioctl(const int fd)
 	}
 #endif
 
+#if defined(__linux__) &&	\
+    !defined(SIOCUNIXFILE)
+#define SIOCUNIXFILE (SIOCPROTOPRIVATE + 0)
+#endif
+
+#if defined(SIOCUNIXFILE)
+	if (socket_domain == AF_UNIX) {
+		int fd_unixfile;
+
+		fd_unixfile = ioctl(fd, SIOCUNIXFILE, 0);
+		if (fd_unixfile >= 0)
+			(void)close(fd_unixfile);
+	}
+#else
+	(void)socket_domain;
+#endif
 }
 
 /*
@@ -405,7 +421,7 @@ retry:
 			}
 		} while (keep_stressing());
 
-		stress_sock_ioctl(fd);
+		stress_sock_ioctl(fd, socket_domain);
 #if defined(AF_INET) && 	\
     defined(IPPROTO_IP)	&&	\
     defined(IP_MTU)
@@ -637,6 +653,8 @@ static int stress_sock_server(
 				(void)ioctl(sfd, SIOCOUTQ, &pending);
 			}
 #endif
+			stress_sock_ioctl(fd, socket_domain);
+
 			(void)close(sfd);
 		}
 		inc_counter(args);
