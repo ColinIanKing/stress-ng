@@ -160,7 +160,11 @@ static void stress_sock_ioctl(const int fd)
 		int ret, own;
 
 		ret = ioctl(fd, FIOGETOWN, &own);
+#if defined(FIOSETOWN)
+		if (ret == 0)
+			ret = ioctl(fd, FIOSETOWN, &own);
 		(void)ret;
+#endif
 	}
 #endif
 #if defined(SIOCGPGRP)
@@ -168,6 +172,10 @@ static void stress_sock_ioctl(const int fd)
 		int ret, own;
 
 		ret = ioctl(fd, SIOCGPGRP, &own);
+#if defined(SIOCSPGRP)
+		if (ret == 0)
+			ret = ioctl(fd, SIOCSPGRP, &own);
+#endif
 		(void)ret;
 	}
 #endif
@@ -197,6 +205,27 @@ static void stress_sock_ioctl(const int fd)
 		(void)ret;
 	}
 #endif
+
+#if defined(SIOCGSTAMP_NEW) && (ULONG_MAX > 4294967295UL)
+	{
+		int ret;
+		struct timeval tv;
+
+		ret = ioctl(fd, SIOCGSTAMP_NEW, &tv);
+		(void)ret;
+	}
+#endif
+
+#if defined(SIOCGSKNS)
+	{
+		int ns_fd;
+
+		ns_fd = ioctl(fd, SIOCGSKNS);
+		if (ns_fd >= 0)
+			(void)close(ns_fd);
+	}
+#endif
+
 }
 
 /*
