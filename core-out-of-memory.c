@@ -294,7 +294,7 @@ rewait:
 		}
 	} else if (pid == 0) {
 		/* Child */
-	
+
 		if (!keep_stressing())
 			_exit(EXIT_SUCCESS);
 
