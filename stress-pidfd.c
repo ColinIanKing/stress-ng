@@ -32,7 +32,7 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_PIDFD_SEND_SIGNAL)
 
-static int stress_pidfd_open_fd(pid_t pid)
+static int stress_pidfd_open(pid_t pid, int flag)
 {
 	int fd = -1;
 
@@ -44,14 +44,19 @@ static int stress_pidfd_open_fd(pid_t pid)
 
 	/* Randomly try pidfd_open first */
 	if (stress_mwc1()) {
-		fd = shim_pidfd_open(pid, 0);
+		fd = shim_pidfd_open(pid, flag);
 	}
+	/* ..or fallback to open on /proc/$PID */
 	if (fd < 0) {
 		char buffer[1024];
+		int o_flags = O_DIRECTORY | O_CLOEXEC;
 
-		/* ..or fallback to open on /proc/$PID */
 		(void)snprintf(buffer, sizeof(buffer), "/proc/%d", pid);
-		fd = open(buffer, O_DIRECTORY | O_CLOEXEC);
+#if defined(PIDFD_NONBLOCK)
+		if (flag & PIDFD_NONBLOCK)
+			o_flags |= O_NONBLOCK;
+#endif
+		fd = open(buffer, o_flags);
 	}
 	return fd;
 }
@@ -62,7 +67,7 @@ static int stress_pidfd_supported(const char *name)
 	const pid_t pid = getpid();
 	siginfo_t info;
 
-	pidfd = stress_pidfd_open_fd(pid);
+	pidfd = stress_pidfd_open(pid, 0);
 	if (pidfd < 0) {
 		pr_inf("%s stressor will be skipped, cannot open proc entry on procfs\n",
 			name);
@@ -132,7 +137,24 @@ static int stress_pidfd(const stress_args_t *args)
 			/* Parent */
 			int pidfd, ret;
 
-			pidfd = stress_pidfd_open_fd(pid);
+
+#if defined(PIDFD_NONBLOCK)
+			pidfd = stress_pidfd_open(pid, PIDFD_NONBLOCK);
+			if (pidfd >= 0) {
+#if defined(F_GETFL) && 0
+				unsigned int flags;
+
+				flags = fcntl(pidfd, F_GETFL, 0);
+				if ((flags & O_NONBLOCK) == 0)
+					pr_fail("%s: pidfd_open opened using PIDFD_NONBLOCK "
+						"but O_NONBLOCK is not set on the file\n",
+						args->name);
+#endif
+				(void)close(pidfd);
+			}
+#endif
+
+			pidfd = stress_pidfd_open(pid, 0);
 			if (pidfd < 0) {
 				/* Process not found, try again */
 				stress_pidfd_reap(pid, pidfd);
