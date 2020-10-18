@@ -2015,8 +2015,6 @@ int stress_read_fdinfo(const pid_t pid, const int fd)
 	(void)snprintf(path, sizeof(path), "/proc/%d/fdinfo/%d",
                 (int)pid, fd);
 
-	printf("RD: %s\n", path);
-
         return system_read(path, buf, sizeof(buf));
 #else
 	(void)pid;
