@@ -471,6 +471,7 @@ static int stress_sock_server(
 	int rc = EXIT_SUCCESS;
 	const size_t page_size = args->page_size;
 	void *ptr = MAP_FAILED;
+	const pid_t self = getpid();
 
 	(void)setpgid(pid, g_pgrp);
 
@@ -654,6 +655,7 @@ static int stress_sock_server(
 			}
 #endif
 			stress_sock_ioctl(fd, socket_domain);
+			stress_read_fdinfo(self, sfd);
 
 			(void)close(sfd);
 		}
