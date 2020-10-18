@@ -183,28 +183,17 @@ exit_child:
 		_exit(EXIT_SUCCESS);
 	} else {
 		int status;
+		const pid_t self = getpid();
 
 		do {
 			uint64_t val = 1;
-			int procfd;
-			char path[PATH_MAX];
 			ssize_t ret;
 
-			(void)snprintf(path, sizeof(path), "/proc/self/fdinfo/%d",
-				stress_mwc1() ? fd1 : fd2);
 			/*
 			 *  Accessing /proc/self/fdinfo/[fd1|fd2] will exercise
 			 *  eventfd-count and eventfd-id proc interfaces.
 			 */
-			procfd = open(path, O_RDONLY);
-			if (procfd >= 0) {
-				char buffer[4096];
-				ssize_t n;
-
-				n = read(procfd, buffer, sizeof(buffer));
-				(void)n;
-				(void)close(procfd);
-			}
+			(void)stress_read_fdinfo(self, stress_mwc1() ? fd1 : fd2);
 
 			for (;;) {
 				if (!keep_stressing_flag())

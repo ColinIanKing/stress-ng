@@ -104,8 +104,7 @@ static int stress_timerfd(const stress_args_t *args)
 {
 	struct itimerspec timer;
 	uint64_t timerfd_freq = DEFAULT_TIMERFD_FREQ;
-	int timerfd[TIMERFD_MAX], procfd, count = 0, i, max_timerfd = -1;
-	char filename[PATH_MAX];
+	int timerfd[TIMERFD_MAX], count = 0, i, max_timerfd = -1;
 	bool timerfd_rand = false;
 	int file_fd = -1;
 	char file_fd_name[PATH_MAX];
@@ -113,6 +112,7 @@ static int stress_timerfd(const stress_args_t *args)
 	const bool cap_wake_alarm = stress_check_capability(SHIM_CAP_WAKE_ALARM);
 #endif
 	const int bad_fd = stress_get_bad_fd();
+	const pid_t self = getpid();
 	int ret;
 
 	(void)stress_get_setting("timerfd-rand", &timerfd_rand);
@@ -190,10 +190,6 @@ static int stress_timerfd(const stress_args_t *args)
 		}
 	}
 
-	(void)snprintf(filename, sizeof(filename), "/proc/%d/fdinfo/%d",
-		(int)args->pid, timerfd[0]);
-	procfd = open(filename, O_RDONLY);
-
 	do {
 		uint64_t expval;
 		struct itimerspec value;
@@ -267,18 +263,12 @@ static int stress_timerfd(const stress_args_t *args)
 		(void)ret;
 
 		/*
-		 *  Periodically read /proc/$pid/fdinfo/$timerfd,
+		 *  Periodically read /proc/$pid/fdinfo/timerfd[0],
 		 *  we don't care about failures, we just want to
 		 *  exercise this interface
 		 */
-		if (LIKELY(procfd > -1) && UNLIKELY(count++ >= COUNT_MAX)) {
-			ret = lseek(procfd, 0, SEEK_SET);
-			if (LIKELY(ret == 0)) {
-				char buffer[4096];
-
-				ret = read(procfd, buffer, sizeof(buffer));
-				(void)ret;
-			}
+		if (UNLIKELY(count++ >= COUNT_MAX)) {
+			(void)stress_read_fdinfo(self, timerfd[0]);
 			count = 0;
 		}
 	} while (keep_stressing());
@@ -287,8 +277,6 @@ static int stress_timerfd(const stress_args_t *args)
 		if (timerfd[i] > 0)
 			(void)close(timerfd[i]);
 	}
-	if (procfd > -1)
-		(void)close(procfd);
 	(void)close(file_fd);
 	(void)stress_temp_dir_rm_args(args);
 

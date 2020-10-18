@@ -113,12 +113,9 @@ again:
 	} else {
 		/* Parent */
 		int status;
-		char path[PATH_MAX];
+		const pid_t self = getpid();
 
 		(void)setpgid(pid, g_pgrp);
-
-		(void)snprintf(path, sizeof(path), "/proc/%d/fdinfo/%d",
-			pid, sfd);
 
 		do {
 			int ret;
@@ -150,17 +147,9 @@ again:
 			 *  the signal fd to exercise the sigmask setting
 			 *  for this specific kind of fd info.
 			 */
-			if ((fdsi.ssi_int & 0xffff) == 0) {
-				int fd;
-				char data[4096];
+			if ((fdsi.ssi_int & 0xffff) == 0)
+				(void)stress_read_fdinfo(self, sfd);
 
-				fd = open(path, O_RDONLY);
-				if (fd >= 0) {
-					ret = read(fd, data, sizeof(data));
-					(void)ret;
-					(void)close(fd);
-				}
-			}
 			inc_counter(args);
 		} while (keep_stressing());
 

@@ -2001,3 +2001,27 @@ int stress_get_kernel_release(void)
 	return -1;
 #endif
 }
+
+/*
+ *  stress_read_fdinfo()
+ *	read the fdinfo for a specific pid's fd, Linux only
+ */
+int stress_read_fdinfo(const pid_t pid, const int fd)
+{
+#if defined(__linux__)
+	char path[PATH_MAX];
+	char buf[4096];
+
+	(void)snprintf(path, sizeof(path), "/proc/%d/fdinfo/%d",
+                (int)pid, fd);
+
+	printf("RD: %s\n", path);
+
+        return system_read(path, buf, sizeof(buf));
+#else
+	(void)pid;
+	(void)fd;
+
+	return 0;
+#endif
+}

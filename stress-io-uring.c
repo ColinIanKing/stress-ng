@@ -391,24 +391,6 @@ static int stress_io_uring_iovec_complete(
 }
 
 /*
- *  stress_io_uring_fdinfo()
- *	io_uring provides an fdinfo handler, so exercise this
- * 	and silently ignore failyues
- */
-static void stress_io_uring_fdinfo(const int io_uring_fd)
-{
-	char path[PATH_MAX];
-	char buf[4096];
-	int ret;
-
-	(void)snprintf(path, sizeof(path), "/proc/%d/fdinfo/%d",
-		getpid(), io_uring_fd);
-
-	ret = system_read(path, buf, sizeof(buf));
-	(void)ret;
-}
-
-/*
  *  stress_io_uring
  *	stress asynchronous I/O
  */
@@ -422,6 +404,7 @@ static int stress_io_uring(const stress_args_t *args)
 	const size_t block_size = 512;
 	off_t file_size = (off_t)blocks * block_size;
 	stress_io_uring_submit_t submit;
+	const pid_t self = getpid();
 
 	(void)memset(&submit, 0, sizeof(submit));
 	(void)memset(&io_uring_file, 0, sizeof(io_uring_file));
@@ -506,7 +489,7 @@ static int stress_io_uring(const stress_args_t *args)
 				break;
 #endif
 
-			stress_io_uring_fdinfo(submit.io_uring_fd);
+			(void)stress_read_fdinfo(self, submit.io_uring_fd);
 		}
 		inc_counter(args);
 	} while (keep_stressing());

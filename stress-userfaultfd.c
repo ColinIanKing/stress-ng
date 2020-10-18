@@ -172,15 +172,15 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	size_t sz;
 	uint8_t *data;
 	void *zero_page = NULL;
-	int fd = -1, fdinfo = -1, status, rc = EXIT_SUCCESS, count = 0;
+	int fd = -1, status, rc = EXIT_SUCCESS, count = 0;
 	const unsigned int uffdio_copy = 1 << _UFFDIO_COPY;
 	const unsigned int uffdio_zeropage = 1 << _UFFDIO_ZEROPAGE;
 	pid_t pid;
+	const pid_t self = getpid();
 	struct uffdio_api api;
 	struct uffdio_register reg;
 	stress_context_t c;
 	bool do_poll = true;
-	char filename[PATH_MAX];
 	static uint8_t stack[STACK_SIZE]; /* Child clone stack */
 	const ssize_t stack_offset =
 		stress_get_stack_direction() * (STACK_SIZE - 64);
@@ -230,10 +230,6 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 			args->name, errno, strerror(errno));
 		goto unmap_data;
 	}
-
-	(void)snprintf(filename, sizeof(filename), "/proc/%d/fdinfo/%d",
-		getpid(), fd);
-	fdinfo = open(filename, O_RDONLY);
 
 	if (stress_set_nonblock(fd) < 0)
 		do_poll = false;
@@ -287,7 +283,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	c.data = data;
 	c.sz = sz;
 	c.page_size = page_size;
-	c.parent = getpid();
+	c.parent = self;
 
 	/*
 	 *  We need to clone and share the same VM address space
@@ -345,15 +341,8 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 			if (!(fds[0].revents & POLLIN))
 				continue;
 
-			if (LIKELY(fdinfo > -1) &&
-			    UNLIKELY(count++ >= COUNT_MAX)) {
-				ret = lseek(fdinfo, 0, SEEK_SET);
-				if (ret == 0) {
-					char buffer[4096];
-
-					ret = read(fdinfo, buffer, sizeof(buffer));
-					(void)ret;
-				}
+			if (UNLIKELY(count++ >= COUNT_MAX)) {
+				(void)stress_read_fdinfo(self, fd);
 				count = 0;
 			}
 		}
@@ -402,8 +391,6 @@ unmap_data:
 	(void)munmap(data, sz);
 free_zeropage:
 	free(zero_page);
-	if (fdinfo > -1)
-		(void)close(fdinfo);
 	if (fd > -1)
 		(void)close(fd);
 
