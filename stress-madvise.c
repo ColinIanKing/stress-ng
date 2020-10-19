@@ -259,8 +259,8 @@ static void *stress_madvise_pages(void *arg)
 #endif
 			shim_munlock(buf, page_size);
 		}
-#endif
 	}
+#endif
 
 #if defined(MADV_NORMAL)
 	{
