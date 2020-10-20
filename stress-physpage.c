@@ -55,6 +55,7 @@ static int stress_virt_to_phys(
 	const size_t page_size,
 	const int fd_pm,
 	const int fd_pc,
+	const int fd_mem,
 	const uintptr_t virt_addr)
 {
 	off_t offset;
@@ -106,6 +107,24 @@ static int stress_virt_to_phys(
 				args->name, (void *)phys_addr);
 			goto err;
 		}
+
+		/*
+		 *  Try to exercise /dev/mem, seek may work, read most probably
+		 *  will fail with -EPERM. Ignore any errors, the aim here is
+		 *  just to try and exercise this interface.
+		 */
+		if (fd_mem >= 0) {
+			off_t offret;
+			char data[16];
+
+			offret = lseek(fd_mem, (off_t)phys_addr, SEEK_SET);
+			if (offret != (off_t)-1) {
+				ssize_t rdret;
+
+				rdret = read(fd_mem, data, sizeof(data));
+				(void)rdret;
+			}
+		}
 		return 0;
 	} else {
 		/*
@@ -124,7 +143,7 @@ err:
  */
 static int stress_physpage(const stress_args_t *args)
 {
-	int fd_pm, fd_pc;
+	int fd_pm, fd_pc, fd_mem;
 	const size_t page_size = args->page_size;
 	uint8_t *ptr = NULL;
 
@@ -146,21 +165,28 @@ static int stress_physpage(const stress_args_t *args)
 		fd_pc = -1;
 	}
 
+	/*
+	 *  this may fail, silently ignore failures
+	 */
+	fd_mem = open("/dev/mem", O_RDONLY);
+
 	do {
 		void *nptr;
 
 		nptr = mmap(ptr, page_size, PROT_READ | PROT_WRITE,
 			MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (nptr != MAP_FAILED) {
-			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, (uintptr_t)nptr);
+			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)nptr);
 			(void)munmap(nptr, page_size);
-			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, (uintptr_t)g_shared->stats);
+			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)g_shared->stats);
 
 		}
 		ptr += page_size;
 		inc_counter(args);
 	} while (keep_stressing());
 
+	if (fd_mem > 0)
+		(void)close(fd_mem);
 	if (fd_pc > 0)
 		(void)close(fd_pc);
 	(void)close(fd_pm);
