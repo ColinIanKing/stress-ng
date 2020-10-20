@@ -61,12 +61,18 @@ static int stress_page_check(
 	const uint8_t val,
 	const size_t sz)
 {
+#if defined(__FreeBSD__)
+	(void)buf;
+	(void)val;
+	(void)sz;
+#else
 	size_t i;
 
 	for (i = 0; i < sz; i++) {
 		if (buf[i] != val)
 			return -1;
 	}
+#endif
 	return 0;
 }
 
