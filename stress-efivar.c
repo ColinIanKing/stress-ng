@@ -301,7 +301,7 @@ static int stress_efivar_supported(const char *name)
 
 /*
  *  stress_efivar()
- *	stress that does lots of not a lot
+ *	stress that exercises the efi variables
  */
 static int stress_efivar(const stress_args_t *args)
 {
