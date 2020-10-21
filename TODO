@@ -19,3 +19,4 @@
 List of TODO items:
 
 1. restartable seq: https://lore.kernel.org/lkml/20180412192800.15708-3-mathieu.desnoyers@efficios.com/
+2. uprobes https://lwn.net/Articles/499190/ - kernel/events/uprobes.c
