@@ -49,6 +49,19 @@ typedef struct {
 	bool	esrch;
 } stress_dev_info_t;
 
+struct shim_nextdqblk {
+	uint64_t dqb_bhardlimit;
+	uint64_t dqb_bsoftlimit;
+	uint64_t dqb_curspace;
+	uint64_t dqb_ihardlimit;
+	uint64_t dqb_isoftlimit;
+	uint64_t dqb_curinodes;
+	uint64_t dqb_btime;
+	uint64_t dqb_itime;
+	uint32_t dqb_valid;
+	uint32_t dqb_id;
+};
+
 #define DO_Q_GETQUOTA	0x0001
 #define DO_Q_GETFMT	0x0002
 #define DO_Q_GETINFO	0x0004
@@ -122,14 +135,29 @@ static int do_quotactl(
  */
 static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 {
-	int tested = 0, failed = 0, enosys = 0, esrch = 0;
+	int err, tested = 0, failed = 0, enosys = 0, esrch = 0;
+	char buffer[1024];
+
 #if defined(Q_GETQUOTA)
 	if (keep_stressing_flag()) {
 		struct dqblk dqblk;
-		int err = do_quotactl(args, "Q_GETQUOTA",
-				&tested, &failed, &enosys, &esrch,
-				QCMD(Q_GETQUOTA, USRQUOTA),
+
+		err = do_quotactl(args, "Q_GETQUOTA",
+			&tested, &failed, &enosys, &esrch,
+			QCMD(Q_GETQUOTA, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqblk);
+		if (err == EPERM)
+			return err;
+	}
+#endif
+#if defined(Q_GETNEXTQUOTA)
+	if (keep_stressing_flag()) {
+		struct shim_nextdqblk nextdqblk;
+
+		err = do_quotactl(args, "Q_GETNEXTQUOTA",
+			&tested, &failed, &enosys, &esrch,
+			QCMD(Q_GETNEXTQUOTA, USRQUOTA),
+			dev->name, 0, (caddr_t)&nextdqblk);
 		if (err == EPERM)
 			return err;
 	}
@@ -137,9 +165,10 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 #if defined(Q_GETFMT)
 	if (keep_stressing_flag()) {
 		uint32_t format;
-		int err = do_quotactl(args, "Q_GETFMT",
-				&tested, &failed, &enosys, &esrch,
-				QCMD(Q_GETFMT, USRQUOTA),
+
+		err = do_quotactl(args, "Q_GETFMT",
+			&tested, &failed, &enosys, &esrch,
+			QCMD(Q_GETFMT, USRQUOTA),
 			dev->name, 0, (caddr_t)&format);
 		if (err == EPERM)
 			return err;
@@ -148,9 +177,10 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 #if defined(Q_GETINFO)
 	if (keep_stressing_flag()) {
 		struct dqinfo dqinfo;
-		int err = do_quotactl(args, "Q_GETINFO",
-				&tested, &failed, &enosys, &esrch,
-				QCMD(Q_GETINFO, USRQUOTA),
+
+		err = do_quotactl(args, "Q_GETINFO",
+			&tested, &failed, &enosys, &esrch,
+			QCMD(Q_GETINFO, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqinfo);
 		if (err == EPERM)
 			return err;
@@ -160,9 +190,10 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	/* Obsolete in recent kernels */
 	if (keep_stressing_flag()) {
 		struct dqstats dqstats;
-		int err = do_quotactl(args, "Q_GETSTATS",
-				&tested, &failed, &enosys, &esrch,
-				QCMD(Q_GETSTATS, USRQUOTA),
+
+		err = do_quotactl(args, "Q_GETSTATS",
+			&tested, &failed, &enosys, &esrch,
+			QCMD(Q_GETSTATS, USRQUOTA),
 			dev->name, 0, (caddr_t)&dqstats);
 		if (err == EPERM)
 			return err;
@@ -170,14 +201,32 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 #endif
 #if defined(Q_SYNC)
 	if (keep_stressing_flag()) {
-		int err = do_quotactl(args, "Q_SYNC",
-				&tested, &failed, &enosys, &esrch,
-				QCMD(Q_SYNC, USRQUOTA),
+		err = do_quotactl(args, "Q_SYNC",
+			&tested, &failed, &enosys, &esrch,
+			QCMD(Q_SYNC, USRQUOTA),
 			dev->name, 0, 0);
 		if (err == EPERM)
 			return err;
 	}
 #endif
+	/*
+	 *  ..and exercise with some invalid arguments..
+	 */
+	err = quotactl(~0, dev->name, USRQUOTA, (caddr_t)buffer);
+	(void)err;
+#if defined(Q_GETINFO)
+	{
+		struct dqinfo dqinfo;
+
+		err = quotactl(QCMD(Q_GETQUOTA, USRQUOTA), "", 0, (caddr_t)&dqinfo);
+		(void)err;
+		err = quotactl(QCMD(Q_GETQUOTA, USRQUOTA), dev->name, ~0, (caddr_t)&dqinfo);
+		(void)err;
+		err = quotactl(QCMD(Q_GETQUOTA, -1), dev->name, ~0, (caddr_t)&dqinfo);
+		(void)err;
+	}
+#endif
+
 	if (tested == 0) {
 		pr_err("%s: quotactl() failed, quota commands "
 			"not available\n", args->name);
