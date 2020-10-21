@@ -116,7 +116,7 @@ static int stress_fork_fn(
 	(void)ret;
 
 	do {
-		uint32_t i, n;
+		NOCLOBBER uint32_t i, n;
 
 		(void)memset(info, 0, sizeof(info));
 
