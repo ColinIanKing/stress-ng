@@ -154,6 +154,39 @@ static int stress_verity(const stress_args_t *args)
 		}
 #endif
 		(void)close(fd);
+
+		/*
+		 *  Read data back, should exercise verity verification
+		 */
+		fd = open(filename, O_RDONLY);
+		if (fd < 0) {
+			ret = exit_status(errno);
+			pr_err("%s: cannot re-open %s, errno=%d (%s)\n",
+				args->name, filename, errno, strerror(errno));
+			goto clean;
+		}
+		for (i = 0; i < 16; i++) {
+			const off_t off = (off_t)i * 64 * 1024;
+
+			(void)memset(block, i, sizeof(block));
+			ret = (int)lseek(fd, off, SEEK_SET);
+			(void)ret;
+
+			ret = (int)read(fd, block, sizeof(block));
+			if (ret < 0) {
+				ret = exit_status(errno);
+				pr_err("%s: cannot read %s\n", args->name, filename);
+				goto clean;
+			}
+			if (block[0] != i) {
+				pr_err("%s: data in file block %d is incorrect\n",
+					args->name, i);
+				goto clean;
+			}
+		}
+		(void)shim_fsync(fd);
+
+		(void)close(fd);
 		(void)unlink(filename);
 
 		inc_counter(args);
