@@ -33,9 +33,19 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LINUX_FSVERITY_H) &&		\
     defined(HAVE_FSVERITY_ENABLE_ARG) &&	\
     defined(HAVE_FSVERITY_DIGEST) &&		\
-    defined(FS_VERITY_HASH_ALG_SHA256) &&	\
     defined(FS_IOC_ENABLE_VERITY) &&		\
-    defined(FS_IOC_MEASURE_VERITY)
+    defined(FS_IOC_MEASURE_VERITY) &&		\
+    (defined(FS_VERITY_HASH_ALG_SHA256) ||	\
+     defined(FS_VERITY_HASH_ALG_SHA512))
+
+static const int hash_algorithms[] = {
+#if defined(FS_VERITY_HASH_ALG_SHA256)
+	FS_VERITY_HASH_ALG_SHA256,
+#endif
+#if defined(FS_VERITY_HASH_ALG_SHA512)
+	FS_VERITY_HASH_ALG_SHA512,
+#endif
+};
 
 /*
  *  stress_verity
@@ -46,6 +56,13 @@ static int stress_verity(const stress_args_t *args)
 	char filename[PATH_MAX];
 	int ret, fd;
 	uint32_t rnd = stress_mwc32();
+	size_t hash = 0;
+
+	if (SIZEOF_ARRAY(hash_algorithms) == 0) {
+		pr_inf("%s: no hash algorithms defined, skipping stressor\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -93,12 +110,16 @@ static int stress_verity(const stress_args_t *args)
 
 		(void)memset(&enable, 0, sizeof(enable));
 		enable.version = 1;
-		enable.hash_algorithm = FS_VERITY_HASH_ALG_SHA256;
+		enable.hash_algorithm = hash_algorithms[hash];
 		enable.block_size = args->page_size;
 		enable.salt_size = 0;
 		enable.salt_ptr = (intptr_t)NULL;
 		enable.sig_size = 0;
 		enable.sig_ptr = (intptr_t)NULL;
+
+		hash++;
+		if (hash >= SIZEOF_ARRAY(hash_algorithms))
+			hash = 0;
 
 		ret = ioctl(fd, FS_IOC_ENABLE_VERITY, &enable);
 		if (ret < 0) {
