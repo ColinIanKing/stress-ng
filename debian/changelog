@@ -1,3 +1,212 @@
+stress-ng (0.11.22-1) unstable; urgency=medium
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: update date and update contributors kudos
+  * stress-dev: make function static, cleans up gcc-10 pedantic builds
+  * stress-sockdiag: drop const, cleans up pedantic clang-10 warning
+  * stress-dev: exercise sound control device ioctls
+  * stress-sockdiag: exercise a wider range of protocol families
+  * stress-verity: exercise FS_VERITY_HASH_ALG_SHA256 and
+    FS_VERITY_HASH_ALG_SHA512
+  * stress-fork: avoid potential variable clobbering by vfork
+  * TODO: add uprobes as a todo item
+  * stress-verity: read data back and check block contents
+  * stress-quota: exercise Q_GETNEXTQUOTA and some invalid quota arguments
+  * stress-efivar: re-work comment to something more sensible
+  * stress-physpage: add attempt to seek and read on /dev/mem
+  * stress-msync: skip sanity check on FreeBSD, this currently always fails
+  * stress-madvise: fix incorrect placement of #endif
+  * stress-sock: exercise socket fdinfo
+  * core-helper: remove debug in stress_read_fdinfo
+  * core: add stress_read_fdinfo to read linux fdinfo data
+  * core-out-of-memory: remove extraneous tab
+  * stress-pidfd: exercise PIDFD_NONBLOCK
+  * core-out-of-memory: add a couple more yield points
+  * stress-sock: exercise SIOCUNIXFILE on AF_UNIX socket domains
+  * stress-sock: add FIOSETOWN, SIOCSPGRP, SIOCGSTAMP_NEW and SIOCGSKNS
+    ioctls
+  * stress-pthread: exercise pthread_sigqueue
+  * stress-cyclic: on EBUSY report a recommendation to run with less
+    instance
+  * stress-cyclic: report instance that fails with errors such as EBUSY
+  * stress-sigfd: add build time detection of the signalfd system call
+  * Use intptr_t instead of ptrdiff_t for ptr to int casting
+  * stress-vdso: fix typo, remove extraneous i in message
+  * stress-io-uring: fix another cast warning on 32 bit arm systems
+  * stress-io-uring: fix cast warning on 32 bit arm systems
+  * stress-verity: fix cast warning on 32 bit arm systems
+  * stress-hdd: fix fcntl F_SET_FILE_RW_HINT incorrect argument
+  * Manual: replace "the the" with "the" in comment
+  * stress-icache: replace "the the" with "the" in comment
+  * kernel-coverage: re-work to get good overall coverage in a few hour
+    run
+  * stress-mlock: add more yield points
+  * stress-wait: ignore issues with a zero si_signo (part 2)
+  * stress-wait: ignore issues with a zero si_signo
+  * core-helper: only declare rlim if it is required
+  * test: test-cdrom_tochdr: memset header to clean up cppcheck style
+    warning
+  * stress-xattr: voidify an unused return value in ret
+  * stress-timer: reduce scope of variable ret
+  * stress-procfs: remove redundant eos check on *pptr
+  * stress-madvise: move int ret to a code block
+  * stress-madvise: move pointer unmapped to a code block
+  * stress-dir: no need to close dirfd if it has not been opened
+  * stress-dir: add flock build time checks for systems that do not
+    support it
+  * stress-schedpolicy: only exercise NULL params on Linux
+  * stress-fork: fix return type of local_shim_fork, should return pid_t
+  * core-shim: fix minix build warning - declare stime() the minix way
+  * stress-rename: simplify renameat/renameat2 detection
+  * stress-sockpair: add more intelligence to socketpair failure returns
+  * stress-verity: handle ENOTTY on FS_IOC_ENABLE_VERITY failure
+  * stress-sockpair: close fds and bail out correctly on termination
+  * stress-wait: fix missing break on if statement
+  * tests/test-stime: fix static analysis warning
+  * stress-shm-sysv: make get_bad_shmid static
+  * stress-context: fix pedantic build warning on shadowed variable name
+  * stress-shm-sysv: fix build warning on unused parameter cap_ipc_lock
+  * stress-xattr: line break some overly wide lines
+  * stress-xattr: add build time check for XATTR_SIZE_MAX
+  * Makefile: use $(GREP) for grep
+  * stress-sysfs: add ppoll on sysfs fd
+  * stress-sysfs: increase timeout to 1 millisecond
+  * stress-get: don't report failure on EPERM failures
+  * syscalls: update vhangup entry
+  * stress-session: exercise vhangup for more kernel coverage
+  * stress-session: check session id failure return with (pid_t)-1
+  * stress-fork: exercise vhangup to get more kernel coverage
+  * Add auto build detection of vhangup system call
+  * stress-fork: put pid and errno info into a struct
+  * syscalls: update process_madvise information
+  * stress-set: exercise stime() if it is available
+  * stress-fork: remove trailing white space
+  * core-shim: remove debug foo message
+  * stress-madvise: remove new line
+  * stress-tee: re-enable invalid tee flags check with kernel release check
+  * core-helper: add helper functions to help with kernel release values
+  * stress-tee: relax invalid flags test for the moment
+  * stress-madvise: exercise process_madvise()
+  * core-shim: update with correct process_madvise API
+  * stress-fork: try to exercise native fork system call
+  * stress-wait: try to use syscalls in preference to libc wrapped
+    wait* calls
+  * stress-brk: detect if sbrk is implemented and improve shim wrapper
+  * stress-context: add pre/post context region canary checks
+  * stress-chattr: prefix defines with SHIM_ to avoid name clashing
+  * stress-sem-sysv: voidify return from memset
+  * stress-access: declare bad_fd if HAVE_FACCESSAT is defined
+  * stress-lease: don't report a failure on termination on interrupted wait
+  * stress-dir: remove tab, make line an empty new line
+  * stress-ng.h: clean up some white spaces/intentations
+  * stress-dir: exercise flocks on a dirfd
+  * stress-dir: stat directory entries
+  * stress-dir: add dir mmap and improve yielding and directory cleanup
+  * stress-dentry: split multiple defined() checks over lines
+  * stress-rename: return error state from exercise_renameat2
+  * stress-rename: return error state from exercise_renameat
+  * stress-rename: break defined() checks over multiple lines
+  * stress-rename: some minor reformatting changes and code cleanup
+  * stress-rawdev: don't use static buffer in stress_rawdev_path, add
+    comments
+  * stress-oom-pipe: exercise invalid pipe size setting, add more yield
+    points
+  * stress-longjmp: add canary memory clobbering checks and longjmp timings
+  * stress-lockf: add occasional F_TEST lockf command
+  * stress-lease: terminate child if lease file open fails more than 3 times
+  * stress-lease: exercise F_GETLEASE to get the lease type
+  * stress-lease: add lease read locking
+  * stress-key: replace sys_ prefix on syscall wrappers with shim_
+  * stress-kcmp: prefix kcmp_epoll_slot with shim to avoid kcmp name clashes
+  * stress-judy: update stressor comment
+  * stress-icache: clean up incorrect tab spacing on a continuation marker
+  * core-out-of-memory: do zero re-wait on failed first wait
+  * stress-handle: use the oomable child helper
+  * stress-handle: clean up code, add upper bounds on mount info being read
+  * syscalls: update readlinkat entry
+  * stress-link: exercise readlinkat and add build detection
+  * Add a signal() exercsing stressor
+  * stress-get: remove void argument in sgetmask call
+  * stress-set/get: exercise obsolete system calls sgetmask/ssetmask
+  * stress-set: exercise setfsuid() and add in build-time detection
+  * stress-set: exercise setfsgid() and add in build-time detection
+  * syscalls: update note for settimeofday
+  * syscalls: add note for nfsservctl
+  * stress-shm-sysv: fix failed open check on map_files open
+  * stress-sockabuse: voidify returns of several system calls
+  * stress-shm-sysv: voidify returns of several system calls
+  * stress-pthread: voidify args with empty stress_pthread_tid_address
+  * stress-verity: add a file system verity stressor
+  * stress-file-ioctl: fix errno handling and remove temp directory
+  * stress-shm-sysv: minor cleanups, make buffer smaller
+  * stress-af-alg: check for ELIBBAD on bind
+  * stress-dev: add termios2 ioctls
+  * Add readlink shim to avoid calling readlinkat to get more kernel coverage
+  * kernel-coverage: remove zombie max stressor, it's OOMing too much
+  * syscalls.txt: update entry for lookup_dcookie
+  * stress-get: perform lookup_dcookie calls on random cookies
+  * stress-pthread: exercise set_tid_address if it is available
+  * stress-get: add obsolete ugetrlimit call
+  * stress-dir/mknod: use shim_strlcpy instead of strlcpy (LP: #1896010)
+  * stress-mknod: add mknodat system call if it is available
+  * syscalls: update entry for unlinkat
+  * stress-dirdeep: add unlinkat call and autodetect syscall at build time
+  * stress-dir: use mkdirat if it is available to create directories
+
+  [Khalid Elmously]
+  * stress-wait: add missing semi-colon
+
+  [Piyush Goyal]
+  * stress-tee: exercise tee syscall with 0 len
+  * stress-tee: add check on tee for same pipes
+  * stress-tee: exercise tee with invalid flags
+  * stress-rename: correct a typo in a comment
+  * stress-rename: exercise renameat2 on file fd
+  * stress-rename: exercise renameat on bad fd
+  * stress-rename: exercise valid renameat2 on RENAME_EXCHANGE flag
+  * stress-rename: exercise renameat2 on file fd
+  * stress-rename: exercise renameat2 on bad fd
+  * stress-rename: add check for renameat2 EEXIST error
+  * stress-rename: add check for renameat2 on ENOENT error
+  * stress-rename: exercise renameat2 with invalid combination of flags
+  * stress-rename: exercise renameat2 with invalid flags
+  * stress-shm-sysv: add check for shmctl EIDRM error
+  * stress-shm-sysv: exercise shmctl on invalid shmid
+  * stress-shm-sys: exercise invalid commands in shmctl syscall
+  * stress-shm-sysv: add check for shmget ENOENT error
+  * stress-shm-sysv: increase kernel coverage for shmget syscall
+  * stress-shm-sys: add check shmget EPERM error
+  * stress-shm-sysv: add check for shmget syscall EINVAL error
+  * stress-shm-sysv: add check for shmget syscall EINVAL error
+  * stress-shm-sys: exercise shmget on invalid sizes argument
+  * stress-shm-sys: exercise shmget on invalid flags
+  * stress-shm-sysv: exercise shmat on unaligned address and SHM_RND
+  * stress-shm-sysv: exercise shmdt on unaligned page address
+  * stress-shm-sysv: exercise shmat on unaligned page address
+  * stress-shm-sysv: exercise shmat with SHM_REMAP flag on NULL address
+  * stress-shm-sysv: exercise shmat with all possible values of flags
+  * stress-shm-sysv: exercise shmdt on invalid flag
+  * stress-shm-sysv: exercise shmat on invalid fd
+  * stress-xattr: add check on setxattr syscall XATTR_CREATE flag
+  * stress-xattr: exercise invalid size argument setxattr syscall
+  * stress-xattr: add check on setxattr syscall XATTR_REPLACE flag
+  * stress-xattr: exercise invalid setxattr syscall
+  * stress-aio-linux: exercise invalid io_setup syscall
+  * stress-xattr: add check on lsetxattr syscall XATTR_CREATE flag
+  * stress-xattr: exercise invalid size argument lsetxattr syscall
+  * stress-xattr: add check on lsetxattr syscall XATTR_REPLACE flag
+  * stress-xattr: exercise invalid lsetxattr syscall
+  * stress-xattr: exercise invalid size argument fsetxattr syscall
+  * stress-xattr: add check on fsetxattr syscall XATTR_CREATE flag
+  * stress-xattr: add check on fsetxattr syscall XATTR_REPLACE flag
+  * stress-xattr: exercise fsetxattr with invalid flags
+  * stress-schedpolicy: exercise invalid sched_setparam syscalls
+  * stress-schedpolicy: exercise invalid sched_getparam syscalls
+  * stress-schedpolicy: exercise invalid sched_setattr syscalls
+
+ -- Colin King <colin.king@canonical.com>  Thu, 22 Oct 2020 19:51:52 +0100
+
 stress-ng (0.11.21-1) unstable; urgency=medium
 
   [Colin Ian King]
