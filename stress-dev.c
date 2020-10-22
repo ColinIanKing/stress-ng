@@ -2451,6 +2451,76 @@ static void stress_dev_ptp_linux(
 #endif
 }
 
+/*
+ *  stress_dev_snd_control_linux()
+ * 	exercise Linux sound devices
+ */
+void stress_dev_snd_control_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
+{
+	(void)name;
+	(void)fd;
+	(void)devpath;
+
+#if defined(SNDRV_CTL_IOCTL_PVERSION)
+	{
+		int ret, ver;
+
+		ret = ioctl(fd, SNDRV_CTL_IOCTL_PVERSION, &ver);
+		(void)ret;
+	}
+#endif
+
+#if defined(SNDRV_CTL_IOCTL_CARD_INFO) &&	\
+    defined(HAVE_SND_CTL_CARD_INFO)
+	{
+		int ret;
+		struct snd_ctl_card_info card;
+
+		ret = ioctl(fd, SNDRV_CTL_IOCTL_CARD_INFO, &card);
+		(void)ret;
+	}
+#endif
+
+#if defined(SNDRV_CTL_IOCTL_TLV_READ) &&	\
+    defined(HAVE_SND_CTL_TLV)
+	{
+		int ret;
+		struct tlv_buf {
+			struct snd_ctl_tlv tlv;
+			unsigned int data[4];
+		} buf;
+
+		/* intentionally will fail with -EINVAL */
+		buf.tlv.numid = 0;
+		buf.tlv.length = sizeof(buf.data);
+		ret = ioctl(fd, SNDRV_CTL_IOCTL_TLV_READ, (struct snd_ctl_tlv *)&buf.tlv);
+		(void)ret;
+
+		/* intentionally will fail with -ENOENT */
+		buf.tlv.numid = -1;
+		buf.tlv.length = sizeof(buf.data);
+		ret = ioctl(fd, SNDRV_CTL_IOCTL_TLV_READ, (struct snd_ctl_tlv *)&buf.tlv);
+		(void)ret;
+	}
+#endif
+
+#if defined(SNDRV_CTL_IOCTL_POWER_STATE)
+	{
+		int ret, state;
+
+		ret = ioctl(fd, SNDRV_CTL_IOCTL_POWER_STATE, &state);
+#if defined(SNDRV_CTL_IOCTL_POWER)
+		if (ret == 0)
+			ret = ioctl(fd, SNDRV_CTL_IOCTL_POWER, &state);
+#endif
+		(void)ret;
+	}
+#endif
+}
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -2489,7 +2559,8 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/hpet",	stress_dev_hpet_linux),
 #endif
 	DEV_FUNC("/dev/null",	stress_dev_null_nop),
-	DEV_FUNC("/dev/ptp",	stress_dev_ptp_linux)
+	DEV_FUNC("/dev/ptp",	stress_dev_ptp_linux),
+	DEV_FUNC("/dev/snd/control",	stress_dev_snd_control_linux),
 };
 
 /*
