@@ -2455,7 +2455,7 @@ static void stress_dev_ptp_linux(
  *  stress_dev_snd_control_linux()
  * 	exercise Linux sound devices
  */
-void stress_dev_snd_control_linux(
+static void stress_dev_snd_control_linux(
 	const char *name,
 	const int fd,
 	const char *devpath)
