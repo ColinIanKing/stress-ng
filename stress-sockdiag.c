@@ -45,7 +45,7 @@ static int sockdiag_send(const stress_args_t *args, const int fd)
 {
 	static size_t family = 0;
 
-	static const struct sockaddr_nl nladdr = {
+	static struct sockaddr_nl nladdr = {
 		.nl_family = AF_NETLINK
 	};
 
