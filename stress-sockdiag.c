@@ -43,7 +43,9 @@ typedef struct {
 
 static int sockdiag_send(const stress_args_t *args, const int fd)
 {
-	static struct sockaddr_nl nladdr = {
+	static size_t family = 0;
+
+	static const struct sockaddr_nl nladdr = {
 		.nl_family = AF_NETLINK
 	};
 
@@ -80,8 +82,88 @@ static int sockdiag_send(const stress_args_t *args, const int fd)
 		.msg_iovlen = 1
 	};
 
+	static const int families[] = {
+#if defined(AF_UNIX)
+		AF_UNIX,
+#endif
+#if defined(AF_LOCAL)
+		AF_LOCAL,
+#endif
+#if defined(AF_INET)
+		AF_INET,
+#endif
+#if defined(AF_AX25)
+		AF_AX25,
+#endif
+#if defined(AF_IPX)
+		AF_IPX,
+#endif
+#if defined(AF_APPLETALK)
+		AF_APPLETALK,
+#endif
+#if defined(AF_X25)
+		AF_X25,
+#endif
+#if defined(AF_INET6)
+		AF_INET6,
+#endif
+#if defined(AF_DECnet)
+		AF_DECnet,
+#endif
+#if defined(AF_KEY)
+		AF_KEY,
+#endif
+#if defined(AF_NETLINK)
+		AF_NETLINK,
+#endif
+#if defined(AF_PACKET)
+		AF_PACKET,
+#endif
+#if defined(AF_RDS)
+		AF_RDS,
+#endif
+#if defined(AF_PPPOX)
+		AF_PPPOX,
+#endif
+#if defined(AF_LLC)
+		AF_LLC,
+#endif
+#if defined(AF_IB)
+		AF_IB,
+#endif
+#if defined(AF_MPLS)
+		AF_MPLS,
+#endif
+#if defined(AF_CAN)
+		AF_CAN,
+#endif
+#if defined(AF_TIPC)
+		AF_TIPC,
+#endif
+#if defined(AF_BLUETOOTH)
+		AF_BLUETOOTH,
+#endif
+#if defined(AF_ALG)
+		AF_ALG,
+#endif
+#if defined(AF_VSOCK)
+		AF_VSOCK,
+#endif
+#if defined(AF_KCM)
+		AF_KCM,
+#endif
+#if defined(AF_XDP)
+		AF_XDP
+#endif
+	};
+
 	while (keep_stressing()) {
 		ssize_t ret;
+
+		request.udr.sdiag_family = families[family];
+		family++;
+		if (family >= SIZEOF_ARRAY(families))
+			family = 0;
 
 		ret = sendmsg(fd, &msg, 0);
 		if (ret > 0)
@@ -102,28 +184,14 @@ static int stress_sockdiag_parse(
 
 	if (len < NLMSG_LENGTH(sizeof(*diag))) {
 		/* short response, ignore for now */
-		return -1;
-	}
-
-	if (diag->udiag_family != AF_UNIX) {
-		/* bad family, ignore */
-		return -1;
+		return 0;
 	}
 
 	rta_len = len - NLMSG_LENGTH(sizeof(*diag));
 	for (attr = (struct rtattr *) (diag + 1);
 	     RTA_OK(attr, rta_len) && keep_stressing();
 	     attr = RTA_NEXT(attr, rta_len)) {
-		switch (attr->rta_type) {
-		case UNIX_DIAG_NAME:
-			inc_counter(args);
-			break;
-		case UNIX_DIAG_PEER:
-			inc_counter(args);
-			break;
-		default:
-			break;
-		}
+		inc_counter(args);
 	}
 
 	return 0;
@@ -218,11 +286,7 @@ static int stress_sockdiag(const stress_args_t *args)
 			(void)close(fd);
 			break;
 		}
-		rc = sockdiag_recv(args, fd);
-		if (rc < 0) {
-			(void)close(fd);
-			break;
-		}
+		(void)sockdiag_recv(args, fd);
 		(void)close(fd);
 	} while (keep_stressing());
 
