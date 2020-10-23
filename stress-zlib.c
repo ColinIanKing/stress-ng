@@ -65,7 +65,7 @@ typedef struct {
 } stress_xsum_t;
 
 typedef struct {
-	char		*data_func;	/* pointer to data generator fucntion */
+	char		*data_func;	/* pointer to data generator function */
 	int32_t		window_bits;	/* zlib window bits */
 	uint32_t	level;		/* zlib compression level */
 	uint32_t	mem_level;	/* zlib memory usage */

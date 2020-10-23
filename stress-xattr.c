@@ -136,7 +136,7 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_fsetxattr(fd, attrname, value, strlen(value),
 			XATTR_REPLACE);
 		if (ret >= 0) {
-			pr_fail("%s: fsetxattr succeded unexpectedly, "
+			pr_fail("%s: fsetxattr succeeded unexpectedly, "
 				"replaced attribute which "
 				"doesn't exist, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -147,7 +147,7 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_lsetxattr(filename, attrname, value, strlen(value),
 			XATTR_REPLACE);
 		if (ret >= 0) {
-			pr_fail("%s: lsetxattr succeded unexpectedly, "
+			pr_fail("%s: lsetxattr succeeded unexpectedly, "
 				"replaced attribute which "
 				"doesn't exist, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -157,7 +157,7 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_setxattr(filename, attrname, value, strlen(value),
 			XATTR_REPLACE);
 		if (ret >= 0) {
-			pr_fail("%s: setxattr succeded unexpectedly, "
+			pr_fail("%s: setxattr succeeded unexpectedly, "
 				"replaced attribute which "
 				"doesn't exist, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -169,7 +169,7 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_fsetxattr(fd, attrname, value, XATTR_SIZE_MAX + 1,
 			XATTR_CREATE);
 		if (ret >= 0) {
-			pr_fail("%s: fsetxattr succeded unexpectedly, "
+			pr_fail("%s: fsetxattr succeeded unexpectedly, "
 				"created attribute with size greater "
 				"than permitted size, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -182,7 +182,7 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_lsetxattr(filename, attrname, value,
 			XATTR_SIZE_MAX + 1, XATTR_CREATE);
 		if (ret >= 0) {
-			pr_fail("%s: lsetxattr succeded unexpectedly, "
+			pr_fail("%s: lsetxattr succeeded unexpectedly, "
 				"created attribute with size greater "
 				"than permitted size, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -194,7 +194,7 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_setxattr(filename, attrname, value,
 			XATTR_SIZE_MAX + 1, XATTR_CREATE);
 		if (ret >= 0) {
-			pr_fail("%s: setxattr succeded unexpectedly, "
+			pr_fail("%s: setxattr succeeded unexpectedly, "
 				"created attribute with size greater "
 				"than permitted size, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -211,7 +211,7 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_fsetxattr(fd, attrname, value, strlen(value),
 			XATTR_CREATE);
 		if (ret >= 0) {
-			pr_fail("%s: fsetxattr succeded unexpectedly, "
+			pr_fail("%s: fsetxattr succeeded unexpectedly, "
 				"created attribute which "
 				"already exists, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -222,7 +222,7 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_lsetxattr(filename, attrname, value, strlen(value),
 			XATTR_CREATE);
 		if (ret >= 0) {
-			pr_fail("%s: lsetxattr succeded unexpectedly, "
+			pr_fail("%s: lsetxattr succeeded unexpectedly, "
 				"created attribute which "
 				"already exists, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -232,7 +232,7 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_setxattr(filename, attrname, value, strlen(value),
 			XATTR_CREATE);
 		if (ret >= 0) {
-			pr_fail("%s: setxattr succeded unexpectedly, "
+			pr_fail("%s: setxattr succeeded unexpectedly, "
 				"created attribute which "
 				"already exists, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

@@ -1981,7 +1981,7 @@ int stress_kernel_release(const int major, const int minor, const int patchlevel
 
 /*
  *  stress_get_kernel_release()
- *	return kernel relase number in base 100, e.g.
+ *	return kernel release number in base 100, e.g.
  *	 4.15.2 -> 401502, return -1 if failed.
  */
 int stress_get_kernel_release(void)
