@@ -1754,7 +1754,7 @@ operation is equivalent to setting and checking 64 physical pages.
 .TP
 .B \-\-idle\-page N
 start N workers that walks through every page exercising the Linux
-/sys/kernel/mm/page_idle/bitmap interface. Requries CAP_SYS_RESOURCE
+/sys/kernel/mm/page_idle/bitmap interface. Requires CAP_SYS_RESOURCE
 capability.
 .TP
 .B \-\-idle\-page\-ops N
@@ -2920,7 +2920,7 @@ are used. The default starting port is port 13000.
 .TP
 .B \-\-rdrand N
 start N workers that read a random number from an on-chip random number generator
-This uses the rdrand instruction on Intel processors or the darn intruction
+This uses the rdrand instruction on Intel processors or the darn instruction
 on Power9 processors.
 .TP
 .B \-\-rdrand\-ops N
@@ -3823,7 +3823,7 @@ stop after N bogo vector integer math operations.
 start N workers that exercise read-only file based authenticy protection
 using the verity ioctls FS_IOC_ENABLE_VERITY and FS_IOC_MEASURE_VERITY.
 This requires file systems with verity support (currently ext4 and f2fs
-on Linux) with the verity feature enabled. The test attemps to creates
+on Linux) with the verity feature enabled. The test attempts to creates
 a small file with multiple small extents and enables verity on the file
 and verifies it. It also checks to see if the file has verity enabled
 with the FS_VERITY_FL bit set on the file flags.
