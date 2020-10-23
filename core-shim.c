@@ -1656,7 +1656,7 @@ ssize_t shim_process_madvise(
 	unsigned int flags)
 {
 #if defined(__NR_process_madvise)
-	return (ssize_t)syscall(__process_madvise, pidfd,
+	return (ssize_t)syscall(__NR_process_madvise, pidfd,
 		iovec, vlen, advice, flags);
 #else
 	return (ssize_t)shim_enosys(0, pidfd,
