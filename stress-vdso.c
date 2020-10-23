@@ -197,10 +197,10 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 		}
 		if (info->dlpi_phdr[i].p_type == PT_DYNAMIC) {
 			ElfW(Dyn *) dyn;
+			ElfW(Dyn *) dyn_start;
 			ElfW(Word *) hash = NULL;
 			ElfW(Word) j;
 			ElfW(Word) buckets = 0;
-			ElfW(Sym *) symtab;
 			ElfW(Word *) bucket = NULL;
 			ElfW(Word *) chain = NULL;
 			char *strtab = NULL;
@@ -211,9 +211,12 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 			if ((void *)info->dlpi_addr != vdso)
 				continue;
 
-			dyn = (ElfW(Dyn)*)(info->dlpi_addr +  info->dlpi_phdr[i].p_vaddr);
+			dyn_start = (ElfW(Dyn)*)(info->dlpi_addr +  info->dlpi_phdr[i].p_vaddr);
 
-			while (dyn->d_tag != DT_NULL) {
+			/*
+			 *  Find hash table and strtab first
+			 */
+			for (dyn = dyn_start; dyn->d_tag != DT_NULL; dyn++) {
 				switch (dyn->d_tag) {
 				case DT_HASH:
 					hash = (ElfW(Word *))(dyn->d_un.d_ptr + info->dlpi_addr);
@@ -221,16 +224,21 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 					bucket = &hash[2];
 					chain = &hash[buckets + 2];
 					break;
-
 				case DT_STRTAB:
 					strtab = (char *)(dyn->d_un.d_ptr + info->dlpi_addr);
 					break;
+				default:
+					break;
+				}
+			}
 
-				case DT_SYMTAB:
-					symtab = (ElfW(Sym *))(dyn->d_un.d_ptr + info->dlpi_addr);
+			/* No hash table or strtab, abort symbol search */
+			if ((!hash) || (!strtab))
+				return 0;
 
-					if ((!hash) || (!strtab))
-						break;
+			for (dyn = dyn_start; dyn->d_tag != DT_NULL; dyn++) {
+				if (dyn->d_tag == DT_SYMTAB) {
+					ElfW(Sym *) symtab = (ElfW(Sym *))(dyn->d_un.d_ptr + info->dlpi_addr);
 
 					/*
 					 *  Scan through all the chains in each bucket looking
@@ -273,9 +281,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 							vdso_sym_list = vdso_sym;
 						}
 					}
-					break;
 				}
-				dyn++;
 			}
 		}
 	}
