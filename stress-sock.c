@@ -31,6 +31,8 @@
 
 #define MSGVEC_SIZE		(4)
 
+#define PROC_CONG_CTRLS		"/proc/sys/net/ipv4/tcp_allowed_congestion_control"
+
 typedef struct {
 	const char *optname;
 	int	   opt;
@@ -151,6 +153,68 @@ static int stress_set_socket_domain(const char *name)
 	return ret;
 }
 
+/*
+ *  stress_free_congestion_controls()
+ *	free congestion controls array
+ */
+static void stress_free_congestion_controls(char *ctrls[], const size_t n)
+{
+	size_t i;
+
+	if (!ctrls)
+		return;
+
+	for (i = 0; i < n; i++)
+		free(ctrls[i]);
+
+	free(ctrls);
+}
+
+/*
+ *  stress_get_congestion_controls()
+ *	get congestion controls, currently only for AF_INET. ctrls is a
+ *	pointer to an array of pointers to available congestion control names -
+ *	the array is allocated by this function, or NULL if it fails. Returns
+ *	the number of congestion controls, 0 if none found.
+ */
+static size_t stress_get_congestion_controls(const int socket_domain, char **ctrls[])
+{
+	char buf[4096], *ptr, *ctrl;
+	char **array = NULL;
+	size_t n_ctrls;
+
+	*ctrls = NULL;
+
+	if (socket_domain != AF_INET)
+		return 0;
+
+	if (system_read(PROC_CONG_CTRLS, buf, sizeof(buf)) < 0)
+		return 0;
+
+	for (n_ctrls = 0, ptr = buf; (ctrl = strtok(ptr, " ")) != NULL; ptr = NULL) {
+		char **tmp, *newline = strchr(ctrl, '\n');
+
+		if (newline)
+			*newline = '\0';
+
+		tmp = realloc(array , (sizeof(*array)) * (n_ctrls + 1));
+		if (!tmp) {
+			stress_free_congestion_controls(array, n_ctrls);
+			return 0;
+		}
+		array = tmp;
+		array[n_ctrls] = strdup(ctrl);
+		if (!array[n_ctrls]) {
+			stress_free_congestion_controls(array, n_ctrls);
+			return 0;
+		}
+		n_ctrls++;
+	}
+
+	*ctrls = array;
+	return n_ctrls;
+}
+
 static void stress_sock_ioctl(const int fd, const int socket_domain)
 {
 	(void)fd;
@@ -257,10 +321,14 @@ static void stress_sock_client(
 	const int socket_domain)
 {
 	struct sockaddr *addr;
+	size_t n_ctrls;
+	char **ctrls;
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
+
+	n_ctrls = stress_get_congestion_controls(socket_domain, &ctrls);
 
 	do {
 		char buf[SOCKET_BUF];
@@ -302,6 +370,22 @@ retry:
 			goto retry;
 		}
 
+#if defined(TCP_CONGESTION)
+			/*
+			 *  Randomly set congestion control
+			 */
+			if (n_ctrls > 0) {
+				const int idx = stress_mwc16() % n_ctrls;
+				const char *buf = ctrls[idx];
+				char name[256];
+				socklen_t len;
+
+				len = (socklen_t)strlen(ctrls[idx]);
+				(void)setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, buf, len);
+				len = (socklen_t)sizeof(name);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, name, &len);
+			}
+#endif
 #if defined(IP_MTU)
 			{
 				int mtu;
@@ -446,6 +530,8 @@ retry:
 	}
 #endif
 	/* Inform parent we're all done */
+	stress_free_congestion_controls(ctrls, n_ctrls);
+
 	(void)kill(getppid(), SIGALRM);
 }
 
@@ -479,6 +565,7 @@ static int stress_sock_server(
 		rc = EXIT_FAILURE;
 		goto die;
 	}
+
 	if ((fd = socket(socket_domain, socket_type, 0)) < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
@@ -543,6 +630,7 @@ static int stress_sock_server(
 			struct mmsghdr msgvec[MSGVEC_SIZE];
 			unsigned int msg_len = 0;
 #endif
+
 			len = sizeof(saddr);
 			if (getsockname(fd, &saddr, &len) < 0) {
 				pr_fail("%s: getsockname failed, errno=%d (%s)\n",
