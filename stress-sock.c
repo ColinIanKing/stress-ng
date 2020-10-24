@@ -412,6 +412,58 @@ retry:
 					&cpu, &optlen);
 			}
 #endif
+			if (socket_domain == AF_INET || socket_domain == AF_INET6) {
+				int val;
+				socklen_t optlen;
+
+				(void)val;
+				(void)optlen;
+
+#if defined(TCP_NODELAY)
+				optlen = sizeof(val);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &val, &optlen);
+#endif
+#if defined(TCP_CORK)
+				optlen = sizeof(val);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_CORK, &val, &optlen);
+#endif
+#if defined(TCP_DEFER_ACCEPT)
+				optlen = sizeof(val);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &val, &optlen);
+#endif
+#if defined(TCP_KEEPCNT)
+				optlen = sizeof(val);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &val, &optlen);
+#endif
+#if defined(TCP_KEEPIDLE)
+				optlen = sizeof(val);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &val, &optlen);
+#endif
+#if defined(TCP_KEEPINTVL)
+				optlen = sizeof(val);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &val, &optlen);
+#endif
+#if defined(TCP_LINGER2)
+				optlen = sizeof(val);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_LINGER2, &val, &optlen);
+#endif
+#if defined(TCP_MAXSEG)
+				optlen = sizeof(val);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_MAXSEG, &val, &optlen);
+#endif
+#if defined(TCP_SYNCNT)
+				optlen = sizeof(val);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_SYNCNT, &val, &optlen);
+#endif
+#if defined(TCP_USER_TIMEOUT)
+				optlen = sizeof(val);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &val, &optlen);
+#endif
+#if defined(TCP_WINDOW_CLAMP)
+				optlen = sizeof(val);
+				(void)getsockopt(fd, IPPROTO_TCP, TCP_WINDOW_CLAMP, &val, &optlen);
+#endif
+			}
 
 		do {
 			ssize_t n = 0;
