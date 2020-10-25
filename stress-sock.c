@@ -105,7 +105,7 @@ static int stress_set_socket_type(const char *opt)
 		{ NULL,		0 }
 	};
 
-	int i;
+	size_t i;
 
 	for (i = 0; socket_type[i].typename; i++) {
 		if (!strcmp(opt, socket_type[i].typename)) {
