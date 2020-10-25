@@ -202,6 +202,7 @@ do_stress --lease 0 --lease-breakers 8
 do_stress --lockf 0 --lockf-nonblock
 
 do_stress --mincore 0 --mincore-random
+do_stress --open 0 --open-fd
 
 do_stress --mmap 0 --mmap-file
 do_stress --mmap 0 --mmap-mprotect
