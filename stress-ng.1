@@ -2678,6 +2678,11 @@ run up to this maximum, or 65536 open file descriptors, which ever comes first.
 .B \-\-open\-ops N
 stop the open stress workers after N bogo open operations.
 .TP
+.B \-\-open\-fd
+run a child process that scans /proc/$PID/fd and attempts to open the files
+that the stressor has opened. This exercises racing open/close operations
+on the proc interface.
+.TP
 .B \-\-personality N
 start N workers that attempt to set personality and get all the available
 personality types (process execution domain types) via the personality(2)

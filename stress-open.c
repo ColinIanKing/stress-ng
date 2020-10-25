@@ -29,7 +29,21 @@ typedef int (*stress_open_func_t)(void);
 static const stress_help_t help[] = {
 	{ "o N", "open N",	"start N workers exercising open/close" },
 	{ NULL,	"open-ops N",	"stop after N open/close bogo operations" },
+	{ NULL, "open-fd",	"open files in /proc/$pid/fd" },
 	{ NULL,	NULL,		NULL }
+};
+
+static int stress_set_open_fd(const char *opt)
+{
+	bool open_fd = true;
+
+        (void)opt;
+        return stress_set_setting("open-fd", TYPE_ID_BOOL, &open_fd);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_open_fd,	stress_set_open_fd, },
+	{ 0,		NULL }
 };
 
 static inline int open_arg2(const char *pathname, int flags)
@@ -243,14 +257,48 @@ static stress_open_func_t open_funcs[] = {
 };
 
 /*
+ *  stress_fd_dir()
+ *	try to open the files the the stressor parent has open
+ *	via the file names provided in /proc/$PID/fd. This
+ *	ignores opens that fail.
+ */
+static void stress_fd_dir(const char *path)
+{
+	DIR *dir;
+
+	for (;;) {
+		struct dirent *de;
+
+		dir = opendir(path);
+		if (!dir)
+			return;
+
+		while ((de = readdir(dir)) != NULL) {
+			char name[PATH_MAX];
+			int fd;
+
+			stress_mk_filename(name, sizeof(name), path, de->d_name);
+			fd = open(name, O_RDONLY);
+			if (fd > 0)
+				(void)close(fd);
+		}
+		(void)closedir(dir);
+	}
+}
+
+/*
  *  stress_open()
  *	stress system by rapid open/close calls
  */
 static int stress_open(const stress_args_t *args)
 {
 	int *fds;
+	char path[PATH_MAX];
 	size_t max_fds = stress_get_max_file_limit();
 	size_t sz;
+	pid_t pid = -1;
+	struct stat statbuf;
+	bool open_fd = false;
 
 	sz = max_fds * sizeof(int);
 	fds = mmap(NULL, sz, PROT_READ | PROT_WRITE,
@@ -266,6 +314,20 @@ static int stress_open(const stress_args_t *args)
 		}
 	}
 
+	(void)stress_get_setting("open-fd", &open_fd);
+	if (open_fd) {
+		(void)snprintf(path, sizeof(path), "/proc/%d/fd", getpid());
+		if ((stat(path, &statbuf) == 0) &&
+		    ((statbuf.st_mode & S_IFMT) == S_IFDIR)) {
+			pid = fork();
+
+			if (pid == 0) {
+				stress_fd_dir(path);
+				_exit(0);
+			}
+		}
+	}
+
 	do {
 		size_t i, n;
 		int ret, min_fd = INT_MAX, max_fd = INT_MIN;
@@ -274,8 +336,11 @@ static int stress_open(const stress_args_t *args)
 			for (;;) {
 				int idx;
 
-				if (!keep_stressing())
+				if (!keep_stressing()) {
+					if (pid > 1)
+						(void)kill(pid, SIGKILL);
 					goto close_all;
+				}
 
 				idx = stress_mwc32() % SIZEOF_ARRAY(open_funcs);
 				fds[i] = open_funcs[idx]();
@@ -284,8 +349,11 @@ static int stress_open(const stress_args_t *args)
 					break;
 
 				/* Check if we hit the open file limit */
-				if ((errno == EMFILE) || (errno == ENFILE))
+				if ((errno == EMFILE) || (errno == ENFILE)) {
+					if (pid > 1)
+						(void)kill(pid, SIGKILL);
 					goto close_all;
+				}
 
 				/* Other error occurred, retry */
 			}
@@ -312,11 +380,19 @@ close_all:
 
 	(void)munmap(fds, sz);
 
+	if (pid > 1) {
+		int status;
+
+		(void)kill(pid, SIGKILL);
+		(void)waitpid(pid, &status, 0);
+	}
+
 	return EXIT_SUCCESS;
 }
 
 stressor_info_t stress_open_info = {
 	.stressor = stress_open,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };

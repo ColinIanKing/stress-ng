@@ -3062,6 +3062,7 @@ typedef enum {
 	OPT_opcode_method,
 
 	OPT_open_ops,
+	OPT_open_fd,
 
 	OPT_page_in,
 	OPT_pathological,
