@@ -248,16 +248,29 @@ static stress_open_func_t open_funcs[] = {
  */
 static int stress_open(const stress_args_t *args)
 {
-	static int fds[STRESS_FD_MAX];
-	size_t max_fd = stress_get_max_file_limit();
+	int *fds;
+	size_t max_fds = stress_get_max_file_limit();
+	size_t sz;
 
-	if (max_fd > SIZEOF_ARRAY(fds))
-		max_fd = SIZEOF_ARRAY(fds);
+	sz = max_fds * sizeof(int);
+	fds = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (fds == MAP_FAILED) {
+		max_fds = STRESS_FD_MAX;
+		sz = max_fds * sizeof(int);
+		fds = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		if (fds == MAP_FAILED) {
+			pr_inf("%s: cannot allocate file descriptors\n", args->name);
+			return EXIT_NO_RESOURCE;
+		}
+	}
 
 	do {
 		size_t i, n;
+		int ret, min_fd = INT_MAX, max_fd = INT_MIN;
 
-		for (i = 0; i < max_fd; i++) {
+		for (i = 0; i < max_fds; i++) {
 			for (;;) {
 				int idx;
 
@@ -276,17 +289,28 @@ static int stress_open(const stress_args_t *args)
 
 				/* Other error occurred, retry */
 			}
+			if (fds[i] > max_fd)
+				max_fd = fds[i];
+			if (fds[i] < min_fd)
+				min_fd = fds[i];
+
 			inc_counter(args);
 		}
 close_all:
 		n = i;
 
-		for (i = 0; i < n; i++) {
-			if (fds[i] < 0)
-				break;
-			(void)close(fds[i]);
+		/*
+		 *  try fast close of a range, fall back to
+		 *  normal close if ENOSYS
+		 */
+		ret = shim_close_range(min_fd, max_fd);
+		if ((ret < 1) && (errno == ENOSYS)) {
+			for (i = 0; i < n; i++)
+				(void)close(fds[i]);
 		}
 	} while (keep_stressing());
+
+	(void)munmap(fds, sz);
 
 	return EXIT_SUCCESS;
 }
