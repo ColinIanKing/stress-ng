@@ -144,15 +144,93 @@ again:
 			stress_set_sockaddr(args->name, args->instance, ppid,
 				udp_domain, udp_port,
 				&addr, &len, NET_ADDR_ANY);
-#if defined(IPPROTO_UDPLITE)
+#if defined(IPPROTO_UDPLITE) && defined(UDPLITE_SEND_CSCOV)
 			if (proto == IPPROTO_UDPLITE) {
 				int val = 8;	/* Just the 8 byte header */
-				if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, sizeof(val)) < 0) {
+				socklen_t slen;
+
+				slen = sizeof(val);
+				if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, slen) < 0) {
 					pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					(void)close(fd);
 					(void)kill(getppid(), SIGALRM);
 					_exit(EXIT_FAILURE);
+				}
+				slen = sizeof(val);
+				(void)getsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, &slen);
+			}
+#endif
+#if defined(IPPROTO_UDPLITE) && defined(UDPLITE_RECV_CSCOV)
+			if (proto == IPPROTO_UDPLITE) {
+				int val;
+				socklen_t slen;
+				(void)getsockopt(fd, proto, UDPLITE_RECV_CSCOV, &val, &slen);
+			}
+#endif
+
+#if defined(UDP_CORK)
+			{
+				int val, ret;
+				socklen_t slen;
+
+				slen = sizeof(val);
+				ret = getsockopt(fd, proto, UDP_CORK, &val, &slen);
+				if (ret == 0) {
+					slen = sizeof(val);
+					ret = setsockopt(fd, proto, UDP_CORK, &val, slen);
+				}
+			}
+#endif
+#if defined(UDP_ENCAP)
+			{
+				int val, ret;
+				socklen_t slen;
+
+				slen = sizeof(val);
+				ret = getsockopt(fd, proto, UDP_ENCAP, &val, &slen);
+				if (ret == 0) {
+					slen = sizeof(val);
+					ret = setsockopt(fd, proto, UDP_ENCAP, &val, slen);
+				}
+			}
+#endif
+#if defined(UDP_NO_CHECK6_TX)
+			{
+				int val, ret;
+				socklen_t slen;
+
+				slen = sizeof(val);
+				ret = getsockopt(fd, proto, UDP_NO_CHECK6_TX, &val, &slen);
+				if (ret == 0) {
+					slen = sizeof(val);
+					ret = setsockopt(fd, proto, UDP_NO_CHECK6_TX, &val, slen);
+				}
+			}
+#endif
+#if defined(UDP_NO_CHECK6_RX)
+			{
+				int val, ret;
+				socklen_t slen;
+
+				slen = sizeof(val);
+				ret = getsockopt(fd, proto, UDP_NO_CHECK6_RX, &val, &slen);
+				if (ret == 0) {
+					slen = sizeof(val);
+					ret = setsockopt(fd, proto, UDP_NO_CHECK6_RX, &val, slen);
+				}
+			}
+#endif
+#if defined(UDP_SEGMENT)
+			{
+				int val, ret;
+				socklen_t slen;
+
+				slen = sizeof(val);
+				ret = getsockopt(fd, proto, UDP_SEGMENT, &val, &slen);
+				if (ret == 0) {
+					slen = sizeof(val);
+					ret = setsockopt(fd, proto, UDP_SEGMENT, &val, slen);
 				}
 			}
 #endif
