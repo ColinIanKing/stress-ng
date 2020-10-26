@@ -301,7 +301,7 @@ static int stress_open(const stress_args_t *args)
 	bool open_fd = false;
 
 	sz = max_fds * sizeof(int);
-	fds = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+	fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (fds == MAP_FAILED) {
 		max_fds = STRESS_FD_MAX;
@@ -316,7 +316,7 @@ static int stress_open(const stress_args_t *args)
 
 	(void)stress_get_setting("open-fd", &open_fd);
 	if (open_fd) {
-		(void)snprintf(path, sizeof(path), "/proc/%d/fd", getpid());
+		(void)snprintf(path, sizeof(path), "/proc/%d/fd", (int)getpid());
 		if ((stat(path, &statbuf) == 0) &&
 		    ((statbuf.st_mode & S_IFMT) == S_IFDIR)) {
 			pid = fork();
@@ -378,7 +378,7 @@ close_all:
 		}
 	} while (keep_stressing());
 
-	(void)munmap(fds, sz);
+	(void)munmap((void *)fds, sz);
 
 	if (pid > 1) {
 		int status;
