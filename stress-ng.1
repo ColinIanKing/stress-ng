@@ -3765,6 +3765,14 @@ context. (Linux only).
 .B \-\-unshare\-ops N
 stop after N bogo unshare operations.
 .TP
+.B \-\-uprobe N
+start N workers that trace the entry to libc function getpid() using the
+Linux uprobe kernel tracing mechanism. This requires CAP_SYS_ADMIN
+capabilities and a modern Linux uprobe capable kernel.
+.TP
+.B \-\-uprobe\-ops N
+stop uprobe tracing after N trace events of the function that is being traced.
+.TP
 .B \-u N, \-\-urandom N
 start N workers reading /dev/urandom (Linux only). This will load the kernel
 random number source.

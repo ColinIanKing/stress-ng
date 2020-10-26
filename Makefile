@@ -285,6 +285,7 @@ STRESS_SRC = \
 	stress-udp.c \
 	stress-udp-flood.c \
 	stress-unshare.c \
+	stress-uprobe.c \
 	stress-urandom.c \
 	stress-userfaultfd.c \
 	stress-utime.c \

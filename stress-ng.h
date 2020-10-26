@@ -2474,6 +2474,7 @@ typedef struct {
 	MACRO(udp)		\
 	MACRO(udp_flood)	\
 	MACRO(unshare)		\
+	MACRO(uprobe)		\
 	MACRO(urandom)		\
 	MACRO(userfaultfd)	\
 	MACRO(utime)		\
@@ -3416,6 +3417,9 @@ typedef enum {
 
 	OPT_unshare,
 	OPT_unshare_ops,
+
+	OPT_uprobe,
+	OPT_uprobe_ops,
 
 	OPT_urandom_ops,
 
