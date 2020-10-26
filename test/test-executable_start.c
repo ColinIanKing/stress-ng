@@ -27,5 +27,5 @@ int main(void)
 {
 	extern char __executable_start;
 
-	return ((void *)&__executable_start == (void *)main);
+	return __executable_start;
 }
