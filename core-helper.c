@@ -1682,29 +1682,32 @@ char *stress_const_optdup(const char *opt)
  */
 size_t stress_text_addr(char **start, char **end)
 {
-#if defined(__APPLE__)
-        extern void *get_etext(void);
-        intptr_t text_start = (intptr_t)get_etext();
+#if defined(HAVE_EXECUTABLE_START)
+	extern char __executable_start;
+	intptr_t text_start = (intptr_t)&__executable_start;
+#elif defined(__APPLE__)
+        extern char _mh_execute_header;
+        intptr_t text_start = (intptr_t)&_mh_execute_header;
 #elif defined(__OpenBSD__)
         extern char _start[];
         intptr_t text_start = (intptr_t)&_start[0];
 #elif defined(__TINYC__)
-        extern char _etext;
-        intptr_t text_start = (intptr_t)&_etext;
+        extern char _start;
+        intptr_t text_start = (intptr_t)&_start;
 #else
-        extern char etext;
-        intptr_t text_start = (intptr_t)&etext;
+        extern char _start;
+        intptr_t text_start = (intptr_t)&_start;
 #endif
 
 #if defined(__APPLE__)
         extern void *get_edata(void);
-        intptr_t text_end = (intptr_t)get_edata();
+        intptr_t text_end = (intptr_t)get_etext();
 #elif defined(__TINYC__)
-        extern char _edata;
-        intptr_t text_end = (intptr_t)&_edata;
+        extern char _etext;
+        intptr_t text_end = (intptr_t)&_etext;
 #else
-        extern char edata;
-        intptr_t text_end = (intptr_t)&edata;
+        extern char etext;
+        intptr_t text_end = (intptr_t)&etext;
 #endif
         const size_t text_len = text_end - text_start;
 
