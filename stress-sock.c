@@ -376,12 +376,12 @@ retry:
 			 */
 			if (n_ctrls > 0) {
 				const int idx = stress_mwc16() % n_ctrls;
-				const char *buf = ctrls[idx];
+				const char *control = ctrls[idx];
 				char name[256];
 				socklen_t len;
 
 				len = (socklen_t)strlen(ctrls[idx]);
-				(void)setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, buf, len);
+				(void)setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, control, len);
 				len = (socklen_t)sizeof(name);
 				(void)getsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, name, &len);
 			}
