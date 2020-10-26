@@ -1700,7 +1700,7 @@ size_t stress_text_addr(char **start, char **end)
 #endif
 
 #if defined(__APPLE__)
-        extern void *get_edata(void);
+        extern void *get_etext(void);
         intptr_t text_end = (intptr_t)get_etext();
 #elif defined(__TINYC__)
         extern char _etext;
