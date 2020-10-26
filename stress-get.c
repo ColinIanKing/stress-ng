@@ -32,6 +32,7 @@
 		break;			\
 
 #define GIDS_MAX 	(1024)
+#define MOUNTS_MAX	(256)
 
 static const stress_help_t help[] = {
 	{ NULL,	"get N",	"start N workers exercising the get*() system calls" },
@@ -134,6 +135,8 @@ static void MLOCKED_TEXT stress_segv_handler(int num)
  */
 static int stress_get(const stress_args_t *args)
 {
+	char *mnts[MOUNTS_MAX];
+	size_t mounts_max;
 	const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
 #if defined(HAVE_SYS_TIMEX_H)
 #if defined(HAVE_ADJTIMEX) || defined(HAVE_ADJTIME)
@@ -143,6 +146,8 @@ static int stress_get(const stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+
+	mounts_max = stress_mount_get(mnts, MOUNTS_MAX);
 
 	do {
 		char path[PATH_MAX];
@@ -588,8 +593,35 @@ static int stress_get(const stress_args_t *args)
 				}
 			}
 		}
+#if defined(HAVE_SYS_VFS_H) &&	\
+    defined(HAVE_STATFS) &&	\
+    defined(__linux__)
+		for (i = 0; i < mounts_max; i++) {
+			struct statfs buf;
+			int fd;
+
+			(void)statfs(mnts[i], &buf);
+
+			fd = open(mnts[i], O_RDONLY);
+			if (fd >= 0) {
+				(void)fstatfs(fd, &buf);
+				(void)close(fd);
+			}
+		}
+#endif
+
+#if defined(HAVE_SYS_STATVFS_H)
+		for (i = 0; i < mounts_max; i++) {
+			struct statvfs buf;
+
+			statvfs(mnts[i], &buf);
+		}
+#endif
+
 		inc_counter(args);
 	} while (keep_stressing());
+
+	stress_mount_free(mnts, mounts_max);
 
 	return EXIT_SUCCESS;
 }
