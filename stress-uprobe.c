@@ -36,6 +36,7 @@ static const stress_help_t help[] = {
  */
 static int stress_uprobe_supported(const char *name)
 {
+#if defined(__linux__)
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
@@ -43,11 +44,13 @@ static int stress_uprobe_supported(const char *name)
 		return -1;
 	}
 	return 0;
+#else
+	pr_inf("%s: stressor will be skipped, uprobe not available\n", name);
+	return -1;
+#endif
 }
 
-
 #if defined(__linux__)
-
 #define X_STR_(x) #x
 #define X_STR(x) X_STR_(x)
 
