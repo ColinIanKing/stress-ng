@@ -78,11 +78,32 @@ static inline void stress_dir_flock(const int dirfd)
     defined(LOCK_EX) &&		\
     defined(LOCK_UN) &&		\
     defined(O_DIRECTORY)
-	if (flock(dirfd, LOCK_EX) == 0)
-		(void)flock(dirfd, LOCK_UN);
+	if (dirfd >= 0) {
+		if (flock(dirfd, LOCK_EX) == 0)
+			(void)flock(dirfd, LOCK_UN);
+	}
 #else
 	(void)dirfd;
 #endif
+}
+
+/*
+ *  stress_dir_truncate()
+ *	exercise illegal truncate call on directory fd
+ */
+static inline void stress_dir_truncate(const char *path, const int dirfd)
+{
+	int ret;
+
+	if (dirfd >= 0) {
+		/* Invalid ftruncate */
+		ret = ftruncate(dirfd, 0);
+		(void)ret;
+	}
+
+	/* Invalid truncate */
+	ret = truncate(path, 0);
+	(void)ret;
 }
 
 /*
@@ -92,11 +113,13 @@ static inline void stress_dir_flock(const int dirfd)
 static inline void stress_dir_mmap(const int dirfd, const size_t page_size)
 {
 #if defined(O_DIRECTORY)
-	void *ptr;
+	if (dirfd >= 0) {
+		void *ptr;
 
-	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, dirfd, 0);
-	if (ptr != MAP_FAILED)
-		(void)munmap(ptr, page_size);
+		ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, dirfd, 0);
+		if (ptr != MAP_FAILED)
+			(void)munmap(ptr, page_size);
+	}
 #else
 	(void)dirfd;
 	(void)page_size;
@@ -206,6 +229,7 @@ static int stress_dir(const stress_args_t *args)
 
 		stress_dir_mmap(dirfd, args->page_size);
 		stress_dir_flock(dirfd);
+		stress_dir_truncate(pathname, dirfd);
 
 		for (i = 0; keep_stressing() && (i < n); i++) {
 			char path[PATH_MAX];
