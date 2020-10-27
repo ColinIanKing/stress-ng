@@ -85,13 +85,20 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 #endif
 
 #if defined(RTC_ALM_READ)
-	if (ioctl(fd, RTC_ALM_READ, &wake_alarm) < 0) {
+	if (ioctl(fd, RTC_ALM_READ, &rtc_tm) < 0) {
 		if (errno != ENOTTY) {
 			pr_fail("%s: ioctl RTC_ALRM_READ failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = -errno;
 			goto err;
 		}
+	} else {
+#if defined(RTC_ALM_SET)
+		int r;
+
+		r = ioctl(fd, RTC_ALM_SET, &rtc_tm);
+		(void)r;
+#endif
 	}
 #endif
 
@@ -103,6 +110,31 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 			ret = -errno;
 			goto err;
 		}
+	} else {
+#if defined(RTC_WKALM_SET)
+		int r;
+
+		r = ioctl(fd, RTC_WKALM_SET, &wake_alarm);
+		(void)r;
+#endif
+	}
+#endif
+
+#if defined(RTC_EPOCH_READ)
+	if (ioctl(fd, RTC_EPOCH_READ, &tmp) < 0) {
+		if (errno != ENOTTY) {
+			pr_fail("%s: ioctl RTC_EPOCH_READ failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			ret = -errno;
+			goto err;
+		}
+	} else {
+#if defined(RTC_EPOCH_SET)
+		int r;
+
+		r = ioctl(fd, RTC_EPOCH_SET, tmp);
+		(void)r;
+#endif
 	}
 #endif
 
