@@ -24,6 +24,7 @@ access				sysfs
 acct				[ need privilege, ignore for now ]
 add_key				key
 adjtimex			get (modes = 0 only)
+arch_prctl			prctl
 alarm				generic run duration timers
 bind				sock
 bpf
