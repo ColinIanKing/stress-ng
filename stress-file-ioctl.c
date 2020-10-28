@@ -307,6 +307,17 @@ static int stress_file_ioctl(const stress_args_t *args)
 		}
 #endif
 
+#if defined(FS_IOC_GETVERSION)
+		{
+			int ver;
+
+			ret = ioctl(fd, FS_IOC_GETVERSION, &ver);
+			(void)ret;
+
+			exercised++;
+		}
+#endif
+
 #if defined(_IOW) && defined(__linux__)
 
 /*
