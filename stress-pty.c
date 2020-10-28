@@ -74,6 +74,7 @@ static int stress_pty(const stress_args_t *args)
 {
 	uint64_t pty_max = DEFAULT_PTYS;
 	stress_pty_info_t *ptys;
+	const pid_t pid = getpid();
 
 	(void)stress_get_setting("pty-max", &pty_max);
 
@@ -86,7 +87,6 @@ static int stress_pty(const stress_args_t *args)
 
 	do {
 		size_t i, n;
-
 
 		for (n = 0; n < pty_max; n++) {
 			ptys[n].follower = -1;
@@ -135,6 +135,9 @@ static int stress_pty(const stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			if ((ptys[i].leader < 0) || (ptys[i].follower < 0))
 				continue;
+
+			(void)stress_read_fdinfo(pid, ptys[i].leader);
+			(void)stress_read_fdinfo(pid, ptys[i].follower);
 
 #if defined(DHAVE_TCGETATTR)
 			{
