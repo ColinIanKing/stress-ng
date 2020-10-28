@@ -70,6 +70,12 @@ static const getrandom_flags_t getrandom_flags[] = {
 #if defined(GRND_NONBLOCK) && defined(__linux__)
 	GETRANDOM_FLAG_INFO(GRND_NONBLOCK),
 #endif
+#if defined(GRND_RANDOM) && defined(__linux__)
+	GETRANDOM_FLAG_INFO(GRND_RANDOM),
+#endif
+#if defined(GRND_INSECURE) && defined(__linux__)
+	GETRANDOM_FLAG_INFO(GRND_INSECURE),
+#endif
 #if defined(GRND_NONBLOCK) && defined(GRND_RANDOM) && defined(__linux__)
 	GETRANDOM_FLAG_INFO(GRND_NONBLOCK | GRND_RANDOM),
 #endif
