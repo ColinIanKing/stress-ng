@@ -234,7 +234,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 		if (shim_mlockall(MCL_ONFAULT | MCL_CURRENT) == 0)
 			flag |= (MCL_ONFAULT | MCL_CURRENT);
 #endif
-#if defined(MCL_FUTURE) && defined(MCL_FUTURE)
+#if defined(MCL_ONFAULT) && defined(MCL_FUTURE)
 		if (!keep_stressing())
 			break;
 		if (shim_mlockall(MCL_ONFAULT | MCL_FUTURE) == 0)
