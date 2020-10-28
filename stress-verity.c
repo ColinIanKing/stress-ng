@@ -141,6 +141,7 @@ static int stress_verity(const stress_args_t *args)
 			case EACCES:
 			case EBUSY:
 			case EINTR:
+			case ENOSPC:
 				ret = EXIT_NO_RESOURCE;
 				break;
 			default:
