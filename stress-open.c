@@ -297,6 +297,7 @@ static int stress_open(const stress_args_t *args)
 	size_t max_fds = stress_get_max_file_limit();
 	size_t sz;
 	pid_t pid = -1;
+	const pid_t mypid = getpid();
 	struct stat statbuf;
 	bool open_fd = false;
 
@@ -316,7 +317,7 @@ static int stress_open(const stress_args_t *args)
 
 	(void)stress_get_setting("open-fd", &open_fd);
 	if (open_fd) {
-		(void)snprintf(path, sizeof(path), "/proc/%d/fd", (int)getpid());
+		(void)snprintf(path, sizeof(path), "/proc/%d/fd", (int)mypid);
 		if ((stat(path, &statbuf) == 0) &&
 		    ((statbuf.st_mode & S_IFMT) == S_IFDIR)) {
 			pid = fork();
@@ -361,6 +362,8 @@ static int stress_open(const stress_args_t *args)
 				max_fd = fds[i];
 			if (fds[i] < min_fd)
 				min_fd = fds[i];
+
+			stress_read_fdinfo(mypid, fds[i]);
 
 			inc_counter(args);
 		}
