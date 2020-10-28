@@ -1900,3 +1900,18 @@ int shim_vhangup(void)
 	return shim_enosys(0);
 #endif
 }
+
+int shim_arch_prctl(int code, unsigned long addr)
+{
+#if defined(HAVE_ARCH_PRCTL) &&		\
+    defined(__linux__)
+        extern int arch_prctl();
+
+        return arch_prctl(code, addr);
+#elif defined(__NR_arch_prctl) && 	\
+      defined(__linux__)
+        return syscall(__NR_arch_prctl, code, addr);
+#else
+        return shim_enosys(0, code, addr);
+#endif
+}

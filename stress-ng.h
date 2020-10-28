@@ -255,6 +255,10 @@
 #include <bsd/wchar.h>
 #endif
 
+#if defined(HAVE_ASM_PRCTL_H)
+#include <asm/prctl.h>
+#endif
+
 #if defined(HAVE_MODIFY_LDT)
 #include <asm/ldt.h>
 #endif
@@ -1080,6 +1084,13 @@ typedef struct {
 #define NORETURN 	__attribute__ ((noreturn))
 #else
 #define NORETURN
+#endif
+
+/* packed hint */
+#if defined(__GNUC__) && NEED_GNUC(3,3,0)
+#define PACKED 		__attribute__ ((packed))
+#else
+#define PACKED
 #endif
 
 /* force inlining hint */
@@ -4164,6 +4175,7 @@ struct shim_timex {
 };
 #endif
 
+extern int shim_arch_prctl(int code, unsigned long addr);
 extern int shim_brk(void *addr);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
 extern void shim_flush_icache(void *begin, void *end);

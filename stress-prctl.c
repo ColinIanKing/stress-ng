@@ -88,6 +88,65 @@ static const stress_help_t help[] = {
      defined(PR_SET_IO_FLUSHER) ||		\
      defined(PR_PAC_RESET_KEYS)
 
+/*
+ *  stress_arch_prctl()
+ *	exercise arch_prctl(), currently just
+ *	x86-64 for now.
+ */
+static inline void stress_arch_prctl(void)
+{
+#if defined(HAVE_ASM_PRCTL_H) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&		\
+    defined(ARCH_GET_CPUID) &&			\
+    (defined(__x86_64__) || defined(__x86_64))
+	{
+		int ret;
+
+		/* GET_CPUID setting, 2nd arg is ignored */
+		ret = shim_arch_prctl(ARCH_GET_CPUID, 0);
+#if defined(ARCH_SET_CPUID)
+		if (ret >= 0)
+			ret = shim_arch_prctl(ARCH_SET_CPUID, (unsigned long)ret);
+		(void)ret;
+#endif
+	}
+#endif
+
+#if defined(HAVE_ASM_PRCTL_H) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&		\
+    defined(ARCH_GET_FS) &&			\
+    (defined(__x86_64__) || defined(__x86_64))
+	{
+		int ret;
+		unsigned long fs;
+
+		ret = shim_arch_prctl(ARCH_GET_FS, (unsigned long)&fs);
+#if defined(ARCH_SET_FS)
+		if (ret == 0)
+			ret = shim_arch_prctl(ARCH_SET_FS, fs);
+		(void)ret;
+#endif
+	}
+#endif
+
+#if defined(HAVE_ASM_PRCTL_H) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&		\
+    defined(ARCH_GET_GS) &&			\
+    (defined(__x86_64__) || defined(__x86_64))
+	{
+		int ret;
+		unsigned long gs;
+
+		ret = shim_arch_prctl(ARCH_GET_GS, (unsigned long)&gs);
+#if defined(ARCH_SET_GS)
+		if (ret == 0)
+			ret = shim_arch_prctl(ARCH_SET_GS, gs);
+		(void)ret;
+#endif
+	}
+#endif
+}
+
 static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 {
 	int ret;
@@ -210,7 +269,6 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #endif
 	}
 #endif
-
 
 #if defined(PR_GET_FPEMU)
 	/* ia64 only, but try it on all arches */
@@ -568,6 +626,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		(void)ret;
 	}
 #endif
+	stress_arch_prctl();
 
 	/* exercise bad ptrcl command */
 	{
