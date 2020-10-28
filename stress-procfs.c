@@ -534,7 +534,7 @@ static int stress_procfs(const stress_args_t *args)
 
 	i = args->instance;
 	do {
-		i %= 15;
+		i %= 14;
 		switch (i) {
 		case 0:
 			stress_proc_dir(&ctxt, "/proc", false, 0);
@@ -573,12 +573,9 @@ static int stress_procfs(const stress_args_t *args)
 			stress_proc_dir(&ctxt, "/proc/tty", true, 0);
 			break;
 		case 12:
-			stress_proc_dir(&ctxt, "/proc/self", true, 0);
-			break;
-		case 13:
 			stress_proc_dir(&ctxt, "/proc/1", true, 0);
 			break;
-		case 14:
+		case 13:
 			stress_proc_dir(&ctxt, stress_random_pid(), true, 0);
 			break;
 		default:
