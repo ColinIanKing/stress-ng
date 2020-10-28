@@ -93,6 +93,11 @@ static void dnotify_exercise(
 	void *private)		/* Helper func private data */
 {
 	int fd, i = 0;
+#if defined(DN_MULTISHOT)
+	int flags_ms = flags | DN_MULTISHOT;
+#else
+	int flags_ms = flags;
+#endif
 
 	if ((fd = open(watchname, O_RDONLY)) < 0) {
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
@@ -104,7 +109,7 @@ static void dnotify_exercise(
 			args->name, errno, strerror(errno));
 		goto cleanup;
 	}
-	if (fcntl(fd, F_NOTIFY, flags) < 0) {
+	if (fcntl(fd, F_NOTIFY, flags_ms) < 0) {
 		pr_fail("%s: fcntl F_NOTIFY failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto cleanup;
