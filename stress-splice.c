@@ -55,8 +55,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  */
 static int stress_splice(const stress_args_t *args)
 {
-	int fd_in, fd_out, fds[2];
+	int fd_in, fd_out, fds1[2], fds2[2];
 	size_t splice_bytes = DEFAULT_SPLICE_BYTES;
+	int rc = EXIT_FAILURE;
 
 	if (!stress_get_setting("splice-bytes", &splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -68,38 +69,47 @@ static int stress_splice(const stress_args_t *args)
 	if (splice_bytes < MIN_SPLICE_BYTES)
 		splice_bytes = MIN_SPLICE_BYTES;
 
-	if (pipe(fds) < 0) {
-		pr_fail("%s: pipe failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
-	}
-
 	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
 		pr_fail("%s: open /dev/zero failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)close(fds[0]);
-		(void)close(fds[1]);
-		return EXIT_FAILURE;
+		goto close_done;
 	}
+
+	/*
+	 *   /dev/zero -> pipe splice -> pipe splice -> /dev/null
+	 */
+	if (pipe(fds1) < 0) {
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto close_fd_in;
+	}
+
+	if (pipe(fds2) < 0) {
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto close_fds1;
+	}
+
 	if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
 		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)close(fd_in);
-		(void)close(fds[0]);
-		(void)close(fds[1]);
-		return EXIT_FAILURE;
+		goto close_fds2;
 	}
 
 	do {
 		ssize_t ret;
 		loff_t off_in, off_out;
 
-		ret = splice(fd_in, NULL, fds[1], NULL,
+		ret = splice(fd_in, NULL, fds1[1], NULL,
 			splice_bytes, SPLICE_F_MOVE);
 		if (ret < 0)
 			break;
 
-		ret = splice(fds[0], NULL, fd_out, NULL,
+		ret = splice(fds1[0], NULL, fds2[1], NULL,
+			splice_bytes, SPLICE_F_MOVE);
+		if (ret < 0)
+			break;
+		ret = splice(fds2[0], NULL, fd_out, NULL,
 			splice_bytes, SPLICE_F_MOVE);
 		if (ret < 0)
 			break;
@@ -107,35 +117,44 @@ static int stress_splice(const stress_args_t *args)
 		/* Exercise -ESPIPE errors */
 		off_in = 1;
 		off_out = 1;
-		ret = splice(fds[0], &off_in, fds[1], &off_out,
+		ret = splice(fds1[0], &off_in, fds1[1], &off_out,
 			4096, SPLICE_F_MOVE);
 		(void)ret;
 
 		off_out = 1;
-		ret = splice(fd_in, NULL, fds[1], &off_out,
+		ret = splice(fd_in, NULL, fds1[1], &off_out,
 			splice_bytes, SPLICE_F_MOVE);
 		(void)ret;
 
 		off_in = 1;
-		ret = splice(fds[0], &off_in, fd_out, NULL,
+		ret = splice(fds1[0], &off_in, fd_out, NULL,
 			splice_bytes, SPLICE_F_MOVE);
 		(void)ret;
 
 		/* Exercise splicing to oneself */
 		off_in = 0;
 		off_out = 0;
-		ret = splice(fds[1], &off_in, fds[1], &off_out,
+		ret = splice(fds1[1], &off_in, fds1[1], &off_out,
 			4096, SPLICE_F_MOVE);
 		(void)ret;
 
 		inc_counter(args);
 	} while (keep_stressing());
-	(void)close(fd_out);
-	(void)close(fd_in);
-	(void)close(fds[0]);
-	(void)close(fds[1]);
 
-	return EXIT_SUCCESS;
+	rc = EXIT_SUCCESS;
+
+	(void)close(fd_out);
+close_fds2:
+	(void)close(fds2[0]);
+	(void)close(fds2[1]);
+close_fds1:
+	(void)close(fds1[0]);
+	(void)close(fds1[1]);
+close_fd_in:
+	(void)close(fd_in);
+close_done:
+
+	return rc;
 }
 
 stressor_info_t stress_splice_info = {
