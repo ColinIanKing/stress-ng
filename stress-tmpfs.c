@@ -309,7 +309,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 				uint64_t page = (i + j) % pages4k;
 
 				if (!mapped[page]) {
-					off_t offset = tmpfs_mmap_file ? page * page_size : 0;
+					offset = tmpfs_mmap_file ? page * page_size : 0;
 					/*
 					 * Attempt to map them back into the original address, this
 					 * may fail (it's not the most portable operation), so keep
