@@ -83,7 +83,7 @@ static void *stress_uprobe_libc_start(const pid_t pid, char *libc_path)
 		 */
 		if ((n == 8) && strstr(libc_path, "/libc-") &&
 		    strstr(libc_path, ".so") && !strncmp(perm, "r-xp", 4)) {
-			addr = (void *)(start - offset);
+			addr = (void *)(intptr_t)(start - offset);
 			break;
 		}
 	}
