@@ -60,6 +60,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define MAX_MOUNTS		(256)
 #define NO_MEM_RETRIES_MAX	(256)
 #define TMPFS_MAGIC		(0x01021994)
+#define MAX_TMPFS_SIZE		(512 * MB)
 
 /* Misc randomly chosen mmap flags */
 static const int mmap_flags[] = {
@@ -88,7 +89,7 @@ typedef struct {
 
 /*
  *  stress_tmpfs_open()
- *	attempts to find a writeable tmpfs file system and opens
+ *	attempts to find a writeable tmpfs file system and open
  *	a tmpfs temp file. The file is unlinked so the final close
  *	will enforce and automatic space reap if the child process
  *	exits prematurely.
@@ -131,14 +132,17 @@ static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 			mnts[i], args->name, args->pid, args->instance, rnd);
 		fd = open(path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 		if (fd >= 0) {
-			int rc;
 			const char data = 0;
-			off_t max_size = buf.f_bsize * buf.f_bavail;
+			off_t rc, max_size = buf.f_bsize * buf.f_bavail;
 
 			/*
 			 * Don't use all the tmpfs, just 98% for all instance
 			 */
 			max_size = (max_size * 98) / 100;
+			if (!(g_opt_flags & OPT_FLAGS_MAXIMIZE)) {
+				if (max_size > (off_t)MAX_TMPFS_SIZE)
+					max_size = (off_t)MAX_TMPFS_SIZE;
+			}
 			max_size /= args->num_instances;
 
 			(void)unlink(path);
@@ -150,11 +154,13 @@ static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 			rc = lseek(fd, max_size, SEEK_SET);
 			if (rc < 0) {
 				(void)close(fd);
+				fd = -1;
 				continue;
 			}
 			rc = write(fd, &data, sizeof(data));
 			if (rc < 0) {
 				(void)close(fd);
+				fd = -1;
 				continue;
 			}
 			*len = max_size;
@@ -195,6 +201,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		const int rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags);
 		const int rnd_flag = mmap_flags[rnd];
 		uint8_t *buf = NULL;
+		off_t offset;
 
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 			pr_err("%s: gave up trying to mmap, no available memory\n",
@@ -202,8 +209,31 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 			break;
 		}
 
+		/*
+		 *  exercise some random file operations
+		 */
+		offset = stress_mwc64() % (sz + 1);
+		if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
+			char data[1];
+			size_t rd;
+
+			rd = read(fd, data, sizeof(data));
+			(void)rd;
+		}
 		if (!keep_stressing_flag())
 			break;
+
+		offset = stress_mwc64() % (sz + 1);
+		if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
+			char data[1];
+			size_t wr;
+
+			data[0] = 0xff;
+			wr = write(fd, data, sizeof(data));
+			(void)wr;
+		}
+		(void)shim_fsync(fd);
+
 		buf = (uint8_t *)mmap(NULL, sz,
 			PROT_READ | PROT_WRITE, flags | rnd_flag, fd, 0);
 		if (buf == MAP_FAILED) {
