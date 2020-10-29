@@ -425,7 +425,6 @@ core-perf.o: core-perf.c core-perf-event.c
 stress-vecmath.o: stress-vecmath.c
 	@echo CC $<
 	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
-	@touch stress-ng.c
 
 $(OBJS): stress-ng.h Makefile
 
