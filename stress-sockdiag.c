@@ -223,7 +223,7 @@ static int sockdiag_recv(const stress_args_t *args, const int fd)
 
 		ret = recvmsg(fd, &msg, flags);
 		if (ret == 0)
-			return 0;
+			break;
 		if (ret < 0) {
 			if (errno == EINTR)
 				continue;
