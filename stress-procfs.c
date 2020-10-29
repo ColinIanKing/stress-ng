@@ -186,9 +186,30 @@ static inline void stress_proc_rw(
 		}
 		(void)close(fd);
 
+		/* Multiple 1 char sized reads */
 		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
 			return;
+		if (stress_time_now() - t_start > threshold) {
+			timeout = true;
+			(void)close(fd);
+			goto next;
+		}
+		for (i = 0; ; i++) {
+			if (!keep_stressing_flag())
+				break;
+			ret = read(fd, buffer, 1);
+			if (ret < 1)
+				break;
+			if (stress_time_now() - t_start > threshold) {
+				timeout = true;
+				(void)close(fd);
+				goto next;
+			}
+		}
+		(void)close(fd);
 
+		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0)
+			return;
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			(void)close(fd);
@@ -377,8 +398,11 @@ static void *stress_proc_rw_thread(void *ctxt_ptr)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
-	while (keep_stressing_flag())
+	while (keep_stressing_flag()) {
 		stress_proc_rw(ctxt, -1);
+		if (!*proc_path)
+			break;
+	}
 
 	return &nowt;
 }
