@@ -92,16 +92,41 @@ static int stress_splice(const stress_args_t *args)
 
 	do {
 		ssize_t ret;
+		loff_t off_in, off_out;
 
 		ret = splice(fd_in, NULL, fds[1], NULL,
-				splice_bytes, SPLICE_F_MOVE);
+			splice_bytes, SPLICE_F_MOVE);
 		if (ret < 0)
 			break;
 
 		ret = splice(fds[0], NULL, fd_out, NULL,
-				splice_bytes, SPLICE_F_MOVE);
+			splice_bytes, SPLICE_F_MOVE);
 		if (ret < 0)
 			break;
+
+		/* Exercise -ESPIPE errors */
+		off_in = 1;
+		off_out = 1;
+		ret = splice(fds[0], &off_in, fds[1], &off_out,
+			4096, SPLICE_F_MOVE);
+		(void)ret;
+
+		off_out = 1;
+		ret = splice(fd_in, NULL, fds[1], &off_out,
+			splice_bytes, SPLICE_F_MOVE);
+		(void)ret;
+
+		off_in = 1;
+		ret = splice(fds[0], &off_in, fd_out, NULL,
+			splice_bytes, SPLICE_F_MOVE);
+		(void)ret;
+
+		/* Exercise splicing to oneself */
+		off_in = 0;
+		off_out = 0;
+		ret = splice(fds[1], &off_in, fds[1], &off_out,
+			4096, SPLICE_F_MOVE);
+		(void)ret;
 
 		inc_counter(args);
 	} while (keep_stressing());
