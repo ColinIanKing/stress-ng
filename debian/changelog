@@ -1,3 +1,64 @@
+stress-ng (0.11.23-1) unstable; urgency=medium
+
+  [ Helmut Grohne ]
+  * Makefile: remove touch of stress-ng for stress-vecmath object
+    rule (Closes: #973389)
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: update contributors and update date
+  * stress-uprobe: use tracing pipe and ensure this works on older kernels
+  * stress-ng.h: workaround ALIGNED macro warnings on PCC
+  * stress-uprobe: use correct printf format specifier for a uint32_t
+  * stress-sockdiag: break out for loop rather than return
+  * stress-tmpfs: remove shadowed offset declaration
+  * stress-splice: add one more pipe to exercise pipe to pipe splicing
+  * stress-splice: exercise some invalid splice calls
+  * stress-procfs: add single char procfs reads and fix --procfs-ops
+    termination
+  * stress-uprobe: fix int to ptr cast warning on 32 bit systems
+  * stress-tmpfs: fix incorrect lseek failure check
+  * stress-mlock: fix build check for MCL_ONFAULT and MCL_FUTURE
+  * stress-procfs: remove duplicated /proc/self
+  * stress-dnotify: use DN_MULTISHOT where possible
+  * stress-open: exercise fdinfo for open'd file descriptors
+  * stress-file-ioctl: exercise FS_IOC_GETVERSION ioctl
+  * stress-ptr: exercise linux fdinfo for pty file descriptors
+  * stress-getrandom: add GRND_INSECURE flag
+  * stress-verity: add ENOSPC check
+  * syscalls.txt: add arch_prctl to the system call list
+  * stress-prctl: add arch_prctl to the prctl stressor
+  * stress-rtc: add in a few more RTC ioctls
+  * stress-file-ioctl: enable FIFREEZE and FITHAW file ioctls
+  * stress-file-ioctl: correctly implement FS_IOC_ falloc ioctls
+  * stress-dir: exercise invalid truncates on directory fd and path
+  * stress-uprobe: skip stressor if non-linux
+  * test/test-executable-start: ensure symbol is available
+  * stress-open: fix some one more warning GCC 6.5.0 / OpenIndiana
+  * core-mlock: use shim version of mlock
+  * stress-open: fix some build warnings GCC 6.5.0 / OpenIndiana
+  * core-helper: fix build issue on OS X get_etext extern name
+  * core-helper: fix start of text segment address
+  * stress-sock: rename pointer bug to avoid name shadowing
+  * stress-uprobe: add a uprobe tracing stressor
+  * stress-get: add statfs, fstatfs and statvfs calls
+  * stress-udp: exercise some setsockopt/getsockopt options
+  * stress-sock: exercise setsockopt options
+  * kernel-coverage: exercise open with the open-fd option
+  * stress-open: add --open-fd option to exercise opening /proc/$PID/fd/*
+    files
+  * stress-open: try to open as many files as possible
+  * stress-sock: make loop index size_t
+  * stress-sock: exercise a range of getsockopt INET4 and INET6 options
+  * stress-sock: add TCP congestion control setting and getting
+  * stress-vdso: fix symbol lookup on clang built kernels
+  * core-shim: fix build issue, rename __process_madvise to
+    __NR_process_madvise
+  * Fix a few spelling mistakes
+  * Manual: fix a handful of spelling mistakes
+
+ -- Colin King <colin.king@canonical.com>  Fri, 30 Oct 2020 11:17:24 +0000
+
 stress-ng (0.11.22-1) unstable; urgency=medium
 
   [Colin Ian King]
