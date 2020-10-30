@@ -55,6 +55,26 @@ static int stress_uprobe_supported(const char *name)
 #define X_STR(x) X_STR_(x)
 
 /*
+ *  stress_uprobe_write
+ *     write to a uprobe sysfs file a string, open using flags setting in flags
+ */
+static int stress_uprobe_write(const char *path, int flags, const char *str)
+{
+	int fd, rc = 0;
+
+	fd = open(path, flags, S_IRUSR | S_IWUSR | S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH);
+	if (fd < 0)
+		return -errno;
+	errno = 0;
+	if (write(fd, str, strlen(str)) < 0)
+		rc = -errno;
+
+	(void)close(fd);
+
+	return rc;
+}
+
+/*
  *  stress_uprobe_libc_start()
  *	find start address of libc text segment by scanning /proc/$PID/maps
  */
@@ -116,12 +136,15 @@ static int stress_uprobe(const stress_args_t *args)
 	offset = ((char *)getpid - (char *)libc_addr);
 
 	/* Make unique event name */
-	(void)snprintf(event, sizeof(event), "stress_ng_uprobe_%d_%" PRIu32,
+	(void)snprintf(event, sizeof(event), "stressngprobe%d%" PRIu32,
 		getpid(), args->instance);
 
-	(void)snprintf(buf, sizeof(buf), "p:%s %s:%p\n",
-		event, libc_path, (void *)offset);
-	ret = system_write("/sys/kernel/debug/tracing/uprobe_events", buf, strlen(buf));
+	ret = stress_uprobe_write("/sys/kernel/debug/tracing/current_tracer",
+		O_WRONLY | O_CREAT | O_TRUNC, "nop\n");
+	(void)ret;
+	(void)snprintf(buf, sizeof(buf), "p:%s %s:%p\n", event, libc_path, (void *)offset);
+	ret = stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
+		O_WRONLY | O_CREAT | O_APPEND, buf);
 	if (ret < 0) {
 		pr_inf("%s: cannot set uprobe_event: errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
@@ -129,15 +152,24 @@ static int stress_uprobe(const stress_args_t *args)
 	}
 
 	/* Enable tracing */
-	ret = system_write("/sys/kernel/debug/tracing/events/uprobes/enable", "1", 1);
+	(void)snprintf(buf, sizeof(buf), "/sys/kernel/debug/tracing/events/uprobes/%s/enable", event);
+	ret = stress_uprobe_write(buf, O_WRONLY | O_CREAT | O_TRUNC, "1\n");
 	if (ret < 0) {
 		pr_inf("%s: cannot enable uprobe_event: errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto clear_events;
 	}
+	ret = stress_uprobe_write("/sys/kernel/debug/tracing/trace",
+		O_WRONLY | O_CREAT | O_TRUNC, "\n");
+	if (ret < 0) {
+		pr_inf("%s: cannot clear trace file, errno=%d (%s), skipping stressor\n",
+			args->name, errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto clear_events;
+	}
 
-	fd = open("/sys/kernel/debug/tracing/trace", O_RDONLY);
+	fd = open("/sys/kernel/debug/tracing/trace_pipe", O_RDONLY);
 	if (fd < 0) {
 		pr_inf("%s: cannot open trace file: errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
@@ -149,16 +181,29 @@ static int stress_uprobe(const stress_args_t *args)
 		/*
 		 *  Generate trace events on each stress_get_cpu call
 		 */
-		pid = getpid();
-		(void)pid;
+		int i;
+		fd_set rfds;
+		struct timeval tv;
 
-		/*
-		 *  Read in events
-		 */
-		for (;;) {
+		/* Generate some events */
+		for (i = 0; i < 64; i++) {
+			getpid();
+		}
+
+		while (keep_stressing()) {
 			char data[4096];
 			ssize_t n;
 			char *ptr;
+
+			FD_ZERO(&rfds);
+			FD_SET(fd, &rfds);
+
+			tv.tv_sec = 0;
+			tv.tv_usec = 1000;
+			ret = select(fd + 1, &rfds, NULL, NULL, &tv);
+
+			if (ret <= 0)
+				break;
 
 			n = read(fd, data, sizeof(data));
 			if (n <= 0)
@@ -173,7 +218,7 @@ static int stress_uprobe(const stress_args_t *args)
 			 */
 			ptr = data;
 			do {
-				ptr = strstr(ptr, "stress_ng_uprobe");
+				ptr = strstr(ptr, event);
 				if (!ptr)
 					break;
 				ptr++;
@@ -187,13 +232,15 @@ static int stress_uprobe(const stress_args_t *args)
 terminate:
 	(void)close(fd);
 	/* Stop events */
-	ret = system_write("/sys/kernel/debug/tracing/events/uprobes/enable", "0\n", 2);
+	ret = stress_uprobe_write("/sys/kernel/debug/tracing/events/uprobes/enable",
+		O_WRONLY, "0\n");
 	(void)ret;
 
 clear_events:
 	/* Remove uprobe */
 	snprintf(buf, sizeof(buf), "-:%s\n", event);
-	ret = system_write("/sys/kernel/debug/tracing/uprobe_events", buf, strlen(buf));
+	ret = stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
+		O_WRONLY | O_APPEND, buf);
 	(void)ret;
 
 	return rc;
