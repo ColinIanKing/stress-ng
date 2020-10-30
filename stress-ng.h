@@ -1136,7 +1136,7 @@ typedef struct {
 #define WARN_UNUSED
 #endif
 
-#if defined(__GNUC__) && NEED_GNUC(3,3,0)
+#if defined(__GNUC__) && NEED_GNUC(3,3,0) && !defined(__PCC__)
 #define ALIGNED(a)	__attribute__((aligned(a)))
 #else
 #define ALIGNED(a)
