@@ -116,7 +116,7 @@ static int stress_uprobe(const stress_args_t *args)
 	offset = ((char *)getpid - (char *)libc_addr);
 
 	/* Make unique event name */
-	(void)snprintf(event, sizeof(event), "stress_ng_uprobe_%d_%d",
+	(void)snprintf(event, sizeof(event), "stress_ng_uprobe_%d_%" PRIu32,
 		getpid(), args->instance);
 
 	(void)snprintf(buf, sizeof(buf), "p:%s %s:%p\n",
