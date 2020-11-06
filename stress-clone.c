@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-#define CLONE_STACK_SIZE	(16*1024)
+#define CLONE_STACK_SIZE	(8*1024)
 
 typedef struct stress_clone_args {
 	const stress_args_t *args;
@@ -33,7 +33,7 @@ typedef struct stress_clone_args {
 typedef struct clone {
 	struct clone *next;
 	pid_t	pid;
-	char stack[CLONE_STACK_SIZE];
+	uint64_t stack[CLONE_STACK_SIZE / sizeof(uint64_t)];
 } stress_clone_t;
 
 typedef struct {
@@ -83,9 +83,13 @@ static const int flags[] = {
 #if defined(CLONE_NEWUTS)
 	CLONE_NEWUTS,
 #endif
-#if defined(CLONE_SIGHAND)
-	CLONE_SIGHAND,
+/*
+ * Avoid CLONE_VM for now as child may memory clobber parent
+#if defined(CLONE_SIGHAND) && 	\
+    defined(CLONE_VM)
+	CLONE_SIGHAND | CLONE_VM,
 #endif
+ */
 #if defined(CLONE_SYSVSEM)
 	CLONE_SYSVSEM,
 #endif
@@ -174,8 +178,9 @@ static stress_clone_t *stress_clone_new(void)
 		clones.free = new->next;
 		new->next = NULL;
 	} else {
-		new = calloc(1, sizeof(*new));
-		if (!new)
+		new = mmap(NULL, sizeof(stress_clone_t), PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		if (new == MAP_FAILED)
 			return NULL;
 	}
 
@@ -201,7 +206,7 @@ static void stress_clone_head_remove(void)
 		int status;
 		stress_clone_t *head = clones.head;
 
-		(void)shim_waitpid(clones.head->pid, &status, __WCLONE);
+		(void)waitpid(clones.head->pid, &status, __WCLONE);
 
 		if (clones.tail == clones.head) {
 			clones.tail = NULL;
@@ -227,13 +232,13 @@ static void stress_clone_free(void)
 	while (clones.head) {
 		stress_clone_t *next = clones.head->next;
 
-		free(clones.head);
+		(void)munmap((void *)clones.head, sizeof(stress_clone_t));
 		clones.head = next;
 	}
 	while (clones.free) {
 		stress_clone_t *next = clones.free->next;
 
-		free(clones.free);
+		(void)munmap((void *)clones.free, sizeof(stress_clone_t));
 		clones.free = next;
 	}
 }
@@ -328,6 +333,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 			const uint32_t rnd = stress_mwc32();
 			const int flag = flags[rnd % SIZEOF_ARRAY(flags)];
 			const bool try_clone3 = rnd >> 31;
+			pid_t child_tid = -1, parent_tid = -1;
 
 			clone_info = stress_clone_new();
 			if (!clone_info)
@@ -336,7 +342,6 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 			if (use_clone3 && try_clone3) {
 				struct shim_clone_args cl_args;
 				int pidfd = -1;
-				pid_t child_tid = -1, parent_tid = -1;
 
 				memset(&cl_args, 0, sizeof(cl_args));
 
@@ -345,9 +350,10 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				cl_args.child_tid = uint64_ptr(&child_tid);
 				cl_args.parent_tid = uint64_ptr(&parent_tid);
 				cl_args.exit_signal = SIGCHLD;
-				cl_args.stack = uint64_ptr(NULL);
-				cl_args.stack_size = 0;
+				cl_args.stack = uint64_ptr(clone_info->stack);
+				cl_args.stack_size = sizeof(clone_info->stack);
 				cl_args.tls = uint64_ptr(NULL);
+
 				clone_info->pid = sys_clone3(&cl_args, sizeof(cl_args));
 				if (clone_info->pid < 0) {
 					/* Not available, don't use it again */
@@ -358,10 +364,10 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 					_exit(clone_func(&clone_arg));
 				}
 			} else {
-				char *stack_top = clone_info->stack + stack_offset;
-
+				char *stack_top = ((char *)clone_info->stack) + stack_offset;
 				clone_info->pid = clone(clone_func,
-					stress_align_stack(stack_top), flag, &clone_arg);
+					stress_align_stack(stack_top), flag, &clone_arg, &parent_tid,
+					NULL, &child_tid);
 			}
 			if (clone_info->pid == -1) {
 				/*
