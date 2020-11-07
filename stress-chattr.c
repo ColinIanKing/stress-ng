@@ -83,17 +83,26 @@ static int do_chattr(
 	for (i = 0; (i < 128) && keep_stressing(); i++) {
 		int fd, fdw, ret;
 		unsigned long zero = 0UL;
+		unsigned long orig, rnd;
 		ssize_t n;
 
 		fd = open(filename, O_RDONLY | O_NONBLOCK | O_CREAT, S_IRUSR | S_IWUSR);
 		if (fd < 0)
 			continue;
 
+		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &orig);
+		if (ret < 0) {
+			if (errno != EOPNOTSUPP)
+				pr_inf("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed: errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			goto tidy;
+		}
+
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero);
 		if (ret < 0) {
 			rc = -1;
 			if (errno != EOPNOTSUPP)
-				pr_inf("%s: ioctl failed: errno=%d (%s)\n",
+				pr_inf("%s: ioctl SHIM_EXT2_IOC_SETFLAGS failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			goto tidy;
 		}
@@ -112,6 +121,19 @@ static int do_chattr(
 		(void)n;
 
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero);
+		(void)ret;
+
+		/*
+		 *  Try some random flag, exercises any illegal flags
+		 */
+		rnd = 1ULL << (stress_mwc8() & 0x1f);
+		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &rnd);
+		(void)ret;
+
+		/*
+		 *  Restore original setting
+		 */
+		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &orig);
 		(void)ret;
 
 		(void)close(fdw);
