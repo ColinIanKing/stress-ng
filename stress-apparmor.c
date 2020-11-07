@@ -341,15 +341,8 @@ static int apparmor_stress_kernel_interface(
 		 */
 		ret = aa_kernel_interface_replace_policy(kern_if,
 			g_apparmor_data, g_apparmor_data_len);
-		if (ret < 0) {
+		if (ret < 0)
 			aa_kernel_interface_unref(kern_if);
-
-			if (errno == ENOENT) {
-				pr_inf("%s: aa_kernel_interface_replace_policy() failed, "
-					"errno=%d (%s)\n", name, errno,
-					strerror(errno));
-			}
-		}
 
 		/*
 		 *  Removal may fail if another stressor has already removed the
@@ -526,6 +519,17 @@ static inline void apparmor_corrupt_flip_bits_random_burst(
 	}
 }
 
+/*
+ *  apparmor_corrupt_flip_one_bit_random()
+ *	randomly flip 1 bit
+ */
+static inline void apparmor_corrupt_flip_one_bit_random(
+	char *copy, const size_t len)
+{
+	uint32_t rnd = stress_mwc32();
+
+	copy[rnd % len] ^= (1 << ((stress_mwc8() & 7)));
+}
 
 /*
  *  apparmor_stress_corruption()
@@ -553,7 +557,7 @@ static int apparmor_stress_corruption(
 		/*
 		 *  Apply various corruption methods
 		 */
-		switch ((*counter) % 10) {
+		switch ((*counter) % 11) {
 		case 0:
 			apparmor_corrupt_flip_seq(copy, g_apparmor_data_len);
 			break;
@@ -591,6 +595,9 @@ static int apparmor_stress_corruption(
 			apparmor_corrupt_flip_bits_random_burst(copy,
 				g_apparmor_data_len);
 			break;
+		case 10:
+			apparmor_corrupt_flip_one_bit_random(copy,
+				g_apparmor_data_len);
 		default:
 			/* Should not happen */
 			break;
@@ -609,7 +616,8 @@ static int apparmor_stress_corruption(
 			copy, g_apparmor_data_len);
 		if (ret < 0) {
 			if ((errno != EPROTO) &&
-			    (errno != EPROTONOSUPPORT)) {
+			    (errno != EPROTONOSUPPORT) &&
+			     errno != ENOENT) {
 				pr_inf("%s: aa_kernel_interface_replace_policy() failed, "
 					"errno=%d (%s)\n", name, errno,
 					strerror(errno));
