@@ -155,6 +155,7 @@ static void stress_dentry_misc(const char *path)
 	struct utimbuf utim;
 	fd_set rdfds;
 	char buf[1024];
+	void *ptr;
 
 #if defined(O_DIRECTORY)
 	flags |= O_DIRECTORY;
@@ -180,6 +181,34 @@ static void stress_dentry_misc(const char *path)
 	/* Not allowed */
 	ret = read(fd, buf, sizeof(buf));
 	(void)ret;
+
+	/* Not allowed */
+	ret = ftruncate(fd, 0);
+	(void)ret;
+
+	/* Not allowed */
+	ret = shim_fallocate(fd, 0, (off_t)0, statbuf.st_size);
+	(void)ret;
+
+	/* mmap */
+	ptr = mmap(NULL, 4096, PROT_READ, MAP_ANONYMOUS | MAP_PRIVATE, fd, 0);
+	if (ptr != MAP_FAILED)
+		(void)munmap(ptr, 4096);
+
+#if defined(HAVE_FUTIMENS) &&	\
+    defined(UTIME_NOW)
+	{
+		struct timespec ts[2];
+
+		ts[0].tv_sec = UTIME_NOW;
+		ts[0].tv_nsec = UTIME_NOW;
+		ts[1].tv_sec = UTIME_NOW;
+		ts[1].tv_nsec = UTIME_NOW;
+
+		ret = futimens(fd, &ts[0]);
+		(void)ret;
+	}
+#endif
 
 	FD_ZERO(&rdfds);
 	FD_SET(fd, &rdfds);
