@@ -102,7 +102,9 @@ static int stress_getrandom(const stress_args_t *args)
 
 			ret = shim_getrandom(buffer, sizeof(buffer), getrandom_flags[i].flag);
 			if (ret < 0) {
-				if ((errno == EAGAIN) || (errno == EINTR))
+				if ((errno == EAGAIN) ||
+				    (errno == EINTR) ||
+				    (errno == EINVAL))
 					continue;
 				if (errno == ENOSYS) {
 					/* Should not happen.. */
