@@ -182,8 +182,6 @@ static int stress_handle_child(const stress_args_t *args, void *context)
 		inc_counter(args);
 	} while (keep_stressing());
 
-	pr_inf("%s: ended\n", args->name);
-
 	return EXIT_SUCCESS;
 }
 
