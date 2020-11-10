@@ -91,7 +91,8 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 	}
 #endif
 
-#if defined(F_DUPFD_CLOEXEC)
+#if defined(F_DUPFD) &&		\
+    defined(F_DUPFD_CLOEXEC)
 	{
 		int ret;
 
@@ -109,7 +110,8 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		old_flags = fcntl(fd, F_GETFD);
 		check_return(args, old_flags, "F_GETFD");
 
-#if defined(F_SETFD) && defined(O_CLOEXEC)
+#if defined(F_SETFD) &&		\
+    defined(O_CLOEXEC)
 		if (old_flags > -1) {
 			int new_flags, ret;
 
@@ -135,7 +137,8 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		old_flags = fcntl(fd, F_GETFL);
 		check_return(args, old_flags, "F_GETFL");
 
-#if defined(F_SETFL) && defined(O_APPEND)
+#if defined(F_SETFL) &&		\
+    defined(O_APPEND)
 		if (old_flags > -1) {
 			int new_flags, ret;
 
@@ -151,7 +154,8 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 	}
 #endif
 
-#if defined(F_SETOWN) && defined(__linux__)
+#if defined(F_SETOWN) &&	\
+    defined(__linux__)
 	{
 		int ret;
 
@@ -168,7 +172,8 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 	}
 #endif
 
-#if defined(F_GETOWN) && defined(__linux__)
+#if defined(F_GETOWN) &&	\
+    defined(__linux__)
 	{
 		int ret;
 
@@ -213,13 +218,15 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		(void)ret;
 #endif
-#if defined(HAVE_GETPGRP) && defined(F_OWNER_PGRP)
+#if defined(HAVE_GETPGRP) &&	\
+    defined(F_OWNER_PGRP)
 		owner.type = F_OWNER_PGRP;
 		owner.pid = getpgrp();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		(void)ret;
 #endif
-#if defined(F_OWNER_TID) && defined(__linux__)
+#if defined(F_OWNER_TID) &&	\
+    defined(__linux__)
 		owner.type = F_OWNER_TID;
 		owner.pid = shim_gettid();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
@@ -247,7 +254,8 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		(void)ret;
 #endif
-#if defined(F_OWNER_TID) && defined(__linux__)
+#if defined(F_OWNER_TID) &&	\
+    defined(__linux__)
 		owner.type = F_OWNER_TID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		(void)ret;
@@ -300,8 +308,11 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 	}
 #endif
 
-#if defined(F_GETLK) && defined(F_SETLK) && defined(F_SETLKW) && \
-    defined(F_WRLCK) && defined(F_UNLCK)
+#if defined(F_GETLK) &&		\
+    defined(F_SETLK) &&		\
+    defined(F_SETLKW) &&	\
+    defined(F_WRLCK) &&		\
+    defined(F_UNLCK)
 	{
 #if defined (__linux__)
 		struct flock64 f;
@@ -461,8 +472,11 @@ lock_abort:	{ /* Nowt */ }
 	}
 #endif
 
-#if defined(F_OFD_GETLK) && defined(F_OFD_SETLK) && defined(F_OFD_SETLKW) && \
-    defined(F_WRLCK) && defined(F_UNLCK)
+#if defined(F_OFD_GETLK) &&	\
+    defined(F_OFD_SETLK) &&	\
+    defined(F_OFD_SETLKW) && 	\
+    defined(F_WRLCK) &&		\
+    defined(F_UNLCK)
 	{
 #if defined (__linux__)
 		struct flock64 f;
@@ -563,7 +577,8 @@ ofd_lock_abort:	{ /* Nowt */ }
 #endif
 		};
 
-#if defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)
+#if defined(F_GET_FILE_RW_HINT) &&	\
+    defined(F_SET_FILE_RW_HINT)
 		ret = fcntl(fd, F_GET_FILE_RW_HINT, &hint);
 		if (ret == 0) {
 			for (i = 0; i < SIZEOF_ARRAY(hints); i++) {
@@ -577,7 +592,8 @@ ofd_lock_abort:	{ /* Nowt */ }
 		ret = fcntl(fd, F_SET_FILE_RW_HINT, &hint);
 		(void)ret;
 #endif
-#if defined(F_GET_RW_HINT) && defined(F_SET_RW_HINT)
+#if defined(F_GET_RW_HINT) &&	\
+    defined(F_SET_RW_HINT)
 		ret = fcntl(fd, F_GET_RW_HINT, &hint);
 		if (ret == 0) {
 			for (i = 0; i < SIZEOF_ARRAY(hints); i++) {
