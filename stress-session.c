@@ -27,14 +27,20 @@
 #define STRESS_SESSION_SUCCESS		(0x00)
 #define STRESS_SESSION_SETSID_FAILED	(0x10)
 #define STRESS_SESSION_GETSID_FAILED	(0x11)
-#define STRESS_SESSION_FORK_FAILED	(0x12)
-#define STRESS_SESSION_WAITPID_FAILED	(0x13)
+#define STRESS_SESSION_WRONGSID_FAILED	(0x12)
+#define STRESS_SESSION_FORK_FAILED	(0x13)
+#define STRESS_SESSION_WAITPID_FAILED	(0x14)
 
 static const stress_help_t session_help[] = {
 	{ "f N","session N",	 "start N workers that exercise new sessions" },
 	{ NULL,	"session-ops N", "stop after N session bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
+
+typedef struct {
+	int	status;		/* session status error */
+	int	err;		/* copy of errno */
+} session_error_t;
 
 static char *stress_session_error(int err)
 {
@@ -45,6 +51,8 @@ static char *stress_session_error(int err)
 		return "setsid() failed";
 	case STRESS_SESSION_GETSID_FAILED:
 		return "getsid() failed";
+	case STRESS_SESSION_WRONGSID_FAILED:
+		return "getsid() returned incorrect session id";
 	case STRESS_SESSION_FORK_FAILED:
 		return "fork() failed";
 	case STRESS_SESSION_WAITPID_FAILED:
@@ -55,31 +63,52 @@ static char *stress_session_error(int err)
 	return "unknown failure";
 }
 
+static ssize_t stress_session_return_status(const int fd, const int err, const int status)
+{
+	session_error_t error;
+	ssize_t n;
+	const int saved_errno = errno;
+
+	error.err = err;
+	error.status = status;
+
+	n = write(fd, &error, sizeof(error));
+
+	errno = saved_errno;	/* Restore errno */
+
+	return n;
+}
+
 /*
  *  stress_session_set_and_get()
  *	set and get session id, simple sanity check
  */
-static void stress_session_set_and_get(const stress_args_t *args)
+static int stress_session_set_and_get(const stress_args_t *args, const int fd)
 {
 	pid_t sid, gsid;
 
 	sid = setsid();
+
 	if (sid == (pid_t)-1) {
-		pr_inf("%s: setsid failed: %d (%s)\n",
+		stress_session_return_status(fd, errno, STRESS_SESSION_SETSID_FAILED);
+		pr_inf("%s: setsid failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		_exit(STRESS_SESSION_SETSID_FAILED);
+		return STRESS_SESSION_SETSID_FAILED;
 	}
 	gsid = getsid(getpid());
 	if (gsid == (pid_t)-1) {
-		pr_inf("%s: getsid failed: %d (%s)\n",
+		stress_session_return_status(fd, errno, STRESS_SESSION_GETSID_FAILED);
+		pr_inf("%s: getsid failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		_exit(STRESS_SESSION_GETSID_FAILED);
+		return STRESS_SESSION_GETSID_FAILED;
 	}
 	if (gsid != sid) {
-		pr_inf("%s getsid failed, got %d, expected %d\n",
+		stress_session_return_status(fd, errno, STRESS_SESSION_WRONGSID_FAILED);
+		pr_inf("%s getsid failed, got session ID %d, expected %d\n",
 			args->name, (int)gsid, (int)sid);
-		_exit(STRESS_SESSION_GETSID_FAILED);
+		return STRESS_SESSION_WRONGSID_FAILED;
 	}
+	return STRESS_SESSION_SUCCESS;
 }
 
 /*
@@ -87,24 +116,31 @@ static void stress_session_set_and_get(const stress_args_t *args)
  *	make grand child processes, 25% of which are
  *	orphaned for init to reap
  */
-static int stress_session_child(const stress_args_t *args)
+static int stress_session_child(const stress_args_t *args, const int fd)
 {
 	pid_t pid;
+	int ret;
 
-	stress_session_set_and_get(args);
+	ret = stress_session_set_and_get(args, fd);
+	if (ret != STRESS_SESSION_SUCCESS)
+		return ret;
 
 	pid = fork();
 	if (pid < 0) {
 		/* Silently ignore resource limitation failures */
-		if ((errno == EAGAIN) || (errno == ENOMEM))
-			_exit(STRESS_SESSION_SUCCESS);
+		if ((errno == EAGAIN) || (errno == ENOMEM)) {
+			stress_session_return_status(fd, 0, STRESS_SESSION_SUCCESS);
+			return STRESS_SESSION_SUCCESS;
+		}
+		stress_session_return_status(fd, errno, STRESS_SESSION_FORK_FAILED);
 		pr_err("%s: fork failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		_exit(STRESS_SESSION_FORK_FAILED);
+		return STRESS_SESSION_FORK_FAILED;
 	} else if (pid == 0) {
-		stress_session_set_and_get(args);
+		stress_session_set_and_get(args, fd);
 		(void)shim_vhangup();
-		_exit(STRESS_SESSION_SUCCESS);
+		stress_session_return_status(fd, 0, STRESS_SESSION_SUCCESS);
+		return STRESS_SESSION_SUCCESS;
 	} else {
 		int status;
 
@@ -122,11 +158,15 @@ static int stress_session_child(const stress_args_t *args)
 #else
 			ret = shim_waitpid(pid, &status, 0);
 #endif
-			if (ret < 0)
-				_exit(STRESS_SESSION_WAITPID_FAILED);
+			if (ret < 0) {
+				stress_session_return_status(fd, errno, STRESS_SESSION_WAITPID_FAILED);
+				return STRESS_SESSION_WAITPID_FAILED;
+			}
 		}
 	}
-	_exit(STRESS_SESSION_SUCCESS);
+	stress_session_return_status(fd, 0, STRESS_SESSION_SUCCESS);
+
+	return STRESS_SESSION_SUCCESS;
 }
 
 /*
@@ -135,31 +175,60 @@ static int stress_session_child(const stress_args_t *args)
  */
 static int stress_session(const stress_args_t *args)
 {
-	pid_t pid;
+	int fds[2];
+
+	if (pipe(fds) < 0) {
+		pr_inf("%s: pipe failed: errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
 
 	while (keep_stressing()) {
+		pid_t pid;
+
 		pid = fork();
 		if (pid < 0) {
 			if ((errno == EAGAIN) || (errno == ENOMEM))
 				continue;
-			pr_err("%s: fork failed: errno=%d (%s)\n",
+			pr_inf("%s: fork failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			return EXIT_FAILURE;
+			return EXIT_NO_RESOURCE;
 		} else if (pid == 0) {
 			/* Child */
-			_exit(stress_session_child(args));
+			int ret;
+
+			(void)close(fds[0]);
+			ret = stress_session_child(args, fds[1]);
+			(void)close(fds[1]);
+			_exit(ret);
 		} else {
 			int status;
+			ssize_t n;
+			session_error_t error;
+
+			(void)memset(&error, 0, sizeof(error));
+			n = read(fds[0], &error, sizeof(error));
 
 			(void)shim_waitpid(pid, &status, 0);
 			if (WIFEXITED(status) &&
 			   (WEXITSTATUS(status) != STRESS_SESSION_SUCCESS)) {
-				pr_fail("%s: failure in child: %s\n", args->name,
-					stress_session_error(WEXITSTATUS(status)));
+				if ((n < (ssize_t)sizeof(error)) ||
+				   ((n == (ssize_t)sizeof(error)) && error.err == 0)) {
+					pr_fail("%s: failure in child, %s\n", args->name,
+						stress_session_error(WEXITSTATUS(status)));
+				} else {
+					pr_fail("%s: failure in child, %s: errno=%d (%s)\n",
+						args->name,
+						stress_session_error(error.status),
+						error.err, strerror(error.err));
+				}
 			}
 		}
 		inc_counter(args);
 	}
+	(void)close(fds[0]);
+	(void)close(fds[1]);
+
 	return EXIT_SUCCESS;
 }
 
