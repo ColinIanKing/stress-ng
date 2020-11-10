@@ -259,8 +259,8 @@ static void exercise_shmctl(const size_t sz, const stress_args_t *args)
 		struct shmid_ds buf;
 
 		ret = shmctl(shm_id, IPC_STAT, &buf);
-		if (ret >= 0)
-			pr_fail("%s: shmctl unexpectedly succeeded on non-existed shared"
+		if ((ret >= 0) && (errno == 0))
+			pr_fail("%s: shmctl unexpectedly succeeded on non-existed shared "
 				"memory segment, errno=%d (%s)\n", args->name, errno, strerror(errno));
 	}
 #endif
