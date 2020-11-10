@@ -113,6 +113,10 @@ static inline void efi_get_varname(char *dst, const size_t len, const stress_efi
 	*dst = '\0';
 }
 
+/*
+ *  efi_lseek_read()
+ *	perform a lseek and a 1 char read on fd, silently ignore errors
+ */
 static void efi_lseek_read(const int fd, const off_t offset, const int whence)
 {
 	off_t offret;
