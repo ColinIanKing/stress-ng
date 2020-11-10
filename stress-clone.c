@@ -350,8 +350,8 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				cl_args.child_tid = uint64_ptr(&child_tid);
 				cl_args.parent_tid = uint64_ptr(&parent_tid);
 				cl_args.exit_signal = SIGCHLD;
-				cl_args.stack = uint64_ptr(clone_info->stack);
-				cl_args.stack_size = sizeof(clone_info->stack);
+				cl_args.stack = uint64_ptr(NULL);
+				cl_args.stack_size = 0;
 				cl_args.tls = uint64_ptr(NULL);
 
 				clone_info->pid = sys_clone3(&cl_args, sizeof(cl_args));
