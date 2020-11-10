@@ -260,7 +260,7 @@ static void exercise_shmctl(const size_t sz, const stress_args_t *args)
 
 		ret = shmctl(shm_id, IPC_STAT, &buf);
 		if ((ret >= 0) && (errno == 0))
-			pr_fail("%s: shmctl unexpectedly succeeded on non-existed shared "
+			pr_fail("%s: shmctl unexpectedly succeeded on non-existent shared "
 				"memory segment, errno=%d (%s)\n", args->name, errno, strerror(errno));
 	}
 #endif
@@ -355,7 +355,7 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 	shm_id = shmget(key, sz, IPC_EXCL);
 	if (shm_id >= 0) {
 		(void)shmctl(shm_id, IPC_RMID, NULL);
-		pr_fail("%s: shmget unexpectedly succeeded on non-existed shared"
+		pr_fail("%s: shmget unexpectedly succeeded on non-existent shared"
 			"memory segment, errno=%d (%s)\n", name, errno, strerror(errno));
 	}
 
