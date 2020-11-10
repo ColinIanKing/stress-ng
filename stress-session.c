@@ -159,8 +159,10 @@ static int stress_session_child(const stress_args_t *args, const int fd)
 			ret = shim_waitpid(pid, &status, 0);
 #endif
 			if (ret < 0) {
-				stress_session_return_status(fd, errno, STRESS_SESSION_WAITPID_FAILED);
-				return STRESS_SESSION_WAITPID_FAILED;
+				if ((errno != EINTR) && (errno == ECHILD)) {
+					stress_session_return_status(fd, errno, STRESS_SESSION_WAITPID_FAILED);
+					return STRESS_SESSION_WAITPID_FAILED;
+				}
 			}
 		}
 	}
