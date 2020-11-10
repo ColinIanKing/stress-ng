@@ -260,7 +260,7 @@ static void exercise_shmctl(const size_t sz, const stress_args_t *args)
 
 		ret = shmctl(shm_id, IPC_STAT, &buf);
 		if ((ret >= 0) && (errno == 0))
-			pr_fail("%s: shmctl unexpectedly succeeded on non-existent shared "
+			pr_fail("%s: shmctl IPC_STAT unexpectedly succeeded on non-existent shared "
 				"memory segment, errno=%d (%s)\n", args->name, errno, strerror(errno));
 	}
 #endif
@@ -291,8 +291,8 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 		 * existing shared memory segment and IPC_EXCL flag
 		 */
 		shm_id2 = shmget(key, sz, IPC_CREAT | IPC_EXCL);
-		if (shm_id2 >= 0) {
-			pr_fail("%s: shmget unexpectedly succeeded and re-created "
+		if ((shm_id2 >= 0) && (errno == 0)) {
+			pr_fail("%s: shmget IPC_CREAT unexpectedly succeeded and re-created "
 				"shared memory segment even with IPC_EXCL flag "
 				"specified, errno=%d (%s)\n", name, errno, strerror(errno));
 			(void)shmctl(shm_id2, IPC_RMID, NULL);
@@ -302,12 +302,12 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 		 * Exercise invalid shmget by creating an already
 		 * existing shared memory segment but of greater size
 		 */
-		shm_id2 = shmget(key, sz + 1, IPC_CREAT);
-		if (shm_id2 >= 0) {
-			(void)shmctl(shm_id2, IPC_RMID, NULL);
-			pr_fail("%s: shmget unexpectedly succeeded and again "
+		shm_id2 = shmget(key, sz + (1024 * 1024), IPC_CREAT);
+		if ((shm_id2 >= 0) && (errno == 0)) {
+			pr_fail("%s: shmget IPC_RMID unexpectedly succeeded and again "
 				"created shared memory segment with a greater "
 				"size, errno=%d (%s)\n", name, errno, strerror(errno));
+			(void)shmctl(shm_id2, IPC_RMID, NULL);
 		}
 
 		(void)shmctl(shm_id, IPC_RMID, NULL);
@@ -317,18 +317,18 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 #if defined(SHMMIN)
 	shm_id = shmget(key, SHMMIN - 1, IPC_CREAT);
 	if ((SHMMIN > 0) && (shm_id >= 0)) {
-		(void)shmctl(shm_id, IPC_RMID, NULL);
-		pr_fail("%s: shmget unexpectedly succeeded on invalid value of"
+		pr_fail("%s: shmget IPC_RMID unexpectedly succeeded on invalid value of"
 			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
+		(void)shmctl(shm_id, IPC_RMID, NULL);
 	}
 #endif
 
 #if defined(SHMMAX)
 	shm_id = shmget(key, SHMMAX + 1, IPC_CREAT);
 	if (SHMMAX < ~(size_t)0) && (shm_id >= 0)) {
-		(void)shmctl(shm_id, IPC_RMID, NULL);
-		pr_fail("%s: shmget unexpectedly succeeded on invalid value of"
+		pr_fail("%s: shmget IPC_RMID unexpectedly succeeded on invalid value of"
 			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
+		(void)shmctl(shm_id, IPC_RMID, NULL);
 	}
 #endif
 
@@ -337,9 +337,9 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 	if (!cap_ipc_lock) {
 		shm_id = shmget(IPC_PRIVATE, sz, IPC_CREAT | SHM_HUGETLB | SHM_R | SHM_W);
 		if (shm_id >= 0) {
-			(void)shmctl(shm_id, IPC_RMID, NULL);
-			pr_fail("%s: shmget unexpectedly succeeded on without suitable"
+			pr_fail("%s: shmget IPC_RMID unexpectedly succeeded on without suitable"
 				"capability, errno=%d (%s)\n", name, errno, strerror(errno));
+			(void)shmctl(shm_id, IPC_RMID, NULL);
 		}
 	}
 #else
@@ -353,10 +353,10 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 #endif
 
 	shm_id = shmget(key, sz, IPC_EXCL);
-	if (shm_id >= 0) {
-		(void)shmctl(shm_id, IPC_RMID, NULL);
-		pr_fail("%s: shmget unexpectedly succeeded on non-existent shared"
+	if ((shm_id >= 0) && (errno == 0)) {
+		pr_fail("%s: shmget IPC_RMID unexpectedly succeeded on non-existent shared "
 			"memory segment, errno=%d (%s)\n", name, errno, strerror(errno));
+		(void)shmctl(shm_id, IPC_RMID, NULL);
 	}
 
 }
