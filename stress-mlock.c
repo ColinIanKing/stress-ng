@@ -112,6 +112,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	uint8_t **mappings;
 	const size_t page_size = args->page_size;
 	const size_t max = stress_mlock_max_lockable();
+	const size_t mappings_len = max * sizeof(*mappings);
 	size_t shmall, freemem, totalmem, freeswap;
 	const bool cap_ipc_lock = stress_check_capability(SHIM_CAP_IPC_LOCK);
 
@@ -127,8 +128,11 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	if (!keep_stressing())
 		return EXIT_SUCCESS;
 
-	if ((mappings = calloc(max, sizeof(*mappings))) == NULL) {
-		pr_fail("%s: malloc failed, out of memory\n", args->name);
+	mappings = mmap(NULL, mappings_len, PROT_READ | PROT_WRITE,
+		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (mappings == MAP_FAILED) {
+		pr_fail("%s: cannot mmap mmapings table: %d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -274,7 +278,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			(void)munmap((void *)mappings[i], page_size);
 	} while (keep_stressing());
 
-	free(mappings);
+	(void)munmap(mappings, mappings_len);
 
 	return EXIT_SUCCESS;
 }
