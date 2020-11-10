@@ -99,7 +99,8 @@ static bool do_not_stat(const char *filename)
 static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 {
 	struct stat buf;
-#if defined(AT_EMPTY_PATH) && defined(AT_SYMLINK_NOFOLLOW)
+#if defined(AT_EMPTY_PATH) &&	\
+    defined(AT_SYMLINK_NOFOLLOW)
 	struct shim_statx bufx;
 #endif
 	stress_stat_info_t *si = ctxt->si;
@@ -111,7 +112,8 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 	if ((lstat(si->path, &buf) < 0) && (errno != ENOMEM)) {
 		si->ignore |= IGNORE_LSTAT;
 	}
-#if defined(AT_EMPTY_PATH) && defined(AT_SYMLINK_NOFOLLOW)
+#if defined(AT_EMPTY_PATH) &&	\
+    defined(AT_SYMLINK_NOFOLLOW)
 	/* Heavy weight statx */
 	if ((shim_statx(AT_EMPTY_PATH, si->path, AT_SYMLINK_NOFOLLOW,
 		SHIM_STATX_ALL, &bufx) < 0) && (errno != ENOMEM)) {
