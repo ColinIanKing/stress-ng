@@ -113,6 +113,20 @@ static inline void efi_get_varname(char *dst, const size_t len, const stress_efi
 	*dst = '\0';
 }
 
+static void efi_lseek_read(const int fd, const off_t offset, const int whence)
+{
+	off_t offret;
+
+	offret = lseek(fd, offset, whence);
+	if (offret != (off_t)-1) {
+		char data[1];
+		ssize_t n;
+
+		n = read(fd, data, sizeof(data));
+		(void)n;
+	}
+}
+
 /*
  *  efi_get_data()
  *	read data from a raw efi sysfs entry
@@ -128,6 +142,8 @@ static int efi_get_data(
 	ssize_t n;
 	char filename[PATH_MAX];
 	struct stat statbuf;
+	off_t offset;
+	void *ptr;
 
 	(void)snprintf(filename, sizeof(filename),
 		"%s/%s/%s", vars, varname, field);
@@ -150,6 +166,47 @@ static int efi_get_data(
 	}
 
 	rc = 0;
+
+	/*
+	 *  And exercise the interface for some extra kernel
+	 *  test coverage
+	 */
+	offset = (n > 0) ? stress_mwc32() % n : 0;
+	efi_lseek_read(fd, offset, SEEK_SET);
+
+	offset = (n > 0) ? stress_mwc32() % n : 0;
+	efi_lseek_read(fd, offset, SEEK_END);
+
+	efi_lseek_read(fd, 0, SEEK_SET);
+	efi_lseek_read(fd, offset, SEEK_CUR);
+
+	/*
+	 *  exercise mmap
+	 */
+	ptr = mmap(NULL, n, PROT_READ | PROT_WRITE,
+		MAP_PRIVATE | MAP_ANONYMOUS, fd, 0);
+	if (ptr != MAP_FAILED) {
+		stress_madvise_random(ptr, n);
+		(void)munmap(ptr, n);
+	}
+
+#if defined(FIGETBSZ)
+	{
+		int ret, isz;
+
+		ret = ioctl(fd, FIGETBSZ, &isz);
+		(void)ret;
+	}
+#endif
+#if defined(FIONREAD)
+	{
+		int ret, isz;
+
+		ret = ioctl(fd, FIONREAD, &isz);
+		(void)ret;
+	}
+#endif
+
 err_vars:
 	(void)close(fd);
 
