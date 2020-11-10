@@ -100,7 +100,7 @@ static inline void efi_get_varname(char *dst, const size_t len, const stress_efi
 
 	/*
 	 * gcc-9 -Waddress-of-packed-member workaround, urgh, we know
-	 * this is always going to be aligned correctlty, but gcc-9 whines
+	 * this is always going to be aligned correctly, but gcc-9 whines
 	 * so this hack works around it for now.
 	 */
 	const uint8_t *src8 = (const uint8_t *)var->varname;
