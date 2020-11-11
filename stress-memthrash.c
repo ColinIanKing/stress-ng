@@ -56,12 +56,19 @@ static void *mem;
 static volatile bool thread_terminate;
 static sigset_t set;
 
-#if (((defined(__GNUC__) || defined(__clang__)) && defined(STRESS_ARCH_X86)) || \
-    (defined(__GNUC__) && NEED_GNUC(4,7,0) && defined(STRESS_ARCH_ARM)))
-#if defined(__GNUC__) && NEED_GNUC(4,7,0)
-#define MEM_LOCK(ptr)	 __atomic_add_fetch(ptr, 1, __ATOMIC_SEQ_CST);
+
+#if (((defined(__GNUC__) || defined(__clang__)) && 	\
+       defined(STRESS_ARCH_X86)) ||			\
+     (defined(__GNUC__) && 				\
+      defined(HAVE_ATOMIC_ADD_FETCH) &&			\
+      defined(__ATOMIC_SEQ_CST) &&			\
+      NEED_GNUC(4,7,0) && 				\
+      defined(STRESS_ARCH_ARM)))
+
+#if defined(HAVE_ATOMIC_ADD_FETCH)
+#define MEM_LOCK(ptr, inc) __atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);
 #else
-#define MEM_LOCK(ptr)	asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (1));
+#define MEM_LOCK(ptr, inc) asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));
 #endif
 #endif
 
@@ -294,7 +301,7 @@ static void HOT OPTIMIZE3 stress_memthrash_lock(
 		size_t offset = stress_mwc32() % mem_size;
 		volatile uint8_t *ptr = ((uint8_t *)mem) + offset;
 
-		MEM_LOCK(ptr);
+		MEM_LOCK(ptr, 1);
 	}
 }
 #endif

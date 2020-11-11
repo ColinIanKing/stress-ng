@@ -30,43 +30,46 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		 NULL }
 };
 
-#if (((defined(__GNUC__) || defined(__clang__)) && defined(STRESS_ARCH_X86)) || \
-    (defined(__GNUC__) && NEED_GNUC(4,7,0) && defined(STRESS_ARCH_ARM)))
+#if (((defined(__GNUC__) || defined(__clang__)) && 	\
+       defined(STRESS_ARCH_X86)) ||			\
+     (defined(__GNUC__) && 				\
+      defined(HAVE_ATOMIC_ADD_FETCH) &&			\
+      defined(__ATOMIC_SEQ_CST) &&			\
+      NEED_GNUC(4,7,0) && 				\
+      defined(STRESS_ARCH_ARM)))
+
+#if defined(HAVE_ATOMIC_ADD_FETCH)
+#define MEM_LOCK(ptr, inc) __atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);
+#else
+#define MEM_LOCK(ptr, inc) asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));
+#endif
 
 #define BUFFER_SIZE	(1024 * 1024 * 16)
 #define CHUNK_SIZE	(64 * 4)
 
-#if defined(__GNUC__) && NEED_GNUC(4,7,0)
-#define LOCK(ptr) __atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);
-
-#else
-#define LOCK(ptr) asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));
-
-#endif
-
-#define LOCK_AND_INC(ptr, inc)	\
-	LOCK(ptr);		\
+#define MEM_LOCK_AND_INC(ptr, inc)		\
+	MEM_LOCK(ptr, inc);			\
 	ptr++;
 
-#define LOCK_AND_INCx8(ptr, inc)	\
-	LOCK_AND_INC(ptr, inc)		\
-	LOCK_AND_INC(ptr, inc)		\
-	LOCK_AND_INC(ptr, inc)		\
-	LOCK_AND_INC(ptr, inc)		\
-	LOCK_AND_INC(ptr, inc)		\
-	LOCK_AND_INC(ptr, inc)		\
-	LOCK_AND_INC(ptr, inc)		\
-	LOCK_AND_INC(ptr, inc)
+#define MEM_LOCK_AND_INCx8(ptr, inc)		\
+	MEM_LOCK_AND_INC(ptr, inc)		\
+	MEM_LOCK_AND_INC(ptr, inc)		\
+	MEM_LOCK_AND_INC(ptr, inc)		\
+	MEM_LOCK_AND_INC(ptr, inc)		\
+	MEM_LOCK_AND_INC(ptr, inc)		\
+	MEM_LOCK_AND_INC(ptr, inc)		\
+	MEM_LOCK_AND_INC(ptr, inc)		\
+	MEM_LOCK_AND_INC(ptr, inc)
 
-#define LOCKx8(ptr)			\
-	LOCK(ptr)			\
-	LOCK(ptr)			\
-	LOCK(ptr)			\
-	LOCK(ptr)			\
-	LOCK(ptr)			\
-	LOCK(ptr)			\
-	LOCK(ptr)			\
-	LOCK(ptr)
+#define MEM_LOCKx8(ptr)				\
+	MEM_LOCK(ptr, 0)			\
+	MEM_LOCK(ptr, 0)			\
+	MEM_LOCK(ptr, 0)			\
+	MEM_LOCK(ptr, 0)			\
+	MEM_LOCK(ptr, 0)			\
+	MEM_LOCK(ptr, 0)			\
+	MEM_LOCK(ptr, 0)			\
+	MEM_LOCK(ptr, 0)
 
 #if defined(STRESS_ARCH_X86)
 static sigjmp_buf jmp_env;
@@ -128,18 +131,18 @@ static int stress_lockbus(const stress_args_t *args)
 #endif
 		const uint32_t inc = 1;
 
-		LOCK_AND_INCx8(ptr0, inc);
-		LOCKx8(ptr1);
-		LOCKx8(ptr2);
-		LOCK_AND_INCx8(ptr0, inc);
-		LOCKx8(ptr1);
-		LOCKx8(ptr2);
-		LOCK_AND_INCx8(ptr0, inc);
-		LOCKx8(ptr1);
-		LOCKx8(ptr2);
-		LOCK_AND_INCx8(ptr0, inc);
-		LOCKx8(ptr1);
-		LOCKx8(ptr2);
+		MEM_LOCK_AND_INCx8(ptr0, inc);
+		MEM_LOCKx8(ptr1);
+		MEM_LOCKx8(ptr2);
+		MEM_LOCK_AND_INCx8(ptr0, inc);
+		MEM_LOCKx8(ptr1);
+		MEM_LOCKx8(ptr2);
+		MEM_LOCK_AND_INCx8(ptr0, inc);
+		MEM_LOCKx8(ptr1);
+		MEM_LOCKx8(ptr2);
+		MEM_LOCK_AND_INCx8(ptr0, inc);
+		MEM_LOCKx8(ptr1);
+		MEM_LOCKx8(ptr2);
 
 		inc_counter(args);
 	} while (keep_stressing());
