@@ -2006,6 +2006,70 @@ int stress_get_kernel_release(void)
 }
 
 /*
+ *  stress_get_unused_pid_racy()
+ *	try to find an unused pid. This is racy and may actually
+ *	return pid that is unused at test time but will become
+ *	used by the time the pid is accessed.
+ */
+pid_t stress_get_unused_pid_racy(const bool fork_test)
+{
+	char buf[64];
+#if defined(PID_MAX_LIMIT)
+	pid_t max_pid = PID_MAX_LIMIT;
+#elif defined(PID_MAX)
+	pid_t max_pid = PID_MAX;
+#elif defined(PID_MAX_DEFAULT)
+	pid_t max_pid = PID_MAX_DEFAULT;
+#else
+	pid_t max_pid = 32767;
+#endif
+	int i;
+	pid_t pid;
+
+	(void)memset(buf, 0, sizeof(buf));
+	if (system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0) {
+		max_pid = atoi(buf);
+	}
+	if (max_pid < 1024)
+		max_pid = 1024;
+
+	/*
+	 *  Create a child, terminate it, use this pid as an unused
+	 *  pid. Slow but should be OK if system doesn't recycle PIDs
+	 *  quickly.
+	 */
+	if (fork_test) {
+		pid = fork();
+		if (pid == 0) {
+			_exit(0);
+		} else if (pid > 0) {
+			int status, ret;
+
+			ret = waitpid(pid, &status, 0);
+			if ((ret == pid) &&
+			    ((kill(pid, 0) < 0) && (errno == ESRCH))) {
+				return pid;
+			}
+		}
+	}
+
+	/*
+	 *  Make a random PID guess.
+	 */
+	for (i = 0; i < 20; i++) {
+		pid_t pid = (stress_mwc32() % (max_pid - 1023)) + 1023;
+
+		if ((kill(pid, 0) < 0) && (errno == ESRCH))
+			return pid;
+	}
+
+	/*
+	 *  Give up.
+	 */
+	return max_pid;
+}
+
+/*
  *  stress_read_fdinfo()
  *	read the fdinfo for a specific pid's fd, Linux only
  */

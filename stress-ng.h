@@ -3921,6 +3921,7 @@ extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED uint16_t stress_ip_checksum(uint16_t *ptr, const size_t n);
 extern int stress_read_fdinfo(const pid_t pid, const int fd);
+extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
 
 extern int stress_ftrace_start(void);
 extern int stress_ftrace_stop(void);
