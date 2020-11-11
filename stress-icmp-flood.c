@@ -91,8 +91,8 @@ static int stress_icmp_flood(const stress_args_t *args)
 		const size_t pkt_len =
 			sizeof(struct iphdr) + sizeof(struct icmphdr) + payload_len;
 		char pkt[pkt_len];
-		struct iphdr *ip_hdr = (struct iphdr *)pkt;
-		struct icmphdr *icmp_hdr = (struct icmphdr *)(pkt + sizeof(struct iphdr));
+		struct iphdr *const ip_hdr = (struct iphdr *)pkt;
+		struct icmphdr *const icmp_hdr = (struct icmphdr *)(pkt + sizeof(struct iphdr));
 
 		(void)memset(pkt, 0, sizeof(pkt));
 
