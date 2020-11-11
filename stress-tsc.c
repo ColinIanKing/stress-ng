@@ -131,8 +131,7 @@ static inline void rdtsc(void)
 #endif
 }
 
-
-#elif defined(STRESS_ARCH_PPC64) &&			\
+#elif defined(STRESS_ARCH_PPC64) &&		\
       defined(HAVE_SYS_PLATFORM_PPC_H) &&	\
       defined(HAVE_PPC_GET_TIMEBASE)
 
@@ -156,6 +155,29 @@ static inline void rdtsc(void)
 	(void)__ppc_get_timebase();
 }
 
+#elif defined(STRESS_ARCH_S390)
+
+#define HAVE_STRESS_TSC_CAPABILITY
+
+static bool tsc_supported = true;
+
+/*
+ *  stress_tsc_supported()
+ *	check if tsc is supported, s390x variant
+ */
+static int stress_tsc_supported(const char *name)
+{
+	(void)name;
+
+	return 0;
+}
+
+static inline void rdtsc(void)
+{
+	uint64_t tick;
+
+	asm("\tstck\t%0\n" : "=Q" (tick) : : "cc");
+}
 #endif
 
 #if defined(HAVE_STRESS_TSC_CAPABILITY)
