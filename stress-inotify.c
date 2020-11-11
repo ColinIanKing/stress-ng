@@ -181,13 +181,13 @@ static void exercise_inotify_rm_watch(const int bad_fd)
  */
 static void inotify_exercise(
 	const stress_args_t *args,	/* Stressor args */
-	const char *filename,	/* Filename in test */
-	const char *watchname,	/* File or directory to watch using inotify */
-	const char *matchname,	/* Filename we expect inotify event to report */
-	const stress_inotify_helper func,	/* Helper func */
-	const int flags,	/* IN_* flags to watch for */
-	void *private,		/* Helper func private data */
-	const int bad_fd)	/* A bad file descriptor */
+	const char *filename,		/* Filename in test */
+	const char *watchname,		/* File/directory to watch using inotify */
+	const char *matchname,		/* Filename for inotify event to report */
+	const stress_inotify_helper func, /* Helper func */
+	const int flags,		/* IN_* flags to watch for */
+	void *private,			/* Helper func private data */
+	const int bad_fd)		/* A bad file descriptor */
 {
 	int fd, wd, check_flags = flags, n = 0;
 	char buffer[1024];
