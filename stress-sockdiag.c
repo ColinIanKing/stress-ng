@@ -61,12 +61,7 @@ static int sockdiag_send(const stress_args_t *args, const int fd)
 			.udiag_states = -1,
 			.udiag_ino = 0,
 			.udiag_cookie = { 0 },
-			.udiag_show = UDIAG_SHOW_NAME |
-				      UDIAG_SHOW_VFS |
-				      UDIAG_SHOW_PEER |
-				      UDIAG_SHOW_ICONS |
-				      UDIAG_SHOW_RQLEN |
-				      UDIAG_SHOW_MEMINFO,
+			.udiag_show = 0,
 		}
 	};
 
@@ -159,18 +154,30 @@ static int sockdiag_send(const stress_args_t *args, const int fd)
 
 	while (keep_stressing()) {
 		ssize_t ret;
+		unsigned int i;
 
 		request.udr.sdiag_family = families[family];
-		family++;
-		if (family >= SIZEOF_ARRAY(families))
-			family = 0;
 
+		for (i = 0; i < 32; i++) {
+			request.udr.udiag_show = 1U << i;
+			ret = sendmsg(fd, &msg, 0);
+			if (ret > 0)
+				return 1;
+			if (errno != EINTR)
+				return -1;
+		}
+		request.udr.udiag_show = ~0;
 		ret = sendmsg(fd, &msg, 0);
 		if (ret > 0)
 			return 1;
 		if (errno != EINTR)
 			return -1;
+
+		family++;
+		if (family >= SIZEOF_ARRAY(families))
+			family = 0;
 	}
+
 	return 0;
 }
 
