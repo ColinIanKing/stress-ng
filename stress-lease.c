@@ -50,7 +50,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+#if defined(F_SETLEASE) &&	\
+    defined(F_WRLCK) &&		\
+    defined(F_UNLCK)
 
 /*
  *  stress_lease_handler()
