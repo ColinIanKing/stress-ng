@@ -371,8 +371,6 @@ err:
 					(void)close(fd);
 			}
 		}
-		
-
 next:
 		if (loops > 0) {
 			if (timeout)
