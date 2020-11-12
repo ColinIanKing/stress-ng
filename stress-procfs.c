@@ -534,7 +534,7 @@ static int stress_procfs(const stress_args_t *args)
 	pthread_t pthreads[MAX_PROCFS_THREADS];
 	int rc, ret[MAX_PROCFS_THREADS];
 	stress_ctxt_t ctxt;
-
+	
 	(void)sigfillset(&set);
 
 	shim_strlcpy(proc_path, "/proc/self", sizeof(proc_path));
@@ -605,7 +605,7 @@ static int stress_procfs(const stress_args_t *args)
 		default:
 			break;
 		}
-		i++;
+		i += args->num_instances;
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
