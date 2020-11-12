@@ -1742,7 +1742,7 @@ bool stress_is_dev_tty(const int fd)
 }
 
 /*
- *  stress_dirent_list_free
+ *  stress_dirent_list_free()
  *	free dirent list
  */
 void stress_dirent_list_free(struct dirent **dlist, const int n)
@@ -1756,6 +1756,28 @@ void stress_dirent_list_free(struct dirent **dlist, const int n)
 		}
 		free(dlist);
 	}
+}
+
+/*
+ *  stress_dirent_list_prune()
+ *	remove . and .. files from directory list
+ */
+int stress_dirent_list_prune(struct dirent **dlist, const int n)
+{
+	int i, j;
+
+	for (i = 0, j = 0; i < n; i++) {
+		if (dlist[i]) {
+			if (stress_is_dot_filename(dlist[i]->d_name)) {
+				free(dlist[i]);
+				dlist[i] = NULL;
+			} else {
+				dlist[j] = dlist[i];
+				j++;
+			}
+		}
+	}
+	return j;
 }
 
 /*
