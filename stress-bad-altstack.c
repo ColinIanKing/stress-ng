@@ -40,6 +40,7 @@ static const stress_help_t help[] =
 #if defined(HAVE_SIGALTSTACK)
 
 static void *stack;
+static void *zero_stack;
 static const size_t stack_sz = MINSIGSTKSZ;
 static sigjmp_buf jmpbuf;
 
@@ -59,7 +60,11 @@ static void MLOCKED_TEXT stress_segv_handler(int signum)
 
 	(void)signum;
 	(void)munmap(stack, stack_sz);
-	(void)memset(data, 0, sizeof(data));
+	(void)memset(data, 0xff, sizeof(data));
+	stress_uint8_put(data[0]);
+
+	if (zero_stack != MAP_FAILED)
+		(void)munmap(zero_stack, stack_sz);
 
 	/*
 	 *  If we've not got this far we've not
@@ -81,6 +86,7 @@ static int stress_bad_altstack(const stress_args_t *args)
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 	const void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
 #endif
+	int fd;
 
 	stack = mmap(NULL, stack_sz, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -88,6 +94,15 @@ static int stress_bad_altstack(const stress_args_t *args)
 		pr_err("%s: cannot mmap signal handler stack, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
+	}
+
+	fd = open("/dev/zero", O_RDONLY);
+	if (fd >= 0) {
+		zero_stack = mmap(NULL, stack_sz, PROT_READ,
+			MAP_PRIVATE, fd, 0);
+		(void)close(fd);
+	} else {
+		zero_stack = MAP_FAILED;
 	}
 
 	do {
@@ -162,7 +177,7 @@ again:
 
 			/* Child */
 			stress_mwc_reseed();
-			rnd = stress_mwc32() % 8;
+			rnd = stress_mwc32() % 9;
 
 			stress_set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);
@@ -225,6 +240,16 @@ again:
 					break;
 #endif
 				CASE_FALLTHROUGH;
+			case 8:
+				/* Illegal /dev/zero mapped stack */
+				if (zero_stack != MAP_FAILED) {
+					ret = stress_sigaltstack(zero_stack, stack_sz);
+					if (ret == 0)
+						stress_bad_altstack_force_fault(zero_stack);
+					if (!keep_stressing())
+						break;
+				}
+				CASE_FALLTHROUGH;
 			default:
 			case 0:
 				/* Illegal unmapped stack */
@@ -237,6 +262,11 @@ again:
 			_exit(EXIT_FAILURE);
 		}
 	} while (keep_stressing());
+
+	if (zero_stack != MAP_FAILED)
+		(void)munmap(zero_stack, stack_sz);
+	if (stack != MAP_FAILED)
+		(void)munmap(stack, stack_sz);
 
 	return EXIT_SUCCESS;
 }
