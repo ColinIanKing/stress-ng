@@ -279,7 +279,7 @@ DURATION=180
 do_stress --dev 32
 do_stress --sysinval 0
 
-DURATION=300
+DURATION=360
 do_stress --sysfs 16
 do_stress --procfs 32
 
