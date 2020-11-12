@@ -650,7 +650,6 @@ static int stress_sysfs(const stress_args_t *args)
 			stress_mk_filename(sysfspath, sizeof(sysfspath),
 				"/sys", dlist[j]->d_name);
 
-			printf("%d: scanning %s\n", getpid(), sysfspath);
 			stress_sys_dir(&ctxt, sysfspath, true, 0);
 
 			j = (j + args->num_instances) % n;
