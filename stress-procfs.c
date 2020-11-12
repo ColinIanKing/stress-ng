@@ -39,6 +39,11 @@ typedef struct stress_ctxt {
 	bool writeable;
 } stress_ctxt_t;
 
+typedef struct {
+	const char *filename;
+	void (*stress_func)(const int fd);
+} stress_proc_info_t;
+
 #if !defined(NSIO)
 #define	NSIO		0xb7
 #endif
@@ -85,6 +90,32 @@ static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 	return (s1 < s2) ? -1 : 1;
 }
 
+#if defined(HAVE_ASM_MTRR_H) &&		\
+    defined(HAVE_MTRR_GENTRY) &&	\
+    defined(MTRRIOC_GET_ENTRY)
+/*
+ *  stress_proc_mtrr()
+ *	exercise /proc/mtrr ioctl MTRRIOC_GET_ENTRY
+ */
+static void stress_proc_mtrr(const int fd)
+{
+	struct mtrr_gentry gentry;
+
+	(void)memset(&gentry, 0, sizeof(gentry));
+	while (ioctl(fd, MTRRIOC_GET_ENTRY, &gentry) == 0) {
+		gentry.regnum++;
+	}
+}
+#endif
+
+static stress_proc_info_t stress_proc_info[] = {
+#if defined(HAVE_ASM_MTRR_H) &&		\
+    defined(HAVE_MTRR_GENTRY) &&	\
+    defined(MTRRIOC_GET_ENTRY)
+	{ "/proc/mtrr",		stress_proc_mtrr },
+#endif
+};
+
 /*
  *  stress_proc_rw()
  *	read a proc file
@@ -94,7 +125,7 @@ static inline void stress_proc_rw(
 	int32_t loops)
 {
 	int fd;
-	ssize_t ret, i = 0;
+	ssize_t ret;
 	char buffer[PROC_BUF_SZ];
 	char path[PATH_MAX];
 	const double threshold = 0.2;
@@ -107,7 +138,7 @@ static inline void stress_proc_rw(
 		uint8_t *ptr;
 		struct stat statbuf;
 		bool writeable = true;
-		size_t len;
+		size_t len, i;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -132,6 +163,16 @@ static inline void stress_proc_rw(
 			timeout = true;
 			(void)close(fd);
 			goto next;
+		}
+
+		/*
+		 *  Check if there any special features to exercise
+		 */
+		for (i = 0; i < SIZEOF_ARRAY(stress_proc_info); i++) {
+			if (!strcmp(path, stress_proc_info[i].filename)) {
+				stress_proc_info[i].stress_func(fd);
+				break;
+			}
 		}
 
 		/*
@@ -167,7 +208,7 @@ static inline void stress_proc_rw(
 		/*
 		 *  Multiple randomly sized reads
 		 */
-		while (i < (4096 * PROC_BUF_SZ)) {
+		for (i = 0; i < 4096 * PROC_BUF_SZ; i++) {
 			ssize_t sz = 1 + (stress_mwc32() % sizeof(buffer));
 			if (!keep_stressing_flag())
 				break;
@@ -453,6 +494,7 @@ static void stress_proc_dir(
 				(void)shim_strlcpy(proc_path, tmp, sizeof(proc_path));
 				(void)shim_pthread_spin_unlock(&lock);
 
+
 				stress_proc_rw(ctxt, loops);
 				inc_counter(args);
 			}
@@ -523,16 +565,47 @@ static char *stress_random_pid(void)
 }
 
 /*
+ *  stress_dirent_proc_prune()
+ *	remove . and .. and pid files from directory list
+ */
+static int stress_dirent_proc_prune(struct dirent **dlist, const int n)
+{
+	int i, j;
+
+	for (i = 0, j = 0; i < n; i++) {
+		if (dlist[i]) {
+			if (stress_is_dot_filename(dlist[i]->d_name) ||
+			    isdigit((int)dlist[i]->d_name[0])) {
+				free(dlist[i]);
+				dlist[i] = NULL;
+			} else {
+				dlist[j] = dlist[i];
+				j++;
+			}
+		}
+	}
+	return j;
+}
+
+/*
  *  stress_procfs
  *	stress reading all of /proc
  */
 static int stress_procfs(const stress_args_t *args)
 {
-	size_t i;
+	size_t i, n;
 	pthread_t pthreads[MAX_PROCFS_THREADS];
 	int rc, ret[MAX_PROCFS_THREADS];
 	stress_ctxt_t ctxt;
-	
+	struct dirent **dlist = NULL;
+
+	n = scandir("/proc", &dlist, NULL, alphasort);
+	if (n <= 0) {
+		pr_inf("%s: no /sys entries found, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+	n = stress_dirent_proc_prune(dlist, n);
+
 	(void)sigfillset(&set);
 
 	shim_strlcpy(proc_path, "/proc/self", sizeof(proc_path));
@@ -554,59 +627,39 @@ static int stress_procfs(const stress_args_t *args)
 				stress_proc_rw_thread, &ctxt);
 	}
 
-	i = args->instance;
 	do {
-		i %= 14;
-		switch (i) {
-		case 0:
-			stress_proc_dir(&ctxt, "/proc", false, 0);
-			break;
-		case 1:
-			stress_proc_dir(&ctxt, "/proc/self", true, 0);
-			break;
-		case 2:
-			stress_proc_dir(&ctxt, "/proc/thread_self", true, 0);
-			break;
-		case 3:
-			stress_proc_dir(&ctxt, "/proc/sys", true, 0);
-			break;
-		case 4:
-			stress_proc_dir(&ctxt, "/proc/sysvipc", true, 0);
-			break;
-		case 5:
-			stress_proc_dir(&ctxt, "/proc/fs", true, 0);
-			break;
-		case 6:
-			stress_proc_dir(&ctxt, "/proc/bus", true, 0);
-			break;
-		case 7:
-			stress_proc_dir(&ctxt, "/proc/irq", true, 0);
-			break;
-		case 8:
-			stress_proc_dir(&ctxt, "/proc/scsi", true, 0);
-			break;
-		case 9:
-			stress_proc_dir(&ctxt, "/proc/tty", true, 0);
-			break;
-		case 10:
-			stress_proc_dir(&ctxt, "/proc/driver", true, 0);
-			break;
-		case 11:
-			stress_proc_dir(&ctxt, "/proc/tty", true, 0);
-			break;
-		case 12:
-			stress_proc_dir(&ctxt, "/proc/1", true, 0);
-			break;
-		case 13:
-			stress_proc_dir(&ctxt, stress_random_pid(), true, 0);
-			break;
-		default:
-			break;
+		size_t j = args->instance % n;
+
+		for (i = 0; i < n; i++) {
+			char procfspath[PATH_MAX];
+			struct dirent *d = dlist[i];
+
+			if (!keep_stressing())
+				break;
+
+			stress_mk_filename(procfspath, sizeof(procfspath), "/proc", d->d_name);
+			if ((d->d_type == DT_REG) || (d->d_type == DT_LNK)) {
+				if (!shim_pthread_spin_lock(&lock)) {
+					(void)shim_strlcpy(proc_path, procfspath, sizeof(proc_path));
+					(void)shim_pthread_spin_unlock(&lock);
+
+					stress_proc_rw(&ctxt, 8);
+					inc_counter(args);
+				}
+			} else if (d->d_type == DT_DIR) {
+				stress_proc_dir(&ctxt, procfspath, true, 0);
+			}
+
+			j = (j + args->num_instances) % n;
+			inc_counter(args);
 		}
-		i += args->num_instances;
-		inc_counter(args);
+
 		if (!keep_stressing())
 			break;
+
+		stress_proc_dir(&ctxt, stress_random_pid(), true, 0);
+
+		inc_counter(args);
 	} while (keep_stressing());
 
 	rc = shim_pthread_spin_lock(&lock);
@@ -623,6 +676,8 @@ static int stress_procfs(const stress_args_t *args)
 			(void)pthread_join(pthreads[i], NULL);
 	}
 	(void)shim_pthread_spin_destroy(&lock);
+
+	stress_dirent_list_free(dlist, n);
 
 	return EXIT_SUCCESS;
 }

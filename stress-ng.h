@@ -259,6 +259,10 @@
 #include <asm/prctl.h>
 #endif
 
+#if defined(HAVE_ASM_MTRR_H)
+#include <asm/mtrr.h>
+#endif
+
 #if defined(HAVE_MODIFY_LDT)
 #include <asm/ldt.h>
 #endif
