@@ -446,7 +446,7 @@ static void stress_sys_dir(
 	const bool recurse,
 	const int depth)
 {
-	struct dirent **dlist;
+	struct dirent **dlist = NULL;
 	const stress_args_t *args = ctxt->args;
 	mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int i, n;
@@ -463,7 +463,6 @@ static void stress_sys_dir(
 		return;
 
 	mixup = stress_mwc32();
-	dlist = NULL;
 	n = scandir(path, &dlist, NULL, mixup_sort);
 	if (n <= 0) {
 		stress_dirent_list_free(dlist, n);
@@ -574,10 +573,19 @@ dt_dir_free:
  */
 static int stress_sysfs(const stress_args_t *args)
 {
-	size_t i;
+	size_t i, n;
 	pthread_t pthreads[MAX_SYSFS_THREADS];
 	int rc, ret[MAX_SYSFS_THREADS];
 	stress_ctxt_t ctxt;
+	struct dirent **dlist = NULL;
+
+	n = scandir("/sys", &dlist, NULL, alphasort);
+	if (n <= 0) {
+		pr_inf("%s: no /sys entries found, skipping stressor\n", args->name);
+		stress_dirent_list_free(dlist, n);
+		return EXIT_NO_RESOURCE;
+	}
+	n = stress_dirent_list_prune(dlist, n);
 
 	os_release = 0;
 #if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
@@ -597,6 +605,7 @@ static int stress_sysfs(const stress_args_t *args)
 	if (!sysfs_hash_table) {
 		pr_err("%s: cannot create sysfs hash table: %d (%s))\n",
 			args->name, errno, strerror(errno));
+		stress_dirent_list_free(dlist, n);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -615,6 +624,7 @@ static int stress_sysfs(const stress_args_t *args)
 		if (ctxt.kmsgfd != -1)
 			(void)close(ctxt.kmsgfd);
 		stress_hash_delete(sysfs_hash_table);
+		stress_dirent_list_free(dlist, n);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -626,7 +636,25 @@ static int stress_sysfs(const stress_args_t *args)
 	}
 
 	do {
-		stress_sys_dir(&ctxt, "/sys", true, 0);
+		int j = (args->instance) % n;
+
+		for (i = 0; i < n; i++) {
+			char sysfspath[PATH_MAX];
+
+			if (!keep_stressing())
+				break;
+
+			if (stress_is_dot_filename(dlist[j]->d_name))
+				continue;
+
+			stress_mk_filename(sysfspath, sizeof(sysfspath),
+				"/sys", dlist[j]->d_name);
+
+			printf("%d: scanning %s\n", getpid(), sysfspath);
+			stress_sys_dir(&ctxt, sysfspath, true, 0);
+
+			j = (j + args->num_instances) % n;
+		}
 	} while (keep_stressing());
 
 	rc = shim_pthread_spin_lock(&lock);
@@ -652,6 +680,8 @@ static int stress_sysfs(const stress_args_t *args)
 	if (ctxt.kmsgfd != -1)
 		(void)close(ctxt.kmsgfd);
 	(void)shim_pthread_spin_destroy(&lock);
+
+	stress_dirent_list_free(dlist, n);
 
 	return EXIT_SUCCESS;
 }
