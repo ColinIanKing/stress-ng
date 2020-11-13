@@ -365,9 +365,14 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				}
 			} else {
 				char *stack_top = ((char *)clone_info->stack) + stack_offset;
+#if defined(__FreeBSD_kernel__)
+				clone_info->pid = clone(clone_func,
+					stress_align_stack(stack_top), flag, &clone_arg);
+#else
 				clone_info->pid = clone(clone_func,
 					stress_align_stack(stack_top), flag, &clone_arg, &parent_tid,
 					NULL, &child_tid);
+#endif
 			}
 			if (clone_info->pid == -1) {
 				/*
