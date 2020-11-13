@@ -614,7 +614,7 @@ static int stress_dirent_proc_prune(struct dirent **dlist, const int n)
  */
 static int stress_procfs(const stress_args_t *args)
 {
-	size_t i, n;
+	int i, n;
 	pthread_t pthreads[MAX_PROCFS_THREADS];
 	int rc, ret[MAX_PROCFS_THREADS];
 	stress_ctxt_t ctxt;
