@@ -115,11 +115,11 @@ static int stress_virt_to_phys(
 		 */
 		if (fd_mem >= 0) {
 			off_t offret;
-			char data[16];
 
 			offret = lseek(fd_mem, (off_t)phys_addr, SEEK_SET);
 			if (offret != (off_t)-1) {
 				ssize_t rdret;
+				char data[16];
 
 				rdret = read(fd_mem, data, sizeof(data));
 				(void)rdret;
