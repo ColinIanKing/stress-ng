@@ -138,7 +138,8 @@ static inline void stress_proc_rw(
 		uint8_t *ptr;
 		struct stat statbuf;
 		bool writeable = true;
-		size_t len, i;
+		size_t len;
+		ssize_t i;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -168,7 +169,7 @@ static inline void stress_proc_rw(
 		/*
 		 *  Check if there any special features to exercise
 		 */
-		for (i = 0; i < SIZEOF_ARRAY(stress_proc_info); i++) {
+		for (i = 0; i < (ssize_t)SIZEOF_ARRAY(stress_proc_info); i++) {
 			if (!strcmp(path, stress_proc_info[i].filename)) {
 				stress_proc_info[i].stress_func(fd);
 				break;
