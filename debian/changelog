@@ -1,3 +1,66 @@
+stress-ng (0.11.24-1) unstable; urgency=medium
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-sysfs: make variables i and n plain signed ints.
+  * stress-procfs: make variables i and n plain signed ints.
+  * stress-physpage: reduce the scope of variable 'data'
+  * stress-open: reduce the scope of variable 'dir'
+  * core-helper: stress_get_file_limit: bail out after 250 closed fds
+  * stress-vm: remove leading whitespace from short help info
+  * core-helper: clean up variable shadowing warning
+  * stress-mlock: clean up build warnings on use of mmap and munmap on
+    openhipster
+  * stress-clone: fix build issue with NetBSD and clone
+  * stress-clone: fix build issue with kFreeBSD and clone
+  * stress-procfs: exercise PCI PCIIOC_CONTROLLER procfs ioctl
+  * stress-procfs: clean up warning when stress_proc_info has zero
+    elements
+  * stress-procfs: add ability to exercise specific procfs files in
+    novel ways
+  * stress-bad-altstack: add /dev/zero mapped stack
+  * kernel-coverage: increase sysfs and procfs coverage durations
+  * stress-procfs: remove empty lines
+  * stress-procfs: improve procfs coverage by improving striding method
+  * stress-sysfs: remove printf debug
+  * stress-sysfs: add more methodical way of stepping through sysfs files
+  * core-helper: add stress_dirent_list_prune to remove . and .. from
+    scandir list
+  * stress-tsc: add s390x support for time clock reading
+  * stress-sockdiag: force more diag messages by running through all bit
+    flags
+  * Add build time check for __atomic_add_fetch
+  * stress-lease: break up multiple defined() macro checks
+  * stress-inotify: clean up comments to function args
+  * stress-get: exercise various system calls with defunct/invalid PID
+  * core-helper: add a racy "find a potiential free pid" helper
+  * stress-icmp-flood: constify pointers
+  * stress-session: remove shadowed declaration of variable ret
+  * stress-clone: use NULL for stack on clone3
+  * stress-session: silently ignore ECHILD or EINTR waitpid errors
+  * stress-efivar: add comment to lseek helper function
+  * stress-session: improve error handling from child process
+  * stress-mlock: mmap mappings array as it can be huge
+  * stress-shm-sysv: fix errno reporting in error messages
+  * stress-shm-sysv: fix spelling mistakes in error messages
+  * stress-shm-sysv: fix error message and false positive failure
+  * stress-fstat: break up multiple defined() macro checks
+  * stress-fcntl: break up multiple defined() macro checks
+  * stress-efivar: exercise efivar file with lseek/read, mmap and ioctls
+  * stress-efivar: fix typo in comment
+  * stress-dup: add dup2 race stressing for Linux
+  * stress-handle: remove the "ended" debug message
+  * TODO: add watch_queue to TODO list
+  * stress-getrandom: silently ignore EINVAL errors
+  * stress-dentry: exercise dir file descriptor more
+  * stress-chattr: exercise with random flags and perform get/unset of
+    original flag
+  * TODO: remove uprobes, this has now been implemented
+  * stress-apparmor: reduce error reporting on ENOENT errors
+  * stress-clone: fix clone issues found on ARM64
+
+ -- Colin King <colin.king@canonical.com>  Fri, 13 Nov 2020 20:51:27 +0000
+
 stress-ng (0.11.23-1) unstable; urgency=medium
 
   [ Helmut Grohne ]
