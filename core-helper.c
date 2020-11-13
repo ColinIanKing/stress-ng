@@ -1150,15 +1150,29 @@ size_t stress_get_max_file_limit(void)
 size_t stress_get_file_limit(void)
 {
 	struct rlimit rlim;
-	size_t i, opened = 0, max = 65536;	/* initial guess */
+	size_t i, last_opened, opened = 0, max = 65536;	/* initial guess */
 
 	if (!getrlimit(RLIMIT_NOFILE, &rlim))
 		max = (size_t)rlim.rlim_cur;
 
+	last_opened = 0;
+
 	/* Determine max number of free file descriptors we have */
 	for (i = 0; i < max; i++) {
-		if (fcntl((int)i, F_GETFL) > -1)
+		if (fcntl((int)i, F_GETFL) > -1) {
 			opened++;
+			last_opened = i;
+		} else {
+			/*
+			 *  Hack: Over 250 contiguously closed files
+			 *  most probably indicates we're at the point
+			 *  were no more opened file descriptors are
+			 *  going to be found, so bail out rather then
+			 *  scanning for any more opened files
+			 */
+			if (i - last_opened > 250)
+				break;
+		}
 	}
 	return max - opened;
 }
