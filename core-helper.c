@@ -2079,7 +2079,7 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	 *  Make a random PID guess.
 	 */
 	for (i = 0; i < 20; i++) {
-		pid_t pid = (stress_mwc32() % (max_pid - 1023)) + 1023;
+		pid = (stress_mwc32() % (max_pid - 1023)) + 1023;
 
 		if ((kill(pid, 0) < 0) && (errno == ESRCH))
 			return pid;
