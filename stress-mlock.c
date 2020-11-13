@@ -128,7 +128,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	if (!keep_stressing())
 		return EXIT_SUCCESS;
 
-	mappings = mmap(NULL, mappings_len, PROT_READ | PROT_WRITE,
+	mappings = (uint8_t **)mmap(NULL, mappings_len, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (mappings == MAP_FAILED) {
 		pr_fail("%s: cannot mmap mmapings table: %d (%s)\n",
@@ -278,7 +278,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			(void)munmap((void *)mappings[i], page_size);
 	} while (keep_stressing());
 
-	(void)munmap(mappings, mappings_len);
+	(void)munmap((void *)mappings, mappings_len);
 
 	return EXIT_SUCCESS;
 }
