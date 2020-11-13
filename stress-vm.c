@@ -64,7 +64,7 @@ static const stress_help_t help[] = {
 	{ NULL,	 "vm-keep",	 "redirty memory instead of reallocating" },
 	{ NULL,	 "vm-ops N",	 "stop after N vm bogo operations" },
 #if defined(MAP_LOCKED)
-	{ NULL,	 "vm-locked",	" lock the pages of the mapped region into memory" },
+	{ NULL,	 "vm-locked",	 "lock the pages of the mapped region into memory" },
 #endif
 	{ NULL,	 "vm-madvise M", "specify mmap'd vm buffer madvise advice" },
 	{ NULL,	 "vm-method M",	 "specify stress vm method M, default is all" },
