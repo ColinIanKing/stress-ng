@@ -573,7 +573,7 @@ dt_dir_free:
  */
 static int stress_sysfs(const stress_args_t *args)
 {
-	size_t i, n;
+	int i, n;
 	pthread_t pthreads[MAX_SYSFS_THREADS];
 	int rc, ret[MAX_SYSFS_THREADS];
 	stress_ctxt_t ctxt;
