@@ -77,6 +77,22 @@ static const stress_access_t modes[] = {
 #endif
 };
 
+#if defined(HAVE_FACCESSAT)
+static const int flags[] = {
+	0,
+#if defined(AT_EACCESS)
+	AT_EACCESS,
+#endif
+#if defined(AT_SYMLINK_NOFOLLOW)
+	AT_SYMLINK_NOFOLLOW,
+#endif
+#if defined(AT_SYMLINK_NOFOLLOW)
+	AT_EMPTY_PATH,
+#endif
+	~0,
+};
+#endif
+
 /*
  *  BSD systems can return EFTYPE which we can ignore
  *  as a "known" error on invalid chmod mode bits
@@ -85,6 +101,25 @@ static const stress_access_t modes[] = {
 #define CHMOD_ERR(x) ((x) && (errno != EFTYPE))
 #else
 #define CHMOD_ERR(x) (x)
+#endif
+
+/*
+ *  shim_faccessat()
+ *	try to use the faccessat2 system call directly rather than libc as
+ *	this calls faccessat and/or fstatat. If we don't have the system
+ *	call number than revert to the libc implementation
+ */
+#if defined(HAVE_FACCESSAT) 
+static int shim_faccessat(int dirfd, const char *pathname, int mode, int flags)
+{
+#if defined(HAVE_FACCESSAT2)
+	return faccessat2(dirfd, pathname, mode, flags);
+#elif defined(__NR_faccessat2)
+	return (int)syscall(__NR_faccessat2, dirfd, pathname, mode, flags);
+#else
+	return faccessat(dirfd, pathname, mode, flags);
+#endif
+}
 #endif
 
 /*
@@ -119,6 +154,8 @@ static int stress_access(const stress_args_t *args)
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(modes); i++) {
+			size_t j;
+
 			ret = fchmod(fd, modes[i].chmod_mode);
 			if (CHMOD_ERR(ret)) {
 				pr_err("%s: fchmod %3.3o failed: %d (%s)\n",
@@ -135,7 +172,7 @@ static int stress_access(const stress_args_t *args)
 					errno, strerror(errno));
 			}
 #if defined(HAVE_FACCESSAT)
-			ret = faccessat(AT_FDCWD, filename, modes[i].access_mode, 0);
+			ret = shim_faccessat(AT_FDCWD, filename, modes[i].access_mode, 0);
 			if ((ret < 0) && (errno != ENOSYS)) {
 				pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed: %d (%s)\n",
 					args->name,
@@ -143,10 +180,20 @@ static int stress_access(const stress_args_t *args)
 					(unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno));
 			}
+
+			/*
+			 *  Exercise various flags, use the direct system call as preferred
+			 *  first choice if it is possible.
+			 */
+			for (j = 0; j < SIZEOF_ARRAY(flags); j++) {
+				ret = shim_faccessat(AT_FDCWD, filename, modes[i].access_mode, flags[j]);
+				(void)ret;
+			}
+
 			/*
 			 *  Exercise bad dirfd
 			 */
-			ret = faccessat(bad_fd, filename, modes[i].access_mode, 0);
+			ret = shim_faccessat(bad_fd, filename, modes[i].access_mode, 0);
 			(void)ret;
 #endif
 #if defined(HAVE_FACCESSAT2) &&	\
