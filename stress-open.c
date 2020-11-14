@@ -217,6 +217,31 @@ static int open_with_openat_dirfd(void)
 }
 #endif
 
+#if defined(HAVE_OPENAT2) &&		\
+    defined(HAVE_LINUX_OPENAT2_H) &&	\
+    defined(RESOLVE_NO_SYMLINKS) &&	\
+    defined(__NR_openat2)
+static int open_with_openat2_cwd(void)
+{
+	char filename[PATH_MAX];
+	int fd;
+	struct open_how how;
+
+	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
+		(int)getpid(), stress_mwc32());
+
+	(void)memset(&how, 0, sizeof(how));
+	how.flags = O_CREAT | O_RDWR;
+	how.mode = S_IRUSR | S_IWUSR;
+	how.resolve = RESOLVE_NO_SYMLINKS;
+
+	fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, sizeof(how));
+	if (fd >= 0)
+		(void)unlink(filename);
+	return fd;
+}
+#endif
+
 static stress_open_func_t open_funcs[] = {
 	open_dev_zero_rd,
 	open_dev_null_wr,
@@ -253,6 +278,12 @@ static stress_open_func_t open_funcs[] = {
     defined(O_PATH) &&		\
     defined(O_DIRECTORY)
 	open_with_openat_dirfd,
+#endif
+#if defined(HAVE_OPENAT2) &&		\
+    defined(HAVE_LINUX_OPENAT2_H) &&	\
+    defined(RESOLVE_NO_SYMLINKS) &&	\
+    defined(__NR_openat2)
+	open_with_openat2_cwd,
 #endif
 };
 

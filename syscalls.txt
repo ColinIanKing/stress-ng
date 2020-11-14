@@ -20,7 +20,7 @@ Syscall				Stressor
 
 accept				sock
 accept4				sock
-access				sysfs
+access				access
 acct				[ need privilege, ignore for now ]
 add_key				key
 adjtimex			get (modes = 0 only)
@@ -64,6 +64,7 @@ execveat			exec
 exit				fork
 exit_group			daemon
 faccessat			access, close
+faccessat2			access
 fadvise				readahead
 fallocate			fallocate
 fanotify_init			fanotify
@@ -207,7 +208,7 @@ nice				nice
 open				dentry, open, etc
 open_by_handle_at		handle
 openat				io, open
-openat2				waiting for open_how struct in glibc
+openat2				open
 open_tree
 pause				kcmp, wait
 perf_event_open			--perf option
