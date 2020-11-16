@@ -336,23 +336,31 @@ static int epoll_notification(
 		 */
 		if (epoll_ctl_add(efd, efd, EPOLLIN | EPOLLET) == 0) {
 			pr_fail("%s: epoll_ctl_add unexpectedly succeeded with "
-				"invalid arguments, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				"invalid arguments\n", args->name);
 			(void)close(fd);
 			return -1;
 		}
 
 		/*
-		 *  Exercised illegal epoll_ctl_add by adding
+		 *  Exercise illegal epoll_ctl_add by adding
 		 *  fd which is already registered with efd
 		 *  resulting in EEXIST error
 		 */
 		if (epoll_ctl_add(efd, fd, EPOLLIN | EPOLLET) == 0) {
 			pr_fail("%s: epoll_ctl_add unexpectedly succeeded "
-				"with fd already registered, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				"with a file descriptor that has already "
+				"been registered\n", args->name);
 			(void)close(fd);
 			return -1;
+		}
+
+		/*
+		 *  Exercise epoll_ctl_add on a illegal epoll_fd
+		 */
+		if (epoll_ctl_add(-1, fd, EPOLLIN | EPOLLET) == 0) {
+			pr_fail("%s: epoll_ctl_add unexpectedly succeeded "
+				"with an illegal file descriptor\n", args->name);
+			(void)close(fd);
 		}
 	}
 	return 0;
