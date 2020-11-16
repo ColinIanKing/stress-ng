@@ -124,10 +124,13 @@ static int do_chmod(
 	const int bad_fd,
 	const char *filebase,
 	const char *filename,
+	const char *longpath,
 	const int i,
 	const mode_t mask,
 	const mode_t all_mask)
 {
+	int ret;
+
 	CHECK(chmod(filename, modes[i]) < 0);
 	CHECK(chmod(filename, mask) < 0);
 	CHECK(chmod(filename, modes[i] ^ all_mask) < 0);
@@ -135,8 +138,6 @@ static int do_chmod(
 
 #if defined(HAVE_FCHMODAT)
 	if (dfd >= 0) {
-		int ret;
-
 		CHECK(fchmodat(dfd, filebase, modes[i], 0) < 0);
 		CHECK(fchmodat(dfd, filebase, mask, 0) < 0);
 		CHECK(fchmodat(dfd, filebase, modes[i] ^ all_mask, 0) < 0);
@@ -153,6 +154,19 @@ static int do_chmod(
 	(void)bad_fd;
 	(void)filebase;
 #endif
+
+	/*
+	 *  Exercise illegal filename
+	 */
+	ret = chmod("", modes[i]);
+	(void)ret;
+
+	/*
+	 *  Exercise illegal overly long pathname
+	 */
+	ret = chmod(longpath, modes[i]);
+	(void)ret;
+
 	return 0;
 }
 
@@ -166,7 +180,7 @@ static int stress_chmod(const stress_args_t *args)
 	int i, fd = -1, rc = EXIT_FAILURE, retries = 0, dfd = -1;
 	const int bad_fd = stress_get_bad_fd();
 	mode_t all_mask = 0;
-	char filename[PATH_MAX], pathname[PATH_MAX];
+	char filename[PATH_MAX], pathname[PATH_MAX], longpath[PATH_MAX + 16];
 	char tmp[PATH_MAX], *filebase;
 
 	/*
@@ -184,6 +198,9 @@ static int stress_chmod(const stress_args_t *args)
 #if defined(O_DIRECTORY)
 	dfd = open(pathname, O_DIRECTORY | O_RDONLY);
 #endif
+
+	stress_strnrnd(longpath, sizeof(longpath));
+	longpath[0] = '/';
 
 	(void)stress_temp_filename(filename, sizeof(filename),
 		args->name, ppid, 0, 0);
@@ -237,7 +254,7 @@ static int stress_chmod(const stress_args_t *args)
 				pr_fail("%s: fchmod failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-			if (do_chmod(dfd, bad_fd, filebase, filename, i, mask, all_mask) < 0) {
+			if (do_chmod(dfd, bad_fd, filebase, filename, longpath, i, mask, all_mask) < 0) {
 				if (errno == ENOENT || errno == ENOTDIR) {
 					/*
 					 * File was removed during test by
