@@ -2617,6 +2617,7 @@ typedef enum {
 
 	OPT_brk,
 	OPT_brk_ops,
+	OPT_brk_mlock,
 	OPT_brk_notouch,
 
 	OPT_bsearch,

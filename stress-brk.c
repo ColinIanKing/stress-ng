@@ -27,9 +27,24 @@
 static const stress_help_t help[] = {
 	{ NULL,	"brk N",	"start N workers performing rapid brk calls" },
 	{ NULL,	"brk-ops N",	"stop after N brk bogo operations" },
+	{ NULL, "brk-mlock",	"attempt to mlock newly mapped brk pages" },
 	{ NULL,	"brk-notouch",	"don't touch (page in) new data segment page" },
 	{ NULL,	NULL,		NULL }
 };
+
+typedef struct {
+	bool brk_mlock;
+	bool brk_notouch;
+} brk_context_t;
+
+static int stress_set_brk_mlock(const char *opt)
+{
+	(void)opt;
+	bool brk_mlock = true;
+
+	return stress_set_setting("brk-mlock", TYPE_ID_BOOL, &brk_mlock);
+	return 0;
+}
 
 static int stress_set_brk_notouch(const char *opt)
 {
@@ -40,6 +55,7 @@ static int stress_set_brk_notouch(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_brk_mlock,	stress_set_brk_mlock },
 	{ OPT_brk_notouch,	stress_set_brk_notouch },
 	{ 0,			NULL }
 };
@@ -76,17 +92,17 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 	uint8_t *start_ptr;
 	int i = 0;
 	const size_t page_size = args->page_size;
-	bool brk_notouch = false;
-
-	(void)context;
-
-	(void)stress_get_setting("brk-notouch", &brk_notouch);
+	const brk_context_t *brk_context = (brk_context_t *)context;
 
 	start_ptr = shim_sbrk(0);
 	if (start_ptr == (void *) -1) {
 		pr_fail("%s: sbrk(0) failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
+	}
+
+	if (brk_context->brk_mlock) {
+		(void)shim_mlockall(MCL_FUTURE);
 	}
 
 	do {
@@ -124,7 +140,7 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 			}
 		} else {
 			/* Touch page, force it to be resident */
-			if (!brk_notouch)
+			if (!brk_context->brk_notouch)
 				*(ptr - 1) = 0;
 		}
 		inc_counter(args);
@@ -139,7 +155,22 @@ static int stress_brk_child(const stress_args_t *args, void *context)
  */
 static int stress_brk(const stress_args_t *args)
 {
-	return stress_oomable_child(args, NULL, stress_brk_child, STRESS_OOMABLE_DROP_CAP);
+	brk_context_t brk_context;
+
+	brk_context.brk_mlock = false;
+	brk_context.brk_notouch = false;
+
+	(void)stress_get_setting("brk-mlock", &brk_context.brk_mlock);
+	(void)stress_get_setting("brk-notouch", &brk_context.brk_notouch);
+
+#if !defined(MCL_FUTURE)
+	if ((args->instance == 0) && brk_context.brk_mlock) {
+		pr_inf("%s: --brk-mlock option was enabled but support for "
+			"mlock(MCL_FUTURE) is not available\n",
+			args->name);
+	}
+#endif
+	return stress_oomable_child(args, (void *)&brk_context, stress_brk_child, STRESS_OOMABLE_DROP_CAP);
 }
 
 stressor_info_t stress_brk_info = {

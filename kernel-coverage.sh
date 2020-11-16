@@ -151,8 +151,11 @@ DURATION=60
 do_stress --all 1
 
 #
-#  Exercise varios stressor options
+#  Exercise various stressor options
 #
+do_stress --brk 0 --brk-notouch
+do_stress --brk 0 --brk-mlock
+
 do_stress --cpu 0 --sched batch
 do_stress --cpu 0 --taskset 0,2 --ignite-cpu
 do_stress --cpu 0 --taskset 1,2,3

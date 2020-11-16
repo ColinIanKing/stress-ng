@@ -566,6 +566,11 @@ a monitoring parent process.
 .B \-\-brk\-ops N
 stop the brk workers after N bogo brk operations.
 .TP
+.B \-\-brk\-mlock
+attempt to mlock future brk pages into memory causing more memory pressure. If
+mlock(MCL_FUTURE) is implemented then this will stop new brk pages from being
+swapped out.
+.TP
 .B \-\-brk\-notouch
 do not touch each newly allocated data segment page. This disables the default
 of touching each newly allocated page and hence avoids the kernel from

@@ -246,6 +246,7 @@ static const struct option long_options[] = {
 	{ "branch-ops",	1,	0,	OPT_branch_ops },
 	{ "brk",	1,	0,	OPT_brk },
 	{ "brk-ops",	1,	0,	OPT_brk_ops },
+	{ "brk-mlock",0,	0,	OPT_brk_mlock },
 	{ "brk-notouch",0,	0,	OPT_brk_notouch },
 	{ "bsearch",	1,	0,	OPT_bsearch },
 	{ "bsearch-ops",1,	0,	OPT_bsearch_ops },
