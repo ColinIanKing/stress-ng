@@ -340,6 +340,8 @@ static void stress_iomix_sync(
 
 #if defined(HAVE_FDATASYNC)
 		(void)shim_fdatasync(fd);
+		/* Exercise illegal fdatasync */
+		(void)shim_fdatasync(-1);
 		if (!keep_stressing())
 			break;
 		tv.tv_sec = stress_mwc32() % 4;
