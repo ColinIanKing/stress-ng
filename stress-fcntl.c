@@ -277,6 +277,9 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		/* Exercise illegal signal number */
 		ret = fcntl(fd, F_SETSIG, ~0);
 		(void)ret;
+		/* Apparently zero restores default behaviour */
+		ret = fcntl(fd, F_SETSIG, 0);
+		(void)ret;
 	}
 #endif
 
