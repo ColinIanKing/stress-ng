@@ -297,6 +297,10 @@ static int stress_xattr(const stress_args_t *args)
 			/* Exercise getxattr syscall having small value buffer */
 			ret = shim_getxattr(filename, attrname, small_tmp, sizeof(small_tmp));
 			(void)ret;
+			ret = shim_getxattr(filename, "", small_tmp, 0);
+			(void)ret;
+			ret = shim_getxattr(filename, "", small_tmp, sizeof(small_tmp));
+			(void)ret;
 
 			ret = shim_getxattr(filename, attrname, tmp, sizeof(tmp));
 			if (ret < 0) {
