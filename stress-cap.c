@@ -68,6 +68,28 @@ static int stress_capgetset_pid(
 		}
 	}
 
+	/*
+	 *  Exercise invalid pid
+	 */
+	uch.version = _LINUX_CAPABILITY_VERSION_3;
+	uch.pid = stress_get_unused_pid_racy(false);
+	ret = capget(&uch, ucd);
+
+	/*
+	 *  Exercise older capability versions
+	 */
+	uch.version = _LINUX_CAPABILITY_VERSION_2;
+	uch.pid = pid;
+	ret = capget(&uch, ucd);
+
+	uch.version = _LINUX_CAPABILITY_VERSION_1;
+	uch.pid = pid;
+	ret = capget(&uch, ucd);
+
+	uch.version = ~0;
+	uch.pid = pid;
+	ret = capget(&uch, ucd);
+
 	inc_counter(args);
 
 	return ret;
