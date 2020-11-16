@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_SYS_CAPABILITY_H)
+#if defined(HAVE_SYS_CAPABILITY_H) &&	\
+    defined(_LINUX_CAPABILITY_U32S_3)
 
 static int stress_capgetset_pid(
 	const stress_args_t *args,
@@ -45,6 +46,7 @@ static int stress_capgetset_pid(
 	(void)memset(&uch, 0, sizeof uch);
 	(void)memset(ucd, 0, sizeof ucd);
 
+#if defined(_LINUX_CAPABILITY_VERSION_3)
 	uch.version = _LINUX_CAPABILITY_VERSION_3;
 	uch.pid = pid;
 
@@ -67,24 +69,31 @@ static int stress_capgetset_pid(
 			}
 		}
 	}
+#endif
 
+#if defined(_LINUX_CAPABILITY_VERSION_3)
 	/*
 	 *  Exercise invalid pid
 	 */
 	uch.version = _LINUX_CAPABILITY_VERSION_3;
 	uch.pid = stress_get_unused_pid_racy(false);
 	ret = capget(&uch, ucd);
+#endif
 
 	/*
 	 *  Exercise older capability versions
 	 */
+#if defined(_LINUX_CAPABILITY_VERSION_2)
 	uch.version = _LINUX_CAPABILITY_VERSION_2;
 	uch.pid = pid;
 	ret = capget(&uch, ucd);
+#endif
 
+#if defined(_LINUX_CAPABILITY_VERSION_1)
 	uch.version = _LINUX_CAPABILITY_VERSION_1;
 	uch.pid = pid;
 	ret = capget(&uch, ucd);
+#endif
 
 	uch.version = ~0;
 	uch.pid = pid;
