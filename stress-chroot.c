@@ -121,6 +121,8 @@ static int stress_chroot_test2(const stress_args_t *args)
 			args->name, errno1, strerror(errno1));
 		return EXIT_FAILURE;
 	}
+#else
+	(void)args;
 #endif
 	return EXIT_SUCCESS;
 }
