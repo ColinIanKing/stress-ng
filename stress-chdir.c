@@ -52,7 +52,7 @@ static int stress_set_chdir_dirs(const char *opt)
 static int stress_chdir(const stress_args_t *args)
 {
 	uint32_t i, chdir_dirs = DEFAULT_CHDIR_DIRS;
-	char path[PATH_MAX], cwd[PATH_MAX];
+	char path[PATH_MAX], cwd[PATH_MAX], badpath[PATH_MAX], longpath[PATH_MAX + 16];
 	int rc, ret = EXIT_FAILURE, *fds;
 	char **paths;
 	bool *mkdir_ok;
@@ -95,6 +95,11 @@ static int stress_chdir(const stress_args_t *args)
 		fds[i] = -1;
 		paths[i] = NULL;
 	}
+
+	stress_strnrnd(longpath, sizeof(longpath));
+	longpath[0] = '/';
+
+	(void)stress_temp_filename_args(args, badpath, sizeof(badpath), ~0ULL);
 
 	/* Populate */
 	for (i = 0; i < chdir_dirs; i++) {
@@ -167,6 +172,7 @@ static int stress_chdir(const stress_args_t *args)
 					goto abort;
 				}
 			}
+
 			/*
 			 *  chdir to path that won't allow to access,
 			 *  this is designed to exercise a failure. Don't
@@ -174,10 +180,10 @@ static int stress_chdir(const stress_args_t *args)
 			 *  root.
 			 */
 			if (!is_root && (fchmod(fd, 0000) == 0)) {
-				ret = fchdir(fd);
-				(void)ret;
-				ret = fchmod(fd, statbuf.st_mode & 0777);
-				(void)ret;
+				rc = fchdir(fd);
+				(void)rc;
+				rc = fchmod(fd, statbuf.st_mode & 0777);
+				(void)rc;
 			}
 
 			while (keep_stressing()) {
@@ -192,6 +198,36 @@ static int stress_chdir(const stress_args_t *args)
 				}
 			}
 		}
+		/*
+		 *  chdir to a non-existent path
+		 */
+		rc = chdir(badpath);
+		(void)rc;
+
+		/*
+		 *  chdir to an invalid non-directory
+		 */
+		rc = chdir("/dev/null");
+		(void)rc;
+
+		/*
+		 *  fchdir to an invalid file descriptor
+		 */
+		rc = fchdir(-1);
+		(void)rc;
+
+		/*
+		 *  chdir to a bad directory
+		 */
+		rc = chdir("");
+		(void)rc;
+
+		/*
+		 *  chdir to an overly long directory name
+		 */
+		rc = chdir(longpath);
+		(void)rc;
+
 		inc_counter(args);
 	} while (keep_stressing());
 done:
