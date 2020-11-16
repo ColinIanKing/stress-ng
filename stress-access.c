@@ -78,7 +78,7 @@ static const stress_access_t modes[] = {
 };
 
 #if defined(HAVE_FACCESSAT)
-static const int flags[] = {
+static const int access_flags[] = {
 	0,
 #if defined(AT_EACCESS)
 	AT_EACCESS,
@@ -185,8 +185,8 @@ static int stress_access(const stress_args_t *args)
 			 *  Exercise various flags, use the direct system call as preferred
 			 *  first choice if it is possible.
 			 */
-			for (j = 0; j < SIZEOF_ARRAY(flags); j++) {
-				ret = shim_faccessat(AT_FDCWD, filename, modes[i].access_mode, flags[j]);
+			for (j = 0; j < SIZEOF_ARRAY(access_flags); j++) {
+				ret = shim_faccessat(AT_FDCWD, filename, modes[i].access_mode, access_flags[j]);
 				(void)ret;
 			}
 
