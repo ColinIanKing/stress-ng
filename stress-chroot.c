@@ -110,6 +110,7 @@ static int stress_chroot_test1(const stress_args_t *args)
 
 static int stress_chroot_test2(const stress_args_t *args)
 {
+#if defined(__linux__)
 	int ret1, ret2, errno1, errno2;
 
 	do_chroot((void *)1, &ret1, &ret2, &errno1, &errno2);
@@ -120,6 +121,7 @@ static int stress_chroot_test2(const stress_args_t *args)
 			args->name, errno1, strerror(errno1));
 		return EXIT_FAILURE;
 	}
+#endif
 	return EXIT_SUCCESS;
 }
 
