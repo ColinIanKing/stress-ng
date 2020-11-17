@@ -187,8 +187,8 @@ do_stress --eventfd 0 --eventfd-nonblock
 
 do_stress --hdd 0 --hdd-opts direct,utimes
 do_stress --hdd 0 --hdd-opts dsync
-do_stress --hdd 0 --hdd-opts iovec
-do_stress --hdd 0 --hdd-opts fsync
+do_stress --hdd 0 --hdd-opts iovec,noatime
+do_stress --hdd 0 --hdd-opts fsync,syncfs
 do_stress --hdd 0 --hdd-opts fdatasync
 do_stress --hdd 0 --hdd-opts rd-rnd,wr-rnd,fadv-rnd
 do_stress --hdd 0 --hdd-opts rd-seq,wr-seq
