@@ -157,6 +157,30 @@ static int stress_set_hdd_write_size(const char *opt)
 	return stress_set_setting("hdd-write-size", TYPE_ID_UINT64, &hdd_write_size);
 }
 
+#if defined(HAVE_FUTIMES)
+static void stress_hdd_utimes(const int fd)
+{
+	struct timeval tv[2];
+
+	(void)futimes(fd, NULL);
+
+	/* Exercise illegal futimes, usec too large */
+	tv[0].tv_usec = 1000001;
+	tv[0].tv_sec = 0;
+	tv[1].tv_usec = 1000001;
+	tv[1].tv_sec = 0;
+	(void)futimes(fd, tv);
+
+	/* Exercise illegal futimes, usec too small */
+	tv[0].tv_usec = -1;
+	tv[0].tv_sec = -1;
+	tv[1].tv_usec = -1;
+	tv[1].tv_sec = -1;
+
+	(void)futimes(fd, tv);
+}
+#endif
+
 /*
  *  stress_hdd_write()
  *	write with writev or write depending on mode
@@ -172,7 +196,7 @@ static ssize_t stress_hdd_write(
 
 #if defined(HAVE_FUTIMES)
 	if (hdd_flags & HDD_OPT_UTIMES)
-		(void)futimes(fd, NULL);
+		stress_hdd_utimes(fd);
 #endif
 
 	if (hdd_flags & HDD_OPT_IOVEC) {
@@ -243,7 +267,7 @@ static ssize_t stress_hdd_read(
 {
 #if defined(HAVE_FUTIMES)
 	if (hdd_flags & HDD_OPT_UTIMES)
-		(void)futimes(fd, NULL);
+		stress_hdd_utimes(fd);
 #endif
 
 	if (hdd_flags & HDD_OPT_IOVEC) {
