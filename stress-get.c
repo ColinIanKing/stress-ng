@@ -260,10 +260,33 @@ static int stress_get(const stress_args_t *args)
 		(void)uid;
 		check_do_run();
 
+		/*
+		 *  Zero size should return number of gids to fetch
+		 */
+		ret = getgroups(0, gids);
+		(void)ret;
+
+		/*
+		 *  Try to get GIDS_MAX number of gids
+		 */
 		ret = getgroups(GIDS_MAX, gids);
 		if (verify && (ret < 0) && (errno != EINVAL))
 			pr_fail("%s: getgroups failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+		/*
+		 *  Exercise invalid getgroups calls
+		 */
+		ret = getgroups(1, gids);
+		(void)ret;
+#if defined(__NR_getgroups)
+		/*
+		 *  libc may detect a -ve gidsetsize argument and not call
+		 *  the system call. Override this by directly calling the
+		 *  system call if possible
+		 */
+		ret = syscall(__NR_getgroups, -1, gids);
+		(void)ret;
+#endif
 		check_do_run();
 
 #if defined(HAVE_GETPGRP)
