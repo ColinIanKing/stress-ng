@@ -231,6 +231,11 @@ static int stress_numa(const stress_args_t *args)
 			}
 		}
 
+		/* Exercise invalid max_nodes */
+		ret = shim_get_mempolicy(&mode, node_mask, 0,
+			(unsigned long)buf, MPOL_F_NODE);
+		(void)ret;
+
 		/* Exercise invalid flag */
 		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
 			(unsigned long)buf, ~0);
