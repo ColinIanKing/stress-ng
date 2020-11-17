@@ -86,7 +86,7 @@ static const int access_flags[] = {
 #if defined(AT_SYMLINK_NOFOLLOW)
 	AT_SYMLINK_NOFOLLOW,
 #endif
-#if defined(AT_SYMLINK_NOFOLLOW)
+#if defined(AT_EMPTY_PATH)
 	AT_EMPTY_PATH,
 #endif
 	~0,
