@@ -36,6 +36,18 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		NULL }
 };
 
+static const int stress_itimers[] = {
+#if defined(ITIMER_REAL)
+	ITIMER_REAL,
+#endif
+#if defined(ITIMER_VIRTUAL)
+	ITIMER_VIRTUAL,
+#endif
+#if defined(ITIMER_PROF)
+	ITIMER_PROF,
+#endif
+};
+
 /*
  *  stress_set_itimer_freq()
  *	set itimer frequency from given option
@@ -173,8 +185,13 @@ static int stress_itimer(const stress_args_t *args)
 	}
 
 	do {
+		size_t i;
 		struct itimerval t;
-		(void)getitimer(ITIMER_PROF, &t);
+
+		/* Get state of all itimers */
+		for (i = 0; i < SIZEOF_ARRAY(stress_itimers); i++) {
+			(void)getitimer(stress_itimers[i], &t);
+		}
 
 		set_counter(args, itimer_counter);
 	} while (keep_stressing());
