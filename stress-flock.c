@@ -42,8 +42,9 @@ static void stress_flock_child(
 	const int bad_fd)
 {
 	bool cont;
+	int i;
 
-	for (;;) {
+	for (i = 0; ; i++) {
 		int ret;
 
 #if defined(LOCK_EX)
@@ -153,6 +154,14 @@ static void stress_flock_child(
 			(void)flock(fd, LOCK_UN);
 			if (!cont)
 				break;
+		}
+#endif
+#if defined(__linux__)
+		if ((i & 0xff) == 0) {
+			char buf[4096];
+
+			ret = system_read("/proc/locks", buf, sizeof(buf));
+			(void)ret;
 		}
 #endif
 	}
