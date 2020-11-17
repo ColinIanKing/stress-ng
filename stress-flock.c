@@ -97,10 +97,39 @@ static void stress_flock_child(
 		}
 #endif
 
-#if defined(LOCK_SH) && defined(LOCK_NB)
+#if defined(LOCK_SH) &&		\
+    defined(LOCK_NB)
 		if (!keep_stressing())
 			break;
 		if (flock(fd, LOCK_SH | LOCK_NB) == 0) {
+			cont = keep_stressing();
+			if (cont)
+				inc_counter(args);
+			(void)flock(fd, LOCK_UN);
+			if (!cont)
+				break;
+		}
+#endif
+
+#if defined(LOCK_MAND) &&	\
+    defined(LOCK_READ)
+		if (!keep_stressing())
+			break;
+		if (flock(fd, LOCK_MAND | LOCK_READ) == 0) {
+			cont = keep_stressing();
+			if (cont)
+				inc_counter(args);
+			(void)flock(fd, LOCK_UN);
+			if (!cont)
+				break;
+		}
+#endif
+
+#if defined(LOCK_MAND) &&	\
+    defined(LOCK_WRITE)
+		if (!keep_stressing())
+			break;
+		if (flock(fd, LOCK_MAND | LOCK_WRITE) == 0) {
 			cont = keep_stressing();
 			if (cont)
 				inc_counter(args);
