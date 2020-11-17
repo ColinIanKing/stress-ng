@@ -124,6 +124,12 @@ static int stress_getdents_dir(
 	nread = shim_getdents(bad_fd, (struct shim_linux_dirent *)buf, buf_sz);
 	(void)nread;
 
+	/*
+	 *  exercise getdents with illegal zero size
+	 */
+	nread = shim_getdents(fd, (struct shim_linux_dirent *)buf, 0);
+	(void)nread;
+
 	do {
 		char *ptr = buf;
 
