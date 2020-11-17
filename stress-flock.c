@@ -46,6 +46,7 @@ static void stress_flock_child(
 	for (;;) {
 		int ret;
 
+#if defined(LOCK_EX)
 		if (flock(fd, LOCK_EX) == 0) {
 			cont = keep_stressing();
 			if (cont)
@@ -54,6 +55,7 @@ static void stress_flock_child(
 			if (!cont)
 				break;
 		}
+#endif
 
 		/*
 		 *  Exercise flock with invalid fd
@@ -130,6 +132,21 @@ static void stress_flock_child(
 		if (!keep_stressing())
 			break;
 		if (flock(fd, LOCK_MAND | LOCK_WRITE) == 0) {
+			cont = keep_stressing();
+			if (cont)
+				inc_counter(args);
+			(void)flock(fd, LOCK_UN);
+			if (!cont)
+				break;
+		}
+#endif
+
+#if defined(LOCK_EX) &&		\
+    defined(LOCK_SH)
+		if (!keep_stressing())
+			break;
+		/* Exercise invalid lock combinaton */
+		if (flock(fd, LOCK_EX | LOCK_SH) == 0) {
 			cont = keep_stressing();
 			if (cont)
 				inc_counter(args);
