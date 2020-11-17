@@ -192,7 +192,12 @@ static void *stress_pthread_func(void *parg)
 			}
 		}
 #endif
+	/*
+	 *  Check get_robust_list with an invalid PID
+	 */
 	}
+	ret = sys_get_robust_list(-1, &head, &len);
+	(void)ret;
 #endif
 
 #if defined(HAVE_ASM_LDT_H) && 	\
