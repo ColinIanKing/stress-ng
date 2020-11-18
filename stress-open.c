@@ -46,22 +46,100 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,		NULL }
 };
 
+/*
+ *  obsolete_futimesat()
+ *	modern libc maps the obsolete futimesat to utimesat
+ */
+static inline int obsolete_futimesat(
+	int dirfd,
+	const char *pathname,
+	const struct timeval times[2])
+{
+	int ret;
+
+#if defined(__NR_futimesat)
+	/* Try direct system call first */
+	ret = (int)syscall(__NR_futimesat, dirfd, pathname, times);
+	if ((ret == 0) || (errno != ENOSYS))
+		return ret;
+#endif
+#if defined(HAVE_FUTIMESAT)
+	/* Try libc variant next */
+	ret = (int)futimesat(dirfd, pathname, times);
+	if ((ret == 0) || (errno != ENOSYS))
+		return ret;
+#endif
+	/* Not available */
+	errno = ENOSYS;
+	ret = -1;
+
+	return ret;
+}
+
+/*
+ *  obsolete_futimes()
+ *	modern libc maps the obsolete futimes to utimes
+ */
+static inline int obsolete_futimes(int fd, const struct timeval times[2])
+{
+	int ret;
+
+#if defined(__NR_futimes)
+	/* Try direct system call first */
+	ret = (int)syscall(__NR_futimet, fd, times);
+	if ((ret == 0) || (errno != ENOSYS))
+		return ret;
+#endif
+#if defined(HAVE_FUTIMES)
+	/* Try libc variant next */
+	ret = (int)futimes(fd, times);
+	if ((ret == 0) || (errno != ENOSYS))
+		return ret;
+#endif
+	/* Not available */
+	errno = ENOSYS;
+	ret = -1;
+
+	return ret;
+}
+
 static inline int open_arg2(const char *pathname, int flags)
 {
+	int fd;
+
 #if defined(__NR_open)
-	return syscall(__NR_open, pathname, flags);
+	fd = syscall(__NR_open, pathname, flags);
 #else
-	return open(pathname, flags);
+	fd = open(pathname, flags);
 #endif
+	if (fd >= 0)
+		(void)obsolete_futimes(fd, NULL);
+
+	return fd;
 }
 
 static inline int open_arg3(const char *pathname, int flags, mode_t mode)
 {
+	int fd;
+
 #if defined(__NR_open)
-	return syscall(__NR_open, pathname, flags, mode);
+	fd = syscall(__NR_open, pathname, flags, mode);
 #else
-	return open(pathname, flags, mode);
+	fd = open(pathname, flags, mode);
 #endif
+
+	if (fd >= 0) {
+		struct timeval tv[2];
+
+		/* Exercise illegal futimes, usec too small */
+		tv[0].tv_usec = -1;
+		tv[0].tv_sec = -1;
+		tv[1].tv_usec = -1;
+		tv[1].tv_sec = -1;
+
+		(void)obsolete_futimes(fd, tv);
+	}
+	return fd;
 }
 
 static int open_dev_zero_rd(void)
@@ -177,7 +255,8 @@ static int open_create_eisdir(void)
 }
 #endif
 
-#if defined(HAVE_OPENAT) && defined(AT_FDCWD)
+#if defined(HAVE_OPENAT) &&	\
+    defined(AT_FDCWD)
 static int open_with_openat_cwd(void)
 {
 	char filename[PATH_MAX];
@@ -187,8 +266,20 @@ static int open_with_openat_cwd(void)
 		(int)getpid(), stress_mwc32());
 
 	fd = openat(AT_FDCWD, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-	if (fd >= 0)
+	if (fd >= 0) {
+		struct timeval tv[2];
+
+		(void)obsolete_futimesat(AT_FDCWD, filename, NULL);
+
+		/* Exercise illegal times */
+		tv[0].tv_usec = 1000001;
+		tv[0].tv_sec = 0;
+		tv[1].tv_usec = 1000001;
+		tv[1].tv_sec = 0;
+		(void)obsolete_futimesat(AT_FDCWD, filename, tv);
+
 		(void)unlink(filename);
+	}
 	return fd;
 }
 #endif
@@ -210,8 +301,10 @@ static int open_with_openat_dirfd(void)
 		return -1;
 
 	fd = openat(dirfd, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-	if (fd >= 0)
+	if (fd >= 0) {
+		(void)obsolete_futimesat(dirfd, filename, NULL);
 		(void)unlink(filename);
+	}
 	(void)close(dirfd);
 	return fd;
 }
