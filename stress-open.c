@@ -70,6 +70,10 @@ static inline int obsolete_futimesat(
 		return ret;
 #endif
 	/* Not available */
+	(void)dirfd;
+	(void)pathname;
+	(void)times;
+
 	errno = ENOSYS;
 	ret = -1;
 
@@ -97,6 +101,9 @@ static inline int obsolete_futimes(int fd, const struct timeval times[2])
 		return ret;
 #endif
 	/* Not available */
+	(void)fd;
+	(void)times;
+
 	errno = ENOSYS;
 	ret = -1;
 
