@@ -67,18 +67,40 @@ typedef struct {
 
 static const getrandom_flags_t getrandom_flags[] = {
 	GETRANDOM_FLAG_INFO(0),
-#if defined(GRND_NONBLOCK) && defined(__linux__)
+#if defined(GRND_NONBLOCK) &&	\
+    defined(__linux__)
 	GETRANDOM_FLAG_INFO(GRND_NONBLOCK),
 #endif
-#if defined(GRND_RANDOM) && defined(__linux__)
+#if defined(GRND_RANDOM) &&	\
+    defined(__linux__)
 	GETRANDOM_FLAG_INFO(GRND_RANDOM),
 #endif
-#if defined(GRND_INSECURE) && defined(__linux__)
+#if defined(GRND_INSECURE) &&	\
+    defined(__linux__)
 	GETRANDOM_FLAG_INFO(GRND_INSECURE),
 #endif
-#if defined(GRND_NONBLOCK) && defined(GRND_RANDOM) && defined(__linux__)
+#if defined(GRND_INSECURE) &&	\
+    defined(__linux__)
+	GETRANDOM_FLAG_INFO(GRND_INSECURE),
+#endif
+#if defined(GRND_INSECURE) &&	\
+    defined(GRND_NONBLOCK) &&	\
+    defined(__linux__)
+	GETRANDOM_FLAG_INFO(GRND_NONBLOCK | GRND_INSECURE),
+#endif
+#if defined(GRND_NONBLOCK) &&	\
+    defined(GRND_RANDOM) &&	\
+    defined(__linux__)
 	GETRANDOM_FLAG_INFO(GRND_NONBLOCK | GRND_RANDOM),
 #endif
+#if defined(GRND_INSECURE) &&	\
+    defined(GRND_RANDOM) &&	\
+    defined(__linux__)
+	/* exercise invalid flag combination */
+	GETRANDOM_FLAG_INFO(GRND_INSECURE | GRND_RANDOM),
+#endif
+	/* exercise all flags illegal flag combination */
+	GETRANDOM_FLAG_INFO(~0),
 };
 
 /*
@@ -90,12 +112,6 @@ static int stress_getrandom(const stress_args_t *args)
 	do {
 		char buffer[RANDOM_BUFFER_SIZE];
 		size_t i;
-
-		/*
-		 * Invalid getrandom syscall with invalid
-		 * flag argument and ignoring failure
-		 */
-		(void)shim_getrandom(buffer, sizeof(buffer), ~0);
 
 		for (i = 0; keep_stressing() && (i < SIZEOF_ARRAY(getrandom_flags)); i++) {
 			ssize_t ret;
