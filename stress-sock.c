@@ -740,8 +740,7 @@ static int stress_sock_server(
 			size_t i, j;
 			struct sockaddr saddr;
 			socklen_t len;
-			int sndbuf;
-			int opt;
+			int sndbuf, opt;
 			struct msghdr msg;
 			struct iovec vec[sizeof(buf)/16];
 #if defined(HAVE_SENDMMSG)
@@ -756,6 +755,21 @@ static int stress_sock_server(
 				(void)close(sfd);
 				break;
 			}
+			/*
+			 *  Exercise illegal sockname lengths
+			 */
+			{
+				int ret;
+
+				len = 0;
+				ret = getsockname(fd, &saddr, &len);
+				(void)ret;
+
+				len = 1;
+				ret = getsockname(fd, &saddr, &len);
+				(void)ret;
+			}
+
 			len = sizeof(sndbuf);
 			if (getsockopt(fd, SOL_SOCKET, SO_SNDBUF, &sndbuf, &len) < 0) {
 				pr_fail("%s: getsockopt failed, errno=%d (%s)\n",
