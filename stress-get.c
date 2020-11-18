@@ -499,35 +499,43 @@ static int stress_get(const stress_args_t *args)
 			}
 		}
 
+
+		/*
+		 *  The following gettimeofday calls probably use the VDSO
+		 *  on Linux
+		 */
 		ret = gettimeofday(&tv, NULL);
 		if (ret < 0) {
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
-		/*
-		 *  Exercise gettimeofday call with a
-		 *  non-null pointer to timezone variable
-		 */
 		ret = gettimeofday(&tv, &tz);
 		if (ret < 0) {
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
+		ret = gettimeofday(NULL, NULL);
+		if ((ret < 0) && (errno != ENOSYS)) {
+			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		}
 
 		/*
-		 *  Exercise the gettimeofday system call using the
-		 *  syscall() function to increase kernel test coverage
+		 *  Exercise the gettimeofday by force using the syscall
+		 *  via the shim to force non-use of libc wrapper and/or
+		 *  the vdso
 		 */
 		ret = shim_gettimeofday(&tv, NULL);
 		if ((ret < 0) && (errno != ENOSYS)) {
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
-		/*
-		 *  Exercise gettimeofday call with a
-		 *  non-null pointer to timezone variable
-		 */
 		ret = shim_gettimeofday(&tv, &tz);
+		if ((ret < 0) && (errno != ENOSYS)) {
+			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+		}
+		ret = shim_gettimeofday(NULL, NULL);
 		if ((ret < 0) && (errno != ENOSYS)) {
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
