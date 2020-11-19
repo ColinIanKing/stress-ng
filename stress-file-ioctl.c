@@ -366,9 +366,24 @@ struct shim_space_resv {
 			r.l_whence = SEEK_SET;
 			r.l_start = (int64_t)0;
 			r.l_len = (int64_t)file_sz * 2;
-
 			ret = ioctl(fd, FS_IOC_RESVSP, &r);
 			(void)ret;
+
+			if (lseek(fd, (off_t)0, SEEK_SET) != (off_t)-1) {
+				(void)memset(&r, 0, sizeof(r));
+				r.l_whence = SEEK_CUR;
+				r.l_start = (int64_t)0;
+				r.l_len = (int64_t)file_sz;
+				ret = ioctl(fd, FS_IOC_RESVSP, &r);
+				(void)ret;
+	
+				(void)memset(&r, 0, sizeof(r));
+				r.l_whence = SEEK_END;
+				r.l_start = (int64_t)0;
+				r.l_len = (int64_t)1;
+				ret = ioctl(fd, FS_IOC_RESVSP, &r);
+				(void)ret;
+			}
 
 			exercised++;
 		}
@@ -385,6 +400,22 @@ struct shim_space_resv {
 
 			ret = ioctl(fd, FS_IOC_RESVSP64, &r);
 			(void)ret;
+
+			if (lseek(fd, (off_t)0, SEEK_SET) != (off_t)-1) {
+				(void)memset(&r, 0, sizeof(r));
+				r.l_whence = SEEK_CUR;
+				r.l_start = (int64_t)0;
+				r.l_len = (int64_t)file_sz;
+				ret = ioctl(fd, FS_IOC_RESVSP64, &r);
+				(void)ret;
+	
+				(void)memset(&r, 0, sizeof(r));
+				r.l_whence = SEEK_END;
+				r.l_start = (int64_t)0;
+				r.l_len = (int64_t)1;
+				ret = ioctl(fd, FS_IOC_RESVSP64, &r);
+				(void)ret;
+			}
 
 			exercised++;
 		}
