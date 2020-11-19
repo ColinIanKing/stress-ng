@@ -271,6 +271,14 @@ static int stress_file_ioctl(const stress_args_t *args)
 			ret = ioctl(fd, FIDEDUPERANGE, d);
 			(void)ret;
 
+			/*
+			 * and exercise illegal dest_count to force an
+			 * ENOMEM error
+			 */
+			d->dest_count = ~0;
+			ret = ioctl(fd, FIDEDUPERANGE, d);
+			(void)ret;
+
 			exercised++;
 		}
 #endif
