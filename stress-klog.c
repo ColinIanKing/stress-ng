@@ -45,6 +45,21 @@ static const stress_help_t help[] = {
 #define SYSLOG_ACTION_SIZE_BUFFER	(10)
 
 /*
+ *  stress_klog_supported()
+ *      check if we can access klog
+ */
+static int stress_klog_supported(const char *name)
+{
+	if (shim_klogctl(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0) < 0) {
+                pr_inf("%s stressor will be skipped, cannot access klog, "
+                        "probably need to be running with CAP_SYS_ADMIN "
+                        "rights for this stressor\n", name);
+                return -1;
+        }
+        return 0;
+}
+
+/*
  *  stress_klog
  *	stress kernel logging interface
  */
@@ -148,7 +163,8 @@ static int stress_klog(const stress_args_t *args)
 stressor_info_t stress_klog_info = {
 	.stressor = stress_klog,
 	.class = CLASS_OS,
-	.help = help
+	.help = help,
+	.supported = stress_klog_supported
 };
 #else
 stressor_info_t stress_klog_info = {
