@@ -111,6 +111,12 @@ static int stress_ioprio(const stress_args_t *args)
 		}
 		if (!keep_stressing())
 			break;
+		/*
+		 *  Exercise invalud ioprio_get arguments
+		 */
+		(void)shim_ioprio_get(~0, 0);
+		(void)shim_ioprio_get(IOPRIO_WHO_PROCESS, ~0);
+		
 		if (shim_ioprio_get(IOPRIO_WHO_USER, uid) < 0) {
 			if (errno != EINVAL) {
 				pr_fail("%s: ioprio_get(OPRIO_WHO_USR, %d), "
@@ -140,6 +146,12 @@ static int stress_ioprio(const stress_args_t *args)
 		(void)shim_fsync(fd);
 		if (!keep_stressing())
 			break;
+
+		/*
+		 *  Exercise invalud ioprio_set arguments
+		 */
+		(void)shim_ioprio_set(~0, 0, ~0);
+		(void)shim_ioprio_set(IOPRIO_WHO_PROCESS, ~0, 0);
 
 		if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
 			IOPRIO_PRIO_VALUE(IOPRIO_CLASS_IDLE, 0)) < 0) {
