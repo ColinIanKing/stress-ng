@@ -57,6 +57,41 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(__NR_io_submit) &&		\
     defined(__NR_io_getevents)
 
+#if defined(__NR_io_cancel)
+static int shim_io_cancel(
+	io_context_t ctx_id,
+	struct iocb *iocb,
+	struct io_event *result)
+{
+	return syscall(__NR_io_cancel, ctx_id, iocb, result);
+}
+#endif
+
+static int shim_io_setup(unsigned nr_events, io_context_t *ctx_idp)
+{
+	return syscall(__NR_io_setup, nr_events, ctx_idp);
+}
+
+static int shim_io_destroy(io_context_t ctx_id)
+{
+	return syscall(__NR_io_destroy, ctx_id);
+}
+
+static int shim_io_submit(io_context_t ctx_id, long nr, struct iocb **iocbpp)
+{
+	return syscall(__NR_io_submit, ctx_id, nr, iocbpp);
+}
+
+static int shim_io_getevents(
+	io_context_t ctx_id,
+	long min_nr,
+	long nr,
+	struct io_event *events,
+	struct timespec *timeout)
+{
+	return syscall(__NR_io_getevents, ctx_id, min_nr, nr, events, timeout);
+}
+
 /*
  *  aio_linux_fill_buffer()
  *	fill buffer with some known pattern
@@ -86,7 +121,7 @@ static int stress_aiol_submit(
 	do {
 		int ret;
 
-		ret = io_submit(ctx, (long)n, cbs);
+		ret = shim_io_submit(ctx, (long)n, cbs);
 		if (ret >= 0) {
 			break;
 		} else {
@@ -103,25 +138,6 @@ static int stress_aiol_submit(
 
 	return 0;
 }
-
-#if defined(__NR_io_cancel)
-static void stress_aiol_cancel(
-	const stress_args_t *args,
-	const io_context_t ctx,
-	struct io_event events[],
-	size_t n)
-{
-	size_t i;
-
-	for (i = 0; i < n && keep_stressing(); i++) {
-		int ret;
-		struct io_event event;
-
-		ret = io_cancel(ctx, events[i].obj, &event);
-		(void)ret;
-	}
-}
-#endif
 
 /*
  *  stress_aiol_wait()
@@ -148,7 +164,7 @@ static int stress_aiol_wait(
 			timeout_ptr = &timeout;
 		}
 
-		ret = io_getevents(ctx, 1, n, events, timeout_ptr);
+		ret = shim_io_getevents(ctx, 1, n, events, timeout_ptr);
 		if (ret < 0) {
 			errno = -ret;
 			if (errno == EINTR) {
@@ -162,16 +178,7 @@ static int stress_aiol_wait(
 				args->name, errno, strerror(errno));
 			return -1;
 		} else {
-			static int cancel;
-
 			n -= ret;
-#if defined(__NR_io_cancel)
-			cancel++;
-			if (cancel == 126) {
-				stress_aiol_cancel(args, ctx, events, ret);
-				cancel = 0;
-			}
-#endif
 		}
 	} while ((n > 0) && keep_stressing_flag());
 
@@ -312,11 +319,11 @@ static int stress_aiol(const stress_args_t *args)
 	 * Exercise invalid io_setup syscall
 	 * on invalid(zero) nr_events
 	 */
-	ret = io_setup(0, &ctx);
+	ret = shim_io_setup(0, &ctx);
 	if (ret >= 0)
-		(void)io_destroy(ctx);
+		(void)shim_io_destroy(ctx);
 
-	ret = io_setup(aio_linux_requests, &ctx);
+	ret = shim_io_setup(aio_linux_requests, &ctx);
 	if (ret < 0) {
 		/*
 		 *  The libaio interface returns -errno in the
@@ -417,8 +424,23 @@ static int stress_aiol(const stress_args_t *args)
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
+
 		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, false) < 0)
 			break;
+
+#if defined(__NR_io_cancel)
+		{
+			static int cancel;
+			struct io_event event;
+
+			cancel++;
+			if (cancel >= 127) {
+				ret = shim_io_cancel(ctx, &cb[0], &event);
+				(void)ret;
+				cancel = 0;
+			}
+		}
+#endif
 		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
 			break;
 		inc_counter(args);
@@ -456,7 +478,7 @@ static int stress_aiol(const stress_args_t *args)
 			(void)close(fds[i]);
 	}
 finish:
-	(void)io_destroy(ctx);
+	(void)shim_io_destroy(ctx);
 	(void)stress_temp_dir_rm_args(args);
 
 free_memory:
