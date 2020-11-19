@@ -299,7 +299,6 @@ static int stress_file_ioctl(const stress_args_t *args)
 			(void)ret;
 
 			exercised++;
-			
 		}
 #endif
 
@@ -376,7 +375,7 @@ struct shim_space_resv {
 				r.l_len = (int64_t)file_sz;
 				ret = ioctl(fd, FS_IOC_RESVSP, &r);
 				(void)ret;
-	
+
 				(void)memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_END;
 				r.l_start = (int64_t)0;
@@ -408,7 +407,7 @@ struct shim_space_resv {
 				r.l_len = (int64_t)file_sz;
 				ret = ioctl(fd, FS_IOC_RESVSP64, &r);
 				(void)ret;
-	
+
 				(void)memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_END;
 				r.l_start = (int64_t)0;
