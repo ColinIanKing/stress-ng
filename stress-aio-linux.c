@@ -446,10 +446,10 @@ static int stress_aiol(const stress_args_t *args)
 		inc_counter(args);
 
 		/*
-		 *  Async fdsync and fsync every 1024 iterations, older kernels don't
+		 *  Async fdsync and fsync every 256 iterations, older kernels don't
 		 *  support these, so don't fail if EINVAL is returned.
 		 */
-		if (j++ >= 1024) {
+		if (j++ >= 256) {
 			j = 0;
 
 			(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
