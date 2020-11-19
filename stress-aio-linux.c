@@ -125,7 +125,6 @@ static int stress_aiol_submit(
 		if (ret >= 0) {
 			break;
 		} else {
-			errno = -ret;
 			if ((errno == EINVAL) && ignore_einval)
 				return 0;
 			if (errno != EAGAIN) {
@@ -166,7 +165,6 @@ static int stress_aiol_wait(
 
 		ret = shim_io_getevents(ctx, 1, n, events, timeout_ptr);
 		if (ret < 0) {
-			errno = -ret;
 			if (errno == EINTR) {
 				if (keep_stressing_flag()) {
 					continue;
@@ -329,7 +327,6 @@ static int stress_aiol(const stress_args_t *args)
 		 *  The libaio interface returns -errno in the
 		 *  return value, so set errno accordingly
 		 */
-		errno = -ret;
 		if ((errno == EAGAIN) || (errno == EACCES)) {
 			pr_err("%s: io_setup failed, ran out of "
 				"available events, consider increasing "
@@ -409,6 +406,8 @@ static int stress_aiol(const stress_args_t *args)
 		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
 			break;
 		inc_counter(args);
+		if (!keep_stressing())
+			break;
 
 		/*
 		 *  async reads
@@ -444,6 +443,27 @@ static int stress_aiol(const stress_args_t *args)
 		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
 			break;
 		inc_counter(args);
+		if (!keep_stressing())
+			break;
+
+		/*
+		 *  Exercise aio_poll with illegal settings
+		 */
+		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+		for (i = 0; i < aio_linux_requests; i++) {
+			cb[i].aio_fildes = fds[i];
+			cb[i].aio_lio_opcode = IO_CMD_POLL;
+			cb[i].u.c.buf = (void *)POLLIN;
+			cb[i].u.c.offset = ~0;	/* invalid */
+			cb[i].u.c.nbytes = ~0;	/* invalid */
+			cbs[i] = &cb[i];
+		}
+		(void)stress_aiol_submit(args, ctx, cbs, aio_linux_requests, true);
+		if (errno == 0)
+			(void)stress_aiol_wait(args, ctx, events, aio_linux_requests);
+		inc_counter(args);
+		if (!keep_stressing())
+			break;
 
 		/*
 		 *  Async fdsync and fsync every 256 iterations, older kernels don't
@@ -462,10 +482,8 @@ static int stress_aiol(const stress_args_t *args)
 			}
 			if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, true) < 0)
 				break;
-			if (errno == EINVAL)
-				continue;
-			if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
-				break;
+			if (errno == 0)
+				(void)stress_aiol_wait(args, ctx, events, aio_linux_requests);
 		}
 		inc_counter(args);
 	} while (keep_stressing());
