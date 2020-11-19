@@ -190,6 +190,34 @@ static int stress_ioport(const stress_args_t *args)
 			}
 
 		}
+
+		/*
+		 *  Exercise invalid ioperm settings
+		 */
+		ret = ioperm(IO_PORT, 0, 1);
+		(void)ret;
+		ret = ioperm(~0, 1, 1);
+		(void)ret;
+		ret = ioperm(IO_PORT, 1, 1);
+		(void)ret;
+
+#if defined(HAVE_IOPL)
+		{
+			static const int levels[] = {
+				99, -1, 0, 1, 2, 3
+			};
+			size_t i;
+
+			/*
+			 *  Exercise various valud and invalid
+			 *  iopl settings
+			 */
+			for (i = 0; i < SIZEOF_ARRAY(levels); i++) {
+				ret = iopl(levels[i]);
+				(void)ret;
+			}
+		}
+#endif
 		inc_counter(args);
 	} while (keep_stressing());
 
