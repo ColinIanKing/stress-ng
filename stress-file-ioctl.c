@@ -442,8 +442,17 @@ struct shim_space_resv {
 
 #if defined(FIBMAP)
 		{
-			int block = 0;
+			int block;
 
+			block = 0;
+			ret = ioctl(fd, FIBMAP, &block);
+			(void)ret;
+
+			/*
+			 *  and exercise huge block request
+			 *  that should return -ERANGE or -EINVAL;
+			 */
+			block = -1;
 			ret = ioctl(fd, FIBMAP, &block);
 			(void)ret;
 
