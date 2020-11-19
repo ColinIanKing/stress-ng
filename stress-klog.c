@@ -57,10 +57,17 @@ static int stress_klog(const stress_args_t *args)
 
 	len = shim_klogctl(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0);
 	if (len < 0) {
-		if (!args->instance)
-			pr_err("%s: cannot determine syslog buffer "
-				"size: errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+		if (!args->instance) {
+			if (errno == EPERM) {
+				pr_inf("%s: cannot access syslog buffer, "
+					"not permitted, skipping stressor\n",
+					args->name);
+			} else {
+				pr_err("%s: cannot determine syslog buffer "
+					"size: errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			}
+		}
 		return EXIT_NO_RESOURCE;
 	}
 	if (len == 0) {
