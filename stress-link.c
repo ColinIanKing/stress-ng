@@ -36,6 +36,8 @@ static const stress_help_t symlink_help[] = {
 	{ NULL, NULL,            NULL }
 };
 
+#define MOUNTS_MAX	(128)
+
 /*
  *  stress_link_unlink()
  *	remove all links
@@ -65,10 +67,15 @@ static int stress_link_generic(
 	int (*linkfunc)(const char *oldpath, const char *newpath),
 	const char *funcname)
 {
-	int rc, ret, fd;
-	char oldpath[PATH_MAX];
+	int rc, ret, fd, mounts_max;
+	char oldpath[PATH_MAX], tmp_newpath[PATH_MAX];
 	size_t oldpathlen;
 	bool symlink_func = (linkfunc == symlink);
+	char *mnts[MOUNTS_MAX];
+
+	(void)snprintf(tmp_newpath, sizeof(tmp_newpath),
+		"/tmp/stress-ng-%s-%d-%" PRIu64 "-link",
+		args->name, getpid(), stress_mwc64());
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -83,6 +90,8 @@ static int stress_link_generic(
 		return EXIT_FAILURE;
 	}
 	(void)close(fd);
+
+	mounts_max = stress_mount_get(mnts, MOUNTS_MAX);
 
 	oldpathlen = strlen(oldpath);
 
@@ -154,6 +163,14 @@ static int stress_link_generic(
 							pr_fail("%s: readlink path error, got %s, expected %s\n",
 								args->name, buf, oldpath);
 				}
+			} else {
+				/* Hard link, exercise illegal cross device link, EXDEV error */
+				if (mounts_max > 0) {
+					/* Try hard link on differet random mount point */
+					ret = linkfunc(mnts[stress_mwc32() % mounts_max], tmp_newpath);
+					if (ret == 0)
+						(void)unlink(tmp_newpath);
+				}
 			}
 			if (lstat(newpath, &stbuf) < 0) {
 				rc = exit_status(errno);
@@ -175,6 +192,8 @@ abort:
 	stress_link_unlink(args, DEFAULT_LINKS);
 	(void)unlink(oldpath);
 	(void)stress_temp_dir_rm_args(args);
+
+	stress_mount_free(mnts, mounts_max);
 
 	return rc;
 }
