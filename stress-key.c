@@ -44,13 +44,14 @@ static const stress_help_t help[] = {
 static long shim_keyctl(int cmd, ...)
 {
 	va_list args;
-	long int arg0, arg1, arg2, ret;
+	long int arg0, arg1, arg2, arg3, ret;
 
 	va_start(args, cmd);
 	arg0 = va_arg(args, long int);
 	arg1 = va_arg(args, long int);
 	arg2 = va_arg(args, long int);
-	ret = syscall(__NR_keyctl, cmd, arg0, arg1, arg2);
+	arg3 = va_arg(args, long int);
+	ret = syscall(__NR_keyctl, cmd, arg0, arg1, arg2, arg3);
 	va_end(args);
 
 	return ret;
@@ -141,9 +142,12 @@ static int stress_key(const stress_args_t *args)
 					}
 				}
 			}
+#endif
+#if defined(KEYCTL_SEARCH)
+			(void)shim_keyctl(KEYCTL_SEARCH, KEY_SPEC_PROCESS_KEYRING, "user", description, 0);
+#endif
 			if (!keep_stressing_flag())
 				goto tidy;
-#endif
 		}
 
 		/* And manipulate the keys */
@@ -231,14 +235,34 @@ static int stress_key(const stress_args_t *args)
 				goto tidy;
 #endif
 
+#if defined(KEYCTL_GET_SECURITY)
+			{
+				char buf[128];
+
+				(void)shim_keyctl(KEYCTL_GET_SECURITY, keys[i], buf, sizeof(buf) - 1);
+			}
+#endif
+
 
 #if defined(KEYCTL_CHOWN)
 			(void)shim_keyctl(KEYCTL_CHOWN, keys[i], getuid(), -1);
 			(void)shim_keyctl(KEYCTL_CHOWN, keys[i], -1, getgid());
 #endif
+#if defined(KEYCTL_CAPABILITIES)
+			{
+				char buf[1024];
 
+				(void)shim_keyctl(KEYCTL_CAPABILITIES, buf, sizeof(buf));
+			}
+#endif
 #if defined(KEYCTL_SETPERM)
 			(void)shim_keyctl(KEYCTL_SETPERM, keys[i], KEY_USR_ALL);
+#endif
+#if defined(KEYCTL_LINK)
+			(void)shim_keyctl(KEYCTL_LINK, keys[i], KEY_SPEC_PROCESS_KEYRING);
+#endif
+#if defined(KEYCTL_UNLINK)
+			(void)shim_keyctl(KEYCTL_UNLINK, keys[i], KEY_SPEC_PROCESS_KEYRING);
 #endif
 #if defined(KEYCTL_REVOKE)
 			if (stress_mwc1())
@@ -248,6 +272,22 @@ static int stress_key(const stress_args_t *args)
 			(void)shim_keyctl(KEYCTL_INVALIDATE, keys[i]);
 #endif
 		}
+
+		{
+			char buf[4096];
+			int len;
+
+			len = system_read("/proc/keys", buf, sizeof(buf));
+			(void)len;
+			len = system_read("/proc/key-users", buf, sizeof(buf));
+			(void)len;
+		}
+
+		/*
+		 *  Perform invalid keyctl command
+		 */
+		(void)shim_keyctl(~0, 0, 0, 0, 0);
+
 tidy:
 		inc_counter(args);
 		/* If we hit too many errors and bailed out early, clean up */
@@ -258,6 +298,9 @@ tidy:
 #endif
 			}
 		}
+#if defined(KEYCTL_CLEAR)
+		(void)shim_keyctl(KEYCTL_CLEAR, KEY_SPEC_PROCESS_KEYRING);
+#endif
 	} while (no_error && keep_stressing());
 
 	return rc;
