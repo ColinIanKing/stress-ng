@@ -3342,6 +3342,7 @@ typedef enum {
 	OPT_stack,
 	OPT_stack_ops,
 	OPT_stack_fill,
+	OPT_stack_mlock,
 
 	OPT_stackmmap,
 	OPT_stackmmap_ops,

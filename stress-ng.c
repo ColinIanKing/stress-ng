@@ -781,6 +781,7 @@ static const struct option long_options[] = {
 	{ "splice-ops",	1,	0,	OPT_splice_ops },
 	{ "stack",	1,	0,	OPT_stack},
 	{ "stack-fill",	0,	0,	OPT_stack_fill },
+	{ "stack-mlock",0,	0,	OPT_stack_mlock },
 	{ "stack-ops",	1,	0,	OPT_stack_ops },
 	{ "stackmmap",	1,	0,	OPT_stackmmap },
 	{ "stackmmap-ops",1,	0,	OPT_stackmmap_ops },

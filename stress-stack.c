@@ -30,6 +30,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"stack N",	"start N workers generating stack overflows" },
 	{ NULL,	"stack-ops N",	"stop after N bogo stack overflows" },
 	{ NULL,	"stack-fill",	"fill stack, touches all new pages " },
+	{ NULL, "stack-mlock",	"mlock stack, force pages to be unswappable" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -41,8 +42,17 @@ static int stress_set_stack_fill(const char *opt)
 	return stress_set_setting("stack-fill", TYPE_ID_BOOL, &stack_fill);
 }
 
+static int stress_set_stack_mlock(const char *opt)
+{
+	bool stack_mlock = true;
+
+	(void)opt;
+	return stress_set_setting("stack-mlock", TYPE_ID_BOOL, &stack_mlock);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_stack_fill,	stress_set_stack_fill },
+	{ OPT_stack_mlock,	stress_set_stack_mlock },
 	{ 0,			NULL }
 };
 
@@ -64,10 +74,16 @@ static void MLOCKED_TEXT stress_segvhandler(int signum)
  *	so we a large stack with lots of pages not physically
  *	resident.
  */
-static void stress_stack_alloc(const stress_args_t *args, const bool stack_fill)
+static void stress_stack_alloc(
+	const stress_args_t *args,
+	void *start,
+	const bool stack_fill,
+	bool stack_mlock,
+	ssize_t last_size)
 {
 	const size_t sz = 256 * KB;
-	const size_t page_size4 = (args->page_size << 2);
+	const size_t page_size = args->page_size;
+	const size_t page_size4 = page_size << 2;
 	uint8_t data[sz];
 
 	if (stack_fill) {
@@ -87,11 +103,28 @@ static void stress_stack_alloc(const stress_args_t *args, const bool stack_fill)
 			*(ptr + 1) = stress_mwc32() | 1;
 		}
 	}
+#if defined(HAVE_MLOCK)
+	if (stack_mlock) {
+		intptr_t ptr = ((intptr_t)data) + (page_size - 1);
+		ssize_t sz = (uint8_t *)start - (uint8_t *)ptr;
+		int ret;
 
+		if (sz < 0)
+			sz = -sz;
+
+		if (sz > (last_size + 8 * (ssize_t)MB)) {
+			ptr &= ~(page_size - 1);
+			ret = shim_mlock((void *)ptr, sz - last_size);
+			if (ret < 0)
+				stack_mlock = false;
+			last_size = sz;
+		}
+	}
+#endif
 	inc_counter(args);
 
 	if (keep_stressing())
-		stress_stack_alloc(args, stack_fill);
+		stress_stack_alloc(args, start, stack_fill, stack_mlock, last_size);
 }
 
 static int stress_stack_child(const stress_args_t *args, void *context)
@@ -102,10 +135,12 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 				 STACK_ALIGNMENT +
 				 args->page_size) & ~(args->page_size -1);
 	bool stack_fill = false;
+	bool stack_mlock = false;
 
 	(void)context;
 
 	(void)stress_get_setting("stack-fill", &stack_fill);
+	(void)stress_get_setting("stack-mlock", &stack_mlock);
 
 	/*
 	 *  Allocate altstack on heap rather than an
@@ -177,8 +212,10 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 			/* We end up here after handling the fault */
 			inc_counter(args);
 		} else {
+			char start;
+
 			/* Expand the stack and cause a fault */
-			stress_stack_alloc(args, stack_fill);
+			stress_stack_alloc(args, &start, stack_fill, stack_mlock, 0);
 		}
 	}
 	(void)munmap(altstack, altstack_size);
