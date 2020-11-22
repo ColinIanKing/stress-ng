@@ -397,6 +397,23 @@ static int stress_numa(const stress_args_t *args)
 			old_node_mask, node_mask);
 		(void)ret;
 
+		/*
+		 *  Exercise illegal pid
+		 */
+		ret = shim_migrate_pages(~0, max_nodes, old_node_mask,
+			node_mask);
+		(void)ret;
+
+		/*
+		 *  Exercise illegal max_nodes
+		 */
+		ret = shim_migrate_pages(args->pid, ~0, old_node_mask,
+			node_mask);
+		(void)ret;
+		ret = shim_migrate_pages(args->pid, 0, old_node_mask,
+			node_mask);
+		(void)ret;
+
 		if (!keep_stressing_flag())
 			break;
 
