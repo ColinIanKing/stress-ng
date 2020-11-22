@@ -137,10 +137,9 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	}
 
 	do {
-		int flag = 0;
+		int ret, flag = 0;
 
 		for (n = 0; n < max; n++) {
-			int ret;
 			if (!keep_stressing())
 				break;
 
@@ -219,6 +218,31 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			}
 			(void)munmap((void *)addr, page_size * 3);
 		}
+
+		/*
+		 *  mlock/munlock with invalid or unusual arguments
+		 */
+		ret = shim_mlock((void *)~0ULL, page_size);
+		(void)ret;
+		ret = shim_munlock((void *)~0ULL, page_size);
+		(void)ret;
+
+		ret = shim_mlock((void *)(~0ULL & ~(page_size - 1)), page_size << 1);
+		(void)ret;
+		ret = shim_munlock((void *)(~0ULL & ~(page_size - 1)), page_size << 1);
+		(void)ret;
+
+		ret = shim_mlock((void *)0, ~0ULL);
+		(void)ret;
+		ret = munlock((void *)0, ~0ULL);
+		(void)ret;
+
+		ret = shim_mlock((void *)0, 0);
+		(void)ret;
+		ret = munlock((void *)0, 0);
+		(void)ret;
+		
+
 #if defined(HAVE_MLOCKALL)
 #if defined(MCL_CURRENT)
 		if (!keep_stressing())
