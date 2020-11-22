@@ -47,6 +47,9 @@ static const stress_mknod_modes_t modes[] = {
 #if defined(S_IFSOCK)
 	{ S_IFSOCK,	"S_IFSOCK" },	/* named socket */
 #endif
+#if defined(S_IFDIR)
+	{ S_IFDIR,	"S_IFDIR" },	/* directory */
+#endif
 };
 
 /*
@@ -260,9 +263,6 @@ static int stress_mknod(const stress_args_t *args)
 	if (dirfd >= 0)
 		(void)close(dirfd);
 
-	/* force unlink of all files */
-	pr_tidy("%s: removing %" PRIu32 " nodes\n", args->name, DEFAULT_DIRS);
-	stress_mknod_tidy(args, DEFAULT_DIRS);
 	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
