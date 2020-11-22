@@ -202,6 +202,21 @@ static int stress_mkdir(const int dirfd, const char *path, const int mode)
 	return ret;
 }
 
+static void stress_invalid_mkdir(const char *path)
+{
+	int ret;
+	char filename[PATH_MAX + 16];
+	size_t len;
+
+	(void)shim_strlcpy(filename, path, sizeof(filename));
+	(void)shim_strlcat(filename, "/", sizeof(filename));
+	len = strlen(filename);
+	(void)stress_strnrnd(filename + len, sizeof(filename) - len);
+	ret = mkdir(filename,  S_IRUSR | S_IWUSR);
+	if (ret == 0)
+		(void)rmdir(filename);
+}
+
 /*
  *  stress_dir
  *	stress directory mkdir and rmdir
@@ -246,6 +261,8 @@ static int stress_dir(const stress_args_t *args)
 			}
 			inc_counter(args);
 		}
+		stress_invalid_mkdir(pathname);
+
 		if (!keep_stressing()) {
 			stress_dir_tidy(args, i);
 			break;
