@@ -234,6 +234,9 @@ do_stress --sock 0 --sock-type stream
 do_stress --sock 0 --sock-type seqpacket
 do_stress --sock 0 --sock-opts random
 
+do_stress --stack 0 --stack-mlock
+do_stress --stack 0 --stack-fill
+
 do_stress --stream 0 --stream-madvise hugepage
 do_stress --stream 0 --stream-madvise nohugepage
 do_stress --stream 0 --stream-madvise normal
