@@ -432,7 +432,32 @@ static int stress_madvise(const stress_args_t *args)
 		}
 #endif
 
+#if defined(MADV_NORMAL)
+		/* Exercise no-op madvise on 0 size */
+		(void)madvise(buf, 0, MADV_NORMAL);
+
+		/* Invalid size, ENOMEM */
+		(void)madvise(buf, 0xffff0000, MADV_NORMAL);
+
+		/* Invalid advice option, EINVAL */
+		(void)madvise(buf, sz, ~0);
+
+#endif
 		(void)munmap((void *)buf, sz);
+
+
+#if defined(MADV_NORMAL)
+		{
+			void *bad_addr = (void *)(~0 & ~(page_size -1));
+
+			/* Invalid madvise on unmapped pages */
+			(void)madvise(buf, sz, MADV_NORMAL);
+
+			/* Invalid madvise on wrapped address */
+			(void)madvise(bad_addr, page_size * 2, MADV_NORMAL);
+		}
+#endif
+
 		inc_counter(args);
 	} while (keep_stressing());
 
