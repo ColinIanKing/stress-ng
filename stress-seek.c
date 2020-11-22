@@ -186,21 +186,39 @@ re_read:
 					args->name, errno, strerror(errno));
 		}
 #endif
-#if defined(SEEK_HOLE) && !defined(__APPLE__)
+#if defined(SEEK_HOLE) &&	\
+    !defined(__APPLE__)
 		if (lseek(fd, 0, SEEK_HOLE) < 0) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek SEEK_HOLE failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 		}
 #endif
-#if defined(SEEK_DATA) && !defined(__APPLE__)
+#if defined(SEEK_DATA) &&	\
+    !defined(__APPLE__)
 		if (lseek(fd, 0, SEEK_DATA) < 0) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek SEEK_DATA failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 		}
 #endif
+#if defined(SEEK_HOLE) &&	\
+    defined(SEEK_DATA) &&	\
+    !defined(__APPLE__)
+		{
+			int i;
 
+			offset = stress_mwc64() % seek_size;
+			for (i = 0; i < 20 && keep_stressing(); i++) {
+				offset = lseek(fd, offset, SEEK_DATA);
+				if (offset < 0)
+					break;
+				offset = lseek(fd, offset, SEEK_HOLE);
+				if (offset < 0)
+					break;
+			}
+		}
+#endif
 #if defined(OPT_SEEK_PUNCH)
 		if (!seek_punch_hole)
 			continue;
