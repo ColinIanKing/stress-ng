@@ -69,6 +69,19 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 		if (i & mask) {
 			ret = shim_membarrier(i, 0);
 			(void)ret;
+
+			/* Exercise illegal flags */
+			ret = shim_membarrier(i, ~0);
+			(void)ret;
+		}
+	}
+
+	/* Exercise illegal command */
+	for (i = 1; i; i <<= 1) {
+		if (!(i & mask)) {
+			ret = shim_membarrier(i, 0);
+			(void)ret;
+			break;
 		}
 	}
 	return 0;
