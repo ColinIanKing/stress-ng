@@ -68,12 +68,30 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_MEMFD_CREATE)
 
+static const int flags[] = {
+	0,
+#if defined(MFD_CLOEXEC)
+	MFD_CLOEXEC,
+#endif
+#if defined(MFD_ALLOW_SEALING)
+	MFD_ALLOW_SEALING,
+#endif
+#if defined(MFD_HUGETLB) &&	\
+    defined(MFD_HUGE_2MB)
+	MFD_HUGETLB | MFD_HUGE_2MB,
+#endif
+#if defined(MFD_HUGETLB) &&	\
+    defined(MFD_HUGE_1GB)
+	MFD_HUGETLB | MFD_HUGE_1GB,
+#endif
+};
+
 /*
  *  Create allocations using memfd_create, ftruncate and mmap
  */
 static int stress_memfd_child(const stress_args_t *args, void *context)
 {
-	int *fds;
+	int *fds, fd;
 	void **maps;
 	uint64_t i;
 	const size_t page_size = args->page_size;
@@ -116,14 +134,14 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 	}
 
 	do {
+		char filename[PATH_MAX];
+
 		for (i = 0; i < memfd_fds; i++) {
 			fds[i] = -1;
 			maps[i] = MAP_FAILED;
 		}
 
 		for (i = 0; i < memfd_fds; i++) {
-			char filename[PATH_MAX];
-
 			(void)snprintf(filename, sizeof(filename), "memfd-%u-%" PRIu64, args->pid, i);
 			fds[i] = shim_memfd_create(filename, 0);
 			if (fds[i] < 0) {
@@ -241,6 +259,26 @@ clean:
 				(void)munmap(maps[i], size);
 			if (fds[i] >= 0)
 				(void)close(fds[i]);
+		}
+
+		/* Exercise illegal memfd name */
+		stress_strnrnd(filename, sizeof(filename));
+		fd = shim_memfd_create(filename, 0);
+		if (fd >= 0)
+			(void)close(fd);
+
+		/* Exercise illegal flags */
+		(void)snprintf(filename, sizeof(filename), "memfd-%u-%" PRIu64, args->pid, stress_mwc64());
+		fd = shim_memfd_create(filename, ~0);
+		if (fd >= 0)
+			(void)close(fd);
+
+		/* Exercise all flags */
+		for (i = 0; i < (uint64_t)SIZEOF_ARRAY(flags); i++) {
+			(void)snprintf(filename, sizeof(filename), "memfd-%u-%" PRIu64, args->pid, i);
+			fd = shim_memfd_create(filename, flags[i]);
+			if (fd >= 0)
+				(void)close(fd);
 		}
 		inc_counter(args);
 	} while (keep_stressing());
