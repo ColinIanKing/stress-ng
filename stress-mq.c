@@ -178,9 +178,9 @@ again:
 		(void)memset(&values, 0, sizeof(values));
 
 		while (keep_stressing_flag()) {
-			uint64_t i = 0;
+			uint64_t i;
 
-			for (;;) {
+			for (i = 0; ; i++) {
 				stress_msg_t ALIGN64 msg;
 				int ret;
 				const uint64_t timed = (i & 1);
@@ -215,7 +215,19 @@ again:
 #endif
 
 					(void)memset(&sigev, 0, sizeof sigev);
-					switch (stress_mwc1()) {
+					switch (stress_mwc8() % 5) {
+					case 3:
+						/* Illegal signal */
+						sigev.sigev_notify = SIGEV_SIGNAL;
+						sigev.sigev_signo = ~0;
+						break;
+					case 2:
+						/* Illegal notify event */
+						sigev.sigev_notify = ~0;
+						break;
+					case 1:
+						sigev.sigev_notify = SIGEV_NONE;
+						break;
 					case 0:
 #if defined(SIGUSR2)
 						sigev.sigev_notify = SIGEV_SIGNAL;
