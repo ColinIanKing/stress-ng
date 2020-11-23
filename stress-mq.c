@@ -337,6 +337,13 @@ again:
 		if (mq_unlink(mq_name) < 0)
 			pr_fail("%s: mq_unlink failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+
+		/* Exercise invalid mq_close, already closed mq */
+		(void)mq_close(mq);
+		/* Exercise invalid mq_unlink */
+		(void)mq_unlink(mq_name);
+		/* Exercise invalid mq_unlink */
+		(void)mq_unlink("/");
 	}
 	return EXIT_SUCCESS;
 }
