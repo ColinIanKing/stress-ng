@@ -210,10 +210,38 @@ static void stress_mmap_mprotect(
 	const char *name,
 	void *addr,
 	const size_t len,
+	const size_t page_size,
 	const bool mmap_mprotect)
 {
 #if defined(HAVE_MPROTECT)
 	if (mmap_mprotect) {
+		int ret;
+		void *last_page = (void *)(~(0ULL) & ~(page_size - 1));
+
+		/* Invalid mix of PROT_GROWSDOWN | PROT_GROWSUP */
+		ret = mprotect(addr, len, PROT_READ | PROT_WRITE | PROT_GROWSDOWN | PROT_GROWSUP);
+		(void)ret;
+
+		/* Invalid non-page aligned start address */
+		ret = mprotect((void *)(((uint8_t *)addr) + 7), len, PROT_READ | PROT_WRITE);
+		(void)ret;
+
+		/* Exercise zero len (should succeed) */
+		ret = mprotect(addr, 0, PROT_READ | PROT_WRITE);
+		(void)ret;
+
+		/* Exercise flags all set */
+		ret = mprotect(addr, len, ~0);
+		(void)ret;
+
+		/* Exercise invalid unmapped addressed, should return ENOMEM */
+		ret = mprotect(last_page, page_size, PROT_READ | PROT_WRITE);
+		(void)ret;
+
+		/* Exercise invalid wrapped range, should return EINVAL */
+		ret = mprotect(last_page, page_size << 1, PROT_READ | PROT_WRITE);
+		(void)ret;
+
 		/* Cycle through potection */
 		if (mprotect(addr, len, PROT_NONE) < 0)
 			pr_fail("%s: mprotect set to PROT_NONE failed\n", name);
@@ -225,6 +253,8 @@ static void stress_mmap_mprotect(
 			pr_fail("%s: mprotect set to PROT_EXEC failed\n", name);
 		if (mprotect(addr, len, PROT_READ | PROT_WRITE) < 0)
 			pr_fail("%s: mprotect set to PROT_READ | PROT_WRITE failed\n", name);
+
+		
 	}
 #else
 	(void)name;
@@ -326,7 +356,7 @@ retry:
 		}
 		(void)stress_madvise_random(buf, sz);
 		(void)stress_mincore_touch_pages(buf, context->mmap_bytes);
-		stress_mmap_mprotect(args->name, buf, sz, context->mmap_mprotect);
+		stress_mmap_mprotect(args->name, buf, sz, page_size, context->mmap_mprotect);
 		for (n = 0; n < pages4k; n++) {
 			mapped[n] = PAGE_MAPPED;
 			mappings[n] = buf + (n * page_size);
@@ -372,7 +402,7 @@ retry:
 					mapped[page] = 0;
 					(void)stress_madvise_random(mappings[page], page_size);
 					stress_mmap_mprotect(args->name, mappings[page],
-						page_size, context->mmap_mprotect);
+						page_size, page_size, context->mmap_mprotect);
 					(void)munmap((void *)mappings[page], page_size);
 					n--;
 					break;
@@ -415,7 +445,7 @@ retry:
 						(void)stress_mincore_touch_pages(mappings[page], page_size);
 						(void)stress_madvise_random(mappings[page], page_size);
 						stress_mmap_mprotect(args->name, mappings[page],
-							page_size, context->mmap_mprotect);
+							page_size, page_size, context->mmap_mprotect);
 						mapped[page] = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
 						stress_mmap_set(mappings[page], page_size, page_size);
@@ -447,7 +477,7 @@ cleanup:
 			if (mapped[n] & PAGE_MAPPED) {
 				(void)stress_madvise_random(mappings[n], page_size);
 				stress_mmap_mprotect(args->name, mappings[n],
-					page_size, context->mmap_mprotect);
+					page_size, page_size, context->mmap_mprotect);
 				(void)munmap((void *)mappings[n], page_size);
 			}
 		}
