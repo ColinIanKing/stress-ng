@@ -440,6 +440,52 @@ static int stress_numa(const stress_args_t *args)
 			if (!keep_stressing_flag())
 				break;
 		}
+
+#if defined(MPOL_MF_MOVE_ALL)
+		/* Exercise MPOL_MF_MOVE_ALL, this needs privilege, ignore failure */
+		(void)memset(status, 0, sizeof(status));
+		pages[0] = buf;
+		ret = shim_move_pages(args->pid, num_pages, pages, dest_nodes, status, MPOL_MF_MOVE_ALL);
+		(void)ret;
+#endif
+
+		/* Exercise invalid pid on move pages */
+		(void)memset(status, 0, sizeof(status));
+		pages[0] = buf;
+		ret = shim_move_pages(~0, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
+		(void)ret;
+
+		/* Exercise 0 nr_pages */
+		(void)memset(status, 0, sizeof(status));
+		pages[0] = buf;
+		ret = shim_move_pages(args->pid, 0, pages, dest_nodes, status, MPOL_MF_MOVE);
+		(void)ret;
+
+		/* Exercise invalid move flags */
+		(void)memset(status, 0, sizeof(status));
+		pages[0] = buf;
+		ret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, ~0);
+		(void)ret;
+
+		/* Exercise zero flag, should succeed */
+		(void)memset(status, 0, sizeof(status));
+		pages[0] = buf;
+		ret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, 0);
+		(void)ret;
+
+		/* Exercise invalid address */
+		(void)memset(status, 0, sizeof(status));
+		pages[0] = (void *)(~0ULL & ~(args->page_size - 1));
+		ret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
+		(void)ret;
+
+		/* Exercise invalid dest_node */
+		(void)memset(status, 0, sizeof(status));
+		pages[0] = buf;
+		dest_nodes[0] = ~0;
+		ret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
+		(void)ret;
+
 		inc_counter(args);
 	} while (keep_stressing());
 
