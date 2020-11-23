@@ -284,9 +284,16 @@ again:
 			const uint64_t timed = (msg.value & 1);
 
 			if ((attr_count++ & 31) == 0) {
-				if (mq_getattr(mq, &attr) < 0)
+				if (mq_getattr(mq, &attr) < 0) {
 					pr_fail("%s: mq_getattr failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
+				} else {
+					struct mq_attr old_attr;
+
+					(void)mq_setattr(mq, &attr, &old_attr);
+				}
+
+				(void)mq_getattr(~0, &attr);
 			}
 
 			msg.value = values[prio];
