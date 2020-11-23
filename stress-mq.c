@@ -190,12 +190,23 @@ again:
 #if defined(__linux__)
 					char buffer[1024];
 					off_t off;
+					struct stat statbuf;
+					void *ptr;
 #if defined(HAVE_POLL_H)
 					struct pollfd fds[1];
 #endif
 					/* On Linux, one can seek on a mq descriptor */
 					off = lseek(mq, 0, SEEK_SET);
 					(void)off;
+
+					/* Attempt a fstat too */
+					ret = fstat(mq, &statbuf);
+					(void)ret;
+
+					/* illegal mmap, should be ENODEV */
+					ptr = mmap(NULL, 16, PROT_READ, MAP_SHARED, mq, 0);
+					if (ptr != MAP_FAILED)
+						munmap(ptr, 16);
 #if defined(HAVE_POLL_H)
 					/* ..and poll too */
 					fds[0].fd = mq;
