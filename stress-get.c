@@ -514,11 +514,18 @@ static int stress_get(const stress_args_t *args)
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
+#if 0
+		/*
+		 * gettimeofday with NULL args works fine on x86-64
+		 * linux, but on s390 will segfault. Disable this
+		 * for now.
+		 */
 		ret = gettimeofday(NULL, NULL);
 		if ((ret < 0) && (errno != ENOSYS)) {
 			pr_fail("%s: gettimeval failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
+#endif
 
 		/*
 		 *  Exercise the gettimeofday by force using the syscall
