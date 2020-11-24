@@ -187,7 +187,7 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		int val = 0;
+		int val = 0, i = 0;
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -209,6 +209,14 @@ again:
 				}
 				pr_fail("%s: zero bytes read\n", args->name);
 				break;
+			}
+
+			/* Occassionally exercise FIONREAD on read end */
+			if ((i++ & 0x1ff) == 0) {
+				int ret, bytes;
+
+				ret = ioctl(pipefds[0], FIONREAD, &bytes);
+				(void)ret;
 			}
 			if (!strncmp(buf, PIPE_STOP, 3))
 				break;
