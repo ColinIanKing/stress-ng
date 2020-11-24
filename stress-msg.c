@@ -95,6 +95,17 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 		}
 	}
 #endif
+	{
+		struct msqid_ds buf;
+
+		/* Exercise invalid msgctl commands */
+		(void)msgctl(msgq_id, ~0, &buf);
+		(void)msgctl(msgq_id, 0xffff, &buf);
+
+		/* Exercise invalid msgq_ids */
+		(void)msgctl(-1, IPC_STAT, &buf);
+		(void)msgctl(msgq_id | 0x7f0000000, IPC_STAT, &buf);
+	}
 
 	return 0;
 }
