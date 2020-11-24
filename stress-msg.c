@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#define STRESS_MAX_IDS		(1024)
+
 static const stress_help_t help[] = {
 	{ NULL,	"msg N",	"start N workers stressing System V messages" },
 	{ NULL,	"msg-ops N",	"stop msg workers after N bogo messages" },
@@ -129,6 +131,33 @@ static void stress_msgget(void)
 		(void)msgctl(msgq_id, IPC_RMID, NULL);
 }
 
+
+/*
+ *  stress_msgsnd()
+ *	exercise msgsnd with some more unusual arguments
+ */
+static void stress_msgsnd(const int msgq_id)
+{
+	int ret;
+	stress_msg_t msg;
+
+	/* Invalid msgq_id */
+	msg.mtype = 1;
+	msg.value = 0;
+	ret = msgsnd(-1, &msg, sizeof(msg), 0);
+	(void)ret;
+
+	/* Zero msg length + 0 msg.type */
+	msg.mtype = 0;
+	ret = msgsnd(msgq_id, &msg, 0, 0);
+	(void)ret;
+
+	/* Illegal flags, may or may not succeed */
+	msg.mtype = 1;
+	ret = msgsnd(msgq_id, &msg, sizeof(msg), ~0);
+	(void)ret;
+}
+
 #if defined(__linux__)
 /*
  *  stress_msg_get_procinfo()
@@ -154,8 +183,6 @@ static void stress_msg_get_procinfo(bool *get_procinfo)
 	(void)close(fd);
 }
 #endif
-
-#define STRESS_MAX_IDS		(1024)
 
 /*
  *  Set upper/lower limits on maximum msgq ids to be allocated
@@ -311,6 +338,8 @@ again:
 #endif
 
 		} while (keep_stressing());
+
+		stress_msgsnd(msgq_id);
 
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
