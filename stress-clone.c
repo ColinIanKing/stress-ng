@@ -294,7 +294,7 @@ static int clone_func(void *arg)
 		(void)memset(&ud, 0, sizeof(ud));
 		ret = syscall(__NR_modify_ldt, 2, &ud, sizeof(ud));
 		(void)ret;
-		
+
 		/* Exercise invalid command */
 		ret = syscall(__NR_modify_ldt, 0xff, &ud, sizeof(ud));
 		(void)ret;
