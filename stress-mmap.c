@@ -253,8 +253,6 @@ static void stress_mmap_mprotect(
 			pr_fail("%s: mprotect set to PROT_EXEC failed\n", name);
 		if (mprotect(addr, len, PROT_READ | PROT_WRITE) < 0)
 			pr_fail("%s: mprotect set to PROT_READ | PROT_WRITE failed\n", name);
-
-		
 	}
 #else
 	(void)name;
