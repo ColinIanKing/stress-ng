@@ -59,9 +59,16 @@ static int stress_pkey(const stress_args_t *args)
 		const size_t page_offset = page_num * args->page_size;
 		uint8_t *page = pages + page_offset;
 
+		/* Exercise invalid pkey flags */
+		pkey = shim_pkey_alloc(~0, 0);
+		if (pkey >= 0)
+			(void)shim_pkey_free(pkey);
+
 #if defined(PKEY_DISABLE_WRITE)
 		/* Use PKEY_DISABLE_WRITE if it's defined */
 		pkey = shim_pkey_alloc(0, PKEY_DISABLE_WRITE);
+		if (pkey < 0)
+			pkey = shim_pkey_alloc(0, 0);
 #else
 		/* Try 0 flags instead */
 		pkey = shim_pkey_alloc(0, 0);
@@ -95,6 +102,21 @@ static int stress_pkey(const stress_args_t *args)
 		(void)shim_pkey_mprotect(page, page_size, PROT_WRITE | PROT_EXEC, pkey);
 		(void)shim_pkey_mprotect(page, page_size, PROT_READ | PROT_WRITE | PROT_EXEC, pkey);
 
+		/* Exercise invalid mprotect flags */
+#if defined(PROT_GROWSDOWN) && defined(PROT_GROWSUP)
+		(void)shim_pkey_mprotect(page, page_size,
+			PROT_READ | PROT_WRITE | PROT_GROWSDOWN | PROT_GROWSUP, pkey);
+#endif
+		/* Exercise invalid start address, EINVAL */
+		(void)shim_pkey_mprotect(page + 7, page_size, PROT_READ, pkey);
+
+		/* Exercise page wrap around, ENOMEM */
+		(void)shim_pkey_mprotect((void *)(~0ULL & ~(page_size -1)),
+			 page_size << 1, PROT_READ, pkey);
+
+		/* Exercise zero size, should be OK */
+		(void)shim_pkey_mprotect(page, 0, PROT_READ, pkey);
+
 		if (pkey >= 0) {
 			int rights;
 
@@ -102,14 +124,13 @@ static int stress_pkey(const stress_args_t *args)
 			if (rights > -1)
 				(void)shim_pkey_set(pkey, rights);
 			(void)shim_pkey_free(pkey);
-		} else {
-			/*
-			 * Perform an invalid pkey free to exercise the
-			 * kernel a bit, will return -EINVAL, we ignore
-			 * failures for now.
-			 */
-			(void)shim_pkey_free(-1);
 		}
+		/*
+		 * Perform an invalid pkey free to exercise the
+		 * kernel a bit, will return -EINVAL, we ignore
+		 * failures for now.
+		 */
+		(void)shim_pkey_free(-1);
 		inc_counter(args);
 	} while (keep_stressing());
 
