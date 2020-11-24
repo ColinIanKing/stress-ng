@@ -110,6 +110,25 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 	return 0;
 }
 
+/*
+ *  stress_msgget()
+ *	exercise msgget with some more unusual arguments
+ */
+static void stress_msgget(void)
+{
+	int msgq_id;
+
+	/* Illegal key */
+	msgq_id = msgget(-1, S_IRUSR | S_IWUSR);
+	if (msgq_id >= 0)
+		(void)msgctl(msgq_id, IPC_RMID, NULL);
+
+	/* All flags, probably succeeds */
+	msgq_id = msgget(IPC_CREAT, ~0);
+	if (msgq_id >= 0)
+		(void)msgctl(msgq_id, IPC_RMID, NULL);
+}
+
 #if defined(__linux__)
 /*
  *  stress_msg_get_procinfo()
@@ -136,6 +155,25 @@ static void stress_msg_get_procinfo(bool *get_procinfo)
 }
 #endif
 
+#define STRESS_MAX_IDS		(1024)
+
+/*
+ *  Set upper/lower limits on maximum msgq ids to be allocated
+ */
+static inline size_t stress_max_ids(const stress_args_t *args)
+{
+	size_t max_ids;
+
+	/* Avoid static analysis complaining about division errors */
+	if (args->num_instances < 1)
+		return STRESS_MAX_IDS;
+
+	max_ids = STRESS_MAX_IDS / args->num_instances;
+	if (max_ids < 2)
+		return 2;
+	return max_ids;
+}
+
 /*
  *  stress_msg
  *	stress by message queues
@@ -148,6 +186,9 @@ static int stress_msg(const stress_args_t *args)
 #if defined(__linux__)
 	bool get_procinfo = true;
 #endif
+	const ssize_t max_ids = stress_max_ids(args);
+	int msgq_ids[max_ids];
+	size_t i, n;
 
 	(void)stress_get_setting("msg-types", &msg_types);
 
@@ -158,6 +199,20 @@ static int stress_msg(const stress_args_t *args)
 		return exit_status(errno);
 	}
 	pr_dbg("%s: System V message queue created, id: %d\n", args->name, msgq_id);
+
+	stress_msgget();
+	for (n = 0; n < SIZEOF_ARRAY(msgq_ids); n++) {
+		if (!keep_stressing())
+			break;
+		msgq_ids[n] = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
+		if ((msgq_ids[n] < 0) &&
+		    ((errno == ENOMEM) || (errno == ENOSPC)))
+			break;
+	}
+	inc_counter(args);
+
+	if (!keep_stressing())
+		goto cleanup;
 
 again:
 	pid = fork();
@@ -266,6 +321,14 @@ again:
 		else
 			pr_dbg("%s: System V message queue deleted, id: %d\n", args->name, msgq_id);
 	}
+
+
+cleanup:
+	for (i = 0; i < n; i++) {
+		if (msgq_ids[i] >= 0)
+			msgctl(msgq_ids[i], IPC_RMID, NULL);
+	}
+
 	return EXIT_SUCCESS;
 }
 
