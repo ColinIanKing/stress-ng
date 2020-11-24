@@ -122,6 +122,7 @@ static int stress_handle_child(const stress_args_t *args, void *context)
 	do {
 		struct file_handle *fhp, *tmp;
 		int mount_id, mount_fd, fd, i;
+		char *ptr;
 
 		if ((fhp = malloc(sizeof(*fhp))) == NULL)
 			continue;
@@ -177,6 +178,43 @@ static int stress_handle_child(const stress_args_t *args, void *context)
 		} else {
 			(void)close(fd);
 		}
+
+		/* Exercise with large invalid size, EINVAL */
+		fhp->handle_bytes = 4096;
+		tmp = realloc(fhp, sizeof(struct file_handle) + fhp->handle_bytes);
+		if (tmp == NULL) {
+			free(fhp);
+			continue;
+		}
+		fhp = tmp;
+		(void)name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0);
+
+		/* Exercise with invalid flags, EINVAL */
+		fhp->handle_bytes = 0;
+		(void)name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, ~0);
+
+		/* Exercise with invalid filename, ENOENT */
+		fhp->handle_bytes = 0;
+		(void)name_to_handle_at(AT_FDCWD, "", fhp, &mount_id, 0);
+
+		/* Exercise with invalid mount_fd */
+		fhp->handle_bytes = 32;
+		(void)name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0);
+		fd = open_by_handle_at(-1, fhp, O_RDONLY);
+		if (fd >= 0)
+			(void)close(fd);
+
+		/*
+		 *  Exercise with bad handle, unconstify f_handle,
+		 *  fill it with random garbage and cause an ESTALE
+		 *  failure
+		 */
+		ptr = (char *)shim_unconstify_ptr(&fhp->f_handle);
+		stress_strnrnd(ptr, 32);
+		fd = open_by_handle_at(mount_fd, fhp, O_RDONLY);
+		if (fd >= 0)
+			(void)close(fd);
+
 		(void)close(mount_fd);
 		free(fhp);
 		inc_counter(args);

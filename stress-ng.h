@@ -4192,6 +4192,22 @@ struct shim_timex {
 };
 #endif
 
+/*
+ *  shim_unconstify_ptr()
+ *      some older system calls require non-const void *
+ *      or caddr_t args, so we need to unconstify them
+ */
+#if defined(__sun__)
+void *shim_unconstify_ptr(const void *ptr)
+{
+	void *unconst_ptr = (void *)ptr;
+
+	return unconst_ptr;
+}
+#else
+#define shim_unconstify_ptr(ptr)        (ptr)
+#endif
+
 extern int shim_arch_prctl(int code, unsigned long addr);
 extern int shim_brk(void *addr);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);

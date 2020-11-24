@@ -25,22 +25,6 @@
 #include "stress-ng.h"
 
 /*
- *  shim_unconstify_ptr()
- *	some older system calls require non-const void *
- *	or caddr_t args, so we need to unconstify them
- */
-#if defined(__sun__)
-static inline void *shim_unconstify_ptr(const void *ptr)
-{
-	void *unconst_ptr = (void *)ptr;
-
-	return unconst_ptr;
-}
-#else
-#define shim_unconstify_ptr(ptr)	(ptr)
-#endif
-
-/*
  *  Various shim abstraction wrappers around systems calls and
  *  GCC helper functions that may not be supported by some
  *  kernels or versions of different C libraries.
