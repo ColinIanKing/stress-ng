@@ -187,7 +187,10 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		int val = 0, i = 0;
+		int val = 0;
+#if defined(FIONREAD)
+		int i = 0;
+#endif
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -211,6 +214,7 @@ again:
 				break;
 			}
 
+#if defined(FIONREAD)
 			/* Occassionally exercise FIONREAD on read end */
 			if ((i++ & 0x1ff) == 0) {
 				int ret, bytes;
@@ -218,6 +222,7 @@ again:
 				ret = ioctl(pipefds[0], FIONREAD, &bytes);
 				(void)ret;
 			}
+#endif
 			if (!strncmp(buf, PIPE_STOP, 3))
 				break;
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
