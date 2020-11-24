@@ -479,6 +479,20 @@ cleanup:
 				(void)munmap((void *)mappings[n], page_size);
 			}
 		}
+
+		/*
+		 *  Step #4, invalid unmapping on the first found page that
+		 *  was successfully mapped earlier. This page should be now
+		 *  unmapped so unmap it again in various ways
+		 */
+		for (n = 0; n < pages4k; n++) {
+			if (mapped[n] & PAGE_MAPPED) {
+				(void)munmap((void *)mappings[n], 0);
+				(void)munmap((void *)mappings[n], page_size);
+				break;
+			}
+		}
+
 		inc_counter(args);
 	} while (keep_stressing());
 
