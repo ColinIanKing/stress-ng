@@ -34,7 +34,13 @@ static const stress_help_t help[] = {
 
 static int stress_pidfd_open(pid_t pid, int flag)
 {
-	int fd = -1;
+	int fd;
+	const pid_t bad_pid = stress_get_unused_pid_racy(false);
+
+	/* Exercise pidfd_open with non-existent PID */
+	fd = shim_pidfd_open(bad_pid, 0);
+	if (fd >= 0)
+		(void)close(fd);
 
 	/* Exercise pidfd_open with illegal flags */
 	(void)shim_pidfd_open(pid, ~(1U));
@@ -42,6 +48,7 @@ static int stress_pidfd_open(pid_t pid, int flag)
 	/* Exercise pidfd_open with illegal PID */
 	(void)shim_pidfd_open((pid_t)-1, 0);
 
+	fd = -1;
 	/* Randomly try pidfd_open first */
 	if (stress_mwc1()) {
 		fd = shim_pidfd_open(pid, flag);
@@ -153,28 +160,25 @@ static int stress_pidfd(const stress_args_t *args)
 				(void)close(pidfd);
 			}
 #endif
-
 			pidfd = stress_pidfd_open(pid, 0);
 			if (pidfd < 0) {
 				/* Process not found, try again */
 				stress_pidfd_reap(pid, pidfd);
 				continue;
 			}
+
 			/* Try to get fd 0 on child pid */
 			ret = shim_pidfd_getfd(pidfd, 0, 0);
-			/* Ignore failures for now, need to sanity check this */
 			if (ret >= 0)
 				(void)close(ret);
 
 			/* Exercise with invalid flags */
 			ret = shim_pidfd_getfd(pidfd, 0, ~0);
-			/* Ignore failure, close fd if success */
 			if (ret >= 0)
 				(void)close(ret);
 
 			/* Exercise with bad_fd */
 			ret = shim_pidfd_getfd(pidfd, bad_fd, 0);
-			/* Ignore failure, close fd if success */
 			if (ret >= 0)
 				(void)close(ret);
 
