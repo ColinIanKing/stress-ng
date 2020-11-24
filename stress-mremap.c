@@ -116,6 +116,20 @@ static int try_remap(
 #endif
 		if (newbuf != MAP_FAILED) {
 			*buf = newbuf;
+
+#if defined(MREMAP_DONTUNMAP)
+			/*
+			 *  Move and explictily don't unmap old mapping,
+			 *  followed by an unmap of the old mapping for
+			 *  some more exercise
+			 */
+			newbuf = mremap(*buf, new_sz, new_sz,
+					MREMAP_DONTUNMAP | MREMAP_MAYMOVE);
+			if (newbuf != MAP_FAILED) {
+				(void)munmap(*buf, new_sz);
+				*buf = newbuf;
+			}
+#endif
 			return 0;
 		}
 
