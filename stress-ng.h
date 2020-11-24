@@ -3038,6 +3038,7 @@ typedef enum {
 	OPT_mremap,
 	OPT_mremap_ops,
 	OPT_mremap_bytes,
+	OPT_mremap_mlock,
 
 	OPT_msg,
 	OPT_msg_ops,

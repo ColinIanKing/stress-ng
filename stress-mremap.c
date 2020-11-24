@@ -28,6 +28,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"mremap N",	  "start N workers stressing mremap" },
 	{ NULL,	"mremap-ops N",	  "stop after N mremap bogo operations" },
 	{ NULL,	"mremap-bytes N", "mremap N bytes maximum for each stress iteration" },
+	{ NULL, "mremap-lock",	  "mlock remap pages, force pages to be unswappable" },
 	{ NULL,	NULL,		  NULL }
 };
 
@@ -41,8 +42,17 @@ static int stress_set_mremap_bytes(const char *opt)
 	return stress_set_setting("mremap-bytes", TYPE_ID_SIZE_T, &mremap_bytes);
 }
 
+static int stress_set_mremap_mlock(const char *opt)
+{
+	bool mremap_mlock = true;
+
+	(void)opt;
+	return stress_set_setting("mremap-mlock", TYPE_ID_BOOL, &mremap_mlock);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_mremap_bytes,	stress_set_mremap_bytes },
+	{ OPT_mremap_mlock,	stress_set_mremap_mlock },
 	{ 0,			NULL }
 };
 
@@ -83,7 +93,8 @@ static int try_remap(
 	const stress_args_t *args,
 	uint8_t **buf,
 	const size_t old_sz,
-	const size_t new_sz)
+	const size_t new_sz,
+	const bool mremap_mlock)
 {
 	uint8_t *newbuf;
 	int retry, flags = 0;
@@ -101,10 +112,13 @@ static int try_remap(
 
 	for (retry = 0; retry < 100; retry++) {
 #if defined(MREMAP_FIXED)
-		void *addr = rand_mremap_addr(new_sz, flags);
+		void *addr = rand_mremap_addr(new_sz + args->page_size, flags);
 #endif
-		if (!keep_stressing_flag())
+		if (!keep_stressing_flag()) {
+			(void)munmap(*buf, old_sz);
+			*buf = 0;
 			return 0;
+		}
 #if defined(MREMAP_FIXED)
 		if (addr) {
 			newbuf = mremap(*buf, old_sz, new_sz, flags, addr);
@@ -129,6 +143,17 @@ static int try_remap(
 				(void)munmap(*buf, new_sz);
 				*buf = newbuf;
 			}
+#endif
+
+#if defined(HAVE_MLOCK)
+			if (mremap_mlock) {
+				int ret;
+
+				ret = shim_mlock(*buf, new_sz);
+				(void)ret;
+			}
+#else
+			(void)mremap_mlock;
 #endif
 			return 0;
 		}
@@ -165,6 +190,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 	size_t new_sz, sz, mremap_bytes = DEFAULT_MREMAP_BYTES;
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 	const size_t page_size = args->page_size;
+	bool mremap_mlock = false;
 
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
@@ -183,6 +209,8 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 	if (mremap_bytes < page_size)
 		mremap_bytes = page_size;
 	new_sz = sz = mremap_bytes & ~(page_size - 1);
+
+	(void)stress_get_setting("mremap-mlock", &mremap_mlock);
 
 	do {
 		uint8_t *buf = NULL;
@@ -217,10 +245,12 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 		old_sz = new_sz;
 		new_sz >>= 1;
 		while (new_sz > page_size) {
-			if (try_remap(args, &buf, old_sz, new_sz) < 0) {
+			if (try_remap(args, &buf, old_sz, new_sz, mremap_mlock) < 0) {
 				(void)munmap(buf, old_sz);
 				return EXIT_FAILURE;
 			}
+			if (!keep_stressing())
+				return EXIT_SUCCESS;
 			(void)stress_madvise_random(buf, new_sz);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (stress_mmap_check(buf, new_sz, page_size) < 0) {
@@ -238,10 +268,12 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 
 		new_sz <<= 1;
 		while (new_sz < mremap_bytes) {
-			if (try_remap(args, &buf, old_sz, new_sz) < 0) {
+			if (try_remap(args, &buf, old_sz, new_sz, mremap_mlock) < 0) {
 				(void)munmap(buf, old_sz);
 				return EXIT_FAILURE;
 			}
+			if (!keep_stressing())
+				return EXIT_SUCCESS;
 			(void)stress_madvise_random(buf, new_sz);
 			old_sz = new_sz;
 			new_sz <<= 1;

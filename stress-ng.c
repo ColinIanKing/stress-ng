@@ -559,6 +559,7 @@ static const struct option long_options[] = {
 	{ "mremap",	1,	0,	OPT_mremap },
 	{ "mremap-ops",	1,	0,	OPT_mremap_ops },
 	{ "mremap-bytes",1,	0,	OPT_mremap_bytes },
+	{ "mremap-mlock",0,	0,	OPT_mremap_mlock },
 	{ "msg",	1,	0,	OPT_msg },
 	{ "msg-ops",	1,	0,	OPT_msg_ops },
 	{ "msg-types",	1,	0,	OPT_msg_types },

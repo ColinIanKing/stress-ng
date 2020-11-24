@@ -2533,6 +2533,10 @@ initially allocate N bytes per remap stress worker, the default is 256MB. One
 can specify the size in units of Bytes, KBytes, MBytes and GBytes using the
 suffix b, k, m or g.
 .TP
+.B \-\-mremap\-mlock
+attempt to mlock remapped pages into memory prohibiting them from being
+paged out.  This is a no-op if mlock(2) is not available.
+.TP
 .B \-\-msg N
 start N sender and receiver processes that continually send and receive
 messages using System V message IPC.
