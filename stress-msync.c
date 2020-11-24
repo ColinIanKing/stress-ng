@@ -247,6 +247,32 @@ do_invalidate:
 			pr_fail("%s: msync'd data in memory "
 				"different to data in file\n", args->name);
 		}
+
+		/* Exercise invalid msync flags */
+		ret = shim_msync(buf + offset, page_size, MS_ASYNC | MS_SYNC);
+		(void)ret;
+
+		/* Exercise invalid address wrap-around */
+		ret = shim_msync((void *)(~0ULL & ~(page_size - 1)),
+				page_size << 1, MS_ASYNC);
+		(void)ret;
+
+		/* Exercise start == end no-op msync */
+		ret = shim_msync(buf + offset, 0, MS_ASYNC);
+		(void)ret;
+
+#if defined(HAVE_MLOCK) &&	\
+    defined(MS_INVALIDATE)
+		/* Force EBUSY when invalidating on a locked page */
+		ret = shim_mlock(buf + offset, page_size);
+		if (ret == 0) {
+			ret = shim_msync(buf + offset, page_size, MS_INVALIDATE);
+			(void)ret;
+			ret = shim_munlock(buf + offset, page_size);
+		}
+		(void)ret;
+#endif
+
 do_next:
 		inc_counter(args);
 	} while (keep_stressing());
