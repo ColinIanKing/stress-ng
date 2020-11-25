@@ -140,7 +140,8 @@ abort:
 		int maxfd = 0, status;
 		struct pollfd fds[MAX_PIPES];
 		fd_set rfds;
-#if defined(HAVE_PPOLL) || defined(HAVE_PSELECT)
+#if defined(HAVE_PPOLL) ||	\
+    defined(HAVE_PSELECT)
 		struct timespec ts;
 		sigset_t sigmask;
 #endif
@@ -211,6 +212,41 @@ abort:
 			}
 			if (!keep_stressing())
 				break;
+
+			/* Exercise illegal poll timeout */
+			ts.tv_sec = 0;
+			ts.tv_nsec = 9999999999;
+			ret = ppoll(fds, MAX_PIPES, &ts, &sigmask);
+			(void)ret;
+			if (!keep_stressing())
+				break;
+
+#if defined(RLIMIT_NOFILE)
+			/*
+			 *  Exercise ppoll with more fds than rlimit soft
+			 *  limit. This should fail with EINVAL on Linux.
+			 */
+			{
+				struct rlimit old_rlim, new_rlim;
+
+				if (getrlimit(RLIMIT_NOFILE, &old_rlim) == 0) {
+					new_rlim.rlim_cur = MAX_PIPES - 1;
+					new_rlim.rlim_max = old_rlim.rlim_max;
+
+					if (setrlimit(RLIMIT_NOFILE, &new_rlim) == 0) {
+						ts.tv_sec = 0;
+						ts.tv_nsec = 0;
+						ret = ppoll(fds, MAX_PIPES, &ts, &sigmask);
+						(void)ret;
+
+						(void)setrlimit(RLIMIT_NOFILE, &old_rlim);
+						if (!keep_stressing())
+							break;
+					}
+				}
+			}
+#endif
+
 #endif
 
 			/* stress out select */
