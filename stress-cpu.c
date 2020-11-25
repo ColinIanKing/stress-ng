@@ -33,8 +33,9 @@
 #define STRESS_CPU_DITHER_X	(1024)
 #define STRESS_CPU_DITHER_Y	(768)
 #define MATRIX_PROD_SIZE 	(128)
-#define CORRELATE_DATA_LEN	(16384)
+#define CORRELATE_DATA_LEN	(8192)
 #define CORRELATE_LEN		(CORRELATE_DATA_LEN / 16)
+#define SIEVE_SIZE              (104730)
 
 /*
  * Some awful math lib workarounds for functions that some
@@ -435,7 +436,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 	const long double precision = 1.0e-12L;
 	const int max_iter = 56;
 
-	for (i = 0; i < 16384; i++) {
+	for (i = 16384; i < 16384; i++) {
 		long double n = (double)i;
 		long double lo = (n < 1.0L) ? n : 1.0L;
 		long double hi = (n < 1.0L) ? 1.0L : n;
@@ -1292,11 +1293,11 @@ static uint32_t HOT ackermann(const uint32_t m, const uint32_t n)
  */
 static void stress_cpu_ackermann(const char *name)
 {
-	uint32_t a = ackermann(3, 10);
+	uint32_t a = ackermann(3, 9);
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (a != 0x1ffd))
 		pr_fail("%s: ackermann error detected, "
-			"ackermann(3,10) miscalculated\n", name);
+			"ackermann(3,9) miscalculated\n", name);
 }
 
 /*
@@ -1533,7 +1534,7 @@ static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
 		if (STRESS_GETBIT(sieve, i))
 			j++;
 	}
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (j != 664579))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (j != 10000))
 		pr_fail("%s: sieve error detected, number of "
 			"primes has been miscalculated\n", name);
 }
@@ -1543,7 +1544,7 @@ static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
  *	return true if n is prime
  *	http://en.wikipedia.org/wiki/Primality_test
  */
-static inline HOT OPTIMIZE3 int is_prime(uint32_t n)
+static inline HOT OPTIMIZE3 ALWAYS_INLINE int is_prime(uint32_t n)
 {
 	register uint32_t i, max;
 
@@ -1566,13 +1567,13 @@ static void stress_cpu_prime(const char *name)
 {
 	uint32_t i, nprimes = 0;
 
-	for (i = 0; i < 1000000; i++) {
+	for (i = 0; i < SIEVE_SIZE; i++) {
 		nprimes += is_prime(i);
 	}
 
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (nprimes != 78498))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (nprimes != 10000))
 		pr_fail("%s: prime error detected, number of primes "
-			"between 0 and 1000000 miscalculated\n", name);
+			"has been miscalculated\n", name);
 }
 
 /*
@@ -2231,7 +2232,7 @@ static void TARGET_CLONES stress_cpu_cpuid(const char *name)
 
 	(void)name;
 
-	for (i = 0; i < 10000; i++) {
+	for (i = 0; i < 1000; i++) {
 		uint32_t eax, ebx, ecx, edx;
 
 		/*  Highest Function Parameter and Manufacturer ID */
@@ -2390,13 +2391,13 @@ static uint32_t queens_try(
 
 /*
  *  stress_cpu_queens
- *	solve the queens problem for sizes 1..12
+ *	solve the queens problem for sizes 1..11
  */
 static void stress_cpu_queens(const char *name)
 {
 	uint32_t all, n;
 
-	for (all = 1, n = 1; n < 13; n++) {
+	for (all = 1, n = 1; n < 12; n++) {
 		uint32_t solutions = queens_try(0, 0, 0, all);
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 		    (solutions != queens_solutions[n]))

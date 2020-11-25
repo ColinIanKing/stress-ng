@@ -785,7 +785,7 @@ all	T{
 iterate over all the below cpu stress methods
 T}
 ackermann	T{
-Ackermann function: compute A(3, 10), where:
+Ackermann function: compute A(3, 9), where:
  A(m, n) = n + 1 if m = 0;
  A(m - 1, 1) if m > 0 and n = 0;
  A(m - 1, A(m, n - 1)) if m > 0 and n > 0
@@ -814,7 +814,7 @@ compute the 1348 steps in the collatz sequence from starting number 989345275647
 Where f(n) = n / 2 (for even n) and f(n) = 3n + 1 (for odd n).
 T}
 correlate	T{
-perform a 16384 \(mu 1024 correlation of random doubles
+perform a 8192 \(mu 512 correlation of random doubles
 T}
 cpuid	T{
 fetch cpu specific information using the cpuid instruction (x86 only)
@@ -1026,15 +1026,15 @@ pjw	T{
 128 rounds of hash pjw function on 128 to 1 bytes of random strings
 T}
 prime	T{
-find all the primes in the range  1..1000000 using a slightly
-optimised brute force na\[:i]ve trial division search
+find the first 10000 prime numbers using a slightly optimised brute
+force na\[:i]ve trial division search
 T}
 psi	T{
 compute \(*q (the reciprocal Fibonacci constant) using the sum of the
 reciprocals of the Fibonacci numbers
 T}
 queens	T{
-compute all the solutions of the classic 8 queens problem for board sizes 1..12
+compute all the solutions of the classic 8 queens problem for board sizes 1..11
 T}
 rand	T{
 16384 iterations of rand(), where rand is the MWC pseudo
@@ -1057,7 +1057,7 @@ sdbm	T{
 1 bytes of random strings
 T}
 sieve	T{
-find the primes in the range 1..10000000 using the sieve of Eratosthenes
+find the first 10000 prime numbers using the sieve of Eratosthenes
 T}
 stats	T{
 calculate minimum, maximum, arithmetic mean, geometric mean, harmoninc mean

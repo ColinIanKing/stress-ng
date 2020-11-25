@@ -1682,8 +1682,6 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define STRESS_SETBIT(a, i)	(a[i / STRESS_NBITS(a)] |= \
 				 (TYPEOF_CAST(a[0])1 << (i & (STRESS_NBITS(a)-1))))
 
-#define SIEVE_SIZE 		(10000000)
-
 /* MWC random number initial seed */
 #define STRESS_MWC_SEED_Z	(362436069UL)
 #define STRESS_MWC_SEED_W	(521288629UL)
