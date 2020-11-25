@@ -245,11 +245,25 @@ redo_rd2:
 				*ptr = val;
 		}
 
+		/* Exercise invalid flags */
+		local[0].iov_base = localbuf;
+		local[0].iov_len = ctxt->sz;
+		remote[0].iov_base = msg_rd.addr;
+		remote[0].iov_len = ctxt->sz;
+		(void)process_vm_readv(ctxt->pid, local, 1, remote, 1, ~0);
+
+		/* Exercise invalid pid */
+		local[0].iov_base = localbuf;
+		local[0].iov_len = ctxt->sz;
+		remote[0].iov_base = msg_rd.addr;
+		remote[0].iov_len = ctxt->sz;
+		(void)process_vm_readv(~0, local, 1, remote, 1, 0);
+
 		/* Write to child's memory */
 		msg_wr = msg_rd;
 		local[0].iov_base = localbuf;
 		local[0].iov_len = ctxt->sz;
-		remote[0].iov_base = msg_rd.addr;
+		remote[0].iov_base = msg_wr.addr;
 		remote[0].iov_len = ctxt->sz;
 		if (process_vm_writev(ctxt->pid, local, 1, remote, 1, 0) < 0) {
 			pr_fail("%s: process_vm_writev failed, errno=%d (%s)\n",
@@ -271,6 +285,21 @@ redo_wr2:
 					args->name, errno, strerror(errno));
 			break;
 		}
+
+		/* Exercise invalid flags */
+		local[0].iov_base = localbuf;
+		local[0].iov_len = ctxt->sz;
+		remote[0].iov_base = msg_wr.addr;
+		remote[0].iov_len = ctxt->sz;
+		(void)process_vm_writev(ctxt->pid, local, 1, remote, 1, ~0);
+
+		/* Exercise invalid pid */
+		local[0].iov_base = localbuf;
+		local[0].iov_len = ctxt->sz;
+		remote[0].iov_base = msg_wr.addr;
+		remote[0].iov_len = ctxt->sz;
+		(void)process_vm_writev(~0, local, 1, remote, 1, 0);
+
 		inc_counter(args);
 	} while (keep_stressing());
 fail:
