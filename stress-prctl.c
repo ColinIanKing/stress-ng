@@ -88,6 +88,28 @@ static const stress_help_t help[] = {
      defined(PR_SET_IO_FLUSHER) ||		\
      defined(PR_PAC_RESET_KEYS)
 
+#if defined(PR_SET_MM) &&		\
+    defined(PR_SET_MM_AUXV)
+
+/*
+ *  getauxv_addr()
+ *	fine the address of the auxv vector. This
+ *	is located at the end of the environment.
+ *	Returns NULL if not found.
+ */
+static inline void *getauxv_addr(void)
+{
+	extern char **environ;
+
+	char **env = environ;
+
+	while (env && *env++)
+		;
+
+	return (void *)env;
+}
+#endif
+
 /*
  *  stress_arch_prctl()
  *	exercise arch_prctl(), currently just
@@ -379,6 +401,16 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 	}
 #endif
 
+#if defined(PR_SET_MM) &&		\
+    defined(PR_SET_MM_AUXV)
+	{
+		void *auxv = getauxv_addr();
+
+		if (auxv)
+			ret = prctl(PR_SET_MM, PR_SET_MM_AUXV, auxv, 0, 0);
+	}
+#endif
+
 #if defined(PR_MPX_ENABLE_MANAGEMENT)
 	/* no longer implemented, use invalid args to force -EINVAL */
 	ret = prctl(PR_MPX_ENABLE_MANAGEMENT, ~0, ~0, ~0, ~0);
@@ -523,12 +555,18 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_GET_TIMERSLACK)
 	{
-		ret = prctl(PR_GET_TIMERSLACK, 0, 0, 0, 0);
-		(void)ret;
+		int slack;
+
+		slack = prctl(PR_GET_TIMERSLACK, 0, 0, 0, 0);
+		(void)slack;
 
 #if defined(PR_SET_TIMERSLACK)
-		if (ret >= 0) {
-			ret = prctl(PR_SET_TIMERSLACK, ret, 0, 0, 0);
+		if (slack >= 0) {
+			/* Zero timer slack will set to default timer slack */
+			ret = prctl(PR_SET_TIMERSLACK, 0, 0, 0, 0);
+			(void)ret;
+			/* And restore back to original setting */
+			ret = prctl(PR_SET_TIMERSLACK, slack, 0, 0, 0);
 			(void)ret;
 		}
 #endif
