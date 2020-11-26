@@ -215,6 +215,10 @@ static size_t stress_get_congestion_controls(const int socket_domain, char **ctr
 	return n_ctrls;
 }
 
+/*
+ *  stress_sock_ioctl()
+ *	exercise various ioctl commands
+ */
 static void stress_sock_ioctl(const int fd, const int socket_domain)
 {
 	(void)fd;
@@ -309,6 +313,67 @@ static void stress_sock_ioctl(const int fd, const int socket_domain)
 }
 
 /*
+ *  stress_sock_invalid_recv()
+ *	exercise invalid recv* calls
+ */
+static void stress_sock_invalid_recv(const int fd, const int opt)
+{
+	ssize_t n;
+	char buf[16];
+	struct iovec vec[1];
+	struct msghdr msg;
+#if defined(HAVE_RECVMMSG)
+	struct mmsghdr msgvec[MSGVEC_SIZE];
+	struct timespec ts;
+#endif
+
+	switch (opt) {
+	case SOCKET_OPT_SEND:
+		/* exercise invalid flags */
+		n = recv(fd, buf, sizeof(buf), ~0);
+		(void)n;
+
+		/* exercise invalid fd */
+		n = recv(~0, buf, sizeof(buf), 0);
+		(void)n;
+		break;
+	case SOCKET_OPT_SENDMSG:
+		vec[0].iov_base = buf;
+		vec[0].iov_len = sizeof(buf);
+		(void)memset(&msg, 0, sizeof(msg));
+		msg.msg_iov = vec;
+		msg.msg_iovlen = 1;
+
+		/* exercise invalid flags */
+		n = recvmsg(fd, &msg, ~0);
+
+		/* exercise invalid fd */
+		n = recvmsg(~0, &msg, 0);
+		break;
+#if defined(HAVE_RECVMMSG)
+	case SOCKET_OPT_SENDMMSG:
+		(void)memset(msgvec, 0, sizeof(msgvec));
+		vec[0].iov_base = buf;
+		vec[0].iov_len = sizeof(buf);
+		msgvec[0].msg_hdr.msg_iov = vec;
+		msgvec[0].msg_hdr.msg_iovlen = 1;
+
+		/* exercise invalid flags */
+		n = recvmmsg(fd, msgvec, MSGVEC_SIZE, ~0, NULL);
+
+		/* exercise invalid fd */
+		n = recvmmsg(~0, msgvec, MSGVEC_SIZE, 0, NULL);
+
+		/* exercise invalid timespec */
+		ts.tv_sec = 0;
+		ts.tv_nsec = 0;
+		n = recvmmsg(~0, msgvec, MSGVEC_SIZE, 0, &ts);
+		break;
+#endif
+	}
+}
+
+/*
  *  stress_sock_client()
  *	client reader
  */
@@ -334,9 +399,7 @@ static void stress_sock_client(
 		char buf[SOCKET_BUF];
 		int fd;
 		int retries = 0;
-#if defined(FIONREAD)
-		int count = 0;
-#endif
+		static int count = 0;
 		socklen_t addr_len = 0;
 retry:
 		if (!keep_stressing_flag()) {
@@ -533,7 +596,6 @@ retry:
 
 		do {
 			ssize_t n = 0;
-			int opt;
 			size_t i, j;
 			char *recvfunc = "recv";
 			struct msghdr msg;
@@ -541,9 +603,14 @@ retry:
 #if defined(HAVE_RECVMMSG)
 			unsigned int msg_len = 0;
 			struct mmsghdr msgvec[MSGVEC_SIZE];
+			const int max_opt = 3;
+#else
+			const int max_opt = 2;
 #endif
+			const int opt = (socket_opts == SOCKET_OPT_RANDOM) ?
+					stress_mwc8() % max_opt: socket_opts;
+
 #if defined(FIONREAD)
-			size_t bytes = sizeof(buf);
 			/*
 			 *  Exercise FIONREAD ioctl. Linux supports
 			 *  this also with SIOCINQ but lets try and
@@ -552,8 +619,9 @@ retry:
 			 *  to ensure we exercise it without impacting
 			 *  performance.
 			 */
-			if (count++ > 1024) {
+			if ((count & 0x3ff) == 0) {
 				int ret;
+				size_t bytes = sizeof(buf);
 
 				ret = ioctl(fd, FIONREAD, &bytes);
 				(void)ret;
@@ -561,8 +629,12 @@ retry:
 
 				if (bytes > sizeof(buf))
 					bytes = sizeof(buf);
+
 			}
 #endif
+			/*  Periodically exercise invalid recv calls */
+			if ((count & 0x7ff) == 0)
+				stress_sock_invalid_recv(fd, opt);
 #if defined(SIOCINQ)
 			{
 				int pending;
@@ -570,10 +642,6 @@ retry:
 				(void)ioctl(fd, SIOCINQ, &pending);
 			}
 #endif
-			if (socket_opts == SOCKET_OPT_RANDOM)
-				opt = stress_mwc8() % 3;
-			else
-				opt = socket_opts;
 
 			/*
 			 *  Receive using equivalent receive method
@@ -621,6 +689,7 @@ retry:
 						errno, strerror(errno));
 				break;
 			}
+			count++;
 		} while (keep_stressing());
 
 		stress_sock_ioctl(fd, socket_domain);
