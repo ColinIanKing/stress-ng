@@ -213,6 +213,8 @@ do_stress --mmap 0 --mmap-async
 do_stress --mmap 0 --mmap-odirect
 do_stress --mmap 0 --mmap-osync
 
+do_stress --mremap 0 --mremap-mlock 
+
 do_stress --pipe 0 --pipe-size 64K
 do_stress --pipe 0 --pipe-size 1M
 
