@@ -221,6 +221,16 @@ rnd_rd_retry:
 			}
 			inc_counter(args);
 		}
+
+                /* Exercise illegal fd */
+                ret = readahead(~0, 0, 512);
+                (void)ret;
+
+                /* Exercise large sizes and illegal sizes */
+		for (i = 15; i < sizeof(size_t) * 8; i += 4) {
+                	ret = readahead(fd, 0, 1ULL << i);
+                	(void)ret;
+		}
 	} while (keep_stressing());
 
 	rc = EXIT_SUCCESS;
