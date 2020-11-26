@@ -193,6 +193,22 @@ static int stress_link_generic(
 		ret = readlink("/", testpath, sizeof(testpath));
 		(void)ret;
 
+#if defined(HAVE_READLINKAT) && 	\
+    defined(AT_FDCWD)
+		/* exercise invalid newpath size, EINVAL */
+		ret = readlinkat(AT_FDCWD, ".", testpath, 0);
+		(void)ret;
+
+		/* exercise invalid newpath size, EINVAL */
+		ret = readlinkat(AT_FDCWD, "", testpath, sizeof(testpath));
+		(void)ret;
+
+		/* exercise non-link, EINVAL */
+		ret = readlinkat(AT_FDCWD, "/", testpath, sizeof(testpath));
+		(void)ret;
+
+#endif
+
 		stress_link_unlink(args, n);
 
 		inc_counter(args);
