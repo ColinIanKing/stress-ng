@@ -98,6 +98,7 @@ static int stress_link_generic(
 	rc = EXIT_SUCCESS;
 	do {
 		uint64_t i, n = DEFAULT_LINKS;
+		char testpath[PATH_MAX];
 
 		for (i = 0; i < n; i++) {
 			char newpath[PATH_MAX];
@@ -118,6 +119,7 @@ static int stress_link_generic(
 				n = i;
 				break;
 			}
+
 			if (symlink_func) {
 				char buf[PATH_MAX];
 				ssize_t rret;
@@ -177,19 +179,25 @@ static int stress_link_generic(
 				pr_fail("%s: lstat failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-
-			if (!keep_stressing())
-				goto abort;
-
-			inc_counter(args);
 		}
+
+		/* exercise invalid newpath size, EINVAL */
+		ret = readlink(oldpath, testpath, 0);
+		(void)ret;
+
+		/* exercise empty oldpath, ENOENT */
+		ret = readlink("", testpath, sizeof(testpath));
+		(void)ret;
+
+		/* exercise non-link, EINVAL */
+		ret = readlink("/", testpath, sizeof(testpath));
+		(void)ret;
+
 		stress_link_unlink(args, n);
+
+		inc_counter(args);
 	} while (keep_stressing());
 
-abort:
-	/* force unlink of all files */
-	pr_tidy("%s: removing %" PRIu32" entries\n", args->name, DEFAULT_LINKS);
-	stress_link_unlink(args, DEFAULT_LINKS);
 	(void)unlink(oldpath);
 	(void)stress_temp_dir_rm_args(args);
 
