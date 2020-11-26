@@ -1525,7 +1525,7 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 
 #define MIN_READAHEAD_BYTES	(1 * MB)
 #define MAX_READAHEAD_BYTES	(MAX_FILE_LIMIT)
-#define DEFAULT_READAHEAD_BYTES	(1 * GB)
+#define DEFAULT_READAHEAD_BYTES	(64 * MB)
 
 #define MIN_REVIO_BYTES		(1 * MB)
 #define MAX_REVIO_BYTES		(MAX_FILE_LIMIT)

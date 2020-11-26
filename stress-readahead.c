@@ -25,7 +25,7 @@
 #include "stress-ng.h"
 
 #define BUF_ALIGNMENT		(4096)
-#define BUF_SIZE		(512)
+#define BUF_SIZE		(4096)
 #define MAX_OFFSETS		(16)
 
 static const stress_help_t help[] = {
@@ -52,6 +52,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(__linux__) && NEED_GLIBC(2,3,0)
 
+typedef uint64_t	buffer_t;
+
 static int do_readahead(
 	const stress_args_t *args,
 	const int fd,
@@ -61,7 +63,7 @@ static int do_readahead(
 	int i;
 
 	for (i = 0; i < MAX_OFFSETS; i++) {
-		offsets[i] = (stress_mwc64() % (rounded_readahead_bytes - BUF_SIZE)) & ~511;
+		offsets[i] = (stress_mwc64() % (rounded_readahead_bytes - BUF_SIZE)) & ~(BUF_SIZE - 1);
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
 			pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -71,13 +73,14 @@ static int do_readahead(
 	return 0;
 }
 
+
 /*
  *  stress_readahead
  *	stress file system cache via readahead calls
  */
 static int stress_readahead(const stress_args_t *args)
 {
-	uint8_t *buf = NULL;
+	buffer_t *buf = NULL;
 	uint64_t rounded_readahead_bytes, i;
 	uint64_t readahead_bytes = DEFAULT_READAHEAD_BYTES;
 	uint64_t misreads = 0;
@@ -139,7 +142,7 @@ static int stress_readahead(const stress_args_t *args)
 	for (i = 0; i < readahead_bytes; i += BUF_SIZE) {
 		ssize_t pret;
 		size_t j;
-		off_t o = i / BUF_SIZE;
+		const off_t o = i / BUF_SIZE;
 seq_wr_retry:
 		if (!keep_stressing_flag()) {
 			pr_inf("%s: test expired during test setup "
@@ -148,8 +151,8 @@ seq_wr_retry:
 			goto close_finish;
 		}
 
-		for (j = 0; j < BUF_SIZE; j++)
-			buf[j] = (o + j) & 0xff;
+		for (j = 0; j < (BUF_SIZE / sizeof(*buf)); j++)
+			buf[j] = (buffer_t)(o + j);
 
 		pret = pwrite(fd, buf, BUF_SIZE, i);
 		if (pret <= 0) {
@@ -202,15 +205,15 @@ rnd_rd_retry:
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				size_t j;
-				off_t o = offsets[i] / BUF_SIZE;
+				const off_t o = offsets[i] / BUF_SIZE;
 
-				for (j = 0; j < BUF_SIZE; j++) {
-					uint8_t v = (o + j) & 0xff;
+				for (j = 0; j < (BUF_SIZE / sizeof(*buf)); j++) {
+					const buffer_t v = o + j;
 					if (buf[j] != v)
 						baddata++;
 				}
 				if (baddata) {
-					pr_fail("%s: error in data between %ju and %ju\n",
+					pr_fail("%s: error in data between 0x%jx and 0x%jx\n",
 						args->name,
 						(intmax_t)offsets[i],
 						(intmax_t)offsets[i] + BUF_SIZE - 1);

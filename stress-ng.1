@@ -2942,8 +2942,8 @@ stop rdrand stress workers after N bogo rdrand operations (1 bogo op = 2048
 random bits successfully read).
 .TP
 .B \-\-readahead N
-start N workers that randomly seeks and performs 512 byte read/write I/O
-operations on a file with readahead. The default file size is 1 GB.  Readaheads
+start N workers that randomly seek and perform 4096 byte read/write I/O
+operations on a file with readahead. The default file size is 64 MB.  Readaheads
 and reads are batched into 16 readaheads and then 16 reads.
 .TP
 .B \-\-readahead\-bytes N
