@@ -402,6 +402,13 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_close;
 			}
 		}
+		/*
+		 *  Exercise invalid filename, ENOENT
+		 */
+		ret = shim_removexattr("", "user.var_1234");
+		(void)ret;
+		ret = shim_lremovexattr("", "user.var_1234");
+		(void)ret;
 
 		/*
 		 *  Exercise bad/invalid fd
