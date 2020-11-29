@@ -89,9 +89,23 @@ static int remap_order(
 
 	for (i = 0; i < N_PAGES; i++) {
 		int ret;
+#if defined(HAVE_MLOCK)
+		int lock_ret;
 
+		lock_ret = mlock(data + (i * stride), page_size);
+#endif
 		ret = remap_file_pages(data + (i * stride), page_size,
 			0, order[i], 0);
+#if defined(HAVE_MLOCK)
+		if (lock_ret == 0) {
+			(void)munlock(data + (i * stride), page_size);
+		}
+		if (ret) {
+			/* mlocked remap failed? try unlocked remap */
+			ret = remap_file_pages(data + (i * stride), page_size,
+				0, order[i], 0);
+		}
+#endif
 		if (ret < 0) {
 			pr_fail("%s: remap_file_pages failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -195,9 +209,16 @@ static int stress_remap(const stress_args_t *args)
 		if (unmapped) {
 			ret = remap_file_pages((void *)unmapped, page_size, 0, 0, 0);
 			(void)ret;
+			/* Illegal flags */
+			ret = remap_file_pages((void *)unmapped, page_size, 0, 0, ~0);
+			(void)ret;
+			/* Locked page */
 		}
 		if (mapped) {
 			ret = remap_file_pages((void *)(mapped + page_size), page_size, 0, 0, 0);
+			(void)ret;
+			/* Illegal flags */
+			ret = remap_file_pages((void *)(mapped + page_size), page_size, 0, 0, ~0);
 			(void)ret;
 		}
 
