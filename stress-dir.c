@@ -176,6 +176,10 @@ static void stress_dir_tidy(
 	}
 }
 
+/*
+ *  stress_mkdir()
+ *	exercise mdir/mkdirat calls
+ */
 static int stress_mkdir(const int dirfd, const char *path, const int mode)
 {
 	int ret;
@@ -202,6 +206,10 @@ static int stress_mkdir(const int dirfd, const char *path, const int mode)
 	return ret;
 }
 
+/*
+ *  stress_invalid_mkdir()
+ *	exercise invalid mkdir path
+ */
 static void stress_invalid_mkdir(const char *path)
 {
 	int ret;
@@ -215,6 +223,31 @@ static void stress_invalid_mkdir(const char *path)
 	ret = mkdir(filename,  S_IRUSR | S_IWUSR);
 	if (ret == 0)
 		(void)rmdir(filename);
+}
+
+/*
+ *  stress_invalid_rmdir()
+ *	exercise invalid rmdir paths
+ */
+static void stress_invalid_rmdir(const char *path)
+{
+	int ret;
+	char filename[PATH_MAX + 16];
+
+	(void)shim_strlcpy(filename, path, sizeof(filename));
+	/* remove . - exercise EINVAL error */
+	(void)shim_strlcat(filename, "/.", sizeof(filename));
+	ret = rmdir(filename);
+	(void)ret;
+
+	/* remove /.. - exercise ENOTEMPTY error */
+	(void)shim_strlcat(filename, ".", sizeof(filename));
+	ret = rmdir(filename);
+	(void)ret;
+
+	/* remove / - exercise EBUSY error */
+	ret = rmdir("/");
+	(void)ret;
 }
 
 /*
@@ -262,6 +295,7 @@ static int stress_dir(const stress_args_t *args)
 			inc_counter(args);
 		}
 		stress_invalid_mkdir(pathname);
+		stress_invalid_rmdir(pathname);
 
 		if (!keep_stressing()) {
 			stress_dir_tidy(args, i);
@@ -277,6 +311,14 @@ static int stress_dir(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing());
+
+	/* exercise invalid path */
+	{
+		int rmret;
+
+		rmret = rmdir("");
+		(void)rmret;
+	}
 
 #if defined(O_DIRECTORY)
 	if (dirfd >= 0)
