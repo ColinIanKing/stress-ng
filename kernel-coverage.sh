@@ -285,11 +285,11 @@ do_stress --vm 0 --vm-madvise willneed --page-in
 #
 DURATION=180
 do_stress --dev 32
-do_stress --sysinval 0
 
 DURATION=360
 do_stress --sysfs 16
 do_stress --procfs 32
+do_stress --sysinval 8
 
 DURATION=120
 do_stress --bad-ioctl 0 --pathological
