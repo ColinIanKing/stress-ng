@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#define STRESS_MAX_SEMS		(100)
+
 static const stress_help_t help[] = {
 	{ NULL,	"sem-sysv N",		"start N workers doing System V semaphore operations" },
 	{ NULL,	"sem-sysv-ops N",	"stop after N System V sem bogo operations" },
@@ -67,7 +69,7 @@ static void stress_semaphore_sysv_init(void)
 	while (count < 100) {
 		g_shared->sem_sysv.key_id = (key_t)stress_mwc16();
 		g_shared->sem_sysv.sem_id =
-			semget(g_shared->sem_sysv.key_id, 1,
+			semget(g_shared->sem_sysv.key_id, 3,
 				IPC_CREAT | S_IRUSR | S_IWUSR);
 		if (g_shared->sem_sysv.sem_id >= 0)
 			break;
@@ -143,13 +145,13 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 {
 	const int sem_id = g_shared->sem_sysv.sem_id;
 	int rc = EXIT_SUCCESS;
-#if defined(HAVE_SEMTIMEDOP) &&	\
-    defined(HAVE_CLOCK_GETTIME)
+#if defined(HAVE_SEMTIMEDOP)
 	bool got_semtimedop = true;
 #endif
 
 	do {
 		int i, ret;
+		struct sembuf sems[STRESS_MAX_SEMS * 3];
 #if defined(__linux__)
 		bool get_procinfo = true;
 #endif
@@ -157,6 +159,30 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 #if defined(__linux__)
 		if (get_procinfo)
 			stress_semaphore_sysv_get_procinfo(&get_procinfo);
+#endif
+
+#if defined(HAVE_SEMTIMEDOP)
+		if (got_semtimedop) {
+			struct timespec timeout;
+
+			for (i = 0; i < STRESS_MAX_SEMS * 3; i += 3) {
+				sems[i].sem_num = 1;
+				sems[i].sem_op = 1;
+				sems[i].sem_flg = SEM_UNDO;
+
+				sems[i + 1].sem_num = 1;
+				sems[i + 1].sem_op = 1;
+				sems[i + 1].sem_flg = SEM_UNDO;
+
+				sems[i + 2].sem_num = 1;
+				sems[i + 2].sem_op = -1;
+				sems[i + 2].sem_flg = SEM_UNDO;
+			}
+			timeout.tv_sec = 0;
+			timeout.tv_nsec = 100000;
+			ret = semtimedop(sem_id, sems, STRESS_MAX_SEMS * 3, &timeout);
+			(void)ret;
+		}
 #endif
 
 		for (i = 0; i < 1000; i++) {
@@ -170,13 +196,12 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 			semsignal.sem_op = 1;
 			semsignal.sem_flg = SEM_UNDO;
 
-#if defined(HAVE_SEMTIMEDOP) &&	\
-    defined(HAVE_CLOCK_GETTIME)
+#if defined(HAVE_SEMTIMEDOP)
 			if (got_semtimedop) {
 				struct timespec timeout;
 
 				timeout.tv_sec = 1;
-				timeout.tv_nsec = 000000000;
+				timeout.tv_nsec = 0;
 				ret = semtimedop(sem_id, &semwait, 1, &timeout);
 				if (ret < 0 && ((errno == ENOSYS) || (errno == EINVAL))) {
 					got_semtimedop = false;
@@ -219,14 +244,14 @@ timed_out:
 			(void)memset(&ds, 0, sizeof(ds));
 
 			s.buf = &ds;
-			if (semctl(sem_id, 0, IPC_STAT, &s) < 0) {
+			if (semctl(sem_id, 2, IPC_STAT, &s) < 0) {
 				pr_fail("%s: semctl IPC_STAT failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			} else {
 #if defined(IPC_SET)
 				s.buf = &ds;
-				ret = semctl(sem_id, 0, IPC_SET, &s);
+				ret = semctl(sem_id, 2, IPC_SET, &s);
 				(void)ret;
 #endif
 			}
@@ -237,13 +262,18 @@ timed_out:
 				ds.sem_nsems = 1;
 			s.array = calloc((size_t)ds.sem_nsems, sizeof(*s.array));
 			if (s.array) {
-				if (semctl(sem_id, 0, GETALL, s) < 0) {
+				if (semctl(sem_id, 2, GETALL, s) < 0) {
 					pr_fail("%s: semctl GETALL failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
 				}
-#if defined(SETALL)
-				if (semctl(sem_id, 0, SETALL, s) < 0) {
+#if defined(SETALL) && 0
+				/*
+				 *  SETALL across the semaphores will clobber the state
+				 *  and cause waits on semaphores because of the unlocked
+				 *  state change. Currenltly this is disabled.
+				 */
+				if (semctl(sem_id, 2, SETALL, s) < 0) {
 					pr_fail("%s: semctl SETALL failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					rc = EXIT_FAILURE;
@@ -403,8 +433,7 @@ timed_out:
 		 */
 		ret = semctl(sem_id, -1, SETVAL, 0);
 		(void)ret;
-#if defined(HAVE_SEMTIMEDOP) &&	\
-    defined(HAVE_CLOCK_GETTIME)
+#if defined(HAVE_SEMTIMEDOP)
 		if (got_semtimedop) {
 			/*
 			 *  Exercise illegal timeout
