@@ -227,11 +227,26 @@ static int stress_schedpolicy(const stress_args_t *args)
 
 #if defined(HAVE_SCHED_GETATTR) && \
     defined(HAVE_SCHED_SETATTR)
+		/* Exercise too large attr > page size */
+		{
+			char large_attr[args->page_size + 16];
+
+			ret = shim_sched_getattr(pid,
+				(struct shim_sched_attr *)large_attr,
+				sizeof(large_attr), 0);
+		}
+
 		/* Exercise invalid sched_getattr syscalls */
 		ret = shim_sched_getattr(pid, &attr, sizeof(attr), ~0);
 		(void)ret;
 
+		/* Exercise -ve pid */
 		ret = shim_sched_getattr(-1, &attr, sizeof(attr), 0);
+		(void)ret;
+
+		/* Exercise bad pid, ESRCH error */
+		ret = shim_sched_getattr(stress_get_unused_pid_racy(false),
+			&attr, sizeof(attr), 0);
 		(void)ret;
 
 		/*
