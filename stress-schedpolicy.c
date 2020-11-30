@@ -117,8 +117,23 @@ static int stress_schedpolicy(const stress_args_t *args)
 #if defined(SCHED_OTHER)
 		case SCHED_OTHER:
 #endif
+			/* Exercise illegal policy */
+			ret = sched_setscheduler(pid, -1, &param);
+			(void)ret;
+
+			/* Exercise invalid PID */
+			param.sched_priority = 0;
+			ret = sched_setscheduler(-1, new_policy, &param);
+			(void)ret;
+
+			/* Exercise invalid priority */
+			param.sched_priority = ~0;
+			ret = sched_setscheduler(pid, new_policy, &param);
+			(void)ret;
+
 			param.sched_priority = 0;
 			ret = sched_setscheduler(pid, new_policy, &param);
+
 			break;
 #if defined(SCHED_RR)
 		case SCHED_RR:
