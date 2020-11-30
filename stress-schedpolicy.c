@@ -228,6 +228,14 @@ static int stress_schedpolicy(const stress_args_t *args)
 				(void)ret;
 			}
 		}
+		/* Exercise with invalid PID */
+		ret = sched_getscheduler(-1);
+		(void)ret;
+
+		/* Exercise with bad pid, ESRCH error */
+		ret = sched_getscheduler(stress_get_unused_pid_racy(false));
+		(void)ret;
+
 		(void)memset(&param, 0, sizeof param);
 		ret = sched_getparam(pid, &param);
 		if ((ret < 0) && ((errno != EINVAL) && (errno != EPERM)))
