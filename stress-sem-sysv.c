@@ -153,17 +153,6 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 #if defined(__linux__)
 		bool get_procinfo = true;
 #endif
-#if defined(HAVE_SEMTIMEDOP) &&	\
-    defined(HAVE_CLOCK_GETTIME)
-		struct timespec timeout;
-
-		if (clock_gettime(CLOCK_REALTIME, &timeout) < 0) {
-			pr_fail("%s: clock_gettime failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			return EXIT_NO_RESOURCE;
-		}
-		timeout.tv_sec++;
-#endif
 
 #if defined(__linux__)
 		if (get_procinfo)
@@ -184,6 +173,10 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 #if defined(HAVE_SEMTIMEDOP) &&	\
     defined(HAVE_CLOCK_GETTIME)
 			if (got_semtimedop) {
+				struct timespec timeout;
+
+				timeout.tv_sec = 1;
+				timeout.tv_nsec = 000000000;
 				ret = semtimedop(sem_id, &semwait, 1, &timeout);
 				if (ret < 0 && ((errno == ENOSYS) || (errno == EINVAL))) {
 					got_semtimedop = false;
@@ -230,6 +223,12 @@ timed_out:
 				pr_fail("%s: semctl IPC_STAT failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
+			} else {
+#if defined(IPC_SET)
+				s.buf = &ds;
+				ret = semctl(sem_id, 0, IPC_SET, &s);
+				(void)ret;
+#endif
 			}
 
 #if defined(GETALL)
@@ -260,12 +259,31 @@ timed_out:
 			struct semid_ds ds;
 			stress_semun_t s;
 
+			/* Exercise with a 0 index into kernel array */
 			s.buf = &ds;
-			if (semctl(sem_id, 0, SEM_STAT, &s) < 0) {
-				pr_fail("%s: semctl SET_STAT failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				rc = EXIT_FAILURE;
-			}
+			ret = semctl(0, 0, SEM_STAT, &s);
+			(void)ret;
+
+			/* Exercise with a probably illegal index into kernel array */
+			s.buf = &ds;
+			ret = semctl(0x1fffffff, 0, SEM_STAT, &s);
+			(void)ret;
+		}
+#endif
+#if defined(SEM_STAT_ANY) && defined(__linux__)
+		{
+			struct seminfo si;
+			stress_semun_t s;
+
+			/* Exercise with a 0 index into kernel array */
+			s.__buf = &si;
+			ret = semctl(0, 0, SEM_STAT_ANY, &s);
+			(void)ret;
+
+			/* Exercise with a probably illegal index into kernel array */
+			s.__buf = &si;
+			ret = semctl(0x1fffffff, 0, SEM_STAT_ANY, &s);
+			(void)ret;
 		}
 #endif
 #if defined(IPC_INFO) && defined(__linux__)
@@ -279,6 +297,22 @@ timed_out:
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
+
+			/*
+			 *  Exercise with probably an illegal sem id, this arg is
+			 *  actually ignored, so should be OK
+			 */
+			s.__buf = &si;
+			ret = semctl(0x1fffffff, 0, IPC_INFO, &s);
+			(void)ret;
+
+			/*
+			 *  Exercise with an illegal sem number, this arg is
+			 *  also ignored, so should be OK
+			 */
+			s.__buf = &si;
+			ret = semctl(sem_id, ~0, IPC_INFO, &s);
+			(void)ret;
 		}
 #endif
 #if defined(SEM_INFO) && defined(__linux__)
@@ -292,6 +326,16 @@ timed_out:
 					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
+
+			/* Exercise with probably an illegal sem id */
+			s.__buf = &si;
+			ret = semctl(0x1fffffff, 0, IPC_INFO, &s);
+			(void)ret;
+
+			/* Exercise with an illegal sem number */
+			s.__buf = &si;
+			ret = semctl(sem_id, ~0, IPC_INFO, &s);
+			(void)ret;
 		}
 #endif
 #if defined(GETVAL)
@@ -300,6 +344,14 @@ timed_out:
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
+
+		/* Exercise with probably an illegal sem id */
+		ret = semctl(0x1fffffff, 0, GETVAL);
+		(void)ret;
+
+		/* Exercise with an illegal sem number */
+		ret = semctl(sem_id, ~0, GETVAL);
+		(void)ret;
 #endif
 #if defined(GETPID)
 		if (semctl(sem_id, 0, GETPID) < 0) {
@@ -307,6 +359,14 @@ timed_out:
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
+
+		/* Exercise with probably an illegal sem id */
+		ret = semctl(0x1fffffff, 0, GETPID);
+		(void)ret;
+
+		/* Exercise with an illegal sem number */
+		ret = semctl(sem_id, ~0, GETPID);
+		(void)ret;
 #endif
 #if defined(GETNCNT)
 		if (semctl(sem_id, 0, GETNCNT) < 0) {
@@ -314,6 +374,14 @@ timed_out:
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
+
+		/* Exercise with probably an illegal sem id */
+		ret = semctl(0x1fffffff, 0, GETNCNT);
+		(void)ret;
+
+		/* Exercise with an illegal sem number */
+		ret = semctl(sem_id, ~0, GETNCNT);
+		(void)ret;
 #endif
 #if defined(GETZCNT)
 		if (semctl(sem_id, 0, GETZCNT) < 0) {
@@ -321,24 +389,20 @@ timed_out:
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
+
+		/* Exercise with probably an illegal sem id */
+		ret = semctl(0x1fffffff, 0, GETZCNT);
+		(void)ret;
+
+		/* Exercise with an illegal sem number */
+		ret = semctl(sem_id, ~0, GETZCNT);
+		(void)ret;
 #endif
 		/*
 		 * Now exercise invalid options and arguments
 		 */
 		ret = semctl(sem_id, -1, SETVAL, 0);
-		if ((ret == 0) || ((ret < 0) && (errno != EINVAL))) {
-			pr_fail("%s: semctl SETVAL with semnum = -1 did not fail with EINVAL as expected, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-		}
-#if defined(GETVAL)
-		ret = semctl(sem_id, -1, GETVAL);
-		if ((ret == 0) || ((ret < 0) && (errno != EINVAL))) {
-			pr_fail("%s: semctl GETVAL with semnum = -1 did not fail with EINVAL as expected, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-		}
-#endif
+		(void)ret;
 #if defined(HAVE_SEMTIMEDOP) &&	\
     defined(HAVE_CLOCK_GETTIME)
 		if (got_semtimedop) {
@@ -346,6 +410,7 @@ timed_out:
 			 *  Exercise illegal timeout
 			 */
 			struct sembuf semwait;
+			struct timespec timeout;
 
 			timeout.tv_sec = -1;
 			timeout.tv_nsec = -1;
