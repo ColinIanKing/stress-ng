@@ -412,6 +412,11 @@ again:
 	return pid;
 }
 
+static void stress_sem_sysv_sigchild(int sig)
+{
+	(void)sig;
+}
+
 /*
  *  stress_sem_sysv()
  *	stress system by sem ops
@@ -434,6 +439,9 @@ static int stress_sem_sysv(const stress_args_t *args)
 		pr_err("%s: aborting, semaphore not initialised\n", args->name);
 		return EXIT_FAILURE;
 	}
+
+	if (stress_sighandler(args->name, SIGCHLD, stress_sem_sysv_sigchild, NULL) < 0)
+		return EXIT_NO_RESOURCE;
 
 	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < semaphore_sysv_procs; i++) {
