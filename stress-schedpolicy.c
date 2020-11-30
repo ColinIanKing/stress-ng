@@ -57,6 +57,7 @@ static const int policies[] = {
 static int stress_schedpolicy(const stress_args_t *args)
 {
 	int policy = 0;
+	const bool root_or_nice_capability = stress_check_capability(SHIM_CAP_SYS_NICE);
 #if defined(HAVE_SCHED_GETATTR) && \
     defined(HAVE_SCHED_SETATTR)
 	uint32_t sched_util_min = ~0;
@@ -202,7 +203,11 @@ static int stress_schedpolicy(const stress_args_t *args)
 			(void)ret;
 #endif
 
-			/* Exercise invalid sched_setparam syscall*/
+			/* Exercise bad pid, ESRCH error */
+			ret = sched_getparam(stress_get_unused_pid_racy(false), &param);
+			(void)ret;
+
+			/* Exercise invalid sched_setparam syscall */
 			(void)memset(&param, 0, sizeof param);
 			ret = sched_setparam(-1, &param);
 			(void)ret;
@@ -212,6 +217,16 @@ static int stress_schedpolicy(const stress_args_t *args)
 			ret = sched_setparam(pid, NULL);
 			(void)ret;
 #endif
+
+			/*
+			 * Exercise bad pid, ESRCH error only if process does not
+			 * root or nice capability (to avoid clobbering processes we
+			 * don't own
+			 */
+			if (!root_or_nice_capability) {
+				ret = sched_setparam(stress_get_unused_pid_racy(false), &param);
+				(void)ret;
+			}
 		}
 		(void)memset(&param, 0, sizeof param);
 		ret = sched_getparam(pid, &param);
