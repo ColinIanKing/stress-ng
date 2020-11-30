@@ -139,9 +139,13 @@ static void stress_affinity_child(
 	size_t instance)
 {
 	uint32_t cpu = args->instance;
+	cpu_set_t mask0;
+
+	CPU_ZERO(&mask0);
 
 	do {
 		cpu_set_t mask;
+		int ret;
 
 		cpu = affinity_rand ? (stress_mwc32() >> 4) : cpu + 1;
 		cpu %= cpus;
@@ -170,6 +174,20 @@ static void stress_affinity_child(
 						args->name, cpu);
 			}
 		}
+		/* Exercise getaffinity with invalid pid */
+		ret = sched_getaffinity(-1, sizeof(mask), &mask);
+		(void)ret;
+
+		/* Exercise getaffinity with mask size */
+		ret = sched_getaffinity(0, 0, &mask);
+		(void)ret;
+
+		/* Exercise setaffinity with invalid mask size */
+		ret = sched_setaffinity(0, 0, &mask);
+
+		/* Exercise setaffinity with invalid mask */
+		ret = sched_setaffinity(0, sizeof(mask), &mask0);
+
 		counters[instance]++;
 	} while (affinity_keep_stressing(args, counters));
 
