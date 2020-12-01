@@ -261,6 +261,12 @@ static int clone_func(void *arg)
 
 		fd = open("/proc/self/ns/uts", O_RDONLY);
 		if (fd >= 0) {
+			/* Exercise invalid setns nstype, EINVAL */
+			(void)setns(fd, ~0);
+
+			/* Exercise invalid setns fd, EBADF */
+			(void)setns(~0, 0);
+
 			/*
 			 *  Capabilities have been dropped
 			 *  so this will always fail, but
