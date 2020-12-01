@@ -184,6 +184,8 @@ static void *stress_pthread_func(void *parg)
 		}
 	} else {
 #if defined(HAVE_SET_ROBUST_LIST) && defined(HAVE_LINUX_FUTEX_H)
+		int ret;
+
 		if (sys_set_robust_list(head, len) < 0) {
 			if (errno != ENOSYS) {
 				pr_fail("%s: set_robust_list failed, tid=%d, errno=%d (%s)\n",
@@ -191,6 +193,14 @@ static void *stress_pthread_func(void *parg)
 				goto die;
 			}
 		}
+		
+		/* Exercise invalid zero length */
+		ret = sys_set_robust_list(head, 0);
+		(void)ret;
+
+		/* Exercise invalid length */
+		ret = sys_set_robust_list(head, -1);
+		(void)ret;
 #endif
 	/*
 	 *  Check get_robust_list with an invalid PID
