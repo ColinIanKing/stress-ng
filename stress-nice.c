@@ -49,25 +49,22 @@ static int stress_nice(const stress_args_t *args)
 {
 	const bool cap_sys_nice = stress_check_capability(SHIM_CAP_SYS_NICE);
 #if defined(HAVE_SETPRIORITY)
-	int max_prio, min_prio;
+	/* Make an assumption on priority range */
+	int max_prio = 20, min_prio = -20;
 
 #if defined(RLIMIT_NICE)
 	{
 		struct rlimit rlim;
 
-		if (getrlimit(RLIMIT_NICE, &rlim) < 0) {
-			/* Make an assumption, bah */
-			max_prio = 20;
-			min_prio = -20;
-		} else {
+		max_prio = 20;
+		min_prio = -20;
+
+		if ((getrlimit(RLIMIT_NICE, &rlim) == 0) &&
+		    (rlim.rlim_cur != 0))  {
 			max_prio = 20 - (int)rlim.rlim_cur;
 			min_prio = -max_prio;
 		}
 	}
-#else
-	/* Make an assumption, bah */
-	max_prio = 20;
-	min_prio = -20;
 #endif
 #endif
 
@@ -77,6 +74,13 @@ static int stress_nice(const stress_args_t *args)
 
 		pid = fork();
 		if (pid == 0) {
+#if defined(HAVE_GETPRIORITY)
+			static const int prio_which[] = {
+				PRIO_PROCESS,
+				PRIO_USER,
+				PRIO_PGRP,
+			};
+#endif
 			int i;
 
 			/*
@@ -92,14 +96,26 @@ static int stress_nice(const stress_args_t *args)
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
+#if defined(HAVE_GETPRIORITY) &&	\
+    defined(HAVE_SETPRIORITY)
+			for (i = 0; i < (int)SIZEOF_ARRAY(prio_which); i++) {
+				int ret;
+
+				errno = 0;
+				ret = getpriority(prio_which[i], 0);
+				if ((errno == 0) && (!cap_sys_nice))
+					/*
+					 * Get priority returns a value that is in the
+					 * range 40..1 for -20..19, so negate and offset
+					 * by 20 to get back into setpriority prio level
+					 */
+					ret = setpriority(prio_which[i], 0, -ret + 20);
+
+				(void)ret;
+			}
+#endif
 
 #if defined(HAVE_SETPRIORITY)
-			/*
-			 *  Exercise illegal maximum priority
-			 *  to get more kernel test coverage
-			 */
-			(void)setpriority(PRIO_PROCESS, 0, max_prio + 1);
-
 			/*
 			 *  Exercise setpriority calls that uses illegal
 			 *  arguments to get more kernel test coverage
@@ -122,14 +138,8 @@ static int stress_nice(const stress_args_t *args)
 				break;
 #endif
 			default:
-				for (i = -19; i < 20; i++) {
+				for (i = -19; (i < 20) && keep_stressing(); i++) {
 					int ret;
-
-					/*
-					 *  Invalid nice syscall with invalid
-					 *  inc argument and ignoring failure
-					 */
-					(void)shim_nice(INT_MAX);
 
 					ret = shim_nice(1);
 					if (ret == 0)
