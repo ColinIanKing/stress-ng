@@ -131,6 +131,21 @@ static int stress_splice(const stress_args_t *args)
 			splice_bytes, SPLICE_F_MOVE);
 		(void)ret;
 
+		/* Exercise no-op splice of zero size */
+		ret = splice(fd_in, NULL, fds1[1], NULL,
+			0, SPLICE_F_MOVE);
+		(void)ret;
+
+		/* Exercise invalid splice flags */
+		ret = splice(fd_in, NULL, fds1[1], NULL,
+			1, ~0);
+		(void)ret;
+
+		/* Exercise 1 byte splice, zero flags */
+		ret = splice(fd_in, NULL, fds1[1], NULL,
+			1, 0);
+		(void)ret;
+
 		/* Exercise splicing to oneself */
 		off_in = 0;
 		off_out = 0;
