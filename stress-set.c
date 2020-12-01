@@ -109,6 +109,10 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETREUID)
 	const bool cap_setuid = stress_check_capability(SHIM_CAP_SETUID);
 #endif
+#if defined(HAVE_GETPGID) &&    \
+    defined(HAVE_SETPGID)
+	const bool cap_root = stress_check_capability(0);
+#endif
 
 	for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 		rlimits[i].ret = getrlimit(rlimits[i].id, &rlimits[i].rlim);
@@ -150,9 +154,25 @@ static int stress_set(const stress_args_t *args)
 			(void)ret;
 		}
 
-#if defined(HAVE_GETPGID) && defined(HAVE_SETPGID)
+#if defined(HAVE_GETPGID) &&	\
+    defined(HAVE_SETPGID)
 		pid = getpgid(mypid);
 		if (pid != -1) {
+			if (!cap_root) {
+				const pid_t bad_pid = stress_get_unused_pid_racy(false);
+
+				/* Exercise invalid pgid */
+				ret = setpgid(mypid, bad_pid);
+				(void)ret;
+
+				/* Exercise invalid pid */
+				ret = setpgid(bad_pid, pid);
+				(void)ret;
+
+				/* Exercise invalid pid and pgid */
+				ret = setpgid(bad_pid, bad_pid);
+				(void)ret;
+			}
 			ret = setpgid(mypid, pid);
 			(void)ret;
 			check_do_run();
