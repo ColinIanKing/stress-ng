@@ -698,8 +698,9 @@ static int stress_shm_sysv_child(
 
 		pid = fork();
 		if (pid == 0) {
+			int ret;
+
 			for (i = 0; i < shm_sysv_segments; i++) {
-				int ret;
 #if defined(IPC_STAT) &&	\
     defined(HAVE_SHMID_DS)
 
@@ -711,7 +712,14 @@ static int stress_shm_sysv_child(
 #endif
 				ret = shmdt(addrs[i]);
 				(void)ret;
+
 			}
+			/* Exercise repeated shmdt on addresses, EINVAL */
+			for (i = 0; i < shm_sysv_segments; i++) {
+				ret = shmdt(addrs[i]);
+				(void)ret;
+			}
+
 			_exit(EXIT_SUCCESS);
 		}
 reap:
