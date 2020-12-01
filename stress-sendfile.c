@@ -56,7 +56,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static int stress_sendfile(const stress_args_t *args)
 {
 	char filename[PATH_MAX];
-	int fdin, fdout, ret, rc = EXIT_SUCCESS;
+	int i = 0, fdin, fdout, ret, bad_fd, rc = EXIT_SUCCESS;
 	size_t sz;
 	int64_t sendfile_size = DEFAULT_SENDFILE_SIZE;
 
@@ -99,6 +99,8 @@ static int stress_sendfile(const stress_args_t *args)
 		goto close_in;
 	}
 
+	bad_fd = stress_get_bad_fd();
+
 	do {
 		off_t offset = 0;
 
@@ -115,6 +117,29 @@ static int stress_sendfile(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			goto close_out;
+		}
+
+		/* Periodically perform some invalid sendfile calls */
+		if ((i++ & 0xff) == 0) {
+			/* Exercise with invalid destination fd */
+			offset = 0;
+			(void)sendfile(bad_fd, fdin, &offset, sz);
+
+			/* Exercise with invalid source fd */
+			offset = 0;
+			(void)sendfile(fdout, bad_fd, &offset, sz);
+
+			/* Exercise with invalid offset */
+			offset = -1;
+			(void)sendfile(fdout, fdin, &offset, sz);
+
+			/* Exercise with invalid size */
+			offset = 0;
+			(void)sendfile(fdout, fdin, &offset, -1);
+
+			/* Exercise with zero size (should work, no-op) */
+			offset = 0;
+			(void)sendfile(fdout, fdin, &offset, 0);
 		}
 		inc_counter(args);
 	} while (keep_stressing());
