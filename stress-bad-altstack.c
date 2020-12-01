@@ -160,6 +160,7 @@ again:
 		} else if (pid == 0) {
 			uint32_t rnd;
 			int ret;
+			stack_t ss, old_ss;
 
 			if (sigsetjmp(jmpbuf, 1) != 0) {
 				/*
@@ -170,8 +171,34 @@ again:
 					_exit(0);
 			}
 
+			/* Exercise fetch of old ss, return 0 */
+			(void)sigaltstack(NULL, &old_ss);
+
+			/* Exercise disable SS_DISABLE */
+			ss.ss_sp = stress_align_address(stack, STACK_ALIGNMENT);
+			ss.ss_size = MINSIGSTKSZ;
+			ss.ss_flags = SS_DISABLE;
+			(void)sigaltstack(&ss, NULL);
+
+			/* Exercise invalid flags */
+			ss.ss_sp = stress_align_address(stack, STACK_ALIGNMENT);
+			ss.ss_size = MINSIGSTKSZ;
+			ss.ss_flags = ~0;
+			(void)sigaltstack(&ss, NULL);
+
+			/* Exercise no-op, return 0 */
+			(void)sigaltstack(NULL, NULL);
+
+			/* Exercise less than minimum allowed stack size, ENOMEM */
+			ss.ss_sp = stress_align_address(stack, STACK_ALIGNMENT);
+			ss.ss_size = MINSIGSTKSZ - 1;
+			ss.ss_flags = 0;
+			(void)sigaltstack(&ss, NULL);
+
 			if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
 				return EXIT_FAILURE;
+
+			/* Set alternative stack for testing */
 			if (stress_sigaltstack(stack, stack_sz) < 0)
 				return EXIT_FAILURE;
 
