@@ -39,8 +39,12 @@ static const stress_help_t help[] = {
 #define KEY_GET_RETRIES		(40)
 #define BITS_PER_BYTE		(8)
 #define NUMA_LONG_BITS		(sizeof(unsigned long) * BITS_PER_BYTE)
+#if !defined(MPOL_F_ADDR)
 #define MPOL_F_ADDR		(1 << 1)
+#endif
+#if !defined(MPOL_DEFAULT)
 #define MPOL_DEFAULT		(0)
+#endif
 
 /*
  *  Note, running this test with the --maximize option on
@@ -240,6 +244,9 @@ static void exercise_shmctl(const size_t sz, const stress_args_t *args)
 
 	/* Exercise invalid commands */
 	ret = shmctl(shm_id, -1, NULL);
+	(void)ret;
+
+	ret = shmctl(shm_id, 0x7ffffff, NULL);
 	(void)ret;
 
 	ret = shmctl(shm_id, IPC_SET | IPC_RMID, NULL);
