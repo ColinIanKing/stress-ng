@@ -182,13 +182,13 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETTIMEOFDAY)
 		if (!stress_check_capability(SHIM_CAP_SYS_TIME)) {
 			struct timeval tv;
+			struct timezone tz;
 
 			/* We should not be able to set the time of day */
-			ret = gettimeofday(&tv, NULL);
+			ret = gettimeofday(&tv, &tz);
 			if (ret == 0) {
-				ret = settimeofday(&tv, NULL);
+				ret = settimeofday(&tv, &tz);
 				if (ret != -EPERM) {
-					/* This is an error, report it! :-) */
 					pr_fail("%s: settimeofday failed, did not have privilege to "
 						"set time, expected -EPERM, instead got errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
