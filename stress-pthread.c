@@ -137,6 +137,8 @@ static void stress_pthread_tid_address(const stress_args_t *args)
 		if (tid_addr) {
 			pid_t tid1, tid2;
 
+			/* Nullify */
+			tid1 = syscall(__NR_set_tid_address, NULL);
 			/* This always succeeds */
 			tid1 = syscall(__NR_set_tid_address, tid_addr);
 
@@ -193,7 +195,7 @@ static void *stress_pthread_func(void *parg)
 				goto die;
 			}
 		}
-		
+
 		/* Exercise invalid zero length */
 		ret = sys_set_robust_list(head, 0);
 		(void)ret;
