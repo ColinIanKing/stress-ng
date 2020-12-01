@@ -2412,13 +2412,13 @@ err_dir:
 
 stressor_info_t stress_sysinval_info = {
 	.stressor = stress_sysinval,
-	.class = CLASS_OS,
+	.class = CLASS_OS | CLASS_PATHOLOGICAL,
 	.help = help
 };
 #else
 stressor_info_t stress_sysinval_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_OS,
+	.class = CLASS_OS | CLASS_PATHOLOGICAL,
 	.help = help
 };
 #endif
