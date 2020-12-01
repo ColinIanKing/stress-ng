@@ -92,6 +92,14 @@ static int stress_sendfile(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		goto dir_out;
 	}
+	(void)close(fdin);
+	if ((fdin = open(filename, O_RDONLY)) < 0) {
+		rc = exit_status(errno);
+		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+			args->name, filename, errno, strerror(errno));
+		goto dir_out;
+	}
+
 	if ((fdout = open("/dev/null", O_WRONLY)) < 0) {
 		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -119,7 +127,7 @@ static int stress_sendfile(const stress_args_t *args)
 			goto close_out;
 		}
 
-		/* Periodically perform some invalid sendfile calls */
+		/* Periodically perform some unusual sendfile calls */
 		if ((i++ & 0xff) == 0) {
 			/* Exercise with invalid destination fd */
 			offset = 0;
@@ -140,6 +148,18 @@ static int stress_sendfile(const stress_args_t *args)
 			/* Exercise with zero size (should work, no-op) */
 			offset = 0;
 			(void)sendfile(fdout, fdin, &offset, 0);
+
+			/* Exercise with read-only destination (EBADF) */
+			offset = 0;
+			(void)sendfile(fdin, fdin, &offset, sz);
+
+			/* Exercise with write-only source (EBADF) */
+			offset = 0;
+			(void)sendfile(fdout, fdout, &offset, sz);
+
+			/* Exercise truncated read */
+			offset = sz - 1;
+			(void)sendfile(fdout, fdin, &offset, sz);
 		}
 		inc_counter(args);
 	} while (keep_stressing());
