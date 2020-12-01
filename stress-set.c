@@ -310,11 +310,21 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_GETDOMAINNAME) &&	\
     defined(HAVE_SETDOMAINNAME)
 		{
-			char name[128];
+			char name[2048];
 
 			ret = getdomainname(name, sizeof(name));
-			if (ret == 0)
+			if (ret == 0) {
+				/* Exercise zero length name (OK-ish) */
+				ret = setdomainname(name, 0);
+				(void)ret;
+
+				/* Exercise long name (-EINVAL) */
+				ret = setdomainname(name, sizeof(name));
+
+				/* Set name back */
+				(void)ret;
 				ret = setdomainname(name, strlen(name));
+			}
 			(void)ret;
 			check_do_run();
 		}
