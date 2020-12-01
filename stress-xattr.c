@@ -51,6 +51,12 @@ static int stress_xattr(const stress_args_t *args)
 	int ret, fd, rc = EXIT_FAILURE;
 	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX];
+	char *hugevalue = NULL;
+#if defined(XATTR_SIZE_MAX)
+	const size_t hugevalue_sz = XATTR_SIZE_MAX + 16;
+#else
+	const size_t hugevalue_sz = 256 * KB;
+#endif
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -63,6 +69,10 @@ static int stress_xattr(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto out;
 	}
+
+	hugevalue = calloc(1, hugevalue_sz);
+	if (hugevalue)
+		(void)memset(hugevalue, 'X', hugevalue_sz - 1);
 
 	do {
 		int i, j;
@@ -127,6 +137,19 @@ static int stress_xattr(const stress_args_t *args)
 			pr_fail("%s: setxattr unexpectedly succeeded on invalid flags, "
 				"errno=%d (%s)\n", args->name, errno, strerror(errno));
 			goto out_close;
+		}
+		/* Exercise invalid filename, ENOENT */
+		ret = shim_setxattr("", attrname, value, strlen(value), 0);
+		(void)ret;
+
+		/* Exercise invalid attrname, ERANGE */
+		ret = shim_setxattr(filename, "", value, strlen(value), 0);
+		(void)ret;
+
+		/* Exercise huge value length, E2BIG */
+		if (hugevalue) {
+			ret = shim_setxattr(filename, "hugevalue", hugevalue, hugevalue_sz, 0);
+			(void)ret;
 		}
 
 		/*
@@ -431,6 +454,7 @@ static int stress_xattr(const stress_args_t *args)
 out_close:
 	(void)close(fd);
 out:
+	free(hugevalue);
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
