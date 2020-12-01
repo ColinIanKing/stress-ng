@@ -1213,7 +1213,7 @@ int stress_get_bad_fd(void)
 /*
  *  stress_sigaltstack()
  *	attempt to set up an alternative signal stack
- *	  stack - must be at least 4K
+ *	  stack - must be at least MINSIGSTKSZ
  *	  size  - size of stack (- STACK_ALIGNMENT)
  */
 int stress_sigaltstack(const void *stack, const size_t size)
