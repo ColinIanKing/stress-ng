@@ -1199,7 +1199,7 @@ int stress_get_bad_fd(void)
 #elif defined(F_GETFL)
 	int i;
 
-	for (i = 0; i < 1024; i++) {
+	for (i = 2048; i > fileno(stdout); i--) {
 		if (fcntl((int)i, F_GETFL) == -1)
 			return i;
 	}
