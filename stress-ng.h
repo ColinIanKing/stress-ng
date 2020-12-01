@@ -548,6 +548,10 @@
 #include <linux/membarrier.h>
 #endif
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+#include <linux/mempolicy.h>
+#endif
+
 #if defined(HAVE_LINUX_NETLINK_H)
 #include <linux/netlink.h>
 #endif

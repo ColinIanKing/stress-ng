@@ -39,19 +39,41 @@ static const stress_help_t help[] = {
 #define BITS_PER_BYTE		(8)
 #define NUMA_LONG_BITS		(sizeof(unsigned long) * BITS_PER_BYTE)
 
+#if !defined(MPOL_DEFAULT)
 #define MPOL_DEFAULT		(0)
+#endif
+#if !defined(MPOL_PREFERRED)
 #define MPOL_PREFERRED		(1)
+#endif
+#if !defined(MPOL_BIND)
 #define MPOL_BIND		(2)
+#endif
+#if !defined(MPOL_INTERLEAVE)
 #define MPOL_INTERLEAVE		(3)
+#endif
+#if !defined(MPOL_LOCAL)
 #define MPOL_LOCAL		(4)
+#endif
 
+#if !defined(MPOL_F_NODE)
 #define MPOL_F_NODE		(1 << 0)
+#endif
+#if !defined(MPOL_F_ADDR)
 #define MPOL_F_ADDR		(1 << 1)
+#endif
+#if !defined(MPOL_F_MEMS_ALLOWED)
 #define MPOL_F_MEMS_ALLOWED	(1 << 2)
+#endif
 
+#if !defined(MPOL_MF_STRICT)
 #define MPOL_MF_STRICT		(1 << 0)
+#endif
+#if !defined(MPOL_MF_MOVE)
 #define MPOL_MF_MOVE		(1 << 1)
+#endif
+#if !defined(MPOL_MF_MOVE_ALL)
 #define MPOL_MF_MOVE_ALL	(1 << 2)
+#endif
 
 #define MMAP_SZ			(4 * MB)
 
@@ -273,6 +295,55 @@ static int stress_numa(const stress_args_t *args)
 		(void)memset(buf, 0xff, MMAP_SZ);
 		if (!keep_stressing_flag())
 			break;
+
+		/* Create a mix of _NONES options, invalid ones too */
+		mode = 0;
+#if defined(MPOL_F_STATIC_NODES)
+		if (stress_mwc1())
+			mode |= MPOL_F_STATIC_NODES;
+#endif
+#if defined(MPOL_F_RELATIVE_NODES)
+		if (stress_mwc1())
+			mode |= MPOL_F_RELATIVE_NODES;
+#endif
+
+		switch (stress_mwc8() & 0x7) {
+		case 0:
+#if defined(MPOL_DEFAULT)
+			ret = shim_set_mempolicy(MPOL_DEFAULT | mode, NULL, max_nodes);
+			break;
+#endif
+		case 1:
+#if defined(MPOL_BIND)
+			ret = shim_set_mempolicy(MPOL_BIND | mode, node_mask, max_nodes);
+			break;
+#endif
+		case 2:
+#if defined(MPOL_INTERLEAVE)
+			ret = shim_set_mempolicy(MPOL_INTERLEAVE | mode, node_mask, max_nodes);
+			break;
+#endif
+		case 3:
+#if defined(MPOL_PREFERRED)
+			ret = shim_set_mempolicy(MPOL_PREFERRED | mode, node_mask, max_nodes);
+			break;
+#endif
+		case 4:
+#if defined(MPOL_LOCAL)
+			ret = shim_set_mempolicy(MPOL_LOCAL | mode, node_mask, max_nodes);
+			break;
+#endif
+		case 5:
+			ret = shim_set_mempolicy(0, node_mask, max_nodes);
+			break;
+		case 6:
+			ret = shim_set_mempolicy(mode, node_mask, max_nodes);
+			break;
+		default:
+			/* Intentionally invalid mode */
+			ret = shim_set_mempolicy(~0, node_mask, max_nodes);
+		}
+		(void)ret;
 
 		/*
 		 *  Fetch CPU and node, we just waste some cycled
