@@ -27,12 +27,6 @@
 #define _DEFAULT_SOURCE 1
 #define _BSD_SOURCE 1
 
-#if defined(HOST_NAME_MAX)
-#define STRESS_HOST_NAME_LEN	(HOST_NAME_MAX + 1)
-#else
-#define STRESS_HOST_NAME_LEN	(256)
-#endif
-
 #define check_do_run()			\
 	if (!keep_stressing())		\
 		break;			\
@@ -104,7 +98,9 @@ static int stress_set(const stress_args_t *args)
 {
 	size_t i;
 	int ret_hostname;
-	char hostname[STRESS_HOST_NAME_LEN];
+	const size_t hostname_len = stress_hostname_length();
+	char hostname[hostname_len];
+	char longname[hostname_len << 1];
 #if defined(HAVE_GETPGID) && 	\
     defined(HAVE_SETPGID)
 	const pid_t mypid = getpid();
@@ -120,8 +116,10 @@ static int stress_set(const stress_args_t *args)
 
 	(void)memset(hostname, 0, sizeof(hostname));
 	ret_hostname = gethostname(hostname, sizeof(hostname) - 1);
-	if (ret_hostname == 0)
-		hostname[sizeof(hostname) - 1 ] = '\0';
+	if (ret_hostname == 0) {
+		hostname[sizeof(hostname) - 1] = '\0';
+		shim_strlcpy(longname, hostname, sizeof(longname));
+	}
 
 	do {
 		int ret;
@@ -145,7 +143,10 @@ static int stress_set(const stress_args_t *args)
 		check_do_run();
 
 		if (ret_hostname == 0) {
-			ret = sethostname(hostname, sizeof(hostname) - 1);
+			ret = sethostname(longname, sizeof(longname));
+			(void)ret;
+
+			ret = sethostname(hostname, strlen(hostname));
 			(void)ret;
 		}
 

@@ -881,7 +881,8 @@ void pr_yaml_runinfo(FILE *yaml)
 #endif
 	time_t t;
 	struct tm *tm = NULL;
-	char hostname[128];
+	const size_t hostname_len = stress_hostname_length();
+	char hostname[hostname_len];
 	const char *user = shim_getlogin();
 
 	pr_yaml(yaml, "system-info:\n");
@@ -2124,5 +2125,23 @@ int stress_read_fdinfo(const pid_t pid, const int fd)
 	(void)fd;
 
 	return 0;
+#endif
+}
+
+/*
+ *  stress_hostname_length()
+ *	return the maxium allowed hostname lenth
+ */
+size_t stress_hostname_length(void)
+{
+#if defined(HOST_NAME_MAX)
+	return HOST_NAME_MAX + 1;
+#elif defined(HAVE_UNAME) && \
+      defined(HAVE_SYS_UTSNAME_H)
+	struct utsname uts;
+
+	return sizeof(uts.nodename);	/* Linux */
+#else
+	return 255 + 1;			/* SUSv2 */
 #endif
 }

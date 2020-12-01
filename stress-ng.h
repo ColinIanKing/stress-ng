@@ -3940,6 +3940,7 @@ extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int
 extern WARN_UNUSED uint16_t stress_ip_checksum(uint16_t *ptr, const size_t n);
 extern int stress_read_fdinfo(const pid_t pid, const int fd);
 extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
+extern WARN_UNUSED size_t stress_hostname_length(void);
 
 extern int stress_ftrace_start(void);
 extern int stress_ftrace_stop(void);
