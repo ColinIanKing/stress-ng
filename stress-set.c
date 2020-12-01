@@ -196,11 +196,24 @@ static int stress_set(const stress_args_t *args)
 		ret = getgroups(0, NULL);
 		if (ret > 0) {
 			gid_t groups[GIDS_MAX];
+			int n;
 
 			ret = STRESS_MINIMUM(ret, (int)SIZEOF_ARRAY(groups));
-			ret = getgroups(ret, groups);
-			if (ret > 0) {
-				ret = setgroups(ret, groups);
+			n = getgroups(ret, groups);
+			if (n > 0) {
+				gid_t bad_groups[1] = { -1 };
+
+				/* Exercise invalid groups */
+				ret = setgroups(-1, groups);
+				(void)ret;
+
+				ret = setgroups(0, groups);
+				(void)ret;
+
+				ret = setgroups(1, bad_groups);
+				(void)ret;
+
+				ret = setgroups(n, groups);
 				(void)ret;
 			}
 		}
