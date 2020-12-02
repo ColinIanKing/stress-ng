@@ -59,6 +59,7 @@ static int stress_vm_splice(const stress_args_t *args)
 	uint8_t *buf;
 	const size_t page_size = args->page_size;
 	size_t sz, vm_splice_bytes = DEFAULT_VM_SPLICE_BYTES;
+	char data[page_size];
 
 	if (!stress_get_setting("vm-splice-bytes", &vm_splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -99,14 +100,19 @@ static int stress_vm_splice(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_strnrnd(data, sizeof(data));
+
 	do {
 		int ret;
 		ssize_t bytes;
 		struct iovec iov;
 
+		/*
+		 *  vmsplice from memory to pipe
+		 */
+		(void)memset(buf, 0, sz);
 		iov.iov_base = buf;
 		iov.iov_len = sz;
-
 		bytes = vmsplice(fds[1], &iov, 1, 0);
 		if (bytes < 0)
 			break;
@@ -114,6 +120,19 @@ static int stress_vm_splice(const stress_args_t *args)
 			vm_splice_bytes, SPLICE_F_MOVE);
 		if (ret < 0)
 			break;
+
+		/*
+		 *  vmsplice from pipe to memory
+		 */
+		bytes = write(fds[1], data, sizeof(data));
+		if (bytes > 0) {
+			iov.iov_base = buf;
+			iov.iov_len = bytes;
+
+			bytes = vmsplice(fds[0], &iov, 1, 0);
+			if (bytes < 0)
+				break;
+		}
 
 		inc_counter(args);
 	} while (keep_stressing());
