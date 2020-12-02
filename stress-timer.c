@@ -165,7 +165,7 @@ static int stress_timer(const stress_args_t *args)
 	struct itimerspec timer;
 	sigset_t mask;
 	uint64_t timer_freq = DEFAULT_TIMER_FREQ;
-	int n = 0;
+	int ret, n = 0;
 
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
@@ -235,6 +235,10 @@ static int stress_timer(const stress_args_t *args)
 	}
 	pr_dbg("%s: %" PRIu64 " timer overruns (instance %" PRIu32 ")\n",
 		args->name, overruns, args->instance);
+
+	/* Re-delete already deleted timer */
+	ret = timer_delete(timerid);
+	(void)ret;
 
 	return EXIT_SUCCESS;
 }
