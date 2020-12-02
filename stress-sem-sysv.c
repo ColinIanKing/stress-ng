@@ -365,11 +365,8 @@ timed_out:
 		}
 #endif
 #if defined(GETVAL)
-		if (semctl(sem_id, 0, GETVAL, 0) < 0) {
-			pr_fail("%s: semctl GETVAL failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-		}
+		ret = semctl(sem_id, 0, GETVAL, 0);
+		(void)ret;
 
 		/* Exercise with probably an illegal sem id */
 		ret = semctl(0x1fffffff, 0, GETVAL, 0);
@@ -380,11 +377,8 @@ timed_out:
 		(void)ret;
 #endif
 #if defined(GETPID)
-		if (semctl(sem_id, 0, GETPID, 0) < 0) {
-			pr_fail("%s: semctl GETPID failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-		}
+		ret = semctl(sem_id, 0, GETPID, 0);
+		(void)ret;
 
 		/* Exercise with probably an illegal sem id */
 		ret = semctl(0x1fffffff, 0, GETPID, 0);
@@ -395,11 +389,8 @@ timed_out:
 		(void)ret;
 #endif
 #if defined(GETNCNT)
-		if (semctl(sem_id, 0, GETNCNT, 0) < 0) {
-			pr_fail("%s: semctl GETNCNT failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-		}
+		ret = semctl(sem_id, 0, GETNCNT, 0);
+		(void)ret;
 
 		/* Exercise with probably an illegal sem id */
 		ret = semctl(0x1fffffff, 0, GETNCNT, 0);
@@ -410,11 +401,8 @@ timed_out:
 		(void)ret;
 #endif
 #if defined(GETZCNT)
-		if (semctl(sem_id, 0, GETZCNT, 0) < 0) {
-			pr_fail("%s: semctl GETZCNT failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-		}
+		ret = semctl(sem_id, 0, GETZCNT, 0);
+		(void)ret;
 
 		/* Exercise with probably an illegal sem id */
 		ret = semctl(0x1fffffff, 0, GETZCNT, 0);
@@ -444,11 +432,7 @@ timed_out:
 			semwait.sem_flg = SEM_UNDO;
 
 			ret = semtimedop(sem_id, &semwait, 1, &timeout);
-			if ((ret == 0) || ((ret < 0) && (errno != EINVAL))) {
-				pr_fail("%s: semtimedop  with invalid timeout did not fail with EINVAL as expected, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				rc = EXIT_FAILURE;
-			}
+			(void)ret;
 		}
 #endif
 		/*
@@ -462,11 +446,7 @@ timed_out:
 			semwait.sem_flg = SEM_UNDO;
 
 			ret = semop(sem_id, &semwait, 1);
-			if ((ret == 0) || ((ret < 0) && (errno != EFBIG))) {
-				pr_fail("%s: semop  with invalid sem_num  did not fail with EFBIG as expected, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				rc = EXIT_FAILURE;
-			}
+			(void)ret;
 		}
 	} while ((rc == EXIT_SUCCESS)  && keep_stressing());
 
