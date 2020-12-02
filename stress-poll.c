@@ -215,7 +215,7 @@ abort:
 
 			/* Exercise illegal poll timeout */
 			ts.tv_sec = 0;
-			ts.tv_nsec = 9999999999;
+			ts.tv_nsec = 1999999999;
 			ret = ppoll(fds, MAX_PIPES, &ts, &sigmask);
 			(void)ret;
 			if (!keep_stressing())
