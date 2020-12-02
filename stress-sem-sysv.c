@@ -240,6 +240,7 @@ timed_out:
 		{
 			struct semid_ds ds;
 			stress_semun_t s;
+			size_t nsems;
 
 			(void)memset(&ds, 0, sizeof(ds));
 
@@ -258,26 +259,21 @@ timed_out:
 
 #if defined(GETALL)
 			/* Avoid zero array size allocation */
-			if (!ds.sem_nsems)
-				ds.sem_nsems = 1;
-			s.array = calloc((size_t)ds.sem_nsems, sizeof(*s.array));
+			nsems = ds.sem_nsems;
+			if (!nsems)
+				nsems = 1;
+			s.array = calloc(nsems, sizeof(*s.array));
 			if (s.array) {
-				if (semctl(sem_id, 2, GETALL, s) < 0) {
-					pr_fail("%s: semctl GETALL failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					rc = EXIT_FAILURE;
-				}
+				ret = semctl(sem_id, 2, GETALL, s);
+				(void)ret;
 #if defined(SETALL) && 0
 				/*
 				 *  SETALL across the semaphores will clobber the state
 				 *  and cause waits on semaphores because of the unlocked
 				 *  state change. Currenltly this is disabled.
 				 */
-				if (semctl(sem_id, 2, SETALL, s) < 0) {
-					pr_fail("%s: semctl SETALL failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					rc = EXIT_FAILURE;
-				}
+				if (ret == 0)
+					ret = semctl(sem_id, 2, SETALL, s);
 #endif
 				free(s.array);
 			}
