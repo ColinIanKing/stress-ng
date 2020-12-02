@@ -222,19 +222,19 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 		/*
 		 *  mlock/munlock with invalid or unusual arguments
 		 */
-		ret = shim_mlock((void *)~0ULL, page_size);
+		ret = shim_mlock((void *)~0, page_size);
 		(void)ret;
-		ret = shim_munlock((void *)~0ULL, page_size);
-		(void)ret;
-
-		ret = shim_mlock((void *)(~0ULL & ~(page_size - 1)), page_size << 1);
-		(void)ret;
-		ret = shim_munlock((void *)(~0ULL & ~(page_size - 1)), page_size << 1);
+		ret = shim_munlock((void *)~0, page_size);
 		(void)ret;
 
-		ret = shim_mlock((void *)0, ~0ULL);
+		ret = shim_mlock((void *)(~0 & ~(page_size - 1)), page_size << 1);
 		(void)ret;
-		ret = munlock((void *)0, ~0ULL);
+		ret = shim_munlock((void *)(~0 & ~(page_size - 1)), page_size << 1);
+		(void)ret;
+
+		ret = shim_mlock((void *)0, ~0);
+		(void)ret;
+		ret = munlock((void *)0, ~0);
 		(void)ret;
 
 		ret = shim_mlock((void *)0, 0);

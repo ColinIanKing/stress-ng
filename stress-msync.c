@@ -253,7 +253,7 @@ do_invalidate:
 		(void)ret;
 
 		/* Exercise invalid address wrap-around */
-		ret = shim_msync((void *)(~0ULL & ~(page_size - 1)),
+		ret = shim_msync((void *)(~0 & ~(page_size - 1)),
 				page_size << 1, MS_ASYNC);
 		(void)ret;
 

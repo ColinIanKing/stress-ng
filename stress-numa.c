@@ -546,7 +546,7 @@ static int stress_numa(const stress_args_t *args)
 
 		/* Exercise invalid address */
 		(void)memset(status, 0, sizeof(status));
-		pages[0] = (void *)(~0ULL & ~(args->page_size - 1));
+		pages[0] = (void *)(~0 & ~(args->page_size - 1));
 		ret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
 		(void)ret;
 

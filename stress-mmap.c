@@ -216,7 +216,7 @@ static void stress_mmap_mprotect(
 #if defined(HAVE_MPROTECT)
 	if (mmap_mprotect) {
 		int ret;
-		void *last_page = (void *)(~(0ULL) & ~(page_size - 1));
+		void *last_page = (void *)(~0 & ~(page_size - 1));
 
 		/* Invalid mix of PROT_GROWSDOWN | PROT_GROWSUP */
 		ret = mprotect(addr, len, PROT_READ | PROT_WRITE | PROT_GROWSDOWN | PROT_GROWSUP);

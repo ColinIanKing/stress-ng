@@ -111,7 +111,7 @@ static int stress_pkey(const stress_args_t *args)
 		(void)shim_pkey_mprotect(page + 7, page_size, PROT_READ, pkey);
 
 		/* Exercise page wrap around, ENOMEM */
-		(void)shim_pkey_mprotect((void *)(~0ULL & ~(page_size -1)),
+		(void)shim_pkey_mprotect((void *)(~0 & ~(page_size -1)),
 			 page_size << 1, PROT_READ, pkey);
 
 		/* Exercise zero size, should be OK */
