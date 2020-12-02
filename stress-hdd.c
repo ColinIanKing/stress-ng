@@ -561,6 +561,10 @@ static int stress_hdd(const stress_args_t *args)
 			/* Exercise invalid ftruncate size, EINVAL */
 			ret = ftruncate(fd, (off_t)-1);
 			(void)ret;
+
+			/* Exercise invalid fd, EBADF */
+			ret = ftruncate(-1, (off_t)0);
+			(void)ret;
 		} else {
 			if (truncate(filename, (off_t)0) < 0) {
 				pr_fail("%s: truncate failed, errno=%d (%s)\n",
@@ -570,6 +574,10 @@ static int stress_hdd(const stress_args_t *args)
 			}
 			/* Exercise invalid truncate size, EINVAL */
 			ret = truncate(filename, (off_t)-1);
+			(void)ret;
+
+			/* Exercise invalid path, ENOENT */
+			ret = truncate("", (off_t)0);
 			(void)ret;
 		}
 		(void)unlink(filename);
