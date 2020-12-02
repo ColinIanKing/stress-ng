@@ -170,6 +170,15 @@ static int stress_sysinfo(const stress_args_t *args)
 					}
 				}
 			}
+#if defined(HAVE_SYS_SYSMACROS_H)
+				/*
+				 * Exercise invalid ustat, assuming that major ~0 is
+				 * invalid
+				 */
+				sbuf.st_dev = makedev(~0, stress_mwc32());
+				ret = shim_ustat(sbuf.st_dev, &ubuf);
+				(void)ret;
+#endif
 		}
 
 		check_do_run();
