@@ -151,7 +151,6 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 
 	do {
 		int i, ret;
-		struct sembuf sems[STRESS_MAX_SEMS * 3];
 #if defined(__linux__)
 		bool get_procinfo = true;
 #endif
@@ -164,6 +163,7 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 #if defined(HAVE_SEMTIMEDOP)
 		if (got_semtimedop) {
 			struct timespec timeout;
+			struct sembuf sems[STRESS_MAX_SEMS * 3];
 
 			for (i = 0; i < STRESS_MAX_SEMS * 3; i += 3) {
 				sems[i].sem_num = 1;
