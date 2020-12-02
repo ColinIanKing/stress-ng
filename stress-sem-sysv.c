@@ -365,63 +365,63 @@ timed_out:
 		}
 #endif
 #if defined(GETVAL)
-		if (semctl(sem_id, 0, GETVAL) < 0) {
+		if (semctl(sem_id, 0, GETVAL, 0) < 0) {
 			pr_fail("%s: semctl GETVAL failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
 
 		/* Exercise with probably an illegal sem id */
-		ret = semctl(0x1fffffff, 0, GETVAL);
+		ret = semctl(0x1fffffff, 0, GETVAL, 0);
 		(void)ret;
 
 		/* Exercise with an illegal sem number */
-		ret = semctl(sem_id, ~0, GETVAL);
+		ret = semctl(sem_id, ~0, GETVAL, 0);
 		(void)ret;
 #endif
 #if defined(GETPID)
-		if (semctl(sem_id, 0, GETPID) < 0) {
+		if (semctl(sem_id, 0, GETPID, 0) < 0) {
 			pr_fail("%s: semctl GETPID failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
 
 		/* Exercise with probably an illegal sem id */
-		ret = semctl(0x1fffffff, 0, GETPID);
+		ret = semctl(0x1fffffff, 0, GETPID, 0);
 		(void)ret;
 
 		/* Exercise with an illegal sem number */
-		ret = semctl(sem_id, ~0, GETPID);
+		ret = semctl(sem_id, ~0, GETPID, 0);
 		(void)ret;
 #endif
 #if defined(GETNCNT)
-		if (semctl(sem_id, 0, GETNCNT) < 0) {
+		if (semctl(sem_id, 0, GETNCNT, 0) < 0) {
 			pr_fail("%s: semctl GETNCNT failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
 
 		/* Exercise with probably an illegal sem id */
-		ret = semctl(0x1fffffff, 0, GETNCNT);
+		ret = semctl(0x1fffffff, 0, GETNCNT, 0);
 		(void)ret;
 
 		/* Exercise with an illegal sem number */
-		ret = semctl(sem_id, ~0, GETNCNT);
+		ret = semctl(sem_id, ~0, GETNCNT, 0);
 		(void)ret;
 #endif
 #if defined(GETZCNT)
-		if (semctl(sem_id, 0, GETZCNT) < 0) {
+		if (semctl(sem_id, 0, GETZCNT, 0) < 0) {
 			pr_fail("%s: semctl GETZCNT failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
 
 		/* Exercise with probably an illegal sem id */
-		ret = semctl(0x1fffffff, 0, GETZCNT);
+		ret = semctl(0x1fffffff, 0, GETZCNT, 0);
 		(void)ret;
 
 		/* Exercise with an illegal sem number */
-		ret = semctl(sem_id, ~0, GETZCNT);
+		ret = semctl(sem_id, ~0, GETZCNT, 0);
 		(void)ret;
 #endif
 		/*
