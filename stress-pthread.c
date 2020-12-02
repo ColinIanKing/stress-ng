@@ -157,12 +157,13 @@ static void stress_pthread_tid_address(const stress_args_t *args)
 
 /*
  *  stress_pthread_func()
- *	pthread that exits immediately
+ *	pthread specific system call stressor
  */
 static void *stress_pthread_func(void *parg)
 {
 	static void *nowt = NULL;
 	int ret;
+	const pid_t tgid = getpid();
 #if defined(HAVE_GETTID)
 	const pid_t tid = shim_gettid();
 #else
@@ -211,6 +212,28 @@ static void *stress_pthread_func(void *parg)
 	ret = sys_get_robust_list(-1, &head, &len);
 	(void)ret;
 #endif
+
+	/*
+	 *  Exercise tgkill (no-op on systems that do
+	 *  not support this system call)
+	 */
+	ret = shim_tgkill(tgid, tid, 0);
+	(void)ret;
+
+	ret = shim_tgkill(-1, tid, 0);
+	(void)ret;
+
+	ret = shim_tgkill(tgid, -1, 0);
+	(void)ret;
+
+	ret = shim_tgkill(tgid, tid, -1);
+	(void)ret;
+
+	ret = shim_tgkill(stress_get_unused_pid_racy(false), tid, 0);
+	(void)ret;
+
+	ret = shim_tgkill(tgid, stress_get_unused_pid_racy(false), 0);
+	(void)ret;
 
 #if defined(HAVE_ASM_LDT_H) && 	\
     defined(STRESS_ARCH_X86) &&	\

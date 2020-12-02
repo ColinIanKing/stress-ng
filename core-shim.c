@@ -1885,6 +1885,10 @@ int shim_vhangup(void)
 #endif
 }
 
+/*
+ *  shim_arch_prctl()
+ *	wrapper for arch specific prctl system call
+ */
 int shim_arch_prctl(int code, unsigned long addr)
 {
 #if defined(HAVE_ARCH_PRCTL) &&		\
@@ -1897,5 +1901,20 @@ int shim_arch_prctl(int code, unsigned long addr)
         return syscall(__NR_arch_prctl, code, addr);
 #else
         return shim_enosys(0, code, addr);
+#endif
+}
+
+/*
+ *  shim_tgkill()
+ *	wrapper for linux thread kill tgkill system call
+ */
+int shim_tgkill(int tgid, int tid, int sig)
+{
+#if defined(HAVE_TGKILL_LIBC)
+	return tgkill(tgid, tid, sig);
+#elif defined(__NR_tgkill)
+	return syscall(__NR_tgkill, tgid, tid, sig);
+#else
+	return shim_enosys(0, tgid, tid, sig);
 #endif
 }
