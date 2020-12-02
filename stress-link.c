@@ -75,7 +75,7 @@ static int stress_link_generic(
 
 	(void)snprintf(tmp_newpath, sizeof(tmp_newpath),
 		"/tmp/stress-ng-%s-%d-%" PRIu64 "-link",
-		args->name, getpid(), stress_mwc64());
+		args->name, (int)getpid(), stress_mwc64());
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
