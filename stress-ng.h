@@ -4197,7 +4197,7 @@ struct shim_timex {
  *      or caddr_t args, so we need to unconstify them
  */
 #if defined(__sun__)
-void *shim_unconstify_ptr(const void *ptr)
+static inline void *shim_unconstify_ptr(const void *ptr)
 {
 	void *unconst_ptr = (void *)ptr;
 
