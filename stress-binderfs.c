@@ -53,11 +53,11 @@ static int stress_binderfs_supported(const char *name)
 
 static int stress_binderfs_umount(const stress_args_t *args, const char *pathname)
 {
+	int ret;
 	double t1;
 
 	t1 = stress_time_now();
 	for (;;) {
-		int ret;
 		double t2;
 
 		ret = umount(pathname);
@@ -77,6 +77,15 @@ static int stress_binderfs_umount(const stress_args_t *args, const char *pathnam
 		}
 		shim_usleep_interruptible(100000);
 	}
+
+	/* Exercise mount on already umounted path */
+	ret = umount(pathname);
+	(void)ret;
+
+	/* Exercise mount on invalid path */
+	ret = umount("");
+	(void)ret;
+
 	return EXIT_SUCCESS;
 }
 
