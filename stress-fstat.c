@@ -137,9 +137,16 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 			si->ignore |= IGNORE_FSTAT;
 		(void)close(fd);
 	}
-	/*
-	 *  Exercise fstat on an invalid fd
-	 */
+
+	/* Exercise stat on an invalid path, ENOENT */
+	ret = stat("", &buf);
+	(void)ret;
+
+	/* Exercise lstat on an invalid path, ENOENT */
+	ret = lstat("", &buf);
+	(void)ret;
+
+	/* Exercise fstat on an invalid fd, EBADF */
 	ret = fstat(ctxt->bad_fd, &buf);
 	(void)ret;
 }
