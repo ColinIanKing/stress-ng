@@ -46,6 +46,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,		NULL }
 };
 
+#if defined(HAVE_OPENAT) &&	\
+    defined(AT_FDCWD)
 /*
  *  obsolete_futimesat()
  *	modern libc maps the obsolete futimesat to utimesat
@@ -79,6 +81,7 @@ static inline int obsolete_futimesat(
 
 	return ret;
 }
+#endif
 
 /*
  *  obsolete_futimes()
