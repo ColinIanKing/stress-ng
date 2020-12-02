@@ -154,7 +154,9 @@ static int stress_access(const stress_args_t *args)
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(modes); i++) {
+#if defined(HAVE_FACCESSAT)
 			size_t j;
+#endif
 
 			ret = fchmod(fd, modes[i].chmod_mode);
 			if (CHMOD_ERR(ret)) {
