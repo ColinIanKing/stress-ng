@@ -186,6 +186,10 @@ static int stress_sync_file(const stress_args_t *args)
 		ret = shim_sync_file_range(fd, 0, -1, mode);
 		(void)ret;
 
+		/* Sync from halfway along file to end */
+		ret = shim_sync_file_range(fd, sync_file_bytes << 2, 0, mode);
+		(void)ret;
+
 		ret = stress_sync_allocate(args, fd, sync_file_bytes);
 		if (ret < 0) {
 			if (ret == -ENOSPC)
