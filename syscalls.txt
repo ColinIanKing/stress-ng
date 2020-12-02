@@ -26,9 +26,11 @@ add_key				key
 adjtimex			get (modes = 0 only)
 arch_prctl			prctl
 alarm				generic run duration timers
+
 bind				sock
 bpf
 brk				bigheap, brk
+
 cacheflush			cache
 capget				cap
 capset				cap
@@ -47,9 +49,11 @@ close				dentry
 connect				sock
 copy_file_range			copy_file
 creat				chmod
+
 dup				dup
 dup2				dup
 dup3				dup
+
 endmntent			sysinfo
 epoll_create			epoll
 epoll_create1			epoll
@@ -63,6 +67,7 @@ execve				exec
 execveat			exec
 exit				fork
 exit_group			daemon
+
 faccessat			access, close
 faccessat2			access
 fadvise				readahead
@@ -94,6 +99,7 @@ ftruncate			fallocate
 futex				futex
 futex_time64
 futimens			wait
+
 get_mempolicy			numa
 get_robust_list			pthread
 get_thread_area			pthread
@@ -125,6 +131,7 @@ gettid				get, pthread
 gettimeofday			get
 getuid				get
 getxattr			xattr
+
 init_module
 inotify_add_watch		inotify
 inotify_init			inotify
@@ -135,26 +142,28 @@ io_destroy			aiol
 io_getevents			aiol
 io_setup			aiol
 io_submit			aiol
-io_uring_enter			io_uring
+io_uring_enter			io_uring	TODO MORE
 io_uring_register
-io_uring_setup			io_uring
+io_uring_setup			io_uring	TODO MORE
 ioctl				pty, fiemap, rtc, urandom, userfaultfd
-ioperm				ditto
-iopl				ditto
+ioperm				ioport
+iopl				ioport
 ioprio_get			ioprio
 ioprio_set			ioprio
 ipc				used by msg* glibc wrappers
+
 kcmp				kcmp
 kern_features			[ Sparc64 only ]
 kexec_file_load			[ need privilege, ignore for now ]
 kexec_load			[ need privilege, ignore for now ]
 keyctl				key
 kill				kill
+
 lchown				chown
 lgetxattr			xattr
 link				link
 linkat				dirdeep
-listen				sock
+listen				sock		TODO MORE
 listxattr			xattr
 llistxattr			xattr
 lookup_dcookie			get
@@ -162,6 +171,7 @@ lremovexattr			xattr
 lseek				hdd, lockf, mmap, seek
 lsetxattr			xattr
 lstat				fstat
+
 madvise				mmap, vm, madvise
 mbind				numa
 membarrier			membarrier
@@ -170,7 +180,7 @@ migrate_pages			numa
 mincore				bigheap, mincore, mmap, vm
 mkdir				dir
 mkdirat				dir
-mknod				mknod
+mknod				mkno
 mknodat				mknod
 mkstemp				hdd
 mlock				mlock
@@ -200,18 +210,21 @@ msgsnd				msg
 msync				mmap, msync
 munlock				mlock
 munlockall			mlock
-munmap				mmap, mremap
+munmap				mmap, mrema
 name_to_handle_at		handle
+
 nanosleep			timer, nanosecond
 nfsservctl			ignore, since Linux 3.1, this system call no longer exists
 nice				nice
+
 open				dentry, open, etc
 open_by_handle_at		handle
 openat				io, open
 openat2				open
 open_tree
+
 pause				kcmp, wait
-perf_event_open			--perf option
+perf_event_open			--perf option		TODO MORE
 personality			personality
 pidfd_getfd			pidfd
 pidfd_open			pidfd
@@ -224,16 +237,16 @@ pkey_free			pkey
 pkey_get			pkey
 pkey_mprotect			pkey
 pkey_set			pkey
-poll				poll
+poll				poll			HERE (make pollhuge, lots of fds)
 posix_fallocate			fallocate
 ppoll				poll
-prctl				process name setting
+prctl				process name setting	need to find start/end of brk etc.
 pread				readahead
 preadv				hdd
 preadv2				hdd
 prlimit				get
 /proc				proc
-process_madvise			madvise
+process_madvise			madvise			need to check with newer kernel
 process_vm_readv		vm_rw
 process_vm_writev		vm_rw
 pselect6			poll
@@ -241,7 +254,9 @@ ptrace				ptrace
 pwrite				readahead, aio
 pwritev				hdd, ioprio
 pwritev2			hdd
-quotactl			quota
+
+quotactl			quota			TODO
+
 read				pipe, zero, ..
 readahead			readahead
 readdir				fstat, inotitfy, proc
@@ -250,19 +265,19 @@ readlinkat			symlink
 readv				hdd
 reboot				reboot
 recv				sock
-recvfrom			udp
+recvfrom			udp			TODO
 recvmsg				socket-fd
 recvmmsg			sock
 remap_file_pages		remap
 removexattr			xattr
-rename				rename
-renameat			rename
-renameat2			rename
-request_key			key
+rename				rename			TODO
+renameat			rename			as above
+renameat2			rename			as above
+request_key			key			callout info non-null case
 restart_syscall			[ ignore this ]
 riscv_flush_icache		icache
 rmdir				dir
-rseq
+rseq				TODO
 rt_sigaction
 rt_sigpending
 rt_sigprocmask
@@ -271,19 +286,19 @@ rt_sigreturn
 rt_sigsuspend
 rt_sigtimedwait
 rt_tgsigqueueinfo
+
 sched_get_priority_max		sched, schedpolicy
 sched_get_priority_min		sched, schedpolicy
 sched_getaffinity		affinity
 sched_getattr			schedpolicy
 sched_getparam			schedpolicy
 sched_getscheduler		schedpolicy
-sched_get_rr_interval		schedpolicy
 sched_setaffinity		affinity
 sched_setattr			schedpolicy
 sched_setparam			schedpolicy
 sched_setscheduler		sched, schedpolicy
 sched_yield			yield
-seccomp				seccomp (prctl)
+seccomp				seccomp (prctl)		TODO
 select				poll
 semctl				sem-sysv
 semget				sem-sysv
@@ -342,7 +357,7 @@ sigsetjmp			sigfpe
 sigsuspend			sigsuspend
 sigwaitinfo			sigfpe
 socket				sock
-socketcall			[ implicit ]
+socketcall					TODO
 socketpair			sockpair
 splice				splice
 ssetmask			set (obsolete)
@@ -356,11 +371,12 @@ symlink				symlink
 symlinkat
 sync				io
 sync_file_range			sync-file
-sync_file_range2		[ potentially dangerous to data ]
+sync_file_range2		sync-file 	(arch variant of sync_file_range)
 syncfs				hdd, io
 sysfs				get
 sysinfo				sysinfo
-syslog				klog
+syslog				klog		(could do more, don't want to be destructive)
+
 tee				tee
 tgkill				pthread
 time				get
@@ -373,8 +389,9 @@ timerfd_create			timerfd
 timerfd_gettime			timerfd
 timerfd_settime			timerfd
 times				sysinfo
-tkill				[ obsolete ]
+tkill				pthread
 truncate			hdd
+
 ugetrlimit			get (now obsolete)
 umask				aio, mmap, sendfile, etc
 umount				bind-mount
@@ -388,9 +405,11 @@ ustat				sysinfo
 utime				utime
 utimensat			utimes
 utimes				utime
+
 vfork				vfork
 vhangup				fork, session
 vmsplice			vm-splice
+
 wait				various
 wait3				wait
 wait4				wait
