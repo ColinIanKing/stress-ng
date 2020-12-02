@@ -101,9 +101,10 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 		return EXIT_FAILURE;
 	}
 
-	if (brk_context->brk_mlock) {
+#if defined(MCL_FUTURE)
+	if (brk_context->brk_mlock)
 		(void)shim_mlockall(MCL_FUTURE);
-	}
+#endif
 
 	do {
 		uint8_t *ptr;
