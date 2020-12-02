@@ -106,6 +106,7 @@ static int stress_lockbus(const stress_args_t *args)
 	buffer = (uint32_t*)mmap(NULL, BUFFER_SIZE, PROT_READ | PROT_WRITE, flags, -1, 0);
 	if (buffer == MAP_FAILED) {
 		int rc = exit_status(errno);
+
 		pr_err("%s: mmap failed\n", args->name);
 		return rc;
 	}

@@ -78,9 +78,10 @@ static int stress_verity(const stress_args_t *args)
 
 		fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
+			ret = exit_status(errno);
 			pr_err("%s: cannot create %s, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
-			return exit_status(errno);
+			return ret;
 		}
 		for (i = 0; i < 16; i++) {
 			const off_t off = (off_t)i * 64 * 1024;

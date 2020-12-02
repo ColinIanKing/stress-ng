@@ -195,8 +195,10 @@ static int stress_aio(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
+		ret = exit_status(-ret);
 		free(io_reqs);
-		return exit_status(-ret);
+
+		return ret;
 	}
 
 	(void)stress_temp_filename_args(args,
