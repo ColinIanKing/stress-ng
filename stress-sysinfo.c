@@ -146,15 +146,13 @@ static int stress_sysinfo(const stress_args_t *args)
 #endif
 
 		{
-			int i;
+			int i, ret;
+			struct stat sbuf;
+			struct shim_ustat ubuf;
 
 			check_do_run();
 
 			for (i = 0; i < n_mounts; i++) {
-				struct stat sbuf;
-				struct shim_ustat ubuf;
-				int ret;
-
 				ret = stat(mnts[i], &sbuf);
 				if (ret < 0)
 					continue;
@@ -171,13 +169,13 @@ static int stress_sysinfo(const stress_args_t *args)
 				}
 			}
 #if defined(HAVE_SYS_SYSMACROS_H)
-				/*
-				 * Exercise invalid ustat, assuming that major ~0 is
-				 * invalid
-				 */
-				sbuf.st_dev = makedev(~0, stress_mwc32());
-				ret = shim_ustat(sbuf.st_dev, &ubuf);
-				(void)ret;
+			/*
+			 * Exercise invalid ustat, assuming that major ~0 is
+			 * invalid
+			 */
+			sbuf.st_dev = makedev(~0, stress_mwc32());
+			ret = shim_ustat(sbuf.st_dev, &ubuf);
+			(void)ret;
 #endif
 		}
 
