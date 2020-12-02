@@ -300,6 +300,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	/* Parent */
 	do {
 		struct uffd_msg msg;
+		struct uffdio_range wake;
 		ssize_t ret;
 
 		/* check we should break out before we block on the read */
@@ -371,6 +372,13 @@ do_read:
 		if (handle_page_fault(args, fd, (uint8_t *)(intptr_t)msg.arg.pagefault.address,
 				zero_page, data, data + sz, page_size) < 0)
 			break;
+
+		(void)memset(&wake, 0, sizeof(wake));
+		wake.start = (intptr_t)data;
+		wake.len = page_size;
+		ret = ioctl(fd, UFFDIO_WAKE, &wake);
+		(void)ret;
+
 		inc_counter(args);
 	} while (keep_stressing());
 
