@@ -87,7 +87,9 @@ static void stress_ramfs_child_handler(int signum)
 static void stress_ramfs_umount(const stress_args_t *args, const char *path)
 {
 	int i;
+	int ret;
 	static const uint64_t ns = 100000000;	/* 1/10th second */
+	char hugepath[PATH_MAX + 16];
 
 	/*
 	 *  umount is attempted at least twice, the first successful mount
@@ -96,7 +98,6 @@ static void stress_ramfs_umount(const stress_args_t *args, const char *path)
 	 *  know that umount been successful and can then return.
 	 */
 	for (i = 0; i < 100; i++) {
-		int ret;
 
 		ret = umount(path);
 		if (ret == 0) {
@@ -118,7 +119,7 @@ static void stress_ramfs_umount(const stress_args_t *args, const char *path)
 			 *  it can't be umounted.  We now assume it
 			 *  has been successfully umounted
 			 */
-			return;
+			goto misc_tests;
 			break;
 		default:
 			/* Unexpected, so report it */
@@ -127,6 +128,20 @@ static void stress_ramfs_umount(const stress_args_t *args, const char *path)
 			break;
 		}
 	}
+
+misc_tests:
+	/* Exercise umount again, EINVAL */
+	ret = umount(path);
+	(void)ret;
+
+	/* Exercise umount of empty path, ENOENT */
+	ret = umount("");
+	(void)ret;
+
+	/* Exercise umount of hugepath, ENAMETOOLONG */
+	stress_strnrnd(hugepath, sizeof(hugepath));
+	ret = umount(hugepath);
+	(void)ret;
 }
 
 /*
