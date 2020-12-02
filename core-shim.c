@@ -1918,3 +1918,18 @@ int shim_tgkill(int tgid, int tid, int sig)
 	return shim_enosys(0, tgid, tid, sig);
 #endif
 }
+
+/*
+ *  shim_tkill()
+ *	wrapper for deprecated thread kill tkill system
+ *	call. No libc wrapper, so just try system call,
+ *      then emulate via tgkill.
+ */
+int shim_tkill(int tid, int sig)
+{
+#if defined(__NR_tkill)
+	return syscall(__NR_tkill, tid, sig);
+#else
+	return shim_tgkill(0, tid, sig);
+#endif
+}

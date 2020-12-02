@@ -235,6 +235,22 @@ static void *stress_pthread_func(void *parg)
 	ret = shim_tgkill(tgid, stress_get_unused_pid_racy(false), 0);
 	(void)ret;
 
+	/*
+	 *  Exercise tkill, this is either supported directly, emulated
+	 *  by tgkill or a no-op if systems don't support tkill or tgkill
+	 */
+	ret = shim_tkill(tid, 0);
+	(void)ret;
+
+	ret = shim_tkill(-1, 0);
+	(void)ret;
+
+	ret = shim_tkill(tid, -1);
+	(void)ret;
+
+	ret = shim_tkill(stress_get_unused_pid_racy(false), 0);
+	(void)ret;
+
 #if defined(HAVE_ASM_LDT_H) && 	\
     defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_USER_DESC) && 	\

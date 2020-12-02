@@ -754,10 +754,6 @@
 #define HAVE_SYSLOG
 #endif
 
-#if defined(__NR_tgkill)
-#define HAVE_TGKILL
-#endif
-
 #if defined(__NR_userfaultfd)
 #define HAVE_USERFAULTFD
 #endif
@@ -4325,6 +4321,7 @@ extern int shim_sync_file_range(int fd, shim_off64_t offset,
 	shim_off64_t nbytes, unsigned int flags);
 extern int shim_sysfs(int option, ...);
 extern int shim_tgkill(int tgid, int tid, int sig);
+extern int shim_tkill(int tid, int sig);
 extern int shim_fremovexattr(int fd, const char *name);
 extern int shim_unshare(int flags);
 extern int shim_userfaultfd(int flags);
