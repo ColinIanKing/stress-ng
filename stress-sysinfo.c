@@ -104,9 +104,11 @@ static int stress_sysinfo(const stress_args_t *args)
 				}
 
 				/*
-				 *  Exercise invalid mount point
+				 *  Exercise invalid mount points
 				 */
 				ret = statfs("/invalid_stress_ng", &statfs_buf);
+				(void)ret;
+				ret = statfs("", &statfs_buf);
 				(void)ret;
 
 				fd = open(mnts[i], O_RDONLY | O_DIRECTORY);
