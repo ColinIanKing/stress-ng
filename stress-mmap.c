@@ -219,8 +219,11 @@ static void stress_mmap_mprotect(
 		void *last_page = (void *)(~0 & ~(page_size - 1));
 
 		/* Invalid mix of PROT_GROWSDOWN | PROT_GROWSUP */
+#if defined(PROT_GROWSDOWN) &&	\
+    defined(PROT_GROWSUP)
 		ret = mprotect(addr, len, PROT_READ | PROT_WRITE | PROT_GROWSDOWN | PROT_GROWSUP);
 		(void)ret;
+#endif
 
 		/* Invalid non-page aligned start address */
 		ret = mprotect((void *)(((uint8_t *)addr) + 7), len, PROT_READ | PROT_WRITE);
