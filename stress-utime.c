@@ -52,6 +52,7 @@ static int stress_utime(const stress_args_t *args)
 	int dir_fd = -1;
 #endif
 	char filename[PATH_MAX];
+	char hugename[PATH_MAX + 16];
 	int ret, fd;
 	bool utime_fsync = false;
 
@@ -72,11 +73,13 @@ static int stress_utime(const stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_err("%s: open failed: errno=%d: (%s)\n",
+		pr_err("%s: open failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
+
+	stress_strnrnd(hugename, sizeof(hugename));
 
 	do {
 		struct timeval timevals[2];
@@ -88,30 +91,47 @@ static int stress_utime(const stress_args_t *args)
 		if (gettimeofday(&timevals[0], NULL) == 0) {
 			timevals[1] = timevals[0];
 			if (utimes(filename, timevals) < 0) {
-				pr_dbg("%s: utimes failed: errno=%d: (%s)\n",
+				pr_dbg("%s: utimes failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
 		}
 		if (utimes(filename, NULL) < 0) {
-			pr_dbg("%s: utimes failed: errno=%d: (%s)\n",
+			pr_dbg("%s: utimes failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
+
+		/* Exercise with invalid filename, ENOENT */
+		ret = utimes("", timevals);
+		(void)ret;
+
+		/* Exercise huge filename, ENAMETOOLONG */
+		ret = utimes(hugename, timevals);
+		(void)ret;
+
 #if defined(HAVE_FUTIMENS)
 		if (futimens(fd, NULL) < 0) {
-			pr_dbg("%s: futimens failed: errno=%d: (%s)\n",
+			pr_dbg("%s: futimens failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
+
+		/* Exercise with invalid fd */
+		ts[0].tv_sec = UTIME_NOW;
+		ts[0].tv_nsec = UTIME_NOW;
+		ts[1].tv_sec = UTIME_NOW;
+		ts[1].tv_nsec = UTIME_NOW;
+		ret = futimens(-1, ts);
+		(void)ret;
 
 #if defined(UTIME_NOW)
 		ts[0].tv_sec = UTIME_NOW;
 		ts[0].tv_nsec = UTIME_NOW;
 		ts[1].tv_sec = UTIME_NOW;
 		ts[1].tv_nsec = UTIME_NOW;
-		if (futimens(fd, &ts[0]) < 0) {
-			pr_dbg("%s: futimens failed: errno=%d: (%s)\n",
+		if (futimens(fd, ts) < 0) {
+			pr_dbg("%s: futimens failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
@@ -120,8 +140,8 @@ static int stress_utime(const stress_args_t *args)
 #if defined(UTIME_OMIT)
 		ts[0].tv_sec = UTIME_OMIT;
 		ts[0].tv_nsec = UTIME_OMIT;
-		if (futimens(fd, &ts[0]) < 0) {
-			pr_dbg("%s: futimens failed: errno=%d: (%s)\n",
+		if (futimens(fd, ts) < 0) {
+			pr_dbg("%s: futimens failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
@@ -137,7 +157,16 @@ static int stress_utime(const stress_args_t *args)
 		ts[1].tv_sec = UTIME_NOW;
 		ts[1].tv_nsec = UTIME_NOW;
 
-		(void)utimensat(AT_FDCWD, filename, ts, 0);
+		ret = utimensat(AT_FDCWD, filename, ts, 0);
+		(void)ret;
+
+		/* Exercise invalid filename, ENOENT */
+		ret = utimensat(AT_FDCWD, "", ts, 0);
+		(void)ret;
+
+		/* Exercise huge filename, ENAMETOOLONG */
+		ret = utimensat(AT_FDCWD, hugename, ts, 0);
+		(void)ret;
 #endif
 
 #if defined(O_DIRECTORY) &&	\
@@ -152,29 +181,35 @@ STRESS_PRAGMA_WARN_OFF
 			ts[1].tv_sec = UTIME_NOW;
 			ts[1].tv_nsec = UTIME_NOW;
 
-			(void)utimensat(dir_fd, NULL, ts, 0);
+			ret = utimensat(dir_fd, NULL, ts, 0);
+			(void)ret;
 		}
 STRESS_PRAGMA_POP
 #endif
 
 #if defined(UTIME_OMIT)
 		ts[1].tv_nsec = UTIME_OMIT;
-		(void)utimensat(AT_FDCWD, filename, ts, 0);
+		ret = utimensat(AT_FDCWD, filename, ts, 0);
+		(void)ret;
 #endif
 
 
 #if defined(AT_SYMLINK_NOFOLLOW)
 #if defined(UTIME_NOW)
 		ts[1].tv_nsec = UTIME_NOW;
-		(void)utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
+		ret = utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
+		(void)ret;
 #endif
 #if defined(UTIME_OMIT)
 		ts[1].tv_nsec = UTIME_OMIT;
-		(void)utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
+		ret = utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
+		(void)ret;
 #endif
 #endif
-		if (utime_fsync)
-			(void)shim_fsync(fd);
+		if (utime_fsync) {
+			ret = shim_fsync(fd);
+			(void)ret;
+		}
 #endif
 
 #if defined(HAVE_UTIME_H)
@@ -185,15 +220,23 @@ STRESS_PRAGMA_POP
 			utbuf.modtime = utbuf.actime;
 
 			if (utime(filename, &utbuf) < 0) {
-				pr_dbg("%s: utime failed: errno=%d: (%s)\n",
+				pr_dbg("%s: utime failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
 			if (utime(filename, NULL) < 0) {
-				pr_dbg("%s: utime failed: errno=%d: (%s)\n",
+				pr_dbg("%s: utime failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
+
+			/* Exercise invalid timename, ENOENT */
+			ret = utime("", &utbuf);
+			(void)ret;
+
+			/* Exercise huge filename, ENAMETOOLONG */
+			ret = utime(hugename, &utbuf);
+			(void)ret;
 		}
 #endif
 		/* forces metadata writeback */
