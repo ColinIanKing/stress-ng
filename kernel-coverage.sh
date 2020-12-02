@@ -289,7 +289,7 @@ do_stress --dev 32
 DURATION=360
 do_stress --sysfs 16
 do_stress --procfs 32
-do_stress --sysinval 8
+do_stress --sysinval 8 --pathological
 
 DURATION=120
 do_stress --bad-ioctl 0 --pathological
