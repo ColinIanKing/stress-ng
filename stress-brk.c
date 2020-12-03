@@ -43,7 +43,6 @@ static int stress_set_brk_mlock(const char *opt)
 	bool brk_mlock = true;
 
 	return stress_set_setting("brk-mlock", TYPE_ID_BOOL, &brk_mlock);
-	return 0;
 }
 
 static int stress_set_brk_notouch(const char *opt)
