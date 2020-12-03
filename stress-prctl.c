@@ -99,8 +99,6 @@ static const stress_help_t help[] = {
  */
 static inline void *getauxv_addr(void)
 {
-	extern char **environ;
-
 	char **env = environ;
 
 	while (env && *env++)
