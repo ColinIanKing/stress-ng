@@ -1,3 +1,210 @@
+stress-ng (0.12.00-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-epoll: fix sanity check for an unexpected epoll_ctl success
+  * stress-funccall: disable ALWAYS_INLINE for PCC
+  * stress-inotify: add void argument, fixes pcc build warning
+  * stress-epoll: fix pcc build warning
+  * stress-close: add invalid flags call to close_range
+  * core-shim: add flags field to close_range shim to match 5.10
+    system call
+  * stress-utime: voidify return using assignment and voidification
+  * stress-stack: reduce scope of variable ret
+  * stress-sock: clean up some cppcheck warnings
+  * stress-mlock: put HAVE_MLOCKALL into a statement block
+  * stress-affinity: add in missing voidification of ret
+  * stress-brk: remove redundant return 0 statement
+  * stress-pkey: limit pkey system call warning to just instance 0
+  * core-helper: don't use getpwent for static stress-ng builds:
+  * stress-stack: rename sz to mlock_sz to avoid variable shadowing
+  * stress-pthread: remove duplicate declaration of ret to clean up
+    build warning
+  * stress-msg: rename variable i to j to avoid name shadowing warning
+  * stress-prctl: remove redundant declaration of environ
+  * stress-msg: clean up variable shadowing
+  * stress-yield: workaround FreeBSD usleep bug
+  * stress-timer: workaround duplicated timer_delete segfault in FreeBSD
+  * stress-ng.h: make shim_unconstify_ptr a static inline helper
+  * stress-link: cast getpid() return to int for %d format specifier
+  * stress-open: only declare obsolete_futimesat when it is required
+  * stress-mmap: voidify page_size if HAVE_MPROTECT is not defined
+  * stress-access: declare variable j only if HAVE_FACCESSAT is defined
+  * stress-sem-sysv: silently ignore failures on semctl commands
+  * stress-sem-sysv: ensure 4th arg of semctl is zero when not used
+  * stress-sem-sysv: fix zero semaphores case in GETALL semctl
+  * stress-brk: don't exercise mlockall with MCL_FUTURE if it is not
+    defined
+  * Fix clobbering of errno by error message logging before reading errno
+  * stress-sem-sysv: move scope of array sems
+  * stress-poll: make tv_nsec out of range value a 32 bit value
+  * stress-mmap: only use PROT_GROWSUP and PROT_GROWSDOWN if supported
+  * Fix ~0ULL cast to void * build warnings on 32 bit builds
+  * kernel-coverage: add --pathological for sysinval stress
+  * syscalls: update work to do and recent changes
+  * stress-vm-splice: add pipe to memory vmsplicing
+  * stress-utime: exercise utime family of calls with invalid filenames
+  * stress-sysinfo: fix build issues introduced by previous commit
+  * stress-sysinfo: exercise ustat with invalid major/minor
+  * stress-userfaultfd: exercise UFFDIO_WAKE
+  * stress-ramfs: exercise umount with some invalid pathnames
+  * stress-binderfs: exercise invalid umount calls
+  * stress-hdd: exercise invalid ftruncate/truncate fd/filename
+  * stress-hdd: exercise invalid ftruncate/truncate size
+  * stress-timer: exercise duplicated timer_delete
+  * stress-pthread: add tkill to shim and exercise it
+  * stress-pthread: add tgkill to shim and exercise it
+  * stress-sync-file: exercise 0 nbytes sync, it has special semantics
+  * stress-swap: exercise swapon with invalid path
+  * stress-sysinfo: exercise invalid statfs path
+  * stress-fstat: exercise stat, lstat on invalid path
+  * stress-splice: exercise splice with some more invalid or untested
+    arguments
+  * stress-bad-altstack: exercise sigaltstack with various stack settings
+  * core-helper: fix comment, min stack size can be MINSIGSTKSZ
+  * stress-sysinval: only allow with --pathological option (LP: #1906447)
+  * stress-shm-sysv: exercise duplicated shmdt on unmapped addresses
+  * stress-shm-sysv: define MPOL_* only if required, add one more
+    shmctl call
+  * stress-xattr: exercise invalid setxattr arguments
+  * stress-set: add timezone argument to get more kernel coverage
+  * stress-nice: fix priority ranges, use correct offset in priority
+  * stress-set: exercise invalid pid and pgid in setpgid call
+  * stress-clone: exercise setns with invalid nstype and fd
+  * stress-set: exercise sethostname with illegal length host
+  * stress-set: exercise a range of setgroups calls
+  * stress-set: exercise setdomainname with invalid name length
+  * stress-pthread: exercise set_tid_address with NULL address
+  * stress-pthread: exercise set_robust_list with invalid length
+  * stress-numa: add in a mix of various set_mempolicy calls
+  * stress-sendfile: add more kernel coverage tests
+  * stress-sendfile: periodically exercise sendfile with invalid arguments
+  * core-helper: find bad_fd in reverse fd order if RLIMIT not supported
+  * stress-sem-sysv: disable SETALL and exercise long run of semops
+  * stress-sem-sysv: exercise semctl with various invalid arguments
+  * stress-sem-sysv: add SIGCHLD handler to ensure pause() gets
+    interrupted
+  * stress-schedpolicy: exercise sched_setscheduler with invalid arguments
+  * stress-affinity: exercise sched_{get|set}affinity with invalid
+    arguments
+  * stress-schedpolicy: exercise sched_getscheduler with bad pid
+  * stress-schedpolicy: exercise sched_{get|set}param with invalid
+    arguments
+  * stress-schedpolicy: exercise sched_getattr with invalid arguments
+  * kernel-coverage: exercise sysinval for longer
+  * stress-dir: exercise various invalid pathnames for rmdir and add
+    comments
+  * stress-xattr: exercise ENOENT error on removexattr calls
+  * stress-remap-file-pages: exercised locked mremap and invalid mremap
+    arguments
+  * kernel-coverage: remove trailing whitespace
+  * Revert "stress-file-ioctl: enable FIFREEZE and FITHAW file ioctls"
+  * kernel-coverage: add mremap --mremap-mlock option to add to coverage
+    testing
+  * stress-sock: exercise various invalid recv, recv, recvmmsg calls
+  * stress-reboot: update magic values, add two clearly invalid cmds too
+  * stress-link: exercise invalid readlinkat calls
+  * stress-link: exercise invalid readlink calls, remove redundant
+    cleanup
+  * stress-readahead: exercise invalid fd and range of readahead sizes
+  * stress-readahead: improve I/O speed and reduce setup time
+  * stress-vm-rw: exercise process_vm_{read|write}v with invalid arguments
+  * stress-prctl: exercise prctl PR_SET_MM_AUXV and PR_GET_TIMERSLACK more
+  * stress-poll: add some invalid arg tests for ppoll
+  * stress-cpu: correct the Ackermann count now we are doing calls
+  * stress-cpu: modify number of iterations to improve cpu instruction mix
+  * stress-pkey: exercise pkey system calls a little harder
+  * stress-pipe: add FIONREAD ioctl build time detection
+  * stress-pipe: exercise the FIONREAD ioctl on pipe read end
+  * stress-pidfd: exercise pidfd_open with invalid pid
+  * stress-handle: exercise name_to_handle_at and open_by_handle_at
+    further
+  * stress-mmap: exercise munmap with two invalid unmap calls
+  * stress-msync: exercise some invalid msync calls
+  * stress-msg: add some unusual msgsnd arguments to exercise kernel
+  * stress-msg: exercise msgget a little more, create many message queues
+  * stress-msg: exercise msgctl with invalid msqid and commands
+  * stress-mremap: add --mremap-mlock option to mlock pages into memory
+  * stress-mmap: remove some empty lines
+  * stress-clone: remove whitespace
+  * stress-mremap: exercise MREMAP_DONTUNMAP on a remap
+  * stress-mq: exercise fstat and mmap on mq descriptor
+  * stress-mq: exercise mq_close and mq_unlink with invalid arguments
+  * stress-mq: exercise mq_notify with SIGEV_NONE and invalid notify
+    notifications
+  * stress-mq: exercise mq_getattr with invalid mq and exercise mq_setattr
+  * stress-mmap: add some extra illegal mprotect calls
+  * stress-numa: exercise move_pages with various valid and invalid
+    arguments
+  * stress-clone: exercise modify_ldt with extra command types
+  * stress-get: disable gettimeofday with NULL args (LP: #1905205)
+  * kernel-coverage: add two stack stressor options
+  * stress-stack: add --stack-mlock option to lock stack pages into memory
+  * stress-mlock: exercise mlock/munlock with invalid or unusual arguments
+  * stress-mknod: exercise mknod S_IFDIR
+  * stress-dir: exercise illegal length directory name
+  * stress-numa: exercise migrate_pages with invalid arguments
+  * stress-memfd: exercise memfd_create with illegal arguments and more
+    flags
+  * stress-membarrer: exercise illegal command and flags
+  * stress-numa: exercise mbind with various illegal arguments
+  * stress-madvise: exercise invalid madvise arguments
+  * stress-seek: add SEEK_HOLE/DATA walkthrough
+  * stress-link: exercise illegal cross-device hard links
+  * stress-keyctl: exercise more keyctl commands
+  * stress-file-ioctl: remove whitespace
+  * stress-ioprio: exercise IOPRIO_WHO_{PGRP|USER} for invalid set/get
+  * stress-ioprio: exercise some invalid set/get arguments
+  * stress-ioport: add iopl test and exercise io calls with invalid args
+  * stress-klog: add .supported check before running
+  * stress-klog: inform use when klog can't be accessed because of
+    permission reasons
+  * stress-file-ioctl: exercise SEEK_CUR, SEEK_END on FS_IOC_UNRESVSP*
+    ioctls
+  * stress-file-ioctl: exercise invalid block range for FIBMAP ioctl
+  * stress-file-ioctl: force ENOMEM with invalid dest_count with
+    FIDEDUPERANGE ioctl
+  * stress-aio-linux: fix errno checking and exercise aio POLLing
+  * stress-aio-linux: make FSYNC/FDSYNC commands occur more frequently
+  * stress-aio-linux: use direct system calls and just cancel one async op
+  * stress-get: use NULL args for gettimeofday, update comments
+  * stress-getrandom: exercise GRND_NONBLOCK | GRND_INSECURE and illegal
+    flags
+  * stress-open: voidify unused arguments to obsolete function helpers
+  * stress-sock: exercise illegal getsockname calls
+  * stress-open: exercise obsolete futimes and futimesat calls
+  * stress-access: fix AT_EMPTY_PATH check
+  * stress-itimer: exercise getitimer on all the itimers
+  * stress-get: exercise getgroups with zero and invalid gid size argument
+  * stress-getdent: exercise getdents with illegal zero size
+  * stress-pthread: exercise get_robust_list with invalid PID
+  * stress-numa: exercise get_mempolicy with invalid maxnodes argument
+  * stress-hdd: exercise futimes with invalid times
+  * kernel-coverage: exercise noatime and syncfs hdd options
+  * stress-flock: add periodic /proc/locks exercising
+  * stress-flock: exercise illegal lock command combination
+  * stress-flock: exercise LOCK_MAND with LOCK_READ, LOCK_WRITE
+  * stress-access: avoid name shadowing by renaming array flags
+  * TODO: add xattr todo item
+  * stress-xattr: add more invalid attribute strings and sizes
+  * stress-sync-file: exercise sync_file_range with more illegal arguments
+  * stress-iomix: add illegal fdatasync call for more kernel exercising
+  * stress-fcntl: reset default signal using F_SETSIG with 0 arg
+  * stress-epoll: exercise epoll_ctl_add with an illegal fd, clean up
+    some errors
+  * stress-chroot: voidify unused args parameter in non-linux builds
+  * stress-chroot: don't exercise EFAULT check on non-linux systems
+  * stress-chmod: exercise illegal filenames
+  * stress-chdir: exercise some invalid chdir and fchdir calls
+  * stress-cap: add macro define checks to ensure code is always buildable
+  * stress-cap: exercise capget with different capability versions and
+    invalid pid
+  * stress-brk: add --brk-mlock option to mlock future brk pages into
+    memory
+  * stress-open: exercise new openat2 system call
+  * stress-access: try to use faccessat2 for faccessat
+
+ -- Colin King <colin.king@canonical.com>  Thu, 3 Dec 2020 11:07:41 +0000
+
 stress-ng (0.11.24-1) unstable; urgency=medium
 
   [Colin Ian King]
