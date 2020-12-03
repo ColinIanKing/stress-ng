@@ -106,18 +106,18 @@ static void stress_stack_alloc(
 #if defined(HAVE_MLOCK)
 	if (stack_mlock) {
 		intptr_t ptr = ((intptr_t)data) + (page_size - 1);
-		ssize_t sz = (uint8_t *)start - (uint8_t *)ptr;
+		ssize_t mlock_sz = (uint8_t *)start - (uint8_t *)ptr;
 		int ret;
 
-		if (sz < 0)
-			sz = -sz;
+		if (mlock_sz < 0)
+			mlock_sz = -mlock_sz;
 
-		if (sz > (last_size + 8 * (ssize_t)MB)) {
+		if (mlock_sz > (last_size + 8 * (ssize_t)MB)) {
 			ptr &= ~(page_size - 1);
-			ret = shim_mlock((void *)ptr, sz - last_size);
+			ret = shim_mlock((void *)ptr, mlock_sz - last_size);
 			if (ret < 0)
 				stack_mlock = false;
-			last_size = sz;
+			last_size = mlock_sz;
 		}
 	}
 #endif
