@@ -223,7 +223,7 @@ static int stress_msg(const stress_args_t *args)
 #endif
 	const ssize_t max_ids = stress_max_ids(args);
 	int msgq_ids[max_ids];
-	size_t i, n;
+	size_t j, n;
 
 	(void)stress_get_setting("msg-types", &msg_types);
 
@@ -363,9 +363,9 @@ again:
 
 
 cleanup:
-	for (i = 0; i < n; i++) {
-		if (msgq_ids[i] >= 0)
-			msgctl(msgq_ids[i], IPC_RMID, NULL);
+	for (j = 0; j < n; j++) {
+		if (msgq_ids[j] >= 0)
+			msgctl(msgq_ids[j], IPC_RMID, NULL);
 	}
 
 	return EXIT_SUCCESS;
