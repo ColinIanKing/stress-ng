@@ -56,7 +56,7 @@ typedef struct {
  * exercise_inotify1()
  * 	exercise inotify1 with all valid and invalid flags
  */
-static void exercise_inotify1()
+static void exercise_inotify1(void)
 {
 #if defined(IN_NONBLOCK) && defined(IN_CLOEXEC)
 	int fd;
