@@ -184,9 +184,11 @@ static void stress_affinity_child(
 
 		/* Exercise setaffinity with invalid mask size */
 		ret = sched_setaffinity(0, 0, &mask);
+		(void)ret;
 
 		/* Exercise setaffinity with invalid mask */
 		ret = sched_setaffinity(0, sizeof(mask), &mask0);
+		(void)ret;
 
 		counters[instance]++;
 	} while (affinity_keep_stressing(args, counters));
