@@ -1782,12 +1782,12 @@ int shim_gettimeofday(struct timeval *tv, struct timezone *tz)
  *	wrapper for close_range - close a range of
  *	file descriptors
  */
-int shim_close_range(unsigned int fd, unsigned int max_fd)
+int shim_close_range(unsigned int fd, unsigned int max_fd, unsigned int flags)
 {
 #if defined(__NR_close_range)
-	return (int)syscall(__NR_close_range, fd, max_fd);
+	return (int)syscall(__NR_close_range, fd, max_fd, flags);
 #else
-	return (int)shim_enosys(0, fd, max_fd);
+	return (int)shim_enosys(0, fd, max_fd, flags);
 #endif
 }
 

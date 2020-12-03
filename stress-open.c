@@ -507,7 +507,7 @@ close_all:
 		 *  try fast close of a range, fall back to
 		 *  normal close if ENOSYS
 		 */
-		ret = shim_close_range(min_fd, max_fd);
+		ret = shim_close_range(min_fd, max_fd, 0);
 		if ((ret < 1) && (errno == ENOSYS)) {
 			for (i = 0; i < n; i++)
 				(void)close(fds[i]);

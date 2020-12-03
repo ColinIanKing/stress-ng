@@ -146,7 +146,7 @@ static void *stress_close_func(void *arg)
 		/*
 		 *  close a range of fds
 		 */
-		ret = shim_close_range(FDS_START, FDS_START + FDS_TO_DUP);
+		ret = shim_close_range(FDS_START, FDS_START + FDS_TO_DUP, 0);
 		if ((ret < 1) && (errno == ENOSYS)) {
 			for (i = 0; i < FDS_TO_DUP; i++)
 				(void)close(fds[i]);
@@ -154,7 +154,7 @@ static void *stress_close_func(void *arg)
 		/*
 		 *  close an invalid range of fds
 		 */
-		ret = shim_close_range(FDS_START + FDS_TO_DUP, FDS_START);
+		ret = shim_close_range(FDS_START + FDS_TO_DUP, FDS_START, 0);
 		(void)ret;
 	}
 
