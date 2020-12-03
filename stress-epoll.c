@@ -334,7 +334,8 @@ static int epoll_notification(
 		 *  Exercise illegal epoll_ctl_add having fd
 		 *  same as efd, resulting in EINVAL error
 		 */
-		if (epoll_ctl_add(efd, efd, EPOLLIN | EPOLLET) == 0) {
+		if ((epoll_ctl_add(efd, efd, EPOLLIN | EPOLLET) == 0) &&
+                    (errno == 0)) {
 			pr_fail("%s: epoll_ctl_add unexpectedly succeeded with "
 				"invalid arguments\n", args->name);
 			(void)close(fd);
@@ -346,7 +347,8 @@ static int epoll_notification(
 		 *  fd which is already registered with efd
 		 *  resulting in EEXIST error
 		 */
-		if (epoll_ctl_add(efd, fd, EPOLLIN | EPOLLET) == 0) {
+		if ((epoll_ctl_add(efd, fd, EPOLLIN | EPOLLET) == 0) &&
+                    (errno == 0)) {
 			pr_fail("%s: epoll_ctl_add unexpectedly succeeded "
 				"with a file descriptor that has already "
 				"been registered\n", args->name);
@@ -357,7 +359,8 @@ static int epoll_notification(
 		/*
 		 *  Exercise epoll_ctl_add on a illegal epoll_fd
 		 */
-		if (epoll_ctl_add(-1, fd, EPOLLIN | EPOLLET) == 0) {
+		if ((epoll_ctl_add(-1, fd, EPOLLIN | EPOLLET) == 0) &&
+                    (errno == 0)) {
 			pr_fail("%s: epoll_ctl_add unexpectedly succeeded "
 				"with an illegal file descriptor\n", args->name);
 			(void)close(fd);
@@ -439,8 +442,9 @@ static int test_epoll_exclusive(
 	 *  Invalid epoll_ctl syscall as sfd was registered
 	 *  as EPOLLEXCLUSIVE event so it can't be modified
 	 */
-	if (epoll_ctl_mod(efd, sfd, 0) == 0) {
-		pr_fail("%s: epoll_ctl failed, expected , EINVAL instead got "
+	if ((epoll_ctl_mod(efd, sfd, 0) == 0) &&
+	    (errno == 0)) {
+		pr_fail("%s: epoll_ctl failed, expected EINVAL instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		goto err;
 	}
@@ -449,8 +453,9 @@ static int test_epoll_exclusive(
 	 *  Invalid epoll_ctl syscall as EPOLLEXCLUSIVE was
 	 *  specified in event and fd refers to an epoll instance.
 	 */
-	if (epoll_ctl_add(efd, efd2, EPOLLEXCLUSIVE) == 0) {
-		pr_fail("%s: epoll_ctl failed, expected , EINVAL instead got "
+	if ((epoll_ctl_add(efd, efd2, EPOLLEXCLUSIVE) == 0) &&
+	    (errno == 0)) {
+		pr_fail("%s: epoll_ctl failed, expected EINVAL, instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		goto err;
 	}
