@@ -346,9 +346,11 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 
 		/* exercise invalid flags */
 		n = recvmsg(fd, &msg, ~0);
+		(void)n;
 
 		/* exercise invalid fd */
 		n = recvmsg(~0, &msg, 0);
+		(void)n;
 		break;
 #if defined(HAVE_RECVMMSG)
 	case SOCKET_OPT_SENDMMSG:
@@ -360,14 +362,17 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 
 		/* exercise invalid flags */
 		n = recvmmsg(fd, msgvec, MSGVEC_SIZE, ~0, NULL);
+		(void)n;
 
 		/* exercise invalid fd */
 		n = recvmmsg(~0, msgvec, MSGVEC_SIZE, 0, NULL);
+		(void)n;
 
 		/* exercise invalid timespec */
 		ts.tv_sec = 0;
 		ts.tv_nsec = 0;
 		n = recvmmsg(~0, msgvec, MSGVEC_SIZE, 0, &ts);
+		(void)n;
 		break;
 #endif
 	}
@@ -486,7 +491,7 @@ retry:
 			}
 #endif
 			if (socket_domain == AF_INET || socket_domain == AF_INET6) {
-				int val, ret;
+				int val = 0, ret = 0;
 				socklen_t optlen;
 
 				(void)val;
