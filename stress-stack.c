@@ -107,12 +107,13 @@ static void stress_stack_alloc(
 	if (stack_mlock) {
 		intptr_t ptr = ((intptr_t)data) + (page_size - 1);
 		ssize_t mlock_sz = (uint8_t *)start - (uint8_t *)ptr;
-		int ret;
 
 		if (mlock_sz < 0)
 			mlock_sz = -mlock_sz;
 
 		if (mlock_sz > (last_size + 8 * (ssize_t)MB)) {
+			int ret;
+
 			ptr &= ~(page_size - 1);
 			ret = shim_mlock((void *)ptr, mlock_sz - last_size);
 			if (ret < 0)
