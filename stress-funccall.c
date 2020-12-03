@@ -594,6 +594,14 @@ stress_funcdeep_7(stress_long_double_t)
 stress_funcdeep_8(stress_long_double_t)
 stress_funcdeep_9(stress_long_double_t)
 
+/*
+ *  The PCC compiler complains at ALWAYS_INLINE, so disable it
+ */
+#if defined(__PCC__)
+#undef ALWAYS_INLINE
+#define ALWAYS_INLINE
+#endif
+
 #if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
 static inline void ALWAYS_INLINE _Decimal32_put(const _Decimal32 a)
 {
