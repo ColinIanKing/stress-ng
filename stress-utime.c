@@ -240,8 +240,10 @@ STRESS_PRAGMA_POP
 		}
 #endif
 		/* forces metadata writeback */
-		if (utime_fsync)
-			(void)shim_fsync(fd);
+		if (utime_fsync) {
+			ret = shim_fsync(fd);
+			(void)ret;
+		}
 		inc_counter(args);
 	} while (keep_stressing());
 
