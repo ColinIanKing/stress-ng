@@ -137,7 +137,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	}
 
 	do {
-		int ret, flag = 0;
+		int ret;
 
 		for (n = 0; n < max; n++) {
 			if (!keep_stressing())
@@ -244,46 +244,51 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 		
 
 #if defined(HAVE_MLOCKALL)
+		{
+			int flag = 0;
 #if defined(MCL_CURRENT)
-		if (!keep_stressing())
-			break;
-		(void)shim_mlockall(MCL_CURRENT);
-		flag |= MCL_CURRENT;
-#endif
-#if defined(MCL_FUTURE)
-		if (!keep_stressing())
-			break;
-		(void)shim_mlockall(MCL_FUTURE);
-		flag |= MCL_FUTURE;
-#endif
-#if defined(MCL_ONFAULT) && defined(MCL_CURRENT)
-		if (!keep_stressing())
-			break;
-		if (shim_mlockall(MCL_ONFAULT | MCL_CURRENT) == 0)
-			flag |= (MCL_ONFAULT | MCL_CURRENT);
-#endif
-#if defined(MCL_ONFAULT) && defined(MCL_FUTURE)
-		if (!keep_stressing())
-			break;
-		if (shim_mlockall(MCL_ONFAULT | MCL_FUTURE) == 0)
-			flag |= (MCL_ONFAULT | MCL_FUTURE);
-#endif
-#if defined(MCL_ONFAULT)
-		/* Exercising Invalid mlockall syscall and ignoring failure */
-		if (!keep_stressing())
-			break;
-		(void)shim_mlockall(MCL_ONFAULT);
-#endif
-		/* Exercise Invalid mlockall syscall with invalid flag */
-		if (!keep_stressing())
-			break;
-		(void)shim_mlockall(~0);
-#endif
-		if (flag) {
 			if (!keep_stressing())
 				break;
-			(void)shim_mlockall(flag);
+			(void)shim_mlockall(MCL_CURRENT);
+			flag |= MCL_CURRENT;
+#endif
+#if defined(MCL_FUTURE)
+			if (!keep_stressing())
+				break;
+			(void)shim_mlockall(MCL_FUTURE);
+			flag |= MCL_FUTURE;
+#endif
+#if defined(MCL_ONFAULT) &&	\
+    defined(MCL_CURRENT)
+			if (!keep_stressing())
+				break;
+			if (shim_mlockall(MCL_ONFAULT | MCL_CURRENT) == 0)
+				flag |= (MCL_ONFAULT | MCL_CURRENT);
+#endif
+#if defined(MCL_ONFAULT) &&	\
+    defined(MCL_FUTURE)
+			if (!keep_stressing())
+				break;
+			if (shim_mlockall(MCL_ONFAULT | MCL_FUTURE) == 0)
+				flag |= (MCL_ONFAULT | MCL_FUTURE);
+#endif
+#if defined(MCL_ONFAULT)
+			if (!keep_stressing())
+				break;
+			/* Exercising Invalid mlockall syscall and ignoring failure */
+			(void)shim_mlockall(MCL_ONFAULT);
+#endif
+			if (!keep_stressing())
+				break;
+			/* Exercise Invalid mlockall syscall with invalid flag */
+			(void)shim_mlockall(~0);
+			if (flag) {
+				if (!keep_stressing())
+					break;
+				(void)shim_mlockall(flag);
+			}
 		}
+#endif
 
 		for (n = 0; n < max; n++) {
 			if (!keep_stressing())
