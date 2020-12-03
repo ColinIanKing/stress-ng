@@ -422,8 +422,9 @@ static int test_epoll_exclusive(
 	 *  Invalid epoll_ctl syscall as EPOLLEXCLUSIVE event
 	 *  cannot be operated by EPOLL_CTL_MOD operation
 	 */
-	if (epoll_ctl_mod(efd, sfd, EPOLLEXCLUSIVE) == 0) {
-		pr_fail("%s: epoll_ctl failed, expected , EINVAL instead got "
+	if ((epoll_ctl_mod(efd, sfd, EPOLLEXCLUSIVE) == 0) &&
+	    (errno == 0)) {
+		pr_fail("%s: epoll_ctl failed, expected EINVAL or ENOENT, instead got "
 			"errno=%d (%s)\n", args->name, errno, strerror(errno));
 		goto err;
 	}
