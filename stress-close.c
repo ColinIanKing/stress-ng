@@ -156,6 +156,12 @@ static void *stress_close_func(void *arg)
 		 */
 		ret = shim_close_range(FDS_START + FDS_TO_DUP, FDS_START, 0);
 		(void)ret;
+
+		/*
+		 *  close with invalid fds and flags
+		 */
+		ret = shim_close_range(FDS_START + FDS_TO_DUP, FDS_START, ~0);
+		(void)ret;
 	}
 
 	return &nowt;
