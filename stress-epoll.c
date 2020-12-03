@@ -284,11 +284,11 @@ static int epoll_notification(
 		if ((fd = accept(sfd, &saddr, &slen)) < 0) {
 			if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
 				/* all incoming connections handled so finish */
-				return 0;
+				break;
 			}
 			if ((errno == EMFILE) || (errno == ENFILE)) {
 				/* out of file descriptors! */
-				return 0;
+				break;
 			}
 			pr_fail("%s: accept failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
