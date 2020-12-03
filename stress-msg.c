@@ -57,20 +57,28 @@ typedef struct {
 
 static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 {
-	struct msqid_ds buf;
+#if defined(IPC_STAT)
+	{
+		struct msqid_ds buf;
 
-	if (msgctl(msgq_id, IPC_STAT, &buf) < 0) {
-		pr_fail("%s: msgctl IPC_STAT failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return -errno;
+		if (msgctl(msgq_id, IPC_STAT, &buf) < 0) {
+			pr_fail("%s: msgctl IPC_STAT failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			return -errno;
+		}
 	}
+#endif
 
 #if defined(MSG_STAT_ANY)
-	/*
-	 * select random msgq index numbers, we may hit
-	 * some that are in use. Ignore failures
-	 */
-	(void)msgctl(stress_mwc8() % (msgq_id + 1), MSG_STAT_ANY, &buf);
+	{
+		struct msqid_ds buf;
+
+		/*
+		 * select random msgq index numbers, we may hit
+		 * some that are in use. Ignore failures
+		 */
+		(void)msgctl(stress_mwc8() % (msgq_id + 1), MSG_STAT_ANY, &buf);
+	}
 #endif
 
 #if defined(IPC_INFO) &&	\
