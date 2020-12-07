@@ -112,6 +112,37 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 static sigjmp_buf jmp_env;
 
+/*
+ *  stress_epoll_pwait()
+ *	attempt to use epoll_pwait2 (if availabke) or epoll_pwait 
+ */
+static int stress_epoll_pwait(
+	int epfd,
+	struct epoll_event *events,
+	int maxevents,
+	int timeout,
+	const sigset_t *sigmask)
+{
+#if defined(__NR_epoll_pwait2)
+	if (stress_mwc1()) {
+		struct timespec timeout_ts;
+		int64_t timeout_ns = (int64_t)timeout * 1000;
+		int ret;
+
+		timeout_ts.tv_sec = timeout_ns / 1000000000UL;
+		timeout_ts.tv_nsec = timeout_ns % 1000000000UL;
+	
+		ret = syscall(__NR_epoll_pwait2, epfd, events, maxevents, &timeout_ts, sigmask);
+		if (ret == 0)
+			return ret;
+		if ((ret < 0) && (errno != ENOSYS))
+			return ret;
+	}
+#endif
+	return stress_epoll_pwait(epfd, events, maxevents, timeout, sigmask);
+}
+
+
 static void MLOCKED_TEXT stress_segv_handler(int num)
 {
 	(void)num;
@@ -828,18 +859,18 @@ static void epoll_server(
 				 *  never return more than 0 events and if it does we were expecting
 				 *  -EFAULT.
 				 */
-				n = epoll_pwait(efd, args->mapped->page_none, 1, 100, &sigmask);
+				n = stress_epoll_pwait(efd, args->mapped->page_none, 1, 100, &sigmask);
 				if (n > 1) {
 					pr_fail("%s: epoll_pwait unexpectedly succeeded, "
 						"expected -EFAULT, instead got errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
 			}
-			n = epoll_pwait(efd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
+			n = stress_epoll_pwait(efd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
 			saved_errno = errno;
 
 			/* Invalid epoll_pwait syscall having invalid maxevents argument */
-			(void)epoll_pwait(efd, events, INT_MIN, 100, &sigmask);
+			(void)stress_epoll_pwait(efd, events, INT_MIN, 100, &sigmask);
 
 		}
 		if (n < 0) {
@@ -887,7 +918,7 @@ static void epoll_server(
 		if (stress_mwc1()) {
 			n = epoll_wait(bad_fd, events, MAX_EPOLL_EVENTS, 100);
 		} else {
-			n = epoll_pwait(bad_fd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
+			n = stress_epoll_pwait(bad_fd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
 		}
 	} while (keep_stressing());
 
