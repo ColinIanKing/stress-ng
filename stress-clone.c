@@ -412,9 +412,6 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 		}
 	} while (keep_stressing());
 
-	pr_inf("%s: created a maximum of %" PRIu32 " clones\n",
-		args->name, max_clones);
-
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, mmap_size);
 	/* And reap */
