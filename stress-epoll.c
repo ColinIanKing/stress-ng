@@ -114,7 +114,7 @@ static sigjmp_buf jmp_env;
 
 /*
  *  stress_epoll_pwait()
- *	attempt to use epoll_pwait2 (if availabke) or epoll_pwait 
+ *	attempt to use epoll_pwait2 (if availabke) or epoll_pwait
  */
 static int stress_epoll_pwait(
 	int epfd,
@@ -131,7 +131,7 @@ static int stress_epoll_pwait(
 
 		timeout_ts.tv_sec = timeout_ns / 1000000000UL;
 		timeout_ts.tv_nsec = timeout_ns % 1000000000UL;
-	
+
 		ret = syscall(__NR_epoll_pwait2, epfd, events, maxevents, &timeout_ts, sigmask);
 		if (ret == 0)
 			return ret;
