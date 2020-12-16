@@ -108,6 +108,24 @@ static inline void aio_linux_fill_buffer(
 }
 
 /*
+ *  aio_linux_check_buffer()
+ *	check buffer contains some known pattern
+ */
+static inline bool aio_linux_check_buffer(
+	const int request,
+	uint8_t *const buffer,
+	const size_t size)
+{
+	register size_t i;
+
+	for (i = 0; i < size; i++)
+		if (buffer[i] != (uint8_t)(request + i))
+			return false;
+
+	return true;
+}
+
+/*
  *  stress_aiol_submit()
  *	submit async I/O requests
  */
@@ -386,13 +404,14 @@ static int stress_aiol(const stress_args_t *args)
 	j = 0;
 	do {
 		uint8_t *bufptr;
+		int n;
 
 		/*
 		 *  async writes
 		 */
 		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
 		for (bufptr = buffer, i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
-			aio_linux_fill_buffer(i, bufptr, BUFFER_SZ);
+			aio_linux_fill_buffer(i + j, bufptr, BUFFER_SZ);
 
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_PWRITE;
@@ -414,7 +433,7 @@ static int stress_aiol(const stress_args_t *args)
 		 */
 		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
 		for (bufptr = buffer, i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
-			aio_linux_fill_buffer(i, bufptr, BUFFER_SZ);
+			(void)memset(bufptr, 0, BUFFER_SZ);
 
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_PREAD;
@@ -440,8 +459,17 @@ static int stress_aiol(const stress_args_t *args)
 			}
 		}
 #endif
-		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
+		n = stress_aiol_wait(args, ctx, events, aio_linux_requests);
+		if (n < 0)
 			break;
+
+		for (bufptr = buffer, i = 0; i < (size_t)n ; i++, bufptr += BUFFER_SZ) {
+			if (aio_linux_check_buffer(i + j, bufptr, BUFFER_SZ) != true) {
+				pr_fail("%s: data mismatch in buffer %zd\n",
+					args->name, i);
+			}
+		}
+
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
@@ -458,7 +486,8 @@ static int stress_aiol(const stress_args_t *args)
 			cb[i].u.c.nbytes = ~0;	/* invalid */
 			cbs[i] = &cb[i];
 		}
-		(void)stress_aiol_submit(args, ctx, cbs, aio_linux_requests, true);
+		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, true) < 0)
+			break;
 		if (errno == 0)
 			(void)stress_aiol_wait(args, ctx, events, aio_linux_requests);
 		inc_counter(args);
