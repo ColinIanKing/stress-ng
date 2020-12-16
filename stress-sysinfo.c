@@ -71,7 +71,9 @@ static int stress_sysinfo(const stress_args_t *args)
 			int i, ret;
 
 			ret = sysinfo(&sysinfo_buf);
-			if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
+			if ((ret < 0) &&
+			    (g_opt_flags & OPT_FLAGS_VERIFY) &&
+			    (errno != EPERM))
 			 	pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 
@@ -96,7 +98,8 @@ static int stress_sysinfo(const stress_args_t *args)
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 					if (errno != ENOSYS &&
 					    errno != EOVERFLOW &&
-					    errno != EACCES) {
+					    errno != EACCES &&
+					    errno != EPERM) {
 						pr_fail("%s: statfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
@@ -130,7 +133,8 @@ static int stress_sysinfo(const stress_args_t *args)
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 					if (errno != ENOSYS &&
 					    errno != EOVERFLOW &&
-					    errno != EACCES) {
+					    errno != EACCES &&
+					    errno != EPERM) {
 						pr_fail("%s: fstatfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
@@ -161,7 +165,8 @@ static int stress_sysinfo(const stress_args_t *args)
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 					if (errno != EINVAL &&
 					    errno != EFAULT &&
-					    errno != ENOSYS) {
+					    errno != ENOSYS &&
+					    errno != EPERM) {
 						pr_fail("%s: ustat on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
@@ -199,7 +204,8 @@ static int stress_sysinfo(const stress_args_t *args)
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 					if (errno != ENOSYS &&
 					    errno != EOVERFLOW &&
-					    errno != EACCES) {
+					    errno != EACCES &&
+					    errno != EPERM) {
 						pr_fail("%s: statvfs on %s failed: errno=%d (%s)\n",
 							args->name, mnts[i], errno,
 							strerror(errno));
