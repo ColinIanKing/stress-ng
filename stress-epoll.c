@@ -956,12 +956,12 @@ static int stress_epoll(const stress_args_t *args)
 	(void)stress_get_setting("epoll-domain", &epoll_domain);
 
 	if (max_servers == 1) {
-		pr_dbg("%s: process [%d] using socket port %d\n",
-			args->name, args->pid,
+		pr_dbg("%s: process [%" PRIdMAX "] using socket port %d\n",
+			args->name, (intmax_t)args->pid,
 			epoll_port + args->instance);
 	} else {
-		pr_dbg("%s: process [%d] using socket ports %d..%d\n",
-			args->name, args->pid,
+		pr_dbg("%s: process [%" PRIdMAX "] using socket ports %d..%d\n",
+			args->name, (intmax_t)args->pid,
 			epoll_port + (max_servers * args->instance),
 			epoll_port + (max_servers * (args->instance + 1)) - 1);
 	}

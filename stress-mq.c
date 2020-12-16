@@ -98,8 +98,8 @@ static int stress_mq(const stress_args_t *args)
 	}
 	sz = mq_size;
 
-	(void)snprintf(mq_name, sizeof(mq_name), "/%s-%i-%" PRIu32,
-		args->name, args->pid, args->instance);
+	(void)snprintf(mq_name, sizeof(mq_name), "/%s-%" PRIdMAX "-%" PRIu32,
+		args->name, (intmax_t)args->pid, args->instance);
 	fp = fopen("/proc/sys/fs/mqueue/msg_default", "r");
 	if (fp) {
 		if (fscanf(fp, "%20d", &max_sz) != 1)

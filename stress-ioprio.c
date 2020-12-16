@@ -71,9 +71,9 @@ static int stress_ioprio(const stress_args_t *args)
 
 		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, args->pid) < 0) {
 			if (errno != EINVAL) {
-				pr_fail("%s: ioprio_get(OPRIO_WHO_PROCESS, %d), "
+				pr_fail("%s: ioprio_get(OPRIO_WHO_PROCESS, %" PRIdMAX"), "
 					"errno = %d (%s)\n",
-					args->name, args->pid, errno, strerror(errno));
+					args->name, (intmax_t)args->pid, errno, strerror(errno));
 				goto cleanup_file;
 			}
 		}
@@ -92,9 +92,9 @@ static int stress_ioprio(const stress_args_t *args)
 #if defined(HAVE_GETPGRP)
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, grp) < 0) {
 			if (errno != EINVAL) {
-				pr_fail("%s: ioprio_get(OPRIO_WHO_PGRP, %d), "
+				pr_fail("%s: ioprio_get(OPRIO_WHO_PGRP, %" PRIdMAX "), "
 					"errno = %d (%s)\n",
-					args->name, g_pgrp, errno, strerror(errno));
+					args->name, (intmax_t)g_pgrp, errno, strerror(errno));
 				goto cleanup_file;
 			}
 		}
@@ -161,10 +161,11 @@ static int stress_ioprio(const stress_args_t *args)
 			IOPRIO_PRIO_VALUE(IOPRIO_CLASS_IDLE, 0)) < 0) {
 			if ((errno != EPERM) && (errno != EINVAL)) {
 				pr_fail("%s: ioprio_set("
-					"IOPRIO_WHO_PROCESS, %d, "
+					"IOPRIO_WHO_PROCESS, %" PRIdMAX ", "
 					"(IOPRIO_CLASS_IDLE, 0)), "
 					"errno = %d (%s)\n",
-					args->name, args->pid, errno, strerror(errno));
+					args->name, (intmax_t)args->pid,
+					errno, strerror(errno));
 				goto cleanup_file;
 			}
 		}
@@ -189,10 +190,11 @@ static int stress_ioprio(const stress_args_t *args)
 				IOPRIO_PRIO_VALUE(IOPRIO_CLASS_BE, i)) < 0) {
 				if ((errno != EPERM) && (errno != EINVAL)) {
 					pr_fail("%s: ioprio_set("
-						"IOPRIO_WHO_PROCESS, %d, "
+						"IOPRIO_WHO_PROCESS, %" PRIdMAX ", "
 						"(IOPRIO_CLASS_BE, %d)), "
 						"errno = %d (%s)\n",
-						args->name, args->pid, i, errno, strerror(errno));
+						args->name, (intmax_t)args->pid,
+						i, errno, strerror(errno));
 					goto cleanup_file;
 				}
 			}
@@ -212,10 +214,11 @@ static int stress_ioprio(const stress_args_t *args)
 				IOPRIO_PRIO_VALUE(IOPRIO_CLASS_RT, i)) < 0) {
 				if ((errno != EPERM) && (errno != EINVAL)) {
 					pr_fail("%s: ioprio_set("
-						"IOPRIO_WHO_PROCESS, %d, "
+						"IOPRIO_WHO_PROCESS, %" PRIdMAX ", "
 						"(IOPRIO_CLASS_RT, %d)), "
 						"errno = %d (%s)\n",
-						args->name, args->pid, i, errno, strerror(errno));
+						args->name, (intmax_t)args->pid,
+						i, errno, strerror(errno));
 					goto cleanup_file;
 				}
 			}

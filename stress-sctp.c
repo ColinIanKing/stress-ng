@@ -371,8 +371,9 @@ static int stress_sctp(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGPIPE, stress_sctp_sigpipe, NULL) < 0)
 		return EXIT_FAILURE;
 
-	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, args->pid, sctp_port + args->instance);
+	pr_dbg("%s: process [%" PRIdMAX "] using socket port %d\n",
+		args->name, (intmax_t)args->pid,
+		sctp_port + args->instance);
 
 again:
 	pid = fork();

@@ -54,8 +54,8 @@ static int stress_capgetset_pid(
 	if (ret < 0) {
 		if (((errno == ESRCH) && exists) ||
 		    (errno != ESRCH)) {
-			pr_fail("%s: capget on pid %d failed: errno=%d (%s)\n",
-				args->name, pid, errno, strerror(errno));
+			pr_fail("%s: capget on pid %" PRIdMAX " failed: errno=%d (%s)\n",
+				args->name, (intmax_t)pid, errno, strerror(errno));
 		}
 	}
 
@@ -64,8 +64,8 @@ static int stress_capgetset_pid(
 		if (ret < 0) {
 			if (((errno == ESRCH) && exists) ||
 			    (errno != ESRCH)) {
-				pr_fail("%s: capget on pid %d failed: errno=%d (%s)\n",
-					args->name, pid, errno, strerror(errno));
+				pr_fail("%s: capget on pid %" PRIdMAX " failed: errno=%d (%s)\n",
+					args->name, (intmax_t)pid, errno, strerror(errno));
 			}
 		}
 	}
@@ -128,13 +128,13 @@ static int stress_cap(const stress_args_t *args)
 			struct dirent *d;
 
 			while ((d = readdir(dir)) != NULL) {
-				pid_t p;
+				intmax_t p;
 
 				if (!isdigit(d->d_name[0]))
 					continue;
-				if (sscanf(d->d_name, "%d", &p) != 1)
+				if (sscanf(d->d_name, "%" SCNdMAX, &p) != 1)
 					continue;
-				stress_capgetset_pid(args, p, false, false);
+				stress_capgetset_pid(args, (pid_t)p, false, false);
 				if (!keep_stressing())
 					break;
 			}

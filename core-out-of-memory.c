@@ -61,10 +61,10 @@ bool stress_process_oomed(const pid_t pid)
 		ptr = strstr(buf, "process");
 		if (ptr && (strstr(buf, "Out of memory") ||
 			    strstr(buf, "oom_reaper"))) {
-			pid_t oom_pid;
+			intmax_t oom_pid;
 
-			if (sscanf(ptr + 7, "%10d", &oom_pid) == 1) {
-				if (oom_pid == pid) {
+			if (sscanf(ptr + 7, "%10" SCNdMAX, &oom_pid) == 1) {
+				if (oom_pid == (intmax_t)pid) {
 					oomed = true;
 					break;
 				}

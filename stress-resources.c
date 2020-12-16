@@ -298,7 +298,8 @@ static void NORETURN waste_resources(
 			break;
 #endif
 #if defined(HAVE_MEMFD_CREATE)
-		(void)snprintf(name, sizeof(name), "memfd-%u-%zu", pid, i);
+		(void)snprintf(name, sizeof(name), "memfd-%" PRIdMAX "-%zu",
+			(intmax_t)pid, i);
 		info[i].fd_memfd = shim_memfd_create(name, 0);
 		if (!keep_stressing_flag())
 			break;

@@ -108,8 +108,8 @@ static int stress_key(const stress_args_t *args)
 		/* Add as many keys as we are allowed */
 		for (n = 0; n < MAX_KEYS; n++) {
 			(void)snprintf(description, sizeof(description),
-				"stress-ng-key-%u-%" PRIu32
-				"-%zu", ppid, args->instance, n);
+				"stress-ng-key-%" PRIdMAX "-%" PRIu32
+				"-%zu", (intmax_t)ppid, args->instance, n);
 			(void)snprintf(payload, sizeof(payload),
 				"somedata-%zu", n);
 
@@ -153,8 +153,8 @@ static int stress_key(const stress_args_t *args)
 		/* And manipulate the keys */
 		for (i = 0; i < n; i++) {
 			(void)snprintf(description, sizeof(description),
-				"stress-ng-key-%u-%" PRIu32
-				"-%zu", ppid, args->instance, i);
+				"stress-ng-key-%" PRIdMAX "-%" PRIu32
+				"-%zu", (intmax_t)ppid, args->instance, i);
 #if defined(KEYCTL_DESCRIBE)
 			if (shim_keyctl(KEYCTL_DESCRIBE, keys[i], description) < 0)
 				if ((errno != ENOMEM) &&
@@ -215,8 +215,8 @@ static int stress_key(const stress_args_t *args)
 
 #if defined(HAVE_REQUEST_KEY)
 			(void)snprintf(description, sizeof(description),
-				"stress-ng-key-%u-%" PRIu32
-				"-%zu", ppid, args->instance, i);
+				"stress-ng-key-%" PRIdMAX "-%" PRIu32
+				"-%zu", (intmax_t)ppid, args->instance, i);
 			if (shim_request_key("user", description, NULL,
 				KEY_SPEC_PROCESS_KEYRING) < 0) {
 				if ((errno != ENOMEM) &&

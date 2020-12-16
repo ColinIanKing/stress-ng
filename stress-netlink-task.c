@@ -151,9 +151,10 @@ static void stress_parse_payload(
 		case TASKSTATS_TYPE_PID:
 			task_pid = *(pid_t *)NLA_DATA(na);
 			if (task_pid != pid) {
-				pr_fail("%s: TASKSTATS_TYPE_PID got pid %d, "
-					"expected %d\n",
-					args->name, task_pid, pid);
+				pr_fail("%s: TASKSTATS_TYPE_PID got pid %" PRIdMAX ", "
+					"expected %" PRIdMAX "\n",
+					args->name,
+					(intmax_t)task_pid, (intmax_t)pid);
 			}
 			break;
 		case TASKSTATS_TYPE_STATS:

@@ -392,17 +392,17 @@ static int stress_get(const stress_args_t *args)
 
 			ret = prlimit(mypid, rlimits[i], NULL, &rlims[0]);
 			if (verify && (ret < 0) && (errno != EOVERFLOW))
-				pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
-					args->name, mypid, i, errno, strerror(errno));
+				pr_fail("%s: prlimit(%" PRIdMAX ", %zu, ..) failed, errno=%d (%s)\n",
+					args->name, (intmax_t)mypid, i, errno, strerror(errno));
 			if (!ret) {
 				ret = prlimit(mypid, rlimits[i], &rlims[0], NULL);
 				if (verify && (ret < 0) && (errno != EOVERFLOW))
-					pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
-						args->name, mypid, i, errno, strerror(errno));
+					pr_fail("%s: prlimit(%" PRIdMAX ", %zu, ..) failed, errno=%d (%s)\n",
+						args->name, (intmax_t)mypid, i, errno, strerror(errno));
 				ret = prlimit(mypid, rlimits[i], &rlims[0], &rlims[1]);
 				if (verify && (ret < 0) && (errno != EOVERFLOW))
-					pr_fail("%s: prlimit(%d, %zu, ..) failed, errno=%d (%s)\n",
-						args->name, mypid, i, errno, strerror(errno));
+					pr_fail("%s: prlimit(%" PRIdMAX", %zu, ..) failed, errno=%d (%s)\n",
+						args->name, (intmax_t)mypid, i, errno, strerror(errno));
 			}
 
 			/* Exercise invalid pids */

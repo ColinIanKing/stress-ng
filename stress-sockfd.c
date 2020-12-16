@@ -384,8 +384,8 @@ static int stress_sockfd(const stress_args_t *args)
 
 	socket_fd_port += args->instance;
 
-	pr_dbg("%s: process [%d] using socket port %d and %zd file descriptors\n",
-		args->name, args->pid, socket_fd_port, max_fd);
+	pr_dbg("%s: process [%" PRIdMAX "] using socket port %d and %zd file descriptors\n",
+		args->name, (intmax_t)args->pid, socket_fd_port, max_fd);
 
 again:
 	pid = fork();

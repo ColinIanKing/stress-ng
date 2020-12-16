@@ -142,7 +142,9 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 		}
 
 		for (i = 0; i < memfd_fds; i++) {
-			(void)snprintf(filename, sizeof(filename), "memfd-%u-%" PRIu64, args->pid, i);
+			(void)snprintf(filename, sizeof(filename),
+				"memfd-%" PRIdMAX "-%" PRIu64,
+				(intmax_t)args->pid, i);
 			fds[i] = shim_memfd_create(filename, 0);
 			if (fds[i] < 0) {
 				switch (errno) {
@@ -268,14 +270,18 @@ clean:
 			(void)close(fd);
 
 		/* Exercise illegal flags */
-		(void)snprintf(filename, sizeof(filename), "memfd-%u-%" PRIu64, args->pid, stress_mwc64());
+		(void)snprintf(filename, sizeof(filename),
+			"memfd-%" PRIdMAX "-%" PRIu64,
+			(intmax_t)args->pid, stress_mwc64());
 		fd = shim_memfd_create(filename, ~0);
 		if (fd >= 0)
 			(void)close(fd);
 
 		/* Exercise all flags */
 		for (i = 0; i < (uint64_t)SIZEOF_ARRAY(flags); i++) {
-			(void)snprintf(filename, sizeof(filename), "memfd-%u-%" PRIu64, args->pid, i);
+			(void)snprintf(filename, sizeof(filename),
+				"memfd-%" PRIdMAX" -%" PRIu64,
+				(intmax_t)args->pid, i);
 			fd = shim_memfd_create(filename, flags[i]);
 			if (fd >= 0)
 				(void)close(fd);

@@ -58,7 +58,7 @@ static int stress_pidfd_open(pid_t pid, int flag)
 		char buffer[1024];
 		int o_flags = O_DIRECTORY | O_CLOEXEC;
 
-		(void)snprintf(buffer, sizeof(buffer), "/proc/%d", pid);
+		(void)snprintf(buffer, sizeof(buffer), "/proc/%" PRIdMAX, (intmax_t)pid);
 #if defined(PIDFD_NONBLOCK)
 		if (flag & PIDFD_NONBLOCK)
 			o_flags |= O_NONBLOCK;

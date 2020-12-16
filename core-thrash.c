@@ -54,12 +54,12 @@ static int stress_pagein_proc(const pid_t pid)
 	if ((pid == parent_pid) || (pid == getpid()))
 		return 0;
 
-	(void)snprintf(path, sizeof(path), "/proc/%d/mem", pid);
+	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX" /mem", (intmax_t)pid);
 	fdmem = open(path, O_RDONLY);
 	if (fdmem < 0)
 		return -errno;
 
-	(void)snprintf(path, sizeof(path), "/proc/%d/maps", pid);
+	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX" /maps", (intmax_t)pid);
 	fpmap = fopen(path, "r");
 	if (!fpmap) {
 		rc = -errno;
@@ -181,14 +181,14 @@ static int stress_pagein_all_procs(void)
 		return -1;
 
 	while (thrash_run && ((d = readdir(dp)) != NULL)) {
-		pid_t pid;
+		intmax_t pid;
 
 		if (isdigit(d->d_name[0]) &&
-		    sscanf(d->d_name, "%d", &pid) == 1) {
+		    sscanf(d->d_name, "%" SCNdMAX, &pid) == 1) {
 			char procpath[128];
 			struct stat statbuf;
 
-			(void)snprintf(procpath, sizeof(procpath), "/proc/%d", pid);
+			(void)snprintf(procpath, sizeof(procpath), "/proc/%" PRIdMAX, pid);
 			if (stat(procpath, &statbuf) < 0)
 				continue;
 
