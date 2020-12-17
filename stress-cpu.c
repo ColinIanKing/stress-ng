@@ -2731,7 +2731,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 	 */
 	bias = 0.0;
 	do {
-		double delay, t1, t2, t3;
+		double delay, t1, t2;
 		struct timeval tv;
 
 		t1 = stress_time_now();
@@ -2806,12 +2806,19 @@ delay_time:
 		delay = (((100 - cpu_load) * (t2 - t1)) / (double)cpu_load);
 		delay -= bias;
 
-		tv.tv_sec = delay;
-		tv.tv_usec = (delay - tv.tv_sec) * 1000000.0;
-		(void)select(0, NULL, NULL, NULL, &tv);
-		t3 = stress_time_now();
-		/* Bias takes account of the time to do the delay */
-		bias = (t3 - t2) - delay;
+		/* We may have clock warping so don't sleep for -ve delays */
+		if (delay < 0.0) {
+			bias = 0.0;
+		} else {
+			double t3;
+
+			tv.tv_sec = delay;
+			tv.tv_usec = (delay - tv.tv_sec) * 1000000.0;
+			(void)select(0, NULL, NULL, NULL, &tv);
+			t3 = stress_time_now();
+			/* Bias takes account of the time to do the delay */
+			bias = (t3 - t2) - delay;
+		}
 	} while (keep_stressing());
 
 	if (stress_is_affinity_set() && (args->instance == 0)) {
