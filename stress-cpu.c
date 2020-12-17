@@ -2685,6 +2685,36 @@ static int stress_set_cpu_method(const char *name)
 }
 
 /*
+ *  stress_per_cpu_time()
+ *	try to get accurage CPU time from CPUTIME clock,
+ *	or fall back to wall clock time if not possible.
+ */
+static double stress_per_cpu_time(void)
+{
+#if defined(CLOCK_PROCESS_CPUTIME_ID)
+	struct timespec ts;
+	static bool use_clock_gettime = true;
+
+	/*
+	 *  Where possible try to get time used on the CPU
+	 *  rather than wall clock time to get more accurate
+	 *  CPU consumption measurements
+	 */
+	if (use_clock_gettime) {
+		if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) == 0) {
+			return ts.tv_sec + ((double)ts.tv_nsec) / (double)STRESS_NANOSECOND;
+		} else {
+			use_clock_gettime = false;
+		}
+	}
+#endif
+	/*
+	 *  Can't get CPU clock time, fall back to wall clock time
+	 */
+	return stress_time_now();
+}
+
+/*
  *  stress_cpu()
  *	stress CPU by doing floating point math ops
  */
@@ -2734,7 +2764,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 		double delay, t1, t2;
 		struct timeval tv;
 
-		t1 = stress_time_now();
+		t1 = stress_per_cpu_time();
 		if (cpu_load_slice < 0) {
 			/* < 0 specifies number of iterations to do per slice */
 			int j;
@@ -2745,63 +2775,30 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 					break;
 				inc_counter(args);
 			}
-			t2 = stress_time_now();
+			t2 = stress_per_cpu_time();
 		} else if (cpu_load_slice == 0) {
 			/* == 0, random time slices */
 			double slice_end = t1 + (((double)stress_mwc16()) / 131072.0);
 			do {
 				(void)func(args->name);
-				t2 = stress_time_now();
+				t2 = stress_per_cpu_time();
 				if (!keep_stressing_flag())
 					break;
 				inc_counter(args);
 			} while (t2 < slice_end);
 		} else {
 			/* > 0, time slice in milliseconds */
-
-			double slice_end;
-#if defined(CLOCK_PROCESS_CPUTIME_ID)
-			struct timespec ts;
-			static bool clock_failed = false;
-
-			if (clock_failed)
-				goto poll_time;
-
-			if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) < 0) {
-				clock_failed = true;
-				goto poll_time;
-			}
-			slice_end = (ts.tv_sec + ((double)ts.tv_nsec) / (double)STRESS_NANOSECOND) +
-				((double)cpu_load_slice / 1000.0);
+			const double slice_end = t1 + ((double)cpu_load_slice / 1000.0);
 
 			do {
 				(void)func(args->name);
-				if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) < 0) {
-					clock_failed = true;
-					goto poll_time;
-				}
-				t2 = ts.tv_sec + ((double)ts.tv_nsec) / (double)STRESS_NANOSECOND;
-				if (!keep_stressing_flag())
-					break;
-				inc_counter(args);
-			} while (t2 < slice_end);
-
-			goto delay_time;
-poll_time:
-#endif
-			slice_end = t1 +
-				((double)cpu_load_slice / 1000.0);
-			do {
-				(void)func(args->name);
-				t2 = stress_time_now();
+				t2 = stress_per_cpu_time();
 				if (!keep_stressing_flag())
 					break;
 				inc_counter(args);
 			} while (t2 < slice_end);
 		}
-#if defined(CLOCK_PROCESS_CPUTIME_ID)
-delay_time:
-#endif
+		
 		/* Must not calculate this with zero % load */
 		delay = (((100 - cpu_load) * (t2 - t1)) / (double)cpu_load);
 		delay -= bias;
@@ -2810,7 +2807,14 @@ delay_time:
 		if (delay < 0.0) {
 			bias = 0.0;
 		} else {
+			/*
+			 *  We need to sleep for a small amount of
+			 *  time, measurements need to be based on
+			 *  wall clock time and NOT on cpu time used.
+			 */
 			double t3;
+
+			t2 = stress_time_now();
 
 			tv.tv_sec = delay;
 			tv.tv_usec = (delay - tv.tv_sec) * 1000000.0;
