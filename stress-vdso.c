@@ -499,12 +499,12 @@ static int stress_vdso(const stress_args_t *args)
 		t3 = stress_time_now();
 	} while (t3 - t2 < 0.1);
 
-	overhead_ns = 1000000000.0 * ((t3 - t2) / (double)(get_counter(args) - counter));
+	overhead_ns = (double)STRESS_NANOSECOND * ((t3 - t2) / (double)(get_counter(args) - counter));
 	set_counter(args, counter);
 
 	pr_inf("%s: %.2f nanoseconds per call (excluding %.2f nanoseconds test overhead)\n",
 		args->name,
-		((t2 - t1) * 1000000000.0) / (double)get_counter(args),
+		((t2 - t1) * (double)STRESS_NANOSECOND) / (double)get_counter(args),
 		overhead_ns);
 
 	vdso_sym_list_free(&vdso_sym_list);

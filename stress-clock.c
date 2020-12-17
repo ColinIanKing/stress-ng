@@ -327,7 +327,7 @@ static int stress_clock(const stress_args_t *args)
 				(void)ret_st;
 
 				(void)memset(&t, 0, sizeof(t));
-				t.tv_nsec = 1000000000;
+				t.tv_nsec = STRESS_NANOSECOND;
 				ret_st = clock_nanosleep(clocks_nanosleep[0], TIMER_ABSTIME, &t, NULL);
 				(void)ret_st;
 			}

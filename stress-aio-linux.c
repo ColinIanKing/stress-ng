@@ -174,8 +174,8 @@ static int stress_aiol_wait(
 			timeout_ptr = NULL;
 		} else {
 			timeout.tv_nsec += 1000000;
-			if (timeout.tv_nsec > 1000000000) {
-				timeout.tv_nsec -= 1000000000;
+			if (timeout.tv_nsec > STRESS_NANOSECOND) {
+				timeout.tv_nsec -= STRESS_NANOSECOND;
 				timeout.tv_sec++;
 			}
 			timeout_ptr = &timeout;

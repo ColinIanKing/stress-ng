@@ -2771,7 +2771,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 				clock_failed = true;
 				goto poll_time;
 			}
-			slice_end = (ts.tv_sec + ((double)ts.tv_nsec) / 1000000000.0) +
+			slice_end = (ts.tv_sec + ((double)ts.tv_nsec) / (double)STRESS_NANOSECOND) +
 				((double)cpu_load_slice / 1000.0);
 
 			do {
@@ -2780,7 +2780,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 					clock_failed = true;
 					goto poll_time;
 				}
-				t2 = ts.tv_sec + ((double)ts.tv_nsec) / 1000000000.0;
+				t2 = ts.tv_sec + ((double)ts.tv_nsec) / (double)STRESS_NANOSECOND;
 				if (!keep_stressing_flag())
 					break;
 				inc_counter(args);

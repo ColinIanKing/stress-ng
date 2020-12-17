@@ -98,8 +98,8 @@ static void stress_timer_set(struct itimerspec *timer)
 		rate = rate_ns;
 	}
 
-	timer->it_value.tv_sec = (time_t)rate / 1000000000;
-	timer->it_value.tv_nsec = (suseconds_t)rate % 1000000000;
+	timer->it_value.tv_sec = (time_t)rate / STRESS_NANOSECOND;
+	timer->it_value.tv_nsec = (suseconds_t)rate % STRESS_NANOSECOND;
 	if (timer->it_value.tv_sec == 0 &&
 	    timer->it_value.tv_nsec < 1)
 		timer->it_value.tv_nsec = 1;
@@ -180,7 +180,8 @@ static int stress_timer(const stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			timer_freq = MIN_TIMER_FREQ;
 	}
-	rate_ns = timer_freq ? 1000000000.0 / timer_freq : 1000000000.0;
+	rate_ns = timer_freq ? (double)STRESS_NANOSECOND / timer_freq :
+			       (double)STRESS_NANOSECOND;
 
 	if (stress_sighandler(args->name, SIGRTMIN, stress_timer_handler, NULL) < 0)
 		return EXIT_FAILURE;
@@ -216,7 +217,7 @@ static int stress_timer(const stress_args_t *args)
 			(void)ret;
 
 			(void)memset(&req, 0, sizeof(req));
-			req.tv_nsec = 1000000000;
+			req.tv_nsec = STRESS_NANOSECOND;
 			ret = nanosleep(&req, NULL);
 			(void)ret;
 		}

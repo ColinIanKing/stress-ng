@@ -222,7 +222,7 @@ static void stress_dir_exercise(
 #if defined(HAVE_FUTIMENS)
 	const double now = stress_time_now();
 	const time_t sec = (time_t)now;
-	const long nsec = (long)((now - (double)sec) * 1000000000.0);
+	const long nsec = (long)((now - (double)sec) * (double)STRESS_NANOSECOND);
 	struct timespec timespec[2] = {
 		{ sec, nsec },
 		{ sec, nsec }

@@ -589,8 +589,8 @@ int shim_nanosleep_uint64(uint64_t nsec)
 #if defined(HAVE_NANOSLEEP)
 	struct timespec t, trem;
 
-	t.tv_sec = nsec / 1000000000;
-	t.tv_nsec = nsec % 1000000000;
+	t.tv_sec = nsec / STRESS_NANOSECOND;
+	t.tv_nsec = nsec % STRESS_NANOSECOND;
 
 	for (;;) {
 		errno = 0;

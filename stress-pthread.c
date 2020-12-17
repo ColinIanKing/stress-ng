@@ -311,8 +311,8 @@ static void *stress_pthread_func(void *parg)
 		if (clock_gettime(CLOCK_MONOTONIC, &abstime) < 0)
 			goto yield;
 		abstime.tv_nsec += 10000000;
-		if (abstime.tv_nsec >= 1000000000) {
-			abstime.tv_nsec -= 1000000000;
+		if (abstime.tv_nsec >= STRESS_NANOSECOND) {
+			abstime.tv_nsec -= STRESS_NANOSECOND;
 			abstime.tv_sec++;
 		}
 

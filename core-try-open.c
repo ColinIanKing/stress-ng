@@ -80,8 +80,8 @@ int stress_try_open(
 
 		t_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
 		if (!t_ret) {
-			timer.it_value.tv_sec = timeout_ns / 1000000000;
-			timer.it_value.tv_nsec = timeout_ns % 1000000000;
+			timer.it_value.tv_sec = timeout_ns / STRESS_NANOSECOND;
+			timer.it_value.tv_nsec = timeout_ns % STRESS_NANOSECOND;
 			timer.it_interval.tv_sec = timer.it_value.tv_sec;
 			timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
 			t_ret = timer_settime(timerid, 0, &timer, NULL);

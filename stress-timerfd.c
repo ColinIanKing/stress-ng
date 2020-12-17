@@ -85,8 +85,8 @@ static void stress_timerfd_set(
 		rate = rate_ns;
 	}
 
-	timer->it_value.tv_sec = (time_t)rate / 1000000000;
-	timer->it_value.tv_nsec = (suseconds_t)rate % 1000000000;
+	timer->it_value.tv_sec = (time_t)rate / STRESS_NANOSECOND;
+	timer->it_value.tv_nsec = (suseconds_t)rate % STRESS_NANOSECOND;
 
 	if (timer->it_value.tv_sec == 0 &&
 	    timer->it_value.tv_nsec < 1)
@@ -123,7 +123,8 @@ static int stress_timerfd(const stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			timerfd_freq = MIN_TIMERFD_FREQ;
 	}
-	rate_ns = timerfd_freq ? 1000000000.0 / timerfd_freq : 1000000000.0;
+	rate_ns = timerfd_freq ? (double)STRESS_NANOSECOND / timerfd_freq :
+				 (double)STRESS_NANOSECOND;
 
 	for (i = 0; i < TIMERFD_MAX; i++) {
 		timerfd[i] = timerfd_create(CLOCK_REALTIME, 0);

@@ -804,6 +804,13 @@ typedef unsigned long int __kernel_ulong_t;
 #define EXIT_METRICS_UNTRUSTWORTHY	(7)
 
 /*
+ *  Timing units
+ */
+#define STRESS_NANOSECOND		(1000000000L)
+#define STRESS_MICROSECOND		(1000000L)
+#define STRESS_MILLISECOND		(1000L)
+
+/*
  * STRESS_ASSERT(test)
  *   throw compile time error if test not true
  */
@@ -4333,5 +4340,6 @@ extern pid_t shim_waitpid(pid_t pid, int *wstatus, int options);
 extern pid_t shim_wait(int *wstatus);
 extern pid_t shim_wait3(int *wstatus, int options, struct rusage *rusage);
 extern pid_t shim_wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage);
+
 
 #endif

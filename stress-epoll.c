@@ -129,8 +129,8 @@ static int stress_epoll_pwait(
 		int64_t timeout_ns = (int64_t)timeout * 1000;
 		int ret;
 
-		timeout_ts.tv_sec = timeout_ns / 1000000000UL;
-		timeout_ts.tv_nsec = timeout_ns % 1000000000UL;
+		timeout_ts.tv_sec = timeout_ns / STRESS_NANOSECOND;
+		timeout_ts.tv_nsec = timeout_ns % STRESS_NANOSECOND;
 
 		ret = syscall(__NR_epoll_pwait2, epfd, events, maxevents, &timeout_ts, sigmask);
 		if (ret == 0)
