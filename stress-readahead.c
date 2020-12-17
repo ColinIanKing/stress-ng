@@ -228,8 +228,8 @@ rnd_rd_retry:
 
                 /* Exercise large sizes and illegal sizes */
 		for (i = 15; i < sizeof(size_t) * 8; i += 4) {
-                	ret = readahead(fd, 0, 1ULL << i);
-                	(void)ret;
+			ret = readahead(fd, 0, 1ULL << i);
+			(void)ret;
 		}
 	} while (keep_stressing());
 
