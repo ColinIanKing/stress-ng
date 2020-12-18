@@ -434,6 +434,13 @@ static int stress_open(const stress_args_t *args)
 	struct stat statbuf;
 	bool open_fd = false;
 
+	/*
+	 *  32 bit systems may OOM if we have too many open fds, so
+	 *  try to constrain the max limit as a workaround.
+	 */
+	if (sizeof(void *) == 4)
+		max_fds = STRESS_MINIMUM(max_fds, 65536);
+
 	sz = max_fds * sizeof(int);
 	fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
