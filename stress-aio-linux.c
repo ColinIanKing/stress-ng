@@ -118,9 +118,10 @@ static inline bool aio_linux_check_buffer(
 {
 	register size_t i;
 
-	for (i = 0; i < size; i++)
+	for (i = 0; i < size; i++) {
 		if (buffer[i] != (uint8_t)(request + i))
 			return false;
+	}
 
 	return true;
 }
@@ -166,6 +167,8 @@ static int stress_aiol_wait(
 	struct io_event events[],
 	size_t n)
 {
+	size_t i = 0;
+
 	do {
 		struct timespec timeout, *timeout_ptr;
 		int ret;
@@ -181,24 +184,24 @@ static int stress_aiol_wait(
 			timeout_ptr = &timeout;
 		}
 
-		ret = shim_io_getevents(ctx, 1, n, events, timeout_ptr);
+		ret = shim_io_getevents(ctx, 1, n - i, events, timeout_ptr);
 		if (ret < 0) {
 			if (errno == EINTR) {
 				if (keep_stressing_flag()) {
 					continue;
 				} else {
-					return 0;
+					return i;
 				}
 			}
 			pr_fail("%s: io_getevents failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
 		} else {
-			n -= ret;
+			i += ret;
 		}
-	} while ((n > 0) && keep_stressing_flag());
+	} while ((i < n) && keep_stressing_flag());
 
-	return n;
+	return i;
 }
 
 /*
@@ -280,7 +283,7 @@ static int stress_aiol(const stress_args_t *args)
 {
 	int ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
-	char buf[64];
+	char buf[1];
 	io_context_t ctx = 0;
 	size_t aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
 	uint8_t *buffer;
@@ -291,6 +294,7 @@ static int stress_aiol(const stress_args_t *args)
 	size_t aio_max_nr = DEFAULT_AIO_MAX_NR;
 	uint16_t j;
 	size_t i;
+	int warnings = 0;
 
 	if (!stress_get_setting("aiol-requests", &aio_linux_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -405,18 +409,19 @@ static int stress_aiol(const stress_args_t *args)
 	do {
 		uint8_t *bufptr;
 		int n;
+		off_t offset = stress_mwc16() * BUFFER_SZ;
 
 		/*
 		 *  async writes
 		 */
 		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
 		for (bufptr = buffer, i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
-			aio_linux_fill_buffer(i + j, bufptr, BUFFER_SZ);
+			aio_linux_fill_buffer(j + (((intptr_t)bufptr) >> 12), bufptr, BUFFER_SZ);
 
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_PWRITE;
 			cb[i].u.c.buf = bufptr;
-			cb[i].u.c.offset = stress_mwc16() * BUFFER_SZ;
+			cb[i].u.c.offset = offset + (i * BUFFER_SZ);
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
@@ -438,13 +443,33 @@ static int stress_aiol(const stress_args_t *args)
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_PREAD;
 			cb[i].u.c.buf = bufptr;
-			cb[i].u.c.offset = stress_mwc16() * BUFFER_SZ;
+			cb[i].u.c.offset = offset + (i * BUFFER_SZ);
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
 
 		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, false) < 0)
 			break;
+
+		n = stress_aiol_wait(args, ctx, events, aio_linux_requests);
+		if (n < 0)
+			break;
+
+		for (i = 0; i < (size_t)n; i++) {
+			struct iocb *obj = events[i].obj;
+
+			if (!obj)
+				continue;
+
+			bufptr = obj->u.c.buf;
+			if (aio_linux_check_buffer(j + (((intptr_t)bufptr) >> 12), bufptr, BUFFER_SZ) != true) {
+				if (warnings++ < 5) {
+					pr_inf("%s: unexpected data mismatch in buffer %zd (maybe a wait timeout issue)\n",
+						args->name, i);
+					break;
+				}
+			}
+		}
 
 #if defined(__NR_io_cancel)
 		{
@@ -459,17 +484,6 @@ static int stress_aiol(const stress_args_t *args)
 			}
 		}
 #endif
-		n = stress_aiol_wait(args, ctx, events, aio_linux_requests);
-		if (n < 0)
-			break;
-
-		for (bufptr = buffer, i = 0; i < (size_t)n ; i++, bufptr += BUFFER_SZ) {
-			if (aio_linux_check_buffer(i + j, bufptr, BUFFER_SZ) != true) {
-				pr_fail("%s: data mismatch in buffer %zd\n",
-					args->name, i);
-			}
-		}
-
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
@@ -493,7 +507,7 @@ static int stress_aiol(const stress_args_t *args)
 		inc_counter(args);
 		if (!keep_stressing())
 			break;
-
+#if 0
 		/*
 		 *  Async fdsync and fsync every 256 iterations, older kernels don't
 		 *  support these, so don't fail if EINVAL is returned.
@@ -513,7 +527,9 @@ static int stress_aiol(const stress_args_t *args)
 				break;
 			if (errno == 0)
 				(void)stress_aiol_wait(args, ctx, events, aio_linux_requests);
+			
 		}
+#endif
 		inc_counter(args);
 	} while (keep_stressing());
 
