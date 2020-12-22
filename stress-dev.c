@@ -2633,8 +2633,8 @@ static inline void stress_dev_rw(
     defined(TCGETS) && \
     defined(HAVE_TERMIOS)
 		if (S_ISCHR(buf.st_mode) &&
-		    strncmp("/dev/vsock", path, 9) &&
-		    strncmp("/dev/dri", path, 7) &&
+		    strncmp("/dev/vsock", path, 10) &&
+		    strncmp("/dev/dri", path, 8) &&
 		    (ioctl(fd, TCGETS, &tios) == 0))
 			stress_dev_tty(args->name, fd, path);
 #endif
