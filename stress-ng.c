@@ -675,6 +675,8 @@ static const struct option long_options[] = {
 	{ "rlimit-ops",	1,	0,	OPT_rlimit_ops },
 	{ "rmap",	1,	0,	OPT_rmap },
 	{ "rmap-ops",	1,	0,	OPT_rmap_ops },
+	{ "rseq",	1,	0,	OPT_rseq },
+	{ "rseq-ops",	1,	0,	OPT_rseq_ops },
 	{ "rtc",	1,	0,	OPT_rtc },
 	{ "rtc-ops",	1,	0,	OPT_rtc_ops },
 	{ "sched",	1,	0,	OPT_sched },

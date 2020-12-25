@@ -580,6 +580,10 @@
 #include <linux/random.h>
 #endif
 
+#if defined(HAVE_LINUX_RSEQ_H)
+#include <linux/rseq.h>
+#endif
+
 #if defined(HAVE_LINUX_RTC_H)
 #include <linux/rtc.h>
 #endif
@@ -2440,6 +2444,7 @@ typedef struct {
 	MACRO(revio)		\
 	MACRO(rlimit)		\
 	MACRO(rmap)		\
+	MACRO(rseq)		\
 	MACRO(rtc)		\
 	MACRO(schedpolicy)	\
 	MACRO(sctp)		\
@@ -3194,6 +3199,9 @@ typedef enum {
 
 	OPT_rmap,
 	OPT_rmap_ops,
+
+	OPT_rseq,
+	OPT_rseq_ops,
 
 	OPT_rtc,
 	OPT_rtc_ops,

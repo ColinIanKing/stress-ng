@@ -224,6 +224,7 @@ STRESS_SRC = \
 	stress-revio.c \
 	stress-rlimit.c \
 	stress-rmap.c \
+	stress-rseq.c \
 	stress-rtc.c \
 	stress-sctp.c \
 	stress-schedpolicy.c \

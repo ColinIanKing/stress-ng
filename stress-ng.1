@@ -3028,6 +3028,17 @@ of the mappings. Data is synchronously msync'd to the file 1 in every
 .B \-\-rmap\-ops N
 stop after N bogo rmap memory writes/reads.
 .TP
+.B \-\-rseq N
+start N workers that exercise restartable sequences via the rseq(2) system
+call.  This loops over a long duration critical section that is likely to
+be interrupted.  A rseq abort handler keeps count of the number of
+interruptions and a SIGSEV handler also tracks any failed rseq aborts that
+can occur if there is a mistmatch in a rseq check signature. Linux only.
+.TP
+.B \-\-rseq\-ops N
+stop after N bogo rseq operations. Each bogo rseq operation is equivalent
+to 10000 iterations over a long duration rseq handled criticial section.
+.TP
 .B \-\-rtc N
 start N workers that exercise the real time clock (RTC) interfaces via /dev/rtc
 and /sys/class/rtc/rtc0. No destructive writes (modifications) are performed on
