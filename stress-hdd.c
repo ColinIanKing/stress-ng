@@ -708,16 +708,23 @@ seq_rd_retry:
 					misreads++;
 
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
-					ssize_t j;
+					if (hdd_flags & HDD_OPT_WR_SEQ) {
+						ssize_t j;
 
-					for (j = 0; j < ret; j++) {
-						uint8_t v = (((i + j) >> 9) + i + j + args->instance) & 0xff;
-						if (hdd_flags & HDD_OPT_WR_SEQ) {
-							/* Write seq has written to all of the file, so it should always be OK */
+						/* Write seq has written to all of the file, so it should always be OK */
+						for (j = 0; j < ret; j++) {
+							register uint8_t v = (((i + j) >> 9) + i + j + args->instance) & 0xff;
+
 							if (buf[j] != v)
 								baddata++;
-						} else {
-							/* Write rnd has written to some of the file, so data either zero or OK */
+						}
+					} else {
+						ssize_t j;
+
+						/* Write rnd has written to some of the file, so data either zero or OK */
+						for (j = 0; j < ret; j++) {
+							register uint8_t v = (((i + j) >> 9) + i + j + args->instance) & 0xff;
+
 							if (buf[j] != 0 && buf[j] != v)
 								baddata++;
 						}
