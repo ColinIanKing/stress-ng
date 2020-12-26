@@ -74,7 +74,7 @@ static inline void set_rseq_zero(void)
 
 STRESS_PRAGMA_POP
 
-#define set_rseq_ptr(value)	set_rseq_ptr64((uint64_t)value)
+#define set_rseq_ptr(value)	set_rseq_ptr64((uint64_t)(intptr_t)value)
 
 /*
  *  shim_rseq()
