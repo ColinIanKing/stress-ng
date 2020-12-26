@@ -509,8 +509,6 @@ static int stress_hdd(const stress_args_t *args)
 	buf = (uint8_t *)stress_align_address(alloc_buf, BUF_ALIGNMENT);
 #endif
 
-	stress_strnrnd((char *)buf, hdd_write_size);
-
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	do {
@@ -614,7 +612,7 @@ rnd_wr_retry:
 				}
 
 				for (j = 0; j < hdd_write_size; j++)
-					buf[j] = (offset + j) & 0xff;
+					buf[j] = (((offset + j) >> 9) + offset + j + args->instance) & 0xff;
 
 				ret = stress_hdd_write(fd, buf, (size_t)hdd_write_size,
 					hdd_write_size, hdd_flags);
@@ -644,8 +642,8 @@ seq_wr_retry:
 					goto yielded;
 				}
 
-				for (j = 0; j < hdd_write_size; j += 512)
-					buf[j] = (i + j) & 0xff;
+				for (j = 0; j < hdd_write_size; j++)
+					buf[j] = (((i + j) >> 9) + i + j + args->instance) & 0xff;
 				ret = stress_hdd_write(fd, buf, (size_t)hdd_write_size,
 					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
@@ -710,17 +708,17 @@ seq_rd_retry:
 					misreads++;
 
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
-					size_t j;
+					ssize_t j;
 
-					for (j = 0; j < hdd_write_size; j += 512) {
-						uint8_t v = (i + j) & 0xff;
+					for (j = 0; j < ret; j++) {
+						uint8_t v = (((i + j) >> 9) + i + j + args->instance) & 0xff;
 						if (hdd_flags & HDD_OPT_WR_SEQ) {
 							/* Write seq has written to all of the file, so it should always be OK */
-							if (buf[0] != v)
+							if (buf[j] != v)
 								baddata++;
 						} else {
 							/* Write rnd has written to some of the file, so data either zero or OK */
-							if (buf[0] != 0 && buf[0] != v)
+							if (buf[j] != 0 && buf[j] != v)
 								baddata++;
 						}
 					}
@@ -772,17 +770,17 @@ rnd_rd_retry:
 					misreads++;
 
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
-					size_t j;
+					ssize_t j;
 
-					for (j = 0; j < hdd_write_size; j += 512) {
-						uint8_t v = (i + j) & 0xff;
+					for (j = 0; j < ret; j++) {
+						uint8_t v = (((offset + j) >> 9) + offset + j + args->instance) & 0xff;
 						if (hdd_flags & HDD_OPT_WR_SEQ) {
 							/* Write seq has written to all of the file, so it should always be OK */
-							if (buf[0] != v)
+							if (buf[j] != v)
 								baddata++;
 						} else {
 							/* Write rnd has written to some of the file, so data either zero or OK */
-							if (buf[0] != 0 && buf[0] != v)
+							if (buf[j] != 0 && buf[j] != v)
 								baddata++;
 						}
 					}
