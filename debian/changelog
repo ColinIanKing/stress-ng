@@ -1,3 +1,40 @@
+stress-ng (0.12.01-1) unstable; urgency=medium
+
+  [David Turner]
+  * stress-hdd: strengthen verification with --verify --hdd N
+
+  [Dominik B Czarnota]
+  * Fix off-by-ones strncmp in stress-dev.c
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: update contributors section and date
+  * stress-rseq: fix ptr cast to uint64_t warnings on 32 bit arm
+  * stress-rseq: only build with gcc
+  * stress-epoll: fix incorrect call to epoll_pwait when pwait2 version
+    does not exist
+  * stress-hdd: minor optimization, move hdd_flags & HDD_OPT_WR_SEQ
+    check outside of loop
+  * Update syscalls and TODO now that rseq has finally been implemented
+  * stress-rseq: add a restartable sequence rseq(2) system call stressor
+  * stress-aio-linux: ensure checking is really correct
+  * stress-open: limit maximum number of open file descriptors on 32 bit
+    systems
+  * stress-cpu: fix --cpu-load timer issues
+  * stress-longjmp: fix typo in macro
+  * Define constants for {nano|micro|milli}seconds and use these
+  * stress-cpu: add -ve delay sanity check to handle clock warping
+  * stress-readahead: replace white space with tabs
+  * stress-sysinfo: don't make EPERM errors a hard failure
+  * Make pid_t print and scanning more portable
+  * stress-aio-linux: fix error handling and submit waits, add sanity
+    data checks
+  * stress-epoll: remove white spaces
+  * stress-epoll: use epoll_pwait2 if it is available.
+  * stress-clone: remove noisy clone information
+
+ -- Colin King <colin.king@canonical.com>  Sat, 26 Dec 2020 16:35:22 +0000
+
 stress-ng (0.12.00-1) unstable; urgency=medium
 
   * Makefile: bump version
