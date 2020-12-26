@@ -139,7 +139,7 @@ static int stress_epoll_pwait(
 			return ret;
 	}
 #endif
-	return stress_epoll_pwait(epfd, events, maxevents, timeout, sigmask);
+	return epoll_pwait(epfd, events, maxevents, timeout, sigmask);
 }
 
 
