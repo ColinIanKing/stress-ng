@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.12.00
+VERSION=0.12.01
 #
 # Codename "synthetic system strainer"
 #
