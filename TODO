@@ -18,6 +18,5 @@
 
 List of TODO items:
 
-1. restartable seq: https://lore.kernel.org/lkml/20180412192800.15708-3-mathieu.desnoyers@efficios.com/
-2. Documentation/watch_queue.rst
-3. xattr on in-memory file systems like tmpfs
+1. Documentation/watch_queue.rst
+2. xattr on in-memory file systems like tmpfs
