@@ -3819,6 +3819,7 @@ typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context
 
 #define	STRESS_OOMABLE_NORMAL	(0x00000000)		/* Normal oomability */
 #define STRESS_OOMABLE_DROP_CAP	(0x00000001)		/* Drop capabilities */
+#define STRESS_OOMABLE_QUIET	(0x00000002)		/* Don't report activity */
 
 /* Misc helpers */
 extern size_t stress_mk_filename(char *fullname, const size_t fullname_len,

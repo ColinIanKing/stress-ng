@@ -55,10 +55,16 @@ asm volatile(		\
 	"nop\n"		\
 );
 
+typedef struct {
+	uint64_t crit_count;		/* critical path entry count */
+	uint64_t crit_interruptions;	/* interruptions in critical path */
+	uint64_t segv_count;		/* SIGSEGV count from rseq */
+	uint32_t valid_signature;	/* rseq valid signature */
+} rseq_info_t;
+
 static volatile struct rseq restartable_seq;	/* rseq */
-static volatile uint64_t signal_segv;		/* sigsegv count */
-static uint64_t n, crit_interruptions;		/* critical section interruption count */
-static sigjmp_buf jmp_env;			/* sigsegv jmpbuf */
+static uint32_t signature;
+static rseq_info_t *rseq_info;
 
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
@@ -94,21 +100,21 @@ static int shim_rseq(volatile struct rseq *rseq_abi, uint32_t rseq_len,
  *	critical section code easier to write in pure C rather
  *	have to hand craft per-architecture specific code
  */
-static int rseq_register(uint32_t signature)
+static int rseq_register(volatile struct rseq *rseq, uint32_t signature)
 {
 	set_rseq_zero();
-	return shim_rseq(&restartable_seq, sizeof(restartable_seq), 0, signature);
+	return shim_rseq(rseq, sizeof(*rseq), 0, signature);
 }
 
 /*
  *  rseq_unregister
  *	unregister the rseq handler code
  */
-static int rseq_unregister(uint32_t signature)
+static int rseq_unregister(volatile struct rseq *rseq, uint32_t signature)
 {
 	int rc;
 
-	rc = shim_rseq(&restartable_seq, sizeof(restartable_seq), RSEQ_FLAG_UNREGISTER, signature);
+	rc = shim_rseq(rseq, sizeof(*rseq), RSEQ_FLAG_UNREGISTER, signature);
 	set_rseq_zero();
 	return rc;
 }
@@ -185,8 +191,7 @@ static void sigsegv_handler(int sig)
 {
 	(void)sig;
 
-	signal_segv++;
-	siglongjmp(jmp_env, 1);
+	rseq_info->segv_count++;
 }
 
 /*
@@ -197,7 +202,7 @@ static int stress_rseq_supported(const char *name)
 	uint32_t signature;
 
 	rseq_test(-1, &signature);
-	if (rseq_register(signature) < 0) {
+	if (rseq_register(&restartable_seq, signature) < 0) {
 		if (errno == ENOSYS) {
 			pr_inf("%s stressor will be skipped, rseq system call not implemented\n",
 				name);
@@ -207,23 +212,24 @@ static int stress_rseq_supported(const char *name)
 		}
 		return -1;
 	}
-	(void)rseq_unregister(signature);
+	(void)rseq_unregister(&restartable_seq, signature);
 	return 0;
 }
-
 
 /*
  *  stress_rseq()
  *	exercise restartable sequences rseq
  */
-static int stress_rseq(const stress_args_t *args)
+static int stress_rseq_oomable(const stress_args_t *args, void *context)
 {
-	uint32_t signature;
 	struct sigaction sa;
+	(void)context;
+	char misaligned_seq_buf[sizeof(struct rseq) + 1];
+	volatile struct rseq *misaligned_seq = (volatile struct rseq *)&misaligned_seq_buf[1];
+	volatile struct rseq invalid_seq;
 
-	n = 0;
-	crit_interruptions = 0;
-	signal_segv = 0;
+	(void)memcpy((void *)misaligned_seq, (void *)&restartable_seq, sizeof(restartable_seq));
+	(void)memcpy((void *)&invalid_seq, (void *)&restartable_seq, sizeof(restartable_seq));
 
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = sigsegv_handler;
@@ -232,41 +238,99 @@ static int stress_rseq(const stress_args_t *args)
 		exit(1);
 	}
 
-	rseq_test(-1, &signature);
-
 	do {
-		int ret;
 		register int i;
+		int ret;
 
 		/*
-		 *  bail out early if we trapped a rseq generated
-		 *  SIGSEGV
+		 *  exercise register/critical section/unregister,
+		 *  every 2048 register with an invalid signature to
+		 *  exercise kernel invlid signature check
 		 */
-		ret = sigsetjmp(jmp_env, 1);
-		if (ret)
-			break;
+		if ((get_counter(args) & 0x1fff) == 1)
+			signature = 0xbadc0de;
+		else
+			signature = rseq_info->valid_signature;
 
-		/*
-		 *  exercise register/critical section/unregister
-		 */
-		rseq_register(signature);
+		if (rseq_register(&restartable_seq, signature) < 0) {
+			if (errno != EINVAL)
+				pr_err("%s: rseq failed to register: errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			goto unreg;
+		}
+
 		for (i = 0; i < 10000; i++) {
 			uint32_t cpu;
-
 			cpu = STRESS_ACCESS_ONCE(restartable_seq.cpu_id_start);
 			if (rseq_test(cpu, NULL))
-				crit_interruptions++;
+				rseq_info->crit_interruptions++;
 		}
-		n += i;
-		rseq_unregister(signature);
+		rseq_info->crit_count += i;
+
+unreg:
+		(void)rseq_unregister(&restartable_seq, signature);
 		inc_counter(args);
+		shim_sched_yield();
+
+		/* Exercise invalid rseq calls.. */
+
+		/* Invalid rseq size, EINVAL */
+		ret = shim_rseq(&restartable_seq, 0, 0, signature);
+		if (ret == 0)
+			(void)rseq_unregister(&restartable_seq, signature);
+
+		/* Invalid alignment, EINVAL */
+		ret = rseq_register(misaligned_seq, signature);
+		if (ret == 0)
+			(void)rseq_unregister(misaligned_seq, signature);
+
+		/* Invalid unregister, invalid struct size, EINVAL */
+		(void)shim_rseq(&restartable_seq, 0, RSEQ_FLAG_UNREGISTER, signature);
+
+		/* Invalid unregister, different seq struct addr, EINVAL */
+		(void)rseq_unregister(&invalid_seq, signature);
+
+		/* Invalid unregister, different signature, EINAL  */
+		(void)rseq_unregister(&invalid_seq, ~signature);
+
+		/* Register twice, EBUSY */
+		(void)rseq_register(&restartable_seq, signature);
+		(void)rseq_register(&restartable_seq, signature);
+		(void)rseq_unregister(&restartable_seq, signature);
 	} while (keep_stressing());
 
+	return EXIT_SUCCESS;
+}
+
+static int stress_rseq(const stress_args_t *args)
+{
+	int ret;
+
+	/*
+	 *  rseq_info is in a shared page to avoid losing the
+	 *  stats when the child gets SEGV'd by rseq when we use
+	 *  in invalid signature
+	 */
+	rseq_info = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (rseq_info == MAP_FAILED) {
+		pr_inf("%s: cannot allocate shared page, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
+	/* Get the expected valid signature */
+	rseq_test(-1, &rseq_info->valid_signature);
+
+	ret = stress_oomable_child(args, NULL, stress_rseq_oomable, STRESS_OOMABLE_QUIET);
 	pr_inf("%s: %" PRIu64 " critical section interruptions, %" PRIu64
 	       " flag mismatches of %" PRIu64 " restartable sequences\n",
-		args->name, crit_interruptions, signal_segv, n);
+		args->name, rseq_info->crit_interruptions,
+		rseq_info->segv_count, rseq_info->crit_count);
 
-	return EXIT_SUCCESS;
+	(void)munmap(rseq_info, args->page_size);
+
+	return ret;
 }
 
 stressor_info_t stress_rseq_info = {

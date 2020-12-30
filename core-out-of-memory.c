@@ -190,6 +190,7 @@ int stress_oomable_child(
 	int segvs = 0;
 	int buserrs = 0;
 	size_t signal = 0;
+	const bool not_quiet = !(flag & STRESS_OOMABLE_QUIET);
 
 	/*
 	 *  Kill child multiple times, start with SIGALRM and work up
@@ -211,8 +212,9 @@ again:
 		/* Keep trying if we are out of resources */
 		if ((errno == EAGAIN) || (errno == ENOMEM))
 			goto again;
-		pr_err("%s: fork failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
+		if (not_quiet)
+			pr_err("%s: fork failed: errno=%d: (%s)\n",
+				args->name, errno, strerror(errno));
 		return -1;
 	} else if (pid > 0) {
 		/* Parent, wait for child */
@@ -226,7 +228,7 @@ rewait:
 			/* No longer alive? */
 			if (errno == ECHILD)
 				goto report;
-			if (errno != EINTR)
+			if ((errno != EINTR) && not_quiet)
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 
@@ -247,9 +249,10 @@ rewait:
 				shim_usleep(500000);
 			goto rewait;
 		} else if (WIFSIGNALED(status)) {
-			pr_dbg("%s: child died: %s (instance %d)\n",
-				args->name, stress_strsignal(WTERMSIG(status)),
-				args->instance);
+			if (not_quiet)
+				pr_dbg("%s: child died: %s (instance %d)\n",
+					args->name, stress_strsignal(WTERMSIG(status)),
+					args->instance);
 			/* Bus error death? retry */
 			if (WTERMSIG(status) == SIGBUS) {
 				buserrs++;
@@ -267,27 +270,30 @@ rewait:
 				 */
 				if (g_opt_flags & OPT_FLAGS_OOMABLE) {
 					stress_log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, bailing out "
-						"(instance %d)\n",
-						args->name, args->instance);
+					if (not_quiet)
+						pr_dbg("%s: assuming killed by OOM "
+							"killer, bailing out "
+							"(instance %d)\n",
+							args->name, args->instance);
 					return EXIT_SUCCESS;
 				} else {
 					stress_log_system_mem_info();
-					pr_dbg("%s: assuming killed by OOM "
-						"killer, restarting again "
-						"(instance %d)\n",
-						args->name, args->instance);
+					if (not_quiet)
+						pr_dbg("%s: assuming killed by OOM "
+							"killer, restarting again "
+							"(instance %d)\n",
+							args->name, args->instance);
 					ooms++;
 					goto again;
 				}
 			}
 			/* If we got killed by sigsegv, re-start */
 			if (WTERMSIG(status) == SIGSEGV) {
-				pr_dbg("%s: killed by SIGSEGV, "
-					"restarting again "
-					"(instance %d)\n",
-					args->name, args->instance);
+				if (not_quiet)
+					pr_dbg("%s: killed by SIGSEGV, "
+						"restarting again "
+						"(instance %d)\n",
+						args->name, args->instance);
 				segvs++;
 				goto again;
 			}
@@ -317,11 +323,12 @@ rewait:
 	}
 
 report:
-	if (ooms + segvs + buserrs > 0)
+	if ((ooms + segvs + buserrs > 0) && not_quiet) {
 		pr_dbg("%s: OOM restarts: %d"
 			", SIGSEGV restarts: %d"
 			", SIGBUS restarts: %d\n",
 			args->name, ooms, segvs, buserrs);
+	}
 
 	return EXIT_SUCCESS;
 }
