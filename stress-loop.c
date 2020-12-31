@@ -194,7 +194,8 @@ static int stress_loop(const stress_args_t *args)
 			char attr_path[PATH_MAX];
 			char buf[4096];
 
-			(void)snprintf(attr_path, sizeof(attr_path), "/sys/devices/virtual/block/loop%ld/loop/%s",
+			(void)snprintf(attr_path, sizeof(attr_path),
+				"/sys/devices/virtual/block/loop%ld/loop/%s",
 				dev_num, loop_attr[i]);
 			ret = system_read(attr_path, buf, sizeof(buf));
 			(void)ret;
