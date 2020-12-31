@@ -49,6 +49,7 @@ typedef struct {
 #endif
 #if defined(HAVE_MEMFD_CREATE)
 	int fd_memfd;
+	void *ptr_memfd;
 #endif
 #if defined(__NR_memfd_secret)
 	int fd_memfd_secret;
@@ -149,13 +150,13 @@ static void NORETURN waste_resources(
 
 		ret = getrlimit(RLIMIT_MEMLOCK, &rlim);
 		if (ret < 0) {
-			mlock_size = args->page_size * MAX_LOOPS;
+			mlock_size = page_size * MAX_LOOPS;
 		} else {
 			mlock_size = rlim.rlim_cur;
 		}
 	}
 #else
-	mlock_size = args->page_size * MAX_LOOPS;
+	mlock_size = page_size * MAX_LOOPS;
 #endif
 
 #if !(defined(HAVE_LIB_RT) &&	\
@@ -187,6 +188,7 @@ static void NORETURN waste_resources(
 #endif
 #if defined(HAVE_MEMFD_CREATE)
 		info[i].fd_memfd = -1;
+		info[i].ptr_memfd = NULL;
 #endif
 #if defined(__NR_memfd_secret)
 		info[i].fd_memfd_secret = -1;
@@ -309,15 +311,24 @@ static void NORETURN waste_resources(
 		(void)snprintf(name, sizeof(name), "memfd-%" PRIdMAX "-%zu",
 			(intmax_t)pid, i);
 		info[i].fd_memfd = shim_memfd_create(name, 0);
+		if (info[i].fd_memfd != -1) {
+			if (ftruncate(info[i].fd_memfd, page_size) == 0) {
+				info[i].ptr_memfd = mmap(NULL, page_size,
+					PROT_READ | PROT_WRITE, MAP_SHARED,
+					info[i].fd_memfd, 0);
+				if (info[i].ptr_memfd == MAP_FAILED)
+					info[i].ptr_memfd = NULL;
+			}
+		}
 		if (!keep_stressing_flag())
 			break;
 #endif
 #if defined(__NR_memfd_secret)
 		info[i].fd_memfd_secret = shim_memfd_secret(0);
 		if (info[i].fd_memfd_secret != -1) {
-			if (ftruncate(info[i].fd_memfd_secret, args->page_size) == 0) {
+			if (ftruncate(info[i].fd_memfd_secret, page_size) == 0) {
 				info[i].ptr_memfd_secret = mmap(NULL,
-					args->page_size,
+					page_size,
 					PROT_READ | PROT_WRITE, MAP_SHARED,
 					info[i].fd_memfd_secret, 0);
 				if (info[i].ptr_memfd_secret == MAP_FAILED)
@@ -536,6 +547,8 @@ static void NORETURN waste_resources(
 #if defined(HAVE_MEMFD_CREATE)
 		if (info[i].fd_memfd != -1)
 			(void)close(info[i].fd_memfd);
+		if (info[i].ptr_memfd)
+			(void)munmap(info[i].ptr_memfd, page_size);
 #endif
 #if defined(__NR_memfd_secret)
 		if (info[i].fd_memfd_secret != -1)
