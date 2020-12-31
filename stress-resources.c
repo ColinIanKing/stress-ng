@@ -50,6 +50,10 @@ typedef struct {
 #if defined(HAVE_MEMFD_CREATE)
 	int fd_memfd;
 #endif
+#if defined(__NR_memfd_secret)
+	int fd_memfd_secret;
+	void *ptr_memfd_secret;
+#endif
 #if defined(HAVE_USERFAULTFD)
 	int fd_uf;
 #endif
@@ -184,6 +188,10 @@ static void NORETURN waste_resources(
 #if defined(HAVE_MEMFD_CREATE)
 		info[i].fd_memfd = -1;
 #endif
+#if defined(__NR_memfd_secret)
+		info[i].fd_memfd_secret = -1;
+		info[i].ptr_memfd_secret = NULL;
+#endif
 		info[i].fd_sock = -1;
 		info[i].fd_socketpair[0] = -1;
 		info[i].fd_socketpair[1] = -1;
@@ -301,6 +309,21 @@ static void NORETURN waste_resources(
 		(void)snprintf(name, sizeof(name), "memfd-%" PRIdMAX "-%zu",
 			(intmax_t)pid, i);
 		info[i].fd_memfd = shim_memfd_create(name, 0);
+		if (!keep_stressing_flag())
+			break;
+#endif
+#if defined(__NR_memfd_secret)
+		info[i].fd_memfd_secret = shim_memfd_secret(0);
+		if (info[i].fd_memfd_secret != -1) {
+			if (ftruncate(info[i].fd_memfd_secret, args->page_size) == 0) {
+				info[i].ptr_memfd_secret = mmap(NULL,
+					args->page_size,
+					PROT_READ | PROT_WRITE, MAP_SHARED,
+					info[i].fd_memfd_secret, 0);
+				if (info[i].ptr_memfd_secret == MAP_FAILED)
+					info[i].ptr_memfd_secret = NULL;
+			}
+		}
 		if (!keep_stressing_flag())
 			break;
 #endif
@@ -514,6 +537,14 @@ static void NORETURN waste_resources(
 		if (info[i].fd_memfd != -1)
 			(void)close(info[i].fd_memfd);
 #endif
+#if defined(__NR_memfd_secret)
+		if (info[i].fd_memfd_secret != -1)
+			(void)close(info[i].fd_memfd_secret);
+		if (info[i].ptr_memfd_secret)
+			(void)munmap(info[i].ptr_memfd_secret, page_size);
+#endif
+		if (!keep_stressing_flag())
+			break;
 		if (info[i].fd_sock != -1)
 			(void)close(info[i].fd_sock);
 		if (info[i].fd_socketpair[0] != -1)
