@@ -1933,3 +1933,16 @@ int shim_tkill(int tid, int sig)
 	return shim_tgkill(0, tid, sig);
 #endif
 }
+
+/*
+ *  shim_memfd_secret()
+ *	wrapper for the new memfd_secret system call
+ */
+int shim_memfd_secret(unsigned long flags)
+{
+#if defined(__NR_memfd_secret)
+	return syscall(__NR_memfd_secret, flags);
+#else
+	return shim_enosys(0, flags);
+#endif
+}

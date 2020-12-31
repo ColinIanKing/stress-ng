@@ -4284,6 +4284,7 @@ extern long shim_mbind(void *addr, unsigned long len,
 	unsigned long maxnode, unsigned flags);
 extern int shim_membarrier(int cmd, int flags);
 extern int shim_memfd_create(const char *name, unsigned int flags);
+extern int shim_memfd_secret(unsigned long flags);
 extern long shim_migrate_pages(int pid, unsigned long maxnode,
 	const unsigned long *old_nodes, const unsigned long *new_nodes);
 extern int shim_mincore(void *addr, size_t length, unsigned char *vec);
