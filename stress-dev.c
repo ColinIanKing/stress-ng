@@ -1109,6 +1109,46 @@ static void stress_dev_random_linux(
 		(void)ret;
 	}
 #endif
+
+#if defined(RNDRESEEDCRNG)
+	{
+		int ret;
+
+		ret = ioctl(fd, RNDRESEEDCRNG, NULL);
+		(void)ret;
+	}
+#endif
+
+#if defined(RNDADDENTROPY)
+	{
+		char filename[PATH_MAX];
+		int fd_rdwr;
+
+		/*
+		 *  Re-open fd with O_RDWR
+		 */
+		(void)snprintf(filename, sizeof(filename), "/proc/self/fd/%d", fd);
+		fd_rdwr = open(filename, O_RDWR);
+		if (fd_rdwr != -1) {
+			int ret;
+			const uint32_t rnd = stress_mwc32();
+			struct shim_rand_pool_info {
+				int	entropy_count;
+				int	buf_size;
+				uint8_t	buf[4];
+			} info;
+			const size_t sz = sizeof(info.buf);
+
+			info.entropy_count = sz * 8;
+			info.buf_size = sz;
+			(void)memcpy(&info.buf, &rnd, sz);
+
+			ret = ioctl(fd_rdwr, RNDADDENTROPY, &info);
+			(void)ret;
+			(void)close(fd_rdwr);
+		}
+	}
+#endif
 }
 #endif
 
