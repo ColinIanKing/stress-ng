@@ -124,6 +124,7 @@ static int stress_loop(const stress_args_t *args)
 
 	do {
 		int ctrl_dev, loop_dev;
+		void *ptr;
 		size_t i;
 		long dev_num;
 #if defined(LOOP_SET_DIRECT_IO)
@@ -230,6 +231,17 @@ static int stress_loop(const stress_args_t *args)
 		(void)ret;
 #endif
 #endif
+
+		ptr = mmap(NULL, backing_size, PROT_READ | PROT_WRITE,
+			MAP_SHARED, loop_dev, 0);
+		if (ptr != MAP_FAILED) {
+			(void)stress_mincore_touch_pages_interruptible(ptr, backing_size);
+#if defined(MS_ASYNC)
+			(void)shim_msync(ptr, backing_size, MS_ASYNC);
+#endif
+			(void)munmap(ptr, backing_size);
+			(void)shim_fsync(loop_dev);
+		}
 
 #if defined(LOOP_GET_STATUS64)
 		/*
