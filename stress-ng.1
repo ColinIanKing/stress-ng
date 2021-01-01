@@ -74,7 +74,8 @@ being used.
 .B \-a N, \-\-all N, \-\-parallel N
 start N instances of all stressors in parallel. If N is less than zero, then
 the number of CPUs online is used for the number of instances.  If N is zero,
-then the number of CPUs in the system is used.
+then the number of configured CPUs in the system is used.  If N is less than
+zero then the number of online CPUs is used.
 .TP
 .B \-b N, \-\-backoff N
 wait N microseconds between the start of each stress worker process. This
@@ -4476,10 +4477,15 @@ stress\-ng \-\-cpu 4 \-\-cpu-method fft \-\-cpu-ops 10000 \-\-metrics\-brief
 run 4 FFT cpu stressors, stop after 10000 bogo operations and produce a
 summary just for the FFT results.
 .LP
-stress\-ng \-\-cpu 0 \-\-cpu-method all \-t 1h
+stress\-ng \-\-cpu -1 \-\-cpu-method all \-t 1h
 .IP
 run cpu stressors on all online CPUs working through all the available CPU
 stressors for 1 hour.
+.LP
+stress\-ng \-\-cpu 0 \-\-cpu-method all \-t 20m
+.IP
+run cpu stressors on all configured CPUs working through all the available CPU
+stressors for 20 minutes
 .LP
 stress\-ng \-\-all 4 \-\-timeout 5m
 .IP
@@ -4506,9 +4512,9 @@ run all the stressors in the io class one by one for 5 minutes each, with 8
 instances of each stressor running concurrently and show overall time
 utilisation statistics at the end of the run.
 .LP
-stress\-ng \-\-all 0 \-\-maximize \-\-aggressive
+stress\-ng \-\-all -1 \-\-maximize \-\-aggressive
 .IP
-run all the stressors (1 instance of each per CPU) simultaneously, maximize
+run all the stressors (1 instance of each per online CPU) simultaneously, maximize
 the settings (memory sizes, file allocations, etc.) and select the most
 demanding/aggressive options.
 .LP
