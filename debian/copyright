@@ -4,7 +4,7 @@ Upstream-Contact: Colin King <colin.king@canonical.com>
 Source: git://kernel.ubuntu.com/cking/stress-ng.git
 
 Files: *
-Copyright: 2013-2020, Canonical, Ltd.
+Copyright: 2013-2021, Canonical, Ltd.
 License: GPL-2+
  On Debian systems, the complete text of the GNU General Public
  License can be found in `/usr/share/common-licenses/GPL-2'.
