@@ -4501,7 +4501,7 @@ run 64 instances of all the different cpu stressors and verify that the
 computations are correct for 10 minutes with a bogo operations summary at the
 end.
 .LP
-stress\-ng \-\-sequential 0 \-t 10m
+stress\-ng \-\-sequential -1 \-t 10m
 .IP
 run all the stressors one by one for 10 minutes, with the number of instances
 of each stressor matching the number of online CPUs.
