@@ -109,6 +109,7 @@ static int stress_link_generic(
 			if (linkfunc(oldpath, newpath) < 0) {
 				if ((errno == EDQUOT) ||
 				    (errno == ENOMEM) ||
+				    (errno == EMLINK) ||
 				    (errno == ENOSPC)) {
 					/* Try again */
 					continue;
