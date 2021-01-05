@@ -157,7 +157,7 @@ static int stress_link_generic(
 					pr_fail("%s: readlink failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				} else {
-					newpath[rret] = '\0';
+					buf[rret] = '\0';
 					if ((size_t)rret != oldpathlen)
 						pr_fail("%s: readlink length error, got %zd, expected: %zd\n",
 							args->name, (size_t)rret, oldpathlen);
