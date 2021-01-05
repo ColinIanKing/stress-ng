@@ -221,10 +221,13 @@ retry:
 		(void)close(fd);
 	} while (keep_stressing());
 
+#if defined(HAVE_SOCKADDR_UN)
 	if (addr) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+
 		(void)unlink(addr_un->sun_path);
 	}
+#endif
 
 	ret = EXIT_SUCCESS;
 
@@ -247,7 +250,6 @@ static int stress_socket_server(
 {
 	int fd, status;
 	int so_reuseaddr = 1;
-	struct sockaddr_un *addr_un;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
@@ -343,10 +345,13 @@ static int stress_socket_server(
 die_close:
 	(void)close(fd);
 die:
+#if defined(HAVE_SOCKADDR_UN)
 	if (addr) {
-		addr_un = (struct sockaddr_un *)addr;
+		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+
 		(void)unlink(addr_un->sun_path);
 	}
+#endif
 
 	if (pid) {
 		(void)kill(pid, SIGALRM);

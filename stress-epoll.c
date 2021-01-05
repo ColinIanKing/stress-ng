@@ -631,9 +631,11 @@ retry:
 		inc_counter(args);
 	} while (keep_stressing());
 
-#if defined(AF_UNIX)
+#if defined(AF_UNIX) &&		\
+    defined(HAVE_SOCKADDR_UN)
 	if (addr && (epoll_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+
 		(void)unlink(addr_un->sun_path);
 	}
 #endif
@@ -930,9 +932,11 @@ die_close:
 	if (sfd != -1)
 		(void)close(sfd);
 die:
-#if defined(AF_UNIX)
+#if defined(AF_UNIX) &&		\
+    defined(HAVE_SOCKADDR_UN)
 	if (addr && (epoll_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+
 		(void)unlink(addr_un->sun_path);
 	}
 #endif

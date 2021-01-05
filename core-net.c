@@ -139,7 +139,8 @@ void stress_set_sockaddr(
 		break;
 	}
 #endif
-#if defined(AF_UNIX)
+#if defined(AF_UNIX) &&		\
+    defined(HAVE_SOCKADDR_UN)
 	case AF_UNIX: {
 		static struct sockaddr_un addr;
 

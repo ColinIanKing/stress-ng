@@ -259,9 +259,11 @@ again:
 			(void)close(fd);
 		} while (keep_stressing());
 
-#if defined(AF_UNIX)
+#if defined(AF_UNIX) &&		\
+    defined(HAVE_SOCKADDR_UN)
 		if ((udp_domain == AF_UNIX) && addr) {
 			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+
 			(void)unlink(addr_un->sun_path);
 		}
 #endif
@@ -352,9 +354,11 @@ again:
 die_close:
 		(void)close(fd);
 die:
-#if defined(AF_UNIX)
+#if defined(AF_UNIX) &&		\
+    defined(HAVE_SOCKADDR_UN)
 		if ((udp_domain == AF_UNIX) && addr) {
 			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+
 			(void)unlink(addr_un->sun_path);
 		}
 #endif
