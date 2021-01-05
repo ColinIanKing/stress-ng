@@ -117,7 +117,9 @@ static int stress_chdir(const stress_args_t *args)
 			goto abort;
 		rc = mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR);
 		if (rc < 0) {
-			if ((errno == ENOMEM) || (errno == ENOSPC)) {
+			if ((errno == ENOMEM) ||
+			    (errno == ENOSPC) ||
+			    (errno == EMLINK)) {
 				mkdir_ok[i] = false;
 				fds[i] = -1;
 				continue;
