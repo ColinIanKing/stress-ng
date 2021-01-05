@@ -59,7 +59,7 @@ static int stress_ping_sock(const stress_args_t *args)
 				args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
-		if (errno == EPERM) {
+		if ((errno == EPERM) || (errno == EACCES)) {
 			pr_inf("%s: skipping stressor, permission denied\n",
 				args->name);
 			return EXIT_NOT_IMPLEMENTED;
