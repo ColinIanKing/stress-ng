@@ -2418,6 +2418,7 @@ typedef struct {
 	MACRO(personality)	\
 	MACRO(physpage)		\
 	MACRO(pidfd)		\
+	MACRO(ping_sock)	\
 	MACRO(pipe)		\
 	MACRO(pipeherd)		\
 	MACRO(pkey)		\
@@ -3087,9 +3088,6 @@ typedef enum {
 
 	OPT_oomable,
 
-	OPT_physpage,
-	OPT_physpage_ops,
-
 	OPT_oom_pipe,
 	OPT_oom_pipe_ops,
 
@@ -3108,8 +3106,14 @@ typedef enum {
 	OPT_personality,
 	OPT_personality_ops,
 
+	OPT_physpage,
+	OPT_physpage_ops,
+
 	OPT_pidfd,
 	OPT_pidfd_ops,
+
+	OPT_ping_sock,
+	OPT_ping_sock_ops,
 
 	OPT_pipe_ops,
 	OPT_pipe_size,

@@ -2719,6 +2719,14 @@ stopped, restarted and killed using the pidfd_send_signal system call.
 stop pidfd stress workers after N child processes have been created, tested
 and killed with pidfd_send_signal.
 .TP
+.B \-\-ping\-sock N
+start N workers that send small randomized ICMP messages to the localhost
+across a range of ports (1024..65535) using a "ping" socket with an AF_INET
+domain, a SOCK_DGRAM socket type and an IPPROTO_ICMP protocol.
+.TP
+.B \-\-ping\-sock\-ops N
+stop the ping\-sock stress workers after N ICMP messages are sent.
+.TP
 .B \-p N, \-\-pipe N
 start N workers that perform large pipe writes and reads to exercise pipe I/O.
 This exercises memory write and reads as well as context switching.  Each

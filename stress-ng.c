@@ -605,6 +605,8 @@ static const struct option long_options[] = {
 	{ "physpage-ops",1,	0,	OPT_physpage_ops },
 	{ "pidfd",	1,	0,	OPT_pidfd },
 	{ "pidfd-ops",	1,	0,	OPT_pidfd_ops },
+	{ "ping-sock",	1,	0,	OPT_ping_sock },
+	{ "ping-sock-ops",1,	0,	OPT_ping_sock_ops },
 	{ "pipe",	1,	0,	OPT_pipe },
 	{ "pipe-ops",	1,	0,	OPT_pipe_ops },
 	{ "pipe-data-size",1,	0,	OPT_pipe_data_size },
