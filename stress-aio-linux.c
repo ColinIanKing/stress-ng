@@ -390,6 +390,7 @@ static int stress_aiol(const stress_args_t *args)
 		rc = exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
+		(void)unlink(filename);
 		goto finish;
 	}
 
