@@ -286,7 +286,9 @@ static int stress_dir(const stress_args_t *args)
 			(void)stress_temp_filename_args(args,
 				path, sizeof(path), gray_code);
 			if (stress_mkdir(dirfd, path, S_IRUSR | S_IWUSR) < 0) {
-				if ((errno != ENOSPC) && (errno != ENOMEM)) {
+				if ((errno != ENOSPC) &&
+				    (errno != ENOMEM) &&
+				    (errno != EMLINK)) {
 					pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
 						args->name, path, errno, strerror(errno));
 					break;
