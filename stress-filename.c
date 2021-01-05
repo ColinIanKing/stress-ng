@@ -86,6 +86,7 @@ static int stress_filename_probe(
 	const stress_args_t *args,
 	char *filename,
 	char *ptr,
+	size_t sz_max,
 	size_t *chars_allowed)
 {
 	size_t i, j;
@@ -109,7 +110,7 @@ static int stress_filename_probe(
 		 *  chars to be able to be detect for bad chars.
 		 *  Not sure why that is.
 		 */
-		for (k = 0; k < 64; k++)
+		for (k = 0; k < sz_max; k++)
 			*(ptr + k) = i;
 		*(ptr + k) = '\0';
 
@@ -120,6 +121,7 @@ static int stress_filename_probe(
 			 */
 			if ((errno != EINVAL) &&
 			    (errno != ENOENT) &&
+			    (errno == ENAMETOOLONG) &&
 			    (errno != EILSEQ)) {
 				pr_err("%s: creat() failed when probing "
 					"for allowed filename characters, "
@@ -294,7 +296,7 @@ static int stress_filename(const stress_args_t *args)
 	}
 
 	if (args->instance == 0)
-		pr_dbg("%s: maximum file size: %lu bytes\n",
+		pr_dbg("%s: maximum filename size: %lu characters\n",
 			args->name, (long unsigned) buf.f_namemax);
 #endif
 
@@ -331,7 +333,7 @@ static int stress_filename(const stress_args_t *args)
 		break;
 	case STRESS_FILENAME_PROBE:
 	default:
-		ret = stress_filename_probe(args, filename, ptr, &chars_allowed);
+		ret = stress_filename_probe(args, filename, ptr, sz_max, &chars_allowed);
 		if (ret < 0) {
 			rc = exit_status(-ret);
 			goto tidy_dir;
