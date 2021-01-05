@@ -683,6 +683,34 @@ int stress_set_temp_path(const char *path)
 }
 
 /*
+ *  stress_temp_hash_truncate()
+ *	filenames may be too long for the underlying filesystem
+ *	so workaround this by hashing them into a 64 bit hex
+ *	filename.
+ */
+static void stress_temp_hash_truncate(char *filename)
+{
+	size_t f_namemax = 16;
+	size_t len = strlen(filename);
+#if defined(HAVE_SYS_STATVFS_H)
+	struct statvfs buf;
+
+	if (statvfs(stress_temp_path, &buf) == 0)
+		f_namemax = buf.f_namemax;
+#endif
+
+	if (strlen(filename) > f_namemax) {
+		uint32_t upper, lower;
+
+		upper = stress_hash_jenkin((uint8_t *)filename, len);
+		lower = stress_hash_pjw(filename);
+
+		(void)snprintf(filename, len, "%" PRIx32 "%" PRIx32, upper, lower);
+		filename[len] = '\0';
+	}
+}
+
+/*
  *  stress_temp_filename()
  *      construct a temp filename
  */
@@ -694,12 +722,21 @@ int stress_temp_filename(
 	const uint32_t instance,
 	const uint64_t magic)
 {
-	return snprintf(path, len, "%s/tmp-%s-%d-%"
-		PRIu32 "/%s-%d-%"
-		PRIu32 "-%" PRIu64,
-		stress_temp_path,
-		name, (int)pid, instance,
+	char dirname[PATH_MAX];
+	char filename[PATH_MAX];
+
+	(void)snprintf(dirname, sizeof(dirname),
+		"tmp-%s-%d-%" PRIu32,
+		name, (int)pid, instance);
+	stress_temp_hash_truncate(dirname);
+
+	(void)snprintf(filename, sizeof(filename),
+		"%s-%d-%" PRIu32 "-%" PRIu64,
 		name, (int)pid, instance, magic);
+	stress_temp_hash_truncate(filename);
+
+	return snprintf(path, len, "%s/%s/%s",
+		stress_temp_path, dirname, filename);
 }
 
 /*
@@ -727,8 +764,15 @@ int stress_temp_dir(
 	const pid_t pid,
 	const uint32_t instance)
 {
-	return snprintf(path, len, "%s/tmp-%s-%d-%" PRIu32,
-		stress_temp_path, name, (int)pid, instance);
+	char dirname[PATH_MAX];
+
+	(void)snprintf(dirname, sizeof(dirname),
+		"tmp-%s-%d-%" PRIu32,
+		name, (int)pid, instance);
+	stress_temp_hash_truncate(dirname);
+
+	return snprintf(path, len, "%s/%s",
+		stress_temp_path, dirname);
 }
 
 /*
