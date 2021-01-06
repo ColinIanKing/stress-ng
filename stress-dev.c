@@ -157,7 +157,7 @@ static bool linux_xen_guest(void)
 
 	if (xen_guest_cached)
 		return xen_guest;
-	
+
 	/*
 	 *  The features file is a good indicator for a Xen guest
 	 */
@@ -1081,6 +1081,15 @@ static void stress_dev_scsi_blk(
 		int ret, sz;
 
 		ret = ioctl(fd, SCSI_IOCTL_GET_RESERVED_SIZE, &sz);
+		(void)ret;
+	}
+#endif
+#if defined(SCSI_IOCTL_GET_PCI)
+	{
+		/* Old ioctl was 20 chars, new API 8 chars, 32 is plenty */
+		char pci[32];
+
+		ret = ioctl(fd, SCSI_IOCTL_GET_PCI, pci);
 		(void)ret;
 	}
 #endif
