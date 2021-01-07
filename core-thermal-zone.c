@@ -26,6 +26,11 @@
 
 #if defined(STRESS_THERMAL_ZONES)
 
+/*
+ *  stress_tz_type_instance()
+ *	return the number of existing occurrances of
+ *	a named type in the tz_info_list.
+ */
 static uint32_t stress_tz_type_instance(
 	stress_tz_info_t *tz_info_list,
 	const char *type)
