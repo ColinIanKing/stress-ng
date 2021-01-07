@@ -25,6 +25,21 @@
 #include "stress-ng.h"
 
 #if defined(STRESS_THERMAL_ZONES)
+
+static uint32_t stress_tz_type_instance(
+	stress_tz_info_t *tz_info_list,
+	const char *type)
+{
+	stress_tz_info_t *tz_info;
+	uint32_t type_instance = 0;
+
+	for (tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
+		if (!strcmp(type, tz_info->type))
+			type_instance++;
+	}
+	return type_instance;
+}
+
 /*
  *  stress_tz_init()
  *	gather all thermal zones
@@ -74,6 +89,7 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 			if (fgets(type, sizeof(type), fp) != NULL) {
 				type[strcspn(type, "\n")] = '\0';
 				tz_info->type  = strdup(type);
+				tz_info->type_instance = stress_tz_type_instance(*tz_info_list, tz_info->type);
 			}
 			(void)fclose(fp);
 		}
@@ -140,6 +156,25 @@ int stress_tz_get_temperatures(stress_tz_info_t **tz_info_list, stress_tz_t *tz)
 }
 
 /*
+ *  stress_tz_compare()
+ *	sort on type name and if type names are duplicated on
+ *	type_instance value
+ */
+static int stress_tz_compare(const void *p1, const void *p2)
+{
+	const stress_tz_info_t *const *tz1 = (const stress_tz_info_t *const *)p1;
+	const stress_tz_info_t *const *tz2 = (const stress_tz_info_t *const *)p2;
+	int ret;
+
+	ret = strcmp((*tz1)->type, (*tz2)->type);
+	if (ret == 0)
+		return (int)(*tz1)->type_instance - (int)(*tz2)->type_instance;
+
+	return ret;
+}
+
+
+/*
  *  stress_tz_dump()
  *	dump thermal zone temperatures
  */
@@ -153,11 +188,32 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 	for (ss = stressors_list; ss; ss = ss->next) {
 		stress_tz_info_t *tz_info;
 		int32_t  j;
+		size_t i, n;
 		uint64_t total = 0;
 		uint32_t count = 0;
 		bool dumped_heading = false;
+		stress_tz_info_t **tz_infos;
 
-		for (tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
+		/* Find how many items in list */
+		for (n = 0, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next, n++)
+			;
+
+		/*
+		 *  Allocate array, populate with tz_info and sort
+		 */
+		tz_infos = calloc(n, sizeof(*tz_infos));
+		if (!tz_infos) {
+			pr_inf("thermal zones: cannot allocate memory to sort zones\n");
+			return;
+		}
+		for (n = 0, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next, n++)
+			tz_infos[n] = tz_info;
+
+		qsort(tz_infos, n, sizeof(stress_tz_info_t *), stress_tz_compare);
+
+		for (i = 0; i < n; i++) {
+			tz_info = tz_infos[i];
+
 			for (j = 0; j < ss->started_instances; j++) {
 				const uint64_t temp =
 					ss->stats[j]->tz.tz_stat[tz_info->index].temperature;
@@ -178,19 +234,32 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 					pr_yaml(yaml, "    - stressor: %s\n",
 						munged);
 				}
-				pr_inf("%20s %7.2f C (%.2f K)\n",
-					tz_info->type, temp, temp + 273.15);
-				pr_yaml(yaml, "      %s: %7.2f\n",
-					tz_info->type, temp);
+
+				if (stress_tz_type_instance(g_shared->tz_info, tz_info->type) <= 1) {
+					pr_inf("%20s %7.2f C (%.2f K)\n",
+						tz_info->type, temp, temp + 273.15);
+					pr_yaml(yaml, "      %s: %7.2f\n",
+						tz_info->type, temp);
+				} else {
+					pr_inf("%20s%d %7.2f C (%.2f K)\n",
+						tz_info->type,
+						tz_info->type_instance,
+						temp, temp + 273.15);
+					pr_yaml(yaml, "      %s%d: %7.2f\n",
+						tz_info->type,
+						tz_info->type_instance,
+						temp);
+				}
 				no_tz_stats = false;
 			}
 		}
 		if (total)
 			pr_yaml(yaml, "\n");
+
+		free(tz_infos);
 	}
 
 	if (no_tz_stats)
 		pr_inf("thermal zone temperatures not available\n");
 }
-
 #endif
