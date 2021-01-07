@@ -4498,10 +4498,10 @@ stress\-ng \-\-cpu 4 \-\-cpu-method fft \-\-cpu-ops 10000 \-\-metrics\-brief
 run 4 FFT cpu stressors, stop after 10000 bogo operations and produce a
 summary just for the FFT results.
 .LP
-stress\-ng \-\-cpu -1 \-\-cpu-method all \-t 1h
+stress\-ng \-\-cpu -1 \-\-cpu-method all \-t 1h \-\-cpu\-load 90
 .IP
 run cpu stressors on all online CPUs working through all the available CPU
-stressors for 1 hour.
+stressors for 1 hour, loading the CPUs at 90% load capacity.
 .LP
 stress\-ng \-\-cpu 0 \-\-cpu-method all \-t 20m
 .IP
