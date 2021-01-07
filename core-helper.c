@@ -764,7 +764,7 @@ int stress_temp_dir(
 	const pid_t pid,
 	const uint32_t instance)
 {
-	char dirname[PATH_MAX];
+	char dirname[256];
 
 	(void)snprintf(dirname, sizeof(dirname),
 		"tmp-%s-%d-%" PRIu32,
