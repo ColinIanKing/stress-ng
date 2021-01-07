@@ -18,6 +18,9 @@
 #
 
 PERF_PARANOID=/proc/sys/kernel/perf_event_paranoid
+SWAP=/tmp/swap.img
+FSIMAGE=/tmp/fs.img
+MNT=/tmp/mnt
 LOG=stress-ng-$(date '+%Y%m%d-%H%M').log
 echo "Logging to $LOG"
 
@@ -42,6 +45,65 @@ if [ ! -x "$STRESS_NG" ]; then
 	exit 1
 fi
 STRESSORS=$($STRESS_NG --stressors)
+
+mount_filesystem()
+{
+	rm -f ${FSIMAGE}
+	case $1 in
+		ext4)
+			CMD="mkfs.ext4"
+			ARGS="-F ${FSIMAGE}"
+		;;
+		xfs)
+			CMD="mkfs.xfs"
+			ARGS="-f ${FSIMAGE}"
+		;;
+		hfs)	CMD="mkfs.hfs"
+			ARGS="${FSIMAGE}"
+		;;
+		jfs)	CMD="mkfs.jfs"
+			ARGS="-q ${FSIMAGE}"
+		;;
+		minix)	CMD="mkfs.minix"
+			ARGS="${FSIMAGE}"
+		;;
+		vfat)	CMD="mkfs.vfat"
+			ARGS="${FSIMAGE}"
+		;;
+
+		*)
+			echo "unsupported file system $1"
+			return 1
+		;;
+	esac
+
+	if which ${CMD} ; then
+		rm -f ${FSIMAGE}
+		dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+		sudo $CMD $ARGS
+		rc=$?
+		if [ $rc -ne 0 ]; then
+			echo "$CMD $ARGS failed, error: $rc"
+			return 1
+		fi
+		mkdir -p ${MNT}
+		sudo mount -o loop ${FSIMAGE} ${MNT}
+		sudo chmod 777 ${MNT}
+		own=$(whoami)
+		sudo chown $own:$own ${MNT}
+	else
+		echo "$CMD does not exist"
+		return 1
+	fi
+	return 0
+}
+
+umount_filesystem()
+{
+	sudo umount ${MNT}
+	rmdir ${MNT}
+	rm -f ${FSIMAGE}
+}
 
 #
 #  The stressors can potentially spam the logs so
@@ -97,18 +159,41 @@ if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
 	echo 0 | sudo tee /proc/sys/vm/oom_kill_allocating_task >& /dev/null
 fi
 
-SWP=/tmp/swap.img
-dd if=/dev/zero of=$SWP bs=1M count=1024
-chmod 0600 $SWP
-sudo chown root:root $SWP
-sudo mkswap $SWP
-sudo swapon $SWP
+dd if=/dev/zero of=$SWAP bs=1M count=8192
+chmod 0600 $SWAP
+sudo chown root:root $SWAP
+sudo mkswap $SWAP
+sudo swapon $SWAP
 
 sudo lcov --zerocounters
 
 if [ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]; then
 	sudo cat  /sys/kernel/debug/tracing/trace_stat/branch_all > branch_all.start
 fi
+
+DURATION=30
+for FS in ext4 xfs jfs minix vfat
+do
+	echo "Filesystem: $FS"
+	if mount_filesystem $FS; then
+		do_stress --hdd 0 --hdd-opts direct,utimes  --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts dsync --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts iovec,noatime --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts fsync,syncfs --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts fdatasync --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts rd-rnd,wr-rnd,fadv-rnd --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts rd-seq,wr-seq --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts fadv-normal --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts fadv-noreuse --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts fadv-rnd --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts fadv-seq --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts fadv-willneed --temp-path $MNT
+		do_stress --hdd 0 --hdd-opts fadv-dontneed --temp-path $MNT
+		sudo $STRESS_NG --class filesystem --ftrace --seq 0 -v --timestamp --syslog -t $DURATION --temp-path $MNT
+		sudo $STRESS_NG --class io --ftrace --seq 0 -v --timestamp --syslog -t $DURATION --temp-path $MNT
+		umount_filesystem $FS
+	fi
+done
 
 #
 #  Exercise I/O schedulers
@@ -185,19 +270,6 @@ do_stress --epoll 0 --epoll-domain unix
 
 do_stress --eventfd 0 --eventfd-nonblock
 
-do_stress --hdd 0 --hdd-opts direct,utimes
-do_stress --hdd 0 --hdd-opts dsync
-do_stress --hdd 0 --hdd-opts iovec,noatime
-do_stress --hdd 0 --hdd-opts fsync,syncfs
-do_stress --hdd 0 --hdd-opts fdatasync
-do_stress --hdd 0 --hdd-opts rd-rnd,wr-rnd,fadv-rnd
-do_stress --hdd 0 --hdd-opts rd-seq,wr-seq
-do_stress --hdd 0 --hdd-opts fadv-normal
-do_stress --hdd 0 --hdd-opts fadv-noreuse
-do_stress --hdd 0 --hdd-opts fadv-rnd
-do_stress --hdd 0 --hdd-opts fadv-seq
-do_stress --hdd 0 --hdd-opts fadv-willneed
-do_stress --hdd 0 --hdd-opts fadv-dontneed
 
 do_stress --itimer 0 --itimer-rand
 
@@ -306,8 +378,8 @@ if [ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]; then
 	sudo cat  /sys/kernel/debug/tracing/trace_stat/branch_all > branch_all.finish
 fi
 
-sudo swapoff $SWP
-sudo rm $SWP
+sudo swapoff $SWAP
+sudo rm $SWAP
 
 if [ -e $PERF_PARANOID ]; then
 	(echo $paranoid_saved | sudo tee $PERF_PARANOID) > /dev/null
