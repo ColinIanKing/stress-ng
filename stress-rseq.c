@@ -63,7 +63,7 @@ typedef struct {
 } rseq_info_t;
 
 static volatile struct rseq restartable_seq;	/* rseq */
-static uint32_t signature;
+static uint32_t valid_signature;
 static rseq_info_t *rseq_info;
 
 STRESS_PRAGMA_PUSH
@@ -248,11 +248,11 @@ static int stress_rseq_oomable(const stress_args_t *args, void *context)
 		 *  exercise kernel invlid signature check
 		 */
 		if ((get_counter(args) & 0x1fff) == 1)
-			signature = 0xbadc0de;
+			valid_signature = 0xbadc0de;
 		else
-			signature = rseq_info->valid_signature;
+			valid_signature = rseq_info->valid_signature;
 
-		if (rseq_register(&restartable_seq, signature) < 0) {
+		if (rseq_register(&restartable_seq, valid_signature) < 0) {
 			if (errno != EINVAL)
 				pr_err("%s: rseq failed to register: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -268,35 +268,35 @@ static int stress_rseq_oomable(const stress_args_t *args, void *context)
 		rseq_info->crit_count += i;
 
 unreg:
-		(void)rseq_unregister(&restartable_seq, signature);
+		(void)rseq_unregister(&restartable_seq, valid_signature);
 		inc_counter(args);
 		shim_sched_yield();
 
 		/* Exercise invalid rseq calls.. */
 
 		/* Invalid rseq size, EINVAL */
-		ret = shim_rseq(&restartable_seq, 0, 0, signature);
+		ret = shim_rseq(&restartable_seq, 0, 0, valid_signature);
 		if (ret == 0)
-			(void)rseq_unregister(&restartable_seq, signature);
+			(void)rseq_unregister(&restartable_seq, valid_signature);
 
 		/* Invalid alignment, EINVAL */
-		ret = rseq_register(misaligned_seq, signature);
+		ret = rseq_register(misaligned_seq, valid_signature);
 		if (ret == 0)
-			(void)rseq_unregister(misaligned_seq, signature);
+			(void)rseq_unregister(misaligned_seq, valid_signature);
 
 		/* Invalid unregister, invalid struct size, EINVAL */
-		(void)shim_rseq(&restartable_seq, 0, RSEQ_FLAG_UNREGISTER, signature);
+		(void)shim_rseq(&restartable_seq, 0, RSEQ_FLAG_UNREGISTER, valid_signature);
 
 		/* Invalid unregister, different seq struct addr, EINVAL */
-		(void)rseq_unregister(&invalid_seq, signature);
+		(void)rseq_unregister(&invalid_seq, valid_signature);
 
 		/* Invalid unregister, different signature, EINAL  */
-		(void)rseq_unregister(&invalid_seq, ~signature);
+		(void)rseq_unregister(&invalid_seq, ~valid_signature);
 
 		/* Register twice, EBUSY */
-		(void)rseq_register(&restartable_seq, signature);
-		(void)rseq_register(&restartable_seq, signature);
-		(void)rseq_unregister(&restartable_seq, signature);
+		(void)rseq_register(&restartable_seq, valid_signature);
+		(void)rseq_register(&restartable_seq, valid_signature);
+		(void)rseq_unregister(&restartable_seq, valid_signature);
 	} while (keep_stressing());
 
 	return EXIT_SUCCESS;
