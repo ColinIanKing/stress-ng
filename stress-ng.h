@@ -2192,6 +2192,7 @@ typedef struct {
 typedef struct stress_tz_info {
 	char	*path;			/* thermal zone path */
 	char 	*type;			/* thermal zone type */
+	uint16_t type_instance;		/* thermal zone instance # */
 	size_t	index;			/* thermal zone # index */
 	struct stress_tz_info *next;	/* next thermal zone in list */
 } stress_tz_info_t;
