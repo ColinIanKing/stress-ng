@@ -62,7 +62,7 @@ typedef struct {
 	uint32_t valid_signature;	/* rseq valid signature */
 } rseq_info_t;
 
-static volatile struct rseq restartable_seq;	/* rseq */
+static struct rseq restartable_seq;	/* rseq */
 static uint32_t valid_signature;
 static rseq_info_t *rseq_info;
 
@@ -225,8 +225,8 @@ static int stress_rseq_oomable(const stress_args_t *args, void *context)
 	struct sigaction sa;
 	(void)context;
 	char misaligned_seq_buf[sizeof(struct rseq) + 1];
-	volatile struct rseq *misaligned_seq = (volatile struct rseq *)&misaligned_seq_buf[1];
-	volatile struct rseq invalid_seq;
+	struct rseq *misaligned_seq = (struct rseq *)&misaligned_seq_buf[1];
+	struct rseq invalid_seq;
 
 	(void)memcpy((void *)misaligned_seq, (void *)&restartable_seq, sizeof(restartable_seq));
 	(void)memcpy((void *)&invalid_seq, (void *)&restartable_seq, sizeof(restartable_seq));
