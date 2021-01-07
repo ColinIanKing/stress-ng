@@ -3103,6 +3103,19 @@ killed.  Requires CAP_SYS_ADMIN to run.
 .B \-\-seccomp-ops N
 stop seccomp stress workers after N seccomp filter tests.
 .TP
+.B \-\-secretmem N
+start N workers that mmap pages using file mapping off a memfd_secret file
+descriptor. Each stress loop iteration will expand the mappable region by 3
+pages using ftruncate and mmap and touches the pages. The pages are then
+fragmented by unmapping the middle page and then umapping the first and
+last pages. This tries to force page fragmentation and also trigger out of
+memory (OOM) kills of the stressor when the secret memory is exhausted.
+Note this is a Linux 5.11+ only stressor and the kernel needs to be booted
+with "secretmem=" option to allocate a secret memory reservation.
+.TP
+.B \-\-secretmem-ops N
+stop secretmem stress workers after N stress loop iterations.
+.TP
 .B \-\-seek N
 start N workers that randomly seeks and performs 512 byte read/write I/O
 operations on a file. The default file size is 16 GB.

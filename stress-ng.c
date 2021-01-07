@@ -698,6 +698,8 @@ static const struct option long_options[] = {
 	{ "seal-ops",	1,	0,	OPT_seal_ops },
 	{ "seccomp",	1,	0,	OPT_seccomp },
 	{ "seccomp-ops",1,	0,	OPT_seccomp_ops },
+	{ "secretmem",	1,	0,	OPT_secretmem },
+	{ "secretmem-ops",1,	0,	OPT_secretmem_ops },
 	{ "seek",	1,	0,	OPT_seek },
 	{ "seek-ops",	1,	0,	OPT_seek_ops },
 	{ "seek-punch",	0,	0,	OPT_seek_punch  },

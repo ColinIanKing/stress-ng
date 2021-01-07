@@ -25,6 +25,8 @@
 #ifndef __STRESS_NG_H__
 #define __STRESS_NG_H__
 
+#define __NR_memfd_secret 443
+
 #define _GNU_SOURCE
 #define _ATFILE_SOURCE
 #ifndef _LARGEFILE_SOURCE
@@ -2451,6 +2453,7 @@ typedef struct {
 	MACRO(sctp)		\
 	MACRO(seal)		\
 	MACRO(seccomp)		\
+	MACRO(secretmem)	\
 	MACRO(seek)		\
 	MACRO(sem)		\
 	MACRO(sem_sysv)		\
@@ -3231,6 +3234,9 @@ typedef enum {
 
 	OPT_seccomp,
 	OPT_seccomp_ops,
+
+	OPT_secretmem,
+	OPT_secretmem_ops,
 
 	OPT_seek,
 	OPT_seek_ops,
