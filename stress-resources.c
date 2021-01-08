@@ -132,7 +132,7 @@ static void NORETURN waste_resources(
 	struct rlimit rlim;
 #endif
 	size_t mlock_size;
-	size_t i, n;
+	size_t i, n = -1;
 	size_t shmall, freemem, totalmem, freeswap;
 	const pid_t pid = getpid();
 	static const int domains[] = { AF_INET, AF_INET6 };
@@ -241,6 +241,8 @@ static void NORETURN waste_resources(
 		info[i].pkey = -1;
 #endif
 		info[i].pid = 1;
+
+		n = i;
 
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 
@@ -522,11 +524,8 @@ static void NORETURN waste_resources(
 			sleep(10);
 			_exit(0);
 		}
-		if (!keep_stressing_flag())
-			break;
 	}
 
-	n = i;
 	for (i = 0; i < n; i++) {
 		if (info[i].m_malloc)
 			free(info[i].m_malloc);
