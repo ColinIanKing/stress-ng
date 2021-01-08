@@ -116,6 +116,57 @@ uint32_t HOT OPTIMIZE3 stress_hash_sdbm(const char *str)
 }
 
 /*
+ *  stress_hash_murmur_32_scramble
+ *	helper to scramble bits
+ */
+static inline uint32_t HOT OPTIMIZE3 stress_hash_murmur_32_scramble(uint32_t k)
+{
+	k *= 0xcc9e2d51;
+	k = (k << 15) | (k >> 17);
+	k *= 0x1b873593;
+	return k;
+}
+
+/*
+ *  stress_hash_murmur3_32
+ *	32 bit murmur3 hash based on Austin Appleby's
+ *	Murmur3 hash, code derived from example code in
+ *	https://en.wikipedia.org/wiki/MurmurHash
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_murmur3_32(
+	const uint8_t* key,
+	size_t len,
+	uint32_t seed)
+{
+	uint32_t h = seed;
+	uint32_t k;
+	register size_t i;
+
+	for (i = len >> 2; i; i--) {
+		(void)memcpy(&k, key, sizeof(uint32_t));
+		key += sizeof(uint32_t);
+		h ^= stress_hash_murmur_32_scramble(k);
+		h = (h << 13) | (h >> 19);
+		h = h * 5 + 0xe6546b64;
+	}
+
+	k = 0;
+	for (i = len & 3; i; i--) {
+		k <<= 8;
+		k |= key[i - 1];
+	}
+	h ^= stress_hash_murmur_32_scramble(k);
+	h ^= len;
+	h ^= h >> 16;
+	h *= 0x85ebca6b;
+	h ^= h >> 13;
+	h *= 0xc2b2ae35;
+	h ^= h >> 16;
+
+	return h;
+}
+
+/*
  *  stress_hash_create()
  *	create a hash table with size of n base hash entries
  */

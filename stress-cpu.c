@@ -675,15 +675,60 @@ static void stress_cpu_jenkin(const char *name)
 	uint8_t buffer[128];
 	size_t i;
 	uint32_t i_sum = 0;
-	const uint32_t sum = 0x96673680;
+	const uint32_t sum = 0xc53302a5;
 
 	STRESS_MWC_SEED();
 	random_buffer(buffer, sizeof(buffer));
-	for (i = 0; i < sizeof(buffer); i++)
+
+	for (i = sizeof(buffer) - 1; i; i--) {
+		buffer[i] = '\0';
 		i_sum += stress_hash_jenkin(buffer, sizeof(buffer));
+	}
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
 		pr_fail("%s: jenkin error detected, failed hash jenkin sum\n",
+			name);
+}
+
+/*
+ *  stress_cpu_little_endian()
+ *	returns true if CPU is little endian
+ */
+static inline bool stress_cpu_little_endian(void)
+{
+	const uint32_t x = 0x12345678;
+	const uint8_t *y = (uint8_t *)&x;
+
+	return *y == 0x78;
+}
+
+/*
+ *  stress_cpu_murmur3_32
+ *	 multiple iterations on murmur3_32 hash, based on
+ *	 Austin Appleby's Murmur3 hash, code derived from
+ *	 https://en.wikipedia.org/wiki/MurmurHash
+ */
+static void stress_cpu_murmur3_32(const char *name)
+{
+	uint8_t buffer[128];
+	size_t i;
+	uint32_t sum, i_sum = 0;
+	const uint32_t seed = 0xf12b35e1; /* arbitary value */
+
+	STRESS_MWC_SEED();
+	random_buffer(buffer, sizeof(buffer));
+	for (i = sizeof(buffer) - 1; i; i--) {
+		buffer[i] = '\0';
+		i_sum += stress_hash_murmur3_32((uint8_t *)buffer, sizeof(buffer), seed);
+	}
+
+	/*
+	 *  Murmur produces different results depending on the Endianess
+	 */
+	sum = stress_cpu_little_endian() ? 0xa53a4bb1 : 0x71eb83cc;
+
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
+		pr_fail("%s: murmur3_32 error detected, failed hash murmur3_32 sum\n",
 			name);
 }
 
@@ -2633,6 +2678,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "longdouble",		stress_cpu_longdouble },
 	{ "loop",		stress_cpu_loop },
 	{ "matrixprod",		stress_cpu_matrix_prod },
+	{ "murmur3_32",		stress_cpu_murmur3_32 },
 	{ "nsqrt",		stress_cpu_nsqrt },
 	{ "omega",		stress_cpu_omega },
 	{ "parity",		stress_cpu_parity },

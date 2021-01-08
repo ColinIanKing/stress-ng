@@ -915,88 +915,88 @@ double and long double hyperbolic sine and cosine functions where \(*h = 0
 to 2\(*p in 1500 steps
 T}
 idct	T{
-8 \(mu 8 IDCT (Inverse Discrete Cosine Transform)
+8 \(mu 8 IDCT (Inverse Discrete Cosine Transform).
 T}
 int8	T{
-1000 iterations of a mix of 8 bit integer operations
+1000 iterations of a mix of 8 bit integer operations.
 T}
 int16	T{
-1000 iterations of a mix of 16 bit integer operations
+1000 iterations of a mix of 16 bit integer operations.
 T}
 int32	T{
-1000 iterations of a mix of 32 bit integer operations
+1000 iterations of a mix of 32 bit integer operations.
 T}
 int64	T{
-1000 iterations of a mix of 64 bit integer operations
+1000 iterations of a mix of 64 bit integer operations.
 T}
 int128	T{
-1000 iterations of a mix of 128 bit integer operations (GCC only)
+1000 iterations of a mix of 128 bit integer operations (GCC only).
 T}
 int32float	T{
-1000 iterations of a mix of 32 bit integer and floating point operations
+1000 iterations of a mix of 32 bit integer and floating point operations.
 T}
 int32double	T{
 1000 iterations of a mix of 32 bit integer and double precision floating point
-operations
+operations.
 T}
 int32longdouble	T{
 1000 iterations of a mix of 32 bit integer and long double precision floating
-point operations
+point operations.
 T}
 int64float	T{
-1000 iterations of a mix of 64 bit integer and floating point operations
+1000 iterations of a mix of 64 bit integer and floating point operations.
 T}
 int64double	T{
 1000 iterations of a mix of 64 bit integer and double precision floating point
-operations
+operations.
 T}
 int64longdouble	T{
 1000 iterations of a mix of 64 bit integer and long double precision floating
-point operations
+point operations.
 T}
 int128float	T{
 1000 iterations of a mix of 128 bit integer and floating point operations
-(GCC only)
+(GCC only).
 T}
 int128double	T{
 1000 iterations of a mix of 128 bit integer and double precision floating point
-operations (GCC only)
+operations (GCC only).
 T}
 int128longdouble	T{
 1000 iterations of a mix of 128 bit integer and long double precision floating
-point operations (GCC only)
+point operations (GCC only).
 T}
 int128decimal32	T{
 1000 iterations of a mix of 128 bit integer and 32 bit decimal floating point
-operations (GCC only)
+operations (GCC only).
 T}
 int128decimal64	T{
 1000 iterations of a mix of 128 bit integer and 64 bit decimal floating point
-operations (GCC only)
+operations (GCC only).
 T}
 int128decimal128	T{
 1000 iterations of a mix of 128 bit integer and 128 bit decimal floating point
-operations (GCC only)
+operations (GCC only).
 T}
 intconversion	T{
 perform 65536 iterations of integer conversions between
 int16, int32 and int64 variables.
 T}
 jenkin	T{
-Jenkin's integer hash on 128 rounds of 128..1 bytes of random data
+Jenkin's integer hash on 128 rounds of 128..1 bytes of random data.
 T}
 jmp	T{
-Simple unoptimised compare >, <, == and jmp branching
+Simple unoptimised compare >, <, == and jmp branching.
 T}
 ln2	T{
 compute ln(2) based on series:
  1 - 1/2 + 1/3 - 1/4 + 1/5 - 1/6 ...
 T}
 longdouble	T{
-1000 iterations of a mix of long double precision floating point operations
+1000 iterations of a mix of long double precision floating point operations.
 T}
 loop	T{
-simple empty loop
+simple empty loop.
 T}
 matrixprod	T{
 matrix product of two 128 \(mu 128 matrices of double floats. Testing on 64
@@ -1004,12 +1004,16 @@ bit x86 hardware shows that this is provides a good mix of memory, cache and
 floating point operations and is probably the best CPU method to use to make
 a CPU run hot.
 T}
+murmur3_32	T{
+murmur3_32 hash (Austin Appleby's Murmur3 hash, 32 bit variant) on 128
+rounds of of 128..1 bytes of random data.
+T}
 nsqrt	T{
-compute sqrt() of long doubles using Newton-Raphson
+compute sqrt() of long doubles using Newton-Raphson.
 T}
 omega	T{
 compute the omega constant defined by \(*We\[ua]\(*W = 1 using efficient
-iteration of \(*Wn+1 = (1 + \(*Wn) / (1 + e\[ua]\(*Wn)
+iteration of \(*Wn+1 = (1 + \(*Wn) / (1 + e\[ua]\(*Wn).
 T}
 parity	T{
 compute parity using various methods from the Standford Bit Twiddling Hacks.
@@ -1018,24 +1022,24 @@ Kernigan bit counting optimisation, the multiply way, the parallel way, and
 the lookup table ways (2 variations).
 T}
 phi	T{
-compute the Golden Ratio \(*f using series
+compute the Golden Ratio \(*f using series.
 T}
 pi	T{
-compute \(*p using the Srinivasa Ramanujan fast convergence algorithm
+compute \(*p using the Srinivasa Ramanujan fast convergence algorithm.
 T}
 pjw	T{
-128 rounds of hash pjw function on 128 to 1 bytes of random strings
+128 rounds of hash pjw function on 128 to 1 bytes of random strings.
 T}
 prime	T{
 find the first 10000 prime numbers using a slightly optimised brute
-force na\[:i]ve trial division search
+force na\[:i]ve trial division search.
 T}
 psi	T{
 compute \(*q (the reciprocal Fibonacci constant) using the sum of the
-reciprocals of the Fibonacci numbers
+reciprocals of the Fibonacci numbers.
 T}
 queens	T{
-compute all the solutions of the classic 8 queens problem for board sizes 1..11
+compute all the solutions of the classic 8 queens problem for board sizes 1..11.
 T}
 rand	T{
 16384 iterations of rand(), where rand is the MWC pseudo
@@ -1045,20 +1049,20 @@ generators:
  x(n) = 36969 \(mu x(n - 1) + carry,
  y(n) = 18000 \(mu y(n - 1) + carry mod 2 \[ua] 16
 .sp 1
-and has period of around 2 \[ua] 60
+and has period of around 2 \[ua] 60.
 T}
 rand48	T{
-16384 iterations of drand48(3) and lrand48(3)
+16384 iterations of drand48(3) and lrand48(3).
 T}
 rgb	T{
-convert RGB to YUV and back to RGB (CCIR 601)
+convert RGB to YUV and back to RGB (CCIR 601).
 T}
 sdbm	T{
 128 rounds of hash sdbm (as used in the SDBM database and GNU awk) on 128 to
-1 bytes of random strings
+1 bytes of random strings.
 T}
 sieve	T{
-find the first 10000 prime numbers using the sieve of Eratosthenes
+find the first 10000 prime numbers using the sieve of Eratosthenes.
 T}
 stats	T{
 calculate minimum, maximum, arithmetic mean, geometric mean, harmoninc mean
@@ -1066,11 +1070,11 @@ and standard deviation on 250 randomly generated positive double precision
 value.
 T}
 sqrt	T{
-compute sqrt(rand()), where rand is the MWC pseudo random number generator
+compute sqrt(rand()), where rand is the MWC pseudo random number generator.
 T}
 trig	T{
 compute sin(\(*h) \(mu cos(\(*h) + sin(2\(*h) + cos(3\(*h) for float, double
-and long double sine and cosine functions where \(*h = 0 to 2\(*p in 1500 steps
+and long double sine and cosine functions where \(*h = 0 to 2\(*p in 1500 steps.
 T}
 union	T{
 perform integer arithmetic on a mix of bit fields in a C union.  This exercises
