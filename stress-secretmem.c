@@ -109,6 +109,7 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 	if (fd < 0) {
 		pr_inf("%s: memfd_secret failed, skipping stressor\n",
 			args->name);
+		free(mappings);
 		return EXIT_NO_RESOURCE;
 	}
 
