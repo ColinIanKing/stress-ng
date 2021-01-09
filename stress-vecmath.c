@@ -69,40 +69,40 @@ typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
 #define H8(a0)						\
 	((int8_t)((int8_t)a0))
 #define H16(a0, a1)     				\
-	((int16_t)(((int16_t)a0 << 8) |			\
-		   ((int16_t)a1 << 0)))
+	((int16_t)(((uint16_t)a0 << 8) |		\
+		   ((uint16_t)a1 << 0)))
 #define H32(a0, a1, a2, a3)				\
-	((int32_t)(((int32_t)a0 << 24) |		\
-		   ((int32_t)a1 << 16) |		\
-		   ((int32_t)a2 <<  8) |		\
-		   ((int32_t)a3 <<  0)))
+	((int32_t)(((uint32_t)a0 << 24) |		\
+		   ((uint32_t)a1 << 16) |		\
+		   ((uint32_t)a2 <<  8) |		\
+		   ((uint32_t)a3 <<  0)))
 #define H64(a0, a1, a2, a3, a4, a5, a6, a7)		\
-	((int64_t)(((int64_t)a0 << 56) |		\
-		   ((int64_t)a1 << 48) |		\
-		   ((int64_t)a2 << 40) |		\
-		   ((int64_t)a3 << 32) |		\
-		   ((int64_t)a4 << 24) |		\
-		   ((int64_t)a5 << 16) |		\
-		   ((int64_t)a6 <<  8) | 		\
-		   ((int64_t)a7 <<  0)))
+	((int64_t)(((uint64_t)a0 << 56) |		\
+		   ((uint64_t)a1 << 48) |		\
+		   ((uint64_t)a2 << 40) |		\
+		   ((uint64_t)a3 << 32) |		\
+		   ((uint64_t)a4 << 24) |		\
+		   ((uint64_t)a5 << 16) |		\
+		   ((uint64_t)a6 <<  8) | 		\
+		   ((uint64_t)a7 <<  0)))
 
 #define H128(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)	\
-	((__int128t)(((__int128_t)a0 << 120) |		\
-		     ((__int128_t)a1 << 112) |		\
-		     ((__int128_t)a2 << 104) |		\
-		     ((__int128_t)a3 <<  96) |		\
-		     ((__int128_t)a4 <<  88) |		\
-		     ((__int128_t)a5 <<  80) |		\
-		     ((__int128_t)a6 <<  72) |		\
-		     ((__int128_t)a7 <<  64) |		\
-		     ((__int128_t)a8 <<  56) |		\
-		     ((__int128_t)a9 <<  48) |		\
-		     ((__int128_t)aa <<  40) |		\
-		     ((__int128_t)ab <<  32) |		\
-		     ((__int128_t)ac <<  24) |		\
-		     ((__int128_t)ad <<  16) |		\
-		     ((__int128_t)ae <<   8) |		\
-		     ((__int128_t)af << 0)))		\
+	((__int128t)(((__uint128_t)a0 << 120) |		\
+		     ((__uint128_t)a1 << 112) |		\
+		     ((__uint128_t)a2 << 104) |		\
+		     ((__uint128_t)a3 <<  96) |		\
+		     ((__uint128_t)a4 <<  88) |		\
+		     ((__uint128_t)a5 <<  80) |		\
+		     ((__uint128_t)a6 <<  72) |		\
+		     ((__uint128_t)a7 <<  64) |		\
+		     ((__uint128_t)a8 <<  56) |		\
+		     ((__uint128_t)a9 <<  48) |		\
+		     ((__uint128_t)aa <<  40) |		\
+		     ((__uint128_t)ab <<  32) |		\
+		     ((__uint128_t)ac <<  24) |		\
+		     ((__uint128_t)ad <<  16) |		\
+		     ((__uint128_t)ae <<   8) |		\
+		     ((__uint128_t)af <<   0)))		\
 
 /*
  *  128 bit constants
