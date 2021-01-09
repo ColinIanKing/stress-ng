@@ -76,7 +76,7 @@ static bool stress_secretmem_unmap(
 	for (i = 0; i < n; i++) {
 		if (mappings[i]) {
 			if ((munmap((void *)mappings[i], page_size) == 0) &&
-			    (munmap((void *)mappings[i] + page_size2, page_size) == 0)) {
+			    (munmap((void *)(mappings[i] + page_size2), page_size) == 0)) {
 				mappings[i] = NULL;
 			} else {
 				/* munmap failed, e.g. ENOMEM, so flag it */
