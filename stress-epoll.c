@@ -114,7 +114,7 @@ static sigjmp_buf jmp_env;
 
 /*
  *  stress_epoll_pwait()
- *	attempt to use epoll_pwait2 (if availabke) or epoll_pwait
+ *	attempt to use epoll_pwait2 (if available) or epoll_pwait
  */
 static int stress_epoll_pwait(
 	int epfd,

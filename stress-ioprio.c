@@ -112,7 +112,7 @@ static int stress_ioprio(const stress_args_t *args)
 		if (!keep_stressing())
 			break;
 		/*
-		 *  Exercise invalud ioprio_get arguments
+		 *  Exercise invalid ioprio_get arguments
 		 */
 		(void)shim_ioprio_get(~0, 0);
 		(void)shim_ioprio_get(IOPRIO_WHO_PROCESS, ~0);
@@ -150,7 +150,7 @@ static int stress_ioprio(const stress_args_t *args)
 			break;
 
 		/*
-		 *  Exercise invalud ioprio_set arguments
+		 *  Exercise invalid ioprio_set arguments
 		 */
 		(void)shim_ioprio_set(~0, 0, ~0);
 		(void)shim_ioprio_set(IOPRIO_WHO_PROCESS, ~0, 0);

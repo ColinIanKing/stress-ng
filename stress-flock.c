@@ -146,7 +146,7 @@ static void stress_flock_child(
     defined(LOCK_SH)
 		if (!keep_stressing())
 			break;
-		/* Exercise invalid lock combinaton */
+		/* Exercise invalid lock combination */
 		if (flock(fd, LOCK_EX | LOCK_SH) == 0) {
 			cont = keep_stressing();
 			if (cont)

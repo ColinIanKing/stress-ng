@@ -160,7 +160,7 @@ l1:
 		goto l4;
 
 	/*
-	 *  Long duration in crirical section will
+	 *  Long duration in critical section will
 	 *  be likely to be interrupted so rseq jumps
 	 *  to label l4
 	 */

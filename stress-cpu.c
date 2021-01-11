@@ -713,7 +713,7 @@ static void stress_cpu_murmur3_32(const char *name)
 	uint8_t buffer[128];
 	size_t i;
 	uint32_t sum, i_sum = 0;
-	const uint32_t seed = 0xf12b35e1; /* arbitary value */
+	const uint32_t seed = 0xf12b35e1; /* arbitrary value */
 
 	STRESS_MWC_SEED();
 	random_buffer(buffer, sizeof(buffer));
@@ -723,7 +723,7 @@ static void stress_cpu_murmur3_32(const char *name)
 	}
 
 	/*
-	 *  Murmur produces different results depending on the Endianess
+	 *  Murmur produces different results depending on the Endianness
 	 */
 	sum = stress_cpu_little_endian() ? 0xa53a4bb1 : 0x71eb83cc;
 

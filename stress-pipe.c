@@ -215,7 +215,7 @@ again:
 			}
 
 #if defined(FIONREAD)
-			/* Occassionally exercise FIONREAD on read end */
+			/* Occasionally exercise FIONREAD on read end */
 			if ((i++ & 0x1ff) == 0) {
 				int ret, bytes;
 

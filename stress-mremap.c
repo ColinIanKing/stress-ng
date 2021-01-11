@@ -133,7 +133,7 @@ static int try_remap(
 
 #if defined(MREMAP_DONTUNMAP)
 			/*
-			 *  Move and explictily don't unmap old mapping,
+			 *  Move and explicitly don't unmap old mapping,
 			 *  followed by an unmap of the old mapping for
 			 *  some more exercise
 			 */

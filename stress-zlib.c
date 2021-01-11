@@ -1082,13 +1082,13 @@ static const char *stress_zlib_err(const int zlib_err)
  *  stress_zlib_get_args()
  *	get all zlib arguments at once
  */
-static void stress_zlib_get_args(stress_zlib_args_t *parms) {
-	(void)stress_get_setting("zlib-level", &parms->level);
-	(void)stress_get_setting("zlib-mem-level", &parms->mem_level);
-	(void)stress_get_setting("zlib-method", &parms->data_func);
-	(void)stress_get_setting("zlib-window-bits", &parms->window_bits);
-	(void)stress_get_setting("zlib-stream-bytes", &parms->stream_bytes);
-	(void)stress_get_setting("zlib-strategy", &parms->strategy);
+static void stress_zlib_get_args(stress_zlib_args_t *params) {
+	(void)stress_get_setting("zlib-level", &params->level);
+	(void)stress_get_setting("zlib-mem-level", &params->mem_level);
+	(void)stress_get_setting("zlib-method", &params->data_func);
+	(void)stress_get_setting("zlib-window-bits", &params->window_bits);
+	(void)stress_get_setting("zlib-stream-bytes", &params->stream_bytes);
+	(void)stress_get_setting("zlib-strategy", &params->strategy);
 }
 
 /*

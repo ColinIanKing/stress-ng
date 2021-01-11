@@ -2175,7 +2175,7 @@ int stress_read_fdinfo(const pid_t pid, const int fd)
 
 /*
  *  stress_hostname_length()
- *	return the maxium allowed hostname lenth
+ *	return the maximum allowed hostname length
  */
 size_t stress_hostname_length(void)
 {
