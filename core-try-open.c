@@ -40,7 +40,7 @@ static void MLOCKED_TEXT stress_timer_handler(int sig)
  *	try to do open, use wait() as we only have one
  *	child to wait for and waitpid() is hence not necessary
  */
-int stress_try_open_wait(const char *path, const int flags)
+static int stress_try_open_wait(const char *path, const int flags)
 {
 	pid_t pid;
 	int status;
