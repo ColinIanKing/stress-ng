@@ -48,6 +48,11 @@ int stress_try_open(
 	pid_t pid;
 	int fd, ret;
 	int rc = -1;
+	struct stat statbuf;
+
+	/* Don't try to open if file can't be stat'd */
+	if (stat(path, &statbuf) < 0)
+		return -1;
 
 	/*
 	 *  If a handler can't be installed then
