@@ -36,6 +36,46 @@ static void MLOCKED_TEXT stress_timer_handler(int sig)
 }
 
 /*
+ *  stress_try_open_wait()
+ *	try to do open, use wait() as we only have one
+ *	child to wait for and waitpid() is hence not necessary
+ */
+int stress_try_open_wait(const char *path, const int flags)
+{
+	pid_t pid;
+	int status;
+
+	pid = fork();
+	if (pid < 0)
+		return TRY_OPEN_FORK_FAIL;
+	if (pid == 0) {
+		int fd;
+
+		fd = open(path, flags);
+		if (fd < 0)
+			_exit(TRY_OPEN_FAIL);
+
+		/* Don't close, it gets reaped on _exit */
+		_exit(TRY_OPEN_OK);
+	}
+	if (wait(&status) < 0) {
+		int ret;
+
+		ret = kill(pid, SIGKILL);
+		(void)ret;
+		ret = wait(&status);
+		(void)ret;
+
+		return TRY_OPEN_WAIT_FAIL;
+	}
+
+	if ((WIFEXITED(status)) && (WEXITSTATUS(status) != 0))
+		return WEXITSTATUS(status);
+
+	return TRY_OPEN_EXIT_FAIL;
+}
+
+/*
  *  Try to open a fil, return 0 if can open it, non-zero
  *  if it cannot be opened within timeout nanoseconds.
  */
@@ -46,9 +86,11 @@ int stress_try_open(
 	const unsigned long timeout_ns)
 {
 	pid_t pid;
-	int fd, ret;
-	int rc = -1;
+	int ret, t_ret, status;
 	struct stat statbuf;
+	struct sigevent sev;
+	timer_t timerid;
+	struct itimerspec timer;
 
 	/* Don't try to open if file can't be stat'd */
 	if (stat(path, &statbuf) < 0)
@@ -64,52 +106,50 @@ int stress_try_open(
 		return 0;
 
 	pid = fork();
-	if (pid < 0) {
-		return -1;
-	} else if (pid == 0) {
-		errno = 0;
-		fd = open(path, flags);
-		if (fd < 0)
-			_exit(EXIT_FAILURE);
-		_exit(EXIT_SUCCESS);
-	} else {
-		int status, t_ret;
-
-		struct sigevent sev;
-		timer_t timerid;
-		struct itimerspec timer;
-
-		sev.sigev_notify = SIGEV_SIGNAL;
-		sev.sigev_signo = SIGRTMIN;
-		sev.sigev_value.sival_ptr = &timerid;
-
-		t_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
-		if (!t_ret) {
-			timer.it_value.tv_sec = timeout_ns / STRESS_NANOSECOND;
-			timer.it_value.tv_nsec = timeout_ns % STRESS_NANOSECOND;
-			timer.it_interval.tv_sec = timer.it_value.tv_sec;
-			timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
-			t_ret = timer_settime(timerid, 0, &timer, NULL);
-		}
-		ret = waitpid(pid, &status, 0);
-		if (ret < 0) {
-			/*
-			 * EINTR or something else, treat as failed anyhow
-			 * and forcibly kill child and re-wait
-			 */
-			kill(pid, SIGKILL);
-			ret = waitpid(pid, &status, 0);
-			(void)ret;
-			return -1;
-		}
-		if (!t_ret)
-			(void)timer_delete(timerid);
-
-		/* Seems like we can open the device successfully */
-		if ((WIFEXITED(status)) && (WEXITSTATUS(status) == 0))
-			rc = 0;
+	if (pid < 0)
+		return TRY_OPEN_FORK_FAIL;
+	if (pid == 0) {
+		ret = stress_try_open_wait(path, flags);
+		_exit(ret);
 	}
-	return rc;
+
+	/*
+	 *  Enable a timer to interrupt log open waits
+	 */
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIGRTMIN;
+	sev.sigev_value.sival_ptr = &timerid;
+
+	t_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
+	if (!t_ret) {
+		timer.it_value.tv_sec = timeout_ns / STRESS_NANOSECOND;
+		timer.it_value.tv_nsec = timeout_ns % STRESS_NANOSECOND;
+		timer.it_interval.tv_sec = timer.it_value.tv_sec;
+		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
+		t_ret = timer_settime(timerid, 0, &timer, NULL);
+	}
+	ret = waitpid(pid, &status, 0);
+	if (ret < 0) {
+		/*
+		 * EINTR or something else, treat as failed anyhow
+		 * and forcibly kill child and re-wait. The grandchild
+		 * may be zombified by will get reaped by init
+		 */
+		ret = kill(pid, SIGKILL);
+		(void)ret;
+		ret = waitpid(pid, &status, 0);
+		(void)ret;
+
+		return TRY_OPEN_WAIT_FAIL;
+	}
+	if (!t_ret)
+		(void)timer_delete(timerid);
+
+	/* Seems like we can open the device successfully */
+	if ((WIFEXITED(status)) && (WEXITSTATUS(status) != 0))
+		return WEXITSTATUS(status);
+
+	return TRY_OPEN_EXIT_FAIL;
 }
 #else
 int stress_try_open(
