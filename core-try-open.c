@@ -47,16 +47,16 @@ int stress_try_open_wait(const char *path, const int flags)
 
 	pid = fork();
 	if (pid < 0)
-		return TRY_OPEN_FORK_FAIL;
+		return STRESS_TRY_OPEN_FORK_FAIL;
 	if (pid == 0) {
 		int fd;
 
 		fd = open(path, flags);
 		if (fd < 0)
-			_exit(TRY_OPEN_FAIL);
+			_exit(STRESS_TRY_OPEN_FAIL);
 
 		/* Don't close, it gets reaped on _exit */
-		_exit(TRY_OPEN_OK);
+		_exit(STRESS_TRY_OPEN_OK);
 	}
 	if (wait(&status) < 0) {
 		int ret;
@@ -66,13 +66,13 @@ int stress_try_open_wait(const char *path, const int flags)
 		ret = wait(&status);
 		(void)ret;
 
-		return TRY_OPEN_WAIT_FAIL;
+		return STRESS_TRY_OPEN_WAIT_FAIL;
 	}
 
 	if ((WIFEXITED(status)) && (WEXITSTATUS(status) != 0))
 		return WEXITSTATUS(status);
 
-	return TRY_OPEN_EXIT_FAIL;
+	return STRESS_TRY_OPEN_EXIT_FAIL;
 }
 
 /*
@@ -107,7 +107,7 @@ int stress_try_open(
 
 	pid = fork();
 	if (pid < 0)
-		return TRY_OPEN_FORK_FAIL;
+		return STRESS_TRY_OPEN_FORK_FAIL;
 	if (pid == 0) {
 		ret = stress_try_open_wait(path, flags);
 		_exit(ret);
@@ -140,7 +140,7 @@ int stress_try_open(
 		ret = waitpid(pid, &status, 0);
 		(void)ret;
 
-		return TRY_OPEN_WAIT_FAIL;
+		return STRESS_TRY_OPEN_WAIT_FAIL;
 	}
 	if (!t_ret)
 		(void)timer_delete(timerid);
@@ -149,7 +149,7 @@ int stress_try_open(
 	if ((WIFEXITED(status)) && (WEXITSTATUS(status) != 0))
 		return WEXITSTATUS(status);
 
-	return TRY_OPEN_EXIT_FAIL;
+	return STRESS_TRY_OPEN_EXIT_FAIL;
 }
 #else
 int stress_try_open(

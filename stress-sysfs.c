@@ -150,7 +150,8 @@ static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 			break;
 
 		t_start = stress_time_now();
-		if (stress_try_open(args, path, O_RDONLY | O_NONBLOCK, 1500000000)) {
+		ret = stress_try_open(args, path, O_RDONLY | O_NONBLOCK, 1500000000);
+		if (ret == STRESS_TRY_OPEN_FAIL) {
 			stress_sys_add_bad(path);
 			goto next;
 		}

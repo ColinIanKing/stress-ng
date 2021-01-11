@@ -2953,7 +2953,8 @@ static void stress_dev_dir(
 				stress_hash_add(dev_hash_table, tmp);
 				continue;
 			}
-			if (stress_try_open(args, tmp, O_RDONLY | O_NONBLOCK, 1500000000)) {
+			ret = stress_try_open(args, tmp, O_RDONLY | O_NONBLOCK, 1500000000);
+			if (ret == STRESS_TRY_OPEN_FAIL) {
 				stress_hash_add(dev_hash_table, tmp);
 				continue;
 			}
