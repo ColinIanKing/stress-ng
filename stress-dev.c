@@ -46,7 +46,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     !defined(__sun__) && 		\
     !defined(__HAIKU__)
 
-#define MAX_DEV_THREADS		(4)
+#define STRESS_DEV_THREADS_MAX		(4)
+#define STRESS_DEV_OPEN_TRIES_MAX	(8)
 
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
@@ -59,7 +60,7 @@ typedef struct stress_dev_func {
 	void (*func)(const char *name, const int fd, const char *devpath);
 } stress_dev_func_t;
 
-static stress_hash_table_t *dev_hash_table, *scsi_hash_table;
+static stress_hash_table_t *dev_open_fail, *dev_open_ok, *dev_scsi;
 
 /*
  *  mixup_sort()
@@ -942,7 +943,7 @@ static inline void add_scsi_dev(const char *devpath)
 	if (ret)
 		return;
 
-	stress_hash_add(scsi_hash_table, devpath);
+	stress_hash_add(dev_scsi, devpath);
 	(void)shim_pthread_spin_unlock(&lock);
 }
 
@@ -955,7 +956,7 @@ static inline bool is_scsi_dev_cached(const char *devpath)
 	if (ret)
 		return false;
 
-	is_scsi = (stress_hash_get(scsi_hash_table, devpath) != NULL);
+	is_scsi = (stress_hash_get(dev_scsi, devpath) != NULL);
 	(void)shim_pthread_spin_unlock(&lock);
 
 	return is_scsi;
@@ -2876,6 +2877,7 @@ static void stress_dev_dir(
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
 	int i, n;
+	static int try_failed;
 
 	if (!keep_stressing_flag())
 		return;
@@ -2931,15 +2933,15 @@ static void stress_dev_dir(
 		case DT_DIR:
 			if (!recurse)
 				continue;
-			if (stress_hash_get(dev_hash_table, tmp))
+			if (stress_hash_get(dev_open_fail, tmp))
 				continue;
 			ret = stat(tmp, &buf);
 			if (ret < 0) {
-				stress_hash_add(dev_hash_table, tmp);
+				stress_hash_add(dev_open_fail, tmp);
 				continue;
 			}
 			if ((buf.st_mode & flags) == 0) {
-				stress_hash_add(dev_hash_table, tmp);
+				stress_hash_add(dev_open_fail, tmp);
 				continue;
 			}
 			inc_counter(args);
@@ -2947,16 +2949,24 @@ static void stress_dev_dir(
 			break;
 		case DT_BLK:
 		case DT_CHR:
-			if (stress_hash_get(dev_hash_table, tmp))
+			if (stress_hash_get(dev_open_fail, tmp))
 				continue;
 			if (strstr(tmp, "watchdog")) {
-				stress_hash_add(dev_hash_table, tmp);
+				stress_hash_add(dev_open_fail, tmp);
 				continue;
 			}
-			ret = stress_try_open(args, tmp, O_RDONLY | O_NONBLOCK, 1500000000);
-			if (ret == STRESS_TRY_OPEN_FAIL) {
-				stress_hash_add(dev_hash_table, tmp);
-				continue;
+
+			/* If it was opened OK before, no need for try_open check */
+			if (!stress_hash_get(dev_open_ok, tmp)) {
+				/* Limit the number of locked up try failures */
+				if (try_failed > STRESS_DEV_OPEN_TRIES_MAX)
+					continue;
+				ret = stress_try_open(args, tmp, O_RDONLY | O_NONBLOCK, 1500000000);
+				if (ret == STRESS_TRY_OPEN_FAIL) {
+					stress_hash_add(dev_open_fail, tmp);
+					try_failed++;
+					continue;
+				}
 			}
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
@@ -2966,6 +2976,7 @@ static void stress_dev_dir(
 				stress_dev_rw(args, loops);
 				inc_counter(args);
 			}
+			stress_hash_add(dev_open_ok, tmp);
 			break;
 		default:
 			break;
@@ -2981,8 +2992,8 @@ done:
  */
 static int stress_dev(const stress_args_t *args)
 {
-	pthread_t pthreads[MAX_DEV_THREADS];
-	int ret[MAX_DEV_THREADS], rc = EXIT_SUCCESS;
+	pthread_t pthreads[STRESS_DEV_THREADS_MAX];
+	int ret[STRESS_DEV_THREADS_MAX], rc = EXIT_SUCCESS;
 	uid_t euid = geteuid();
 	stress_pthread_args_t pa;
 	char *dev_file = NULL;
@@ -3045,17 +3056,26 @@ again:
 			size_t i;
 			int r;
 
-			dev_hash_table = stress_hash_create(251);
-			if (!dev_hash_table) {
+			dev_open_fail = stress_hash_create(251);
+			if (!dev_open_fail) {
 				pr_err("%s: cannot create device hash table: %d (%s))\n",
 					args->name, errno, strerror(errno));
 				_exit(EXIT_NO_RESOURCE);
 			}
-			scsi_hash_table = stress_hash_create(251);
-			if (!scsi_hash_table) {
+			dev_open_ok = stress_hash_create(509);
+			if (!dev_open_ok) {
+				pr_err("%s: cannot create device hash table: %d (%s))\n",
+					args->name, errno, strerror(errno));
+				stress_hash_delete(dev_open_fail);
+				_exit(EXIT_NO_RESOURCE);
+			}
+
+			dev_scsi = stress_hash_create(251);
+			if (!dev_scsi) {
 				pr_err("%s: cannot create scsi device hash table: %d (%s))\n",
 					args->name, errno, strerror(errno));
-				stress_hash_delete(dev_hash_table);
+				stress_hash_delete(dev_open_ok);
+				stress_hash_delete(dev_open_fail);
 				_exit(EXIT_NO_RESOURCE);
 			}
 
@@ -3073,7 +3093,7 @@ again:
 			stress_set_oom_adjustment(args->name, true);
 			mixup = stress_mwc32();
 
-			for (i = 0; i < MAX_DEV_THREADS; i++) {
+			for (i = 0; i < STRESS_DEV_THREADS_MAX; i++) {
 				ret[i] = pthread_create(&pthreads[i], NULL,
 						stress_dev_thread, (void *)&pa);
 			}
@@ -3094,11 +3114,13 @@ again:
 				(void)r;
 			}
 
-			for (i = 0; i < MAX_DEV_THREADS; i++) {
+			for (i = 0; i < STRESS_DEV_THREADS_MAX; i++) {
 				if (ret[i] == 0)
 					(void)pthread_join(pthreads[i], NULL);
 			}
-			stress_hash_delete(dev_hash_table);
+			stress_hash_delete(dev_scsi);
+			stress_hash_delete(dev_open_fail);
+			stress_hash_delete(dev_open_ok);
 			_exit(EXIT_SUCCESS);
 		}
 	} while (keep_stressing());
