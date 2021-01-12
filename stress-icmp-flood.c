@@ -118,7 +118,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 		if ((get_counter(args) & 0x3f) == 0)
 			stress_strnrnd(pkt + sizeof(struct iphdr) +
 				sizeof(struct icmphdr), payload_len);
-		icmp_hdr->checksum = stress_ip_checksum((uint16_t *)icmp_hdr,
+		icmp_hdr->checksum = stress_ipv4_checksum((uint16_t *)icmp_hdr,
 			sizeof(struct icmphdr) + payload_len);
 
 		if ((sendto(fd, pkt, pkt_len, 0,

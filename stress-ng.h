@@ -3967,7 +3967,7 @@ extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_murmur3_32(const uint8_t* key, size_t len, uint32_t seed);
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);
-extern WARN_UNUSED uint16_t stress_ip_checksum(uint16_t *ptr, const size_t n);
+extern WARN_UNUSED uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t n);
 extern int stress_read_fdinfo(const pid_t pid, const int fd);
 extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
 extern WARN_UNUSED size_t stress_hostname_length(void);

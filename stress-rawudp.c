@@ -133,7 +133,7 @@ static void stress_rawudp_client(
 
 		ip->tos = stress_mwc8() & 0x1e;
 		ip->id = htons(id++);
-		ip->check = stress_ip_checksum((uint16_t *)buf, sizeof(struct iphdr) + sizeof(struct udphdr));
+		ip->check = stress_ipv4_checksum((uint16_t *)buf, sizeof(struct iphdr) + sizeof(struct udphdr));
 
 		n = sendto(fd, buf, ip->tot_len, 0, (struct sockaddr *)&sin, sizeof(sin));
 		if (n < 0) {

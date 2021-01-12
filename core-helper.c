@@ -1893,10 +1893,10 @@ unlock:
 }
 
 /*
- *  stress_ip_checksum()
- *	ip data checksum
+ *  stress_ipv4_checksum()
+ *	ipv4 data checksum
  */
-uint16_t HOT OPTIMIZE3 stress_ip_checksum(uint16_t *ptr, const size_t sz)
+uint16_t HOT OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
 {
 	register uint32_t sum = 0;
 	register size_t n = sz;
