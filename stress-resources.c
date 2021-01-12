@@ -132,7 +132,7 @@ static void NORETURN waste_resources(
 	struct rlimit rlim;
 #endif
 	size_t mlock_size;
-	size_t i, n = -1;
+	size_t i, n = 0;
 	size_t shmall, freemem, totalmem, freeswap;
 	const pid_t pid = getpid();
 	static const int domains[] = { AF_INET, AF_INET6 };
@@ -172,7 +172,7 @@ static void NORETURN waste_resources(
 
 	(void)memset(&info, 0, sizeof(info));
 
-	for (i = 0; keep_stressing_flag() && (i < MAX_LOOPS); i++) {
+	for (i = 0; i < MAX_LOOPS; i++) {
 		int j;
 		size_t posn;
 		char tmpfilename[64];
@@ -235,6 +235,7 @@ static void NORETURN waste_resources(
     defined(HAVE_MQ_POSIX) &&	\
     defined(HAVE_MQUEUE_H)
 		info[i].mq = -1;
+		info[i].mq_name[0] = '\0';
 #endif
 #if defined(HAVE_PKEY_ALLOC) &&	\
     defined(HAVE_PKEY_FREE)
@@ -242,7 +243,11 @@ static void NORETURN waste_resources(
 #endif
 		info[i].pid = 1;
 
-		n = i;
+		/*
+		 *  Ensure we tidy half complete resources since n is off by one
+		 *  if we break out of the loop to early
+		 */
+		n = i + 1;
 
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 
@@ -526,6 +531,9 @@ static void NORETURN waste_resources(
 		}
 	}
 
+	/*  Sanity check, ensure n is never > MAX_LOOPS */
+	n = STRESS_MINIMUM(MAX_LOOPS, n);
+
 	for (i = 0; i < n; i++) {
 		if (info[i].m_malloc)
 			free(info[i].m_malloc);
@@ -555,8 +563,6 @@ static void NORETURN waste_resources(
 		if (info[i].ptr_memfd_secret)
 			(void)munmap(info[i].ptr_memfd_secret, page_size);
 #endif
-		if (!keep_stressing_flag())
-			break;
 		if (info[i].fd_sock != -1)
 			(void)close(info[i].fd_sock);
 		if (info[i].fd_socketpair[0] != -1)
@@ -583,9 +589,8 @@ static void NORETURN waste_resources(
     defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
     defined(SIGUNUSED)
-		if ((!i) && (info[i].timerok)) {
+		if ((!i) && (info[i].timerok))
 			(void)timer_delete(info[i].timerid);
-		}
 #endif
 
 #if defined(HAVE_SYS_INOTIFY)
@@ -621,10 +626,10 @@ static void NORETURN waste_resources(
 #if defined(HAVE_LIB_RT) &&	\
     defined(HAVE_MQ_POSIX) &&	\
     defined(HAVE_MQUEUE_H)
-		if (info[i].mq >= 0) {
+		if (info[i].mq >= 0)
 			(void)mq_close(info[i].mq);
+		if (info[i].mq_name[0])
 			(void)mq_unlink(info[i].mq_name);
-		}
 #endif
 #if defined(HAVE_PKEY_ALLOC) &&	\
     defined(HAVE_PKEY_FREE)
