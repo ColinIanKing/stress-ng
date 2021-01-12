@@ -1454,6 +1454,22 @@ static void stress_cpu_crc16(const char *name)
 		stress_uint64_put(ccitt_crc16(buffer, i));
 }
 
+/*
+ *   stress_cpu_ipv4checksum
+ *	compute 1024 rounds of IPv4 checksum
+ */
+static void stress_cpu_ipv4checksum(const char *name)
+{
+	uint16_t buffer[512];
+	size_t i;
+
+	(void)name;
+
+	random_buffer((uint8_t *)buffer, sizeof(buffer));
+	for (i = 0; i < sizeof(buffer); i++)
+		stress_uint64_put(stress_ipv4_checksum(buffer, i));
+}
+
 #if defined(HAVE_COMPLEX_H) &&		\
     defined(HAVE_COMPLEX) &&		\
     defined(__STDC_IEC_559_COMPLEX__) &&\
@@ -2672,6 +2688,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "int32double",	stress_cpu_int32_double },
 	{ "int32longdouble",	stress_cpu_int32_longdouble },
 	{ "intconversion",	stress_cpu_intconversion },
+	{ "ipv4checksum",	stress_cpu_ipv4checksum },
 	{ "jenkin",		stress_cpu_jenkin },
 	{ "jmp",		stress_cpu_jmp },
 	{ "ln2",		stress_cpu_ln2 },
