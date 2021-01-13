@@ -25,8 +25,6 @@
 #ifndef __STRESS_NG_H__
 #define __STRESS_NG_H__
 
-#define __NR_memfd_secret 443
-
 #define _GNU_SOURCE
 #define _ATFILE_SOURCE
 #ifndef _LARGEFILE_SOURCE
