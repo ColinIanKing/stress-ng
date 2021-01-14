@@ -1338,9 +1338,9 @@ static uint32_t HOT ackermann(const uint32_t m, const uint32_t n)
  */
 static void stress_cpu_ackermann(const char *name)
 {
-	uint32_t a = ackermann(3, 9);
+	uint32_t a = ackermann(3, 7);
 
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (a != 0xffd))
+	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (a != 0x3fd))
 		pr_fail("%s: ackermann error detected, "
 			"ackermann(3,9) miscalculated\n", name);
 }
