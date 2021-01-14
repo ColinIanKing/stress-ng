@@ -33,7 +33,7 @@ Shared Variables:
 
 == Build ==
 #Make
- export CC=${CROSS_COMPILE}
+ export CC=${CROSS_COMPILE}gcc
  STATIC=1 make ARCH=arm
 
 = Ubuntu 17.04 =
