@@ -65,6 +65,57 @@ static void MLOCKED_TEXT stress_segvhandler(int signum)
 }
 #endif
 
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(__linux__)
+/*
+ *  stress_sigsegv_x86_trap()
+ *	cause an x86 instruction trap by executing an
+ *	instruction that is more than the maximum of
+ *	15 bytes long.  This is achieved by many REPNE
+ *	instruction prefixes before a multiply. The
+ *	trap will produce a segmentation fault.
+ */
+static NOINLINE OPTIMIZE0 void stress_sigsegv_x86_trap(void)
+{
+	int a = 1, b = 2;
+
+	asm(".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    ".byte 0xf2\n\t"
+	    "mul %1\n\t"
+	    : "=r" (a)
+            : "r" (b), "r" (a));
+	/*
+ 	 *  Should not get here
+	 */
+}
+#endif
+
 /*
  *  stress_sigsegv
  *	stress by generating segmentation faults by
@@ -156,6 +207,11 @@ static int stress_sigsegv(const stress_args_t *args)
 			fault_addr = 0;
 #endif
 			/* Trip a SIGSEGV/SIGILL/SIGBUS */
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(__linux__)
+			if (stress_mwc8() > 250)
+				stress_sigsegv_x86_trap();
+#endif
 			*ptr = 0;
 		}
 	}
