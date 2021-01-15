@@ -176,15 +176,10 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 	char path[path_len];
 
 	(void)memset(path, 0, sizeof(path));
-	if (!cache) {
-		pr_dbg("%s: invalid cache specified\n", __func__);
+	if (!cache)
 		goto out;
-	}
-	if (!index_path) {
-		pr_dbg("%s: invalid index specified\n", __func__);
+	if (!index_path)
 		goto out;
-	}
-
 	(void)stress_mk_filename(path, sizeof(path), index_path, "type");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		goto out;
