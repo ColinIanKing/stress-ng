@@ -143,8 +143,15 @@ static int stress_pipe(const stress_args_t *args)
 	pid_t pid;
 	int pipefds[2];
 	size_t pipe_data_size = 512;
+	char *buf;
 
 	(void)stress_get_setting("pipe-data-size", &pipe_data_size);
+
+	buf = calloc(pipe_data_size, sizeof(*buf));
+	if (!buf) {
+		pr_err("%s: failed to allocate buffer\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 #if defined(HAVE_PIPE2) &&	\
     defined(O_DIRECT)
@@ -183,6 +190,7 @@ again:
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
+		free(buf);
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -198,7 +206,6 @@ again:
 
 		(void)close(pipefds[1]);
 		while (keep_stressing_flag()) {
-			char buf[pipe_data_size];
 			ssize_t n;
 
 			n = read(pipefds[0], buf, pipe_data_size);
@@ -232,9 +239,9 @@ again:
 			}
 		}
 		(void)close(pipefds[0]);
+		free(buf);
 		_exit(EXIT_SUCCESS);
 	} else {
-		char buf[pipe_data_size];
 		int val = 0, status;
 
 		/* Parent */
@@ -259,7 +266,7 @@ again:
 			inc_counter(args);
 		} while (keep_stressing());
 
-		(void)memset(buf, 0, sizeof(buf));
+		(void)memset(buf, 0, pipe_data_size);
 		(void)memcpy(buf, PIPE_STOP, sizeof(PIPE_STOP));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0) {
 			if (errno != EPIPE)
@@ -269,6 +276,7 @@ again:
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 		(void)close(pipefds[1]);
+		free(buf);
 	}
 	return EXIT_SUCCESS;
 }
