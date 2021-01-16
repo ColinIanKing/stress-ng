@@ -50,49 +50,81 @@ mount_filesystem()
 {
 	rm -f ${FSIMAGE}
 	case $1 in
-		ext4)
-			CMD="mkfs.ext4"
-			ARGS="-F ${FSIMAGE}"
+		ext4)	MKFS_CMD="mkfs.ext4"
+			MKFS_ARGS="-F ${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 		;;
 		xfs)
-			CMD="mkfs.xfs"
-			ARGS="-f ${FSIMAGE}"
+			MKFS_CMD="mkfs.xfs"
+			MKFS_ARGS="-f ${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 		;;
-		hfs)	CMD="mkfs.hfs"
-			ARGS="${FSIMAGE}"
+		hfs)
+			MKFS_CMD="mkfs.hfs"
+			MKFS_ARGS="${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 		;;
-		jfs)	CMD="mkfs.jfs"
-			ARGS="-q ${FSIMAGE}"
+		jfs)	MKFS_CMD="mkfs.jfs"
+			MKFS_ARGS="-q ${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 		;;
-		minix)	CMD="mkfs.minix"
-			ARGS="${FSIMAGE}"
+		minix)	MKFS_CMD="mkfs.minix"
+			MKFS_ARGS="${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 		;;
-		vfat)	CMD="mkfs.vfat"
-			ARGS="${FSIMAGE}"
+		vfat)	MKFS_CMD="mkfs.vfat"
+			MKFS_ARGS="${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 		;;
-
+		f2fs)	MKFS_CMD="mkfs.f2fs"
+			MKFS_ARGS="-f ${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+		;;
+		bfs)	MKFS_CMD="mkfs.bfs"
+			MKFS_ARGS="${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+		;;
+		btrfs)	MKFS_CMD="mkfs.btrfs"
+			MKFS_ARGS="-f ${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+		;;
+		tmpfs)	MKFS_CMD="true"
+			MKFS_ARGS=""
+			MNT_CMD="sudo mount -t tmpfs -o size=1G,nr_inodes=10k,mode=777 tmpfs ${MNT}"
+		;;
+		ramfs)	MKFS_CMD="true"
+			MKFS_ARGS=""
+			MNT_CMD="sudo mount -t ramfs -o size=1G ramfs ${MNT}"
+		;;
 		*)
 			echo "unsupported file system $1"
 			return 1
 		;;
 	esac
 
-	if which ${CMD} ; then
-		rm -f ${FSIMAGE}
-		dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
-		sudo $CMD $ARGS
+	if which ${MKFS_CMD} ; then
+		sudo ${MKFS_CMD} ${MKFS_ARGS}
 		rc=$?
 		if [ $rc -ne 0 ]; then
-			echo "$CMD $ARGS failed, error: $rc"
+			echo "${MKFS_CMD} ${MKFS_ARGS} failed, error: $rc"
 			return 1
 		fi
 		mkdir -p ${MNT}
-		sudo mount -o loop ${FSIMAGE} ${MNT}
+		sudo ${MNT_CMD}
 		sudo chmod 777 ${MNT}
 		own=$(whoami)
 		sudo chown $own:$own ${MNT}
 	else
-		echo "$CMD does not exist"
+		echo "${MKFS_CMD} does not exist"
 		return 1
 	fi
 	return 0
@@ -172,7 +204,7 @@ if [ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]; then
 fi
 
 DURATION=30
-for FS in ext4 xfs jfs minix vfat
+for FS in ext4 xfs jfs minix vfat f2fs bfs btrfs tmpfs ramfs
 do
 	echo "Filesystem: $FS"
 	if mount_filesystem $FS; then

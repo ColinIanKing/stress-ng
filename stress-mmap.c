@@ -277,6 +277,7 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 	int no_mem_retries = 0;
 	const int ms_flags = context->mmap_async ? MS_ASYNC : MS_SYNC;
 	uint8_t *mapped, **mappings;
+	void *hint;
 
 	mapped = calloc(pages4k, sizeof(*mapped));
 	if (!mapped) {
@@ -311,7 +312,14 @@ retry:
 
 		if (!keep_stressing_flag())
 			break;
-		buf = (uint8_t *)context->mmap(NULL, sz,
+		/*
+		 *  ARM64, one can opt-int to getting VAs from 52 bit
+		 *  space by hinting with an address that is > 48 bits.
+		 *  Since this is a hint, we can try this for all
+		 *  architectures.
+		 */
+		hint = stress_mwc1() ? NULL : (void *)~(uintptr_t)0;
+		buf = (uint8_t *)context->mmap(hint, sz,
 			PROT_READ | PROT_WRITE, context->flags | rnd_flag, fd, 0);
 		if (buf == MAP_FAILED) {
 #if defined(MAP_POPULATE)
