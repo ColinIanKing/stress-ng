@@ -671,7 +671,9 @@ uint64_t stress_uint64_zero(void)
  */
 int stress_set_temp_path(const char *path)
 {
-	stress_temp_path = path;
+	stress_temp_path = stress_const_optdup(path);
+	if (!stress_temp_path)
+		return -1;
 
 	if (access(path, R_OK | W_OK) < 0) {
 		(void)fprintf(stderr, "temp-path '%s' must be readable "
