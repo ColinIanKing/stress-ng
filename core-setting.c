@@ -146,7 +146,11 @@ static int stress_set_setting_generic(
 		DBG("%s: OFF_T: %s -> %lu\n", __func__, name, (unsigned long)setting->u.off);
 		break;
 	case TYPE_ID_STR:
-		setting->u.str = (const char *)value;
+		setting->u.str = stress_const_optdup(value);
+		if (!setting->u.str) {
+			free(setting);
+			goto err;
+		}
 		DBG("%s: STR: %s -> %s\n", __func__, name, setting->u.str);
 		break;
 	case TYPE_ID_BOOL:
