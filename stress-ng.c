@@ -3003,6 +3003,8 @@ int main(int argc, char **argv, char **envp)
 	const uint32_t cpus_configured = stress_get_processors_configured();
 	int ret;
 
+	if (stress_set_temp_path(".") < 0)
+		exit(EXIT_FAILURE);
 	stress_set_proc_name_init(argc, argv, envp);
 
 	if (setjmp(g_error_env) == 1)
@@ -3311,6 +3313,7 @@ int main(int argc, char **argv, char **envp)
 	stress_cache_free();
 	stress_unmap_shared();
 	stress_free_settings();
+	stress_free_temp_path();
 
 	/*
 	 *  Close logs

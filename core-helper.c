@@ -165,7 +165,52 @@ static const stress_sig_name_t sig_names[] = {
 #endif
 };
 
-static const char *stress_temp_path = ".";
+static char *stress_temp_path;
+
+/*
+ *  stress_free_temp_path()
+ *	free and NULLify temporary file path
+ */
+void stress_free_temp_path(void)
+{
+	if (stress_temp_path)
+		free(stress_temp_path);
+
+	stress_temp_path = NULL;
+}
+
+/*
+ *  stress_set_temp_path()
+ *	set temporary file path, default
+ *	is . - current dir
+ */
+int stress_set_temp_path(const char *path)
+{
+	stress_free_temp_path();
+
+	stress_temp_path = stress_const_optdup(path);
+	if (!stress_temp_path)
+		return -1;
+
+	if (access(path, R_OK | W_OK) < 0) {
+		(void)fprintf(stderr, "temp-path '%s' must be readable "
+			"and writeable\n", path);
+		return -1;
+	}
+
+	return 0;
+}
+
+/*
+ *  stress_get_temp_path()
+ *	get temporary file path, return "." if null
+ */
+const char *stress_get_temp_path(void)
+{
+	if (!stress_temp_path)
+		return ".";
+	return stress_temp_path;
+}
 
 /*
  *  stress_mk_filename()
@@ -363,11 +408,12 @@ uint64_t stress_get_filesystem_size(void)
 	int rc;
 	struct statvfs buf;
 	fsblkcnt_t blocks, max_blocks;
+	const char *path = stress_get_temp_path();
 
-	if (!stress_temp_path)
+	if (!path)
 		return 0;
 
-	rc = statvfs(stress_temp_path, &buf);
+	rc = statvfs(path, &buf);
 	if (rc < 0)
 		return 0;
 
@@ -393,11 +439,12 @@ uint64_t stress_get_filesystem_available_inodes(void)
 #if defined(HAVE_SYS_STATVFS_H)
 	int rc;
 	struct statvfs buf;
+	const char *path = stress_get_temp_path();
 
-	if (!stress_temp_path)
+	if (!path)
 		return 0;
 
-	rc = statvfs(stress_temp_path, &buf);
+	rc = statvfs(path, &buf);
 	if (rc < 0)
 		return 0;
 
@@ -665,26 +712,6 @@ uint64_t stress_uint64_zero(void)
 }
 
 /*
- *  stress_set_temp_path()
- *	set temporary file path, default
- *	is . - current dir
- */
-int stress_set_temp_path(const char *path)
-{
-	stress_temp_path = stress_const_optdup(path);
-	if (!stress_temp_path)
-		return -1;
-
-	if (access(path, R_OK | W_OK) < 0) {
-		(void)fprintf(stderr, "temp-path '%s' must be readable "
-			"and writeable\n", path);
-		return -1;
-	}
-
-	return 0;
-}
-
-/*
  *  stress_temp_hash_truncate()
  *	filenames may be too long for the underlying filesystem
  *	so workaround this by hashing them into a 64 bit hex
@@ -697,7 +724,7 @@ static void stress_temp_hash_truncate(char *filename)
 #if defined(HAVE_SYS_STATVFS_H)
 	struct statvfs buf;
 
-	if (statvfs(stress_temp_path, &buf) == 0)
+	if (statvfs(stress_get_temp_path(), &buf) == 0)
 		f_namemax = buf.f_namemax;
 #endif
 
@@ -738,7 +765,7 @@ int stress_temp_filename(
 	stress_temp_hash_truncate(filename);
 
 	return snprintf(path, len, "%s/%s/%s",
-		stress_temp_path, dirname, filename);
+		stress_get_temp_path(), dirname, filename);
 }
 
 /*
@@ -774,7 +801,7 @@ int stress_temp_dir(
 	stress_temp_hash_truncate(dirname);
 
 	return snprintf(path, len, "%s/%s",
-		stress_temp_path, dirname);
+		stress_get_temp_path(), dirname);
 }
 
 /*
