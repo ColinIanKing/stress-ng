@@ -697,7 +697,7 @@ static void stress_cpu_jenkin(const char *name)
 static inline bool stress_cpu_little_endian(void)
 {
 	const uint32_t x = 0x12345678;
-	const uint8_t *y = (uint8_t *)&x;
+	const uint8_t *y = (const uint8_t *)&x;
 
 	return *y == 0x78;
 }
