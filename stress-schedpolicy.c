@@ -57,7 +57,9 @@ static const int policies[] = {
 static int stress_schedpolicy(const stress_args_t *args)
 {
 	int policy = 0;
+#if defined(_POSIX_PRIORITY_SCHEDULING)
 	const bool root_or_nice_capability = stress_check_capability(SHIM_CAP_SYS_NICE);
+#endif
 #if defined(HAVE_SCHED_GETATTR) && \
     defined(HAVE_SCHED_SETATTR)
 	uint32_t sched_util_min = ~0;
