@@ -1455,6 +1455,38 @@ static void stress_cpu_crc16(const char *name)
 }
 
 /*
+ *  fletcher16
+ *	naive implementation of fletcher16 checksum
+ */
+static uint16_t HOT OPTIMIZE3 fletcher16(const uint8_t *data, const size_t len)
+{
+	register uint16_t sum1 = 0, sum2 = 0;
+	register size_t i;
+
+	for (i = 0; i < len; i++) {
+		sum1 = (sum1 + data[i]) % 255;
+		sum2 = (sum2 + sum1) % 255;
+	}
+	return (sum2 << 8) | sum1;
+}
+
+/*
+ *   stress_cpu_fletcher16()
+ *	compute 1024 rounds of fletcher16 checksum
+ */
+static void stress_cpu_fletcher16(const char *name)
+{
+	uint8_t buffer[1024];
+	size_t i;
+
+	(void)name;
+
+	random_buffer((uint8_t *)buffer, sizeof(buffer));
+	for (i = 0; i < sizeof(buffer); i++)
+		stress_uint16_put(fletcher16(buffer, i));
+}
+
+/*
  *   stress_cpu_ipv4checksum
  *	compute 1024 rounds of IPv4 checksum
  */
@@ -1467,7 +1499,7 @@ static void stress_cpu_ipv4checksum(const char *name)
 
 	random_buffer((uint8_t *)buffer, sizeof(buffer));
 	for (i = 0; i < sizeof(buffer); i++)
-		stress_uint64_put(stress_ipv4_checksum(buffer, i));
+		stress_uint16_put(stress_ipv4_checksum(buffer, i));
 }
 
 #if defined(HAVE_COMPLEX_H) &&		\
@@ -2630,14 +2662,15 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "double",		stress_cpu_double },
 	{ "euler",		stress_cpu_euler },
 	{ "explog",		stress_cpu_explog },
+	{ "factorial",		stress_cpu_factorial },
+	{ "fibonacci",		stress_cpu_fibonacci },
 #if defined(HAVE_COMPLEX_H) &&		\
     defined(HAVE_COMPLEX) &&		\
     defined(__STDC_IEC_559_COMPLEX__) &&\
     !defined(__UCLIBC__)
 	{ "fft",		stress_cpu_fft },
 #endif
-	{ "factorial",		stress_cpu_factorial },
-	{ "fibonacci",		stress_cpu_fibonacci },
+	{ "fletcher16",		stress_cpu_fletcher16 },
 	{ "float",		stress_cpu_float },
 #if defined(HAVE_FLOAT16) && !defined(__clang__)
 	{ "float16",		stress_cpu_float16 },
@@ -2861,7 +2894,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 				inc_counter(args);
 			} while (t2 < slice_end);
 		}
-		
+
 		/* Must not calculate this with zero % load */
 		delay = (((100 - cpu_load) * (t2 - t1)) / (double)cpu_load);
 		delay -= bias;
