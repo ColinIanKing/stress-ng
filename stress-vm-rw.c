@@ -37,10 +37,12 @@ static const stress_help_t help[] = {
     defined(CLONE_VM)
 
 #define STACK_SIZE	(64 * 1024)
+#define CHUNK_SIZE	(1 * GB)
 
 typedef struct {
 	const stress_args_t *args;
 	size_t sz;
+	size_t iov_count;
 	pid_t pid;
 	int pipe_wr[2];
 	int pipe_rd[2];
@@ -139,9 +141,9 @@ redo_rd1:
 			/* Check memory altered by parent is sane */
 			for (ptr = buf; ptr < end; ptr += args->page_size) {
 				if (*ptr != msg_rd.val) {
-					pr_fail("%s: memory at %p: %d vs %d\n",
-						args->name, ptr, *ptr, msg_rd.val);
-					goto cleanup;
+					pr_fail("%s: memory at %p (offset %tx): %d vs %d\n",
+						args->name, ptr, ptr - buf, *ptr, msg_rd.val);
+					//goto cleanup;
 				}
 				*ptr = 0;
 			}
@@ -164,14 +166,16 @@ cleanup:
 	return ret;
 }
 
+
 static int stress_vm_parent(stress_context_t *ctxt)
 {
 	/* Parent */
 	int status;
-	uint8_t val = 0;
+	uint8_t val = 0x10;
 	uint8_t *localbuf;
 	stress_addr_msg_t msg_rd, msg_wr;
 	const stress_args_t *args = ctxt->args;
+	size_t sz;
 
 	(void)setpgid(ctxt->pid, g_pgrp);
 
@@ -193,8 +197,9 @@ static int stress_vm_parent(stress_context_t *ctxt)
 
 	do {
 		struct iovec local[1], remote[1];
-		uint8_t *ptr, *end = localbuf + ctxt->sz;
+		uint8_t *ptr1, *ptr2, *end = localbuf + ctxt->sz;
 		int ret;
+		size_t i, len;
 
 		/* Wait for address of child's buffer */
 redo_rd2:
@@ -220,55 +225,77 @@ redo_rd2:
 			break;
 
 		/* Perform read from child's memory */
-		local[0].iov_base = localbuf;
-		local[0].iov_len = ctxt->sz;
-		remote[0].iov_base = msg_rd.addr;
-		remote[0].iov_len = ctxt->sz;
-		if (process_vm_readv(ctxt->pid, local, 1, remote, 1, 0) < 0) {
-			pr_fail("%s: process_vm_readv failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			break;
+		ptr1 = localbuf;
+		ptr2 = msg_rd.addr;
+		sz = ctxt->sz;
+		for (i = 0; i < ctxt->iov_count; i++) {
+			len = sz >= CHUNK_SIZE ? CHUNK_SIZE : sz;
+
+			local[0].iov_base = ptr1;
+			local[0].iov_len = len;
+			ptr1 += len;
+			remote[0].iov_base = ptr2;
+			remote[0].iov_len = len;
+			ptr2 += len;
+			sz -= len;
+
+			if (process_vm_readv(ctxt->pid, local, 1, remote, 1, 0) < 0) {
+				pr_fail("%s: process_vm_readv failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				goto fail;
+			}
 		}
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			/* Check data is sane */
-			for (ptr = localbuf; ptr < end; ptr += args->page_size) {
-				if (*ptr) {
-					pr_fail("%s: memory at %p: %d vs %d\n",
-						args->name, ptr, *ptr, msg_rd.val);
+			for (ptr1 = localbuf; ptr1 < end; ptr1 += args->page_size) {
+				if (*ptr1) {
+					pr_fail("%s: memory at %p (offset %tx): %d vs %d\n",
+						args->name, ptr1, ptr1 - localbuf, *ptr1, msg_rd.val);
 					goto fail;
 				}
-				*ptr = 0;
+				*ptr1 = 0;
 			}
 			/* Set memory */
-			for (ptr = localbuf; ptr < end; ptr += args->page_size)
-				*ptr = val;
+			for (ptr1 = localbuf; ptr1 < end; ptr1 += args->page_size)
+				*ptr1 = val;
 		}
 
 		/* Exercise invalid flags */
+		len = ctxt->sz >= CHUNK_SIZE ? CHUNK_SIZE : ctxt->sz;
 		local[0].iov_base = localbuf;
-		local[0].iov_len = ctxt->sz;
+		local[0].iov_len = len;
 		remote[0].iov_base = msg_rd.addr;
-		remote[0].iov_len = ctxt->sz;
+		remote[0].iov_len = len;
 		(void)process_vm_readv(ctxt->pid, local, 1, remote, 1, ~0);
 
 		/* Exercise invalid pid */
 		local[0].iov_base = localbuf;
-		local[0].iov_len = ctxt->sz;
+		local[0].iov_len = len;
 		remote[0].iov_base = msg_rd.addr;
-		remote[0].iov_len = ctxt->sz;
+		remote[0].iov_len = len;
 		(void)process_vm_readv(~0, local, 1, remote, 1, 0);
 
 		/* Write to child's memory */
 		msg_wr = msg_rd;
-		local[0].iov_base = localbuf;
-		local[0].iov_len = ctxt->sz;
-		remote[0].iov_base = msg_wr.addr;
-		remote[0].iov_len = ctxt->sz;
-		if (process_vm_writev(ctxt->pid, local, 1, remote, 1, 0) < 0) {
-			pr_fail("%s: process_vm_writev failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			break;
+		ptr1 = localbuf;
+		ptr2 = msg_rd.addr;
+		sz = ctxt->sz;
+		for (i = 0; i < ctxt->iov_count; i++) {
+			len = sz >= CHUNK_SIZE ? CHUNK_SIZE : sz;
+
+			local[0].iov_base = ptr1;
+			local[0].iov_len = len;
+			ptr1 += len;
+			remote[0].iov_base = ptr2;
+			remote[0].iov_len = len;
+			ptr2 += len;
+			sz -= len;
+			if (process_vm_writev(ctxt->pid, local, 1, remote, 1, 0) < 0) {
+				pr_fail("%s: process_vm_writev failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				goto fail;
+			}
 		}
 		msg_wr.val = val;
 		val++;
@@ -287,17 +314,18 @@ redo_wr2:
 		}
 
 		/* Exercise invalid flags */
+		len = ctxt->sz >= CHUNK_SIZE ? CHUNK_SIZE : ctxt->sz;
 		local[0].iov_base = localbuf;
-		local[0].iov_len = ctxt->sz;
+		local[0].iov_len = len;
 		remote[0].iov_base = msg_wr.addr;
-		remote[0].iov_len = ctxt->sz;
+		remote[0].iov_len = len;
 		(void)process_vm_writev(ctxt->pid, local, 1, remote, 1, ~0);
 
 		/* Exercise invalid pid */
 		local[0].iov_base = localbuf;
-		local[0].iov_len = ctxt->sz;
+		local[0].iov_len = len;
 		remote[0].iov_base = msg_wr.addr;
-		remote[0].iov_len = ctxt->sz;
+		remote[0].iov_len = len;
 		(void)process_vm_writev(~0, local, 1, remote, 1, 0);
 
 		inc_counter(args);
@@ -348,6 +376,7 @@ static int stress_vm_rw(const stress_args_t *args)
 		vm_rw_bytes = args->page_size;
 	ctxt.args = args;
 	ctxt.sz = vm_rw_bytes & ~(args->page_size - 1);
+	ctxt.iov_count = (ctxt.sz + CHUNK_SIZE - 1) / CHUNK_SIZE;
 
 	if (pipe(ctxt.pipe_wr) < 0) {
 		pr_fail("%s: pipe failed, errno=%d (%s)\n",
