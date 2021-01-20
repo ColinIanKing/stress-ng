@@ -143,7 +143,7 @@ redo_rd1:
 				if (*ptr != msg_rd.val) {
 					pr_fail("%s: memory at %p (offset %tx): %d vs %d\n",
 						args->name, ptr, ptr - buf, *ptr, msg_rd.val);
-					//goto cleanup;
+					goto cleanup;
 				}
 				*ptr = 0;
 			}
