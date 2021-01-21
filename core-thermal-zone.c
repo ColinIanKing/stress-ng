@@ -28,7 +28,7 @@
 
 /*
  *  stress_tz_type_instance()
- *	return the number of existing occurrances of
+ *	return the number of existing occurrences of
  *	a named type in the tz_info_list.
  */
 static uint32_t stress_tz_type_instance(

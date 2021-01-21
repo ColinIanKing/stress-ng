@@ -245,7 +245,7 @@ static int stress_rseq_oomable(const stress_args_t *args, void *context)
 		/*
 		 *  exercise register/critical section/unregister,
 		 *  every 2048 register with an invalid signature to
-		 *  exercise kernel invlid signature check
+		 *  exercise kernel invalid signature check
 		 */
 		if ((get_counter(args) & 0x1fff) == 1)
 			valid_signature = 0xbadc0de;
