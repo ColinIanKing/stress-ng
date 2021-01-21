@@ -1,3 +1,94 @@
+stress-ng (0.12.02-1) unstable; urgency=medium
+
+  [Adriand Martin]
+  * Solved minor issue in README.Android Fixed minor issue related to
+    CC variable when cross compiling
+
+  [Jianshen Liu]
+  * Fix read of TYPE_ID_STR value from jobfile
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * simplify allocation and null check to help cppcheck
+  * Manual: update date
+  * Fix a couple of spelling mistakes
+  * README: update stress test count
+  * stress-cpu: add the Fletcher16 checksum as a new cpu stress method
+  * stress-vm-rw: uncomment goto failure exit
+  * stress-vm-rw: write/read in 1G chunks
+  * Manual: pluralize the word stat.
+  * Manual: update contributors information
+  * stress-schedpolicy: fix build warning when building with musl C
+    library
+  * stress-cpu: fix const warning from clang pedantic build
+  * test-stime: pass address of time_t object to stime
+  * Remove empty source
+  * Add missing copyright dates and attribution
+  * Add helper functions to get and free the temporary file path
+  * kernel-coverage.sh: add f2fs bfs btrfs tmpfs and ramfs
+  * core-cache: remove some debug messages, they add noise
+  * stress-sigsegv: force SEGV with illegal long instruction
+    (x86 only)
+  * stress-pipe: allocate pipe buffer from heap and not stack
+  * Manual: update stress-cpu ackermann description
+  * stress-cpu: reduce ackermann m term to reduce influence on
+    all cpu methods
+  * Remove #define for __NR_memfd_secret
+  * stress-resources: fix mq files not being reaped
+  * stress-cpu: add ipv4checksum method
+  * core-helper: rename stress_ip_checksum to stress_ipv4_checksum
+  * stress-dev: only perform open tries if never opened before
+  * core-try-open: make helper function static
+  * Use the new try stress_try_open error returns to ensure open
+    fails are skipped
+  * core-try-open: resolve some stress-dev blocking issues, add
+    richer error return
+  * core-try-open: quick stat check before expensive slow open
+  * Fix spelling mistakes found using codespell
+  * stress-vecmath: avoid overflow sign extension errors
+  * stress-secretmem: fix void cast on mappings
+  * stress-secretmem: free mappings on early error return
+  * stress-resources: ensure early break from loop gets cleaned up
+  * stress-cpu: add Murmur3_32 hash to cpu stressor
+  * core-thermal-zone: add some more comments
+  * Manual: add a --cpu-load example to one of the --cpu stressor
+    examples
+  * stress-ng: forgot to include type_instance field change in
+    previous commit
+  * core-thermal-zone: sort thermal zone types on type name and type
+    name instance
+  * stress-rseq: remove volatile from rseq structs
+  * stress-rseq: rename signature to valid_signature to avoid name
+    shadowing
+  * core-helper: make dirname smaller, reduce stack size
+  * Add new secretmem stress test
+  * kernel-coverage: exercise ext4, xfs, jfs, minix and vfat
+  * stress-dev: add SCSI_IOCTL_GET_PCI ioctl
+  * stress-rename: replace AT_FDCWD with directory fd
+  * stress-link: put end of string marker on buf and not newpath
+  * stress-link: handle EMLINK failures on linking
+  * stress-filename: add filename length limit when probing filename
+  * stress-dir: handle EMLINK failures on mkdir
+  * stress-chdir: handle EMLINK failures on mkdir
+  * stress-aio-linux: unlink file if open failed
+  * core-helper: add a helper to truncate long filenames
+  * stress-chattr: handle ENOTTY errors when ioctls are not supported
+  * Add build-time check for struct sockaddr_un
+  * stress-ping-sock: also add EACCES socket failure check
+  * Add a new ping-sock stressor to exercise "ping" sockets
+  * Manual: clarify the number of stressors for sequential option too
+  * Manual: clarify the number of stressors:
+  * stress-ng: update copyright to 2021
+  * stress-dev: add RNDADDENTROPY and RNDRESEEDCRNG ioctls
+  * stress-loop: break overly wide line
+  * stress-loop: mmap in loop dev and touch + flush pages
+  * stress-resources: allocate a page with memfd
+  * stress-resources: allocate fd and page using memfd_secret()
+  * Add shim for new Linux system call memfd_secret()
+  * stress-rseq: exercise invalid rseq calls
+
+ -- Colin King <colin.king@canonical.com>  Thu, 21 Jan 2021 22:46:16 +0000
+
 stress-ng (0.12.01-1) unstable; urgency=medium
 
   [David Turner]
