@@ -100,7 +100,8 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
-	if ((mappings = calloc(MMAP_MAX, sizeof(*mappings))) == NULL) {
+	mappings = calloc(MMAP_MAX, sizeof(*mappings));
+	if (!mappings) {
 		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}

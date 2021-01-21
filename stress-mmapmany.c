@@ -46,7 +46,8 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 			args->name, max);
 		return EXIT_NO_RESOURCE;
 	}
-	if ((mappings = calloc(max, sizeof(uint8_t *))) == NULL) {
+	mappings = calloc(max, sizeof(uint8_t *));
+	if (!mappings) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
