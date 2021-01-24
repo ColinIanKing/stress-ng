@@ -3636,7 +3636,7 @@ extern pid_t g_pgrp;			/* proceess group leader */
 extern jmp_buf g_error_env;		/* parsing error env */
 extern stress_put_val_t g_put_val;	/* sync data to somewhere */
 
-static inline bool HOT OPTIMIZE3 keep_stressing_flag(void)
+static inline bool ALWAYS_INLINE HOT OPTIMIZE3 keep_stressing_flag(void)
 {
 	return g_keep_stressing_flag;
 }
