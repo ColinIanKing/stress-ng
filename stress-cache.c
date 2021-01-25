@@ -183,6 +183,8 @@ static int stress_cache(const stress_args_t *args)
 	int ret = EXIT_SUCCESS;
 	uint8_t *const mem_cache = g_shared->mem_cache;
 	const uint64_t mem_cache_size = g_shared->mem_cache_size;
+	uint64_t i = stress_mwc64() % mem_cache_size;
+	uint64_t r = 0;
 
 	(void)stress_get_setting("cache-flags", &cache_flags);
 	if (args->instance == 0)
@@ -214,11 +216,10 @@ static int stress_cache(const stress_args_t *args)
 	masked_flags = cache_flags & FLAGS_CACHE_MASK;
 
 	do {
-		uint64_t i = stress_mwc64() % mem_cache_size;
-		uint64_t r = stress_mwc64();
 		register uint64_t j;
 
-		if ((r >> 13) & 1) {
+		r++;
+		if (r & 1) {
 			switch (masked_flags) {
 			default:
 				CACHE_WRITE(0);
@@ -314,6 +315,10 @@ static int stress_cache(const stress_args_t *args)
 		(void)shim_cacheflush((char *)stress_cache, 8192, SHIM_ICACHE);
 		(void)shim_cacheflush((char *)mem_cache, (int)mem_cache_size, SHIM_DCACHE);
 		inc_counter(args);
+
+		/* Move forward a bit */
+		i += 32769;
+		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
 	} while (keep_stressing());
 
 	stress_uint32_put(total);
