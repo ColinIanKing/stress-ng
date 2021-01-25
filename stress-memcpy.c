@@ -207,7 +207,7 @@ static int stress_set_memcpy_method(const char *name)
 
 static void stress_memcpy_set_default(void)
 {
-	stress_set_memcpy_method("libc");
+	stress_set_memcpy_method("all");
 }
 
 /*
@@ -220,7 +220,7 @@ static int stress_memcpy(const stress_args_t *args)
 	uint8_t *b_str = g_shared->str_shared;
 	uint8_t *str_shared = g_shared->str_shared;
 	uint8_t *aligned_buf = stress_align_address(b.buffer, ALIGN_SIZE);
-	const stress_memcpy_method_info_t *memcpy_method = &stress_memcpy_methods[1];
+	const stress_memcpy_method_info_t *memcpy_method = &stress_memcpy_methods[0];
 
 	(void)stress_get_setting("memcpy-method", &memcpy_method);
 
