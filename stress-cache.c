@@ -30,19 +30,32 @@
 #define FLAGS_CACHE_FLUSH	(0x02)
 #define FLAGS_CACHE_FENCE	(0x04)
 #define FLAGS_CACHE_SFENCE	(0x08)
+
+#if defined(HAVE_BUILTIN_SFENCE)
+#define FLAGS_CACHE_MASK	(FLAGS_CACHE_PREFETCH |	\
+				 FLAGS_CACHE_FLUSH |	\
+				 FLAGS_CACHE_FENCE |	\
+				 FLAGS_CACHE_SFENCE)
+#else
+#define FLAGS_CACHE_MASK	(FLAGS_CACHE_PREFETCH |	\
+				 FLAGS_CACHE_FLUSH |	\
+				 FLAGS_CACHE_FENCE)
+#endif
+
 #define FLAGS_CACHE_NOAFF	(0x10)
 
 static const stress_help_t help[] = {
-	{ "C N","cache N",	 "start N CPU cache thrashing workers" },
-	{ NULL,	"cache-ops N",	 "stop after N cache bogo operations" },
-	{ NULL,	"cache-prefetch","prefetch on memory reads/writes" },
-	{ NULL,	"cache-flush",	 "flush cache after every memory write (x86 only)" },
-	{ NULL,	"cache-fence",	 "serialize stores" },
-	{ NULL,	"cache-level N", "only exercise specified cache" },
+	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
+	{ NULL,	"cache-ops N",	 	"stop after N cache bogo operations" },
+	{ NULL, "cache-no-affinity",	"do not change CPU affinity" },
+	{ NULL,	"cache-fence",		"serialize stores" },
+	{ NULL,	"cache-flush",		"flush cache after every memory write (x86 only)" },
+	{ NULL,	"cache-level N",	"only exercise specified cache" },
+	{ NULL,	"cache-prefetch",	"prefetch on memory reads/writes" },
 #if defined(HAVE_BUILTIN_SFENCE)
-	{ NULL,	"cache-sfence",	 "serialize stores with sfence" },
+	{ NULL,	"cache-sfence",		"serialize stores with sfence" },
 #endif
-	{ NULL,	"cache-ways N",	 "only fill specified number of cache ways" },
+	{ NULL,	"cache-ways N",		"only fill specified number of cache ways" },
 	{ NULL,	NULL,		 NULL }
 };
 
@@ -89,7 +102,12 @@ static int stress_cache_set_sfence(const char *opt)
 {
 	(void)opt;
 
+#if HAVE_BUILTIN_SFENCE
 	return stress_cache_set_flag(FLAGS_CACHE_SFENCE);
+#else
+	pr_inf("sfence not available, ignoring option --cache-sfence\n");
+	return 0;
+#endif
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -118,7 +136,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 		if ((flag) & FLAGS_CACHE_SFENCE) {			\
 			shim__builtin_ia32_sfence();			\
 		}							\
-		i = (i + 32769) & (mem_cache_size - 1);			\
+		i += 32769;						\
+		i = (i >= mem_cache_size) ? i - mem_cache_size : i;	\
 		if (!keep_stressing_flag())				\
 			break;						\
 	}
@@ -135,7 +154,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 		if ((flag) & FLAGS_CACHE_FENCE) {			\
 			shim_mfence();					\
 		}							\
-		i = (i + 32769) & (mem_cache_size - 1);			\
+		i += 32769;						\
+		i = (i >= mem_cache_size) ? i - mem_cache_size : i;	\
 		if (!keep_stressing_flag())				\
 			break;						\
 	}
@@ -158,6 +178,7 @@ static int stress_cache(const stress_args_t *args)
 	bool pinned = false;
 #endif
 	uint32_t cache_flags = 0;
+	uint32_t masked_flags;
 	uint32_t total = 0;
 	int ret = EXIT_SUCCESS;
 	uint8_t *const mem_cache = g_shared->mem_cache;
@@ -190,13 +211,15 @@ static int stress_cache(const stress_args_t *args)
 	}
 #endif
 
+	masked_flags = cache_flags & FLAGS_CACHE_MASK;
+
 	do {
 		uint64_t i = stress_mwc64() % mem_cache_size;
 		uint64_t r = stress_mwc64();
 		register uint64_t j;
 
 		if ((r >> 13) & 1) {
-			switch (cache_flags) {
+			switch (masked_flags) {
 			default:
 				CACHE_WRITE(0);
 				break;
@@ -252,7 +275,8 @@ static int stress_cache(const stress_args_t *args)
 			for (j = 0; j < mem_cache_size; j++) {
 				total += mem_cache[i] +
 					mem_cache[(mem_cache_size - 1) - i];
-				i = (i + 32769) % mem_cache_size;
+				i += 32769;
+				i = (i >= mem_cache_size) ? i - mem_cache_size : i;
 				if (!keep_stressing_flag())
 					break;
 			}
