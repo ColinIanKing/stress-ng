@@ -86,12 +86,28 @@ static int stress_zero(const stress_args_t *args)
 {
 	int fd;
 	const size_t page_size = args->page_size;
+	void *rd_buffer, *wr_buffer;
 #if defined(__minix__)
 	const int flags = O_RDONLY;
 #else
 	const int flags = O_RDWR;
 #endif
-	char wr_buffer[page_size];
+
+	rd_buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (rd_buffer == MAP_FAILED) {
+		pr_fail("%s: cannot allocate page sized read buffer, skipping test\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
+	wr_buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (wr_buffer == MAP_FAILED) {
+		pr_fail("%s: cannot allocate page sized write buffer, skipping test\n",
+			args->name);
+		(void)munmap(rd_buffer, page_size);
+		return EXIT_NO_RESOURCE;
+	}
 
 	if ((fd = open("/dev/zero", flags)) < 0) {
 		pr_fail("%s: open /dev/zero failed, errno=%d (%s)\n",
@@ -99,17 +115,14 @@ static int stress_zero(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	(void)memset(wr_buffer, 0, sizeof wr_buffer);
-
 	do {
-		uint64_t ALIGN64 rd_buffer[page_size / sizeof(uint64_t)];
 		ssize_t ret;
 #if defined(__linux__)
 		int32_t *ptr;
 		size_t i;
 #endif
 
-		ret = read(fd, rd_buffer, sizeof(rd_buffer));
+		ret = read(fd, rd_buffer, page_size);
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
@@ -118,14 +131,14 @@ static int stress_zero(const stress_args_t *args)
 			(void)close(fd);
 			return EXIT_FAILURE;
 		}
-		if (stress_is_not_zero(rd_buffer, (size_t)ret)) {
+		if (stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
 			pr_fail("%s: non-zero value from a read of /dev/zero\n",
 				args->name);
 		}
 
 #if !defined(__minix__)
 		/* One can also write to /dev/zero w/o failure */
-		ret = write(fd, wr_buffer, sizeof(wr_buffer));
+		ret = write(fd, wr_buffer, page_size);
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
@@ -151,7 +164,7 @@ static int stress_zero(const stress_args_t *args)
 				(void)close(fd);
 				return EXIT_FAILURE;
 			}
-			if (stress_is_not_zero(rd_buffer, (size_t)ret)) {
+			if (stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
 				pr_fail("%s: memory mapped page of /dev/zero using %s is not zero\n",
 					args->name, mmap_flags[i].flag_str);
 			}
@@ -170,6 +183,9 @@ static int stress_zero(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing());
 	(void)close(fd);
+
+	(void)munmap(wr_buffer, page_size);
+	(void)munmap(rd_buffer, page_size);
 
 	return EXIT_SUCCESS;
 }
