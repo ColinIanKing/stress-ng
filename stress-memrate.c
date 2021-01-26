@@ -83,14 +83,14 @@ static int stress_set_memrate_wr_mbs(const char *opt)
 	return stress_set_setting("memrate-wr-mbs", TYPE_ID_UINT64, &memrate_wr_mbs);
 }
 
-#define STRESS_MEMRATE_READ(size)				\
+#define STRESS_MEMRATE_READ(size, type)				\
 static uint64_t stress_memrate_read##size(			\
 	void *start,						\
 	void *end,						\
 	uint64_t rd_mbs,					\
 	uint64_t wr_mbs)					\
 {								\
-	register volatile uint##size##_t *ptr;			\
+	register volatile type *ptr;				\
 	double t1;						\
 	const double dur = 1.0 / (double)rd_mbs;		\
 	double total_dur = 0.0;					\
@@ -98,14 +98,14 @@ static uint64_t stress_memrate_read##size(			\
 	(void)wr_mbs;						\
 								\
 	t1 = stress_time_now();					\
-	for (ptr = start; ptr < (uint##size##_t *)end;) {	\
+	for (ptr = start; ptr < (type *)end;) {			\
 		double t2, dur_remainder;			\
-		int32_t i;					\
+		uint32_t i;					\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < (int32_t)MB) &&		\
-		     (ptr < (uint##size##_t *)end);		\
+		for (i = 0; (i < (uint32_t)MB) &&		\
+		     (ptr < (type *)end);			\
 		     ptr += 8, i += size) {			\
 			(void)(ptr[0]);				\
 			(void)(ptr[1]);				\
@@ -133,19 +133,22 @@ static uint64_t stress_memrate_read##size(			\
 	return ((volatile void *)ptr - start) / KB;		\
 }
 
-STRESS_MEMRATE_READ(64)
-STRESS_MEMRATE_READ(32)
-STRESS_MEMRATE_READ(16)
-STRESS_MEMRATE_READ(8)
+#if defined(HAVE_INT128_T)
+STRESS_MEMRATE_READ(128, __uint128_t)
+#endif
+STRESS_MEMRATE_READ(64, uint64_t)
+STRESS_MEMRATE_READ(32, uint32_t)
+STRESS_MEMRATE_READ(16, uint16_t)
+STRESS_MEMRATE_READ(8, uint8_t)
 
-#define STRESS_MEMRATE_WRITE(size)				\
+#define STRESS_MEMRATE_WRITE(size, type)			\
 static uint64_t stress_memrate_write##size(			\
 	void *start,						\
 	void *end,						\
 	uint64_t rd_mbs,					\
 	uint64_t wr_mbs)					\
 {								\
-	register volatile uint##size##_t *ptr;			\
+	register volatile type *ptr;				\
 	double t1;						\
 	const double dur = 1.0 / (double)wr_mbs;		\
 	double total_dur = 0.0;					\
@@ -153,14 +156,14 @@ static uint64_t stress_memrate_write##size(			\
 	(void)rd_mbs;						\
 								\
 	t1 = stress_time_now();					\
-	for (ptr = start; ptr < (uint##size##_t *)end;) {	\
+	for (ptr = start; ptr < (type *)end;) {			\
 		double t2, dur_remainder;			\
-		int32_t i;					\
+		uint32_t i;					\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < (int32_t)MB) &&		\
-		     (ptr < (uint##size##_t *)end);		\
+		for (i = 0; (i < (uint32_t)MB) &&		\
+		     (ptr < (type *)end);			\
 		     ptr += 8, i += size) {			\
 			ptr[0] = i;				\
 			ptr[1] = i;				\
@@ -188,12 +191,19 @@ static uint64_t stress_memrate_write##size(			\
 	return ((volatile void *)ptr - start) / KB;		\
 }
 
-STRESS_MEMRATE_WRITE(64)
-STRESS_MEMRATE_WRITE(32)
-STRESS_MEMRATE_WRITE(16)
-STRESS_MEMRATE_WRITE(8)
+#if defined(HAVE_INT128_T)
+STRESS_MEMRATE_WRITE(128, __uint128_t)
+#endif
+STRESS_MEMRATE_WRITE(64, uint64_t)
+STRESS_MEMRATE_WRITE(32, uint32_t)
+STRESS_MEMRATE_WRITE(16, uint16_t)
+STRESS_MEMRATE_WRITE(8, uint8_t)
 
 static stress_memrate_info_t memrate_info[] = {
+#if defined(HAVE_INT128_T)
+	{ "write128",	stress_memrate_write128 },
+	{ "read128",	stress_memrate_read128 },
+#endif
 	{ "write64",	stress_memrate_write64 },
 	{ "read64",	stress_memrate_read64 },
 	{ "write32",	stress_memrate_write32 },
@@ -236,10 +246,9 @@ static inline void *stress_memrate_mmap(const stress_args_t *args, uint64_t sz)
 			args->name, sz);
 		ptr = MAP_FAILED;
 	} else {
-#if defined(HAVE_MADVISE)
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_HUGEPAGE)
 		int ret, advice = MADV_NORMAL;
-
-		(void)stress_get_setting("memrate-madvise", &advice);
 
 		ret = madvise(ptr, sz, advice);
 		(void)ret;
@@ -322,11 +331,11 @@ static int stress_memrate(const stress_args_t *args)
 	pr_lock(&lock);
 	for (i = 0; i < memrate_items; i++) {
 		if (context.stats[i].duration > 0.001)
-			pr_inf_lock(&lock, "%s: %7.7s: %.2f MB/sec\n",
+			pr_inf_lock(&lock, "%s: %8.8s: %12.2f MB/sec\n",
 				args->name, memrate_info[i].name,
 				context.stats[i].kbytes / (context.stats[i].duration * KB));
 		else
-			pr_inf_lock(&lock, "%s: %7.7s: interrupted early\n",
+			pr_inf_lock(&lock, "%s: %8.8s: interrupted early\n",
 				args->name, memrate_info[i].name);
 	}
 	pr_unlock(&lock);
