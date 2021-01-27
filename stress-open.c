@@ -477,7 +477,7 @@ static int stress_open(const stress_args_t *args)
 			for (;;) {
 				int idx;
 
-				if (!keep_stressing()) {
+				if (!keep_stressing(args)) {
 					if (pid > 1)
 						(void)kill(pid, SIGKILL);
 					goto close_all;
@@ -519,7 +519,7 @@ close_all:
 			for (i = 0; i < n; i++)
 				(void)close(fds[i]);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)munmap((void *)fds, sz);
 

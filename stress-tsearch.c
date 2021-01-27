@@ -131,7 +131,7 @@ static int stress_tsearch(const stress_args_t *args)
 					args->name, i);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 abort:
 	free(data);

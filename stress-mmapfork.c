@@ -78,7 +78,7 @@ static inline bool should_terminate(const stress_args_t *args, const pid_t ppid)
 {
 	if ((kill(ppid, 0) < 0) && (errno == ESRCH))
 		return true;
-	return !keep_stressing();
+	return !keep_stressing(args);
 }
 
 #if defined(MADV_WIPEONFORK)
@@ -134,7 +134,7 @@ static int stress_mmapfork(const stress_args_t *args)
 			pids[i] = -1;
 
 		for (i = 0; i < MAX_PIDS; i++) {
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				goto reap;
 
 			pids[i] = fork();
@@ -238,7 +238,7 @@ reap:
 			(void)shim_waitpid(pids[i], &status, 0);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 #if defined(MADV_WIPEONFORK)
 	if (wipe_ptr != MAP_FAILED)

@@ -190,7 +190,7 @@ vfork_again:
 			(void)vforkmany_wait(pid);
 			if (!first)
 				_exit(0);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		if (waste != MAP_FAILED)
 			(void)munmap((void *)waste, WASTE_SIZE);

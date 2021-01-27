@@ -249,7 +249,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 				(void)munmap(buf, old_sz);
 				return EXIT_FAILURE;
 			}
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				return EXIT_SUCCESS;
 			(void)stress_madvise_random(buf, new_sz);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -272,7 +272,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 				(void)munmap(buf, old_sz);
 				return EXIT_FAILURE;
 			}
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				return EXIT_SUCCESS;
 			(void)stress_madvise_random(buf, new_sz);
 			old_sz = new_sz;
@@ -281,7 +281,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 		(void)munmap(buf, old_sz);
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

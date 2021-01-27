@@ -309,7 +309,7 @@ static int epoll_notification(
 		int fd;
 		struct epoll_event event;
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			return -1;
 
 		if ((fd = accept(sfd, &saddr, &slen)) < 0) {
@@ -629,7 +629,7 @@ retry:
 		(void)close(fd);
 		(void)shim_sched_yield();
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
@@ -824,7 +824,7 @@ static void epoll_server(
 		errno = 0;
 
 		ret = sigsetjmp(jmp_env, 1);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		if (ret != 0)
 			wait_segv = true;
@@ -922,7 +922,7 @@ static void epoll_server(
 		} else {
 			n = stress_epoll_pwait(bad_fd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 die_close:
 	if (efd != -1)

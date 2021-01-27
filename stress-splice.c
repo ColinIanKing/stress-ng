@@ -154,7 +154,7 @@ static int stress_splice(const stress_args_t *args)
 		(void)ret;
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 

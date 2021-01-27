@@ -264,7 +264,7 @@ again:
 				continue;
 			}
 			inc_counter(args);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		(void)memset(buf, 0, pipe_data_size);
 		(void)memcpy(buf, PIPE_STOP, sizeof(PIPE_STOP));

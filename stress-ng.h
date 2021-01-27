@@ -3650,14 +3650,11 @@ static inline void HOT OPTIMIZE3 keep_stressing_set_flag(const bool setting)
  *  keep_stressing()
  *      returns true if we can keep on running a stressor
  */
-static inline bool HOT OPTIMIZE3 __keep_stressing(const stress_args_t *args)
+static inline bool HOT OPTIMIZE3 keep_stressing(const stress_args_t *args)
 {
 	return (LIKELY(g_keep_stressing_flag) &&
 		LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
 }
-
-#define keep_stressing()	__keep_stressing(args)
-
 
 /*
  *  stressor option value handling

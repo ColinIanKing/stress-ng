@@ -195,7 +195,7 @@ retry:
 			goto finish;
 		}
 
-		for (n = 0; keep_stressing() && (n < max_fd); n++) {
+		for (n = 0; keep_stressing(args) && (n < max_fd); n++) {
 			int rc, nbytes;
 
 			fds[n] = stress_socket_fd_recv(fd);
@@ -219,7 +219,7 @@ retry:
 
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 #if defined(HAVE_SOCKADDR_UN)
 	if (addr) {
@@ -301,14 +301,14 @@ static int stress_socket_server(
 	do {
 		int sfd;
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
 			ssize_t i;
 
-			for (i = 0; keep_stressing() && (i < max_fd); i++) {
+			for (i = 0; keep_stressing(args) && (i < max_fd); i++) {
 				int new_fd;
 
 				new_fd = open("/dev/zero", O_RDWR);
@@ -340,7 +340,7 @@ static int stress_socket_server(
 			}
 			(void)close(sfd);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 die_close:
 	(void)close(fd);

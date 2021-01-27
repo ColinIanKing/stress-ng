@@ -217,7 +217,7 @@ static int stress_netlink_taskstats_monitor(
 				stress_parse_payload(args, na, pid, nivcsw);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return 0;
 }
@@ -292,7 +292,7 @@ static int stress_netlink_task(const stress_args_t *args)
 	do {
 		if (stress_netlink_taskstats_monitor(args, sock, pid, id, &nivcsw) < 0)
 			break;
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 #if 0
 	/* Some statistics */

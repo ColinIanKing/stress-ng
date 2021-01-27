@@ -205,7 +205,7 @@ int stress_oomable_child(
 	};
 
 again:
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
@@ -301,7 +301,7 @@ rewait:
 	} else if (pid == 0) {
 		/* Child */
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			_exit(EXIT_SUCCESS);
 
 		(void)setpgid(0, g_pgrp);
@@ -317,7 +317,7 @@ rewait:
 			ret = stress_drop_capabilities(args->name);
 			(void)ret;
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			_exit(EXIT_SUCCESS);
 		_exit(func(args, context));
 	}

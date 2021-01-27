@@ -234,7 +234,7 @@ static int stress_chown(const stress_args_t *args)
 					args->name, filename, errno, strerror(errno));
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 tidy:

@@ -167,7 +167,7 @@ again:
 				 *  We land here if we get a segfault
 				 *  but not a segfault in the sighandler
 				 */
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					_exit(0);
 			}
 
@@ -217,7 +217,7 @@ again:
 				ret = mprotect(stack, stack_sz, PROT_NONE);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					break;
 				CASE_FALLTHROUGH;
 			case 2:
@@ -225,7 +225,7 @@ again:
 				ret = mprotect(stack, stack_sz, PROT_READ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					break;
 				CASE_FALLTHROUGH;
 			case 3:
@@ -233,7 +233,7 @@ again:
 				ret = mprotect(stack, stack_sz, PROT_EXEC);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					break;
 				CASE_FALLTHROUGH;
 #endif
@@ -242,7 +242,7 @@ again:
 				ret = stress_sigaltstack(NULL, SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					break;
 				CASE_FALLTHROUGH;
 			case 5:
@@ -250,7 +250,7 @@ again:
 				ret = stress_sigaltstack(stress_segv_handler, SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					break;
 				CASE_FALLTHROUGH;
 			case 6:
@@ -263,7 +263,7 @@ again:
 				ret = stress_sigaltstack(vdso, SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					break;
 #endif
 				CASE_FALLTHROUGH;
@@ -273,7 +273,7 @@ again:
 					ret = stress_sigaltstack(zero_stack, stack_sz);
 					if (ret == 0)
 						stress_bad_altstack_force_fault(zero_stack);
-					if (!keep_stressing())
+					if (!keep_stressing(args))
 						break;
 				}
 				CASE_FALLTHROUGH;
@@ -288,7 +288,7 @@ again:
 			/* No luck, well that's unexpected.. */
 			_exit(EXIT_FAILURE);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	if (zero_stack != MAP_FAILED)
 		(void)munmap(zero_stack, stack_sz);

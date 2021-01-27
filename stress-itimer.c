@@ -100,7 +100,7 @@ static void stress_itimer_set(struct itimerval *timer)
 }
 
 /*
- *  stress_itimer_keep_stressing()
+ *  stress_itimer_keep_stressing(args)
  *      returns true if we can keep on running a stressor
  */
 static bool HOT OPTIMIZE3 stress_itimer_keep_stressing(void)
@@ -194,7 +194,7 @@ static int stress_itimer(const stress_args_t *args)
 		}
 
 		set_counter(args, itimer_counter);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);

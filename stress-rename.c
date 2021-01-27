@@ -267,7 +267,7 @@ restart:
 	}
 	(void)fclose(fp);
 
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		(void)stress_temp_filename(newname, PATH_MAX,
 			args->name, args->pid, inst2, i++);
 		if (rename(oldname, newname) < 0) {
@@ -280,7 +280,7 @@ restart:
 		oldname = newname;
 		newname = tmpname;
 		inc_counter(args);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		(void)stress_temp_filename(newname, PATH_MAX,
@@ -295,7 +295,7 @@ restart:
 		oldname = newname;
 		newname = tmpname;
 		inc_counter(args);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 #if defined(EXERCISE_RENAMEAT)
@@ -327,7 +327,7 @@ break;
 			newname = tmpname;
 
 			inc_counter(args);
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 		}
 #endif
@@ -359,7 +359,7 @@ break;
 			newname = tmpname;
 
 			inc_counter(args);
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 		}
 #endif

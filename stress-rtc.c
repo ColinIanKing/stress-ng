@@ -256,7 +256,7 @@ static int stress_rtc(const stress_args_t *args)
 		if (ret < 0)
 			break;
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

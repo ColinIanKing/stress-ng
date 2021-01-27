@@ -329,7 +329,7 @@ redo_wr2:
 		(void)process_vm_writev(~0, local, 1, remote, 1, 0);
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 fail:
 	/* Tell child we're done */
 	msg_wr.addr = NULL;

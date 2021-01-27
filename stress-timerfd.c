@@ -272,7 +272,7 @@ static int stress_timerfd(const stress_args_t *args)
 			(void)stress_read_fdinfo(self, timerfd[0]);
 			count = 0;
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	for (i = 0; i < TIMERFD_MAX; i++) {
 		if (timerfd[i] > 0)

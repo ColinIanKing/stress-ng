@@ -141,7 +141,7 @@ static int stress_watchdog(const stress_args_t *args)
 		return EXIT_SUCCESS;
 	}
 
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		fd = open(dev_watchdog, O_RDWR);
 
 		/* Multiple stressors can lock the device, so retry */

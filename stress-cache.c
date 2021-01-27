@@ -319,7 +319,7 @@ static int stress_cache(const stress_args_t *args)
 		/* Move forward a bit */
 		i += 32769;
 		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	stress_uint32_put(total);
 	return ret;

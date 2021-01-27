@@ -209,7 +209,7 @@ static int get_bad_shmid(const stress_args_t *args)
 {
 	int id = ~0;
 
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		int ret;
 		struct shmid_ds ds;
 
@@ -595,16 +595,16 @@ static int stress_shm_sysv_child(
 			shm_ids[i] = shm_id;
 			keys[i] = key;
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				goto reap;
 			(void)stress_mincore_touch_pages(addr, sz);
 			(void)shim_msync(addr, sz, stress_mwc1() ? MS_ASYNC : MS_SYNC);
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				goto reap;
 			(void)stress_madvise_random(addr, sz);
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				goto reap;
 			if (stress_shm_sysv_check(addr, sz, page_size) < 0) {
 				ok = false;
@@ -756,7 +756,7 @@ reap:
 
 			(void)waitpid(pid, &status, 0);
 		}
-	} while (ok && keep_stressing());
+	} while (ok && keep_stressing(args));
 
 	/* Inform parent of end of run */
 	msg.index = -1;

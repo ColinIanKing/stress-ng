@@ -287,7 +287,7 @@ clean:
 				(void)close(fd);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	free(maps);
 	free(fds);

@@ -152,7 +152,7 @@ static int stress_membarrier(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	keep_running = false;
 

@@ -98,7 +98,7 @@ static int stress_env_child(const stress_args_t *args, void *context)
 					snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, j);
 					(void)unsetenv(name);
 					inc_counter(args);
-					if (!keep_stressing())
+					if (!keep_stressing(args))
 						goto reap;
 				}
 				i = 0;
@@ -107,7 +107,7 @@ static int stress_env_child(const stress_args_t *args, void *context)
 			i++;
 			inc_counter(args);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 reap:
 	(void)munmap(value, arg_max);

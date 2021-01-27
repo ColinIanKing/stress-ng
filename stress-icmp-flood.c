@@ -126,7 +126,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 			sendto_fails++;
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	pr_dbg("%s: %.2f%% of %" PRIu64 " sendto messages succeeded.\n",
 		args->name,

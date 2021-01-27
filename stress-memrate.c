@@ -272,7 +272,7 @@ static int stress_memrate_child(const stress_args_t *args, void *ctxt)
 	do {
 		size_t i;
 
-		for (i = 0; keep_stressing() && (i < memrate_items); i++) {
+		for (i = 0; keep_stressing(args) && (i < memrate_items); i++) {
 			double t1, t2;
 			stress_memrate_info_t *info = &memrate_info[i];
 
@@ -282,12 +282,12 @@ static int stress_memrate_child(const stress_args_t *args, void *ctxt)
 			t2 = stress_time_now();
 			context->stats[i].duration += (t2 - t1);
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 		}
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)munmap(buffer, context->memrate_bytes);
 	return EXIT_SUCCESS;

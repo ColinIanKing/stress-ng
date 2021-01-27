@@ -245,7 +245,7 @@ STRESS_PRAGMA_POP
 			(void)ret;
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 #if defined(O_DIRECTORY) &&	\
     defined(O_PATH) &&		\

@@ -275,7 +275,7 @@ do_invalidate:
 
 do_next:
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)munmap((void *)buf, sz);
 err:

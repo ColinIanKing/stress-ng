@@ -94,7 +94,7 @@ again:
 
 			(void)ptrace(PTRACE_SETOPTIONS, pid, 0, PTRACE_O_TRACESYSGOOD);
 
-			while (keep_stressing()) {
+			while (keep_stressing(args)) {
 				(void)ptrace(PTRACE_SYSCALL, pid, 0, 0);
 
 				ret = shim_waitpid(pid, &status, 0);
@@ -151,7 +151,7 @@ kill_child:
 			/* No luck, well that's unexpected.. */
 			_exit(EXIT_FAILURE);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

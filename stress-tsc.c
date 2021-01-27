@@ -233,7 +233,7 @@ static int stress_tsc(const stress_args_t *args)
 			TSCx32();
 			TSCx32();
 			inc_counter(args);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 	}
 	return EXIT_SUCCESS;
 }

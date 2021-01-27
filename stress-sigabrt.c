@@ -93,7 +93,7 @@ rewait:
 				}
 			}
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

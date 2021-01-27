@@ -254,7 +254,7 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 		} else {
 			break;		/* Something went wrong! */
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)close(context->fd);
 

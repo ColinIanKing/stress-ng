@@ -327,7 +327,7 @@ child_cleanup_fd:
 			len = sizeof(addr);
 			inet_pton(AF_INET, ip_addr, &addr.sin_addr.s_addr);
 
-			for (i = 0; keep_stressing() && (i < PACKETS_TO_SEND); i++) {
+			for (i = 0; keep_stressing(args) && (i < PACKETS_TO_SEND); i++) {
 				n = sendto(sfd, buffer, sizeof(buffer), 0,
 					(struct sockaddr *)&addr, len);
 				if (n < 0)
@@ -345,7 +345,7 @@ child_reap:
 clean_up:
 		(void)close(fd);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return rc;
 }

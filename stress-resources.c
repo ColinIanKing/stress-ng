@@ -714,14 +714,14 @@ static int stress_resources(const stress_args_t *args)
 				(void)setpgid(pids[i], g_pgrp);
 			pids[i] = pid;
 
-			if (!keep_stressing()) {
+			if (!keep_stressing(args)) {
 				kill_children(resource_forks);
 				return EXIT_SUCCESS;
 			}
 			inc_counter(args);
 		}
 		kill_children(resource_forks);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

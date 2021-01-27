@@ -125,7 +125,7 @@ static int stress_copy_file(const stress_args_t *args)
 		}
 		(void)shim_fsync(fd_out);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	rc = EXIT_SUCCESS;
 
 tidy_out:

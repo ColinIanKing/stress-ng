@@ -353,7 +353,7 @@ cleanup:
 			}
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)close(fd);
 

@@ -358,7 +358,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 		policy++;
 		policy %= SIZEOF_ARRAY(policies);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

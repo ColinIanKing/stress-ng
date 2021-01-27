@@ -161,7 +161,7 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 		(void)munmap(mem, mmap_size);
 		(void)sched_setaffinity(0, sizeof(proc_mask_initial), &proc_mask_initial);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

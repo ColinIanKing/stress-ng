@@ -141,7 +141,7 @@ static void stress_dir_read(
 	if (!dp)
 		return;
 
-	while (keep_stressing() && ((de = readdir(dp)) != NULL)) {
+	while (keep_stressing(args) && ((de = readdir(dp)) != NULL)) {
 		char filename[PATH_MAX];
 		struct stat statbuf;
 
@@ -279,7 +279,7 @@ static int stress_dir(const stress_args_t *args)
 		stress_dir_flock(dirfd);
 		stress_dir_truncate(pathname, dirfd);
 
-		for (i = 0; keep_stressing() && (i < n); i++) {
+		for (i = 0; keep_stressing(args) && (i < n); i++) {
 			char path[PATH_MAX];
 			uint64_t gray_code = (i >> 1) ^ i;
 
@@ -299,20 +299,20 @@ static int stress_dir(const stress_args_t *args)
 		stress_invalid_mkdir(pathname);
 		stress_invalid_rmdir(pathname);
 
-		if (!keep_stressing()) {
+		if (!keep_stressing(args)) {
 			stress_dir_tidy(args, i);
 			break;
 		}
 		stress_dir_read(args, pathname);
 		stress_dir_tidy(args, i);
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		stress_dir_sync(dirfd);
 		(void)sync();
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	/* exercise invalid path */
 	{

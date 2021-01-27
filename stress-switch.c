@@ -196,7 +196,7 @@ again:
 					}
 				}
 			}
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		t2 = stress_time_now();
 		pr_inf("%s: %.2f nanoseconds per context switch (based on parent run time)\n",

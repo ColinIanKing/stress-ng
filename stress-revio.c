@@ -396,7 +396,7 @@ static int stress_revio(const stress_args_t *args)
 			size_t j;
 			off_t lseek_ret, offset = revio_bytes - i;
 seq_wr_retry:
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			lseek_ret = lseek(fd, offset, SEEK_SET);
@@ -428,7 +428,7 @@ seq_wr_retry:
 		iterations++;
 		avg_extents += (double)stress_revio_get_extents(fd);
 		(void)close(fd);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	if ((iterations > 0) && (avg_extents > 0.0)) {
 		avg_extents /= (double)iterations;

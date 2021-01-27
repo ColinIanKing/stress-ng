@@ -214,10 +214,10 @@ retry:
 				NULL, 0, &sndrcvinfo, &flags);
 			if (n <= 0)
 				break;
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
@@ -294,7 +294,7 @@ static int stress_sctp_server(
 	do {
 		int sfd;
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
@@ -330,7 +330,7 @@ static int stress_sctp_server(
 			stress_sctp_sockopts(sfd);
 			(void)close(sfd);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 die_close:
 	(void)close(fd);

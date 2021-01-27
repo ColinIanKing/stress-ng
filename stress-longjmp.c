@@ -89,7 +89,7 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 			c = 0;
 		}
 	}
-	if (keep_stressing())
+	if (keep_stressing(args))
 		stress_longjmp_func();
 
 	if (n) {

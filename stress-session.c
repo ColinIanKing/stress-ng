@@ -184,7 +184,7 @@ static int stress_session(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		pid_t pid;
 
 		pid = fork();

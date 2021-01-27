@@ -223,7 +223,7 @@ static int stress_remap(const stress_args_t *args)
 		}
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)munmap(data, data_size);
 	if (mapped)

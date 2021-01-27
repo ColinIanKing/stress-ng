@@ -268,7 +268,7 @@ static int stress_chmod(const stress_args_t *args)
 			}
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 tidy:

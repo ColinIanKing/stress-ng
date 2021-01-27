@@ -235,7 +235,7 @@ again:
 			_exit(0);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 

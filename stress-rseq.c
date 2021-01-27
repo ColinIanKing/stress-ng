@@ -297,7 +297,7 @@ unreg:
 		(void)rseq_register(&restartable_seq, valid_signature);
 		(void)rseq_register(&restartable_seq, valid_signature);
 		(void)rseq_unregister(&restartable_seq, valid_signature);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

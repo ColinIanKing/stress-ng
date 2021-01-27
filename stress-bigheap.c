@@ -79,7 +79,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 		 * some time and we should bail out before
 		 * exerting any more memory pressure
 		 */
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			goto abort;
 
 		ptr = realloc(old_ptr, size);
@@ -101,7 +101,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 				tmp = u8ptr = ptr;
 				n = size;
 			}
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				goto abort;
 
 			if (page_size > 0) {
@@ -113,14 +113,14 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 			}
 
 			for (i = 0; i < n; i+= stride, u8ptr += stride) {
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					goto abort;
 				*u8ptr = (uint8_t)i;
 			}
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				for (i = 0; i < n; i+= stride, tmp += stride) {
-					if (!keep_stressing())
+					if (!keep_stressing(args))
 						goto abort;
 					if (*tmp != (uint8_t)i)
 						pr_fail("%s: byte at location %p was 0x%" PRIx8
@@ -132,7 +132,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 			last_ptr_end = u8ptr;
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 abort:
 	free(ptr);
 

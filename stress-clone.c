@@ -410,7 +410,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 		} else {
 			stress_clone_head_remove();
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, mmap_size);

@@ -126,7 +126,7 @@ again:
 			ret = write(pipefds[1], buf, buf_len);
 			if (LIKELY(ret <= 0))
 				break;
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		(void)close(pipefds[1]);
 		(void)kill(pid, SIGKILL);
@@ -151,7 +151,7 @@ static int stress_sigpipe(const stress_args_t *args)
 
 	do {
 		stress_sigpipe_write(args, buf, sizeof buf);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	return EXIT_SUCCESS;
 }
 

@@ -206,7 +206,7 @@ static int stress_memhotplug(const stress_args_t *args)
 
 	do {
 		bool ok = false;
-		for (i = 0; keep_stressing() && (i < max); i++) {
+		for (i = 0; keep_stressing(args) && (i < max); i++) {
 			stress_memhotplug_mem_toggle(&mem_info[i]);
 			if (!mem_info[i].timeout)
 				ok |= true;
@@ -216,7 +216,7 @@ static int stress_memhotplug(const stress_args_t *args)
 			for (i = 0; i < max; i++)
 				stress_memhotplug_mem_online(&mem_info[i]);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	for (i = 0; i < max; i++)
 		stress_memhotplug_mem_online(&mem_info[i]);

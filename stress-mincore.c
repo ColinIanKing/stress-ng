@@ -164,7 +164,7 @@ redo: 			errno = 0;
 			(void)shim_mincore(NULL, page_size, args->mapped->page_none);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 err:
 	if (mapped != MAP_FAILED)

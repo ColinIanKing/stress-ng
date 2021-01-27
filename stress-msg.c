@@ -239,7 +239,7 @@ static int stress_msg(const stress_args_t *args)
 
 	stress_msgget();
 	for (n = 0; n < SIZEOF_ARRAY(msgq_ids); n++) {
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		msgq_ids[n] = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 		if ((msgq_ids[n] < 0) &&
@@ -248,7 +248,7 @@ static int stress_msg(const stress_args_t *args)
 	}
 	inc_counter(args);
 
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		goto cleanup;
 
 again:
@@ -265,12 +265,12 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
-		while (keep_stressing()) {
+		while (keep_stressing(args)) {
 			stress_msg_t ALIGN64 msg;
 			register uint32_t i;
 			register const long mtype = msg_types == 0 ? 0 : -(msg_types + 1);
 
-			for (i = 0; keep_stressing(); i++) {
+			for (i = 0; keep_stressing(args); i++) {
 #if defined(MSG_COPY) &&	\
     defined(IPC_NOWAIT)
 				/*
@@ -347,7 +347,7 @@ again:
 				stress_msg_get_procinfo(&get_procinfo);
 #endif
 
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		stress_msgsnd(msgq_id);
 

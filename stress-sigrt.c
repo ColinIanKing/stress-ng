@@ -119,7 +119,7 @@ again:
 			(void)sigqueue(pids[i], i + SIGRTMIN, s);
 			inc_counter(args);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	for (i = 0; i < MAX_RTPIDS; i++) {
 		if (pids[i] > 0) {

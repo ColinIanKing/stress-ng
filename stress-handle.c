@@ -218,7 +218,7 @@ static int stress_handle_child(const stress_args_t *args, void *context)
 		(void)close(mount_fd);
 		free(fhp);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

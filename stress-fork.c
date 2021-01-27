@@ -139,7 +139,7 @@ static int stress_fork_fn(
 			if (pid > -1)
 				(void)setpgid(pid, g_pgrp);
 			info[n].pid  = pid;
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 		}
 		for (i = 0; i < n; i++) {
@@ -174,7 +174,7 @@ static int stress_fork_fn(
 		if ((fork_fn == vfork) && (stress_time_now() > time_end))
 			break;
 #endif
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

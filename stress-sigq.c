@@ -113,7 +113,7 @@ again:
 			s.sival_int = 0;
 			(void)sigqueue(pid, SIGUSR1, s);
 			inc_counter(args);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		pr_dbg("%s: parent sent termination notice\n", args->name);
 		(void)memset(&s, 0, sizeof(s));

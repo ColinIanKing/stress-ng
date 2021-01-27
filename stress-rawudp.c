@@ -141,7 +141,7 @@ static void stress_rawudp_client(
 				args->name, port, errno, strerror(errno));
 		}
 		(void)close(fd);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 
@@ -202,7 +202,7 @@ static int stress_rawudp_server(
 				inc_counter(args);
 			}
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 die_close:
 	(void)close(fd);

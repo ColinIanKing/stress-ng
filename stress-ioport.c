@@ -219,7 +219,7 @@ static int stress_ioport(const stress_args_t *args)
 		}
 #endif
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	if (fd >= 0)
 		(void)close(fd);

@@ -55,7 +55,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 
 	(void)signum;
 
-	if (!keep_stressing() || (stress_time_now() > time_end)) {
+	if (!keep_stressing(args) || (stress_time_now() > time_end)) {
 		if (pid > 0)
 			(void)kill(pid, SIGKILL);
 
@@ -143,7 +143,7 @@ static int stress_sigio(const stress_args_t *args)
 
 		(void)memset(buffer, 0, sizeof buffer);
 
-		while (keep_stressing()) {
+		while (keep_stressing(args)) {
 			ssize_t n;
 
 			n = write(fds[1], buffer, sizeof buffer);
@@ -168,7 +168,7 @@ static int stress_sigio(const stress_args_t *args)
 				args->name, got_err, strerror(got_err));
 			break;
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	if (pid > 0) {
 		(void)kill(pid, SIGKILL);

@@ -116,7 +116,7 @@ static int stress_hsearch(const stress_args_t *args)
 			}
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
 

@@ -362,7 +362,7 @@ clean:
 				(void)close(ptys[i].leader);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	free(ptys);
 

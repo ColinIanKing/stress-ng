@@ -229,7 +229,7 @@ static int stress_memcpy(const stress_args_t *args)
 	do {
 		memcpy_method->func(&b, b_str, str_shared, aligned_buf);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

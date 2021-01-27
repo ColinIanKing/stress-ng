@@ -83,7 +83,7 @@ static int stress_fiemap_writer(
 		offset = (stress_mwc64() % len) & ~0x1fff;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0)
 			break;
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		if (write(fd, buf, sizeof(buf)) < 0) {
 			if (errno == ENOSPC)
@@ -94,7 +94,7 @@ static int stress_fiemap_writer(
 				goto tidy;
 			}
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 #if defined(FALLOC_FL_PUNCH_HOLE) && \
     defined(FALLOC_FL_KEEP_SIZE)
@@ -109,12 +109,12 @@ static int stress_fiemap_writer(
 			if (errno == EOPNOTSUPP)
 				punch_hole = false;
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 #endif
 		for (i = 0; i < MAX_FIEMAP_PROCS; i++)
 			counter += counters[i];
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	rc = EXIT_SUCCESS;
 tidy:
 	(void)close(fd);
@@ -139,7 +139,7 @@ static void stress_fiemap_ioctl(const stress_args_t *args, int fd)
 			c = 0;
 			(void)shim_usleep(25000);
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		fiemap = (struct fiemap *)calloc(1, sizeof(*fiemap));
@@ -162,7 +162,7 @@ static void stress_fiemap_ioctl(const stress_args_t *args, int fd)
 			free(fiemap);
 			break;
 		}
-		if (!keep_stressing()) {
+		if (!keep_stressing(args)) {
 			free(fiemap);
 			break;
 		}
@@ -194,7 +194,7 @@ static void stress_fiemap_ioctl(const stress_args_t *args, int fd)
 		}
 		free(fiemap);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 
 /*
@@ -292,7 +292,7 @@ static int stress_fiemap(const stress_args_t *args)
 		stress_args_t new_args = *args;
 
 		new_args.max_ops = proc_max_ops;
-		if (!keep_stressing()) {
+		if (!keep_stressing(args)) {
 			rc = EXIT_SUCCESS;
 			goto reap;
 		}

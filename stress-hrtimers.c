@@ -54,7 +54,7 @@ static void stress_hrtimers_set(struct itimerspec *timer)
 }
 
 /*
- *  stress_hrtimers_keep_stressing()
+ *  stress_hrtimers_keep_stressing(args)
  *      returns true if we can keep on running a stressor
  */
 static bool HOT OPTIMIZE3 stress_hrtimers_keep_stressing(void)
@@ -169,7 +169,7 @@ static int stress_hrtimers(const stress_args_t *args)
 	}
 
 	for (i = 0; i < PROCS_MAX; i++) {
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			goto reap;
 
 		pids[i] = fork();
@@ -197,7 +197,7 @@ static int stress_hrtimers(const stress_args_t *args)
 		set_counter(args, 0);
 		for (i = 0; i < PROCS_MAX; i++)
 			add_counter(args, counters[i]);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 
 reap:

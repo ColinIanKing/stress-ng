@@ -312,7 +312,7 @@ static int stress_x86syscall(const stress_args_t *args)
 				inc_counter(args);
 			}
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	t2 = stress_time_now();
 
 	/*

@@ -386,7 +386,7 @@ static int stress_seccomp(const stress_args_t *args)
 			}
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

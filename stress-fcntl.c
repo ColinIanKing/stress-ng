@@ -684,7 +684,7 @@ static int stress_fcntl(const stress_args_t *args)
 	do {
 		do_fcntl(args, fd, bad_fd);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 tidy:

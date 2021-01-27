@@ -452,11 +452,11 @@ static void *stress_memthrash_func(void *arg)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
-	while (!thread_terminate && keep_stressing()) {
+	while (!thread_terminate && keep_stressing(args)) {
 		size_t j;
 
 		for (j = MATRIX_SIZE_MIN_SHIFT; j <= MATRIX_SIZE_MAX_SHIFT &&
-		     !thread_terminate && keep_stressing(); j++) {
+		     !thread_terminate && keep_stressing(args); j++) {
 			size_t mem_size = 1 << (2 * j);
 
 			size_t i;

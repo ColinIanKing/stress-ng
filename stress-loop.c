@@ -376,7 +376,7 @@ next:
 #endif
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 	(void)close(backing_fd);

@@ -397,7 +397,7 @@ static void *stress_sys_rw_thread(void *ctxt_ptr)
 	 */
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
-	while (keep_stressing())
+	while (keep_stressing(args))
 		stress_sys_rw(ctxt);
 
 	return &nowt;
@@ -474,7 +474,7 @@ static void stress_sys_dir(
 		flags |= S_IRUSR | S_IWUSR;
 
 	/* Non-directories first */
-	for (i = 0; (i < n) && keep_stressing(); i++) {
+	for (i = 0; (i < n) && keep_stressing(args); i++) {
 		int ret;
 		struct stat buf;
 		char tmp[PATH_MAX];
@@ -526,7 +526,7 @@ static void stress_sys_dir(
 			/* Cater for slower delays */
 			if ((counter > 0) && (stress_time_now() > time_end))
 				break;
-		} while ((counter < OPS_PER_SYSFS_FILE) && keep_stressing());
+		} while ((counter < OPS_PER_SYSFS_FILE) && keep_stressing(args));
 
 		inc_counter(args);
 dt_reg_free:
@@ -540,7 +540,7 @@ dt_reg_free:
 	}
 
 	/* Now directories.. */
-	for (i = 0; (i < n) && keep_stressing(); i++) {
+	for (i = 0; (i < n) && keep_stressing(args); i++) {
 		struct dirent *d = dlist[i];
 		struct stat buf;
 		int ret;
@@ -642,7 +642,7 @@ static int stress_sysfs(const stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			char sysfspath[PATH_MAX];
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			if (stress_is_dot_filename(dlist[j]->d_name))
@@ -655,7 +655,7 @@ static int stress_sysfs(const stress_args_t *args)
 
 			j = (j + args->num_instances) % n;
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = shim_pthread_spin_lock(&lock);
 	if (rc) {

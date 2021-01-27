@@ -140,7 +140,7 @@ static int stress_atomic(const stress_args_t *args)
 		DO_ATOMIC_OPS(uint16_t, &g_shared->atomic.val16);
 		DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

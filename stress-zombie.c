@@ -186,7 +186,7 @@ static int stress_zombie(const stress_args_t *args)
 		} else {
 			stress_zombie_head_remove();
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	pr_inf("%s: created a maximum of %" PRIu32 " zombies\n",
 		args->name, max_zombies);

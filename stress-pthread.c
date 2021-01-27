@@ -495,7 +495,7 @@ static int stress_pthread(const stress_args_t *args)
 				break;
 			}
 			inc_counter(args);
-			if (!(keep_running() && keep_stressing()))
+			if (!(keep_running() && keep_stressing(args)))
 				break;
 		}
 		attempted++;
@@ -512,7 +512,7 @@ static int stress_pthread(const stress_args_t *args)
 		for (j = 0; j < 1000; j++) {
 			bool all_running = false;
 
-			if (!keep_stressing()) {
+			if (!keep_stressing(args)) {
 				stop_running();
 				goto reap;
 			}
@@ -582,7 +582,7 @@ reap:
 				stop_running();
 			}
 		}
-	} while (!locked && keep_running() && keep_stressing());
+	} while (!locked && keep_running() && keep_stressing(args));
 
 	if (limited) {
 		pr_inf("%s: %.2f%% of iterations could not reach "

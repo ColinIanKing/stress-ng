@@ -789,7 +789,7 @@ static void NOINLINE stress_funccall_ ## type(const stress_args_t *args)	\
 			type ## _put(res);				\
 			}						\
 		inc_counter(args);					\
-	} while (keep_stressing());					\
+	} while (keep_stressing(args));					\
 }
 
 stress_funccall_type(uint8_t, stress_mwc8)

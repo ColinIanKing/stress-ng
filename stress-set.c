@@ -28,7 +28,7 @@
 #define _BSD_SOURCE 1
 
 #define check_do_run()			\
-	if (!keep_stressing())		\
+	if (!keep_stressing(args))		\
 		break;			\
 
 #define GIDS_MAX 	(1024)
@@ -428,7 +428,7 @@ static int stress_set(const stress_args_t *args)
 			}
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

@@ -125,7 +125,7 @@ static int stress_bind_mount(const stress_args_t *args)
 		}
 		ret = shim_waitpid(pid, &status, 0);
 		(void)ret;
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

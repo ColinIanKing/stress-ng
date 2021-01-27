@@ -240,7 +240,7 @@ static int stress_swap(const stress_args_t *args)
 		(void)ret;
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
 tidy_close:

@@ -301,7 +301,7 @@ tidy:
 #if defined(KEYCTL_CLEAR)
 		(void)shim_keyctl(KEYCTL_CLEAR, KEY_SPEC_PROCESS_KEYRING);
 #endif
-	} while (no_error && keep_stressing());
+	} while (no_error && keep_stressing(args));
 
 	return rc;
 }

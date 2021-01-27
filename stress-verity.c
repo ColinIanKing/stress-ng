@@ -213,7 +213,7 @@ static int stress_verity(const stress_args_t *args)
 		(void)unlink(filename);
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
 

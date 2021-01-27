@@ -116,7 +116,7 @@ static void *semaphore_posix_thrash(void *arg)
 			else
 				(void)shim_usleep(0);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return &nowt;
 }
@@ -170,7 +170,7 @@ static int stress_sem(const stress_args_t *args)
 	}
 
 	/* Wait for termination */
-	while (keep_stressing())
+	while (keep_stressing(args))
 		pause();
 
 	for (i = 0; i < semaphore_posix_procs; i++) {

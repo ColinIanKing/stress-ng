@@ -290,7 +290,7 @@ again:
 				(void)shim_kcmp(1, pid2, SHIM_KCMP_SIGHAND, 0, 0);
 
 			inc_counter(args);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 reap:
 		if (fd2 >= 0)
 			(void)close(fd2);

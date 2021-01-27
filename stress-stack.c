@@ -124,7 +124,7 @@ static void stress_stack_alloc(
 #endif
 	inc_counter(args);
 
-	if (keep_stressing())
+	if (keep_stressing(args))
 		stress_stack_alloc(args, start, stack_fill, stack_mlock, last_size);
 }
 
@@ -183,7 +183,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 		struct sigaction new_action;
 		int ret;
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		(void)memset(&new_action, 0, sizeof new_action);
@@ -206,7 +206,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 		 * We return here if we segfault, so
 		 * first check if we need to terminate
 		 */
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		if (ret) {

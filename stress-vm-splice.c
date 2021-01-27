@@ -135,7 +135,7 @@ static int stress_vm_splice(const stress_args_t *args)
 		}
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)munmap(buf, sz);
 	(void)close(fd);

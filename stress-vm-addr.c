@@ -52,7 +52,7 @@ static const stress_help_t help[] = {
 };
 
 /*
- *  keep_stressing()
+ *  keep_stressing(args)
  *	returns true if we can keep on running a stressor
  */
 static bool HOT OPTIMIZE3 keep_stressing_vm(const stress_args_t *args)

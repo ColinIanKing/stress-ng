@@ -245,7 +245,7 @@ static int stress_tee(const stress_args_t *args)
 			goto tidy_child2;
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
 

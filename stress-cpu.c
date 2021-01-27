@@ -2837,7 +2837,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 		do {
 			(void)func(args->name);
 			inc_counter(args);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 		return EXIT_SUCCESS;
 	}
 
@@ -2919,7 +2919,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 			/* Bias takes account of the time to do the delay */
 			bias = (t3 - t2) - delay;
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	if (stress_is_affinity_set() && (args->instance == 0)) {
 		pr_inf("%s: CPU affinity probably set, this can affect CPU loading\n",

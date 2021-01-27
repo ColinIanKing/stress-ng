@@ -388,7 +388,7 @@ static int stress_mcontend(const stress_args_t *args)
 		(void)msync(data[1], args->page_size, MS_ASYNC);
 #endif
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		if (ret[i] == 0)

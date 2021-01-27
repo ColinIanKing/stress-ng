@@ -181,7 +181,7 @@ static int stress_zero(const stress_args_t *args)
 		(void)lseek(fd, SEEK_CUR, 0);
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	(void)close(fd);
 
 	(void)munmap(wr_buffer, page_size);

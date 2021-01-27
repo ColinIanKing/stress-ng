@@ -233,7 +233,7 @@ static int stress_netlink_proc(const stress_args_t *args)
 		spawn_several(args->name, 0, 5);
 		if (monitor(args, sock) < 0)
 			break;
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)close(sock);
 

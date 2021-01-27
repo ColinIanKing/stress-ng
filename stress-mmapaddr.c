@@ -87,7 +87,7 @@ static void *stress_mmapaddr_get_addr(
 	unsigned char vec[1];
 	void *addr = NULL;
 
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		int ret;
 
 		vec[0] = 0;
@@ -201,7 +201,7 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 unmap:
 		(void)munmap((void *)map_addr, page_size);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

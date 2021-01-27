@@ -108,7 +108,7 @@ static int stress_userfaultfd_clone(void *arg)
 		/* and trigger some page faults */
 		for (ptr = c->data; ptr < end; ptr += c->page_size)
 			*ptr = 0xff;
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return 0;
 }
@@ -380,7 +380,7 @@ do_read:
 		(void)ret;
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	/* Run it over, zap child */
 	(void)kill(pid, SIGKILL);

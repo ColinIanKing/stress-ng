@@ -120,7 +120,7 @@ static void *stress_close_func(void *arg)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 #endif
 
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		int fd_rnd = (int)stress_mwc32() + 64;
 		const uint64_t delay =
 			max_delay_us ? stress_mwc32() % max_delay_us : 0;
@@ -389,7 +389,7 @@ static int stress_close(const stress_args_t *args)
 		if (max_duration < 1.0)
 			max_duration = 1.0;
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 tidy:

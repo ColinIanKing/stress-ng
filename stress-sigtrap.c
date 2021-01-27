@@ -51,7 +51,7 @@ static int stress_sigtrap(const stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGTRAP, stress_sigtrap_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		int ret;
 
 		(void)ret;

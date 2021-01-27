@@ -121,7 +121,7 @@ redo:
 			 * as this can happen on a highly
 			 * overloaded stressed system
 			 */
-			if (keep_stressing())
+			if (keep_stressing(args))
 				goto redo;
 			break;
 		}
@@ -230,7 +230,7 @@ static int stress_fifo(const stress_args_t *args)
 		val++;
 		val &= ~wrap_mask;
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)close(fd);
 reap:

@@ -145,7 +145,7 @@ static int stress_radixsort(const stress_args_t *args)
 			*ptr = 'a' + (stress_mwc8() % 26);
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);

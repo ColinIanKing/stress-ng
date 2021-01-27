@@ -120,7 +120,7 @@ static int stress_sigchld(const stress_args_t *args)
 			(void)ret;
 		}
 		set_counter(args, counter);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	pr_dbg("%s: exit: %" PRIu64 ", kill: %" PRIu64
 		", stop: %" PRIu64 ", continue: %" PRIu64 "\n",

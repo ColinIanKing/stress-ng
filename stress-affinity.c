@@ -117,7 +117,7 @@ static uint64_t stress_affinity_racy_count(uint64_t *counters)
 }
 
 /*
- *  affinity_keep_stressing()
+ *  affinity_keep_stressing(args)
  *	check if SIGALRM has triggered to the bogo ops count
  *	has been reached, counter is racy, but that's OK
  */

@@ -421,7 +421,7 @@ again:
 
 		do {
 			efi_vars_get(args);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 		_exit(0);
 	}
 

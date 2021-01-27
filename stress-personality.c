@@ -92,7 +92,7 @@ static int stress_personality(const stress_args_t *args)
 			break;
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

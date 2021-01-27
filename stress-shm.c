@@ -267,7 +267,7 @@ static int stress_shm_posix_child(
 				(void)shim_waitpid(newpid, &status, 0);
 			}
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				goto reap;
 			if (stress_shm_posix_check(addr, sz, page_size) < 0) {
 				ok = false;
@@ -303,7 +303,7 @@ reap:
 			addrs[i] = NULL;
 			*shm_name = '\0';
 		}
-	} while (ok && keep_stressing());
+	} while (ok && keep_stressing(args));
 
 	/* Inform parent of end of run */
 	msg.index = -1;

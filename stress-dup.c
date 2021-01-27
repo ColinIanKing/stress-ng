@@ -252,7 +252,7 @@ static int stress_dup(const stress_args_t *args)
 			if (tmp >= 0)
 				(void)close(tmp);
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			/* do an invalid dup3 on an invalid fd */
@@ -262,7 +262,7 @@ static int stress_dup(const stress_args_t *args)
 			else if (errno == ENOSYS)
 				do_dup3 = false;
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			/* do an invalid dup3 with an invalid flag */
@@ -272,7 +272,7 @@ static int stress_dup(const stress_args_t *args)
 			else if (errno == ENOSYS)
 				do_dup3 = false;
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			/* do an invalid dup3 with an invalid fd */
@@ -282,7 +282,7 @@ static int stress_dup(const stress_args_t *args)
 			else if (errno == ENOSYS)
 				do_dup3 = false;
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			/* do an invalid dup3 with same oldfd and newfd */
@@ -292,7 +292,7 @@ static int stress_dup(const stress_args_t *args)
 			else if (errno == ENOSYS)
 				do_dup3 = false;
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			if (do_dup3 && stress_mwc1()) {
@@ -309,14 +309,14 @@ static int stress_dup(const stress_args_t *args)
 				fds[n] = dup2(fds[0], fds[n]);
 			}
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			fds[n] = dup2(fds[0], fds[n]);
 			if (fds[n] < 0)
 				break;
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			/* dup2 on the same fd should be a no-op */
@@ -331,7 +331,7 @@ static int stress_dup(const stress_args_t *args)
 			if (tmp >= 0)
 				(void)close(tmp);
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 #if defined(F_DUPFD)
@@ -342,7 +342,7 @@ static int stress_dup(const stress_args_t *args)
 			if (fds[n] < 0)
 				break;
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 #endif
 
@@ -360,7 +360,7 @@ static int stress_dup(const stress_args_t *args)
 				break;
 			(void)close(fds[i]);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	(void)close(fds[0]);
 
 #if defined(STRESS_DUP2_RACE)

@@ -131,7 +131,7 @@ redo:
 #endif
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				do_jmp = false;
 			if (fd != -1)
 				(void)close(fd);
@@ -191,7 +191,7 @@ next:
 		};
 		i++;
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	/* Clean up, most times this is redundant */
 
 	if (mapto != MAP_FAILED)

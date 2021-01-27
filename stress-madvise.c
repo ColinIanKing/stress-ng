@@ -459,7 +459,7 @@ static int stress_madvise(const stress_args_t *args)
 #endif
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);

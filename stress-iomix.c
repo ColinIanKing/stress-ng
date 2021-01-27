@@ -81,14 +81,14 @@ static void stress_iomix_wr_seq_bursts(
 				}
 			}
 			posn += rc;
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
 		}
 		tv.tv_sec = 0;
 		tv.tv_usec = stress_mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 
 /*
@@ -128,7 +128,7 @@ static void stress_iomix_wr_rnd_bursts(
 					return;
 				}
 			}
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
 		}
@@ -136,7 +136,7 @@ static void stress_iomix_wr_rnd_bursts(
 		tv.tv_usec = stress_mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
 
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 
 /*
@@ -174,11 +174,11 @@ static void stress_iomix_wr_seq_slow(
 			}
 			(void)shim_usleep(250000);
 			posn += rc;
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 
 /*
@@ -218,14 +218,14 @@ static void stress_iomix_rd_seq_bursts(
 				return;
 			}
 			posn += rc;
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
 		}
 		tv.tv_sec = 0;
 		tv.tv_usec = stress_mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 
 /*
@@ -265,14 +265,14 @@ static void stress_iomix_rd_rnd_bursts(
 					args->name, errno, strerror(errno));
 				return;
 			}
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
 		}
 		tv.tv_sec = stress_mwc32() % 3;
 		tv.tv_usec = stress_mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 
 /*
@@ -309,11 +309,11 @@ static void stress_iomix_rd_seq_slow(
 			}
 			(void)shim_usleep(333333);
 			posn += rc;
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 
 /*
@@ -329,31 +329,31 @@ static void stress_iomix_sync(
 		struct timeval tv;
 
 		(void)shim_fsync(fd);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		inc_counter(args);
 		tv.tv_sec = stress_mwc32() % 4;
 		tv.tv_usec = stress_mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 #if defined(HAVE_FDATASYNC)
 		(void)shim_fdatasync(fd);
 		/* Exercise illegal fdatasync */
 		(void)shim_fdatasync(-1);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		tv.tv_sec = stress_mwc32() % 4;
 		tv.tv_usec = stress_mwc32() % 1000000;
 		(void)select(0, NULL, NULL, NULL, &tv);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 #endif
 #if defined(HAVE_SYNC_FILE_RANGE) &&	\
     defined(SYNC_FILE_RANGE_WRITE)
 		(void)sync_file_range(fd, stress_mwc64() % iomix_bytes, 65536, SYNC_FILE_RANGE_WRITE);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		tv.tv_sec = stress_mwc32() % 4;
 		tv.tv_usec = stress_mwc32() % 1000000;
@@ -361,7 +361,7 @@ static void stress_iomix_sync(
 #else
 		(void)iomix_bytes;
 #endif
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 
 #if defined(HAVE_POSIX_FADVISE)
@@ -379,7 +379,7 @@ static void stress_iomix_bad_advise(
 
 		(void)posix_fadvise(fd, posn, 65536, POSIX_FADV_DONTNEED);
 		(void)shim_usleep(100000);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 #endif
 
@@ -428,7 +428,7 @@ static void stress_iomix_rd_wr_mmap(
 			if (mmaps[i] != MAP_FAILED)
 				(void)munmap(mmaps[i], page_size);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 
 /*
@@ -462,11 +462,11 @@ static void stress_iomix_wr_bytes(
 			}	}
 			(void)shim_usleep(1000);
 			posn += rc;
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 
 /*
@@ -502,11 +502,11 @@ static void stress_iomix_rd_bytes(
 			}
 			(void)shim_usleep(1000);
 			posn--;
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 
 #if defined(__linux__)
@@ -534,7 +534,7 @@ static void stress_iomix_inode_ioctl(
 {
 	int ret, attr;
 
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		return;
 
 #if defined(FS_IOC_GETFLAGS)
@@ -607,7 +607,7 @@ static void stress_iomix_inode_flags(
 #endif
 		if (!ok)
 			_exit(EXIT_SUCCESS);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 #endif
 
@@ -629,19 +629,19 @@ static void stress_iomix_drop_caches(
 		if (system_write("/proc/sys/vm/drop_caches", "1", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			return;
 		(void)sync();
 		if (system_write("/proc/sys/vm/drop_caches", "2", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			return;
 		(void)sync();
 		if (system_write("/proc/sys/vm/drop_caches", "3", 1) < 0)
 			(void)pause();
 		(void)sleep(5);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 }
 #endif
 
@@ -766,7 +766,7 @@ static int stress_iomix(const stress_args_t *args)
 				goto reap;
 			}
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
 reap:

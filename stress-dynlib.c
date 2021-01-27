@@ -126,7 +126,7 @@ static int stress_dynlib(const stress_args_t *args)
 		int ret;
 
 		ret = sigsetjmp(jmp_env, 1);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		if (ret)
 			goto tidy;
@@ -164,7 +164,7 @@ tidy:
 			handles[i] = NULL;
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

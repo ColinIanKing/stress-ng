@@ -931,7 +931,7 @@ static inline int stress_do_syscall(
 	pid_t pid;
 	int rc = 0;
 
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		return 0;
 	pid = fork();
 	if (pid < 0) {
@@ -1017,7 +1017,7 @@ static int stress_sysbadaddr_child(const stress_args_t *args, void *context)
 				}
 			}
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

@@ -140,7 +140,7 @@ static int stress_yield(const stress_args_t *args)
 
 		for (i = 0; i < yielders; i++)
 			add_counter(args, counters[i]);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	/* Parent, wait for children */
 	set_counter(args, 0);

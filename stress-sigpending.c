@@ -85,7 +85,7 @@ static int stress_sigpending(const stress_args_t *args)
 			continue;
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

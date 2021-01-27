@@ -552,7 +552,7 @@ static int stress_stream(const stress_args_t *args)
 			break;
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	t2 = stress_time_now();
 
 	mb = ((double)(get_counter(args) * 10) * (double)sz) / (double)MB;

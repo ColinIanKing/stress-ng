@@ -128,7 +128,7 @@ static int stress_nice(const stress_args_t *args)
 #if defined(HAVE_SETPRIORITY)
 			case 1:
 				pid = getpid();
-				for (i = min_prio; (i <= max_prio) && keep_stressing(); i++) {
+				for (i = min_prio; (i <= max_prio) && keep_stressing(args); i++) {
 					errno = 0;
 					(void)setpriority(PRIO_PROCESS, pid, i);
 					if (!errno)
@@ -138,7 +138,7 @@ static int stress_nice(const stress_args_t *args)
 				break;
 #endif
 			default:
-				for (i = -19; (i < 20) && keep_stressing(); i++) {
+				for (i = -19; (i < 20) && keep_stressing(args); i++) {
 					int ret;
 
 					ret = shim_nice(1);
@@ -161,7 +161,7 @@ static int stress_nice(const stress_args_t *args)
 				(void)kill(pid, SIGKILL);
 			}
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

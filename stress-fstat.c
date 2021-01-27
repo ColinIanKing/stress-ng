@@ -290,7 +290,7 @@ static int stress_fstat(const stress_args_t *args)
 		stat_some = false;
 
 		for (si = stat_info; keep_stressing_flag() && si; si = si->next) {
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			if (si->ignore == IGNORE_ALL)
 				continue;
@@ -299,7 +299,7 @@ static int stress_fstat(const stress_args_t *args)
 			stat_some = true;
 			inc_counter(args);
 		}
-	} while (stat_some && keep_stressing());
+	} while (stat_some && keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
 free_cache:

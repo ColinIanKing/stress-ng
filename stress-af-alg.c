@@ -244,7 +244,7 @@ retry_bind:
 	stress_strnrnd(input, DATA_LEN);
 
 	for (j = 32; j < DATA_LEN; j += 32) {
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		if (send(fd, input, j, 0) != j) {
 			if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT))
@@ -422,7 +422,7 @@ retry_bind:
 		struct af_alg_iv *iv;	/* Initialisation Vector */
 		struct iovec iov;
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		(void)memset(&msg, 0, sizeof(msg));
 		(void)memset(cbuf, 0, cbuf_size);
@@ -599,7 +599,7 @@ retry_bind:
 	}
 
 	for (j = 0; j < 16; j++) {
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		if (read(fd, output, output_size) != output_size) {
 			if (errno != EINVAL) {
@@ -733,7 +733,7 @@ static int stress_af_alg(const stress_args_t *args)
 	do {
 		stress_crypto_info_t *info;
 
-		for (info = crypto_info_list; keep_stressing() && info; info = info->next) {
+		for (info = crypto_info_list; keep_stressing(args) && info; info = info->next) {
 			if (info->internal || info->ignore)
 				continue;
 			switch (info->crypto_type) {
@@ -759,7 +759,7 @@ static int stress_af_alg(const stress_args_t *args)
 				break;
 			}
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 	(void)close(sockfd);

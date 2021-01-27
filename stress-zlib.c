@@ -1308,10 +1308,10 @@ static int stress_zlib_deflate(
 
 			if (zlib_args.stream_bytes > 0)
 				flush = (stream_bytes_out + gen_sz < zlib_args.stream_bytes
-					&& keep_stressing())
+					&& keep_stressing(args))
 					? Z_NO_FLUSH : Z_FINISH;
 			else
-				flush = keep_stressing() ? Z_NO_FLUSH : Z_FINISH;
+				flush = keep_stressing(args) ? Z_NO_FLUSH : Z_FINISH;
 
 			opt_zlib_rand_data_func->func(args, (uint32_t *)in, (DATA_SIZE/sizeof(uint32_t)));
 
@@ -1402,7 +1402,7 @@ static int stress_zlib_deflate(
 		stream_def.zalloc = Z_NULL;
 		stream_def.zfree = Z_NULL;
 		stream_def.opaque = Z_NULL;
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 finish:
 	t2 = stress_time_now();

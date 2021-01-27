@@ -162,7 +162,7 @@ static int stress_sendfile(const stress_args_t *args)
 			(void)sendfile(fdout, fdin, &offset, sz);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 close_out:
 	(void)close(fdout);

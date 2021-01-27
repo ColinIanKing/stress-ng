@@ -52,7 +52,7 @@ static int stress_set_pipeherd_yield(const char *opt)
 
 static int stress_pipeherd_read_write(const stress_args_t *args, const int fd[2], const bool pipeherd_yield)
 {
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		int64_t counter;
 		ssize_t sz;
 

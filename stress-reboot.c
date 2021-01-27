@@ -154,7 +154,7 @@ static int stress_reboot(const stress_args_t *args)
 			}
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 #if defined(HAVE_CLONE)
 	free(stack);
 #endif

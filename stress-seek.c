@@ -209,7 +209,7 @@ re_read:
 			int i;
 
 			offset = stress_mwc64() % seek_size;
-			for (i = 0; i < 20 && keep_stressing(); i++) {
+			for (i = 0; i < 20 && keep_stressing(args); i++) {
 				offset = lseek(fd, offset, SEEK_DATA);
 				if (offset < 0)
 					break;
@@ -265,7 +265,7 @@ re_read:
 		(void)offset;
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 close_finish:

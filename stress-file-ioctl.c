@@ -499,7 +499,7 @@ struct shim_space_resv {
 		}
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
 

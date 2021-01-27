@@ -107,7 +107,7 @@ static int stress_udp_flood(const stress_args_t *args)
 		}
 #endif
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		rand_port = 1024 + (stress_mwc16() % (65535 - 1024));
@@ -117,7 +117,7 @@ static int stress_udp_flood(const stress_args_t *args)
 
 		if (++sz > sz_max)
 			sz = 1;
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)close(fd);
 

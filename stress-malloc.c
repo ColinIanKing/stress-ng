@@ -167,7 +167,7 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 				}
 			}
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 abort:
 	for (j = 0; j < malloc_max; j++) {
 		free(addr[j]);

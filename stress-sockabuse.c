@@ -185,7 +185,7 @@ retry:
 
 		(void)shutdown(fd, SHUT_RDWR);
 		(void)close(fd);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	/* Inform parent we're all done */
 	(void)kill(getppid(), SIGALRM);
@@ -261,7 +261,7 @@ static int stress_sockabuse_server(
 		for (i = 0; i < 16; i++) {
 			int sfd;
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			sfd = accept(fd, (struct sockaddr *)NULL, NULL);
@@ -305,7 +305,7 @@ static int stress_sockabuse_server(
 		inc_counter(args);
 		stress_sockabuse_fd(fd);
 		(void)close(fd);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 die:
 	if (pid) {

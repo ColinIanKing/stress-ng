@@ -267,7 +267,7 @@ static void stress_rawpkt_client(
 				(void)ret;
 			}
 #endif
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	stress_rawpkt_getsockopts(fd);
 	(void)close(fd);
@@ -333,7 +333,7 @@ static int stress_rawpkt_server(
 			(void)ret;
 		}
 #endif
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	stress_rawpkt_getsockopts(fd);
 	(void)close(fd);

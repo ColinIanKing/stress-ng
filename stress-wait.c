@@ -88,7 +88,7 @@ static void runner(
 
 	do {
 		(void)pause();
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)kill(getppid(), SIGALRM);
 	_exit(EXIT_SUCCESS);
@@ -131,7 +131,7 @@ static void killer(
 			start = stress_time_now();
 			last_counter = get_counter(args);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	/* forcefully kill runner, wait is in parent */
 	(void)kill(pid, SIGKILL);

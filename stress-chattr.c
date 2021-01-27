@@ -80,7 +80,7 @@ static int do_chattr(
 	int i;
 	int rc = 0;
 
-	for (i = 0; (i < 128) && keep_stressing(); i++) {
+	for (i = 0; (i < 128) && keep_stressing(args); i++) {
 		int fd, fdw, ret;
 		unsigned long zero = 0UL;
 		unsigned long orig, rnd;
@@ -185,7 +185,7 @@ static int stress_chattr(const stress_args_t *args)
 			break;
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)unlink(filename);
 	(void)rmdir(pathname);

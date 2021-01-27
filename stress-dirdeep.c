@@ -92,7 +92,7 @@ static void stress_dirdeep_make(
 		return;
 	if (len + 2 >= path_len)
 		return;
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		return;
 
 	errno = 0;
@@ -134,14 +134,14 @@ static void stress_dirdeep_make(
 	ret = link(linkpath, path);
 	(void)ret;
 
-	for (i = 0; keep_stressing() && (i < dirdeep_dirs); i++) {
+	for (i = 0; keep_stressing(args) && (i < dirdeep_dirs); i++) {
 		path[len + 1] = '0' + i;
 		stress_dirdeep_make(args, linkpath, path, len + 2,
 				path_len, dirdeep_dirs, dirdeep_inodes,
 				inodes_target_free, min_inodes_free,
 				depth + 1);
 	}
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		return;
 	path[len] = '\0';
 
@@ -228,7 +228,7 @@ static void stress_dir_exercise(
 		{ sec, nsec }
 	};
 #endif
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		return;
 
 	if (len + 2 >= path_len)
@@ -238,7 +238,7 @@ static void stress_dir_exercise(
 	if (n < 0)
 		return;
 
-	for (i = 0; (i < n) && keep_stressing(); i++) {
+	for (i = 0; (i < n) && keep_stressing(args); i++) {
 		if (namelist[i]->d_name[0] == '.')
 			continue;
 
@@ -358,7 +358,7 @@ static int stress_dirdeep(const stress_args_t *args)
 	do {
 		(void)shim_strlcpy(path, rootpath, sizeof(path));
 		stress_dir_exercise(args, path, path_len, sizeof(path));
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)shim_strlcpy(path, rootpath, sizeof(path));
 	pr_tidy("%s: removing directories\n", args->name);

@@ -151,7 +151,7 @@ again:
 				(void)stress_read_fdinfo(self, sfd);
 
 			inc_counter(args);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		/* terminal child */
 		(void)kill(pid, SIGKILL);

@@ -203,7 +203,7 @@ static int stress_locka_contention(
 		locka_info->pid = args->pid;
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return 0;
 }

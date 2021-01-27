@@ -117,7 +117,7 @@ next:
 				args->name);
 			break;
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)close(fd);
 

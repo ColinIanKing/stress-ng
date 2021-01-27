@@ -176,7 +176,7 @@ static int stress_sigsegv(const stress_args_t *args)
 		 * We return here if we segfault, so
 		 * first check if we need to terminate
 		 */
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		if (ret) {

@@ -154,7 +154,7 @@ static int stress_klog(const stress_args_t *args)
 		(void)shim_klogctl(SYSLOG_ACTION_READ_ALL, buffer, 0);
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	free(buffer);
 	return EXIT_SUCCESS;

@@ -131,7 +131,7 @@ static int stress_judy(const stress_args_t *args)
 					"be found\n", args->name, (uint32_t)idx);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 abort:
 	return EXIT_SUCCESS;

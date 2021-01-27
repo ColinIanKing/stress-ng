@@ -90,7 +90,7 @@ static int stress_kill(const stress_args_t *args)
 		ret = kill(args->pid, -1);
 		(void)ret;
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

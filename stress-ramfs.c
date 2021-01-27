@@ -354,7 +354,7 @@ skip_fsopen:
 
 #endif
 		inc_counter(args);
-	} while (keep_mounting && keep_stressing() &&
+	} while (keep_mounting && keep_stressing(args) &&
 		 (!args->max_ops || get_counter(args) < args->max_ops));
 
 cleanup:
@@ -416,7 +416,7 @@ again:
 		} else if (pid == 0) {
 			_exit(stress_ramfs_child(args));
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

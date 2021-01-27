@@ -77,7 +77,7 @@ static int stress_null(const stress_args_t *args)
 #endif
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	(void)close(fd);
 
 	return EXIT_SUCCESS;

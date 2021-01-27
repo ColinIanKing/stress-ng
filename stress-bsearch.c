@@ -129,7 +129,7 @@ static int stress_bsearch(const stress_args_t *args)
 			}
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	free(data);
 	return EXIT_SUCCESS;

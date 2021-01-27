@@ -246,7 +246,7 @@ static int stress_skiplist(const stress_args_t *args)
 		skip_list_free(&list);
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

@@ -115,7 +115,7 @@ again:
 			}
 			(void)stress_get_lease(fd);
 			(void)close(fd);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
@@ -233,7 +233,7 @@ static int stress_lease(const stress_args_t *args)
 		ret = stress_try_lease(args, filename, O_RDONLY, F_RDLCK);
 		if (ret != EXIT_SUCCESS)
 			break;
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 reap:
 	for (i = 0; i < lease_breakers; i++) {

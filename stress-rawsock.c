@@ -123,7 +123,7 @@ again:
 				(void)ret;
 			}
 #endif
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 		(void)close(fd);
 
 		(void)kill(getppid(), SIGALRM);
@@ -174,7 +174,7 @@ again:
 			}
 #endif
 			inc_counter(args);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		(void)close(fd);
 die:

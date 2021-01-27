@@ -190,7 +190,7 @@ static void NOINLINE stress_funcret_ ## type(const stress_args_t *args)	\
 			(void)b;					\
 		}							\
 		inc_counter(args);					\
-	} while (keep_stressing());					\
+	} while (keep_stressing(args));					\
 }
 
 stress_funcret_type(uint8_t)

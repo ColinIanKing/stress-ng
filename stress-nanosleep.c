@@ -66,7 +66,7 @@ static void *stress_pthread_func(void *c)
 	const uint64_t max_ops =
 		args->max_ops ? (args->max_ops / MAX_NANOSLEEP_THREADS) + 1 : 0;
 
-	while (keep_stressing() &&
+	while (keep_stressing(args) &&
 	       !thread_terminate &&
 	       (!max_ops || ctxt->counter < max_ops)) {
 		struct timespec tv;
@@ -125,7 +125,7 @@ static int stress_nanosleep(const stress_args_t *args)
 		(void)shim_usleep_interruptible(10000);
 		for (i = 0; i < n; i++)
 			add_counter(args, ctxts[i].counter);
-	}  while (!thread_terminate && keep_stressing());
+	}  while (!thread_terminate && keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
 tidy:

@@ -255,9 +255,9 @@ again:
 					(void)ioctl(fd, SIOCOUTQ, &pending);
 				}
 #endif
-			} while (keep_stressing());
+			} while (keep_stressing(args));
 			(void)close(fd);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
@@ -349,7 +349,7 @@ again:
 				break;
 			}
 			inc_counter(args);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 die_close:
 		(void)close(fd);

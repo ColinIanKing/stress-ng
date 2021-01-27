@@ -375,7 +375,7 @@ do_exec:
 					exec_fails++;
 			}
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 #if defined(HAVE_EXECVEAT)
 	(void)close(fdexec);

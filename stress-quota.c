@@ -374,7 +374,7 @@ static int stress_quota(const stress_args_t *args)
 			/* All failed, then give up */
 			if (failed == n_devs)
 				goto tidy;
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 	}
 abort:
 	rc = EXIT_SUCCESS;

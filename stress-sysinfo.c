@@ -227,7 +227,7 @@ static int stress_sysinfo(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	stress_mount_free(mnts, n_mounts);
 

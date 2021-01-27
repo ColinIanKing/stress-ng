@@ -219,7 +219,7 @@ static int stress_chroot(const stress_args_t *args)
 	do {
 		pid_t pid;
 retry:
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		pid = fork();
@@ -253,7 +253,7 @@ retry:
 		}
 		i++;
 		i %= SIZEOF_ARRAY(test_chroot_test_funcs);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
 tidy_all:

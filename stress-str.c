@@ -691,7 +691,7 @@ static int stress_str(const stress_args_t *args)
 		len2 = tmplen;
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

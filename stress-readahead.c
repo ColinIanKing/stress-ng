@@ -187,7 +187,7 @@ seq_wr_retry:
 
 		for (i = 0; i < MAX_OFFSETS; i++) {
 rnd_rd_retry:
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			ret = pread(fd, buf, BUF_SIZE, offsets[i]);
 			if (ret <= 0) {
@@ -231,7 +231,7 @@ rnd_rd_retry:
 			ret = readahead(fd, 0, 1ULL << i);
 			(void)ret;
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 close_finish:

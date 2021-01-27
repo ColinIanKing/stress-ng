@@ -98,7 +98,7 @@ static int stress_signal(const stress_args_t *args)
 
 		tmp = counter;
 		if (kill(pid, SIGCHLD) == 0) {
-			while ((tmp == counter) && keep_stressing()) {
+			while ((tmp == counter) && keep_stressing(args)) {
 				shim_sched_yield();
 			}
 		}
@@ -116,7 +116,7 @@ static int stress_signal(const stress_args_t *args)
 		}
 
 		set_counter(args, counter);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return rc;
 }

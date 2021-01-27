@@ -81,7 +81,7 @@ static int stress_mlockmany(const stress_args_t *args)
 		for (n = 0; n < max_mlock_procs; n++) {
 			pid_t pid;
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
@@ -111,7 +111,7 @@ static int stress_mlockmany(const stress_args_t *args)
 					_exit(0);
 
 				while (mmap_size > args->page_size) {
-					if (!keep_stressing())
+					if (!keep_stressing(args))
 						_exit(0);
 					ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 						MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -127,7 +127,7 @@ static int stress_mlockmany(const stress_args_t *args)
 
 				mlock_size = mmap_size;
 				while (mlock_size > args->page_size) {
-					if (!keep_stressing())
+					if (!keep_stressing(args))
 						_exit(0);
 					ret = shim_mlock(ptr, mlock_size);
 					if (ret == 0)
@@ -136,13 +136,13 @@ static int stress_mlockmany(const stress_args_t *args)
 				}
 
 				for (;;) {
-					if (!keep_stressing())
+					if (!keep_stressing(args))
 						goto unlock;
 					(void)shim_munlock(ptr, mlock_size);
-					if (!keep_stressing())
+					if (!keep_stressing(args))
 						goto unmap;
 					(void)shim_mlock(ptr, mlock_size);
-					if (!keep_stressing())
+					if (!keep_stressing(args))
 						goto unlock;
 					/* Try invalid sizes */
 					(void)shim_mlock(ptr, 0);
@@ -153,7 +153,7 @@ static int stress_mlockmany(const stress_args_t *args)
 
 					(void)shim_mlock(ptr, ~(size_t)0);
 					(void)shim_munlock(ptr, ~(size_t)0);
-					if (!keep_stressing())
+					if (!keep_stressing(args))
 						goto unlock;
 					(void)shim_usleep_interruptible(10000);
 				}
@@ -180,7 +180,7 @@ unmap:
 				inc_counter(args);
 			}
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

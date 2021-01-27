@@ -2899,7 +2899,7 @@ static void stress_dev_dir(
 		struct dirent *d = dlist[i];
 		size_t len;
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
@@ -3026,7 +3026,7 @@ static int stress_dev(const stress_args_t *args)
 		pid_t pid;
 
 again:
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		pid = fork();
 		if (pid < 0) {
@@ -3103,7 +3103,7 @@ again:
 					stress_dev_file(args, dev_file);
 				else
 					stress_dev_dir(args, "/dev", true, 0, euid);
-			} while (keep_stressing());
+			} while (keep_stressing(args));
 
 			r = shim_pthread_spin_lock(&lock);
 			if (r) {
@@ -3123,7 +3123,7 @@ again:
 			stress_hash_delete(dev_open_ok);
 			_exit(EXIT_SUCCESS);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)shim_pthread_spin_destroy(&lock);
 

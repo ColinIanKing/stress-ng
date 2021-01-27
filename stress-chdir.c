@@ -146,7 +146,7 @@ static int stress_chdir(const stress_args_t *args)
 			uint32_t j = stress_mwc32() % chdir_dirs;
 			const int fd = fds[j] >= 0 ? fds[j] : fds[0];
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				goto done;
 			if (mkdir_ok[i] && (chdir(paths[i]) < 0)) {
 				if (errno != ENOMEM) {
@@ -188,7 +188,7 @@ static int stress_chdir(const stress_args_t *args)
 				(void)rc;
 			}
 
-			while (keep_stressing()) {
+			while (keep_stressing(args)) {
 				/* We need chdir to cwd to always succeed */
 				if (chdir(cwd) == 0)
 					break;
@@ -231,7 +231,7 @@ static int stress_chdir(const stress_args_t *args)
 		(void)rc;
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 done:
 	ret = EXIT_SUCCESS;
 abort:

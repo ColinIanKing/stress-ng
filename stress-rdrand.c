@@ -207,7 +207,7 @@ static int stress_rdrand(const stress_args_t *args)
 				RAND64x32()
 			}
 			add_counter(args, i);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		duration = stress_time_now() - time_start;
 		billion_bits = ((double)get_counter(args) * 64.0 * 256.0) / 1000000000.0;

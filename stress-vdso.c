@@ -481,7 +481,7 @@ static int stress_vdso(const stress_args_t *args)
 			vdso_sym->func(vdso_sym->addr);
 			inc_counter(args);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	t2 = stress_time_now();
 
 	counter = get_counter(args);

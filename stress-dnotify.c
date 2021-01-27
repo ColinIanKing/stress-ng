@@ -420,7 +420,7 @@ static int stress_dnotify(const stress_args_t *args)
 		for (i = 0; keep_stressing_flag() && dnotify_stressors[i].func; i++)
 			dnotify_stressors[i].func(args, pathname);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;

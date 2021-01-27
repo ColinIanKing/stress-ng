@@ -139,7 +139,7 @@ retry:
 				sock_fds->max_fd = i;
 		}
 		stress_sockmany_cleanup(fds, i);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 finish:
@@ -205,7 +205,7 @@ static int stress_sockmany_server(
 	do {
 		int sfd;
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
@@ -253,7 +253,7 @@ static int stress_sockmany_server(
 			(void)close(sfd);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 die_close:
 	(void)close(fd);

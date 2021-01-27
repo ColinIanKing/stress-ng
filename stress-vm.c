@@ -111,7 +111,7 @@ static const stress_vm_madvise_info_t vm_madvise_info[] = {
 };
 
 /*
- *  keep_stressing()
+ *  keep_stressing(args)
  *	returns true if we can keep on running a stressor
  */
 static bool HOT OPTIMIZE3 keep_stressing_vm(const stress_args_t *args)

@@ -77,7 +77,7 @@ static int stress_ioprio(const stress_args_t *args)
 				goto cleanup_file;
 			}
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		if (shim_ioprio_get(IOPRIO_WHO_PROCESS, 0) < 0) {
 			if (errno != EINVAL) {
@@ -87,7 +87,7 @@ static int stress_ioprio(const stress_args_t *args)
 				goto cleanup_file;
 			}
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 #if defined(HAVE_GETPGRP)
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, grp) < 0) {
@@ -98,7 +98,7 @@ static int stress_ioprio(const stress_args_t *args)
 				goto cleanup_file;
 			}
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 #endif
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, 0) < 0) {
@@ -109,7 +109,7 @@ static int stress_ioprio(const stress_args_t *args)
 				goto cleanup_file;
 			}
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		/*
 		 *  Exercise invalid ioprio_get arguments
@@ -127,7 +127,7 @@ static int stress_ioprio(const stress_args_t *args)
 				goto cleanup_file;
 			}
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		for (i = 0; i < MAX_IOV; i++) {
@@ -143,10 +143,10 @@ static int stress_ioprio(const stress_args_t *args)
 				goto cleanup_file;
 			}
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		(void)shim_fsync(fd);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		/*
@@ -169,7 +169,7 @@ static int stress_ioprio(const stress_args_t *args)
 				goto cleanup_file;
 			}
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		if (pwritev(fd, iov, MAX_IOV, (off_t)512 * stress_mwc16()) < 0) {
@@ -179,10 +179,10 @@ static int stress_ioprio(const stress_args_t *args)
 				goto cleanup_file;
 			}
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		(void)shim_fsync(fd);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		for (i = 0; i < 8; i++) {
@@ -207,7 +207,7 @@ static int stress_ioprio(const stress_args_t *args)
 			}
 			(void)shim_fsync(fd);
 		}
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		for (i = 0; i < 8; i++) {
 			if (shim_ioprio_set(IOPRIO_WHO_PROCESS, args->pid,
@@ -232,7 +232,7 @@ static int stress_ioprio(const stress_args_t *args)
 			(void)shim_fsync(fd);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 

@@ -129,7 +129,7 @@ again:
 					args->name, errno, strerror(errno));
 				goto abort;
 			}
-		 } while (keep_stressing());
+		 } while (keep_stressing(args));
 abort:
 		for (i = 0; i < MAX_PIPES; i++)
 			(void)close(pipefds[i][1]);
@@ -163,7 +163,7 @@ abort:
 			struct timeval tv;
 			int ret;
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			/* stress out poll */
@@ -183,7 +183,7 @@ abort:
 				inc_counter(args);
 			}
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 #if defined(HAVE_PPOLL)
@@ -210,7 +210,7 @@ abort:
 				}
 				inc_counter(args);
 			}
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			/* Exercise illegal poll timeout */
@@ -218,7 +218,7 @@ abort:
 			ts.tv_nsec = 1999999999;
 			ret = ppoll(fds, MAX_PIPES, &ts, &sigmask);
 			(void)ret;
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 #if defined(RLIMIT_NOFILE)
@@ -240,7 +240,7 @@ abort:
 						(void)ret;
 
 						(void)setrlimit(RLIMIT_NOFILE, &old_rlim);
-						if (!keep_stressing())
+						if (!keep_stressing(args))
 							break;
 					}
 				}
@@ -268,7 +268,7 @@ abort:
 				}
 				inc_counter(args);
 			}
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 #if defined(HAVE_PSELECT)
 			/* stress out pselect */
@@ -300,7 +300,7 @@ abort:
 			 * a select zero timeout
 			 */
 			(void)sleep(0);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);

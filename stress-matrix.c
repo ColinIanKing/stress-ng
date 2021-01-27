@@ -949,7 +949,7 @@ static inline int stress_matrix_exercise(
 	do {
 		(void)func(n, a, b, r);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
 

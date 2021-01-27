@@ -213,7 +213,7 @@ static int stress_link_generic(
 		stress_link_unlink(args, n);
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)unlink(oldpath);
 	(void)stress_temp_dir_rm_args(args);

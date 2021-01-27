@@ -228,7 +228,7 @@ static int stress_lockf_contention(
 
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return 0;
 }

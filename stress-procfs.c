@@ -657,7 +657,7 @@ static int stress_procfs(const stress_args_t *args)
 			char procfspath[PATH_MAX];
 			struct dirent *d = dlist[i];
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			stress_mk_filename(procfspath, sizeof(procfspath), "/proc", d->d_name);
@@ -677,13 +677,13 @@ static int stress_procfs(const stress_args_t *args)
 			inc_counter(args);
 		}
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		stress_proc_dir(&ctxt, stress_random_pid(), true, 0);
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = shim_pthread_spin_lock(&lock);
 	if (rc) {

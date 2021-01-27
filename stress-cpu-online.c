@@ -173,7 +173,7 @@ static int stress_cpu_online(const stress_args_t *args)
 				break;
 			inc_counter(args);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	/*
 	 *  Force CPUs all back online

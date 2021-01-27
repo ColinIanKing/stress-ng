@@ -121,7 +121,7 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 		off_t offset;
 
 		for (n = 0; keep_stressing_flag() && (n < MMAP_MAX); n++) {
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			offset = (off_t)sz;
@@ -169,7 +169,7 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 		if (redo_unmapping)
 			(void)munmap(redo_unmapping, page_size3);
 
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)close(fd);
 

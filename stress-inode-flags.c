@@ -59,7 +59,7 @@ static void stress_inode_flags_ioctl(
 {
 	int ret, attr;
 
-	if (!(keep_running || keep_stressing()))
+	if (!(keep_running || keep_stressing(args)))
 		return;
 
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &attr);
@@ -101,7 +101,7 @@ static int stress_inode_flags_stressor(
 	const stress_args_t *args,
 	stress_data_t *data)
 {
-	while (keep_running && keep_stressing()) {
+	while (keep_running && keep_stressing(args)) {
 		int ret;
 
 		stress_inode_flags_ioctl(args, data->dir_fd, 0);
@@ -243,7 +243,7 @@ static int stress_inode_flags(const stress_args_t *args)
 
 	do {
 		stress_inode_flags_stressor(args, &data);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	keep_running = false;
 	rc = EXIT_SUCCESS;

@@ -109,7 +109,7 @@ static void stress_timer_set(struct itimerspec *timer)
 }
 
 /*
- *  stress_timer_keep_stressing()
+ *  stress_timer_keep_stressing(args)
  *      returns true if we can keep on running a stressor
  */
 static bool HOT OPTIMIZE3 stress_timer_keep_stressing(void)
@@ -227,7 +227,7 @@ static int stress_timer(const stress_args_t *args)
 		(void)nanosleep(&req, NULL);
 		set_counter(args, timer_counter);
 
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	if (timer_delete(timerid) < 0) {
 		pr_fail("%s: timer_delete failed, errno=%d (%s)\n",

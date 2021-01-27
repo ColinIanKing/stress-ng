@@ -241,7 +241,7 @@ static int stress_fallocate(const stress_args_t *args)
 		(void)ret;
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	if (ftrunc_errs)
 		pr_dbg("%s: %" PRIu64
 			" ftruncate errors occurred.\n", args->name, ftrunc_errs);

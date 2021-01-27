@@ -50,7 +50,7 @@ static inline int stress_dev_shm_child(
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args->name, true);
 
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		size_t sz_delta = page_thresh;
 		int ret;
 
@@ -67,7 +67,7 @@ static inline int stress_dev_shm_child(
 		 *  shouldn't make this exact as mmap'ing this
 		 *  can trip a SIGBUS
 		 */
-		while (keep_stressing() && (sz_delta >= page_thresh)) {
+		while (keep_stressing(args) && (sz_delta >= page_thresh)) {
 			ret = shim_fallocate(fd, 0, 0, sz);
 			if (ret < 0) {
 				sz -= (sz_delta >> 1);
@@ -82,7 +82,7 @@ static inline int stress_dev_shm_child(
 			/*
 			 *  Now try to map this into our address space
 			 */
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			addr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 				MAP_SHARED, fd, 0);
@@ -149,7 +149,7 @@ static int stress_dev_shm(const stress_args_t *args)
 	}
 	(void)unlink(path);
 
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 fork_again:
 		pid = fork();
 		if (pid < 0) {

@@ -193,7 +193,7 @@ static int stress_qsort(const stress_args_t *args)
 			break;
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);

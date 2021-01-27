@@ -232,7 +232,7 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 				break;
 			}
 timed_out:
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			inc_counter(args);
 		}
@@ -448,7 +448,7 @@ timed_out:
 			ret = semop(sem_id, &semwait, 1);
 			(void)ret;
 		}
-	} while ((rc == EXIT_SUCCESS)  && keep_stressing());
+	} while ((rc == EXIT_SUCCESS)  && keep_stressing(args));
 
 	if (rc == EXIT_FAILURE)
 		kill(getppid(), SIGALRM);
@@ -520,7 +520,7 @@ static int stress_sem_sysv(const stress_args_t *args)
 			goto reap;
 	}
 	/* Wait for termination */
-	while (keep_stressing())
+	while (keep_stressing(args))
 		pause();
 reap:
 	for (i = 0; i < semaphore_sysv_procs; i++) {

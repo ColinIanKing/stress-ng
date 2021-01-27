@@ -55,7 +55,7 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 		ssize_t i, n;
 
 		for (n = 0; keep_stressing_flag() && (n < max); n++) {
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			mappings[n] = (uint8_t *)mmap(NULL,
@@ -74,7 +74,7 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 			(void)munmap((void *)(mappings[i] + page_size), page_size);
 			(void)munmap((void *)(mappings[i] + page_size + page_size), page_size);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	free(mappings);
 	return EXIT_SUCCESS;

@@ -261,7 +261,7 @@ static int HOT TARGET_CLONES stress_vecmath(const stress_args_t *args)
 #endif
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	/* Forces the compiler to actually compute the terms */
 	stress_uint8_put(a8[0]  ^ a8[1]  ^ a8[2]  ^ a8[3]  ^

@@ -125,7 +125,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	 *  keep stressing before attempting a calloc that can
 	 *  for a OOM and a respawn if this function
 	 */
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		return EXIT_SUCCESS;
 
 	mappings = (uint8_t **)mmap(NULL, mappings_len, PROT_READ | PROT_WRITE,
@@ -140,7 +140,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 		int ret;
 
 		for (n = 0; n < max; n++) {
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			mappings[n] = (uint8_t *)mmap(NULL, page_size * 3,
@@ -150,7 +150,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 				break;
 
 #if defined(HAVE_MLOCK2)
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			/* Invalid mlock2 syscall with invalid flags and ignoring failure*/
 			(void)shim_mlock2((void *)(mappings[n] + page_size), page_size, ~0);
@@ -159,7 +159,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			/*
 			 *  Attempt a bogus mlock, ignore failure
 			 */
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			(void)do_mlock((void *)(mappings[n] + page_size), 0);
 
@@ -179,7 +179,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			/*
 			 *  Attempt a correct mlock
 			 */
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			ret = do_mlock((void *)(mappings[n] + page_size), page_size);
 			if (ret < 0) {
@@ -207,7 +207,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			intptr_t addr = (intptr_t)mappings[i];
 			intptr_t mlocked = addr & 1;
 
-			if (keep_stressing()) {
+			if (keep_stressing(args)) {
 				addr ^= mlocked;
 				if (mlocked)
 					(void)shim_munlock((void *)((uint8_t *)addr + page_size), page_size);
@@ -247,43 +247,43 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 		{
 			int flag = 0;
 #if defined(MCL_CURRENT)
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			(void)shim_mlockall(MCL_CURRENT);
 			flag |= MCL_CURRENT;
 #endif
 #if defined(MCL_FUTURE)
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			(void)shim_mlockall(MCL_FUTURE);
 			flag |= MCL_FUTURE;
 #endif
 #if defined(MCL_ONFAULT) &&	\
     defined(MCL_CURRENT)
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			if (shim_mlockall(MCL_ONFAULT | MCL_CURRENT) == 0)
 				flag |= (MCL_ONFAULT | MCL_CURRENT);
 #endif
 #if defined(MCL_ONFAULT) &&	\
     defined(MCL_FUTURE)
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			if (shim_mlockall(MCL_ONFAULT | MCL_FUTURE) == 0)
 				flag |= (MCL_ONFAULT | MCL_FUTURE);
 #endif
 #if defined(MCL_ONFAULT)
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			/* Exercising Invalid mlockall syscall and ignoring failure */
 			(void)shim_mlockall(MCL_ONFAULT);
 #endif
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 			/* Exercise Invalid mlockall syscall with invalid flag */
 			(void)shim_mlockall(~0);
 			if (flag) {
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					break;
 				(void)shim_mlockall(flag);
 			}
@@ -291,7 +291,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 #endif
 
 		for (n = 0; n < max; n++) {
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			mappings[n] = (uint8_t *)mmap(NULL, page_size,
@@ -305,7 +305,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 #endif
 		for (i = 0; i < n; i++)
 			(void)munmap((void *)mappings[i], page_size);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)munmap((void *)mappings, mappings_len);
 

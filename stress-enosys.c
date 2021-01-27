@@ -197,7 +197,7 @@ static void exercise_syscall(
 	bool enosys = false;
 	const pid_t pid = getpid();
 
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		_exit(EXIT_SUCCESS);
 
 	itimer_set(args);
@@ -3310,7 +3310,7 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 	/* Check if this is a known non-ENOSYS syscall */
 	if (syscall_find(number))
 		return rc;
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		return 0;
 	pid = fork();
 	if (pid < 0) {
@@ -3403,7 +3403,7 @@ static int stress_enosys(const stress_args_t *args)
 #endif
 
 again:
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		return EXIT_SUCCESS;
 	pid = fork();
 	if (pid < 0) {
@@ -3452,7 +3452,7 @@ again:
 		ssize_t j;
 
 		/* Child, wrapped to catch OOMs */
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			_exit(0);
 
 		(void)setpgid(0, g_pgrp);
@@ -3472,39 +3472,39 @@ again:
 
 			/* Low sequential syscalls */
 			for (number = 0; number < MAX_SYSCALL + 1024; number++) {
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					goto finish;
 				stress_do_syscall(args, number);
 			}
 
 			/* Random syscalls */
 			for (j = 0; j < 1024; j++) {
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					goto finish;
 				stress_do_syscall(args, stress_mwc8() & mask);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					goto finish;
 				stress_do_syscall(args, stress_mwc16() & mask);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					goto finish;
 				stress_do_syscall(args, stress_mwc32() & mask);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					goto finish;
 				stress_do_syscall(args, stress_mwc64() & mask);
 			}
 
 			/* Various bit masks */
 			for (number = 1; number; number <<= 1) {
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					goto finish;
 				stress_do_syscall(args, number);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					goto finish;
 				stress_do_syscall(args, number | 1);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					goto finish;
 				stress_do_syscall(args, number | (number << 1));
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					goto finish;
 				stress_do_syscall(args, ~number);
 			}
@@ -3514,12 +3514,12 @@ again:
 				long n;
 
 				for (n = 0; n < 0x100; n++) {
-					if (!keep_stressing())
+					if (!keep_stressing(args))
 						goto finish;
 					stress_do_syscall(args, n + number);
 				}
 			}
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 finish:
 		syscall_free();
 		_exit(EXIT_SUCCESS);

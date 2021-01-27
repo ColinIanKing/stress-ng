@@ -141,7 +141,7 @@ static int stress_daemon(const stress_args_t *args)
 	}
 
 again:
-	if (!keep_stressing())
+	if (!keep_stressing(args))
 		return EXIT_SUCCESS;
 
 	pid = fork();
@@ -180,7 +180,7 @@ again:
 				break;
 			}
 			inc_counter(args);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 	}
 
 	return EXIT_SUCCESS;

@@ -69,7 +69,7 @@ static int stress_io(const stress_args_t *args)
 		(void)syncfs(bad_fd);
 #endif
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 #if defined(HAVE_SYNCFS)
 	if (fd != -1)

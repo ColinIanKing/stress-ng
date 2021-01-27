@@ -366,7 +366,7 @@ static int stress_io_uring_iovec_complete(
 	unsigned head = *cring->head;
 	int ret = EXIT_SUCCESS;
 
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		shim_mb();
 
 		/* Empty? */
@@ -492,7 +492,7 @@ static int stress_io_uring(const stress_args_t *args)
 			(void)stress_read_fdinfo(self, submit.io_uring_fd);
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)close(io_uring_file.fd);
 clean:

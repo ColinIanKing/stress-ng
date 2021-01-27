@@ -689,7 +689,7 @@ static int stress_cyclic(const stress_args_t *args)
 				goto tidy_ok;
 			(void)usleep(50000);
 			__atomic_load(&g_shared->softlockup_count, &count, __ATOMIC_RELAXED);
-		} while (keep_stressing() && count < num_instances);
+		} while (keep_stressing(args) && count < num_instances);
 #endif
 
 		/*
@@ -765,7 +765,7 @@ redo_policy:
 			/* Ensure we NEVER spin forever */
 			if ((stress_time_now() - start) > (double)timeout)
 				break;
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 tidy_ok:
 		rc = EXIT_SUCCESS;

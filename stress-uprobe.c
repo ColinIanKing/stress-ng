@@ -190,7 +190,7 @@ static int stress_uprobe(const stress_args_t *args)
 			getpid();
 		}
 
-		while (keep_stressing()) {
+		while (keep_stressing(args)) {
 			char data[4096];
 			ssize_t n;
 			char *ptr;
@@ -223,11 +223,11 @@ static int stress_uprobe(const stress_args_t *args)
 					break;
 				ptr++;
 				inc_counter(args);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					goto terminate;
 			} while (ptr < data + sizeof(data));
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 terminate:
 	(void)close(fd);

@@ -117,7 +117,7 @@ next:
 		addr >>= 1;
 		if (addr < MMAP_BOTTOM)
 			addr = MMAP_TOP;
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

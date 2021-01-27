@@ -144,7 +144,7 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 				*(ptr - 1) = 0;
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

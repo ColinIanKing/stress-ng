@@ -98,11 +98,11 @@ again:
 	/* Parent */
 	do {
 		set_counter(args, 0);
-		for (i = 0; (i < n) && keep_stressing(); i++) {
+		for (i = 0; (i < n) && keep_stressing(args); i++) {
 			add_counter(args, v_counters[i << CACHE_STRIDE_SHIFT]);
 			(void)kill(pid[i], SIGUSR1);
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 
 reap:

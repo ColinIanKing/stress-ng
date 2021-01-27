@@ -688,7 +688,7 @@ static int stress_apparmor(const stress_args_t *args)
 			ops_per_child + ((i == 0) ? ops : 0),
 			&counters[i], apparmor_funcs[i]);
 	}
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		uint64_t tmp_counter = 0;
 
 		(void)select(0, NULL, NULL, NULL, NULL);

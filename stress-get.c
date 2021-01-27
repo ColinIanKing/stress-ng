@@ -555,7 +555,7 @@ static int stress_get(const stress_args_t *args)
 
 			if (!uname_segv) {
 				ret = sigsetjmp(jmp_env, 1);
-				if (!keep_stressing())
+				if (!keep_stressing(args))
 					break;
 				if (ret != 0) {
 					uname_segv = true;
@@ -674,7 +674,7 @@ static int stress_get(const stress_args_t *args)
 #endif
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	stress_mount_free(mnts, mounts_max);
 

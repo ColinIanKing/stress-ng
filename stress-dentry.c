@@ -314,7 +314,7 @@ static int stress_dentry(const stress_args_t *args)
 			}
 			(void)close(fd);
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				goto abort;
 
 			inc_counter(args);
@@ -330,7 +330,7 @@ static int stress_dentry(const stress_args_t *args)
 			const uint64_t gray_code = (i >> 1) ^ i;
 			int rc;
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				goto abort;
 
 			stress_temp_filename_args(args,
@@ -356,7 +356,7 @@ static int stress_dentry(const stress_args_t *args)
 
 		if (!keep_stressing_flag())
 			break;
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 abort:
 	/* force unlink of all files */

@@ -201,7 +201,7 @@ static int stress_lockofd_contention(
 		lockofd_info->len = len;
 
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return 0;
 }

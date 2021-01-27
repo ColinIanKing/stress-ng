@@ -133,7 +133,7 @@ func_name(const stress_args_t *args)					\
 			(void)shim_cacheflush((char *)addr, page_sz, SHIM_ICACHE); \
 		}							\
 		inc_counter(args);					\
-	} while (keep_stressing());					\
+	} while (keep_stressing(args));					\
 									\
 	return EXIT_SUCCESS;						\
 }

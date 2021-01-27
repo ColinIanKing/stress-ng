@@ -248,7 +248,7 @@ static int stress_mknod(const stress_args_t *args)
 				break;
 			}
 
-			if (!keep_stressing())
+			if (!keep_stressing(args))
 				break;
 
 			inc_counter(args);
@@ -258,7 +258,7 @@ static int stress_mknod(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 		(void)sync();
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	if (dirfd >= 0)
 		(void)close(dirfd);

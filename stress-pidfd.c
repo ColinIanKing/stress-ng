@@ -126,7 +126,7 @@ static int stress_pidfd(const stress_args_t *args)
 {
 	const int bad_fd = stress_get_bad_fd();
 
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		pid_t pid;
 
 		pid = fork();

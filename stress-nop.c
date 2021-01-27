@@ -62,7 +62,7 @@ static int stress_nop(const stress_args_t *args)
 			NOP64
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

@@ -181,7 +181,7 @@ static int stress_rmap(const stress_args_t *args)
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		off_t offset = i * page_size;
 
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			goto cleanup;
 
 		mappings[i] =
@@ -197,7 +197,7 @@ static int stress_rmap(const stress_args_t *args)
 	 *  Spawn children workers
 	 */
 	for (i = 0; i < RMAP_CHILD_MAX; i++) {
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			goto cleanup;
 
 		pids[i] = fork();
@@ -226,7 +226,7 @@ static int stress_rmap(const stress_args_t *args)
 	/*
 	 *  Wait for SIGINT or SIGALRM
 	 */
-	while (keep_stressing()) {
+	while (keep_stressing(args)) {
 		uint64_t c = 0;
 
 		/* Twiddle fingers */

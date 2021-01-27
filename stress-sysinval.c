@@ -2214,7 +2214,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 				}
 			}
 
-			for (i = 0; keep_stressing() && (i < SIZEOF_ARRAY(stress_syscall_args)); i++) {
+			for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(stress_syscall_args)); i++) {
 				size_t idx;
 				const size_t j = reorder[i];
 
@@ -2273,7 +2273,7 @@ static int stress_sysinval_child(const stress_args_t *args, void *context)
 	do {
 		(void)stress_mwc32();
 		stress_do_syscall(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return EXIT_SUCCESS;
 }

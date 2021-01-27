@@ -152,7 +152,7 @@ static int stress_aiol_submit(
 				return ret;
 			}
 		}
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	return 0;
 }
@@ -431,7 +431,7 @@ static int stress_aiol(const stress_args_t *args)
 		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
 			break;
 		inc_counter(args);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		/*
@@ -486,7 +486,7 @@ static int stress_aiol(const stress_args_t *args)
 		}
 #endif
 		inc_counter(args);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		/*
@@ -506,7 +506,7 @@ static int stress_aiol(const stress_args_t *args)
 		if (errno == 0)
 			(void)stress_aiol_wait(args, ctx, events, aio_linux_requests);
 		inc_counter(args);
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 #if 0
 		/*
@@ -532,7 +532,7 @@ static int stress_aiol(const stress_args_t *args)
 		}
 #endif
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
 

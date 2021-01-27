@@ -908,7 +908,7 @@ static int stress_inotify(const stress_args_t *args)
 		for (i = 0; keep_stressing_flag() && inotify_stressors[i].func; i++)
 			inotify_stressors[i].func(args, pathname, bad_fd);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;

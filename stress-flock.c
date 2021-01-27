@@ -49,7 +49,7 @@ static void stress_flock_child(
 
 #if defined(LOCK_EX)
 		if (flock(fd, LOCK_EX) == 0) {
-			cont = keep_stressing();
+			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
 			(void)flock(fd, LOCK_UN);
@@ -68,7 +68,7 @@ static void stress_flock_child(
 
 #if defined(LOCK_NB)
 		if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
-			cont = keep_stressing();
+			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
 			(void)flock(fd, LOCK_UN);
@@ -88,10 +88,10 @@ static void stress_flock_child(
 #endif
 
 #if defined(LOCK_SH)
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		if (flock(fd, LOCK_SH) == 0) {
-			cont = keep_stressing();
+			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
 			(void)flock(fd, LOCK_UN);
@@ -102,10 +102,10 @@ static void stress_flock_child(
 
 #if defined(LOCK_SH) &&		\
     defined(LOCK_NB)
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		if (flock(fd, LOCK_SH | LOCK_NB) == 0) {
-			cont = keep_stressing();
+			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
 			(void)flock(fd, LOCK_UN);
@@ -116,10 +116,10 @@ static void stress_flock_child(
 
 #if defined(LOCK_MAND) &&	\
     defined(LOCK_READ)
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		if (flock(fd, LOCK_MAND | LOCK_READ) == 0) {
-			cont = keep_stressing();
+			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
 			(void)flock(fd, LOCK_UN);
@@ -130,10 +130,10 @@ static void stress_flock_child(
 
 #if defined(LOCK_MAND) &&	\
     defined(LOCK_WRITE)
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		if (flock(fd, LOCK_MAND | LOCK_WRITE) == 0) {
-			cont = keep_stressing();
+			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
 			(void)flock(fd, LOCK_UN);
@@ -144,11 +144,11 @@ static void stress_flock_child(
 
 #if defined(LOCK_EX) &&		\
     defined(LOCK_SH)
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 		/* Exercise invalid lock combination */
 		if (flock(fd, LOCK_EX | LOCK_SH) == 0) {
-			cont = keep_stressing();
+			cont = keep_stressing(args);
 			if (cont)
 				inc_counter(args);
 			(void)flock(fd, LOCK_UN);

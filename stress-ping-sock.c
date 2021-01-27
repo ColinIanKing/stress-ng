@@ -92,7 +92,7 @@ static int stress_ping_sock(const stress_args_t *args)
 		rand_port++;
 		if (rand_port > 65535)
 			rand_port = 0;
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)close(fd);
 

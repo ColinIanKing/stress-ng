@@ -455,7 +455,7 @@ static int stress_fanotify(const stress_args_t *args)
 
 			/* Force remove */
 			(void)unlink(filename);
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		_exit(EXIT_SUCCESS);
 	} else {
@@ -630,7 +630,7 @@ static int stress_fanotify(const stress_args_t *args)
 				}
 			}
 #endif
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		free(buffer);
 		fanotify_event_clear(fan_fd);

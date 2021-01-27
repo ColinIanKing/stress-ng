@@ -238,7 +238,7 @@ static int stress_sync_file(const stress_args_t *args)
 			}
 		}
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 err:
 	(void)close(fd);

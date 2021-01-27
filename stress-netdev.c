@@ -200,7 +200,7 @@ static int stress_netdev(const stress_args_t *args)
 		}
 		free(ifc.ifc_buf);
 		inc_counter(args);
-	} while (keep_stressing());
+	} while (keep_stressing(args));
 
 	(void)close(fd);
 

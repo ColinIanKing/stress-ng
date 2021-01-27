@@ -194,7 +194,7 @@ static int stress_sigfpe(const stress_args_t *args)
 		 * We return here if we get SIGFPE, so
 		 * first check if we need to terminate
 		 */
-		if (!keep_stressing())
+		if (!keep_stressing(args))
 			break;
 
 		if (ret) {

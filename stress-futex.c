@@ -77,7 +77,7 @@ again:
 						args->name, errno, strerror(errno));
 				}
 			}
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 
 		/* Kill waiter process */
 		(void)kill(pid, SIGKILL);
@@ -121,7 +121,7 @@ again:
 				}
 				inc_counter(args);
 			}
-		} while (keep_stressing());
+		} while (keep_stressing(args));
 	}
 
 	return EXIT_SUCCESS;
