@@ -103,13 +103,14 @@ static int stress_nice(const stress_args_t *args)
 
 				errno = 0;
 				ret = getpriority(prio_which[i], 0);
-				if ((errno == 0) && (!cap_sys_nice))
+				if ((errno == 0) && (!cap_sys_nice)) {
 					/*
 					 * Get priority returns a value that is in the
 					 * range 40..1 for -20..19, so negate and offset
 					 * by 20 to get back into setpriority prio level
 					 */
 					ret = setpriority(prio_which[i], 0, -ret + 20);
+				}
 
 				(void)ret;
 			}
