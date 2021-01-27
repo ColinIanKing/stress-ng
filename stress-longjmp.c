@@ -24,8 +24,6 @@
  */
 #include "stress-ng.h"
 
-#define JMP_BUF_MAGIC0	(0x
-
 typedef struct {
 	double ts;		/* timestamp */
 	uint32_t check0;	/* memory clobbering check canary */
