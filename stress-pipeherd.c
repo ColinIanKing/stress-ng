@@ -154,9 +154,10 @@ static int stress_pipeherd(const stress_args_t *args)
 	(void)close(fd[0]);
 	(void)close(fd[1]);
 
-#if defined(__linux__)
 	(void)memset(&usage, 0, sizeof(usage));
-	if (getrusage(RUSAGE_CHILDREN, &usage) == 0) {
+#if defined(RUSAGE_CHILDREN) &&	\
+    defined(RUSAGE_SELF)
+	if (shim_getrusage(RUSAGE_CHILDREN, &usage) == 0) {
 		long total = usage.ru_nvcsw + usage.ru_nivcsw;
 
 		(void)memset(&usage, 0, sizeof(usage));

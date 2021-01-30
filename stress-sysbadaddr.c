@@ -391,10 +391,13 @@ static int bad_getrlimit(void *addr)
 	return getrlimit(RLIMIT_CPU, (struct rlimit *)addr);
 }
 
+#if defined(HAVE_GETRUSAGE) &&	\
+    defined(RUSAGE_SELF)
 static int bad_getrusage(void *addr)
 {
-	return getrusage(RUSAGE_SELF, (struct rusage *)addr);
+	return shim_getrusage(RUSAGE_SELF, (struct rusage *)addr);
 }
+#endif
 
 static int bad_getsockname(void *addr)
 {
@@ -826,7 +829,10 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_getresuid,
 #endif
 	bad_getrlimit,
+#if defined(HAVE_GETRUSAGE) &&	\
+    defined(RUSAGE_SELF)
 	bad_getrusage,
+#endif
 	bad_getsockname,
 	bad_gettimeofday,
 #if defined(HAVE_GETXATTR) &&	\

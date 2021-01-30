@@ -439,8 +439,8 @@ static int stress_get(const stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(rusages); i++) {
 			struct rusage usage;
 
-			ret = getrusage(rusages[i], &usage);
-			if (verify && (ret < 0))
+			ret = shim_getrusage(rusages[i], &usage);
+			if (verify && (ret < 0) && (errno != ENOSYS))
 				pr_fail("%s: getrusage(%zu, ..) failed, errno=%d (%s)\n",
 					args->name, i, errno, strerror(errno));
 			check_do_run();
