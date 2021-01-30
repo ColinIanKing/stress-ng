@@ -2782,11 +2782,18 @@ be cycled through on randomly chosen pre-allocated pages.
 stop after N pkey_mprotect page protection cycles.
 .TP
 .B \-P N, \-\-poll N
-start N workers that perform zero timeout polling via the poll(2), select(2)
-and sleep(3) calls. This wastes system and user time doing nothing.
+start N workers that perform zero timeout polling via the poll(2), ppoll(2),
+select(2), pselect(2) and sleep(3) calls. This wastes system and user time
+doing nothing.
 .TP
 .B \-\-poll\-ops N
 stop poll stress workers after N bogo poll operations.
+.TP
+.B \-\-poll\-fds N
+specify the number of file descriptors to poll/ppoll/select/pselect on.
+The maximum number for select/pselect is limited by FD_SETSIZE and the
+upper maximum is also limited by the maximum number of pipe open descriptors
+allowed.
 .TP
 .B \-\-prctl N
 start N workers that exercise the majority of the prctl(2) system call

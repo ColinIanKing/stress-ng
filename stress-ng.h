@@ -3135,6 +3135,7 @@ typedef enum {
 	OPT_pkey_ops,
 
 	OPT_poll_ops,
+	OPT_poll_fds,
 
 	OPT_prctl,
 	OPT_prctl_ops,

@@ -620,6 +620,7 @@ static const struct option long_options[] = {
 	{ "pkey-ops",	1,	0,	OPT_pkey_ops },
 	{ "poll",	1,	0,	OPT_poll },
 	{ "poll-ops",	1,	0,	OPT_poll_ops },
+	{ "poll-fds",	1,	0,	OPT_poll_fds },
 	{ "prctl",	1,	0,	OPT_prctl },
 	{ "prctl-ops",	1,	0,	OPT_prctl_ops },
 	{ "procfs",	1,	0,	OPT_procfs },

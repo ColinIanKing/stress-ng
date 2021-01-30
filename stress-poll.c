@@ -27,13 +27,33 @@
 static const stress_help_t help[] = {
 	{ "P N", "poll N",	"start N workers exercising zero timeout polling" },
 	{ NULL,	"poll-ops N",	"stop after N poll bogo operations" },
+	{ NULL, "poll-fds N",	"use N file descriptors" },
 	{ NULL,	NULL,		NULL }
+};
+
+static int stress_set_poll_fds(const char *opt)
+{
+	size_t max_fds;
+
+        max_fds = stress_get_uint32(opt);
+        stress_check_range("poll-fds", max_fds,
+                1, 8192);
+        return stress_set_setting("poll-fds", TYPE_ID_SIZE_T, &max_fds);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_poll_fds,		stress_set_poll_fds },
+	{ 0,			NULL },
 };
 
 #if defined(HAVE_POLL_H)
 
 #define MAX_PIPES	(5)
 #define POLL_BUF	(4)
+
+typedef struct {
+	int fd[2];
+} pipe_fds_t;
 
 /*
  *  pipe_read()
@@ -78,20 +98,40 @@ static int pipe_read(const stress_args_t *args, const int fd, const int n)
  */
 static int stress_poll(const stress_args_t *args)
 {
-	int pipefds[MAX_PIPES][2];
-	int i;
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
+	size_t i, max_fds = MAX_PIPES;
+	pipe_fds_t *pipe_fds;
+	struct pollfd *poll_fds;
 
-	for (i = 0; i < MAX_PIPES; i++) {
-		if (pipe(pipefds[i]) < 0) {
+	(void)stress_get_setting("poll-fds", &max_fds);
+
+	pipe_fds = calloc((size_t)max_fds, sizeof(*pipe_fds));
+	if (!pipe_fds) {
+		pr_inf("%s: out of memory allocating %zd pipe file descriptors\n",
+			args->name, max_fds);
+		return EXIT_NO_RESOURCE;
+	}
+	poll_fds = calloc((size_t)max_fds, sizeof(*poll_fds));
+	if (!poll_fds) {
+		pr_inf("%s: out of memory allocating %zd poll file descriptors\n",
+			args->name, max_fds);
+		free(pipe_fds);
+		return EXIT_NO_RESOURCE;
+	}
+
+	for (i = 0; i < max_fds; i++) {
+		if (pipe(pipe_fds[i].fd) < 0) {
+			size_t j;
+
 			pr_fail("%s: pipe failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			while (--i >= 0) {
-				(void)close(pipefds[i][0]);
-				(void)close(pipefds[i][1]);
+
+			for (j = 0; j < i; j++) {
+				(void)close(pipe_fds[i].fd[0]);
+				(void)close(pipe_fds[i].fd[1]);
 			}
-			return EXIT_FAILURE;
+			return EXIT_NO_RESOURCE;
 		}
 	}
 
@@ -111,17 +151,17 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
-		for (i = 0; i < MAX_PIPES; i++)
-			(void)close(pipefds[i][0]);
+		for (i = 0; i < max_fds; i++)
+			(void)close(pipe_fds[i].fd[0]);
 
 		do {
 			char buf[POLL_BUF];
 			ssize_t ret;
 
 			/* Write on a randomly chosen pipe */
-			i = (stress_mwc32() >> 8) % MAX_PIPES;
+			i = (stress_mwc32() >> 8) % max_fds;
 			(void)memset(buf, '0' + i, sizeof(buf));
-			ret = write(pipefds[i][1], buf, sizeof(buf));
+			ret = write(pipe_fds[i].fd[1], buf, sizeof(buf));
 			if (ret < (ssize_t)sizeof(buf)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
@@ -131,14 +171,13 @@ again:
 			}
 		 } while (keep_stressing(args));
 abort:
-		for (i = 0; i < MAX_PIPES; i++)
-			(void)close(pipefds[i][1]);
+		for (i = 0; i < max_fds; i++)
+			(void)close(pipe_fds[i].fd[1]);
 		exit(EXIT_SUCCESS);
 	} else {
 		/* Parent read */
 
 		int maxfd = 0, status;
-		struct pollfd fds[MAX_PIPES];
 		fd_set rfds;
 #if defined(HAVE_PPOLL) ||	\
     defined(HAVE_PSELECT)
@@ -148,15 +187,10 @@ abort:
 
 		(void)setpgid(pid, g_pgrp);
 
-		FD_ZERO(&rfds);
-		for (i = 0; i < MAX_PIPES; i++) {
-			fds[i].fd = pipefds[i][0];
-			fds[i].events = POLLIN;
-			fds[i].revents = 0;
-
-			FD_SET(pipefds[i][0], &rfds);
-			if (pipefds[i][0] > maxfd)
-				maxfd = pipefds[i][0];
+		for (i = 0; i < max_fds; i++) {
+			poll_fds[i].fd = pipe_fds[i].fd[0];
+			poll_fds[i].events = POLLIN;
+			poll_fds[i].revents = 0;
 		}
 
 		do {
@@ -167,16 +201,16 @@ abort:
 				break;
 
 			/* stress out poll */
-			ret = poll(fds, MAX_PIPES, 1);
+			ret = poll(poll_fds, max_fds, 1);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
 				pr_fail("%s: poll failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
 			if (ret > 0) {
-				for (i = 0; i < MAX_PIPES; i++) {
-					if (fds[i].revents == POLLIN) {
-						if (pipe_read(args, fds[i].fd, i) < 0)
+				for (i = 0; i < max_fds; i++) {
+					if (poll_fds[i].revents == POLLIN) {
+						if (pipe_read(args, poll_fds[i].fd, i) < 0)
 							break;
 					}
 				}
@@ -195,16 +229,16 @@ abort:
 			(void)sigemptyset(&sigmask);
 			(void)sigaddset(&sigmask, SIGPIPE);
 
-			ret = ppoll(fds, MAX_PIPES, &ts, &sigmask);
+			ret = ppoll(poll_fds, max_fds, &ts, &sigmask);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
 				pr_fail("%s: ppoll failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
 			if (ret > 0) {
-				for (i = 0; i < MAX_PIPES; i++) {
-					if (fds[i].revents == POLLIN) {
-						if (pipe_read(args, fds[i].fd, i) < 0)
+				for (i = 0; i < max_fds; i++) {
+					if (poll_fds[i].revents == POLLIN) {
+						if (pipe_read(args, poll_fds[i].fd, i) < 0)
 							break;
 					}
 				}
@@ -216,7 +250,7 @@ abort:
 			/* Exercise illegal poll timeout */
 			ts.tv_sec = 0;
 			ts.tv_nsec = 1999999999;
-			ret = ppoll(fds, MAX_PIPES, &ts, &sigmask);
+			ret = ppoll(poll_fds, max_fds, &ts, &sigmask);
 			(void)ret;
 			if (!keep_stressing(args))
 				break;
@@ -230,13 +264,13 @@ abort:
 				struct rlimit old_rlim, new_rlim;
 
 				if (getrlimit(RLIMIT_NOFILE, &old_rlim) == 0) {
-					new_rlim.rlim_cur = MAX_PIPES - 1;
+					new_rlim.rlim_cur = max_fds - 1;
 					new_rlim.rlim_max = old_rlim.rlim_max;
 
 					if (setrlimit(RLIMIT_NOFILE, &new_rlim) == 0) {
 						ts.tv_sec = 0;
 						ts.tv_nsec = 0;
-						ret = ppoll(fds, MAX_PIPES, &ts, &sigmask);
+						ret = ppoll(poll_fds, max_fds, &ts, &sigmask);
 						(void)ret;
 
 						(void)setrlimit(RLIMIT_NOFILE, &old_rlim);
@@ -249,7 +283,16 @@ abort:
 
 #endif
 
+#if 1
 			/* stress out select */
+			FD_ZERO(&rfds);
+			for (i = 0; i < max_fds; i++) {
+				if (pipe_fds[i].fd[0] < FD_SETSIZE) {
+					FD_SET(pipe_fds[i].fd[0], &rfds);
+					if (pipe_fds[i].fd[0] > maxfd)
+						maxfd = pipe_fds[i].fd[0];
+				}
+			}
 			tv.tv_sec = 0;
 			tv.tv_usec = 20000;
 			ret = select(maxfd + 1, &rfds, NULL, NULL, &tv);
@@ -259,18 +302,19 @@ abort:
 					args->name, errno, strerror(errno));
 			}
 			if (ret > 0) {
-				for (i = 0; i < MAX_PIPES; i++) {
-					if (FD_ISSET(pipefds[i][0], &rfds)) {
-						if (pipe_read(args, pipefds[i][0], i) < 0)
+				for (i = 0; i < max_fds; i++) {
+					if ((pipe_fds[i].fd[0] < FD_SETSIZE) &&
+					     FD_ISSET(pipe_fds[i].fd[0], &rfds)) {
+						if (pipe_read(args, pipe_fds[i].fd[0], i) < 0)
 							break;
 					}
-					FD_SET(pipefds[i][0], &rfds);
 				}
 				inc_counter(args);
 			}
 			if (!keep_stressing(args))
 				break;
-#if defined(HAVE_PSELECT)
+#endif
+#if defined(HAVE_PSELECT) && 0
 			/* stress out pselect */
 			ts.tv_sec = 0;
 			ts.tv_nsec = 20000000;
@@ -278,6 +322,14 @@ abort:
 			(void)sigemptyset(&sigmask);
 			(void)sigaddset(&sigmask, SIGPIPE);
 
+			FD_ZERO(&rfds);
+			for (i = 0; i < max_fds; i++) {
+				if (pipe_fds[i].fd[0] < FD_SETSIZE) {
+					FD_SET(pipe_fds[i].fd[0], &rfds);
+					if (pipe_fds[i].fd[0] > maxfd)
+						maxfd = pipe_fds[i].fd[0];
+				}
+			}
 			ret = pselect(maxfd + 1, &rfds, NULL, NULL, &ts, &sigmask);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (ret < 0) && (errno != EINTR)) {
@@ -285,12 +337,12 @@ abort:
 					args->name, errno, strerror(errno));
 			}
 			if (ret > 0) {
-				for (i = 0; i < MAX_PIPES; i++) {
-					if (FD_ISSET(pipefds[i][0], &rfds)) {
-						if (pipe_read(args, pipefds[i][0], i) < 0)
+				for (i = 0; i < max_fds; i++) {
+					if ((pipe_fds[i].fd[0] < FD_SETSIZE) &&
+					    (FD_ISSET(pipe_fds[i].fd[0], &rfds))) {
+						if (pipe_read(args, pipe_fds[i].fd[0], i) < 0)
 							break;
 					}
-					FD_SET(pipefds[i][0], &rfds);
 				}
 				inc_counter(args);
 			}
@@ -307,23 +359,29 @@ abort:
 	}
 
 tidy:
-	for (i = 0; i < MAX_PIPES; i++) {
-		(void)close(pipefds[i][0]);
-		(void)close(pipefds[i][1]);
+	for (i = 0; i < max_fds; i++) {
+		(void)close(pipe_fds[i].fd[0]);
+		(void)close(pipe_fds[i].fd[1]);
 	}
+
+	free(poll_fds);
+	free(pipe_fds);
 
 	return rc;
 }
 
+
 stressor_info_t stress_poll_info = {
 	.stressor = stress_poll,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
 stressor_info_t stress_poll_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #endif
