@@ -55,6 +55,7 @@ static int stress_full(const stress_args_t *args)
 		ssize_t i;
 		off_t offset;
 		char buffer[4096];
+		char *ptr;
 
 		if ((fd = open("/dev/full", O_RDWR)) < 0) {
 			if (errno == ENOENT) {
@@ -107,6 +108,26 @@ try_read:
 				return EXIT_FAILURE;
 			}
 		}
+
+		/*
+		 *  Try mmap'ing and msync on fd
+		 */
+		ptr = (char *)mmap(NULL, args->page_size, PROT_READ,
+			MAP_ANONYMOUS | MAP_PRIVATE, fd, 0);
+		if (ptr != MAP_FAILED) {
+			stress_uint8_put(*ptr);
+#if defined(MS_SYNC)
+			(void)msync(ptr, args->page_size, MS_SYNC);
+#endif
+			(void)munmap((void *)ptr, args->page_size);
+		}
+		ptr = (char *)mmap(NULL, args->page_size, PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, fd, 0);
+		if (ptr != MAP_FAILED) {
+			*ptr = 0;
+			(void)munmap((void *)ptr, args->page_size);
+		}
+
 
 		/*
 		 *  Seeks will always succeed
