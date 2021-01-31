@@ -908,6 +908,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_TIMESTAMP	 (0x00000800000000ULL)	/* --timestamp */
 #define OPT_FLAGS_DEADLINE_GRUB  (0x00001000000000ULL)  /* --sched-reclaim */
 #define OPT_FLAGS_FTRACE	 (0x00002000000000ULL)  /* --ftrace */
+#define OPT_FLAGS_VMSTAT	 (0x00004000000000ULL)	/* --vmstat */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1095,6 +1096,29 @@ typedef struct {
 	stress_hash_t	**table;	/* hash table */
 	size_t		n;		/* number of hash items in table */
 } stress_hash_table_t;
+
+/* vmstat information */
+typedef struct {			/* vmstat column */
+	uint64_t	procs_running;	/* r */
+	uint64_t	procs_blocked;	/* b */
+	uint64_t	swap_total;	/* swpd info, total */
+	uint64_t	swap_free;	/* swpd info, free */
+	uint64_t	swap_used;	/* swpd used = total - free */
+	uint64_t	memory_free;	/* free */
+	uint64_t	memory_buff;	/* buff */
+	uint64_t	memory_cache;	/* cache */
+	uint64_t	swap_in;	/* si */
+	uint64_t	swap_out;	/* so */
+	uint64_t	block_in;	/* bi */
+	uint64_t	block_out;	/* bo */
+	uint64_t	interrupt;	/* in */
+	uint64_t	context_switch;	/* cs */
+	uint64_t	user_time;	/* us */
+	uint64_t	system_time;	/* sy */
+	uint64_t	idle_time;	/* id */
+	uint64_t	wait_time;	/* wa */
+	uint64_t	stolen_time;	/* st */
+} stress_vmstat_t;
 
 /* gcc 4.7 and later support vector ops */
 #if defined(__GNUC__) && NEED_GNUC(4,7,0)
@@ -3529,6 +3553,8 @@ typedef enum {
 	OPT_vm_splice_ops,
 	OPT_vm_splice_bytes,
 
+	OPT_vmstat,
+
 	OPT_wait,
 	OPT_wait_ops,
 
@@ -3916,6 +3942,8 @@ extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
 extern WARN_UNUSED size_t stress_get_file_limit(void);
 extern WARN_UNUSED size_t stress_get_max_file_limit(void);
 extern WARN_UNUSED int stress_get_bad_fd(void);
+extern void stress_vmstat_start(void);
+extern void stress_vmstat_stop(void);
 extern WARN_UNUSED int stress_sigaltstack(const void *stack, const size_t size);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
 	void (*handler)(int), struct sigaction *orig_action);

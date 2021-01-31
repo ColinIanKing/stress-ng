@@ -343,6 +343,7 @@ CORE_SRC = \
 	core-thrash.c \
 	core-ftrace.c \
 	core-try-open.c \
+	core-vmstat.c \
 	stress-ng.c
 
 SRC = $(CORE_SRC) $(STRESS_SRC)

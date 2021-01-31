@@ -394,6 +394,12 @@ report to stderr any unexpected failures.
 show version of stress-ng, version of toolchain used to build stress-ng
 and system information.
 .TP
+.B \-\-vmstat
+show statistics about processes, memory, paging, block I/O, interrupts,
+context switches, disks and cpu activity. The output is similar that
+to the output from the vmstat(8) utility. Currently a Linux only
+option.
+.TP
 .B \-x, \-\-exclude list
 specify a list of one or more stressors to exclude (that is, do not run them).
 This is useful to exclude specific stressors when one selects many stressors

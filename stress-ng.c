@@ -83,6 +83,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_timestamp,	OPT_FLAGS_TIMESTAMP },
 	{ OPT_thermal_zones,	OPT_FLAGS_THERMAL_ZONES },
 	{ OPT_verbose,		PR_ALL },
+	{ OPT_vmstat,		OPT_FLAGS_VMSTAT },
 	{ OPT_verify,		OPT_FLAGS_VERIFY | PR_FAIL },
 };
 
@@ -918,6 +919,7 @@ static const struct option long_options[] = {
 	{ "vm-splice",	1,	0,	OPT_vm_splice },
 	{ "vm-splice-bytes",1,	0,	OPT_vm_splice_bytes },
 	{ "vm-splice-ops",1,	0,	OPT_vm_splice_ops },
+	{ "vmstat",	0,	0,	OPT_vmstat },
 	{ "wait",	1,	0,	OPT_wait },
 	{ "wait-ops",	1,	0,	OPT_wait_ops },
 	{ "watchdog",	1,	0,	OPT_watchdog },
@@ -3244,6 +3246,9 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_THRASH)
 		stress_thrash_start();
 
+	if (g_opt_flags & OPT_FLAGS_VMSTAT)
+		stress_vmstat_start();
+
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_run_sequential(&duration,
 			&success, &resource_success, &metrics_success);
@@ -3303,6 +3308,7 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_TIMES)
 		times_dump(yaml, ticks_per_sec, duration);
 
+	(void)stress_vmstat_stop();
 	(void)stress_ftrace_stop();
 	(void)stress_ftrace_free();
 
