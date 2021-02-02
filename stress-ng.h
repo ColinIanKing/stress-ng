@@ -3984,6 +3984,8 @@ extern WARN_UNUSED stress_hash_t *stress_hash_get(
 extern void stress_hash_delete(stress_hash_table_t *hash_table);
 extern WARN_UNUSED int stress_try_open(const stress_args_t *args,
 	const char *path, const int flags, const unsigned long timeout_ns);
+extern WARN_UNUSED int stress_open_timeout(const char *name,
+        const char *path, const int flags, const unsigned long timeout_ns);
 extern WARN_UNUSED uint32_t stress_hash_jenkin(const uint8_t *data,
 	const size_t len);
 extern WARN_UNUSED uint32_t stress_hash_pjw(const char *str);

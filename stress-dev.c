@@ -2648,11 +2648,16 @@ static inline void stress_dev_rw(
 		if (!*path || !keep_stressing_flag())
 			break;
 
+		if (stress_hash_get(dev_open_fail, path))
+			goto next;
+
 		t_start = stress_time_now();
 
-		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0) {
-			if (errno == EINTR)
+		if ((fd = stress_open_timeout(args->name, path, O_RDONLY | O_NONBLOCK | O_NDELAY , 250000000)) < 0) {
+			if (errno == EINTR) {
+				stress_hash_add(dev_open_fail, path);
 				goto next;
+			}
 			goto rdwr;
 		}
 
@@ -2779,9 +2784,11 @@ static inline void stress_dev_rw(
 			goto next;
 		}
 
-		if ((fd = open(path, O_RDONLY | O_NONBLOCK)) < 0) {
-			if (errno == EINTR)
+		if ((fd = stress_open_timeout(args->name, path, O_RDONLY | O_NONBLOCK | O_NDELAY, 250000000)) < 0) {
+			if (errno == EINTR) {
+				stress_hash_add(dev_open_fail, path);
 				goto next;
+			}
 			goto rdwr;
 		}
 		ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
@@ -2808,9 +2815,13 @@ rdwr:
 		 *   O_RDONLY | O_WRONLY allows one to
 		 *   use the fd for ioctl() only operations
 		 */
-		fd = open(path, O_RDONLY | O_WRONLY | O_NONBLOCK);
-		if (fd >= 0)
+		fd = stress_open_timeout(args->name, path, O_RDONLY | O_WRONLY | O_NONBLOCK | O_NDELAY, 250000000);
+		if (fd < 0) {
+			if (errno == EINTR)
+				stress_hash_add(dev_open_fail, path);
+		} else {
 			(void)close(fd);
+		}
 
 next:
 		if (loops > 0) {
@@ -2961,7 +2972,7 @@ static void stress_dev_dir(
 				/* Limit the number of locked up try failures */
 				if (try_failed > STRESS_DEV_OPEN_TRIES_MAX)
 					continue;
-				ret = stress_try_open(args, tmp, O_RDONLY | O_NONBLOCK, 1500000000);
+				ret = stress_try_open(args, tmp, O_RDONLY | O_NONBLOCK | O_NDELAY, 1500000000);
 				if (ret == STRESS_TRY_OPEN_FAIL) {
 					stress_hash_add(dev_open_fail, tmp);
 					try_failed++;
@@ -3037,14 +3048,14 @@ again:
 
 			(void)setpgid(pid, g_pgrp);
 			/* Parent, wait for child */
-			wret = shim_waitpid(pid, &status, 0);
+			wret = waitpid(pid, &status, 0);
 			if (wret < 0) {
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				(void)kill(pid, SIGTERM);
 				(void)kill(pid, SIGKILL);
-				(void)shim_waitpid(pid, &status, 0);
+				(void)waitpid(pid, &status, 0);
 			} else {
 				if (WIFEXITED(status) &&
 				    WEXITSTATUS(status) != 0) {

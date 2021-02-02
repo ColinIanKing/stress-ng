@@ -76,7 +76,7 @@ static int stress_try_open_wait(const char *path, const int flags)
 }
 
 /*
- *  Try to open a fil, return 0 if can open it, non-zero
+ *  Try to open a file, return 0 if can open it, non-zero
  *  if it cannot be opened within timeout nanoseconds.
  */
 int stress_try_open(
@@ -164,5 +164,71 @@ int stress_try_open(
 	(void)timeout_ns;
 
 	return 0;
+}
+#endif
+
+#if defined(HAVE_LIB_RT) &&             \
+    defined(HAVE_TIMER_CREATE) &&       \
+    defined(HAVE_TIMER_DELETE) &&       \
+    defined(HAVE_TIMER_GETOVERRUN) &&   \
+    defined(HAVE_TIMER_SETTIME)
+/*
+ *  Try to open a file, return 0 if can open it, non-zero
+ *  if it cannot be opened within timeout nanoseconds.
+ */
+int stress_open_timeout(
+	const char *name,
+	const char *path,
+	const int flags,
+	const unsigned long timeout_ns)
+{
+	int ret, t_ret, tmp;
+	struct sigevent sev;
+	timer_t timerid;
+	struct itimerspec timer;
+
+	/*
+	 *  If a handler can't be installed then
+	 *  we can't test, so just return 0 and try
+	 *  it anyhow.
+	 */
+	ret = stress_sighandler(name, SIGRTMIN, stress_timer_handler, NULL);
+	if (ret < 0)
+		return open(path, flags);
+
+	/*
+	 *  Enable a timer to interrupt log open waits
+	 */
+	sev.sigev_notify = SIGEV_SIGNAL;
+	sev.sigev_signo = SIGRTMIN;
+	sev.sigev_value.sival_ptr = &timerid;
+
+	t_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
+	if (!t_ret) {
+		timer.it_value.tv_sec = timeout_ns / STRESS_NANOSECOND;
+		timer.it_value.tv_nsec = timeout_ns % STRESS_NANOSECOND;
+		timer.it_interval.tv_sec = timer.it_value.tv_sec;
+		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
+		t_ret = timer_settime(timerid, 0, &timer, NULL);
+	}
+	ret = open(path, flags);
+	tmp = errno;
+	if (!t_ret)
+		(void)timer_delete(timerid);
+
+	errno = tmp;
+	return ret;
+}
+#else
+int stress_open_timeout(
+	const char *name,
+	const char *path,
+	const int flags,
+	const unsigned long timeout_ns)
+{
+	(void)name;
+	(void)timeout_ns;
+
+	ret = open(path, flags);
 }
 #endif
