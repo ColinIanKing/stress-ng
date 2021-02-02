@@ -855,6 +855,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define STRESS_TRY_OPEN_WAIT_FAIL (2)		/* Wait on child open failed */
 #define STRESS_TRY_OPEN_EXIT_FAIL (3)		/* Can't get _exit() status */
 #define STRESS_TRY_OPEN_FAIL	  (4)		/* Can't open file */
+#define STRESS_TRY_AGAIN	  (5)		/* Device busy, try again */
 
 #define STRESS_FD_MAX		(65536)		/* Max fds if we can't figure it out */
 #define STRESS_PROCS_MAX	(8192)		/* Max number of processes per stressor */

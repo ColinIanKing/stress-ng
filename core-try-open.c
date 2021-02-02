@@ -24,55 +24,26 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_LIB_RT) &&             \
-    defined(HAVE_TIMER_CREATE) &&       \
-    defined(HAVE_TIMER_DELETE) &&       \
-    defined(HAVE_TIMER_GETOVERRUN) &&   \
-    defined(HAVE_TIMER_SETTIME)
-
-static void MLOCKED_TEXT stress_timer_handler(int sig)
+static void stress_try_kill(
+	const stress_args_t *args,
+	const pid_t pid,
+	const char *path)
 {
-	(void)sig;
-}
+	int i;
 
-/*
- *  stress_try_open_wait()
- *	try to do open, use wait() as we only have one
- *	child to wait for and waitpid() is hence not necessary
- */
-static int stress_try_open_wait(const char *path, const int flags)
-{
-	pid_t pid;
-	int status;
-
-	pid = fork();
-	if (pid < 0)
-		return STRESS_TRY_OPEN_FORK_FAIL;
-	if (pid == 0) {
-		int fd;
-
-		fd = open(path, flags);
-		if (fd < 0)
-			_exit(STRESS_TRY_OPEN_FAIL);
-
-		/* Don't close, it gets reaped on _exit */
-		_exit(STRESS_TRY_OPEN_OK);
-	}
-	if (wait(&status) < 0) {
-		int ret;
+	for (i = 0; i < 10; i++) {
+		int ret, status;
 
 		ret = kill(pid, SIGKILL);
 		(void)ret;
-		ret = wait(&status);
+		ret = waitpid(pid, &status, WNOHANG);
 		(void)ret;
-
-		return STRESS_TRY_OPEN_WAIT_FAIL;
+		if ((kill(pid, 0) < 0) && (errno == ESRCH))
+			return;
+		shim_usleep(100000);
 	}
-
-	if ((WIFEXITED(status)) && (WEXITSTATUS(status) != 0))
-		return WEXITSTATUS(status);
-
-	return STRESS_TRY_OPEN_EXIT_FAIL;
+	pr_dbg("%s: can't kill pid %d opening %s\n",
+		args->name, pid, path);
 }
 
 /*
@@ -86,92 +57,82 @@ int stress_try_open(
 	const unsigned long timeout_ns)
 {
 	pid_t pid;
-	int ret, t_ret, status;
+	int ret, status;
 	struct stat statbuf;
-	struct sigevent sev;
-	timer_t timerid;
-	struct itimerspec timer;
+	const int retries = 20;
+	unsigned long sleep_ns = timeout_ns / retries;
+	int i;
+
+	(void)args;
 
 	/* Don't try to open if file can't be stat'd */
 	if (stat(path, &statbuf) < 0)
 		return -1;
 
-	/*
-	 *  If a handler can't be installed then
-	 *  we can't test, so just return 0 and try
-	 *  it anyhow.
-	 */
-	ret = stress_sighandler(args->name, SIGRTMIN, stress_timer_handler, NULL);
-	if (ret < 0)
-		return 0;
-
 	pid = fork();
 	if (pid < 0)
 		return STRESS_TRY_OPEN_FORK_FAIL;
 	if (pid == 0) {
-		ret = stress_try_open_wait(path, flags);
-		_exit(ret);
+		int fd;
+
+		alarm(1);
+		fd = open(path, flags);
+		if (fd < 0) {
+			/* blocked or out of memory, don't give up */
+			if ((errno == EBUSY) ||
+			    (errno == ENOMEM))
+				_exit(STRESS_TRY_AGAIN);
+			_exit(STRESS_TRY_OPEN_FAIL);
+		}
+		_exit(STRESS_TRY_OPEN_OK);
 	}
 
-	/*
-	 *  Enable a timer to interrupt log open waits
-	 */
-	sev.sigev_notify = SIGEV_SIGNAL;
-	sev.sigev_signo = SIGRTMIN;
-	sev.sigev_value.sival_ptr = &timerid;
-
-	t_ret = timer_create(CLOCK_REALTIME, &sev, &timerid);
-	if (!t_ret) {
-		timer.it_value.tv_sec = timeout_ns / STRESS_NANOSECOND;
-		timer.it_value.tv_nsec = timeout_ns % STRESS_NANOSECOND;
-		timer.it_interval.tv_sec = timer.it_value.tv_sec;
-		timer.it_interval.tv_nsec = timer.it_value.tv_nsec;
-		t_ret = timer_settime(timerid, 0, &timer, NULL);
-	}
-	ret = waitpid(pid, &status, 0);
-	if (ret < 0) {
+	for (i = 0; i < retries; i++) {
 		/*
-		 * EINTR or something else, treat as failed anyhow
-		 * and forcibly kill child and re-wait. The grandchild
-		 * may be zombified by will get reaped by init
+		 *  Child may block on open forever if the driver
+		 *  is broken, so use WNOHANG wait to poll rather
+		 *  than wait forever on a locked up process
 		 */
-		ret = kill(pid, SIGKILL);
-		(void)ret;
-		ret = waitpid(pid, &status, 0);
-		(void)ret;
+		ret = waitpid(pid, &status, WNOHANG);
+		if (ret < 0) {
+			/*
+			 * EINTR or something else, treat as failed anyhow
+			 * and forcibly kill child and re-wait. The child
+			 * may be zombified by will get reaped by init
+			 */
+			stress_try_kill(args, pid, path);
 
-		return STRESS_TRY_OPEN_WAIT_FAIL;
+			return STRESS_TRY_OPEN_WAIT_FAIL;
+		}
+		/* Has pid gone? */
+		if ((kill(pid, 0) < 0) && (errno == ESRCH))
+			goto done;
+
+		/* Sleep and retry */
+		shim_nanosleep_uint64(sleep_ns);
 	}
-	if (!t_ret)
-		(void)timer_delete(timerid);
 
+	/* Give up, force kill */
+	stress_try_kill(args, pid, path);
+done:
 	/* Seems like we can open the device successfully */
-	if ((WIFEXITED(status)) && (WEXITSTATUS(status) != 0))
+	if (WIFEXITED(status))
 		return WEXITSTATUS(status);
 
 	return STRESS_TRY_OPEN_EXIT_FAIL;
 }
-#else
-int stress_try_open(
-	const stress_args_t *args,
-	const char *path,
-	const int flags,
-	const unsigned long timeout_ns)
-{
-	(void)args;
-	(void)path;
-	(void)flags;
-	(void)timeout_ns;
-
-	return 0;
-}
-#endif
 
 #if defined(HAVE_LIB_RT) &&             \
     defined(HAVE_TIMER_CREATE) &&       \
     defined(HAVE_TIMER_DELETE) &&       \
     defined(HAVE_TIMER_GETOVERRUN) &&   \
     defined(HAVE_TIMER_SETTIME)
+
+static void MLOCKED_TEXT stress_timer_handler(int sig)
+{
+	(void)sig;
+}
+
 /*
  *  Try to open a file, return 0 if can open it, non-zero
  *  if it cannot be opened within timeout nanoseconds.

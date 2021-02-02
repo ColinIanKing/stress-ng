@@ -2996,6 +2996,8 @@ static void stress_dev_dir(
 					try_failed++;
 					continue;
 				}
+				if (ret == STRESS_TRY_AGAIN)
+					continue;
 			}
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
@@ -3072,9 +3074,9 @@ again:
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-				(void)kill(pid, SIGTERM);
-				(void)kill(pid, SIGKILL);
-				(void)waitpid(pid, &status, 0);
+				/* Ring ring, time to die */
+				(void)kill(pid, SIGALRM);
+				wret = shim_waitpid(pid, &status, 0);
 			} else {
 				if (WIFEXITED(status) &&
 				    WEXITSTATUS(status) != 0) {
