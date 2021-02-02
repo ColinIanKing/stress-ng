@@ -2626,14 +2626,14 @@ static inline void stress_dev_rw(
 	struct stat buf;
 	struct pollfd fds[1];
 	fd_set rfds;
-	void *ptr;
-	size_t i;
 	char path[PATH_MAX];
 	const double threshold = 0.25;
 
 	while (loops == -1 || loops > 0) {
 		double t_start;
 		bool timeout = false;
+		char *ptr;
+		size_t i;
 #if defined(HAVE_TERMIOS_H) &&	\
     defined(TCGETS) && \
     defined(HAVE_TERMIOS)
@@ -2650,6 +2650,20 @@ static inline void stress_dev_rw(
 
 		if (stress_hash_get(dev_open_fail, path))
 			goto next;
+
+		/*
+		 *  Set process name to enable debugging if it gets stuck
+		 */
+		if (!(g_opt_flags & OPT_FLAGS_KEEP_NAME)) {
+			char procname[55];
+
+			(void)snprintf(procname, sizeof(procname), "stress-ng-dev:%-40.40s", path);
+#if defined(HAVE_BSD_UNISTD_H) &&       \
+    defined(HAVE_SETPROCTITLE)
+			/* Sets argv[0] */
+			setproctitle("-%s", procname);
+#endif
+		}
 
 		t_start = stress_time_now();
 
