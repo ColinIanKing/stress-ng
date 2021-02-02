@@ -2613,6 +2613,23 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/snd/control",	stress_dev_snd_control_linux),
 };
 
+static void stress_dev_procname(const char *path)
+{
+	/*
+	 *  Set process name to enable debugging if it gets stuck
+	 */
+	if (!(g_opt_flags & OPT_FLAGS_KEEP_NAME)) {
+		char procname[55];
+
+		(void)snprintf(procname, sizeof(procname), "stress-ng-dev:%-40.40s", path);
+#if defined(HAVE_BSD_UNISTD_H) &&       \
+    defined(HAVE_SETPROCTITLE)
+		/* Sets argv[0] */
+		setproctitle("-%s", procname);
+#endif
+	}
+}
+
 /*
  *  stress_dev_rw()
  *	exercise a dev entry
@@ -2650,20 +2667,6 @@ static inline void stress_dev_rw(
 
 		if (stress_hash_get(dev_open_fail, path))
 			goto next;
-
-		/*
-		 *  Set process name to enable debugging if it gets stuck
-		 */
-		if (!(g_opt_flags & OPT_FLAGS_KEEP_NAME)) {
-			char procname[55];
-
-			(void)snprintf(procname, sizeof(procname), "stress-ng-dev:%-40.40s", path);
-#if defined(HAVE_BSD_UNISTD_H) &&       \
-    defined(HAVE_SETPROCTITLE)
-			/* Sets argv[0] */
-			setproctitle("-%s", procname);
-#endif
-		}
 
 		t_start = stress_time_now();
 
@@ -2986,6 +2989,7 @@ static void stress_dev_dir(
 				/* Limit the number of locked up try failures */
 				if (try_failed > STRESS_DEV_OPEN_TRIES_MAX)
 					continue;
+				stress_dev_procname(tmp);
 				ret = stress_try_open(args, tmp, O_RDONLY | O_NONBLOCK | O_NDELAY, 1500000000);
 				if (ret == STRESS_TRY_OPEN_FAIL) {
 					stress_hash_add(dev_open_fail, tmp);
@@ -2998,6 +3002,7 @@ static void stress_dev_dir(
 				(void)shim_strlcpy(filename, tmp, sizeof(filename));
 				dev_path = filename;
 				(void)shim_pthread_spin_unlock(&lock);
+				stress_dev_procname(filename);
 				stress_dev_rw(args, loops);
 				inc_counter(args);
 			}
