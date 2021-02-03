@@ -2630,6 +2630,83 @@ static void stress_dev_procname(const char *path)
 	}
 }
 
+static inline int stress_dev_lock(const char *path, const int fd)
+{
+	int ret;
+
+	errno = 0;
+#if defined(TIOCEXCL) && defined(TIOCNXCL)
+	if (strncmp(path, "/dev/tty", 8))
+		return 0;
+
+	ret = ioctl(fd, TIOCEXCL);
+	if (ret < 0)
+		return ret;
+
+#if defined(LOCK_EX) && defined(LOCK_NB) && defined(LOCK_UN)
+	ret = flock(fd, LOCK_EX | LOCK_NB);
+	if (ret < 0) {
+		ret = ioctl(fd, TIOCNXCL);
+		(void)ret;
+		return -1;
+	}
+#endif
+	return ret;
+#else
+	(void)path;
+	(void)fd;
+
+	return 0;
+#endif
+}
+
+static inline void stress_dev_unlock(const char *path, const int fd)
+{
+#if defined(TIOCEXCL) && defined(TIOCNXCL)
+	int ret;
+
+	if (strncmp(path, "/dev/tty", 8))
+		return;
+
+#if defined(LOCK_EX) && defined(LOCK_NB) && defined(LOCK_UN)
+	ret = flock(fd, LOCK_UN);
+	(void)ret;
+#endif
+	ret = ioctl(fd, TIOCNXCL);
+	(void)ret;
+#else
+	(void)path;
+	(void)fd;
+#endif
+}
+
+static int stress_dev_open_lock(
+	const stress_args_t *args,
+	const char *path,
+	const int mode)
+{
+	int fd, ret;
+
+	fd = stress_open_timeout(args->name, path, mode, 250000000);
+	if (fd < 0) {
+		if (errno == EBUSY)
+			stress_hash_add(dev_open_fail, path);
+		return -1;
+	}
+	ret = stress_dev_lock(path, fd);
+	if (ret < 0) {
+		(void)close(fd);
+		return -1;
+	}
+	return fd;
+}
+
+static int stress_dev_close_unlock(const char *path, const int fd)
+{
+	stress_dev_unlock(path, fd);
+	return close(fd);
+}
+
 /*
  *  stress_dev_rw()
  *	exercise a dev entry
@@ -2670,17 +2747,13 @@ static inline void stress_dev_rw(
 
 		t_start = stress_time_now();
 
-		if ((fd = stress_open_timeout(args->name, path, O_RDONLY | O_NONBLOCK | O_NDELAY , 250000000)) < 0) {
-			if (errno == EINTR) {
-				stress_hash_add(dev_open_fail, path);
-				goto next;
-			}
-			goto rdwr;
-		}
+		fd = stress_dev_open_lock(args, path, O_RDONLY | O_NONBLOCK | O_NDELAY);
+		if (fd < 0)
+			goto next;
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
-			(void)close(fd);
+			stress_dev_close_unlock(path, fd);
 			goto next;
 		}
 
@@ -2689,7 +2762,7 @@ static inline void stress_dev_rw(
 				args->name, errno, strerror(errno));
 		} else {
 			if ((S_ISBLK(buf.st_mode) | (S_ISCHR(buf.st_mode))) == 0) {
-				(void)close(fd);
+				stress_dev_close_unlock(path, fd);
 				goto next;
 			}
 		}
@@ -2720,7 +2793,7 @@ static inline void stress_dev_rw(
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
-			(void)close(fd);
+			stress_dev_close_unlock(path, fd);
 			goto next;
 		}
 
@@ -2732,7 +2805,7 @@ static inline void stress_dev_rw(
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
-			(void)close(fd);
+			stress_dev_close_unlock(path, fd);
 			goto next;
 		}
 
@@ -2752,7 +2825,7 @@ static inline void stress_dev_rw(
 
 			if (stress_time_now() - t_start > threshold) {
 				timeout = true;
-				(void)close(fd);
+				stress_dev_close_unlock(path, fd);
 				goto next;
 			}
 		}
@@ -2764,7 +2837,7 @@ static inline void stress_dev_rw(
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
-			(void)close(fd);
+			stress_dev_close_unlock(path, fd);
 			goto next;
 		}
 #endif
@@ -2774,7 +2847,7 @@ static inline void stress_dev_rw(
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
-			(void)close(fd);
+			stress_dev_close_unlock(path, fd);
 			goto next;
 		}
 #endif
@@ -2784,7 +2857,7 @@ static inline void stress_dev_rw(
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
-			(void)close(fd);
+			stress_dev_close_unlock(path, fd);
 			goto next;
 		}
 #endif
@@ -2794,20 +2867,17 @@ static inline void stress_dev_rw(
 		ptr = mmap(NULL, args->page_size, PROT_READ, MAP_SHARED, fd, 0);
 		if (ptr != MAP_FAILED)
 			(void)munmap(ptr, args->page_size);
-		(void)close(fd);
+		(void)stress_dev_close_unlock(path, fd);
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			goto next;
 		}
 
-		if ((fd = stress_open_timeout(args->name, path, O_RDONLY | O_NONBLOCK | O_NDELAY, 250000000)) < 0) {
-			if (errno == EINTR) {
-				stress_hash_add(dev_open_fail, path);
-				goto next;
-			}
-			goto rdwr;
-		}
+		fd = stress_dev_open_lock(args, path, O_RDONLY | O_NONBLOCK | O_NDELAY);
+		if (fd < 0)
+			goto next;
+
 		ptr = mmap(NULL, args->page_size, PROT_WRITE, MAP_PRIVATE, fd, 0);
 		if (ptr != MAP_FAILED)
 			(void)munmap(ptr, args->page_size);
@@ -2822,22 +2892,21 @@ static inline void stress_dev_rw(
 			if (!strncmp(path, dev_funcs[i].devpath, dev_funcs[i].devpath_len))
 				dev_funcs[i].func(args->name, fd, path);
 		}
-		(void)close(fd);
+		stress_dev_close_unlock(path, fd);
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
 			goto next;
 		}
-rdwr:
 		/*
 		 *   O_RDONLY | O_WRONLY allows one to
 		 *   use the fd for ioctl() only operations
 		 */
-		fd = stress_open_timeout(args->name, path, O_RDONLY | O_WRONLY | O_NONBLOCK | O_NDELAY, 250000000);
+		fd = stress_dev_open_lock(args, path, O_RDONLY | O_WRONLY);
 		if (fd < 0) {
 			if (errno == EINTR)
 				stress_hash_add(dev_open_fail, path);
 		} else {
-			(void)close(fd);
+			stress_dev_close_unlock(path, fd);
 		}
 
 next:
