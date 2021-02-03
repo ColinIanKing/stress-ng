@@ -3007,6 +3007,8 @@ static void stress_dev_dir(
 	 	 */
 		if (!strcmp(d->d_name, "hpet") && linux_xen_guest())
 			continue;
+		if (!strncmp(d->d_name, "ttyS", 4))
+			continue;
 		len = strlen(d->d_name);
 
 		/*
