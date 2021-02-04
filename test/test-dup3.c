@@ -48,8 +48,10 @@ int main(void)
 	if (fd3 < 0)
 		goto err2;
 	fd2 = fd3;
+	(void)close(fd3);
 
 	ret = 0;
+	goto err1:
 err2:
 	(void)close(fd2);
 err1:

@@ -72,7 +72,8 @@ int main(int argc, char **argv)
 	(void)ret;
 	ret = msgctl(msgq_id, IPC_STAT, &buf);
 	(void)ret;
-	ret = msgctl(msgq_id, IPC_RMID, NULL);
+	/* pass &buf to stop coverity complaining */
+	ret = msgctl(msgq_id, IPC_RMID, &buf);
 	(void)ret;
 #if defined(__linux__)
 	ret = msgctl(msgq_id, IPC_INFO, (struct msqid_ds *)&info);
