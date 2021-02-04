@@ -46,12 +46,16 @@ enum {
 	SHIM_KCMP_TYPES,
 };
 
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    NEED_GLIBC(2,3,2)
+
 /* Slot for KCMP_EPOLL_TFD */
 struct shim_kcmp_epoll_slot {
 	uint32_t efd;
 	uint32_t tfd;
 	uint32_t toff;
 };
+#endif
 
 #define KCMP(pid1, pid2, type, idx1, idx2)				\
 {									\
@@ -104,7 +108,8 @@ static int stress_kcmp(const stress_args_t *args)
 	pid_t pid1;
 	int fd1;
 
-#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    NEED_GLIBC(2,3,2)
 	int efd, sfd;
 	int so_reuseaddr = 1;
 	struct epoll_event ev;
@@ -125,7 +130,8 @@ static int stress_kcmp(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    NEED_GLIBC(2,3,2)
 	efd = -1;
 	if ((sfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 		sfd = -1;
@@ -180,7 +186,8 @@ again:
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd1);
-#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    NEED_GLIBC(2,3,2)
 		if (sfd != -1)
 			(void)close(sfd);
 #endif
@@ -196,7 +203,8 @@ again:
 
 		/* will never get here */
 		(void)close(fd1);
-#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    NEED_GLIBC(2,3,2)
 		if (efd != -1)
 			(void)close(efd);
 		if (sfd != -1)
@@ -246,7 +254,8 @@ again:
 			KCMP(pid1, pid1, SHIM_KCMP_VM, 0, 0);
 			KCMP(pid2, pid2, SHIM_KCMP_VM, 0, 0);
 
-#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    NEED_GLIBC(2,3,2)
 			if (efd != -1) {
 				struct shim_kcmp_epoll_slot slot;
 
@@ -269,7 +278,8 @@ again:
 				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_SYSVSEM, 0, 0, 0);
 				KCMP_VERIFY(pid1, pid1, SHIM_KCMP_VM, 0, 0, 0);
 				KCMP_VERIFY(pid1, pid2, SHIM_KCMP_SYSVSEM, 0, 0, 0);
-#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    NEED_GLIBC(2,3,2)
 				if (efd != -1) {
 					struct shim_kcmp_epoll_slot slot;
 
@@ -298,7 +308,8 @@ reap:
 		(void)shim_waitpid(pid1, &status, 0);
 		(void)close(fd1);
 	}
-#if defined(HAVE_SYS_EPOLL_H) && NEED_GLIBC(2,3,2)
+#if defined(HAVE_SYS_EPOLL_H) &&	\
+    NEED_GLIBC(2,3,2)
 	if (efd != -1)
 		(void)close(efd);
 	if (sfd != -1)
