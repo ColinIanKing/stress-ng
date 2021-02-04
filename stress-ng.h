@@ -910,6 +910,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_DEADLINE_GRUB  (0x00001000000000ULL)  /* --sched-reclaim */
 #define OPT_FLAGS_FTRACE	 (0x00002000000000ULL)  /* --ftrace */
 #define OPT_FLAGS_VMSTAT	 (0x00004000000000ULL)	/* --vmstat */
+#define OPT_FLAGS_THERMALSTAT	 (0x00008000000000ULL)	/* --thermalstat */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -3442,6 +3443,7 @@ typedef enum {
 
 	OPT_temp_path,
 
+	OPT_thermalstat,
 	OPT_thermal_zones,
 
 	OPT_thrash,

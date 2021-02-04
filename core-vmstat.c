@@ -26,8 +26,6 @@
 
 #if defined(__linux__)
 
-static stress_vmstat_t vmstat_prev;
-static uint64_t vmstat_count;
 static pid_t vmstat_pid;
 
 /*
@@ -233,35 +231,88 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
  */
 static void stress_get_vmstat(stress_vmstat_t *vmstat)
 {
+	static stress_vmstat_t vmstat_prev;
 	stress_vmstat_t vmstat_current;
 
 	stress_read_vmstat(&vmstat_current);
-
-	if (vmstat_count == 0) {
-		(void)memset(vmstat, 0, sizeof(*vmstat));
-	} else {
-		STRESS_VMSTAT_COPY(procs_running);
-		STRESS_VMSTAT_COPY(procs_blocked);
-		STRESS_VMSTAT_COPY(swap_total);
-		STRESS_VMSTAT_COPY(swap_used);
-		STRESS_VMSTAT_COPY(memory_free);
-		STRESS_VMSTAT_COPY(memory_buff);
-		STRESS_VMSTAT_COPY(memory_cache);
-		STRESS_VMSTAT_DELTA(swap_in);
-		STRESS_VMSTAT_DELTA(swap_out);
-		STRESS_VMSTAT_DELTA(block_in);
-		STRESS_VMSTAT_DELTA(block_out);
-		STRESS_VMSTAT_DELTA(interrupt);
-		STRESS_VMSTAT_DELTA(context_switch);
-		STRESS_VMSTAT_DELTA(user_time);
-		STRESS_VMSTAT_DELTA(system_time);
-		STRESS_VMSTAT_DELTA(idle_time);
-		STRESS_VMSTAT_DELTA(wait_time);
-		STRESS_VMSTAT_DELTA(stolen_time);
-	}
-	vmstat_count++;
-
+	STRESS_VMSTAT_COPY(procs_running);
+	STRESS_VMSTAT_COPY(procs_blocked);
+	STRESS_VMSTAT_COPY(swap_total);
+	STRESS_VMSTAT_COPY(swap_used);
+	STRESS_VMSTAT_COPY(memory_free);
+	STRESS_VMSTAT_COPY(memory_buff);
+	STRESS_VMSTAT_COPY(memory_cache);
+	STRESS_VMSTAT_DELTA(swap_in);
+	STRESS_VMSTAT_DELTA(swap_out);
+	STRESS_VMSTAT_DELTA(block_in);
+	STRESS_VMSTAT_DELTA(block_out);
+	STRESS_VMSTAT_DELTA(interrupt);
+	STRESS_VMSTAT_DELTA(context_switch);
+	STRESS_VMSTAT_DELTA(user_time);
+	STRESS_VMSTAT_DELTA(system_time);
+	STRESS_VMSTAT_DELTA(idle_time);
+	STRESS_VMSTAT_DELTA(wait_time);
+	STRESS_VMSTAT_DELTA(stolen_time);
 	(void)memcpy(&vmstat_prev, &vmstat_current, sizeof(vmstat_prev));
+}
+
+/*
+ *  stress_get_tz_info()
+ *	get temperature in degrees C from a thermal zone
+ */
+static double stress_get_tz_info(stress_tz_info_t *tz_info)
+{
+	double temp = 0.0;
+	FILE *fp;
+	char path[PATH_MAX];
+
+	(void)snprintf(path, sizeof(path),
+		"/sys/class/thermal/%s/temp",
+		tz_info->path);
+
+	if ((fp = fopen(path, "r")) != NULL) {
+		if (fscanf(fp, "%lf", &temp) == 1)
+			temp /= 1000.0;
+		(void)fclose(fp);
+	}
+	return temp;
+}
+
+/*
+ *  stress_get_cpu_ghz_average()
+ *	compute average CPU frequencies in GHz
+ */
+static double stress_get_cpu_ghz_average(void)
+{
+	struct dirent **cpu_list;
+	int i, n_cpus, n = 0;
+	double total_freq = 0.0;
+
+	n_cpus = scandir("/sys/devices/system/cpu", &cpu_list, NULL, alphasort);
+	for (i = 0; i < n_cpus; i++) {
+		char *name = cpu_list[i]->d_name;
+
+		if (!strncmp(name, "cpu", 3) && isdigit(name[3])) {
+			char path[PATH_MAX];
+			double freq;
+			FILE *fp;
+
+			(void)snprintf(path, sizeof(path),
+				"/sys/devices/system/cpu/%s/cpufreq/scaling_cur_freq",
+				name);
+			if ((fp = fopen(path, "r")) != NULL) {
+				if (fscanf(fp, "%lf", &freq) == 1) {
+					total_freq += freq;
+					n++;
+				}
+			}
+		}
+		free(cpu_list[i]);
+	}
+	if (n_cpus > -1)
+		free(cpu_list);
+
+	return (n == 0) ? 0.0 : (total_freq / n) / 1000000.0;
 }
 
 /*
@@ -270,18 +321,32 @@ static void stress_get_vmstat(stress_vmstat_t *vmstat)
  */
 void stress_vmstat_start(void)
 {
-	vmstat_pid = fork();
-	if (vmstat_pid < 0)
-		return;
-	if (vmstat_pid == 0) {
-		stress_vmstat_t vmstat;
+	stress_vmstat_t vmstat;
+	size_t tz_num = 0;
+	stress_tz_info_t *tz_info, *tz_info_list;
+	uint64_t stat_count = 0;
 
+	vmstat_pid = fork();
+	if (vmstat_pid < 0 || vmstat_pid > 0)
+		return;
+
+	if (g_opt_flags & OPT_FLAGS_VMSTAT)
 		stress_get_vmstat(&vmstat);
-		for (;;) {
+
+	if (g_opt_flags & OPT_FLAGS_THERMALSTAT) {
+		tz_info_list = NULL;
+		stress_tz_init(&tz_info_list);
+
+		for (tz_info = tz_info_list; tz_info; tz_info = tz_info->next)
+			tz_num++;
+	}
+
+	for (;;) {
+		sleep(1);
+		if (g_opt_flags & OPT_FLAGS_VMSTAT) {
 			unsigned long clk_tick;
 
-			sleep(1);
-			if ((vmstat_count % 60) == 1)
+			if ((stat_count % 60) == 0)
 				pr_inf("vmstat %2s %2s %9s %9s %9s %9s "
 					"%4s %4s %6s %6s %4s %4s %2s %2s "
 					"%2s %2s %2s\n",
@@ -319,6 +384,36 @@ void stress_vmstat_start(void)
 				100.0 * vmstat.wait_time / clk_tick,
 				100.0 * vmstat.stolen_time / clk_tick);
 		}
+
+		if (g_opt_flags & OPT_FLAGS_THERMALSTAT) {
+			double min1, min5, min15;
+			char therms[1 + (tz_num * 6)];
+			char *ptr = therms;
+
+			ptr = therms;
+			for (tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
+				snprintf(ptr, 8, " %6.6s", tz_info->type);
+				ptr += 7;
+			}
+
+			if ((stat_count % 60) == 0)
+				pr_inf("therm:   GHz  LdA1  LdA5 LdA15 %s\n", therms);
+
+			ptr = therms;
+			for (tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
+				snprintf(ptr, 8, " %6.2f", stress_get_tz_info(tz_info));
+				ptr += 7;
+			}
+
+			if (stress_get_load_avg(&min1, &min5, &min15) < 0)  {
+				pr_inf("therm: %5.2f %5.5s %5.5s %5.5s %s\n",
+					stress_get_cpu_ghz_average(), "n/a", "n/a", "n/a", therms);
+			} else {
+				pr_inf("therm: %5.2f %5.2f %5.2f %5.2f %s\n",
+					stress_get_cpu_ghz_average(), min1, min5, min15, therms);
+			}
+		}
+		stat_count++;
 	}
 }
 

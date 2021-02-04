@@ -349,6 +349,12 @@ specify a path for stress\-ng temporary directories and temporary files;
 the default path is the current working directory.  This path must have
 read and write access for the stress-ng stress processes.
 .TP
+.B \-\-thermalstat
+show CPU and thermal load statistics. This option shows average CPU
+frequency in GHz (average of online-CPUs), load averages (1 minute,
+5 minute and 15 minutes) and available thermal zone temperatures in degrees
+Centigrade.
+.TP
 .B \-\-thrash
 This can only be used when running on Linux and with root privilege. This
 option starts a background thrasher process that works through all the

@@ -81,6 +81,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_thrash, 		OPT_FLAGS_THRASH },
 	{ OPT_times,		OPT_FLAGS_TIMES },
 	{ OPT_timestamp,	OPT_FLAGS_TIMESTAMP },
+	{ OPT_thermalstat,	OPT_FLAGS_THERMALSTAT },
 	{ OPT_thermal_zones,	OPT_FLAGS_THERMAL_ZONES },
 	{ OPT_verbose,		PR_ALL },
 	{ OPT_vmstat,		OPT_FLAGS_VMSTAT },
@@ -853,6 +854,7 @@ static const struct option long_options[] = {
 	{ "tsearch",	1,	0,	OPT_tsearch },
 	{ "tsearch-ops",1,	0,	OPT_tsearch_ops },
 	{ "tsearch-size",1,	0,	OPT_tsearch_size },
+	{ "thermalstat",0,	0,	OPT_thermalstat },
 	{ "thrash",	0,	0,	OPT_thrash },
 	{ "times",	0,	0,	OPT_times },
 	{ "timestamp",	0,	0,	OPT_timestamp },
@@ -3246,7 +3248,7 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_THRASH)
 		stress_thrash_start();
 
-	if (g_opt_flags & OPT_FLAGS_VMSTAT)
+	if (g_opt_flags & (OPT_FLAGS_VMSTAT | OPT_FLAGS_THERMALSTAT))
 		stress_vmstat_start();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
