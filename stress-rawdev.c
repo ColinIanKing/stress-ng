@@ -31,20 +31,22 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-typedef void (*stress_rawdev_func)(const stress_args_t *args, const int fd,
-			   unsigned long blks, unsigned long blksz);
 
 #define	MIN_BLKSZ	((int)512)
 #define	MAX_BLKSZ	((int)(128 * KB))
+
+#if defined(HAVE_SYS_SYSMACROS_H) &&	\
+    defined(BLKGETSIZE) && 		\
+    defined(BLKSSZGET)
+
+typedef void (*stress_rawdev_func)(const stress_args_t *args, const int fd,
+			   unsigned long blks, unsigned long blksz);
 
 typedef struct {
 	const char              *name;
 	const stress_rawdev_func func;
 } stress_rawdev_method_info_t;
 
-#if defined(HAVE_SYS_SYSMACROS_H) &&	\
-    defined(BLKGETSIZE) && 		\
-    defined(BLKSSZGET)
 
 /*
  *  stress_rawdev_supported()
@@ -298,11 +300,6 @@ static const stress_rawdev_method_info_t rawdev_methods[] = {
 	{ NULL,         NULL }
 };
 
-#endif
-
-#if defined(HAVE_SYS_SYSMACROS_H) &&	\
-    defined(BLKGETSIZE) && 		\
-    defined(BLKSSZGET)
 /*
  *  stress_set_rawdev_method()
  *	set the default rawdev method
