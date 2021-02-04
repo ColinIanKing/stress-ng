@@ -24,6 +24,7 @@
  */
 #include "stress-ng.h"
 
+#if defined(__linux__)
 /*
  *   exec* family of args to pass
  */
@@ -37,6 +38,7 @@ typedef struct {
 #endif
 	int which;
 } stress_exec_args_t;
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"exec N",	"start N workers spinning on fork() and exec()" },
