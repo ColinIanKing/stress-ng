@@ -162,6 +162,7 @@ static int stress_pipe(const stress_args_t *args)
 		if (pipe(pipefds) < 0) {
 			pr_fail("%s: pipe failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+			free(buf);
 			return EXIT_FAILURE;
 		}
 	}
@@ -169,6 +170,7 @@ static int stress_pipe(const stress_args_t *args)
 	if (pipe(pipefds) < 0) {
 		pr_fail("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		free(buf);
 		return EXIT_FAILURE;
 	}
 #endif
