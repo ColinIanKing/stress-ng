@@ -305,6 +305,7 @@ static double stress_get_cpu_ghz_average(void)
 					total_freq += freq;
 					n++;
 				}
+				(void)fclose(fp);
 			}
 		}
 		free(cpu_list[i]);
