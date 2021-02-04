@@ -43,7 +43,7 @@ static bool stress_next_field(char **str)
 	if (!*ptr)
 		return false;
 
-	while (*ptr && *ptr == ' ')
+	while (*ptr == ' ')
 		ptr++;
 
 	if (!*ptr)
