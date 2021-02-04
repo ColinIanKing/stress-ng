@@ -24,10 +24,12 @@
  */
 #include "stress-ng.h"
 
+#if defined(__linux__)
 typedef struct {
 	char *name;
 	bool timeout;
 } stress_mem_info_t;
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"memhotplug N",	"start N workers that exercise memory hotplug" },
