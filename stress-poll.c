@@ -282,8 +282,6 @@ abort:
 #endif
 
 #endif
-
-#if 1
 			/* stress out select */
 			FD_ZERO(&rfds);
 			for (i = 0; i < max_fds; i++) {
@@ -313,8 +311,7 @@ abort:
 			}
 			if (!keep_stressing(args))
 				break;
-#endif
-#if defined(HAVE_PSELECT) && 0
+#if defined(HAVE_PSELECT)
 			/* stress out pselect */
 			ts.tv_sec = 0;
 			ts.tv_nsec = 20000000;
