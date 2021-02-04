@@ -65,161 +65,167 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	(void)memset(vmstat, 0, sizeof(*vmstat));
 
 	fp = fopen("/proc/stat", "r");
-	while (fp && fgets(buffer, sizeof(buffer), fp)) {
-		char *ptr = buffer;
+	if (fp) {
+		while (fgets(buffer, sizeof(buffer), fp)) {
+			char *ptr = buffer;
 
-		if (!strncmp(buffer, "cpu ", 4))
-			continue;
-		if (!strncmp(buffer, "cpu", 3)) {
-			if (!stress_next_field(&ptr))
+			if (!strncmp(buffer, "cpu ", 4))
 				continue;
-			/* user time */
-			vmstat->user_time += (uint64_t)atoll(ptr);
-			if (!stress_next_field(&ptr))
-				continue;
+			if (!strncmp(buffer, "cpu", 3)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				/* user time */
+				vmstat->user_time += (uint64_t)atoll(ptr);
+				if (!stress_next_field(&ptr))
+					continue;
 
-			/* user time nice */
-			vmstat->user_time += (uint64_t)atoll(ptr);
-			if (!stress_next_field(&ptr))
-				continue;
+				/* user time nice */
+				vmstat->user_time += (uint64_t)atoll(ptr);
+				if (!stress_next_field(&ptr))
+					continue;
 
-			/* system time */
-			vmstat->system_time += (uint64_t)atoll(ptr);
-			if (!stress_next_field(&ptr))
-				continue;
+				/* system time */
+				vmstat->system_time += (uint64_t)atoll(ptr);
+				if (!stress_next_field(&ptr))
+					continue;
 
-			/* idle time */
-			vmstat->idle_time += (uint64_t)atoll(ptr);
-			if (!stress_next_field(&ptr))
-				continue;
+				/* idle time */
+				vmstat->idle_time += (uint64_t)atoll(ptr);
+				if (!stress_next_field(&ptr))
+					continue;
 
-			/* iowait time */
-			vmstat->wait_time += (uint64_t)atoll(ptr);
-			if (!stress_next_field(&ptr))
-				continue;
+				/* iowait time */
+				vmstat->wait_time += (uint64_t)atoll(ptr);
+				if (!stress_next_field(&ptr))
+					continue;
 
-			/* irq time, account in system time */
-			vmstat->system_time += (uint64_t)atoll(ptr);
-			if (!stress_next_field(&ptr))
-				continue;
+				/* irq time, account in system time */
+				vmstat->system_time += (uint64_t)atoll(ptr);
+				if (!stress_next_field(&ptr))
+					continue;
 
-			/* soft time, account in system time */
-			vmstat->system_time += (uint64_t)atoll(ptr);
-			if (!stress_next_field(&ptr))
-				continue;
+				/* soft time, account in system time */
+				vmstat->system_time += (uint64_t)atoll(ptr);
+				if (!stress_next_field(&ptr))
+					continue;
 
-			/* stolen time */
-			vmstat->stolen_time += (uint64_t)atoll(ptr);
-			if (!stress_next_field(&ptr))
-				continue;
+				/* stolen time */
+				vmstat->stolen_time += (uint64_t)atoll(ptr);
+				if (!stress_next_field(&ptr))
+					continue;
 
-			/* guest time, add to stolen stats */
-			vmstat->stolen_time += (uint64_t)atoll(ptr);
-			if (!stress_next_field(&ptr))
-				continue;
+				/* guest time, add to stolen stats */
+				vmstat->stolen_time += (uint64_t)atoll(ptr);
+				if (!stress_next_field(&ptr))
+					continue;
 
-			/* guest_nice time, add to stolen stats */
-			vmstat->stolen_time += (uint64_t)atoll(ptr);
-			if (!stress_next_field(&ptr))
-				continue;
+				/* guest_nice time, add to stolen stats */
+				vmstat->stolen_time += (uint64_t)atoll(ptr);
+				if (!stress_next_field(&ptr))
+					continue;
+			}
+
+			if (!strncmp(buffer, "intr", 4)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				/* interrupts */
+				vmstat->interrupt = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "ctxt", 4)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				/* context switches */
+				vmstat->context_switch = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "procs_running", 13)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				/* context switches */
+				vmstat->procs_running = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "procs_blocked", 13)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				/* context switches */
+				vmstat->procs_blocked = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "swap", 4)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				/* swap in */
+				vmstat->swap_in = (uint64_t)atoll(ptr);
+
+				if (!stress_next_field(&ptr))
+					continue;
+				/* swap out */
+				vmstat->swap_out = (uint64_t)atoll(ptr);
+			}
 		}
-
-		if (!strncmp(buffer, "intr", 4)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			/* interrupts */
-			vmstat->interrupt = (uint64_t)atoll(ptr);
-		}
-		if (!strncmp(buffer, "ctxt", 4)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			/* context switches */
-			vmstat->context_switch = (uint64_t)atoll(ptr);
-		}
-		if (!strncmp(buffer, "procs_running", 13)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			/* context switches */
-			vmstat->procs_running = (uint64_t)atoll(ptr);
-		}
-		if (!strncmp(buffer, "procs_blocked", 13)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			/* context switches */
-			vmstat->procs_blocked = (uint64_t)atoll(ptr);
-		}
-		if (!strncmp(buffer, "swap", 4)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			/* swap in */
-			vmstat->swap_in = (uint64_t)atoll(ptr);
-
-			if (!stress_next_field(&ptr))
-				continue;
-			/* swap out */
-			vmstat->swap_out = (uint64_t)atoll(ptr);
-		}
+		(void)fclose(fp);
 	}
-	(void)fclose(fp);
 
 	fp = fopen("/proc/meminfo", "r");
-	while (fp && fgets(buffer, sizeof(buffer), fp)) {
-		char *ptr = buffer;
+	if (fp) {
+		while (fgets(buffer, sizeof(buffer), fp)) {
+			char *ptr = buffer;
 
-		if (!strncmp(buffer, "MemFree", 7)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			vmstat->memory_free = (uint64_t)atoll(ptr);
+			if (!strncmp(buffer, "MemFree", 7)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				vmstat->memory_free = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "Buffers", 7)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				vmstat->memory_buff = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "Cached", 6)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				vmstat->memory_cache = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "SwapTotal", 9)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				vmstat->swap_total = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "SwapUsed", 8)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				vmstat->swap_used = (uint64_t)atoll(ptr);
+			}
 		}
-		if (!strncmp(buffer, "Buffers", 7)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			vmstat->memory_buff = (uint64_t)atoll(ptr);
-		}
-		if (!strncmp(buffer, "Cached", 6)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			vmstat->memory_cache = (uint64_t)atoll(ptr);
-		}
-		if (!strncmp(buffer, "SwapTotal", 9)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			vmstat->swap_total = (uint64_t)atoll(ptr);
-		}
-		if (!strncmp(buffer, "SwapUsed", 8)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			vmstat->swap_used = (uint64_t)atoll(ptr);
-		}
+		(void)fclose(fp);
 	}
-	(void)fclose(fp);
 
 	fp = fopen("/proc/vmstat", "r");
-	while (fp && fgets(buffer, sizeof(buffer), fp)) {
-		char *ptr = buffer;
+	if (fp) {
+		while (fgets(buffer, sizeof(buffer), fp)) {
+			char *ptr = buffer;
 
-		if (!strncmp(buffer, "pgpgin", 6)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			vmstat->block_in = (uint64_t)atoll(ptr);
+			if (!strncmp(buffer, "pgpgin", 6)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				vmstat->block_in = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "pgpgout", 7)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				vmstat->block_out = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "pswpin", 6)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				vmstat->swap_in = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "pswpout", 7)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				vmstat->swap_out = (uint64_t)atoll(ptr);
+			}
 		}
-		if (!strncmp(buffer, "pgpgout", 7)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			vmstat->block_out = (uint64_t)atoll(ptr);
-		}
-		if (!strncmp(buffer, "pswpin", 6)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			vmstat->swap_in = (uint64_t)atoll(ptr);
-		}
-		if (!strncmp(buffer, "pswpout", 7)) {
-			if (!stress_next_field(&ptr))
-				continue;
-			vmstat->swap_out = (uint64_t)atoll(ptr);
-		}
+		(void)fclose(fp);
 	}
-	(void)fclose(fp);
 }
 
 #define STRESS_VMSTAT_COPY(field)	vmstat->field = vmstat_current.field
