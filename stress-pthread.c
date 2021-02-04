@@ -74,14 +74,18 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define PTHREAD_STACK_MIN		(16 * KB)
 #endif
 
-#if defined(HAVE_GET_ROBUST_LIST) && defined(HAVE_LINUX_FUTEX_H)
+#define DEFAULT_STACK_MIN		(16 * KB)
+
+#if defined(HAVE_GET_ROBUST_LIST) &&	\
+    defined(HAVE_LINUX_FUTEX_H)
 static inline long sys_get_robust_list(int pid, struct robust_list_head **head_ptr, size_t *len_ptr)
 {
 	return syscall(__NR_get_robust_list, pid, head_ptr, len_ptr);
 }
 #endif
 
-#if defined(HAVE_SET_ROBUST_LIST) && defined(HAVE_LINUX_FUTEX_H)
+#if defined(HAVE_SET_ROBUST_LIST) &&	\
+    defined(HAVE_LINUX_FUTEX_H)
 static inline long sys_set_robust_list(struct robust_list_head *head, size_t len)
 {
 	return syscall(__NR_set_robust_list, head, len);
@@ -169,13 +173,15 @@ static void *stress_pthread_func(void *parg)
 #else
 	const pid_t tid = 0;
 #endif
-#if defined(HAVE_GET_ROBUST_LIST) && defined(HAVE_LINUX_FUTEX_H)
+#if defined(HAVE_GET_ROBUST_LIST) &&	\
+    defined(HAVE_LINUX_FUTEX_H)
 	struct robust_list_head *head;
 	size_t len;
 #endif
 	const stress_args_t *args = ((stress_pthread_args_t *)parg)->args;
 
-#if defined(HAVE_GET_ROBUST_LIST) && defined(HAVE_LINUX_FUTEX_H)
+#if defined(HAVE_GET_ROBUST_LIST) &&	\
+    defined(HAVE_LINUX_FUTEX_H)
 	/*
 	 *  Check that get_robust_list() works OK
 	 */
@@ -186,7 +192,8 @@ static void *stress_pthread_func(void *parg)
 			goto die;
 		}
 	} else {
-#if defined(HAVE_SET_ROBUST_LIST) && defined(HAVE_LINUX_FUTEX_H)
+#if defined(HAVE_SET_ROBUST_LIST) &&	\
+    defined(HAVE_LINUX_FUTEX_H)
 		if (sys_set_robust_list(head, len) < 0) {
 			if (errno != ENOSYS) {
 				pr_fail("%s: set_robust_list failed, tid=%d, errno=%d (%s)\n",
@@ -391,7 +398,11 @@ static int stress_pthread(const stress_args_t *args)
 	stress_pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)
-	const size_t stack_size = STRESS_MAXIMUM(16 * KB, PTHREAD_STACK_MIN);
+#if DEFAULT_STACK_MIN == PTHREAD_STACK_MIN
+	const size_t stack_size = PTHREAD_STACK_MIN;
+#else
+	const size_t stack_size = STRESS_MAXIMUM(DEFAULT_STACK_MIN, PTHREAD_STACK_MIN);
+#endif
 #endif
 
 	keep_running_flag = true;
