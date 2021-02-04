@@ -26,6 +26,8 @@
 
 #define CLONE_STACK_SIZE	(8*1024)
 
+#if defined(HAVE_CLONE)
+
 typedef struct stress_clone_args {
 	const stress_args_t *args;
 } stress_clone_args_t;
@@ -42,6 +44,8 @@ typedef struct {
 	stress_clone_t *free;	/* List of free'd clones */
 	uint32_t length;	/* Length of list */
 } stress_clone_list_t;
+
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"clone N",	"start N workers that rapidly create and reap clones" },
