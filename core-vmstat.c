@@ -395,10 +395,9 @@ void stress_vmstat_start(void)
 		if (g_opt_flags & OPT_FLAGS_THERMALSTAT) {
 			double min1, min5, min15;
 			char therms[1 + (tz_num * 6)];
-			char *ptr = therms;
+			char *ptr;
 
-			ptr = therms;
-			for (tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
+			for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
 				snprintf(ptr, 8, " %6.6s", tz_info->type);
 				ptr += 7;
 			}
@@ -406,8 +405,7 @@ void stress_vmstat_start(void)
 			if ((stat_count % 60) == 0)
 				pr_inf("therm:   GHz  LdA1  LdA5 LdA15 %s\n", therms);
 
-			ptr = therms;
-			for (tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
+			for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
 				snprintf(ptr, 8, " %6.2f", stress_get_tz_info(tz_info));
 				ptr += 7;
 			}
