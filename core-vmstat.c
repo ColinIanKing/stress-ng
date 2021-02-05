@@ -397,6 +397,8 @@ void stress_vmstat_start(void)
 			char therms[1 + (tz_num * 6)];
 			char *ptr;
 
+			(void)memset(therms, 0, sizeof(therms));
+
 			for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
 				snprintf(ptr, 8, " %6.6s", tz_info->type);
 				ptr += 7;
