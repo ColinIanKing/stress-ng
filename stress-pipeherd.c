@@ -163,11 +163,11 @@ static int stress_pipeherd(const stress_args_t *args)
 	(void)close(fd[0]);
 	(void)close(fd[1]);
 
-	(void)memset(&usage, 0, sizeof(usage));
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_CHILDREN) &&	\
     defined(RUSAGE_SELF) &&	\
     defined(HAVE_RUSAGE_RU_NVCSW)
+	(void)memset(&usage, 0, sizeof(usage));
 	if (shim_getrusage(RUSAGE_CHILDREN, &usage) == 0) {
 		long total = usage.ru_nvcsw + usage.ru_nivcsw;
 
