@@ -58,9 +58,13 @@ int main(void)
 	 * can build minimal POSIX semaphore
 	 * based code
 	 */
+
 	key = (key_t)getpid();
 	sem = semget(key, 1, IPC_CREAT | S_IRUSR | S_IWUSR);
 	arg.val = 1;
+	arg.buf = NULL;
+	arg.array = NULL;
+	arg.__buf = NULL;
 	ret = semctl(sem, 0, SETVAL, arg);
 	(void)ret;
 	semwait.sem_num = 0;
@@ -101,7 +105,8 @@ int main(void)
 		(void)ret;
 	}
 #endif
-#if defined(IPC_INFO) && defined(__linux__)
+#if defined(IPC_INFO) &&	\
+    defined(__linux__)
 	{
 		struct seminfo si;
 		semun_t s;
@@ -111,7 +116,8 @@ int main(void)
 		(void)ret;
 	}
 #endif
-#if defined(SEM_INFO) && defined(__linux__)
+#if defined(SEM_INFO) &&	\
+    defined(__linux__)
 	{
 		struct seminfo si;
 		semun_t s;
