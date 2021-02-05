@@ -89,7 +89,8 @@ static int stress_pipeherd(const stress_args_t *args)
 	bool pipeherd_yield = false;
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_CHILDREN) &&	\
-    defined(RUSAGE_SELF)
+    defined(RUSAGE_SELF) &&	\
+    defined(HAVE_RUSAGE_RU_NVCSW)
 	struct rusage usage;
 	double t1, t2;
 #endif
@@ -114,7 +115,8 @@ static int stress_pipeherd(const stress_args_t *args)
 
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_CHILDREN) &&	\
-    defined(RUSAGE_SELF)
+    defined(RUSAGE_SELF) &&	\
+    defined(HAVE_RUSAGE_RU_NVCSW)
 	t1 = stress_time_now();
 #endif
 	for (i = 0; i < PIPE_HERD_MAX; i++) {
@@ -144,7 +146,8 @@ static int stress_pipeherd(const stress_args_t *args)
 
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_CHILDREN) &&	\
-    defined(RUSAGE_SELF)
+    defined(RUSAGE_SELF) &&	\
+    defined(HAVE_RUSAGE_RU_NVCSW)
 	t2 = stress_time_now();
 #endif
 
@@ -163,7 +166,8 @@ static int stress_pipeherd(const stress_args_t *args)
 	(void)memset(&usage, 0, sizeof(usage));
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_CHILDREN) &&	\
-    defined(RUSAGE_SELF)
+    defined(RUSAGE_SELF) &&	\
+    defined(HAVE_RUSAGE_RU_NVCSW)
 	if (shim_getrusage(RUSAGE_CHILDREN, &usage) == 0) {
 		long total = usage.ru_nvcsw + usage.ru_nivcsw;
 
