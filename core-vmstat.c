@@ -393,14 +393,15 @@ void stress_vmstat_start(void)
 		}
 
 		if (g_opt_flags & OPT_FLAGS_THERMALSTAT) {
-			double min1, min5, min15;
+			double min1, min5, min15, ghz;
 			char therms[1 + (tz_num * 6)];
+			char cpuspeed[6];
 			char *ptr;
 
 			(void)memset(therms, 0, sizeof(therms));
 
 			for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
-				snprintf(ptr, 8, " %6.6s", tz_info->type);
+				(void)snprintf(ptr, 8, " %6.6s", tz_info->type);
 				ptr += 7;
 			}
 
@@ -408,16 +409,21 @@ void stress_vmstat_start(void)
 				pr_inf("therm:   GHz  LdA1  LdA5 LdA15 %s\n", therms);
 
 			for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
-				snprintf(ptr, 8, " %6.2f", stress_get_tz_info(tz_info));
+				(void)snprintf(ptr, 8, " %6.2f", stress_get_tz_info(tz_info));
 				ptr += 7;
 			}
+			ghz = stress_get_cpu_ghz_average();
+			if (ghz > 0.0)
+				(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.2f", ghz);
+			else
+				(void)strlcpy(cpuspeed, "n/a", sizeof(cpuspeed));
 
 			if (stress_get_load_avg(&min1, &min5, &min15) < 0)  {
-				pr_inf("therm: %5.2f %5.5s %5.5s %5.5s %s\n",
-					stress_get_cpu_ghz_average(), "n/a", "n/a", "n/a", therms);
+				pr_inf("therm: %5s %5.5s %5.5s %5.5s %s\n",
+					cpuspeed, "n/a", "n/a", "n/a", therms);
 			} else {
-				pr_inf("therm: %5.2f %5.2f %5.2f %5.2f %s\n",
-					stress_get_cpu_ghz_average(), min1, min5, min15, therms);
+				pr_inf("therm: %5s %5.2f %5.2f %5.2f %s\n",
+					cpuspeed, min1, min5, min15, therms);
 			}
 		}
 		stat_count++;
