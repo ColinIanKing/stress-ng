@@ -190,6 +190,6 @@ int stress_open_timeout(
 	(void)name;
 	(void)timeout_ns;
 
-	ret = open(path, flags);
+	return open(path, flags);
 }
 #endif
