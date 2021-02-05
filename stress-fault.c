@@ -51,8 +51,9 @@ static void MLOCKED_TEXT stress_segvhandler(int signum)
  */
 static int stress_fault(const stress_args_t *args)
 {
-#if defined(HAVE_GETRUSAGE) &&	\
-    defined(RUSAGE_SELF)
+#if defined(HAVE_GETRUSAGE) &&		\
+    defined(RUSAGE_SELF) &&		\
+    defined(HAVE_RUSAGE_RU_MINFLT)
 	struct rusage usage;
 #endif
 	char filename[PATH_MAX];
@@ -200,8 +201,9 @@ next:
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
-#if defined(HAVE_GETRUSAGE) &&	\
-    defined(RUSAGE_SELF)
+#if defined(HAVE_GETRUSAGE) &&		\
+    defined(RUSAGE_SELF) &&		\
+    defined(HAVE_RUSAGE_RU_MINFLT)
 	if (!shim_getrusage(RUSAGE_SELF, &usage)) {
 		pr_dbg("%s: page faults: minor: %lu, major: %lu\n",
 			args->name, usage.ru_minflt, usage.ru_majflt);
