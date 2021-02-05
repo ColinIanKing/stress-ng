@@ -199,17 +199,21 @@ STRESS_PRAGMA_POP
 		ts[1].tv_nsec = UTIME_NOW;
 		ret = utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
 		(void)ret;
+		if (utime_fsync) {
+			ret = shim_fsync(fd);
+			(void)ret;
+		}
 #endif
 #if defined(UTIME_OMIT)
 		ts[1].tv_nsec = UTIME_OMIT;
 		ret = utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
 		(void)ret;
-#endif
-#endif
 		if (utime_fsync) {
 			ret = shim_fsync(fd);
 			(void)ret;
 		}
+#endif
+#endif
 #endif
 
 #if defined(HAVE_UTIME_H)
