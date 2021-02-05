@@ -264,7 +264,8 @@ static void stress_sock_ioctl(const int fd, const int socket_domain)
  *  this ioctl to break the build. So only build it for
  *  64 bit arches as a workaround.
  */
-#if defined(SIOCGSTAMP) && (ULONG_MAX > 4294967295UL)
+#if defined(SIOCGSTAMP) &&	\
+    (ULONG_MAX > 4294967295UL)
 	{
 		int ret;
 		struct timeval tv;
@@ -274,7 +275,8 @@ static void stress_sock_ioctl(const int fd, const int socket_domain)
 	}
 #endif
 
-#if defined(SIOCGSTAMP_NEW) && (ULONG_MAX > 4294967295UL)
+#if defined(SIOCGSTAMP_NEW) &&	\
+    (ULONG_MAX > 4294967295UL)
 	{
 		int ret;
 		struct timeval tv;
@@ -470,7 +472,8 @@ retry:
 				(void)ret;
 			}
 #endif
-#if defined(IP_TOS) && defined(IPTOS_THROUGHPUT)
+#if defined(IP_TOS) &&	\
+    defined(IPTOS_THROUGHPUT)
 			{
 				char tos = IPTOS_THROUGHPUT;
 				socklen_t optlen = sizeof(tos);
@@ -891,7 +894,8 @@ static int stress_sock_server(
 				(void)close(sfd);
 				break;
 			}
-#if defined(SOL_TCP) && defined(TCP_QUICKACK)
+#if defined(SOL_TCP) &&	\
+    defined(TCP_QUICKACK)
 			{
 				int ret, one = 1;
 				/*
@@ -903,7 +907,8 @@ static int stress_sock_server(
 			}
 #endif
 
-#if defined(SOL_TCP) && defined(HAVE_NETINET_TCP_H)
+#if defined(SOL_TCP) &&	\
+    defined(HAVE_NETINET_TCP_H)
 			if (g_opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
 				int one = 1;
 
