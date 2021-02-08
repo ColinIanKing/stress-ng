@@ -1956,7 +1956,7 @@ int shim_getrusage(int who, struct rusage *usage)
 #if defined(HAVE_GETRUSAGE)
 	return getrusage(who, usage);
 #elif defined(__NR_getrusage)
-	return syscall(__NR_getrusage, usage);
+	return syscall(__NR_getrusage, who, usage);
 #else
 	return shim_enosys(0, who, usage);
 #endif
