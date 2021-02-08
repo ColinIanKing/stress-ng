@@ -983,7 +983,7 @@ void *shim_sbrk(intptr_t increment)
 #elif defined(__NR_sbrk)
 	return (void *)syscall(__NR_sbrk, increment);
 #else
-	return (void *)shim_enosys(0, increment);
+	return (void *)(intptr_t)shim_enosys(0, increment);
 #endif
 }
 #if defined(__APPLE__)
