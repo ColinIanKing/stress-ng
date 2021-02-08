@@ -93,6 +93,8 @@ void stress_set_sockaddr(
 	socklen_t *len,
 	const int net_addr)
 {
+	(void)ppid;
+
 	switch (domain) {
 #if defined(AF_INET)
 	case AF_INET: {
