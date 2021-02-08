@@ -366,6 +366,8 @@ static int stress_dup(const stress_args_t *args)
 #if defined(STRESS_DUP2_RACE)
 tidy_dir:
 	if (info != MAP_FAILED) {
+		if (info->fifoname[0])
+			(void)unlink(info->fifoname);
 		(void)stress_temp_dir_rm_args(args);
 		pr_dbg("%s: dup2: %" PRIu64 " races from %" PRIu64 " attempts (%.2f%%)\n",
 			args->name, info->race_count, info->try_count,
