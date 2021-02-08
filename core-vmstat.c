@@ -416,7 +416,7 @@ void stress_vmstat_start(void)
 			if (ghz > 0.0)
 				(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.2f", ghz);
 			else
-				(void)strlcpy(cpuspeed, "n/a", sizeof(cpuspeed));
+				(void)shim_strlcpy(cpuspeed, "n/a", sizeof(cpuspeed));
 
 			if (stress_get_load_avg(&min1, &min5, &min15) < 0)  {
 				pr_inf("therm: %5s %5.5s %5.5s %5.5s %s\n",
