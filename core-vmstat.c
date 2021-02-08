@@ -228,8 +228,10 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	}
 }
 
-#define STRESS_VMSTAT_COPY(field)	vmstat->field = vmstat_current.field
-#define STRESS_VMSTAT_DELTA(field)	vmstat->field = vmstat_current.field - vmstat_prev.field
+#define STRESS_VMSTAT_COPY(field)	vmstat->field = (vmstat_current.field)
+#define STRESS_VMSTAT_DELTA(field)					\
+	vmstat->field = ((vmstat_current.field > vmstat_prev.field) ?	\
+	(vmstat_current.field - vmstat_prev.field) : 0)
 
 /*
  *  stress_get_vmstat()
