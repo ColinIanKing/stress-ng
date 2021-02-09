@@ -174,7 +174,10 @@ static void stress_wcsncasecmp(
 }
 #endif
 
-#if defined(HAVE_WCSLCPY) && defined(HAVE_WCSLEN) && !defined(__PCC__)
+#if defined(HAVE_WCSLCPY) &&	\
+    defined(HAVE_WCSLEN) &&	\
+    !defined(__PCC__) &&	\
+    !defined(BUILD_STATIC)
 /*
  *  stress_wcslcpy()
  *	stress on wcslcpy
@@ -225,7 +228,10 @@ static void stress_wcscpy(
 }
 #endif
 
-#if defined(HAVE_WCSLCAT) && defined(HAVE_WCSLEN) && !defined(__PCC__)
+#if defined(HAVE_WCSLCAT) &&	\
+    defined(HAVE_WCSLEN) &&	\
+    !defined(__PCC__) &&	\
+    !defined(BUILD_STATIC)
 /*
  *  stress_wcslcat()
  *	stress on wcslcat
@@ -583,7 +589,10 @@ static const stress_wcs_method_info_t wcs_methods[] = {
 #if defined(HAVE_WCSCASECMP)
 	{ "wcscasecmp",		stress_wcscasecmp,	wcscasecmp },
 #endif
-#if defined(HAVE_WCSLCAT) && defined(HAVE_WCSLEN) && !defined(__PCC__)
+#if defined(HAVE_WCSLCAT) &&	\
+    defined(HAVE_WCSLEN) &&	\
+    !defined(__PCC__) &&	\
+    !defined(BUILD_STATIC)
 	{ "wcslcat",		stress_wcslcat,		wcslcat },
 #elif defined(HAVE_WCSCAT)
 	{ "wcscat",		stress_wcscat,		wcscat },
@@ -594,7 +603,10 @@ static const stress_wcs_method_info_t wcs_methods[] = {
 #if defined(HAVE_WCSCMP)
 	{ "wcscmp",		stress_wcscmp,		wcscmp },
 #endif
-#if defined(HAVE_WCSLCPY) && defined(HAVE_WCSLEN) && !defined(__PCC__)
+#if defined(HAVE_WCSLCPY) &&	\
+    defined(HAVE_WCSLEN) &&	\
+    !defined(__PCC__) &&	\
+    !defined(BUILD_STATIC)
 	{ "wcslcpy",		stress_wcslcpy,		wcslcpy },
 #elif defined(HAVE_WCSCPY)
 	{ "wcscpy",		stress_wcscpy,		wcscpy },
