@@ -199,7 +199,8 @@ static void stress_rindex(
 }
 #endif
 
-#if defined(HAVE_STRLCPY)
+#if defined(HAVE_STRLCPY) &&	\
+    !defined(BUILD_STATIC)
 /*
  *  stress_strlcpy()
  *	stress on strlcpy
@@ -253,7 +254,8 @@ static void stress_strcpy(
 #endif
 
 
-#if defined(HAVE_STRLCAT)
+#if defined(HAVE_STRLCAT) &&	\
+    !defined(BUILD_STATIC)
 /*
  *  stress_strlcat()
  *	stress on strlcat
@@ -601,7 +603,8 @@ static const stress_str_method_info_t str_methods[] = {
 	{ "rindex",		stress_rindex,		rindex  },
 	{ "strcasecmp",		stress_strcasecmp,	strcasecmp },
 #endif
-#if defined(HAVE_STRLCAT)
+#if defined(HAVE_STRLCAT) &&	\
+    !defined(BUILD_STATIC)
 	{ "strlcat",		stress_strlcat,		strlcat },
 #else
 	{ "strcat",		stress_strcat,		strcat },
@@ -609,7 +612,8 @@ static const stress_str_method_info_t str_methods[] = {
 	{ "strchr",		stress_strchr,		strchr },
 	{ "strcoll",		stress_strcoll,		strcoll },
 	{ "strcmp",		stress_strcmp,		strcmp },
-#if defined(HAVE_STRLCPY)
+#if defined(HAVE_STRLCPY) &&	\
+    !defined(BUILD_STATIC)
 	{ "strlcpy",		stress_strlcpy,		strlcpy },
 #else
 	{ "strcpy",		stress_strcpy,		strcpy },
