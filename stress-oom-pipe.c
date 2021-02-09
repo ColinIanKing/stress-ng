@@ -186,6 +186,7 @@ clean:
 static int stress_oom_pipe(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
+	int rc;
 
 	stress_oom_pipe_context_t context;
 
@@ -196,7 +197,13 @@ static int stress_oom_pipe(const stress_args_t *args)
 		context.max_pipe_size = page_size;
 	context.max_pipe_size &= ~(page_size - 1);
 
-	return stress_oomable_child(args, &context, stress_oom_pipe_child, STRESS_OOMABLE_DROP_CAP);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	rc = stress_oomable_child(args, &context, stress_oom_pipe_child, STRESS_OOMABLE_DROP_CAP);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	return rc;
 }
 
 stressor_info_t stress_oom_pipe_info = {

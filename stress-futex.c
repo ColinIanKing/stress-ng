@@ -47,6 +47,7 @@ static int stress_futex(const stress_args_t *args)
 	uint32_t *futex = &g_shared->futex.futex[args->instance];
 	pid_t pid;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -123,6 +124,7 @@ again:
 			}
 		} while (keep_stressing(args));
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

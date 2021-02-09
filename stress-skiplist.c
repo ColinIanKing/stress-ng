@@ -217,6 +217,8 @@ static int stress_skiplist(const stress_args_t *args)
 	n = (size_t)skiplist_size;
 	ln2n = skip_list_ln2(n);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		skip_list_t list;
 
@@ -247,6 +249,8 @@ static int stress_skiplist(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

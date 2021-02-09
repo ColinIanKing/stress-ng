@@ -149,6 +149,8 @@ static int stress_dev_shm(const stress_args_t *args)
 	}
 	(void)unlink(path);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	while (keep_stressing(args)) {
 fork_again:
 		pid = fork();
@@ -194,6 +196,8 @@ fork_again:
 			_exit(rc);
 		}
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)close(fd);
 	return rc;
 }

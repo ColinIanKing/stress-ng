@@ -445,6 +445,8 @@ static int stress_io_uring(const stress_args_t *args)
 	}
 	(void)unlink(filename);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	rc = EXIT_SUCCESS;
 	i = 0;
 	do {
@@ -494,8 +496,10 @@ static int stress_io_uring(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(io_uring_file.fd);
 clean:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_close_io_uring(&submit);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;

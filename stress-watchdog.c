@@ -103,8 +103,9 @@ static void MLOCKED_TEXT stress_watchdog_handler(int signum)
  */
 static int stress_watchdog(const stress_args_t *args)
 {
-	int ret, rc = EXIT_SUCCESS;
+	int ret;
 	size_t i;
+	NOCLOBBER int rc = EXIT_SUCCESS;
 
 	fd = -1;
 	for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
@@ -140,6 +141,8 @@ static int stress_watchdog(const stress_args_t *args)
 		}
 		return EXIT_SUCCESS;
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	while (keep_stressing(args)) {
 		fd = open(dev_watchdog, O_RDWR);
@@ -235,6 +238,8 @@ static int stress_watchdog(const stress_args_t *args)
 		(void)shim_sched_yield();
 		inc_counter(args);
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
 }

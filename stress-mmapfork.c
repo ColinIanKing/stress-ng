@@ -126,6 +126,7 @@ static int stress_mmapfork(const stress_args_t *args)
 			wipe_ok = true;
 	}
 #endif
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		size_t i, len;
@@ -239,6 +240,8 @@ reap:
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 #if defined(MADV_WIPEONFORK)
 	if (wipe_ptr != MAP_FAILED)

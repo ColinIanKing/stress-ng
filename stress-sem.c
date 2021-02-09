@@ -149,6 +149,8 @@ static int stress_sem(const stress_args_t *args)
 	(void)memset(pthreads, 0, sizeof(pthreads));
 	(void)memset(p_ret, 0, sizeof(p_ret));
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (i = 0; i < semaphore_posix_procs; i++) {
 		p_args.args = args;
 		p_args.data = NULL;
@@ -172,6 +174,8 @@ static int stress_sem(const stress_args_t *args)
 	/* Wait for termination */
 	while (keep_stressing(args))
 		pause();
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < semaphore_posix_procs; i++) {
 		int ret;

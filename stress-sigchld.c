@@ -91,6 +91,8 @@ static int stress_sigchld(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		pid_t pid;
 
@@ -127,6 +129,8 @@ static int stress_sigchld(const stress_args_t *args)
 		args->name,
 		cld_exited, cld_killed,
 		cld_stopped, cld_continued);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

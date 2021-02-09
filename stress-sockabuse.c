@@ -338,6 +338,8 @@ static int stress_sockabuse(const stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sockabuse_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -351,8 +353,12 @@ again:
 			socket_port);
 		_exit(EXIT_SUCCESS);
 	} else {
-		return stress_sockabuse_server(args, pid, ppid,
+		int rc;
+
+		rc = stress_sockabuse_server(args, pid, ppid,
 			socket_port);
+		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+		return rc;
 	}
 }
 

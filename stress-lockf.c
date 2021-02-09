@@ -302,6 +302,7 @@ redo:
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	cpid = fork();
 	if (cpid < 0) {
@@ -330,6 +331,8 @@ again:
 	if (stress_lockf_contention(args, fd, bad_fd) == 0)
 		ret = EXIT_SUCCESS;
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	if (cpid > 0) {
 		int status;
 

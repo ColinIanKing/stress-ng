@@ -96,6 +96,8 @@ static int stress_splice(const stress_args_t *args)
 		goto close_fds2;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		ssize_t ret;
 		loff_t off_in, off_out;
@@ -158,16 +160,21 @@ static int stress_splice(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd_out);
 close_fds2:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fds2[0]);
 	(void)close(fds2[1]);
 close_fds1:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fds1[0]);
 	(void)close(fds1[1]);
 close_fd_in:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd_in);
 close_done:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
 }

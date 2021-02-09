@@ -352,6 +352,7 @@ static int stress_filename(const stress_args_t *args)
 		goto tidy_dir;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	if (!keep_stressing_flag()) {
 		/* Time to die */
@@ -490,6 +491,7 @@ again:
 	rc = EXIT_SUCCESS;
 
 tidy_dir:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_filename_tidy(pathname);
 
 	return rc;

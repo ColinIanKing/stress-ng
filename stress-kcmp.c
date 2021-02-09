@@ -176,6 +176,7 @@ static int stress_kcmp(const stress_args_t *args)
 	}
 #endif
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid1 = fork();
 	if (pid1 < 0) {
@@ -308,6 +309,8 @@ reap:
 		(void)shim_waitpid(pid1, &status, 0);
 		(void)close(fd1);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
 	if (efd != -1)

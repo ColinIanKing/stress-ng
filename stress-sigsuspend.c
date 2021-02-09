@@ -72,6 +72,8 @@ static int stress_sigsuspend(const stress_args_t *args)
 	(void)sigemptyset(&mask);
 	(void)sigprocmask(SIG_BLOCK, &mask, &oldmask);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (n = 0; n < MAX_SIGSUSPEND_PIDS; n++) {
 again:
 		pid[n] = fork();
@@ -104,8 +106,8 @@ again:
 		}
 	} while (keep_stressing(args));
 
-
 reap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	for (i = 0; i < n; i++) {
 		/* terminate child */
 		(void)kill(pid[i], SIGKILL);

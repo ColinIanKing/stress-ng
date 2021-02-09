@@ -193,6 +193,8 @@ static int stress_tee(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	pids[0] = stress_tee_spawn(args, stress_tee_pipe_write, pipe_in);
 	if (pids[0] < 0) {
 		(void)close(fd);
@@ -204,6 +206,7 @@ static int stress_tee(const stress_args_t *args)
 	if (pids[0] < 0)
 		goto tidy_child1;
 	(void)close(pipe_out[0]);
+
 
 	do {
 		len = tee(pipe_in[0], pipe_out[1],
@@ -250,11 +253,13 @@ static int stress_tee(const stress_args_t *args)
 	ret = EXIT_SUCCESS;
 
 tidy_child2:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(pipe_out[1]);
 	(void)kill(pids[1], SIGKILL);
 	(void)shim_waitpid(pids[1], &status, 0);
 
 tidy_child1:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(pipe_in[0]);
 	(void)kill(pids[0], SIGKILL);
 	(void)shim_waitpid(pids[0], &status, 0);

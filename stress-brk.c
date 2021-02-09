@@ -155,6 +155,7 @@ static int stress_brk_child(const stress_args_t *args, void *context)
  */
 static int stress_brk(const stress_args_t *args)
 {
+	int rc;
 	brk_context_t brk_context;
 
 	brk_context.brk_mlock = false;
@@ -170,7 +171,13 @@ static int stress_brk(const stress_args_t *args)
 			args->name);
 	}
 #endif
-	return stress_oomable_child(args, (void *)&brk_context, stress_brk_child, STRESS_OOMABLE_DROP_CAP);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	rc = stress_oomable_child(args, (void *)&brk_context, stress_brk_child, STRESS_OOMABLE_DROP_CAP);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	return rc;
 }
 
 stressor_info_t stress_brk_info = {

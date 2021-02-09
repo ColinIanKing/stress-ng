@@ -149,6 +149,8 @@ static int stress_get(const stress_args_t *args)
 
 	mounts_max = stress_mount_get(mnts, MOUNTS_MAX);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		char path[PATH_MAX];
 		char *ptr;
@@ -675,6 +677,8 @@ static int stress_get(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	stress_mount_free(mnts, mounts_max);
 

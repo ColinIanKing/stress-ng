@@ -326,7 +326,11 @@ static int stress_memrate(const stress_args_t *args)
 
 	context.memrate_bytes = (context.memrate_bytes + 63) & ~(63);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	rc = stress_oomable_child(args, &context, stress_memrate_child, STRESS_OOMABLE_NORMAL);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	pr_lock(&lock);
 	for (i = 0; i < memrate_items; i++) {

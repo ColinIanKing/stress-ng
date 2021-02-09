@@ -2385,6 +2385,8 @@ static int stress_sysinval(const stress_args_t *args)
 	if (args->instance == 0)
 		pr_dbg("%s: exercising %zd syscall test patterns\n", args->name, SIZEOF_ARRAY(stress_syscall_args));
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	ret = stress_oomable_child(args, NULL, stress_sysinval_child, STRESS_OOMABLE_DROP_CAP);
 
 	pr_dbg("%s: %" PRIu64 " unique syscalls argument combinations causing premature child termination\n",
@@ -2394,6 +2396,7 @@ static int stress_sysinval(const stress_args_t *args)
 
 	set_counter(args, current_context->counter);
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)page_ptr_wr, page_ptr_wr_size);
 	(void)munmap((void *)page_ptr, page_size);
 	(void)munmap((void *)small_ptr, small_ptr_size);
@@ -2404,6 +2407,7 @@ static int stress_sysinval(const stress_args_t *args)
 	if (fds[0] >= 0)
 		(void)close(fds[0]);
 err_dir:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 	hash_table_free();
 

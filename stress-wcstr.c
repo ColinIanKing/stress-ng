@@ -688,6 +688,8 @@ static int stress_wcs(const stress_args_t *args)
 
 	stress_wcs_fill(ptr1, len1);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		register wchar_t *tmpptr;
 		register size_t tmplen;
@@ -705,6 +707,8 @@ static int stress_wcs(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return failed ? EXIT_FAILURE : EXIT_SUCCESS;
 }

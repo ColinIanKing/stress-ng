@@ -112,6 +112,8 @@ static int stress_bsearch(const stress_args_t *args)
 		SETDATA(data, i, v, prev);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		for (ptr = data, i = 0; i < n; i++, ptr++) {
 			int32_t *result;
@@ -130,6 +132,8 @@ static int stress_bsearch(const stress_args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	free(data);
 	return EXIT_SUCCESS;

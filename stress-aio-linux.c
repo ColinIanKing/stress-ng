@@ -406,6 +406,8 @@ static int stress_aiol(const stress_args_t *args)
 	}
 	(void)unlink(filename);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	j = 0;
 	do {
 		uint8_t *bufptr;
@@ -536,16 +538,19 @@ static int stress_aiol(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fds[0]);
 	for (i = 1; i < aio_linux_requests; i++) {
 		if (fds[i] != fds[0])
 			(void)close(fds[i]);
 	}
 finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)shim_io_destroy(ctx);
 	(void)stress_temp_dir_rm_args(args);
 
 free_memory:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_aiol_free(buffer, cb, events, cbs, fds);
 	return rc;
 }

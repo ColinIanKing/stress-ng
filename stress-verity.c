@@ -69,6 +69,9 @@ static int stress_verity(const stress_args_t *args)
 		return exit_status(-ret);
 
 	(void)stress_temp_filename_args(args, filename, sizeof(filename), rnd);
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		struct fsverity_enable_arg enable;
 		char digest_buf[256];
@@ -218,6 +221,8 @@ static int stress_verity(const stress_args_t *args)
 	ret = EXIT_SUCCESS;
 
 clean:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 

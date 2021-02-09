@@ -241,6 +241,8 @@ static int stress_inode_flags(const stress_args_t *args)
 				stress_inode_flags_thread, &pa[i]);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		stress_inode_flags_stressor(args, &data);
 	} while (keep_stressing(args));
@@ -256,10 +258,13 @@ static int stress_inode_flags(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(data.file_fd);
 tidy_dir_fd:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(data.dir_fd);
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)unlink(file_name);
 	stress_temp_dir_rm_args(args);
 	(void)shim_pthread_spin_destroy(&spinlock);

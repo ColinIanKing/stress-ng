@@ -232,6 +232,8 @@ static int stress_aio(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		(void)shim_usleep_interruptible(250000); /* wait until a signal occurs */
 
@@ -279,6 +281,7 @@ cancel:
 	}
 	(void)close(fd);
 finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(io_reqs);
 
 	pr_dbg("%s: total of %" PRIu64 " async I/O signals "

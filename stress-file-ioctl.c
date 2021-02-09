@@ -116,6 +116,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 	(void)bad_fd;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int exercised = 0;
 
@@ -504,6 +506,7 @@ struct shim_space_resv {
 	ret = EXIT_SUCCESS;
 
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(FICLONE) || defined(FICLONERANGE)
 	(void)close(dfd);
 #endif

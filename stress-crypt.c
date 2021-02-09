@@ -70,6 +70,8 @@ static int stress_crypt_id(
  */
 static int stress_crypt(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		static const char seedchars[] =
 			"./0123456789ABCDEFGHIJKLMNOPQRST"
@@ -98,6 +100,8 @@ static int stress_crypt(const stress_args_t *args)
 #endif
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

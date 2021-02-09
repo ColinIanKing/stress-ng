@@ -116,6 +116,8 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		const unsigned int rnd = stress_mwc32();
 		const unsigned int i = rnd % malloc_max;
@@ -169,6 +171,8 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 		}
 	} while (keep_stressing(args));
 abort:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	for (j = 0; j < malloc_max; j++) {
 		free(addr[j]);
 	}

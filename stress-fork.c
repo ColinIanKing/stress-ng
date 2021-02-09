@@ -186,6 +186,7 @@ static int stress_fork_fn(
 static int stress_fork(const stress_args_t *args)
 {
 	uint32_t fork_max = DEFAULT_FORKS;
+	int rc;
 
 	if (!stress_get_setting("fork-max", &fork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -194,7 +195,13 @@ static int stress_fork(const stress_args_t *args)
 			fork_max = MIN_FORKS;
 	}
 
-	return stress_fork_fn(args, local_shim_fork, "fork", fork_max);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	rc = stress_fork_fn(args, local_shim_fork, "fork", fork_max);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	return rc;
 }
 
 
@@ -207,6 +214,9 @@ STRESS_PRAGMA_WARN_OFF
 static int stress_vfork(const stress_args_t *args)
 {
 	uint32_t vfork_max = DEFAULT_VFORKS;
+	int rc;
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (!stress_get_setting("vfork-max", &vfork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -215,7 +225,11 @@ static int stress_vfork(const stress_args_t *args)
 			vfork_max = MIN_VFORKS;
 	}
 
-	return stress_fork_fn(args, vfork, "vfork", vfork_max);
+	rc = stress_fork_fn(args, vfork, "vfork", vfork_max);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	return rc;
 }
 STRESS_PRAGMA_POP
 

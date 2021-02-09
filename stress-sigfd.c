@@ -80,7 +80,7 @@ static int stress_sigfd(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -157,6 +157,9 @@ again:
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 

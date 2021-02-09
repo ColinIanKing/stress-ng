@@ -219,6 +219,8 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 			stress_stack_alloc(args, &start, stack_fill, stack_mlock, 0);
 		}
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)munmap(altstack, altstack_size);
 
 	return EXIT_SUCCESS;
@@ -230,6 +232,8 @@ static int stress_stack_child(const stress_args_t *args, void *context)
  */
 static int stress_stack(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	return stress_oomable_child(args, NULL, stress_stack_child, STRESS_OOMABLE_NORMAL);
 }
 

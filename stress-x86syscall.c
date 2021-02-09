@@ -302,6 +302,8 @@ static int stress_x86syscall(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	t1 = stress_time_now();
 	do {
 		size_t i;
@@ -339,6 +341,8 @@ static int stress_x86syscall(const stress_args_t *args)
 		args->name,
 		((((t2 - t1)) * (double)STRESS_NANOSECOND) / (double)get_counter(args)) - overhead_ns,
 		overhead_ns);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

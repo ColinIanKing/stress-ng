@@ -80,6 +80,8 @@ static int stress_fault(const stress_args_t *args)
 	mapto = mmap(NULL, page_size, PROT_READ,
 		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int fd;
 		uint8_t *ptr;
@@ -195,6 +197,8 @@ next:
 		inc_counter(args);
 	} while (keep_stressing(args));
 	/* Clean up, most times this is redundant */
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (mapto != MAP_FAILED)
 		(void)munmap(mapto, page_size);

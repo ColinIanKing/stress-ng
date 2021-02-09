@@ -115,6 +115,8 @@ static int stress_zero(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		ssize_t ret;
 #if defined(__linux__)
@@ -182,6 +184,8 @@ static int stress_zero(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 
 	(void)munmap(wr_buffer, page_size);

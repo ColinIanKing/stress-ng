@@ -86,6 +86,8 @@ static int stress_icmp_flood(const stress_args_t *args)
 	servaddr.sin_addr.s_addr = addr;
 	(void)memset(&servaddr.sin_zero, 0, sizeof(servaddr.sin_zero));
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		const size_t payload_len = (stress_mwc32() % MAX_PAYLOAD_SIZE) + 1;
 		const size_t pkt_len =
@@ -136,8 +138,10 @@ static int stress_icmp_flood(const stress_args_t *args)
 	rc = EXIT_SUCCESS;
 
 err_socket:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	return rc;
 }
 

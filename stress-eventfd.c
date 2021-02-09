@@ -93,6 +93,7 @@ static int stress_eventfd(const stress_args_t *args)
 	if (test_fd >= 0)
 		(void)close(test_fd);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -239,6 +240,8 @@ exit_child:
 			inc_counter(args);
 		} while (keep_stressing(args));
 exit_parent:
+		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 		(void)close(fd1);

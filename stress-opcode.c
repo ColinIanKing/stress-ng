@@ -278,6 +278,8 @@ static int stress_opcode(const stress_args_t *args)
 
 	(void)stress_get_setting("opcode-method", &opcode_method);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		pid_t pid;
 
@@ -399,6 +401,8 @@ again:
 	}
 #endif
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 #if TRACK_SIGCOUNT
 	(void)munmap(sig_count, sig_count_size);
 #endif

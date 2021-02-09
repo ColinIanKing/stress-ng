@@ -453,6 +453,8 @@ static int stress_vm_addr(const stress_args_t *args)
 
 	*context.bit_error_count = 0ULL;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	ret = stress_oomable_child(args, &context, stress_vm_addr_child, STRESS_OOMABLE_NORMAL);
 
 	if (*context.bit_error_count > 0) {
@@ -461,6 +463,8 @@ static int stress_vm_addr(const stress_args_t *args)
 			args->name, *context.bit_error_count);
 		ret = EXIT_FAILURE;
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)munmap((void *)context.bit_error_count, page_size);
 
 	return ret;

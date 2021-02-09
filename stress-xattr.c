@@ -74,6 +74,8 @@ static int stress_xattr(const stress_args_t *args)
 	if (hugevalue)
 		(void)memset(hugevalue, 'X', hugevalue_sz - 1);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int i, j;
 		char attrname[32];
@@ -452,8 +454,10 @@ static int stress_xattr(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 out_close:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 out:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(hugevalue);
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);

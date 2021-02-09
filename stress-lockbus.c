@@ -120,6 +120,7 @@ static int stress_lockbus(const stress_args_t *args)
 	if (sigsetjmp(jmp_env, 1) && !keep_stressing(args))
 		goto done;
 #endif
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		uint32_t *ptr0 = buffer + ((stress_mwc32() % (BUFFER_SIZE - CHUNK_SIZE)) >> 2);
@@ -151,6 +152,8 @@ static int stress_lockbus(const stress_args_t *args)
 #if defined(STRESS_ARCH_X86)
 done:
 #endif
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)munmap((void *)buffer, BUFFER_SIZE);
 
 	return EXIT_SUCCESS;

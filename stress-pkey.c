@@ -53,6 +53,8 @@ static int stress_pkey(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int pkey, ret;
 		const int page_num = (stress_mwc8() % PAGES_TO_EXERCISE);
@@ -135,6 +137,8 @@ static int stress_pkey(const stress_args_t *args)
 		(void)shim_pkey_free(-1);
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap(pages, pages_size);
 	return rc;

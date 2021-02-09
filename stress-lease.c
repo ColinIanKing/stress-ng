@@ -226,6 +226,8 @@ static int stress_lease(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		ret = stress_try_lease(args, filename, O_WRONLY | O_APPEND, F_WRLCK);
 		if (ret != EXIT_SUCCESS)
@@ -236,6 +238,8 @@ static int stress_lease(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 reap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	for (i = 0; i < lease_breakers; i++) {
 		if (l_pids[i]) {
 			(void)kill(l_pids[i], SIGKILL);

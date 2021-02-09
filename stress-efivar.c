@@ -385,6 +385,7 @@ static int stress_efivar(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	if (!keep_stressing_flag())
 		return EXIT_SUCCESS;
@@ -424,6 +425,8 @@ again:
 		} while (keep_stressing(args));
 		_exit(0);
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap(efi_ignore, sz);
 	stress_dirent_list_free(efi_dentries, dir_count);

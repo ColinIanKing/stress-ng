@@ -52,6 +52,8 @@ static const stress_help_t help[] = {
  */
 static int stress_nop(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		register int i = 256;
 
@@ -63,6 +65,8 @@ static int stress_nop(const stress_args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

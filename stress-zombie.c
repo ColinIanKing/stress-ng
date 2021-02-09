@@ -154,6 +154,8 @@ static int stress_zombie(const stress_args_t *args)
 			zombie_max = MIN_ZOMBIES;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		if (zombies.length < zombie_max) {
 			stress_zombie_t *zombie;
@@ -190,6 +192,8 @@ static int stress_zombie(const stress_args_t *args)
 
 	pr_inf("%s: created a maximum of %" PRIu32 " zombies\n",
 		args->name, max_zombies);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* And reap */
 	while (zombies.head) {

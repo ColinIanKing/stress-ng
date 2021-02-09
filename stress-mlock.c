@@ -136,6 +136,8 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int ret;
 
@@ -306,6 +308,8 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 		for (i = 0; i < n; i++)
 			(void)munmap((void *)mappings[i], page_size);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)mappings, mappings_len);
 

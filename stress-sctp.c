@@ -379,6 +379,7 @@ static int stress_sctp(const stress_args_t *args)
 		args->name, (intmax_t)args->pid,
 		sctp_port + args->instance);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -398,6 +399,8 @@ again:
 
 	if (sigpipe_count)
 		pr_dbg("%s: caught %" PRIu64 " SIGPIPE signals\n", args->name, sigpipe_count);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return ret;
 }

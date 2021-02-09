@@ -51,6 +51,9 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		ssize_t i, n;
 
@@ -75,6 +78,8 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 			(void)munmap((void *)(mappings[i] + page_size + page_size), page_size);
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	free(mappings);
 	return EXIT_SUCCESS;

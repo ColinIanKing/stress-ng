@@ -329,6 +329,8 @@ static int stress_quota(const stress_args_t *args)
 	for (i = n_devs; i < n_mounts; i++)
 		(void)memset(&devs[i], 0, sizeof(devs[i]));
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	if (!n_devs) {
 		pr_err("%s: cannot find any candidate block "
 			"devices with quota enabled\n", args->name);
@@ -380,6 +382,8 @@ abort:
 	rc = EXIT_SUCCESS;
 
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	for (i = 0; i < n_devs; i++)
 		free(devs[i].name);
 

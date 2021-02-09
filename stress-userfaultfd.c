@@ -285,6 +285,8 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	c.page_size = page_size;
 	c.parent = self;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	/*
 	 *  We need to clone and share the same VM address space
 	 *  as parent so we can perform the page fault handling
@@ -382,6 +384,7 @@ do_read:
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	/* Run it over, zap child */
 	(void)kill(pid, SIGKILL);
 	if (shim_waitpid(pid, &status, 0) < 0) {
@@ -389,6 +392,7 @@ do_read:
 			args->name, errno, strerror(errno));
 	}
 unreg:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (ioctl(fd, UFFDIO_UNREGISTER, &reg) < 0) {
 		pr_err("%s: ioctl UFFDIO_UNREGISTER failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -396,8 +400,10 @@ unreg:
 		goto unmap_data;
 	}
 unmap_data:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap(data, sz);
 free_zeropage:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(zero_page);
 	if (fd > -1)
 		(void)close(fd);

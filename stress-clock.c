@@ -170,6 +170,8 @@ static int stress_clock(const stress_args_t *args)
 	const bool invalid_clock_id = check_invalid_clock_id(INT_MAX);
 #endif
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 #if defined(CLOCK_THREAD_CPUTIME_ID) && \
     defined(HAVE_CLOCK_GETTIME) &&	\
@@ -516,6 +518,8 @@ static int stress_clock(const stress_args_t *args)
 #endif
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

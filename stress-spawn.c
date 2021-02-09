@@ -89,6 +89,8 @@ static int stress_spawn(const stress_args_t *args)
 	path[len] = '\0';
 	argv_new[0] = path;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int ret;
 		pid_t pid;
@@ -115,6 +117,7 @@ static int stress_spawn(const stress_args_t *args)
 			args->name, spawn_fails,
 			(double)spawn_fails * 100.0 / (double)(spawn_calls));
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

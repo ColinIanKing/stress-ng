@@ -64,6 +64,8 @@ static int stress_ioprio(const stress_args_t *args)
 	}
 	(void)unlink(filename);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int i;
 		struct iovec iov[MAX_IOV];
@@ -237,8 +239,10 @@ static int stress_ioprio(const stress_args_t *args)
 	rc = EXIT_SUCCESS;
 
 cleanup_file:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 cleanup_dir:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 
 	return rc;

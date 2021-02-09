@@ -251,6 +251,7 @@ static int stress_exec(const stress_args_t *args)
 		goto err;
 	}
 #endif
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		unsigned int i;
@@ -378,6 +379,8 @@ do_exec:
 			}
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 #if defined(HAVE_EXECVEAT)
 	(void)close(fdexec);

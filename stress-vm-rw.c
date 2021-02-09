@@ -362,6 +362,7 @@ static int stress_vm_rw(const stress_args_t *args)
 		stress_get_stack_direction() * (STACK_SIZE - 64);
 	uint8_t *stack_top = stack + stack_offset;
 	size_t vm_rw_bytes = DEFAULT_VM_RW_BYTES;
+	int rc;
 
 	if (!stress_get_setting("vm-rw-bytes", &vm_rw_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -391,6 +392,7 @@ static int stress_vm_rw(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	ctxt.pid = clone(stress_vm_child, stress_align_stack(stack_top),
 		SIGCHLD | CLONE_VM, &ctxt);
@@ -405,7 +407,11 @@ again:
 		(void)close(ctxt.pipe_rd[1]);
 		return EXIT_NO_RESOURCE;
 	}
-	return stress_vm_parent(&ctxt);
+	rc = stress_vm_parent(&ctxt);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	return rc;
 }
 
 stressor_info_t stress_vm_rw_info = {

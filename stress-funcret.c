@@ -291,7 +291,12 @@ static int stress_funcret(const stress_args_t *args)
 
 	(void)stress_get_setting("funcret-method", &funcret_method);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	funcret_method->func(args);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 

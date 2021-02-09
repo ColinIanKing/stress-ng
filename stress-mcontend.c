@@ -381,6 +381,8 @@ static int stress_mcontend(const stress_args_t *args)
 				stress_memory_contend_thread, &pa);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		stress_memory_contend(&pa);
 #if defined(HAVE_MSYNC)
@@ -389,6 +391,8 @@ static int stress_mcontend(const stress_args_t *args)
 #endif
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		if (ret[i] == 0)

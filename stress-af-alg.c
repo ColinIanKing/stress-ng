@@ -730,6 +730,8 @@ static int stress_af_alg(const stress_args_t *args)
 		(void)shim_usleep(200000);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		stress_crypto_info_t *info;
 
@@ -760,6 +762,8 @@ static int stress_af_alg(const stress_args_t *args)
 			}
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	rc = EXIT_SUCCESS;
 	(void)close(sockfd);

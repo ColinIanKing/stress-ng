@@ -162,6 +162,8 @@ static int stress_remap(const stress_args_t *args)
 		mapped = NULL;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		size_t order[N_PAGES];
 		int ret;
@@ -224,6 +226,8 @@ static int stress_remap(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap(data, data_size);
 	if (mapped)

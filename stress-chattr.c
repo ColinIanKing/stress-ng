@@ -170,6 +170,8 @@ static int stress_chattr(const stress_args_t *args)
 	(void)stress_temp_filename(filename, sizeof(filename),
 		args->name, ppid, 0, 0);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		size_t i, fail = 0;
 
@@ -186,6 +188,8 @@ static int stress_chattr(const stress_args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)unlink(filename);
 	(void)rmdir(pathname);

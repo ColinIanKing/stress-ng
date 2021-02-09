@@ -146,6 +146,8 @@ static int stress_membarrier(const stress_args_t *args)
 				stress_membarrier_thread, (void *)&pargs);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		if (stress_membarrier_exercise(args) < 0) {
 			pr_err("%s: membarrier failed: errno=%d: (%s)\n",
@@ -155,6 +157,8 @@ static int stress_membarrier(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	keep_running = false;
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
 		if (pthread_ret[i] == 0)

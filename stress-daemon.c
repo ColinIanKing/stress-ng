@@ -140,6 +140,7 @@ static int stress_daemon(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	if (!keep_stressing(args))
 		return EXIT_SUCCESS;
@@ -182,6 +183,8 @@ again:
 			inc_counter(args);
 		} while (keep_stressing(args));
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

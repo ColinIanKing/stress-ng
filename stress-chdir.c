@@ -141,6 +141,8 @@ static int stress_chdir(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		for (i = 0; i < chdir_dirs; i++) {
 			uint32_t j = stress_mwc32() % chdir_dirs;
@@ -239,6 +241,7 @@ abort:
 		pr_fail("%s: chdir %s failed, errno=%d (%s)\n",
 			args->name, cwd, errno, strerror(errno));
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu32 " directories\n",
 		args->name, chdir_dirs);
@@ -253,6 +256,7 @@ tidy:
 	}
 	(void)stress_temp_dir_rm_args(args);
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(mkdir_ok);
 	free(fds);
 	free(paths);

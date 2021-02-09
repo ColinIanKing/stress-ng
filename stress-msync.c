@@ -168,6 +168,8 @@ static int stress_msync(const stress_args_t *args)
 		goto err;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		off_t offset;
 		uint8_t val, data[page_size];
@@ -277,8 +279,11 @@ do_next:
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)buf, sz);
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 

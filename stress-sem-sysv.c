@@ -513,16 +513,21 @@ static int stress_sem_sysv(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGCHLD, stress_sem_sysv_sigchild, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		pids[i] = semaphore_sysv_spawn(args);
 		if (!keep_stressing_flag() || pids[i] < 0)
 			goto reap;
 	}
+
 	/* Wait for termination */
 	while (keep_stressing(args))
 		pause();
 reap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		if (pids[i] > 0)
 			(void)kill(pids[i], SIGKILL);

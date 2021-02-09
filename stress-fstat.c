@@ -286,6 +286,8 @@ static int stress_fstat(const stress_args_t *args)
 	(void)closedir(dp);
 
 	(void)sigfillset(&set);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		stat_some = false;
 
@@ -303,6 +305,8 @@ static int stress_fstat(const stress_args_t *args)
 
 	ret = EXIT_SUCCESS;
 free_cache:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	/* Free cache */
 	for (si = stat_info; si; ) {
 		stress_stat_info_t *next = si->next;

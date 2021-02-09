@@ -1473,6 +1473,8 @@ static int stress_zlib(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	pid = fork();
 	if (pid < 0) {
 		(void)close(fds[0]);
@@ -1560,6 +1562,8 @@ static int stress_zlib(const stress_args_t *args)
 			}
 		}
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)close(deflate_xsum_fds[0]);
 	(void)close(deflate_xsum_fds[1]);
 	(void)close(inflate_xsum_fds[0]);

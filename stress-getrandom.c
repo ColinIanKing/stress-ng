@@ -109,6 +109,8 @@ static const getrandom_flags_t getrandom_flags[] = {
  */
 static int stress_getrandom(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		char buffer[RANDOM_BUFFER_SIZE];
 		size_t i;
@@ -137,6 +139,8 @@ static int stress_getrandom(const stress_args_t *args)
 			inc_counter(args);
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

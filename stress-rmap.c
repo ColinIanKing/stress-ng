@@ -223,6 +223,8 @@ static int stress_rmap(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	/*
 	 *  Wait for SIGINT or SIGALRM
 	 */
@@ -239,6 +241,8 @@ static int stress_rmap(const stress_args_t *args)
 	}
 
 cleanup:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	/*
 	 *  Kill and wait for children
 	 */

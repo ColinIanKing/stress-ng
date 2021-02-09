@@ -183,6 +183,8 @@ static int stress_swap(const stress_args_t *args)
 		goto tidy_close;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int swapflags = 0;
 		uint32_t npages = (stress_mwc32() % (MAX_SWAP_PAGES - MIN_SWAP_PAGES)) +
@@ -244,13 +246,17 @@ static int stress_swap(const stress_args_t *args)
 
 	ret = EXIT_SUCCESS;
 tidy_close:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 tidy_rm:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 tidy_free:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(page);
 tidy_ret:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	return ret;
 }
 

@@ -392,6 +392,7 @@ static int stress_sockfd(const stress_args_t *args)
 	pr_dbg("%s: process [%" PRIdMAX "] using socket port %d and %zd file descriptors\n",
 		args->name, (intmax_t)args->pid, socket_fd_port, max_fd);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -410,6 +411,9 @@ again:
 	} else {
 		ret = stress_socket_server(args, pid, ppid, max_fd, socket_fd_port);
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return ret;
 }
 

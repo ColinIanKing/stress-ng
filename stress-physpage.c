@@ -170,6 +170,8 @@ static int stress_physpage(const stress_args_t *args)
 	 */
 	fd_mem = open("/dev/mem", O_RDONLY);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		void *nptr;
 
@@ -184,6 +186,8 @@ static int stress_physpage(const stress_args_t *args)
 		ptr += page_size;
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (fd_mem > 0)
 		(void)close(fd_mem);

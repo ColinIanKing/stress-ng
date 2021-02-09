@@ -135,6 +135,7 @@ static int stress_poll(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -356,6 +357,8 @@ abort:
 	}
 
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	for (i = 0; i < max_fds; i++) {
 		(void)close(pipe_fds[i].fd[0]);
 		(void)close(pipe_fds[i].fd[1]);

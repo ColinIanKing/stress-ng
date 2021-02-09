@@ -3402,6 +3402,7 @@ static int stress_enosys(const stress_args_t *args)
 	stress_x86syscall_available = stress_check_x86syscall();
 #endif
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	if (!keep_stressing(args))
 		return EXIT_SUCCESS;
@@ -3524,6 +3525,8 @@ finish:
 		syscall_free();
 		_exit(EXIT_SUCCESS);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 stressor_info_t stress_enosys_info = {

@@ -113,6 +113,8 @@ static int stress_pipeherd(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 #if defined(HAVE_GETRUSAGE) &&	\
     defined(RUSAGE_CHILDREN) &&	\
     defined(RUSAGE_SELF) &&	\
@@ -150,6 +152,8 @@ static int stress_pipeherd(const stress_args_t *args)
     defined(HAVE_RUSAGE_RU_NVCSW)
 	t2 = stress_time_now();
 #endif
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < PIPE_HERD_MAX; i++) {
 		if (pids[i] >= 0) {

@@ -184,6 +184,8 @@ static int stress_itimer(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		size_t i;
 		struct itimerval t;
@@ -195,6 +197,8 @@ static int stress_itimer(const stress_args_t *args)
 
 		set_counter(args, itimer_counter);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)memset(&timer, 0, sizeof(timer));
 	(void)setitimer(ITIMER_PROF, &timer, NULL);

@@ -522,6 +522,8 @@ static int stress_stream(const stress_args_t *args)
 	stress_stream_init_data(b, n);
 	stress_stream_init_data(c, n);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	t1 = stress_time_now();
 	do {
 		switch (stream_index) {
@@ -571,21 +573,29 @@ static int stress_stream(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	if (idx3)
 		(void)munmap((void *)idx3, sz_idx);
 err_idx3:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (idx2)
 		(void)munmap((void *)idx2, sz_idx);
 err_idx2:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (idx1)
 		(void)munmap((void *)idx1, sz_idx);
 err_idx1:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)c, sz);
 err_c:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)b, sz);
 err_b:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)a, sz);
 err_a:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
 }

@@ -90,6 +90,8 @@ static int stress_tun(const stress_args_t *args)
 
 	(void)stress_get_setting("tun-tap", &tun_tap);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int i, fd, sfd, ret, status;
 		pid_t pid;
@@ -346,6 +348,9 @@ clean_up:
 		(void)close(fd);
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 
 	return rc;
 }

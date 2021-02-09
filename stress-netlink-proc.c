@@ -229,11 +229,15 @@ static int stress_netlink_proc(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		spawn_several(args->name, 0, 5);
 		if (monitor(args, sock) < 0)
 			break;
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(sock);
 

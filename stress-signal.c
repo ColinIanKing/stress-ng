@@ -69,6 +69,8 @@ static int stress_signal(const stress_args_t *args)
 
 	counter = 0;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		uint64_t tmp;
 
@@ -117,6 +119,8 @@ static int stress_signal(const stress_args_t *args)
 
 		set_counter(args, counter);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
 }

@@ -74,6 +74,7 @@ static int stress_env_child(const stress_args_t *args, void *context)
 	}
 
 	stress_strnrnd(value, arg_max);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		char name[64];
@@ -110,6 +111,8 @@ static int stress_env_child(const stress_args_t *args, void *context)
 	} while (keep_stressing(args));
 
 reap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)munmap(value, arg_max);
 
 	return EXIT_SUCCESS;

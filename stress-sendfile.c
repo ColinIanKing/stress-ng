@@ -109,6 +109,8 @@ static int stress_sendfile(const stress_args_t *args)
 
 	bad_fd = stress_get_bad_fd();
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		off_t offset = 0;
 
@@ -165,11 +167,14 @@ static int stress_sendfile(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 close_out:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fdout);
 close_in:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fdin);
 	(void)unlink(filename);
 dir_out:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 
 	return rc;

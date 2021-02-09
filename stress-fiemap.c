@@ -286,6 +286,8 @@ static int stress_fiemap(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (n = 0; n < MAX_FIEMAP_PROCS; n++) {
 		uint64_t proc_max_ops = ops_per_proc +
 			((n == 0) ? ops_remaining : 0);
@@ -303,6 +305,7 @@ static int stress_fiemap(const stress_args_t *args)
 	}
 	rc = stress_fiemap_writer(args, fd, fiemap_bytes, counters);
 reap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	/* And reap stressors */
 	for (i = 0; i < n; i++) {
 		(void)kill(pids[i], SIGKILL);
@@ -310,8 +313,10 @@ reap:
 		add_counter(args, counters[i]);
 	}
 close_clean:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 clean:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap(counters, counters_sz);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;

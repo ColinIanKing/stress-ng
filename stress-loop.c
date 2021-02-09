@@ -122,6 +122,8 @@ static int stress_loop(const stress_args_t *args)
 		goto tidy;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int ctrl_dev, loop_dev;
 		void *ptr;
@@ -379,8 +381,11 @@ next:
 	} while (keep_stressing(args));
 
 	rc = EXIT_SUCCESS;
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(backing_fd);
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 
 	return rc;

@@ -158,6 +158,7 @@ static int stress_mq(const stress_args_t *args)
 	}
 
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -356,6 +357,8 @@ again:
 		/* Exercise invalid mq_unlink */
 		(void)mq_unlink("/");
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 

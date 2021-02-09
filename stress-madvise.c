@@ -364,6 +364,8 @@ static int stress_madvise(const stress_args_t *args)
 		(void)ret;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		NOCLOBBER void *buf;
 
@@ -460,6 +462,8 @@ static int stress_madvise(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);

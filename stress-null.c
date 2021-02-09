@@ -46,6 +46,9 @@ static int stress_null(const stress_args_t *args)
 	}
 
 	(void)memset(buffer, 0xff, sizeof(buffer));
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		ssize_t ret;
 #if defined(__linux__)
@@ -79,6 +82,8 @@ static int stress_null(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 	(void)close(fd);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

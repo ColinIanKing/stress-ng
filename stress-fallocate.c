@@ -126,6 +126,8 @@ static int stress_fallocate(const stress_args_t *args)
 
 	pipe_ret = pipe(pipe_fds);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 #if defined(HAVE_POSIX_FALLOCATE)
 		ret = posix_fallocate(fd, (off_t)0, fallocate_bytes);
@@ -249,6 +251,8 @@ static int stress_fallocate(const stress_args_t *args)
 		(void)close(pipe_fds[0]);
 		(void)close(pipe_fds[1]);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 

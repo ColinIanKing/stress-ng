@@ -289,11 +289,15 @@ static int stress_netlink_task(const stress_args_t *args)
 		(void)close(sock);
 		return EXIT_FAILURE;
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		if (stress_netlink_taskstats_monitor(args, sock, pid, id, &nivcsw) < 0)
 			break;
 	} while (keep_stressing(args));
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if 0
 	/* Some statistics */
 	pr_inf("%s: process %d has %" PRIu64 " involuntary context switches\n",

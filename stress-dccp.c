@@ -407,6 +407,7 @@ static int stress_dccp(const stress_args_t *args)
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, dccp_port + args->instance);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -421,8 +422,12 @@ again:
 		stress_dccp_client(args, ppid, dccp_port, dccp_domain);
 		_exit(EXIT_SUCCESS);
 	} else {
-		return stress_dccp_server(args, pid, ppid, dccp_port,
+		int rc;
+
+		rc = stress_dccp_server(args, pid, ppid, dccp_port,
 			dccp_domain, dccp_opts);
+		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+		return rc;
 	}
 }
 

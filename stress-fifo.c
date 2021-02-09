@@ -212,6 +212,8 @@ static int stress_fifo(const stress_args_t *args)
 		goto reap;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		ssize_t ret;
 
@@ -232,8 +234,10 @@ static int stress_fifo(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 reap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	for (i = 0; i < fifo_readers; i++) {
 		if (pids[i] > 0) {
 			int status;
@@ -243,6 +247,7 @@ reap:
 		}
 	}
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)unlink(fifoname);
 	(void)stress_temp_dir_rm_args(args);
 

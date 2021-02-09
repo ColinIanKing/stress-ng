@@ -683,6 +683,8 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
  */
 static int stress_prctl(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		pid_t pid;
 
@@ -721,6 +723,8 @@ static int stress_prctl(const stress_args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

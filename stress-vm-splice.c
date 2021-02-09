@@ -102,6 +102,8 @@ static int stress_vm_splice(const stress_args_t *args)
 
 	stress_strnrnd(data, sizeof(data));
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int ret;
 		ssize_t bytes;
@@ -136,6 +138,8 @@ static int stress_vm_splice(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap(buf, sz);
 	(void)close(fd);

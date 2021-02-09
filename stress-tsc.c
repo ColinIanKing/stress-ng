@@ -226,6 +226,8 @@ static inline void rdtsc(void)
  */
 static int stress_tsc(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	if (tsc_supported) {
 		do {
 			TSCx32();
@@ -235,6 +237,8 @@ static int stress_tsc(const stress_args_t *args)
 			inc_counter(args);
 		} while (keep_stressing(args));
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 

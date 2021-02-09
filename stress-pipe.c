@@ -185,6 +185,7 @@ static int stress_pipe(const stress_args_t *args)
 	}
 #endif
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -280,6 +281,8 @@ again:
 		(void)close(pipefds[1]);
 		free(buf);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 

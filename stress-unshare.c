@@ -99,6 +99,8 @@ static int stress_unshare(const stress_args_t *args)
 	const uid_t euid = geteuid();
 #endif
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		size_t i, n;
 
@@ -196,6 +198,8 @@ static int stress_unshare(const stress_args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+	
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

@@ -142,6 +142,8 @@ static int stress_context(const stress_args_t *args)
 
 	set_counter(args, __counter / 1000);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (i = 0; i < SIZEOF_ARRAY(context); i++) {
 		if (context[i].canary.check0 != context[i].cu.check0) {
 			pr_fail("%s: swapcontext clobbered data before context region\n",
@@ -152,6 +154,7 @@ static int stress_context(const stress_args_t *args)
 				args->name);
 		}
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

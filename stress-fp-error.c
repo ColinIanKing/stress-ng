@@ -112,6 +112,8 @@ static void stress_fp_check(
  */
 static int stress_fp_error(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		volatile double d1, d2;
 
@@ -194,6 +196,8 @@ static int stress_fp_error(const stress_args_t *args)
 			pr_fail("%s: fegetround() returned -1\n", args->name);
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

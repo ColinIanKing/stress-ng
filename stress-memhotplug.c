@@ -206,6 +206,8 @@ static int stress_memhotplug(const stress_args_t *args)
 	pr_dbg("%s: found %zd removable hotplug memory regions\n",
 		args->name, max);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		bool ok = false;
 		for (i = 0; keep_stressing(args) && (i < max); i++) {
@@ -219,6 +221,8 @@ static int stress_memhotplug(const stress_args_t *args)
 				stress_memhotplug_mem_online(&mem_info[i]);
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < max; i++)
 		stress_memhotplug_mem_online(&mem_info[i]);

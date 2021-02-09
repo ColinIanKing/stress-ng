@@ -126,6 +126,9 @@ static int stress_ioport(const stress_args_t *args)
 	fd = open("/dev/port", O_RDWR);
 
 	v = inb(IO_PORT);
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		if (flag & IOPORT_OPT_IN) {
 			(void)inb(IO_PORT);
@@ -220,6 +223,8 @@ static int stress_ioport(const stress_args_t *args)
 #endif
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (fd >= 0)
 		(void)close(fd);

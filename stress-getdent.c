@@ -255,6 +255,8 @@ static int stress_getdent(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const int bad_fd = stress_get_bad_fd();
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int ret;
 
@@ -274,6 +276,8 @@ static int stress_getdent(const stress_args_t *args)
 		if (ret == -ENOSYS)
 			break;
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

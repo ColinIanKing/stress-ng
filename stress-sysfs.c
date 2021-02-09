@@ -631,6 +631,8 @@ static int stress_sysfs(const stress_args_t *args)
 
 	(void)memset(ret, 0, sizeof(ret));
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (i = 0; i < MAX_SYSFS_THREADS; i++) {
 		ret[i] = pthread_create(&pthreads[i], NULL,
 				stress_sys_rw_thread, &ctxt);
@@ -665,6 +667,8 @@ static int stress_sysfs(const stress_args_t *args)
 		rc = shim_pthread_spin_unlock(&lock);
 		(void)rc;
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* Forcefully kill threads */
 	for (i = 0; i < MAX_SYSFS_THREADS; i++) {

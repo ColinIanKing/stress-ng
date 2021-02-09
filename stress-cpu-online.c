@@ -151,6 +151,7 @@ static int stress_cpu_online(const stress_args_t *args)
 			args->name, cpu_online_count + 1);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	/*
 	 *  Now randomly offline/online them all
@@ -174,6 +175,8 @@ static int stress_cpu_online(const stress_args_t *args)
 			inc_counter(args);
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/*
 	 *  Force CPUs all back online

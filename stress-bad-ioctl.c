@@ -342,6 +342,8 @@ static int stress_bad_ioctl(const stress_args_t *args)
 
 	(void)memset(ret, 0, sizeof(ret));
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		pid_t pid;
 
@@ -432,6 +434,8 @@ again:
 			_exit(EXIT_SUCCESS);
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)shim_pthread_spin_destroy(&lock);
 

@@ -155,6 +155,8 @@ static int stress_sigio(const stress_args_t *args)
 		_exit(1);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	/* Parent */
 	do {
 		struct timeval timeout;
@@ -178,6 +180,7 @@ static int stress_sigio(const stress_args_t *args)
 	rc = EXIT_SUCCESS;
 
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fds[0]);
 	(void)close(fds[1]);
 

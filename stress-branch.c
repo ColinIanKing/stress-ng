@@ -211,6 +211,8 @@ static int stress_branch(const stress_args_t *args)
 		&&label0xfc, &&label0xfd, &&label0xfe, &&label0xff,
 	};
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (;;) {
 		JMP(0x00) JMP(0x01) JMP(0x02) JMP(0x03)
 		JMP(0x04) JMP(0x05) JMP(0x06) JMP(0x07)
@@ -281,6 +283,8 @@ static int stress_branch(const stress_args_t *args)
 		JMP(0xfc) JMP(0xfd) JMP(0xfe) JMP(0xff)
 	}
 ret:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 

@@ -271,6 +271,7 @@ static int stress_dir(const stress_args_t *args)
 #if defined(O_DIRECTORY)
 	dirfd = open(pathname, O_DIRECTORY | O_RDONLY);
 #endif
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		uint64_t i, n = dir_dirs;
@@ -326,6 +327,7 @@ static int stress_dir(const stress_args_t *args)
 	if (dirfd >= 0)
 		(void)close(dirfd);
 #endif
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)stress_temp_dir_rm_args(args);
 

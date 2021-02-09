@@ -376,7 +376,11 @@ static int stress_tmpfs(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	ret = stress_oomable_child(args, &context, stress_tmpfs_child, STRESS_OOMABLE_NORMAL);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(context.fd);
 

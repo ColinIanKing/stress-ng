@@ -68,6 +68,8 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 	/* Round growth size to nearest page size */
 	bigheap_growth &= ~(page_size - 1);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		void *old_ptr = ptr;
 		size += (size_t)bigheap_growth;
@@ -134,6 +136,8 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 		inc_counter(args);
 	} while (keep_stressing(args));
 abort:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	free(ptr);
 
 	return EXIT_SUCCESS;

@@ -68,6 +68,7 @@ static int stress_mlockmany(const stress_args_t *args)
 #else
 	mlock_size = args->page_size * 1024;
 #endif
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		unsigned int i, n;
@@ -181,6 +182,8 @@ unmap:
 			}
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

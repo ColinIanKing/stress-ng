@@ -152,6 +152,8 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 	if (stress_sigaltstack(stack, MINSIGSTKSZ) < 0)
 		return EXIT_NO_RESOURCE;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	/* Child rlimit stressor */
 	do {
 		int ret;
@@ -255,6 +257,8 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 			break;		/* Something went wrong! */
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(context->fd);
 

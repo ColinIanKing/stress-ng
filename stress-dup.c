@@ -237,6 +237,8 @@ static int stress_dup(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		size_t n;
 
@@ -361,11 +363,14 @@ static int stress_dup(const stress_args_t *args)
 			(void)close(fds[i]);
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fds[0]);
 
 #if defined(STRESS_DUP2_RACE)
 tidy_dir:
 	if (info != MAP_FAILED) {
+		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 		if (info->fifoname[0])
 			(void)unlink(info->fifoname);
 		(void)stress_temp_dir_rm_args(args);

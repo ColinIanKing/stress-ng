@@ -54,6 +54,8 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		uint8_t *mem, *ptr;
 		int retry = 128;
@@ -162,6 +164,8 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 		(void)sched_setaffinity(0, sizeof(proc_mask_initial), &proc_mask_initial);
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

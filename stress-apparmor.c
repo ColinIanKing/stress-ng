@@ -546,7 +546,6 @@ static int apparmor_stress_corruption(
 	int rc = EXIT_SUCCESS;
 	aa_kernel_interface *kern_if;
 
-
 	/*
 	 *  Lets feed AppArmor with some bit corrupted data...
 	 */
@@ -688,6 +687,9 @@ static int stress_apparmor(const stress_args_t *args)
 			ops_per_child + ((i == 0) ? ops : 0),
 			&counters[i], apparmor_funcs[i]);
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	while (keep_stressing(args)) {
 		uint64_t tmp_counter = 0;
 
@@ -699,6 +701,8 @@ static int stress_apparmor(const stress_args_t *args)
 		if (max_ops && tmp_counter >= max_ops)
 			break;
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* Wakeup, time to die */
 	for (i = 0; i < n; i++) {

@@ -662,6 +662,8 @@ static int stress_cyclic(const stress_args_t *args)
 	if (args->instance == 0)
 		pr_dbg("%s: using method '%s'\n", args->name, cyclic_method->name);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	pid = fork();
 	if (pid < 0) {
 		pr_inf("%s: cannot fork, errno=%d (%s)\n",
@@ -838,6 +840,8 @@ tidy:
 				policies[cyclic_policy].name);
 		}
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)rt_stats, size);
 

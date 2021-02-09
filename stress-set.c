@@ -125,6 +125,8 @@ static int stress_set(const stress_args_t *args)
 		shim_strlcpy(longname, hostname, sizeof(longname));
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int ret;
 		pid_t pid;
@@ -429,6 +431,8 @@ static int stress_set(const stress_args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

@@ -80,6 +80,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 #if defined(HAVE_SCHED_GETATTR) &&	\
     defined(HAVE_SCHED_SETATTR)
@@ -359,6 +361,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 		policy %= SIZEOF_ARRAY(policies);
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

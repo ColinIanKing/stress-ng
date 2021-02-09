@@ -884,7 +884,11 @@ static int stress_funccall(const stress_args_t *args)
 
 	(void)stress_get_setting("funccall-method", &funccall_method);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	funccall_method->func(args);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	return EXIT_SUCCESS;
 }
 

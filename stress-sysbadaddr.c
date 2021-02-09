@@ -1096,9 +1096,12 @@ static int stress_sysbadaddr(const stress_args_t *args)
 	 */
 	(void)munmap((void *)(((uint8_t *)rw_page) + page_size), page_size);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	ret = stress_oomable_child(args, NULL, stress_sysbadaddr_child, STRESS_OOMABLE_DROP_CAP);
 
 cleanup:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_munmap(wo_page, page_size);
 	stress_munmap(no_page, page_size);
 	stress_munmap(rx_page, page_size);

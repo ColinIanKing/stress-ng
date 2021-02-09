@@ -114,6 +114,8 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		ssize_t n;
 		uint8_t *redo_unmapping = NULL;
@@ -170,6 +172,8 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 			(void)munmap(redo_unmapping, page_size3);
 
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(fd);
 

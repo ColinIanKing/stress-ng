@@ -293,6 +293,8 @@ static int stress_sockmany(const stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sockmany_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -308,6 +310,9 @@ again:
 		rc = stress_sockmany_server(args, pid, ppid);
 	}
 	pr_dbg("%s: %d sockets opened at one time\n", args->name, sock_fds->max_fd);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)munmap((void *)sock_fds, args->page_size);
 	return rc;
 }

@@ -511,6 +511,9 @@ static int stress_hdd(const stress_args_t *args)
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int fd;
 		struct stat statbuf;
@@ -806,6 +809,8 @@ rnd_rd_retry:
 yielded:
 	rc = EXIT_SUCCESS;
 finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	free(alloc_buf);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;

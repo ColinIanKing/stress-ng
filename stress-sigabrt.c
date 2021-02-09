@@ -45,6 +45,8 @@ static int stress_sigabrt(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		pid_t pid;
 
@@ -94,6 +96,8 @@ rewait:
 			}
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

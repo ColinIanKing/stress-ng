@@ -267,6 +267,8 @@ restart:
 	}
 	(void)fclose(fp);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	while (keep_stressing(args)) {
 		(void)stress_temp_filename(newname, PATH_MAX,
 			args->name, args->pid, inst2, i++);
@@ -364,6 +366,8 @@ break;
 		}
 #endif
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 #if defined(EXERCISE_RENAMEAT) ||	\
     defined(EXERCISE_RENAMEAT2)

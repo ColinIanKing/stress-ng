@@ -230,6 +230,8 @@ static int stress_numa(const stress_args_t *args)
 		goto numa_free;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int j, mode, ret, status[num_pages], dest_nodes[num_pages];
 		unsigned long i, node_mask[lbits], old_node_mask[lbits];
@@ -562,8 +564,10 @@ static int stress_numa(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap(buf, MMAP_SZ);
 numa_free:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_numa_free_nodes(n);
 
 	return rc;

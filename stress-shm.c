@@ -356,6 +356,8 @@ static int stress_shm(const stress_args_t *args)
 	}
 	orig_sz = sz = shm_posix_bytes & ~(page_size - 1);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	while (keep_stressing_flag() && retry) {
 		if (pipe(pipefds) < 0) {
 			pr_fail("%s: pipe failed, errno=%d (%s)\n",
@@ -469,6 +471,8 @@ fork_again:
 			args->name, restarts);
 	}
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return rc;
 }
 

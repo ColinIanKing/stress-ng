@@ -229,7 +229,9 @@ static int stress_affinity(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	stress_affinity_child(args, affinity_rand, cpus, counters, pids, 0);
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/*
 	 *  The first process to hit the bogo op limit or get a SIGALRM

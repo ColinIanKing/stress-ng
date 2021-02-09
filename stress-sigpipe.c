@@ -149,9 +149,14 @@ static int stress_sigpipe(const stress_args_t *args)
 
 	(void)memset(buf, 0, sizeof buf);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		stress_sigpipe_write(args, buf, sizeof buf);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 

@@ -63,6 +63,7 @@ static int stress_rawsock(const stress_args_t *args)
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -178,6 +179,7 @@ again:
 
 		(void)close(fd);
 die:
+		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 		if (pid) {
 			(void)kill(pid, SIGKILL);
 			(void)shim_waitpid(pid, &status, 0);

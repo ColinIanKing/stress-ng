@@ -685,6 +685,8 @@ static int stress_resources(const stress_args_t *args)
 		resource_forks = RESOURCE_FORKS;
 	mem_slack = (args->num_instances * resource_forks * MB);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		unsigned int i;
 
@@ -722,6 +724,8 @@ static int stress_resources(const stress_args_t *args)
 		}
 		kill_children(resource_forks);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

@@ -1769,6 +1769,7 @@ again:
 				/* Child */
 				(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
 					stress_munge_underscore(g_stressor_current->stressor->name));
+				stress_set_proc_state(name, STRESS_STATE_START);
 
 				(void)sched_settings_apply(true);
 				(void)atexit(stress_child_atexit);
@@ -1783,11 +1784,13 @@ again:
 
 				if (g_opt_timeout)
 					(void)alarm(g_opt_timeout);
+
+				stress_set_proc_state(name, STRESS_STATE_INIT);
 				stress_mwc_reseed();
 				stress_set_oom_adjustment(name, false);
 				stress_set_max_limits();
 				stress_set_iopriority(ionice_class, ionice_level);
-				stress_set_proc_name(name);
+				//stress_set_proc_name(name);
 				(void)umask(0077);
 
 				pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
@@ -1824,6 +1827,7 @@ again:
 						stats->run_ok = true;
 						(*checksum)->data.run_ok = true;
 					}
+					stress_set_proc_state(name, STRESS_STATE_STOP);
 					/*
 					 *  Bogo ops counter should be OK for reading,
 					 *  if not then flag up that the counter may
@@ -1866,6 +1870,7 @@ child_exit:
 					wait_flag = false;
 					(void)kill(getppid(), SIGALRM);
 				}
+				stress_set_proc_state(name, STRESS_STATE_EXIT);
 				if (terminate_signum)
 					rc = EXIT_SIGNALED;
 				_exit(rc);

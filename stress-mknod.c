@@ -226,6 +226,7 @@ static int stress_mknod(const stress_args_t *args)
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	dirfd = open(pathname, O_DIRECTORY | O_RDONLY);
 #endif
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		uint64_t i, n = DEFAULT_DIRS;
@@ -259,6 +260,8 @@ static int stress_mknod(const stress_args_t *args)
 			break;
 		(void)sync();
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (dirfd >= 0)
 		(void)close(dirfd);

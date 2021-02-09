@@ -168,6 +168,8 @@ static int stress_hrtimers(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (i = 0; i < PROCS_MAX; i++) {
 		if (!keep_stressing(args))
 			goto reap;
@@ -201,6 +203,8 @@ static int stress_hrtimers(const stress_args_t *args)
 
 
 reap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	for (i = 0; i < PROCS_MAX; i++) {
 		if (pids[i] > 0)
 			(void)kill(pids[i], SIGALRM);

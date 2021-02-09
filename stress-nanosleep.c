@@ -120,6 +120,8 @@ static int stress_nanosleep(const stress_args_t *args)
 			goto tidy;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		set_counter(args, 0);
 		(void)shim_usleep_interruptible(10000);
@@ -129,6 +131,8 @@ static int stress_nanosleep(const stress_args_t *args)
 
 	ret = EXIT_SUCCESS;
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	thread_terminate = true;
 	for (i = 0; i < n; i++) {
 		ret = pthread_join(ctxts[i].pthread, NULL);

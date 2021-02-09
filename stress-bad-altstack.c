@@ -105,6 +105,8 @@ static int stress_bad_altstack(const stress_args_t *args)
 		zero_stack = MAP_FAILED;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		pid_t pid;
 
@@ -289,6 +291,8 @@ again:
 			_exit(EXIT_FAILURE);
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (zero_stack != MAP_FAILED)
 		(void)munmap(zero_stack, stack_sz);

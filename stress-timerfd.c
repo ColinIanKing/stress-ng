@@ -191,6 +191,8 @@ static int stress_timerfd(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		uint64_t expval;
 		struct itimerspec value;
@@ -273,6 +275,8 @@ static int stress_timerfd(const stress_args_t *args)
 			count = 0;
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < TIMERFD_MAX; i++) {
 		if (timerfd[i] > 0)

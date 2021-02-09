@@ -485,6 +485,9 @@ static int stress_vdso(const stress_args_t *args)
 	t2 = stress_time_now();
 
 	counter = get_counter(args);
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int j;
 
@@ -506,6 +509,8 @@ static int stress_vdso(const stress_args_t *args)
 		args->name,
 		((t2 - t1) * (double)STRESS_NANOSECOND) / (double)get_counter(args),
 		overhead_ns);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	vdso_sym_list_free(&vdso_sym_list);
 

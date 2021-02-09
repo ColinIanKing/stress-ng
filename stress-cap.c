@@ -110,6 +110,8 @@ static int stress_capgetset_pid(
  */
 static int stress_cap(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		DIR *dir;
 
@@ -142,6 +144,7 @@ static int stress_cap(const stress_args_t *args)
 		}
 	} while (keep_stressing(args));
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	return EXIT_SUCCESS;
 }
 

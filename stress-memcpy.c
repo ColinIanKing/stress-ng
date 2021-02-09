@@ -226,10 +226,14 @@ static int stress_memcpy(const stress_args_t *args)
 
 	stress_strnrnd((char *)aligned_buf, ALIGN_SIZE);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		memcpy_method->func(&b, b_str, str_shared, aligned_buf);
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

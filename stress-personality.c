@@ -55,6 +55,8 @@ static int stress_personality(const stress_args_t *args)
 	if (args->instance == 0)
 		pr_dbg("%s: exercising %zu personalities\n", args->name, n);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		ssize_t i, fails = 0;
 
@@ -93,6 +95,8 @@ static int stress_personality(const stress_args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

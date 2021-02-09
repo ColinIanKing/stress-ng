@@ -595,6 +595,7 @@ reap_mem:
 static int stress_memthrash(const stress_args_t *args)
 {
 	stress_memthrash_context_t context;
+	int rc;
 
 	context.total_cpus = stress_get_processors_configured();
 	context.max_threads = stress_memthrash_max(args->num_instances, context.total_cpus);
@@ -618,7 +619,13 @@ static int stress_memthrash(const stress_args_t *args)
 
 	(void)sigfillset(&set);
 
-	return stress_oomable_child(args, &context, stress_memthrash_child, STRESS_OOMABLE_NORMAL);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	rc = stress_oomable_child(args, &context, stress_memthrash_child, STRESS_OOMABLE_NORMAL);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

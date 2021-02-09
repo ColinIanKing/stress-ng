@@ -105,6 +105,8 @@ static int stress_copy_file(const stress_args_t *args)
 	}
 	(void)unlink(tmp);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		ssize_t ret;
 		shim_loff_t off_in, off_out;
@@ -129,10 +131,13 @@ static int stress_copy_file(const stress_args_t *args)
 	rc = EXIT_SUCCESS;
 
 tidy_out:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd_out);
 tidy_in:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd_in);
 tidy_dir:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 
 	return rc;

@@ -192,6 +192,8 @@ static int stress_flock(const stress_args_t *args)
 		goto err;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < MAX_FLOCK_STRESSORS; i++) {
 		pids[i] = fork();
@@ -210,6 +212,7 @@ static int stress_flock(const stress_args_t *args)
 	stress_flock_child(args, fd, bad_fd);
 	rc = EXIT_SUCCESS;
 reap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 
 	for (i = 0; i < MAX_FLOCK_STRESSORS; i++) {
@@ -223,6 +226,7 @@ reap:
 
 	(void)unlink(filename);
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 
 	return rc;

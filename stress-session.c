@@ -184,6 +184,8 @@ static int stress_session(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	while (keep_stressing(args)) {
 		pid_t pid;
 
@@ -227,6 +229,7 @@ static int stress_session(const stress_args_t *args)
 		}
 		inc_counter(args);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fds[0]);
 	(void)close(fds[1]);
 

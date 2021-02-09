@@ -95,6 +95,8 @@ static int stress_link_generic(
 
 	oldpathlen = strlen(oldpath);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	rc = EXIT_SUCCESS;
 	do {
 		uint64_t i, n = DEFAULT_LINKS;
@@ -214,6 +216,8 @@ static int stress_link_generic(
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)unlink(oldpath);
 	(void)stress_temp_dir_rm_args(args);

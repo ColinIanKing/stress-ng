@@ -152,6 +152,8 @@ static int stress_access(const stress_args_t *args)
 		goto tidy;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(modes); i++) {
 #if defined(HAVE_FACCESSAT)
@@ -254,6 +256,7 @@ static int stress_access(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (fd >= 0) {
 		(void)fchmod(fd, S_IRUSR | S_IWUSR);
 		(void)close(fd);

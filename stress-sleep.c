@@ -159,6 +159,8 @@ static int stress_sleep(const stress_args_t *args)
 	(void)memset(ctxts, 0, sizeof(ctxts));
 	(void)sigfillset(&set);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (n = 0; n < sleep_max; n++) {
 		ctxts[n].args = args;
 		ctxts[n].sleep_max = sleep_max;
@@ -190,6 +192,8 @@ static int stress_sleep(const stress_args_t *args)
 
 	ret = EXIT_SUCCESS;
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	thread_terminate = true;
 	for (i = 0; i < n; i++) {
 		ret = pthread_join(ctxts[i].pthread, NULL);

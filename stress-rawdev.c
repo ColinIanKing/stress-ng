@@ -425,9 +425,13 @@ static int stress_rawdev(const stress_args_t *args)
 		pr_dbg("%s: exercising %s (%lu blocks of size %d bytes)\n",
 			args->name, devpath, blks, blksz);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		func(args, fd, blks, (unsigned long)blksz);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(fd);
 

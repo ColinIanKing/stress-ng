@@ -101,6 +101,8 @@ static int stress_reboot(const stress_args_t *args)
 	}
 #endif
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int ret;
 #if defined(HAVE_CLONE)
@@ -155,6 +157,9 @@ static int stress_reboot(const stress_args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 #if defined(HAVE_CLONE)
 	free(stack);
 #endif

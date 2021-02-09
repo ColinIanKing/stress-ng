@@ -126,6 +126,8 @@ static int stress_pidfd(const stress_args_t *args)
 {
 	const int bad_fd = stress_get_bad_fd();
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	while (keep_stressing(args)) {
 		pid_t pid;
 
@@ -209,6 +211,8 @@ static int stress_pidfd(const stress_args_t *args)
 		}
 		inc_counter(args);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 

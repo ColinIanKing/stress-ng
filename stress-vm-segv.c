@@ -63,6 +63,8 @@ static int stress_vm_segv(const stress_args_t *args)
 {
 	stress_set_oom_adjustment(args->name, true);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		pid_t pid;
 
@@ -152,6 +154,8 @@ kill_child:
 			_exit(EXIT_FAILURE);
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

@@ -652,6 +652,8 @@ static int stress_fcntl(const stress_args_t *args)
 	(void)stress_temp_filename(filename, sizeof(filename),
 		args->name, ppid, 0, 0);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		errno = 0;
 		/*
@@ -688,6 +690,8 @@ static int stress_fcntl(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	if (fd >= 0)
 		(void)close(fd);
 	(void)unlink(filename);

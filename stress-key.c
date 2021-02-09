@@ -100,6 +100,8 @@ static int stress_key(const stress_args_t *args)
 	bool timeout_supported = true;
 	bool no_error = true;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		size_t i = 0, n = 0;
 		char description[64];
@@ -302,6 +304,8 @@ tidy:
 		(void)shim_keyctl(KEYCTL_CLEAR, KEY_SPEC_PROCESS_KEYRING);
 #endif
 	} while (no_error && keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
 }

@@ -120,6 +120,8 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		uint8_t *addr, *map_addr, *remap_addr;
 		int flags;
@@ -202,6 +204,8 @@ unmap:
 		(void)munmap((void *)map_addr, page_size);
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

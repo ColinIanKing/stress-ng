@@ -265,6 +265,8 @@ static int stress_sockdiag(const stress_args_t *args)
 {
 	int ret = EXIT_SUCCESS;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int fd, rc;
 
@@ -296,6 +298,8 @@ static int stress_sockdiag(const stress_args_t *args)
 		(void)sockdiag_recv(args, fd);
 		(void)close(fd);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return ret;
 }

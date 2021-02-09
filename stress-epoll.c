@@ -970,6 +970,8 @@ static int stress_epoll(const stress_args_t *args)
 			epoll_port + (max_servers * (args->instance + 1)) - 1);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	/*
 	 *  Spawn off servers to handle multi port connections.
 	 *  The (src address, src port, dst address, dst port) tuple
@@ -996,6 +998,8 @@ static int stress_epoll(const stress_args_t *args)
 
 	epoll_client(args, ppid, epoll_port, epoll_domain);
 reap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	for (i = 0; i < max_servers; i++) {
 		int status;
 

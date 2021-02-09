@@ -235,6 +235,8 @@ static int stress_rawudp(const stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -253,6 +255,8 @@ again:
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return rc;
 }
 

@@ -658,6 +658,8 @@ static int stress_ipsec_mb(const stress_args_t *args)
 
 	stress_rnd_fill(data, sizeof(data));
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		for (i = 0; i < n_features; i++) {
 			if ((init_mb[i].features & features) == init_mb[i].features) {
@@ -686,6 +688,8 @@ static int stress_ipsec_mb(const stress_args_t *args)
 				args->name, init_mb[i].name,
 				(float)count / t[i]);
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	free_mb_mgr(p_mgr);
 

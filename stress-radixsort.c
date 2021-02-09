@@ -131,6 +131,8 @@ static int stress_radixsort(const stress_args_t *args)
 		stress_strnrnd((char *)ptr, STR_SIZE);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		/* Sort "random" data */
 		(void)radixsort(data, n, NULL, 0);
@@ -150,6 +152,8 @@ static int stress_radixsort(const stress_args_t *args)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	free(data);
 	free(text);
 

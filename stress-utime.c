@@ -81,6 +81,8 @@ static int stress_utime(const stress_args_t *args)
 
 	stress_strnrnd(hugename, sizeof(hugename));
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		struct timeval timevals[2];
 #if (defined(HAVE_FUTIMENS) || defined(HAVE_UTIMENSAT)) && \
@@ -250,6 +252,8 @@ STRESS_PRAGMA_POP
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 #if defined(O_DIRECTORY) &&	\
     defined(O_PATH) &&		\

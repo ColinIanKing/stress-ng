@@ -241,6 +241,8 @@ static inline int stress_rtc_proc(const stress_args_t *args)
  */
 static int stress_rtc(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int ret;
 
@@ -257,6 +259,8 @@ static int stress_rtc(const stress_args_t *args)
 			break;
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

@@ -212,6 +212,8 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 
 	(void)stress_get_setting("mremap-mlock", &mremap_mlock);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		uint8_t *buf = NULL;
 		size_t old_sz;
@@ -282,6 +284,8 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

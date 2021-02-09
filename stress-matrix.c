@@ -973,6 +973,7 @@ static int stress_matrix(const stress_args_t *args)
 	stress_matrix_func func;
 	size_t matrix_size = 128;
 	size_t matrix_yx = 0;
+	int rc;
 
 	(void)stress_get_setting("matrix-method", &matrix_method_name);
 	(void)stress_get_setting("matrix-yx", &matrix_yx);
@@ -996,7 +997,13 @@ static int stress_matrix(const stress_args_t *args)
 			matrix_size = MIN_MATRIX_SIZE;
 	}
 
-	return stress_matrix_exercise(args, func, matrix_size);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	rc = stress_matrix_exercise(args, func, matrix_size);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	return rc;
 }
 
 static void stress_matrix_set_default(void)

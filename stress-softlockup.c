@@ -174,6 +174,8 @@ static int stress_softlockup(const stress_args_t *args)
 			"be %" PRIu64 " seconds\n", args->name, timeout);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	pid = fork();
 	if (pid < 0) {
 		pr_inf("%s: cannot fork, errno=%d (%s)\n",
@@ -273,6 +275,7 @@ tidy:
 
 		(void)shim_waitpid(pid, &status, 0);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

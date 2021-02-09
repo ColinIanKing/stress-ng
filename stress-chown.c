@@ -197,6 +197,8 @@ static int stress_chown(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int ret;
 
@@ -238,6 +240,8 @@ static int stress_chown(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	if (fd >= 0)
 		(void)close(fd);
 	(void)unlink(filename);

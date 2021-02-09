@@ -230,6 +230,7 @@ static int stress_close(const stress_args_t *args)
 		(void)unlink(filename);
 	}
 #endif
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		size_t domain, type;
@@ -393,6 +394,7 @@ static int stress_close(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < MAX_PTHREADS; i++) {
 		if (rets[i] == -1)

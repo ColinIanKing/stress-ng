@@ -550,6 +550,8 @@ static int stress_tree(const stress_args_t *args)
 		v = ror64(v);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		uint64_t rnd;
 
@@ -565,6 +567,7 @@ static int stress_tree(const stress_args_t *args)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(nodes);
 
 	return EXIT_SUCCESS;

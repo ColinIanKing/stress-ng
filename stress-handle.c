@@ -238,8 +238,12 @@ static int stress_handle(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	ret = stress_oomable_child(args, &mounts,
 		stress_handle_child, STRESS_OOMABLE_NORMAL);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	free_mount_info(mounts);
 

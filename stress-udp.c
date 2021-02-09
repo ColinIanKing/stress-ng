@@ -112,6 +112,7 @@ static int stress_udp(const stress_args_t *args)
 	pr_dbg("%s: process [%d] using udp port %d\n",
 		args->name, (int)args->pid, udp_port + args->instance);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -352,8 +353,10 @@ again:
 		} while (keep_stressing(args));
 
 die_close:
+		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 		(void)close(fd);
 die:
+		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
 		if ((udp_domain == AF_UNIX) && addr) {

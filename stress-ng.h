@@ -808,6 +808,17 @@ typedef unsigned long int __kernel_ulong_t;
 #define EXIT_METRICS_UNTRUSTWORTHY	(7)
 
 /*
+ *  Stressor run states
+ */
+#define STRESS_STATE_START		(0)
+#define STRESS_STATE_INIT		(1)
+#define STRESS_STATE_RUN		(2)
+#define STRESS_STATE_DEINIT		(3)
+#define STRESS_STATE_STOP		(4)
+#define STRESS_STATE_EXIT		(5)
+#define STRESS_STATE_WAIT		(6)
+
+/*
  *  Timing units
  */
 #define STRESS_NANOSECOND		(1000000000L)
@@ -3882,6 +3893,7 @@ extern const char *stress_get_sched_name(const int sched);
 extern void stress_set_iopriority(const int32_t class, const int32_t level);
 extern void stress_set_proc_name_init(int argc, char *argv[], char *envp[]);
 extern void stress_set_proc_name(const char *name);
+extern void stress_set_proc_state(const char *name, const int state);
 extern WARN_UNUSED int stress_get_unused_uid(uid_t *uid);
 
 /* Memory locking */

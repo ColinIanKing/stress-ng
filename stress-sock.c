@@ -1052,6 +1052,8 @@ static int stress_sock(const stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -1065,8 +1067,14 @@ again:
 			socket_type, socket_port, socket_domain);
 		_exit(EXIT_SUCCESS);
 	} else {
-		return stress_sock_server(args, pid, ppid, socket_opts,
+		int rc;
+
+		rc = stress_sock_server(args, pid, ppid, socket_opts,
 			socket_type, socket_port, socket_domain);
+
+		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+		return rc;
 	}
 }
 

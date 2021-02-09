@@ -106,6 +106,8 @@ static int stress_urandom(const stress_args_t *args)
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		char buffer[8192];
 		ssize_t ret;
@@ -233,6 +235,8 @@ next:
 
 	rc = EXIT_SUCCESS;
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	if (fd_urnd >= 0)
 		(void)close(fd_urnd);
 	if (fd_rnd >= 0)

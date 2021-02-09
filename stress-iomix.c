@@ -740,6 +740,8 @@ static int stress_iomix(const stress_args_t *args)
 	(void)memset(pids, 0, sizeof(pids));
 	(void)memset(counters, 0, sz);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (i = 0; i < SIZEOF_ARRAY(iomix_funcs); i++) {
 		stress_args_t tmp_args = *args;
 
@@ -788,9 +790,11 @@ reap:
 	}
 
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 unmap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)counters, sz);
 
 	return ret;

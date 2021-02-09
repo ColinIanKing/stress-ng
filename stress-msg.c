@@ -251,6 +251,7 @@ static int stress_msg(const stress_args_t *args)
 	if (!keep_stressing(args))
 		goto cleanup;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -361,8 +362,9 @@ again:
 			pr_dbg("%s: System V message queue deleted, id: %d\n", args->name, msgq_id);
 	}
 
-
 cleanup:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	for (j = 0; j < n; j++) {
 		if (msgq_ids[j] >= 0)
 			msgctl(msgq_ids[j], IPC_RMID, NULL);

@@ -179,6 +179,8 @@ seq_wr_retry:
 	rounded_readahead_bytes = (uint64_t)statbuf.st_size -
 		(statbuf.st_size % BUF_SIZE);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		off_t offsets[MAX_OFFSETS];
 
@@ -235,8 +237,10 @@ rnd_rd_retry:
 
 	rc = EXIT_SUCCESS;
 close_finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(buf);
 	(void)stress_temp_dir_rm_args(args);
 

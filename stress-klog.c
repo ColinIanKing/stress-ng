@@ -101,6 +101,7 @@ static int stress_klog(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		int ret, buflen = (stress_mwc32() % len) + 1;
@@ -155,6 +156,8 @@ static int stress_klog(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	free(buffer);
 	return EXIT_SUCCESS;

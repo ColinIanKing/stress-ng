@@ -650,6 +650,8 @@ static int stress_procfs(const stress_args_t *args)
 				stress_proc_rw_thread, &ctxt);
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		size_t j = args->instance % n;
 
@@ -693,6 +695,8 @@ static int stress_procfs(const stress_args_t *args)
 		rc = shim_pthread_spin_unlock(&lock);
 		(void)rc;
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < MAX_PROCFS_THREADS; i++) {
 		if (ret[i] == 0)

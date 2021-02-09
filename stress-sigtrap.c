@@ -51,6 +51,9 @@ static int stress_sigtrap(const stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGTRAP, stress_sigtrap_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	while (keep_stressing(args)) {
 		int ret;
 
@@ -70,6 +73,7 @@ static int stress_sigtrap(const stress_args_t *args)
 		}
 		set_counter(args, counter);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

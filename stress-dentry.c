@@ -293,6 +293,8 @@ static int stress_dentry(const stress_args_t *args)
 
 	(void)stress_temp_dir(dir_path, sizeof(dir_path), args->name, args->pid, args->instance);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		uint64_t i, n = dentries;
 		char path[PATH_MAX];
@@ -359,6 +361,8 @@ static int stress_dentry(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 abort:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	/* force unlink of all files */
 	pr_tidy("%s: removing %" PRIu64 " entries\n",
 		args->name, dentries);

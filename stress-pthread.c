@@ -442,6 +442,8 @@ static int stress_pthread(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		uint64_t i, j;
 
@@ -603,6 +605,8 @@ reap:
 			100.0 * (double)limited / (double)attempted,
 			pthread_max, args->instance);
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)pthread_cond_destroy(&cond);
 	(void)pthread_mutex_destroy(&mutex);

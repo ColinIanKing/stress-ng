@@ -73,6 +73,8 @@ static int stress_ptrace(const stress_args_t *args)
 {
 	pid_t pid;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	pid = fork();
 	if (pid < 0) {
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
@@ -186,6 +188,8 @@ static int stress_ptrace(const stress_args_t *args)
 			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 

@@ -214,6 +214,8 @@ static int HOT TARGET_CLONES stress_vecmath(const stress_args_t *args)
 	const stress_vint128_t v3_128 = { V3(INT1x128) };
 #endif
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int i;
 		for (i = 1000; i; i--) {
@@ -276,6 +278,7 @@ static int HOT TARGET_CLONES stress_vecmath(const stress_args_t *args)
 #if defined(HAVE_INT1x128_T)
 	stress_uint128_put(a128[0]);
 #endif
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

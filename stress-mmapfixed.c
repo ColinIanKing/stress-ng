@@ -63,6 +63,8 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 				stress_sigsegv_handler, NULL);
 	(void)ret;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		uint8_t *buf;
 		int flags = MAP_FIXED | MAP_ANONYMOUS;
@@ -118,6 +120,8 @@ next:
 		if (addr < MMAP_BOTTOM)
 			addr = MMAP_TOP;
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

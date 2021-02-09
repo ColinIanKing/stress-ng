@@ -105,6 +105,8 @@ static int stress_bind_mount(const stress_args_t *args)
 		stress_get_stack_direction() *
 		(CLONE_STACK_SIZE - 64);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int ret;
 		static char stack[CLONE_STACK_SIZE];
@@ -126,6 +128,8 @@ static int stress_bind_mount(const stress_args_t *args)
 		ret = shim_waitpid(pid, &status, 0);
 		(void)ret;
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

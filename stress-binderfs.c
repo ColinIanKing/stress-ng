@@ -104,6 +104,8 @@ static int stress_binderfs(const stress_args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int fd;
 #if defined(BINDER_CTL_ADD)
@@ -156,6 +158,8 @@ close_control:
 
 	rc = EXIT_SUCCESS;
 clean:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)stress_temp_dir_rm_args(args);
 
 	return rc;

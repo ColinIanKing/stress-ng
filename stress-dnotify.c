@@ -416,11 +416,16 @@ static int stress_dnotify(const stress_args_t *args)
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		for (i = 0; keep_stressing_flag() && dnotify_stressors[i].func; i++)
 			dnotify_stressors[i].func(args, pathname);
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;

@@ -372,6 +372,8 @@ static int stress_ramfs_mount(const stress_args_t *args)
 {
 	int pid;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 again:
 		if (!keep_stressing_flag())
@@ -417,6 +419,8 @@ again:
 			_exit(stress_ramfs_child(args));
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

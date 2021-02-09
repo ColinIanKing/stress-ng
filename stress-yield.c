@@ -103,6 +103,8 @@ static int stress_yield(const stress_args_t *args)
 	}
 	(void)memset(counters, 0, counters_sz);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (i = 0; keep_stressing_flag() && (i < yielders); i++) {
 		pids[i] = fork();
 		if (pids[i] < 0) {
@@ -144,6 +146,8 @@ static int stress_yield(const stress_args_t *args)
 
 	/* Parent, wait for children */
 	set_counter(args, 0);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	for (i = 0; i < yielders; i++) {
 		if (pids[i] > 0) {
 			int status;

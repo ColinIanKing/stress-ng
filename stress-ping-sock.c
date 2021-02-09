@@ -81,6 +81,8 @@ static int stress_ping_sock(const stress_args_t *args)
 
 	rand_port = 1024 + (stress_mwc16() % (65535 - 1024));
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		(void)memset(buf + sizeof(*icmp_hdr), data[j++ & 63], sz);
 		addr.sin_port = htons(rand_port);
@@ -93,6 +95,8 @@ static int stress_ping_sock(const stress_args_t *args)
 		if (rand_port > 65535)
 			rand_port = 0;
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(fd);
 

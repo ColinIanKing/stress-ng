@@ -98,6 +98,8 @@ static int stress_hsearch(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		for (i = 0; keep_stressing_flag() && i < max; i++) {
 			ENTRY e, *ep;
@@ -121,6 +123,8 @@ static int stress_hsearch(const stress_args_t *args)
 	ret = EXIT_SUCCESS;
 
 free_all:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	/*
 	 * The semantics to hdestroy are rather varied from
 	 * system to system.  OpenBSD will free the keys,
@@ -137,6 +141,7 @@ free_all:
 	*/
 	free(keys);
 free_hash:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	hdestroy();
 
 	return ret;

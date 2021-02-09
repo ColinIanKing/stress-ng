@@ -134,6 +134,8 @@ int main(void)
  */
 static int stress_atomic(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64);
 		DO_ATOMIC_OPS(uint32_t, &g_shared->atomic.val32);
@@ -141,6 +143,8 @@ static int stress_atomic(const stress_args_t *args)
 		DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8);
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

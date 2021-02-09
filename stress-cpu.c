@@ -2850,6 +2850,8 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 		return EXIT_SUCCESS;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	/*
 	 * More complex percentage CPU utilisation.  This is
 	 * not intended to be 100% accurate timing, it is good
@@ -2925,6 +2927,8 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 		pr_inf("%s: CPU affinity probably set, this can affect CPU loading\n",
 			args->name);
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

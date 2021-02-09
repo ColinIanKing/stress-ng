@@ -640,12 +640,17 @@ redo:
 		context.flags |= MAP_SHARED;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	ret = stress_oomable_child(args, &context, stress_mmap_child, STRESS_OOMABLE_NORMAL);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (context.mmap_file) {
 		(void)close(context.fd);
 		(void)stress_temp_dir_rm_args(args);
 	}
+
 	return ret;
 }
 

@@ -202,6 +202,8 @@ static int stress_timer(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		struct timespec req;
 
@@ -237,6 +239,7 @@ static int stress_timer(const stress_args_t *args)
 	pr_dbg("%s: %" PRIu64 " timer overruns (instance %" PRIu32 ")\n",
 		args->name, overruns, args->instance);
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(__linux__)
 	/* Some BSD flavours segfault on duplicated timer_delete calls */
 	{

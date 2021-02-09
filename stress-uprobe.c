@@ -177,6 +177,8 @@ static int stress_uprobe(const stress_args_t *args)
 		goto clear_events;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		/*
 		 *  Generate trace events on each stress_get_cpu call
@@ -230,6 +232,8 @@ static int stress_uprobe(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 terminate:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)close(fd);
 	/* Stop events */
 	ret = stress_uprobe_write("/sys/kernel/debug/tracing/events/uprobes/enable",
@@ -237,6 +241,8 @@ terminate:
 	(void)ret;
 
 clear_events:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	/* Remove uprobe */
 	snprintf(buf, sizeof(buf), "-:%s\n", event);
 	ret = stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",

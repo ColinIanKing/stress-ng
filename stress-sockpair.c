@@ -220,6 +220,8 @@ abort:
 		(void)shim_waitpid(pid, &status, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 
@@ -229,6 +231,8 @@ abort:
  */
 static int stress_sockpair(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	return stress_sockpair_oomable(args);
 }
 

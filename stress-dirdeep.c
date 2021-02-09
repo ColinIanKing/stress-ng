@@ -355,10 +355,15 @@ static int stress_dirdeep(const stress_args_t *args)
 	(void)shim_strlcpy(path, rootpath, sizeof(path));
 	stress_dirdeep_make(args, linkpath, path, path_len, sizeof(path),
 		dirdeep_dirs, dirdeep_inodes, inodes_target_free, &min_inodes_free, 0);
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		(void)shim_strlcpy(path, rootpath, sizeof(path));
 		stress_dir_exercise(args, path, path_len, sizeof(path));
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)shim_strlcpy(path, rootpath, sizeof(path));
 	pr_tidy("%s: removing directories\n", args->name);

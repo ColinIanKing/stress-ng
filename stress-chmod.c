@@ -245,6 +245,8 @@ static int stress_chmod(const stress_args_t *args)
 	for (i = 0; modes[i]; i++)
 		all_mask |= modes[i];
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		mode_t mask = 0;
 
@@ -272,6 +274,8 @@ static int stress_chmod(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 #if defined(O_DIRECTORY)
 	if (dfd >= 0)
 		(void)close(dfd);

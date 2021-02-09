@@ -74,6 +74,8 @@ static int stress_mincore(const stress_args_t *args)
 			unmapped = MAP_FAILED;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		int i;
 
@@ -167,6 +169,8 @@ redo: 			errno = 0;
 	} while (keep_stressing(args));
 
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	if (mapped != MAP_FAILED)
 		(void)munmap((void *)mapped, page_size);
 

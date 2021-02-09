@@ -194,6 +194,8 @@ static int stress_wait(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGUSR1, stress_usr1_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	pid_r = spawn(args, runner, 0);
 	if (pid_r < 0) {
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
@@ -340,9 +342,11 @@ static int stress_wait(const stress_args_t *args)
 #endif
 	} while (keep_stressing_flag() && (!args->max_ops || get_counter(args) < args->max_ops));
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)kill(pid_k, SIGKILL);
 	(void)shim_waitpid(pid_k, &status, 0);
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)kill(pid_r, SIGKILL);
 	(void)shim_waitpid(pid_r, &status, 0);
 

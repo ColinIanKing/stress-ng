@@ -83,6 +83,8 @@ static int stress_idle_page(const stress_args_t *args)
 
 	(void)memset(bitmap_set, 0xff, sizeof(bitmap_set));
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		off_t oret;
 		int ret;
@@ -118,6 +120,8 @@ next:
 			break;
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(fd);
 

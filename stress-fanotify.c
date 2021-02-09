@@ -392,6 +392,8 @@ static int stress_fanotify(const stress_args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	pid = fork();
 
 	/* do all mount points */
@@ -649,6 +651,8 @@ static int stress_fanotify(const stress_args_t *args)
 			account.modify);
 	}
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	if (pid > 0) {
 		int status;
 

@@ -121,6 +121,8 @@ static int stress_seek(const stress_args_t *args)
 		goto close_finish;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		off_t offset;
 		uint8_t tmp[512];
@@ -269,8 +271,10 @@ re_read:
 
 	rc = EXIT_SUCCESS;
 close_finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }

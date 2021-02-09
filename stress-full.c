@@ -49,6 +49,8 @@ static const stress_whences_t whences[] = {
  */
 static int stress_full(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		ssize_t ret;
 		int fd, w;
@@ -144,6 +146,8 @@ try_read:
 		(void)close(fd);
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

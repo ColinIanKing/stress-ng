@@ -650,6 +650,29 @@ void stress_set_proc_name(const char *name)
 }
 
 /*
+ *  stress_set_proc_state
+ *	set process name based on run state, see
+ *	macros STRESS_STATE_*
+ */
+void stress_set_proc_state(const char *name, const int state)
+{
+	static const char *stress_states[] = {
+		"start",
+		"init",
+		"run",
+		"deinit",
+		"stop",
+		"exit",
+		"wait"
+	};
+
+	if ((state < 0) || (state >= (int)SIZEOF_ARRAY(stress_states)))
+		return;
+
+	setproctitle("-%s [%s]", name, stress_states[state]);
+}
+
+/*
  *  stress_munge_underscore()
  *	turn '_' to '-' in strings
  */

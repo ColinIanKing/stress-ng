@@ -60,6 +60,8 @@ static int stress_sigrt(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (i = 0; i < MAX_RTPIDS; i++) {
 again:
 		pids[i] = fork();
@@ -121,6 +123,8 @@ again:
 		}
 	} while (keep_stressing(args));
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	for (i = 0; i < MAX_RTPIDS; i++) {
 		if (pids[i] > 0) {
 			(void)memset(&s, 0, sizeof(s));
@@ -130,6 +134,8 @@ again:
 	}
 	(void)shim_usleep(250);
 reap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	for (i = 0; i < MAX_RTPIDS; i++) {
 		if (pids[i] > 0) {
 			/* And ensure child is really dead */

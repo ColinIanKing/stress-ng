@@ -184,6 +184,8 @@ static int stress_icache(const stress_args_t *args)
 {
 	int ret;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	switch (args->page_size) {
 	case SIZE_4K:
 		ret = stress_icache_4K(args);
@@ -208,6 +210,8 @@ static int stress_icache(const stress_args_t *args)
 #endif
 		ret = EXIT_NO_RESOURCE;
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return ret;
 }
 

@@ -215,6 +215,8 @@ static int stress_cache(const stress_args_t *args)
 
 	masked_flags = cache_flags & FLAGS_CACHE_MASK;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		register uint64_t j;
 
@@ -322,6 +324,8 @@ static int stress_cache(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_uint32_put(total);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	return ret;
 }
 

@@ -69,6 +69,8 @@ static int stress_seal(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	char filename[PATH_MAX];
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		const off_t sz = page_size;
 		uint8_t *ptr;
@@ -197,6 +199,7 @@ next:
 
 	rc = EXIT_SUCCESS;
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
 }

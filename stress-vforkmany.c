@@ -99,6 +99,7 @@ static int stress_vforkmany(const stress_args_t *args)
 	}
 	*terminate = false;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 fork_again:
 	if (!keep_stressing_flag())
 		goto tidy;
@@ -215,6 +216,8 @@ vfork_again:
 		(void)waitpid(chpid, &chstatus, 0);
 	}
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)munmap((void *)terminate_mmap, args->page_size);
 	return EXIT_SUCCESS;
 }

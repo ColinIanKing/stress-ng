@@ -138,6 +138,8 @@ static int stress_sigsegv(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (;;) {
 		int ret;
 		struct sigaction action;
@@ -217,6 +219,7 @@ static int stress_sigsegv(const stress_args_t *args)
 	}
 	rc = EXIT_SUCCESS;
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)ptr, args->page_size);
 
 	return rc;

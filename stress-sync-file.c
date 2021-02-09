@@ -141,6 +141,8 @@ static int stress_sync_file(const stress_args_t *args)
 	}
 	(void)unlink(filename);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		shim_off64_t i, offset;
 		const size_t mode_index = stress_mwc32() % SIZEOF_ARRAY(sync_modes);
@@ -241,6 +243,7 @@ static int stress_sync_file(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 err:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 

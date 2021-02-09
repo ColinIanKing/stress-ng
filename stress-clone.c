@@ -434,9 +434,15 @@ static int stress_clone_child(const stress_args_t *args, void *context)
  */
 static int stress_clone(const stress_args_t *args)
 {
+	int rc;
+
 	stress_set_oom_adjustment(args->name, false);
 
-	return stress_oomable_child(args, NULL, stress_clone_child, STRESS_OOMABLE_DROP_CAP);
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	rc = stress_oomable_child(args, NULL, stress_clone_child, STRESS_OOMABLE_DROP_CAP);
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	return rc;
 }
 
 stressor_info_t stress_clone_info = {

@@ -50,6 +50,7 @@ static int stress_io(const stress_args_t *args)
 
 	fd = openat(AT_FDCWD, ".", O_RDONLY | O_NONBLOCK | O_DIRECTORY);
 #endif
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		(void)sync();
@@ -71,6 +72,7 @@ static int stress_io(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(HAVE_SYNCFS)
 	if (fd != -1)
 		(void)close(fd);

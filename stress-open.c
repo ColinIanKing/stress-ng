@@ -469,6 +469,8 @@ static int stress_open(const stress_args_t *args)
 		}
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		size_t i, n;
 		int ret, min_fd = INT_MAX, max_fd = INT_MIN;
@@ -520,6 +522,8 @@ close_all:
 				(void)close(fds[i]);
 		}
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)fds, sz);
 

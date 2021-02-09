@@ -188,6 +188,8 @@ static inline uint64_t rand64(void)
  */
 static int stress_rdrand(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	if (rdrand_supported) {
 		double time_start, duration, billion_bits;
 		bool lock = false;
@@ -225,6 +227,8 @@ static int stress_rdrand(const stress_args_t *args)
 		}
 		pr_unlock(&lock);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 

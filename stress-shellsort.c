@@ -203,6 +203,8 @@ static int stress_shellsort(const stress_args_t *args)
 		*ptr++ = stress_mwc32();
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		/* Sort "random" data */
 		if (shellsort(data, n, sizeof(*data), stress_shellsort_cmp_1) < 0) {
@@ -272,6 +274,8 @@ static int stress_shellsort(const stress_args_t *args)
 	do_jmp = false;
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	free(data);
 
 	return EXIT_SUCCESS;

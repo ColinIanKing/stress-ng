@@ -176,6 +176,8 @@ static int stress_sigfpe(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	for (;;) {
 #if defined(SA_SIGINFO)
 		static int expected_err_code;
@@ -236,6 +238,8 @@ static int stress_sigfpe(const stress_args_t *args)
 		i++;
 		i %= SIZEOF_ARRAY(fpe_errs);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)feclearexcept(FE_ALL_EXCEPT);
 
 	return EXIT_SUCCESS;

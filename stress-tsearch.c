@@ -85,6 +85,8 @@ static int stress_tsearch(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		void *root = NULL;
 
@@ -134,6 +136,8 @@ static int stress_tsearch(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 abort:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	free(data);
 	return EXIT_SUCCESS;
 }

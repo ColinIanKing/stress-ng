@@ -189,6 +189,8 @@ static int stress_stackmmap(const stress_args_t *args)
 	c_test.uc_stack.ss_size = MMAPSTACK_SIZE - (page_size * 2);
 	c_test.uc_link = &c_main;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	/*
 	 *  set jmp handler to jmp back into the loop on a full
 	 *  stack segfault.  Use swapcontext to jump into a
@@ -240,8 +242,10 @@ again:
 	rc = EXIT_SUCCESS;
 
 tidy_mmap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)stack_mmap, MMAPSTACK_SIZE);
 tidy_dir:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }

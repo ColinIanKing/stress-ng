@@ -216,6 +216,8 @@ static int stress_chroot(const stress_args_t *args)
 	}
 	(void)close(fd);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		pid_t pid;
 retry:
@@ -257,8 +259,12 @@ retry:
 
 	ret = EXIT_SUCCESS;
 tidy_all:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)unlink(filename);
 tidy_dir:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	(void)rmdir(temppath);
 tidy_ret:
 	return ret;

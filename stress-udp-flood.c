@@ -87,6 +87,8 @@ static int stress_udp_flood(const stress_args_t *args)
 		udp_flood_domain, port,
 		&addr, &addr_len, NET_ADDR_ANY);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		char buf[sz];
 		int rand_port;
@@ -118,6 +120,8 @@ static int stress_udp_flood(const stress_args_t *args)
 		if (++sz > sz_max)
 			sz = 1;
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(fd);
 

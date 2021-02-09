@@ -307,6 +307,8 @@ redo_prctl:
  */
 static int stress_seccomp(const stress_args_t *args)
 {
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		pid_t pid;
 		const bool allow_write = (stress_mwc32() % 2) != 0;
@@ -387,6 +389,8 @@ static int stress_seccomp(const stress_args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

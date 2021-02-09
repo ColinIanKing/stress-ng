@@ -322,11 +322,15 @@ static int stress_rseq(const stress_args_t *args)
 	/* Get the expected valid signature */
 	rseq_test(-1, &rseq_info->valid_signature);
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	ret = stress_oomable_child(args, NULL, stress_rseq_oomable, STRESS_OOMABLE_QUIET);
 	pr_inf("%s: %" PRIu64 " critical section interruptions, %" PRIu64
 	       " flag mismatches of %" PRIu64 " restartable sequences\n",
 		args->name, rseq_info->crit_interruptions,
 		rseq_info->segv_count, rseq_info->crit_count);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap(rseq_info, args->page_size);
 

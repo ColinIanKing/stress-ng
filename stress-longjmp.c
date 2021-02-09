@@ -64,6 +64,8 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 	bufchk.check0 = check0;
 	bufchk.check1 = check1;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	ret = setjmp(bufchk.buf);
 
 	if (ret) {
@@ -96,6 +98,7 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 		pr_dbg("%s: about %.3f nanoseconds per longjmp call\n",
 			args->name, (double)STRESS_NANOSECOND * t_total / n);
 	}
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }

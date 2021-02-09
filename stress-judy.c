@@ -79,6 +79,8 @@ static int stress_judy(const stress_args_t *args)
 	}
 	n = (size_t)judy_size;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 	do {
 		Pvoid_t PJLArray = (Pvoid_t)NULL;
 		Word_t *pvalue;
@@ -134,6 +136,8 @@ static int stress_judy(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 abort:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return EXIT_SUCCESS;
 }
 
