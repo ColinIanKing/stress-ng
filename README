@@ -59,6 +59,20 @@ RHEL, Fedora, Centos:
   * libatomic
   * zlib-devel
 
+RHEL, Fedora, Centos (static builds):
+  
+  * libaio-devel
+  * libattr-devel
+  * libbsd-devel
+  * libcap-devel
+  * libgcrypt-devel
+  * Judy-devel
+  * keyutils-libs-devel
+  * lksctp-tools-devel
+  * libatomic-static
+  * zlib-devel
+  * glibc-static
+
 SUSE:
   * keyutils-devel
   * libaio-devel
