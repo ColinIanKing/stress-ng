@@ -40,7 +40,8 @@ static const stress_help_t help[] = {
     defined(BLKSSZGET)
 
 typedef void (*stress_rawdev_func)(const stress_args_t *args, const int fd,
-			   unsigned long blks, unsigned long blksz);
+				   char *buffer, const size_t blks,
+				   const size_t blksz);
 
 typedef struct {
 	const char              *name;
@@ -113,18 +114,17 @@ static char *stress_rawdev_path(
 static void stress_rawdev_sweep(
 	const stress_args_t *args,
 	const int fd,
-	unsigned long blks,
-	unsigned long blksz)
+	char *buffer,
+	const size_t blks,
+	const size_t blksz)
 {
-	unsigned long i;
+	size_t i;
 	int ret;
-	char buf[blksz << 1];
-	char *aligned = stress_align_address(buf, blksz);
 	off_t offset;
 
 	for (i = 0; i < blks && keep_stressing(args); i += shift_ul(blks, 8)) {
 		offset = (off_t)i * (off_t)blksz;
-		ret = pread(fd, aligned, (size_t)blksz, offset);
+		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
 			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno, strerror(errno));
@@ -133,7 +133,7 @@ static void stress_rawdev_sweep(
 	}
 	for (; i > 0 && keep_stressing(args); i -= shift_ul(blks, 8)) {
 		offset = (off_t)i * (off_t)blksz;
-		ret = pread(fd, aligned, (size_t)blksz, offset);
+		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
 			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno, strerror(errno));
@@ -149,13 +149,12 @@ static void stress_rawdev_sweep(
 static void stress_rawdev_wiggle(
 	const stress_args_t *args,
 	const int fd,
-	unsigned long blks,
-	unsigned long blksz)
+	char *buffer,
+	const size_t blks,
+	const size_t blksz)
 {
-	unsigned long i;
+	size_t i;
 	int ret;
-	char buf[blksz << 1];
-	char *aligned = stress_align_address(buf, blksz);
 	off_t offset;
 
 	for (i = shift_ul(blks, 8); i < blks && keep_stressing(args); i += shift_ul(blks, 8)) {
@@ -163,7 +162,7 @@ static void stress_rawdev_wiggle(
 
 		for (j = 0; j < shift_ul(blks, 8) && keep_stressing(args); j += shift_ul(blks, 10)) {
 			offset = (off_t)(i - j) * (off_t)blksz;
-			ret = pread(fd, aligned, (size_t)blksz, offset);
+			ret = pread(fd, buffer, blksz, offset);
 			if (ret < 0) {
 				pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
 					args->name, (intmax_t)offset, errno, strerror(errno));
@@ -181,19 +180,18 @@ static void stress_rawdev_wiggle(
 static void stress_rawdev_ends(
 	const stress_args_t *args,
 	const int fd,
-	unsigned long blks,
-	unsigned long blksz)
+	char *buffer,
+	const size_t blks,
+	const size_t blksz)
 {
-	unsigned long i;
-	char buf[blksz << 1];
-	char *aligned = stress_align_address(buf, blksz);
+	size_t i;
 	off_t offset;
 
 	for (i = 0; i < 128; i++) {
 		int ret;
 
 		offset = (off_t)i * (off_t)blksz;
-		ret = pread(fd, aligned, (size_t)blksz, offset);
+		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
 			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno, strerror(errno));
@@ -201,7 +199,7 @@ static void stress_rawdev_ends(
 		inc_counter(args);
 
 		offset = (off_t)(blks - (i + 1)) * (off_t)blksz;
-		ret = pread(fd, aligned, (size_t)blksz, offset);
+		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
 			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno, strerror(errno));
@@ -217,18 +215,17 @@ static void stress_rawdev_ends(
 static void stress_rawdev_random(
 	const stress_args_t *args,
 	const int fd,
-	unsigned long blks,
-	unsigned long blksz)
+	char *buffer,
+	const size_t blks,
+	const size_t blksz)
 {
-	int i;
-	char buf[blksz << 1];
-	char *aligned = stress_align_address(buf, blksz);
+	size_t i;
 
 	for (i = 0; i < 256 && keep_stressing(args); i++) {
 		int ret;
 		off_t offset = (off_t)blksz * (stress_mwc64() % blks);
 
-		ret = pread(fd, aligned, (size_t)blksz, offset);
+		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
 			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno, strerror(errno));
@@ -244,19 +241,18 @@ static void stress_rawdev_random(
 static void stress_rawdev_burst(
 	const stress_args_t *args,
 	const int fd,
-	unsigned long blks,
-	unsigned long blksz)
+	char *buffer,
+	const size_t blks,
+	const size_t blksz)
 {
 	int i;
-	char buf[blksz << 1];
-	char *aligned = stress_align_address(buf, blksz);
 	off_t blk = (stress_mwc64() % blks);
 
 	for (i = 0; i < 256 && keep_stressing(args); i++) {
 		int ret;
 		off_t offset = blk * blksz;
 
-		ret = pread(fd, aligned, (size_t)blksz, offset);
+		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
 			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
 				args->name, (intmax_t)offset, errno, strerror(errno));
@@ -276,12 +272,13 @@ static const stress_rawdev_method_info_t rawdev_methods[];
 static void stress_rawdev_all(
 	const stress_args_t *args,
 	const int fd,
-	unsigned long blks,
-	unsigned long blksz)
+	char *buffer,
+	const size_t blks,
+	const size_t blksz)
 {
 	static int i = 1;       /* Skip over stress_rawdev_all */
 
-	rawdev_methods[i++].func(args, fd, blks, blksz);
+	rawdev_methods[i++].func(args, fd, buffer, blks, blksz);
 	if (!rawdev_methods[i].func)
 		i = 1;
 }
@@ -350,11 +347,12 @@ static int stress_rawdev(const stress_args_t *args)
 {
 	int ret;
 	char path[PATH_MAX], devpath[PATH_MAX];
+	char *buffer;
 	struct stat stat_buf;
 	int fd;
-	int blksz = 0;
-	unsigned long blks;
+	size_t blks, blksz = 0, mmapsz;
 	const stress_rawdev_method_info_t *rawdev_method = &rawdev_methods[0];
+	const size_t page_size = args->page_size;
 	stress_rawdev_func func;
 
 	stress_temp_dir_args(args, path, sizeof(path));
@@ -413,6 +411,16 @@ static int stress_rawdev(const stress_args_t *args)
 	if (blksz < MIN_BLKSZ)
 		blksz = MIN_BLKSZ;
 
+	mmapsz = ((blksz + page_size - 1) & ~(page_size - 1));
+	buffer = mmap(NULL, mmapsz, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (buffer == MAP_FAILED) {
+		pr_inf("%s: cannot allocate buffer of %zd bytes with %zd allocation\n",
+			args->name, blksz, mmapsz);
+		(void)close(fd);
+		return EXIT_NO_RESOURCE;
+	}
+
 	(void)close(fd);
 	fd = open(devpath, O_RDONLY | O_DIRECT);
 	if (fd < 0) {
@@ -422,17 +430,18 @@ static int stress_rawdev(const stress_args_t *args)
 	}
 
 	if (args->instance == 0)
-		pr_dbg("%s: exercising %s (%lu blocks of size %d bytes)\n",
+		pr_dbg("%s: exercising %s (%zd blocks of size %zd bytes)\n",
 			args->name, devpath, blks, blksz);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		func(args, fd, blks, (unsigned long)blksz);
+		func(args, fd, buffer, blks, blksz);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	(void)munmap((void *)buffer, mmapsz);
 	(void)close(fd);
 
 	return EXIT_SUCCESS;
