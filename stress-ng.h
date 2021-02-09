@@ -1232,7 +1232,10 @@ typedef struct {			/* vmstat column */
 #endif
 
 /* GCC mlocked data and data section attribute */
-#if defined(__GNUC__) && NEED_GNUC(4,6,0) && !defined(__sun__)
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(4,6,0) &&		\
+    !defined(__sun__) &&	\
+    !defined(BUILD_STATIC)
 #define MLOCKED_DATA	__attribute__((__section__("mlocked_data")))
 #define MLOCKED_TEXT	__attribute__((__section__("mlocked_text")))
 #define MLOCKED_SECTION 1
