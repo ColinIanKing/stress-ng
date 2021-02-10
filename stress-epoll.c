@@ -132,7 +132,7 @@ static int stress_epoll_pwait(
 		timeout_ts.tv_sec = timeout_ns / STRESS_NANOSECOND;
 		timeout_ts.tv_nsec = timeout_ns % STRESS_NANOSECOND;
 
-		ret = syscall(__NR_epoll_pwait2, epfd, events, maxevents, &timeout_ts, sigmask);
+		ret = syscall(__NR_epoll_pwait2, epfd, events, maxevents, &timeout_ts, NULL, 0);
 		if (ret == 0)
 			return ret;
 		if ((ret < 0) && (errno != ENOSYS))
