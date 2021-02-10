@@ -90,7 +90,7 @@ static inline void stress_bad_ioctl_rw(
 	uint32_t *ptr, *buf_end;
 
 	typedef struct {
-			uint8_t page[4096];
+		uint8_t page[4096];
 	} stress_4k_page_t;
 
 	/*
