@@ -364,6 +364,13 @@ again:
 				pr_dbg("%s: getpeername failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
+#if defined(SIOCOUTQ)
+			{
+				int pending;
+
+				(void)ioctl(sfd, SIOCOUTQ, &pending);
+			}
+#endif
 			(void)close(sfd);
 		}
 		inc_counter(args);
