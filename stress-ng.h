@@ -219,7 +219,7 @@
 #include <ucontext.h>
 #endif
 
-#if defined(HAVE_USTAT)
+#if defined(HAVE_USTAT_H)
 #include <ustat.h>
 #endif
 
