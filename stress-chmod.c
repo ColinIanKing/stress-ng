@@ -125,7 +125,7 @@ static int do_chmod(
 	const char *filebase,
 	const char *filename,
 	const char *longpath,
-	const int i,
+	const size_t i,
 	const mode_t mask,
 	const mode_t all_mask)
 {
@@ -177,7 +177,8 @@ static int do_chmod(
 static int stress_chmod(const stress_args_t *args)
 {
 	const pid_t ppid = getppid();
-	int i, fd = -1, rc = EXIT_FAILURE, retries = 0, dfd = -1;
+	int fd = -1, rc = EXIT_FAILURE, retries = 0, dfd = -1;
+	size_t i;
 	const int bad_fd = stress_get_bad_fd();
 	mode_t all_mask = 0;
 	char filename[PATH_MAX], pathname[PATH_MAX], longpath[PATH_MAX + 16];
