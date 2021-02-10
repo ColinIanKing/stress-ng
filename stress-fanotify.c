@@ -122,6 +122,37 @@ static const int fan_stress_settings[] = {
 	0
 };
 
+static const unsigned int init_flags[] =
+{
+#if defined(FAN_CLASS_CONTENT)
+	FAN_CLASS_CONTENT,
+#endif
+#if defined(FAN_CLASS_PRE_CONTENT)
+	FAN_CLASS_PRE_CONTENT,
+#endif
+#if defined(FAN_UNLIMITED_QUEUE)
+	FAN_UNLIMITED_QUEUE,
+#endif
+#if defined(FAN_UNLIMITED_MARKS)
+	FAN_UNLIMITED_MARKS,
+#endif
+#if defined(FAN_CLOEXEC)
+	FAN_CLOEXEC,
+#endif
+#if defined(FAN_NONBLOCK)
+	FAN_NONBLOCK,
+#endif
+#if defined(FAN_ENABLE_AUDIT)
+	FAN_ENABLE_AUDIT,
+#endif
+#if defined(FAN_REPORT_NAME)
+	FAN_REPORT_NAME,
+#endif
+#if defined(FAN_REPORT_DIR_FID)
+	FAN_REPORT_DIR_FID,
+#endif
+};
+
 static char *mnts[MAX_MNTS];
 static int n_mnts;
 
@@ -375,6 +406,19 @@ static void fanotify_event_clear(const int fan_fd)
 }
 
 /*
+ *  stress_fanotify_init_exercise()
+ *	exercise fanotify_init with specified flags
+ */
+static void stress_fanotify_init_exercise(const unsigned int flags)
+{
+	int ret_fd;
+
+	ret_fd = fanotify_init(flags, 0);
+	if (ret_fd != -1)
+		(void)close(ret_fd);
+}
+
+/*
  *  stress_fanotify()
  *	stress fanotify
  */
@@ -490,6 +534,7 @@ static int stress_fanotify(const stress_args_t *args)
 		do {
 			fd_set rfds;
 			ssize_t len;
+			size_t i;
 
 			FD_ZERO(&rfds);
 			FD_SET(fan_fd, &rfds);
@@ -556,82 +601,9 @@ static int stress_fanotify(const stress_args_t *args)
 			 * Exercise fanotify_init with all possible values
 			 * of flag argument to increase kernel coverage
 			 */
-#if defined(FAN_CLASS_CONTENT)
-			{
-				int ret_fd;
-
-				ret_fd = fanotify_init(FAN_CLASS_CONTENT, 0);
-				if (ret_fd != -1) {
-					(void)close(ret_fd);
-				}
+			for (i = 0; i < SIZEOF_ARRAY(init_flags); i++) {
+				stress_fanotify_init_exercise(init_flags[i]);
 			}
-#endif
-
-#if defined(FAN_CLASS_PRE_CONTENT)
-			{
-				int ret_fd;
-
-				ret_fd = fanotify_init(FAN_CLASS_PRE_CONTENT, 0);
-				if (ret_fd != -1) {
-					(void)close(ret_fd);
-				}
-			}
-#endif
-
-#if defined(FAN_UNLIMITED_QUEUE)
-			{
-				int ret_fd;
-
-				ret_fd = fanotify_init(FAN_UNLIMITED_QUEUE, 0);
-				if (ret_fd != -1) {
-					(void)close(ret_fd);
-				}
-			}
-#endif
-
-#if defined(FAN_UNLIMITED_MARKS)
-			{
-				int ret_fd;
-
-				ret_fd = fanotify_init(FAN_UNLIMITED_MARKS, 0);
-				if (ret_fd != -1) {
-					(void)close(ret_fd);
-				}
-			}
-#endif
-
-#if defined(FAN_CLOEXEC)
-			{
-				int ret_fd;
-
-				ret_fd = fanotify_init(FAN_CLOEXEC, 0);
-				if (ret_fd != -1) {
-					(void)close(ret_fd);
-				}
-			}
-#endif
-
-#if defined(FAN_NONBLOCK)
-			{
-				int ret_fd;
-
-				ret_fd = fanotify_init(FAN_NONBLOCK, 0);
-				if (ret_fd != -1) {
-					(void)close(ret_fd);
-				}
-			}
-#endif
-
-#if defined(FAN_ENABLE_AUDIT)
-			{
-				int ret_fd;
-
-				ret_fd = fanotify_init(FAN_ENABLE_AUDIT, 0);
-				if (ret_fd != -1) {
-					(void)close(ret_fd);
-				}
-			}
-#endif
 		} while (keep_stressing(args));
 
 		free(buffer);
