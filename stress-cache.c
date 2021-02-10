@@ -123,7 +123,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_BUILTIN_SFENCE)
 #define CACHE_WRITE(flag)						\
 	for (j = 0; j < mem_cache_size; j++) {				\
-		if ((flag) & FLAGS_CACHE_PREFETCH) {		\
+		if ((flag) & FLAGS_CACHE_PREFETCH) {			\
 			shim_builtin_prefetch(&mem_cache[i + 1], 1, 1);	\
 		}							\
 		mem_cache[i] += mem_cache[(mem_cache_size - 1) - i] + r;\
@@ -144,7 +144,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #else
 #define CACHE_WRITE(flag)						\
 	for (j = 0; j < mem_cache_size; j++) {				\
-		if ((flag) & FLAGS_CACHE_PREFETCH) {		\
+		if ((flag) & FLAGS_CACHE_PREFETCH) {			\
 			shim_builtin_prefetch(&mem_cache[i + 1], 1, 1); \
 		}							\
 		mem_cache[i] += mem_cache[(mem_cache_size - 1) - i] + r;\
