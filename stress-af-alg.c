@@ -862,7 +862,7 @@ static void stress_af_alg_add_crypto(stress_crypto_info_t *info)
  */
 static void stress_af_alg_add_crypto_defconfigs(void)
 {
-	unsigned int i;
+	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(crypto_info_defconfigs); i++)
 		stress_af_alg_add_crypto(&crypto_info_defconfigs[i]);
