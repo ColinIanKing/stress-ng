@@ -279,10 +279,9 @@ static int stress_cache(const stress_args_t *args)
 			}
 		} else {
 			for (j = 0; j < mem_cache_size; j++) {
-				total += mem_cache[i] +
-					mem_cache[(mem_cache_size - 1) - i];
-				i += 32769;
-				i = (i >= mem_cache_size) ? i - mem_cache_size : i;
+				i = (i + 32769) % mem_cache_size;
+				k = (k + 33) % mem_cache_size;
+				total += mem_cache[i] + mem_cache[k];
 				if (!keep_stressing_flag())
 					break;
 			}
@@ -322,8 +321,7 @@ static int stress_cache(const stress_args_t *args)
 		inc_counter(args);
 
 		/* Move forward a bit */
-		i += 32769;
-		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
+		i = (i + 32769) % mem_cache_size;
 	} while (keep_stressing(args));
 
 	stress_uint32_put(total);
