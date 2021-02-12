@@ -666,6 +666,8 @@ void stress_set_proc_state(const char *name, const int state)
 		"wait"
 	};
 
+	(void)name;
+
 	if ((state < 0) || (state >= (int)SIZEOF_ARRAY(stress_states)))
 		return;
 
