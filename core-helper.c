@@ -669,7 +669,10 @@ void stress_set_proc_state(const char *name, const int state)
 	if ((state < 0) || (state >= (int)SIZEOF_ARRAY(stress_states)))
 		return;
 
+#if defined(HAVE_BSD_UNISTD_H) &&	\
+    defined(HAVE_SETPROCTITLE)
 	setproctitle("-%s [%s]", name, stress_states[state]);
+#endif
 }
 
 /*
