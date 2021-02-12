@@ -42,8 +42,8 @@ static void stress_try_kill(
 			return;
 		shim_usleep(100000);
 	}
-	pr_dbg("%s: can't kill pid %d opening %s\n",
-		args->name, pid, path);
+	pr_dbg("%s: can't kill pid %" PRIdMAX " opening %s\n",
+		args->name, (intmax_t)pid, path);
 }
 
 /*
