@@ -123,10 +123,13 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_BUILTIN_SFENCE)
 #define CACHE_WRITE(flag)						\
 	for (j = 0; j < mem_cache_size; j++) {				\
+		i = (i + 32769) % mem_cache_size;			\
+		k = (k + 33) % mem_cache_size;				\
+									\
 		if ((flag) & FLAGS_CACHE_PREFETCH) {			\
 			shim_builtin_prefetch(&mem_cache[i + 1], 1, 1);	\
 		}							\
-		mem_cache[i] += mem_cache[(mem_cache_size - 1) - i] + r;\
+		mem_cache[i] += mem_cache[k] + r;			\
 		if ((flag) & FLAGS_CACHE_FLUSH) {			\
 			shim_clflush(&mem_cache[i]);			\
 		}							\
@@ -136,26 +139,25 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 		if ((flag) & FLAGS_CACHE_SFENCE) {			\
 			shim__builtin_ia32_sfence();			\
 		}							\
-		i += 32769;						\
-		i = (i >= mem_cache_size) ? i - mem_cache_size : i;	\
 		if (!keep_stressing_flag())				\
 			break;						\
 	}
 #else
 #define CACHE_WRITE(flag)						\
 	for (j = 0; j < mem_cache_size; j++) {				\
+		i = (i + 32769) % mem_cache_size;			\
+		k = (k + 33) % mem_cache_size;				\
+									\
 		if ((flag) & FLAGS_CACHE_PREFETCH) {			\
 			shim_builtin_prefetch(&mem_cache[i + 1], 1, 1); \
 		}							\
-		mem_cache[i] += mem_cache[(mem_cache_size - 1) - i] + r;\
+		mem_cache[i] += mem_cache[k] + r;			\
 		if ((flag) & FLAGS_CACHE_FLUSH) {			\
 			shim_clflush(&mem_cache[i]);			\
 		}							\
 		if ((flag) & FLAGS_CACHE_FENCE) {			\
 			shim_mfence();					\
 		}							\
-		i += 32769;						\
-		i = (i >= mem_cache_size) ? i - mem_cache_size : i;	\
 		if (!keep_stressing_flag())				\
 			break;						\
 	}
@@ -184,6 +186,7 @@ static int stress_cache(const stress_args_t *args)
 	uint8_t *const mem_cache = g_shared->mem_cache;
 	const uint64_t mem_cache_size = g_shared->mem_cache_size;
 	uint64_t i = stress_mwc64() % mem_cache_size;
+	uint64_t k = i + (mem_cache_size >> 1);
 	uint64_t r = 0;
 
 	(void)stress_get_setting("cache-flags", &cache_flags);
