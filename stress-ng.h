@@ -220,7 +220,12 @@
 #endif
 
 #if defined(HAVE_USTAT_H)
+#if defined(__sun__)
+/* ustat and long file support on sun does not build */
+#undef HAVE_USTAT_H
+#else
 #include <ustat.h>
+#endif
 #endif
 
 #if defined(HAVE_UTIME_H)
