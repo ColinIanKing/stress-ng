@@ -1,3 +1,93 @@
+stress-ng (0.12.03-1) unstable; urgency=medium
+
+  [Adrian Ratiu]
+  * stress-ng.h: fix build-breaking HAVE_USTAT typo
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * core-vmstat: Add delay time in seconds to vmstat and thermalstat
+  * stress-cache: use % operator on indexes into cache
+  * core-try-open: Make pid_t print and scanning more portable
+  * stress-ng.h: don't include <ustat.h> on OpenIndiana
+  * core-helper: clean up build warning on unused parameter name
+  * core-helper: add build time guards for setproctitle
+  * Manual: update names of contributors
+  * stress-dccp: add SIOCOUTQ ioctl, added in Linux 5.9
+  * stress-fanotify: exercise fanotify_init flags using a table
+  * stress-chmod: make index i a size_t rather than an int
+  * stress-cache: fix up missing tab in macro
+  * stress-bad-ioctl: remove extraneous tab in struct definition
+  * stress-af-alg: make size argument a size_t rather than an int
+  * stress-zlib: make size argument a size_t rather than an int
+  * stress-epoll: fix epoll_pwait2 call, add missing sigset size
+  * stress-rawdev: don't allocate buffers on stack, use mmap
+  * Add stressor process state information in argv[0]
+  * README: add static build instructions for RHEL
+  * stress-wcstr: don't use libbsd wcsl* when building static images
+  * Disable mlocked regions to avoid linking issues on RHEL static
+    builds
+  * stress-str: don't use libbsd strl* when building static images
+  * core-shim: don't use libbsd strl* when building static images
+  * stress-dup: force unlink fifo file on cleanup
+  * core-vmstat: cater for deltas that are negative
+  * core-shim: fix build warning if sbrk is not defined
+  * core-vmstat: use shim wrapper of strlcpy to avoid compat linking
+    issues
+  * core-shim: fix missing who argument to rusage shim system call
+  * core-net: fix build warning on ppid on systems that don't use it
+  * core-vmstat: show n/a for CPU speeds that are zero or less
+  * core-vmstat: ensure string therms is zero
+  * stress-pipeherd: move memset of rusage to fix build error on Haiku
+  * Add buildtime check for rusage.ru_nvcsw field
+  * Add buildtime check for rusage.ru_minflt field
+  * core-try-open: fix build error on GNU/HURD
+  * test/test-sem-sysv.c: touch all fields in arg to silence cppcheck
+  * stress-utime: add fsync after each utimensat
+  * stress-sock: break long #if define checks with newline
+  * stress-sock: clean up cppcheck style warning
+  * stress-rawdev: no need to declare typedefs for no-op build case
+  * stress-pthread: clean up cppcheck warning and use coding style for
+    multiple #defines
+  * stress-pipeherd: improve guarding and usage of getrusage variables
+  * stress-poll: enable HAVE_PSELECT code path
+  * stress-memhotplug: no need to declare typedefs for non-linux cases
+  * stress-kcmp: need to declare typedefs for specific build case
+  * stress-fault: remove OS specific guarding to check for getrusage
+  * stress-exec: no need to declare typedefs for non-linux cases
+  * stress-clone: no need to declare typedefs if clone is not supported
+  * core-vmstat: clean up initialization of pointer ptr
+  * core-vmstat: no need to check for null if we are checking for ' ' too
+  * core-vmstat: ensure fclose occurs on non-null opend fp
+  * stress-pipe: fix memory leak of buffer on error return path
+  * core-vmstat: fix fd leak on cpu scaling frequency
+  * tests: clean up some pedantic Coverity static analysis warnings
+  * Add --thermalstat option to dump out CPU and thermal information
+  * stress-dev: avoid ttyS* lockups on low latency kernels
+  * stress-dev: avoid blocking lockups on ttys
+  * Add a STRESS_TRY_AGAIN don't give up flag and simplify try-open
+  * stress-dev: set argv[0] at more appropriate name change points
+  * stress-dev: set /proc/$pid/cmdline to contain name of device being
+    exercised
+  * stress-dev: handle lockups on ttyS* blocking opens
+  * Add a new --vmstat option to show info like vmstat(8)
+  * stress-full: add mmap operations to /dev/full
+  * Add shim wrapper for the getrusage system call and build time
+    detection
+  * stress-poll: add --poll-fds N option to exercise more file descriptors
+  * stress-nice: add braces around comment and statement
+  * Replace keep_stressing macro with inlined function, add args param
+  * stress-longjmp: remove JMP_BUF_MAGIC0, it was never completed
+  * stress-zero: allocate buffers using mmap rather than on stack
+  * stress-memrate: add 128 bit read/write option
+  * stress-af-alg-defconfigs.h: update crypto defconfigs table
+  * stress-memcpy: use "all" method by default, gets more testing spread
+  * stress-cache: remove modulo operators, speed up code
+  * stress-cache: ignore sfence if not available, add missing help
+    and optimize
+  * Force keep_stressing_flag to always be inlined
+
+ -- Colin King <colin.king@canonical.com>  Sat, 13 Feb 2021 22:23:24 +0000
+
 stress-ng (0.12.02-1) unstable; urgency=medium
 
   [Adriand Martin]
