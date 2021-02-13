@@ -925,8 +925,6 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_TIMESTAMP	 (0x00000800000000ULL)	/* --timestamp */
 #define OPT_FLAGS_DEADLINE_GRUB  (0x00001000000000ULL)  /* --sched-reclaim */
 #define OPT_FLAGS_FTRACE	 (0x00002000000000ULL)  /* --ftrace */
-#define OPT_FLAGS_VMSTAT	 (0x00004000000000ULL)	/* --vmstat */
-#define OPT_FLAGS_THERMALSTAT	 (0x00008000000000ULL)	/* --thermalstat */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -4022,6 +4020,8 @@ extern WARN_UNUSED uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t n);
 extern int stress_read_fdinfo(const pid_t pid, const int fd);
 extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
 extern WARN_UNUSED size_t stress_hostname_length(void);
+extern WARN_UNUSED int32_t stress_set_vmstat(const char *const str);
+extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
 
 extern int stress_ftrace_start(void);
 extern int stress_ftrace_stop(void);
@@ -4420,6 +4420,5 @@ extern pid_t shim_waitpid(pid_t pid, int *wstatus, int options);
 extern pid_t shim_wait(int *wstatus);
 extern pid_t shim_wait3(int *wstatus, int options, struct rusage *rusage);
 extern pid_t shim_wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage);
-
 
 #endif

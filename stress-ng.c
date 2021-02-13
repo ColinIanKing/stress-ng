@@ -81,10 +81,8 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_thrash, 		OPT_FLAGS_THRASH },
 	{ OPT_times,		OPT_FLAGS_TIMES },
 	{ OPT_timestamp,	OPT_FLAGS_TIMESTAMP },
-	{ OPT_thermalstat,	OPT_FLAGS_THERMALSTAT },
 	{ OPT_thermal_zones,	OPT_FLAGS_THERMAL_ZONES },
 	{ OPT_verbose,		PR_ALL },
-	{ OPT_vmstat,		OPT_FLAGS_VMSTAT },
 	{ OPT_verify,		OPT_FLAGS_VERIFY | PR_FAIL },
 };
 
@@ -854,7 +852,7 @@ static const struct option long_options[] = {
 	{ "tsearch",	1,	0,	OPT_tsearch },
 	{ "tsearch-ops",1,	0,	OPT_tsearch_ops },
 	{ "tsearch-size",1,	0,	OPT_tsearch_size },
-	{ "thermalstat",0,	0,	OPT_thermalstat },
+	{ "thermalstat",1,	0,	OPT_thermalstat },
 	{ "thrash",	0,	0,	OPT_thrash },
 	{ "times",	0,	0,	OPT_times },
 	{ "timestamp",	0,	0,	OPT_timestamp },
@@ -921,7 +919,7 @@ static const struct option long_options[] = {
 	{ "vm-splice",	1,	0,	OPT_vm_splice },
 	{ "vm-splice-bytes",1,	0,	OPT_vm_splice_bytes },
 	{ "vm-splice-ops",1,	0,	OPT_vm_splice_ops },
-	{ "vmstat",	0,	0,	OPT_vmstat },
+	{ "vmstat",	1,	0,	OPT_vmstat },
 	{ "wait",	1,	0,	OPT_wait },
 	{ "wait-ops",	1,	0,	OPT_wait_ops },
 	{ "watchdog",	1,	0,	OPT_watchdog },
@@ -2840,6 +2838,14 @@ next_opt:
 		case OPT_version:
 			stress_version();
 			exit(EXIT_SUCCESS);
+		case OPT_vmstat:
+			if (stress_set_vmstat(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_thermalstat:
+			if (stress_set_thermalstat(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
 		case OPT_yaml:
 			stress_set_setting_global("yaml", TYPE_ID_STR, (void *)optarg);
 			break;
@@ -3253,8 +3259,7 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_THRASH)
 		stress_thrash_start();
 
-	if (g_opt_flags & (OPT_FLAGS_VMSTAT | OPT_FLAGS_THERMALSTAT))
-		stress_vmstat_start();
+	stress_vmstat_start();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_run_sequential(&duration,

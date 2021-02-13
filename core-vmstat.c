@@ -24,6 +24,29 @@
  */
 #include "stress-ng.h"
 
+int32_t vmstat_delay = 0;
+int32_t thermalstat_delay = 0;
+
+int stress_set_vmstat(const char *const opt)
+{
+	vmstat_delay = stress_get_int32(opt);
+        if ((vmstat_delay < 1) || (vmstat_delay > 3600)) {
+                (void)fprintf(stderr, "vmstat must in the range 1 to 3600.\n");
+                _exit(EXIT_FAILURE);
+        }
+	return 0;
+}
+
+int stress_set_thermalstat(const char *const opt)
+{
+	thermalstat_delay = stress_get_int32(opt);
+        if ((thermalstat_delay < 1) || (thermalstat_delay > 3600)) {
+                (void)fprintf(stderr, "thermalstat must in the range 1 to 3600.\n");
+                _exit(EXIT_FAILURE);
+        }
+	return 0;
+}
+
 #if defined(__linux__)
 
 static pid_t vmstat_pid;
@@ -334,15 +357,22 @@ void stress_vmstat_start(void)
 	size_t tz_num = 0;
 	stress_tz_info_t *tz_info, *tz_info_list;
 	uint64_t stat_count = 0;
+	int32_t vmstat_sleep, thermalstat_sleep;
+
+	if ((vmstat_delay == 0) && (thermalstat_delay == 0))
+		return;
+
+	vmstat_sleep = vmstat_delay;
+	thermalstat_sleep = thermalstat_delay;
 
 	vmstat_pid = fork();
 	if (vmstat_pid < 0 || vmstat_pid > 0)
 		return;
 
-	if (g_opt_flags & OPT_FLAGS_VMSTAT)
+	if (vmstat_delay)
 		stress_get_vmstat(&vmstat);
 
-	if (g_opt_flags & OPT_FLAGS_THERMALSTAT) {
+	if (thermalstat_delay) {
 		tz_info_list = NULL;
 		stress_tz_init(&tz_info_list);
 
@@ -351,8 +381,26 @@ void stress_vmstat_start(void)
 	}
 
 	for (;;) {
-		sleep(1);
-		if (g_opt_flags & OPT_FLAGS_VMSTAT) {
+		int32_t sleep_delay = 1;
+
+		if ((vmstat_sleep > 0) && (thermalstat_sleep > 0))
+			sleep_delay = STRESS_MINIMUM(vmstat_sleep, thermalstat_sleep);
+		else if ((vmstat_sleep > 0) && (thermalstat_sleep == 0))
+			sleep_delay = vmstat_sleep;
+		else if ((thermalstat_sleep > 0) && (vmstat_sleep == 0))
+			sleep_delay = thermalstat_sleep;
+
+		sleep(sleep_delay);
+
+		vmstat_sleep -= sleep_delay;
+		thermalstat_sleep -= sleep_delay;
+
+		if ((vmstat_delay > 0) && (vmstat_sleep <= 0))
+			vmstat_sleep = vmstat_delay;
+		if ((thermalstat_delay > 0) && (thermalstat_sleep <= 0))
+			thermalstat_sleep = thermalstat_delay;
+
+		if (vmstat_sleep == vmstat_delay) {
 			unsigned long clk_tick;
 
 			if ((stat_count % 60) == 0)
@@ -381,20 +429,20 @@ void stress_vmstat_start(void)
 				vmstat.memory_free,
 				vmstat.memory_buff,
 				vmstat.memory_cache,
-				vmstat.swap_in,
-				vmstat.swap_out,
-				vmstat.block_in,
-				vmstat.block_out,
-				vmstat.interrupt,
-				vmstat.context_switch,
-				100.0 * vmstat.user_time / clk_tick,
-				100.0 * vmstat.system_time / clk_tick,
-				100.0 * vmstat.idle_time / clk_tick,
-				100.0 * vmstat.wait_time / clk_tick,
-				100.0 * vmstat.stolen_time / clk_tick);
+				vmstat.swap_in / vmstat_delay,
+				vmstat.swap_out / vmstat_delay,
+				vmstat.block_in / vmstat_delay,
+				vmstat.block_out / vmstat_delay,
+				vmstat.interrupt / vmstat_delay,
+				vmstat.context_switch / vmstat_delay,
+				100.0 * vmstat.user_time / (clk_tick * vmstat_delay),
+				100.0 * vmstat.system_time / (clk_tick * vmstat_delay),
+				100.0 * vmstat.idle_time / (clk_tick * vmstat_delay),
+				100.0 * vmstat.wait_time / (clk_tick * vmstat_delay),
+				100.0 * vmstat.stolen_time / (clk_tick * vmstat_delay));
 		}
 
-		if (g_opt_flags & OPT_FLAGS_THERMALSTAT) {
+		if (thermalstat_delay == thermalstat_sleep) {
 			double min1, min5, min15, ghz;
 			char therms[1 + (tz_num * 6)];
 			char cpuspeed[6];
