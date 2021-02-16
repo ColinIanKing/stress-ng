@@ -2065,8 +2065,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_hamming(const char *name)
 		uint32_t encoded;
 
 		/* 4 x 4 bits to 4 x 8 bits hamming encoded */
-		encoded =
-			  (hamming84((i >> 12) & 0xf) << 24) |
+		encoded = (hamming84((i >> 12) & 0xf) << 24) |
 			  (hamming84((i >> 8) & 0xf) << 16) |
 			  (hamming84((i >> 4) & 0xf) << 8) |
 			  (hamming84((i >> 0) & 0xf) << 0);
