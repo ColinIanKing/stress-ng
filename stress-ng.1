@@ -2065,6 +2065,11 @@ any one time.
 stop after N malloc bogo operations. One bogo operations relates to a
 successful malloc(3), calloc(3) or realloc(3).
 .TP
+.B \-\-malloc\-pthreads N
+specify number of malloc stressing concurrent pthreads to run. The default is
+0 (just one main process, no pthreads). This option will do nothing if pthreads
+are not supported.
+.TP
 .B \-\-malloc\-thresh N
 specify the threshold where malloc uses mmap(2) instead of sbrk(2) to allocate
 more memory. This is only available on systems that provide the GNU C
