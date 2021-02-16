@@ -436,7 +436,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 	const long double precision = 1.0e-12L;
 	const int max_iter = 56;
 
-	for (i = 16384; i < 16384; i++) {
+	for (i = 16300; i < 16384; i++) {
 		long double n = (double)i;
 		long double lo = (n < 1.0L) ? n : 1.0L;
 		long double hi = (n < 1.0L) ? 1.0L : n;
