@@ -288,6 +288,14 @@ again:
 				}
 #endif
 				if (msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, 0) < 0) {
+					/*
+					 * Check for errors that can occur
+					 * when the termination occurs and
+					 * retry
+					 */
+					if ((errno == E2BIG) || (errno == EINTR))
+						continue;
+
 					pr_fail("%s: msgrcv failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					break;
