@@ -1426,6 +1426,113 @@ static char *stress_exit_status_to_string(const int status)
 }
 
 /*
+ *  Filter out dot files . and ..
+ */
+static int stress_dot_filter(const struct dirent *d)
+{
+	if (d->d_name[0] == '.') {
+		if (d->d_name[1] == '\0')
+			return 0;
+		if ((d->d_name[1] == '.') && (d->d_name[2] == '\0'))
+			return 0;
+	}
+	return 1;
+}
+
+/*
+ *  stress_clean_dir_files()
+ *  	recursively delete files in directories
+ */
+static void stress_clean_dir_files(
+	const char *temp_path,
+	const size_t temp_path_len,
+	char *path,
+	const size_t path_posn)
+{
+	struct stat statbuf;
+	char *ptr = path + path_posn;
+	char *end = path + PATH_MAX;
+	int n;
+	struct dirent **names;
+
+	if (stat(path, &statbuf) < 0) {
+		pr_inf("STAT FAIL: %s %d %s\n", path, errno, strerror(errno));
+		return;
+	}
+
+	/* We don't follow symlinks */
+	if (S_ISLNK(statbuf.st_mode))
+		return;
+
+	/* We don't remove paths with .. in */
+	if (strstr(path, ".."))
+		return;
+
+	/* We don't remove paths that our out of the scope */
+	if (strncmp(path, temp_path, temp_path_len))
+		return;
+
+	n = scandir(path, &names, stress_dot_filter, alphasort);
+	if (n < 0) {
+		(void)rmdir(path);
+		return;
+	}
+
+	while (n--) {
+		size_t name_len = strlen(names[n]->d_name) + 1;
+
+		/* No more space */
+		if (ptr + name_len > end) {
+			free(names[n]);
+			continue;
+		}
+
+		snprintf(ptr, end - ptr, "/%s", names[n]->d_name);
+		name_len = strlen(ptr);
+		free(names[n]);
+
+		switch (names[n]->d_type) {
+		case DT_DIR:
+			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
+			(void)rmdir(path);
+			break;
+		case DT_LNK:
+		case DT_REG:
+			(void)unlink(path);
+			break;
+		default:
+			break;
+		}
+	}
+	*ptr = '\0';
+	free(names);
+	(void)rmdir(path);
+}
+
+/*
+ *  stress_clean_dir()
+ *	perform tidy up of any residual temp files; this
+ *	happens if a stressor was terminated before it could
+ *	tidy itself up, e.g. OOM'd or KILL'd
+ */
+static void stress_clean_dir(
+	const char *name,
+	const pid_t pid,
+	uint32_t instance)
+{
+	char path[PATH_MAX];
+	const char *temp_path = stress_get_temp_path();
+	const size_t temp_path_len = strlen(temp_path);
+
+	(void)stress_temp_dir(path, sizeof(path), name, pid, instance);
+
+	if (access(path, F_OK) == 0) {
+		pr_dbg("%s: removing temporary files in %s\n", name, path);
+		stress_clean_dir_files(temp_path, temp_path_len, path, strlen(path));
+	}
+}
+
+/*
  *  stress_wait_stressors()
  * 	wait for stressor child processes
  */
@@ -1515,6 +1622,10 @@ redo:
 				int status, ret;
 				bool do_abort = false;
 				const char *stressor_name = stress_munge_underscore(ss->stressor->name);
+				char name[64];
+
+				(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
+                                        stress_munge_underscore(stressor_name));
 
 				ret = shim_waitpid(pid, &status, 0);
 				if (ret > 0) {
@@ -1587,6 +1698,9 @@ redo:
 
 					stress_stressor_finished(&ss->pids[j]);
 					pr_dbg("process [%d] terminated\n", ret);
+
+					stress_clean_dir(name, pid, j);
+
 				} else if (ret == -1) {
 					/* Somebody interrupted the wait */
 					if (errno == EINTR)
