@@ -1111,12 +1111,14 @@ static int stress_zlib_inflate(
 
 	(void)stress_zlib_get_args(&zlib_args);
 
+	(void)memset(&xsum, 0, sizeof(xsum));
 	xsum.xsum = 0;
 	xsum.xchars = 0;
 	xsum.error = false;
 	xsum.pipe_broken = false;
 	xsum.interrupted = false;
 
+	(void)memset(&stream_inf, 0, sizeof(stream_inf));
 	stream_inf.zalloc = Z_NULL;
 	stream_inf.zfree = Z_NULL;
 	stream_inf.opaque = Z_NULL;
@@ -1265,12 +1267,14 @@ static int stress_zlib_deflate(
 
 	(void)stress_zlib_get_args(&zlib_args);
 
+	(void)memset(&xsum, 0, sizeof(xsum));
 	xsum.xsum = 0;
 	xsum.xchars = 0;
 	xsum.error = false;
 	xsum.pipe_broken = false;
 	xsum.interrupted = false;
 
+	(void)memset(&stream_def, 0, sizeof(stream_def));
 	stream_def.zalloc = Z_NULL;
 	stream_def.zfree = Z_NULL;
 	stream_def.opaque = Z_NULL;
