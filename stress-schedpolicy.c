@@ -122,6 +122,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 		case SCHED_OTHER:
 #endif
 			/* Exercise illegal policy */
+			(void)memset(&param, 0, sizeof(param));
 			ret = sched_setscheduler(pid, -1, &param);
 			(void)ret;
 
