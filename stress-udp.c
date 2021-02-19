@@ -165,7 +165,8 @@ again:
 #if defined(IPPROTO_UDPLITE) && defined(UDPLITE_RECV_CSCOV)
 			if (proto == IPPROTO_UDPLITE) {
 				int val;
-				socklen_t slen;
+				socklen_t slen = sizeof(val);
+
 				(void)getsockopt(fd, proto, UDPLITE_RECV_CSCOV, &val, &slen);
 			}
 #endif
@@ -173,9 +174,8 @@ again:
 #if defined(UDP_CORK)
 			{
 				int val, ret;
-				socklen_t slen;
+				socklen_t slen = sizeof(val);
 
-				slen = sizeof(val);
 				ret = getsockopt(fd, proto, UDP_CORK, &val, &slen);
 				if (ret == 0) {
 					slen = sizeof(val);
@@ -186,9 +186,8 @@ again:
 #if defined(UDP_ENCAP)
 			{
 				int val, ret;
-				socklen_t slen;
+				socklen_t slen = sizeof(val);
 
-				slen = sizeof(val);
 				ret = getsockopt(fd, proto, UDP_ENCAP, &val, &slen);
 				if (ret == 0) {
 					slen = sizeof(val);
@@ -199,9 +198,8 @@ again:
 #if defined(UDP_NO_CHECK6_TX)
 			{
 				int val, ret;
-				socklen_t slen;
+				socklen_t slen = sizeof(val);
 
-				slen = sizeof(val);
 				ret = getsockopt(fd, proto, UDP_NO_CHECK6_TX, &val, &slen);
 				if (ret == 0) {
 					slen = sizeof(val);
@@ -212,9 +210,7 @@ again:
 #if defined(UDP_NO_CHECK6_RX)
 			{
 				int val, ret;
-				socklen_t slen;
-
-				slen = sizeof(val);
+				socklen_t slen = sizeof(val);
 				ret = getsockopt(fd, proto, UDP_NO_CHECK6_RX, &val, &slen);
 				if (ret == 0) {
 					slen = sizeof(val);
@@ -225,9 +221,8 @@ again:
 #if defined(UDP_SEGMENT)
 			{
 				int val, ret;
-				socklen_t slen;
+				socklen_t slen = sizeof(val);
 
-				slen = sizeof(val);
 				ret = getsockopt(fd, proto, UDP_SEGMENT, &val, &slen);
 				if (ret == 0) {
 					slen = sizeof(val);
