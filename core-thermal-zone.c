@@ -38,6 +38,9 @@ static uint32_t stress_tz_type_instance(
 	stress_tz_info_t *tz_info;
 	uint32_t type_instance = 0;
 
+	if (!type)
+		return 0;
+
 	for (tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
 		if (!strcmp(type, tz_info->type))
 			type_instance++;
@@ -93,7 +96,7 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 
 			if (fgets(type, sizeof(type), fp) != NULL) {
 				type[strcspn(type, "\n")] = '\0';
-				tz_info->type  = strdup(type);
+				tz_info->type = strdup(type);
 				tz_info->type_instance = stress_tz_type_instance(*tz_info_list, tz_info->type);
 			}
 			(void)fclose(fp);
