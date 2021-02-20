@@ -553,6 +553,7 @@ static void stress_hmac_sha512(
 	static const char name[] = "hmac_sha512";
 
 	stress_rnd_fill(rndkey, sizeof(rndkey));
+	(void)memset(key, 0, sizeof(key));
 
 	IMB_SHA512(mb_mgr, rndkey, SHA_512_BLOCK_SIZE, key);
 
