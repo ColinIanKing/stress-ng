@@ -242,6 +242,7 @@ re_read:
 		/*
 		 *  Exercise lseek with invalid offsets, EINVAL
 		 */
+		offset = stress_mwc64() % len;
 		offset = lseek(fd, ~(off_t)0, SEEK_SET);
 		(void)offset;
 		offset = lseek(fd, bad_off_t, SEEK_SET);
