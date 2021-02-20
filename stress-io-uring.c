@@ -123,8 +123,12 @@ static void stress_io_uring_free_iovecs(stress_io_uring_file_t *io_uring_file)
 {
 	size_t i;
 
-	for (i = 0; i < io_uring_file->blocks; i++)
+pr_inf("stress_io_uring_free_iovecs: free\n");
+
+	for (i = 0; i < io_uring_file->blocks; i++) {
 		free(io_uring_file->iovecs[i].iov_base);
+		io_uring_file->iovecs[i].iov_base = NULL;
+	}
 
 	free(io_uring_file->iovecs);
 	io_uring_file->iovecs = NULL;
@@ -226,7 +230,6 @@ static void stress_close_io_uring(stress_io_uring_submit_t *submit)
 static int stress_io_uring_submit(
 	const stress_args_t *args,
 	stress_io_uring_submit_t *submit,
-	stress_io_uring_file_t *io_uring_file,
 	const int opcode)
 {
 	int ret;
@@ -236,7 +239,6 @@ static int stress_io_uring_submit(
 	if (ret < 0) {
 		pr_fail("%s: io_uring_enter failed, opcode=%d, errno=%d (%s)\n",
 			args->name, opcode, errno, strerror(errno));
-		stress_io_uring_free_iovecs(io_uring_file);
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
@@ -280,7 +282,7 @@ static int stress_io_uring_iovec_submit(
 		shim_mb();
 	}
 
-	return stress_io_uring_submit(args, submit, io_uring_file, opcode);
+	return stress_io_uring_submit(args, submit, opcode);
 }
 #endif
 
@@ -317,7 +319,7 @@ static int stress_io_uring_fsync_submit(
 		*sring->tail = tail;
 		shim_mb();
 	}
-	return stress_io_uring_submit(args, submit, io_uring_file, IORING_OP_FSYNC);
+	return stress_io_uring_submit(args, submit, IORING_OP_FSYNC);
 }
 #endif
 
@@ -341,6 +343,7 @@ static int stress_io_uring_nop_submit(
 	index = tail & *submit->sq_ring.ring_mask;
 	sqe = &submit->sqes_mmap[index];
 	(void)memset(sqe, 0, sizeof(*sqe));
+	(void)io_uring_file;
 
 	sqe->opcode = IORING_OP_NOP;
 	sring->array[index] = index;
@@ -350,7 +353,7 @@ static int stress_io_uring_nop_submit(
 		*sring->tail = tail;
 		shim_mb();
 	}
-	return stress_io_uring_submit(args, submit, io_uring_file, IORING_OP_NOP);
+	return stress_io_uring_submit(args, submit, IORING_OP_NOP);
 }
 #endif
 
@@ -432,8 +435,10 @@ static int stress_io_uring(const stress_args_t *args)
 	}
 
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
+	if (ret < 0) {
+		stress_io_uring_free_iovecs(&io_uring_file);
 		return exit_status(-ret);
+	}
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
@@ -506,6 +511,7 @@ static int stress_io_uring(const stress_args_t *args)
 clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_close_io_uring(&submit);
+	stress_io_uring_free_iovecs(&io_uring_file);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
