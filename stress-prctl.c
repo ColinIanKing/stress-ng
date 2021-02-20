@@ -404,8 +404,10 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 	{
 		void *auxv = getauxv_addr();
 
-		if (auxv)
+		if (auxv) {
 			ret = prctl(PR_SET_MM, PR_SET_MM_AUXV, auxv, 0, 0);
+			(void)ret;
+		}
 	}
 #endif
 
