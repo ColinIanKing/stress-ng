@@ -140,7 +140,8 @@ static int try_remap(
 			newbuf = mremap(*buf, new_sz, new_sz,
 					MREMAP_DONTUNMAP | MREMAP_MAYMOVE);
 			if (newbuf != MAP_FAILED) {
-				(void)munmap(*buf, new_sz);
+				if (*buf)
+					(void)munmap(*buf, new_sz);
 				*buf = newbuf;
 			}
 #endif
