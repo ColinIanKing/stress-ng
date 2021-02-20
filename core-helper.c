@@ -490,6 +490,10 @@ int stress_get_load_avg(
 	int rc;
 	double loadavg[3];
 
+	loadavg[0] = 0.0;
+	loadavg[1] = 0.0;
+	loadavg[2] = 0.0;
+	
 	rc = getloadavg(loadavg, 3);
 	if (rc < 0)
 		goto fail;
