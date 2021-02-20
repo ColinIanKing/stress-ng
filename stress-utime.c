@@ -183,7 +183,7 @@ STRESS_PRAGMA_WARN_OFF
 			ts[1].tv_sec = UTIME_NOW;
 			ts[1].tv_nsec = UTIME_NOW;
 
-			ret = utimensat(dir_fd, NULL, ts, 0);
+			ret = utimensat(dir_fd, "", ts, 0);
 			(void)ret;
 		}
 STRESS_PRAGMA_POP
