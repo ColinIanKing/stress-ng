@@ -168,24 +168,24 @@ static int stress_ioport(const stress_args_t *args)
 		}
 
 		if (fd >= 0) {
-			off_t offset = IO_PORT;
+			off_t offset = IO_PORT, offret;
 
-			offset = lseek(fd, offset, SEEK_SET);
-			if (offset != (off_t)-1) {
+			offret = lseek(fd, offset, SEEK_SET);
+			if (offret != (off_t)-1) {
 				ssize_t n;
 				unsigned char val;
 
 				n = read(fd, &val, sizeof(val));
 				if (n == sizeof(val)) {
-					offset = lseek(fd, offset, SEEK_SET);
-					if (offset != (off_t)-1) {
+					offret = lseek(fd, offset, SEEK_SET);
+					if (offret != (off_t)-1) {
 						val = ~v;
 						n = write(fd, &val, sizeof(val));
 						(void)n;
 					}
 
-					offset = lseek(fd, offset, SEEK_SET);
-					if (offset != (off_t)-1) {
+					offret = lseek(fd, offset, SEEK_SET);
+					if (offret != (off_t)-1) {
 						val = v;
 						n = write(fd, &val, sizeof(val));
 						(void)n;
