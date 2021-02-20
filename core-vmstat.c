@@ -380,7 +380,7 @@ void stress_vmstat_start(void)
 			tz_num++;
 	}
 
-	for (;;) {
+	while (keep_stressing_flag()) {
 		int32_t sleep_delay = 1;
 
 		if ((vmstat_sleep > 0) && (thermalstat_sleep > 0))
