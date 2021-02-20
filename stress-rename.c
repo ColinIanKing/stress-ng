@@ -314,7 +314,6 @@ restart:
 			if (exercise_renameat(args, old, tmp_fd, new, tmp_fd, bad_fd) < 0) {
 				(void)unlink(oldname);
 				(void)unlink(newname);
-break;
 				goto restart;
 			}
 
