@@ -75,6 +75,7 @@ static char *stress_ftrace_get_debugfs_path(void)
 	for (i = 0; i < n; i++) {
 		struct statfs buf;
 
+		(void)memset(&buf, 0, sizeof(buf));
 		if (statfs(mnts[i], &buf) < 0)
 			continue;
 		if (buf.f_type == DEBUGFS_MAGIC) {
