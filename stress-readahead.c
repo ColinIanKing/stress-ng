@@ -165,7 +165,6 @@ seq_wr_retry:
 					args->name, errno, strerror(errno));
 				goto close_finish;
 			}
-			continue;
 		}
 	}
 
