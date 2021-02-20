@@ -153,6 +153,7 @@ static int stress_mmapfork(const stress_args_t *args)
 				if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 					_exit(_EXIT_FAILURE);
 
+				(void)memset(&info, 0, sizeof(info));
 				if (sysinfo(&info) < 0) {
 					pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
