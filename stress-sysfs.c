@@ -374,7 +374,6 @@ next:
 		if (drain_kmsg) {
 drain:
 			(void)shim_usleep(DRAIN_DELAY_US);
-			continue;
 		}
 	}
 	return false;
