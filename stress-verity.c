@@ -97,6 +97,7 @@ static int stress_verity(const stress_args_t *args)
 			if (ret < 0) {
 				ret = exit_status(errno);
 				pr_err("%s: cannot write %s\n", args->name, filename);
+				(void)close(fd);
 				goto clean;
 			}
 		}
