@@ -94,8 +94,7 @@ static void *stress_mmapaddr_get_addr(
 		addr = (void *)(intptr_t)(stress_mwc64() & mask);
 		ret = shim_mincore(addr, page_size, vec);
 		if (ret == 0) {
-			addr = NULL;
-			continue;	/* it's mapped already */
+			addr = NULL; /* it's mapped already */
 		} else if (ret <= 0) {
 			if (errno == ENOSYS) {
 				addr = NULL;
