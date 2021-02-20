@@ -177,12 +177,15 @@ static int stress_pipeherd(const stress_args_t *args)
 
 		(void)memset(&usage, 0, sizeof(usage));
 		if (getrusage(RUSAGE_SELF, &usage) == 0) {
+			const uint64_t count = get_counter(args);
+			double dt = t2 - t1;
+
 			total += usage.ru_nvcsw + usage.ru_nivcsw;
 			if (total) {
 				pr_inf("%s: %.2f context switches per bogo operation (%.2f per second)\n",
 					args->name,
-					(float)total / (float)get_counter(args),
-					(float)total / (t2 - t1));
+					(count > 0) ? ((float)total / (float)count) : 0.0,
+					(dt > 0.0) ? ((float)total / dt) : 0.0);
 			}
 		}
 	}
