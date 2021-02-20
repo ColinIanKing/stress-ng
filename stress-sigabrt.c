@@ -84,7 +84,6 @@ rewait:
 				}
 				pr_fail("%s: waitpid failed: %d (%s)\n",
 					args->name, errno, strerror(errno));
-				continue;
 			} else {
 				if (WIFSIGNALED(status) &&
 				    (WTERMSIG(status) == SIGABRT)) {
