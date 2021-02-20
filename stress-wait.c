@@ -297,6 +297,7 @@ static int stress_wait(const stress_args_t *args)
 		if (options) {
 			siginfo_t info;
 
+			(void)memset(&info, 0, sizeof(info));
 			wret = waitid(P_PID, pid_r, &info, options);
 			if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 				pr_fail("%s: waitid failed, errno=%d (%s)\n",
