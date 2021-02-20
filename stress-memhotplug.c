@@ -213,7 +213,7 @@ static int stress_memhotplug(const stress_args_t *args)
 		for (i = 0; keep_stressing(args) && (i < max); i++) {
 			stress_memhotplug_mem_toggle(&mem_info[i]);
 			if (!mem_info[i].timeout)
-				ok |= true;
+				ok = true;
 			inc_counter(args);
 		}
 		if (!ok) {
