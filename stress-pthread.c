@@ -143,6 +143,8 @@ static void stress_pthread_tid_address(const stress_args_t *args)
 
 			/* Nullify */
 			tid1 = syscall(__NR_set_tid_address, NULL);
+			(void)tid1;
+
 			/* This always succeeds */
 			tid1 = syscall(__NR_set_tid_address, tid_addr);
 
