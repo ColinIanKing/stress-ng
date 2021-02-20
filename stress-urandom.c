@@ -211,20 +211,22 @@ next:
 		 *  Peek if data is available on blockable /dev/random and
 		 *  try to read it.
 		 */
-		timeout.tv_sec = 0;
-		timeout.tv_usec = 0;
-		FD_ZERO(&rdfds);
-		FD_SET(fd_rnd_blk, &rdfds);
+		if (fd_rnd_blk >= 0) {
+			timeout.tv_sec = 0;
+			timeout.tv_usec = 0;
+			FD_ZERO(&rdfds);
+			FD_SET(fd_rnd_blk, &rdfds);
 
-		ret = select(fd_rnd_blk + 1, &rdfds, NULL, NULL, &timeout);
-		if (ret > 0) {
-			if (FD_ISSET(fd_rnd_blk, &rdfds)) {
-				ret = read(fd_rnd, buffer, 1);
-				if (ret < 0) {
-					if ((errno != EAGAIN) && (errno != EINTR)) {
-						pr_fail("%s: read of /dev/random failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-						goto err;
+			ret = select(fd_rnd_blk + 1, &rdfds, NULL, NULL, &timeout);
+			if (ret > 0) {
+				if (FD_ISSET(fd_rnd_blk, &rdfds)) {
+					ret = read(fd_rnd, buffer, 1);
+					if (ret < 0) {
+						if ((errno != EAGAIN) && (errno != EINTR)) {
+							pr_fail("%s: read of /dev/random failed, errno=%d (%s)\n",
+								args->name, errno, strerror(errno));
+							goto err;
+						}
 					}
 				}
 			}
