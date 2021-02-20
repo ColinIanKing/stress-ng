@@ -217,7 +217,7 @@ static void stress_dir_exercise(
 	const size_t len,
 	const size_t path_len)
 {
-	struct dirent **namelist;
+	struct dirent **namelist = NULL;
 	int i, n;
 #if defined(HAVE_FUTIMENS)
 	const double now = stress_time_now();
