@@ -84,11 +84,11 @@ static void stress_zombie_head_remove(void)
 {
 	if (zombies.head) {
 		int status;
+		stress_zombie_t *head;
 
 		(void)shim_waitpid(zombies.head->pid, &status, 0);
 
-		stress_zombie_t *head = zombies.head;
-
+		head = zombies.head;
 		if (zombies.tail == zombies.head) {
 			zombies.tail = NULL;
 			zombies.head = NULL;
