@@ -194,7 +194,8 @@ static int stress_setup_io_uring(
 	if (submit->sqes_mmap == MAP_FAILED) {
 		pr_inf("%s: count not mmap submission queue buffer, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap(submit->cq_mmap, submit->cq_size);
+		if (submit->cq_mmap != submit->sq_mmap)
+			(void)munmap(submit->cq_mmap, submit->cq_size);
 		(void)munmap(submit->sq_mmap, submit->sq_size);
 		return EXIT_NO_RESOURCE;
 	}
