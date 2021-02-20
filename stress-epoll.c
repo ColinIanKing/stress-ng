@@ -547,6 +547,7 @@ retry:
 			return EXIT_FAILURE;
 		}
 
+		(void)memset(&sev, 0, sizeof(sev));
 		sev.sigev_notify = SIGEV_SIGNAL;
 		sev.sigev_signo = SIGRTMIN;
 		sev.sigev_value.sival_ptr = &epoll_timerid;
