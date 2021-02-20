@@ -95,6 +95,7 @@ int main(void)
 		return -1;
 
 	wd = inotify_add_watch(fd, "/", IN_ACCESS);
+	(void)wd;
 
 	len = read(fd, buffer, sizeof(buffer));
 	if (len < 0)
