@@ -1230,7 +1230,7 @@ size_t stress_get_max_file_limit(void)
 	struct rlimit rlim;
 #endif
 	size_t max_rlim = ~0;
-	size_t max_sysconf = ~0;
+	size_t max_sysconf;
 
 #if defined(RLIMIT_NOFILE)
 	if (!getrlimit(RLIMIT_NOFILE, &rlim))
@@ -1238,6 +1238,8 @@ size_t stress_get_max_file_limit(void)
 #endif
 #if defined(_SC_OPEN_MAX)
 	max_sysconf = (size_t)sysconf(_SC_OPEN_MAX);
+#else
+	max_sysconf = ~0;
 #endif
 	/* return the lowest of these two */
 	return STRESS_MINIMUM(max_rlim, max_sysconf);
