@@ -120,6 +120,7 @@ static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 			continue;
 		if (!strncmp(mnts[i], "/run/lock", 9))
 			continue;
+		(void)memset(&buf, 0, sizeof(buf));
 		if (statfs(mnts[i], &buf) < 0)
 			continue;
 
