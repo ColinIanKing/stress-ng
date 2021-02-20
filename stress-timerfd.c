@@ -176,6 +176,7 @@ static int stress_timerfd(const stress_args_t *args)
 
 	if (count == 0) {
 		pr_fail("%s: timerfd_create failed, no timers created\n", args->name);
+		(void)close(file_fd);
 		return EXIT_FAILURE;
 	}
 	count = 0;
