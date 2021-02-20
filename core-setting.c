@@ -148,6 +148,7 @@ static int stress_set_setting_generic(
 	case TYPE_ID_STR:
 		setting->u.str = stress_const_optdup(value);
 		if (!setting->u.str) {
+			free(setting->name);
 			free(setting);
 			goto err;
 		}
