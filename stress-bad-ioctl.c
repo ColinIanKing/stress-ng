@@ -77,7 +77,7 @@ static inline void stress_bad_ioctl_rw(
 	const stress_args_t *args,
 	const bool is_main_process)
 {
-	int fd, ret;
+	int ret;
 	char path[PATH_MAX];
 	const double threshold = 0.25;
 	const size_t page_size = args->page_size;
@@ -120,6 +120,7 @@ static inline void stress_bad_ioctl_rw(
 	}
 
 	do {
+		int fd;
 		double t_start;
 		uint8_t type = (i >> 8) & 0xff;
 		uint8_t nr = i & 0xff;
@@ -151,46 +152,61 @@ static inline void stress_bad_ioctl_rw(
 
 		ret = ioctl(fd, _IOR(type, nr, uint64_t), buf64);
 		(void)ret;
-		if (stress_time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
 			break;
+		}
 
 		ret = ioctl(fd, _IOR(type, nr, uint32_t), buf32);
 		(void)ret;
-		if (stress_time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
 			break;
+		}
 
 		ret = ioctl(fd, _IOR(type, nr, uint16_t), buf16);
 		(void)ret;
-		if (stress_time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
 			break;
+		}
 
 		ret = ioctl(fd, _IOR(type, nr, uint8_t), buf8);
 		(void)ret;
-		if (stress_time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
 			break;
+		}
 
 		ret = ioctl(fd, _IOR(type, nr, stress_4k_page_t), buf);
 		(void)ret;
-		if (stress_time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
 			break;
+		}
 
 		ret = ioctl(fd, _IOR(type, nr, uint8_t), NULL);
 		(void)ret;
-		if (stress_time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
 			break;
+		}
 
 		ret = ioctl(fd, _IOR(type, nr, uint8_t), args->mapped->page_none);
 		(void)ret;
-		if (stress_time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
 			break;
+		}
 
 		ret = ioctl(fd, _IOR(type, nr, uint8_t), args->mapped->page_ro);
 		(void)ret;
-		if (stress_time_now() - t_start > threshold)
+		if (stress_time_now() - t_start > threshold) {
+			(void)close(fd);
 			break;
-
-		(void)close(fd);
+		}
 next:
+		(void)close(fd);
 		i++;
 	} while (is_main_process);
 
