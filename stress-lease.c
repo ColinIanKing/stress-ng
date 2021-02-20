@@ -161,15 +161,13 @@ static int stress_try_lease(
 	 */
 	while (fcntl(fd, F_SETLEASE, F_UNLCK) < 0) {
 		if (!keep_stressing_flag())
-			goto tidy;
+			break;
 		if (errno != EAGAIN) {
 			pr_err("%s: fcntl failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
-			(void)close(fd);
 			break;
 		}
 	}
-
 tidy:
 	(void)close(fd);
 
