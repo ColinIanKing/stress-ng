@@ -136,10 +136,11 @@ static int stress_timerfd(const stress_args_t *args)
 					args->name, errno, strerror(errno));
 				return EXIT_FAILURE;
 			}
+		} else {
+			count++;
+			if (max_timerfd < timerfd[i])
+				max_timerfd = timerfd[i];
 		}
-		count++;
-		if (max_timerfd < timerfd[i])
-			max_timerfd = timerfd[i];
 	}
 
 	/* Create a non valid timerfd file descriptor */
