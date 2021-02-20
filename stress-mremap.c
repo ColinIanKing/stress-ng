@@ -147,12 +147,8 @@ static int try_remap(
 #endif
 
 #if defined(HAVE_MLOCK)
-			if (mremap_mlock) {
-				int ret;
-
-				ret = shim_mlock(*buf, new_sz);
-				(void)ret;
-			}
+			if (mremap_mlock && *buf)
+				(void)shim_mlock(*buf, new_sz);
 #else
 			(void)mremap_mlock;
 #endif
