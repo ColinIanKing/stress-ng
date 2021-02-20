@@ -147,7 +147,6 @@ static int efi_get_data(
 	char filename[PATH_MAX];
 	struct stat statbuf;
 	off_t offset;
-	void *ptr;
 
 	(void)snprintf(filename, sizeof(filename),
 		"%s/%s/%s", vars, varname, field);
@@ -187,11 +186,16 @@ static int efi_get_data(
 	/*
 	 *  exercise mmap
 	 */
-	ptr = mmap(NULL, n, PROT_READ | PROT_WRITE,
-		MAP_PRIVATE | MAP_ANONYMOUS, fd, 0);
-	if (ptr != MAP_FAILED) {
-		stress_madvise_random(ptr, n);
-		(void)munmap(ptr, n);
+	{
+		const size_t len = (n > 0) ? (size_t)n : args->page_size;
+		void *ptr;
+
+		ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS, fd, 0);
+		if (ptr != MAP_FAILED) {
+			stress_madvise_random(ptr, n);
+			(void)munmap(ptr, n);
+		}
 	}
 
 #if defined(FIGETBSZ)
