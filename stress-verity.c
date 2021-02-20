@@ -208,6 +208,7 @@ static int stress_verity(const stress_args_t *args)
 			if (block[0] != i) {
 				pr_err("%s: data in file block %d is incorrect\n",
 					args->name, i);
+				(void)close(fd);
 				goto clean;
 			}
 		}
