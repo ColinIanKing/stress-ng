@@ -259,7 +259,7 @@ static void NORETURN waste_resources(
 			stress_strnrnd(tmpfilename + posn, sizeof(tmpfilename) - posn - 1);
 			tmpfilename[sizeof(tmpfilename) - 1] = '\0';
 			fd = open(tmpfilename, O_RDONLY);
-			if (fd)
+			if (fd >= 0)
 				(void)close(fd);
 		}
 
