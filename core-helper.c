@@ -415,6 +415,7 @@ uint64_t stress_get_filesystem_size(void)
 	if (!path)
 		return 0;
 
+	(void)memset(&buf, 0, sizeof(buf));
 	rc = statvfs(path, &buf);
 	if (rc < 0)
 		return 0;
