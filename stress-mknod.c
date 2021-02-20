@@ -239,12 +239,12 @@ static int stress_mknod(const stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			char path[PATH_MAX];
 			const uint64_t gray_code = (i >> 1) ^ i;
-			int mode = modes[stress_mwc32() % num_nodes].mode;
+			size_t j = stress_mwc32() % num_nodes;
 
 			(void)stress_temp_filename_args(args,
 				path, sizeof(path), gray_code);
-			if (stress_do_mknod(dirfd, path, mode | S_IRUSR | S_IWUSR, 0) < 0) {
-				if (stress_mknod_check_errno(args, modes[i].mode_str, path, errno) < 0)
+			if (stress_do_mknod(dirfd, path, modes[j].mode | S_IRUSR | S_IWUSR, 0) < 0) {
+				if (stress_mknod_check_errno(args, modes[j].mode_str, path, errno) < 0)
 					continue;	/* Try again */
 				break;
 			}
