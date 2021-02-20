@@ -60,6 +60,7 @@ static int stress_switch(const stress_args_t *args)
 
 	(void)stress_get_setting("switch-freq", &switch_freq);
 
+	(void)memset(pipefds, 0, sizeof(pipefds));
 #if defined(HAVE_PIPE2) &&	\
     defined(O_DIRECT)
 	if (pipe2(pipefds, O_DIRECT) < 0) {
