@@ -441,204 +441,204 @@ retry:
 		}
 
 #if defined(TCP_CONGESTION)
-			/*
-			 *  Randomly set congestion control
-			 */
-			if (n_ctrls > 0) {
-				const int idx = stress_mwc16() % n_ctrls;
-				const char *control = ctrls[idx];
-				char name[256];
-				socklen_t len;
+		/*
+		 *  Randomly set congestion control
+		 */
+		if (n_ctrls > 0) {
+			const int idx = stress_mwc16() % n_ctrls;
+			const char *control = ctrls[idx];
+			char name[256];
+			socklen_t len;
 
-				len = (socklen_t)strlen(ctrls[idx]);
-				(void)setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, control, len);
-				len = (socklen_t)sizeof(name);
-				(void)getsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, name, &len);
-			}
+			len = (socklen_t)strlen(ctrls[idx]);
+			(void)setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, control, len);
+			len = (socklen_t)sizeof(name);
+			(void)getsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, name, &len);
+		}
 #endif
 #if defined(IP_MTU)
-			{
-				int ret, mtu;
-				socklen_t optlen;
+		{
+			int ret, mtu;
+			socklen_t optlen;
 
+			optlen = sizeof(mtu);
+			ret = getsockopt(fd, IPPROTO_IP, IP_MTU,
+				&mtu, &optlen);
+			if (ret == 0) {
 				optlen = sizeof(mtu);
-				ret = getsockopt(fd, IPPROTO_IP, IP_MTU,
-					&mtu, &optlen);
+				ret = setsockopt(fd, IPPROTO_IP, IP_MTU,
+					&mtu, optlen);
+			}
+			(void)ret;
+		}
+#endif
+#if defined(IP_TOS) &&	\
+    defined(IPTOS_THROUGHPUT)
+		{
+			char tos = IPTOS_THROUGHPUT;
+			socklen_t optlen = sizeof(tos);
+
+			(void)setsockopt(fd, IPPROTO_IP, IP_TOS,
+				&tos, optlen);
+			(void)getsockopt(fd, IPPROTO_IP, IP_TOS,
+				&tos, &optlen);
+		}
+#endif
+#if defined(SO_INCOMING_CPU)
+		{
+			int cpu;
+			socklen_t optlen = sizeof(cpu);
+
+			(void)getsockopt(fd, SOL_SOCKET, SO_INCOMING_CPU,
+				&cpu, &optlen);
+		}
+#endif
+		if (socket_domain == AF_INET || socket_domain == AF_INET6) {
+
+#if defined(TCP_NODELAY)
+			{
+				int val = 0, ret;
+				socklen_t optlen = sizeof(val);
+
+				ret = getsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &val, &optlen);
 				if (ret == 0) {
-					optlen = sizeof(mtu);
-					ret = setsockopt(fd, IPPROTO_IP, IP_MTU,
-						&mtu, optlen);
+					optlen = sizeof(val);
+					ret = setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &val, optlen);
 				}
 				(void)ret;
 			}
 #endif
-#if defined(IP_TOS) &&	\
-    defined(IPTOS_THROUGHPUT)
-			{
-				char tos = IPTOS_THROUGHPUT;
-				socklen_t optlen = sizeof(tos);
-
-				(void)setsockopt(fd, IPPROTO_IP, IP_TOS,
-					&tos, optlen);
-				(void)getsockopt(fd, IPPROTO_IP, IP_TOS,
-					&tos, &optlen);
-			}
-#endif
-#if defined(SO_INCOMING_CPU)
-			{
-				int cpu;
-				socklen_t optlen = sizeof(cpu);
-
-				(void)getsockopt(fd, SOL_SOCKET, SO_INCOMING_CPU,
-					&cpu, &optlen);
-			}
-#endif
-			if (socket_domain == AF_INET || socket_domain == AF_INET6) {
-
-#if defined(TCP_NODELAY)
-				{
-					int val = 0, ret;
-					socklen_t optlen = sizeof(val);
-
-					ret = getsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &val, &optlen);
-					if (ret == 0) {
-						optlen = sizeof(val);
-						ret = setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &val, optlen);
-					}
-					(void)ret;
-				}
-#endif
 #if defined(TCP_CORK)
-				{
-					int val = 0, ret;
-					socklen_t optlen = sizeof(val);
+			{
+				int val = 0, ret;
+				socklen_t optlen = sizeof(val);
 
-					ret = getsockopt(fd, IPPROTO_TCP, TCP_CORK, &val, &optlen);
-					if (ret == 0) {
-						optlen = sizeof(val);
-						ret = setsockopt(fd, IPPROTO_TCP, TCP_CORK, &val, optlen);
-					}
-					(void)ret;
+				ret = getsockopt(fd, IPPROTO_TCP, TCP_CORK, &val, &optlen);
+				if (ret == 0) {
+					optlen = sizeof(val);
+					ret = setsockopt(fd, IPPROTO_TCP, TCP_CORK, &val, optlen);
 				}
+				(void)ret;
+			}
 #endif
 #if defined(TCP_DEFER_ACCEPT)
-				{
-					int val = 0, ret;
-					socklen_t optlen = sizeof(val);
+			{
+				int val = 0, ret;
+				socklen_t optlen = sizeof(val);
 
-					ret = getsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &val, &optlen);
-					if (ret == 0) {
-						optlen = sizeof(val);
-						ret = setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &val, optlen);
-					}
-					(void)ret;
+				ret = getsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &val, &optlen);
+				if (ret == 0) {
+					optlen = sizeof(val);
+					ret = setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &val, optlen);
 				}
+				(void)ret;
+			}
 #endif
 #if defined(TCP_KEEPCNT)
-				{
-					int val = 0, ret;
-					socklen_t optlen = sizeof(val);
+			{
+				int val = 0, ret;
+				socklen_t optlen = sizeof(val);
 
-					ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &val, &optlen);
-					if (ret == 0) {
-						optlen = sizeof(val);
-						ret = setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &val, optlen);
-					}
-					(void)ret;
+				ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &val, &optlen);
+				if (ret == 0) {
+					optlen = sizeof(val);
+					ret = setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &val, optlen);
 				}
+				(void)ret;
+			}
 #endif
 #if defined(TCP_KEEPIDLE)
-				{
-					int val = 0, ret;
-					socklen_t optlen = sizeof(val);
+			{
+				int val = 0, ret;
+				socklen_t optlen = sizeof(val);
 
-					ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &val, &optlen);
-					if (ret == 0) {
-						optlen = sizeof(val);
-						ret = setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &val, optlen);
-					}
-					(void)ret;
+				ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &val, &optlen);
+				if (ret == 0) {
+					optlen = sizeof(val);
+					ret = setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &val, optlen);
 				}
+				(void)ret;
+			}
 #endif
 #if defined(TCP_KEEPINTVL)
-				{
-					int val = 0, ret;
-					socklen_t optlen = sizeof(val);
+			{
+				int val = 0, ret;
+				socklen_t optlen = sizeof(val);
 
-					ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &val, &optlen);
-					if (ret == 0) {
-						optlen = sizeof(val);
-						ret = setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &val, optlen);
-					}
-					(void)ret;
+				ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &val, &optlen);
+				if (ret == 0) {
+					optlen = sizeof(val);
+					ret = setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &val, optlen);
 				}
+				(void)ret;
+			}
 #endif
 #if defined(TCP_LINGER2)
-				{
-					int val = 0, ret;
-					socklen_t optlen = sizeof(val);
+			{
+				int val = 0, ret;
+				socklen_t optlen = sizeof(val);
 
-					ret = getsockopt(fd, IPPROTO_TCP, TCP_LINGER2, &val, &optlen);
-					if (ret == 0) {
-						optlen = sizeof(val);
-						ret = setsockopt(fd, IPPROTO_TCP, TCP_LINGER2, &val, optlen);
-					}
-					(void)ret;
+				ret = getsockopt(fd, IPPROTO_TCP, TCP_LINGER2, &val, &optlen);
+				if (ret == 0) {
+					optlen = sizeof(val);
+					ret = setsockopt(fd, IPPROTO_TCP, TCP_LINGER2, &val, optlen);
 				}
+				(void)ret;
+			}
 #endif
 #if defined(TCP_MAXSEG)
-				{
-					int val = 0, ret;
-					socklen_t optlen = sizeof(val);
+			{
+				int val = 0, ret;
+				socklen_t optlen = sizeof(val);
 
-					ret = getsockopt(fd, IPPROTO_TCP, TCP_MAXSEG, &val, &optlen);
-					if (ret == 0) {
-						optlen = sizeof(val);
-						ret = setsockopt(fd, IPPROTO_TCP, TCP_MAXSEG, &val, optlen);
-					}
-					(void)ret;
+				ret = getsockopt(fd, IPPROTO_TCP, TCP_MAXSEG, &val, &optlen);
+				if (ret == 0) {
+					optlen = sizeof(val);
+					ret = setsockopt(fd, IPPROTO_TCP, TCP_MAXSEG, &val, optlen);
 				}
+				(void)ret;
+			}
 #endif
 #if defined(TCP_SYNCNT)
-				{
-					int val = 0, ret;
-					socklen_t optlen = sizeof(val);
+			{
+				int val = 0, ret;
+				socklen_t optlen = sizeof(val);
 
-					ret = getsockopt(fd, IPPROTO_TCP, TCP_SYNCNT, &val, &optlen);
-					if (ret == 0) {
-						optlen = sizeof(val);
-						ret = setsockopt(fd, IPPROTO_TCP, TCP_SYNCNT, &val, optlen);
-					}
-					(void)ret;
+				ret = getsockopt(fd, IPPROTO_TCP, TCP_SYNCNT, &val, &optlen);
+				if (ret == 0) {
+					optlen = sizeof(val);
+					ret = setsockopt(fd, IPPROTO_TCP, TCP_SYNCNT, &val, optlen);
 				}
+				(void)ret;
+			}
 #endif
 #if defined(TCP_USER_TIMEOUT)
-				{
-					int val = 0, ret;
-					socklen_t optlen = sizeof(val);
+			{
+				int val = 0, ret;
+				socklen_t optlen = sizeof(val);
 
-					ret = getsockopt(fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &val, &optlen);
-					if (ret == 0) {
-						optlen = sizeof(val);
-						ret = setsockopt(fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &val, optlen);
-					}
-					(void)ret;
+				ret = getsockopt(fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &val, &optlen);
+				if (ret == 0) {
+					optlen = sizeof(val);
+					ret = setsockopt(fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &val, optlen);
 				}
+				(void)ret;
+			}
 #endif
 #if defined(TCP_WINDOW_CLAMP)
-				{
-					int val = 0, ret;
-					socklen_t optlen = sizeof(val);
+			{
+				int val = 0, ret;
+				socklen_t optlen = sizeof(val);
 
-					ret = getsockopt(fd, IPPROTO_TCP, TCP_WINDOW_CLAMP, &val, &optlen);
-					if (ret == 0) {
-						optlen = sizeof(val);
-						ret = setsockopt(fd, IPPROTO_TCP, TCP_WINDOW_CLAMP, &val, optlen);
-					}
-					(void)ret;
+				ret = getsockopt(fd, IPPROTO_TCP, TCP_WINDOW_CLAMP, &val, &optlen);
+				if (ret == 0) {
+					optlen = sizeof(val);
+					ret = setsockopt(fd, IPPROTO_TCP, TCP_WINDOW_CLAMP, &val, optlen);
 				}
-#endif
+				(void)ret;
 			}
+#endif
+		}
 
 		do {
 			ssize_t n = 0;
