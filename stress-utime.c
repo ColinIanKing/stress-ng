@@ -76,6 +76,8 @@ static int stress_utime(const stress_args_t *args)
 		pr_err("%s: open failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
+		if (dir_fd >= 0)
+			(void)close(dir_fd);
 		return ret;
 	}
 
