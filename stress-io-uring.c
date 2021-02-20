@@ -219,12 +219,25 @@ static int stress_setup_io_uring(
  */
 static void stress_close_io_uring(stress_io_uring_submit_t *submit)
 {
-	(void)close(submit->io_uring_fd);
+	if (submit->io_uring_fd >= 0) {
+		(void)close(submit->io_uring_fd);
+		submit->io_uring_fd = -1;
+	}
 
-	(void)munmap(submit->sqes_mmap, submit->sqes_size);
-	if (submit->cq_mmap != submit->sq_mmap)
+	if (submit->sqes_mmap) {
+		(void)munmap(submit->sqes_mmap, submit->sqes_size);
+		submit->sqes_mmap = NULL;
+	}
+
+	if (submit->cq_mmap && (submit->cq_mmap != submit->sq_mmap)) {
 		(void)munmap(submit->cq_mmap, submit->cq_size);
-	(void)munmap(submit->sq_mmap, submit->sq_size);
+		submit->cq_mmap = NULL;
+	}
+	
+	if (submit->sq_mmap) {
+		(void)munmap(submit->sq_mmap, submit->sq_size);
+		submit->sq_mmap = NULL;
+	}
 }
 
 static int stress_io_uring_submit(
