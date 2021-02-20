@@ -106,7 +106,7 @@ static int stress_timerfd(const stress_args_t *args)
 	uint64_t timerfd_freq = DEFAULT_TIMERFD_FREQ;
 	int timerfd[TIMERFD_MAX], count = 0, i, max_timerfd = -1;
 	bool timerfd_rand = false;
-	int file_fd = -1;
+	int file_fd;
 	char file_fd_name[PATH_MAX];
 #if defined(CLOCK_BOOTTIME_ALARM)
 	const bool cap_wake_alarm = stress_check_capability(SHIM_CAP_WAKE_ALARM);
