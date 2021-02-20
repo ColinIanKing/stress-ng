@@ -193,8 +193,8 @@ static int efi_get_data(
 		ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, fd, 0);
 		if (ptr != MAP_FAILED) {
-			stress_madvise_random(ptr, n);
-			(void)munmap(ptr, n);
+			stress_madvise_random(ptr, len);
+			(void)munmap(ptr, len);
 		}
 	}
 
