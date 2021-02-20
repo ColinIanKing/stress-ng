@@ -181,8 +181,10 @@ static void* stress_malloc_loop(void *ptr)
 			return &nowt;
 		}
 #endif
- 		if (!stress_malloc_keep_stressing(args, counters))
+ 		if (!stress_malloc_keep_stressing(args, counters)) {
+			free(addr);
 			return &nowt;
+		}
 
 		if (addr[i]) {
 			/* 50% free, 50% realloc */
