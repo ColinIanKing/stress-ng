@@ -413,13 +413,17 @@ static int stress_io_uring(const stress_args_t *args)
 	io_uring_file.blocks = blocks;
 	io_uring_file.block_size = block_size;
 	io_uring_file.iovecs = calloc(blocks, sizeof(*io_uring_file.iovecs));
+	if (!io_uring_file.iovecs) {
+		pr_inf("%s: cannot allocate iovecs\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	for (i = 0; (i < blocks) && (file_size > 0); i++) {
 		const size_t iov_len = (file_size > (off_t)block_size) ? (size_t)block_size : (size_t)file_size;
 
 		io_uring_file.iovecs[i].iov_len = iov_len;
 		if (posix_memalign(&io_uring_file.iovecs[i].iov_base, block_size, block_size)) {
-			pr_inf("%s: cannot allocate iovecs\n", args->name);
+			pr_inf("%s: cannot allocate iovec iov_base\n", args->name);
 			stress_io_uring_free_iovecs(&io_uring_file);
 			return EXIT_NO_RESOURCE;
 		}
