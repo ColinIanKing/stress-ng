@@ -176,8 +176,10 @@ static void* stress_malloc_loop(void *ptr)
 		 * exerting any more memory pressure
 		 */
 #if defined(HAVE_LIB_PTHREAD)
-		if (!keep_thread_running_flag)
+		if (!keep_thread_running_flag) {
+			free(addr);
 			return &nowt;
+		}
 #endif
  		if (!stress_malloc_keep_stressing(args, counters))
 			return &nowt;
