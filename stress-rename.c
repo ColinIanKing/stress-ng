@@ -231,6 +231,9 @@ static int stress_rename(const stress_args_t *args)
 	int tmp_fd;
 #endif
 
+	(void)memset(name1, 0, sizeof(name1));
+	(void)memset(name2, 0, sizeof(name2));
+
 	if (stress_temp_dir_mk(args->name, args->pid, inst1) < 0)
 		return EXIT_FAILURE;
 	if (stress_temp_dir_mk(args->name, args->pid, inst2) < 0) {
@@ -374,8 +377,10 @@ restart:
 	if (tmp_fd >= 0)
 		(void)close(tmp_fd);
 #endif
-	(void)unlink(oldname);
-	(void)unlink(newname);
+	if (*oldname)
+		(void)unlink(oldname);
+	if (*newname)
+		(void)unlink(newname);
 	(void)stress_temp_dir_rm(args->name, args->pid, inst1);
 	(void)stress_temp_dir_rm(args->name, args->pid, inst2);
 
