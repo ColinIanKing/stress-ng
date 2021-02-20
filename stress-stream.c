@@ -327,7 +327,7 @@ static void stress_stream_init_data(
 	uint64_t i;
 
 	for (i = 0; i < n; i++)
-		data[i] = (double)stress_mwc32() / (double)stress_mwc64();
+		data[i] = (double)stress_mwc32() / (double)(1 + stress_mwc64());
 }
 
 static inline void *stress_stream_mmap(const stress_args_t *args, uint64_t sz)
