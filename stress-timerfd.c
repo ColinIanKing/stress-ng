@@ -188,6 +188,7 @@ static int stress_timerfd(const stress_args_t *args)
 			pr_fail("%s: timerfd_settime failed on fd %d, errno=%d (%s)\n",
 				args->name, timerfd[i], errno, strerror(errno));
 			(void)close(timerfd[i]);
+			(void)close(file_fd);
 			return EXIT_FAILURE;
 		}
 	}
