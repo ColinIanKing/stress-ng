@@ -1237,7 +1237,11 @@ size_t stress_get_max_file_limit(void)
 		max_rlim = (size_t)rlim.rlim_cur;
 #endif
 #if defined(_SC_OPEN_MAX)
-	max_sysconf = (size_t)sysconf(_SC_OPEN_MAX);
+	{
+		const long open_max = sysconf(_SC_OPEN_MAX);
+
+		max_sysconf = (open_max > 0) ? (size_t)open_max : SIZE_MAX;
+	}
 #else
 	max_sysconf = SIZE_MAX;
 #endif
