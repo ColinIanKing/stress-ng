@@ -351,6 +351,8 @@ void stress_get_memlimits(
 	*freeswap = 0;
 
 #if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
+	(void)memset(&info, 0, sizeof(info));
+
 	if (sysinfo(&info) == 0) {
 		*freemem = info.freeram * info.mem_unit;
 		*totalmem = info.totalram * info.mem_unit;
