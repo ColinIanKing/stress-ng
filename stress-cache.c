@@ -70,11 +70,6 @@ static int stress_cache_set_flag(const uint32_t flag)
 	return 0;
 }
 
-static inline bool stress_power_of_two(uint64_t v)
-{
-	return ((v != 0) && ((v * (v - 1)) == 0));
-}
-
 static int stress_cache_set_prefetch(const char *opt)
 {
 	(void)opt;
