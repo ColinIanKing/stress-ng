@@ -407,7 +407,8 @@ tidy:
 	}
 
 #if defined(HAVE_FACCESSAT)
-	(void)close(file_fd);
+	if (file_fd >= 0)
+		(void)close(file_fd);
 	(void)stress_temp_dir_rm_args(args);
 #endif
 
