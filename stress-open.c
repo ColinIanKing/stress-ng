@@ -412,7 +412,7 @@ static void stress_fd_dir(const char *path)
 
 			stress_mk_filename(name, sizeof(name), path, de->d_name);
 			fd = open(name, O_RDONLY);
-			if (fd > 0)
+			if (fd >= 0)
 				(void)close(fd);
 		}
 		(void)closedir(dir);
