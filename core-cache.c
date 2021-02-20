@@ -385,7 +385,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 {
 	int i, j, n, ret, cpu_count;
 	stress_cpus_t *cpus = NULL;
-	struct dirent **namelist;
+	struct dirent **namelist = NULL;
 
 	n = scandir(SYS_CPU_PREFIX, &namelist, NULL, alphasort);
 	if (n < 0) {
