@@ -90,7 +90,11 @@ static size_t stress_mlock_max_lockable(void)
 	size_t max = MLOCK_MAX;
 
 #if defined(_SC_MEMLOCK)
-	sysconf_max = sysconf(_SC_MEMLOCK);
+	{
+		const long max = sysconf(_SC_MEMLOCK);
+
+		sysconf_max = (max > 0) ? max : MLOCK_MAX;
+	}
 #endif
 #if defined(RLIMIT_MEMLOCK)
 	{
