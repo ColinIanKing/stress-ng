@@ -315,7 +315,7 @@ static double stress_get_tz_info(stress_tz_info_t *tz_info)
  */
 static double stress_get_cpu_ghz_average(void)
 {
-	struct dirent **cpu_list;
+	struct dirent **cpu_list = NULL;
 	int i, n_cpus, n = 0;
 	double total_freq = 0.0;
 
