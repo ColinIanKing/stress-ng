@@ -289,7 +289,7 @@ static void stress_dir_tidy(
 	const size_t len,
 	const size_t path_len)
 {
-	struct dirent **namelist;
+	struct dirent **namelist = NULL;
 	int n;
 
 	if (len + 2 >= path_len)
