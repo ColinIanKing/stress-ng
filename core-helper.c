@@ -754,6 +754,7 @@ static void stress_temp_hash_truncate(char *filename)
 #if defined(HAVE_SYS_STATVFS_H)
 	struct statvfs buf;
 
+	(void)memset(&buf, 0, sizeof(buf));
 	if (statvfs(stress_get_temp_path(), &buf) == 0)
 		f_namemax = buf.f_namemax;
 #endif
