@@ -73,6 +73,9 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 	{
 		struct msqid_ds buf;
 
+		/* Keep static analyzers happy */
+		(void)memset(&buf, 0, sizeof(buf));
+
 		/*
 		 * select random msgq index numbers, we may hit
 		 * some that are in use. Ignore failures
