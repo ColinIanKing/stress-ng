@@ -131,6 +131,7 @@ static int stress_poll(const stress_args_t *args)
 				(void)close(pipe_fds[i].fd[0]);
 				(void)close(pipe_fds[i].fd[1]);
 			}
+			free(poll_fds);
 			free(pipe_fds);
 			return EXIT_NO_RESOURCE;
 		}
