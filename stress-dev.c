@@ -3150,6 +3150,7 @@ again:
 				/* Ring ring, time to die */
 				(void)kill(pid, SIGALRM);
 				wret = shim_waitpid(pid, &status, 0);
+				(void)wret;
 			} else {
 				if (WIFEXITED(status) &&
 				    WEXITSTATUS(status) != 0) {
