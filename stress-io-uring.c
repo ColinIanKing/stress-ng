@@ -396,7 +396,7 @@ static int stress_io_uring_iovec_complete(
  */
 static int stress_io_uring(const stress_args_t *args)
 {
-	int ret, rc = EXIT_FAILURE;
+	int ret, rc;
 	char filename[PATH_MAX];
 	stress_io_uring_file_t io_uring_file;
 	size_t i;
