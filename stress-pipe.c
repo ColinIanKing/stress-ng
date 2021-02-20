@@ -271,7 +271,7 @@ again:
 
 		(void)memset(buf, 0, pipe_data_size);
 		(void)memcpy(buf, PIPE_STOP, sizeof(PIPE_STOP));
-		if (write(pipefds[1], buf, sizeof(buf)) <= 0) {
+		if (write(pipefds[1], buf, pipe_data_size) <= 0) {
 			if (errno != EPIPE)
 				pr_fail("%s: termination write failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
