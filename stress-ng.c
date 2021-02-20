@@ -1453,7 +1453,7 @@ static void stress_clean_dir_files(
 	char *ptr = path + path_posn;
 	char *end = path + PATH_MAX;
 	int n;
-	struct dirent **names;
+	struct dirent **names = NULL;
 
 	if (stat(path, &statbuf) < 0) {
 		pr_inf("STAT FAIL: %s %d %s\n", path, errno, strerror(errno));
