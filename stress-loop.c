@@ -275,7 +275,7 @@ static int stress_loop(const stress_args_t *args)
 #endif
 
 		ret = fsync(backing_fd);
-		(void)backing_fd;
+		(void)ret;
 
 #if defined(LOOP_SET_BLOCK_SIZE)
 		/*
