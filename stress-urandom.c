@@ -103,6 +103,8 @@ static int stress_urandom(const stress_args_t *args)
 		if (fd_rnd_wr >= 0)
 			(void)close(fd_rnd_wr);
 #endif
+		if (fd_rnd_blk >= 0)
+			(void)close(fd_rnd_blk);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
