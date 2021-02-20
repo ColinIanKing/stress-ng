@@ -111,6 +111,9 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 	{
 		struct msqid_ds buf;
 
+		/* Keep static analyzers happy */
+		(void)memset(&buf, 0, sizeof(buf));
+
 		/* Exercise invalid msgctl commands */
 		(void)msgctl(msgq_id, ~0, &buf);
 		(void)msgctl(msgq_id, 0xffff, &buf);
