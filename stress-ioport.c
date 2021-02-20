@@ -183,6 +183,7 @@ static int stress_ioport(const stress_args_t *args)
 						n = write(fd, &val, sizeof(val));
 						(void)n;
 					}
+
 					offset = lseek(fd, offset, SEEK_SET);
 					if (offset != (off_t)-1) {
 						val = v;
