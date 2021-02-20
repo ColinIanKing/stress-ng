@@ -1020,6 +1020,7 @@ void pr_yaml_runinfo(FILE *yaml)
 	}
 #endif
 #if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
+	(void)memset(&info, 0, sizeof(info));
 	if (sysinfo(&info) == 0) {
 		pr_yaml(yaml, "      uptime: %ld\n", info.uptime);
 		pr_yaml(yaml, "      totalram: %lu\n", info.totalram);
