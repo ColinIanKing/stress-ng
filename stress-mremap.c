@@ -166,10 +166,8 @@ static int try_remap(
 			 * chose a bad random address, so just fall
 			 * back to non fixed remapping
 			 */
-			if (flags & MREMAP_FIXED) {
+			if (flags & MREMAP_FIXED)
 				flags &= ~MREMAP_FIXED;
-				continue;
-			}
 #endif
 			break;
 		case EFAULT:
