@@ -2292,6 +2292,7 @@ void stress_log_system_mem_info(void)
     defined(HAVE_SYSLOG_H)
 	struct sysinfo info;
 
+	(void)memset(&info, 0, sizeof(sysinfo));
 	if (sysinfo(&info) == 0) {
 		shim_syslog(LOG_INFO, "memory (MB): total %.2f, "
 			"free %.2f, "
