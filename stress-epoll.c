@@ -919,8 +919,10 @@ static void epoll_server(
 		 */
 		if (stress_mwc1()) {
 			n = epoll_wait(bad_fd, events, MAX_EPOLL_EVENTS, 100);
+			(void)n;
 		} else {
 			n = stress_epoll_pwait(bad_fd, events, MAX_EPOLL_EVENTS, 100, &sigmask);
+			(void)n;
 		}
 	} while (keep_stressing(args));
 
