@@ -166,7 +166,8 @@ static int stress_ftrace_parse_trace_stat_file(const char *path, const bool star
 			;
 		if (!*ptr)
 			continue;
-		sscanf(ptr, "%lf", &time_us);
+		if (sscanf(ptr, "%lf", &time_us) != 1)
+			time_us = 0.0;
 
 		node.func_name = func_name;
 
