@@ -153,6 +153,8 @@ static int stress_pipe(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	(void)memset(pipefds, 0, sizeof(pipefds));
+
 #if defined(HAVE_PIPE2) &&	\
     defined(O_DIRECT)
 	if (pipe2(pipefds, O_DIRECT) < 0) {
