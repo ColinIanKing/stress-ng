@@ -78,6 +78,8 @@ again:
 			siginfo_t info;
 			int ret;
 
+			(void)memset(&info, 0, sizeof(info));
+
 			if (i++ & 1) {
 				ret = sigwaitinfo(&mask, &info);
 				if (ret < 0)
