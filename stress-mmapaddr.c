@@ -106,7 +106,6 @@ static void *stress_mmapaddr_get_addr(
 			}
 		} else {
 			addr = NULL;
-			continue;
 		}
 	}
 	return addr;
