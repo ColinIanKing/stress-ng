@@ -3271,7 +3271,7 @@ int main(int argc, char **argv, char **envp)
 	(void)stress_get_setting("ionice-class", &ionice_class);
 	(void)stress_get_setting("ionice-level", &ionice_level);
 	stress_set_iopriority(ionice_class, ionice_level);
-	stress_get_setting("yaml", &yaml_filename);
+	(void)stress_get_setting("yaml", &yaml_filename);
 
 	stress_mlock_executable();
 

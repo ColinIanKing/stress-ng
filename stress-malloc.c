@@ -320,7 +320,7 @@ static int stress_malloc(const stress_args_t *args)
 	if (stress_get_setting("malloc-threshold", &malloc_threshold))
 		(void)mallopt(M_MMAP_THRESHOLD, (int)malloc_threshold);
 #endif
-	stress_get_setting("malloc-pthreads", &malloc_pthreads);
+	(void)stress_get_setting("malloc-pthreads", &malloc_pthreads);
 
 	return stress_oomable_child(args, NULL, stress_malloc_child, STRESS_OOMABLE_NORMAL);
 }

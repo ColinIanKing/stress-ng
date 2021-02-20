@@ -3107,7 +3107,7 @@ static int stress_dev(const stress_args_t *args)
 
 	(void)memset(ret, 0, sizeof(ret));
 
-	stress_get_setting("dev-file", &dev_file);
+	(void)stress_get_setting("dev-file", &dev_file);
 	if (dev_file) {
 		mode_t mode;
 		struct stat statbuf;
