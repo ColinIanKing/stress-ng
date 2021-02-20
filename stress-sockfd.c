@@ -172,6 +172,7 @@ retry:
 			pr_fail("%s: setsockopt SO_REUSEADDR failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
+			goto finish;
 		}
 
 		stress_set_sockaddr(args->name, args->instance, ppid,
