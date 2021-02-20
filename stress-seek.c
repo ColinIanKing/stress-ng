@@ -235,6 +235,7 @@ re_read:
 		/*
 		 *  Exercise lseek on an invalid fd
 		 */
+		offset = stress_mwc64() % len;
 		offset = lseek(bad_fd, (off_t)offset, SEEK_SET);
 		(void)offset;
 
