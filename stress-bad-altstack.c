@@ -154,10 +154,8 @@ again:
 					}
 				}
 				/* expected: child killed itself with SIGSEGV */
-				if (WTERMSIG(status) == SIGSEGV) {
+				if (WTERMSIG(status) == SIGSEGV)
 					inc_counter(args);
-					continue;
-				}
 			}
 		} else if (pid == 0) {
 			uint32_t rnd;
