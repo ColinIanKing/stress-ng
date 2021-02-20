@@ -314,7 +314,7 @@ static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 	const size_t cpu_path_len = cpu_path ? strlen(cpu_path) : 0;
 	char path[cpu_path_len + strlen(SYS_CPU_CACHE_DIR) + 2];
 	int i, j, n, ret = EXIT_FAILURE;
-	struct dirent **namelist;
+	struct dirent **namelist = NULL;
 
 	if (!cpu) {
 		pr_dbg("%s: invalid cpu parameter\n", __func__);
