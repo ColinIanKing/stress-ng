@@ -259,13 +259,13 @@ static void stress_rawpkt_client(
 				args->name, port, errno, strerror(errno));
 		}
 #if defined(SIOCOUTQ)
-			/* Occasionally exercise SIOCOUTQ */
-			if ((id & 0xff) == 0) {
-				int ret, queued;
+		/* Occasionally exercise SIOCOUTQ */
+		if ((id & 0xff) == 0) {
+			int ret, queued;
 
-				ret = ioctl(fd, SIOCOUTQ, &queued);
-				(void)ret;
-			}
+			ret = ioctl(fd, SIOCOUTQ, &queued);
+			(void)ret;
+		}
 #endif
 	} while (keep_stressing(args));
 
