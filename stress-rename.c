@@ -261,7 +261,8 @@ restart:
 		(void)stress_temp_dir_rm(args->name, args->pid, inst2);
 #if defined(EXERCISE_RENAMEAT) ||	\
     defined(EXERCISE_RENAMEAT2)
-		(void)close(tmp_fd);
+		if (tmp_fd >= 0)
+			(void)close(tmp_fd);
 #endif
 		return rc;
 	}
