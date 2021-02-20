@@ -277,6 +277,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 			ret = shim_sched_getattr(pid,
 				(struct shim_sched_attr *)large_attr,
 				sizeof(large_attr), 0);
+			(void)ret;
 		}
 
 		/* Exercise invalid sched_getattr syscalls */
