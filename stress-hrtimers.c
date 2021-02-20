@@ -176,9 +176,7 @@ static int stress_hrtimers(const stress_args_t *args)
 			goto reap;
 
 		pids[i] = fork();
-		if (pids[i] < 0)
-			continue;
-		else if (pids[i] == 0) {
+		if (pids[i] == 0) {
 			/* Child */
 
 			(void)setpgid(0, g_pgrp);
