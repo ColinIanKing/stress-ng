@@ -356,7 +356,6 @@ void stress_vmstat_start(void)
 	stress_vmstat_t vmstat;
 	size_t tz_num = 0;
 	stress_tz_info_t *tz_info, *tz_info_list;
-	uint64_t stat_count = 0;
 	int32_t vmstat_sleep, thermalstat_sleep;
 
 	if ((vmstat_delay == 0) && (thermalstat_delay == 0))
@@ -402,8 +401,9 @@ void stress_vmstat_start(void)
 
 		if (vmstat_sleep == vmstat_delay) {
 			unsigned long clk_tick;
+			static uint32_t vmstat_count = 0;
 
-			if ((stat_count % 60) == 0)
+			if ((vmstat_count++ % 25) == 0)
 				pr_inf("vmstat %2s %2s %9s %9s %9s %9s "
 					"%4s %4s %6s %6s %4s %4s %2s %2s "
 					"%2s %2s %2s\n",
@@ -447,6 +447,7 @@ void stress_vmstat_start(void)
 			char therms[1 + (tz_num * 6)];
 			char cpuspeed[6];
 			char *ptr;
+			static uint32_t thermalstat_count = 0;
 
 			(void)memset(therms, 0, sizeof(therms));
 
@@ -455,7 +456,7 @@ void stress_vmstat_start(void)
 				ptr += 7;
 			}
 
-			if ((stat_count % 60) == 0)
+			if ((thermalstat_count++ % 60) == 0)
 				pr_inf("therm:   GHz  LdA1  LdA5 LdA15 %s\n", therms);
 
 			for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
@@ -476,7 +477,6 @@ void stress_vmstat_start(void)
 					cpuspeed, min1, min5, min15, therms);
 			}
 		}
-		stat_count++;
 	}
 }
 
