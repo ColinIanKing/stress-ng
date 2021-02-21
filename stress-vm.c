@@ -1897,18 +1897,22 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 		*addr1;
 		shim_clflush(addr0);
 		shim_clflush(addr1);
+		shim_mfence();
 		*addr0;
 		*addr1;
 		shim_clflush(addr0);
 		shim_clflush(addr1);
+		shim_mfence();
 		*addr0;
 		*addr1;
 		shim_clflush(addr0);
 		shim_clflush(addr1);
+		shim_mfence();
 		*addr0;
 		*addr1;
 		shim_clflush(addr0);
 		shim_clflush(addr1);
+		shim_mfence();
 	}
 	for (j = 0; j < n; j++)
 		if (UNLIKELY(buf32[j] != val))
