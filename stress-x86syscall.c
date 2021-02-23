@@ -83,7 +83,15 @@ static int stress_x86syscall_supported(const char *name)
 			"does not support the syscall instruction\n", name);
 		return -1;
 	}
+
+#if defined(__NR_getcpu) ||		\
+    defined(__NR_gettimeofday) ||	\
+    defined(__NR_time)
 	return 0;
+#else
+	pr_inf("%s: stressor will be skipped, no definitions for __NR_getcpu, __NR_gettimeofday or __NR_time\n", name);
+	return -1;
+#endif
 }
 
 /*
@@ -155,6 +163,7 @@ static inline long x86_64_syscall3(long number, long arg1, long arg2, long arg3)
 	return ret;
 }
 
+#if defined(__NR_getcpu)
 /*
  *  wrap_getcpu()
  *	invoke getcpu()
@@ -165,7 +174,9 @@ static int wrap_getcpu(void)
 
 	return x86_64_syscall3(__NR_getcpu, (long)&cpu, (long)&node, (long)NULL);
 }
+#endif
 
+#if defined(__NR_gettimeofday)
 /*
  *  wrap_gettimeofday()
  *	invoke gettimeofday()
@@ -176,7 +187,9 @@ static int wrap_gettimeofday(void)
 
 	return x86_64_syscall2(__NR_gettimeofday, (long)&tv, (long)NULL);
 }
+#endif
 
+#if defined(__NR_time)
 /*
  *  wrap_time()
  *	invoke time()
@@ -187,6 +200,7 @@ static int wrap_time(void)
 
 	return x86_64_syscall1(__NR_time, (long)&t);
 }
+#endif
 
 /*
  *  wrap_dummy()
@@ -203,9 +217,17 @@ static int wrap_dummy(void)
  *  mapping of wrappers to function symbol name
  */
 static stress_x86syscall_t x86syscalls[] = {
+#if defined(__NR_getcpu)
 	{ wrap_getcpu,		"getcpu",		true },
+#endif
+#if defined(__NR_gettimeofday)
 	{ wrap_gettimeofday,	"gettimeofday",		true },
+#endif
+#if defined(__NR_time)
 	{ wrap_time,		"time",			true },
+#endif
+	/* Null entry is ignored */
+	{ NULL,			NULL,			false },
 };
 
 /*
