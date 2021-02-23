@@ -25,6 +25,7 @@
 #include "stress-ng.h"
 
 #define MAX_FIEMAP_PROCS	(4)		/* Number of FIEMAP stressors */
+#define COUNT_MAX		(128)
 
 static const stress_help_t help[] = {
 	{ NULL,	"fiemap N",	  "start N workers exercising the FIEMAP ioctl" },
@@ -100,6 +101,7 @@ static int stress_fiemap_writer(
     defined(FALLOC_FL_KEEP_SIZE)
 		if (!punch_hole)
 			continue;
+		shim_usleep(1000);
 
 		offset = stress_mwc64() % len;
 		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
@@ -109,6 +111,7 @@ static int stress_fiemap_writer(
 			if (errno == EOPNOTSUPP)
 				punch_hole = false;
 		}
+		shim_usleep(1000);
 		if (!keep_stressing(args))
 			break;
 #endif
@@ -128,19 +131,11 @@ tidy:
  */
 static void stress_fiemap_ioctl(const stress_args_t *args, int fd)
 {
-	uint32_t c = 0;
+	int c = stress_mwc32() % COUNT_MAX;
+
 	do {
 		struct fiemap *fiemap, *tmp;
 		size_t extents_size;
-
-		/* Force periodic yields */
-		c++;
-		if (c >= 64) {
-			c = 0;
-			(void)shim_usleep(25000);
-		}
-		if (!keep_stressing(args))
-			break;
 
 		fiemap = (struct fiemap *)calloc(1, sizeof(*fiemap));
 		if (!fiemap) {
@@ -194,6 +189,10 @@ static void stress_fiemap_ioctl(const stress_args_t *args, int fd)
 		}
 		free(fiemap);
 		inc_counter(args);
+		if (c++ > COUNT_MAX) {
+			c = 0;
+			fdatasync(fd);
+		}
 	} while (keep_stressing(args));
 }
 
@@ -214,6 +213,7 @@ static inline pid_t stress_fiemap_spawn(
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
+		stress_mwc_reseed();
 		stress_fiemap_ioctl(args, fd);
 		_exit(EXIT_SUCCESS);
 	}
