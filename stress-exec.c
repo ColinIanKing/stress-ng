@@ -270,7 +270,12 @@ static int stress_exec(const stress_args_t *args)
 			if (pids[i] == 0) {
 				int fd_out, fd_in, fd = -1;
 				const int which = stress_mwc8() % 3;
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
 				int exec_garbage = stress_mwc1();
+#else
+				int exec_garbage = 0;
+#endif
 				stress_exec_args_t exec_args;
 
 				(void)setpgid(0, g_pgrp);
@@ -299,6 +304,8 @@ static int stress_exec(const stress_args_t *args)
 				/*
 				 *  Create a garbage executable
 				 */
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
 				if (exec_garbage) {
 					char buffer[1024];
 					ssize_t n;
@@ -329,6 +336,7 @@ static int stress_exec(const stress_args_t *args)
 					}
 				}
 do_exec:
+#endif
 
 				exec_args.path = exec_garbage ? filename : path;
 				exec_args.args = args;
