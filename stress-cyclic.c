@@ -749,7 +749,7 @@ redo_policy:
 #endif
 			if (errno != EPERM) {
 				const char *msg = (errno == EBUSY) ?
-					", (recommend running with less instances)" : "";
+					", (recommend setting --sched-runtime to less than 90000)" : "";
 
 				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
