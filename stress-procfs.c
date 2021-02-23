@@ -134,7 +134,8 @@ static stress_proc_info_t stress_proc_info[] = {
 #endif
 #if defined(HAVE_LINUX_PCI_H) &&	\
     defined(PCIIOC_CONTROLLER)
-	{ "/proc/bus/pci/00/00.0",	stress_proc_pci },
+	{ "/proc/bus/pci/00/00.0",	stress_proc_pci },	/* x86 */
+	{ "/proc/bus/pci/0000:00/00.0",	stress_proc_pci },	/* RISC-V */
 #endif
 };
 
