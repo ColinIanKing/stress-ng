@@ -49,8 +49,8 @@ static int stress_utime(const stress_args_t *args)
     defined(O_PATH) &&		\
     defined(UTIME_NOW)
 	char path[PATH_MAX];
-	int dir_fd = -1;
 #endif
+	int dir_fd = -1;
 	char filename[PATH_MAX];
 	char hugename[PATH_MAX + 16];
 	int ret, fd;
