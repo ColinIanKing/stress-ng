@@ -219,7 +219,7 @@ int stress_set_sched(
 			sched_runtime = 10000;
 		(void)stress_get_setting("sched-deadline", &sched_deadline);
 		if (sched_deadline <= 0) {
-			attr.sched_runtime =   99999;
+			attr.sched_runtime =   90000;
 			attr.sched_deadline = 100000;
 			attr.sched_period = 0;
 		} else {
