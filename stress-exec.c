@@ -33,7 +33,8 @@ typedef struct {
 	const char *path;
 	char **argv_new;
 	char **env_new;
-#if defined(HAVE_EXECVEAT)
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
 	int fdexec;
 #endif
 	int which;
@@ -101,7 +102,8 @@ static int stress_exec_which(const stress_exec_args_t *ea)
 	default:
 		ret = execve(ea->path, ea->argv_new, ea->env_new);
 		break;
-#if defined(HAVE_EXECVEAT)
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
 	case 1:
 		ret = shim_execveat(0, ea->path, ea->argv_new, ea->env_new, AT_EMPTY_PATH);
 		break;
@@ -215,7 +217,8 @@ static int stress_exec(const stress_args_t *args)
 	char filename[PATH_MAX];
 	ssize_t len;
 	int ret, rc = EXIT_FAILURE;
-#if defined(HAVE_EXECVEAT)
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
 	int fdexec;
 #endif
 	uint64_t exec_fails = 0, exec_calls = 0;
@@ -243,7 +246,8 @@ static int stress_exec(const stress_args_t *args)
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
-#if defined(HAVE_EXECVEAT)
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
 	fdexec = open(path, O_PATH);
 	if (fdexec < 0) {
 		pr_fail("%s: open O_PATH on /proc/self/exe failed, errno=%d (%s)\n",
@@ -331,7 +335,8 @@ do_exec:
 				exec_args.which = which;
 				exec_args.argv_new = argv_new;
 				exec_args.env_new = env_new;
-#if defined(HAVE_EXECVEAT)
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
 				exec_args.fdexec = exec_garbage ? fd : fdexec;
 #endif
 
@@ -382,7 +387,8 @@ do_exec:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-#if defined(HAVE_EXECVEAT)
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
 	(void)close(fdexec);
 #endif
 
@@ -393,7 +399,8 @@ do_exec:
 	}
 
 	rc = EXIT_SUCCESS;
-#if defined(HAVE_EXECVEAT)
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
 err:
 #endif
 	(void)unlink(filename);
