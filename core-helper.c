@@ -2094,11 +2094,13 @@ int stress_get_unused_uid(uid_t *uid)
  *	on alarm() in the parent process.
  */
 ssize_t stress_read_buffer(int fd, void* buffer, ssize_t size, bool ignore_int) {
-	ssize_t rbytes=0, ret;
+	ssize_t rbytes = 0, ret;
 	do {
+		char *ptr = ((char *)buffer) + rbytes;
 ignore_eintr:
-		ret = read(fd, (buffer) + rbytes, size - rbytes);
-		if (ignore_int && ret < 0 && errno == EINTR)
+
+		ret = read(fd, (void *)ptr, size - rbytes);
+		if (ignore_int && (ret < 0) && (errno == EINTR))
 			goto ignore_eintr;
 		if (ret > 0)
 			rbytes += ret;
@@ -2114,12 +2116,13 @@ ignore_eintr:
  *	on alarm() in the parent process.
  */
 ssize_t stress_write_buffer(int fd, void* buffer, ssize_t size, bool ignore_int) {
-	ssize_t wbytes=0, ret;
+	ssize_t wbytes = 0, ret;
 	do {
+		char *ptr = ((char *)buffer) + wbytes;
 ignore_eintr:
-		ret = write(fd, (buffer) + wbytes, size - wbytes);
+		ret = write(fd, (void *)ptr, size - wbytes);
 		/* retry if interrupted */
-		if (ignore_int && ret < 0 && errno == EINTR)
+		if (ignore_int && (ret < 0) && (errno == EINTR))
 			goto ignore_eintr;
 		if (ret > 0)
 			wbytes += ret;
