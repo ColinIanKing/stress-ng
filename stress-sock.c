@@ -219,12 +219,16 @@ static size_t stress_get_congestion_controls(const int socket_domain, char **ctr
  *  stress_sock_ioctl()
  *	exercise various ioctl commands
  */
-static void stress_sock_ioctl(const int fd, const int socket_domain)
+static void stress_sock_ioctl(
+	const int fd,
+	const int socket_domain,
+	const bool rt)
 {
 	(void)fd;
+	(void)socket_domain;
 
 #if defined(FIOGETOWN)
-	{
+	if (!rt) {
 		int ret, own;
 
 		ret = ioctl(fd, FIOGETOWN, &own);
@@ -235,8 +239,9 @@ static void stress_sock_ioctl(const int fd, const int socket_domain)
 #endif
 	}
 #endif
+
 #if defined(SIOCGPGRP)
-	{
+	if (!rt) {
 		int ret, own;
 
 		ret = ioctl(fd, SIOCGPGRP, &own);
@@ -249,7 +254,7 @@ static void stress_sock_ioctl(const int fd, const int socket_domain)
 #endif
 #if defined(SIOCGIFCONF) && \
     defined(HAVE_IFCONF)
-	{
+	if (!rt) {
 		int ret;
 		struct ifconf ifc;
 
@@ -258,12 +263,12 @@ static void stress_sock_ioctl(const int fd, const int socket_domain)
 	}
 #endif
 
-/*
- *  On some 32 bit arches on some kernels/libc flavours
- *  struct __kernel_old_timeval is not defined and causes
- *  this ioctl to break the build. So only build it for
- *  64 bit arches as a workaround.
- */
+	/*
+	 *  On some 32 bit arches on some kernels/libc flavours
+	 *  struct __kernel_old_timeval is not defined and causes
+	 *  this ioctl to break the build. So only build it for
+	 *  64 bit arches as a workaround.
+	 */
 #if defined(SIOCGSTAMP) &&	\
     (ULONG_MAX > 4294967295UL)
 	{
@@ -309,8 +314,6 @@ static void stress_sock_ioctl(const int fd, const int socket_domain)
 		if (fd_unixfile >= 0)
 			(void)close(fd_unixfile);
 	}
-#else
-	(void)socket_domain;
 #endif
 }
 
@@ -390,7 +393,8 @@ static void stress_sock_client(
 	const int socket_opts,
 	const int socket_type,
 	const int socket_port,
-	const int socket_domain)
+	const int socket_domain,
+	const bool rt)
 {
 	struct sockaddr *addr;
 	size_t n_ctrls;
@@ -738,7 +742,7 @@ retry:
 			count++;
 		} while (keep_stressing(args));
 
-		stress_sock_ioctl(fd, socket_domain);
+		stress_sock_ioctl(fd, socket_domain, rt);
 #if defined(AF_INET) && 	\
     defined(IPPROTO_IP)	&&	\
     defined(IP_MTU)
@@ -781,7 +785,8 @@ static int stress_sock_server(
 	const int socket_opts,
 	const int socket_type,
 	const int socket_port,
-	const int socket_domain)
+	const int socket_domain,
+	const bool rt)
 {
 	char buf[SOCKET_BUF];
 	int fd, status;
@@ -993,7 +998,7 @@ static int stress_sock_server(
 				(void)ioctl(sfd, SIOCOUTQ, &pending);
 			}
 #endif
-			stress_sock_ioctl(fd, socket_domain);
+			stress_sock_ioctl(fd, socket_domain, rt);
 			stress_read_fdinfo(self, sfd);
 
 			(void)close(sfd);
@@ -1031,6 +1036,30 @@ static void stress_sock_sigpipe_handler(int signum)
 }
 
 /*
+ *  stress_sock_kernel_rt()
+ * 	return true if kernel is PREEMPT_RT, true if
+ * 	not sure, false if definitely not PREEMPT_RT.
+ */
+static bool stress_sock_kernel_rt(void)
+{
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
+	struct utsname buf;
+
+	if (uname(&buf) < 0)
+		return true;	/* Not sure, assume rt */
+
+	if (strstr(buf.version, "PREEMPT_RT"))
+		return true;	/* Definitely rt */
+
+	/* probably not RT */
+	return false;
+#else
+	return true;		/* Not sure, assume rt */
+#endif
+}
+
+/*
  *  stress_sock
  *	stress by heavy socket I/O
  */
@@ -1041,6 +1070,7 @@ static int stress_sock(const stress_args_t *args)
 	int socket_type = SOCK_STREAM;
 	int socket_port = DEFAULT_SOCKET_PORT;
 	int socket_domain = AF_INET;
+	const bool rt = stress_sock_kernel_rt();
 
 	(void)stress_get_setting("sock-opts", &socket_opts);
 	(void)stress_get_setting("sock-type", &socket_type);
@@ -1064,13 +1094,13 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_sock_client(args, ppid, socket_opts,
-			socket_type, socket_port, socket_domain);
+			socket_type, socket_port, socket_domain, rt);
 		_exit(EXIT_SUCCESS);
 	} else {
 		int rc;
 
 		rc = stress_sock_server(args, pid, ppid, socket_opts,
-			socket_type, socket_port, socket_domain);
+			socket_type, socket_port, socket_domain, rt);
 
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
