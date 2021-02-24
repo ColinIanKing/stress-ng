@@ -2093,8 +2093,10 @@ int stress_get_unused_uid(uid_t *uid)
  *	written. You're also able to ignore EINTR interrupts which could happen
  *	on alarm() in the parent process.
  */
-ssize_t stress_read_buffer(int fd, void* buffer, ssize_t size, bool ignore_int) {
+ssize_t stress_read_buffer(int fd, void* buffer, ssize_t size, bool ignore_int)
+{
 	ssize_t rbytes = 0, ret;
+
 	do {
 		char *ptr = ((char *)buffer) + rbytes;
 ignore_eintr:
@@ -2104,9 +2106,11 @@ ignore_eintr:
 			goto ignore_eintr;
 		if (ret > 0)
 			rbytes += ret;
-	} while (ret > 0 && rbytes != size);
+	} while (ret > 0 && (rbytes != size));
+
 	pr_dbg_v("stress_read_buffer: size=%ld read=%ld sz2=%ld\n", size, rbytes, ret);
-	return (ret <= 0)? ret:rbytes;
+
+	return (ret <= 0)? ret : rbytes;
 }
 
 /*
@@ -2115,8 +2119,10 @@ ignore_eintr:
  *	written. You're also able to ignore EINTR interrupts which could happen
  *	on alarm() in the parent process.
  */
-ssize_t stress_write_buffer(int fd, void* buffer, ssize_t size, bool ignore_int) {
+ssize_t stress_write_buffer(int fd, void* buffer, ssize_t size, bool ignore_int)
+{
 	ssize_t wbytes = 0, ret;
+
 	do {
 		char *ptr = ((char *)buffer) + wbytes;
 ignore_eintr:
@@ -2126,9 +2132,11 @@ ignore_eintr:
 			goto ignore_eintr;
 		if (ret > 0)
 			wbytes += ret;
-	} while (ret > 0 && wbytes != size);
+	} while (ret > 0 && (wbytes != size));
+
 	pr_dbg_v("stress_write_buffer: size=%ld written=%ld sz2=%ld\n", size, wbytes, ret);
-	return (ret <= 0)? ret:wbytes;
+
+	return (ret <= 0)? ret : wbytes;
 }
 
 /*
