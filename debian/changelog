@@ -1,3 +1,157 @@
+stress-ng (0.12.04-1) unstable; urgency=medium
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: update date
+  * stress-ng: remove duplicate shadowing statbuf declaration
+  * core-helper: remove const from stack argument
+  * stress-vforkmany: cast mmap return to uint8_t *
+  * stress-sock: voidify unused argument rt
+  * stress-rlimit: cast mmap return to uint8_t *
+  * stress-context: cast mmap return to uint8_t *
+  * core-helper: cast mmap return to uint8_t
+  * stress-malloc: don't declare keep_thread_running_flag for
+    non-pthread builds
+  * stress-ng: use stat method of inode file mode checking
+  * stack handling: use _SC_SIGSTKSZ and _SC_MINSIGSTKSZ
+  * stress-sock: avoid some socket ioctls on RT kernels
+  * core-helper: clean up stress_{read|write}_buffer code style
+  * core-helper: replace void * pointer math with char *
+  * stress-fiemap: use light weight racy counting for bogo-ops
+  * stress-fiemap: add some extra fsync flushes for I/O blocking
+  * stress-x86syscall: add build time checks for __NR* macros
+  * stress-utime: fix build failure when O_PATH is not supported
+  * stress-exec: don't perform exec_garbage if O_PATH is not supported
+  * stress-exec: add build time check for O_PATH
+  * stress-cyclic: add hint of how to fix -EBUSY warning
+  * core-sched: make runtime 90% of deadline
+  * stress-procfs: add RISC-V /proc/bus/pci/ PCIIOC_CONTROLLER ioctl test
+  * stress-vm: add mfence to rowhammer method
+  * core-vmstat: ensure *stat stats have headings dumped out every 25
+    iterations
+  * stress-rename: explicitly zero strings, don't unlink if empty
+  * stress-cache: remove stress_power_of_two
+  * stress-mlock: rename max to lockmax to avoid name shadowing
+  * core-helper: initialize info struct
+  * core-ftrace: initialize statfs buf to zero
+  * stress-tmpfs: initialize statfs buf to zero
+  * stress-ng: initialize pointer names to NULL
+  * stress-mmapfork: initialize info struct
+  * stress-switch: initialize pipefds to clean up warnings
+  * stress-dirdeep: initialize pointer namelist to NULL
+  * stress-bad-altstack: remove redundant continue
+  * stress-mmapaddr: remove redundant continue statement
+  * stress-ng: fix incorrect memset size
+  * core-cache: initialize another namelist to clean up warnings
+  * core-helper: initialize loadavg array with zeros
+  * core-cache: initialize namelist to clean up warnings
+  * stress-wait: initialize siginfo_t info struct to zero
+  * stress-ipsec-mb: initialize key array to zero
+  * stress-dirdeep: initialize pointer namelist to NULL
+  * core-helper: initialize statvfs buf to zero
+  * stress-pipe: initialize pipefds array to zero
+  * stress-sigq: initialize siginfo_t info struct to zero
+  * core-vmstat: initialized cpu_list to clean up warnings
+  * core-helper: initialize statvfs buf to zero
+  * stress-ng: initialize sysinfo info to zero
+  * core-helper: initialize statvfs buf to zero
+  * stress-filename: initialize statvfs buf to zero
+  * core-helper: initialize sysinfo struct to zero
+  * stress-mremap: remove redundant continue
+  * stress-hrtimers: remove continue statement
+  * stress-sysfs: remove redundant continue statement
+  * stress-readahead: remove redundant continue statement
+  * stress-sigabort: remove redundant continue statement
+  * stress-mmapaddr: remove redundant continue statement
+  * stress-io-uring: set submit fields to unused once resources are
+    released
+  * stress-memhotplug: remove | operator, assignment will suffice
+  * stress-sock: clean up indentation
+  * stress-rawpkt: clean up indentation
+  * stress-io-ring: fix up io uring buffer cleanups
+  * stress-mknod: fix array read overflow on array modes[]
+  * stress-verity: ensure fd is closed on error exit path
+  * stress-poll: close poll_fds on error return path
+  * core-mounts: memzero mnts array to be totally safe
+  * stress-urandom: close fd_rnd_blk if it was open
+  * core-setting: free setting->name if setting->u.str is null
+  * stress-timerfd: close file_fd on error exit return
+  * stress-bad-ioctl: ensure fd is closed on when breaking from loop
+  * stress-utime: close dir_fd if it is open
+  * stress-open: check for fd >= 0 and not just > 0
+  * stress-poll: free pipe_fds on error return, fix memory leak
+  * stress-timerfd: close file_fd on error return path
+  * stress-io-uring: don't unmap submit->cq_mmap if it is the same as
+    sq_map
+  * stress-zombie: declare head before shim_waitpid call
+  * stress-ioport: don't seek on -ve offset
+  * stress-urandom: don't select on fd_rnd_blk if it could not be opened
+  * stress-stream: avoid a zero 64 bit division (redo)
+  * stress-sockfd: add missing termination goto on sockopt failure
+  * stress-mlock: check for -ve sysconf error return
+  * stress-mremap: don't mlock a null *buf
+  * Revert "stress-seek: fix potential -ve offset seek"
+  * stress-close: don't close a -ve file_fd
+  * core-helper: check sysconf for failure
+  * stress-mremap: only unmap *buf if it is not null
+  * stress-seek: fix potential -ve offset seek
+  * stress-lease: fix double close on fd
+  * stress-efivar: use len rather than n for mapping size calls
+  * test/test-inotify: check return from inotify_add_watch
+  * core-helper: limit stress_get_max_file_limit to SIZE_MAX
+  * stress-efivar: fix potential -ve mmap size
+  * stress-rename: only close tmp_fd if it has been opened correctly
+  * stress-seek: fix potential -ve offset seek
+  * stress-msg: memset buf to zero to silence static analyzer warning
+  * stress-verity: ensure fd is close on error exit
+  * stress-malloc: free addr on error exit return
+  * stress-malloc: free addr on error exit return
+  * stress-msg: memset buf to zero to silence static analyzer warning
+  * stress-schedpolicy: voidify return from sched_getattr call
+  * test/test-inotify: voidify return from inotify_add_watch
+  * core-vmstat: check the keep stressing flag for termination
+  * stress-mq: voidify return from munmap()
+  * stress-timer: ensure all fields to sev are initialized
+  * stress-cyclic: ensure all fields to sev are initialized
+  * core-helper: ensure max_sysconf is assigned just once
+  * stress-pthread: voidify unused value
+  * stress-pipe: fix incorrect write size
+  * stress-dev: voidify return from wait, we can ignore a failure
+  * stress-timerfd: don't bump count or max_timerfd if create failed
+  * stress-timerfd: remove redundant initialization of file_fd
+  * stress-epoll: ensure all fields to sev are initialized
+  * stress-hrtimes: ensure all fields to sev are initialized
+  * stress-prctl: add missing voidifications from return from prctl
+  * stress-loop: voidify return from fsync
+  * stress-rename: remove stray break that was added during debugging
+  * stress-utime: don't pass NULL filename, some kernels can't handle this
+  * stress-io-uring: remove redundant initialization of rc
+  * core-ftrace: set time_us to zero if sscanf fails
+  * stress-epoll: indicate that n is to be ignored
+  * stress-io-uring: check if calloc failed
+  * stress-resource: don't close a fd if the open failed
+  * stress-stream: avoid a zero 64 bit division
+  * stress-ioport: add in missing re-seek before write
+  * voidify some ignored returns from stress_get_setting calls
+  * stress-handle: ensure mount_fd is closed on a realloc failure
+  * stress-pipeherd: avoid division by zero
+  * stress-verity: ensure fd is close on error exit
+  * stress-zlib: initialize all fields to stream_inf, stream_def and xsum
+  * stress-schedpolicy: ensure param is initialized for invalid policy
+    call
+  * core-try-open: ensure all fields to sev struct are initialized
+  * stress-udp: set slen of getsocketopt arg for UDPLITE_RECV_CSCOV
+  * core-thermal-zone: handle null tz_info->type when calling
+    stress_tz_type_instance
+  * stress-ng: remove temporary files if stressors are killed prematurely
+  * stress-msg: check for msgrcv errors that can occur during termination
+  * stress-cpu: join two lines, no functional change
+  * stress-cpu: fix nsqrt method that was actually doing not much
+  * Add --malloc-pthreads N option to run allocations in N pthreads
+  * stress-cache: optimize out switch statement and % operators
+
+ -- Colin King <colin.king@canonical.com>  Thu, 25 Feb 2021 16:08:51 +0100
+
 stress-ng (0.12.03-1) unstable; urgency=medium
 
   [Adrian Ratiu]
