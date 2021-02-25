@@ -1483,7 +1483,6 @@ static void stress_clean_dir_files(
 #if !defined(DT_DIR) ||	\
     !defined(DT_LNK) ||	\
     !defined(DT_REG)
-		struct stat statbuf;
 		int ret;
 #endif
 
