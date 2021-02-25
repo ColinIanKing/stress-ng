@@ -1480,6 +1480,12 @@ static void stress_clean_dir_files(
 
 	while (n--) {
 		size_t name_len = strlen(names[n]->d_name) + 1;
+#if !defined(DT_DIR) ||	\
+    !defined(DT_LNK) ||	\
+    !defined(DT_REG)
+		struct stat statbuf;
+		int ret;
+#endif
 
 		/* No more space */
 		if (ptr + name_len > end) {
@@ -1491,6 +1497,10 @@ static void stress_clean_dir_files(
 		name_len = strlen(ptr);
 		free(names[n]);
 
+#if defined(DT_DIR) &&	\
+    defined(DT_LNK) &&	\
+    defined(DT_REG)
+		/* Modern fast d_type method */
 		switch (names[n]->d_type) {
 		case DT_DIR:
 			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
@@ -1503,6 +1513,20 @@ static void stress_clean_dir_files(
 		default:
 			break;
 		}
+#else
+		/* Slower stat method */
+		ret = stat(path, &statbuf);
+		if (ret < 0)
+			continue;
+
+		if ((statbuf.st_mode & S_IFMT) == S_IFDIR) {
+			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
+			(void)rmdir(path);
+		} else if (((statbuf.st_mode & S_IFMT) == S_IFLNK) ||
+			   ((statbuf.st_mode & S_IFMT) == S_IFREG)) {
+			(void)unlink(path);
+		}
+#endif
 	}
 	*ptr = '\0';
 	free(names);
