@@ -119,7 +119,7 @@ static int stress_context(const stress_args_t *args)
 	uint8_t *stack_sig;
 	size_t i;
 
-	stack_sig = mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
+	stack_sig = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (stack_sig == MAP_FAILED) {
 		pr_inf("%s: cannot allocate signal stack, errno=%d (%s)\n",
