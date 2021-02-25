@@ -84,7 +84,7 @@ static int stress_vforkmany(const stress_args_t *args)
 	static bool *terminate_mmap;
 
 	/* We should use an alternative signal stack */
-	stack_sig = mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
+	stack_sig = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (stack_sig == MAP_FAILED) {
 		pr_inf("%s: skipping stressor, cannot allocate signal stack,"
