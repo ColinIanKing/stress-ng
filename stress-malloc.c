@@ -28,7 +28,9 @@
 
 static size_t malloc_max = DEFAULT_MALLOC_MAX;		/* Maximum number of allocations */
 static size_t malloc_bytes = DEFAULT_MALLOC_BYTES;	/* Maximum per-allocation size */
+#if defined(HAVE_LIB_PTHREAD)
 static volatile bool keep_thread_running_flag;		/* False to stop pthreads */
+#endif
 static size_t malloc_pthreads = 0;			/* Number of pthreads */
 #if defined(__GNUC__) &&	\
     defined(HAVE_MALLOPT) &&	\
