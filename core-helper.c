@@ -1375,7 +1375,7 @@ int stress_sighandler(
 
 		if (stack == NULL) {
 			/* Allocate stack, we currently leak this */
-			stack = mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
+			stack = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 			if (stack == MAP_FAILED) {
 				pr_inf("%s: sigaction %s: cannot allocated signal stack, "
