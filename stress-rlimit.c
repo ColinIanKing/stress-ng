@@ -149,7 +149,7 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 	stress_rlimit_context_t *context = (stress_rlimit_context_t *)ctxt;
 	uint8_t *stack;
 
-	stack = mmap(NULL, STRESS_MINSIGSTKSZ, PROT_READ | PROT_WRITE,
+	stack = (uint8_t *)mmap(NULL, STRESS_MINSIGSTKSZ, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (stack == MAP_FAILED) {
 		pr_inf("%s: cannot allocate signal stack: %d (%s)\n",
