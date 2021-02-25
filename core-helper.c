@@ -1338,12 +1338,12 @@ int stress_sigaltstack(const void *stack, const size_t size)
 #if defined(HAVE_SIGALTSTACK)
 	stack_t ss;
 
-	if (size < (size_t)MINSIGSTKSZ) {
+	if (size < (size_t)STRESS_MINSIGSTKSZ) {
 		pr_err("sigaltstack stack size %zu must be more than %zuK\n",
-			size, (size_t)MINSIGSTKSZ / 1024);
+			size, (size_t)STRESS_MINSIGSTKSZ / 1024);
 		return -1;
 	}
-	ss.ss_sp = stress_align_address(stack, STACK_ALIGNMENT);
+	ss.ss_sp = (void *)stack;
 	ss.ss_size = size;
 	ss.ss_flags = 0;
 	if (sigaltstack(&ss, NULL) < 0) {
@@ -1370,22 +1370,23 @@ int stress_sighandler(
 {
 	struct sigaction new_action;
 #if defined(HAVE_SIGALTSTACK)
-	static bool set_altstack = false;
+	{
+		static uint8_t *stack = NULL;
 
-	/*
-	 *  Signal handlers should really be using an alternative
-	 *  signal stack to be totally safe.  For any new instance we
-	 *  should set this alternative signal stack before setting
-	 *  up any signal handler. We only need to do this once
-	 *  per process instance, so just do it on the first
-	 *  call to stress_sighandler.
-	 */
-	if (!set_altstack) {
-		static uint8_t MLOCKED_DATA stack[SIGSTKSZ + STACK_ALIGNMENT];
-
-		if (stress_sigaltstack(stack, SIGSTKSZ) < 0)
-			return -1;
-		set_altstack = true;
+		if (stack == NULL) {
+			/* Allocate stack, we currently leak this */
+			stack = mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
+					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+			if (stack == MAP_FAILED) {
+				pr_inf("%s: sigaction %s: cannot allocated signal stack, "
+					"errno = %d (%s)\n",
+					name, stress_strsignal(signum),
+					errno, strerror(errno));
+				return -1;
+			}
+			if (stress_sigaltstack(stack, STRESS_SIGSTKSZ) < 0)
+				return -1;
+		}
 	}
 #endif
 	(void)memset(&new_action, 0, sizeof new_action);
@@ -2272,5 +2273,51 @@ size_t stress_hostname_length(void)
 	return sizeof(uts.nodename);	/* Linux */
 #else
 	return 255 + 1;			/* SUSv2 */
+#endif
+}
+
+/*
+ *  stress_sig_stack_size()
+ *	wrapper for STRESS_SIGSTKSZ
+ */
+size_t stress_sig_stack_size(void)
+{
+#if defined(_SC_SIGSTKSZ)
+	{
+		static long sz = -1;
+
+		if (sz < 0)
+			sz = sysconf(_SC_SIGSTKSZ);
+		if (sz > 0)
+			return (size_t)sz;
+	}
+#endif
+#if defined(SIGSTKSZ)
+	return SIGSTKSZ;
+#else
+	return (8192);
+#endif
+}
+
+/*
+ *  stress_min_sig_stack_size()
+ *	wrapper for STRESS_MINSIGSTKSZ
+ */
+size_t stress_min_sig_stack_size(void)
+{
+#if defined(_SC_MINSIGSTKSZ)
+	{
+		static long sz = -1;
+
+		if (sz < 0)
+			sz = sysconf(_SC_MINSIGSTKSZ);
+		if (sz > 0)
+			return (size_t)sz;
+	}
+#endif
+#if defined(MINSIGSTKSZ)
+	return MINSIGSTKSZ;
+#else
+	return (8192);
 #endif
 }

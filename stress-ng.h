@@ -1250,11 +1250,11 @@ typedef struct {			/* vmstat column */
     NEED_GNUC(4,6,0) &&		\
     !defined(__sun__) &&	\
     !defined(BUILD_STATIC)
-#define MLOCKED_DATA	__attribute__((__section__("mlocked_data")))
+//#define MLOCKED_DATA	__attribute__((__section__("mlocked_data")))
 #define MLOCKED_TEXT	__attribute__((__section__("mlocked_text")))
 #define MLOCKED_SECTION 1
 #else
-#define MLOCKED_DATA
+//#define MLOCKED_DATA
 #define MLOCKED_TEXT
 #endif
 
@@ -3927,6 +3927,12 @@ extern WARN_UNUSED int32_t  stress_get_opt_sched(const char *const str);
 extern WARN_UNUSED int32_t  stress_get_opt_ionice_class(const char *const str);
 
 /* Misc helper funcs */
+extern WARN_UNUSED size_t stress_sig_stack_size(void);
+extern WARN_UNUSED size_t stress_min_sig_stack_size(void);
+
+#define STRESS_SIGSTKSZ		(stress_sig_stack_size())
+#define STRESS_MINSIGSTKSZ	(stress_min_sig_stack_size())
+
 extern void stress_unmap_shared(void);
 extern void stress_log_system_mem_info(void);
 extern WARN_UNUSED char *stress_munge_underscore(const char *str);

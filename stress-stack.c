@@ -132,9 +132,6 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 {
 	char *start_ptr = shim_sbrk(0);
 	void *altstack;
-	ssize_t altstack_size = (SIGSTKSZ +
-				 STACK_ALIGNMENT +
-				 args->page_size) & ~(args->page_size -1);
 	bool stack_fill = false;
 	bool stack_mlock = false;
 
@@ -149,11 +146,14 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 	 *  if there is no memory to back it later. Stack
 	 *  must be privately mapped.
 	 */
-	altstack = mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
+	altstack = mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-	if (altstack == MAP_FAILED)
+	if (altstack == MAP_FAILED) {
+		pr_inf("%s: cannot allocate signal stack: errno = %d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
-	(void)stress_mincore_touch_pages(altstack, altstack_size);
+	}
+	(void)stress_mincore_touch_pages(altstack, STRESS_SIGSTKSZ);
 
 	/*
 	 *  We need to create an alternative signal
@@ -162,8 +162,8 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 	 *  than try to push onto an already overflowed
 	 *  stack
 	 */
-	if (stress_sigaltstack(altstack, SIGSTKSZ) < 0) {
-		(void)munmap(altstack, altstack_size);
+	if (stress_sigaltstack(altstack, STRESS_SIGSTKSZ) < 0) {
+		(void)munmap(altstack, STRESS_SIGSTKSZ);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -221,7 +221,7 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(altstack, altstack_size);
+	(void)munmap((void *)altstack, STRESS_SIGSTKSZ);
 
 	return EXIT_SUCCESS;
 }

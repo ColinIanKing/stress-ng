@@ -79,13 +79,20 @@ static int stress_vforkmany(const stress_args_t *args)
 {
 	static pid_t chpid;
 	static volatile int instance = 0;
-	static uint8_t stack_sig[SIGSTKSZ + SIGSTKSZ];
+	static uint8_t *stack_sig;
 	static volatile bool *terminate;
 	static bool *terminate_mmap;
 
 	/* We should use an alternative signal stack */
-	(void)memset(stack_sig, 0, sizeof(stack_sig));
-	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
+	stack_sig = mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (stack_sig == MAP_FAILED) {
+		pr_inf("%s: skipping stressor, cannot allocate signal stack,"
+			" errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	if (stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
 
 	terminate = terminate_mmap =
@@ -219,6 +226,7 @@ tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)terminate_mmap, args->page_size);
+	(void)munmap((void *)stack_sig, STRESS_SIGSTKSZ);
 	return EXIT_SUCCESS;
 }
 

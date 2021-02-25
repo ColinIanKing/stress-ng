@@ -33,7 +33,7 @@ static stress_help_t help[] = {
 #if defined(HAVE_SWAPCONTEXT) &&	\
     defined(HAVE_UCONTEXT_H)
 
-#define STACK_SIZE	(16384)
+#define CONTEXT_STACK_SIZE	(16384)
 
 typedef struct {
 	uint32_t check0;	/* memory clobbering check canary */
@@ -48,7 +48,7 @@ typedef struct {
 
 typedef struct {
 	chk_ucontext_t	cu;	/* check ucontext */
-	uint8_t		stack[SIGSTKSZ + STACK_ALIGNMENT]; /* stack */
+	uint8_t		stack[CONTEXT_STACK_SIZE + STACK_ALIGNMENT]; /* stack */
 	chk_canary_t	canary;	/* copy of canary */
 } context_info_t;
 
@@ -103,7 +103,7 @@ static int stress_context_init(
 	context_info->cu.check1 = context_info->canary.check1;
 	context_info->cu.uctx.uc_stack.ss_sp =
 		(void *)stress_align_address(context_info->stack, STACK_ALIGNMENT);
-	context_info->cu.uctx.uc_stack.ss_size = STACK_SIZE;
+	context_info->cu.uctx.uc_stack.ss_size = CONTEXT_STACK_SIZE;
 	context_info->cu.uctx.uc_link = uctx_link;
 	makecontext(&context_info->cu.uctx, func, 0);
 
@@ -116,10 +116,18 @@ static int stress_context_init(
  */
 static int stress_context(const stress_args_t *args)
 {
-	static uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT];
+	uint8_t *stack_sig;
 	size_t i;
 
-	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
+	stack_sig = mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (stack_sig == MAP_FAILED) {
+		pr_inf("%s: cannot allocate signal stack, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
+	if (stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
 
 	__counter = 0;
@@ -155,6 +163,7 @@ static int stress_context(const stress_args_t *args)
 		}
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	(void)munmap((void *)stack_sig, STRESS_SIGSTKSZ);
 
 	return EXIT_SUCCESS;
 }

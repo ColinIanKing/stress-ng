@@ -41,7 +41,6 @@ static const stress_help_t help[] =
 
 static void *stack;
 static void *zero_stack;
-static const size_t stack_sz = MINSIGSTKSZ;
 static sigjmp_buf jmpbuf;
 
 static inline void stress_bad_altstack_force_fault(uint8_t *stack_start)
@@ -56,15 +55,15 @@ static inline void stress_bad_altstack_force_fault(uint8_t *stack_start)
 
 static void MLOCKED_TEXT stress_segv_handler(int signum)
 {
-	uint8_t data[MINSIGSTKSZ * 2];
+	uint8_t data[STRESS_MINSIGSTKSZ * 2];
 
 	(void)signum;
-	(void)munmap(stack, stack_sz);
+	(void)munmap(stack, STRESS_MINSIGSTKSZ);
 	(void)memset(data, 0xff, sizeof(data));
 	stress_uint8_put(data[0]);
 
 	if (zero_stack != MAP_FAILED)
-		(void)munmap(zero_stack, stack_sz);
+		(void)munmap(zero_stack, STRESS_MINSIGSTKSZ);
 
 	/*
 	 *  If we've not got this far we've not
@@ -88,7 +87,7 @@ static int stress_bad_altstack(const stress_args_t *args)
 #endif
 	int fd;
 
-	stack = mmap(NULL, stack_sz, PROT_READ | PROT_WRITE,
+	stack = mmap(NULL, STRESS_MINSIGSTKSZ, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (stack == MAP_FAILED) {
 		pr_err("%s: cannot mmap signal handler stack, errno=%d (%s)\n",
@@ -98,7 +97,7 @@ static int stress_bad_altstack(const stress_args_t *args)
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd >= 0) {
-		zero_stack = mmap(NULL, stack_sz, PROT_READ,
+		zero_stack = mmap(NULL, STRESS_MINSIGSTKSZ, PROT_READ,
 			MAP_PRIVATE, fd, 0);
 		(void)close(fd);
 	} else {
@@ -176,13 +175,13 @@ again:
 
 			/* Exercise disable SS_DISABLE */
 			ss.ss_sp = stress_align_address(stack, STACK_ALIGNMENT);
-			ss.ss_size = MINSIGSTKSZ;
+			ss.ss_size = STRESS_MINSIGSTKSZ;
 			ss.ss_flags = SS_DISABLE;
 			(void)sigaltstack(&ss, NULL);
 
 			/* Exercise invalid flags */
 			ss.ss_sp = stress_align_address(stack, STACK_ALIGNMENT);
-			ss.ss_size = MINSIGSTKSZ;
+			ss.ss_size = STRESS_MINSIGSTKSZ;
 			ss.ss_flags = ~0;
 			(void)sigaltstack(&ss, NULL);
 
@@ -191,7 +190,7 @@ again:
 
 			/* Exercise less than minimum allowed stack size, ENOMEM */
 			ss.ss_sp = stress_align_address(stack, STACK_ALIGNMENT);
-			ss.ss_size = MINSIGSTKSZ - 1;
+			ss.ss_size = STRESS_MINSIGSTKSZ - 1;
 			ss.ss_flags = 0;
 			(void)sigaltstack(&ss, NULL);
 
@@ -199,7 +198,7 @@ again:
 				return EXIT_FAILURE;
 
 			/* Set alternative stack for testing */
-			if (stress_sigaltstack(stack, stack_sz) < 0)
+			if (stress_sigaltstack(stack, STRESS_MINSIGSTKSZ) < 0)
 				return EXIT_FAILURE;
 
 			/* Child */
@@ -214,7 +213,7 @@ again:
 #if defined(HAVE_MPROTECT)
 			case 1:
 				/* Illegal stack with no protection */
-				ret = mprotect(stack, stack_sz, PROT_NONE);
+				ret = mprotect(stack, STRESS_MINSIGSTKSZ, PROT_NONE);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing(args))
@@ -222,7 +221,7 @@ again:
 				CASE_FALLTHROUGH;
 			case 2:
 				/* Illegal read-only stack */
-				ret = mprotect(stack, stack_sz, PROT_READ);
+				ret = mprotect(stack, STRESS_MINSIGSTKSZ, PROT_READ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing(args))
@@ -230,7 +229,7 @@ again:
 				CASE_FALLTHROUGH;
 			case 3:
 				/* Illegal exec-only stack */
-				ret = mprotect(stack, stack_sz, PROT_EXEC);
+				ret = mprotect(stack, STRESS_MINSIGSTKSZ, PROT_EXEC);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing(args))
@@ -239,7 +238,7 @@ again:
 #endif
 			case 4:
 				/* Illegal NULL stack */
-				ret = stress_sigaltstack(NULL, SIGSTKSZ);
+				ret = stress_sigaltstack(NULL, STRESS_SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing(args))
@@ -247,7 +246,7 @@ again:
 				CASE_FALLTHROUGH;
 			case 5:
 				/* Illegal text segment stack */
-				ret = stress_sigaltstack(stress_segv_handler, SIGSTKSZ);
+				ret = stress_sigaltstack(stress_segv_handler, STRESS_SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing(args))
@@ -260,7 +259,7 @@ again:
 			case 7:
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 				/* Illegal stack on VDSO, otherwises NULL stack */
-				ret = stress_sigaltstack(vdso, SIGSTKSZ);
+				ret = stress_sigaltstack(vdso, STRESS_SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing(args))
@@ -270,7 +269,7 @@ again:
 			case 8:
 				/* Illegal /dev/zero mapped stack */
 				if (zero_stack != MAP_FAILED) {
-					ret = stress_sigaltstack(zero_stack, stack_sz);
+					ret = stress_sigaltstack(zero_stack, STRESS_MINSIGSTKSZ);
 					if (ret == 0)
 						stress_bad_altstack_force_fault(zero_stack);
 					if (!keep_stressing(args))
@@ -280,7 +279,7 @@ again:
 			default:
 			case 0:
 				/* Illegal unmapped stack */
-				(void)munmap(stack, stack_sz);
+				(void)munmap(stack, STRESS_MINSIGSTKSZ);
 				stress_bad_altstack_force_fault(NULL);
 				break;
 			}
@@ -293,9 +292,9 @@ again:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (zero_stack != MAP_FAILED)
-		(void)munmap(zero_stack, stack_sz);
+		(void)munmap(zero_stack, STRESS_MINSIGSTKSZ);
 	if (stack != MAP_FAILED)
-		(void)munmap(stack, stack_sz);
+		(void)munmap(stack, STRESS_MINSIGSTKSZ);
 
 	return EXIT_SUCCESS;
 }

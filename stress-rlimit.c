@@ -147,10 +147,20 @@ static void MLOCKED_TEXT stress_rlimit_handler(int signum)
 static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 {
 	stress_rlimit_context_t *context = (stress_rlimit_context_t *)ctxt;
-	static unsigned char stack[MINSIGSTKSZ];
+	uint8_t *stack;
 
-	if (stress_sigaltstack(stack, MINSIGSTKSZ) < 0)
+	stack = mmap(NULL, STRESS_MINSIGSTKSZ, PROT_READ | PROT_WRITE,
+			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (stack == MAP_FAILED) {
+		pr_inf("%s: cannot allocate signal stack: %d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
+	}
+
+	if (stress_sigaltstack(stack, STRESS_MINSIGSTKSZ) < 0) {
+		(void)munmap((void *)stack, STRESS_MINSIGSTKSZ);
+		return EXIT_NO_RESOURCE;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -261,6 +271,7 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(context->fd);
+	(void)munmap((void *)stack, STRESS_MINSIGSTKSZ);
 
 	return EXIT_SUCCESS;
 }

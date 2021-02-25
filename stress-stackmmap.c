@@ -86,32 +86,6 @@ static void stress_stackmmap_push_msync(void)
  */
 static void stress_stackmmap_push_start(void)
 {
-	/* stack for SEGV handler must not be on the stack */
-	static uint8_t stack_sig[SIGSTKSZ + STACK_ALIGNMENT];
-	struct sigaction new_action;
-
-	/*
-	 *  We need to handle SEGV signals when we
-	 *  hit the end of the mmap'd stack; however
-	 *  an alternative signal handling stack
-	 *  is required because we ran out of stack
-	 */
-	(void)memset(&new_action, 0, sizeof new_action);
-	new_action.sa_handler = stress_segvhandler;
-	(void)sigemptyset(&new_action.sa_mask);
-	new_action.sa_flags = SA_ONSTACK;
-	if (sigaction(SIGSEGV, &new_action, NULL) < 0)
-		return;
-
-	/*
-	 *  We need an alternative signal stack
-	 *  to handle segfaults on an overrun
-	 *  mmap'd stack
-	 */
-	(void)memset(stack_sig, 0, sizeof(stack_sig));
-	if (stress_sigaltstack(stack_sig, SIGSTKSZ) < 0)
-		return;
-
 	stress_stackmmap_push_msync();
 }
 
@@ -124,6 +98,8 @@ static int stress_stackmmap(const stress_args_t *args)
 	int fd, ret;
 	volatile int rc = EXIT_FAILURE;		/* could be clobbered */
 	char filename[PATH_MAX];
+	uint8_t *stack_sig;
+	struct sigaction new_action;
 
 	page_size = args->page_size;
 	page_mask = ~(page_size - 1);
@@ -148,20 +124,31 @@ static int stress_stackmmap(const stress_args_t *args)
 		(void)close(fd);
 		goto tidy_dir;
 	}
-	stack_mmap = (uint8_t *)mmap(NULL, MMAPSTACK_SIZE, PROT_READ | PROT_WRITE,
-		MAP_SHARED, fd, 0);
+	stack_sig = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ,
+		PROT_READ | PROT_WRITE, MAP_SHARED, -1, 0);
+	if (stack_sig == MAP_FAILED) {
+		pr_inf("%s: skipping stressor, cannot mmap signal stack, "
+			"errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		(void)close(fd);
+		goto tidy_dir;
+	}
+
+	stack_mmap = (uint8_t *)mmap(NULL, MMAPSTACK_SIZE,
+		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (stack_mmap == MAP_FAILED) {
 		if (errno == ENXIO) {
 			pr_inf("%s: skipping stressor, mmap not possible on file %s\n",
 				args->name, filename);
 			rc = EXIT_NO_RESOURCE;
 			(void)close(fd);
-			goto tidy_dir;
+			goto tidy_stack_sig;
 		}
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
-		goto tidy_dir;
+		goto tidy_stack_sig;
 	}
 	(void)close(fd);
 
@@ -231,6 +218,27 @@ again:
 			/* Make sure this is killable by OOM killer */
 			stress_set_oom_adjustment(args->name, true);
 
+			/*
+			 *  We need to handle SEGV signals when we
+			 *  hit the end of the mmap'd stack; however
+			 *  an alternative signal handling stack
+			 *  is required because we ran out of stack
+			 */
+			(void)memset(&new_action, 0, sizeof new_action);
+			new_action.sa_handler = stress_segvhandler;
+			(void)sigemptyset(&new_action.sa_mask);
+			new_action.sa_flags = SA_ONSTACK;
+			if (sigaction(SIGSEGV, &new_action, NULL) < 0)
+				_exit(EXIT_FAILURE);
+
+			/*
+			 *  We need an alternative signal stack
+			 *  to handle segfaults on an overrun
+			 *  mmap'd stack
+			 */
+			if (stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0)
+				_exit(EXIT_FAILURE);
+
 			(void)makecontext(&c_test, stress_stackmmap_push_start, 0);
 			(void)swapcontext(&c_main, &c_test);
 
@@ -244,6 +252,8 @@ again:
 tidy_mmap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)stack_mmap, MMAPSTACK_SIZE);
+tidy_stack_sig:
+	(void)munmap((void *)stack_sig, STRESS_SIGSTKSZ);
 tidy_dir:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);

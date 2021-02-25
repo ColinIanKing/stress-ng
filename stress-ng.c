@@ -3108,11 +3108,8 @@ static inline void stress_mlock_executable(void)
 #if defined(MLOCKED_SECTION)
 	extern void *__start_mlocked_text;
 	extern void *__stop_mlocked_text;
-	extern void *__start_mlocked_data;
-	extern void *__stop_mlocked_data;
 
 	stress_mlock_region(&__start_mlocked_text, &__stop_mlocked_text);
-	stress_mlock_region(&__start_mlocked_data, &__stop_mlocked_data);
 #endif
 }
 
