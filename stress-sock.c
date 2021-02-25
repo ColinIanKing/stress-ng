@@ -226,6 +226,7 @@ static void stress_sock_ioctl(
 {
 	(void)fd;
 	(void)socket_domain;
+	(void)rt;
 
 #if defined(FIOGETOWN)
 	if (!rt) {
