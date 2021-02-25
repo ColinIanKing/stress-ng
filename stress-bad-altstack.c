@@ -83,7 +83,7 @@ static int stress_bad_altstack(const stress_args_t *args)
 {
 	stress_set_oom_adjustment(args->name, true);
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
-	const void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
+	void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
 #endif
 	int fd;
 

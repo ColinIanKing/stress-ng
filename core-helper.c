@@ -1333,7 +1333,7 @@ int stress_get_bad_fd(void)
  *	  stack - must be at least MINSIGSTKSZ
  *	  size  - size of stack (- STACK_ALIGNMENT)
  */
-int stress_sigaltstack(const void *stack, const size_t size)
+int stress_sigaltstack(void *stack, const size_t size)
 {
 #if defined(HAVE_SIGALTSTACK)
 	stack_t ss;

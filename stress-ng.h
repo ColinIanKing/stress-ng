@@ -3972,7 +3972,7 @@ extern WARN_UNUSED size_t stress_get_max_file_limit(void);
 extern WARN_UNUSED int stress_get_bad_fd(void);
 extern void stress_vmstat_start(void);
 extern void stress_vmstat_stop(void);
-extern WARN_UNUSED int stress_sigaltstack(const void *stack, const size_t size);
+extern WARN_UNUSED int stress_sigaltstack(void *stack, const size_t size);
 extern WARN_UNUSED int stress_sighandler(const char *name, const int signum,
 	void (*handler)(int), struct sigaction *orig_action);
 extern void stress_handle_stop_stressing(int dummy);
