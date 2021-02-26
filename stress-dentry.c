@@ -166,8 +166,8 @@ static void stress_dentry_misc(const char *path)
 	if (fd < 0)
 		return;
 
-	(void)utime(path, NULL);
 #if defined(HAVE_UTIME_H)
+	(void)utime(path, NULL);
 	(void)memset(&utim, 0, sizeof(utim));
 	(void)utime(path, &utim);
 #endif
