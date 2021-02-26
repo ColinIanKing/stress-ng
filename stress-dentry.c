@@ -152,7 +152,9 @@ static void stress_dentry_misc(const char *path)
 	off_t offset;
 	struct stat statbuf;
 	struct timeval timeout;
+#if defined(HAVE_UTIME_H)
 	struct utimbuf utim;
+#endif
 	fd_set rdfds;
 	char buf[1024];
 	void *ptr;
@@ -165,8 +167,10 @@ static void stress_dentry_misc(const char *path)
 		return;
 
 	(void)utime(path, NULL);
+#if defined(HAVE_UTIME_H)
 	(void)memset(&utim, 0, sizeof(utim));
 	(void)utime(path, &utim);
+#endif
 
 	ret = fstat(fd, &statbuf);
 	(void)ret;
