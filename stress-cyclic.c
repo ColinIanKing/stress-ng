@@ -343,6 +343,7 @@ restore:
 }
 #endif
 
+#if defined(HAVE_CLOCK_GETTIME)
 /*
  *  stress_cyclic_usleep()
  *	measure latencies with usleep
@@ -365,6 +366,7 @@ static int stress_cyclic_usleep(
 		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
+#endif
 
 static sigjmp_buf jmp_env;
 
@@ -480,7 +482,9 @@ static const stress_cyclic_method_info_t cyclic_methods[] = {
 	{ "pselect",	stress_cyclic_pselect },
 #endif
 
+#if defined(HAVE_CLOCK_GETTIME)
 	{ "usleep",	stress_cyclic_usleep },
+#endif
 
 	{ NULL,		NULL }
 };
