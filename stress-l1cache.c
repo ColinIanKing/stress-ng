@@ -170,8 +170,6 @@ static int stress_l1cache_info_ok(
 	stress_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
 
-	int ret = EXIT_SUCCESS;
-
 	if ((*ways > 0) && (*size > 0) && (*sets > 0) && (*line_size > 0)) {
 		return stress_l1cache_info_check(args, *ways, *size, *sets, *line_size);
 	}
