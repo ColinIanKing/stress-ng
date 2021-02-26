@@ -90,15 +90,6 @@ static uint32_t stress_l1cache_ln2(uint32_t val)
 #endif
 
 /*
- *  stress_l1cache_power_of_2()
- *	returns true if v is a power of 2
- */
-static bool stress_l1cache_power_of_2(uint32_t v)
-{
-	return (v != 0) && ((v & (v - 1)) == 0);
-}
-
-/*
  *  stress_l1cache_info_check()
  *	sanity check cache information
  */
@@ -110,7 +101,6 @@ static int stress_l1cache_info_check(
 	uint32_t line_size)
 {
 	uint64_t sz = (uint64_t)ways * (uint64_t)sets * (uint64_t)line_size;
-	uint32_t set_size;
 
 	if (args->instance == 0) {
 		char szstr[64];
@@ -150,13 +140,6 @@ static int stress_l1cache_info_check(
 		return EXIT_FAILURE;
 	}
 
-	set_size = ways * line_size;
-
-	if (!stress_l1cache_power_of_2(set_size)) {
-		pr_inf("%s set size %" PRIu32 " (ways * line size) is not a "
-			"power of 2\n", args->name, set_size);
-		return EXIT_FAILURE;
-	}
 	return EXIT_SUCCESS;
 }
 
@@ -240,6 +223,7 @@ static int stress_l1cache(const stress_args_t *args)
 	uint32_t set;
 	uint8_t *cache, *cache_aligned;
 	intptr_t addr;
+	uint32_t padding;
 
 	(void)stress_get_setting("l1cache-ways", &l1cache_ways);
 	(void)stress_get_setting("l1cache-size", &l1cache_size);
@@ -261,8 +245,14 @@ static int stress_l1cache(const stress_args_t *args)
 	/* Get cache aligned buffer */
 	l1cache_set_size = l1cache_ways * l1cache_line_size;
 	addr = l1cache_size + (intptr_t)cache;
-	addr &= ~(intptr_t)(l1cache_set_size - 1);
-	cache_aligned = (uint8_t *)addr;
+	padding = (l1cache_set_size - (addr % l1cache_set_size)) % l1cache_set_size;
+	cache_aligned = (uint8_t *)(addr + padding);
+
+	if ((cache_aligned < cache) || (cache_aligned > cache + (l1cache_size << 1))) {
+		pr_inf("%s: aligned cache address is out of range\n", args->name);
+		(void)munmap(cache, l1cache_size << 2);
+		return EXIT_NO_RESOURCE;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
