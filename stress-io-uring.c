@@ -123,8 +123,6 @@ static void stress_io_uring_free_iovecs(stress_io_uring_file_t *io_uring_file)
 {
 	size_t i;
 
-pr_inf("stress_io_uring_free_iovecs: free\n");
-
 	for (i = 0; i < io_uring_file->blocks; i++) {
 		free(io_uring_file->iovecs[i].iov_base);
 		io_uring_file->iovecs[i].iov_base = NULL;
