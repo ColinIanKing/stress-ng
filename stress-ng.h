@@ -2420,6 +2420,7 @@ typedef struct {
 	MACRO(key)		\
 	MACRO(kill)		\
 	MACRO(klog)		\
+	MACRO(l1cache)		\
 	MACRO(lease)		\
 	MACRO(link)		\
 	MACRO(locka)		\
@@ -2964,6 +2965,13 @@ typedef enum {
 
 	OPT_klog,
 	OPT_klog_ops,
+
+	OPT_l1cache,
+	OPT_l1cache_ops,
+	OPT_l1cache_line_size,
+	OPT_l1cache_size,
+	OPT_l1cache_sets,
+	OPT_l1cache_ways,
 
 	OPT_lease,
 	OPT_lease_ops,

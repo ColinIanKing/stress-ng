@@ -150,6 +150,7 @@ STRESS_SRC = \
 	stress-key.c \
 	stress-kill.c \
 	stress-klog.c \
+	stress-l1cache.c \
 	stress-lease.c \
 	stress-link.c \
 	stress-lockbus.c \
