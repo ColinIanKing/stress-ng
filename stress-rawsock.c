@@ -32,6 +32,7 @@ static const stress_help_t help[] = {
 
 #if defined(SOCK_RAW) &&	\
     defined(IPPROTO_RAW) &&	\
+    defined(HAVE_ICMPHDR) &&	\
     defined(__linux__)
 
 typedef struct {
