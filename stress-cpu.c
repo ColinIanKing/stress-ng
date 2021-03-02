@@ -2830,17 +2830,6 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 	pr_dbg("%s using method '%s'\n", args->name, cpu_method->name);
 
 	/*
-	 * Normal use case, 100% load, simple spinning on CPU
-	 */
-	if (cpu_load == 100) {
-		do {
-			(void)func(args->name);
-			inc_counter(args);
-		} while (keep_stressing(args));
-		return EXIT_SUCCESS;
-	}
-
-	/*
 	 * It is unlikely, but somebody may request to do a zero
 	 * load stress test(!)
 	 */
@@ -2850,6 +2839,17 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	/*
+	 * Normal use case, 100% load, simple spinning on CPU
+	 */
+	if (cpu_load == 100) {
+		do {
+			(void)func(args->name);
+			inc_counter(args);
+		} while (keep_stressing(args));
+		return EXIT_SUCCESS;
+	}
 
 	/*
 	 * More complex percentage CPU utilisation.  This is
