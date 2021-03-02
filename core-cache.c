@@ -435,9 +435,12 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 
 				(void)memset(onlinepath, 0, sizeof(onlinepath));
 				(void)snprintf(onlinepath, sizeof(onlinepath), "%s/%s/online", SYS_CPU_PREFIX, name);
-				if (stress_get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0)
-					goto out;
-				cpu->online = atoi(tmp);
+				if (stress_get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0) {
+					/* Assume it is online, it is the best we can do */
+					cpu->online = 1;
+				} else  {
+					cpu->online = atoi(tmp);
+				}
 			}
 
 			ret = stress_get_cpu_cache_details(&cpus->cpus[j], fullpath);
