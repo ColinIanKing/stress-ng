@@ -108,7 +108,7 @@ typedef struct {
 } stress_cpu_method_info_t;
 
 static const stress_help_t help[] = {
-	{ "c N", "cpu N",		"start N workers spinning on sqrt(rand())" },
+	{ "c N", "cpu N",		"start N workers that perform CPU only loading" },
 	{ NULL,  "cpu-ops N",		"stop after N cpu bogo operations" },
 	{ "l P", "cpu-load P",		"load CPU by P %, 0=sleep, 100=full load (see -c)" },
 	{ NULL,	 "cpu-load-slice S",	"specify time slice during busy load" },
