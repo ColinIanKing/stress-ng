@@ -2161,12 +2161,21 @@ static void metrics_dump(
 {
 	stress_stressor_t *ss;
 
-	pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
-		"stressor", "bogo ops", "real time", "usr time",
-		"sys time", "bogo ops/s", "bogo ops/s");
-	pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %12s\n",
-		"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)",
-		"(usr+sys time)");
+	if (g_opt_flags & OPT_FLAGS_METRICS_BRIEF) {
+		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s\n",
+			"stressor", "bogo ops", "real time", "usr time",
+			"sys time", "bogo ops/s", "bogo ops/s");
+		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s\n",
+			"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)",
+			"(usr+sys time)");
+	} else {
+		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s %12.12s\n",
+			"stressor", "bogo ops", "real time", "usr time",
+			"sys time", "bogo ops/s", "bogo ops/s", "CPU used per");
+		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s %12.12s\n",
+			"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)",
+			"(usr+sys time)","instance (%)");
+	}
 	pr_yaml(yaml, "metrics:\n");
 
 	for (ss = stressors_head; ss; ss = ss->next) {
@@ -2174,7 +2183,7 @@ static void metrics_dump(
 		double   r_total = 0.0;
 		int32_t  j;
 		const char *munged = stress_munge_underscore(ss->stressor->name);
-		double u_time, s_time, bogo_rate_r_time, bogo_rate;
+		double u_time, s_time, t_time, bogo_rate_r_time, bogo_rate, cpu_usage;
 		bool run_ok = false;
 
 		for (j = 0; j < ss->started_instances; j++) {
@@ -2200,17 +2209,34 @@ static void metrics_dump(
 
 		u_time = (ticks_per_sec > 0) ? (double)u_total / (double)ticks_per_sec : 0.0;
 		s_time = (ticks_per_sec > 0) ? (double)s_total / (double)ticks_per_sec : 0.0;
+		t_time = u_time + s_time;
+		
 		bogo_rate_r_time = (r_total > 0.0) ? (double)c_total / r_total : 0.0;
 		bogo_rate = (us_total > 0) ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0;
+		cpu_usage = (r_total > 0) ? 100.0 * t_time / r_total : 0.0;
+		cpu_usage = ss->started_instances ? cpu_usage / ss->started_instances : 0.0;
 
-		pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %12.2f\n",
-			munged,		/* stress test name */
-			c_total,	/* op count */
-			r_total,	/* average real (wall) clock time */
-			u_time, 	/* actual user time */
-			s_time,		/* actual system time */
-			bogo_rate_r_time, /* bogo ops on wall clock time */
-			bogo_rate);	/* bogo ops per second */
+		if (g_opt_flags & OPT_FLAGS_METRICS_BRIEF) {
+			pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f\n",
+				munged,		/* stress test name */
+				c_total,	/* op count */
+				r_total,	/* average real (wall) clock time */
+				u_time, 	/* actual user time */
+				s_time,		/* actual system time */
+				bogo_rate_r_time, /* bogo ops on wall clock time */
+				bogo_rate);	/* bogo ops per second */
+		} else {
+			/* extended metrics */
+			pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f %12.2f\n",
+				munged,		/* stress test name */
+				c_total,	/* op count */
+				r_total,	/* average real (wall) clock time */
+				u_time, 	/* actual user time */
+				s_time,		/* actual system time */
+				bogo_rate_r_time, /* bogo ops on wall clock time */
+				bogo_rate,	/* bogo ops per second */
+				cpu_usage);	/* % cpu usage */
+		}
 
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
 		pr_yaml(yaml, "      bogo-ops: %" PRIu64 "\n", c_total);
@@ -2219,6 +2245,7 @@ static void metrics_dump(
 		pr_yaml(yaml, "      wall-clock-time: %f\n", r_total);
 		pr_yaml(yaml, "      user-time: %f\n", u_time);
 		pr_yaml(yaml, "      system-time: %f\n", s_time);
+		pr_yaml(yaml, "      cpu-usage-per-instance: %f\n", cpu_usage);
 		pr_yaml(yaml, "\n");
 	}
 }

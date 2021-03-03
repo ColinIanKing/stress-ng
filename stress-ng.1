@@ -244,11 +244,18 @@ actual time execution time of the stressor across all the processors.
 Generally this will decrease as one adds more concurrent stressors due to
 contention on cache, memory, execution units, buses and I/O devices.
 T}
+T{
+CPU used per instance (%)
+T}	T{
+total percentage of CPU used divided by number of stressor instances. 100%
+is 1 full CPU. Some stressors run multiple threads so it is possible to have
+a figure greater than 100%.
+T}
 .TE
 .RE
 .TP
 .B \-\-metrics\-brief
-enable metrics and only output metrics that are non-zero.
+show shorter list of stressor metrics (no CPU used per instance).
 .TP
 .B \-\-minimize
 overrides the default stressor settings and instead sets these to the minimum
