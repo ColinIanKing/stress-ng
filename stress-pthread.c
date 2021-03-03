@@ -394,7 +394,7 @@ die:
 static int stress_pthread(const stress_args_t *args)
 {
 	bool locked = false;
-	uint64_t limited = 0, attempted = 0;
+	uint64_t limited = 0, attempted = 0, maximum = 0;
 	uint64_t pthread_max = DEFAULT_PTHREAD;
 	int ret;
 	stress_pthread_args_t pargs = { args, NULL, 0 };
@@ -509,6 +509,8 @@ static int stress_pthread(const stress_args_t *args)
 				stop_running();
 				break;
 			}
+			if (i + 1 > maximum)
+				maximum = i + 1;
 			inc_counter(args);
 			if (!(keep_running() && keep_stressing(args)))
 				break;
@@ -599,6 +601,8 @@ reap:
 		}
 	} while (!locked && keep_running() && keep_stressing(args));
 
+	pr_inf("%s: maximum of %" PRIu64 " concurrent pthreads created\n",
+		args->name, maximum);
 	if (limited) {
 		pr_inf("%s: %.2f%% of iterations could not reach "
 			"requested %" PRIu64 " threads (instance %"
