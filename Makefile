@@ -366,7 +366,7 @@ OBJS += $(CONFIG_OBJS)
 
 .SUFFIXES: .c .o
 
-.o: stress-ng.h Makefile
+.o: src/stress-ng.h Makefile
 
 .c.o:
 	@echo "CC $<"
@@ -402,28 +402,28 @@ apparmor-data.o: src/usr.bin.pulseaudio.eg
 #
 #  extract the PER_* personality enums
 #
-personality.h:
-	@$(CPP) $(CONFIG_CFLAGS) core-personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
-	| sed "s/.$$/,/" > personality.h
+src/personality.h:
+	@$(CPP) $(CONFIG_CFLAGS) src/core-personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
+	| sed "s/.$$/,/" > src/personality.h
 	@echo "MK personality.h"
 
-stress-personality.c: personality.h
+src/stress-personality.c: src/personality.h
 
 #
 #  extract IORING_OP enums and #define HAVE_ prefixed values
 #  so we can check if these enums exist
 #
-io-uring.h:
-	@$(CPP) $(CONFIG_CFLAGS) core-io-uring.c  | $(GREP) IORING_OP | sed 's/,//' | \
-	sed 's/IORING_OP_/#define HAVE_IORING_OP_/' > io-uring.h
+src/io-uring.h:
+	@$(CPP) $(CONFIG_CFLAGS) src/core-io-uring.c  | $(GREP) IORING_OP | sed 's/,//' | \
+	sed 's/IORING_OP_/#define HAVE_IORING_OP_/' > src/io-uring.h
 	@echo "MK io-uring.h"
 
-stress-io-uring.c: io-uring.h
+src/stress-io-uring.c: src/io-uring.h
 
-core-perf.o: core-perf.c core-perf-event.c
-	@$(CC) $(CFLAGS) -E core-perf-event.c | $(GREP) "PERF_COUNT" | \
+core-perf.o: src/core-perf.c src/core-perf-event.c
+	@$(CC) $(CFLAGS) -E src/core-perf-event.c | $(GREP) "PERF_COUNT" | \
 	sed 's/,/ /' | sed s/'^ *//' | \
-	awk {'print "#define _SNG_" $$1 " (1)"'} > core-perf-event.h
+	awk {'print "#define _SNG_" $$1 " (1)"'} > src/core-perf-event.h
 	@echo CC $<
 	@$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -431,7 +431,7 @@ stress-vecmath.o: stress-vecmath.c
 	@echo CC $<
 	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
 
-$(OBJS): stress-ng.h Makefile
+$(OBJS): src/stress-ng.h Makefile
 
 stress-ng.1.gz: stress-ng.1
 	gzip -c $< > $@
@@ -440,7 +440,7 @@ stress-ng.1.gz: stress-ng.1
 dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
-	cp -rp Makefile Makefile.config $(SRC) stress-ng.h stress-ng.1 \
+	cp -rp Makefile Makefile.config $(SRC) src/stress-ng.h stress-ng.1 \
 		core-personality.c core-io-uring.c \
 		COPYING syscalls.txt mascot README \
 		stress-af-alg-defconfigs.h README.Android test snap \
