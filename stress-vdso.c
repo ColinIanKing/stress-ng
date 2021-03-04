@@ -455,8 +455,9 @@ static int stress_vdso(const stress_args_t *args)
 
 	if (!vdso_sym_list) {
 		/* Should not fail, but worth checking to avoid breakage */
-		pr_inf("%s: could not find any vDSO functions, skipping\n",
-			args->name);
+		if (args->instance == 0)
+			pr_inf("%s: could not find any vDSO functions, skipping\n",
+				args->name);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 	vdso_sym_list_remove_duplicates(&vdso_sym_list);

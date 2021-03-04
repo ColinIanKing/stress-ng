@@ -126,9 +126,10 @@ static int stress_getrandom(const stress_args_t *args)
 					continue;
 				if (errno == ENOSYS) {
 					/* Should not happen.. */
-					pr_inf("%s: stressor will be skipped, "
-						"getrandom() not supported\n",
-						args->name);
+					if (args->instance == 0)
+						pr_inf("%s: stressor will be skipped, "
+							"getrandom() not supported\n",
+							args->name);
 					return EXIT_NOT_IMPLEMENTED;
 				}
 				pr_fail("%s: getrandom using flags %s failed, errno=%d (%s)\n",

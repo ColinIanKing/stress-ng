@@ -129,8 +129,9 @@ static int stress_uprobe(const stress_args_t *args)
 
 	libc_addr = stress_uprobe_libc_start(pid, libc_path);
 	if (!libc_addr) {
-		pr_inf("%s: cannot find start of libc text section, skipping stressor\n",
-			args->name);
+		if (args->instance == 0)
+			pr_inf("%s: cannot find start of libc text section, skipping stressor\n",
+				args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	offset = ((char *)getpid - (char *)libc_addr);

@@ -2299,8 +2299,9 @@ static int stress_sysinval(const stress_args_t *args)
 	 *  defined.
 	 */
 	if (SIZEOF_ARRAY(stress_syscall_args) == 0) {
-		pr_inf("%s: no system calls detected during build, skipping stressor\n",
-			args->name);
+		if (args->instance == 0)
+			pr_inf("%s: no system calls detected during build, skipping stressor\n",
+				args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

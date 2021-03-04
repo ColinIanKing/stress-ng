@@ -166,8 +166,9 @@ static int stress_memhotplug(const stress_args_t *args)
 
 	dir = opendir(sys_memory_path);
 	if (!dir) {
-		pr_inf("%s: %s not accessible, skipping stressor\n",
-			args->name, sys_memory_path);
+		if (args->instance == 0)
+			pr_inf("%s: %s not accessible, skipping stressor\n",
+				args->name, sys_memory_path);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
@@ -178,8 +179,9 @@ static int stress_memhotplug(const stress_args_t *args)
 			n++;
 	}
 	if (n == 0) {
-		pr_inf("%s: no hotplug memory entries found, skipping stressor\n",
-			args->name);
+		if (args->instance == 0)
+			pr_inf("%s: no hotplug memory entries found, skipping stressor\n",
+				args->name);
 		(void)closedir(dir);
 		return EXIT_NOT_IMPLEMENTED;
 	}

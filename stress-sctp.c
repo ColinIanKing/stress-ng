@@ -166,8 +166,9 @@ retry:
 		}
 		if ((fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0) {
 			if (errno == EPROTONOSUPPORT) {
-				pr_inf("%s: SCTP protocol not supported, skipping stressor\n",
-					args->name);
+				if (args->instance == 0)
+					pr_inf("%s: SCTP protocol not supported, skipping stressor\n",
+						args->name);
 				(void)kill(getppid(), SIGALRM);
 				_exit(EXIT_NOT_IMPLEMENTED);
 			}
@@ -258,8 +259,9 @@ static int stress_sctp_server(
 	}
 	if ((fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0) {
 		if (errno == EPROTONOSUPPORT) {
-			pr_inf("%s: SCTP protocol not supported, skipping stressor\n",
-				args->name);
+			if (args->instance == 0)
+				pr_inf("%s: SCTP protocol not supported, skipping stressor\n",
+					args->name);
 			rc = EXIT_NOT_IMPLEMENTED;
 			goto die;
 		}

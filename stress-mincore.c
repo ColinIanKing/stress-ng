@@ -95,8 +95,9 @@ redo: 			errno = 0;
 						goto redo;
 					break;
 				case ENOSYS:
-					pr_inf("%s: mincore no not implemented, skipping stressor\n",
-						args->name);
+					if (args->instance == 0)
+						pr_inf("%s: mincore no not implemented, skipping stressor\n",
+							args->name);
 					rc = EXIT_NOT_IMPLEMENTED;
 					goto err;
 				default:

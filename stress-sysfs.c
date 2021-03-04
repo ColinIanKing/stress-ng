@@ -581,7 +581,8 @@ static int stress_sysfs(const stress_args_t *args)
 
 	n = scandir("/sys", &dlist, NULL, alphasort);
 	if (n <= 0) {
-		pr_inf("%s: no /sys entries found, skipping stressor\n", args->name);
+		if (args->instance == 0)
+			pr_inf("%s: no /sys entries found, skipping stressor\n", args->name);
 		stress_dirent_list_free(dlist, n);
 		return EXIT_NO_RESOURCE;
 	}

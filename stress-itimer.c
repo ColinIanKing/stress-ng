@@ -174,9 +174,10 @@ static int stress_itimer(const stress_args_t *args)
 	stress_itimer_set(&timer);
 	if (setitimer(ITIMER_PROF, &timer, NULL) < 0) {
 		if (errno == EINVAL) {
-			pr_inf("%s: skipping stressor, setitimer with "
-				"ITIMER_PROF is not implemented\n",
-				args->name);
+			if (args->instance == 0)
+				pr_inf("%s: skipping stressor, setitimer with "
+					"ITIMER_PROF is not implemented\n",
+					args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
 		pr_fail("%s: setitimer failed, errno=%d (%s)\n",

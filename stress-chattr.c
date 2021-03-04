@@ -181,8 +181,9 @@ static int stress_chattr(const stress_args_t *args)
 		}
 
 		if (fail == i) {
-			pr_inf("%s: chattr not supported on filesystem, skipping stressor\n",
-				args->name);
+			if (args->instance == 0)
+				pr_inf("%s: chattr not supported on filesystem, skipping stressor\n",
+					args->name);
 			rc = EXIT_NOT_IMPLEMENTED;
 			break;
 		}

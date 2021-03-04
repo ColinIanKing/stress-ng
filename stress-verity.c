@@ -71,8 +71,9 @@ static int stress_verity(const stress_args_t *args)
 	size_t hash = 0;
 
 	if (SIZEOF_ARRAY(hash_algorithms) == 0) {
-		pr_inf("%s: no hash algorithms defined, skipping stressor\n",
-			args->name);
+		if (args->instance == 0)
+			pr_inf("%s: no hash algorithms defined, skipping stressor\n",
+				args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -147,9 +148,10 @@ static int stress_verity(const stress_args_t *args)
 			switch (errno) {
 			case ENOTTY:
 			case EOPNOTSUPP:
-				pr_inf("%s: verity is not supported on the "
-					"file system or by the kernel, skipping stress test\n",
-					args->name);
+				if (args->instance == 0)
+					pr_inf("%s: verity is not supported on the "
+						"file system or by the kernel, skipping stress test\n",
+						args->name);
 				ret = EXIT_NOT_IMPLEMENTED;
 				break;
 			case ENOPKG:

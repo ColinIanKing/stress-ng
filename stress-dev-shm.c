@@ -129,12 +129,14 @@ static int stress_dev_shm(const stress_args_t *args)
 	 */
 	if (access("/dev/shm", R_OK | W_OK) < 0) {
 		if (errno == ENOENT) {
-			pr_inf("%s: /dev/shm does not exist, skipping test\n",
-				args->name);
+			if (args->instance == 0)
+				pr_inf("%s: /dev/shm does not exist, skipping test\n",
+					args->name);
 			return EXIT_NO_RESOURCE;
 		} else {
-			pr_inf("%s: cannot access /dev/shm, errno=%d (%s), skipping test\n",
-				args->name, errno, strerror(errno));
+			if (args->instance == 0)
+				pr_inf("%s: cannot access /dev/shm, errno=%d (%s), skipping test\n",
+					args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
 	}

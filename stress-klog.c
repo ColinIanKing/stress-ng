@@ -74,9 +74,10 @@ static int stress_klog(const stress_args_t *args)
 	if (len < 0) {
 		if (!args->instance) {
 			if (errno == EPERM) {
-				pr_inf("%s: cannot access syslog buffer, "
-					"not permitted, skipping stressor\n",
-					args->name);
+				if (args->instance == 0)
+					pr_inf("%s: cannot access syslog buffer, "
+						"not permitted, skipping stressor\n",
+						args->name);
 			} else {
 				pr_err("%s: cannot determine syslog buffer "
 					"size: errno=%d (%s)\n",

@@ -187,8 +187,9 @@ static int stress_pidfd(const stress_args_t *args)
 			ret = shim_pidfd_send_signal(pidfd, 0, NULL, 0);
 			if (ret != 0) {
 				if (errno == ENOSYS) {
-					pr_inf("%s: skipping stress test, system call is not implemented\n",
-						args->name);
+					if (args->instance == 0)
+						pr_inf("%s: skipping stress test, system call is not implemented\n",
+							args->name);
 					stress_pidfd_reap(pid, pidfd);
 					return EXIT_NOT_IMPLEMENTED;
 				}

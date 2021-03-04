@@ -120,8 +120,9 @@ static int stress_key(const stress_args_t *args)
 				KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] < 0) {
 				if (errno == ENOSYS) {
-					pr_inf("%s: skipping stressor, add_key not implemented\n",
-						args->name);
+					if (args->instance == 0)
+						pr_inf("%s: skipping stressor, add_key not implemented\n",
+							args->name);
 					no_error = false;
 					rc = EXIT_NOT_IMPLEMENTED;
 					goto tidy;

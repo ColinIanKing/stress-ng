@@ -164,8 +164,9 @@ static void stress_fiemap_ioctl(
 		/* Find out how many extents there are */
 		if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
 			if (errno == EOPNOTSUPP) {
-				pr_inf("%s: FS_IOC_FIEMAP not supported on the file system, skipping stressor\n",
-					args->name);
+				if (args->instance == 0)
+					pr_inf("%s: FS_IOC_FIEMAP not supported on the file system, skipping stressor\n",
+						args->name);
 				free(fiemap);
 				break;
 			}
@@ -295,8 +296,9 @@ static int stress_fiemap(const stress_args_t *args)
 	if (ioctl(fd, FS_IOC_FIEMAP, &fiemap) < 0) {
 		errno = EOPNOTSUPP;
 		if (errno == EOPNOTSUPP) {
-			pr_inf("%s: FS_IOC_FIEMAP not supported on the file system, skipping stressor\n",
-				args->name);
+			if (args->instance == 0)
+				pr_inf("%s: FS_IOC_FIEMAP not supported on the file system, skipping stressor\n",
+					args->name);
 			rc = EXIT_NOT_IMPLEMENTED;
 			goto close_clean;
 		}

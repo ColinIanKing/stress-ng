@@ -128,9 +128,10 @@ static int stress_softlockup(const stress_args_t *args)
 
 	if (!args->instance) {
 		if (SIZEOF_ARRAY(policies) == 0) {
-			pr_inf("%s: no scheduling policies "
-				"available, skipping test\n",
-				args->name);
+			if (args->instance == 0)
+				pr_inf("%s: no scheduling policies "
+					"available, skipping test\n",
+					args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
 	}
@@ -151,9 +152,10 @@ static int stress_softlockup(const stress_args_t *args)
 	 *  policies, so check for this
 	 */
 	if (!good_policy) {
-		pr_inf("%s: cannot get valid maximum priorities for the "
-			"scheduling policies, skipping test\n",
-				args->name);
+		if (args->instance == 0)
+			pr_inf("%s: cannot get valid maximum priorities for the "
+				"scheduling policies, skipping test\n",
+					args->name);
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
