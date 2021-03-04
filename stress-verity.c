@@ -47,6 +47,18 @@ static const int hash_algorithms[] = {
 #endif
 };
 
+
+/*
+ *  For FS_IOC_READ_VERITY_METADATA, introduced in Linux 5.12
+ */
+struct shim_fsverity_read_metadata_arg {
+	uint64_t metadata_type;
+	uint64_t offset;
+	uint64_t length;
+	uint64_t buf_ptr;
+	uint64_t __reserved;
+};
+
 /*
  *  stress_verity
  *	stress file verity
@@ -78,6 +90,10 @@ static int stress_verity(const stress_args_t *args)
 		struct fsverity_digest *digest = (struct fsverity_digest *)digest_buf;
 		char block[512];
 		int i;
+#if defined(FS_IOC_READ_VERITY_METADATA)
+		struct shim_fsverity_read_metadata_arg md_arg;
+		char md_buf[4096];
+#endif
 
 		fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
@@ -214,6 +230,16 @@ static int stress_verity(const stress_args_t *args)
 			}
 		}
 		(void)shim_fsync(fd);
+
+#if defined(FS_IOC_READ_VERITY_METADATA)
+		(void)memset(&md_arg, 0, sizeof(md_arg));
+		md_arg.metadata_type = 0ULL;
+		md_arg.offset = 0ULL;
+		md_arg.buf_ptr = (uint64_t)(intptr_t)md_buf;
+		md_arg.length = (uint64_t)sizeof(md_buf);
+
+		(void)ioctl(fd, FS_IOC_READ_VERITY_METADATA, &md_arg);
+#endif
 
 		(void)close(fd);
 		(void)unlink(filename);
