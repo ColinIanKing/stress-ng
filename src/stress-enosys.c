@@ -30,7 +30,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_SYSCALL_H)
+#if defined(HAVE_SYSCALL_H) || defined(HAVE_SYS_SYSCALL_H)
 
 #define HASH_SYSCALL_SIZE	(1987)
 
@@ -205,7 +205,7 @@ static void exercise_syscall(
 	exit_if_child(pid);
 	if ((ret < 0) && (errno != ENOSYS))
 		enosys = true;
-	
+
 	if (getpid() != pid) {
 		/* Somehow we forked/cloned ourselves, so exit */
 		_exit(0);

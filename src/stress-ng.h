@@ -402,7 +402,7 @@
 #include <sys/swap.h>
 #endif
 
-#if defined(HAVE_SYSCALL_H)
+#if defined(HAVE_SYSCALL_H) || defined(HAVE_SYS_SYSCALL_H)
 #include <sys/syscall.h>
 #endif
 
