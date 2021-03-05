@@ -4028,6 +4028,7 @@ extern WARN_UNUSED uint32_t stress_hash_pjw(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_djb2a(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_fnv1a(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_nhash(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_murmur3_32(const uint8_t* key, size_t len, uint32_t seed);
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);

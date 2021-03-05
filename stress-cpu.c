@@ -769,6 +769,15 @@ static void stress_cpu_sdbm(const char *name)
 }
 
 /*
+ *  stress_cpu_nhash()
+ *	stress test hash nhash
+ */
+static void stress_cpu_nhash(const char *name)
+{
+	stress_cpu_hash_generic(name, "nhash", stress_hash_nhash, 0x1cc86e3);
+}
+
+/*
  *  stress_cpu_idct()
  *	compute 8x8 Inverse Discrete Cosine Transform
  */
@@ -2728,6 +2737,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "loop",		stress_cpu_loop },
 	{ "matrixprod",		stress_cpu_matrix_prod },
 	{ "murmur3_32",		stress_cpu_murmur3_32 },
+	{ "nhash",		stress_cpu_nhash },
 	{ "nsqrt",		stress_cpu_nsqrt },
 	{ "omega",		stress_cpu_omega },
 	{ "parity",		stress_cpu_parity },
