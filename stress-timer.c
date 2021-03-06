@@ -119,6 +119,21 @@ static bool HOT OPTIMIZE3 stress_timer_keep_stressing(void)
 }
 
 /*
+ *  stress_proc_self_timer_read()
+ *	exercise read of /proc/self/timers, Linux only
+ */
+static inline void stress_proc_self_timer_read(void)
+{
+#if defined(__linux__)
+	char buf[1024];
+	int n;
+
+	n = system_read("/proc/self/timers", buf, sizeof(buf));
+	(void)n;
+#endif
+}
+
+/*
  *  stress_timer_handler()
  *	catch timer signal and cancel if no more runs flagged
  */
@@ -137,9 +152,11 @@ static void MLOCKED_TEXT stress_timer_handler(int sig)
 		if (sigismember(&mask, SIGINT))
 			goto cancel;
 	/* High freq timer, check periodically for timeout */
-	if ((timer_counter & 65535) == 0)
+	if ((timer_counter & 65535) == 0) {
 		if ((stress_time_now() - start) > (double)g_opt_timeout)
 			goto cancel;
+		stress_proc_self_timer_read();
+	}
 	if (keep_stressing_flag()) {
 		int ret = timer_getoverrun(timerid);
 		if (ret > 0)
