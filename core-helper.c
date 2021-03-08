@@ -706,10 +706,10 @@ char *stress_munge_underscore(const char *str)
 }
 
 /*
- *  __stress_get_stack_direction()
+ *  stress_get_stack_direction_helper()
  *	helper to determine direction of stack
  */
-static ssize_t __stress_get_stack_direction(const uint8_t *val1)
+static ssize_t stress_get_stack_direction_helper(const uint8_t *val1)
 {
 	const uint8_t val2 = 0;
 	const ssize_t diff = &val2 - (const uint8_t *)val1;
@@ -732,7 +732,7 @@ ssize_t stress_get_stack_direction(void)
 	uint8_t waste[64];
 
 	waste[(sizeof waste) - 1] = 0;
-	return __stress_get_stack_direction(&val1);
+	return stress_get_stack_direction_helper(&val1);
 }
 
 /*
