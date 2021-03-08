@@ -150,8 +150,10 @@ static int stress_l1cache_info_ok(
 	uint32_t *sets,
 	uint32_t *line_size)
 {
+#if defined(__linux__)
 	stress_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
+#endif
 
 	if ((*ways > 0) && (*size > 0) && (*sets > 0) && (*line_size > 0)) {
 		return stress_l1cache_info_check(args, *ways, *size, *sets, *line_size);
@@ -173,6 +175,7 @@ static int stress_l1cache_info_ok(
 		return stress_l1cache_info_check(args, *ways, *size, *sets, *line_size);
 	}
 
+#if defined(__linux__)
 	/*
 	 *  User didn't provide cache info, try and figure it
 	 *  out
@@ -197,11 +200,14 @@ static int stress_l1cache_info_ok(
 		*ways = cache->ways;
 	if (*sets == 0)
 		*sets = *size / (*ways * *line_size);
+#endif
 
+#if defined(__linux__)
 	stress_free_cpu_caches(cpu_caches);
-
+#endif
 	return stress_l1cache_info_check(args, *ways, *size, *sets, *line_size);
 
+#if defined(__linux__)
 bad_cache_free:
 	stress_free_cpu_caches(cpu_caches);
 bad_cache:
@@ -210,6 +216,7 @@ bad_cache:
 		args->name);
 
 	return EXIT_NO_RESOURCE;
+#endif
 }
 
 static int stress_l1cache(const stress_args_t *args)
