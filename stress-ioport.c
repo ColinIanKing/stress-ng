@@ -213,7 +213,7 @@ static int stress_ioport(const stress_args_t *args)
 			size_t i;
 
 			/*
-			 *  Exercise various valud and invalid
+			 *  Exercise various valid and invalid
 			 *  iopl settings
 			 */
 			for (i = 0; i < SIZEOF_ARRAY(levels); i++) {
