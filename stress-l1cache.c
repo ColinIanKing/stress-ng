@@ -205,7 +205,6 @@ static int stress_l1cache_info_ok(
 #endif
 	if ((*size == 0) && (*line_size == 0) && (*ways == 0) && (*sets == 0))
 		goto bad_cache;
-	
 	return stress_l1cache_info_check(args, *ways, *size, *sets, *line_size);
 
 #if defined(__linux__)
