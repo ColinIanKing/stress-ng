@@ -242,8 +242,9 @@ static int stress_l1cache(const stress_args_t *args)
 	if (ret != EXIT_SUCCESS)
 		return ret;
 
-	cache = mmap(NULL, l1cache_size << 2, PROT_READ | PROT_WRITE,
-		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	cache = (uint8_t *)mmap(NULL, l1cache_size << 2,
+				PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (cache == MAP_FAILED) {
 		pr_inf("%s: cannot mmap cache test buffer, skipping stressor, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -257,7 +258,7 @@ static int stress_l1cache(const stress_args_t *args)
 
 	if ((cache_aligned < cache) || (cache_aligned > cache + (l1cache_size << 1))) {
 		pr_inf("%s: aligned cache address is out of range\n", args->name);
-		(void)munmap(cache, l1cache_size << 2);
+		(void)munmap((void *)cache, l1cache_size << 2);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -295,7 +296,7 @@ static int stress_l1cache(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(cache, l1cache_size << 2);
+	(void)munmap((void *)cache, l1cache_size << 2);
 
 	return EXIT_SUCCESS;
 }
