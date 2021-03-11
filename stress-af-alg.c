@@ -142,16 +142,16 @@ static stress_crypto_type_t name_to_type(const char *buffer)
 }
 
 /*
- *   type_to_name()
- *	map type to textual name
+ *   type_to_type_string()
+ *	map type to stringified type
  */
-static const char *type_to_name(const stress_crypto_type_t type)
+static const char *type_to_type_string(const stress_crypto_type_t type)
 {
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(crypto_type_info); i++) {
 		if (crypto_type_info[i].type == type)
-			return crypto_type_info[i].name;
+			return crypto_type_info[i].type_string;
 	}
 	return "unknown";
 }
@@ -648,7 +648,7 @@ static void stress_af_alg_dump_crypto_list(void)
 		if (ci->internal)
 			continue;
 		fprintf(stdout, "{ .crypto_type = %s, .type = \"%s\", .name = \"%s\"",
-			type_to_name(ci->crypto_type), ci->type, ci->name);
+			type_to_type_string(ci->crypto_type), ci->type, ci->name);
 		if (ci->block_size)
 			fprintf(stdout, ",\t.block_size = %d",
 				ci->block_size);
