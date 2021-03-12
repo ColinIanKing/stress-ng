@@ -1,3 +1,45 @@
+stress-ng (0.12.05-1) unstable; urgency=medium
+
+  [Witold Baryluk]
+  * stress-cpu.c update proc state to RUN before the main loop
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: update date
+  * stress-l1cache: add pointer casting for mmap/munmap for openhipster
+  * stress-af-alg-defconfigs.h: minor sort re-ordering
+  * stress-af-alg: make --af-alg-dump option dump the stringified type
+  * stress-ioport: fix typo in comment
+  * stress-l1cache: remove a line
+  * stress-l1cache: skip stressor if l1cache info is zero
+  * core-helper: rename __stress_get_stack_direction
+  * stress-mmapfork: rename __strlcat to notrunc_strlcat
+  * fast-test-all: omit l1cache as this requires cache info that may
+    not be available
+  * stress-l1cache: fix non-Linux build failure
+  * stress-timer: periodically exercise /proc/self/timers
+  * stress-cpu: add exim's nhash for one more hashing cpu exercising
+    method
+  * stress-ng: report skipped messages only on the first instance
+  * stress-verity: add FS_IOC_READ_VERITY_METADATA ioctl
+  * stress-pthread: report the maximum number of concurrent pthreads
+  * stress-cpu: update short help information
+  * stress-ng: add CPU % used per processor metrics
+  * Manual: update contributors list
+  * core-cache: assume CPU is online if online information not available
+  * stress-io-uring: remove debug message
+  * stress-l1cache: handle non-power of 2 alignments
+  * stress-l1cache: remove unused variable ret
+  * stress-l1cache: add new level 1 cache stressor
+  * core-cache: fix fetching of cache ways information
+  * stress-cyclic: add build time check for clock_gettime in
+    stress_cyclic_usleep
+  * stress-dentry: fix build warning of utime when utime is not declared
+  * stress-rawsock: add build time check for HAVE_ICMPHDR
+  * stress-dentry: add build time check for struct utimbuf
+
+ -- Colin King <colin.king@canonical.com>  Fri, 12 Mar 2021 09:44:11 +0000
+
 stress-ng (0.12.04-1) unstable; urgency=medium
 
   [Colin Ian King]
