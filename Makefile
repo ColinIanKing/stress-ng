@@ -33,6 +33,17 @@ CFLAGS += -Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-Wno-missing-braces -Wno-sign-compare -Wno-multichar
 endif
 
+#
+# Verbosity
+#
+ifeq ($(VERBOSE),)
+V=@
+Q=@
+else
+V=
+Q=@#
+endif
+
 GREP = grep
 #
 # SunOS requires special grep for -e support
@@ -369,16 +380,16 @@ OBJS += $(CONFIG_OBJS)
 .o: stress-ng.h Makefile
 
 .c.o:
-	@echo "CC $<"
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	$(Q)echo "CC $<"
+	$(V)$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-ng: $(OBJS)
-	@echo "LD $@"
-	@$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -o $@
-	@sync
+	$(Q)echo "LD $@"
+	$(V)$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -o $@
+	$(V)sync
 
 makeconfig:
-	@if [ ! -e config ]; then \
+	$(V)if [ ! -e config ]; then \
 		STATIC=$(STATIC) $(MAKE) -f Makefile.config; \
 	fi
 
@@ -387,25 +398,25 @@ makeconfig:
 #  parser output
 #
 apparmor-data.o: usr.bin.pulseaudio.eg
-	@$(APPARMOR_PARSER) -Q usr.bin.pulseaudio.eg  -o apparmor-data.bin
-	@echo "#include <stddef.h>" > apparmor-data.c
-	@echo "char g_apparmor_data[]= { " >> apparmor-data.c
-	@od -tx1 -An -v < apparmor-data.bin | \
+	$(V)$(APPARMOR_PARSER) -Q usr.bin.pulseaudio.eg  -o apparmor-data.bin
+	$(V)echo "#include <stddef.h>" > apparmor-data.c
+	$(V)echo "char g_apparmor_data[]= { " >> apparmor-data.c
+	$(V)od -tx1 -An -v < apparmor-data.bin | \
 		sed 's/[0-9a-f][0-9a-f]/0x&,/g' | \
 		sed '$$ s/.$$//' >> apparmor-data.c
-	@echo "};" >> apparmor-data.c
-	@echo "const size_t g_apparmor_data_len = sizeof(g_apparmor_data);" >> apparmor-data.c
-	@echo "CC $<"
-	@$(CC) -c apparmor-data.c -o apparmor-data.o
-	@rm -rf apparmor-data.c apparmor-data.bin
+	$(V)echo "};" >> apparmor-data.c
+	$(V)echo "const size_t g_apparmor_data_len = sizeof(g_apparmor_data);" >> apparmor-data.c
+	$(Q)echo "CC $<"
+	$(V)$(CC) -c apparmor-data.c -o apparmor-data.o
+	$(V)rm -rf apparmor-data.c apparmor-data.bin
 
 #
 #  extract the PER_* personality enums
 #
 personality.h:
-	@$(CPP) $(CONFIG_CFLAGS) core-personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
+	$(V)$(CPP) $(CONFIG_CFLAGS) core-personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
 	| sed "s/.$$/,/" > personality.h
-	@echo "MK personality.h"
+	$(Q)echo "MK personality.h"
 
 stress-personality.c: personality.h
 
@@ -414,27 +425,27 @@ stress-personality.c: personality.h
 #  so we can check if these enums exist
 #
 io-uring.h:
-	@$(CPP) $(CONFIG_CFLAGS) core-io-uring.c  | $(GREP) IORING_OP | sed 's/,//' | \
+	$(V)$(CPP) $(CONFIG_CFLAGS) core-io-uring.c  | $(GREP) IORING_OP | sed 's/,//' | \
 	sed 's/IORING_OP_/#define HAVE_IORING_OP_/' > io-uring.h
-	@echo "MK io-uring.h"
+	$(Q)echo "MK io-uring.h"
 
 stress-io-uring.c: io-uring.h
 
 core-perf.o: core-perf.c core-perf-event.c
-	@$(CC) $(CFLAGS) -E core-perf-event.c | $(GREP) "PERF_COUNT" | \
+	$(V)$(CC) $(CFLAGS) -E core-perf-event.c | $(GREP) "PERF_COUNT" | \
 	sed 's/,/ /' | sed s/'^ *//' | \
 	awk {'print "#define _SNG_" $$1 " (1)"'} > core-perf-event.h
-	@echo CC $<
-	@$(CC) $(CFLAGS) -c -o $@ $<
+	$(Q)echo CC $<
+	$(V)$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-vecmath.o: stress-vecmath.c
-	@echo CC $<
-	@$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
+	$(Q)echo CC $<
+	$(V)$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
 
 $(OBJS): stress-ng.h Makefile
 
 stress-ng.1.gz: stress-ng.1
-	gzip -c $< > $@
+	$(V)gzip -c $< > $@
 
 .PHONY: dist
 dist:
@@ -457,14 +468,14 @@ pdf:
 
 .PHONY: clean
 clean:
-	@rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
-	@rm -f stress-ng-$(VERSION).tar.xz
-	@rm -f personality.h
-	@rm -f io-uring.h
-	@rm -f perf-event.h
-	@rm -f apparmor-data.bin
-	@rm -f *.o
-	@rm -f config
+	$(V)rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
+	$(V)rm -f stress-ng-$(VERSION).tar.xz
+	$(V)rm -f personality.h
+	$(V)rm -f io-uring.h
+	$(V)rm -f perf-event.h
+	$(V)rm -f apparmor-data.bin
+	$(V)rm -f *.o
+	$(V)rm -f config
 
 .PHONY: fast-test-all
 fast-test-all: all
