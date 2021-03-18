@@ -119,6 +119,7 @@ static int stress_set(const stress_args_t *args)
 	}
 
 	(void)memset(hostname, 0, sizeof(hostname));
+	(void)memset(longname, 0, sizeof(longname));
 	ret_hostname = gethostname(hostname, sizeof(hostname) - 1);
 	if (ret_hostname == 0) {
 		hostname[sizeof(hostname) - 1] = '\0';
@@ -148,7 +149,7 @@ static int stress_set(const stress_args_t *args)
 		(void)ret;
 		check_do_run();
 
-		if (ret_hostname == 0) {
+		if (*longname) {
 			ret = sethostname(longname, sizeof(longname));
 			(void)ret;
 
