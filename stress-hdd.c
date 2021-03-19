@@ -130,7 +130,9 @@ static const stress_hdd_opts_t hdd_opts[] = {
 #if defined(HAVE_FDATASYNC)
 	{ "fdatasync",	HDD_OPT_FDATASYNC, 0, 0, 0 },
 #endif
+#if defined(HAVE_SYS_UIO_H)
 	{ "iovec",	HDD_OPT_IOVEC, 0, 0, 0 },
+#endif
 #if defined(HAVE_SYNCFS)
 	{ "syncfs",	HDD_OPT_SYNCFS, 0, 0, 0 },
 #endif
@@ -200,6 +202,7 @@ static ssize_t stress_hdd_write(
 #endif
 
 	if (hdd_flags & HDD_OPT_IOVEC) {
+#if defined(HAVE_SYS_UIO_H)
 		struct iovec iov[HDD_IO_VEC_MAX];
 		size_t i;
 		uint8_t *data = buf;
@@ -234,6 +237,10 @@ static ssize_t stress_hdd_write(
 			ret = writev(fd, iov, HDD_IO_VEC_MAX);
 			break;
 		}
+#else
+		(void)hdd_write_size;
+		ret = write(fd, buf, count);
+#endif
 	} else {
 		ret = write(fd, buf, count);
 	}
@@ -262,7 +269,7 @@ static ssize_t stress_hdd_read(
 	const int fd,
 	uint8_t *buf,
 	const size_t count,
-	const uint64_t hdd_write_size,
+	const uint64_t hdd_read_size,
 	const int hdd_flags)
 {
 #if defined(HAVE_FUTIMES)
@@ -271,10 +278,11 @@ static ssize_t stress_hdd_read(
 #endif
 
 	if (hdd_flags & HDD_OPT_IOVEC) {
+#if defined(HAVE_SYS_UIO_H)
 		struct iovec iov[HDD_IO_VEC_MAX];
 		size_t i;
 		uint8_t *data = buf;
-		const uint64_t sz = hdd_write_size / HDD_IO_VEC_MAX;
+		const uint64_t sz = hdd_read_size / HDD_IO_VEC_MAX;
 
 		for (i = 0; i < HDD_IO_VEC_MAX; i++) {
 			iov[i].iov_base = (void *)data;
@@ -303,6 +311,10 @@ static ssize_t stress_hdd_read(
 			/* 50% */
 			return readv(fd, iov, HDD_IO_VEC_MAX);
 		}
+#else
+		(void)hdd_read_size;
+		return read(fd, buf, count);
+#endif
 	} else {
 		return read(fd, buf, count);
 	}
