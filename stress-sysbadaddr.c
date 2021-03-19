@@ -598,6 +598,7 @@ static int bad_readlink(void *addr)
 	return shim_readlink((const char *)addr, (char *)inc_addr(addr, 1), 8192);
 }
 
+#if defined(HAVE_SYS_UIO_H)
 static int bad_readv(void *addr)
 {
 	int fd, ret = 0;
@@ -609,6 +610,7 @@ static int bad_readv(void *addr)
 	}
 	return ret;
 }
+#endif
 
 static int bad_rename(void *addr)
 {
@@ -755,6 +757,7 @@ static int bad_write(void *addr)
 	return ret;
 }
 
+#if defined(HAVE_SYS_UIO_H)
 static int bad_writev(void *addr)
 {
 	int fd, ret = 0;
@@ -766,6 +769,7 @@ static int bad_writev(void *addr)
 	}
 	return ret;
 }
+#endif
 
 static stress_bad_syscall_t bad_syscalls[] = {
 	bad_access,
@@ -884,7 +888,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_pwrite,
 	bad_read,
 	bad_readlink,
+#if defined(HAVE_SYS_UIO_H)
 	bad_readv,
+#endif
 	bad_rename,
 #if defined(HAVE_SCHED_GETAFFINITY)
 	bad_sched_getaffinity,
@@ -921,7 +927,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_waitid,
 #endif
 	bad_write,
+#if defined(HAVE_SYS_UIO_H)
 	bad_writev,
+#endif
 };
 
 
