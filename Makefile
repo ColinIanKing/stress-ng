@@ -363,9 +363,8 @@ OBJS = $(SRC:.c=.o)
 
 APPARMOR_PARSER=/sbin/apparmor_parser
 
-all:
-	$(MAKE) makeconfig -j1 
-	$(MAKE) stress-ng
+all: makeconfig
+	+$(MAKE) stress-ng
 
 #
 #  Load in and set flags based on config
@@ -377,9 +376,9 @@ OBJS += $(CONFIG_OBJS)
 
 .SUFFIXES: .c .o
 
-.o: stress-ng.h Makefile
+.o: Makefile
 
-.c.o:
+%.o: %.c stress-ng.h config.h
 	$(Q)echo "CC $<"
 	$(V)$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -388,10 +387,11 @@ stress-ng: $(OBJS)
 	$(V)$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -o $@
 	$(V)sync
 
-makeconfig:
-	$(V)if [ ! -e config ]; then \
-		STATIC=$(STATIC) $(MAKE) -f Makefile.config; \
-	fi
+config.h:
+	$(MAKE) -f Makefile.config STATIC=$(STATIC) -j 2
+
+.PHONY:
+makeconfig: config.h
 
 #
 #  generate apparmor data using minimal core utils tools from apparmor
@@ -475,7 +475,7 @@ clean:
 	$(V)rm -f perf-event.h
 	$(V)rm -f apparmor-data.bin
 	$(V)rm -f *.o
-	$(V)rm -f config
+	$(V)rm -f config config.h
 
 .PHONY: fast-test-all
 fast-test-all: all
