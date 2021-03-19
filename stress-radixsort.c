@@ -31,7 +31,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		    NULL }
 };
 
-#if HAVE_LIB_BSD
+#if defined(HAVE_LIB_BSD)
 
 #define STR_SIZE	(8)
 
@@ -72,7 +72,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if HAVE_LIB_BSD
+#if defined(HAVE_LIB_BSD)
 /*
  *  stress_radixsort()
  *	stress radixsort

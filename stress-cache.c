@@ -102,7 +102,7 @@ static int stress_cache_set_sfence(const char *opt)
 {
 	(void)opt;
 
-#if HAVE_BUILTIN_SFENCE
+#if defined(HAVE_BUILTIN_SFENCE)
 	return stress_cache_set_flag(FLAGS_CACHE_SFENCE);
 #else
 	pr_inf("sfence not available, ignoring option --cache-sfence\n");
