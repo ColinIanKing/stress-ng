@@ -125,26 +125,16 @@ static int stress_set_cyclic_dist(const char *opt)
 	return stress_set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
 }
 
-static void stress_cyclic_stats(
+void stress_cyclic_stats(
 	stress_rt_stats_t *rt_stats,
 	const uint64_t cyclic_sleep,
 	const struct timespec *t1,
-	const struct timespec *t2)
-{
-	int64_t delta_ns;
-
-	delta_ns = ((int64_t)(t2->tv_sec - t1->tv_sec) * STRESS_NANOSECOND) +
-		   (t2->tv_nsec - t1->tv_nsec);
-	delta_ns -= cyclic_sleep;
-
-	if (rt_stats->index < MAX_SAMPLES)
-		rt_stats->latencies[rt_stats->index++] = delta_ns;
-
-	rt_stats->ns += (double)delta_ns;
-}
+	const struct timespec *t2);
 
 #if defined(HAVE_CLOCK_GETTIME) &&	\
     defined(HAVE_CLOCK_NANOSLEEP)
+
+#define NEED_STRESS_CYCLIC_STATS
 /*
  *  stress_cyclic_clock_nanosleep()
  *	measure latencies with clock_nanosleep
@@ -172,6 +162,8 @@ static int stress_cyclic_clock_nanosleep(
 
 #if defined(HAVE_CLOCK_GETTIME)	&&	\
     defined(HAVE_NANOSLEEP)
+
+#define NEED_STRESS_CYCLIC_STATS
 /*
  *  stress_cyclic_posix_nanosleep()
  *	measure latencies with posix nanosleep
@@ -198,6 +190,8 @@ static int stress_cyclic_posix_nanosleep(
 #endif
 
 #if defined(HAVE_CLOCK_GETTIME)
+
+#define NEED_STRESS_CYCLIC_STATS
 /*
  *  stress_cyclic_poll()
  *	measure latencies of heavy polling the clock
@@ -243,6 +237,8 @@ static int stress_cyclic_poll(
 
 #if defined(HAVE_PSELECT) &&		\
     defined(HAVE_CLOCK_GETTIME)
+
+#define NEED_STRESS_CYCLIC_STATS
 /*
  *  stress_cyclic_pselect()
  *	measure latencies with pselect sleep
@@ -265,6 +261,26 @@ static int stress_cyclic_pselect(
 	if (ret == 0)
 		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
+}
+#endif
+
+#if NEED_STRESS_CYCLIC_STATS
+static void stress_cyclic_stats(
+	stress_rt_stats_t *rt_stats,
+	const uint64_t cyclic_sleep,
+	const struct timespec *t1,
+	const struct timespec *t2)
+{
+	int64_t delta_ns;
+
+	delta_ns = ((int64_t)(t2->tv_sec - t1->tv_sec) * STRESS_NANOSECOND) +
+		   (t2->tv_nsec - t1->tv_nsec);
+	delta_ns -= cyclic_sleep;
+
+	if (rt_stats->index < MAX_SAMPLES)
+		rt_stats->latencies[rt_stats->index++] = delta_ns;
+
+	rt_stats->ns += (double)delta_ns;
 }
 #endif
 
