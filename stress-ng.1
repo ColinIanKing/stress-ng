@@ -55,8 +55,10 @@ the ionice class and ionice levels to be adjusted, again, this should be
 used with care.
 .PP
 One can specify the number of processes to invoke per type of stress test;
-specifying a negative or zero value will select the number of processors
-available as defined by sysconf(_SC_NPROCESSORS_CONF).
+specifying a zero value will select the number of processors
+available as defined by sysconf(_SC_NPROCESSORS_CONF), if that can't be
+determined then the number of online CPUs is used.  If the value is less
+than zero then the number of online CPUs is used.
 .SH OPTIONS
 .PP
 .B General stress\-ng control options:
@@ -74,8 +76,7 @@ being used.
 .B \-a N, \-\-all N, \-\-parallel N
 start N instances of all stressors in parallel. If N is less than zero, then
 the number of CPUs online is used for the number of instances.  If N is zero,
-then the number of configured CPUs in the system is used.  If N is less than
-zero then the number of online CPUs is used.
+then the number of configured CPUs in the system is used.
 .TP
 .B \-b N, \-\-backoff N
 wait N microseconds between the start of each stress worker process. This
