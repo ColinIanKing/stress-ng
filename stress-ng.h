@@ -327,10 +327,6 @@
 #include <sys/inotify.h>
 #endif
 
-#if defined(HAVE_SYS_MEMFD_H)
-#include <sys/memfd.h>
-#endif
-
 #if defined(HAVE_SYS_MOUNT_H)
 #include <sys/mount.h>
 #endif
