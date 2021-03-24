@@ -18,7 +18,7 @@
 
 VERSION=0.12.05
 #
-# Codename "synthetic system strainer"
+# Codename "keen kernel killer"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
