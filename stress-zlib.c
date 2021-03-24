@@ -146,7 +146,7 @@ static const char *const lorem_ipsum[] = {
 	"Ut pretium pulvinar gravida. ",
 	"Proin ultricies nisi libero, a convallis dui vestibulum eu. ",
 	"Aliquam in molestie magna, et ullamcorper turpis. ",
-	"Donec id pharetra sem.  "
+	"Donec id pharetra sem.  ",
 	"Duis dui massa, fringilla id mattis nec, consequat eget felis. ",
 	"Integer a lobortis ipsum, quis ornare felis. ",
 	"Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. ",
