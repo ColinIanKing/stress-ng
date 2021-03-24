@@ -1459,7 +1459,7 @@ static void stress_cpu_crc16(const char *name)
 	(void)name;
 
 	random_buffer(buffer, sizeof(buffer));
-	for (i = 0; i < sizeof(buffer); i++)
+	for (i = 1; i < sizeof(buffer); i++)
 		stress_uint64_put(ccitt_crc16(buffer, i));
 }
 
@@ -1491,7 +1491,7 @@ static void stress_cpu_fletcher16(const char *name)
 	(void)name;
 
 	random_buffer((uint8_t *)buffer, sizeof(buffer));
-	for (i = 0; i < sizeof(buffer); i++)
+	for (i = 1; i < sizeof(buffer); i++)
 		stress_uint16_put(fletcher16(buffer, i));
 }
 
@@ -1507,7 +1507,7 @@ static void stress_cpu_ipv4checksum(const char *name)
 	(void)name;
 
 	random_buffer((uint8_t *)buffer, sizeof(buffer));
-	for (i = 0; i < sizeof(buffer); i++)
+	for (i = 1; i < sizeof(buffer); i++)
 		stress_uint16_put(stress_ipv4_checksum(buffer, i));
 }
 
