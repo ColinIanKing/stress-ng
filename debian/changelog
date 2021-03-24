@@ -1,3 +1,33 @@
+stress-ng (0.12.06-1) unstable; urgency=medium
+
+  [Helmut Grohne]
+  * Add VERBOSE build options (Closes: #971719)
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Makefile: update code name
+  * Manual: update date
+  * Makefile.config: move the HAVE_VLA_ARG
+  * stress-zlib: add missing , between string literals
+  * stress-cpu: don't run checksums on zero sized buffers
+  * Makefile.config: re-order build time checks for pretty output
+  * Makefile.config: remove extraneous .h from userfaultfd.h text
+  * Makefile.config: remove leading space before swapcontext text
+  * Makefile.config: fix missing "struct" test from message
+  * Makefile.config: emit yes/no answer to config checks
+  * Manual: clarify the 0 or less than zero number of instances
+  * Makefile: generate config.h file from Makefile.config
+  * Replace #if MACRO with #if defined(MACRO)
+  * stress-sysbadaddr: don't use read/write if readv/writev are not
+    available
+  * stress-hdd: fall back to read/write if readv/writev are not
+    available
+  * stress-cyclic: rework when to define stress_cyclic_stats
+  * stress-cyclic: build in stress_cyclic_stats only if it is required
+  * stress-set: clear up static analysis warning
+
+ -- Colin King <colin.king@canonical.com>  Thu, 24 Mar 2021 13:14:15 +0000
+
 stress-ng (0.12.05-1) unstable; urgency=medium
 
   [Witold Baryluk]
