@@ -2619,10 +2619,10 @@ static stress_stressor_t *find_proc_info(const stress_t *stressor)
 }
 
 /*
- *  stressors_init()
+ *  stress_stressors_init()
  *	initialize any stressors that will be used
  */
-static void stressors_init(void)
+static void stress_stressors_init(void)
 {
 	stress_stressor_t *ss;
 
@@ -2639,10 +2639,10 @@ static void stressors_init(void)
 }
 
 /*
- *  stressors_deinit()
+ *  stress_stressors_deinit()
  *	de-initialize any stressors that will be used
  */
-static void stressors_deinit(void)
+static void stress_stressors_deinit(void)
 {
 	stress_stressor_t *ss;
 
@@ -3432,7 +3432,7 @@ int main(int argc, char **argv, char **envp)
 		stress_tz_init(&g_shared->tz_info);
 #endif
 
-	stressors_init();
+	stress_stressors_init();
 
 	/* Start thrasher process if required */
 	if (g_opt_flags & OPT_FLAGS_THRASH)
@@ -3507,7 +3507,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Tidy up
 	 */
-	stressors_deinit();
+	stress_stressors_deinit();
 	stress_stressors_free();
 	stress_cache_free();
 	stress_shared_unmap();
