@@ -168,10 +168,10 @@ static const stress_sig_name_t sig_names[] = {
 static char *stress_temp_path;
 
 /*
- *  stress_free_temp_path()
+ *  stress_temp_path_free()
  *	free and NULLify temporary file path
  */
-void stress_free_temp_path(void)
+void stress_temp_path_free(void)
 {
 	if (stress_temp_path)
 		free(stress_temp_path);
@@ -186,7 +186,7 @@ void stress_free_temp_path(void)
  */
 int stress_set_temp_path(const char *path)
 {
-	stress_free_temp_path();
+	stress_temp_path_free();
 
 	stress_temp_path = stress_const_optdup(path);
 	if (!stress_temp_path)

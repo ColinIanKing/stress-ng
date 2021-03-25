@@ -3512,7 +3512,7 @@ int main(int argc, char **argv, char **envp)
 	stress_cache_free();
 	stress_unmap_shared();
 	stress_free_settings();
-	stress_free_temp_path();
+	stress_temp_path_free();
 
 	/*
 	 *  Close logs

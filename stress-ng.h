@@ -3989,7 +3989,7 @@ extern int stress_set_timer_slack_ns(const char *opt);
 extern void stress_set_timer_slack(void);
 extern WARN_UNUSED int stress_set_temp_path(const char *path);
 extern WARN_UNUSED const char *stress_get_temp_path(void);
-extern void stress_free_temp_path(void);
+extern void stress_temp_path_free(void);
 extern void stress_strnrnd(char *str, const size_t len);
 extern void stress_get_cache_size(uint64_t *l2, uint64_t *l3);
 extern WARN_UNUSED unsigned int stress_get_cpu(void);
