@@ -310,7 +310,7 @@ again:
 			(void)sched_settings_apply(true);
 
 			/* We don't want bad ops clobbering this region */
-			stress_unmap_shared();
+			stress_shared_unmap();
 
 			/* We don't want core dumps either */
 			stress_process_dumpable(false);

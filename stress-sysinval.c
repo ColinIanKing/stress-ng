@@ -2168,7 +2168,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 		size_t reorder[SIZEOF_ARRAY(stress_syscall_args)];
 
 		/* We don't want bad ops clobbering this region */
-		stress_unmap_shared();
+		stress_shared_unmap();
 		stress_process_dumpable(false);
 
 		/* Drop all capabilities */

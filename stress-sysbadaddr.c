@@ -961,7 +961,7 @@ static inline int stress_do_syscall(
 		limit_procs(2);
 
 		/* We don't want bad ops clobbering this region */
-		stress_unmap_shared();
+		stress_shared_unmap();
 
 		/* Drop all capabilities */
 		if (stress_drop_capabilities(args->name) < 0) {

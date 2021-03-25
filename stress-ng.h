@@ -3970,7 +3970,7 @@ extern WARN_UNUSED size_t stress_min_sig_stack_size(void);
 #define STRESS_SIGSTKSZ		(stress_sig_stack_size())
 #define STRESS_MINSIGSTKSZ	(stress_min_sig_stack_size())
 
-extern void stress_unmap_shared(void);
+extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
 extern WARN_UNUSED char *stress_munge_underscore(const char *str);
 extern size_t stress_get_pagesize(void);

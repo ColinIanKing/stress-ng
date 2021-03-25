@@ -2409,12 +2409,12 @@ static void *stress_map_page(int prot, char *prot_str, size_t page_size)
 }
 
 /*
- *  stress_map_shared()
+ *  stress_shared_map()
  *	mmap shared region, with an extra page at the end
  *	that is marked read-only to stop accidental smashing
  *	from a run-away stack expansion
  */
-static inline void stress_map_shared(const size_t num_procs)
+static inline void stress_shared_map(const size_t num_procs)
 {
 	const size_t page_size = stress_get_pagesize();
 	size_t len = sizeof(stress_shared_t) + (sizeof(stress_stats_t) * num_procs);
@@ -2509,10 +2509,10 @@ err_unmap_shared:
 }
 
 /*
- *  stress_unmap_shared()
+ *  stress_shared_unmap()
  *	unmap shared region
  */
-void stress_unmap_shared(void)
+void stress_shared_unmap(void)
 {
 	const size_t page_size = stress_get_pagesize();
 
@@ -3393,7 +3393,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Allocate shared memory segment for shared data
 	 *  across all the child stressors
 	 */
-	stress_map_shared(stress_get_total_num_instances(stressors_head));
+	stress_shared_map(stress_get_total_num_instances(stressors_head));
 
 	/*
 	 *  Setup spinlocks
@@ -3419,7 +3419,7 @@ int main(int argc, char **argv, char **envp)
 	g_shared->mem_cache_ways = 0;
 	(void)stress_get_setting("cache-ways", &g_shared->mem_cache_ways);
 	if (stress_cache_alloc("cache allocate") < 0) {
-		stress_unmap_shared();
+		stress_shared_unmap();
 		stress_stressors_free();
 		exit(EXIT_FAILURE);
 	}
@@ -3510,7 +3510,7 @@ int main(int argc, char **argv, char **envp)
 	stressors_deinit();
 	stress_stressors_free();
 	stress_cache_free();
-	stress_unmap_shared();
+	stress_shared_unmap();
 	stress_settings_free();
 	stress_temp_path_free();
 
