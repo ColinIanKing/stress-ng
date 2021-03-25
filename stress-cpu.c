@@ -1002,6 +1002,9 @@ stress_cpu_fp(__fp16, float16, sin, cos)
 #if defined(HAVE_FLOAT32) && !defined(__clang__)
 stress_cpu_fp(_Float32, float32, sin, cos)
 #endif
+#if defined(HAVE_FLOAT64) && !defined(__clang__)
+stress_cpu_fp(_Float64, float64, sin, cos)
+#endif
 #if defined(HAVE_FLOAT80) && !defined(__clang__)
 stress_cpu_fp(__float80, float80, sinl, cosl)
 #endif
@@ -2703,6 +2706,9 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 #endif
 #if defined(HAVE_FLOAT32) && !defined(__clang__)
 	{ "float32",		stress_cpu_float32 },
+#endif
+#if defined(HAVE_FLOAT64) && !defined(__clang__)
+	{ "float64",		stress_cpu_float64 },
 #endif
 #if defined(HAVE_FLOAT80) && !defined(__clang__)
 	{ "float80",		stress_cpu_float80 },
