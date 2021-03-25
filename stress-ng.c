@@ -1805,10 +1805,10 @@ static uint32_t stress_get_num_stressors(void)
 }
 
 /*
- *  stress_free_stressors()
+ *  stress_stressors_free()
  *	free stressor info from stressor list 
  */
-static void stress_free_stressors(void)
+static void stress_stressors_free(void)
 {
 	stress_stressor_t *ss = stressors_head;
 
@@ -2009,7 +2009,7 @@ again:
 					name, (int)getpid(), j);
 
 child_exit:
-				stress_free_stressors();
+				stress_stressors_free();
 				stress_cache_free();
 				stress_settings_free();
 				(void)stress_ftrace_free();
@@ -2428,7 +2428,7 @@ static inline void stress_map_shared(const size_t num_procs)
 	if (g_shared == MAP_FAILED) {
 		pr_err("cannot mmap to shared memory region, errno=%d (%s)\n",
 			errno, strerror(errno));
-		stress_free_stressors();
+		stress_stressors_free();
 		exit(EXIT_FAILURE);
 	}
 
@@ -2503,7 +2503,7 @@ err_unmap_checksums:
 	(void)munmap((void *)g_shared->checksums, g_shared->checksums_length);
 err_unmap_shared:
 	(void)munmap((void *)g_shared, g_shared->length);
-	stress_free_stressors();
+	stress_stressors_free();
 	exit(EXIT_FAILURE);
 
 }
@@ -3047,7 +3047,7 @@ static void alloc_proc_resources(pid_t **pids, stress_stats_t ***stats, size_t n
 	*pids = calloc(n, sizeof(pid_t));
 	if (!*pids) {
 		pr_err("cannot allocate pid list\n");
-		stress_free_stressors();
+		stress_stressors_free();
 		exit(EXIT_FAILURE);
 	}
 
@@ -3056,7 +3056,7 @@ static void alloc_proc_resources(pid_t **pids, stress_stats_t ***stats, size_t n
 		pr_err("cannot allocate stats list\n");
 		free(*pids);
 		*pids = NULL;
-		stress_free_stressors();
+		stress_stressors_free();
 		exit(EXIT_FAILURE);
 	}
 }
@@ -3373,7 +3373,7 @@ int main(int argc, char **argv, char **envp)
 	if (!stressors_head) {
 		pr_err("No stress workers invoked%s\n",
 			g_unsupported ? " (one or more were unsupported)" : "");
-		stress_free_stressors();
+		stress_stressors_free();
 		/*
 		 *  If some stressors were given but marked as
 		 *  unsupported then this is not an error.
@@ -3385,7 +3385,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Show the stressors we're going to run
 	 */
 	if (stress_show_stressors() < 0) {
-		stress_free_stressors();
+		stress_stressors_free();
 		exit(EXIT_FAILURE);
 	}
 
@@ -3420,7 +3420,7 @@ int main(int argc, char **argv, char **envp)
 	(void)stress_get_setting("cache-ways", &g_shared->mem_cache_ways);
 	if (stress_cache_alloc("cache allocate") < 0) {
 		stress_unmap_shared();
-		stress_free_stressors();
+		stress_stressors_free();
 		exit(EXIT_FAILURE);
 	}
 
@@ -3508,7 +3508,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Tidy up
 	 */
 	stressors_deinit();
-	stress_free_stressors();
+	stress_stressors_free();
 	stress_cache_free();
 	stress_unmap_shared();
 	stress_settings_free();
