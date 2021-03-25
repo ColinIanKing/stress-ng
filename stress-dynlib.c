@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_LIB_DL) && !defined(BUILD_STATIC)
+#if defined(HAVE_LIB_DL) &&	\
+    !defined(BUILD_STATIC)
 
 static sigjmp_buf jmp_env;
 
@@ -137,7 +138,8 @@ static int stress_dynlib(const stress_args_t *args)
 			int flags;
 
 			flags = stress_mwc1() ? RTLD_LAZY : RTLD_NOW;
-#if defined(RTLD_GLOBAL) && defined(RTLD_LOCAL)
+#if defined(RTLD_GLOBAL) &&	\
+    defined(RTLD_LOCAL)
 			flags |= stress_mwc1() ? RTLD_GLOBAL : RTLD_LOCAL;
 #endif
 			handles[i] = dlopen(libnames[i].library, flags);

@@ -45,7 +45,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-#if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
+#if defined(HAVE_LIB_BSD) &&	\
+    !defined(__APPLE__)
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
@@ -92,7 +93,8 @@ static int stress_set_tree_size(const char *opt)
 	return stress_set_setting("tree-size", TYPE_ID_UINT64, &tree_size);
 }
 
-#if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
+#if defined(HAVE_LIB_BSD) &&	\
+    !defined(__APPLE__)
 
 /*
  *  stress_tree_handler()
@@ -440,7 +442,8 @@ static void stress_tree_all(
  * Table of tree stress methods
  */
 static const stress_tree_method_info_t tree_methods[] = {
-#if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
+#if defined(HAVE_LIB_BSD) &&	\
+    !defined(__APPLE__)
 	{ "all",	stress_tree_all },
 	{ "avl",	stress_tree_avl },
 	{ "binary",	stress_tree_binary },
@@ -480,7 +483,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_LIB_BSD) && !defined(__APPLE__)
+#if defined(HAVE_LIB_BSD) && 	\
+    !defined(__APPLE__)
 
 /*
  *  Rotate right a 64 bit value, compiler

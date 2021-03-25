@@ -53,7 +53,8 @@ static const int modes[] = {
 #if defined(FALLOC_FL_KEEP_SIZE)
 	FALLOC_FL_KEEP_SIZE,
 #endif
-#if defined(FALLOC_FL_KEEP_SIZE) && defined(FALLOC_FL_PUNCH_HOLE)
+#if defined(FALLOC_FL_KEEP_SIZE) &&	\
+    defined(FALLOC_FL_PUNCH_HOLE)
 	FALLOC_FL_KEEP_SIZE | FALLOC_FL_PUNCH_HOLE,
 #endif
 #if defined(FALLOC_FL_ZERO_RANGE)
@@ -72,16 +73,19 @@ static const int modes[] = {
  */
 static const int illegal_modes[] = {
 	~0,
-#if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_ZERO_RANGE)
+#if defined(FALLOC_FL_PUNCH_HOLE) &&	\
+    defined(FALLOC_FL_ZERO_RANGE)
 	FALLOC_FL_PUNCH_HOLE | FALLOC_FL_ZERO_RANGE,
 #endif
 #if defined(FALLOC_FL_PUNCH_HOLE)
 	FALLOC_FL_PUNCH_HOLE,
 #endif
-#if defined(FALLOC_FL_COLLAPSE_RANGE) && defined(FALLOC_FL_ZERO_RANGE)
+#if defined(FALLOC_FL_COLLAPSE_RANGE) &&	\
+    defined(FALLOC_FL_ZERO_RANGE)
 	FALLOC_FL_COLLAPSE_RANGE | FALLOC_FL_ZERO_RANGE,
 #endif
-#if defined(FALLOC_FL_INSERT_RANGE) && defined(FALLOC_FL_ZERO_RANGE)
+#if defined(FALLOC_FL_INSERT_RANGE) &&	\
+    defined(FALLOC_FL_ZERO_RANGE)
 	FALLOC_FL_INSERT_RANGE | FALLOC_FL_ZERO_RANGE,
 #endif
 };

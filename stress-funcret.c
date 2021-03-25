@@ -125,31 +125,36 @@ stress_funcret1(stress_long_double_t)
 stress_funcret_deep1(stress_long_double_t)
 stress_funcret_deeper1(stress_long_double_t)
 
-#if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+    !defined(__clang__)
 stress_funcret1(_Decimal32)
 stress_funcret_deep1(_Decimal32)
 stress_funcret_deeper1(_Decimal32)
 #endif
 
-#if defined(HAVE_FLOAT_DECIMAL64) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+    !defined(__clang__)
 stress_funcret1(_Decimal64)
 stress_funcret_deep1(_Decimal64)
 stress_funcret_deeper1(_Decimal64)
 #endif
 
-#if defined(HAVE_FLOAT_DECIMAL128) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+    !defined(__clang__)
 stress_funcret1(_Decimal128)
 stress_funcret_deep1(_Decimal128)
 stress_funcret_deeper1(_Decimal128)
 #endif
 
-#if defined(HAVE_FLOAT80) && !defined(__clang__)
+#if defined(HAVE_FLOAT80) &&		\
+    !defined(__clang__)
 stress_funcret1(__float80)
 stress_funcret_deep1(__float80)
 stress_funcret_deeper1(__float80)
 #endif
 
-#if defined(HAVE_FLOAT128) && !defined(__clang__)
+#if defined(HAVE_FLOAT128) &&		\
+    !defined(__clang__)
 stress_funcret1(__float128)
 stress_funcret_deep1(__float128)
 stress_funcret_deeper1(__float128)
@@ -203,19 +208,24 @@ stress_funcret_type(__uint128_t)
 stress_funcret_type(float)
 stress_funcret_type(double)
 stress_funcret_type(stress_long_double_t)
-#if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+    !defined(__clang__)
 stress_funcret_type(_Decimal32)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+    !defined(__clang__)
 stress_funcret_type(_Decimal64)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+    !defined(__clang__)
 stress_funcret_type(_Decimal128)
 #endif
-#if defined(HAVE_FLOAT80) && !defined(__clang__)
+#if defined(HAVE_FLOAT80) &&		\
+    !defined(__clang__)
 stress_funcret_type(__float80)
 #endif
-#if defined(HAVE_FLOAT128) && !defined(__clang__)
+#if defined(HAVE_FLOAT128) &&		\
+    !defined(__clang__)
 stress_funcret_type(__float128)
 #endif
 stress_funcret_type(stress_uint8x32_t)
@@ -236,19 +246,24 @@ static const stress_funcret_method_info_t funcret_methods[] = {
 	{ "float",	stress_funcret_float },
 	{ "double",	stress_funcret_double },
 	{ "longdouble",	stress_funcret_stress_long_double_t },
-#if defined(HAVE_FLOAT80) && !defined(__clang__)
+#if defined(HAVE_FLOAT80) &&	\
+    !defined(__clang__)
 	{ "float80",	stress_funcret___float80 },
 #endif
-#if defined(HAVE_FLOAT128) && !defined(__clang__)
+#if defined(HAVE_FLOAT128) &&	\
+    !defined(__clang__)
 	{ "float128",	stress_funcret___float128 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+    !defined(__clang__)
 	{ "decimal32",	stress_funcret__Decimal32 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+    !defined(__clang__)
 	{ "decimal64",	stress_funcret__Decimal64 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+    !defined(__clang__)
 	{ "decimal128",	stress_funcret__Decimal128 },
 #endif
 	{ "uint8x32",	stress_funcret_stress_uint8x32_t },

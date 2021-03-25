@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(__linux__)
 
 #define PROC_BUF_SZ		(4096)
 #define MAX_PROCFS_THREADS	(4)

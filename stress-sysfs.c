@@ -28,7 +28,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_LIB_PTHREAD) && defined(__linux__)
+#if defined(HAVE_LIB_PTHREAD) &&	\
+    defined(__linux__)
 
 #define SYS_BUF_SZ		(4096)
 #define MAX_SYSFS_THREADS	(4)	/* threads stressing sysfs */
@@ -589,7 +590,8 @@ static int stress_sysfs(const stress_args_t *args)
 	n = stress_dirent_list_prune(dlist, n);
 
 	os_release = 0;
-#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
 	{
 		static struct utsname utsbuf;
 

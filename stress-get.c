@@ -159,7 +159,8 @@ static int stress_get(const stress_args_t *args)
 		const pid_t mypid = getpid();
 		int ret, n, fs_index;
 		size_t i;
-#if defined(HAVE_SYS_TIMEX_H) && defined(HAVE_ADJTIME)
+#if defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(HAVE_ADJTIME)
 		struct timeval delta;
 #endif
 		struct timeval tv;
@@ -383,7 +384,9 @@ static int stress_get(const stress_args_t *args)
 		}
 #endif
 
-#if defined(HAVE_PRLIMIT) && NEED_GLIBC(2,13,0) && defined(EOVERFLOW)
+#if defined(HAVE_PRLIMIT) &&	\
+    NEED_GLIBC(2,13,0) &&	\
+    defined(EOVERFLOW)
 		/* Invalid prlimit syscall and ignoring failure */
 		(void)prlimit(mypid, INT_MAX, NULL, &rlim);
 		pid = stress_get_unused_pid_racy(false);
@@ -550,7 +553,8 @@ static int stress_get(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 		}
 
-#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
 		{
 			struct utsname utsbuf;
 			static bool uname_segv = false;
@@ -597,7 +601,8 @@ static int stress_get(const stress_args_t *args)
 		}
 #endif
 
-#if defined(HAVE_SYS_TIMEX_H) && defined(HAVE_ADJTIMEX)
+#if defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(HAVE_ADJTIMEX)
 		{
 			struct timex timexbuf;
 
@@ -609,7 +614,8 @@ static int stress_get(const stress_args_t *args)
 		}
 #endif
 
-#if defined(HAVE_SYS_TIMEX_H) && defined(HAVE_ADJTIME)
+#if defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(HAVE_ADJTIME)
 		(void)memset(&delta, 0, sizeof(delta));
 		ret = adjtime(&delta, &tv);
 		if (cap_sys_time && verify && (ret < 0) && (errno != EPERM))

@@ -228,7 +228,9 @@ static void NORETURN waste_resources(
 #if defined(HAVE_SEM_SYSV)
 		info[i].sem_id = -1;
 #endif
-#if defined(HAVE_MQ_SYSV) && defined(HAVE_SYS_IPC_H) && defined(HAVE_SYS_MSG_H)
+#if defined(HAVE_MQ_SYSV) &&	\
+    defined(HAVE_SYS_IPC_H) &&	\
+    defined(HAVE_SYS_MSG_H)
 		info[i].msgq_id = -1;
 #endif
 #if defined(HAVE_LIB_RT) &&	\
@@ -618,7 +620,9 @@ static void NORETURN waste_resources(
 			(void)semctl(info[i].sem_id, 0, IPC_RMID);
 #endif
 
-#if defined(HAVE_MQ_SYSV) && defined(HAVE_SYS_IPC_H) && defined(HAVE_SYS_MSG_H)
+#if defined(HAVE_MQ_SYSV) &&	\
+    defined(HAVE_SYS_IPC_H) &&	\
+    defined(HAVE_SYS_MSG_H)
 		if (info[i].msgq_id >= 0)
 			(void)msgctl(info[i].msgq_id, IPC_RMID, NULL);
 #endif

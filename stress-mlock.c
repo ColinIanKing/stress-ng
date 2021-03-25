@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(_POSIX_MEMLOCK_RANGE) && defined(HAVE_MLOCK)
+#if defined(_POSIX_MEMLOCK_RANGE) &&	\
+    defined(HAVE_MLOCK)
 
 #define MLOCK_MAX	(256*1024)
 

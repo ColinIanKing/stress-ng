@@ -36,7 +36,9 @@ static FILE	*log_file = NULL;
  */
 void pr_lock(bool *lock)
 {
-#if defined(HAVE_FLOCK) && defined(LOCK_EX) && defined(LOCK_UN)
+#if defined(HAVE_FLOCK) &&	\
+    defined(LOCK_EX) &&		\
+    defined(LOCK_UN)
 	int fd, ret;
 
 	*lock = false;
@@ -61,7 +63,9 @@ void pr_lock(bool *lock)
  */
 void pr_unlock(bool *lock)
 {
-#if defined(HAVE_FLOCK) && defined(LOCK_EX) && defined(LOCK_UN)
+#if defined(HAVE_FLOCK) &&	\
+    defined(LOCK_EX) &&		\
+    defined(LOCK_UN)
 	int fd, ret;
 
 	if (!*lock)

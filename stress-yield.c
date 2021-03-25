@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	 NULL,		NULL }
 };
 
-#if defined(_POSIX_PRIORITY_SCHEDULING) && !defined(__minix__)
+#if defined(_POSIX_PRIORITY_SCHEDULING) &&	\
+    !defined(__minix__)
 
 /*
  *  stress on sched_yield()

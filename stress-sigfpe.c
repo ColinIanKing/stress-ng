@@ -140,19 +140,24 @@ static int stress_sigfpe(const stress_args_t *args)
 #if defined(FPE_FLTDIV)
 		{ SNG_FLTDIV,	FPE_FLTDIV },
 #endif
-#if defined(FE_DIVBYZERO) && defined(FPE_FLTDIV)
+#if defined(FE_DIVBYZERO) &&	\
+    defined(FPE_FLTDIV)
 		{ FE_DIVBYZERO,	FPE_FLTDIV },
 #endif
-#if defined(FE_INEXACT) && defined(FPE_FLTRES)
+#if defined(FE_INEXACT) &&	\
+    defined(FPE_FLTRES)
 		{ FE_INEXACT,	FPE_FLTRES },
 #endif
-#if defined(FE_INVALID) && defined(FPE_FLTINV)
+#if defined(FE_INVALID) &&	\
+    defined(FPE_FLTINV)
 		{ FE_INVALID,	FPE_FLTINV },
 #endif
-#if defined(FE_OVERFLOW) && defined(FPE_FLTOVF)
+#if defined(FE_OVERFLOW) &&	\
+    defined(FPE_FLTOVF)
 		{ FE_OVERFLOW,	FPE_FLTOVF },
 #endif
-#if defined(FE_UNDERFLOW) && defined(FPE_FLTUND)
+#if defined(FE_UNDERFLOW) &&	\
+    defined(FPE_FLTUND)
 		{ FE_UNDERFLOW,	FPE_FLTUND },
 #endif
 	};

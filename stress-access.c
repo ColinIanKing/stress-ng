@@ -30,48 +30,63 @@ typedef struct {
 } stress_access_t;
 
 static const stress_access_t modes[] = {
-#if defined(S_IRUSR) && defined(R_OK)
+#if defined(S_IRUSR) &&	\
+    defined(R_OK)
 	{ S_IRUSR, R_OK },
 #endif
-#if defined(S_IWUSR) && defined(W_OK)
+#if defined(S_IWUSR) &&	\
+    defined(W_OK)
 	{ S_IWUSR, W_OK },
 #endif
-#if defined(S_IXUSR) && defined(X_OK)
+#if defined(S_IXUSR) &&	\
+    defined(X_OK)
 	{ S_IXUSR, X_OK },
 #endif
 
-#if defined(S_IRUSR) && defined(F_OK)
+#if defined(S_IRUSR) &&	\
+    defined(F_OK)
 	{ S_IRUSR, F_OK },
 #endif
-#if defined(S_IWUSR) && defined(F_OK)
+#if defined(S_IWUSR) &&	\
+    defined(F_OK)
 	{ S_IWUSR, F_OK },
 #endif
-#if defined(S_IXUSR) && defined(F_OK)
+#if defined(S_IXUSR) &&	\
+    defined(F_OK)
 	{ S_IXUSR, F_OK },
 #endif
 
-#if defined(S_IRUSR) && defined(R_OK) && \
-    defined(S_IWUSR) && defined(W_OK)
+#if defined(S_IRUSR) &&	\
+    defined(R_OK) &&	\
+    defined(S_IWUSR) &&	\
+    defined(W_OK)
 	{ S_IRUSR | S_IWUSR, R_OK | W_OK },
 #endif
-#if defined(S_IRUSR) && defined(R_OK) && \
-    defined(S_IXUSR) && defined(X_OK)
+#if defined(S_IRUSR) &&	\
+    defined(R_OK) &&	\
+    defined(S_IXUSR) &&	\
+    defined(X_OK)
 	{ S_IRUSR | S_IXUSR, R_OK | X_OK },
 #endif
-#if defined(S_IWUSR) && defined(W_OK) && \
-    defined(S_IXUSR) && defined(X_OK)
+#if defined(S_IWUSR) &&	\
+    defined(W_OK) &&	\
+    defined(S_IXUSR) &&	\
+    defined(X_OK)
 	{ S_IRUSR | S_IWUSR, R_OK | W_OK },
 #endif
 
-#if defined(S_IRUSR) && defined(F_OK) && \
+#if defined(S_IRUSR) &&	\
+    defined(F_OK) &&	\
     defined(S_IWUSR)
 	{ S_IRUSR | S_IWUSR, F_OK },
 #endif
-#if defined(S_IRUSR) && defined(F_OK) && \
+#if defined(S_IRUSR) &&	\
+    defined(F_OK) &&	\
     defined(S_IXUSR)
 	{ S_IRUSR | S_IXUSR, F_OK },
 #endif
-#if defined(S_IWUSR) && defined(F_OK) && \
+#if defined(S_IWUSR) &&	\
+    defined(F_OK) &&	\
     defined(S_IXUSR)
 	{ S_IRUSR | S_IWUSR, F_OK },
 #endif

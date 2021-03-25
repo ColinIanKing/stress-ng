@@ -30,8 +30,11 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		NULL }
 };
 
-#if defined(F_GETLK) && defined(F_SETLK) && defined(F_SETLKW) && \
-    defined(F_WRLCK) && defined(F_UNLCK)
+#if defined(F_GETLK) && 	\
+    defined(F_SETLK) &&		\
+    defined(F_SETLKW) && 	\
+    defined(F_WRLCK) &&		\
+    defined(F_UNLCK)
 
 #define LOCK_FILE_SIZE	(1024 * 1024)
 #define LOCK_SIZE	(8)

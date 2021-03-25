@@ -64,10 +64,12 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 /* Misc randomly chosen mmap flags */
 static const int mmap_flags[] = {
-#if defined(MAP_HUGE_2MB) && defined(MAP_HUGETLB)
+#if defined(MAP_HUGE_2MB) &&	\
+    defined(MAP_HUGETLB)
 	MAP_HUGE_2MB | MAP_HUGETLB,
 #endif
-#if defined(MAP_HUGE_1GB) && defined(MAP_HUGETLB)
+#if defined(MAP_HUGE_1GB) &&	\
+    defined(MAP_HUGETLB)
 	MAP_HUGE_1GB | MAP_HUGETLB,
 #endif
 #if defined(MAP_HUGETLB)

@@ -341,7 +341,8 @@ void stress_get_memlimits(
 	size_t *totalmem,
 	size_t *freeswap)
 {
-#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO)
 	struct sysinfo info;
 	FILE *fp;
 #endif
@@ -350,7 +351,8 @@ void stress_get_memlimits(
 	*totalmem = 0;
 	*freeswap = 0;
 
-#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO)
 	(void)memset(&info, 0, sizeof(info));
 
 	if (sysinfo(&info) == 0) {
@@ -486,7 +488,8 @@ int stress_get_load_avg(
 	double *min5,
 	double *min15)
 {
-#if NEED_GLIBC(2, 2, 0) && !defined(__UCLIBC__)
+#if NEED_GLIBC(2, 2, 0) &&	\
+    !defined(__UCLIBC__)
 	int rc;
 	double loadavg[3];
 
@@ -504,7 +507,8 @@ int stress_get_load_avg(
 
 	return 0;
 fail:
-#elif defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
+#elif defined(HAVE_SYS_SYSINFO_H) &&	\
+      defined(HAVE_SYSINFO)
 	struct sysinfo info;
 	const double scale = 1.0 / (double)(1 << SI_LOAD_SHIFT);
 
@@ -983,10 +987,12 @@ void stress_strnrnd(char *str, const size_t len)
  */
 void pr_yaml_runinfo(FILE *yaml)
 {
-#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
 	struct utsname uts;
 #endif
-#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO)
 	struct sysinfo info;
 #endif
 	time_t t;
@@ -1010,7 +1016,8 @@ void pr_yaml_runinfo(FILE *yaml)
 	}
 	if (!gethostname(hostname, sizeof(hostname)))
 		pr_yaml(yaml, "      hostname: %s\n", hostname);
-#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
 	if (uname(&uts) == 0) {
 		pr_yaml(yaml, "      sysname: %s\n", uts.sysname);
 		pr_yaml(yaml, "      nodename: %s\n", uts.nodename);
@@ -1019,7 +1026,8 @@ void pr_yaml_runinfo(FILE *yaml)
 		pr_yaml(yaml, "      machine: %s\n", uts.machine);
 	}
 #endif
-#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO)
 	(void)memset(&info, 0, sizeof(info));
 	if (sysinfo(&info) == 0) {
 		pr_yaml(yaml, "      uptime: %ld\n", info.uptime);
@@ -1302,7 +1310,8 @@ size_t stress_get_file_limit(void)
  */
 int stress_get_bad_fd(void)
 {
-#if defined(RLIMIT_NOFILE) && defined(F_GETFL)
+#if defined(RLIMIT_NOFILE) &&	\
+    defined(F_GETFL)
 	struct rlimit rlim;
 
 	(void)memset(&rlim, 0, sizeof(rlim));
@@ -1471,9 +1480,11 @@ unsigned int stress_get_cpu(void)
  */
 const char *stress_get_compiler(void)
 {
-#if defined(__clang_major__) && defined(__clang_minor__)
+#if defined(__clang_major__) &&	\
+    defined(__clang_minor__)
 	static const char cc[] = "clang " XSTRINGIFY(__clang_major__) "." XSTRINGIFY(__clang_minor__) "";
-#elif defined(__GNUC__) && defined(__GNUC_MINOR__)
+#elif defined(__GNUC__) &&	\
+      defined(__GNUC_MINOR__)
 	static const char cc[] = "gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "";
 #else
 	static const char cc[] = "cc unknown";
@@ -1487,7 +1498,8 @@ const char *stress_get_compiler(void)
  */
 const char *stress_get_uname_info(void)
 {
-#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
 	struct utsname buf;
 
 	if (!uname(&buf)) {
@@ -1509,7 +1521,8 @@ const char *stress_get_uname_info(void)
  */
 int stress_not_implemented(const stress_args_t *args)
 {
-#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
 	struct utsname buf;
 
 	if (!uname(&buf)) {

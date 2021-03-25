@@ -230,14 +230,17 @@ static int open_tmpfile_no_rdwr(void)
 }
 #endif
 
-#if defined(HAVE_POSIX_OPENPT) && defined(O_RDWR) && defined(N_NOCTTY)
+#if defined(HAVE_POSIX_OPENPT) &&	\
+    defined(O_RDWR) &&			\
+    defined(N_NOCTTY)
 static int open_pt(void)
 {
 	return posix_openpt(O_RDWR | O_NOCTTY);
 }
 #endif
 
-#if defined(O_TMPFILE) && defined(O_EXCL)
+#if defined(O_TMPFILE) &&	\
+    defined(O_EXCL)
 static int open_tmp_rdwr_excl(void)
 {
 	return open_arg3("/tmp", O_TMPFILE | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);

@@ -232,7 +232,8 @@ static void exercise_syscall(
 }
 
 /* Dodgy hack */
-#if defined(__linux__) && !defined(__NR_sigsuspend)
+#if defined(__linux__) &&	\
+    !defined(__NR_sigsuspend)
 #define __NR_sigsuspend 72
 #endif
 

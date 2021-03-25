@@ -391,12 +391,14 @@ static void fanotify_event_clear(const int fan_fd)
 			(void)ret;
 #endif
 		}
-#if defined(FAN_MARK_FLUSH) && defined(FAN_MARK_MOUNT)
+#if defined(FAN_MARK_FLUSH) &&	\
+    defined(FAN_MARK_MOUNT)
 		ret = fanotify_mark(fan_fd, FAN_MARK_FLUSH | FAN_MARK_MOUNT,
 				0, AT_FDCWD, mnts[i]);
 		(void)ret;
 #endif
-#if defined(FAN_MARK_FLUSH) && defined(FAN_MARK_FILESYSTEM)
+#if defined(FAN_MARK_FLUSH) &&	\
+    defined(FAN_MARK_FILESYSTEM)
 		ret = fanotify_mark(fan_fd, FAN_MARK_FLUSH | FAN_MARK_FILESYSTEM,
 				0, AT_FDCWD, mnts[i]);
 		(void)ret;

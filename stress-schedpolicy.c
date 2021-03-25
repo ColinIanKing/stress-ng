@@ -30,8 +30,10 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && \
-     !defined(__OpenBSD__) && !defined(__minix__) && !defined(__APPLE__)
+#if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) &&	\
+     !defined(__OpenBSD__) &&						\
+     !defined(__minix__) &&						\
+     !defined(__APPLE__)
 
 static const int policies[] = {
 #if defined(SCHED_IDLE)

@@ -170,7 +170,8 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 
 		for (i = 0; i < memfd_fds; i++) {
 			ssize_t ret;
-#if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
+#if defined(FALLOC_FL_PUNCH_HOLE) &&	\
+    defined(FALLOC_FL_KEEP_SIZE)
 			size_t whence;
 #endif
 
@@ -202,7 +203,8 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			(void)stress_mincore_touch_pages(maps[i], size);
 			(void)stress_madvise_random(maps[i], size);
 
-#if defined(FALLOC_FL_PUNCH_HOLE) && defined(FALLOC_FL_KEEP_SIZE)
+#if defined(FALLOC_FL_PUNCH_HOLE) &&	\
+    defined(FALLOC_FL_KEEP_SIZE)
 			/*
 			 *  ..and punch a hole
 			 */

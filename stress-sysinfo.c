@@ -119,7 +119,8 @@ static int stress_sysinfo(const stress_args_t *args)
 				fd = open(mnts[i], O_RDONLY | O_DIRECTORY);
 				if (fd < 0)
 					continue;
-#if defined(FS_IOC_GETFSLABEL) && defined(FSLABEL_MAX)
+#if defined(FS_IOC_GETFSLABEL) &&	\
+    defined(FSLABEL_MAX)
 				{
 					char label[FSLABEL_MAX];
 

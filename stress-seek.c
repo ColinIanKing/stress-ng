@@ -253,11 +253,13 @@ re_read:
 		/*
 		 *  Exercise lseek with invalid offsets, ENXIO
 		 */
-#if defined(SEEK_DATA) && !defined(__APPLE__)
+#if defined(SEEK_DATA) &&	\
+    !defined(__APPLE__)
 		offset = lseek(fd, len + sizeof(buf) + 1, SEEK_DATA);
 		(void)offset;
 #endif
-#if defined(SEEK_HOLE) && !defined(__APPLE__)
+#if defined(SEEK_HOLE) &&	\
+    !defined(__APPLE__)
 		offset = lseek(fd, len + sizeof(buf) + 1, SEEK_HOLE);
 		(void)offset;
 #endif

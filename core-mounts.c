@@ -84,7 +84,8 @@ int stress_mount_get(char *mnts[], const int max)
 	}
 	return ret;
 }
-#elif defined(HAVE_GETMNTENT) && defined(HAVE_MNTENT_H)
+#elif defined(HAVE_GETMNTENT) &&	\
+      defined(HAVE_MNTENT_H)
 int stress_mount_get(char *mnts[], const int max)
 {
 	FILE *mounts;

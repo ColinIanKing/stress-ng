@@ -60,7 +60,8 @@ int main(void)
 		(void)ret;
 	}
 #endif
-#if defined(__linux__) && defined(IPC_INFO)
+#if defined(__linux__) &&	\
+    defined(IPC_INFO)
 	{
 		struct shminfo s;
 
@@ -68,7 +69,8 @@ int main(void)
 		(void)ret;
 	}
 #endif
-#if defined(__linux__) && defined(SHM_INFO)
+#if defined(__linux__) &&	\
+    defined(SHM_INFO)
 	{
 		struct shm_info s;
 

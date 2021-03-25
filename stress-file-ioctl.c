@@ -202,7 +202,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 /* Disable this at the moment, it is fragile */
 #if 0
-#if defined(FIFREEZE) && defined(FITHAW)
+#if defined(FIFREEZE) &&	\
+    defined(FITHAW)
 		{
 			ret = ioctl(fd, FIFREEZE);
 			(void)ret;
@@ -329,7 +330,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 		}
 #endif
 
-#if defined(_IOW) && defined(__linux__)
+#if defined(_IOW) &&	\
+    defined(__linux__)
 
 /*
  *  These will eventually be in linux/falloc.h for libc, but
@@ -345,19 +347,24 @@ struct shim_space_resv {
 	int32_t		l_pad[4];
 };
 
-#if !defined(FS_IOC_RESVSP) && defined(_IOW)
+#if !defined(FS_IOC_RESVSP) &&		\
+    defined(_IOW)
 #define FS_IOC_RESVSP		_IOW('X', 40, struct shim_space_resv)
 #endif
-#if !defined(FS_IOC_UNRESVSP) && defined(_IOW)
+#if !defined(FS_IOC_UNRESVSP) &&	\
+    defined(_IOW)
 #define FS_IOC_UNRESVSP		_IOW('X', 41, struct shim_space_resv)
 #endif
-#if !defined(FS_IOC_RESVSP64) && defined(_IOW)
+#if !defined(FS_IOC_RESVSP64) &&	\
+    defined(_IOW)
 #define FS_IOC_RESVSP64		_IOW('X', 42, struct shim_space_resv)
 #endif
-#if !defined(FS_IOC_UNRESVSP64) && defined(_IOW)
+#if !defined(FS_IOC_UNRESVSP64) &&	\
+    defined(_IOW)
 #define FS_IOC_UNRESVSP64	_IOW('X', 43, struct shim_space_resv)
 #endif
-#if !defined(FS_IOC_ZERO_RANGE) && defined(_IOW)
+#if !defined(FS_IOC_ZERO_RANGE) &&	\
+    defined(_IOW)
 #define FS_IOC_ZERO_RANGE	_IOW('X', 57, struct shim_space_resv)
 #endif
 

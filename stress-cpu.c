@@ -987,28 +987,36 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 stress_cpu_fp(float, float, sinf, cosf)
 stress_cpu_fp(double, double, sin, cos)
 stress_cpu_fp(long double, longdouble, sinl, cosl)
-#if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+    !defined(__clang__)
 stress_cpu_fp(_Decimal32, decimal32, sinf, cosf)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+    !defined(__clang__)
 stress_cpu_fp(_Decimal64, decimal64, sin, cos)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+    !defined(__clang__)
 stress_cpu_fp(_Decimal128, decimal128, sinl, cosl)
 #endif
-#if defined(HAVE_FLOAT16) && !defined(__clang__)
+#if defined(HAVE_FLOAT16) &&	\
+    !defined(__clang__)
 stress_cpu_fp(__fp16, float16, sin, cos)
 #endif
-#if defined(HAVE_FLOAT32) && !defined(__clang__)
+#if defined(HAVE_FLOAT32) &&	\
+    !defined(__clang__)
 stress_cpu_fp(_Float32, float32, sin, cos)
 #endif
-#if defined(HAVE_FLOAT64) && !defined(__clang__)
+#if defined(HAVE_FLOAT64) &&	\
+    !defined(__clang__)
 stress_cpu_fp(_Float64, float64, sin, cos)
 #endif
-#if defined(HAVE_FLOAT80) && !defined(__clang__)
+#if defined(HAVE_FLOAT80) &&	\
+    !defined(__clang__)
 stress_cpu_fp(__float80, float80, sinl, cosl)
 #endif
-#if defined(HAVE_FLOAT128) && !defined(__clang__)
+#if defined(HAVE_FLOAT128) &&	\
+    !defined(__clang__)
 stress_cpu_fp(__float128, float128, sinl, cosl)
 #endif
 
@@ -1163,21 +1171,24 @@ stress_cpu_int_fp(__uint128_t, 128, long double, longdouble,
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	sinl, cosl)
-#if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+    !defined(__clang__)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal32, decimal32,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	(_Decimal32)sinf, (_Decimal32)cosf)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+    !defined(__clang__)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal64, decimal64,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
 	(_Decimal64)sin, (_Decimal64)cos)
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+    !defined(__clang__)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
@@ -2676,13 +2687,16 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "cpuid",		stress_cpu_cpuid },
 #endif
 	{ "crc16",		stress_cpu_crc16 },
-#if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+    !defined(__clang__)
 	{ "decimal32",		stress_cpu_decimal32 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+    !defined(__clang__)
 	{ "decimal64",		stress_cpu_decimal64 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+    !defined(__clang__)
 	{ "decimal128",		stress_cpu_decimal128 },
 #endif
 	{ "dither",		stress_cpu_dither },
@@ -2701,19 +2715,24 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 #endif
 	{ "fletcher16",		stress_cpu_fletcher16 },
 	{ "float",		stress_cpu_float },
-#if defined(HAVE_FLOAT16) && !defined(__clang__)
+#if defined(HAVE_FLOAT16) &&	\
+    !defined(__clang__)
 	{ "float16",		stress_cpu_float16 },
 #endif
-#if defined(HAVE_FLOAT32) && !defined(__clang__)
+#if defined(HAVE_FLOAT32) &&	\
+    !defined(__clang__)
 	{ "float32",		stress_cpu_float32 },
 #endif
-#if defined(HAVE_FLOAT64) && !defined(__clang__)
+#if defined(HAVE_FLOAT64) &&	\
+    !defined(__clang__)
 	{ "float64",		stress_cpu_float64 },
 #endif
-#if defined(HAVE_FLOAT80) && !defined(__clang__)
+#if defined(HAVE_FLOAT80) &&	\
+    !defined(__clang__)
 	{ "float80",		stress_cpu_float80 },
 #endif
-#if defined(HAVE_FLOAT128) && !defined(__clang__)
+#if defined(HAVE_FLOAT128) &&	\
+    !defined(__clang__)
 	{ "float128",		stress_cpu_float128 },
 #endif
 	{ "floatconversion",	stress_cpu_floatconversion },
@@ -2736,13 +2755,16 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "int128float",	stress_cpu_int128_float },
 	{ "int128double",	stress_cpu_int128_double },
 	{ "int128longdouble",	stress_cpu_int128_longdouble },
-#if defined(HAVE_FLOAT_DECIMAL32) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL32) &&	\
+    !defined(__clang__)
 	{ "int128decimal32",	stress_cpu_int128_decimal32 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL64) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL64) &&	\
+    !defined(__clang__)
 	{ "int128decimal64",	stress_cpu_int128_decimal64 },
 #endif
-#if defined(HAVE_FLOAT_DECIMAL128) && !defined(__clang__)
+#if defined(HAVE_FLOAT_DECIMAL128) &&	\
+    !defined(__clang__)
 	{ "int128decimal128",	stress_cpu_int128_decimal128 },
 #endif
 #endif

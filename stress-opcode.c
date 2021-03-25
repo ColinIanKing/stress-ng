@@ -90,7 +90,8 @@ static const int sigs[] = {
 #endif
 };
 
-#if defined(HAVE_LINUX_SECCOMP_H) && defined(SECCOMP_SET_MODE_FILTER)
+#if defined(HAVE_LINUX_SECCOMP_H) &&	\
+    defined(SECCOMP_SET_MODE_FILTER)
 static struct sock_filter filter[] = {
 	BPF_STMT(BPF_LD+BPF_W+BPF_ABS, SYSCALL_NR),
 #if defined(__NR_exit_group)
@@ -362,7 +363,8 @@ again:
 			}
 
 			for (i = 0; i < 1024; i++) {
-#if defined(HAVE_LINUX_SECCOMP_H) && defined(SECCOMP_SET_MODE_FILTER)
+#if defined(HAVE_LINUX_SECCOMP_H) &&	\
+    defined(SECCOMP_SET_MODE_FILTER)
 				/*
 				 * Limit syscall using seccomp
 				 */

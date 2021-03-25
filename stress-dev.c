@@ -2635,7 +2635,8 @@ static inline int stress_dev_lock(const char *path, const int fd)
 	int ret;
 
 	errno = 0;
-#if defined(TIOCEXCL) && defined(TIOCNXCL)
+#if defined(TIOCEXCL) &&	\
+    defined(TIOCNXCL)
 	if (strncmp(path, "/dev/tty", 8))
 		return 0;
 
@@ -2643,7 +2644,9 @@ static inline int stress_dev_lock(const char *path, const int fd)
 	if (ret < 0)
 		return ret;
 
-#if defined(LOCK_EX) && defined(LOCK_NB) && defined(LOCK_UN)
+#if defined(LOCK_EX) &&	\
+    defined(LOCK_NB) &&	\
+    defined(LOCK_UN)
 	ret = flock(fd, LOCK_EX | LOCK_NB);
 	if (ret < 0) {
 		ret = ioctl(fd, TIOCNXCL);
@@ -2662,13 +2665,16 @@ static inline int stress_dev_lock(const char *path, const int fd)
 
 static inline void stress_dev_unlock(const char *path, const int fd)
 {
-#if defined(TIOCEXCL) && defined(TIOCNXCL)
+#if defined(TIOCEXCL) &&	\
+    defined(TIOCNXCL)
 	int ret;
 
 	if (strncmp(path, "/dev/tty", 8))
 		return;
 
-#if defined(LOCK_EX) && defined(LOCK_NB) && defined(LOCK_UN)
+#if defined(LOCK_EX) &&	\
+    defined(LOCK_NB) &&	\
+    defined(LOCK_UN)
 	ret = flock(fd, LOCK_UN);
 	(void)ret;
 #endif

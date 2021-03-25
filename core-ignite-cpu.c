@@ -50,7 +50,8 @@ static uint32_t max_cpus;		/* max cpus configured */
 	{ path, default_setting, 0, NULL, 0, false }
 
 static stress_settings_t settings[] = {
-#if defined(__linux__) && defined(STRESS_ARCH_X86)
+#if defined(__linux__) &&	\
+    defined(STRESS_ARCH_X86)
 	/* x86 Intel P-State maximizing settings */
 	SETTING("/sys/devices/system/cpu/intel_pstate/max_perf_pct", "100"),
 	SETTING("/sys/devices/system/cpu/intel_pstate/no_turbo", "0"),

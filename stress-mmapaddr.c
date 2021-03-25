@@ -169,7 +169,10 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 		(void)stress_mmapaddr_check(args, remap_addr);
 		(void)munmap((void *)remap_addr, page_size);
 
-#if defined(HAVE_MREMAP) && NEED_GLIBC(2,4,0) && defined(MREMAP_FIXED) && defined(MREMAP_MAYMOVE)
+#if defined(HAVE_MREMAP) &&	\
+    NEED_GLIBC(2,4,0) &&	\
+    defined(MREMAP_FIXED) &&	\
+    defined(MREMAP_MAYMOVE)
 		addr = stress_mmapaddr_get_addr(args, mask, page_size);
 		if (!addr)
 			goto unmap;

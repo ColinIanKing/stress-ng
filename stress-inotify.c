@@ -58,7 +58,8 @@ typedef struct {
  */
 static void exercise_inotify1(void)
 {
-#if defined(IN_NONBLOCK) && defined(IN_CLOEXEC)
+#if defined(IN_NONBLOCK) &&	\
+    defined(IN_CLOEXEC)
 	int fd;
 
 	fd = inotify_init1(IN_NONBLOCK);

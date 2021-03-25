@@ -70,7 +70,8 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 		int flags = MAP_FIXED | MAP_ANONYMOUS;
 		size_t  sz = page_size * (1 + (stress_mwc8() % 7));
 
-#if defined(MAP_SHARED) && defined(MAP_PRIVATE)
+#if defined(MAP_SHARED) &&	\
+    defined(MAP_PRIVATE)
 		flags |= stress_mwc1() ? MAP_SHARED : MAP_PRIVATE;
 #endif
 #if defined(MAP_LOCKED)
@@ -96,8 +97,9 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 			goto next;
 
 		(void)stress_madvise_random(buf, sz);
-#if defined(HAVE_MREMAP) && NEED_GLIBC(2,4,0) && \
-    defined(MREMAP_FIXED) && \
+#if defined(HAVE_MREMAP) &&	\
+    NEED_GLIBC(2,4,0) && 	\
+    defined(MREMAP_FIXED) &&	\
     defined(MREMAP_MAYMOVE)
 		{
 			uint8_t *newbuf;

@@ -24,7 +24,8 @@
  */
 #include "stress-ng.h"
 
-#if defined(__linux__) && defined(HAVE_PTRACE)
+#if defined(__linux__) &&	\
+    defined(HAVE_PTRACE)
 
 #define KSM_RUN_MERGE		"1"
 

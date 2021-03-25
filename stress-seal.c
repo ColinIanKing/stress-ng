@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(__linux__) && defined(HAVE_MEMFD_CREATE)
+#if defined(__linux__) &&	\
+    defined(HAVE_MEMFD_CREATE)
 
 #ifndef F_ADD_SEALS
 #define F_ADD_SEALS		(1024 + 9)

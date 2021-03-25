@@ -177,12 +177,14 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #if defined(PR_CAP_AMBIENT)
 	/* skip for now */
 #endif
-#if defined(PR_CAPBSET_READ) && defined(CAP_CHOWN)
+#if defined(PR_CAPBSET_READ) &&	\
+    defined(CAP_CHOWN)
 	ret = prctl(PR_CAPBSET_READ, CAP_CHOWN);
 	(void)ret;
 #endif
 
-#if defined(PR_CAPBSET_DROP) && defined(CAP_CHOWN)
+#if defined(PR_CAPBSET_DROP) &&	\
+    defined(CAP_CHOWN)
 	ret = prctl(PR_CAPBSET_DROP, CAP_CHOWN);
 	(void)ret;
 #endif

@@ -107,7 +107,8 @@ static int stress_pkey(const stress_args_t *args)
 		(void)shim_pkey_mprotect(page, page_size, PROT_READ | PROT_WRITE | PROT_EXEC, pkey);
 
 		/* Exercise invalid mprotect flags */
-#if defined(PROT_GROWSDOWN) && defined(PROT_GROWSUP)
+#if defined(PROT_GROWSDOWN) &&	\
+    defined(PROT_GROWSUP)
 		(void)shim_pkey_mprotect(page, page_size,
 			PROT_READ | PROT_WRITE | PROT_GROWSDOWN | PROT_GROWSUP, pkey);
 #endif

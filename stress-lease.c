@@ -24,7 +24,9 @@
  */
 #include "stress-ng.h"
 
-#if defined(F_SETLEASE) && defined(F_WRLCK) && defined(F_UNLCK)
+#if defined(F_SETLEASE) && 	\
+    defined(F_WRLCK) &&		\
+    defined(F_UNLCK)
 static uint64_t lease_sigio;
 #endif
 

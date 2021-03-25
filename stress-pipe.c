@@ -108,7 +108,8 @@ static void pipe_change_size(
 	if (!pipe_size)
 		return;
 
-#if !(defined(HAVE_PIPE2) && defined(O_DIRECT))
+#if !(defined(HAVE_PIPE2) &&	\
+    defined(O_DIRECT))
 	if (pipe_size < args->page_size)
 		return;
 #endif

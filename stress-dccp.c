@@ -113,7 +113,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL },
 };
 
-#if defined(SOCK_DCCP) && defined(IPPROTO_DCCP)
+#if defined(SOCK_DCCP) &&	\
+    defined(IPPROTO_DCCP)
 
 /*
  *  stress_dccp_client()

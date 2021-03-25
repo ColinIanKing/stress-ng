@@ -50,7 +50,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(__linux__) && NEED_GLIBC(2,3,0)
+#if defined(__linux__) &&	\
+    NEED_GLIBC(2,3,0)
 
 typedef uint64_t	buffer_t;
 
@@ -130,7 +131,8 @@ static int stress_readahead(const stress_args_t *args)
 	}
 	(void)unlink(filename);
 
-#if defined(HAVE_POSIX_FADVISE) && defined(POSIX_FADV_DONTNEED)
+#if defined(HAVE_POSIX_FADVISE) &&	\
+    defined(POSIX_FADV_DONTNEED)
 	if (posix_fadvise(fd, 0, readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
 		pr_fail("%s: posix_fadvise failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

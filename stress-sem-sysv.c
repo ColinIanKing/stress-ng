@@ -280,7 +280,8 @@ timed_out:
 #endif
 		}
 #endif
-#if defined(SEM_STAT) && defined(__linux__)
+#if defined(SEM_STAT) &&	\
+    defined(__linux__)
 		{
 			struct semid_ds ds;
 			stress_semun_t s;
@@ -296,7 +297,8 @@ timed_out:
 			(void)ret;
 		}
 #endif
-#if defined(SEM_STAT_ANY) && defined(__linux__)
+#if defined(SEM_STAT_ANY) &&	\
+    defined(__linux__)
 		{
 			struct seminfo si;
 			stress_semun_t s;
@@ -312,7 +314,8 @@ timed_out:
 			(void)ret;
 		}
 #endif
-#if defined(IPC_INFO) && defined(__linux__)
+#if defined(IPC_INFO) &&	\
+    defined(__linux__)
 		{
 			struct seminfo si;
 			stress_semun_t s;
@@ -341,7 +344,8 @@ timed_out:
 			(void)ret;
 		}
 #endif
-#if defined(SEM_INFO) && defined(__linux__)
+#if defined(SEM_INFO) &&	\
+    defined(__linux__)
 		{
 			struct seminfo si;
 			stress_semun_t s;

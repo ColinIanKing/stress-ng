@@ -160,7 +160,8 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 		}
 	}
 	return ret;
-#elif defined(HAVE_POSIX_FALLOCATE) && !defined(__FreeBSD_kernel__)
+#elif defined(HAVE_POSIX_FALLOCATE) &&	\
+      !defined(__FreeBSD_kernel__)
 	/*
 	 *  Even though FreeBSD kernels support this, large
 	 *  allocations take forever to be interrupted and so
@@ -272,9 +273,11 @@ int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
  */
 void shim_flush_icache(void *begin, void *end)
 {
-#if defined(__GNUC__) && defined(STRESS_ARCH_ARM)
+#if defined(__GNUC__) &&	\
+    defined(STRESS_ARCH_ARM)
 	__clear_cache(begin, end);
-#elif defined(STRESS_ARCH_RISC_V) && defined(__NR_riscv_flush_icache)
+#elif defined(STRESS_ARCH_RISC_V) &&	\
+      defined(__NR_riscv_flush_icache)
 	(void)syscall(__NR_riscv_flush_icache, begin, end, 0);
 #else
 	(void)shim_enosys(0, begin, end);
@@ -765,27 +768,32 @@ int shim_madvise(void *addr, size_t length, int advice)
 	int posix_advice;
 
 	switch (advice) {
-#if defined(POSIX_MADV_NORMAL) && defined(MADV_NORMAL)
+#if defined(POSIX_MADV_NORMAL) &&	\
+    defined(MADV_NORMAL)
 	case MADV_NORMAL:
 		posix_advice = POSIX_MADV_NORMAL;
 		break;
 #endif
-#if defined(POSIX_MADV_SEQUENTIAL) && defined(MADV_SEQUENTIAL)
+#if defined(POSIX_MADV_SEQUENTIAL) &&	\
+    defined(MADV_SEQUENTIAL)
 	case MADV_SEQUENTIAL:
 		posix_advice = POSIX_MADV_SEQUENTIAL;
 		break;
 #endif
-#if defined(POSIX_MADV_RANDOM) && defined(MADV_RANDOM)
+#if defined(POSIX_MADV_RANDOM) &&	\
+    defined(MADV_RANDOM)
 	case MADV_RANDOM:
 		posix_advice = POSIX_MADV_RANDOM;
 		break;
 #endif
-#if defined(POSIX_MADV_WILLNEED) && defined(MADV_WILLNEED)
+#if defined(POSIX_MADV_WILLNEED) &&	\
+    defined(MADV_WILLNEED)
 	case MADV_WILLNEED:
 		posix_advice = POSIX_MADV_WILLNEED;
 		break;
 #endif
-#if defined(POSIX_MADV_DONTNEED) && defined(MADV_DONTNEED)
+#if defined(POSIX_MADV_DONTNEED) &&	\
+    defined(MADV_DONTNEED)
 	case MADV_DONTNEED:
 		posix_advice = POSIX_MADV_DONTNEED;
 		break;
@@ -806,7 +814,8 @@ int shim_madvise(void *addr, size_t length, int advice)
  */
 int shim_mincore(void *addr, size_t length, unsigned char *vec)
 {
-#if defined(HAVE_MINCORE) && NEED_GLIBC(2,2,0)
+#if defined(HAVE_MINCORE) &&	\
+    NEED_GLIBC(2,2,0)
 #if defined(__FreeBSD__) || defined(__OpenBSD__) || \
     defined(__NetBSD__) || defined(__sun__)
 	return mincore(addr, length, (char *)vec);
@@ -840,7 +849,8 @@ ssize_t shim_statx(
  */
 int shim_futex_wake(const void *futex, const int n)
 {
-#if defined(__NR_futex) && defined(FUTEX_WAKE)
+#if defined(__NR_futex) &&	\
+    defined(FUTEX_WAKE)
 	return syscall(__NR_futex, futex, FUTEX_WAKE, n, NULL, NULL, 0);
 #else
 	return shim_enosys(0, futex, 0, n, NULL, NULL, 0);
@@ -856,7 +866,8 @@ int shim_futex_wait(
 	const int val,
 	const struct timespec *timeout)
 {
-#if defined(__NR_futex) && defined(FUTEX_WAKE)
+#if defined(__NR_futex) &&	\
+    defined(FUTEX_WAKE)
 	return syscall(__NR_futex, futex, FUTEX_WAIT, val, timeout, NULL, 0);
 #else
 	return shim_enosys(0, futex, 0, val, timeout, NULL, 0);
@@ -1070,7 +1081,8 @@ size_t shim_strlcat(char *dst, const char *src, size_t len)
  */
 int shim_fsync(int fd)
 {
-#if defined(__APPLE__) && defined(F_FULLFSYNC)
+#if defined(__APPLE__) &&	\
+    defined(F_FULLFSYNC)
 	int ret;
 
 	/*
@@ -1622,7 +1634,8 @@ ssize_t shim_llistxattr(const char *path, char *list, size_t size)
  */
 int shim_reboot(int magic, int magic2, int cmd, void *arg)
 {
-#if defined(__linux__) && defined(__NR_reboot)
+#if defined(__linux__) &&	\
+    defined(__NR_reboot)
 	return syscall(__NR_reboot, magic, magic2, cmd, arg);
 #else
 	return shim_enosys(0, magic, magic2, cmd, arg);

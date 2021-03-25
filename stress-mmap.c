@@ -53,10 +53,12 @@ typedef struct {
 
 /* Misc randomly chosen mmap flags */
 static const int mmap_flags[] = {
-#if defined(MAP_HUGE_2MB) && defined(MAP_HUGETLB)
+#if defined(MAP_HUGE_2MB) &&	\
+    defined(MAP_HUGETLB)
 	MAP_HUGE_2MB | MAP_HUGETLB,
 #endif
-#if defined(MAP_HUGE_1GB) && defined(MAP_HUGETLB)
+#if defined(MAP_HUGE_1GB) &&	\
+    defined(MAP_HUGETLB)
 	MAP_HUGE_1GB | MAP_HUGETLB,
 #endif
 #if defined(MAP_HUGETLB)
@@ -465,7 +467,8 @@ retry:
 						if (mmap_file) {
 							(void)memset(mappings[page], n, page_size);
 							(void)shim_msync((void *)mappings[page], page_size, ms_flags);
-#if defined(FALLOC_FL_KEEP_SIZE) && defined(FALLOC_FL_PUNCH_HOLE)
+#if defined(FALLOC_FL_KEEP_SIZE) &&	\
+    defined(FALLOC_FL_PUNCH_HOLE)
 							(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
 								offset, page_size);
 #endif

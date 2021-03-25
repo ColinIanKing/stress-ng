@@ -39,7 +39,8 @@
 #endif
 
 /* Some Solaris tool chains only define __sun */
-#if defined(__sun) && !defined(__sun__)
+#if defined(__sun) &&	\
+    !defined(__sun__)
 #define __sun__
 #endif
 
@@ -405,7 +406,8 @@
 
 #if defined(HAVE_SYS_SYSINFO_H)
 #include <sys/sysinfo.h>
-#if defined(__GNUC__) && !defined(__GLIBC__)
+#if defined(__GNUC__) &&	\
+    !defined(__GLIBC__)
 /* Suppress kernel sysinfo to avoid collision with musl */
 #define _LINUX_SYSINFO_H
 #endif
@@ -662,7 +664,8 @@
 #include <attr/xattr.h>
 #endif
 /*  Sanity check */
-#if defined(HAVE_SYS_XATTR_H) && defined(HAVE_ATTR_XATTR_H)
+#if defined(HAVE_SYS_XATTR_H) &&	\
+    defined(HAVE_ATTR_XATTR_H)
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
 
@@ -841,7 +844,8 @@ typedef unsigned long int __kernel_ulong_t;
 #define STRESS_MAXIMUM(a,b) (((a) > (b)) ? (a) : (b))
 
 /* NetBSD does not define MAP_ANONYMOUS */
-#if defined(MAP_ANON) && !defined(MAP_ANONYMOUS)
+#if defined(MAP_ANON) &&	\
+    !defined(MAP_ANONYMOUS)
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
@@ -1134,33 +1138,38 @@ typedef struct {			/* vmstat column */
 } stress_vmstat_t;
 
 /* gcc 4.7 and later support vector ops */
-#if defined(__GNUC__) && NEED_GNUC(4,7,0)
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(4,7,0)
 #define STRESS_VECTOR	1
 #endif
 
 /* gcc 7.0 and later support __attribute__((fallthrough)); */
-#if defined(__GNUC__) && NEED_GNUC(7,0,0)
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(7,0,0)
 #define CASE_FALLTHROUGH __attribute__((fallthrough)) /* Fallthrough */
 #else
 #define CASE_FALLTHROUGH /* Fallthrough */
 #endif
 
 /* no return hint */
-#if defined(__GNUC__) && NEED_GNUC(2,5,0)
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(2,5,0)
 #define NORETURN 	__attribute__ ((noreturn))
 #else
 #define NORETURN
 #endif
 
 /* packed hint */
-#if defined(__GNUC__) && NEED_GNUC(3,3,0)
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(3,3,0)
 #define PACKED 		__attribute__ ((packed))
 #else
 #define PACKED
 #endif
 
 /* force inlining hint */
-#if defined(__GNUC__) && NEED_GNUC(3,4,0)	/* or possibly earlier */ \
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(3,4,0)	/* or possibly earlier */ \
  && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6,0,1))
 #define ALWAYS_INLINE	__attribute__ ((always_inline))
 #else
@@ -1168,61 +1177,76 @@ typedef struct {			/* vmstat column */
 #endif
 
 /* force no inlining hint */
-#if defined(__GNUC__) && NEED_GNUC(3,4,0)	/* or possibly earier */
+#if defined(__GNUC__) && 	\
+    NEED_GNUC(3,4,0)	/* or possibly earier */
 #define NOINLINE	__attribute__ ((noinline))
 #else
 #define NOINLINE
 #endif
 
 /* -O3 attribute support */
-#if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
+#if defined(__GNUC__) &&	\
+    !defined(__clang__) &&	\
+    NEED_GNUC(4,6,0)
 #define OPTIMIZE3 	__attribute__((optimize("-O3")))
 #else
 #define OPTIMIZE3
 #endif
 
 /* -O1 attribute support */
-#if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
+#if defined(__GNUC__) &&	\
+    !defined(__clang__) &&	\
+    NEED_GNUC(4,6,0)
 #define OPTIMIZE1 	__attribute__((optimize("-O1")))
 #else
 #define OPTIMIZE1
 #endif
 
 /* -O0 attribute support */
-#if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
+#if defined(__GNUC__) &&	\
+    !defined(__clang__) &&	\
+    NEED_GNUC(4,6,0)
 #define OPTIMIZE0 	__attribute__((optimize("-O0")))
 #else
 #define OPTIMIZE0
 #endif
 
 /* warn unused attribute */
-#if defined(__GNUC__) && NEED_GNUC(4,2,0)
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(4,2,0)
 #define WARN_UNUSED	__attribute__((warn_unused_result))
 #else
 #define WARN_UNUSED
 #endif
 
-#if defined(__GNUC__) && NEED_GNUC(3,3,0) && !defined(__PCC__)
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(3,3,0) &&		\
+    !defined(__PCC__)
 #define ALIGNED(a)	__attribute__((aligned(a)))
 #else
 #define ALIGNED(a)
 #endif
 
 /* Force alignment to nearest 128 bytes */
-#if defined(__GNUC__) && NEED_GNUC(3,3,0) && defined(HAVE_ALIGNED_128)
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(3,3,0) &&		\
+    defined(HAVE_ALIGNED_128)
 #define ALIGN128	ALIGNED(128)
 #else
 #define ALIGN128
 #endif
 
 /* Force alignment to nearest 64 bytes */
-#if defined(__GNUC__) && NEED_GNUC(3,3,0) && defined(HAVE_ALIGNED_64)
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(3,3,0) &&		\
+    defined(HAVE_ALIGNED_64)
 #define ALIGN64		ALIGNED(64)
 #else
 #define ALIGN64
 #endif
 
-#if defined(__GNUC__) && NEED_GNUC(4,6,0)
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(4,6,0)
 #define SECTION(s)	__attribute__((__section__(# s)))
 #else
 #define SECTION(s)
@@ -1236,7 +1260,8 @@ typedef struct {			/* vmstat column */
 #endif
 
 /* GCC hot attribute */
-#if defined(__GNUC__) && NEED_GNUC(4,6,0)
+#if defined(__GNUC__) &&	\
+    NEED_GNUC(4,6,0)
 #define HOT		__attribute__ ((hot))
 #else
 #define HOT
@@ -1309,11 +1334,13 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 #  define FORCE_DO_NOTHING() while (0)
 #endif
 
-#if defined(__clang__) && NEED_CLANG(4, 0, 0)
+#if defined(__clang__) &&	\
+    NEED_CLANG(4, 0, 0)
 #define STRESS_PRAGMA_PUSH	_Pragma("GCC diagnostic push")
 #define STRESS_PRAGMA_POP	_Pragma("GCC diagnostic pop")
 #define STRESS_PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Weverything\"")
-#elif defined(__GNUC__) && NEED_GNUC(4, 4, 0)
+#elif defined(__GNUC__) &&	\
+      NEED_GNUC(4, 4, 0)
 #define STRESS_PRAGMA_PUSH	_Pragma("GCC diagnostic push")
 #define STRESS_PRAGMA_POP	_Pragma("GCC diagnostic pop")
 #define STRESS_PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Wall\"") \
@@ -1779,7 +1806,8 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #endif
 
 /* GCC5.0+ target_clones attribute */
-#if defined(HAVE_TARGET_CLONES) && defined(STRESS_ARCH_X86)
+#if defined(HAVE_TARGET_CLONES) &&	\
+    defined(STRESS_ARCH_X86)
 #if defined(__MMX_WITH_SSE__)
 #define TARGET_CLONE_MMX	"mmx",
 #else
@@ -1841,7 +1869,8 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #endif
 
 #define TARGET_CLONES	__attribute__((target_clones(TARGET_CLONE_AVX TARGET_CLONE_AVX2 TARGET_CLONE_MMX TARGET_CLONE_SSE TARGET_CLONE_SSE2 TARGET_CLONE_SSE3 TARGET_CLONE_SSSE3 TARGET_CLONE_SSE4_1 TARGET_CLONE_SSE4_2 TARGET_CLONE_SKYLAKE_AVX512 "default")))
-#elif defined(HAVE_TARGET_CLONES) && defined(STRESS_ARCH_PPC64)
+#elif defined(HAVE_TARGET_CLONES) && 	\
+      defined(STRESS_ARCH_PPC64)
 #define TARGET_CLONES	__attribute__((target_clones("cpu=power9,default")))
 #else
 #define TARGET_CLONES
@@ -1927,7 +1956,9 @@ static inline void ALWAYS_INLINE add_counter(const stress_args_t *args, const ui
 
 /* pthread porting shims, spinlock or fallback to mutex */
 #if defined(HAVE_LIB_PTHREAD)
-#if defined(HAVE_LIB_PTHREAD_SPINLOCK) && !defined(__DragonFly__) && !defined(__OpenBSD__)
+#if defined(HAVE_LIB_PTHREAD_SPINLOCK) &&	\
+    !defined(__DragonFly__) &&			\
+    !defined(__OpenBSD__)
 typedef pthread_spinlock_t 	shim_pthread_spinlock_t;
 
 #define SHIM_PTHREAD_PROCESS_SHARED		PTHREAD_PROCESS_SHARED
@@ -3840,7 +3871,8 @@ static inline void ALWAYS_INLINE shim_clflush(volatile void *ptr)
  */
 static inline void ALWAYS_INLINE shim_mfence(void)
 {
-#if NEED_GNUC(4, 2, 0) && !defined(__PCC__)
+#if NEED_GNUC(4, 2, 0) &&	\
+    !defined(__PCC__)
 	__sync_synchronize();
 #else
 #if defined(STRESS_ARCH_X86)

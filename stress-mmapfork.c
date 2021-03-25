@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		  NULL }
 };
 
-#if defined(HAVE_SYS_SYSINFO_H) && defined(HAVE_SYSINFO)
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO)
 
 #define MAX_PIDS		(32)
 

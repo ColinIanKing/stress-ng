@@ -228,7 +228,8 @@ static int stress_sockmany_server(
 				(void)close(sfd);
 				break;
 			}
-#if defined(SOL_TCP) && defined(TCP_QUICKACK)
+#if defined(SOL_TCP) &&	\
+    defined(TCP_QUICKACK)
 			{
 				int ret, one = 1;
 				/*

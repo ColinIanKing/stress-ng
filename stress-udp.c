@@ -145,7 +145,8 @@ again:
 			stress_set_sockaddr(args->name, args->instance, ppid,
 				udp_domain, udp_port,
 				&addr, &len, NET_ADDR_ANY);
-#if defined(IPPROTO_UDPLITE) && defined(UDPLITE_SEND_CSCOV)
+#if defined(IPPROTO_UDPLITE) &&	\
+    defined(UDPLITE_SEND_CSCOV)
 			if (proto == IPPROTO_UDPLITE) {
 				int val = 8;	/* Just the 8 byte header */
 				socklen_t slen;
@@ -162,7 +163,8 @@ again:
 				(void)getsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, &slen);
 			}
 #endif
-#if defined(IPPROTO_UDPLITE) && defined(UDPLITE_RECV_CSCOV)
+#if defined(IPPROTO_UDPLITE) &&	\
+    defined(UDPLITE_RECV_CSCOV)
 			if (proto == IPPROTO_UDPLITE) {
 				int val;
 				socklen_t slen = sizeof(val);

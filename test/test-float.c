@@ -34,7 +34,9 @@
 #endif
 
 /* -O3 attribute support */
-#if defined(__GNUC__) && !defined(__clang__) && NEED_GNUC(4,6,0)
+#if defined(__GNUC__) &&	\
+    !defined(__clang__) &&	\
+    NEED_GNUC(4,6,0)
 #define OPTIMIZE3 	__attribute__((optimize("-O3")))
 #else
 #define OPTIMIZE3

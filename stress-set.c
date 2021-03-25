@@ -200,7 +200,8 @@ static int stress_set(const stress_args_t *args)
 		}
 #endif
 
-#if defined(HAVE_GETPGRP) && defined(HAVE_SETPGRP)
+#if defined(HAVE_GETPGRP) &&	\
+    defined(HAVE_SETPGRP)
 		/* getpgrp always succeeds */
 		pid = getpgrp();
 		if (pid != -1) {

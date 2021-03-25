@@ -696,7 +696,8 @@ static int bad_truncate(void *addr)
 	return truncate((char *)addr, 8192);
 }
 
-#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
 static int bad_uname(void *addr)
 {
 	return uname((struct utsname *)addr);
@@ -913,7 +914,8 @@ static stress_bad_syscall_t bad_syscalls[] = {
 #endif
 	bad_times,
 	bad_truncate,
-#if defined(HAVE_UNAME) && defined(HAVE_SYS_UTSNAME_H)
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
 	bad_uname,
 #endif
 	bad_ustat,

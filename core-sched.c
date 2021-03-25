@@ -72,7 +72,8 @@ const char *stress_get_sched_name(const int sched)
 
 static const char *prefix = "sched";
 
-#if defined(SCHED_DEADLINE) && defined(__linux__)
+#if defined(SCHED_DEADLINE) &&	\
+    defined(__linux__)
 #define HAVE_STRESS_SET_DEADLINE_SCHED	(1)
 
 int stress_set_deadline_sched(
@@ -130,14 +131,16 @@ int stress_set_sched(
 #if defined(SCHED_FIFO) || defined(SCHED_RR)
 	int min, max;
 #endif
-#if defined(SCHED_DEADLINE) && defined(__linux__)
+#if defined(SCHED_DEADLINE) &&	\
+    defined(__linux__)
 	struct shim_sched_attr attr;
 #endif
 	int rc;
 	struct sched_param param;
 	const char *sched_name = stress_get_sched_name(sched);
 
-#if defined(SCHED_DEADLINE) && defined(__linux__)
+#if defined(SCHED_DEADLINE) &&	\
+    defined(__linux__)
 	long sched_period = -1;
 	long sched_runtime = -1;
 	long sched_deadline = -1;
@@ -181,7 +184,8 @@ int stress_set_sched(
 				prefix, sched_name, param.sched_priority);
 		break;
 #endif
-#if defined(SCHED_DEADLINE) && defined(__linux__)
+#if defined(SCHED_DEADLINE) &&	\
+    defined(__linux__)
 	case SCHED_DEADLINE:
 		min = sched_get_priority_min(sched);
 		max = sched_get_priority_max(sched);

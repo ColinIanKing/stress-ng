@@ -56,7 +56,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_MREMAP) && NEED_GLIBC(2,4,0)
+#if defined(HAVE_MREMAP) &&	\
+    NEED_GLIBC(2,4,0)
 
 #if defined(MREMAP_FIXED)
 /*
@@ -104,7 +105,8 @@ static int try_remap(
 	const int maymove = 0;
 #endif
 
-#if defined(MREMAP_FIXED) && defined(MREMAP_MAYMOVE)
+#if defined(MREMAP_FIXED) &&	\
+    defined(MREMAP_MAYMOVE)
 	flags = maymove | (stress_mwc32() & MREMAP_FIXED);
 #else
 	flags = maymove;
