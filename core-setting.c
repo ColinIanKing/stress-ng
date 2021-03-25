@@ -34,10 +34,10 @@ static stress_setting_t *setting_tail;	/* setting list tail */
 #endif
 
 /*
- *  stress_free_settings()
+ *  stress_settings_free()
  *	free the saved settings
  */
-void stress_free_settings(void)
+void stress_settings_free(void)
 {
 	stress_setting_t *setting = setting_head;
 

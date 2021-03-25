@@ -3748,7 +3748,7 @@ extern int stress_set_setting(const char *name, const stress_type_id_t type_id,
 extern int stress_set_setting_global(const char *name, const stress_type_id_t type_id,
 	const void *value);
 extern bool stress_get_setting(const char *name, void *value);
-extern void stress_free_settings(void);
+extern void stress_settings_free(void);
 
 /*
  *  externs to force gcc to stash computed values and hence

@@ -1335,7 +1335,7 @@ static void stress_usage(void)
 		"--fork 4 --timeout 10s\n\n"
 		"Note: Sizes can be suffixed with B,K,M,G and times with "
 		"s,m,h,d,y\n", g_app_name);
-	stress_free_settings();
+	stress_settings_free();
 	exit(EXIT_SUCCESS);
 }
 
@@ -2011,7 +2011,7 @@ again:
 child_exit:
 				stress_free_stressors();
 				stress_cache_free();
-				stress_free_settings();
+				stress_settings_free();
 				(void)stress_ftrace_free();
 
 				if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
@@ -3511,7 +3511,7 @@ int main(int argc, char **argv, char **envp)
 	stress_free_stressors();
 	stress_cache_free();
 	stress_unmap_shared();
-	stress_free_settings();
+	stress_settings_free();
 	stress_temp_path_free();
 
 	/*
