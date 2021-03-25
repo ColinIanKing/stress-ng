@@ -427,6 +427,24 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 }
 
 /*
+ *  stress_cpu_lfsr32()
+ *	generate 16384 values from the Galois polynomial
+ *	x^32 + x^31 + x^29 + x + 1
+ */
+static void HOT OPTIMIZE3 stress_cpu_lfsr32(const char *name)
+{
+        static uint32_t lfsr = 0xf63acb01;
+	register int i;
+
+	(void)name;
+
+	for (i = 0; i < 16384; i++) {
+		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
+	}
+	stress_uint32_put(lfsr);
+}
+
+/*
  *  stress_cpu_nsqrt()
  *	iterative Newton–Raphson square root
  */
@@ -2732,6 +2750,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "ipv4checksum",	stress_cpu_ipv4checksum },
 	{ "jenkin",		stress_cpu_jenkin },
 	{ "jmp",		stress_cpu_jmp },
+	{ "lfsr32",		stress_cpu_lfsr32 },
 	{ "ln2",		stress_cpu_ln2 },
 	{ "longdouble",		stress_cpu_longdouble },
 	{ "loop",		stress_cpu_loop },
