@@ -87,6 +87,7 @@ int main(int argc, char **argv)
 	(void)ret;
 	ret = mq_getattr(mq, &attr);
 	(void)ret;
+	(void)memset(&msg, 0, sizeof(msg));
 	ret = mq_timedsend(mq, (char *)&msg, sizeof(msg), 1, &abs_timeout);
 	(void)ret;
 	ret = mq_send(mq, (char *)&msg, sizeof(msg), 1);
