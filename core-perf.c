@@ -677,6 +677,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 					ct, l, stress_perf_stat_scale(ct, duration),
 					extra);
 
+				*yaml_label = '\0';
 				stress_perf_yaml_label(yaml_label, l, sizeof(yaml_label));
 				pr_yaml(yaml, "      %s_total: %" PRIu64
 					"\n", yaml_label, ct);
