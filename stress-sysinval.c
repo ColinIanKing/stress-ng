@@ -2289,7 +2289,7 @@ static int stress_sysinval_child(const stress_args_t *args, void *context)
  */
 static int stress_sysinval(const stress_args_t *args)
 {
-	int ret;
+	int ret, rc = EXIT_NO_RESOURCE;
 	size_t i, syscalls_exercised;
 	const size_t page_size = args->page_size;
 	const size_t current_context_size =
@@ -2313,16 +2313,6 @@ static int stress_sysinval(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	stress_syscall_count = mmap(NULL, stress_syscall_count_sz,
-				PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS,
-				-1, 0);
-	if (stress_syscall_count == MAP_FAILED) {
-		pr_fail("%s: mmap failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
-	}
-
 	sockfds[0] = socket(AF_UNIX, SOCK_STREAM, 0);
 
 	ret = stress_temp_dir_mk_args(args);
@@ -2339,13 +2329,23 @@ static int stress_sysinval(const stress_args_t *args)
 	}
 	(void)unlink(filename);
 
+	stress_syscall_count = mmap(NULL, stress_syscall_count_sz,
+				PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS,
+				-1, 0);
+	if (stress_syscall_count == MAP_FAILED) {
+		pr_fail("%s: mmap failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto tidy;
+	}
+
 	current_context = (syscall_current_context_t*)
 		mmap(NULL, current_context_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (current_context == MAP_FAILED) {
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
+		goto tidy;
 	}
 
 	small_ptr = (uint8_t *)mmap(NULL, small_ptr_size, PROT_READ | PROT_WRITE,
@@ -2353,8 +2353,7 @@ static int stress_sysinval(const stress_args_t *args)
 	if (small_ptr == MAP_FAILED) {
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap((void *)current_context, page_size);
-		return EXIT_NO_RESOURCE;
+		goto tidy;
 	}
 #if defined(HAVE_MPROTECT)
 	(void)mprotect((void *)(small_ptr + page_size), page_size, PROT_NONE);
@@ -2368,9 +2367,7 @@ static int stress_sysinval(const stress_args_t *args)
 	if (page_ptr == MAP_FAILED) {
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap((void *)small_ptr, small_ptr_size);
-		(void)munmap((void *)current_context, page_size);
-		return EXIT_NO_RESOURCE;
+		goto tidy;
 	}
 
 	page_ptr_wr = (uint8_t *)mmap(NULL, page_ptr_wr_size, PROT_WRITE,
@@ -2378,10 +2375,7 @@ static int stress_sysinval(const stress_args_t *args)
 	if (page_ptr_wr == MAP_FAILED) {
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap((void *)page_ptr, page_size);
-		(void)munmap((void *)small_ptr, small_ptr_size);
-		(void)munmap((void *)current_context, page_size);
-		return EXIT_NO_RESOURCE;
+		goto tidy;
 	}
 	small_ptr_wr = page_ptr_wr + page_size - 1;
 #if defined(HAVE_MPROTECT)
@@ -2406,7 +2400,7 @@ static int stress_sysinval(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	ret = stress_oomable_child(args, NULL, stress_sysinval_child, STRESS_OOMABLE_DROP_CAP);
+	rc = stress_oomable_child(args, NULL, stress_sysinval_child, STRESS_OOMABLE_DROP_CAP);
 
 	for (syscalls_exercised = 0, i = 0; i < stress_syscall_args_sz; i++) {
 		if (stress_syscall_count[i])
@@ -2422,24 +2416,29 @@ static int stress_sysinval(const stress_args_t *args)
 
 	set_counter(args, current_context->counter);
 
+tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap((void *)page_ptr_wr, page_ptr_wr_size);
-	(void)munmap((void *)page_ptr, page_size);
-	(void)munmap((void *)small_ptr, small_ptr_size);
-	(void)munmap((void *)current_context, current_context_size);
+	if (stress_syscall_count && stress_syscall_count != MAP_FAILED)
+		(void)munmap((void *)stress_syscall_count, stress_syscall_count_sz);
+	if (page_ptr_wr && page_ptr_wr != MAP_FAILED)
+		(void)munmap((void *)page_ptr_wr, page_ptr_wr_size);
+	if (page_ptr && page_ptr != MAP_FAILED)
+		(void)munmap((void *)page_ptr, page_size);
+	if (small_ptr && small_ptr != MAP_FAILED)
+		(void)munmap((void *)small_ptr, small_ptr_size);
+	if (current_context && current_context != MAP_FAILED)
+		(void)munmap((void *)current_context, current_context_size);
 	if (sockfds[0] >= 0)
 		(void)close(sockfds[0]);
-
 	if (fds[0] >= 0)
 		(void)close(fds[0]);
 
-	(void)munmap((void *)stress_syscall_count, stress_syscall_count_sz);
 err_dir:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 	hash_table_free();
 
-	return ret;
+	return rc;
 }
 
 stressor_info_t stress_sysinval_info = {
