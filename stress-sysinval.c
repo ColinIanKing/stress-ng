@@ -248,7 +248,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 #if DEFSYS(alloc_hugepages)
 	/* removed in 2.5.44 */
-	{ SYS(alloc_hugepages), 5, { ARG_INT, ARG_PTR, ARG_LEN, ARG_INT, ARG_FLAG) } },
+	{ SYS(alloc_hugepages), 5, { ARG_INT, ARG_PTR, ARG_LEN, ARG_INT, ARG_FLAG } },
 #endif
 #if DEFSYS(arc_gettls)
 	/* ARC only */
