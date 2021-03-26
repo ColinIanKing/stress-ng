@@ -954,7 +954,7 @@ tidy_ret:
  */
 static int stress_matrix(const stress_args_t *args)
 {
-	char *matrix_3d_method_name;
+	char *matrix_3d_method_name = NULL;
 	const stress_matrix_3d_method_info_t *matrix_3d_method;
 	stress_matrix_3d_func func;
 	size_t matrix_3d_size = 128;
