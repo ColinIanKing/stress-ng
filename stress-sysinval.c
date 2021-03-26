@@ -1768,7 +1768,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 };
 
-static uint64_t *stress_syscall_count;
+static bool *stress_syscall_exercised;
 
 /*
  *  running context shared between parent and child
@@ -1989,7 +1989,7 @@ static void syscall_permute(
 	const stress_args_t *args,
 	const int arg_num,
 	const stress_syscall_arg_t *stress_syscall_arg,
-	uint64_t *syscall_count)
+	bool *syscall_exercised)
 {
 	unsigned long arg_bitmask = stress_syscall_arg->arg_bitmasks[arg_num];
 	size_t i;
@@ -2042,7 +2042,7 @@ static void syscall_permute(
 		ret = setitimer(ITIMER_REAL, &it, NULL);
 		(void)ret;
 
-		(*syscall_count)++;
+		*syscall_exercised = true;
 
 		ret = syscall(syscall_num,
 			current_context->args[0],
@@ -2143,7 +2143,7 @@ static void syscall_permute(
 	 */
 	for (i = 0; i < num_values; i++) {
 		current_context->args[arg_num] = values[i];
-		syscall_permute(args, arg_num + 1, stress_syscall_arg, syscall_count);
+		syscall_permute(args, arg_num + 1, stress_syscall_arg, syscall_exercised);
 		current_context->args[arg_num] = 0;
 	}
 }
@@ -2232,7 +2232,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 				/* Ignore too many crashes from this system call */
 				if (current_context->crash_count[idx] >= MAX_CRASHES)
 					continue;
-				syscall_permute(args, 0, &stress_syscall_args[j], &stress_syscall_count[j]);
+				syscall_permute(args, 0, &stress_syscall_args[j], &stress_syscall_exercised[j]);
 			}
 			hash_table_free();
 		}
@@ -2290,7 +2290,7 @@ static int stress_sysinval_child(const stress_args_t *args, void *context)
 static int stress_sysinval(const stress_args_t *args)
 {
 	int ret, rc = EXIT_NO_RESOURCE;
-	size_t i, syscalls_exercised;
+	size_t i, syscalls_exercised, syscalls_unique;
 	const size_t page_size = args->page_size;
 	const size_t current_context_size =
 		(sizeof(*current_context) + page_size) & ~(page_size - 1);
@@ -2298,7 +2298,9 @@ static int stress_sysinval(const stress_args_t *args)
 	size_t page_ptr_wr_size = page_size << 1;
 	char filename[PATH_MAX];
 	const size_t stress_syscall_args_sz = SIZEOF_ARRAY(stress_syscall_args);
-	const size_t stress_syscall_count_sz = stress_syscall_args_sz * sizeof(*stress_syscall_count);
+	const size_t stress_syscall_exercised_sz = stress_syscall_args_sz * sizeof(*stress_syscall_exercised);
+	bool syscall_exercised[stress_syscall_args_sz];
+	bool syscall_unique[stress_syscall_args_sz];
 
 	time_end = stress_time_now() + (double)g_opt_timeout;
 
@@ -2329,11 +2331,12 @@ static int stress_sysinval(const stress_args_t *args)
 	}
 	(void)unlink(filename);
 
-	stress_syscall_count = mmap(NULL, stress_syscall_count_sz,
+	stress_syscall_exercised =
+		(bool *)mmap(NULL, stress_syscall_exercised_sz,
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS,
 				-1, 0);
-	if (stress_syscall_count == MAP_FAILED) {
+	if (stress_syscall_exercised == MAP_FAILED) {
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto tidy;
@@ -2395,20 +2398,45 @@ static int stress_sysinval(const stress_args_t *args)
 	futex_ptrs[0] = (long)(small_ptr + page_size -1);
 	futex_ptrs[1] = (long)page_ptr;
 
-	if (args->instance == 0)
-		pr_dbg("%s: exercising %zd syscall test patterns\n", args->name, SIZEOF_ARRAY(stress_syscall_args));
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = stress_oomable_child(args, NULL, stress_sysinval_child, STRESS_OOMABLE_DROP_CAP);
 
+	(void)memset(syscall_exercised, 0, sizeof(syscall_exercised));
+	(void)memset(syscall_unique, 0, sizeof(syscall_unique));
+	syscalls_exercised = 0;
+	syscalls_unique = 0;
+
+	/*
+	 *  Determine the number of syscalls that we can test vs
+ 	 *  the number of syscalls actually exercised
+	 */
 	for (syscalls_exercised = 0, i = 0; i < stress_syscall_args_sz; i++) {
-		if (stress_syscall_count[i])
+		unsigned long syscall = stress_syscall_args[i].syscall;
+		size_t exercised = 0, unique = 0;
+		size_t j;
+
+		for (j = 0; j < stress_syscall_args_sz; j++) {
+			if (syscall == stress_syscall_args[j].syscall) {
+				if (!syscall_unique[j]) {
+					syscall_unique[j] = true;
+					unique = true;
+				}
+				if (!syscall_exercised[j] &&
+				    stress_syscall_exercised[j]) {
+					syscall_exercised[j] = true;
+					exercised = true;
+				}
+			}
+		}
+		if (unique)
+			syscalls_unique++;
+		if (exercised)
 			syscalls_exercised++;
 	}
 	pr_dbg("%s: %zd of %zd (%.2f%%) unique system calls exercised\n",
-		args->name, syscalls_exercised, stress_syscall_args_sz,
-		(float)(syscalls_exercised * 100) / stress_syscall_args_sz);
+		args->name, syscalls_exercised, syscalls_unique,
+		(float)(syscalls_exercised * 100) / syscalls_unique);
 	pr_dbg("%s: %" PRIu64 " unique syscalls argument combinations causing premature child termination\n",
 		args->name, current_context->skip_crashed);
 	pr_dbg("%s: ignored %" PRIu64 " unique syscall patterns that were not failing and %" PRIu64 " that timed out\n",
@@ -2418,8 +2446,8 @@ static int stress_sysinval(const stress_args_t *args)
 
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	if (stress_syscall_count && stress_syscall_count != MAP_FAILED)
-		(void)munmap((void *)stress_syscall_count, stress_syscall_count_sz);
+	if (stress_syscall_exercised && stress_syscall_exercised != MAP_FAILED)
+		(void)munmap((void *)stress_syscall_exercised, stress_syscall_exercised_sz);
 	if (page_ptr_wr && page_ptr_wr != MAP_FAILED)
 		(void)munmap((void *)page_ptr_wr, page_ptr_wr_size);
 	if (page_ptr && page_ptr != MAP_FAILED)

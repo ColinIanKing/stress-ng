@@ -253,6 +253,7 @@ err_msg:
 	*cb = NULL;
 	*events = NULL;
 	*cbs = NULL;
+	*fds = NULL;
 
 	return -1;
 }
