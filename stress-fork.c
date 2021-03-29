@@ -38,6 +38,9 @@ static const stress_help_t vfork_help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+#define STRESS_FORK	(0)
+#define STRESS_VFORK	(1)
+
 /*
  *  stress_set_fork_max()
  *	set maximum number of forks allowed
@@ -66,26 +69,6 @@ static int stress_set_vfork_max(const char *opt)
 	return stress_set_setting("vfork-max", TYPE_ID_UINT32, &vfork_max);
 }
 
-/*
- *  local_shim_fork()
- *	wrapper to fork. If native system call is available then
- *	use this 50% of the time and use the libc wrapped fork 50%
- *	of the time. Otherwise use the libc wrapper version 100%
- *	of the time. Linux implementations of libc fork map to
- *	using clone().
- */
-static pid_t local_shim_fork(void)
-{
-#if defined(__NR_fork)
-	static int which;
-
-	return (++which & 1) ?
-		syscall(__NR_fork) : fork();
-#else
-	return fork();
-#endif
-}
-
 typedef struct {
 	pid_t	pid;	/* Child PID */
 	int	err;	/* Saved fork errno */
@@ -98,8 +81,7 @@ typedef struct {
  */
 static int stress_fork_fn(
 	const stress_args_t *args,
-	pid_t (*fork_fn)(void),
-	const char *fork_fn_name,
+	const int which,
 	const uint32_t fork_max)
 {
 	static fork_info_t info[MAX_FORKS];
@@ -117,11 +99,40 @@ static int stress_fork_fn(
 
 	do {
 		NOCLOBBER uint32_t i, n;
+		NOCLOBBER char *fork_fn_name;
 
 		(void)memset(info, 0, sizeof(info));
 
 		for (n = 0; n < fork_max; n++) {
-			pid_t pid = fork_fn();
+			pid_t pid;
+#if defined(__NR_fork)
+			static int which_fork;
+#endif
+
+			switch (which) {
+			case STRESS_FORK:
+#if defined(__NR_fork)
+				fork_fn_name = "fork";
+				if (++which_fork & 1) {
+					pid = fork();
+				} else {
+					pid = syscall(__NR_fork);
+				}
+#else
+				fork_fn_name = "fork";
+				pid = fork();
+#endif
+				break;
+			case STRESS_VFORK:
+				fork_fn_name = "vfork";
+				pid = vfork();
+				break;
+			default:
+				/* This should not happen */
+				fork_fn_name = "unknown";
+				pr_err("%s: bad fork/vfork function, aborting\n", args->name);
+				break;
+			}
 
 			if (pid == 0) {
 				/*
@@ -132,6 +143,7 @@ static int stress_fork_fn(
 				 */
 				if (setsid() != (pid_t) -1)
 					shim_vhangup();
+				(void)shim_sched_yield();
 				_exit(0);
 			} else if (pid < 0) {
 				info[n].err = errno;
@@ -146,7 +158,7 @@ static int stress_fork_fn(
 			if (info[i].pid > 0) {
 				int status;
 				/* Parent, kill and then wait for child */
-				(void)kill(info[i].pid, SIGKILL);
+				/* (void)kill(info[i].pid, SIGKILL); no need to kill */
 				(void)shim_waitpid(info[i].pid, &status, 0);
 				inc_counter(args);
 			}
@@ -171,7 +183,7 @@ static int stress_fork_fn(
 		 *  vfork so check the time in case SIGARLM was not
 		 *  delivered.
 		 */
-		if ((fork_fn == vfork) && (stress_time_now() > time_end))
+		if ((which == STRESS_VFORK) && (stress_time_now() > time_end))
 			break;
 #endif
 	} while (keep_stressing(args));
@@ -197,7 +209,7 @@ static int stress_fork(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	rc = stress_fork_fn(args, local_shim_fork, "fork", fork_max);
+	rc = stress_fork_fn(args, STRESS_VFORK, fork_max);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -225,7 +237,7 @@ static int stress_vfork(const stress_args_t *args)
 			vfork_max = MIN_VFORKS;
 	}
 
-	rc = stress_fork_fn(args, vfork, "vfork", vfork_max);
+	rc = stress_fork_fn(args, STRESS_VFORK, vfork_max);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
