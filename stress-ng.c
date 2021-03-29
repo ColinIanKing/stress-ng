@@ -3278,6 +3278,7 @@ int main(int argc, char **argv, char **envp)
 	stress_log_system_info();
 	stress_log_system_mem_info();
 
+	pr_runinfo();
 	pr_dbg("%" PRId32 " processor%s online, %" PRId32
 		" processor%s configured\n",
 		cpus_online, cpus_online == 1 ? "" : "s",

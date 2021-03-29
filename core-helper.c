@@ -982,6 +982,46 @@ void stress_strnrnd(char *str, const size_t len)
 }
 
 /*
+ *  pr_run_info()
+ *	short info about the system we are running stress-ng on
+ *	for the -v option
+ */
+void pr_runinfo(void)
+{
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
+	struct utsname uts;
+#endif
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO)
+	struct sysinfo info;
+#endif
+	if (!(g_opt_flags & PR_DEBUG))
+		return;
+
+#if defined(HAVE_UNAME) &&	\
+    defined(HAVE_SYS_UTSNAME_H)
+	if (uname(&uts) == 0) {
+		pr_dbg("system: %s %s %s %s %s\n",
+			uts.sysname, uts.nodename, uts.release,
+			uts.version, uts.machine);
+	}
+#endif
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO)
+	if (sysinfo(&info) == 0) {
+		char ram_t[32], ram_f[32], ram_s[32];
+
+		stress_uint64_to_str(ram_t, sizeof(ram_t), (uint64_t)info.totalram);
+		stress_uint64_to_str(ram_f, sizeof(ram_t), (uint64_t)info.freeram);
+		stress_uint64_to_str(ram_s, sizeof(ram_t), (uint64_t)info.freeswap);
+		pr_dbg("RAM total: %s, RAM free: %s, SWAP free: %s\n", ram_t, ram_f, ram_s);
+	}
+#endif
+}
+
+
+/*
  *  pr_yaml_runinfo()
  *	log info about the system we are running stress-ng on
  */
