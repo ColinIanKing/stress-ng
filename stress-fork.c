@@ -105,23 +105,12 @@ static int stress_fork_fn(
 
 		for (n = 0; n < fork_max; n++) {
 			pid_t pid;
-#if defined(__NR_fork)
-			static int which_fork;
-#endif
 
 			switch (which) {
 			case STRESS_FORK:
-#if defined(__NR_fork)
-				fork_fn_name = "fork";
-				if (++which_fork & 1) {
-					pid = fork();
-				} else {
-					pid = syscall(__NR_fork);
-				}
-#else
+				pid = fork();
 				fork_fn_name = "fork";
 				pid = fork();
-#endif
 				break;
 			case STRESS_VFORK:
 				fork_fn_name = "vfork";
