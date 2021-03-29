@@ -494,7 +494,11 @@ install: stress-ng stress-ng.1.gz
 	mkdir -p ${DESTDIR}${BINDIR}
 	cp stress-ng ${DESTDIR}${BINDIR}
 	mkdir -p ${DESTDIR}${MANDIR}
+ifneq ($(MAN_COMPRESS),0)
 	cp stress-ng.1.gz ${DESTDIR}${MANDIR}
+else
+	cp stress-ng.1 ${DESTDIR}${MANDIR}
+endif
 	mkdir -p ${DESTDIR}${JOBDIR}
 	cp -rp example-jobs/*.job ${DESTDIR}${JOBDIR}
 	mkdir -p ${DESTDIR}${BASHDIR}
