@@ -108,7 +108,6 @@ static int stress_fork_fn(
 
 			switch (which) {
 			case STRESS_FORK:
-				pid = fork();
 				fork_fn_name = "fork";
 				pid = fork();
 				break;
