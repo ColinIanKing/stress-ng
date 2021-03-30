@@ -597,7 +597,7 @@ static int stress_memthrash(const stress_args_t *args)
 	stress_memthrash_context_t context;
 	int rc;
 
-	context.total_cpus = stress_get_processors_configured();
+	context.total_cpus = stress_get_processors_online();
 	context.max_threads = stress_memthrash_max(args->num_instances, context.total_cpus);
 	context.memthrash_method = &memthrash_methods[0];
 
