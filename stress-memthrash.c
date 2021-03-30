@@ -200,10 +200,10 @@ static void HOT OPTIMIZE3 stress_memthrash_swap(
 		mem_u8[offset2] = tmp;
 
 		offset1 += 129;
-		if (offset1 > mem_size)
+		if (offset1 >= mem_size)
 			offset1 -= mem_size;
 		offset2 += 65;
-		if (offset2 > mem_size)
+		if (offset2 >= mem_size)
 			offset2 -= mem_size;
 	}
 }
