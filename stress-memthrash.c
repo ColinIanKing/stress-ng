@@ -311,7 +311,8 @@ static void HOT OPTIMIZE3 stress_memthrash_spinread(
 	const size_t mem_size)
 {
 	uint32_t i;
-	const size_t offset = stress_mwc32() % mem_size;
+	const size_t size = mem_size - (8 * sizeof(uint32_t));
+	const size_t offset = (stress_mwc32() % size) & ~(size_t)3;
 	volatile uint32_t *ptr = (uint32_t *)(((uint8_t *)mem) + offset);
 
 	(void)args;
@@ -334,7 +335,8 @@ static void HOT OPTIMIZE3 stress_memthrash_spinwrite(
 	const size_t mem_size)
 {
 	uint32_t i;
-	const size_t offset = stress_mwc32() % mem_size;
+	const size_t size = mem_size - (8 * sizeof(uint32_t));
+	const size_t offset = (stress_mwc32() % size) & ~(size_t)3;
 	volatile uint32_t *ptr = (uint32_t *)(((uint8_t *)mem) + offset);
 
 	(void)args;
