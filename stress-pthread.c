@@ -586,18 +586,18 @@ reap:
 			/* fall through and unlock */
 		}
 		for (j = 0; j < i; j++) {
+			if (pthreads[j].ret == 0) {
+				ret = pthread_join(pthreads[j].pthread, NULL);
+				if ((ret) && (ret != ESRCH)) {
+					pr_fail("%s: pthread_join failed (parent), errno=%d (%s)\n",
+						args->name, ret, strerror(ret));
+					stop_running();
+				}
+			}
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)
 			if (pthreads[j].stack != MAP_FAILED)
 				(void)munmap(pthreads[j].stack, stack_size);
 #endif
-			if (pthreads[j].ret)
-				continue;
-			ret = pthread_join(pthreads[j].pthread, NULL);
-			if ((ret) && (ret != ESRCH)) {
-				pr_fail("%s: pthread_join failed (parent), errno=%d (%s)\n",
-					args->name, ret, strerror(ret));
-				stop_running();
-			}
 		}
 	} while (!locked && keep_running() && keep_stressing(args));
 
