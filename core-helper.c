@@ -646,19 +646,20 @@ void stress_set_proc_name(const char *name)
 {
 	(void)name;
 
-	if (!(g_opt_flags & OPT_FLAGS_KEEP_NAME)) {
+	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
+		return;
+
 #if defined(HAVE_BSD_UNISTD_H) &&	\
     defined(HAVE_SETPROCTITLE)
-		/* Sets argv[0] */
-		setproctitle("-%s", name);
+	/* Sets argv[0] */
+	setproctitle("-%s", name);
 #endif
 #if defined(HAVE_PRCTL) &&		\
     defined(HAVE_SYS_PRCTL_H) &&	\
     defined(PR_SET_NAME)
-		/* Sets the comm field */
-		(void)prctl(PR_SET_NAME, name);
+	/* Sets the comm field */
+	(void)prctl(PR_SET_NAME, name);
 #endif
-	}
 }
 
 /*
@@ -679,6 +680,9 @@ void stress_set_proc_state(const char *name, const int state)
 	};
 
 	(void)name;
+
+	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
+		return;
 
 	if ((state < 0) || (state >= (int)SIZEOF_ARRAY(stress_states)))
 		return;
@@ -1009,6 +1013,8 @@ void pr_runinfo(void)
 #endif
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
+	/* Keep static analyzer happy */
+	(void)memset(&info, 0, sizeof(info));
 	if (sysinfo(&info) == 0) {
 		char ram_t[32], ram_f[32], ram_s[32];
 
