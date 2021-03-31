@@ -186,9 +186,7 @@ static int stress_chdir(const stress_args_t *args)
 			if (!is_root && (fchmod(fd, 0000) == 0)) {
 				rc = fchdir(fd);
 				(void)rc;
-				rc = fstat(fd, &statbuf);
-				if (rc == 0)
-					rc = fchmod(fd, statbuf.st_mode & 0777);
+				rc = fchmod(fd, statbuf.st_mode & 0777);
 				(void)rc;
 			}
 
