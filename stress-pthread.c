@@ -475,9 +475,12 @@ static int stress_pthread(const stress_args_t *args)
 			 *  setting.
 			 */
 			pthreads[i].stack = mmap(NULL, stack_size, PROT_READ | PROT_WRITE,
-				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 			if (pthreads[i].stack == MAP_FAILED)
 				break;
+
+			/* Ensure stack is all in physical memory */
+			stress_mincore_touch_pages(pthreads[i].stack, stack_size);
 
 			ret = pthread_attr_init(&attr);
 			if (ret) {
