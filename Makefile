@@ -364,7 +364,7 @@ OBJS = $(SRC:.c=.o)
 APPARMOR_PARSER=/sbin/apparmor_parser
 
 all: makeconfig
-	+$(MAKE) stress-ng
+	+$(MAKE) stress-ng VERBOSE=$(VERBOSE)
 
 #
 #  Load in and set flags based on config
