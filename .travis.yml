@@ -1,9 +1,11 @@
-dist: trusty
+dist: focal
 sudo: required
 
 matrix:
     include:
-        - env: PEDANTIC=1
+        - env
+            - PEDANTIC=1
+            - VERBOSE=1
 
 before_install:
     - sudo apt-get update -q
@@ -18,8 +20,11 @@ before_install:
     - sudo apt-get install libcap-dev || true
     - sudo apt-get install libsctp-dev || true
     - sudo apt-get install libgcrypt20-dev || true
+    - sudo apt-get install libjudy-dev || true
+    - sudo apt-get install libatomic1 || true
+    - sudo apt-get install libipsec-mb-dev || true
 
 language: c
 
 script:
-- make -j2 PEDANTIC=$PEDANTIC
+- make -j2 PEDANTIC=$PEDANTIC VERBOSE=$VERBOSE
