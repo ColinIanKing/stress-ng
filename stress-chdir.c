@@ -58,6 +58,7 @@ static int stress_chdir(const stress_args_t *args)
 	bool *mkdir_ok;
 	struct stat statbuf;
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
+	bool got_statbuf = false;
 
 	(void)stress_get_setting("chdir-dirs", &chdir_dirs);
 	paths = calloc(chdir_dirs, sizeof(*paths));
@@ -100,6 +101,8 @@ static int stress_chdir(const stress_args_t *args)
 	longpath[0] = '/';
 
 	(void)stress_temp_filename_args(args, badpath, sizeof(badpath), ~0ULL);
+	(void)memset(&statbuf, 0, sizeof(statbuf));
+	*path = '\0';	/* Keep static analysis tools happy */
 
 	/* Populate */
 	for (i = 0; i < chdir_dirs; i++) {
@@ -135,10 +138,17 @@ static int stress_chdir(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			goto done;
 
-		if ((i == 0) && (stat(path, &statbuf) < 0)) {
-			pr_fail("%s: fstat on %s failed, errno=%d (%s)\n",
-				args->name, path, errno, strerror(errno));
+		if (!got_statbuf) {
+			if (stat(path, &statbuf) == 0)
+				got_statbuf = true;
+
 		}
+	}
+
+	if (!got_statbuf && *path) {
+		pr_fail("%s: fstat on %s failed, errno=%d (%s)\n",
+			args->name, path, errno, strerror(errno));
+		goto abort;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
