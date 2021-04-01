@@ -52,7 +52,14 @@ static shim_sighandler_t shim_signal(int signum, shim_sighandler_t handler)
 {
 #if defined(__NR_signal) &&	\
     !defined(__sparc__)
-	return (shim_sighandler_t)syscall(__NR_signal, signum, handler);
+	shim_sighandler_t ret;
+
+	ret = (shim_sighandler_t)syscall(__NR_signal, signum, handler);
+	if ((ret == SIG_ERR) && (errno == ENOSYS)) {
+		errno = 0;
+		ret = signal(signum, handler);
+	}
+	return ret;
 #else
 	return signal(signum, handler);
 #endif
