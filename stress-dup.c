@@ -97,10 +97,7 @@ static int static_dup2_child(info_t *info)
 	struct sigaction action;
 	struct itimerval timer;
 	pid_t child_tid = -1, parent_tid = -1;
-	const ssize_t stack_offset =
-                stress_get_stack_direction() *
-                (sizeof(info->stack)- 64);
-	char *stack_top = ((char *)info->stack) + stack_offset;
+	char *stack_top = (char *)stress_get_stack_top((void *)info->stack, sizeof(info->stack));
 
 	info->fd_pipe = -1;
 	info->pid_clone = -1;

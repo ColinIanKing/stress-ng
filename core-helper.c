@@ -717,7 +717,7 @@ char *stress_munge_underscore(const char *str)
  *  stress_get_stack_direction_helper()
  *	helper to determine direction of stack
  */
-static ssize_t stress_get_stack_direction_helper(const uint8_t *val1)
+static ssize_t NOINLINE OPTIMIZE0 stress_get_stack_direction_helper(const uint8_t *val1)
 {
 	const uint8_t val2 = 0;
 	const ssize_t diff = &val2 - (const uint8_t *)val1;
@@ -741,6 +741,18 @@ ssize_t stress_get_stack_direction(void)
 
 	waste[(sizeof waste) - 1] = 0;
 	return stress_get_stack_direction_helper(&val1);
+}
+
+/*
+ *  stress_get_stack_top()
+ *	Get the stack top given the start and size of the stack,
+ *	offset by a bit of slop. Assumes stack is > 64 bytes
+ */
+void *stress_get_stack_top(void *start, size_t size)
+{
+	const size_t offset = stress_get_stack_direction() < 0 ? (size - 64) : 64;
+
+	return (void *)((char *)start + offset);
 }
 
 /*

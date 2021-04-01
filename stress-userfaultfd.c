@@ -182,9 +182,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	stress_context_t c;
 	bool do_poll = true;
 	static uint8_t stack[STACK_SIZE]; /* Child clone stack */
-	const ssize_t stack_offset =
-		stress_get_stack_direction() * (STACK_SIZE - 64);
-	uint8_t *stack_top = stack + stack_offset;
+	uint8_t *stack_top = (uint8_t *)stress_get_stack_top((void *)stack, STACK_SIZE);
 	size_t userfaultfd_bytes = DEFAULT_MMAP_BYTES;
 
 	(void)context;

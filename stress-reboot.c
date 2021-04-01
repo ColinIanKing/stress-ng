@@ -89,9 +89,6 @@ static int stress_reboot(const stress_args_t *args)
 {
 	const bool reboot_capable = stress_check_capability(SHIM_CAP_SYS_BOOT);
 #if defined(HAVE_CLONE)
-	const ssize_t stack_offset =
-		stress_get_stack_direction() *
-		(CLONE_STACK_SIZE - 64);
 	char *stack;
 
 	stack = malloc(CLONE_STACK_SIZE);
@@ -106,7 +103,7 @@ static int stress_reboot(const stress_args_t *args)
 	do {
 		int ret;
 #if defined(HAVE_CLONE)
-		char *stack_top = stack + stack_offset;
+		char *stack_top = (char *)stress_get_stack_top((void *)stack, CLONE_STACK_SIZE);
 		pid_t pid;
 
 		pid = clone(reboot_clone_func, stress_align_stack(stack_top),

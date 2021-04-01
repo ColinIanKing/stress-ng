@@ -325,9 +325,6 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 	bool use_clone3 = true;
 	const size_t mmap_size = args->page_size * 32768;
 	void *ptr;
-	const ssize_t stack_offset =
-		stress_get_stack_direction() *
-		(CLONE_STACK_SIZE - 64);
 #if defined(MAP_POPULATE)
 	const int mflags = MAP_ANONYMOUS | MAP_PRIVATE | MAP_POPULATE;
 #else
@@ -389,7 +386,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 					_exit(clone_func(&clone_arg));
 				}
 			} else {
-				char *stack_top = ((char *)clone_info->stack) + stack_offset;
+				char *stack_top = (char *)stress_get_stack_top((char *)clone_info->stack, CLONE_STACK_SIZE);
 #if defined(__FreeBSD_kernel__) || 	\
     defined(__NetBSD__)
 				clone_info->pid = clone(clone_func,

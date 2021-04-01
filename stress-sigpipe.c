@@ -82,10 +82,7 @@ again:
 			pid = fork();
 		} else {
 			static char stack[CLONE_STACK_SIZE];
-			const ssize_t stack_offset =
-				stress_get_stack_direction() *
-				(CLONE_STACK_SIZE - 64);
-			char *stack_top = stack + stack_offset;
+			char *stack_top = (char *)stress_get_stack_top((void *)stack, CLONE_STACK_SIZE);
 
 			pid = clone(pipe_child, stress_align_stack(stack_top),
 				CLONE_VM | CLONE_FS | CLONE_SIGHAND | SIGCHLD, NULL);

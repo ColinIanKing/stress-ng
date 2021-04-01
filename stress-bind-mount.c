@@ -101,16 +101,13 @@ static int stress_bind_mount(const stress_args_t *args)
 {
 	int pid = 0, status;
 	stress_pthread_args_t pargs = { args, NULL, 0 };
-	const ssize_t stack_offset =
-		stress_get_stack_direction() *
-		(CLONE_STACK_SIZE - 64);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		int ret;
 		static char stack[CLONE_STACK_SIZE];
-		char *stack_top = stack + stack_offset;
+		char *stack_top = (char *)stress_get_stack_top((void *)stack, CLONE_STACK_SIZE);
 
 		(void)memset(stack, 0, sizeof stack);
 

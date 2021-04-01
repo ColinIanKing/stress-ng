@@ -358,9 +358,7 @@ static int stress_vm_rw(const stress_args_t *args)
 {
 	stress_context_t ctxt;
 	uint8_t stack[64*1024];
-	const ssize_t stack_offset =
-		stress_get_stack_direction() * (STACK_SIZE - 64);
-	uint8_t *stack_top = stack + stack_offset;
+	uint8_t *stack_top = (uint8_t *)stress_get_stack_top((void *)stack, STACK_SIZE);
 	size_t vm_rw_bytes = DEFAULT_VM_RW_BYTES;
 	int rc;
 
