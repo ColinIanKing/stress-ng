@@ -128,6 +128,7 @@ static int stress_mknod_check_errno(
 	case ENOSPC:
 	case EPERM:
 	case EROFS:
+	case EINVAL:
 		/* Don't care about these */
 		return 0;
 	default:
