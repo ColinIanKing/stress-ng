@@ -45,7 +45,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-#if defined(HAVE_MQUEUE_H)
+#if defined(HAVE_SYS_QUEUE_H)
 
 static volatile bool do_jmp = true;
 static sigjmp_buf jmp_env;
@@ -84,7 +84,7 @@ static int stress_set_list_size(const char *opt)
 	return stress_set_setting("list-size", TYPE_ID_UINT64, &list_size);
 }
 
-#if defined(HAVE_MQUEUE_H)
+#if defined(HAVE_SYS_QUEUE_H)
 
 /*
  *  stress_list_handler()
@@ -341,7 +341,7 @@ static void stress_list_all(
  * Table of list stress methods
  */
 static const stress_list_method_info_t list_methods[] = {
-#if defined(HAVE_MQUEUE_H)
+#if defined(HAVE_SYS_QUEUE_H)
 	{ "all",	stress_list_all },
 	{ "circleq",	stress_list_circleq },
 	{ "list",	stress_list_list },
@@ -383,7 +383,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_MQUEUE_H)
+#if defined(HAVE_SYS_QUEUE_H)
 /*
  *  Rotate right a 64 bit value, compiler
  *  optimizes this down to a rotate and store
