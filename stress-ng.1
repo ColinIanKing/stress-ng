@@ -1999,6 +1999,26 @@ start N workers creating and removing hardlinks.
 .B \-\-link\-ops N
 stop link stress workers after N bogo operations.
 .TP
+.B \-\-list N
+start N workers that exercise list data structures. The default is
+to add, find and remove 5,000 64 bit integers into circleq (doubly
+linked circle queue), list (doubly linked list), slist (singly linked
+list), stailq (single linked tail queue) and tailq (double linked tail
+queue) lists.  The intention of this stressor is to exercise memory
+and cache with the various list operations.
+.TP
+.B \-\-list\-ops N
+stop list stressors after N bogo ops. A bogo op covers the addition,
+finding and removing all the items into the list(s).
+.TP
+.B \-\-list\-size N
+specify the size of the list, where N is the number of 64 bit integers
+to be added into the list.
+.TP
+.B \-\-list\-method [ all | circleq | list | slist | stailq | tailq ]
+specify the list to be used. By default, all the list methods are
+used (the 'all' option).
+.TP
 .B \-\-lockbus N
 start N workers that rapidly lock and increment 64 bytes of randomly chosen
 memory from a 16MB mmap'd region (Intel x86 and ARM CPUs only).  This will

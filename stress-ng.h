@@ -356,6 +356,10 @@
 #include <sys/ptrace.h>
 #endif
 
+#if defined(HAVE_SYS_QUEUE_H)
+#include <sys/queue.h>
+#endif
+
 #if defined(HAVE_SYS_QUOTA_H)
 #include <sys/quota.h>
 #endif
@@ -1539,6 +1543,10 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define MAX_LEASE_BREAKERS	(64)
 #define DEFAULT_LEASE_BREAKERS	(1)
 
+#define MIN_LIST_SIZE		(64)
+#define MAX_LIST_SIZE		(1000000)
+#define DEFAULT_LIST_SIZE	(5000)
+
 #define MIN_LSEARCH_SIZE	(1 * KB)
 #define MAX_LSEARCH_SIZE	(1 * MB)
 #define DEFAULT_LSEARCH_SIZE	(8 * KB)
@@ -2452,6 +2460,7 @@ typedef struct {
 	MACRO(l1cache)		\
 	MACRO(lease)		\
 	MACRO(link)		\
+	MACRO(list)		\
 	MACRO(locka)		\
 	MACRO(lockbus)		\
 	MACRO(lockf)		\
@@ -3008,6 +3017,11 @@ typedef enum {
 
 	OPT_link,
 	OPT_link_ops,
+
+	OPT_list,
+	OPT_list_ops,
+	OPT_list_method,
+	OPT_list_size,
 
 	OPT_lockbus,
 	OPT_lockbus_ops,
