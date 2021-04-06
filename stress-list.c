@@ -13,7 +13,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Slistt, Fifth Floor, Boston, MA 02110-1301, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  * This code is a complete clean re-write of the stress tool by
  * Colin Ian King <colin.king@canonical.com> and attempts to be
@@ -58,6 +58,7 @@ struct list_entry {
 		SLIST_ENTRY(list_entry) slist_entries;
 		STAILQ_ENTRY(list_entry) stailq_entries;
 		TAILQ_ENTRY(list_entry) tailq_entries;
+		struct list_entry *next;
 	} u;
 };
 
@@ -99,6 +100,47 @@ static void MLOCKED_TEXT stress_list_handler(int signum)
 	}
 }
 
+static void OPTIMIZE3 stress_list_slistt(
+	const stress_args_t *args,
+	const size_t n,
+	struct list_entry *data)
+{
+	size_t i;
+	register struct list_entry *entry, *head, *tail;
+	bool found = false;
+
+	entry = data;
+	head = entry;
+	tail = entry;
+	entry++;
+	for (i = 1; i < n; i++, entry++) {
+		tail->u.next = entry;
+		tail = entry;
+	}
+
+	for (entry = head, i = 0; i < n; i++, entry++) {
+		struct list_entry *find;
+
+		for (find = head; find; find = find->u.next) {
+			if (find == entry) {
+				found = true;
+				break;
+			}
+		}
+
+		if (!found)
+			pr_err("%s: slistt entry #%zd not found\n",
+				args->name, i);
+	}
+	while (head) {
+		register struct list_entry *next = head->u.next;
+
+		head->u.next = NULL;
+		head = next;
+	}
+}
+
+
 static void stress_list_list(
 	const stress_args_t *args,
 	const size_t n,
@@ -118,11 +160,12 @@ static void stress_list_list(
 	for (entry = data, i = 0; i < n; i++, entry++) {
 		struct list_entry *find;
 
-		LIST_FOREACH(find, &head, u.list_entries)
+		LIST_FOREACH(find, &head, u.list_entries) {
 			if (find == entry) {
 				found = true;
 				break;
 			}
+		}
 
 		if (!found)
 			pr_err("%s: list entry #%zd not found\n",
@@ -155,11 +198,12 @@ static void stress_list_slist(
 	for (entry = data, i = 0; i < n; i++, entry++) {
 		struct list_entry *find;
 
-		SLIST_FOREACH(find, &head, u.slist_entries)
+		SLIST_FOREACH(find, &head, u.slist_entries) {
 			if (find == entry) {
 				found = true;
 				break;
 			}
+		}
 
 		if (!found)
 			pr_err("%s: slist entry #%zd not found\n",
@@ -190,11 +234,12 @@ static void stress_list_circleq(
 	for (entry = data, i = 0; i < n; i++, entry++) {
 		struct list_entry *find;
 
-		CIRCLEQ_FOREACH(find, &head, u.circleq_entries)
+		CIRCLEQ_FOREACH(find, &head, u.circleq_entries) {
 			if (find == entry) {
 				found = true;
 				break;
 			}
+		}
 
 		if (!found)
 			pr_err("%s: circleq entry #%zd not found\n",
@@ -225,11 +270,12 @@ static void stress_list_stailq(
 	for (entry = data, i = 0; i < n; i++, entry++) {
 		struct list_entry *find;
 
-		STAILQ_FOREACH(find, &head, u.stailq_entries)
+		STAILQ_FOREACH(find, &head, u.stailq_entries) {
 			if (find == entry) {
 				found = true;
 				break;
 			}
+		}
 
 		if (!found)
 			pr_err("%s: stailq entry #%zd not found\n",
@@ -261,11 +307,12 @@ static void stress_list_tailq(
 	for (entry = data, i = 0; i < n; i++, entry++) {
 		struct list_entry *find;
 
-		TAILQ_FOREACH(find, &head, u.tailq_entries)
+		TAILQ_FOREACH(find, &head, u.tailq_entries) {
 			if (find == entry) {
 				found = true;
 				break;
 			}
+		}
 
 		if (!found)
 			pr_err("%s: tailq entry #%zd not found\n",
@@ -299,6 +346,7 @@ static const stress_list_method_info_t list_methods[] = {
 	{ "circleq",	stress_list_circleq },
 	{ "list",	stress_list_list },
 	{ "slist",	stress_list_slist },
+	{ "slistt",	stress_list_slistt },
 	{ "stailq",	stress_list_stailq },
 	{ "tailq",	stress_list_tailq },
 #endif

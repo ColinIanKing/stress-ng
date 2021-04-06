@@ -2002,10 +2002,11 @@ stop link stress workers after N bogo operations.
 .B \-\-list N
 start N workers that exercise list data structures. The default is
 to add, find and remove 5,000 64 bit integers into circleq (doubly
-linked circle queue), list (doubly linked list), slist (singly linked
-list), stailq (single linked tail queue) and tailq (double linked tail
-queue) lists.  The intention of this stressor is to exercise memory
-and cache with the various list operations.
+linked circle queue), list (doubly linked list), slist (singly
+linked list), slistt (singly linked list using tail), stailq (singly
+linked tail queue) and tailq (doubly linked tail queue) lists. The
+intention of this stressor is to exercise memory and cache with the
+various list operations.
 .TP
 .B \-\-list\-ops N
 stop list stressors after N bogo ops. A bogo op covers the addition,
