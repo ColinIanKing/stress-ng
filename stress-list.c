@@ -423,6 +423,7 @@ static void stress_list_all(
 #if defined(HAVE_SYS_QUEUE_SLIST)
 	stress_list_slist(args, n, data);
 #endif
+	stress_list_slistt(args, n, data);
 #if defined(HAVE_SYS_QUEUE_STAILQ)
 	stress_list_stailq(args, n, data);
 #endif
