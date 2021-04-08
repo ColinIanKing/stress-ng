@@ -145,7 +145,8 @@ static int stress_pidfd(const stress_args_t *args)
 		} else {
 			/* Parent */
 			int pidfd, ret;
-
+			struct stat statbuf;
+			void *ptr;
 
 #if defined(PIDFD_NONBLOCK)
 			pidfd = stress_pidfd_open(pid, PIDFD_NONBLOCK);
@@ -168,6 +169,16 @@ static int stress_pidfd(const stress_args_t *args)
 				stress_pidfd_reap(pid, pidfd);
 				continue;
 			}
+
+			/* Exercise fstat'ing the pidfd */
+			ret = fstat(pidfd, &statbuf);
+			(void)ret;
+
+			/* Exercise illegal mmap'ing the pidfd */
+			ptr = mmap(NULL, args->page_size, PROT_READ,
+				MAP_PRIVATE, pidfd, 0);
+			if (ptr != MAP_FAILED)
+				(void)munmap(ptr, args->page_size);
 
 			/* Try to get fd 0 on child pid */
 			ret = shim_pidfd_getfd(pidfd, 0, 0);

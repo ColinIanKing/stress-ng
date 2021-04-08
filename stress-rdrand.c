@@ -30,6 +30,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+#define STRESS_SANE_LOOPS_QUICK	16
+#define STRESS_SANE_LOOPS	65536
+
 #if defined(HAVE_CPUID_H) &&	\
     defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_CPUID) &&	\
@@ -182,17 +185,64 @@ static inline uint64_t rand64(void)
 {			\
 }
 
+static int stress_rdrand_sane(const stress_args_t *args)
+{
+	const uint64_t r1 = rand64();
+	int i, changed, same;
+
+	for (changed = 0, i = 0; i < STRESS_SANE_LOOPS_QUICK; i++) {
+		const uint64_t r2 = rand64();
+
+		if (r1 != r2)
+			changed++;
+	}
+
+	/*
+	 *  random 64 bit reads locked up and all the same?
+	 */
+	if (changed == 0) {
+		pr_fail("%s: random value did not change in %d reads\n",
+			args->name, STRESS_SANE_LOOPS_QUICK);
+		return EXIT_FAILURE;
+	}
+
+	/*
+	 *  If STRESS_SANE_LOOPS is small, then it's unlikely (but not
+	 *  impossible) that we read the same 64 bit random data multiple
+	 *  times
+	 */
+	for (same = 0, i = 0; i < STRESS_SANE_LOOPS; i++) {
+		const uint64_t r2 = rand64();
+
+		if (r1 == r2)
+			same++;
+	}
+
+	/*  Not a failure, but it is worth reporting */
+	if (same > 0) {
+		pr_inf("%s: 64 bit random value was the same in %d of %d reads (should be quite unlikely)\n",
+			args->name,
+			same, STRESS_SANE_LOOPS);
+	}
+
+	return EXIT_SUCCESS;
+}
+
 /*
  *  stress_rdrand()
  *      stress Intel rdrand instruction
  */
 static int stress_rdrand(const stress_args_t *args)
 {
+	int rc = EXIT_SUCCESS;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (rdrand_supported) {
 		double time_start, duration, billion_bits;
 		bool lock = false;
+
+		rc = stress_rdrand_sane(args);
 
 		time_start = stress_time_now();
 		do {
@@ -229,7 +279,7 @@ static int stress_rdrand(const stress_args_t *args)
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_rdrand_info = {
