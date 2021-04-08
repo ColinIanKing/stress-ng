@@ -216,17 +216,25 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 
 	/* Get userfault fd */
 	if ((fd = shim_userfaultfd(0)) < 0) {
-		if (errno == ENOSYS) {
+		switch (errno) {
+		case EPERM:
+			pr_inf("%s: stressor will be skipped, insufficient "
+				"privilege", args->name);
+			rc = EXIT_NO_RESOURCE;
+			break;
+		case ENOSYS:
 			if (args->instance == 0)
 				pr_inf("%s: stressor will be skipped, "
 					"userfaultfd not supported\n",
 					args->name);
 			rc = EXIT_NOT_IMPLEMENTED;
-			goto unmap_data;
+			break;
+		default:
+			rc = exit_status(errno);
+			pr_err("%s: userfaultfd failed, errno = %d (%s)\n",
+				args->name, errno, strerror(errno));
+			break;
 		}
-		rc = exit_status(errno);
-		pr_err("%s: userfaultfd failed, errno = %d (%s)\n",
-			args->name, errno, strerror(errno));
 		goto unmap_data;
 	}
 
