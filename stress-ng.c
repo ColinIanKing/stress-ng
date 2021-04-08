@@ -1666,6 +1666,8 @@ redo:
 
 				ret = shim_waitpid(pid, &status, 0);
 				if (ret > 0) {
+					int exit_status = WEXITSTATUS(status);
+
 					if (WIFSIGNALED(status)) {
 #if defined(WTERMSIG)
 #if NEED_GLIBC(2,1,0)
@@ -1699,7 +1701,7 @@ redo:
 							*success = false;
 						}
 					}
-					switch (WEXITSTATUS(status)) {
+					switch (exit_status) {
 					case EXIT_SUCCESS:
 						break;
 					case EXIT_NO_RESOURCE:
@@ -1719,10 +1721,18 @@ redo:
 					case EXIT_METRICS_UNTRUSTWORTHY:
 						*metrics_success = false;
 						break;
+					case EXIT_FAILURE:
+						/*
+						 *  Stressors should really return EXIT_NOT_SUCCESS
+						 *  as EXIT_FAILURE should indicate a core stress-ng
+						 *  problem.
+						 */
+						exit_status = EXIT_NOT_SUCCESS;
+						CASE_FALLTHROUGH;
 					default:
 						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
-							ret, stressor_name, WEXITSTATUS(status),
-							stress_exit_status_to_string(WEXITSTATUS(status)));
+							ret, stressor_name, exit_status,
+							stress_exit_status_to_string(exit_status));
 						*success = false;
 						do_abort = true;
 						break;
