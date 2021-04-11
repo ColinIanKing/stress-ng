@@ -1800,7 +1800,8 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #endif
 
 /* Arch specific RISC-V */
-#if defined(__riscv)
+#if defined(__riscv) || \
+    defined(__riscv__)
 #define STRESS_ARCH_RISC_V	(1)
 #endif
 
