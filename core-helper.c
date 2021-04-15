@@ -1123,7 +1123,7 @@ int stress_cache_alloc(const char *name)
 	cpu_caches = stress_get_all_cpu_cache_details();
 	if (!cpu_caches) {
 		if (stress_warn_once())
-			pr_dbg("%s: using defaults, can't determine cache details from sysfs\n", name);
+			pr_dbg("%s: using defaults, cannot determine cache details from sysfs\n", name);
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
@@ -1176,14 +1176,18 @@ int stress_cache_alloc(const char *name)
 init_done:
 	stress_free_cpu_caches(cpu_caches);
 #endif
-	g_shared->mem_cache = calloc(g_shared->mem_cache_size, 1);
-	if (!g_shared->mem_cache) {
-		pr_err("%s: failed to allocate shared cache buffer\n",
-			name);
+	g_shared->mem_cache =
+		(uint8_t *)mmap(NULL, g_shared->mem_cache_size,
+				PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (g_shared->mem_cache == MAP_FAILED) {
+		g_shared->mem_cache = NULL;
+		pr_err("%s: failed to mmap shared cache buffer, errno=%d (%s)\n",
+			name, errno, strerror(errno));
 		return -1;
 	}
 	if (stress_warn_once())
-		pr_dbg("%s: default cache size: %" PRIu64 "K\n",
+		pr_dbg("%s: shared cache buffer size: %" PRIu64 "K\n",
 			name, g_shared->mem_cache_size / 1024);
 
 	return 0;
@@ -1195,7 +1199,8 @@ init_done:
  */
 void stress_cache_free(void)
 {
-	free(g_shared->mem_cache);
+	if (g_shared->mem_cache)
+		(void)munmap((void *)g_shared->mem_cache, g_shared->mem_cache_size);
 }
 
 /*
