@@ -1129,12 +1129,10 @@ int stress_cache_alloc(const char *name)
 	}
 
 	max_cache_level = stress_get_max_cache_level(cpu_caches);
-
 	if (g_shared->mem_cache_level > max_cache_level) {
 		if (stress_warn_once())
-			pr_dbg("%s: reducing cache level from L%d (too high) "
-				"to L%d\n", name,
-				g_shared->mem_cache_level, max_cache_level);
+			pr_dbg("%s: using cache maximum level L%d\n", name,
+				max_cache_level);
 		g_shared->mem_cache_level = max_cache_level;
 	}
 
@@ -1157,7 +1155,6 @@ int stress_cache_alloc(const char *name)
 					name, cache->ways);
 			g_shared->mem_cache_ways = cache->ways;
 		}
-
 		way_size = cache->size / cache->ways;
 
 		/* only fill the specified number of cache ways */
