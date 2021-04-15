@@ -301,6 +301,88 @@ stress_cpu_cache_t * stress_get_cpu_cache(const stress_cpus_t *cpus, const uint1
 	return stress_get_cache_by_cpu(cpu, cache_level);
 }
 
+static uint64_t stress_get_cpu_cache_value(
+	const char *cpu_path,
+	const char *file)
+{
+	const size_t cpu_path_len = strlen(cpu_path);
+	char path[cpu_path_len + 128];
+	char tmp[128];
+
+	(void)stress_mk_filename(path, sizeof(path), cpu_path, file);
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) == 0) {
+		return atoi(tmp);
+	}
+	return 0;
+}
+
+/*
+ *  stress_get_cpu_cache_sparc64()
+ *	find cache information as provided by linux SPARC64 
+ *	/sys/devices/system/cpu/cpu0
+ */
+static int stress_get_cpu_cache_sparc64(
+	stress_cpu_t *cpu,
+	const char *cpu_path)
+{
+	typedef enum {
+		CACHE_SIZE,
+		CACHE_LINE_SIZE,
+		CACHE_WAYS
+	} cache_size_type_t;
+
+	typedef struct {
+		const char *filename;			/* /sys proc name */
+		const stress_cache_type_t type;		/* cache type */
+		const uint16_t level;			/* cache level 1, 2 */
+		const cache_size_type_t size_type;	/* cache size field */
+		const size_t index;			/* map to cpu->cache array index */
+	} cache_info_t;
+
+	static const cache_info_t cache_info[] = {
+		{ "l1_dcache_line_size",	CACHE_TYPE_DATA,	1, CACHE_LINE_SIZE,	0 },
+		{ "l1_dcache_size",		CACHE_TYPE_DATA,	1, CACHE_SIZE,		0 },
+		{ "l1_icache_line_size",	CACHE_TYPE_INSTRUCTION,	1, CACHE_LINE_SIZE,	1 },
+		{ "l1_icache_size",		CACHE_TYPE_INSTRUCTION,	1, CACHE_SIZE,		1 },
+		{ "l2_cache_line_size",		CACHE_TYPE_UNIFIED,	2, CACHE_LINE_SIZE,	2 },
+		{ "l2_cache_size",		CACHE_TYPE_UNIFIED,	2, CACHE_SIZE,		2 },
+	};
+
+	const size_t count = 3;
+	size_t i;
+
+	cpu->caches = calloc(count, sizeof(stress_cpu_cache_t));
+	if (!cpu->caches) {
+		pr_err("failed to allocate %zu bytes for cpu caches\n",
+			count * sizeof(stress_cpu_cache_t));
+		return EXIT_FAILURE;
+	}
+
+	for (i = 0; i < SIZEOF_ARRAY(cache_info); i++) {
+		uint64_t value = stress_get_cpu_cache_value(cpu_path, cache_info[i].filename);
+		size_t index = cache_info[i].index;
+
+		cpu->caches[index].type = cache_info[i].type;
+		cpu->caches[index].level = cache_info[i].level;
+		switch (cache_info[i].size_type) {
+		case CACHE_SIZE:
+			cpu->caches[index].size = value;
+			break;
+		case CACHE_LINE_SIZE:
+			cpu->caches[index].line_size = (uint32_t)value;
+			break;
+		case CACHE_WAYS:
+			cpu->caches[index].size = (uint32_t)value;
+			break;
+		default:
+			break;
+		}
+	}
+	cpu->cache_count = count;
+
+	return 0;
+}
+
 /*
  * stress_get_cpu_cache_details()
  * @cpu: cpu to fill in.
@@ -312,7 +394,7 @@ stress_cpu_cache_t * stress_get_cpu_cache(const stress_cpus_t *cpus, const uint1
 static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 {
 	const size_t cpu_path_len = cpu_path ? strlen(cpu_path) : 0;
-	char path[cpu_path_len + strlen(SYS_CPU_CACHE_DIR) + 2];
+	char path[cpu_path_len + 128];
 	int i, j, n, ret = EXIT_FAILURE;
 	struct dirent **namelist = NULL;
 
@@ -324,6 +406,12 @@ static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 		pr_dbg("%s: invalid cpu path parameter\n", __func__);
 		return ret;
 	}
+
+
+	/* Check for cache info in cpu_path, e.g. sparc CPUs */
+	(void)stress_mk_filename(path, sizeof(path), cpu_path, "l1_dcache_line_size");
+	if (access(path, R_OK) == 0)
+		return stress_get_cpu_cache_sparc64(cpu, cpu_path);
 
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, SYS_CPU_CACHE_DIR);
 	n = scandir(path, &namelist, NULL, alphasort);
