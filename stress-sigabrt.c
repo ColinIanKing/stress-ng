@@ -30,9 +30,19 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
+typedef struct {
+	volatile bool handler_enabled;	/* True if using a SIGABRT handler */
+	volatile bool signalled;	/* True if handler handled SIGABRT */
+} stress_sigabrt_info_t;
+
+static volatile stress_sigabrt_info_t *sigabrt_info;
+
 static void MLOCKED_TEXT stress_sigabrt_handler(int num)
 {
 	(void)num;
+
+	if (sigabrt_info)  /* Should always be not null */
+		sigabrt_info->signalled = true;
 }
 
 /*
@@ -45,12 +55,25 @@ static int stress_sigabrt(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
+	sigabrt_info = (stress_sigabrt_info_t *)mmap(NULL, args->page_size,
+						PROT_READ | PROT_WRITE,
+						MAP_SHARED | MAP_ANONYMOUS,
+						-1, 0);
+	if (sigabrt_info == MAP_FAILED) {
+		pr_inf("%s: failed to mmap shared page, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		pid_t pid;
 
 		(void)stress_mwc32();
+
+		sigabrt_info->signalled = false;
+		sigabrt_info->handler_enabled = stress_mwc1();
 
 		pid = fork();
 		if (pid < 0) {
@@ -62,16 +85,26 @@ static int stress_sigabrt(const stress_args_t *args)
 		} else if (pid == 0) {
 			int ret;
 
-			ret = stress_sighandler(args->name, SIGABRT, SIG_DFL, NULL);
-			(void)ret;
-
 			/* Randomly select death by abort or SIGABRT */
-			if (stress_mwc1()) {
+			if (sigabrt_info->handler_enabled) {
+				ret = stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL);
+				(void)ret;
+
+				/*
+				 * Aborting with a handler will call the handler, the handler will
+				 * then be disabled and a second SIGABRT will occur causing the
+				 * abort.
+				 */
 				abort();
+				/* Should never get here */
 			} else {
+				ret = stress_sighandler(args->name, SIGABRT, SIG_DFL, NULL);
+				(void)ret;
+
+				/* Raising SIGABRT without an handler will abort */
 				raise(SIGABRT);
 			}
-			/* Should never get here */
+
 			_exit(EXIT_FAILURE);
 		} else {
 			int ret, status;
@@ -87,6 +120,17 @@ rewait:
 			} else {
 				if (WIFSIGNALED(status) &&
 				    (WTERMSIG(status) == SIGABRT)) {
+					if (sigabrt_info->handler_enabled) {
+						if (sigabrt_info->signalled == false) {
+							pr_fail("%s SIGABORT signal handler did not get called\n",
+								args->name);
+						}
+					} else {
+						if (sigabrt_info->signalled == true) {
+							pr_fail("%s SIGABORT signal handler was unexpectedly called\n",
+								args->name);
+						}
+					}
 					inc_counter(args);
 				} else if (WIFEXITED(status)) {
 					pr_fail("%s: child did not abort as expected\n",
@@ -97,6 +141,8 @@ rewait:
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	(void)munmap((void *)sigabrt_info, args->page_size);
 
 	return EXIT_SUCCESS;
 }
