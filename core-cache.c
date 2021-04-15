@@ -26,6 +26,12 @@ typedef struct {
 	const uint32_t	value;		/* cache type ID */
 } stress_generic_map_t;
 
+typedef enum {
+	CACHE_SIZE,
+	CACHE_LINE_SIZE,
+	CACHE_WAYS
+} cache_size_type_t;
+
 #if defined(__linux__)
 #define SYS_CPU_PREFIX               "/sys/devices/system/cpu"
 #define SYS_CPU_CACHE_DIR            "cache"
@@ -317,6 +323,90 @@ static uint64_t stress_get_cpu_cache_value(
 }
 
 /*
+ *  stress_get_cpu_cache_auxval()
+ *	find cache information as provided by getauxval
+ */
+static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
+{
+#if defined(HAVE_SYS_AUXV_H) && \
+    defined(HAVE_GETAUXVAL)
+	typedef struct {
+		const unsigned long auxval_type;
+		const stress_cache_type_t type;		/* cache type */
+		const uint16_t level;			/* cache level 1, 2 */
+		const cache_size_type_t size_type;	/* cache size field */
+		const size_t index;			/* map to cpu->cache array index */
+	} cache_auxval_info_t;
+
+	static const cache_auxval_info_t cache_auxval_info[] = {
+#if defined(AT_L1D_CACHESIZE)
+		{ AT_L1D_CACHESIZE,	CACHE_TYPE_DATA,	1, CACHE_SIZE,	0 },
+#endif
+#if defined(AT_L1I_CACHESIZE)
+		{ AT_L1I_CACHESIZE,	CACHE_TYPE_INSTRUCTION,	1, CACHE_SIZE,	1 },
+#endif
+#if defined(AT_L2_CACHESIZE)
+		{ AT_L2_CACHESIZE,	CACHE_TYPE_UNIFIED,	2, CACHE_SIZE,	2 },
+#endif
+#if defined(AT_L3_CACHESIZE)
+		{ AT_L3_CACHESIZE,	CACHE_TYPE_UNIFIED,	2, CACHE_SIZE,	3 },
+#endif
+	};
+
+	const size_t count = 4;
+	size_t i;
+	bool valid = false;
+
+	cpu->caches = calloc(count, sizeof(stress_cpu_cache_t));
+	if (!cpu->caches) {
+		pr_err("failed to allocate %zu bytes for cpu caches\n",
+			count * sizeof(stress_cpu_cache_t));
+		return EXIT_FAILURE;
+	}
+
+	for (i = 0; i < SIZEOF_ARRAY(cache_auxval_info); i++) {
+		const uint64_t value = getauxval(cache_auxval_info[i].auxval_type);
+		const size_t index = cache_auxval_info[i].index;
+
+		if (value)
+			valid = true;
+
+		cpu->caches[index].type = cache_auxval_info[i].type;
+		cpu->caches[index].level = cache_auxval_info[i].level;
+		switch (cache_auxval_info[i].size_type) {
+		case CACHE_SIZE:
+			cpu->caches[index].size = value;
+			break;
+		case CACHE_LINE_SIZE:
+			cpu->caches[index].line_size = (uint32_t)value;
+			break;
+		case CACHE_WAYS:
+			cpu->caches[index].size = (uint32_t)value;
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (!valid) {
+		free(cpu->caches);
+		cpu->caches = NULL;
+		cpu->cache_count = 0;
+
+		return EXIT_FAILURE;
+	}
+
+	cpu->cache_count = count;
+
+	return 0;
+#else
+	(void)cpu;
+
+	return EXIT_FAILURE;
+#endif
+}
+
+/*
  *  stress_get_cpu_cache_sparc64()
  *	find cache information as provided by linux SPARC64 
  *	/sys/devices/system/cpu/cpu0
@@ -325,12 +415,6 @@ static int stress_get_cpu_cache_sparc64(
 	stress_cpu_t *cpu,
 	const char *cpu_path)
 {
-	typedef enum {
-		CACHE_SIZE,
-		CACHE_LINE_SIZE,
-		CACHE_WAYS
-	} cache_size_type_t;
-
 	typedef struct {
 		const char *filename;			/* /sys proc name */
 		const stress_cache_type_t type;		/* cache type */
@@ -359,8 +443,8 @@ static int stress_get_cpu_cache_sparc64(
 	}
 
 	for (i = 0; i < SIZEOF_ARRAY(cache_info); i++) {
-		uint64_t value = stress_get_cpu_cache_value(cpu_path, cache_info[i].filename);
-		size_t index = cache_info[i].index;
+		const uint64_t value = stress_get_cpu_cache_value(cpu_path, cache_info[i].filename);
+		const size_t index = cache_info[i].index;
 
 		cpu->caches[index].type = cache_info[i].type;
 		cpu->caches[index].level = cache_info[i].level;
@@ -407,30 +491,26 @@ static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 		return ret;
 	}
 
-
 	/* Check for cache info in cpu_path, e.g. sparc CPUs */
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, "l1_dcache_line_size");
 	if (access(path, R_OK) == 0)
 		return stress_get_cpu_cache_sparc64(cpu, cpu_path);
 
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, SYS_CPU_CACHE_DIR);
-	n = scandir(path, &namelist, NULL, alphasort);
-	if (n < 0) {
-		/*
-		 * Not an error since some platforms don't provide cache
-		 * details * via /sys (ARM).
-		 */
-		return ret;
-	}
 
 	cpu->cache_count = 0;
+	n = scandir(path, &namelist, NULL, alphasort);
 	for (i = 0; i < n; i++) {
 		if (!strncmp(namelist[i]->d_name, "index", 5))
 			cpu->cache_count++;
 	}
+
 	if (!cpu->cache_count) {
-		if (stress_warn_once())
-			pr_err("no CPU caches found\n");
+		ret = stress_get_cpu_cache_auxval(cpu);
+		if (ret != EXIT_SUCCESS) {
+			if (stress_warn_once())
+				pr_inf("CPU cache size not found\n");
+		}
 		goto err;
 	}
 
