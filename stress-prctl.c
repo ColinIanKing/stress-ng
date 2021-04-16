@@ -167,6 +167,121 @@ static inline void stress_arch_prctl(void)
 #endif
 }
 
+#if defined(PR_SET_SYSCALL_USER_DISPATCH) &&	\
+    defined(PR_SYS_DISPATCH_ON)	&&		\
+    defined(PR_SYS_DISPATCH_OFF) &&		\
+    defined(__NR_kill) &&			\
+    defined(STRESS_ARCH_X86)
+
+typedef struct {
+	int  sig;	/* signal number */
+	int  syscall;	/* syscall number */
+	int  code;	/* code, should be 2 */
+	bool handled;	/* set to true if we handle SIGSYS */
+	char selector;	/* prctl mode selector byte */
+} stress_prctl_sigsys_info_t;
+
+static stress_prctl_sigsys_info_t prctl_sigsys_info;
+
+#define PRCTL_SYSCALL_OFF()	\
+	do { prctl_sigsys_info.selector = SYSCALL_DISPATCH_FILTER_ALLOW; } while (0)
+#define PRCTL_SYSCALL_ON()	\
+	do { prctl_sigsys_info.selector = SYSCALL_DISPATCH_FILTER_BLOCK; } while (0)
+
+static void stress_prctl_sigsys_handler(int sig, siginfo_t *info, void *ucontext)
+{
+	(void)ucontext;
+
+	/*
+	 *  Turn syscall emulation off otherwise we end up
+	 *  producing another SIGSYS when we do a signal
+	 *  return
+	 */
+	PRCTL_SYSCALL_OFF();
+
+	/* Save state */
+	prctl_sigsys_info.sig = sig;
+	prctl_sigsys_info.syscall = info->si_syscall;
+	prctl_sigsys_info.code = info->si_code;
+	prctl_sigsys_info.handled = true;
+}
+
+/*
+ *  stress_prctl_syscall_user_dispatch()
+ * 	exercise syscall emulation by trapping a kill() system call
+ */
+static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
+{
+	int ret, rc = EXIT_FAILURE;
+	struct sigaction action, oldaction;
+	const pid_t pid = getpid();
+
+	(void)memset(&action, 0, sizeof(action));
+	(void)sigemptyset(&action.sa_mask);
+	action.sa_sigaction = stress_prctl_sigsys_handler;
+	action.sa_flags = SA_SIGINFO;
+
+	ret = sigaction(SIGSYS, &action, &oldaction);
+	if (ret < 0)
+		return 0;
+
+	(void)memset(&prctl_sigsys_info, 0, sizeof(prctl_sigsys_info));
+
+	/* syscall emulation off */
+	PRCTL_SYSCALL_OFF();
+
+	ret = prctl(PR_SET_SYSCALL_USER_DISPATCH,
+		PR_SYS_DISPATCH_ON, 0, 0, &prctl_sigsys_info.selector);
+	if (ret < 0) {
+		/* EINVAL will occur on kernels where this is not supported */
+		if ((errno == EINVAL) || (errno == ENOSYS))
+			return 0;
+		pr_err("%s: prctl PR_SET_SYSCALL_USER_DISPATCH enable failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto err;
+	}
+
+	/* syscall emulation on */
+	PRCTL_SYSCALL_ON();
+	(void)kill(pid, 0);
+
+	/* Turn off */
+	ret = prctl(PR_SET_SYSCALL_USER_DISPATCH,
+		PR_SYS_DISPATCH_OFF, 0, 0, 0);
+	if (ret < 0) {
+		pr_err("%s: prctl PR_SET_SYSCALL_USER_DISPATCH disable failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto err;
+	}
+
+	if (!prctl_sigsys_info.handled) {
+		pr_err("%s: prctl PR_SET_SYSCALL_USER_DISPATCH syscall emulation failed\n",
+			args->name);
+		goto err;
+	}
+
+	if (prctl_sigsys_info.syscall != __NR_kill) {
+		pr_err("%s: prctl PR_SET_SYSCALL_USER_DISPATCH syscall expected syscall 0x%x, got 0x%x instead\n",
+			args->name, __NR_kill, prctl_sigsys_info.syscall);
+		goto err;
+	}
+
+	rc = EXIT_SUCCESS;
+err:
+	ret = sigaction(SIGSYS, &oldaction, NULL);
+	(void)ret;
+
+	return rc;
+}
+#else
+static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
+{
+	(void)args;
+
+	return 0;
+}
+#endif
+
 static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 {
 	int ret;
@@ -667,6 +782,8 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 	}
 #endif
 	stress_arch_prctl();
+
+	stress_prctl_syscall_user_dispatch(args);
 
 	/* exercise bad ptrcl command */
 	{
