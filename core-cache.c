@@ -479,29 +479,30 @@ static int stress_get_cpu_cache_sparc64(
  *
  * Returns: EXIT_FAILURE or EXIT_SUCCESS.
  */
-static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
+static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 {
 	const size_t cpu_path_len = cpu_path ? strlen(cpu_path) : 0;
 	char path[cpu_path_len + 128];
-	int i, j, n, ret = EXIT_FAILURE;
+	int i, j, n;
 	struct dirent **namelist = NULL;
 
 	if (!cpu) {
 		pr_dbg("%s: invalid cpu parameter\n", __func__);
-		return ret;
+		return;
 	}
 	if (!cpu_path) {
 		pr_dbg("%s: invalid cpu path parameter\n", __func__);
-		return ret;
+		return;
 	}
 
 	/* Check for cache info in cpu_path, e.g. sparc CPUs */
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, "l1_dcache_line_size");
-	if (access(path, R_OK) == 0)
-		return stress_get_cpu_cache_sparc64(cpu, cpu_path);
+	if (access(path, R_OK) == 0) {
+		stress_get_cpu_cache_sparc64(cpu, cpu_path);
+		return;
+	}
 
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, SYS_CPU_CACHE_DIR);
-
 	cpu->cache_count = 0;
 	n = scandir(path, &namelist, NULL, alphasort);
 	for (i = 0; i < n; i++) {
@@ -510,7 +511,8 @@ static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 	}
 
 	if (!cpu->cache_count) {
-		ret = stress_get_cpu_cache_auxval(cpu);
+		int ret = stress_get_cpu_cache_auxval(cpu);
+
 		if (ret != EXIT_SUCCESS) {
 			if (stress_warn_once())
 				pr_inf("CPU cache size not found\n");
@@ -540,11 +542,10 @@ static int stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 				goto err;
 		}
 	}
-	ret = EXIT_SUCCESS;
 err:
 	stress_dirent_list_free(namelist, n);
 
-	return ret;
+	return;
 }
 
 /*
@@ -555,7 +556,7 @@ err:
  */
 stress_cpus_t *stress_get_all_cpu_cache_details(void)
 {
-	int i, j, n, ret, cpu_count;
+	int i, j, n, cpu_count;
 	stress_cpus_t *cpus = NULL;
 	struct dirent **namelist = NULL;
 
@@ -615,13 +616,8 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 				}
 			}
 
-			ret = stress_get_cpu_cache_details(&cpus->cpus[j], fullpath);
-			if (ret != EXIT_SUCCESS) {
-				free(cpus->cpus);
-				free(cpus);
-				cpus = NULL;
-				goto out;
-			}
+			if (cpu->online)
+				stress_get_cpu_cache_details(&cpus->cpus[j], fullpath);
 			j++;
 		}
 	}

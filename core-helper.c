@@ -1123,12 +1123,18 @@ int stress_cache_alloc(const char *name)
 	cpu_caches = stress_get_all_cpu_cache_details();
 	if (!cpu_caches) {
 		if (stress_warn_once())
-			pr_dbg("%s: using defaults, cannot determine cache details from sysfs\n", name);
+			pr_dbg("%s: using defaults, cannot determine cache details\n", name);
 		g_shared->mem_cache_size = MEM_CACHE_SIZE;
 		goto init_done;
 	}
 
 	max_cache_level = stress_get_max_cache_level(cpu_caches);
+	if (max_cache_level == 0) {
+		if (stress_warn_once())
+			pr_dbg("%s: using defaults, cannot determine cache level details\n", name);
+		g_shared->mem_cache_size = MEM_CACHE_SIZE;
+		goto init_done;
+	}
 	if (g_shared->mem_cache_level > max_cache_level) {
 		if (stress_warn_once())
 			pr_dbg("%s: using cache maximum level L%d\n", name,
