@@ -328,8 +328,12 @@ static uint64_t stress_get_cpu_cache_value(
  */
 static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
 {
-#if defined(HAVE_SYS_AUXV_H) && \
-    defined(HAVE_GETAUXVAL)
+#if defined(HAVE_SYS_AUXV_H) && 	\
+    defined(HAVE_GETAUXVAL) &&		\
+    (defined(AT_L1D_CACHESIZE) ||	\
+     defined(AT_L1I_CACHESIZE) ||	\
+     defined(AT_L2_CACHESIZE) ||	\
+     defined(AT_L3_CACHESIZE))
 	typedef struct {
 		const unsigned long auxval_type;
 		const stress_cache_type_t type;		/* cache type */
