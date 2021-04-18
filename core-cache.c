@@ -562,9 +562,6 @@ static int stress_get_cpu_cache_index(
 		cpu->caches = NULL;
 		cpu->cache_count = 0;
 		goto list_free;
-		stress_dirent_list_free(namelist, cpu->cache_count);
-
-		return 0;
 	}
 
 	for (i = 0; i < cpu->cache_count; i++) {
