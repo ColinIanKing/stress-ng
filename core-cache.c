@@ -542,7 +542,7 @@ static int stress_get_cpu_cache_index(
 	struct dirent **namelist = NULL;
 	int n;
 	uint32_t i;
-	const size_t cpu_path_len = cpu_path ? strlen(cpu_path) : 0;
+	const size_t cpu_path_len = strlen(cpu_path);
 	char path[cpu_path_len + 128];
 
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, SYS_CPU_CACHE_DIR);
