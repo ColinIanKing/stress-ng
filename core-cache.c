@@ -287,7 +287,7 @@ uint16_t stress_get_max_cache_level(const stress_cpus_t *cpus)
  *
  * Returns: stress_cpu_cache_t pointer, or NULL on error.
  */
-stress_cpu_cache_t * stress_get_cpu_cache(const stress_cpus_t *cpus, const uint16_t cache_level)
+stress_cpu_cache_t *stress_get_cpu_cache(const stress_cpus_t *cpus, const uint16_t cache_level)
 {
 	stress_cpu_t *cpu;
 
@@ -307,9 +307,10 @@ stress_cpu_cache_t * stress_get_cpu_cache(const stress_cpus_t *cpus, const uint1
 	return stress_get_cache_by_cpu(cpu, cache_level);
 }
 
-static uint64_t stress_get_cpu_cache_value(
+static int stress_get_cpu_cache_value(
 	const char *cpu_path,
-	const char *file)
+	const char *file,
+	uint64_t *value)
 {
 	const size_t cpu_path_len = strlen(cpu_path);
 	char path[cpu_path_len + 128];
@@ -317,9 +318,10 @@ static uint64_t stress_get_cpu_cache_value(
 
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, file);
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) == 0) {
-		return atoi(tmp);
+		*value = atoi(tmp);
+		return 0;
 	}
-	return 0;
+	return -1;
 }
 
 /*
@@ -365,7 +367,7 @@ static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
 	if (!cpu->caches) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(stress_cpu_cache_t));
-		return EXIT_FAILURE;
+		return 0;
 	}
 
 	for (i = 0; i < SIZEOF_ARRAY(cache_auxval_info); i++) {
@@ -397,16 +399,16 @@ static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
 		cpu->caches = NULL;
 		cpu->cache_count = 0;
 
-		return EXIT_FAILURE;
+		return 0;
 	}
 
 	cpu->cache_count = count;
 
-	return 0;
+	return count;
 #else
 	(void)cpu;
 
-	return EXIT_FAILURE;
+	return 0;
 #endif
 }
 
@@ -438,37 +440,151 @@ static int stress_get_cpu_cache_sparc64(
 
 	const size_t count = 3;
 	size_t i;
+	bool valid = false;
 
 	cpu->caches = calloc(count, sizeof(stress_cpu_cache_t));
 	if (!cpu->caches) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			count * sizeof(stress_cpu_cache_t));
-		return EXIT_FAILURE;
+		return 0;
 	}
 
 	for (i = 0; i < SIZEOF_ARRAY(cache_info); i++) {
-		const uint64_t value = stress_get_cpu_cache_value(cpu_path, cache_info[i].filename);
 		const size_t index = cache_info[i].index;
+		uint64_t value;
+
+		if (stress_get_cpu_cache_value(cpu_path, cache_info[i].filename, &value) < 0)
+			continue;
 
 		cpu->caches[index].type = cache_info[i].type;
 		cpu->caches[index].level = cache_info[i].level;
 		switch (cache_info[i].size_type) {
 		case CACHE_SIZE:
 			cpu->caches[index].size = value;
+			valid = true;
 			break;
 		case CACHE_LINE_SIZE:
 			cpu->caches[index].line_size = (uint32_t)value;
+			valid = true;
 			break;
 		case CACHE_WAYS:
 			cpu->caches[index].size = (uint32_t)value;
+			valid = true;
 			break;
 		default:
 			break;
 		}
 	}
+
+	if (!valid) {
+		free(cpu->caches);
+		cpu->caches = NULL;
+		cpu->cache_count = 0;
+
+		return 0;
+	}
 	cpu->cache_count = count;
 
-	return 0;
+	return count;
+}
+
+/*
+ *  index_filter()
+ *	return 1 when filename is index followed by a digit
+ */
+static int index_filter(const struct dirent *d)
+{
+	return ((strncmp(d->d_name, "index", 5) == 0) && isdigit(d->d_name[5]));
+}
+
+/*
+ *  index_sort()
+ *	sort by index number (digits 5 onwards)
+ */
+static int index_sort(const struct dirent **d1, const struct dirent **d2)
+{
+	const int i1 = atoi(&(*d1)->d_name[5]);
+	const int i2 = atoi(&(*d2)->d_name[5]);
+
+	return i1 - i2;
+}
+
+/*
+ *  cpu_filter()
+ *	return 1 when filename is cpu followed by a digit
+ */
+static int cpu_filter(const struct dirent *d)
+{
+	return ((strncmp(d->d_name, "cpu", 3) == 0) && isdigit(d->d_name[3]));
+}
+
+/*
+ *  cpu_sort()
+ *	sort by CPU number (digits 3 onwards)
+ */
+static int cpusort(const struct dirent **d1, const struct dirent **d2)
+{
+	const int c1 = atoi(&(*d1)->d_name[3]);
+	const int c2 = atoi(&(*d2)->d_name[3]);
+
+	return c1 - c2;
+}
+
+/*
+ *  stress_get_cpu_cache_index()
+ *	find cache information as provided by cache info indexes
+ *	in /sys/devices/system/cpu/cpu*
+ */
+static int stress_get_cpu_cache_index(
+	stress_cpu_t *cpu,
+	const char *cpu_path)
+{
+	struct dirent **namelist = NULL;
+	int n;
+	uint32_t i;
+	const size_t cpu_path_len = cpu_path ? strlen(cpu_path) : 0;
+	char path[cpu_path_len + 128];
+
+	(void)stress_mk_filename(path, sizeof(path), cpu_path, SYS_CPU_CACHE_DIR);
+	n = scandir(path, &namelist, index_filter, index_sort);
+	if (n <= 0) {
+		cpu->caches = NULL;
+		return 0;
+	}
+	cpu->cache_count = (uint32_t)n;
+	cpu->caches = calloc(cpu->cache_count, sizeof(stress_cpu_cache_t));
+	if (!cpu->caches) {
+		size_t cache_bytes = cpu->cache_count * sizeof(stress_cpu_cache_t);
+
+		pr_err("failed to allocate %zu bytes for cpu caches\n",
+			cache_bytes);
+
+		cpu->caches = NULL;
+		cpu->cache_count = 0;
+		goto list_free;
+		stress_dirent_list_free(namelist, cpu->cache_count);
+
+		return 0;
+	}
+
+	for (i = 0; i < cpu->cache_count; i++) {
+		const char *name = namelist[i]->d_name;
+		char fullpath[strlen(path) + strlen(name) + 2];
+
+		(void)memset(fullpath, 0, sizeof(fullpath));
+		(void)stress_mk_filename(fullpath, sizeof(fullpath), path, name);
+		if (stress_add_cpu_cache_detail(&cpu->caches[i], fullpath) != EXIT_SUCCESS) {
+			free(cpu->caches);
+			cpu->caches = NULL;
+			cpu->cache_count = 0;
+
+			goto list_free;
+		}
+	}
+list_free:
+	stress_dirent_list_free(namelist, cpu->cache_count);
+
+	return cpu->cache_count;
 }
 
 /*
@@ -481,11 +597,6 @@ static int stress_get_cpu_cache_sparc64(
  */
 static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path)
 {
-	const size_t cpu_path_len = cpu_path ? strlen(cpu_path) : 0;
-	char path[cpu_path_len + 128];
-	int i, j, n;
-	struct dirent **namelist = NULL;
-
 	if (!cpu) {
 		pr_dbg("%s: invalid cpu parameter\n", __func__);
 		return;
@@ -495,55 +606,17 @@ static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path
 		return;
 	}
 
-	/* Check for cache info in cpu_path, e.g. sparc CPUs */
-	(void)stress_mk_filename(path, sizeof(path), cpu_path, "l1_dcache_line_size");
-	if (access(path, R_OK) == 0) {
-		stress_get_cpu_cache_sparc64(cpu, cpu_path);
+	/* The default x86 cache method */
+	if (stress_get_cpu_cache_index(cpu, cpu_path) > 0)
 		return;
-	}
 
-	(void)stress_mk_filename(path, sizeof(path), cpu_path, SYS_CPU_CACHE_DIR);
-	cpu->cache_count = 0;
-	n = scandir(path, &namelist, NULL, alphasort);
-	for (i = 0; i < n; i++) {
-		if (!strncmp(namelist[i]->d_name, "index", 5))
-			cpu->cache_count++;
-	}
+	/* Try cache info using auxinfo */
+	if (stress_get_cpu_cache_auxval(cpu) > 0)
+		return;
 
-	if (!cpu->cache_count) {
-		int ret = stress_get_cpu_cache_auxval(cpu);
-
-		if (ret != EXIT_SUCCESS) {
-			if (stress_warn_once())
-				pr_inf("CPU cache size not found\n");
-		}
-		goto err;
-	}
-
-	cpu->caches = calloc(cpu->cache_count, sizeof(stress_cpu_cache_t));
-	if (!cpu->caches) {
-		size_t cache_bytes = cpu->cache_count * sizeof(stress_cpu_cache_t);
-
-		pr_err("failed to allocate %zu bytes for cpu caches\n",
-			cache_bytes);
-		goto err;
-	}
-
-	for (i = 0, j = 0; i < n; i++) {
-		const char *name = namelist[i]->d_name;
-
-		if (!strncmp(name, "index", 5) &&
-		    isdigit(name[5])) {
-			char fullpath[strlen(path) + strlen(name) + 2];
-
-			(void)memset(fullpath, 0, sizeof(fullpath));
-			(void)stress_mk_filename(fullpath, sizeof(fullpath), path, name);
-			if (stress_add_cpu_cache_detail(&cpu->caches[j++], fullpath) != EXIT_SUCCESS)
-				goto err;
-		}
-	}
-err:
-	stress_dirent_list_free(namelist, n);
+	/* Try cache info for sparc CPUs */
+	if (stress_get_cpu_cache_sparc64(cpu, cpu_path) > 0)
+		return;
 
 	return;
 }
@@ -556,23 +629,12 @@ err:
  */
 stress_cpus_t *stress_get_all_cpu_cache_details(void)
 {
-	int i, j, n, cpu_count;
+	int i, cpu_count;
 	stress_cpus_t *cpus = NULL;
 	struct dirent **namelist = NULL;
 
-	n = scandir(SYS_CPU_PREFIX, &namelist, NULL, alphasort);
-	if (n < 0) {
-		pr_err("no CPUs found - is /sys mounted?\n");
-		return 0;
-	}
-	for (cpu_count = 0, i = 0; i < n; i++) {
-		const char *name = namelist[i]->d_name;
-
-		if (!strncmp(name, "cpu", 3) && isdigit(name[3]))
-			cpu_count++;
-	}
+	cpu_count = scandir(SYS_CPU_PREFIX, &namelist, cpu_filter, cpusort);
 	if (cpu_count < 1) {
-		/* Maybe we should check this? */
 		pr_err("no CPUs found in %s\n", SYS_CPU_PREFIX);
 		goto out;
 	}
@@ -588,42 +650,37 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 	}
 	cpus->count = cpu_count;
 
-	for (i = 0, j = 0; (i < n) && (j < cpu_count); i++) {
+	for (i = 0; i < cpu_count; i++) {
 		const char *name = namelist[i]->d_name;
 		const size_t fullpath_len = strlen(SYS_CPU_PREFIX) + strlen(name) + 2;
+		char fullpath[fullpath_len];
+		stress_cpu_t *const cpu = &cpus->cpus[i];
 
-		if (!strncmp(name, "cpu", 3) && isdigit(name[3])) {
-			char fullpath[fullpath_len];
-			stress_cpu_t *const cpu = &cpus->cpus[j];
+		(void)memset(fullpath, 0, sizeof(fullpath));
+		(void)stress_mk_filename(fullpath, sizeof(fullpath), SYS_CPU_PREFIX, name);
+		cpu->num = i;
+		if (cpu->num == 0) {
+			/* 1st CPU cannot be taken offline */
+			cpu->online = 1;
+		} else {
+			char onlinepath[fullpath_len + 8];
+			char tmp[2048];
 
-			(void)memset(fullpath, 0, sizeof(fullpath));
-			(void)stress_mk_filename(fullpath, sizeof(fullpath), SYS_CPU_PREFIX, name);
-			cpu->num = j;
-			if (j == 0) {
-				/* 1st CPU cannot be taken offline */
+			(void)memset(onlinepath, 0, sizeof(onlinepath));
+			(void)snprintf(onlinepath, sizeof(onlinepath), "%s/%s/online", SYS_CPU_PREFIX, name);
+			if (stress_get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0) {
+				/* Assume it is online, it is the best we can do */
 				cpu->online = 1;
-			} else {
-				char onlinepath[fullpath_len + 8];
-				char tmp[2048];
-
-				(void)memset(onlinepath, 0, sizeof(onlinepath));
-				(void)snprintf(onlinepath, sizeof(onlinepath), "%s/%s/online", SYS_CPU_PREFIX, name);
-				if (stress_get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0) {
-					/* Assume it is online, it is the best we can do */
-					cpu->online = 1;
-				} else  {
-					cpu->online = atoi(tmp);
-				}
+			} else  {
+				cpu->online = atoi(tmp);
 			}
-
-			if (cpu->online)
-				stress_get_cpu_cache_details(&cpus->cpus[j], fullpath);
-			j++;
 		}
+		if (cpu->online)
+			stress_get_cpu_cache_details(&cpus->cpus[i], fullpath);
 	}
 
 out:
-	stress_dirent_list_free(namelist, n);
+	stress_dirent_list_free(namelist, cpu_count);
 	return cpus;
 }
 
