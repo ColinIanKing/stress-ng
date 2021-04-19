@@ -1268,6 +1268,8 @@ static void stress_cdrom_ioctl_msf(const int fd)
 	int starttrk = 0, endtrk = 0;
 
 	(void)fd;
+	(void)starttrk;
+	(void)endtrk;
 
 #if defined(CDROMREADTOCHDR) &&	\
     defined(HAVE_CDROM_MSF) &&	\
@@ -1283,12 +1285,12 @@ static void stress_cdrom_ioctl_msf(const int fd)
 			endtrk = header.cdth_trk1;
 		}
 	}, return);
-#endif
 
 	/* Return if endtrack is not set or starttrk is invalid */
 	if ((endtrk == 0) && (starttrk != 0)) {
 		return;
 	}
+#endif
 
 #if defined(CDROMPLAYTRKIND) &&	\
     defined(HAVE_CDROM_TI) &&	\
@@ -2633,29 +2635,35 @@ static void stress_dev_procname(const char *path)
 
 static inline int stress_dev_lock(const char *path, const int fd)
 {
-	int ret;
-
 	errno = 0;
 #if defined(TIOCEXCL) &&	\
     defined(TIOCNXCL)
-	if (strncmp(path, "/dev/tty", 8))
-		return 0;
+	{
+		int ret;
 
-	ret = ioctl(fd, TIOCEXCL);
-	if (ret < 0)
-		return ret;
+		if (strncmp(path, "/dev/tty", 8))
+			return 0;
+
+		ret = ioctl(fd, TIOCEXCL);
+		if (ret < 0)
+			return ret;
+	}
 
 #if defined(LOCK_EX) &&	\
     defined(LOCK_NB) &&	\
     defined(LOCK_UN)
-	ret = flock(fd, LOCK_EX | LOCK_NB);
-	if (ret < 0) {
-		ret = ioctl(fd, TIOCNXCL);
-		(void)ret;
-		return -1;
+	{
+		int ret;
+
+		ret = flock(fd, LOCK_EX | LOCK_NB);
+		if (ret < 0) {
+			ret = ioctl(fd, TIOCNXCL);
+			(void)ret;
+			return -1;
+		}
 	}
 #endif
-	return ret;
+	return 0;
 #else
 	(void)path;
 	(void)fd;
