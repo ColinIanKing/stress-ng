@@ -259,11 +259,13 @@ again:
 			case 7:
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 				/* Illegal stack on VDSO, otherwises NULL stack */
-				ret = stress_sigaltstack(vdso, STRESS_SIGSTKSZ);
-				if (ret == 0)
-					stress_bad_altstack_force_fault(stack);
-				if (!keep_stressing(args))
-					break;
+				if (vdso) {
+					ret = stress_sigaltstack(vdso, STRESS_SIGSTKSZ);
+					if (ret == 0)
+						stress_bad_altstack_force_fault(stack);
+					if (!keep_stressing(args))
+						break;
+				}
 #endif
 				CASE_FALLTHROUGH;
 			case 8:
