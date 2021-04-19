@@ -201,7 +201,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		uint8_t mapped[pages4k];
 		uint8_t *mappings[pages4k];
 		size_t n;
-		const int rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags);
+		const int rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags); /* cppcheck-suppress moduloofone */
 		const int rnd_flag = mmap_flags[rnd];
 		uint8_t *buf = NULL;
 		off_t offset;

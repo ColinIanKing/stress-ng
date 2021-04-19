@@ -353,7 +353,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 			stress_clone_t *clone_info;
 			stress_clone_args_t clone_arg = { args };
 			const uint32_t rnd = stress_mwc32();
-			const int flag = flags[rnd % SIZEOF_ARRAY(flags)];
+			const int flag = flags[rnd % SIZEOF_ARRAY(flags)];	/* cppcheck-suppress moduloofone */
 			const bool try_clone3 = rnd >> 31;
 			pid_t child_tid = -1, parent_tid = -1;
 

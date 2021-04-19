@@ -73,7 +73,7 @@ struct tree_node {
 		SPLAY_ENTRY(tree_node)	splay;
 		struct binary_node	binary;
 		struct avl_node		avl;
-		uint64_t		padding[3];
+		uint64_t		padding[3]; /* cppcheck-suppress unusedStructMember */
 	} u;
 };
 

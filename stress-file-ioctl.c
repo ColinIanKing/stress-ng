@@ -500,7 +500,7 @@ struct shim_space_resv {
 			exercised++;
 		}
 #endif
-		if (!exercised) {
+		if (!exercised) {	/* cppcheck-suppress knownConditionTrueFalse */
 			pr_inf("%s: no available file ioctls to exercise\n",
 				args->name);
 			ret = EXIT_NOT_IMPLEMENTED;

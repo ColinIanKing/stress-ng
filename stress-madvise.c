@@ -147,7 +147,7 @@ static void MLOCKED_TEXT stress_sigbus_handler(int signum)
  */
 static int stress_random_advise(const stress_args_t *args)
 {
-	const int idx = stress_mwc32() % SIZEOF_ARRAY(madvise_options);
+	const int idx = stress_mwc32() % SIZEOF_ARRAY(madvise_options);	/* cppcheck-suppress moduloofone */
 	const int advise = madvise_options[idx];
 #if defined(MADV_HWPOISON) || defined(MADV_SOFT_OFFLINE)
 	static int poison_count;

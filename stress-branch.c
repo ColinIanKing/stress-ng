@@ -74,7 +74,7 @@ static inline uint8_t jmp_stress_mwc8(void)
 static int stress_branch(const stress_args_t *args)
 {
 	static const void ALIGN64 *labels[] = {
-		&&ret, &&ret, &&ret, &&ret,
+		&&ret, &&ret, &&ret, &&ret,	/* cppcheck-suppress syntaxError */
 		&&ret, &&ret, &&ret, &&ret,
 		&&ret, &&ret, &&ret, &&ret,
 		&&ret, &&ret, &&ret, &&ret,

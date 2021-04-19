@@ -4104,7 +4104,7 @@ static inline WARN_UNUSED ALWAYS_INLINE int exit_status(const int err)
 	case ENOSYS:
 		return EXIT_NOT_IMPLEMENTED;
 	}
-	return EXIT_FAILURE;
+	return EXIT_FAILURE;	/* cppcheck-suppress ConfigurationNotChecked */
 }
 
 /*

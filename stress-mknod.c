@@ -240,7 +240,7 @@ static int stress_mknod(const stress_args_t *args)
 		for (i = 0; i < n; i++) {
 			char path[PATH_MAX];
 			const uint64_t gray_code = (i >> 1) ^ i;
-			size_t j = stress_mwc32() % num_nodes;
+			size_t j = stress_mwc32() % num_nodes;	/* cppcheck-suppress moduloofone */
 
 			(void)stress_temp_filename_args(args,
 				path, sizeof(path), gray_code);

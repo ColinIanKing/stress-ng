@@ -60,7 +60,7 @@ typedef struct {
 	const char *opt;	/* User option */
 	const int flag;		/* REVIO_OPT_ flag */
 	const int exclude;	/* Excluded REVIO_OPT_ flags */
-	const int advice;	/* posix_fadvise value */
+	const int advice;	/* posix_fadvise value */	/* cppcheck-suppress unusedStructMember */
 	const int oflag;	/* open O_* flags */
 } stress_revio_opts_t;
 

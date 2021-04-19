@@ -289,7 +289,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 				break;
 			/* Exercise Invalid mlockall syscall with invalid flag */
 			(void)shim_mlockall(~0);
-			if (flag) {
+			if (flag) { /* cppcheck-suppress knownConditionTrueFalse */
 				if (!keep_stressing(args))
 					break;
 				(void)shim_mlockall(flag);

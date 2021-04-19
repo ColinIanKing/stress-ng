@@ -297,7 +297,7 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 
 	do {
 		size_t n;
-		const int rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags);
+		const int rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags); /* cppcheck-suppress moduloofone */
 		int rnd_flag = mmap_flags[rnd];
 		uint8_t *buf = NULL;
 

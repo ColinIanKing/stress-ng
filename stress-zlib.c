@@ -587,7 +587,7 @@ static void stress_rand_data_pink(
 		int64_t rnd;
 
 		idx = (idx + 1) & mask;
-		if (idx) {
+		if (idx) { /* cppcheck-suppress knownConditionTrueFalse */
 #if defined(HAVE_BUILTIN_CTZ)
 			const size_t j = __builtin_ctz(idx);
 #else
@@ -1305,9 +1305,9 @@ static int stress_zlib_deflate(
 			static unsigned char in[DATA_SIZE];
 			unsigned char *xsum_in = (unsigned char *)in;
 
-			int gen_sz = (zlib_args.stream_bytes - stream_bytes_out >= DATA_SIZE
-					|| zlib_args.stream_bytes - stream_bytes_out == 0
-					|| zlib_args.stream_bytes  == 0)
+			int gen_sz = ((zlib_args.stream_bytes - stream_bytes_out >= DATA_SIZE)
+					|| (zlib_args.stream_bytes - stream_bytes_out == 0) /* cppcheck-suppress knownConditionTrueFalse */
+					|| (zlib_args.stream_bytes == 0))
 				? DATA_SIZE : (zlib_args.stream_bytes - stream_bytes_out);
 
 			if (zlib_args.stream_bytes > 0)

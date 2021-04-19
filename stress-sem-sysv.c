@@ -36,9 +36,9 @@ static const stress_help_t help[] = {
 #if defined(HAVE_SEM_SYSV)
 typedef union stress_semun {
 	int              val;	/* Value for SETVAL */
-	struct semid_ds *buf;	/* Buffer for IPC_STAT, IPC_SET */
-	unsigned short  *array;	/* Array for GETALL, SETALL */
-	struct seminfo  *__buf;	/* Buffer for IPC_INFO (Linux-specific) */
+	struct semid_ds *buf;	/* Buffer for IPC_STAT, IPC_SET */		/* cppcheck-suppress unusedStructMember */
+	unsigned short  *array;	/* Array for GETALL, SETALL */			/* cppcheck-suppress unusedStructMember */
+	struct seminfo  *__buf;	/* Buffer for IPC_INFO (Linux-specific) */	/* cppcheck-suppress unusedStructMember */
 } stress_semun_t;
 #endif
 

@@ -49,7 +49,7 @@ static const stress_help_t help[] = {
 typedef struct {
 	struct nlmsghdr n;
 	struct genlmsghdr g;
-	char data[1024];
+	char data[1024];	/* cppcheck-suppress unusedStructMember */
 } stress_nlmsg_t;
 
 

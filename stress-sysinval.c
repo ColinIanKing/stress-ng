@@ -2294,8 +2294,8 @@ static int stress_sysinval(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const size_t current_context_size =
 		(sizeof(*current_context) + page_size) & ~(page_size - 1);
-	size_t small_ptr_size = page_size << 1;
-	size_t page_ptr_wr_size = page_size << 1;
+	size_t small_ptr_size = page_size << 1;		/* cppcheck-suppress duplicateAssignExpression */
+	size_t page_ptr_wr_size = page_size << 1;	/* cppcheck-suppress duplicateAssignExpression */
 	char filename[PATH_MAX];
 	const size_t stress_syscall_args_sz = SIZEOF_ARRAY(stress_syscall_args);
 	const size_t stress_syscall_exercised_sz = stress_syscall_args_sz * sizeof(*stress_syscall_exercised);

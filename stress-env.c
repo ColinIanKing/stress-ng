@@ -50,9 +50,9 @@ static int stress_env_child(const stress_args_t *args, void *context)
 #elif defined(NCARGS)
 	arg_max = STRESS_MAXIMUM(arg_max, NCARGS);
 #endif
-	if (arg_max > arg_huge)
+	if (arg_max > arg_huge)	/* cppcheck-suppress knownConditionTrueFalse */
 		arg_max = arg_huge;
-	if (arg_max < 1)
+	if (arg_max < 1)	/* cppcheck-suppress knownConditionTrueFalse */
 		arg_max = 1;
 
 	/*

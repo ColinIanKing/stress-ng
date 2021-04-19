@@ -244,8 +244,8 @@ static int stress_close(const stress_args_t *args)
 
 		switch (stress_mwc8() % 14) {
 		case 0:
-			domain = stress_mwc8() % SIZEOF_ARRAY(domains);
-			type = stress_mwc8() % SIZEOF_ARRAY(types);
+			domain = stress_mwc8() % SIZEOF_ARRAY(domains);	/* cppcheck-suppress moduloofone */
+			type = stress_mwc8() % SIZEOF_ARRAY(types);	/* cppcheck-suppress moduloofone */
 			fd = socket(domains[domain], types[type], 0);
 			break;
 		case 1:

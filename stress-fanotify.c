@@ -351,7 +351,7 @@ static int fanotify_event_init(const char *name, char *mounts[])
 	}
 
 	/* This really should not happen, / is always mounted */
-	if (!count) {
+	if (!count) {	/* cppcheck-suppress knownConditionTrueFalse */
 		pr_err("%s: no mount points could be monitored\n",
 			name);
 		(void)close(fan_fd);

@@ -591,7 +591,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
 				continue;
 			*addr = d2;
 			tests++;
-			if (UNLIKELY(*ptr != d1))
+			if (UNLIKELY(*ptr != d1)) /* cppcheck-suppress knownConditionTrueFalse */
 				bit_errors++;
 			mask <<= 1;
 		}
@@ -645,7 +645,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 				continue;
 			*addr = d2;
 			tests++;
-			if (UNLIKELY(*ptr != d1))
+			if (UNLIKELY(*ptr != d1)) /* cppcheck-suppress knownConditionTrueFalse */
 				bit_errors++;
 			mask <<= 1;
 		}

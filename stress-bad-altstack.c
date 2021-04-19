@@ -48,9 +48,9 @@ static inline void stress_bad_altstack_force_fault(uint8_t *stack_start)
 	volatile uint8_t *vol_stack = (volatile uint8_t *)stack_start;
 	/* trigger segfault on stack */
 
-	stress_uint8_put(*vol_stack);
-	*vol_stack = 0;
-	(void)*vol_stack;
+	stress_uint8_put(*vol_stack);	/* cppcheck-suppress nullPointer */
+	*vol_stack = 0;			/* cppcheck-suppress nullPointer */
+	(void)*vol_stack;		/* cppcheck-suppress nullPointer */
 }
 
 static void MLOCKED_TEXT stress_segv_handler(int signum)

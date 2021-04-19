@@ -274,7 +274,7 @@ stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table, const char *str)
 	len = strlen(str) + 1;
 	hash = malloc(sizeof(*hash) + len);
 	if (UNLIKELY(!hash))
-		return NULL;
+		return NULL;	/* cppcheck-suppress memleak */
 
 	hash->next = hash_table->table[h];
 	hash_table->table[h] = hash;

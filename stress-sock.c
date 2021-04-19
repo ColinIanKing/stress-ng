@@ -167,7 +167,7 @@ static void stress_free_congestion_controls(char *ctrls[], const size_t n)
 	for (i = 0; i < n; i++)
 		free(ctrls[i]);
 
-	free(ctrls);
+	free(ctrls); /* cppcheck-suppress autovarInvalidDeallocation */
 }
 
 /*

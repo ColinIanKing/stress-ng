@@ -43,15 +43,15 @@ static const stress_help_t help[] = {
 typedef long double 	stress_long_double_t;
 
 typedef struct {
-	uint8_t		data[32];
+	uint8_t		data[32];	/* cppcheck-suppress unusedStructMember */
 } stress_uint8x32_t;
 
 typedef struct {
-	uint8_t		data[128];
+	uint8_t		data[128];	/* cppcheck-suppress unusedStructMember */
 } stress_uint8x128_t;
 
 typedef struct {
-	uint64_t	data[128];
+	uint64_t	data[128];	/* cppcheck-suppress unusedStructMember */
 } stress_uint64x128_t;
 
 #define stress_funcret1(type)					\

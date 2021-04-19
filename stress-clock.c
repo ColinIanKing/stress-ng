@@ -278,7 +278,7 @@ static int stress_clock(const stress_args_t *args)
 				 * represent tv_* files as unsigned hence
 				 * this sanity check)
 				 */
-				if ((t.tv_sec < 0) && (t.tv_nsec < 0)) {
+				if ((t.tv_sec < 0) && (t.tv_nsec < 0)) {	/* cppcheck-suppress knownConditionTrueFalse */
 					ret = shim_clock_settime(clocks[i].id, &t);
 					if (ret < 0)
 						continue;

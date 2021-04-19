@@ -50,14 +50,14 @@ static const stress_help_t help[] = {
 #endif
 
 typedef struct {
-	uint8_t		bootbits[1024];
+	uint8_t		bootbits[1024];	/* cppcheck-suppress unusedStructMember */
 	uint32_t	version;
 	uint32_t	last_page;
 	uint32_t	nr_badpages;
 	uint8_t		sws_uuid[SWAP_UUID_LENGTH];
 	uint8_t		sws_volume[SWAP_LABEL_LENGTH];
-	uint32_t	padding[117];
-	uint32_t	badpages[1];
+	uint32_t	padding[117];	/* cppcheck-suppress unusedStructMember */
+	uint32_t	badpages[1];	/* cppcheck-suppress unusedStructMember */
 } stress_swap_info_t;
 
 /*

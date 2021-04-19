@@ -74,7 +74,7 @@ static int stress_klog(const stress_args_t *args)
 	if (len < 0) {
 		if (!args->instance) {
 			if (errno == EPERM) {
-				if (args->instance == 0)
+				if (args->instance == 0) /* cppcheck-suppress knownConditionTrueFalse */
 					pr_inf("%s: cannot access syslog buffer, "
 						"not permitted, skipping stressor\n",
 						args->name);
