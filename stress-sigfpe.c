@@ -127,7 +127,9 @@ static int stress_sigfpe(const stress_args_t *args)
 
 	typedef struct {
 		int	exception;
+#if defined(SA_SIGINFO)
 		int	err_code;
+#endif
 	} stress_fpe_err_t;
 
 	/*
