@@ -2016,7 +2016,10 @@ static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
 	const int max_iter = 6;
 	int n = 0;
 
-	/* Omega converges very quickly */
+	/*
+	 * Omega converges very quickly, on most CPUs it is
+	 * within 6 iterations.
+	 */
 	do {
 		last_omega = omega;
 		omega = (1 + omega) / (1 + expl(omega));
@@ -2024,9 +2027,10 @@ static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
 	} while ((n < max_iter) && (fabsl(omega - last_omega) > precision));
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (n >= max_iter)
+		if (n > max_iter)
 			pr_fail("%s: number of iterations to compute "
-				"omega was more than expected\n", name);
+				"omega was more than expected (%d vs %d)\n",
+				name, n, max_iter);
 		if (fabsl(omega - OMEGA) > 1.0e-16L)
 			pr_fail("%s: accuracy of computed omega is "
 				"not as good as expected\n", name);
