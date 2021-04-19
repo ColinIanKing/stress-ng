@@ -1666,7 +1666,7 @@ redo:
 
 				ret = shim_waitpid(pid, &status, 0);
 				if (ret > 0) {
-					int exit_status = WEXITSTATUS(status);
+					int wexit_status = WEXITSTATUS(status);
 
 					if (WIFSIGNALED(status)) {
 #if defined(WTERMSIG)
@@ -1701,7 +1701,7 @@ redo:
 							*success = false;
 						}
 					}
-					switch (exit_status) {
+					switch (wexit_status) {
 					case EXIT_SUCCESS:
 						break;
 					case EXIT_NO_RESOURCE:
@@ -1727,12 +1727,12 @@ redo:
 						 *  as EXIT_FAILURE should indicate a core stress-ng
 						 *  problem.
 						 */
-						exit_status = EXIT_NOT_SUCCESS;
+						wexit_status = EXIT_NOT_SUCCESS;
 						CASE_FALLTHROUGH;
 					default:
 						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
-							ret, stressor_name, exit_status,
-							stress_exit_status_to_string(exit_status));
+							ret, stressor_name, wexit_status,
+							stress_exit_status_to_string(wexit_status));
 						*success = false;
 						do_abort = true;
 						break;
