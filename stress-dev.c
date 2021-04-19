@@ -1292,7 +1292,8 @@ static void stress_cdrom_ioctl_msf(const int fd)
 
 #if defined(CDROMPLAYTRKIND) &&	\
     defined(HAVE_CDROM_TI) &&	\
-    defined(CDROMPAUSE)
+    defined(CDROMPAUSE) && 0
+	/* Play/pause is a bit rough on H/W, disable it for now */
 	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_ti ti;
 		int ret;
