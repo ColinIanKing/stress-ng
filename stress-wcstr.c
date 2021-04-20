@@ -390,7 +390,8 @@ static void stress_wcsrchr(
 }
 #endif
 
-#if defined(HAVE_WCSCMP)
+#if defined(HAVE_WCSCMP) &&	\
+    !defined(STRESS_ARCH_M68K)	
 /*
  *  stress_wcscmp()
  *	stress on wcscmp
@@ -600,7 +601,8 @@ static const stress_wcs_method_info_t wcs_methods[] = {
 #if defined(HAVE_WCSCHR)
 	{ "wcschr",		stress_wcschr,		wcschr },
 #endif
-#if defined(HAVE_WCSCMP)
+#if defined(HAVE_WCSCMP) &&	\
+    !defined(STRESS_ARCH_M68K)	
 	{ "wcscmp",		stress_wcscmp,		wcscmp },
 #endif
 #if defined(HAVE_WCSLCPY) &&	\
