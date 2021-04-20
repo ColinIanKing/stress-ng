@@ -52,18 +52,21 @@ static void MLOCKED_TEXT stress_sigabrt_handler(int num)
  */
 static int stress_sigabrt(const stress_args_t *args)
 {
+	void *sigabrt_mapping;
+
 	if (stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	sigabrt_info = (stress_sigabrt_info_t *)mmap(NULL, args->page_size,
-						PROT_READ | PROT_WRITE,
-						MAP_SHARED | MAP_ANONYMOUS,
-						-1, 0);
-	if (sigabrt_info == MAP_FAILED) {
+	sigabrt_mapping = mmap(NULL, args->page_size,
+				PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS,
+				-1, 0);
+	if (sigabrt_mapping == MAP_FAILED) {
 		pr_inf("%s: failed to mmap shared page, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+	sigabrt_info = (stress_sigabrt_info_t *)sigabrt_mapping;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -142,7 +145,7 @@ rewait:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap((void *)sigabrt_info, args->page_size);
+	(void)munmap((void *)sigabrt_mapping, args->page_size);
 
 	return EXIT_SUCCESS;
 }
