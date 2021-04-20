@@ -1815,6 +1815,14 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define STRESS_ARCH_PPC64	(1)
 #endif
 
+/* Arch specific M68K */
+#if defined(__m68k__) ||	\
+    defined(__mc68000__) ||	\
+    defined(__mc68010__) ||	\
+    defined(__mc68020__)
+#define STRESS_ARCH_M68K	(1)
+#endif
+
 /* GCC5.0+ target_clones attribute */
 #if defined(HAVE_TARGET_CLONES) &&	\
     defined(STRESS_ARCH_X86)
