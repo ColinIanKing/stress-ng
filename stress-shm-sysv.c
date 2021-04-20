@@ -201,6 +201,7 @@ static void exercise_shmat(const int shm_id, const size_t page_size)
 #endif
 }
 
+#if !defined(STRESS_ARCH_M68K)
 /*
  *  get_bad_shmid()
  *	find invalid shared memory segment id
@@ -223,6 +224,7 @@ static int get_bad_shmid(const stress_args_t *args)
 
 	return -1;
 }
+#endif
 
 /*
  *  exercise_shmctl()
