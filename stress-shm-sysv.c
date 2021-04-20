@@ -249,6 +249,7 @@ static void exercise_shmctl(const size_t sz, const stress_args_t *args)
 	ret = shmctl(shm_id, 0x7ffffff, NULL);
 	(void)ret;
 
+#if !defined(STRESS_ARCH_M68K)
 	ret = shmctl(shm_id, IPC_SET | IPC_RMID, NULL);
 	(void)ret;
 
@@ -258,6 +259,7 @@ static void exercise_shmctl(const size_t sz, const stress_args_t *args)
 
 	/* Cleaning up the shared memory segment */
 	(void)shmctl(shm_id, IPC_RMID, NULL);
+#endif
 
 	/* Check for EIDRM error */
 #if defined(IPC_STAT) &&	\
