@@ -58,11 +58,11 @@
 #endif
 
 #if !defined(HAVE_CPOW)
-#define cpow(x)		pow(x)
+#define cpow(x, y)	pow(x, y)
 #endif
 
 #if !defined(HAVE_POWL)
-#define powl(x)		pow(x)
+#define powl(x, y)	pow(x, y)
 #endif
 
 #if !defined(HAVE_RINTL)
