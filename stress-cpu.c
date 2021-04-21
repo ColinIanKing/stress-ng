@@ -42,59 +42,59 @@
  * math libraries don't have implemented (yet)
  */
 #if !defined(HAVE_CABSL)
-#define cabsl	cabs
+#define cabsl(x)	cabs(x)
 #endif
 
 #if !defined(HAVE_LGAMMAL)
-#define lgammal	lgamma
+#define lgammal(x)	lgamma(x)
 #endif
 
 #if !defined(HAVE_CCOSL)
-#define	ccosl	ccos
+#define	ccosl(x)	ccos(x)
 #endif
 
 #if !defined(HAVE_CSINL)
-#define	csinl	csin
+#define	csinl(x)	csin(x)
 #endif
 
 #if !defined(HAVE_CPOW)
-#define cpow	pow
+#define cpow(x)		pow(x)
 #endif
 
 #if !defined(HAVE_POWL)
-#define powl	pow
+#define powl(x)		pow(x)
 #endif
 
 #if !defined(HAVE_RINTL)
-#define rintl	rint
+#define rintl(x)	rint(x)
 #endif
 
 #if !defined(HAVE_LOGL)
-#define logl	log
+#define logl(x)		log(x)
 #endif
 
 #if !defined(HAVE_EXPL) || defined(__HAIKU__)
-#define expl	exp
+#define expl(x)		exp(x)
 #endif
 
 #if !defined(HAVE_COSL)
-#define cosl	cos
+#define cosl(x)		cos(x)
 #endif
 
 #if !defined(HAVE_SINL)
-#define	sinl	sin
+#define	sinl(x)		sin(x)
 #endif
 
 #if !defined(HAVE_COSHL)
-#define coshl	cosh
+#define coshl(x)	cosh(x)
 #endif
 
 #if !defined(HAVE_SINHL)
-#define	sinhl	sinh
+#define	sinhl(x)	sinh(x)
 #endif
 
 #if !defined(HAVE_SQRTL)
-#define sqrtl	sqrt
+#define sqrtl(x)	sqrt(x)
 #endif
 
 #if defined(HAVE_BUILTIN_FABS)
