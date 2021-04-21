@@ -115,7 +115,7 @@ static volatile uint64_t v;
 
 static int stress_rdrand_supported(const char *name)
 {
-#if defined(HAVE_BUILTIN_CPU_IS)
+#if defined(HAVE_BUILTIN_CPU_IS_POWER9)
 	if (__builtin_cpu_is("power9")) {
 		rdrand_supported = true;
 		return 0;
