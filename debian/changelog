@@ -1,3 +1,102 @@
+stress-ng (0.12.07-1) unstable; urgency=medium
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * core-helper: uncapitalize SWAP -> swap
+  * stress-l1cache: only compute cache size if it is not provided
+  * stress-l1cache: skip stressor if cache size is abnormal
+  * stress-l1cache: check for correct ways and line_size
+  * stress-fork: silence warnings concerning vfork being deprecated
+  * stress-cpu: fix double arg cpow and pow macros
+  * Fix typo in builtin rint config checking
+  * Rename test-builtin-cpu-is.c to test/test-builtin-cpu-is-power9.c
+  * stress-cpu: parameterise workaround math macros
+  * Add build detection and use builtins for fabs, fabsl, rint, rintl,
+    sqrt and sqrtl
+  * stress-sigabrt: fix build warning when built with gcc-11 PEDANTIC
+  * Use a void * pointer for the mapping to avoid munmap warning
+  * stress-wcstr: don't exercise wcscmp on M68K
+  * stress-shm-sysv: don't declare get_bad_shmid for M68K
+  * stress-shm-sysv: don't declare bad_shmid for M68K
+  * stress-shm-sysv: don't pass NULL args to shmctl on M68K
+  * stress-fp-error: disabled full fp error checkking on M68K
+  * Add M68K (Motorola 68000) family #define
+  * stress-ng: rename variable exit_status to wexit_status
+  * Add cppcheck-suppress annotations to silence cppcheck on known
+    false positives
+  * stress-sigfpe: don't declare err_code when SA_SIGINFO is not defined
+  * stress-dev: clean up some cppcheck warnings
+  * stress-bad-altstack: don't use null vdso address
+  * stress-cpu: increase number of iterations for omega stressor
+  * stress-dev: disable play/pause ioctl on CD-ROMs
+  * core-cache: remove redundant null check on cpu_path
+  * core-cache: remove some redundant code
+  * core-cache: rework to make cache detection more robust
+  * core-cache: cater for offline CPUs
+  * core-cache: don't use auxvals if non of the AT_* cache defines exist
+  * stress-prctl: exercise PR_SET_SYSCALL_USER_DISPATCH system call
+  * emulation
+  * core-helper: print cache level being used in more informative way
+  * stress_cache_alloc: use mmap'd shared memory rather than calloc'd
+    memory
+  * core-cache: determine cache size via getauxval
+  * core-cache: add support for linux SPARC 64 cache information
+  * stress-sigabrt: use handler and non-handler modes of SIGABRT
+  * Check for both __riscv__ and __riscv macros
+  * stress-userfaultfd: skip test if EPERM is returned
+  * stress-ng: translate stressor EXIT_FAILURE to EXIT_NOT_SUCCESS
+  * stress-rdrand: add some simple 64 bit random data sanity checks
+  * stress-list: add stress_list_slistt to all methods
+  * stress-list: check for defined sys/queue.h macros before using them
+  * stress-list: fix typo, should build if HAVE_SYS_QUEUE_H defined
+  * stress-list: had hand-crafted slistt method
+  * Add list stressor to exercise insertion/find/removal of various
+    list types
+  * stress-mknod: silently ignore EINVAL on mknod failures
+  * stress-signal: fall back to libc signal() if syscall returns ENOSYS
+  * core-helper: Add stress_get_stack_top to determine stack stop
+  * Makefile: pass LDFLAGS to function test builds, echo configs on
+    VERBOSE=1
+  * travis: update with more recent build disto and add more libraries
+  * stress-chdir: ensure statbuf is initialized
+  * Revert "stress-chdir: fchmod on recently fetched statbuf st_mode"
+  * stress-pthread: make pthread stack shared and ensure it's resident
+  * core-helper: Fix -k option, don't change the process name
+  * stress-pthead: unmap stack after pthread has joined
+  * stress-signal: dont call signal syscall directly
+  * stress-memthrash: fix off-by-one array overflow on swap method
+  * stress-memthrash: don't perform misaligned read/writes
+  * stress-memthrash: calculate number of threads based on online CPU
+    count
+  * stress-fork: remove residual fork call
+  * Makefile: Add MAN_COMPRESS to control stress-ng.1 compression on
+    install rule
+  * stress-fork: remove syscall(__NR_fork)
+  * stress-fork: set pid and errno on an unknown fork case
+  * stress-fork: done use fork shim helper, move code into core stressor
+    loop
+  * Add system information in -v debug output
+  * core-perf: clean up false positive static analysis warning
+  * test/test-mq-posix: memset msg to clean up static analysis warning
+  * stress-chdir: fchmod on recently fetched statbuf st_mode
+  * stress-matrix-3d: ensure maxtrix_3d_method_name is null
+  * stress-aio-linux: ensure fds is set to null on error
+  * stress-sysinval: remove extraneous ) in alloc_hugepages syscall info
+  * stress-sysinval: re-work resource cleanup on error
+  * stress-sysinval: add system call utilization stats
+  * stress-ng: prefix functions with stress_
+  * stress-ng: rename stressors_{init|deinit} to
+    stress_stressors_{init|deinit}
+  * Rename stress_{map|unmap}_shared to stress_shared_{map|unmap}
+  * Rename stress_free_stressors to stress_stressors_free
+  * Rename stress_free_settings to stress_settings_free
+  * Rename stress_free_temp_path to stress_temp_path_free
+  * Break && macro checks into multi-lines to match stress-ng code style
+  * stress-cpu: add float64 64 bit floating point cpu stress method
+  * stress-cpu: add a lfsr32 cpu method
+
+ -- Colin King <colin.king@canonical.com>  Wed, 21 Apr 2021 19:40:15 +0100
+
 stress-ng (0.12.06-1) unstable; urgency=medium
 
   [Helmut Grohne]
