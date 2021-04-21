@@ -97,6 +97,42 @@
 #define sqrtl	sqrt
 #endif
 
+#if defined(HAVE_BUILTIN_FABS)
+#define shim_fabs(x)	__builtin_fabs(x)
+#else
+#define shim_fabs(x)	fabs(x)
+#endif
+
+#if defined(HAVE_BUILTIN_FABSL)
+#define shim_fabsl(x)	__builtin_fabsl(x)
+#else
+#define shim_fabsl(x)	fabsl(x)
+#endif
+
+#if defined(HAVE_BUILTIN_RINT)
+#define shim_rint(x)	__builtin_rint(x)
+#else
+#define shim_rint(x)	rint(x)
+#endif
+
+#if defined(HAVE_BUILTIN_RINTL)
+#define shim_rintl(x)	__builtin_rintl(x)
+#else
+#define shim_rintl(x)	rintl(x)
+#endif
+
+#if defined(HAVE_BUILTIN_SQRT)
+#define shim_sqrt(x)	__builtin_sqrt(x)
+#else
+#define shim_sqrt(x)	sqrt(x)
+#endif
+
+#if defined(HAVE_BUILTIN_SQRTL)
+#define shim_sqrtl(x)	__builtin_sqrtl(x)
+#else
+#define shim_sqrtl(x)	sqrtl(x)
+#endif
+
 /*
  *  the CPU stress test has different classes of cpu stressor
  */
@@ -157,11 +193,11 @@ static void HOT TARGET_CLONES stress_cpu_sqrt(const char *name)
 
 	for (i = 0; i < 16384; i++) {
 		uint64_t rnd = stress_mwc32();
-		double r_d = sqrt((double)rnd) * sqrt((double)rnd);
-		long double r_ld = sqrtl((long double)rnd) * sqrtl((long double)rnd);
+		double r_d = shim_sqrt((double)rnd) * shim_sqrt((double)rnd);
+		long double r_ld = shim_sqrtl((long double)rnd) * shim_sqrtl((long double)rnd);
 
 		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
-		    (uint64_t)rint(r_d) != rnd)) {
+		    (uint64_t)shim_rint(r_d) != rnd)) {
 			pr_fail("%s: sqrt error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
 			if (!keep_stressing_flag())
@@ -169,7 +205,7 @@ static void HOT TARGET_CLONES stress_cpu_sqrt(const char *name)
 		}
 
 		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
-		    (uint64_t)rint(r_ld) != rnd)) {
+		    (uint64_t)shim_rint(r_ld) != rnd)) {
 			pr_fail("%s: sqrtf error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
 			if (!keep_stressing_flag())
@@ -475,7 +511,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 				pr_fail("%s: Newton-Raphson sqrt "
 					"computation took more iterations "
 					"than expected\n", name);
-			if ((int)rintl(rt * rt) != i)
+			if ((int)shim_rintl(rt * rt) != i)
 				pr_fail("%s: Newton-Raphson sqrt not "
 					"accurate enough\n", name);
 		}
@@ -490,7 +526,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
 {
 	long double phi; /* Golden ratio */
 	const long double precision = 1.0e-15L;
-	const long double phi_ = (1.0L + sqrtl(5.0L)) / 2.0L;
+	const long double phi_ = (1.0L + shim_sqrtl(5.0L)) / 2.0L;
 	register uint64_t a, b;
 	const uint64_t mask = 1ULL << 63;
 	int i;
@@ -511,7 +547,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
 	phi = (long double)b / (long double)a;
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-	    (fabsl(phi - phi_) > precision))
+	    (shim_fabsl(phi - phi_) > precision))
 		pr_fail("%s: Golden Ratio phi not accurate enough\n",
 			name);
 }
@@ -534,10 +570,10 @@ static void HOT OPTIMIZE3 stress_cpu_apery(const char *name)
 		a_ = a;
 		n3 = n3 * n3 * n3;
 		a += (1.0L / n3);
-		if (fabsl(a - a_) < precision)
+		if (shim_fabsl(a - a_) < precision)
 			break;
 	}
-	if (fabsl(a - a_) > precision)
+	if (shim_fabsl(a - a_) > precision)
 		pr_fail("%s: Apéry's const not accurate enough\n", name);
 }
 
@@ -609,7 +645,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_euler(const char *name)
 		fact *= n;
 		n++;
 		e += (1.0L / fact);
-	} while ((n < 25) && (fabsl(e - last_e) > precision));
+	} while ((n < 25) && (shim_fabsl(e - last_e) > precision));
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (n >= 25))
 		pr_fail("%s: Euler computation took more iterations "
@@ -801,7 +837,7 @@ static void stress_cpu_nhash(const char *name)
  */
 static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 {
-	const double invsqrt2 = 1.0 / sqrt(2.0);
+	const double invsqrt2 = 1.0 / shim_sqrt(2.0);
 	const double pi_over_16 = M_PI / 16.0;
 	const int sz = 8;
 	int i, j, u, v;
@@ -1311,10 +1347,10 @@ static void HOT OPTIMIZE3 stress_cpu_psi(const char *name)
 		last_psi = psi;
 		psi += 1.0L / f1;
 		i++;
-	} while ((i < max_iter) && (fabsl(psi - last_psi) > precision));
+	} while ((i < max_iter) && (shim_fabsl(psi - last_psi) > precision));
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (fabsl(psi - PSI) > 1.0e-15L)
+		if (shim_fabsl(psi - PSI) > 1.0e-15L)
 			pr_fail("%s: calculation of reciprocal "
 				"Fibonacci constant phi not as accurate "
 				"as expected\n", name);
@@ -1350,7 +1386,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ln2(const char *name)
 		ln2 -= (long double)1.0L / (long double)n++;
 		ln2 += (long double)1.0L / (long double)n++;
 		ln2 -= (long double)1.0L / (long double)n++;
-	} while ((n < max_iter) && (fabsl(ln2 - last_ln2) > precision));
+	} while ((n < max_iter) && (shim_fabsl(ln2 - last_ln2) > precision));
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (n >= max_iter))
 		pr_fail("%s: calculation of ln(2) took more "
@@ -1596,12 +1632,12 @@ static void HOT OPTIMIZE3 stress_cpu_gamma(const char *name)
 		sum += 1.0L / k;
 		_gamma = sum - logl(k);
 		k += 1.0L;
-	} while (k < 1e6 && fabsl(_gamma - gammaold) > precision);
+	} while (k < 1e6 && shim_fabsl(_gamma - gammaold) > precision);
 
 	stress_double_put(_gamma);
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		if (fabsl(_gamma - GAMMA) > 1.0e-5L)
+		if (shim_fabsl(_gamma - GAMMA) > 1.0e-5L)
 			pr_fail("%s: calculation of Euler-Mascheroni "
 				"constant not as accurate as expected\n", name);
 		if (k > 80000.0L)
@@ -1653,7 +1689,7 @@ static void HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
  */
 static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
 {
-	const uint32_t nsqrt = sqrt(SIEVE_SIZE);
+	const uint32_t nsqrt = shim_sqrt(SIEVE_SIZE);
 	static uint32_t sieve[(SIEVE_SIZE + 31) / 32];
 	uint32_t i, j;
 
@@ -1686,7 +1722,7 @@ static inline HOT OPTIMIZE3 ALWAYS_INLINE int is_prime(uint32_t n)
 		return n >= 2;
 	if ((n % 2 == 0) || (n % 3 == 0))
 		return 0;
-	max = sqrt(n) + 1;
+	max = shim_sqrt(n) + 1;
 	for (i = 5; i < max; i+= 6)
 		if ((n % i == 0) || (n % (i + 2) == 0))
 			return 0;
@@ -1978,7 +2014,7 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
 {
 	long double s = 0.0L, pi = 0.0L, last_pi = 0.0L;
 	const long double precision = 1.0e-20L;
-	const long double c = 2.0L * sqrtl(2.0L) / 9801.0L;
+	const long double c = 2.0L * shim_sqrtl(2.0L) / 9801.0L;
 	const int max_iter = 5;
 	int k = 0;
 
@@ -1989,14 +2025,14 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
 			(powl(factorial(k), 4.0L) * powl(396.0L, 4.0L * k));
 		pi = 1 / (s * c);
 		k++;
-	} while ((k < max_iter) && (fabsl(pi - last_pi) > precision));
+	} while ((k < max_iter) && (shim_fabsl(pi - last_pi) > precision));
 
 	/* Quick sanity checks */
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		if (k >= max_iter)
 			pr_fail("%s: number of iterations to compute "
 				"pi was more than expected\n", name);
-		if (fabsl(pi - M_PI) > 1.0e-15L)
+		if (shim_fabsl(pi - M_PI) > 1.0e-15L)
 			pr_fail("%s: accuracy of computed pi is not "
 				"as good as expected\n", name);
 	}
@@ -2024,14 +2060,14 @@ static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
 		last_omega = omega;
 		omega = (1 + omega) / (1 + expl(omega));
 		n++;
-	} while ((n < max_iter) && (fabsl(omega - last_omega) > precision));
+	} while ((n < max_iter) && (shim_fabsl(omega - last_omega) > precision));
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		if (n > max_iter)
 			pr_fail("%s: number of iterations to compute "
 				"omega was more than expected (%d vs %d)\n",
 				name, n, max_iter);
-		if (fabsl(omega - OMEGA) > 1.0e-16L)
+		if (shim_fabsl(omega - OMEGA) > 1.0e-16L)
 			pr_fail("%s: accuracy of computed omega is "
 				"not as good as expected\n", name);
 	}
@@ -2555,7 +2591,7 @@ static void stress_cpu_factorial(const char *name)
 	int n;
 	double f = 1.0;
 	const double precision = 1.0e-6;
-	const double sqrt_pi = sqrtl(M_PI);
+	const double sqrt_pi = shim_sqrtl(M_PI);
 
 	for (n = 1; n < 150; n++) {
 		double fact = roundl(expl(lgammal((double)(n + 1))));
@@ -2630,7 +2666,7 @@ static void stress_cpu_stats(const char *name)
 		stddev += (d * d);
 	}
 	/* Standard Deviation */
-	stddev = sqrt(stddev);
+	stddev = shim_sqrt(stddev);
 
 	stress_double_put(am);
 	stress_double_put(gm);
