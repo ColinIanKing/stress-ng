@@ -100,7 +100,8 @@ static int stress_l1cache_info_check(
 	uint32_t sets,
 	uint32_t line_size)
 {
-	uint64_t sz = (uint64_t)ways * (uint64_t)sets * (uint64_t)line_size;
+	uint64_t sz = size ? size :
+		(uint64_t)ways * (uint64_t)sets * (uint64_t)line_size;
 
 	if (args->instance == 0) {
 		char szstr[64];
