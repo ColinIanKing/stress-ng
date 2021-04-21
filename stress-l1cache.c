@@ -198,7 +198,7 @@ static int stress_l1cache_info_ok(
 		*line_size = cache->line_size;
 	if (*ways == 0)
 		*ways = cache->ways;
-	if (*sets == 0)
+	if ((*sets == 0) && (*ways > 0) && (*line_size > 0))
 		*sets = *size / (*ways * *line_size);
 
 	stress_free_cpu_caches(cpu_caches);
