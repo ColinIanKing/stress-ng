@@ -227,11 +227,17 @@ static int stress_msg(const stress_args_t *args)
 #if defined(__linux__)
 	bool get_procinfo = true;
 #endif
-	const ssize_t max_ids = stress_max_ids(args);
-	int msgq_ids[max_ids];
+	const size_t max_ids = stress_max_ids(args);
+	int *msgq_ids;
 	size_t j, n;
 
 	(void)stress_get_setting("msg-types", &msg_types);
+
+	msgq_ids = calloc(max_ids, sizeof(*msgq_ids));
+	if (!msgq_ids) {
+		pr_inf("%s: failed to allocate msgq id array\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0) {
@@ -239,12 +245,13 @@ static int stress_msg(const stress_args_t *args)
 
 		pr_fail("%s: msgget failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+		free(msgq_ids);
 		return ret;
 	}
 	pr_dbg("%s: System V message queue created, id: %d\n", args->name, msgq_id);
 
 	stress_msgget();
-	for (n = 0; n < SIZEOF_ARRAY(msgq_ids); n++) {
+	for (n = 0; n < max_ids; n++) {
 		if (!keep_stressing(args))
 			break;
 		msgq_ids[n] = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
@@ -383,6 +390,7 @@ cleanup:
 		if (msgq_ids[j] >= 0)
 			msgctl(msgq_ids[j], IPC_RMID, NULL);
 	}
+	free(msgq_ids);
 
 	return EXIT_SUCCESS;
 }
