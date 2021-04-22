@@ -222,7 +222,7 @@ static inline size_t stress_max_ids(const stress_args_t *args)
 static int stress_msg(const stress_args_t *args)
 {
 	pid_t pid;
-	int msgq_id;
+	int msgq_id, rc = EXIT_SUCCESS;
 	int32_t msg_types = 0;
 #if defined(__linux__)
 	bool get_procinfo = true;
@@ -273,7 +273,8 @@ again:
 			goto again;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
+		rc = EXIT_FAILURE;
+		goto cleanup;
 	} else if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -392,7 +393,7 @@ cleanup:
 	}
 	free(msgq_ids);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_msg_info = {
