@@ -688,7 +688,7 @@ static size_t TARGET_CLONES stress_vm_gray(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	for (c = c_orig, v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
+	for (v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 		if (UNLIKELY(*ptr != ((v >> 1) ^ v)))
