@@ -271,7 +271,7 @@ static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 
 			(void)sigemptyset(&sigmask);
 			ret = ppoll(fds, 1, &ts, &sigmask);
-			(void)ts;
+			(void)ret;
 		}
 #endif
 
