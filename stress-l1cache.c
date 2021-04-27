@@ -257,6 +257,10 @@ static int stress_l1cache(const stress_args_t *args)
 	}
 	/* Get cache aligned buffer */
 	l1cache_set_size = l1cache_ways * l1cache_line_size;
+	if (l1cache_set_size == 0) {
+		pr_inf("%s: invalid level 1 cache set size is zero\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 	addr = l1cache_size + (intptr_t)cache;
 	padding = (l1cache_set_size - (addr % l1cache_set_size)) % l1cache_set_size;
 	cache_aligned = (uint8_t *)(addr + padding);
