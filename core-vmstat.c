@@ -361,6 +361,7 @@ void stress_vmstat_start(void)
 	if ((vmstat_delay == 0) && (thermalstat_delay == 0))
 		return;
 
+	tz_info_list = NULL;
 	vmstat_sleep = vmstat_delay;
 	thermalstat_sleep = thermalstat_delay;
 
@@ -372,7 +373,6 @@ void stress_vmstat_start(void)
 		stress_get_vmstat(&vmstat);
 
 	if (thermalstat_delay) {
-		tz_info_list = NULL;
 		stress_tz_init(&tz_info_list);
 
 		for (tz_info = tz_info_list; tz_info; tz_info = tz_info->next)
