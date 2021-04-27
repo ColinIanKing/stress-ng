@@ -229,7 +229,7 @@ static int stress_aiol_alloc(
 	*events = calloc(n, sizeof(**events));
 	if (!*events)
 		goto free_cb;
-	*cbs = calloc(n, sizeof(***cbs));
+	*cbs = calloc(n, sizeof(**cbs));
 	if (!*cbs)
 		goto free_events;
 	*fds = calloc(n, sizeof(**fds));
