@@ -216,6 +216,8 @@ static int stress_affinity(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	(void)memset(pids, 0, sizeof(pids));
+
 	/*
 	 *  process slots 1..STRESS_AFFINITY_PROCS are the children,
 	 *  slot 0 is the parent.
