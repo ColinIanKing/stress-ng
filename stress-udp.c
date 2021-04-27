@@ -183,6 +183,7 @@ again:
 					slen = sizeof(val);
 					ret = setsockopt(fd, proto, UDP_CORK, &val, slen);
 				}
+				(void)ret;
 			}
 #endif
 #if defined(UDP_ENCAP)
@@ -195,6 +196,7 @@ again:
 					slen = sizeof(val);
 					ret = setsockopt(fd, proto, UDP_ENCAP, &val, slen);
 				}
+				(void)ret;
 			}
 #endif
 #if defined(UDP_NO_CHECK6_TX)
@@ -207,6 +209,7 @@ again:
 					slen = sizeof(val);
 					ret = setsockopt(fd, proto, UDP_NO_CHECK6_TX, &val, slen);
 				}
+				(void)ret;
 			}
 #endif
 #if defined(UDP_NO_CHECK6_RX)
@@ -218,6 +221,7 @@ again:
 					slen = sizeof(val);
 					ret = setsockopt(fd, proto, UDP_NO_CHECK6_RX, &val, slen);
 				}
+				(void)ret;
 			}
 #endif
 #if defined(UDP_SEGMENT)
@@ -230,6 +234,7 @@ again:
 					slen = sizeof(val);
 					ret = setsockopt(fd, proto, UDP_SEGMENT, &val, slen);
 				}
+				(void)ret;
 			}
 #endif
 			do {
