@@ -191,7 +191,7 @@ static int stress_verity(const stress_args_t *args)
 			int flags = 0;
 
 			ret = ioctl(fd, FS_IOC_GETFLAGS, &flags);
-			if (!(flags & FS_VERITY_FL)) {
+			if ((ret == 0) && !(flags & FS_VERITY_FL)) {
 				pr_fail("%s: verity enabled but FS_VERITY_FL bit not "
 					"set on file flags from ioctl FS_IOC_GETFLAGS\n",
 					args->name);
