@@ -633,6 +633,9 @@ static int stress_ipsec_mb(const stress_args_t *args)
 	features = stress_ipsec_mb_features(args, p_mgr);
 	for (i = 0; i < n_features; i++) {
 		t[i] = 0.0;
+	}
+
+	for (i = 0; i < n_features; i++) {
 		if ((init_mb[i].features & features) == init_mb[i].features) {
 			got_features = true;
 			break;
