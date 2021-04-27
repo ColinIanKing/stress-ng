@@ -41,13 +41,13 @@ static bool tsc_supported = false;
 
 static inline unsigned long rdtsc(void)
 {
-	register unsigned long cycles;
+	register unsigned long ticks;
 
-        __asm__ __volatile__("rdcycle %0"
-                              : "=r" (cycles)
+        __asm__ __volatile__("rdtime %0"
+                              : "=r" (ticks)
 			      :
                               : "memory");
-	return cycles;
+	return ticks;
 }
 
 static void stress_sigill_handler(int signum)
