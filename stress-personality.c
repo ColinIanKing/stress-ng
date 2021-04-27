@@ -44,7 +44,7 @@ static const unsigned long personalities[] = {
 static int stress_personality(const stress_args_t *args)
 {
 	const ssize_t n = SIZEOF_ARRAY(personalities);
-	bool failed[n];
+	bool failed[n + 1];	/* +1 to stop zero size array compiler warnings */
 
 	if (n == 0) {
 		pr_inf("%s: no personalities to stress test\n", args->name);
