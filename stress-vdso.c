@@ -311,7 +311,6 @@ static char *vdso_sym_list_str(void)
 			*tmp = '\0';
 		} else {
 			(void)strcat(tmp, " ");
-			str = tmp;
 		}
 		(void)strcat(tmp, vdso_sym->name);
 		str = tmp;
