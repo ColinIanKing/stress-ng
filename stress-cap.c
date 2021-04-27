@@ -78,6 +78,7 @@ static int stress_capgetset_pid(
 	uch.version = _LINUX_CAPABILITY_VERSION_3;
 	uch.pid = stress_get_unused_pid_racy(false);
 	ret = capget(&uch, ucd);
+	(void)ret;
 #endif
 
 	/*
@@ -87,12 +88,14 @@ static int stress_capgetset_pid(
 	uch.version = _LINUX_CAPABILITY_VERSION_2;
 	uch.pid = pid;
 	ret = capget(&uch, ucd);
+	(void)ret;
 #endif
 
 #if defined(_LINUX_CAPABILITY_VERSION_1)
 	uch.version = _LINUX_CAPABILITY_VERSION_1;
 	uch.pid = pid;
 	ret = capget(&uch, ucd);
+	(void)ret;
 #endif
 
 	uch.version = ~0;
