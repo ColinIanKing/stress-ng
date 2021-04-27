@@ -824,13 +824,13 @@ static bool bool_field(const char *buffer)
  *  stress_af_alg_add_crypto()
  *	add crypto algorithm to list if it is unique
  */
-static void stress_af_alg_add_crypto(stress_crypto_info_t *info)
+static bool stress_af_alg_add_crypto(stress_crypto_info_t *info)
 {
 	stress_crypto_info_t *ci;
 
 	/* Don't add info with empty text fields */
 	if ((info->name == NULL) || (info->type == NULL))
-		return;
+		return false;
 
 	/* Scan for duplications */
 	for (ci = crypto_info_list; ci; ci = ci->next) {
@@ -842,7 +842,7 @@ static void stress_af_alg_add_crypto(stress_crypto_info_t *info)
 		    ci->iv_size == info->iv_size &&
 		    ci->digest_size == info->digest_size &&
 		    ci->internal == info->internal)
-			return;
+			return false;
 	}
 	/*
 	 *  Add new item, if we can't allocate, silently
@@ -850,10 +850,12 @@ static void stress_af_alg_add_crypto(stress_crypto_info_t *info)
 	 */
 	ci = malloc(sizeof(*ci));
 	if (!ci)
-		return;
+		return false;
 	*ci = *info;
 	ci->next = crypto_info_list;
 	crypto_info_list = ci;
+
+	return true;
 }
 
 /*
@@ -925,10 +927,14 @@ static void stress_af_alg_init(void)
 		else if (!strncmp(buffer, "selftest", 8))
 			info.selftest = bool_field(buffer);
 		else if (buffer[0] == '\n') {
-			if (info.crypto_type != CRYPTO_UNKNOWN)
-				stress_af_alg_add_crypto(&info);
-			else
+			if (info.crypto_type != CRYPTO_UNKNOWN) {
+				if (!stress_af_alg_add_crypto(&info)) {
+					free(info.name);
+					free(info.type);
+				}
+			} else {
 				stress_af_alg_info_free(&info);
+			}
 			(void)memset(&info, 0, sizeof(info));
 		}
 	}
