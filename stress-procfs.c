@@ -204,13 +204,14 @@ static inline void stress_proc_rw(
 		 *  fstat the file
 		 */
 		ret = fstat(fd, &statbuf);
+		(void)ret;
 
 #if defined(__linux__)
 		/*
 		 *  Linux name space symlinks can be exercised
 		 *  with some special name space ioctls:
 		 */
-		if (statbuf.st_mode & S_IFLNK) {
+		if ((ret == 0) && (statbuf.st_mode & S_IFLNK)) {
 			if (!strncmp(path, "/proc/self", 10) && (strstr(path, "/ns/"))) {
 				int ns_fd;
 				uid_t uid;
