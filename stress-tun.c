@@ -295,6 +295,7 @@ child_cleanup_fd:
 					ret = ioctl(fd, TUNSETVNETLE, &val);
 #endif
 				}
+				(void)ret;
 			}
 #endif
 
@@ -308,6 +309,7 @@ child_cleanup_fd:
 					ret = ioctl(fd, TUNSETVNETBE, &val);
 #endif
 				}
+				(void)ret;
 			}
 #endif
 
