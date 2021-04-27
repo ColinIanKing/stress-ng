@@ -456,6 +456,7 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		f.l_len = len;
 		f.l_pid = args->pid;
 		ret = fcntl(fd, F_SETLK, &f);
+		(void)ret;
 
 		f.l_type = F_SETLK;
 		f.l_whence = ~0;
@@ -463,6 +464,7 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		f.l_len = len;
 		f.l_pid = args->pid;
 		ret = fcntl(fd, F_SETLK, &f);
+		(void)ret;
 
 		f.l_type = F_SETLK;
 		f.l_whence = SEEK_SET;
@@ -470,6 +472,7 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		f.l_len = 0;
 		f.l_pid = 0;
 		ret = fcntl(fd, F_SETLK, &f);
+		(void)ret;
 
 lock_abort:	{ /* Nowt */ }
 	}
