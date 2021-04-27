@@ -2411,7 +2411,7 @@ static int stress_sysinval(const stress_args_t *args)
 	 *  Determine the number of syscalls that we can test vs
  	 *  the number of syscalls actually exercised
 	 */
-	for (syscalls_exercised = 0, i = 0; i < stress_syscall_args_sz; i++) {
+	for (i = 0; i < stress_syscall_args_sz; i++) {
 		unsigned long syscall = stress_syscall_args[i].syscall;
 		size_t exercised = 0, unique = 0;
 		size_t j;
