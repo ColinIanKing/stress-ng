@@ -160,6 +160,9 @@ static int stress_sysinfo(const stress_args_t *args)
 			check_do_run();
 
 			for (i = 0; i < n_mounts; i++) {
+				if (!mnts[i])
+					continue;
+
 				ret = stat(mnts[i], &sbuf);
 				if (ret < 0)
 					continue;
