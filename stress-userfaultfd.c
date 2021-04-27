@@ -358,7 +358,8 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 		}
 
 do_read:
-		if ((ret = read(fd, &msg, sizeof(msg))) < 0) {
+		ret = read(fd, &msg, sizeof(msg));
+		if (ret < 0) {
 			if (errno == EINTR)
 				continue;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
