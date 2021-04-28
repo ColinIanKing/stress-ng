@@ -44,6 +44,8 @@ void stress_settings_free(void)
 	while (setting) {
 		stress_setting_t *next = setting->next;
 
+		if (setting->type_id == TYPE_ID_STR)
+			free(setting->u.str);
 		free(setting->name);
 		free(setting);
 		setting = next;

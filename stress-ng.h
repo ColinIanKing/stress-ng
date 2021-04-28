@@ -1030,7 +1030,7 @@ typedef struct stress_setting {
 		unsigned long	ulong;
 		signed long	slong;
 		off_t		off;
-		const char *	str;
+		char 		*str;
 		bool		boolean;
 		uintptr_t	uintptr;/* for func pointers */
 	} u;
