@@ -2336,6 +2336,7 @@ static void stress_log_args(int argc, char **argv)
 {
 	size_t i, len, buflen, arglen[argc];
 	char *buf;
+	const char *user = shim_getlogin();
 
 	for (buflen = 0, i = 0; i < (size_t)argc; i++) {
 		arglen[i] = strlen(argv[i]);
@@ -2354,7 +2355,10 @@ static void stress_log_args(int argc, char **argv)
 		(void)shim_strlcat(buf + len, argv[i], buflen - len);
 		len += arglen[i];
 	}
-	shim_syslog(LOG_INFO, "invoked with '%s' by user %d", buf, getuid());
+	if (user)
+		shim_syslog(LOG_INFO, "invoked with '%s' by user %d '%s'", buf, getuid(), user);
+	else
+		shim_syslog(LOG_INFO, "invoked with '%s' by user %d", buf, getuid());
 	free(buf);
 }
 
