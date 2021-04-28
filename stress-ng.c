@@ -2334,24 +2334,24 @@ static void stress_times_dump(
  */
 static void stress_log_args(int argc, char **argv)
 {
-	size_t i, len, arglen[argc];
+	size_t i, len, buflen, arglen[argc];
 	char *buf;
 
-	for (len = 0, i = 0; i < (size_t)argc; i++) {
+	for (buflen = 0, i = 0; i < (size_t)argc; i++) {
 		arglen[i] = strlen(argv[i]);
-		len += arglen[i] + 1;
+		buflen += arglen[i] + 1;
 	}
 
-	buf = calloc(len, sizeof(*buf));
+	buf = calloc(buflen, sizeof(*buf));
 	if (!buf)
 		return;
 
 	for (len = 0, i = 0; i < (size_t)argc; i++) {
 		if (i) {
-			(void)shim_strlcat(buf + len, " ", 1);
+			(void)shim_strlcat(buf + len, " ", buflen - len);
 			len++;
 		}
-		(void)shim_strlcat(buf + len, argv[i], arglen[i]);
+		(void)shim_strlcat(buf + len, argv[i], buflen - len);
 		len += arglen[i];
 	}
 	shim_syslog(LOG_INFO, "invoked with '%s' by user %d", buf, getuid());
