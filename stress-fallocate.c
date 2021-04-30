@@ -158,6 +158,8 @@ static int stress_fallocate(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 		(void)shim_fsync(fd);
+		if (!keep_stressing_flag())
+			break;
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			struct stat buf;
@@ -175,9 +177,15 @@ static int stress_fallocate(const stress_args_t *args)
 		if (ftruncate(fd, fallocate_bytes) < 0)
 			ftrunc_errs++;
 		(void)shim_fsync(fd);
+		if (!keep_stressing_flag())
+			break;
 		if (ftruncate(fd, 0) < 0)
 			ftrunc_errs++;
+		if (!keep_stressing_flag())
+			break;
 		(void)shim_fsync(fd);
+		if (!keep_stressing_flag())
+			break;
 
 		if (SIZEOF_ARRAY(modes) > 1) {
 			/*
@@ -189,6 +197,8 @@ static int stress_fallocate(const stress_args_t *args)
 			if (!keep_stressing_flag())
 				break;
 			(void)shim_fsync(fd);
+			if (!keep_stressing_flag())
+				break;
 
 			for (i = 0; i < 64; i++) {
 				off_t offset = (stress_mwc64() % fallocate_bytes) & ~0xfff;
@@ -201,7 +211,11 @@ static int stress_fallocate(const stress_args_t *args)
 			}
 			if (ftruncate(fd, 0) < 0)
 				ftrunc_errs++;
+			if (!keep_stressing_flag())
+				break;
 			(void)shim_fsync(fd);
+			if (!keep_stressing_flag())
+				break;
 		}
 
 		/*
@@ -214,6 +228,8 @@ static int stress_fallocate(const stress_args_t *args)
 		ret = shim_fallocate(bad_fd, 0, (off_t)0, fallocate_bytes);
 #endif
 		(void)ret;
+		if (!keep_stressing_flag())
+			break;
 
 		/*
 		 *  Exercise with various illegal mode flags
@@ -224,6 +240,8 @@ static int stress_fallocate(const stress_args_t *args)
 			for (i = 0; i < SIZEOF_ARRAY(illegal_modes); i++) {
 				ret = shim_fallocate(fd, illegal_modes[i], (off_t)0, fallocate_bytes);
 				(void)ret;
+				if (!keep_stressing_flag())
+					break;
 			}
 		}
 
@@ -241,8 +259,12 @@ static int stress_fallocate(const stress_args_t *args)
 		 */
 		ret = posix_fallocate(fd, (off_t)-1, (off_t)0);
 		(void)ret;
+		if (!keep_stressing_flag())
+			break;
 		ret = posix_fallocate(fd, (off_t)0, (off_t)-1);
 		(void)ret;
+		if (!keep_stressing_flag())
+			break;
 		ret = posix_fallocate(fd, (off_t)-1, (off_t)-1);
 		(void)ret;
 
