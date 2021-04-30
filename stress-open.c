@@ -348,7 +348,8 @@ static int open_with_openat2_cwd(void)
 #if defined(RESOLVE_CACHED)
 		RESOLVE_CACHED,
 #endif
-		0
+		0,
+		~0,			/* Intentionally illegal */
 	};
 
 	char filename[PATH_MAX];
