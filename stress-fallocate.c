@@ -48,6 +48,15 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_FALLOCATE)
 
+static sigjmp_buf jmp_env;
+
+static void MLOCKED_TEXT stress_fallocate_handler(int signum)
+{
+        (void)signum;
+
+	siglongjmp(jmp_env, 1);
+}
+
 static const int modes[] = {
 	0,
 #if defined(FALLOC_FL_KEEP_SIZE)
@@ -96,12 +105,23 @@ static const int illegal_modes[] = {
  */
 static int stress_fallocate(const stress_args_t *args)
 {
-	int fd, ret;
+	NOCLOBBER int fd = -1, ret, pipe_ret, pipe_fds[2];
 	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
 	off_t fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
-	int pipe_fds[2], pipe_ret;
+
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret) {
+		/*
+		 * We return here if SIGALRM jmp'd back
+		 */
+		goto done;
+	}
+	ret = stress_sighandler(args->name, SIGALRM, stress_fallocate_handler, NULL);
+	(void)ret;
+	ret = stress_sighandler(args->name, SIGINT, stress_fallocate_handler, NULL);
+	(void)ret;
 
 	if (!stress_get_setting("fallocate-bytes", &fallocate_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -270,6 +290,8 @@ static int stress_fallocate(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+done:
 	if (ftrunc_errs)
 		pr_dbg("%s: %" PRIu64
 			" ftruncate errors occurred.\n", args->name, ftrunc_errs);
@@ -279,7 +301,8 @@ static int stress_fallocate(const stress_args_t *args)
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)close(fd);
+	if (fd != -1)
+		(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
