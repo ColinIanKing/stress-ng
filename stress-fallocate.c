@@ -52,7 +52,7 @@ static sigjmp_buf jmp_env;
 
 static void MLOCKED_TEXT stress_fallocate_handler(int signum)
 {
-        (void)signum;
+	(void)signum;
 
 	siglongjmp(jmp_env, 1);
 }
