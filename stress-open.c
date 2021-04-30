@@ -329,22 +329,58 @@ static int open_with_openat_dirfd(void)
     defined(__NR_openat2)
 static int open_with_openat2_cwd(void)
 {
+	static const int resolve_flags[] = {
+#if defined(RESOLVE_BENEATH)
+		RESOLVE_BENEATH,
+#endif
+#if defined(RESOLVE_IN_ROOT)
+		RESOLVE_IN_ROOT,
+#endif
+#if defined(RESOLVE_NO_MAGICLINKS)
+		RESOLVE_NO_MAGICLINKS,
+#endif
+#if defined(RESOLVE_NO_SYMLINKS)
+		RESOLVE_NO_SYMLINKS,
+#endif
+#if defined(RESOLVE_NO_XDEV)
+		RESOLVE_NO_XDEV,
+#endif
+#if defined(RESOLVE_CACHED)
+		RESOLVE_CACHED,
+#endif
+		0
+	};
+
 	char filename[PATH_MAX];
 	int fd;
+	size_t i = 0;
+	static size_t j;
 	struct open_how how;
 
 	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
 		(int)getpid(), stress_mwc32());
 
-	(void)memset(&how, 0, sizeof(how));
-	how.flags = O_CREAT | O_RDWR;
-	how.mode = S_IRUSR | S_IWUSR;
-	how.resolve = RESOLVE_NO_SYMLINKS;
+	/*
+	 *  Work through resolve flags to find one that can
+	 *  open the file successfully
+	 */
+	for (i = 0; i < SIZEOF_ARRAY(resolve_flags); i++) {
+		(void)memset(&how, 0, sizeof(how));
+		how.flags = O_CREAT | O_RDWR;
+		how.mode = S_IRUSR | S_IWUSR;
+		how.resolve = resolve_flags[j++];
 
-	fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, sizeof(how));
-	if (fd >= 0)
-		(void)unlink(filename);
-	return fd;
+		if (j >= SIZEOF_ARRAY(resolve_flags))
+			j = 0;
+
+		fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, sizeof(how));
+		if (fd >= 0) {
+			(void)unlink(filename);
+			return fd;
+		}
+
+	}
+	return -1;
 }
 #endif
 
