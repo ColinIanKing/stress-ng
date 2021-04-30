@@ -102,7 +102,7 @@ static int stress_link_generic(
 		uint64_t i, n = DEFAULT_LINKS;
 		char testpath[PATH_MAX];
 
-		for (i = 0; i < n; i++) {
+		for (i = 0; keep_stressing(args) && (i < n); i++) {
 			char newpath[PATH_MAX];
 			struct stat stbuf;
 
