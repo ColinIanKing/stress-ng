@@ -781,8 +781,14 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(kill)
 	/* { SYS(kill), ARG_PID, ARG_INT, 0, 0, 0, 0 } }, */
 #endif
+#if DEFSYS(landlock_add_rule)
+	{ SYS(landlock_create_ruleset), 4, { ARG_FD, ARG_INT, ARG_PTR, ARG_FLAG, 0, 0 } },
+#endif
 #if DEFSYS(landlock_create_ruleset)
 	{ SYS(landlock_create_ruleset), 3, { ARG_PTR, ARG_LEN, ARG_FLAG, 0, 0, 0 } },
+#endif
+#if DEFSYS(landlock_restrict_self)
+	{ SYS(landlock_restrict_self), 2, { ARG_FD, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(lchown)
 	{ SYS(lchown), 3, { ARG_EMPTY_FILENAME, ARG_INT, ARG_INT, 0, 0, 0 } },
