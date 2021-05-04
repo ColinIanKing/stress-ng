@@ -2213,6 +2213,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_kill)
 	__NR_kill,
 #endif
+#if defined(__NR_landlock_create_ruleset)
+	__NR_landlock_create_ruleset,
+#endif
 #if defined(__NR_lchown)
 	__NR_lchown,
 #endif
