@@ -121,7 +121,7 @@ static void dnotify_exercise(
 
 	/* Wait for up to 1 second for event */
 	while ((i < 1000) && (dnotify_fd == -1)) {
-		if (!keep_stressing_flag())
+		if (!keep_stressing(args))
 			goto cleanup;
 		i++;
 		(void)shim_usleep(1000);
@@ -171,13 +171,15 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 	}
 
 	(void)memset(buffer, 'x', BUF_SIZE);
-	while (sz > 0) {
+	while (keep_stressing(args) && (sz > 0)) {
 		size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
-		int ret;
+		ssize_t ret;
 
-		if ((ret = write(fd, buffer, n)) < 0) {
+
+		ret = write(fd, buffer, n);
+		if (ret < 0) {
 			if (errno == ENOSPC)
-				continue;
+				break;
 			pr_err("%s: error writing to file %s: errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			(void)close(fd);
@@ -239,7 +241,7 @@ static int dnotify_access_helper(
 
 	/* Just want to force an access */
 do_access:
-	if (keep_stressing_flag() && (read(fd, buffer, 1) < 0)) {
+	if (keep_stressing(args) && (read(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_access;
 		pr_err("%s: cannot read file %s: errno=%d (%s)\n",
@@ -281,7 +283,7 @@ static int dnotify_modify_helper(
 		goto remove;
 	}
 do_modify:
-	if (keep_stressing_flag() && (write(fd, buffer, 1) < 0)) {
+	if (keep_stressing(args) && (write(fd, buffer, 1) < 0)) {
 		if ((errno == EAGAIN) || (errno == EINTR))
 			goto do_modify;
 		pr_err("%s: cannot write to file %s: errno=%d (%s)\n",
@@ -420,7 +422,7 @@ static int stress_dnotify(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; keep_stressing_flag() && dnotify_stressors[i].func; i++)
+		for (i = 0; keep_stressing(args) && dnotify_stressors[i].func; i++)
 			dnotify_stressors[i].func(args, pathname);
 		inc_counter(args);
 	} while (keep_stressing(args));
