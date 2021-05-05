@@ -294,11 +294,11 @@ again:
 				 *  and we don't care if it succeeds or not
 				 */
 				if ((i & 0xfff) == 0) {
-					int rc;
+					int ret;
 
-					rc = msgrcv(msgq_id, &msg, sizeof(msg.value), mtype,
+					ret = msgrcv(msgq_id, &msg, sizeof(msg.value), mtype,
 						MSG_COPY | IPC_NOWAIT);
-					(void)rc;
+					(void)ret;
 				}
 #endif
 				if (msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, 0) < 0) {
