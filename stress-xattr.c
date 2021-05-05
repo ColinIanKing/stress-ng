@@ -106,6 +106,8 @@ static int stress_xattr(const stress_args_t *args)
 					args->name, errno, strerror(errno));
 				goto out_close;
 			}
+			if (!keep_stressing(args))
+				goto out_finished;
 		}
 
 		(void)snprintf(attrname, sizeof(attrname), "user.var_%d", MAX_XATTRS);
@@ -302,6 +304,8 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_close;
 			}
 #endif
+			if (!keep_stressing(args))
+				goto out_finished;
 		}
 		for (j = 0; j < i; j++) {
 			(void)snprintf(attrname, sizeof(attrname), "user.var_%d", j);
@@ -358,6 +362,8 @@ static int stress_xattr(const stress_args_t *args)
 			ret = shim_lgetxattr(filename, bad_attrname, tmp, sizeof(tmp));
 			(void)ret;
 #endif
+			if (!keep_stressing(args))
+				goto out_finished;
 		}
 
 		/*
@@ -427,6 +433,8 @@ static int stress_xattr(const stress_args_t *args)
 					args->name, errmsg, errno, strerror(errno));
 				goto out_close;
 			}
+			if (!keep_stressing(args))
+				goto out_finished;
 		}
 		/*
 		 *  Exercise invalid filename, ENOENT
@@ -453,6 +461,7 @@ static int stress_xattr(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+out_finished:
 	rc = EXIT_SUCCESS;
 out_close:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
