@@ -465,6 +465,8 @@ static const struct option long_options[] = {
 	{ "l1cache-sets",1,	0,	OPT_l1cache_sets},
 	{ "l1cache-size",1,	0,	OPT_l1cache_size },
 	{ "l1cache-ways",1,	0,	OPT_l1cache_ways},
+	{ "landlock",	1,	0,	OPT_landlock },
+	{ "landlock-ops",1,	0,	OPT_landlock_ops },
 	{ "lease",	1,	0,	OPT_lease },
 	{ "lease-ops",	1,	0,	OPT_lease_ops },
 	{ "lease-breakers",1,	0,	OPT_lease_breakers },

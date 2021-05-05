@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "Mar 24, 2021"
+.TH STRESS-NG 1 "May 5, 2021"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1979,6 +1979,16 @@ specify the level 1 cache size (in bytes)
 .TP
 .B \-\-l1cache-ways N
 specify the number of level 1 cache ways
+.TP
+.B \-\-landlock N
+start N workers that exercise Linux 5.13 landlocking. A range of
+landlock_create_ruleset flags are exercised with a read only file rule
+to see if a directory can be accessed and a read-write file create can
+be blocked. Each ruleset attempt is exercised in a new child context and
+this is the limiting factor on the speed of the stressor.
+.TP
+.B \-\-landlock-ops N
+stop the landlock stressors after N landlock ruleset bogo operations.
 .TP
 .B \-\-lease N
 start N workers locking, unlocking and breaking leases via the fcntl(2)

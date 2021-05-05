@@ -544,6 +544,10 @@
 #include <linux/kd.h>
 #endif
 
+#if defined(HAVE_LINUX_LANDLOCK_H)
+#include <linux/landlock.h>
+#endif
+
 #if defined(HAVE_LINUX_LOOP_H)
 #include <linux/loop.h>
 #endif
@@ -2467,6 +2471,7 @@ typedef struct {
 	MACRO(kill)		\
 	MACRO(klog)		\
 	MACRO(l1cache)		\
+	MACRO(landlock)		\
 	MACRO(lease)		\
 	MACRO(link)		\
 	MACRO(list)		\
@@ -3019,6 +3024,9 @@ typedef enum {
 	OPT_l1cache_size,
 	OPT_l1cache_sets,
 	OPT_l1cache_ways,
+
+	OPT_landlock,
+	OPT_landlock_ops,
 
 	OPT_lease,
 	OPT_lease_ops,

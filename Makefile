@@ -162,6 +162,7 @@ STRESS_SRC = \
 	stress-kill.c \
 	stress-klog.c \
 	stress-l1cache.c \
+	stress-landlock.c \
 	stress-lease.c \
 	stress-link.c \
 	stress-list.c \
