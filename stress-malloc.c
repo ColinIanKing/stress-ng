@@ -145,7 +145,7 @@ static bool HOT OPTIMIZE3 stress_malloc_keep_stressing(
                 (stress_malloc_racy_count(counters) < args->max_ops)));
 }
 
-static void* stress_malloc_loop(void *ptr)
+static void *stress_malloc_loop(void *ptr)
 {
 	const stress_malloc_args_t *malloc_args = (stress_malloc_args_t *)ptr;
 	const stress_args_t *args = malloc_args->args;
