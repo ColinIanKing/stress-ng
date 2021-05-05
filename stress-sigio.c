@@ -51,17 +51,11 @@ static double time_end;
 static void MLOCKED_TEXT stress_sigio_handler(int signum)
 {
 	static char buffer[BUFFER_SIZE];
-	const stress_args_t *args = sigio_args;
 
 	(void)signum;
 
-	if (!keep_stressing(args) || (stress_time_now() > time_end)) {
-		if (pid > 0)
-			(void)kill(pid, SIGKILL);
-
-		(void)shim_sched_yield();
+	if (!keep_stressing_flag() || (stress_time_now() > time_end))
 		return;
-	}
 
 	if (rd_fd > 0) {
 		int ret;
@@ -86,11 +80,9 @@ static int stress_sigio(const stress_args_t *args)
 
 	rd_fd = -1;
 	sigio_args = args;
+	pid = -1;
 
 	time_end = stress_time_now() + (double)g_opt_timeout;
-
-	if (stress_sighandler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
-		return rc;
 
 	if (pipe(fds) < 0) {
 		pr_fail("%s: pipe failed, errno=%d (%s)\n",
@@ -155,14 +147,17 @@ static int stress_sigio(const stress_args_t *args)
 		_exit(1);
 	}
 
+	/* Parent */
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	/* Parent */
+	if (stress_sighandler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
+		goto err;
 	do {
 		struct timeval timeout;
 
 		timeout.tv_sec = 1;
-		timeout.tv_usec = 0000;
+		timeout.tv_usec = 0;
 
 		(void)select(0, NULL, NULL, NULL, &timeout);
 		if (got_err) {
