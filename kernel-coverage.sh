@@ -61,7 +61,7 @@ mount_filesystem()
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
 		ext4)	MKFS_CMD="mkfs.ext4"
-			MKFS_ARGS="-F ${FSIMAGE}"
+			MKFS_ARGS="-F ${FSIMAGE} -O inline_data,dir_index,metadata_csum,64bit,ea_inode,ext_attr,quota,verity,extent,filetype,huge_file,mmp"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
@@ -139,7 +139,7 @@ mount_filesystem()
 			;;
 		btrfs)	MKFS_CMD="mkfs.btrfs"
 			MKFS_ARGS="-f ${FSIMAGE}"
-			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			MNT_CMD="sudo mount -o compress -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
 		tmpfs)	MKFS_CMD="true"
@@ -157,6 +157,7 @@ mount_filesystem()
 	esac
 
 	if which ${MKFS_CMD} ; then
+		echo ${MKFS_CMD} ${MKFS_ARGS}
 		sudo ${MKFS_CMD} ${MKFS_ARGS}
 		rc=$?
 		if [ $rc -ne 0 ]; then
@@ -263,25 +264,27 @@ fi
 DURATION=180
 do_stress --dev 32
 
-DURATION=15
-for FS in ubifs hfs hfsplus bfs btrfs ext4 f2fs fat jfs minix nilfs ntfs ramfs tmpfs udf vfat xfs
+for FS in bfs btrfs ext4 f2fs fat hfs hfsplus jfs minix nilfs ntfs ramfs tmpfs ubifs udf vfat xfs
 do
 	echo "Filesystem: $FS"
 	if mount_filesystem $FS; then
-		do_stress --hdd 0 --hdd-opts direct,utimes  --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts dsync --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts iovec,noatime --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts fsync,syncfs --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts fdatasync --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts rd-rnd,wr-rnd,fadv-rnd --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts rd-seq,wr-seq --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts fadv-normal --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts fadv-noreuse --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts fadv-rnd --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts fadv-seq --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts fadv-willneed --temp-path $MNT
-		#do_stress --hdd 0 --hdd-opts fadv-dontneed --temp-path $MNT
-		#sudo $STRESS_NG --class filesystem --ftrace --seq 0 -v --timestamp --syslog -t $DURATION --temp-path $MNT
+		DURATION=10
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts direct,utimes  --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts dsync --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts iovec,noatime --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fsync,syncfs --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fdatasync --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts rd-rnd,wr-rnd,fadv-rnd --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts rd-seq,wr-seq --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-normal --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-noreuse --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-rnd --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-seq --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-willneed --temp-path $MNT
+		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-dontneed --temp-path $MNT
+		do_stress --verity 0 --temp-path $MNT
+		DURATION=10
+		sudo $STRESS_NG --class filesystem --ftrace --seq 0 -v --timestamp --syslog -t $DURATION --temp-path $MNT
 		sudo $STRESS_NG --class io --ftrace --seq 0 -v --timestamp --syslog -t $DURATION --temp-path $MNT
 		umount_filesystem $FS
 	fi
