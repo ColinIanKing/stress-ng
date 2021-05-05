@@ -52,6 +52,7 @@ static void stress_iomix_wr_seq_bursts(
 	const int fd,
 	const off_t iomix_bytes)
 {
+
 	do {
 		off_t ret, posn;
 		const int n = stress_mwc8();
@@ -65,6 +66,11 @@ static void stress_iomix_wr_seq_bursts(
 				args->name, errno, strerror(errno));
 			return;
 		}
+#if defined(HAVE_POSIX_FADVISE) &&      \
+    defined(POSIX_FADV_SEQUENTIAL)
+		if (posn < iomix_bytes)
+			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
+#endif
 		for (i = 0; (i < n) && (posn < iomix_bytes); i++) {
 			char buffer[512];
 			ssize_t rc;
@@ -100,6 +106,10 @@ static void stress_iomix_wr_rnd_bursts(
 	const int fd,
 	const off_t iomix_bytes)
 {
+#if defined(HAVE_POSIX_FADVISE) &&      \
+    defined(POSIX_FADV_RANDOM)
+	(void)posix_fadvise(fd, 0, iomix_bytes, POSIX_FADV_RANDOM);
+#endif
 	do {
 		const int n = stress_mwc8();
 		int i;
@@ -157,6 +167,11 @@ static void stress_iomix_wr_seq_slow(
 				args->name, errno, strerror(errno));
 			return;
 		}
+#if defined(HAVE_POSIX_FADVISE) &&      \
+    defined(POSIX_FADV_SEQUENTIAL)
+		if (posn < iomix_bytes)
+			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
+#endif
 		while (posn < iomix_bytes) {
 			char buffer[512];
 			ssize_t rc;
@@ -203,8 +218,11 @@ static void stress_iomix_rd_seq_bursts(
 				args->name, errno, strerror(errno));
 			return;
 		}
-#if defined(HAVE_POSIX_FADVISE)
-		(void)posix_fadvise(fd, posn, 1024 * 1024, POSIX_FADV_SEQUENTIAL);
+
+#if defined(HAVE_POSIX_FADVISE) &&      \
+    defined(POSIX_FADV_SEQUENTIAL)
+		if (posn < iomix_bytes)
+			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
 #endif
 		for (i = 0; (i < n) && (posn < iomix_bytes); i++) {
 			char buffer[512];
@@ -249,7 +267,8 @@ static void stress_iomix_rd_rnd_bursts(
 			off_t ret, posn;
 
 			posn = stress_mwc64() % iomix_bytes;
-#if defined(HAVE_POSIX_FADVISE)
+#if defined(HAVE_POSIX_FADVISE) &&      \
+    defined(POSIX_FADV_RANDOM)
 			(void)posix_fadvise(fd, posn, len, POSIX_FADV_RANDOM);
 #endif
 			ret = lseek(fd, posn, SEEK_SET);
@@ -293,14 +312,16 @@ static void stress_iomix_rd_seq_slow(
 				args->name, errno, strerror(errno));
 			return;
 		}
+#if defined(HAVE_POSIX_FADVISE) &&      \
+    defined(POSIX_FADV_SEQUENTIAL)
+		if (posn < iomix_bytes)
+			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
+#endif
 		while (posn < iomix_bytes) {
 			char buffer[512];
 			ssize_t rc;
 			const size_t len = 1 + (stress_mwc32() & (sizeof(buffer) - 1));
 
-#if defined(HAVE_POSIX_FADVISE)
-			(void)posix_fadvise(fd, posn, len, POSIX_FADV_SEQUENTIAL);
-#endif
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
 				pr_fail("%s: read failed, errno=%d (%s)\n",
@@ -364,7 +385,8 @@ static void stress_iomix_sync(
 	} while (keep_stressing(args));
 }
 
-#if defined(HAVE_POSIX_FADVISE)
+#if defined(HAVE_POSIX_FADVISE) &&	\
+    defined(POSIX_FADV_DONTNEED)
 /*
  *  stress_iomix_bad_advise()
  *	bad fadvise hints
@@ -378,6 +400,8 @@ static void stress_iomix_bad_advise(
 		off_t posn = stress_mwc64() % iomix_bytes;
 
 		(void)posix_fadvise(fd, posn, 65536, POSIX_FADV_DONTNEED);
+		(void)shim_usleep(100000);
+		(void)posix_fadvise(fd, posn, 65536, POSIX_FADV_NORMAL);
 		(void)shim_usleep(100000);
 	} while (keep_stressing(args));
 }
