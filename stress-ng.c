@@ -2202,7 +2202,7 @@ static void stress_metrics_dump(
 	pr_yaml(yaml, "metrics:\n");
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		uint64_t c_total = 0, u_total = 0, s_total = 0, us_total;
+		uint64_t c_total = 0, u_total = 0, s_total = 0;
 		double   r_total = 0.0;
 		int32_t  j;
 		const char *munged = stress_munge_underscore(ss->stressor->name);
@@ -2220,8 +2220,6 @@ static void stress_metrics_dump(
 				   stats->tms.tms_cstime;
 			r_total += stats->finish - stats->start;
 		}
-		/* Total usr + sys time of all procs */
-		us_total = u_total + s_total;
 		/* Real time in terms of average wall clock time of all procs */
 		r_total = ss->started_instances ?
 			r_total / (double)ss->started_instances : 0.0;
@@ -2234,8 +2232,13 @@ static void stress_metrics_dump(
 		s_time = (ticks_per_sec > 0) ? (double)s_total / (double)ticks_per_sec : 0.0;
 		t_time = u_time + s_time;
 		
+		/* Total usr + sys time of all procs */
 		bogo_rate_r_time = (r_total > 0.0) ? (double)c_total / r_total : 0.0;
-		bogo_rate = (us_total > 0) ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0;
+		{
+			register uint64_t us_total = u_total + s_total;
+
+			bogo_rate = (us_total > 0) ? (double)c_total / ((double)us_total / (double)ticks_per_sec) : 0.0;
+		}
 		cpu_usage = (r_total > 0) ? 100.0 * t_time / r_total : 0.0;
 		cpu_usage = ss->started_instances ? cpu_usage / ss->started_instances : 0.0;
 
