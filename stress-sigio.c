@@ -76,14 +76,13 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
  */
 static int stress_sigio(const stress_args_t *args)
 {
-	int ret, rc = EXIT_FAILURE, fds[2], status;
+	int ret, rc = EXIT_FAILURE, fds[2], status, flags = -1;
 
 	rd_fd = -1;
 	sigio_args = args;
 	pid = -1;
 
 	time_end = stress_time_now() + (double)g_opt_timeout;
-
 	if (pipe(fds) < 0) {
 		pr_fail("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -101,15 +100,9 @@ static int stress_sigio(const stress_args_t *args)
 		}
 	}
 #endif
-	ret = fcntl(fds[0], F_GETFL);
-	if (ret < 0) {
+	flags = fcntl(fds[0], F_GETFL);
+	if (flags < 0) {
 		pr_fail("%s: fcntl F_GETFL failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		goto err;
-	}
-	ret = fcntl(fds[0], F_SETFL, ret | O_ASYNC | O_NONBLOCK);
-	if (ret < 0) {
-		pr_fail("%s: fcntl F_SETFL failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto err;
 	}
@@ -132,7 +125,6 @@ static int stress_sigio(const stress_args_t *args)
 		stress_set_oom_adjustment(args->name, true);
 
 		(void)close(fds[0]);
-
 		(void)memset(buffer, 0, sizeof buffer);
 
 		while (keep_stressing(args)) {
@@ -148,11 +140,20 @@ static int stress_sigio(const stress_args_t *args)
 	}
 
 	/* Parent */
+	(void)close(fds[1]);
+	fds[1] = -1;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (stress_sighandler(args->name, SIGIO, stress_sigio_handler, NULL) < 0)
-		goto err;
+		goto reap;
+
+	ret = fcntl(fds[0], F_SETFL, flags | O_ASYNC | O_NONBLOCK);
+	if (ret < 0) {
+		pr_fail("%s: fcntl F_SETFL failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto reap;
+	}
 	do {
 		struct timeval timeout;
 
@@ -167,17 +168,29 @@ static int stress_sigio(const stress_args_t *args)
 		}
 	} while (keep_stressing(args));
 
+	/*  And ignore IO signals from now on */
+	ret = stress_sighandler(args->name, SIGIO, SIG_IGN, NULL);
+	(void)ret;
+
+	rc = EXIT_SUCCESS;
+reap:
 	if (pid > 0) {
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 
-	rc = EXIT_SUCCESS;
-
 err:
+	if (flags != -1) {
+		ret = fcntl(fds[0], F_SETFL, flags & ~(O_ASYNC | O_NONBLOCK));
+		(void)ret;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)close(fds[0]);
-	(void)close(fds[1]);
+
+	if (fds[0] != -1)
+		(void)close(fds[0]);
+	if (fds[1] != -1)
+		(void)close(fds[1]);
 
 	return rc;
 }
