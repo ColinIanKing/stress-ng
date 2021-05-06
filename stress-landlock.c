@@ -61,6 +61,10 @@ static int shim_landlock_create_ruleset(
 #if defined(__NR_landlock_create_ruleset)
 	return (int)syscall(__NR_landlock_create_ruleset, attr, size, flags);
 #else
+	(void)attr;
+	(void)size;
+	(void)flags;
+
 	errno = -ENOSYS;
 	return -1;
 #endif
@@ -71,6 +75,9 @@ static int shim_landlock_restrict_self(const int fd, const uint32_t flags)
 #if defined(__NR_landlock_restrict_self)
 	return (int)syscall(__NR_landlock_restrict_self, fd, flags);
 #else
+	(void)fd;
+	(void)flags;
+
 	errno = -ENOSYS;
 	return -1;
 #endif
@@ -82,9 +89,14 @@ static int shim_landlock_add_rule(
 	const void *const rule_attr,
 	const uint32_t flags)
 {
-#if defined(__NR_landlock_restrict_self)
+#if defined(__NR_landlock_add_rule)
 	return (int)syscall(__NR_landlock_add_rule, fd, type, rule_attr, flags);
 #else
+	(void)fd;
+	(void)type;
+	(void)rule_attr;
+	(void)flags;
+
 	errno = -ENOSYS;
 	return -1;
 #endif
