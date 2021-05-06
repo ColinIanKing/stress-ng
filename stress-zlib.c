@@ -797,15 +797,7 @@ static void stress_rand_data_objcode(
 	static bool use_rand_data = false;
 	struct sigaction sigsegv_orig, sigbus_orig;
 	char *text, *dataptr;
-	NOCLOBBER char *text_start, *text_end;
-
-	if ((char *)stress_rand_data_bcd < (char *)stress_rand_data_objcode) {
-		text_start = (char *)stress_rand_data_bcd;
-		text_end = (char *)stress_rand_data_objcode;
-	} else {
-		text_start = (char *)stress_rand_data_objcode;
-		text_end = (char *)stress_rand_data_bcd;
-	}
+	char *text_start, *text_end;
 
 	if (use_rand_data) {
 		stress_rand_data_binary(args, data, size);
@@ -837,6 +829,13 @@ static void stress_rand_data_objcode(
 		return;
 	}
 
+	if ((char *)stress_rand_data_bcd < (char *)stress_rand_data_objcode) {
+		text_start = (char *)stress_rand_data_bcd;
+		text_end = (char *)stress_rand_data_objcode;
+	} else {
+		text_start = (char *)stress_rand_data_objcode;
+		text_end = (char *)stress_rand_data_bcd;
+	}
 	text = text_start + (stress_mwc64() % (text_end - text_start));
 
 	for (dataptr = (char *)data, i = 0; i < n; i++, dataptr++) {
