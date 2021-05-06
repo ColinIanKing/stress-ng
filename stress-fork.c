@@ -98,8 +98,8 @@ static int stress_fork_fn(
 	(void)ret;
 
 	do {
-		NOCLOBBER uint32_t i, n;
-		NOCLOBBER char *fork_fn_name;
+		uint32_t i, n;
+		char *fork_fn_name = "unknown";
 
 		(void)memset(info, 0, sizeof(info));
 
