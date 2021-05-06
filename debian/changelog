@@ -1,3 +1,66 @@
+stress-ng (0.12.08-1) unstable; urgency=medium
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-landlock: give hint that landlock LSM may need to be enabled
+  * stress-landlock: voidify unused args in system call wrappers
+  * stress-sigio: disable SIGIOs and close pipe end as soon as possible
+  * stress-zlib: clean up clobber warnings
+  * stress-ng: make us_total a temp variable in local scope
+  * README: add in architectures and update stats
+  * stress-iomix: add POSIX_FADV_* advice defined checks
+  * stress-malloc: clean up void* -> void *
+  * kernel-coverage: add more file systems and mount options
+  * stress-sigio: fix segfault (LP: #1918095)
+  * stress-xattr: add yield points in xattr loops
+  * stress-inotify: break out of write loop on ENOSPC, update yielding
+  * stress-dnotify: break out of write loop on ENOSPC, update yielding
+  * stress-msg: replace tmp return variable rc with ret
+  * stress-landlock: add Linux 5.13 landlock system call stressor
+  * kernel-coverage: add more file systems into the coverage tests
+  * stress-sysinval: add in landlock_add_rule and landlock_restrict_self
+  * stress-enosys: add in landlock_add_rule and landlock_restrict_self
+  * stress-sysinval: add landlock_create_ruleset to inval system call table
+  * stress-enosys: add new Linux 5.13 landlock_create_ruleset syscall
+  * stress-fallocate: replace space indentation with tab
+  * stress-fallocate: handle SIGALRM and SIGINT more responsively
+  * stress-fallocate: add more yield points
+  * stress-link: add yield point check on each iteration
+  * stress-membarrier: keep membarrier cmd flags in sync with kernel
+  * stress-open: add an illegal all-bits set resolve flags setting
+  * stress-open: work through the openat2 resolve flags for more coverage
+  * stress-ng: add username if it is fetchable to syslog info
+  * stress-ng: fix argument dumping from argv[] to syslog
+  * core-setting: ensure string setting types are free'd
+  * stress-stackmmap: Fix stack_sig mapping, add missing anonymous flag
+  * stress-ipsec-mb: ensure all the timing data is set to 0.0
+  * stress-personality: just make zero sized array a 1 element sized array
+  * stress-aio-linux: fix the allocation size of cbs
+  * core-vmstat: ensure tz_info_list is initialized for non
+    thermalstat_delay cases
+  * stress-l1cache: add another L1 cache set size sanity check
+  * stress-personality: make failed array 1 element when n == 0
+  * stress-sysinval: remove redundant re-assignment of syscalls_exercised
+  * stress-af-alg: ensure info.name and info.type are free'd on failed add
+  * stress-affinity: ensure pids array is zero'd before us
+  * stress-vm: remove incorrect re-setting of counter c in 2nd loop
+  * stress-vdso: remove redundant assignment to str
+  * stress-userfaultfd: break assignment and check into two statements
+  * stress-verity: check ioctl FS_IOC_GETFLAGS flags only if ioctl is OK
+  * stress-udp: add missing voidifications on ignored return from setsockopt
+  * stress-run: add missing voidifications on ignored return from ioctl
+  * stress-sysinfo: don't stat on a null mnts[i]
+  * stress-sysfs: voidify return from ppoll call
+  * stress-procfs: only check statbuf.st_mode if fstat returned 0
+  * stress-fcntl: voidify returns of fcntl calls
+  * stress-cap: voidify returns of capget calls
+  * stress-cpu: add div32 cpu stressor method, remove k from div64
+  * stress-tsc: use clock time rdtime rather than cycles for RISC-V
+  * stress-msg: cleanup resources on a fork failure
+  * stress-msg: allocate msgq_ids on the heap, don't use the stack
+
+ -- Colin King <colin.king@canonical.com>  Thu, 6 May 2021 18:44:22 +0100
+
 stress-ng (0.12.07-1) unstable; urgency=medium
 
   [Colin Ian King]
