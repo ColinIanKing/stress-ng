@@ -81,13 +81,13 @@ static inline void stress_bad_ioctl_rw(
 	char path[PATH_MAX];
 	const double threshold = 0.25;
 	const size_t page_size = args->page_size;
+	NOCLOBBER uint16_t i = 0;
 	uint8_t *buf;
 	uint8_t *buf8;
 	uint16_t *buf16;
 	uint32_t *buf32;
 	uint64_t *buf64;
 	uint32_t *ptr, *buf_end;
-	uint16_t i;
 
 	typedef struct {
 		uint8_t page[4096];
@@ -119,7 +119,6 @@ static inline void stress_bad_ioctl_rw(
 		*ptr = stress_mwc32();
 	}
 
-	i = 0;
 	do {
 		int fd;
 		double t_start;
