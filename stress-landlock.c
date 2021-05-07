@@ -29,6 +29,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"landlock-ops N", "stop after N landlock bogo operations" },
 	{ NULL,	NULL,		  NULL }
 };
+#define SHIM_LANDLOCK_CREATE_RULESET_VERSION	(1U << 0)
 
 #define SHIM_LANDLOCK_ACCESS_FS_EXECUTE		(1ULL << 0)
 #define SHIM_LANDLOCK_ACCESS_FS_WRITE_FILE	(1ULL << 1)
@@ -140,9 +141,24 @@ static int stress_landlock_flag(const stress_args_t *args, void *ctxt)
 		.allowed_access = LANDLOCK_ACCESS_FS_READ_FILE |
 				  LANDLOCK_ACCESS_FS_READ_DIR,
 	};
+	struct landlock_path_beneath_attr bad_path_beneath = {
+		.allowed_access = LANDLOCK_ACCESS_FS_READ_FILE |
+				  LANDLOCK_ACCESS_FS_READ_DIR,
+	};
 
 	if (!path)
 		return 0;
+
+	(void)memset(&ruleset_attr, 0, sizeof(ruleset_attr));
+	/* Exercise illegal ruleset sizes, EINVAL */
+	ret = shim_landlock_create_ruleset(&ruleset_attr, 0, 0);
+	(void)ret;
+	/* Exercise illegal ruleset sizes, E2BIG */
+	ret = shim_landlock_create_ruleset(&ruleset_attr, 4096, 0);
+	(void)ret;
+	/* Exercise fetch of ruleset API version, ignore return */
+	ret = shim_landlock_create_ruleset(NULL, 0, SHIM_LANDLOCK_CREATE_RULESET_VERSION);
+	(void)ret;
 
 	(void)memset(&ruleset_attr, 0, sizeof(ruleset_attr));
 	ruleset_attr.handled_access_fs = flag;
@@ -151,14 +167,31 @@ static int stress_landlock_flag(const stress_args_t *args, void *ctxt)
 	if (ruleset_fd < 0)
 		return 0;
 
+	/* Exercise illegal parent_fd */
+	path_beneath.parent_fd = -1;
+	ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
+		&path_beneath, 0);
+	(void)ret;
+
 	path_beneath.parent_fd = open(path, O_PATH | O_CLOEXEC);
 	if (path_beneath.parent_fd < 0)
 		goto close_ruleset;
+
+	/* Exercise illegal fd */
+	ret = shim_landlock_add_rule(-1, LANDLOCK_RULE_PATH_BENEATH,
+		&path_beneath, 0);
+	(void)ret;
 
 	ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
 		&path_beneath, 0);
 	if (ret < 0)
 		goto close_parent;
+
+	/* Exercise illegal parent_fd */
+	bad_path_beneath.parent_fd = ruleset_fd;
+	ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
+		&bad_path_beneath, 0);
+	(void)ret;
 
 	ret = prctl(PR_SET_NO_NEW_PRIVS, 1, 0, 0, 0);
 	if (ret < 0)
