@@ -128,7 +128,7 @@ mount_filesystem()
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
 		f2fs)	MKFS_CMD="mkfs.f2fs"
-			MKFS_ARGS="-f ${FSIMAGE}"
+			MKFS_ARGS="-f ${FSIMAGE} -O extra_attr,inode_checksum,quota,verity,compression"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
