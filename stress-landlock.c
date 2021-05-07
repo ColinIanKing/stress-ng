@@ -120,7 +120,6 @@ static int stress_landlock_supported(const char *name)
 			pr_inf("%s: stressor will be skipped, perhaps "
 				"security=landlock is not enabled\n", name);
 		}
-		
 		return -1;
 	}
 
