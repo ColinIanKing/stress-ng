@@ -66,7 +66,7 @@ static int shim_landlock_create_ruleset(
 	(void)size;
 	(void)flags;
 
-	errno = -ENOSYS;
+	errno = ENOSYS;
 	return -1;
 #endif
 }
@@ -79,7 +79,7 @@ static int shim_landlock_restrict_self(const int fd, const uint32_t flags)
 	(void)fd;
 	(void)flags;
 
-	errno = -ENOSYS;
+	errno = ENOSYS;
 	return -1;
 #endif
 }
@@ -98,7 +98,7 @@ static int shim_landlock_add_rule(
 	(void)rule_attr;
 	(void)flags;
 
-	errno = -ENOSYS;
+	errno = ENOSYS;
 	return -1;
 #endif
 }
