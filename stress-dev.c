@@ -734,6 +734,10 @@ static void stress_dev_tty(
 		struct serial_struct serial;
 
 		ret = ioctl(fd, TIOCGSERIAL, &serial);
+#if defined(TIOCSSERIAL)
+		if (ret == 0)
+			ret = ioctl(fd, TIOCSSERIAL, &serial);
+#endif
 		(void)ret;
 	}
 #endif
