@@ -459,6 +459,7 @@ static void stress_dev_tty(
 
 	if (!isatty(fd))
 		return;
+pr_inf("%s %s\n", name, devpath);
 
 	ret = tcgetattr(fd, &t);
 	(void)ret;
@@ -614,6 +615,14 @@ static void stress_dev_tty(
 		}
 #endif
 		(void)ret;
+	}
+#endif
+
+#if defined(TIOCGPTPEER)
+	{
+		ret = ioctl(fd, TIOCGPTPEER, O_RDWR);
+		if (ret > -1)
+			(void)close(ret);
 	}
 #endif
 
