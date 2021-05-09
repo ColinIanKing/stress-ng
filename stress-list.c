@@ -510,7 +510,7 @@ static inline uint64_t ror64(const uint64_t val)
 static int stress_list(const stress_args_t *args)
 {
 	uint64_t v, list_size = DEFAULT_LIST_SIZE;
-	struct list_entry *entrys, *entry;
+	struct list_entry *entries, *entry;
 	size_t n, i, bit;
 	struct sigaction old_action;
 	int ret;
@@ -526,13 +526,13 @@ static int stress_list(const stress_args_t *args)
 	}
 	n = (size_t)list_size;
 
-	if ((entrys = calloc(n, sizeof(struct list_entry))) == NULL) {
+	if ((entries = calloc(n, sizeof(struct list_entry))) == NULL) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
 	if (stress_sighandler(args->name, SIGALRM, stress_list_handler, &old_action) < 0) {
-		free(entrys);
+		free(entries);
 		return EXIT_FAILURE;
 	}
 
@@ -546,7 +546,7 @@ static int stress_list(const stress_args_t *args)
 	}
 
 	v = 0;
-	for (entry = entrys, i = 0, bit = 0; i < n; i++, entry++) {
+	for (entry = entries, i = 0, bit = 0; i < n; i++, entry++) {
 		if (!bit) {
 			v = stress_mwc64();
 			bit = 1;
@@ -563,10 +563,10 @@ static int stress_list(const stress_args_t *args)
 	do {
 		uint64_t rnd;
 
-		info->func(args, n, entrys);
+		info->func(args, n, entries);
 
 		rnd = stress_mwc64();
-		for (entry = entrys, i = 0; i < n; i++, entry++)
+		for (entry = entries, i = 0; i < n; i++, entry++)
 			entry->value = ror64(entry->value ^ rnd);
 
 		inc_counter(args);
@@ -576,7 +576,7 @@ static int stress_list(const stress_args_t *args)
 	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	free(entrys);
+	free(entries);
 
 	return EXIT_SUCCESS;
 }
