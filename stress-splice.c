@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#define SPLICE_BUFFER_LEN	(65536)
+
 static const stress_help_t help[] = {
 	{ NULL,	"splice N",	  "start N workers reading/writing using splice" },
 	{ NULL,	"splice-ops N",	  "stop after N bogo splice operations" },
@@ -50,6 +52,30 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(SPLICE_F_MOVE)
 
 /*
+ *  stress_splice_write()
+ *	write buffer to fd
+ */
+static inline int stress_splice_write(
+	const int fd,
+	const char *buffer,
+	const ssize_t buffer_len,
+	ssize_t size)
+{
+	ssize_t ret = 0;
+
+	while (size > 0) {
+		size_t n = size > buffer_len ? buffer_len : size;
+
+		ret = write(fd, buffer, n);
+		if (ret < 0)
+			break;
+		size -= n;
+
+	}
+	return (int)ret;
+}
+
+/*
  *  stress_splice
  *	stress copying of /dev/zero to /dev/null
  */
@@ -58,6 +84,9 @@ static int stress_splice(const stress_args_t *args)
 	int fd_in, fd_out, fds1[2], fds2[2];
 	size_t splice_bytes = DEFAULT_SPLICE_BYTES;
 	int rc = EXIT_FAILURE;
+	bool use_splice = true;
+	char *buffer;
+	ssize_t buffer_len;
 
 	if (!stress_get_setting("splice-bytes", &splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -69,10 +98,19 @@ static int stress_splice(const stress_args_t *args)
 	if (splice_bytes < MIN_SPLICE_BYTES)
 		splice_bytes = MIN_SPLICE_BYTES;
 
+	buffer_len = splice_bytes > SPLICE_BUFFER_LEN ? SPLICE_BUFFER_LEN : splice_bytes;
+	buffer = mmap(NULL, buffer_len, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (buffer == MAP_FAILED) {
+		pr_inf("%s: cannot allocate write buffer, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto close_done;
+	}
+
 	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
 		pr_fail("%s: open /dev/zero failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		goto close_done;
+		goto close_unmap;
 	}
 
 	/*
@@ -102,10 +140,32 @@ static int stress_splice(const stress_args_t *args)
 		ssize_t ret;
 		loff_t off_in, off_out;
 
-		ret = splice(fd_in, NULL, fds1[1], NULL,
-			splice_bytes, SPLICE_F_MOVE);
-		if (ret < 0)
-			break;
+		/*
+		 *  Linux 5.9 dropped the ability to splice from /dev/zero to
+		 *  a pipe, so fall back to writing to the pipe to at least
+		 *  get some data into the pipe for subsequent splicing in
+		 *  the pipeline.
+		 */
+		if (use_splice) {
+			ret = splice(fd_in, NULL, fds1[1], NULL,
+				splice_bytes, SPLICE_F_MOVE);
+			if (ret < 0) {
+				if (errno == EINVAL) {
+					if (args->instance == 0) {
+						pr_inf("%s: using direct write to pipe and not splicing "
+							"from /dev/zero as this is not supported in "
+							"this kernel\n", args->name);
+					}
+					use_splice = false;
+					continue;
+				}
+				break;
+			}
+		} else {
+			ret = stress_splice_write(fds1[1], buffer, buffer_len, splice_bytes);
+			if (ret < 0)
+				break;
+		}
 
 		ret = splice(fds1[0], NULL, fds2[1], NULL,
 			splice_bytes, SPLICE_F_MOVE);
@@ -173,6 +233,8 @@ close_fds1:
 close_fd_in:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd_in);
+close_unmap:
+	(void)munmap((void *)buffer, buffer_len);
 close_done:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
