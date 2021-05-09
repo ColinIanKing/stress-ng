@@ -2491,6 +2491,36 @@ instead of walking through pages sequentially, select pages at random. The
 chosen address is iterated over by shifting it right one place and checked by
 mincore until the address is less or equal to the page size.
 .TP
+.B \-\-misaligned N
+start N workers that perform misaligned read and writes. By default, this
+will exercise 128 bit misaligned read and writes in 8 x 16 bits, 4 x 32 bits,
+2 x 64 bits and 1 x 128 bits. Misaligned read and writes operate at 1
+byte offset from the naturual alignment of the data type. On some architectures
+this can cause SIGBUS, SIGILL or SIGSEGV, these are handled and the misaligned
+stressor method causing the error is disabled.
+.TP
+.B \-\-misaligned\-ops N
+stop after N misaligned bogo operation. A misaligned bogo op is equivalent
+to 65536 x 128 bit reads or writes.
+.TP
+.B \-\-misaligned\-method M
+Available misaligned stress methods are described as follows:
+.TS
+expand;
+lBw(10n)2 lBw(\n[SZ]n)
+l l.
+Method	Description
+all	iterate over all the following misaligned methods
+int16rd	8 x 16 bit integer reads
+int16wr	8 x 16 bit integer writes
+int32rd	4 x 32 bit integer reads
+int32wr	4 x 32 bit integer writes
+int64rd	2 x 64 bit integer reads
+int64wr	2 x 64 bit integer writes
+int128rd	1 x 128 bit integer reads
+int128wr	1 x 128 bit integer writes
+.TE
+.TP
 .B \-\-mknod N
 start N workers that create and remove fifos, empty files and named sockets
 using mknod and unlink.

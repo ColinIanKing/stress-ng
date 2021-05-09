@@ -186,6 +186,7 @@ STRESS_SRC = \
 	stress-memthrash.c \
 	stress-mergesort.c \
 	stress-mincore.c \
+	stress-misaligned.c \
 	stress-mknod.c \
 	stress-mlock.c \
 	stress-mlockmany.c \

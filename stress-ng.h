@@ -2495,6 +2495,7 @@ typedef struct {
 	MACRO(memthrash)	\
 	MACRO(mergesort)	\
 	MACRO(mincore)		\
+	MACRO(misaligned)	\
 	MACRO(mknod)		\
 	MACRO(mlock)		\
 	MACRO(mlockmany)	\
@@ -3128,6 +3129,10 @@ typedef enum {
 	OPT_mincore,
 	OPT_mincore_ops,
 	OPT_mincore_rand,
+
+	OPT_misaligned,
+	OPT_misaligned_ops,
+	OPT_misaligned_method,
 
 	OPT_mknod,
 	OPT_mknod_ops,
