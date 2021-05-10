@@ -1007,8 +1007,8 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"sched-prio N",		"set scheduler priority level N" },
 	{ NULL,		"sched-period N",	"set period for SCHED_DEADLINE to N nanosecs (Linux only)" },
 	{ NULL,		"sched-runtime N",	"set runtime for SCHED_DEADLINE to N nanosecs (Linux only)" },
-	{ NULL,		"sched-deadline N",	"set deadline for SCHED_DEADLINE to N nanosecs (Liunx only)" },
-	{ NULL,		"sched-reclaim",        "set reclaim cpu bandwidth for deadline scheduler (Liunx only)" },
+	{ NULL,		"sched-deadline N",	"set deadline for SCHED_DEADLINE to N nanosecs (Linux only)" },
+	{ NULL,		"sched-reclaim",        "set reclaim cpu bandwidth for deadline scheduler (Linux only)" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"stressors",		"show available stress tests" },
 #if defined(HAVE_SYSLOG_H)
