@@ -221,8 +221,8 @@ static int stress_fallocate(const stress_args_t *args)
 				break;
 
 			for (i = 0; i < 64; i++) {
-				off_t offset = (stress_mwc64() % fallocate_bytes) & ~0xfff;
 				size_t j = (stress_mwc32() >> 8) % SIZEOF_ARRAY(modes);	/* cppcheck-suppress moduloofone */
+				off_t offset = (stress_mwc64() % fallocate_bytes) & ~0xfff;
 
 				(void)shim_fallocate(fd, modes[j], offset, 64 * KB);
 				if (!keep_stressing_flag())
