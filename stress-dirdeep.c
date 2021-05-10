@@ -99,7 +99,7 @@ static void stress_dirdeep_make(
 	if (mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
 		if ((errno == ENOSPC) || (errno == ENOMEM) ||
 		    (errno == ENAMETOOLONG) || (errno == EDQUOT) ||
-		    (errno == EMLINK)) {
+		    (errno == EMLINK) || (errno == EPERM)) {
 			return;
 		}
 		pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
@@ -211,7 +211,7 @@ static void stress_dirdeep_make(
  *  stress_dir_exercise()
  *	exercise files and directories in the tree
  */
-static void stress_dir_exercise(
+static int stress_dir_exercise(
 	const stress_args_t *args,
 	char *const path,
 	const size_t len,
@@ -229,14 +229,14 @@ static void stress_dir_exercise(
 	};
 #endif
 	if (!keep_stressing(args))
-		return;
+		return 0;
 
 	if (len + 2 >= path_len)
-		return;
+		return 0;
 
 	n = scandir(path, &namelist, NULL, alphasort);
 	if (n < 0)
-		return;
+		return -1;
 
 	for (i = 0; (i < n) && keep_stressing(args); i++) {
 		if (namelist[i]->d_name[0] == '.')
@@ -276,6 +276,8 @@ static void stress_dir_exercise(
 	}
 	path[len] = '\0';
 	stress_dirent_list_free(namelist, n);
+
+	return 0;
 }
 
 
@@ -360,7 +362,8 @@ static int stress_dirdeep(const stress_args_t *args)
 
 	do {
 		(void)shim_strlcpy(path, rootpath, sizeof(path));
-		stress_dir_exercise(args, path, path_len, sizeof(path));
+		if (stress_dir_exercise(args, path, path_len, sizeof(path)) < 0)
+			break;
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
