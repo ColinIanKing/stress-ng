@@ -101,8 +101,7 @@ static int stress_sigabrt(const stress_args_t *args)
 				abort();
 				/* Should never get here */
 			} else {
-				ret = stress_sighandler(args->name, SIGABRT, SIG_DFL, NULL);
-				(void)ret;
+				(void)stress_sighandler_default(SIGABRT);
 
 				/* Raising SIGABRT without an handler will abort */
 				raise(SIGABRT);

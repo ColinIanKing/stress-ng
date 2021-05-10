@@ -1478,6 +1478,20 @@ int stress_sighandler(
 }
 
 /*
+ *  stress_sighandler_default
+ *	restore signal handler to default handler
+ */
+int stress_sighandler_default(const int signum)
+{
+	struct sigaction new_action;
+
+	(void)memset(&new_action, 0, sizeof new_action);
+	new_action.sa_handler = SIG_DFL;
+
+	return sigaction(signum, &new_action, NULL);
+}
+
+/*
  *  stress_handle_stop_stressing()
  *	set flag to indicate to stressor to stop stressing
  */

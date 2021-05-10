@@ -380,12 +380,9 @@ static int stress_misaligned(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
-	ret = stress_sighandler(args->name, SIGBUS, SIG_DFL, NULL);
-	(void)ret;
-	ret = stress_sighandler(args->name, SIGILL, SIG_DFL, NULL);
-	(void)ret;
-	ret = stress_sighandler(args->name, SIGSEGV, SIG_DFL, NULL);
-	(void)ret;
+	(void)stress_sighandler_default(SIGBUS);
+	(void)stress_sighandler_default(SIGILL);
+	(void)stress_sighandler_default(SIGSEGV);
 
 	stress_misaligned_exercised(args);
 
