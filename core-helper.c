@@ -768,6 +768,24 @@ uint64_t stress_uint64_zero(void)
 }
 
 /*
+ *  stress_base36_encode_uint64()
+ *	encode 64 bit hash of filename into a unique base 36
+ *	filename of up to 13 chars long + 1 char eos
+ */
+static void stress_base36_encode_uint64(char dst[14], uint64_t val)
+{
+        static char b36[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+        const int b = 36;
+        char *ptr = dst;
+
+        while (val) {
+                *ptr++ = b36[val % b];
+                val /= b;
+        }
+        *ptr = '\0';
+}
+
+/*
  *  stress_temp_hash_truncate()
  *	filenames may be too long for the underlying filesystem
  *	so workaround this by hashing them into a 64 bit hex
@@ -787,12 +805,13 @@ static void stress_temp_hash_truncate(char *filename)
 
 	if (strlen(filename) > f_namemax) {
 		uint32_t upper, lower;
+		uint64_t val;
 
 		upper = stress_hash_jenkin((uint8_t *)filename, len);
 		lower = stress_hash_pjw(filename);
+		val = ((uint64_t)upper << 32) | lower;
 
-		(void)snprintf(filename, len, "%" PRIx32 "%" PRIx32, upper, lower);
-		filename[len] = '\0';
+		stress_base36_encode_uint64(filename, val);
 	}
 }
 
@@ -890,9 +909,9 @@ int stress_temp_dir_mk(
 	ret = mkdir(tmp, S_IRWXU);
 	if (ret < 0) {
 		ret = -errno;
-		(void)unlink(tmp);
 		pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 			name, tmp, errno, strerror(errno));
+		(void)unlink(tmp);
 	}
 
 	return ret;
