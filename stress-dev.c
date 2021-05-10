@@ -459,7 +459,6 @@ static void stress_dev_tty(
 
 	if (!isatty(fd))
 		return;
-pr_inf("%s %s\n", name, devpath);
 
 	ret = tcgetattr(fd, &t);
 	(void)ret;
