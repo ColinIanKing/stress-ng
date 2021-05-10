@@ -118,7 +118,7 @@ static int stress_landlock_supported(const char *name)
 				"is not supported\n", name);
 		} else {
 			pr_inf("%s: stressor will be skipped, perhaps "
-				"security=landlock is not enabled\n", name);
+				"lsm=landlock is not enabled\n", name);
 		}
 		return -1;
 	}
