@@ -180,14 +180,26 @@ static void stress_misaligned_int64wr(uint8_t *buffer)
 }
 
 #if defined(HAVE_INT128_T)
-static void stress_misaligned_int128rd(uint8_t *buffer)
+
+/*
+ *  Misaligned 128 bit fetches with SSE on x86 with some compilers
+ *  with misaligned data may generate moveda rather than movdqu.
+ *  For now, disable SSE optimization for x86 to workaround this
+ *  even if it ends up generating two 64 bit reads.
+ */
+#if defined(__SSE__) && defined(STRESS_ARCH_X86)
+#define TARGET_CLONE_NO_SSE __attribute__ ((target("no-sse")))
+#else
+#define TARGET_CLONE_NO_SSE
+#endif
+static void TARGET_CLONE_NO_SSE stress_misaligned_int128rd(uint8_t *buffer)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile __uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
 
 	while (--i) {
 		(void)*ptr1;
-		shim_mb();
+		/* No need for shim_mb */
 	}
 }
 
@@ -198,7 +210,7 @@ static void stress_misaligned_int128wr(uint8_t *buffer)
 
 	while (--i) {
 		*ptr1 = i;
-		shim_mb();
+		/* No need for shim_mb */
 	}
 }
 #endif
