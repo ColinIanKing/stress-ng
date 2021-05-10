@@ -42,6 +42,7 @@ typedef struct {
 	const char *name;
 	const stress_misaligned_func func;
 	bool disabled;
+	bool exercised;
 } stress_misaligned_method_info_t;
 
 static stress_misaligned_method_info_t *current_method;
@@ -205,18 +206,18 @@ static void stress_misaligned_int128wr(uint8_t *buffer)
 static void stress_misaligned_all(uint8_t *buffer);
 
 static stress_misaligned_method_info_t stress_misaligned_methods[] = {
-	{ "all",	stress_misaligned_all,		false },
-	{ "int16rd",	stress_misaligned_int16rd,	false },
-	{ "int16wr",	stress_misaligned_int16wr,	false },
-	{ "int32rd",	stress_misaligned_int32rd,	false },
-	{ "int32wr",	stress_misaligned_int32wr,	false },
-	{ "int64rd",	stress_misaligned_int64rd,	false },
-	{ "int64wr",	stress_misaligned_int64wr,	false },
+	{ "all",	stress_misaligned_all,		false,	false },
+	{ "int16rd",	stress_misaligned_int16rd,	false,	false },
+	{ "int16wr",	stress_misaligned_int16wr,	false,	false },
+	{ "int32rd",	stress_misaligned_int32rd,	false,	false },
+	{ "int32wr",	stress_misaligned_int32wr,	false,	false },
+	{ "int64rd",	stress_misaligned_int64rd,	false,	false },
+	{ "int64wr",	stress_misaligned_int64wr,	false,	false },
 #if defined(HAVE_INT128_T)
-	{ "int128rd",	stress_misaligned_int128rd,	false },
-	{ "int128wr",	stress_misaligned_int128wr,	false },
+	{ "int128rd",	stress_misaligned_int128rd,	false,	false },
+	{ "int128wr",	stress_misaligned_int128wr,	false,	false },
 #endif
-	{ NULL,         NULL,				false }
+	{ NULL,         NULL,				false,	false }
 };
 
 static void stress_misaligned_all(uint8_t *buffer)
@@ -229,6 +230,7 @@ static void stress_misaligned_all(uint8_t *buffer)
 			continue;
 		current_method = info;
 		info->func(buffer);
+		info->exercised = true;
 		exercised = true;
 		info++;
 	}
@@ -251,8 +253,51 @@ static void stress_misaligned_enable_all(void)
 {
 	stress_misaligned_method_info_t *info;
 
-	for (info = stress_misaligned_methods; info->func; info++)
+	for (info = stress_misaligned_methods; info->func; info++) {
 		info->disabled = false;
+		info->exercised = false;
+	}
+}
+
+/*
+ *  stress_misaligned_exercised()
+ *	report the methods that were successfully exercised
+ */
+static void stress_misaligned_exercised(const stress_args_t *args)
+{
+	stress_misaligned_method_info_t *info;
+	char *str = NULL;
+	ssize_t str_len = 0;
+
+	if (args->instance != 0)
+		return;
+
+	for (info = &stress_misaligned_methods[1]; info->func; info++) {
+		if (info->exercised) {
+			char *tmp;
+			const size_t name_len = strlen(info->name);
+
+			tmp = realloc(str, str_len + name_len + 2);
+			if (!tmp) {
+				free(str);
+				return;
+			}
+			str = tmp;
+			if (str_len) {
+				(void)shim_strlcpy(str + str_len, " ", 2);
+				str_len++;
+			}
+			(void)shim_strlcpy(str + str_len, info->name, name_len + 1);
+			str_len += name_len;
+		}
+	}
+
+	if (str)
+		pr_inf("%s: exercised %s\n", args->name, str);
+	else
+		pr_inf("%s: nothing exercised due to misalignment faults\n", args->name);
+
+	free(str);
 }
 
 /*
@@ -292,7 +337,7 @@ static int stress_misaligned(const stress_args_t *args)
 {
 	uint8_t *buffer;
 	stress_misaligned_method_info_t *misaligned_method = &stress_misaligned_methods[0];
-	int ret;
+	int ret, rc;
 
 	(void)stress_get_setting("misaligned-method", &misaligned_method);
 
@@ -324,21 +369,31 @@ static int stress_misaligned(const stress_args_t *args)
 			stress_strsignal(handled_signum));
 	}
 
-	ret = EXIT_SUCCESS;
+	rc = EXIT_SUCCESS;
 	do {
 		if (misaligned_method->disabled) {
-			ret = EXIT_NO_RESOURCE;
+			rc = EXIT_NO_RESOURCE;
 			break;
 		}
 		misaligned_method->func(buffer);
+		misaligned_method->exercised = true;
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	ret = stress_sighandler(args->name, SIGBUS, SIG_DFL, NULL);
+	(void)ret;
+	ret = stress_sighandler(args->name, SIGILL, SIG_DFL, NULL);
+	(void)ret;
+	ret = stress_sighandler(args->name, SIGSEGV, SIG_DFL, NULL);
+	(void)ret;
+
+	stress_misaligned_exercised(args);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)buffer, args->page_size);
 
-	return ret;
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
