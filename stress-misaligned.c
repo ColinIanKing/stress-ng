@@ -305,8 +305,8 @@ static int stress_misaligned(const stress_args_t *args)
 
 	stress_misaligned_enable_all();
 
-	buffer = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	buffer = (uint8_t *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
 		pr_inf("%s: cannot allocate 1 page buffer, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
