@@ -90,6 +90,7 @@ static bool stress_splice_non_block_write_4K(const int fd)
 		return false;
 	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0)
 		return false;
+	(void)memset(buffer, 0xa5, sizeof(buffer));
         if (write(fd, buffer, sizeof(buffer)) < 0)
 		return false;
         if (fcntl(fd, F_SETFL, flags) < 0)
