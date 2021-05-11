@@ -181,6 +181,15 @@ static int stress_landlock_flag(const stress_args_t *args, void *ctxt)
 		&path_beneath, 0);
 	(void)ret;
 
+	/* Exercise illegal flags */
+	ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
+		&path_beneath, ~0);
+	(void)ret;
+	/* Exercise illegal rule type */
+	ret = shim_landlock_add_rule(ruleset_fd, ~0,
+		&path_beneath, 0);
+	(void)ret;
+
 	ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
 		&path_beneath, 0);
 	if (ret < 0)
