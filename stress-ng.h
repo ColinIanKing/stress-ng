@@ -1694,9 +1694,9 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define MAX_SOCKET_FD_PORT	(65535)
 #define DEFAULT_SOCKET_FD_PORT	(8000)
 
-#define MIN_SPLICE_BYTES	(1*KB)
-#define MAX_SPLICE_BYTES	(64*MB)
-#define DEFAULT_SPLICE_BYTES	(64*KB)
+#define MIN_SPLICE_BYTES	(1 * KB)
+#define MAX_SPLICE_BYTES	(64 * MB)
+#define DEFAULT_SPLICE_BYTES	(64 * KB)
 
 #define MIN_STREAM_L3_SIZE	(4 * KB)
 #define MAX_STREAM_L3_SIZE	(MAX_MEM_LIMIT)
@@ -1742,9 +1742,9 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define MAX_VM_RW_BYTES		(MAX_MEM_LIMIT)
 #define DEFAULT_VM_RW_BYTES	(16 * MB)
 
-#define MIN_VM_SPLICE_BYTES	(4*KB)
-#define MAX_VM_SPLICE_BYTES	(64*MB)
-#define DEFAULT_VM_SPLICE_BYTES	(64*KB)
+#define MIN_VM_SPLICE_BYTES	(4 * KB)
+#define MAX_VM_SPLICE_BYTES	(64 * MB)
+#define DEFAULT_VM_SPLICE_BYTES	(64 * KB)
 
 #define MIN_ZOMBIES		(1)
 #define MAX_ZOMBIES		(1000000)
