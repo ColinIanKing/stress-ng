@@ -76,15 +76,65 @@ static inline int stress_splice_write(
 }
 
 /*
+ *  stress_splice_non_block_write_4K()
+ *	get some data into a pipe to prime it for a read
+ *	with stress_splice_looped_pipe()
+ */
+static bool stress_splice_non_block_write_4K(const int fd)
+{
+	char buffer[4096];
+	int flags;
+
+	flags = fcntl(fd, F_GETFL, 0);
+	if (flags < 0)
+		return false;
+	if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) < 0)
+		return false;
+        if (write(fd, buffer, sizeof(buffer)) < 0)
+		return false;
+        if (fcntl(fd, F_SETFL, flags) < 0)
+		return false;
+	return true;
+}
+
+/*
+ *  stress_splice_looped_pipe()
+ *	splice data into one pipe, out of another and back into
+ *	the first pipe
+ */
+static void stress_splice_looped_pipe(
+	const int fds3[2],
+	const int fds4[2],
+	bool *use_splice_loop)
+{
+	int ret;
+
+	if (!*use_splice_loop)
+		return;
+
+	ret = splice(fds3[0], 0, fds4[1], 0, 4096, SPLICE_F_MOVE);
+	if (ret < 0) {
+		*use_splice_loop = false;
+		return;
+	}
+	ret = splice(fds4[0], 0, fds3[1], 0, 4096, SPLICE_F_MOVE);
+	if (ret < 0) {
+		*use_splice_loop = false;
+		return;
+	}
+}
+
+/*
  *  stress_splice
  *	stress copying of /dev/zero to /dev/null
  */
 static int stress_splice(const stress_args_t *args)
 {
-	int fd_in, fd_out, fds1[2], fds2[2];
+	int fd_in, fd_out, fds1[2], fds2[2], fds3[2], fds4[2];
 	size_t splice_bytes = DEFAULT_SPLICE_BYTES;
 	int rc = EXIT_FAILURE;
 	bool use_splice = true;
+	bool use_splice_loop;
 	char *buffer;
 	ssize_t buffer_len;
 
@@ -114,7 +164,7 @@ static int stress_splice(const stress_args_t *args)
 	}
 
 	/*
-	 *   /dev/zero -> pipe splice -> pipe splice -> /dev/null
+	 *  /dev/zero -> pipe splice -> pipe splice -> /dev/null
 	 */
 	if (pipe(fds1) < 0) {
 		pr_fail("%s: pipe failed, errno=%d (%s)\n",
@@ -128,11 +178,28 @@ static int stress_splice(const stress_args_t *args)
 		goto close_fds1;
 	}
 
-	if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+	if (pipe(fds3) < 0) {
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto close_fds2;
 	}
+
+	if (pipe(fds4) < 0) {
+		pr_fail("%s: pipe failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto close_fds3;
+	}
+
+	if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
+		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto close_fds4;
+	}
+
+	/*
+	 *  place data in fds3 for splice loop pipes
+	 */
+	use_splice_loop = stress_splice_non_block_write_4K(fds3[1]);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -215,6 +282,10 @@ static int stress_splice(const stress_args_t *args)
 			4096, SPLICE_F_MOVE);
 		(void)ret;
 
+		/* Exercise splice loop from one pipe to another and back */
+		stress_splice_looped_pipe(fds3, fds4, &use_splice_loop);
+		stress_splice_looped_pipe(fds3, fds4, &use_splice_loop);
+
 		inc_counter(args);
 	} while (keep_stressing(args));
 
@@ -222,6 +293,14 @@ static int stress_splice(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd_out);
+close_fds4:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	(void)close(fds4[0]);
+	(void)close(fds4[1]);
+close_fds3:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	(void)close(fds3[0]);
+	(void)close(fds3[1]);
 close_fds2:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fds2[0]);
