@@ -41,12 +41,12 @@ static const stress_help_t help[] = {
 #define MAX_DEVS	(128)
 
 typedef struct {
-	char	*name;
-	char	*mount;
-	dev_t	st_dev;
-	bool	valid;
-	bool	enosys;
-	bool	esrch;
+	char	*name;		/* Device name */
+	char	*mount;		/* Mount point */
+	dev_t	st_dev;		/* Device major/minor */
+	bool	valid;		/* A valid device that is mountable */
+	bool	enosys;		/* System call not enabled */
+	bool	esrch;		/* Quota not enabled for the file system */
 } stress_dev_info_t;
 
 struct shim_nextdqblk {
@@ -84,6 +84,47 @@ static int stress_quota_supported(const char *name)
 }
 
 /*
+ *  do_quotactl_call()
+ *	try to do quotactl or quotactl_path calls, randomly
+ *	selected either. If quotactl_path does not exist then
+ *	just fall back to quotactl.
+ */
+static int do_quotactl_call(
+	int cmd,
+	stress_dev_info_t *dev,
+	int id,
+	caddr_t addr)
+{
+#if defined(HAVE_QUOTACTL_PATH)
+	static bool have_quotactl_path = true;
+	int ret;
+
+	/*
+	 *  quotactl_path() failed on ENOSYS or random choice
+	 *  then do normal quotactl call
+	 */
+	if (!have_quotactl_path || stress_mwc1())
+		goto do_quotactl;
+
+	/*
+	 *  try quotactl_path() instead, it may not exist
+	 *  so flag this for next time and do normal quotactl
+	 *  call
+	 */
+	ret = shim_quotactl_path(cmd, dev->mount, id, addr);
+	if ((ret < 0) && (errno == ENOSYS)) {
+		/* We don't have quotactl_path, use quotactl */
+		have_quotactl_path = false;
+		goto do_quotactl;
+	}
+	return ret;
+
+do_quotactl:
+#endif
+	return quotactl(cmd, dev->name, id, addr);
+}
+
+/*
  *  do_quotactl()
  *	do a quotactl command
  */
@@ -95,11 +136,11 @@ static int do_quotactl(
 	int *enosys,
 	int *esrch,
 	int cmd,
-	const char *special,
+	stress_dev_info_t *dev,
 	int id,
 	caddr_t addr)
 {
-	int ret = quotactl(cmd, special, id, addr);
+	int ret = do_quotactl_call(cmd, dev, id, addr);
 
 	(*tested)++;
 	if (ret < 0) {
@@ -122,8 +163,8 @@ static int do_quotactl(
 			(*enosys)++;
 		} else {
 			(*failed)++;
-			pr_fail("%s: quotactl command %s on %s failed: errno=%d (%s)\n",
-				args->name, cmdname, special, errno, strerror(errno));
+			pr_fail("%s: quotactl command %s on %s (%s) failed: errno=%d (%s)\n",
+				args->name, cmdname, dev->name, dev->mount, errno, strerror(errno));
 		}
 	}
 	return errno;
@@ -145,7 +186,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 		err = do_quotactl(args, "Q_GETQUOTA",
 			&tested, &failed, &enosys, &esrch,
 			QCMD(Q_GETQUOTA, USRQUOTA),
-			dev->name, 0, (caddr_t)&dqblk);
+			dev, 0, (caddr_t)&dqblk);
 		if (err == EPERM)
 			return err;
 	}
@@ -157,7 +198,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 		err = do_quotactl(args, "Q_GETNEXTQUOTA",
 			&tested, &failed, &enosys, &esrch,
 			QCMD(Q_GETNEXTQUOTA, USRQUOTA),
-			dev->name, 0, (caddr_t)&nextdqblk);
+			dev, 0, (caddr_t)&nextdqblk);
 		if (err == EPERM)
 			return err;
 	}
@@ -169,7 +210,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 		err = do_quotactl(args, "Q_GETFMT",
 			&tested, &failed, &enosys, &esrch,
 			QCMD(Q_GETFMT, USRQUOTA),
-			dev->name, 0, (caddr_t)&format);
+			dev, 0, (caddr_t)&format);
 		if (err == EPERM)
 			return err;
 	}
@@ -181,7 +222,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 		err = do_quotactl(args, "Q_GETINFO",
 			&tested, &failed, &enosys, &esrch,
 			QCMD(Q_GETINFO, USRQUOTA),
-			dev->name, 0, (caddr_t)&dqinfo);
+			dev, 0, (caddr_t)&dqinfo);
 		if (err == EPERM)
 			return err;
 	}
@@ -194,7 +235,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 		err = do_quotactl(args, "Q_GETSTATS",
 			&tested, &failed, &enosys, &esrch,
 			QCMD(Q_GETSTATS, USRQUOTA),
-			dev->name, 0, (caddr_t)&dqstats);
+			dev, 0, (caddr_t)&dqstats);
 		if (err == EPERM)
 			return err;
 	}
@@ -204,7 +245,7 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 		err = do_quotactl(args, "Q_SYNC",
 			&tested, &failed, &enosys, &esrch,
 			QCMD(Q_SYNC, USRQUOTA),
-			dev->name, 0, 0);
+			dev, 0, 0);
 		if (err == EPERM)
 			return err;
 	}

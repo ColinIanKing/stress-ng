@@ -1977,3 +1977,18 @@ int shim_getrusage(int who, struct rusage *usage)
 	return shim_enosys(0, who, usage);
 #endif
 }
+
+/*
+ *  shim_quotactl_path()
+ *  	wrapper for Linux 5.13 quotactl_path
+ */
+int shim_quotactl_path(int cmd, const char *mountpoint, int id, void *addr)
+{
+#if defined(HAVE_QUOTACTL_PATH)
+	return quotactl_path(cmd, mountpoint, id, addr);
+#elif defined(__NR_quotactl_path)
+	return syscall(__NR_quotactl_path, cmd, mountpoint, id, addr);
+#else
+	return shim_enosys(0, cmd, mountpoint, id, addr);
+#endif
+}
