@@ -105,7 +105,7 @@ static int stress_chdir(const stress_args_t *args)
 	*path = '\0';	/* Keep static analysis tools happy */
 
 	/* Populate */
-	for (i = 0; i < chdir_dirs; i++) {
+	for (i = 0; keep_stressing(args) && (i < chdir_dirs); i++) {
 		uint64_t rnd = (uint64_t)stress_mwc32() << 32;
 		uint32_t gray_code = (i >> 1) ^ i;
 		int flags = O_RDONLY;
@@ -135,8 +135,6 @@ static int stress_chdir(const stress_args_t *args)
 		}
 		mkdir_ok[i] = true;
 		fds[i] = open(paths[i], flags);
-		if (!keep_stressing_flag())
-			goto done;
 
 		if (!got_statbuf) {
 			if (stat(path, &statbuf) == 0)
@@ -154,12 +152,10 @@ static int stress_chdir(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; i < chdir_dirs; i++) {
+		for (i = 0; keep_stressing(args) && (i < chdir_dirs); i++) {
 			uint32_t j = stress_mwc32() % chdir_dirs;
 			const int fd = fds[j] >= 0 ? fds[j] : fds[0];
 
-			if (!keep_stressing(args))
-				goto done;
 			if (mkdir_ok[i] && (chdir(paths[i]) < 0)) {
 				if (errno != ENOMEM) {
 					pr_fail("%s: chdir %s failed, errno=%d (%s)\n",
@@ -244,7 +240,7 @@ static int stress_chdir(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
-done:
+
 	ret = EXIT_SUCCESS;
 abort:
 	if (chdir(cwd) < 0)
