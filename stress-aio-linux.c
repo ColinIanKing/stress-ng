@@ -283,6 +283,7 @@ static void stress_aiol_free(
 static int stress_aiol(const stress_args_t *args)
 {
 	int ret, rc = EXIT_FAILURE;
+	int flags = O_DIRECT;
 	char filename[PATH_MAX];
 	char buf[1];
 	io_context_t ctx = 0;
@@ -386,8 +387,13 @@ static int stress_aiol(const stress_args_t *args)
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
-	fds[0] = open(filename, O_CREAT | O_RDWR | O_DIRECT, S_IRUSR | S_IWUSR);
+retry_open:
+	fds[0] = open(filename, O_CREAT | O_RDWR | flags, S_IRUSR | S_IWUSR);
 	if (fds[0] < 0) {
+		if ((flags & O_DIRECT) && (errno == EINVAL)) {
+			flags &= ~O_DIRECT;
+			goto retry_open;
+		}
 		rc = exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
@@ -401,7 +407,7 @@ static int stress_aiol(const stress_args_t *args)
 	 *  then use the same fd as fd[0]
 	 */
 	for (i = 1; i < aio_linux_requests; i++) {
-		fds[i] = open(filename, O_RDWR | O_DIRECT, S_IRUSR | S_IWUSR);
+		fds[i] = open(filename, O_RDWR | flags, S_IRUSR | S_IWUSR);
 		if (fds[i] < 0)
 			fds[i] = fds[0];
 	}
