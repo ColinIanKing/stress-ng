@@ -287,7 +287,7 @@ static int stress_fiemap(const stress_args_t *args)
 		rc = exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		goto clean;
+		goto dir_clean;
 	}
 	(void)unlink(filename);
 
@@ -327,10 +327,13 @@ reap:
 close_clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
+dir_clean:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	(void)stress_temp_dir_rm_args(args);
 clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap(counters, counters_sz);
-	(void)stress_temp_dir_rm_args(args);
+
 	return rc;
 }
 
