@@ -55,7 +55,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  */
 static int stress_copy_file(const stress_args_t *args)
 {
-	int fd_in, fd_out, rc = EXIT_FAILURE;
+	int fd_in, fd_out, rc = EXIT_FAILURE, ret;
 	char filename[PATH_MAX - 5], tmp[PATH_MAX];
 	uint64_t copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
 
@@ -72,8 +72,10 @@ static int stress_copy_file(const stress_args_t *args)
 	if (copy_file_bytes < MIN_COPY_FILE_BYTES)
 		copy_file_bytes = MIN_COPY_FILE_BYTES;
 
-	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
-		goto tidy_done;
+        ret = stress_temp_dir_mk_args(args);
+        if (ret < 0)
+                return exit_status(-ret);
+
 	(void)stress_temp_filename_args(args,
 			filename, sizeof(filename), stress_mwc32());
 	(void)snprintf(tmp, sizeof(tmp), "%s-orig", filename);
@@ -147,8 +149,6 @@ tidy_in:
 tidy_dir:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
-tidy_done:
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
 }
