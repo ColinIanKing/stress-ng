@@ -2785,8 +2785,8 @@ static inline void stress_dev_rw(
 		}
 
 		if (fstat(fd, &buf) < 0) {
-			pr_fail("%s: stat failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: stat failed on %s, errno=%d (%s)\n",
+				args->name, path, errno, strerror(errno));
 		} else {
 			if ((S_ISBLK(buf.st_mode) | (S_ISCHR(buf.st_mode))) == 0) {
 				stress_dev_close_unlock(path, fd);
