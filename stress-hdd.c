@@ -558,6 +558,13 @@ static int stress_hdd(const stress_args_t *args)
 				continue;	/* Retry */
 			pr_fail("%s: open %s failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
+			/*
+			 *  Unlink is necessary as Linux can leave stale files
+			 *  on a O_DIRECT open failure if the file system does
+			 *  not support O_DIRECT:
+			 *  https://bugzilla.kernel.org/show_bug.cgi?id=213041
+			 */
+			(void)unlink(filename);
 			goto finish;
 		}
 
