@@ -205,6 +205,7 @@ static int stress_dup2_race(info_t *info)
 static int stress_dup(const stress_args_t *args)
 {
 	static int fds[STRESS_FD_MAX];
+	int rc = EXIT_SUCCESS;
 	size_t max_fd = stress_get_file_limit();
 	size_t i;
 	bool do_dup3 = true;
@@ -214,16 +215,16 @@ static int stress_dup(const stress_args_t *args)
 
 	info = mmap(NULL, sizeof(*info), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-
 	if (info != MAP_FAILED) {
-		if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
-			goto tidy_dir;
+		if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0) {
+			rc = EXIT_NO_RESOURCE;
+			goto tidy_mmap;
+		}
 
 		(void)stress_temp_filename_args(args, info->fifoname,
 			sizeof(info->fifoname), stress_mwc32());
 	}
 #endif
-
 	if (max_fd > SIZEOF_ARRAY(fds))
 		max_fd = SIZEOF_ARRAY(fds);
 
@@ -231,7 +232,8 @@ static int stress_dup(const stress_args_t *args)
 	if (fds[0] < 0) {
 		pr_dbg("%s: open failed on /dev/zero, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
+		rc = EXIT_NO_RESOURCE;
+		goto tidy_fds;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -361,16 +363,19 @@ static int stress_dup(const stress_args_t *args)
 		}
 	} while (keep_stressing(args));
 
+tidy_fds:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fds[0]);
 
 #if defined(STRESS_DUP2_RACE)
-tidy_dir:
+	if (info != MAP_FAILED)
+		(void)stress_temp_dir_rm_args(args);
+
+tidy_mmap:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (info != MAP_FAILED) {
-		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 		if (info->fifoname[0])
 			(void)unlink(info->fifoname);
-		(void)stress_temp_dir_rm_args(args);
 		pr_dbg("%s: dup2: %" PRIu64 " races from %" PRIu64 " attempts (%.2f%%)\n",
 			args->name, info->race_count, info->try_count,
 			info->try_count > 0 ?
@@ -379,7 +384,7 @@ tidy_dir:
 	}
 #endif
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_dup_info = {
