@@ -79,6 +79,45 @@ static int stress_set_filename_opts(const char *opt)
 }
 
 /*
+ *  stress_filename_probe_length()
+ *	see if advertised path size is ok, shorten if
+ *	necessary
+ */
+static int stress_filename_probe_length(
+	const stress_args_t *args,
+	char *filename,
+	char *ptr,
+	size_t *sz_max)
+{
+	size_t i;
+	size_t max = 0;
+
+	for (i = 0; i < *sz_max; i++) {
+		int fd;
+
+		*(ptr + i) = 'a';
+		*(ptr + i + 1) = '\0';
+
+		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
+			if (errno == ENAMETOOLONG)
+				break;
+			pr_err("%s: creat() failed when probing "
+				"for filename length, "
+				"errno = %d (%s)\n",
+				args->name, errno, strerror(errno));
+			*sz_max = 0;
+			return -1;
+		}
+		(void)close(fd);
+		(void)unlink(filename);
+		max = i;
+	}
+	*sz_max = max + 1;
+	return 0;
+}
+
+
+/*
  *  stress_filename_probe()
  *	determine allowed filename chars by probing
  */
@@ -295,10 +334,6 @@ static int stress_filename(const stress_args_t *args)
 			args->name, pathname, errno, strerror(errno));
 		goto tidy_dir;
 	}
-
-	if (args->instance == 0)
-		pr_dbg("%s: maximum filename size: %lu characters\n",
-			args->name, (long unsigned) buf.f_namemax);
 #endif
 
 	(void)shim_strlcpy(filename, pathname, sizeof(filename) - 1);
@@ -320,7 +355,14 @@ static int stress_filename(const stress_args_t *args)
 		sz_max = PATH_MAX;
 
 	if (sz_left >= PATH_MAX) {
-		pr_fail("%s: max file name larger than PATH_MAX\n", args->name);
+		pr_fail("%s: max file name larger than PATH_MAX\n",
+			args->name);
+		goto tidy_dir;
+	}
+
+	if (stress_filename_probe_length(args, filename, ptr, &sz_max) < 0) {
+		pr_fail("%s: failed to determine maximum filename length\n",
+			args->name);
 		goto tidy_dir;
 	}
 
@@ -344,8 +386,8 @@ static int stress_filename(const stress_args_t *args)
 
 	if (args->instance == 0)
 		pr_dbg("%s: filesystem allows %zu unique "
-			"characters in a filename\n",
-			args->name, chars_allowed);
+			"characters in a %zu character long filename\n",
+			args->name, chars_allowed, sz_max);
 
 	if (chars_allowed == 0) {
 		pr_fail("%s: cannot determine allowed characters "
