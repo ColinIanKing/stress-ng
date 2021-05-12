@@ -73,7 +73,7 @@ static int stress_copy_file(const stress_args_t *args)
 		copy_file_bytes = MIN_COPY_FILE_BYTES;
 
 	if (stress_temp_dir_mk(args->name, args->pid, args->instance) < 0)
-		goto tidy_dir;
+		goto tidy_done;
 	(void)stress_temp_filename_args(args,
 			filename, sizeof(filename), stress_mwc32());
 	(void)snprintf(tmp, sizeof(tmp), "%s-orig", filename);
@@ -139,6 +139,8 @@ tidy_in:
 tidy_dir:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
+tidy_done:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
 }
