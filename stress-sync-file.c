@@ -80,7 +80,7 @@ static int stress_sync_allocate(
 #if defined(HAVE_FDATASYNC)
 	ret = shim_fdatasync(fd);
 	if (ret < 0) {
-		if (errno == ENOSPC)
+		if ((errno == ENOSPC) || (errno == EINTR))
 			return -errno;
 		pr_err("%s: fdatasync failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
