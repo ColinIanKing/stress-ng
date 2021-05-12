@@ -237,7 +237,7 @@ static int stress_mknod(const stress_args_t *args)
 		if (blk_dev_ret == 0)
 			stress_mknod_test_dev(args, dirfd, S_IFBLK, "S_IFBLK", blk_dev);
 
-		for (i = 0; i < n; i++) {
+		for (i = 0; keep_stressing(args) && (i < n); i++) {
 			char path[PATH_MAX];
 			const uint64_t gray_code = (i >> 1) ^ i;
 			size_t j = stress_mwc32() % num_nodes;	/* cppcheck-suppress moduloofone */
@@ -249,10 +249,6 @@ static int stress_mknod(const stress_args_t *args)
 					continue;	/* Try again */
 				break;
 			}
-
-			if (!keep_stressing(args))
-				break;
-
 			inc_counter(args);
 		}
 
