@@ -193,7 +193,7 @@ int stress_set_temp_path(const char *path)
 		return -1;
 
 	if (access(path, R_OK | W_OK) < 0) {
-		(void)fprintf(stderr, "temp-path '%s' must be readable "
+		(void)fprintf(stderr, "aborting: temp-path '%s' must be readable "
 			"and writeable\n", path);
 		return -1;
 	}
