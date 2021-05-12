@@ -307,6 +307,9 @@ static int stress_dentry(const stress_args_t *args)
 			const uint64_t gray_code = (i >> 1) ^ i;
 			int fd;
 
+			if (!keep_stressing(args))
+				goto abort;
+
 			stress_temp_filename_args(args,
 				path, sizeof(path), gray_code * 2);
 
@@ -320,8 +323,6 @@ static int stress_dentry(const stress_args_t *args)
 			}
 			(void)close(fd);
 
-			if (!keep_stressing(args))
-				goto abort;
 
 			inc_counter(args);
 		}
