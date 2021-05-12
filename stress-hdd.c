@@ -718,6 +718,8 @@ seq_rd_retry:
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto seq_rd_retry;
+					if (errno == ENOSPC)	/* e.g. on vfat */
+						continue;
 					if (errno) {
 						pr_fail("%s: read failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
@@ -787,6 +789,8 @@ rnd_rd_retry:
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
 						goto rnd_rd_retry;
+					if (errno == ENOSPC)	/* e.g. on vfat */
+						continue;
 					if (errno) {
 						pr_fail("%s: read failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
