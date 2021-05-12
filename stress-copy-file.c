@@ -110,15 +110,15 @@ static int stress_copy_file(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		ssize_t ret;
+		ssize_t copy_ret;
 		shim_loff_t off_in, off_out;
 
 		off_in = stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 		off_out = stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
 
-		ret = shim_copy_file_range(fd_in, &off_in, fd_out,
-			&off_out, DEFAULT_COPY_FILE_SIZE, 0);
-		if (ret < 0) {
+		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
+						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
+		if (copy_ret < 0) {
 			if ((errno == EAGAIN) ||
 			    (errno == EINTR) ||
 			    (errno == ENOSPC))
