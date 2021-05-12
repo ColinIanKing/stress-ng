@@ -223,7 +223,7 @@ err_unlink:
 		stress_link_unlink(args, n);
 
 		inc_counter(args);
-	} while ((rc = EXIT_SUCCESS) && keep_stressing(args));
+	} while ((rc == EXIT_SUCCESS) && keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
