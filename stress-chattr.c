@@ -92,7 +92,9 @@ static int do_chattr(
 
 		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &orig);
 		if (ret < 0) {
-			if ((errno != EOPNOTSUPP) && (errno != ENOTTY))
+			if ((errno != EOPNOTSUPP) &&
+			    (errno != ENOTTY) &&
+			    (errno != EINVAL))
 				pr_inf("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			goto tidy;
@@ -101,7 +103,9 @@ static int do_chattr(
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero);
 		if (ret < 0) {
 			rc = -1;
-			if ((errno != EOPNOTSUPP) && (errno != ENOTTY))
+			if ((errno != EOPNOTSUPP) &&
+			    (errno != ENOTTY) &&
+			    (errno != EINVAL))
 				pr_inf("%s: ioctl SHIM_EXT2_IOC_SETFLAGS failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			goto tidy;
@@ -114,7 +118,10 @@ static int do_chattr(
 		(void)n;
 
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flag);
-		if ((ret < 0) && ((errno == EOPNOTSUPP) || (errno == ENOTTY)))
+		if ((ret < 0) && 
+                    ((errno == EOPNOTSUPP) ||
+                     (errno == ENOTTY) ||
+		     (errno == EINTR)))
 			rc = -1;
 
 		n = write(fdw, &zero, sizeof(zero));
