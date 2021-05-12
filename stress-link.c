@@ -116,6 +116,13 @@ static int stress_link_generic(
 					/* Try again */
 					continue;
 				}
+				if (errno == EPERM) {
+					pr_inf("%s: link calls not allowed on "
+						"the filesystem, skipping "
+						"stressor\n", args->name);
+					rc = EXIT_NO_RESOURCE;
+					goto err_unlink;
+				}
 				rc = exit_status(errno);
 				pr_fail("%s: %s failed, errno=%d (%s)\n",
 					args->name, funcname, errno, strerror(errno));
@@ -212,10 +219,11 @@ static int stress_link_generic(
 
 #endif
 
+err_unlink:
 		stress_link_unlink(args, n);
 
 		inc_counter(args);
-	} while (keep_stressing(args));
+	} while ((rc = EXIT_SUCCESS) && keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
