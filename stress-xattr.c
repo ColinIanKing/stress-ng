@@ -100,7 +100,7 @@ static int stress_xattr(const stress_args_t *args)
 					rc = EXIT_NO_RESOURCE;
 					goto out_close;
 				}
-				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno = E2BIG))
+				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
 					break;
 				pr_fail("%s: fsetxattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
