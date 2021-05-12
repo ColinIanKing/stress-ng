@@ -146,6 +146,7 @@ static int stress_verity(const stress_args_t *args)
 		ret = ioctl(fd, FS_IOC_ENABLE_VERITY, &enable);
 		if (ret < 0) {
 			switch (errno) {
+			case EINVAL:
 			case ENOTTY:
 			case EOPNOTSUPP:
 				if (args->instance == 0)
