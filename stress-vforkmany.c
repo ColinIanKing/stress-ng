@@ -51,8 +51,6 @@ STRESS_PRAGMA_POP
  */
 static void vforkmany_wait(const pid_t pid)
 {
-	int sig = SIGALRM;
-
 	for (;;) {
 		int ret, status;
 
@@ -61,8 +59,7 @@ static void vforkmany_wait(const pid_t pid)
 		if ((ret >= 0) || (errno != EINTR))
 			break;
 
-		(void)kill(pid, sig);
-		sig = SIGKILL;
+		(void)kill(pid, SIGALRM);
 	}
 }
 
@@ -210,17 +207,29 @@ vfork_again:
 		 * see and will then exit.  We wait for the first
 		 * one spawned to unblock and exit
 		 */
-		int chstatus;
-
 		(void)setpgid(chpid, g_pgrp);
 		g_opt_flags &= ~OPT_FLAGS_OOMABLE;
 		stress_set_oom_adjustment(args->name, false);
 
 		(void)sleep(g_opt_timeout);
 		*terminate = true;
-		(void)kill(chpid, SIGALRM);
 
-		(void)waitpid(chpid, &chstatus, 0);
+		for (;;) {
+			int ret, chstatus;
+
+			(void)kill(chpid, SIGALRM);
+			errno = 0;
+			ret = waitpid(chpid, &chstatus, 0);
+
+			/* Reaped? - all done */
+			if (ret >= 0)
+				break;
+			/* Interrupted? - retry */
+			if (errno == EINTR)
+				continue;
+			/* Something went wrong, kill */
+			(void)kill(chpid, SIGKILL);
+		}
 	}
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
