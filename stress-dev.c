@@ -620,8 +620,7 @@ static void stress_dev_tty(
 #if defined(TIOCGPTPEER)
 	{
 		ret = ioctl(fd, TIOCGPTPEER, O_RDWR);
-		if (ret > -1)
-			(void)close(ret);
+		(void)ret;
 	}
 #endif
 
