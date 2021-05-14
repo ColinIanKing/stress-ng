@@ -432,7 +432,6 @@ static void stress_misaligned_all(uint8_t *buffer)
 		info->func(buffer);
 		info->exercised = true;
 		exercised = true;
-		info++;
 	}
 
 	if (!exercised)
