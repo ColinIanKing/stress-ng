@@ -41,6 +41,9 @@ static const stress_help_t help[] =
 
 static void *stack;
 static void *zero_stack;
+#if defined(O_TMPFILE)
+static void *bus_stack;
+#endif
 static sigjmp_buf jmpbuf;
 
 static inline void stress_bad_altstack_force_fault(uint8_t *stack_start)
@@ -53,7 +56,7 @@ static inline void stress_bad_altstack_force_fault(uint8_t *stack_start)
 	(void)*vol_stack;		/* cppcheck-suppress nullPointer */
 }
 
-static void MLOCKED_TEXT stress_segv_handler(int signum)
+static void MLOCKED_TEXT stress_signal_handler(int signum)
 {
 	uint8_t data[STRESS_MINSIGSTKSZ * 2];
 
@@ -64,7 +67,10 @@ static void MLOCKED_TEXT stress_segv_handler(int signum)
 
 	if (zero_stack != MAP_FAILED)
 		(void)munmap(zero_stack, STRESS_MINSIGSTKSZ);
-
+#if defined(O_TMPFILE)
+	if (bus_stack != MAP_FAILED)
+		(void)munmap(bus_stack, STRESS_MINSIGSTKSZ);
+#endif
 	/*
 	 *  If we've not got this far we've not
 	 *  generated a fault inside the stack of the
@@ -86,6 +92,9 @@ static int stress_bad_altstack(const stress_args_t *args)
 	void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
 #endif
 	int fd;
+#if defined(O_TMPFILE)
+	int tmp_fd;
+#endif
 
 	stack = mmap(NULL, STRESS_MINSIGSTKSZ, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
@@ -94,6 +103,18 @@ static int stress_bad_altstack(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+
+#if defined(O_TMPFILE)
+	tmp_fd = open(stress_get_temp_path(), O_TMPFILE | O_RDWR, S_IRUSR | S_IWUSR);
+	if (tmp_fd < 0) {
+		bus_stack = MAP_FAILED;
+	} else {
+		bus_stack = mmap(NULL, STRESS_MINSIGSTKSZ,
+				PROT_READ | PROT_WRITE,
+				MAP_PRIVATE, tmp_fd, 0);
+		(void)close(tmp_fd);
+	}
+#endif
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd >= 0) {
@@ -194,7 +215,9 @@ again:
 			ss.ss_flags = 0;
 			(void)sigaltstack(&ss, NULL);
 
-			if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
+			if (stress_sighandler(args->name, SIGSEGV, stress_signal_handler, NULL) < 0)
+				return EXIT_FAILURE;
+			if (stress_sighandler(args->name, SIGBUS, stress_signal_handler, NULL) < 0)
 				return EXIT_FAILURE;
 
 			/* Set alternative stack for testing */
@@ -203,7 +226,7 @@ again:
 
 			/* Child */
 			stress_mwc_reseed();
-			rnd = stress_mwc32() % 9;
+			rnd = stress_mwc32() % 10;
 
 			stress_set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);
@@ -246,7 +269,7 @@ again:
 				CASE_FALLTHROUGH;
 			case 5:
 				/* Illegal text segment stack */
-				ret = stress_sigaltstack(stress_segv_handler, STRESS_SIGSTKSZ);
+				ret = stress_sigaltstack(stress_signal_handler, STRESS_SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing(args))
@@ -278,6 +301,18 @@ again:
 						break;
 				}
 				CASE_FALLTHROUGH;
+#if defined(O_TMPFILE)
+			case 9:
+				/* Illegal mapped stack to empty file, causes BUS error */
+				if (bus_stack != MAP_FAILED) {
+					ret = stress_sigaltstack(bus_stack, STRESS_MINSIGSTKSZ);
+					if (ret == 0)
+						stress_bad_altstack_force_fault(bus_stack);
+					if (!keep_stressing(args))
+						break;
+				}
+				CASE_FALLTHROUGH;
+#endif
 			default:
 			case 0:
 				/* Illegal unmapped stack */
@@ -293,6 +328,10 @@ again:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+#if defined(O_TMPFILE)
+	if (bus_stack != MAP_FAILED)
+		(void)munmap(bus_stack, STRESS_MINSIGSTKSZ);
+#endif
 	if (zero_stack != MAP_FAILED)
 		(void)munmap(zero_stack, STRESS_MINSIGSTKSZ);
 	if (stack != MAP_FAILED)
