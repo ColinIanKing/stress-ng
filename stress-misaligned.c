@@ -371,16 +371,15 @@ static void TARGET_CLONE_NO_SSE stress_misaligned_int128inc(uint8_t *buffer)
 	}
 }
 
-#if defined(ATOMIC_INC) &&	\
-    !(defined(__SSE__) && defined(STRESS_ARCH_X86))
-static void stress_misaligned_int128atomic(uint8_t *buffer)
+#if defined(ATOMIC_INC)
+static void TARGET_CLONE_NO_SSE stress_misaligned_int128atomic(uint8_t *buffer)
 {
 	register int i = MISALIGN_LOOPS;
 	volatile __uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
 
 	while (--i) {
 		ATOMIC_INC(ptr1);
-		shim_mb();
+		/* No need for shim_mb */
 	}
 }
 #endif
@@ -412,8 +411,7 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ "int128rd",	stress_misaligned_int128rd,	false,	false },
 	{ "int128wr",	stress_misaligned_int128wr,	false,	false },
 	{ "int128inc",	stress_misaligned_int128inc,	false,	false },
-#if defined(ATOMIC_INC)	&&	\
-    !(defined(__SSE__) && defined(STRESS_ARCH_X86))
+#if defined(ATOMIC_INC)
 	{ "int128atomic",stress_misaligned_int128atomic,false,	false },
 #endif
 #endif
