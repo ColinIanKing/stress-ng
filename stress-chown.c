@@ -209,7 +209,7 @@ static int stress_chown(const stress_args_t *args)
 
 		ret = do_chown(chown, filename, cap_chown, uid, gid);
 		if (ret < 0) {
-			if (ret == -ENOENT || ret == -ENOTDIR) {
+			if ((ret == -ENOENT) || (ret == -ENOTDIR)) {
 				/*
 				 * File was removed during test by
 				 * another worker
@@ -223,7 +223,7 @@ static int stress_chown(const stress_args_t *args)
 		}
 		ret = do_chown(lchown, filename, cap_chown, uid, gid);
 		if (ret < 0) {
-			if (ret == -ENOENT || ret == -ENOTDIR) {
+			if ((ret == -ENOENT) || (ret == -ENOTDIR)) {
 				/*
 				 * File was removed during test by
 				 * another worker

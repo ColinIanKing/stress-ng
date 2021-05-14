@@ -498,8 +498,7 @@ retry:
 				&cpu, &optlen);
 		}
 #endif
-		if (socket_domain == AF_INET || socket_domain == AF_INET6) {
-
+		if ((socket_domain == AF_INET) || (socket_domain == AF_INET6)) {
 #if defined(TCP_NODELAY)
 			{
 				int val = 0, ret;

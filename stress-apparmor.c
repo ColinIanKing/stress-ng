@@ -267,7 +267,7 @@ static int apparmor_stress_profiles(
 		(*counter)++;
 	} while (keep_stressing_flag() &&
 		 apparmor_run &&
-		 (!max_ops || *counter < max_ops));
+		 (!max_ops || (*counter < max_ops)));
 
 	return EXIT_SUCCESS;
 }
@@ -291,7 +291,7 @@ static int apparmor_stress_features(
 		(*counter)++;
 	} while (keep_stressing_flag() &&
 		 apparmor_run &&
-		 (!max_ops || *counter < max_ops));
+		 (!max_ops || (*counter < max_ops)));
 
 	return EXIT_SUCCESS;
 }
@@ -365,7 +365,7 @@ static int apparmor_stress_kernel_interface(
 		(*counter)++;
 	} while (keep_stressing_flag() &&
 		 apparmor_run &&
-                 (!max_ops || *counter < max_ops));
+                 (!max_ops || (*counter < max_ops)));
 
 	return rc;
 }
@@ -626,7 +626,7 @@ static int apparmor_stress_corruption(
 		(*counter)++;
 	} while (keep_stressing_flag() &&
 		 apparmor_run &&
-		 (!max_ops || *counter < max_ops));
+		 (!max_ops || (*counter < max_ops)));
 
 	return rc;
 }

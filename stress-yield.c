@@ -125,7 +125,7 @@ static int stress_yield(const stress_args_t *args)
 					pr_fail("%s: sched_yield failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				counters[i]++;
-			} while (keep_stressing_flag() && (!max_ops_per_yielder || counters[i] < max_ops_per_yielder));
+			} while (keep_stressing_flag() && (!max_ops_per_yielder || (counters[i] < max_ops_per_yielder)));
 			_exit(EXIT_SUCCESS);
 		}
 	}

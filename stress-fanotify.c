@@ -512,7 +512,7 @@ static int stress_fanotify(const stress_args_t *args)
 		fanotify_event_init_invalid();
 
 		ret = posix_memalign(&buffer, BUFFER_SIZE, BUFFER_SIZE);
-		if (ret != 0 || buffer == NULL) {
+		if ((ret != 0) || (buffer == NULL)) {
 			pr_err("%s: posix_memalign: cannot allocate 4K "
 				"aligned buffer\n", args->name);
 			rc = EXIT_NO_RESOURCE;

@@ -88,7 +88,7 @@ static int stress_bind_mount_child(void *parg)
 		(void)umount("/");
 		inc_counter(args);
 	} while (keep_stressing_flag() &&
-		 (!args->max_ops || get_counter(args) < args->max_ops));
+		 (!args->max_ops || (get_counter(args) < args->max_ops)));
 
 	return 0;
 }

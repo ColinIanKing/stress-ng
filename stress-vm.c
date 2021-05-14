@@ -641,7 +641,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 		for (mask = 1, i = 1; i < 64; i++) {
 			uintptr_t uintptr = ((uintptr_t)ptr) ^ (~mask & sz_mask);
 			uint8_t *addr = (uint8_t *)uintptr;
-			if (addr < buf || addr >= buf_end || addr == ptr)
+			if ((addr < buf) || (addr >= buf_end) || (addr == ptr))
 				continue;
 			*addr = d2;
 			tests++;
@@ -1788,7 +1788,7 @@ static size_t TARGET_CLONES stress_vm_write64(
 		*ptr++ = v;
 		*ptr++ = v;
 		i++;
-		if (UNLIKELY(!keep_stressing_flag() || (max_ops && i >= max_ops)))
+		if (UNLIKELY(!keep_stressing_flag() || (max_ops && (i >= max_ops))))
 			break;
 	}
 	add_counter(args, i);
@@ -1848,7 +1848,7 @@ static size_t TARGET_CLONES stress_vm_read64(
 		(void)*(ptr++);
 
 		i++;
-		if (UNLIKELY(!keep_stressing_flag() || (max_ops && i >= max_ops)))
+		if (UNLIKELY(!keep_stressing_flag() || (max_ops && (i >= max_ops))))
 			break;
 	}
 	add_counter(args, i);

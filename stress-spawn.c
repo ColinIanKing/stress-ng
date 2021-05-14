@@ -77,7 +77,7 @@ static int stress_spawn(const stress_args_t *args)
 	 *  Determine our own self as the spawnutable, e.g. run stress-ng
 	 */
 	len = shim_readlink("/proc/self/exe", path, sizeof(path));
-	if (len < 0 || len > PATH_MAX) {
+	if ((len < 0) || (len > PATH_MAX)) {
 		if (errno == ENOENT) {
 			if (args->instance == 0)
 				pr_inf("%s: skipping stressor, can't determine stress-ng "

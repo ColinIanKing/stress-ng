@@ -450,7 +450,7 @@ static int stress_clock(const stress_args_t *args)
 			}
 
 			for (i = 0; i < n; i++) {
-				if (timer_fail[i] || timer_id[i] == (timer_t)-1)
+				if (timer_fail[i] || (timer_id[i] == (timer_t)-1))
 					continue;
 
 				ret = timer_gettime(timer_id[i], &its);
@@ -466,7 +466,7 @@ static int stress_clock(const stress_args_t *args)
 			}
 
 			for (i = 0; i < n; i++) {
-				if (timer_fail[i] || timer_id[i] == (timer_t)-1)
+				if (timer_fail[i] || (timer_id[i] == (timer_t)-1))
 					continue;
 				ret = timer_delete(timer_id[i]);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {

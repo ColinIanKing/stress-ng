@@ -68,7 +68,7 @@ static void *stress_pthread_func(void *c)
 
 	while (keep_stressing(args) &&
 	       !thread_terminate &&
-	       (!max_ops || ctxt->counter < max_ops)) {
+	       (!max_ops || (ctxt->counter < max_ops))) {
 		struct timespec tv;
 		unsigned long i;
 

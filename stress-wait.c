@@ -341,7 +341,7 @@ static int stress_wait(const stress_args_t *args)
 				break;
 		}
 #endif
-	} while (keep_stressing_flag() && (!args->max_ops || get_counter(args) < args->max_ops));
+	} while (keep_stressing_flag() && (!args->max_ops || (get_counter(args) < args->max_ops)));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)kill(pid_k, SIGKILL);

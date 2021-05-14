@@ -355,7 +355,7 @@ skip_fsopen:
 #endif
 		inc_counter(args);
 	} while (keep_mounting && keep_stressing(args) &&
-		 (!args->max_ops || get_counter(args) < args->max_ops));
+		 (!args->max_ops || (get_counter(args) < args->max_ops)));
 
 cleanup:
 	stress_ramfs_umount(args, realpathname);

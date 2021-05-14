@@ -258,7 +258,7 @@ static int stress_chmod(const stress_args_t *args)
 					args->name, errno, strerror(errno));
 			}
 			if (do_chmod(dfd, bad_fd, filebase, filename, longpath, i, mask, all_mask) < 0) {
-				if (errno == ENOENT || errno == ENOTDIR) {
+				if ((errno == ENOENT) || (errno == ENOTDIR)) {
 					/*
 					 * File was removed during test by
 					 * another worker

@@ -2749,7 +2749,7 @@ static inline void stress_dev_rw(
 	char path[PATH_MAX];
 	const double threshold = 0.25;
 
-	while (loops == -1 || loops > 0) {
+	while ((loops == -1) || (loops > 0)) {
 		double t_start;
 		bool timeout = false;
 		char *ptr;

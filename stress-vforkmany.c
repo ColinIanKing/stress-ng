@@ -187,7 +187,7 @@ vfork_again:
 					(void)stress_mincore_touch_pages_interruptible(waste, WASTE_SIZE);
 
 				/* child, parent is blocked, spawn new child */
-				if (!args->max_ops || get_counter(args) < args->max_ops)
+				if (!args->max_ops || (get_counter(args) < args->max_ops))
 					goto vfork_again;
 				_exit(0);
 			}

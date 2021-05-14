@@ -61,7 +61,7 @@ static void thread1(void)
 	do {
 		__counter++;
 		(void)swapcontext(&context[0].cu.uctx, &context[1].cu.uctx);
-	} while (keep_stressing_flag() && (!__max_ops || __counter < __max_ops));
+	} while (keep_stressing_flag() && (!__max_ops || (__counter < __max_ops)));
 
 	(void)swapcontext(&context[0].cu.uctx, &uctx_main);
 }
@@ -71,7 +71,7 @@ static void thread2(void)
 	do {
 		__counter++;
 		(void)swapcontext(&context[1].cu.uctx, &context[2].cu.uctx);
-	} while (keep_stressing_flag() && (!__max_ops || __counter < __max_ops));
+	} while (keep_stressing_flag() && (!__max_ops || (__counter < __max_ops)));
 	(void)swapcontext(&context[1].cu.uctx, &uctx_main);
 }
 
@@ -80,7 +80,7 @@ static void thread3(void)
 	do {
 		__counter++;
 		(void)swapcontext(&context[2].cu.uctx, &context[0].cu.uctx);
-	} while (keep_stressing_flag() && (!__max_ops || __counter < __max_ops));
+	} while (keep_stressing_flag() && (!__max_ops || (__counter < __max_ops)));
 	(void)swapcontext(&context[2].cu.uctx, &uctx_main);
 }
 

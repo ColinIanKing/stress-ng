@@ -366,7 +366,7 @@ void stress_vmstat_start(void)
 	thermalstat_sleep = thermalstat_delay;
 
 	vmstat_pid = fork();
-	if (vmstat_pid < 0 || vmstat_pid > 0)
+	if ((vmstat_pid < 0) || (vmstat_pid > 0))
 		return;
 
 	if (vmstat_delay)

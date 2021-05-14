@@ -156,7 +156,7 @@ static inline void stress_proc_rw(
 	const size_t page_size = ctxt->args->page_size;
 	off_t pos;
 
-	while (loops == -1 || loops > 0) {
+	while ((loops == -1) || (loops > 0)) {
 		double t_start;
 		bool timeout = false;
 		uint8_t *ptr;

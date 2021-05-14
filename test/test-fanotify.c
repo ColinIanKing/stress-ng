@@ -81,7 +81,7 @@ int main(void)
 	void *buffer;
 
 	ret = posix_memalign(&buffer, BUFFER_SIZE, BUFFER_SIZE);
-	if (ret != 0 || buffer == NULL)
+	if ((ret != 0) || (buffer == NULL))
 		return -1;
 
 	fan_fd = fanotify_init(0, 0);

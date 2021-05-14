@@ -232,7 +232,7 @@ static int stress_exec(const stress_args_t *args)
 	 *  Determine our own self as the executable, e.g. run stress-ng
 	 */
 	len = shim_readlink("/proc/self/exe", path, sizeof(path));
-	if (len < 0 || len > PATH_MAX) {
+	if ((len < 0) || (len > PATH_MAX)) {
 		pr_fail("%s: readlink on /proc/self/exe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;

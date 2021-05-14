@@ -143,7 +143,7 @@ static int stress_getdents_dir(
 
 		inc_counter(args);
 
-		if (!recurse || depth < 1)
+		if (!recurse || (depth < 1))
 			continue;
 
 		while (ptr < buf + nread) {
@@ -219,7 +219,7 @@ static int stress_getdents64_dir(
 
 		inc_counter(args);
 
-		if (!recurse || depth < 1)
+		if (!recurse || (depth < 1))
 			continue;
 
 		while (ptr < buf + nread) {

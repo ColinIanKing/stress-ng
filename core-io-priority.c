@@ -76,7 +76,7 @@ void stress_set_iopriority(const int32_t class, const int32_t level)
 		return;
 	case IOPRIO_CLASS_RT:
 	case IOPRIO_CLASS_BE:
-		if (level < 0 || level > 7) {
+		if ((level < 0) || (level > 7)) {
 			(void)fprintf(stderr, "Priority levels range from 0 "
 				"(max) to 7 (min)\n");
 			_exit(EXIT_FAILURE);
