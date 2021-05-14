@@ -26,6 +26,14 @@
 
 #define MISALIGN_LOOPS		(65536)
 
+#if defined(HAVE_ATOMIC_ADD_FETCH) &&	\
+    defined(__ATOMIC_SEQ_CST)
+#if defined(ATOMIC_INC)
+#undef ATOMIC_INC
+#endif
+#define ATOMIC_INC(ptr) __atomic_add_fetch(ptr, 1, __ATOMIC_SEQ_CST);
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"misaligned N",	   	"start N workers performing misaligned read/writes" },
 	{ NULL,	"misaligned-ops N",	"stop after N misaligned bogo operations" },
@@ -111,6 +119,72 @@ static void stress_misaligned_int16wr(uint8_t *buffer)
 	}
 }
 
+static void stress_misaligned_int16inc(uint8_t *buffer)
+{
+	register int i = MISALIGN_LOOPS;
+	volatile uint16_t *ptr1 = (uint16_t *)(buffer + 1);
+	volatile uint16_t *ptr2 = (uint16_t *)(buffer + 3);
+	volatile uint16_t *ptr3 = (uint16_t *)(buffer + 5);
+	volatile uint16_t *ptr4 = (uint16_t *)(buffer + 7);
+	volatile uint16_t *ptr5 = (uint16_t *)(buffer + 9);
+	volatile uint16_t *ptr6 = (uint16_t *)(buffer + 11);
+	volatile uint16_t *ptr7 = (uint16_t *)(buffer + 13);
+	volatile uint16_t *ptr8 = (uint16_t *)(buffer + 15);
+
+	while (--i) {
+		(*ptr1)++;
+		shim_mb();
+		(*ptr2)++;
+		shim_mb();
+		(*ptr3)++;
+		shim_mb();
+		(*ptr4)++;
+		shim_mb();
+		(*ptr5)++;
+		shim_mb();
+		(*ptr6)++;
+		shim_mb();
+		(*ptr7)++;
+		shim_mb();
+		(*ptr8)++;
+		shim_mb();
+	}
+}
+
+#if defined(ATOMIC_INC)
+static void stress_misaligned_int16atomic(uint8_t *buffer)
+{
+	register int i = MISALIGN_LOOPS;
+	volatile uint16_t *ptr1 = (uint16_t *)(buffer + 1);
+	volatile uint16_t *ptr2 = (uint16_t *)(buffer + 3);
+	volatile uint16_t *ptr3 = (uint16_t *)(buffer + 5);
+	volatile uint16_t *ptr4 = (uint16_t *)(buffer + 7);
+	volatile uint16_t *ptr5 = (uint16_t *)(buffer + 9);
+	volatile uint16_t *ptr6 = (uint16_t *)(buffer + 11);
+	volatile uint16_t *ptr7 = (uint16_t *)(buffer + 13);
+	volatile uint16_t *ptr8 = (uint16_t *)(buffer + 15);
+
+	while (--i) {
+		ATOMIC_INC(ptr1);
+		shim_mb();
+		ATOMIC_INC(ptr2);
+		shim_mb();
+		ATOMIC_INC(ptr3);
+		shim_mb();
+		ATOMIC_INC(ptr4);
+		shim_mb();
+		ATOMIC_INC(ptr5);
+		shim_mb();
+		ATOMIC_INC(ptr6);
+		shim_mb();
+		ATOMIC_INC(ptr7);
+		shim_mb();
+		ATOMIC_INC(ptr8);
+		shim_mb();
+	}
+}
+#endif
+
 static void stress_misaligned_int32rd(uint8_t *buffer)
 {
 	register int i = MISALIGN_LOOPS;
@@ -151,6 +225,48 @@ static void stress_misaligned_int32wr(uint8_t *buffer)
 	}
 }
 
+static void stress_misaligned_int32inc(uint8_t *buffer)
+{
+	register int i = MISALIGN_LOOPS;
+	volatile uint32_t *ptr1 = (uint32_t *)(buffer + 1);
+	volatile uint32_t *ptr2 = (uint32_t *)(buffer + 5);
+	volatile uint32_t *ptr3 = (uint32_t *)(buffer + 9);
+	volatile uint32_t *ptr4 = (uint32_t *)(buffer + 13);
+
+	while (--i) {
+		(*ptr1)++;
+		shim_mb();
+		(*ptr2)++;
+		shim_mb();
+		(*ptr3)++;
+		shim_mb();
+		(*ptr4)++;
+		shim_mb();
+	}
+}
+
+#if defined(ATOMIC_INC)
+static void stress_misaligned_int32atomic(uint8_t *buffer)
+{
+	register int i = MISALIGN_LOOPS;
+	volatile uint32_t *ptr1 = (uint32_t *)(buffer + 1);
+	volatile uint32_t *ptr2 = (uint32_t *)(buffer + 5);
+	volatile uint32_t *ptr3 = (uint32_t *)(buffer + 9);
+	volatile uint32_t *ptr4 = (uint32_t *)(buffer + 13);
+
+	while (--i) {
+		ATOMIC_INC(ptr1);
+		shim_mb();
+		ATOMIC_INC(ptr2);
+		shim_mb();
+		ATOMIC_INC(ptr3);
+		shim_mb();
+		ATOMIC_INC(ptr4);
+		shim_mb();
+	}
+}
+#endif
+
 static void stress_misaligned_int64rd(uint8_t *buffer)
 {
 	register int i = MISALIGN_LOOPS;
@@ -178,6 +294,36 @@ static void stress_misaligned_int64wr(uint8_t *buffer)
 		shim_mb();
 	}
 }
+
+static void stress_misaligned_int64inc(uint8_t *buffer)
+{
+	register int i = MISALIGN_LOOPS;
+	volatile uint64_t *ptr1 = (uint64_t *)(buffer + 1);
+	volatile uint64_t *ptr2 = (uint64_t *)(buffer + 9);
+
+	while (--i) {
+		(*ptr1)++;
+		shim_mb();
+		(*ptr2)++;
+		shim_mb();
+	}
+}
+
+#if defined(ATOMIC_INC)
+static void stress_misaligned_int64atomic(uint8_t *buffer)
+{
+	register int i = MISALIGN_LOOPS;
+	volatile uint64_t *ptr1 = (uint64_t *)(buffer + 1);
+	volatile uint64_t *ptr2 = (uint64_t *)(buffer + 9);
+
+	while (--i) {
+		ATOMIC_INC(ptr1);
+		shim_mb();
+		ATOMIC_INC(ptr2);
+		shim_mb();
+	}
+}
+#endif
 
 #if defined(HAVE_INT128_T)
 
@@ -213,6 +359,31 @@ static void stress_misaligned_int128wr(uint8_t *buffer)
 		/* No need for shim_mb */
 	}
 }
+
+static void TARGET_CLONE_NO_SSE stress_misaligned_int128inc(uint8_t *buffer)
+{
+	register int i = MISALIGN_LOOPS;
+	volatile __uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
+
+	while (--i) {
+		(*ptr1)++;
+		/* No need for shim_mb */
+	}
+}
+
+#if defined(ATOMIC_INC) &&	\
+    !(defined(__SSE__) && defined(STRESS_ARCH_X86))
+static void stress_misaligned_int128atomic(uint8_t *buffer)
+{
+	register int i = MISALIGN_LOOPS;
+	volatile __uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
+
+	while (--i) {
+		ATOMIC_INC(ptr1);
+		shim_mb();
+	}
+}
+#endif
 #endif
 
 static void stress_misaligned_all(uint8_t *buffer);
@@ -221,13 +392,30 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ "all",	stress_misaligned_all,		false,	false },
 	{ "int16rd",	stress_misaligned_int16rd,	false,	false },
 	{ "int16wr",	stress_misaligned_int16wr,	false,	false },
+	{ "int16inc",	stress_misaligned_int16inc,	false,	false },
+#if defined(ATOMIC_INC)
+	{ "int16atomic",stress_misaligned_int16atomic,	false,	false },
+#endif
 	{ "int32rd",	stress_misaligned_int32rd,	false,	false },
 	{ "int32wr",	stress_misaligned_int32wr,	false,	false },
+	{ "int32inc",	stress_misaligned_int32inc,	false,	false },
+#if defined(ATOMIC_INC)
+	{ "int32atomic",stress_misaligned_int32atomic,	false,	false },
+#endif
 	{ "int64rd",	stress_misaligned_int64rd,	false,	false },
 	{ "int64wr",	stress_misaligned_int64wr,	false,	false },
+	{ "int64inc",	stress_misaligned_int64inc,	false,	false },
+#if defined(ATOMIC_INC)
+	{ "int64atomic",stress_misaligned_int64atomic,	false,	false },
+#endif
 #if defined(HAVE_INT128_T)
 	{ "int128rd",	stress_misaligned_int128rd,	false,	false },
 	{ "int128wr",	stress_misaligned_int128wr,	false,	false },
+	{ "int128inc",	stress_misaligned_int128inc,	false,	false },
+#if defined(ATOMIC_INC)	&&	\
+    !(defined(__SSE__) && defined(STRESS_ARCH_X86))
+	{ "int128atomic",stress_misaligned_int128atomic,false,	false },
+#endif
 #endif
 	{ NULL,         NULL,				false,	false }
 };
