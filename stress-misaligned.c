@@ -26,14 +26,6 @@
 
 #define MISALIGN_LOOPS		(65536)
 
-#if defined(HAVE_ATOMIC_ADD_FETCH) &&	\
-    defined(__ATOMIC_SEQ_CST)
-#if defined(ATOMIC_INC)
-#undef ATOMIC_INC
-#endif
-#define ATOMIC_INC(ptr) __atomic_add_fetch(ptr, 1, __ATOMIC_SEQ_CST);
-#endif
-
 static const stress_help_t help[] = {
 	{ NULL,	"misaligned N",	   	"start N workers performing misaligned read/writes" },
 	{ NULL,	"misaligned-ops N",	"stop after N misaligned bogo operations" },
@@ -151,7 +143,8 @@ static void stress_misaligned_int16inc(uint8_t *buffer)
 	}
 }
 
-#if defined(ATOMIC_INC)
+#if defined(HAVE_ATOMIC_FETCH_ADD_2) &&	\
+    defined(__ATOMIC_SEQ_CST)
 static void stress_misaligned_int16atomic(uint8_t *buffer)
 {
 	register int i = MISALIGN_LOOPS;
@@ -165,21 +158,21 @@ static void stress_misaligned_int16atomic(uint8_t *buffer)
 	volatile uint16_t *ptr8 = (uint16_t *)(buffer + 15);
 
 	while (--i) {
-		ATOMIC_INC(ptr1);
+		__atomic_fetch_add_2(ptr1, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
-		ATOMIC_INC(ptr2);
+		__atomic_fetch_add_2(ptr2, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
-		ATOMIC_INC(ptr3);
+		__atomic_fetch_add_2(ptr3, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
-		ATOMIC_INC(ptr4);
+		__atomic_fetch_add_2(ptr4, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
-		ATOMIC_INC(ptr5);
+		__atomic_fetch_add_2(ptr5, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
-		ATOMIC_INC(ptr6);
+		__atomic_fetch_add_2(ptr6, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
-		ATOMIC_INC(ptr7);
+		__atomic_fetch_add_2(ptr7, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
-		ATOMIC_INC(ptr8);
+		__atomic_fetch_add_2(ptr8, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
 	}
 }
@@ -245,7 +238,8 @@ static void stress_misaligned_int32inc(uint8_t *buffer)
 	}
 }
 
-#if defined(ATOMIC_INC)
+#if defined(HAVE_ATOMIC_FETCH_ADD_4) &&	\
+    defined(__ATOMIC_SEQ_CST)
 static void stress_misaligned_int32atomic(uint8_t *buffer)
 {
 	register int i = MISALIGN_LOOPS;
@@ -255,13 +249,13 @@ static void stress_misaligned_int32atomic(uint8_t *buffer)
 	volatile uint32_t *ptr4 = (uint32_t *)(buffer + 13);
 
 	while (--i) {
-		ATOMIC_INC(ptr1);
+		__atomic_fetch_add_4(ptr1, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
-		ATOMIC_INC(ptr2);
+		__atomic_fetch_add_4(ptr2, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
-		ATOMIC_INC(ptr3);
+		__atomic_fetch_add_4(ptr3, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
-		ATOMIC_INC(ptr4);
+		__atomic_fetch_add_4(ptr4, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
 	}
 }
@@ -309,7 +303,8 @@ static void stress_misaligned_int64inc(uint8_t *buffer)
 	}
 }
 
-#if defined(ATOMIC_INC)
+#if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
+    defined(__ATOMIC_SEQ_CST)
 static void stress_misaligned_int64atomic(uint8_t *buffer)
 {
 	register int i = MISALIGN_LOOPS;
@@ -317,9 +312,9 @@ static void stress_misaligned_int64atomic(uint8_t *buffer)
 	volatile uint64_t *ptr2 = (uint64_t *)(buffer + 9);
 
 	while (--i) {
-		ATOMIC_INC(ptr1);
+		__atomic_fetch_add_8(ptr1, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
-		ATOMIC_INC(ptr2);
+		__atomic_fetch_add_8(ptr2, 1, __ATOMIC_SEQ_CST);
 		shim_mb();
 	}
 }
@@ -371,15 +366,19 @@ static void TARGET_CLONE_NO_SSE stress_misaligned_int128inc(uint8_t *buffer)
 	}
 }
 
-#if defined(ATOMIC_INC)
-static void TARGET_CLONE_NO_SSE stress_misaligned_int128atomic(uint8_t *buffer)
+#if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
+    defined(__ATOMIC_SEQ_CST)
+static void stress_misaligned_int128atomic(uint8_t *buffer)
 {
 	register int i = MISALIGN_LOOPS;
-	volatile __uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
+	volatile __uint64_t *ptr1 = (__uint64_t *)(buffer + 1);
 
 	while (--i) {
-		ATOMIC_INC(ptr1);
-		/* No need for shim_mb */
+		/* No add 16 variant, so do 2 x 8 adds for now */
+		__atomic_fetch_add_8(ptr1, 1, __ATOMIC_SEQ_CST);
+		shim_mb();
+		__atomic_fetch_add_8(ptr1 + 1, 1, __ATOMIC_SEQ_CST);
+		shim_mb();
 	}
 }
 #endif
@@ -392,28 +391,32 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ "int16rd",	stress_misaligned_int16rd,	false,	false },
 	{ "int16wr",	stress_misaligned_int16wr,	false,	false },
 	{ "int16inc",	stress_misaligned_int16inc,	false,	false },
-#if defined(ATOMIC_INC)
+#if defined(HAVE_ATOMIC_FETCH_ADD_2) &&	\
+    defined(__ATOMIC_SEQ_CST)
 	{ "int16atomic",stress_misaligned_int16atomic,	false,	false },
 #endif
 	{ "int32rd",	stress_misaligned_int32rd,	false,	false },
 	{ "int32wr",	stress_misaligned_int32wr,	false,	false },
 	{ "int32inc",	stress_misaligned_int32inc,	false,	false },
-#if defined(ATOMIC_INC)
+#if defined(HAVE_ATOMIC_FETCH_ADD_4) &&	\
+    defined(__ATOMIC_SEQ_CST)
 	{ "int32atomic",stress_misaligned_int32atomic,	false,	false },
 #endif
 	{ "int64rd",	stress_misaligned_int64rd,	false,	false },
 	{ "int64wr",	stress_misaligned_int64wr,	false,	false },
 	{ "int64inc",	stress_misaligned_int64inc,	false,	false },
-#if defined(ATOMIC_INC)
+#if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
+    defined(__ATOMIC_SEQ_CST)
 	{ "int64atomic",stress_misaligned_int64atomic,	false,	false },
 #endif
 #if defined(HAVE_INT128_T)
 	{ "int128rd",	stress_misaligned_int128rd,	false,	false },
 	{ "int128wr",	stress_misaligned_int128wr,	false,	false },
 	{ "int128inc",	stress_misaligned_int128inc,	false,	false },
-#if defined(ATOMIC_INC)
-	{ "int128atomic",stress_misaligned_int128atomic,false,	false },
 #endif
+#if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
+    defined(__ATOMIC_SEQ_CST)
+	{ "int128tomic",stress_misaligned_int128atomic,	false,	false },
 #endif
 	{ NULL,         NULL,				false,	false }
 };
