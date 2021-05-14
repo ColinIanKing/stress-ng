@@ -509,19 +509,32 @@ stop the atomic workers after N bogo atomic operations.
 .TP
 .B \-\-bad\-altstack N
 start N workers that create broken alternative signal stacks for SIGSEGV
-handling that in turn create secondary SIGSEGVs. A variety of randonly
-selected methods are used to create the stacks:
+and SIGBUS handling that in turn create secondary SIGSEGV/SIGBUS errors.
+A variety of randonly selected nefarious methods are used to create the stacks:
+.PP
 .RS
-.IP a)
+.PD 0
+.IP \(bu 2
 Unmapping the alternative signal stack, before triggering the signal handling.
-.IP b)
+.IP \(bu 2
 Changing the alternative signal stack to just being read only, write only, execute only.
-.IP c)
+.IP \(bu 2
 Using a NULL alternative signal stack.
-.IP d)
+.IP \(bu 2
 Using the signal handler object as the alternative signal stack.
-.IP e)
+.IP \(bu 2
 Unmapping the alternative signal stack during execution of the signal handler.
+.IP \(bu 2
+Using a read-only text segment for the alternative signal stack.
+.IP \(bu 2
+Using an undersized alternative signal stack.
+.IP \(bu 2
+Using the VDSO as an alternative signal stack.
+.IP \(bu 2
+Using an alternative stack mapped onto /dev/zero.
+.IP \(bu 2
+Using an alternative stack mapped to a zero sized temporary file to generate a SIGBUS error.
+.PD
 .RE
 .TP
 .B \-\-bad\-altstack\-ops N
