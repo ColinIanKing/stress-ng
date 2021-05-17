@@ -22,8 +22,8 @@
  * functionality.
  *
  */
-#ifndef __STRESS_NG_H__
-#define __STRESS_NG_H__
+#ifndef STRESS_NG_H
+#define STRESS_NG_H
 
 #define _GNU_SOURCE
 #define _ATFILE_SOURCE
