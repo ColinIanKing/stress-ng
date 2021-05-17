@@ -99,21 +99,21 @@ static uint64_t stress_size_to_bytes(const char *str)
 	uint64_t            multiplier;
 	unsigned long int   value;
 	int                 ret;
-	char               *s;
+	char                sz;
 
 	if (!str) {
 		pr_dbg("%s: empty string specified\n", __func__);
 		return 0;
 	}
 
-	ret = sscanf(str, "%lu%ms", &value, &s);
-	if ((ret != 2) || !s) {
+	ret = sscanf(str, "%lu%c", &value, &sz);
+	if (ret != 2) {
 		pr_dbg("%s: failed to parse suffix from \"%s\"\n",
 			__func__, str);
 		return 0;
 	}
 
-	switch (*s) {
+	switch (sz) {
 	case 'B':
 		multiplier = 1;
 		break;
@@ -127,15 +127,13 @@ static uint64_t stress_size_to_bytes(const char *str)
 		multiplier = GB;
 		break;
 	default:
-		pr_err("unable to convert string to bytes: %s\n", str);
+		pr_err("unable to convert '%c' size to bytes\n", sz);
 		bytes = 0;
 		goto out;
 	}
 
 	bytes = value * multiplier;
-
 out:
-	free(s);
 	return bytes;
 }
 
