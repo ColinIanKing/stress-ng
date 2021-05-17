@@ -318,7 +318,6 @@ static int stress_get_cpu_cache_value(
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) == 0) {
 		if (sscanf(tmp, "%" SCNu64, value) == 1)
 			return 0;
-		return 0;
 	}
 	return -1;
 }
