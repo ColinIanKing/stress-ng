@@ -316,7 +316,8 @@ static int stress_get_cpu_cache_value(
 
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, file);
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) == 0) {
-		*value = atoi(tmp);
+		if (sscanf(tmp, "%" SCNu64, value) == 1)
+			return 0;
 		return 0;
 	}
 	return -1;
