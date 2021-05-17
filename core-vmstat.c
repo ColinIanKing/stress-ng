@@ -24,8 +24,8 @@
  */
 #include "stress-ng.h"
 
-int32_t vmstat_delay = 0;
-int32_t thermalstat_delay = 0;
+static int32_t vmstat_delay = 0;
+static int32_t thermalstat_delay = 0;
 
 int stress_set_vmstat(const char *const opt)
 {
