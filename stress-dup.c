@@ -368,14 +368,15 @@ tidy_fds:
 	(void)close(fds[0]);
 
 #if defined(STRESS_DUP2_RACE)
-	if (info != MAP_FAILED)
+	if (info != MAP_FAILED) {
+		if (info->fifoname[0])
+			(void)unlink(info->fifoname);
 		(void)stress_temp_dir_rm_args(args);
+	}
 
 tidy_mmap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (info != MAP_FAILED) {
-		if (info->fifoname[0])
-			(void)unlink(info->fifoname);
 		pr_dbg("%s: dup2: %" PRIu64 " races from %" PRIu64 " attempts (%.2f%%)\n",
 			args->name, info->race_count, info->try_count,
 			info->try_count > 0 ?
