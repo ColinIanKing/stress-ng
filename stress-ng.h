@@ -3863,7 +3863,7 @@ static inline void ALWAYS_INLINE stress_double_put(const double a)
  *  stress_long_double_put()
  *	stash a double value
  */
-static inline void ALWAYS_INLINE stress_long_double_put(const double a)
+static inline void ALWAYS_INLINE stress_long_double_put(const long double a)
 {
 	g_put_val.long_double_val = a;
 }
