@@ -34,8 +34,10 @@ static const stress_help_t help[] = {
 
 #define NUM_MEM_RETRIES_MAX	(256)
 #define NUM_POISON_MAX		(2)
-#define NUM_SOFT_OFFLINE_MAX	(2)
 #define NUM_PTHREADS		(8)
+#if defined(MADV_SOFT_OFFLINE)
+#define NUM_SOFT_OFFLINE_MAX	(2)
+#endif
 
 typedef struct madvise_ctxt {
 	const stress_args_t *args;
