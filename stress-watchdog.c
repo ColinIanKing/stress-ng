@@ -77,7 +77,7 @@ static void stress_watchdog_magic_close(void)
 	 *  where writing "V" will forcefully disable the watchdog
 	 */
 	if (fd >= 0) {
-		int ret;
+		ssize_t ret;
 
 		ret = write(fd, "V", 1);
 		(void)ret;
