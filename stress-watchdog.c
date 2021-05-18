@@ -84,7 +84,7 @@ static void stress_watchdog_magic_close(void)
 	}
 }
 
-static void MLOCKED_TEXT stress_watchdog_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_watchdog_handler(int signum)
 {
 	(void)signum;
 
