@@ -62,7 +62,7 @@ static int stress_bad_ioctl_supported(const char *name)
 	return 0;
 }
 
-static void MLOCKED_TEXT stress_segv_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_segv_handler(int signum)
 {
 	(void)signum;
 
