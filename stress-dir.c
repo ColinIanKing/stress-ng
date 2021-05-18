@@ -49,6 +49,12 @@ static int stress_set_dir_dirs(const char *opt)
 #define d_reclen d_namlen
 #endif
 
+#if defined(HAVE_MODE_T)
+typedef mode_t	shim_mode_t;
+#else
+typedef int	shim_mode_t;
+#endif
+
 /*
  *  stress_dir_sync()
  *	attempt to sync a directory
@@ -194,9 +200,9 @@ static int stress_mkdir(const int dirfd, const char *path, const int mode)
 		(void)shim_strlcpy(tmp, path, sizeof(tmp));
 		filename = basename(tmp);
 
-		ret = mkdirat(dirfd, filename, mode);
+		ret = mkdirat(dirfd, filename, (shim_mode_t)mode);
 	} else {
-		ret = mkdir(path, mode);
+		ret = mkdir(path, (shim_mode_t)mode);
 	}
 #else
 	ret = mkdir(path, mode);
