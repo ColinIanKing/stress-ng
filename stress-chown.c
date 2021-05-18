@@ -45,24 +45,24 @@ static int do_fchown(
 
 	if (fchown(fd, uid, gid) < 0)
 		return -errno;
-	if (fchown(fd, -1, gid) < 0)
+	if (fchown(fd, (uid_t)-1, gid) < 0)
 		return -errno;
-	if (fchown(fd, uid, -1) < 0)
+	if (fchown(fd, uid, (gid_t)-1) < 0)
 		return -errno;
-	if (fchown(fd, -1, -1) < 0)
+	if (fchown(fd, (uid_t)-1, (gid_t)-1) < 0)
 		return -errno;
 
 	if (cap_chown)
 		return 0;
-	if (fchown(fd, 0, 0) == 0)
+	if (fchown(fd, (uid_t)0, (gid_t)0) == 0)
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
-	if ((fchown(fd, -1, 0) == 0) && (errno != EPERM))
+	if ((fchown(fd, (uid_t)-1, (gid_t)0) == 0) && (errno != EPERM))
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
-	if (fchown(fd, 0, -1) == 0)
+	if (fchown(fd, (uid_t)0, (gid_t)-1) == 0)
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
@@ -98,24 +98,24 @@ static int do_chown(
 
 	if (chown_func(filename, uid, gid) < 0)
 		return -errno;
-	if (chown_func(filename, -1, gid) < 0)
+	if (chown_func(filename, (uid_t)-1, gid) < 0)
 		return -errno;
-	if (chown_func(filename, uid, -1) < 0)
+	if (chown_func(filename, uid, (gid_t)-1) < 0)
 		return -errno;
-	if (chown_func(filename, -1, -1) < 0)
+	if (chown_func(filename, (uid_t)-1, (gid_t)-1) < 0)
 		return -errno;
 
 	if (cap_chown)
 		return 0;
-	if (chown_func(filename, 0, 0) == 0)
+	if (chown_func(filename, (uid_t)0, (gid_t)0) == 0)
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
-	if ((chown_func(filename, -1, 0) == 0) && (errno != EPERM))
+	if ((chown_func(filename, (uid_t)-1, (gid_t)0) == 0) && (errno != EPERM))
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
-	if (chown_func(filename, 0, -1) == 0)
+	if (chown_func(filename, (uid_t)0, (gid_t)-1) == 0)
 		goto restore;
 	if (errno != EPERM)
 		goto restore;
