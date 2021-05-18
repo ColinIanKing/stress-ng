@@ -57,9 +57,13 @@ struct shim_kcmp_epoll_slot {
 };
 #endif
 
+#define SHIM_KCMP(pid1, pid2, type, idx1, idx2)				\
+	(int)shim_kcmp((pid_t)pid1, (pid_t)pid2, (int)type,		\
+		  (unsigned long)idx1, (unsigned long)idx2)		\
+
 #define KCMP(pid1, pid2, type, idx1, idx2)				\
 do {									\
-	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);		\
+	int rc = SHIM_KCMP(pid1, pid2, type, idx1, idx2);		\
 									\
 	if (rc < 0) {	 						\
 		if (errno == EPERM) {					\
@@ -77,7 +81,7 @@ do {									\
 
 #define KCMP_VERIFY(pid1, pid2, type, idx1, idx2, res)			\
 do {									\
-	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);		\
+	int rc = SHIM_KCMP(pid1, pid2, type, idx1, idx2);		\
 									\
 	if (rc != res) {						\
 		if (rc < 0) {						\
@@ -295,10 +299,10 @@ again:
 			 *  Exercise kcmp with some invalid calls to
 			 *  get more kernel error handling coverage
 			 */
-			(void)shim_kcmp(pid1, pid2, 0x7fffffff, 0, 0);
-			(void)shim_kcmp(pid1, pid2, SHIM_KCMP_FILE, bad_fd, fd1);
+			(void)SHIM_KCMP(pid1, pid2, 0x7fffffff, 0, 0);
+			(void)SHIM_KCMP(pid1, pid2, SHIM_KCMP_FILE, bad_fd, fd1);
 			if (!is_root)
-				(void)shim_kcmp(1, pid2, SHIM_KCMP_SIGHAND, 0, 0);
+				(void)SHIM_KCMP(1, pid2, SHIM_KCMP_SIGHAND, 0, 0);
 
 			inc_counter(args);
 		} while (keep_stressing(args));
