@@ -3305,7 +3305,7 @@ static void limit_procs(const unsigned long procs)
 #endif
 }
 
-static void MLOCKED_TEXT stress_badhandler(int signum)
+static void NORETURN MLOCKED_TEXT stress_badhandler(int signum)
 {
 	(void)signum;
 	_exit(1);
