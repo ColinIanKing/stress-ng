@@ -135,7 +135,7 @@ static void stress_dirdeep_make(
 	(void)ret;
 
 	for (i = 0; keep_stressing(args) && (i < dirdeep_dirs); i++) {
-		path[len + 1] = '0' + i;
+		path[len + 1] = (char)('0' + i);
 		stress_dirdeep_make(args, linkpath, path, len + 2,
 				path_len, dirdeep_dirs, dirdeep_inodes,
 				inodes_target_free, min_inodes_free,
