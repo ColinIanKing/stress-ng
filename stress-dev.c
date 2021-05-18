@@ -126,7 +126,7 @@ static void ioctl_clr_timeout(void)
  *	time without any commas
  */
 #define IOCTL_TIMEOUT(secs, code, action)		\
-{							\
+do {							\
 	static bool timed_out_ = false;			\
 	double timeout_t_ = stress_time_now();		\
 							\
@@ -139,7 +139,7 @@ static void ioctl_clr_timeout(void)
 		timed_out_ = true;			\
 		action;					\
 	}						\
-}
+} while (0)
 
 /*
  *  linux_xen_guest()
