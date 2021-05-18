@@ -210,7 +210,7 @@ vfork_again:
 		g_opt_flags &= ~OPT_FLAGS_OOMABLE;
 		stress_set_oom_adjustment(args->name, false);
 
-		(void)sleep(g_opt_timeout);
+		(void)sleep((unsigned int)g_opt_timeout);
 		*terminate = true;
 
 		for (;;) {
