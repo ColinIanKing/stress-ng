@@ -58,13 +58,13 @@ struct shim_kcmp_epoll_slot {
 #endif
 
 #define KCMP(pid1, pid2, type, idx1, idx2)				\
-{									\
+do {									\
 	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);		\
 									\
 	if (rc < 0) {	 						\
 		if (errno == EPERM) {					\
 			pr_inf("%s: %s", capfail, args->name);		\
-			break;						\
+			goto reap;					\
 		}							\
 		if ((errno != EINVAL) && (errno != ENOSYS))		\
 			pr_fail("%s kcmp " # type " failed, "		\
@@ -72,18 +72,18 @@ struct shim_kcmp_epoll_slot {
 				errno, strerror(errno));		\
 	}								\
 	if (!keep_stressing_flag())					\
-		break;							\
-}
+		goto reap;						\
+} while (0)
 
 #define KCMP_VERIFY(pid1, pid2, type, idx1, idx2, res)			\
-{									\
+do {									\
 	int rc = shim_kcmp(pid1, pid2, type, idx1, idx2);		\
 									\
 	if (rc != res) {						\
 		if (rc < 0) {						\
 			if (errno == EPERM) {				\
 				pr_inf("%s: %s", capfail, args->name);	\
-				break;					\
+				goto reap;				\
 			}						\
 			if ((errno != EINVAL) && (errno != ENOSYS))	\
 				pr_fail("%s kcmp " # type " failed, "	\
@@ -96,8 +96,8 @@ struct shim_kcmp_epoll_slot {
 		}							\
 	}								\
 	if (!keep_stressing_flag())					\
-		break;							\
-}
+		goto reap;						\
+} while (0)
 
 /*
  *  stress_kcmp
