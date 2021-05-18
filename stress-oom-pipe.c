@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
     defined(F_SETFL)
 
 typedef struct {
-	int max_fd;
+	size_t max_fd;
 	size_t max_pipe_size;
 } stress_oom_pipe_context_t;
 
@@ -43,9 +43,9 @@ typedef struct {
  *  pipe_empty()
  *	read data from read end of pipe
  */
-static void pipe_empty(const int fd, const int max, const size_t page_size)
+static void pipe_empty(const int fd, const size_t max, const size_t page_size)
 {
-	int i;
+	size_t i;
 
 	for (i = 0; i < max; i += page_size) {
 		ssize_t ret;
@@ -82,11 +82,11 @@ static void pipe_fill(
 static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 {
 	stress_oom_pipe_context_t *context = (stress_oom_pipe_context_t *)ctxt;
-	const int max_pipes = context->max_fd / 2;
+	const size_t max_pipes = context->max_fd / 2;
 	const size_t page_size = args->page_size;
 
-	/* Child */
-	int fds[max_pipes * 2], *fd, i, pipes_open = 0, ret;
+	size_t i;
+	int fds[max_pipes * 2], *fd, pipes_open = 0, ret;
 	const bool aggressive = (g_opt_flags & OPT_FLAGS_AGGRESSIVE);
 	const size_t buffer_size = page_size;
 	char *buffer;
