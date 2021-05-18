@@ -61,7 +61,7 @@ static stress_clone_list_t clones;
 /*
  *  A random selection of clone flags that are worth exercising
  */
-static const int flags[] = {
+static const uint64_t flags[] = {
 	0,
 #if defined(CLONE_FILES)
 	CLONE_FILES,
@@ -114,7 +114,7 @@ static const int flags[] = {
 #endif
 };
 
-static const int unshare_flags[] = {
+static const uint64_t unshare_flags[] = {
 #if defined(CLONE_FILES)
 	CLONE_FILES,
 #endif
@@ -210,7 +210,7 @@ static void stress_clone_head_remove(void)
 		int status;
 		stress_clone_t *head = clones.head;
 
-		(void)waitpid(clones.head->pid, &status, __WCLONE);
+		(void)waitpid(clones.head->pid, &status, (int)__WCLONE);
 
 		if (clones.tail == clones.head) {
 			clones.tail = NULL;
@@ -247,6 +247,18 @@ static void stress_clone_free(void)
 	}
 }
 
+#if defined(HAVE_MODIFY_LDT) &&	\
+     defined(__NR_modify_ldt)
+/*
+ *  shim_modify_ldt()
+ *	system call wrapper for modify_ldt()
+ */
+static int shim_modify_ldt(int func, void *ptr, unsigned long bytecount)
+{
+	return (int)syscall(__NR_modify_ldt, func, ptr, bytecount);
+}
+#endif
+
 /*
  *  clone_func()
  *	clone thread just returns immediately
@@ -282,36 +294,29 @@ static int clone_func(void *arg)
 	}
 #endif
 
-#if defined(HAVE_MODIFY_LDT)
+#if defined(HAVE_MODIFY_LDT) &&	\
+    defined(__NR_modify_ldt)
 	{
 		struct user_desc ud;
-		int ret;
 
 		(void)memset(&ud, 0, sizeof(ud));
-		ret = syscall(__NR_modify_ldt, 0, &ud, sizeof(ud));
-		if (ret == 0) {
-			ret = syscall(__NR_modify_ldt, 1, &ud, sizeof(ud));
-			(void)ret;
-		}
+		if (shim_modify_ldt(0, &ud, sizeof(ud)) == 0)
+			(void)shim_modify_ldt(1, &ud, sizeof(ud));
 
 		(void)memset(&ud, 0, sizeof(ud));
-		ret = syscall(__NR_modify_ldt, 0, &ud, sizeof(ud));
-		if (ret == 0) {
+		if (shim_modify_ldt(0, &ud, sizeof(ud)) == 0) {
 			/* Old mode style */
-			ret = syscall(__NR_modify_ldt, 0x11, &ud, sizeof(ud));
-			(void)ret;
+			(void)shim_modify_ldt(0x11, &ud, sizeof(ud));
 		}
 		(void)memset(&ud, 0, sizeof(ud));
-		ret = syscall(__NR_modify_ldt, 2, &ud, sizeof(ud));
-		(void)ret;
+		(void)shim_modify_ldt(2, &ud, sizeof(ud));
 
 		/* Exercise invalid command */
-		ret = syscall(__NR_modify_ldt, 0xff, &ud, sizeof(ud));
-		(void)ret;
+		(void)shim_modify_ldt(0xff, &ud, sizeof(ud));
 	}
 #endif
 	for (i = 0; i < SIZEOF_ARRAY(unshare_flags); i++) {
-		(void)shim_unshare(unshare_flags[i]);
+		(void)shim_unshare((int)unshare_flags[i]);
 	}
 
 	return 0;
@@ -353,7 +358,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 			stress_clone_t *clone_info;
 			stress_clone_args_t clone_arg = { args };
 			const uint32_t rnd = stress_mwc32();
-			const int flag = flags[rnd % SIZEOF_ARRAY(flags)];	/* cppcheck-suppress moduloofone */
+			const uint64_t flag = flags[rnd % SIZEOF_ARRAY(flags)];	/* cppcheck-suppress moduloofone */
 			const bool try_clone3 = rnd >> 31;
 			pid_t child_tid = -1, parent_tid = -1;
 
@@ -390,10 +395,10 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 #if defined(__FreeBSD_kernel__) || 	\
     defined(__NetBSD__)
 				clone_info->pid = clone(clone_func,
-					stress_align_stack(stack_top), flag, &clone_arg);
+					stress_align_stack(stack_top), (int)flag, &clone_arg);
 #else
 				clone_info->pid = clone(clone_func,
-					stress_align_stack(stack_top), flag, &clone_arg, &parent_tid,
+					stress_align_stack(stack_top), (int)flag, &clone_arg, &parent_tid,
 					NULL, &child_tid);
 #endif
 			}
