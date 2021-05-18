@@ -24,7 +24,6 @@
  */
 #include "stress-ng.h"
 
-#define STACK_SIZE      (16384)
 #define WASTE_SIZE	(64 * MB)
 
 static const stress_help_t help[] = {
