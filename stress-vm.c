@@ -1915,7 +1915,7 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 	if (errors) {
 		bit_errors += errors;
 		pr_dbg("stress-vm: rowhammer: %zu errors on addresses "
-			"%p and %p\n", errors, addr0, addr1);
+			"%p and %p\n", errors, (volatile void *)addr0, (volatile void *)addr1);
 	}
 	add_counter(args, VM_ROWHAMMER_LOOPS);
 	val = (val >> 31) | (val << 1);
