@@ -91,7 +91,7 @@ static const mode_t modes[] = {
 static int do_fchmod(
 	const int fd,
 	const int bad_fd,
-	const int i,
+	const size_t i,
 	const mode_t mask,
 	const mode_t all_mask)
 {
