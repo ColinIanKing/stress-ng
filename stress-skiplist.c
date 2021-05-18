@@ -25,7 +25,7 @@
 #include "stress-ng.h"
 
 typedef struct skip_node {
-	int value;
+	unsigned long value;
 	struct skip_node *skip_nodes[1];
 } skip_node_t;
 
@@ -111,7 +111,7 @@ static skip_list_t *skip_list_init(skip_list_t *list, const size_t max_level)
  *  skip_list_insert()
  *	insert a value into the skiplist
  */
-static skip_node_t *skip_list_insert(skip_list_t *list, const int value)
+static skip_node_t *skip_list_insert(skip_list_t *list, const unsigned long value)
 {
 	skip_node_t *skip_nodes[list->max_level + 1];
 	skip_node_t *skip_node = list->head;
@@ -153,7 +153,7 @@ static skip_node_t *skip_list_insert(skip_list_t *list, const int value)
  *  skip_list_search()
  *	search the skiplist for a specific value
  */
-static skip_node_t *skip_list_search(skip_list_t *list, const int value)
+static skip_node_t *skip_list_search(skip_list_t *list, const unsigned long value)
 {
 	skip_node_t *skip_node = list->head;
 	register size_t i;
@@ -169,9 +169,9 @@ static skip_node_t *skip_list_search(skip_list_t *list, const int value)
  *  skip_list_ln2()
  *	compute maximum skiplist level
  */
-static size_t skip_list_ln2(size_t n)
+static inline unsigned long skip_list_ln2(unsigned long n)
 {
-	size_t i = 0;
+	register unsigned long i = 0;
 
 	while (n) {
 		i++;
@@ -205,7 +205,7 @@ static void skip_list_free(skip_list_t *list)
  */
 static int stress_skiplist(const stress_args_t *args)
 {
-	size_t n, i, ln2n;
+	unsigned long n, i, ln2n;
 	uint64_t skiplist_size = 1024;
 
 	if (!stress_get_setting("skiplist-size", &skiplist_size)) {
@@ -214,7 +214,7 @@ static int stress_skiplist(const stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			skiplist_size = MIN_SKIPLIST_SIZE;
 	}
-	n = (size_t)skiplist_size;
+	n = (unsigned long)skiplist_size;
 	ln2n = skip_list_ln2(n);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -229,7 +229,7 @@ static int stress_skiplist(const stress_args_t *args)
 		}
 
 		for (i = 0; i < n; i++) {
-			int v = (i >> 1) ^ i;
+			unsigned long v = (i >> 1) ^ i;
 
 			if (!skip_list_insert(&list, v)) {
 				pr_inf("%s: out of memory initializing the skip list\n",
@@ -239,10 +239,10 @@ static int stress_skiplist(const stress_args_t *args)
 		}
 
 		for (i = 0; i < n; i++) {
-			int v = (i >> 1) ^ i;
+			unsigned long v = (i >> 1) ^ i;
 
 			if (!skip_list_search(&list, v))
-				pr_fail("%s node containing value %d was not found\n",
+				pr_fail("%s node containing value %lu was not found\n",
 					args->name, v);
 		}
 		skip_list_free(&list);
