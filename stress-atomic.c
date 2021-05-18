@@ -24,74 +24,74 @@
  */
 #include "stress-ng.h"
 
-#define DO_ATOMIC_OPS(type, var)			\
-{							\
-	type tmp = stress_mwc64();			\
-							\
-	__atomic_store(var, &tmp, __ATOMIC_RELAXED); 	\
-	__atomic_load(var, &tmp, __ATOMIC_RELAXED);	\
-	__atomic_load(var, &tmp, __ATOMIC_ACQUIRE);	\
-	__atomic_add_fetch(var, 1, __ATOMIC_RELAXED);	\
-	__atomic_add_fetch(var, 2, __ATOMIC_ACQUIRE);	\
-	__atomic_sub_fetch(var, 3, __ATOMIC_RELAXED);	\
-	__atomic_sub_fetch(var, 4, __ATOMIC_ACQUIRE);	\
-	__atomic_and_fetch(var, ~1, __ATOMIC_RELAXED);	\
-	__atomic_and_fetch(var, ~2, __ATOMIC_ACQUIRE);	\
-	__atomic_xor_fetch(var, ~4, __ATOMIC_RELAXED);	\
-	__atomic_xor_fetch(var, ~8, __ATOMIC_ACQUIRE);	\
-	__atomic_or_fetch(var, 16, __ATOMIC_RELAXED);	\
-	__atomic_or_fetch(var, 32, __ATOMIC_ACQUIRE);	\
-	__atomic_nand_fetch(var, 64, __ATOMIC_RELAXED);	\
-	__atomic_nand_fetch(var, 128, __ATOMIC_ACQUIRE);\
-	__atomic_clear(var, __ATOMIC_RELAXED);		\
-							\
-	__atomic_store(var, &tmp, __ATOMIC_RELAXED); 	\
-	__atomic_fetch_add(var, 1, __ATOMIC_RELAXED);	\
-	__atomic_fetch_add(var, 2, __ATOMIC_ACQUIRE);	\
-	__atomic_fetch_sub(var, 3, __ATOMIC_RELAXED);	\
-	__atomic_fetch_sub(var, 4, __ATOMIC_ACQUIRE);	\
-	__atomic_fetch_and(var, ~1, __ATOMIC_RELAXED);	\
-	__atomic_fetch_and(var, ~2, __ATOMIC_ACQUIRE);	\
-	__atomic_fetch_xor(var, ~4, __ATOMIC_RELAXED);	\
-	__atomic_fetch_xor(var, ~8, __ATOMIC_ACQUIRE);	\
-	__atomic_fetch_or(var, 16, __ATOMIC_RELAXED);	\
-	__atomic_fetch_or(var, 32, __ATOMIC_ACQUIRE);	\
-	__atomic_fetch_nand(var, 64, __ATOMIC_RELAXED);	\
-	__atomic_fetch_nand(var, 128, __ATOMIC_ACQUIRE);\
-	__atomic_clear(var, __ATOMIC_RELAXED);		\
-							\
-	__atomic_store(var, &tmp, __ATOMIC_RELAXED); 	\
-	__atomic_load(var, &tmp, __ATOMIC_RELAXED);	\
-	__atomic_add_fetch(var, 1, __ATOMIC_RELAXED);	\
-	__atomic_sub_fetch(var, 3, __ATOMIC_RELAXED);	\
-	__atomic_and_fetch(var, ~1, __ATOMIC_RELAXED);	\
-	__atomic_xor_fetch(var, ~4, __ATOMIC_RELAXED);	\
-	__atomic_or_fetch(var, 16, __ATOMIC_RELAXED);	\
-	__atomic_nand_fetch(var, 64, __ATOMIC_RELAXED);	\
-	__atomic_load(var, &tmp, __ATOMIC_ACQUIRE);	\
-	__atomic_add_fetch(var, 2, __ATOMIC_ACQUIRE);	\
-	__atomic_sub_fetch(var, 4, __ATOMIC_ACQUIRE);	\
-	__atomic_and_fetch(var, ~2, __ATOMIC_ACQUIRE);	\
-	__atomic_xor_fetch(var, ~8, __ATOMIC_ACQUIRE);	\
-	__atomic_or_fetch(var, 32, __ATOMIC_ACQUIRE);	\
-	__atomic_nand_fetch(var, 128, __ATOMIC_ACQUIRE);\
-	__atomic_clear(var, __ATOMIC_RELAXED);		\
-							\
-	__atomic_store(var, &tmp, __ATOMIC_RELAXED); 	\
-	__atomic_fetch_add(var, 1, __ATOMIC_RELAXED);	\
-	__atomic_fetch_sub(var, 3, __ATOMIC_RELAXED);	\
-	__atomic_fetch_and(var, ~1, __ATOMIC_RELAXED);	\
-	__atomic_fetch_xor(var, ~4, __ATOMIC_RELAXED);	\
-	__atomic_fetch_or(var, 16, __ATOMIC_RELAXED);	\
-	__atomic_fetch_nand(var, 64, __ATOMIC_RELAXED);	\
-	__atomic_fetch_add(var, 2, __ATOMIC_ACQUIRE);	\
-	__atomic_fetch_sub(var, 4, __ATOMIC_ACQUIRE);	\
-	__atomic_fetch_and(var, ~2, __ATOMIC_ACQUIRE);	\
-	__atomic_fetch_xor(var, ~8, __ATOMIC_ACQUIRE);	\
-	__atomic_fetch_or(var, 32, __ATOMIC_ACQUIRE);	\
-	__atomic_fetch_nand(var, 128, __ATOMIC_ACQUIRE);\
-	__atomic_clear(var, __ATOMIC_RELAXED);		\
-}
+#define DO_ATOMIC_OPS(type, var)				\
+do {								\
+	type tmp = (type)stress_mwc64();			\
+								\
+	__atomic_store(var, &tmp, __ATOMIC_RELAXED); 		\
+	__atomic_load(var, &tmp, __ATOMIC_RELAXED);		\
+	__atomic_load(var, &tmp, __ATOMIC_ACQUIRE);		\
+	__atomic_add_fetch(var, (type)1, __ATOMIC_RELAXED);	\
+	__atomic_add_fetch(var, (type)2, __ATOMIC_ACQUIRE);	\
+	__atomic_sub_fetch(var, (type)3, __ATOMIC_RELAXED);	\
+	__atomic_sub_fetch(var, (type)4, __ATOMIC_ACQUIRE);	\
+	__atomic_and_fetch(var, (type)~1, __ATOMIC_RELAXED);	\
+	__atomic_and_fetch(var, (type)~2, __ATOMIC_ACQUIRE);	\
+	__atomic_xor_fetch(var, (type)~4, __ATOMIC_RELAXED);	\
+	__atomic_xor_fetch(var, (type)~8, __ATOMIC_ACQUIRE);	\
+	__atomic_or_fetch(var, (type)16, __ATOMIC_RELAXED);	\
+	__atomic_or_fetch(var, (type)32, __ATOMIC_ACQUIRE);	\
+	__atomic_nand_fetch(var, (type)64, __ATOMIC_RELAXED);	\
+	__atomic_nand_fetch(var, (type)128, __ATOMIC_ACQUIRE);	\
+	__atomic_clear(var, __ATOMIC_RELAXED);			\
+								\
+	__atomic_store(var, &tmp, __ATOMIC_RELAXED); 		\
+	__atomic_fetch_add(var, (type)1, __ATOMIC_RELAXED);	\
+	__atomic_fetch_add(var, (type)2, __ATOMIC_ACQUIRE);	\
+	__atomic_fetch_sub(var, (type)3, __ATOMIC_RELAXED);	\
+	__atomic_fetch_sub(var, (type)4, __ATOMIC_ACQUIRE);	\
+	__atomic_fetch_and(var, (type)~1, __ATOMIC_RELAXED);	\
+	__atomic_fetch_and(var, (type)~2, __ATOMIC_ACQUIRE);	\
+	__atomic_fetch_xor(var, (type)~4, __ATOMIC_RELAXED);	\
+	__atomic_fetch_xor(var, (type)~8, __ATOMIC_ACQUIRE);	\
+	__atomic_fetch_or(var, (type)16, __ATOMIC_RELAXED);	\
+	__atomic_fetch_or(var, (type)32, __ATOMIC_ACQUIRE);	\
+	__atomic_fetch_nand(var, (type)64, __ATOMIC_RELAXED);	\
+	__atomic_fetch_nand(var, (type)128, __ATOMIC_ACQUIRE);	\
+	__atomic_clear(var, __ATOMIC_RELAXED);			\
+								\
+	__atomic_store(var, &tmp, __ATOMIC_RELAXED); 		\
+	__atomic_load(var, &tmp, __ATOMIC_RELAXED);		\
+	__atomic_add_fetch(var, (type)1, __ATOMIC_RELAXED);	\
+	__atomic_sub_fetch(var, (type)3, __ATOMIC_RELAXED);	\
+	__atomic_and_fetch(var, (type)~1, __ATOMIC_RELAXED);	\
+	__atomic_xor_fetch(var, (type)~4, __ATOMIC_RELAXED);	\
+	__atomic_or_fetch(var, (type)16, __ATOMIC_RELAXED);	\
+	__atomic_nand_fetch(var, (type)64, __ATOMIC_RELAXED);	\
+	__atomic_load(var, &tmp, __ATOMIC_ACQUIRE);		\
+	__atomic_add_fetch(var, (type)2, __ATOMIC_ACQUIRE);	\
+	__atomic_sub_fetch(var, (type)4, __ATOMIC_ACQUIRE);	\
+	__atomic_and_fetch(var, (type)~2, __ATOMIC_ACQUIRE);	\
+	__atomic_xor_fetch(var, (type)~8, __ATOMIC_ACQUIRE);	\
+	__atomic_or_fetch(var, (type)32, __ATOMIC_ACQUIRE);	\
+	__atomic_nand_fetch(var, (type)128, __ATOMIC_ACQUIRE);	\
+	__atomic_clear(var, __ATOMIC_RELAXED);			\
+								\
+	__atomic_store(var, &tmp, __ATOMIC_RELAXED); 		\
+	__atomic_fetch_add(var, (type)1, __ATOMIC_RELAXED);	\
+	__atomic_fetch_sub(var, (type)3, __ATOMIC_RELAXED);	\
+	__atomic_fetch_and(var, (type)~1, __ATOMIC_RELAXED);	\
+	__atomic_fetch_xor(var, (type)~4, __ATOMIC_RELAXED);	\
+	__atomic_fetch_or(var, (type)16, __ATOMIC_RELAXED);	\
+	__atomic_fetch_nand(var, (type)64, __ATOMIC_RELAXED);	\
+	__atomic_fetch_add(var, (type)2, __ATOMIC_ACQUIRE);	\
+	__atomic_fetch_sub(var, (type)4, __ATOMIC_ACQUIRE);	\
+	__atomic_fetch_and(var, (type)~2, __ATOMIC_ACQUIRE);	\
+	__atomic_fetch_xor(var, (type)~8, __ATOMIC_ACQUIRE);	\
+	__atomic_fetch_or(var, (type)32, __ATOMIC_ACQUIRE);	\
+	__atomic_fetch_nand(var, (type)128, __ATOMIC_ACQUIRE);	\
+	__atomic_clear(var, __ATOMIC_RELAXED);			\
+} while (0)
 
 static const stress_help_t help[] = {
 	{ NULL,	"atomic",	"start N workers exercising GCC atomic operations" },
