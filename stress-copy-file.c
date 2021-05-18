@@ -86,7 +86,7 @@ static int stress_copy_file(const stress_args_t *args)
 		goto tidy_dir;
 	}
 	(void)unlink(tmp);
-	if (ftruncate(fd_in, copy_file_bytes) < 0) {
+	if (ftruncate(fd_in, (off_t)copy_file_bytes) < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: ftruncated failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -113,8 +113,8 @@ static int stress_copy_file(const stress_args_t *args)
 		ssize_t copy_ret;
 		shim_loff_t off_in, off_out;
 
-		off_in = stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
-		off_out = stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE);
+		off_in = (shim_loff_t)(stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE));
+		off_out = (shim_loff_t)(stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE));
 
 		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
 						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
