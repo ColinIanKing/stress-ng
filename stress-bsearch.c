@@ -66,10 +66,12 @@ static int cmp(const void *p1, const void *p2)
  *  Monotonically increasing values
  */
 #define SETDATA(d, i, v, prev)		\
+do {					\
 	d[i] = 1 + prev + (v & 0x7);	\
 	v >>= 2;			\
 	prev = d[i];			\
 	i++;				\
+} while (0)
 
 /*
  *  stress_bsearch()
@@ -88,7 +90,7 @@ static int stress_bsearch(const stress_args_t *args)
 			bsearch_size = MIN_BSEARCH_SIZE;
 	}
 	n = (size_t)bsearch_size;
-	n8 = (n + 7) & ~7;
+	n8 = (n + 7) & ~7UL;
 
 	/* allocate in multiples of 8 */
 	if ((data = calloc(n8, sizeof(*data))) == NULL) {
@@ -100,7 +102,7 @@ static int stress_bsearch(const stress_args_t *args)
 	/* Populate with ascending data */
 	prev = 0;
 	for (i = 0; i < n;) {
-		uint64_t v = stress_mwc64();
+		int32_t v = (int32_t)stress_mwc32();
 
 		SETDATA(data, i, v, prev);
 		SETDATA(data, i, v, prev);
