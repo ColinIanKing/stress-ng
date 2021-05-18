@@ -327,15 +327,16 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
-	uint64_t w, z, *buf_end, c = get_counter(args);
+	uint64_t *buf_end, c = get_counter(args);
+	uint32_t w, z;
 	volatile uint64_t *ptr;
 	size_t bit_errors;
 
 	buf_end = (uint64_t *)(buf + sz);
 
 	stress_mwc_reseed();
-	w = stress_mwc64();
-	z = stress_mwc64();
+	w = stress_mwc32();
+	z = stress_mwc32();
 
 	stress_mwc_seed(w, z);
 	for (ptr = (uint64_t *)buf; ptr < buf_end; ) {
@@ -820,15 +821,16 @@ static size_t TARGET_CLONES stress_vm_swap(
 	const uint64_t max_ops)
 {
 	const size_t chunk_sz = 64, chunks = sz / chunk_sz;
-	uint64_t w1, z1, c = get_counter(args);
+	uint64_t c = get_counter(args);
+	uint32_t w1, z1;
 	uint8_t *buf_end = buf + sz;
 	uint8_t *ptr;
 	size_t bit_errors = 0, i;
 	size_t *swaps;
 
 	stress_mwc_reseed();
-	z1 = stress_mwc64();
-	w1 = stress_mwc64();
+	z1 = stress_mwc32();
+	w1 = stress_mwc32();
 
 	if ((swaps = calloc(chunks, sizeof(*swaps))) == NULL) {
 		pr_fail("%s: calloc failed on vm_swap\n", args->name);
@@ -923,12 +925,13 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 	volatile uint8_t *ptr;
 	const size_t chunk_sz = sizeof(*ptr) * 8;
 	uint8_t *buf_end = buf + sz;
-	uint64_t w, z, c = get_counter(args);
+	uint64_t c = get_counter(args);
+	uint32_t w, z;
 	size_t bit_errors = 0;
 
 	stress_mwc_reseed();
-	w = stress_mwc64();
-	z = stress_mwc64();
+	w = stress_mwc32();
+	z = stress_mwc32();
 
 	stress_mwc_seed(w, z);
 	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
@@ -989,13 +992,14 @@ static size_t TARGET_CLONES stress_vm_ror(
 {
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz;
-	uint64_t w, z, c = get_counter(args);
+	uint64_t c = get_counter(args);
+	uint32_t w, z;
 	size_t bit_errors = 0;
 	const size_t chunk_sz = sizeof(*ptr) * 8;
 
 	stress_mwc_reseed();
-	w = stress_mwc64();
-	z = stress_mwc64();
+	w = stress_mwc32();
+	z = stress_mwc32();
 
 	stress_mwc_seed(w, z);
 	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
@@ -1074,13 +1078,14 @@ static size_t TARGET_CLONES stress_vm_flip(
 {
 	volatile uint8_t *ptr;
 	uint8_t *buf_end = buf + sz, bit = 0x03;
-	uint64_t w, z, c = get_counter(args);
+	uint64_t c = get_counter(args);
+	uint32_t w, z;
 	size_t bit_errors = 0, i;
 	const size_t chunk_sz = sizeof(*ptr) * 8;
 
 	stress_mwc_reseed();
-	w = stress_mwc64();
-	z = stress_mwc64();
+	w = stress_mwc32();
+	z = stress_mwc32();
 
 	stress_mwc_seed(w, z);
 	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
@@ -1438,13 +1443,14 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 {
 	volatile uint64_t *ptr;
 	uint64_t *buf_end = (uint64_t *)(buf + sz);
-	uint64_t w, z, c = get_counter(args);
+	uint64_t c = get_counter(args);
+	uint32_t w, z;
 	size_t bit_errors = 0;
 	const size_t chunk_sz = sizeof(*ptr) * 8;
 
 	stress_mwc_reseed();
-	w = stress_mwc64();
-	z = stress_mwc64();
+	w = stress_mwc32();
+	z = stress_mwc32();
 
 	stress_mwc_seed(w, z);
 	for (ptr = (uint64_t *)buf; ptr < buf_end; ptr += chunk_sz) {
