@@ -31,7 +31,7 @@
 
 static pid_t thrash_pid;
 static pid_t parent_pid;
-volatile bool thrash_run;
+static volatile bool thrash_run;
 
 static void MLOCKED_TEXT stress_thrash_handler(int signum)
 {
@@ -95,7 +95,7 @@ static int stress_pagein_proc(const pid_t pid)
 		for (off = begin; thrash_run && (off < end); off += page_size) {
 			unsigned long data;
 			off_t pos;
-			size_t sz;
+			ssize_t sz;
 
 			pos = lseek(fdmem, off, SEEK_SET);
 			if (pos != (off_t)off)
@@ -196,7 +196,7 @@ static int stress_pagein_all_procs(void)
 			if (statbuf.st_uid == 0)
 				continue;
 
-			stress_pagein_proc(pid);
+			stress_pagein_proc((pid_t)pid);
 		}
 	}
 	(void)closedir(dp);
