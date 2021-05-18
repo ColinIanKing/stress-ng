@@ -205,18 +205,6 @@ do {						\
 	bit_errors += (*ptr != val);		\
 } while (0)
 
-/*
- *  This compiles down to a load, ror, store in x86
- */
-#define ROR64(val) 				\
-do {						\
-	uint64_t tmp = val;			\
-	const uint64_t bit0 = (tmp & 1) << 63; 	\
-	tmp >>= 1;				\
-	tmp |= bit0;				\
-	val = tmp;				\
-} while (0)
-
 #define ROR8(val) 				\
 do {						\
 	uint8_t tmp = val;			\
