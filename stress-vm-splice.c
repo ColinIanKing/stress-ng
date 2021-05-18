@@ -105,8 +105,7 @@ static int stress_vm_splice(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		int ret;
-		ssize_t bytes;
+		ssize_t ret, bytes;
 		struct iovec iov;
 
 		/*
@@ -129,7 +128,7 @@ static int stress_vm_splice(const stress_args_t *args)
 		bytes = write(fds[1], data, sizeof(data));
 		if (bytes > 0) {
 			iov.iov_base = buf;
-			iov.iov_len = bytes;
+			iov.iov_len = (size_t)bytes;
 
 			bytes = vmsplice(fds[0], &iov, 1, 0);
 			if (bytes < 0)
