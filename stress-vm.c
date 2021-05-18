@@ -37,7 +37,7 @@
 /*
  *  the VM stress test has diffent methods of vm stressor
  */
-typedef size_t (*stress_vm_func)(uint8_t *buf, const size_t sz,
+typedef size_t (*stress_vm_func)(void *buf, void *buf_end, const size_t sz,
 		const stress_args_t *args, const uint64_t max_ops);
 
 typedef struct {
@@ -290,6 +290,20 @@ static void stress_vm_check(const char *name, const size_t bit_errors)
 }
 
 /*
+ *  stress_vm_count_bits8()
+ *	count number of bits set (K and R)
+ */
+static inline size_t stress_vm_count_bits8(uint8_t v)
+{
+	size_t n;
+
+	for (n = 0; v; n++)
+		v &= v - 1;
+
+	return n;
+}
+
+/*
  *  stress_vm_count_bits()
  *	count number of bits set (K and R)
  */
@@ -310,29 +324,28 @@ static inline size_t stress_vm_count_bits(uint64_t v)
  *	then check if that is correct.
  */
 static size_t TARGET_CLONES stress_vm_moving_inversion(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
-	uint64_t *buf_end, c = get_counter(args);
+	uint64_t c = get_counter(args);
 	uint32_t w, z;
 	volatile uint64_t *ptr;
 	size_t bit_errors;
-
-	buf_end = (uint64_t *)(buf + sz);
 
 	stress_mwc_reseed();
 	w = stress_mwc32();
 	z = stress_mwc32();
 
 	stress_mwc_seed(w, z);
-	for (ptr = (uint64_t *)buf; ptr < buf_end; ) {
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ) {
 		*(ptr++) = stress_mwc64();
 	}
 
 	stress_mwc_seed(w, z);
-	for (bit_errors = 0, ptr = (uint64_t *)buf; ptr < buf_end; ) {
+	for (bit_errors = 0, ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ) {
 		uint64_t val = stress_mwc64();
 
 		if (UNLIKELY(*ptr != val))
@@ -350,7 +363,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 	inject_random_bit_errors(buf, sz);
 
 	stress_mwc_seed(w, z);
-	for (bit_errors = 0, ptr = (uint64_t *)buf; ptr < buf_end; ) {
+	for (bit_errors = 0, ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ) {
 		uint64_t val = stress_mwc64();
 
 		if (UNLIKELY(*(ptr++) != ~val))
@@ -415,7 +428,8 @@ ret:
  *	that the random patterns are still set.
  */
 static size_t TARGET_CLONES stress_vm_modulo_x(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
@@ -424,7 +438,6 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 	const uint32_t stride = 23;	/* Small prime to hit cache */
 	uint8_t pattern, compliment;
 	volatile uint8_t *ptr;
-	uint8_t *buf_end = buf + sz;
 	size_t bit_errors = 0;
 	uint64_t c = get_counter(args);
 
@@ -433,20 +446,20 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 	compliment = ~pattern;
 
 	for (i = 0; i < stride; i++) {
-		for (ptr = buf + i; ptr < buf_end; ptr += stride) {
+		for (ptr = (uint8_t *)buf + i; ptr < (uint8_t *)buf_end; ptr += stride) {
 			*ptr = pattern;
 		}
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto ret;
-		for (ptr = buf; ptr < buf_end; ptr += stride) {
-			for (j = 0; j < i && ptr < buf_end; j++) {
+		for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += stride) {
+			for (j = 0; j < i && ptr < (uint8_t *)buf_end; j++) {
 				*ptr++ = compliment;
 				c++;
 			}
 			if (UNLIKELY(!keep_stressing_flag()))
 				goto ret;
 			ptr++;
-			for (j = i + 1; j < stride && ptr < buf_end; j++) {
+			for (j = i + 1; j < stride && ptr < (uint8_t *)buf_end; j++) {
 				*ptr++ = compliment;
 				c++;
 			}
@@ -455,7 +468,7 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 		}
 		inject_random_bit_errors(buf, sz);
 
-		for (ptr = buf + i; ptr < buf_end; ptr += stride) {
+		for (ptr = (uint8_t *)buf + i; ptr < (uint8_t *)buf_end; ptr += stride) {
 			if (UNLIKELY(*ptr != pattern))
 				bit_errors++;
 		}
@@ -480,17 +493,19 @@ ret:
  *	setting each bit to see if none of the lines are stuck
  */
 static size_t TARGET_CLONES stress_vm_walking_one_data(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
 	volatile uint8_t *ptr;
-	uint8_t *buf_end = buf + sz;
 	uint64_t c = get_counter(args);
 
-	for (ptr = buf; ptr < buf_end; ptr++) {
+	(void)sz;
+
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		SET_AND_TEST(ptr, 0x01, bit_errors);
 		SET_AND_TEST(ptr, 0x02, bit_errors);
 		SET_AND_TEST(ptr, 0x04, bit_errors);
@@ -517,17 +532,19 @@ static size_t TARGET_CLONES stress_vm_walking_one_data(
  *	setting each bit to see if none of the lines are stuck
  */
 static size_t TARGET_CLONES stress_vm_walking_zero_data(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
 	volatile uint8_t *ptr;
-	uint8_t *buf_end = buf + sz;
 	uint64_t c = get_counter(args);
 
-	for (ptr = buf; ptr < buf_end; ptr++) {
+	(void)sz;
+
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		SET_AND_TEST(ptr, 0xfe, bit_errors);
 		SET_AND_TEST(ptr, 0xfd, bit_errors);
 		SET_AND_TEST(ptr, 0xfb, bit_errors);
@@ -555,20 +572,20 @@ static size_t TARGET_CLONES stress_vm_walking_zero_data(
  *	are stuck.
  */
 static size_t TARGET_CLONES stress_vm_walking_one_addr(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
-	uint8_t *buf_end = buf + sz;
 	uint8_t d1 = 0, d2 = ~d1;
 	size_t bit_errors = 0;
 	size_t tests = 0;
 	uint64_t c = get_counter(args);
 
 	(void)memset(buf, d1, sz);
-	for (ptr = buf; ptr < buf_end; ptr += 256) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 256) {
 		uint16_t i;
 		uint64_t mask;
 
@@ -576,7 +593,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
 		for (mask = 1, i = 1; i < 64; i++) {
 			uintptr_t uintptr = ((uintptr_t)ptr) ^ mask;
 			uint8_t *addr = (uint8_t *)uintptr;
-			if ((addr < buf) || (addr >= buf_end) || (addr == ptr))
+			if ((addr < (uint8_t *)buf) || (addr >= (uint8_t *)buf_end) || (addr == ptr))
 				continue;
 			*addr = d2;
 			tests++;
@@ -603,13 +620,13 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
  *	are stuck.
  */
 static size_t TARGET_CLONES stress_vm_walking_zero_addr(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
-	uint8_t *buf_end = buf + sz;
 	uint8_t d1 = 0, d2 = ~d1;
 	size_t bit_errors = 0;
 	size_t tests = 0;
@@ -622,7 +639,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 	sz_mask--;
 
 	(void)memset(buf, d1, sz);
-	for (ptr = buf; ptr < buf_end; ptr += 256) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 256) {
 		uint16_t i;
 		uint64_t mask;
 
@@ -630,7 +647,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 		for (mask = 1, i = 1; i < 64; i++) {
 			uintptr_t uintptr = ((uintptr_t)ptr) ^ (~mask & sz_mask);
 			uint8_t *addr = (uint8_t *)uintptr;
-			if ((addr < buf) || (addr >= buf_end) || (addr == ptr))
+			if ((addr < (uint8_t *)buf) || (addr >= (uint8_t *)buf_end) || (addr == ptr))
 				continue;
 			*addr = d2;
 			tests++;
@@ -657,19 +674,20 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
  *	one bit at a time.
  */
 static size_t TARGET_CLONES stress_vm_gray(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	static uint8_t val;
-	uint8_t v, *buf_end = buf + sz;
+	uint8_t v;
 	volatile uint8_t *ptr;
 	size_t bit_errors = 0;
 	const uint64_t c_orig = get_counter(args);
 	uint64_t c;
 
-	for (c = c_orig, v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
+	for (c = c_orig, v = val, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, v++) {
 		if (UNLIKELY(!keep_stressing_flag()))
 			return 0;
 		*ptr = (v >> 1) ^ v;
@@ -677,7 +695,7 @@ static size_t TARGET_CLONES stress_vm_gray(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	for (v = val, ptr = buf; ptr < buf_end; ptr++, v++) {
+	for (v = val, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, v++) {
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 		if (UNLIKELY(*ptr != ((v >> 1) ^ v)))
@@ -702,13 +720,13 @@ static size_t TARGET_CLONES stress_vm_gray(
  *	operations.
  */
 static size_t TARGET_CLONES stress_vm_incdec(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
-	uint8_t *buf_end = buf + sz;
 	volatile uint8_t *ptr;
 	size_t bit_errors = 0;
 	uint64_t c = get_counter(args);
@@ -716,19 +734,19 @@ static size_t TARGET_CLONES stress_vm_incdec(
 	val++;
 	(void)memset(buf, 0x00, sz);
 
-	for (ptr = buf; ptr < buf_end; ptr++) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		*ptr += val;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
-	for (ptr = buf; ptr < buf_end; ptr++) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		*ptr -= val;
 	}
 	c += sz;
 	if (UNLIKELY(max_ops && c >= max_ops))
 		c = max_ops;
 
-	for (ptr = buf; ptr < buf_end; ptr++) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		if (UNLIKELY(*ptr != 0))
 			bit_errors++;
 	}
@@ -746,13 +764,13 @@ static size_t TARGET_CLONES stress_vm_incdec(
  *	check.
  */
 static size_t TARGET_CLONES stress_vm_prime_incdec(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
-	uint8_t *buf_end = buf + sz;
 	volatile uint8_t *ptr = buf;
 	size_t bit_errors = 0, i;
 	const uint64_t prime = PRIME_64;
@@ -786,7 +804,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 			break;
 	}
 
-	for (ptr = buf; ptr < buf_end; ptr++) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
 		if (UNLIKELY(*ptr != 0))
 			bit_errors++;
 	}
@@ -803,7 +821,8 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
  *	and see that nothing got corrupted.
  */
 static size_t TARGET_CLONES stress_vm_swap(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
@@ -811,7 +830,6 @@ static size_t TARGET_CLONES stress_vm_swap(
 	const size_t chunk_sz = 64, chunks = sz / chunk_sz;
 	uint64_t c = get_counter(args);
 	uint32_t w1, z1;
-	uint8_t *buf_end = buf + sz;
 	uint8_t *ptr;
 	size_t bit_errors = 0, i;
 	size_t *swaps;
@@ -830,16 +848,16 @@ static size_t TARGET_CLONES stress_vm_swap(
 	}
 
 	stress_mwc_seed(w1, z1);
-	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 		(void)memset((void *)ptr, val, chunk_sz);
 	}
 
 	/* Forward swaps */
-	for (i = 0, ptr = buf; ptr < buf_end; ptr += chunk_sz, i++) {
+	for (i = 0, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz, i++) {
 		size_t offset = swaps[i];
 
-		volatile uint8_t *dst = buf + offset;
+		volatile uint8_t *dst = (volatile uint8_t *)buf + offset;
 		volatile uint8_t *src = (volatile uint8_t *)ptr;
 		volatile uint8_t *src_end = src + chunk_sz;
 
@@ -855,10 +873,10 @@ static size_t TARGET_CLONES stress_vm_swap(
 			goto abort;
 	}
 	/* Reverse swaps */
-	for (i = chunks - 1, ptr = buf_end - chunk_sz; ptr >= buf; ptr -= chunk_sz, i--) {
+	for (i = chunks - 1, ptr = (uint8_t *)buf_end - chunk_sz; ptr >= (uint8_t *)buf; ptr -= chunk_sz, i--) {
 		size_t offset = swaps[i];
 
-		volatile uint8_t *dst = buf + offset;
+		volatile uint8_t *dst = (volatile uint8_t *)buf + offset;
 		volatile uint8_t *src = (volatile uint8_t *)ptr;
 		volatile uint8_t *src_end = src + chunk_sz;
 
@@ -878,7 +896,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 	inject_random_bit_errors(buf, sz);
 
 	stress_mwc_seed(w1, z1);
-	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		volatile uint8_t *p = (volatile uint8_t *)ptr;
 		volatile uint8_t *p_end = (volatile uint8_t *)ptr + chunk_sz;
 		uint8_t val = stress_mwc8();
@@ -905,14 +923,14 @@ abort:
  *	and then sanity check they are all set correctly.
  */
 static size_t TARGET_CLONES stress_vm_rand_set(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
 	const size_t chunk_sz = sizeof(*ptr) * 8;
-	uint8_t *buf_end = buf + sz;
 	uint64_t c = get_counter(args);
 	uint32_t w, z;
 	size_t bit_errors = 0;
@@ -922,7 +940,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 	z = stress_mwc32();
 
 	stress_mwc_seed(w, z);
-	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 
 		*(ptr + 0) = val;
@@ -944,7 +962,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 	inject_random_bit_errors(buf, sz);
 
 	stress_mwc_seed(w, z);
-	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 
 		bit_errors += (*(ptr + 0) != val);
@@ -973,13 +991,13 @@ abort:
  *	end.
  */
 static size_t TARGET_CLONES stress_vm_ror(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
-	uint8_t *buf_end = buf + sz;
 	uint64_t c = get_counter(args);
 	uint32_t w, z;
 	size_t bit_errors = 0;
@@ -990,7 +1008,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 	z = stress_mwc32();
 
 	stress_mwc_seed(w, z);
-	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 
 		*(ptr + 0) = val;
@@ -1009,7 +1027,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
 
-	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		ROR8(*(ptr + 0));
 		ROR8(*(ptr + 1));
 		ROR8(*(ptr + 2));
@@ -1030,7 +1048,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 	inject_random_bit_errors(buf, sz);
 
 	stress_mwc_seed(w, z);
-	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 		ROR8(val);
 
@@ -1060,13 +1078,14 @@ abort:
  *	correctly inverted.
  */
 static size_t TARGET_CLONES stress_vm_flip(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint8_t *ptr;
-	uint8_t *buf_end = buf + sz, bit = 0x03;
+	uint8_t bit = 0x03;
 	uint64_t c = get_counter(args);
 	uint32_t w, z;
 	size_t bit_errors = 0, i;
@@ -1077,7 +1096,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 	z = stress_mwc32();
 
 	stress_mwc_seed(w, z);
-	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 
 		*(ptr + 0) = val;
@@ -1105,7 +1124,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 
 	for (i = 0; i < 8; i++) {
 		ROR8(bit);
-		for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
+		for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 			*(ptr + 0) ^= bit;
 			*(ptr + 1) ^= bit;
 			*(ptr + 2) ^= bit;
@@ -1126,7 +1145,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 	inject_random_bit_errors(buf, sz);
 
 	stress_mwc_seed(w, z);
-	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 
 		bit_errors += (*(ptr + 0) != val);
@@ -1161,13 +1180,13 @@ abort:
  *	set all memory to one and see if any bits are stuck at zero
  */
 static size_t TARGET_CLONES stress_vm_zero_one(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr;
-	uint64_t *buf_end = (uint64_t *)(buf + sz);
 	uint64_t c = get_counter(args);
 	size_t bit_errors = 0;
 
@@ -1178,7 +1197,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 	inject_random_bit_errors(buf, sz);
 	c += sz / 8;
 
-	for (ptr = (uint64_t *)buf; ptr < buf_end; ptr += 8) {
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
 		bit_errors += stress_vm_count_bits(*(ptr + 0));
 		bit_errors += stress_vm_count_bits(*(ptr + 1));
 		bit_errors += stress_vm_count_bits(*(ptr + 2));
@@ -1197,7 +1216,7 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 	inject_random_bit_errors(buf, sz);
 	c += sz / 8;
 
-	for (ptr = (uint64_t *)buf; ptr < buf_end; ptr += 8) {
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
 		bit_errors += stress_vm_count_bits(~*(ptr + 0));
 		bit_errors += stress_vm_count_bits(~*(ptr + 1));
 		bit_errors += stress_vm_count_bits(~*(ptr + 2));
@@ -1224,13 +1243,13 @@ abort:
  *	or pulls its neighbours up.
  */
 static size_t TARGET_CLONES stress_vm_galpat_zero(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr;
-	uint64_t *buf_end = (uint64_t *)(buf + sz);
 	size_t i, bit_errors = 0, bits_set = 0;
 	size_t bits_bad = sz / 4096;
 	uint64_t c = get_counter(args);
@@ -1243,9 +1262,10 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 		for (;;) {
 			size_t offset = stress_mwc64() % sz;
 			uint8_t bit = stress_mwc32() & 3;
+			register uint8_t *ptr8 = (uint8_t *)buf + offset;
 
-			if (!buf[offset]) {
-				buf[offset] |= (1 << bit);
+			if (!*ptr8) {
+				*ptr8 |= (1 << bit);
 				break;
 			}
 		}
@@ -1253,7 +1273,7 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	for (ptr = (uint64_t *)buf; ptr < buf_end; ptr += 8) {
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
 		bits_set += stress_vm_count_bits(*(ptr + 0));
 		bits_set += stress_vm_count_bits(*(ptr + 1));
 		bits_set += stress_vm_count_bits(*(ptr + 2));
@@ -1287,13 +1307,13 @@ ret:
  *	or pulls its neighbours down.
  */
 static size_t TARGET_CLONES stress_vm_galpat_one(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr;
-	uint64_t *buf_end = (uint64_t *)(buf + sz);
 	size_t i, bit_errors = 0, bits_set = 0;
 	size_t bits_bad = sz / 4096;
 	uint64_t c = get_counter(args);
@@ -1306,9 +1326,10 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 		for (;;) {
 			size_t offset = stress_mwc64() % sz;
 			uint8_t bit = stress_mwc32() & 3;
+			register uint8_t *ptr8 = (uint8_t *)buf + offset;
 
-			if (buf[offset] == 0xff) {
-				buf[offset] &= ~(1 << bit);
+			if (*ptr8 == 0xff) {
+				*ptr8 &= ~(1 << bit);
 				break;
 			}
 		}
@@ -1316,7 +1337,7 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	for (ptr = (uint64_t *)buf; ptr < buf_end; ptr += 8) {
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
 		bits_set += stress_vm_count_bits(~(*(ptr + 0)));
 		bits_set += stress_vm_count_bits(~(*(ptr + 1)));
 		bits_set += stress_vm_count_bits(~(*(ptr + 2)));
@@ -1349,14 +1370,14 @@ ret:
  *	1 and upper nybbles by 0xf and sanity check byte.
  */
 static size_t TARGET_CLONES stress_vm_inc_nybble(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	static uint8_t val = 0;
 	volatile uint8_t *ptr;
-	uint8_t *buf_end = buf + sz;
 	size_t bit_errors = 0;
 	uint64_t c = get_counter(args);
 
@@ -1365,7 +1386,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 	INC_HI_NYBBLE(val);
 
 	stress_mwc_reseed();
-	for (ptr = buf; ptr < buf_end; ptr += 8) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 8) {
 		INC_LO_NYBBLE(*(ptr + 0));
 		INC_LO_NYBBLE(*(ptr + 1));
 		INC_LO_NYBBLE(*(ptr + 2));
@@ -1381,7 +1402,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 			goto abort;
 	}
 
-	for (ptr = buf; ptr < buf_end; ptr += 8) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 8) {
 		INC_HI_NYBBLE(*(ptr + 0));
 		INC_HI_NYBBLE(*(ptr + 1));
 		INC_HI_NYBBLE(*(ptr + 2));
@@ -1399,7 +1420,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	for (ptr = buf; ptr < buf_end; ptr += 8) {
+	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += 8) {
 		bit_errors += (*(ptr + 0) != val);
 		bit_errors += (*(ptr + 1) != val);
 		bit_errors += (*(ptr + 2) != val);
@@ -1425,24 +1446,26 @@ abort:
  *	check if they are still set correctly.
  */
 static size_t TARGET_CLONES stress_vm_rand_sum(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr;
-	uint64_t *buf_end = (uint64_t *)(buf + sz);
 	uint64_t c = get_counter(args);
 	uint32_t w, z;
 	size_t bit_errors = 0;
 	const size_t chunk_sz = sizeof(*ptr) * 8;
+
+	(void)buf_end;
 
 	stress_mwc_reseed();
 	w = stress_mwc32();
 	z = stress_mwc32();
 
 	stress_mwc_seed(w, z);
-	for (ptr = (uint64_t *)buf; ptr < buf_end; ptr += chunk_sz) {
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += chunk_sz) {
 		*(ptr + 0) = stress_mwc64();
 		*(ptr + 1) = stress_mwc64();
 		*(ptr + 2) = stress_mwc64();
@@ -1462,7 +1485,7 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 	inject_random_bit_errors(buf, sz);
 
 	stress_mwc_seed(w, z);
-	for (ptr = (uint64_t *)buf; ptr < buf_end; ptr += chunk_sz) {
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += chunk_sz) {
 		bit_errors += stress_vm_count_bits(*(ptr + 0) ^ stress_mwc64());
 		bit_errors += stress_vm_count_bits(*(ptr + 1) ^ stress_mwc64());
 		bit_errors += stress_vm_count_bits(*(ptr + 2) ^ stress_mwc64());
@@ -1488,18 +1511,20 @@ abort:
  *	and check if they are clear.
  */
 static size_t TARGET_CLONES stress_vm_prime_zero(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t i;
 	volatile uint8_t *ptr = buf;
-	uint8_t j;
+	uint8_t j, *ptr8;
 	size_t bit_errors = 0;
 	const uint64_t prime = PRIME_64;
 	uint64_t k, c = get_counter(args);
 
+	(void)buf_end;
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
 	if (sz > (1ULL << 63))
@@ -1527,8 +1552,9 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
+	ptr8 = (uint8_t *)buf;
 	for (i = 0; i < sz; i++) {
-		bit_errors += stress_vm_count_bits(buf[i]);
+		bit_errors += stress_vm_count_bits8(ptr8[i]);
 	}
 
 abort:
@@ -1545,18 +1571,20 @@ abort:
  *	and check if they are set.
  */
 static size_t TARGET_CLONES stress_vm_prime_one(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t i;
 	volatile uint8_t *ptr = buf;
-	uint8_t j;
+	uint8_t j, *ptr8;
 	size_t bit_errors = 0;
 	const uint64_t prime = PRIME_64;
 	uint64_t k, c = get_counter(args);
 
+	(void)buf_end;
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
 	if (sz > (1ULL << 63))
@@ -1584,8 +1612,9 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
+	ptr8 = (uint8_t *)buf;
 	for (i = 0; i < sz; i++) {
-		bit_errors += 8 - stress_vm_count_bits(buf[i]);
+		bit_errors += 8 - stress_vm_count_bits8(ptr8[i]);
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
@@ -1603,17 +1632,20 @@ abort:
  *	clear all the other bits and finally check if they are all clear
  */
 static size_t TARGET_CLONES stress_vm_prime_gray_zero(
-	uint8_t *buf,
+	void *buf,	
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t i;
 	volatile uint8_t *ptr = buf;
+	uint8_t *ptr8;
 	size_t bit_errors = 0;
 	const uint64_t prime = PRIME_64;
 	uint64_t j, c = get_counter(args);
 
+	(void)buf_end;
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
 	if (sz > (1ULL << 63))
@@ -1651,8 +1683,9 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
+	ptr8 = (uint8_t *)buf;
 	for (i = 0; i < sz; i++) {
-		bit_errors += stress_vm_count_bits(buf[i]);
+		bit_errors += stress_vm_count_bits8(ptr8[i]);
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
@@ -1670,17 +1703,20 @@ abort:
  *	set all the other bits and finally check if they are all set
  */
 static size_t TARGET_CLONES stress_vm_prime_gray_one(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	size_t i;
 	volatile uint8_t *ptr = buf;
+	uint8_t *ptr8;
 	size_t bit_errors = 0;
 	const uint64_t prime = PRIME_64;
 	uint64_t j, c = get_counter(args);
 
+	(void)buf_end;
 #if SIZE_MAX > UINT32_MAX
 	/* Unlikely.. */
 	if (sz > (1ULL << 63))
@@ -1719,8 +1755,9 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
+	ptr8 = (uint8_t *)buf;
 	for (i = 0; i < sz; i++) {
-		bit_errors += 8 - stress_vm_count_bits(buf[i]);
+		bit_errors += 8 - stress_vm_count_bits8(ptr8[i]);
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
@@ -1736,7 +1773,8 @@ abort:
  *	simple 64 bit write, no read check
  */
 static size_t TARGET_CLONES stress_vm_write64(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
@@ -1745,6 +1783,8 @@ static size_t TARGET_CLONES stress_vm_write64(
 	uint64_t *ptr = (uint64_t *)buf;
 	register uint64_t v = val;
 	register size_t i = 0, n = sz / (sizeof(*ptr) * 32);
+
+	(void)buf_end;
 
 	while (i < n) {
 		*ptr++ = v;
@@ -1797,13 +1837,16 @@ static size_t TARGET_CLONES stress_vm_write64(
  *	simple 64 bit read
  */
 static size_t TARGET_CLONES stress_vm_read64(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
 	volatile uint64_t *ptr = (uint64_t *)buf;
 	register size_t i = 0, n = sz / (sizeof(*ptr) * 32);
+
+	(void)buf_end;
 
 	while (i < n) {
 		(void)*(ptr++);
@@ -1856,7 +1899,8 @@ static size_t TARGET_CLONES stress_vm_read64(
  *
  */
 static size_t TARGET_CLONES stress_vm_rowhammer(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
@@ -1869,6 +1913,7 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 	register size_t errors = 0;
 	const size_t n = sz / sizeof(*addr0);
 
+	(void)buf_end;
 	(void)max_ops;
 
 	if (!n) {
@@ -1930,7 +1975,8 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
  *	work through all vm stressors sequentially
  */
 static size_t stress_vm_all(
-	uint8_t *buf,
+	void *buf,
+	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
@@ -1938,7 +1984,7 @@ static size_t stress_vm_all(
 	static int i = 1;
 	size_t bit_errors = 0;
 
-	bit_errors = vm_methods[i].func(buf, sz, args, max_ops);
+	bit_errors = vm_methods[i].func(buf, buf_end, sz, args, max_ops);
 	i++;
 	if (vm_methods[i].func == NULL)
 		i = 1;
@@ -2005,7 +2051,7 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 	int no_mem_retries = 0;
 	const uint64_t max_ops = args->max_ops << VM_BOGO_SHIFT;
 	uint64_t vm_hang = DEFAULT_VM_HANG;
-	uint8_t *buf = NULL;
+	void *buf = NULL, *buf_end = NULL;
 	int vm_flags = 0;                      /* VM mmap flags */
 	int vm_madvise = -1;
 	size_t buf_sz;
@@ -2050,6 +2096,7 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 				(void)shim_usleep(100000);
 				continue;	/* Try again */
 			}
+			buf_end = (void *)((uint8_t *)buf + buf_sz);
 			if (vm_madvise < 0)
 				(void)stress_madvise_random(buf, buf_sz);
 			else
@@ -2058,7 +2105,7 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 
 		no_mem_retries = 0;
 		(void)stress_mincore_touch_pages(buf, buf_sz);
-		*(context->bit_error_count) += func(buf, buf_sz, args, max_ops);
+		*(context->bit_error_count) += func(buf, buf_end, buf_sz, args, max_ops);
 
 		if (vm_hang == 0) {
 			while (keep_stressing_vm(args)) {
@@ -2070,7 +2117,7 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 
 		if (!vm_keep) {
 			(void)stress_madvise_random(buf, buf_sz);
-			(void)munmap((void *)buf, buf_sz);
+			(void)munmap(buf, buf_sz);
 		}
 	} while (keep_stressing_vm(args));
 
