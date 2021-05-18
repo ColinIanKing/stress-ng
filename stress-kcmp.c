@@ -264,9 +264,9 @@ again:
 			if (efd != -1) {
 				struct shim_kcmp_epoll_slot slot;
 
-				slot.efd = efd;
-				slot.tfd = sfd;
-				slot.toff = 0;
+				slot.efd = (uint32_t)efd;
+				slot.tfd = (uint32_t)sfd;
+				slot.toff = (uint32_t)0;
 				KCMP(pid1, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
 				KCMP(pid2, pid1, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
 				KCMP(pid2, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
@@ -288,9 +288,9 @@ again:
 				if (efd != -1) {
 					struct shim_kcmp_epoll_slot slot;
 
-					slot.efd = efd;
-					slot.tfd = sfd;
-					slot.toff = 0;
+					slot.efd = (uint32_t)efd;
+					slot.tfd = (uint32_t)sfd;
+					slot.toff = (uint32_t)0;
 					KCMP(pid1, pid2, SHIM_KCMP_EPOLL_TFD, efd, (unsigned long)&slot);
 				}
 #endif
