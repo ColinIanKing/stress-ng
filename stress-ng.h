@@ -2643,6 +2643,14 @@ typedef struct {
 #define STRESSOR_ENUM(name)	\
 	STRESS_ ## name,
 
+/*
+ *  Declaration of stress_*_info object
+ */
+#define STRESSOR_DECL(name)     \
+	extern stressor_info_t stress_ ## name ## _info;
+
+STRESSORS(STRESSOR_DECL)
+
 /* Stress tests */
 typedef enum {
 	STRESS_START = -1,

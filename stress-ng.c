@@ -158,14 +158,6 @@ static const int ignore_signals[] = {
 };
 
 /*
- *  Declaration of stress_*_info object
- */
-#define STRESSOR_DECL(name)	\
-	extern stressor_info_t stress_ ## name ## _info;
-
-STRESSORS(STRESSOR_DECL)
-
-/*
  *  Elements in stressor array
  */
 #define STRESSOR_ELEM(name)		\
