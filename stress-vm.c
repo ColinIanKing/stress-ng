@@ -1022,14 +1022,15 @@ static size_t TARGET_CLONES stress_vm_ror(
 	(void)stress_mincore_touch_pages(buf, sz);
 
 	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
-		ROR64(*(ptr + 0));
-		ROR64(*(ptr + 1));
-		ROR64(*(ptr + 2));
-		ROR64(*(ptr + 3));
-		ROR64(*(ptr + 4));
-		ROR64(*(ptr + 5));
-		ROR64(*(ptr + 6));
-		ROR64(*(ptr + 7));
+		ROR8(*(ptr + 0));
+		ROR8(*(ptr + 1));
+		ROR8(*(ptr + 2));
+		ROR8(*(ptr + 3));
+		ROR8(*(ptr + 4));
+		ROR8(*(ptr + 5));
+		ROR8(*(ptr + 6));
+		ROR8(*(ptr + 7));
+
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
 			goto abort;
@@ -1043,7 +1044,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 	stress_mwc_seed(w, z);
 	for (ptr = buf; ptr < buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
-		ROR64(val);
+		ROR8(val);
 
 		bit_errors += (*(ptr + 0) != val);
 		bit_errors += (*(ptr + 1) != val);
