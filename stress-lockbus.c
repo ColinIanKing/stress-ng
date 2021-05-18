@@ -39,37 +39,51 @@ static const stress_help_t help[] = {
       defined(STRESS_ARCH_ARM)))
 
 #if defined(HAVE_ATOMIC_ADD_FETCH)
-#define MEM_LOCK(ptr, inc) __atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);
+#define MEM_LOCK(ptr, inc)			\
+do {						\
+	 __atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);\
+} while (0)
 #else
-#define MEM_LOCK(ptr, inc) asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));
+#define MEM_LOCK(ptr, inc)			\
+do {						\
+	asm volatile("lock addl %1,%0" :	\
+		     "+m" (*ptr) :		\
+		     "ir" (inc));		\
+} while (0)
 #endif
 
 #define BUFFER_SIZE	(1024 * 1024 * 16)
 #define CHUNK_SIZE	(64 * 4)
 
 #define MEM_LOCK_AND_INC(ptr, inc)		\
+do {						\
 	MEM_LOCK(ptr, inc);			\
-	ptr++;
+	ptr++;					\
+} while (0)
 
 #define MEM_LOCK_AND_INCx8(ptr, inc)		\
-	MEM_LOCK_AND_INC(ptr, inc)		\
-	MEM_LOCK_AND_INC(ptr, inc)		\
-	MEM_LOCK_AND_INC(ptr, inc)		\
-	MEM_LOCK_AND_INC(ptr, inc)		\
-	MEM_LOCK_AND_INC(ptr, inc)		\
-	MEM_LOCK_AND_INC(ptr, inc)		\
-	MEM_LOCK_AND_INC(ptr, inc)		\
-	MEM_LOCK_AND_INC(ptr, inc)
+do {						\
+	MEM_LOCK_AND_INC(ptr, inc);		\
+	MEM_LOCK_AND_INC(ptr, inc);		\
+	MEM_LOCK_AND_INC(ptr, inc);		\
+	MEM_LOCK_AND_INC(ptr, inc);		\
+	MEM_LOCK_AND_INC(ptr, inc);		\
+	MEM_LOCK_AND_INC(ptr, inc);		\
+	MEM_LOCK_AND_INC(ptr, inc);		\
+	MEM_LOCK_AND_INC(ptr, inc);		\
+} while (0)
 
 #define MEM_LOCKx8(ptr)				\
-	MEM_LOCK(ptr, 0)			\
-	MEM_LOCK(ptr, 0)			\
-	MEM_LOCK(ptr, 0)			\
-	MEM_LOCK(ptr, 0)			\
-	MEM_LOCK(ptr, 0)			\
-	MEM_LOCK(ptr, 0)			\
-	MEM_LOCK(ptr, 0)			\
-	MEM_LOCK(ptr, 0)
+do {						\
+	MEM_LOCK(ptr, 0);			\
+	MEM_LOCK(ptr, 0);			\
+	MEM_LOCK(ptr, 0);			\
+	MEM_LOCK(ptr, 0);			\
+	MEM_LOCK(ptr, 0);			\
+	MEM_LOCK(ptr, 0);			\
+	MEM_LOCK(ptr, 0);			\
+	MEM_LOCK(ptr, 0);			\
+} while (0)
 
 #if defined(STRESS_ARCH_X86)
 static sigjmp_buf jmp_env;
