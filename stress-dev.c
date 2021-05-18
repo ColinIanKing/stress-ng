@@ -1435,7 +1435,8 @@ static void stress_dev_cdrom_linux(
 		(void)ret;
 	}, return);
 #endif
-#if defined(CDROMVOLREAD) &&	\
+#if defined(CDROMVOLREAD) &&		\
+    defined(CDROMVOLCTRL) &&		\
     defined(HAVE_CDROM_VOLCTRL)
 	IOCTL_TIMEOUT(0.10, {
 		struct cdrom_volctrl volume;
@@ -1443,11 +1444,8 @@ static void stress_dev_cdrom_linux(
 
 		(void)memset(&volume, 0, sizeof(volume));
 		ret = ioctl(fd, CDROMVOLREAD, &volume);
-#if defined(CDROMVOLCTRL)
-		if (ret == 0) {
+		if (ret == 0)
 			ret = ioctl(fd, CDROMVOLCTRL, &volume);
-		}
-#endif
 		(void)ret;
 	}, return);
 #endif
