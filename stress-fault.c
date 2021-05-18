@@ -192,7 +192,7 @@ next:
 					(void)munmap((void *)ptr, page_size);
 				}
 			}
-		};
+		}
 		i++;
 		inc_counter(args);
 	} while (keep_stressing(args));
