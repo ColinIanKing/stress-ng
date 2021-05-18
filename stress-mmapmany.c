@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
 static int stress_mmapmany_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
-	ssize_t max = sysconf(_SC_MAPPED_FILES);
+	size_t max = (size_t)sysconf(_SC_MAPPED_FILES);
 	uint8_t **mappings;
 	max = STRESS_MAXIMUM(max, MMAP_MAX);
 
@@ -55,7 +55,7 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		ssize_t i, n;
+		size_t i, n;
 
 		for (n = 0; keep_stressing_flag() && (n < max); n++) {
 			if (!keep_stressing(args))
