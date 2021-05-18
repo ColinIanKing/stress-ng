@@ -41,7 +41,7 @@ static int stress_env_child(const stress_args_t *args, void *context)
 	(void)context;
 
 #if defined(_SC_ARG_MAX)
-	arg_max = sysconf(_SC_ARG_MAX);
+	arg_max = (size_t)sysconf(_SC_ARG_MAX);
 #else
 	arg_max = 255;
 #endif
