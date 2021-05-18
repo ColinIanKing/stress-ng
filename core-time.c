@@ -76,7 +76,7 @@ static inline void stress_format_time(
 			ret = snprintf(*ptr, *len, "%lu %s%s, ", val, units,
 				(val > 1) ? "s" : "");
 		if (ret > 0) {
-			*len -= ret;
+			*len -= (size_t)ret;
 			*ptr += ret;
 		}
 	}
