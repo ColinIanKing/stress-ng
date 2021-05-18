@@ -2065,7 +2065,7 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 				(void)sleep(3600);
 			}
 		} else if (vm_hang != DEFAULT_VM_HANG) {
-			(void)sleep((int)vm_hang);
+			(void)sleep((unsigned int)vm_hang);
 		}
 
 		if (!vm_keep) {
