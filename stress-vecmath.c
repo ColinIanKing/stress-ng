@@ -59,7 +59,7 @@ typedef int8_t  stress_vint8_t  __attribute__ ((vector_size (16)));
 typedef int16_t stress_vint16_t __attribute__ ((vector_size (16)));
 typedef int32_t stress_vint32_t __attribute__ ((vector_size (16)));
 typedef int64_t stress_vint64_t __attribute__ ((vector_size (16)));
-#if defined(HAVE_INT1x128_T)
+#if defined(HAVE_INT128_T)
 typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
 #endif
 
@@ -67,7 +67,7 @@ typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
  *  Convert various sized n * 8 bit tuples into n * 8 bit integers
  */
 #define H8(a0)						\
-	((int8_t)((int8_t)a0))
+	((int8_t)((uint8_t)a0))
 #define H16(a0, a1)     				\
 	((int16_t)(((uint16_t)a0 << 8) |		\
 		   ((uint16_t)a1 << 0)))
@@ -86,23 +86,26 @@ typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
 		   ((uint64_t)a6 <<  8) | 		\
 		   ((uint64_t)a7 <<  0)))
 
+#if defined(HAVE_INT128_T)
 #define H128(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)	\
-	((__int128t)(((__uint128_t)a0 << 120) |		\
-		     ((__uint128_t)a1 << 112) |		\
-		     ((__uint128_t)a2 << 104) |		\
-		     ((__uint128_t)a3 <<  96) |		\
-		     ((__uint128_t)a4 <<  88) |		\
-		     ((__uint128_t)a5 <<  80) |		\
-		     ((__uint128_t)a6 <<  72) |		\
-		     ((__uint128_t)a7 <<  64) |		\
-		     ((__uint128_t)a8 <<  56) |		\
-		     ((__uint128_t)a9 <<  48) |		\
-		     ((__uint128_t)aa <<  40) |		\
-		     ((__uint128_t)ab <<  32) |		\
-		     ((__uint128_t)ac <<  24) |		\
-		     ((__uint128_t)ad <<  16) |		\
-		     ((__uint128_t)ae <<   8) |		\
-		     ((__uint128_t)af <<   0)))		\
+	((__int128_t)(((__int128_t)a0 << 120) |		\
+		     ((__int128_t)a1 << 112) |		\
+		     ((__int128_t)a2 << 104) |		\
+		     ((__int128_t)a3 <<  96) |		\
+		     ((__int128_t)a4 <<  88) |		\
+		     ((__int128_t)a5 <<  80) |		\
+		     ((__int128_t)a6 <<  72) |		\
+		     ((__int128_t)a7 <<  64) |		\
+		     ((__int128_t)a8 <<  56) |		\
+		     ((__int128_t)a9 <<  48) |		\
+		     ((__int128_t)aa <<  40) |		\
+		     ((__int128_t)ab <<  32) |		\
+		     ((__int128_t)ac <<  24) |		\
+		     ((__int128_t)ad <<  16) |		\
+		     ((__int128_t)ae <<   8) |		\
+		     ((__int128_t)af <<   0)))		\
+
+#endif
 
 /*
  *  128 bit constants
@@ -129,7 +132,8 @@ typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
  *  Convert 16 x 8 bit values into various sized 128 bit vectors
  */
 #define INT16x8(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)	\
-	a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af
+	H8(a0), H8(a1), H8(a2), H8(a3), H8(a4), H8(a5), H8(a6), H8(a7),		\
+	H8(a8), H8(a9), H8(aa), H8(ab), H8(ac), H8(ad), H8(ae), H8(af)
 
 #define INT8x16(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)	\
 	H16(a0, a1), H16(a2, a3), H16(a4, a5), H16(a6, a7),                     \
@@ -143,8 +147,10 @@ typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
 	H64(a0, a1, a2, a3, a4, a5, a6, a7),					\
 	H64(a8, a9, aa, ab, ac, ad, ae, af)
 
+#if defined(HAVE_INT128_T)
 #define INT1x128(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)\
 	H128(a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, aa, ab, ac, ad, ae, af)
+#endif
 
 /*
  *  Operations to run on each vector
@@ -207,7 +213,7 @@ static int HOT TARGET_CLONES stress_vecmath(const stress_args_t *args)
 	const stress_vint64_t v23_64 = { V23(INT2x64) };
 	const stress_vint64_t v3_64 = { V3(INT2x64) };
 
-#if defined(HAVE_INT1x128_T)
+#if defined(HAVE_INT128_T)
 	stress_vint128_t a128 = { A(INT1x128) };
 	stress_vint128_t b128 = { B(INT1x128) };
 	stress_vint128_t c128 = { C(INT1x128) };
@@ -226,13 +232,13 @@ static int HOT TARGET_CLONES stress_vecmath(const stress_args_t *args)
 			OPS(a16, b16, c16, s16, v23_16, v3_16);
 			OPS(a32, b32, c32, s32, v23_32, v3_32);
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
-#if defined(HAVE_INT1x128_T)
+#if defined(HAVE_INT128_T)
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 #endif
 
 			OPS(a32, b32, c32, s32, v23_32, v3_32);
 			OPS(a16, b16, c16, s16, v23_16, v3_16);
-#if defined(HAVE_INT1x128_T)
+#if defined(HAVE_INT128_T)
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 #endif
 			OPS(a8, b8, c8, s8, v23_8, v3_8);
@@ -257,7 +263,7 @@ static int HOT TARGET_CLONES stress_vecmath(const stress_args_t *args)
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
 			OPS(a64, b64, c64, s64, v23_64, v3_64);
-#if defined(HAVE_INT1x128_T)
+#if defined(HAVE_INT128_T)
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
 			OPS(a128, b128, c128, s128, v23_128, v3_128);
@@ -268,16 +274,16 @@ static int HOT TARGET_CLONES stress_vecmath(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	/* Forces the compiler to actually compute the terms */
-	stress_uint8_put(a8[0]  ^ a8[1]  ^ a8[2]  ^ a8[3]  ^
-		  a8[4]  ^ a8[5]  ^ a8[6]  ^ a8[7]  ^
-		  a8[8]  ^ a8[9]  ^ a8[10] ^ a8[11] ^
-		  a8[12] ^ a8[13] ^ a8[14] ^ a8[15]);
-	stress_uint16_put(a16[0] ^ a16[1] ^ a16[2] ^ a16[3] ^
-		   a16[4] ^ a16[5] ^ a16[6] ^ a16[7]);
-	stress_uint32_put(a32[0] ^ a32[1] ^ a32[2] ^ a32[3]);
-	stress_uint64_put(a64[0] ^ a64[1]);
+	stress_uint8_put((uint8_t)(a8[0]  ^ a8[1]  ^ a8[2]  ^ a8[3]  ^
+				   a8[4]  ^ a8[5]  ^ a8[6]  ^ a8[7]  ^
+				   a8[8]  ^ a8[9]  ^ a8[10] ^ a8[11] ^
+				   a8[12] ^ a8[13] ^ a8[14] ^ a8[15]));
+	stress_uint16_put((uint16_t)(a16[0] ^ a16[1] ^ a16[2] ^ a16[3] ^
+				     a16[4] ^ a16[5] ^ a16[6] ^ a16[7]));
+	stress_uint32_put((uint32_t)(a32[0] ^ a32[1] ^ a32[2] ^ a32[3]));
+	stress_uint64_put((uint64_t)(a64[0] ^ a64[1]));
 
-#if defined(HAVE_INT1x128_T)
+#if defined(HAVE_INT128_T)
 	stress_uint128_put(a128[0]);
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
