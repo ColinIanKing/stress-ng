@@ -454,7 +454,7 @@ static int stress_madvise(const stress_args_t *args)
 
 #if defined(MADV_NORMAL)
 		{
-			void *bad_addr = (void *)(~0 & ~(page_size -1));
+			void *bad_addr = (void *)(~0ULL & ~(page_size -1));
 
 			/* Invalid madvise on unmapped pages */
 			(void)madvise(buf, sz, MADV_NORMAL);
