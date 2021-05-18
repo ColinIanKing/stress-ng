@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
 static int stress_mmapmany_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
-	size_t max = (size_t)sysconf(_SC_MAPPED_FILES);
+	long max = sysconf(_SC_MAPPED_FILES);
 	uint8_t **mappings;
 	max = STRESS_MAXIMUM(max, MMAP_MAX);
 
@@ -46,7 +46,7 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 			args->name, max);
 		return EXIT_NO_RESOURCE;
 	}
-	mappings = calloc(max, sizeof(uint8_t *));
+	mappings = calloc((size_t)max, sizeof(uint8_t *));
 	if (!mappings) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
@@ -57,7 +57,7 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 	do {
 		size_t i, n;
 
-		for (n = 0; keep_stressing_flag() && (n < max); n++) {
+		for (n = 0; keep_stressing_flag() && (n < (size_t)max); n++) {
 			if (!keep_stressing(args))
 				break;
 
