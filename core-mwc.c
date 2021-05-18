@@ -50,7 +50,7 @@ static inline void mwc_flush(void)
  */
 static uint64_t stress_aux_random_seed(void)
 {
-	const uint8_t *ptr = (const uint8_t *)getauxval(AT_RANDOM);
+	const uint8_t *ptr = (const uint8_t *)(uintptr_t)getauxval(AT_RANDOM);
 	uint64_t val;
 
 	if (!ptr)
@@ -94,8 +94,8 @@ void stress_mwc_reseed(void)
 		mwc.z += ~(p1 - p2);
 		mwc.w += (uint64_t)getpid() ^ (uint64_t)getppid()<<12;
 		if (stress_get_load_avg(&m1, &m5, &m15) == 0) {
-			mwc.z += (128 * (m1 + m15));
-			mwc.w += (256 * (m5));
+			mwc.z += (uint64_t)(128.0 * (m1 + m15));
+			mwc.w += (uint64_t)(256.0 * (m5));
 		}
 		if (getrusage(RUSAGE_SELF, &r) == 0) {
 			mwc.z += r.ru_utime.tv_usec;
