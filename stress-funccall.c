@@ -737,6 +737,20 @@ stress_funcdeep_8(__float128)
 stress_funcdeep_9(__float128)
 #endif
 
+static inline float stress_mwcfloat(void)
+{
+	const uint32_t r = stress_mwc32();
+
+	return (float)r / (float)(0xffffffffUL);
+}
+
+static inline double stress_mwcdouble(void)
+{
+	const uint64_t r = stress_mwc64();
+
+	return (double)r / (double)(0xffffffffffffffffULL);
+}
+
 #define stress_funccall_type(type, rndfunc)				\
 static void NOINLINE stress_funccall_ ## type(const stress_args_t *args);	\
 									\
@@ -804,9 +818,9 @@ stress_funccall_type(uint64_t, stress_mwc64)
 #if defined(HAVE_INT128_T)
 stress_funccall_type(__uint128_t, stress_mwc64)
 #endif
-stress_funccall_type(float, (float)stress_mwc64)
-stress_funccall_type(double, (double)stress_mwc64)
-stress_funccall_type(stress_long_double_t, (long double)stress_mwc64)
+stress_funccall_type(float, stress_mwcfloat)
+stress_funccall_type(double, stress_mwcdouble)
+stress_funccall_type(stress_long_double_t, stress_mwc64)
 #if defined(HAVE_FLOAT_DECIMAL32) &&	\
     !defined(__clang__)
 stress_funccall_type(_Decimal32, (_Decimal32)stress_mwc64)
