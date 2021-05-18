@@ -220,7 +220,7 @@ do {						\
 #define ROR8(val) 				\
 do {						\
 	uint8_t tmp = val;			\
-	const uint8_t bit0 = (tmp & 1) << 7;	\
+	const uint8_t bit0 = (uint8_t)((tmp & 1) << 7);	\
 	tmp >>= 1;				\
 	tmp |= bit0;				\
 	val = tmp;				\
