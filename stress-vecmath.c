@@ -150,22 +150,24 @@ typedef __uint128_t stress_vint128_t __attribute__ ((vector_size (16)));
  *  Operations to run on each vector
  */
 #define OPS(a, b, c, s, v23, v3) \
-	a += b;		\
-	a |= b;		\
-	a -= b;		\
-	a &= ~b;	\
-	a *= c;		\
-	a = ~a;		\
-	a *= s;		\
-	a ^= c;		\
-	a <<= 1;	\
-	b >>= 1;	\
-	b += c;		\
-	a %= v23;	\
-	c /= v3;	\
-	b = b ^ c;	\
-	c = b ^ c;	\
-	b = b ^ c;	\
+do {				\
+	a += b;			\
+	a |= b;			\
+	a -= b;			\
+	a &= ~b;		\
+	a *= c;			\
+	a = ~a;			\
+	a *= s;			\
+	a ^= c;			\
+	a <<= 1;		\
+	b >>= 1;		\
+	b += c;			\
+	a %= v23;		\
+	c /= v3;		\
+	b = b ^ c;		\
+	c = b ^ c;		\
+	b = b ^ c;		\
+} while (0)
 
 /*
  *  stress_vecmath()
