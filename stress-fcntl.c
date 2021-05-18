@@ -182,7 +182,7 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		 * glibc maps fcntl F_GETOWN to F_GETOWN_EX so
 		 * so try to bypass the glibc altogether
 		 */
-		ret = syscall(__NR_fcntl, fd, F_GETOWN);
+		ret = (int)syscall(__NR_fcntl, fd, F_GETOWN);
 #else
 		ret = fcntl(fd, F_GETOWN);
 #endif
@@ -594,7 +594,7 @@ ofd_lock_abort:	{ /* Nowt */ }
 			}
 		}
 		/* Exercise invalid hint type */
-		hint = ~0;
+		hint = ~0ULL;
 		ret = fcntl(fd, F_SET_FILE_RW_HINT, &hint);
 		(void)ret;
 #endif
