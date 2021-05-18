@@ -542,9 +542,9 @@ static int stress_open(const stress_args_t *args)
 				/* Other error occurred, retry */
 			}
 			if (fds[i] >= 0) {
-				if (fds[i] > max_fd)
+				if (fds[i] > (int)max_fd)
 					max_fd = (unsigned int)fds[i];
-				if (fds[i] < min_fd)
+				if (fds[i] < (int)min_fd)
 					min_fd = (unsigned int)fds[i];
 			}
 
