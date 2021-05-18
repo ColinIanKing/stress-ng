@@ -164,7 +164,7 @@ static int stress_mmapfork(const stress_args_t *args)
 				if (wipe_ok && (wipe_ptr != MAP_FAILED) &&
 				    stress_memory_is_not_zero(wipe_ptr, wipe_size)) {
 					pr_fail("%s: madvise MADV_WIPEONFORK didn't wipe page %p\n",
-						args->name, wipe_ptr);
+						args->name, (void *)wipe_ptr);
 					_exit(_EXIT_FAILURE);
 				}
 #endif
