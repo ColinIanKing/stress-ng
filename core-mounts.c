@@ -92,7 +92,7 @@ int stress_mount_get(char *mnts[], const int max)
 	struct mntent* mnt;
 	int n = 0;
 
-	(void)memset(mnts, 0, max * sizeof(char *));
+	(void)memset(mnts, 0, (size_t)max * sizeof(char *));
 	mounts = setmntent("/etc/mtab", "r");
 	/* Failed, so assume / is available */
 	if (!mounts) {
