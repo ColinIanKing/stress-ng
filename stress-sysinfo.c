@@ -30,10 +30,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-#define check_do_run()			\
-	if (!keep_stressing_flag())	\
-		break;			\
-
 /*
  *  stress on system information
  *	stress system by rapid fetches of system information
@@ -79,13 +75,15 @@ static int stress_sysinfo(const stress_args_t *args)
 			 	pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 
 			/* Linux statfs variant */
 			for (i = 0; i < n_mounts; i++) {
 				int fd;
 
-				check_do_run();
+				if (!keep_stressing_flag())
+					break;
 
 				if (!mnts[i])
 					continue;
@@ -157,7 +155,8 @@ static int stress_sysinfo(const stress_args_t *args)
 			struct stat sbuf;
 			struct shim_ustat ubuf;
 
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 
 			for (i = 0; i < n_mounts; i++) {
 				if (!mnts[i])
@@ -190,7 +189,8 @@ static int stress_sysinfo(const stress_args_t *args)
 #endif
 		}
 
-		check_do_run();
+		if (!keep_stressing_flag())
+			break;
 
 #if defined(HAVE_SYS_STATVFS_H)
 		{
@@ -201,7 +201,8 @@ static int stress_sysinfo(const stress_args_t *args)
 			for (i = 0; i < n_mounts; i++) {
 				int ret;
 
-				check_do_run();
+				if (!keep_stressing_flag())
+					break;
 
 				if (!mnts[i])
 					continue;
@@ -226,7 +227,8 @@ static int stress_sysinfo(const stress_args_t *args)
 		}
 #endif
 
-		check_do_run();
+		if (!keep_stressing_flag())
+			break;
 		clk = times(&tms_buf);
 		if ((clk == (clock_t)-1) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 			 pr_fail("%s: times failed, errno=%d (%s)\n",
