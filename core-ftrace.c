@@ -125,7 +125,7 @@ static int stress_ftrace_parse_trace_stat_file(const char *path, const bool star
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
 		struct rb_node *tn, node;
 		char *ptr, *func_name, *num = "0";
-		uint64_t count;
+		int64_t count;
 		double time_us;
 
 		if (strstr(buffer, "Function"))
@@ -158,7 +158,7 @@ static int stress_ftrace_parse_trace_stat_file(const char *path, const bool star
 		if (!*ptr)
 			continue;
 		*ptr++ = '\0';
-		count = (uint64_t)atoll(num);
+		count = (int64_t)atoll(num);
 
 		/*
 		 *  Skip over leading spaces and find time consumed
