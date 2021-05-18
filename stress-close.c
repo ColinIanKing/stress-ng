@@ -384,7 +384,7 @@ static int stress_close(const stress_args_t *args)
 		if (duration > max_duration) {
 			max_duration = duration;
 			/* max delay is 75% of the duration in microseconds */
-			max_delay_us = duration * 750000;
+			max_delay_us = (uint64_t)(duration * 750000);
 		}
 
 		max_duration *= 0.995;
