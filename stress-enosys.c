@@ -56,7 +56,7 @@ static const stress_help_t help[] = {
 
 typedef struct hash_syscall {
 	struct hash_syscall *next;
-	unsigned long	number;
+	long	number;
 } stress_hash_syscall_t;
 
 static stress_hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
@@ -201,7 +201,7 @@ static void exercise_syscall(
 		_exit(EXIT_SUCCESS);
 
 	itimer_set(args);
-	ret = syscall7(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+	ret = (int)syscall7(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 	exit_if_child(pid);
 	if ((ret < 0) && (errno != ENOSYS))
 		enosys = true;
@@ -288,7 +288,7 @@ static const int syscall_ignore[] = {
 #endif
 };
 
-static inline bool HOT OPTIMIZE3 syscall_find(unsigned long number)
+static inline bool HOT OPTIMIZE3 syscall_find(long number)
 {
 	register stress_hash_syscall_t *h;
 	register int i;
@@ -309,7 +309,7 @@ static inline bool HOT OPTIMIZE3 syscall_find(unsigned long number)
 	return false;
 }
 
-static inline void HOT OPTIMIZE3 syscall_add(unsigned long number)
+static inline void HOT OPTIMIZE3 syscall_add(long number)
 {
 	const long hash = number % HASH_SYSCALL_SIZE;
 	stress_hash_syscall_t *newh, *h = hash_syscall_table[hash];
@@ -3285,7 +3285,7 @@ static const long skip_syscalls[] = {
  *  limit_procs()
  *	try to limit child resources
  */
-static void limit_procs(const int procs)
+static void limit_procs(const unsigned long procs)
 {
 #if defined(RLIMIT_CPU) || defined(RLIMIT_NPROC)
 	struct rlimit lim;
@@ -3297,8 +3297,8 @@ static void limit_procs(const int procs)
 	(void)setrlimit(RLIMIT_CPU, &lim);
 #endif
 #if defined(RLIMIT_NPROC)
-	lim.rlim_cur = procs;
-	lim.rlim_max = procs;
+	lim.rlim_cur = (unsigned long)procs;
+	lim.rlim_max = (unsigned long)procs;
 	(void)setrlimit(RLIMIT_NPROC, &lim);
 #else
 	(void)procs;
@@ -3330,7 +3330,7 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 		_exit(EXIT_NO_RESOURCE);
 	} else if (pid == 0) {
 		size_t i;
-		unsigned long arg;
+		long arg;
 		char buffer[1024];
 
 		/* Try to limit child from spawning */
@@ -3368,10 +3368,10 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 		}
 
 		exercise_syscall(args, number,
-			stress_mwc64(), stress_mwc64(),
-			stress_mwc64(), stress_mwc64(),
-			stress_mwc64(), stress_mwc64(),
-			stress_mwc64());
+			(long)stress_mwc64(), (long)stress_mwc64(),
+			(long)stress_mwc64(), (long)stress_mwc64(),
+			(long)stress_mwc64(), (long)stress_mwc64(),
+			(long)stress_mwc64());
 
 		exercise_syscall(args, number,
 			(long)buffer, (long)buffer,
@@ -3504,7 +3504,7 @@ again:
 				stress_do_syscall(args, stress_mwc32() & mask);
 				if (!keep_stressing(args))
 					goto finish;
-				stress_do_syscall(args, stress_mwc64() & mask);
+				stress_do_syscall(args, (long)(stress_mwc64() & mask));
 			}
 
 			/* Various bit masks */
