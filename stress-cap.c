@@ -98,7 +98,7 @@ static int stress_capgetset_pid(
 	(void)ret;
 #endif
 
-	uch.version = ~0;
+	uch.version = ~0U;
 	uch.pid = pid;
 	ret = capget(&uch, ucd);
 
