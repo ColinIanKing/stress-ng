@@ -91,7 +91,7 @@ static void daemons(const stress_args_t *args, const int fd)
 			goto tidy;
 		} else if (pid == 0) {
 			/* Child */
-			char buf[1] = { 0xff };
+			uint8_t buf[1] = { 0xff };
 			ssize_t sz;
 			int ret;
 
