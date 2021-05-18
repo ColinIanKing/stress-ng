@@ -318,12 +318,12 @@ int32_t stress_get_processors_configured(void)
 int32_t stress_get_ticks_per_second(void)
 {
 #if defined(_SC_CLK_TCK)
-	static uint32_t ticks_per_second = 0;
+	static int32_t ticks_per_second = 0;
 
 	if (ticks_per_second > 0)
 		return ticks_per_second;
 
-	ticks_per_second = sysconf(_SC_CLK_TCK);
+	ticks_per_second = (int32_t)sysconf(_SC_CLK_TCK);
 	return ticks_per_second;
 #else
 	return -1;
@@ -390,7 +390,7 @@ uint64_t stress_get_phys_mem_size(void)
 	const size_t page_size = stress_get_pagesize();
 	const uint64_t max_pages = ~0ULL / page_size;
 
-	phys_pages = sysconf(STRESS_SC_PAGES);
+	phys_pages = (uint64_t)sysconf(STRESS_SC_PAGES);
 	/* Avoid overflow */
 	if (phys_pages > max_pages)
 		phys_pages = max_pages;
@@ -703,7 +703,7 @@ char *stress_munge_underscore(const char *str)
 	char *dst;
 	const char *src;
 	const size_t str_len = strlen(str);
-	const ssize_t len = STRESS_MINIMUM(str_len, sizeof(munged) - 1);
+	const ssize_t len = (ssize_t)STRESS_MINIMUM(str_len, sizeof(munged) - 1);
 
 	for (src = str, dst = munged; *src && (dst - munged) < len; src++)
 		*dst++ = (*src == '_' ? '-' : *src);
@@ -1229,7 +1229,7 @@ void stress_cache_free(void)
  *  system_write()
  *	write a buffer to a /sys or /proc entry
  */
-int system_write(
+ssize_t system_write(
 	const char *path,
 	const char *buf,
 	const size_t buf_len)
@@ -1252,7 +1252,7 @@ int system_write(
  *  system_read()
  *	read a buffer from a /sys or /proc entry
  */
-int system_read(
+ssize_t system_read(
 	const char *path,
 	char *buf,
 	const size_t buf_len)
@@ -1288,12 +1288,14 @@ int system_read(
 static inline bool stress_is_prime64(const uint64_t n)
 {
 	register uint64_t i, max;
+	double max_d;
 
 	if (n <= 3)
 		return n >= 2;
 	if ((n % 2 == 0) || (n % 3 == 0))
 		return false;
-	max = sqrt(n) + 1;
+	max_d = 1.0 + sqrt((double)n);
+	max = (uint64_t)max_d;
 	for (i = 5; i < max; i+= 6)
 		if ((n % i == 0) || (n % (i + 2) == 0))
 			return false;
@@ -1404,7 +1406,7 @@ int stress_get_bad_fd(void)
 	if (getrlimit(RLIMIT_NOFILE, &rlim) == 0) {
 		if (rlim.rlim_cur < INT_MAX - 1) {
 			if (fcntl((int)rlim.rlim_cur, F_GETFL) == -1) {
-				return rlim.rlim_cur + 1;
+				return (int)rlim.rlim_cur + 1;
 			}
 		}
 	}
@@ -1640,7 +1642,7 @@ int stress_not_implemented(const stress_args_t *args)
  *  stress_check_max_pipe_size()
  *	check if the given pipe size is allowed
  */
-static inline size_t stress_check_max_pipe_size(
+static inline int stress_check_max_pipe_size(
 	const size_t sz,
 	const size_t page_size)
 {
@@ -1670,7 +1672,8 @@ size_t stress_probe_max_pipe_size(void)
 	static size_t max_pipe_size;
 
 #if defined(F_SETPIPE_SZ)
-	size_t i, ret, prev_sz, sz, min, max;
+	ssize_t ret;
+	size_t i, prev_sz, sz, min, max;
 	char buf[64];
 	size_t page_size;
 #endif
@@ -1697,6 +1700,7 @@ size_t stress_probe_max_pipe_size(void)
 	min = page_size;
 	max = INT_MAX;
 	prev_sz = 0;
+	sz = 0;
 	for (i = 0; i < 64; i++) {
 		sz = min + (max - min) / 2;
 		if (prev_sz == sz)
@@ -1712,7 +1716,6 @@ ret:
 	max_pipe_size = sz;
 #else
 	max_pipe_size = stress_get_pagesize();
-
 #endif
 	return max_pipe_size;
 }
@@ -1776,7 +1779,7 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 		}
 	}
 
-	(void)snprintf(str, len, "%.1f%s", (double)val / scale, suffix);
+	(void)snprintf(str, len, "%.1f%s", (double)val / (double)scale, suffix);
 
 	return str;
 }
@@ -1802,7 +1805,8 @@ bool stress_check_capability(const int capability)
 	int ret;
 	struct __user_cap_header_struct uch;
 	struct __user_cap_data_struct ucd[_LINUX_CAPABILITY_U32S_3];
-	uint32_t idx, mask;
+	uint32_t mask;
+	size_t idx;
 
 	if (capability == SHIM_CAP_IS_ROOT)
 		return stress_check_root();
@@ -1817,7 +1821,7 @@ bool stress_check_capability(const int capability)
 	if (ret < 0)
 		return stress_check_root();
 
-	idx = CAP_TO_INDEX(capability);
+	idx = (size_t)CAP_TO_INDEX(capability);
 	mask = CAP_TO_MASK(capability);
 
 	return (ucd[idx].permitted &= mask) ? true : false;
@@ -1954,7 +1958,7 @@ size_t stress_text_addr(char **start, char **end)
         extern char etext;
         intptr_t text_end = (intptr_t)&etext;
 #endif
-        const size_t text_len = text_end - text_start;
+        const size_t text_len = (size_t)(text_end - text_start);
 
 	if ((start == NULL) || (end == NULL) || (text_start >= text_end))
 		return 0;
@@ -2035,7 +2039,7 @@ int stress_dirent_list_prune(struct dirent **dlist, const int n)
  */
 bool stress_warn_once_hash(const char *filename, const int line)
 {
-	uint32_t free_slot, i, j, h = (stress_hash_pjw(filename) + line);
+	uint32_t free_slot, i, j, h = (stress_hash_pjw(filename) + (uint32_t)line);
 	bool not_warned_yet = true;
 #if defined(HAVE_LIB_PTHREAD)
         int ret;
@@ -2097,7 +2101,7 @@ uint16_t HOT OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
 	sum = (sum >> 16) + (sum & 0xffff);
 	sum += (sum >> 16);
 
-	return ~sum;
+	return (uint16_t)~sum;
 }
 
 #if defined(HAVE_SETPWENT) &&	\
@@ -2214,7 +2218,7 @@ ssize_t stress_read_buffer(int fd, void* buffer, ssize_t size, bool ignore_int)
 		char *ptr = ((char *)buffer) + rbytes;
 ignore_eintr:
 
-		ret = read(fd, (void *)ptr, size - rbytes);
+		ret = read(fd, (void *)ptr, (size_t)(size - rbytes));
 		if (ignore_int && (ret < 0) && (errno == EINTR))
 			goto ignore_eintr;
 		if (ret > 0)
@@ -2239,7 +2243,7 @@ ssize_t stress_write_buffer(int fd, void* buffer, ssize_t size, bool ignore_int)
 	do {
 		char *ptr = ((char *)buffer) + wbytes;
 ignore_eintr:
-		ret = write(fd, (void *)ptr, size - wbytes);
+		ret = write(fd, (void *)ptr, (size_t)(size - wbytes));
 		/* retry if interrupted */
 		if (ignore_int && (ret < 0) && (errno == EINTR))
 			goto ignore_eintr;
@@ -2304,6 +2308,7 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 #endif
 	int i;
 	pid_t pid;
+	uint32_t n;
 
 	(void)memset(buf, 0, sizeof(buf));
 	if (system_read("/proc/sys/kernel/pid_max", buf, sizeof(buf) - 1) > 0) {
@@ -2335,8 +2340,9 @@ pid_t stress_get_unused_pid_racy(const bool fork_test)
 	/*
 	 *  Make a random PID guess.
 	 */
+	n = (uint32_t)max_pid - 1023;
 	for (i = 0; i < 20; i++) {
-		pid = (stress_mwc32() % (max_pid - 1023)) + 1023;
+		pid = (pid_t)(stress_mwc32() % n) + 1023;
 
 		if ((kill(pid, 0) < 0) && (errno == ESRCH))
 			return pid;
@@ -2361,7 +2367,7 @@ int stress_read_fdinfo(const pid_t pid, const int fd)
 	(void)snprintf(path, sizeof(path), "/proc/%d/fdinfo/%d",
                 (int)pid, fd);
 
-        return system_read(path, buf, sizeof(buf));
+        return (int)system_read(path, buf, sizeof(buf));
 #else
 	(void)pid;
 	(void)fd;

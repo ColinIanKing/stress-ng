@@ -4045,9 +4045,9 @@ extern WARN_UNUSED int stress_cache_alloc(const char *name);
 extern void stress_cache_free(void);
 extern void stress_ignite_cpu_start(void);
 extern void stress_ignite_cpu_stop(void);
-extern int system_write(const char *path, const char *buf, const size_t buf_len);
+extern ssize_t system_write(const char *path, const char *buf, const size_t buf_len);
 extern WARN_UNUSED int stress_set_nonblock(const int fd);
-extern WARN_UNUSED int system_read(const char *path, char *buf,
+extern WARN_UNUSED ssize_t system_read(const char *path, char *buf,
 	const size_t buf_len);
 extern WARN_UNUSED uint64_t stress_get_prime64(const uint64_t n);
 extern WARN_UNUSED size_t stress_get_file_limit(void);
