@@ -57,7 +57,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_pjw(const char *str)
 	while (*str) {
 		register uint32_t g;
 
-		h = (h << 4) + (*str);
+		h = (h << 4) + (uint32_t)(*str);
 		if (0 != (g = h & 0xf0000000)) {
 			h = h ^ (g >> 24);
 			h = h ^ g;
@@ -78,7 +78,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_djb2a(const char *str)
 
 	while ((c = *str++)) {
 		/* (hash * 33) ^ c */
-		hash = ((hash << 5) + hash) ^ c;
+		hash = ((hash << 5) + hash) ^ (uint32_t)c;
 	}
 	return hash;
 }
@@ -94,7 +94,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_fnv1a(const char *str)
 	register int c;
 
 	while ((c = *str++)) {
-		hash ^= c;
+		hash ^= (uint32_t)c;
 		hash *= fnv_prime;
 	}
 	return hash;
@@ -111,7 +111,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_sdbm(const char *str)
 	register int c;
 
 	while ((c = *str++))
-		hash = c + (hash << 6) + (hash << 16) - hash;
+		hash = (uint32_t)c + (hash << 6) + (hash << 16) - hash;
 	return hash;
 }
 
@@ -122,7 +122,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_sdbm(const char *str)
  */
 uint32_t HOT OPTIMIZE3 stress_hash_nhash(const char *str)
 {
-	static int primes[] = {
+	static uint32_t primes[] = {
 		3, 5, 7, 11, 13, 17, 19, 23, 29, 31,
 		37, 41, 43, 47, 53, 59, 61, 67, 71, 73,
 		79, 83, 89, 97, 101, 103, 107, 109, 113
@@ -136,7 +136,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_nhash(const char *str)
 		if (i >= n)
 			i -= n;
 
-		sum += primes[i] * *(str++);
+		sum += primes[i] * (uint32_t)*(str++);
 	}
 	return sum;
 }
