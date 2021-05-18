@@ -655,7 +655,7 @@ int shim_usleep_interruptible(uint64_t usec)
 	struct timespec t, trem;
 
 	t.tv_sec = usec / 1000000;
-	t.tv_nsec = (usec - (t.tv_sec * 1000000)) * 1000;
+	t.tv_nsec = ((long int)usec - (t.tv_sec * 1000000)) * 1000;
 
 	errno = 0;
 	return nanosleep(&t, &trem);
