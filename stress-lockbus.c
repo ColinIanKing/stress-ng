@@ -89,7 +89,7 @@ do {						\
 static sigjmp_buf jmp_env;
 static bool do_splitlock;
 
-static void MLOCKED_TEXT stress_sigbus_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
 {
 	(void)signum;
 
