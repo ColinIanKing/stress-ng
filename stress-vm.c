@@ -200,47 +200,47 @@ static int stress_set_vm_keep(const char *opt)
 }
 
 #define SET_AND_TEST(ptr, val, bit_errors)	\
-{						\
+do {						\
 	*ptr = val;				\
 	bit_errors += (*ptr != val);		\
-}
+} while (0)
 
 /*
  *  This compiles down to a load, ror, store in x86
  */
 #define ROR64(val) 				\
-{						\
+do {						\
 	uint64_t tmp = val;			\
 	const uint64_t bit0 = (tmp & 1) << 63; 	\
 	tmp >>= 1;				\
 	tmp |= bit0;				\
 	val = tmp;				\
-}
+} while (0)
 
 #define ROR8(val) 				\
-{						\
+do {						\
 	uint8_t tmp = val;			\
 	const uint8_t bit0 = (tmp & 1) << 7;	\
 	tmp >>= 1;				\
 	tmp |= bit0;				\
 	val = tmp;				\
-}
+} while (0)
 
 #define INC_LO_NYBBLE(val)			\
-{						\
+do {						\
 	uint8_t lo = (val);			\
 	lo += 1;				\
 	lo &= 0xf;				\
 	(val) = ((val) & 0xf0) | lo;		\
-}
+} while (0)
 
 #define INC_HI_NYBBLE(val)			\
-{						\
+do {						\
 	uint8_t hi = (val);			\
 	hi += 0xf0;				\
 	hi &= 0xf0;				\
 	(val) = ((val) & 0x0f) | hi;		\
-}
+} while (0)
 
 #define UNSIGNED_ABS(a, b)			\
 	((a) > (b)) ? (a) - (b) : (b) - (a)
