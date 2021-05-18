@@ -67,8 +67,8 @@ static int page_write_sync(const int fd, const size_t page_size)
 
 		rc = write(fd, buffer, sizeof(buffer));
 		if (rc < (ssize_t)sizeof(buffer))
-			return rc;
-		n += rc;
+			return (int)rc;
+		n += (size_t)rc;
 	}
 	(void)sync();
 
@@ -113,58 +113,58 @@ static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args
 	register int i;
 
 	for (i = 0; i < 1024; i++) {
-		vdata0[0] = i;
-		vdata1[0] = i;
-		vdata0[1] = i;
-		vdata1[1] = i;
-		vdata0[2] = i;
-		vdata1[2] = i;
-		vdata0[3] = i;
-		vdata1[3] = i;
-		vdata0[4] = i;
-		vdata1[4] = i;
-		vdata0[5] = i;
-		vdata1[5] = i;
-		vdata0[6] = i;
-		vdata1[6] = i;
-		vdata0[7] = i;
-		vdata1[7] = i;
+		vdata0[0] = (uint64_t)i;
+		vdata1[0] = (uint64_t)i;
+		vdata0[1] = (uint64_t)i;
+		vdata1[1] = (uint64_t)i;
+		vdata0[2] = (uint64_t)i;
+		vdata1[2] = (uint64_t)i;
+		vdata0[3] = (uint64_t)i;
+		vdata1[3] = (uint64_t)i;
+		vdata0[4] = (uint64_t)i;
+		vdata1[4] = (uint64_t)i;
+		vdata0[5] = (uint64_t)i;
+		vdata1[5] = (uint64_t)i;
+		vdata0[6] = (uint64_t)i;
+		vdata1[6] = (uint64_t)i;
+		vdata0[7] = (uint64_t)i;
+		vdata1[7] = (uint64_t)i;
 		read64(data0);
 		read64(data1);
 	}
 
 	for (i = 0; i < 1024; i++) {
-		vdata0[0] = i;
+		vdata0[0] = (uint64_t)i;
 		shim_mfence();
-		vdata1[0] = i;
+		vdata1[0] = (uint64_t)i;
 		shim_mfence();
-		vdata0[1] = i;
+		vdata0[1] = (uint64_t)i;
 		shim_mfence();
-		vdata1[1] = i;
+		vdata1[1] = (uint64_t)i;
 		shim_mfence();
-		vdata0[2] = i;
+		vdata0[2] = (uint64_t)i;
 		shim_mfence();
-		vdata1[2] = i;
+		vdata1[2] = (uint64_t)i;
 		shim_mfence();
-		vdata0[3] = i;
+		vdata0[3] = (uint64_t)i;
 		shim_mfence();
-		vdata1[3] = i;
+		vdata1[3] = (uint64_t)i;
 		shim_mfence();
-		vdata0[4] = i;
+		vdata0[4] = (uint64_t)i;
 		shim_mfence();
-		vdata1[4] = i;
+		vdata1[4] = (uint64_t)i;
 		shim_mfence();
-		vdata0[5] = i;
+		vdata0[5] = (uint64_t)i;
 		shim_mfence();
-		vdata1[5] = i;
+		vdata1[5] = (uint64_t)i;
 		shim_mfence();
-		vdata0[6] = i;
+		vdata0[6] = (uint64_t)i;
 		shim_mfence();
-		vdata1[6] = i;
+		vdata1[6] = (uint64_t)i;
 		shim_mfence();
-		vdata0[7] = i;
+		vdata0[7] = (uint64_t)i;
 		shim_mfence();
-		vdata1[7] = i;
+		vdata1[7] = (uint64_t)i;
 		shim_mfence();
 		read64(data0);
 		read64(data1);
@@ -172,22 +172,22 @@ static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args
 
 #if defined(STRESS_ARCH_X86)
 	for (i = 0; i < 1024; i++) {
-		vdata0[0] = i;
-		vdata1[0] = i;
-		vdata0[1] = i;
-		vdata1[1] = i;
-		vdata0[2] = i;
-		vdata1[2] = i;
-		vdata0[3] = i;
-		vdata1[3] = i;
-		vdata0[4] = i;
-		vdata1[4] = i;
-		vdata0[5] = i;
-		vdata1[5] = i;
-		vdata0[6] = i;
-		vdata1[6] = i;
-		vdata0[7] = i;
-		vdata1[7] = i;
+		vdata0[0] = (uint64_t)i;
+		vdata1[0] = (uint64_t)i;
+		vdata0[1] = (uint64_t)i;
+		vdata1[1] = (uint64_t)i;
+		vdata0[2] = (uint64_t)i;
+		vdata1[2] = (uint64_t)i;
+		vdata0[3] = (uint64_t)i;
+		vdata1[3] = (uint64_t)i;
+		vdata0[4] = (uint64_t)i;
+		vdata1[4] = (uint64_t)i;
+		vdata0[5] = (uint64_t)i;
+		vdata1[5] = (uint64_t)i;
+		vdata0[6] = (uint64_t)i;
+		vdata1[6] = (uint64_t)i;
+		vdata0[7] = (uint64_t)i;
+		vdata1[7] = (uint64_t)i;
 		shim_clflush(data0);
 		shim_clflush(data1);
 		read64(data0);
@@ -195,74 +195,74 @@ static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args
 	}
 
 	for (i = 0; i < 1024; i++) {
-		vdata0[0] = i;
+		vdata0[0] = (uint64_t)i;
 		cpu_relax();
-		vdata1[0] = i;
+		vdata1[0] = (uint64_t)i;
 		cpu_relax();
-		vdata0[1] = i;
+		vdata0[1] = (uint64_t)i;
 		cpu_relax();
-		vdata1[1] = i;
+		vdata1[1] = (uint64_t)i;
 		cpu_relax();
-		vdata0[2] = i;
+		vdata0[2] = (uint64_t)i;
 		cpu_relax();
-		vdata1[2] = i;
+		vdata1[2] = (uint64_t)i;
 		cpu_relax();
-		vdata0[3] = i;
+		vdata0[3] = (uint64_t)i;
 		cpu_relax();
-		vdata1[3] = i;
+		vdata1[3] = (uint64_t)i;
 		cpu_relax();
-		vdata0[4] = i;
+		vdata0[4] = (uint64_t)i;
 		cpu_relax();
-		vdata1[4] = i;
+		vdata1[4] = (uint64_t)i;
 		cpu_relax();
-		vdata0[5] = i;
+		vdata0[5] = (uint64_t)i;
 		cpu_relax();
-		vdata1[5] = i;
+		vdata1[5] = (uint64_t)i;
 		cpu_relax();
-		vdata0[6] = i;
+		vdata0[6] = (uint64_t)i;
 		cpu_relax();
-		vdata1[6] = i;
+		vdata1[6] = (uint64_t)i;
 		cpu_relax();
-		vdata0[7] = i;
+		vdata0[7] = (uint64_t)i;
 		cpu_relax();
-		vdata1[7] = i;
+		vdata1[7] = (uint64_t)i;
 		cpu_relax();
 		read64(data0);
 		read64(data1);
 	}
 #endif
 	for (i = 0; i < 1024; i++) {
-		vdata0[0] = i;
+		vdata0[0] = (uint64_t)i;
 		mem_barrier();
-		vdata1[0] = i;
+		vdata1[0] = (uint64_t)i;
 		mem_barrier();
-		vdata0[1] = i;
+		vdata0[1] = (uint64_t)i;
 		mem_barrier();
-		vdata1[1] = i;
+		vdata1[1] = (uint64_t)i;
 		mem_barrier();
-		vdata0[2] = i;
+		vdata0[2] = (uint64_t)i;
 		mem_barrier();
-		vdata1[2] = i;
+		vdata1[2] = (uint64_t)i;
 		mem_barrier();
-		vdata0[3] = i;
+		vdata0[3] = (uint64_t)i;
 		mem_barrier();
-		vdata1[3] = i;
+		vdata1[3] = (uint64_t)i;
 		mem_barrier();
-		vdata0[4] = i;
+		vdata0[4] = (uint64_t)i;
 		mem_barrier();
-		vdata1[4] = i;
+		vdata1[4] = (uint64_t)i;
 		mem_barrier();
-		vdata0[5] = i;
+		vdata0[5] = (uint64_t)i;
 		mem_barrier();
-		vdata1[5] = i;
+		vdata1[5] = (uint64_t)i;
 		mem_barrier();
-		vdata0[6] = i;
+		vdata0[6] = (uint64_t)i;
 		mem_barrier();
-		vdata1[6] = i;
+		vdata1[6] = (uint64_t)i;
 		mem_barrier();
-		vdata0[7] = i;
+		vdata0[7] = (uint64_t)i;
 		mem_barrier();
-		vdata1[7] = i;
+		vdata1[7] = (uint64_t)i;
 		mem_barrier();
 		read64(data0);
 		read64(data1);
@@ -279,7 +279,7 @@ static void *stress_memory_contend_thread(void *arg)
 	static void *nowt = NULL;
 	const stress_pthread_args_t *pa = (const stress_pthread_args_t *)arg;
 #if defined(HAVE_AFFINITY)
-	const uint32_t cpus = stress_get_processors_configured();
+	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
 #endif
 
 	/*
