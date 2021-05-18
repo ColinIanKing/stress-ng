@@ -58,9 +58,10 @@ static inline uint8_t jmp_stress_mwc8(void)
 {							\
 	register bool do_more;				\
 	register uint16_t index = jmp_stress_mwc8();	\
+	register bool flag = keep_stressing_flag();	\
 							\
 	inc_counter(args);				\
-	do_more = LIKELY((int)keep_stressing_flag()) &	\
+	do_more = LIKELY(flag) &			\
 		(((int)!args->max_ops) | 		\
 		 (get_counter(args) < args->max_ops));	\
 	index |= (do_more << 8);			\
