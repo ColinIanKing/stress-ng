@@ -32,7 +32,6 @@ static const stress_help_t help[] = {
 #if defined(F_NOTIFY) && \
     defined(HAVE_SYS_SELECT_H)
 
-#define DIR_FLAGS	(S_IRWXU | S_IRWXG)
 #define FILE_FLAGS	(S_IRUSR | S_IWUSR)
 
 #define BUF_SIZE	(4096)
