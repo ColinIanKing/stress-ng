@@ -149,6 +149,7 @@ static void stress_dentry_unlink(
 static void stress_dentry_misc(const char *path)
 {
 	int fd, flags = O_RDONLY, ret;
+	ssize_t sret;
 	off_t offset;
 	struct stat statbuf;
 	struct timeval timeout;
@@ -183,8 +184,8 @@ static void stress_dentry_misc(const char *path)
 	(void)offset;
 
 	/* Not allowed */
-	ret = read(fd, buf, sizeof(buf));
-	(void)ret;
+	sret = read(fd, buf, sizeof(buf));
+	(void)sret;
 
 	/* Not allowed */
 	ret = ftruncate(fd, 0);
