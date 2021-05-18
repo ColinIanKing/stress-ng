@@ -132,7 +132,7 @@ static const int madvise_options[] = {
  *  stress_sigbus_handler()
  *     SIGBUS handler
  */
-static void MLOCKED_TEXT stress_sigbus_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
 {
 	(void)signum;
 
