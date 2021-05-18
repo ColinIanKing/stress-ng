@@ -101,7 +101,7 @@ static const stress_lib_info_t libnames[] = {
  *  stress_segvhandler()
  *      SEGV handler
  */
-static void MLOCKED_TEXT stress_segvhandler(int signum)
+static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
 {
 	(void)signum;
 
