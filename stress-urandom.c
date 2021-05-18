@@ -112,7 +112,7 @@ static int stress_urandom(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		char buffer[8192];
+		uint8_t buffer[8192];
 		ssize_t ret;
 		struct timeval timeout;
 		fd_set rdfds;
