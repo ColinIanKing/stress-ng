@@ -118,7 +118,7 @@ static inline int open_arg2(const char *pathname, int flags)
 	int fd;
 
 #if defined(__NR_open)
-	fd = syscall(__NR_open, pathname, flags);
+	fd = (int)syscall(__NR_open, pathname, flags);
 #else
 	fd = open(pathname, flags);
 #endif
@@ -133,7 +133,7 @@ static inline int open_arg3(const char *pathname, int flags, mode_t mode)
 	int fd;
 
 #if defined(__NR_open)
-	fd = syscall(__NR_open, pathname, flags, mode);
+	fd = (int)syscall(__NR_open, pathname, flags, mode);
 #else
 	fd = open(pathname, flags, mode);
 #endif
@@ -329,7 +329,7 @@ static int open_with_openat_dirfd(void)
     defined(__NR_openat2)
 static int open_with_openat2_cwd(void)
 {
-	static const int resolve_flags[] = {
+	static const unsigned int resolve_flags[] = {
 #if defined(RESOLVE_BENEATH)
 		RESOLVE_BENEATH,
 #endif
@@ -349,7 +349,7 @@ static int open_with_openat2_cwd(void)
 		RESOLVE_CACHED,
 #endif
 		0,
-		~0,			/* Intentionally illegal */
+		(unsigned int)~0,	/* Intentionally illegal */
 	};
 
 	char filename[PATH_MAX];
@@ -513,7 +513,8 @@ static int stress_open(const stress_args_t *args)
 
 	do {
 		size_t i, n;
-		int ret, min_fd = INT_MAX, max_fd = INT_MIN;
+		int ret;
+		unsigned int min_fd = UINT_MAX, max_fd = 0;
 
 		for (i = 0; i < max_fds; i++) {
 			for (;;) {
@@ -540,10 +541,12 @@ static int stress_open(const stress_args_t *args)
 
 				/* Other error occurred, retry */
 			}
-			if (fds[i] > max_fd)
-				max_fd = fds[i];
-			if (fds[i] < min_fd)
-				min_fd = fds[i];
+			if (fds[i] >= 0) {
+				if (fds[i] > max_fd)
+					max_fd = (unsigned int)fds[i];
+				if (fds[i] < min_fd)
+					min_fd = (unsigned int)fds[i];
+			}
 
 			stress_read_fdinfo(mypid, fds[i]);
 
