@@ -362,8 +362,10 @@ static int stress_madvise(const stress_args_t *args)
 
 	(void)unlink(filename);
 	for (n = 0; n < sz; n += page_size) {
-		ret = write(fd, page, sizeof(page));
-		(void)ret;
+		ssize_t wret;
+
+		wret = write(fd, page, sizeof(page));
+		(void)wret;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
