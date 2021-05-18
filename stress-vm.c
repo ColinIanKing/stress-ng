@@ -1521,7 +1521,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	(void)memset(buf, 0xff, sz);
 
 	for (j = 0; j < 8; j++) {
-		uint8_t mask = ~(1 << j);
+		uint8_t mask = (uint8_t)~(1 << j);
 		/*
 		 *  Step through memory in prime sized steps
 		 *  in a totally sub-optimal way to exercise
@@ -1578,7 +1578,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	(void)memset(buf, 0x00, sz);
 
 	for (j = 0; j < 8; j++) {
-		uint8_t mask = 1 << j;
+		uint8_t mask = (uint8_t)(1 << j);
 		/*
 		 *  Step through memory in prime sized steps
 		 *  in a totally sub-optimal way to exercise
