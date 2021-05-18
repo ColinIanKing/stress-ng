@@ -839,7 +839,7 @@ ssize_t shim_statx(
 #if defined(__NR_statx)
 	return (ssize_t)syscall(__NR_statx, dfd, filename, flags, mask, buffer);
 #else
-	return (ssize_t))shim_enosys(0, dfd, filename, flags, mask, buffer);
+	return (ssize_t)shim_enosys(0, dfd, filename, flags, mask, buffer);
 #endif
 }
 
