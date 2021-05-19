@@ -37,20 +37,6 @@ static const stress_help_t help[] = {
 #endif
 #define MMAP_BOTTOM	(0x10000)
 
-/*
- *  stress_sigsegv_handler()
- *	older kernels can kill the child when fixed mappings
- *	can't be backed by physical pages. In this case,
- *	force child termination and reap and account this
- *	in the main stressor loop.
- */
-static void MLOCKED_TEXT stress_sigsegv_handler(int signum)
-{
-	(void)signum;
-
-	_exit(0);
-}
-
 static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
@@ -60,7 +46,7 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 	(void)context;
 
 	ret = stress_sighandler(args->name, SIGSEGV,
-				stress_sigsegv_handler, NULL);
+				stress_sig_handler_exit, NULL);
 	(void)ret;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
