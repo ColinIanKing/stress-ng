@@ -2439,3 +2439,15 @@ size_t stress_min_sig_stack_size(void)
 	return (8192);
 #endif
 }
+
+/*
+ *  stress_sig_handler_exit()
+ *	signal handler that exits a process via _exit(0) for
+ *	immediate dead stop termination.
+ */
+void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum)
+{
+	(void)signum;
+
+	_exit(0);
+}
