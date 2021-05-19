@@ -479,6 +479,8 @@ static int stress_io_uring(const stress_args_t *args)
 		if (rc != EXIT_SUCCESS)
 			break;
 #endif
+		if (!keep_stressing(args))
+			break;
 
 #if defined(HAVE_IORING_OP_READV)
 		rc = stress_io_uring_iovec_submit(args, &submit, &io_uring_file, IORING_OP_READV);
@@ -488,6 +490,8 @@ static int stress_io_uring(const stress_args_t *args)
 		if (rc != EXIT_SUCCESS)
 			break;
 #endif
+		if (!keep_stressing(args))
+			break;
 
 #if defined(HAVE_IORING_OP_NOP)
 		rc = stress_io_uring_nop_submit(args, &submit, &io_uring_file);
@@ -497,7 +501,8 @@ static int stress_io_uring(const stress_args_t *args)
 		if (rc != EXIT_SUCCESS)
 			break;
 #endif
-
+		if (!keep_stressing(args))
+			break;
 		/*
 		 *  occasional sync and fdinfo reads
 		 */
