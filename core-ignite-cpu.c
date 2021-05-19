@@ -60,7 +60,7 @@ static stress_settings_t settings[] = {
 };
 
 static int stress_ignite_cpu_set(
-	const uint32_t cpu,
+	const int32_t cpu,
 	const uint64_t freq,
 	const char *governor)
 {
@@ -71,7 +71,7 @@ static int stress_ignite_cpu_set(
 		char buffer[128];
 
 		(void)snprintf(path, sizeof(path),
-			"/sys/devices/system/cpu/cpu%" PRIu32
+			"/sys/devices/system/cpu/cpu%" PRId32
 			"/cpufreq/scaling_setspeed", cpu);
 		(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", freq);
 		ret1 = system_write(path, buffer, strlen(buffer));
