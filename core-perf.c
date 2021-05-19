@@ -355,7 +355,7 @@ static char *stress_perf_yaml_label(char *dst, const char *src, const size_t n)
 			if (*s == ' ')
 				*d = '_';
 			else if (isupper(*s))
-				*d = tolower(*s);
+				*d = (char)tolower(*s);
 			else if (*s)
 				*d = *s;
 			else {
