@@ -136,8 +136,7 @@ static void stress_apparmor_read(const char *path)
 	while (keep_stressing_flag() &&
 	       apparmor_run &&
 	       (i < (4096 * APPARMOR_BUF_SZ))) {
-		ssize_t ret;
-		size_t sz = 1 + (stress_mwc32() % sizeof(buffer));
+		ssize_t ret, sz = 1 + (stress_mwc32() % sizeof(buffer));
 redo:
 		if (!keep_stressing_flag() || !apparmor_run)
 			break;
