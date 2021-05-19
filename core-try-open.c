@@ -57,7 +57,7 @@ int stress_try_open(
 	const unsigned long timeout_ns)
 {
 	pid_t pid;
-	int ret, status;
+	int ret, status = 0;
 	struct stat statbuf;
 	const int retries = 20;
 	unsigned long sleep_ns = timeout_ns / retries;
