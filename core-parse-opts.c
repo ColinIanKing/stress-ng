@@ -268,7 +268,7 @@ uint64_t stress_get_uint64_percent(
 
 	/* Convert to % over N instances */
 	if ((len > 1) && (str[len - 1] == '%')) {
-		double val;
+		double val, percent;
 
 		/* Avoid division by zero */
 		if (max == 0) {
@@ -289,7 +289,8 @@ uint64_t stress_get_uint64_percent(
 			(void)fprintf(stderr, "Invalid percentage %s\n", str);
 			longjmp(g_error_env, 1);
 		}
-		return (uint64_t)((double)(max * val) / (100.0 * instances));
+		percent = ((double)max * (double)val) / (100.0 * (double)instances);
+		return (uint64_t)percent;
 	}
 	return stress_get_uint64_byte(str);
 }
