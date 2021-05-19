@@ -174,7 +174,7 @@ static const int ignore_signals[] = {
  */
 static const stress_t stressors[] = {
 	STRESSORS(STRESSOR_ELEM)
-	{ NULL, STRESS_MAX, 0, 0, NULL }
+	{ NULL, STRESS_MAX, 0, OPT_undefined, NULL }
 };
 
 STRESS_ASSERT(SIZEOF_ARRAY(stressors) != STRESS_MAX)

@@ -2661,6 +2661,7 @@ typedef enum {
 
 /* Command line long options */
 typedef enum {
+	OPT_undefined = 0,
 	/* Short options */
 	OPT_query = '?',
 	OPT_all = 'a',
