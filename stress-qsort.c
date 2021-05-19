@@ -142,7 +142,7 @@ static int stress_qsort(const stress_args_t *args)
 
 	/* This is expensive, do it once */
 	for (ptr = data, i = 0; i < n; i++)
-		*ptr++ = stress_mwc32();
+		*ptr++ = (int32_t)stress_mwc32();
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
