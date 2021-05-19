@@ -59,7 +59,7 @@ static int stress_getrandom_supported(const char *name)
 }
 
 typedef struct {
-	const int flag;
+	unsigned int flag;
 	const char *flag_str;
 } getrandom_flags_t ;
 
@@ -100,7 +100,7 @@ static const getrandom_flags_t getrandom_flags[] = {
 	GETRANDOM_FLAG_INFO(GRND_INSECURE | GRND_RANDOM),
 #endif
 	/* exercise all flags illegal flag combination */
-	GETRANDOM_FLAG_INFO(~0),
+	GETRANDOM_FLAG_INFO(~0U),
 };
 
 /*
