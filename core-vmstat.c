@@ -389,7 +389,7 @@ void stress_vmstat_start(void)
 		else if ((thermalstat_sleep > 0) && (vmstat_sleep == 0))
 			sleep_delay = thermalstat_sleep;
 
-		sleep(sleep_delay);
+		sleep((unsigned int)sleep_delay);
 
 		vmstat_sleep -= sleep_delay;
 		thermalstat_sleep -= sleep_delay;
@@ -400,7 +400,8 @@ void stress_vmstat_start(void)
 			thermalstat_sleep = thermalstat_delay;
 
 		if (vmstat_sleep == vmstat_delay) {
-			unsigned long clk_tick;
+			const long clk_tick = sysconf(_SC_CLK_TCK) * sysconf(_SC_NPROCESSORS_ONLN);
+			double clk_tick_vmstat_delay = (double)clk_tick * (double)vmstat_delay;
 			static uint32_t vmstat_count = 0;
 
 			if ((vmstat_count++ % 25) == 0)
@@ -413,7 +414,6 @@ void stress_vmstat_start(void)
 					"wa", "st");
 
 			stress_get_vmstat(&vmstat);
-			clk_tick = sysconf(_SC_CLK_TCK) * sysconf(_SC_NPROCESSORS_ONLN);
 			pr_inf("vmstat %2" PRIu64 " %2" PRIu64 /* procs */
 			       " %9" PRIu64 " %9" PRIu64	/* vm used */
 			       " %9" PRIu64 " %9" PRIu64	/* memory_buff */
@@ -429,17 +429,17 @@ void stress_vmstat_start(void)
 				vmstat.memory_free,
 				vmstat.memory_buff,
 				vmstat.memory_cache,
-				vmstat.swap_in / vmstat_delay,
-				vmstat.swap_out / vmstat_delay,
-				vmstat.block_in / vmstat_delay,
-				vmstat.block_out / vmstat_delay,
-				vmstat.interrupt / vmstat_delay,
-				vmstat.context_switch / vmstat_delay,
-				100.0 * vmstat.user_time / (clk_tick * vmstat_delay),
-				100.0 * vmstat.system_time / (clk_tick * vmstat_delay),
-				100.0 * vmstat.idle_time / (clk_tick * vmstat_delay),
-				100.0 * vmstat.wait_time / (clk_tick * vmstat_delay),
-				100.0 * vmstat.stolen_time / (clk_tick * vmstat_delay));
+				vmstat.swap_in / (uint64_t)vmstat_delay,
+				vmstat.swap_out / (uint64_t)vmstat_delay,
+				vmstat.block_in / (uint64_t)vmstat_delay,
+				vmstat.block_out / (uint64_t)vmstat_delay,
+				vmstat.interrupt / (uint64_t)vmstat_delay,
+				vmstat.context_switch / (uint64_t)vmstat_delay,
+				100.0 * (double)vmstat.user_time / clk_tick_vmstat_delay,
+				100.0 * (double)vmstat.system_time / clk_tick_vmstat_delay,
+				100.0 * (double)vmstat.idle_time / clk_tick_vmstat_delay,
+				100.0 * (double)vmstat.wait_time / clk_tick_vmstat_delay,
+				100.0 * (double)vmstat.stolen_time / clk_tick_vmstat_delay);
 		}
 
 		if (thermalstat_delay == thermalstat_sleep) {
