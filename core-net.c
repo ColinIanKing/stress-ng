@@ -47,9 +47,13 @@ void stress_set_net_port(
 	const int max_port,
 	int *port)
 {
-	*port = stress_get_uint64(opt);
-	stress_check_range(optname, *port,
-		min_port, max_port - STRESS_PROCS_MAX);
+	const uint64_t val = stress_get_uint64(opt);
+
+	stress_check_range(optname, val,
+		(uint64_t)min_port,
+		(uint64_t)(max_port - STRESS_PROCS_MAX));
+
+	*port = (int)val;
 }
 
 /*
@@ -95,13 +99,19 @@ void stress_set_sockaddr(
 {
 	(void)ppid;
 
+	uint16_t sin_port = (uint16_t)port + (uint16_t)instance;
+
+	/* Handle overflow to omit ports 0..1023 */
+	if ((port > 1024) && (sin_port < 1024))
+		sin_port += 1024;
+
 	switch (domain) {
 #if defined(AF_INET)
 	case AF_INET: {
 		static struct sockaddr_in addr;
 
 		(void)memset(&addr, 0, sizeof(addr));
-		addr.sin_family = domain;
+		addr.sin_family = (sa_family_t)domain;
 		switch (net_addr) {
 		case NET_ADDR_LOOPBACK:
 			addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
@@ -111,7 +121,7 @@ void stress_set_sockaddr(
 			addr.sin_addr.s_addr = htonl(INADDR_ANY);
 			break;
 		}
-		addr.sin_port = htons(port + instance);
+		addr.sin_port = htons(sin_port);
 		*sockaddr = (struct sockaddr *)&addr;
 		*len = sizeof(addr);
 		break;
@@ -125,7 +135,7 @@ void stress_set_sockaddr(
 		static const struct in6_addr in6addr_loopback = IN6ADDR_LOOPBACK_INIT;
 #endif
 		(void)memset(&addr, 0, sizeof(addr));
-		addr.sin6_family = domain;
+		addr.sin6_family = (sa_family_t)domain;
 		switch (net_addr) {
 		case NET_ADDR_LOOPBACK:
 			addr.sin6_addr = in6addr_loopback;
@@ -135,7 +145,7 @@ void stress_set_sockaddr(
 			addr.sin6_addr = in6addr_any;
 			break;
 		}
-		addr.sin6_port = htons(port + instance);
+		addr.sin6_port = htons(sin_port);
 		*sockaddr = (struct sockaddr *)&addr;
 		*len = sizeof(addr);
 		break;
@@ -183,6 +193,7 @@ void HOT stress_set_sockaddr_port(
 #if defined(AF_INET6)
 	case AF_INET6: {
 		struct sockaddr_in6 *addr = (struct sockaddr_in6 *)sockaddr;
+
 		addr->sin6_port = htons(port);
 		break;
 	}
