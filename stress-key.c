@@ -278,7 +278,7 @@ static int stress_key(const stress_args_t *args)
 
 		{
 			char buf[4096];
-			int len;
+			ssize_t len;
 
 			len = system_read("/proc/keys", buf, sizeof(buf));
 			(void)len;
