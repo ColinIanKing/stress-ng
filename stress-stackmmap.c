@@ -41,17 +41,6 @@ static uintptr_t page_mask;
 static size_t page_size;
 
 /*
- *  Just terminate the child when SEGV occurs on the
- *  mmap'd stack.
- */
-static void MLOCKED_TEXT stress_segvhandler(int signum)
-{
-	(void)signum;
-
-	_exit(0);
-}
-
-/*
  *  push values onto file backed mmap'd stack and
  *  force msync on the map'd region if page boundary
  *  has changed
@@ -225,7 +214,7 @@ again:
 			 *  is required because we ran out of stack
 			 */
 			(void)memset(&new_action, 0, sizeof new_action);
-			new_action.sa_handler = stress_segvhandler;
+			new_action.sa_handler = stress_sig_handler_exit;
 			(void)sigemptyset(&new_action.sa_mask);
 			new_action.sa_flags = SA_ONSTACK;
 			if (sigaction(SIGSEGV, &new_action, NULL) < 0)

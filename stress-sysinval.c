@@ -1893,13 +1893,6 @@ static const stress_syscall_arg_values_t arg_values[] = {
 
 };
 
-static void MLOCKED_TEXT stress_inval_handler(int signum)
-{
-	(void)signum;
-
-	_exit(1);
-}
-
 /*
  *   stress_syscall_hash()
  *	generate a simple hash on system call and call arguments
@@ -2193,7 +2186,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 			_exit(EXIT_NO_RESOURCE);
 		}
 		for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-			if (stress_sighandler(args->name, sigs[i], stress_inval_handler, NULL) < 0)
+			if (stress_sighandler(args->name, sigs[i], stress_sig_handler_exit, NULL) < 0)
 				_exit(EXIT_FAILURE);
 		}
 
