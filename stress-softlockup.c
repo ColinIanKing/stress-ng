@@ -69,7 +69,7 @@ static sigjmp_buf jmp_env;
  *  stress_rlimit_handler()
  *      rlimit generic handler
  */
-static void MLOCKED_TEXT stress_rlimit_handler(int signum)
+static void MLOCKED_TEXT NORETURN stress_rlimit_handler(int signum)
 {
 	(void)signum;
 
@@ -127,7 +127,7 @@ static int stress_softlockup(const stress_args_t *args)
 	(void)memset(&param, 0, sizeof(param));
 
 	if (!args->instance) {
-		if (SIZEOF_ARRAY(policies) == 0) {
+		if (SIZEOF_ARRAY(policies) == (0)) {
 			if (args->instance == 0)
 				pr_inf("%s: no scheduling policies "
 					"available, skipping test\n",
