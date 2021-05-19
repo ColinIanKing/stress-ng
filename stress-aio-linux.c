@@ -36,12 +36,12 @@ static const stress_help_t help[] = {
 
 static int stress_set_aio_linux_requests(const char *opt)
 {
-	size_t aio_linux_requests;
+	uint32_t aio_linux_requests;
 
 	aio_linux_requests = stress_get_uint32(opt);
 	stress_check_range("aiol-requests", aio_linux_requests,
 		MIN_AIO_LINUX_REQUESTS, MAX_AIO_LINUX_REQUESTS);
-	return stress_set_setting("aiol-requests", TYPE_ID_SIZE_T, &aio_linux_requests);
+	return stress_set_setting("aiol-requests", TYPE_ID_UINT32, &aio_linux_requests);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -63,23 +63,23 @@ static int shim_io_cancel(
 	struct iocb *iocb,
 	struct io_event *result)
 {
-	return syscall(__NR_io_cancel, ctx_id, iocb, result);
+	return (int)syscall(__NR_io_cancel, ctx_id, iocb, result);
 }
 #endif
 
 static int shim_io_setup(unsigned nr_events, io_context_t *ctx_idp)
 {
-	return syscall(__NR_io_setup, nr_events, ctx_idp);
+	return (int)syscall(__NR_io_setup, nr_events, ctx_idp);
 }
 
 static int shim_io_destroy(io_context_t ctx_id)
 {
-	return syscall(__NR_io_destroy, ctx_id);
+	return (int)syscall(__NR_io_destroy, ctx_id);
 }
 
 static int shim_io_submit(io_context_t ctx_id, long nr, struct iocb **iocbpp)
 {
-	return syscall(__NR_io_submit, ctx_id, nr, iocbpp);
+	return (int)syscall(__NR_io_submit, ctx_id, nr, iocbpp);
 }
 
 static int shim_io_getevents(
@@ -89,7 +89,7 @@ static int shim_io_getevents(
 	struct io_event *events,
 	struct timespec *timeout)
 {
-	return syscall(__NR_io_getevents, ctx_id, min_nr, nr, events, timeout);
+	return (int)syscall(__NR_io_getevents, ctx_id, min_nr, nr, events, timeout);
 }
 
 /*
@@ -97,14 +97,14 @@ static int shim_io_getevents(
  *	fill buffer with some known pattern
  */
 static inline void aio_linux_fill_buffer(
-	const int request,
+	uint8_t pattern,
 	uint8_t *const buffer,
 	const size_t size)
 {
 	register size_t i;
 
-	for (i = 0; i < size; i++)
-		buffer[i] = (uint8_t)(request + i);
+	for (i = 0; i < size; i++, pattern++)
+		buffer[i] = (uint8_t)pattern;
 }
 
 /*
@@ -119,7 +119,7 @@ static inline bool aio_linux_check_buffer(
 	register size_t i;
 
 	for (i = 0; i < size; i++) {
-		if (buffer[i] != (uint8_t)(request + i))
+		if (buffer[i] != (uint8_t)(request + (int)i))
 			return false;
 	}
 
@@ -161,7 +161,7 @@ static int stress_aiol_submit(
  *  stress_aiol_wait()
  *	wait for async I/O requests to complete
  */
-static int stress_aiol_wait(
+static ssize_t stress_aiol_wait(
 	const stress_args_t *args,
 	const io_context_t ctx,
 	struct io_event events[],
@@ -184,24 +184,24 @@ static int stress_aiol_wait(
 			timeout_ptr = &timeout;
 		}
 
-		ret = shim_io_getevents(ctx, 1, n - i, events, timeout_ptr);
+		ret = shim_io_getevents(ctx, 1, (long)(n - i), events, timeout_ptr);
 		if (ret < 0) {
 			if (errno == EINTR) {
 				if (keep_stressing_flag()) {
 					continue;
 				} else {
-					return i;
+					return (ssize_t)i;
 				}
 			}
 			pr_fail("%s: io_getevents failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return -1;
 		} else {
-			i += ret;
+			i += (size_t)ret;
 		}
 	} while ((i < n) && keep_stressing_flag());
 
-	return i;
+	return (ssize_t)i;
 }
 
 /*
@@ -287,14 +287,14 @@ static int stress_aiol(const stress_args_t *args)
 	char filename[PATH_MAX];
 	char buf[1];
 	io_context_t ctx = 0;
-	size_t aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
+	uint32_t aio_linux_requests = DEFAULT_AIO_LINUX_REQUESTS;
 	uint8_t *buffer;
 	struct iocb *cb;
 	struct io_event *events;
 	struct iocb **cbs;
 	int *fds;
-	size_t aio_max_nr = DEFAULT_AIO_MAX_NR;
-	uint16_t j;
+	uint32_t aio_max_nr = DEFAULT_AIO_MAX_NR;
+	uint8_t j = 0;
 	size_t i;
 	int warnings = 0;
 
@@ -310,9 +310,8 @@ static int stress_aiol(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	ret = system_read("/proc/sys/fs/aio-max-nr", buf, sizeof(buf));
-	if (ret > 0) {
-		if (sscanf(buf, "%zu", &aio_max_nr) != 1) {
+	if (system_read("/proc/sys/fs/aio-max-nr", buf, sizeof(buf)) > 0) {
+		if (sscanf(buf, "%" SCNu32, &aio_max_nr) != 1) {
 			/* Guess max */
 			aio_max_nr = DEFAULT_AIO_MAX_NR;
 		}
@@ -328,7 +327,7 @@ static int stress_aiol(const stress_args_t *args)
 		aio_linux_requests = aio_max_nr;
 		if (args->instance == 0)
 			pr_inf("%s: Limiting AIO requests to "
-				"%zu per stressor (avoids running out of resources)\n",
+				"%" PRIu32 " per stressor (avoids running out of resources)\n",
 				args->name, aio_linux_requests);
 	}
 
@@ -415,23 +414,24 @@ retry_open:
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	j = 0;
 	do {
 		uint8_t *bufptr;
-		int n;
-		off_t offset = stress_mwc16() * BUFFER_SZ;
+		ssize_t n;
+		int64_t off, offset = stress_mwc16() * BUFFER_SZ;
 
 		/*
 		 *  async writes
 		 */
 		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
-		for (bufptr = buffer, i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
-			aio_linux_fill_buffer(j + (((intptr_t)bufptr) >> 12), bufptr, BUFFER_SZ);
+		for (bufptr = buffer, i = 0, off = offset; i < aio_linux_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
+			const uint8_t pattern = j + ((((intptr_t)bufptr) >> 12) & 0xff);
+
+			aio_linux_fill_buffer(pattern, bufptr, BUFFER_SZ);
 
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_PWRITE;
 			cb[i].u.c.buf = bufptr;
-			cb[i].u.c.offset = offset + (i * BUFFER_SZ);
+			cb[i].u.c.offset = off;
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
@@ -447,13 +447,13 @@ retry_open:
 		 *  async reads
 		 */
 		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
-		for (bufptr = buffer, i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
+		for (bufptr = buffer, i = 0, off = offset; i < aio_linux_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
 			(void)memset(bufptr, 0, BUFFER_SZ);
 
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_PREAD;
 			cb[i].u.c.buf = bufptr;
-			cb[i].u.c.offset = offset + (i * BUFFER_SZ);
+			cb[i].u.c.offset = off;
 			cb[i].u.c.nbytes = BUFFER_SZ;
 			cbs[i] = &cb[i];
 		}
@@ -465,14 +465,17 @@ retry_open:
 		if (n < 0)
 			break;
 
-		for (i = 0; i < (size_t)n; i++) {
+		for (i = 0; i < n; i++) {
+			uint8_t pattern;
 			struct iocb *obj = events[i].obj;
 
 			if (!obj)
 				continue;
 
 			bufptr = obj->u.c.buf;
-			if (aio_linux_check_buffer(j + (((intptr_t)bufptr) >> 12), bufptr, BUFFER_SZ) != true) {
+			pattern = j + ((((intptr_t)bufptr) >> 12) & 0xff);
+
+			if (aio_linux_check_buffer(pattern, bufptr, BUFFER_SZ) != true) {
 				if (warnings++ < 5) {
 					pr_inf("%s: unexpected data mismatch in buffer %zd (maybe a wait timeout issue)\n",
 						args->name, i);
@@ -506,8 +509,8 @@ retry_open:
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_POLL;
 			cb[i].u.c.buf = (void *)POLLIN;
-			cb[i].u.c.offset = ~0;	/* invalid */
-			cb[i].u.c.nbytes = ~0;	/* invalid */
+			cb[i].u.c.offset = ~0LL;	/* invalid */
+			cb[i].u.c.nbytes = ~0ULL;	/* invalid */
 			cbs[i] = &cb[i];
 		}
 		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, true) < 0)
@@ -517,12 +520,14 @@ retry_open:
 		inc_counter(args);
 		if (!keep_stressing(args))
 			break;
+
+		j++;
 #if 0
 		/*
 		 *  Async fdsync and fsync every 256 iterations, older kernels don't
 		 *  support these, so don't fail if EINVAL is returned.
 		 */
-		if (j++ >= 256) {
+		if (j >= 256) {
 			j = 0;
 
 			(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
