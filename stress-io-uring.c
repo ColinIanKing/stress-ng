@@ -49,6 +49,7 @@ static const stress_help_t help[] = {
 typedef struct {
 	int fd;			/* file descriptor */
 	struct iovec *iovecs;	/* iovecs array 1 per block to submit */
+	size_t iovecs_sz;	/* size of iovecs allocation */
 	off_t file_size;	/* size of the file (bytes) */
 	size_t blocks;		/* number of blocks to action */
 	size_t block_size;	/* per block size */
@@ -116,19 +117,22 @@ static int shim_io_uring_enter(
 }
 
 /*
- *  stress_io_uring_free_iovecs()
+ *  stress_io_uring_unmap_iovecs()
  *	free uring file iovecs
  */
-static void stress_io_uring_free_iovecs(stress_io_uring_file_t *io_uring_file)
+static void stress_io_uring_unmap_iovecs(stress_io_uring_file_t *io_uring_file)
 {
-	size_t i;
+	if (io_uring_file->iovecs) {
+		size_t i;
 
-	for (i = 0; i < io_uring_file->blocks; i++) {
-		free(io_uring_file->iovecs[i].iov_base);
-		io_uring_file->iovecs[i].iov_base = NULL;
+		for (i = 0; i < io_uring_file->blocks; i++) {
+			if (io_uring_file->iovecs[i].iov_base) {
+				(void)munmap((void *)io_uring_file->iovecs[i].iov_base, io_uring_file->block_size);
+				io_uring_file->iovecs[i].iov_base = NULL;
+			}
+		}
+		(void)munmap((void *)io_uring_file->iovecs, io_uring_file->iovecs_sz);
 	}
-
-	free(io_uring_file->iovecs);
 	io_uring_file->iovecs = NULL;
 }
 
@@ -381,7 +385,7 @@ static int stress_io_uring_iovec_complete(
 	unsigned head = *cring->head;
 	int ret = EXIT_SUCCESS;
 
-	while (keep_stressing(args)) {
+	for (;;) {
 		shim_mb();
 
 		/* Empty? */
@@ -427,8 +431,13 @@ static int stress_io_uring(const stress_args_t *args)
 	io_uring_file.file_size = file_size;
 	io_uring_file.blocks = blocks;
 	io_uring_file.block_size = block_size;
-	io_uring_file.iovecs = calloc(blocks, sizeof(*io_uring_file.iovecs));
-	if (!io_uring_file.iovecs) {
+	io_uring_file.iovecs_sz = blocks * sizeof(*io_uring_file.iovecs);
+	io_uring_file.iovecs =
+		mmap(NULL, io_uring_file.iovecs_sz,
+			PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_POPULATE | MAP_ANONYMOUS, -1, 0);
+	if (io_uring_file.iovecs == MAP_FAILED) {
+		io_uring_file.iovecs = NULL;
 		pr_inf("%s: cannot allocate iovecs\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -437,9 +446,13 @@ static int stress_io_uring(const stress_args_t *args)
 		const size_t iov_len = (file_size > (off_t)block_size) ? (size_t)block_size : (size_t)file_size;
 
 		io_uring_file.iovecs[i].iov_len = iov_len;
-		if (posix_memalign(&io_uring_file.iovecs[i].iov_base, block_size, block_size)) {
+		io_uring_file.iovecs[i].iov_base =
+			mmap(NULL, block_size, PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_POPULATE | MAP_ANONYMOUS, -1, 0);
+		if (io_uring_file.iovecs[i].iov_base == MAP_FAILED) {
+			io_uring_file.iovecs[i].iov_base = NULL;
 			pr_inf("%s: cannot allocate iovec iov_base\n", args->name);
-			stress_io_uring_free_iovecs(&io_uring_file);
+			stress_io_uring_unmap_iovecs(&io_uring_file);
 			return EXIT_NO_RESOURCE;
 		}
 		file_size -= iov_len;
@@ -447,7 +460,7 @@ static int stress_io_uring(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
-		stress_io_uring_free_iovecs(&io_uring_file);
+		stress_io_uring_unmap_iovecs(&io_uring_file);
 		return exit_status(-ret);
 	}
 
@@ -527,7 +540,7 @@ static int stress_io_uring(const stress_args_t *args)
 clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	stress_close_io_uring(&submit);
-	stress_io_uring_free_iovecs(&io_uring_file);
+	stress_io_uring_unmap_iovecs(&io_uring_file);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }
