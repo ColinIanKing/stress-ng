@@ -118,7 +118,7 @@ again:
 		(void)setpgid(pid, g_pgrp);
 
 		do {
-			int ret;
+			ssize_t ret;
 			struct signalfd_siginfo fdsi;
 
 			ret = read(sfd, &fdsi, sizeof(fdsi));
