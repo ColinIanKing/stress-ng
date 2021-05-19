@@ -3970,7 +3970,7 @@ extern void stress_set_oom_adjustment(const char *name, const bool killable);
 extern WARN_UNUSED bool stress_process_oomed(const pid_t pid);
 extern WARN_UNUSED int stress_oomable_child(const stress_args_t *args,
 	void *context, stress_oomable_child_func_t func, const int flag);
-extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int32_t sched,
+extern WARN_UNUSED int stress_set_sched(const pid_t pid, const int sched,
 	const int sched_priority, const bool quiet);
 extern WARN_UNUSED int stress_set_deadline_sched(const pid_t, const uint64_t period,
 	const uint64_t runtime, const uint64_t deadline, const bool quiet);

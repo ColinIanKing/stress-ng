@@ -2995,16 +2995,16 @@ next_opt:
 			stress_set_setting_global("sched-prio", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sched_period:
-			i64 = stress_get_uint64(optarg);
-			stress_set_setting_global("sched-period", TYPE_ID_INT64, &i64);
+			u64 = stress_get_uint64(optarg);
+			stress_set_setting_global("sched-period", TYPE_ID_UINT64, &u64);
 			break;
 		case OPT_sched_runtime:
-			i64 = stress_get_uint64(optarg);
-			stress_set_setting_global("sched-runtime", TYPE_ID_INT64, &i64);
+			u64 = stress_get_uint64(optarg);
+			stress_set_setting_global("sched-runtime", TYPE_ID_UINT64, &u64);
 			break;
 		case OPT_sched_deadline:
-			i64 = stress_get_uint64(optarg);
-			stress_set_setting_global("sched-deadline", TYPE_ID_INT64, &i64);
+			u64 = stress_get_uint64(optarg);
+			stress_set_setting_global("sched-deadline", TYPE_ID_UINT64, &u64);
 			break;
 		case OPT_sched_reclaim:
 			g_opt_flags |= OPT_FLAGS_DEADLINE_GRUB;

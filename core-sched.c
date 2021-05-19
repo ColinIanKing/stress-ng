@@ -125,7 +125,7 @@ int stress_set_deadline_sched(
 int stress_set_sched(
 	const pid_t pid,
 	const int sched,
-	const int32_t sched_priority,
+	const int sched_priority,
 	const bool quiet)
 {
 #if defined(SCHED_FIFO) || defined(SCHED_RR)
@@ -141,9 +141,9 @@ int stress_set_sched(
 
 #if defined(SCHED_DEADLINE) &&	\
     defined(__linux__)
-	long sched_period = -1;
-	long sched_runtime = -1;
-	long sched_deadline = -1;
+	uint64_t sched_period = 0;
+	uint64_t sched_runtime = 10000;
+	uint64_t sched_deadline = 0;
 #endif
 
 	(void)memset(&param, 0, sizeof(param));
@@ -168,7 +168,7 @@ int stress_set_sched(
 			else
 				param.sched_priority = (max - min) / 2;
 			if (!quiet)
-				pr_inf("%s: priority not given, defaulting to %d\n",
+				pr_inf("%s: priority not given (or set to -1), defaulting to %d\n",
 					prefix, param.sched_priority);
 		}
 		if ((param.sched_priority < min) ||
@@ -194,12 +194,12 @@ int stress_set_sched(
 		attr.sched_policy = SCHED_DEADLINE;
 		attr.sched_flags = SCHED_FLAG_RESET_ON_FORK;
 		attr.sched_nice = SCHED_OTHER;
-		attr.sched_priority = sched_priority;
+		attr.sched_priority = (unsigned int)sched_priority;
 		if (sched_priority == UNDEFINED) {
 			if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
-				attr.sched_priority = max;
+				attr.sched_priority = (uint32_t)max;
 			else
-				attr.sched_priority = (max - min) / 2;
+				attr.sched_priority = (uint32_t)((max - min) / 2);
 			if (!quiet)
 				pr_inf("%s: priority not given, defaulting to %d\n",
 					prefix, attr.sched_priority);
@@ -216,14 +216,10 @@ int stress_set_sched(
 			pr_dbg("%s: setting scheduler class '%s'\n", prefix, sched_name);
 
 		(void)stress_get_setting("sched-period", &sched_period);
-		if (sched_period < 0)
-			sched_period = 0;
 		(void)stress_get_setting("sched-runtime", &sched_runtime);
-		if (sched_runtime < 0)
-			sched_runtime = 10000;
 		(void)stress_get_setting("sched-deadline", &sched_deadline);
-		if (sched_deadline <= 0) {
-			attr.sched_runtime =   90000;
+		if (sched_deadline == 0) {
+			attr.sched_runtime = 90000;
 			attr.sched_deadline = 100000;
 			attr.sched_period = 0;
 		} else {
@@ -335,7 +331,7 @@ int32_t stress_get_opt_sched(const char *const str)
 	}
 	if (strcmp("which", str))
 		(void)fprintf(stderr, "Invalid sched option: %s\n", str);
-	if (SIZEOF_ARRAY(sched_types) == 0) {
+	if (SIZEOF_ARRAY(sched_types) == (0)) {
 		(void)fprintf(stderr, "No scheduler options are available\n");
 	} else {
 		(void)fprintf(stderr, "Available scheduler options are:");
