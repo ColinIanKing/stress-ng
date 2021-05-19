@@ -42,7 +42,7 @@
 
 /* used for table of perf events to gather */
 typedef struct {
-	const unsigned long type;	/* perf types */
+	const unsigned int type;	/* perf types */
 	unsigned long config;	/* perf type specific config */
 	const char *path;		/* perf trace point path (only for trace points) */
 	const char *label;		/* human readable name for perf type */
@@ -337,7 +337,7 @@ static inline int stress_sys_perf_event_open(
 	int group_fd,
 	unsigned long flags)
 {
-	return syscall(__NR_perf_event_open, attr, pid, cpu, group_fd, flags);
+	return (int)syscall(__NR_perf_event_open, attr, pid, cpu, group_fd, flags);
 }
 
 /*
@@ -528,7 +528,7 @@ int stress_perf_close(stress_perf_t *sp)
 				scale = (data.time_enabled == 0) ? 1.0 : 0.0;
 			} else {
 				scale = (double)data.time_enabled /
-					data.time_running;
+					(double)data.time_running;
 			}
 			sp->perf_stat[i].counter = (uint64_t)
 				((double)data.counter * scale);
@@ -690,7 +690,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 	if (no_perf_stats) {
 		if (geteuid() != 0) {
 			char buffer[64];
-			int ret;
+			ssize_t ret;
 			bool paranoid = false;
 			int level = 0;
 			static char *path = "/proc/sys/kernel/perf_event_paranoid";
