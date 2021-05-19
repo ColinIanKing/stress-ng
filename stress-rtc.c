@@ -194,20 +194,20 @@ static inline int stress_rtc_sys(const stress_args_t *args)
 	for (i = 0; i < SIZEOF_ARRAY(interfaces); i++) {
 		char path[PATH_MAX];
 		char buf[4096];
-		int ret;
+		ssize_t ret;
 
 		(void)snprintf(path, sizeof(path), "/sys/class/rtc/rtc0/%s", interfaces[i]);
 		ret = system_read(path, buf, sizeof(buf));
 		if (ret < 0) {
 			if (ret == -EINTR) {
-				rc = ret;
+				rc = (int)ret;
 				break;
 			} else if (ret == -ENOENT) {
 				enoents++;
 			} else {
-				pr_fail("%s: read of %s failed: errno=%d (%s)\n",
-					args->name, path, -ret, strerror(-ret));
-				rc = ret;
+				pr_fail("%s: read of %s failed: errno=%zd (%s)\n",
+					args->name, path, -ret, strerror((int)-ret));
+				rc = (int)ret;
 			}
 		}
 	}
@@ -221,18 +221,18 @@ static inline int stress_rtc_sys(const stress_args_t *args)
 
 static inline int stress_rtc_proc(const stress_args_t *args)
 {
-	int ret;
+	ssize_t ret;
 	char buf[4096];
 	static char *path = "/proc/driver/rtc";
 
 	ret = system_read(path, buf, sizeof(buf));
 	if (ret < 0) {
 		if ((ret != -ENOENT) && (ret != -EINTR)) {
-			pr_fail("%s: read of %s failed: errno=%d (%s)\n",
-			args->name, path, -ret, strerror(-ret));
+			pr_fail("%s: read of %s failed: errno=%zd (%s)\n",
+			args->name, path, -ret, strerror((int)-ret));
 		}
 	}
-	return ret;
+	return (int)ret;
 }
 
 /*
