@@ -58,7 +58,7 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 		return;
 
 	if (rd_fd > 0) {
-		int ret;
+		ssize_t ret;
 
 		got_err = 0;
 		ret = read(rd_fd, buffer, sizeof(buffer));
