@@ -85,7 +85,7 @@ bool stress_process_oomed(const pid_t pid)
 static int stress_set_adjustment(const char *procname, const char *name, const char *str)
 {
 	const size_t len = strlen(str);
-	int i, saved_errno;
+	int i, saved_errno = 0;
 
 	for (i = 0; i < 32; i++) {
 		ssize_t n;
