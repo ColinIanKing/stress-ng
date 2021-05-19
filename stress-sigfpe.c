@@ -47,7 +47,7 @@ static volatile siginfo_t siginfo;
  *	SIGFPE handler
  */
 #if defined(SA_SIGINFO)
-static void MLOCKED_TEXT stress_fpehandler(int num, siginfo_t *info, void *ucontext)
+static void NORETURN MLOCKED_TEXT stress_fpehandler(int num, siginfo_t *info, void *ucontext)
 {
 	(void)num;
 	(void)ucontext;
@@ -58,7 +58,7 @@ static void MLOCKED_TEXT stress_fpehandler(int num, siginfo_t *info, void *ucont
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
 #else
-static void MLOCKED_TEXT stress_fpehandler(int num)
+static void NORETURN MLOCKED_TEXT stress_fpehandler(int num)
 {
 	(void)num;
 	(void)feclearexcept(FE_ALL_EXCEPT);
@@ -126,7 +126,7 @@ static int stress_sigfpe(const stress_args_t *args)
 	const uint64_t zero = stress_uint64_zero();
 
 	typedef struct {
-		int	exception;
+		unsigned int exception;
 #if defined(SA_SIGINFO)
 		int	err_code;	/* cppcheck-suppress unusedStructMember */
 #endif
@@ -190,7 +190,7 @@ static int stress_sigfpe(const stress_args_t *args)
 		static int expected_err_code;
 		int code;
 #endif
-		int exception;
+		unsigned int exception;
 
 #if defined(SA_SIGINFO)
 		code = fpe_errs[i].err_code;
@@ -229,16 +229,16 @@ static int stress_sigfpe(const stress_args_t *args)
 			siginfo.si_code = 0;
 #endif
 
-			switch(exception) {
+			switch (exception) {
 			case SNG_FLTDIV:
-				stress_float_put(1.0 / (float)zero);
+				stress_float_put((float)1.0 / (float)zero);
 				break;
 			case SNG_INTDIV:
 				stress_uint64_put(1 / zero);
 				break;
 			default:
 				/* Raise fault otherwise */
-				(void)feraiseexcept(exception);
+				(void)feraiseexcept((int)exception);
 				break;
 			}
 		}
