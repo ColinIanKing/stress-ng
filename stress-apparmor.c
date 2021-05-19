@@ -140,7 +140,7 @@ static void stress_apparmor_read(const char *path)
 redo:
 		if (!keep_stressing_flag() || !apparmor_run)
 			break;
-		ret = read(fd, buffer, sz);
+		ret = read(fd, buffer, (size_t)sz);
 		if (ret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
