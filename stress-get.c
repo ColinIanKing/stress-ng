@@ -27,10 +27,6 @@
 #define _DEFAULT_SOURCE 1
 #define _BSD_SOURCE 1
 
-#define check_do_run()			\
-	if (!keep_stressing_flag())	\
-		break;			\
-
 #define GIDS_MAX 	(1024)
 #define MOUNTS_MAX	(256)
 
@@ -122,7 +118,7 @@ static const int priorities[] = {
 
 static sigjmp_buf jmp_env;
 
-static void MLOCKED_TEXT stress_segv_handler(int num)
+static void NORETURN MLOCKED_TEXT stress_segv_handler(int num)
 {
 	(void)num;
 
@@ -136,7 +132,7 @@ static void MLOCKED_TEXT stress_segv_handler(int num)
 static int stress_get(const stress_args_t *args)
 {
 	char *mnts[MOUNTS_MAX];
-	size_t mounts_max;
+	int mounts_max;
 	const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
 #if defined(HAVE_SYS_TIMEX_H)
 #if defined(HAVE_ADJTIMEX) || defined(HAVE_ADJTIME)
@@ -173,11 +169,14 @@ static int stress_get(const stress_args_t *args)
 
 		(void)mypid;
 
-		check_do_run();
+		if (!keep_stressing_flag())
+			break;
 
 		pid = getppid();
 		(void)pid;
-		check_do_run();
+
+		if (!keep_stressing_flag())
+			break;
 
 #if defined(HAVE_SWAPCONTEXT) &&        \
     defined(HAVE_UCONTEXT_H)
@@ -186,7 +185,8 @@ static int stress_get(const stress_args_t *args)
 
 			ret = getcontext(&context);
 			(void)ret;
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 		}
 
 #if defined(HAVE_SWAPCONTEXT) &&        \
@@ -196,7 +196,8 @@ static int stress_get(const stress_args_t *args)
 
 			ret = getcontext(&context);
 			(void)ret;
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 		}
 #endif
 #endif
@@ -207,7 +208,8 @@ static int stress_get(const stress_args_t *args)
 
 			ret = getdomainname(name, sizeof(name));
 			(void)ret;
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 		}
 #endif
 
@@ -217,7 +219,8 @@ static int stress_get(const stress_args_t *args)
 
 			id = gethostid();
 			(void)id;
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 		}
 #endif
 
@@ -227,7 +230,8 @@ static int stress_get(const stress_args_t *args)
 
 			ret = gethostname(name, sizeof(name));
 			(void)ret;
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 		}
 #endif
 
@@ -245,23 +249,23 @@ static int stress_get(const stress_args_t *args)
 				}
 			}
 		}
-		check_do_run();
+		if (!keep_stressing_flag())
+			break;
 
 		gid = getgid();
 		(void)gid;
-		check_do_run();
 
 		gid = getegid();
 		(void)gid;
-		check_do_run();
 
 		uid = getuid();
 		(void)uid;
-		check_do_run();
 
 		uid = geteuid();
 		(void)uid;
-		check_do_run();
+
+		if (!keep_stressing_flag())
+			break;
 
 		/*
 		 *  Zero size should return number of gids to fetch
@@ -287,21 +291,20 @@ static int stress_get(const stress_args_t *args)
 		 *  the system call. Override this by directly calling the
 		 *  system call if possible
 		 */
-		ret = syscall(__NR_getgroups, -1, gids);
+		ret = (int)syscall(__NR_getgroups, -1, gids);
 		(void)ret;
 #endif
-		check_do_run();
+		if (!keep_stressing_flag())
+			break;
 
 #if defined(HAVE_GETPGRP)
 		pid = getpgrp();
 		(void)pid;
-		check_do_run();
 #endif
 
 #if defined(HAVE_GETPGID)
 		pid = getpgid(mypid);
 		(void)pid;
-		check_do_run();
 
 		/*
 		 *  Exercise with an possibly invalid pid
@@ -309,6 +312,9 @@ static int stress_get(const stress_args_t *args)
 		pid = stress_get_unused_pid_racy(false);
 		pid = getpgid(pid);
 		(void)pid;
+
+		if (!keep_stressing_flag())
+			break;
 #endif
 
 #if defined(HAVE_GETPRIORITY)
@@ -327,7 +333,8 @@ static int stress_get(const stress_args_t *args)
 			if (verify && errno && (errno != EINVAL) && (ret < 0))
 				pr_fail("%s: getpriority failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 		}
 		/* Exercise getpriority calls using non-zero who argument */
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++){
@@ -344,7 +351,8 @@ static int stress_get(const stress_args_t *args)
 			if (verify && (ret < 0))
 				pr_fail("%s: getresgid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 		}
 #endif
 
@@ -356,7 +364,8 @@ static int stress_get(const stress_args_t *args)
 			if (verify && (ret < 0))
 				pr_fail("%s: getresuid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 		}
 #endif
 		/* Invalid getrlimit syscall and ignoring failure */
@@ -367,7 +376,8 @@ static int stress_get(const stress_args_t *args)
 			if (verify && (ret < 0))
 				pr_fail("%s: getrlimit(%zu, ..) failed, errno=%d (%s)\n",
 					args->name, i, errno, strerror(errno));
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 		}
 
 #if defined(__NR_ugetrlimit)
@@ -412,7 +422,8 @@ static int stress_get(const stress_args_t *args)
 
 			/* Exercise invalid pids */
 			(void)prlimit(pid, rlimits[i], NULL, &rlims[0]);
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 		}
 #endif
 
@@ -436,7 +447,7 @@ static int stress_get(const stress_args_t *args)
 			sysctl_args.newval = NULL;
 			sysctl_args.newlen = 0;
 
-			ret = syscall(__NR__sysctl, &sysctl_args);
+			ret = (int)syscall(__NR__sysctl, &sysctl_args);
 			(void)ret;
 		}
 #endif
@@ -448,7 +459,8 @@ static int stress_get(const stress_args_t *args)
 			if (verify && (ret < 0) && (errno != ENOSYS))
 				pr_fail("%s: getrusage(%zu, ..) failed, errno=%d (%s)\n",
 					args->name, i, errno, strerror(errno));
-			check_do_run();
+			if (!keep_stressing_flag())
+				break;
 		}
 
 #if defined(HAVE_GETSID)
@@ -459,17 +471,18 @@ static int stress_get(const stress_args_t *args)
 		pid = stress_get_unused_pid_racy(false);
 		ret = getsid(pid);
 		(void)ret;
-		check_do_run();
+		if (!keep_stressing_flag())
+			break;
 #endif
 
 		(void)shim_gettid();
-		check_do_run();
 
 		(void)shim_getcpu(&cpu, &node, NULL);
 		(void)shim_getcpu(NULL, &node, NULL);
 		(void)shim_getcpu(&cpu, NULL, NULL);
 		(void)shim_getcpu(NULL, NULL, NULL);
-		check_do_run();
+		if (!keep_stressing_flag())
+			break;
 
 		t = time(NULL);
 		if (t == (time_t)-1) {
@@ -596,7 +609,7 @@ static int stress_get(const stress_args_t *args)
 		{
 			char buf[PATH_MAX];
 
-			ret = syscall(__NR_lookup_dcookie, buf, sizeof(buf));
+			ret = (int)syscall(__NR_lookup_dcookie, buf, sizeof(buf));
 			(void)ret;
 		}
 #endif
