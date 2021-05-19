@@ -111,7 +111,7 @@ static int wrap_time(void *vdso_func)
 	time_t t;
 
 	*(void **)(&vdso_time) = vdso_func;
-	return vdso_time(&t);
+	return (int)vdso_time(&t);
 }
 
 #if defined(HAVE_CLOCK_GETTIME)
@@ -274,7 +274,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 								return -1;
 
 							vdso_sym->name = name;
-							vdso_sym->addr = sym->st_value + load_offset;
+							vdso_sym->addr = (void *)(sym->st_value + (uintptr_t)load_offset);
 							vdso_sym->func = func;
 							vdso_sym->dummy_func = wrap_dummy;
 							vdso_sym->next = vdso_sym_list;
@@ -386,15 +386,15 @@ static void vdso_sym_list_remove_duplicates(stress_vdso_sym_t **list)
  */
 static int stress_vdso_supported(const char *name)
 {
-	void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
+	unsigned long vdso = getauxval(AT_SYSINFO_EHDR);
 
-	if (vdso == NULL) {
+	if (vdso == 0) {
 		pr_inf("%s stressor will be skipped, failed to find vDSO address\n", name);
 		return -1;
 	}
 
 	vdso_sym_list = NULL;
-	dl_iterate_phdr(dl_wrapback, vdso);
+	dl_iterate_phdr(dl_wrapback, (void *)vdso);
 
 	if (!vdso_sym_list) {
 		pr_inf("%s stressor will be skipped, failed to find relevant vDSO "
@@ -507,7 +507,7 @@ static int stress_vdso(const stress_args_t *args)
 
 	pr_inf("%s: %.2f nanoseconds per call (excluding %.2f nanoseconds test overhead)\n",
 		args->name,
-		((t2 - t1) * (double)STRESS_NANOSECOND) / (double)get_counter(args),
+		((t2 - t1) * (double)STRESS_NANOSECOND) / (double)counter,
 		overhead_ns);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
