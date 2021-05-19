@@ -1158,7 +1158,7 @@ static int stress_exclude(void)
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
 		stress_id_t id;
 		stress_stressor_t *ss = stressors_head;
-		const uint32_t i = stressor_name_find(token);
+		const int32_t i = stressor_name_find(token);
 
 		if (!stressors[i].name) {
 			(void)fprintf(stderr, "Unknown stressor: '%s', "
@@ -1228,7 +1228,7 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 	}
 	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 
-	(void)snprintf(ptr, buffer - ptr,
+	(void)snprintf(ptr, (size_t)(buffer - ptr),
 		"MemFree: %zu MB, MemTotal: %zu MB",
 		freemem / (size_t)MB, totalmem / (size_t)MB);
 	/* Really shouldn't do this in a signal handler */
@@ -1324,7 +1324,7 @@ static inline void stress_show_stressor_names(void)
  *  stress_usage()
  *	print some help
  */
-static void stress_usage(void)
+static void NORETURN stress_usage(void)
 {
 	stress_version();
 	(void)printf("\nUsage: %s [OPTION [ARG]]\n", g_app_name);
@@ -1502,7 +1502,7 @@ static void stress_clean_dir_files(
 			continue;
 		}
 
-		snprintf(ptr, end - ptr, "/%s", names[n]->d_name);
+		snprintf(ptr, (size_t)(end - ptr), "/%s", names[n]->d_name);
 		name_len = strlen(ptr);
 		free(names[n]);
 
@@ -1591,10 +1591,10 @@ static void MLOCKED_TEXT stress_wait_stressors(
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
 		cpu_set_t proc_mask;
 		unsigned long int cpu = 0;
-		const uint32_t ticks_per_sec =
+		const int32_t ticks_per_sec =
 			stress_get_ticks_per_second() * 5;
 		const useconds_t usec_sleep =
-			ticks_per_sec ? 1000000 / ticks_per_sec : 1000000 / 250;
+			ticks_per_sec ? 1000000 / (useconds_t)ticks_per_sec : 1000000 / 250;
 
 		while (wait_flag) {
 			const int32_t cpus = stress_get_processors_configured();
@@ -1779,7 +1779,6 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 			g_app_name, (int)getpid(), stress_strsignal(signum));
 		(void)fflush(stderr);
 		_exit(EXIT_SIGNALED);
-		break;
 	default:
 		break;
 	}
@@ -1940,7 +1939,7 @@ again:
 				stress_set_timer_slack();
 
 				if (g_opt_timeout)
-					(void)alarm(g_opt_timeout);
+					(void)alarm((unsigned int)g_opt_timeout);
 
 				stress_set_proc_state(name, STRESS_STATE_INIT);
 				stress_mwc_reseed();
@@ -2055,7 +2054,7 @@ child_exit:
 	}
 	(void)stress_set_handler("stress-ng", false);
 	if (g_opt_timeout)
-		(void)alarm(g_opt_timeout);
+		(void)alarm((unsigned int)g_opt_timeout);
 
 abort:
 	pr_dbg("%d stressor%s started\n", started_instances,
@@ -2975,7 +2974,6 @@ next_opt:
 				(void)printf("Try '%s --help' for more information.\n", g_app_name);
 			}
 			return EXIT_FAILURE;
-			break;
 		case OPT_quiet:
 			g_opt_flags &= ~(PR_ALL);
 			break;
