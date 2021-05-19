@@ -24,9 +24,6 @@
  */
 #include "stress-ng.h"
 
-#undef _XOPEN_SOURCE
-#define _XOPEN_SOURCE	600
-
 static const stress_help_t help[] = {
 	{ NULL,	"crypt N",	"start N workers performing password encryption" },
 	{ NULL,	"crypt-ops N",	"stop after N bogo crypt operations" },
