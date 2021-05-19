@@ -136,7 +136,8 @@ static void stress_apparmor_read(const char *path)
 	while (keep_stressing_flag() &&
 	       apparmor_run &&
 	       (i < (4096 * APPARMOR_BUF_SZ))) {
-		ssize_t ret, sz = 1 + (stress_mwc32() % sizeof(buffer));
+		ssize_t ret;
+		size_t sz = 1 + (stress_mwc32() % sizeof(buffer));
 redo:
 		if (!keep_stressing_flag() || !apparmor_run)
 			break;
@@ -497,7 +498,7 @@ static inline void apparmor_corrupt_clr_byte_random(
 static inline void apparmor_corrupt_set_byte_random(
 	char *copy, const size_t len)
 {
-	copy[stress_mwc32() % len] = 0xff;
+	copy[stress_mwc32() % len] = (char)0xff;
 }
 
 /*
@@ -597,6 +598,7 @@ static int apparmor_stress_corruption(
 		case 10:
 			apparmor_corrupt_flip_one_bit_random(copy,
 				g_apparmor_data_len);
+			break;
 		default:
 			/* Should not happen */
 			break;
