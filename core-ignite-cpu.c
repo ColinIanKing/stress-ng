@@ -44,7 +44,7 @@ static stress_cpu_setting_t *cpu_settings; /* Array of cpu settings */
 
 static pid_t pid;			/* PID of ignite process */
 static bool enabled;			/* true if ignite process running */
-static uint32_t max_cpus;		/* max cpus configured */
+static int32_t max_cpus;		/* max cpus configured */
 
 #define SETTING(path, default_setting)	\
 	{ path, default_setting, 0, NULL, 0, false }
@@ -65,7 +65,7 @@ static int stress_ignite_cpu_set(
 	const char *governor)
 {
 	char path[PATH_MAX];
-	int ret1 = 0, ret2 = 0;
+	ssize_t ret1 = 0, ret2 = 0;
 
 	if (freq > 0) {
 		char buffer[128];
@@ -114,7 +114,7 @@ void stress_ignite_cpu_start(void)
 		 *  Gather per-cpu max scaling frequencies and governors
 		 */
 		for (cpu = 0; cpu < max_cpus; cpu++) {
-			int ret;
+			ssize_t ret;
 
 			/* Assume failed */
 			cpu_settings[cpu].max_freq = 0;
@@ -158,7 +158,7 @@ void stress_ignite_cpu_start(void)
 	pid = -1;
 	for (i = 0; settings[i].path; i++) {
 		char buf[4096];
-		int ret;
+		ssize_t ret;
 		size_t len;
 
 		settings[i].ignore = true;
@@ -178,9 +178,9 @@ void stress_ignite_cpu_start(void)
 			settings[i].default_setting_len);
 		if (ret < 0) {
 			pr_dbg("ignite-cpu: cannot set %s to %s, "
-				"errno=%d (%s)\n",
+				"errno=%zd (%s)\n",
 				settings[i].path, settings[i].default_setting,
-				-ret, strerror(-ret));
+				-ret, strerror((int)-ret));
 			continue;
 		}
 
