@@ -72,7 +72,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_child_alarm_handler()
  *	SIGALRM handler to terminate child immediately
  */
-static void MLOCKED_TEXT stress_child_alarm_handler(int signum)
+static void MLOCKED_TEXT NORETURN stress_child_alarm_handler(int signum)
 {
 	(void)signum;
 
@@ -384,7 +384,7 @@ do_read:
 			break;
 
 		(void)memset(&wake, 0, sizeof(wake));
-		wake.start = (intptr_t)data;
+		wake.start = (uintptr_t)data;
 		wake.len = page_size;
 		ret = ioctl(fd, UFFDIO_WAKE, &wake);
 		(void)ret;
