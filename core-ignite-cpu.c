@@ -106,7 +106,7 @@ void stress_ignite_cpu_start(void)
 	if (!cpu_settings) {
 		pr_dbg("ignite-cpu: no cpu settings allocated\n");
 	} else {
-		uint32_t cpu;
+		int32_t cpu;
 		char buffer[128];
 		char path[PATH_MAX];
 
@@ -221,7 +221,7 @@ void stress_ignite_cpu_start(void)
 			}
 
 			if (cpu_settings) {
-				uint32_t cpu;
+				int32_t cpu;
 
 				/*
 				 *  Attempt to crank CPUs up to max freq
@@ -264,7 +264,7 @@ void stress_ignite_cpu_stop(void)
 	}
 
 	if (cpu_settings) {
-		uint32_t cpu;
+		int32_t cpu;
 
 		for (cpu = 0; cpu < max_cpus; cpu++) {
 			stress_ignite_cpu_set(cpu,
