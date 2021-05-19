@@ -22,6 +22,7 @@
  * functionality.
  *
  */
+#include "config.h"
 
 #if defined(__linux__) &&	\
     defined(HAVE_SYS_PERSONALITY_H)
