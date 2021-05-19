@@ -56,7 +56,7 @@ static inline void stress_bad_altstack_force_fault(uint8_t *stack_start)
 	(void)*vol_stack;		/* cppcheck-suppress nullPointer */
 }
 
-static void MLOCKED_TEXT stress_signal_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 {
 	uint8_t data[STRESS_MINSIGSTKSZ * 2];
 
@@ -89,7 +89,7 @@ static int stress_bad_altstack(const stress_args_t *args)
 {
 	stress_set_oom_adjustment(args->name, true);
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
-	void *vdso = (void *)getauxval(AT_SYSINFO_EHDR);
+	unsigned long vdso = getauxval(AT_SYSINFO_EHDR);
 #endif
 	int fd;
 #if defined(O_TMPFILE)
@@ -269,7 +269,7 @@ again:
 				CASE_FALLTHROUGH;
 			case 5:
 				/* Illegal text segment stack */
-				ret = stress_sigaltstack(stress_signal_handler, STRESS_SIGSTKSZ);
+				ret = stress_sigaltstack((void *)stress_signal_handler, STRESS_SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing(args))
@@ -283,7 +283,7 @@ again:
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 				/* Illegal stack on VDSO, otherwises NULL stack */
 				if (vdso) {
-					ret = stress_sigaltstack(vdso, STRESS_SIGSTKSZ);
+					ret = stress_sigaltstack((void *)vdso, STRESS_SIGSTKSZ);
 					if (ret == 0)
 						stress_bad_altstack_force_fault(stack);
 					if (!keep_stressing(args))
@@ -314,6 +314,7 @@ again:
 				CASE_FALLTHROUGH;
 #endif
 			default:
+				CASE_FALLTHROUGH;
 			case 0:
 				/* Illegal unmapped stack */
 				(void)munmap(stack, STRESS_MINSIGSTKSZ);
