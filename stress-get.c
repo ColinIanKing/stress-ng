@@ -672,7 +672,7 @@ static int stress_get(const stress_args_t *args)
 #if defined(HAVE_SYS_VFS_H) &&	\
     defined(HAVE_STATFS) &&	\
     defined(__linux__)
-		for (i = 0; i < mounts_max; i++) {
+		for (i = 0; i < (size_t)mounts_max; i++) {
 			struct statfs buf;
 			int fd;
 
@@ -687,7 +687,7 @@ static int stress_get(const stress_args_t *args)
 #endif
 
 #if defined(HAVE_SYS_STATVFS_H)
-		for (i = 0; i < mounts_max; i++) {
+		for (i = 0; i < (size_t)mounts_max; i++) {
 			struct statvfs buf;
 
 			statvfs(mnts[i], &buf);
