@@ -97,7 +97,7 @@ static int stress_pagein_proc(const pid_t pid)
 			off_t pos;
 			ssize_t sz;
 
-			pos = lseek(fdmem, off, SEEK_SET);
+			pos = lseek(fdmem, (off_t)off, SEEK_SET);
 			if (pos != (off_t)off)
 				continue;
 			sz = read(fdmem, &data, sizeof(data));
@@ -119,7 +119,7 @@ exit_fdmem:
 static inline void stress_compact_memory(void)
 {
 #if defined(__linux__)
-	int ret;
+	ssize_t ret;
 
 	if (!thrash_run)
 		return;
@@ -136,7 +136,7 @@ static inline void stress_compact_memory(void)
 static inline void stress_zone_reclaim(void)
 {
 #if defined(__linux__)
-	int ret;
+	ssize_t ret;
 	char mode[2];
 
 	if (!thrash_run)
@@ -158,7 +158,7 @@ static inline void stress_zone_reclaim(void)
 static inline void stress_merge_memory(void)
 {
 #if defined(__linux__)
-	int ret;
+	ssize_t ret;
 
 	if (!thrash_run)
 		return;
