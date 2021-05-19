@@ -42,7 +42,7 @@ static const stress_help_t help[] = {
  *	SEGV handler
  */
 #if defined(SA_SIGINFO)
-static void MLOCKED_TEXT stress_segvhandler(
+static void NORETURN MLOCKED_TEXT stress_segvhandler(
 	int num,
 	siginfo_t *info,
 	void *ucontext)
@@ -57,7 +57,7 @@ static void MLOCKED_TEXT stress_segvhandler(
 	siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 }
 #else
-static void MLOCKED_TEXT stress_segvhandler(int signum)
+static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
 {
 	(void)signum;
 
@@ -186,7 +186,7 @@ static int stress_sigsegv(const stress_args_t *args)
 #if defined(SA_SIGINFO)
 			if (verify && fault_addr && fault_addr != ptr) {
 				pr_fail("%s: expecting fault address %p, got %p instead\n",
-					args->name, fault_addr, ptr);
+					args->name, fault_addr, (void *)ptr);
 			}
 			if (verify &&
 			    (signo != -1) &&
