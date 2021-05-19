@@ -159,9 +159,10 @@ static void stress_flock_child(
 #if defined(__linux__)
 		if ((i & 0xff) == 0) {
 			char buf[4096];
+			ssize_t rret;
 
-			ret = system_read("/proc/locks", buf, sizeof(buf));
-			(void)ret;
+			rret = system_read("/proc/locks", buf, sizeof(buf));
+			(void)rret;
 		}
 #endif
 	}
