@@ -22,6 +22,7 @@
  * functionality.
  *
  */
+#include "config.h"
 
 #if defined(__linux__) &&	\
     defined(HAVE_LINUX_IO_URING_H)
