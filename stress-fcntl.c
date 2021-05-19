@@ -594,7 +594,7 @@ ofd_lock_abort:	{ /* Nowt */ }
 			}
 		}
 		/* Exercise invalid hint type */
-		hint = ~0ULL;
+		hint = ~0UL;
 		ret = fcntl(fd, F_SET_FILE_RW_HINT, &hint);
 		(void)ret;
 #endif
