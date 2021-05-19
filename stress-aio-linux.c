@@ -465,7 +465,7 @@ retry_open:
 		if (n < 0)
 			break;
 
-		for (i = 0; i < n; i++) {
+		for (i = 0; i < (size_t)n; i++) {
 			uint8_t pattern;
 			struct iocb *obj = events[i].obj;
 
