@@ -688,7 +688,7 @@ static int stress_shm_sysv_child(
 				unsigned long node_mask[NUMA_LONG_BITS];
 
 				ret = shim_get_mempolicy(&mode, node_mask, 1,
-					(unsigned long)addrs[i], MPOL_F_ADDR);
+					addrs[i], MPOL_F_ADDR);
 				if (ret == 0) {
 					ret = shim_set_mempolicy(MPOL_DEFAULT, NULL, 1);
 					(void)ret;

@@ -362,7 +362,7 @@ static int bad_get_mempolicy(void *addr)
 {
 	return shim_get_mempolicy((int *)addr,
 		(unsigned long *)inc_addr(addr, 1), 1,
-		(unsigned long)inc_addr(addr, 2), 0UL);
+		inc_addr(addr, 2), 0UL);
 }
 
 static int bad_getrandom(void *addr)

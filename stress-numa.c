@@ -246,7 +246,7 @@ static int stress_numa(const stress_args_t *args)
 		 *  Fetch memory policy
 		 */
 		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
-			(unsigned long)buf, MPOL_F_ADDR);
+					 buf, MPOL_F_ADDR);
 		if (ret < 0) {
 			if (errno != ENOSYS) {
 				pr_fail("%s: get_mempolicy failed, errno=%d (%s)\n",
@@ -257,30 +257,29 @@ static int stress_numa(const stress_args_t *args)
 
 		/* Exercise invalid max_nodes */
 		ret = shim_get_mempolicy(&mode, node_mask, 0,
-			(unsigned long)buf, MPOL_F_NODE);
+					 buf, MPOL_F_NODE);
 		(void)ret;
 
 		/* Exercise invalid flag */
-		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
-			(unsigned long)buf, ~0);
+		ret = shim_get_mempolicy(&mode, node_mask, max_nodes, buf, ~0);
 		(void)ret;
 
 		/* Exercise invalid NULL addr condition */
 		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
-			(unsigned long)NULL, MPOL_F_ADDR);
+					 NULL, MPOL_F_ADDR);
 		(void)ret;
 
 		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
-			(unsigned long)buf, MPOL_F_NODE);
+					 buf, MPOL_F_NODE);
 		(void)ret;
 
 		/* Exercise MPOL_F_MEMS_ALLOWED flag syscalls */
 		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
-			(unsigned long)buf, MPOL_F_MEMS_ALLOWED);
+					 buf, MPOL_F_MEMS_ALLOWED);
 		(void)ret;
 
 		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
-			(unsigned long)buf, MPOL_F_MEMS_ALLOWED | MPOL_F_NODE);
+					 buf, MPOL_F_MEMS_ALLOWED | MPOL_F_NODE);
 		(void)ret;
 
 		if (!keep_stressing_flag())

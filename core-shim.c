@@ -346,7 +346,7 @@ int shim_get_mempolicy(
 	int *mode,
 	unsigned long *nodemask,
 	unsigned long maxnode,
-	unsigned long addr,
+	void *addr,
 	unsigned long flags)
 {
 #if defined(__NR_get_mempolicy)

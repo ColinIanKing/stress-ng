@@ -4422,7 +4422,7 @@ extern int shim_getdents64(unsigned int fd, struct shim_linux_dirent64 *dirp,
 	unsigned int count);
 extern char *shim_getlogin(void);
 extern int shim_get_mempolicy(int *mode, unsigned long *nodemask,
-	unsigned long maxnode, unsigned long addr, unsigned long flags);
+	unsigned long maxnode, void *addr, unsigned long flags);
 extern int shim_getrandom(void *buff, size_t buflen, unsigned int flags);
 extern int shim_getrusage(int who, struct rusage *usage);
 extern int shim_gettid(void);
