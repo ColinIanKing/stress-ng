@@ -23,6 +23,8 @@
  *
  */
 
+#include "config.h"
+
 #if defined(HAVE_LINUX_PERF_EVENT_H)
 #include <linux/perf_event.h>
 #endif
