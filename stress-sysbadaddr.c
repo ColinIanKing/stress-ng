@@ -97,13 +97,6 @@ static void limit_procs(const int procs)
 #endif
 }
 
-static void MLOCKED_TEXT stress_badhandler(int signum)
-{
-	(void)signum;
-
-	_exit(1);
-}
-
 static inline void *inc_addr(void *ptr, const size_t inc)
 {
 	return (void *)((char *)ptr + inc);
@@ -111,7 +104,10 @@ static inline void *inc_addr(void *ptr, const size_t inc)
 
 static void *unaligned_addr(const stress_args_t *args)
 {
-	static uint64_t data[8] = { -1, -1, -1, -1, -1, -1, -1, -1 };
+	static uint64_t data[8] = {
+		~0ULL, ~0ULL, ~0ULL, ~0ULL,
+		~0ULL, ~0ULL, ~0ULL, ~0ULL
+	};
 	uint8_t *ptr = (uint8_t *)data;
 
 	(void)args;
@@ -185,7 +181,7 @@ static void *write_exec_addr(const stress_args_t *args)
 	return wx_page;
 }
 
-static stress_bad_addr_t bad_addrs[] = {
+static const stress_bad_addr_t bad_addrs[] = {
 	unaligned_addr,
 	readonly_addr,
 	null_addr,
@@ -317,7 +313,7 @@ static int bad_fstat(void *addr)
 
 static int bad_getcpu(void *addr)
 {
-	return shim_getcpu((unsigned *)addr, (unsigned *)inc_addr(addr, 2),
+	return (int)shim_getcpu((unsigned *)addr, (unsigned *)inc_addr(addr, 2),
 		(void *)inc_addr(addr, 2));
 }
 
@@ -414,7 +410,7 @@ static int bad_gettimeofday(void *addr)
     (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H))
 static int bad_getxattr(void *addr)
 {
-	return shim_getxattr((char *)addr, (char *)inc_addr(addr, 1),
+	return (int)shim_getxattr((char *)addr, (char *)inc_addr(addr, 1),
 		(void *)inc_addr(addr, 2), (size_t)32);
 }
 #endif
@@ -463,7 +459,7 @@ static int bad_memfd_create(void *addr)
 
 static int bad_migrate_pages(void *addr)
 {
-	return shim_migrate_pages(getpid(), 1, (unsigned long *)addr,
+	return (int)shim_migrate_pages(getpid(), 1, (unsigned long *)addr,
 		(unsigned long *)inc_addr(addr, 1));
 }
 
@@ -489,7 +485,7 @@ static int bad_mlock2(void *addr)
 #if defined(__NR_move_pages)
 static int bad_move_pages(void *addr)
 {
-	return shim_move_pages(getpid(), (unsigned long)1, (void **)addr,
+	return (int)shim_move_pages(getpid(), (unsigned long)1, (void **)addr,
 		(const int *)inc_addr(addr, 1), (int *)inc_addr(addr, 2), 0);
 }
 #endif
@@ -543,14 +539,15 @@ static int bad_pipe(void *addr)
 
 static int bad_pread(void *addr)
 {
-	int fd, ret = 0;
+	int fd;
+	ssize_t ret = 0;
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
 		ret = pread(fd, addr, 1024, 0);
 		(void)close(fd);
 	}
-	return ret;
+	return (int)ret;
 }
 
 #if defined(HAVE_PTRACE) && 	\
@@ -571,44 +568,47 @@ static int bad_poll(void *addr)
 
 static int bad_pwrite(void *addr)
 {
-	int fd, ret = 0;
+	int fd;
+	ssize_t ret = 0;
 
 	fd = open("/dev/null", O_WRONLY);
 	if (fd > -1) {
 		ret = pwrite(fd, (void *)addr, 1024, 0);
 		(void)close(fd);
 	}
-	return ret;
+	return (int)ret;
 }
 
 static int bad_read(void *addr)
 {
-	int fd, ret = 0;
+	int fd;
+	ssize_t ret = 0;
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
 		ret = read(fd, (void *)addr, 1024);
 		(void)close(fd);
 	}
-	return ret;
+	return (int)ret;
 }
 
 static int bad_readlink(void *addr)
 {
-	return shim_readlink((const char *)addr, (char *)inc_addr(addr, 1), 8192);
+	return (int)shim_readlink((const char *)addr, (char *)inc_addr(addr, 1), 8192);
 }
 
 #if defined(HAVE_SYS_UIO_H)
 static int bad_readv(void *addr)
 {
-	int fd, ret = 0;
+	int fd;
+	ssize_t ret = 0;
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
 		ret = readv(fd, (void *)addr, 32);
 		(void)close(fd);
 	}
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -688,7 +688,7 @@ static int bad_timer_create(void *addr)
 
 static int bad_times(void *addr)
 {
-	return times((struct tms *)addr);
+	return (int)times((struct tms *)addr);
 }
 
 static int bad_truncate(void *addr)
@@ -742,33 +742,35 @@ static int bad_waitpid(void *addr)
 #if defined(HAVE_WAITID)
 static int bad_waitid(void *addr)
 {
-	return waitid(P_PID, getpid(), (siginfo_t *)addr, 0);
+	return waitid(P_PID, (id_t)getpid(), (siginfo_t *)addr, 0);
 }
 #endif
 
 static int bad_write(void *addr)
 {
-	int fd, ret = 0;
+	int fd;
+	ssize_t ret = 0;
 
 	fd = open("/dev/null", O_WRONLY);
 	if (fd > -1) {
 		ret = write(fd, (void *)addr, 1024);
 		(void)close(fd);
 	}
-	return ret;
+	return (int)ret;
 }
 
 #if defined(HAVE_SYS_UIO_H)
 static int bad_writev(void *addr)
 {
-	int fd, ret = 0;
+	int fd;
+	ssize_t ret = 0;
 
 	fd = open("/dev/zero", O_RDONLY);
 	if (fd > -1) {
 		ret = writev(fd, (void *)addr, 32);
 		(void)close(fd);
 	}
-	return ret;
+	return (int)ret;
 }
 #endif
 
@@ -968,7 +970,7 @@ static inline int stress_do_syscall(
 			_exit(EXIT_NO_RESOURCE);
 		}
 		for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
-			if (stress_sighandler(args->name, sigs[i], stress_badhandler, NULL) < 0)
+			if (stress_sighandler(args->name, sigs[i], stress_sig_handler_exit, NULL) < 0)
 				_exit(EXIT_FAILURE);
 		}
 
