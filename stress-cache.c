@@ -219,7 +219,7 @@ static int stress_cache(const stress_args_t *args)
     defined(HAVE_SCHED_GETCPU)
 	cpu_set_t mask;
 	uint32_t cpu = 0;
-	const uint32_t cpus = stress_get_processors_configured();
+	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
 	cpu_set_t proc_mask;
 	bool pinned = false;
 #endif
@@ -291,7 +291,7 @@ static int stress_cache(const stress_args_t *args)
 			if (current < 0)
 				return EXIT_FAILURE;
 
-			cpu = (int32_t)current;
+			cpu = (uint32_t)current;
 		} else {
 			do {
 				cpu++;
