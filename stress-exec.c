@@ -169,7 +169,7 @@ static inline int stress_do_exec(stress_exec_args_t *ea)
 #if defined(HAVE_LIB_PTHREAD)
 	int ret;
 	int ret_dummy = EINVAL;
-	pthread_t pthread_exec, pthread_dummy;
+	pthread_t pthread_exec, pthread_dummy = 0;
 
 	if ((stress_mwc8() & 3) == 0) {
 		ret_dummy = pthread_create(&pthread_dummy, NULL, stress_exec_dummy_pthread, (void *)ea);
