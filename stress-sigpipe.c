@@ -108,7 +108,6 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		/* Child, only for non-clone path */
-		(void)pipe_child((void *)pipefds);
 		_exit(EXIT_SUCCESS);
 	} else {
 		int status;
@@ -118,7 +117,7 @@ again:
 		(void)close(pipefds[0]);
 
 		do {
-			int ret;
+			ssize_t ret;
 
 			ret = write(pipefds[1], buf, buf_len);
 			if (LIKELY(ret <= 0))
