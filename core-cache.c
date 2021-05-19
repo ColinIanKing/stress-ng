@@ -66,7 +66,7 @@ static int stress_get_string_from_file(
 	const size_t tmp_len)
 {
 	char *ptr;
-	int ret;
+	ssize_t ret;
 
 	/* system read will zero fill tmp */
 	ret = system_read(path, tmp, tmp_len);
@@ -209,8 +209,10 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 	(void)stress_mk_filename(path, sizeof(path), index_path, "ways_of_associativity");
 	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
 		cache->ways = 0;
-	else
-		cache->ways = atoi(tmp);
+	else {
+		if (sscanf(tmp, "%" SCNu32, &cache->ways) != 1)
+			cache->ways = 0;
+	}
 	ret = EXIT_SUCCESS;
 out:
 	return ret;
@@ -577,9 +579,10 @@ static int stress_get_cpu_cache_index(
 		}
 	}
 list_free:
-	stress_dirent_list_free(namelist, cpu->cache_count);
+	n = (int)cpu->cache_count;
+	stress_dirent_list_free(namelist, n);
 
-	return cpu->cache_count;
+	return n;
 }
 
 /*
@@ -637,13 +640,13 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 	if (!cpus)
 		goto out;
 
-	cpus->cpus = calloc(cpu_count, sizeof(stress_cpu_t));
+	cpus->cpus = calloc((size_t)cpu_count, sizeof(stress_cpu_t));
 	if (!cpus->cpus) {
 		free(cpus);
 		cpus = NULL;
 		goto out;
 	}
-	cpus->count = cpu_count;
+	cpus->count = (uint32_t)cpu_count;
 
 	for (i = 0; i < cpu_count; i++) {
 		const char *name = namelist[i]->d_name;
@@ -653,7 +656,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 
 		(void)memset(fullpath, 0, sizeof(fullpath));
 		(void)stress_mk_filename(fullpath, sizeof(fullpath), SYS_CPU_PREFIX, name);
-		cpu->num = i;
+		cpu->num = (uint32_t)i;
 		if (cpu->num == 0) {
 			/* 1st CPU cannot be taken offline */
 			cpu->online = 1;

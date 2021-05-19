@@ -182,7 +182,7 @@ err:
 	(void)fprintf(stderr, "cannot allocate setting '%s'\n", name);
 	_exit(EXIT_NO_RESOURCE);
 
-	return 1;
+	//return 1;
 }
 
 /*
