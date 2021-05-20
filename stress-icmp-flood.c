@@ -61,7 +61,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 	const int set_on = 1;
 	const unsigned long addr = inet_addr("127.0.0.1");
 	struct sockaddr_in servaddr;
-	uint64_t sendto_fails = 0;
+	uint64_t counter, sendto_fails = 0;
 
 	fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (fd < 0) {
@@ -83,7 +83,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 	}
 
 	servaddr.sin_family = AF_INET;
-	servaddr.sin_addr.s_addr = addr;
+	servaddr.sin_addr.s_addr = (in_addr_t)addr;
 	(void)memset(&servaddr.sin_zero, 0, sizeof(servaddr.sin_zero));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -102,17 +102,17 @@ static int stress_icmp_flood(const stress_args_t *args)
 		ip_hdr->ihl = 5;
 		ip_hdr->tos = 0;
 		ip_hdr->tot_len = htons(pkt_len);
-		ip_hdr->id = stress_mwc32();
+		ip_hdr->id = stress_mwc16();
 		ip_hdr->frag_off = 0;
 		ip_hdr->ttl = 64;
 		ip_hdr->protocol = IPPROTO_ICMP;
-		ip_hdr->saddr = addr;
-		ip_hdr->daddr = addr;
+		ip_hdr->saddr = (in_addr_t)addr;
+		ip_hdr->daddr = (in_addr_t)addr;
 
 		icmp_hdr->type = ICMP_ECHO;
 		icmp_hdr->code = 0;
-		icmp_hdr->un.echo.sequence = stress_mwc32();
-		icmp_hdr->un.echo.id = stress_mwc32();
+		icmp_hdr->un.echo.sequence = stress_mwc16();
+		icmp_hdr->un.echo.id = stress_mwc16();
 
 		/*
 		 * Generating random data is expensive so do it every 64 packets
@@ -130,10 +130,12 @@ static int stress_icmp_flood(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+	counter = get_counter(args);
+
 	pr_dbg("%s: %.2f%% of %" PRIu64 " sendto messages succeeded.\n",
 		args->name,
-		100.0 * (float)(get_counter(args) - sendto_fails) / get_counter(args),
-		get_counter(args));
+		100.0 * (double)(counter - sendto_fails) / (double)counter,
+		counter);
 
 	rc = EXIT_SUCCESS;
 
