@@ -52,7 +52,7 @@ typedef struct {
 #if defined(HAVE_FANOTIFY) &&	\
     defined(HAVE_SYS_SELECT_H)
 
-static const int fan_stress_settings[] = {
+static const unsigned int fan_stress_settings[] = {
 #if defined(FAN_ACCESS)
 	FAN_ACCESS,
 #endif
@@ -226,16 +226,16 @@ static void fanotify_event_init_invalid_call(unsigned int flags, unsigned int ev
  */
 static void fanotify_event_init_invalid(void)
 {
-	fanotify_event_init_invalid_call(0, ~0);
-	fanotify_event_init_invalid_call(~0, ~0);
-	fanotify_event_init_invalid_call(~0, 0);
+	fanotify_event_init_invalid_call(0U, ~0U);
+	fanotify_event_init_invalid_call(~0U, ~0U);
+	fanotify_event_init_invalid_call(~0U, 0U);
 
 #if defined(FAN_CLASS_NOTIF) &&		\
     defined(FAN_CLASS_CONTENT) && 	\
     defined(FAN_CLASS_PRE_CONTENT)
 	fanotify_event_init_invalid_call(FAN_CLASS_NOTIF |
 					 FAN_CLASS_CONTENT |
-					 FAN_CLASS_PRE_CONTENT, ~0);
+					 FAN_CLASS_PRE_CONTENT, ~0U);
 #endif
 }
 
@@ -260,12 +260,12 @@ static int test_fanotify_mark(const char *name, char *mounts[])
 	/* Exercise fanotify_mark with invalid mask */
 #if defined(FAN_MARK_MOUNT)
 	ret = fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
-			~0, AT_FDCWD, mounts[0]);
+			~0U, AT_FDCWD, mounts[0]);
 	(void)ret;
 #endif
 
 	/* Exercise fanotify_mark with invalid flag */
-	ret = fanotify_mark(ret_fd, ~0, FAN_ACCESS, AT_FDCWD, mounts[0]);
+	ret = fanotify_mark(ret_fd, ~0U, FAN_ACCESS, AT_FDCWD, mounts[0]);
 	(void)ret;
 
 	/* Exercise fanotify_mark on bad fd */
