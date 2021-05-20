@@ -246,7 +246,7 @@ retry_bind:
 	for (j = 32; j < DATA_LEN; j += 32) {
 		if (!keep_stressing(args))
 			break;
-		if (send(fd, input, j, 0) != j) {
+		if (send(fd, input, j, 0) != (ssize_t)j) {
 			if ((errno == 0) || (errno == ENOKEY) || (errno == ENOENT))
 				continue;
 			if (errno == EINVAL) {
