@@ -162,7 +162,7 @@ static int static_dup2_child(info_t *info)
 		int status;
 
 		kill(info->pid_clone, SIGKILL);
-		waitpid(info->pid_clone, &status, __WCLONE);
+		waitpid(info->pid_clone, &status, (int)__WCLONE);
 	}
 
 	(void)close(info->fd);
@@ -380,7 +380,7 @@ tidy_mmap:
 		pr_dbg("%s: dup2: %" PRIu64 " races from %" PRIu64 " attempts (%.2f%%)\n",
 			args->name, info->race_count, info->try_count,
 			info->try_count > 0 ?
-				(float)info->race_count / (float)info->try_count * 100.0 : 0.0);
+				(double)info->race_count / (double)info->try_count * 100.0 : 0.0);
 		(void)munmap(info, sizeof(*info));
 	}
 #endif
