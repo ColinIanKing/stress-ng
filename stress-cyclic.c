@@ -112,7 +112,7 @@ static int stress_set_cyclic_prio(const char *opt)
 	int32_t cyclic_prio;
 
 	cyclic_prio = stress_get_int32(opt);
-	stress_check_range("cyclic-prio", cyclic_prio, 1, 100);
+	stress_check_range("cyclic-prio", (uint64_t)cyclic_prio, 1, 100);
 	return stress_set_setting("cyclic-prio", TYPE_ID_INT32, &cyclic_prio);
 }
 
@@ -359,7 +359,7 @@ static int stress_cyclic_usleep(
 	const uint64_t cyclic_sleep)
 {
 	struct timespec t1, t2;
-	const useconds_t usecs = cyclic_sleep / 1000;
+	const useconds_t usecs = (useconds_t)cyclic_sleep / 1000;
 	int ret;
 
 	(void)args;
@@ -379,7 +379,7 @@ static sigjmp_buf jmp_env;
  *  stress_rlimit_handler()
  *      rlimit generic handler
  */
-static void MLOCKED_TEXT stress_rlimit_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_rlimit_handler(int signum)
 {
 	(void)signum;
 
@@ -452,7 +452,7 @@ static void stress_rt_stats(stress_rt_stats_t *rt_stats)
 		variance += (diff * diff);
 	}
 	if (rt_stats->index) {
-		variance /= rt_stats->index;
+		variance /= (double)rt_stats->index;
 		rt_stats->std_dev = sqrt(variance);
 	}
 }
@@ -526,9 +526,10 @@ static void stress_rt_dist(
 	const char *name,
 	bool *lock,
 	stress_rt_stats_t *rt_stats,
-	const uint64_t cyclic_dist)
+	const int64_t cyclic_dist)
 {
-	ssize_t dist_max_size = (cyclic_dist > 0) ? (rt_stats->max_ns / cyclic_dist) + 1 : 1;
+	ssize_t dist_max_size = (cyclic_dist > 0) ?
+		((ssize_t)rt_stats->max_ns / (ssize_t)cyclic_dist) + 1 : 1;
 	ssize_t dist_size = STRESS_MINIMUM(MAX_BUCKETS, dist_max_size);
 	const ssize_t dist_min = STRESS_MINIMUM(5, dist_max_size);
 	ssize_t i, n;
@@ -806,7 +807,7 @@ tidy:
 			size_t i;
 			bool lock = false;
 
-			static const float percentiles[] = {
+			static const double percentiles[] = {
 				25.0,
 				50.0,
 				75.0,
@@ -842,7 +843,7 @@ tidy:
 					percentiles[i],
 					rt_stats->latencies[j]);
 			}
-			stress_rt_dist(args->name, &lock, rt_stats, cyclic_dist);
+			stress_rt_dist(args->name, &lock, rt_stats, (int64_t)cyclic_dist);
 			pr_unlock(&lock);
 		} else {
 			pr_inf("%s: %10s: no latency information available\n",
