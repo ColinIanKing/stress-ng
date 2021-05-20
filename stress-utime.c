@@ -223,8 +223,9 @@ STRESS_PRAGMA_POP
 #if defined(HAVE_UTIME_H)
 		{
 			struct utimbuf utbuf;
+			const double actime = stress_time_now();
 
-			utbuf.actime = (time_t)stress_time_now();
+			utbuf.actime = (time_t)actime;
 			utbuf.modtime = utbuf.actime;
 
 			if (utime(filename, &utbuf) < 0) {
