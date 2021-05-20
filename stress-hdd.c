@@ -49,7 +49,6 @@
 #define HDD_OPT_O_DSYNC		(0x00020000)
 #define HDD_OPT_O_DIRECT	(0x00040000)
 #define HDD_OPT_O_NOATIME	(0x00080000)
-#define HDD_OPT_O_MASK		(0x000f0000)
 
 /* Other modes */
 #define HDD_OPT_IOVEC		(0x00100000)
@@ -421,6 +420,18 @@ static int stress_hdd_advise(const stress_args_t *args, const int fd, const int 
 #endif
 	return 0;
 }
+
+/*
+ *  data_value()
+ *	generate 8 bit data value for offsets and instance # into a test file
+ */
+static uint8_t inline data_value(const uint64_t i, uint64_t j, const stress_args_t *args)
+{
+	register uint8_t v = (uint8_t)(((i + j) >> 9) + i + j + args->instance);
+
+	return v;
+}
+
 /*
  *  stress_hdd
  *	stress I/O via writes
@@ -499,7 +510,7 @@ static int stress_hdd(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return exit_status((int)-ret);
 
 	/* Must have some write option */
 	if ((hdd_flags & HDD_OPT_WR_MASK) == 0)
@@ -623,12 +634,11 @@ static int stress_hdd(const stress_args_t *args)
 		if (hdd_flags & HDD_OPT_WR_RND) {
 			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 				size_t j;
-
-				off_t offset = (i == 0) ?
+				size_t offset = (i == 0) ?
 					hdd_bytes :
-					(stress_mwc64() % hdd_bytes) & ~511;
+					(stress_mwc64() % hdd_bytes) & ~511UL;
 
-				if (lseek(fd, offset, SEEK_SET) < 0) {
+				if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
 					pr_fail("%s: lseek failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					(void)close(fd);
@@ -640,8 +650,9 @@ rnd_wr_retry:
 					goto yielded;
 				}
 
-				for (j = 0; j < hdd_write_size; j++)
-					buf[j] = (((offset + j) >> 9) + offset + j + args->instance) & 0xff;
+				for (j = 0; j < hdd_write_size; j++) {
+					buf[j] = data_value(offset, j, args);
+				}
 
 				ret = stress_hdd_write(fd, buf, (size_t)hdd_write_size,
 					hdd_write_size, hdd_flags);
@@ -672,7 +683,7 @@ seq_wr_retry:
 				}
 
 				for (j = 0; j < hdd_write_size; j++)
-					buf[j] = (((i + j) >> 9) + i + j + args->instance) & 0xff;
+					buf[j] = data_value(i, j, args);
 				ret = stress_hdd_write(fd, buf, (size_t)hdd_write_size,
 					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
@@ -700,7 +711,7 @@ seq_wr_retry:
 		}
 		/* Round to write size to get no partial reads */
 		hdd_read_size = (uint64_t)statbuf.st_size -
-			(statbuf.st_size % hdd_write_size);
+			((uint64_t)statbuf.st_size % hdd_write_size);
 
 		/* Sequential Read */
 		if (hdd_flags & HDD_OPT_RD_SEQ) {
@@ -740,23 +751,23 @@ seq_rd_retry:
 
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
 					if (hdd_flags & HDD_OPT_WR_SEQ) {
-						ssize_t j;
+						size_t j;
 
 						/* Write seq has written to all of the file, so it should always be OK */
 						for (j = 0; j < ret; j++) {
-							register uint8_t v = (((i + j) >> 9) + i + j + args->instance) & 0xff;
+							const uint8_t v = data_value(i, j, args);
 
 							if (buf[j] != v)
 								baddata++;
 						}
 					} else {
-						ssize_t j;
+						size_t j;
 
 						/* Write rnd has written to some of the file, so data either zero or OK */
 						for (j = 0; j < ret; j++) {
-							register uint8_t v = (((i + j) >> 9) + i + j + args->instance) & 0xff;
+							const uint8_t v = data_value(i, j, args);
 
-							if (buf[j] != 0 && buf[j] != v)
+							if ((buf[j] != 0) && (buf[j] != v))
 								baddata++;
 						}
 					}
@@ -777,10 +788,10 @@ seq_rd_retry:
 			uint64_t baddata = 0;
 
 			for (i = 0; i < hdd_read_size; i += hdd_write_size) {
-				off_t offset = (hdd_bytes > hdd_write_size) ?
-					(stress_mwc64() % (hdd_bytes - hdd_write_size)) & ~511 : 0;
+				size_t offset = (hdd_bytes > hdd_write_size) ?
+					(stress_mwc64() % (hdd_bytes - hdd_write_size)) & ~511UL : 0;
 
-				if (lseek(fd, offset, SEEK_SET) < 0) {
+				if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
 					pr_fail("%s: lseek failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					(void)close(fd);
@@ -810,10 +821,10 @@ rnd_rd_retry:
 					misreads++;
 
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
-					ssize_t j;
+					size_t j;
 
 					for (j = 0; j < ret; j++) {
-						uint8_t v = (((offset + j) >> 9) + offset + j + args->instance) & 0xff;
+						uint8_t v = data_value(offset, j, args);
 						if (hdd_flags & HDD_OPT_WR_SEQ) {
 							/* Write seq has written to all of the file, so it should always be OK */
 							if (buf[j] != v)
