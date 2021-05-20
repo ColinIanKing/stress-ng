@@ -85,7 +85,7 @@ static int stress_fiemap_writer(
 	uint64_t *counters)
 {
 	uint8_t buf[1];
-	const uint64_t len = (off_t)fiemap_bytes - sizeof(buf);
+	const uint64_t len = fiemap_bytes - sizeof(buf);
 	int rc = EXIT_FAILURE;
 #if defined(FALLOC_FL_PUNCH_HOLE) && \
     defined(FALLOC_FL_KEEP_SIZE)
@@ -97,7 +97,7 @@ static int stress_fiemap_writer(
 	do {
 		uint64_t offset;
 
-		offset = (stress_mwc64() % len) & ~0x1fff;
+		offset = (stress_mwc64() % len) & ~0x1fffUL;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0)
 			break;
 		if (!stress_fiemap_count(args, counters))
@@ -121,7 +121,7 @@ static int stress_fiemap_writer(
 
 		offset = stress_mwc64() % len;
 		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
-				  FALLOC_FL_KEEP_SIZE, offset, 8192) < 0) {
+				  FALLOC_FL_KEEP_SIZE, (off_t)offset, 8192) < 0) {
 			if (errno == ENOSPC)
 				continue;
 			if (errno == EOPNOTSUPP)
@@ -159,7 +159,7 @@ static void stress_fiemap_ioctl(
 			pr_err("Out of memory allocating fiemap\n");
 			break;
 		}
-		fiemap->fm_length = ~0;
+		fiemap->fm_length = ~0UL;
 
 		/* Find out how many extents there are */
 		if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
@@ -292,7 +292,7 @@ static int stress_fiemap(const stress_args_t *args)
 	(void)unlink(filename);
 
 	memset(&fiemap, 0, sizeof(fiemap));
-	fiemap.fm_length = ~0;
+	fiemap.fm_length = ~0UL;
 	if (ioctl(fd, FS_IOC_FIEMAP, &fiemap) < 0) {
 		errno = EOPNOTSUPP;
 		if (errno == EOPNOTSUPP) {
