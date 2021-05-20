@@ -38,15 +38,15 @@ static const stress_help_t help[] = {
  */
 static int stress_cpu_online_set(
 	const stress_args_t *args,
-	const int32_t cpu,
+	const uint32_t cpu,
 	const int setting)
 {
 	char filename[PATH_MAX];
-	char data[3] = { '0' + setting, '\n', 0 };
+	char data[3] = { '0' + (char)setting, '\n', 0 };
 	ssize_t ret;
 
 	(void)snprintf(filename, sizeof(filename),
-		"/sys/devices/system/cpu/cpu%" PRId32 "/online", cpu);
+		"/sys/devices/system/cpu/cpu%" PRIu32 "/online", cpu);
 
 	ret = system_write(filename, data, sizeof data);
 	if ((ret < 0) &&
@@ -65,7 +65,7 @@ static int stress_cpu_online_set(
  */
 static int stress_cpu_online_supported(const char *name)
 {
-	int ret;
+	ssize_t ret;
 
 	if (geteuid() != 0) {
 		pr_inf("%s stressor will be skipped, "
@@ -90,7 +90,7 @@ static int stress_cpu_online_supported(const char *name)
 static int stress_cpu_online(const stress_args_t *args)
 {
 	const int32_t cpus = stress_get_processors_configured();
-	int32_t i, cpu_online_count = 0;
+	uint32_t i, cpu_online_count = 0;
 	bool *cpu_online;
 	int rc = EXIT_SUCCESS;
 
@@ -108,7 +108,7 @@ static int stress_cpu_online(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	cpu_online = calloc(cpus, sizeof(*cpu_online));
+	cpu_online = calloc((size_t)cpus, sizeof(*cpu_online));
 	if (!cpu_online) {
 		pr_err("%s: out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
@@ -157,7 +157,7 @@ static int stress_cpu_online(const stress_args_t *args)
 	 *  Now randomly offline/online them all
 	 */
 	do {
-		unsigned long cpu = stress_mwc32() % cpus;
+		uint32_t cpu = stress_mwc32() % (uint32_t)cpus;
 
 		/*
 		 * Only allow CPU 0 to be offlined if OPT_FLAGS_CPU_ONLINE_ALL
