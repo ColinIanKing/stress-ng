@@ -56,7 +56,7 @@ static inline void stress_bad_altstack_force_fault(uint8_t *stack_start)
 	(void)*vol_stack;		/* cppcheck-suppress nullPointer */
 }
 
-static void MLOCKED_TEXT stress_signal_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 {
 	uint8_t data[STRESS_MINSIGSTKSZ * 2];
 
