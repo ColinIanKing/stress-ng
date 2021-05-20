@@ -178,7 +178,7 @@ static int stress_af_alg_hash(
 	stress_crypto_info_t *info)
 {
 	int fd, rc;
-	ssize_t j;
+	size_t j;
 	const ssize_t digest_size = info->digest_size;
 	char *input, *digest;
 	struct sockaddr_alg sa;
@@ -187,7 +187,7 @@ static int stress_af_alg_hash(
 	input = malloc(DATA_LEN + ALLOC_SLOP);
 	if (!input)
 		return EXIT_NO_RESOURCE;
-	digest = malloc(digest_size + ALLOC_SLOP);
+	digest = malloc((size_t)(digest_size + ALLOC_SLOP));
 	if (!digest) {
 		free(input);
 		return EXIT_NO_RESOURCE;
@@ -259,7 +259,7 @@ retry_bind:
 			rc = EXIT_FAILURE;
 			goto err_close;
 		}
-		if (recv(fd, digest, digest_size, MSG_WAITALL) != digest_size) {
+		if (recv(fd, digest, (size_t)digest_size, MSG_WAITALL) != digest_size) {
 			pr_fail("%s: recv using %s failed: errno=%d (%s)\n",
 				args->name, info->name,
 				errno, strerror(errno));
@@ -291,7 +291,7 @@ static int stress_af_alg_cipher(
 	ssize_t j;
 	struct sockaddr_alg sa;
 	const ssize_t iv_size = info->iv_size;
-	const ssize_t cbuf_size = CMSG_SPACE(sizeof(__u32)) +
+	const size_t cbuf_size = CMSG_SPACE(sizeof(__u32)) +
 				  CMSG_SPACE(4) + CMSG_SPACE(iv_size);
 	char *input, *output, *cbuf;
 	const char *salg_type = (info->crypto_type != CRYPTO_AEAD) ? "skcipher" : "aead";
@@ -353,14 +353,14 @@ retry_bind:
 #if defined(ALG_SET_KEY)
 		char *key;
 
-		key = calloc(1, info->max_key_size + ALLOC_SLOP);
+		key = calloc(1, (size_t)(info->max_key_size + ALLOC_SLOP));
 		if (!key) {
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
 
-		stress_strnrnd(key, info->max_key_size);
-		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, info->max_key_size) < 0) {
+		stress_strnrnd(key, (size_t)info->max_key_size);
+		if (setsockopt(sockfd, SOL_ALG, ALG_SET_KEY, key, (socklen_t)info->max_key_size) < 0) {
 			free(key);
 			if (errno == ENOPROTOOPT) {
 				rc = EXIT_SUCCESS;
@@ -381,14 +381,14 @@ retry_bind:
 #if defined(ALG_SET_AEAD_ASSOCLEN)
 		char *assocdata;
 
-		assocdata = calloc(1, info->max_auth_size + ALLOC_SLOP);
+		assocdata = calloc(1, (size_t)(info->max_auth_size + ALLOC_SLOP));
 		if (!assocdata) {
 			rc = EXIT_NO_RESOURCE;
 			goto err;
 		}
 
-		stress_strnrnd(assocdata, info->max_auth_size);
-		if (setsockopt(sockfd, SOL_ALG, ALG_SET_AEAD_ASSOCLEN, assocdata, info->max_auth_size) < 0) {
+		stress_strnrnd(assocdata, (size_t)info->max_auth_size);
+		if (setsockopt(sockfd, SOL_ALG, ALG_SET_AEAD_ASSOCLEN, assocdata, (socklen_t)info->max_auth_size) < 0) {
 			free(assocdata);
 			if (errno == ENOPROTOOPT) {
 				rc = EXIT_SUCCESS;
@@ -453,9 +453,9 @@ retry_bind:
 		cmsg->cmsg_type = ALG_SET_IV;
 		cmsg->cmsg_len = CMSG_LEN(4) + CMSG_LEN(iv_size);
 		iv = (void *)CMSG_DATA(cmsg);
-		iv->ivlen = iv_size;
+		iv->ivlen = (uint32_t)iv_size;
 
-		stress_strnrnd((char *)iv->iv, iv_size);
+		stress_strnrnd((char *)iv->iv, (size_t)iv_size);
 
 		/* Generate random message to encrypt */
 		stress_strnrnd(input, DATA_LEN);
@@ -505,7 +505,7 @@ retry_bind:
 		cmsg->cmsg_type = ALG_SET_IV;
 		cmsg->cmsg_len = CMSG_LEN(4) + CMSG_LEN(iv_size);
 		iv = (void *)CMSG_DATA(cmsg);
-		iv->ivlen = iv_size;
+		iv->ivlen = (uint32_t)iv_size;
 
 		iov.iov_base = output;
 		iov.iov_len = DATA_LEN;
@@ -757,6 +757,8 @@ static int stress_af_alg(const stress_args_t *args)
 				rc = stress_af_alg_rng(args, sockfd, info);
 				(void)rc;
 				break;
+			case CRYPTO_UNKNOWN:
+				CASE_FALLTHROUGH;
 			default:
 				break;
 			}
