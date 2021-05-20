@@ -152,7 +152,7 @@ again:
 				(void)ret;
 
 				/* Exercise write on buffer out of range */
-				val = ~0;
+				val = ~0UL;
 				ret = write(fd1, &val, sizeof(val));
 				(void)ret;
 			}
