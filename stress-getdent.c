@@ -104,7 +104,7 @@ static int stress_getdents_dir(
 {
 	int fd, rc = 0, nread;
 	char *buf;
-	size_t buf_sz;
+	unsigned int buf_sz;
 
 	if (!keep_stressing(args))
 		return 0;
@@ -113,27 +113,27 @@ static int stress_getdents_dir(
 	if (fd < 0)
 		return 0;
 
-	buf_sz = ((stress_mwc32() % BUF_SIZE) + page_size) & ~(page_size - 1);
-	buf = malloc(buf_sz);
+	buf_sz = (unsigned int)((stress_mwc32() % BUF_SIZE) + page_size) & ~(page_size - 1);
+	buf = malloc((size_t)buf_sz);
 	if (!buf)
 		goto exit_close;
 
 	/*
 	 *  exercise getdents on bad fd
 	 */
-	nread = shim_getdents(bad_fd, (struct shim_linux_dirent *)buf, buf_sz);
+	nread = shim_getdents((unsigned int)bad_fd, (struct shim_linux_dirent *)buf, buf_sz);
 	(void)nread;
 
 	/*
 	 *  exercise getdents with illegal zero size
 	 */
-	nread = shim_getdents(fd, (struct shim_linux_dirent *)buf, 0);
+	nread = shim_getdents((unsigned int)fd, (struct shim_linux_dirent *)buf, 0);
 	(void)nread;
 
 	do {
 		char *ptr = buf;
 
-		nread = shim_getdents(fd, (struct shim_linux_dirent *)buf, buf_sz);
+		nread = shim_getdents((unsigned int)fd, (struct shim_linux_dirent *)buf, buf_sz);
 		if (nread < 0) {
 			rc = -errno;
 			goto exit_free;
@@ -148,7 +148,7 @@ static int stress_getdents_dir(
 
 		while (ptr < buf + nread) {
 			struct shim_linux_dirent *d = (struct shim_linux_dirent *)ptr;
-			unsigned char d_type = *(ptr + d->d_reclen - 1);
+			unsigned char d_type = (unsigned char)*(ptr + d->d_reclen - 1);
 
 			if (d_type == DT_DIR &&
 			    stress_is_dot_filename(d->d_name)) {
@@ -186,7 +186,7 @@ static int stress_getdents64_dir(
 {
 	int fd, rc = 0, nread;
 	char *buf;
-	size_t buf_sz;
+	unsigned int buf_sz;
 
 	if (!keep_stressing(args))
 		return 0;
@@ -195,21 +195,21 @@ static int stress_getdents64_dir(
 	if (fd < 0)
 		return 0;
 
-	buf_sz = ((stress_mwc32() % BUF_SIZE) + page_size) & ~(page_size - 1);
-	buf = malloc(buf_sz);
+	buf_sz = (unsigned int)((stress_mwc32() % BUF_SIZE) + page_size) & ~(page_size - 1);
+	buf = malloc((size_t)buf_sz);
 	if (!buf)
 		goto exit_close;
 
 	/*
 	 *  exercise getdents64 on bad fd
 	 */
-	nread = shim_getdents64(bad_fd, (struct shim_linux_dirent64 *)buf, buf_sz);
+	nread = shim_getdents64((unsigned int)bad_fd, (struct shim_linux_dirent64 *)buf, buf_sz);
 	(void)nread;
 
 	do {
 		char *ptr = buf;
 
-		nread = shim_getdents64(fd, (struct shim_linux_dirent64 *)buf, buf_sz);
+		nread = shim_getdents64((unsigned int)fd, (struct shim_linux_dirent64 *)buf, buf_sz);
 		if (nread < 0) {
 			rc = -errno;
 			goto exit_free;
