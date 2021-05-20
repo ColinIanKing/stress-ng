@@ -132,7 +132,8 @@ static int stress_epoll_pwait(
 		timeout_ts.tv_sec = timeout_ns / STRESS_NANOSECOND;
 		timeout_ts.tv_nsec = timeout_ns % STRESS_NANOSECOND;
 
-		ret = syscall(__NR_epoll_pwait2, epfd, events, maxevents, &timeout_ts, NULL, 0);
+		ret = (int)syscall(__NR_epoll_pwait2, epfd, events,
+				   maxevents, &timeout_ts, NULL, 0);
 		if (ret == 0)
 			return ret;
 		if ((ret < 0) && (errno != ENOSYS))
@@ -142,8 +143,7 @@ static int stress_epoll_pwait(
 	return epoll_pwait(epfd, events, maxevents, timeout, sigmask);
 }
 
-
-static void MLOCKED_TEXT stress_segv_handler(int num)
+static void NORETURN MLOCKED_TEXT stress_segv_handler(int num)
 {
 	(void)num;
 
@@ -527,7 +527,7 @@ static int epoll_client(
 		int retries = 0;
 		int ret;
 		int port = epoll_port + port_counter +
-				(max_servers * args->instance);
+				(max_servers * (int)args->instance);
 		socklen_t addr_len = 0;
 
 		/* Cycle through the servers */
@@ -652,7 +652,7 @@ retry:
  *  epoll_server()
  *	wait on connections and read data
  */
-static void epoll_server(
+static void NORETURN epoll_server(
 	const stress_args_t *args,
 	const int child,
 	const pid_t ppid,
@@ -661,7 +661,7 @@ static void epoll_server(
 {
 	NOCLOBBER int efd = -1, efd2 = -1, sfd = -1, rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
-	int port = epoll_port + child + (max_servers * args->instance);
+	int port = epoll_port + child + (max_servers * (int)args->instance);
 	NOCLOBBER struct epoll_event *events = NULL;
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
@@ -965,12 +965,12 @@ static int stress_epoll(const stress_args_t *args)
 	if (max_servers == 1) {
 		pr_dbg("%s: process [%" PRIdMAX "] using socket port %d\n",
 			args->name, (intmax_t)args->pid,
-			epoll_port + args->instance);
+			epoll_port + (int)args->instance);
 	} else {
 		pr_dbg("%s: process [%" PRIdMAX "] using socket ports %d..%d\n",
 			args->name, (intmax_t)args->pid,
-			epoll_port + (max_servers * args->instance),
-			epoll_port + (max_servers * (args->instance + 1)) - 1);
+			epoll_port + (max_servers * (int)args->instance),
+			epoll_port + (max_servers * (int)(args->instance + 1)) - 1);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
