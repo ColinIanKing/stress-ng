@@ -88,9 +88,10 @@ static void ioctl_set_timeout(const double secs)
 	if (secs > 0.0) {
 		struct itimerval it;
 		int ret;
+		time_t tsecs = (time_t)secs;
 
 		it.it_interval.tv_sec = (time_t)secs;
-		it.it_interval.tv_usec = (suseconds_t)(1000000.0 * (secs - (time_t)secs));
+		it.it_interval.tv_usec = (suseconds_t)(1000000.0 * (secs - (double)tsecs));
 		it.it_value.tv_sec = it.it_interval.tv_sec;
 		it.it_value.tv_usec = it.it_interval.tv_usec;
 		ret = setitimer(ITIMER_REAL, &it, NULL);
@@ -1257,7 +1258,7 @@ static void cdrom_get_address_msf(
 	struct cdrom_tocentry entry;
 
 	(void)memset(&entry, 0, sizeof(entry));
-	entry.cdte_track = track;
+	entry.cdte_track = (uint8_t)track;
 	entry.cdte_format = CDROM_MSF;
 
 	if (ioctl(fd, CDROMREADTOCENTRY, &entry) == 0) {
@@ -1774,7 +1775,7 @@ static void stress_dev_cdrom_linux(
 
 		/* Invalid DVD_READ_STRUCT call with invalid type argument */
 		(void)memset(&ai, 0, sizeof(ai));
-		ai.type = ~0;
+		ai.type = (uint8_t)~0;
 		ret = ioctl(fd, DVD_AUTH, &ai);
 		(void)ret;
 	}, return);
@@ -1804,7 +1805,7 @@ static void stress_dev_cdrom_linux(
 		int ret;
 
 		for (i = 8; i < 16; i++) {
-			speed = 1UL << i;
+			speed = 1 << i;
 			ret = ioctl(fd, CDROM_SELECT_SPEED, speed);
 			(void)ret;
 		}
@@ -1870,7 +1871,7 @@ static void stress_dev_console_linux(
 		ret = ioctl(fd, KDGKBLED, &argp);
 #if defined(KDSKBLED)
 		if (ret == 0) {
-			unsigned long bad_val = ~0, val;
+			unsigned long bad_val = ~0UL, val;
 
 			val = (unsigned long)argp;
 			ret = ioctl(fd, KDSKBLED, val);
@@ -1897,7 +1898,7 @@ static void stress_dev_console_linux(
 		ret = ioctl(fd, KDGETMODE, &argp);
 #if defined(KDSETMODE)
 		if (ret == 0) {
-			unsigned long bad_val = ~0;
+			unsigned long bad_val = ~0UL;
 
 			ret = ioctl(fd, KDSETMODE, argp);
 			(void)ret;
@@ -1983,7 +1984,7 @@ static void stress_dev_console_linux(
 			bad_arg.scancode = 1;
 			bad_arg.keycode = 2;
 
-			ret = ioctl(fd, KDSETKEYCODE, bad_arg);
+			ret = ioctl(fd, KDSETKEYCODE, &bad_arg);
 			if (ret == 0) {
 				/* Unexpected success, so set it back */
 				ret = ioctl(fd, KDSETKEYCODE, &argp);
@@ -2053,7 +2054,7 @@ static void stress_dev_console_linux(
 		ret = ioctl(fd, KDGKBMODE, &argp);
 #if defined(KDSKBMODE)
 		if (ret == 0) {
-			unsigned long bad_val = ~0;
+			unsigned long bad_val = ~0UL;
 
 			ret = ioctl(fd, KDSKBMODE, argp);
 			(void)ret;
@@ -2079,7 +2080,7 @@ static void stress_dev_console_linux(
 		ret = ioctl(fd, KDGKBMETA, &argp);
 #if defined(KDSKBMETA)
 		if (ret == 0) {
-			unsigned long bad_val = ~0;
+			unsigned long bad_val = ~0UL;
 
 			ret = ioctl(fd, KDSKBMETA, argp);
 			(void)ret;
@@ -2372,7 +2373,7 @@ static void stress_dev_port_linux(
 #endif
 
 #if defined(HAVE_LINUX_HDREG_H)
-static void stress_dev_hd_linux_ioctl_long(int fd, int cmd)
+static void stress_dev_hd_linux_ioctl_long(int fd, unsigned long cmd)
 {
 	long val;
 	int ret;
@@ -2501,7 +2502,7 @@ static void stress_dev_ptp_linux(
 			struct ptp_pin_desc desc;
 
 			(void)memset(&desc, 0, sizeof(desc));
-			desc.index = i;
+			desc.index = (unsigned int)i;
 			ret = ioctl(fd, PTP_PIN_GETFUNC, &desc);
 			(void)ret;
 		}
@@ -2562,7 +2563,7 @@ static void stress_dev_snd_control_linux(
 		(void)ret;
 
 		/* intentionally will fail with -ENOENT */
-		buf.tlv.numid = -1;
+		buf.tlv.numid = ~0U;
 		buf.tlv.length = sizeof(buf.data);
 		ret = ioctl(fd, SNDRV_CTL_IOCTL_TLV_READ, (struct snd_ctl_tlv *)&buf.tlv);
 		(void)ret;
@@ -2972,7 +2973,7 @@ static void *stress_dev_thread(void *arg)
 static void stress_dev_file(const stress_args_t *args, char *path)
 {
 	int ret;
-	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
+	int32_t loops = args->instance < 8 ? (int32_t)args->instance + 1 : 8;
 
 	ret = shim_pthread_spin_lock(&lock);
 	if (!ret) {
@@ -2996,7 +2997,7 @@ static void stress_dev_dir(
 {
 	struct dirent **dlist;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
+	int32_t loops = args->instance < 8 ? (int32_t)args->instance + 1 : 8;
 	int i, n;
 	static int try_failed;
 
