@@ -269,7 +269,7 @@ again:
 				CASE_FALLTHROUGH;
 			case 5:
 				/* Illegal text segment stack */
-				ret = stress_sigaltstack((void *)stress_signal_handler, STRESS_SIGSTKSZ);
+				ret = stress_sigaltstack(stress_signal_handler, STRESS_SIGSTKSZ);
 				if (ret == 0)
 					stress_bad_altstack_force_fault(stack);
 				if (!keep_stressing(args))
