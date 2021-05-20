@@ -67,7 +67,7 @@ static inline bool stress_double_same(
 		return true;
 	if (shim_isinf(val) && shim_isinf(val_expected))
 		return true;
-	return fabsl(val - val_expected) < 0.0000001;
+	return fabs(val - val_expected) < 0.0000001;
 }
 
 static void stress_fp_check(
@@ -121,7 +121,7 @@ static int stress_fp_error(const stress_args_t *args)
 
 #if defined(EDOM)
 		stress_fp_clear_error();
-		stress_fp_check(args, "log(-1.0)", log(-1.0), NAN,
+		stress_fp_check(args, "log(-1.0)", log(-1.0), (double)NAN,
 			true, false, EDOM, FE_INVALID);
 #endif
 
@@ -133,7 +133,7 @@ static int stress_fp_error(const stress_args_t *args)
 
 #if defined(EDOM)
 		stress_fp_clear_error();
-		stress_fp_check(args, "log2(-1.0)", log2(-1.0), NAN,
+		stress_fp_check(args, "log2(-1.0)", log2(-1.0), (double)NAN,
 			true, false, EDOM, FE_INVALID);
 #endif
 
@@ -145,13 +145,13 @@ static int stress_fp_error(const stress_args_t *args)
 
 #if defined(EDOM)
 		stress_fp_clear_error();
-		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), NAN,
+		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), (double)NAN,
 			true, false, EDOM, FE_INVALID);
 #endif
 
 #if defined(EDOM)
 		stress_fp_clear_error();
-		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), NAN,
+		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), (double)NAN,
 			true, false, EDOM, FE_INVALID);
 #endif
 
@@ -173,7 +173,7 @@ static int stress_fp_error(const stress_args_t *args)
 		SET_VOLATILE(d1, DBL_MAX);
 		SET_VOLATILE(d2, DBL_MAX / 2.0);
 		stress_fp_check(args, "DBL_MAX + DBL_MAX / 2.0",
-			DBL_MAX + DBL_MAX / 2.0, INFINITY,
+			DBL_MAX + DBL_MAX / 2.0, (double)INFINITY,
 			false, true, 0, FE_OVERFLOW | FE_INEXACT);
 
 #if defined(ERANGE)
