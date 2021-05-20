@@ -425,7 +425,7 @@ static int stress_hdd_advise(const stress_args_t *args, const int fd, const int 
  *  data_value()
  *	generate 8 bit data value for offsets and instance # into a test file
  */
-static uint8_t inline data_value(const uint64_t i, uint64_t j, const stress_args_t *args)
+static inline uint8_t data_value(const uint64_t i, uint64_t j, const stress_args_t *args)
 {
 	register uint8_t v = (uint8_t)(((i + j) >> 9) + i + j + args->instance);
 
@@ -754,7 +754,7 @@ seq_rd_retry:
 						size_t j;
 
 						/* Write seq has written to all of the file, so it should always be OK */
-						for (j = 0; j < ret; j++) {
+						for (j = 0; j < (size_t)ret; j++) {
 							const uint8_t v = data_value(i, j, args);
 
 							if (buf[j] != v)
@@ -764,7 +764,7 @@ seq_rd_retry:
 						size_t j;
 
 						/* Write rnd has written to some of the file, so data either zero or OK */
-						for (j = 0; j < ret; j++) {
+						for (j = 0; j < (size_t)ret; j++) {
 							const uint8_t v = data_value(i, j, args);
 
 							if ((buf[j] != 0) && (buf[j] != v))
@@ -823,7 +823,7 @@ rnd_rd_retry:
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
 					size_t j;
 
-					for (j = 0; j < ret; j++) {
+					for (j = 0; j < (size_t)ret; j++) {
 						uint8_t v = data_value(offset, j, args);
 						if (hdd_flags & HDD_OPT_WR_SEQ) {
 							/* Write seq has written to all of the file, so it should always be OK */
