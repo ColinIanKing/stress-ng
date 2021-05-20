@@ -85,17 +85,17 @@ typedef struct {
  */
 static void dnotify_exercise(
 	const stress_args_t *args,	/* Stressor args */
-	const char *filename,	/* Filename in test */
-	const char *watchname,	/* File or directory to watch using dnotify */
-	const stress_dnotify_helper func,	/* Helper func */
-	const int flags,	/* DN_* flags to watch for */
-	void *private)		/* Helper func private data */
+	const char *filename,		/* Filename in test */
+	const char *watchname,		/* File or directory to watch using dnotify */
+	const stress_dnotify_helper func,/* Helper func */
+	const unsigned long flags,	/* DN_* flags to watch for */
+	void *private)			/* Helper func private data */
 {
 	int fd, i = 0;
 #if defined(DN_MULTISHOT)
-	int flags_ms = flags | DN_MULTISHOT;
+	unsigned long flags_ms = flags | DN_MULTISHOT;
 #else
-	int flags_ms = flags;
+	unsigned long flags_ms = flags;
 #endif
 
 	if ((fd = open(watchname, O_RDONLY)) < 0) {
@@ -174,7 +174,6 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 		size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
 		ssize_t ret;
 
-
 		ret = write(fd, buffer, n);
 		if (ret < 0) {
 			if (errno == ENOSPC)
@@ -184,7 +183,7 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 			(void)close(fd);
 			return -1;
 		}
-		sz -= ret;
+		sz -= (size_t)ret;
 	}
 
 	if (close(fd) < 0) {
