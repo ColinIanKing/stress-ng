@@ -26,7 +26,8 @@
 
 #define GAMMA 		(0.57721566490153286060651209008240243104215933593992L)
 #define OMEGA		(0.56714329040978387299996866221035554975381578718651L)
-#define PSI		(3.359885666243177553172011302918927179688905133732L)
+#define PSI		(3.35988566624317755317201130291892717968890513373197L)
+#define PI		(3.14159265358979323846264338327950288419716939937511L)
 
 #define STATS_MAX		(250)
 #define FFT_SIZE		(4096)
@@ -78,19 +79,19 @@
 #endif
 
 #if !defined(HAVE_COSL)
-#define cosl(x)		cos(x)
+#define cosl(x)		((long double)cos((double)x))
 #endif
 
 #if !defined(HAVE_SINL)
-#define	sinl(x)		sin(x)
+#define	sinl(x)		((long double)sin((double)x))
 #endif
 
 #if !defined(HAVE_COSHL)
-#define coshl(x)	cosh(x)
+#define coshl(x)	((long double)cosh((double)x))
 #endif
 
 #if !defined(HAVE_SINHL)
-#define	sinhl(x)	sinh(x)
+#define	sinhl(x)	((long double)sinh((double)x))
 #endif
 
 #if !defined(HAVE_SQRTL)
@@ -161,7 +162,7 @@ static int stress_set_cpu_load(const char *opt) {
 	int32_t cpu_load;
 
 	cpu_load = stress_get_int32(opt);
-	stress_check_range("cpu-load", cpu_load, 0, 100);
+	stress_check_range("cpu-load", (uint64_t)cpu_load, 0, 100);
 	return stress_set_setting("cpu-load", TYPE_ID_INT32, &cpu_load);
 }
 
@@ -195,17 +196,20 @@ static void HOT TARGET_CLONES stress_cpu_sqrt(const char *name)
 		uint64_t rnd = stress_mwc32();
 		double r_d = shim_sqrt((double)rnd) * shim_sqrt((double)rnd);
 		long double r_ld = shim_sqrtl((long double)rnd) * shim_sqrtl((long double)rnd);
+		register uint64_t tmp;
 
-		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
-		    (uint64_t)shim_rint(r_d) != rnd)) {
+		r_d = shim_rint(r_d);
+		tmp = (uint64_t)r_d;
+		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) && (tmp != rnd))) {
 			pr_fail("%s: sqrt error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
 			if (!keep_stressing_flag())
 				break;
 		}
 
-		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) &&
-		    (uint64_t)shim_rint(r_ld) != rnd)) {
+		r_ld = shim_rintl(r_ld);
+		tmp = (uint64_t)r_ld;
+		if (UNLIKELY((g_opt_flags & OPT_FLAGS_VERIFY) && (tmp != rnd))) {
 			pr_fail("%s: sqrtf error detected on "
 				"sqrt(%" PRIu64 ")\n", name, rnd);
 			if (!keep_stressing_flag())
@@ -362,28 +366,35 @@ static void HOT stress_cpu_trig(const char *name)
 	(void)name;
 
 	for (i = 0; i < 1500; i++) {
-		long double theta = (2.0L * M_PI * (double)i)/1500.0L;
+		long double theta = (2.0L * PI * (long double)i)/1500.0L;
 		{
+			double thetad = (double)theta;
+			float thetaf = (float)theta;
+
 			d_sum += (cosl(theta) * sinl(theta));
-			d_sum += (cos(theta) * sin(theta));
-			d_sum += (cosf(theta) * sinf(theta));
+			d_sum += ((long double)cos(thetad) * (long double)sin(thetad));
+			d_sum += ((long double)cosf(thetaf) * (long double)sinf(thetaf));
 		}
 		{
-			long double theta2 = theta * 2.0L;
+			long double thetal = theta * 2.0L;
+			double thetad = (double)thetal;
+			float thetaf = (float)thetal;
 
-			d_sum += cosl(theta2);
-			d_sum += cos(theta2);
-			d_sum += cosf(theta2);
+			d_sum += cosl(thetal);
+			d_sum += (long double)cos(thetad);
+			d_sum += (long double)cosf(thetaf);
 		}
 		{
-			long double theta3 = theta * 3.0L;
+			long double thetal = theta * 3.0L;
+			double thetad = (double)thetal;
+			float thetaf = (float)thetal;
 
-			d_sum += sinl(theta3);
-			d_sum += sin(theta3);
-			d_sum += sinf(theta3);
+			d_sum += sinl(thetal);
+			d_sum += (long double)sin(thetad);
+			d_sum += (long double)sinf(thetaf);
 		}
 	}
-	stress_double_put(d_sum);
+	stress_long_double_put(d_sum);
 }
 
 /*
@@ -393,33 +404,40 @@ static void HOT stress_cpu_trig(const char *name)
 static void HOT stress_cpu_hyperbolic(const char *name)
 {
 	int i;
-	double d_sum = 0.0;
+	long double d_sum = 0.0L;
 
 	(void)name;
 
 	for (i = 0; i < 1500; i++) {
-		long double theta = (2.0L * M_PI * (double)i)/1500.0L;
+		long double theta = (2.0L * PI * (long double)i)/1500.0L;
 		{
+			double thetad = (double)theta;
+			float thetaf = (float)theta;
+
 			d_sum += (coshl(theta) * sinhl(theta));
-			d_sum += (cosh(theta) * sinh(theta));
-			d_sum += (double)(coshf(theta) * sinhf(theta));
+			d_sum += ((long double)cosh(thetad) * (long double)sinh(thetad));
+			d_sum += ((long double)coshf(thetaf) * (long double)sinhf(thetaf));
 		}
 		{
-			long double theta2 = theta * 2.0L;
+			long double thetal = theta * 2.0L;
+			double thetad = (double)theta;
+			float thetaf = (float)theta;
 
-			d_sum += coshl(theta2);
-			d_sum += cosh(theta2);
-			d_sum += (double)coshf(theta2);
+			d_sum += coshl(thetal);
+			d_sum += (long double)cosh(thetad);
+			d_sum += (long double)coshf(thetaf);
 		}
 		{
-			long double theta3 = theta * 3.0L;
+			long double thetal = theta * 3.0L;
+			double thetad = (double)theta;
+			float thetaf = (float)theta;
 
-			d_sum += sinhl(theta3);
-			d_sum += sinh(theta3);
-			d_sum += (double)sinhf(theta3);
+			d_sum += sinhl(thetal);
+			d_sum += (long double)sinh(thetad);
+			d_sum += (long double)sinhf(thetaf);
 		}
 	}
-	stress_double_put(d_sum);
+	stress_long_double_put(d_sum);
 }
 
 /*
@@ -459,7 +477,7 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 		l += lrand48();
 	}
 	stress_double_put(d);
-	stress_uint64_put(l);
+	stress_uint64_put((uint64_t)l);
 }
 
 /*
@@ -491,7 +509,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 	const int max_iter = 56;
 
 	for (i = 16300; i < 16384; i++) {
-		long double n = (double)i;
+		long double n = (long double)i;
 		long double lo = (n < 1.0L) ? n : 1.0L;
 		long double hi = (n < 1.0L) ? 1.0L : n;
 		long double rt;
@@ -507,11 +525,13 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 		rt = (lo + hi) / 2.0L;
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			const long double r2 = shim_rintl(rt * rt);
+
 			if (j >= max_iter)
 				pr_fail("%s: Newton-Raphson sqrt "
 					"computation took more iterations "
 					"than expected\n", name);
-			if ((int)shim_rintl(rt * rt) != i)
+			if ((int)r2 != i)
 				pr_fail("%s: Newton-Raphson sqrt not "
 					"accurate enough\n", name);
 		}
@@ -559,7 +579,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_phi(const char *name)
 static void HOT OPTIMIZE3 stress_cpu_apery(const char *name)
 {
 	uint32_t n;
-	long double a = 0.0, a_;
+	long double a = 0.0L, a_ = a;
 	const long double precision = 1.0e-14L;
 
 	(void)name;
@@ -599,10 +619,10 @@ static void HOT OPTIMIZE3 fft_partial(
 		fft_partial(tmp, data, n, m2);
 		fft_partial(tmp + m, data + m, n, m2);
 		for (i = 0; i < n; i += m2) {
-			const double complex negI = -I;
+			const double complex negI = -(double complex)I;
 			double complex v = tmp[i];
 			double complex t =
-				cexp((negI * M_PI * (double)i) /
+				cexp((negI * (double)PI * (double)i) /
 				     (double)n) * tmp[i + m];
 			data[i / 2] = v + t;
 			data[(i + n) / 2] = v - t;
@@ -664,13 +684,13 @@ static void random_buffer(uint8_t *data, const size_t len)
 	for (i = 0; i < len / 4; i++) {
 		uint32_t v = stress_mwc32();
 
-		*data++ = v;
+		*data++ = (uint8_t)v;
 		v >>= 8;
-		*data++ = v;
+		*data++ = (uint8_t)v;
 		v >>= 8;
-		*data++ = v;
+		*data++ = (uint8_t)v;
 		v >>= 8;
-		*data++ = v;
+		*data++ = (uint8_t)v;
 	}
 }
 
@@ -838,7 +858,7 @@ static void stress_cpu_nhash(const char *name)
 static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 {
 	const double invsqrt2 = 1.0 / shim_sqrt(2.0);
-	const double pi_over_16 = M_PI / 16.0;
+	const double pi_over_16 = (double)PI / 16.0;
 	const int sz = 8;
 	int i, j, u, v;
 	float data[sz][sz], idct[sz][sz];
@@ -865,13 +885,13 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 					const double cos_pi_j_v =
 						cos(pi_j * v);
 
-					sum += (data[u][v] *
+					sum += ((double)data[u][v] *
 						(u ? 1.0 : invsqrt2) *
 						(v ? 1.0 : invsqrt2) *
 						cos_pi_i_u * cos_pi_j_v);
 				}
 			}
-			idct[i][j] = 0.25 * sum;
+			idct[i][j] = (float)(0.25 * sum);
 		}
 	}
 	/* Final output should be a 8x8 matrix of values 255 */
@@ -891,14 +911,14 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 	}
 }
 
-#define int_ops(a, b, c1, c2, c3)	\
+#define int_ops(_type, a, b, c1, c2, c3)\
 	do {				\
 		a += b;			\
 		b ^= a;			\
 		a >>= 1;		\
 		b <<= 2;		\
 		b -= a;			\
-		a ^= ~0;		\
+		a ^= (_type)~0;		\
 		b ^= ~(c1);		\
 		a *= 3;			\
 		b *= 7;			\
@@ -930,7 +950,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 #define stress_cpu_int(_type, _sz, _a, _b, _c1, _c2, _c3)	\
 static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
 {								\
-	const _type mask = ~0;					\
+	const _type mask = (_type)~(_type)0;			\
 	const _type a_final = _a;				\
 	const _type b_final = _b;				\
 	const _type c1 = _c1 & mask;				\
@@ -940,11 +960,11 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
 	int i;							\
 								\
 	STRESS_MWC_SEED();					\
-	a = stress_mwc32();					\
-	b = stress_mwc32();					\
+	a = (_type)stress_mwc32();				\
+	b = (_type)stress_mwc32();				\
 								\
 	for (i = 0; i < 1000; i++) {				\
-		int_ops(a, b, c1, c2, c3)			\
+		int_ops(_type, a, b, c1, c2, c3)		\
 	}							\
 								\
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&			\
@@ -1008,8 +1028,13 @@ stress_cpu_int(uint8_t, 8, \
 static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 {							\
 	int i;						\
-	_type a = 0.18728L, b = stress_mwc32(), 	\
-	      c = stress_mwc32(), d;			\
+	const uint32_t r1 = stress_mwc32(),		\
+		       r2 = stress_mwc32();		\
+	_type a = (_type)0.18728L, 			\
+	      b = (_type)r1,				\
+	      c = (_type)r2,				\
+	      d = (_type)0.0,				\
+	      r;					\
 							\
 	(void)name;					\
 							\
@@ -1017,7 +1042,8 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 		float_ops(_type, a, b, c, d,		\
 			_sin, _cos);			\
 	}						\
-	stress_double_put(a + b + c + d);		\
+	r = a + b + c + d;				\
+	stress_double_put((double)r);			\
 }
 
 stress_cpu_fp(float, float, sinf, cosf)
@@ -1070,11 +1096,15 @@ stress_cpu_fp(__float128, float128, sinl, cosl)
 static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 {								\
 	int i;							\
-	_type cI = I;						\
+	const uint32_t r1 = stress_mwc32(),			\
+		       r2 = stress_mwc32();			\
+	_type cI = (_type)I;					\
 	_type a = FP(0.18728, _ltype) + 			\
 		cI * FP(0.2762, _ltype),			\
-		b = stress_mwc32() - cI * FP(0.11121, _ltype),	\
-		c = stress_mwc32() + cI * stress_mwc32(), d;	\
+		b = (_type)r1 - cI * FP(0.11121, _ltype),	\
+		c = (_type)r2 + cI * stress_mwc32(), 		\
+		d = (_type)0.0,					\
+		r;						\
 								\
 	(void)name;						\
 								\
@@ -1082,7 +1112,8 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 		float_ops(_type, a, b, c, d,			\
 			_csin, _ccos);				\
 	}							\
-	stress_double_put(a + b + c + d);			\
+	r = a + b + c + d;					\
+	stress_double_put((double)r);				\
 }
 
 stress_cpu_complex(complex float, f, complex_float, csinf, ccosf)
@@ -1091,7 +1122,7 @@ stress_cpu_complex(complex long double, l, complex_long_double, csinl, ccosl)
 #endif
 
 #define int_float_ops(_ftype, flt_a, flt_b, flt_c, flt_d,	\
-	_sin, _cos, int_a, int_b, _c1, _c2, _c3)		\
+	_sin, _cos, _inttype, int_a, int_b, _c1, _c2, _c3)	\
 	do {							\
 		int_a += int_b;					\
 		int_b ^= int_a;					\
@@ -1100,7 +1131,7 @@ stress_cpu_complex(complex long double, l, complex_long_double, csinl, ccosl)
 		int_b <<= 2;					\
 		flt_b = flt_a * flt_c;				\
 		int_b -= int_a;					\
-		int_a ^= ~0;					\
+		int_a ^= ~(_inttype)0;				\
 		flt_c = flt_a - flt_b;				\
 		int_b ^= ~(_c1);				\
 		int_a *= 3;					\
@@ -1146,22 +1177,28 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(cons
 {								\
 	int i;							\
 	_inttype int_a, int_b;					\
-	const _inttype mask = ~0;				\
+	const _inttype mask = (_inttype)~0;			\
 	const _inttype a_final = _a;				\
 	const _inttype b_final = _b;				\
 	const _inttype c1 = _c1 & mask;				\
 	const _inttype c2 = _c2 & mask;				\
 	const _inttype c3 = _c3 & mask;				\
-	_ftype flt_a = 0.18728L, flt_b = stress_mwc32(),	\
-		flt_c = stress_mwc32(), flt_d;			\
+	const uint32_t r1 = stress_mwc32(),			\
+		       r2 = stress_mwc32();			\
+	_ftype flt_a = (_ftype)0.18728L,			\
+	       flt_b = (_ftype)r1,				\
+	       flt_c = (_ftype)r2,				\
+	       flt_d = (_ftype)0.0,				\
+	       flt_r;						\
 								\
 	STRESS_MWC_SEED();					\
 	int_a = stress_mwc32();					\
 	int_b = stress_mwc32();					\
 								\
 	for (i = 0; i < 1000; i++) {				\
-		int_float_ops(_ftype, flt_a, flt_b, flt_c, flt_d,\
-			_sinf, _cosf, int_a, int_b, c1, c2, c3);\
+		int_float_ops(_ftype, flt_a, flt_b, flt_c, 	\
+			flt_d,_sinf, _cosf, _inttype,		\
+			int_a, int_b, c1, c2, c3);		\
 	}							\
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) &&			\
 	    ((int_a != a_final) || (int_b != b_final)))		\
@@ -1169,7 +1206,8 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(cons
 			"failed int" # _sz "" # _ftype		\
 			" math operations\n", name);		\
 								\
-	stress_double_put(flt_a + flt_b + flt_c + flt_d);	\
+	flt_r = flt_a + flt_b + flt_c + flt_d;			\
+	stress_double_put((double)flt_r);			\
 }
 
 stress_cpu_int_fp(uint32_t, 32, float, float,
@@ -1241,9 +1279,9 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_rgb(const char *name)
 {
 	int i;
 	uint32_t rgb = stress_mwc32() & 0xffffff;
-	uint8_t r = rgb >> 16;
-	uint8_t g = rgb >> 8;
-	uint8_t b = rgb;
+	uint8_t r = (uint8_t)(rgb >> 16);
+	uint8_t g = (uint8_t)(rgb >> 8);
+	uint8_t b = (uint8_t)rgb;
 
 	(void)name;
 
@@ -1257,9 +1295,9 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_rgb(const char *name)
 		v = (r - y) * 0.713f;
 
 		/* YUV back to RGB */
-		r = y + (1.403f * v);
-		g = y - (0.344f * u) - (0.714f * v);
-		b = y + (1.770f * u);
+		r = (uint8_t)(y + (1.403f * v));
+		g = (uint8_t)(y - (0.344f * u) - (0.714f * v));
+		b = (uint8_t)(y + (1.770f * u));
 
 		/* And bump each colour to make next round */
 		r += 1;
@@ -1287,8 +1325,11 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 
 	for (i = 0; i < MATRIX_PROD_SIZE; i++) {
 		for (j = 0; j < MATRIX_PROD_SIZE; j++) {
-			a[i][j] = (long double)stress_mwc32() * v;
-			b[i][j] = (long double)stress_mwc32() * v;
+			const uint32_t r1 = stress_mwc32();
+			const uint32_t r2 = stress_mwc32();
+
+			a[i][j] = (long double)r1 * v;
+			b[i][j] = (long double)r2 * v;
 			r[i][j] = 0.0L;
 		}
 	}
@@ -1304,7 +1345,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 	for (i = 0; i < MATRIX_PROD_SIZE; i++)
 		for (j = 0; j < MATRIX_PROD_SIZE; j++)
 			sum += r[i][j];
-	stress_double_put(sum);
+	stress_long_double_put(sum);
 }
 
 /*
@@ -1360,7 +1401,7 @@ static void HOT OPTIMIZE3 stress_cpu_psi(const char *name)
 				"than expected\n", name);
 	}
 
-	stress_double_put(psi);
+	stress_long_double_put(psi);
 }
 
 /*
@@ -1392,7 +1433,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ln2(const char *name)
 		pr_fail("%s: calculation of ln(2) took more "
 			"iterations than expected\n", name);
 
-	stress_double_put(ln2);
+	stress_long_double_put(ln2);
 }
 
 /*
@@ -1442,12 +1483,14 @@ static void HOT stress_cpu_explog(const char *name)
  *  but it may be optimised down, so force a compare and jmp
  *  with -O0 and a if/else construct
  */
-#define JMP(v, op, val, a, b)		\
-	if (v op val)			\
-		v = a;			\
-	else				\
-		v = b;			\
-	stress_uint64_put(next + i);	\
+#define JMP(v, op, val, a, b)			\
+do {						\
+	if (v op val)				\
+		v = a;				\
+	else					\
+		v = b;				\
+	stress_uint32_put((uint32_t)(next + i));\
+} while (0)
 
 /*
  *   stress_cpu_jmp
@@ -1495,7 +1538,7 @@ static uint16_t HOT OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
 	 *  we are assuming the top bit is always set.
 	 */
 	const uint16_t polynomial = 0x8408;
-	register uint16_t crc = ~0;
+	register uint16_t crc = 0xffff;
 
 	if (!n)
 		return 0;
@@ -1512,7 +1555,7 @@ static uint16_t HOT OPTIMIZE3 ccitt_crc16(const uint8_t *data, size_t n)
 	}
 
 	crc = ~crc;
-	return (crc << 8) | (crc >> 8);
+	return ((uint16_t)(crc << 8)) | (crc >> 8);
 }
 
 /*
@@ -1544,7 +1587,7 @@ static uint16_t HOT OPTIMIZE3 fletcher16(const uint8_t *data, const size_t len)
 		sum1 = (sum1 + data[i]) % 255;
 		sum2 = (sum2 + sum1) % 255;
 	}
-	return (sum2 << 8) | sum1;
+	return ((uint16_t)(sum2 << 8)) | sum1;
 }
 
 /*
@@ -1595,8 +1638,9 @@ static inline long double complex HOT OPTIMIZE3 zeta(
 	long double complex z = 0.0L, zold = 0.0L;
 
 	do {
+		double complex pwr = cpow(i++, (complex double)s);
 		zold = z;
-		z += 1 / cpow(i++, s);
+		z += 1 / (long double complex)pwr;
 	} while (cabsl(z - zold) > precision);
 
 	return z;
@@ -1613,8 +1657,11 @@ static void stress_cpu_zeta(const char *name)
 
 	(void)name;
 
-	for (i = 2; i < 11; i++)
-		stress_double_put(zeta((double complex)i, precision));
+	for (i = 2; i < 11; i++) {
+		long double complex z = zeta((long double complex)i, precision);
+
+		stress_long_double_put((long double)z);
+	}
 }
 #endif
 
@@ -1632,9 +1679,9 @@ static void HOT OPTIMIZE3 stress_cpu_gamma(const char *name)
 		sum += 1.0L / k;
 		_gamma = sum - logl(k);
 		k += 1.0L;
-	} while (k < 1e6 && shim_fabsl(_gamma - gammaold) > precision);
+	} while ((k < 1e6L) && shim_fabsl(_gamma - gammaold) > precision);
 
-	stress_double_put(_gamma);
+	stress_long_double_put(_gamma);
 
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		if (shim_fabsl(_gamma - GAMMA) > 1.0e-5L)
@@ -1665,7 +1712,9 @@ static void HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
 
 	/* Generate some random data */
 	for (i = 0; i < CORRELATE_DATA_LEN; i++) {
-		data[i] = stress_mwc64();
+		const uint64_t r = stress_mwc64();
+
+		data[i] = (double)r;
 		data_average += data[i];
 	}
 	data_average /= (double)CORRELATE_DATA_LEN;
@@ -1689,7 +1738,8 @@ static void HOT OPTIMIZE3 stress_cpu_correlate(const char *name)
  */
 static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
 {
-	const uint32_t nsqrt = shim_sqrt(SIEVE_SIZE);
+	const double dsqrt = shim_sqrt(SIEVE_SIZE);
+	const uint32_t nsqrt = (uint32_t)dsqrt;
 	static uint32_t sieve[(SIEVE_SIZE + 31) / 32];
 	uint32_t i, j;
 
@@ -1714,15 +1764,18 @@ static void HOT OPTIMIZE3 stress_cpu_sieve(const char *name)
  *	return true if n is prime
  *	http://en.wikipedia.org/wiki/Primality_test
  */
-static inline HOT OPTIMIZE3 ALWAYS_INLINE int is_prime(uint32_t n)
+static inline HOT OPTIMIZE3 ALWAYS_INLINE uint32_t is_prime(uint32_t n)
 {
 	register uint32_t i, max;
+	double dsqrt;
 
 	if (UNLIKELY(n <= 3))
 		return n >= 2;
 	if ((n % 2 == 0) || (n % 3 == 0))
 		return 0;
-	max = shim_sqrt(n) + 1;
+
+	dsqrt = shim_sqrt(n);
+	max = (uint32_t)dsqrt + 1;
 	for (i = 5; i < max; i+= 6)
 		if ((n % i == 0) || (n % (i + 2) == 0))
 			return 0;
@@ -1831,7 +1884,7 @@ static void TARGET_CLONES stress_cpu_floatconversion(const char *name)
 {
 	float f_sum = 0.0;
 	double d_sum = 0.0;
-	long double ld_sum = 0.0;
+	long double ld_sum = 0.0L;
 	register uint32_t i, j_sum = 0;
 
 	(void)name;
@@ -1889,9 +1942,9 @@ static void TARGET_CLONES stress_cpu_floatconversion(const char *name)
  */
 static void stress_cpu_intconversion(const char *name)
 {
-	int16_t i16_sum = stress_mwc16();
-	int32_t i32_sum = stress_mwc32();
-	int64_t i64_sum = stress_mwc64();
+	int16_t i16_sum = (int16_t)stress_mwc16();
+	int32_t i32_sum = (int32_t)stress_mwc32();
+	int64_t i64_sum = (int64_t)stress_mwc64();
 
 	register uint32_t i;
 
@@ -1924,37 +1977,37 @@ static void stress_cpu_intconversion(const char *name)
 		i64 = -(int16_t)(uint64_t)-(int32_t)(uint64_t)i32_sum;
 		i64_sum += i64;
 
-		i16 = -(int32_t)(uint16_t)-(int64_t)(uint64_t)i64_sum;
+		i16 = (int16_t)-((int32_t)(uint16_t)-(int64_t)(uint64_t)i64_sum);
 		i16_sum -= i16;
 		i32 = -(int32_t)(uint16_t)-(int64_t)(uint64_t)i16_sum;
 		i32_sum -= i32;
 		i64 = -(int32_t)(uint16_t)-(int64_t)(uint64_t)i32_sum;
 		i64_sum -= i64;
 
-		i16 = -(int32_t)(uint64_t)-(int16_t)(uint64_t)i64_sum;
+		i16 = (int16_t)-((int32_t)(uint64_t)-(int16_t)(uint64_t)i64_sum);
 		i16_sum += i16;
 		i32 = -(int32_t)(uint64_t)-(int16_t)(uint64_t)i16_sum;
 		i32_sum += i32;
 		i64 = -(int32_t)(uint64_t)-(int16_t)(uint64_t)i32_sum;
 		i64_sum += i64;
 
-		i16 = -(int64_t)(uint16_t)-(int32_t)(uint64_t)i64_sum;
+		i16 = (int16_t)-((int64_t)(uint16_t)-(int32_t)(uint64_t)i64_sum);
 		i16_sum -= i16;
-		i32 = -(int64_t)(uint16_t)-(int32_t)(uint64_t)i16_sum;
+		i32 = (int32_t)-((int64_t)(uint16_t)-(int32_t)(uint64_t)i16_sum);
 		i32_sum -= i32;
 		i64 = (int64_t)(uint16_t)-(int32_t)(uint64_t)i32_sum;
 		i64_sum -= i64;
 
-		i16 = -(int64_t)(uint32_t)-(int16_t)(uint64_t)i64_sum;
+		i16 = (int16_t)-((int64_t)(uint32_t)-(int16_t)(uint64_t)i64_sum);
 		i16_sum += i16;
-		i32 = -(int64_t)(uint32_t)-(int16_t)(uint64_t)i16_sum;
+		i32 = (int32_t)-((int64_t)(uint32_t)-(int16_t)(uint64_t)i16_sum);
 		i32_sum += i32;
 		i64 = -(int64_t)(uint32_t)-(int16_t)(uint64_t)i32_sum;
 		i64_sum += i64;
 	}
-	stress_uint16_put(i16_sum);
-	stress_uint32_put(i32_sum);
-	stress_uint64_put(i64_sum);
+	stress_uint16_put((uint16_t)i16_sum);
+	stress_uint32_put((uint32_t)i32_sum);
+	stress_uint64_put((uint64_t)i64_sum);
 }
 
 /*
@@ -2032,12 +2085,12 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
 		if (k >= max_iter)
 			pr_fail("%s: number of iterations to compute "
 				"pi was more than expected\n", name);
-		if (shim_fabsl(pi - M_PI) > 1.0e-15L)
+		if (shim_fabsl(pi - PI) > 1.0e-15L)
 			pr_fail("%s: accuracy of computed pi is not "
 				"as good as expected\n", name);
 	}
 
-	stress_double_put(pi);
+	stress_long_double_put(pi);
 }
 
 /*
@@ -2072,18 +2125,18 @@ static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
 				"not as good as expected\n", name);
 	}
 
-	stress_double_put(omega);
+	stress_long_double_put(omega);
 }
 
 #define HAMMING(G, i, nybble, code) 			\
-{							\
+do {							\
 	int8_t res;					\
 	res = (((G[3] >> i) & (nybble >> 3)) & 1) ^	\
 	      (((G[2] >> i) & (nybble >> 2)) & 1) ^	\
 	      (((G[1] >> i) & (nybble >> 1)) & 1) ^	\
 	      (((G[0] >> i) & (nybble >> 0)) & 1);	\
 	code ^= ((res & 1) << i);			\
-}
+} while (0)
 
 /*
  *  hamming84()
@@ -2146,10 +2199,10 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_hamming(const char *name)
 		uint32_t encoded;
 
 		/* 4 x 4 bits to 4 x 8 bits hamming encoded */
-		encoded = (hamming84((i >> 12) & 0xf) << 24) |
-			  (hamming84((i >> 8) & 0xf) << 16) |
-			  (hamming84((i >> 4) & 0xf) << 8) |
-			  (hamming84((i >> 0) & 0xf) << 0);
+		encoded = (uint32_t)(hamming84((i >> 12) & 0xf) << 24) |
+			  (uint32_t)(hamming84((i >> 8) & 0xf) << 16) |
+			  (uint32_t)(hamming84((i >> 4) & 0xf) << 8) |
+			  (uint32_t)(hamming84((i >> 0) & 0xf) << 0);
 		sum += encoded;
 	}
 
@@ -2322,21 +2375,21 @@ static void TARGET_CLONES stress_cpu_dither(const char *name)
 		for (x = 0; x < STRESS_CPU_DITHER_X; x ++) {
 			uint64_t v = stress_mwc64();
 
-			pixels[x][y + 0] = v;
+			pixels[x][y + 0] = (uint8_t)v;
 			v >>= 8;
-			pixels[x][y + 1] = v;
+			pixels[x][y + 1] = (uint8_t)v;
 			v >>= 8;
-			pixels[x][y + 2] = v;
+			pixels[x][y + 2] = (uint8_t)v;
 			v >>= 8;
-			pixels[x][y + 3] = v;
+			pixels[x][y + 3] = (uint8_t)v;
 			v >>= 8;
-			pixels[x][y + 4] = v;
+			pixels[x][y + 4] = (uint8_t)v;
 			v >>= 8;
-			pixels[x][y + 5] = v;
+			pixels[x][y + 5] = (uint8_t)v;
 			v >>= 8;
-			pixels[x][y + 6] = v;
+			pixels[x][y + 6] = (uint8_t)v;
 			v >>= 8;
-			pixels[x][y + 7] = v;
+			pixels[x][y + 7] = (uint8_t)v;
 		}
 	}
 
@@ -2551,7 +2604,7 @@ static void TARGET_CLONES stress_cpu_union(const char *name)
 }
 
 static const uint32_t queens_solutions[] = {
-	-1, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200
+	0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200
 };
 
 /*
@@ -2608,15 +2661,16 @@ static void stress_cpu_queens(const char *name)
 static void stress_cpu_factorial(const char *name)
 {
 	int n;
-	double f = 1.0;
-	const double precision = 1.0e-6;
-	const double sqrt_pi = shim_sqrtl(M_PI);
+	long double f = 1.0L;
+	const long double precision = 1.0e-6L;
+	const long double sqrt_pi = shim_sqrtl(PI);
 
 	for (n = 1; n < 150; n++) {
-		double fact = roundl(expl(lgammal((double)(n + 1))));
-		double dn;
+		long double np1 = (long double)(n + 1);
+		long double fact = roundl(expl(lgammal(np1)));
+		long double dn;
 
-		f *= (double)n;
+		f *= (long double)n;
 
 		/* Stirling */
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
@@ -2626,9 +2680,9 @@ static void stress_cpu_factorial(const char *name)
 		}
 
 		/* Ramanujan */
-		dn = (double)n;
-		fact = sqrt_pi * powl((dn / M_E), dn);
-		fact *= powl((((((((8 * dn) + 4)) * dn) + 1) * dn) + 1.0/30.0), (1.0/6.0));
+		dn = (long double)n;
+		fact = sqrt_pi * powl((dn / (long double)M_E), dn);
+		fact *= powl((((((((8 * dn) + 4)) * dn) + 1) * dn) + 1.0L/30.0L), (1.0L/6.0L));
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 		    ((f - fact) / fact > precision)) {
 			pr_fail("%s: Ramanujan's approximation of factorial(%d) out of range\n",
@@ -2914,7 +2968,7 @@ static double stress_per_cpu_time(void)
 	 */
 	if (use_clock_gettime) {
 		if (clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &ts) == 0) {
-			return ts.tv_sec + ((double)ts.tv_nsec) / (double)STRESS_NANOSECOND;
+			return (double)ts.tv_sec + ((double)ts.tv_nsec) / (double)STRESS_NANOSECOND;
 		} else {
 			use_clock_gettime = false;
 		}
@@ -2951,7 +3005,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 	 * load stress test(!)
 	 */
 	if (cpu_load == 0) {
-		(void)sleep((int)g_opt_timeout);
+		(void)sleep((unsigned int)g_opt_timeout);
 		return EXIT_SUCCESS;
 	}
 
@@ -2992,7 +3046,8 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 			t2 = stress_per_cpu_time();
 		} else if (cpu_load_slice == 0) {
 			/* == 0, random time slices */
-			double slice_end = t1 + (((double)stress_mwc16()) / 131072.0);
+			const uint16_t r = stress_mwc16();
+			double slice_end = t1 + ((double)r / 131072.0);
 			do {
 				(void)func(args->name);
 				t2 = stress_per_cpu_time();
@@ -3030,8 +3085,8 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 
 			t2 = stress_time_now();
 
-			tv.tv_sec = delay;
-			tv.tv_usec = (delay - tv.tv_sec) * 1000000.0;
+			tv.tv_sec = (time_t)delay;
+			tv.tv_usec = (long)((delay - (double)tv.tv_sec) * 1000000.0);
 			(void)select(0, NULL, NULL, NULL, &tv);
 			t3 = stress_time_now();
 			/* Bias takes account of the time to do the delay */
