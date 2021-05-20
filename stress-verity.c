@@ -38,7 +38,7 @@ static const stress_help_t help[] = {
     (defined(FS_VERITY_HASH_ALG_SHA256) ||	\
      defined(FS_VERITY_HASH_ALG_SHA512))
 
-static const int hash_algorithms[] = {
+static const uint32_t hash_algorithms[] = {
 #if defined(FS_VERITY_HASH_ALG_SHA256)
 	FS_VERITY_HASH_ALG_SHA256,
 #endif
@@ -70,7 +70,7 @@ static int stress_verity(const stress_args_t *args)
 	uint32_t rnd = stress_mwc32();
 	size_t hash = 0;
 
-	if (SIZEOF_ARRAY(hash_algorithms) == 0) {
+	if (SIZEOF_ARRAY(hash_algorithms) == (0)) {
 		if (args->instance == 0)
 			pr_inf("%s: no hash algorithms defined, skipping stressor\n",
 				args->name);
@@ -133,7 +133,7 @@ static int stress_verity(const stress_args_t *args)
 		(void)memset(&enable, 0, sizeof(enable));
 		enable.version = 1;
 		enable.hash_algorithm = hash_algorithms[hash];
-		enable.block_size = args->page_size;
+		enable.block_size = (uint32_t)args->page_size;
 		enable.salt_size = 0;
 		enable.salt_ptr = (intptr_t)NULL;
 		enable.sig_size = 0;
