@@ -82,12 +82,11 @@ static inline void stress_bad_ioctl_rw(
 	const double threshold = 0.25;
 	const size_t page_size = args->page_size;
 	NOCLOBBER uint16_t i = 0;
-	uint8_t *buf;
+	uint64_t *buf, *buf_page1;
 	uint8_t *buf8;
 	uint16_t *buf16;
-	uint32_t *buf32;
+	uint32_t *buf32, *ptr, *buf_end;
 	uint64_t *buf64;
-	uint32_t *ptr, *buf_end;
 
 	typedef struct {
 		uint8_t page[4096];
@@ -96,9 +95,11 @@ static inline void stress_bad_ioctl_rw(
 	/*
 	 *  Map in 2 pages, the last page will be unmapped to
 	 *  create a single mapped page with an unmapped page
-	 *  following it.
+	 *  following it.  Note that buf points to 64 bit values
+	 *  so the compiler can deduce that buf8..buf32 casts
+	 *  will align correctly for the smaller types.
 	 */
-	buf = mmap(NULL, page_size << 1, PROT_READ | PROT_WRITE,
+	buf = (uint64_t *)mmap(NULL, page_size << 1, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (buf == MAP_FAILED)
 		return;
@@ -107,13 +108,14 @@ static inline void stress_bad_ioctl_rw(
 	 *  Unmap last page so we know that the page following
 	 *  buf is definitely not read/writeable
 	 */
-	(void)munmap(buf + page_size, page_size);
+	buf_page1 = buf + page_size / sizeof(*buf_page1);
+	(void)munmap((void *)buf_page1, page_size);
 
-	buf8 = (uint8_t *)(buf + page_size - sizeof(uint8_t));
-	buf16 = (uint16_t *)(buf + page_size - sizeof(uint16_t));
-	buf32 = (uint32_t *)(buf + page_size - sizeof(uint32_t));
-	buf64 = (uint64_t *)(buf + page_size - sizeof(uint64_t));
-	buf_end	= (uint32_t *)(buf + page_size);
+	buf8 =  ((uint8_t *)buf_page1) - 1;
+	buf16 = ((uint16_t *)buf_page1) - 1;
+	buf32 = ((uint32_t *)buf_page1) - 1;
+	buf64 = ((uint64_t *)buf_page1) - 1;
+	buf_end	= (uint32_t *)buf_page1;
 
 	for (ptr = (uint32_t *)buf; ptr < buf_end; ptr++) {
 		*ptr = stress_mwc32();
@@ -210,7 +212,7 @@ next:
 		i++;
 	} while (is_main_process);
 
-	(void)munmap(buf, page_size);
+	(void)munmap((void *)buf, page_size);
 }
 
 /*
