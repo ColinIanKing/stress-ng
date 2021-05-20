@@ -44,7 +44,7 @@ static inline int stress_dev_shm_child(
 	int rc = EXIT_SUCCESS;
 	const size_t page_size = args->page_size;
 	const size_t page_thresh = 16 * MB;
-	ssize_t sz = page_size;
+	ssize_t sz = (ssize_t)page_size;
 	uint32_t *addr;
 
 	/* Make sure this is killable by OOM killer */
@@ -68,7 +68,7 @@ static inline int stress_dev_shm_child(
 		 *  can trip a SIGBUS
 		 */
 		while (keep_stressing(args) && (sz_delta >= page_thresh)) {
-			ret = shim_fallocate(fd, 0, 0, sz);
+			ret = shim_fallocate(fd, 0, 0, (off_t)sz);
 			if (ret < 0) {
 				sz -= (sz_delta >> 1);
 				break;
@@ -84,22 +84,22 @@ static inline int stress_dev_shm_child(
 			 */
 			if (!keep_stressing(args))
 				break;
-			addr = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+			addr = mmap(NULL, (size_t)sz, PROT_READ | PROT_WRITE,
 				MAP_SHARED, fd, 0);
 			if (addr != MAP_FAILED) {
 				const size_t words = page_size / sizeof(uint32_t);
-				uint32_t *ptr, *end = addr + (sz / sizeof(uint32_t));
+				uint32_t *ptr, *end = addr + ((size_t)sz / sizeof(uint32_t));
 
-				(void)stress_madvise_random(addr, sz);
+				(void)stress_madvise_random(addr, (size_t)sz);
 
 				/* Touch all pages with random data */
 				for (ptr = addr; ptr < end; ptr += words) {
 					*ptr = stress_mwc32();
 				}
-				(void)msync(addr, sz, MS_INVALIDATE);
-				(void)munmap(addr, sz);
+				(void)msync(addr, (size_t)sz, MS_INVALIDATE);
+				(void)munmap(addr, (size_t)sz);
 			}
-			sz = page_size;
+			sz = (ssize_t)page_size;
 			ret = ftruncate(fd, 0);
 			if (ret < 0) {
 				pr_err("%s: ftruncate failed, errno=%d (%s)\n",
