@@ -53,12 +53,12 @@ static volatile bool do_accounting = true;
 
 static int stress_set_aio_requests(const char *opt)
 {
-	uint64_t aio_requests;
+	uint32_t aio_requests;
 
-	aio_requests = stress_get_uint64(opt);
-	stress_check_range("aio-requests", aio_requests,
+	aio_requests = stress_get_uint32(opt);
+	stress_check_range("aio-requests", (uint64_t)aio_requests,
 		MIN_AIO_REQUESTS, MAX_AIO_REQUESTS);
-	return stress_set_setting("aio-requests", TYPE_ID_UINT64, &aio_requests);
+	return stress_set_setting("aio-requests", TYPE_ID_UINT32, &aio_requests);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -76,7 +76,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	fill buffer with some known pattern
  */
 static inline void aio_fill_buffer(
-	const int request,
+	const uint8_t request,
 	uint8_t *const buffer,
 	const size_t size)
 {
@@ -139,13 +139,13 @@ static int issue_aio_request(
 	const int fd,
 	const off_t offset,
 	stress_io_req_t *const io_req,
-	const int request,
+	const uint32_t request,
 	int (*aio_func)(struct aiocb *aiocbp))
 {
 	while (keep_stressing_flag()) {
 		int ret;
 
-		io_req->request = request;
+		io_req->request = (int)request;
 		io_req->status = EINPROGRESS;
 		io_req->aiocb.aio_fildes = fd;
 		io_req->aiocb.aio_buf = io_req->buffer;
@@ -179,7 +179,7 @@ static int stress_aio(const stress_args_t *args)
 	stress_io_req_t *io_reqs;
 	struct sigaction sa, sa_old;
 	char filename[PATH_MAX];
-	uint64_t total = 0, i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
+	uint32_t total = 0, i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
 
 	if (!stress_get_setting("aio-requests", &opt_aio_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -221,7 +221,7 @@ static int stress_aio(const stress_args_t *args)
 
 	/* Kick off requests */
 	for (i = 0; i < opt_aio_requests; i++) {
-		aio_fill_buffer(i, io_reqs[i].buffer, BUFFER_SZ);
+		aio_fill_buffer((uint8_t)i, io_reqs[i].buffer, BUFFER_SZ);
 		ret = issue_aio_request(args->name, fd, (off_t)i * BUFFER_SZ,
 			&io_reqs[i], i, aio_write);
 		if (ret < 0)
@@ -259,7 +259,7 @@ static int stress_aio(const stress_args_t *args)
 				break;
 			default:
 				/* Something went wrong */
-				pr_fail("%s: aio_error, io_reqs[%" PRIu64 "].status = %d (%s)\n",
+				pr_fail("%s: aio_error, io_reqs[%" PRIu32 "].status = %d (%s)\n",
 					args->name, i,
 					io_reqs[i].status,
 					strerror(io_reqs[i].status));
@@ -284,7 +284,7 @@ finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(io_reqs);
 
-	pr_dbg("%s: total of %" PRIu64 " async I/O signals "
+	pr_dbg("%s: total of %" PRIu32 " async I/O signals "
 		"caught (instance %d)\n",
 		args->name, total, args->instance);
 	(void)stress_temp_dir_rm_args(args);
