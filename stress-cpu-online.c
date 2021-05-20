@@ -90,7 +90,7 @@ static int stress_cpu_online_supported(const char *name)
 static int stress_cpu_online(const stress_args_t *args)
 {
 	const int32_t cpus = stress_get_processors_configured();
-	uint32_t i, cpu_online_count = 0;
+	int32_t i, cpu_online_count = 0;
 	bool *cpu_online;
 	int rc = EXIT_SUCCESS;
 
@@ -183,7 +183,7 @@ static int stress_cpu_online(const stress_args_t *args)
 	 */
 	for (i = 0; i < cpus; i++) {
 		if (cpu_online[i])
-			(void)stress_cpu_online_set(args, i, 1);
+			(void)stress_cpu_online_set(args, (uint32_t)i, 1);
 	}
 	free(cpu_online);
 
