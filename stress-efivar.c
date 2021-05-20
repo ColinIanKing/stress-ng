@@ -107,7 +107,7 @@ static inline void efi_get_varname(char *dst, const size_t len, const stress_efi
 	const uint16_t *src = (const uint16_t *)src8;
 
 	while ((*src) && (i > 1)) {
-		*dst++ = *(src++) & 0xff;
+		*dst++ = (char)(*(src++) & 0xff);
 		i--;
 	}
 	*dst = '\0';
@@ -380,7 +380,7 @@ static int stress_efivar(const stress_args_t *args)
 		return EXIT_SUCCESS;
 	}
 
-	sz = ((dir_count * sizeof(bool)) + args->page_size) & (args->page_size - 1);
+	sz = (((size_t)dir_count * sizeof(bool)) + args->page_size) & (args->page_size - 1);
 	efi_ignore = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (efi_ignore == MAP_FAILED) {
