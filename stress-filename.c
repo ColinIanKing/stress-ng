@@ -27,6 +27,7 @@
 #define	STRESS_FILENAME_PROBE	(0)	/* Default */
 #define STRESS_FILENAME_POSIX	(1)	/* POSIX 2008.1 */
 #define STRESS_FILENAME_EXT	(2)	/* EXT* filesystems */
+#define STRESS_FILENAME_UNDEF	(0xff)	/* Undefined */
 
 typedef struct {
 	const uint8_t opt;
@@ -37,7 +38,7 @@ static const stress_filename_opts_t filename_opts[] = {
 	{ STRESS_FILENAME_PROBE,	"probe" },
 	{ STRESS_FILENAME_POSIX,	"posix" },
 	{ STRESS_FILENAME_EXT,		"ext" },
-	{ -1,				NULL }
+	{ STRESS_FILENAME_UNDEF,	NULL }
 };
 
 static const stress_help_t help[] = {
@@ -150,7 +151,7 @@ static int stress_filename_probe(
 		 *  Not sure why that is.
 		 */
 		for (k = 0; k < sz_max; k++)
-			*(ptr + k) = i;
+			*(ptr + k) = (char)i;
 		*(ptr + k) = '\0';
 
 		if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
@@ -174,7 +175,7 @@ static int stress_filename_probe(
 		} else {
 			(void)close(fd);
 			(void)unlink(filename);
-			allowed[j] = i;
+			allowed[j] = (char)i;
 			j++;
 		}
 	}
@@ -194,7 +195,7 @@ static void stress_filename_ext(size_t *chars_allowed)
 	for (j = 0, i = 0; i < 256; i++) {
 		if ((i == 0) || (i == '/'))
 			continue;
-		allowed[j] = i;
+		allowed[j] = (char)i;
 		j++;
 	}
 	*chars_allowed = j;
@@ -259,7 +260,7 @@ static void stress_filename_generate_random(
 	size_t i;
 
 	for (i = 0; i < sz_max; i++) {
-		const int j = stress_mwc32() % chars_allowed;
+		const size_t j = (size_t)stress_mwc32() % chars_allowed;
 		filename[i] = allowed[j];
 	}
 	if (*filename == '.')
@@ -340,7 +341,7 @@ static int stress_filename(const stress_args_t *args)
 	ptr = filename + strlen(pathname);
 	*(ptr++) = '/';
 	*(ptr) = '\0';
-	sz_left = sizeof(filename) - (ptr - filename);
+	sz_left = sizeof(filename) - (size_t)(ptr - filename);
 
 #if defined(HAVE_SYS_STATVFS_H)
 	sz_max = (size_t)buf.f_namemax;
