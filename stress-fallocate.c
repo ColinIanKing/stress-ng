@@ -36,7 +36,7 @@ static int stress_set_fallocate_bytes(const char *opt)
 	off_t fallocate_bytes;
 
 	fallocate_bytes = (off_t)stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("fallocate-bytes", fallocate_bytes,
+	stress_check_range_bytes("fallocate-bytes", (uint64_t)fallocate_bytes,
 		MIN_FALLOCATE_BYTES, MAX_FALLOCATE_BYTES);
 	return stress_set_setting("fallocate-bytes", TYPE_ID_OFF_T, &fallocate_bytes);
 }
@@ -50,7 +50,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 static sigjmp_buf jmp_env;
 
-static void MLOCKED_TEXT stress_fallocate_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_fallocate_handler(int signum)
 {
 	(void)signum;
 
@@ -222,7 +222,7 @@ static int stress_fallocate(const stress_args_t *args)
 
 			for (i = 0; i < 64; i++) {
 				size_t j = (stress_mwc32() >> 8) % SIZEOF_ARRAY(modes);	/* cppcheck-suppress moduloofone */
-				off_t offset = (stress_mwc64() % fallocate_bytes) & ~0xfff;
+				off_t offset = ((off_t)stress_mwc64() % fallocate_bytes) & ~0xfff;
 
 				(void)shim_fallocate(fd, modes[j], offset, 64 * KB);
 				if (!keep_stressing_flag())
