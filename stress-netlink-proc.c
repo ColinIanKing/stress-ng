@@ -61,7 +61,7 @@ static int stress_netlink_proc_supported(const char *name)
 static int monitor(const stress_args_t *args, const int sock)
 {
 	struct nlmsghdr *nlmsghdr;
-	int len;
+	ssize_t len;
 	char __attribute__ ((aligned(NLMSG_ALIGNTO)))buf[4096];
 
 	if ((len = recv(sock, buf, sizeof(buf), 0)) == 0)
@@ -100,10 +100,13 @@ static int monitor(const stress_args_t *args, const int sock)
 
 		switch (proc_ev->what) {
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,14)
+		case PROC_EVENT_NONE:
+			break;
 		case PROC_EVENT_FORK:
 		case PROC_EVENT_EXEC:
 		case PROC_EVENT_EXIT:
 		case PROC_EVENT_UID:
+		case PROC_EVENT_GID:
 #endif
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(2,6,31)
 		case PROC_EVENT_SID:
@@ -187,7 +190,7 @@ static int stress_netlink_proc(const stress_args_t *args)
 	}
 
 	(void)memset(&addr, 0, sizeof(addr));
-	addr.nl_pid = getpid();
+	addr.nl_pid = (uint32_t)getpid();
 	addr.nl_family = AF_NETLINK;
 	addr.nl_groups = CN_IDX_PROC;
 
@@ -200,7 +203,7 @@ static int stress_netlink_proc(const stress_args_t *args)
 
 	(void)memset(&nlmsghdr, 0, sizeof(nlmsghdr));
 	nlmsghdr.nlmsg_len = NLMSG_LENGTH(sizeof(cn_msg) + sizeof(op));
-	nlmsghdr.nlmsg_pid = getpid();
+	nlmsghdr.nlmsg_pid = (uint32_t)getpid();
 	nlmsghdr.nlmsg_type = NLMSG_DONE;
 	iov[0].iov_base = &nlmsghdr;
 	iov[0].iov_len = sizeof(nlmsghdr);
