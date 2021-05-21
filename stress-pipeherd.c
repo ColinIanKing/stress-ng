@@ -184,8 +184,8 @@ static int stress_pipeherd(const stress_args_t *args)
 			if (total) {
 				pr_inf("%s: %.2f context switches per bogo operation (%.2f per second)\n",
 					args->name,
-					(count > 0) ? ((float)total / (float)count) : 0.0,
-					(dt > 0.0) ? ((float)total / dt) : 0.0);
+					(count > 0) ? ((double)total / (double)count) : 0.0,
+					(dt > 0.0) ? ((double)total / dt) : 0.0);
 			}
 		}
 	}
