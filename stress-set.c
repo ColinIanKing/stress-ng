@@ -27,9 +27,6 @@
 #define _DEFAULT_SOURCE 1
 #define _BSD_SOURCE 1
 
-#define check_do_run()			\
-	if (!keep_stressing(args))		\
-		break;			\
 
 #define GIDS_MAX 	(1024)
 
@@ -141,13 +138,15 @@ static int stress_set(const stress_args_t *args)
 		/* setsid will fail, ignore return */
 		pid = setsid();
 		(void)pid;
-		check_do_run();
+		if (!keep_stressing(args))
+			break;
 
 		/* getgid always succeeds */
 		gid = getgid();
 		ret = setgid(gid);
 		(void)ret;
-		check_do_run();
+		if (!keep_stressing(args))
+			break;
 
 		if (*longname) {
 			ret = sethostname(longname, sizeof(longname));
@@ -178,7 +177,8 @@ static int stress_set(const stress_args_t *args)
 			}
 			ret = setpgid(mypid, pid);
 			(void)ret;
-			check_do_run();
+			if (!keep_stressing(args))
+				break;
 		}
 #endif
 
@@ -207,7 +207,8 @@ static int stress_set(const stress_args_t *args)
 		if (pid != -1) {
 			ret = setpgrp();
 			(void)ret;
-			check_do_run();
+			if (!keep_stressing(args))
+				break;
 		}
 #endif
 
@@ -215,7 +216,8 @@ static int stress_set(const stress_args_t *args)
 		uid = getuid();
 		ret = setuid(uid);
 		(void)ret;
-		check_do_run();
+		if (!keep_stressing(args))
+			break;
 
 #if defined(HAVE_GRP_H)
 		ret = getgroups(0, NULL);
@@ -226,10 +228,10 @@ static int stress_set(const stress_args_t *args)
 			ret = STRESS_MINIMUM(ret, (int)SIZEOF_ARRAY(groups));
 			n = getgroups(ret, groups);
 			if (n > 0) {
-				gid_t bad_groups[1] = { -1 };
+				gid_t bad_groups[1] = { (gid_t)-1 };
 
 				/* Exercise invalid groups */
-				ret = setgroups(-1, groups);
+				ret = setgroups((size_t)-1, groups);
 				(void)ret;
 
 				ret = setgroups(0, groups);
@@ -238,14 +240,14 @@ static int stress_set(const stress_args_t *args)
 				ret = setgroups(1, bad_groups);
 				(void)ret;
 
-				ret = setgroups(n, groups);
+				ret = setgroups((size_t)n, groups);
 				(void)ret;
 			}
 		}
 #endif
 
 #if defined(HAVE_SETREUID)
-		ret = setreuid(-1, -1);
+		ret = setreuid((uid_t)-1, (uid_t)-1);
 		(void)ret;
 
 		/*
@@ -261,17 +263,17 @@ static int stress_set(const stress_args_t *args)
 		}
 #endif
 #if defined(HAVE_SETREGID)
-		ret = setregid(-1, -1);
+		ret = setregid((gid_t)-1, (gid_t)-1);
 		(void)ret;
 #endif
 
 #if defined(HAVE_SETRESUID)
-		ret = setresuid(-1, -1, -1);
+		ret = setresuid((uid_t)-1, (uid_t)-1, (uid_t)-1);
 		(void)ret;
 #endif
 
 #if defined(HAVE_SETRESGID)
-		ret = setresgid(-1, -1, -1);
+		ret = setresgid((gid_t)-1, (gid_t)-1, (gid_t)-1);
 		(void)ret;
 #endif
 
@@ -281,10 +283,10 @@ static int stress_set(const stress_args_t *args)
 			int fsgid;
 
 			/* Passing -1 will return the current fsgid */
-			fsgid = setfsgid(-1);
+			fsgid = setfsgid((uid_t)-1);
 			if (fsgid >= 0) {
 				/* Set the current fsgid, should work */
-				ret = setfsgid(fsgid);
+				ret = setfsgid((uid_t)fsgid);
 				if (ret == fsgid) {
 					/*
 					 * we can try changing it to
@@ -294,11 +296,11 @@ static int stress_set(const stress_args_t *args)
 					ret = setfsgid(gid);
 					(void)ret;
 
-					ret = setfsgid((int)getegid());
+					ret = setfsgid((uid_t)getegid());
 					(void)ret;
 
 					/* And restore */
-					ret = setfsgid(fsgid);
+					ret = setfsgid((uid_t)fsgid);
 					(void)ret;
 				}
 			}
@@ -311,10 +313,10 @@ static int stress_set(const stress_args_t *args)
 			int fsuid;
 
 			/* Passing -1 will return the current fsuid */
-			fsuid = setfsuid(-1);
+			fsuid = setfsuid((uid_t)-1);
 			if (fsuid >= 0) {
 				/* Set the current fsuid, should work */
-				ret = setfsuid(fsuid);
+				ret = setfsuid((uid_t)fsuid);
 				if (ret == fsuid) {
 					/*
 					 * we can try changing it to
@@ -324,11 +326,11 @@ static int stress_set(const stress_args_t *args)
 					ret = setfsuid(uid);
 					(void)ret;
 
-					ret = setfsuid((int)geteuid());
+					ret = setfsuid((uid_t)geteuid());
 					(void)ret;
 
 					/* And restore */
-					ret = setfsuid(fsuid);
+					ret = setfsuid((uid_t)fsuid);
 					(void)ret;
 				}
 			}
@@ -364,7 +366,8 @@ static int stress_set(const stress_args_t *args)
 				ret = setdomainname(name, strlen(name));
 			}
 			(void)ret;
-			check_do_run();
+			if (!keep_stressing(args))
+				break;
 		}
 #endif
 		/*
