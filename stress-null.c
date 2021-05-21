@@ -51,8 +51,8 @@ static int stress_null(const stress_args_t *args)
 
 	do {
 		ssize_t ret;
-		off_t off;
 #if defined(__linux__)
+		off_t off;
 		void *ptr;
 		const size_t page_size = args->page_size;
 #endif
