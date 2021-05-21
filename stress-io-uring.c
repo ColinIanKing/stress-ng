@@ -51,7 +51,7 @@ typedef struct {
 	struct iovec *iovecs;	/* iovecs array 1 per block to submit */
 	size_t iovecs_sz;	/* size of iovecs allocation */
 	off_t file_size;	/* size of the file (bytes) */
-	size_t blocks;		/* number of blocks to action */
+	uint32_t blocks;	/* number of blocks to action */
 	size_t block_size;	/* per block size */
 } stress_io_uring_file_t;
 
@@ -137,6 +137,13 @@ static void stress_io_uring_unmap_iovecs(stress_io_uring_file_t *io_uring_file)
 }
 
 /*
+ *  Avoid GCCism of void * pointer aritmetic by casting to
+ *  uint8_t *, doing the offset and then casting back to void *
+ */
+#define VOID_ADDR_OFFSET(addr, offset)	\
+	((void *)(((uint8_t *)addr) + offset))
+
+/*
  *  stress_setup_io_uring()
  *	setup the io uring
  */
@@ -186,12 +193,12 @@ static int stress_setup_io_uring(
 		}
 	}
 
-	sring->head = submit->sq_mmap + p.sq_off.head;
-	sring->tail = submit->sq_mmap + p.sq_off.tail;
-	sring->ring_mask = submit->sq_mmap + p.sq_off.ring_mask;
-	sring->ring_entries = submit->sq_mmap + p.sq_off.ring_entries;
-	sring->flags = submit->sq_mmap + p.sq_off.flags;
-	sring->array = submit->sq_mmap + p.sq_off.array;
+	sring->head = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.head);
+	sring->tail = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.tail);
+	sring->ring_mask = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.ring_mask);
+	sring->ring_entries = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.ring_entries);
+	sring->flags = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.flags);
+	sring->array = VOID_ADDR_OFFSET(submit->sq_mmap, p.sq_off.array);
 
 	submit->sqes_size = p.sq_entries * sizeof(struct io_uring_sqe);
 	submit->sqes_mmap = mmap(NULL, submit->sqes_size,
@@ -206,11 +213,11 @@ static int stress_setup_io_uring(
 		return EXIT_NO_RESOURCE;
 	}
 
-	cring->head = submit->cq_mmap + p.cq_off.head;
-	cring->tail = submit->cq_mmap + p.cq_off.tail;
-	cring->ring_mask = submit->cq_mmap + p.cq_off.ring_mask;
-	cring->ring_entries = submit->cq_mmap + p.cq_off.ring_entries;
-	cring->cqes = submit->cq_mmap + p.cq_off.cqes;
+	cring->head = VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.head);
+	cring->tail = VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.tail);
+	cring->ring_mask = VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.ring_mask);
+	cring->ring_entries = VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.ring_entries);
+	cring->cqes = VOID_ADDR_OFFSET(submit->cq_mmap, p.cq_off.cqes);
 
 	return EXIT_SUCCESS;
 }
@@ -269,7 +276,7 @@ static int stress_io_uring_iovec_submit(
 	const stress_args_t *args,
 	stress_io_uring_submit_t *submit,
 	stress_io_uring_file_t *io_uring_file,
-	const int opcode)
+	const uint8_t opcode)
 {
 	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
 	unsigned index = 0, tail = 0, next_tail = 0;
@@ -285,10 +292,10 @@ static int stress_io_uring_iovec_submit(
 	sqe->fd = io_uring_file->fd;
 	sqe->flags = 0;
 	sqe->opcode = opcode;
-	sqe->addr = (intptr_t)io_uring_file->iovecs;
+	sqe->addr = (uintptr_t)io_uring_file->iovecs;
 	sqe->len = io_uring_file->blocks;
 	sqe->off = 0;
-	sqe->user_data = (intptr_t)io_uring_file;
+	sqe->user_data = (uintptr_t)io_uring_file;
 	sring->array[index] = index;
 	tail = next_tail;
 
@@ -326,7 +333,7 @@ static int stress_io_uring_fsync_submit(
 	sqe->opcode = IORING_OP_FSYNC;
 	sqe->len = 512;
 	sqe->off = 0;
-	sqe->user_data = (intptr_t)io_uring_file;
+	sqe->user_data = (uintptr_t)io_uring_file;
 	sring->array[index] = index;
 	tail = next_tail;
 
