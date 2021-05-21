@@ -166,7 +166,7 @@ static int stress_seccomp_supported(const char *name)
 	return 0;
 }
 
-static void MLOCKED_TEXT stress_sigsys(int signum)
+static void MLOCKED_TEXT NORETURN stress_sigsys(int signum)
 {
 	(void)signum;
 
