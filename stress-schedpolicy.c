@@ -64,7 +64,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 #endif
 #if defined(HAVE_SCHED_GETATTR) && \
     defined(HAVE_SCHED_SETATTR)
-	uint32_t sched_util_min = ~0;
+	uint32_t sched_util_min = ~0U;
 	uint32_t sched_util_max = 0;
 	uint32_t sched_util_max_value = 0;
 	int counter = 0;
@@ -73,7 +73,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 	int n = 0;
 #endif
 
-	if (SIZEOF_ARRAY(policies) == 0) {
+	if (SIZEOF_ARRAY(policies) == (0)) {
 		if (args->instance == 0) {
 			pr_inf("%s: no scheduling policies "
 				"available, skipping test\n",
@@ -174,7 +174,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 					min_prio, max_prio);
 				break;
 			}
-			param.sched_priority = (stress_mwc32() % (rng_prio)) +
+			param.sched_priority = ((int)stress_mwc32() % rng_prio) +
 						min_prio;
 			ret = sched_setscheduler(pid, new_policy, &param);
 			break;
@@ -278,12 +278,12 @@ static int stress_schedpolicy(const stress_args_t *args)
 
 			ret = shim_sched_getattr(pid,
 				(struct shim_sched_attr *)large_attr,
-				sizeof(large_attr), 0);
+				(unsigned int)sizeof(large_attr), 0);
 			(void)ret;
 		}
 
 		/* Exercise invalid sched_getattr syscalls */
-		ret = shim_sched_getattr(pid, &attr, sizeof(attr), ~0);
+		ret = shim_sched_getattr(pid, &attr, sizeof(attr), ~0U);
 		(void)ret;
 
 		/* Exercise -ve pid */
@@ -333,7 +333,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 		 * syscalls succeed only correct value will be set,
 		 * hence ignoring whether syscall succeeds or fails
 		 */
-		ret = shim_sched_setattr(pid, &attr, ~0);
+		ret = shim_sched_setattr(pid, &attr, ~0U);
 		(void)ret;
 
 		ret = shim_sched_setattr(-1, &attr, 0);
