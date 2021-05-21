@@ -102,7 +102,7 @@ static void exercise_inotify_add_watch(
 	if (wd >= 0)
 		(void)inotify_rm_watch(fd, wd);
 
-	wd = inotify_add_watch(fd, watchname, ~0);
+	wd = inotify_add_watch(fd, watchname, ~0U);
 	if (wd >= 0)
 		(void)inotify_rm_watch(fd, wd);
 
@@ -186,11 +186,12 @@ static void inotify_exercise(
 	const char *watchname,		/* File/directory to watch using inotify */
 	const char *matchname,		/* Filename for inotify event to report */
 	const stress_inotify_helper func, /* Helper func */
-	const int flags,		/* IN_* flags to watch for */
+	const uint32_t flags,		/* IN_* flags to watch for */
 	void *private,			/* Helper func private data */
 	const int bad_fd)		/* A bad file descriptor */
 {
-	int fd, wd, check_flags = flags, n = 0;
+	int fd, wd, n = 0;
+	uint32_t check_flags = flags;
 	char buffer[1024];
 
 	exercise_inotify1();
@@ -289,9 +290,11 @@ redo:
 		while ((i >= 0) && (i <= len - (ssize_t)sizeof(struct inotify_event))) {
 			struct inotify_event *event =
 				(struct inotify_event *)&buffer[i];
-			int f = event->mask & (IN_DELETE_SELF | IN_MOVE_SELF |
-					       IN_MOVED_TO | IN_MOVED_FROM |
-					       IN_ATTRIB);
+			uint32_t f = event->mask & (IN_DELETE_SELF |
+						    IN_MOVE_SELF |
+						    IN_MOVED_TO |
+						    IN_MOVED_FROM |
+						    IN_ATTRIB);
 			if (event->len &&
 			    strcmp(event->name, matchname) == 0 &&
 			    flags & event->mask)
@@ -395,9 +398,10 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 	(void)memset(buffer, 'x', BUF_SIZE);
 	while (keep_stressing(args) && (sz > 0)) {
 		size_t n = (sz > BUF_SIZE) ? BUF_SIZE : sz;
-		int ret;
+		ssize_t ret;
 
-		if ((ret = write(fd, buffer, n)) < 0) {
+		ret = write(fd, buffer, n);
+		if (ret < 0) {
 			if (errno == ENOSPC)
 				break;
 			pr_err("%s: error writing to file %s: errno=%d (%s)\n",
@@ -405,7 +409,7 @@ static int mk_file(const stress_args_t *args, const char *filename, const size_t
 			(void)close(fd);
 			return -1;
 		}
-		sz -= ret;
+		sz -= (size_t)ret;
 	}
 
 	if (close(fd) < 0) {
