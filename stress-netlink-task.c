@@ -99,7 +99,7 @@ static int stress_netlink_sendcmd(
 	na = (struct nlattr *)GENL_MSG_DATA(&nlmsg);
 	na->nla_type = nla_type;
 	na->nla_len = nla_len + NLA_HDRLEN;
-	(void)memcpy(NLA_DATA(na), nla_data, nla_len);
+	(void)memcpy(NLA_DATA(na), nla_data, (size_t)nla_len);
 	nlmsg.n.nlmsg_len += NLMSG_ALIGN(na->nla_len);
 
 	nlmsgbuf = (char *)&nlmsg;
@@ -111,7 +111,7 @@ static int stress_netlink_sendcmd(
 	while (nlmsgbuf_len > 0) {
 		ssize_t len;
 
-		len = sendto(sock, nlmsgbuf, nlmsgbuf_len, 0,
+		len = sendto(sock, nlmsgbuf, (size_t)nlmsgbuf_len, 0,
 			(struct sockaddr *)&addr, sizeof(addr));
 		if ((len < 0) &&
 		    (errno != EAGAIN) &&
