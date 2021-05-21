@@ -78,7 +78,7 @@ static ssize_t pipe_read(const stress_args_t *args, const int fd, const size_t n
 				ssize_t i;
 
 				for (i = 0; i < ret; i++) {
-					if (buf[i] != '0' + n) {
+					if (buf[i] != (int)('0' + n)) {
 						pr_fail("%s: pipe read error, "
 							"expecting different data on "
 							"pipe\n", args->name);
