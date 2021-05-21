@@ -57,7 +57,7 @@ static int stress_mincore(const stress_args_t *args)
 {
 	uint8_t *addr = 0, *prev_addr = 0;
 	const size_t page_size = args->page_size;
-	const intptr_t mask = ~(page_size - 1);
+	const intptr_t mask = ~((intptr_t)page_size - 1);
 	bool mincore_rand = false;
 	int rc = EXIT_SUCCESS;
 	uint8_t *mapped, *unmapped;
@@ -103,7 +103,7 @@ redo: 			errno = 0;
 					goto err;
 				default:
 					pr_fail("%s: mincore on address %p errno=%d %s\n",
-						args->name, addr, errno,
+						args->name, (void *)addr, errno,
 						strerror(errno));
 					rc = EXIT_FAILURE;
 					break;
@@ -117,7 +117,7 @@ redo: 			errno = 0;
 					/* Should no return ENOMEM on a mapped page */
 					if (errno == ENOMEM) {
 						pr_fail("%s: mincore on address %p failed, errno=$%d (%s)\n",
-							args->name, mapped, errno,
+							args->name, (void *)mapped, errno,
 							strerror(errno));
 						rc = EXIT_FAILURE;
 					}
@@ -128,7 +128,7 @@ redo: 			errno = 0;
 				ret = shim_mincore((void *)unmapped, page_size, vec);
 				if (ret == 0) {
 					pr_fail("%s: mincore on unmapped address %p should have failed but did not\n",
-						args->name, unmapped);
+						args->name, (void *)unmapped);
 					rc = EXIT_FAILURE;
 				}
 			}
@@ -136,7 +136,7 @@ redo: 			errno = 0;
 				addr = (uint8_t *)(intptr_t)
 					(((intptr_t)addr >> 1) & mask);
 				if (addr == prev_addr)
-					addr = (uint8_t *)((intptr_t)(stress_mwc64() & mask));
+					addr = (uint8_t *)(((intptr_t)stress_mwc64()) & mask);
 				prev_addr = addr;
 			} else {
 				addr += page_size;
