@@ -121,12 +121,12 @@ static int tree_node_cmp_fwd(struct tree_node *n1, struct tree_node *n2)
 }
 
 static RB_HEAD(stress_rb_tree, tree_node) rb_root;
-RB_PROTOTYPE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd)
-RB_GENERATE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd)
+RB_PROTOTYPE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
+RB_GENERATE(stress_rb_tree, tree_node, u.rb, tree_node_cmp_fwd);
 
 static SPLAY_HEAD(stress_splay_tree, tree_node) splay_root;
-SPLAY_PROTOTYPE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd)
-SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd)
+SPLAY_PROTOTYPE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
+SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
 
 static void stress_tree_rb(
 	const stress_args_t *args,
