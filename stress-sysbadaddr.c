@@ -89,8 +89,8 @@ static void limit_procs(const int procs)
 	(void)setrlimit(RLIMIT_CPU, &lim);
 #endif
 #if defined(RLIMIT_NPROC)
-	lim.rlim_cur = procs;
-	lim.rlim_max = procs;
+	lim.rlim_cur = (rlim_t)procs;
+	lim.rlim_max = (rlim_t)procs;
 	(void)setrlimit(RLIMIT_NPROC, &lim);
 #else
 	(void)procs;
