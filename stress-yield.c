@@ -74,11 +74,12 @@ static int stress_yield(const stress_args_t *args)
 	 */
 	if (cpus > 0) {
 		cpus *= 2;
-		yielders = cpus / instances;
+		yielders = (size_t)cpus / instances;
 		if (yielders < 1)
 			yielders = 1;
 		if (!args->instance) {
-			int32_t residual = cpus - (yielders * instances);
+			size_t residual = (size_t)cpus - (yielders * instances);
+
 			if (residual > 0)
 				yielders += residual;
 		}
