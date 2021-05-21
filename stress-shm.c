@@ -221,7 +221,7 @@ static int stress_shm_posix_child(
 			}
 
 			/* Expand the mapping */
-			(void)shim_fallocate(shm_fd, 0, 0, sz + page_size);
+			(void)shim_fallocate(shm_fd, 0, 0, (off_t)(sz + page_size));
 
 			(void)stress_madvise_random(addr, sz);
 			(void)shim_msync(addr, sz, stress_mwc1() ? MS_ASYNC : MS_SYNC);
@@ -230,10 +230,10 @@ static int stress_shm_posix_child(
 			(void)off;
 
 			/* Shrink the mapping */
-			(void)shim_fallocate(shm_fd, 0, 0, sz);
+			(void)shim_fallocate(shm_fd, 0, 0, (off_t)sz);
 
 			/* Now truncated it back */
-			ret = ftruncate(shm_fd, sz);
+			ret = ftruncate(shm_fd, (off_t)sz);
 			if (ret < 0)
 				pr_fail("%s: ftruncate of shared memory failed\n", args->name);
 			(void)shim_fsync(shm_fd);
