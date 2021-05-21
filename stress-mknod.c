@@ -143,7 +143,7 @@ static int stress_mknod_check_errno(
 static int stress_do_mknod(
 	const int dirfd,
 	const char *path,
-	const int mode,
+	const mode_t mode,
 	const dev_t dev)
 {
 	int ret;
