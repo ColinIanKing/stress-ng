@@ -1794,7 +1794,7 @@ typedef struct {
 	uint64_t type;
 	const char *name;
 	size_t idx;
-	int64_t counter;
+	uint64_t counter;
 	uint64_t skip_crashed;
 	uint64_t skip_errno_zero;
 	uint64_t skip_timed_out;
@@ -1805,7 +1805,7 @@ typedef struct {
 
 static syscall_current_context_t *current_context;
 
-static void func_exit(void)
+static void NORETURN func_exit(void)
 {
 	_exit(EXIT_SUCCESS);
 }
@@ -1814,31 +1814,90 @@ static void func_exit(void)
  *  Various invalid argument values
  */
 static unsigned long none_values[] = { 0 };
-static unsigned long mode_values[] = { -1, INT_MAX, INT_MIN, ~(long)0, 1ULL << 20, };
-static unsigned long access_mode_values[] = { ~(F_OK | R_OK | W_OK | X_OK) };
-static long sockfds[] = { /* sockfd */ 0, 0, -1, INT_MAX, INT_MIN, ~(long)0 };
-static long fds[] = { /* fd */ 0, -1, INT_MAX, INT_MIN, ~(long)0 };
-static long dirfds[] = { -1, AT_FDCWD, INT_MIN, ~(long)0 };
-static long clockids[] = { -1, INT_MAX, INT_MIN, ~(long)0, SHR_UL(0xfe23ULL, 18) };
-static long sockaddrs[] = { /*small_ptr*/ 0, /*page_ptr*/ 0, 0, -1, INT_MAX, INT_MIN };
-static unsigned long brk_addrs[] = { 0, -1, INT_MAX, INT_MIN, ~(unsigned long)0, 4096 };
-static unsigned long empty_filenames[] = { (unsigned long)"", (unsigned long)NULL };
-static unsigned long zero_filenames[] = { (unsigned long)"/dev/zero" };
-static unsigned long null_filenames[] = { (unsigned long)"/dev/null" };
-static long flags[] = { -1, -2, INT_MIN, SHR_UL(0xffffULL, 20) };
-static unsigned long lengths[] = { -1, -2, INT_MIN, INT_MAX, ~(unsigned long)0, -SHR_UL(1, 31) };
-static long ints[] = { 0, -1, -2, INT_MIN, INT_MAX, SHR_UL(0xff, 30), SHR_UL(1, 30), -SHR_UL(0xff, 30), -SHR_UL(1, 30) };
-static unsigned long uints[] = { INT_MAX, SHR_UL(0xff, 30), -SHR_UL(0xff, 30), ~(unsigned long)0 };
-static unsigned long func_ptrs[] = { (unsigned long)func_exit };
-static unsigned long ptrs[] = { /*small_ptr*/ 0, /*page_ptr*/ 0, 0, -1, INT_MAX, INT_MIN, ~(long)4096 };
-static unsigned long ptrs_wr[] = { /*small_ptr_wr*/ 0, /*page_ptr_wr*/ 0, 0, -1, INT_MAX, INT_MIN, ~(long)4096 };
-static unsigned long futex_ptrs[] = { /*small_ptr*/ 0, /*page_ptr*/ 0 };
-static unsigned long non_null_ptrs[] = { /*small_ptr*/ 0, /*page_ptr*/ 0, -1, INT_MAX, INT_MIN, ~(long)4096 };
-static long socklens[] = { 0, -1, INT_MAX, INT_MIN, 8192 };
-static unsigned long timeouts[] = { 0 };
-static pid_t pids[] = { INT_MIN, -1, INT_MAX, ~0 };
-static gid_t gids[] = { ~(long)0, INT_MAX };
-static uid_t uids[] = { ~(long)0, INT_MAX };
+static unsigned long mode_values[] = {
+	(unsigned long)-1, INT_MAX, (unsigned long)INT_MIN,
+	~(unsigned long)0, 1ULL << 20,
+};
+static unsigned long access_mode_values[] = {
+	(unsigned long)~(F_OK | R_OK | W_OK | X_OK)
+};
+static long sockfds[] = {
+	/* sockfd */ 0, 0, -1, INT_MAX, INT_MIN, ~(long)0
+};
+static long fds[] = {
+	/* fd */ 0, -1, INT_MAX, INT_MIN, ~(long)0
+};
+static long dirfds[] = {
+	-1, AT_FDCWD, INT_MIN, ~(long)0
+};
+static long clockids[] = {
+	-1, INT_MAX, INT_MIN, ~(long)0, SHR_UL(0xfe23ULL, 18)
+};
+static long sockaddrs[] = {
+	/*small_ptr*/ 0, /*page_ptr*/ 0, 0, -1, INT_MAX, INT_MIN
+};
+static unsigned long brk_addrs[] = {
+	0, (unsigned long)-1, INT_MAX, (unsigned long)INT_MIN,
+	~(unsigned long)0, 4096
+};
+static unsigned long empty_filenames[] = {
+	(unsigned long)"", (unsigned long)NULL
+};
+static unsigned long zero_filenames[] = {
+	(unsigned long)"/dev/zero"
+};
+static unsigned long null_filenames[] = {
+	(unsigned long)"/dev/null"
+};
+static long flags[] = {
+	-1, -2, INT_MIN, SHR_UL(0xffffULL, 20)
+};
+static unsigned long lengths[] = {
+	(unsigned long)-1, (unsigned long)-2,
+	(unsigned long)INT_MIN, INT_MAX,
+	~(unsigned long)0, -SHR_UL(1, 31)
+};
+static long ints[] = {
+	0, -1, -2, INT_MIN, INT_MAX, SHR_UL(0xff, 30), SHR_UL(1, 30),
+	(long)-SHR_UL(0xff, 30), (long)-SHR_UL(1, 30)
+};
+static unsigned long uints[] = {
+	INT_MAX, SHR_UL(0xff, 30), -SHR_UL(0xff, 30), ~(unsigned long)0
+};
+static unsigned long func_ptrs[] = {
+	(unsigned long)func_exit
+};
+static unsigned long ptrs[] = {
+	/*small_ptr*/ 0, /*page_ptr*/ 0, 0, (unsigned long)-1,
+	INT_MAX, (unsigned long)INT_MIN, (unsigned long)~4096L
+};
+static unsigned long ptrs_wr[] = {
+	/*small_ptr_wr*/ 0, /*page_ptr_wr*/ 0, 0,
+	(unsigned long)-1, INT_MAX, (unsigned long)INT_MIN,
+	(unsigned long)~4096L
+};
+static unsigned long futex_ptrs[] = {
+	/*small_ptr*/ 0, /*page_ptr*/ 0
+};
+static unsigned long non_null_ptrs[] = {
+	/*small_ptr*/ 0, /*page_ptr*/ 0, (unsigned long)-1,
+	INT_MAX, (unsigned long)INT_MIN, (unsigned long)~4096L
+};
+static long socklens[] = {
+	0, -1, INT_MAX, INT_MIN, 8192
+};
+static unsigned long timeouts[] = {
+	0
+};
+static pid_t pids[] = {
+	INT_MIN, -1, INT_MAX, ~0
+};
+static gid_t gids[] = {
+	(gid_t)~0L, INT_MAX
+};
+static uid_t uids[] = {
+	(uid_t)~0L, INT_MAX
+};
 
 /*
  *  Misc per system-call args
@@ -2049,7 +2108,7 @@ static void syscall_permute(
 
 		*syscall_exercised = true;
 
-		ret = syscall(syscall_num,
+		ret = (int)syscall((long)syscall_num,
 			current_context->args[0],
 			current_context->args[1],
 			current_context->args[2],
@@ -2230,7 +2289,8 @@ static inline int stress_do_syscall(const stress_args_t *args)
 
 				(void)memset(current_context->args, 0, sizeof(current_context->args));
 				current_context->syscall = stress_syscall_args[j].syscall;
-				idx = &stress_syscall_args[j] - stress_syscall_args;
+				idx = (uintptr_t)&stress_syscall_args[j] -
+				       (uintptr_t)stress_syscall_args;
 				current_context->idx = idx;
 				current_context->name = stress_syscall_args[j].name;
 
@@ -2396,12 +2456,12 @@ static int stress_sysinval(const stress_args_t *args)
 
 	sockaddrs[0] = (long)(small_ptr + page_size - 1);
 	sockaddrs[1] = (long)page_ptr;
-	ptrs[0] = (long)(small_ptr + page_size -1);
-	ptrs[1] = (long)page_ptr;
-	non_null_ptrs[0] = (long)(small_ptr + page_size -1);
-	non_null_ptrs[1] = (long)page_ptr;
-	futex_ptrs[0] = (long)(small_ptr + page_size -1);
-	futex_ptrs[1] = (long)page_ptr;
+	ptrs[0] = (unsigned long)(small_ptr + page_size -1);
+	ptrs[1] = (unsigned long)page_ptr;
+	non_null_ptrs[0] = (unsigned long)(small_ptr + page_size -1);
+	non_null_ptrs[1] = (unsigned long)page_ptr;
+	futex_ptrs[0] = (unsigned long)(small_ptr + page_size -1);
+	futex_ptrs[1] = (unsigned long)page_ptr;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -2441,7 +2501,7 @@ static int stress_sysinval(const stress_args_t *args)
 	}
 	pr_dbg("%s: %zd of %zd (%.2f%%) unique system calls exercised\n",
 		args->name, syscalls_exercised, syscalls_unique,
-		(float)(syscalls_exercised * 100) / syscalls_unique);
+		(double)(syscalls_exercised * 100) / (double)syscalls_unique);
 	pr_dbg("%s: %" PRIu64 " unique syscalls argument combinations causing premature child termination\n",
 		args->name, current_context->skip_crashed);
 	pr_dbg("%s: ignored %" PRIu64 " unique syscall patterns that were not failing and %" PRIu64 " that timed out\n",
@@ -2462,9 +2522,9 @@ tidy:
 	if (current_context && current_context != MAP_FAILED)
 		(void)munmap((void *)current_context, current_context_size);
 	if (sockfds[0] >= 0)
-		(void)close(sockfds[0]);
+		(void)close((int)sockfds[0]);
 	if (fds[0] >= 0)
-		(void)close(fds[0]);
+		(void)close((int)fds[0]);
 
 err_dir:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
