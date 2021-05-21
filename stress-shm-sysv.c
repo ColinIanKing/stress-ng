@@ -219,7 +219,7 @@ static int get_bad_shmid(const stress_args_t *args)
 			return id;
 
 		/* Try again with a random guess */
-		id = stress_mwc64();
+		id = (int)stress_mwc32();
 	}
 
 	return -1;
@@ -417,7 +417,7 @@ static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
 	int fd;
 	char path[PATH_MAX];
 	const int len = (int)sizeof(void *);
-	const intptr_t start = (intptr_t)addr, end = start + sz;
+	const intptr_t start = (intptr_t)addr, end = start + (intptr_t)sz;
 
 	(void)snprintf(path, sizeof(path), "/proc/%d/map_files/%*.*tx-%*.*tx",
 		getpid(), len, len, start, len, len, end);
@@ -430,7 +430,7 @@ static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
 	if (fd >= 0) {
 		char pathlink[PATH_MAX];
 		void *ptr;
-		int ret;
+		ssize_t ret;
 
 		/*
 		 *  Readlink will return the /SYSV key info, but since this kind
@@ -479,7 +479,7 @@ static int stress_shm_sysv_child(
 	int rc = EXIT_SUCCESS;
 	bool ok = true;
 	int mask = ~0;
-	int32_t instances = args->num_instances;
+	uint32_t instances = args->num_instances;
 	const bool cap_ipc_lock = stress_check_capability(SHIM_CAP_IPC_LOCK);
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
@@ -493,10 +493,6 @@ static int stress_shm_sysv_child(
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args->name, true);
 
-	/* Should never happen, but be safe */
-	if (instances < 1)
-		instances = 1;
-
 	do {
 		size_t sz = max_sz;
 		pid_t pid = -1;
@@ -505,9 +501,9 @@ static int stress_shm_sysv_child(
 		exercise_shmctl(sz, args);
 
 		for (i = 0; i < shm_sysv_segments; i++) {
-			int shm_id, count = 0;
+			int shm_id = -1, count = 0;
 			void *addr;
-			key_t key;
+			key_t key = 0;
 			size_t shmall, freemem, totalmem, freeswap;
 
 			/* Try hard not to overcommit at this current time */
@@ -578,7 +574,7 @@ static int stress_shm_sysv_child(
 			}
 
 			/* Inform parent of the new shm ID */
-			msg.index = i;
+			msg.index = (int)i;
 			msg.shm_id = shm_id;
 			if (write(fd, &msg, sizeof(msg)) < 0) {
 				pr_err("%s: write failed: errno=%d: (%s)\n",
@@ -745,7 +741,7 @@ reap:
 			}
 
 			/* Inform parent shm ID is now free */
-			msg.index = i;
+			msg.index = (int)i;
 			msg.shm_id = -1;
 			if (write(fd, &msg, sizeof(msg)) < 0) {
 				pr_dbg("%s: write failed: errno=%d: (%s)\n",
