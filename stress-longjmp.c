@@ -96,7 +96,8 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 
 	if (n) {
 		pr_dbg("%s: about %.3f nanoseconds per longjmp call\n",
-			args->name, (double)STRESS_NANOSECOND * t_total / n);
+			args->name,
+			(double)STRESS_NANOSECOND * t_total / (double)n);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
