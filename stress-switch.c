@@ -138,8 +138,11 @@ again:
 		char buf[buf_size];
 		int status;
 		double t1, t2, t;
-		uint64_t delay, switch_delay = (switch_freq == 0) ? 0 : STRESS_NANOSECOND / switch_freq;
+		uint64_t delay;
+		uint64_t switch_delay = (switch_freq == 0) ?
+				0 : STRESS_NANOSECOND / switch_freq;
 		uint64_t i = 0, threshold = switch_freq / THRESH_FREQ;
+		uint64_t counter;
 
 		/* Parent */
 		(void)setpgid(pid, g_pgrp);
@@ -180,8 +183,9 @@ again:
 				if (++i >= threshold) {
 					double overrun, overrun_by;
 
+					counter = get_counter(args);
 					i = 0;
-					t = t1 + ((((double)get_counter(args)) * switch_delay) / STRESS_NANOSECOND);
+					t = t1 + ((double)(counter * switch_delay) / STRESS_NANOSECOND);
 					overrun = (stress_time_now() - t) * (double)STRESS_NANOSECOND;
 					overrun_by = (double)switch_delay - overrun;
 
@@ -190,7 +194,7 @@ again:
 						delay = 0;
 					} else {
 						/* Overrun or underrun? */
-						delay = (double)overrun_by;
+						delay = (uint64_t)overrun_by;
 						if (delay > switch_delay) {
 							/* Don't delay more than the switch delay */
 							delay = switch_delay;
@@ -201,9 +205,10 @@ again:
 		} while (keep_stressing(args));
 
 		t2 = stress_time_now();
+		counter = get_counter(args);
 		pr_inf("%s: %.2f nanoseconds per context switch (based on parent run time)\n",
 			args->name,
-			((t2 - t1) * STRESS_NANOSECOND) / (double)get_counter(args));
+			((t2 - t1) * STRESS_NANOSECOND) / (double)counter);
 
 		(void)memset(buf, SWITCH_STOP, sizeof(buf));
 		if (write(pipefds[1], buf, sizeof(buf)) <= 0)
