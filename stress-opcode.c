@@ -119,7 +119,7 @@ static struct sock_fprog prog = {
 static uint64_t *sig_count;
 #endif
 
-static void MLOCKED_TEXT stress_badhandler(int signum)
+static void MLOCKED_TEXT NORETURN stress_badhandler(int signum)
 {
 #if TRACK_SIGCOUNT
 	if (signum < MAX_SIGS)
