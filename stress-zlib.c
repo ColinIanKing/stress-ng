@@ -1259,12 +1259,13 @@ static int stress_zlib_deflate(
 	z_stream stream_def;
 	uint64_t bytes_in = 0, bytes_out = 0;
 	int flush;
-	stress_zlib_rand_data_info_t *opt_zlib_rand_data_func = &zlib_rand_data_methods[0];
 	stress_zlib_args_t zlib_args;
 	double t1, t2;
 	stress_xsum_t xsum;
+	stress_zlib_rand_data_info_t *info;
 
 	(void)stress_zlib_get_args(&zlib_args);
+	info = (stress_zlib_rand_data_info_t *)zlib_args.data_func;
 
 	(void)memset(&xsum, 0, sizeof(xsum));
 	xsum.xsum = 0;
@@ -1316,7 +1317,7 @@ static int stress_zlib_deflate(
 			else
 				flush = keep_stressing(args) ? Z_NO_FLUSH : Z_FINISH;
 
-			opt_zlib_rand_data_func->func(args, (uint32_t *)in, (DATA_SIZE/sizeof(uint32_t)));
+			info->func(args, (uint32_t *)in, (DATA_SIZE/sizeof(uint32_t)));
 
 			stream_def.avail_in = gen_sz;
 			stream_def.next_in = (unsigned char *)in;
