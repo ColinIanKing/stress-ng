@@ -56,7 +56,7 @@ static int stress_mmapaddr_check(const stress_args_t *args, uint8_t *map_addr)
 
 	if (page_fault) {
 		pr_err("%s: read of mmap'd address %p SEGFAULTed\n",
-			args->name, map_addr);
+			args->name, (void *)map_addr);
 		return -1;
 	}
 
@@ -64,12 +64,12 @@ static int stress_mmapaddr_check(const stress_args_t *args, uint8_t *map_addr)
 	ret = shim_mincore(map_addr, args->page_size, vec);
 	if (ret != 0) {
 		pr_err("%s: mincore on address %p failed, errno=%d (%s)\n",
-			args->name, map_addr, errno, strerror(errno));
+			args->name, (void *)map_addr, errno, strerror(errno));
 		return -1;
 	}
 	if ((vec[0] & 1) == 0) {
 		pr_inf("%s: mincore on address %p suggests page is not resident\n",
-			args->name, map_addr);
+			args->name, (void *)map_addr);
 		return -1;
 	}
 	return 0;
