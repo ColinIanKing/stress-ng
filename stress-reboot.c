@@ -70,7 +70,8 @@ static int reboot_clone_func(void *arg)
 		int ret;
 
 		errno = 0;
-		ret = shim_reboot(SHIM_LINUX_BOOT_MAGIC1, boot_magic[j],
+		ret = shim_reboot((int)SHIM_LINUX_BOOT_MAGIC1,
+			(int)boot_magic[j],
 			SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL);
 		j = (j + 1) % SIZEOF_ARRAY(boot_magic);
 		(void)ret;
@@ -113,7 +114,7 @@ static int stress_reboot(const stress_args_t *args)
 
 			(void)stress_mwc8();
 
-			(void)shim_waitpid(pid, &status, __WCLONE);
+			(void)shim_waitpid(pid, &status, (int)__WCLONE);
 			ret = WEXITSTATUS(status);
 			if (WIFEXITED(status) && (ret != 0)) {
 				pr_fail("%s: reboot in PID namespace failed, errno = %d (%s)\n",
@@ -141,7 +142,8 @@ static int stress_reboot(const stress_args_t *args)
 
 			for (i = 0; i < SIZEOF_ARRAY(boot_magic); i++) {
 				errno = 0;
-				ret = shim_reboot(SHIM_LINUX_BOOT_MAGIC1, boot_magic[i],
+				ret = shim_reboot((int)SHIM_LINUX_BOOT_MAGIC1,
+					(int)boot_magic[i],
 					SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL);
 				if (errno == EINVAL)
 					continue;
