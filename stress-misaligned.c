@@ -144,6 +144,7 @@ static void stress_misaligned_int16inc(uint8_t *buffer)
 }
 
 #if defined(HAVE_ATOMIC_FETCH_ADD_2) &&	\
+    defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 static void stress_misaligned_int16atomic(uint8_t *buffer)
 {
@@ -239,6 +240,7 @@ static void stress_misaligned_int32inc(uint8_t *buffer)
 }
 
 #if defined(HAVE_ATOMIC_FETCH_ADD_4) &&	\
+    defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 static void stress_misaligned_int32atomic(uint8_t *buffer)
 {
@@ -304,6 +306,7 @@ static void stress_misaligned_int64inc(uint8_t *buffer)
 }
 
 #if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
+    defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 static void stress_misaligned_int64atomic(uint8_t *buffer)
 {
@@ -367,6 +370,7 @@ static void TARGET_CLONE_NO_SSE stress_misaligned_int128inc(uint8_t *buffer)
 }
 
 #if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
+    defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 static void stress_misaligned_int128atomic(uint8_t *buffer)
 {
@@ -392,6 +396,7 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ "int16wr",	stress_misaligned_int16wr,	false,	false },
 	{ "int16inc",	stress_misaligned_int16inc,	false,	false },
 #if defined(HAVE_ATOMIC_FETCH_ADD_2) &&	\
+    defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 	{ "int16atomic",stress_misaligned_int16atomic,	false,	false },
 #endif
@@ -399,6 +404,7 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ "int32wr",	stress_misaligned_int32wr,	false,	false },
 	{ "int32inc",	stress_misaligned_int32inc,	false,	false },
 #if defined(HAVE_ATOMIC_FETCH_ADD_4) &&	\
+    defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 	{ "int32atomic",stress_misaligned_int32atomic,	false,	false },
 #endif
@@ -406,6 +412,7 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ "int64wr",	stress_misaligned_int64wr,	false,	false },
 	{ "int64inc",	stress_misaligned_int64inc,	false,	false },
 #if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
+    defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 	{ "int64atomic",stress_misaligned_int64atomic,	false,	false },
 #endif
@@ -414,6 +421,7 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ "int128wr",	stress_misaligned_int128wr,	false,	false },
 	{ "int128inc",	stress_misaligned_int128inc,	false,	false },
 #if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
+    defined(HAVE_ATOMIC) &&		\
     defined(__ATOMIC_SEQ_CST)
 	{ "int128tomic",stress_misaligned_int128atomic,	false,	false },
 #endif
