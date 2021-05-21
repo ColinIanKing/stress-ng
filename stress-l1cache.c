@@ -195,7 +195,7 @@ static int stress_l1cache_info_ok(
 	}
 
 	if (*size == 0)
-		*size = cache->size;
+		*size = (uint32_t)cache->size;
 	if (*line_size == 0)
 		*line_size = cache->line_size;
 	if (*ways == 0)
@@ -234,7 +234,7 @@ static int stress_l1cache(const stress_args_t *args)
 	uint32_t l1cache_set_size;
 	uint32_t set;
 	uint8_t *cache, *cache_aligned;
-	intptr_t addr;
+	uintptr_t addr;
 	uint32_t padding;
 
 	(void)stress_get_setting("l1cache-ways", &l1cache_ways);
@@ -261,7 +261,7 @@ static int stress_l1cache(const stress_args_t *args)
 		pr_inf("%s: invalid level 1 cache set size is zero\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	addr = l1cache_size + (intptr_t)cache;
+	addr = l1cache_size + (uintptr_t)cache;
 	padding = (l1cache_set_size - (addr % l1cache_set_size)) % l1cache_set_size;
 	cache_aligned = (uint8_t *)(addr + padding);
 
@@ -275,7 +275,7 @@ static int stress_l1cache(const stress_args_t *args)
 
 	set = 0;
 	do {
-		const int32_t set_offset = set * l1cache_set_size;
+		const uint32_t set_offset = set * l1cache_set_size;
 		register uint8_t *cache_start, *cache_end;
 		register int i;
 
@@ -294,7 +294,7 @@ static int stress_l1cache(const stress_args_t *args)
 				*(ptr);
 
 			for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
-				*(ptr) = set;
+				*(ptr) = (uint8_t)set;
 
 			set++;
 			if (set >= l1cache_sets)
