@@ -57,12 +57,12 @@ static int stress_pkey(const stress_args_t *args)
 
 	do {
 		int pkey, ret;
-		const int page_num = (stress_mwc8() % PAGES_TO_EXERCISE);
+		const size_t page_num = (size_t)(stress_mwc8() % PAGES_TO_EXERCISE);
 		const size_t page_offset = page_num * args->page_size;
 		uint8_t *page = pages + page_offset;
 
 		/* Exercise invalid pkey flags */
-		pkey = shim_pkey_alloc(~0, 0);
+		pkey = shim_pkey_alloc(~0U, 0);
 		if (pkey >= 0)
 			(void)shim_pkey_free(pkey);
 
@@ -116,7 +116,7 @@ static int stress_pkey(const stress_args_t *args)
 		(void)shim_pkey_mprotect(page + 7, page_size, PROT_READ, pkey);
 
 		/* Exercise page wrap around, ENOMEM */
-		(void)shim_pkey_mprotect((void *)(~0 & ~(page_size -1)),
+		(void)shim_pkey_mprotect((void *)(~(uintptr_t)0 & ~((uintptr_t)page_size -1)),
 			 page_size << 1, PROT_READ, pkey);
 
 		/* Exercise zero size, should be OK */
@@ -127,7 +127,7 @@ static int stress_pkey(const stress_args_t *args)
 
 			rights = shim_pkey_get(pkey);
 			if (rights > -1)
-				(void)shim_pkey_set(pkey, rights);
+				(void)shim_pkey_set(pkey, (unsigned int)rights);
 			(void)shim_pkey_free(pkey);
 		}
 		/*
