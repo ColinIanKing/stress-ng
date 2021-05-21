@@ -68,7 +68,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_MEMFD_CREATE)
 
-static const int flags[] = {
+static const unsigned int flags[] = {
 	0,
 #if defined(MFD_CLOEXEC)
 	MFD_CLOEXEC,
@@ -172,7 +172,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			ssize_t ret;
 #if defined(FALLOC_FL_PUNCH_HOLE) &&	\
     defined(FALLOC_FL_KEEP_SIZE)
-			size_t whence;
+			off_t whence;
 #endif
 
 			if (fds[i] < 0)
@@ -182,7 +182,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 				break;
 
 			/* Allocate space */
-			ret = ftruncate(fds[i], size);
+			ret = ftruncate(fds[i], (off_t)size);
 			if (ret < 0) {
 				switch (errno) {
 				case EINTR:
@@ -208,9 +208,9 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			/*
 			 *  ..and punch a hole
 			 */
-			whence = (stress_mwc32() % size) & ~(page_size - 1);
+			whence = (off_t)((stress_mwc32() % size) & ~(page_size - 1));
 			ret = shim_fallocate(fds[i], FALLOC_FL_PUNCH_HOLE |
-				FALLOC_FL_KEEP_SIZE, whence, page_size);
+				FALLOC_FL_KEEP_SIZE, whence, (off_t)page_size);
 			(void)ret;
 #endif
 			if (!keep_stressing_flag())
@@ -277,7 +277,7 @@ clean:
 		(void)snprintf(filename, sizeof(filename),
 			"memfd-%" PRIdMAX "-%" PRIu64,
 			(intmax_t)args->pid, stress_mwc64());
-		fd = shim_memfd_create(filename, ~0);
+		fd = shim_memfd_create(filename, ~0U);
 		if (fd >= 0)
 			(void)close(fd);
 
