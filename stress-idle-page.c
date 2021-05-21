@@ -71,7 +71,7 @@ static int stress_idle_page_supported(const char *name)
 static int stress_idle_page(const stress_args_t *args)
 {
 	int fd;
-	off_t posn = 0, last_posn = 0xfffffffffffffff8ULL;
+	off_t posn = 0, last_posn = ~(off_t)7;
 	uint64_t bitmap_set[PAGES_TO_SCAN] ALIGNED(8);
 
 	fd = open(bitmap_file, O_RDWR);
@@ -88,7 +88,7 @@ static int stress_idle_page(const stress_args_t *args)
 
 	do {
 		off_t oret;
-		int ret;
+		ssize_t ret;
 		uint64_t bitmap_get[PAGES_TO_SCAN] ALIGNED(8);
 
 		oret = lseek(fd, posn, SEEK_SET);
