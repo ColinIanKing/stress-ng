@@ -108,7 +108,7 @@ static int exercise_renameat2(
 	int ret, file_fd;
 
 	/* Exercise with invalid flags */
-	ret = renameat2(oldfd, old_name, newfd, new_name, ~0);
+	ret = renameat2(oldfd, old_name, newfd, new_name, (unsigned int)~0);
 	if (ret >= 0) {
 		pr_fail("%s: reanameat2 with illegal flags "
 			"unexpectedly succeeded\n",
