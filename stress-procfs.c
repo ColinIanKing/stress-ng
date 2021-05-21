@@ -75,7 +75,7 @@ static uint32_t path_sum(const char *path)
 
 	while (*ptr) {
 		sum <<= 1;
-		sum += *(ptr++);
+		sum += (uint32_t)*(ptr++);
 	}
 
 	return sum;
@@ -238,7 +238,7 @@ static inline void stress_proc_rw(
 			ssize_t sz = 1 + (stress_mwc32() % sizeof(buffer));
 			if (!keep_stressing_flag())
 				break;
-			ret = read(fd, buffer, sz);
+			ret = read(fd, buffer, (size_t)sz);
 			if (ret < 0)
 				break;
 			if (ret < sz)
@@ -484,7 +484,8 @@ static void stress_proc_dir(
 {
 	struct dirent **dlist;
 	const stress_args_t *args = ctxt->args;
-	int32_t loops = args->instance < 8 ? args->instance + 1 : 8;
+	int32_t loops = args->instance < 8 ?
+			(int32_t)(args->instance + 1) : 8;
 	int i, n, ret;
 	char tmp[PATH_MAX];
 
@@ -559,8 +560,7 @@ static char *stress_random_pid(void)
 {
 	struct dirent **dlist = NULL;
 	static char path[PATH_MAX];
-	int i, n;
-	unsigned int j;
+	int i, j, n;
 
 	(void)shim_strlcpy(path, "/proc/self", sizeof(path));
 
@@ -575,7 +575,7 @@ static char *stress_random_pid(void)
 	 */
 	for (i = 0, j = 0; i < 32; i++) {
 		char *name;
-		j += stress_mwc32();
+		j += (int)stress_mwc32();
 		j %= n;
 
 		name = dlist[j]->d_name;
@@ -657,7 +657,7 @@ static int stress_procfs(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t j = args->instance % n;
+		size_t j = args->instance % (size_t)n;
 
 		for (i = 0; i < n; i++) {
 			char procfspath[PATH_MAX];
@@ -679,7 +679,7 @@ static int stress_procfs(const stress_args_t *args)
 				stress_proc_dir(&ctxt, procfspath, true, 0);
 			}
 
-			j = (j + args->num_instances) % n;
+			j = (j + args->num_instances) % (size_t)n;
 			inc_counter(args);
 		}
 
