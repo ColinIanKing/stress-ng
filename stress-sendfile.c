@@ -33,7 +33,7 @@ static const stress_help_t help[] = {
 
 static int stress_set_sendfile_size(const char *opt)
 {
-	int64_t sendfile_size;
+	uint64_t sendfile_size;
 
 	sendfile_size = stress_get_uint64_byte(opt);
 	stress_check_range_bytes("sendfile-size", sendfile_size,
@@ -146,7 +146,7 @@ static int stress_sendfile(const stress_args_t *args)
 
 			/* Exercise with invalid size */
 			offset = 0;
-			(void)sendfile(fdout, fdin, &offset, -1);
+			(void)sendfile(fdout, fdin, &offset, (size_t)-1);
 
 			/* Exercise with zero size (should work, no-op) */
 			offset = 0;
@@ -161,7 +161,7 @@ static int stress_sendfile(const stress_args_t *args)
 			(void)sendfile(fdout, fdout, &offset, sz);
 
 			/* Exercise truncated read */
-			offset = sz - 1;
+			offset = (off_t)(sz - 1);
 			(void)sendfile(fdout, fdin, &offset, sz);
 		}
 		inc_counter(args);
