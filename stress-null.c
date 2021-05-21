@@ -51,6 +51,7 @@ static int stress_null(const stress_args_t *args)
 
 	do {
 		ssize_t ret;
+		off_t off;
 #if defined(__linux__)
 		void *ptr;
 		const size_t page_size = args->page_size;
@@ -70,8 +71,9 @@ static int stress_null(const stress_args_t *args)
 		}
 
 #if defined(__linux__)
+		off = (off_t)stress_mwc64() & ~((off_t)page_size - 1);
 		ptr = mmap(NULL, page_size, PROT_WRITE,
-			MAP_PRIVATE | MAP_ANONYMOUS, fd, stress_mwc64() & ~(page_size - 1));
+			MAP_PRIVATE | MAP_ANONYMOUS, fd, off);
 		if (ptr != MAP_FAILED) {
 			(void)memset(ptr, stress_mwc8(), page_size);
 			(void)shim_msync(ptr, page_size, MS_SYNC);
