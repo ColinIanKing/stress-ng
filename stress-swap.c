@@ -131,7 +131,7 @@ static int stress_swap_set_size(
 			args->name, errno, strerror(errno));
 		return -1;
 	}
-	if (lseek(fd, args->page_size - SWAP_SIGNATURE_SZ, SEEK_SET) < 0) {
+	if (lseek(fd, (off_t)(args->page_size - SWAP_SIGNATURE_SZ), SEEK_SET) < 0) {
 		pr_fail("%s: lseek failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
