@@ -509,8 +509,9 @@ retry_open:
 			cb[i].aio_fildes = fds[i];
 			cb[i].aio_lio_opcode = IO_CMD_POLL;
 			cb[i].u.c.buf = (void *)POLLIN;
-			cb[i].u.c.offset = ~0LL;	/* invalid */
-			cb[i].u.c.nbytes = ~0ULL;	/* invalid */
+			/* Set invalid sizes */
+			(void)memset(&cb[i].u.c.offset, 0xff, sizeof(cb[i].u.c.offset));
+			(void)memset(&cb[i].u.c.nbytes, 0xff, sizeof(cb[i].u.c.nbytes));
 			cbs[i] = &cb[i];
 		}
 		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, true) < 0)
