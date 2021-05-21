@@ -123,7 +123,7 @@ static int stress_timerfd(const stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			timerfd_freq = MIN_TIMERFD_FREQ;
 	}
-	rate_ns = timerfd_freq ? (double)STRESS_NANOSECOND / timerfd_freq :
+	rate_ns = timerfd_freq ? (double)STRESS_NANOSECOND / (double)timerfd_freq :
 				 (double)STRESS_NANOSECOND;
 
 	for (i = 0; i < TIMERFD_MAX; i++) {
@@ -223,13 +223,15 @@ static int stress_timerfd(const stress_args_t *args)
 			continue; /* Timeout */
 
 		for (i = 0; i < TIMERFD_MAX; i++) {
+			ssize_t rret;
+
 			if (timerfd[i] < 0)
 				continue;
 			if (!FD_ISSET(timerfd[i], &rdfs))
 				continue;
 
-			ret = read(timerfd[i], &expval, sizeof expval);
-			if (ret < 0) {
+			rret = read(timerfd[i], &expval, sizeof expval);
+			if (rret < 0) {
 				pr_fail("%s: read of timerfd failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
@@ -265,7 +267,7 @@ static int stress_timerfd(const stress_args_t *args)
 		(void)ret;
 
 		/* Exercise timerfd_settime with invalid flags */
-		ret = timerfd_settime(bad_fd, ~0, &timer, NULL);;
+		ret = timerfd_settime(bad_fd, ~0, &timer, NULL);
 		(void)ret;
 
 		/*
