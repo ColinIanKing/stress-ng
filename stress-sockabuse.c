@@ -32,12 +32,12 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#define VOID_RET(x)	\
-do {			\
-	int ret = x;	\
-			\
-	(void)ret;	\
-} while(0)		\
+#define VOID_RET(type, x)	\
+do {				\
+	type ret = x;		\
+				\
+	(void)ret;		\
+} while(0)			\
 
 /*
  *  stress_sockabuse_fd
@@ -57,53 +57,53 @@ static void stress_sockabuse_fd(const int fd)
 #endif
 
 	(void)memset(&addr, 0, sizeof(addr));
-	VOID_RET(connect(fd, &addr, sizeof(addr)));
-	VOID_RET(shim_fdatasync(fd));
-	VOID_RET(shim_fsync(fd));
-	VOID_RET(shim_fallocate(fd, 0, 4096, 0));
-	VOID_RET(fchdir(fd));
-	VOID_RET(fchmod(fd, 0660));
-	VOID_RET(fchown(fd, uid, gid));
+	VOID_RET(int, connect(fd, &addr, sizeof(addr)));
+	VOID_RET(int, shim_fdatasync(fd));
+	VOID_RET(int, shim_fsync(fd));
+	VOID_RET(int, shim_fallocate(fd, 0, 4096, 0));
+	VOID_RET(int, fchdir(fd));
+	VOID_RET(int, fchmod(fd, 0660));
+	VOID_RET(int, fchown(fd, uid, gid));
 #if defined(F_GETFD)
-	VOID_RET(fcntl(fd, F_GETFD));
+	VOID_RET(int, fcntl(fd, F_GETFD));
 #endif
 #if defined(HAVE_FLOCK) &&      \
     defined(LOCK_UN)
-	VOID_RET(flock(fd, LOCK_UN));
+	VOID_RET(int, flock(fd, LOCK_UN));
 #endif
 #if (defined(HAVE_SYS_XATTR_H) ||       \
      defined(HAVE_ATTR_XATTR_H)) &&     \
     defined(HAVE_SETXATTR) &&		\
     defined(XATTR_CREATE)
-	VOID_RET(shim_fsetxattr(fd, "test", "value", 5, XATTR_CREATE));
+	VOID_RET(ssize_t, shim_fsetxattr(fd, "test", "value", 5, XATTR_CREATE));
 #endif
-	VOID_RET(fstat(fd, &statbuf));
-	VOID_RET(ftruncate(fd, 0));
+	VOID_RET(int, fstat(fd, &statbuf));
+	VOID_RET(int, ftruncate(fd, 0));
 #if (defined(HAVE_SYS_XATTR_H) ||       \
      defined(HAVE_ATTR_XATTR_H)) &&     \
     defined(HAVE_FLISTXATTR)
 	{
 		char list[4096];
 
-		VOID_RET(shim_flistxattr(fd, list, sizeof(list)));
+		VOID_RET(ssize_t, shim_flistxattr(fd, list, sizeof(list)));
 	}
 #endif
 #if defined(HAVE_FUTIMENS)
-	VOID_RET(futimens(fd, timespec));
+	VOID_RET(int, futimens(fd, timespec));
 #endif
 	addrlen = sizeof(addr);
-	VOID_RET(getpeername(fd, &addr, &addrlen));
+	VOID_RET(int, getpeername(fd, &addr, &addrlen));
 #if defined(FIONREAD)
 	{
 		int n;
 
-		VOID_RET(ioctl(fd, FIONREAD, &n));
+		VOID_RET(int, ioctl(fd, FIONREAD, &n));
 	}
 #endif
 #if defined(SEEK_SET)
-	VOID_RET(lseek(fd, 0, SEEK_SET));
+	VOID_RET(off_t, lseek(fd, 0, SEEK_SET));
 #endif
-	VOID_RET(shim_pidfd_send_signal(fd, SIGUSR1, NULL, 0));
+	VOID_RET(int, shim_pidfd_send_signal(fd, SIGUSR1, NULL, 0));
 	ptr = mmap(NULL, 4096, PROT_READ, MAP_SHARED, fd, 0);
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, 4096);
@@ -111,14 +111,14 @@ static void stress_sockabuse_fd(const int fd)
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, 4096);
 	nfd = dup(fd);
-	VOID_RET(shim_copy_file_range(fd, 0, nfd, 0, 16, 0));
+	VOID_RET(ssize_t, shim_copy_file_range(fd, 0, nfd, 0, 16, 0));
 	if (nfd >= 0)
 		(void)close(nfd);
 #if defined(HAVE_POSIX_FADVISE) &&	\
     defined(POSIX_FADV_RANDOM)
-	VOID_RET(posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM));
+	VOID_RET(int, posix_fadvise(fd, 0, 0, POSIX_FADV_RANDOM));
 #endif
-	VOID_RET(shim_sync_file_range(fd, 0, 1, 0));
+	VOID_RET(int, shim_sync_file_range(fd, 0, 1, 0));
 #if defined(HAVE_FUTIMENS)
 	(void)memset(&timespec, 0, sizeof(timespec));
 #endif
@@ -331,10 +331,10 @@ static void stress_sockabuse_sigpipe_handler(int signum)
 static int stress_sockabuse(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
-	int socket_port = DEFAULT_SOCKABUSE_PORT + args->instance;
+	int socket_port = DEFAULT_SOCKABUSE_PORT + (int)args->instance;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, socket_port + args->instance);
+		args->name, (int)args->pid, socket_port);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sockabuse_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
