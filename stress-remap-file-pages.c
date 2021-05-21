@@ -138,7 +138,7 @@ static int stress_remap(const stress_args_t *args)
 	}
 
 	for (i = 0; i < N_PAGES; i++)
-		data[i * stride] = i;
+		data[i * stride] = (stress_mapdata_t)i;
 
 	unmapped = stress_get_umapped_addr(page_size);
 	mapped = mmap(NULL, mapped_size, PROT_READ | PROT_WRITE,
