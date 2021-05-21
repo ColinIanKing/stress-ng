@@ -59,7 +59,7 @@ typedef struct {
  *  pipe_read()
  *	read a pipe with some verification and checking
  */
-static int pipe_read(const stress_args_t *args, const int fd, const int n)
+static ssize_t pipe_read(const stress_args_t *args, const int fd, const size_t n)
 {
 	while (keep_stressing_flag()) {
 		ssize_t ret;
@@ -163,7 +163,7 @@ again:
 
 			/* Write on a randomly chosen pipe */
 			i = (stress_mwc32() >> 8) % max_fds;
-			(void)memset(buf, '0' + i, sizeof(buf));
+			(void)memset(buf, (int)('0' + i), sizeof(buf));
 			ret = write(pipe_fds[i].fd[1], buf, sizeof(buf));
 			if (ret < (ssize_t)sizeof(buf)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
