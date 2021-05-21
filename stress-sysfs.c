@@ -60,7 +60,7 @@ static uint32_t path_sum(const char *path)
 
 	while (*ptr) {
 		sum <<= 1;
-		sum += *(ptr++);
+		sum += (uint32_t)*(ptr++);
 	}
 
 	return sum;
@@ -137,6 +137,7 @@ static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 		fd_set rfds;
 		struct timeval tv;
 		off_t lret;
+		ssize_t rret;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -170,12 +171,13 @@ static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 		 */
 		while (i < (4096 * SYS_BUF_SZ)) {
 			ssize_t sz = 1 + (stress_mwc32() % (sizeof(buffer) - 1));
+
 			if (!keep_stressing_flag())
 				break;
-			ret = read(fd, buffer, sz);
-			if (ret < 0)
+			rret = read(fd, buffer, (size_t)sz);
+			if (rret < 0)
 				break;
-			if (ret < sz)
+			if (rret < sz)
 				break;
 			i += sz;
 
@@ -207,8 +209,8 @@ static inline bool stress_sys_rw(const stress_ctxt_t *ctxt)
 		/*
 		 *  Zero sized reads
 		 */
-		ret = read(fd, buffer, 0);
-		if (ret < 0)
+		rret = read(fd, buffer, 0);
+		if (rret < 0)
 			goto err;
 		if (stress_time_now() - t_start > threshold)
 			goto next;
@@ -641,7 +643,7 @@ static int stress_sysfs(const stress_args_t *args)
 	}
 
 	do {
-		int j = (args->instance) % n;
+		int j = (int)args->instance % n;
 
 		for (i = 0; i < n; i++) {
 			char sysfspath[PATH_MAX];
@@ -657,7 +659,7 @@ static int stress_sysfs(const stress_args_t *args)
 
 			stress_sys_dir(&ctxt, sysfspath, true, 0);
 
-			j = (j + args->num_instances) % n;
+			j = (j + (int)args->num_instances) % n;
 		}
 	} while (keep_stressing(args));
 
