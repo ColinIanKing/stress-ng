@@ -276,7 +276,7 @@ static inline size_t stress_revio_get_extents(const int fd)
 	struct fiemap fiemap;
 
 	(void)memset(&fiemap, 0, sizeof(fiemap));
-	fiemap.fm_length = ~0;
+	fiemap.fm_length = ~0UL;
 
 	/* Find out how many extents there are */
 	if (ioctl(fd, FS_IOC_FIEMAP, &fiemap) < 0)
@@ -338,7 +338,7 @@ static int stress_revio(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return exit_status((int)-ret);
 
 #if defined(HAVE_POSIX_MEMALIGN)
 	ret = posix_memalign((void **)&alloc_buf, BUF_ALIGNMENT, (size_t)DEFAULT_REVIO_WRITE_SIZE);
@@ -369,6 +369,7 @@ static int stress_revio(const stress_args_t *args)
 
 	do {
 		int fd;
+		size_t extents;
 
 		/*
 		 * aggressive option with no other option enables
@@ -404,7 +405,7 @@ static int stress_revio(const stress_args_t *args)
 		/* Sequential Reverse Write */
 		for (i = 0; i < revio_bytes; i += DEFAULT_REVIO_WRITE_SIZE * (8 + (stress_mwc8() & 7))) {
 			size_t j;
-			off_t lseek_ret, offset = revio_bytes - i;
+			off_t lseek_ret, offset = (off_t)(revio_bytes - i);
 seq_wr_retry:
 			if (!keep_stressing(args))
 				break;
@@ -436,7 +437,8 @@ seq_wr_retry:
 			inc_counter(args);
 		}
 		iterations++;
-		avg_extents += (double)stress_revio_get_extents(fd);
+		extents = stress_revio_get_extents(fd);
+		avg_extents += (double)extents;
 		(void)close(fd);
 	} while (keep_stressing(args));
 
