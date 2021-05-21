@@ -58,7 +58,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_socket_fd_send()
  *	send a fd (fd_send) over a socket fd
  */
-static inline int stress_socket_fd_sendmsg(const int fd, const int fd_send)
+static inline ssize_t stress_socket_fd_sendmsg(const int fd, const int fd_send)
 {
 	struct iovec iov;
 	struct msghdr msg;
@@ -135,7 +135,7 @@ static inline int stress_socket_fd_recv(const int fd)
  *  stress_socket_client()
  *	client reader
  */
-static void stress_socket_client(
+static void NORETURN stress_socket_client(
 	const stress_args_t *args,
 	const pid_t ppid,
 	const ssize_t max_fd,
@@ -207,9 +207,10 @@ retry:
 			rc = ioctl(fds[n], FIONREAD, &nbytes);
 			if ((rc == 0) && (nbytes >= 1)) {
 				char data;
+				ssize_t rd;
 
-				rc = read(fds[n], &data, sizeof(data));
-				(void)rc;
+				rd  = read(fds[n], &data, sizeof(data));
+				(void)rd;
 			}
 		}
 
@@ -314,7 +315,7 @@ static int stress_socket_server(
 
 				new_fd = open("/dev/zero", O_RDWR);
 				if (new_fd >= 0) {
-					int ret;
+					ssize_t ret;
 
 					ret = stress_socket_fd_sendmsg(sfd, new_fd);
 					if ((ret < 0) &&
@@ -370,7 +371,7 @@ die:
 static int stress_sockfd(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
-	ssize_t max_fd = stress_get_file_limit();
+	ssize_t max_fd = (ssize_t)stress_get_file_limit();
 	int socket_fd_port = DEFAULT_SOCKET_FD_PORT;
 	int ret = EXIT_SUCCESS;
 
@@ -408,7 +409,6 @@ again:
 	} else if (pid == 0) {
 		stress_set_oom_adjustment(args->name, false);
 		stress_socket_client(args, ppid, max_fd, socket_fd_port);
-		_exit(EXIT_SUCCESS);
 	} else {
 		ret = stress_socket_server(args, pid, ppid, max_fd, socket_fd_port);
 	}
