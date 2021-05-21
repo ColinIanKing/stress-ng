@@ -66,9 +66,15 @@ static sigset_t set;
       defined(STRESS_ARCH_ARM)))
 
 #if defined(HAVE_ATOMIC_ADD_FETCH)
-#define MEM_LOCK(ptr, inc) __atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);
+#define MEM_LOCK(ptr, inc) 				\
+do {							\
+	__atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);	\
+} while (0)
 #else
-#define MEM_LOCK(ptr, inc) asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));
+#define MEM_LOCK(ptr, inc)				\
+do {							\
+	asm volatile("lock addl %1,%0" : "+m" (*ptr) : "ir" (inc));	\
+} while (0);
 #endif
 #endif
 
@@ -173,7 +179,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
 	(void)args;
 
 	volatile uint64_t *ptr = (volatile uint64_t *)mem;
-	const uint64_t *end = (uint64_t *)(((uint8_t *)mem) + mem_size);
+	const uint64_t *end = (uint64_t *)((uintptr_t)mem + mem_size);
 
 	while (LIKELY(ptr < end)) {
 		*ptr = *ptr ^ ~0ULL;
@@ -313,7 +319,7 @@ static void HOT OPTIMIZE3 stress_memthrash_spinread(
 	uint32_t i;
 	const size_t size = mem_size - (8 * sizeof(uint32_t));
 	const size_t offset = (stress_mwc32() % size) & ~(size_t)3;
-	volatile uint32_t *ptr = (uint32_t *)(((uint8_t *)mem) + offset);
+	volatile uint32_t *ptr = (uint32_t *)((uintptr_t)mem + offset);
 
 	(void)args;
 
@@ -337,7 +343,7 @@ static void HOT OPTIMIZE3 stress_memthrash_spinwrite(
 	uint32_t i;
 	const size_t size = mem_size - (8 * sizeof(uint32_t));
 	const size_t offset = (stress_mwc32() % size) & ~(size_t)3;
-	volatile uint32_t *ptr = (uint32_t *)(((uint8_t *)mem) + offset);
+	volatile uint32_t *ptr = (uint32_t *)((uintptr_t *)mem + offset);
 
 	(void)args;
 
@@ -484,6 +490,7 @@ static inline uint32_t stress_memthrash_max(
 		return 1;
 	} else {
 		uint32_t max = total_cpus / instances;
+
 		return ((total_cpus % instances) == 0) ? max : max + 1;
 	}
 }
@@ -532,7 +539,7 @@ static int stress_memthrash_child(const stress_args_t *args, void *ctxt)
 	(void)ret;
 
 	pargs.args = args;
-	pargs.data = context->memthrash_method->func;
+	pargs.data = (void *)context->memthrash_method->func;
 
 	(void)memset(pthreads, 0, sizeof(pthreads));
 	(void)memset(pthreads_ret, 0, sizeof(pthreads_ret));
@@ -599,7 +606,7 @@ static int stress_memthrash(const stress_args_t *args)
 	stress_memthrash_context_t context;
 	int rc;
 
-	context.total_cpus = stress_get_processors_online();
+	context.total_cpus = (uint32_t)stress_get_processors_online();
 	context.max_threads = stress_memthrash_max(args->num_instances, context.total_cpus);
 	context.memthrash_method = &memthrash_methods[0];
 
