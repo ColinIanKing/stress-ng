@@ -444,7 +444,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_frobenius(
 				return;
 		}
 	}
-	stress_double_put(sum);
+	stress_float_put((float)sum);
 }
 
 /*
@@ -476,7 +476,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_frobenius(
 				return;
 		}
 	}
-	stress_double_put(sum);
+	stress_float_put((float)sum);
 }
 
 /*
@@ -556,7 +556,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_mean(
 			register size_t k;
 
 			for (k = 0; k < n; k++) {
-				r[i][j][k] = (a[i][j][k] + b[i][j][k]) / 2.0;
+				r[i][j][k] = (a[i][j][k] + b[i][j][k]) / (stress_matrix_3d_type_t)2.0;
 			}
 			if (UNLIKELY(!keep_stressing_flag()))
 				return;
@@ -583,7 +583,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_mean(
 			register size_t i;
 
 			for (i = 0; i < n; i++) {
-				r[i][j][k] = (a[i][j][k] + b[i][j][k]) / 2.0;
+				r[i][j][k] = (a[i][j][k] + b[i][j][k]) / (stress_matrix_3d_type_t)2.0;
 			}
 			if (UNLIKELY(!keep_stressing_flag()))
 				return;
@@ -876,6 +876,17 @@ static inline size_t round_up(size_t page_size, size_t n)
 	return (n + page_size - 1) & (~(page_size -1));
 }
 
+/*
+ *  stress_matrix_data()
+ *`	generate some random data scaled by v
+ */
+static inline stress_matrix_3d_type_t stress_matrix_data(const stress_matrix_3d_type_t v)
+{
+	const uint64_t r = stress_mwc64();
+
+	return v * (stress_matrix_3d_type_t)r;
+}
+
 static inline int stress_matrix_3d_exercise(
 	const stress_args_t *args,
 	const stress_matrix_3d_func func,
@@ -922,8 +933,8 @@ static inline int stress_matrix_3d_exercise(
 			register size_t k;
 
 			for (k = 0; k < n; k++) {
-				a[i][j][k] = (stress_matrix_3d_type_t)stress_mwc64() * v;
-				b[i][j][k] = (stress_matrix_3d_type_t)stress_mwc64() * v;
+				a[i][j][k] = stress_matrix_data(v);
+				b[i][j][k] = stress_matrix_data(v);
 				r[i][j][k] = 0.0;
 			}
 		}
