@@ -439,7 +439,7 @@ static void stress_misaligned_all(uint8_t *buffer)
 		stress_misaligned_methods[0].disabled = true;
 }
 
-static MLOCKED_TEXT void stress_misaligned_handler(int signum)
+static MLOCKED_TEXT NORETURN void stress_misaligned_handler(int signum)
 {
 	handled_signum = signum;
 
