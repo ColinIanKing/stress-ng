@@ -126,7 +126,7 @@ static inline void stress_proc_self_timer_read(void)
 {
 #if defined(__linux__)
 	char buf[1024];
-	int n;
+	ssize_t n;
 
 	n = system_read("/proc/self/timers", buf, sizeof(buf));
 	(void)n;
@@ -159,8 +159,9 @@ static void MLOCKED_TEXT stress_timer_handler(int sig)
 	}
 	if (keep_stressing_flag()) {
 		int ret = timer_getoverrun(timerid);
+
 		if (ret > 0)
-			overruns += ret;
+			overruns += (uint64_t)ret;
 		stress_timer_set(&timer);
 		return;
 	}
@@ -197,7 +198,7 @@ static int stress_timer(const stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			timer_freq = MIN_TIMER_FREQ;
 	}
-	rate_ns = timer_freq ? (double)STRESS_NANOSECOND / timer_freq :
+	rate_ns = timer_freq ? (double)STRESS_NANOSECOND / (double)timer_freq :
 			       (double)STRESS_NANOSECOND;
 
 	if (stress_sighandler(args->name, SIGRTMIN, stress_timer_handler, NULL) < 0)
