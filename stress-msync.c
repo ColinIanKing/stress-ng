@@ -80,7 +80,7 @@ static int stress_page_check(
  *  stress_sigbus_handler()
  *     SIGBUS handler
  */
-static void MLOCKED_TEXT stress_sigbus_handler(int signum)
+static void MLOCKED_TEXT NORETURN stress_sigbus_handler(int signum)
 {
 	(void)signum;
 
@@ -134,7 +134,7 @@ static int stress_msync(const stress_args_t *args)
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
-		return exit_status(-rc);
+		return exit_status((int)-rc);
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
@@ -146,11 +146,11 @@ static int stress_msync(const stress_args_t *args)
 		(void)unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 
-		return rc;
+		return (int)rc;
 	}
 	(void)unlink(filename);
 
-	if (ftruncate(fd, sz) < 0) {
+	if (ftruncate(fd, (off_t)sz) < 0) {
 		pr_err("%s: ftruncate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
@@ -182,7 +182,7 @@ static int stress_msync(const stress_args_t *args)
 		/*
 		 *  Change data in memory, msync to disk
 		 */
-		offset = (stress_mwc64() % (sz - page_size)) & ~(page_size - 1);
+		offset = (off_t)(stress_mwc64() % (sz - page_size)) & ~((off_t)page_size - 1);
 		val = stress_mwc8();
 
 		(void)memset(buf + offset, val, page_size);
@@ -218,7 +218,7 @@ do_invalidate:
 		/*
 		 *  Now change data on disc, msync invalidate
 		 */
-		offset = (stress_mwc64() % (sz - page_size)) & ~(page_size - 1);
+		offset = (off_t)(stress_mwc64() % (sz - page_size)) & ~((off_t)page_size - 1);
 		val = stress_mwc8();
 
 		(void)memset(buf + offset, val, page_size);
@@ -255,7 +255,7 @@ do_invalidate:
 		(void)ret;
 
 		/* Exercise invalid address wrap-around */
-		ret = shim_msync((void *)(~0 & ~(page_size - 1)),
+		ret = shim_msync((void *)(~(uintptr_t)0 & ~(page_size - 1)),
 				page_size << 1, MS_ASYNC);
 		(void)ret;
 
@@ -290,7 +290,7 @@ err:
 	if (sigbus_count)
 		pr_inf("%s: caught %" PRIu64 " SIGBUS signals\n",
 			args->name, sigbus_count);
-	return rc;
+	return (int)rc;
 }
 
 stressor_info_t stress_msync_info = {
