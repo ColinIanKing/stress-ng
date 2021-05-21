@@ -38,9 +38,18 @@ static int stress_set_iomix_bytes(const char *opt)
 	off_t iomix_bytes;
 
 	iomix_bytes = (off_t)stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("iomix-bytes", iomix_bytes,
+	stress_check_range_bytes("iomix-bytes", (uint64_t)iomix_bytes,
 		MIN_IOMIX_BYTES, MAX_IOMIX_BYTES);
 	return stress_set_setting("iomix-bytes", TYPE_ID_OFF_T, &iomix_bytes);
+}
+
+/*
+ *  stress_iomix_rnd_offset()
+ *	generate a random offset between 0..max-1
+ */
+static off_t stress_iomix_rnd_offset(const off_t max)
+{
+	return (off_t)stress_mwc64() % max;
 }
 
 /*
@@ -52,14 +61,13 @@ static void stress_iomix_wr_seq_bursts(
 	const int fd,
 	const off_t iomix_bytes)
 {
-
 	do {
 		off_t ret, posn;
 		const int n = stress_mwc8();
 		int i;
 		struct timeval tv;
 
-		posn = stress_mwc64() % iomix_bytes;
+		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret < 0) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
@@ -121,7 +129,7 @@ static void stress_iomix_wr_rnd_bursts(
 			const size_t len = 1 + (stress_mwc32() & (sizeof(buffer) - 1));
 			off_t ret, posn;
 
-			posn = stress_mwc64() % iomix_bytes;
+			posn = stress_iomix_rnd_offset(iomix_bytes);
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret < 0) {
 				pr_fail("%s: lseek failed, errno=%d (%s)\n",
@@ -211,7 +219,7 @@ static void stress_iomix_rd_seq_bursts(
 		int i;
 		struct timeval tv;
 
-		posn = stress_mwc64() % iomix_bytes;
+		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret < 0) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
@@ -266,10 +274,10 @@ static void stress_iomix_rd_rnd_bursts(
 			const size_t len = 1 + (stress_mwc32() & (sizeof(buffer) - 1));
 			off_t ret, posn;
 
-			posn = stress_mwc64() % iomix_bytes;
+			posn = stress_iomix_rnd_offset(iomix_bytes);
 #if defined(HAVE_POSIX_FADVISE) &&      \
     defined(POSIX_FADV_RANDOM)
-			(void)posix_fadvise(fd, posn, len, POSIX_FADV_RANDOM);
+			(void)posix_fadvise(fd, posn, (off_t)len, POSIX_FADV_RANDOM);
 #endif
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret < 0) {
@@ -373,7 +381,8 @@ static void stress_iomix_sync(
 #endif
 #if defined(HAVE_SYNC_FILE_RANGE) &&	\
     defined(SYNC_FILE_RANGE_WRITE)
-		(void)sync_file_range(fd, stress_mwc64() % iomix_bytes, 65536, SYNC_FILE_RANGE_WRITE);
+		(void)sync_file_range(fd, stress_iomix_rnd_offset(iomix_bytes),
+				65536, SYNC_FILE_RANGE_WRITE);
 		if (!keep_stressing(args))
 			break;
 		tv.tv_sec = stress_mwc32() % 4;
@@ -397,7 +406,7 @@ static void stress_iomix_bad_advise(
 	const off_t iomix_bytes)
 {
 	do {
-		off_t posn = stress_mwc64() % iomix_bytes;
+		off_t posn = stress_iomix_rnd_offset(iomix_bytes);
 
 		(void)posix_fadvise(fd, posn, 65536, POSIX_FADV_DONTNEED);
 		(void)shim_usleep(100000);
@@ -427,7 +436,8 @@ static void stress_iomix_rd_wr_mmap(
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
-			off_t posn = (stress_mwc64() % iomix_bytes) & ~(page_size - 1);
+			const off_t posn = stress_iomix_rnd_offset(iomix_bytes) & ~((off_t)page_size - 1);
+
 			mmaps[i] = mmap(NULL, page_size,
 					PROT_READ | PROT_WRITE, flags, fd, posn);
 		}
@@ -727,7 +737,7 @@ static int stress_iomix(const stress_args_t *args)
 	if (iomix_bytes < (off_t)MIN_IOMIX_BYTES)
 		iomix_bytes = (off_t)MIN_IOMIX_BYTES;
 	if (iomix_bytes < (off_t)page_size)
-		iomix_bytes = page_size;
+		iomix_bytes = (off_t)page_size;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
