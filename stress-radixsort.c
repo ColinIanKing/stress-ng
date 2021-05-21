@@ -82,7 +82,7 @@ static int stress_radixsort(const stress_args_t *args)
 	uint64_t radixsort_size = DEFAULT_RADIXSORT_SIZE;
 	const unsigned char **data;
 	unsigned char *text, *ptr;
-	size_t n, i;
+	int n, i;
 	struct sigaction old_action;
 	int ret;
 	unsigned char revtable[256];
@@ -93,14 +93,14 @@ static int stress_radixsort(const stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			radixsort_size = MIN_RADIXSORT_SIZE;
 	}
-	n = (size_t)radixsort_size;
+	n = (int)radixsort_size;
 
-	text = calloc(n, STR_SIZE);
+	text = calloc((size_t)n, STR_SIZE);
 	if (!text) {
 		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	data = calloc(n, sizeof(*data));
+	data = calloc((size_t)n, sizeof(*data));
 	if (!data) {
 		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		free(text);
@@ -123,7 +123,7 @@ static int stress_radixsort(const stress_args_t *args)
 	}
 
 	for (i = 0; i < 256; i++)
-		revtable[i] = 255 - i;
+		revtable[i] = (unsigned char)(255 - i);
 
 	/* This is very expensive, do it once */
 	for (ptr = text, i = 0; i < n; i++, ptr += STR_SIZE) {
