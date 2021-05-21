@@ -58,6 +58,11 @@ static void stress_link_unlink(
 	(void)sync();
 }
 
+static inline int random_mount(const int mounts_max)
+{
+	return (int)stress_mwc32() % mounts_max;
+}
+
 /*
  *  stress_link_generic
  *	stress links, generic case
@@ -80,7 +85,7 @@ static int stress_link_generic(
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
-	(void)stress_temp_filename_args(args, oldpath, sizeof(oldpath), ~0);
+	(void)stress_temp_filename_args(args, oldpath, sizeof(oldpath), ~0UL);
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		if ((errno == ENFILE) || (errno == ENOMEM) || (errno == ENOSPC))
 			return EXIT_NO_RESOURCE;
@@ -101,6 +106,7 @@ static int stress_link_generic(
 	do {
 		uint64_t i, n = DEFAULT_LINKS;
 		char testpath[PATH_MAX];
+		ssize_t rret;
 
 		for (i = 0; keep_stressing(args) && (i < n); i++) {
 			char newpath[PATH_MAX];
@@ -132,7 +138,6 @@ static int stress_link_generic(
 
 			if (symlink_func) {
 				char buf[PATH_MAX];
-				ssize_t rret;
 #if defined(O_DIRECTORY) &&	\
     defined(HAVE_READLINKAT)
 				{
@@ -171,7 +176,7 @@ static int stress_link_generic(
 						pr_fail("%s: readlink length error, got %zd, expected: %zd\n",
 							args->name, (size_t)rret, oldpathlen);
 					else
-						if (strncmp(oldpath, buf, rret))
+						if (strncmp(oldpath, buf, (size_t)rret))
 							pr_fail("%s: readlink path error, got %s, expected %s\n",
 								args->name, buf, oldpath);
 				}
@@ -179,7 +184,7 @@ static int stress_link_generic(
 				/* Hard link, exercise illegal cross device link, EXDEV error */
 				if (mounts_max > 0) {
 					/* Try hard link on differet random mount point */
-					ret = linkfunc(mnts[stress_mwc32() % mounts_max], tmp_newpath);
+					ret = linkfunc(mnts[random_mount(mounts_max)], tmp_newpath);
 					if (ret == 0)
 						(void)unlink(tmp_newpath);
 				}
@@ -192,31 +197,30 @@ static int stress_link_generic(
 		}
 
 		/* exercise invalid newpath size, EINVAL */
-		ret = readlink(oldpath, testpath, 0);
-		(void)ret;
+		rret = readlink(oldpath, testpath, 0);
+		(void)rret;
 
 		/* exercise empty oldpath, ENOENT */
-		ret = readlink("", testpath, sizeof(testpath));
-		(void)ret;
+		rret = readlink("", testpath, sizeof(testpath));
+		(void)rret;
 
 		/* exercise non-link, EINVAL */
-		ret = readlink("/", testpath, sizeof(testpath));
-		(void)ret;
+		rret = readlink("/", testpath, sizeof(testpath));
+		(void)rret;
 
 #if defined(HAVE_READLINKAT) && 	\
     defined(AT_FDCWD)
 		/* exercise invalid newpath size, EINVAL */
-		ret = readlinkat(AT_FDCWD, ".", testpath, 0);
-		(void)ret;
+		rret = readlinkat(AT_FDCWD, ".", testpath, 0);
+		(void)rret;
 
 		/* exercise invalid newpath size, EINVAL */
-		ret = readlinkat(AT_FDCWD, "", testpath, sizeof(testpath));
-		(void)ret;
+		rret = readlinkat(AT_FDCWD, "", testpath, sizeof(testpath));
+		(void)rret;
 
 		/* exercise non-link, EINVAL */
-		ret = readlinkat(AT_FDCWD, "/", testpath, sizeof(testpath));
-		(void)ret;
-
+		rret = readlinkat(AT_FDCWD, "/", testpath, sizeof(testpath));
+		(void)rret;
 #endif
 
 err_unlink:
