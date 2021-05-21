@@ -200,7 +200,7 @@ static int stress_ioport(const stress_args_t *args)
 		 */
 		ret = ioperm(IO_PORT, 0, 1);
 		(void)ret;
-		ret = ioperm(~0, 1, 1);
+		ret = ioperm(~0UL, 1, 1);
 		(void)ret;
 		ret = ioperm(IO_PORT, 1, 1);
 		(void)ret;
