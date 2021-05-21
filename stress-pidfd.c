@@ -32,7 +32,7 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_PIDFD_SEND_SIGNAL)
 
-static int stress_pidfd_open(pid_t pid, int flag)
+static int stress_pidfd_open(pid_t pid, unsigned int flag)
 {
 	int fd;
 	const pid_t bad_pid = stress_get_unused_pid_racy(false);
@@ -186,7 +186,7 @@ static int stress_pidfd(const stress_args_t *args)
 				(void)close(ret);
 
 			/* Exercise with invalid flags */
-			ret = shim_pidfd_getfd(pidfd, 0, ~0);
+			ret = shim_pidfd_getfd(pidfd, 0, ~0U);
 			if (ret >= 0)
 				(void)close(ret);
 
