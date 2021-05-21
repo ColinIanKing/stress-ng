@@ -35,7 +35,7 @@ static size_t malloc_pthreads = 0;			/* Number of pthreads */
 #if defined(__GNUC__) &&	\
     defined(HAVE_MALLOPT) &&	\
     defined(M_MMAP_THRESHOLD)
-size_t malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
+static size_t malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
 #endif
 
 #if defined(HAVE_LIB_PTHREAD)
@@ -162,8 +162,6 @@ static void *stress_malloc_loop(void *ptr)
 		return &nowt;
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
 	for (;;) {
 		const unsigned int rnd = stress_mwc32();
 		const unsigned int i = rnd % malloc_max;
@@ -178,15 +176,11 @@ static void *stress_malloc_loop(void *ptr)
 		 * exerting any more memory pressure
 		 */
 #if defined(HAVE_LIB_PTHREAD)
-		if (!keep_thread_running_flag) {
-			free(addr);
-			return &nowt;
-		}
+		if (!keep_thread_running_flag)
+			break;
 #endif
- 		if (!stress_malloc_keep_stressing(args, counters)) {
-			free(addr);
-			return &nowt;
-		}
+		if (!stress_malloc_keep_stressing(args, counters))
+			break;
 
 		if (addr[i]) {
 			/* 50% free, 50% realloc */
@@ -225,8 +219,6 @@ static void *stress_malloc_loop(void *ptr)
 		}
 	}
 
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
 	for (j = 0; j < malloc_max; j++) {
 		free(addr[j]);
 	}
@@ -257,6 +249,8 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
 #if defined(HAVE_LIB_PTHREAD)
 	keep_thread_running_flag = true;
 	(void)memset(pthreads, 0, sizeof(pthreads));
@@ -274,6 +268,7 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 #endif
 	stress_malloc_loop(&malloc_args);
 
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 #if defined(HAVE_LIB_PTHREAD)
 	keep_thread_running_flag = false;
 	for (j = 0; j < malloc_pthreads; j++) {
