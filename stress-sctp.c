@@ -379,7 +379,7 @@ static int stress_sctp(const stress_args_t *args)
 
 	pr_dbg("%s: process [%" PRIdMAX "] using socket port %d\n",
 		args->name, (intmax_t)args->pid,
-		sctp_port + args->instance);
+		sctp_port + (int)args->instance);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
