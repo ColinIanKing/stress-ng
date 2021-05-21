@@ -102,7 +102,7 @@ static int stress_vm_child(void *arg)
 
 	while (keep_stressing_flag()) {
 		uint8_t *ptr, *end = buf + ctxt->sz;
-		int rwret;
+		ssize_t rwret;
 
 		(void)memset(&msg_wr, 0, sizeof(msg_wr));
 		msg_wr.addr = buf;
@@ -198,26 +198,26 @@ static int stress_vm_parent(stress_context_t *ctxt)
 	do {
 		struct iovec local[1], remote[1];
 		uint8_t *ptr1, *ptr2, *end = localbuf + ctxt->sz;
-		int ret;
+		ssize_t rwret;
 		size_t i, len;
 
 		/* Wait for address of child's buffer */
 redo_rd2:
 		if (!keep_stressing_flag())
 			break;
-		ret = read(ctxt->pipe_wr[0], &msg_rd, sizeof(msg_rd));
-		if (ret < 0) {
+		rwret = read(ctxt->pipe_wr[0], &msg_rd, sizeof(msg_rd));
+		if (rwret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_rd2;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
-		if (ret == 0)
+		if (rwret == 0)
 			break;
-		if (ret != sizeof(msg_rd)) {
-			pr_fail("%s: read failed, expected %zd bytes, got %d\n",
-				args->name, sizeof(msg_rd), ret);
+		if (rwret != sizeof(msg_rd)) {
+			pr_fail("%s: read failed, expected %zd bytes, got %zd\n",
+				args->name, sizeof(msg_rd), rwret);
 			break;
 		}
 		/* Child telling us it's terminating? */
@@ -267,7 +267,7 @@ redo_rd2:
 		local[0].iov_len = len;
 		remote[0].iov_base = msg_rd.addr;
 		remote[0].iov_len = len;
-		(void)process_vm_readv(ctxt->pid, local, 1, remote, 1, ~0);
+		(void)process_vm_readv(ctxt->pid, local, 1, remote, 1, ~0U);
 
 		/* Exercise invalid pid */
 		local[0].iov_base = localbuf;
@@ -303,8 +303,8 @@ redo_wr2:
 		if (!keep_stressing_flag())
 			break;
 		/* Inform child that memory has been changed */
-		ret = write(ctxt->pipe_rd[1], &msg_wr, sizeof(msg_wr));
-		if (ret < 0) {
+		rwret = write(ctxt->pipe_rd[1], &msg_wr, sizeof(msg_wr));
+		if (rwret < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo_wr2;
 			if (errno != EBADF)
@@ -319,7 +319,7 @@ redo_wr2:
 		local[0].iov_len = len;
 		remote[0].iov_base = msg_wr.addr;
 		remote[0].iov_len = len;
-		(void)process_vm_writev(ctxt->pid, local, 1, remote, 1, ~0);
+		(void)process_vm_writev(ctxt->pid, local, 1, remote, 1, ~0U);
 
 		/* Exercise invalid pid */
 		local[0].iov_base = localbuf;
