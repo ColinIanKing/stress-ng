@@ -55,7 +55,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define FEATURE_AVX512		(FEATURE_AVX2 | IMB_FEATURE_AVX512_SKX)
 
 typedef struct {
-	const int features;
+	const uint64_t features;
 	const char *name;
 	void (*init_func)(MB_MGR *p_mgr);
 } stress_init_mb_t;
@@ -73,7 +73,7 @@ static int stress_set_ipsec_mb_feature(const char *opt)
 
 	for (i = 0; i < SIZEOF_ARRAY(init_mb); i++) {
 		if (!strcmp(opt, init_mb[i].name)) {
-			int ipsec_mb_feature = init_mb[i].features;
+			uint64_t ipsec_mb_feature = init_mb[i].features;
 
 			return stress_set_setting("ipsec-mb-feature", TYPE_ID_INT, &ipsec_mb_feature);
 		}
@@ -88,7 +88,7 @@ static int stress_set_ipsec_mb_feature(const char *opt)
 	return -1;
 }
 
-static const char *stress_get_ipsec_mb_feature(const int feature)
+static const char *stress_get_ipsec_mb_feature(const uint64_t feature)
 {
 	size_t i;
 
@@ -103,9 +103,9 @@ static const char *stress_get_ipsec_mb_feature(const int feature)
  *  stress_ipsec_mb_features()
  *	get list of CPU feature bits
  */
-static int stress_ipsec_mb_features(const stress_args_t *args, MB_MGR *p_mgr)
+static uint64_t stress_ipsec_mb_features(const stress_args_t *args, MB_MGR *p_mgr)
 {
-	int features;
+	uint64_t features;
 
 	features = p_mgr->features;
 
@@ -145,13 +145,13 @@ static int stress_ipsec_mb_supported(const char *name)
  *  stress_rnd_fill()
  *	fill uint32_t aligned buf with n bytes of random data
  */
-static void stress_rnd_fill(uint8_t *buf, size_t n)
+static void stress_rnd_fill(uint8_t *buf, const size_t n)
 {
-	register uint32_t *ptr = (uint32_t *)buf;
-	register uint32_t *end = (uint32_t *)(buf + n);
+	register uint8_t *ptr = buf;
+	register uint8_t *end = buf + n;
 
 	while (ptr < end)
-		*(ptr++) = stress_mwc32();
+		*(ptr++) = stress_mwc8();
 }
 
 /*
@@ -607,14 +607,14 @@ static void stress_hmac_sha512(
 static int stress_ipsec_mb(const stress_args_t *args)
 {
 	MB_MGR *p_mgr = NULL;
-	int features;
+	uint64_t features;
 	uint8_t data[8192] ALIGNED(64);
 	const size_t n_features = SIZEOF_ARRAY(init_mb);
 	double t[n_features];
 	size_t i;
 	uint64_t count = 0;
 	bool got_features = false;
-	int ipsec_mb_feature = ~0;
+	uint64_t ipsec_mb_feature = ~0ULL;
 
 	p_mgr = alloc_mb_mgr(0);
 	if (!p_mgr) {
@@ -693,7 +693,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 		if (((init_mb[i].features & features) == init_mb[i].features) && (t[i] > 0.0))
 			pr_dbg("%s: %s %.3f bogo/ops per second\n",
 				args->name, init_mb[i].name,
-				(float)count / t[i]);
+				(double)count / t[i]);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
