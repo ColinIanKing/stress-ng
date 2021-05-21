@@ -82,7 +82,7 @@ static int stress_pipeherd_read_write(const stress_args_t *args, const int fd[2]
 static int stress_pipeherd(const stress_args_t *args)
 {
 	int fd[2];
-	int64_t counter;
+	uint64_t counter;
 	pid_t pids[PIPE_HERD_MAX];
 	int i, rc;
 	ssize_t sz;
