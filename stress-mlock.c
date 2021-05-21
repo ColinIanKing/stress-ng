@@ -94,7 +94,7 @@ static size_t stress_mlock_max_lockable(void)
 	{
 		const long lockmax = sysconf(_SC_MEMLOCK);
 
-		sysconf_max = (lockmax > 0) ? lockmax : MLOCK_MAX;
+		sysconf_max = (lockmax > 0) ? (size_t)lockmax : MLOCK_MAX;
 	}
 #endif
 #if defined(RLIMIT_MEMLOCK)
@@ -234,14 +234,14 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 		ret = shim_munlock((void *)~0, page_size);
 		(void)ret;
 
-		ret = shim_mlock((void *)(~0 & ~(page_size - 1)), page_size << 1);
+		ret = shim_mlock((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size << 1);
 		(void)ret;
-		ret = shim_munlock((void *)(~0 & ~(page_size - 1)), page_size << 1);
+		ret = shim_munlock((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size << 1);
 		(void)ret;
 
-		ret = shim_mlock((void *)0, ~0);
+		ret = shim_mlock((void *)0, ~(size_t)0);
 		(void)ret;
-		ret = munlock((void *)0, ~0);
+		ret = munlock((void *)0, ~(size_t)0);
 		(void)ret;
 
 		ret = shim_mlock((void *)0, 0);
