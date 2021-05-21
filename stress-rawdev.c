@@ -119,7 +119,7 @@ static void stress_rawdev_sweep(
 	const size_t blksz)
 {
 	size_t i;
-	int ret;
+	ssize_t ret;
 	off_t offset;
 
 	for (i = 0; i < blks && keep_stressing(args); i += shift_ul(blks, 8)) {
@@ -154,7 +154,7 @@ static void stress_rawdev_wiggle(
 	const size_t blksz)
 {
 	size_t i;
-	int ret;
+	ssize_t ret;
 	off_t offset;
 
 	for (i = shift_ul(blks, 8); i < blks && keep_stressing(args); i += shift_ul(blks, 8)) {
@@ -188,7 +188,7 @@ static void stress_rawdev_ends(
 	off_t offset;
 
 	for (i = 0; i < 128; i++) {
-		int ret;
+		ssize_t ret;
 
 		offset = (off_t)i * (off_t)blksz;
 		ret = pread(fd, buffer, blksz, offset);
@@ -222,8 +222,8 @@ static void stress_rawdev_random(
 	size_t i;
 
 	for (i = 0; i < 256 && keep_stressing(args); i++) {
-		int ret;
-		off_t offset = (off_t)blksz * (stress_mwc64() % blks);
+		ssize_t ret;
+		off_t offset = (off_t)(blksz * (stress_mwc64() % blks));
 
 		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
@@ -246,11 +246,11 @@ static void stress_rawdev_burst(
 	const size_t blksz)
 {
 	int i;
-	off_t blk = (stress_mwc64() % blks);
+	off_t blk = (off_t)(stress_mwc64() % blks);
 
 	for (i = 0; i < 256 && keep_stressing(args); i++) {
-		int ret;
-		off_t offset = blk * blksz;
+		ssize_t ret;
+		off_t offset = blk * (off_t)blksz;
 
 		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
