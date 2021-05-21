@@ -64,7 +64,7 @@ static inline int stress_splice_write(
 	ssize_t ret = 0;
 
 	while (size > 0) {
-		size_t n = size > buffer_len ? buffer_len : size;
+		size_t n = (size_t)(size > buffer_len ? buffer_len : size);
 
 		ret = write(fd, buffer, n);
 		if (ret < 0)
@@ -108,7 +108,7 @@ static void stress_splice_looped_pipe(
 	const int fds4[2],
 	bool *use_splice_loop)
 {
-	int ret;
+	ssize_t ret;
 
 	if (!*use_splice_loop)
 		return;
@@ -149,8 +149,9 @@ static int stress_splice(const stress_args_t *args)
 	if (splice_bytes < MIN_SPLICE_BYTES)
 		splice_bytes = MIN_SPLICE_BYTES;
 
-	buffer_len = splice_bytes > SPLICE_BUFFER_LEN ? SPLICE_BUFFER_LEN : splice_bytes;
-	buffer = mmap(NULL, buffer_len, PROT_READ | PROT_WRITE,
+	buffer_len = (ssize_t)(splice_bytes > SPLICE_BUFFER_LEN ?
+				SPLICE_BUFFER_LEN : splice_bytes);
+	buffer = mmap(NULL, (size_t)buffer_len, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
 		pr_inf("%s: cannot allocate write buffer, errno=%d (%s)\n",
@@ -230,7 +231,9 @@ static int stress_splice(const stress_args_t *args)
 				break;
 			}
 		} else {
-			ret = stress_splice_write(fds1[1], buffer, buffer_len, splice_bytes);
+			ret = stress_splice_write(fds1[1], buffer,
+						  buffer_len,
+						  (ssize_t)splice_bytes);
 			if (ret < 0)
 				break;
 		}
@@ -268,7 +271,7 @@ static int stress_splice(const stress_args_t *args)
 
 		/* Exercise invalid splice flags */
 		ret = splice(fd_in, NULL, fds1[1], NULL,
-			1, ~0);
+			1, ~0U);
 		(void)ret;
 
 		/* Exercise 1 byte splice, zero flags */
@@ -314,7 +317,7 @@ close_fd_in:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd_in);
 close_unmap:
-	(void)munmap((void *)buffer, buffer_len);
+	(void)munmap((void *)buffer, (size_t)buffer_len);
 close_done:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
