@@ -60,7 +60,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_segvhandler()
  *	SEGV handler
  */
-static void MLOCKED_TEXT stress_segvhandler(int signum)
+static void MLOCKED_TEXT NORETURN stress_segvhandler(int signum)
 {
 	(void)signum;
 
@@ -105,7 +105,7 @@ static void stress_stack_alloc(
 	}
 #if defined(HAVE_MLOCK)
 	if (stack_mlock) {
-		intptr_t ptr = ((intptr_t)data) + (page_size - 1);
+		intptr_t ptr = ((intptr_t)data) + ((intptr_t)page_size - 1);
 		ssize_t mlock_sz = (uint8_t *)start - (uint8_t *)ptr;
 
 		if (mlock_sz < 0)
@@ -115,7 +115,7 @@ static void stress_stack_alloc(
 			int ret;
 
 			ptr &= ~(page_size - 1);
-			ret = shim_mlock((void *)ptr, mlock_sz - last_size);
+			ret = shim_mlock((void *)ptr, (size_t)(mlock_sz - last_size));
 			if (ret < 0)
 				stack_mlock = false;
 			last_size = mlock_sz;
