@@ -275,7 +275,7 @@ static void NORETURN waste_resources(
 				break;
 		}
 		if ((stress_mwc8() & 0xf) == 0) {
-			info[i].m_sbrk = shim_sbrk(page_size);
+			info[i].m_sbrk = shim_sbrk((intptr_t)page_size);
 			if (!keep_stressing_flag())
 				break;
 		}
@@ -321,7 +321,7 @@ static void NORETURN waste_resources(
 			(intmax_t)pid, i);
 		info[i].fd_memfd = shim_memfd_create(name, 0);
 		if (info[i].fd_memfd != -1) {
-			if (ftruncate(info[i].fd_memfd, page_size) == 0) {
+			if (ftruncate(info[i].fd_memfd, (off_t)page_size) == 0) {
 				info[i].ptr_memfd = mmap(NULL, page_size,
 					PROT_READ | PROT_WRITE, MAP_SHARED,
 					info[i].fd_memfd, 0);
@@ -372,7 +372,7 @@ static void NORETURN waste_resources(
 		if (info[i].fd_tmp != -1) {
 			size_t sz = page_size * stress_mwc32();
 
-			(void)shim_fallocate(info[i].fd_tmp, 0, 0, sz);
+			(void)shim_fallocate(info[i].fd_tmp, 0, 0, (off_t)sz);
 #if defined(F_GETLK) &&		\
     defined(F_SETLK) &&		\
     defined(F_SETLKW) &&	\
@@ -384,7 +384,7 @@ static void NORETURN waste_resources(
 				f.l_type = F_WRLCK;
 				f.l_whence = SEEK_SET;
 				f.l_start = 0;
-				f.l_len = sz;
+				f.l_len = (off_t)sz;
 				f.l_pid = pid;
 
 				(void)fcntl(info[i].fd_tmp, F_SETLK, &f);
