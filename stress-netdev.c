@@ -73,8 +73,7 @@ static int stress_netdev(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		int i;
-		unsigned long n;
+		int i, n;
 		struct ifconf ifc;
 
 		/* Get list of transport layer addresses */
@@ -88,7 +87,7 @@ static int stress_netdev(const stress_args_t *args)
 		}
 
 		/* Do we have any? We should normally have at least lo */
-		n = (unsigned long)ifc.ifc_len / sizeof(struct ifreq);
+		n = ifc.ifc_len / (int)sizeof(struct ifreq);
 		if (!n) {
 			if (args->instance == 0)
 				pr_dbg("%s: no network interfaces found, skipping.\n",
