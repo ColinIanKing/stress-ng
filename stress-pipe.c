@@ -239,7 +239,7 @@ again:
 			if (!strncmp(buf, PIPE_STOP, 3))
 				break;
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
-			    pipe_memchk(buf, val++, (size_t)n)) {
+			    pipe_memchk(buf, (char)val++, (size_t)n)) {
 				pr_fail("%s: pipe read error detected, "
 					"failed to read expected data\n", args->name);
 			}
@@ -257,7 +257,7 @@ again:
 		do {
 			ssize_t ret;
 
-			pipe_memset(buf, val++, pipe_data_size);
+			pipe_memset(buf, (char)val++, pipe_data_size);
 			ret = write(pipefds[1], buf, pipe_data_size);
 			if (ret <= 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
