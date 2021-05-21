@@ -92,21 +92,21 @@ static void stress_misaligned_int16wr(uint8_t *buffer)
 	volatile uint16_t *ptr8 = (uint16_t *)(buffer + 15);
 
 	while (--i) {
-		*ptr1 = i;
+		*ptr1 = (uint16_t)i;
 		shim_mb();
-		*ptr2 = i;
+		*ptr2 = (uint16_t)i;
 		shim_mb();
-		*ptr3 = i;
+		*ptr3 = (uint16_t)i;
 		shim_mb();
-		*ptr4 = i;
+		*ptr4 = (uint16_t)i;
 		shim_mb();
-		*ptr5 = i;
+		*ptr5 = (uint16_t)i;
 		shim_mb();
-		*ptr6 = i;
+		*ptr6 = (uint16_t)i;
 		shim_mb();
-		*ptr7 = i;
+		*ptr7 = (uint16_t)i;
 		shim_mb();
-		*ptr8 = i;
+		*ptr8 = (uint16_t)i;
 		shim_mb();
 	}
 }
@@ -207,13 +207,13 @@ static void stress_misaligned_int32wr(uint8_t *buffer)
 	volatile uint32_t *ptr4 = (uint32_t *)(buffer + 13);
 
 	while (--i) {
-		*ptr1 = i;
+		*ptr1 = (uint32_t)i;
 		shim_mb();
-		*ptr2 = i;
+		*ptr2 = (uint32_t)i;
 		shim_mb();
-		*ptr3 = i;
+		*ptr3 = (uint32_t)i;
 		shim_mb();
-		*ptr4 = i;
+		*ptr4 = (uint32_t)i;
 		shim_mb();
 	}
 }
@@ -282,9 +282,9 @@ static void stress_misaligned_int64wr(uint8_t *buffer)
 	volatile uint64_t *ptr2 = (uint64_t *)(buffer + 9);
 
 	while (--i) {
-		*ptr1 = i;
+		*ptr1 = (uint64_t)i;
 		shim_mb();
-		*ptr2 = i;
+		*ptr2 = (uint64_t)i;
 		shim_mb();
 	}
 }
@@ -350,7 +350,7 @@ static void stress_misaligned_int128wr(uint8_t *buffer)
 	volatile __uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
 
 	while (--i) {
-		*ptr1 = i;
+		*ptr1 = (__uint128_t)i;
 		/* No need for shim_mb */
 	}
 }
@@ -477,7 +477,7 @@ static void stress_misaligned_exercised(const stress_args_t *args)
 			char *tmp;
 			const size_t name_len = strlen(info->name);
 
-			tmp = realloc(str, str_len + name_len + 2);
+			tmp = realloc(str, (size_t)str_len + name_len + 2);
 			if (!tmp) {
 				free(str);
 				return;
