@@ -73,9 +73,10 @@ static int stress_seal(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		const off_t sz = page_size;
+		const off_t sz = (off_t)page_size;
 		uint8_t *ptr;
 		char buf[page_size];
+		ssize_t wret;
 
 		(void)snprintf(filename, sizeof(filename), "%s-%" PRIdMAX "-%" PRIu32 "-%" PRIu32,
 			args->name, (intmax_t)args->pid,
@@ -145,7 +146,7 @@ static int stress_seal(const stress_args_t *args)
 		 *  mmap file, sealing it will return EBUSY until
 		 *  the mapping is removed
 		 */
-		ptr = mmap(NULL, sz, PROT_WRITE, MAP_SHARED,
+		ptr = mmap(NULL, (size_t)sz, PROT_WRITE, MAP_SHARED,
 			fd, 0);
 		if (ptr == MAP_FAILED) {
 			if (errno == ENOMEM)
@@ -160,12 +161,12 @@ static int stress_seal(const stress_args_t *args)
 		if ((ret == 0) || ((ret < 0) && (errno != EBUSY))) {
 			pr_fail("%s: fcntl F_ADD_SEALS F_SEAL_WRITE did not fail with EBUSY as expected, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			(void)munmap(ptr, sz);
+			(void)munmap(ptr, (size_t)sz);
 			(void)close(fd);
 			goto err;
 		}
 		(void)shim_msync(ptr, page_size, MS_SYNC);
-		(void)munmap(ptr, sz);
+		(void)munmap(ptr, (size_t)sz);
 
 		/*
 		 *  Now write seal the file, no more writes allowed
@@ -179,8 +180,8 @@ static int stress_seal(const stress_args_t *args)
 			goto err;
 		}
 		(void)memset(buf, 0xff, sizeof(buf));
-		ret = write(fd, buf, sizeof(buf));
-		if ((ret == 0) || ((ret < 0) && (errno != EPERM))) {
+		wret = write(fd, buf, sizeof(buf));
+		if ((wret == 0) || ((wret < 0) && (errno != EPERM))) {
 			pr_fail("%s: write on sealed file did not fail with EPERM as expected, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
