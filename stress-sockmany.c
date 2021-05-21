@@ -67,7 +67,7 @@ static int stress_sockmany_client(
 	struct sockaddr *addr;
 	static int fds[SOCKET_MANY_FDS];
 	int rc = EXIT_FAILURE;
-	const int socket_port = DEFAULT_SOCKET_MANY_PORT + args->instance;
+	const int socket_port = DEFAULT_SOCKET_MANY_PORT + (int)args->instance;
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
@@ -164,7 +164,7 @@ static int stress_sockmany_server(
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
-	const int socket_port = DEFAULT_SOCKET_MANY_PORT + args->instance;
+	const int socket_port = DEFAULT_SOCKET_MANY_PORT + (int)args->instance;
 
 	(void)setpgid(pid, g_pgrp);
 
