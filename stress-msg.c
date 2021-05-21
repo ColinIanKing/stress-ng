@@ -37,7 +37,7 @@ static int stress_set_msg_types(const char *opt) {
 	int32_t msg_types;
 
 	msg_types = stress_get_int32(opt);
-	stress_check_range("msg-types", msg_types, 0, 100);
+	stress_check_range("msg-types", (uint64_t)msg_types, 0, 100);
 	return stress_set_setting("msg-types", TYPE_ID_INT32, &msg_types);
 }
 
@@ -120,7 +120,7 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 
 		/* Exercise invalid msgq_ids */
 		(void)msgctl(-1, IPC_STAT, &buf);
-		(void)msgctl(msgq_id | 0x7f0000000, IPC_STAT, &buf);
+		(void)msgctl(msgq_id | 0x7f000000, IPC_STAT, &buf);
 	}
 
 	return 0;
@@ -294,7 +294,7 @@ again:
 				 *  and we don't care if it succeeds or not
 				 */
 				if ((i & 0xfff) == 0) {
-					int ret;
+					ssize_t ret;
 
 					ret = msgrcv(msgq_id, &msg, sizeof(msg.value), mtype,
 						MSG_COPY | IPC_NOWAIT);
