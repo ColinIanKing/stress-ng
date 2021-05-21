@@ -47,11 +47,11 @@ static int stress_set_lsearch_size(const char *opt)
 
 /*
  *  cmp()
- *	lsearch uint32 comparison for sorting
+ *	lsearch int32 comparison for sorting
  */
 static int cmp(const void *p1, const void *p2)
 {
-	return (*(const uint32_t *)p1 - *(const uint32_t *)p2);
+	return (int)(*(const int32_t *)p1 - *(const int32_t *)p2);
 }
 
 /*
@@ -91,7 +91,7 @@ static int stress_lsearch(const stress_args_t *args)
 		for (i = 0; keep_stressing_flag() && i < max; i++) {
 			void *ptr;
 
-			data[i] = ((stress_mwc32() & 0xfff) << 20) ^ i;
+			data[i] = (int32_t)(((stress_mwc32() & 0xfff) << 20) ^ i);
 			ptr = lsearch(&data[i], root, &n, sizeof(*data), cmp);
 			(void)ptr;
 		}
