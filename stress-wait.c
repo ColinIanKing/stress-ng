@@ -78,7 +78,7 @@ again:
  *	this process pauses, but is continually being
  *	stopped and continued by the killer process
  */
-static void runner(
+static void NORETURN runner(
 	const stress_args_t *args,
 	const pid_t pid)
 {
@@ -98,7 +98,7 @@ static void runner(
  *  killer()
  *	this continually stops and continues the runner process
  */
-static void killer(
+static void NORETURN killer(
 	const stress_args_t *args,
 	const pid_t pid)
 {
@@ -298,7 +298,7 @@ static int stress_wait(const stress_args_t *args)
 			siginfo_t info;
 
 			(void)memset(&info, 0, sizeof(info));
-			wret = waitid(P_PID, pid_r, &info, options);
+			wret = waitid(P_PID, (id_t)pid_r, &info, options);
 			if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 				pr_fail("%s: waitid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
