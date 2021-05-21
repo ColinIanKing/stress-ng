@@ -62,7 +62,7 @@ static int stress_virt_to_phys(
 	uint64_t pageinfo;
 	ssize_t n;
 
-	offset = (virt_addr / page_size) * sizeof(uint64_t);
+	offset = (off_t)((virt_addr / page_size) * sizeof(uint64_t));
 	if (lseek(fd_pm, offset, SEEK_SET) != offset) {
 		pr_err("%s: cannot seek on address %p in /proc/self/pagemap, errno=%d (%s)\n",
 			args->name, (void *)virt_addr, errno, strerror(errno));
@@ -85,7 +85,7 @@ static int stress_virt_to_phys(
 		uintptr_t phys_addr = pfn * page_size;
 
 		phys_addr |= (virt_addr & (page_size - 1));
-		offset = pfn * sizeof(uint64_t);
+		offset = (off_t)(pfn * sizeof(uint64_t));
 
 		if (phys_addr == 0)
 			return 0;
