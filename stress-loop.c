@@ -115,7 +115,7 @@ static int stress_loop(const stress_args_t *args)
 		goto tidy;
 	}
 	(void)unlink(backing_file);
-	if (ftruncate(backing_fd, backing_size) < 0) {
+	if (ftruncate(backing_fd, (off_t)backing_size) < 0) {
 		pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(backing_fd);
@@ -195,12 +195,13 @@ static int stress_loop(const stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(loop_attr); i++) {
 			char attr_path[PATH_MAX];
 			char buf[4096];
+			ssize_t rret;
 
 			(void)snprintf(attr_path, sizeof(attr_path),
 				"/sys/devices/virtual/block/loop%ld/loop/%s",
 				dev_num, loop_attr[i]);
-			ret = system_read(attr_path, buf, sizeof(buf));
-			(void)ret;
+			rret = system_read(attr_path, buf, sizeof(buf));
+			(void)rret;
 		}
 
 #if defined(LOOP_GET_STATUS)
@@ -268,7 +269,7 @@ static int stress_loop(const stress_args_t *args)
 		/*
 		 *  Resize command (even though we have not changed size)
 		 */
-		ret = ftruncate(backing_fd, backing_size * 2);
+		ret = ftruncate(backing_fd, (off_t)backing_size * 2);
 		(void)ret;
 		ret = ioctl(loop_dev, LOOP_SET_CAPACITY);
 		(void)ret;
@@ -320,7 +321,7 @@ static int stress_loop(const stress_args_t *args)
 			 *  Attempt to configure with illegal fd
 			 */
 			(void)memset(&config, 0, sizeof(config));
-			config.fd = bad_fd;
+			config.fd = (uint32_t)bad_fd;
 
 			ret = ioctl(loop_dev, LOOP_CONFIGURE, &config);
 			(void)ret;
@@ -373,7 +374,7 @@ destroy_loop:
 next:
 		(void)close(ctrl_dev);
 #if defined(LOOP_SET_CAPACITY)
-		ret = ftruncate(backing_fd, backing_size);
+		ret = ftruncate(backing_fd, (off_t)backing_size);
 		(void)ret;
 #endif
 
