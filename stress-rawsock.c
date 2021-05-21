@@ -110,10 +110,12 @@ again:
 		pkt.iph.daddr = addr.sin_addr.s_addr;
 
 		do {
-			rc = sendto(fd, &pkt, sizeof(pkt), 0,
+			ssize_t sret;
+
+			sret = sendto(fd, &pkt, sizeof(pkt), 0,
 				(const struct sockaddr *)&addr,
 				(socklen_t)sizeof(addr));
-			if (rc < 0)
+			if (sret < 0)
 				break;
 			pkt.data++;
 #if defined(SIOCOUTQ)
