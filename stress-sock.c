@@ -1078,7 +1078,7 @@ static int stress_sock(const stress_args_t *args)
 	(void)stress_get_setting("sock-domain", &socket_domain);
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, socket_port + args->instance);
+		args->name, (int)args->pid, socket_port + (int)args->instance);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
