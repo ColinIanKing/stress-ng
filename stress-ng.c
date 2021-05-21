@@ -1042,7 +1042,7 @@ static inline int32_t stressor_name_find(const char *name)
 {
 	int32_t i;
 	const char *tmp = stress_munge_underscore(name);
-	const size_t len = strlen(tmp) + 1;
+	size_t len = strlen(tmp) + 1;
 	char munged_name[len];
 
 	(void)shim_strlcpy(munged_name, tmp, len);
@@ -1628,7 +1628,7 @@ static void MLOCKED_TEXT stress_wait_stressors(
 						procs_alive = true;
 
 						do {
-							cpu_num = stress_mwc32() % cpus;
+							cpu_num = (int32_t)stress_mwc32() % cpus;
 						} while (!(CPU_ISSET(cpu_num, &proc_mask)));
 
 						CPU_ZERO(&mask);
@@ -1743,7 +1743,7 @@ redo:
 					stress_stressor_finished(&ss->pids[j]);
 					pr_dbg("process [%d] terminated\n", ret);
 
-					stress_clean_dir(name, pid, j);
+					stress_clean_dir(name, pid, (uint32_t)j);
 
 				} else if (ret == -1) {
 					/* Somebody interrupted the wait */
@@ -1840,9 +1840,9 @@ static void stress_stressors_free(void)
  *  stress_get_total_num_instances()
  *	deterimine number of runnable stressors from list
  */
-static uint32_t stress_get_total_num_instances(stress_stressor_t *stressors_list)
+static int32_t stress_get_total_num_instances(stress_stressor_t *stressors_list)
 {
-	uint32_t total_num_instances = 0;
+	int32_t total_num_instances = 0;
 	stress_stressor_t *ss;
 
 	for (ss = stressors_list; ss; ss = ss->next)
@@ -1855,7 +1855,7 @@ static uint32_t stress_get_total_num_instances(stress_stressor_t *stressors_list
  *  stress_child_atexit(void)
  *	handle unexpected exit() call in child stressor
  */
-static void stress_child_atexit(void)
+static void NORETURN stress_child_atexit(void)
 {
 	_exit(EXIT_BY_SYS_EXIT);
 }
@@ -1897,7 +1897,7 @@ static void MLOCKED_TEXT stress_run(
 			int32_t ionice_level = UNDEFINED;
 			stress_stats_t *stats = g_stressor_current->stats[j];
 
-			if (g_opt_timeout && (stress_time_now() - time_start > g_opt_timeout))
+			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
 
 			(void)stress_get_setting("backoff", &backoff);
@@ -1958,7 +1958,7 @@ again:
 				if (g_opt_flags & OPT_FLAGS_PERF_STATS)
 					(void)stress_perf_open(&stats->sp);
 #endif
-				(void)shim_usleep(backoff * started_instances);
+				(void)shim_usleep((useconds_t)(backoff * started_instances));
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
 				if (g_opt_flags & OPT_FLAGS_PERF_STATS)
@@ -1970,8 +1970,8 @@ again:
 						.counter_ready = &stats->counter_ready,
 						.name = name,
 						.max_ops = g_stressor_current->bogo_ops,
-						.instance = j,
-						.num_instances = g_stressor_current->num_instances,
+						.instance = (uint32_t)j,
+						.num_instances = (uint32_t)g_stressor_current->num_instances,
 						.pid = getpid(),
 						.ppid = getppid(),
 						.page_size = stress_get_pagesize(),
@@ -2090,14 +2090,14 @@ static int stress_show_stressors(void)
 					stress_munge_underscore(ss->stressor->name));
 			previous = true;
 			if (buffer_len >= 0) {
-				newstr = realloc(str, len + buffer_len + 1);
+				newstr = realloc(str, (size_t)(len + buffer_len + 1));
 				if (!newstr) {
 					pr_err("Cannot allocate temporary buffer\n");
 					free(str);
 					return -1;
 				}
 				str = newstr;
-				(void)shim_strlcpy(str + len, buffer, buffer_len + 1);
+				(void)shim_strlcpy(str + len, buffer, (size_t)(buffer_len + 1));
 			}
 			len += buffer_len;
 		}
@@ -2208,10 +2208,10 @@ static void stress_metrics_dump(
 
 			run_ok  |= stats->run_ok;
 			c_total += stats->counter;
-			u_total += stats->tms.tms_utime +
-				   stats->tms.tms_cutime;
-			s_total += stats->tms.tms_stime +
-				   stats->tms.tms_cstime;
+			u_total += (uint64_t)(stats->tms.tms_utime +
+					      stats->tms.tms_cutime);
+			s_total += (uint64_t)(stats->tms.tms_stime +
+					      stats->tms.tms_cstime);
 			r_total += stats->finish - stats->start;
 		}
 		/* Real time in terms of average wall clock time of all procs */
@@ -2292,9 +2292,9 @@ static void stress_times_dump(
 	}
 	rc = stress_get_load_avg(&min1, &min5, &min15);
 
-	u_time = (float)buf.tms_cutime / (float)ticks_per_sec;
-	s_time = (float)buf.tms_cstime / (float)ticks_per_sec;
-	t_time = ((float)buf.tms_cutime + (float)buf.tms_cstime) / (float)ticks_per_sec;
+	u_time = (double)buf.tms_cutime / (double)ticks_per_sec;
+	s_time = (double)buf.tms_cstime / (double)ticks_per_sec;
+	t_time = ((double)buf.tms_cutime + (double)buf.tms_cstime) / (double)ticks_per_sec;
 	u_pc = (total_cpu_time > 0.0) ? 100.0 * u_time / total_cpu_time : 0.0;
 	s_pc = (total_cpu_time > 0.0) ? 100.0 * s_time / total_cpu_time : 0.0;
 	t_pc = (total_cpu_time > 0.0) ? 100.0 * t_time / total_cpu_time : 0.0;
@@ -2431,10 +2431,11 @@ static void *stress_map_page(int prot, char *prot_str, size_t page_size)
  *	that is marked read-only to stop accidental smashing
  *	from a run-away stack expansion
  */
-static inline void stress_shared_map(const size_t num_procs)
+static inline void stress_shared_map(const int32_t num_procs)
 {
 	const size_t page_size = stress_get_pagesize();
-	size_t len = sizeof(stress_shared_t) + (sizeof(stress_stats_t) * num_procs);
+	size_t len = sizeof(stress_shared_t) +
+		     (sizeof(stress_stats_t) * (size_t)num_procs);
 	size_t sz = (len + (page_size << 1)) & ~(page_size - 1);
 #if defined(HAVE_MPROTECT)
 	void *last_page;
@@ -2589,7 +2590,7 @@ static void stress_set_proc_limits(void)
 			    stressors[i].info->set_limit &&
 			    (stressors[i].id == ss->stressor->id) &&
 			    ss->num_instances) {
-				const uint64_t max = (uint64_t)limit.rlim_cur / ss->num_instances;
+				const uint64_t max = (uint64_t)limit.rlim_cur / (uint64_t)ss->num_instances;
 
 				stressors[i].info->set_limit(max);
 			}
@@ -2749,7 +2750,7 @@ static inline void stress_set_random_stressors(void)
 
 	if (g_opt_flags & OPT_FLAGS_RANDOM) {
 		int32_t n = opt_random;
-		const int32_t n_procs = stress_get_num_stressors();
+		const uint32_t n_procs = stress_get_num_stressors();
 
 		if (g_opt_flags & OPT_FLAGS_SET) {
 			(void)fprintf(stderr, "Cannot specify random "
@@ -2766,8 +2767,9 @@ static inline void stress_set_random_stressors(void)
 
 		/* create n randomly chosen stressors */
 		while (n > 0) {
-			int32_t rnd = stress_mwc32() % ((opt_random >> 5) + 2);
-			const int32_t i = stress_mwc32() % n_procs;
+			uint32_t rnd32 = stress_mwc32();
+			int32_t rnd = (int32_t)rnd32 % ((opt_random >> 5) + 2);
+			const uint32_t i = stress_mwc32() % n_procs;
 			stress_stressor_t *ss = stress_get_nth_stressor(i);
 
 			if (!ss)
@@ -2785,7 +2787,7 @@ static inline void stress_set_random_stressors(void)
  *  stress_enable_all_stressors()
  *	enable all the stressors
  */
-static void stress_enable_all_stressors(const uint32_t instances)
+static void stress_enable_all_stressors(const int32_t instances)
 {
 	size_t i;
 
@@ -3011,7 +3013,7 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
 			g_opt_sequential = stress_get_int32(optarg);
 			stress_get_processors(&g_opt_sequential);
-			stress_check_range("sequential", g_opt_sequential,
+			stress_check_range("sequential", (uint64_t)g_opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
 			break;
 		case OPT_stressors:
@@ -3058,16 +3060,19 @@ next_opt:
  *  stress_alloc_proc_resources()
  *	allocate array of pids based on n pids required
  */
-static void stress_alloc_proc_resources(pid_t **pids, stress_stats_t ***stats, size_t n)
+static void stress_alloc_proc_resources(
+	pid_t **pids,
+	stress_stats_t ***stats,
+	const int32_t n)
 {
-	*pids = calloc(n, sizeof(pid_t));
+	*pids = calloc((size_t)n, sizeof(pid_t));
 	if (!*pids) {
 		pr_err("cannot allocate pid list\n");
 		stress_stressors_free();
 		exit(EXIT_FAILURE);
 	}
 
-	*stats = calloc(n, sizeof(stress_stats_t *));
+	*stats = calloc((size_t)n, sizeof(stress_stats_t *));
 	if (!*stats) {
 		pr_err("cannot allocate stats list\n");
 		free(*pids);
@@ -3208,8 +3213,8 @@ int main(int argc, char **argv, char **envp)
 	int32_t ionice_level = UNDEFINED;	/* ionice level */
 	size_t i;
 	uint32_t class = 0;
-	const uint32_t cpus_online = stress_get_processors_online();
-	const uint32_t cpus_configured = stress_get_processors_configured();
+	const uint32_t cpus_online = (uint32_t)stress_get_processors_online();
+	const uint32_t cpus_configured = (uint32_t)stress_get_processors_configured();
 	int ret;
 
 	if (stress_set_temp_path(".") < 0)
