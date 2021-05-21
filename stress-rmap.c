@@ -47,7 +47,7 @@ static const stress_help_t help[] = {
  *  stress_rmap_handler()
  *      rmap signal handler
  */
-static void MLOCKED_TEXT stress_rmap_handler(int signum)
+static void MLOCKED_TEXT NORETURN stress_rmap_handler(int signum)
 {
 	(void)signum;
 
@@ -55,7 +55,7 @@ static void MLOCKED_TEXT stress_rmap_handler(int signum)
 	_exit(0);
 }
 
-static void stress_rmap_child(
+static void NORETURN stress_rmap_child(
 	uint64_t *const counter,
 	const uint64_t max_ops,
 	const size_t page_size,
@@ -151,7 +151,7 @@ static int stress_rmap(const stress_args_t *args)
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
-		return exit_status(-rc);
+		return exit_status((int)-rc);
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
@@ -164,11 +164,11 @@ static int stress_rmap(const stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		(void)munmap((void *)counters, counters_sz);
 
-		return rc;
+		return (int)rc;
 	}
 	(void)unlink(filename);
 
-	if (shim_fallocate(fd, 0, 0, sz) < 0) {
+	if (shim_fallocate(fd, 0, 0, (off_t)sz) < 0) {
 		pr_fail("%s: fallocate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
@@ -179,7 +179,7 @@ static int stress_rmap(const stress_args_t *args)
 	}
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
-		off_t offset = i * page_size;
+		off_t offset = (off_t)(i * page_size);
 
 		if (!keep_stressing(args))
 			goto cleanup;
