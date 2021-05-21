@@ -105,7 +105,7 @@ static int stress_klog(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		int ret, buflen = (stress_mwc32() % len) + 1;
+		int ret, buflen = (int)(stress_mwc32() % len) + 1;
 
 		ret = shim_klogctl(SYSLOG_ACTION_READ_ALL, buffer, buflen);
 		if (ret < 0)
