@@ -35,7 +35,8 @@ static const stress_help_t help[] = {
 static void stress_nice_delay(void)
 {
 	double start = stress_time_now();
-	double delay = 0.01 + (double)stress_mwc16() / 3276800.0;
+	const uint16_t r = stress_mwc16();
+	double delay = 0.01 + (double)r / 3276800.0;
 
 	while (stress_time_now() - start < delay)
 		(void)shim_sched_yield();
@@ -132,7 +133,7 @@ static int stress_nice(const stress_args_t *args)
 				pid = getpid();
 				for (i = min_prio; (i <= max_prio) && keep_stressing(args); i++) {
 					errno = 0;
-					(void)setpriority(PRIO_PROCESS, pid, i);
+					(void)setpriority(PRIO_PROCESS, (id_t)pid, i);
 					if (!errno)
 						stress_nice_delay();
 					inc_counter(args);
