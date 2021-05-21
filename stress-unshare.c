@@ -49,7 +49,7 @@ static const stress_help_t help[] = {
     defined(CLONE_VM)
 
 #define UNSHARE(flags)	\
-	check_unshare(args, flags, #flags);
+	check_unshare(args, flags, #flags)
 
 /*
  *  unshare with some error checking
