@@ -141,7 +141,7 @@ static int exercise_tee(
 		 *  in Linux 4.10.  For now disable this test
 		 *  as it is throwing errors for pre-4.10 kernels
 		 */
-		ret = tee(fd_in, fd_out, INT_MAX, ~0);
+		ret = tee(fd_in, fd_out, INT_MAX, ~0U);
 		if (ret >= 0) {
 			pr_fail("%s: tee with illegal flags "
 				"unexpectedly succeeded\n",
@@ -233,7 +233,7 @@ static int stress_tee(const stress_args_t *args)
 
 		while (len > 0) {
 			slen = splice(pipe_in[0], NULL, fd, NULL,
-				len, SPLICE_F_MOVE);
+				(size_t)len, SPLICE_F_MOVE);
 			if (errno == EINTR)
 				break;
 			if (slen < 0) {
