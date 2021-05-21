@@ -99,7 +99,7 @@ static int stress_set_stream_index(const char *opt)
 {
 	uint32_t stream_index;
 
-	stream_index = stress_get_int32(opt);
+	stream_index = stress_get_uint32(opt);
 	stress_check_range("stream-index", stream_index, 0, 3);
 	return stress_set_setting("stream-index", TYPE_ID_UINT32, &stream_index);
 }
@@ -326,8 +326,12 @@ static void stress_stream_init_data(
 {
 	uint64_t i;
 
-	for (i = 0; i < n; i++)
-		data[i] = (double)stress_mwc32() / (1.0 + (double)stress_mwc64());
+	for (i = 0; i < n; i++) {
+		const uint32_t r32 = stress_mwc32();
+		const uint64_t r64 = stress_mwc64();
+
+		data[i] = (double)r32 / (1.0 + (double)r64);
+	}
 }
 
 static inline void *stress_stream_mmap(const stress_args_t *args, uint64_t sz)
@@ -453,7 +457,7 @@ static int stress_stream(const stress_args_t *args)
 	/* Have to take a hunch and badly guess size */
 	if (!L3) {
 		guess = true;
-		L3 = stress_get_processors_configured() * DEFAULT_STREAM_L3_SIZE;
+		L3 = (uint64_t)stress_get_processors_configured() * DEFAULT_STREAM_L3_SIZE;
 	}
 
 	if (args->instance == 0) {
