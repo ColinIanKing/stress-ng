@@ -197,7 +197,7 @@ static void stress_rawpkt_getsockopts(const int fd)
  *  stress_rawpkt_client()
  *	client sender
  */
-static void stress_rawpkt_client(
+static void NORETURN stress_rawpkt_client(
 	const stress_args_t *args,
 	struct ifreq *hwaddr,
 	struct ifreq *ifaddr,
@@ -364,7 +364,7 @@ static int stress_rawpkt(const stress_args_t *args)
 	(void)stress_get_setting("rawpkt-port", &port);
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, port + args->instance);
+		args->name, (int)args->pid, port + (int)args->instance);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -413,7 +413,6 @@ again:
 		return rc;
 	} else if (pid == 0) {
 		stress_rawpkt_client(args, &hwaddr, &ifaddr, &idx, args->pid, port);
-		_exit(EXIT_SUCCESS);
 	} else {
 		int status;
 
