@@ -136,7 +136,7 @@ static inline uint32_t reverse32(register uint64_t x)
 	x = (((x & 0xcccccccc) >> 2) | ((x & 0x33333333) << 2));
 	x = (((x & 0xf0f0f0f0) >> 4) | ((x & 0x0f0f0f0f) << 4));
 	x = (((x & 0xff00ff00) >> 8) | ((x & 0x00ff00ff) << 8));
-	return (x >> 16) | (x << 16);
+	return (uint32_t)(x >> 16) | (uint32_t)(x << 16);
 }
 
 static void stress_opcode_random(
@@ -195,7 +195,7 @@ static void stress_opcode_text(
 	uint32_t *op)
 {
 	char *text_start, *text_end;
-	const size_t ops_len = ops_end - ops_begin;
+	const size_t ops_len = (uintptr_t)ops_end - (uintptr_t)ops_begin;
 	const size_t text_len = stress_text_addr(&text_start, &text_end) - 8;
 	uint8_t *ops;
 	size_t offset;
@@ -214,7 +214,7 @@ static void stress_opcode_text(
 
 		/* 1 in 8 chance of random bit corruption */
 		if (rnd < 32) {
-			uint8_t bit = 1 << (rnd & 7);
+			uint8_t bit = (uint8_t)(1 << (rnd & 7));
 			*ops ^= bit;
 		}
 	}
