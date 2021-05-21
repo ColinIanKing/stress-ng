@@ -42,7 +42,7 @@ static void stress_netdev_check(
 	const stress_args_t *args,
 	struct ifreq *ifr,
 	const int fd,
-	const int cmd,
+	const unsigned long cmd,
 	const char *cmd_name)
 {
 	if (ioctl(fd, cmd, ifr) < 0) {
@@ -73,7 +73,8 @@ static int stress_netdev(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		int i, n;
+		int i;
+		unsigned long n;
 		struct ifconf ifc;
 
 		/* Get list of transport layer addresses */
@@ -87,7 +88,7 @@ static int stress_netdev(const stress_args_t *args)
 		}
 
 		/* Do we have any? We should normally have at least lo */
-		n = ifc.ifc_len / sizeof(struct ifreq);
+		n = (unsigned long)ifc.ifc_len / sizeof(struct ifreq);
 		if (!n) {
 			if (args->instance == 0)
 				pr_dbg("%s: no network interfaces found, skipping.\n",
@@ -96,7 +97,7 @@ static int stress_netdev(const stress_args_t *args)
 		}
 
 		/* Allocate buffer for the addresses */
-		ifc.ifc_buf = malloc(ifc.ifc_len);
+		ifc.ifc_buf = malloc((size_t)ifc.ifc_len);
 		if (!ifc.ifc_buf) {
 			pr_fail("%s: out of memory allocating interface buffer\n",
 				args->name);
