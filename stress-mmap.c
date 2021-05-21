@@ -218,7 +218,7 @@ static void stress_mmap_mprotect(
 #if defined(HAVE_MPROTECT)
 	if (mmap_mprotect) {
 		int ret;
-		void *last_page = (void *)(~0 & ~(page_size - 1));
+		void *last_page = (void *)(~(uintptr_t)0 & ~(page_size - 1));
 
 		/* Invalid mix of PROT_GROWSDOWN | PROT_GROWSUP */
 #if defined(PROT_GROWSDOWN) &&	\
@@ -435,7 +435,7 @@ retry:
 				uint64_t page = (i + j) % pages4k;
 
 				if (!mapped[page]) {
-					off_t offset = mmap_file ? page * page_size : 0;
+					off_t offset = mmap_file ? (off_t)(page * page_size) : 0;
 					int fixed_flags = MAP_FIXED;
 
 					/*
@@ -465,12 +465,12 @@ retry:
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
 						if (mmap_file) {
-							(void)memset(mappings[page], n, page_size);
+							(void)memset(mappings[page], (int)n, page_size);
 							(void)shim_msync((void *)mappings[page], page_size, ms_flags);
 #if defined(FALLOC_FL_KEEP_SIZE) &&	\
     defined(FALLOC_FL_PUNCH_HOLE)
 							(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE | FALLOC_FL_KEEP_SIZE,
-								offset, page_size);
+								offset, (off_t)page_size);
 #endif
 						}
 					}
@@ -580,7 +580,7 @@ static int stress_mmap(const stress_args_t *args)
 
 		rc = stress_temp_dir_mk_args(args);
 		if (rc < 0)
-			return exit_status(-rc);
+			return exit_status((int)-rc);
 
 		(void)stress_temp_filename_args(args,
 			filename, sizeof(filename), stress_mwc32());
@@ -610,10 +610,10 @@ static int stress_mmap(const stress_args_t *args)
 			(void)unlink(filename);
 			(void)stress_temp_dir_rm_args(args);
 
-			return rc;
+			return (int)rc;
 		}
 		(void)unlink(filename);
-		if (lseek(context.fd, context.sz - args->page_size, SEEK_SET) < 0) {
+		if (lseek(context.fd, (off_t)(context.sz - args->page_size), SEEK_SET) < 0) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(context.fd);
@@ -637,7 +637,7 @@ redo:
 			(void)close(context.fd);
 			(void)stress_temp_dir_rm_args(args);
 
-			return rc;
+			return (int)rc;
 		}
 		context.flags &= ~(MAP_ANONYMOUS | MAP_PRIVATE);
 		context.flags |= MAP_SHARED;
