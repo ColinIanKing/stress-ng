@@ -82,7 +82,7 @@ static int stress_xattr(const stress_args_t *args)
 		char value[32];
 		char tmp[sizeof(value)];
 		char small_tmp[1];
-		ssize_t sz;
+		ssize_t sret;
 		char *buffer;
 		char bad_attrname[32];
 
@@ -312,46 +312,46 @@ static int stress_xattr(const stress_args_t *args)
 			(void)snprintf(value, sizeof(value), "value-%d", j);
 
 			(void)memset(tmp, 0, sizeof(tmp));
-			ret = shim_fgetxattr(fd, attrname, tmp, sizeof(tmp));
-			if (ret < 0) {
+			sret = shim_fgetxattr(fd, attrname, tmp, sizeof(tmp));
+			if (sret < 0) {
 				pr_fail("%s: fgetxattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto out_close;
 			}
-			if (strncmp(value, tmp, ret)) {
+			if (strncmp(value, tmp, (size_t)sret)) {
 				pr_fail("%s: fgetxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, ret, tmp);
 				goto out_close;
 			}
 
 			/* Exercise getxattr syscall having small value buffer */
-			ret = shim_getxattr(filename, attrname, small_tmp, sizeof(small_tmp));
-			(void)ret;
-			ret = shim_getxattr(filename, "", small_tmp, 0);
-			(void)ret;
-			ret = shim_getxattr(filename, "", small_tmp, sizeof(small_tmp));
-			(void)ret;
+			sret = shim_getxattr(filename, attrname, small_tmp, sizeof(small_tmp));
+			(void)sret;
+			sret = shim_getxattr(filename, "", small_tmp, 0);
+			(void)sret;
+			sret = shim_getxattr(filename, "", small_tmp, sizeof(small_tmp));
+			(void)sret;
 
-			ret = shim_getxattr(filename, attrname, tmp, sizeof(tmp));
-			if (ret < 0) {
+			sret = shim_getxattr(filename, attrname, tmp, sizeof(tmp));
+			if (sret < 0) {
 				pr_fail("%s: getxattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto out_close;
 			}
-			if (strncmp(value, tmp, ret)) {
+			if (strncmp(value, tmp, (size_t)sret)) {
 				pr_fail("%s: getxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, ret, tmp);
 				goto out_close;
 			}
 
 #if defined(HAVE_LGETXATTR)
-			ret = shim_lgetxattr(filename, attrname, tmp, sizeof(tmp));
-			if (ret < 0) {
+			sret = shim_lgetxattr(filename, attrname, tmp, sizeof(tmp));
+			if (sret < 0) {
 				pr_fail("%s: lgetxattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto out_close;
 			}
-			if (strncmp(value, tmp, ret)) {
+			if (strncmp(value, tmp, (size_t)sret)) {
 				pr_fail("%s: lgetxattr values different %.*s vs %.*s\n",
 					args->name, ret, value, ret, tmp);
 				goto out_close;
@@ -359,8 +359,8 @@ static int stress_xattr(const stress_args_t *args)
 
 			/* Invalid attribute name */
 			(void)memset(&bad_attrname, 0, sizeof(bad_attrname));
-			ret = shim_lgetxattr(filename, bad_attrname, tmp, sizeof(tmp));
-			(void)ret;
+			sret = shim_lgetxattr(filename, bad_attrname, tmp, sizeof(tmp));
+			(void)sret;
 #endif
 			if (!keep_stressing(args))
 				goto out_finished;
@@ -369,32 +369,32 @@ static int stress_xattr(const stress_args_t *args)
 		/*
 		 *  Exercise bad/invalid fd
 		 */
-		ret = shim_fgetxattr(bad_fd, "user.var_bad", tmp, sizeof(tmp));
-		(void)ret;
+		sret = shim_fgetxattr(bad_fd, "user.var_bad", tmp, sizeof(tmp));
+		(void)sret;
 
 		/* Invalid attribute name */
 		(void)memset(&bad_attrname, 0, sizeof(bad_attrname));
-		ret = shim_fgetxattr(fd, bad_attrname, tmp, sizeof(tmp));
-		(void)ret;
+		sret = shim_fgetxattr(fd, bad_attrname, tmp, sizeof(tmp));
+		(void)sret;
 
 		/* Exercise fgetxattr syscall having small value buffer */
-		ret = shim_fgetxattr(fd, attrname, small_tmp, sizeof(small_tmp));
-		(void)ret;
+		sret = shim_fgetxattr(fd, attrname, small_tmp, sizeof(small_tmp));
+		(void)sret;
 
 		/* Determine how large a buffer we required... */
-		sz = shim_flistxattr(fd, NULL, 0);
-		if (sz < 0) {
+		sret = shim_flistxattr(fd, NULL, 0);
+		if (sret < 0) {
 			pr_fail("%s: flistxattr failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto out_close;
 		}
-		buffer = malloc(sz);
+		buffer = malloc((size_t)sret);
 		if (buffer) {
 			/* ...and fetch */
-			sz = shim_listxattr(filename, buffer, sz);
+			sret = shim_listxattr(filename, buffer, (size_t)sret);
 			free(buffer);
 
-			if (sz < 0) {
+			if (sret < 0) {
 				pr_fail("%s: listxattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				goto out_close;
@@ -404,8 +404,8 @@ static int stress_xattr(const stress_args_t *args)
 		/*
 		 *  Exercise bad/invalid fd
 		 */
-		ret = shim_flistxattr(bad_fd, NULL, 0);
-		(void)ret;
+		sret = shim_flistxattr(bad_fd, NULL, 0);
+		(void)sret;
 
 		for (j = 0; j < i; j++) {
 			char *errmsg;
@@ -451,8 +451,8 @@ static int stress_xattr(const stress_args_t *args)
 		(void)ret;
 
 #if defined(HAVE_LLISTXATTR)
-		sz = shim_llistxattr(filename, NULL, 0);
-		if (sz < 0) {
+		sret = shim_llistxattr(filename, NULL, 0);
+		if (sret < 0) {
 			pr_fail("%s: llistxattr failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto out_close;
