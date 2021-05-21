@@ -196,7 +196,7 @@ abort:
 			for (i = 0; keep_stressing(args) && (i < max); i++) {
 				ssize_t ret;
 
-				socket_pair_memset(buf, val++, sizeof(buf));
+				socket_pair_memset(buf, (uint8_t)val++, sizeof(buf));
 				ret = write(socket_pair_fds[i][1], buf, sizeof(buf));
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR) || (errno == EPIPE))
