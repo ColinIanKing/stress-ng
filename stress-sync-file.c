@@ -32,7 +32,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_SYNC_FILE_RANGE)
-static const int sync_modes[] = {
+static const unsigned int sync_modes[] = {
 	SYNC_FILE_RANGE_WAIT_BEFORE | SYNC_FILE_RANGE_WRITE,
 	SYNC_FILE_RANGE_WAIT_BEFORE | SYNC_FILE_RANGE_WRITE | SYNC_FILE_RANGE_WAIT_AFTER,
 	SYNC_FILE_RANGE_WRITE,
@@ -47,7 +47,7 @@ static int stress_set_sync_file_bytes(const char *opt)
 	off_t sync_file_bytes;
 
 	sync_file_bytes = (off_t)stress_get_uint64_byte_filesystem(opt, 1);
-	stress_check_range_bytes("sync_file-bytes", sync_file_bytes,
+	stress_check_range_bytes("sync_file-bytes", (uint64_t)sync_file_bytes,
 		MIN_SYNC_FILE_BYTES, MAX_SYNC_FILE_BYTES);
 	return stress_set_setting("sync_file-bytes", TYPE_ID_OFF_T, &sync_file_bytes);
 }
@@ -146,7 +146,7 @@ static int stress_sync_file(const stress_args_t *args)
 	do {
 		shim_off64_t i, offset;
 		const size_t mode_index = stress_mwc32() % SIZEOF_ARRAY(sync_modes);
-		const int mode = sync_modes[mode_index];
+		const unsigned int mode = sync_modes[mode_index];
 
 		ret = stress_sync_allocate(args, fd, sync_file_bytes);
 		if (ret < 0) {
@@ -224,9 +224,11 @@ static int stress_sync_file(const stress_args_t *args)
 				continue;
 			break;
 		}
-		for (i = 0; i < keep_stressing_flag() &&
-		     ((shim_off64_t)(sync_file_bytes / (128 * KB))); i++) {
-			offset = (stress_mwc64() % sync_file_bytes) & ~((128 * KB) - 1);
+		for (i = 0; keep_stressing_flag() && i <
+		     (shim_off64_t)sync_file_bytes / (shim_off64_t)(128 * KB); i++) {
+			uint64_t rnd = stress_mwc64();
+			
+			offset = ((off_t)rnd % sync_file_bytes) & ~(off_t)((128 * KB) - 1);
 			ret = shim_sync_file_range(fd, offset, 128 * KB, mode);
 			if (ret < 0) {
 				if (errno == ENOSYS) {
