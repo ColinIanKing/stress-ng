@@ -122,15 +122,16 @@ static uint64_t stress_memrate_read##size(			\
 								\
 		if (dur_remainder >= 0.0) {			\
 			struct timespec t;			\
+			time_t sec = (time_t)dur_remainder;	\
 								\
-			t.tv_sec = (time_t)dur_remainder;	\
-			t.tv_nsec = (dur_remainder -		\
-				(long)dur_remainder) *		\
-				STRESS_NANOSECOND;		\
+			t.tv_sec = sec;				\
+			t.tv_nsec = (long)((dur_remainder -	\
+				(double)sec) *			\
+				STRESS_NANOSECOND);		\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
-	return ((volatile void *)ptr - start) / KB;		\
+	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
 #if defined(HAVE_INT128_T)
@@ -165,14 +166,14 @@ static uint64_t stress_memrate_write##size(			\
 		for (i = 0; (i < (uint32_t)MB) &&		\
 		     (ptr < (type *)end);			\
 		     ptr += 8, i += size) {			\
-			ptr[0] = i;				\
-			ptr[1] = i;				\
-			ptr[2] = i;				\
-			ptr[3] = i;				\
-			ptr[4] = i;				\
-			ptr[5] = i;				\
-			ptr[6] = i;				\
-			ptr[7] = i;				\
+			ptr[0] = (uint8_t)i;			\
+			ptr[1] = (uint8_t)i;			\
+			ptr[2] = (uint8_t)i;			\
+			ptr[3] = (uint8_t)i;			\
+			ptr[4] = (uint8_t)i;			\
+			ptr[5] = (uint8_t)i;			\
+			ptr[6] = (uint8_t)i;			\
+			ptr[7] = (uint8_t)i;			\
 		}						\
 		t2 = stress_time_now();				\
 		total_dur += dur;				\
@@ -180,15 +181,16 @@ static uint64_t stress_memrate_write##size(			\
 								\
 		if (dur_remainder >= 0.0) {			\
 			struct timespec t;			\
+			time_t sec = (time_t)dur_remainder;	\
 								\
-			t.tv_sec = (time_t)dur_remainder;	\
-			t.tv_nsec = (dur_remainder -		\
-				(long)dur_remainder) * 		\
-				STRESS_NANOSECOND;		\
+			t.tv_sec = sec;				\
+			t.tv_nsec = (long)((dur_remainder -	\
+				(double)sec) * 			\
+				STRESS_NANOSECOND);		\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
-	return ((volatile void *)ptr - start) / KB;		\
+	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
 #if defined(HAVE_INT128_T)
@@ -274,11 +276,14 @@ static int stress_memrate_child(const stress_args_t *args, void *ctxt)
 
 		for (i = 0; keep_stressing(args) && (i < memrate_items); i++) {
 			double t1, t2;
+			uint64_t kbytes;
 			stress_memrate_info_t *info = &memrate_info[i];
 
 			t1 = stress_time_now();
-			context->stats[i].kbytes += info->func(buffer, buffer_end,
-				context->memrate_rd_mbs, context->memrate_wr_mbs);
+			kbytes = info->func(buffer, buffer_end,
+					    context->memrate_rd_mbs,
+					    context->memrate_wr_mbs);
+			context->stats[i].kbytes += (double)kbytes;
 			t2 = stress_time_now();
 			context->stats[i].duration += (t2 - t1);
 
@@ -305,8 +310,8 @@ static int stress_memrate(const stress_args_t *args)
 	stress_memrate_context_t context;
 
 	context.memrate_bytes = DEFAULT_MEMRATE_BYTES;
-	context.memrate_rd_mbs = ~0;
-	context.memrate_wr_mbs = ~0;
+	context.memrate_rd_mbs = ~0ULL;
+	context.memrate_wr_mbs = ~0ULL;
 
 	(void)stress_get_setting("memrate-bytes", &context.memrate_bytes);
 	(void)stress_get_setting("memrate-rd-mbs", &context.memrate_rd_mbs);
@@ -324,7 +329,7 @@ static int stress_memrate(const stress_args_t *args)
 		context.stats[i].kbytes = 0.0;
 	}
 
-	context.memrate_bytes = (context.memrate_bytes + 63) & ~(63);
+	context.memrate_bytes = (context.memrate_bytes + 63) & ~(63ULL);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
