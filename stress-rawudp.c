@@ -77,7 +77,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_rawudp_client()
  *	client sender
  */
-static void stress_rawudp_client(
+static void NORETURN stress_rawudp_client(
 	const stress_args_t *args,
 	const pid_t ppid,
 	unsigned long addr,
@@ -98,8 +98,8 @@ static void stress_rawudp_client(
 	(void)memset(buf, 0, sizeof(buf));
 
 	sin.sin_family = AF_INET;
-	sin.sin_port = port;
-	sin.sin_addr.s_addr = addr;
+	sin.sin_port = (in_port_t)port;
+	sin.sin_addr.s_addr = (in_addr_t)addr;
 
 	ip->ihl      = 5;	/* Header length in 32 bit words */
 	ip->version  = 4;	/* IPv4 */
@@ -107,8 +107,8 @@ static void stress_rawudp_client(
 	ip->tot_len  = sizeof(struct iphdr) + sizeof(struct udphdr);
 	ip->ttl      = 16;  	/* Not too many hops! */
 	ip->protocol = SOL_UDP;	/* UDP protocol */
-	ip->saddr = addr;
-	ip->daddr = addr;
+	ip->saddr = (in_addr_t)addr;
+	ip->daddr = (in_addr_t)addr;
 
 	udp->source = htons(port);
 	udp->dest = htons(port);
@@ -181,7 +181,7 @@ static int stress_rawudp_server(
 
 	sin.sin_family = AF_INET;
 	sin.sin_port = htons(port);
-	sin.sin_addr.s_addr = addr;
+	sin.sin_addr.s_addr = (in_addr_t)addr;
 	addr_len = (socklen_t)sizeof(sin);
 
 	if ((bind(fd, (struct sockaddr *)&sin, addr_len) < 0)) {
@@ -231,7 +231,7 @@ static int stress_rawudp(const stress_args_t *args)
 	(void)stress_get_setting("rawudp-port", &port);
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, port + args->instance);
+		args->name, (int)args->pid, port + (int)args->instance);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -247,7 +247,6 @@ again:
 		return rc;
 	} else if (pid == 0) {
 		stress_rawudp_client(args, args->pid, addr, port);
-		_exit(EXIT_SUCCESS);
 	} else {
 		int status;
 
