@@ -154,7 +154,7 @@ static int stress_mq(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 	} else {
 		do_timed = true;
-		abs_timeout.tv_sec = time_start + g_opt_timeout + 1;
+		abs_timeout.tv_sec = time_start + (time_t)g_opt_timeout + 1;
 		abs_timeout.tv_nsec = 0;
 	}
 
@@ -185,6 +185,7 @@ again:
 			for (i = 0; ; i++) {
 				stress_msg_t ALIGN64 msg;
 				int ret;
+				ssize_t sret;
 				const uint64_t timed = (i & 1);
 				unsigned int prio;
 
@@ -218,8 +219,8 @@ again:
 					(void)ret;
 #endif
 					/* Read state of queue from mq fd */
-					ret = read(mq, buffer, sizeof(buffer));
-					if (ret < 0) {
+					sret = read(mq, buffer, sizeof(buffer));
+					if (sret < 0) {
 						if (errno == EINTR)
 							break;
 						pr_fail("%s: mq read failed, errno=%d (%s)\n",
@@ -262,10 +263,10 @@ again:
 				 * toggle between timedreceive and receive
 				 */
 				if (do_timed && (timed))
-					ret = mq_timedreceive(mq, (char *)&msg, sizeof(msg), &prio, &abs_timeout);
+					sret = mq_timedreceive(mq, (char *)&msg, sizeof(msg), &prio, &abs_timeout);
 				else
-					ret = mq_receive(mq, (char *)&msg, sizeof(msg), &prio);
-				if (ret < 0) {
+					sret = mq_receive(mq, (char *)&msg, sizeof(msg), &prio);
+				if (sret < 0) {
 					if (errno != EINTR) {
 						pr_fail("%s: %s failed, errno=%d (%s)\n",
 							args->name,
