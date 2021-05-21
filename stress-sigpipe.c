@@ -42,12 +42,14 @@ static void stress_sigpipe_handler(int signum)
 		inc_counter(s_args);
 }
 
+#if defined(HAVE_CLONE)
 static int NORETURN pipe_child(void *ptr)
 {
 	(void)ptr;
 
 	_exit(EXIT_SUCCESS);
 }
+#endif
 
 static inline int stress_sigpipe_write(
 	const stress_args_t *args,
