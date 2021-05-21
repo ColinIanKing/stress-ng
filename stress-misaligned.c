@@ -413,10 +413,10 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 	{ "int128rd",	stress_misaligned_int128rd,	false,	false },
 	{ "int128wr",	stress_misaligned_int128wr,	false,	false },
 	{ "int128inc",	stress_misaligned_int128inc,	false,	false },
-#endif
 #if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
     defined(__ATOMIC_SEQ_CST)
 	{ "int128tomic",stress_misaligned_int128atomic,	false,	false },
+#endif
 #endif
 	{ NULL,         NULL,				false,	false }
 };
