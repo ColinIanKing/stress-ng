@@ -166,7 +166,7 @@ static int stress_itimer(const stress_args_t *args)
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			itimer_freq = MIN_ITIMER_FREQ;
 	}
-	rate_us = itimer_freq ? 1000000.0 / itimer_freq : 1000000.0;
+	rate_us = itimer_freq ? 1000000.0 / (double)itimer_freq : 1000000.0;
 
 	if (stress_sighandler(args->name, SIGPROF, stress_itimer_handler, NULL) < 0)
 		return EXIT_FAILURE;
