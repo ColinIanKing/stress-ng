@@ -169,7 +169,10 @@ static void *stress_pthread_func(void *parg)
 {
 	static void *nowt = NULL;
 	int ret;
+#if defined(HAVE_GET_ROBUST_LIST) &&	\
+    defined(HAVE_LINUX_FUTEX_H)
 	long lret;
+#endif
 	const pid_t tgid = getpid();
 #if defined(HAVE_GETTID)
 	const pid_t tid = shim_gettid();
