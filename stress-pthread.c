@@ -142,11 +142,11 @@ static void stress_pthread_tid_address(const stress_args_t *args)
 			pid_t tid1, tid2;
 
 			/* Nullify */
-			tid1 = syscall(__NR_set_tid_address, NULL);
+			tid1 = (pid_t)syscall(__NR_set_tid_address, NULL);
 			(void)tid1;
 
 			/* This always succeeds */
-			tid1 = syscall(__NR_set_tid_address, tid_addr);
+			tid1 = (pid_t)syscall(__NR_set_tid_address, tid_addr);
 
 			errno = 0;
 			tid2 = shim_gettid();
@@ -169,6 +169,7 @@ static void *stress_pthread_func(void *parg)
 {
 	static void *nowt = NULL;
 	int ret;
+	long lret;
 	const pid_t tgid = getpid();
 #if defined(HAVE_GETTID)
 	const pid_t tid = shim_gettid();
@@ -205,19 +206,19 @@ static void *stress_pthread_func(void *parg)
 		}
 
 		/* Exercise invalid zero length */
-		ret = sys_set_robust_list(head, 0);
-		(void)ret;
+		lret = sys_set_robust_list(head, 0);
+		(void)lret;
 
 		/* Exercise invalid length */
-		ret = sys_set_robust_list(head, -1);
-		(void)ret;
+		lret = sys_set_robust_list(head, (size_t)-1);
+		(void)lret;
 #endif
 	/*
 	 *  Check get_robust_list with an invalid PID
 	 */
 	}
-	ret = sys_get_robust_list(-1, &head, &len);
-	(void)ret;
+	lret = sys_get_robust_list(-1, &head, &len);
+	(void)lret;
 #endif
 
 	/*
@@ -268,10 +269,10 @@ static void *stress_pthread_func(void *parg)
 		/*
 		 *  Exercise get_thread_area only for x86
 		 */
-		ret = syscall(__NR_get_thread_area, &u_info);
+		ret = (int)syscall(__NR_get_thread_area, &u_info);
 #if defined(HAVE_GET_THREAD_AREA)
 		if (ret == 0) {
-			ret = syscall(__NR_set_thread_area, &u_info);
+			ret = (int)syscall(__NR_set_thread_area, &u_info);
 			(void)ret;
 		}
 #else
