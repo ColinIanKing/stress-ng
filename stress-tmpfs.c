@@ -136,7 +136,7 @@ static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 		fd = open(path, O_RDWR | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 		if (fd >= 0) {
 			const char data = 0;
-			off_t rc, max_size = buf.f_bsize * buf.f_bavail;
+			off_t rc, max_size = (off_t)buf.f_bsize * (off_t)buf.f_bavail;
 
 			/*
 			 * Don't use all the tmpfs, just 98% for all instance
@@ -179,7 +179,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 {
 	stress_tmpfs_context_t *context = (stress_tmpfs_context_t *)ctxt;
 	const size_t page_size = args->page_size;
-	const size_t sz = context->sz;
+	const size_t sz = (size_t)context->sz;
 	const size_t pages4k = (size_t)sz / page_size;
 	const int fd = context->fd;
 	bool tmpfs_mmap_async = false;
@@ -215,10 +215,10 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		/*
 		 *  exercise some random file operations
 		 */
-		offset = stress_mwc64() % (sz + 1);
+		offset = (off_t)(stress_mwc64() % (sz + 1));
 		if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
 			char data[1];
-			size_t rd;
+			ssize_t rd;
 
 			rd = read(fd, data, sizeof(data));
 			(void)rd;
@@ -226,12 +226,12 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		if (!keep_stressing_flag())
 			break;
 
-		offset = stress_mwc64() % (sz + 1);
+		offset = (off_t)(stress_mwc64() % (sz + 1));
 		if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
 			char data[1];
-			size_t wr;
+			ssize_t wr;
 
-			data[0] = 0xff;
+			data[0] = (char)0xff;
 			wr = write(fd, data, sizeof(data));
 			(void)wr;
 		}
@@ -312,7 +312,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 				uint64_t page = (i + j) % pages4k;
 
 				if (!mapped[page]) {
-					offset = tmpfs_mmap_file ? page * page_size : 0;
+					offset = tmpfs_mmap_file ? (off_t)(page * page_size) : 0;
 					/*
 					 * Attempt to map them back into the original address, this
 					 * may fail (it's not the most portable operation), so keep
@@ -333,7 +333,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
 						if (tmpfs_mmap_file) {
-							(void)memset(mappings[page], n, page_size);
+							(void)memset(mappings[page], (int)n, page_size);
 							(void)shim_msync((void *)mappings[page], page_size, ms_flags);
 						}
 					}
