@@ -79,7 +79,7 @@ static const stress_help_t help[] = {
 
 typedef struct stress_node {
 	struct stress_node	*next;
-	uint32_t		node_id;
+	unsigned long		node_id;
 } stress_node_t;
 
 /*
@@ -122,11 +122,13 @@ static inline int hex_to_int(const char ch)
  *	circular linked list - also, return maximum number
  *	of nodes
  */
-static int stress_numa_get_mem_nodes(stress_node_t **node_ptr,
-				     unsigned long *max_nodes)
+static long stress_numa_get_mem_nodes(
+	stress_node_t **node_ptr,
+	unsigned long *max_nodes)
 {
 	FILE *fp;
-	unsigned long n = 0, node_id = 0;
+	long n = 0;
+	unsigned long node_id = 0;
 	stress_node_t *tail = NULL;
 	char buffer[8192], *str = NULL, *ptr;
 
@@ -234,6 +236,7 @@ static int stress_numa(const stress_args_t *args)
 
 	do {
 		int j, mode, ret, status[num_pages], dest_nodes[num_pages];
+		long lret;
 		unsigned long i, node_mask[lbits], old_node_mask[lbits];
 		unsigned long max_node_id_count;
 		void *pages[num_pages];
@@ -261,7 +264,7 @@ static int stress_numa(const stress_args_t *args)
 		(void)ret;
 
 		/* Exercise invalid flag */
-		ret = shim_get_mempolicy(&mode, node_mask, max_nodes, buf, ~0);
+		ret = shim_get_mempolicy(&mode, node_mask, max_nodes, buf, ~0UL);
 		(void)ret;
 
 		/* Exercise invalid NULL addr condition */
@@ -369,9 +372,9 @@ static int stress_numa(const stress_args_t *args)
 		 */
 		(void)memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
-		ret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
+		lret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_MF_STRICT);
-		if (ret < 0) {
+		if (lret < 0) {
 			if ((errno != EIO) && (errno != ENOSYS)) {
 				pr_fail("%s: mbind failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -388,9 +391,9 @@ static int stress_numa(const stress_args_t *args)
 		 */
 		(void)memset(node_mask, 0, sizeof(node_mask));
 		STRESS_SETBIT(node_mask, n->node_id);
-		ret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
+		lret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_DEFAULT);
-		if (ret < 0) {
+		if (lret < 0) {
 			if ((errno != EIO) && (errno != ENOSYS)) {
 				pr_fail("%s: mbind failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -403,43 +406,43 @@ static int stress_numa(const stress_args_t *args)
 			break;
 
 		/* Exercise invalid start address */
-		ret = shim_mbind((void *)(buf + 7), MMAP_SZ, MPOL_BIND, node_mask,
+		lret = shim_mbind((void *)(buf + 7), MMAP_SZ, MPOL_BIND, node_mask,
 			max_nodes, MPOL_MF_STRICT);
-		(void)ret;
+		(void)lret;
 
 		/* Exercise wrap around */
-		ret = shim_mbind((void *)(~0 & ~(page_size - 1)), page_size * 2,
+		lret = shim_mbind((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size * 2,
 			MPOL_BIND, node_mask, max_nodes, MPOL_MF_STRICT);
-		(void)ret;
+		(void)lret;
 
 		/* Exercise invalid length */
-		ret = shim_mbind((void *)buf, ~0, MPOL_BIND, node_mask,
+		lret = shim_mbind((void *)buf, ~0UL, MPOL_BIND, node_mask,
 			max_nodes, MPOL_MF_STRICT);
-		(void)ret;
+		(void)lret;
 
 		/* Exercise zero length, allowed, but is a no-op */
-		ret = shim_mbind((void *)buf, 0, MPOL_BIND, node_mask,
+		lret = shim_mbind((void *)buf, 0, MPOL_BIND, node_mask,
 			max_nodes, MPOL_MF_STRICT);
-		(void)ret;
+		(void)lret;
 
 		/* Exercise invalid max_nodes */
-		ret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
+		lret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
 			0, MPOL_MF_STRICT);
-		(void)ret;
-		ret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
+		(void)lret;
+		lret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
 			0xffffffff, MPOL_MF_STRICT);
-		(void)ret;
+		(void)lret;
 
 		/* Exercise invalid flags */
-		ret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
-			max_nodes, ~0);
-		(void)ret;
+		lret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
+			max_nodes, ~0U);
+		(void)lret;
 
 		/* Check mbind syscall cannot succeed without capability */
 		if (!cap_sys_nice) {
-			ret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
+			lret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
 				max_nodes, MPOL_MF_MOVE_ALL);
-			if (ret >= 0) {
+			if (lret >= 0) {
 				pr_fail("%s: mbind without capability CAP_SYS_NICE unexpectedly succeeded, "
 						"errno=%d (%s)\n", args->name, errno, strerror(errno));
 			}
@@ -465,26 +468,26 @@ static int stress_numa(const stress_args_t *args)
 		/*
 	 	 *  Ignore any failures, this is not strictly important
 		 */
-		ret = shim_migrate_pages(args->pid, max_nodes,
+		lret = shim_migrate_pages(args->pid, max_nodes,
 			old_node_mask, node_mask);
-		(void)ret;
+		(void)lret;
 
 		/*
 		 *  Exercise illegal pid
 		 */
-		ret = shim_migrate_pages(~0, max_nodes, old_node_mask,
+		lret = shim_migrate_pages(~0, max_nodes, old_node_mask,
 			node_mask);
-		(void)ret;
+		(void)lret;
 
 		/*
 		 *  Exercise illegal max_nodes
 		 */
-		ret = shim_migrate_pages(args->pid, ~0, old_node_mask,
+		lret = shim_migrate_pages(args->pid, ~0UL, old_node_mask,
 			node_mask);
-		(void)ret;
-		ret = shim_migrate_pages(args->pid, 0, old_node_mask,
+		(void)lret;
+		lret = shim_migrate_pages(args->pid, 0, old_node_mask,
 			node_mask);
-		(void)ret;
+		(void)lret;
 
 		if (!keep_stressing_flag())
 			break;
@@ -496,12 +499,12 @@ static int stress_numa(const stress_args_t *args)
 			 */
 			for (ptr = buf, i = 0; i < num_pages; i++, ptr += page_size, n_tmp = n_tmp->next) {
 				pages[i] = ptr;
-				dest_nodes[i] = n_tmp->node_id;
+				dest_nodes[i] = (int)n_tmp->node_id;
 			}
 			(void)memset(status, 0, sizeof(status));
-			ret = shim_move_pages(args->pid, num_pages, pages,
+			lret = shim_move_pages(args->pid, num_pages, pages,
 				dest_nodes, status, MPOL_MF_MOVE);
-			if (ret < 0) {
+			if (lret < 0) {
 				if (errno != ENOSYS) {
 					pr_fail("%s: move_pages failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
@@ -517,46 +520,46 @@ static int stress_numa(const stress_args_t *args)
 		/* Exercise MPOL_MF_MOVE_ALL, this needs privilege, ignore failure */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
-		ret = shim_move_pages(args->pid, num_pages, pages, dest_nodes, status, MPOL_MF_MOVE_ALL);
-		(void)ret;
+		lret = shim_move_pages(args->pid, num_pages, pages, dest_nodes, status, MPOL_MF_MOVE_ALL);
+		(void)lret;
 #endif
 
 		/* Exercise invalid pid on move pages */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
-		ret = shim_move_pages(~0, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
-		(void)ret;
+		lret = shim_move_pages(~0, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
+		(void)lret;
 
 		/* Exercise 0 nr_pages */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
-		ret = shim_move_pages(args->pid, 0, pages, dest_nodes, status, MPOL_MF_MOVE);
-		(void)ret;
+		lret = shim_move_pages(args->pid, 0, pages, dest_nodes, status, MPOL_MF_MOVE);
+		(void)lret;
 
 		/* Exercise invalid move flags */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
-		ret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, ~0);
-		(void)ret;
+		lret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, ~0);
+		(void)lret;
 
 		/* Exercise zero flag, should succeed */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
-		ret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, 0);
-		(void)ret;
+		lret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, 0);
+		(void)lret;
 
 		/* Exercise invalid address */
 		(void)memset(status, 0, sizeof(status));
-		pages[0] = (void *)(~0 & ~(args->page_size - 1));
-		ret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
-		(void)ret;
+		pages[0] = (void *)(~(uintptr_t)0 & ~(args->page_size - 1));
+		lret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
+		(void)lret;
 
 		/* Exercise invalid dest_node */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
 		dest_nodes[0] = ~0;
-		ret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
-		(void)ret;
+		lret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
+		(void)lret;
 
 		inc_counter(args);
 	} while (keep_stressing(args));
