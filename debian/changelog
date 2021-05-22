@@ -1,3 +1,449 @@
+stress-ng (0.12.09-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Manual: update date
+  * stress-iomix: cast full expression to off_t instead of 64 bit mwc value
+  * stress-misaligned: only use target clones attribute if compiler
+    supports it
+  * stress-misaligned: fix build error on Hiaku-r1beta8 gcc 7.3.0
+  * stress-ng.h: enable attribute features for versions of clang
+  * stress-ng.h: remove unused PACKED macro
+  * core-ftrace: add ; after RB_* macros
+  * test/test-mq-sysv.c: memset msg to clean up cppcheck warning
+  * stress-misaligned: only use atomics if HAVE_ATOMIC is defined
+  * stress-sigfpe: remove SA_SIGINFO check on err_code
+  * stress-set: don't cast setgroups size to size_t for DragonFlyBSD
+  * stress-sigpipe: declare function pipe_child if clone is available
+  * stress-tree: fix build on DragonFlyBSD 6.0
+  * stress-null: only declare variable off on linux builds
+  * stress-pthread: only declare lret if is required
+  * stress-memthrash: fix SEGV due to incorrect offset based on uintptr_r
+    cast
+  * stress-sync-file: fix -ve offset on random sync file location
+  * stress-ng: clean up implicit type warnings from pedantic clang build
+  * stress-zlib: fix incorrect buffer size on compression
+  * stress-zlib: fix --zlib-method option
+  * stress-zero: clean up implicit cast warnings with pedantic clang builds
+  * stress-yield: clean up implicit cast warnings with pedantic clang builds
+  * stress-xattr: clean up implicit cast warnings with pedantic clang builds
+  * stress-wait: clean up implicit cast warnings with pedantic clang builds
+  * stress-vm-rw: clean up implicit cast warnings with pedantic clang builds
+  * stress-udp: cast non-int instance to int for int math
+  * stress-tmpfs: clean up implicit cast warnings with pedantic clang builds
+  * stress-timerfd: remove an extra ; and clean up some type casting
+  * stress-timer: clean up implicit cast warnings with pedantic clang builds
+  * stress-tee: clean up 2 minor casts for function call arguments
+  * stress-sysfs: clean up implicit cast warnings with pedantic clang builds
+  * stress-bad-addr: cast procs to rlim_t on rlim_cur/max assignments
+  * stress-sync-file: fix casting and sync loop
+  * stress-switch: stress-schedpolicy: clean up implicit cast warnings
+    with pedantic clang builds
+  * stress-sockpair: cast val++ arg to uint8_t to match type
+  * stress-schedpolicy: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-swap: cast lseek offset to off_t type
+  * stress-stream: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-stack: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-splice: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-sockmany: cast non-int instance to int for int math
+  * stress-sockfd: add NORETURN hint to child func, clean up type cast
+    warnings
+  * stress-sockabuse: clean up pedantic clang warnings
+  * stress-shellsort: assign data the correctly typed values
+  * stress-scpt: cast non-int instance to int for int math
+  * stress-sock: cast non-int instance to int for int math
+  * stress-shm-sysv: clean up various pedantic clang warnings
+  * stress-shm: clean up a few off_t fallocate/ftruncate arg warnings
+  * stress-set: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-sendfile: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-seccomp: add NORETURN to exiting signal handler
+  * stress-seal: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-rmap: add NORETURN hint, clean up implicit cast warnings
+  * stress-resources: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-rename: explicitly cast flags arg to renameat2 to unsigned int
+  * stress-remap-file-pages: cast i to the same data type of data[]
+  * stress-reboot: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-rawudp: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-sysinval: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-tsearch: assign data the correctly typed values
+  * stress-tun: cast port to same type as addr.sin_port
+  * stress-unshare: remove ; from macro UNSHARE definition
+  * stress-rawsock: use correct ssize_t return variable for sendto
+  * stress-rawpkt: add NORETURN hint on child, clean up implicit
+    cast warning
+  * stress-rawdev: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-radixsort: reduce n from size_t to n
+  * stress-pthread: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-procfs: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-prtctl: cast args->page_size to intptr_t to match mask type
+  * stress-poll: forgot to add int cast to buf comparison on sanity check
+  * stress-poll: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-pkey: clean up implicit cast warnings with pedantic clang builds
+  * stress-pipeherd: fix implicit type cast warnings, make float math
+    double
+  * stress-pipeherd: fix type of counter, it should be uint64_t
+  * stress-netdev: fix type of n, it should be int, cast divisor instead
+  * stress-pipe: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-pidfd: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-physpage: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-opcode: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-null: clean up implicit clang type warnings on mmapo
+    offset arg
+  * stress-nice: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-netlink-task: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-netlink-proc: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-opcode: add NORETURN on signal handler
+  * stress-numa: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-netdev: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-mq: stress-msync: clean up some implicit type casting warnings
+  * stress-msync: clean up some implicit type casting warnings
+  * stress-msg: fix too long a constant or operand, clean up misc warnings
+  * stress-mmapaddr: clean up some implicit type casting warnings
+  * stress-mmap: clean up some implicit type casting warnings
+  * stress-mknod: use mode_t for mknod mode type in stress_do_mknod
+  * stress-misaligned: clean up some implicit type casting warnings
+  * stress-idle-page: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-misaligned: add NORETURN on signal handler
+  * stress-mincore: clean up some implicit type casting warnings
+  * stress-mergesort: cast return from stress_mwc32 to int32_t
+  * stress-memthrash: clean up some implicit type casting warnings
+  * stress-memrate: clean up some implicit type casting warnings
+  * stress-memfd: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-membarrier: ensure the cmd type to membarrier call is int
+  * stress-matrix-3d: clean up some implicit type casting warnings
+  * stress-matrix: clean up some implicit type casting warnings
+  * stress-malloc: fix never reached memory reaping and clean up warnings
+  * stress-lsearch: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-loop: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-longjmp: cast uint64_t to double to avoid precision loss
+  * stress-lockofd: cast return from stress_mwc64 to off_t
+  * stress-locka: cast return from stress_mwc64 to off_t
+  * stress-link: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-l1cache: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-klog: cast uint32_t math to int to clean up implicit
+    cast warning
+  * stress-itimer: cast itimer_freq to double to clean up implicit
+    cast warning
+  * stress-ipsec-mb: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-io-uring: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-ioprio: cast ioprio_get who arg to int
+  * stress-ioport: cast ioport from arg to unsigned long
+  * stress-iomix: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-inotify: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-aio-linux: assign invalid value to offset and nbytes in a
+    portable way
+  * stress-misaligned: fix i386 built error for 128 bit integers
+  * stress-icmp-flood: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-bad-altstack: remove void * cast of signal handler function
+  * stress-hdd: cast ret to size_t to clear up build warning
+  * stress-cpu-online: clean up build warnings
+  * stress-af-alg: cast j to ssize_t to compare with send() return
+  * stress-hdd: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-getdent: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-fanotify: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-fallocate: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-epoll: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-fp-error: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-filename: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-fiemap: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-file-ioctl: cast ~0 to uint16_t
+  * stress-eventfd: clean up implicit cast warning with pedantic clang
+    builds
+  * stress-efivar: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-bad-altstack: add NORETURN on stress_signal_handler
+  * stress-dup: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-dnotify: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-dev-shm: clean up implicit cast warnings with pedantic
+    clang builds
+  * stress-dev: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-dccp: clean up implicit cast warning with pedantic clang
+    builds
+  * stress-ioctl: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-aio: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-af-alg: clean up implicit cast warnings with pedantic clang
+    builds
+  * stress-verity: clean up pedantic build warnings
+  * stress-utime: clean up pedantic clang warning
+  * stress-cyclic: clean up some implicit type warnings
+  * stress-cpu: clean up some implicit type cast warnings
+  * stress-cpu: clean up type warnings
+  * stress-sysbadaddr: clean up implicit type warnings, remove
+    stress_badhandler
+  * core-shim: fix get_mempolicy shim, 4th arg should be void *
+  * stress-rtc: clean up int and ssize_t type conversions
+  * stress-cache: add some minor int type cast conversion
+  * core-perf: explicitly cast return from tolower to char
+  * stress-softlockup: add NORETURN to signal handler, silence
+    SIZEOF_ARRAY warning
+  * stress-qsort: cast return from stress_mwc32() to match assigned type
+  * stress-ping-sock: cast return from getpid() to match type of echo.id
+  * stress-mmapfixed: use the stress_sig_handler_exit helper
+  * stress-key: make variable len ssize_t to match return from system_read
+  * stress-heapsort: cast return from stress_mwc32() to match assigned
+    type
+  * stress-getrandom: ensure flag is unsigned int to match getrandom
+    flag arg
+  * stress-full: make ptr a uint8_t to remove need for casting on put call
+  * stress-flock: use ssize_t var for system_read return
+  * stress-exec: clang in pedantic mode suggests pthread_dummy is zero'd
+  * stress-bad-altstack: remove NORETURN
+  * stress-apparmor: size arg of read should be size_t, cast it so
+  * stress-bad-altstack: clean up pedantic clang build warnings.
+  * Add autobuild detection of __attribute__((fallthrough))
+  * Use the stress_sig_handler_exit helper
+  * core-helper: add stress_sig_handler_exit to exit on a signal
+  * stress-bind-mount: add NORETURN MLOCKED_TEXT annotations to signal
+    handler
+  * stress-aio-linux: clean up gcc build warning
+  * stress-apparmor: clean up gcc build warning
+  * stress-get: add missing cast to clean up gcc build warning
+  * stress-get: fix various pedantic clang build warnings
+  * stress-crypt: remove _XOPEN_SOURCE define
+  * stress-apparmor: clean up pedantic build warnings
+  * stress-aio-linux: clean up multiple implicit type conversions
+  * core-ignite-cpu: pass cpu as a int32_t argument
+  * stress-fcntl: fix hint assignment, use UL not ULL
+  * stress-mmapmany: fix format specifier for max
+  * stress-madvise: make ~0ULL portable to 32 bit arches
+  * stress-io-uring: mmap buffers with MAP_POPULATE
+  * stress-io-uring: add more yield points in main loop
+  * core-io-uring: include config.h
+  * core-personality.c: include config.h
+  * core-perf-event: include config.h
+  * core-ignite-cpu: fix build warning, make cpu an int32_t
+  * stress-sigpipe: use ssize_t for read return assignments, clean up
+    child call
+  * stress-sigio: use ssize_t for read return assignments
+  * stress-sigfpe: add NORETURN to signal handler and clean up type
+    warnings
+  * stress-sigfd: use ssize_t for read return assignments
+  * stress-sigsegv: add NORETURN to handler, fix cast on %p
+  * stress-tree: remove extraneous ; after RB_* and SPLAY_* macros
+  * stress-vdso: clean up some pedantic implicit type warnings
+  * stress-userfaultfd: clean up pedantic warnings, add NORETURN to
+    handler, fix cast
+  * stress-ng: clean up some pedantic clang warnings
+  * stress-ng: add OPT_undefined for undefined non-option
+  * core-cache: clean up implicit type conversion warnings
+  * core-vmstat: add appropriate type casts to clean up pedantic
+    clang warnings
+  * core-parse-opts: cast int values to double for mixed type
+    math * operation
+  * core-thrash: clean up type warnings
+  * core-ignite-cpu: clean up type conversion warnings
+  * core-perf: clean up various type conversion warnings
+  * core-try-open: ensure status is zero, cleans up pedantic clang
+    warning
+  * stress-ng.h: make thermal zone type_instance a uint32_t
+  * core-sched: clean up implicit type conversions
+  * core-out-of-memory: initialize save_errno to zero, clean up
+    clang warning
+  * core-net: clean up type warnings and add wrap around check on
+    port overflow
+  * stress-skiplist: use unsigned long as value to save/fetch
+  * stress-seek: clean up off_t implicit type conversion warnings
+  * stress-lockbus: add NORETURN hint on stress_sigbus_handler
+  * stress-lockbus: wrap macros with while .. do (0) wrapper
+  * stress-enosys: add NORETURN hint on stress_badhandler
+  * stress-enosys: clean up implicit type conversion changes
+  * stress-bsearch: fix type warnings with a couple of changes
+  * stress-mmapmany: clean up warnings, make max a long
+  * stress-open: clean up missing int casts on fd comparison
+  * core-helper: clean up various implicit type warnings
+  * stress-open: clean up various implicit type conversions warning
+  * stress-oom-pipe: use size_t for max pipe fd array size
+  * stress-mmapmany: use size_t for max mappings rather then ssize_t
+  * stress-mmapfork: clean pedantic %p warning
+  * stress-mmapfork: add NORETURN hint on stress_segvhandler
+  * stress-chmod: fix incorrect type in 3rd arg in do_fchmod
+  * stress-cap: make constant unsigned
+  * stress-fcntl: clean up implicit type casts
+  * stress-fault: remove stray redundant ;
+  * stress-env: fix implicit type conversion warning
+  * stress-dirdeep: add explicit cast to char on int expression
+  * stress-dir: add check for mode_t, use it or int
+  * stress-ng: make g_unsupported static
+  * stress-funccall: clean up implicit type cast warnings
+  * stress-copy-file: clean up some implicit cast warnings
+  * stress-clone: clean up some implicit type warnings
+  * core-shim: fix extraneous ) build failure
+  * stress-mcontend: clean up implicit type conversion warnings
+  * stress-kcmp: cast to types of fields of kcmp_epoll_slot
+  * stress-kcmp: clean up implicit type conversion warnings on kcmp call
+  * stress-kcmp: wrap macros with while .. do (0) wrapper
+  * stress-vecmath: fix int/uint type casting pedantic clang warnings
+  * stress-vecmath: wrap macro OPS with while .. do (0) wrapper
+  * stress-dev: move CDROMVOLCTRL check to around the IOCTL_TIMEOUT macro
+  * stress-dev: wrap IOCTL_TIMEOUT with while .. do (0) wrapper
+  * stress-chown: cast uid_t and gid_t parameters
+  * stress-branch: simplify LIKELY macro expression to clean up warning
+  * stress-atomic: add explicit type cast to atomic arguments
+  * core-shim: clean up implicit cast of tv_nsec result
+  * core-shim: cast syscall and shim_enosys returns to relevant return type
+  * stress-sysinfo: replace macro with macro text
+  * stress-madvise: ensure ~0 is a ULL type
+  * stress-madvise: check return type for writes need to be ssize_t
+  * stress-madvise: only define NUM_SOFT_OFFLINE_MAX if MADV_SOFT_OFFLINE
+    is required
+  * stress-madvise: add NORETURN hint on stress_sigbus_handler
+  * stress-bad-ioctl: add NORETURN hint on stress_segv_handler
+  * core-ftrace: count should be int64_t
+  * core-ftrace: remove redundant ; after RB_* macros
+  * stress-dynlib: add NORETURN hint on stress_segvhandler
+  * stress-dnotify: remove unused macro DIR_FLAGS
+  * stress-dentry: check return type for reads need to be ssize_t
+  * stress-daemon: make buf uint8_t to clean up signedness warning on 0xff
+  * stress-close: fix type conversion warning on float multiplication
+  * stress-close: ensure final arg of close_range is unsigned int
+  * stress-urandom: make ret argument in check_eperm call ssize_t
+  * stress-urandom: make the buffer a uint8_t instead of char
+  * stress-vforkmany: explicitly cast sleep time
+  * stress-vforkmany: remove unused macro STACK_SIZE
+  * stress-vm-splice: use correct types for splice return and iov.iov_len
+  * stress-watchdog: add NORETURN hint for stress_watchdog_handler
+  * stress-watchdog: ret should be ssize_t on write() return
+  * stress-vm: pass buffer end to stress methods and use void *buf pointers
+  * stress-vm: cast %p args to volatile void *
+  * stress-vm: fix cast of sleep argument
+  * stress-vm: remove ROR64 macro, it is no longer used
+  * stress-vm: clean up some int to uint8_t implicit casts
+  * stress-vm: explicitly cast int expression to uint8_t in ROR macro
+  * stress-vm: fix rotate right on 8 bit values
+  * stress-vm: use uint32_t for mwc seed values
+  * stress-vm: wrap { } macros with do while (0) to avoid ; warnings
+  * Move STRESSOR_DECL to stress-ng.h
+  * core-thrash: warning clean-ups
+  * core-time: explicitly cast ret to size_t
+  * core-mounts: cast max to size_t to avoid memset implicit cast
+  * core-mwc: clean up some implicit casting warnings
+  * core-log: use size_t for data write lengths
+  * core-hash: clean up implicit conversions with signedness changes
+  * core-cache: remove redundant return 0
+  * core-mlock: use uintptr_t casts with unsigned long
+  * core-vmstat: make vmstat_delay and thermalstat_delay static
+  * stress-ng.h: Rename __STRESS_NG_H__ to STRESS_NG_H
+  * stress-version.h: Rename _VER_ to STRESS_VERSION_NUMBER
+  * stress-ng.h: Fix incorrect type in stress_long_double_put
+  * core-cache: use sscanf to parse a uint64_t rather than atoi
+  * core-cache: replace use of %ms with %c to get size
+  * stress-dup: unlink info->fifoname before removing the directory
+  * treewide: add ( ) around expressions in keeping with stress-ng
+    coding style
+  * stress-misaligned: user 2/4/8 byte variants of __atomic_fetch_add
+  * stress-misaligned: allow 128 atomic increments on x86
+  * stress-misaligned: remove incorrect info increment
+  * stress-misaligned: add increment and atomic increment methods
+  * Manual: update --bad-altstack testing description
+  * stress-bad-altstack: exercise BUS error on stacks
+  * stress-vforkmany: fix times() info due to SIGKILLing children
+  * stress-revio: unlink file as soon as possible
+  * stress-dev: fix incorrect close, it should be removed
+  * core-helper: add aborting: prefix to error message
+  * stress-xattr: fix = typo, should be == for a comparison
+  * stress-link: fix = typo, should be == for a comparison
+  * stress-dev: report the name of the device that failed on a stat failure
+  * stress-link: skip stressor on EPERM link errors
+  * stress-chmod: silently ignore EPERM errors on chmod
+  * stress-chattr: treat EINVAL on EXT2 ioctls as permissible
+  * stress-verity: treat EINVAL on FS_IOC_ENABLE_VERITY as verity not
+    supported
+  * stress-copy-file: rename ret to copy_ret to avoid name shadowing
+  * stress-fiemap: don't remove tmp dir if it's not been created
+  * stress-copy-file: handle initial mkdir failure correctly
+  * stress-copy-file: check for EINVAL on copy_file_range
+  * stress-hdd: add workaround to O_DIRECT open failure cleanup
+  * stress-aio-linux: disable O_DIRECT for filesystems that do not
+    support it
+  * stress-chdir: move yield point detection to start of loop
+  * stress-dentry: add yield point detection before starting iteration
+  * stress-mknod: add yield point detection before starting iteration
+  * stress-filename: add probing of maximum filename lenth
+  * stress-hdd: cater for read failure on vfat on ENOSPC
+  * stress-xattr: silently ignore E2BIG error on *setxattr calls
+  * stress-dup: fix tidy clean up paths for tmp path and mmap'd memory
+  * stress-copy-file: don't rmdir the test directory if it was not created
+  * stress-sync-file: treat EINTR as a SIGALRM/SIGINT termination w/o
+    error
+  * stress-splice: initialize buffer before writing it down the pipe
+  * stress-quota: add quotactl_path support introduced in Linux 5.13
+  * stress-enosys: add quotactl_path system call
+  * stress-sysinval: fix number of args to quotactl system call
+  * stress-sysinval: add quotactl_path system call
+  * Add missing whitespaces in expressions
+  * stress-splice: add a looped pipe splice to the mix
+  * stress-landlock: exercise illegal landlock_add_rule arguments
+  * stress-ng: fix Liunx typo
+  * stress-dirdeep: add sanity checks for scandir failures
+  * core-helper: encode hashed filenames into base36 14 char string
+  * stress-dev: remove debug message on device being processed
+  * stress-landlock: replace security=landlock to lsm=landlock
+  * stress-misaligned: work around misaligned segv on 128 bit reads
+  * Add stress_sighandler_default to restore handler to SIG_DFL
+  * stress-misaligned: report the misaligned stress methods used
+  * stress-misaligned: add uint8_t * cast to clean up gcc 6.5.0 build
+    warning
+  * stress-fallocate: re-order variable declarations, cleans up clobber
+    warning
+  * stress-misaligned: add a new misaligned memory read/write stressor
+  * stress-list: replace entry with entries
+  * stress-dev: add TIOCGPTPEER ioctl
+  * stress-dev: add TIOCSSERIAL ioctl
+  * stess-splice: add workaround to failed splice from /dev/zero to pipe
+  * stress-landlock: remove empty line
+  * kernel-coverage: add more f2fs mkfs options to exercise the fs more
+  * stress-landlock: fix ENOSYS error return on unimplemented syscalls
+  * stress-landlock: exercise illegal landlock API arguments
+
+ -- Colin King <colin.king@canonical.com>  Sat, 22 May 2021 19:54:16 +0100
+
 stress-ng (0.12.08-1) unstable; urgency=medium
 
   [Colin Ian King]
