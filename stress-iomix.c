@@ -49,7 +49,7 @@ static int stress_set_iomix_bytes(const char *opt)
  */
 static off_t stress_iomix_rnd_offset(const off_t max)
 {
-	return (off_t)stress_mwc64() % max;
+	return (off_t)(stress_mwc64() % max);
 }
 
 /*
