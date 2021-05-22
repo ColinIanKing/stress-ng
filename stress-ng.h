@@ -1166,14 +1166,6 @@ typedef struct {			/* vmstat column */
 #define NORETURN
 #endif
 
-/* packed hint */
-#if defined(__GNUC__) &&	\
-    NEED_GNUC(3,3,0)
-#define PACKED 		__attribute__ ((packed))
-#else
-#define PACKED
-#endif
-
 /* force inlining hint */
 #if defined(__GNUC__) &&	\
     NEED_GNUC(3,4,0)	/* or possibly earlier */ \
