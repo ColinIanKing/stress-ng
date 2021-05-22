@@ -331,7 +331,9 @@ static void stress_misaligned_int64atomic(uint8_t *buffer)
  *  For now, disable SSE optimization for x86 to workaround this
  *  even if it ends up generating two 64 bit reads.
  */
-#if defined(__SSE__) && defined(STRESS_ARCH_X86)
+#if defined(__SSE__) && 	\
+    defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_TARGET_CLONES)
 #define TARGET_CLONE_NO_SSE __attribute__ ((target("no-sse")))
 #else
 #define TARGET_CLONE_NO_SSE
