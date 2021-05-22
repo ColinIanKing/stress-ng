@@ -1147,7 +1147,7 @@ typedef struct {			/* vmstat column */
 
 /* gcc 4.7 and later support vector ops */
 #if defined(__GNUC__) &&	\
-    NEED_GNUC(4,7,0)
+    NEED_GNUC(4, 7, 0)
 #define STRESS_VECTOR	1
 #endif
 
@@ -1159,25 +1159,25 @@ typedef struct {			/* vmstat column */
 #endif
 
 /* no return hint */
-#if defined(__GNUC__) &&	\
-    NEED_GNUC(2,5,0)
+#if (defined(__GNUC__) && NEED_GNUC(2, 5, 0)) || 	\
+    (defined(__clang__) && NEED_CLANG(3, 0, 0))
 #define NORETURN 	__attribute__ ((noreturn))
 #else
 #define NORETURN
 #endif
 
 /* force inlining hint */
-#if defined(__GNUC__) &&	\
-    NEED_GNUC(3,4,0)	/* or possibly earlier */ \
- && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6,0,1))
+#if (defined(__GNUC__) && NEED_GNUC(3, 4, 0) 					\
+     && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6, 0, 1))) ||	\
+    (defined(__clang__) && NEED_CLANG(3, 0, 0))
 #define ALWAYS_INLINE	__attribute__ ((always_inline))
 #else
 #define ALWAYS_INLINE
 #endif
 
 /* force no inlining hint */
-#if defined(__GNUC__) && 	\
-    NEED_GNUC(3,4,0)	/* or possibly earier */
+#if (defined(__GNUC__) && NEED_GNUC(3, 4, 0)) ||	\
+    (defined(__clang__) && NEED_CLANG(3, 0, 0))
 #define NOINLINE	__attribute__ ((noinline))
 #else
 #define NOINLINE
@@ -1186,7 +1186,7 @@ typedef struct {			/* vmstat column */
 /* -O3 attribute support */
 #if defined(__GNUC__) &&	\
     !defined(__clang__) &&	\
-    NEED_GNUC(4,6,0)
+    NEED_GNUC(4, 6, 0)
 #define OPTIMIZE3 	__attribute__((optimize("-O3")))
 #else
 #define OPTIMIZE3
@@ -1195,7 +1195,7 @@ typedef struct {			/* vmstat column */
 /* -O1 attribute support */
 #if defined(__GNUC__) &&	\
     !defined(__clang__) &&	\
-    NEED_GNUC(4,6,0)
+    NEED_GNUC(4, 6, 0)
 #define OPTIMIZE1 	__attribute__((optimize("-O1")))
 #else
 #define OPTIMIZE1
@@ -1204,22 +1204,22 @@ typedef struct {			/* vmstat column */
 /* -O0 attribute support */
 #if defined(__GNUC__) &&	\
     !defined(__clang__) &&	\
-    NEED_GNUC(4,6,0)
+    NEED_GNUC(4, 6, 0)
 #define OPTIMIZE0 	__attribute__((optimize("-O0")))
 #else
 #define OPTIMIZE0
 #endif
 
 /* warn unused attribute */
-#if defined(__GNUC__) &&	\
-    NEED_GNUC(4,2,0)
+#if (defined(__GNUC__) && NEED_GNUC(4, 2, 0)) ||	\
+    (defined(__clang__) && NEED_CLANG(3, 0, 0))
 #define WARN_UNUSED	__attribute__((warn_unused_result))
 #else
 #define WARN_UNUSED
 #endif
-
-#if defined(__GNUC__) &&	\
-    NEED_GNUC(3,3,0) &&		\
+	
+#if ((defined(__GNUC__) && NEED_GNUC(3, 3, 0)) ||	\
+     (defined(__clang__) && NEED_CLANG(3, 0, 0))) &&	\
     !defined(__PCC__)
 #define ALIGNED(a)	__attribute__((aligned(a)))
 #else
@@ -1227,8 +1227,8 @@ typedef struct {			/* vmstat column */
 #endif
 
 /* Force alignment to nearest 128 bytes */
-#if defined(__GNUC__) &&	\
-    NEED_GNUC(3,3,0) &&		\
+#if ((defined(__GNUC__) && NEED_GNUC(3, 3, 0)) ||	\
+     (defined(__clang__) && NEED_CLANG(3, 0, 0))) &&	\
     defined(HAVE_ALIGNED_128)
 #define ALIGN128	ALIGNED(128)
 #else
@@ -1236,16 +1236,16 @@ typedef struct {			/* vmstat column */
 #endif
 
 /* Force alignment to nearest 64 bytes */
-#if defined(__GNUC__) &&	\
-    NEED_GNUC(3,3,0) &&		\
+#if ((defined(__GNUC__) && NEED_GNUC(3, 3, 0)) ||	\
+     (defined(__clang__) && NEED_CLANG(3, 0, 0))) &&	\
     defined(HAVE_ALIGNED_64)
 #define ALIGN64		ALIGNED(64)
 #else
 #define ALIGN64
 #endif
 
-#if defined(__GNUC__) &&	\
-    NEED_GNUC(4,6,0)
+#if (defined(__GNUC__) && NEED_GNUC(4, 6, 0)) ||	\
+    (defined(__clang__) && NEED_CLANG(3, 0, 0))
 #define SECTION(s)	__attribute__((__section__(# s)))
 #else
 #define SECTION(s)
@@ -1259,29 +1259,27 @@ typedef struct {			/* vmstat column */
 #endif
 
 /* GCC hot attribute */
-#if defined(__GNUC__) &&	\
-    NEED_GNUC(4,6,0)
+#if (defined(__GNUC__) && NEED_GNUC(4, 6, 0)) ||	\
+    (defined(__clang__) && NEED_CLANG(3, 3, 0))
 #define HOT		__attribute__ ((hot))
 #else
 #define HOT
 #endif
 
 /* GCC mlocked data and data section attribute */
-#if defined(__GNUC__) &&	\
-    NEED_GNUC(4,6,0) &&		\
-    !defined(__sun__) &&	\
+#if ((defined(__GNUC__) && NEED_GNUC(4, 6, 0) ||	\
+     (defined(__clang__) && NEED_CLANG(3, 0, 0)))) &&	\
+    !defined(__sun__) &&				\
     !defined(BUILD_STATIC)
-//#define MLOCKED_DATA	__attribute__((__section__("mlocked_data")))
 #define MLOCKED_TEXT	__attribute__((__section__("mlocked_text")))
 #define MLOCKED_SECTION 1
 #else
-//#define MLOCKED_DATA
 #define MLOCKED_TEXT
 #endif
 
 /* print format attribute */
-#if ((defined(__GNUC__) && NEED_GNUC(3,2,0)) ||	\
-     (defined(__clang__) && NEED_CLANG(3, 7, 0)))
+#if ((defined(__GNUC__) && NEED_GNUC(3, 2, 0)) ||	\
+     (defined(__clang__) && NEED_CLANG(3, 0, 0)))
 #define FORMAT(func, a, b) __attribute__((format(func, a, b)))
 #else
 #define FORMAT(func, a, b)
@@ -1295,7 +1293,8 @@ typedef struct {			/* vmstat column */
 #endif
 
 /* optimisation on branching */
-#if defined(__GNUC__)
+#if defined(__GNUC__) ||			\
+    (defined(__clang__) && NEED_CLANG(3, 0, 0)) 
 #define LIKELY(x)	__builtin_expect((x),1)
 #define UNLIKELY(x)	__builtin_expect((x),0)
 #else
