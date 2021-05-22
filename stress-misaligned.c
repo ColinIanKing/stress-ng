@@ -375,7 +375,7 @@ static void TARGET_CLONE_NO_SSE stress_misaligned_int128inc(uint8_t *buffer)
 static void stress_misaligned_int128atomic(uint8_t *buffer)
 {
 	register int i = MISALIGN_LOOPS;
-	volatile __uint64_t *ptr1 = (__uint64_t *)(buffer + 1);
+	volatile uint64_t *ptr1 = (uint64_t *)(buffer + 1);
 
 	while (--i) {
 		/* No add 16 variant, so do 2 x 8 adds for now */
