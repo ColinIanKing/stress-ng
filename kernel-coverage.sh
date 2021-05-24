@@ -269,23 +269,23 @@ do
 	echo "Filesystem: $FS"
 	if mount_filesystem $FS; then
 		DURATION=10
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts direct,utimes  --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts dsync --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts iovec,noatime --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fsync,syncfs --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fdatasync --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts rd-rnd,wr-rnd,fadv-rnd --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts rd-seq,wr-seq --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-normal --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-noreuse --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-rnd --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-seq --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-willneed --temp-path $MNT
-		do_stress --hdd 0 --hdd-ops 50000 --hdd-opts fadv-dontneed --temp-path $MNT
-		do_stress --verity 0 --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts direct,utimes  --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts dsync --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts iovec,noatime --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fsync,syncfs --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fdatasync --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts rd-rnd,wr-rnd,fadv-rnd --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts rd-seq,wr-seq --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-normal --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-noreuse --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-rnd --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-seq --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-willneed --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-dontneed --temp-path $MNT
+		do_stress --verity -1 --temp-path $MNT
 		DURATION=10
-		sudo $STRESS_NG --class filesystem --ftrace --seq 0 -v --timestamp --syslog -t $DURATION --temp-path $MNT
-		sudo $STRESS_NG --class io --ftrace --seq 0 -v --timestamp --syslog -t $DURATION --temp-path $MNT
+		sudo $STRESS_NG --class filesystem --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT
+		sudo $STRESS_NG --class io --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT
 		umount_filesystem $FS
 	fi
 done
@@ -297,8 +297,8 @@ DURATION=20
 scheds=$(${STRESS_NG} --sched which 2>&1 | tail -1 | cut -d':' -f2-)
 for s in ${scheds}
 do
-	sudo ${STRESS_NG} --sched $s --cpu 0 -t 5 --timestamp --tz --syslog --perf --no-rand-seed --times --metrics
-	sudo ${STRESS_NG} --sched $s --cpu 0 -t 5 --sched-reclaim --timestamp --tz --syslog --perf --no-rand-seed --times --metrics
+	sudo ${STRESS_NG} --sched $s --cpu -1 -t 5 --timestamp --tz --syslog --perf --no-rand-seed --times --metrics
+	sudo ${STRESS_NG} --sched $s --cpu -1 -t 5 --sched-reclaim --timestamp --tz --syslog --perf --no-rand-seed --times --metrics
 done
 
 #
@@ -307,7 +307,7 @@ done
 ionices=$(${STRESS_NG} --ionice-class which 2>&1 | tail -1 | cut -d':' -f2-)
 for i in ${innices}
 do
-	do_stress --ionice-class $i --iomix 0 -t 20
+	do_stress --ionice-class $i --iomix -1 -t 20
 done
 
 #
@@ -333,116 +333,116 @@ do_stress --all 1
 #
 #  Exercise various stressor options
 #
-do_stress --brk 0 --brk-notouch --vmstat 1
-do_stress --brk 0 --brk-mlock
+do_stress --brk -1 --brk-notouch --vmstat 1
+do_stress --brk -1 --brk-mlock
 
-do_stress --cpu 0 --sched batch --thermalstat 1
-do_stress --cpu 0 --taskset 0,2 --ignite-cpu
-do_stress --cpu 0 --taskset 1,2,3
-do_stress --cpu 0 --taskset 0,1,2 --thrash
+do_stress --cpu -1 --sched batch --thermalstat 1
+do_stress --cpu -1 --taskset 0,2 --ignite-cpu
+do_stress --cpu -1 --taskset 1,2,3
+do_stress --cpu -1 --taskset 0,1,2 --thrash
 
-do_stress --cyclic 0 --cyclic-policy deadline
-do_stress --cyclic 0 --cyclic-policy fifo
-do_stress --cyclic 0 --cyclic-policy rr
-do_stress --cyclic 0 --cyclic-method clock_ns
-do_stress --cyclic 0 --cyclic-method itimer
-do_stress --cyclic 0 --cyclic-method poll
-do_stress --cyclic 0 --cyclic-method posix_ns
-do_stress --cyclic 0 --cyclic-method pselect
-do_stress --cyclic 0 --cyclic-method usleep
-do_stress --cyclic 0 --cyclic-prio 50
+do_stress --cyclic -1 --cyclic-policy deadline
+do_stress --cyclic -1 --cyclic-policy fifo
+do_stress --cyclic -1 --cyclic-policy rr
+do_stress --cyclic -1 --cyclic-method clock_ns
+do_stress --cyclic -1 --cyclic-method itimer
+do_stress --cyclic -1 --cyclic-method poll
+do_stress --cyclic -1 --cyclic-method posix_ns
+do_stress --cyclic -1 --cyclic-method pselect
+do_stress --cyclic -1 --cyclic-method usleep
+do_stress --cyclic -1 --cyclic-prio 50
 
-do_stress --dccp 0 --dccp-opts send
-do_stress --dccp 0 --dccp-opts sendmsg
-do_stress --dccp 0 --dccp-opts sendmmsg
+do_stress --dccp -1 --dccp-opts send
+do_stress --dccp -1 --dccp-opts sendmsg
+do_stress --dccp -1 --dccp-opts sendmmsg
 
-do_stress --dccp 0 --dccp-domain ipv4
-do_stress --dccp 0 --dccp-domain ipv6
+do_stress --dccp -1 --dccp-domain ipv4
+do_stress --dccp -1 --dccp-domain ipv6
 
-do_stress --epoll 0 --epoll-domain ipv4
-do_stress --epoll 0 --epoll-domain ipv6
-do_stress --epoll 0 --epoll-domain unix
+do_stress --epoll -1 --epoll-domain ipv4
+do_stress --epoll -1 --epoll-domain ipv6
+do_stress --epoll -1 --epoll-domain unix
 
-do_stress --eventfd 0 --eventfd-nonblock
+do_stress --eventfd -1 --eventfd-nonblock
 
-do_stress --itimer 0 --itimer-rand
+do_stress --itimer -1 --itimer-rand
 
-do_stress --lease 0 --lease-breakers 8
-do_stress --lockf 0 --lockf-nonblock
+do_stress --lease -1 --lease-breakers 8
+do_stress --lockf -1 --lockf-nonblock
 
-do_stress --mincore 0 --mincore-random
-do_stress --open 0 --open-fd
+do_stress --mincore -1 --mincore-random
+do_stress --open -1 --open-fd
 
-do_stress --mmap 0 --mmap-file
-do_stress --mmap 0 --mmap-mprotect
-do_stress --mmap 0 --mmap-async
-do_stress --mmap 0 --mmap-odirect
-do_stress --mmap 0 --mmap-osync
+do_stress --mmap -1 --mmap-file
+do_stress --mmap -1 --mmap-mprotect
+do_stress --mmap -1 --mmap-async
+do_stress --mmap -1 --mmap-odirect
+do_stress --mmap -1 --mmap-osync
 
-do_stress --mremap 0 --mremap-mlock
+do_stress --mremap -1 --mremap-mlock
 
-do_stress --pipe 0 --pipe-size 64K
-do_stress --pipe 0 --pipe-size 1M
+do_stress --pipe -1 --pipe-size 64K
+do_stress --pipe -1 --pipe-size 1M
 
-do_stress --pthread 0 --pthread-max 512
-do_stress --pthread 0 --pthread-max 1024
+do_stress --pthread -1 --pthread-max 512
+do_stress --pthread -1 --pthread-max 1024
 
-do_stress --sctp 0 --sctp-domain ipv4
-do_stress --sctp 0 --sctp-domain ipv6
+do_stress --sctp -1 --sctp-domain ipv4
+do_stress --sctp -1 --sctp-domain ipv6
 
-do_stress --seek 0 --seek-punch
+do_stress --seek -1 --seek-punch
 
-do_stress --shm-sysv 0 --shm-sysv-segs 128
+do_stress --shm-sysv -1 --shm-sysv-segs 128
 
-do_stress --sock 0 --sock-nodelay
-do_stress --sock 0 --sock-domain ipv4
-do_stress --sock 0 --sock-domain ipv6
-do_stress --sock 0 --sock-domain unix
-do_stress --sock 0 --sock-type stream
-do_stress --sock 0 --sock-type seqpacket
-do_stress --sock 0 --sock-opts random
+do_stress --sock -1 --sock-nodelay
+do_stress --sock -1 --sock-domain ipv4
+do_stress --sock -1 --sock-domain ipv6
+do_stress --sock -1 --sock-domain unix
+do_stress --sock -1 --sock-type stream
+do_stress --sock -1 --sock-type seqpacket
+do_stress --sock -1 --sock-opts random
 
-do_stress --stack 0 --stack-mlock
-do_stress --stack 0 --stack-fill
+do_stress --stack -1 --stack-mlock
+do_stress --stack -1 --stack-fill
 
-do_stress --stream 0 --stream-madvise hugepage
-do_stress --stream 0 --stream-madvise nohugepage
-do_stress --stream 0 --stream-madvise normal
+do_stress --stream -1 --stream-madvise hugepage
+do_stress --stream -1 --stream-madvise nohugepage
+do_stress --stream -1 --stream-madvise normal
 
-do_stress --timer 0 --timer-rand
-do_stress --timer 0 --timer-freq 1000000
-do_stress --timer 0 --timer-freq 100000 --timer-slack 1000
+do_stress --timer -1 --timer-rand
+do_stress --timer -1 --timer-freq 1000000
+do_stress --timer -1 --timer-freq 100000 --timer-slack 1000
 
-do_stress --timerfd 0 --timerfd-rand
+do_stress --timerfd -1 --timerfd-rand
 
-do_stress --tmpfs 0 --tmpfs-mmap-async
-do_stress --tmpfs 0 --tmpfs-mmap-file
+do_stress --tmpfs -1 --tmpfs-mmap-async
+do_stress --tmpfs -1 --tmpfs-mmap-file
 
-do_stress --tun 0
-do_stress --tun 0 --tun-tap
+do_stress --tun -1
+do_stress --tun -1 --tun-tap
 
-do_stress --udp 0 --udp-domain ipv4
-do_stress --udp 0 --udp-domain ipv6
-do_stress --udp 0 --udp-lite
+do_stress --udp -1 --udp-domain ipv4
+do_stress --udp -1 --udp-domain ipv6
+do_stress --udp -1 --udp-lite
 
-do_stress --udp-flood 0 --udp-flood-domain ipv4
-do_stress --udp-flood 0 --udp-flood-domain ipv6
+do_stress --udp-flood -1 --udp-flood-domain ipv4
+do_stress --udp-flood -1 --udp-flood-domain ipv6
 
-do_stress --utime 0 --utime-fsync
+do_stress --utime -1 --utime-fsync
 
-do_stress --vm 0 --vm-keep
-do_stress --vm 0 --vm-locked
-do_stress --vm 0 --vm-populate
-do_stress --vm 0 --vm-madvise dontneed
-do_stress --vm 0 --vm-madvise hugepage
-do_stress --vm 0 --vm-madvise mergeable
-do_stress --vm 0 --vm-madvise nohugepage
-do_stress --vm 0 --vm-madvise mergeable
-do_stress --vm 0 --vm-madvise normal
-do_stress --vm 0 --vm-madvise random
-do_stress --vm 0 --vm-madvise sequential
-do_stress --vm 0 --vm-madvise unmergeable
-do_stress --vm 0 --vm-madvise willneed --page-in
+do_stress --vm -1 --vm-keep
+do_stress --vm -1 --vm-locked
+do_stress --vm -1 --vm-populate
+do_stress --vm -1 --vm-madvise dontneed
+do_stress --vm -1 --vm-madvise hugepage
+do_stress --vm -1 --vm-madvise mergeable
+do_stress --vm -1 --vm-madvise nohugepage
+do_stress --vm -1 --vm-madvise mergeable
+do_stress --vm -1 --vm-madvise normal
+do_stress --vm -1 --vm-madvise random
+do_stress --vm -1 --vm-madvise sequential
+do_stress --vm -1 --vm-madvise unmergeable
+do_stress --vm -1 --vm-madvise willneed --page-in
 
 #
 #  Longer duration stress testing to get more
@@ -456,15 +456,15 @@ do_stress --procfs 32
 do_stress --sysinval 8 --pathological
 
 DURATION=120
-do_stress --bad-ioctl 0 --pathological
+do_stress --bad-ioctl -1 --pathological
 
 #
 #  And exercise I/O with plenty of time for file setup
 #  overhead.
 #
 DURATION=60
-sudo $STRESS_NG --class filesystem --ftrace --seq 0 -v --timestamp --syslog -t $DURATION
-sudo $STRESS_NG --class io --ftrace --seq 0 -v --timestamp --syslog -t $DURATION
+sudo $STRESS_NG --class filesystem --ftrace --seq -1 -v --timestamp --syslog -t $DURATION
+sudo $STRESS_NG --class io --ftrace --seq -1 -v --timestamp --syslog -t $DURATION
 
 if [ -f	/sys/kernel/debug/tracing/trace_stat/branch_all ]; then
 	sudo cat  /sys/kernel/debug/tracing/trace_stat/branch_all > branch_all.finish
