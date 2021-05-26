@@ -286,6 +286,8 @@ do
 		DURATION=10
 		sudo $STRESS_NG --class filesystem --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT
 		sudo $STRESS_NG --class io --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT
+		DURATION=5
+		do_stress --sysinfo -1 --temp-path $MNT
 		umount_filesystem $FS
 	fi
 done
