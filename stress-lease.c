@@ -186,6 +186,7 @@ static int stress_lease(const stress_args_t *args)
 	int ret, fd, status;
 	pid_t l_pids[MAX_LEASE_BREAKERS];
 	uint64_t i, lease_breakers = DEFAULT_LEASE_BREAKERS;
+	double t1 = 0.0, t2 = 0.0, dt;
 
 	if (!stress_get_setting("lease-breakers", &lease_breakers)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -228,6 +229,7 @@ static int stress_lease(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t1 = stress_time_now();
 	do {
 		ret = stress_try_lease(args, filename, O_WRONLY | O_APPEND, F_WRLCK);
 		if (ret != EXIT_SUCCESS)
@@ -236,6 +238,7 @@ static int stress_lease(const stress_args_t *args)
 		if (ret != EXIT_SUCCESS)
 			break;
 	} while (keep_stressing(args));
+	t2 = stress_time_now();
 
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -251,6 +254,11 @@ reap:
 	(void)stress_temp_dir_rm_args(args);
 
 	pr_dbg("%s: %" PRIu64 " lease sigio interrupts caught\n", args->name, lease_sigio);
+	dt = t2 - t1;
+	if (dt > 0.0) {
+		stress_misc_stats_set(args->misc_stats, 0, "lease sigio interrupts per sec",
+			(double)lease_sigio / dt);
+	}
 
 	return ret;
 }

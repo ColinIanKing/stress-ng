@@ -690,10 +690,16 @@ static int stress_ipsec_mb(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	for (i = 0; i < n_features; i++) {
-		if (((init_mb[i].features & features) == init_mb[i].features) && (t[i] > 0.0))
+		if (((init_mb[i].features & features) == init_mb[i].features) && (t[i] > 0.0)) {
+			char tmp[32];
+
 			pr_dbg("%s: %s %.3f bogo/ops per second\n",
 				args->name, init_mb[i].name,
 				(double)count / t[i]);
+
+			(void)snprintf(tmp, sizeof(tmp), "%s bogo/ops per second", init_mb[i].name);
+			stress_misc_stats_set(args->misc_stats, i, tmp, (double)count / t[i]);
+		}
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

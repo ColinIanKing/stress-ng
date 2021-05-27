@@ -339,13 +339,19 @@ static int stress_memrate(const stress_args_t *args)
 
 	pr_lock(&lock);
 	for (i = 0; i < memrate_items; i++) {
-		if (context.stats[i].duration > 0.001)
+		if (context.stats[i].duration > 0.001) {
+			char tmp[32];
+			const double rate = context.stats[i].kbytes / (context.stats[i].duration * KB);
+
 			pr_inf_lock(&lock, "%s: %8.8s: %12.2f MB/sec\n",
-				args->name, memrate_info[i].name,
-				context.stats[i].kbytes / (context.stats[i].duration * KB));
-		else
+				args->name, memrate_info[i].name, rate);
+
+			(void)snprintf(tmp, sizeof(tmp), "%s MB/sec", memrate_info[i].name);
+			stress_misc_stats_set(args->misc_stats, i, tmp, rate);
+		} else {
 			pr_inf_lock(&lock, "%s: %8.8s: interrupted early\n",
 				args->name, memrate_info[i].name);
+		}
 	}
 	pr_unlock(&lock);
 

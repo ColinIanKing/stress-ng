@@ -208,6 +208,7 @@ static int stress_sockabuse_server(
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
+	double t1 = 0.0, t2 = 0.0, dt;
 
 	(void)setpgid(pid, g_pgrp);
 
@@ -216,6 +217,7 @@ static int stress_sockabuse_server(
 		goto die;
 	}
 
+	t1 = stress_time_now();
 	do {
 		int i;
 
@@ -306,6 +308,7 @@ static int stress_sockabuse_server(
 		stress_sockabuse_fd(fd);
 		(void)close(fd);
 	} while (keep_stressing(args));
+	t2 = stress_time_now();
 
 die:
 	if (pid) {
@@ -313,6 +316,11 @@ die:
 		(void)shim_waitpid(pid, &status, 0);
 	}
 	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
+	dt = t2 - t1;
+	if (dt > 0.0) {
+		stress_misc_stats_set(args->misc_stats, 0,
+			"messages sent per sec", (double)msgs / dt);
+	}
 
 	return rc;
 }

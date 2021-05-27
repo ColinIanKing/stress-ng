@@ -63,6 +63,7 @@ static int stress_fault(const stress_args_t *args)
 	const size_t len = stress_text_addr(&start, &end);
 	const size_t page_size = args->page_size;
 	void *mapto;
+	double t1 = 0.0, t2 = 0.0, dt;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -82,6 +83,7 @@ static int stress_fault(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t1 = stress_time_now();
 	do {
 		int fd;
 		uint8_t *ptr;
@@ -196,6 +198,7 @@ next:
 		i++;
 		inc_counter(args);
 	} while (keep_stressing(args));
+	t2 = stress_time_now();
 	/* Clean up, most times this is redundant */
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -208,9 +211,17 @@ next:
 #if defined(HAVE_GETRUSAGE) &&		\
     defined(RUSAGE_SELF) &&		\
     defined(HAVE_RUSAGE_RU_MINFLT)
+
 	if (!shim_getrusage(RUSAGE_SELF, &usage)) {
 		pr_dbg("%s: page faults: minor: %lu, major: %lu\n",
 			args->name, usage.ru_minflt, usage.ru_majflt);
+	}
+	dt = t2 - t1;
+	if (dt > 0.0) {
+		stress_misc_stats_set(args->misc_stats, 0, "minor page faults per sec",
+			(double)usage.ru_minflt / dt);
+		stress_misc_stats_set(args->misc_stats, 1, "major page faults per sec",
+			(double)usage.ru_majflt / dt);
 	}
 #endif
 	return EXIT_SUCCESS;

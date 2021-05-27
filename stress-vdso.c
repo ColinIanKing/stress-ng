@@ -449,7 +449,7 @@ static int vdso_sym_list_check_vdso_func(stress_vdso_sym_t **list)
 static int stress_vdso(const stress_args_t *args)
 {
 	char *str;
-	double t1, t2, t3, overhead_ns;
+	double t1, t2, t3, dt, overhead_ns;
 	uint64_t counter;
 
 	if (!vdso_sym_list) {
@@ -505,10 +505,14 @@ static int stress_vdso(const stress_args_t *args)
 	overhead_ns = (double)STRESS_NANOSECOND * ((t3 - t2) / (double)(get_counter(args) - counter));
 	set_counter(args, counter);
 
-	pr_inf("%s: %.2f nanoseconds per call (excluding %.2f nanoseconds test overhead)\n",
-		args->name,
-		((t2 - t1) * (double)STRESS_NANOSECOND) / (double)counter,
-		overhead_ns);
+	dt = t2 - t1;
+	if (dt > 0.0) {
+		const double ns = ((dt * (double)STRESS_NANOSECOND) / (double)counter) - overhead_ns;
+
+		pr_inf("%s: %.2f nanoseconds per call (excluding %.2f nanoseconds test overhead)\n",
+			args->name, ns, overhead_ns);
+		stress_misc_stats_set(args->misc_stats, 0, "nanoseconds per call", ns);
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

@@ -1072,6 +1072,13 @@ typedef struct {
 	void *page_wo;			/* mmap'd PROT_WO page */
 } stress_mapped_t;
 
+#define STRESS_MISC_STATS_MAX	(10)
+
+typedef struct {
+	char description[32];
+	double value;
+} stress_misc_stats_t;
+
 /* stressor args */
 typedef struct {
 	uint64_t *counter;		/* stressor counter */
@@ -1084,6 +1091,7 @@ typedef struct {
 	pid_t ppid;			/* stressor ppid */
 	size_t page_size;		/* page size */
 	stress_mapped_t *mapped;	/* mmap'd pages, addr of g_shared mapped */
+	stress_misc_stats_t *misc_stats;/* misc per stressor stats */
 } stress_args_t;
 
 typedef struct {
@@ -2308,6 +2316,7 @@ typedef struct {
 #endif
 	bool run_ok;			/* true if stressor exited OK */
 	stress_checksum_t *checksum;	/* pointer to checksum data */
+	stress_misc_stats_t misc_stats[STRESS_MISC_STATS_MAX];
 } stress_stats_t;
 
 #define	STRESS_WARN_HASH_MAX		(128)
@@ -4106,6 +4115,8 @@ extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
 extern WARN_UNUSED size_t stress_hostname_length(void);
 extern WARN_UNUSED int32_t stress_set_vmstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
+extern void stress_misc_stats_set(stress_misc_stats_t *misc_stats,
+	const int idx, const char *description, const double value);
 
 extern int stress_ftrace_start(void);
 extern int stress_ftrace_stop(void);

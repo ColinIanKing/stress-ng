@@ -180,6 +180,7 @@ static int stress_aio(const stress_args_t *args)
 	struct sigaction sa, sa_old;
 	char filename[PATH_MAX];
 	uint32_t total = 0, i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
+	double t1 = 0.0, t2 = 0.0, dt;
 
 	if (!stress_get_setting("aio-requests", &opt_aio_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -234,6 +235,7 @@ static int stress_aio(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t1 = stress_time_now();
 	do {
 		(void)shim_usleep_interruptible(250000); /* wait until a signal occurs */
 
@@ -268,6 +270,7 @@ static int stress_aio(const stress_args_t *args)
 			}
 		}
 	} while (keep_stressing(args));
+	t2 = stress_time_now();
 
 	rc = EXIT_SUCCESS;
 
@@ -287,6 +290,10 @@ finish:
 	pr_dbg("%s: total of %" PRIu32 " async I/O signals "
 		"caught (instance %d)\n",
 		args->name, total, args->instance);
+
+	dt = t2 - t1;
+	if (dt > 0.0)
+		stress_misc_stats_set(args->misc_stats, 0, "async I/O signals per sec", (double)total / dt);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
 }

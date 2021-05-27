@@ -276,6 +276,8 @@ static int stress_rdrand(const stress_args_t *args)
 				args->instance);
 		}
 		pr_unlock(&lock);
+		stress_misc_stats_set(args->misc_stats, 0, "billion random bits read", billion_bits);
+		stress_misc_stats_set(args->misc_stats, 1, "billion random bits / sec", billion_bits / duration);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

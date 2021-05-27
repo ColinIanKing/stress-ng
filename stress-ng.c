@@ -1796,7 +1796,7 @@ static stress_stressor_t *stress_get_nth_stressor(const uint32_t n)
 	for (i = 0; ss && (i < n); i++)
 		ss = ss->next;
 
-	return ss; 
+	return ss;
 }
 
 /*
@@ -1816,7 +1816,7 @@ static uint32_t stress_get_num_stressors(void)
 
 /*
  *  stress_stressors_free()
- *	free stressor info from stressor list 
+ *	free stressor info from stressor list
  */
 static void stress_stressors_free(void)
 {
@@ -1860,6 +1860,19 @@ static void NORETURN stress_child_atexit(void)
 	_exit(EXIT_BY_SYS_EXIT);
 }
 
+void stress_misc_stats_set(
+	stress_misc_stats_t *misc_stats,
+	const int idx,
+	const char *description,
+	const double value)
+{
+	if ((idx < 0) || (idx >= STRESS_MISC_STATS_MAX))
+		return;
+
+	(void)strlcpy(misc_stats[idx].description, description, sizeof(misc_stats[idx].description));
+	misc_stats[idx].value = value;
+}
+
 /*
  *  stress_run ()
  *	kick off and run stressors
@@ -1890,6 +1903,7 @@ static void MLOCKED_TEXT stress_run(
 		 */
 		for (j = 0; j < g_stressor_current->num_instances; j++, (*checksum)++) {
 			int rc = EXIT_SUCCESS;
+			size_t i;
 			pid_t pid;
 			char name[64];
 			int64_t backoff = DEFAULT_BACKOFF;
@@ -1907,6 +1921,9 @@ static void MLOCKED_TEXT stress_run(
 			stats->counter_ready = true;
 			stats->counter = 0;
 			stats->checksum = *checksum;
+			for (i = 0; i < SIZEOF_ARRAY(stats->misc_stats); i++) {
+				stress_misc_stats_set(stats->misc_stats, i, "", -1);
+			}
 again:
 			if (!keep_stressing_flag())
 				break;
@@ -1975,7 +1992,8 @@ again:
 						.pid = getpid(),
 						.ppid = getppid(),
 						.page_size = stress_get_pagesize(),
-						.mapped = &g_shared->mapped
+						.mapped = &g_shared->mapped,
+						.misc_stats = stats->misc_stats
 					};
 
 					(void)memset(*checksum, 0, sizeof(**checksum));
@@ -2168,6 +2186,30 @@ static void stress_metrics_check(bool *success)
 	}
 }
 
+static char *stess_description_yamlify(const char *description)
+{
+	static char yamlified[40];
+	char *dst, *end = yamlified + sizeof(yamlified);
+	const char *src;
+
+	for (dst = yamlified, src = description; *src; src++) {
+		register int ch = (int)*src;
+
+		if (isalpha(ch)) {
+			*(dst++) = (char)tolower(ch);
+		} else if (isdigit(ch)) {
+			*(dst++) = (char)ch;
+		} else if (ch == ' ') {
+			*(dst++) = '-';
+		}
+		if (dst >= end - 1)
+			break;
+	}
+	*dst = '\0';
+
+	return yamlified;
+}
+
 /*
  *  stress_metrics_dump()
  *	output metrics
@@ -2199,9 +2241,11 @@ static void stress_metrics_dump(
 		uint64_t c_total = 0, u_total = 0, s_total = 0;
 		double   r_total = 0.0;
 		int32_t  j;
+		size_t i;
 		const char *munged = stress_munge_underscore(ss->stressor->name);
 		double u_time, s_time, t_time, bogo_rate_r_time, bogo_rate, cpu_usage;
 		bool run_ok = false;
+		bool lock = false;
 
 		for (j = 0; j < ss->started_instances; j++) {
 			const stress_stats_t *const stats = ss->stats[j];
@@ -2225,7 +2269,7 @@ static void stress_metrics_dump(
 		u_time = (ticks_per_sec > 0) ? (double)u_total / (double)ticks_per_sec : 0.0;
 		s_time = (ticks_per_sec > 0) ? (double)s_total / (double)ticks_per_sec : 0.0;
 		t_time = u_time + s_time;
-		
+
 		/* Total usr + sys time of all procs */
 		bogo_rate_r_time = (r_total > 0.0) ? (double)c_total / r_total : 0.0;
 		{
@@ -2236,6 +2280,7 @@ static void stress_metrics_dump(
 		cpu_usage = (r_total > 0) ? 100.0 * t_time / r_total : 0.0;
 		cpu_usage = ss->started_instances ? cpu_usage / ss->started_instances : 0.0;
 
+		pr_lock(&lock);
 		if (g_opt_flags & OPT_FLAGS_METRICS_BRIEF) {
 			pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f\n",
 				munged,		/* stress test name */
@@ -2257,6 +2302,24 @@ static void stress_metrics_dump(
 				bogo_rate,	/* bogo ops per second */
 				cpu_usage);	/* % cpu usage */
 		}
+		for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
+			double total = 0.0;
+			const char *description = ss->stats[0]->misc_stats[i].description;
+
+			if (*description) {
+				double metric;
+
+				for (j = 0; j < ss->started_instances; j++) {
+					const stress_stats_t *const stats = ss->stats[j];
+
+					total += stats->misc_stats[i].value;
+				}
+				metric = ss->started_instances ? total / ss->started_instances : 0.0;
+				pr_inf("%-13s %9.2f %s (average per stressor)\n",
+					munged, metric, description);
+			};
+		}
+		pr_unlock(&lock);
 
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
 		pr_yaml(yaml, "      bogo-ops: %" PRIu64 "\n", c_total);
@@ -2266,6 +2329,24 @@ static void stress_metrics_dump(
 		pr_yaml(yaml, "      user-time: %f\n", u_time);
 		pr_yaml(yaml, "      system-time: %f\n", s_time);
 		pr_yaml(yaml, "      cpu-usage-per-instance: %f\n", cpu_usage);
+
+		for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
+			double total = 0.0;
+			const char *description = ss->stats[0]->misc_stats[i].description;
+
+			if (*description) {
+				double metric;
+
+				for (j = 0; j < ss->started_instances; j++) {
+					const stress_stats_t *const stats = ss->stats[j];
+
+					total += stats->misc_stats[i].value;
+				}
+				metric = ss->started_instances ? total / ss->started_instances : 0.0;
+				pr_yaml(yaml, "      %s: %f\n", stess_description_yamlify(description), metric);
+			};
+		}
+
 		pr_yaml(yaml, "\n");
 	}
 }

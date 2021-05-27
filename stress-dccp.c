@@ -222,6 +222,7 @@ static int stress_dccp_server(
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
+	double t1 = 0.0, t2 = 0.0, dt;
 
 	(void)setpgid(pid, g_pgrp);
 
@@ -269,6 +270,7 @@ static int stress_dccp_server(
 		goto die_close;
 	}
 
+	t1 = stress_time_now();
 	do {
 		int sfd;
 
@@ -380,6 +382,7 @@ again:
 die_close:
 	(void)close(fd);
 die:
+	t2 = stress_time_now();
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
 	if (addr && (dccp_domain == AF_UNIX)) {
@@ -388,11 +391,16 @@ die:
 		(void)unlink(addr_un->sun_path);
 	}
 #endif
+
 	if (pid) {
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
 	pr_dbg("%s: %" PRIu64 " messages sent\n", args->name, msgs);
+
+	dt = t2 - t1;
+	if (dt > 0.0)
+		stress_misc_stats_set(args->misc_stats, 0, "messages per sec", (double)msgs / dt);
 
 	return rc;
 }
