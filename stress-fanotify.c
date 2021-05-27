@@ -313,11 +313,11 @@ static int test_fanotify_mark(const char *name, char *mounts[])
  *  fanotify_event_init()
  *	initialize fanotify
  */
-static int fanotify_event_init(const char *name, char *mounts[])
+static int fanotify_event_init(const char *name, char *mounts[], const int flags)
 {
 	int fan_fd, count = 0, i;
 
-	fan_fd = fanotify_init(0, 0);
+	fan_fd = fanotify_init(flags, 0);
 	if (fan_fd < 0) {
 		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
 			name, errno, strerror(errno));
@@ -420,6 +420,53 @@ static void stress_fanotify_init_exercise(const unsigned int flags)
 		(void)close(ret_fd);
 }
 
+static void stress_fanotify_read_events(
+	const stress_args_t *args,
+	const int fan_fd,
+	void *buffer,
+	const size_t buffer_size,
+	stress_fanotify_account_t *account)
+{
+	ssize_t len;
+	struct fanotify_event_metadata *metadata;
+
+	len = read(fan_fd, (void *)buffer, buffer_size);
+	if (len <= 0)
+		return;
+
+	metadata = (struct fanotify_event_metadata *)buffer;
+
+	while (FAN_EVENT_OK(metadata, len)) {
+		if (!keep_stressing_flag())
+			break;
+		if ((metadata->fd != FAN_NOFD) && (metadata->fd >= 0)) {
+#if defined(FAN_OPEN)
+			if (metadata->mask & FAN_OPEN)
+				account->open++;
+#endif
+#if defined(FAN_CLOSE_WRITE)
+			if (metadata->mask & FAN_CLOSE_WRITE)
+				account->close_write++;
+#endif
+#if defined(FAN_CLOSE_NOWRITE)
+			if (metadata->mask & FAN_CLOSE_NOWRITE)
+				account->close_nowrite++;
+#endif
+#if defined(FAN_ACCESS)
+			if (metadata->mask & FAN_ACCESS)
+				account->access++;
+#endif
+#if defined(FAN_MODIFY)
+			if (metadata->mask & FAN_MODIFY)
+				account->modify++;
+#endif
+			inc_counter(args);
+			(void)close(metadata->fd);
+		}
+		metadata = FAN_EVENT_NEXT(metadata, len);
+	}
+}
+
 /*
  *  stress_fanotify()
  *	stress fanotify
@@ -427,7 +474,7 @@ static void stress_fanotify_init_exercise(const unsigned int flags)
 static int stress_fanotify(const stress_args_t *args)
 {
 	char pathname[PATH_MAX - 16], filename[PATH_MAX];
-	int ret, fan_fd, pid, rc = EXIT_SUCCESS;
+	int ret, pid, rc = EXIT_SUCCESS;
 	stress_fanotify_account_t account;
 
 	(void)memset(&account, 0, sizeof(account));
@@ -508,6 +555,7 @@ static int stress_fanotify(const stress_args_t *args)
 		_exit(EXIT_SUCCESS);
 	} else {
 		void *buffer;
+		int fan_fd1, fan_fd2 = -1, max_fd;
 
 		fanotify_event_init_invalid();
 
@@ -519,12 +567,21 @@ static int stress_fanotify(const stress_args_t *args)
 			goto tidy;
 		}
 
-		fan_fd = fanotify_event_init(args->name, mnts);
-		if (fan_fd < 0) {
+		fan_fd1 = fanotify_event_init(args->name, mnts, 0);
+		if (fan_fd1 < 0) {
 			free(buffer);
 			rc = EXIT_FAILURE;
 			goto tidy;
 		}
+
+#if defined(FAN_CLASS_NOTIF) &&		\
+    defined(FAN_REPORT_DFID_NAME)
+		fan_fd2 = fanotify_event_init(args->name, mnts, FAN_CLASS_NOTIF | FAN_REPORT_DFID_NAME);
+		if (fan_fd2 < 0) {
+			fan_fd2 = -1;
+		}
+#endif
+		max_fd = STRESS_MAXIMUM(fan_fd1, fan_fd2);
 
 		ret = test_fanotify_mark(args->name, mnts);
 		if (ret < 0) {
@@ -535,12 +592,13 @@ static int stress_fanotify(const stress_args_t *args)
 
 		do {
 			fd_set rfds;
-			ssize_t len;
 			size_t i;
 
 			FD_ZERO(&rfds);
-			FD_SET(fan_fd, &rfds);
-			ret = select(fan_fd + 1, &rfds, NULL, NULL, NULL);
+			FD_SET(fan_fd1, &rfds);
+			if (fan_fd2 >= 0)
+				FD_SET(fan_fd2, &rfds);
+			ret = select(max_fd + 1, &rfds, NULL, NULL, NULL);
 			if (ret == -1) {
 				if (errno == EINTR)
 					continue;
@@ -560,44 +618,14 @@ static int stress_fanotify(const stress_args_t *args)
 				 *  of bytes that are ready to be read
 				 *  for some extra stress
 				 */
-				ret = ioctl(fan_fd, FIONREAD, &isz);
+				ret = ioctl(fan_fd1, FIONREAD, &isz);
 				(void)ret;
 			}
 #endif
-			if ((len = read(fan_fd, (void *)buffer, BUFFER_SIZE)) > 0) {
-				struct fanotify_event_metadata *metadata;
-				metadata = (struct fanotify_event_metadata *)buffer;
-
-				while (FAN_EVENT_OK(metadata, len)) {
-					if (!keep_stressing_flag())
-						break;
-					if ((metadata->fd != FAN_NOFD) && (metadata->fd >= 0)) {
-#if defined(FAN_OPEN)
-						if (metadata->mask & FAN_OPEN)
-							account.open++;
-#endif
-#if defined(FAN_CLOSE_WRITE)
-						if (metadata->mask & FAN_CLOSE_WRITE)
-							account.close_write++;
-#endif
-#if defined(FAN_CLOSE_NOWRITE)
-						if (metadata->mask & FAN_CLOSE_NOWRITE)
-							account.close_nowrite++;
-#endif
-#if defined(FAN_ACCESS)
-						if (metadata->mask & FAN_ACCESS)
-							account.access++;
-#endif
-#if defined(FAN_MODIFY)
-						if (metadata->mask & FAN_MODIFY)
-							account.modify++;
-#endif
-						inc_counter(args);
-						(void)close(metadata->fd);
-					}
-					metadata = FAN_EVENT_NEXT(metadata, len);
-				}
-			}
+			if (FD_ISSET(fan_fd1, &rfds))
+				stress_fanotify_read_events(args, fan_fd1, buffer, BUFFER_SIZE, &account);
+			if ((fan_fd2 >= 0) && FD_ISSET(fan_fd2, &rfds))
+				stress_fanotify_read_events(args, fan_fd2, buffer, BUFFER_SIZE, &account);
 
 			/*
 			 * Exercise fanotify_init with all possible values
@@ -609,8 +637,12 @@ static int stress_fanotify(const stress_args_t *args)
 		} while (keep_stressing(args));
 
 		free(buffer);
-		fanotify_event_clear(fan_fd);
-		(void)close(fan_fd);
+		fanotify_event_clear(fan_fd1);
+		(void)close(fan_fd1);
+		if (fan_fd2 >= 0) {
+			fanotify_event_clear(fan_fd2);
+			(void)close(fan_fd2);
+		}
 		pr_inf("%s: "
 			"%" PRIu64 " open, "
 			"%" PRIu64 " close write, "
