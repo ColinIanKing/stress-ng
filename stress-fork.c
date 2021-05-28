@@ -202,7 +202,7 @@ static int stress_fork(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	rc = stress_fork_fn(args, STRESS_VFORK, fork_max);
+	rc = stress_fork_fn(args, STRESS_FORK, fork_max);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
