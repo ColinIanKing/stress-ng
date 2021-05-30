@@ -89,7 +89,18 @@ static void stress_sockabuse_fd(const int fd)
 	}
 #endif
 #if defined(HAVE_FUTIMENS)
-	VOID_RET(int, futimens(fd, timespec));
+	{
+		struct timeval now;
+
+		if (gettimeofday(&now, NULL) == 0) {
+			timespec[0].tv_sec = now.tv_sec;
+			timespec[1].tv_sec = now.tv_sec;
+
+			timespec[0].tv_nsec = 1000 * now.tv_usec;
+			timespec[1].tv_nsec = 1000 * now.tv_usec;
+			VOID_RET(int, futimens(fd, timespec));
+		}
+	}
 #endif
 	addrlen = sizeof(addr);
 	VOID_RET(int, getpeername(fd, &addr, &addrlen));
