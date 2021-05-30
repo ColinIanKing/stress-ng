@@ -81,6 +81,9 @@ static int stress_xattr(const stress_args_t *args)
 		char attrname[32];
 		char value[32];
 		char tmp[sizeof(value)];
+#if defined(XATTR_SIZE_MAX)
+		char large_tmp[XATTR_SIZE_MAX + 1];
+#endif
 		char small_tmp[1];
 		ssize_t sret;
 		char *buffer;
@@ -194,7 +197,8 @@ static int stress_xattr(const stress_args_t *args)
 
 #if defined(XATTR_SIZE_MAX)
 		/* Exercise invalid size argument fsetxattr syscall */
-		ret = shim_fsetxattr(fd, attrname, value, XATTR_SIZE_MAX + 1,
+		(void)memset(large_tmp, 'f', sizeof(large_tmp));
+		ret = shim_fsetxattr(fd, attrname, large_tmp, XATTR_SIZE_MAX + 1,
 			XATTR_CREATE);
 		if (ret >= 0) {
 			pr_fail("%s: fsetxattr succeeded unexpectedly, "
@@ -207,7 +211,8 @@ static int stress_xattr(const stress_args_t *args)
 
 #if defined(HAVE_LSETXATTR) && \
     defined(XATTR_SIZE_MAX)
-		ret = shim_lsetxattr(filename, attrname, value,
+		(void)memset(large_tmp, 'l', sizeof(large_tmp));
+		ret = shim_lsetxattr(filename, attrname, large_tmp,
 			XATTR_SIZE_MAX + 1, XATTR_CREATE);
 		if (ret >= 0) {
 			pr_fail("%s: lsetxattr succeeded unexpectedly, "
@@ -219,7 +224,8 @@ static int stress_xattr(const stress_args_t *args)
 #endif
 
 #if defined(XATTR_SIZE_MAX)
-		ret = shim_setxattr(filename, attrname, value,
+		(void)memset(large_tmp, 's', sizeof(large_tmp));
+		ret = shim_setxattr(filename, attrname, large_tmp,
 			XATTR_SIZE_MAX + 1, XATTR_CREATE);
 		if (ret >= 0) {
 			pr_fail("%s: setxattr succeeded unexpectedly, "
