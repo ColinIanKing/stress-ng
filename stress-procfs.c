@@ -580,7 +580,6 @@ static char *stress_random_pid(void)
 		j += (size_t)stress_mwc32();
 		j %= (size_t)n;
 
-printf("%zu\n", j);
 		name = dlist[j]->d_name;
 
 		if (isdigit(name[0])) {
