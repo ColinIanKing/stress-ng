@@ -3097,6 +3097,7 @@ static void stress_dev_dir(
 			}
 			ret = shim_pthread_spin_lock(&lock);
 			if (!ret) {
+				(void)memcpy(filename, 0, sizeof(filename));
 				(void)shim_strlcpy(filename, tmp, sizeof(filename));
 				dev_path = filename;
 				(void)shim_pthread_spin_unlock(&lock);
