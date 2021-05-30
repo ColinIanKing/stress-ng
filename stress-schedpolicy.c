@@ -289,10 +289,12 @@ static int stress_schedpolicy(const stress_args_t *args)
 		(void)ret;
 
 		/* Exercise -ve pid */
+		(void)memset(&attr, 0, sizeof(attr));
 		ret = shim_sched_getattr(-1, &attr, sizeof(attr), 0);
 		(void)ret;
 
 		/* Exercise bad pid, ESRCH error */
+		(void)memset(&attr, 0, sizeof(attr));
 		ret = shim_sched_getattr(stress_get_unused_pid_racy(false),
 			&attr, sizeof(attr), 0);
 		(void)ret;
