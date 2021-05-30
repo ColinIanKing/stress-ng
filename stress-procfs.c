@@ -303,6 +303,7 @@ static inline void stress_proc_rw(
 		pos = lseek(fd, 0, SEEK_SET);
 		if (pos < 0)
 			goto mmap_test;
+		(void)memset(buffer, 0, sizeof(buffer));
 		ret = read(fd, buffer, sizeof(buffer));
 		if (ret < 0)
 			goto mmap_test;
