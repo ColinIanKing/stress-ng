@@ -147,7 +147,9 @@ again:
 			if (n++ >= 64) {
 				n = 0;
 
+
 				/* Exercise write using small buffer */
+				(void)memset(re, 0, sizeof(re));
 				ret = write(fd1, re, sizeof(re));
 				(void)ret;
 
