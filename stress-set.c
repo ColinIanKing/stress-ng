@@ -225,6 +225,7 @@ static int stress_set(const stress_args_t *args)
 			gid_t groups[GIDS_MAX];
 			int n;
 
+			(void)memset(groups, 0, sizeof(groups));
 			ret = STRESS_MINIMUM(ret, (int)SIZEOF_ARRAY(groups));
 			n = getgroups(ret, groups);
 			if (n > 0) {
