@@ -260,8 +260,8 @@ timed_out:
 #if defined(GETALL)
 			/* Avoid zero array size allocation */
 			nsems = ds.sem_nsems;
-			if (!nsems)
-				nsems = 1;
+			if (nsems < 64)
+				nsems = 64;
 			s.array = calloc(nsems, sizeof(*s.array));
 			if (s.array) {
 				ret = semctl(sem_id, 2, GETALL, s);
