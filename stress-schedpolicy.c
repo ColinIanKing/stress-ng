@@ -276,6 +276,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 		{
 			char large_attr[args->page_size + 16];
 
+			(void)memset(large_attr, 0, sizeof(large_attr));
+
 			ret = shim_sched_getattr(pid,
 				(struct shim_sched_attr *)large_attr,
 				(unsigned int)sizeof(large_attr), 0);
