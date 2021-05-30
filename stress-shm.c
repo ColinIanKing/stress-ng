@@ -176,6 +176,7 @@ static int stress_shm_posix_child(
 			}
 
 			/* Inform parent of the new shm name */
+			(void)memset(&msg, 0, sizeof(msg));
 			msg.index = i;
 			shm_name[SHM_NAME_LEN - 1] = '\0';
 			(void)shim_strlcpy(msg.shm_name, shm_name, SHM_NAME_LEN);
