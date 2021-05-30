@@ -560,7 +560,8 @@ static char *stress_random_pid(void)
 {
 	struct dirent **dlist = NULL;
 	static char path[PATH_MAX];
-	int i, j, n;
+	int i, n;
+	size_t j;
 
 	(void)shim_strlcpy(path, "/proc/self", sizeof(path));
 
@@ -575,9 +576,10 @@ static char *stress_random_pid(void)
 	 */
 	for (i = 0, j = 0; i < 32; i++) {
 		char *name;
-		j += (int)stress_mwc32();
-		j %= n;
+		j += (size_t)stress_mwc32();
+		j %= (size_t)n;
 
+printf("%zu\n", j);
 		name = dlist[j]->d_name;
 
 		if (isdigit(name[0])) {
