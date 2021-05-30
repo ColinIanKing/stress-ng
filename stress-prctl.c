@@ -445,13 +445,15 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_GET_KEEPCAPS)
 	{
-		int flag;
+		int flag = 0;
 
 		ret = prctl(PR_GET_KEEPCAPS, &flag);
 		(void)ret;
 
 #if defined(PR_SET_KEEPCAPS)
 		if (ret == 0) {
+			ret = prctl(PR_SET_KEEPCAPS, !flag);
+			(void)ret;
 			ret = prctl(PR_SET_KEEPCAPS, flag);
 			(void)ret;
 		}
