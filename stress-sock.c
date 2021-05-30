@@ -259,6 +259,7 @@ static void stress_sock_ioctl(
 		int ret;
 		struct ifconf ifc;
 
+		(void)memset(&ifc, 0, sizeof(ifc));
 		ret = ioctl(fd, SIOCGIFCONF, &ifc);
 		(void)ret;
 	}
