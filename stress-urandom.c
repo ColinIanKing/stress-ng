@@ -176,8 +176,16 @@ next:
 				check_eperm(args, ret, errno);
 #endif
 #if defined(RNDADDTOENTCNT)
-				ret = ioctl(fd_rnd, RNDADDTOENTCNT, stress_mwc32());
-				check_eperm(args, ret, errno);
+				{
+					int count = stress_mwc8();
+
+					ret = ioctl(fd_rnd, RNDADDTOENTCNT, &count);
+					check_eperm(args, ret, errno);
+
+					count = -1;
+					ret = ioctl(fd_rnd, RNDADDTOENTCNT, &count);
+					check_eperm(args, ret, errno);
+				}
 #endif
 #if defined(RNDRESEEDCRNG)
 				ret = ioctl(fd_rnd, RNDRESEEDCRNG, stress_mwc32());
