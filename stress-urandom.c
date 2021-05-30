@@ -135,7 +135,7 @@ static int stress_urandom(const stress_args_t *args)
 		if (fd_rnd >= 0) {
 			off_t offset;
 #if defined(RNDGETENTCNT)
-			unsigned long val;
+			unsigned long val = 0;
 
 			if (ioctl(fd_rnd, RNDGETENTCNT, &val) < 0)
 				goto next;
