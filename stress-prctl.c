@@ -306,13 +306,15 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_GET_CHILD_SUBREAPER)
 	{
-		int reaper;
+		int reaper = 0;
 
 		ret = prctl(PR_GET_CHILD_SUBREAPER, &reaper);
 		(void)ret;
 
 #if defined(PR_SET_CHILD_SUBREAPER)
 		if (ret == 0) {
+			ret = prctl(PR_SET_CHILD_SUBREAPER, !reaper);
+			(void)ret;
 			ret = prctl(PR_SET_CHILD_SUBREAPER, reaper);
 			(void)ret;
 		}
