@@ -1278,6 +1278,7 @@ typedef struct {			/* vmstat column */
 #if ((defined(__GNUC__) && NEED_GNUC(4, 6, 0) ||	\
      (defined(__clang__) && NEED_CLANG(3, 0, 0)))) &&	\
     !defined(__sun__) &&				\
+    !defined(__APPLE__) &&				\
     !defined(BUILD_STATIC)
 #define MLOCKED_TEXT	__attribute__((__section__("mlocked_text")))
 #define MLOCKED_SECTION 1
