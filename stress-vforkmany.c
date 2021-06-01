@@ -147,6 +147,8 @@ fork_again:
 
 		if (waste != MAP_FAILED)
 			(void)stress_mincore_touch_pages_interruptible(waste, WASTE_SIZE);
+		if (!keep_stressing_flag())
+			_exit(0);
 		do {
 			/*
 			 *  Force pid to be a register, if it's
