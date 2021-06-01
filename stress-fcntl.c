@@ -74,7 +74,11 @@ static void check_return(const stress_args_t *args, const int ret, const char *c
 /*
  *  do_fcntl()
  */
-static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
+static int do_fcntl(
+	const stress_args_t *args,
+	const int fd,
+	const int bad_fd,
+	const int path_fd)
 {
 #if defined(F_DUPFD)
 	{
@@ -169,6 +173,14 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		/* This should return -EINVAL */
 		ret = fcntl(fd, F_SETOWN, INT_MIN);
 		(void)ret;
+
+		/* This is intended to probably fail with -ESRCH */
+		ret = fcntl(fd, F_SETOWN, stress_get_unused_pid_racy(false));
+		(void)ret;
+
+		/* And set back to current pid */
+		ret = fcntl(fd, F_SETOWN, args->pid);
+		(void)ret;
 	}
 #endif
 
@@ -213,10 +225,18 @@ static int do_fcntl(const stress_args_t *args, const int fd, const int bad_fd)
 		struct f_owner_ex owner;
 
 #if defined(F_OWNER_PID)
+		/* This is intended to probably fail with -ESRCH */
+		owner.type = F_OWNER_PID;
+		owner.pid = stress_get_unused_pid_racy(false);
+		ret = fcntl(fd, F_SETOWN_EX, &owner);
+		(void)ret;
+
+		/* set to stressor's pid */
 		owner.type = F_OWNER_PID;
 		owner.pid = args->pid;
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		(void)ret;
+
 #endif
 #if defined(HAVE_GETPGRP) &&	\
     defined(F_OWNER_PGRP)
@@ -579,8 +599,9 @@ ofd_lock_abort:	{ /* Nowt */ }
 			RWH_WRITE_LIFE_NONE,
 #endif
 #if defined(RWF_WRITE_LIFE_NOT_SET)
-			RWF_WRITE_LIFE_NOT_SET
+			RWF_WRITE_LIFE_NOT_SET,
 #endif
+			~0U,	/* Invalid */
 		};
 
 #if defined(F_GET_FILE_RW_HINT) &&	\
@@ -613,7 +634,6 @@ ofd_lock_abort:	{ /* Nowt */ }
 	}
 #endif
 
-
 #if defined(F_GETFD)
 	{
 		int ret;
@@ -627,6 +647,31 @@ ofd_lock_abort:	{ /* Nowt */ }
 #else
 	(void)bad_fd;
 #endif
+
+#if defined(O_PATH)
+#if defined(F_DUPFD)
+	{
+		int ret;
+
+		/* Exercise allowed F_DUPFD on a path fd */
+		ret = fcntl(path_fd, F_DUPFD, 0);
+		if (ret > -1)
+			(void)close(ret);
+	}
+#endif
+#if defined(F_GETOWN)
+	{
+		int ret;
+
+		/* Exercise not allowed F_GETOWN on a path fd, EBADF */
+		ret = fcntl(path_fd, F_GETOWN);
+		(void)ret;
+
+	}
+#endif
+#else
+	(void)path_fd;
+#endif
 	return 0;
 }
 
@@ -637,7 +682,7 @@ ofd_lock_abort:	{ /* Nowt */ }
 static int stress_fcntl(const stress_args_t *args)
 {
 	const pid_t ppid = getppid();
-	int fd, rc = EXIT_FAILURE, retries = 0;
+	int fd, rc = EXIT_FAILURE, retries = 0, path_fd;
 	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX], pathname[PATH_MAX];
 
@@ -656,6 +701,12 @@ static int stress_fcntl(const stress_args_t *args)
 		args->name, ppid, 0, 0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+#if defined(O_PATH)
+	path_fd = open("/bin/true", O_PATH | O_RDONLY);
+#else
+	path_fd = -1;
+#endif
 
 	do {
 		errno = 0;
@@ -687,7 +738,7 @@ static int stress_fcntl(const stress_args_t *args)
 	}
 
 	do {
-		do_fcntl(args, fd, bad_fd);
+		do_fcntl(args, fd, bad_fd, path_fd);
 		inc_counter(args);
 	} while (keep_stressing(args));
 
@@ -695,6 +746,8 @@ static int stress_fcntl(const stress_args_t *args)
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	if (path_fd >= 0)
+		(void)close(path_fd);
 	if (fd >= 0)
 		(void)close(fd);
 	(void)unlink(filename);
