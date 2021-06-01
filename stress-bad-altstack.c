@@ -56,6 +56,16 @@ static inline void stress_bad_altstack_force_fault(uint8_t *stack_start)
 	(void)*vol_stack;		/* cppcheck-suppress nullPointer */
 }
 
+#if defined(SIGXCPU) &&	\
+    defined(RLIMIT_CPU)
+static void NORETURN MLOCKED_TEXT stress_xcpu_handler(int signum)
+{
+	(void)signum;
+
+	_exit(0);
+}
+#endif
+
 static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 {
 	uint8_t data[STRESS_MINSIGSTKSZ * 2];
@@ -181,6 +191,10 @@ again:
 			uint32_t rnd;
 			int ret;
 			stack_t ss, old_ss;
+#if defined(SIGXCPU) &&	\
+    defined(RLIMIT_CPU)
+			struct rlimit rlim;
+#endif
 
 			if (sigsetjmp(jmpbuf, 1) != 0) {
 				/*
@@ -219,6 +233,15 @@ again:
 				return EXIT_FAILURE;
 			if (stress_sighandler(args->name, SIGBUS, stress_signal_handler, NULL) < 0)
 				return EXIT_FAILURE;
+#if defined(SIGXCPU) &&	\
+    defined(RLIMIT_CPU)
+			if (stress_sighandler(args->name, SIGXCPU, stress_xcpu_handler, NULL) < 0)
+				return EXIT_FAILURE;
+
+			rlim.rlim_cur = 1;
+			rlim.rlim_max = 1;
+			(void)setrlimit(RLIMIT_CPU, &rlim);
+#endif
 
 			/* Set alternative stack for testing */
 			if (stress_sigaltstack(stack, STRESS_MINSIGSTKSZ) < 0)
