@@ -32,18 +32,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-STRESS_PRAGMA_PUSH
-STRESS_PRAGMA_WARN_OFF
-static inline pid_t stress_shim_vfork(void)
-{
-#if defined(__NR_vfork)
-	return (pid_t)syscall(__NR_vfork);
-#else
-	return vfork();
-#endif
-}
-STRESS_PRAGMA_POP
-
 /*
  *  vforkmany_wait()
  *	wait and then kill
@@ -74,7 +62,6 @@ static void vforkmany_wait(const pid_t pid)
 static int stress_vforkmany(const stress_args_t *args)
 {
 	static pid_t chpid;
-	static volatile int instance = 0;
 	static uint8_t *stack_sig;
 	static volatile bool *terminate;
 	static bool *terminate_mmap;
@@ -159,7 +146,7 @@ fork_again:
 			 *  This is a dirty hack.
 			 */
 			register pid_t pid;
-			register bool first = (instance == 0);
+			static volatile pid_t start_pid = -1;
 
 vfork_again:
 			/*
@@ -171,18 +158,19 @@ vfork_again:
 				keep_stressing_set_flag(false);
 				break;
 			}
-			inc_counter(args);
-			instance++;
-			if (first) {
+			if (start_pid == -1) {
 				pid = fork();
+				if (pid >= 0)
+					start_pid = getpid();
 			} else {
-				pid = stress_shim_vfork();
+				pid = vfork();
+				inc_counter(args);
 			}
-
 			if (pid < 0) {
-				/* failed, only exit of not the top parent */
-				if (!first)
-					_exit(0);
+				/* failed, only exit of not the first parent */
+				shim_sched_yield();
+				_exit(0);
+				goto vfork_again;
 			} else if (pid == 0) {
 				if (waste != MAP_FAILED)
 					(void)stress_mincore_touch_pages_interruptible(waste, WASTE_SIZE);
@@ -191,15 +179,19 @@ vfork_again:
 				if (!args->max_ops || (get_counter(args) < args->max_ops))
 					goto vfork_again;
 				_exit(0);
+			} else {
+				/* parent, wait for child, and exit if not first parent */
+				if (pid >= 1)
+					(void)vforkmany_wait(pid);
+				shim_sched_yield();
+				if (getpid() != start_pid)
+					_exit(0);
 			}
-			/* parent, wait for child, and exit if not top parent */
-			(void)vforkmany_wait(pid);
-			if (!first)
-				_exit(0);
 		} while (keep_stressing(args));
 
 		if (waste != MAP_FAILED)
 			(void)munmap((void *)waste, WASTE_SIZE);
+
 		_exit(0);
 	} else {
 		/*
