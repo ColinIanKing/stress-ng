@@ -146,14 +146,14 @@ again:
 
 			(void)setpgid(pid, g_pgrp);
 			/* Parent, wait for child */
-			ret = shim_waitpid(pid, &status, 0);
+			ret = waitpid(pid, &status, 0);
 			if (ret < 0) {
 				if (errno != EINTR)
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				(void)kill(pid, SIGTERM);
 				(void)kill(pid, SIGKILL);
-				(void)shim_waitpid(pid, &status, 0);
+				(void)waitpid(pid, &status, 0);
 			} else if (WIFSIGNALED(status)) {
 				/* If we got killed by OOM killer, re-start */
 				if (WTERMSIG(status) == SIGKILL) {
