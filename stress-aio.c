@@ -169,6 +169,47 @@ static int issue_aio_request(
 	return 1;
 }
 
+#if defined(HAVE_AIO_FSYNC) &&	\
+    defined(O_SYNC) &&		\
+    defined(O_DSYNC)
+/*
+ *  issue_aio_sync_request()
+ *	construct an AIO sync request and action it
+ */
+static int issue_aio_sync_request(
+	const char *name,
+	const int fd,
+	stress_io_req_t *const io_req)
+{
+	while (keep_stressing_flag()) {
+		int ret;
+		const int op = stress_mwc1() ? O_SYNC : O_DSYNC;
+
+		io_req->request = 0;
+		io_req->status = EINPROGRESS;
+		io_req->aiocb.aio_fildes = fd;
+		io_req->aiocb.aio_buf = 0;
+		io_req->aiocb.aio_nbytes = 0;
+		io_req->aiocb.aio_reqprio = 0;
+		io_req->aiocb.aio_offset = 0;
+		io_req->aiocb.aio_sigevent.sigev_notify = SIGEV_SIGNAL;
+		io_req->aiocb.aio_sigevent.sigev_signo = SIGUSR1;
+		io_req->aiocb.aio_sigevent.sigev_value.sival_ptr = io_req;
+
+		ret = aio_fsync(op, &io_req->aiocb);
+		if (ret < 0) {
+			if ((errno == EAGAIN) || (errno == EINTR))
+				continue;
+			pr_err("%s: failed to issue aio request: %d (%s)\n",
+				name, errno, strerror(errno));
+		}
+		return ret;
+	}
+	/* Given up */
+	return 1;
+}
+#endif
+
 /*
  *  stress_aio
  *	stress asynchronous I/O
@@ -232,7 +273,6 @@ static int stress_aio(const stress_args_t *args)
 			goto cancel;
 		}
 	}
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t1 = stress_time_now();
@@ -249,10 +289,26 @@ static int stress_aio(const stress_args_t *args)
 			case 0:
 				/* Succeeded or cancelled, so redo another */
 				inc_counter(args);
-				if (issue_aio_request(args->name, fd,
+#if defined(HAVE_AIO_FSYNC) &&	\
+    defined(O_SYNC) &&		\
+    defined(O_DSYNC)
+				if (i != (opt_aio_requests - 1)) {
+					ret = issue_aio_request(args->name, fd,
+						(off_t)i * BUFFER_SZ,
+						&io_reqs[i], i,
+						stress_mwc1() ? aio_read : aio_write);
+				} else {
+					ret = issue_aio_sync_request(args->name,
+						fd, &io_reqs[i]);
+				}
+#else
+				ret = issue_aio_request(args->name, fd,
 					(off_t)i * BUFFER_SZ, &io_reqs[i], i,
-					stress_mwc1() ? aio_read : aio_write) < 0)
+					stress_mwc1() ? aio_read : aio_write);
+#endif
+				if (ret < 0)
 					goto cancel;
+
 				break;
 			case EINPROGRESS:
 				break;
