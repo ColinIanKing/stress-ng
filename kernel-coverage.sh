@@ -150,6 +150,12 @@ mount_filesystem()
 			MKFS_ARGS=""
 			MNT_CMD="sudo mount -t ramfs -o size=1G ramfs ${MNT}"
 			;;
+		reiserfs)
+			MKFS_CMD="mkfs.reiserfs"
+			MKFS_ARGS="-q -f ${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			;;
 		*)
 			echo "unsupported file system $1"
 			return 1
@@ -267,7 +273,7 @@ fi
 DURATION=180
 do_stress --dev 32
 
-for FS in bfs btrfs ext4 f2fs fat hfs hfsplus jfs minix nilfs ntfs ramfs tmpfs ubifs udf vfat xfs
+for FS in bfs btrfs ext4 f2fs fat hfs hfsplus jfs minix nilfs ntfs ramfs reiserfs tmpfs ubifs udf vfat xfs
 do
 	echo "Filesystem: $FS"
 	if mount_filesystem $FS; then
