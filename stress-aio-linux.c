@@ -140,6 +140,7 @@ static int stress_aiol_submit(
 	do {
 		int ret;
 
+		errno = 0;
 		ret = shim_io_submit(ctx, (long)n, cbs);
 		if (ret >= 0) {
 			break;
@@ -294,7 +295,7 @@ static int stress_aiol(const stress_args_t *args)
 	struct iocb **cbs;
 	int *fds;
 	uint32_t aio_max_nr = DEFAULT_AIO_MAX_NR;
-	uint8_t j = 0;
+	int j = 0;
 	size_t i;
 	int warnings = 0;
 
@@ -522,30 +523,34 @@ retry_open:
 		if (!keep_stressing(args))
 			break;
 
-		j++;
-#if 0
 		/*
 		 *  Async fdsync and fsync every 256 iterations, older kernels don't
 		 *  support these, so don't fail if EINVAL is returned.
 		 */
-		if (j >= 256) {
+		if (j++ >= 256) {
+			static bool do_sync = true;
+
 			j = 0;
+			if (do_sync) {
+				(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
 
-			(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
-			for (bufptr = buffer, i = 0; i < aio_linux_requests; i++, bufptr += BUFFER_SZ) {
-				aio_linux_fill_buffer(i, bufptr, BUFFER_SZ);
+				aio_linux_fill_buffer(0, bufptr, BUFFER_SZ);
 
-				cb[i].aio_fildes = fds[i];
-				cb[i].aio_lio_opcode = (i & 1) ? IO_CMD_FDSYNC : IO_CMD_FSYNC;
-				cbs[i] = &cb[i];
+				cb[0].aio_fildes = fds[0];
+				cb[0].aio_lio_opcode = stress_mwc1() ? IO_CMD_FDSYNC : IO_CMD_FSYNC;
+				cb[0].u.c.buf = NULL;
+				cb[0].u.c.offset = 0;
+				cb[0].u.c.nbytes = 0;
+				cbs[0] = &cb[0];
+				(void)stress_aiol_submit(args, ctx, cbs, 1, true);
+				if (errno == 0) {
+					(void)stress_aiol_wait(args, ctx, events, 1);
+				} else {
+					/* Don't try again */
+					do_sync = false;
+				}
 			}
-			if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, true) < 0)
-				break;
-			if (errno == 0)
-				(void)stress_aiol_wait(args, ctx, events, aio_linux_requests);
-			
 		}
-#endif
 		inc_counter(args);
 	} while (keep_stressing(args));
 
