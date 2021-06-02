@@ -41,7 +41,8 @@ static const stress_help_t help[] = {
     (defined(HAVE_IORING_OP_WRITEV) ||	\
      defined(HAVE_IORING_OP_READV) ||	\
      defined(HAVE_IORING_OP_FSYNC) ||	\
-     defined(HAVE_IORING_OP_NOP))
+     defined(HAVE_IORING_OP_NOP) ||	\
+     defined(HAVE_IORING_FALLOCATE))
 
 /*
  *  io uring file info
@@ -404,6 +405,66 @@ static void stress_io_uring_nop_setup(
 }
 #endif
 
+#if defined(HAVE_IORING_OP_FALLOCATE)
+/*
+ *  stress_io_uring_fallocate_setup()
+ *	setup fallocate submit over io_uring
+ */
+static void stress_io_uring_fallocate_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
+{
+	sqe->fd = io_uring_file->fd;
+	sqe->opcode = IORING_OP_FALLOCATE;
+	sqe->off = 0;			/* offset */
+	sqe->addr = stress_mwc16();	/* length */
+	sqe->len = 0;			/* mode */
+}
+#endif
+
+#if defined(HAVE_IORING_OP_FADVISE)
+/*
+ *  stress_io_uring_fadvise_setup ()
+ *	setup fadvise submit over io_uring
+ */
+static void stress_io_uring_fadvise_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
+{
+	sqe->fd = io_uring_file->fd;
+	sqe->opcode = IORING_OP_FADVISE;
+	sqe->off = 0;			/* offset */
+	sqe->len = stress_mwc16();	/* length */
+#if defined(POSIX_FADV_NORMAL)
+	sqe->fadvise_advice = POSIX_FADV_NORMAL;
+#else
+	sqe->fadvise_advice = 0;
+#endif
+}
+#endif
+
+
+static stress_io_uring_setup stress_io_uring_setups[] = {
+#if defined(HAVE_IORING_OP_READV)
+	stress_io_uring_readv_setup,
+#endif
+#if defined(HAVE_IORING_OP_WRITEV)
+	stress_io_uring_writev_setup,
+#endif
+#if defined(HAVE_IORING_OP_FSYNC)
+	stress_io_uring_fsync_setup,
+#endif
+#if defined(HAVE_IORING_OP_NOP)
+	stress_io_uring_nop_setup,
+#endif
+#if defined(HAVE_IORING_OP_FALLOCATE)
+	stress_io_uring_fallocate_setup,
+#endif
+#if defined(HAVE_IORING_OP_FADVISE)
+	stress_io_uring_fadvise_setup,
+#endif
+};
+
 /*
  *  stress_io_uring
  *	stress asynchronous I/O
@@ -479,29 +540,14 @@ static int stress_io_uring(const stress_args_t *args)
 	rc = EXIT_SUCCESS;
 	i = 0;
 	do {
-#if defined(HAVE_IORING_OP_WRITEV)
-		rc = stress_io_uring_submit(args, stress_io_uring_writev_setup, &io_uring_file, &submit);
-		if (rc != EXIT_SUCCESS)
-			break;
-		if (!keep_stressing(args))
-			break;
-#endif
+		size_t j;
 
-#if defined(HAVE_IORING_OP_READV)
-		rc = stress_io_uring_submit(args, stress_io_uring_readv_setup, &io_uring_file, &submit);
-		if (rc != EXIT_SUCCESS)
-			break;
-		if (!keep_stressing(args))
-			break;
-#endif
+		for (j = 0; j < SIZEOF_ARRAY(stress_io_uring_setups); j++) {
+			rc = stress_io_uring_submit(args, stress_io_uring_setups[j], &io_uring_file, &submit);
+			if ((rc != EXIT_SUCCESS) || !keep_stressing(args))
+				break;
+		}
 
-#if defined(HAVE_IORING_OP_NOP)
-		rc = stress_io_uring_submit(args, stress_io_uring_nop_setup, &io_uring_file, &submit);
-		if (rc != EXIT_SUCCESS)
-			break;
-		if (!keep_stressing(args))
-			break;
-#endif
 		/*
 		 *  occasional sync and fdinfo reads
 		 */
@@ -509,10 +555,9 @@ static int stress_io_uring(const stress_args_t *args)
 			i = 0;
 #if defined(HAVE_IORING_OP_FSYNC)
 			rc = stress_io_uring_submit(args, stress_io_uring_fsync_setup, &io_uring_file, &submit);
-			if (rc != EXIT_SUCCESS)
+			if ((rc != EXIT_SUCCESS) || !keep_stressing(args))
 				break;
 #endif
-
 			(void)stress_read_fdinfo(self, submit.io_uring_fd);
 		}
 	} while (keep_stressing(args));
