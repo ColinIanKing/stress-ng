@@ -395,6 +395,8 @@ static int stress_io_uring_iovec_complete(
 
 	*cring->head = head;
 	shim_mb();
+	if (ret == EXIT_SUCCESS)
+		inc_counter(args);
 
 	return ret;
 }
@@ -522,7 +524,6 @@ static int stress_io_uring(const stress_args_t *args)
 
 			(void)stress_read_fdinfo(self, submit.io_uring_fd);
 		}
-		inc_counter(args);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
