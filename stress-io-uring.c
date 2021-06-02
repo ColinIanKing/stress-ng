@@ -538,7 +538,7 @@ static void stress_io_uring_madvise_setup(
 }
 #endif
 
-static stress_io_uring_setup stress_io_uring_setups[] = {
+static const stress_io_uring_setup stress_io_uring_setups[] = {
 #if defined(HAVE_IORING_OP_READV)
 	stress_io_uring_readv_setup,
 #endif
