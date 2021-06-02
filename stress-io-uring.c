@@ -258,7 +258,8 @@ static void stress_close_io_uring(stress_io_uring_submit_t *submit)
  */
 static inline int stress_io_uring_complete(
 	const stress_args_t *args,
-	stress_io_uring_submit_t *submit)
+	stress_io_uring_submit_t *submit,
+	const uint8_t opcode)
 {
 	stress_uring_io_cq_ring_t *cring = &submit->cq_ring;
 	struct io_uring_cqe *cqe;
@@ -273,11 +274,11 @@ static inline int stress_io_uring_complete(
 			break;
 
 		cqe = &cring->cqes[head & *submit->cq_ring.ring_mask];
-		if (cqe->res < 0) {
+		if ((cqe->res < 0) && (opcode != IORING_OP_FALLOCATE)) {
 			const int err = abs(cqe->res);
 
-			pr_err("%s: completion uring io error: %d (%s)\n",
-				args->name, err, strerror(err));
+			pr_err("%s: completion uring io error, opcode=%d: %d (%s)\n",
+				args->name, opcode, err, strerror(err));
 			ret = EXIT_FAILURE;
 		}
 		head++;
@@ -332,7 +333,7 @@ static int stress_io_uring_submit(
 		return EXIT_FAILURE;
 	}
 
-	return stress_io_uring_complete(args, submit);
+	return stress_io_uring_complete(args, submit, opcode);
 }
 
 #if defined(HAVE_IORING_OP_READV)
@@ -368,6 +369,44 @@ static void stress_io_uring_writev_setup(
 	sqe->opcode = IORING_OP_WRITEV;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs;
 	sqe->len = io_uring_file->blocks;
+	sqe->off = stress_mwc8() * io_uring_file->blocks;
+	sqe->user_data = (uintptr_t)io_uring_file;
+}
+#endif
+
+#if defined(HAVE_IORING_OP_READ)
+/*
+ *  stress_io_uring_read_setup()
+ *	setup read submit over io_uring
+ */
+static void stress_io_uring_read_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
+{
+	sqe->fd = io_uring_file->fd;
+	sqe->flags = 0;
+	sqe->opcode = IORING_OP_READ;
+	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
+	sqe->len = io_uring_file->iovecs[0].iov_len;
+	sqe->off = stress_mwc8() * io_uring_file->blocks;
+	sqe->user_data = (uintptr_t)io_uring_file;
+}
+#endif
+
+#if defined(HAVE_IORING_OP_WRITE)
+/*
+ *  stress_io_uring_write_setup()
+ *	setup write submit over io_uring
+ */
+static void stress_io_uring_write_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
+{
+	sqe->fd = io_uring_file->fd;
+	sqe->flags = 0;
+	sqe->opcode = IORING_OP_WRITE;
+	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
+	sqe->len = io_uring_file->iovecs[0].iov_len;
 	sqe->off = stress_mwc8() * io_uring_file->blocks;
 	sqe->user_data = (uintptr_t)io_uring_file;
 }
@@ -450,6 +489,12 @@ static stress_io_uring_setup stress_io_uring_setups[] = {
 #endif
 #if defined(HAVE_IORING_OP_WRITEV)
 	stress_io_uring_writev_setup,
+#endif
+#if defined(HAVE_IORING_OP_READ)
+	stress_io_uring_read_setup,
+#endif
+#if defined(HAVE_IORING_OP_WRITE)
+	stress_io_uring_write_setup,
 #endif
 #if defined(HAVE_IORING_OP_FSYNC)
 	stress_io_uring_fsync_setup,
