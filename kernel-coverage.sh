@@ -232,6 +232,9 @@ if [ -e $PERF_PARANOID ]; then
 	(echo 0 | sudo tee $PERF_PARANOID) > /dev/null
 fi
 
+core_pattern_saved="$(cat /proc/sys/kernel/core_pattern)"
+echo core | sudo tee /proc/sys/kernel/core_pattern >& /dev/null
+
 #
 #  Try to ensure that this script and parent won't be oom'd
 #
@@ -474,6 +477,7 @@ fi
 
 sudo swapoff $SWAP
 sudo rm $SWAP
+echo "$core_pattern_saved" | sudo tee /proc/sys/kernel/core_pattern >& /dev/null
 
 if [ -e $PERF_PARANOID ]; then
 	(echo $paranoid_saved | sudo tee $PERF_PARANOID) > /dev/null
