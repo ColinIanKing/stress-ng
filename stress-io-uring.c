@@ -93,6 +93,8 @@ typedef struct {
 	size_t sqes_size;
 } stress_io_uring_submit_t;
 
+typedef void (*stress_io_uring_setup)(stress_io_uring_file_t *io_uring_file, struct io_uring_sqe *sqe);
+
 /*
  *  shim_io_uring_setup
  *	wrapper for io_uring_setup()
@@ -242,7 +244,7 @@ static void stress_close_io_uring(stress_io_uring_submit_t *submit)
 		(void)munmap(submit->cq_mmap, submit->cq_size);
 		submit->cq_mmap = NULL;
 	}
-	
+
 	if (submit->sq_mmap) {
 		(void)munmap(submit->sq_mmap, submit->sq_size);
 		submit->sq_mmap = NULL;
@@ -251,10 +253,32 @@ static void stress_close_io_uring(stress_io_uring_submit_t *submit)
 
 static int stress_io_uring_submit(
 	const stress_args_t *args,
-	stress_io_uring_submit_t *submit,
-	const int opcode)
+	stress_io_uring_setup setup_func,
+	stress_io_uring_file_t *io_uring_file,
+	stress_io_uring_submit_t *submit)
 {
+	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
+	unsigned index = 0, tail = 0, next_tail = 0;
+	struct io_uring_sqe *sqe;
 	int ret;
+	uint8_t opcode;
+
+	next_tail = tail = *sring->tail;
+	next_tail++;
+	shim_mb();
+	index = tail & *submit->sq_ring.ring_mask;
+	sqe = &submit->sqes_mmap[index];
+	(void)memset(sqe, 0, sizeof(*sqe));
+
+	setup_func(io_uring_file, sqe);
+	opcode = sqe->opcode;
+
+	sring->array[index] = index;
+	tail = next_tail;
+	if (*sring->tail != tail) {
+		*sring->tail = tail;
+		shim_mb();
+	}
 
 	ret = shim_io_uring_enter(submit->io_uring_fd, 1,
 		1, IORING_ENTER_GETEVENTS);
@@ -266,116 +290,75 @@ static int stress_io_uring_submit(
 	return EXIT_SUCCESS;
 }
 
-#if defined(HAVE_IORING_OP_READV) ||	\
-    defined(HAVE_IORING_OP_WRITEV)
+
+
+#if defined(HAVE_IORING_OP_READV)
 /*
- *  stress_io_uring_iovec_submit()
- *	perform a iovec submit over io_uring
+ *  stress_io_uring_readv_setup()
+ *	setup readv submit over io_uring
  */
-static int stress_io_uring_iovec_submit(
-	const stress_args_t *args,
-	stress_io_uring_submit_t *submit,
+static void stress_io_uring_readv_setup(
 	stress_io_uring_file_t *io_uring_file,
-	const uint8_t opcode)
+	struct io_uring_sqe *sqe)
 {
-	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
-	unsigned index = 0, tail = 0, next_tail = 0;
-	struct io_uring_sqe *sqe;
-
-	next_tail = tail = *sring->tail;
-	next_tail++;
-	shim_mb();
-	index = tail & *submit->sq_ring.ring_mask;
-	sqe = &submit->sqes_mmap[index];
-	(void)memset(sqe, 0, sizeof(*sqe));
-
 	sqe->fd = io_uring_file->fd;
 	sqe->flags = 0;
-	sqe->opcode = opcode;
+	sqe->opcode = IORING_OP_READV;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs;
 	sqe->len = io_uring_file->blocks;
 	sqe->off = 0;
 	sqe->user_data = (uintptr_t)io_uring_file;
-	sring->array[index] = index;
-	tail = next_tail;
+}
+#endif
 
-	if (*sring->tail != tail) {
-		*sring->tail = tail;
-		shim_mb();
-	}
-
-	return stress_io_uring_submit(args, submit, opcode);
+#if defined(HAVE_IORING_OP_WRITEV)
+/*
+ *  stress_io_uring_writev_setup()
+ *	setup writev submit over io_uring
+ */
+static void stress_io_uring_writev_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
+{
+	sqe->fd = io_uring_file->fd;
+	sqe->flags = 0;
+	sqe->opcode = IORING_OP_WRITEV;
+	sqe->addr = (uintptr_t)io_uring_file->iovecs;
+	sqe->len = io_uring_file->blocks;
+	sqe->off = 0;
+	sqe->user_data = (uintptr_t)io_uring_file;
 }
 #endif
 
 #if defined(HAVE_IORING_OP_FSYNC)
 /*
- *  stress_io_uring_fsync_submit()
- *	perform a fsync submit over io_uring
+ *  stress_io_uring_fsync_setup()
+ *	setup fsync submit over io_uring
  */
-static int stress_io_uring_fsync_submit(
-	const stress_args_t *args,
-	stress_io_uring_submit_t *submit,
-	stress_io_uring_file_t *io_uring_file)
+static void stress_io_uring_fsync_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
 {
-	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
-	unsigned index = 0, tail = 0, next_tail = 0;
-	struct io_uring_sqe *sqe;
-
-	next_tail = tail = *sring->tail;
-	next_tail++;
-	shim_mb();
-	index = tail & *submit->sq_ring.ring_mask;
-	sqe = &submit->sqes_mmap[index];
-	(void)memset(sqe, 0, sizeof(*sqe));
-
 	sqe->fd = io_uring_file->fd;
 	sqe->opcode = IORING_OP_FSYNC;
 	sqe->len = 512;
 	sqe->off = 0;
 	sqe->user_data = (uintptr_t)io_uring_file;
-	sring->array[index] = index;
-	tail = next_tail;
-
-	if (*sring->tail != tail) {
-		*sring->tail = tail;
-		shim_mb();
-	}
-	return stress_io_uring_submit(args, submit, IORING_OP_FSYNC);
 }
 #endif
 
 #if defined(HAVE_IORING_OP_NOP)
 /*
- *  stress_io_uring_nop_submit()
- *	perform a nop submit over io_uring
+ *  stress_io_uring_nop_setup()
+ *	setup nop submit over io_uring
  */
-static int stress_io_uring_nop_submit(
-	const stress_args_t *args,
-	stress_io_uring_submit_t *submit,
-	stress_io_uring_file_t *io_uring_file)
+static void stress_io_uring_nop_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
 {
-	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
-	unsigned index = 0, tail = 0, next_tail = 0;
-	struct io_uring_sqe *sqe;
-
-	next_tail = tail = *sring->tail;
-	next_tail++;
-	shim_mb();
-	index = tail & *submit->sq_ring.ring_mask;
-	sqe = &submit->sqes_mmap[index];
-	(void)memset(sqe, 0, sizeof(*sqe));
 	(void)io_uring_file;
 
 	sqe->opcode = IORING_OP_NOP;
-	sring->array[index] = index;
-	tail = next_tail;
-
-	if (*sring->tail != tail) {
-		*sring->tail = tail;
-		shim_mb();
-	}
-	return stress_io_uring_submit(args, submit, IORING_OP_NOP);
 }
 #endif
 
@@ -492,7 +475,7 @@ static int stress_io_uring(const stress_args_t *args)
 	i = 0;
 	do {
 #if defined(HAVE_IORING_OP_WRITEV)
-		rc = stress_io_uring_iovec_submit(args, &submit, &io_uring_file, IORING_OP_WRITEV);
+		rc = stress_io_uring_submit(args, stress_io_uring_writev_setup, &io_uring_file, &submit);
 		if (rc != EXIT_SUCCESS)
 			break;
 		rc = stress_io_uring_iovec_complete(args, &submit);
@@ -503,7 +486,7 @@ static int stress_io_uring(const stress_args_t *args)
 			break;
 
 #if defined(HAVE_IORING_OP_READV)
-		rc = stress_io_uring_iovec_submit(args, &submit, &io_uring_file, IORING_OP_READV);
+		rc = stress_io_uring_submit(args, stress_io_uring_readv_setup, &io_uring_file, &submit);
 		if (rc != EXIT_SUCCESS)
 			break;
 		rc = stress_io_uring_iovec_complete(args, &submit);
@@ -514,7 +497,7 @@ static int stress_io_uring(const stress_args_t *args)
 			break;
 
 #if defined(HAVE_IORING_OP_NOP)
-		rc = stress_io_uring_nop_submit(args, &submit, &io_uring_file);
+		rc = stress_io_uring_submit(args, stress_io_uring_nop_setup, &io_uring_file, &submit);
 		if (rc != EXIT_SUCCESS)
 			break;
 		rc = stress_io_uring_iovec_complete(args, &submit);
@@ -529,7 +512,7 @@ static int stress_io_uring(const stress_args_t *args)
 		if (i++ > 1024) {
 			i = 0;
 #if defined(HAVE_IORING_OP_FSYNC)
-			rc = stress_io_uring_fsync_submit(args, &submit, &io_uring_file);
+			rc = stress_io_uring_submit(args, stress_io_uring_fsync_setup, &io_uring_file, &submit);
 			if (rc != EXIT_SUCCESS)
 				break;
 			rc = stress_io_uring_iovec_complete(args, &submit);
