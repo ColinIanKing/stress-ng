@@ -502,10 +502,8 @@ static void stress_io_uring_close_setup(
 {
 	(void)io_uring_file;
 
+	/* don't worry about bad fd if dup fails */
 	sqe->fd = dup(fileno(stdin));
-	if (sqe->fd < 0)
-		return;
-
 	sqe->opcode = IORING_OP_CLOSE;
 	sqe->ioprio = 0;
 	sqe->off = 0;
