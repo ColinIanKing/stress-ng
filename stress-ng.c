@@ -2041,6 +2041,7 @@ child_exit:
 				stress_stressors_free();
 				stress_cache_free();
 				stress_settings_free();
+				stress_temp_path_free();
 				(void)stress_ftrace_free();
 
 				if ((rc != 0) && (g_opt_flags & OPT_FLAGS_ABORT)) {
