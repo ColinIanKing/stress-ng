@@ -140,6 +140,7 @@ inotify_rm_watch		inotify
 io_cancel			aiol
 io_destroy			aiol
 io_getevents			aiol
+io_pgetevents			aiol
 io_setup			aiol
 io_submit			aiol
 io_uring_enter			io_uring	TODO MORE
