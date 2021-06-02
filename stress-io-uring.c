@@ -426,6 +426,9 @@ static void stress_io_uring_fsync_setup(
 	sqe->len = 512;
 	sqe->off = 0;
 	sqe->user_data = (uintptr_t)io_uring_file;
+	sqe->ioprio = 0;
+	sqe->buf_index = 0;
+	sqe->rw_flags = 0;
 }
 #endif
 
@@ -458,6 +461,9 @@ static void stress_io_uring_fallocate_setup(
 	sqe->off = 0;			/* offset */
 	sqe->addr = stress_mwc16();	/* length */
 	sqe->len = 0;			/* mode */
+	sqe->ioprio = 0;
+	sqe->buf_index = 0;
+	sqe->rw_flags = 0;
 }
 #endif
 
@@ -479,6 +485,34 @@ static void stress_io_uring_fadvise_setup(
 #else
 	sqe->fadvise_advice = 0;
 #endif
+	sqe->ioprio = 0;
+	sqe->buf_index = 0;
+	sqe->addr = 0;
+}
+#endif
+
+#if defined(HAVE_IORING_OP_CLOSE)
+/*
+ *  stress_io_uring_close_setup ()
+ *	setup close submit over io_uring
+ */
+static void stress_io_uring_close_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
+{
+	(void)io_uring_file;
+
+	sqe->fd = dup(fileno(stdin));
+	if (sqe->fd < 0)
+		return;
+
+	sqe->opcode = IORING_OP_CLOSE;
+	sqe->ioprio = 0;
+	sqe->off = 0;
+	sqe->addr = 0;
+	sqe->len = 0;
+	sqe->rw_flags = 0;
+	sqe->buf_index = 0;
 }
 #endif
 
@@ -507,6 +541,9 @@ static stress_io_uring_setup stress_io_uring_setups[] = {
 #endif
 #if defined(HAVE_IORING_OP_FADVISE)
 	stress_io_uring_fadvise_setup,
+#endif
+#if defined(HAVE_IORING_OP_CLOSE)
+	stress_io_uring_close_setup,
 #endif
 };
 
