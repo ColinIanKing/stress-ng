@@ -67,6 +67,24 @@ static int shim_io_cancel(
 }
 #endif
 
+#if defined(__NR_io_pgetevents)
+struct shim_aio_sigset {
+	const sigset_t *sigmask;
+	size_t		sigsetsize;
+};
+
+static int shim_io_pgetevents(
+	io_context_t ctx_id,
+	long min_nr,
+	long nr,
+	struct io_event *events,
+	struct timespec *timeout,
+	const struct shim_aio_sigset *usig)
+{
+	return (int)syscall(__NR_io_pgetevents, ctx_id, min_nr, nr, events, timeout, usig);
+}
+#endif
+
 static int shim_io_setup(unsigned nr_events, io_context_t *ctx_idp)
 {
 	return (int)syscall(__NR_io_setup, nr_events, ctx_idp);
@@ -90,6 +108,39 @@ static int shim_io_getevents(
 	struct timespec *timeout)
 {
 	return (int)syscall(__NR_io_getevents, ctx_id, min_nr, nr, events, timeout);
+}
+
+/*
+ *  shim_io_getevents_random()
+ *	try to use shim_io_pgetevents or shim_io_getevents based on
+ *	random choice. If shim_io_pgetevents does not exist, don't
+ *	try it again.
+ */
+static int shim_io_getevents_random(
+	io_context_t ctx_id,
+	long min_nr,
+	long nr,
+	struct io_event *events,
+	struct timespec *timeout)
+{
+#if defined(__NR_io_pgetevents)
+	static bool try_io_pgetevents = true;
+
+	if (try_io_pgetevents && stress_mwc1()) {
+		int ret;
+
+		ret = shim_io_pgetevents(ctx_id, min_nr, nr, events, timeout, NULL);
+		if (ret >= 0)
+			return ret;
+		/* system call not wired up? never try again */
+		if (errno == ENOSYS)
+			try_io_pgetevents = false;
+		else
+			return ret;
+	}
+	/* ..fall through and use vanilla io_getevents */
+#endif
+	return shim_io_getevents(ctx_id, min_nr, nr, events, timeout);
 }
 
 /*
@@ -185,7 +236,7 @@ static ssize_t stress_aiol_wait(
 			timeout_ptr = &timeout;
 		}
 
-		ret = shim_io_getevents(ctx, 1, (long)(n - i), events, timeout_ptr);
+		ret = shim_io_getevents_random(ctx, 1, (long)(n - i), events, timeout_ptr);
 		if (ret < 0) {
 			if (errno == EINTR) {
 				if (keep_stressing_flag()) {
