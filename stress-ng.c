@@ -1337,6 +1337,7 @@ static void NORETURN stress_usage(void)
 		"Note: Sizes can be suffixed with B,K,M,G and times with "
 		"s,m,h,d,y\n", g_app_name);
 	stress_settings_free();
+	stress_temp_path_free();
 	exit(EXIT_SUCCESS);
 }
 
