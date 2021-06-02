@@ -516,6 +516,29 @@ static void stress_io_uring_close_setup(
 }
 #endif
 
+#if defined(HAVE_IORING_OP_MADVISE)
+/*
+ *  stress_io_uring_madvise_setup ()
+ *	setup madvise submit over io_uring
+ */
+static void stress_io_uring_madvise_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
+{
+	sqe->fd = io_uring_file->fd;
+	sqe->opcode = IORING_OP_MADVISE;
+	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
+	sqe->len = 4096;
+#if defined(MADV_NORMAL)
+	sqe->fadvise_advice = MADV_NORMAL;
+#else
+	sqe->fadvise_advice = 0;
+#endif
+	sqe->ioprio = 0;
+	sqe->buf_index = 0;
+	sqe->off = 0;
+}
+#endif
 
 static stress_io_uring_setup stress_io_uring_setups[] = {
 #if defined(HAVE_IORING_OP_READV)
@@ -544,6 +567,9 @@ static stress_io_uring_setup stress_io_uring_setups[] = {
 #endif
 #if defined(HAVE_IORING_OP_CLOSE)
 	stress_io_uring_close_setup,
+#endif
+#if defined(HAVE_IORING_OP_MADVISE)
+	stress_io_uring_madvise_setup,
 #endif
 };
 
