@@ -1870,7 +1870,8 @@ void stress_misc_stats_set(
 	if ((idx < 0) || (idx >= STRESS_MISC_STATS_MAX))
 		return;
 
-	(void)strlcpy(misc_stats[idx].description, description, sizeof(misc_stats[idx].description));
+	(void)shim_strlcpy(misc_stats[idx].description, description,
+			sizeof(misc_stats[idx].description));
 	misc_stats[idx].value = value;
 }
 
