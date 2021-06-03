@@ -159,10 +159,11 @@ static int static_dup2_child(info_t *info)
 	 *  Should always be true..
 	 */
 	if (info->pid_clone >= 0) {
-		int status;
+		int status, ret;
 
 		kill(info->pid_clone, SIGKILL);
-		waitpid(info->pid_clone, &status, (int)__WCLONE);
+		ret = waitpid(info->pid_clone, &status, (int)__WCLONE);
+		(void)ret;
 	}
 
 	(void)close(info->fd);
