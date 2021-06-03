@@ -117,7 +117,9 @@ static int stress_fp_error(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+#if defined(FE_INEXACT)
 		volatile double d1, d2;
+#endif
 
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
