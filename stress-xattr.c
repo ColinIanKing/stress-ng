@@ -54,8 +54,17 @@ static int stress_xattr(const stress_args_t *args)
 	char *hugevalue = NULL;
 #if defined(XATTR_SIZE_MAX)
 	const size_t hugevalue_sz = XATTR_SIZE_MAX + 16;
+	char *large_tmp;
 #else
 	const size_t hugevalue_sz = 256 * KB;
+#endif
+
+#if defined(XATTR_SIZE_MAX)
+	large_tmp = calloc(XATTR_SIZE_MAX + 2, sizeof(*large_tmp));
+	if (!large_tmp) {
+		pr_inf("%s: failed to allocate large xattr buffer\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 #endif
 
 	ret = stress_temp_dir_mk_args(args);
@@ -81,9 +90,6 @@ static int stress_xattr(const stress_args_t *args)
 		char attrname[32];
 		char value[32];
 		char tmp[sizeof(value)];
-#if defined(XATTR_SIZE_MAX)
-		char large_tmp[XATTR_SIZE_MAX + 1];
-#endif
 		char small_tmp[1];
 		ssize_t sret;
 		char *buffer;
@@ -197,7 +203,7 @@ static int stress_xattr(const stress_args_t *args)
 
 #if defined(XATTR_SIZE_MAX)
 		/* Exercise invalid size argument fsetxattr syscall */
-		(void)memset(large_tmp, 'f', sizeof(large_tmp));
+		(void)memset(large_tmp, 'f', XATTR_SIZE_MAX + 1);
 		ret = shim_fsetxattr(fd, attrname, large_tmp, XATTR_SIZE_MAX + 1,
 			XATTR_CREATE);
 		if (ret >= 0) {
@@ -211,7 +217,7 @@ static int stress_xattr(const stress_args_t *args)
 
 #if defined(HAVE_LSETXATTR) && \
     defined(XATTR_SIZE_MAX)
-		(void)memset(large_tmp, 'l', sizeof(large_tmp));
+		(void)memset(large_tmp, 'l', XATTR_SIZE_MAX + 1);
 		ret = shim_lsetxattr(filename, attrname, large_tmp,
 			XATTR_SIZE_MAX + 1, XATTR_CREATE);
 		if (ret >= 0) {
@@ -224,7 +230,7 @@ static int stress_xattr(const stress_args_t *args)
 #endif
 
 #if defined(XATTR_SIZE_MAX)
-		(void)memset(large_tmp, 's', sizeof(large_tmp));
+		(void)memset(large_tmp, 's', XATTR_SIZE_MAX + 1);
 		ret = shim_setxattr(filename, attrname, large_tmp,
 			XATTR_SIZE_MAX + 1, XATTR_CREATE);
 		if (ret >= 0) {
@@ -477,6 +483,9 @@ out:
 	free(hugevalue);
 	(void)unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
+#if defined(XATTR_SIZE_MAX)
+	free(large_tmp);
+#endif
 	return rc;
 }
 
