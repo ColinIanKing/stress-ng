@@ -86,10 +86,10 @@ static int stress_sigabrt(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		} else if (pid == 0) {
-			int ret;
-
 			/* Randomly select death by abort or SIGABRT */
 			if (sigabrt_info->handler_enabled) {
+				int ret;
+
 				ret = stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL);
 				(void)ret;
 
