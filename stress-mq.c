@@ -184,7 +184,6 @@ again:
 
 			for (i = 0; ; i++) {
 				stress_msg_t ALIGN64 msg;
-				int ret;
 				ssize_t sret;
 				const uint64_t timed = (i & 1);
 				unsigned int prio;
@@ -195,6 +194,7 @@ again:
 					off_t off;
 					struct stat statbuf;
 					void *ptr;
+					int ret;
 #if defined(HAVE_POLL_H)
 					struct pollfd fds[1];
 #endif
