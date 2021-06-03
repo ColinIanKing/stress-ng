@@ -555,7 +555,11 @@ static int stress_fanotify(const stress_args_t *args)
 		_exit(EXIT_SUCCESS);
 	} else {
 		void *buffer;
-		int fan_fd1, fan_fd2 = -1, max_fd;
+		int fan_fd1, max_fd;
+#if defined(FAN_CLASS_NOTIF) &&		\
+    defined(FAN_REPORT_DFID_NAME)
+		int fan_fd2;
+#endif
 
 		fanotify_event_init_invalid();
 
@@ -580,8 +584,10 @@ static int stress_fanotify(const stress_args_t *args)
 		if (fan_fd2 < 0) {
 			fan_fd2 = -1;
 		}
-#endif
 		max_fd = STRESS_MAXIMUM(fan_fd1, fan_fd2);
+#else
+		max_fd = fan_fd1;
+#endif
 
 		ret = test_fanotify_mark(args->name, mnts);
 		if (ret < 0) {
@@ -596,8 +602,11 @@ static int stress_fanotify(const stress_args_t *args)
 
 			FD_ZERO(&rfds);
 			FD_SET(fan_fd1, &rfds);
+#if defined(FAN_CLASS_NOTIF) &&		\
+    defined(FAN_REPORT_DFID_NAME)
 			if (fan_fd2 >= 0)
 				FD_SET(fan_fd2, &rfds);
+#endif
 			ret = select(max_fd + 1, &rfds, NULL, NULL, NULL);
 			if (ret == -1) {
 				if (errno == EINTR)
@@ -624,8 +633,11 @@ static int stress_fanotify(const stress_args_t *args)
 #endif
 			if (FD_ISSET(fan_fd1, &rfds))
 				stress_fanotify_read_events(args, fan_fd1, buffer, BUFFER_SIZE, &account);
+#if defined(FAN_CLASS_NOTIF) &&		\
+    defined(FAN_REPORT_DFID_NAME)
 			if ((fan_fd2 >= 0) && FD_ISSET(fan_fd2, &rfds))
 				stress_fanotify_read_events(args, fan_fd2, buffer, BUFFER_SIZE, &account);
+#endif
 
 			/*
 			 * Exercise fanotify_init with all possible values
@@ -639,10 +651,13 @@ static int stress_fanotify(const stress_args_t *args)
 		free(buffer);
 		fanotify_event_clear(fan_fd1);
 		(void)close(fan_fd1);
+#if defined(FAN_CLASS_NOTIF) &&		\
+    defined(FAN_REPORT_DFID_NAME)
 		if (fan_fd2 >= 0) {
 			fanotify_event_clear(fan_fd2);
 			(void)close(fan_fd2);
 		}
+#endif
 		pr_inf("%s: "
 			"%" PRIu64 " open, "
 			"%" PRIu64 " close write, "
