@@ -219,7 +219,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 		switch (errno) {
 		case EPERM:
 			pr_inf("%s: stressor will be skipped, insufficient "
-				"privilege", args->name);
+				"privilege\n", args->name);
 			rc = EXIT_NO_RESOURCE;
 			break;
 		case ENOSYS:
