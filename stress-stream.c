@@ -325,12 +325,12 @@ static void stress_stream_init_data(
 	const uint64_t n)
 {
 	uint64_t i;
+	const double divisor = 1.0 / (double)(4294967296ULL);
 
 	for (i = 0; i < n; i++) {
-		const uint32_t r32 = stress_mwc32();
-		const uint64_t r64 = stress_mwc64();
+		const uint32_t r1 = stress_mwc32();
 
-		data[i] = (double)r32 / (1.0 + (double)r64);
+		data[i] = (double)r1 * divisor;
 	}
 }
 
