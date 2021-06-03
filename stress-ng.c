@@ -2305,11 +2305,10 @@ static void stress_metrics_dump(
 				cpu_usage);	/* % cpu usage */
 		}
 		for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
-			double total = 0.0;
 			const char *description = ss->stats[0]->misc_stats[i].description;
 
 			if (*description) {
-				double metric;
+				double metric, total = 0.0;
 
 				for (j = 0; j < ss->started_instances; j++) {
 					const stress_stats_t *const stats = ss->stats[j];
@@ -2333,11 +2332,10 @@ static void stress_metrics_dump(
 		pr_yaml(yaml, "      cpu-usage-per-instance: %f\n", cpu_usage);
 
 		for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
-			double total = 0.0;
 			const char *description = ss->stats[0]->misc_stats[i].description;
 
 			if (*description) {
-				double metric;
+				double metric, total = 0.0;
 
 				for (j = 0; j < ss->started_instances; j++) {
 					const stress_stats_t *const stats = ss->stats[j];
