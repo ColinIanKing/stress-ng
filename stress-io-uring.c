@@ -161,6 +161,11 @@ static int stress_setup_io_uring(
 	(void)memset(&p, 0, sizeof(p));
 	submit->io_uring_fd = shim_io_uring_setup(1, &p);
 	if (submit->io_uring_fd < 0) {
+		if (errno == ENOSYS) {
+			pr_inf("%s: io_uring not supported by the kernel, skipping stressor\n",
+				args->name);
+			return EXIT_NO_RESOURCE;
+		}
 		pr_err("%s: io_uring_setup failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
