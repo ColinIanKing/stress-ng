@@ -284,7 +284,7 @@ static int stress_sockmany(const stress_args_t *args)
 	stress_sock_fds_t *sock_fds;
 	int rc = EXIT_SUCCESS;
 
-	sock_fds = (stress_sock_fds_t *)mmap(NULL, sizeof(stress_sock_fds_t), PROT_READ | PROT_WRITE,
+	sock_fds = (stress_sock_fds_t *)mmap(NULL, sizeof(*sock_fds), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (sock_fds == MAP_FAILED) {
 		pr_inf("%s: could not allocate share memory, errno=%d (%s)\n",
