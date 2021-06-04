@@ -74,7 +74,7 @@ int stress_mount_get(char *mnts[], const int max)
 	struct statfs *statbufs;
 #endif
 
-	(void)memset(mnts, 0, max * sizeof(char *));
+	(void)memset(mnts, 0, max * sizeof(*mnts));
 	ret = getmntinfo(&statbufs, 0);
 	if (ret > max)
 		ret = max;
@@ -92,7 +92,7 @@ int stress_mount_get(char *mnts[], const int max)
 	struct mntent* mnt;
 	int n = 0;
 
-	(void)memset(mnts, 0, (size_t)max * sizeof(char *));
+	(void)memset(mnts, 0, (size_t)max * sizeof(*mnts));
 	mounts = setmntent("/etc/mtab", "r");
 	/* Failed, so assume / is available */
 	if (!mounts) {
@@ -110,7 +110,7 @@ int stress_mount_get(char *mnts[], const int max)
 {
 	int n = 0;
 
-	(void)memset(mnts, 0, max * sizeof(char *));
+	(void)memset(mnts, 0, max * sizeof(*mnts));
 	stress_mount_add(mnts, max, &n, "/");
 	stress_mount_add(mnts, max, &n, "/dev");
 	stress_mount_add(mnts, max, &n, "/tmp");
