@@ -202,9 +202,9 @@ static int stress_affinity(const stress_args_t *args)
 	bool affinity_rand = false;
 	pid_t pids[STRESS_AFFINITY_PROCS];
 	size_t i;
-	size_t counters_sz = ((sizeof(uint64_t) * (STRESS_AFFINITY_PROCS)) + args->page_size)
-				& ~(args->page_size - 1);
 	uint64_t *counters;
+	size_t counters_sz = ((sizeof(*counters) * (STRESS_AFFINITY_PROCS)) + args->page_size)
+				& ~(args->page_size - 1);
 
 	(void)stress_get_setting("affinity-rand", &affinity_rand);
 
