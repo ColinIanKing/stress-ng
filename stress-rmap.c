@@ -118,17 +118,17 @@ static void NORETURN stress_rmap_child(
  */
 static int stress_rmap(const stress_args_t *args)
 {
+	uint64_t *counters;
 	const size_t page_size = args->page_size;
 	const size_t sz = ((MAPPINGS_MAX - 1) + MAPPING_PAGES) * page_size;
 	const size_t counters_sz =
-		(page_size + sizeof(uint64_t) * RMAP_CHILD_MAX) & ~(page_size - 1);
+		(page_size + sizeof(*counters) * RMAP_CHILD_MAX) & ~(page_size - 1);
 	int fd = -1;
 	size_t i;
 	ssize_t rc;
 	pid_t pids[RMAP_CHILD_MAX];
 	uint8_t *mappings[MAPPINGS_MAX];
 	uint8_t *paddings[MAPPINGS_MAX];
-	uint64_t *counters;
 	char filename[PATH_MAX];
 
 	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
