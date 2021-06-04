@@ -1050,8 +1050,8 @@ void pr_runinfo(void)
 		char ram_t[32], ram_f[32], ram_s[32];
 
 		stress_uint64_to_str(ram_t, sizeof(ram_t), (uint64_t)info.totalram);
-		stress_uint64_to_str(ram_f, sizeof(ram_t), (uint64_t)info.freeram);
-		stress_uint64_to_str(ram_s, sizeof(ram_t), (uint64_t)info.freeswap);
+		stress_uint64_to_str(ram_f, sizeof(ram_f), (uint64_t)info.freeram);
+		stress_uint64_to_str(ram_s, sizeof(ram_s), (uint64_t)info.freeswap);
 		pr_dbg("RAM total: %s, RAM free: %s, swap free: %s\n", ram_t, ram_f, ram_s);
 	}
 #endif
