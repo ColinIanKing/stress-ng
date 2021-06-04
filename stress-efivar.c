@@ -241,7 +241,7 @@ static int efi_get_variable(const stress_args_t *args, const char *varname, stre
 	if ((!varname) || (!var))
 		return -1;
 
-	if (efi_get_data(args, varname, "raw_var", var, sizeof(stress_efi_var_t)) < 0)
+	if (efi_get_data(args, varname, "raw_var", var, sizeof(*var)) < 0)
 		rc = -1;
 
 	/* Exercise reading the efi sysfs files */
@@ -380,7 +380,7 @@ static int stress_efivar(const stress_args_t *args)
 		return EXIT_SUCCESS;
 	}
 
-	sz = (((size_t)dir_count * sizeof(bool)) + args->page_size) & (args->page_size - 1);
+	sz = (((size_t)dir_count * sizeof(*efi_ignore)) + args->page_size) & (args->page_size - 1);
 	efi_ignore = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (efi_ignore == MAP_FAILED) {
