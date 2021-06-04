@@ -508,7 +508,7 @@ static inline void apparmor_corrupt_flip_bits_random_burst(
 	char *copy, const size_t len)
 {
 	uint32_t i;
-	size_t p = (size_t)stress_mwc32() % (len * sizeof(char));
+	size_t p = (size_t)stress_mwc32() % (len * sizeof(*copy));
 
 	for (i = 0; i < 32; i++) {
 		if (p > len)
