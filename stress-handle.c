@@ -135,7 +135,7 @@ static int stress_handle_child(const stress_args_t *args, void *context)
 			free(fhp);
 			break;
 		}
-		tmp = realloc(fhp, sizeof(struct file_handle) + fhp->handle_bytes);
+		tmp = realloc(fhp, sizeof(*tmp) + fhp->handle_bytes);
 		if (tmp == NULL) {
 			free(fhp);
 			continue;
@@ -181,7 +181,7 @@ static int stress_handle_child(const stress_args_t *args, void *context)
 
 		/* Exercise with large invalid size, EINVAL */
 		fhp->handle_bytes = 4096;
-		tmp = realloc(fhp, sizeof(struct file_handle) + fhp->handle_bytes);
+		tmp = realloc(fhp, sizeof(*tmp) + fhp->handle_bytes);
 		if (!tmp) {
 			(void)close(mount_fd);
 			free(fhp);
