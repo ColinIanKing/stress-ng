@@ -526,7 +526,8 @@ static int stress_list(const stress_args_t *args)
 	}
 	n = (size_t)list_size;
 
-	if ((entries = calloc(n, sizeof(struct list_entry))) == NULL) {
+	entries = calloc(n, sizeof(*entries));
+	if (!entries) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
