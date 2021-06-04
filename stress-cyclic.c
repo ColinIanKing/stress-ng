@@ -430,7 +430,7 @@ static void stress_rt_stats(stress_rt_stats_t *rt_stats)
 	if (rt_stats->index)
 		rt_stats->latency_mean /= (double)rt_stats->index;
 
-	qsort(rt_stats->latencies, rt_stats->index, sizeof(int64_t), stress_cyclic_cmp);
+	qsort(rt_stats->latencies, rt_stats->index, sizeof(*(rt_stats->latencies)), stress_cyclic_cmp);
 
 	current = rt_stats->latency_mode = rt_stats->latencies[0];
 
@@ -609,7 +609,7 @@ static int stress_cyclic(const stress_args_t *args)
 	const double start = stress_time_now();
 	stress_rt_stats_t *rt_stats;
 	const size_t page_size = args->page_size;
-	const size_t size = (sizeof(stress_rt_stats_t) + page_size - 1) & (~(page_size - 1));
+	const size_t size = (sizeof(*rt_stats) + page_size - 1) & (~(page_size - 1));
 	stress_cyclic_func func;
 
 	timeout  = g_opt_timeout;
