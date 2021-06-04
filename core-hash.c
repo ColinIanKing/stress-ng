@@ -170,8 +170,8 @@ uint32_t HOT OPTIMIZE3 stress_hash_murmur3_32(
 	register size_t i;
 
 	for (i = len >> 2; i; i--) {
-		(void)memcpy(&k, key, sizeof(uint32_t));
-		key += sizeof(uint32_t);
+		(void)memcpy(&k, key, sizeof(k));
+		key += sizeof(k);
 		h ^= stress_hash_murmur_32_scramble(k);
 		h = (h << 13) | (h >> 19);
 		h = h * 5 + 0xe6546b64;
@@ -208,7 +208,7 @@ stress_hash_table_t *stress_hash_create(const size_t n)
 	if (!hash_table)
 		return NULL;
 
-	hash_table->table = calloc(n, sizeof(stress_hash_t *));
+	hash_table->table = calloc(n, sizeof(*(hash_table->table)));
 	if (!hash_table->table) {
 		free(hash_table);
 		return NULL;
