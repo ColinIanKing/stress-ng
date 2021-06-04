@@ -152,11 +152,11 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 static int stress_hrtimers(const stress_args_t *args)
 {
 	pid_t pids[PROCS_MAX];
+	uint64_t *counters;
 	const size_t page_size = args->page_size;
-	const size_t counters_sz = sizeof(uint64_t) * PROCS_MAX;
+	const size_t counters_sz = sizeof(*counters) * PROCS_MAX;
 	const size_t sz = (counters_sz + page_size) & ~(page_size - 1);
 	size_t i;
-	uint64_t *counters;
 
 	max_ops = args->max_ops / PROCS_MAX;
 
