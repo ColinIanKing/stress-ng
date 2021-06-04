@@ -363,10 +363,10 @@ static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
 	size_t i;
 	bool valid = false;
 
-	cpu->caches = calloc(count, sizeof(stress_cpu_cache_t));
+	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
 	if (!cpu->caches) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
-			count * sizeof(stress_cpu_cache_t));
+			count * sizeof(*(cpu->caches)));
 		return 0;
 	}
 
@@ -442,10 +442,10 @@ static int stress_get_cpu_cache_sparc64(
 	size_t i;
 	bool valid = false;
 
-	cpu->caches = calloc(count, sizeof(stress_cpu_cache_t));
+	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
 	if (!cpu->caches) {
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
-			count * sizeof(stress_cpu_cache_t));
+			count * sizeof(*(cpu->caches)));
 		return 0;
 	}
 
@@ -552,9 +552,9 @@ static int stress_get_cpu_cache_index(
 		return 0;
 	}
 	cpu->cache_count = (uint32_t)n;
-	cpu->caches = calloc(cpu->cache_count, sizeof(stress_cpu_cache_t));
+	cpu->caches = calloc(cpu->cache_count, sizeof(*(cpu->caches)));
 	if (!cpu->caches) {
-		size_t cache_bytes = cpu->cache_count * sizeof(stress_cpu_cache_t);
+		size_t cache_bytes = cpu->cache_count * sizeof(*(cpu->caches));
 
 		pr_err("failed to allocate %zu bytes for cpu caches\n",
 			cache_bytes);
@@ -636,11 +636,11 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 		pr_err("no CPUs found in %s\n", SYS_CPU_PREFIX);
 		goto out;
 	}
-	cpus = calloc(1, sizeof(stress_cpus_t));
+	cpus = calloc(1, sizeof(*cpus));
 	if (!cpus)
 		goto out;
 
-	cpus->cpus = calloc((size_t)cpu_count, sizeof(stress_cpu_t));
+	cpus->cpus = calloc((size_t)cpu_count, sizeof(*(cpus->cpus)));
 	if (!cpus->cpus) {
 		free(cpus);
 		cpus = NULL;
