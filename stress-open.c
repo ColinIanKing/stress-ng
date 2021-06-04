@@ -481,12 +481,12 @@ static int stress_open(const stress_args_t *args)
 	if (sizeof(void *) == 4)
 		max_fds = STRESS_MINIMUM(max_fds, 65536);
 
-	sz = max_fds * sizeof(int);
+	sz = max_fds * sizeof(*fds);
 	fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (fds == MAP_FAILED) {
 		max_fds = STRESS_FD_MAX;
-		sz = max_fds * sizeof(int);
+		sz = max_fds * sizeof(*fds);
 		fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (fds == MAP_FAILED) {
