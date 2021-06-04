@@ -806,8 +806,8 @@ static void NORETURN epoll_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-	if ((events = calloc(MAX_EPOLL_EVENTS,
-				sizeof(struct epoll_event))) == NULL) {
+	events = calloc(MAX_EPOLL_EVENTS, sizeof(*events));
+	if (!events) {
 		pr_fail("%s: calloc failed, out of memory\n", args->name);
 		rc = EXIT_FAILURE;
 		goto die_close;
@@ -821,7 +821,7 @@ static void NORETURN epoll_server(
 		(void)sigemptyset(&sigmask);
 		(void)sigaddset(&sigmask, SIGALRM);
 
-		(void)memset(events, 0, MAX_EPOLL_EVENTS * sizeof(struct epoll_event));
+		(void)memset(events, 0, MAX_EPOLL_EVENTS * sizeof(*events));
 		errno = 0;
 
 		ret = sigsetjmp(jmp_env, 1);
