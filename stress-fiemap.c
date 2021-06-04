@@ -250,8 +250,8 @@ static int stress_fiemap(const stress_args_t *args)
 	int ret, fd, rc = EXIT_FAILURE, status;
 	char filename[PATH_MAX];
 	size_t i, n;
-	const size_t counters_sz = sizeof(uint64_t) * MAX_FIEMAP_PROCS;
 	uint64_t *counters;
+	const size_t counters_sz = sizeof(*counters) * MAX_FIEMAP_PROCS;
 	uint64_t fiemap_bytes = DEFAULT_FIEMAP_SIZE;
 	struct fiemap fiemap;
 
