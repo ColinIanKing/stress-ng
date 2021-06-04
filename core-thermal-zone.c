@@ -217,7 +217,7 @@ void stress_tz_dump(FILE *yaml, stress_stressor_t *stressors_list)
 		for (n = 0, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next, n++)
 			tz_infos[n] = tz_info;
 
-		qsort(tz_infos, n, sizeof(stress_tz_info_t *), stress_tz_compare);
+		qsort(tz_infos, n, sizeof(*tz_infos), stress_tz_compare);
 
 		for (i = 0; i < n; i++) {
 			tz_info = tz_infos[i];
