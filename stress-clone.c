@@ -182,7 +182,7 @@ static stress_clone_t *stress_clone_new(void)
 		clones.free = new->next;
 		new->next = NULL;
 	} else {
-		new = mmap(NULL, sizeof(stress_clone_t), PROT_READ | PROT_WRITE,
+		new = mmap(NULL, sizeof(*new), PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 		if (new == MAP_FAILED)
 			return NULL;
@@ -236,13 +236,13 @@ static void stress_clone_free(void)
 	while (clones.head) {
 		stress_clone_t *next = clones.head->next;
 
-		(void)munmap((void *)clones.head, sizeof(stress_clone_t));
+		(void)munmap((void *)clones.head, sizeof(*(clones.head)));
 		clones.head = next;
 	}
 	while (clones.free) {
 		stress_clone_t *next = clones.free->next;
 
-		(void)munmap((void *)clones.free, sizeof(stress_clone_t));
+		(void)munmap((void *)clones.free, sizeof(*(clones.free)));
 		clones.free = next;
 	}
 }
