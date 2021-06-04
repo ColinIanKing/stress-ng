@@ -155,7 +155,7 @@ static void *stress_malloc_loop(void *ptr)
 	static void *nowt = NULL;
 	size_t j;
 
-	addr = (void **)calloc(malloc_max, sizeof(void *));
+	addr = (void **)calloc(malloc_max, sizeof(*addr));
 	if (!addr) {
 		pr_dbg("%s: cannot allocate address buffer: %d (%s)\n",
 			args->name, errno, strerror(errno));
