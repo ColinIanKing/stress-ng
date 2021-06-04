@@ -317,7 +317,7 @@ static int stress_memrate(const stress_args_t *args)
 	(void)stress_get_setting("memrate-rd-mbs", &context.memrate_rd_mbs);
 	(void)stress_get_setting("memrate-wr-mbs", &context.memrate_wr_mbs);
 
-	stats_size = memrate_items * sizeof(stress_memrate_stats_t);
+	stats_size = memrate_items * sizeof(*context.stats);
 	stats_size = (stats_size + args->page_size - 1) & ~(args->page_size - 1);
 
 	context.stats = (stress_memrate_stats_t *)mmap(NULL, stats_size,
