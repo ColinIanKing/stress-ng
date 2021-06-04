@@ -469,7 +469,7 @@ static void stress_rand_data_double(
 	while (ptr < end) {
 		double s = sin(theta);
 
-		(void)memcpy((void *)ptr, &s, sizeof(double));
+		(void)memcpy((void *)ptr, &s, sizeof(*ptr));
 
 		theta += dtheta;
 		dtheta += 0.001;
