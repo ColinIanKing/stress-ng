@@ -1,3 +1,115 @@
+stress-ng (0.12.10-1) unstable; urgency=medium
+
+  [Rosen Penev]
+  * stress-fp-error: add pre-compiler checks for all floating-point
+    exceptions
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-schedpolicy: use new_policy rather than policy
+  * Manual: update date
+  * stress-zlib: use sizeof the object rather than the type
+  * stress-tree: use sizeof the object rather than the type
+  * stress-sockmany: use sizeof the object rather than the type
+  * stress-sockfd: use sizeof the object rather than the type
+  * stress-seccomp: use sizeof the object rather than the type
+  * stress-rmap: use sizeof the object rather than the type
+  * stress-open: use sizeof the object rather than the type
+  * stress-mmapmany: use sizeof the object rather than the type
+  * stress-memthrash: use sizeof the object rather than the type
+  * stress-memrate: use sizeof the object rather than the type
+  * stress-malloc: use sizeof the object rather than the type
+  * stress-lockbus: use sizeof the object rather than the type
+  * stress-list: use sizeof the object rather than the type
+  * stress-hrtimers: use sizeof the object rather than the type
+  * stress-handle: use sizeof the object rather than the type
+  * stress-fiemap: use sizeof the object rather than the type
+  * stress-epoll: use sizeof the object rather than the type
+  * stress-efivar: use sizeof the object rather than the type
+  * stress-dev-shm: use sizeof the object rather than the type
+  * stress-cyclic: use sizeof the object rather than the type
+  * stress-clone: use sizeof the object rather than the type
+  * stress-apparmor: use sizeof the object rather than the type
+  * stress-affinity: use sizeof the object rather than the type
+  * core-thermal-zone: use sizeof the object rather than the type
+  * core-mounts: use sizeof the object rather than the type
+  * core-helper: use correct sizeof for ram_f, ram_s
+  * core-hash: use sizeof the object rather than the type
+  * core-cache: use sizeof the object rather than the type
+  * stress-xattr: fix memory leak of large_tmp on error return path
+  * stress-fanotify: only declare and use fan_fd2 if required
+  * stress-dup: voidify return from waitpid
+  * stress-xattr: allocate large_tmp on the heap rather than the stack
+  * stress-ng: use shim wrapped strlcpy
+  * stress-usefaultfd: fix missing \n at end of pr_inf message
+  * stress-sigabort: move scope of variable ret to deeper scope
+  * stress-ng: move scope of variable total
+  * stress-io-uring: return EXIT_NOT_IMPLEMENTED when io-uring is not
+    implemented
+  * stress-io-uring: check for ENOSYS on io-uring setup
+  * stress-mq: move scope of variable ret
+  * stress-fp-error: clean up build warning on d1, d2 when FE_INEXACT
+    is not available
+  * stress-fault: don't use t1, t2, dt if getrusage is not supported
+  * stress-dev: fix memcpy/memset thinko
+  * stress-ng.h: remove HOT annotation from keep stressing helpers
+  * stress-stream: ensure initialized values are in range 0..0.99999
+  * stress-io-uring: constify stress_io_uring_setups array
+  * stress-io-uring: don't abort early on close op setup on failed dup
+  * stress-ng: fix memory leak, call stress_temp_path_free before
+    stressor exits
+  * stress-ng: fix memory leak, call stress_temp_path_free in usage
+  * syscalls: add io_pgetevents to exercised syscalls
+  * stress-aio-linux: exercise io_pgetevents if it is available
+  * stress-aio-linux: attempt to call async fsync, don't redo if it fails
+  * stress-io-uring: add madvise io-uring op
+  * stress-io-uring: add close op, and zero fields on other ops
+  * stress-aio: add aio_fsync call for more kernel coverage
+  * kernel-coverage.sh: add reiserfs to the mix
+  * kernel-coverage: disable core dump handlers such as apport
+  * stress-io-uring: add READ and WRITE opcodes
+  * stress-io-uring: add random block sized seek position for
+    READV/WRITEV ops
+  * stress-io-uring: drive opcode calls by a lookup table, add
+    fallocate + fadvise ops
+  * stress-io-uring: move completion handling to submit call
+  * stress-io-uring: bump bogo-op counter for each successful completion
+  * stress-io-uring: refactor op-code handling, add helper callbacks
+  * stress-fcntl: exercise some invalid fcntl operations for more coverage
+  * stress-vforkmany: fix handling on OS X where vfork() fails
+  * stress-vforkmany: add another yield point after touching pages
+  * stress-bad-altstack: force child death on recursive signals
+  * stress-bad-altstack: Fix hang on OS X
+  * stress-ng.h: disable MLOCKED macro on OS X as it clashes with NORETURN
+  * stress-xattr: pass oversized xattr using a larger buffer
+  * stress-urandom: pass entropy count in variable rather than by value
+  * stress-urandom: initialize val to clean up valgrind warning
+  * stress-sockabuse: call futimens with valid time
+  * stress-sock: zero ifc to avoid valgrind warning
+  * stress-shm: memset msg to zero, cleans up valgrind warning
+  * stress-set: ensure array groups is zero'd, clean up valgrind warning
+  * stress-sem-sysv: make the array more than large enough
+  * stress-schedpolicy: memset attr to zero to clean up warnings
+    from valgrind
+  * stress-schedpolicy: memset large_attr to zero to clean up
+    valgrind warning
+  * stress-prctl: set arg2 in PR_GET_KEEPCAPS to zero
+  * stress-prctl: set arg2 in PR_SET_CHILD_SUBREAPER zero
+  * stress-eventfd: ensure buffer is zero'd before writing it
+  * stress-dev: zero filename array, cleans up valgrind warnings
+  * stress-clock: ensure initialized t1 is used to set the time
+  * stress-procfs: remove debug printf
+  * stress-procfs: ensure entire buffer is zero'd before scanning it
+  * stress-procfs: fix negative index into dlist[] array
+  * stress-fork: fix fork not being called
+  * stress-fanotify: exercise fanotify FAN_CLASS_NOTIF |
+    FAN_REPORT_DFID_NAME
+  * Add per-stressor metrics to metrics output
+  * kernel-coverage: add sysinfo for mounted fs coverage
+  * kernel-coverage: use -1 to specify number of CPUS online
+
+ -- Colin King <colin.king@canonical.com>  Mon, 2 Jun 2021 13:12:11 +0100
+
 stress-ng (0.12.09-1) unstable; urgency=medium
 
   * Makefile: bump version
