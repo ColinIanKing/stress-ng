@@ -157,8 +157,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 #if defined(SCHED_FIFO)
 		case SCHED_FIFO:
 #endif
-			min_prio = sched_get_priority_min(policy);
-			max_prio = sched_get_priority_max(policy);
+			min_prio = sched_get_priority_min(new_policy);
+			max_prio = sched_get_priority_max(new_policy);
 
 			/* Check if min/max is supported or not */
 			if ((min_prio == -1) || (max_prio == -1))
