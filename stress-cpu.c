@@ -39,63 +39,232 @@
 #define SIEVE_SIZE              (104730)
 
 /*
- * Some awful math lib workarounds for functions that some
+ * Some math workarounds for functions that some
  * math libraries don't have implemented (yet)
+ *
+ * Try and use builtin variants first, then lib math
+ * then try a workaround.
  */
-#if !defined(HAVE_CABSL)
-#define cabsl(x)	cabs(x)
+#if defined(HAVE_BUILTIN_CABSL)
+#define shim_cabsl(x)	__builtin_cabsl(x)
+#else
+#if defined(HAVE_CABSL)
+#define shim_cabsl(x)	cabsl(x)
+#else
+#define shim_cabsl(x)	cabs(x)
+#endif
 #endif
 
-#if !defined(HAVE_LGAMMAL)
-#define lgammal(x)	lgamma(x)
+#if defined(HAVE_BUILTIN_LGAMMAL)
+#define shim_lgammal(x)	__builtin_lgammal(x)
+#else
+#if defined(HAVE_LGAMMAL)
+#define shim_lgammal(x)	lgammal(x)
+#else
+#define shim_lgammal(x)	lgamma(x)
+#endif
 #endif
 
-#if !defined(HAVE_CCOSL)
-#define	ccosl(x)	ccos(x)
+#if defined(HAVE_BUILTIN_CPOW)
+#define shim_cpow(x, z)	__builtin_cpow(x, z)
+#else
+#if defined(HAVE_CPOW)
+#define shim_cpow(x, z)	cpow(x, z)
+#else
+#define shim_cpow(x, z)	pow(x, z)
+#endif
 #endif
 
-#if !defined(HAVE_CSINL)
-#define	csinl(x)	csin(x)
+#if defined(HAVE_BUILTIN_POWL)
+#define shim_powl(x, y)	__builtin_powl(x, y)
+#else
+#if defined(HAVE_POWL)
+#define shim_powl(x, y)	powl(x, y)
+#else
+#define shim_powl(x, y)	pow(x, y)
+#endif
 #endif
 
-#if !defined(HAVE_CPOW)
-#define cpow(x, y)	pow(x, y)
+#if defined(HAVE_BUILTIN_RINTL)
+#define shim_rintl(x)	__builtin_rintl(x)
+#else
+#if defined(HAVE_RINTL)
+#define shim_rintl(x)	rintl(x)
+#else
+#define shim_rintl(x)	shim_rint(x)
+#endif
 #endif
 
-#if !defined(HAVE_POWL)
-#define powl(x, y)	pow(x, y)
+#if defined(HAVE_BUILTIN_LOG)
+#define shim_log(x)	__builtin_log(x)
+#else
+#define shim_log(x)	log(x)
 #endif
 
-#if !defined(HAVE_RINTL)
-#define rintl(x)	rint(x)
+#if defined(HAVE_BUILTIN_LOGL)
+#define shim_logl(x)	__builtin_logl(x)
+#else
+#if defined(HAVE_LOGL)
+#define shim_logl(x)	logl(x)
+#else
+#define shim_logl(x)	shim_log(x)
+#endif
 #endif
 
-#if !defined(HAVE_LOGL)
-#define logl(x)		log(x)
+#if defined(HAVE_BUILTIN_EXP)
+#define shim_exp(x)	__builtin_exp(x)
+#else
+#define shim_exp(x)	exp(x)
 #endif
 
-#if !defined(HAVE_EXPL) || defined(__HAIKU__)
-#define expl(x)		exp(x)
+#if defined(HAVE_BUILTIN_EXPL)
+#define shim_expl(x)	__builtin_expl(x)
+#else
+#if defined(HAVE_EXPL) && !defined(__HAIKU__)
+#define shim_expl(x)	expl(x)
+#else
+#define shim_expl(x)	shim_exp(x)
+#endif
 #endif
 
-#if !defined(HAVE_COSL)
-#define cosl(x)		((long double)cos((double)x))
+#if defined(HAVE_BUILTIN_COSF)
+#define shim_cosf(x)	__builtin_cosf(x)
+#else
+#define shim_cosf(x)	cosf(x)
 #endif
 
-#if !defined(HAVE_SINL)
-#define	sinl(x)		((long double)sin((double)x))
+#if defined(HAVE_BUILTIN_COS)
+#define shim_cos(x)	__builtin_cos(x)
+#else
+#define shim_cos(x)	cos(x)
 #endif
 
-#if !defined(HAVE_COSHL)
-#define coshl(x)	((long double)cosh((double)x))
+#if defined(HAVE_BUILTIN_COSL)
+#define shim_cosl(x)	__builtin_cosl(x)
+#else
+#if defined(HAVE_COSL)
+#define shim_cosl(x)	cosl(x)
+#else
+#define shim_cosl(x)	((long double)shim_cos((double)(x)))
+#endif
 #endif
 
-#if !defined(HAVE_SINHL)
-#define	sinhl(x)	((long double)sinh((double)x))
+#if defined(HAVE_BUILTIN_COSHL)
+#define shim_coshl(x)	__builtin_coshl(x)
+#else
+#if defined(HAVE_COSHL)
+#define shim_coshl(x)	coshl(x)
+#else
+#define shim_coshl(x)	((long double)cosh((double)(x)))
+#endif
 #endif
 
-#if !defined(HAVE_SQRTL)
-#define sqrtl(x)	sqrt(x)
+#if defined(HAVE_BUILTIN_CCOS)
+#define shim_ccos(x)	__builtin_ccos(x)
+#else
+#if defined(HAVE_CCOS)
+#define	shim_ccos(x)	ccos(x)
+#else
+#define	shim_ccos(x)	shim_cos(x)
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_CCOSF)
+#define shim_ccosf(x)	__builtin_ccosf(x)
+#else
+#if defined(HAVE_CCOSF)
+#define	shim_ccosf(x)	ccosf(x)
+#else
+#define	shim_ccosf(x)	shim_ccos(x)
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_CCOSL)
+#define shim_ccosl(x)	__builtin_ccosl(x)
+#else
+#if defined(HAVE_CCOSL)
+#define	shim_ccosl(x)	ccosl(x)
+#else
+#define	shim_ccosl(x)	((long double complex)shim_ccos((double complex)(x))
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_SINF)
+#define shim_sinf(x)	__builtin_sin(x)
+#else
+#define shim_sinf(x)	sinf(x)
+#endif
+
+#if defined(HAVE_BUILTIN_SIN)
+#define shim_sin(x)	__builtin_sin(x)
+#else
+#define shim_sin(x)	sin(x)
+#endif
+
+#if defined(HAVE_BUILTIN_SINL)
+#define shim_sinl(x)	__builtin_sinl(x)
+#else
+#if defined(HAVE_SINL)
+#define shim_sinl(x)	sinl(x)
+#else
+#define shim_sinl(x)	((long double)shim_sin((double)(x)))
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_SINHL)
+#define shim_sinhl(x)	__builtin_sinhl(x)
+#else
+#if defined(HAVE_SINHL)
+#define shim_sinhl(x)	sinhl(x)
+#else
+#define shim_sinhl(x)	((long double)sinh((double)(x)))
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_CSIN)
+#define shim_csin(x)	__builtin_csin(x)
+#else
+#if defined(HAVE_CSIN)
+#define	shim_csin(x)	csin(x)
+#else
+#define	shim_csin(x)	shim_sin(x)
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_CSINF)
+#define shim_csinf(x)	__builtin_csinf(x)
+#else
+#if defined(HAVE_CSINF)
+#define	shim_csinf(x)	csinf(x)
+#else
+#define	shim_csinf(x)	shim_csin(x)
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_CSINL)
+#define shim_csinl(x)	__builtin_csinl(x)
+#else
+#if defined(HAVE_CSINL)
+#define	shim_csinl(x)	csinl(x)
+#else
+#define	shim_csinl(x)	(long double complex)shim_csin((double complex)(x))
+#endif
+#endif
+
+#if defined(HAVE_BUILTIN_SQRT)
+#define shim_sqrt(x)	__builtin_sqrt(x)
+#else
+#define shim_sqrt(x)	sqrt(x)
+#endif
+
+#if defined(HAVE_BUILTIN_SQRTL)
+#define shim_sqrtl(x)	__builtin_sqrtl(x)
+#else
+#if defined(HAVE_SQRTL)
+#define shim_sqrtl(x)	sqrtl(x)
+#else
+#define shim_sqrtl(x)	shim_sqrt(x)
+#endif
 #endif
 
 #if defined(HAVE_BUILTIN_FABS)
@@ -116,23 +285,6 @@
 #define shim_rint(x)	rint(x)
 #endif
 
-#if defined(HAVE_BUILTIN_RINTL)
-#define shim_rintl(x)	__builtin_rintl(x)
-#else
-#define shim_rintl(x)	rintl(x)
-#endif
-
-#if defined(HAVE_BUILTIN_SQRT)
-#define shim_sqrt(x)	__builtin_sqrt(x)
-#else
-#define shim_sqrt(x)	sqrt(x)
-#endif
-
-#if defined(HAVE_BUILTIN_SQRTL)
-#define shim_sqrtl(x)	__builtin_sqrtl(x)
-#else
-#define shim_sqrtl(x)	sqrtl(x)
-#endif
 
 /*
  *  the CPU stress test has different classes of cpu stressor
@@ -371,27 +523,27 @@ static void HOT stress_cpu_trig(const char *name)
 			double thetad = (double)theta;
 			float thetaf = (float)theta;
 
-			d_sum += (cosl(theta) * sinl(theta));
-			d_sum += ((long double)cos(thetad) * (long double)sin(thetad));
-			d_sum += ((long double)cosf(thetaf) * (long double)sinf(thetaf));
+			d_sum += (shim_cosl(theta) * shim_sinl(theta));
+			d_sum += ((long double)shim_cos(thetad) * (long double)shim_sin(thetad));
+			d_sum += ((long double)shim_cosf(thetaf) * (long double)shim_sinf(thetaf));
 		}
 		{
 			long double thetal = theta * 2.0L;
 			double thetad = (double)thetal;
 			float thetaf = (float)thetal;
 
-			d_sum += cosl(thetal);
-			d_sum += (long double)cos(thetad);
-			d_sum += (long double)cosf(thetaf);
+			d_sum += shim_cosl(thetal);
+			d_sum += (long double)shim_cos(thetad);
+			d_sum += (long double)shim_cosf(thetaf);
 		}
 		{
 			long double thetal = theta * 3.0L;
 			double thetad = (double)thetal;
 			float thetaf = (float)thetal;
 
-			d_sum += sinl(thetal);
-			d_sum += (long double)sin(thetad);
-			d_sum += (long double)sinf(thetaf);
+			d_sum += shim_sinl(thetal);
+			d_sum += (long double)shim_sin(thetad);
+			d_sum += (long double)shim_sinf(thetaf);
 		}
 	}
 	stress_long_double_put(d_sum);
@@ -414,7 +566,7 @@ static void HOT stress_cpu_hyperbolic(const char *name)
 			double thetad = (double)theta;
 			float thetaf = (float)theta;
 
-			d_sum += (coshl(theta) * sinhl(theta));
+			d_sum += (shim_coshl(theta) * shim_sinhl(theta));
 			d_sum += ((long double)cosh(thetad) * (long double)sinh(thetad));
 			d_sum += ((long double)coshf(thetaf) * (long double)sinhf(thetaf));
 		}
@@ -423,7 +575,7 @@ static void HOT stress_cpu_hyperbolic(const char *name)
 			double thetad = (double)theta;
 			float thetaf = (float)theta;
 
-			d_sum += coshl(thetal);
+			d_sum += shim_coshl(thetal);
 			d_sum += (long double)cosh(thetad);
 			d_sum += (long double)coshf(thetaf);
 		}
@@ -432,7 +584,7 @@ static void HOT stress_cpu_hyperbolic(const char *name)
 			double thetad = (double)theta;
 			float thetaf = (float)theta;
 
-			d_sum += sinhl(thetal);
+			d_sum += shim_sinhl(thetal);
 			d_sum += (long double)sinh(thetad);
 			d_sum += (long double)sinhf(thetaf);
 		}
@@ -879,11 +1031,11 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 			double sum = 0.0;
 
 			for (u = 0; u < sz; u++) {
-				const double cos_pi_i_u = cos(pi_i * u);
+				const double cos_pi_i_u = shim_cos(pi_i * u);
 
 				for (v = 0; v < sz; v++) {
 					const double cos_pi_j_v =
-						cos(pi_j * v);
+						shim_cos(pi_j * v);
 
 					sum += ((double)data[u][v] *
 						(u ? 1.0 : invsqrt2) *
@@ -1046,40 +1198,40 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 	stress_double_put((double)r);			\
 }
 
-stress_cpu_fp(float, float, sinf, cosf)
-stress_cpu_fp(double, double, sin, cos)
-stress_cpu_fp(long double, longdouble, sinl, cosl)
+stress_cpu_fp(float, float, shim_sinf, shim_cosf)
+stress_cpu_fp(double, double, shim_sin, shim_cos)
+stress_cpu_fp(long double, longdouble, shim_sinl, shim_cosl)
 #if defined(HAVE_FLOAT_DECIMAL32) &&	\
     !defined(__clang__)
-stress_cpu_fp(_Decimal32, decimal32, sinf, cosf)
+stress_cpu_fp(_Decimal32, decimal32, shim_sinf, shim_cosf)
 #endif
 #if defined(HAVE_FLOAT_DECIMAL64) &&	\
     !defined(__clang__)
-stress_cpu_fp(_Decimal64, decimal64, sin, cos)
+stress_cpu_fp(_Decimal64, decimal64, shim_sin, shim_cos)
 #endif
 #if defined(HAVE_FLOAT_DECIMAL128) &&	\
     !defined(__clang__)
-stress_cpu_fp(_Decimal128, decimal128, sinl, cosl)
+stress_cpu_fp(_Decimal128, decimal128, shim_sinl, shim_cosl)
 #endif
 #if defined(HAVE_FLOAT16) &&	\
     !defined(__clang__)
-stress_cpu_fp(__fp16, float16, sin, cos)
+stress_cpu_fp(__fp16, float16, shim_sin, shim_cos)
 #endif
 #if defined(HAVE_FLOAT32) &&	\
     !defined(__clang__)
-stress_cpu_fp(_Float32, float32, sin, cos)
+stress_cpu_fp(_Float32, float32, shim_sin, shim_cos)
 #endif
 #if defined(HAVE_FLOAT64) &&	\
     !defined(__clang__)
-stress_cpu_fp(_Float64, float64, sin, cos)
+stress_cpu_fp(_Float64, float64, shim_sin, shim_cos)
 #endif
 #if defined(HAVE_FLOAT80) &&	\
     !defined(__clang__)
-stress_cpu_fp(__float80, float80, sinl, cosl)
+stress_cpu_fp(__float80, float80, shim_sinl, shim_cosl)
 #endif
 #if defined(HAVE_FLOAT128) &&	\
     !defined(__clang__)
-stress_cpu_fp(__float128, float128, sinl, cosl)
+stress_cpu_fp(__float128, float128, shim_sinl, shim_cosl)
 #endif
 
 /* Append floating point literal specifier to literal value */
@@ -1116,9 +1268,9 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 	stress_double_put((double)r);				\
 }
 
-stress_cpu_complex(complex float, f, complex_float, csinf, ccosf)
-stress_cpu_complex(complex double, , complex_double, csin, ccos)
-stress_cpu_complex(complex long double, l, complex_long_double, csinl, ccosl)
+stress_cpu_complex(complex float, f, complex_float, shim_csinf, shim_ccosf)
+stress_cpu_complex(complex double, , complex_double, shim_csin, shim_ccos)
+stress_cpu_complex(complex long double, l, complex_long_double, shim_csinl, shim_ccosl)
 #endif
 
 #define int_float_ops(_ftype, flt_a, flt_b, flt_c, flt_d,	\
@@ -1212,46 +1364,46 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(cons
 
 stress_cpu_int_fp(uint32_t, 32, float, float,
 	0x1ce9b547UL, 0xa24b33aUL,
-	C1, C2, C3, sinf, cosf)
+	C1, C2, C3, shim_sinf, shim_cosf)
 stress_cpu_int_fp(uint32_t, 32, double, double,
 	0x1ce9b547UL, 0xa24b33aUL,
-	C1, C2, C3, sin, cos)
+	C1, C2, C3, shim_sin, shim_cos)
 stress_cpu_int_fp(uint32_t, 32, long double, longdouble,
 	0x1ce9b547UL, 0xa24b33aUL,
-	C1, C2, C3, sinl, cosl)
+	C1, C2, C3, shim_sinl, shim_cosl)
 stress_cpu_int_fp(uint64_t, 64, float, float,
 	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
-	C1, C2, C3, sinf, cosf)
+	C1, C2, C3, shim_sinf, shim_cosf)
 stress_cpu_int_fp(uint64_t, 64, double, double,
 	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
-	C1, C2, C3, sin, cos)
+	C1, C2, C3, shim_sin, shim_cos)
 stress_cpu_int_fp(uint64_t, 64, long double, longdouble,
 	0x13f7f6dc1d79197cULL, 0x1863d2c6969a51ceULL,
-	C1, C2, C3, sinl, cosl)
+	C1, C2, C3, shim_sinl, shim_cosl)
 
 #if defined(HAVE_INT128_T)
 stress_cpu_int_fp(__uint128_t, 128, float, float,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
-	sinf, cosf)
+	shim_sinf, shim_cosf)
 stress_cpu_int_fp(__uint128_t, 128, double, double,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
-	sin, cos)
+	shim_sin, shim_cos)
 stress_cpu_int_fp(__uint128_t, 128, long double, longdouble,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
-	sinl, cosl)
+	shim_sinl, shim_cosl)
 #if defined(HAVE_FLOAT_DECIMAL32) &&	\
     !defined(__clang__)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal32, decimal32,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
-	(_Decimal32)sinf, (_Decimal32)cosf)
+	(_Decimal32)shim_sinf, (_Decimal32)shim_cosf)
 #endif
 #if defined(HAVE_FLOAT_DECIMAL64) &&	\
     !defined(__clang__)
@@ -1259,7 +1411,7 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal64, decimal64,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
-	(_Decimal64)sin, (_Decimal64)cos)
+	(_Decimal64)shim_sin, (_Decimal64)shim_cos)
 #endif
 #if defined(HAVE_FLOAT_DECIMAL128) &&	\
     !defined(__clang__)
@@ -1267,7 +1419,7 @@ stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
 	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
 	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
-	(_Decimal128)sinl, (_Decimal128)cosl)
+	(_Decimal128)shim_sinl, (_Decimal128)shim_cosl)
 #endif
 #endif
 
@@ -1638,10 +1790,10 @@ static inline long double complex HOT OPTIMIZE3 zeta(
 	long double complex z = 0.0L, zold = 0.0L;
 
 	do {
-		double complex pwr = cpow(i++, (complex double)s);
+		double complex pwr = shim_cpow(i++, (complex double)s);
 		zold = z;
 		z += 1 / (long double complex)pwr;
-	} while (cabsl(z - zold) > precision);
+	} while (shim_cabsl(z - zold) > precision);
 
 	return z;
 }
@@ -1677,7 +1829,7 @@ static void HOT OPTIMIZE3 stress_cpu_gamma(const char *name)
 	do {
 		gammaold = _gamma;
 		sum += 1.0L / k;
-		_gamma = sum - logl(k);
+		_gamma = sum - shim_logl(k);
 		k += 1.0L;
 	} while ((k < 1e6L) && shim_fabsl(_gamma - gammaold) > precision);
 
@@ -2055,7 +2207,7 @@ static inline long double HOT OPTIMIZE3 factorial(int n)
 	if (n < (int)SIZEOF_ARRAY(factorials))
 		return factorials[n];
 
-	return roundl(expl(lgammal((long double)(n + 1))));
+	return roundl(shim_expl(shim_lgammal((long double)(n + 1))));
 }
 
 /*
@@ -2075,7 +2227,7 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
 		last_pi = pi;
 		s += (factorial(4 * k) *
 			((26390.0L * (long double)k) + 1103)) /
-			(powl(factorial(k), 4.0L) * powl(396.0L, 4.0L * k));
+			(shim_powl(factorial(k), 4.0L) * shim_powl(396.0L, 4.0L * k));
 		pi = 1 / (s * c);
 		k++;
 	} while ((k < max_iter) && (shim_fabsl(pi - last_pi) > precision));
@@ -2111,7 +2263,7 @@ static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
 	 */
 	do {
 		last_omega = omega;
-		omega = (1 + omega) / (1 + expl(omega));
+		omega = (1 + omega) / (1 + shim_expl(omega));
 		n++;
 	} while ((n < max_iter) && (shim_fabsl(omega - last_omega) > precision));
 
@@ -2667,7 +2819,7 @@ static void stress_cpu_factorial(const char *name)
 
 	for (n = 1; n < 150; n++) {
 		long double np1 = (long double)(n + 1);
-		long double fact = roundl(expl(lgammal(np1)));
+		long double fact = roundl(shim_expl(shim_lgammal(np1)));
 		long double dn;
 
 		f *= (long double)n;
@@ -2681,8 +2833,8 @@ static void stress_cpu_factorial(const char *name)
 
 		/* Ramanujan */
 		dn = (long double)n;
-		fact = sqrt_pi * powl((dn / (long double)M_E), dn);
-		fact *= powl((((((((8 * dn) + 4)) * dn) + 1) * dn) + 1.0L/30.0L), (1.0L/6.0L));
+		fact = sqrt_pi * shim_powl((dn / (long double)M_E), dn);
+		fact *= shim_powl((((((((8 * dn) + 4)) * dn) + 1) * dn) + 1.0L/30.0L), (1.0L/6.0L));
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 		    ((f - fact) / fact > precision)) {
 			pr_fail("%s: Ramanujan's approximation of factorial(%d) out of range\n",
