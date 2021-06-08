@@ -163,7 +163,10 @@ vfork_again:
 				if (pid >= 0)
 					start_pid = getpid();
 			} else {
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 				pid = vfork();
+STRESS_PRAGMA_POP
 				inc_counter(args);
 			}
 			if (pid < 0) {
