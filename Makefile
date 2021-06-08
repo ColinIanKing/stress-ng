@@ -21,7 +21,7 @@ VERSION=0.12.10
 # Codename "keen kernel killer"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99 -g
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
 
 #
 # Pedantic flags
