@@ -1622,18 +1622,23 @@ const char *stress_get_uname_info(void)
  */
 int stress_not_implemented(const stress_args_t *args)
 {
+	static const char msg[] = "this stressor is not implemented on "
+				  "this system";
+	if (args->instance == 0) {
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
-	struct utsname buf;
+		struct utsname buf;
 
-	if (!uname(&buf)) {
-		pr_inf("%s: this stressor is not implemented on this system: %s %s\n",
-			args->name, stress_get_uname_info(), stress_get_compiler());
-		return EXIT_NOT_IMPLEMENTED;
-	}
+		if (!uname(&buf)) {
+			pr_inf("%s: %s: %s %s\n",
+				args->name, msg, stress_get_uname_info(),
+				stress_get_compiler());
+			return EXIT_NOT_IMPLEMENTED;
+		}
 #endif
-	pr_inf("%s: this stressor is not implemented on this system: %s\n",
-		args->name, stress_get_compiler());
+		pr_inf("%s: %s: %s\n",
+			args->name, msg, stress_get_compiler());
+	}
 	return EXIT_NOT_IMPLEMENTED;
 }
 
