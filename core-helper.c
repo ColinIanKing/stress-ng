@@ -2400,26 +2400,52 @@ size_t stress_hostname_length(void)
 }
 
 /*
+ *  stress_min_aux_sig_stack_size()
+ *	For ARM we should check AT_MINSIGSTKSZ as this
+ *	also includes SVE register saving overhead
+ *	https://blog.linuxplumbersconf.org/2017/ocw/system/presentations/4671/original/plumbers-dm-2017.pdf
+ */
+static inline long stress_min_aux_sig_stack_size(void)
+{
+#if defined(HAVE_GETAUXVAL) &&	\
+    defined(AT_MINSIGSTKSZ)
+	long sz = getauxval(AT_MINSIGSTKSZ);
+
+	if (sz > 0)
+		return sz;
+#endif
+	return -1;
+}
+
+/*
  *  stress_sig_stack_size()
- *	wrapper for STRESS_SIGSTKSZ
+ *	wrapper for STRESS_SIGSTKSZ, try and find
+ *	stack size required
  */
 size_t stress_sig_stack_size(void)
 {
-#if defined(_SC_SIGSTKSZ)
-	{
-		static long sz = -1;
+	static long sz = -1, min;
 
-		if (sz < 0)
-			sz = sysconf(_SC_SIGSTKSZ);
-		if (sz > 0)
-			return (size_t)sz;
-	}
+	/* return cached copy */
+	if (sz > 0)
+		return sz;
+
+	min = stress_min_aux_sig_stack_size();
+#if defined(_SC_SIGSTKSZ)
+	sz = sysconf(_SC_SIGSTKSZ);
+	if (sz > min)
+		min = sz;
 #endif
 #if defined(SIGSTKSZ)
-	return SIGSTKSZ;
+	if (SIGSTKSZ > min)
+		min = SIGSTKSZ;
 #else
-	return (8192);
+	if (8192 > min)
+		min = 8192;
 #endif
+	sz = min;
+
+	return (size_t)sz;
 }
 
 /*
@@ -2428,21 +2454,28 @@ size_t stress_sig_stack_size(void)
  */
 size_t stress_min_sig_stack_size(void)
 {
-#if defined(_SC_MINSIGSTKSZ)
-	{
-		static long sz = -1;
+	static long sz = -1, min;
 
-		if (sz < 0)
-			sz = sysconf(_SC_MINSIGSTKSZ);
-		if (sz > 0)
-			return (size_t)sz;
-	}
+	/* return cached copy */
+	if (sz > 0)
+		return sz;
+
+	min = stress_min_aux_sig_stack_size();
+#if defined(_SC_MINSIGSTKSZ)
+	sz = sysconf(_SC_MINSIGSTKSZ);
+	if (sz > min)
+		min = sz;
 #endif
-#if defined(MINSIGSTKSZ)
-	return MINSIGSTKSZ;
+#if defined(SIGSTKSZ)
+	if (SIGSTKSZ > min)
+		min = SIGSTKSZ;
 #else
-	return (8192);
+	if (8192 > min)
+		min = 8192;
 #endif
+	sz = min;
+
+	return (size_t)sz;
 }
 
 /*
