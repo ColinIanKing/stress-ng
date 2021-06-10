@@ -111,6 +111,86 @@ static size_t stress_mlock_max_lockable(void)
 	return max;
 }
 
+/*
+ *  stress_mlock_misc()
+ *	perform various invalid or unusual calls to
+ *	exercise kernel a little more.
+ */
+static void stress_mlock_misc(const stress_args_t *args, const size_t page_size)
+{
+	int ret;
+
+	/*
+	 *  mlock/munlock with invalid or unusual arguments
+	 */
+	ret = shim_mlock((void *)~0, page_size);
+	(void)ret;
+	ret = shim_munlock((void *)~0, page_size);
+	(void)ret;
+
+	ret = shim_mlock((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size << 1);
+	(void)ret;
+	ret = shim_munlock((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size << 1);
+	(void)ret;
+
+	ret = shim_mlock((void *)0, ~(size_t)0);
+	(void)ret;
+	ret = munlock((void *)0, ~(size_t)0);
+	(void)ret;
+
+	ret = shim_mlock((void *)0, 0);
+	(void)ret;
+	ret = munlock((void *)0, 0);
+	(void)ret;
+
+#if defined(HAVE_MLOCKALL)
+	{
+		int flag = 0;
+#if defined(MCL_CURRENT)
+		if (!keep_stressing(args))
+			return;
+		(void)shim_mlockall(MCL_CURRENT);
+		flag |= MCL_CURRENT;
+#endif
+#if defined(MCL_FUTURE)
+		if (!keep_stressing(args))
+			return;
+		(void)shim_mlockall(MCL_FUTURE);
+		flag |= MCL_FUTURE;
+#endif
+#if defined(MCL_ONFAULT) &&	\
+    defined(MCL_CURRENT)
+		if (!keep_stressing(args))
+			return;
+		if (shim_mlockall(MCL_ONFAULT | MCL_CURRENT) == 0)
+			flag |= (MCL_ONFAULT | MCL_CURRENT);
+#endif
+#if defined(MCL_ONFAULT) &&	\
+    defined(MCL_FUTURE)
+		if (!keep_stressing(args))
+			return;
+		if (shim_mlockall(MCL_ONFAULT | MCL_FUTURE) == 0)
+			flag |= (MCL_ONFAULT | MCL_FUTURE);
+#endif
+#if defined(MCL_ONFAULT)
+		if (!keep_stressing(args))
+			return;
+		/* Exercising Invalid mlockall syscall and ignoring failure */
+		(void)shim_mlockall(MCL_ONFAULT);
+#endif
+		if (!keep_stressing(args))
+			return;
+		/* Exercise Invalid mlockall syscall with invalid flag */
+		(void)shim_mlockall(~0);
+		if (flag) { /* cppcheck-suppress knownConditionTrueFalse */
+			if (!keep_stressing(args))
+				return;
+			(void)shim_mlockall(flag);
+		}
+	}
+#endif
+}
+
 static int stress_mlock_child(const stress_args_t *args, void *context)
 {
 	size_t i, n;
@@ -194,6 +274,9 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 					((intptr_t)mappings[n] | 1);
 				inc_counter(args);
 			}
+
+			if ((n & 1023) == 0)
+				stress_mlock_misc(args, page_size);
 		}
 
 		for (i = 0; i < n; i++) {
@@ -211,77 +294,6 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			}
 			(void)munmap((void *)addr, page_size * 3);
 		}
-
-		/*
-		 *  mlock/munlock with invalid or unusual arguments
-		 */
-		ret = shim_mlock((void *)~0, page_size);
-		(void)ret;
-		ret = shim_munlock((void *)~0, page_size);
-		(void)ret;
-
-		ret = shim_mlock((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size << 1);
-		(void)ret;
-		ret = shim_munlock((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size << 1);
-		(void)ret;
-
-		ret = shim_mlock((void *)0, ~(size_t)0);
-		(void)ret;
-		ret = munlock((void *)0, ~(size_t)0);
-		(void)ret;
-
-		ret = shim_mlock((void *)0, 0);
-		(void)ret;
-		ret = munlock((void *)0, 0);
-		(void)ret;
-		
-
-#if defined(HAVE_MLOCKALL)
-		{
-			int flag = 0;
-#if defined(MCL_CURRENT)
-			if (!keep_stressing(args))
-				break;
-			(void)shim_mlockall(MCL_CURRENT);
-			flag |= MCL_CURRENT;
-#endif
-#if defined(MCL_FUTURE)
-			if (!keep_stressing(args))
-				break;
-			(void)shim_mlockall(MCL_FUTURE);
-			flag |= MCL_FUTURE;
-#endif
-#if defined(MCL_ONFAULT) &&	\
-    defined(MCL_CURRENT)
-			if (!keep_stressing(args))
-				break;
-			if (shim_mlockall(MCL_ONFAULT | MCL_CURRENT) == 0)
-				flag |= (MCL_ONFAULT | MCL_CURRENT);
-#endif
-#if defined(MCL_ONFAULT) &&	\
-    defined(MCL_FUTURE)
-			if (!keep_stressing(args))
-				break;
-			if (shim_mlockall(MCL_ONFAULT | MCL_FUTURE) == 0)
-				flag |= (MCL_ONFAULT | MCL_FUTURE);
-#endif
-#if defined(MCL_ONFAULT)
-			if (!keep_stressing(args))
-				break;
-			/* Exercising Invalid mlockall syscall and ignoring failure */
-			(void)shim_mlockall(MCL_ONFAULT);
-#endif
-			if (!keep_stressing(args))
-				break;
-			/* Exercise Invalid mlockall syscall with invalid flag */
-			(void)shim_mlockall(~0);
-			if (flag) { /* cppcheck-suppress knownConditionTrueFalse */
-				if (!keep_stressing(args))
-					break;
-				(void)shim_mlockall(flag);
-			}
-		}
-#endif
 
 		for (n = 0; n < max; n++) {
 			if (!keep_stressing(args))
