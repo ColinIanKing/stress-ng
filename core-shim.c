@@ -572,8 +572,7 @@ int shim_mlockall(int flags)
  */
 int shim_munlockall(void)
 {
-/* if HAVE_MLOCKALL defined we also have munlockall */
-#if defined(HAVE_MLOCKALL)
+#if defined(HAVE_MUNLOCKALL)
 	return munlockall();
 #elif defined(__NR_munlockall)
 	return (int)syscall(__NR_munlockall);

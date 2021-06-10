@@ -26,14 +26,5 @@
 
 int main(void)
 {
-	int ret;
-
-	ret = mlockall(MCL_CURRENT);
-	(void)ret;
-	ret = mlockall(MCL_FUTURE);
-	(void)ret;
-	ret = mlockall(MCL_ONFAULT);
-	(void)ret;
-
-	return 0;
+	return munlockall();
 }

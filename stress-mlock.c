@@ -307,7 +307,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			if (mappings[n] == MAP_FAILED)
 				break;
 		}
-#if defined(HAVE_MLOCKALL)
+#if defined(HAVE_MUNLOCKALL)
 		(void)shim_munlockall();
 #endif
 		for (i = 0; i < n; i++)
