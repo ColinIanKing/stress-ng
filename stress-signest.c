@@ -97,6 +97,7 @@ typedef struct {
 	ptrdiff_t stack_depth;	/* approx stack depth */
 	int depth;		/* call depth */
 	int max_depth;		/* max call depth */
+	double time_start;	/* start time */
 } stress_signest_info_t;
 
 static volatile stress_signest_info_t signal_info;
@@ -117,6 +118,7 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 	ssize_t i;
 	const intptr_t addr = (intptr_t)&i;
 	ptrdiff_t delta = signal_info.stack - addr;
+	double run_time = stress_time_now() - signal_info.time_start;
 
 	signal_info.depth++;
 	if (signal_info.depth > signal_info.max_depth)
@@ -126,6 +128,9 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 		delta = -delta;
 	if (delta > signal_info.stack_depth)
 		signal_info.stack_depth = delta;
+
+	if (run_time > (double)g_opt_timeout)
+		siglongjmp(jmp_env, 1);
 
 	if (signal_info.stop)
 		siglongjmp(jmp_env, 1);
@@ -184,6 +189,7 @@ static int stress_signest(const stress_args_t *args)
 	signal_info.stack = (intptr_t)(stress_get_stack_direction() > 0 ?
 		altstack : altstack + altstack_size);
 	signal_info.depth = 0;
+	signal_info.time_start = stress_time_now();
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
