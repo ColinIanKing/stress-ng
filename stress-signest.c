@@ -39,7 +39,6 @@ static const int signals[] = {
 #if defined(SIGILL)
 	SIGILL,
 #endif
-/*
 #if defined(SIGQUIT)
 	SIGQUIT,
 #endif
@@ -88,7 +87,6 @@ static const int signals[] = {
 #if defined(SIGWINCH)
 	SIGWINCH,
 #endif
-*/
 };
 
 typedef struct {
