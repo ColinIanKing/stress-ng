@@ -2571,6 +2571,7 @@ typedef struct {
 	MACRO(sigfpe)		\
 	MACRO(sigio)		\
 	MACRO(signal)		\
+	MACRO(signest)		\
 	MACRO(sigpending)	\
 	MACRO(sigpipe)		\
 	MACRO(sigq)		\
@@ -3427,6 +3428,9 @@ typedef enum {
 	OPT_signal,
 	OPT_signal_ops,
 
+	OPT_signest,
+	OPT_signest_ops,
+
 	OPT_sigpending,
 	OPT_sigpending_ops,
 
@@ -3896,6 +3900,7 @@ extern int stress_temp_dir_rm(const char *name, const pid_t pid,
 extern int stress_temp_dir_rm_args(const stress_args_t *args);
 extern void stress_cwd_readwriteable(void);
 
+extern const char *stress_signal_name(const int signum);
 extern const char *stress_strsignal(const int signum);
 
 #if defined(STRESS_ARCH_X86)

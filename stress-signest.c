@@ -1,0 +1,243 @@
+/*
+ * Copyright (C) 2013-2021 Canonical, Ltd.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ * This code is a complete clean re-write of the stress tool by
+ * Colin Ian King <colin.king@canonical.com> and attempts to be
+ * backwardly compatible with the stress tool by Amos Waterland
+ * <apw@rossby.metr.ou.edu> but has more stress tests and more
+ * functionality.
+ *
+ */
+#include "stress-ng.h"
+
+static const stress_help_t help[] = {
+	{ NULL,	"signest N",	 "start N workers generating nested signals" },
+	{ NULL,	"signest-ops N", "stop after N bogo nested signals" },
+	{ NULL,	NULL,		 NULL }
+};
+
+static const int signals[] = {
+#if defined(SIGHUP)
+	SIGHUP,
+#endif
+#if defined(SIGINT)
+	SIGINT,
+#endif
+#if defined(SIGILL)
+	SIGILL,
+#endif
+#if defined(SIGQUIT)
+	SIGQUIT,
+#endif
+#if defined(SIGABRT)
+	SIGABRT,
+#endif
+#if defined(SIGFPE)
+	SIGFPE,
+#endif
+#if defined(SIGTERM)
+	SIGTERM,
+#endif
+#if defined(SIGXCPU)
+	SIGXCPU,
+#endif
+#if defined(SIGXFSZ)
+	SIGXFSZ,
+#endif
+#if defined(SIGIOT)
+	SIGIOT,
+#endif
+#if defined(SIGSTKFLT)
+	SIGSTKFLT,
+#endif
+#if defined(SIGPWR)
+	SIGPWR,
+#endif
+#if defined(SIGINFO)
+	SIGINFO,
+#endif
+#if defined(SIGVTALRM)
+	SIGVTALRM,
+#endif
+#if defined(SIGUSR1)
+	SIGUSR1,
+#endif
+#if defined(SIGUSR2)
+	SIGUSR2,
+#endif
+#if defined(SIGTTOU)
+	SIGTTOU,
+#endif
+#if defined(SIGTTIN)
+	SIGTTIN,
+#endif
+#if defined(SIGWINCH)
+	SIGWINCH,
+#endif
+};
+
+typedef struct {
+	const stress_args_t *args;
+	uint32_t signalled;	/* bitmap of index into signals[] handled */
+	bool stop;		/* true to stop further nested signalling */
+	intptr_t stack;		/* stack start */
+	ptrdiff_t stack_depth;	/* approx stack depth */
+	int depth;		/* call depth */
+	int max_depth;		/* max call depth */
+} stress_signest_info_t;
+
+static volatile stress_signest_info_t signal_info;
+
+static ssize_t stress_signest_find(int signum)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(signals); i++) {
+		if (signals[i] == signum)
+			return (ssize_t)i;
+	}
+	return (ssize_t)-1;
+}
+
+static void MLOCKED_TEXT stress_signest_handler(int signum)
+{
+	ssize_t i;
+	const intptr_t addr = (intptr_t)&i;
+	ptrdiff_t delta = signal_info.stack - addr;
+
+	signal_info.depth++;
+	if (signal_info.depth > signal_info.max_depth)
+		signal_info.max_depth = signal_info.depth;
+
+	if (delta < 0)
+		delta = -delta;
+	if (delta > signal_info.stack_depth)
+		signal_info.stack_depth = delta;
+
+	if (signal_info.stop)
+		goto done;
+	if (!signal_info.args)
+		goto done;
+
+	inc_counter(signal_info.args);
+	if (!keep_stressing(signal_info.args))
+		goto done;
+
+	i = stress_signest_find(signum);
+	if ((i < 0) || (i == (ssize_t)SIZEOF_ARRAY(signals)))
+		goto done;
+
+	signal_info.signalled |= 1U << i;
+
+	for (; i < (ssize_t)SIZEOF_ARRAY(signals); i++) {
+		raise(signals[i]);
+	}
+
+done:
+	--signal_info.depth;
+	return;
+}
+
+
+/*
+ *  stress_signest
+ *	stress by generating segmentation faults by
+ *	writing to a read only page
+ */
+static int stress_signest(const stress_args_t *args)
+{
+	size_t i, sz;
+	int n;
+	uint8_t *altstack;
+	char *buf, *ptr;
+	const size_t altstack_size = stress_min_sig_stack_size() * SIZEOF_ARRAY(signals);
+
+	altstack = mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (altstack == MAP_FAILED) {
+		pr_inf("%s: cannot allocate alternative signal stack, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+
+	if (stress_sigaltstack(altstack, altstack_size) < 0)
+		return EXIT_FAILURE;
+
+	signal_info.args = args;
+	signal_info.stop = false;
+	signal_info.stack = (intptr_t)(stress_get_stack_direction() > 0 ?
+		altstack : altstack + altstack_size);
+	signal_info.depth = 0;
+
+	for (i = 0; i < SIZEOF_ARRAY(signals); i++) {
+		if (stress_sighandler(args->name, signals[i], stress_signest_handler, NULL) < 0)
+			return EXIT_NO_RESOURCE;
+	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	do {
+		raise(signals[0]);
+	} while (keep_stressing(args));
+
+	signal_info.stop = true;
+
+	for (sz = 1, n = 0, i = 0; i < SIZEOF_ARRAY(signals); i++) {
+		if (signal_info.signalled & (1U << i)) {
+			const char *name = stress_signal_name(signals[i]);
+
+			n++;
+			sz += name ? (strlen(name) + 1) : 32;
+		}
+	}
+
+	buf = calloc(sz, sizeof(*buf));
+	if (buf) {
+		for (ptr = buf, i = 0; i < SIZEOF_ARRAY(signals); i++) {
+			if (signal_info.signalled & (1U << i)) {
+				const char *name = stress_signal_name(signals[i]);
+
+				if (name) {
+					if (strncmp(name, "SIG", 3) == 0)
+						name += 3;
+					ptr += snprintf(ptr, (buf + sz - ptr), " %s", name);
+				} else {
+					ptr += snprintf(ptr, (buf + sz - ptr), " SIG%d", signals[i]);
+				}
+			}
+		}
+		pr_inf("%d unique nested signals handled,%s\n", n, buf);
+		free(buf);
+	} else {
+		pr_inf("%d unique nested signals handled\n", n);
+	}
+	pr_dbg("%s: stack depth %td bytes (~%td bytes per signal)\n",
+		args->name, signal_info.stack_depth,
+		signal_info.max_depth ? signal_info.stack_depth / signal_info.max_depth : 0);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	(void)munmap((void *)altstack, altstack_size);
+
+	return EXIT_SUCCESS;
+}
+
+stressor_info_t stress_signest_info = {
+	.stressor = stress_signest,
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.help = help
+};

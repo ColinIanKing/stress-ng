@@ -3443,6 +3443,17 @@ replace signal with the more modern sigaction system call.
 .B \-\-signal\-ops N
 stop signal stress workers after N rounds of signal handler setting.
 .TP
+.B \-\-signest N
+start N workers that exercise nested signal handling. A signal is raised and
+inside the signal handler a different signal is raised, working through a
+list of signals to exercise. An alternative signal stack is used that is
+large enough to handle all the nested signal calls.  The \-v option will
+log the approximate size of the stack required and the average stack size
+per nested call.
+.TP
+.B \-\-signest\-ops N
+stop after handling N nested signals.
+.TP
 .B \-\-sigpending N
 start N workers that check if SIGUSR1 signals are pending. This stressor masks
 SIGUSR1, generates a SIGUSR1 signal and uses sigpending(2) to see if the signal

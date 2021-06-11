@@ -262,6 +262,7 @@ STRESS_SRC = \
 	stress-sigfpe.c \
 	stress-sigio.c \
 	stress-signal.c \
+	stress-signest.c \
 	stress-sigpending.c \
 	stress-sigpipe.c \
 	stress-sigq.c \

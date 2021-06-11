@@ -978,21 +978,29 @@ void stress_cwd_readwriteable(void)
 }
 
 /*
+ *  stress_signal_name()
+ *	return string version of signal number, NULL if not found
+ */
+const char *stress_signal_name(const int signum)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(sig_names); i++) {
+		if (signum == sig_names[i].signum)
+			return sig_names[i].name;
+	}
+	return NULL;
+}
+
+/*
  *  stress_strsignal()
  *	signum to human readable string
  */
 const char *stress_strsignal(const int signum)
 {
 	static char buffer[40];
-	const char *str = NULL;
-	size_t i;
+	const char *str = stress_signal_name(signum);
 
-	for (i = 0; i < SIZEOF_ARRAY(sig_names); i++) {
-		if (signum == sig_names[i].signum) {
-			str = sig_names[i].name;
-			break;
-		}
-	}
 	if (str)
 		(void)snprintf(buffer, sizeof(buffer), "signal %d '%s'",
 			signum, str);
@@ -1000,7 +1008,6 @@ const char *stress_strsignal(const int signum)
 		(void)snprintf(buffer, sizeof(buffer), "signal %d", signum);
 	return buffer;
 }
-
 
 /*
  *  stress_strnrnd()
