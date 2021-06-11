@@ -374,34 +374,32 @@ static void stress_ftrace_analyze(void)
  *	stop ftracing function calls and analyze the collected
  *	stats
  */
-int stress_ftrace_stop(void)
+void stress_ftrace_stop(void)
 {
 	char *path, filename[PATH_MAX];
 
 	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
-		return 0;
+		return;
 
 	if (!tracing_enabled)
-		return -1;
+		return;
 
 	path = stress_ftrace_get_debugfs_path();
 	if (!path)
-		return -1;
+		return;
 
 	stress_ftrace_add_pid(-1);
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/function_profile_enabled", path);
 	if (system_write(filename, "0", 1) < 0) {
 		pr_inf("ftrace: cannot disable function profiling, errno=%d (%s)\n",
 			errno, strerror(errno));
-		return -1;
+		return;
 	}
 
 	(void)snprintf(filename, sizeof(filename), "%s/tracing/trace_stat", path);
 	if (stress_ftrace_parse_stat_files(path, false) < 0)
-		return -1;
+		return;
 	stress_ftrace_analyze();
-
-	return 0;
 }
 
 #else
@@ -424,8 +422,7 @@ int stress_ftrace_start(void)
 	return 0;
 }
 
-int stress_ftrace_stop(void)
+stress_ftrace_stop(void)
 {
-	return 0;
 }
 #endif

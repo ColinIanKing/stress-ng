@@ -4125,7 +4125,7 @@ extern void stress_misc_stats_set(stress_misc_stats_t *misc_stats,
 	const int idx, const char *description, const double value);
 
 extern int stress_ftrace_start(void);
-extern int stress_ftrace_stop(void);
+extern void stress_ftrace_stop(void);
 extern void stress_ftrace_free(void);
 extern void stress_ftrace_add_pid(const pid_t pid);
 

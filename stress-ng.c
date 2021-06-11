@@ -3606,9 +3606,9 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_TIMES)
 		stress_times_dump(yaml, ticks_per_sec, duration);
 
-	(void)stress_vmstat_stop();
-	(void)stress_ftrace_stop();
-	(void)stress_ftrace_free();
+	stress_vmstat_stop();
+	stress_ftrace_stop();
+	stress_ftrace_free();
 
 	/*
 	 *  Tidy up
