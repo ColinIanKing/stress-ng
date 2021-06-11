@@ -36,9 +36,6 @@ static const int signals[] = {
 #if defined(SIGHUP)
 	SIGHUP,
 #endif
-#if defined(SIGINT)
-	SIGINT,
-#endif
 #if defined(SIGILL)
 	SIGILL,
 #endif
