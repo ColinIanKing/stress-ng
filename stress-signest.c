@@ -166,7 +166,7 @@ static int stress_signest(const stress_args_t *args)
 	char *buf, *ptr;
 	const size_t altstack_size = stress_min_sig_stack_size() * SIZEOF_ARRAY(signals);
 
-	altstack = mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
+	altstack = (uint8_t*)mmap(NULL, altstack_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (altstack == MAP_FAILED) {
 		pr_inf("%s: cannot allocate alternative signal stack, errno=%d (%s)\n",
