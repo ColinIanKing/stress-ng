@@ -120,6 +120,8 @@ static void stress_mlock_misc(const stress_args_t *args, const size_t page_size)
 {
 	int ret;
 
+	(void)args;
+
 	/*
 	 *  mlock/munlock with invalid or unusual arguments
 	 */
