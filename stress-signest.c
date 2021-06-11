@@ -30,6 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
+static sigjmp_buf jmp_env;
+
 static const int signals[] = {
 #if defined(SIGHUP)
 	SIGHUP,
@@ -129,13 +131,14 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 		signal_info.stack_depth = delta;
 
 	if (signal_info.stop)
-		goto done;
+		siglongjmp(jmp_env, 1);
+
 	if (!signal_info.args)
 		goto done;
 
 	inc_counter(signal_info.args);
 	if (!keep_stressing(signal_info.args))
-		goto done;
+		siglongjmp(jmp_env, 1);
 
 	i = stress_signest_find(signum);
 	if ((i < 0) || (i == (ssize_t)SIZEOF_ARRAY(signals)))
@@ -144,6 +147,8 @@ static void MLOCKED_TEXT stress_signest_handler(int signum)
 	signal_info.signalled |= 1U << i;
 
 	for (; i < (ssize_t)SIZEOF_ARRAY(signals); i++) {
+		if (signal_info.stop || !keep_stressing(signal_info.args))
+			siglongjmp(jmp_env, 1);
 		raise(signals[i]);
 	}
 
@@ -161,7 +166,7 @@ done:
 static int stress_signest(const stress_args_t *args)
 {
 	size_t i, sz;
-	int n;
+	int n, ret;
 	uint8_t *altstack;
 	char *buf, *ptr;
 	const size_t altstack_size = stress_min_sig_stack_size() * SIZEOF_ARRAY(signals);
@@ -183,6 +188,12 @@ static int stress_signest(const stress_args_t *args)
 		altstack : altstack + altstack_size);
 	signal_info.depth = 0;
 
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret) {
+		/* SIGALRM, SIGINT or finished flags met */
+		goto finish;
+	}
+
 	for (i = 0; i < SIZEOF_ARRAY(signals); i++) {
 		if (stress_sighandler(args->name, signals[i], stress_signest_handler, NULL) < 0)
 			return EXIT_NO_RESOURCE;
@@ -190,10 +201,12 @@ static int stress_signest(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+
 	do {
 		raise(signals[0]);
 	} while (keep_stressing(args));
 
+finish:
 	signal_info.stop = true;
 
 	for (sz = 1, n = 0, i = 0; i < SIZEOF_ARRAY(signals); i++) {
