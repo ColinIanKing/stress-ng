@@ -236,10 +236,10 @@ finish:
 				}
 			}
 		}
-		pr_inf("%d unique nested signals handled,%s\n", n, buf);
+		pr_inf("%s: %d unique nested signals handled,%s\n", args->name, n, buf);
 		free(buf);
 	} else {
-		pr_inf("%d unique nested signals handled\n", n);
+		pr_inf("%s: %d unique nested signals handled\n", args->name, n);
 	}
 	pr_dbg("%s: stack depth %td bytes (~%td bytes per signal)\n",
 		args->name, signal_info.stack_depth,
