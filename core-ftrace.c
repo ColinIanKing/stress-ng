@@ -422,7 +422,7 @@ int stress_ftrace_start(void)
 	return 0;
 }
 
-stress_ftrace_stop(void)
+void stress_ftrace_stop(void)
 {
 }
 #endif
