@@ -2369,6 +2369,9 @@ static void stress_times_dump(
 	double min1, min5, min15;
 	int rc;
 
+	if (!(g_opt_flags & OPT_FLAGS_TIMES))
+		return;
+
 	if (times(&buf) == (clock_t)-1) {
 		pr_err("cannot get run time information: errno=%d (%s)\n",
 			errno, strerror(errno));
@@ -3603,8 +3606,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Dump run times
 	 */
-	if (g_opt_flags & OPT_FLAGS_TIMES)
-		stress_times_dump(yaml, ticks_per_sec, duration);
+	stress_times_dump(yaml, ticks_per_sec, duration);
 
 	stress_vmstat_stop();
 	stress_ftrace_stop();
