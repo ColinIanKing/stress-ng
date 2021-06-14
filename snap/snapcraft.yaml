@@ -8,6 +8,14 @@ base: core18
 assumes: [snapd2.37]
 adopt-info: stress-ng
 
+architectures:
+    - build-on: s390x
+    - build-on: ppc64el
+    - build-on: arm64
+    - build-on: armhf
+    - build-on: amd64
+    - build-on: i386
+
 environment:
     CFLAGS: '-fstack-protector-strong -Wformat -Werror=format-security'
     LDFLAGS: Wl,-z,relro
