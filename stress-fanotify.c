@@ -166,12 +166,12 @@ static int stress_fanotify_supported(const char *name)
 	static const char skipped[] =
 		"stressor will be skipped, ";
 	static const char noperm[] =
-		"need to be running with CAP_SYS_ADMIN "
-		"rights for this stressor";
+		"stressor needs to be running with CAP_SYS_ADMIN "
+		"rights";
 	static const char noresource[] =
-		"no resources (out of descriptors or memory)";
+		": no resources (out of descriptors or memory)";
 	static const char nosyscall[] =
-		"system call not supported";
+		": system call not supported";
 
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
 		pr_inf("%s: %s%s\n", name, skipped, noperm);
