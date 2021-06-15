@@ -95,32 +95,35 @@ static int do_quotactl_call(
 	int id,
 	caddr_t addr)
 {
-#if defined(HAVE_QUOTACTL_PATH)
-	static bool have_quotactl_path = true;
-	int ret;
+	static bool have_quotactl_fd = true;
+	int ret, fd;
 
 	/*
-	 *  quotactl_path() failed on ENOSYS or random choice
+	 *  quotactl_fd() failed on ENOSYS or random choice
 	 *  then do normal quotactl call
 	 */
-	if (!have_quotactl_path || stress_mwc1())
+	if (!have_quotactl_fd || stress_mwc1())
 		goto do_quotactl;
 
 	/*
-	 *  try quotactl_path() instead, it may not exist
+	 *  try quotactl_fd() instead, it may not exist
 	 *  so flag this for next time and do normal quotactl
 	 *  call
 	 */
-	ret = shim_quotactl_path(cmd, dev->mount, id, addr);
+	fd = open(dev->mount, O_DIRECTORY | O_RDONLY);
+	if (fd < 0)
+		goto do_quotactl;
+	ret = shim_quotactl_fd(cmd, fd, id, addr);
 	if ((ret < 0) && (errno == ENOSYS)) {
 		/* We don't have quotactl_path, use quotactl */
-		have_quotactl_path = false;
+		have_quotactl_fd = false;
+		(void)close(fd);
 		goto do_quotactl;
 	}
+	(void)close(fd);
 	return ret;
 
 do_quotactl:
-#endif
 	return quotactl(cmd, dev->name, id, addr);
 }
 

@@ -28,5 +28,5 @@
 
 int main(void)
 {
-	return quotactl_path(0, "", 0, (void *)0);
+	return quotactl_fd(0, 0, 0, (void *)0);
 }
