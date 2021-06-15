@@ -174,7 +174,7 @@ static int stress_fanotify_supported(const char *name)
 		"system call not supported";
 
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-		pr_inf("%s%s\n", skipped, noperm);
+		pr_inf("%s: %s%s\n", name, skipped, noperm);
 		return -1;
 	}
 	fan_fd = fanotify_init(0, 0);
