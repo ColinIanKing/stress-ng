@@ -75,6 +75,19 @@ static uint64_t stress_aux_random_seed(void)
  */
 void stress_mwc_reseed(void)
 {
+	if (g_opt_flags & OPT_FLAGS_SEED) {
+		uint64_t seed;
+
+		if (stress_get_setting("seed", &seed)) {
+			mwc.z = seed >> 32;
+			mwc.w = seed & 0xffffffff;
+			mwc_flush();
+			return;
+		} else {
+			pr_inf("mwc_core: cannot determine seed from --seed option\n");
+			g_opt_flags &= ~(OPT_FLAGS_SEED);
+		}
+	}
 	if (g_opt_flags & OPT_FLAGS_NO_RAND_SEED) {
 		mwc.w = STRESS_MWC_SEED_W;
 		mwc.z = STRESS_MWC_SEED_Z;

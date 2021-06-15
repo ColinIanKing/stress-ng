@@ -711,6 +711,7 @@ static const struct option long_options[] = {
 	{ "seccomp-ops",1,	0,	OPT_seccomp_ops },
 	{ "secretmem",	1,	0,	OPT_secretmem },
 	{ "secretmem-ops",1,	0,	OPT_secretmem_ops },
+	{ "seed",	1,	0,	OPT_seed },
 	{ "seek",	1,	0,	OPT_seek },
 	{ "seek-ops",	1,	0,	OPT_seek_ops },
 	{ "seek-punch",	0,	0,	OPT_seek_punch  },
@@ -1003,6 +1004,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"sched-runtime N",	"set runtime for SCHED_DEADLINE to N nanosecs (Linux only)" },
 	{ NULL,		"sched-deadline N",	"set deadline for SCHED_DEADLINE to N nanosecs (Linux only)" },
 	{ NULL,		"sched-reclaim",        "set reclaim cpu bandwidth for deadline scheduler (Linux only)" },
+	{ NULL,		"seed N",		"set the random number generator seed with a 64 bit value" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"stressors",		"show available stress tests" },
 #if defined(HAVE_SYSLOG_H)
@@ -3096,6 +3098,11 @@ next_opt:
 		case OPT_sched_reclaim:
 			g_opt_flags |= OPT_FLAGS_DEADLINE_GRUB;
 			break;
+		case OPT_seed:
+			u64 = stress_get_uint64(optarg);
+			g_opt_flags |= OPT_FLAGS_SEED;
+			stress_set_setting_global("seed", TYPE_ID_UINT64, &u64);
+			break;
 		case OPT_sequential:
 			g_opt_flags |= OPT_FLAGS_SEQUENTIAL;
 			g_opt_sequential = stress_get_int32(optarg);
@@ -3373,6 +3380,16 @@ int main(int argc, char **argv, char **envp)
 	    !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
 		(void)fprintf(stderr, "class option is only used with "
 			"--sequential or --all options\n");
+		exit(EXIT_FAILURE);
+	}
+
+	/*
+	 *  Sanity check mutually exclusive random seed flags
+	 */
+	if ((g_opt_flags & (OPT_FLAGS_NO_RAND_SEED | OPT_FLAGS_SEED)) ==
+	    (OPT_FLAGS_NO_RAND_SEED | OPT_FLAGS_SEED)) {
+		(void)fprintf(stderr, "cannot invoke mutually exclusive "
+			"--seed and --no-rand-seed options together\n");
 		exit(EXIT_FAILURE);
 	}
 

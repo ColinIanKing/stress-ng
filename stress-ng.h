@@ -934,6 +934,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_TIMESTAMP	 (0x00000800000000ULL)	/* --timestamp */
 #define OPT_FLAGS_DEADLINE_GRUB  (0x00001000000000ULL)  /* --sched-reclaim */
 #define OPT_FLAGS_FTRACE	 (0x00002000000000ULL)  /* --ftrace */
+#define OPT_FLAGS_SEED		 (0x00004000000000ULL)  /* --seed */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -3370,6 +3371,8 @@ typedef enum {
 
 	OPT_secretmem,
 	OPT_secretmem_ops,
+
+	OPT_seed,
 
 	OPT_seek,
 	OPT_seek_ops,

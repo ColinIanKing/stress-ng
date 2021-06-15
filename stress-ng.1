@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "Jun 7, 2021"
+.TH STRESS-NG 1 "Jun 15, 2021"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -332,6 +332,10 @@ value is 100000 (in nanoseconds).
 .TP
 .B \-\-sched\-reclaim
 use cpu bandwidth reclaim feature for deadline scheduler (only on Linux).
+.TP
+.B \-\-seed N
+set the random number generate seed with a 64 bit value. Allows stressors to
+use the same random number generator sequences on each invocation.
 .TP
 .B \-\-sequential N
 sequentially run all the stressors one by one for a default of 60 seconds. The
