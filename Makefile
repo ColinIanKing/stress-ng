@@ -480,6 +480,7 @@ clean:
 	$(V)rm -f apparmor-data.bin
 	$(V)rm -f *.o
 	$(V)rm -f config config.h
+	$(V)rm -f tags
 
 .PHONY: fast-test-all
 fast-test-all: all
@@ -492,6 +493,10 @@ lite-test: all
 .PHONY: slow-test-all
 slow-test-all: all
 	./stress-ng --seq 0 -t 15 --pathological --verbose --times --tz --metrics
+
+.PHONY: tags
+tags:
+	ctags -R --extra=+f --c-kinds=+p *
 
 .PHONY: install
 install: stress-ng stress-ng.1.gz
