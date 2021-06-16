@@ -727,11 +727,12 @@ again:
 				(void)ret;
 			} else {
 				if (stress_sysfs_bad_signal(status)) {
-					pr_dbg("%s: killed by %s exercising '%s'\n",
+					pr_inf("%s: killed by %s exercising '%s'\n",
 						args->name,
 						stress_strsignal(WTERMSIG(status)),
 						ctxt->sysfs_path);
 					stress_sys_add_bad(ctxt->sysfs_path);
+					rc = EXIT_FAILURE;
 				}
 				if (WIFEXITED(status) &&
 				    WEXITSTATUS(status) != 0) {
