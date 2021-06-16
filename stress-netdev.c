@@ -147,7 +147,7 @@ static int stress_netdev(const stress_args_t *args)
 				SIOCGIFPFLAGS, "SIOCGIFPFLAGS");
 #endif
 
-#if defined(stress_netdev_check)
+#if defined(SIOCGIFADDR)
 			/* Get address */
 			stress_netdev_check(args, ifr, fd,
 				SIOCGIFADDR, "SIOCGIFADDR");
