@@ -240,7 +240,7 @@ rewait:
 
 			/*
 			 *  First time round do fast re-wait
-			 *  in case child can be reeped quickly,
+			 *  in case child can be reaped quickly,
 			 *  there after do slow backoff on each
 			 *  iteration until we give up and do
 			 *  the final SIGKILL
