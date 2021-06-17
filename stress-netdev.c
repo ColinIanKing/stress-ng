@@ -35,6 +35,14 @@ static const stress_help_t help[] = {
     defined(HAVE_IFCONF)
 
 /*
+ *  As per man 7 netdevice advise, workaround glibc 2.1 missing
+ *  ifr_newname
+ */
+#ifndef ifr_newname
+#define ifr_newname     ifr_ifru.ifru_slave
+#endif
+
+/*
  *  stress_netdev_check()
  *	helper to perform netdevice ioctl and check for failure
  */
@@ -48,12 +56,18 @@ static void stress_netdev_check(
 	if (ioctl(fd, cmd, ifr) < 0) {
 		if ((errno != ENOTTY) &&
 		    (errno != EINVAL) &&
-		    (errno != EADDRNOTAVAIL))
+		    (errno != EADDRNOTAVAIL) &&
+		    (errno != EOPNOTSUPP) &&
+		    (errno != EBUSY) &&
+		    (errno != EPERM))
 			pr_fail("%s: interface '%s' ioctl %s failed, errno=%d (%s)\n",
 				args->name, ifr->ifr_name, cmd_name,
 				errno, strerror(errno));
 	}
 }
+
+#define STRESS_NETDEV_CHECK(args, ifr, fd, cmd)	\
+	stress_netdev_check(args, ifr, fd, cmd, #cmd)
 
 /*
  *  stress_netdev
@@ -137,68 +151,81 @@ static int stress_netdev(const stress_args_t *args)
 
 #if defined(SIOCGIFFLAGS)
 			/* Get flags */
-			stress_netdev_check(args, ifr, fd,
-				SIOCGIFFLAGS, "SIOCGIFFLAGS");
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFFLAGS);
 #endif
 
 #if defined(SIOCGIFPFLAGS)
 			/* Get extended flags */
-			stress_netdev_check(args, ifr, fd,
-				SIOCGIFPFLAGS, "SIOCGIFPFLAGS");
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFPFLAGS);
 #endif
 
 #if defined(SIOCGIFADDR)
 			/* Get address */
-			stress_netdev_check(args, ifr, fd,
-				SIOCGIFADDR, "SIOCGIFADDR");
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFADDR);
 #endif
 
 #if defined(SIOCGIFNETMASK)
 			/* Get netmask */
-			stress_netdev_check(args, ifr, fd,
-				SIOCGIFNETMASK, "SIOCGIFNETMASK");
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFNETMASK);
 #endif
 
-#if defined(SIOCGIFNETMASK)
+#if defined(SIOCGIFMETRIC)
 			/* Get metric (currently not supported) */
-			stress_netdev_check(args, ifr, fd,
-				SIOCGIFMETRIC, "SIOCGIFMETRIC");
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFMETRIC);
 #endif
 
-#if defined(SIOCGIFNETMASK)
+#if defined(SIOCGIFMTU)
 			/* Get the MTU */
-			stress_netdev_check(args, ifr, fd,
-				SIOCGIFMTU, "SIOCGIFMTU");
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFMTU);
 #endif
 
-#if defined(SIOCGIFNETMASK)
+#if defined(SIOCGIFHWADDR)
 			/* Get the hardware address */
-			stress_netdev_check(args, ifr, fd,
-				SIOCGIFHWADDR, "SIOCGIFHWADDR");
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFHWADDR);
 #endif
 
 #if defined(SIOCGIFMAP)
 			/* Get the hardware parameters */
-			stress_netdev_check(args, ifr, fd,
-				SIOCGIFMAP, "SIOCGIFMAP");
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFMAP);
 #endif
 
 #if defined(SIOCGIFTXQLEN)
 			/* Get the transmit queue length */
-			stress_netdev_check(args, ifr, fd,
-				SIOCGIFTXQLEN, "SIOCGIFTXQLEN");
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFTXQLEN);
 #endif
 
 #if defined(SIOCGIFDSTADDR)
 			/* Get the destination address */
-			stress_netdev_check(args, ifr, fd,
-				SIOCGIFDSTADDR, "SIOCGIFDSTADDR");
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFDSTADDR);
 #endif
 
 #if defined(SIOCGIFBRDADDR)
 			/* Get the broadcast address */
-			stress_netdev_check(args, ifr, fd,
-				SIOCGIFBRDADDR, "SIOCGIFBRDADDR");
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFBRDADDR);
+#endif
+#if defined(SIOCGMIIPHY) && 0
+			/* Get from current PHY, disabled for now */
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGMIIPHY);
+#endif
+#if defined(SIOCGMIIREG) && 0
+			/* Get reg, disabled for now */
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGMIIREG);
+#endif
+#if defined(SIOCSIFFLAGS) && 0
+			/* Get flags, disabled for now */
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCSIFFLAGS);
+#endif
+#if defined(SIOCSIFMETRIC) && 0
+			/* Get metric, disabled for now */
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCSIFMETRIC);
+#endif
+#if defined(SIOCGIFMEM)
+			/* Get memory space, not implemented */
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFMEM);
+#endif
+#if defined(SIOCGIFLINK)
+			/* Get if link, not implemented */
+			STRESS_NETDEV_CHECK(args, ifr, fd, SIOCGIFLINK);
 #endif
 		}
 		free(ifc.ifc_buf);
