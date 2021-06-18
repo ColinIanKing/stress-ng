@@ -1,5 +1,6 @@
 config
 perf-event.h
 personality.h
+git-commit-id.h
 stress-ng
 *.o
