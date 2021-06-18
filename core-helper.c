@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include "git-commit-id.h"
 
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
@@ -1040,6 +1041,14 @@ void pr_runinfo(void)
 #endif
 	if (!(g_opt_flags & PR_DEBUG))
 		return;
+
+	if (sizeof(STRESS_GIT_COMMIT_ID) > 1) {
+		pr_dbg("%s %s g%12.12s\n",
+			g_app_name, VERSION, STRESS_GIT_COMMIT_ID);
+	} else {
+		pr_dbg("%s %s\n",
+			g_app_name, VERSION);
+	}
 
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)

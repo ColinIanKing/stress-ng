@@ -382,7 +382,7 @@ OBJS += $(CONFIG_OBJS)
 
 .o: Makefile
 
-%.o: %.c stress-ng.h config.h
+%.o: %.c stress-ng.h config.h git-commit-id.h
 	$(Q)echo "CC $<"
 	$(V)$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -446,6 +446,17 @@ stress-vecmath.o: stress-vecmath.c
 	$(Q)echo CC $<
 	$(V)$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
 
+#
+#  define STRESS_GIT_COMMIT_ID
+#
+git-commit-id.h:
+	$(Q)echo "MK $@"
+	@if [ -e .git/HEAD -a -e .git/index ]; then \
+		echo "#define STRESS_GIT_COMMIT_ID \"$(shell git rev-parse HEAD)\"" > $@ ; \
+	else \
+		echo "#define STRESS_GIT_COMMIT_ID \"\"" > $@ ; \
+	fi
+
 $(OBJS): stress-ng.h Makefile
 
 stress-ng.1.gz: stress-ng.1
@@ -456,7 +467,7 @@ dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile Makefile.config $(SRC) stress-ng.h stress-ng.1 \
-		core-personality.c core-io-uring.c \
+		git-commit-id.h core-personality.c core-io-uring.c \
 		COPYING syscalls.txt mascot README \
 		stress-af-alg-defconfigs.h README.Android test snap \
 		TODO core-perf-event.c usr.bin.pulseaudio.eg \
@@ -474,9 +485,10 @@ pdf:
 clean:
 	$(V)rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
 	$(V)rm -f stress-ng-$(VERSION).tar.xz
-	$(V)rm -f personality.h
 	$(V)rm -f io-uring.h
+	$(V)rm -f git-commit-id.h
 	$(V)rm -f perf-event.h
+	$(V)rm -f personality.h
 	$(V)rm -f apparmor-data.bin
 	$(V)rm -f *.o
 	$(V)rm -f config config.h
