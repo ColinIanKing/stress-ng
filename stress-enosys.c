@@ -1140,8 +1140,8 @@ static const long skip_syscalls[] = {
 #if defined(SYS_quotactl)
 	SYS_quotactl,
 #endif
-#if defined(SYS_quotactl_path)
-	SYS_quotactl_path,
+#if defined(SYS_quotactl_fd)
+	SYS_quotactl_fd,
 #endif
 #if defined(SYS_read)
 	SYS_read,
