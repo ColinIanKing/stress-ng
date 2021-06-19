@@ -1146,8 +1146,8 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(quotactl)
 	{ SYS(quotactl), 4, { ARG_INT, ARG_PTR, ARG_INT, ARG_PTR, 0, 0 } },
 #endif
-#if DEFSYS(quotactl_path)
-	{ SYS(quotactl_path), 4, { ARG_INT, ARG_PTR, ARG_INT, ARG_PTR, 0, 0 } },
+#if DEFSYS(quotactl_fd)
+	{ SYS(quotactl_fd), 4, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, 0, 0 } },
 #endif
 #if DEFSYS(read)
 	{ SYS(read), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
