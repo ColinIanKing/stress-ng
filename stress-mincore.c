@@ -50,6 +50,36 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define VEC_MAX_SIZE 	(64)
 
 /*
+ *  stress_mincore_file()
+ *	create a temp file for file-back mmap'd page, return
+ *	fd if successful, -1 if failed.
+ */
+static int stress_mincore_file(const stress_args_t *args)
+{
+	int ret, fd;
+	char filename[PATH_MAX];
+	ret = stress_temp_dir_mk_args(args);
+	if (ret != 0)
+		return -1;
+
+	(void)stress_temp_filename_args(args, filename,
+					sizeof(filename), stress_mwc32());
+	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	(void)unlink(filename);
+	if (fd < 0) {
+		(void)stress_temp_dir_rm_args(args);
+		return -1;
+	}
+	ret = shim_fallocate(fd, 0, (off_t)0, (off_t)args->page_size);
+	if (ret < 0) {
+		(void)stress_temp_dir_rm_args(args);
+		(void)close(fd);
+		return -1;
+	}
+	return fd;
+}
+
+/*
  *  stress_mincore()
  *	stress mincore system call
  */
@@ -59,16 +89,26 @@ static int stress_mincore(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const intptr_t mask = ~((intptr_t)page_size - 1);
 	bool mincore_rand = false;
-	int rc = EXIT_SUCCESS;
-	uint8_t *mapped, *unmapped;
+	int fd, rc = EXIT_SUCCESS;
+	uint8_t *mapped, *unmapped, *fdmapped;
 
 	(void)stress_get_setting("mincore-rand", &mincore_rand);
 
 	/* Don't worry if we can't map a page, it is not critical */
-	mapped = mmap(NULL, page_size , PROT_READ | PROT_WRITE,
+	mapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+
+	/* Map a file backed page, silently ignore failure */
+	fd = stress_mincore_file(args);
+	if (fd >= 0) {
+		fdmapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+				MAP_PRIVATE, fd, 0);
+	} else {
+		fdmapped = MAP_FAILED;
+	}
+
 	/* Map then unmap a page to get an unmapped page address */
-	unmapped = mmap(NULL, page_size , PROT_READ | PROT_WRITE,
+	unmapped = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (unmapped != MAP_FAILED) {
 		if (munmap(unmapped, page_size) < 0)
@@ -118,6 +158,24 @@ redo: 			errno = 0;
 					if (errno == ENOMEM) {
 						pr_fail("%s: mincore on address %p failed, errno=$%d (%s)\n",
 							args->name, (void *)mapped, errno,
+							strerror(errno));
+						rc = EXIT_FAILURE;
+					}
+				}
+			}
+			if (fdmapped != MAP_FAILED) {
+				/* Force page to be resident */
+				*fdmapped = stress_mwc8();
+#if defined(MS_ASYNC)
+				ret = shim_msync((void *)fdmapped, page_size, MS_ASYNC);
+				(void)ret;
+#endif
+				ret = shim_mincore((void *)fdmapped, page_size, vec);
+				if (ret < 0) {
+					/* Should no return ENOMEM on a mapped page */
+					if (errno == ENOMEM) {
+						pr_fail("%s: mincore on address %p failed, errno=$%d (%s)\n",
+							args->name, (void *)fdmapped, errno,
 							strerror(errno));
 						rc = EXIT_FAILURE;
 					}
@@ -173,6 +231,12 @@ redo: 			errno = 0;
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	if (fd >= 0) {
+		(void)stress_temp_dir_rm_args(args);
+		(void)close(fd);
+	}
+	if (fdmapped != MAP_FAILED)
+		(void)munmap((void *)fdmapped, page_size);
 	if (mapped != MAP_FAILED)
 		(void)munmap((void *)mapped, page_size);
 
