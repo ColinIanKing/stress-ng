@@ -268,6 +268,27 @@ static void stress_mmap_mprotect(
 #endif
 }
 
+/*
+ *  stress_mmap_invalid()
+ *	exercise invalid mmap mapping, munmap allocation if
+ *	it succeeds (which it is not expected to do).
+ */
+static void stress_mmap_invalid(
+	void *addr,
+	size_t length,
+	int prot,
+	int flags,
+	int fd,
+	off_t offset)
+{
+	void *ptr;
+
+	ptr = mmap(addr, length, prot, flags, fd, offset);
+	if (ptr != MAP_FAILED) {
+		(void)munmap(ptr, length);
+	}
+}
+
 static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 {
 	stress_mmap_context_t *context = (stress_mmap_context_t *)ctxt;
@@ -277,6 +298,7 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 	const bool mmap_file = context->mmap_file;
 	const int fd = context->fd;
 	int no_mem_retries = 0;
+	const int bad_fd = stress_get_bad_fd();
 	const int ms_flags = context->mmap_async ? MS_ASYNC : MS_SYNC;
 	uint8_t *mapped, **mappings;
 	void *hint;
@@ -507,6 +529,22 @@ cleanup:
 				break;
 			}
 		}
+
+		/*
+		 *  Step #5, invalid mappings
+		 */
+		stress_mmap_invalid(NULL, 0, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		stress_mmap_invalid((void *)(~(uintptr_t)0), 0, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		stress_mmap_invalid(NULL, ~(size_t)0, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		stress_mmap_invalid((void *)(~(uintptr_t)0), ~(size_t)0, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+		stress_mmap_invalid(NULL, args->page_size, PROT_READ | PROT_WRITE,
+				MAP_PRIVATE, bad_fd, 0);
+		stress_mmap_invalid(NULL, args->page_size, PROT_READ | PROT_WRITE,
+				MAP_PRIVATE, bad_fd, 0);
 
 		inc_counter(args);
 	} while (keep_stressing(args));
