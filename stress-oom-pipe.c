@@ -154,7 +154,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 			(void)fcntl(fd[0], F_SETPIPE_SZ, -1);
 			(void)fcntl(fd[1], F_SETPIPE_SZ, -1);
 		}
-		
+
 		/* Set to minimum size */
 		for (i = 0, fd = fds; keep_stressing(args) && (i < max_pipes); i++, fd += 2) {
 			if ((fd[0] < 0) || (fd[1] < 0))

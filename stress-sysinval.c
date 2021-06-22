@@ -237,7 +237,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	/* Need to also test invalid args:
 		time.tv_usec < 0
 		time.tv_usec > 1000000
-		tick <  900000/USER_HZ 
+		tick <  900000/USER_HZ
 		tick > 100000/USER_HZ
 		(txc->modes & ADJ_NANO) and txc->time.tv_usec >= NSEC_PER_SEC
 	*/

@@ -133,7 +133,7 @@ again:
 				}
 				continue;
 			}
-			if (ret == 0) 
+			if (ret == 0)
 				break;
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (fdsi.ssi_signo != (uint32_t)SIGRTMIN) {

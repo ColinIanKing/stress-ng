@@ -253,7 +253,7 @@ static void stress_rand_data_binary(
 {
 	register uint32_t *ptr = (uint32_t*)data;
 	register uint32_t *end = (uint32_t*)(data + size);
-	
+
 	(void)args;
 
 	while (ptr < end)
@@ -716,7 +716,7 @@ static void stress_rand_data_lrand48(
 
 	(void)args;
 
-	while (ptr < end) 
+	while (ptr < end)
 		*(ptr++) = lrand48();
 }
 

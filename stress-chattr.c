@@ -118,7 +118,7 @@ static int do_chattr(
 		(void)n;
 
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flag);
-		if ((ret < 0) && 
+		if ((ret < 0) &&
                     ((errno == EOPNOTSUPP) ||
                      (errno == ENOTTY) ||
 		     (errno == EINTR)))

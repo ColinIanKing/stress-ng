@@ -205,7 +205,7 @@ static void exercise_syscall(
 	exit_if_child(pid);
 	if ((ret < 0) && (errno != ENOSYS))
 		enosys = true;
-	
+
 	if (getpid() != pid) {
 		/* Somehow we forked/cloned ourselves, so exit */
 		_exit(0);

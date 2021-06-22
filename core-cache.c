@@ -414,7 +414,7 @@ static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
 
 /*
  *  stress_get_cpu_cache_sparc64()
- *	find cache information as provided by linux SPARC64 
+ *	find cache information as provided by linux SPARC64
  *	/sys/devices/system/cpu/cpu0
  */
 static int stress_get_cpu_cache_sparc64(

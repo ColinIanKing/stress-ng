@@ -124,7 +124,7 @@ static const int access_flags[] = {
  *	this calls faccessat and/or fstatat. If we don't have the system
  *	call number than revert to the libc implementation
  */
-#if defined(HAVE_FACCESSAT) 
+#if defined(HAVE_FACCESSAT)
 static int shim_faccessat(int dirfd, const char *pathname, int mode, int flags)
 {
 #if defined(HAVE_FACCESSAT2)

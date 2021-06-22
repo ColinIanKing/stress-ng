@@ -30,7 +30,7 @@
 int main(void)
 {
 	struct serial_struct serial;
-	
+
 	(void)memset(&serial, 0, sizeof(serial));
 
 	(void)serial;

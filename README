@@ -62,7 +62,7 @@ RHEL, Fedora, Centos:
   * zlib-devel
 
 RHEL, Fedora, Centos (static builds):
-  
+
   * libaio-devel
   * libattr-devel
   * libbsd-devel
@@ -131,7 +131,7 @@ To build  with the PCC portable C compiler use:
 	CC=pcc make
 
 To build with the musl C library:
-	CC=musl-gcc make 
+	CC=musl-gcc make
 
 For more information, see: https://kernel.ubuntu.com/~cking/stress-ng/
 

@@ -1632,7 +1632,7 @@ abort:
  *	clear all the other bits and finally check if they are all clear
  */
 static size_t TARGET_CLONES stress_vm_prime_gray_zero(
-	void *buf,	
+	void *buf,
 	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,

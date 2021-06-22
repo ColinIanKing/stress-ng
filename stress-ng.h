@@ -1226,7 +1226,7 @@ typedef struct {			/* vmstat column */
 #else
 #define WARN_UNUSED
 #endif
-	
+
 #if ((defined(__GNUC__) && NEED_GNUC(3, 3, 0)) ||	\
      (defined(__clang__) && NEED_CLANG(3, 0, 0))) &&	\
     !defined(__PCC__)
@@ -1304,7 +1304,7 @@ typedef struct {			/* vmstat column */
 
 /* optimisation on branching */
 #if defined(__GNUC__) ||			\
-    (defined(__clang__) && NEED_CLANG(3, 0, 0)) 
+    (defined(__clang__) && NEED_CLANG(3, 0, 0))
 #define LIKELY(x)	__builtin_expect((x),1)
 #define UNLIKELY(x)	__builtin_expect((x),0)
 #else
