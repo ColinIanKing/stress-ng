@@ -545,6 +545,16 @@ cleanup:
 				MAP_PRIVATE, bad_fd, 0);
 		stress_mmap_invalid(NULL, args->page_size, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE, bad_fd, 0);
+		if (fd >= 0)
+			stress_mmap_invalid(NULL, args->page_size << 2, PROT_READ | PROT_WRITE,
+					MAP_PRIVATE, fd,
+					(((~(size_t)0) & ~(args->page_size - 1)) - args->page_size));
+
+		/*
+		 *  Step #6, invalid unmappings
+		 */
+		(void)munmap(NULL, 0);
+		(void)munmap(NULL, ~(size_t)0);
 
 		inc_counter(args);
 	} while (keep_stressing(args));
