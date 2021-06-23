@@ -743,6 +743,10 @@ retry:
 					msgvec[i].msg_hdr.msg_iovlen = j;
 				}
 				n = recvmmsg(fd, msgvec, MSGVEC_SIZE, 0, NULL);
+				if (n > 0) {
+					for (n = 0, i = 0; i < MSGVEC_SIZE; i++)
+						n += msgvec[i].msg_len;
+				}
 				break;
 #endif
 			}
