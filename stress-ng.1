@@ -3559,6 +3559,10 @@ switches between the sender and receiver.
 start at socket port P. For N socket worker processes, ports P to P - 1 are
 used.
 .TP
+.B \-\-sock\-protocol P
+Use the specified protocol P, default is tcp. Options are tcp and mptcp (if
+supported by the operating system).
+.TP
 .B \-\-sock\-ops N
 stop socket stress workers after N bogo operations.
 .TP

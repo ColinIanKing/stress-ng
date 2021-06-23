@@ -29,19 +29,18 @@
 #define SOCKET_OPT_SENDMMSG	0x02
 #define SOCKET_OPT_RANDOM	0x03
 
+#if !defined(IPPROTO_TCP)
+#define IPPROTO_TCP		(0)
+#endif
+
 #define MSGVEC_SIZE		(4)
 
 #define PROC_CONG_CTRLS		"/proc/sys/net/ipv4/tcp_allowed_congestion_control"
 
 typedef struct {
 	const char *optname;
-	int	   opt;
-} stress_socket_opts_t;
-
-typedef struct {
-	const char *typename;
-	const int   type;
-} stress_socket_type_t;
+	const int   optval;
+} stress_socket_options_t;
 
 static const stress_help_t help[] = {
 	{ "S N", "sock N",		"start N workers exercising socket I/O" },
@@ -50,9 +49,38 @@ static const stress_help_t help[] = {
 	{ NULL,	"sock-ops N",		"stop after N socket bogo operations" },
 	{ NULL,	"sock-opts option", 	"socket options [send|sendmsg|sendmmsg]" },
 	{ NULL,	"sock-port P",		"use socket ports P to P + number of workers - 1" },
+	{ NULL, "sock-protocol",	"use socket protocol P, default is tcp, can be mptcp" },
 	{ NULL,	"sock-type T",		"socket type (stream, seqpacket)" },
 	{ NULL,	NULL,			NULL }
 };
+
+/*
+ *  stress_set_socket_option()
+ *	generic helper to set an option
+ */
+static int stress_set_socket_option(
+	const char *setting,
+	const stress_socket_options_t options[],
+	const char *opt)
+{
+	size_t i;
+
+	for (i = 0; options[i].optname; i++) {
+		if (!strcmp(opt, options[i].optname)) {
+			int type = options[i].optval;
+
+			stress_set_setting(setting, TYPE_ID_INT, &type);
+			return 0;
+		}
+	}
+	(void)fprintf(stderr, "%s option '%s' not known, options are:", setting, opt);
+	for (i = 0; options[i].optname; i++) {
+		(void)fprintf(stderr, "%s %s",
+			i == 0 ? "" : ",", options[i].optname);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
 
 /*
  *  stress_set_socket_opts()
@@ -60,7 +88,7 @@ static const stress_help_t help[] = {
  */
 static int stress_set_socket_opts(const char *opt)
 {
-	static const stress_socket_opts_t socket_opts[] = {
+	static const stress_socket_options_t socket_opts[] = {
 		{ "random",	SOCKET_OPT_RANDOM },
 		{ "send",	SOCKET_OPT_SEND },
 		{ "sendmsg",	SOCKET_OPT_SENDMSG },
@@ -70,23 +98,7 @@ static int stress_set_socket_opts(const char *opt)
 		{ NULL,		0 }
 	};
 
-	int i;
-
-	for (i = 0; socket_opts[i].optname; i++) {
-		if (!strcmp(opt, socket_opts[i].optname)) {
-			int opts = socket_opts[i].opt;
-
-			stress_set_setting("sock-opts", TYPE_ID_INT, &opts);
-			return 0;
-		}
-	}
-	(void)fprintf(stderr, "sock-opts option '%s' not known, options are:", opt);
-	for (i = 0; socket_opts[i].optname; i++) {
-		(void)fprintf(stderr, "%s %s",
-			i == 0 ? "" : ",", socket_opts[i].optname);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return stress_set_socket_option("sock-opts", socket_opts, opt);
 }
 
 /*
@@ -95,7 +107,7 @@ static int stress_set_socket_opts(const char *opt)
  */
 static int stress_set_socket_type(const char *opt)
 {
-	static const stress_socket_type_t socket_type[] = {
+	static const stress_socket_options_t socket_types[] = {
 #if defined(SOCK_STREAM)
 		{ "stream",	SOCK_STREAM  },
 #endif
@@ -105,23 +117,7 @@ static int stress_set_socket_type(const char *opt)
 		{ NULL,		0 }
 	};
 
-	size_t i;
-
-	for (i = 0; socket_type[i].typename; i++) {
-		if (!strcmp(opt, socket_type[i].typename)) {
-			int type = socket_type[i].type;
-
-			stress_set_setting("sock-type", TYPE_ID_INT, &type);
-			return 0;
-		}
-	}
-	(void)fprintf(stderr, "sock-type option '%s' not known, options are:", opt);
-	for (i = 0; socket_type[i].typename; i++) {
-		(void)fprintf(stderr, "%s %s",
-			i == 0 ? "" : ",", socket_type[i].typename);
-	}
-	(void)fprintf(stderr, "\n");
-	return -1;
+	return stress_set_socket_option("sock-type", socket_types, opt);
 }
 
 /*
@@ -137,6 +133,24 @@ static int stress_set_socket_port(const char *opt)
 		&socket_port);
 	return stress_set_setting("sock-port", TYPE_ID_INT, &socket_port);
 }
+
+/*
+ *  stress_set_socket_protocol()
+ *	parse --sock-protocol
+ */
+static int stress_set_socket_protocol(const char *opt)
+{
+	static const stress_socket_options_t socket_protocols[] = {
+		{ "tcp",	IPPROTO_TCP},
+#if defined(IPPROTO_MPTCP)
+		{ "mptcp",	IPPROTO_MPTCP},
+#endif
+		{ NULL,		0 }
+	};
+
+	return stress_set_socket_option("sock-protocol", socket_protocols, opt);
+}
+
 
 /*
  *  stress_set_socket_domain()
@@ -393,9 +407,10 @@ static void stress_sock_client(
 	const stress_args_t *args,
 	const pid_t ppid,
 	const int socket_opts,
-	const int socket_type,
-	const int socket_port,
 	const int socket_domain,
+	const int socket_type,
+	const int socket_protocol,
+	const int socket_port,
 	const bool rt)
 {
 	struct sockaddr *addr;
@@ -419,7 +434,7 @@ retry:
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
 		}
-		if ((fd = socket(socket_domain, socket_type, 0)) < 0) {
+		if ((fd = socket(socket_domain, socket_type, socket_protocol)) < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			/* failed, kick parent to finish */
@@ -784,9 +799,10 @@ static int stress_sock_server(
 	const pid_t pid,
 	const pid_t ppid,
 	const int socket_opts,
-	const int socket_type,
-	const int socket_port,
 	const int socket_domain,
+	const int socket_type,
+	const int socket_protocol,
+	const int socket_port,
 	const bool rt)
 {
 	char buf[SOCKET_BUF];
@@ -807,7 +823,7 @@ static int stress_sock_server(
 		goto die;
 	}
 
-	if ((fd = socket(socket_domain, socket_type, 0)) < 0) {
+	if ((fd = socket(socket_domain, socket_type, socket_protocol)) < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -1068,15 +1084,21 @@ static int stress_sock(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	int socket_opts = SOCKET_OPT_SEND;
+	int socket_domain = AF_INET;
 	int socket_type = SOCK_STREAM;
 	int socket_port = DEFAULT_SOCKET_PORT;
-	int socket_domain = AF_INET;
+#if defined(IPPROTO_TCP)
+	int socket_protocol = IPPROTO_TCP;
+#else
+	int socket_protocol = 0;
+#endif
 	const bool rt = stress_sock_kernel_rt();
 
-	(void)stress_get_setting("sock-opts", &socket_opts);
-	(void)stress_get_setting("sock-type", &socket_type);
-	(void)stress_get_setting("sock-port", &socket_port);
 	(void)stress_get_setting("sock-domain", &socket_domain);
+	(void)stress_get_setting("sock-type", &socket_type);
+	(void)stress_get_setting("sock-protocol", &socket_protocol);
+	(void)stress_get_setting("sock-port", &socket_port);
+	(void)stress_get_setting("sock-opts", &socket_opts);
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, socket_port + (int)args->instance);
@@ -1095,13 +1117,13 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_sock_client(args, ppid, socket_opts,
-			socket_type, socket_port, socket_domain, rt);
+			socket_domain, socket_type, socket_protocol, socket_port, rt);
 		_exit(EXIT_SUCCESS);
 	} else {
 		int rc;
 
 		rc = stress_sock_server(args, pid, ppid, socket_opts,
-			socket_type, socket_port, socket_domain, rt);
+			socket_domain, socket_type, socket_protocol, socket_port, rt);
 
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -1114,6 +1136,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sock_opts,	stress_set_socket_opts },
 	{ OPT_sock_type,	stress_set_socket_type },
 	{ OPT_sock_port,	stress_set_socket_port },
+	{ OPT_sock_protocol,	stress_set_socket_protocol },
 	{ 0,			NULL }
 };
 

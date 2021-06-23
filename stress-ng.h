@@ -3468,6 +3468,7 @@ typedef enum {
 	OPT_sock_nodelay,
 	OPT_sock_opts,
 	OPT_sock_port,
+	OPT_sock_protocol,
 	OPT_sock_type,
 
 	OPT_sockabuse,
