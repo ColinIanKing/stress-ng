@@ -411,6 +411,7 @@ do_stress --sock -1 --sock-domain ipv6
 do_stress --sock -1 --sock-domain unix
 do_stress --sock -1 --sock-type stream
 do_stress --sock -1 --sock-type seqpacket
+do_stress --sock -1 --sock-protocol mptcp
 do_stress --sock -1 --sock-opts random
 
 do_stress --stack -1 --stack-mlock
