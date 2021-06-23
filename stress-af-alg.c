@@ -637,6 +637,60 @@ static int stress_af_alg_count_crypto(void)
 }
 
 /*
+ *  stress_af_alg_cmp_crypto()
+ *	qsort comparison on type then name
+ */
+int stress_af_alg_cmp_crypto(const void *p1, const void *p2)
+{
+	int n;
+	const stress_crypto_info_t **ci1 = (const stress_crypto_info_t **)p1;
+	const stress_crypto_info_t **ci2 = (const stress_crypto_info_t **)p2;
+
+	n = strcmp((*ci1)->type, (*ci2)->type);
+	if (n < 0)
+		return -1;
+	if (n > 0)
+		return 1;
+
+	n = strcmp((*ci1)->name, (*ci2)->name);
+	if (n < 0)
+		return -1;
+	if (n > 0)
+		return 1;
+	return 0;
+}
+
+/*
+ *  stress_af_alg_sort_crypto()
+ *	sort crypto_info_list keyed on type and name
+ */
+static void stress_af_alg_sort_crypto(void)
+{
+	stress_crypto_info_t **array, *ci;
+
+	int i, n = stress_af_alg_count_crypto();
+
+	/* Attempt to sort, if we can't silently don't sort */
+	array = calloc((size_t)n, sizeof(*array));
+	if (!array)
+		return;
+
+	for (i = 0, ci = crypto_info_list; ci; ci = ci->next, i++) {
+		array[i] = ci;
+	}
+
+	qsort(array, n, sizeof(*array), stress_af_alg_cmp_crypto);
+
+	for (i = 0; i < n - 1; i++) {
+		array[i]->next = array[i + 1];
+	}
+	array[i]->next = NULL;
+	crypto_info_list = array[0];
+
+	free(array);
+}
+
+/*
  *  stress_af_alg_dump_crypto_list()
  *	dump crypto algorithm list to stdout
  */
@@ -685,6 +739,7 @@ static int stress_af_alg(const stress_args_t *args)
 	if (af_alg_dump && args->instance == 0) {
 		pr_inf("%s: dumping cryptographic algorithms found in /proc/crypto to stdout\n",
 			args->name);
+		stress_af_alg_sort_crypto();
 		stress_af_alg_dump_crypto_list();
 	}
 
@@ -694,6 +749,7 @@ static int stress_af_alg(const stress_args_t *args)
 	}
 
 	stress_af_alg_add_crypto_defconfigs();
+	stress_af_alg_sort_crypto();
 	count = stress_af_alg_count_crypto();
 
 	if (args->instance == 0) {
