@@ -413,6 +413,7 @@ do_stress --sock -1 --sock-type stream
 do_stress --sock -1 --sock-type seqpacket
 do_stress --sock -1 --sock-protocol mptcp
 do_stress --sock -1 --sock-opts random
+do_stress --sock -1 --sock-opts send --sock-zerocopy
 
 do_stress --stack -1 --stack-mlock
 do_stress --stack -1 --stack-fill
