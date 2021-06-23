@@ -24,10 +24,17 @@
  */
 #include "stress-ng.h"
 
-#define SOCKET_OPT_SEND		0x00
-#define SOCKET_OPT_SENDMSG	0x01
-#define SOCKET_OPT_SENDMMSG	0x02
-#define SOCKET_OPT_RANDOM	0x03
+#define MMAP_BUF_SIZE		(65536)
+#define MMAP_IO_SIZE		(8192)	/* Must be less or equal to 8192 */
+
+#define SOCKET_OPT_SEND		(0x00)
+#define SOCKET_OPT_SENDMSG	(0x01)
+#define SOCKET_OPT_SENDMMSG	(0x02)
+#define SOCKET_OPT_RANDOM	(0x03)
+
+#define SOCKET_OPT_RECV		(SOCKET_OPT_SEND)
+#define SOCKET_OPT_RECVMSG	(SOCKET_OPT_SENDMSG)
+#define SOCKET_OPT_RECVMMSG	(SOCKET_OPT_SENDMMSG)
 
 #if !defined(IPPROTO_TCP)
 #define IPPROTO_TCP		(0)
@@ -51,6 +58,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"sock-port P",		"use socket ports P to P + number of workers - 1" },
 	{ NULL, "sock-protocol",	"use socket protocol P, default is tcp, can be mptcp" },
 	{ NULL,	"sock-type T",		"socket type (stream, seqpacket)" },
+	{ NULL, "sock-zerocopy",	"enable zero copy sends" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -165,6 +173,23 @@ static int stress_set_socket_domain(const char *name)
 	stress_set_setting("sock-domain", TYPE_ID_INT, &socket_domain);
 
 	return ret;
+}
+
+/*
+ *  stress_set_socket_zerocopy()
+ *	set the socket zerocopy option
+ */
+static int stress_set_socket_zerocopy(const char *opt)
+{
+	bool socket_zerocopy = true;
+
+#if defined(MSG_ZEROCOPY)
+	(void)opt;
+	return stress_set_setting("sock-zerocopy", TYPE_ID_BOOL, &socket_zerocopy);
+#else
+	pr_inf("sock: cannot enable sock-zerocopy, MSG_ZEROCOPY is not available\n");
+	return 0;
+#endif
 }
 
 /*
@@ -349,7 +374,7 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 #endif
 
 	switch (opt) {
-	case SOCKET_OPT_SEND:
+	case SOCKET_OPT_RECV:
 		/* exercise invalid flags */
 		n = recv(fd, buf, sizeof(buf), ~0);
 		(void)n;
@@ -358,7 +383,7 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 		n = recv(~0, buf, sizeof(buf), 0);
 		(void)n;
 		break;
-	case SOCKET_OPT_SENDMSG:
+	case SOCKET_OPT_RECVMSG:
 		vec[0].iov_base = buf;
 		vec[0].iov_len = sizeof(buf);
 		(void)memset(&msg, 0, sizeof(msg));
@@ -374,7 +399,7 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 		(void)n;
 		break;
 #if defined(HAVE_RECVMMSG)
-	case SOCKET_OPT_SENDMMSG:
+	case SOCKET_OPT_RECVMMSG:
 		(void)memset(msgvec, 0, sizeof(msgvec));
 		vec[0].iov_base = buf;
 		vec[0].iov_len = sizeof(buf);
@@ -405,17 +430,20 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
  */
 static void stress_sock_client(
 	const stress_args_t *args,
+	char *buf,
 	const pid_t ppid,
 	const int socket_opts,
 	const int socket_domain,
 	const int socket_type,
 	const int socket_protocol,
 	const int socket_port,
-	const bool rt)
+	const bool rt,
+	const bool socket_zerocopy)
 {
 	struct sockaddr *addr;
 	size_t n_ctrls;
 	char **ctrls;
+	int recvflag = 0;
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
@@ -423,8 +451,12 @@ static void stress_sock_client(
 
 	n_ctrls = stress_get_congestion_controls(socket_domain, &ctrls);
 
+#if defined(MSG_ZEROCOPY)
+	if (socket_zerocopy)
+		recvflag |= MSG_ZEROCOPY;
+#endif
+
 	do {
-		char buf[SOCKET_BUF];
 		int fd;
 		int retries = 0;
 		static int count = 0;
@@ -665,7 +697,7 @@ retry:
 			size_t i, j;
 			char *recvfunc = "recv";
 			struct msghdr msg;
-			struct iovec vec[sizeof(buf)/16];
+			struct iovec vec[MMAP_IO_SIZE / 16];
 #if defined(HAVE_RECVMMSG)
 			unsigned int msg_len = 0;
 			struct mmsghdr msgvec[MSGVEC_SIZE];
@@ -687,14 +719,14 @@ retry:
 			 */
 			if ((count & 0x3ff) == 0) {
 				int ret;
-				size_t bytes = sizeof(buf);
+				size_t bytes = MMAP_IO_SIZE;
 
 				ret = ioctl(fd, FIONREAD, &bytes);
 				(void)ret;
 				count = 0;
 
-				if (bytes > sizeof(buf))
-					bytes = sizeof(buf);
+				if (bytes > MMAP_IO_SIZE)
+					bytes = MMAP_IO_SIZE;
 
 			}
 #endif
@@ -714,13 +746,13 @@ retry:
 			 *  as the send
 			 */
 			switch (opt) {
-			case SOCKET_OPT_SEND:
+			case SOCKET_OPT_RECV:
 				recvfunc = "recv";
-				n = recv(fd, buf, sizeof(buf), 0);
+				n = recv(fd, buf, MMAP_IO_SIZE, recvflag);
 				break;
-			case SOCKET_OPT_SENDMSG:
+			case SOCKET_OPT_RECVMSG:
 				recvfunc = "recvmsg";
-				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
+				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
 				}
@@ -730,10 +762,10 @@ retry:
 				n = recvmsg(fd, &msg, 0);
 				break;
 #if defined(HAVE_RECVMMSG)
-			case SOCKET_OPT_SENDMMSG:
+			case SOCKET_OPT_RECVMMSG:
 				recvfunc = "recvmmsg";
 				(void)memset(msgvec, 0, sizeof(msgvec));
-				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
+				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
 					msg_len += i;
@@ -800,6 +832,7 @@ retry:
  */
 static int stress_sock_server(
 	const stress_args_t *args,
+	char *buf,
 	const pid_t pid,
 	const pid_t ppid,
 	const int socket_opts,
@@ -807,9 +840,9 @@ static int stress_sock_server(
 	const int socket_type,
 	const int socket_protocol,
 	const int socket_port,
-	const bool rt)
+	const bool rt,
+	const bool socket_zerocopy)
 {
-	char buf[SOCKET_BUF];
 	int fd, status;
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
@@ -819,6 +852,12 @@ static int stress_sock_server(
 	const size_t page_size = args->page_size;
 	void *ptr = MAP_FAILED;
 	const pid_t self = getpid();
+	int sendflag = 0;
+
+#if defined(MSG_ZEROCOPY)
+	if (socket_zerocopy)
+		sendflag |= MSG_ZEROCOPY;
+#endif
 
 	(void)setpgid(pid, g_pgrp);
 
@@ -885,7 +924,7 @@ static int stress_sock_server(
 			socklen_t len;
 			int sndbuf, opt;
 			struct msghdr msg;
-			struct iovec vec[sizeof(buf)/16];
+			struct iovec vec[MMAP_IO_SIZE / 16];
 #if defined(HAVE_SENDMMSG)
 			struct mmsghdr msgvec[MSGVEC_SIZE];
 			unsigned int msg_len = 0;
@@ -946,7 +985,7 @@ static int stress_sock_server(
 				}
 			}
 #endif
-			(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
+			(void)memset(buf, 'A' + (get_counter(args) % 26), MMAP_IO_SIZE);
 
 			if (socket_opts == SOCKET_OPT_RANDOM)
 				opt = stress_mwc8() % 3;
@@ -955,8 +994,8 @@ static int stress_sock_server(
 
 			switch (opt) {
 			case SOCKET_OPT_SEND:
-				for (i = 16; i < sizeof(buf); i += 16) {
-					ssize_t ret = send(sfd, buf, i, 0);
+				for (i = 16; i < MMAP_IO_SIZE; i += 16) {
+					ssize_t ret = send(sfd, buf, i, sendflag);
 					if (ret < 0) {
 						if ((errno != EINTR) && (errno != EPIPE))
 							pr_fail("%s: send failed, errno=%d (%s)\n",
@@ -967,7 +1006,7 @@ static int stress_sock_server(
 				}
 				break;
 			case SOCKET_OPT_SENDMSG:
-				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
+				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
 				}
@@ -984,7 +1023,7 @@ static int stress_sock_server(
 #if defined(HAVE_SENDMMSG)
 			case SOCKET_OPT_SENDMMSG:
 				(void)memset(msgvec, 0, sizeof(msgvec));
-				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
+				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
 					msg_len += i;
@@ -1096,19 +1135,30 @@ static int stress_sock(const stress_args_t *args)
 #else
 	int socket_protocol = 0;
 #endif
+	int socket_zerocopy = false;
 	const bool rt = stress_sock_kernel_rt();
+	char *mmap_buffer;
 
 	(void)stress_get_setting("sock-domain", &socket_domain);
 	(void)stress_get_setting("sock-type", &socket_type);
 	(void)stress_get_setting("sock-protocol", &socket_protocol);
 	(void)stress_get_setting("sock-port", &socket_port);
 	(void)stress_get_setting("sock-opts", &socket_opts);
+	(void)stress_get_setting("sock-zerocopy", &socket_zerocopy);
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, socket_port + (int)args->instance);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+
+	mmap_buffer = (char *)mmap(NULL, MMAP_BUF_SIZE, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (mmap_buffer == MAP_FAILED) {
+		pr_inf("%s: cannot mmap I/O buffer, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
@@ -1120,14 +1170,18 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_sock_client(args, ppid, socket_opts,
-			socket_domain, socket_type, socket_protocol, socket_port, rt);
+		stress_sock_client(args, mmap_buffer, ppid, socket_opts,
+			socket_domain, socket_type, socket_protocol,
+			socket_port, rt, socket_zerocopy);
+		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 		_exit(EXIT_SUCCESS);
 	} else {
 		int rc;
 
-		rc = stress_sock_server(args, pid, ppid, socket_opts,
-			socket_domain, socket_type, socket_protocol, socket_port, rt);
+		rc = stress_sock_server(args, mmap_buffer, pid, ppid, socket_opts,
+			socket_domain, socket_type, socket_protocol,
+			socket_port, rt, socket_zerocopy);
+		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -1141,6 +1195,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sock_type,	stress_set_socket_type },
 	{ OPT_sock_port,	stress_set_socket_port },
 	{ OPT_sock_protocol,	stress_set_socket_protocol },
+	{ OPT_sock_zerocopy,	stress_set_socket_zerocopy },
 	{ 0,			NULL }
 };
 

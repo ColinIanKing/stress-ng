@@ -3576,6 +3576,9 @@ Linux systems that support this system call.
 specify the socket type to use. The default type is stream. seqpacket currently
 only works for the unix socket domain.
 .TP
+.B \-\-sock\-zerocopy
+enable zerocopy for send and recv calls if the MSG_ZEROCOPY is supported.
+.TP
 .B \-\-sockabuse N
 start N workers that abuse a socket file descriptor with various file based
 system that don't normally act on sockets. The kernel should handle these

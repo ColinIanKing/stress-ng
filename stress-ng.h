@@ -3470,6 +3470,7 @@ typedef enum {
 	OPT_sock_port,
 	OPT_sock_protocol,
 	OPT_sock_type,
+	OPT_sock_zerocopy,
 
 	OPT_sockabuse,
 	OPT_sockabuse_ops,
