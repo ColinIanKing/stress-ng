@@ -1,3 +1,76 @@
+stress-ng (0.12.11-1) unstable; urgency=medium
+
+  [John Kacur]
+  * stress-ng: Add tags to the makefile
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Makefile: remove git-commit-id.h from dist rule
+  * Manual: update date
+  * stress-af-alg: make stress_af_alg_cmp_crypto static
+  * stress-af-alg: clean up pedantic clang-12 build warning
+  * stress-sock: voidify unused arg opt for stress_set_socket_zerocopy
+  * stress-sock: clean up warnings when MSG_ZEROCOPY is not defined
+  * stress-af-alg: set rc to EXIT_SUCCESS for ignore algos
+  * stress-af-alg: don't re-try to use algos that are marked as internal
+  * stress-af-alg: fix typo in skcipher
+  * kernel-coverage: add --sock-zerocopy option to sock stressor
+  * stress-sock: add a --sock-zerocopy option to use MSG_ZEROCOPY
+  * stress-sock: fix recvmmsg infinite loop
+  * kernel-coverage: add sock mptcp protocol to coverage testing
+  * stress-sock: add --sock-protocol option (tcp or mptcp allowed)
+  * stress-af-alg: sort af-alg algos based on type then name
+  * stress-af-alg-defconfigs.h: update crypto defconfigs table
+  * stress-mmap: add more invalid mmap and munmap calls
+  * stress-mmap: add some invalid mmappings to exercise kernel more
+  * stress-mincore: add file backed mmap'd page to mincore upon
+  * Remove trailing space and tabs from end of lines
+  * stress-enosys: change quotactl_path syscall to quotactl_fd
+  * stress-inval: change quotactl_path syscall to quotactl_fd
+  * Add git-commit-id.h to .gitignore
+  * Add stress-ng version and git id to debug info
+  * stress-netdev: turn stress_netdev_check into a macro, fix some ioctls
+  * stress-sysfs: make killed child an error condition
+  * stress-sysfs: catch killing signals when exercising sysfs
+  * core-out-of-memory: fix typo in comment
+  * stress-netdev: fix build time check for SIOCGIFADDR
+  * stress-quota: change quotactl_path syscall to quotactl_fd
+  * stress-fanotify: remove unnecessary : from message
+  * stress-fanotify: clean up error messages
+  * stress-ramfs: remove ramfs duplicated name in stressor message
+  * stress-fanotify: add stressor name to information logged message
+  * Add --seed N option to set the initial random number generate seed
+  * snapcraft: add architectures remote build info
+  * stress-ng: move --times check into stress_times_dump
+  * core-ftrace: add missing void on stress_ftace_stop helper
+  * core-ftrace: replace int return with void for stop/free functions
+  * stress-signest: uncomment signals that got disabled during debugging
+  * stress-signest: cater for systems that don't have alternative signal
+    stacks
+  * stress-signest: add stressor name to info on unique signals handled
+  * stress-signest: add run time check
+  * stress-signest: don't use SIGINT, it's meant for halting stress-ng
+  * stress-signest: add more yielding termination
+  * stress-signest: cast mmap return to uint8_t to clean up warning on
+    gcc 6.5.0
+  * stress-mlock: voidify args to avoid warnings
+  * Add new nested signal handling stressor, sigtest
+  * stress-mlock: periodically perform misc invalid or unusual mlock
+    calls
+  * stress-mlock: remove CAP_IPC_LOCK check, this is not needed since
+    Linux 2.6.9
+  * Add build time check for munlockall
+  * core-helper: cater for ARM64 SVE stack sizes
+  * stress-userfaultfd: only report insufficient privilege warning on
+    instance 0
+  * Makefile: remove -g
+  * stress-cpu: use more builtin math functions
+  * core-helper: don't print not implemented message multiple times,
+    clean up msg
+  * stress-vforkfmany: silence warnings concerning vfork being deprecated
+
+ -- Colin King <colin.king@canonical.com>  Thu, 24 Jun 2021 19:11:03 +0100
+
 stress-ng (0.12.10-1) unstable; urgency=medium
 
   [Rosen Penev]
