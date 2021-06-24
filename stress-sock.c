@@ -181,9 +181,9 @@ static int stress_set_socket_domain(const char *name)
  */
 static int stress_set_socket_zerocopy(const char *opt)
 {
+#if defined(MSG_ZEROCOPY)
 	bool socket_zerocopy = true;
 
-#if defined(MSG_ZEROCOPY)
 	(void)opt;
 	return stress_set_setting("sock-zerocopy", TYPE_ID_BOOL, &socket_zerocopy);
 #else
@@ -454,6 +454,8 @@ static void stress_sock_client(
 #if defined(MSG_ZEROCOPY)
 	if (socket_zerocopy)
 		recvflag |= MSG_ZEROCOPY;
+#else
+	(void)socket_zerocopy;
 #endif
 
 	do {
@@ -857,6 +859,8 @@ static int stress_sock_server(
 #if defined(MSG_ZEROCOPY)
 	if (socket_zerocopy)
 		sendflag |= MSG_ZEROCOPY;
+#else
+	(void)socket_zerocopy;
 #endif
 
 	(void)setpgid(pid, g_pgrp);
