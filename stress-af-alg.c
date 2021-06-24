@@ -81,7 +81,7 @@ static const stress_crypto_type_info_t crypto_type_info[] = {
 	{ CRYPTO_SHASH,		"CRYPTO_SHASH",		"shash" },
 	{ CRYPTO_CIPHER,	"CRYPTO_CIPHER",	"cipher" },
 	{ CRYPTO_AKCIPHER,	"CRYPTO_AKCIPHER",	"akcipher" },
-	{ CRYPTO_SKCIPHER,	"CRYPTO_SKCIPHER",	"skciper" },
+	{ CRYPTO_SKCIPHER,	"CRYPTO_SKCIPHER",	"skcipher" },
 	{ CRYPTO_RNG,		"CRYPTO_RNG",		"rng" },
 	{ CRYPTO_AEAD,		"CRYPTO_AEAD",		"aead" },
 	{ CRYPTO_UNKNOWN,	"CRYPTO_UNKNOWN",	"unknown" },
