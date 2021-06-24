@@ -187,6 +187,7 @@ static int stress_set_socket_zerocopy(const char *opt)
 	(void)opt;
 	return stress_set_setting("sock-zerocopy", TYPE_ID_BOOL, &socket_zerocopy);
 #else
+	(void)opt;
 	pr_inf("sock: cannot enable sock-zerocopy, MSG_ZEROCOPY is not available\n");
 	return 0;
 #endif
