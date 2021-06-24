@@ -70,6 +70,11 @@ typedef enum {
 	CRYPTO_UNKNOWN,
 } stress_crypto_type_t;
 
+typedef enum {
+	SOURCE_DEFCONFIG,
+	SOURCE_PROC_CRYPTO,
+} stress_crypto_source_t;
+
 typedef struct {
 	const stress_crypto_type_t type;
 	const char		*type_string;
@@ -89,6 +94,7 @@ static const stress_crypto_type_info_t crypto_type_info[] = {
 
 typedef struct stress_crypto_info {
 	stress_crypto_type_t	crypto_type;
+	stress_crypto_source_t	source;
 	char 	*type;
 	char 	*name;
 	int 	block_size;
@@ -96,7 +102,7 @@ typedef struct stress_crypto_info {
 	int	max_auth_size;
 	int	iv_size;
 	int	digest_size;
-	bool	internal;
+	bool	internal;		/* true if accessible to userspace */
 	bool	ignore;
 	bool	selftest;		/* true if passed */
 	struct stress_crypto_info *next;
@@ -335,6 +341,12 @@ retry_bind:
 				rc = EXIT_SUCCESS;
 				goto err;
 			}
+		}
+
+		/* Internal unavailable crypto engines need to be ignored */
+		if ((errno == ENOENT) && (info->internal)) {
+			stress_af_alg_ignore(args, info);
+			goto err;
 		}
 		if ((errno == 0) || (errno == ENOKEY) ||
 		    (errno == ENOENT) || (errno == EBUSY)) {
@@ -577,6 +589,11 @@ static int stress_af_alg_rng(
 
 retry_bind:
 	if (bind(sockfd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+		/* Internal unavailable crypto engines need to be ignored */
+		if ((errno == ENOENT) && (info->internal)) {
+			stress_af_alg_ignore(args, info);
+			goto err;
+		}
 		/* Perhaps the rng does not exist with this kernel */
 		if ((errno == ENOENT) || (errno == EBUSY)) {
 			rc = EXIT_SUCCESS;
@@ -624,16 +641,19 @@ err:
 	return rc;
 }
 
-static int stress_af_alg_count_crypto(void)
+static void stress_af_alg_count_crypto(int *count, int *internal)
 {
-	int count = 0;
 	stress_crypto_info_t *ci;
 
-	/* Scan for duplications */
-	for (ci = crypto_info_list; ci; ci = ci->next)
-		count++;
+	*count = 0;
+	*internal = 0;
 
-	return count;
+	/* Scan for duplications */
+	for (ci = crypto_info_list; ci; ci = ci->next) {
+		if (ci->internal)
+			(*internal)++;
+		(*count)++;
+	}
 }
 
 /*
@@ -668,7 +688,9 @@ static void stress_af_alg_sort_crypto(void)
 {
 	stress_crypto_info_t **array, *ci;
 
-	int i, n = stress_af_alg_count_crypto();
+	int i, n, internal;
+
+	stress_af_alg_count_crypto(&n, &internal);
 
 	/* Attempt to sort, if we can't silently don't sort */
 	array = calloc((size_t)n, sizeof(*array));
@@ -731,8 +753,10 @@ static int stress_af_alg(const stress_args_t *args)
 {
 	int sockfd = -1, rc = EXIT_FAILURE;
 	int retries = MAX_AF_ALG_RETRIES;
-	int count = stress_af_alg_count_crypto();
+	int proc_count, count, internal;
 	bool af_alg_dump = false;
+
+	stress_af_alg_count_crypto(&proc_count, &internal);
 
 	(void)stress_get_setting("af-alg-dump", &af_alg_dump);
 
@@ -743,18 +767,21 @@ static int stress_af_alg(const stress_args_t *args)
 		stress_af_alg_dump_crypto_list();
 	}
 
-	if (args->instance == 0) {
-		pr_inf("%s: %d cryptographic algorithms found in /proc/crypto\n",
-			args->name, count);
-	}
-
 	stress_af_alg_add_crypto_defconfigs();
 	stress_af_alg_sort_crypto();
-	count = stress_af_alg_count_crypto();
+	stress_af_alg_count_crypto(&count, &internal);
 
 	if (args->instance == 0) {
-		pr_inf("%s: %d cryptographic algorithms max (with defconfigs)\n",
+		bool lock;
+
+		pr_lock(&lock);
+		pr_inf("%s: %d cryptographic algorithms found in /proc/crypto\n",
+			args->name, proc_count);
+		pr_inf("%s: %d cryptographic algorithms in total (with defconfigs)\n",
 			args->name, count);
+		pr_inf("%s: %d cryptographic algorithms are internal and may be unused\n",
+			args->name, internal);
+		pr_unlock(&lock);
 	}
 
 	for (;;) {
@@ -924,8 +951,10 @@ static void stress_af_alg_add_crypto_defconfigs(void)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(crypto_info_defconfigs); i++)
+	for (i = 0; i < SIZEOF_ARRAY(crypto_info_defconfigs); i++) {
+		crypto_info_defconfigs[i].source = SOURCE_DEFCONFIG;
 		stress_af_alg_add_crypto(&crypto_info_defconfigs[i]);
+	}
 }
 
 /*
@@ -986,6 +1015,7 @@ static void stress_af_alg_init(void)
 			info.selftest = bool_field(buffer);
 		else if (buffer[0] == '\n') {
 			if (info.crypto_type != CRYPTO_UNKNOWN) {
+				info.source = SOURCE_PROC_CRYPTO;
 				if (!stress_af_alg_add_crypto(&info)) {
 					free(info.name);
 					free(info.type);
