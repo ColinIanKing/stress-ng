@@ -662,7 +662,7 @@ static void stress_af_alg_count_crypto(int *count, int *internal)
  *  stress_af_alg_cmp_crypto()
  *	qsort comparison on type then name
  */
-int stress_af_alg_cmp_crypto(const void *p1, const void *p2)
+static int stress_af_alg_cmp_crypto(const void *p1, const void *p2)
 {
 	int n;
 	const stress_crypto_info_t * const *ci1 = (const stress_crypto_info_t * const *)p1;
