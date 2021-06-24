@@ -346,6 +346,7 @@ retry_bind:
 		/* Internal unavailable crypto engines need to be ignored */
 		if ((errno == ENOENT) && (info->internal)) {
 			stress_af_alg_ignore(args, info);
+			rc = EXIT_SUCCESS;
 			goto err;
 		}
 		if ((errno == 0) || (errno == ENOKEY) ||
@@ -592,6 +593,7 @@ retry_bind:
 		/* Internal unavailable crypto engines need to be ignored */
 		if ((errno == ENOENT) && (info->internal)) {
 			stress_af_alg_ignore(args, info);
+			rc = EXIT_SUCCESS;
 			goto err;
 		}
 		/* Perhaps the rng does not exist with this kernel */
