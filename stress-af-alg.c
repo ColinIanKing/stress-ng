@@ -665,8 +665,8 @@ static void stress_af_alg_count_crypto(int *count, int *internal)
 int stress_af_alg_cmp_crypto(const void *p1, const void *p2)
 {
 	int n;
-	const stress_crypto_info_t **ci1 = (const stress_crypto_info_t **)p1;
-	const stress_crypto_info_t **ci2 = (const stress_crypto_info_t **)p2;
+	const stress_crypto_info_t * const *ci1 = (const stress_crypto_info_t * const *)p1;
+	const stress_crypto_info_t * const *ci2 = (const stress_crypto_info_t * const *)p2;
 
 	n = strcmp((*ci1)->type, (*ci2)->type);
 	if (n < 0)
