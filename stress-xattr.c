@@ -288,7 +288,7 @@ static int stress_xattr(const stress_args_t *args)
 			ret = shim_fsetxattr(fd, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
-				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno = E2BIG))
+				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
 					break;
 				pr_fail("%s: fsetxattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -299,7 +299,7 @@ static int stress_xattr(const stress_args_t *args)
 			ret = shim_setxattr(filename, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
-				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno = E2BIG))
+				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
 					break;
 				pr_fail("%s: setxattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -311,7 +311,7 @@ static int stress_xattr(const stress_args_t *args)
 			ret = shim_lsetxattr(filename, attrname, value, strlen(value),
 				XATTR_REPLACE);
 			if (ret < 0) {
-				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno = E2BIG))
+				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
 					break;
 				pr_fail("%s: lsetxattr failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
