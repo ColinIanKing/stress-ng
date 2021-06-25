@@ -355,7 +355,7 @@ static void stress_io_uring_readv_setup(
 	sqe->opcode = IORING_OP_READV;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs;
 	sqe->len = io_uring_file->blocks;
-	sqe->off = stress_mwc8() * io_uring_file->blocks;
+	sqe->off = (uint64_t)stress_mwc8() * io_uring_file->blocks;
 	sqe->user_data = (uintptr_t)io_uring_file;
 }
 #endif
@@ -374,7 +374,7 @@ static void stress_io_uring_writev_setup(
 	sqe->opcode = IORING_OP_WRITEV;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs;
 	sqe->len = io_uring_file->blocks;
-	sqe->off = stress_mwc8() * io_uring_file->blocks;
+	sqe->off = (uint64_t)stress_mwc8() * io_uring_file->blocks;
 	sqe->user_data = (uintptr_t)io_uring_file;
 }
 #endif
@@ -393,7 +393,7 @@ static void stress_io_uring_read_setup(
 	sqe->opcode = IORING_OP_READ;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
 	sqe->len = io_uring_file->iovecs[0].iov_len;
-	sqe->off = stress_mwc8() * io_uring_file->blocks;
+	sqe->off = (uint64_t)stress_mwc8() * io_uring_file->blocks;
 	sqe->user_data = (uintptr_t)io_uring_file;
 }
 #endif
@@ -412,7 +412,7 @@ static void stress_io_uring_write_setup(
 	sqe->opcode = IORING_OP_WRITE;
 	sqe->addr = (uintptr_t)io_uring_file->iovecs[0].iov_base;
 	sqe->len = io_uring_file->iovecs[0].iov_len;
-	sqe->off = stress_mwc8() * io_uring_file->blocks;
+	sqe->off = (uint64_t)stress_mwc8() * io_uring_file->blocks;
 	sqe->user_data = (uintptr_t)io_uring_file;
 }
 #endif
