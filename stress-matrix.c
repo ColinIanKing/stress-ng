@@ -979,7 +979,7 @@ tidy_ret:
  */
 static int stress_matrix(const stress_args_t *args)
 {
-	char *matrix_method_name;
+	char *matrix_method_name = NULL;
 	const stress_matrix_method_info_t *matrix_method;
 	stress_matrix_func func;
 	size_t matrix_size = 128;
