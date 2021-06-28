@@ -247,18 +247,6 @@ static void stress_clone_free(void)
 	}
 }
 
-#if defined(HAVE_MODIFY_LDT) &&	\
-     defined(__NR_modify_ldt)
-/*
- *  shim_modify_ldt()
- *	system call wrapper for modify_ldt()
- */
-static int shim_modify_ldt(int func, void *ptr, unsigned long bytecount)
-{
-	return (int)syscall(__NR_modify_ldt, func, ptr, bytecount);
-}
-#endif
-
 /*
  *  clone_func()
  *	clone thread just returns immediately

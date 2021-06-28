@@ -1991,3 +1991,17 @@ int shim_quotactl_fd(unsigned int fd, unsigned int cmd, int id, void *addr)
 	return (int)shim_enosys(0, fd, cmd, id, addr);
 #endif
 }
+
+/*
+ *  shim_modify_ldt()
+ *	system call wrapper for modify_ldt()
+ */
+int shim_modify_ldt(int func, void *ptr, unsigned long bytecount)
+{
+#if defined(HAVE_MODIFY_LDT) &&	\
+     defined(__NR_modify_ldt)
+	return (int)syscall(__NR_modify_ldt, func, ptr, bytecount);
+#else
+	return (int)syscall(0, func, ptr, bytecount);
+#endif
+}
