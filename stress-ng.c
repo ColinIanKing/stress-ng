@@ -75,6 +75,7 @@ static const stress_opt_flag_t opt_flags[] = {
     defined(HAVE_LINUX_PERF_EVENT_H)
 	{ OPT_perf_stats,	OPT_FLAGS_PERF_STATS },
 #endif
+	{ OPT_skip_silent,	OPT_FLAGS_SKIP_SILENT },
 	{ OPT_sock_nodelay,	OPT_FLAGS_SOCKET_NODELAY },
 #if defined(HAVE_SYSLOG_H)
 	{ OPT_syslog,		OPT_FLAGS_SYSLOG },
@@ -3113,9 +3114,6 @@ next_opt:
 			stress_get_processors(&g_opt_sequential);
 			stress_check_range("sequential", (uint64_t)g_opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
-			break;
-		case OPT_skip_silent:
-			g_opt_flags |= OPT_FLAGS_SKIP_SILENT;
 			break;
 		case OPT_stressors:
 			stress_show_stressor_names();
