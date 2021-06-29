@@ -52,14 +52,14 @@ static int stress_rdrand_supported(const char *name)
 
 	/* Intel CPU? */
 	if (!stress_cpu_is_x86()) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"not a recognised Intel CPU\n", name);
 		return -1;
 	}
 	/* ..and supports rdrand? */
 	__cpuid(1, eax, ebx, ecx, edx);
 	if (!(ecx & 0x40000000)) {
-		pr_inf("%s stressor will be skipped, CPU "
+		pr_inf_skip("%s stressor will be skipped, CPU "
 			"does not support the rdrand instruction\n", name);
 		return -1;
 	}
@@ -120,11 +120,11 @@ static int stress_rdrand_supported(const char *name)
 		rdrand_supported = true;
 		return 0;
 	}
-	pr_inf("%s stressor will be skipped, CPU "
+	pr_inf_skip("%s stressor will be skipped, CPU "
 		"does not support the instruction 'darn'\n", name);
 	return -1;
 #else
-	pr_inf("%s stressor will be skipped, cannot"
+	pr_inf_skip("%s stressor will be skipped, cannot"
 		"determine if CPU is a power9 the instruction 'darn'\n", name);
 	return -1;
 #endif
@@ -294,7 +294,7 @@ stressor_info_t stress_rdrand_info = {
 
 static int stress_rdrand_supported(const char *name)
 {
-	pr_inf("%s stressor will be skipped, CPU "
+	pr_inf_skip("%s stressor will be skipped, CPU "
 		"does not support the rdrand instruction.\n", name);
 	return -1;
 }

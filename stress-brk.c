@@ -69,7 +69,7 @@ static int stress_brk_supported(const char *name)
 	 */
 	ptr = shim_sbrk(0);
 	if ((ptr == (void *)-1) && (errno == ENOSYS)) {
-		pr_inf("%s: stressor will be skipped, sbrk() is not "
+		pr_inf_skip("%s: stressor will be skipped, sbrk() is not "
 			"implemented on this system\n", name);
 		return -1;
 	}
@@ -78,7 +78,7 @@ static int stress_brk_supported(const char *name)
 	 *  check for brk() not being implemented too
 	 */
 	if ((shim_brk(ptr) < 0) && (errno == ENOSYS)) {
-		pr_inf("%s: stressor will be skipped, brk() is not "
+		pr_inf_skip("%s: stressor will be skipped, brk() is not "
 			"implemented on this system\n", name);
 		return -1;
 	}

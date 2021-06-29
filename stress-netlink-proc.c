@@ -46,7 +46,7 @@ static const stress_help_t help[] = {
 static int stress_netlink_proc_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_NET_ADMIN)) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_NET_ADMIN "
 			"rights for this stressor\n", name);
 		return -1;
@@ -221,7 +221,7 @@ static int stress_netlink_proc(const stress_args_t *args)
 
 	if (writev(sock, iov, 3) < 0) {
 		if (errno == ECONNREFUSED) {
-			pr_inf("%s: net link write failed, errno=%d (%s), skipping stress test\n",
+			pr_inf_skip("%s: net link write failed, errno=%d (%s), skipping stress test\n",
 				args->name, errno, strerror(errno));
 			(void)close(sock);
 			return EXIT_NO_RESOURCE;

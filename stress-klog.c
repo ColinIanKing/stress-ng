@@ -51,7 +51,7 @@ static const stress_help_t help[] = {
 static int stress_klog_supported(const char *name)
 {
 	if (shim_klogctl(SYSLOG_ACTION_SIZE_BUFFER, NULL, 0) < 0) {
-                pr_inf("%s stressor will be skipped, cannot access klog, "
+                pr_inf_skip("%s stressor will be skipped, cannot access klog, "
                         "probably need to be running with CAP_SYS_ADMIN "
                         "rights for this stressor\n", name);
                 return -1;
@@ -75,7 +75,7 @@ static int stress_klog(const stress_args_t *args)
 		if (!args->instance) {
 			if (errno == EPERM) {
 				if (args->instance == 0) /* cppcheck-suppress knownConditionTrueFalse */
-					pr_inf("%s: cannot access syslog buffer, "
+					pr_inf_skip("%s: cannot access syslog buffer, "
 						"not permitted, skipping stressor\n",
 						args->name);
 			} else {

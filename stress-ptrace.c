@@ -91,7 +91,7 @@ static int stress_ptrace(const stress_args_t *args)
 		 * as this makes life way too complex
 		 */
 		if (ptrace(PTRACE_TRACEME) != 0) {
-			pr_inf("%s: child cannot be traced, "
+			pr_inf_skip("%s: child cannot be traced, "
 				"skipping stressor: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			_exit(EXIT_SUCCESS);
@@ -148,7 +148,7 @@ static int stress_ptrace(const stress_args_t *args)
 		}
 		if (ptrace(PTRACE_SETOPTIONS, pid,
 			0, PTRACE_O_TRACESYSGOOD) < 0) {
-			pr_inf("%s: child cannot be traced, "
+			pr_inf_skip("%s: child cannot be traced, "
 				"skipping stressor: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			if ((errno == ESRCH) || (errno == EPERM) || (errno == EACCES)) {

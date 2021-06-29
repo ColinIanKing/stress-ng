@@ -217,7 +217,7 @@ bad_cache_free:
 	stress_free_cpu_caches(cpu_caches);
 #endif
 bad_cache:
-	pr_inf("%s: skipping stressor, cannot determine "
+	pr_inf_skip("%s: skipping stressor, cannot determine "
 		"cache level 1 information from kernel\n",
 		args->name);
 
@@ -251,7 +251,7 @@ static int stress_l1cache(const stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (cache == MAP_FAILED) {
-		pr_inf("%s: cannot mmap cache test buffer, skipping stressor, errno=%d (%s)\n",
+		pr_inf_skip("%s: cannot mmap cache test buffer, skipping stressor, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

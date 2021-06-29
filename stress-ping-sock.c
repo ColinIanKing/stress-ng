@@ -55,12 +55,12 @@ static int stress_ping_sock(const stress_args_t *args)
 
 	if ((fd = socket(AF_INET, SOCK_DGRAM, IPPROTO_ICMP)) < 0) {
 		if (errno == EPROTONOSUPPORT) {
-			pr_inf("%s: skipping stressor, protocol not supported\n",
+			pr_inf_skip("%s: skipping stressor, protocol not supported\n",
 				args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
 		if ((errno == EPERM) || (errno == EACCES)) {
-			pr_inf("%s: skipping stressor, permission denied\n",
+			pr_inf_skip("%s: skipping stressor, permission denied\n",
 				args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}

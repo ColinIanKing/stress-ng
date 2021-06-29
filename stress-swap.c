@@ -67,7 +67,7 @@ typedef struct {
 static int stress_swap_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
 			"rights for this stressor\n", name);
 		return -1;
@@ -213,7 +213,7 @@ static int stress_swap(const stress_args_t *args)
 				 * We may hit EPERM if we request
 				 * too many swap files
 				 */
-				pr_inf("%s: cannot enable swap file on the filesystem, skipping test\n",
+				pr_inf_skip("%s: cannot enable swap file on the filesystem, skipping test\n",
 					args->name);
 				ret = EXIT_NO_RESOURCE;
 				break;

@@ -122,12 +122,12 @@ static int stress_watchdog(const stress_args_t *args)
 	if (access(dev_watchdog, R_OK | W_OK) < 0) {
 		if (errno == ENOENT) {
 			if (args->instance == 0)
-				pr_inf("%s: %s does not exist, skipping test\n",
+				pr_inf_skip("%s: %s does not exist, skipping test\n",
 					args->name, dev_watchdog);
 			return EXIT_SUCCESS;
 		} else {
 			if (args->instance == 0)
-				pr_inf("%s: cannot access %s, errno=%d (%s), skipping test\n",
+				pr_inf_skip("%s: cannot access %s, errno=%d (%s), skipping test\n",
 					args->name, dev_watchdog, errno, strerror(errno));
 			return EXIT_SUCCESS;
 		}

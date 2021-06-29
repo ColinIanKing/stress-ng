@@ -116,7 +116,7 @@ static int stress_stackmmap(const stress_args_t *args)
 	stack_sig = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (stack_sig == MAP_FAILED) {
-		pr_inf("%s: skipping stressor, cannot mmap signal stack, "
+		pr_inf_skip("%s: skipping stressor, cannot mmap signal stack, "
 			"errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
@@ -128,7 +128,7 @@ static int stress_stackmmap(const stress_args_t *args)
 		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (stack_mmap == MAP_FAILED) {
 		if (errno == ENXIO) {
-			pr_inf("%s: skipping stressor, mmap not possible on file %s\n",
+			pr_inf_skip("%s: skipping stressor, mmap not possible on file %s\n",
 				args->name, filename);
 			rc = EXIT_NO_RESOURCE;
 			(void)close(fd);

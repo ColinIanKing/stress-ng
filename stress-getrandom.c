@@ -52,7 +52,7 @@ static int stress_getrandom_supported(const char *name)
 
 	ret = shim_getrandom(buffer, sizeof(buffer), 0);
 	if ((ret < 0) && (errno == ENOSYS)) {
-		pr_inf("%s stressor will be skipped, getrandom() not supported\n", name);
+		pr_inf_skip("%s stressor will be skipped, getrandom() not supported\n", name);
 		return -1;
 	}
 	return 0;
@@ -127,7 +127,7 @@ static int stress_getrandom(const stress_args_t *args)
 				if (errno == ENOSYS) {
 					/* Should not happen.. */
 					if (args->instance == 0)
-						pr_inf("%s: stressor will be skipped, "
+						pr_inf_skip("%s: stressor will be skipped, "
 							"getrandom() not supported\n",
 							args->name);
 					return EXIT_NOT_IMPLEMENTED;

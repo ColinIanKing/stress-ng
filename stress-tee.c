@@ -218,7 +218,7 @@ static int stress_tee(const stress_args_t *args)
 			if (errno == EINTR)
 				break;
 			if (errno == ENOMEM) {
-				pr_inf("%s: skipping stressor, out of memory\n",
+				pr_inf_skip("%s: skipping stressor, out of memory\n",
 					args->name);
 				ret = EXIT_NO_RESOURCE;
 				goto tidy_child2;

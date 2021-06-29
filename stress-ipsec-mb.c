@@ -134,7 +134,7 @@ static int stress_ipsec_mb_supported(const char *name)
 {
 	/* Intel CPU? */
 	if (!stress_cpu_is_x86()) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"not a recognised Intel CPU\n", name);
 		return -1;
 	}
@@ -619,12 +619,12 @@ static int stress_ipsec_mb(const stress_args_t *args)
 	p_mgr = alloc_mb_mgr(0);
 	if (!p_mgr) {
 		if (args->instance == 0)
-			pr_inf("%s: failed to setup Intel IPSec MB library, skipping\n", args->name);
+			pr_inf_skip("%s: failed to setup Intel IPSec MB library, skipping\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	if (imb_get_version() < IMB_VERSION(0, 51, 0)) {
 		if (args->instance == 0)
-			pr_inf("%s: version %s of Intel IPSec MB library is too low, skipping\n",
+			pr_inf_skip("%s: version %s of Intel IPSec MB library is too low, skipping\n",
 				args->name, imb_get_version_str());
 		free_mb_mgr(p_mgr);
 		return EXIT_NOT_IMPLEMENTED;
@@ -643,7 +643,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 	}
 	if (!got_features) {
 		if (args->instance == 0)
-			pr_inf("%s: not enough CPU features to support Intel IPSec MB library, skipping\n", args->name);
+			pr_inf_skip("%s: not enough CPU features to support Intel IPSec MB library, skipping\n", args->name);
 		free_mb_mgr(p_mgr);
 		return EXIT_NOT_IMPLEMENTED;
 	}
@@ -653,7 +653,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 
 		if ((ipsec_mb_feature & features) != ipsec_mb_feature) {
 			if (args->instance == 0)
-				pr_inf("%s: requested ipsec-mb-feature feature '%s' is not supported, skipping\n",
+				pr_inf_skip("%s: requested ipsec-mb-feature feature '%s' is not supported, skipping\n",
 					args->name, feature_name);
 			free_mb_mgr(p_mgr);
 			return EXIT_NOT_IMPLEMENTED;
@@ -728,7 +728,7 @@ static int stress_set_ipsec_mb_feature(const char *opt)
 
 static int stress_ipsec_mb_supported(const char *name)
 {
-	pr_inf("%s: stressor will be skipped, CPU "
+	pr_inf_skip("%s: stressor will be skipped, CPU "
 		"needs to be an x86-64 and a recent IPSec MB library "
 		"is required.\n", name);
 	return -1;

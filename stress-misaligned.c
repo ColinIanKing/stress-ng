@@ -573,7 +573,7 @@ static int stress_misaligned(const stress_args_t *args)
 	current_method = misaligned_method;
 	ret = sigsetjmp(jmp_env, 1);
 	if ((ret == 1) && (args->instance == 0)) {
-		pr_inf("%s: skipping method %s, misaligned operations tripped %s\n",
+		pr_inf_skip("%s: skipping method %s, misaligned operations tripped %s\n",
 			args->name, current_method->name,
 			handled_signum == -1 ? "an error" :
 			stress_strsignal(handled_signum));

@@ -137,7 +137,7 @@ redo: 			errno = 0;
 					break;
 				case ENOSYS:
 					if (args->instance == 0)
-						pr_inf("%s: mincore no not implemented, skipping stressor\n",
+						pr_inf_skip("%s: mincore no not implemented, skipping stressor\n",
 							args->name);
 					rc = EXIT_NOT_IMPLEMENTED;
 					goto err;

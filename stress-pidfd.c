@@ -76,14 +76,14 @@ static int stress_pidfd_supported(const char *name)
 
 	pidfd = stress_pidfd_open(pid, 0);
 	if (pidfd < 0) {
-		pr_inf("%s stressor will be skipped, cannot open proc entry on procfs\n",
+		pr_inf_skip("%s stressor will be skipped, cannot open proc entry on procfs\n",
 			name);
 		return -1;
 	}
 	ret = shim_pidfd_send_signal(pidfd, 0, NULL, 0);
 	if (ret < 0) {
 		if (errno == ENOSYS) {
-			pr_inf("pidfd stressor will be skipped, system call not implemented\n");
+			pr_inf_skip("pidfd stressor will be skipped, system call not implemented\n");
 			(void)close(pidfd);
 			return -1;
 		}
@@ -199,7 +199,7 @@ static int stress_pidfd(const stress_args_t *args)
 			if (ret != 0) {
 				if (errno == ENOSYS) {
 					if (args->instance == 0)
-						pr_inf("%s: skipping stress test, system call is not implemented\n",
+						pr_inf_skip("%s: skipping stress test, system call is not implemented\n",
 							args->name);
 					stress_pidfd_reap(pid, pidfd);
 					return EXIT_NOT_IMPLEMENTED;
@@ -238,7 +238,7 @@ stressor_info_t stress_pidfd_info = {
 
 static int stress_pidfd_supported(const char *name)
 {
-	pr_inf("%s: stressor will be skipped, system call not supported at build time\n", name);
+	pr_inf_skip("%s: stressor will be skipped, system call not supported at build time\n", name);
 	return -1;
 }
 

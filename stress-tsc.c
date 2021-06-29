@@ -72,7 +72,7 @@ static int stress_tsc_supported(const char *name)
 	 *  We get here with non-zero return if SIGILL occurs
 	 */
 	if (sigsetjmp(jmpbuf, 1) != 0) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"rdcycle not allowed\n", name);
 		return -1;
 	}
@@ -104,14 +104,14 @@ static int stress_tsc_supported(const char *name)
 
 	/* Intel CPU? */
 	if (!stress_cpu_is_x86()) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"not a recognised Intel CPU\n", name);
 		return -1;
 	}
 	/* ..and supports tsc? */
 	__cpuid(1, eax, ebx, ecx, edx);
 	if (!(edx & 0x10)) {
-		pr_inf("%s stressor will be skipped, CPU "
+		pr_inf_skip("%s stressor will be skipped, CPU "
 			"does not support the tsc instruction\n", name);
 		return -1;
 	}
@@ -252,7 +252,7 @@ stressor_info_t stress_tsc_info = {
 
 static int stress_tsc_supported(const char *name)
 {
-	pr_inf("%s stressor will be skipped, CPU "
+	pr_inf_skip("%s stressor will be skipped, CPU "
 		"does not support the rdtsc instruction.\n", name);
 	return -1;
 }

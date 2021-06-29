@@ -45,7 +45,7 @@ static int stress_spawn_supported(const char *name)
 	 *  executable as root.
 	 */
 	if (geteuid() == 0) {
-		pr_inf("%s stressor must not run as root, skipping the stressor\n", name);
+		pr_inf_skip("%s stressor must not run as root, skipping the stressor\n", name);
 		return -1;
 	}
 	return 0;
@@ -80,7 +80,7 @@ static int stress_spawn(const stress_args_t *args)
 	if ((len < 0) || (len > PATH_MAX)) {
 		if (errno == ENOENT) {
 			if (args->instance == 0)
-				pr_inf("%s: skipping stressor, can't determine stress-ng "
+				pr_inf_skip("%s: skipping stressor, can't determine stress-ng "
 					"executable name\n", args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}

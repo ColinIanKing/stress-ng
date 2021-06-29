@@ -65,12 +65,12 @@ static int stress_affinity_supported(const char *name)
 	CPU_ZERO(&mask);
 
 	if (sched_getaffinity(0, sizeof(mask), &mask) < 0) {
-		pr_inf("%s stressor cannot get CPU affinity, skipping the stressor\n", name);
+		pr_inf_skip("%s stressor cannot get CPU affinity, skipping the stressor\n", name);
 		return -1;
 	}
 	if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
 		if (errno == EPERM) {
-			pr_inf("%s stressor cannot set CPU affinity, "
+			pr_inf_skip("%s stressor cannot set CPU affinity, "
 			       "process lacks privilege, skipping the stressor\n", name);
 			return -1;
 		}
@@ -211,7 +211,7 @@ static int stress_affinity(const stress_args_t *args)
 	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (!counters) {
-		pr_inf("%s: cannot mmap %zd bytes for shared counters, skipping stressor\n",
+		pr_inf_skip("%s: cannot mmap %zd bytes for shared counters, skipping stressor\n",
 			args->name, counters_sz);
 		return EXIT_NO_RESOURCE;
 	}

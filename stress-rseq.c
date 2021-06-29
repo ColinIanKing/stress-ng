@@ -204,10 +204,10 @@ static int stress_rseq_supported(const char *name)
 	rseq_test(-1, &signature);
 	if (rseq_register(&restartable_seq, signature) < 0) {
 		if (errno == ENOSYS) {
-			pr_inf("%s stressor will be skipped, rseq system call not implemented\n",
+			pr_inf_skip("%s stressor will be skipped, rseq system call not implemented\n",
 				name);
 		} else {
-			pr_inf("%s stressor will be skipped, rseq system call failed to register, errno=%d (%s)\n",
+			pr_inf_skip("%s stressor will be skipped, rseq system call failed to register, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 		}
 		return -1;

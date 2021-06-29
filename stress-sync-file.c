@@ -128,7 +128,7 @@ static int stress_sync_file(const stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		if ((errno == ENFILE) || (errno == ENOMEM) || (errno == ENOSPC)) {
-			pr_inf("%s: cannot create file to sync on, skipping stressor: errno=%d (%s)\n",
+			pr_inf_skip("%s: cannot create file to sync on, skipping stressor: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
@@ -161,7 +161,7 @@ static int stress_sync_file(const stress_args_t *args)
 			ret = shim_sync_file_range(fd, offset, sz, mode);
 			if (ret < 0) {
 				if (errno == ENOSYS) {
-					pr_inf("%s: skipping stressor, sync_file_range is not implemented\n",
+					pr_inf_skip("%s: skipping stressor, sync_file_range is not implemented\n",
 						args->name);
 					goto err;
 				}
@@ -205,7 +205,7 @@ static int stress_sync_file(const stress_args_t *args)
 			ret = shim_sync_file_range(fd, sync_file_bytes - offset, sz, mode);
 			if (ret < 0) {
 				if (errno == ENOSYS) {
-					pr_inf("%s: skipping stressor, sync_file_range is not implemented\n",
+					pr_inf_skip("%s: skipping stressor, sync_file_range is not implemented\n",
 						args->name);
 					goto err;
 				}
@@ -231,7 +231,7 @@ static int stress_sync_file(const stress_args_t *args)
 			ret = shim_sync_file_range(fd, offset, 128 * KB, mode);
 			if (ret < 0) {
 				if (errno == ENOSYS) {
-					pr_inf("%s: skipping stressor, sync_file_range is not implemented\n",
+					pr_inf_skip("%s: skipping stressor, sync_file_range is not implemented\n",
 						args->name);
 					goto err;
 				}

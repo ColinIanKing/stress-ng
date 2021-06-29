@@ -632,7 +632,7 @@ static int stress_sysfs(const stress_args_t *args)
 	n = scandir("/sys", &dlist, NULL, alphasort);
 	if (n <= 0) {
 		if (args->instance == 0)
-			pr_inf("%s: no /sys entries found, skipping stressor\n", args->name);
+			pr_inf_skip("%s: no /sys entries found, skipping stressor\n", args->name);
 		stress_dirent_list_free(dlist, n);
 		(void)munmap((void *)ctxt, sizeof(*ctxt));
 		return EXIT_NO_RESOURCE;

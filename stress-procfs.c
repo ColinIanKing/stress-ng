@@ -630,7 +630,7 @@ static int stress_procfs(const stress_args_t *args)
 	n = scandir("/proc", &dlist, NULL, alphasort);
 	if (n <= 0) {
 		if (args->instance == 0)
-			pr_inf("%s: no /sys entries found, skipping stressor\n", args->name);
+			pr_inf_skip("%s: no /sys entries found, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	n = stress_dirent_proc_prune(dlist, n);

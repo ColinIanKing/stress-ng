@@ -72,14 +72,14 @@ static int stress_x86syscall_supported(const char *name)
 
 	/* Intel CPU? */
 	if (!stress_cpu_is_x86()) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"not a recognised Intel CPU\n", name);
 		return -1;
 	}
 	/* ..and supports syscall? */
 	__cpuid(0x80000001, eax, ebx, ecx, edx);
 	if (!(edx & (1ULL << 11))) {
-		pr_inf("%s stressor will be skipped, CPU "
+		pr_inf_skip("%s stressor will be skipped, CPU "
 			"does not support the syscall instruction\n", name);
 		return -1;
 	}
@@ -89,7 +89,7 @@ static int stress_x86syscall_supported(const char *name)
     defined(__NR_time)
 	return 0;
 #else
-	pr_inf("%s: stressor will be skipped, no definitions for __NR_getcpu, __NR_gettimeofday or __NR_time\n", name);
+	pr_inf_skip("%s: stressor will be skipped, no definitions for __NR_getcpu, __NR_gettimeofday or __NR_time\n", name);
 	return -1;
 #endif
 }

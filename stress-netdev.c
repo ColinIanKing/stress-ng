@@ -104,7 +104,7 @@ static int stress_netdev(const stress_args_t *args)
 		n = ifc.ifc_len / (int)sizeof(struct ifreq);
 		if (!n) {
 			if (args->instance == 0)
-				pr_dbg("%s: no network interfaces found, skipping.\n",
+				pr_dbg_skip("%s: no network interfaces found, skipping.\n",
 					args->name);
 			break;
 		}

@@ -585,7 +585,7 @@ static void stress_rt_dist(
 static int stress_cyclic_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_SYS_NICE)) {
-		pr_inf("%s stressor needs to be run with CAP_SYS_NICE "
+		pr_inf_skip("%s stressor needs to be run with CAP_SYS_NICE "
 			"set SCHED_RR, SCHED_FIFO or SCHED_DEADLINE priorities, "
 			"skipping this stressor\n", name);
 		return -1;
@@ -624,7 +624,7 @@ static int stress_cyclic(const stress_args_t *args)
 
 	if (!args->instance) {
 		if (num_policies == 0) {
-			pr_inf("%s: no scheduling policies "
+			pr_inf_skip("%s: no scheduling policies "
 				"available, skipping test\n",
 				args->name);
 			return EXIT_NOT_IMPLEMENTED;

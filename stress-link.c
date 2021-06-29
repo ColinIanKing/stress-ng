@@ -123,7 +123,7 @@ static int stress_link_generic(
 					continue;
 				}
 				if (errno == EPERM) {
-					pr_inf("%s: link calls not allowed on "
+					pr_inf_skip("%s: link calls not allowed on "
 						"the filesystem, skipping "
 						"stressor\n", args->name);
 					rc = EXIT_NO_RESOURCE;

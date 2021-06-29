@@ -269,6 +269,20 @@ void pr_dbg(const char *fmt, ...)
 }
 
 /*
+ *  pr_dbg_info()
+ *	print debug message, don't print if skip silent is enabled
+ */
+void pr_dbg_skip(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
+		(void)pr_msg_lockable(stderr, PR_DEBUG, false, fmt, ap);
+	va_end(ap);
+}
+
+/*
  *  pr_dbg_lock()
  *	print debug messages with a lock
  */
@@ -294,6 +308,20 @@ void pr_inf(const char *fmt, ...)
 
 	va_start(ap, fmt);
 	(void)pr_msg_lockable(stderr, PR_INFO, false, fmt, ap);
+	va_end(ap);
+}
+
+/*
+ *  pr_inf_skip()
+ *	print info message, don't print if skip silent is enabled
+ */
+void pr_inf_skip(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
+		(void)pr_msg_lockable(stderr, PR_INFO, false, fmt, ap);
 	va_end(ap);
 }
 

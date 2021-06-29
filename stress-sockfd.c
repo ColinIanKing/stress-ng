@@ -284,7 +284,7 @@ static int stress_socket_server(
 	if (bind(fd, addr, addr_len) < 0) {
 		if (errno == EADDRINUSE) {
 			rc = EXIT_NO_RESOURCE;
-			pr_inf("%s: cannot bind, skipping stressor, errno=%d (%s)\n",
+			pr_inf_skip("%s: cannot bind, skipping stressor, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto die_close;
 		}

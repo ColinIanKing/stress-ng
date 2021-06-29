@@ -124,7 +124,7 @@ static int stress_copy_file(const stress_args_t *args)
 			    (errno == ENOSPC))
 				continue;
 			if (errno == EINVAL) {
-				pr_inf("%s: copy_file_range failed, the "
+				pr_inf_skip("%s: copy_file_range failed, the "
 					"kernel splice may be not implemented "
 					"for the file system, skipping stressor.\n",
 					args->name);

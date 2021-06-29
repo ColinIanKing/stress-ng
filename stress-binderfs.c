@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
 static int stress_binderfs_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
 			"rights for this stressor\n", name);
 		return -1;
@@ -116,7 +116,7 @@ static int stress_binderfs(const stress_args_t *args)
 		ret = mount("binder", pathname, "binder", 0, 0);
 		if (ret < 0) {
 			if ((errno == ENODEV) || (errno == ENOSPC) || (errno == ENOMEM)) {
-				pr_inf("%s: mount failed on binderfs at %s, errno=%d (%s), skipping stress test\n",
+				pr_inf_skip("%s: mount failed on binderfs at %s, errno=%d (%s), skipping stress test\n",
 					args->name, pathname, errno, strerror(errno));
 				rc = EXIT_NO_RESOURCE;
 				goto clean;

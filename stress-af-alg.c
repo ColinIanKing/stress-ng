@@ -172,7 +172,7 @@ static void stress_af_alg_ignore(
 	stress_crypto_info_t *info)
 {
 	if ((args->instance == 0) && (!info->ignore)) {
-		pr_dbg("%s: sendmsg using %s failed with EINVAL, skipping crypto engine\n",
+		pr_dbg_skip("%s: sendmsg using %s failed with EINVAL, skipping crypto engine\n",
 			args->name, info->name);
 		info->ignore = true;
 	}

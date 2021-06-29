@@ -70,7 +70,7 @@ static int stress_vforkmany(const stress_args_t *args)
 	stack_sig = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (stack_sig == MAP_FAILED) {
-		pr_inf("%s: skipping stressor, cannot allocate signal stack,"
+		pr_inf_skip("%s: skipping stressor, cannot allocate signal stack,"
 			" errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;

@@ -85,10 +85,10 @@ static int stress_ioport_supported(const char *name)
 	if (ret < 0) {
 		switch (errno) {
 		case ENOMEM:
-			pr_inf("%s: ioperm out of memory, skipping stressor\n", name);
+			pr_inf_skip("%s: ioperm out of memory, skipping stressor\n", name);
 			return -1;
 		case EPERM:
-			pr_inf("%s has insufficient privilege, invoke with CAP_SYS_RAWIO privilege, skipping stressor\n", name);
+			pr_inf_skip("%s has insufficient privilege, invoke with CAP_SYS_RAWIO privilege, skipping stressor\n", name);
 			return -1;
 		case EINVAL:
 		case EIO:

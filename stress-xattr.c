@@ -105,7 +105,7 @@ static int stress_xattr(const stress_args_t *args)
 			if (ret < 0) {
 				if ((errno == ENOTSUP) || (errno == ENOSYS)) {
 					if (args->instance == 0)
-						pr_inf("%s stressor will be "
+						pr_inf_skip("%s stressor will be "
 							"skipped, filesystem does not "
 							"support xattr.\n", args->name);
 					rc = EXIT_NO_RESOURCE;

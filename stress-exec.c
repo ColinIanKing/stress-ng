@@ -81,7 +81,7 @@ static int stress_exec_supported(const char *name)
 	 *  executable as root.
 	 */
 	if (geteuid() == 0) {
-		pr_inf("%s stressor must not run as root, skipping the stressor\n", name);
+		pr_inf_skip("%s stressor must not run as root, skipping the stressor\n", name);
 		return -1;
 	}
 	return 0;

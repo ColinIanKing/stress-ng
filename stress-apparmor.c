@@ -55,7 +55,7 @@ static int stress_apparmor_supported(const char *name)
 	char path[PATH_MAX];
 
 	if (!stress_check_capability(SHIM_CAP_MAC_ADMIN)) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
 			"rights for this stressor\n", name);
 		return -1;
@@ -63,12 +63,12 @@ static int stress_apparmor_supported(const char *name)
 
 	/* Initial sanity checks for AppArmor */
 	if (!aa_is_enabled()) {
-		pr_inf("apparmor stressor will be skipped, "
+		pr_inf_skip("apparmor stressor will be skipped, "
 			"AppArmor is not enabled\n");
 		return -1;
 	}
 	if (aa_find_mountpoint(&apparmor_path) < 0) {
-		pr_inf("apparmor stressor will be skipped, "
+		pr_inf_skip("apparmor stressor will be skipped, "
 			"cannot get AppArmor path, errno=%d (%s)\n",
 			errno, strerror(errno));
 		return -1;
@@ -78,16 +78,16 @@ static int stress_apparmor_supported(const char *name)
 	if ((fd = open(path, O_RDONLY)) < 0) {
 		switch (errno) {
 		case EACCES:
-			pr_inf("apparmor stressor will be skipped, "
+			pr_inf_skip("apparmor stressor will be skipped, "
 				"stress-ng needs CAP_MAC_ADMIN "
 				"privilege to access AppArmor /sys files.\n");
 			break;
 		case ENOENT:
-			pr_inf("apparmor stressor will be skipped, "
+			pr_inf_skip("apparmor stressor will be skipped, "
 				"AppArmor /sys files do not exist\n");
 			break;
 		default:
-			pr_inf("apparmor stressor will be skipped, "
+			pr_inf_skip("apparmor stressor will be skipped, "
 				"cannot access AppArmor /sys files: "
 				"errno=%d (%s)\n", errno, strerror(errno));
 			break;
@@ -739,7 +739,7 @@ stressor_info_t stress_apparmor_info = {
 
 static int stress_apparmor_supported(const char *name)
 {
-	pr_inf("%s: stressor will be skipped, "
+	pr_inf_skip("%s: stressor will be skipped, "
 		"AppArmor is not available\n", name);
 	return -1;
 }

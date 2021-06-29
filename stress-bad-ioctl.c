@@ -54,7 +54,7 @@ static int stress_bad_ioctl_supported(const char *name)
 {
         if (stress_check_capability(SHIM_CAP_IS_ROOT) ||
 	    (geteuid() == 0)) {
-                pr_inf("%s stressor will be skipped, "
+                pr_inf_skip("%s stressor will be skipped, "
                         "need to be running without root privilege "
                         "for this stressor\n", name);
                 return -1;

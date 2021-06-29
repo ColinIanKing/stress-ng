@@ -237,7 +237,7 @@ static int stress_dccp_server(
 			 *  EXIT_NOT_IMPLEMENTED and skip the test
 			 */
 			if (args->instance == 0)
-				pr_inf("%s: DCCP protocol not supported, "
+				pr_inf_skip("%s: DCCP protocol not supported, "
 					"skipping stressor\n", args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}

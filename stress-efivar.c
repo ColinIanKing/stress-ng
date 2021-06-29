@@ -346,7 +346,7 @@ static int stress_efivar_supported(const char *name)
 	DIR *dir;
 
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
 			"rights for this stressor\n", name);
 		return -1;
@@ -354,7 +354,7 @@ static int stress_efivar_supported(const char *name)
 
 	dir = opendir(efi_vars);
 	if (!dir) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"need to have access to EFI vars in %s\n",
 			name, vars);
 		return -1;
@@ -447,7 +447,7 @@ stressor_info_t stress_efivar_info = {
 #else
 static int stress_efivar_supported(const char *name)
 {
-	pr_inf("%s stressor will be skipped, "
+	pr_inf_skip("%s stressor will be skipped, "
 		"it is not implemented on this platform\n", name);
 
 	return -1;

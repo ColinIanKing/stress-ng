@@ -90,7 +90,7 @@ static int stress_pkey(const stress_args_t *args)
 		if (ret < 0) {
 			if (errno == ENOSYS) {
 				if (args->instance == 0) {
-					pr_inf("%s: pkey system calls not implemented, skipping\n",
+					pr_inf_skip("%s: pkey system calls not implemented, skipping\n",
 						args->name);
 				}
 				rc = EXIT_NOT_IMPLEMENTED;

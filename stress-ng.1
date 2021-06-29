@@ -344,6 +344,11 @@ N is less than zero, then the number of CPUs online is used for the number
 of instances.  If N is zero, then the number of CPUs in the system is used.
 Use the \-\-timeout option to specify the duration to run each stressor.
 .TP
+.B \-\-skip\-silent
+silence messages that report that a stressor has been skipped because it
+requires features not supported by the system, such as unimplemented system
+calls, missing resources or processor specific features.
+.TP
 .B \-\-stressors
 output the names of the available stressors.
 .TP

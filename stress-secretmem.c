@@ -43,15 +43,15 @@ static int stress_secretmem_supported(const char *name)
 	if (fd < 0) {
 		switch (errno) {
 		case ENOSYS:
-			pr_inf("%s stressor will be skipped, memfd_secret system call "
+			pr_inf_skip("%s stressor will be skipped, memfd_secret system call "
 			       "is not supported\n", name);
 			break;
 		case ENOMEM:
-			pr_inf("%s stressor will be skipped, secret memory not reserved, "
+			pr_inf_skip("%s stressor will be skipped, secret memory not reserved, "
 			       "e.g. use 'secretmem=1M' in the kernel boot command\n", name);
 			break;
 		default:
-			pr_inf("%s stressor will be skipped, memfd_secret errno=%d (%s)\n",
+			pr_inf_skip("%s stressor will be skipped, memfd_secret errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		}
@@ -108,7 +108,7 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 
 	fd = shim_memfd_secret(0);
 	if (fd < 0) {
-		pr_inf("%s: memfd_secret failed, skipping stressor\n",
+		pr_inf_skip("%s: memfd_secret failed, skipping stressor\n",
 			args->name);
 		free(mappings);
 		return EXIT_NO_RESOURCE;

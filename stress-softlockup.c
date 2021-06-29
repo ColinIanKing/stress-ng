@@ -40,7 +40,7 @@ static const stress_help_t help[] = {
 static int stress_softlockup_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_SYS_NICE)) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_NICE "
 			"rights for this stressor\n", name);
 		return -1;
@@ -129,7 +129,7 @@ static int stress_softlockup(const stress_args_t *args)
 	if (!args->instance) {
 		if (SIZEOF_ARRAY(policies) == (0)) {
 			if (args->instance == 0)
-				pr_inf("%s: no scheduling policies "
+				pr_inf_skip("%s: no scheduling policies "
 					"available, skipping test\n",
 					args->name);
 			return EXIT_NOT_IMPLEMENTED;
@@ -153,7 +153,7 @@ static int stress_softlockup(const stress_args_t *args)
 	 */
 	if (!good_policy) {
 		if (args->instance == 0)
-			pr_inf("%s: cannot get valid maximum priorities for the "
+			pr_inf_skip("%s: cannot get valid maximum priorities for the "
 				"scheduling policies, skipping test\n",
 					args->name);
 		return EXIT_NOT_IMPLEMENTED;

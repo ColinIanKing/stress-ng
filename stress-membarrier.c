@@ -124,7 +124,7 @@ static int stress_membarrier(const stress_args_t *args)
 	if (ret < 0) {
 		if (errno == ENOSYS) {
 			if (args->instance == 0)
-				pr_inf("%s: stressor will be skipped, "
+				pr_inf_skip("%s: stressor will be skipped, "
 					"membarrier not supported\n",
 					args->name);
 			return EXIT_NOT_IMPLEMENTED;

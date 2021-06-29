@@ -38,14 +38,14 @@ static int stress_uprobe_supported(const char *name)
 {
 #if defined(__linux__)
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
 			"rights for this stressor\n", name);
 		return -1;
 	}
 	return 0;
 #else
-	pr_inf("%s: stressor will be skipped, uprobe not available\n", name);
+	pr_inf_skip("%s: stressor will be skipped, uprobe not available\n", name);
 	return -1;
 #endif
 }
@@ -130,7 +130,7 @@ static int stress_uprobe(const stress_args_t *args)
 	libc_addr = stress_uprobe_libc_start(pid, libc_path);
 	if (!libc_addr) {
 		if (args->instance == 0)
-			pr_inf("%s: cannot find start of libc text section, skipping stressor\n",
+			pr_inf_skip("%s: cannot find start of libc text section, skipping stressor\n",
 				args->name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -147,7 +147,7 @@ static int stress_uprobe(const stress_args_t *args)
 	ret = stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
 		O_WRONLY | O_CREAT | O_APPEND, buf);
 	if (ret < 0) {
-		pr_inf("%s: cannot set uprobe_event: errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: cannot set uprobe_event: errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
@@ -156,7 +156,7 @@ static int stress_uprobe(const stress_args_t *args)
 	(void)snprintf(buf, sizeof(buf), "/sys/kernel/debug/tracing/events/uprobes/%s/enable", event);
 	ret = stress_uprobe_write(buf, O_WRONLY | O_CREAT | O_TRUNC, "1\n");
 	if (ret < 0) {
-		pr_inf("%s: cannot enable uprobe_event: errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: cannot enable uprobe_event: errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto clear_events;
@@ -164,7 +164,7 @@ static int stress_uprobe(const stress_args_t *args)
 	ret = stress_uprobe_write("/sys/kernel/debug/tracing/trace",
 		O_WRONLY | O_CREAT | O_TRUNC, "\n");
 	if (ret < 0) {
-		pr_inf("%s: cannot clear trace file, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: cannot clear trace file, errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto clear_events;
@@ -172,7 +172,7 @@ static int stress_uprobe(const stress_args_t *args)
 
 	fd = open("/sys/kernel/debug/tracing/trace_pipe", O_RDONLY);
 	if (fd < 0) {
-		pr_inf("%s: cannot open trace file: errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: cannot open trace file: errno=%d (%s), skipping stressor\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto clear_events;

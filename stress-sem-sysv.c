@@ -90,7 +90,7 @@ static void stress_semaphore_sysv_init(void)
 	}
 
 	if (g_opt_sequential) {
-		pr_inf("semaphore init (System V) failed: errno=%d: "
+		pr_inf_skip("semaphore init (System V) failed: errno=%d: "
 			"(%s), skipping semaphore stressor\n",
 			errno, strerror(errno));
 	} else {

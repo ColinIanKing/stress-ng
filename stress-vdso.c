@@ -389,7 +389,7 @@ static int stress_vdso_supported(const char *name)
 	unsigned long vdso = getauxval(AT_SYSINFO_EHDR);
 
 	if (vdso == 0) {
-		pr_inf("%s stressor will be skipped, failed to find vDSO address\n", name);
+		pr_inf_skip("%s stressor will be skipped, failed to find vDSO address\n", name);
 		return -1;
 	}
 
@@ -397,7 +397,7 @@ static int stress_vdso_supported(const char *name)
 	dl_iterate_phdr(dl_wrapback, (void *)vdso);
 
 	if (!vdso_sym_list) {
-		pr_inf("%s stressor will be skipped, failed to find relevant vDSO "
+		pr_inf_skip("%s stressor will be skipped, failed to find relevant vDSO "
 			"functions\n", name);
 		return -1;
 	}
@@ -455,7 +455,7 @@ static int stress_vdso(const stress_args_t *args)
 	if (!vdso_sym_list) {
 		/* Should not fail, but worth checking to avoid breakage */
 		if (args->instance == 0)
-			pr_inf("%s: could not find any vDSO functions, skipping\n",
+			pr_inf_skip("%s: could not find any vDSO functions, skipping\n",
 				args->name);
 		return EXIT_NOT_IMPLEMENTED;
 	}

@@ -87,7 +87,7 @@ stressor_info_t stress_sigtrap_info = {
 
 static int stress_sigtrap_supported(const char *name)
 {
-	pr_inf("%s stressor will be skipped, system "
+	pr_inf_skip("%s stressor will be skipped, system "
 		"does not support the SIGTRAP signal\n", name);
 	return -1;
 }

@@ -219,13 +219,13 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 		switch (errno) {
 		case EPERM:
 			if (args->instance == 0)
-				pr_inf("%s: stressor will be skipped, insufficient "
+				pr_inf_skip("%s: stressor will be skipped, insufficient "
 					"privilege\n", args->name);
 			rc = EXIT_NO_RESOURCE;
 			break;
 		case ENOSYS:
 			if (args->instance == 0)
-				pr_inf("%s: stressor will be skipped, "
+				pr_inf_skip("%s: stressor will be skipped, "
 					"userfaultfd not supported\n",
 					args->name);
 			rc = EXIT_NOT_IMPLEMENTED;

@@ -133,7 +133,7 @@ static int stress_seccomp_supported(const char *name)
 
 	pid = fork();
 	if (pid < 0) {
-		pr_inf("%s stressor will be skipped, the check for seccomp "
+		pr_inf_skip("%s stressor will be skipped, the check for seccomp "
 			"failed, fork failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return -1;
@@ -145,7 +145,7 @@ static int stress_seccomp_supported(const char *name)
 		_exit(errno);
 	}
 	if (shim_waitpid(pid, &status, 0) < 0) {
-		pr_inf("%s stressor will be skipped, the check for seccomp "
+		pr_inf_skip("%s stressor will be skipped, the check for seccomp "
 			"failed, wait failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return -1;
@@ -153,11 +153,11 @@ static int stress_seccomp_supported(const char *name)
 	if (WIFEXITED(status) && (WEXITSTATUS(status) != 0)) {
 		errno = WEXITSTATUS(status);
 		if (errno == EACCES) {
-			pr_inf("%s stressor will be skipped, SECCOMP_SET_MODE_FILTER "
+			pr_inf_skip("%s stressor will be skipped, SECCOMP_SET_MODE_FILTER "
 				"requires CAP_SYS_ADMIN capability\n", name);
 			return -1;
 		} else {
-			pr_inf("%s: seccomp stressor will be skipped, "
+			pr_inf_skip("%s: seccomp stressor will be skipped, "
 				"SECCOMP_SET_MODE_FILTER is not supported, errno=%d (%s)\n",
 				name, errno, strerror(errno));
 		}

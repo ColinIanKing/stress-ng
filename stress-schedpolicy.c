@@ -75,7 +75,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 
 	if (SIZEOF_ARRAY(policies) == (0)) {
 		if (args->instance == 0) {
-			pr_inf("%s: no scheduling policies "
+			pr_inf_skip("%s: no scheduling policies "
 				"available, skipping test\n",
 				args->name);
 		}

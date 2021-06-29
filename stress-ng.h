@@ -935,6 +935,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_DEADLINE_GRUB  (0x00001000000000ULL)  /* --sched-reclaim */
 #define OPT_FLAGS_FTRACE	 (0x00002000000000ULL)  /* --ftrace */
 #define OPT_FLAGS_SEED		 (0x00004000000000ULL)  /* --seed */
+#define OPT_FLAGS_SKIP_SILENT	 (0x00008000000000ULL)  /* --skip-silent */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1373,7 +1374,9 @@ extern void pr_closelog(void);
 extern void pr_fail_check(int *rc);
 
 extern void pr_dbg(const char *fmt, ...)  FORMAT(printf, 1, 2);
+extern void pr_dbg_skip(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_inf(const char *fmt, ...)  FORMAT(printf, 1, 2);
+extern void pr_inf_skip(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_err(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_fail(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_tidy(const char *fmt, ...) FORMAT(printf, 1, 2);
@@ -3458,6 +3461,8 @@ typedef enum {
 	OPT_skiplist,
 	OPT_skiplist_ops,
 	OPT_skiplist_size,
+
+	OPT_skip_silent,
 
 	OPT_sleep,
 	OPT_sleep_ops,

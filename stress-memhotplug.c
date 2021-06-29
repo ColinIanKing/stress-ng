@@ -47,7 +47,7 @@ static const char sys_memory_path[] = "/sys/devices/system/memory";
 static int stress_memhotplug_supported(const char *name)
 {
 	if (!stress_check_capability(SHIM_CAP_SYS_ADMIN)) {
-		pr_inf("%s stressor will be skipped, "
+		pr_inf_skip("%s stressor will be skipped, "
 			"need to be running with CAP_SYS_ADMIN "
 			"rights for this stressor\n", name);
 		return -1;
@@ -167,7 +167,7 @@ static int stress_memhotplug(const stress_args_t *args)
 	dir = opendir(sys_memory_path);
 	if (!dir) {
 		if (args->instance == 0)
-			pr_inf("%s: %s not accessible, skipping stressor\n",
+			pr_inf_skip("%s: %s not accessible, skipping stressor\n",
 				args->name, sys_memory_path);
 		return EXIT_NOT_IMPLEMENTED;
 	}
@@ -180,7 +180,7 @@ static int stress_memhotplug(const stress_args_t *args)
 	}
 	if (n == 0) {
 		if (args->instance == 0)
-			pr_inf("%s: no hotplug memory entries found, skipping stressor\n",
+			pr_inf_skip("%s: no hotplug memory entries found, skipping stressor\n",
 				args->name);
 		(void)closedir(dir);
 		return EXIT_NOT_IMPLEMENTED;

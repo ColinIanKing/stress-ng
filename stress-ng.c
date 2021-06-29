@@ -772,6 +772,7 @@ static const struct option long_options[] = {
 	{ "skiplist",	1,	0,	OPT_skiplist },
 	{ "skiplist-ops",1,	0,	OPT_skiplist_ops },
 	{ "skiplist-size",1,	0,	OPT_skiplist_size },
+	{ "skip-silent",0,	0,	OPT_skip_silent },
 	{ "sleep",	1,	0,	OPT_sleep },
 	{ "sleep-ops",	1,	0,	OPT_sleep_ops },
 	{ "sleep-max",	1,	0,	OPT_sleep_max },
@@ -1008,6 +1009,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"sched-reclaim",        "set reclaim cpu bandwidth for deadline scheduler (Linux only)" },
 	{ NULL,		"seed N",		"set the random number generator seed with a 64 bit value" },
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
+	{ NULL,		"skip-silent",		"silently skip unimplemented stressors" },
 	{ NULL,		"stressors",		"show available stress tests" },
 #if defined(HAVE_SYSLOG_H)
 	{ NULL,		"syslog",		"log messages to the syslog" },
@@ -3111,6 +3113,9 @@ next_opt:
 			stress_get_processors(&g_opt_sequential);
 			stress_check_range("sequential", (uint64_t)g_opt_sequential,
 				MIN_SEQUENTIAL, MAX_SEQUENTIAL);
+			break;
+		case OPT_skip_silent:
+			g_opt_flags |= OPT_FLAGS_SKIP_SILENT;
 			break;
 		case OPT_stressors:
 			stress_show_stressor_names();
