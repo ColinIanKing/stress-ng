@@ -2943,7 +2943,7 @@ int stress_parse_opts(int argc, char **argv, const bool jobmode)
 		int c, option_index, ret;
 		size_t i;
 
-		opterr = (!jobmode)? opterr: 0;
+		opterr = (!jobmode) ? opterr : 0;
 
 next_opt:
 		if ((c = getopt_long(argc, argv, "?khMVvqnt:b:c:i:j:m:d:f:s:l:p:P:C:S:a:y:F:D:T:u:o:r:B:R:Y:x:",
@@ -3153,6 +3153,14 @@ next_opt:
 				(void)printf("Unknown option (%d)\n",c);
 			return EXIT_FAILURE;
 		}
+	}
+
+	if (optind < argc) {
+		printf("Error: unrecognised options:");
+		while (optind < argc)
+			printf(" %s", argv[optind++]);
+		printf("\n");
+		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }
