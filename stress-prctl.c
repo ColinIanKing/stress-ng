@@ -86,7 +86,8 @@ static const stress_help_t help[] = {
      defined(PR_SET_TAGGED_ADDR_CTRL) ||	\
      defined(PR_GET_IO_FLUSHER) ||		\
      defined(PR_SET_IO_FLUSHER) ||		\
-     defined(PR_PAC_RESET_KEYS)
+     defined(PR_PAC_RESET_KEYS) ||		\
+     defined(PR_SCHED_CORE)
 
 #if defined(PR_SET_MM) &&		\
     defined(PR_SET_MM_AUXV)
@@ -775,6 +776,41 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		ret = prctl(PR_SET_IO_FLUSHER, ret, 0, 0, 0);
 		(void)ret;
 #endif
+	}
+#endif
+
+#if defined(PR_SCHED_CORE) &&	\
+    defined(PR_SCHED_CORE_GET)	
+	{
+		unsigned long cookie = 0;
+		const pid_t bad_pid = stress_get_unused_pid_racy(false);
+
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0, PIDTYPE_PID, &cookie);
+		(void)ret;
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, getpid(), PIDTYPE_PID, &cookie);
+		(void)ret;
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, bad_pid, PIDTYPE_PID, &cookie);
+		(void)ret;
+	}
+#endif
+
+#if defined(PR_SCHED_CORE) &&		\
+    defined(PR_SCHED_CORE_CREATE) &&	\
+    defined(PR_SCHED_CORE_SHARE_TO)
+	{
+		const pid_t ppid = getppid();
+
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid, PIDTYPE_PID, 0);
+	}
+#endif
+
+#if defined(PR_SCHED_CORE) &&		\
+    defined(PR_SCHED_CORE_CREATE) &&	\
+    defined(PR_SCHED_CORE_SHARE_FROM)
+	{
+		const pid_t ppid = getppid();
+
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid, PIDTYPE_PID, 0);
 	}
 #endif
 
