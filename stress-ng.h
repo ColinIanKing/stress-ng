@@ -792,6 +792,10 @@ typedef long int __kernel_long_t;
 typedef unsigned long int __kernel_ulong_t;
 #endif
 
+#define STRESS_BIT_U(shift)	(1U << shift)
+#define STRESS_BIT_UL(shift)	(1UL << shift)
+#define STRESS_BIT_ULL(shift)	(1ULL << shift)
+
 /*
  *  cacheflush(2) cache options
  */
@@ -893,49 +897,49 @@ typedef unsigned long int __kernel_ulong_t;
 #define ABORT_FAILURES		(5)		/* Number of failures before we abort */
 
 /* debug output bitmasks */
-#define PR_ERROR		 (0x00000000000001ULL) 	/* Print errors */
-#define PR_INFO			 (0x00000000000002ULL) 	/* Print info */
-#define PR_DEBUG		 (0x00000000000004ULL) 	/* Print debug */
-#define PR_FAIL			 (0x00000000000008ULL) 	/* Print test failure message */
+#define PR_ERROR		 STRESS_BIT_ULL(0)	/* Print errors */
+#define PR_INFO			 STRESS_BIT_ULL(1)	/* Print info */
+#define PR_DEBUG		 STRESS_BIT_ULL(2) 	/* Print debug */
+#define PR_FAIL			 STRESS_BIT_ULL(3) 	/* Print test failure message */
 #define PR_ALL			 (PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
 
 /* Option bit masks */
-#define OPT_FLAGS_DRY_RUN	 (0x00000000000010ULL)	/* Don't actually run */
-#define OPT_FLAGS_METRICS	 (0x00000000000020ULL)	/* Dump metrics at end */
-#define OPT_FLAGS_RANDOM	 (0x00000000000040ULL)	/* Randomize */
-#define OPT_FLAGS_SET		 (0x00000000000080ULL)	/* Set if user specifies stress procs */
-#define OPT_FLAGS_KEEP_NAME	 (0x00000000000100ULL)	/* Keep stress names to stress-ng */
-#define OPT_FLAGS_METRICS_BRIEF	 (0x00000000000200ULL)	/* dump brief metrics */
-#define OPT_FLAGS_VERIFY	 (0x00000000000400ULL)	/* verify mode */
-#define OPT_FLAGS_MMAP_MADVISE	 (0x00000000000800ULL)	/* enable random madvise settings */
-#define OPT_FLAGS_MMAP_MINCORE	 (0x00000000001000ULL)	/* mincore force pages into mem */
-#define OPT_FLAGS_TIMES		 (0x00000000002000ULL)	/* user/system time summary */
-#define OPT_FLAGS_HDD_SYNC	 (0x00000000004000ULL)	/* HDD O_SYNC */
-#define OPT_FLAGS_HDD_DSYNC	 (0x00000000008000ULL)	/* HDD O_DYNC */
-#define OPT_FLAGS_HDD_DIRECT	 (0x00000000010000ULL)	/* HDD O_DIRECT */
-#define OPT_FLAGS_HDD_NOATIME	 (0x00000000020000ULL)	/* HDD O_NOATIME */
-#define OPT_FLAGS_MINIMIZE	 (0x00000000040000ULL)	/* Minimize */
-#define OPT_FLAGS_MAXIMIZE	 (0x00000000080000ULL)	/* Maximize */
-#define OPT_FLAGS_SYSLOG	 (0x00000000100000ULL)	/* log test progress to syslog */
-#define OPT_FLAGS_AGGRESSIVE	 (0x00000000200000ULL)	/* aggressive mode enabled */
-#define OPT_FLAGS_ALL		 (0x00000000400000ULL)	/* --all mode */
-#define OPT_FLAGS_SEQUENTIAL	 (0x00000000800000ULL)	/* --sequential mode */
-#define OPT_FLAGS_PERF_STATS	 (0x00000001000000ULL)	/* --perf stats mode */
-#define OPT_FLAGS_LOG_BRIEF	 (0x00000002000000ULL)	/* --log-brief */
-#define OPT_FLAGS_THERMAL_ZONES  (0x00000004000000ULL)	/* --tz thermal zones */
-#define OPT_FLAGS_SOCKET_NODELAY (0x00000008000000ULL)	/* --sock-nodelay */
-#define OPT_FLAGS_IGNITE_CPU	 (0x00000010000000ULL)	/* --cpu-ignite */
-#define OPT_FLAGS_PATHOLOGICAL	 (0x00000020000000ULL)	/* --pathological */
-#define OPT_FLAGS_NO_RAND_SEED	 (0x00000040000000ULL)	/* --no-rand-seed */
-#define OPT_FLAGS_THRASH	 (0x00000080000000ULL)	/* --thrash */
-#define OPT_FLAGS_OOMABLE	 (0x00000100000000ULL)	/* --oomable */
-#define OPT_FLAGS_ABORT		 (0x00000200000000ULL)	/* --abort */
-#define OPT_FLAGS_CPU_ONLINE_ALL (0x00000400000000ULL)	/* --cpu-online-all */
-#define OPT_FLAGS_TIMESTAMP	 (0x00000800000000ULL)	/* --timestamp */
-#define OPT_FLAGS_DEADLINE_GRUB  (0x00001000000000ULL)  /* --sched-reclaim */
-#define OPT_FLAGS_FTRACE	 (0x00002000000000ULL)  /* --ftrace */
-#define OPT_FLAGS_SEED		 (0x00004000000000ULL)  /* --seed */
-#define OPT_FLAGS_SKIP_SILENT	 (0x00008000000000ULL)  /* --skip-silent */
+#define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(4)	/* Don't actually run */
+#define OPT_FLAGS_METRICS	 STRESS_BIT_ULL(5)	/* Dump metrics at end */
+#define OPT_FLAGS_RANDOM	 STRESS_BIT_ULL(6)	/* Randomize */
+#define OPT_FLAGS_SET		 STRESS_BIT_ULL(7)	/* Set if user specifies stress procs */
+#define OPT_FLAGS_KEEP_NAME	 STRESS_BIT_ULL(8)	/* Keep stress names to stress-ng */
+#define OPT_FLAGS_METRICS_BRIEF	 STRESS_BIT_ULL(9)	/* dump brief metrics */
+#define OPT_FLAGS_VERIFY	 STRESS_BIT_ULL(10)	/* verify mode */
+#define OPT_FLAGS_MMAP_MADVISE	 STRESS_BIT_ULL(11)	/* enable random madvise settings */
+#define OPT_FLAGS_MMAP_MINCORE	 STRESS_BIT_ULL(12)	/* mincore force pages into mem */
+#define OPT_FLAGS_TIMES		 STRESS_BIT_ULL(13)	/* user/system time summary */
+#define OPT_FLAGS_HDD_SYNC	 STRESS_BIT_ULL(14)	/* HDD O_SYNC */
+#define OPT_FLAGS_HDD_DSYNC	 STRESS_BIT_ULL(15)	/* HDD O_DYNC */
+#define OPT_FLAGS_HDD_DIRECT	 STRESS_BIT_ULL(16)	/* HDD O_DIRECT */
+#define OPT_FLAGS_HDD_NOATIME	 STRESS_BIT_ULL(17)	/* HDD O_NOATIME */
+#define OPT_FLAGS_MINIMIZE	 STRESS_BIT_ULL(18)	/* Minimize */
+#define OPT_FLAGS_MAXIMIZE	 STRESS_BIT_ULL(19)	/* Maximize */
+#define OPT_FLAGS_SYSLOG	 STRESS_BIT_ULL(20)	/* log test progress to syslog */
+#define OPT_FLAGS_AGGRESSIVE	 STRESS_BIT_ULL(21)	/* aggressive mode enabled */
+#define OPT_FLAGS_ALL		 STRESS_BIT_ULL(22)	/* --all mode */
+#define OPT_FLAGS_SEQUENTIAL	 STRESS_BIT_ULL(23)	/* --sequential mode */
+#define OPT_FLAGS_PERF_STATS	 STRESS_BIT_ULL(24)	/* --perf stats mode */
+#define OPT_FLAGS_LOG_BRIEF	 STRESS_BIT_ULL(25)	/* --log-brief */
+#define OPT_FLAGS_THERMAL_ZONES  STRESS_BIT_ULL(26)	/* --tz thermal zones */
+#define OPT_FLAGS_SOCKET_NODELAY STRESS_BIT_ULL(27)	/* --sock-nodelay */
+#define OPT_FLAGS_IGNITE_CPU	 STRESS_BIT_ULL(28)	/* --cpu-ignite */
+#define OPT_FLAGS_PATHOLOGICAL	 STRESS_BIT_ULL(29)	/* --pathological */
+#define OPT_FLAGS_NO_RAND_SEED	 STRESS_BIT_ULL(30)	/* --no-rand-seed */
+#define OPT_FLAGS_THRASH	 STRESS_BIT_ULL(31)	/* --thrash */
+#define OPT_FLAGS_OOMABLE	 STRESS_BIT_ULL(32)	/* --oomable */
+#define OPT_FLAGS_ABORT		 STRESS_BIT_ULL(33)	/* --abort */
+#define OPT_FLAGS_CPU_ONLINE_ALL STRESS_BIT_ULL(34)	/* --cpu-online-all */
+#define OPT_FLAGS_TIMESTAMP	 STRESS_BIT_ULL(35)	/* --timestamp */
+#define OPT_FLAGS_DEADLINE_GRUB  STRESS_BIT_ULL(36)	/* --sched-reclaim */
+#define OPT_FLAGS_FTRACE	 STRESS_BIT_ULL(37)	/* --ftrace */
+#define OPT_FLAGS_SEED		 STRESS_BIT_ULL(38)	/* --seed */
+#define OPT_FLAGS_SKIP_SILENT	 STRESS_BIT_ULL(39)	/* --skip-silent */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -951,20 +955,20 @@ typedef unsigned long int __kernel_ulong_t;
 	 OPT_FLAGS_IGNITE_CPU)
 
 /* Stressor classes */
-#define CLASS_CPU		(0x00000001)	/* CPU only */
-#define CLASS_MEMORY		(0x00000002)	/* Memory thrashers */
-#define CLASS_CPU_CACHE		(0x00000004)	/* CPU cache */
-#define CLASS_IO		(0x00000008)	/* I/O read/writes etc */
-#define CLASS_NETWORK		(0x00000010)	/* Network, sockets, etc */
-#define CLASS_SCHEDULER		(0x00000020)	/* Scheduling */
-#define CLASS_VM		(0x00000040)	/* VM stress, big memory, swapping */
-#define CLASS_INTERRUPT		(0x00000080)	/* interrupt floods */
-#define CLASS_OS		(0x00000100)	/* generic OS tests */
-#define CLASS_PIPE_IO		(0x00000200)	/* pipe I/O */
-#define CLASS_FILESYSTEM	(0x00000400)	/* file system */
-#define CLASS_DEV		(0x00000800)	/* device (null, zero, etc) */
-#define CLASS_SECURITY		(0x00001000)	/* security APIs */
-#define CLASS_PATHOLOGICAL	(0x00002000)	/* can hang a machine */
+#define CLASS_CPU		STRESS_BIT_UL(0)	/* CPU only */
+#define CLASS_MEMORY		STRESS_BIT_UL(1)	/* Memory thrashers */
+#define CLASS_CPU_CACHE		STRESS_BIT_UL(2)	/* CPU cache */
+#define CLASS_IO		STRESS_BIT_UL(3)	/* I/O read/writes etc */
+#define CLASS_NETWORK		STRESS_BIT_UL(4)	/* Network, sockets, etc */
+#define CLASS_SCHEDULER		STRESS_BIT_UL(5)	/* Scheduling */
+#define CLASS_VM		STRESS_BIT_UL(6)	/* VM stress, big memory, swapping */
+#define CLASS_INTERRUPT		STRESS_BIT_UL(7)	/* interrupt floods */
+#define CLASS_OS		STRESS_BIT_UL(8)	/* generic OS tests */
+#define CLASS_PIPE_IO		STRESS_BIT_UL(9)	/* pipe I/O */
+#define CLASS_FILESYSTEM	STRESS_BIT_UL(10)	/* file system */
+#define CLASS_DEV		STRESS_BIT_UL(11)	/* device (null, zero, etc) */
+#define CLASS_SECURITY		STRESS_BIT_UL(12)	/* security APIs */
+#define CLASS_PATHOLOGICAL	STRESS_BIT_UL(13)	/* can hang a machine */
 
 
 /* Help information for options */
