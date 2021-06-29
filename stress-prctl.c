@@ -32,62 +32,65 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_SYS_PRCTL_H) &&		\
     defined(HAVE_PRCTL) &&			\
-    (defined(PR_CAP_AMBIENT) ||			\
-     defined(PR_CAPBSET_READ) ||		\
-     defined(PR_CAPBSET_DROP) ||		\
-     defined(PR_SET_CHILD_SUBREAPER) ||		\
-     defined(PR_GET_CHILD_SUBREAPER) ||		\
-     defined(PR_SET_DUMPABLE) ||		\
-     defined(PR_GET_DUMPABLE) ||		\
-     defined(PR_SET_ENDIAN) ||			\
-     defined(PR_GET_ENDIAN) ||			\
-     defined(PR_SET_FP_MODE) ||			\
-     defined(PR_GET_FP_MODE) ||			\
-     defined(PR_SET_FPEMU) ||			\
-     defined(PR_GET_FPEMU) ||			\
-     defined(PR_SET_FPEXC) ||			\
-     defined(PR_GET_FPEXC) ||			\
-     defined(PR_SET_KEEPCAPS) ||		\
-     defined(PR_GET_KEEPCAPS) ||		\
-     defined(PR_MCE_KILL) ||			\
-     defined(PR_MCE_KILL_GET) ||		\
-     defined(PR_SET_MM) ||			\
-     defined(PR_MPX_ENABLE_MANAGEMENT) ||	\
-     defined(PR_MPX_DISABLE_MANAGEMENT) ||	\
-     defined(PR_SET_NAME) ||			\
-     defined(PR_GET_NAME) ||			\
-     defined(PR_SET_NO_NEW_PRIVS) ||		\
-     defined(PR_GET_NO_NEW_PRIVS) ||		\
-     defined(PR_SET_PDEATHSIG) ||		\
-     defined(PR_GET_PDEATHSIG) ||		\
-     defined(PR_SET_PTRACER) ||			\
-     defined(PR_SET_SECCOMP) ||			\
-     defined(PR_GET_SECCOMP) ||			\
-     defined(PR_SET_SECUREBITS) ||		\
-     defined(PR_GET_SECUREBITS) ||		\
-     defined(PR_SET_THP_DISABLE) ||		\
-     defined(PR_TASK_PERF_EVENTS_DISABLE) ||	\
-     defined(PR_TASK_PERF_EVENTS_ENABLE) ||	\
-     defined(PR_GET_THP_DISABLE) ||		\
-     defined(PR_GET_TID_ADDRESS) ||		\
-     defined(PR_SET_TIMERSLACK) ||		\
-     defined(PR_GET_TIMERSLACK) ||		\
-     defined(PR_SET_TIMING) ||			\
-     defined(PR_GET_TIMING) ||			\
-     defined(PR_SET_TSC) ||			\
-     defined(PR_GET_TSC) ||			\
-     defined(PR_SET_UNALIGN) ||			\
-     defined(PR_GET_UNALIGN)) ||		\
-     defined(PR_GET_SPECULATION_CTRL) || 	\
-     defined(PR_SET_SPECULATION_CTRL) || 	\
-     defined(PR_SVE_GET_VL) ||			\
-     defined(PR_SVE_SET_VL) ||			\
-     defined(PR_GET_TAGGED_ADDR_CTRL) ||	\
-     defined(PR_SET_TAGGED_ADDR_CTRL) ||	\
-     defined(PR_GET_IO_FLUSHER) ||		\
-     defined(PR_SET_IO_FLUSHER) ||		\
-     defined(PR_PAC_RESET_KEYS) ||		\
-     defined(PR_SCHED_CORE)
+    (defined(PR_SET_PDEATHSIG) ||		/* 1 */ \
+     defined(PR_GET_PDEATHSIG) ||		/* 2 */	\
+     defined(PR_GET_DUMPABLE) ||		/* 3 */ \
+     defined(PR_SET_DUMPABLE) ||		/* 4 */ \
+     defined(PR_GET_UNALIGN)) ||		/* 5 */ \
+     defined(PR_SET_UNALIGN) ||			/* 6 */ \
+     defined(PR_GET_KEEPCAPS) ||		/* 7 */ \
+     defined(PR_SET_KEEPCAPS) ||		/* 8 */ \
+     defined(PR_GET_FPEMU) ||			/* 9 */ \
+     defined(PR_SET_FPEMU) ||			/* 10 */ \
+     defined(PR_GET_FPEXC) ||			/* 11 */ \
+     defined(PR_SET_FPEXC) ||			/* 12 */ \
+     defined(PR_GET_TIMING) ||			/* 13 */ \
+     defined(PR_SET_TIMING) ||			/* 14 */ \
+     defined(PR_SET_NAME) ||			/* 15 */ \
+     defined(PR_GET_NAME) ||			/* 16 */ \
+     defined(PR_GET_ENDIAN) ||			/* 19 */ \
+     defined(PR_SET_ENDIAN) ||			/* 20 */ \
+     defined(PR_GET_SECCOMP) ||			/* 21 */ \
+     defined(PR_SET_SECCOMP) ||			/* 22 */ \
+     defined(PR_CAPBSET_READ) ||		/* 23 */ \
+     defined(PR_CAPBSET_DROP) ||		/* 24 */ \
+     defined(PR_GET_TSC) ||			/* 25 */ \
+     defined(PR_SET_TSC) ||			/* 26 */ \
+     defined(PR_GET_SECUREBITS) ||		/* 27 */ \
+     defined(PR_SET_SECUREBITS) ||		/* 28 */ \
+     defined(PR_GET_TIMERSLACK) ||		/* 29 */ \
+     defined(PR_SET_TIMERSLACK) ||		/* 30 */ \
+     defined(PR_TASK_PERF_EVENTS_DISABLE) ||	/* 31 */ \
+     defined(PR_TASK_PERF_EVENTS_ENABLE) ||	/* 32 */ \
+     defined(PR_MCE_KILL) ||			/* 33 */ \
+     defined(PR_MCE_KILL_GET) ||		/* 34 */ \
+     defined(PR_SET_MM) ||			/* 35 */ \
+     defined(PR_SET_CHILD_SUBREAPER) ||		/* 36 */ \
+     defined(PR_GET_CHILD_SUBREAPER) ||		/* 37 */ \
+     defined(PR_SET_NO_NEW_PRIVS) ||		/* 38 */ \
+     defined(PR_GET_NO_NEW_PRIVS) ||		/* 39 */ \
+     defined(PR_GET_TID_ADDRESS) ||		/* 40 */ \
+     defined(PR_SET_THP_DISABLE) ||		/* 41 */ \
+     defined(PR_GET_THP_DISABLE) ||		/* 42 */ \
+     defined(PR_MPX_ENABLE_MANAGEMENT) ||	/* 43 */ \
+     defined(PR_MPX_DISABLE_MANAGEMENT) ||	/* 44 */ \
+     defined(PR_SET_FP_MODE) ||			/* 45 */ \
+     defined(PR_GET_FP_MODE) ||			/* 46 */ \
+     defined(PR_CAP_AMBIENT) ||			/* 47 */ \
+     defined(PR_SVE_SET_VL) ||			/* 50 */ \
+     defined(PR_SVE_GET_VL) ||			/* 51 */ \
+     defined(PR_GET_SPECULATION_CTRL) || 	/* 52 */ \
+     defined(PR_SET_SPECULATION_CTRL) || 	/* 53 */ \
+     defined(PR_PAC_RESET_KEYS) ||		/* 54 */ \
+     defined(PR_SET_TAGGED_ADDR_CTRL) ||	/* 55 */ \
+     defined(PR_GET_TAGGED_ADDR_CTRL) ||	/* 56 */ \
+     defined(PR_SET_IO_FLUSHER) ||		/* 57 */ \
+     defined(PR_GET_IO_FLUSHER) ||		/* 58 */ \
+     defined(PR_SET_SYSCALL_USER_DISPATCH) ||	/* 59 */ \
+     defined(PR_PAC_SET_ENABLED_KEYS) ||	/* 60 */ \
+     defined(PR_PAC_GET_ENABLED_KEYS) ||	/* 61 */ \
+     defined(PR_SCHED_CORE) ||			/* 62 */ \
+     defined(PR_SET_PTRACER)			/* 0x59616d61 */
 
 #if defined(PR_SET_MM) &&		\
     defined(PR_SET_MM_AUXV)
