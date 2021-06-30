@@ -3195,12 +3195,18 @@ static void stress_alloc_proc_resources(
  */
 static void stress_set_default_timeout(const uint64_t timeout)
 {
+	char *action;
+
 	if (g_opt_timeout == TIMEOUT_NOT_SET) {
 		g_opt_timeout = timeout;
-		pr_inf("defaulting to a %" PRIu64 " second%s run per stressor\n",
-			g_opt_timeout,
-			stress_duration_to_str((double)g_opt_timeout));
+		action = "defaulting";
+	} else {
+		action = "setting";
 	}
+
+	pr_inf("%s to a %" PRIu64 " second%s run per stressor\n",
+		action, g_opt_timeout,
+		stress_duration_to_str((double)g_opt_timeout));
 }
 
 /*
