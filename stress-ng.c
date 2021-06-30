@@ -3200,7 +3200,11 @@ static void stress_set_default_timeout(const uint64_t timeout)
 		pr_inf("defaulting to a %" PRIu64 " second%s run per stressor\n",
 			g_opt_timeout,
 			stress_duration_to_str((double)g_opt_timeout));
-	}
+	}else {
+		pr_inf("setting to a %" PRIu64 " second%s run per stressor\n",
+			g_opt_timeout,
+			stress_duration_to_str((double)g_opt_timeout));
+    }
 }
 
 /*
