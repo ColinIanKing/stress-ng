@@ -457,6 +457,10 @@
 #include <scsi/scsi.h>
 #endif
 
+#if defined(HAVE_SCSI_SCSI_IOCTL_H)
+#include <scsi/scsi_ioctl.h>
+#endif
+
 #if defined(HAVE_SCSI_SG_H)
 #include <scsi/sg.h>
 #endif
@@ -940,6 +944,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_FTRACE	 STRESS_BIT_ULL(37)	/* --ftrace */
 #define OPT_FLAGS_SEED		 STRESS_BIT_ULL(38)	/* --seed */
 #define OPT_FLAGS_SKIP_SILENT	 STRESS_BIT_ULL(39)	/* --skip-silent */
+#define OPT_FLAGS_SMART		 STRESS_BIT_ULL(40)	/* --smart */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -3472,6 +3477,8 @@ typedef enum {
 	OPT_sleep_ops,
 	OPT_sleep_max,
 
+	OPT_smart,
+
 	OPT_sock_ops,
 	OPT_sock_domain,
 	OPT_sock_nodelay,
@@ -4137,6 +4144,9 @@ extern WARN_UNUSED int32_t stress_set_vmstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
 extern void stress_misc_stats_set(stress_misc_stats_t *misc_stats,
 	const int idx, const char *description, const double value);
+
+extern void stress_smart_start(void);
+extern void stress_smart_stop(void);
 
 extern int stress_ftrace_start(void);
 extern void stress_ftrace_stop(void);

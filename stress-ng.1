@@ -349,6 +349,14 @@ silence messages that report that a stressor has been skipped because it
 requires features not supported by the system, such as unimplemented system
 calls, missing resources or processor specific features.
 .TP
+.B \-\-smart
+scan the block devices for changes S.M.A.R.T. statistics (Linux only). This
+requires root privileges to read the Self-Monitoring, Analysis and Reporting
+Technology data from all block devies and will report any changes in the
+statistics. One caveat is that device manufacturers provide different sets
+of data, the exact meaning of the data can be vague and the data may be
+inaccurate.
+.TP
 .B \-\-stressors
 output the names of the available stressors.
 .TP

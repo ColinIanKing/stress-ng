@@ -76,6 +76,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_perf_stats,	OPT_FLAGS_PERF_STATS },
 #endif
 	{ OPT_skip_silent,	OPT_FLAGS_SKIP_SILENT },
+	{ OPT_smart,		OPT_FLAGS_SMART },
 	{ OPT_sock_nodelay,	OPT_FLAGS_SOCKET_NODELAY },
 #if defined(HAVE_SYSLOG_H)
 	{ OPT_syslog,		OPT_FLAGS_SYSLOG },
@@ -777,6 +778,7 @@ static const struct option long_options[] = {
 	{ "sleep",	1,	0,	OPT_sleep },
 	{ "sleep-ops",	1,	0,	OPT_sleep_ops },
 	{ "sleep-max",	1,	0,	OPT_sleep_max },
+	{ "smart",	0,	0,	OPT_smart },
 	{ "sock",	1,	0,	OPT_sock },
 	{ "sock-domain",1,	0,	OPT_sock_domain },
 	{ "sock-nodelay",0,	0,	OPT_sock_nodelay },
@@ -1012,6 +1014,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"skip-silent",		"silently skip unimplemented stressors" },
 	{ NULL,		"stressors",		"show available stress tests" },
+	{ NULL,		"smarg",		"show changes in S.M.A.R.T. data" },
 #if defined(HAVE_SYSLOG_H)
 	{ NULL,		"syslog",		"log messages to the syslog" },
 #endif
@@ -3584,6 +3587,7 @@ int main(int argc, char **argv, char **envp)
 		stress_thrash_start();
 
 	stress_vmstat_start();
+	stress_smart_start();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_run_sequential(&duration,
@@ -3644,6 +3648,7 @@ int main(int argc, char **argv, char **envp)
 	 */
 	stress_times_dump(yaml, ticks_per_sec, duration);
 
+	stress_smart_stop();
 	stress_vmstat_stop();
 	stress_ftrace_stop();
 	stress_ftrace_free();
