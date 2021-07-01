@@ -390,31 +390,57 @@ static void stress_smart_data_diff(stress_smart_dev_t *dev)
 #endif
 
 /*
+ *  stress_smart_dev_filter()
+ * 	discard entries that don't look like device names
+ */
+static int stress_smart_dev_filter(const struct dirent *d)
+{
+	size_t len;
+
+	if ((d->d_name[0] == '\0') || (d->d_name[0] == '.'))
+		return 0;
+	len = strlen(d->d_name);
+	if (len < 1)		/* Also unlikely */
+		return 0;
+	if (isdigit((int)d->d_name[len - 1]))
+		return 0;
+
+	return 1;
+}
+
+static int stress_smart_dev_sort(const struct dirent **d1, const struct dirent **d2)
+{
+	int cmp;
+
+	cmp = strcmp((*d1)->d_name, (*d2)->d_name);
+	if (cmp < 0)
+		return -1;
+	if (cmp > 1)
+		return 1;
+	return 0;
+}
+
+/*
  *  stress_smart_read_devs()
  *	scan across block devices and populate a linked list
  *	of all devices that can supply S.M.A.R.T. data
  */
 static void stress_smart_read_devs(void)
 {
-	DIR *dir;
-	struct dirent *d;
+	struct dirent **devs;
+	size_t i, n;
 
 	smart_devs.dev = NULL;
 
-	dir = opendir("/dev");
-	while ((d = readdir(dir)) != NULL) {
+	n = (size_t)scandir("/dev", &devs, stress_smart_dev_filter, stress_smart_dev_sort);
+	if (n < 1)
+		return;
+
+	for (i = 0; i < n; i++) {
 		char path[PATH_MAX];
 		struct stat buf;
 		int ret;
-		size_t len;
-
-		if ((d->d_name[0] == '\0') || (d->d_name[0] == '.'))
-			continue;
-		len = strlen(d->d_name);
-		if (len < 1)		/* Also unlikely */
-			continue;
-		if (isdigit((int)d->d_name[len - 1]))
-			continue;
+		const struct dirent *d = devs[i];
 
 		(void)snprintf(path, sizeof(path), "/dev/%s", d->d_name);
 		ret = stat(path, &buf);
@@ -437,8 +463,9 @@ static void stress_smart_read_devs(void)
 				}
 			}
 		}
+		free(devs[i]);
 	}
-	closedir(dir);
+	free(devs);
 }
 
 /*
