@@ -3157,10 +3157,20 @@ next_opt:
 	}
 
 	if (optind < argc) {
+		bool unicode = false;
+
 		printf("Error: unrecognised options:");
-		while (optind < argc)
-			printf(" %s", argv[optind++]);
+		while (optind < argc) { 
+			printf(" %s", argv[optind]);
+			if (((argv[optind][0] & 0xff) == 0xe2) &&
+			    ((argv[optind][1] & 0xff) == 0x88)) {
+				unicode = true;
+			}
+			optind++;
+		}
 		printf("\n");
+		if (unicode)
+			printf("note: a Unicode minus sign was used instead of an ASCII '-' for an option\n");
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
