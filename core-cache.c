@@ -96,8 +96,6 @@ static int stress_get_string_from_file(
 static uint64_t stress_size_to_bytes(const char *str)
 {
 	uint64_t            bytes;
-	uint64_t            multiplier;
-	unsigned long int   value;
 	int                 ret;
 	char                sz;
 
@@ -106,7 +104,7 @@ static uint64_t stress_size_to_bytes(const char *str)
 		return 0;
 	}
 
-	ret = sscanf(str, "%lu%c", &value, &sz);
+	ret = sscanf(str, "%" SCNu64 "%c", &bytes, &sz);
 	if (ret != 2) {
 		pr_dbg("%s: failed to parse suffix from \"%s\"\n",
 			__func__, str);
@@ -115,25 +113,22 @@ static uint64_t stress_size_to_bytes(const char *str)
 
 	switch (sz) {
 	case 'B':
-		multiplier = 1;
+		/* no-op */
 		break;
 	case 'K':
-		multiplier = KB;
+		bytes *= KB;
 		break;
 	case 'M':
-		multiplier = MB;
+		bytes *= MB;
 		break;
 	case 'G':
-		multiplier = GB;
+		bytes *= GB;
 		break;
 	default:
 		pr_err("unable to convert '%c' size to bytes\n", sz);
 		bytes = 0;
-		goto out;
+		break;
 	}
-
-	bytes = value * multiplier;
-out:
 	return bytes;
 }
 
