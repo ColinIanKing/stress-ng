@@ -3159,7 +3159,7 @@ next_opt:
 	if (optind < argc) {
 		bool unicode = false;
 
-		printf("Error: unrecognised options:");
+		printf("Error: unrecognised option:");
 		while (optind < argc) { 
 			printf(" %s", argv[optind]);
 			if (((argv[optind][0] & 0xff) == 0xe2) &&
