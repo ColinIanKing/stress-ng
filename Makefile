@@ -272,6 +272,7 @@ STRESS_SRC = \
 	stress-sigtrap.c \
 	stress-skiplist.c \
 	stress-sleep.c \
+	stress-smi.c \
 	stress-sock.c \
 	stress-sockabuse.c \
 	stress-sockdiag.c \
@@ -345,6 +346,7 @@ CORE_SRC = \
 	core-mincore.c \
 	core-mlock.c \
 	core-mmap.c \
+	core-module.c \
 	core-mounts.c \
 	core-mwc.c \
 	core-net.c \

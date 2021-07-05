@@ -779,6 +779,8 @@ static const struct option long_options[] = {
 	{ "sleep-ops",	1,	0,	OPT_sleep_ops },
 	{ "sleep-max",	1,	0,	OPT_sleep_max },
 	{ "smart",	0,	0,	OPT_smart },
+	{ "smi",	1,	0,	OPT_smi },
+	{ "smi-ops",	1,	0,	OPT_smi_ops },
 	{ "sock",	1,	0,	OPT_sock },
 	{ "sock-domain",1,	0,	OPT_sock_domain },
 	{ "sock-nodelay",0,	0,	OPT_sock_nodelay },

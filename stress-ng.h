@@ -161,6 +161,10 @@
 #include <libgen.h>
 #endif
 
+#if defined(HAVE_LIBKMOD_H)
+#include <libkmod.h>
+#endif
+
 #if defined(HAVE_LINK_H)
 #include <link.h>
 #endif
@@ -2594,6 +2598,7 @@ typedef struct {
 	MACRO(sigtrap)		\
 	MACRO(skiplist)		\
 	MACRO(sleep)		\
+	MACRO(smi)		\
 	MACRO(sock)		\
 	MACRO(sockabuse)	\
 	MACRO(sockdiag)		\
@@ -3479,6 +3484,9 @@ typedef enum {
 
 	OPT_smart,
 
+	OPT_smi,
+	OPT_smi_ops,
+
 	OPT_sock_ops,
 	OPT_sock_domain,
 	OPT_sock_nodelay,
@@ -4152,6 +4160,11 @@ extern int stress_ftrace_start(void);
 extern void stress_ftrace_stop(void);
 extern void stress_ftrace_free(void);
 extern void stress_ftrace_add_pid(const pid_t pid);
+
+extern int stress_module_load(const char *name, const char *alias,
+	const char *options, bool *already_loaded);
+extern int stress_module_unload(const char *name, const char *alias,
+	const bool already_loaded);
 
 /*
  *  Indicate a stress test failed because of limited resources
