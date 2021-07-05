@@ -389,6 +389,7 @@ static void stress_smart_data_diff(stress_smart_dev_t *dev)
 
 #endif
 
+#if defined(HAVE_SMART)
 /*
  *  stress_smart_dev_filter()
  * 	discard entries that don't look like device names
@@ -420,7 +421,6 @@ static int stress_smart_dev_sort(const struct dirent **d1, const struct dirent *
 	return 0;
 }
 
-#if defined(HAVE_SMART)
 /*
  *  stress_smart_read_devs()
  *	scan across block devices and populate a linked list
