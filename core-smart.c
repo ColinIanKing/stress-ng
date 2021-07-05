@@ -420,6 +420,7 @@ static int stress_smart_dev_sort(const struct dirent **d1, const struct dirent *
 	return 0;
 }
 
+#if defined(HAVE_SMART)
 /*
  *  stress_smart_read_devs()
  *	scan across block devices and populate a linked list
@@ -467,6 +468,7 @@ static void stress_smart_read_devs(void)
 	}
 	free(devs);
 }
+#endif
 
 /*
  *  stress_smart_free_devs()
