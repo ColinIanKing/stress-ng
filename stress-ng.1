@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "Jun 24, 2021"
+.TH STRESS-NG 1 "Jul 5, 2021"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -3560,7 +3560,8 @@ power management (APM) port 0xb2. This requires the --pathological option and
 root privilege and is only implemented on x86 Linux platforms. This probably
 does not work in a virtualized environment.  The stressor will attempt to
 determine the time stolen by SMIs with some naive benchmarking.
-.TP \-\-smi\-ops N
+.TP
+.B \-\-smi\-ops N
 stop after N attempts to trigger the SMI.
 .TP
 .B \-S N, \-\-sock N
