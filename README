@@ -47,6 +47,7 @@ Debian, Ubuntu:
   * libsctp-dev
   * libatomic1
   * zlib1g-dev
+  * libkmod-dev
 
 RHEL, Fedora, Centos:
 
@@ -60,6 +61,7 @@ RHEL, Fedora, Centos:
   * lksctp-tools-devel
   * libatomic
   * zlib-devel
+  * kmod-devel
 
 RHEL, Fedora, Centos (static builds):
 
@@ -86,6 +88,7 @@ SUSE:
   * lksctp-tools-devel
   * libatomic1
   * zlib-devel
+  * libkmod-devel
 
 NOTE: the build will try to detect build dependencies and will build an image
 with functionality disabled if the support libraries are not installed.
