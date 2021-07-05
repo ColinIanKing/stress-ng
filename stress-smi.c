@@ -94,7 +94,7 @@ static int stress_smi_supported(const char *name)
                         "rights for this stressor\n", name);
                 return -1;
         }
-        if (!stress_check_capability(CAP_SYS_RAWIO)) {
+        if (!stress_check_capability(SHIM_CAP_SYS_RAWIO)) {
                 pr_inf_skip("%s stressor will be skipped, "
                         "need to be running with CAP_SYS_RAWIO "
                         "rights for this stressor\n", name);
