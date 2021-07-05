@@ -3553,6 +3553,16 @@ stop after N sleep bogo operations.
 start P threads per worker. The default is 1024, the maximum allowed is
 30000.
 .TP
+.B \-\-smi N
+start N workers that attempt to generate system management interrupts (SMIs)
+into the x86 ring -2 system management mode (SMM) by exercising the advanced
+power management (APM) port 0xb2. This requires the --pathological option and
+root privilege and is only implemented on x86 Linux platforms. This probably
+does not work in a virtualized environment.  The stressor will attempt to
+determine the time stolen by SMIs with some naive benchmarking.
+.TP \-\-smi\-ops N
+stop after N attempts to trigger the SMI.
+.TP
 .B \-S N, \-\-sock N
 start N workers that perform various socket stress activity. This involves a
 pair of client/server processes performing rapid connect, send and receives

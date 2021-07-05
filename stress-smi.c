@@ -37,7 +37,6 @@ static const stress_help_t help[] = {
 
 #define MSR_SMI_COUNT   (0x00000034)
 #define APM_PORT	(0xb2)
-#define SMI_LOOPS	(1000)
 
 /*
  *  stress_smi_zero_regs
@@ -195,11 +194,7 @@ static int stress_smi(const stress_args_t *args)
 	}
 
 	do {
-		register int i;
-
-		for (i = 0; i < SMI_LOOPS; i++) {
-			outb(1, 0xb2);
-		}
+		outb(1, 0xb2);
 		inc_counter(args);
 	} while (keep_stressing(args));
 
