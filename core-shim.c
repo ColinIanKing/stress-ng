@@ -2002,6 +2002,6 @@ int shim_modify_ldt(int func, void *ptr, unsigned long bytecount)
      defined(__NR_modify_ldt)
 	return (int)syscall(__NR_modify_ldt, func, ptr, bytecount);
 #else
-	return (int)syscall(0, func, ptr, bytecount);
+	return (int)shim_enosys(0, func, ptr, bytecount);
 #endif
 }
