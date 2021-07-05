@@ -195,6 +195,7 @@ int stress_module_unload(
 
 	pr_dbg("%s: module unloading not supported\n", name);
 
+	return -1;
 }
 
 #endif
