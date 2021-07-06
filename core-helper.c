@@ -775,7 +775,7 @@ uint64_t stress_uint64_zero(void)
  */
 static void stress_base36_encode_uint64(char dst[14], uint64_t val)
 {
-        static char b36[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+        static const char b36[] = "abcdefghijklmnopqrstuvwxyz0123456789";
         const int b = 36;
         char *ptr = dst;
 
