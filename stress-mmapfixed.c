@@ -189,7 +189,7 @@ next:
  */
 static int stress_mmapfixed(const stress_args_t *args)
 {
-	return stress_oomable_child(args, NULL, stress_mmapfixed_child, STRESS_OOMABLE_NORMAL);
+	return stress_oomable_child(args, NULL, stress_mmapfixed_child, STRESS_OOMABLE_QUIET);
 }
 
 stressor_info_t stress_mmapfixed_info = {
