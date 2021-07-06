@@ -38,10 +38,10 @@ typedef enum {
 #endif
 
 static const stress_generic_map_t cache_type_map[] = {
-	{"data"        , CACHE_TYPE_DATA},
-	{"instruction" , CACHE_TYPE_INSTRUCTION},
-	{"unified"     , CACHE_TYPE_UNIFIED},
-	{ NULL         , CACHE_TYPE_UNKNOWN}
+	{ "data",		CACHE_TYPE_DATA },
+	{ "instruction",	CACHE_TYPE_INSTRUCTION },
+	{ "unified",		CACHE_TYPE_UNIFIED },
+	{  NULL,		CACHE_TYPE_UNKNOWN }
 };
 
 /*
