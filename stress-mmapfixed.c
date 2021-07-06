@@ -37,6 +37,69 @@ static const stress_help_t help[] = {
 #endif
 #define MMAP_BOTTOM	(0x10000)
 
+#define PAGE_CHUNKS	(1024)
+
+/*
+ *  stress_mmapfixed_is_mapped_slow()
+ *	walk through region with mincore to see if any pages are mapped
+ */
+static bool stress_mmapfixed_is_mapped_slow(
+	void *addr,
+	size_t len,
+	const size_t page_size)
+{
+	unsigned char vec[PAGE_CHUNKS];
+	ssize_t n = len;
+
+	while (n > 0) {
+		size_t n_pages = len / page_size, sz;
+		int ret;
+		size_t j;
+
+		if (n_pages > PAGE_CHUNKS)
+			n_pages = PAGE_CHUNKS;
+
+		sz = n_pages * page_size;
+		n -= n_pages;
+
+		(void)memset(vec, 0, PAGE_CHUNKS);
+		ret = shim_mincore(addr, sz, vec);
+		if (ret == ENOSYS)
+			return false;	/* Dodgy, assume not in memory */
+
+		for (j = 0; j < n_pages; j++) {
+			if (vec[j])
+				return true;
+		}
+		addr = (void *)(((uintptr_t)addr) + sz);
+	}
+	return false;
+}
+
+/*
+ *  stress_mmapfixed_is_mapped()
+ *	check if region is memory mapped, try fast one mincore check first,
+ *	then msync, then use slower multiple mincore calls
+ */
+static bool stress_mmapfixed_is_mapped(
+	void *addr,
+	size_t len,
+	const size_t page_size)
+{
+	int ret;
+
+	if (len > (page_size * PAGE_CHUNKS))
+		return stress_mmapfixed_is_mapped_slow(addr, len, page_size);
+	ret = shim_msync(addr, len, 0);
+	if (ret == ENOSYS)
+		return stress_mmapfixed_is_mapped_slow(addr, len, page_size);
+	if (ret == 0)
+		return true;
+	if (errno == ENOMEM)
+		return false;
+	return stress_mmapfixed_is_mapped_slow(addr, len, page_size);
+}
+
 static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
@@ -77,8 +140,11 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 
 		if (!keep_stressing_flag())
 			break;
-		buf = (uint8_t *)mmap((void *)addr, sz,
-			PROT_READ, flags, -1, 0);
+
+		if (stress_mmapfixed_is_mapped((void *)addr, sz, page_size))
+			goto next;
+
+		buf = (uint8_t *)mmap((void *)addr, sz, PROT_READ, flags, -1, 0);
 		if (buf == MAP_FAILED)
 			goto next;
 
@@ -92,6 +158,8 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 			const uintptr_t newaddr = addr ^
 				((page_size << 3) | (page_size << 4));
 
+			if (stress_mmapfixed_is_mapped((void *)newaddr, sz, page_size))
+				goto unmap;
 			newbuf = mremap(buf, sz, sz,
 					MREMAP_FIXED | MREMAP_MAYMOVE,
 					(void *)newaddr);
@@ -101,6 +169,7 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 			(void)stress_madvise_random(buf, sz);
 		}
 #endif
+unmap:
 		(void)munmap((void *)buf, sz);
 		inc_counter(args);
 next:
