@@ -55,26 +55,26 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static inline int obsolete_futimesat(
 	int dir_fd,
 	const char *pathname,
-	const struct timeval times[2])
+	const struct timeval tv[2])
 {
 	int ret;
 
 #if defined(__NR_futimesat)
 	/* Try direct system call first */
-	ret = (int)syscall(__NR_futimesat, dir_fd, pathname, times);
+	ret = (int)syscall(__NR_futimesat, dir_fd, pathname, tv);
 	if ((ret == 0) || (errno != ENOSYS))
 		return ret;
 #endif
 #if defined(HAVE_FUTIMESAT)
 	/* Try libc variant next */
-	ret = (int)futimesat(dir_fd, pathname, times);
+	ret = (int)futimesat(dir_fd, pathname, tv);
 	if ((ret == 0) || (errno != ENOSYS))
 		return ret;
 #endif
 	/* Not available */
 	(void)dir_fd;
 	(void)pathname;
-	(void)times;
+	(void)tv;
 
 	errno = ENOSYS;
 	ret = -1;
@@ -87,25 +87,25 @@ static inline int obsolete_futimesat(
  *  obsolete_futimes()
  *	modern libc maps the obsolete futimes to utimes
  */
-static inline int obsolete_futimes(int fd, const struct timeval times[2])
+static inline int obsolete_futimes(int fd, const struct timeval tv[2])
 {
 	int ret;
 
 #if defined(__NR_futimes)
 	/* Try direct system call first */
-	ret = (int)syscall(__NR_futimet, fd, times);
+	ret = (int)syscall(__NR_futimet, fd, tv);
 	if ((ret == 0) || (errno != ENOSYS))
 		return ret;
 #endif
 #if defined(HAVE_FUTIMES)
 	/* Try libc variant next */
-	ret = (int)futimes(fd, times);
+	ret = (int)futimes(fd, tv);
 	if ((ret == 0) || (errno != ENOSYS))
 		return ret;
 #endif
 	/* Not available */
 	(void)fd;
-	(void)times;
+	(void)tv;
 
 	errno = ENOSYS;
 	ret = -1;
