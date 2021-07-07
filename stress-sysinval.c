@@ -1957,10 +1957,10 @@ static const stress_syscall_arg_values_t arg_values[] = {
  *	generate a simple hash on system call and call arguments
  */
 static unsigned long stress_syscall_hash(
-	const unsigned long syscall,
+	const unsigned long syscall_num,
 	const unsigned long args[6])
 {
-	unsigned long hash = syscall;
+	unsigned long hash = syscall_num;
 
 	ROR(hash);
 	ROR(hash);
@@ -2477,12 +2477,12 @@ static int stress_sysinval(const stress_args_t *args)
  	 *  the number of syscalls actually exercised
 	 */
 	for (i = 0; i < stress_syscall_args_sz; i++) {
-		unsigned long syscall = stress_syscall_args[i].syscall;
+		unsigned long syscall_num = stress_syscall_args[i].syscall;
 		size_t exercised = 0, unique = 0;
 		size_t j;
 
 		for (j = 0; j < stress_syscall_args_sz; j++) {
-			if (syscall == stress_syscall_args[j].syscall) {
+			if (syscall_num == stress_syscall_args[j].syscall) {
 				if (!syscall_unique[j]) {
 					syscall_unique[j] = true;
 					unique = true;
