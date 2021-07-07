@@ -445,25 +445,25 @@ static int stress_get_cpu_cache_sparc64(
 	}
 
 	for (i = 0; i < SIZEOF_ARRAY(cache_info); i++) {
-		const size_t index = cache_info[i].index;
+		const size_t idx = cache_info[i].index;
 		uint64_t value;
 
 		if (stress_get_cpu_cache_value(cpu_path, cache_info[i].filename, &value) < 0)
 			continue;
 
-		cpu->caches[index].type = cache_info[i].type;
-		cpu->caches[index].level = cache_info[i].level;
+		cpu->caches[idx].type = cache_info[i].type;
+		cpu->caches[idx].level = cache_info[i].level;
 		switch (cache_info[i].size_type) {
 		case CACHE_SIZE:
-			cpu->caches[index].size = value;
+			cpu->caches[idx].size = value;
 			valid = true;
 			break;
 		case CACHE_LINE_SIZE:
-			cpu->caches[index].line_size = (uint32_t)value;
+			cpu->caches[idx].line_size = (uint32_t)value;
 			valid = true;
 			break;
 		case CACHE_WAYS:
-			cpu->caches[index].size = (uint32_t)value;
+			cpu->caches[idx].size = (uint32_t)value;
 			valid = true;
 			break;
 		default:
