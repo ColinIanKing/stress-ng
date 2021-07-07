@@ -376,6 +376,8 @@ do_stress --epoll -1 --epoll-domain unix
 
 do_stress --eventfd -1 --eventfd-nonblock
 
+do_stress --fork 1 --fork-vm
+
 do_stress --itimer -1 --itimer-rand
 
 do_stress --lease -1 --lease-breakers 8
@@ -442,6 +444,9 @@ do_stress --udp-flood -1 --udp-flood-domain ipv4
 do_stress --udp-flood -1 --udp-flood-domain ipv6
 
 do_stress --utime -1 --utime-fsync
+
+do_stress --vfork 1 --vfork-vm
+do_stress --vforkmany 1 --vforkmany-vm
 
 do_stress --vm -1 --vm-keep
 do_stress --vm -1 --vm-locked
