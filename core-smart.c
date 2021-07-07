@@ -428,7 +428,7 @@ static int stress_smart_dev_sort(const struct dirent **d1, const struct dirent *
  */
 static void stress_smart_read_devs(void)
 {
-	struct dirent **devs;
+	struct dirent **devs = NULL;
 	size_t i, n;
 
 	smart_devs.dev = NULL;
