@@ -143,7 +143,7 @@ static int stress_link_generic(
 				{
 					char tmpfile[PATH_MAX], *filename;
 					char tmpdir[PATH_MAX], *dir;
-					int dirfd;
+					int dir_fd;
 
 					shim_strlcpy(tmpfile, newpath, sizeof(tmpfile));
 					filename = basename(tmpfile);
@@ -153,14 +153,14 @@ static int stress_link_generic(
 					/*
 					 *   Relatively naive readlinkat exercising
 					 */
-					dirfd = open(dir, O_DIRECTORY | O_RDONLY);
-					if (dirfd >= 0) {
-						rret = readlinkat(dirfd, filename, buf, sizeof(buf) - 1);
+					dir_fd = open(dir, O_DIRECTORY | O_RDONLY);
+					if (dir_fd >= 0) {
+						rret = readlinkat(dir_fd, filename, buf, sizeof(buf) - 1);
 						if ((rret < 0) && (errno != ENOSYS)) {
 							pr_fail("%s: readlinkat failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 						}
-						(void)close(dirfd);
+						(void)close(dir_fd);
 					}
 				}
 #endif

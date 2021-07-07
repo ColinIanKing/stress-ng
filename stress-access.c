@@ -125,14 +125,14 @@ static const int access_flags[] = {
  *	call number than revert to the libc implementation
  */
 #if defined(HAVE_FACCESSAT)
-static int shim_faccessat(int dirfd, const char *pathname, int mode, int flags)
+static int shim_faccessat(int dir_fd, const char *pathname, int mode, int flags)
 {
 #if defined(HAVE_FACCESSAT2)
-	return faccessat2(dirfd, pathname, mode, flags);
+	return faccessat2(dir_fd, pathname, mode, flags);
 #elif defined(__NR_faccessat2)
-	return (int)syscall(__NR_faccessat2, dirfd, pathname, mode, flags);
+	return (int)syscall(__NR_faccessat2, dir_fd, pathname, mode, flags);
 #else
-	return faccessat(dirfd, pathname, mode, flags);
+	return faccessat(dir_fd, pathname, mode, flags);
 #endif
 }
 #endif
@@ -210,7 +210,7 @@ static int stress_access(const stress_args_t *args)
 			}
 
 			/*
-			 *  Exercise bad dirfd
+			 *  Exercise bad dir_fd
 			 */
 			ret = shim_faccessat(bad_fd, filename, modes[i].access_mode, 0);
 			(void)ret;
@@ -227,7 +227,7 @@ static int stress_access(const stress_args_t *args)
 					errno, strerror(errno));
 			}
 			/*
-			 *  Exercise bad dirfd
+			 *  Exercise bad dir_fd
 			 */
 			ret = faccessat2(bad_fd, filename, modes[i].access_mode,
 				AT_SYMLINK_NOFOLLOW);

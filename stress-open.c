@@ -53,7 +53,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	modern libc maps the obsolete futimesat to utimesat
  */
 static inline int obsolete_futimesat(
-	int dirfd,
+	int dir_fd,
 	const char *pathname,
 	const struct timeval times[2])
 {
@@ -61,18 +61,18 @@ static inline int obsolete_futimesat(
 
 #if defined(__NR_futimesat)
 	/* Try direct system call first */
-	ret = (int)syscall(__NR_futimesat, dirfd, pathname, times);
+	ret = (int)syscall(__NR_futimesat, dir_fd, pathname, times);
 	if ((ret == 0) || (errno != ENOSYS))
 		return ret;
 #endif
 #if defined(HAVE_FUTIMESAT)
 	/* Try libc variant next */
-	ret = (int)futimesat(dirfd, pathname, times);
+	ret = (int)futimesat(dir_fd, pathname, times);
 	if ((ret == 0) || (errno != ENOSYS))
 		return ret;
 #endif
 	/* Not available */
-	(void)dirfd;
+	(void)dir_fd;
 	(void)pathname;
 	(void)times;
 
@@ -301,24 +301,24 @@ static int open_with_openat_cwd(void)
     defined(AT_FDCWD) &&	\
     defined(O_PATH) &&		\
     defined(O_DIRECTORY)
-static int open_with_openat_dirfd(void)
+static int open_with_openat_dir_fd(void)
 {
 	char filename[PATH_MAX];
-	int fd, dirfd;
+	int fd, dir_fd;
 
 	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
 		(int)getpid(), stress_mwc32());
 
-	dirfd = open_arg2(".", O_DIRECTORY | O_PATH);
-	if (dirfd < 0)
+	dir_fd = open_arg2(".", O_DIRECTORY | O_PATH);
+	if (dir_fd < 0)
 		return -1;
 
-	fd = openat(dirfd, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	fd = openat(dir_fd, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd >= 0) {
-		(void)obsolete_futimesat(dirfd, filename, NULL);
+		(void)obsolete_futimesat(dir_fd, filename, NULL);
 		(void)unlink(filename);
 	}
-	(void)close(dirfd);
+	(void)close(dir_fd);
 	return fd;
 }
 #endif
@@ -420,7 +420,7 @@ static stress_open_func_t open_funcs[] = {
     defined(AT_FDCWD) &&	\
     defined(O_PATH) &&		\
     defined(O_DIRECTORY)
-	open_with_openat_dirfd,
+	open_with_openat_dir_fd,
 #endif
 #if defined(HAVE_OPENAT2) &&		\
     defined(HAVE_LINUX_OPENAT2_H) &&	\

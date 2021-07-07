@@ -59,7 +59,7 @@ typedef int	shim_mode_t;
  *  stress_dir_sync()
  *	attempt to sync a directory
  */
-static inline void stress_dir_sync(const int dirfd)
+static inline void stress_dir_sync(const int dir_fd)
 {
 #if defined(O_DIRECTORY)
 	/*
@@ -68,9 +68,9 @@ static inline void stress_dir_sync(const int dirfd)
 	 *  this could be a directory too. So try and
 	 *  sync.
 	 */
-	(void)shim_fsync(dirfd);
+	(void)shim_fsync(dir_fd);
 #else
-	(void)dirfd;
+	(void)dir_fd;
 #endif
 }
 
@@ -78,18 +78,18 @@ static inline void stress_dir_sync(const int dirfd)
  *  stress_dir_flock()
  *	naive exercising of a flock on a directory fd
  */
-static inline void stress_dir_flock(const int dirfd)
+static inline void stress_dir_flock(const int dir_fd)
 {
 #if defined(HAVE_FLOCK) &&	\
     defined(LOCK_EX) &&		\
     defined(LOCK_UN) &&		\
     defined(O_DIRECTORY)
-	if (dirfd >= 0) {
-		if (flock(dirfd, LOCK_EX) == 0)
-			(void)flock(dirfd, LOCK_UN);
+	if (dir_fd >= 0) {
+		if (flock(dir_fd, LOCK_EX) == 0)
+			(void)flock(dir_fd, LOCK_UN);
 	}
 #else
-	(void)dirfd;
+	(void)dir_fd;
 #endif
 }
 
@@ -97,13 +97,13 @@ static inline void stress_dir_flock(const int dirfd)
  *  stress_dir_truncate()
  *	exercise illegal truncate call on directory fd
  */
-static inline void stress_dir_truncate(const char *path, const int dirfd)
+static inline void stress_dir_truncate(const char *path, const int dir_fd)
 {
 	int ret;
 
-	if (dirfd >= 0) {
+	if (dir_fd >= 0) {
 		/* Invalid ftruncate */
-		ret = ftruncate(dirfd, 0);
+		ret = ftruncate(dir_fd, 0);
 		(void)ret;
 	}
 
@@ -116,18 +116,18 @@ static inline void stress_dir_truncate(const char *path, const int dirfd)
  *  stress_dir_mmap()
  *	attempt to mmap a directory
  */
-static inline void stress_dir_mmap(const int dirfd, const size_t page_size)
+static inline void stress_dir_mmap(const int dir_fd, const size_t page_size)
 {
 #if defined(O_DIRECTORY)
-	if (dirfd >= 0) {
+	if (dir_fd >= 0) {
 		void *ptr;
 
-		ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, dirfd, 0);
+		ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, dir_fd, 0);
 		if (ptr != MAP_FAILED)
 			(void)munmap(ptr, page_size);
 	}
 #else
-	(void)dirfd;
+	(void)dir_fd;
 	(void)page_size;
 #endif
 }
@@ -186,7 +186,7 @@ static void stress_dir_tidy(
  *  stress_mkdir()
  *	exercise mdir/mkdirat calls
  */
-static int stress_mkdir(const int dirfd, const char *path, const int mode)
+static int stress_mkdir(const int dir_fd, const char *path, const int mode)
 {
 	int ret;
 
@@ -194,20 +194,20 @@ static int stress_mkdir(const int dirfd, const char *path, const int mode)
 	/*
 	 *  50% of the time use mkdirat rather than mkdir
 	 */
-	if ((dirfd >= 0) && stress_mwc1()) {
+	if ((dir_fd >= 0) && stress_mwc1()) {
 		char tmp[PATH_MAX], *filename;
 
 		(void)shim_strlcpy(tmp, path, sizeof(tmp));
 		filename = basename(tmp);
 
-		ret = mkdirat(dirfd, filename, (shim_mode_t)mode);
+		ret = mkdirat(dir_fd, filename, (shim_mode_t)mode);
 	} else {
 		ret = mkdir(path, (shim_mode_t)mode);
 	}
 #else
 	ret = mkdir(path, mode);
 #endif
-	(void)dirfd;
+	(void)dir_fd;
 
 	return ret;
 }
@@ -265,7 +265,7 @@ static int stress_dir(const stress_args_t *args)
 	int ret;
 	uint64_t dir_dirs = DEFAULT_DIR_DIRS;
 	char pathname[PATH_MAX];
-	int dirfd = -1;
+	int dir_fd = -1;
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	(void)stress_get_setting("dir-dirs", &dir_dirs);
@@ -275,16 +275,16 @@ static int stress_dir(const stress_args_t *args)
 		return exit_status(-ret);
 
 #if defined(O_DIRECTORY)
-	dirfd = open(pathname, O_DIRECTORY | O_RDONLY);
+	dir_fd = open(pathname, O_DIRECTORY | O_RDONLY);
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		uint64_t i, n = dir_dirs;
 
-		stress_dir_mmap(dirfd, args->page_size);
-		stress_dir_flock(dirfd);
-		stress_dir_truncate(pathname, dirfd);
+		stress_dir_mmap(dir_fd, args->page_size);
+		stress_dir_flock(dir_fd);
+		stress_dir_truncate(pathname, dir_fd);
 
 		for (i = 0; keep_stressing(args) && (i < n); i++) {
 			char path[PATH_MAX];
@@ -292,7 +292,7 @@ static int stress_dir(const stress_args_t *args)
 
 			(void)stress_temp_filename_args(args,
 				path, sizeof(path), gray_code);
-			if (stress_mkdir(dirfd, path, S_IRUSR | S_IWUSR) < 0) {
+			if (stress_mkdir(dir_fd, path, S_IRUSR | S_IWUSR) < 0) {
 				if ((errno != ENOSPC) &&
 				    (errno != ENOMEM) &&
 				    (errno != EMLINK)) {
@@ -315,7 +315,7 @@ static int stress_dir(const stress_args_t *args)
 
 		if (!keep_stressing(args))
 			break;
-		stress_dir_sync(dirfd);
+		stress_dir_sync(dir_fd);
 		(void)sync();
 
 		inc_counter(args);
@@ -330,8 +330,8 @@ static int stress_dir(const stress_args_t *args)
 	}
 
 #if defined(O_DIRECTORY)
-	if (dirfd >= 0)
-		(void)close(dirfd);
+	if (dir_fd >= 0)
+		(void)close(dir_fd);
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

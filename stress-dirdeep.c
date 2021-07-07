@@ -81,7 +81,7 @@ static void stress_dirdeep_make(
 	int ret;
 #if defined(HAVE_LINKAT) &&	\
     defined(O_DIRECTORY)
-	int dirfd;
+	int dir_fd;
 #endif
 	const uint64_t inodes_avail = stress_get_filesystem_available_inodes();
 
@@ -148,8 +148,8 @@ static void stress_dirdeep_make(
 #if defined(HAVE_LINKAT) &&	\
     defined(O_DIRECTORY)
 
-	dirfd = open(path, O_RDONLY | O_DIRECTORY);
-	if (dirfd >= 0) {
+	dir_fd = open(path, O_RDONLY | O_DIRECTORY);
+	if (dir_fd >= 0) {
 #if defined(AT_EMPTY_PATH) &&	\
     defined(O_PATH)
 		int pathfd;
@@ -158,13 +158,13 @@ static void stress_dirdeep_make(
 		/*
 		 *  Exercise linkat onto hardlink h
 		 */
-		ret = linkat(dirfd, "h", dirfd, "a", 0);
+		ret = linkat(dir_fd, "h", dir_fd, "a", 0);
 		(void)ret;
 #if defined(AT_SYMLINK_FOLLOW)
 		/*
 		 *  Exercise linkat AT_SYMLINK_FOLLOW onto hardlink h
 		 */
-		ret = linkat(dirfd, "h", dirfd, "b", AT_SYMLINK_FOLLOW);
+		ret = linkat(dir_fd, "h", dir_fd, "b", AT_SYMLINK_FOLLOW);
 		(void)ret;
 #endif
 #if defined(AT_EMPTY_PATH) &&	\
@@ -182,16 +182,16 @@ static void stress_dirdeep_make(
 			 * Need CAP_DAC_READ_SEARCH for this to work,
 			 * ignore return for now
 			 */
-			ret = linkat(pathfd, "", dirfd, "c", AT_EMPTY_PATH);
+			ret = linkat(pathfd, "", dir_fd, "c", AT_EMPTY_PATH);
 			(void)ret;
 			(void)close(pathfd);
 		}
 		path[len] = '\0';
 #endif
 #if defined(HAVE_UNLINKAT)
-		ret = linkat(dirfd, "h", dirfd, "u", 0);
+		ret = linkat(dir_fd, "h", dir_fd, "u", 0);
 		if (ret == 0) {
-			ret = unlinkat(dirfd, "u", 0);
+			ret = unlinkat(dir_fd, "u", 0);
 			(void)ret;
 		}
 #endif
@@ -201,8 +201,8 @@ static void stress_dirdeep_make(
 		 *  this could be a directory too. So try and
 		 *  sync.
 		 */
-		(void)shim_fsync(dirfd);
-		(void)close(dirfd);
+		(void)shim_fsync(dir_fd);
+		(void)close(dir_fd);
 	}
 #endif
 }
