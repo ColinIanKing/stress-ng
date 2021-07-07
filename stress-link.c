@@ -141,12 +141,12 @@ static int stress_link_generic(
 #if defined(O_DIRECTORY) &&	\
     defined(HAVE_READLINKAT)
 				{
-					char tmpfile[PATH_MAX], *filename;
+					char tmpfilename[PATH_MAX], *filename;
 					char tmpdir[PATH_MAX], *dir;
 					int dir_fd;
 
-					shim_strlcpy(tmpfile, newpath, sizeof(tmpfile));
-					filename = basename(tmpfile);
+					shim_strlcpy(tmpfilename, newpath, sizeof(tmpfilename));
+					filename = basename(tmpfilename);
 					shim_strlcpy(tmpdir, newpath, sizeof(tmpdir));
 					dir = dirname(tmpdir);
 
