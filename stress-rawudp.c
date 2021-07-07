@@ -88,7 +88,7 @@ static void NORETURN stress_rawudp_client(
 	char buf[PACKET_SIZE];
 	struct iphdr *ip = (struct iphdr *)buf;
 	struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct iphdr));
-	struct sockaddr_in sin;
+	struct sockaddr_in s_in;
 	int one = 1;
 
 	(void)setpgid(0, g_pgrp);
@@ -97,9 +97,9 @@ static void NORETURN stress_rawudp_client(
 
 	(void)memset(buf, 0, sizeof(buf));
 
-	sin.sin_family = AF_INET;
-	sin.sin_port = (in_port_t)port;
-	sin.sin_addr.s_addr = (in_addr_t)addr;
+	s_in.sin_family = AF_INET;
+	s_in.sin_port = (in_port_t)port;
+	s_in.sin_addr.s_addr = (in_addr_t)addr;
 
 	ip->ihl      = 5;	/* Header length in 32 bit words */
 	ip->version  = 4;	/* IPv4 */
@@ -135,7 +135,7 @@ static void NORETURN stress_rawudp_client(
 		ip->id = htons(id++);
 		ip->check = stress_ipv4_checksum((uint16_t *)buf, sizeof(struct iphdr) + sizeof(struct udphdr));
 
-		n = sendto(fd, buf, ip->tot_len, 0, (struct sockaddr *)&sin, sizeof(sin));
+		n = sendto(fd, buf, ip->tot_len, 0, (struct sockaddr *)&s_in, sizeof(s_in));
 		if (n < 0) {
 			pr_err("%s: raw socket sendto failed on port %d, errno=%d (%s)\n",
 				args->name, port, errno, strerror(errno));
@@ -163,7 +163,7 @@ static int stress_rawudp_server(
 	int fd;
 	socklen_t addr_len;
 	int rc = EXIT_SUCCESS;
-	struct sockaddr_in sin;
+	struct sockaddr_in s_in;
 	char buf[PACKET_SIZE];
 	const struct iphdr *ip = (struct iphdr *)buf;
 	const struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct iphdr));
@@ -179,12 +179,12 @@ static int stress_rawudp_server(
 		goto die;
 	}
 
-	sin.sin_family = AF_INET;
-	sin.sin_port = htons(port);
-	sin.sin_addr.s_addr = (in_addr_t)addr;
-	addr_len = (socklen_t)sizeof(sin);
+	s_in.sin_family = AF_INET;
+	s_in.sin_port = htons(port);
+	s_in.sin_addr.s_addr = (in_addr_t)addr;
+	addr_len = (socklen_t)sizeof(s_in);
 
-	if ((bind(fd, (struct sockaddr *)&sin, addr_len) < 0)) {
+	if ((bind(fd, (struct sockaddr *)&s_in, addr_len) < 0)) {
 		rc = exit_status(errno);
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
