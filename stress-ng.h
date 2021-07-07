@@ -3664,6 +3664,7 @@ typedef enum {
 
 	OPT_vforkmany,
 	OPT_vforkmany_ops,
+	OPT_vforkmany_vm,
 
 	OPT_vm_bytes,
 	OPT_vm_hang,
@@ -4209,6 +4210,7 @@ extern WARN_UNUSED int stress_parse_opts(int argc, char **argv,
 
 /* Memory tweaking */
 extern int stress_madvise_random(void *addr, const size_t length);
+extern void stress_madvise_pid_all_pages(const pid_t pid, const int advise);
 extern int stress_mincore_touch_pages(void *buf, const size_t buf_len);
 extern int stress_mincore_touch_pages_interruptible(void *buf,
 	const size_t buf_len);

@@ -95,7 +95,7 @@ static const int madvise_options[] = {
  *  stress_madvise_random()
  *	apply random madvise setting to a memory region
  */
-int  stress_madvise_random(void *addr, const size_t length)
+int stress_madvise_random(void *addr, const size_t length)
 {
 #if defined(HAVE_MADVISE)
 	if (g_opt_flags & OPT_FLAGS_MMAP_MADVISE) {
@@ -108,4 +108,43 @@ int  stress_madvise_random(void *addr, const size_t length)
 	(void)length;
 #endif
 	return 0;
+}
+
+/*
+ *  stress_madvise_pid_all_pages()
+ *	apply madvise advise to all pages in a progress
+ */
+void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
+{
+#if defined(HAVE_MADVISE) &&	\
+    defined(__linux__)
+	FILE *fp;
+	char path[PATH_MAX];
+	char buf[4096];
+
+	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
+
+	fp = fopen(path, "r");
+	if (!fp)
+		return;
+	while (fgets(buf, sizeof(buf), fp)) {
+		void *start, *end, *offset;
+		int major, minor, n, ret;
+		uint64_t inode;
+		char prot[5];
+
+		n = sscanf(buf, "%p-%p %4s %p %x:%x %" PRIu64 " %s\n",
+			&start, &end, prot, &offset, &major, &minor,
+			&inode, path);
+		if (n < 7)
+			continue;	/* bad sscanf data */
+		if (start >= end)
+			continue;	/* invalid addresse range */
+
+		ret = madvise(start, (size_t)(end - start), advise);
+		(void)ret;
+	}
+
+	(void)fclose(fp);
+#endif
 }

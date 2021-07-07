@@ -4120,6 +4120,12 @@ rapidly fills up the process table.
 .B \-\-vforkmany\-ops N
 stop vforkmany stressors after N vforks have been made.
 .TP
+.B \-\-vforkmany\-vm
+enable detrimental performance virtual memory advice using madvise on
+all pages of the vforked process. Where possible this will try to set
+every page in the new process with using madvise MADV_MERGEABLE,
+MADV_WILLNEED, MADV_HUGEPAGE and MADV_RANDOM flags. Linux only.
+.TP
 .B \-m N, \-\-vm N
 start N workers continuously calling mmap(2)/munmap(2) and writing to the
 allocated memory. Note that this can cause systems to trip the kernel OOM

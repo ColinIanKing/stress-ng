@@ -29,8 +29,18 @@
 static const stress_help_t help[] = {
 	{ NULL,	"vforkmany N",     "start N workers spawning many vfork children" },
 	{ NULL,	"vforkmany-ops N", "stop after spawning N vfork children" },
+	{ NULL, "vforkmany-vm",	   "enable extra virtual memory pressure" },
 	{ NULL,	NULL,		   NULL }
 };
+
+static int stress_set_vforkmany_vm(const char *opt)
+{
+	bool vm = true;
+
+	(void)opt;
+
+	return stress_set_setting("vforkmany-vm", TYPE_ID_BOOL, &vm);
+}
 
 /*
  *  vforkmany_wait()
@@ -65,6 +75,9 @@ static int stress_vforkmany(const stress_args_t *args)
 	static uint8_t *stack_sig;
 	static volatile bool *terminate;
 	static bool *terminate_mmap;
+	static bool vm = false;
+
+	(void)stress_get_setting("vforkmany-vm", &vm);
 
 	/* We should use an alternative signal stack */
 	stack_sig = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
@@ -136,6 +149,23 @@ fork_again:
 			(void)stress_mincore_touch_pages_interruptible(waste, WASTE_SIZE);
 		if (!keep_stressing_flag())
 			_exit(0);
+
+		if (vm) {
+			int flags = 0;
+
+#if defined(MADV_NORMAL)
+			flags |= MADV_NORMAL;
+#endif
+#if defined(MADV_HUGEPAGE)
+			flags |= MADV_HUGEPAGE;
+#endif
+#if defined(MADV_SEQUENTIAL)
+			flags |= MADV_SEQUENTIAL;
+#endif
+			if (flags)
+				stress_madvise_pid_all_pages(getpid(), flags);
+		}
+
 		do {
 			/*
 			 *  Force pid to be a register, if it's
@@ -175,6 +205,24 @@ STRESS_PRAGMA_POP
 				_exit(0);
 				goto vfork_again;
 			} else if (pid == 0) {
+				if (vm) {
+					int flags = 0;
+
+#if defined(MADV_MERGEABLE)
+					flags |= MADV_MERGEABLE;
+#endif
+#if defined(MADV_WILLNEED)
+					flags |= MADV_WILLNEED;
+#endif
+#if defined(MADV_HUGEPAGE)
+					flags |= MADV_HUGEPAGE;
+#endif
+#if defined(MADV_RANDOM)
+					flags |= MADV_RANDOM;
+#endif
+					if (flags)
+						stress_madvise_pid_all_pages(getpid(), flags);
+				}
 				if (waste != MAP_FAILED)
 					(void)stress_mincore_touch_pages_interruptible(waste, WASTE_SIZE);
 
@@ -235,8 +283,14 @@ tidy:
 	return EXIT_SUCCESS;
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_vforkmany_vm,	stress_set_vforkmany_vm },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_vforkmany_info = {
 	.stressor = stress_vforkmany,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
