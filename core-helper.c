@@ -828,13 +828,13 @@ int stress_temp_filename(
 	const uint32_t instance,
 	const uint64_t magic)
 {
-	char dirname[PATH_MAX];
+	char directoryname[PATH_MAX];
 	char filename[PATH_MAX];
 
-	(void)snprintf(dirname, sizeof(dirname),
+	(void)snprintf(directoryname, sizeof(directoryname),
 		"tmp-%s-%d-%" PRIu32,
 		name, (int)pid, instance);
-	stress_temp_hash_truncate(dirname);
+	stress_temp_hash_truncate(directoryname);
 
 	(void)snprintf(filename, sizeof(filename),
 		"%s-%d-%" PRIu32 "-%" PRIu64,
@@ -842,7 +842,7 @@ int stress_temp_filename(
 	stress_temp_hash_truncate(filename);
 
 	return snprintf(path, len, "%s/%s/%s",
-		stress_get_temp_path(), dirname, filename);
+		stress_get_temp_path(), directoryname, filename);
 }
 
 /*
@@ -870,15 +870,15 @@ int stress_temp_dir(
 	const pid_t pid,
 	const uint32_t instance)
 {
-	char dirname[256];
+	char directoryname[256];
 
-	(void)snprintf(dirname, sizeof(dirname),
+	(void)snprintf(directoryname, sizeof(directoryname),
 		"tmp-%s-%d-%" PRIu32,
 		name, (int)pid, instance);
-	stress_temp_hash_truncate(dirname);
+	stress_temp_hash_truncate(directoryname);
 
 	return snprintf(path, len, "%s/%s",
-		stress_get_temp_path(), dirname);
+		stress_get_temp_path(), directoryname);
 }
 
 /*
