@@ -28,6 +28,7 @@ static const stress_help_t fork_help[] = {
 	{ "f N","fork N",	"start N workers spinning on fork() and exit()" },
 	{ NULL,	"fork-ops N",	"stop after N fork bogo operations" },
 	{ NULL,	"fork-max P",	"create P workers per iteration, default is 1" },
+	{ NULL, "fork-vm",	"enable extra virtual memory pressure" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -35,6 +36,7 @@ static const stress_help_t vfork_help[] = {
 	{ NULL,	"vfork N",	"start N workers spinning on vfork() and exit()" },
 	{ NULL,	"vfork-ops N",	"stop after N vfork bogo operations" },
 	{ NULL,	"vfork-max P",	"create P processes per iteration, default is 1" },
+	{ NULL, "vfork-vm",	"enable extra virtual memory pressure" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -56,6 +58,19 @@ static int stress_set_fork_max(const char *opt)
 }
 
 /*
+ *  stress_set_fork_vm()
+ *	set fork-vm flag on
+ */
+static int stress_set_fork_vm(const char *opt)
+{
+	bool vm = true;
+
+	(void)opt;
+
+	return stress_set_setting("fork-vm", TYPE_ID_BOOL, &vm);
+}
+
+/*
  *  stress_set_vfork_max()
  *	set maximum number of vforks allowed
  */
@@ -67,6 +82,19 @@ static int stress_set_vfork_max(const char *opt)
 	stress_check_range("vfork-max", vfork_max,
 		MIN_VFORKS, MAX_VFORKS);
 	return stress_set_setting("vfork-max", TYPE_ID_UINT32, &vfork_max);
+}
+
+/*
+ *  stress_set_vfork_vm()
+ *	set vfork-vm flag on
+ */
+static int stress_set_vfork_vm(const char *opt)
+{
+	bool vm = true;
+
+	(void)opt;
+
+	return stress_set_setting("vfork-vm", TYPE_ID_BOOL, &vm);
 }
 
 typedef struct {
@@ -82,7 +110,8 @@ typedef struct {
 static int stress_fork_fn(
 	const stress_args_t *args,
 	const int which,
-	const uint32_t fork_max)
+	const uint32_t fork_max,
+	const bool vm)
 {
 	static fork_info_t info[MAX_FORKS];
 
@@ -136,6 +165,24 @@ STRESS_PRAGMA_POP
 				 */
 				if (setsid() != (pid_t) -1)
 					shim_vhangup();
+				if (vm) {
+					int flags = 0;
+
+#if defined(MADV_MERGEABLE)
+					flags |= MADV_MERGEABLE;
+#endif
+#if defined(MADV_WILLNEED)
+					flags |= MADV_WILLNEED;
+#endif
+#if defined(MADV_HUGEPAGE)
+					flags |= MADV_HUGEPAGE;
+#endif
+#if defined(MADV_RANDOM)
+					flags |= MADV_RANDOM;
+#endif
+					if (flags)
+						stress_madvise_pid_all_pages(getpid(), flags);
+				}
 				(void)shim_sched_yield();
 				_exit(0);
 			} else if (pid < 0) {
@@ -192,6 +239,9 @@ static int stress_fork(const stress_args_t *args)
 {
 	uint32_t fork_max = DEFAULT_FORKS;
 	int rc;
+	bool vm = false;
+
+	(void)stress_get_setting("fork-vm", &vm);
 
 	if (!stress_get_setting("fork-max", &fork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -201,9 +251,7 @@ static int stress_fork(const stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
-	rc = stress_fork_fn(args, STRESS_FORK, fork_max);
-
+	rc = stress_fork_fn(args, STRESS_FORK, fork_max, vm);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
@@ -220,8 +268,9 @@ static int stress_vfork(const stress_args_t *args)
 {
 	uint32_t vfork_max = DEFAULT_VFORKS;
 	int rc;
+	bool vm = false;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	(void)stress_get_setting("vfork-vm", &vm);
 
 	if (!stress_get_setting("vfork-max", &vfork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -230,8 +279,8 @@ static int stress_vfork(const stress_args_t *args)
 			vfork_max = MIN_VFORKS;
 	}
 
-	rc = stress_fork_fn(args, STRESS_VFORK, vfork_max);
-
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	rc = stress_fork_fn(args, STRESS_VFORK, vfork_max, vm);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
@@ -240,11 +289,13 @@ STRESS_PRAGMA_POP
 
 static const stress_opt_set_func_t fork_opt_set_funcs[] = {
 	{ OPT_fork_max,		stress_set_fork_max },
+	{ OPT_fork_vm,		stress_set_fork_vm },
 	{ 0,			NULL }
 };
 
 static const stress_opt_set_func_t vfork_opt_set_funcs[] = {
 	{ OPT_vfork_max,	stress_set_vfork_max },
+	{ OPT_vfork_vm,		stress_set_vfork_vm },
 	{ 0,			NULL }
 };
 

@@ -1573,6 +1573,12 @@ default is just 1; higher values will create many temporary zombie processes
 that are waiting to be reaped. One can potentially fill up the process
 table using high values for \-\-fork\-max and \-\-fork.
 .TP
+.B \-\-fork\-vm
+enable detrimental performance virtual memory advice using madvise on
+all pages of the forked process. Where possible this will try to set
+every page in the new process with using madvise MADV_MERGEABLE,
+MADV_WILLNEED, MADV_HUGEPAGE and MADV_RANDOM flags. Linux only.
+.TP
 .B \-\-fp\-error N
 start N workers that generate floating point exceptions. Computations are
 performed to force and check for the FE_DIVBYZERO, FE_INEXACT, FE_INVALID,
@@ -4110,6 +4116,12 @@ create P processes and then wait for them to exit per iteration. The default
 is just 1; higher values will create many temporary zombie processes that are
 waiting to be reaped. One can potentially fill up the process table using
 high values for \-\-vfork\-max and \-\-vfork.
+.TP
+.B \-\-vfork\-vm
+enable detrimental performance virtual memory advice using madvise on
+all pages of the vforked process. Where possible this will try to set
+every page in the new process with using madvise MADV_MERGEABLE,
+MADV_WILLNEED, MADV_HUGEPAGE and MADV_RANDOM flags. Linux only.
 .TP
 .B \-\-vforkmany N
 start N workers that spawn off a chain of vfork children until the process
