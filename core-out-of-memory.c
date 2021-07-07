@@ -189,7 +189,7 @@ int stress_oomable_child(
 	int ooms = 0;
 	int segvs = 0;
 	int buserrs = 0;
-	size_t signal = 0;
+	size_t signal_idx = 0;
 	const bool not_quiet = !(flag & STRESS_OOMABLE_QUIET);
 
 	/*
@@ -232,9 +232,9 @@ rewait:
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 
-			(void)kill(pid, signals[signal]);
-			if (signal < SIZEOF_ARRAY(signals))
-				signal++;
+			(void)kill(pid, signals[signal_idx]);
+			if (signal_idx < SIZEOF_ARRAY(signals))
+				signal_idx++;
 			else
 				goto report;
 
@@ -245,7 +245,7 @@ rewait:
 			 *  iteration until we give up and do
 			 *  the final SIGKILL
 			 */
-			if (signal > 1)
+			if (signal_idx > 1)
 				shim_usleep(500000);
 			goto rewait;
 		} else if (WIFSIGNALED(status)) {
@@ -260,7 +260,7 @@ rewait:
 			}
 
 			/* If we got killed by OOM killer, re-start */
-			if ((signals[signal] != SIGKILL) && (WTERMSIG(status) == SIGKILL)) {
+			if ((signals[signal_idx] != SIGKILL) && (WTERMSIG(status) == SIGKILL)) {
 				/*
 				 *  The --oomable flag was enabled, so
 				 *  the behaviour here is to no longer
