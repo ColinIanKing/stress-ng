@@ -56,9 +56,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  generate a unique large index position into a Judy array
  *  from a known small index
  */
-static inline Word_t gen_index(const Word_t index)
+static inline Word_t gen_index(const Word_t idx)
 {
-	return ((~index & 0xff) << 24) | (index & 0x00ffffff);
+	return ((~idx & 0xff) << 24) | (idx & 0x00ffffff);
 }
 
 /*
