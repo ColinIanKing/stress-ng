@@ -30,9 +30,13 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(STRESS_ARCH_X86) &&	\
-    defined(HAVE_LIBKMOD_H) &&  \
-    defined(HAVE_LIB_KMOD) &&   \
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_LIBKMOD_H) &&		\
+    defined(HAVE_LIB_KMOD) &&		\
+    defined(HAVE_CPUID_H) &&		\
+    defined(HAVE___GET_CPUID) &&	\
+    defined(HAVE_IOPORT) &&		\
+    defined(HAVE_SYS_IO_H) &&		\
     defined(__linux__)
 
 #define MSR_SMI_COUNT   (0x00000034)
