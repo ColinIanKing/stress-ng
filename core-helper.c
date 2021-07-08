@@ -1301,7 +1301,7 @@ ssize_t system_read(
  *      return true if 64 bit value n is prime
  *      http://en.wikipedia.org/wiki/Primality_test
  */
-static inline bool stress_is_prime64(const uint64_t n)
+bool stress_is_prime64(const uint64_t n)
 {
 	register uint64_t i, max;
 	double max_d;

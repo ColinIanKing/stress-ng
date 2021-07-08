@@ -195,10 +195,11 @@ STRESS_SRC = \
 	stress-mmapfixed.c \
 	stress-mmapfork.c \
 	stress-mmapmany.c \
+	stress-mq.c \
 	stress-mremap.c \
 	stress-msg.c \
 	stress-msync.c \
-	stress-mq.c \
+	stress-munmap.c \
 	stress-nanosleep.c \
 	stress-netdev.c \
 	stress-netlink-proc.c \

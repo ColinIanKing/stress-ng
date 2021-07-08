@@ -2743,13 +2743,24 @@ allocate N bytes for the memory mapped file, the default is 256MB. One
 can specify the size as % of total available memory or in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
+.B \-\-munmap N
+start N stressors that exercise unmapping of shared non-executable mapped
+regions of child processes (Linux only). The unmappings map shared memory regions page
+by page with a prime sized stride that creates many temporary mapping holes.
+One the unmappings are complete the child will exit and a new one is started.
+Note that this may trigger segmentation faults in the child process, these
+are handled where possible by forcing the child process to call _exit(2).
+.TP
+.B \-\-munmap\-ops N
+stop after N page unmappings.
+.TP
 .B \-\-nanosleep N
 start N workers that each run 256 pthreads that call nanosleep with random
 delays from 1 to 2^18 nanoseconds. This should exercise the high resolution
 timers and scheduler.
 .TP
 .B \-\-nanosleep\-ops N
-stop the nanosleep stressor after N bobo nanosleep operations.
+stop the nanosleep stressor after N bogo nanosleep operations.
 .TP
 .B \-\-netdev N
 start N workers that exercise various netdevice ioctl commands across

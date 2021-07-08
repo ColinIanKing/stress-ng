@@ -578,6 +578,8 @@ static const struct option long_options[] = {
 	{ "msync",	1,	0,	OPT_msync },
 	{ "msync-ops",	1,	0,	OPT_msync_ops },
 	{ "msync-bytes",1,	0,	OPT_msync_bytes },
+	{ "munmap",	1,	0,	OPT_munmap },
+	{ "munmap-ops",	1,	0,	OPT_munmap_ops },
 	{ "nanosleep",	1,	0,	OPT_nanosleep },
 	{ "nanosleep-ops",1,	0,	OPT_nanosleep_ops },
 	{ "netdev",	1,	0,	OPT_netdev },
