@@ -69,19 +69,6 @@ static inline int stress_smi_cpu_has_msr(void)
 }
 
 /*
- *  cpu_has_tsc()
- *
- */
-static inline int cpu_has_tsc(void)
-{
-	uint32_t a, b, c, d;
-
-	stress_smi_zero_regs(&a, &b, &c, &d);
-	__get_cpuid(1, &a, &b, &c, &d);
-	return d & (1 << 4);
-}
-
-/*
  *  stress_smi_supported()
  *      check if we can run this with SHIM_CAP_SYS_MODULE capability
  */
