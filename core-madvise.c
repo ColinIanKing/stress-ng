@@ -160,5 +160,8 @@ void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
 	}
 
 	(void)fclose(fp);
+#else
+	(void)pid;
+	(void)advise;
 #endif
 }
