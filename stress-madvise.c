@@ -318,7 +318,7 @@ static int stress_madvise(const stress_args_t *args)
 	const size_t sz = (4 *  MB) & ~(page_size - 1);
 	const pid_t pid = getpid();
 	int fd = -1;
-	int ret;
+	NOCLOBBER int ret;
 	NOCLOBBER int flags = MAP_PRIVATE;
 	NOCLOBBER int num_mem_retries = 0;
 	char filename[PATH_MAX];
