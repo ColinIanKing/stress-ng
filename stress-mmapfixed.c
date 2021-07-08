@@ -168,8 +168,8 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 
 			(void)stress_madvise_random(buf, sz);
 		}
-#endif
 unmap:
+#endif
 		(void)munmap((void *)buf, sz);
 		inc_counter(args);
 next:
