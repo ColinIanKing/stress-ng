@@ -1141,6 +1141,7 @@ static int stress_sock(const stress_args_t *args)
 	int socket_protocol = 0;
 #endif
 	int socket_zerocopy = false;
+	int rc = EXIT_SUCCESS;
 	const bool rt = stress_sock_kernel_rt();
 	char *mmap_buffer;
 
@@ -1179,19 +1180,16 @@ again:
 			socket_domain, socket_type, socket_protocol,
 			socket_port, rt, socket_zerocopy);
 		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
-		_exit(EXIT_SUCCESS);
+		_exit(rc);
 	} else {
-		int rc;
-
 		rc = stress_sock_server(args, mmap_buffer, pid, ppid, socket_opts,
 			socket_domain, socket_type, socket_protocol,
 			socket_port, rt, socket_zerocopy);
 		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
-		return rc;
 	}
+	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
