@@ -31,4 +31,6 @@ int main(void)
 	daddr_t addr = 0;
 
 	(void)addr;
+
+	return 0;
 }

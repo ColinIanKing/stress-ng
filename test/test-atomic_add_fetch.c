@@ -28,5 +28,7 @@ int main(int argc, char **argv)
 	int var;
 
 	__atomic_add_fetch(&var, 1, 0);
+
+	return 0;
 }
 

@@ -29,5 +29,7 @@ int main(int argc, char **argv)
 	uint16_t var;
 
 	__atomic_fetch_add_2(&var, 1, 0);
+
+	return 0;
 }
 

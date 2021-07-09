@@ -37,4 +37,6 @@ int main(void)
 	off64_t offset = 0;
 
 	(void)offset;
+
+	return 0;
 }

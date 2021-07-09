@@ -33,4 +33,6 @@ int main(void)
 	const ino64_t ino = 0;
 
 	(void)ino;
+
+	return 0;
 }

@@ -29,4 +29,6 @@
 int main(void)
 {
 	setpwent();
+
+	return 0;
 }
