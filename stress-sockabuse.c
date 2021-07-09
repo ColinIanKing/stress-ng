@@ -351,6 +351,7 @@ static int stress_sockabuse(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	int socket_port = DEFAULT_SOCKABUSE_PORT + (int)args->instance;
+	int rc = EXIT_SUCCESS;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, socket_port);
@@ -370,15 +371,14 @@ again:
 	} else if (pid == 0) {
 		stress_sockabuse_client(args, ppid,
 			socket_port);
-		_exit(EXIT_SUCCESS);
+		_exit(rc);
 	} else {
-		int rc;
 
 		rc = stress_sockabuse_server(args, pid, ppid,
 			socket_port);
 		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-		return rc;
 	}
+	return rc;
 }
 
 stressor_info_t stress_sockabuse_info = {
