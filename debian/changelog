@@ -1,3 +1,75 @@
+stress-ng (0.12.12-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-smi: move "us" time closer to the time
+  * stress-sock: Add return at end of stressor, cleans up cppcheck warning
+  * core-setting: remove commented out line
+  * stress-sockabuse: Add return at end of stressor, cleans up cppcheck
+    warning
+  * tests: add missing return at end of main
+  * Add build time check for __get_cpuid()
+  * stress-smi: remove tsc helper function, it is not required
+  * stress-madvise: add NOCLOBBER annotation on ret
+  * stress-mmapfixed: move unmap label inside #ifdef block
+  * core-madvise: voidify function args for systems that don't support
+    madvise
+  * Add new munmap stressor, exercises munmap and fault handling
+  * core-out-of-memory: rename signal to signal_idx to avoid name
+    shadowing
+  * core-helper: rename dirname to directoryname to avoid name shadowing
+  * core-cache: rename index to idx to avoid name shadowing
+  * stress-syscall: rename syscall to syscall_num avoid name shadowing
+  * stress-rawudp: rename sin to s_in avoid name shadowing
+  * stress-open: rename times to tv avoid name shadowing
+  * stress-link: rename tmpfile to tmpfilename avoid name shadowing
+  * stress-judy: rename index to idx to avoid name shadowing
+  * stress-*: rename dirfd to dir_fd to avoid name shadowing
+  * stress-branch: rename index to idx to avoid name shadowing
+  * kernel-coverage: add vm option variations of fork, vfork and
+    vforkmany
+  * stress-fork: add --fork-vm and --vfork-vm options to exercise VM more
+  * core-smart: ensure devs pointer is null
+  * stress-vforkmany: add --vforkmany-vm to exercise VM more
+  * stress-mmapfixes: use STRESS_OOMABLE_QUIET to silence faults
+  * stress-mmapfixed: only perform fixed mapping on unmapped pages
+  * core-helper: make static char array b36 const
+  * core-hash: make primes array const
+  * core-cache: format struct initialization in the coding style
+  * Manual: update date and fix smi formatting
+  * stress-smi: add smi extry in manual, make bogo-ops more frequent
+  * stress-smi: use SHIM_CAP_SYS_RAWIO instead on CAP_SYS_RAWIO
+  * test/test-libkmod: clean up test code
+  * core-smart: only define helpers for stress_smart_read_devs if
+    HAVE_SMART is defined
+  * core-shim: fix shim_modify_ldt no system call build issue
+  * README: Add kmod library package info
+  * core-smart: only define stress_smart_read_devs if HAVE_SMART is
+    defined
+  * core-module: return -1 for no-op module unload helper
+  * Add SMI stressor, trigger SMM calls and benchmark SMI duration
+  * stress-ng: remove space at end of the line
+  * Depluralize the options error warning
+  * Add Unicode minus check on invalid options
+  * core-cache: clean up parsing of cache size
+  * core-smart: use scandir to read devices and sort the devices too
+  * Add --smart option to dump S.M.A.R.T. device statistics changes
+  * stress-af-alg: expand crypto failure message
+  * Fix duration output missing when sequential mode
+  * stress-ng: fix typo "filed" -> "file"
+  * Move OPT_skip_silent to the non-arg lookup table
+  * arg parsing: print out unrecognized options
+  * Add bit shift helpers and use them for stress-ng mask flags
+  * stress-prctl: re-order PR_* macro check by #define value
+  * stress-prctl: add Linux 5.14 PR_SCHED_CORE prctl
+  * Add --skip-silent option to silent skip stress tests that can't
+    be invoked
+  * stress-clone: move shim wrapper of modify_ldt to core-shim
+  * stress-xattr: fix compare/assignment typo
+  * stress-maxtrix: ensure matrix_method_name is initialized to NULL
+  * stress-io-uring: perform 64 bit multiply to avoid 32 bit overflow
+
+ -- Colin King <colin.king@canonical.com>  Fri, 9 Jul 2021 09:32:15 +0100
+
 stress-ng (0.12.11-1) unstable; urgency=medium
 
   [John Kacur]
