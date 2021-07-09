@@ -160,8 +160,8 @@ static int stress_smi(const stress_args_t *args)
 	int ret, rc = EXIT_SUCCESS;
 	bool already_loaded = false;
 	bool read_msr_ok = true;
-	uint64_t s1 = 0, s2 = 0, smis;
-	double d1 = 0.0, d2 = 0.0, secs, rate, duration;
+	uint64_t s1 = 0;
+	double d1 = 0.0;
 	const int cpus = stress_get_processors_online();
 
 	if (args->instance == 0) {
@@ -195,18 +195,20 @@ static int stress_smi(const stress_args_t *args)
 	(void)ret;
 
 	if (args->instance == 0) {
-		d2 = stress_time_now();
+		uint64_t s2;
+		const double d2 = stress_time_now();
+
 		if (stress_smi_count(cpus, &s2) < 0)
 			read_msr_ok = false;
 
 		if (read_msr_ok) {
-			secs = d2 - d1;
-			smis = (s2 - s1) / cpus;
-			rate = (secs > 0.0) ? (double)smis / secs : 0.0;
-			duration = (rate > 0.0) ? 1000000.0 / rate : 0.0;
+			const double secs = d2 - d1;
+			const uint64_t smis = (s2 - s1) / cpus;
+			const double rate = (secs > 0.0) ? (double)smis / secs : 0.0;
+			const double duration = (rate > 0.0) ? 1000000.0 / rate : 0.0;
 
 			if ((secs > 0.0) && (duration > 0.0)) {
-				pr_inf("%s: %.2f SMIs per second per CPU (%.2f us per SMI)\n",
+				pr_inf("%s: %.2f SMIs per second per CPU (%.2fus per SMI)\n",
 					args->name, rate, duration);
 			} else {
 				pr_inf("%s: cannot determine SMI rate, data is not unreliable\n",
