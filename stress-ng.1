@@ -1385,7 +1385,7 @@ a wide range of system call numbers to see if it can break a system where these
 are not wired up correctly.  It also keeps track of system calls that exist
 (ones that don't return ENOSYS) so that it can focus on purely finding and
 exercising non-functional system calls. This stressor exercises system calls
-from 0 . .__NR_syscalls + 1024, random system calls within constrained in the
+from 0 to __NR_syscalls + 1024, random system calls within constrained in the
 ranges of 0 to 2^8, 2^16, 2^24, 2^32, 2^40, 2^48, 2^56 and 2^64 bits,
 high system call numbers and various other bit patterns to try to get wide good
 coverage. To keep the environment clean, each system call being tested runs
@@ -3863,7 +3863,7 @@ arguments that cause system calls to work successfully are also detected an
 blocklisted too.  Linux only.
 .TP
 .B \-\-sysinval-ops N
-stop systinval workers after N system call attempts.
+stop sysinval workers after N system call attempts.
 .TP
 .B \-\-sysfs N
 start N workers that recursively read files from /sys (Linux only).  This may
@@ -4674,7 +4674,8 @@ Default is 0 which creates and endless stream until stressor ends.
 .nf
 Values:
 0: creates an endless deflate stream until stressor stops
-n: creates an stream of n bytes over and over again. Each block will be closed with Z_STREAM_END.
+n: creates an stream of n bytes over and over again.
+   Each block will be closed with Z_STREAM_END.
 .fi
 .RE
 .TP
