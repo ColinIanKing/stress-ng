@@ -26,12 +26,34 @@
 
 #define STRESS_AFFINITY_PROCS	(16)
 
+typedef struct {
+	volatile uint32_t cpu;		/* Pinned CPU to use, in pin mode */
+	uint32_t cpus;			/* Number of CPUs available */
+	bool	 affinity_rand;		/* True if --affinity-rand set */
+	bool	 affinity_pin;		/* True if --affinity-pin set */
+	uint64_t affinity_delay;	/* Affinity nanosecond delay, 0 default */
+	uint64_t counters[0];		/* Child stressor bogo counters */
+} stress_affinity_info_t;
+
 static const stress_help_t help[] = {
 	{ NULL,	"affinity N",	 "start N workers that rapidly change CPU affinity" },
 	{ NULL,	"affinity-ops N","stop after N affinity bogo operations" },
 	{ NULL,	"affinity-rand", "change affinity randomly rather than sequentially" },
+	{ NULL, "affinity-delay","delay in nanoseconds between affinity changes" },
+	{ NULL, "affinity-pin", "keep per stressor threads pinned to same CPU" },
 	{ NULL,	NULL,		 NULL }
 };
+
+static int stress_set_affinity_delay(const char *opt)
+{
+	uint64_t affinity_delay;
+
+	affinity_delay = stress_get_uint64(opt);
+	stress_check_range("affinity-delay", affinity_delay,
+		0, STRESS_NANOSECOND);
+	return stress_set_setting("affinity-delay", TYPE_ID_UINT64, &affinity_delay);
+}
+
 
 static int stress_set_affinity_rand(const char *opt)
 {
@@ -41,7 +63,17 @@ static int stress_set_affinity_rand(const char *opt)
 	return stress_set_setting("affinity-rand", TYPE_ID_BOOL, &affinity_rand);
 }
 
+static int stress_set_affinity_pin(const char *opt)
+{
+	bool affinity_pin = true;
+
+	(void)opt;
+	return stress_set_setting("affinity-pin", TYPE_ID_BOOL, &affinity_pin);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_affinity_delay,	stress_set_affinity_delay },
+	{ OPT_affinity_pin,	stress_set_affinity_pin },
 	{ OPT_affinity_rand,    stress_set_affinity_rand },
 	{ 0,			NULL }
 };
@@ -78,7 +110,7 @@ static int stress_affinity_supported(const char *name)
 	return 0;
 }
 
-static void stress_affinity_reap(pid_t *pids)
+static void stress_affinity_reap(const pid_t *pids)
 {
 	size_t i;
 	const pid_t mypid = getpid();
@@ -130,16 +162,33 @@ static bool HOT OPTIMIZE3 affinity_keep_stressing(
                 (stress_affinity_racy_count(counters) < args->max_ops)));
 }
 
+/*
+ *  stress_affinity_spin_delay()
+ *	delay by delay nanoseconds, spinning on rescheduling
+ *	eat cpu cycles.
+ */
+static inline void stress_affinity_spin_delay(
+	const uint64_t delay,
+	stress_affinity_info_t *info)
+{
+	const uint32_t cpu = info->cpu;
+	const double end = stress_time_now() +
+		((double)delay / (double)STRESS_NANOSECOND);
+
+	while ((stress_time_now() < end) && (cpu == info->cpu))
+		shim_sched_yield();
+}
+
 static void stress_affinity_child(
 	const stress_args_t *args,
-	const bool affinity_rand,
-	const uint32_t cpus,
-	uint64_t *counters,
-	pid_t *pids,
-	size_t instance)
+	stress_affinity_info_t *info,
+	const pid_t *pids,
+	const size_t instance,
+	const bool pin_controller)
 {
 	uint32_t cpu = args->instance;
 	cpu_set_t mask0;
+	uint64_t *counters = info->counters;
 
 	CPU_ZERO(&mask0);
 
@@ -147,8 +196,22 @@ static void stress_affinity_child(
 		cpu_set_t mask;
 		int ret;
 
-		cpu = affinity_rand ? (stress_mwc32() >> 4) : cpu + 1;
-		cpu %= cpus;
+		cpu = info->affinity_rand ? (stress_mwc32() >> 4) : cpu + 1;
+		cpu %= info->cpus;
+
+		/*
+		 *  In pin mode stressor instance 0 controls the CPU
+		 *  to use, other instances use that CPU too
+		 */
+		if (info->affinity_pin) {
+			if (pin_controller) {
+				info->cpu = cpu;
+				shim_mb();
+			} else {
+				shim_mb();
+				cpu = info->cpu;
+			}
+		}
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);
 		if (sched_setaffinity(0, sizeof(mask), &mask) < 0) {
@@ -191,6 +254,9 @@ static void stress_affinity_child(
 		(void)ret;
 
 		counters[instance]++;
+
+		if (info->affinity_delay > 0)
+			stress_affinity_spin_delay(info->affinity_delay, info);
 	} while (affinity_keep_stressing(args, counters));
 
 	stress_affinity_reap(pids);
@@ -198,25 +264,30 @@ static void stress_affinity_child(
 
 static int stress_affinity(const stress_args_t *args)
 {
-	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
-	bool affinity_rand = false;
 	pid_t pids[STRESS_AFFINITY_PROCS];
 	size_t i;
-	uint64_t *counters;
-	size_t counters_sz = ((sizeof(*counters) * (STRESS_AFFINITY_PROCS)) + args->page_size)
-				& ~(args->page_size - 1);
+	stress_affinity_info_t *info;
+	size_t counters_sz = sizeof(info->counters[0]) * STRESS_AFFINITY_PROCS;
+	size_t info_sz = ((sizeof(*info) + counters_sz) + args->page_size) & ~(args->page_size - 1);
 
-	(void)stress_get_setting("affinity-rand", &affinity_rand);
-
-	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
+	info = (stress_affinity_info_t *)mmap(NULL, info_sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (!counters) {
+	if (info == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zd bytes for shared counters, skipping stressor\n",
-			args->name, counters_sz);
+			args->name, info_sz);
 		return EXIT_NO_RESOURCE;
 	}
 
 	(void)memset(pids, 0, sizeof(pids));
+
+	info->affinity_delay = 0;
+	info->affinity_pin = false;
+	info->affinity_rand = false;
+	info->cpus = (uint32_t)stress_get_processors_configured();
+
+	(void)stress_get_setting("affinity-delay", &info->affinity_delay);
+	(void)stress_get_setting("affinity-pin", &info->affinity_pin);
+	(void)stress_get_setting("affinity-rand", &info->affinity_rand);
 
 	/*
 	 *  process slots 1..STRESS_AFFINITY_PROCS are the children,
@@ -226,13 +297,13 @@ static int stress_affinity(const stress_args_t *args)
 		pids[i] = fork();
 
 		if (pids[i] == 0) {
-			stress_affinity_child(args, affinity_rand, cpus, counters, pids, i);
+			stress_affinity_child(args, info, pids, i, false);
 			_exit(EXIT_SUCCESS);
 		}
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	stress_affinity_child(args, affinity_rand, cpus, counters, pids, 0);
+	stress_affinity_child(args, info, pids, 0, true);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/*
@@ -246,9 +317,9 @@ static int stress_affinity(const stress_args_t *args)
 	 *  Set counter, this is always going to be >= the bogo_ops
 	 *  threshold because it is racy, but that is OK
 	 */
-	set_counter(args, stress_affinity_racy_count(counters));
+	set_counter(args, stress_affinity_racy_count(info->counters));
 
-	(void)munmap((void *)counters, counters_sz);
+	(void)munmap((void *)info, info_sz);
 
 	return EXIT_SUCCESS;
 }
