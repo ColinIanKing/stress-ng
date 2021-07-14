@@ -140,7 +140,7 @@ static void stress_io_uring_unmap_iovecs(stress_io_uring_file_t *io_uring_file)
 }
 
 /*
- *  Avoid GCCism of void * pointer aritmetic by casting to
+ *  Avoid GCCism of void * pointer arithmetic by casting to
  *  uint8_t *, doing the offset and then casting back to void *
  */
 #define VOID_ADDR_OFFSET(addr, offset)	\
