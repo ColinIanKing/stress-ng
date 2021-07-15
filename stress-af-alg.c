@@ -782,8 +782,9 @@ static int stress_af_alg(const stress_args_t *args)
 			args->name, proc_count);
 		pr_inf("%s: %d cryptographic algorithms in total (with defconfigs)\n",
 			args->name, count);
-		pr_inf("%s: %d cryptographic algorithms are internal and may be unused\n",
-			args->name, internal);
+		if (internal)
+			pr_inf("%s: %d cryptographic algorithms are internal and may be unused\n",
+				args->name, internal);
 		pr_unlock(&lock);
 	}
 
