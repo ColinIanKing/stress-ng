@@ -139,6 +139,14 @@ static int stress_mincore_touch_pages_generic(
  */
 int stress_mincore_touch_pages(void *buf, const size_t buf_len)
 {
+#if defined(MADV_POPULATE_READ) &&	\
+    defined(HAVE_MADVISE)
+	int ret;
+
+	ret = madvise(buf, buf_len, MADV_POPULATE_READ);
+	if (ret == 0)
+		return 0;
+#endif
 	return stress_mincore_touch_pages_generic(buf, buf_len, false);
 }
 
