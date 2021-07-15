@@ -128,6 +128,14 @@ static const int madvise_options[] = {
 #if defined(MADV_PROTECT)
 	MADV_PROTECT,
 #endif
+/* Linux 5.14 */
+#if defined(MADV_POPULATE_READ)
+	MADV_POPULATE_READ,
+#endif
+/* Linux 5.14 */
+#if defined(MADV_POPULATE_WRITE)
+	MADV_POPULATE_WRITE,
+#endif
 };
 
 /*
