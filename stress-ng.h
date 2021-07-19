@@ -4056,6 +4056,7 @@ extern WARN_UNUSED int32_t  stress_get_opt_ionice_class(const char *const str);
 /* Misc helper funcs */
 extern WARN_UNUSED size_t stress_sig_stack_size(void);
 extern WARN_UNUSED size_t stress_min_sig_stack_size(void);
+extern WARN_UNUSED size_t stress_min_pthread_stack_size(void);
 
 #define STRESS_SIGSTKSZ		(stress_sig_stack_size())
 #define STRESS_MINSIGSTKSZ	(stress_min_sig_stack_size())

@@ -2494,6 +2494,37 @@ size_t stress_min_sig_stack_size(void)
 	return (size_t)sz;
 }
 
+size_t stress_min_pthread_stack_size(void)
+{
+	static long sz = -1, min;
+
+	/* return cached copy */
+	if (sz > 0)
+		return sz;
+
+	min = stress_min_aux_sig_stack_size();
+#if defined(__SC_THREAD_STACK_MIN_VALUE)
+	sz = sysconf(__SC_THREAD_STACK_MIN_VALUE);
+	if (sz > min)
+		min = sz;
+#endif
+#if defined(_SC_THREAD_STACK_MIN_VALUE)
+	sz = sysconf(_SC_THREAD_STACK_MIN_VALUE);
+	if (sz > min)
+		min = sz;
+#endif
+#if defined(PTHREAD_STACK_MIN)
+	if (PTHREAD_STACK_MIN > min)
+		min = PTHREAD_STACK_MIN;
+#endif
+	if (8192 > min)
+		min = 8192;
+
+	sz = min;
+
+	return (size_t)sz;
+}
+
 /*
  *  stress_sig_handler_exit()
  *	signal handler that exits a process via _exit(0) for

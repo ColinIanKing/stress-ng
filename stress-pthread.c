@@ -69,12 +69,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_LIB_PTHREAD)
 
-/* Some systems such as GNU/HURD don't define PTHREAD_STACK_MIN */
-#if !defined(PTHREAD_STACK_MIN)
-#define PTHREAD_STACK_MIN		(16 * KB)
-#endif
-
-#define DEFAULT_STACK_MIN		(16 * KB)
+#define DEFAULT_STACK_MIN		(8 * KB)
 
 #if defined(HAVE_GET_ROBUST_LIST) &&	\
     defined(HAVE_LINUX_FUTEX_H)
@@ -404,11 +399,7 @@ static int stress_pthread(const stress_args_t *args)
 	stress_pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)
-#if DEFAULT_STACK_MIN == PTHREAD_STACK_MIN
-	const size_t stack_size = PTHREAD_STACK_MIN;
-#else
-	const size_t stack_size = STRESS_MAXIMUM(DEFAULT_STACK_MIN, PTHREAD_STACK_MIN);
-#endif
+	const size_t stack_size = STRESS_MAXIMUM(DEFAULT_STACK_MIN, stress_min_pthread_stack_size());
 #endif
 
 	keep_running_flag = true;
