@@ -788,11 +788,11 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		unsigned long cookie = 0;
 		const pid_t bad_pid = stress_get_unused_pid_racy(false);
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0, PIDTYPE_PID, &cookie);
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0, SHIM_PIDTYPE_PID, &cookie);
 		(void)ret;
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, getpid(), PIDTYPE_PID, &cookie);
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, getpid(), SHIM_PIDTYPE_PID, &cookie);
 		(void)ret;
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, bad_pid, PIDTYPE_PID, &cookie);
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, bad_pid, SHIM_PIDTYPE_PID, &cookie);
 		(void)ret;
 	}
 #endif
@@ -803,7 +803,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 	{
 		const pid_t ppid = getppid();
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid, PIDTYPE_PID, 0);
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid, SHIM_PIDTYPE_PID, 0);
 	}
 #endif
 
@@ -813,7 +813,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 	{
 		const pid_t ppid = getppid();
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid, PIDTYPE_PID, 0);
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid, SHIM_PIDTYPE_PID, 0);
 	}
 #endif
 

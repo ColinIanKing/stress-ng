@@ -4426,6 +4426,15 @@ struct shim_timex {
 };
 #endif
 
+/* linux/pid.h */
+enum shim_pid_type {
+	SHIM_PIDTYPE_PID,
+	SHIM_PIDTYPE_TGID,
+	SHIM_PIDTYPE_PGID,
+	SHIM_PIDTYPE_SID,
+	SHIM_PIDTYPE_MAX,
+};
+
 /*
  *  shim_unconstify_ptr()
  *      some older system calls require non-const void *
