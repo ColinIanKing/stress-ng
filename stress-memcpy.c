@@ -44,45 +44,55 @@ typedef struct {
 	const stress_memcpy_func func;
 } stress_memcpy_method_info_t;
 
-static NOINLINE void *test_memcpy(void *dest, const void *src, size_t n)
+static NOINLINE OPTIMIZE3 void *test_memcpy(void *dest, const void *src, size_t n)
 {
 	return memcpy(dest, src, n);
 }
 
-static NOINLINE void *test_memmove(void *dest, const void *src, size_t n)
+static NOINLINE OPTIMIZE3 void *test_memmove(void *dest, const void *src, size_t n)
 {
 	return memmove(dest, src, n);
 }
 
-static inline void *test_naive_memcpy(void *dest, const void *src, size_t n)
-{
-	register size_t i;
-	register char *cdest = (char *)dest;
-	register const char *csrc = (const char *)src;
+#define TEST_NAIVE_MEMCPY(name, hint)					\
+static hint void *name(void *dest, const void *src, size_t n)		\
+{									\
+	register size_t i;						\
+	register char *cdest = (char *)dest;				\
+	register const char *csrc = (const char *)src;			\
+									\
+	for (i = 0; i < n; i++)						\
+		*(cdest++) = *(csrc++);					\
+	return dest;							\
+}									\
 
-	for (i = 0; i < n; i++)
-		*(cdest++) = *(csrc++);
-	return dest;
+TEST_NAIVE_MEMCPY(test_naive_memcpy, NOINLINE)
+TEST_NAIVE_MEMCPY(test_naive_memcpy_o0, NOINLINE OPTIMIZE0)
+TEST_NAIVE_MEMCPY(test_naive_memcpy_o3, NOINLINE OPTIMIZE3 TARGET_CLONES)
+
+#define TEST_NAIVE_MEMMOVE(name, hint)					\
+static hint void *name(void *dest, const void *src, size_t n)		\
+{									\
+	register size_t i;						\
+	register char *cdest = (char *)dest;				\
+	register const char *csrc = (const char *)src;			\
+									\
+	if (dest < src) {						\
+		for (i = 0; i < n; i++)					\
+			*(cdest++) = *(csrc++);				\
+	} else {							\
+		csrc += n;						\
+		cdest += n;						\
+									\
+		for (i = 0; i < n; i++)					\
+			*(--cdest) = *(--csrc);				\
+	}								\
+	return dest;							\
 }
 
-static inline void *test_naive_memmove(void *dest, const void *src, size_t n)
-{
-	register size_t i;
-	register char *cdest = (char *)dest;
-	register const char *csrc = (const char *)src;
-
-	if (dest < src) {
-		for (i = 0; i < n; i++)
-			*(cdest++) = *(csrc++);
-	} else {
-		csrc += n;
-		cdest += n;
-
-		for (i = 0; i < n; i++)
-			*(--cdest) = *(--csrc);
-	}
-	return dest;
-}
+TEST_NAIVE_MEMMOVE(test_naive_memmove, NOINLINE)
+TEST_NAIVE_MEMMOVE(test_naive_memmove_o0, NOINLINE OPTIMIZE0)
+TEST_NAIVE_MEMMOVE(test_naive_memmove_o3, NOINLINE OPTIMIZE3 TARGET_CLONES)
 
 static NOINLINE void stress_memcpy_libc(
 	stress_buffer_t *b,
@@ -133,21 +143,26 @@ static NOINLINE void stress_memcpy_builtin(
 #endif
 }
 
-static NOINLINE void stress_memcpy_naive(
-	stress_buffer_t *b,
-	uint8_t *b_str,
-	uint8_t *str_shared,
-	uint8_t *aligned_buf)
-{
-	(void)test_naive_memcpy(aligned_buf, str_shared, STR_SHARED_SIZE);
-	(void)test_naive_memcpy(str_shared, aligned_buf, STR_SHARED_SIZE / 2);
-	(void)test_naive_memmove(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
-	(void)test_naive_memcpy(b_str, b, STR_SHARED_SIZE);
-	(void)test_naive_memmove(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
-	(void)test_naive_memcpy(b, b_str, STR_SHARED_SIZE);
-	(void)test_naive_memmove(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
-	(void)test_naive_memmove(aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
+#define STRESS_MEMCPY_NAIVE(name, cpy, move)				\
+static NOINLINE void name(						\
+	stress_buffer_t *b,						\
+	uint8_t *b_str,							\
+	uint8_t *str_shared,						\
+	uint8_t *aligned_buf)						\
+{									\
+	(void)cpy(aligned_buf, str_shared, STR_SHARED_SIZE);		\
+	(void)cpy(str_shared, aligned_buf, STR_SHARED_SIZE / 2);	\
+	(void)move(aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);\
+	(void)cpy(b_str, b, STR_SHARED_SIZE);				\
+	(void)move(aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);\
+	(void)cpy(b, b_str, STR_SHARED_SIZE);				\
+	(void)move(aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);	\
+	(void)move(aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);	\
 }
+
+STRESS_MEMCPY_NAIVE(stress_memcpy_naive, test_naive_memcpy, test_naive_memmove)
+STRESS_MEMCPY_NAIVE(stress_memcpy_naive_o0, test_naive_memcpy_o0, test_naive_memmove_o0)
+STRESS_MEMCPY_NAIVE(stress_memcpy_naive_o3, test_naive_memcpy_o3, test_naive_memmove_o3)
 
 static NOINLINE void stress_memcpy_all(
 	stress_buffer_t *b,
@@ -178,6 +193,8 @@ static const stress_memcpy_method_info_t stress_memcpy_methods[] = {
 	{ "libc",	stress_memcpy_libc },
 	{ "builtin",	stress_memcpy_builtin },
 	{ "naive",      stress_memcpy_naive },
+	{ "naive_o0",	stress_memcpy_naive_o0 },
+	{ "naive_o3",	stress_memcpy_naive_o3 },
 	{ NULL,         NULL }
 };
 

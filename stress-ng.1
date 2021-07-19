@@ -2387,7 +2387,15 @@ builtin	T{
 use the compiler built in optimized memcpy and memmove functions
 T}
 naive	T{
+use naive byte by byte copying and memory moving build with default
+compiler optimization flags
+T}
+naive_o0	T{
 use unoptimized naive byte by byte copying and memory moving
+T}
+naive_o3	T{
+use optimized naive byte by byte copying and memory moving build with -O3
+optimization and where possible use CPU specific optimizations
 T}
 .TE
 .TP
