@@ -58,6 +58,80 @@ typedef complex float		stress_complex_float_t;
 typedef complex double		stress_complex_double_t;
 typedef complex long double	stress_complex_long_double_t;
 
+static inline float stress_mwcfloat(void)
+{
+	const uint32_t r = stress_mwc32();
+
+	return (float)r / (float)(0xffffffffUL);
+}
+
+static inline double stress_mwcdouble(void)
+{
+	const uint64_t r = stress_mwc64();
+
+	return (double)r / (double)(0xffffffffffffffffULL);
+}
+
+#define stress_funccall_type(type, rndfunc)				\
+static void NOINLINE stress_funccall_ ## type(const stress_args_t *args);	\
+									\
+static void NOINLINE stress_funccall_ ## type(const stress_args_t *args)	\
+{									\
+	register int ii;						\
+	type a, b, c, d, e, f, g, h, i;					\
+									\
+	a = rndfunc();							\
+	b = rndfunc();							\
+	c = rndfunc();							\
+	d = rndfunc();							\
+	e = rndfunc();							\
+	f = rndfunc();							\
+	g = rndfunc();							\
+	h = rndfunc();							\
+	i = rndfunc();							\
+									\
+	do {								\
+		for (ii = 0; ii < 1000; ii++) {				\
+			type res = 					\
+			(stress_funccall_ ## type ## _1(a) + 		\
+			 stress_funccall_ ## type ## _2(a, b) +		\
+			 stress_funccall_ ## type ## _3(a, b,		\
+				c) +					\
+			 stress_funccall_ ## type ## _4(a, b, 		\
+				c, d) + 				\
+			 stress_funccall_ ## type ## _5(a, b,		\
+				c, d, e) +				\
+			 stress_funccall_ ## type ## _6(a, b,		\
+				c, d, e, f) + 				\
+			 stress_funccall_ ## type ## _7(a, b,		\
+				c, d, e, f, g) + 			\
+			 stress_funccall_ ## type ## _8(a, b,		\
+				c, d, e, f, g, h) + 			\
+			 stress_funccall_ ## type ## _9(a, b,		\
+				c, d, e, f, g, h, i));			\
+									\
+			res += 						\
+			(stress_funcdeep_ ## type ## _2(a, b) +		\
+			 stress_funcdeep_ ## type ## _3(a, b,		\
+				c) + 					\
+			 stress_funcdeep_ ## type ## _4(a, b, 		\
+				c, d) +					\
+			 stress_funcdeep_ ## type ## _5(a, b,		\
+				c, d, e) +				\
+			 stress_funcdeep_ ## type ## _6(a, b,		\
+				c, d, e, f) +				\
+			 stress_funcdeep_ ## type ## _7(a, b,		\
+				c, d, e, f, g) +			\
+			 stress_funcdeep_ ## type ## _8(a, b,		\
+				c, d, e, f, g, h) +			\
+			 stress_funcdeep_ ## type ## _9(a, b,		\
+				c, d, e, f, g, h, i));			\
+			type ## _put(res);				\
+			}						\
+		inc_counter(args);					\
+	} while (keep_stressing(args));					\
+}
+
 #define stress_funccall_1(type)				\
 static type NOINLINE stress_funccall_ ## type ## _1(	\
 	const type a);					\
@@ -456,7 +530,6 @@ stress_funccall_6(bool)
 stress_funccall_7(bool)
 stress_funccall_8(bool)
 stress_funccall_9(bool)
-
 stress_funcdeep_2(bool)
 stress_funcdeep_3(bool)
 stress_funcdeep_4(bool)
@@ -465,6 +538,7 @@ stress_funcdeep_6(bool)
 stress_funcdeep_7(bool)
 stress_funcdeep_8(bool)
 stress_funcdeep_9(bool)
+stress_funccall_type(bool, stress_mwc1)
 
 stress_funccall_1(uint8_t)
 stress_funccall_2(uint8_t)
@@ -475,7 +549,6 @@ stress_funccall_6(uint8_t)
 stress_funccall_7(uint8_t)
 stress_funccall_8(uint8_t)
 stress_funccall_9(uint8_t)
-
 stress_funcdeep_2(uint8_t)
 stress_funcdeep_3(uint8_t)
 stress_funcdeep_4(uint8_t)
@@ -484,6 +557,7 @@ stress_funcdeep_6(uint8_t)
 stress_funcdeep_7(uint8_t)
 stress_funcdeep_8(uint8_t)
 stress_funcdeep_9(uint8_t)
+stress_funccall_type(uint8_t, stress_mwc8)
 
 stress_funccall_1(uint16_t)
 stress_funccall_2(uint16_t)
@@ -494,7 +568,6 @@ stress_funccall_6(uint16_t)
 stress_funccall_7(uint16_t)
 stress_funccall_8(uint16_t)
 stress_funccall_9(uint16_t)
-
 stress_funcdeep_2(uint16_t)
 stress_funcdeep_3(uint16_t)
 stress_funcdeep_4(uint16_t)
@@ -503,6 +576,7 @@ stress_funcdeep_6(uint16_t)
 stress_funcdeep_7(uint16_t)
 stress_funcdeep_8(uint16_t)
 stress_funcdeep_9(uint16_t)
+stress_funccall_type(uint16_t, stress_mwc16)
 
 stress_funccall_1(uint32_t)
 stress_funccall_2(uint32_t)
@@ -513,7 +587,6 @@ stress_funccall_6(uint32_t)
 stress_funccall_7(uint32_t)
 stress_funccall_8(uint32_t)
 stress_funccall_9(uint32_t)
-
 stress_funcdeep_2(uint32_t)
 stress_funcdeep_3(uint32_t)
 stress_funcdeep_4(uint32_t)
@@ -522,6 +595,7 @@ stress_funcdeep_6(uint32_t)
 stress_funcdeep_7(uint32_t)
 stress_funcdeep_8(uint32_t)
 stress_funcdeep_9(uint32_t)
+stress_funccall_type(uint32_t, stress_mwc32)
 
 stress_funccall_1(uint64_t)
 stress_funccall_2(uint64_t)
@@ -532,7 +606,6 @@ stress_funccall_6(uint64_t)
 stress_funccall_7(uint64_t)
 stress_funccall_8(uint64_t)
 stress_funccall_9(uint64_t)
-
 stress_funcdeep_2(uint64_t)
 stress_funcdeep_3(uint64_t)
 stress_funcdeep_4(uint64_t)
@@ -541,6 +614,7 @@ stress_funcdeep_6(uint64_t)
 stress_funcdeep_7(uint64_t)
 stress_funcdeep_8(uint64_t)
 stress_funcdeep_9(uint64_t)
+stress_funccall_type(uint64_t, stress_mwc64)
 
 #if defined(HAVE_INT128_T)
 stress_funccall_1(__uint128_t)
@@ -552,7 +626,6 @@ stress_funccall_6(__uint128_t)
 stress_funccall_7(__uint128_t)
 stress_funccall_8(__uint128_t)
 stress_funccall_9(__uint128_t)
-
 stress_funcdeep_2(__uint128_t)
 stress_funcdeep_3(__uint128_t)
 stress_funcdeep_4(__uint128_t)
@@ -561,6 +634,7 @@ stress_funcdeep_6(__uint128_t)
 stress_funcdeep_7(__uint128_t)
 stress_funcdeep_8(__uint128_t)
 stress_funcdeep_9(__uint128_t)
+stress_funccall_type(__uint128_t, stress_mwc64)
 #endif
 
 stress_funccall_1(float)
@@ -572,7 +646,6 @@ stress_funccall_6(float)
 stress_funccall_7(float)
 stress_funccall_8(float)
 stress_funccall_9(float)
-
 stress_funcdeep_2(float)
 stress_funcdeep_3(float)
 stress_funcdeep_4(float)
@@ -581,6 +654,7 @@ stress_funcdeep_6(float)
 stress_funcdeep_7(float)
 stress_funcdeep_8(float)
 stress_funcdeep_9(float)
+stress_funccall_type(float, stress_mwcfloat)
 
 stress_funccall_1(double)
 stress_funccall_2(double)
@@ -591,7 +665,6 @@ stress_funccall_6(double)
 stress_funccall_7(double)
 stress_funccall_8(double)
 stress_funccall_9(double)
-
 stress_funcdeep_2(double)
 stress_funcdeep_3(double)
 stress_funcdeep_4(double)
@@ -600,6 +673,7 @@ stress_funcdeep_6(double)
 stress_funcdeep_7(double)
 stress_funcdeep_8(double)
 stress_funcdeep_9(double)
+stress_funccall_type(double, stress_mwcdouble)
 
 stress_funccall_1(stress_long_double_t)
 stress_funccall_2(stress_long_double_t)
@@ -610,7 +684,6 @@ stress_funccall_6(stress_long_double_t)
 stress_funccall_7(stress_long_double_t)
 stress_funccall_8(stress_long_double_t)
 stress_funccall_9(stress_long_double_t)
-
 stress_funcdeep_2(stress_long_double_t)
 stress_funcdeep_3(stress_long_double_t)
 stress_funcdeep_4(stress_long_double_t)
@@ -619,6 +692,7 @@ stress_funcdeep_6(stress_long_double_t)
 stress_funcdeep_7(stress_long_double_t)
 stress_funcdeep_8(stress_long_double_t)
 stress_funcdeep_9(stress_long_double_t)
+stress_funccall_type(stress_long_double_t, stress_mwc64)
 
 #if defined(HAVE_COMPLEX_H) &&			\
     defined(HAVE_COMPLEX) &&			\
@@ -638,7 +712,6 @@ stress_funccall_6(stress_complex_float_t)
 stress_funccall_7(stress_complex_float_t)
 stress_funccall_8(stress_complex_float_t)
 stress_funccall_9(stress_complex_float_t)
-
 stress_funcdeep_2(stress_complex_float_t)
 stress_funcdeep_3(stress_complex_float_t)
 stress_funcdeep_4(stress_complex_float_t)
@@ -647,6 +720,7 @@ stress_funcdeep_6(stress_complex_float_t)
 stress_funcdeep_7(stress_complex_float_t)
 stress_funcdeep_8(stress_complex_float_t)
 stress_funcdeep_9(stress_complex_float_t)
+stress_funccall_type(stress_complex_float_t, stress_mwcdouble)
 
 stress_funccall_1(stress_complex_double_t)
 stress_funccall_2(stress_complex_double_t)
@@ -657,7 +731,6 @@ stress_funccall_6(stress_complex_double_t)
 stress_funccall_7(stress_complex_double_t)
 stress_funccall_8(stress_complex_double_t)
 stress_funccall_9(stress_complex_double_t)
-
 stress_funcdeep_2(stress_complex_double_t)
 stress_funcdeep_3(stress_complex_double_t)
 stress_funcdeep_4(stress_complex_double_t)
@@ -666,6 +739,7 @@ stress_funcdeep_6(stress_complex_double_t)
 stress_funcdeep_7(stress_complex_double_t)
 stress_funcdeep_8(stress_complex_double_t)
 stress_funcdeep_9(stress_complex_double_t)
+stress_funccall_type(stress_complex_double_t, stress_mwcdouble)
 
 stress_funccall_1(stress_complex_long_double_t)
 stress_funccall_2(stress_complex_long_double_t)
@@ -676,7 +750,6 @@ stress_funccall_6(stress_complex_long_double_t)
 stress_funccall_7(stress_complex_long_double_t)
 stress_funccall_8(stress_complex_long_double_t)
 stress_funccall_9(stress_complex_long_double_t)
-
 stress_funcdeep_2(stress_complex_long_double_t)
 stress_funcdeep_3(stress_complex_long_double_t)
 stress_funcdeep_4(stress_complex_long_double_t)
@@ -685,6 +758,7 @@ stress_funcdeep_6(stress_complex_long_double_t)
 stress_funcdeep_7(stress_complex_long_double_t)
 stress_funcdeep_8(stress_complex_long_double_t)
 stress_funcdeep_9(stress_complex_long_double_t)
+stress_funccall_type(stress_complex_long_double_t, stress_mwcdouble)
 #endif
 
 /*
@@ -711,7 +785,6 @@ stress_funccall_6(_Decimal32)
 stress_funccall_7(_Decimal32)
 stress_funccall_8(_Decimal32)
 stress_funccall_9(_Decimal32)
-
 stress_funcdeep_2(_Decimal32)
 stress_funcdeep_3(_Decimal32)
 stress_funcdeep_4(_Decimal32)
@@ -720,6 +793,7 @@ stress_funcdeep_6(_Decimal32)
 stress_funcdeep_7(_Decimal32)
 stress_funcdeep_8(_Decimal32)
 stress_funcdeep_9(_Decimal32)
+stress_funccall_type(_Decimal32, (_Decimal32)stress_mwc64)
 #endif
 
 #if defined(HAVE_FLOAT_DECIMAL64) &&	\
@@ -738,7 +812,6 @@ stress_funccall_6(_Decimal64)
 stress_funccall_7(_Decimal64)
 stress_funccall_8(_Decimal64)
 stress_funccall_9(_Decimal64)
-
 stress_funcdeep_2(_Decimal64)
 stress_funcdeep_3(_Decimal64)
 stress_funcdeep_4(_Decimal64)
@@ -747,6 +820,7 @@ stress_funcdeep_6(_Decimal64)
 stress_funcdeep_7(_Decimal64)
 stress_funcdeep_8(_Decimal64)
 stress_funcdeep_9(_Decimal64)
+stress_funccall_type(_Decimal64, (_Decimal64)stress_mwc64)
 #endif
 
 #if defined(HAVE_FLOAT_DECIMAL128) &&	\
@@ -765,7 +839,6 @@ stress_funccall_6(_Decimal128)
 stress_funccall_7(_Decimal128)
 stress_funccall_8(_Decimal128)
 stress_funccall_9(_Decimal128)
-
 stress_funcdeep_2(_Decimal128)
 stress_funcdeep_3(_Decimal128)
 stress_funcdeep_4(_Decimal128)
@@ -774,6 +847,7 @@ stress_funcdeep_6(_Decimal128)
 stress_funcdeep_7(_Decimal128)
 stress_funcdeep_8(_Decimal128)
 stress_funcdeep_9(_Decimal128)
+stress_funccall_type(_Decimal128, (_Decimal128)stress_mwc64)
 #endif
 
 #if defined(HAVE_FLOAT16) &&	\
@@ -792,7 +866,6 @@ stress_funccall_6(__fp16)
 stress_funccall_7(__fp16)
 stress_funccall_8(__fp16)
 stress_funccall_9(__fp16)
-
 stress_funcdeep_2(__fp16)
 stress_funcdeep_3(__fp16)
 stress_funcdeep_4(__fp16)
@@ -801,6 +874,7 @@ stress_funcdeep_6(__fp16)
 stress_funcdeep_7(__fp16)
 stress_funcdeep_8(__fp16)
 stress_funcdeep_9(__fp16)
+stress_funccall_type(__fp16, (__fp16)stress_mwc32)
 #endif
 
 #if defined(HAVE_FLOAT32) &&	\
@@ -819,7 +893,6 @@ stress_funccall_6(_Float32)
 stress_funccall_7(_Float32)
 stress_funccall_8(_Float32)
 stress_funccall_9(_Float32)
-
 stress_funcdeep_2(_Float32)
 stress_funcdeep_3(_Float32)
 stress_funcdeep_4(_Float32)
@@ -828,6 +901,7 @@ stress_funcdeep_6(_Float32)
 stress_funcdeep_7(_Float32)
 stress_funcdeep_8(_Float32)
 stress_funcdeep_9(_Float32)
+stress_funccall_type(_Float32, (_Float32)stress_mwc32)
 #endif
 
 #if defined(HAVE_FLOAT64) &&	\
@@ -846,7 +920,6 @@ stress_funccall_6(_Float64)
 stress_funccall_7(_Float64)
 stress_funccall_8(_Float64)
 stress_funccall_9(_Float64)
-
 stress_funcdeep_2(_Float64)
 stress_funcdeep_3(_Float64)
 stress_funcdeep_4(_Float64)
@@ -855,6 +928,7 @@ stress_funcdeep_6(_Float64)
 stress_funcdeep_7(_Float64)
 stress_funcdeep_8(_Float64)
 stress_funcdeep_9(_Float64)
+stress_funccall_type(_Float64, (_Float64)stress_mwc64)
 #endif
 
 
@@ -874,7 +948,6 @@ stress_funccall_6(__float80)
 stress_funccall_7(__float80)
 stress_funccall_8(__float80)
 stress_funccall_9(__float80)
-
 stress_funcdeep_2(__float80)
 stress_funcdeep_3(__float80)
 stress_funcdeep_4(__float80)
@@ -883,6 +956,7 @@ stress_funcdeep_6(__float80)
 stress_funcdeep_7(__float80)
 stress_funcdeep_8(__float80)
 stress_funcdeep_9(__float80)
+stress_funccall_type(__float80, (__float80)stress_mwc64)
 #endif
 
 #if defined(HAVE_FLOAT128) &&	\
@@ -901,7 +975,6 @@ stress_funccall_6(__float128)
 stress_funccall_7(__float128)
 stress_funccall_8(__float128)
 stress_funccall_9(__float128)
-
 stress_funcdeep_2(__float128)
 stress_funcdeep_3(__float128)
 stress_funcdeep_4(__float128)
@@ -910,131 +983,6 @@ stress_funcdeep_6(__float128)
 stress_funcdeep_7(__float128)
 stress_funcdeep_8(__float128)
 stress_funcdeep_9(__float128)
-#endif
-
-static inline float stress_mwcfloat(void)
-{
-	const uint32_t r = stress_mwc32();
-
-	return (float)r / (float)(0xffffffffUL);
-}
-
-static inline double stress_mwcdouble(void)
-{
-	const uint64_t r = stress_mwc64();
-
-	return (double)r / (double)(0xffffffffffffffffULL);
-}
-
-#define stress_funccall_type(type, rndfunc)				\
-static void NOINLINE stress_funccall_ ## type(const stress_args_t *args);	\
-									\
-static void NOINLINE stress_funccall_ ## type(const stress_args_t *args)	\
-{									\
-	register int ii;						\
-	type a, b, c, d, e, f, g, h, i;					\
-									\
-	a = rndfunc();							\
-	b = rndfunc();							\
-	c = rndfunc();							\
-	d = rndfunc();							\
-	e = rndfunc();							\
-	f = rndfunc();							\
-	g = rndfunc();							\
-	h = rndfunc();							\
-	i = rndfunc();							\
-									\
-	do {								\
-		for (ii = 0; ii < 1000; ii++) {				\
-			type res = 					\
-			(stress_funccall_ ## type ## _1(a) + 		\
-			 stress_funccall_ ## type ## _2(a, b) +		\
-			 stress_funccall_ ## type ## _3(a, b,		\
-				c) +					\
-			 stress_funccall_ ## type ## _4(a, b, 		\
-				c, d) + 				\
-			 stress_funccall_ ## type ## _5(a, b,		\
-				c, d, e) +				\
-			 stress_funccall_ ## type ## _6(a, b,		\
-				c, d, e, f) + 				\
-			 stress_funccall_ ## type ## _7(a, b,		\
-				c, d, e, f, g) + 			\
-			 stress_funccall_ ## type ## _8(a, b,		\
-				c, d, e, f, g, h) + 			\
-			 stress_funccall_ ## type ## _9(a, b,		\
-				c, d, e, f, g, h, i));			\
-									\
-			res += 						\
-			(stress_funcdeep_ ## type ## _2(a, b) +		\
-			 stress_funcdeep_ ## type ## _3(a, b,		\
-				c) + 					\
-			 stress_funcdeep_ ## type ## _4(a, b, 		\
-				c, d) +					\
-			 stress_funcdeep_ ## type ## _5(a, b,		\
-				c, d, e) +				\
-			 stress_funcdeep_ ## type ## _6(a, b,		\
-				c, d, e, f) +				\
-			 stress_funcdeep_ ## type ## _7(a, b,		\
-				c, d, e, f, g) +			\
-			 stress_funcdeep_ ## type ## _8(a, b,		\
-				c, d, e, f, g, h) +			\
-			 stress_funcdeep_ ## type ## _9(a, b,		\
-				c, d, e, f, g, h, i));			\
-			type ## _put(res);				\
-			}						\
-		inc_counter(args);					\
-	} while (keep_stressing(args));					\
-}
-
-stress_funccall_type(bool, stress_mwc1)
-stress_funccall_type(uint8_t, stress_mwc8)
-stress_funccall_type(uint16_t, stress_mwc16)
-stress_funccall_type(uint32_t, stress_mwc32)
-stress_funccall_type(uint64_t, stress_mwc64)
-#if defined(HAVE_INT128_T)
-stress_funccall_type(__uint128_t, stress_mwc64)
-#endif
-stress_funccall_type(float, stress_mwcfloat)
-stress_funccall_type(double, stress_mwcdouble)
-stress_funccall_type(stress_long_double_t, stress_mwc64)
-#if defined(HAVE_COMPLEX_H) &&			\
-    defined(HAVE_COMPLEX) &&			\
-    defined(__STDC_IEC_559_COMPLEX__) &&	\
-    !defined(__UCLIBC__)
-stress_funccall_type(stress_complex_float_t, stress_mwcdouble)
-stress_funccall_type(stress_complex_double_t, stress_mwcdouble)
-stress_funccall_type(stress_complex_long_double_t, stress_mwcdouble)
-#endif
-#if defined(HAVE_FLOAT_DECIMAL32) &&	\
-    !defined(__clang__)
-stress_funccall_type(_Decimal32, (_Decimal32)stress_mwc64)
-#endif
-#if defined(HAVE_FLOAT_DECIMAL64) &&	\
-    !defined(__clang__)
-stress_funccall_type(_Decimal64, (_Decimal64)stress_mwc64)
-#endif
-#if defined(HAVE_FLOAT_DECIMAL128) &&	\
-    !defined(__clang__)
-stress_funccall_type(_Decimal128, (_Decimal128)stress_mwc64)
-#endif
-#if defined(HAVE_FLOAT16) &&		\
-    !defined(__clang__)
-stress_funccall_type(__fp16, (__fp16)stress_mwc32)
-#endif
-#if defined(HAVE_FLOAT32) &&		\
-    !defined(__clang__)
-stress_funccall_type(_Float32, (_Float32)stress_mwc32)
-#endif
-#if defined(HAVE_FLOAT64) &&		\
-    !defined(__clang__)
-stress_funccall_type(_Float64, (_Float64)stress_mwc64)
-#endif
-#if defined(HAVE_FLOAT80) &&		\
-    !defined(__clang__)
-stress_funccall_type(__float80, (__float80)stress_mwc64)
-#endif
-#if defined(HAVE_FLOAT128) &&		\
-    !defined(__clang__)
 stress_funccall_type(__float128, (__float128)stress_mwc64)
 #endif
 
