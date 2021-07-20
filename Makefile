@@ -211,6 +211,7 @@ STRESS_SRC = \
 	stress-oom-pipe.c \
 	stress-opcode.c \
 	stress-open.c \
+	stress-pci.c \
 	stress-personality.c \
 	stress-physpage.c \
 	stress-pidfd.c \

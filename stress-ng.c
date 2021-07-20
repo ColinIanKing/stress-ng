@@ -612,6 +612,8 @@ static const struct option long_options[] = {
 	{ "page-in",	0,	0,	OPT_page_in },
 	{ "parallel",	1,	0,	OPT_all },
 	{ "pathological",0,	0,	OPT_pathological },
+	{ "pci",	1,	0,	OPT_pci},
+	{ "pci-ops",	1,	0,	OPT_pci_ops },
 #if defined(STRESS_PERF_STATS) && 	\
     defined(HAVE_LINUX_PERF_EVENT_H)
 	{ "perf",	0,	0,	OPT_perf_stats },

@@ -2899,6 +2899,14 @@ run a child process that scans /proc/$PID/fd and attempts to open the files
 that the stressor has opened. This exercises racing open/close operations
 on the proc interface.
 .TP
+.B \-\-pci N
+exercise PCI sysfs by running N workers that read data (and mmap/unmap
+PCI config or PCI resource files). Linux only. Running as root will allow
+config and resource mmappings to be read and exercises PCI I/O mapping.
+.TP
+.B \-\-pci\-ops N
+stop pci stress workers after N PCI subdirectory exercising operations.
+.TP
 .B \-\-personality N
 start N workers that attempt to set personality and get all the available
 personality types (process execution domain types) via the personality(2)
