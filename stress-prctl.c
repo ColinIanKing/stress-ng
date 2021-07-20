@@ -783,7 +783,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #endif
 
 #if defined(PR_SCHED_CORE) &&	\
-    defined(PR_SCHED_CORE_GET)	
+    defined(PR_SCHED_CORE_GET)
 	{
 		unsigned long cookie = 0;
 		const pid_t bad_pid = stress_get_unused_pid_racy(false);
