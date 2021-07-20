@@ -700,7 +700,12 @@ stress_funccall_type(stress_long_double_t, stress_mwc64)
     !defined(__UCLIBC__)
 static inline void ALWAYS_INLINE stress_complex_put(const complex double a)
 {
+#if defined(HAVE_CREAL) &&	\
+    defined(HAVE_CIMAG)
 	g_put_val.double_val = creal(a) * cimag(a);
+#else
+	g_put_val.double_val = a * a;
+#endif
 }
 
 stress_funccall_1(stress_complex_float_t)
