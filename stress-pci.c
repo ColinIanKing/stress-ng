@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C) 2021 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -227,7 +227,7 @@ static void MLOCKED_TEXT stress_pci_handler(int signum)
 
 /*
  *  stress_pci()
- *	stress that does lots of not a lot
+ *	stress /sysfs PCI files with open/read/close and mmap where possible
  */
 static int stress_pci(const stress_args_t *args)
 {
