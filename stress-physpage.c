@@ -108,6 +108,7 @@ static int stress_virt_to_phys(
 			goto err;
 		}
 
+
 		/*
 		 *  Try to exercise /dev/mem, seek may work, read most probably
 		 *  will fail with -EPERM. Ignore any errors, the aim here is
@@ -115,7 +116,9 @@ static int stress_virt_to_phys(
 		 */
 		if (fd_mem >= 0) {
 			off_t offret;
+			uint8_t *ptr;
 
+			phys_addr = pfn * page_size;
 			offret = lseek(fd_mem, (off_t)phys_addr, SEEK_SET);
 			if (offret != (off_t)-1) {
 				ssize_t rdret;
@@ -124,6 +127,11 @@ static int stress_virt_to_phys(
 				rdret = read(fd_mem, data, sizeof(data));
 				(void)rdret;
 			}
+
+			ptr = mmap(NULL, args->page_size, PROT_READ,
+				MAP_SHARED, fd_mem, (off_t)phys_addr);
+			if (ptr != MAP_FAILED)
+				(void)munmap((void *)ptr, args->page_size);
 		}
 		return 0;
 	} else {
