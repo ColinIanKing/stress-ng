@@ -170,6 +170,9 @@ static int open_dev_zero_rd(void)
 #if defined(O_NONBLOCK)
 	flags |= (stress_mwc32() & O_NONBLOCK);
 #endif
+#if defined(O_NDELAY)
+	flags |= (stress_mwc32() & O_NDELAY);
+#endif
 
 	return open_arg2("/dev/zero", O_RDONLY | flags);
 }
