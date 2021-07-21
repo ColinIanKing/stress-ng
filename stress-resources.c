@@ -80,6 +80,13 @@ typedef struct {
 	bool timerok;
 	timer_t timerid;
 #endif
+#if defined(HAVE_SYS_TIMERFD_H) &&	\
+    defined(HAVE_TIMERFD_CREATE) &&	\
+    defined(HAVE_TIMERFD_GETTIME) &&	\
+    defined(HAVE_TIMERFD_SETTIME) &&	\
+    defined(CLOCK_REALTIME)
+	int timer_fd;
+#endif
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_SEM_POSIX)
 	bool semok;
@@ -216,6 +223,13 @@ static void NORETURN waste_resources(
     defined(HAVE_TIMER_DELETE) &&	\
     defined(SIGUNUSED)
 		info[i].timerok = false;
+#endif
+#if defined(HAVE_SYS_TIMERFD_H) &&	\
+    defined(HAVE_TIMERFD_CREATE) &&	\
+    defined(HAVE_TIMERFD_GETTIME) &&	\
+    defined(HAVE_TIMERFD_SETTIME) &&	\
+    defined(CLOCK_REALTIME)
+		info[i].timer_fd = -1;
 #endif
 #if defined(HAVE_SYS_INOTIFY)
 		info[i].wd_inotify = -1;
@@ -486,6 +500,18 @@ static void NORETURN waste_resources(
 		}
 #endif
 
+#if defined(HAVE_SYS_TIMERFD_H) &&	\
+    defined(HAVE_TIMERFD_CREATE) &&	\
+    defined(HAVE_TIMERFD_GETTIME) &&	\
+    defined(HAVE_TIMERFD_SETTIME) &&	\
+    defined(CLOCK_REALTIME)
+		if (!i) {
+			info[i].timer_fd = timerfd_create(CLOCK_REALTIME, 0);
+			if (!keep_stressing_flag())
+				break;
+		}
+#endif
+
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_SEM_POSIX)
 		info[i].semok = (sem_init(&info[i].sem, 1, 1) >= 0);
@@ -606,6 +632,15 @@ static void NORETURN waste_resources(
     defined(SIGUNUSED)
 		if ((!i) && (info[i].timerok))
 			(void)timer_delete(info[i].timerid);
+#endif
+
+#if defined(HAVE_SYS_TIMERFD_H) &&	\
+    defined(HAVE_TIMERFD_CREATE) &&	\
+    defined(HAVE_TIMERFD_GETTIME) &&	\
+    defined(HAVE_TIMERFD_SETTIME) &&	\
+    defined(CLOCK_REALTIME)
+		if ((!i) && (info[i].timer_fd != -1))
+			(void)close(info[i].timer_fd);
 #endif
 
 #if defined(HAVE_SYS_INOTIFY)
