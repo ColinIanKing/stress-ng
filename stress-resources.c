@@ -204,7 +204,8 @@ static void NORETURN waste_resources(
 		info[i].fd_tmp = -1;
 #endif
 #if defined(HAVE_LIB_PTHREAD)
-		info[i].pthread_ret = 0;
+		info[i].pthread_ret = -1;
+		info[i].pthread = 0;
 #endif
 
 #if defined(HAVE_LIB_RT) &&		\
@@ -583,7 +584,7 @@ static void NORETURN waste_resources(
 #endif
 
 #if defined(HAVE_LIB_PTHREAD)
-		if ((!i) && (!info[i].pthread_ret))
+		if ((!i) && (!info[i].pthread_ret) && (info[i].pthread))
 			(void)pthread_join(info[i].pthread, NULL);
 #endif
 
