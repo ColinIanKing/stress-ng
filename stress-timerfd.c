@@ -63,7 +63,10 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_SYS_TIMERFD_H)
+#if defined(HAVE_SYS_TIMERFD_H) &&	\
+    defined(HAVE_TIMERFD_CREATE) &&	\
+    defined(HAVE_TIMERFD_GETTIME) &&	\
+    defined(HAVE_TIMERFD_SETTIME)
 
 static double rate_ns;
 
