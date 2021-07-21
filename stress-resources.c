@@ -103,6 +103,9 @@ typedef struct {
     defined(HAVE_PKEY_FREE)
 	int pkey;
 #endif
+#if defined(HAVE_PIDFD_OPEN)
+	int pid_fd;
+#endif
 } stress_info_t;
 
 static pid_t pids[RESOURCE_FORKS];
@@ -243,6 +246,9 @@ static void NORETURN waste_resources(
 #if defined(HAVE_PKEY_ALLOC) &&	\
     defined(HAVE_PKEY_FREE)
 		info[i].pkey = -1;
+#endif
+#if defined(HAVE_PIDFD_OPEN)
+		info[i].pid_fd = -1;
 #endif
 		info[i].pid = 1;
 
@@ -526,6 +532,12 @@ static void NORETURN waste_resources(
     defined(HAVE_PKEY_FREE)
 		info[i].pkey = shim_pkey_alloc(0, 0);
 #endif
+		if (!keep_stressing_flag())
+			break;
+
+#if defined(HAVE_PIDFD_OPEN)
+		info[i].pid_fd = shim_pidfd_open(getpid(), 0);
+#endif
 
 		info[i].pid = fork();
 		if (info[i].pid == 0) {
@@ -640,6 +652,11 @@ static void NORETURN waste_resources(
     defined(HAVE_PKEY_FREE)
 		if (info[i].pkey > -1)
 			 (void)shim_pkey_free(info[i].pkey);
+#endif
+
+#if defined(HAVE_PIDFD_OPEN)
+		if (info[i].pid_fd > -1)
+			(void)close(info[i].pid_fd);
 #endif
 		if (info[i].pid > 0) {
 			int status;
