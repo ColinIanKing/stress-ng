@@ -503,7 +503,7 @@ static int stress_pthread(const stress_args_t *args)
 				}
 				/* Something really unexpected */
 				pr_fail("%s: pthread_create failed, errno=%d (%s)\n",
-					args->name, pthreads[i].ret, strerror(ret));
+					args->name, pthreads[i].ret, strerror(pthreads[i].ret));
 				stop_running();
 				break;
 			}
