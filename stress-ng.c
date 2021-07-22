@@ -473,6 +473,8 @@ static const struct option long_options[] = {
 	{ "list-ops",	1,	0,	OPT_list_ops },
 	{ "list-method",1,	0,	OPT_list_method },
 	{ "list-size",	1,	0,	OPT_list_size },
+	{ "loadavg",	1,	0,	OPT_loadavg },
+	{ "loadavg-ops",1,	0,	OPT_loadavg_ops },
 	{ "locka",	1,	0,	OPT_locka },
 	{ "locka-ops",	1,	0,	OPT_locka_ops },
 	{ "lockbus",	1,	0,	OPT_lockbus },

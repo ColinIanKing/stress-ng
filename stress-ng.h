@@ -2492,6 +2492,7 @@ typedef struct {
 	MACRO(lease)		\
 	MACRO(link)		\
 	MACRO(list)		\
+	MACRO(loadavg)		\
 	MACRO(locka)		\
 	MACRO(lockbus)		\
 	MACRO(lockf)		\
@@ -3073,6 +3074,9 @@ typedef enum {
 	OPT_list_ops,
 	OPT_list_method,
 	OPT_list_size,
+
+	OPT_loadavg,
+	OPT_loadavg_ops,
 
 	OPT_lockbus,
 	OPT_lockbus_ops,
