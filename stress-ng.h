@@ -2438,6 +2438,7 @@ typedef struct {
 	MACRO(dev_shm)		\
 	MACRO(dir)		\
 	MACRO(dirdeep)		\
+	MACRO(dirmany)		\
 	MACRO(dnotify)		\
 	MACRO(dup)		\
 	MACRO(dynlib)		\
@@ -2876,6 +2877,9 @@ typedef enum {
 	OPT_dirdeep_ops,
 	OPT_dirdeep_dirs,
 	OPT_dirdeep_inodes,
+
+	OPT_dirmany,
+	OPT_dirmany_ops,
 
 	OPT_dnotify,
 	OPT_dnotify_ops,

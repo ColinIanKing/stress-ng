@@ -111,6 +111,7 @@ STRESS_SRC = \
 	stress-dev-shm.c \
 	stress-dir.c \
 	stress-dirdeep.c \
+	stress-dirmany.c \
 	stress-dnotify.c \
 	stress-dup.c \
 	stress-dynlib.c \
