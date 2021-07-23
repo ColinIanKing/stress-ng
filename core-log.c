@@ -355,6 +355,20 @@ void pr_err(const char *fmt, ...)
 }
 
 /*
+ *  pr_err_skip()
+ *	print error messages, don't print if skip silent is enabled
+ */
+void pr_err_skip(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
+		(void)pr_msg_lockable(stderr, PR_ERROR, false, fmt, ap);
+	va_end(ap);
+}
+
+/*
  *  pr_fail()
  *	print failure messages
  */

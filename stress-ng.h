@@ -1391,6 +1391,7 @@ extern void pr_dbg_skip(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_inf(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_inf_skip(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_err(const char *fmt, ...)  FORMAT(printf, 1, 2);
+extern void pr_err_skip(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_fail(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_tidy(const char *fmt, ...) FORMAT(printf, 1, 2);
 
