@@ -3958,6 +3958,9 @@ counted as a bogo timerfd op.
 .B \-\-timerfd\-ops N
 stop timerfd stress workers after N bogo timerfd events (Linux only).
 .TP
+.B \-\-timerfs\-fds N
+try to use a maximum of N timerfd file descriptors per stressor.
+.TP
 .B \-\-timerfd\-freq F
 run timers at F Hz; range from 1 to 1000000000 Hz (Linux only). By selecting
 an appropriate frequency stress\-ng can generate hundreds of thousands of

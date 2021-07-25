@@ -3609,6 +3609,7 @@ typedef enum {
 
 	OPT_timerfd,
 	OPT_timerfd_ops,
+	OPT_timerfd_fds,
 	OPT_timerfd_freq,
 	OPT_timerfd_rand,
 

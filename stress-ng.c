@@ -866,6 +866,7 @@ static const struct option long_options[] = {
 	{ "timer-rand", 0,	0,	OPT_timer_rand },
 	{ "timerfd",	1,	0,	OPT_timerfd },
 	{ "timerfd-ops",1,	0,	OPT_timerfd_ops },
+	{ "timerfd-fds",1,	0,	OPT_timerfd_fds },
 	{ "timerfd-freq",1,	0,	OPT_timerfd_freq },
 	{ "timerfd-rand",0,	0,	OPT_timerfd_rand },
 	{ "timer-slack"	,1,	0,	OPT_timer_slack },
