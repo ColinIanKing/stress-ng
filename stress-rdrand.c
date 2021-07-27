@@ -106,7 +106,7 @@ static inline uint32_t rand64(void)
 
 
 #if defined(STRESS_ARCH_PPC64) &&	\
-    defined(HAVE_DARN)
+    defined(HAVE_ASM_DARN)
 
 #define HAVE_RAND_CAPABILITY
 
