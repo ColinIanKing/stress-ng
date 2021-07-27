@@ -1189,6 +1189,15 @@ typedef struct {			/* vmstat column */
 #define NORETURN
 #endif
 
+/* weak attribute */
+#if (defined(__GNUC__) && NEED_GNUC(4, 0, 0)) || 	\
+    (defined(__clang__) && NEED_CLANG(3, 4, 0))
+#define WEAK		__attribute__ ((weak))
+#define HAVE_WEAK_ATTRIBUTE
+#else
+#define WEAK
+#endif
+
 /* force inlining hint */
 #if (defined(__GNUC__) && NEED_GNUC(3, 4, 0) 					\
      && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6, 0, 1))) ||	\
@@ -4282,6 +4291,9 @@ extern void stress_thrash_stop(void);
 /* Used to set options for specific stressors */
 extern void stress_adjust_pthread_max(const uint64_t max);
 extern void stress_adjust_sleep_max(const uint64_t max);
+
+/* Enable/disable stack smashing error message */
+extern void stress_set_stack_smash_check_flag(const bool flag);
 
 /* loff_t and off64_t porting shims */
 #if defined(HAVE_LOFF_T)

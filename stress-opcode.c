@@ -362,6 +362,9 @@ again:
 				_exit(EXIT_NO_RESOURCE);
 			}
 
+			/* Disable stack smashing messages */
+			stress_set_stack_smash_check_flag(false);
+
 			for (i = 0; i < 1024; i++) {
 #if defined(HAVE_LINUX_SECCOMP_H) &&	\
     defined(SECCOMP_SET_MODE_FILTER)

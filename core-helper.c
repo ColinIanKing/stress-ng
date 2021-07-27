@@ -42,6 +42,8 @@
 int __dso_handle;
 #endif
 
+static bool stress_stack_check_flag;
+
 typedef struct {
 	const int  signum;
 	const char *name;
@@ -2536,3 +2538,31 @@ void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum)
 
 	_exit(0);
 }
+
+/*
+ *  __stack_chk_fail()
+ *	override stack smashing callback
+ */
+#if (defined(__GNUC__) || defined(__clang__)) &&	\
+    defined(HAVE_WEAK_ATTRIBUTE)
+NORETURN WEAK void __stack_chk_fail(void)
+{
+	if (stress_stack_check_flag) {
+		fprintf(stderr, "Stack overflow detected! Aborting stress-ng.\n");
+		fflush(stderr);
+		abort();
+	}
+	/* silently exit */
+	_exit(0);
+}
+#endif
+
+/*
+ *  stress_set_stack_smash_check_flag()
+ *	set flag, true = report flag, false = silently ignore
+ */
+void stress_set_stack_smash_check_flag(const bool flag)
+{
+	stress_stack_check_flag = flag;
+}
+

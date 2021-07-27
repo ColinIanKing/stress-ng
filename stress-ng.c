@@ -3360,6 +3360,9 @@ int main(int argc, char **argv, char **envp)
 	const uint32_t cpus_configured = (uint32_t)stress_get_processors_configured();
 	int ret;
 
+	/* Enable stress-ng stack smashing message */
+	stress_set_stack_smash_check_flag(true);
+
 	if (stress_set_temp_path(".") < 0)
 		exit(EXIT_FAILURE);
 	stress_set_proc_name_init(argc, argv, envp);
