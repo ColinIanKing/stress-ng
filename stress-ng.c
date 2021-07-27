@@ -600,6 +600,7 @@ static const struct option long_options[] = {
 	{ "no-rand-seed", 0,	0,	OPT_no_rand_seed },
 	{ "nop",	1,	0,	OPT_nop },
 	{ "nop-ops",	1,	0,	OPT_nop_ops },
+	{ "nop-instr",	1,	0,	OPT_nop_instr },
 	{ "null",	1,	0,	OPT_null },
 	{ "null-ops",	1,	0,	OPT_null_ops },
 	{ "numa",	1,	0,	OPT_numa },

@@ -3249,6 +3249,7 @@ typedef enum {
 
 	OPT_nop,
 	OPT_nop_ops,
+	OPT_nop_instr,
 
 	OPT_null,
 	OPT_null_ops,
