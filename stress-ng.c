@@ -1309,15 +1309,42 @@ static void stress_version(void)
 static void stress_usage_help(const stress_help_t help_info[])
 {
 	size_t i;
+	const int cols = stress_tty_width();
 
 	for (i = 0; help_info[i].description; i++) {
 		char opt_s[10] = "";
+		int wd = 0;
+		bool first = true;
+		const char *ptr, *space = NULL;
+		const char *start = help_info[i].description;
 
 		if (help_info[i].opt_s)
 			(void)snprintf(opt_s, sizeof(opt_s), "-%s,",
 					help_info[i].opt_s);
-		(void)printf("%-6s--%-19s%s\n", opt_s,
-			help_info[i].opt_l, help_info[i].description);
+		(void)printf("%-6s--%-20s", opt_s,
+			help_info[i].opt_l);
+
+		for (ptr = start; *ptr; ptr++) {
+			if (*ptr == ' ')
+				space = ptr;
+			wd++;
+			if (wd >= cols - 28) {
+				const int n = space - start;
+
+				if (!first)
+					(void)printf("%-28s", "");
+				first = false;
+				(void)printf("%*.*s\n", n, n,start);
+				start = space + 1;
+				wd = 0;
+			}
+		}
+		if (start != ptr) {
+			const int n = ptr - start;
+			if (!first)
+				(void)printf("%-28s", "");
+			(void)printf("%*.*s\n", n, n, start);
+		}
 	}
 }
 
