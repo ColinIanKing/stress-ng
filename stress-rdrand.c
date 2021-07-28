@@ -36,6 +36,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_CPUID_H) &&	\
     defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_CPUID) &&	\
+    defined(HAVE_ASM_RDRAND) &&	\
     NEED_GNUC(4,6,0)
 
 #define HAVE_RAND_CAPABILITY
