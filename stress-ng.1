@@ -2628,7 +2628,7 @@ pages are munlocked and the pages are unmapped.
 stop after N mlock bogo operations.
 .TP
 .B \-\-mlockmany N
-start N workers that fork off up to 1024 child processes in total;
+start N workers that fork off a default of 1024 child processes in total;
 each child will attempt to anonymously mmap and mlock the maximum allowed
 mlockable memory size.  The stress test attempts to avoid swapping by
 tracking low memory and swap allocations (but some swapping may occur). Once
@@ -2638,6 +2638,11 @@ repeated.
 .TP
 .B \-\-mlockmany\-ops N
 stop after N mlockmany (mmap and mlock) operations.
+.TP
+.B \-\-mlockmany\-procs N
+set the number of child processes to create per stressor. The default is to
+start a maximum of 1024 child processes in total across all the stressors. This
+option allows the setting of N child processes per stressor.
 .TP
 .B \-\-mmap N
 start N workers continuously calling mmap(2)/munmap(2).  The initial mapping

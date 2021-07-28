@@ -554,6 +554,7 @@ static const struct option long_options[] = {
 	{ "mlock-ops",	1,	0,	OPT_mlock_ops },
 	{ "mlockmany",	1,	0,	OPT_mlockmany },
 	{ "mlockmany-ops",1,	0,	OPT_mlockmany_ops },
+	{ "mlockmany-procs",1,	0,	OPT_mlockmany_procs },
 	{ "mmap",	1,	0,	OPT_mmap },
 	{ "mmap-ops",	1,	0,	OPT_mmap_ops },
 	{ "mmap-async",	0,	0,	OPT_mmap_async },

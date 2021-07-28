@@ -24,29 +24,50 @@
  */
 #include "stress-ng.h"
 
+#define UNSET_MLOCK_PROCS		(0)
+#define DEFAULT_MLOCK_PROCS		(1024)
+
 static const stress_help_t help[] = {
-	{ NULL,	"mlockmany N",	   "start N workers exercising many mlock/munlock processes" },
-	{ NULL,	"mlockmany-ops N", "stop after N mlockmany bogo operations" },
-	{ NULL,	NULL,		   NULL }
+	{ NULL,	"mlockmany N",	   	"start N workers exercising many mlock/munlock processes" },
+	{ NULL,	"mlockmany-ops N", 	"stop after N mlockmany bogo operations" },
+	{ NULL, "mlockmany-procs N",	"use N child processes to mlock regions" },
+	{ NULL,	NULL,		   	NULL }
+};
+
+/*
+ *  stress_set_mlockmany_procs()
+ *      set number of processes to spawn to mlock pages
+ */
+static int stress_set_mlockmany_procs(const char *opt)
+{
+	size_t mlockmany_procs;
+
+	mlockmany_procs = (size_t)stress_get_uint64(opt);
+	stress_check_range("mlockmany-procs", mlockmany_procs,
+		1, 1000000);
+	return stress_set_setting("mlockmany-procs", TYPE_ID_SIZE_T, &mlockmany_procs);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mlockmany_procs,	stress_set_mlockmany_procs },
+	{ 0,			NULL }
 };
 
 #if defined(HAVE_MLOCK)
-
-#define MAX_MLOCK_PROCS		(1024)
-
 /*
  *  stress_mlockmany()
  *	stress by forking and exiting
  */
 static int stress_mlockmany(const stress_args_t *args)
 {
-	pid_t pids[MAX_MLOCK_PROCS];
-	int errnos[MAX_MLOCK_PROCS];
+	pid_t *pids;
 	int ret;
 #if defined(RLIMIT_MEMLOCK)
 	struct rlimit rlim;
 #endif
-	size_t mlock_size, max_mlock_procs;
+	size_t mlock_size, mlockmany_procs = UNSET_MLOCK_PROCS;
+
+	(void)stress_get_setting("mlockmany-procs", &mlockmany_procs);
 
 	stress_set_oom_adjustment(args->name, true);
 
@@ -54,9 +75,17 @@ static int stress_mlockmany(const stress_args_t *args)
 	ret = stress_drop_capabilities(args->name);
 	(void)ret;
 
-	max_mlock_procs = args->num_instances > 0 ? MAX_MLOCK_PROCS / args->num_instances : 1;
-	if (max_mlock_procs < 1)
-		max_mlock_procs = 1;
+	if (mlockmany_procs == UNSET_MLOCK_PROCS) {
+		mlockmany_procs = args->num_instances > 0 ? DEFAULT_MLOCK_PROCS / args->num_instances : 1;
+		if (mlockmany_procs < 1)
+			mlockmany_procs = 1;
+	}
+
+	pids = calloc((size_t)mlockmany_procs, sizeof(*pids));
+	if (!pids) {
+		pr_inf("%s: cannot allocate pids array\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 #if defined(RLIMIT_MEMLOCK)
 	ret = getrlimit(RLIMIT_MEMLOCK, &rlim);
@@ -74,12 +103,11 @@ static int stress_mlockmany(const stress_args_t *args)
 		unsigned int i, n;
 		size_t shmall, freemem, totalmem, freeswap, last_freeswap;
 
-		(void)memset(pids, 0, sizeof(pids));
-		(void)memset(errnos, 0, sizeof(errnos));
+		(void)memset(pids, 0, sizeof(*pids) * mlockmany_procs);
 
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap);
 
-		for (n = 0; n < max_mlock_procs; n++) {
+		for (n = 0; n < mlockmany_procs; n++) {
 			pid_t pid;
 
 			if (!keep_stressing(args))
@@ -163,8 +191,6 @@ unlock:
 unmap:
 				(void)munmap(ptr, mmap_size);
 				_exit(0);
-			} else if (pid < 0) {
-				errnos[n] = errno;
 			}
 			if (pid > -1)
 				(void)setpgid(pids[n], g_pgrp);
@@ -185,12 +211,15 @@ unmap:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	free(pids);
+
 	return EXIT_SUCCESS;
 }
 
 stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_mlockmany,
 	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 
@@ -199,6 +228,7 @@ stressor_info_t stress_mlockmany_info = {
 stressor_info_t stress_mlockmany_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_VM | CLASS_OS | CLASS_PATHOLOGICAL,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 

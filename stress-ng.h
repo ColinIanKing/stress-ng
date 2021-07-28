@@ -3204,6 +3204,7 @@ typedef enum {
 
 	OPT_mlockmany,
 	OPT_mlockmany_ops,
+	OPT_mlockmany_procs,
 
 	OPT_mmap,
 	OPT_mmap_ops,
