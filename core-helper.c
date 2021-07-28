@@ -2566,3 +2566,22 @@ void stress_set_stack_smash_check_flag(const bool flag)
 	stress_stack_check_flag = flag;
 }
 
+int stress_tty_width(void)
+{
+	const int max_width = 80;
+#if defined(HAVE_WINSIZE) &&	\
+    defined(TIOCGWINSZ)
+	struct winsize ws;
+	int ret;
+
+	ret = ioctl(fileno(stdout), TIOCGWINSZ, &ws);
+	if (ret < 0)
+		return max_width;
+	ret = (int)ws.ws_col;
+	if ((ret < 0) || (ret > 1024))
+		return max_width;
+	return ret;
+#else
+	return max_width;
+#endif
+}

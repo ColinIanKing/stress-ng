@@ -4196,6 +4196,7 @@ extern WARN_UNUSED int32_t stress_set_vmstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
 extern void stress_misc_stats_set(stress_misc_stats_t *misc_stats,
 	const int idx, const char *description, const double value);
+extern WARN_UNUSED int stress_tty_width(void);
 
 extern void stress_smart_start(void);
 extern void stress_smart_stop(void);
