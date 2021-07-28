@@ -25,9 +25,9 @@
 #include "stress-ng.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"nop N",	"start N workers that burn cycles with no-ops" },
-	{ NULL,	"nop-ops N",	"stop after N nop bogo no-op operations" },
-	{ NULL, "nop-instr",	"specify nop instruction to use" },
+	{ NULL,	"nop N",		"start N workers that burn cycles with no-ops" },
+	{ NULL,	"nop-ops N",		"stop after N nop bogo no-op operations" },
+	{ NULL, "nop-instr INSTR",	"specify nop instruction to use" },
 	{ NULL,	NULL,		NULL }
 };
 
