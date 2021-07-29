@@ -2541,6 +2541,7 @@ typedef struct {
 	MACRO(mmapaddr)		\
 	MACRO(mmapfixed)	\
 	MACRO(mmapfork)		\
+	MACRO(mmaphuge)		\
 	MACRO(mmapmany)		\
 	MACRO(mq)		\
 	MACRO(mremap)		\
@@ -3224,6 +3225,10 @@ typedef enum {
 
 	OPT_mmapfork,
 	OPT_mmapfork_ops,
+
+	OPT_mmaphuge,
+	OPT_mmaphuge_ops,
+	OPT_mmaphuge_mmaps,
 
 	OPT_mmapmany,
 	OPT_mmapmany_ops,
