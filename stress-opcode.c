@@ -365,6 +365,19 @@ again:
 			/* Disable stack smashing messages */
 			stress_set_stack_smash_check_flag(false);
 
+			/*
+			 * Flush and close stdio fds, we
+			 * really don't care if the child dies
+			 * in a bad way and libc or whatever
+			 * reports of stack smashing or heap
+			 * corruption since the child will
+			 * die soon anyhow
+			 */
+			fflush(NULL);
+			(void)close(fileno(stdin));
+			(void)close(fileno(stdout));
+			(void)close(fileno(stderr));
+
 			for (i = 0; i < 1024; i++) {
 #if defined(HAVE_LINUX_SECCOMP_H) &&	\
     defined(SECCOMP_SET_MODE_FILTER)
@@ -376,7 +389,14 @@ again:
 				((void (*)(void))(ops_begin + i))();
 			}
 
-			//(void)munmap(opcodes, page_size * PAGES);
+			/*
+			 * Originally we unmapped these, but this is
+			 * another system call required that may go
+			 * wrong because libc or the stack has been
+			 * trashsed, so just skip it.
+			 *
+			(void)munmap(opcodes, page_size * PAGES);
+			 */
 			_exit(0);
 		}
 		if (pid > 0) {
