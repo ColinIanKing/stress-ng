@@ -1144,6 +1144,7 @@ static int stress_get_class(char *const class_str, uint32_t *class)
 	*class = 0;
 	for (str = class_str; (token = strtok(str, ",")) != NULL; str = NULL) {
 		uint32_t cl = stress_get_class_id(token);
+
 		if (!cl) {
 			size_t i;
 			const size_t len = strlen(token);
