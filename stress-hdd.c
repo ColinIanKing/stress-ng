@@ -195,7 +195,7 @@ static void stress_hdd_utimes(const int fd)
 static ssize_t stress_hdd_write(
 	const int fd,
 	uint8_t *buf,
-	const size_t count,
+	const off_t offset,
 	const uint64_t hdd_write_size,
 	const int hdd_flags)
 {
@@ -205,7 +205,7 @@ static ssize_t stress_hdd_write(
 	if (hdd_flags & HDD_OPT_UTIMES)
 		stress_hdd_utimes(fd);
 #endif
-
+	errno = 0;
 	if (hdd_flags & HDD_OPT_IOVEC) {
 #if defined(HAVE_SYS_UIO_H)
 		struct iovec iov[HDD_IO_VEC_MAX];
@@ -219,35 +219,39 @@ static ssize_t stress_hdd_write(
 
 			data += sz;
 		}
+
 		switch (stress_mwc8() & 3) {
 #if defined(HAVE_PWRITEV2)
 		case 0:
-			/* 25% */
-			ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, -1, 0);
+			ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, offset, 0);
 			break;
 #endif
 #if defined(HAVE_PWRITEV)
-		case 1: {
-				/* 25% */
-				off_t offset = lseek(fd, SEEK_CUR, 0);
-
-				if (offset != (off_t)-1) {
-					ret = pwritev(fd, iov, HDD_IO_VEC_MAX, offset);
-					break;
-				}
-			}
-			CASE_FALLTHROUGH;
+		case 1:
+			ret = pwritev(fd, iov, HDD_IO_VEC_MAX, offset);
+			break;
 #endif
 		default:
-			ret = writev(fd, iov, HDD_IO_VEC_MAX);
+			if (lseek(fd, offset, SEEK_SET) < 0) {
+				ret = -1;
+			} else {
+				ret = writev(fd, iov, HDD_IO_VEC_MAX);
+			}
 			break;
 		}
 #else
-		(void)hdd_write_size;
-		ret = write(fd, buf, count);
+		if (lseek(fd, offset, SEEK_SET) < 0) {
+			ret = -1;
+		} else {
+			ret = write(fd, buf, (size_t)hdd_write_size);
+		}
 #endif
 	} else {
-		ret = write(fd, buf, count);
+		if (lseek(fd, offset, SEEK_SET) < 0) {
+			ret = -1;
+		} else {
+			ret = write(fd, buf, (size_t)hdd_write_size);
+		}
 	}
 
 #if defined(HAVE_FSYNC)
@@ -273,7 +277,7 @@ static ssize_t stress_hdd_write(
 static ssize_t stress_hdd_read(
 	const int fd,
 	uint8_t *buf,
-	const size_t count,
+	const off_t offset,
 	const uint64_t hdd_read_size,
 	const int hdd_flags)
 {
@@ -282,6 +286,7 @@ static ssize_t stress_hdd_read(
 		stress_hdd_utimes(fd);
 #endif
 
+	errno = 0;
 	if (hdd_flags & HDD_OPT_IOVEC) {
 #if defined(HAVE_SYS_UIO_H)
 		struct iovec iov[HDD_IO_VEC_MAX];
@@ -298,30 +303,26 @@ static ssize_t stress_hdd_read(
 		switch (stress_mwc8() & 3) {
 #if defined(HAVE_PREADV2)
 		case 0:
-			/* 25% */
-			return preadv2(fd, iov, HDD_IO_VEC_MAX, -1, 0);
+			return preadv2(fd, iov, HDD_IO_VEC_MAX, offset, 0);
 #endif
 #if defined(HAVE_PREADV)
 		case 1:
-			/* 25% */
-			{
-				off_t offset = lseek(fd, SEEK_CUR, 0);
-
-				if (offset != (off_t)-1)
-					return preadv(fd, iov, HDD_IO_VEC_MAX, offset);
-			}
-			CASE_FALLTHROUGH;
+			return preadv(fd, iov, HDD_IO_VEC_MAX, offset);
 #endif
 		default:
-			/* 50% */
+			if (lseek(fd, offset, SEEK_SET) < 0)
+				return -1;
 			return readv(fd, iov, HDD_IO_VEC_MAX);
 		}
 #else
-		(void)hdd_read_size;
-		return read(fd, buf, count);
+		if (lseek(fd, offset, SEEK_SET) < 0)
+			return -1;
+		return read(fd, buf, (size_t)hdd_read_size);
 #endif
 	} else {
-		return read(fd, buf, count);
+		if (lseek(fd, offset, SEEK_SET) < 0)
+			return -1;
+		return read(fd, buf, (size_t)hdd_read_size);
 	}
 }
 
@@ -637,13 +638,6 @@ static int stress_hdd(const stress_args_t *args)
 				size_t offset = (i == 0) ?
 					hdd_bytes :
 					(stress_mwc64() % hdd_bytes) & ~511UL;
-
-				if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
-					pr_fail("%s: lseek failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					(void)close(fd);
-					goto finish;
-				}
 rnd_wr_retry:
 				if (!keep_stressing(args)) {
 					(void)close(fd);
@@ -654,7 +648,7 @@ rnd_wr_retry:
 					buf[j] = data_value(offset, j, args);
 				}
 
-				ret = stress_hdd_write(fd, buf, (size_t)hdd_write_size,
+				ret = stress_hdd_write(fd, buf, offset,
 					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
@@ -684,7 +678,7 @@ seq_wr_retry:
 
 				for (j = 0; j < hdd_write_size; j++)
 					buf[j] = data_value(i, j, args);
-				ret = stress_hdd_write(fd, buf, (size_t)hdd_write_size,
+				ret = stress_hdd_write(fd, buf, (off_t)i,
 					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
@@ -718,20 +712,13 @@ seq_wr_retry:
 			uint64_t misreads = 0;
 			uint64_t baddata = 0;
 
-			if (lseek(fd, 0, SEEK_SET) < 0) {
-				pr_fail("%s: lseek failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				(void)close(fd);
-				goto finish;
-			}
 			for (i = 0; i < hdd_read_size; i += hdd_write_size) {
 seq_rd_retry:
 				if (!keep_stressing(args)) {
 					(void)close(fd);
 					goto yielded;
 				}
-
-				ret = stress_hdd_read(fd, buf, (size_t)hdd_write_size,
+				ret = stress_hdd_read(fd, buf, (off_t)i,
 					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
@@ -746,8 +733,9 @@ seq_rd_retry:
 					}
 					continue;
 				}
-				if (ret != (ssize_t)hdd_write_size)
+				if (ret != (ssize_t)hdd_write_size) {
 					misreads++;
+				}
 
 				if (g_opt_flags & OPT_FLAGS_VERIFY) {
 					if (hdd_flags & HDD_OPT_WR_SEQ) {
@@ -802,7 +790,7 @@ rnd_rd_retry:
 					(void)close(fd);
 					goto yielded;
 				}
-				ret = stress_hdd_read(fd, buf, (size_t)hdd_write_size,
+				ret = stress_hdd_read(fd, buf, (off_t)offset,
 					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
