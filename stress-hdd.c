@@ -633,6 +633,13 @@ static int stress_hdd(const stress_args_t *args)
 
 		/* Random Write */
 		if (hdd_flags & HDD_OPT_WR_RND) {
+			uint32_t w, z;
+
+			w = stress_mwc32();
+			z = stress_mwc32();
+
+			stress_mwc_seed(w, z);
+			
 			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 				size_t j;
 				size_t offset = (i == 0) ?
@@ -665,6 +672,8 @@ rnd_wr_retry:
 				}
 				inc_counter(args);
 			}
+
+			stress_mwc_seed(w, z);
 		}
 		/* Sequential Write */
 		if (hdd_flags & HDD_OPT_WR_SEQ) {
