@@ -136,7 +136,10 @@ static int stress_shm_sysv_check(
  *  exercise_shmat()
  *	exercise shmat syscall with all possible values of arguments
  */
-static void exercise_shmat(const int shm_id, const size_t page_size)
+static void exercise_shmat(
+	const int shm_id,
+	const size_t page_size,
+	const size_t sz)
 {
 	void *addr;
 	uint64_t buffer[(page_size / sizeof(uint64_t)) + 1];
@@ -169,8 +172,33 @@ static void exercise_shmat(const int shm_id, const size_t page_size)
 
 #if defined(SHM_RND)
 	addr = shmat(shm_id, NULL, SHM_RND);
-	if (addr != (void *)-1)
+	if (addr != (void *)-1) {
 		(void)shmdt(addr);
+
+#if defined(SHM_REMAP)
+		/*  Exercise valid remap */
+		addr = shmat(shm_id, addr, SHM_REMAP);
+		if (addr != (void *)-1) {
+			/* Exercise remap onto itself */
+			void *remap = shmat(shm_id, addr, SHM_REMAP | SHM_RDONLY);
+			if (remap != (void *)-1)
+				(void)shmdt(remap);
+			if (addr != remap)
+				(void)shmdt(addr);
+		}
+#endif
+	}
+#endif
+
+#if defined(SHM_RND)
+	addr = mmap(NULL, sz, PROT_READ,
+		    MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (addr != MAP_FAILED) {
+		(void)munmap(addr, sz);
+		addr = shmat(shm_id, addr, SHM_RND);
+		if (addr != (void *)-1)
+			(void)shmdt(addr);
+	}
 #endif
 
 	/* Exercise shmat with SHM_REMAP flag on NULL address */
@@ -583,7 +611,7 @@ static int stress_shm_sysv_child(
 				goto reap;
 			}
 
-			exercise_shmat(shm_id, args->page_size);
+			exercise_shmat(shm_id, args->page_size, sz);
 
 			addr = shmat(shm_id, NULL, 0);
 			if (addr == (char *) -1) {
