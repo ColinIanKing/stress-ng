@@ -546,7 +546,7 @@ static int stress_shm_sysv_child(
 				goto reap;
 
 			for (count = 0; count < KEY_GET_RETRIES; count++) {
-				bool unique = true;
+				bool unique;
 				const int rnd =
 					stress_mwc32() % SIZEOF_ARRAY(shm_flags); /* cppcheck-suppress moduloofone */
 				const int rnd_flag = shm_flags[rnd] & mask;
@@ -557,6 +557,7 @@ static int stress_shm_sysv_child(
 				/* Get a unique key */
 				do {
 					size_t j;
+					unique = true;
 
 					if (!keep_stressing_flag())
 						goto reap;
@@ -571,12 +572,16 @@ static int stress_shm_sysv_child(
 					}
 					if (!keep_stressing_flag())
 						goto reap;
-
 				} while (!unique);
 
+				errno = 0;
 				shm_id = shmget(key, sz,
 					IPC_CREAT | IPC_EXCL |
 					S_IRUSR | S_IWUSR | rnd_flag);
+/*
+{ int x = errno;
+  pr_inf("HERE: %d\n", x);
+  errno = x; } */
 				if (shm_id >= 0)
 					break;
 				if (errno == EINTR)
