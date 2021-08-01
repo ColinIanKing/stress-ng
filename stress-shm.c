@@ -322,7 +322,7 @@ reap:
 
 /*
  *  stress_shm()
- *	stress SYSTEM V shared memory
+ *	stress POSIX shared memory
  */
 static int stress_shm(const stress_args_t *args)
 {
