@@ -574,14 +574,9 @@ static int stress_shm_sysv_child(
 						goto reap;
 				} while (!unique);
 
-				errno = 0;
 				shm_id = shmget(key, sz,
 					IPC_CREAT | IPC_EXCL |
 					S_IRUSR | S_IWUSR | rnd_flag);
-/*
-{ int x = errno;
-  pr_inf("HERE: %d\n", x);
-  errno = x; } */
 				if (shm_id >= 0)
 					break;
 				if (errno == EINTR)
