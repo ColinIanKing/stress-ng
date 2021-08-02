@@ -54,11 +54,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #define MAX_MMAP_BUFS	(8192)
 
-#if !defined(MAP_HUGE_2MB)
+#if !defined(MAP_HUGE_2MB) && defined(MAP_HUGE_SHIFT)
 #define MAP_HUGE_2MB    (21 << MAP_HUGE_SHIFT)
 #endif
 
-#if !defined(MAP_HUGE_1GB)
+#if !defined(MAP_HUGE_1GB) && defined(MAP_HUGE_SHIFT)
 #define MAP_HUGE_1GB    (30 << MAP_HUGE_SHIFT)
 #endif
 
