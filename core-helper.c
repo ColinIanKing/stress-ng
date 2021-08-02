@@ -2545,6 +2545,8 @@ void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum)
  */
 #if (defined(__GNUC__) || defined(__clang__)) &&	\
     defined(HAVE_WEAK_ATTRIBUTE)
+extern void __stack_chk_fail(void);
+
 NORETURN WEAK void __stack_chk_fail(void)
 {
 	if (stress_stack_check_flag) {
