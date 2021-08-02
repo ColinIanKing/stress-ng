@@ -390,8 +390,8 @@ close_timer_fds:
 			(void)close(timerfds[i]);
 	}
 
-free_fds:
 #if defined(USE_POLL)
+free_fds:
 	free(pollfds);
 #endif
 	free(timerfds);
