@@ -49,6 +49,7 @@ static const stress_help_t help[] = {
 #define float_put	stress_float_put
 #define double_put	stress_double_put
 #define stress_long_double_t_put stress_long_double_put
+typedef long double 		stress_long_double_t;
 #if defined(HAVE_COMPLEX_H) &&			\
     defined(HAVE_COMPLEX) &&			\
     defined(__STDC_IEC_559_COMPLEX__) &&	\
@@ -56,12 +57,10 @@ static const stress_help_t help[] = {
 #define stress_complex_float_t_put stress_complex_put
 #define stress_complex_double_t_put stress_complex_put
 #define stress_complex_long_double_t_put stress_complex_put
-#endif
-
-typedef long double 		stress_long_double_t;
 typedef complex float		stress_complex_float_t;
 typedef complex double		stress_complex_double_t;
 typedef complex long double	stress_complex_long_double_t;
+#endif
 
 static inline float stress_mwcfloat(void)
 {
