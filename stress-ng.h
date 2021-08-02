@@ -875,13 +875,9 @@ typedef unsigned long int __kernel_ulong_t;
 #endif
 
 /*
- * making local static fixes globbering warnings on older gcc versions
+ * making local static fixes globbering warnings
  */
-#if defined(__GNUC__) || defined(__clang__)
 #define NOCLOBBER	static
-#else
-#define NOCLOBBER
-#endif
 
 #if (_BSD_SOURCE || _SVID_SOURCE || !defined(__gnu_hurd__))
 #define STRESS_PAGE_IN
