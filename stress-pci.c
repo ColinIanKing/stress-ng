@@ -61,7 +61,7 @@ static int stress_pci_filter(const struct dirent *d)
  */
 static int stress_pci_dev_filter(const struct dirent *d)
 {
-	int dummy[4];
+	unsigned int dummy[4];
 
 	/* Check it meets format 0000:00:00.0 */
 	if (sscanf(d->d_name, "%x:%x:%x.%x",
