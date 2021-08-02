@@ -120,10 +120,11 @@ static stress_pci_info_t *stress_pci_info_get(void)
 
 		for (j = 0; j < n_devs; j++) {
 			stress_pci_info_t *pi;
-			char pci_path[PATH_MAX];
 
 			pi = calloc(1, sizeof(*pi));
 			if (pi) {
+				char pci_path[PATH_MAX];
+
 				(void)snprintf(pci_path, sizeof(pci_path),
 					"%s/%s/%s", sys_devices,
 					list[i]->d_name, pci_list[j]->d_name);
