@@ -1326,8 +1326,7 @@ typedef struct {			/* vmstat column */
 #endif
 
 /* optimisation on branching */
-#if defined(__GNUC__) ||			\
-    (defined(__clang__) && NEED_CLANG(3, 0, 0))
+#if defined(HAVE_BUILTIN_EXPECT)
 #define LIKELY(x)	__builtin_expect((x),1)
 #define UNLIKELY(x)	__builtin_expect((x),0)
 #else
@@ -1354,15 +1353,13 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 #define shim_builtin_memmove		memmove
 #endif
 
-/* waste some cycles */
-#if defined(__GNUC__) || defined(__clang__)
-#  if defined(HAVE_ASM_NOP)
-#    define FORCE_DO_NOTHING() __asm__ __volatile__("nop;")
-#  else
-#    define FORCE_DO_NOTHING() __asm__ __volatile__("")
-#  endif
+/* do nothing */
+#if defined(HAVE_ASM_NOP)
+#define FORCE_DO_NOTHING() __asm__ __volatile__("nop;")
+#elif defined(HAVE_ASM_NOTHING)
+#define FORCE_DO_NOTHING() __asm__ __volatile__("")
 #else
-#  define FORCE_DO_NOTHING() while (0)
+#define FORCE_DO_NOTHING() while (0)
 #endif
 
 #if defined(__clang__) &&	\
