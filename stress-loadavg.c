@@ -46,14 +46,14 @@ static const stress_help_t help[] = {
 typedef struct {
 	pthread_t pthread;	/* The pthread */
 	int	  ret;		/* pthread create return */
-#endif
 } stress_loadavg_info_t;
+#endif
 
 static volatile bool keep_thread_running_flag;
 static volatile bool keep_running_flag;
-static stress_loadavg_info_t pthreads[MAX_LOADAVG];
 
 #if defined(HAVE_LIB_PTHREAD)
+static stress_loadavg_info_t pthreads[MAX_LOADAVG];
 
 static inline void stop_running(void)
 {
