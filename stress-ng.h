@@ -1319,7 +1319,7 @@ typedef struct {			/* vmstat column */
 #endif
 
 /* restrict keyword */
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(HAVE___RESTRICT)
 #define RESTRICT __restrict
 #else
 #define RESTRICT
