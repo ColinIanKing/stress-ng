@@ -16,9 +16,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.12.12
+VERSION=0.13.00
 #
-# Codename "Stressy McStressface"
+# Codename "Skydiving pond snail"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
