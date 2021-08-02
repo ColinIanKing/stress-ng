@@ -122,8 +122,8 @@ static inline int handle_page_fault(
 	const int fd,
 	uint8_t *addr,
 	void *zero_page,
-	uint8_t *data_start,
-	uint8_t *data_end,
+	const uint8_t *data_start,
+	const uint8_t *data_end,
 	const size_t page_size)
 {
 	if ((addr < data_start) || (addr >= data_end)) {
