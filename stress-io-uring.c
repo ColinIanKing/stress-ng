@@ -610,9 +610,9 @@ static int stress_io_uring(const stress_args_t *args)
 	}
 
 	for (i = 0; (i < blocks) && (file_size > 0); i++) {
-		const size_t iov_len = (file_size > (off_t)block_size) ? (size_t)block_size : (size_t)file_size;
+		const size_t iov_length = (file_size > (off_t)block_size) ? (size_t)block_size : (size_t)file_size;
 
-		io_uring_file.iovecs[i].iov_len = iov_len;
+		io_uring_file.iovecs[i].iov_len = iov_length;
 		io_uring_file.iovecs[i].iov_base =
 			mmap(NULL, block_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_POPULATE | MAP_ANONYMOUS, -1, 0);
@@ -622,7 +622,7 @@ static int stress_io_uring(const stress_args_t *args)
 			stress_io_uring_unmap_iovecs(&io_uring_file);
 			return EXIT_NO_RESOURCE;
 		}
-		file_size -= iov_len;
+		file_size -= iov_length;
 	}
 
 	ret = stress_temp_dir_mk_args(args);
