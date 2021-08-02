@@ -1348,10 +1348,10 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 #define shim_builtin_prefetch		__builtin_prefetch
 #endif
 
-#if defined(__PCC__)
-#define shim_builtin_memmove		memmove
-#else
+#if defined(HAVE_BUILTIN_MEMMOVE)
 #define shim_builtin_memmove		__builtin_memmove
+#else
+#define shim_builtin_memmove		memmove
 #endif
 
 /* waste some cycles */
