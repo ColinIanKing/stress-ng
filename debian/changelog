@@ -1,3 +1,82 @@
+stress-ng (0.13.00-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-userfaultfd: constify a couple of function arguments
+  * stress-timerfd: move label to inside if #ifdef
+  * stress-pci: reduce the scope of pci_path
+  * stress-pci: use unsigned int for %x sscanf format specifier
+  * Manual: update date
+  * core-helper: declare extern __stack_chk_fail
+  * stress-loadavg: Fix build warning on unused pthread flags
+  * stress-loadavg: fix build error on systems without pthreads
+  * stress-mmaphuge: fix info name, copy-n-paste error
+  * stress-mmaphuge: define HUGE macros only if MAP_HUGE_SHIFT is
+    defined
+  * stress-ng.h: remove toolchain check for NOCLOBBER macro
+  * Add asm("") and builtin_expect() built time checks
+  * stress-funccall: only define complex types if complex is supported
+  * stress-ng.h: use HAVE_BUILTIN_MEMMOVE for __builtin_memmove usage
+  * stress-io-uring: rename variable iov_len to iov_length to fix pcc
+    failure
+  * stress-funccall: only define complex types if complex is supported
+  * Add __restrict keyword build time check
+  * stress-shm-sysv: remove some commented out debug cruft
+  * stress-shm-sysv: fix random key generation
+  * stress-shm: fix comment, it is a POSIX shm stessor not SYS V
+  * stress-shm-sysv: exercise shmat with RND option a little more
+  * stress-hdd: ensure read is sync'd to the same random offsets as
+    write
+  * stress-hdd: fix --verify option
+  * stress-opcode: allow child to die badly silently
+  * Add new line between declaration and first executable statement
+  * Add a huge page memory mapping stressor --mmaphuge
+  * stress-mlockmany: add --mlockmany-procs option
+  * help: wrap overly wide help text to tty width
+  * core-helper: add stress_tty_width to get column width of terminal
+  * stress-rawdev: fix typo in help
+  * stress-list: add spaced between list options in help
+  * stress-nop: add missing INSTR arg to nop-instr help
+  * stress-rdrand: add rdrand instruction asm check
+  * Break wide macro line into multi-line #define
+  * Add stress-ng specific stack smashing error message
+  * stress-nop: fix typo in --nop-instr help
+  * Rename macro HAVE_DARN to HAVE_ASM_DARN
+  * stress-nop: add --nop-instr option to specify nop instruction
+  * stress-timerfd: add --timerfd-fds option to specify max fds to use
+  * stress-bad-altstack: disable warnings on known illegal null ptr
+    dereference
+  * stress-dirmany: Add a stressor to rapidly create/remove empty files
+  * Skip error messages on no resource skip stressor terminations
+  * Add load average stressor, try to create insane load averages
+  * stress-pthread: report strerror of correct error return value
+  * stress-resources: Add timerfd_create/close
+  * stress-timerfd: Add build time checks for timerfd_* calls
+  * stress-resources: exercise pidfd_open, waste more fds
+  * stress-open: use O_NDELAY open flag
+  * stress-resources: reap pthread only if it was started
+  * Add build time checks for complex creal and cimag libm functions
+  * stress-funccall: re-organize to reduce #ifdef checking
+  * stress-funccall: add some more types to pass
+  * stress-physpage: exercise /dev/mem mmap'ing
+  * stress-pci: update some comments, fix date
+  * Add new PCI sysfs stressor to read/mmap PCI config and resources
+  * Remove trailing tabs from various sources
+  * stress-prtcl: use shim'd enum for PIDTYPE values
+  * Detemine minimal stack size via sysconf, then PTHREAD_STACK_MIN
+    then guess
+  * stress-memcpy: add naive_o0 and naive_o3 options
+  * stress-af-alg: no need to report zero unused algorithmns
+  * core-madvise: Add MADV_POPULATE_READ and MADV_POPULATE_WRITE flags
+  * stress-madvise: add MADV_POPULATE_READ and MADV_POPULATE_WRITE flags
+  * core-mincore: use MADV_POPULATE_READ to fault pages in
+  * Manual: update contributors list
+  * stress-io-uring: fix typo in comment
+  * stress-affinity: add new --affinity-pin and --affinity-delay options
+  * core-helper: don't emit not implemented messages with --skip-silent
+  * Manual: minor cleanups
+
+ -- Colin King <colin.king@canonical.com>  Mon, 2 Aug 2021 18:58:47 +0100
+
 stress-ng (0.12.12-1) unstable; urgency=medium
 
   * Makefile: bump version
