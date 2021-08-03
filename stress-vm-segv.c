@@ -133,7 +133,7 @@ kill_child:
 
 #if defined(HAVE_PTRACE)
 			(void)ptrace(PTRACE_TRACEME);
-			kill(getpid(), SIGSTOP);
+			(void)kill(getpid(), SIGSTOP);
 #endif
 			(void)sigemptyset(&set);
 			(void)sigaddset(&set, SIGSEGV);

@@ -161,7 +161,7 @@ static int static_dup2_child(info_t *info)
 	if (info->pid_clone >= 0) {
 		int status, ret;
 
-		kill(info->pid_clone, SIGKILL);
+		(void)kill(info->pid_clone, SIGKILL);
 		ret = waitpid(info->pid_clone, &status, (int)__WCLONE);
 		(void)ret;
 	}

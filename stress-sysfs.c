@@ -219,11 +219,6 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			(void)close(fd);
 			goto drain;
 		}
-/*
-if (stress_mwc8() > 240)
-	kill(getpid(), SIGKILL);
-*/
-
 		/*
 		 *  mmap it
 		 */

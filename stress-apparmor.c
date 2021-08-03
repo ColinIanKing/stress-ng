@@ -241,7 +241,7 @@ again:
 		ret = func(args->name, max_ops, counter);
 abort:
 		free(apparmor_path);
-		kill(args->pid, SIGUSR1);
+		(void)kill(args->pid, SIGUSR1);
 		_exit(ret);
 	}
 	(void)setpgid(pid, g_pgrp);

@@ -1222,9 +1222,9 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 		 *  consecutive EINTRs then give up.
 		 */
 		if (!keep_stressing_flag()) {
-			kill(pid, SIGALRM);
+			(void)kill(pid, SIGALRM);
 			if (count > 120)
-				kill(pid, SIGKILL);
+				(void)kill(pid, SIGKILL);
 		}
 		if (count > 10)
 			sleep(1);

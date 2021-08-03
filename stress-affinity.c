@@ -120,7 +120,7 @@ static void stress_affinity_reap(const pid_t *pids)
 	 */
 	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
 		if ((pids[i] > 1) && (pids[i] != mypid))
-			kill(pids[i], SIGKILL);
+			(void)kill(pids[i], SIGKILL);
 	}
 	for (i = 1; i < STRESS_AFFINITY_PROCS; i++) {
 		if ((pids[i] > 1) && (pids[i] != mypid)) {
