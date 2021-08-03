@@ -40,7 +40,7 @@ static void stress_try_kill(
 		(void)ret;
 		if ((kill(pid, 0) < 0) && (errno == ESRCH))
 			return;
-		shim_usleep(100000);
+		(void)shim_usleep(100000);
 	}
 	pr_dbg("%s: can't kill pid %" PRIdMAX " opening %s\n",
 		args->name, (intmax_t)pid, path);
@@ -109,7 +109,7 @@ int stress_try_open(
 			goto done;
 
 		/* Sleep and retry */
-		shim_nanosleep_uint64(sleep_ns);
+		(void)shim_nanosleep_uint64(sleep_ns);
 	}
 
 	/* Give up, force kill */

@@ -1227,7 +1227,7 @@ pid_t shim_waitpid(pid_t pid, int *wstatus, int options)
 				(void)kill(pid, SIGKILL);
 		}
 		if (count > 10)
-			sleep(1);
+			(void)sleep(1);
 	}
 	return ret;
 }

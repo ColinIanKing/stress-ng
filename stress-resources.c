@@ -567,7 +567,7 @@ static void NORETURN waste_resources(
 
 		info[i].pid = fork();
 		if (info[i].pid == 0) {
-			sleep(10);
+			(void)sleep(10);
 			_exit(0);
 		}
 	}

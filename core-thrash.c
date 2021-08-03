@@ -267,7 +267,7 @@ void stress_thrash_stop(void)
 	(void)kill(thrash_pid, SIGALRM);
 	(void)shim_waitpid(thrash_pid, &status, 0);
 	if (kill(thrash_pid, 0) == 0) {
-		shim_usleep(250000);
+		(void)shim_usleep(250000);
 		(void)kill(thrash_pid, SIGKILL);
 		(void)shim_waitpid(thrash_pid, &status, 0);
 	}

@@ -246,7 +246,7 @@ rewait:
 			 *  the final SIGKILL
 			 */
 			if (signal_idx > 1)
-				shim_usleep(500000);
+				(void)shim_usleep(500000);
 			goto rewait;
 		} else if (WIFSIGNALED(status)) {
 			if (not_quiet)

@@ -117,7 +117,7 @@ static int stress_fiemap_writer(
     defined(FALLOC_FL_KEEP_SIZE)
 		if (!punch_hole)
 			continue;
-		shim_usleep(1000);
+		(void)shim_usleep(1000);
 
 		offset = stress_mwc64() % len;
 		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
@@ -127,7 +127,7 @@ static int stress_fiemap_writer(
 			if (errno == EOPNOTSUPP)
 				punch_hole = false;
 		}
-		shim_usleep(1000);
+		(void)shim_usleep(1000);
 		if (!stress_fiemap_count(args, counters))
 			break;
 #endif

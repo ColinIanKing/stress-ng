@@ -389,7 +389,7 @@ void stress_vmstat_start(void)
 		else if ((thermalstat_sleep > 0) && (vmstat_sleep == 0))
 			sleep_delay = thermalstat_sleep;
 
-		sleep((unsigned int)sleep_delay);
+		(void)sleep((unsigned int)sleep_delay);
 
 		vmstat_sleep -= sleep_delay;
 		thermalstat_sleep -= sleep_delay;
