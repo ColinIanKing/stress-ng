@@ -2168,7 +2168,7 @@ static void stress_cpu_intconversion(const char *name)
  */
 static inline long double HOT OPTIMIZE3 factorial(int n)
 {
-	static long double factorials[] = {
+	static const long double factorials[] = {
 		1.0L,
 		1.0L,
 		2.0L,
