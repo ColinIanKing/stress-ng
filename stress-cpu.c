@@ -2795,7 +2795,8 @@ static void stress_cpu_queens(const char *name)
 	};
 
 	for (all = 1, n = 1; n < 12; n++) {
-		uint32_t solutions = queens_try(0, 0, 0, all);
+		const uint32_t solutions = queens_try(0, 0, 0, all);
+
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 		    (solutions != queens_solutions[n]))
 			pr_fail("%s: queens solution error detected "
