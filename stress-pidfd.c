@@ -87,7 +87,7 @@ static int stress_pidfd_supported(const char *name)
 			(void)close(pidfd);
 			return -1;
 		}
-		/* Something went wrong, but let stressor fail on that */
+		/* Something went wrong, but don't let stressor fail on that */
 	}
 
 	/* initialized info to be safe */
