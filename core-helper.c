@@ -481,7 +481,6 @@ int stress_set_nonblock(const int fd)
 #endif
 }
 
-
 /*
  *  stress_get_load_avg()
  *	get load average
@@ -1075,7 +1074,6 @@ void pr_runinfo(void)
 #endif
 }
 
-
 /*
  *  pr_yaml_runinfo()
  *	log info about the system we are running stress-ng on
@@ -1140,7 +1138,6 @@ void pr_yaml_runinfo(FILE *yaml)
 	pr_yaml(yaml, "      ticks-per-second: %" PRId32 "\n", stress_get_ticks_per_second());
 	pr_yaml(yaml, "\n");
 }
-
 
 /*
  *  stress_cache_alloc()
@@ -1297,7 +1294,6 @@ ssize_t system_read(
 	return ret;
 }
 
-
 /*
  *  stress_is_prime64()
  *      return true if 64 bit value n is prime
@@ -1438,8 +1434,6 @@ int stress_get_bad_fd(void)
 #endif
 	return -1;
 }
-
-
 
 /*
  *  stress_sigaltstack()
@@ -2496,6 +2490,10 @@ size_t stress_min_sig_stack_size(void)
 	return (size_t)sz;
 }
 
+/*
+ *  stress_min_pthread_stack_size()
+ *	return the minimum size of stack for a pthread
+ */
 size_t stress_min_pthread_stack_size(void)
 {
 	static long sz = -1, min;
