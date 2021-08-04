@@ -2755,10 +2755,6 @@ static void TARGET_CLONES stress_cpu_union(const char *name)
 	}
 }
 
-static const uint32_t queens_solutions[] = {
-	0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200
-};
-
 /*
  *  Solution from http://www.cl.cam.ac.uk/~mr10/backtrk.pdf
  *     see section 2.1
@@ -2793,6 +2789,10 @@ static uint32_t queens_try(
 static void stress_cpu_queens(const char *name)
 {
 	uint32_t all, n;
+
+	static const uint32_t queens_solutions[] = {
+		0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200
+	};
 
 	for (all = 1, n = 1; n < 12; n++) {
 		uint32_t solutions = queens_try(0, 0, 0, all);
