@@ -32,16 +32,18 @@ typedef struct {
 	bool	 affinity_rand;		/* True if --affinity-rand set */
 	bool	 affinity_pin;		/* True if --affinity-pin set */
 	uint64_t affinity_delay;	/* Affinity nanosecond delay, 0 default */
+	uint64_t affinity_sleep;	/* Affinity nanosecond delay, 0 default */
 	uint64_t counters[0];		/* Child stressor bogo counters */
 } stress_affinity_info_t;
 
 static const stress_help_t help[] = {
-	{ NULL,	"affinity N",	 "start N workers that rapidly change CPU affinity" },
-	{ NULL,	"affinity-ops N","stop after N affinity bogo operations" },
-	{ NULL,	"affinity-rand", "change affinity randomly rather than sequentially" },
-	{ NULL, "affinity-delay","delay in nanoseconds between affinity changes" },
-	{ NULL, "affinity-pin", "keep per stressor threads pinned to same CPU" },
-	{ NULL,	NULL,		 NULL }
+	{ NULL,	"affinity N",	  "start N workers that rapidly change CPU affinity" },
+	{ NULL,	"affinity-ops N", "stop after N affinity bogo operations" },
+	{ NULL,	"affinity-rand",  "change affinity randomly rather than sequentially" },
+	{ NULL, "affinity-delay", "delay in nanoseconds between affinity changes" },
+	{ NULL, "affinity-pin",   "keep per stressor threads pinned to same CPU" },
+	{ NULL,	"affinity-sleep", "sleep in nanoseconds between affinity changes" },
+	{ NULL,	NULL,		  NULL }
 };
 
 static int stress_set_affinity_delay(const char *opt)
@@ -70,10 +72,21 @@ static int stress_set_affinity_pin(const char *opt)
 	return stress_set_setting("affinity-pin", TYPE_ID_BOOL, &affinity_pin);
 }
 
+static int stress_set_affinity_sleep(const char *opt)
+{
+	uint64_t affinity_sleep;
+
+	affinity_sleep = stress_get_uint64(opt);
+	stress_check_range("affinity-sleep", affinity_sleep,
+		0, STRESS_NANOSECOND);
+	return stress_set_setting("affinity-sleep", TYPE_ID_UINT64, &affinity_sleep);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_affinity_delay,	stress_set_affinity_delay },
 	{ OPT_affinity_pin,	stress_set_affinity_pin },
 	{ OPT_affinity_rand,    stress_set_affinity_rand },
+	{ OPT_affinity_sleep,   stress_set_affinity_sleep },
 	{ 0,			NULL }
 };
 
@@ -263,6 +276,8 @@ static void stress_affinity_child(
 
 		if (info->affinity_delay > 0)
 			stress_affinity_spin_delay(info->affinity_delay, info);
+		if (info->affinity_sleep > 0)
+			shim_nanosleep_uint64(info->affinity_sleep);
 	} while (affinity_keep_stressing(args, counters));
 
 	stress_affinity_reap(pids);
@@ -289,11 +304,13 @@ static int stress_affinity(const stress_args_t *args)
 	info->affinity_delay = 0;
 	info->affinity_pin = false;
 	info->affinity_rand = false;
+	info->affinity_sleep = 0;
 	info->cpus = (uint32_t)stress_get_processors_configured();
 
 	(void)stress_get_setting("affinity-delay", &info->affinity_delay);
 	(void)stress_get_setting("affinity-pin", &info->affinity_pin);
 	(void)stress_get_setting("affinity-rand", &info->affinity_rand);
+	(void)stress_get_setting("affinity-sleep", &info->affinity_sleep);
 
 	/*
 	 *  process slots 1..STRESS_AFFINITY_PROCS are the children,

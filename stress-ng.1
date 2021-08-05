@@ -466,7 +466,7 @@ test rates so the final number of bogo-ops will be equal or more than the
 specified ops stop threshold because of racy unlocked bogo-op counting.
 .TP
 .B \-\-affinity\-delay N
-delay N nanoseconds before changing affinity to the next CPU.
+delay for N nanoseconds before changing affinity to the next CPU.
 The delay will spin on CPU scheduling yield operations for N nanoseconds
 before the process is moved to another CPU. The default is 0 nanosconds.
 .TP
@@ -476,6 +476,9 @@ CPU chosen by the main parent stressor, forcing heavy per CPU loading.
 .TP
 .B \-\-affinity\-rand
 switch CPU affinity randomly rather than the default of sequentially.
+.TP
+.B \-\-affinity\-sleep N
+sleep for N nanoseconds before changing affinity to the next CPU.
 .TP
 .B \-\-af\-alg N
 start N workers that exercise the AF_ALG socket domain by hashing and encrypting

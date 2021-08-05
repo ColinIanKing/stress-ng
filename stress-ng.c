@@ -215,6 +215,7 @@ static const struct option long_options[] = {
 	{ "affinity-ops",1,	0,	OPT_affinity_ops },
 	{ "affinity-pin",0,	0,	OPT_affinity_pin },
 	{ "affinity-rand",0,	0,	OPT_affinity_rand },
+	{ "affinity-sleep",1,	0,	OPT_affinity_sleep },
 	{ "aggressive",	0,	0,	OPT_aggressive },
 	{ "aio",	1,	0,	OPT_aio },
 	{ "aio-ops",	1,	0,	OPT_aio_ops },

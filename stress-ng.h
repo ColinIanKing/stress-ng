@@ -2749,6 +2749,7 @@ typedef enum {
 	OPT_affinity_ops,
 	OPT_affinity_pin,
 	OPT_affinity_rand,
+	OPT_affinity_sleep,
 
 	OPT_af_alg,
 	OPT_af_alg_ops,
