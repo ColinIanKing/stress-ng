@@ -52,7 +52,7 @@ static void MLOCKED_TEXT stress_usr1_handler(int signum)
 static pid_t spawn(
 	const stress_args_t *args,
 	void (*func)(const stress_args_t *args, const pid_t pid),
-	pid_t pid_arg)
+	const pid_t pid_arg)
 {
 	pid_t pid;
 
