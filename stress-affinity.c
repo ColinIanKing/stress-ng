@@ -54,7 +54,6 @@ static int stress_set_affinity_delay(const char *opt)
 	return stress_set_setting("affinity-delay", TYPE_ID_UINT64, &affinity_delay);
 }
 
-
 static int stress_set_affinity_rand(const char *opt)
 {
 	bool affinity_rand = true;
@@ -82,7 +81,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress on sched_affinity()
  *	stress system by changing CPU affinity periodically
  */
-
 #if defined(HAVE_AFFINITY) && \
     defined(HAVE_SCHED_GETAFFINITY)
 
@@ -110,6 +108,10 @@ static int stress_affinity_supported(const char *name)
 	return 0;
 }
 
+/*
+ *  stress_affinity_reap()
+ *	kill and wait on child processes
+ */
 static void stress_affinity_reap(const pid_t *pids)
 {
 	size_t i;
@@ -179,6 +181,10 @@ static inline void stress_affinity_spin_delay(
 		shim_sched_yield();
 }
 
+/*
+ *  stress_affinity_child()
+ *	affinity stressor child process
+ */
 static void stress_affinity_child(
 	const stress_args_t *args,
 	stress_affinity_info_t *info,
