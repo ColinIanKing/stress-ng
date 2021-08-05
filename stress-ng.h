@@ -2470,6 +2470,7 @@ typedef struct {
 	MACRO(flock)		\
 	MACRO(fork)		\
 	MACRO(fp_error)		\
+	MACRO(fpunch)		\
 	MACRO(fstat)		\
 	MACRO(full)		\
 	MACRO(funccall)		\
@@ -2960,6 +2961,9 @@ typedef enum {
 
 	OPT_fp_error,
 	OPT_fp_error_ops,
+
+	OPT_fpunch,
+	OPT_fpunch_ops,
 
 	OPT_fstat,
 	OPT_fstat_ops,
@@ -4196,6 +4200,7 @@ extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
 extern void stress_misc_stats_set(stress_misc_stats_t *misc_stats,
 	const int idx, const char *description, const double value);
 extern WARN_UNUSED int stress_tty_width(void);
+extern WARN_UNUSED size_t stress_get_extents(const int fd);
 
 extern void stress_smart_start(void);
 extern void stress_smart_stop(void);

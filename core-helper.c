@@ -2585,3 +2585,28 @@ int stress_tty_width(void)
 	return max_width;
 #endif
 }
+
+/*
+ *  stress_get_extents()
+ *	try to determine number extents in a file
+ */
+size_t stress_get_extents(const int fd)
+{
+#if defined(FS_IOC_FIEMAP) &&	\
+    defined(HAVE_LINUX_FIEMAP_H)
+	struct fiemap fiemap;
+
+	(void)memset(&fiemap, 0, sizeof(fiemap));
+	fiemap.fm_length = ~0UL;
+
+	/* Find out how many extents there are */
+	if (ioctl(fd, FS_IOC_FIEMAP, &fiemap) < 0)
+		return 0;
+
+	return fiemap.fm_mapped_extents;
+#else
+	(void)fd;
+
+	return 0;
+#endif
+}

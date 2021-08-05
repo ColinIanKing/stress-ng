@@ -132,6 +132,7 @@ STRESS_SRC = \
 	stress-flock.c \
 	stress-fork.c \
 	stress-fp-error.c \
+	stress-fpunch.c \
 	stress-fstat.c \
 	stress-full.c \
 	stress-funccall.c \

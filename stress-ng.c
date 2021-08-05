@@ -377,6 +377,8 @@ static const struct option long_options[] = {
 	{ "fork-vm",	0,	0,	OPT_fork_vm },
 	{ "fp-error",	1,	0,	OPT_fp_error},
 	{ "fp-error-ops",1,	0,	OPT_fp_error_ops },
+	{ "fpunch",	1,	0,	OPT_fpunch },
+	{ "fpunch-ops",	1,	0,	OPT_fpunch_ops },
 	{ "fstat",	1,	0,	OPT_fstat },
 	{ "fstat-ops",	1,	0,	OPT_fstat_ops },
 	{ "fstat-dir",	1,	0,	OPT_fstat_dir },

@@ -1608,6 +1608,17 @@ checked.
 .B \-\-fp\-error\-ops N
 stop after N bogo floating point exceptions.
 .TP
+.B \-\-fpunch N
+start N workers that punch and fill holes in a 16 MB file using five
+concurrent processes per stressor exercising on the same file. Where
+available, this uses fallocate(2) FALLOC_FL_KEEP_SIZE,
+FALLOC_FL_PUNCH_HOLE, FALLOC_FL_ZERO_RANGE, FALLOC_FL_COLLAPSE_RANGE
+and FALLOC_FL_INSERT_RANGE to make and fill holes across the file
+and breaks it into multiple extents.
+.TP
+.B \-\-fpunch\-ops N
+stop fpunch workers after N punch and fill bogo operations.
+.TP
 .B \-\-fstat N
 start N workers fstat'ing files in a directory (default is /dev).
 .TP
