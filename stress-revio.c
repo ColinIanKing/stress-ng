@@ -269,27 +269,6 @@ static int stress_revio_advise(const stress_args_t *args, const int fd, const in
 	return 0;
 }
 
-static inline size_t stress_revio_get_extents(const int fd)
-{
-#if defined(FS_IOC_FIEMAP) &&	\
-    defined(HAVE_LINUX_FIEMAP_H)
-	struct fiemap fiemap;
-
-	(void)memset(&fiemap, 0, sizeof(fiemap));
-	fiemap.fm_length = ~0UL;
-
-	/* Find out how many extents there are */
-	if (ioctl(fd, FS_IOC_FIEMAP, &fiemap) < 0)
-		return 0;
-
-	return fiemap.fm_mapped_extents;
-#else
-	(void)fd;
-
-	return 0;
-#endif
-}
-
 /*
  *  stress_revio
  *	stress I/O via writes in reverse
@@ -437,7 +416,7 @@ seq_wr_retry:
 			inc_counter(args);
 		}
 		iterations++;
-		extents = stress_revio_get_extents(fd);
+		extents = stress_get_extents(fd);
 		avg_extents += (double)extents;
 		(void)close(fd);
 	} while (keep_stressing(args));
