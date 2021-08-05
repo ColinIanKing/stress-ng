@@ -82,6 +82,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static uint32_t stress_l1cache_ln2(uint32_t val)
 {
 	int ln2 = 0;
+
 	while (val >>= 1)
 		++ln2;
 
