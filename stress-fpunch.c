@@ -67,23 +67,19 @@ static const stress_fallocate_modes_t modes[] = {
  *	fill a file hole with data, try to use pwrite if possible
  *	as this does not need an lseek overhead call
  */
-static void stress_punch_pwrite(
+static ssize_t stress_punch_pwrite(
 	const int fd,
 	const char *buf,
 	const size_t size,
 	const off_t offset)
 {
-	ssize_t n;
-
 #if defined(HAVE_PWRITEV)
-	n = pwrite(fd, buf, size, offset);
-	(void)n;
+	return pwrite(fd, buf, size, offset);
 #else
 	if (lseek(fd, offset, SEEK_SET) < (off_t)-1)
 		return;
 
-	n = write(fd, buf, size);
-	(void)n;
+	return write(fd, buf, size);
 #endif
 }
 
@@ -107,12 +103,12 @@ static void stress_punch_action(
 	/* Don't duplicate writes to previous location */
 	if ((mode->write_before) &&
 	    (prev_size == size) && (prev_offset == offset))
-			stress_punch_pwrite(fd, buf_before, size, offset);
+		(void)stress_punch_pwrite(fd, buf_before, size, offset);
 
 	(void)shim_fallocate(fd, mode->mode, offset, size);
 
 	if (mode->write_after)
-		stress_punch_pwrite(fd, buf_after, size, offset);
+		(void)stress_punch_pwrite(fd, buf_after, size, offset);
 
 	prev_size = size;
 	prev_offset = offset;
@@ -181,8 +177,9 @@ static int stress_fpunch(const stress_args_t *args)
 	char filename[PATH_MAX];
 	off_t offset, punch_length = DEFAULT_FPUNCH_LENGTH;
 	pid_t pids[STRESS_PUNCH_PIDS];
-	size_t i, extents;
+	size_t i, extents, n;
 	char buf_before[BUF_SIZE], buf_after[BUF_SIZE];
+	const size_t stride = sizeof(buf_before) << 1;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -203,19 +200,22 @@ static int stress_fpunch(const stress_args_t *args)
 	(void)memset(buf_after, 0xa5, sizeof(buf_after));
 
 	/*
-	 *  Ensure file is full of non-zero data
+	 *  Create file with lots of holes and extents by populating
+	 *  it with 50% data and 50% holes by writing it backwarks
+	 *  and skipping over stride sized hunks.
 	 */
-	offset = 0;
-	while (offset < punch_length) {
-		ssize_t n;
+	offset = punch_length;
+	n = 0;
+	for (i = 0; i < punch_length / stride; i++) {
+		ssize_t r;
 
-		n = write(fd, buf_before, sizeof(buf_before));
-		if (n < 0)
-			break;
-
-		offset += n;
+		offset -= stride;
+		r = stress_punch_pwrite(fd, buf_before, sizeof(buf_before), offset);
+		n += (r > 0) ? r : 0;
 	}
-	if (offset < punch_length) {
+
+	/* Zero sized file is a bit concerning, so abort */
+	if (n == 0) {
 		pr_inf("%s: cannot allocate file of %jd bytes, skipping stressor\n",
 			args->name, (intmax_t)punch_length);
 		rc = EXIT_NO_RESOURCE;
