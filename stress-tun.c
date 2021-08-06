@@ -236,7 +236,7 @@ child_cleanup_fd:
 			/* Parent */
 			struct sockaddr_in addr;
 			socklen_t len;
-			char buffer[] = "test";
+			static const char buffer[] = "test";
 			ssize_t n;
 
 			ret = ioctl(fd, TUNSETPERSIST, 0);
