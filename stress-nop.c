@@ -178,7 +178,6 @@ stressor_info_t stress_nop_info = {
 stressor_info_t stress_nop_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU,
-	.opt_set_funcs,
 	.help = help
 };
 #endif
