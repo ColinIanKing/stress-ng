@@ -29,7 +29,7 @@ typedef struct {
 	const char *const sched_name;
 } stress_sched_types_t;
 
-static stress_sched_types_t sched_types[] = {
+static const stress_sched_types_t sched_types[] = {
 #if defined(SCHED_BATCH)
 	{ SCHED_BATCH,		"batch" },
 #endif
