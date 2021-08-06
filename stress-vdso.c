@@ -145,7 +145,7 @@ static int wrap_dummy(void *vdso_func)
 /*
  *  mapping of wrappers to function symbol name
  */
-static stress_wrap_func_t wrap_funcs[] = {
+static const stress_wrap_func_t wrap_funcs[] = {
 #if defined(HAVE_CLOCK_GETTIME)
 	{ wrap_clock_gettime,	"clock_gettime" },
 	{ wrap_clock_gettime,	"__vdso_clock_gettime" },
