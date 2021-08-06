@@ -118,7 +118,7 @@ static const morse_t morse[] = {
 	{ ' ', " " }
 };
 
-static stress_zlib_rand_data_info_t zlib_rand_data_methods[];
+static const stress_zlib_rand_data_info_t zlib_rand_data_methods[];
 static volatile bool pipe_broken = false;
 static sigjmp_buf jmpbuf;
 
@@ -911,7 +911,7 @@ static HOT OPTIMIZE3 void stress_zlib_random_test(
 /*
  * Table of zlib data methods
  */
-static stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
+static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "random",	stress_zlib_random_test }, /* Special "random" test */
 
 	{ "00ff",	stress_rand_data_00_ff },
@@ -974,7 +974,7 @@ static int stress_set_zlib_mem_level(const char *opt)
  */
 static int stress_set_zlib_method(const char *opt)
 {
-	stress_zlib_rand_data_info_t *info;
+	const stress_zlib_rand_data_info_t *info;
 
 	for (info = zlib_rand_data_methods; info->func; info++) {
 		if (!strcmp(info->name, opt)) {
