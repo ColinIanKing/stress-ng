@@ -2916,18 +2916,14 @@ static inline void stress_set_random_stressors(void)
 
 		/* create n randomly chosen stressors */
 		while (n > 0) {
-			uint32_t rnd32 = stress_mwc32();
-			int32_t rnd = (int32_t)rnd32 % ((opt_random >> 5) + 2);
 			const uint32_t i = stress_mwc32() % n_procs;
 			stress_stressor_t *ss = stress_get_nth_stressor(i);
 
 			if (!ss)
 				continue;
 
-			if (rnd > n)
-				rnd = n;
-			ss->num_instances += rnd;
-			n -= rnd;
+			ss->num_instances++;
+			n--;
 		}
 	}
 }
