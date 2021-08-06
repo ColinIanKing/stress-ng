@@ -201,7 +201,7 @@ static int stress_fpunch(const stress_args_t *args)
 
 	/*
 	 *  Create file with lots of holes and extents by populating
-	 *  it with 50% data and 50% holes by writing it backwarks
+	 *  it with 50% data and 50% holes by writing it backwards
 	 *  and skipping over stride sized hunks.
 	 */
 	offset = punch_length;
