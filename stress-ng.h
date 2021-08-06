@@ -3135,6 +3135,7 @@ typedef enum {
 	OPT_malloc_max,
 	OPT_malloc_pthreads,
 	OPT_malloc_threshold,
+	OPT_malloc_touch,
 
 	OPT_matrix,
 	OPT_matrix_ops,

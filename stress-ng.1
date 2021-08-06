@@ -2232,6 +2232,13 @@ specify the threshold where malloc uses mmap(2) instead of sbrk(2) to allocate
 more memory. This is only available on systems that provide the GNU C
 mallopt(3) tuning function.
 .TP
+.B \-\-malloc\-touch
+touch every allocated page to force pages to be populated in memory. This will
+increase the memory pressure and exercise the virtual memory harder. By default
+the malloc stressor will madvise pages into memory or use mincore to check for
+non-resident memory pages and try to force them into memory; this option
+aggressively forces pages to be memory resident.
+.TP
 .B \-\-matrix N
 start N workers that perform various matrix operations on floating point
 values. Testing on 64 bit x86 hardware shows that this provides a good

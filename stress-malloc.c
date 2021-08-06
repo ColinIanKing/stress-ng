@@ -26,17 +26,18 @@
 
 #define MAX_MALLOC_PTHREADS		(32)
 
-static size_t malloc_max = DEFAULT_MALLOC_MAX;		/* Maximum number of allocations */
-static size_t malloc_bytes = DEFAULT_MALLOC_BYTES;	/* Maximum per-allocation size */
+static size_t malloc_max;		/* Maximum number of allocations */
+static size_t malloc_bytes;		/* Maximum per-allocation size */
 #if defined(HAVE_LIB_PTHREAD)
-static volatile bool keep_thread_running_flag;		/* False to stop pthreads */
+static volatile bool keep_thread_running_flag;	/* False to stop pthreads */
 #endif
-static size_t malloc_pthreads = 0;			/* Number of pthreads */
+static size_t malloc_pthreads;		/* Number of pthreads */
 #if defined(__GNUC__) &&	\
     defined(HAVE_MALLOPT) &&	\
     defined(M_MMAP_THRESHOLD)
-static size_t malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
+static size_t malloc_threshold;		/* When to use mmap and not sbrk */
 #endif
+static bool malloc_touch;		/* True will touch allocate pages */
 
 #if defined(HAVE_LIB_PTHREAD)
 /* per pthread data */
@@ -59,6 +60,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"malloc-ops N",		"stop after N malloc bogo operations" },
 	{ NULL,	"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
 	{ NULL, "malloc-pthreads N",	"number of pthreads to run concurrently" },
+	{ NULL, "malloc-touch",		"touch pages force pages to be populated" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -102,6 +104,14 @@ static int stress_set_malloc_pthreads(const char *opt)
 	return stress_set_setting("malloc-pthreads", TYPE_ID_SIZE_T, &npthreads);
 }
 
+static int stress_set_malloc_touch(const char *opt)
+{
+	bool malloc_touch = true;
+
+	(void)opt;
+	return stress_set_setting("malloc-touch", TYPE_ID_BOOL, &malloc_touch);
+}
+
 /*
  *  stress_alloc_size()
  *	get a new allocation size, ensuring
@@ -112,6 +122,21 @@ static inline size_t stress_alloc_size(const size_t size)
 	const size_t len = stress_mwc64() % size;
 
 	return len ? len : 1;
+}
+
+static void stress_malloc_page_touch(
+	uint8_t *buffer,
+	const size_t size,
+	const size_t page_size)
+{
+	uint8_t *ptr = buffer, *end = buffer + size;
+
+	if (malloc_touch) {
+		for (ptr = buffer; ptr < end; ptr += page_size)
+			*ptr = 0xff;
+	} else {
+		(void)stress_mincore_touch_pages_interruptible(buffer, size);
+	}
 }
 
 /*
@@ -149,6 +174,7 @@ static void *stress_malloc_loop(void *ptr)
 {
 	const stress_malloc_args_t *malloc_args = (stress_malloc_args_t *)ptr;
 	const stress_args_t *args = malloc_args->args;
+	const size_t page_size = args->page_size;
 	uint64_t *counters = malloc_args->counters;
 	uint64_t *counter = &counters[malloc_args->instance];
 	void **addr;
@@ -195,7 +221,7 @@ static void *stress_malloc_loop(void *ptr)
 				tmp = realloc(addr[i], len);
 				if (tmp) {
 					addr[i] = tmp;
-					(void)stress_mincore_touch_pages_interruptible(addr[i], len);
+					stress_malloc_page_touch(addr[i], len, page_size);
 					(*counter)++;
 				}
 			}
@@ -212,8 +238,8 @@ static void *stress_malloc_loop(void *ptr)
 					addr[i] = malloc(len);
 				}
 				if (addr[i]) {
+					stress_malloc_page_touch(addr[i], len, page_size);
 					(*counter)++;
-					(void)stress_mincore_touch_pages_interruptible(addr[i], len);
 				}
 			}
 		}
@@ -297,17 +323,18 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
  */
 static int stress_malloc(const stress_args_t *args)
 {
+	malloc_bytes = DEFAULT_MALLOC_BYTES;
 	if (!stress_get_setting("malloc-bytes", &malloc_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			malloc_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
 			malloc_bytes = MIN_MALLOC_BYTES;
 	}
-
 	malloc_bytes /= args->num_instances;
 	if (malloc_bytes < MIN_MALLOC_BYTES)
 		malloc_bytes = MIN_MALLOC_BYTES;
 
+	malloc_max = DEFAULT_MALLOC_MAX;
 	if (!stress_get_setting("malloc-max", &malloc_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			malloc_max = MAX_MALLOC_MAX;
@@ -315,22 +342,28 @@ static int stress_malloc(const stress_args_t *args)
 			malloc_max = MIN_MALLOC_MAX;
 	}
 
+	malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
 #if defined(__GNUC__) && 	\
     defined(HAVE_MALLOPT) &&	\
     defined(M_MMAP_THRESHOLD)
 	if (stress_get_setting("malloc-threshold", &malloc_threshold))
 		(void)mallopt(M_MMAP_THRESHOLD, (int)malloc_threshold);
 #endif
+	malloc_pthreads = 0;
 	(void)stress_get_setting("malloc-pthreads", &malloc_pthreads);
+
+	malloc_touch = false;
+	(void)stress_get_setting("malloc-touch", &malloc_touch);
 
 	return stress_oomable_child(args, NULL, stress_malloc_child, STRESS_OOMABLE_NORMAL);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_malloc_threshold,	stress_set_malloc_threshold },
 	{ OPT_malloc_max,	stress_set_malloc_max },
 	{ OPT_malloc_bytes,	stress_set_malloc_bytes },
 	{ OPT_malloc_pthreads,	stress_set_malloc_pthreads },
+	{ OPT_malloc_threshold,	stress_set_malloc_threshold },
+	{ OPT_malloc_touch,	stress_set_malloc_touch },
 	{ 0,		NULL }
 };
 
