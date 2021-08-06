@@ -42,7 +42,7 @@ static shim_pthread_spinlock_t lock;
 static uint32_t mixup;
 static volatile bool drain_kmsg = false;
 static volatile uint32_t counter = 0;
-static char signum_path[] = "/sys/kernel/notes";
+static const char signum_path[] = "/sys/kernel/notes";
 static uint32_t os_release;
 static stress_hash_table_t *sysfs_hash_table;
 
