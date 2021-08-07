@@ -639,7 +639,7 @@ static int stress_hdd(const stress_args_t *args)
 			z = stress_mwc32();
 
 			stress_mwc_seed(w, z);
-			
+
 			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 				size_t j;
 				size_t offset = (i == 0) ?
