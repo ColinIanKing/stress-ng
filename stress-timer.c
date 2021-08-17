@@ -267,6 +267,16 @@ static int stress_timer(const stress_args_t *args)
 		/* Re-delete already deleted timer */
 		ret = timer_delete(timerid);
 		(void)ret;
+	
+		/*
+		 * The manual states that EINVAL is returned when
+		 * an invalid timerid is used, in practice this
+		 * will most probably segfault librt, so ignore this
+		 * test case for now.
+		 *
+		ret = timer_delete((timer_t)stress_mwc32());
+		(void)ret;
+		 */
 	}
 #endif
 
