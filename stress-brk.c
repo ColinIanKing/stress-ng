@@ -132,6 +132,7 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 
 				ignore = shim_brk(start_ptr);
 				(void)ignore;
+
 			} else {
 				pr_err("%s: sbrk(%d) failed: errno=%d (%s)\n",
 					args->name, (int)page_size, errno,
@@ -142,6 +143,11 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 			/* Touch page, force it to be resident */
 			if (!brk_context->brk_notouch)
 				*(ptr - 1) = 0;
+
+#if defined(HAVE_MADVISE) &&	\
+    defined(MADV_MERGEABLE)
+			(void)madvise(ptr, page_size, MADV_MERGEABLE);
+#endif
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
