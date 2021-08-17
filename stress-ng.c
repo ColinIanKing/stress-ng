@@ -2070,6 +2070,12 @@ again:
 						stats->run_ok = true;
 						(*checksum)->data.run_ok = true;
 					}
+
+					/*
+					 *  We're done, cancel SIGALRM
+					 */
+					(void)alarm(0);
+
 					stress_set_proc_state(name, STRESS_STATE_STOP);
 					/*
 					 *  Bogo ops counter should be OK for reading,
