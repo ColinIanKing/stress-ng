@@ -244,7 +244,6 @@ static int stress_chroot_test7(const stress_args_t *args)
 
 	do_chroot(path, &ret1, &ret2, &errno1, &errno2);
 
-	free(path);
 
 	if ((ret1 >= 0) || ((errno1 != ENOTDIR) &&
 			    (errno1 != ENAMETOOLONG) &&
@@ -253,8 +252,10 @@ static int stress_chroot_test7(const stress_args_t *args)
 		pr_fail("%s: chroot(\"%-10.10s..\"), expected ENAMETOOLONG"
 			", got instead errno=%d (%s)\n",
 			args->name, path, errno1, strerror(errno1));
+		free(path);
 		return EXIT_FAILURE;
 	}
+	free(path);
 	return EXIT_SUCCESS;
 }
 
