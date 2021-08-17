@@ -75,6 +75,10 @@ static void do_chroot(
 	*errno2 = errno;
 }
 
+/*
+ *  stress_chroot_test1()
+ *	check if we can chroot to a valid directory
+ */
 static int stress_chroot_test1(const stress_args_t *args)
 {
 	char cwd[PATH_MAX];
@@ -108,6 +112,10 @@ static int stress_chroot_test1(const stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+/*
+ *  stress_chroot_test2()
+ *	check if path out of address space throws EFAULT error
+ */
 static int stress_chroot_test2(const stress_args_t *args)
 {
 #if defined(__linux__)
@@ -127,6 +135,10 @@ static int stress_chroot_test2(const stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+/*
+ *  stress_chroot_test3()
+ *	see if long path is handled correctly
+ */
 static int stress_chroot_test3(const stress_args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
@@ -146,6 +158,10 @@ static int stress_chroot_test3(const stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
+/*
+ *  stress_chroot_test4()
+ *	check if chroot to a path that does not exist returns ENOENT
+ */
 static int stress_chroot_test4(const stress_args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
@@ -156,11 +172,15 @@ static int stress_chroot_test4(const stress_args_t *args)
 		pr_fail("%s: chroot(\"%s\"), expected ENOENT"
 			", got instead errno=%d (%s)\n",
 			args->name, badpath, errno1, strerror(errno1));
-		return EXIT_SUCCESS;
+		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }
 
+/*
+ *  stress_chroot_test5()
+ *	check if chroot to a file returns ENOTDIR
+ */
 static int stress_chroot_test5(const stress_args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
@@ -177,7 +197,63 @@ static int stress_chroot_test5(const stress_args_t *args)
 		pr_fail("%s: chroot(\"%s\"), expected ENOTDIR"
 			", got instead errno=%d (%s)\n",
 			args->name, filename, errno1, strerror(errno1));
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_chroot_test6()
+ *	check if chroot to a device path fails with ENOTDIR
+ */
+static int stress_chroot_test6(const stress_args_t *args)
+{
+	int ret1, ret2, errno1, errno2;
+	const char *dev = "/dev/null";
+
+	do_chroot(dev, &ret1, &ret2, &errno1, &errno2);
+
+	if ((ret1 >= 0) || ((errno1 != ENOTDIR) &&
+			    (errno1 != ENOENT) &&
+			    (errno1 != EPERM))) {
+		pr_fail("%s: chroot(\"%s\"), expected ENOTDIR"
+			", got instead errno=%d (%s)\n",
+			args->name, dev, errno1, strerror(errno1));
+		return EXIT_FAILURE;
+	}
+	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_chroot_test7()
+ *	try with a stupidly long path
+ */
+static int stress_chroot_test7(const stress_args_t *args)
+{
+	const size_t path_len = 256 * KB;
+	int ret1, ret2, errno1, errno2;
+	char *path;
+	
+	/* Don't throw a failure of we can't allocate large path */
+	path = malloc(path_len);
+	if (!path)
 		return EXIT_SUCCESS;
+
+	stress_strnrnd(path, path_len);
+	path[0] = '/';
+
+	do_chroot(path, &ret1, &ret2, &errno1, &errno2);
+
+	free(path);
+
+	if ((ret1 >= 0) || ((errno1 != ENOTDIR) &&
+			    (errno1 != ENAMETOOLONG) &&
+			    (errno1 != ENOENT) &&
+			    (errno1 != EPERM))) {
+		pr_fail("%s: chroot(\"%-10.10s..\"), expected ENAMETOOLONG"
+			", got instead errno=%d (%s)\n",
+			args->name, path, errno1, strerror(errno1));
+		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;
 }
@@ -188,7 +264,9 @@ static const stress_chroot_test_func test_chroot_test_funcs[] =
 	stress_chroot_test2,
 	stress_chroot_test3,
 	stress_chroot_test4,
-	stress_chroot_test5
+	stress_chroot_test5,
+	stress_chroot_test6,
+	stress_chroot_test7
 };
 
 /*
