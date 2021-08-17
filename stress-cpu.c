@@ -2575,6 +2575,27 @@ static void TARGET_CLONES stress_cpu_dither(const char *name)
 }
 
 /*
+ *  stress_cpu_div16
+ *	perform 50000 x 16 bit divisions, these are traditionally
+ *	slow ops
+ */
+static void TARGET_CLONES stress_cpu_div16(const char *name)
+{
+	register uint16_t i, j;
+	const uint16_t di = 0xdUL;
+	const uint16_t max = 0xfde8;
+
+	(void)name;
+
+	for (i = 0, j = 1; i < max; i += di) {
+		register uint32_t r = i / j;
+
+		j = 1 | ((j << 1) ^ j);
+		stress_uint16_put(r);
+	}
+}	
+
+/*
  *  stress_cpu_div32
  *	perform 50000 x 32 bit divisions, these are traditionally
  *	slow ops
@@ -2966,6 +2987,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "decimal128",		stress_cpu_decimal128 },
 #endif
 	{ "dither",		stress_cpu_dither },
+	{ "div16",		stress_cpu_div16 },
 	{ "div32",		stress_cpu_div32 },
 	{ "div64",		stress_cpu_div64 },
 	{ "djb2a",		stress_cpu_djb2a },
