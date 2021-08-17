@@ -387,6 +387,8 @@ static int stress_get(const stress_args_t *args)
 		 * ENOSYS too
 		 */
 		(void)syscall(__NR_ugetrlimit, INT_MAX, &rlim);
+		(void)syscall(__NR_ugetrlimit, INT_MIN, &rlim);
+		(void)syscall(__NR_ugetrlimit, -1, &rlim);
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 			ret = syscall(__NR_ugetrlimit, rlimits[i], &rlim);
