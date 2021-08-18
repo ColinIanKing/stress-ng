@@ -30,6 +30,7 @@
 #define FLAGS_CACHE_SFENCE	(0x08)
 
 typedef void (*cache_write_func_t)(uint64_t inc, const uint64_t r, uint64_t *pi, uint64_t *pk);
+typedef void (*cache_write_page_func_t)(uint8_t *const addr, const uint64_t size);
 
 #if defined(HAVE_BUILTIN_SFENCE)
 #define FLAGS_CACHE_MASK	(FLAGS_CACHE_PREFETCH |	\
@@ -43,6 +44,8 @@ typedef void (*cache_write_func_t)(uint64_t inc, const uint64_t r, uint64_t *pi,
 #endif
 
 #define FLAGS_CACHE_NOAFF	(0x10)
+
+static sigjmp_buf jmp_env;
 
 static const stress_help_t help[] = {
 	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
@@ -168,7 +171,6 @@ static void OPTIMIZE3 stress_cache_write_mod_ ## x(			\
 	*pk = k;							\
 }									\
 
-
 CACHE_WRITE_USE_MOD(0,  0)
 CACHE_WRITE_USE_MOD(1,  FLAGS_CACHE_PREFETCH)
 CACHE_WRITE_USE_MOD(2,  FLAGS_CACHE_FLUSH)
@@ -205,7 +207,37 @@ static const cache_write_func_t cache_write_funcs[] = {
 	stress_cache_write_mod_15,
 };
 
-typedef void (*cache_read_func_t)( uint64_t *pi, uint64_t *pk, uint32_t *ptotal);
+typedef void (*cache_read_func_t)(uint64_t *pi, uint64_t *pk, uint32_t *ptotal);
+
+static void NORETURN MLOCKED_TEXT stress_cache_sighandler(int signum)
+{
+	(void)signum;
+
+	siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
+}
+
+/*
+ *  exercise invalid cache flush ops
+ */
+static void stress_cache_flush(void *addr, void *bad_addr, int size)
+{
+	(void)shim_cacheflush(addr, size, 0);
+	(void)shim_cacheflush(addr, size, ~0);
+	(void)shim_cacheflush(addr, 0, SHIM_DCACHE);
+	(void)shim_cacheflush(addr, 1, SHIM_DCACHE);
+	(void)shim_cacheflush(addr, -1, SHIM_DCACHE);
+#if defined(HAVE_BUILTIN___CLEAR_CACHE)
+	__builtin___clear_cache(addr, addr);
+#endif
+	(void)shim_cacheflush(bad_addr, size, SHIM_ICACHE);
+	(void)shim_cacheflush(bad_addr, size, SHIM_DCACHE);
+	(void)shim_cacheflush(bad_addr, size, SHIM_ICACHE | SHIM_DCACHE);
+#if defined(HAVE_BUILTIN___CLEAR_CACHE)
+	__builtin___clear_cache(addr, (void *)(addr - 1));
+	__builtin___clear_cache(bad_addr, (void *)(bad_addr + size));
+#endif
+	shim_clflush(bad_addr);
+}
 
 /*
  *  stress_cache()
@@ -233,6 +265,12 @@ static int stress_cache(const stress_args_t *args)
 	uint64_t k = i + (mem_cache_size >> 1);
 	uint64_t r = 0;
 	uint64_t inc = (mem_cache_size >> 2) + 1;
+	void *bad_addr;
+
+	if (stress_sighandler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+	if (stress_sighandler(args->name, SIGBUS , stress_cache_sighandler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("cache-flags", &cache_flags);
 	if (args->instance == 0)
@@ -260,6 +298,17 @@ static int stress_cache(const stress_args_t *args)
 			args->name);
 	}
 #endif
+
+	/*
+	 *  map a page then unmap it, then we have an address
+	 *  that is known to be not available. If the mapping
+	 *  fails we have MAP_FAILED which too is an invalid
+	 *  bad address.
+	 */
+	bad_addr = mmap(NULL, args->page_size, PROT_READ,
+		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (bad_addr != MAP_FAILED)
+		(void)munmap(bad_addr, args->page_size);
 
 	masked_flags = cache_flags & FLAGS_CACHE_MASK;
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -313,6 +362,25 @@ static int stress_cache(const stress_args_t *args)
 #endif
 		(void)shim_cacheflush((char *)stress_cache, 8192, SHIM_ICACHE);
 		(void)shim_cacheflush((char *)mem_cache, (int)mem_cache_size, SHIM_DCACHE);
+#if defined(HAVE_BUILTIN___CLEAR_CACHE)
+		__builtin___clear_cache((void *)stress_cache,
+					(void *)((char *)stress_cache + 64));
+#endif
+		/*
+		 * Periodically exercise invalid cache ops
+		 */
+		if ((r & 0x1f) == 0) {
+			ret = sigsetjmp(jmp_env, 1);
+			/*
+			 *  We return here if we segfault, so
+			 *  first check if we need to terminate
+			 */
+			if (!keep_stressing(args))
+				break;
+
+			if (!ret)
+				stress_cache_flush(mem_cache, bad_addr, args->page_size);
+		}
 		inc_counter(args);
 
 		/* Move forward a bit */
@@ -323,6 +391,7 @@ static int stress_cache(const stress_args_t *args)
 	stress_uint32_put(total);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return ret;
 }
 
