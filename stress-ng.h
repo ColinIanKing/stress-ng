@@ -1846,6 +1846,13 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define STRESS_ARCH_M68K	(1)
 #endif
 
+/* Arch specific SPARC */
+#if defined(__sparc) ||		\
+    defined(__sparc__) ||	\
+    defined(__sparc_v9__)
+#define STRESS_ARCH_SPARC
+#endif
+
 /* GCC5.0+ target_clones attribute */
 #if defined(HAVE_TARGET_CLONES) &&	\
     defined(STRESS_ARCH_X86)
