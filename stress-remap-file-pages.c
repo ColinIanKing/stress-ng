@@ -30,7 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_REMAP_FILE_PAGES)
+#if defined(HAVE_REMAP_FILE_PAGES) &&	\
+    !defined(STRESS_ARCH_SPARC)
 
 #define N_PAGES		(512)
 
