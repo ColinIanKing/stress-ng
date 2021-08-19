@@ -35,6 +35,19 @@ static const stress_help_t help[] = {
     NEED_GLIBC(2,8,0) && 		\
     defined(HAVE_SIGQUEUE)
 
+#if defined(__NR_signalfd4) &&		\
+    defined(__linux__)
+#define HAVE_SIGNALFD4
+static int shim_signalfd4(
+	int ufd,
+	sigset_t *user_mask,
+	size_t sizemask,
+	int flags)
+{
+	return (int)syscall(__NR_signalfd4, ufd, user_mask, sizemask, flags);
+}
+#endif
+
 /*
  *  stress_sigfd
  *	stress signalfd reads
@@ -72,6 +85,14 @@ static int stress_sigfd(const stress_args_t *args)
 	sfd = signalfd(fileno(stdout), &mask, 0);
 	if (sfd >= 0)
 		(void)close(sfd);
+	/*
+	 *  Exercise with invalid sizemask
+	 */
+#if defined(HAVE_SIGNALFD4)
+	sfd = shim_signalfd4(-1, &mask, sizeof(&mask) + 1, 0);
+	if (sfd >= 0)
+		(void)close(sfd);
+#endif
 
 	sfd = signalfd(-1, &mask, 0);
 	if (sfd < 0) {
