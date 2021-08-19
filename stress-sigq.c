@@ -31,12 +31,26 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_SIGQUEUE) && \
-    defined(HAVE_SIGWAITINFO)
+    defined(HAVE_SIGWAITINFO) && \
+    defined(SA_SIGINFO)
 
-static void MLOCKED_TEXT stress_sigqhandler(int signum)
+static void MLOCKED_TEXT stress_sigqhandler(
+	int sig,
+	siginfo_t *info,
+	void *ucontext)
 {
-	(void)signum;
+	(void)sig;
+	(void)info;
+	(void)ucontext;
 }
+
+#if defined(__NR_rt_sigqueueinfo)
+#define HAVE_RT_SIGQUEUEINFO
+static int shim_rt_sigqueueinfo(pid_t tgid, int sig, siginfo_t *info)
+{
+	return (int)syscall(__NR_rt_sigqueueinfo, tgid, sig, info);
+}
+#endif
 
 /*
  *  stress_sigq
@@ -45,9 +59,21 @@ static void MLOCKED_TEXT stress_sigqhandler(int signum)
 static int stress_sigq(const stress_args_t *args)
 {
 	pid_t pid;
+	struct sigaction sa;
+#if defined(HAVE_RT_SIGQUEUEINFO)
+	const pid_t mypid = getpid();
+	const uid_t myuid = getuid();
+#endif
 
-	if (stress_sighandler(args->name, SIGUSR1, stress_sigqhandler, NULL) < 0)
+	(void)memset(&sa, 0, sizeof(sa));
+	sa.sa_sigaction = stress_sigqhandler;
+	sa.sa_flags = SA_SIGINFO;
+
+	if (sigaction(SIGUSR1, &sa, NULL) < 0) {
+		pr_err("%s: cannot install SIGUSR1, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
@@ -115,6 +141,24 @@ again:
 			(void)memset(&s, 0, sizeof(s));
 			s.sival_int = 0;
 			(void)sigqueue(pid, SIGUSR1, s);
+
+#if defined(HAVE_RT_SIGQUEUEINFO)
+			{
+				siginfo_t info;
+
+				/*
+				 *  Invalid si_code, the kernel should return
+				 *  -EPERM on Linux.
+				 */
+				(void)memset(&info, 0, sizeof(info));
+				info.si_signo = SIGUSR1;
+				info.si_code = SI_TKILL;
+				info.si_pid = mypid;
+				info.si_uid = myuid;
+				info.si_value = s;
+				(void)shim_rt_sigqueueinfo(pid, SIGUSR1, &info);
+			}
+#endif
 			inc_counter(args);
 		} while (keep_stressing(args));
 
