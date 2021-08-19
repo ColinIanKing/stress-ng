@@ -34,8 +34,9 @@ static const stress_help_t help[] = {
     defined(HAVE_ADD_KEY) && \
     defined(HAVE_KEYCTL)
 
-#define MAX_KEYS 	(256)
-#define KEYCTL_TIMEOUT	(2)
+#define MAX_KEYS 		(256)
+#define KEYCTL_TIMEOUT		(2)
+#define KEY_HUGE_DESC_SIZE	(65536)
 
 /*
  *  shim_keyctl()
@@ -99,6 +100,15 @@ static int stress_key(const stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	bool timeout_supported = true;
 	bool no_error = true;
+	char *huge_description;
+
+	huge_description = malloc(KEY_HUGE_DESC_SIZE);
+	if (!huge_description) {
+		pr_inf("%s: cannot allocate %d byte description string, skipping stressor\n",
+			args->name, KEY_HUGE_DESC_SIZE);
+		return EXIT_NO_RESOURCE;
+	}
+	stress_strnrnd(huge_description, KEY_HUGE_DESC_SIZE);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -109,14 +119,48 @@ static int stress_key(const stress_args_t *args)
 
 		/* Add as many keys as we are allowed */
 		for (n = 0; n < MAX_KEYS; n++) {
+			size_t payload_len;
+
+			(void)snprintf(payload, sizeof(payload),
+				"somedata-%zu", n);
+			payload_len = strlen(payload);
 			(void)snprintf(description, sizeof(description),
 				"stress-ng-key-%" PRIdMAX "-%" PRIu32
 				"-%zu", (intmax_t)ppid, args->instance, n);
-			(void)snprintf(payload, sizeof(payload),
-				"somedata-%zu", n);
+
+
+			/* Exericse add_key with invalid long description */
+			keys[n] = shim_add_key("user", huge_description, payload,
+					payload_len, KEY_SPEC_PROCESS_KEYRING);
+			if (keys[n] >= 0)
+				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+
+			/* Exercise add_key with invalid empty description */
+			keys[n] = shim_add_key("user", "", payload,
+					payload_len, KEY_SPEC_PROCESS_KEYRING);
+			if (keys[n] >= 0)
+				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+
+			/* Exercise add_key with invalid description for keyring */
+			keys[n] = shim_add_key("keyring", ".bad", payload,
+					payload_len, KEY_SPEC_PROCESS_KEYRING);
+			if (keys[n] >= 0)
+				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+
+			/* Exercise add_key with invalid payload */
+			keys[n] = shim_add_key("user", description, "",
+					0, KEY_SPEC_PROCESS_KEYRING);
+			if (keys[n] >= 0)
+				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+
+			/* Exercise add_key with invalid payload length */
+			keys[n] = shim_add_key("user", description, payload,
+					SIZE_MAX, KEY_SPEC_PROCESS_KEYRING);
+			if (keys[n] >= 0)
+				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
 
 			keys[n] = shim_add_key("user", description,
-				payload, strlen(payload),
+				payload, payload_len,
 				KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] < 0) {
 				if (errno == ENOSYS) {
@@ -307,6 +351,8 @@ tidy:
 	} while (no_error && keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	free(huge_description);
 
 	return rc;
 }
