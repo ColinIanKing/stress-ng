@@ -36,16 +36,27 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		NULL }
 };
 
-static const int rusages[] = {
+typedef struct {
+	const int who;		/* rusage who field */
+	const char *name;	/* textual name of who value */
+	const bool verify;	/* check for valid rusage return */
+} stress_rusage_t;
+
+static const stress_rusage_t rusages[] = {
 #if defined(RUSAGE_SELF)
-	RUSAGE_SELF,
+	{ RUSAGE_SELF, 		"RUSAGE_SELF",		true },
 #endif
 #if defined(RUSAGE_CHILDREN)
-	RUSAGE_CHILDREN,
+	{ RUSAGE_CHILDREN, 	"RUSAGE_CHILDREN",	true },
 #endif
 #if defined(RUSAGE_THREAD)
-	RUSAGE_THREAD
+	{ RUSAGE_THREAD,	"RUSAGE_THREAD",	true },
 #endif
+#if defined(RUSAGE_BOTH)
+	{ RUSAGE_BOTH,		"RUSAGE_BOTH",		true },
+#endif
+	{ INT_MIN, 		"INT_MIN",		false },
+	{ INT_MAX,		"INT_MAX",		false },
 };
 
 /*
@@ -457,10 +468,10 @@ static int stress_get(const stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(rusages); i++) {
 			struct rusage usage;
 
-			ret = shim_getrusage(rusages[i], &usage);
-			if (verify && (ret < 0) && (errno != ENOSYS))
-				pr_fail("%s: getrusage(%zu, ..) failed, errno=%d (%s)\n",
-					args->name, i, errno, strerror(errno));
+			ret = shim_getrusage(rusages[i].who, &usage);
+			if (rusages[i].verify && verify && (ret < 0) && (errno != ENOSYS))
+				pr_fail("%s: getrusage(%s, ..) failed, errno=%d (%s)\n",
+					args->name, rusages[i].name, errno, strerror(errno));
 			if (!keep_stressing_flag())
 				break;
 		}
