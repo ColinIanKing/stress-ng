@@ -342,10 +342,10 @@ static int stress_malloc(const stress_args_t *args)
 			malloc_max = MIN_MALLOC_MAX;
 	}
 
-	malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
 #if defined(__GNUC__) && 	\
     defined(HAVE_MALLOPT) &&	\
     defined(M_MMAP_THRESHOLD)
+	malloc_threshold = DEFAULT_MALLOC_THRESHOLD;
 	if (stress_get_setting("malloc-threshold", &malloc_threshold))
 		(void)mallopt(M_MMAP_THRESHOLD, (int)malloc_threshold);
 #endif
