@@ -4593,6 +4593,7 @@ extern int shim_pkey_get(int pkey);
 extern int shim_pkey_set(int pkey, unsigned int rights);
 extern ssize_t shim_process_madvise(int pidfd, const struct iovec *iovec,
 	unsigned long vlen, int advice, unsigned int flags);
+extern int shim_process_mrelease(int pidfd, unsigned int flags);
 extern int shim_quotactl_fd(unsigned int fd, unsigned int cmd, int id, void *addr);
 extern ssize_t shim_readlink(const char *pathname, char *buf, size_t bufsiz);
 extern int shim_reboot(int magic, int magic2, int cmd, void *arg);

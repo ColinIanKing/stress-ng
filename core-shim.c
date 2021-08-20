@@ -2009,3 +2009,17 @@ int shim_modify_ldt(int func, void *ptr, unsigned long bytecount)
 	return (int)shim_enosys(0, func, ptr, bytecount);
 #endif
 }
+
+/*
+ *  shim_process_mrelease()
+ *	system call wrapper for Linux 5.14 process_mrelease
+ */
+int shim_process_mrelease(int pidfd, unsigned int flags)
+{
+#if defined(__NR_process_release)
+	return (int)syscall(__NR_process_release, pidfd, flags);
+#else
+	return (int)shim_enosys(0, pidfd, flags);
+#endif
+}
+
