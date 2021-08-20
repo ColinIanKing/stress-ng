@@ -110,12 +110,13 @@ static void stress_pidfd_reap(pid_t pid, int pidfd)
 {
 	int status;
 
-	if (pidfd >= 0)
-		(void)close(pidfd);
 	if (pid) {
 		(void)kill(pid, SIGKILL);
+		(void)shim_process_mrelease(pidfd, 0);
 		(void)shim_waitpid(pid, &status, 0);
 	}
+	if (pidfd >= 0)
+		(void)close(pidfd);
 }
 
 /*
