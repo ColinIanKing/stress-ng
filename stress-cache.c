@@ -235,7 +235,6 @@ static void stress_cache_flush(void *addr, void *bad_addr, int size)
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
 	__builtin___clear_cache(addr, (void *)(addr - 1));
 #endif
-	shim_clflush(bad_addr);
 }
 
 /*
