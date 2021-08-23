@@ -129,35 +129,45 @@ static int stress_key(const stress_args_t *args)
 				"-%zu", (intmax_t)ppid, args->instance, n);
 
 
+#if defined(KEYCTL_INVALIDATE)
 			/* Exericse add_key with invalid long description */
 			keys[n] = shim_add_key("user", huge_description, payload,
 					payload_len, KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] >= 0)
 				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+#endif
 
+#if defined(KEYCTL_INVALIDATE)
 			/* Exercise add_key with invalid empty description */
 			keys[n] = shim_add_key("user", "", payload,
 					payload_len, KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] >= 0)
 				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+#endif
 
+#if defined(KEYCTL_INVALIDATE)
 			/* Exercise add_key with invalid description for keyring */
 			keys[n] = shim_add_key("keyring", ".bad", payload,
 					payload_len, KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] >= 0)
 				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+#endif
 
+#if defined(KEYCTL_INVALIDATE)
 			/* Exercise add_key with invalid payload */
 			keys[n] = shim_add_key("user", description, "",
 					0, KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] >= 0)
 				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+#endif
 
+#if defined(KEYCTL_INVALIDATE)
 			/* Exercise add_key with invalid payload length */
 			keys[n] = shim_add_key("user", description, payload,
 					SIZE_MAX, KEY_SPEC_PROCESS_KEYRING);
 			if (keys[n] >= 0)
 				(void)shim_keyctl(KEYCTL_INVALIDATE, keys[n]);
+#endif
 
 			keys[n] = shim_add_key("user", description,
 				payload, payload_len,
