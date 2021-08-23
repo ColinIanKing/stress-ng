@@ -197,21 +197,27 @@ static int stress_exit_group(const stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 
+again:
 		pid = fork();
 		if (pid < 0) {
-			continue;
+			if (keep_stressing_flag() &&
+			    ((errno == EAGAIN) || (errno == ENOMEM)))
+				goto again;
+
+			(void)pthread_mutex_destroy(&mutex);
+			break;
 		} else if (pid == 0) {
 			stress_exit_group_child(args);
 		} else {
 			int status, ret;
 
 			ret = waitpid(pid, &status, 0);
+			(void)pthread_mutex_destroy(&mutex);
 			if (ret < 0)
 				break;
-		}
 
-		(void)pthread_mutex_destroy(&mutex);
-		inc_counter(args);
+			inc_counter(args);
+		}
 	}
 
         stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
