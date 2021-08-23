@@ -2466,6 +2466,7 @@ typedef struct {
 	MACRO(epoll)		\
 	MACRO(eventfd) 		\
 	MACRO(exec)		\
+	MACRO(exit_group)	\
 	MACRO(fallocate)	\
 	MACRO(fanotify)		\
 	MACRO(fault)		\
@@ -2932,6 +2933,9 @@ typedef enum {
 	OPT_exec,
 	OPT_exec_ops,
 	OPT_exec_max,
+
+	OPT_exit_group,
+	OPT_exit_group_ops,
 
 	OPT_fallocate_ops,
 	OPT_fallocate_bytes,

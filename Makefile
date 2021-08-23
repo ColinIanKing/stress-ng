@@ -121,6 +121,7 @@ STRESS_SRC = \
 	stress-epoll.c \
 	stress-eventfd.c \
 	stress-exec.c \
+	stress-exit-group.c \
 	stress-fallocate.c \
 	stress-fanotify.c \
 	stress-fault.c \
