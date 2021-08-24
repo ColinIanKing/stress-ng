@@ -301,6 +301,8 @@ again:
 			 */
 			(void)SHIM_KCMP(pid1, pid2, 0x7fffffff, 0, 0);
 			(void)SHIM_KCMP(pid1, pid2, SHIM_KCMP_FILE, bad_fd, fd1);
+			(void)SHIM_KCMP(pid1, INT_MAX, SHIM_KCMP_FILE, fd1, fd2);
+			(void)SHIM_KCMP(INT_MAX, pid2, SHIM_KCMP_FILE, fd1, fd2);
 			if (!is_root)
 				(void)SHIM_KCMP(1, pid2, SHIM_KCMP_SIGHAND, 0, 0);
 
