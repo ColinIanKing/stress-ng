@@ -316,12 +316,12 @@ int shim_klogctl(int type, char *bufp, int len)
  *  shim_membarrier()
  *	wrapper for membarrier(2) - issue memory barriers
  */
-int shim_membarrier(int cmd, int flags)
+int shim_membarrier(int cmd, int flags, int cpu_id)
 {
 #if defined(__NR_membarrier)
-	return (int)syscall(__NR_membarrier, cmd, flags);
+	return (int)syscall(__NR_membarrier, cmd, flags, cpu_id);
 #else
-	return (int)shim_enosys(0, cmd, flags);
+	return (int)shim_enosys(0, cmd, flags, cpu_id);
 #endif
 }
 

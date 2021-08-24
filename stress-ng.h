@@ -4569,7 +4569,7 @@ extern int shim_madvise(void *addr, size_t length, int advice);
 extern long shim_mbind(void *addr, unsigned long len,
 	int mode, const unsigned long *nodemask,
 	unsigned long maxnode, unsigned flags);
-extern int shim_membarrier(int cmd, int flags);
+extern int shim_membarrier(int cmd, int flags, int cpu_id);
 extern int shim_memfd_create(const char *name, unsigned int flags);
 extern int shim_memfd_secret(unsigned long flags);
 extern long shim_migrate_pages(int pid, unsigned long maxnode,

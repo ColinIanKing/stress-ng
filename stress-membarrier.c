@@ -53,6 +53,9 @@ enum membarrier_cmd {
 	MEMBARRIER_CMD_REGISTER_PRIVATE_EXPEDITED_RSEQ		= (1 << 8),
 };
 
+enum membarrier_cmd_flag {
+        MEMBARRIER_CMD_FLAG_CPU					= (1 << 0),
+};
 #endif
 
 static int stress_membarrier_exercise(const stress_args_t *args)
@@ -60,7 +63,7 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 	int ret;
 	unsigned int i, mask;
 
-	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
+	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0, 0);
 	if (ret < 0) {
 		pr_fail("%s: membarrier CMD QUERY failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -69,11 +72,19 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 	mask = (unsigned int)ret;
 	for (i = 1; i; i <<= 1) {
 		if (i & mask) {
-			ret = shim_membarrier((int)i, 0);
+			ret = shim_membarrier((int)i, 0, 0);
 			(void)ret;
 
 			/* Exercise illegal flags */
-			ret = shim_membarrier((int)i, ~0);
+			ret = shim_membarrier((int)i, ~0, 0);
+			(void)ret;
+
+			/* Exercise illegal cpu_id */
+			ret = shim_membarrier((int)i, 0, INT_MAX);
+			(void)ret;
+
+			/* Exercise MEMBARRIER_CMD_FLAG_CPU flag */
+			ret = shim_membarrier((int)i, MEMBARRIER_CMD_FLAG_CPU, 0);
 			(void)ret;
 		}
 	}
@@ -81,7 +92,7 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 	/* Exercise illegal command */
 	for (i = 1; i; i <<= 1) {
 		if (!(i & mask)) {
-			ret = shim_membarrier((int)i, 0);
+			ret = shim_membarrier((int)i, 0, 0);
 			(void)ret;
 			break;
 		}
@@ -120,7 +131,7 @@ static int stress_membarrier(const stress_args_t *args)
 	int pthread_ret[MAX_MEMBARRIER_THREADS];
 	stress_pthread_args_t pargs = { args, NULL, 0 };
 
-	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0);
+	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0, 0);
 	if (ret < 0) {
 		if (errno == ENOSYS) {
 			if (args->instance == 0)
