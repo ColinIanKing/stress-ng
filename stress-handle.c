@@ -198,6 +198,10 @@ static int stress_handle_child(const stress_args_t *args, void *context)
 		fhp->handle_bytes = 0;
 		(void)name_to_handle_at(AT_FDCWD, "", fhp, &mount_id, 0);
 
+		/* Exercise with invalid handle_bytes, EOVERFLOW */
+		fhp->handle_bytes = 1;
+		(void)name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, AT_EMPTY_PATH);
+
 		/* Exercise with invalid mount_fd */
 		fhp->handle_bytes = 32;
 		(void)name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0);
