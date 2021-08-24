@@ -68,6 +68,21 @@ static int stress_capgetset_pid(
 					args->name, (intmax_t)pid, errno, strerror(errno));
 			}
 		}
+
+		/*
+		 *  Exercise invalid pid -> EPERM
+		 */
+		uch.pid = INT_MIN;
+		ret = capset(&uch, ucd);
+		(void)ret;
+
+		/*
+		 *  Exercise invalid version -> EINVAL
+		 */
+		uch.version = 0x1234dead;
+		uch.pid = pid;
+		ret = capset(&uch, ucd);
+		(void)ret;
 	}
 #endif
 
