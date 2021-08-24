@@ -171,6 +171,10 @@ static int stress_utime(const stress_args_t *args)
 		/* Exercise huge filename, ENAMETOOLONG */
 		ret = utimensat(AT_FDCWD, hugename, ts, 0);
 		(void)ret;
+
+		/* Exercise invalid flags */
+		ret = utimensat(AT_FDCWD, filename, ts, ~0);
+		(void)ret;
 #endif
 
 #if defined(O_DIRECTORY) &&	\
