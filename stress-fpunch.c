@@ -90,6 +90,7 @@ static ssize_t stress_punch_pwrite(
  *	data.
  */
 static void stress_punch_action(
+	const stress_args_t *args,
 	const int fd,
 	const stress_fallocate_modes_t *mode,
 	const off_t offset,
@@ -100,15 +101,23 @@ static void stress_punch_action(
 	static size_t prev_size = ~(size_t)0;
 	static off_t prev_offset = ~(off_t)0;
 
+	if (!keep_stressing(args))
+		return;
+
 	/* Don't duplicate writes to previous location */
 	if ((mode->write_before) &&
 	    (prev_size == size) && (prev_offset == offset))
 		(void)stress_punch_pwrite(fd, buf_before, size, offset);
-
+	if (!keep_stressing(args))
+		return;
 	(void)shim_fallocate(fd, mode->mode, offset, size);
+	if (!keep_stressing(args))
+		return;
 
 	if (mode->write_after)
 		(void)stress_punch_pwrite(fd, buf_after, size, offset);
+	if (!keep_stressing(args))
+		return;
 
 	prev_size = size;
 	prev_offset = offset;
@@ -138,26 +147,32 @@ static void stress_punch_file(
 		 *  the fallocate hole punching and filling.
 		 */
 		for (i = 0; i < SIZEOF_ARRAY(modes); i++)
-			stress_punch_action(fd, &modes[i], offset + 511, buf_before, buf_after, 512);
+			stress_punch_action(args, fd, &modes[i], offset + 511, buf_before, buf_after, 512);
 
 		for (i = 0; i < SIZEOF_ARRAY(modes); i++)
-			stress_punch_action(fd, &modes[i], offset + 1, buf_before, buf_after, 512);
+			stress_punch_action(args, fd, &modes[i], offset + 1, buf_before, buf_after, 512);
 
 		for (i = 0; i < SIZEOF_ARRAY(modes); i++)
-			stress_punch_action(fd, &modes[i], offset, buf_before, buf_after, 512);
+			stress_punch_action(args, fd, &modes[i], offset, buf_before, buf_after, 512);
 
 		/*
 		 * FALLOC_FL_COLLAPSE_RANGE may need 4K sized for ext4 to work
 		 */
 		for (i = 0; i < SIZEOF_ARRAY(modes); i++)
-			stress_punch_action(fd, &modes[i], offset, buf_before, buf_after, 4096);
+			stress_punch_action(args, fd, &modes[i], offset, buf_before, buf_after, 4096);
 
 #if defined(FALLOC_FL_PUNCH_HOLE)
 		/* Create some holes to make more extents */
 
 		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, offset, 16);
+		if (!keep_stressing(args))
+			break;
 		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, offset + 128, 16);
+		if (!keep_stressing(args))
+			break;
 		(void)shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE, (off_t)stress_mwc32() % punch_length, 16);
+		if (!keep_stressing(args))
+			break;
 #endif
 		offset += 256;
 		if (offset + 4096 > punch_length)
