@@ -87,10 +87,23 @@ static int stress_kill(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 
 		/*
-		 * Exercise the kernel by sending an illegal signal number
+		 * Exercise the kernel by sending illegal signal numbers,
+		 * should return -EINVAL
 		 */
 		ret = kill(args->pid, -1);
 		(void)ret;
+		ret = kill(args->pid, INT_MIN);
+		(void)ret;
+		ret = kill(0, INT_MIN);
+		(void)ret;
+
+		/*
+		 * Exercise the kernel by sending illegal pid INT_MIN,
+		 * should return -ESRCH but not sure if that is portable
+		 */
+		ret = kill(INT_MIN, 0);
+		(void)ret;
+
 		inc_counter(args);
 	} while (keep_stressing(args));
 
