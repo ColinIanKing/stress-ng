@@ -39,6 +39,7 @@ static const stress_help_t help[] = {
 #define BUFFER_SIZE	(4096)
 
 static volatile int got_err;
+static volatile uint64_t async_sigs;
 static int rd_fd;
 static const stress_args_t *sigio_args;
 static pid_t pid;
@@ -54,19 +55,30 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 
 	(void)signum;
 
+	async_sigs++;
+
 	if (!keep_stressing_flag() || (stress_time_now() > time_end))
 		return;
 
 	if (rd_fd > 0) {
-		ssize_t ret;
+		/*
+		 *  Data is ready, so drain as much as possible
+		 */
+		for (;;) {
+			ssize_t ret;
 
-		got_err = 0;
-		ret = read(rd_fd, buffer, sizeof(buffer));
-		if ((ret < 0) && (errno != EAGAIN))
-			got_err = errno;
-		else if (sigio_args)
-			inc_counter(sigio_args);
-		(void)shim_sched_yield();
+			got_err = 0;
+			errno = 0;
+			ret = read(rd_fd, buffer, sizeof(buffer));
+			if (ret < 0) {
+				if (errno != EAGAIN)
+					got_err = errno;
+				break;
+			}
+
+			if (sigio_args)
+				inc_counter(sigio_args);
+		}
 	}
 }
 
@@ -80,6 +92,7 @@ static int stress_sigio(const stress_args_t *args)
 
 	rd_fd = -1;
 	sigio_args = args;
+	double t_start, t_delta;
 	pid = -1;
 
 	time_end = stress_time_now() + (double)g_opt_timeout;
@@ -89,6 +102,11 @@ static int stress_sigio(const stress_args_t *args)
 		return rc;
 	}
 	rd_fd = fds[0];
+
+#if defined(F_SETPIPE_SZ)
+	(void)fcntl(fds[0], F_SETPIPE_SZ, BUFFER_SIZE * 2);
+	(void)fcntl(fds[1], F_SETPIPE_SZ, BUFFER_SIZE * 2);
+#endif
 
 #if !defined(__minix__)
 	ret = fcntl(fds[0], F_SETOWN, getpid());
@@ -107,6 +125,8 @@ static int stress_sigio(const stress_args_t *args)
 		goto err;
 	}
 
+	async_sigs = 0;
+
 	pid = fork();
 	if (pid < 0) {
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
@@ -114,8 +134,7 @@ static int stress_sigio(const stress_args_t *args)
 		goto err;
 	} else if (pid == 0) {
 		/* Child */
-
-		char buffer[BUFFER_SIZE >> 4];
+		char buffer[BUFFER_SIZE];
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -133,12 +152,10 @@ static int stress_sigio(const stress_args_t *args)
 			n = write(fds[1], buffer, sizeof buffer);
 			if (n < 0)
 				break;
-			(void)shim_sched_yield();
 		}
 		(void)close(fds[1]);
 		_exit(1);
 	}
-
 	/* Parent */
 	(void)close(fds[1]);
 	fds[1] = -1;
@@ -154,6 +171,7 @@ static int stress_sigio(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		goto reap;
 	}
+	t_start = stress_time_now();
 	do {
 		struct timeval timeout;
 
@@ -167,6 +185,11 @@ static int stress_sigio(const stress_args_t *args)
 			break;
 		}
 	} while (keep_stressing(args));
+	t_delta = stress_time_now() - t_start;
+
+	if (t_delta > 0.0) 
+		pr_inf("%s: %.2f SIGIO signals/sec\n",
+			args->name, (double)async_sigs / t_delta);
 
 	/*  And ignore IO signals from now on */
 	ret = stress_sighandler(args->name, SIGIO, SIG_IGN, NULL);
