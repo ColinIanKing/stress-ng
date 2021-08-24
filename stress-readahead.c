@@ -241,7 +241,7 @@ rnd_rd_retry:
 		/* Exercise invalid readahead on write-only file, EBADF */
 		if (fd_wr >= 0) {
 			ret = readahead(fd_wr, 0, 512);
-                	(void)ret;
+			(void)ret;
 		}
 
                 /* Exercise large sizes and illegal sizes */
