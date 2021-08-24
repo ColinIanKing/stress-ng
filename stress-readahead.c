@@ -89,7 +89,7 @@ static int stress_readahead(const stress_args_t *args)
 	int ret, rc = EXIT_FAILURE;
 	char filename[PATH_MAX];
 	int flags = O_CREAT | O_RDWR | O_TRUNC;
-	int fd;
+	int fd, fd_wr;
 	struct stat statbuf;
 
 	if (!stress_get_setting("readahead-bytes", &readahead_bytes)) {
@@ -117,12 +117,17 @@ static int stress_readahead(const stress_args_t *args)
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
-	if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
+	fd = open(filename, flags, S_IRUSR | S_IWUSR);
+	if (fd < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto finish;
 	}
+
+	/* write-only open, ignore failure */
+	fd_wr = open(filename, O_WRONLY, S_IRUSR | S_IWUSR);
+
 	if (ftruncate(fd, (off_t)0) < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
@@ -229,6 +234,16 @@ rnd_rd_retry:
                 ret = readahead(~0, 0, 512);
                 (void)ret;
 
+		/* Exercise zero size readahead */
+                ret = readahead(fd, 0, 0);
+                (void)ret;
+
+		/* Exercise invalid readahead on write-only file, EBADF */
+		if (fd_wr >= 0) {
+			ret = readahead(fd_wr, 0, 512);
+                	(void)ret;
+		}
+
                 /* Exercise large sizes and illegal sizes */
 		for (i = 15; i < sizeof(size_t) * 8; i += 4) {
 			ret = readahead(fd, 0, 1ULL << i);
@@ -239,6 +254,8 @@ rnd_rd_retry:
 	rc = EXIT_SUCCESS;
 close_finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	if (fd_wr >= 0)
+		(void)close(fd_wr);
 	(void)close(fd);
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
