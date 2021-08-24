@@ -2993,7 +2993,8 @@ static void stress_dev_dir(
 	const char *path,
 	const bool recurse,
 	const int depth,
-	const uid_t euid)
+	const uid_t euid,
+	const char *tty_name)
 {
 	struct dirent **dlist;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
@@ -3053,6 +3054,13 @@ static void stress_dev_dir(
 		}
 
 		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
+
+		/*
+		 *  Avoid any actions on owner's tty
+		 */
+		if (tty_name && !strcmp(tty_name, tmp))
+			continue;
+
 		switch (d->d_type) {
 		case DT_DIR:
 			if (!recurse)
@@ -3069,7 +3077,7 @@ static void stress_dev_dir(
 				continue;
 			}
 			inc_counter(args);
-			stress_dev_dir(args, tmp, recurse, depth + 1, euid);
+			stress_dev_dir(args, tmp, recurse, depth + 1, euid, tty_name);
 			break;
 		case DT_BLK:
 		case DT_CHR:
@@ -3126,6 +3134,8 @@ static int stress_dev(const stress_args_t *args)
 	uid_t euid = geteuid();
 	stress_pthread_args_t pa;
 	char *dev_file = NULL;
+	const int stdout_fd = fileno(stdout);
+	const char *tty_name = (stdout_fd >= 0) ? ttyname(stdout_fd) : NULL;
 
 	dev_path = "/dev/null";
 	pa.args = args;
@@ -3234,7 +3244,7 @@ again:
 				if (dev_file)
 					stress_dev_file(args, dev_file);
 				else
-					stress_dev_dir(args, "/dev", true, 0, euid);
+					stress_dev_dir(args, "/dev", true, 0, euid, tty_name);
 			} while (keep_stressing(args));
 
 			r = shim_pthread_spin_lock(&lock);
