@@ -107,6 +107,18 @@ static int stress_klog(const stress_args_t *args)
 	do {
 		int ret, buflen = (int)(stress_mwc32() % len) + 1;
 
+		/* Exercise illegal read size */
+		(void)shim_klogctl(SYSLOG_ACTION_READ, buffer, -1);
+		(void)shim_klogctl(SYSLOG_ACTION_READ_ALL, buffer, -1);
+
+		/* Exercise illegal buffer */
+		(void)shim_klogctl(SYSLOG_ACTION_READ, NULL, 0);
+		(void)shim_klogctl(SYSLOG_ACTION_READ_ALL, NULL, 0);
+
+		/* Exercise zero size read */
+		(void)shim_klogctl(SYSLOG_ACTION_READ, buffer, 0);
+		(void)shim_klogctl(SYSLOG_ACTION_READ_ALL, buffer, 0);
+
 		ret = shim_klogctl(SYSLOG_ACTION_READ_ALL, buffer, buflen);
 		if (ret < 0)
 			pr_fail("%s: syslog ACTION_READ_ALL failed, errno=%d (%s)\n",
