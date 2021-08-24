@@ -180,6 +180,7 @@ static int stress_wait(const stress_args_t *args)
 	int status, ret = EXIT_SUCCESS;
 	pid_t pid_r, pid_k, wret;
 	int options = 0;
+	const pid_t pgrp = getpgrp();
 
 #if defined(WUNTRACED)
 	options |= WUNTRACED;
@@ -269,6 +270,9 @@ static int stress_wait(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 
+		/*
+		 *  Exercise PID -1 -> any child process
+		 */
 		wret = shim_wait4(-1, &status, options, &usage);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail("%s: wait4 on pid -1 failed, errno=%d (%s)\n",
@@ -279,6 +283,9 @@ static int stress_wait(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 
+		/*
+		 *  Exercise PID 0 -> process group of caller
+		 */
 		wret = shim_wait4(0, &status, options, &usage);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail("%s: wait4 on pid 0 failed, errno=%d (%s)\n",
@@ -288,6 +295,31 @@ static int stress_wait(const stress_args_t *args)
 		stress_wait_continued(args, status);
 		if (!keep_stressing_flag())
 			break;
+
+		/*
+		 *  Exercise -ve PID -> PGID number
+		 */
+		wret = shim_wait4(-pgrp, &status, options, &usage);
+		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
+			pr_fail("%s: wait4 on pgrp %" PRIdMAX " failed, errno=%d (%s)\n",
+				args->name, (intmax_t)pgrp, errno, strerror(errno));
+			break;
+		}
+		stress_wait_continued(args, status);
+		if (!keep_stressing_flag())
+			break;
+
+		/*
+		 *  Exercise wait4 with invalid PID, errno -> ESRCH
+		 */
+		wret = shim_wait4(INT_MIN, &status, options, &usage);
+		(void)wret;
+
+		/*
+		 *  Exercise wait4 with invalid options, errno -> EINVAL
+		 */
+		wret = shim_wait4(0, &status, ~0, &usage);
+		(void)wret;
 #endif
 
 #if defined(HAVE_WAITID)
