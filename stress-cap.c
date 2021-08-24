@@ -71,6 +71,24 @@ static int stress_capgetset_pid(
 	}
 #endif
 
+	/*
+	 *  Exercise invalid version -> EINVAL
+	 */
+	uch.version = 0x1234dead;
+	uch.pid = pid;
+	ret = capget(&uch, ucd);
+	(void)ret;
+
+#if defined(_LINUX_CAPABILITY_VERSION_3)
+	/*
+	 *  Exercise invalid PID -> EINVAL
+	 */
+	uch.version = _LINUX_CAPABILITY_VERSION_3;
+	uch.pid = -pid;
+	ret = capget(&uch, ucd);
+	(void)ret;
+#endif
+
 #if defined(_LINUX_CAPABILITY_VERSION_3)
 	/*
 	 *  Exercise invalid pid
