@@ -253,6 +253,8 @@ do_invalidate:
 		/* Exercise invalid msync flags */
 		ret = shim_msync(buf + offset, page_size, MS_ASYNC | MS_SYNC);
 		(void)ret;
+		ret = shim_msync(buf + offset, page_size, ~0);
+		(void)ret;
 
 		/* Exercise invalid address wrap-around */
 		ret = shim_msync((void *)(~(uintptr_t)0 & ~(page_size - 1)),
