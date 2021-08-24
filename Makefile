@@ -78,6 +78,7 @@ STRESS_SRC = \
 	stress-af-alg.c \
 	stress-aio.c \
 	stress-aio-linux.c \
+	stress-alarm.c \
 	stress-apparmor.c \
 	stress-atomic.c \
 	stress-bad-altstack.c \

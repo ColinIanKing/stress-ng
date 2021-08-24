@@ -2424,6 +2424,7 @@ typedef struct {
 	MACRO(aio) 		\
 	MACRO(aiol) 		\
 	MACRO(apparmor) 	\
+	MACRO(alarm)		\
 	MACRO(atomic)		\
 	MACRO(bad_altstack) 	\
 	MACRO(bad_ioctl) 	\
@@ -2772,6 +2773,9 @@ typedef enum {
 	OPT_aiol,
 	OPT_aiol_ops,
 	OPT_aiol_requests,
+
+	OPT_alarm,
+	OPT_alarm_ops,
 
 	OPT_apparmor,
 	OPT_apparmor_ops,

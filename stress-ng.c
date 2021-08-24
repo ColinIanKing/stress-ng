@@ -223,6 +223,8 @@ static const struct option long_options[] = {
 	{ "aiol",	1,	0,	OPT_aiol},
 	{ "aiol-ops",	1,	0,	OPT_aiol_ops },
 	{ "aiol-requests",1,	0,	OPT_aiol_requests },
+	{ "alarm",	1,	0,	OPT_alarm },
+	{ "alarm-ops",	1,	0,	OPT_alarm_ops },
 	{ "all",	1,	0,	OPT_all },
 	{ "apparmor",	1,	0,	OPT_apparmor },
 	{ "apparmor-ops",1,	0,	OPT_apparmor_ops },

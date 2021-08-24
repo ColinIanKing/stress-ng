@@ -519,6 +519,14 @@ stop Linux asynchronous I/O workers after N bogo asynchronous I/O requests.
 specify the number of Linux asynchronous I/O requests each worker should issue,
 the default is 16; 1 to 4096 are allowed.
 .TP
+.B \-\-alarm N
+start N workers that exercise alarm(2) with MAXINT, 0 and random alarm and
+sleep delays that get prematurely interrupted. Before each alarm is scheduled
+any previous pending alarms are cancelled with zero second alarm calls.
+.TP
+.B \-\-alarm\-ops N
+stop after N alarm bogo operations.
+.TP
 .B \-\-apparmor N
 start N workers that exercise various parts of the AppArmor interface. Currently
 one needs root permission to run this particular test. Only available
