@@ -281,10 +281,37 @@ clean:
 		if (fd >= 0)
 			(void)close(fd);
 
+		/* Exercise spacy name */
+		fd = shim_memfd_create(" ", ~0U);
+		if (fd >= 0)
+			(void)close(fd);
+
+		/* Exercise illegal path / in name */
+		fd = shim_memfd_create("/path/in/name", ~0U);
+		if (fd >= 0)
+			(void)close(fd);
+
+		/* Exercise unusual chars in name */
+		(void)snprintf(filename, sizeof(filename),
+			"memfd-%c[H%c%c:?*~", 27, 7, 255);
+		fd = shim_memfd_create(filename, 0);
+		if (fd >= 0)
+			(void)close(fd);
+
+		/* Exercise illegal path / in name */
+		fd = shim_memfd_create("/path/in/name", ~0U);
+		if (fd >= 0)
+			(void)close(fd);
+
+		/* Exercise illegal zero length name */
+		fd = shim_memfd_create("", ~0U);
+		if (fd >= 0)
+			(void)close(fd);
+
 		/* Exercise all flags */
 		for (i = 0; i < (uint64_t)SIZEOF_ARRAY(flags); i++) {
 			(void)snprintf(filename, sizeof(filename),
-				"memfd-%" PRIdMAX" -%" PRIu64,
+				"memfd-%" PRIdMAX"-%" PRIu64,
 				(intmax_t)args->pid, i);
 			fd = shim_memfd_create(filename, flags[i]);
 			if (fd >= 0)
