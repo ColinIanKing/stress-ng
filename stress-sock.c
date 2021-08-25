@@ -1068,6 +1068,15 @@ static int stress_sock_server(
 
 			(void)close(sfd);
 		}
+
+#if defined(HAVE_ACCEPT4)
+		/*
+		 *  Exercise accept4 with invalid flags
+		 */
+		sfd = accept4(fd, (struct sockaddr *)NULL, NULL, ~0);
+		if (sfd)
+			(void)close(sfd);
+#endif
 		inc_counter(args);
 	} while (keep_stressing(args));
 
