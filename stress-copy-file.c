@@ -56,6 +56,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static int stress_copy_file(const stress_args_t *args)
 {
 	int fd_in, fd_out, rc = EXIT_FAILURE, ret;
+	const int fd_bad = stress_get_bad_fd();
 	char filename[PATH_MAX - 5], tmp[PATH_MAX];
 	uint64_t copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
 
@@ -135,6 +136,26 @@ static int stress_copy_file(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 			goto tidy_out;
 		}
+
+		/*
+		 *  Exercise with bad fds
+		 */
+		copy_ret = shim_copy_file_range(fd_bad, &off_in, fd_out,
+						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
+		(void)copy_ret;
+		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_bad,
+						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
+		(void)copy_ret;
+		copy_ret = shim_copy_file_range(fd_out, &off_in, fd_in,
+						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
+		(void)copy_ret;
+		/*
+		 *  Exercise with bad flags
+		 */
+		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
+						&off_out, DEFAULT_COPY_FILE_SIZE, ~0);
+		(void)copy_ret;
+
 		(void)shim_fsync(fd_out);
 		inc_counter(args);
 	} while (keep_stressing(args));
