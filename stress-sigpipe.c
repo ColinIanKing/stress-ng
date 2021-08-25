@@ -101,7 +101,7 @@ again:
 	pid = fork();
 #endif
 	if (UNLIKELY(pid < 0)) {
-		if (UNLIKELY(keep_stressing_flag() && (errno == EAGAIN)))
+		if (stress_redo_fork(errno))
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);

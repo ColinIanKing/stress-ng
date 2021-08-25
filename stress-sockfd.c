@@ -398,11 +398,8 @@ static int stress_sockfd(const stress_args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (errno == EAGAIN) {
-			if (keep_stressing_flag())
-				goto again;
-			return EXIT_NO_RESOURCE;
-		}
+		if (stress_redo_fork(errno))
+			goto again;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;

@@ -365,12 +365,11 @@ static int stress_shm(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
-fork_again:
+again:
 		pid = fork();
 		if (pid < 0) {
-			/* Can't fork, retry? */
-			if (errno == EAGAIN)
-				goto fork_again;
+			if (stress_redo_fork(errno))
+				goto again;
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(pipefds[0]);

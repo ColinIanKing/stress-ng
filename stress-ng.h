@@ -4218,6 +4218,7 @@ extern void stress_misc_stats_set(stress_misc_stats_t *misc_stats,
 	const int idx, const char *description, const double value);
 extern WARN_UNUSED int stress_tty_width(void);
 extern WARN_UNUSED size_t stress_get_extents(const int fd);
+extern WARN_UNUSED bool stress_redo_fork(const int err);
 
 extern void stress_smart_start(void);
 extern void stress_smart_stop(void);

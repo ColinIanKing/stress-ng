@@ -184,10 +184,8 @@ static int stress_kcmp(const stress_args_t *args)
 again:
 	pid1 = fork();
 	if (pid1 < 0) {
-		if (keep_stressing_flag() &&
-		    ((errno == EAGAIN) || (errno == ENOMEM)))
+		if (stress_redo_fork(errno))
 			goto again;
-
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd1);

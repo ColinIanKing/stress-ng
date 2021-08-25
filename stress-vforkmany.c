@@ -104,11 +104,9 @@ static int stress_vforkmany(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 fork_again:
-	if (!keep_stressing_flag())
-		goto tidy;
 	chpid = fork();
 	if (chpid < 0) {
-		if (errno == EAGAIN)
+		if (stress_redo_fork(errno))
 			goto fork_again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
@@ -275,7 +273,6 @@ STRESS_PRAGMA_POP
 			(void)kill(chpid, SIGKILL);
 		}
 	}
-tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)terminate_mmap, args->page_size);

@@ -78,10 +78,11 @@ static int stress_sigabrt(const stress_args_t *args)
 		sigabrt_info->signalled = false;
 		sigabrt_info->handler_enabled = stress_mwc1();
 
+again:
 		pid = fork();
 		if (pid < 0) {
-			if ((errno == EAGAIN) || (errno == ENOMEM))
-				continue;
+			if (stress_redo_fork(errno))
+				goto again;
 			pr_fail("%s: fork failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;

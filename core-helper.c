@@ -2610,3 +2610,20 @@ size_t stress_get_extents(const int fd)
 	return 0;
 #endif
 }
+
+/*
+ *  stress_redo_fork()
+ *	check fork errno (in err) and return true if
+ *	an immediate fork can be retried due to known
+ *	error cases that are retryable. Also force a
+ *	scheduling yield.
+ */
+bool stress_redo_fork(const int err)
+{
+	if (keep_stressing_flag() &&
+	    ((err == EAGAIN) || (err == EINTR) || (err == ENOMEM))) {
+		(void)shim_sched_yield();
+		return true;
+	}
+	return false;
+}

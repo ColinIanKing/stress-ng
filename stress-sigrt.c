@@ -66,7 +66,7 @@ static int stress_sigrt(const stress_args_t *args)
 again:
 		pids[i] = fork();
 		if (pids[i] < 0) {
-			if (keep_stressing_flag() && (errno == EAGAIN))
+			if (stress_redo_fork(errno))
 				goto again;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

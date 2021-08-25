@@ -69,11 +69,9 @@ static int stress_vm_segv(const stress_args_t *args)
 		pid_t pid;
 
 again:
-		if (!keep_stressing_flag())
-			return EXIT_SUCCESS;
 		pid = fork();
 		if (pid < 0) {
-			if ((errno == EAGAIN) || (errno == EINTR) || (errno == ENOMEM))
+			if (stress_redo_fork(errno))
 				goto again;
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));

@@ -192,7 +192,7 @@ static int stress_pipe(const stress_args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag() && (errno == EAGAIN))
+		if (stress_redo_fork(errno))
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);

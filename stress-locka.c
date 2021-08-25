@@ -279,16 +279,11 @@ redo:
 		}
 	}
 
-again:
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
+again:
 	cpid = fork();
 	if (cpid < 0) {
-		if (!keep_stressing_flag()) {
-			ret = EXIT_SUCCESS;
-			goto tidy;
-		}
-		if ((errno == EAGAIN) || (errno == ENOMEM))
+		if (stress_redo_fork(errno))
 			goto again;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

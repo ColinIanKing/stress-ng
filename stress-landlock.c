@@ -255,15 +255,11 @@ static void stress_landlock_test(
 	int status;
 	pid_t pid;
 
-retry:
-	if (!keep_stressing(args))
-		return;
-
+again:
 	pid = fork();
-
 	if (pid < 0) {
-		if ((errno == EAGAIN) || (errno == ENOMEM))
-			goto retry;
+		if (stress_redo_fork(errno))
+			goto again;
 		return;
 	} else if (pid == 0) {
 		_exit(func(args, ctxt));

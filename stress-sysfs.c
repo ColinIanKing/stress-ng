@@ -698,12 +698,9 @@ static int stress_sysfs(const stress_args_t *args)
 		pid_t pid;
 
 again:
-		if (!keep_stressing(args))
-			break;
-
 		pid = fork();
 		if (pid < 0) {
-			if ((errno == EAGAIN) || (errno == ENOMEM))
+			if (stress_redo_fork(errno))
 				goto again;
 		} else if (pid > 0) {
 			int status;

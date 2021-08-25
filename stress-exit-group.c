@@ -200,10 +200,8 @@ static int stress_exit_group(const stress_args_t *args)
 again:
 		pid = fork();
 		if (pid < 0) {
-			if (keep_stressing_flag() &&
-			    ((errno == EAGAIN) || (errno == ENOMEM)))
+			if (stress_redo_fork(errno))
 				goto again;
-
 			(void)pthread_mutex_destroy(&mutex);
 			break;
 		} else if (pid == 0) {

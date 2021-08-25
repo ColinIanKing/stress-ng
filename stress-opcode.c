@@ -291,13 +291,10 @@ static int stress_opcode(const stress_args_t *args)
 		(void)stress_mwc32();
 		op += 1024;
 again:
-		if (!keep_stressing_flag())
-			break;
 		pid = fork();
 		if (pid < 0) {
-			if (errno == EAGAIN)
+			if (stress_redo_fork(errno))
 				goto again;
-
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;

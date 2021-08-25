@@ -96,10 +96,11 @@ static int stress_sigchld(const stress_args_t *args)
 	do {
 		pid_t pid;
 
+again:
 		pid = fork();
 		if (pid < 0) {
-			if ((errno == EAGAIN) || (errno == ENOMEM))
-				continue;
+			if (stress_redo_fork(errno))
+				goto again;
 			pr_fail("%s: fork failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;

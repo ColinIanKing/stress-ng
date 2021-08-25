@@ -1490,8 +1490,11 @@ static int stress_zlib(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (stress_redo_fork(errno))
+			goto again;
 		(void)close(fds[0]);
 		(void)close(fds[1]);
 		(void)close(deflate_xsum_fds[0]);

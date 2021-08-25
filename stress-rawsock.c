@@ -68,7 +68,7 @@ static int stress_rawsock(const stress_args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag() && (errno == EAGAIN))
+		if (stress_redo_fork(errno))
 			goto again;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

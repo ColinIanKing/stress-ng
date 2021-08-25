@@ -127,8 +127,11 @@ static int stress_sigio(const stress_args_t *args)
 
 	async_sigs = 0;
 
+again:
 	pid = fork();
 	if (pid < 0) {
+		if (stress_redo_fork(errno))
+			goto again;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto err;

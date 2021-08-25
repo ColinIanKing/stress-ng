@@ -142,15 +142,10 @@ static int stress_daemon(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
-	if (!keep_stressing(args))
-		return EXIT_SUCCESS;
-
 	pid = fork();
 	if (pid < 0) {
-		if ((errno == ENOMEM) || (errno == EAGAIN)) {
-			(void)shim_usleep_interruptible(100);
+		if (stress_redo_fork(errno))
 			goto again;
-		}
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fds[0]);

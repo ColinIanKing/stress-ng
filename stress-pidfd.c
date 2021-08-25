@@ -132,10 +132,11 @@ static int stress_pidfd(const stress_args_t *args)
 	while (keep_stressing(args)) {
 		pid_t pid;
 
+again:
 		pid = fork();
 		if (pid < 0) {
-			if (keep_stressing_flag() && (errno == EAGAIN))
-				continue;
+			if (stress_redo_fork(errno))
+				goto again;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;

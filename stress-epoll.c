@@ -188,8 +188,7 @@ static pid_t epoll_spawn(
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (keep_stressing_flag() &&
-		    ((errno == EAGAIN) || (errno == ENOMEM)))
+		if (stress_redo_fork(errno))
 			goto again;
 		return -1;
 	}

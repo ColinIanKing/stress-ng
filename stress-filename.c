@@ -405,7 +405,7 @@ again:
 	}
 	pid = fork();
 	if (pid < 0) {
-		if ((errno == EAGAIN) || (errno == ENOMEM))
+		if (stress_redo_fork(errno))
 			goto again;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));

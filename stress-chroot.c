@@ -299,13 +299,11 @@ static int stress_chroot(const stress_args_t *args)
 
 	do {
 		pid_t pid;
-retry:
-		if (!keep_stressing(args))
-			break;
-
+again:
 		pid = fork();
 		if (pid < 0) {
-			goto retry;
+			if (stress_redo_fork(errno))
+				goto again;
 		} else if (pid == 0) {
 			(void)setpgid(0, g_pgrp);
 			stress_set_oom_adjustment(args->name, true);
