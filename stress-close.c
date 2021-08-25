@@ -340,6 +340,9 @@ static int stress_close(const stress_args_t *args)
 #if defined(HAVE_FCHOWNAT)
 				ret = fchownat(fd, "", uid, gid, 0);
 				(void)ret;
+
+				ret = fchownat(fd, "", uid, gid, ~0);
+				(void)ret;
 #endif
 				ret = fchown(fd, uid, gid);
 				(void)ret;
