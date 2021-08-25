@@ -197,9 +197,9 @@ static int stress_loadavg(const stress_args_t *args)
 	 *  in pthread or this process to check if
 	 *  SIGALRM has been sent.
 	 */
-	sigemptyset(&set);
-	sigaddset(&set, SIGALRM);
-	sigprocmask(SIG_BLOCK, &set, NULL);
+	(void)sigemptyset(&set);
+	(void)sigaddset(&set, SIGALRM);
+	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
