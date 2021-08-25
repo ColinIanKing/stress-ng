@@ -288,8 +288,14 @@ static int clone_func(void *arg)
 		struct user_desc ud;
 
 		(void)memset(&ud, 0, sizeof(ud));
-		if (shim_modify_ldt(0, &ud, sizeof(ud)) == 0)
+		if (shim_modify_ldt(0, &ud, sizeof(ud)) == 0) {
 			(void)shim_modify_ldt(1, &ud, sizeof(ud));
+			/* Exercise invalid size */
+			(void)shim_modify_ldt(1, &ud, 1);
+			/* Exercise invalid entries */
+			ud.entry_number = ~0;
+			(void)shim_modify_ldt(1, &ud, sizeof(ud));
+		}
 
 		(void)memset(&ud, 0, sizeof(ud));
 		if (shim_modify_ldt(0, &ud, sizeof(ud)) == 0) {
@@ -301,6 +307,10 @@ static int clone_func(void *arg)
 
 		/* Exercise invalid command */
 		(void)shim_modify_ldt(0xff, &ud, sizeof(ud));
+
+		/* Exercise invalid ldt size */
+		(void)memset(&ud, 0, sizeof(ud));
+		(void)shim_modify_ldt(0, &ud, 0);
 	}
 #endif
 	for (i = 0; i < SIZEOF_ARRAY(unshare_flags); i++) {
