@@ -232,6 +232,19 @@ static void stress_invalid_mkdir(const char *path)
 }
 
 /*
+ *  stress_invalid_mkdirat()
+ *	exercise invalid mkdirat fd
+ */
+static void stress_invalid_mkdirat(const int bad_fd)
+{
+	int ret;
+
+	ret = mkdirat(bad_fd, "bad", S_IRUSR | S_IWUSR);
+	(void)ret;
+}
+
+
+/*
  *  stress_invalid_rmdir()
  *	exercise invalid rmdir paths
  */
@@ -266,6 +279,7 @@ static int stress_dir(const stress_args_t *args)
 	uint64_t dir_dirs = DEFAULT_DIR_DIRS;
 	char pathname[PATH_MAX];
 	int dir_fd = -1;
+	const int bad_fd = stress_get_bad_fd();
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	(void)stress_get_setting("dir-dirs", &dir_dirs);
@@ -305,6 +319,7 @@ static int stress_dir(const stress_args_t *args)
 		}
 		stress_invalid_mkdir(pathname);
 		stress_invalid_rmdir(pathname);
+		stress_invalid_mkdirat(bad_fd);
 
 		if (!keep_stressing(args)) {
 			stress_dir_tidy(args, i);
