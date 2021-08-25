@@ -97,6 +97,10 @@ static const int illegal_modes[] = {
     defined(FALLOC_FL_ZERO_RANGE)
 	FALLOC_FL_INSERT_RANGE | FALLOC_FL_ZERO_RANGE,
 #endif
+#if defined(FALLOC_FL_UNSHARE_RANGE) && \
+    defined(FALLOC_FL_KEEP_SIZE)
+	FALLOC_FL_UNSHARE_RANGE | FALLOC_FL_KEEP_SIZE,
+#endif
 };
 
 /*
