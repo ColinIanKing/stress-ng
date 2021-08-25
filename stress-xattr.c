@@ -459,6 +459,17 @@ static int stress_xattr(const stress_args_t *args)
 		(void)ret;
 
 		/*
+		 *  Exercise long attribute, ERANGE
+		 */
+		(void)memset(large_tmp, 'X', XATTR_SIZE_MAX + 1);
+		ret = shim_removexattr(filename, large_tmp);
+		(void)ret;
+		ret = shim_lremovexattr(filename, large_tmp);
+		(void)ret;
+		ret = shim_fremovexattr(fd, large_tmp);
+		(void)tmp;
+
+		/*
 		 *  Exercise bad/invalid fd
 		 */
 		ret = shim_fremovexattr(bad_fd, "user.var_bad");
