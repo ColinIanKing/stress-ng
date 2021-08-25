@@ -73,6 +73,18 @@ static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 {
 	uint8_t data[STRESS_MINSIGSTKSZ * 2];
 
+	/*
+	 * Linux does not allow setting the alternative stack
+	 * while in this context. Not sure if this is portable
+	 * so ignore this for now.
+	{
+		register int ret;
+
+		ret = stress_sigaltstack(stack, STRESS_MINSIGSTKSZ);
+		(void)ret;
+	}
+	 */
+
 	(void)signum;
 	(void)munmap(stack, STRESS_MINSIGSTKSZ);
 	(void)memset(data, 0xff, sizeof(data));
