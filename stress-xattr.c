@@ -51,6 +51,7 @@ static int stress_xattr(const stress_args_t *args)
 	int ret, fd, rc = EXIT_FAILURE;
 	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX];
+	char bad_filename[PATH_MAX + 4];
 	char *hugevalue = NULL;
 #if defined(XATTR_SIZE_MAX)
 	const size_t hugevalue_sz = XATTR_SIZE_MAX + 16;
@@ -80,6 +81,7 @@ static int stress_xattr(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto out;
 	}
+	snprintf(bad_filename, sizeof(bad_filename), "%s_bad", filename);
 
 	hugevalue = calloc(1, hugevalue_sz);
 	if (hugevalue)
@@ -420,6 +422,16 @@ static int stress_xattr(const stress_args_t *args)
 		 */
 		sret = shim_flistxattr(bad_fd, NULL, 0);
 		(void)sret;
+
+		/*
+		 *  Exercise invaid path, ENOENT
+		 */
+		sret = shim_listxattr(bad_filename, NULL, 0);
+		(void)sret;
+#if defined(HAVE_LLISTXATTR)
+		sret = shim_llistxattr(bad_filename, NULL, 0);
+		(void)sret;
+#endif
 
 		for (j = 0; j < i; j++) {
 			char *errmsg;
