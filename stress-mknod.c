@@ -142,6 +142,7 @@ static int stress_mknod_check_errno(
 
 static int stress_do_mknod(
 	const int dir_fd,
+	const int bad_fd,
 	const char *path,
 	const mode_t mode,
 	const dev_t dev)
@@ -158,6 +159,10 @@ static int stress_do_mknod(
 		(void)shim_strlcpy(tmp, path, sizeof(tmp));
 		filename = basename(tmp);
 
+		ret = mknodat(bad_fd, filename, mode, dev);
+		if (ret == 0)
+			(void)unlink(path);
+
 		ret = mknodat(dir_fd, filename, mode, dev);
 	} else {
 		ret = mknod(path, mode, dev);
@@ -166,6 +171,7 @@ static int stress_do_mknod(
 	ret = mknod(path, mode, dev);
 #endif
 	(void)dir_fd;
+	(void)bad_fd;
 
 	return ret;
 }
@@ -177,6 +183,7 @@ static int stress_do_mknod(
 static void stress_mknod_test_dev(
 	const stress_args_t *args,
 	const int dir_fd,
+	const int bad_fd,
 	const mode_t mode,
 	const char *mode_str,
 	dev_t dev)
@@ -186,7 +193,7 @@ static void stress_mknod_test_dev(
 
 	(void)stress_temp_filename_args(args, path, sizeof(path), stress_mwc32());
 
-	ret = stress_do_mknod(dir_fd, path, mode, dev);
+	ret = stress_do_mknod(dir_fd, bad_fd, path, mode, dev);
 	if (ret < 0)
 		(void)stress_mknod_check_errno(args, mode_str, path, errno);
 
@@ -204,6 +211,7 @@ static int stress_mknod(const stress_args_t *args)
 	dev_t chr_dev, blk_dev;
 	int chr_dev_ret, blk_dev_ret;
 	int dir_fd = -1;
+	const int bad_fd = stress_get_bad_fd();
 #if defined(HAVE_MKNODAT) &&	\
     defined(O_DIRECTORY)
 	char pathname[PATH_MAX];
@@ -233,9 +241,9 @@ static int stress_mknod(const stress_args_t *args)
 		uint64_t i, n = DEFAULT_DIRS;
 
 		if (chr_dev_ret == 0)
-			stress_mknod_test_dev(args, dir_fd, S_IFCHR, "S_IFCHR", chr_dev);
+			stress_mknod_test_dev(args, dir_fd, bad_fd, S_IFCHR, "S_IFCHR", chr_dev);
 		if (blk_dev_ret == 0)
-			stress_mknod_test_dev(args, dir_fd, S_IFBLK, "S_IFBLK", blk_dev);
+			stress_mknod_test_dev(args, dir_fd, bad_fd, S_IFBLK, "S_IFBLK", blk_dev);
 
 		for (i = 0; keep_stressing(args) && (i < n); i++) {
 			char path[PATH_MAX];
@@ -244,7 +252,7 @@ static int stress_mknod(const stress_args_t *args)
 
 			(void)stress_temp_filename_args(args,
 				path, sizeof(path), gray_code);
-			if (stress_do_mknod(dir_fd, path, modes[j].mode | S_IRUSR | S_IWUSR, 0) < 0) {
+			if (stress_do_mknod(dir_fd, bad_fd, path, modes[j].mode | S_IRUSR | S_IWUSR, 0) < 0) {
 				if (stress_mknod_check_errno(args, modes[j].mode_str, path, errno) < 0)
 					continue;	/* Try again */
 				break;
