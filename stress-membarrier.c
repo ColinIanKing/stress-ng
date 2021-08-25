@@ -83,9 +83,11 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 			ret = shim_membarrier((int)i, 0, INT_MAX);
 			(void)ret;
 
+#if defined(MEMBARRIER_CMD_FLAG_CPU)
 			/* Exercise MEMBARRIER_CMD_FLAG_CPU flag */
 			ret = shim_membarrier((int)i, MEMBARRIER_CMD_FLAG_CPU, 0);
 			(void)ret;
+#endif
 		}
 	}
 
