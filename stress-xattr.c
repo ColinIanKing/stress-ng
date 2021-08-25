@@ -479,7 +479,7 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_lremovexattr(filename, large_tmp);
 		(void)ret;
 		ret = shim_fremovexattr(fd, large_tmp);
-		(void)tmp;
+		(void)ret;
 
 		/*
 		 *  Exercise bad/invalid fd
