@@ -143,6 +143,12 @@ static int stress_readahead(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		goto close_finish;
 	}
+
+	/* Invalid lengths */
+	(void)posix_fadvise(fd, 0, (off_t)~0, POSIX_FADV_DONTNEED);
+	(void)posix_fadvise(fd, 0, (off_t)-1, POSIX_FADV_DONTNEED);
+	/* Invalid offset */
+	(void)posix_fadvise(fd, (off_t)-1, 1, POSIX_FADV_DONTNEED);
 #endif
 
 	/* Sequential Write */
