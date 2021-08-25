@@ -160,6 +160,15 @@ static void stress_dirdeep_make(
 		 */
 		ret = linkat(dir_fd, "h", dir_fd, "a", 0);
 		(void)ret;
+
+		/*
+		 *  Exercise linkat with invalid flags
+		 */
+		ret = linkat(dir_fd, "h", dir_fd, "i", ~0);
+		if (ret == 0) {
+			ret = unlinkat(dir_fd, "i", 0);
+			(void)ret;
+		}
 #if defined(AT_SYMLINK_FOLLOW)
 		/*
 		 *  Exercise linkat AT_SYMLINK_FOLLOW onto hardlink h
