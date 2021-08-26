@@ -377,6 +377,14 @@ static int open_with_openat2_cwd(void)
 		if (j >= SIZEOF_ARRAY(resolve_flags))
 			j = 0;
 
+		/* Exercise illegal usize field */
+		fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, 0);
+		if (fd >= 0) {
+			/* Unxexpected, but handle it anyhow */
+			(void)unlink(filename);
+			return fd;
+		}
+
 		fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, sizeof(how));
 		if (fd >= 0) {
 			(void)unlink(filename);
