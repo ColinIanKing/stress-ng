@@ -552,6 +552,7 @@ retry_open:
 				struct io_event event;
 				io_context_t bad_ctx;
 				struct iocb bad_iocb;
+				struct timespec timeout;
 
 				cancel = 0;
 
@@ -576,6 +577,32 @@ retry_open:
 				ret = shim_io_destroy(bad_ctx);
 				(void)ret;
 				ret = shim_io_destroy(NULL);
+				(void)ret;
+
+				/* Exercise io_getevents with illegal context, EINVAL */
+				timeout.tv_sec = 0;
+				timeout.tv_nsec = 100000;
+				ret = shim_io_getevents(bad_ctx, 1, 1, events, &timeout);
+				(void)ret;
+
+				/* Exercise io_getevents with illegal min */
+				timeout.tv_sec = 0;
+				timeout.tv_nsec = 100000;
+				ret = shim_io_getevents(ctx, 1, 0, events, &timeout);
+				(void)ret;
+				ret = shim_io_getevents(ctx, -1, 0, events, &timeout);
+				(void)ret;
+
+				/* Exercise io_getevents with illegal nr */
+				timeout.tv_sec = 0;
+				timeout.tv_nsec = 100000;
+				ret = shim_io_getevents(ctx, 0, -1, events, &timeout);
+				(void)ret;
+
+				/* Exercise io_getevents with illegal timeout */
+				timeout.tv_sec = 0;
+				timeout.tv_nsec = ~0L;
+				ret = shim_io_getevents(ctx, 0, 1, events, &timeout);
 				(void)ret;
 			}
 		}
