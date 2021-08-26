@@ -57,14 +57,12 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 
 	async_sigs++;
 
-	if (!keep_stressing_flag() || (stress_time_now() > time_end))
-		return;
 
 	if (rd_fd > 0) {
 		/*
 		 *  Data is ready, so drain as much as possible
 		 */
-		for (;;) {
+		while (keep_stressing_flag() &&  (stress_time_now() < time_end)) {
 			ssize_t ret;
 
 			got_err = 0;
