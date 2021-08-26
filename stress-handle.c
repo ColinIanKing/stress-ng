@@ -118,6 +118,7 @@ static int get_mount_info(const stress_args_t *args)
 static int stress_handle_child(const stress_args_t *args, void *context)
 {
 	const int mounts = *((int *)context);
+	const int bad_fd = stress_get_bad_fd();
 
 	do {
 		struct file_handle *fhp, *tmp;
@@ -202,10 +203,17 @@ static int stress_handle_child(const stress_args_t *args, void *context)
 		fhp->handle_bytes = 1;
 		(void)name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, AT_EMPTY_PATH);
 
-		/* Exercise with invalid mount_fd */
+		/* Exercise with invalid mount_fd, part 1*/
 		fhp->handle_bytes = 32;
 		(void)name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0);
 		fd = open_by_handle_at(-1, fhp, O_RDONLY);
+		if (fd >= 0)
+			(void)close(fd);
+
+		/* Exercise with invalid mount_fd, part 2 */
+		fhp->handle_bytes = 32;
+		(void)name_to_handle_at(AT_FDCWD, FILENAME, fhp, &mount_id, 0);
+		fd = open_by_handle_at(bad_fd, fhp, O_RDONLY);
 		if (fd >= 0)
 			(void)close(fd);
 
