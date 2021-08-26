@@ -349,6 +349,9 @@ static int stress_aiol(const stress_args_t *args)
 	int j = 0;
 	size_t i;
 	int warnings = 0;
+#if defined(__NR_io_cancel)
+	int bad_fd;
+#endif
 
 	if (!stress_get_setting("aiol-requests", &aio_linux_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -452,6 +455,10 @@ retry_open:
 		goto finish;
 	}
 
+#if defined(__NR_io_cancel)
+	bad_fd = stress_get_bad_fd();
+#endif
+
 	/*
 	 *  Make aio work harder by using lots of different fds on the
 	 *  same file. If we can't open a file (e.g. out of file descriptors)
@@ -539,13 +546,31 @@ retry_open:
 #if defined(__NR_io_cancel)
 		{
 			static int cancel;
-			struct io_event event;
 
 			cancel++;
 			if (cancel >= 127) {
+				struct io_event event;
+				io_context_t bad_ctx;
+				struct iocb bad_iocb;
+
+				cancel = 0;
+
 				ret = shim_io_cancel(ctx, &cb[0], &event);
 				(void)ret;
-				cancel = 0;
+
+				/* Exercise with invalid context */
+				(void)memset(&bad_ctx, stress_mwc8() | 0x1, sizeof(bad_ctx));
+				ret = shim_io_cancel(bad_ctx, &cb[0], &event);
+				(void)ret;
+
+				/* Exercise with invalid iocb */
+				bad_iocb.aio_fildes = bad_fd;
+				bad_iocb.aio_lio_opcode = ~0;
+				bad_iocb.u.c.buf = NULL;
+				bad_iocb.u.c.offset = 0;
+				bad_iocb.u.c.nbytes = 0;
+				ret = shim_io_cancel(ctx, &bad_iocb, &event);
+				(void)ret;
 			}
 		}
 #endif
