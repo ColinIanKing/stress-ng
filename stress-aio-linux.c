@@ -558,18 +558,24 @@ retry_open:
 				ret = shim_io_cancel(ctx, &cb[0], &event);
 				(void)ret;
 
-				/* Exercise with invalid context */
+				/* Exercise with io_cancel invalid context */
 				(void)memset(&bad_ctx, stress_mwc8() | 0x1, sizeof(bad_ctx));
 				ret = shim_io_cancel(bad_ctx, &cb[0], &event);
 				(void)ret;
 
-				/* Exercise with invalid iocb */
+				/* Exercise with io_invalid iocb */
 				bad_iocb.aio_fildes = bad_fd;
 				bad_iocb.aio_lio_opcode = ~0;
 				bad_iocb.u.c.buf = NULL;
 				bad_iocb.u.c.offset = 0;
 				bad_iocb.u.c.nbytes = 0;
 				ret = shim_io_cancel(ctx, &bad_iocb, &event);
+				(void)ret;
+
+				/* Exercise io_destroy with illegal context, EINVAL */
+				ret = shim_io_destroy(bad_ctx);
+				(void)ret;
+				ret = shim_io_destroy(NULL);
 				(void)ret;
 			}
 		}
