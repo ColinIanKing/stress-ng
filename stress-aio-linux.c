@@ -604,6 +604,14 @@ retry_open:
 				timeout.tv_nsec = ~0L;
 				ret = shim_io_getevents(ctx, 0, 1, events, &timeout);
 				(void)ret;
+
+				/* Exercise io_setup with illegal nr_events */
+				ret = shim_io_setup(0, &bad_ctx);
+				if (ret == 0)
+					shim_io_destroy(bad_ctx);
+				ret = shim_io_setup(INT_MAX, &bad_ctx);
+				if (ret == 0)
+					shim_io_destroy(bad_ctx);
 			}
 		}
 #endif
