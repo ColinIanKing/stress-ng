@@ -183,8 +183,9 @@ again:
 
 		(void)select(0, NULL, NULL, NULL, &timeout);
 		if (got_err) {
-			pr_inf("%s: read error, errno=%d (%s)\n",
-				args->name, got_err, strerror(got_err));
+			if (got_err != EINTR)
+				pr_inf("%s: read error, errno=%d (%s)\n",
+					args->name, got_err, strerror(got_err));
 			break;
 		}
 	} while (keep_stressing(args));
