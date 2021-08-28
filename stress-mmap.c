@@ -284,9 +284,22 @@ static void stress_mmap_invalid(
 	void *ptr;
 
 	ptr = mmap(addr, length, prot, flags, fd, offset);
-	if (ptr != MAP_FAILED) {
+	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, length);
-	}
+
+#if defined(__NR_mmap)
+	/*
+	 *  libc may detect offset is invalid and not do the syscall so
+	 *  do direct syscall if possible
+	 */
+	ptr = (void *)syscall(__NR_mmap, addr, length, prot, flags, fd, offset + 1);
+	if (ptr != MAP_FAILED)
+		(void)munmap(ptr, length);
+#endif
+	/* Do the above via libc */
+	ptr = mmap(addr, length, prot, flags, fd, offset + 1);
+	if (ptr != MAP_FAILED)
+		(void)munmap(ptr, length);
 }
 
 static int stress_mmap_child(const stress_args_t *args, void *ctxt)
