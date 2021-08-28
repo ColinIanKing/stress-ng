@@ -130,7 +130,7 @@ static int try_remap(
 #else
 		newbuf = mremap(*buf, old_sz, new_sz, flags);
 #endif
-		if (newbuf != MAP_FAILED) {
+		if (newbuf && newbuf != MAP_FAILED) {
 			*buf = newbuf;
 
 #if defined(MREMAP_DONTUNMAP)
@@ -141,7 +141,7 @@ static int try_remap(
 			 */
 			newbuf = mremap(*buf, new_sz, new_sz,
 					MREMAP_DONTUNMAP | MREMAP_MAYMOVE);
-			if (newbuf != MAP_FAILED) {
+			if (newbuf && newbuf != MAP_FAILED) {
 				if (*buf)
 					(void)munmap(*buf, new_sz);
 				*buf = newbuf;
@@ -280,15 +280,15 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 
 		/* Invalid remap flags */
 		ptr = mremap(buf, old_sz, old_sz, ~0);
-		if (ptr != MAP_FAILED)
+		if (ptr && ptr != MAP_FAILED)
 			buf = ptr;
 		ptr = mremap(buf, old_sz, old_sz, MREMAP_FIXED | MREMAP_MAYMOVE);
-		if (ptr != MAP_FAILED)
+		if (ptr && ptr != MAP_FAILED)
 			buf = ptr;
 #if defined(MREMAP_MAYMOVE)
 		/* Invalid new size */
 		ptr = mremap(buf, old_sz, 0, MREMAP_MAYMOVE);
-		if (ptr != MAP_FAILED)
+		if (ptr && ptr != MAP_FAILED)
 			buf = ptr;
 #endif
 		(void)munmap(buf, old_sz);
