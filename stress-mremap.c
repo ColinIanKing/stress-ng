@@ -212,7 +212,7 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		uint8_t *buf = NULL;
+		uint8_t *buf = NULL, *ptr;
 		size_t old_sz;
 
 		if (!keep_stressing_flag())
@@ -277,6 +277,20 @@ static int stress_mremap_child(const stress_args_t *args, void *context)
 			old_sz = new_sz;
 			new_sz <<= 1;
 		}
+
+		/* Invalid remap flags */
+		ptr = mremap(buf, old_sz, old_sz, ~0);
+		if (ptr != MAP_FAILED)
+			buf = ptr;
+		ptr = mremap(buf, old_sz, old_sz, MREMAP_FIXED | MREMAP_MAYMOVE);
+		if (ptr != MAP_FAILED)
+			buf = ptr;
+#if defined(MREMAP_MAYMOVE)
+		/* Invalid new size */
+		ptr = mremap(buf, old_sz, 0, MREMAP_MAYMOVE);
+		if (ptr != MAP_FAILED)
+			buf = ptr;
+#endif
 		(void)munmap(buf, old_sz);
 
 		inc_counter(args);
