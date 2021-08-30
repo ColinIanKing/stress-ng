@@ -104,10 +104,21 @@ static int stress_mq(const stress_args_t *args)
 	bool do_timed;
 	time_t time_start;
 	struct timespec abs_timeout;
+	unsigned int max_prio = UINT_MAX;
 
 #if defined(SIGUSR2)
 	if (stress_sighandler(args->name, SIGUSR2, stress_sigusr2_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
+#endif
+
+#if defined(_SC_MQ_PRIO_MAX)
+	{
+		long sysconf_ret;
+
+		sysconf_ret = sysconf(_SC_MQ_PRIO_MAX);
+		if ((sysconf_ret > 0) && (sysconf_ret < UINT_MAX))
+			max_prio = sysconf_ret + 1;
+	}
 #endif
 
 	if (!stress_get_setting("mq-size", &mq_size)) {
@@ -379,6 +390,7 @@ again:
 			int ret;
 			unsigned int prio = stress_mwc8() % PRIOS_MAX;
 			const uint64_t timed = (msg.value & 1);
+			uint64_t i = 0;
 
 			if ((attr_count++ & 31) == 0) {
 				struct mq_attr old_attr;
@@ -416,6 +428,32 @@ again:
 						errno, strerror(errno));
 				break;
 			}
+
+			if (!(i & 1023)) {
+				if (do_timed && (timed)) {
+					/* Exercise mq_send on invalid mq descriptors */
+					(void)mq_timedsend(-1, (char *)&msg, sizeof(msg), prio, &abs_timeout);
+					(void)mq_timedsend(0, (char *)&msg, sizeof(msg), prio, &abs_timeout);
+
+					/* Exercise mq_send on invalid mq size */
+					(void)mq_timedsend(mq, (char *)&msg, ~(size_t)0, prio, &abs_timeout);
+
+					/* Exercise mq_send on invalid priority size */
+					(void)mq_timedsend(mq, (char *)&msg, sizeof(msg), max_prio, &abs_timeout);
+				} else {
+					/* Exercise mq_send on invalid mq descriptors */
+					(void)mq_send(-1, (char *)&msg, sizeof(msg), prio);
+					(void)mq_send(0, (char *)&msg, sizeof(msg), prio);
+
+					/* Exercise mq_send on invalid mq size */
+					(void)mq_send(mq, (char *)&msg, ~(size_t)0, prio);
+
+					/* Exercise mq_send on invalid priority size */
+					(void)mq_send(mq, (char *)&msg, sizeof(msg), max_prio);
+				}
+			}
+			i++;
+
 			inc_counter(args);
 		} while (keep_stressing(args));
 
