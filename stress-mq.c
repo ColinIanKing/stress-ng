@@ -70,6 +70,26 @@ static void MLOCKED_TEXT stress_sigusr2_handler(int signum)
 #endif
 
 /*
+ *  stress_mq_invalid_open()
+ *	perform invalid mq open and perform tidy up
+ *	if it somehow succeeded
+ */
+static void stress_mq_invalid_open(
+	const char *name,
+	int oflag,
+	mode_t mode,
+	struct mq_attr *attr)
+{
+	mqd_t mq;
+
+	mq = mq_open(name, oflag, mode, attr);
+	if (mq >= 0) {
+		(void)mq_close(mq);
+		(void)mq_unlink(name);
+	}
+}
+
+/*
  *  stress_mq
  *	stress POSIX message queues
  */
@@ -80,7 +100,7 @@ static int stress_mq(const stress_args_t *args)
 	int sz, max_sz, mq_size = DEFAULT_MQ_SIZE;
 	FILE *fp;
 	struct mq_attr attr;
-	char mq_name[64];
+	char mq_name[64], mq_tmp_name[64];
 	bool do_timed;
 	time_t time_start;
 	struct timespec abs_timeout;
@@ -97,6 +117,9 @@ static int stress_mq(const stress_args_t *args)
 			mq_size = MIN_MQ_SIZE;
 	}
 	sz = mq_size;
+
+	(void)snprintf(mq_tmp_name, sizeof(mq_tmp_name), "/%s-%" PRIdMAX "-%" PRIu32,
+		args->name, (intmax_t)args->pid, args->instance + 10000);
 
 	(void)snprintf(mq_name, sizeof(mq_name), "/%s-%" PRIdMAX "-%" PRIu32,
 		args->name, (intmax_t)args->pid, args->instance);
@@ -260,6 +283,51 @@ again:
 					/* Exercise illegal mq descriptor */
 					(void)mq_notify(~0, &sigev);
 					(void)mq_notify(0, &sigev);
+
+					/* Exercise illegal mq_open name */
+					attr.mq_flags = 0;
+					attr.mq_maxmsg = sz;
+					attr.mq_msgsize = sizeof(stress_msg_t);
+					attr.mq_curmsgs = 0;
+					stress_mq_invalid_open("/bad/bad/bad", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+
+					/* Exercise illegal mq_maxmsg */
+					attr.mq_flags = 0;
+					attr.mq_maxmsg = ~0;
+					attr.mq_msgsize = sizeof(stress_msg_t);
+					attr.mq_curmsgs = 0;
+					stress_mq_invalid_open(mq_tmp_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+
+					attr.mq_flags = 0;
+					attr.mq_maxmsg = LONG_MAX;
+					attr.mq_msgsize = sizeof(stress_msg_t);
+					attr.mq_curmsgs = 0;
+					stress_mq_invalid_open(mq_tmp_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+
+					attr.mq_flags = 0;
+					attr.mq_maxmsg = 0;
+					attr.mq_msgsize = sizeof(stress_msg_t);
+					attr.mq_curmsgs = 0;
+					stress_mq_invalid_open(mq_tmp_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+
+					/* Exercise illegal mq_msgsize */
+					attr.mq_flags = 0;
+					attr.mq_maxmsg = sz;
+					attr.mq_msgsize = ~0;
+					attr.mq_curmsgs = 0;
+					stress_mq_invalid_open(mq_tmp_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+
+					attr.mq_flags = 0;
+					attr.mq_maxmsg = sz;
+					attr.mq_msgsize = LONG_MAX;
+					attr.mq_curmsgs = 0;
+					stress_mq_invalid_open(mq_tmp_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+
+					attr.mq_flags = 0;
+					attr.mq_maxmsg = sz;
+					attr.mq_msgsize = 0;
+					attr.mq_curmsgs = 0;
+					stress_mq_invalid_open(mq_tmp_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
 				}
 
 				/*
