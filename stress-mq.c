@@ -309,16 +309,22 @@ again:
 			const uint64_t timed = (msg.value & 1);
 
 			if ((attr_count++ & 31) == 0) {
+				struct mq_attr old_attr;
+
 				if (mq_getattr(mq, &attr) < 0) {
 					pr_fail("%s: mq_getattr failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				} else {
-					struct mq_attr old_attr;
-
 					(void)mq_setattr(mq, &attr, &old_attr);
 				}
 
-				(void)mq_getattr(~0, &attr);
+				/* Exercise invalid mq id */
+				if ((mq_getattr(~0, &attr) < 0) && (errno == EBADF))
+					(void)mq_setattr(~0, &attr, &old_attr);
+
+				/* Exercise invalid mq id */
+				if ((mq_getattr(0, &attr) == EBADF) && (errno == EBADF))
+					(void)mq_setattr(0, &attr, &old_attr);
 			}
 
 			msg.value = values[prio];
