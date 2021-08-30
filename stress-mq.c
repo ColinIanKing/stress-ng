@@ -256,6 +256,10 @@ again:
 						break;
 					}
 					(void)mq_notify(mq, &sigev);
+
+					/* Exercise illegal mq descriptor */
+					(void)mq_notify(~0, &sigev);
+					(void)mq_notify(0, &sigev);
 				}
 
 				/*
