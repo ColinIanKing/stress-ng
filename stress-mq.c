@@ -339,6 +339,11 @@ again:
 					attr.mq_msgsize = 0;
 					attr.mq_curmsgs = 0;
 					stress_mq_invalid_open(mq_tmp_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR, &attr);
+
+					/* Exercise invalid mq_unlink */
+					(void)mq_unlink(mq_tmp_name);
+					(void)mq_unlink("/bad/bad/bad");
+					(void)mq_unlink("");
 				}
 
 				/*
