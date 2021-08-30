@@ -451,6 +451,7 @@ again:
 					/* Exercise mq_send on invalid priority size */
 					(void)mq_send(mq, (char *)&msg, sizeof(msg), max_prio);
 				}
+				(void)mq_close(-1);
 			}
 			i++;
 
