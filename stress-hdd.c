@@ -326,6 +326,121 @@ static ssize_t stress_hdd_read(
 	}
 }
 
+/*
+ *  stress_hdd_invalid_read()
+ *	exercise invalid reads
+ */
+static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
+{
+	ssize_t ret;
+#if defined(HAVE_SYS_UIO_H)
+	struct iovec iov[HDD_IO_VEC_MAX];
+	size_t i;
+	uint8_t *data = buf;
+#endif
+
+#if defined(HAVE_SYS_UIO_H)
+	for (i = 0; i < HDD_IO_VEC_MAX; i++) {
+		iov[i].iov_base = (void *)data;
+		iov[i].iov_len = (size_t)1;
+		data++;
+	}
+#endif
+
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV2)
+	/* invalid preadv2 fd */
+	ret = preadv2(-1, iov, HDD_IO_VEC_MAX, 0, 0);
+	(void)ret;
+
+	/* invalid preadv2 offset, don't use -1 */
+	ret = preadv2(fd, iov, HDD_IO_VEC_MAX, -2, 0);
+	(void)ret;
+
+	/* invalid preadv2 flags */
+	ret = preadv2(fd, iov, HDD_IO_VEC_MAX, 0, ~0);
+	(void)ret;
+#endif
+
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PREADV)
+	/* invalid preadv fd */
+	ret = preadv(-1, iov, HDD_IO_VEC_MAX, 0);
+	(void)ret;
+
+	/* invalid preadv offset */
+	ret = preadv(fd, iov, HDD_IO_VEC_MAX, -1);
+	(void)ret;
+#endif
+
+#if defined(HAVE_SYS_UIO_H)
+	/* invalid readv fd */
+	ret = readv(-1, iov, HDD_IO_VEC_MAX);
+	(void)ret;
+#endif
+
+	/* invalud read fd */
+	ret = read(-1, buf, 1);
+	(void)ret;
+}
+
+/*
+ *  stress_hdd_invalid_write()
+ *	exercise invalid writess
+ */
+static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
+{
+	ssize_t ret;
+#if defined(HAVE_SYS_UIO_H)
+	struct iovec iov[HDD_IO_VEC_MAX];
+	size_t i;
+	uint8_t *data = buf;
+#endif
+
+#if defined(HAVE_SYS_UIO_H)
+	for (i = 0; i < HDD_IO_VEC_MAX; i++) {
+		iov[i].iov_base = (void *)data;
+		iov[i].iov_len = (size_t)1;
+		data++;
+	}
+#endif
+
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV2)
+	/* invalid pwritev2 fd */
+	ret = pwritev2(-1, iov, HDD_IO_VEC_MAX, 0, 0);
+	(void)ret;
+
+	/* invalid pwritev2 offset, don't use -1 */
+	ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, -2, 0);
+	(void)ret;
+
+	/* invalid pwritev2 flags */
+	ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, 0, ~0);
+	(void)ret;
+#endif
+
+#if defined(HAVE_SYS_UIO_H) &&	\
+    defined(HAVE_PWRITEV)
+	/* invalid pwritev fd */
+	ret = pwritev(-1, iov, HDD_IO_VEC_MAX, 0);
+	(void)ret;
+
+	/* invalid pwritev offset */
+	ret = pwritev(fd, iov, HDD_IO_VEC_MAX, -1);
+	(void)ret;
+#endif
+
+#if defined(HAVE_SYS_UIO_H)
+	/* invalid writev fd */
+	ret = writev(-1, iov, HDD_IO_VEC_MAX);
+	(void)ret;
+#endif
+
+	/* invalud write fd */
+	ret = write(-1, buf, 1);
+	(void)ret;
+}
 
 /*
  *  stress_set_hdd_opts
@@ -631,6 +746,10 @@ static int stress_hdd(const stress_args_t *args)
 			goto finish;
 		}
 
+		/* exercise invalid I/O calls */
+		stress_hdd_invalid_write(fd, buf);
+		stress_hdd_invalid_read(fd, buf);
+
 		/* Random Write */
 		if (hdd_flags & HDD_OPT_WR_RND) {
 			uint32_t w, z;
@@ -840,8 +959,8 @@ rnd_rd_retry:
 					" incomplete random reads\n",
 					args->name, misreads);
 		}
-		(void)close(fd);
 
+		(void)close(fd);
 	} while (keep_stressing(args));
 
 yielded:
