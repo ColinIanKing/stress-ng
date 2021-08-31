@@ -45,7 +45,7 @@ static void MLOCKED_TEXT stress_usr1_handler(int signum)
  */
 static int stress_sigpending(const stress_args_t *args)
 {
-	sigset_t _sigset;
+	sigset_t new_sigset, old_sigset;
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_usr1_handler, NULL) < 0)
 		return EXIT_FAILURE;
@@ -53,39 +53,50 @@ static int stress_sigpending(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		(void)sigemptyset(&_sigset);
-		(void)sigaddset(&_sigset, SIGUSR1);
-		if (sigprocmask(SIG_SETMASK, &_sigset, NULL) < 0) {
+		(void)sigemptyset(&new_sigset);
+		(void)sigaddset(&new_sigset, SIGUSR1);
+		if (sigprocmask(SIG_SETMASK, &new_sigset, NULL) < 0) {
 			pr_fail("%s: sigprocmask failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 
 		(void)kill(args->pid, SIGUSR1);
-		if (sigpending(&_sigset) < 0) {
+		if (sigpending(&new_sigset) < 0) {
 			pr_fail("%s: sigpending failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			continue;
 		}
 		/* We should get a SIGUSR1 here */
-		if (!sigismember(&_sigset, SIGUSR1)) {
+		if (!sigismember(&new_sigset, SIGUSR1)) {
 			pr_fail("%s: did not get a SIGUSR1 pending signal\n", args->name);
 			continue;
 		}
 
 		/* Unmask signal, signal is handled */
-		(void)sigemptyset(&_sigset);
-		(void)sigprocmask(SIG_SETMASK, &_sigset, NULL);
+		(void)sigemptyset(&new_sigset);
+		(void)sigprocmask(SIG_SETMASK, &new_sigset, NULL);
 
 		/* And it is no longer pending */
-		if (sigpending(&_sigset) < 0) {
+		if (sigpending(&new_sigset) < 0) {
 			pr_fail("%s: got an unexpected SIGUSR1 pending signal\n", args->name);
 			continue;
 		}
-		if (sigismember(&_sigset, SIGUSR1)) {
+		if (sigismember(&new_sigset, SIGUSR1)) {
 			pr_fail("%s: got an unexpected SIGUSR1 signal\n", args->name);
 			continue;
 		}
+
+		/* Exercise invalid sigprocmask how argument */
+		(void)sigprocmask(~0, &new_sigset, NULL);
+
+		/* Fetch existing sigset */
+		(void)sigemptyset(&old_sigset);
+		(void)sigprocmask(SIG_SETMASK, NULL, &old_sigset);
+
+		/* Do nothing */
+		(void)sigprocmask(SIG_SETMASK, NULL, NULL);
+
 		inc_counter(args);
 	} while (keep_stressing(args));
 
