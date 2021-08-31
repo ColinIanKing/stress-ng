@@ -376,6 +376,22 @@ again:
 						values[prio]++;
 					}
 				}
+
+				if (do_timed && (timed)) {
+					/* Exercise mq_timedreceive on invalid mq descriptors */
+					(void)mq_timedreceive(-1, (char *)&msg, sizeof(msg), &prio, &abs_timeout);
+					(void)mq_timedreceive(0, (char *)&msg, sizeof(msg), &prio, &abs_timeout);
+
+					/* Exercise mq_timedreceive on invalid mq size */
+					(void)mq_timedreceive(mq, (char *)&msg, (size_t)0, &prio, &abs_timeout);
+				} else {
+					/* Exercise mq_receive on invalid mq descriptors */
+					(void)mq_receive(-1, (char *)&msg, sizeof(msg), &prio);
+					(void)mq_receive(0, (char *)&msg, sizeof(msg), &prio);
+
+					/* Exercise mq_receive on invalid mq size */
+					(void)mq_receive(mq, (char *)&msg, (size_t)0, &prio);
+				}
 			}
 			_exit(EXIT_SUCCESS);
 		}
@@ -436,14 +452,14 @@ again:
 
 			if (!(i & 1023)) {
 				if (do_timed && (timed)) {
-					/* Exercise mq_send on invalid mq descriptors */
+					/* Exercise mq_timedsend on invalid mq descriptors */
 					(void)mq_timedsend(-1, (char *)&msg, sizeof(msg), prio, &abs_timeout);
 					(void)mq_timedsend(0, (char *)&msg, sizeof(msg), prio, &abs_timeout);
 
-					/* Exercise mq_send on invalid mq size */
+					/* Exercise mq_timedsend on invalid mq size */
 					(void)mq_timedsend(mq, (char *)&msg, ~(size_t)0, prio, &abs_timeout);
 
-					/* Exercise mq_send on invalid priority size */
+					/* Exercise mq_timedsend on invalid priority size */
 					(void)mq_timedsend(mq, (char *)&msg, sizeof(msg), max_prio, &abs_timeout);
 				} else {
 					/* Exercise mq_send on invalid mq descriptors */
