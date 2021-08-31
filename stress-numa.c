@@ -561,6 +561,12 @@ static int stress_numa(const stress_args_t *args)
 		lret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
 		(void)lret;
 
+		/* Exercise NULL nodes */
+		(void)memset(status, 0, sizeof(status));
+		pages[0] = buf;
+		lret = shim_move_pages(args->pid, 1, pages, NULL, status, MPOL_MF_MOVE);
+		(void)lret;
+
 		inc_counter(args);
 	} while (keep_stressing(args));
 
