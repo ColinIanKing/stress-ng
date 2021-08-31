@@ -157,6 +157,9 @@ STRESS_PRAGMA_POP
 			}
 
 			if (pid == 0) {
+				const pid_t my_pid = getpid();
+				const pid_t my_pgid = getpgid(my_pid);
+
 				/*
 				 *  With new session and capabilities
 				 *  dropped vhangup will always fail
@@ -183,6 +186,20 @@ STRESS_PRAGMA_POP
 					if (flags)
 						stress_madvise_pid_all_pages(getpid(), flags);
 				}
+
+				/* exercise some setpgid calls before we die */
+				ret = setpgid(0, 0);
+				(void)ret;
+				ret = setpgid(my_pid, my_pgid);
+				(void)ret;
+
+				/* -ve pgid is EINVAL */
+				ret = setpgid(0, -1);
+				(void)ret;
+				/* -ve pid is EINVAL */
+				ret = setpgid(-1, 0);
+				(void)ret;
+
 				(void)shim_sched_yield();
 				_exit(0);
 			} else if (pid < 0) {
