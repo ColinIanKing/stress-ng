@@ -901,6 +901,18 @@ static int stress_sock_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
+	/* exercise invalid setsockopt lengths */
+	(void)setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, 0);
+	(void)setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, -1);
+
+	/* exercise invalid setsockopt fd */
+	(void)setsockopt(-1, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
+	
+	/* exercise invalid level */
+	(void)setsockopt(fd, -1, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
+
+	/* exercise invalid optname */
+	(void)setsockopt(fd, SOL_SOCKET, -1, &so_reuseaddr, sizeof(so_reuseaddr));
 
 	stress_set_sockaddr(args->name, args->instance, ppid,
 		socket_domain, socket_port,
