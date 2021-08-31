@@ -235,10 +235,16 @@ static int stress_swap(const stress_args_t *args)
 			goto tidy_close;
 		}
 
-		/* Exercise illegal swap filename */
+		/* Exercise illegal swapon filename */
 		ret = swapon("", swapflags);
 		if (ret == 0)
 			ret = swapoff("");	/* Should never happen */
+		(void)ret;
+
+		/* Exercise illegal swapon filename */
+		ret = swapoff("");
+		if (ret == 0)
+			ret = swapon("", swapflags);	/* Should never happen */
 		(void)ret;
 
 		inc_counter(args);
