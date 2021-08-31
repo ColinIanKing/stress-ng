@@ -316,7 +316,6 @@ again:
 
 					/* Exercise invalid msgrcv message flag */
 					(void)msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, ~0);
-					
 				}
 
 				if (msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, 0) < 0) {
