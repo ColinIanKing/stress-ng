@@ -214,8 +214,14 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 		goto free_zeropage;
 	}
 
+	/* Exercise invalid flags */
+	fd = shim_userfaultfd(~0);
+	if (fd >= 0)
+		(void)close(fd);
+
 	/* Get userfault fd */
-	if ((fd = shim_userfaultfd(0)) < 0) {
+	fd = shim_userfaultfd(0);
+	if (fd < 0) {
 		switch (errno) {
 		case EPERM:
 			if (args->instance == 0)
