@@ -325,8 +325,10 @@ static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
 		(void)close(pidfd);
 	}
 
+#if defined(MADV_PAGEOUT)
 	/* exercise invalid pidfd */
 	ret = shim_process_madvise(-1, &vec, 1, MADV_PAGEOUT, 0);
+#endif
 	(void)ret;
 }
 
