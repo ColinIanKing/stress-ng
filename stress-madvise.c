@@ -293,27 +293,35 @@ static void *stress_madvise_pages(void *arg)
 
 static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
 {
-#if defined(HAVE_PIDFD_OPEN)
 	int pidfd, ret;
 	struct iovec vec;
 
-	pidfd = shim_pidfd_open(pid, 0);
-	if (pidfd < 0)
-		return;
+	(void)pid;
 
 	vec.iov_base = buf;
 	vec.iov_len = sz;
 
-	ret = shim_process_madvise(pidfd, &vec, 1, MADV_PAGEOUT, 0);
+	pidfd = shim_pidfd_open(pid, 0);
+	if (pidfd >= 0) {
+		ret = shim_process_madvise(pidfd, &vec, 1, MADV_PAGEOUT, 0);
+		(void)ret;
+		ret = shim_process_madvise(pidfd, &vec, 1, MADV_COLD, 0);
+		(void)ret;
+
+		/* exercise invalid behaviour */
+		ret = shim_process_madvise(pidfd, &vec, 1, ~0, 0);
+		(void)ret;
+
+		/* exercise invalid flags */
+		ret = shim_process_madvise(pidfd, &vec, 1, MADV_PAGEOUT, ~0);
+		(void)ret;
+
+		(void)close(pidfd);
+	}
+
+	/* exercise invalid pidfd */
+	ret = shim_process_madvise(-1, &vec, 1, MADV_PAGEOUT, 0);
 	(void)ret;
-	ret = shim_process_madvise(pidfd, &vec, 1, MADV_COLD, 0);
-	(void)ret;
-	(void)close(pidfd);
-#else
-	(void)pid;
-	(void)buf;
-	(void)sz;
-#endif
 }
 
 /*
