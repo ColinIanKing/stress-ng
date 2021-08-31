@@ -98,8 +98,16 @@ static void stress_ramfs_umount(const stress_args_t *args, const char *path)
 	 *  know that umount been successful and can then return.
 	 */
 	for (i = 0; i < 100; i++) {
-
+#if defined(HAVE_UMOUNT2) &&	\
+    defined(MNT_FORCE)
+		if (stress_mwc1()) {
+			ret = umount2(path, MNT_FORCE);
+		} else {
+			ret = umount(path);
+		}
+#else
 		ret = umount(path);
+#endif
 		if (ret == 0) {
 			if (i > 1) {
 				shim_nanosleep_uint64(ns);
@@ -137,6 +145,12 @@ misc_tests:
 	/* Exercise umount of empty path, ENOENT */
 	ret = umount("");
 	(void)ret;
+
+	/* Exercise illegal flags */
+#if defined(HAVE_UMOUNT2)
+	ret = umount2(path, ~0);
+	(void)ret;
+#endif
 
 	/* Exercise umount of hugepath, ENAMETOOLONG */
 	stress_strnrnd(hugepath, sizeof(hugepath));
