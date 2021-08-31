@@ -270,6 +270,15 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 		(void)err;
 	}
 #endif
+#if defined(Q_SYNC)
+	/* special Q_SYNC without specific device will sync all */
+	err = quotactl(QCMD(Q_SYNC, USRQUOTA), NULL, 0, NULL);
+	(void)err;
+
+	/* invalid Q_SYNC with "" device name */
+	err = quotactl(QCMD(Q_SYNC, USRQUOTA), "", 0, NULL);
+	(void)err;
+#endif
 
 	if (tested == 0) {
 		pr_err("%s: quotactl() failed, quota commands "
