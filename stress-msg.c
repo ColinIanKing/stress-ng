@@ -66,6 +66,11 @@ static int stress_msg_get_stats(const stress_args_t *args, const int msgq_id)
 				args->name, errno, strerror(errno));
 			return -errno;
 		}
+
+#if defined(IPC_SET)
+		/* exercise IPC_SET, ignore failures */
+		(void)msgctl(msgq_id, IPC_SET, &buf);
+#endif
 	}
 #endif
 
