@@ -279,6 +279,11 @@ unreg:
 		if (ret == 0)
 			(void)rseq_unregister(&restartable_seq, valid_signature);
 
+		/* invalid flags */
+		ret = shim_rseq(&restartable_seq, sizeof(invalid_seq), ~RSEQ_FLAG_UNREGISTER, valid_signature);
+		if (ret == 0)
+			(void)rseq_unregister(&restartable_seq, valid_signature);
+
 		/* Invalid alignment, EINVAL */
 		ret = rseq_register(misaligned_seq, valid_signature);
 		if (ret == 0)
