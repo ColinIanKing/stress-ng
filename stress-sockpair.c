@@ -86,7 +86,32 @@ static int stress_sockpair_oomable(const stress_args_t *args)
 {
 	pid_t pid;
 	static int socket_pair_fds[MAX_SOCKET_PAIRS][2];
-	int i, max;
+	int socket_pair_fds_bad[2];
+	int i, max, ret;
+
+	/* exercise invalid socketpair domain */
+	ret = socketpair(~0, SOCK_STREAM, 0, socket_pair_fds_bad);
+	if (ret == 0) {
+		(void)close(socket_pair_fds_bad[0]);
+		(void)close(socket_pair_fds_bad[1]);
+	}
+
+	/* exercise invalid socketpair type domain */
+	ret = socketpair(AF_UNIX, ~0, 0, socket_pair_fds_bad);
+	if (ret == 0) {
+		(void)close(socket_pair_fds_bad[0]);
+		(void)close(socket_pair_fds_bad[1]);
+	}
+
+	/* exercise invalid socketpair type protocol */
+	ret = socketpair(AF_UNIX, SOCK_STREAM, ~0, socket_pair_fds_bad);
+	if (ret == 0) {
+		(void)close(socket_pair_fds_bad[0]);
+		(void)close(socket_pair_fds_bad[1]);
+	}
+
+	(void)memset(socket_pair_fds, 0, sizeof(socket_pair_fds));
+	errno = 0;
 
 	for (max = 0; max < MAX_SOCKET_PAIRS; max++) {
 		if (!keep_stressing(args)) {
@@ -158,6 +183,8 @@ again:
 			ssize_t n;
 
 			for (i = 0; keep_stressing(args) && (i < max); i++) {
+				errno = 0;
+
 				n = read(socket_pair_fds[i][0], buf, sizeof(buf));
 				if (n <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
