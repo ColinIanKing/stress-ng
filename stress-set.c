@@ -361,6 +361,7 @@ static int stress_set(const stress_args_t *args)
 
 				/* Exercise long name (-EINVAL) */
 				ret = setdomainname(name, sizeof(name));
+				(void)ret;
 
 				/* Set name back */
 				(void)ret;
