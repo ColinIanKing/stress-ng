@@ -101,14 +101,15 @@ static int stress_key(const stress_args_t *args)
 	bool timeout_supported = true;
 	bool no_error = true;
 	char *huge_description;
+	const size_t key_huge_desc_size = STRESS_MAXIMUM(args->page_size, KEY_HUGE_DESC_SIZE) + 1024;
 
-	huge_description = malloc(KEY_HUGE_DESC_SIZE);
+	huge_description = malloc(key_huge_desc_size);
 	if (!huge_description) {
-		pr_inf("%s: cannot allocate %d byte description string, skipping stressor\n",
-			args->name, KEY_HUGE_DESC_SIZE);
+		pr_inf("%s: cannot allocate %zd byte description string, skipping stressor\n",
+			args->name, key_huge_desc_size);
 		return EXIT_NO_RESOURCE;
 	}
-	stress_strnrnd(huge_description, KEY_HUGE_DESC_SIZE);
+	stress_strnrnd(huge_description, key_huge_desc_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -288,6 +289,22 @@ static int stress_key(const stress_args_t *args)
 						args->name, errno, strerror(errno));
 				}
 			}
+
+			/* exercise invalid type */
+			(void)shim_request_key("_INVALID_TYPE_", description, NULL,
+				KEY_SPEC_PROCESS_KEYRING);
+
+			/* exercise invalid description */
+			(void)shim_request_key("user", huge_description, NULL,
+				KEY_SPEC_PROCESS_KEYRING);
+
+			/* exercise invalid callout info */
+			(void)shim_request_key("user", description, huge_description,
+				KEY_SPEC_PROCESS_KEYRING);
+
+			/* exercise invalid dest keyring id */
+			(void)shim_request_key("user", description, NULL, INT_MIN);
+
 			if (!keep_stressing_flag())
 				goto tidy;
 #endif
