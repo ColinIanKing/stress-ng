@@ -36,6 +36,7 @@ endif
 #
 # Verbosity
 #
+override undefine V
 ifeq ($(VERBOSE),)
 V=@
 Q=@
