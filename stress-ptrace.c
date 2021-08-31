@@ -61,6 +61,7 @@ static inline bool stress_syscall_wait(
 			return false;
 		if (WIFEXITED(status))
 			return true;
+
 	}
 	return true;
 }
@@ -138,6 +139,7 @@ again:
 	} else {
 		/* Parent to do the tracing */
 		int status;
+		int i = 0;
 
 		(void)setpgid(pid, g_pgrp);
 
@@ -182,6 +184,23 @@ again:
 			 */
 			if (stress_syscall_wait(args, pid))
 				break;
+
+			/* periodicially perform invalid ptrace calls */
+			if ((i & 0x1ff) == 0) {
+				const pid_t bad_pid = stress_get_unused_pid_racy(false);
+				int ret;
+
+				/* exercise invalid options */
+				ret = ptrace(~0L, pid, 0, PTRACE_O_TRACESYSGOOD);
+				(void)ret;
+
+				/* exercise invalid pid */
+				ret = ptrace(PTRACE_SETOPTIONS, bad_pid,
+					0, PTRACE_O_TRACESYSGOOD);
+				(void)ret;
+			}
+			i++;
+
 			inc_counter(args);
 		} while (keep_stressing(args));
 
