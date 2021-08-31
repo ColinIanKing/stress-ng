@@ -469,7 +469,24 @@ retry:
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
 		}
-		if ((fd = socket(socket_domain, socket_type, socket_protocol)) < 0) {
+
+		/* Exercise illegal socket family  */
+		fd = socket(~0, socket_type, socket_protocol);
+		if (fd >= 0)
+			(void)close(fd);
+
+		/* Exercise illegal socket type */
+		fd = socket(socket_domain, ~0, socket_protocol);
+		if (fd >= 0)
+			(void)close(fd);
+
+		/* Exercise illegal socket protocol */
+		fd = socket(socket_domain, socket_type, ~0);
+		if (fd >= 0)
+			(void)close(fd);
+
+		fd = socket(socket_domain, socket_type, socket_protocol);
+		if (fd < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			/* failed, kick parent to finish */
