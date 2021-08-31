@@ -75,6 +75,16 @@ static const stress_help_t help[] = {
 #define MPOL_MF_MOVE_ALL	(1 << 2)
 #endif
 
+#if !defined(MPOL_F_NUMA_BALANCING)
+#define MPOL_F_NUMA_BALANCING	(1 << 13)
+#endif
+#if !defined(MPOL_F_RELATIVE_NODES)
+#define MPOL_F_RELATIVE_NODES	(1 << 14)
+#endif
+#if !defined(MPOL_F_STATIC_NODES)
+#define MPOL_F_STATIC_NODES	(1 << 15)
+#endif
+
 #define MMAP_SZ			(4 * MB)
 
 typedef struct stress_node {
@@ -296,6 +306,7 @@ static int stress_numa(const stress_args_t *args)
 				goto err;
 			}
 		}
+
 		(void)memset(buf, 0xff, MMAP_SZ);
 		if (!keep_stressing_flag())
 			break;
@@ -311,7 +322,7 @@ static int stress_numa(const stress_args_t *args)
 			mode |= MPOL_F_RELATIVE_NODES;
 #endif
 
-		switch (stress_mwc8() & 0x7) {
+		switch (stress_mwc8() % 9) {
 		case 0:
 #if defined(MPOL_DEFAULT)
 			ret = shim_set_mempolicy(MPOL_DEFAULT | mode, NULL, max_nodes);
@@ -343,11 +354,16 @@ static int stress_numa(const stress_args_t *args)
 		case 6:
 			ret = shim_set_mempolicy(mode, node_mask, max_nodes);
 			break;
+		case 7:
+			/* Invalid mode */
+			ret = shim_set_mempolicy(mode | MPOL_F_STATIC_NODES | MPOL_F_RELATIVE_NODES, node_mask, max_nodes);
+			break;
 		default:
 			/* Intentionally invalid mode */
 			ret = shim_set_mempolicy(~0, node_mask, max_nodes);
 		}
 		(void)ret;
+
 
 		/*
 		 *  Fetch CPU and node, we just waste some cycled
