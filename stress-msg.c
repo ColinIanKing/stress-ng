@@ -305,6 +305,20 @@ again:
 					(void)ret;
 				}
 #endif
+
+				if ((i & 0x1ff) == 0) {
+					/* Exercise invalid msgrcv queue ID */
+					(void)msgrcv(-1, &msg, sizeof(msg.value), mtype, 0);
+
+					/* Exercise invalid msgrcv message size */
+					(void)msgrcv(msgq_id, &msg, -1, mtype, 0);
+					(void)msgrcv(msgq_id, &msg, 0, mtype, 0);
+
+					/* Exercise invalid msgrcv message flag */
+					(void)msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, ~0);
+					
+				}
+
 				if (msgrcv(msgq_id, &msg, sizeof(msg.value), mtype, 0) < 0) {
 					/*
 					 * Check for errors that can occur
