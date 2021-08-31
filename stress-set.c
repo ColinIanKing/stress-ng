@@ -270,8 +270,44 @@ static int stress_set(const stress_args_t *args)
 #endif
 
 #if defined(HAVE_SETRESUID)
-		ret = setresuid((uid_t)-1, (uid_t)-1, (uid_t)-1);
-		(void)ret;
+		{
+#if defined(HAVE_GETRESUID)
+			uid_t ruid;
+			uid_t euid;
+			uid_t suid;
+
+			ret = getresuid(&ruid, &euid, &suid);
+			if (ret == 0) {
+				ret = setresuid(ruid, euid, suid);
+				(void)ret;
+				ret = setresuid(ruid, euid, (uid_t)-1);
+				(void)ret;
+				ret = setresuid(ruid, (uid_t)-1, suid);
+				(void)ret;
+				ret = setresuid(ruid, (uid_t)-1, (uid_t)-1);
+				(void)ret;
+				ret = setresuid((uid_t)-1, euid, suid);
+				(void)ret;
+				ret = setresuid((uid_t)-1, euid, (uid_t)-1);
+				(void)ret;
+				ret = setresuid((uid_t)-1, (uid_t)-1, suid);
+				(void)ret;
+
+				if (geteuid() != 0) {
+					ret = setresuid((uid_t)-2, euid, suid);
+					(void)ret;
+					ret = setresuid(ruid, (uid_t)-2, suid);
+					(void)ret;
+					ret = setresuid(ruid, euid, (uid_t)-2);
+					(void)ret;
+				}
+				ret = setresuid(ruid, euid, suid);
+				(void)ret;
+			}
+#endif
+			ret = setresuid((uid_t)-1, (uid_t)-1, (uid_t)-1);
+			(void)ret;
+		}
 #endif
 
 #if defined(HAVE_SETRESGID)
