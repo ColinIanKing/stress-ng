@@ -212,18 +212,29 @@ static int stress_remap(const stress_args_t *args)
 		if (unmapped) {
 			ret = remap_file_pages((void *)unmapped, page_size, 0, 0, 0);
 			(void)ret;
+
 			/* Illegal flags */
 			ret = remap_file_pages((void *)unmapped, page_size, 0, 0, ~0);
 			(void)ret;
-			/* Locked page */
+
+			/* Invalid prot */
+			ret = remap_file_pages((void *)unmapped, page_size, ~0, order[0], 0);
+			(void)ret;
 		}
 		if (mapped) {
 			ret = remap_file_pages((void *)(mapped + page_size), page_size, 0, 0, 0);
 			(void)ret;
+
 			/* Illegal flags */
 			ret = remap_file_pages((void *)(mapped + page_size), page_size, 0, 0, ~0);
 			(void)ret;
+
+			/* Invalid prot */
+			ret = remap_file_pages((void *)(mapped + page_size), page_size, ~0, order[0], 0);
+			(void)ret;
 		}
+
+
 
 		inc_counter(args);
 	} while (keep_stressing(args));
