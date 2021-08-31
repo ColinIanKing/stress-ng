@@ -119,6 +119,22 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 		SHIM_STATX_ALL, &bufx) < 0) && (errno != ENOMEM)) {
 		si->ignore |= IGNORE_STATX;
 	}
+
+	/* invalid dfd in statx */
+	ret = shim_statx(-1, "baddfd", AT_SYMLINK_NOFOLLOW, SHIM_STATX_ALL, &bufx);
+	(void)ret;
+
+	/* invalid path in statx */
+	ret = shim_statx(AT_EMPTY_PATH, "", AT_SYMLINK_NOFOLLOW, SHIM_STATX_ALL, &bufx);
+	(void)ret;
+
+	/* invalid mask in statx */
+	ret = shim_statx(AT_EMPTY_PATH, si->path, ~0, SHIM_STATX_ALL, &bufx);
+	(void)ret;
+
+	/* invalid flags in statx */
+	ret = shim_statx(AT_EMPTY_PATH, si->path, AT_SYMLINK_NOFOLLOW, ~0, &bufx);
+	(void)ret;
 #endif
 	/*
 	 *  Opening /dev files such as /dev/urandom
