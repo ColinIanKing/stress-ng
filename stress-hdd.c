@@ -656,7 +656,7 @@ static int stress_hdd(const stress_args_t *args)
 	}
 	buf = (uint8_t *)stress_align_address(alloc_buf, BUF_ALIGNMENT);
 #endif
-
+	(void)memset(buf, stress_mwc8(), hdd_write_size);
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
