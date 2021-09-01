@@ -221,11 +221,11 @@ abort:
 		socket_pair_close(socket_pair_fds, max, 0);
 		do {
 			for (i = 0; keep_stressing(args) && (i < max); i++) {
-				ssize_t ret;
+				ssize_t wret;
 
 				socket_pair_memset(buf, (uint8_t)val++, sizeof(buf));
-				ret = write(socket_pair_fds[i][1], buf, sizeof(buf));
-				if (ret <= 0) {
+				wret = write(socket_pair_fds[i][1], buf, sizeof(buf));
+				if (wret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR) || (errno == EPIPE))
 						continue;
 					if (errno) {
