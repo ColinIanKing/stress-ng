@@ -452,6 +452,16 @@ timed_out:
 			ret = semop(sem_id, &semwait, 1);
 			(void)ret;
 		}
+
+		/*
+		 *  Exercise illegal cmd, use direct system call
+		 *  if available as some libcs detect that the cmd
+		 *  is invalid without doing the actual system call
+		 */
+		(void)semctl(sem_id, 0, INT_MAX, 0);
+#if defined(__NR_semctl)
+		(void)syscall(__NR_semctl, sem_id, 0, INT_MAX, 0);
+#endif
 	} while ((rc == EXIT_SUCCESS)  && keep_stressing(args));
 
 	if (rc == EXIT_FAILURE)
