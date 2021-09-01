@@ -186,11 +186,11 @@ again:
 	if (pid1 < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		(void)close(fd1);
 		if (!keep_stressing(args))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)close(fd1);
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
 		if (sfd != -1)
