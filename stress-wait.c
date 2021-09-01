@@ -180,7 +180,9 @@ static int stress_wait(const stress_args_t *args)
 	int status, ret = EXIT_SUCCESS;
 	pid_t pid_r, pid_k, wret;
 	int options = 0;
+#if defined(HAVE_WAIT4)
 	const pid_t pgrp = getpgrp();
+#endif
 
 #if defined(WUNTRACED)
 	options |= WUNTRACED;
