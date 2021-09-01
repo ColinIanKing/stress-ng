@@ -29,19 +29,7 @@
 #include <unistd.h>
 #include <features.h>
 
-#include "../stress-version.h"
-#include <sys/syscall.h>
-
 int main(void)
 {
-	int ret;
-
-#if NEED_GLIBC(2,27,0)
-	ret = pkey_alloc(0, 0);
-	(void)ret;
-#endif
-	ret = syscall(__NR_pkey_alloc, 0, 0);
-	(void)ret;
-
-	return 0;
+	return pkey_alloc(0, 0);
 }
