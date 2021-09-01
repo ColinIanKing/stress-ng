@@ -64,7 +64,27 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  */
 static void stress_semaphore_sysv_init(void)
 {
-	int count = 0;
+	int count = 0, sem_id;
+
+	/* Exercise invalid nsems, EINVAL */
+	sem_id = semget((key_t)stress_mwc16(), -1, IPC_CREAT | S_IRUSR | S_IWUSR);
+	if (sem_id != -1)
+		(void)semctl(sem_id, 0, IPC_RMID);
+
+	/* Exercise invalid nsems, EINVAL */
+	sem_id = semget((key_t)stress_mwc16(), INT_MAX, IPC_CREAT | S_IRUSR | S_IWUSR);
+	if (sem_id != -1)
+		(void)semctl(sem_id, 0, IPC_RMID);
+
+	/* Exercise invalid semget semflg, EINVAL */
+	sem_id = semget((key_t)stress_mwc16(), 0, ~0);
+	if (sem_id != -1)
+		(void)semctl(sem_id, 0, IPC_RMID);
+
+	/* Exercise without IPC_CREAT, ENOENT */
+	sem_id = semget((key_t)stress_mwc16(), 1, S_IRUSR | S_IWUSR);
+	if (sem_id != -1)
+		(void)semctl(sem_id, 0, IPC_RMID);
 
 	while (count < 100) {
 		g_shared->sem_sysv.key_id = (key_t)stress_mwc16();
