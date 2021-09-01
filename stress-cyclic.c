@@ -680,6 +680,8 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		if (!keep_stressing(args))
+			goto finish;
 		pr_inf("%s: cannot fork, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
@@ -855,6 +857,7 @@ tidy:
 		}
 	}
 
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)rt_stats, size);

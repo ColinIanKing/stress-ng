@@ -83,6 +83,8 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
+			if (!keep_stressing(args))
+				goto finish;
 			pr_fail("%s: fork failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
@@ -143,6 +145,7 @@ rewait:
 		}
 	} while (keep_stressing(args));
 
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)sigabrt_mapping, args->page_size);

@@ -199,6 +199,11 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		(void)mq_close(mq);
+		(void)mq_unlink(mq_name);
+
+		if (!keep_stressing(args))
+			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -496,6 +501,7 @@ again:
 		/* Exercise invalid mq_unlink */
 		(void)mq_unlink("/");
 	}
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;

@@ -1501,6 +1501,8 @@ again:
 		(void)close(deflate_xsum_fds[1]);
 		(void)close(inflate_xsum_fds[0]);
 		(void)close(inflate_xsum_fds[1]);
+		if (!keep_stressing(args))
+			return EXIT_SUCCESS;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;

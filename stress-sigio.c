@@ -130,6 +130,8 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		if (!keep_stressing(args))
+			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto err;
@@ -187,12 +189,14 @@ again:
 			break;
 		}
 	} while (keep_stressing(args));
+
 	t_delta = stress_time_now() - t_start;
 
 	if (t_delta > 0.0) 
 		pr_inf("%s: %.2f SIGIO signals/sec\n",
 			args->name, (double)async_sigs / t_delta);
 
+finish:
 	/*  And ignore IO signals from now on */
 	ret = stress_sighandler(args->name, SIGIO, SIG_IGN, NULL);
 	(void)ret;

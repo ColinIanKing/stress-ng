@@ -166,10 +166,14 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-		pr_fail("%s: fork failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+
 		socket_pair_close(socket_pair_fds, max, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
+
+		if (!keep_stressing(args))
+			goto finish;
+		pr_fail("%s: fork failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_set_oom_adjustment(args->name, true);
@@ -250,6 +254,7 @@ abort:
 		(void)shim_waitpid(pid, &status, 0);
 		socket_pair_close(socket_pair_fds, max, 1);
 	}
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;

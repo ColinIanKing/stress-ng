@@ -108,6 +108,8 @@ fork_again:
 	if (chpid < 0) {
 		if (stress_redo_fork(errno))
 			goto fork_again;
+		if (!keep_stressing(args))
+			goto finish;
 		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)munmap((void *)terminate_mmap, args->page_size);
@@ -273,6 +275,7 @@ STRESS_PRAGMA_POP
 			(void)kill(chpid, SIGKILL);
 		}
 	}
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)terminate_mmap, args->page_size);

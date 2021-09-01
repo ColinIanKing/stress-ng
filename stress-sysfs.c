@@ -702,6 +702,10 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
+			if (!keep_stressing(args)) {
+				rc = EXIT_SUCCESS;
+				goto finish;
+			}
 		} else if (pid > 0) {
 			int status;
 
@@ -784,6 +788,7 @@ again:
 		}
 	} while (keep_stressing(args));
 
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	stress_hash_delete(sysfs_hash_table);

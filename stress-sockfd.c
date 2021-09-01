@@ -400,6 +400,10 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		if (!keep_stressing(args)) {
+			ret = EXIT_SUCCESS;
+			goto finish;
+		}
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -410,6 +414,7 @@ again:
 		ret = stress_socket_server(args, pid, ppid, max_fd, socket_fd_port);
 	}
 
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return ret;

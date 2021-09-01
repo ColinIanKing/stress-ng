@@ -159,6 +159,8 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
+			if (!keep_stressing(args))
+				goto finish;
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			/* Nope, give up! */
@@ -197,6 +199,7 @@ again:
 			_exit(rc);
 		}
 	}
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(fd);

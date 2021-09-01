@@ -295,6 +295,8 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
+			if (!keep_stressing(args))
+				goto finish;
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
@@ -412,6 +414,7 @@ again:
 		}
 	} while (keep_stressing(args));
 
+finish:
 	rc = EXIT_SUCCESS;
 
 #if TRACK_SIGCOUNT

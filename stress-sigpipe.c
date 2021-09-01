@@ -103,8 +103,11 @@ again:
 	if (UNLIKELY(pid < 0)) {
 		if (stress_redo_fork(errno))
 			goto again;
+
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
+		if (!keep_stressing(args))
+			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -130,6 +133,7 @@ again:
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
+finish:
 	return EXIT_SUCCESS;
 }
 

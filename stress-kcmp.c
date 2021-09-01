@@ -186,6 +186,8 @@ again:
 	if (pid1 < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		if (!keep_stressing(args))
+			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd1);
@@ -313,6 +315,7 @@ reap:
 		(void)shim_waitpid(pid1, &status, 0);
 		(void)close(fd1);
 	}
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\

@@ -415,6 +415,7 @@ static int stress_dccp(const stress_args_t *args)
 	int dccp_port = DEFAULT_DCCP_PORT;
 	int dccp_domain = AF_INET;
 	int dccp_opts = DCCP_OPT_SEND;
+	int rc = EXIT_SUCCESS;
 
 	(void)stress_get_setting("dccp-port", &dccp_port);
 	(void)stress_get_setting("dccp-domain", &dccp_domain);
@@ -429,6 +430,8 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		if (!keep_stressing(args))
+			goto finish;
 		pr_dbg("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
@@ -437,13 +440,12 @@ again:
 		stress_dccp_client(args, ppid, dccp_port, dccp_domain);
 		_exit(EXIT_SUCCESS);
 	} else {
-		int rc;
-
 		rc = stress_dccp_server(args, pid, ppid, dccp_port,
 			dccp_domain, dccp_opts);
-		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-		return rc;
 	}
+finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	return rc;
 }
 
 stressor_info_t stress_dccp_info = {

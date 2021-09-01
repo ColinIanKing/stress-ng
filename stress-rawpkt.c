@@ -408,6 +408,10 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		if (!keep_stressing(args)) {
+			rc = EXIT_SUCCESS;
+			goto finish;
+		}
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return rc;
@@ -420,6 +424,7 @@ again:
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;

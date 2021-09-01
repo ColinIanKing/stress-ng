@@ -57,9 +57,10 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
-
 		(void)close(fds[0]);
 		(void)close(fds[1]);
+		if (!keep_stressing(args))
+			return -1;
 		pr_err("%s: fork failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;

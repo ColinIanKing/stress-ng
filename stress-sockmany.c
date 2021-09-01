@@ -301,6 +301,10 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		if (!keep_stressing(args)) {
+			rc = EXIT_SUCCESS;
+			goto finish;
+		}
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
@@ -312,6 +316,7 @@ again:
 	}
 	pr_dbg("%s: %d sockets opened at one time\n", args->name, sock_fds->max_fd);
 
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)sock_fds, args->page_size);

@@ -1210,6 +1210,10 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		if (!keep_stressing(args)) {
+			rc = EXIT_SUCCESS;
+			goto finish;
+		}
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -1225,8 +1229,10 @@ again:
 			socket_port, rt, socket_zerocopy);
 		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 
-		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	}
+finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return rc;
 }
 

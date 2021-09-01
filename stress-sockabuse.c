@@ -365,6 +365,10 @@ again:
 	if (pid < 0) {
 		if (stress_redo_fork(errno))
 			goto again;
+		if (!keep_stressing(args)) {
+			rc = EXIT_SUCCESS;
+			goto finish; 
+		}
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -373,11 +377,12 @@ again:
 			socket_port);
 		_exit(rc);
 	} else {
-
 		rc = stress_sockabuse_server(args, pid, ppid,
 			socket_port);
-		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	}
+finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
 	return rc;
 }
 

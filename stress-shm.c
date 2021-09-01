@@ -370,6 +370,10 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
+			if (!keep_stressing(args)) {
+				rc = EXIT_SUCCESS;
+				goto finish;
+			}
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(pipefds[0]);
@@ -463,6 +467,7 @@ again:
 			_exit(rc);
 		}
 	}
+finish:
 	if (orig_sz != sz)
 		pr_dbg("%s: reduced shared memory size from "
 			"%zu to %zu bytes\n", args->name, orig_sz, sz);

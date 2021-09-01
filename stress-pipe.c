@@ -197,6 +197,8 @@ again:
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
 		free(buf);
+		if (!keep_stressing(args))
+			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -284,6 +286,7 @@ again:
 		(void)close(pipefds[1]);
 		free(buf);
 	}
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;

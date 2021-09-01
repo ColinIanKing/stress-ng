@@ -181,6 +181,8 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
+			if (!keep_stressing(args))
+				goto finish;
 			pr_err("%s: fork failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else if (pid > 0) {
@@ -236,6 +238,7 @@ again:
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+finish:
 	rc = EXIT_SUCCESS;
 
 tidy_mmap:

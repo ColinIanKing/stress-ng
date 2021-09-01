@@ -101,6 +101,8 @@ again:
 		if (pid < 0) {
 			if (stress_redo_fork(errno))
 				goto again;
+			if (!keep_stressing(args))
+				goto finish;
 			pr_fail("%s: fork failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
@@ -125,6 +127,7 @@ again:
 		set_counter(args, counter);
 	} while (keep_stressing(args));
 
+finish:
 	pr_dbg("%s: exit: %" PRIu64 ", kill: %" PRIu64
 		", stop: %" PRIu64 ", continue: %" PRIu64 "\n",
 		args->name,
