@@ -207,7 +207,7 @@ again:
 		} else if (pid == 0) {
 			stress_exit_group_child(args);
 		} else {
-			int status, ret;
+			int status;
 
 			ret = waitpid(pid, &status, 0);
 			(void)pthread_mutex_destroy(&mutex);
