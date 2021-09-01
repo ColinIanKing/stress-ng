@@ -264,14 +264,37 @@ static int stress_set(const stress_args_t *args)
 		}
 #endif
 #if defined(HAVE_SETREGID)
-		ret = setregid((gid_t)-1, (gid_t)-1);
+#if defined(HAVE_GETRESGID)
+		{
+			gid_t rgid;
+			gid_t egid;
+			gid_t sgid;
 
+			ret = getresgid(&rgid, &egid, &sgid);
+			if (ret == 0) {
+				ret = setregid(rgid, egid);
+				(void)ret;
+				ret = setregid((gid_t)-1, egid);
+				(void)ret;
+				ret = setregid(rgid, (gid_t)-1);
+				(void)ret;
+
+				if (geteuid() != 0) {
+					ret = setregid((gid_t)-2, egid);
+					(void)ret;
+					ret = setregid(rgid, (gid_t)-2);
+					(void)ret;
+				}
+			}
+		}
+#endif
+		ret = setregid((gid_t)-1, (gid_t)-1);
 		(void)ret;
 #endif
 
 #if defined(HAVE_SETRESUID)
-		{
 #if defined(HAVE_GETRESUID)
+		{
 			uid_t ruid;
 			uid_t euid;
 			uid_t suid;
@@ -304,15 +327,15 @@ static int stress_set(const stress_args_t *args)
 				ret = setresuid(ruid, euid, suid);
 				(void)ret;
 			}
-#endif
-			ret = setresuid((uid_t)-1, (uid_t)-1, (uid_t)-1);
-			(void)ret;
 		}
+#endif
+		ret = setresuid((uid_t)-1, (uid_t)-1, (uid_t)-1);
+		(void)ret;
 #endif
 
 #if defined(HAVE_SETRESGID)
-		{
 #if defined(HAVE_GETRESGID)
+		{
 			gid_t rgid;
 			gid_t egid;
 			gid_t sgid;
@@ -344,10 +367,10 @@ static int stress_set(const stress_args_t *args)
 				ret = setresgid(rgid, egid, sgid);
 				(void)ret;
 			}
-#endif
-			ret = setresgid((gid_t)-1, (gid_t)-1, (gid_t)-1);
-			(void)ret;
 		}
+#endif
+		ret = setresgid((gid_t)-1, (gid_t)-1, (gid_t)-1);
+		(void)ret;
 #endif
 
 #if defined(HAVE_SETFSGID) && 	\
