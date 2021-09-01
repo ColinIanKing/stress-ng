@@ -454,11 +454,41 @@ timed_out:
 			semwait.sem_num = 0;
 			semwait.sem_op = -1;
 			semwait.sem_flg = SEM_UNDO;
-
 			ret = semtimedop(sem_id, &semwait, 1, &timeout);
+			(void)ret;
+
+			/*
+			 *  Exercise invalid semid, EINVAL
+			 */
+			timeout.tv_sec = 0;
+			timeout.tv_nsec = 10000;
+			ret = semtimedop(-1, &semwait, 1, &timeout);
+			(void)ret;
+
+			/*
+			 *  Exercise invalid nsops, E2BIG
+			 */
+			timeout.tv_sec = 0;
+			timeout.tv_nsec = 10000;
+			ret = semtimedop(sem_id, &semwait, -1, &timeout);
 			(void)ret;
 		}
 #endif
+		{
+			struct sembuf semwait;
+			/*
+			 *  Exercise invalid semid, EINVAL
+			 */
+			ret = semop(-1, &semwait, 1);
+			(void)ret;
+
+			/*
+			 *  Exercise invalid nsops, E2BIG
+			 */
+			ret = semop(sem_id, &semwait, -1);
+			(void)ret;
+		}
+
 		/*
 		 *  Exercise illegal semwait
 		 */
