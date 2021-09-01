@@ -75,7 +75,7 @@ int stress_try_open(
 	if (pid == 0) {
 		int fd;
 
-		alarm(1);
+		(void)alarm(1);
 		fd = open(path, flags);
 		if (fd < 0) {
 			/* blocked or out of memory, don't give up */
