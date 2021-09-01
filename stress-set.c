@@ -376,7 +376,7 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETFSGID) && 	\
     defined(HAVE_SYS_FSUID_H)
 		{
-			int fsgid = -1;
+			int fsgid;
 
 			/* Passing -1 will return the current fsgid */
 			fsgid = setfsgid((uid_t)-1);
