@@ -127,7 +127,7 @@ static struct sock_fprog prog_random = {
 };
 
 #if defined(SECCOMP_GET_ACTION_AVAIL)
-static const uint32_t seccomp_actions[] = {
+static uint32_t seccomp_actions[] = {
 #if defined(SECCOMP_RET_KILL_PROCESS)
 	SECCOMP_RET_KILL_PROCESS,
 #endif
