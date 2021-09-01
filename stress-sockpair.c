@@ -90,6 +90,8 @@ static int stress_sockpair_oomable(const stress_args_t *args)
 	int i, max, ret;
 
 	/* exercise invalid socketpair domain */
+	socket_pair_fds_bad[0] = -1;
+	socket_pair_fds_bad[1] = -1;
 	ret = socketpair(~0, SOCK_STREAM, 0, socket_pair_fds_bad);
 	if (ret == 0) {
 		(void)close(socket_pair_fds_bad[0]);
@@ -97,6 +99,8 @@ static int stress_sockpair_oomable(const stress_args_t *args)
 	}
 
 	/* exercise invalid socketpair type domain */
+	socket_pair_fds_bad[0] = -1;
+	socket_pair_fds_bad[1] = -1;
 	ret = socketpair(AF_UNIX, ~0, 0, socket_pair_fds_bad);
 	if (ret == 0) {
 		(void)close(socket_pair_fds_bad[0]);
