@@ -126,6 +126,36 @@ static struct sock_fprog prog_random = {
 	.filter = filter_random
 };
 
+#if defined(SECCOMP_GET_ACTION_AVAIL)
+static const uint32_t seccomp_actions[] = {
+#if defined(SECCOMP_RET_KILL_PROCESS)
+	SECCOMP_RET_KILL_PROCESS,
+#endif
+#if defined(SECCOMP_RET_KILL_THREAD)
+	SECCOMP_RET_KILL_THREAD,
+#endif
+#if defined(SECCOMP_RET_TRAP)
+	SECCOMP_RET_TRAP,
+#endif
+#if defined(SECCOMP_RET_ERRNO)
+	SECCOMP_RET_ERRNO,
+#endif
+#if defined(SECCOMP_RET_USER_NOTIF)
+	SECCOMP_RET_USER_NOTIF,
+#endif
+#if defined(SECCOMP_RET_TRACE)
+	SECCOMP_RET_TRACE,
+#endif
+#if defined(SECCOMP_RET_LOG)
+	SECCOMP_RET_LOG,
+#endif
+#if defined(SECCOMP_RET_LOG)
+	SECCOMP_RET_ALLOW,
+#endif
+	~0,	/* Invalid */
+};
+#endif
+
 static int stress_seccomp_supported(const char *name)
 {
 	pid_t pid;
@@ -229,7 +259,6 @@ next:
 	return 0;
 }
 
-
 /*
  *  stress_seccomp_set_filter()
  *	set up a seccomp filter, allow writes
@@ -240,7 +269,6 @@ static int stress_seccomp_set_filter(
 	const bool allow_write,
 	bool do_random)
 {
-
 	/*
 	 *  Depending on allow_write we either use the
 	 *  filter that allows writes or the filter
@@ -268,6 +296,38 @@ static int stress_seccomp_set_filter(
 	 *  Try using the newer seccomp syscall first
 	 */
 	if (use_seccomp) {
+#if defined(HAVE_SECCOMP_NOTIF_SIZES)
+		{
+			struct seccomp_notif_sizes sizes;
+
+			/*
+			 *  Exercise SECCOMP_GET_NOTIF_SIZES
+			 */
+			(void)shim_seccomp(SECCOMP_GET_NOTIF_SIZES, 0, &sizes);
+			/* Invalid flags, EINVAL */
+			(void)shim_seccomp(SECCOMP_GET_NOTIF_SIZES, ~0, &sizes);
+		}
+#endif
+#if defined(SECCOMP_GET_ACTION_AVAIL)
+		{
+			for (i = 0; i < SIZEOF_ARRAY(seccomp_actions); i++) {
+				/* Valid flags */
+				(void)shim_seccomp(SECCOMP_GET_ACTION_AVAIL, 0, (void *)&seccomp_actions[i]);
+				/* Invalid flags, EINVAL */
+				(void)shim_seccomp(SECCOMP_GET_ACTION_AVAIL, ~0, (void *)&seccomp_actions[i]);
+			}
+		}
+#endif
+#if defined(SECCOMP_SET_MODE_STRICT)
+		if (stress_mwc8() < 16) {
+			(void)shim_seccomp(SECCOMP_SET_MODE_STRICT, 0, NULL);
+			(void)shim_seccomp(SECCOMP_SET_MODE_STRICT, ~0, NULL);
+			(void)shim_seccomp(SECCOMP_SET_MODE_STRICT, 0, &i);
+		}
+#endif
+		/* Exercise invalid op */
+		(void)shim_seccomp(~0, 0, NULL);
+
 redo_seccomp:
 		if (shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, p) == 0)
 			return 0;
@@ -299,7 +359,6 @@ redo_prctl:
 	}
 	return 0;
 }
-
 
 /*
  *  stress_seccomp()
