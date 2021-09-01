@@ -106,10 +106,10 @@ static int stress_set_malloc_pthreads(const char *opt)
 
 static int stress_set_malloc_touch(const char *opt)
 {
-	bool malloc_touch = true;
+	bool malloc_touch_tmp = true;
 
 	(void)opt;
-	return stress_set_setting("malloc-touch", TYPE_ID_BOOL, &malloc_touch);
+	return stress_set_setting("malloc-touch", TYPE_ID_BOOL, &malloc_touch_tmp);
 }
 
 /*
