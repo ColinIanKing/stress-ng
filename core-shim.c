@@ -1188,7 +1188,9 @@ int shim_pkey_get(int pkey)
  */
 int shim_pkey_set(int pkey, unsigned int rights)
 {
-#if defined(__NR_pkey_set)
+#if defined(HAVE_PKEY_SET)
+	return pkey_set(pkey, rights);
+#elif defined(__NR_pkey_set)
 	return (int)syscall(__NR_pkey_set, pkey, rights);
 #else
 	return (int)shim_enosys(0, pkey, rights);
