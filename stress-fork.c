@@ -157,8 +157,10 @@ STRESS_PRAGMA_POP
 			}
 
 			if (pid == 0) {
+#if defined(HAVE_GETPGID)
 				const pid_t my_pid = getpid();
 				const pid_t my_pgid = getpgid(my_pid);
+#endif
 
 				/*
 				 *  With new session and capabilities
@@ -190,8 +192,10 @@ STRESS_PRAGMA_POP
 				/* exercise some setpgid calls before we die */
 				ret = setpgid(0, 0);
 				(void)ret;
+#if defined(HAVE_GETPGID)
 				ret = setpgid(my_pid, my_pgid);
 				(void)ret;
+#endif
 
 				/* -ve pgid is EINVAL */
 				ret = setpgid(0, -1);
