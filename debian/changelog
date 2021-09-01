@@ -1,3 +1,178 @@
+stress-ng (0.13.01-1) unstable; urgency=medium
+
+  [Maxime Chevallier]
+  * stress-ng: Fix random stressor assignment
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: update date
+  * stress-kcmp: move close to avoid fd1 leak on exit
+  * stress-set: no need to initialize fsgid, remove assignment
+  * stress-hdd: fill write/read buffer with random data
+  * stress-set: initialize uid/gid variables
+  * Add yielding check and success exit if we timeout
+  * stress-fork: don't use getpgid if it is not available
+  * stress-dir: only use mkdirat if it is available.
+  * stress-hdd: voidify fd to clean up Minix build warnings
+  * stress-wait: fix build warning on Minix
+  * stress-pkey: add pkey_set build time detection
+  * stress-pkey: add pkey_get build time detection
+  * test: use pkey_mprotect call rather than system call
+  * test: use pkey_alloc call rather than system call
+  * stress-pkey: use pkey call if it is available
+  * stress-xattr: fix build error when XATTR_SIZE_MAX is not defined
+  * stress-sockpair: fix name shadowing of variable ret
+  * stress-seccomp: unconstify seccomp_actions, clean up build warning
+  * stress-malloc: rename malloc_touch to avoid name shadowing
+  * stress-exit-group: remove duplicated declaration of ret
+  * stress-set: exercise getresgid with valid and invalid arguments
+  * stress-sem: exercise semop and semtimedop with invalid arguments
+  * stress-sem-sysv: exercise semget with some invalid arguments
+  * stress-sem-sysv: exercise semctl with invalid cmd paramater
+  * stress-mq: cast UINT_MAX to long to clean up pedantic build warning
+  * stress-seccomp: add more seccomp operation tests
+  * core-try-open: voidify return from alarm, we are ignoring it
+  * stress-madvise: only used MADV_* flags if they are defined (part 2)
+  * stress-madvise: only used MADV_* flags if they are defined
+  * stress-ramfd: exercise umount2 with and without illegal flags
+  * Add build time check for umount2 system call
+  * stress-userfaultfd: exercise userfaultfd with invalid flags
+  * stress-swap: exercise invalid swapon flags
+  * stress-swap: exercise invalid swapoff filename
+  * stress-sock: exercise setsockopt invalid arguments
+  * stress-set: exercise setresuid more thoroughly
+  * stress-set: exercise setresgid more thoroughly
+  * stress-fork: exercise invalid setpgid calls before child dies
+  * stress-set: add missing voidified ret
+  * stress-numa: exercise set_mempolicy with incompatible mode flags
+  * stress-sigpending: exercise sigprocmask with some more options
+  * stress-rseq: add a couple more invalid rseq calls
+  * stress-key: exercise request_key with invalid arguments
+  * stress-remap-file-pages: exercise with illegal prot flags
+  * stress-quota: exercise quotactl Q_SYNC flush all NULL device name
+  * stress-ptrace: exercise invalid ptrace calls
+  * Makefile: force V to be undefined to avoid make V=1 build failures
+  * stress-msg: remove empty line
+  * stress-fstat: exercise statx with invalid arguments
+  * stress-madvise: exercise process_madvise with invalid arguments
+  * stress-hdd: add invalid read/write family calls
+  * stress-sockpair: exercise invalid socketpair calls
+  * stress-sock: exercise invalid sock calls
+  * stress-numa: exercise move_pages with NULL nodes argument
+  * stress-msg: exercise msgrcv with invalid arguments
+  * stress-mq: exercise msgctl IPC_SET for more kernel coverage
+  * stress-mq: exercise invalid mq_timedreceive and mq_receive calls
+  * stress-mq: exercise invalid mq_unlink calls
+  * stress-mq: exercise mq_close with invalid mq descriptor
+  * stress-mq: exercise invalid mq_send* calls
+  * stress-mq: exercise mq_open with various invalid arguments
+  * stress-mq: exercise invalid mq descriptor on mq_notify
+  * stress-mq: exercise invalid mq descriptor on mq_getattr/mq_setattr
+  * stress-mremap: workaround pedantic static analysis warnings
+  * stress-mremap: exercise invalid flags and new size
+  * stress-mmap: call wth invalid offset
+  * stress-open: exercise openat2 with invalid usize argument
+  * stress-handle: exercise open_by_handle_at with another bad fd
+  * stress-pkey: exercise pkey_free with invalid pkey id
+  * stress-pkey: exercise pkey_alloc with invalid access_rights
+  * stress-aio-linux: exercise invalid io_submit calls
+  * stress-aio-linux: exercise invalid io_setup calls
+  * stress-aio-linux:  exercise invalid io_getevents calls
+  * stress-aio-linux: exercise invalid io_destroy calls
+  * stress-aio-linux: exercise invalid io_cancel calls
+  * stress-sigio: add yield checking while consuming data from SIGIO event
+  * stress-sigio: don't report EINTR as errors on selects
+  * stress-xattr: fix incorrect voidification of variable
+  * stress-xattr: exercise invalid filename on listxattr calls
+  * stress-xattr: remove overly long attribute to force ERANGE
+  * Add stress_redo_fork helper to check errno and keep stressing flag
+  * stress-bad-altstack: add altstack usage inside signal handler
+  * stress-clone: exercise invalid modify_ldt arguments
+  * stress-mknod: exercise invalid fd in mknodat call
+  * stress-dir: exercise invalid fd on mkdirat call
+  * stress-copy-file: exercise copy_file_range with invalid fds and flags
+  * stress-membarrier: add build time check for MEMBARRIER_CMD_FLAG_CPU
+  * stress-loadavg: voidify function return values
+  * stress-fallocate: Add one more invalid mode combo
+  * stress-dirdeep: exercise linkat with invalid flags
+  * stress-readahead: exercise invalid offset and lengths for
+    posix_fadvise
+  * stress-close: exercise invalid flags in fchownat call
+  * stress-sock: use invalid flags for accept4 call
+  * stress-readahead: replace whitespace with tabs.
+  * stress-sigio: drain as much as possible in SIGIO handler
+  * stress-readahead: exercise illegal readahead on write-only file
+  * stress-handle: exercise EOVERFLOW on small buffer
+  * stress-msync: exercise invalid flags field in msync
+  * stress-memfd: add some more invalid memfd pathnames
+  * stress-kcmp: exercise kcmp with invalid PIDs
+  * stress-membarrier: add missing cpu_id arg to membarrier call
+  * stress-fpunch: add more yield points
+  * stress-cap: exercise capset with invalid version and PID
+  * stress-cap: exercise capget with invalid version and PID
+  * stress-utime: exercise utimensat with illegal flags
+  * stress-wait: exercise wait4 with various alternative options
+  * stress-klog: exercise some invalid syslog read operations
+  * stress-dev: avoid any actions on owner's tty
+  * stress-cache: Add NOCLOBBER hints to pinned clean up build warnings
+  * stress-alarm: Add alarm(2) and sleep(3) stressor
+  * stress-kill: exercise illegal signal numbers and PID
+  * stress-exit-group: fix mutex cleanup on exit
+  * stress-cache: add NOCLOBBER hints to total and r to clean up build
+   warnings
+  * stress-key: only use KEYCTL_INVALIDATE if it is defined
+  * Add new exit_group stress test.
+  * stress-pidfd: use the new process_mrelease call on pre-waited
+    process pidfd
+  * core-shim: add wrapper to process_release
+  * stress-cache: remove shim_clflush on bad_addr, breaks OS X
+  * stress-malloc: move initialization of malloc_threshold to #ifdef block
+  * stress-cache: remove __builtin___clear_cache call on
+    bad_addr (LP: #1940593)
+  * stress-get: exercise invalid rusage who fields
+  * stress-key: exercise add_key with a range in invalid arguments
+  * stress-sigfd: exercise signalfd4 with invalid mask pointer size
+  * stress-sigq: add invalid SI_TKILL rt_sigqueueinfo call
+  * stress-remap-file-pages: disable for SPARC
+  * stress-ng.h: Add STRESS_ARCH_SPARC sparc arch macro
+  * stress-cache: add in periodic invalid cache flush operations
+  * stress-ng: disable SIGLARM alarm once child stressor has returned
+  * stress-get: add a couple more test cases for ugetrlimit
+  * stress-chroot: fix use-after-free error when free'ing path
+  * stress-timer: add commented out invalid timer_delete call
+  * stress-brk: add mergable page hint with madvise
+  * core-shim: use brk system call in preference to libc wrapper
+  * stress-chroot: add two more corner test cases, add more comments
+  * stress-cpu: add 16 bit division method div16
+  * stress-hdd: remove tab on empty line
+  * stress-fpunch: fix typo in comment
+  * stress-malloc: add --malloc-touch option to aggressively force pages
+    into memory
+  * stress-zlib: add some missing constifications
+  * stress-vdso: make static array wrap_funcs const
+  * stress-tun: make string buffer static const
+  * stress-sysfs: make static string signum_path const
+  * core-sched: constify static array sched_types
+  * stress-nop: Fix opt_set_funcs undeclared
+  * Manual: update contributors list
+  * Manual: minor corrections in the cpu methods documentation
+  * stress-l1cache: add a missing newline in the source
+  * stress-fpunch: create temp file with holes and multiple extents
+  * stress-affinity: add --affinity-sleep nanosleep delay option
+  * stress-affinity: whitespace and comment clean-up
+  * stress-revio: use stress_get_extents helper
+  * Add file hole punching (and filling) stressor, --fpunch
+  * stress-wait: constify pid_arg arguement
+  * stress-cpu: make variable solutions const, add some line spacing
+  * stress-cpu: move queens_solutions into function
+  * stress-cpu: make array factorials const
+  * core-helper: remove some blank lines and add a missing comment block
+  * stress-pidfd: fix comment, add missing "don't"
+  * voidify return from various sleep calls
+  * Clean up kill calls, voidify returns and remove unwanted debug kill
+
+ -- Colin King <colin.king@canonical.com>  Mon, 1 Sep 2021 17:57:59 +0100
+
 stress-ng (0.13.00-1) unstable; urgency=medium
 
   * Makefile: bump version
