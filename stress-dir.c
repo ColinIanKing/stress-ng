@@ -237,10 +237,14 @@ static void stress_invalid_mkdir(const char *path)
  */
 static void stress_invalid_mkdirat(const int bad_fd)
 {
+#if defined(HAVE_MKDIRAT)
 	int ret;
 
 	ret = mkdirat(bad_fd, "bad", S_IRUSR | S_IWUSR);
 	(void)ret;
+#else
+	(void)bad_fd;
+#endif
 }
 
 
