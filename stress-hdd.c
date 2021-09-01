@@ -338,6 +338,7 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 	size_t i;
 	uint8_t *data = buf;
 #endif
+	(void)fd;
 
 #if defined(HAVE_SYS_UIO_H)
 	for (i = 0; i < HDD_IO_VEC_MAX; i++) {
@@ -396,6 +397,7 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 	size_t i;
 	uint8_t *data = buf;
 #endif
+	(void)fd;
 
 #if defined(HAVE_SYS_UIO_H)
 	for (i = 0; i < HDD_IO_VEC_MAX; i++) {
