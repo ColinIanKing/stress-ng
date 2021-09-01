@@ -470,6 +470,7 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_lremovexattr("", "user.var_1234");
 		(void)ret;
 
+#if defined(XATTR_SIZE_MAX)
 		/*
 		 *  Exercise long attribute, ERANGE
 		 */
@@ -480,6 +481,7 @@ static int stress_xattr(const stress_args_t *args)
 		(void)ret;
 		ret = shim_fremovexattr(fd, large_tmp);
 		(void)ret;
+#endif
 
 		/*
 		 *  Exercise bad/invalid fd
