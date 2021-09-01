@@ -266,9 +266,9 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETREGID)
 #if defined(HAVE_GETRESGID)
 		{
-			gid_t rgid;
-			gid_t egid;
-			gid_t sgid;
+			gid_t rgid = -1;
+			gid_t egid = -1;
+			gid_t sgid = -1;
 
 			ret = getresgid(&rgid, &egid, &sgid);
 			if (ret == 0) {
@@ -295,9 +295,9 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETRESUID)
 #if defined(HAVE_GETRESUID)
 		{
-			uid_t ruid;
-			uid_t euid;
-			uid_t suid;
+			uid_t ruid = -1;
+			uid_t euid = -1;
+			uid_t suid = -1;
 
 			ret = getresuid(&ruid, &euid, &suid);
 			if (ret == 0) {
@@ -336,9 +336,9 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETRESGID)
 #if defined(HAVE_GETRESGID)
 		{
-			gid_t rgid;
-			gid_t egid;
-			gid_t sgid;
+			gid_t rgid = -1;
+			gid_t egid = -1;
+			gid_t sgid = -1;
 
 			ret = getresgid(&rgid, &egid, &sgid);
 			if (ret == 0) {
@@ -376,7 +376,7 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETFSGID) && 	\
     defined(HAVE_SYS_FSUID_H)
 		{
-			int fsgid;
+			int fsgid = -1;
 
 			/* Passing -1 will return the current fsgid */
 			fsgid = setfsgid((uid_t)-1);
