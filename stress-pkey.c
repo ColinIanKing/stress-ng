@@ -72,9 +72,9 @@ static int stress_pkey(const stress_args_t *args)
 			(void)shim_pkey_free(pkey);
 
 		/* Exercise invalid pkey free */
-		ret = pkey_free(-1);
+		ret = shim_pkey_free(-1);
 		(void)ret;
-		ret = pkey_free(INT_MAX);
+		ret = shim_pkey_free(INT_MAX);
 		(void)ret;
 
 #if defined(PKEY_DISABLE_WRITE)

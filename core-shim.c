@@ -1128,7 +1128,9 @@ int shim_fdatasync(int fd)
  */
 int shim_pkey_alloc(unsigned long flags, unsigned long access_rights)
 {
-#if defined(__NR_pkey_alloc)
+#if defined(HAVE_PKEY_ALLOC)
+	return pkey_alloc(flags, access_rights);
+#elif defined(__NR_pkey_alloc)
 	return (int)syscall(__NR_pkey_alloc, flags, access_rights);
 #else
 	return (int)shim_enosys(0, flags, access_rights);
@@ -1141,7 +1143,9 @@ int shim_pkey_alloc(unsigned long flags, unsigned long access_rights)
  */
 int shim_pkey_free(int pkey)
 {
-#if defined(__NR_pkey_free)
+#if defined(HAVE_PKEY_FREE)
+	return pkey_free(pkey);
+#elif defined(__NR_pkey_free)
 	return (int)syscall(__NR_pkey_free, pkey);
 #else
 	return (int)shim_enosys(0, pkey);
