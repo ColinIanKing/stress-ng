@@ -1173,7 +1173,9 @@ int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey)
  */
 int shim_pkey_get(int pkey)
 {
-#if defined(__NR_pkey_get)
+#if defined(HAVE_PKEY_GET)
+	return pkey_get(pkey);
+#elif defined(__NR_pkey_get)
 	return (int)syscall(__NR_pkey_get, pkey);
 #else
 	return (int)shim_enosys(0, pkey);
