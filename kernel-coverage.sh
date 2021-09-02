@@ -67,7 +67,7 @@ mount_filesystem()
 			;;
 		xfs)
 			MKFS_CMD="mkfs.xfs"
-			MKFS_ARGS="-f ${FSIMAGE}"
+			MKFS_ARGS="-m crc=1,bigtime=1,finobt=1,rmapbt=1 -f ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
@@ -79,7 +79,7 @@ mount_filesystem()
 			;;
 		hfsplus)
 			MKFS_CMD="mkfs.hfsplus"
-			MKFS_ARGS="${FSIMAGE}"
+			MKFS_ARGS="-s ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
@@ -89,12 +89,12 @@ mount_filesystem()
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
 		minix)	MKFS_CMD="mkfs.minix"
-			MKFS_ARGS="${FSIMAGE}"
+			MKFS_ARGS="-3 ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
 		nilfs)	MKFS_CMD="mkfs.nilfs2"
-			MKFS_ARGS="-f ${FSIMAGE}"
+			MKFS_ARGS="-f -O block_count ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
@@ -123,12 +123,12 @@ mount_filesystem()
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
 		ntfs)	MKFS_CMD="mkfs.ntfs"
-			MKFS_ARGS="-F ${FSIMAGE}"
+			MKFS_ARGS="-F -C -s -v 1024 ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
 		f2fs)	MKFS_CMD="mkfs.f2fs"
-			MKFS_ARGS="-f ${FSIMAGE} -O extra_attr,inode_checksum,quota,verity,compression"
+			MKFS_ARGS="-f ${FSIMAGE} -i -O encrypt,extra_attr,inode_checksum,quota,verity,sb_checksum,compression,lost_found"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
@@ -138,7 +138,7 @@ mount_filesystem()
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
 		btrfs)	MKFS_CMD="mkfs.btrfs"
-			MKFS_ARGS="-f ${FSIMAGE}"
+			MKFS_ARGS="-O extref -R quota,free-space-tree -f ${FSIMAGE}"
 			MNT_CMD="sudo mount -o compress -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
@@ -259,7 +259,7 @@ if [ -e /proc/sys/vm/oom_kill_allocating_task ]; then
 	echo 0 | sudo tee /proc/sys/vm/oom_kill_allocating_task >& /dev/null
 fi
 
-dd if=/dev/zero of=$SWAP bs=1M count=8192
+fallocate -l 8G $SWAP
 chmod 0600 $SWAP
 sudo chown root:root $SWAP
 sudo mkswap $SWAP
@@ -302,7 +302,7 @@ do
 done
 
 #
-#  Exercise I/O schedulers
+#  Exercise CPU schedulers
 #
 DURATION=20
 scheds=$(${STRESS_NG} --sched which 2>&1 | tail -1 | cut -d':' -f2-)
@@ -318,7 +318,7 @@ done
 ionices=$(${STRESS_NG} --ionice-class which 2>&1 | tail -1 | cut -d':' -f2-)
 for i in ${innices}
 do
-	do_stress --ionice-class $i --iomix -1 -t 20
+	do_stress --ionice-class $i --iomix -1 -t 30 --smart
 done
 
 #
@@ -351,6 +351,8 @@ do_stress --cpu -1 --sched batch --thermalstat 1
 do_stress --cpu -1 --taskset 0,2 --ignite-cpu
 do_stress --cpu -1 --taskset 1,2,3
 do_stress --cpu -1 --taskset 0,1,2 --thrash
+do_stress --cpu -1 --cpu-load-slice 50
+do_stress --cpu -1 --thermalstat 1 --vmstat 1 --tz
 
 do_stress --cyclic -1 --cyclic-policy deadline
 do_stress --cyclic -1 --cyclic-policy fifo
@@ -383,19 +385,32 @@ do_stress --itimer -1 --itimer-rand
 do_stress --lease -1 --lease-breakers 8
 do_stress --lockf -1 --lockf-nonblock
 
+do_stress --malloc -1 --malloc-touch
+do_stress --malloc -1 --malloc-pthreads 4
+
+do_stress --memfd -1 --memfd-fds 4096
+
 do_stress --mincore -1 --mincore-random
-do_stress --open -1 --open-fd
 
 do_stress --mmap -1 --mmap-file
 do_stress --mmap -1 --mmap-mprotect
 do_stress --mmap -1 --mmap-async
 do_stress --mmap -1 --mmap-odirect
 do_stress --mmap -1 --mmap-osync
+do_stress --mmap -1 --mmap-mmap2
 
 do_stress --mremap -1 --mremap-mlock
 
+do_stress --msg -1 --msg-types 100
+
+do_stress --open -1 --open-fd
+
 do_stress --pipe -1 --pipe-size 64K
 do_stress --pipe -1 --pipe-size 1M
+
+do_stress --pipeherd 1 --pipeherd-yield
+
+do_stress --poll -1 --poll-fds 8192
 
 do_stress --pthread -1 --pthread-max 512
 do_stress --pthread -1 --pthread-max 1024
@@ -403,7 +418,11 @@ do_stress --pthread -1 --pthread-max 1024
 do_stress --sctp -1 --sctp-domain ipv4
 do_stress --sctp -1 --sctp-domain ipv6
 
+do_stress --shm -1 --shm-objs 100000
+
 do_stress --seek -1 --seek-punch
+
+do_stress --sem -1 --sem-procs 64
 
 do_stress --shm-sysv -1 --shm-sysv-segs 128
 
@@ -423,6 +442,9 @@ do_stress --stack -1 --stack-fill
 do_stress --stream -1 --stream-madvise hugepage
 do_stress --stream -1 --stream-madvise nohugepage
 do_stress --stream -1 --stream-madvise normal
+do_stress --stream -1 --stream-index 3A
+
+do_stress --switch -1 --switch-freq 1000000 
 
 do_stress --timer -1 --timer-rand
 do_stress --timer -1 --timer-freq 1000000
@@ -449,6 +471,7 @@ do_stress --vfork 1 --vfork-vm
 do_stress --vforkmany 1 --vforkmany-vm
 
 do_stress --vm -1 --vm-keep
+do_stress --vm -1 --vm-hang 1
 do_stress --vm -1 --vm-locked
 do_stress --vm -1 --vm-populate
 do_stress --vm -1 --vm-madvise dontneed
@@ -461,6 +484,8 @@ do_stress --vm -1 --vm-madvise random
 do_stress --vm -1 --vm-madvise sequential
 do_stress --vm -1 --vm-madvise unmergeable
 do_stress --vm -1 --vm-madvise willneed --page-in
+
+do_stress --zombie 1 --zombie-max 1000000
 
 #
 #  Longer duration stress testing to get more
