@@ -54,6 +54,9 @@ static const stress_help_t help[] = {
 #if !defined(MPOL_LOCAL)
 #define MPOL_LOCAL		(4)
 #endif
+#if !defined(MPOL_PREFERRED_MANY)
+#define MPOL_PREFERRED_MANY	(5)
+#endif
 
 #if !defined(MPOL_F_NODE)
 #define MPOL_F_NODE		(1 << 0)
@@ -322,7 +325,7 @@ static int stress_numa(const stress_args_t *args)
 			mode |= MPOL_F_RELATIVE_NODES;
 #endif
 
-		switch (stress_mwc8() % 9) {
+		switch (stress_mwc8() % 10) {
 		case 0:
 #if defined(MPOL_DEFAULT)
 			ret = shim_set_mempolicy(MPOL_DEFAULT | mode, NULL, max_nodes);
@@ -349,12 +352,17 @@ static int stress_numa(const stress_args_t *args)
 			break;
 #endif
 		case 5:
+#if defined(MPOL_PREFERRED_MANY)
+			ret = shim_set_mempolicy(MPOL_PREFERRED_MANY | mode, node_mask, max_nodes);
+			break;
+#endif
+		case 6:
 			ret = shim_set_mempolicy(0, node_mask, max_nodes);
 			break;
-		case 6:
+		case 7:
 			ret = shim_set_mempolicy(mode, node_mask, max_nodes);
 			break;
-		case 7:
+		case 8:
 			/* Invalid mode */
 			ret = shim_set_mempolicy(mode | MPOL_F_STATIC_NODES | MPOL_F_RELATIVE_NODES, node_mask, max_nodes);
 			break;
