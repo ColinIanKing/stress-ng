@@ -334,7 +334,7 @@ static const struct option long_options[] = {
 	{ "dup",	1,	0,	OPT_dup },
 	{ "dup-ops",	1,	0,	OPT_dup_ops },
 	{ "dynlib",	1,	0,	OPT_dynlib },
-	{ "dyblib-ops",	1,	0,	OPT_dynlib_ops },
+	{ "dynlib-ops",	1,	0,	OPT_dynlib_ops },
 	{ "efivar",	1,	0,	OPT_efivar },
 	{ "efivar-ops",	1,	0,	OPT_efivar_ops },
 	{ "enosys",	1,	0,	OPT_enosys },
