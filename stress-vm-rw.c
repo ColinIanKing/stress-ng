@@ -397,7 +397,7 @@ again:
 	if (ctxt.pid < 0) {
 		if (keep_stressing_flag() && (errno == EAGAIN))
 			goto again;
-		pr_fail("%s: clone  failed, errno=%d (%s)\n",
+		pr_fail("%s: clone failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(ctxt.pipe_wr[0]);
 		(void)close(ctxt.pipe_wr[1]);
