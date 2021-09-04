@@ -26,7 +26,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"loadavg N",	 "start N workers that create a large load average" },
-	{ NULL,	"loadavg-ops N", "stop load averge workers after N bogo operations" },
+	{ NULL,	"loadavg-ops N", "stop load average workers after N bogo operations" },
 	{ NULL,	NULL,		 NULL }
 };
 
