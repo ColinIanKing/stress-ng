@@ -134,7 +134,8 @@ static char *stress_iostat_get_iostat_name(
 				return name;
 
 			/* strip off digits from end of dev, retry */
-			stress_iostat_dev_trim(name);
+			stress_iostat_dev_trim(d->d_name);
+			(void)snprintf(name, namelen, "/sys/block/%s/stat", d->d_name);
 			if (stat(name, &statbuf) == 0)
 				return name;
 
