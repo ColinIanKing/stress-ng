@@ -86,6 +86,21 @@ static void stress_iostat_follow_link(
 }
 
 /*
+ *  stress_iostat_dev_trim()
+ *	trim device numbers off end, /dev/sda2 -> /dev/sda
+ */
+static void stress_iostat_dev_trim(char *devname)
+{
+	char *ptr;
+
+	for (ptr = devname; *ptr; ptr++)
+		;
+
+	for (--ptr; (ptr > devname) && isdigit((int)*ptr); ptr--)
+		*ptr = 0;
+}
+
+/*
  *  stress_iostat_get_iostat_name
  *	try to find the /sys/block/$dev/stat name from a given
  *	device number. Returns null if not found.
@@ -112,9 +127,19 @@ static char *stress_iostat_get_iostat_name(
 		if (stat(name, &statbuf) < 0)
 			continue;
 		if (statbuf.st_rdev == rdev) {
-			(void)snprintf(name, namelen, "/sys/block/%s/stat", d->d_name);
 			(void)closedir(dp);
-			return name;
+
+			(void)snprintf(name, namelen, "/sys/block/%s/stat", d->d_name);
+			if (stat(name, &statbuf) == 0)
+				return name;
+
+			/* strip off digits from end of dev, retry */
+			stress_iostat_dev_trim(name);
+			if (stat(name, &statbuf) == 0)
+				return name;
+
+			(void)memset(name, 0, namelen);
+			return NULL;
 		}
 	}
 	(void)memset(name, 0, namelen);
