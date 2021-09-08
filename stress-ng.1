@@ -123,6 +123,54 @@ specify ionice level (only on Linux). For idle, 0 is the only possible
 option. For besteffort or realtime values 0 (highest priority) to 7 (lowest
 priority). See ionice(1) for more details.
 .TP
+.B \-\-iostat S
+every S seconds show I/O statistics on the device that stores the stress-ng
+temporary files. This is either the device of the current working directory
+or the \-\-temp\-path specified path. Currently a Linux only option.
+The fields output are:
+.TS
+expand;
+lB lBw(\n[SZ]n)
+l l.
+Column Heading	Explanation
+T{
+Inflight
+T}	T{
+number of I/O requests that have been issued to
+the device driver but have not yet completed
+T}
+T{
+Rd K/s
+T}	T{
+read rate in 1024 bytes per second
+T}
+T{
+Wr K/s
+T}	T{
+write rate in 1024 bytes per second
+T}
+T{
+Dscd K/s
+T}	T{
+discard rate in 1024 bytes per second
+T}
+T{
+Rd/s
+T}	T{
+reads per second
+T}
+T{
+Wr/s
+T}	T{
+writes per second
+T}
+T{
+Dscd/s
+T}	T{
+discards per second
+T}
+.TE
+.TP
 .B \-\-job jobfile
 run stressors using a jobfile.  The jobfile is essentially a file containing
 stress-ng options (without the leading \-\-) with one option per line. Lines

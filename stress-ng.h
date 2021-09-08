@@ -1164,6 +1164,25 @@ typedef struct {			/* vmstat column */
 	uint64_t	stolen_time;	/* st */
 } stress_vmstat_t;
 
+/* iostat information, from /sys/block/$dev/stat */
+typedef struct {
+	uint64_t	read_io;	/* number of read I/Os processed */
+	uint64_t	read_merges;	/* number of read I/Os merged with in-queue I/O */
+	uint64_t	read_sectors;	/* number of sectors read */
+	uint64_t	read_ticks;	/* total wait time for read requests */
+	uint64_t	write_io;	/* number of write I/Os processed */
+	uint64_t	write_merges;	/* number of write I/Os merged with in-queue I/O */
+	uint64_t	write_sectors;	/* number of sectors written */
+	uint64_t	write_ticks;	/* total wait time for write requests */
+	uint64_t	in_flight;	/* number of I/Os currently in flight */
+	uint64_t	io_ticks;	/* total time this block device has been active */
+	uint64_t	time_in_queue;	/* total wait time for all requests */
+	uint64_t	discard_io;	/* number of discard I/Os processed */
+	uint64_t	discard_merges;	/* number of discard I/Os merged with in-queue I/O */
+	uint64_t	discard_sectors;/* number of sectors discarded */
+	uint64_t	discard_ticks;	/* total wait time for discard requests */
+} stress_iostat_t;
+
 /* gcc 4.7 and later support vector ops */
 #if defined(__GNUC__) &&	\
     NEED_GNUC(4, 7, 0)
@@ -3060,6 +3079,8 @@ typedef enum {
 	OPT_ioprio,
 	OPT_ioprio_ops,
 
+	OPT_iostat,
+
 	OPT_io_ops,
 
 	OPT_io_uring,
@@ -4214,6 +4235,7 @@ extern WARN_UNUSED pid_t stress_get_unused_pid_racy(const bool fork_test);
 extern WARN_UNUSED size_t stress_hostname_length(void);
 extern WARN_UNUSED int32_t stress_set_vmstat(const char *const str);
 extern WARN_UNUSED int32_t stress_set_thermalstat(const char *const str);
+extern WARN_UNUSED int32_t stress_set_iostat(const char *const str);
 extern void stress_misc_stats_set(stress_misc_stats_t *misc_stats,
 	const int idx, const char *description, const double value);
 extern WARN_UNUSED int stress_tty_width(void);

@@ -443,6 +443,7 @@ static const struct option long_options[] = {
 	{ "ioport-opts",1,	0,	OPT_ioport_opts },
 	{ "ioprio",	1,	0,	OPT_ioprio },
 	{ "ioprio-ops",	1,	0,	OPT_ioprio_ops },
+	{ "iostat",	1,	0,	OPT_iostat },
 	{ "io-uring",	1,	0,	OPT_io_uring },
 	{ "io-uring-ops",1,	0,	OPT_io_uring_ops },
 	{ "ipsec-mb",	1,	0,	OPT_ipsec_mb },
@@ -3203,6 +3204,10 @@ next_opt:
 			break;
 		case OPT_thermalstat:
 			if (stress_set_thermalstat(optarg) < 0)
+				exit(EXIT_FAILURE);
+			break;
+		case OPT_iostat:
+			if (stress_set_iostat(optarg) < 0)
 				exit(EXIT_FAILURE);
 			break;
 		case OPT_yaml:

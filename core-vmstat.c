@@ -26,30 +26,267 @@
 
 static int32_t vmstat_delay = 0;
 static int32_t thermalstat_delay = 0;
+static int32_t iostat_delay = 0;
 
-int stress_set_vmstat(const char *const opt)
+int stress_set_generic_stat(const char *const opt, char *name, int32_t *delay)
 {
-	vmstat_delay = stress_get_int32(opt);
-        if ((vmstat_delay < 1) || (vmstat_delay > 3600)) {
-                (void)fprintf(stderr, "vmstat must in the range 1 to 3600.\n");
+	*delay = stress_get_int32(opt);
+        if ((*delay < 1) || (*delay > 3600)) {
+                (void)fprintf(stderr, "%s must in the range 1 to 3600.\n", name);
                 _exit(EXIT_FAILURE);
         }
 	return 0;
 }
 
+int stress_set_vmstat(const char *const opt)
+{
+	return stress_set_generic_stat(opt, "vmstat", &vmstat_delay);
+}
+
 int stress_set_thermalstat(const char *const opt)
 {
-	thermalstat_delay = stress_get_int32(opt);
-        if ((thermalstat_delay < 1) || (thermalstat_delay > 3600)) {
-                (void)fprintf(stderr, "thermalstat must in the range 1 to 3600.\n");
-                _exit(EXIT_FAILURE);
-        }
-	return 0;
+	return stress_set_generic_stat(opt, "thermalstat", &thermalstat_delay);
+}
+
+int stress_set_iostat(const char *const opt)
+{
+	return stress_set_generic_stat(opt, "iostat", &iostat_delay);
 }
 
 #if defined(__linux__)
 
 static pid_t vmstat_pid;
+
+/*
+ *  stress_iostat_follow_link
+ *	recursively follow link until no more links
+ */
+static void stress_iostat_follow_link(
+	const char *path,
+	char *buf,
+	const size_t buflen)
+{
+	ssize_t ret;
+	char tmp[buflen], prev[buflen];
+
+	(void)memset(prev, 0, sizeof(prev));
+
+	shim_strlcpy(tmp, path, buflen);
+	for (;;) {
+		ret = shim_readlink(tmp, buf, buflen - 1);
+		if (ret < 0) {
+			(void)strlcpy(buf, path, buflen);
+			return;
+		}
+		buf[ret] = '\0';
+		if (!strncmp(prev, buf, buflen))
+			return;
+		(void)shim_strlcpy(prev, buf, buflen);
+	}
+}
+
+/*
+ *  stress_iostat_get_iostat_name
+ *	try to find the /sys/block/$dev/stat name from a given
+ *	device number. Returns null if not found.
+ */
+static char *stress_iostat_get_iostat_name(
+	const dev_t rdev,
+	char *name,
+	const size_t namelen)
+{
+	DIR *dp;
+	struct dirent *d;
+	struct stat statbuf;
+
+	(void)memset(name, 0, namelen);
+
+	dp = opendir("/dev/");
+	if (!dp)
+		return NULL;
+	while ((d = readdir(dp)) != NULL) {
+		if ((d->d_type & DT_BLK) == 0)
+			continue;
+
+		(void)snprintf(name, namelen, "/dev/%s", d->d_name);
+		if (stat(name, &statbuf) < 0)
+			continue;
+		if (statbuf.st_rdev == rdev) {
+			(void)snprintf(name, namelen, "/sys/block/%s/stat", d->d_name);
+			(void)closedir(dp);
+			return name;
+		}
+	}
+	(void)memset(name, 0, namelen);
+	(void)closedir(dp);
+	return NULL;
+}
+
+/*
+ *  stress_iostat_iostat_name()
+ *	from the stress-ng temp file path try to determine
+ *	the iostat file /sys/block/$dev/stat for that file.
+ */
+static char *stress_iostat_iostat_name(
+	char *iostat_name,
+	const size_t iostat_name_len)
+{
+	const char *temp_path = stress_get_temp_path();
+	struct stat statbuf;
+	int ret;
+	FILE *fp;
+	char buf[4096];
+	int f_major, f_minor;
+
+	/* Resolve links */
+	stress_iostat_follow_link(temp_path, iostat_name, iostat_name_len);
+
+	/* Get dev info */
+	ret = stat(iostat_name, &statbuf);
+	if (ret < 0) {
+		*iostat_name = '\0';
+		return NULL;
+	}
+
+	/*
+	 *  Scan mountinfo for mount points that match the device
+	 */
+	fp = fopen("/proc/self/mountinfo", "r");
+	if (!fp) {
+		*iostat_name = '\0';
+		return NULL;
+	}
+
+	f_major = major(statbuf.st_dev);
+	f_minor = major(statbuf.st_dev);
+
+	(void)memset(buf, 0, sizeof(buf));
+	while (fgets(buf, sizeof(buf), fp)) {
+		int mnt_major, mnt_minor;
+
+		ret = sscanf(buf, "%*d %*d %d:%d", &mnt_major, &mnt_minor);
+		if (ret != 2)
+			continue;
+		if ((f_major == mnt_major) && (f_minor = mnt_minor)) {
+			/*
+			 * parse something like:
+			 *  31 1 253:1 / / rw,relatime shared:1 - ext4 /dev/mapper/vgubuntu-root rw,errors=remount-ro
+			 *  ..and look for - field, e.g. ext4 /dev/mapper/vgubuntu-root
+			 */
+			char *start = strstr(buf, " - "), *end, *tmp;
+
+			if (!start)
+				continue;
+
+			/* Skip over ' - ' and following non-spaces */
+			for (start += 3; *start && *start != ' '; start++)
+				start++;
+			if (!*start)
+				continue;
+
+			/* skip over spaces to get to dev name */
+			while (*start && *start == ' ')
+				start++;
+			if (!*start)
+				continue;
+
+			/* now look for the end of dev name */
+			for (end = start; *end && *end != ' '; end++)
+				;
+			if (!*end)
+				continue;
+			*end = '\0';
+
+			/* get rdev block info of this device */
+			ret = stat(start, &statbuf);
+			if (ret < 0)
+				continue;
+
+			/* ..and find any matching devices in /dev and resolve the iostate_name */
+			tmp = stress_iostat_get_iostat_name(statbuf.st_rdev, iostat_name, iostat_name_len);
+			if (tmp) {
+				(void)fclose(fp);
+				return tmp;
+			}
+		}
+	}
+	/* nothing found */
+	(void)fclose(fp);
+	*iostat_name = '\0';
+
+	return NULL;
+}
+
+/*
+ *  stress_read_iostat()
+ *	read the stats from an iostat stat file
+ */
+static void stress_read_iostat(const char *iostat_name, stress_iostat_t *iostat)
+{
+	FILE *fp;
+
+	(void)memset(iostat, 0, sizeof(*iostat));
+
+	fp = fopen(iostat_name, "r");
+	if (fp) {
+		int ret;
+
+		ret = fscanf(fp,
+			    "%" PRIu64 " %" PRIu64
+			    " %" PRIu64 " %" PRIu64
+			    " %" PRIu64 " %" PRIu64
+			    " %" PRIu64 " %" PRIu64
+			    " %" PRIu64 " %" PRIu64
+			    " %" PRIu64 " %" PRIu64
+			    " %" PRIu64 " %" PRIu64
+			    " %" PRIu64,
+			&iostat->read_io, &iostat->read_merges,
+			&iostat->read_sectors, &iostat->read_ticks,
+			&iostat->write_io, &iostat->write_merges,
+			&iostat->write_sectors, &iostat->write_ticks,
+			&iostat->in_flight, &iostat->io_ticks,
+			&iostat->time_in_queue,
+			&iostat->discard_io, &iostat->discard_merges,
+			&iostat->discard_sectors, &iostat->discard_ticks);
+		(void)fclose(fp);
+
+		if (ret != 15)
+			(void)memset(iostat, 0, sizeof(*iostat));
+	}
+}
+
+
+#define STRESS_IOSTAT_DELTA(field)					\
+	iostat->field = ((iostat_current.field > iostat_prev.field) ?	\
+	(iostat_current.field - iostat_prev.field) : 0)
+
+/*
+ *  stress_get_iostat()
+ *	read and compute delta since last read of iostats
+ */
+static void stress_get_iostat(const char *iostat_name, stress_iostat_t *iostat)
+{
+	static stress_iostat_t iostat_prev;
+	stress_iostat_t iostat_current;
+
+	stress_read_iostat(iostat_name, &iostat_current);
+	STRESS_IOSTAT_DELTA(read_io);
+	STRESS_IOSTAT_DELTA(read_merges);
+	STRESS_IOSTAT_DELTA(read_sectors);
+	STRESS_IOSTAT_DELTA(read_ticks);
+	STRESS_IOSTAT_DELTA(write_io);
+	STRESS_IOSTAT_DELTA(write_merges);
+	STRESS_IOSTAT_DELTA(write_sectors);
+	STRESS_IOSTAT_DELTA(write_ticks);
+	STRESS_IOSTAT_DELTA(in_flight);
+	STRESS_IOSTAT_DELTA(io_ticks);
+	STRESS_IOSTAT_DELTA(time_in_queue);
+	STRESS_IOSTAT_DELTA(discard_io);
+	STRESS_IOSTAT_DELTA(discard_merges);
+	STRESS_IOSTAT_DELTA(discard_sectors);
+	STRESS_IOSTAT_DELTA(discard_ticks);
+	(void)memcpy(&iostat_prev, &iostat_current, sizeof(iostat_prev));
+}
 
 /*
  *  stress_next_field()
@@ -354,16 +591,21 @@ static double stress_get_cpu_ghz_average(void)
 void stress_vmstat_start(void)
 {
 	stress_vmstat_t vmstat;
+	stress_iostat_t iostat;
 	size_t tz_num = 0;
 	stress_tz_info_t *tz_info, *tz_info_list;
-	int32_t vmstat_sleep, thermalstat_sleep;
+	int32_t vmstat_sleep, thermalstat_sleep, iostat_sleep;
+	char iostat_name[PATH_MAX];
 
-	if ((vmstat_delay == 0) && (thermalstat_delay == 0))
+	if ((vmstat_delay == 0) &&
+	    (thermalstat_delay == 0) &&
+	    (iostat_delay == 0))
 		return;
 
 	tz_info_list = NULL;
 	vmstat_sleep = vmstat_delay;
 	thermalstat_sleep = thermalstat_delay;
+	iostat_sleep = iostat_delay;
 
 	vmstat_pid = fork();
 	if ((vmstat_pid < 0) || (vmstat_pid > 0))
@@ -379,28 +621,40 @@ void stress_vmstat_start(void)
 			tz_num++;
 	}
 
-	while (keep_stressing_flag()) {
-		int32_t sleep_delay = 1;
 
-		if ((vmstat_sleep > 0) && (thermalstat_sleep > 0))
-			sleep_delay = STRESS_MINIMUM(vmstat_sleep, thermalstat_sleep);
-		else if ((vmstat_sleep > 0) && (thermalstat_sleep == 0))
-			sleep_delay = vmstat_sleep;
-		else if ((thermalstat_sleep > 0) && (vmstat_sleep == 0))
-			sleep_delay = thermalstat_sleep;
+	if (stress_iostat_iostat_name(iostat_name, sizeof(iostat_name)) == NULL)
+		iostat_sleep = 0;
+	if (iostat_delay)
+		stress_get_iostat(iostat_name, &iostat);
+
+	while (keep_stressing_flag()) {
+		int32_t sleep_delay = INT_MAX;
+		long clk_tick;
+
+		if (vmstat_delay > 0)
+			sleep_delay = STRESS_MINIMUM(vmstat_delay, sleep_delay);
+		if (thermalstat_delay > 0)
+			sleep_delay = STRESS_MINIMUM(thermalstat_delay, sleep_delay);
+		if (iostat_delay > 0)
+			sleep_delay = STRESS_MINIMUM(iostat_delay, sleep_delay);
 
 		(void)sleep((unsigned int)sleep_delay);
 
+		/* This may change each time we get stats */
+		clk_tick = sysconf(_SC_CLK_TCK) * sysconf(_SC_NPROCESSORS_ONLN);
+
 		vmstat_sleep -= sleep_delay;
 		thermalstat_sleep -= sleep_delay;
+		iostat_sleep -= sleep_delay;
 
 		if ((vmstat_delay > 0) && (vmstat_sleep <= 0))
 			vmstat_sleep = vmstat_delay;
 		if ((thermalstat_delay > 0) && (thermalstat_sleep <= 0))
 			thermalstat_sleep = thermalstat_delay;
+		if ((iostat_delay > 0) && (iostat_sleep <= 0))
+			iostat_sleep = iostat_delay;
 
 		if (vmstat_sleep == vmstat_delay) {
-			const long clk_tick = sysconf(_SC_CLK_TCK) * sysconf(_SC_NPROCESSORS_ONLN);
 			double clk_tick_vmstat_delay = (double)clk_tick * (double)vmstat_delay;
 			static uint32_t vmstat_count = 0;
 
@@ -456,7 +710,7 @@ void stress_vmstat_start(void)
 				ptr += 7;
 			}
 
-			if ((thermalstat_count++ % 60) == 0)
+			if ((thermalstat_count++ % 25) == 0)
 				pr_inf("therm:   GHz  LdA1  LdA5 LdA15 %s\n", therms);
 
 			for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
@@ -476,6 +730,25 @@ void stress_vmstat_start(void)
 				pr_inf("therm: %5s %5.2f %5.2f %5.2f %s\n",
 					cpuspeed, min1, min5, min15, therms);
 			}
+		}
+
+		if (iostat_delay == iostat_sleep) {
+			double clk_scale = (iostat_delay > 0) ? 1.0 / iostat_delay : 0.0;
+			static uint32_t iostat_count = 0;
+
+			if ((iostat_count++ % 25) == 0)
+				pr_inf("iostat: Inflght  Rd K/s   Wr K/s Dscd K/s     Rd/s     Wr/s   Dscd/s\n");
+
+			stress_get_iostat(iostat_name, &iostat);
+			/* sectors are 512 bytes, so >> 1 to get stats in 1024 bytes */
+			pr_inf("iostat %7.0f %8.0f %8.0f %8.0f %8.0f %8.0f %8.0f\n",
+				(double)iostat.in_flight * clk_scale,
+				(double)(iostat.read_sectors >> 1) * clk_scale,
+				(double)(iostat.write_sectors >> 1) * clk_scale,
+				(double)(iostat.discard_sectors >> 1) * clk_scale,
+				(double)iostat.read_io * clk_scale,
+				(double)iostat.write_io * clk_scale,
+				(double)iostat.discard_io * clk_scale);
 		}
 	}
 }
