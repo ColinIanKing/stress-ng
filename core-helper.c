@@ -2449,8 +2449,12 @@ size_t stress_sig_stack_size(void)
 		min = sz;
 #endif
 #if defined(SIGSTKSZ)
-	if (SIGSTKSZ > min)
+	if (SIGSTKSZ > min) {
+		/* SIGSTKSZ may be sysconf(_SC_SIGSTKSZ) */
 		min = SIGSTKSZ;
+		if (min < 0)
+			min = 8192;
+	}
 #else
 	if (8192 > min)
 		min = 8192;
@@ -2479,8 +2483,12 @@ size_t stress_min_sig_stack_size(void)
 		min = sz;
 #endif
 #if defined(SIGSTKSZ)
-	if (SIGSTKSZ > min)
+	if (SIGSTKSZ > min) {
+		/* SIGSTKSZ may be sysconf(_SC_SIGSTKSZ) */
 		min = SIGSTKSZ;
+		if (min < 0)
+			min = 8192;
+	}
 #else
 	if (8192 > min)
 		min = 8192;
