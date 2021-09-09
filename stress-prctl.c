@@ -792,7 +792,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 			(void)ret;
 #endif
 		}
-		
+
 #if defined(PR_SPEC_L1D_FLUSH)
 		val = prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, 0, 0, 0);
 		if (val & PR_SPEC_PRCTL) {
