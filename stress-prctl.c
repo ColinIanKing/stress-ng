@@ -748,16 +748,67 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_GET_SPECULATION_CTRL)
 	{
+		int val;
+
 		/* exercise invalid args */
 		ret = prctl(PR_GET_SPECULATION_CTRL, ~0, ~0, ~0, ~0);
 		(void)ret;
+
 #if defined(PR_SPEC_STORE_BYPASS)
-		ret = prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, 0, 0, 0);
-		(void)ret;
+		val = prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, 0, 0, 0);
+		(void)val;
+
+		if (val & PR_SPEC_PRCTL) {
+			val &= ~PR_SPEC_PRCTL;
+#if defined(PR_SPEC_ENABLE)
+
+			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, PR_SPEC_ENABLE, 0, 0);
+			(void)ret;
 #endif
+#if defined(PR_SPEC_DISABLE)
+			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, PR_SPEC_DISABLE, 0, 0);
+			(void)ret;
+#endif
+			/* ..and restore */
+			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, val, 0, 0);
+			(void)ret;
+#endif
+		}
+
 #if defined(PR_SPEC_INDIRECT_BRANCH)
-		ret = prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, 0, 0, 0);
-		(void)ret;
+		val = prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, 0, 0, 0);
+		if (val & PR_SPEC_PRCTL) {
+			val &= ~PR_SPEC_PRCTL;
+#if defined(PR_SPEC_ENABLE)
+			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, PR_SPEC_ENABLE, 0, 0);
+			(void)ret;
+#endif
+#if defined(PR_SPEC_DISABLE)
+			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, PR_SPEC_DISABLE, 0, 0);
+			(void)ret;
+#endif
+			/* ..and restore */
+			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, val, 0, 0);
+			(void)ret;
+#endif
+		}
+		
+#if defined(PR_SPEC_L1D_FLUSH)
+		val = prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, 0, 0, 0);
+		if (val & PR_SPEC_PRCTL) {
+			val &= ~PR_SPEC_PRCTL;
+#if defined(PR_SPEC_ENABLE)
+			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_ENABLE, 0, 0);
+			(void)ret;
+#endif
+#if defined(PR_SPEC_DISABLE)
+			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_DISABLE, 0, 0);
+			(void)ret;
+#endif
+			/* ..and restore */
+			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, val, 0, 0);
+			(void)ret;
+		}
 #endif
 	}
 #endif
