@@ -150,6 +150,27 @@ static inline void stress_zone_reclaim(void)
 #endif
 }
 
+/*
+ *  stress_drop_caches()
+ *	drop caches
+ */
+static inline void stress_drop_caches(void)
+{
+#if defined(__linux__)
+	static int method = 0;
+	char str[3];
+	int ret;
+
+	str[0] = '1' + method;
+	str[1] = '\0';
+
+	ret = system_write("/proc/sys/vm/drop_caches", str, 1);
+	(void)ret;
+
+	if (method++ >= 2)
+		method = 0;
+#endif
+}
 
 /*
  *  stress_merge_memory()
@@ -240,6 +261,8 @@ int stress_thrash_start(void)
 		while (thrash_run) {
 			if ((stress_mwc8() & 0x3) == 0)
 				stress_pagein_all_procs();
+			if ((stress_mwc8() & 0x7) == 0)
+				stress_drop_caches();
 			stress_compact_memory();
 			stress_merge_memory();
 			stress_zone_reclaim();
