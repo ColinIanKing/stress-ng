@@ -75,7 +75,7 @@ static void stress_iostat_follow_link(
 	for (;;) {
 		ret = shim_readlink(tmp, buf, buflen - 1);
 		if (ret < 0) {
-			(void)strlcpy(buf, path, buflen);
+			(void)shim_strlcpy(buf, path, buflen);
 			return;
 		}
 		buf[ret] = '\0';
