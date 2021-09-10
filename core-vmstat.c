@@ -97,7 +97,7 @@ static void stress_iostat_dev_trim(char *devname)
 		;
 
 	for (--ptr; (ptr > devname) && isdigit((int)*ptr); ptr--)
-		*ptr = 0;
+		*ptr = '\0';
 }
 
 /*
@@ -113,7 +113,7 @@ static void stress_iostat_dev_trim_nvme(char *devname)
 		;
 
 	if ((--ptr > devname) && (*ptr == 'p'))
-		*ptr = 0;
+		*ptr = '\0';
 }
 
 /*
