@@ -101,6 +101,22 @@ static void stress_iostat_dev_trim(char *devname)
 }
 
 /*
+ *  stress_iostat_dev_trim_nvme()
+ *	trim 'p' character off end for an already trimmed nvme devname,
+ *	/dev/nvme0n1p -> /dev/nvme0n1
+ */
+static void stress_iostat_dev_trim_nvme(char *devname)
+{
+	char *ptr;
+
+	for (ptr = devname; *ptr; ptr++)
+		;
+
+	if ((--ptr > devname) && (*ptr == 'p'))
+		*ptr = 0;
+}
+
+/*
  *  stress_iostat_get_iostat_name
  *	try to find the /sys/block/$dev/stat name from a given
  *	device number. Returns null if not found.
@@ -135,6 +151,13 @@ static char *stress_iostat_get_iostat_name(
 
 			/* strip off digits from end of dev, retry */
 			stress_iostat_dev_trim(d->d_name);
+			(void)snprintf(name, namelen, "/sys/block/%s/stat", d->d_name);
+			if (stat(name, &statbuf) == 0)
+				return name;
+
+			/* strip off 'p' from end of dev in case of a nvme
+			 * device, retry */
+			stress_iostat_dev_trim_nvme(d->d_name);
 			(void)snprintf(name, namelen, "/sys/block/%s/stat", d->d_name);
 			if (stat(name, &statbuf) == 0)
 				return name;
