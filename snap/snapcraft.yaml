@@ -4,7 +4,7 @@ description: stress-ng can stress various subsystems of a computer.  It can stre
 confinement: strict
 grade: stable
 type: app
-base: core18
+base: core20
 assumes: [snapd2.37]
 adopt-info: stress-ng
 
@@ -51,7 +51,9 @@ parts:
             - libaio-dev
             - libcap-dev
             - libsctp-dev
+            - libatomic1
             - libjudy-dev
+            - try: [libipsec-mb-dev, libkmkod-dev]
 apps:
     stress-ng:
         plugs: [ home, log-observe, system-observe, hardware-observe, system-trace, hardware-random-observe ]
