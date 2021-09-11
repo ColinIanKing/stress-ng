@@ -383,6 +383,10 @@ destroy_loop:
 		/* Remove invalid loop device */
 		ret = ioctl(ctrl_dev, LOOP_CTL_REMOVE, -1);
 		(void)ret;
+
+		/* Exercise invalid ioctl */
+		ret = ioctl(ctrl_dev, (LOOP_SET_FD & 0xff00) | 0xff, -1);
+		(void)ret;
 next:
 		(void)close(ctrl_dev);
 #if defined(LOOP_SET_CAPACITY)
