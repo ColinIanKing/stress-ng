@@ -371,6 +371,9 @@ destroy_loop:
 				break;
 			}
 		}
+		/* Remove invalid loop device */
+		ret = ioctl(ctrl_dev, LOOP_CTL_REMOVE, -1);
+		(void)ret;
 next:
 		(void)close(ctrl_dev);
 #if defined(LOOP_SET_CAPACITY)
