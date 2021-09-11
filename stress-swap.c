@@ -49,6 +49,21 @@ static const stress_help_t help[] = {
 #define SWAP_FLAG_PRIO_MASK	(0x7fff)
 #endif
 
+#define SWAP_HDR_SANE		(0x01)
+#define SWAP_HDR_BAD_SIGNATURE	(0x02)
+#define SWAP_HDR_BAD_VERSION	(0x04)
+#define SWAP_HDR_ZERO_LAST_PAGE (0x08)
+#define SWAP_HDR_BAD_LAST_PAGE	(0x10)
+#define SWAP_HDR_BAD_NR_BAD	(0x20)
+
+static const int bad_header_flags[] = {
+	SWAP_HDR_BAD_SIGNATURE,
+	SWAP_HDR_BAD_VERSION,
+	SWAP_HDR_ZERO_LAST_PAGE,
+	SWAP_HDR_BAD_LAST_PAGE,
+	SWAP_HDR_BAD_NR_BAD,
+};
+
 typedef struct {
 	uint8_t		bootbits[1024];	/* cppcheck-suppress unusedStructMember */
 	uint32_t	version;
@@ -102,9 +117,10 @@ static int stress_swap_zero(
 static int stress_swap_set_size(
 	const stress_args_t *args,
 	const int fd,
-	const uint32_t npages)
+	const uint32_t npages,
+	const int bad_flags)
 {
-	static const char signature[] = SWAP_SIGNATURE;
+	char signature[] = SWAP_SIGNATURE;
 	stress_swap_info_t swap_info;
 	size_t i;
 
@@ -117,15 +133,37 @@ static int stress_swap_set_size(
 			args->name, errno, strerror(errno));
 		return -1;
 	}
+
+	if (bad_flags & SWAP_HDR_BAD_SIGNATURE)
+		signature[0]++;	/* Invalid */
+
 	(void)memset(&swap_info, 0, sizeof(swap_info));
 	for (i = 0; i < sizeof(swap_info.sws_uuid); i++)
 		swap_info.sws_uuid[i] = stress_mwc8();
 	(void)snprintf((char *)swap_info.sws_volume,
 		sizeof(swap_info.sws_volume),
 		"SNG-SWP-%" PRIx32, args->instance);
-	swap_info.version = SWAP_VERSION;
-	swap_info.last_page = npages - 1;
-	swap_info.nr_badpages = 0;
+
+	if (bad_flags & SWAP_HDR_BAD_VERSION)
+		swap_info.version = ~SWAP_VERSION;	/* Invalid */
+	else
+		swap_info.version = SWAP_VERSION;
+
+	if (bad_flags & SWAP_HDR_ZERO_LAST_PAGE)
+		swap_info.last_page = 0;		/* Invalid */
+	else
+		swap_info.last_page = npages - 1;
+
+	if (bad_flags & SWAP_HDR_BAD_LAST_PAGE)
+		swap_info.last_page = npages + 1;	/* Invalid */
+	else
+		swap_info.last_page = npages - 1;
+
+	if (bad_flags & SWAP_HDR_BAD_NR_BAD)
+		swap_info.nr_badpages = ~0;		/* Dire */
+	else
+		swap_info.nr_badpages = 0;
+
 	if (write(fd, &swap_info, sizeof(swap_info)) < 0) {
 		pr_fail("%s: write of swap info failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -187,6 +225,7 @@ static int stress_swap(const stress_args_t *args)
 
 	do {
 		int swapflags = 0;
+		int bad_flags;
 		uint32_t npages = (stress_mwc32() % (MAX_SWAP_PAGES - MIN_SWAP_PAGES)) +
 				  MIN_SWAP_PAGES;
 
@@ -200,12 +239,20 @@ static int stress_swap(const stress_args_t *args)
 		if (stress_mwc1())
 			swapflags |= SWAP_FLAG_DISCARD;
 #endif
-		if (stress_swap_set_size(args, fd, npages) < 0) {
+		/* Periodically create bad swap header */
+		if (stress_mwc8() < 16) {
+			const size_t idx = stress_mwc8() % SIZEOF_ARRAY(bad_header_flags);
+			bad_flags = bad_header_flags[idx];
+		} else {
+			bad_flags = SWAP_HDR_SANE;	/* No bad header */
+		}
+
+		if (stress_swap_set_size(args, fd, npages, bad_flags) < 0) {
 			ret = EXIT_FAILURE;
 			goto tidy_close;
 		}
 		ret = swapon(filename, swapflags);
-		if (ret < 0) {
+		if ((bad_flags == SWAP_HDR_SANE) && (ret < 0)) {
 			switch (errno) {
 			case EPERM:
 			case EINVAL:
@@ -227,7 +274,7 @@ static int stress_swap(const stress_args_t *args)
 		}
 
 		ret = swapoff(filename);
-		if (ret < 0) {
+		if ((bad_flags == SWAP_HDR_SANE) && (ret < 0)) {
 			pr_fail("%s: swapoff failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
@@ -241,7 +288,7 @@ static int stress_swap(const stress_args_t *args)
 			ret = swapoff("");	/* Should never happen */
 		(void)ret;
 
-		/* Exercise illegal swapon filename */
+		/* Exercise illegal swapoff filename */
 		ret = swapoff("");
 		if (ret == 0)
 			ret = swapon("", swapflags);	/* Should never happen */
