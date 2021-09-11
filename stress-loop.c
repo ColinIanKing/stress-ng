@@ -142,7 +142,15 @@ static int stress_loop(const stress_args_t *args)
 #if defined(LOOP_SET_BLOCK_SIZE)
 		unsigned long blk_size;
 		static const uint16_t blk_sizes[] = {
-			512, 1024, 2048, 4096,
+			256,	/* Invalid */
+			512,	/* Valid */
+			1024,	/* Valid */
+			2048,	/* Valid */
+			4096,	/* Valid */
+			8192,	/* Invalid */
+			4000,	/* Invalid */
+			0,	/* Invalid */
+			65535	/* Invalid */
 		};
 #endif
 
@@ -287,6 +295,7 @@ static int stress_loop(const stress_args_t *args)
 		blk_size = (unsigned long)blk_sizes[stress_mwc8() % SIZEOF_ARRAY(blk_sizes)];
 		ret = ioctl(loop_dev, LOOP_SET_BLOCK_SIZE, blk_size);
 		(void)ret;
+
 #endif
 
 #if defined(LOOP_SET_DIRECT_IO)
