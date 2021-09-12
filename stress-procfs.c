@@ -164,6 +164,8 @@ static inline void stress_proc_rw(
 		bool writeable = true;
 		size_t len;
 		ssize_t i;
+		off_t dec;
+		bool skip_fifo = true;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
@@ -204,7 +206,13 @@ static inline void stress_proc_rw(
 		 *  fstat the file
 		 */
 		ret = fstat(fd, &statbuf);
-		(void)ret;
+		if (ret == 0) {
+#if defined(S_IFMT) &&	\
+    defined(S_IFIFO)
+			if ((statbuf.st_mode & S_IFMT) != S_IFIFO)
+				skip_fifo = false;
+#endif
+		}
 
 #if defined(__linux__)
 		/*
@@ -321,6 +329,26 @@ static inline void stress_proc_rw(
 					ret = read(fd, buffer, sizeof(buffer));
 					(void)ret;
 				}
+			}
+		}
+
+		/*
+		 *  exercise 16 one byte reads backwards through procfs file
+		 */
+		if (!skip_fifo) {
+			pos = lseek(fd, 0, SEEK_END);
+			if (pos < 0)
+				goto mmap_test;
+			dec = pos / 16;
+			if (dec < 1)
+				dec = 1;
+			while (--pos > 0) {
+				pos = lseek(fd, pos, SEEK_SET);
+				if (pos < 0)
+				break;
+				ret = read(fd, buffer, 1);
+				(void)ret;
+				pos -= dec;
 			}
 		}
 
