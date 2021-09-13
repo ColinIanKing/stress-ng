@@ -333,6 +333,9 @@ static int stress_io_uring_submit(
 	ret = shim_io_uring_enter(submit->io_uring_fd, 1,
 		1, IORING_ENTER_GETEVENTS);
 	if (ret < 0) {
+		/* Silently ignore ENOSPC failures */
+		if (errno == ENOSPC)	
+			return EXIT_SUCCESS;
 		pr_fail("%s: io_uring_enter failed, opcode=%d, errno=%d (%s)\n",
 			args->name, opcode, errno, strerror(errno));
 		return EXIT_FAILURE;
