@@ -107,7 +107,7 @@ static int shim_io_uring_setup(unsigned entries, struct io_uring_params *p)
 
 /*
  *  shim_io_uring_enter
- *	wrapper for o_uring_enter()
+ *	wrapper for io_uring_enter()
  */
 static int shim_io_uring_enter(
 	int fd,
