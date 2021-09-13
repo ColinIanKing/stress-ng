@@ -216,7 +216,7 @@ static char *stress_iostat_iostat_name(
 		ret = sscanf(buf, "%*d %*d %d:%d", &mnt_major, &mnt_minor);
 		if (ret != 2)
 			continue;
-		if ((f_major == mnt_major) && (f_minor = mnt_minor)) {
+		if ((f_major == mnt_major) && (f_minor == mnt_minor)) {
 			/*
 			 * parse something like:
 			 *  31 1 253:1 / / rw,relatime shared:1 - ext4 /dev/mapper/vgubuntu-root rw,errors=remount-ro
