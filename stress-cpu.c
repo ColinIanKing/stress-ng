@@ -2505,7 +2505,16 @@ static void stress_cpu_parity(const char *name)
 		p = stress_cpu_parity_table[u.v8[0] ^ u.v8[1] ^ u.v8[2] ^ u.v8[3]];
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
 			pr_fail("%s: parity error detected, using the "
-				"lookup method, variation 1\n",  name);
+				"lookup method, variation 2\n",  name);
+#if defined(HAVE_BUILTIN_PARITY)
+		/*
+		 *  Compute parity using built-in function
+		 */
+		p = __builtin_parity((unsigned int)val);
+		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
+			pr_fail("%s: parity error detected, using "
+				"the __builtin_parity function\n",  name);
+#endif
 	}
 }
 
