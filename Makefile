@@ -16,9 +16,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.13.01
+VERSION=0.13.02
 #
-# Codename "basejumping ninja kitten"
+# Codename "moonwalking space whale"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
