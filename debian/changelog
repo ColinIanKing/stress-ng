@@ -1,3 +1,56 @@
+stress-ng (0.13.02-1) unstable; urgency=medium
+
+  [Fabien Malfoy]
+  * core-helper: Quote the system-info.version value in YAML metrics
+  [Danilo Krummrich]
+  * core-vmstat: fix trim of devnames for nvme devices
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: update update contributors list and date
+  * Signed-off-by: Colin Ian King <colin.king@canonical.com>
+  * core-vmstat: make helper function static and constify arg
+  * stress-opcode: clean up clang-11 pedantic build warning
+  * stress-aio: perform retry if EBUSY occurs
+  * stress-vm: constify end pointers
+  * stress-stream: constify pointers idx1, idx2, idx3
+  * stress-opcode: make pointer ops_end const
+  * stress-msync: make pointer buf const
+  * stress-mcontend: constify pointer vdata
+  * stress-malloc: move scope of ptr and end, constify end
+  * stress-malloc: make parameters counters const
+  * Treewide: fix spelling mistakes and typos
+  * stress-cpu: use the __builtin_parity function if it is available
+  * core-vmstat: fix assignment that should be a comparison
+  * stress-io-uring: silently ignore ENOSPC failures
+  * stress-io-uring: fix typo in comment
+  * stress-prctl: move } around #endif
+  * stress-procfs: add reverse seek/reads on non fifo procfs entries
+  * stress-swap: periodically create invalid swap header
+  * stress-loop: exercise invalid ioctl on loop control device
+  * stress-loop: exercise invalid block sizes
+  * stress-loop: perform invalid removal of device -1
+  * core-vmstat: use '\0' end of string rather than 0
+  * snapcraft: move to core20 and add some extra build dependencies in
+  * Manual: update contributors list
+  * stress-fanotify: add Linux 5.15 FAN_REPORT_PIDFD option
+  * stress-ng: --thrash: drop caches at random periodical intervals
+  * stress-prctl: remove tabs
+  * core-vmstat: use shim_strlcpy instead of strcpy
+  * stress-prctl: add Linux 5.15 PR_SPEC_L1D_FLUSH operation
+  * core-vmstat: trim from dev name not the stat file
+  * core-vmstat: handle devices such as /dev/sda1 -> /dev/sda
+  * core-helper: handle SIGSTKSZ being potentially a sysconf call
+  * Add --iostat option to periodically dump out I/O stats
+  * stress-ng: fix dynlib-ops command, typo in dynlib
+  * stress-loadavg: Fix spelling mistake "averge" -> "average"
+  * stress-vm-rw: remove extraneous space in error message
+  * stress-numa: add new MPOL_PREFERRED_MANY option
+  * kerne-coverage: add more file system options and stressor test scenarios
+  * Manual: fix context switch --switch-freq option
+
+ -- Colin King <colin.king@canonical.com>  Tue, 14 Sep 2021 14:14:14 +0100
+
 stress-ng (0.13.01-1) unstable; urgency=medium
 
   [Maxime Chevallier]
