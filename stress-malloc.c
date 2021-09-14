@@ -145,7 +145,7 @@ static void stress_malloc_page_touch(
  *	if we lock the args->counter, so sum per-process
  *	counters in a racy way.
  */
-static uint64_t stress_malloc_racy_count(uint64_t *counters)
+static uint64_t stress_malloc_racy_count(const uint64_t *counters)
 {
 	register uint64_t count = 0;
 	register size_t i;
