@@ -28,7 +28,10 @@ static int32_t vmstat_delay = 0;
 static int32_t thermalstat_delay = 0;
 static int32_t iostat_delay = 0;
 
-int stress_set_generic_stat(const char *const opt, char *name, int32_t *delay)
+static int stress_set_generic_stat(
+	const char *const opt,
+	const char *name,
+	int32_t *delay)
 {
 	*delay = stress_get_int32(opt);
         if ((*delay < 1) || (*delay > 3600)) {
