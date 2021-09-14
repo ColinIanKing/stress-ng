@@ -78,7 +78,7 @@ static int page_write_sync(const int fd, const size_t page_size)
 static inline HOT OPTIMIZE3 void read64(uint64_t *data)
 {
 	register uint64_t v;
-	volatile uint64_t *vdata = data;
+	const volatile uint64_t *vdata = data;
 
 	shim_builtin_prefetch(data);
 	v = vdata[0];
