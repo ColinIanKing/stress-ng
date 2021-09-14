@@ -129,9 +129,11 @@ static void stress_malloc_page_touch(
 	const size_t size,
 	const size_t page_size)
 {
-	uint8_t *ptr = buffer, *end = buffer + size;
 
 	if (malloc_touch) {
+		register uint8_t *ptr;
+		const uint8_t *end = buffer + size;
+
 		for (ptr = buffer; ptr < end; ptr += page_size)
 			*ptr = 0xff;
 	} else {
