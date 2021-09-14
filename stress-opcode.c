@@ -47,7 +47,7 @@ static const stress_help_t help[] = {
 #define TRACK_SIGCOUNT	(0)
 #define EXIT_TRAPPED	(255)
 
-typedef void(*stress_opcode_func)(uint8_t *ops_begin, uint8_t *ops_end, uint32_t *op);
+typedef void(*stress_opcode_func)(uint8_t *ops_begin, const uint8_t *ops_end, uint32_t *op);
 
 typedef struct {
 	const char *name;
@@ -141,7 +141,7 @@ static inline uint32_t reverse32(register uint64_t x)
 
 static void stress_opcode_random(
 	uint8_t *ops_begin,
-	uint8_t *ops_end,
+	const uint8_t *ops_end,
 	uint32_t *op)
 {
 	register uint8_t *ops = (uint8_t *)ops_begin;
@@ -153,7 +153,7 @@ static void stress_opcode_random(
 
 static void stress_opcode_inc(
 	uint8_t *ops_begin,
-	uint8_t *ops_end,
+	const uint8_t *ops_end,
 	uint32_t *op)
 {
 	register uint32_t tmp = *op;
@@ -167,7 +167,7 @@ static void stress_opcode_inc(
 
 static void stress_opcode_mixed(
 	uint8_t *ops_begin,
-	uint8_t *ops_end,
+	const uint8_t *ops_end,
 	uint32_t *op)
 {
 	register uint32_t tmp = *op;
@@ -191,7 +191,7 @@ static void stress_opcode_mixed(
 
 static void stress_opcode_text(
 	uint8_t *ops_begin,
-	uint8_t *ops_end,
+	const uint8_t *ops_end,
 	uint32_t *op)
 {
 	char *text_start, *text_end;
