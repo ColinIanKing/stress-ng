@@ -57,7 +57,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	check if mmap'd data is sane
  */
 static int stress_page_check(
-	uint8_t *buf,
+	const uint8_t *buf,
 	const uint8_t val,
 	const size_t sz)
 {
