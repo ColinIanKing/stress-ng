@@ -239,7 +239,7 @@ static int stress_pci(const stress_args_t *args)
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
-		pr_inf("%s: unexepected SIGSEGV/SIGBUS, aborting\n", args->name);
+		pr_inf("%s: unexpected SIGSEGV/SIGBUS, aborting\n", args->name);
 		return EXIT_FAILURE;
 	}
 

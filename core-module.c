@@ -86,7 +86,7 @@ int stress_module_load(
 
 /*
  *  stress_module_unload_mod_and_deps()
- *	recursively unload module and depedencies
+ *	recursively unload module and dependencies
  */
 static int stress_module_unload_mod_and_deps(struct kmod_module *mod)
 {

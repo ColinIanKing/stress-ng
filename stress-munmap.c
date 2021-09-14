@@ -172,7 +172,7 @@ static int stress_munmap_child(const stress_args_t *args, void *context)
 		if (!path[0])
 			continue;	/* don't unmap anonymous mappings */
 		if (path[0] == '[')
-			continue;	/* dont' unmap special mappings (stack, vdso etc) */
+			continue;	/* don't unmap special mappings (stack, vdso etc) */
 		if (strstr(path, "libc"))
 			continue;	/* don't unmap libc */
 		if (strstr(path, "/dev/zero"))

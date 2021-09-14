@@ -380,7 +380,7 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 	(void)ret;
 #endif
 
-	/* invalud read fd */
+	/* invalid read fd */
 	ret = read(-1, buf, 1);
 	(void)ret;
 }
@@ -439,7 +439,7 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 	(void)ret;
 #endif
 
-	/* invalud write fd */
+	/* invalid write fd */
 	ret = write(-1, buf, 1);
 	(void)ret;
 }

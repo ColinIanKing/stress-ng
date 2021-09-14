@@ -2659,7 +2659,7 @@ mincore until the address is less or equal to the page size.
 start N workers that perform misaligned read and writes. By default, this
 will exercise 128 bit misaligned read and writes in 8 x 16 bits, 4 x 32 bits,
 2 x 64 bits and 1 x 128 bits. Misaligned read and writes operate at 1
-byte offset from the naturual alignment of the data type. On some architectures
+byte offset from the natural alignment of the data type. On some architectures
 this can cause SIGBUS, SIGILL or SIGSEGV, these are handled and the misaligned
 stressor method causing the error is disabled.
 .TP
@@ -2694,7 +2694,7 @@ int128atomic	1 x 128 bit atomic integer increments
 .TE
 .PP
 Note that some of these options (128 bit integer and/or atomic operations) may
-not be availabe on some systems.
+not be available on some systems.
 .TP
 .B \-\-mknod N
 start N workers that create and remove fifos, empty files and named sockets

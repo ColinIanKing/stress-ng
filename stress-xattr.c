@@ -424,7 +424,7 @@ static int stress_xattr(const stress_args_t *args)
 		(void)sret;
 
 		/*
-		 *  Exercise invaid path, ENOENT
+		 *  Exercise invalid path, ENOENT
 		 */
 		sret = shim_listxattr(bad_filename, NULL, 0);
 		(void)sret;

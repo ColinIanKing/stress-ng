@@ -28,7 +28,7 @@
  *  See https://www.t10.org/ftp/t10/document.04/04-262r8.pdf
  */
 #define CBD_OPERATION_CODE	(0xa1) /* Operation code */
-#define CBD_PROTOCOL_DMA	(0x06) /* Protocl DMA */
+#define CBD_PROTOCOL_DMA	(0x06) /* Protocol DMA */
 #define CBD_T_LENGTH		(0x02) /* Tx len in SECTOR_COUNT field */
 #define CBD_BYT_BLOK		(0x01) /* Tx len in byte blocks */
 #define CBD_T_DIR		(0x01) /* Tx direction, device -> client */
@@ -493,7 +493,7 @@ static void stress_smart_free_devs(void)
 
 /*
  *  stress_smart_start()
- *	fetch beggining smart data
+ *	fetch beginning smart data
  */
 void stress_smart_start(void)
 {
