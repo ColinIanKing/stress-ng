@@ -859,7 +859,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 
 		volatile uint8_t *dst = (volatile uint8_t *)buf + offset;
 		volatile uint8_t *src = (volatile uint8_t *)ptr;
-		volatile uint8_t *src_end = src + chunk_sz;
+		const volatile uint8_t *src_end = src + chunk_sz;
 
 		while (src < src_end) {
 			uint8_t tmp = *src;
@@ -878,7 +878,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 
 		volatile uint8_t *dst = (volatile uint8_t *)buf + offset;
 		volatile uint8_t *src = (volatile uint8_t *)ptr;
-		volatile uint8_t *src_end = src + chunk_sz;
+		const volatile uint8_t *src_end = src + chunk_sz;
 
 		while (src < src_end) {
 			uint8_t tmp = *src;
@@ -898,7 +898,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 	stress_mwc_seed(w1, z1);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		volatile uint8_t *p = (volatile uint8_t *)ptr;
-		volatile uint8_t *p_end = (volatile uint8_t *)ptr + chunk_sz;
+		const volatile uint8_t *p_end = (volatile uint8_t *)ptr + chunk_sz;
 		uint8_t val = stress_mwc8();
 
 		while (p < p_end) {
