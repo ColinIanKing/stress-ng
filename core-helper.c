@@ -1115,7 +1115,7 @@ void pr_yaml_runinfo(FILE *yaml)
 		pr_yaml(yaml, "      sysname: %s\n", uts.sysname);
 		pr_yaml(yaml, "      nodename: %s\n", uts.nodename);
 		pr_yaml(yaml, "      release: %s\n", uts.release);
-		pr_yaml(yaml, "      version: %s\n", uts.version);
+		pr_yaml(yaml, "      version: '%s'\n", uts.version);
 		pr_yaml(yaml, "      machine: %s\n", uts.machine);
 	}
 #endif
