@@ -159,7 +159,7 @@ static void stress_opcode_inc(
 	register uint32_t tmp = *op;
 	register uint32_t *ops = (uint32_t *)ops_begin;
 
-	while (ops < (uint32_t *)ops_end)
+	while (ops < (const uint32_t *)ops_end)
 		*(ops++) = tmp++;
 
 	*op = tmp;
@@ -173,7 +173,7 @@ static void stress_opcode_mixed(
 	register uint32_t tmp = *op;
 	register uint32_t *ops = (uint32_t *)ops_begin;
 
-	while (ops < (uint32_t *)ops_end) {
+	while (ops < (const uint32_t *)ops_end) {
 		register uint32_t rnd = stress_mwc32();
 
 		*(ops++) = tmp;
