@@ -118,7 +118,7 @@ static inline void OPTIMIZE3 stress_stream_copy_index0(
 static inline void OPTIMIZE3 stress_stream_copy_index1(
 	double *RESTRICT c,
 	const double *RESTRICT a,
-	size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx1,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -130,8 +130,8 @@ static inline void OPTIMIZE3 stress_stream_copy_index1(
 static inline void OPTIMIZE3 stress_stream_copy_index2(
 	double *RESTRICT c,
 	const double *RESTRICT a,
-	size_t *RESTRICT idx1,
-	size_t *RESTRICT idx2,
+	const size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx2,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -143,9 +143,9 @@ static inline void OPTIMIZE3 stress_stream_copy_index2(
 static inline void OPTIMIZE3 stress_stream_copy_index3(
 	double *RESTRICT c,
 	const double *RESTRICT a,
-	size_t *RESTRICT idx1,
-	size_t *RESTRICT idx2,
-	size_t *RESTRICT idx3,
+	const size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx2,
+	const size_t *RESTRICT idx3,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -170,7 +170,7 @@ static inline void OPTIMIZE3 stress_stream_scale_index1(
 	double *RESTRICT b,
 	const double *RESTRICT c,
 	const double q,
-	size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx1,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -183,8 +183,8 @@ static inline void OPTIMIZE3 stress_stream_scale_index2(
 	double *RESTRICT b,
 	const double *RESTRICT c,
 	const double q,
-	size_t *RESTRICT idx1,
-	size_t *RESTRICT idx2,
+	const size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx2,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -197,9 +197,9 @@ static inline void OPTIMIZE3 stress_stream_scale_index3(
 	double *RESTRICT b,
 	const double *RESTRICT c,
 	const double q,
-	size_t *RESTRICT idx1,
-	size_t *RESTRICT idx2,
-	size_t *RESTRICT idx3,
+	const size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx2,
+	const size_t *RESTRICT idx3,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -224,7 +224,7 @@ static inline void OPTIMIZE3 stress_stream_add_index1(
 	const double *RESTRICT a,
 	const double *RESTRICT b,
 	double *RESTRICT c,
-	size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx1,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -237,8 +237,8 @@ static inline void OPTIMIZE3 stress_stream_add_index2(
 	const double *RESTRICT a,
 	const double *RESTRICT b,
 	double *RESTRICT c,
-	size_t *RESTRICT idx1,
-	size_t *RESTRICT idx2,
+	const size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx2,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -251,9 +251,9 @@ static inline void OPTIMIZE3 stress_stream_add_index3(
 	const double *RESTRICT a,
 	const double *RESTRICT b,
 	double *RESTRICT c,
-	size_t *RESTRICT idx1,
-	size_t *RESTRICT idx2,
-	size_t *RESTRICT idx3,
+	const size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx2,
+	const size_t *RESTRICT idx3,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -280,7 +280,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index1(
 	const double *RESTRICT b,
 	const double *RESTRICT c,
 	const double q,
-	size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx1,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -294,8 +294,8 @@ static inline void OPTIMIZE3 stress_stream_triad_index2(
 	const double *RESTRICT b,
 	const double *RESTRICT c,
 	const double q,
-	size_t *RESTRICT idx1,
-	size_t *RESTRICT idx2,
+	const size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx2,
 	const uint64_t n)
 {
 	register uint64_t i;
@@ -309,9 +309,9 @@ static inline void OPTIMIZE3 stress_stream_triad_index3(
 	const double *RESTRICT b,
 	const double *RESTRICT c,
 	const double q,
-	size_t *RESTRICT idx1,
-	size_t *RESTRICT idx2,
-	size_t *RESTRICT idx3,
+	const size_t *RESTRICT idx1,
+	const size_t *RESTRICT idx2,
+	const size_t *RESTRICT idx3,
 	const uint64_t n)
 {
 	register uint64_t i;
