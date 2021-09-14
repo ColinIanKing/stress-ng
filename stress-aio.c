@@ -158,7 +158,9 @@ static int issue_aio_request(
 
 		ret = aio_func(&io_req->aiocb);
 		if (ret < 0) {
-			if ((errno == EAGAIN) || (errno == EINTR))
+			if ((errno == EAGAIN) ||
+			    (errno == EINTR) ||
+			    (errno == EBUSY))
 				continue;
 			pr_err("%s: failed to issue aio request: %d (%s)\n",
 				name, errno, strerror(errno));
