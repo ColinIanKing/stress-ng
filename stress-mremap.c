@@ -67,8 +67,12 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static inline void *rand_mremap_addr(const size_t sz, int flags)
 {
 	void *addr;
+	int mask = MREMAP_FIXED | MAP_SHARED;
 
-	flags &= ~(MREMAP_FIXED | MAP_SHARED | MAP_POPULATE);
+#if defined(MAP_POPULATE)
+	mask |= MAP_POPULATE;
+#endif
+	flags &= ~(mask);
 	flags |= (MAP_PRIVATE | MAP_ANONYMOUS);
 
 	addr = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, -1, 0);
