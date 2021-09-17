@@ -1,3 +1,10 @@
+stress-ng (0.13.03-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-remap: Fix build failure on systems without MAP_POPULATE
+
+ -- Colin King <colin.king@canonical.com>  Fri, 17 Sep 2021 12:33:12 +0100
+
 stress-ng (0.13.02-1) unstable; urgency=medium
 
   [Fabien Malfoy]
