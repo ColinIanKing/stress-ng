@@ -16,7 +16,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.13.02
+VERSION=0.13.03
 #
 # Codename "moonwalking space whale"
 #
