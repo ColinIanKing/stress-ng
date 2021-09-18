@@ -401,6 +401,14 @@ static int stress_pthread(const stress_args_t *args)
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)
 	const size_t stack_size = STRESS_MAXIMUM(DEFAULT_STACK_MIN, stress_min_pthread_stack_size());
 #endif
+#if defined(HAVE_PTHREAD_MUTEXATTR_T) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_INIT) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_DESTROY) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_SETPRIOCEILING) &&	\
+    defined(HAVE_PTHREAD_MUTEXATTR_SETPROTOCOL)
+	pthread_mutexattr_t mutex_attr;
+	bool mutex_attr_init;
+#endif
 
 	keep_running_flag = true;
 
@@ -432,6 +440,26 @@ static int stress_pthread(const stress_args_t *args)
 			args->name, ret, strerror(ret));
 		return EXIT_FAILURE;
 	}
+#if defined(HAVE_PTHREAD_MUTEXATTR_T) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_INIT) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_DESTROY) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_SETPRIOCEILING) &&	\
+    defined(HAVE_PTHREAD_MUTEXATTR_SETPROTOCOL)
+	/*
+	 *  Attempt to use priority inheritance on mutex
+	 */
+	ret = pthread_mutexattr_init(&mutex_attr);
+	if (ret == 0) {
+		mutex_attr_init = true;
+		ret = pthread_mutexattr_setprotocol(&mutex_attr, PTHREAD_PRIO_INHERIT);
+		(void)ret;
+		ret = pthread_mutexattr_setprioceiling(&mutex_attr, 127);
+		(void)ret;
+	} else {
+		mutex_attr_init = false;
+	}
+#endif
+
 	ret = pthread_mutex_init(&mutex, NULL);
 	if (ret) {
 		pr_fail("%s: pthread_mutex_init failed, errno=%d (%s)\n",
@@ -612,6 +640,14 @@ reap:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+#if defined(HAVE_PTHREAD_MUTEXATTR_T) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_INIT) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_DESTROY) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_SETPRIOCEILING) &&	\
+    defined(HAVE_PTHREAD_MUTEXATTR_SETPROTOCOL)
+	if (mutex_attr_init)
+		(void)pthread_mutexattr_destroy(&mutex_attr);
+#endif
 	(void)pthread_cond_destroy(&cond);
 	(void)pthread_mutex_destroy(&mutex);
 	(void)shim_pthread_spin_destroy(&spinlock);
