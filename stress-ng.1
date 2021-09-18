@@ -2658,10 +2658,11 @@ mincore until the address is less or equal to the page size.
 .B \-\-misaligned N
 start N workers that perform misaligned read and writes. By default, this
 will exercise 128 bit misaligned read and writes in 8 x 16 bits, 4 x 32 bits,
-2 x 64 bits and 1 x 128 bits. Misaligned read and writes operate at 1
-byte offset from the natural alignment of the data type. On some architectures
-this can cause SIGBUS, SIGILL or SIGSEGV, these are handled and the misaligned
-stressor method causing the error is disabled.
+2 x 64 bits and 1 x 128 bits at the start of a page boundary, at the end
+of a page boundary and over a cache boundary. Misaligned read and writes
+operate at 1 byte offset from the natural alignment of the data
+type. On some architectures this can cause SIGBUS, SIGILL or SIGSEGV, these are
+handled and the misaligned stressor method causing the error is disabled.
 .TP
 .B \-\-misaligned\-ops N
 stop after N misaligned bogo operation. A misaligned bogo op is equivalent
