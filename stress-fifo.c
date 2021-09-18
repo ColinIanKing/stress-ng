@@ -87,7 +87,7 @@ static void stress_fifo_reader(
 	const char *name,
 	const char *fifoname)
 {
-	int fd;
+	int fd, count = 0;
 	uint64_t val, lastval = 0;
 
 	fd = open(fifoname, O_RDONLY | O_NONBLOCK);
@@ -147,6 +147,15 @@ redo:
 			break;
 		}
 		lastval = val;
+
+		if ((count & 0x1ff) == 0) {
+			off_t off;
+
+			/* Exercise lseek -> ESPIPE */
+			off = lseek(fd, 0, SEEK_CUR);
+			(void)off;
+		}
+		count++;
 	}
 	(void)close(fd);
 }
