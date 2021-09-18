@@ -125,6 +125,14 @@ redo:
 				goto redo;
 			break;
 		}
+#if defined(FIONREAD)
+		if ((count & 0xff) == 0) {
+			int isz = 0;
+
+			ret = ioctl(fd, FIONREAD, &isz);
+			(void)ret;
+		}
+#endif
 		sz = read(fd, &val, sizeof(val));
 		if (sz < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
