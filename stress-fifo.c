@@ -158,10 +158,17 @@ redo:
 
 		if ((count & 0x1ff) == 0) {
 			off_t off;
+			void *ptr;
 
 			/* Exercise lseek -> ESPIPE */
 			off = lseek(fd, 0, SEEK_CUR);
 			(void)off;
+
+			/* Exercise mmap -> ENODEV */
+			ptr = mmap(NULL, args->page_size, PROT_READ,
+				MAP_PRIVATE, fd, 0);
+			if (ptr)
+				(void)munmap(ptr, args->page_size);
 		}
 		count++;
 	}
