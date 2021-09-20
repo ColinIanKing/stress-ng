@@ -2591,6 +2591,7 @@ typedef struct {
 	MACRO(pkey)		\
 	MACRO(poll)		\
 	MACRO(prctl)		\
+	MACRO(prefetch)		\
 	MACRO(procfs)		\
 	MACRO(pthread)		\
 	MACRO(ptrace)		\
@@ -3361,6 +3362,10 @@ typedef enum {
 
 	OPT_poll_ops,
 	OPT_poll_fds,
+
+	OPT_prefetch,
+	OPT_prefetch_ops,
+	OPT_prefetch_l3_size,
 
 	OPT_prctl,
 	OPT_prctl_ops,

@@ -228,6 +228,7 @@ STRESS_SRC = \
 	stress-pkey.c \
 	stress-poll.c \
 	stress-prctl.c \
+	stress-prefetch.c \
 	stress-procfs.c \
 	stress-pthread.c \
 	stress-ptrace.c \

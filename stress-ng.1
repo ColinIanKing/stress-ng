@@ -3149,6 +3149,23 @@ exercise these even if they are not implemented.
 .B \-\-prctl\-ops N
 stop prctl workers after N batches of prctl calls
 .TP
+.B \-\-prefetch N
+start N workers that benchmark prefetch and non-prefetch reads of a L3
+cache sized buffer. The buffer is read with loops of 8 \(mu 64 bit reads
+per iteration. In the prefetch cases, data is prefetched ahead of the
+current read position by various sized offsets, from 64 bytes to 8K
+to find the best memory read throughput. The stressor reports the
+non-prefetch read rate and the best prefetched read rate. It also reports
+the prefetch offset and an estimate of the amount of time between the
+prefetch issue and the actual memory read operation. These statistics
+will vary from run-to-run due to system noise and CPU frequency scaling.
+.TP
+.B \-\-prefetch-ops N
+stop prefetch stressors after N benchmark operations
+.TP
+.B \-\-prefetch-l3-size N
+specify the size of the l3 cache
+.TP
 .B \-\-procfs N
 start N workers that read files from /proc and recursively read files from
 /proc/self (Linux only).
