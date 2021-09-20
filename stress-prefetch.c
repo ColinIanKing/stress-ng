@@ -139,8 +139,8 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 		shim_mb();
 	}
 	t2 = stress_time_now();
-	stress_uint64_put((uint64_t)ptr);
-	stress_uint64_put((uint64_t)pre_ptr);
+	stress_void_ptr_put((void *)ptr);
+	stress_void_ptr_put((void *)pre_ptr);
 
 	/* Benchmark reads */
 	if (prefetch_info[i].offset == 0) {

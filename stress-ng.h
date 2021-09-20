@@ -1062,6 +1062,7 @@ typedef union {
 	volatile float		float_val;
 	volatile double		double_val;
 	volatile long double	long_double_val;
+	volatile void 		*void_ptr_val;
 } stress_put_val_t;
 
 /* Network domains flags */
@@ -3998,6 +3999,14 @@ static inline void ALWAYS_INLINE stress_long_double_put(const long double a)
 	g_put_val.long_double_val = a;
 }
 
+/*
+ *  stress_void_ptr_put()
+ *	stash a void * pointer value
+ */
+static inline void ALWAYS_INLINE stress_void_ptr_put(void * const a)
+{
+	g_put_val.void_ptr_val = a;
+}
 
 /* Filenames and directories */
 extern int stress_temp_filename(char *path, const size_t len,
