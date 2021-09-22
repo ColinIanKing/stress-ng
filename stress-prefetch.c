@@ -210,7 +210,8 @@ static int stress_prefetch(const stress_args_t *args)
 
 	l3_data_mmap_size = l3_data_size + (PREFETCH_OFFSETS * CACHE_LINE_SIZE);
 
-	l3_data = mmap(NULL, l3_data_mmap_size, PROT_READ | PROT_WRITE,
+	l3_data = (uint64_t *)mmap(NULL, l3_data_mmap_size,
+		PROT_READ | PROT_WRITE,
 #if defined(MAP_POPULATE)
 		MAP_POPULATE |
 #endif
@@ -273,7 +274,7 @@ static int stress_prefetch(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(l3_data, l3_data_mmap_size);
+	(void)munmap((void *)l3_data, l3_data_mmap_size);
 
 	return EXIT_SUCCESS;
 }
