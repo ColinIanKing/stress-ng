@@ -42,8 +42,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,                   NULL }
 };
 
-#define PREFETCH_OFFSETS	(128)
-#define CACHE_LINE_SIZE		(64)
+#define STRESS_PREFETCH_OFFSETS	(128)
+#define STRESS_CACHE_LINE_SIZE	(64)
 
 typedef struct {
 	size_t	offset;
@@ -200,7 +200,7 @@ static int stress_prefetch(const stress_args_t *args)
 {
 	uint64_t *l3_data, *l3_data_end, total_count = 0;
 	size_t l3_data_size = 0, l3_data_mmap_size;
-	stress_prefetch_info_t prefetch_info[PREFETCH_OFFSETS];
+	stress_prefetch_info_t prefetch_info[STRESS_PREFETCH_OFFSETS];
 	size_t i, best;
 	double best_rate, ns;
 
@@ -208,7 +208,7 @@ static int stress_prefetch(const stress_args_t *args)
 	if (l3_data_size == 0)
 		l3_data_size = get_prefetch_L3_size(args);
 
-	l3_data_mmap_size = l3_data_size + (PREFETCH_OFFSETS * CACHE_LINE_SIZE);
+	l3_data_mmap_size = l3_data_size + (STRESS_PREFETCH_OFFSETS * STRESS_CACHE_LINE_SIZE);
 
 	l3_data = (uint64_t *)mmap(NULL, l3_data_mmap_size,
 		PROT_READ | PROT_WRITE,
@@ -228,7 +228,7 @@ static int stress_prefetch(const stress_args_t *args)
 
 
 	for (i = 0; i < SIZEOF_ARRAY(prefetch_info); i++) {
-		prefetch_info[i].offset = i * CACHE_LINE_SIZE;
+		prefetch_info[i].offset = i * STRESS_CACHE_LINE_SIZE;
 		prefetch_info[i].count = 0;
 		prefetch_info[i].duration = 0.0;
 		prefetch_info[i].bytes = 0.0;
