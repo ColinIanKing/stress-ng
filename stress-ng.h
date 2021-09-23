@@ -4366,6 +4366,8 @@ extern void stress_set_stack_smash_check_flag(const bool flag);
 /* loff_t and off64_t porting shims */
 #if defined(HAVE_LOFF_T)
 typedef	loff_t		shim_loff_t;
+#elif defined(HAVE_OFF_T)
+typedef	off_t		shim_loff_t;
 #else
 typedef long		shim_loff_t;
 #endif
