@@ -109,6 +109,7 @@ static void NORETURN stress_rmap_child(
 		(*counter)++;
 	} while (keep_stressing_flag() && (!max_ops || *counter < max_ops));
 
+
 	_exit(0);
 }
 
@@ -216,7 +217,9 @@ static int stress_rmap(const stress_args_t *args)
 
 			/* Make sure this is killable by OOM killer */
 			stress_set_oom_adjustment(args->name, true);
-			stress_rmap_child(&counters[i], (args->max_ops / RMAP_CHILD_MAX) + 1,
+			stress_rmap_child(&counters[i], 
+				(args->max_ops == 0) ? 0 :
+				(args->max_ops / RMAP_CHILD_MAX) + 1,
 				page_size, mappings);
 		} else {
 			(void)setpgid(pids[i], g_pgrp);
