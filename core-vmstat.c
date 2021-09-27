@@ -238,7 +238,7 @@ static char *stress_iostat_iostat_name(
 				continue;
 
 			/* skip over spaces to get to dev name */
-			while (*start && *start == ' ')
+			while (*start == ' ')
 				start++;
 			if (!*start)
 				continue;
