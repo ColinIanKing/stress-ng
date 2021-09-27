@@ -39,7 +39,9 @@ static NOINLINE void vm_unmap_child(const size_t page_size)
 	while (len > page_size) {
 		(void)munmap((void *)0, len - page_size);
 		len >>= 1;
+#if !defined(__DragonFly__)
 		shim_clflush(addr);
+#endif
 		shim_flush_icache(addr, (void *)(((uint8_t *)addr) + 64));
 	}
 }
@@ -49,7 +51,9 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
 	void *addr = stress_align_address((void *)vm_unmap_self, page_size);
 
 	(void)munmap(addr, page_size);
+#if !defined(__DragonFly__)
 	shim_clflush(addr);
+#endif
 	shim_flush_icache(addr, (void *)(((uint8_t *)addr) + 64));
 }
 
