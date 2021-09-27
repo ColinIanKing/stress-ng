@@ -4003,7 +4003,7 @@ static inline void ALWAYS_INLINE stress_long_double_put(const long double a)
  *  stress_void_ptr_put()
  *	stash a void * pointer value
  */
-static inline void ALWAYS_INLINE stress_void_ptr_put(void * const a)
+static inline void ALWAYS_INLINE stress_void_ptr_put(volatile void * const a)
 {
 	g_put_val.void_ptr_val = a;
 }
