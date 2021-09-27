@@ -719,7 +719,6 @@ retry:
 			struct msghdr msg;
 			struct iovec vec[MMAP_IO_SIZE / 16];
 #if defined(HAVE_RECVMMSG)
-			unsigned int msg_len = 0;
 			struct mmsghdr msgvec[MSGVEC_SIZE];
 			const int max_opt = 3;
 #else
@@ -788,7 +787,6 @@ retry:
 				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
-					msg_len += i;
 				}
 				for (i = 0; i < MSGVEC_SIZE; i++) {
 					msgvec[i].msg_hdr.msg_iov = vec;
@@ -961,7 +959,6 @@ static int stress_sock_server(
 			struct iovec vec[MMAP_IO_SIZE / 16];
 #if defined(HAVE_SENDMMSG)
 			struct mmsghdr msgvec[MSGVEC_SIZE];
-			unsigned int msg_len = 0;
 #endif
 
 			len = sizeof(saddr);
@@ -1060,7 +1057,6 @@ static int stress_sock_server(
 				for (j = 0, i = 16; i < MMAP_IO_SIZE; i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
-					msg_len += i;
 				}
 				for (i = 0; i < MSGVEC_SIZE; i++) {
 					msgvec[i].msg_hdr.msg_iov = vec;
