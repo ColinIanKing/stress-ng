@@ -287,7 +287,6 @@ static int stress_dccp_server(
 			struct iovec vec[sizeof(buf)/16];
 #if defined(HAVE_SENDMMSG)
 			struct mmsghdr msgvec[MSGVEC_SIZE];
-			unsigned int msg_len = 0;
 #endif
 			len = sizeof(saddr);
 			if (getsockname(fd, &saddr, &len) < 0) {
@@ -343,7 +342,6 @@ again:
 				for (j = 0, i = 16; i < sizeof(buf); i += 16, j++) {
 					vec[j].iov_base = buf;
 					vec[j].iov_len = i;
-					msg_len += i;
 				}
 				for (i = 0; i < MSGVEC_SIZE; i++) {
 					msgvec[i].msg_hdr.msg_iov = vec;
