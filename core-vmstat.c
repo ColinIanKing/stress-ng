@@ -69,13 +69,14 @@ static void stress_iostat_follow_link(
 	char *buf,
 	const size_t buflen)
 {
-	ssize_t ret;
 	char tmp[buflen], prev[buflen];
 
 	(void)memset(prev, 0, sizeof(prev));
 
 	shim_strlcpy(tmp, path, buflen);
 	for (;;) {
+		ssize_t ret;
+
 		ret = shim_readlink(tmp, buf, buflen - 1);
 		if (ret < 0) {
 			(void)shim_strlcpy(buf, path, buflen);
