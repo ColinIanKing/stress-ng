@@ -57,7 +57,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_LIB_BSD)
 
-#if !defined(__OpenBSD__)
+#if !defined(__OpenBSD__) &&	\
+    !defined(__NetBSD__)
 /*
  *  stress_mergesort_handler()
  *	SIGALRM generic handler
@@ -138,7 +139,8 @@ static int stress_mergesort(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-#if !defined(__OpenBSD__)
+#if !defined(__OpenBSD__) &&	\
+    !defined(__NetBSD__)
 	if (stress_sighandler(args->name, SIGALRM, stress_mergesort_handler, &old_action) < 0) {
 		free(data);
 		return EXIT_FAILURE;
