@@ -307,7 +307,15 @@ done:
 
 	if (fd != -1)
 		(void)close(fd);
-	(void)stress_temp_dir_rm_args(args);
+
+	/*
+	 *  We may reach here on a siglongjmp without the temp dirs
+	 *  having been created. Don't call the normal helper but
+	 *  use rmdir and ignore any error if the directories don't
+	 *  exist.
+	 */
+	(void)stress_temp_dir_args(args, filename, sizeof(filename));
+	(void)rmdir(filename);
 
 	return EXIT_SUCCESS;
 }
