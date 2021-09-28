@@ -23,7 +23,8 @@ environment:
 parts:
     stress-ng:
         plugin: make
-        source: git://kernel.ubuntu.com/cking/stress-ng
+        source: https://github.com/ColinIanKing/stress-ng
+        source-type: git
         override-pull: |
             snapcraftctl pull
             description="$(git describe HEAD --tags)"
