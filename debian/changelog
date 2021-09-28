@@ -1,3 +1,35 @@
+stress-ng (0.13.04-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-fallocate: Fix ENOENT failure messages
+  * stress-sock: remove redundant variable msg_len
+  * stress-dccp: remove redundant variable msg_len
+  * stress-prefetch: add missing volatile in pointer cast
+  * core-vmstat: optimization: remove check for non-null
+  * core-vmstat: reduce scope of variable ret
+  * stress-mergesort: don't jmp out of mergesort on NetBSD
+  * stress-vm-segv: Fix weird hangs on DragonFlyBSD
+  * stress-chmod: add EPERM check to systems that also support EFTYPE
+  * stress-rmap: fix rmap bogo-ops threshold
+  * Fix typo: HAVE_LOFF_T -> HAVE_OFF_T
+  * Add off_t type detection and use it if loff_t is not defined
+  * stress-prefetch: prefix macros with STRESS_ to avoid FreeBSD
+    macro conflict
+  * stress-prefetch: fix mmap/munmap type warnings on OpenHipster
+  * stress-prefetch: use correct format specifier for size_t variable
+    l3_data_mmap_size
+  * stress-prefetch: add stress_void_ptr_put and use it to stash pointers
+  * stress-prefetch: Add a L3 prefetch read benchmarking stressor
+  * stress-fifo: exercise invalid mmap on fifo fd
+  * stress-fifo: periodically exercise FIONREAD on read end of pipe
+  * stress-fifo: periodically perform invalid lseek on pipe fd
+  * stress-pthread: use phread_mutexattr calls to use priority
+    inheritence
+  * stress-misaligned: perform misaligned read/writes on page and cache
+    boundaries
+
+ -- Colin King <colin.king@canonical.com>  Tue, 28 Sep 2021 11:02:11 +0100
+
 stress-ng (0.13.03-1) unstable; urgency=medium
 
   * Makefile: bump version
