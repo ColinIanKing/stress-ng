@@ -53,6 +53,47 @@ static off_t stress_iomix_rnd_offset(const off_t max)
 }
 
 /*
+ *  stress_iomix_fsync_min_1Hz()
+ *	sync written data at most every once a second while
+ *	trying to minimize the number time get calls
+ */
+static void stress_iomix_fsync_min_1Hz(const int fd)
+{
+	static double time_last = -1.0;
+	static int counter = 0;
+	static int counter_max = 1;
+
+	if (time_last <= 0.0)
+		time_last = stress_time_now() + 1.0;
+
+	if (counter++ >= counter_max) {
+		const double now = stress_time_now();
+		const double delta = now - time_last;
+
+		/* Less than 1Hz? try again */
+		if (delta < 1.0)
+			return;
+
+		counter_max = (int)((double)counter / delta);
+
+		counter = 0;
+		time_last = now;
+
+		switch (stress_mwc8() % 3) {
+		case 0:
+			(void)shim_fsync(fd);
+			break;
+		case 1:
+			(void)shim_fdatasync(fd);
+			break;
+		case 2:
+			(void)sync();
+			break;
+		}
+	}
+}
+
+/*
  *  stress_iomix_wr_seq_bursts()
  *	bursty sequential writes
  */
@@ -98,6 +139,7 @@ static void stress_iomix_wr_seq_bursts(
 			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
+			stress_iomix_fsync_min_1Hz(fd);
 		}
 		tv.tv_sec = 0;
 		tv.tv_usec = stress_mwc32() % 1000000;
@@ -149,6 +191,7 @@ static void stress_iomix_wr_rnd_bursts(
 			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
+			stress_iomix_fsync_min_1Hz(fd);
 		}
 		tv.tv_sec = stress_mwc32() % 2;
 		tv.tv_usec = stress_mwc32() % 1000000;
@@ -200,6 +243,7 @@ static void stress_iomix_wr_seq_slow(
 			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
+			stress_iomix_fsync_min_1Hz(fd);
 		}
 	} while (keep_stressing(args));
 }
@@ -341,6 +385,7 @@ static void stress_iomix_rd_seq_slow(
 			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
+			stress_iomix_fsync_min_1Hz(fd);
 		}
 	} while (keep_stressing(args));
 }
@@ -499,6 +544,46 @@ static void stress_iomix_wr_bytes(
 			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
+			stress_iomix_fsync_min_1Hz(fd);
+		}
+	} while (keep_stressing(args));
+}
+
+/*
+ *  stress_iomix_wr_rev_bytes()
+ *	lots of small 1 byte writes in reverse order
+ */
+static void stress_iomix_wr_rev_bytes(
+	const stress_args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
+{
+	do {
+		off_t ret, posn = iomix_bytes;
+
+		ret = lseek(fd, 0, SEEK_SET);
+		if (ret < 0) {
+			pr_fail("%s: lseek failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			return;
+		}
+		while (posn != 0) {
+			char buffer[1] = { (stress_mwc8() % 26) + 'A' };
+			ssize_t rc;
+
+			rc = write(fd, buffer, sizeof(buffer));
+			if (rc < 0) {
+				if (errno != EPERM) {
+					pr_fail("%s: write failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					return;
+			}	}
+			(void)shim_usleep(1000);
+			posn--;
+			if (!keep_stressing(args))
+				return;
+			inc_counter(args);
+			stress_iomix_fsync_min_1Hz(fd);
 		}
 	} while (keep_stressing(args));
 }
@@ -641,6 +726,7 @@ static void stress_iomix_inode_flags(
 #endif
 		if (!ok)
 			_exit(EXIT_SUCCESS);
+		stress_iomix_fsync_min_1Hz(fd);
 	} while (keep_stressing(args));
 }
 #endif
@@ -694,6 +780,7 @@ static stress_iomix_func iomix_funcs[] = {
 #endif
 	stress_iomix_rd_wr_mmap,
 	stress_iomix_wr_bytes,
+	stress_iomix_wr_rev_bytes,
 	stress_iomix_rd_bytes,
 #if defined(__linux__)
 	stress_iomix_inode_flags,
