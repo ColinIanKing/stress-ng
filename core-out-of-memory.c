@@ -134,7 +134,7 @@ void stress_set_oom_adjustment(const char *name, const bool killable)
 	 *  main cannot be killable; if OPT_FLAGS_OOMABLE set make
 	 *  all child procs easily OOMable
 	 */
-	if (!strcmp(name, "main") && (g_opt_flags & OPT_FLAGS_OOMABLE))
+	if (strcmp(name, "main") && (g_opt_flags & OPT_FLAGS_OOMABLE))
 		make_killable = true;
 
 	/*
