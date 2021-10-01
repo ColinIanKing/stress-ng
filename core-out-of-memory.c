@@ -128,7 +128,14 @@ void stress_set_oom_adjustment(const char *name, const bool killable)
 	char *str;
 	int ret;
 
+	/*
+	 *  --no-oom-adjust option ignores any oom adjustments
+	 */
+	if (g_opt_flags & OPT_FLAGS_NO_OOM_ADJUST)
+		return;
+
 	high_priv = (getuid() == 0) && (geteuid() == 0);
+
 
 	/*
 	 *  main cannot be killable; if OPT_FLAGS_OOMABLE set make

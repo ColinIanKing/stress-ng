@@ -945,6 +945,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_SEED		 STRESS_BIT_ULL(38)	/* --seed */
 #define OPT_FLAGS_SKIP_SILENT	 STRESS_BIT_ULL(39)	/* --skip-silent */
 #define OPT_FLAGS_SMART		 STRESS_BIT_ULL(40)	/* --smart */
+#define OPT_FLAGS_NO_OOM_ADJUST	 STRESS_BIT_ULL(41)	/* --no-oom-adjust */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -3306,6 +3307,7 @@ typedef enum {
 	OPT_nice_ops,
 
 	OPT_no_madvise,
+	OPT_no_oom_adjust,
 	OPT_no_rand_seed,
 
 	OPT_nop,

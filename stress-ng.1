@@ -316,6 +316,11 @@ from version 0.02.26 stress\-ng automatically calls madvise(2) with random
 advise options before each mmap and munmap to stress the vm subsystem a
 little harder. The \-\-no\-advise option turns this default off.
 .TP
+.B \-\-no\-oom\-adjust
+disable any form of out-of-memory score adjustments, keep the system defaults.
+Normally stress-ng will adjust the out-of-memory scores on stressors to try
+to create more memory pressure. This option disables the adjustments.
+.TP
 .B \-\-no\-rand\-seed
 Do not seed the stress-ng pseudo-random number generator with a quasi random
 start seed, but instead seed it with constant values. This forces tests to
