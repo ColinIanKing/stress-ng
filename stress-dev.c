@@ -63,22 +63,6 @@ typedef struct stress_dev_func {
 static stress_hash_table_t *dev_open_fail, *dev_open_ok, *dev_scsi;
 
 /*
- *  mixup_sort()
- *	sort helper based on hash to mix up ordering
- */
-static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
-{
-	uint32_t s1, s2;
-
-	s1 = stress_hash_pjw((*d1)->d_name);
-	s2 = stress_hash_pjw((*d2)->d_name);
-
-	if (s1 == s2)
-		return 0;
-	return (s1 < s2) ? -1 : 1;
-}
-
-/*
  *  ioctl_set_timeout()
  *	set a itimer to interrupt ioctl call after secs seconds
  */
@@ -3105,7 +3089,7 @@ static void stress_dev_dir(
 	struct dirent **dlist;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 	int32_t loops = args->instance < 8 ? (int32_t)args->instance + 1 : 8;
-	int i, n;
+	int i, k, n;
 	static int try_failed;
 
 	if (!keep_stressing_flag())
@@ -3116,9 +3100,23 @@ static void stress_dev_dir(
 		return;
 
 	dlist = NULL;
-	n = scandir(path, &dlist, NULL, mixup_sort);
+	n = scandir(path, &dlist, NULL, alphasort);
 	if (n <= 0)
 		goto done;
+
+	/*
+	 *  Shuffle
+	 */
+	for (k = 0; k < 5; k++) {
+		for (i = 0; i < n; i++) {
+			int j = stress_mwc32() % n;
+			struct dirent *tmp;
+
+			tmp = dlist[j];
+			dlist[j] = dlist[i];
+			dlist[i] = tmp;
+		}
+	}
 
 	for (i = 0; i < n; i++) {
 		int ret;
