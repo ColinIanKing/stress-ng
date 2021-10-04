@@ -54,32 +54,32 @@ typedef struct {
 
 static context_info_t context[3];
 static ucontext_t uctx_main;
-static uint64_t __counter, __max_ops;
+static uint64_t context_counter, stress_max_ops;
 
 static void thread1(void)
 {
 	do {
-		__counter++;
+		context_counter++;
 		(void)swapcontext(&context[0].cu.uctx, &context[1].cu.uctx);
-	} while (keep_stressing_flag() && (!__max_ops || (__counter < __max_ops)));
+	} while (keep_stressing_flag() && (!stress_max_ops || (context_counter < stress_max_ops)));
 	(void)swapcontext(&context[0].cu.uctx, &uctx_main);
 }
 
 static void thread2(void)
 {
 	do {
-		__counter++;
+		context_counter++;
 		(void)swapcontext(&context[1].cu.uctx, &context[2].cu.uctx);
-	} while (keep_stressing_flag() && (!__max_ops || (__counter < __max_ops)));
+	} while (keep_stressing_flag() && (!stress_max_ops || (context_counter < stress_max_ops)));
 	(void)swapcontext(&context[1].cu.uctx, &uctx_main);
 }
 
 static void thread3(void)
 {
 	do {
-		__counter++;
+		context_counter++;
 		(void)swapcontext(&context[2].cu.uctx, &context[0].cu.uctx);
-	} while (keep_stressing_flag() && (!__max_ops || (__counter < __max_ops)));
+	} while (keep_stressing_flag() && (!stress_max_ops || (context_counter < stress_max_ops)));
 	(void)swapcontext(&context[2].cu.uctx, &uctx_main);
 }
 
@@ -129,8 +129,8 @@ static int stress_context(const stress_args_t *args)
 	if (stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0)
 		return EXIT_FAILURE;
 
-	__counter = 0;
-	__max_ops = args->max_ops * 1000;
+	context_counter = 0;
+	stress_max_ops = args->max_ops * 1000;
 
 	/* Create 3 micro threads */
 	if (stress_context_init(args, thread1, &uctx_main, &context[0]) < 0)
@@ -147,7 +147,7 @@ static int stress_context(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	set_counter(args, __counter / 1000);
+	set_counter(args, context_counter / 1000);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
