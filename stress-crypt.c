@@ -33,6 +33,20 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LIB_CRYPT) &&	\
     defined(HAVE_CRYPT_H)
 
+typedef struct {
+	const char id;
+	const char *method;
+} crypt_method_t;
+
+static const crypt_method_t crypt_methods[] = {
+	{ '1', "MD5" },
+	{ '5', "SHA-256" },
+	{ '6', "SHA-512" },
+	{ '7', "scrypt" },
+	{ '3', "NT" },
+	{ 'y', "yescrypt" },
+};
+
 /*
  *  stress_crypt_id()
  *	crypt a password with given seed and id
@@ -50,13 +64,30 @@ static int stress_crypt_id(
 	static struct crypt_data data;
 
 	(void)memset(&data, 0, sizeof(data));
+	errno = 0;
 	encrypted = crypt_r(passwd, salt, &data);
 #else
 	encrypted = crypt(passwd, salt);
 #endif
 	if (!encrypted) {
-		pr_fail("%s: cannot encrypt with %s\n", args->name, method);
-		return -1;
+		switch (errno) {
+		case 0:
+			break;
+		case EINVAL:
+			break;
+#if defined(ENOSYS)
+		case ENOSYS:
+			break;
+#endif
+#if defined(EOPNOTSUPP)
+		case EOPNOTSUPP:
+#endif
+			break;
+		default:
+			pr_fail("%s: cannot encrypt with %s, errno=%d (%s)\n",
+				args->name, method, errno, strerror(errno));
+			return -1;
+		}
 	}
 	return 0;
 }
@@ -76,7 +107,7 @@ static int stress_crypt(const stress_args_t *args)
 		char passwd[16];
 		char salt[] = "$x$........";
 		uint64_t seed[2];
-		size_t i;
+		size_t i, failed = 0;
 
 		seed[0] = stress_mwc64();
 		seed[1] = stress_mwc64();
@@ -87,14 +118,18 @@ static int stress_crypt(const stress_args_t *args)
 			passwd[i] = seedchars[stress_mwc32() % sizeof(seedchars)];
 		passwd[i] = '\0';
 
-		if (stress_crypt_id(args, '1', "MD5", passwd, salt) < 0)
+		for (i = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
+			int ret;
+
+			ret = stress_crypt_id(args,
+					      crypt_methods[i].id,
+					      crypt_methods[i].method,
+					      passwd, salt);
+			if (ret < 0)
+				failed++;
+		}
+		if (failed)
 			break;
-#if NEED_GLIBC(2,7,0)
-		if (stress_crypt_id(args, '5', "SHA-256", passwd, salt) < 0)
-			break;
-		if (stress_crypt_id(args, '6', "SHA-512", passwd, salt) < 0)
-			break;
-#endif
 		inc_counter(args);
 	} while (keep_stressing(args));
 
