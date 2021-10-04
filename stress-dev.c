@@ -2514,6 +2514,108 @@ static void stress_dev_ptp_linux(
 #endif
 }
 
+#if defined(HAVE_LINUX_FD_H)
+/*
+ *  stress_dev_fd_linux()
+ *	minor exercising of the floppy device
+ */
+static void stress_dev_fd_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
+{
+
+	(void)name;
+	(void)fd;
+	(void)devpath;
+
+#if defined(FDMSGON)
+	{
+		int ret;
+
+		ret = ioctl(fd, FDMSGON, 0);
+		(void)ret;
+	}
+#endif
+
+#if defined(FDFLUSH)
+	{
+		int ret;
+
+		ret = ioctl(fd, FDFLUSH, 0);
+		(void)ret;
+	}
+#endif
+
+#if defined(FDGETPRM) &&	\
+    defined(HAVE_FLOPPY_STRUCT)
+	{
+		int ret;
+		struct floppy_struct floppy;
+
+		ret = ioctl(fd, FDGETPRM, &floppy);
+		if (ret == 0) {
+			ret = ioctl(fd, FDSETPRM, &floppy);
+		}
+		(void)ret;
+	}
+#endif
+
+#if defined(FDGETDRVSTAT) &&	\
+    defined(HAVE_FLOPPY_DRIVE_STRUCT)
+	{
+		int ret;
+		struct floppy_drive_struct drive;
+
+		ret = ioctl(fd, FDGETDRVSTAT, &drive);
+		(void)ret;
+	}
+#endif
+
+#if defined(FDPOLLDRVSTAT) &&	\
+    defined(HAVE_FLOPPY_DRIVE_STRUCT)
+	{
+		int ret;
+		struct floppy_drive_struct drive;
+
+		ret = ioctl(fd, FDPOLLDRVSTAT, &drive);
+		(void)ret;
+	}
+#endif
+
+#if defined(FDGETDRVTYP)
+	{
+		int ret;
+		char buf[64];
+
+		ret = ioctl(fd, FDGETDRVTYP, buf);
+		(void)ret;
+	}
+#endif
+
+#if defined(FDGETFDCSTAT) &&		\
+    defined(HAVE_FLOPPY_FDC_STATE)
+	{
+		int ret;
+		struct floppy_fdc_state state;
+
+		ret = ioctl(fd, FDGETFDCSTAT, &state);
+		(void)ret;
+
+	}
+#endif
+
+#if defined(FDMSGOFF)
+	{
+		int ret;
+
+		ret = ioctl(fd, FDMSGOFF, 0);
+		(void)ret;
+	}
+#endif
+}
+#endif
+
 /*
  *  stress_dev_snd_control_linux()
  * 	exercise Linux sound devices
@@ -2624,6 +2726,10 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/null",	stress_dev_null_nop),
 	DEV_FUNC("/dev/ptp",	stress_dev_ptp_linux),
 	DEV_FUNC("/dev/snd/control",	stress_dev_snd_control_linux),
+#if defined(HAVE_LINUX_FD_H) &&	\
+    defined(HAVE_FLOPPY_STRUCT)
+	DEV_FUNC("/dev/fd",	stress_dev_fd_linux),
+#endif
 };
 
 static void stress_dev_procname(const char *path)
