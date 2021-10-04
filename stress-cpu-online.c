@@ -30,6 +30,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+#define STRESS_CPU_ONLINE_MAX_CPUS	(65536)
+
 #if defined(__linux__)
 
 /*
@@ -89,7 +91,7 @@ static int stress_cpu_online_supported(const char *name)
  */
 static int stress_cpu_online(const stress_args_t *args)
 {
-	const int32_t cpus = stress_get_processors_configured();
+	int32_t cpus = stress_get_processors_configured();
 	int32_t i, cpu_online_count = 0;
 	bool *cpu_online;
 	int rc = EXIT_SUCCESS;
@@ -102,10 +104,16 @@ static int stress_cpu_online(const stress_args_t *args)
 		return EXIT_SUCCESS;
 	}
 
-	if ((cpus < 1) || (cpus > 65536)) {
-		pr_inf("%s: too few or too many CPUs (found %" PRId32 ")\n",
+	if (cpus < 1) {
+		pr_fail("%s: too few CPUs (detected %" PRId32 ")\n",
 			args->name, cpus);
 		return EXIT_FAILURE;
+	}
+	if (cpus > STRESS_CPU_ONLINE_MAX_CPUS) {
+		pr_inf("%s: more than %" PRId32 " CPUs detected, "
+			"limiting to %d\n",
+			args->name, cpus, STRESS_CPU_ONLINE_MAX_CPUS);
+		cpus = STRESS_CPU_ONLINE_MAX_CPUS;
 	}
 
 	cpu_online = calloc((size_t)cpus, sizeof(*cpu_online));
