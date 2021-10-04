@@ -62,7 +62,6 @@ static void thread1(void)
 		__counter++;
 		(void)swapcontext(&context[0].cu.uctx, &context[1].cu.uctx);
 	} while (keep_stressing_flag() && (!__max_ops || (__counter < __max_ops)));
-
 	(void)swapcontext(&context[0].cu.uctx, &uctx_main);
 }
 
