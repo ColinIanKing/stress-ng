@@ -2670,6 +2670,31 @@ static void stress_dev_snd_control_linux(
 #endif
 }
 
+#if defined(__linux__)
+/*
+ *   stress_dev_hwrng_linux()
+ *   	Exercise Linux Hardware Random Number Generator
+ */
+static void stress_dev_hwrng_linux(
+	const char *name,
+	const int fd,
+	const char *devpath)
+{
+	ssize_t ret;
+	off_t offset = (off_t)0;
+	char buffer[8];
+
+	(void)name;
+	(void)devpath;
+
+	offset = lseek(fd, offset, SEEK_SET);
+	(void)offset;
+
+	ret = read(fd, buffer, sizeof(buffer));
+	(void)ret;
+}
+#endif
+
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
 
@@ -2713,6 +2738,9 @@ static const stress_dev_func_t dev_funcs[] = {
 #if defined(HAVE_LINUX_FD_H) &&	\
     defined(HAVE_FLOPPY_STRUCT)
 	DEV_FUNC("/dev/fd",	stress_dev_fd_linux),
+#endif
+#if defined(__linux__)
+	DEV_FUNC("/dev/hwrng",	stress_dev_hwrng_linux),
 #endif
 };
 
