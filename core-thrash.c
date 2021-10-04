@@ -151,6 +151,42 @@ static inline void stress_zone_reclaim(void)
 }
 
 /*
+ *  stress_slab_shrink()
+ *	shrink slabs to help release some memory
+ */
+static inline void stress_slab_shrink(void)
+{
+	DIR *dir;
+	struct dirent *d;
+	static const char slabpath[] = "/sys/kernel/slab";
+	int ret;
+
+	/*
+	 *  older shrink interface, may fail
+	 */
+	ret = system_write("/sys/kernel/slab/cache/shrink", "1", 1);
+	(void)ret;
+
+	dir = opendir(slabpath);
+	if (!dir)
+		return;
+
+	/*
+	 *  shrink all slabs
+	 */
+	while ((d = readdir(dir)) != NULL) {
+		if (isalpha((int)d->d_name[0]))  {
+			char path[PATH_MAX];
+
+			(void)snprintf(path, sizeof(path), "%s/%s", slabpath, d->d_name);
+			ret = system_write(path, "1", 1);
+			(void)ret;
+		}
+	}
+	(void)closedir(dir);
+}
+
+/*
  *  stress_drop_caches()
  *	drop caches
  */
@@ -259,8 +295,10 @@ int stress_thrash_start(void)
 			_exit(0);
 
 		while (thrash_run) {
-			if ((stress_mwc8() & 0x3) == 0)
+			if ((stress_mwc8() & 0x3) == 0) {
+				stress_slab_shrink();
 				stress_pagein_all_procs();
+			}
 			if ((stress_mwc8() & 0x7) == 0)
 				stress_drop_caches();
 			stress_compact_memory();
