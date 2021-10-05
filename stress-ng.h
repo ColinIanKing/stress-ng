@@ -600,6 +600,10 @@
 #include <linux/posix_types.h>
 #endif
 
+#if defined(HAVE_LINUX_PPDEV_H)
+#include <linux/ppdev.h>
+#endif
+
 #if defined(HAVE_LINUX_RANDOM_H)
 #include <linux/random.h>
 #endif

@@ -51,13 +51,14 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
+static shim_pthread_spinlock_t parport_lock;
 static char *dev_path;
 static uint32_t mixup;
 
 typedef struct stress_dev_func {
 	const char *devpath;
 	const size_t devpath_len;
-	void (*func)(const char *name, const int fd, const char *devpath);
+	void (*func)(const stress_args_t *args, const int fd, const char *devpath);
 } stress_dev_func_t;
 
 static stress_hash_table_t *dev_open_fail, *dev_open_ok, *dev_scsi;
@@ -193,11 +194,11 @@ done:
     defined(HAVE_LINUX_MEDIA_H) && 	\
     defined(MEDIA_IOC_DEVICE_INFO)
 static void stress_dev_media_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 
@@ -213,13 +214,13 @@ static void stress_dev_media_linux(
 
 		if (!mdi.driver[0])
 			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO %s: null driver name\n",
-				name, devpath);
+				args->name, devpath);
 		if (!mdi.model[0])
 			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO %s: null model name\n",
-				name, devpath);
+				args->name, devpath);
 		if (!mdi.bus_info[0])
 			pr_inf("%s: ioctl MEDIA_IOC_DEVICE_INFO %s: null bus_info field\n",
-				name, devpath);
+				args->name, devpath);
 	}
 #endif
 }
@@ -227,11 +228,11 @@ static void stress_dev_media_linux(
 
 #if defined(HAVE_LINUX_VT_H)
 static void stress_dev_vcs_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 
@@ -260,11 +261,11 @@ static void stress_dev_vcs_linux(
 
 #if defined(HAVE_LINUX_DM_IOCTL_H)
 static void stress_dev_dm_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 
@@ -293,11 +294,11 @@ static void stress_dev_dm_linux(
 
 #if defined(HAVE_LINUX_VIDEODEV2_H)
 static void stress_dev_video_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 
@@ -432,14 +433,14 @@ static void stress_dev_video_linux(
     defined(TCGETS) &&		\
     defined(HAVE_TERMIOS)
 static void stress_dev_tty(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
 	int ret;
 	struct termios t;
 
-	(void)name;
+	(void)args;
 	(void)devpath;
 
 	if (!isatty(fd))
@@ -770,13 +771,13 @@ static void stress_dev_tty(
  *	block device specific ioctls
  */
 static void stress_dev_blk(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
 	off_t offset;
 
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 
@@ -1026,11 +1027,11 @@ static inline bool is_scsi_dev(const char *devpath)
  *	SCSI block device specific ioctls
  */
 static void stress_dev_scsi_blk(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)fd;
 
 	if (!is_scsi_dev(devpath))
@@ -1098,11 +1099,11 @@ static void stress_dev_scsi_blk(
  *	Linux /dev/random ioctls
  */
 static void stress_dev_random_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 
@@ -1199,11 +1200,11 @@ static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
 }
 
 static void stress_dev_mem_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)devpath;
 
 	stress_dev_mem_mmap_linux(fd, true);
@@ -1212,11 +1213,11 @@ static void stress_dev_mem_linux(
 
 #if defined(__linux__)
 static void stress_dev_kmem_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)devpath;
 
 	stress_dev_mem_mmap_linux(fd, false);
@@ -1377,11 +1378,11 @@ static void stress_cdrom_ioctl_msf(const int fd)
 
 #if defined(__linux__)
 static void stress_dev_cdrom_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 
@@ -1812,11 +1813,11 @@ static void stress_dev_cdrom_linux(
 
 #if defined(__linux__)
 static void stress_dev_console_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 
@@ -2238,11 +2239,11 @@ static void stress_dev_console_linux(
 
 #if defined(__linux__)
 static void stress_dev_kmsg_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)devpath;
 
 	stress_dev_mem_mmap_linux(fd, true);
@@ -2251,11 +2252,11 @@ static void stress_dev_kmsg_linux(
 
 #if defined(__linux__)
 static void stress_dev_nvram_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)devpath;
 
 	stress_dev_mem_mmap_linux(fd, true);
@@ -2264,11 +2265,11 @@ static void stress_dev_nvram_linux(
 
 #if defined(HAVE_LINUX_HPET_H)
 static void stress_dev_hpet_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 
@@ -2328,7 +2329,7 @@ static void stress_dev_hpet_linux(
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_X86)
 static void stress_dev_port_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -2336,7 +2337,7 @@ static void stress_dev_port_linux(
 	uint8_t *ptr;
 	const size_t page_size = stress_get_pagesize();
 
-	(void)name;
+	(void)args;
 	(void)devpath;
 
 	/* seek and read port 0x80 */
@@ -2371,11 +2372,11 @@ static void stress_dev_hd_linux_ioctl_long(int fd, unsigned long cmd)
  *	Linux HDIO ioctls
  */
 static void stress_dev_hd_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)devpath;
 
 #if defined(HDIO_GETGEO)
@@ -2450,11 +2451,11 @@ static void stress_dev_hd_linux(
 #endif
 
 static void stress_dev_null_nop(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 }
@@ -2464,7 +2465,7 @@ static void stress_dev_null_nop(
  *	minor exercising of the PTP device
  */
 static void stress_dev_ptp_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -2474,7 +2475,7 @@ static void stress_dev_ptp_linux(
 	int ret;
 	struct ptp_clock_caps caps;
 
-	(void)name;
+	(void)args;
 	(void)devpath;
 
 	errno = 0;
@@ -2492,7 +2493,7 @@ static void stress_dev_ptp_linux(
 		}
 	}
 #else
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 #endif
@@ -2504,12 +2505,11 @@ static void stress_dev_ptp_linux(
  *	minor exercising of the floppy device
  */
 static void stress_dev_fd_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 
@@ -2605,11 +2605,11 @@ static void stress_dev_fd_linux(
  * 	exercise Linux sound devices
  */
 static void stress_dev_snd_control_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
-	(void)name;
+	(void)args;
 	(void)fd;
 	(void)devpath;
 
@@ -2676,7 +2676,7 @@ static void stress_dev_snd_control_linux(
  *   	Exercise Linux Hardware Random Number Generator
  */
 static void stress_dev_hwrng_linux(
-	const char *name,
+	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
 {
@@ -2684,7 +2684,7 @@ static void stress_dev_hwrng_linux(
 	off_t offset = (off_t)0;
 	char buffer[8];
 
-	(void)name;
+	(void)args;
 	(void)devpath;
 
 	offset = lseek(fd, offset, SEEK_SET);
@@ -2694,6 +2694,173 @@ static void stress_dev_hwrng_linux(
 	(void)ret;
 }
 #endif
+
+#if defined(__linux__)
+
+#if !defined(PPGETTIME32)
+#define PPGETTIME32     _IOR(PP_IOCTL, 0x95, int32_t[2])
+#endif
+#if !defined(PPGETTIME64)
+#define PPGETTIME64     _IOR(PP_IOCTL, 0x95, int64_t[2])
+#endif
+
+/*
+ *   stress_dev_parport_linux()
+ *   	Exercise Linux parallel port
+ */
+static void stress_dev_parport_linux(
+	const stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+#if defined(PPCLAIM) && 	\
+    defined(PPRELEASE)
+	bool claimed = false;
+#endif
+
+	(void)args;
+	(void)fd;
+	(void)devpath;
+
+	/*
+	 *  We don't do a PPCLAIM or PPRELEASE on all
+	 *  the stressor instances since this the claim
+	 *  can indefinitely block and this stops the
+	 *  progress of the stressor. Just do this for
+	 *  instance 0. For other instances we run
+	 *  run without claiming and this will cause
+	 *  some of the ioctls to fail.
+	 */
+#if defined(PPCLAIM) &&	\
+    defined(PPRELEASE)
+	if (args->instance == 0) {
+		int ret;
+
+		ret = shim_pthread_spin_lock(&parport_lock);
+		if (ret == 0) {
+			ret = ioctl(fd, PPCLAIM);
+			if (ret == 0)
+				claimed = true;
+		}
+	}
+#endif
+
+#if defined(PPGETMODE)
+	{
+		int ret, mode;
+
+		ret = ioctl(fd, PPGETMODE, &mode);
+#if defined(PPSETMODE)
+		errno = 0;
+		if (ret == 0)
+			ret = ioctl(fd, PPSETMODE, &mode);
+#endif
+		(void)ret;
+	}
+#endif
+
+#if defined(PPGETPHASE)
+	{
+		int ret, phase;
+
+		ret = ioctl(fd, PPGETPHASE, &phase);
+#if defined(PPSETPHASE)
+		errno = 0;
+		if (ret == 0)
+			ret = ioctl(fd, PPSETPHASE, &phase);
+#endif
+		(void)ret;
+	}
+#endif
+
+#if defined(PPGETMODES)
+	{
+		int ret, modes;
+
+		ret = ioctl(fd, PPGETMODES, &modes);
+		(void)ret;
+	}
+#endif
+
+#if defined(PPGETFLAGS)
+	{
+		int ret, uflags;
+
+		ret = ioctl(fd, PPGETFLAGS, &uflags);
+#if defined(PPSETFLAGS)
+		errno = 0;
+		if (ret == 0)
+			ret = ioctl(fd, PPSETFLAGS, &uflags);
+#endif
+		(void)ret;
+	}
+#endif
+
+#if defined(PPRSTATUS)
+	{
+		int ret;
+		char reg;
+
+		ret = ioctl(fd, PPRSTATUS, &reg);
+		(void)ret;
+	}
+#endif
+
+#if defined(PPRCONTROL)
+	{
+		int ret;
+		char reg;
+
+		ret = ioctl(fd, PPRCONTROL, &reg);
+		(void)ret;
+	}
+#endif
+
+#if defined(PPGETTIME32)
+	{
+		int ret;
+		int32_t time32[2];
+
+		ret = ioctl(fd, PPGETTIME32, time32);
+		(void)ret;
+	}
+#endif
+
+#if defined(PPGETTIME64)
+	{
+		int ret;
+		int64_t time64[2];
+
+		ret = ioctl(fd, PPGETTIME64, time64);
+		(void)ret;
+	}
+#endif
+
+#if defined(PPYIELD)
+	{
+		int ret;
+
+		ret = ioctl(fd, PPYIELD);
+		(void)ret;
+	}
+#endif
+
+
+#if defined(PPCLAIM) &&	\
+    defined(PPRELEASE)
+	if ((args->instance == 0) && claimed) {
+		int ret;
+
+		ret = ioctl(fd, PPRELEASE);
+		if (ret == 0)
+			claimed = true;
+		ret = shim_pthread_spin_unlock(&parport_lock);
+		(void)ret;
+	}
+#endif
+}
+#endif
+
 
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
@@ -2741,6 +2908,9 @@ static const stress_dev_func_t dev_funcs[] = {
 #endif
 #if defined(__linux__)
 	DEV_FUNC("/dev/hwrng",	stress_dev_hwrng_linux),
+#endif
+#if defined(__linux__)
+	DEV_FUNC("/dev/parport",stress_dev_parport_linux),
 #endif
 };
 
@@ -2911,10 +3081,10 @@ static inline void stress_dev_rw(
 		}
 
 		if (S_ISBLK(buf.st_mode)) {
-			stress_dev_blk(args->name, fd, path);
-			stress_dev_scsi_blk(args->name, fd, path);
+			stress_dev_blk(args, fd, path);
+			stress_dev_scsi_blk(args, fd, path);
 #if defined(HAVE_LINUX_HDREG_H)
-			stress_dev_hd_linux(args->name, fd, path);
+			stress_dev_hd_linux(args, fd, path);
 #endif
 		}
 #if defined(HAVE_TERMIOS_H) &&	\
@@ -2924,7 +3094,7 @@ static inline void stress_dev_rw(
 		    strncmp("/dev/vsock", path, 10) &&
 		    strncmp("/dev/dri", path, 8) &&
 		    (ioctl(fd, TCGETS, &tios) == 0))
-			stress_dev_tty(args->name, fd, path);
+			stress_dev_tty(args, fd, path);
 #endif
 
 		offset = lseek(fd, 0, SEEK_SET);
@@ -3033,7 +3203,7 @@ static inline void stress_dev_rw(
 
 		for (i = 0; i < SIZEOF_ARRAY(dev_funcs); i++) {
 			if (!strncmp(path, dev_funcs[i].devpath, dev_funcs[i].devpath_len))
-				dev_funcs[i].func(args->name, fd, path);
+				dev_funcs[i].func(args, fd, path);
 		}
 		stress_dev_close_unlock(path, fd);
 		if (stress_time_now() - t_start > threshold) {
@@ -3355,6 +3525,12 @@ again:
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 			rc = shim_pthread_spin_init(&lock, SHIM_PTHREAD_PROCESS_SHARED);
+			if (rc) {
+				pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
+					args->name, rc, strerror(rc));
+				_exit(EXIT_NO_RESOURCE);
+			}
+			rc = shim_pthread_spin_init(&parport_lock, SHIM_PTHREAD_PROCESS_SHARED);
 			if (rc) {
 				pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
 					args->name, rc, strerror(rc));
