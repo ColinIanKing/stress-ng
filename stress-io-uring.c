@@ -546,6 +546,49 @@ static void stress_io_uring_madvise_setup(
 }
 #endif
 
+#if defined(HAVE_IORING_OP_STATX)
+/*
+ *  stress_io_uring_statx_setup()
+ *	setup statx submit over io_uring
+ */
+static void stress_io_uring_statx_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
+{
+	static const char *pathname = "";
+	struct shim_statx statxbuf;
+
+	sqe->opcode = IORING_OP_STATX;
+	sqe->fd = io_uring_file->fd;
+	sqe->addr = (uintptr_t)pathname;
+	sqe->addr2 = (uintptr_t)&statxbuf;
+	sqe->statx_flags = AT_EMPTY_PATH;
+	sqe->ioprio = 0;
+	sqe->buf_index = 0;
+	sqe->flags = 0;
+}
+#endif
+
+#if defined(HAVE_IORING_OP_SYNC_FILE_RANGE)
+/*
+ *  stress_io_uring_sync_file_range_setup()
+ *	setup sync_file_range submit over io_uring
+ */
+static void stress_io_uring_sync_file_range_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
+{
+	sqe->opcode = IORING_OP_SYNC_FILE_RANGE;
+	sqe->fd = io_uring_file->fd;
+	sqe->off = stress_mwc16() & ~511UL;
+	sqe->len = stress_mwc32() & ~511UL;
+	sqe->flags = 0;
+	sqe->addr = 0;
+	sqe->ioprio = 0;
+	sqe->buf_index = 0;
+}
+#endif
+
 static const stress_io_uring_setup stress_io_uring_setups[] = {
 #if defined(HAVE_IORING_OP_READV)
 	stress_io_uring_readv_setup,
@@ -576,6 +619,12 @@ static const stress_io_uring_setup stress_io_uring_setups[] = {
 #endif
 #if defined(HAVE_IORING_OP_MADVISE)
 	stress_io_uring_madvise_setup,
+#endif
+#if defined(HAVE_IORING_OP_STATX)
+	stress_io_uring_statx_setup,
+#endif
+#if defined(HAVE_IORING_OP_SYNC_FILE_RANGE)
+	stress_io_uring_sync_file_range_setup,
 #endif
 };
 
