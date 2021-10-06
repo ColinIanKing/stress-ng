@@ -17,10 +17,6 @@
 .\" for manpage-specific macros, see man(7)
 .\"
 .\" left margin - right margin minus a fudge factor
-.nr SZ ((\n[.l] - \n[.i]) / 1n - 31)
-.nr SM ((\n[.l] - \n[.i]) / 1n - 41)
-.nr SV ((\n[.l] - \n[.i]) / 1n - 38)
-.nr SQ ((\n[.l] - \n[.i]) / 1n - 35)
 .SH NAME
 stress\-ng \- a tool to load and stress a computer system
 .sp 1
@@ -130,8 +126,8 @@ or the \-\-temp\-path specified path. Currently a Linux only option.
 The fields output are:
 .TS
 expand;
-lB lBw(\n[SZ]n)
-l l.
+lB lB lB
+l l s.
 Column Heading	Explanation
 T{
 Inflight
@@ -247,8 +243,8 @@ load.
 The following columns of information are output:
 .TS
 expand;
-lB lBw(\n[SM]n)
-l l.
+lB lB lB
+l l s.
 Column Heading	Explanation
 T{
 bogo ops
@@ -902,8 +898,8 @@ sequentially, however one can specify just one method to be used if required.
 Available cpu stress methods are described as follows:
 .TS
 expand;
-lB2 lBw(\n[SZ]n)
-l l.
+lB2 lB lB
+l l s.
 Method	Description
 all	T{
 iterate over all the below cpu stress methods
@@ -1281,8 +1277,8 @@ specify the cyclic method to be used, the default is clock_ns. The available
 cyclic methods are as follows:
 .TS
 expand;
-lB2 lBw(\n[SZ]n)
-l l.
+lB2 lB lB
+l l s.
 Method	Description
 clock_ns	T{
 sleep for the specified time using the clock_nanosleep(2) high
@@ -1633,8 +1629,8 @@ stop filename workers after N bogo filename tests.
 use characters in the filename based on option 'opt'. Valid options are:
 .TS
 expand;
-lB lBw(\n[SZ]n)
-l l.
+lB lB lB lB
+l l s s.
 Option	Description
 probe	T{
 default option, probe the file system for valid allowed characters in a file name
@@ -1802,8 +1798,8 @@ specify various stress test options as a comma separated list. Options are as
 follows:
 .TS
 expand;
-lB lBw(\n[SZ]n)
-l l.
+lB lB lB lB
+l l s s.
 Option	Description
 direct	T{
 try to minimize cache effects of the I/O. File I/O writes are performed
@@ -2329,8 +2325,8 @@ specify a matrix stress method. Available matrix stress methods are described
 as follows:
 .TS
 expand;
-lB2 lBw(\n[SZ]n)
-l l.
+lB2 lB lB lB
+l l s s.
 Method	Description
 all	T{
 iterate over all the below matrix stress methods
@@ -2407,8 +2403,8 @@ specify a 3D matrix stress method. Available 3D matrix stress methods are descri
 as follows:
 .TS
 expand;
-lB2 lBw(\n[SZ]n)
-l l.
+lB2 lB lB lB
+l l s s.
 Method	Description
 all	T{
 iterate over all the below matrix stress methods
@@ -2490,8 +2486,8 @@ specify a memcpy copying method. Available memcpy methods are described
 as follows:
 .TS
 expand;
-lB2 lBw(\n[SZ]n)
-l l.
+lB2 lB lB lB
+l l s s.
 Method	Description
 all	T{
 use libc, builtin and naive methods
@@ -2578,8 +2574,8 @@ specify a memthrash stress method. Available memthrash stress methods are descri
 as follows:
 .TS
 expand;
-lB2 lBw(\n[SZ]n)
-l l.
+lB2 lB lB lB
+l l s s.
 Method	Description
 all	T{
 iterate over all the below memthrash methods
@@ -2677,8 +2673,8 @@ to 65536 x 128 bit reads or writes.
 Available misaligned stress methods are described as follows:
 .TS
 expand;
-lBw(10n)2 lBw(\n[SZ]n)
-l l.
+lB2 lB lB lB
+l l s s.
 Method	Description
 all	iterate over all the following misaligned methods
 int16rd	8 x 16 bit integer reads
@@ -3012,8 +3008,8 @@ generate the executable code. This option allows one to select one of the
 three methods:
 .TS
 expand;
-lBw(8n) lBw(\n[SV]n)
-l l.
+lBw(8n) lB lB
+l l s.
 Method	Description
 inc	T{
 use incrementing 32 bit opcode patterns from 0x00000000 to 0xfffffff inclusive.
@@ -3268,8 +3264,8 @@ stop the rawdev stress workers after N raw device read bogo operations.
 Available rawdev stress methods are described as follows:
 .TS
 expand;
-lBw(10n)2 lBw(\n[SZ]n)
-l l.
+lB2 lB lB lB
+l l s s.
 Method	Description
 all	T{
 iterate over all the rawdev stress methods as listed below:
@@ -3932,8 +3928,8 @@ least 4 times the size of the CPU L2 cache and continually performs rounds of
 following computations on large arrays of double precision floating point numbers:
 .TS
 expand;
-lB2 lBw(\n[SQ]n)
-l l.
+lB2 lB lB
+l l s.
 Operation	Description
 copy	T{
 c[i] = a[i]
@@ -4402,8 +4398,8 @@ memory issues and to try to force thermal errors.
 Available vm stress methods are described as follows:
 .TS
 expand;
-lBw(10n)2 lBw(\n[SV]n)
-l l.
+lB2 lB lB lB
+l l s s.
 Method	Description
 all	T{
 iterate over all the vm stress methods as listed below.
@@ -4557,8 +4553,8 @@ sequentially, however one can specify just one method to be used if required.
 Available vm address stress methods are described as follows:
 .TS
 expand;
-lBw(10n)2 lBw(\n[SV]n)
-l l.
+lB2 lB lB lB
+l l s s.
 Method	Description
 all	T{
 iterate over all the vm stress methods as listed below.
@@ -4724,8 +4720,8 @@ generation processes.  However one can specify just one method to be used if req
 Available zlib data generation methods are described as follows:
 .TS
 expand;
-lB2 lBw(\n[SZ]n)
-l l.
+lB2 lB lB lB
+l l s s.
 Method	Description
 00ff	T{
 randomly distributed 0x00 and 0xFF values.
