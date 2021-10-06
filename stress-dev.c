@@ -1093,6 +1093,138 @@ static void stress_dev_scsi_blk(
 #endif
 }
 
+/*
+ *  stress_dev_scsi_generic_linux()
+ *	SCSI generic device specific ioctls for linux
+ */
+static void stress_dev_scsi_generic_linux(
+	const stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	(void)args;
+	(void)fd;
+	(void)devpath;
+
+#if defined(SG_GET_VERSION_NUM)
+	{
+		int ret, version = 0;
+
+		ret = ioctl(fd, SG_GET_VERSION_NUM, &version);
+		(void)ret;
+	}
+#endif
+#if defined(SG_GET_TIMEOUT)
+	{
+		int ret;
+
+		ret = ioctl(fd, SG_GET_TIMEOUT, 0);
+		(void)ret;
+	}
+#endif
+#if defined(SG_GET_LOW_DMA)
+	{
+		int ret, low;
+
+		ret = ioctl(fd, SG_GET_LOW_DMA, &low);
+		(void)ret;
+	}
+#endif
+#if defined(SG_GET_PACK_ID)
+	{
+		int ret, pack_id;
+
+		ret = ioctl(fd, SG_GET_PACK_ID, &pack_id);
+		(void)ret;
+	}
+#endif
+#if defined(SG_GET_NUM_WAITING)
+	{
+		int ret, n;
+
+		ret = ioctl(fd, SG_GET_NUM_WAITING, &n);
+		(void)ret;
+	}
+#endif
+#if defined(SG_GET_SG_TABLESIZE)
+	{
+		int ret, size;
+
+		ret = ioctl(fd, SG_GET_SG_TABLESIZE, &size);
+		(void)ret;
+	}
+#endif
+#if defined(SG_GET_RESERVED_SIZE)
+	{
+		int ret, size;
+
+		ret = ioctl(fd, SG_GET_RESERVED_SIZE, &size);
+		(void)ret;
+	}
+#endif
+#if defined(SG_GET_COMMAND_Q)
+	{
+		int ret, cmd_q;
+
+		ret = ioctl(fd, SG_GET_COMMAND_Q, &cmd_q);
+		(void)ret;
+	}
+#endif
+#if defined(SG_GET_ACCESS_COUNT)
+	{
+		int ret, n;
+
+		ret = ioctl(fd, SG_GET_ACCESS_COUNT, &n);
+		(void)ret;
+	}
+#endif
+#if defined(SCSI_IOCTL_GET_IDLUN)
+	{
+		int ret;
+		struct shim_scsi_idlun {
+			int four_in_one;
+			int host_unique_id;
+		} idlun;
+
+		ret = ioctl(fd, SCSI_IOCTL_GET_IDLUN, &idlun);
+		(void)ret;
+	}
+#endif
+#if defined(SCSI_IOCTL_GET_BUS_NUMBER)
+	{
+		int ret, bus;
+
+		ret = ioctl(fd, SCSI_IOCTL_GET_BUS_NUMBER, &bus);
+		(void)ret;
+	}
+#endif
+#if defined(SCSI_GET_TRANSFORM)
+	{
+		int ret, bus;
+
+		ret = ioctl(fd, SCSI_GET_TRANSFORM, 0);
+		(void)ret;
+	}
+#endif
+#if defined(SG_EMULATED_HOST)
+	{
+		int ret, emulated;
+
+		ret = ioctl(fd, SG_EMULATED_HOST, &emulated);
+		pr_inf("EMU: %d\n", emulated);
+		(void)ret;
+	}
+#endif
+#if defined(BLKSECTGET)
+	{
+		int ret, n;
+
+		ret = ioctl(fd, BLKSECTGET, &n);
+		(void)ret;
+	}
+#endif
+}
+
 #if defined(HAVE_LINUX_RANDOM_H)
 /*
  *  stress_dev_random_linux()
@@ -2889,8 +3021,9 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/kmsg",	stress_dev_kmsg_linux),
 	DEV_FUNC("/dev/nvram",	stress_dev_nvram_linux),
 	DEV_FUNC("/dev/cdrom",  stress_dev_cdrom_linux),
-	DEV_FUNC("/dev/sr0",  stress_dev_cdrom_linux),
-	DEV_FUNC("/dev/console",  stress_dev_console_linux),
+	DEV_FUNC("/dev/sg",	stress_dev_scsi_generic_linux),
+	DEV_FUNC("/dev/sr0",    stress_dev_cdrom_linux),
+	DEV_FUNC("/dev/console",stress_dev_console_linux),
 #endif
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_X86)
