@@ -186,7 +186,7 @@ static int stress_setup_io_uring(
 				args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
-		pr_err("%s: io_uring_setup failed: errno=%d (%s)\n",
+		pr_err("%s: io_uring_setup failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -284,7 +284,8 @@ static void stress_close_io_uring(stress_io_uring_submit_t *submit)
 static inline int stress_io_uring_complete(
 	const stress_args_t *args,
 	stress_io_uring_submit_t *submit,
-	const uint8_t opcode)
+	const uint8_t opcode,
+	bool *supported)
 {
 	stress_uring_io_cq_ring_t *cring = &submit->cq_ring;
 	struct io_uring_cqe *cqe;
@@ -302,11 +303,16 @@ static inline int stress_io_uring_complete(
 		if ((cqe->res < 0) && (opcode != IORING_OP_FALLOCATE)) {
 			const int err = abs(cqe->res);
 
-			pr_err("%s: completion uring io error, opcode=%d (%s): %d (%s)\n",
-				args->name, opcode,
-				stress_io_uring_opcode_name(opcode),
-				err, strerror(err));
-			ret = EXIT_FAILURE;
+			/* Silently ignore EOPNOTSUPP completion errors */
+			if (errno == EOPNOTSUPP) {
+				*supported = false;
+			} else  {
+				pr_err("%s: completion opcode=%d (%s), error=%d (%s)\n",
+					args->name, opcode,
+					stress_io_uring_opcode_name(opcode),
+					err, strerror(err));
+				ret = EXIT_FAILURE;
+			}
 		}
 		head++;
 	}
@@ -327,7 +333,8 @@ static int stress_io_uring_submit(
 	const stress_args_t *args,
 	stress_io_uring_setup setup_func,
 	stress_io_uring_file_t *io_uring_file,
-	stress_io_uring_submit_t *submit)
+	stress_io_uring_submit_t *submit,
+	bool *supported)
 {
 	stress_uring_io_sq_ring_t *sring = &submit->sq_ring;
 	unsigned index = 0, tail = 0, next_tail = 0;
@@ -362,10 +369,12 @@ static int stress_io_uring_submit(
 			args->name, opcode,
 			stress_io_uring_opcode_name(opcode),
 			errno, strerror(errno));
+		if (errno == EOPNOTSUPP)
+			*supported = false;
 		return EXIT_FAILURE;
 	}
 
-	return stress_io_uring_complete(args, submit, opcode);
+	return stress_io_uring_complete(args, submit, opcode, supported);
 }
 
 #if defined(HAVE_IORING_OP_READV)
@@ -677,12 +686,13 @@ static int stress_io_uring(const stress_args_t *args)
 	int ret, rc;
 	char filename[PATH_MAX];
 	stress_io_uring_file_t io_uring_file;
-	size_t i;
+	size_t i, j;
 	const size_t blocks = 1024;
 	const size_t block_size = 512;
 	off_t file_size = (off_t)blocks * block_size;
 	stress_io_uring_submit_t submit;
 	const pid_t self = getpid();
+	bool supported[SIZEOF_ARRAY(stress_io_uring_setups)];
 
 	(void)memset(&submit, 0, sizeof(submit));
 	(void)memset(&io_uring_file, 0, sizeof(io_uring_file));
@@ -740,27 +750,28 @@ static int stress_io_uring(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	/*
+	 *  Assume all opcodes are supported
+	 */
+	for (j = 0; j < SIZEOF_ARRAY(stress_io_uring_setups); j++) {
+		supported[i] = true;
+	}
+
 	rc = EXIT_SUCCESS;
 	i = 0;
 	do {
-		size_t j;
-
 		for (j = 0; j < SIZEOF_ARRAY(stress_io_uring_setups); j++) {
-			rc = stress_io_uring_submit(args, stress_io_uring_setups[j].setup_func, &io_uring_file, &submit);
-			if ((rc != EXIT_SUCCESS) || !keep_stressing(args))
-				break;
+			if (supported[j]) {
+				rc = stress_io_uring_submit(args,
+					stress_io_uring_setups[j].setup_func,
+					&io_uring_file, &submit, &supported[j]);
+				if ((rc != EXIT_SUCCESS) || !keep_stressing(args))
+					break;
+			}
 		}
 
-		/*
-		 *  occasional sync and fdinfo reads
-		 */
 		if (i++ > 1024) {
 			i = 0;
-#if defined(HAVE_IORING_OP_FSYNC)
-			rc = stress_io_uring_submit(args, stress_io_uring_fsync_setup, &io_uring_file, &submit);
-			if ((rc != EXIT_SUCCESS) || !keep_stressing(args))
-				break;
-#endif
 			(void)stress_read_fdinfo(self, submit.io_uring_fd);
 		}
 	} while (keep_stressing(args));
