@@ -221,13 +221,16 @@ static int stress_fpunch(const stress_args_t *args)
 	 */
 	offset = punch_length;
 	n = 0;
-	for (i = 0; i < punch_length / stride; i++) {
+	for (i = 0; keep_stressing(args) && (i < punch_length / stride); i++) {
 		ssize_t r;
 
 		offset -= stride;
 		r = stress_punch_pwrite(fd, buf_before, sizeof(buf_before), offset);
 		n += (r > 0) ? r : 0;
 	}
+
+	if (!keep_stressing(args))
+		goto tidy;
 
 	/* Zero sized file is a bit concerning, so abort */
 	if (n == 0) {
@@ -266,6 +269,7 @@ static int stress_fpunch(const stress_args_t *args)
 		pr_inf("%s: punched file had %zd extents\n", args->name, extents);
 
 tidy:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (fd != -1)
 		(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
