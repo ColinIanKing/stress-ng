@@ -40,9 +40,18 @@ static const stress_help_t help[] = {
     defined(HAVE_POSIX_MEMALIGN) &&	\
     (defined(HAVE_IORING_OP_WRITEV) ||	\
      defined(HAVE_IORING_OP_READV) ||	\
+     defined(HAVE_IORING_OP_WRITE) || 	\
+     defined(HAVE_IORING_OP_READ) || 	\
      defined(HAVE_IORING_OP_FSYNC) ||	\
      defined(HAVE_IORING_OP_NOP) ||	\
-     defined(HAVE_IORING_FALLOCATE))
+     defined(HAVE_IORING_OP_FALLOCATE) || \
+     defined(HAVE_IORING_OP_FADVISE) ||	\
+     defined(HAVE_IORING_OP_CLOSE) ||	\
+     defined(HAVE_IORING_OP_MADVISE) ||	\
+     defined(HAVE_IORING_OP_STATX) || 	\
+     defined(HAVE_IORING_OP_SYNC_FILE_RANGE))
+
+
 
 /*
  *  io uring file info
@@ -95,6 +104,17 @@ typedef struct {
 } stress_io_uring_submit_t;
 
 typedef void (*stress_io_uring_setup)(stress_io_uring_file_t *io_uring_file, struct io_uring_sqe *sqe);
+
+/*
+ *  opcode to human readable name lookup
+ */
+typedef struct {
+	const uint8_t opcode;			/* opcode */
+	const char *name;			/* stringified opcode name */
+	const stress_io_uring_setup setup_func;	/* setup function */
+} stress_io_uring_setup_info_t;
+
+static const char *stress_io_uring_opcode_name(const uint8_t opcode);
 
 /*
  *  shim_io_uring_setup
@@ -282,8 +302,10 @@ static inline int stress_io_uring_complete(
 		if ((cqe->res < 0) && (opcode != IORING_OP_FALLOCATE)) {
 			const int err = abs(cqe->res);
 
-			pr_err("%s: completion uring io error, opcode=%d: %d (%s)\n",
-				args->name, opcode, err, strerror(err));
+			pr_err("%s: completion uring io error, opcode=%d (%s): %d (%s)\n",
+				args->name, opcode,
+				stress_io_uring_opcode_name(opcode),
+				err, strerror(err));
 			ret = EXIT_FAILURE;
 		}
 		head++;
@@ -336,8 +358,10 @@ static int stress_io_uring_submit(
 		/* Silently ignore ENOSPC failures */
 		if (errno == ENOSPC)	
 			return EXIT_SUCCESS;
-		pr_fail("%s: io_uring_enter failed, opcode=%d, errno=%d (%s)\n",
-			args->name, opcode, errno, strerror(errno));
+		pr_fail("%s: io_uring_enter failed, opcode=%d (%s), errno=%d (%s)\n",
+			args->name, opcode,
+			stress_io_uring_opcode_name(opcode),
+			errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 
@@ -589,44 +613,60 @@ static void stress_io_uring_sync_file_range_setup(
 }
 #endif
 
-static const stress_io_uring_setup stress_io_uring_setups[] = {
+static const stress_io_uring_setup_info_t stress_io_uring_setups[] = {
 #if defined(HAVE_IORING_OP_READV)
-	stress_io_uring_readv_setup,
+	{ IORING_OP_READV,	"IORING_OP_READV", 	stress_io_uring_readv_setup },
 #endif
 #if defined(HAVE_IORING_OP_WRITEV)
-	stress_io_uring_writev_setup,
+	{ IORING_OP_WRITEV,	"IORING_OP_WRITEV",	stress_io_uring_writev_setup },
 #endif
 #if defined(HAVE_IORING_OP_READ)
-	stress_io_uring_read_setup,
+	{ IORING_OP_READ,	"IORING_OP_READ",	stress_io_uring_read_setup },
 #endif
 #if defined(HAVE_IORING_OP_WRITE)
-	stress_io_uring_write_setup,
+	{ IORING_OP_WRITE,	"IORING_OP_WRITE",	stress_io_uring_write_setup },
 #endif
 #if defined(HAVE_IORING_OP_FSYNC)
-	stress_io_uring_fsync_setup,
+	{ IORING_OP_FSYNC,	"IORING_OP_FSYNC",	stress_io_uring_fsync_setup },
 #endif
 #if defined(HAVE_IORING_OP_NOP)
-	stress_io_uring_nop_setup,
+	{ IORING_OP_NOP,	"IORING_OP_NOP",	stress_io_uring_nop_setup },
 #endif
 #if defined(HAVE_IORING_OP_FALLOCATE)
-	stress_io_uring_fallocate_setup,
+	{ IORING_OP_FALLOCATE,	"IORING_OP_FALLOCATE",	stress_io_uring_fallocate_setup },
 #endif
 #if defined(HAVE_IORING_OP_FADVISE)
-	stress_io_uring_fadvise_setup,
+	{ IORING_OP_FADVISE,	"IORING_OP_FADVISE",	stress_io_uring_fadvise_setup },
 #endif
 #if defined(HAVE_IORING_OP_CLOSE)
-	stress_io_uring_close_setup,
+	{ IORING_OP_CLOSE,	"IORING_OP_CLOSE",	stress_io_uring_close_setup },
 #endif
 #if defined(HAVE_IORING_OP_MADVISE)
-	stress_io_uring_madvise_setup,
+	{ IORING_OP_MADVISE,	"IORING_OP_MADVISE",	stress_io_uring_madvise_setup },
 #endif
 #if defined(HAVE_IORING_OP_STATX)
-	stress_io_uring_statx_setup,
+	{ IORING_OP_STATX,	"IORING_OP_STATX",	stress_io_uring_statx_setup },
 #endif
 #if defined(HAVE_IORING_OP_SYNC_FILE_RANGE)
-	stress_io_uring_sync_file_range_setup,
+	{ IORING_OP_SYNC_FILE_RANGE, "IORING_OP_SYNC_FILE_RANGE", stress_io_uring_sync_file_range_setup },
 #endif
 };
+
+/*
+ *  stress_io_uring_opcode_name()
+ *	lookup opcode -> name
+ */
+static const char *stress_io_uring_opcode_name(const uint8_t opcode)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_io_uring_setups); i++) {
+		if (stress_io_uring_setups[i].opcode == opcode)
+			return stress_io_uring_setups[i].name;
+	}
+	return "unknown";
+}
+
 
 /*
  *  stress_io_uring
@@ -706,7 +746,7 @@ static int stress_io_uring(const stress_args_t *args)
 		size_t j;
 
 		for (j = 0; j < SIZEOF_ARRAY(stress_io_uring_setups); j++) {
-			rc = stress_io_uring_submit(args, stress_io_uring_setups[j], &io_uring_file, &submit);
+			rc = stress_io_uring_submit(args, stress_io_uring_setups[j].setup_func, &io_uring_file, &submit);
 			if ((rc != EXIT_SUCCESS) || !keep_stressing(args))
 				break;
 		}
