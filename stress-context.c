@@ -54,7 +54,8 @@ typedef struct {
 
 static context_info_t context[3];
 static ucontext_t uctx_main;
-static uint64_t context_counter, stress_max_ops;
+static uint64_t context_counter;
+static uint64_t stress_max_ops;
 
 static void thread1(void)
 {
@@ -89,6 +90,8 @@ static int stress_context_init(
 	ucontext_t *uctx_link,
 	context_info_t *context_info)
 {
+	(void)memset(context_info, 0, sizeof(*context_info));
+
 	if (getcontext(&context_info->cu.uctx) < 0) {
 		pr_err("%s: getcontext failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -115,19 +118,9 @@ static int stress_context_init(
  */
 static int stress_context(const stress_args_t *args)
 {
-	uint8_t *stack_sig;
 	size_t i;
 
-	stack_sig = (uint8_t *)mmap(NULL, STRESS_SIGSTKSZ, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-	if (stack_sig == MAP_FAILED) {
-		pr_inf("%s: cannot allocate signal stack, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
-	}
-
-	if (stress_sigaltstack(stack_sig, STRESS_SIGSTKSZ) < 0)
-		return EXIT_FAILURE;
+	(void)memset(&uctx_main, 0, sizeof(uctx_main));
 
 	context_counter = 0;
 	stress_max_ops = args->max_ops * 1000;
@@ -162,7 +155,6 @@ static int stress_context(const stress_args_t *args)
 		}
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap((void *)stack_sig, STRESS_SIGSTKSZ);
 
 	return EXIT_SUCCESS;
 }
