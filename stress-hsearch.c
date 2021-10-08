@@ -135,10 +135,10 @@ free_all:
 	 * so for now, don't free them and just let it
 	 * leak, the exit() will clean up the heap for us
 	 */
-	/*
+#if defined(__linux__)
 	for (i = 0; i < max; i++)
 		free(keys[i]);
-	*/
+#endif
 	free(keys);
 free_hash:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
