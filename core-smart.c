@@ -278,9 +278,9 @@ static size_t stress_smart_data_diff_count(stress_smart_dev_t *dev)
 	begin = dev->data_begin;
 	end = dev->data_end;
 
-	if (!begin || !end)
+	if (!begin || !begin->count)
 		return 0;
-	if (!begin->count || !end->count)
+	if (!end || !end->count)
 		return 0;
 
 	for (n = 0, i = 0; i < begin->count; i++) {
