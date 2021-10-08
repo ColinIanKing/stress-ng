@@ -97,7 +97,7 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 			if (fgets(type, sizeof(type), fp) != NULL) {
 				type[strcspn(type, "\n")] = '\0';
 				tz_info->type = strdup(type);
-				tz_info->type_instance = stress_tz_type_instance(*tz_info_list, tz_info->type);
+				tz_info->type_instance = stress_tz_type_instance(*tz_info_list, type);
 			}
 			(void)fclose(fp);
 		}
