@@ -224,6 +224,7 @@ static int stress_aio(const stress_args_t *args)
 	char filename[PATH_MAX];
 	uint32_t total = 0, i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
 	double t1 = 0.0, t2 = 0.0, dt;
+	int redo;
 
 	if (!stress_get_setting("aio-requests", &opt_aio_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -340,6 +341,20 @@ cancel:
 		aio_issue_cancel(args->name, &io_reqs[i]);
 		total += io_reqs[i].count;
 	}
+	/* Short polled Wait for completion */
+	for (redo = 0; redo < 20; redo++) {
+		bool inprogress = false;
+
+		for (i = 0; i < opt_aio_requests; i++) {
+			ret = aio_error(&io_reqs[i].aiocb);
+			if (ret == EINPROGRESS)
+				inprogress = true;
+		}
+		if (!inprogress)
+			break;
+		(void)shim_usleep_interruptible(250000);
+	} while (redo);
+
 	(void)close(fd);
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
