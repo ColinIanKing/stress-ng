@@ -566,6 +566,7 @@ retry_open:
 				(void)ret;
 
 				/* Exercise with io_invalid iocb */
+				(void)memset(&bad_iocb, 0, sizeof(bad_iocb));
 				bad_iocb.aio_fildes = bad_fd;
 				bad_iocb.aio_lio_opcode = ~0;
 				bad_iocb.u.c.buf = NULL;
@@ -583,26 +584,31 @@ retry_open:
 				/* Exercise io_getevents with illegal context, EINVAL */
 				timeout.tv_sec = 0;
 				timeout.tv_nsec = 100000;
+				(void)memset(&events, 0, sizeof(events));
 				ret = shim_io_getevents(bad_ctx, 1, 1, events, &timeout);
 				(void)ret;
 
 				/* Exercise io_getevents with illegal min */
 				timeout.tv_sec = 0;
 				timeout.tv_nsec = 100000;
+				(void)memset(&events, 0, sizeof(events));
 				ret = shim_io_getevents(ctx, 1, 0, events, &timeout);
 				(void)ret;
+				(void)memset(&events, 0, sizeof(events));
 				ret = shim_io_getevents(ctx, -1, 0, events, &timeout);
 				(void)ret;
 
 				/* Exercise io_getevents with illegal nr */
 				timeout.tv_sec = 0;
 				timeout.tv_nsec = 100000;
+				(void)memset(&events, 0, sizeof(events));
 				ret = shim_io_getevents(ctx, 0, -1, events, &timeout);
 				(void)ret;
 
 				/* Exercise io_getevents with illegal timeout */
 				timeout.tv_sec = 0;
 				timeout.tv_nsec = ~0L;
+				(void)memset(&events, 0, sizeof(events));
 				ret = shim_io_getevents(ctx, 0, 1, events, &timeout);
 				(void)ret;
 
@@ -615,6 +621,7 @@ retry_open:
 					shim_io_destroy(bad_ctx);
 
 				/* Exercise io_submit with illegal context */
+				(void)memset(&bad_iocb, 0, sizeof(bad_iocb));
 				bad_iocb.aio_fildes = bad_fd;
 				bad_iocb.aio_lio_opcode = ~0;
 				bad_iocb.u.c.buf = NULL;
