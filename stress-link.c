@@ -58,9 +58,9 @@ static void stress_link_unlink(
 	(void)sync();
 }
 
-static inline int random_mount(const int mounts_max)
+static inline size_t random_mount(const int mounts_max)
 {
-	return (int)stress_mwc32() % mounts_max;
+	return (size_t)stress_mwc32() % mounts_max;
 }
 
 /*
@@ -77,6 +77,8 @@ static int stress_link_generic(
 	size_t oldpathlen;
 	bool symlink_func = (linkfunc == symlink);
 	char *mnts[MOUNTS_MAX];
+
+	memset(tmp_newpath, 0, sizeof(tmp_newpath));
 
 	(void)snprintf(tmp_newpath, sizeof(tmp_newpath),
 		"/tmp/stress-ng-%s-%d-%" PRIu64 "-link",
@@ -184,7 +186,7 @@ static int stress_link_generic(
 				/* Hard link, exercise illegal cross device link, EXDEV error */
 				if (mounts_max > 0) {
 					/* Try hard link on differet random mount point */
-					ret = linkfunc(mnts[random_mount(mounts_max)], tmp_newpath);
+					ret = linkfunc(mnts[random_mount((size_t)mounts_max)], tmp_newpath);
 					if (ret == 0)
 						(void)unlink(tmp_newpath);
 				}
