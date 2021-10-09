@@ -1971,6 +1971,87 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 }
 
 /*
+ *  stress_vm_popcount()
+ *	population count - count number of 1 bits in val (K & R method)
+ */
+static inline unsigned int OPTIMIZE3 stress_vm_popcount(register uint8_t val)
+{
+	register unsigned int count;
+
+	for (count = 0; val; count++)
+		val &= val - 1;
+
+	return count;
+}
+
+/*
+ *  stress_vm_mscan()
+ *	for each byte, walk through each bit set to 0, check, set to 1, check
+ */
+static size_t TARGET_CLONES stress_vm_mscan(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	const stress_args_t *args,
+	const uint64_t max_ops)
+{
+	size_t bit_errors = 0;
+	volatile uint8_t *ptr = (volatile uint8_t *)buf;
+	uint8_t *end;
+	uint64_t c = get_counter(args);
+
+	(void)sz;
+
+	for (ptr = (volatile uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, c++) {
+		*ptr |= 0x01;
+		*ptr |= 0x02;
+		*ptr |= 0x04;
+		*ptr |= 0x08;
+		*ptr |= 0x10;
+		*ptr |= 0x20;
+		*ptr |= 0x40;
+		*ptr |= 0x80;
+
+		if (UNLIKELY(!keep_stressing_flag() || (max_ops && (c >= max_ops))))
+			break;
+	}
+	end = (uint8_t *)ptr;
+
+	add_counter(args, c);
+
+	for (ptr = (volatile uint8_t *)buf; ptr < end; ptr++) {
+		bit_errors += 8 - stress_vm_popcount(*ptr);
+	}
+
+	for (ptr = (volatile uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++, c++) {
+		*ptr &= 0xfe;
+		*ptr &= 0xfd;
+		*ptr &= 0xfb;
+		*ptr &= 0xf7;
+		*ptr &= 0xef;
+		*ptr &= 0xdf;
+		*ptr &= 0xbf;
+		*ptr &= 0x7f;
+
+		if (UNLIKELY(!keep_stressing_flag() || (max_ops && (c >= max_ops))))
+			break;
+	}
+	end = (uint8_t *)ptr;
+
+	add_counter(args, c);
+
+	for (ptr = (volatile uint8_t *)buf; ptr < end; ptr++) {
+		bit_errors += stress_vm_popcount(*ptr);
+	}
+
+	stress_vm_check("mscan", bit_errors);
+	set_counter(args, c);
+
+	return bit_errors;
+}
+
+
+/*
  *  stress_vm_all()
  *	work through all vm stressors sequentially
  */
@@ -2008,6 +2089,7 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "swap",	stress_vm_swap },
 	{ "move-inv",	stress_vm_moving_inversion },
 	{ "modulo-x",	stress_vm_modulo_x },
+	{ "mscan",	stress_vm_mscan },
 	{ "prime-0",	stress_vm_prime_zero },
 	{ "prime-1",	stress_vm_prime_one },
 	{ "prime-gray-0",stress_vm_prime_gray_zero },
