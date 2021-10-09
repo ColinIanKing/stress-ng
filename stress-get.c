@@ -300,8 +300,10 @@ static int stress_get(const stress_args_t *args)
 		/*
 		 *  libc may detect a -ve gidsetsize argument and not call
 		 *  the system call. Override this by directly calling the
-		 *  system call if possible
+		 *  system call if possible. Memset gids to zero to keep
+		 *  valgrind happy.
 		 */
+		(void)memset(gids, 0, sizeof(gids));
 		ret = (int)syscall(__NR_getgroups, -1, gids);
 		(void)ret;
 #endif
@@ -449,7 +451,7 @@ static int stress_get(const stress_args_t *args)
 			 */
 			int name[] = { KERN_VERSION };
 			char kern_version[64];
-			size_t kern_version_len;
+			size_t kern_version_len = 0;
 			struct __sysctl_args sysctl_args;
 
 			(void)memset(&sysctl_args, 0, sizeof(sysctl_args));
