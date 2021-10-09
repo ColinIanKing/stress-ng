@@ -311,22 +311,25 @@ static void stress_dir_tidy(
 		return;
 
 	while (n--) {
-		if (namelist[n]->d_name[0] == '.')
+		if (namelist[n]->d_name[0] == '.') {
+			free(namelist[n]);
 			continue;
+		}
 
 		path[len] = '/';
 		path[len + 1] = namelist[n]->d_name[0];
 		path[len + 2] = '\0';
 
-		if (isdigit((int)namelist[n]->d_name[0]))
+		if (isdigit((int)namelist[n]->d_name[0])) {
+			free(namelist[n]);
 			stress_dir_tidy(args, path, len + 2, path_len);
-		else
+		} else {
+			free(namelist[n]);
 			(void)unlink(path);
-
-		free(namelist[n]);
+		}
 	}
 	path[len] = '\0';
-	stress_dirent_list_free(namelist, n);
+	free(namelist);
 
 	(void)rmdir(path);
 }
