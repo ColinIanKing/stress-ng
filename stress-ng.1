@@ -2089,8 +2089,9 @@ KEYCTL_INVALIDATE.
 stop key workers after N bogo key operations.
 .TP
 .B \-\-kill N
-start N workers sending SIGUSR1 kill signals to a SIG_IGN signal handler. Most
-of the process time will end up in kernel space.
+start N workers sending SIGUSR1 kill signals to a SIG_IGN signal handler
+in the stressor and SIGUSR1 kill signal to a child stressor with a SIGUSR1
+handler. Most of the process time will end up in kernel space.
 .TP
 .B \-\-kill\-ops N
 stop kill workers after N bogo kill operations.

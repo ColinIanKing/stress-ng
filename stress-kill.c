@@ -31,21 +31,44 @@ static const stress_help_t help[] = {
 };
 
 /*
+ *  stress_kill_handle_sigusr1()
+ *	handle SIGUSR1
+ */
+static void stress_kill_handle_sigusr1(int sig)
+{
+	(void)sig;
+}
+
+/*
  *  stress on sched_kill()
  *	stress system by rapid kills
  */
 static int stress_kill(const stress_args_t *args)
 {
 	uint64_t udelay = 5000;
+	pid_t pid;
+	const pid_t ppid = getpid();
+	int ret;
 
 	if (stress_sighandler(args->name, SIGUSR1, SIG_IGN, NULL) < 0)
 		return EXIT_FAILURE;
 
+	pid = fork();
+	if (pid == 0) {
+		ret = stress_sighandler(args->name, SIGUSR1, stress_kill_handle_sigusr1, NULL);
+		(void)ret;
+
+		while (keep_stressing(args)) {
+			if (kill(ppid, 0) < 0)
+				break;
+			pause();
+		}
+		_exit(0);
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		int ret;
-
 		/*
 		 *  With many kill stressors we get into a state
 		 *  where they all hammer on kill system calls and
@@ -104,10 +127,36 @@ static int stress_kill(const stress_args_t *args)
 		ret = kill(INT_MIN, 0);
 		(void)ret;
 
+		/*
+		 * Send child process some signals to keep it busy
+		 */
+		if (pid > 1) {
+			ret = kill(pid, 0);
+			(void)pid;
+#if defined(SIGSTOP) && 	\
+    defined(SIGCONT)
+			ret = kill(pid, SIGSTOP);
+			(void)ret;
+			ret = kill(pid, SIGCONT);
+			(void)ret;
+#endif
+			ret = kill(pid, SIGUSR1);
+			(void)ret;
+		}
+
 		inc_counter(args);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	if (pid != -1) {
+		int status;
+
+		ret = kill(pid, SIGKILL);
+		(void)ret;
+		ret = waitpid(pid, &status, 0);
+		(void)ret;
+	}
 
 	return EXIT_SUCCESS;
 }
