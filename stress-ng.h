@@ -1399,7 +1399,7 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 #define STRESS_PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Wall\"") \
 				_Pragma("GCC diagnostic ignored \"-Wextra\"") \
 				_Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"") \
-				_Pragma("GCC diagnostic ignored \"-Wcast-qual\"")
+				_Pragma("GCC diagnostic ignored \"-Wcast-qual\"") \
 				_Pragma("GCC diagnostic ignored \"-Wnonnull\"")
 #else
 #define STRESS_PRAGMA_PUSH
