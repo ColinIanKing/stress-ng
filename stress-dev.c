@@ -1093,6 +1093,7 @@ static void stress_dev_scsi_blk(
 #endif
 }
 
+#if defined(__linux__)
 /*
  *  stress_dev_scsi_generic_linux()
  *	SCSI generic device specific ioctls for linux
@@ -1223,6 +1224,7 @@ static void stress_dev_scsi_generic_linux(
 	}
 #endif
 }
+#endif
 
 #if defined(HAVE_LINUX_RANDOM_H)
 /*
