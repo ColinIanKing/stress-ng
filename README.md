@@ -102,6 +102,8 @@ kFreeBSD, OpenBSD, NetBSD, FreeBSD, Debian kFreeBSD, DragonFly BSD, OS X, Minix,
 Solaris 11.3, OpenIndiana and Hiaku. Ports to other POSIX/UNIX like operating
 systems should be relatively easy.
 
+NOTE: ALWAYS run ```make clean``` after fetching changes from the git repository
+to force the build to regenerate the build configuration file.
 
 To build on BSD systems, one requires gcc and GNU make:
 ```
