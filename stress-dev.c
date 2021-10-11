@@ -2830,10 +2830,12 @@ static void stress_dev_hwrng_linux(
 
 #if defined(__linux__)
 
-#if !defined(PPGETTIME32)
+#if defined(PP_IOCT) &&	\
+    !defined(PPGETTIME32)
 #define PPGETTIME32     _IOR(PP_IOCTL, 0x95, int32_t[2])
 #endif
-#if !defined(PPGETTIME64)
+#if defined(PP_IOCT) && \
+    !defined(PPGETTIME64)
 #define PPGETTIME64     _IOR(PP_IOCTL, 0x95, int64_t[2])
 #endif
 
