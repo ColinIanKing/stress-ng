@@ -237,6 +237,8 @@ static void stress_cache_flush(void *addr, void *bad_addr, int size)
 #endif
 }
 
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_CLOBBERED
 /*
  *  stress_cache()
  *	stress cache by psuedo-random memory read/writes and
@@ -392,6 +394,7 @@ static int stress_cache(const stress_args_t *args)
 
 	return ret;
 }
+STRESS_PRAGMA_POP
 
 stressor_info_t stress_cache_info = {
 	.stressor = stress_cache,
