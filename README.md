@@ -177,6 +177,71 @@ https://github.com/ColinIanKing/stress-ng
 The [Ubuntu stress-ng reference guide](https://wiki.ubuntu.com/Kernel/Reference/stress-ng)
 contains a brief overview and worked examples.
 
+## Examples
+
+Run 4 CPU, 2 virtual memory, 1 disk and 8 fork stressors for 2 minutes and print measurements:
+```
+stress-ng --cpu 4 --vm 2 --hdd 1 --fork 8 --timeout 2m --metrics
+stress-ng: info:  [573366] setting to a 120 second (2 mins, 0.00 secs) run per stressor
+stress-ng: info:  [573366] dispatching hogs: 4 cpu, 2 vm, 1 hdd, 8 fork
+stress-ng: info:  [573366] successful run completed in 123.78s (2 mins, 3.78 secs)
+stress-ng: info:  [573366] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s CPU used per
+stress-ng: info:  [573366]                           (secs)    (secs)    (secs)   (real time) (usr+sys time) instance (%)
+stress-ng: info:  [573366] cpu              515396    120.00    453.02      0.18      4294.89        1137.24        94.42
+stress-ng: info:  [573366] vm              2261023    120.01    223.80      1.80     18840.15       10022.27        93.99
+stress-ng: info:  [573366] hdd              367558    123.78     10.63     11.67      2969.49       16482.42        18.02
+stress-ng: info:  [573366] fork             598058    120.00     68.24     65.88      4983.80        4459.13        13.97
+```
+
+Run matrix stressor on all online CPUs for 60 seconds and measure temperature:
+```
+stress-ng --matrix -1 --tz -t 60
+stress-ng: info:  [1171459] setting to a 60 second run per stressor
+stress-ng: info:  [1171459] dispatching hogs: 8 matrix
+stress-ng: info:  [1171459] successful run completed in 60.01s (1 min, 0.01 secs)
+stress-ng: info:  [1171459] matrix:
+stress-ng: info:  [1171459]               acpitz0   75.00 C (348.15 K)
+stress-ng: info:  [1171459]               acpitz1   75.00 C (348.15 K)
+stress-ng: info:  [1171459]          pch_skylake   60.17 C (333.32 K)
+stress-ng: info:  [1171459]         x86_pkg_temp   62.72 C (335.87 K)
+```
+
+Run a mix of 4 I/O stressors and check for changes in disk S.M.A.R.T. metadata:
+```
+sudo stress-ng --iomix 4 --smart -t 30s
+stress-ng: info:  [1171471] setting to a 30 second run per stressor
+stress-ng: info:  [1171471] dispatching hogs: 4 iomix
+stress-ng: info:  [1171471] successful run completed in 30.37s
+stress-ng: info:  [1171471] Device     ID S.M.A.R.T. Attribute                 Value      Change
+stress-ng: info:  [1171471] sdc        01 Read Error Rate                   88015771       71001
+stress-ng: info:  [1171471] sdc        07 Seek Error Rate                   59658169          92
+stress-ng: info:  [1171471] sdc        c3 Hardware ECC Recovered            88015771       71001
+stress-ng: info:  [1171471] sdc        f1 Total LBAs Written               481904395         877
+stress-ng: info:  [1171471] sdc        f2 Total LBAs Read                 3768039248        5139
+stress-ng: info:  [1171471] sdd        be Temperature Difference             3670049           1
+```
+
+Benchmark system calls using the VDSO:
+```
+stress-ng --vdso 1 -t 5 --metrics
+stress-ng: info:  [1171584] setting to a 5 second run per stressor
+stress-ng: info:  [1171584] dispatching hogs: 1 vdso
+stress-ng: info:  [1171585] stress-ng-vdso: exercising vDSO functions: clock_gettime time gettimeofday getcpu
+stress-ng: info:  [1171585] stress-ng-vdso: 9.88 nanoseconds per call (excluding 1.73 nanoseconds test overhead)
+stress-ng: info:  [1171584] successful run completed in 5.10s
+stress-ng: info:  [1171584] stressor       bogo ops real time  usr time  sys time   bogo ops/s     bogo ops/s CPU used per
+stress-ng: info:  [1171584]                           (secs)    (secs)    (secs)   (real time) (usr+sys time) instance (%)
+stress-ng: info:  [1171584] vdso          430633496      5.10      5.10      0.00  84375055.96    84437940.39        99.93
+stress-ng: info:  [1171584] vdso               9.88 nanoseconds per call (average per stressor)
+```
+
+Generate and measure branch misses using perf metrics:
+```
+sudo stress-ng --branch 1 --perf -t 10 2>& 1 | grep Branch
+stress-ng: info:  [1171714]                604,703,327 Branch Instructions            53.30 M/sec
+stress-ng: info:  [1171714]                598,760,234 Branch Misses                  52.77 M/sec (99.02%)
+```
+
 ## Bugs found with stress-ng
 
 stress-ng has found several Linux Kernel bugs and appropriate fixes have been landed to address these issues:
