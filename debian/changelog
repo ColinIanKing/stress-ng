@@ -1,3 +1,64 @@
+stress-ng (0.13.05-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Makefile: rename README to README.md in the make dist rule
+  * Manual: update date
+  * README.md: Add note to run make clean after git fetch
+  * README.md: add some examples
+  * README.md: Clean up white spaces in markup
+  * README.md: add citations
+  * README: Rename to README.me and add github style markdown
+  * Revert "stress-aio-linux: clean up valgrind uninitialized memory
+    warnings"
+  * stress-dev: only define PPGETTIME{32|64} if PP_IOCT is defined
+  * stress-ng.h: Fix missing \ in STRESS_PRAGMA_WARN_OFF macro
+  * Revert "stress-cache: add clobbering warning pragma workaround"
+  * stress-cache: add clobbering warning pragma workaround
+  * stress-dev: don't declare stress_dev_scsi_generic_linux for
+    non-linux targets
+  * stress-dev: remove EMU debug message
+  * stress-aio: clean async io cancel, check status with aio_error
+  * stress-vm: clear up volatile discards warning with pedantic build
+  * stress-kill: send signals to a child process to add more stress
+  * stress-branch: double number of branch points, makes prediction
+    harder for CPU
+  * stress-vm: add mscan vm memory exercising method
+  * stress-malloc: add yield point in stress_malloc_page_touch
+  * stress-link: make reandom number index size_t
+  * stress-get: initialize some objects to keep valgrind happy
+  * stress-dirdeep: fix cleanup of dirent objects
+  * stress-aio: add polled wait for completion
+  * stress-aio-linux: clean up valgrind uninitialized memory warnings
+  * stress-context: memset context requires and more sigaltstack
+  * stress-hsearch: free hash items
+  * core-smart: re-write begin/end checks
+  * stress-thermal-zone: don't pass a null type to stress_tz_type_instance
+  * Manual: clarify the semantics of the --timeout, -t option
+  * stress-uprobe: ensure libc.so is also matched as a valid libc so name
+  * Manual: remove GNU tbl extensions for table widths
+  * stress-dev: exercise Linux scsi generic ioctls
+  * stress-io-uring: keep track of unsupported opcodes
+  * stress-fpunch: add yield check while populating test file
+  * stress-io-uring: print opcode name to help decode opcode to human
+    readable text
+  * stress-dev: add parallel port ioctl device exercising
+  * stress-io-uring: add statx and sync_file_range io-uring ops
+  * stress-crypt: add some more crypto methods to exercise
+  * stress-cpu-online: just limit to maximum of 65536 cpus
+  * stress-context: rename __ prefix with suitable name
+  * stress-context: remove empty line
+  * core-thrash: add more slab work by attempting to shrink slabs
+  * stress-dev: add hwrng exercising for linux
+  * stress-dev: shuffle dev names rather than mixup sort
+  * stress-dev: add Linux floppy disk ioctls to dev stressor
+  * stress-iomix: add sync'ing on written data at most every second
+  * Add new --no-oom-adjust option to disable all oom adjustments
+  * core-out-of-memory: fix inverted check on oomable process
+  * stress-ng: add missing ftrace and oomable options from --help output
+  * snapcraft: change project repo URL
+
+ -- Colin King <colin.king@canonical.com>  Mon, 11 Oct 2021 18:18:18 +0100
+
 stress-ng (0.13.04-1) unstable; urgency=medium
 
   * Makefile: bump version
