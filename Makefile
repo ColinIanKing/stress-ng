@@ -481,7 +481,7 @@ dist:
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile Makefile.config $(SRC) stress-ng.h stress-ng.1 \
 		core-personality.c core-io-uring.c \
-		COPYING syscalls.txt mascot README \
+		COPYING syscalls.txt mascot README.md \
 		stress-af-alg-defconfigs.h README.Android test snap \
 		TODO core-perf-event.c usr.bin.pulseaudio.eg \
 		stress-version.h bash-completion example-jobs .travis.yml \
