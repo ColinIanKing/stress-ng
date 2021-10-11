@@ -236,7 +236,59 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [selftests/powerpc: Add test of mitigation patching](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=34f7f79827ec4db30cff9001dfba19f496473e8d)
 * [dm crypt: Avoid percpu_counter spinlock contention in crypt_page_alloc()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=528b16bfc3ae5f11638e71b3b63a81f9999df727)
 
+## Presentations
+
+* [Stress-ng presentation at ELCE 2019 Lyon](https://static.sched.com/hosted_files/osseu19/29/Lyon-stress-ng-presentation-oct-2019.pdf)
+* [Video of the above presentation](https://www.youtube.com/watch?v=8QaXStKfq3A)
+
+## Citations
+
+* [Auto-scaling of Containers: the impact of Relative and Absolute Metrics](https://www.researchgate.net/publication/319905237_Auto-Scaling_of_Containers_The_Impact_of_Relative_and_Absolute_Metrics)
+* [Increasing Platform Determinism PQOS DPDK] (https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/increasing-platform-determinism-pqos-dpdk-paper.pdf)
+* [Testing the Windows Subsystem for Linux] (https://blogs.msdn.microsoft.com/wsl/2017/04/11/testing-the-windows-subsystem-for-linux/)
+* [Practical analysis of the Precision Time Protocol under different types of system load] (http://www.diva-portal.org/smash/get/diva2:1106630/FULLTEXT01.pdf)
+* [Towards Virtual Machine Energy-Aware Cost Prediction in Clouds](http://eprints.whiterose.ac.uk/124309/1/paper_final.pdf)
+* [Towards Energy Efficient Data Management in HPC: The Open Ethernet Drive Approach] (http://www.pdsw.org/pdsw-discs16/papers/p43-kougkas.pdf)
+* [Enhancing Cloud energy models for optimizing datacenters efficiency](https://cs.gmu.edu/~menasce/cs788/papers/ICCAC2015-Outin.pdf)
+* [CPU and memory performance analysis on dynamic and dedicated resource allocation using XenServer in Data Center environment](http://ieeexplore.ieee.org/document/7877341/)
+* [Algorithms and Architectures for Parallel Processing](https://books.google.co.uk/books?id=S4wwDwAAQBAJ&pg=PA7&lpg=PA7&dq=http://kernel.ubuntu.com/~cking/stress-ng/&source=bl&ots=bVZccBq2Io&sig=rIqKWyEhGmVPosAJiemKjGgEv0M&hl=en&sa=X&ved=0ahUKEwiFo6LO2fbXAhWBtxQKHRcnDY04HhDoAQguMAE#v=onepage&q=http%3A%2F%2Fkernel.ubuntu.com%2F~cking%2Fstress-ng%2F&f=false)
+* [Advanced concepts and tools for renewable energy supply of IT Data Centres](http://www.renewit-tool.eu/Content/File/5-IT%20Load.pdf)
+* [How Much Power Does your Server Consume? Estimating Wall Socket Power Using RAPL Measurements](http://www.ena-hpc.org/2016/pdf/khan_et_al_enahpc.pdf)
+* [Tejo: A Supervised Anomaly Detection Scheme for NewSQL Databases](https://hal.archives-ouvertes.fr/hal-01211772/document)
+* [Monitoring and Modelling Open Compute Servers](http://staff.www.ltu.se/~damvar/Publications/Eriksson%20et%20al.%20-%202017%20-%20Monitoring%20and%20Modelling%20Open%20Compute%20Servers.pdf)
+* [Experimental and numerical analysis for potential heat reuse in liquid cooled data centres](http://personals.ac.upc.edu/jguitart/HomepageFiles/ECM16.pdf)
+* [DevOps for IoT Applications using Cellular Networks and Cloud](https://www.ericsson.com/assets/local/publications/conference-papers/devops.pdf)
+* [Modeling and Analysis of Performance under Interference in the Cloud](https://www3.cs.stonybrook.edu/~anshul/mascots17.pdf)
+* [Effectively Measure and Reduce Kernel Latencies for Real time Constraints](https://elinux.org/images/a/a9/ELC2017-_Effectively_Measure_and_Reduce_Kernel_Latencies_for_Real-time_Constraints_%281%29.pdf)
+* [Monitoring and Analysis of CPU load relationships between Host and Guests in a Cloud Networking Infrastructure](http://www.diva-portal.org/smash/get/diva2:861235/FULLTEXT02)
+* [Measuring the impacts of the Preempt-RT patch](http://events17.linuxfoundation.org/sites/events/files/slides/rtpatch.pdf)
+* [Multicore Emulation on Virtualised Environment](https://indico.esa.int/indico/event/165/contribution/5/material/1/0.pdf)
+* [Stress-SGX : Load and Stress your Enclaves for Fun and Profit](https://seb.vaucher.org/papers/stress-sgx.pdf)
+* [Reliable Library Identification Using VMI Techniques](http://www.delaat.net/rp/2016-2017/p64/report.pdf)
+* [Elastic-PPQ: A two-level autonomic system for spatial preference query processing over dynamic data stream](https://www.researchgate.net/publication/319613604_Elastic-PPQ_A_two-level_autonomic_system_for_spatial_preference_query_processing_over_dynamic_data_streams)
+* [Caliper Benchmarking](http://open-estuary.org/caliper-benchmarking)
+* [OpenEPC integration within 5GTN as an NFV proof of concept](http://jultika.oulu.fi/files/nbnfioulu-201706082638.pdf)
+* [quiho: Automated Performance Regression Testing Using Inferred Resource Utilization Profiles](https://dl.acm.org/citation.cfm?id=3184422&dl=ACM&coll=DL&preflayout=flat)
+* [A Virtual Network Function Workload Simulator](https://uu.diva-portal.org/smash/get/diva2:1043751/FULLTEXT01.pdf)
+* [Time-Aware Dynamic Binary Instrumentation](https://uwspace.uwaterloo.ca/bitstream/handle/10012/12182/Arafa_Pansy.pdf?sequence=3)
+* [Characterizing and Reducing Cross-Platform Performance Variability Using OS-level Virtualization](http://www.lofstead.org/papers/2016-varsys.pdf)
+* [Experience Report: Log Mining using Natural Language Processing and Application to Anomaly Detection](https://hal.laas.fr/hal-01576291/document)
+* [CoMA: Resource Monitoring of Docker Containers](http://www.scitepress.org/Papers/2015/54480/54480.pdf)
+* [An Investigation of CPU utilization relationship between host and guests in a Cloud infrastructure](http://www.diva-portal.org/smash/get/diva2:861239/FULLTEXT02)
+* [Hypervisor and Virtual Machine Memory Optimization Analysis](https://www.tuit.ut.ee/sites/default/files/tuit/at/thesis/bsc/2018/atprog-courses-bakalaureuset55-loti.05.029-tambet-viitkar-text-20180520.pdf)
+* [Linux kernel performance test tool](https://01.org/sites/default/files/documentation/lkp-tests.pdf)
+* [Real-Time testing with Fuego](https://elinux.org/images/4/43/ELC2018_Real-time_testing_with_Fuego-181024m.pdf)
+* [Performance and Energy Trade-Offs for Parallel Applications on Heterogeneous Multi-Processing Systems](https://www.mdpi.com/1996-1073/13/9/2409/htm)
+* [C-Balancer: A System for Container Profiling and Scheduling](https://arxiv.org/pdf/2009.08912.pdf)
+* [Modelling VM Latent Characteristics and Predicting Application Performance using Semi-supervised Non-negative Matrix Factorization](https://ieeexplore.ieee.org/document/9284328)
+* [Semi-dynamic load balancing: efficient distributed learning in non-dedicated environments](https://dl.acm.org/doi/10.1145/3419111.3421299)
+* [Streamline: A Fast, Flushless Cache Covert-Channel Attack byEnabling Asynchronous Collusion](https://dl.acm.org/doi/pdf/10.1145/3445814.3446742)
+* [Experimental Analysis in Hadoop MapReduce: A Closer Look at Fault Detection and Recovery Techniques](https://www.mdpi.com/1131714)
+* [Performance Characteristics of theBlueField-2 SmartNIC](https://arxiv.org/pdf/2105.06619.pdf)
+* [Evaluating Latency in Multiprocessing Embedded Systems for the Smart Grid](https://www.mdpi.com/1996-1073/14/11/3322)
+* [Work-in-Progress: Timing Diversity as a Protective Mechanism](https://dl.acm.org/doi/pdf/10.1145/3477244.3477614)
+* [Sequential Deep Learning Architectures for Anomaly Detection in Virtual Network Function Chains](https://arxiv.org/pdf/2109.14276.pdf)
+
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
 bugs or performance regressions found with stress-ng.
-
