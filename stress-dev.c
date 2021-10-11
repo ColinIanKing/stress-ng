@@ -1211,7 +1211,6 @@ static void stress_dev_scsi_generic_linux(
 		int ret, emulated;
 
 		ret = ioctl(fd, SG_EMULATED_HOST, &emulated);
-		pr_inf("EMU: %d\n", emulated);
 		(void)ret;
 	}
 #endif
