@@ -244,11 +244,11 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 ## Citations
 
 * [Auto-scaling of Containers: the impact of Relative and Absolute Metrics](https://www.researchgate.net/publication/319905237_Auto-Scaling_of_Containers_The_Impact_of_Relative_and_Absolute_Metrics)
-* [Increasing Platform Determinism PQOS DPDK] (https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/increasing-platform-determinism-pqos-dpdk-paper.pdf)
-* [Testing the Windows Subsystem for Linux] (https://blogs.msdn.microsoft.com/wsl/2017/04/11/testing-the-windows-subsystem-for-linux/)
-* [Practical analysis of the Precision Time Protocol under different types of system load] (http://www.diva-portal.org/smash/get/diva2:1106630/FULLTEXT01.pdf)
+* [Increasing Platform Determinism PQOS DPDK](https://www.intel.com/content/dam/www/public/us/en/documents/white-papers/increasing-platform-determinism-pqos-dpdk-paper.pdf)
+* [Testing the Windows Subsystem for Linux](https://blogs.msdn.microsoft.com/wsl/2017/04/11/testing-the-windows-subsystem-for-linux/)
+* [Practical analysis of the Precision Time Protocol under different types of system load](http://www.diva-portal.org/smash/get/diva2:1106630/FULLTEXT01.pdf)
 * [Towards Virtual Machine Energy-Aware Cost Prediction in Clouds](http://eprints.whiterose.ac.uk/124309/1/paper_final.pdf)
-* [Towards Energy Efficient Data Management in HPC: The Open Ethernet Drive Approach] (http://www.pdsw.org/pdsw-discs16/papers/p43-kougkas.pdf)
+* [Towards Energy Efficient Data Management in HPC: The Open Ethernet Drive Approach](http://www.pdsw.org/pdsw-discs16/papers/p43-kougkas.pdf)
 * [Enhancing Cloud energy models for optimizing datacenters efficiency](https://cs.gmu.edu/~menasce/cs788/papers/ICCAC2015-Outin.pdf)
 * [CPU and memory performance analysis on dynamic and dedicated resource allocation using XenServer in Data Center environment](http://ieeexplore.ieee.org/document/7877341/)
 * [Algorithms and Architectures for Parallel Processing](https://books.google.co.uk/books?id=S4wwDwAAQBAJ&pg=PA7&lpg=PA7&dq=http://kernel.ubuntu.com/~cking/stress-ng/&source=bl&ots=bVZccBq2Io&sig=rIqKWyEhGmVPosAJiemKjGgEv0M&hl=en&sa=X&ved=0ahUKEwiFo6LO2fbXAhWBtxQKHRcnDY04HhDoAQguMAE#v=onepage&q=http%3A%2F%2Fkernel.ubuntu.com%2F~cking%2Fstress-ng%2F&f=false)
