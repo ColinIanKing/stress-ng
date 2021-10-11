@@ -108,25 +108,35 @@ static void MLOCKED_TEXT aio_signal_handler(int sig, siginfo_t *si, void *uconte
  */
 static void aio_issue_cancel(const char *name, stress_io_req_t *io_req)
 {
-	int ret;
+	int ret, retries = 0;
 
-	if (io_req->status != EINPROGRESS)
-		return;
+	for (;;) {
+		ret = aio_error(&io_req->aiocb);
+		if (ret != EINPROGRESS)
+			return;
 
-	ret = aio_cancel(io_req->aiocb.aio_fildes,
-		&io_req->aiocb);
-	switch (ret) {
-	case AIO_CANCELED:
-	case AIO_ALLDONE:
-		break;
-	case AIO_NOTCANCELED:
-		pr_dbg("%s: async I/O request %d not cancelled\n",
-			name, io_req->request);
-		break;
-	default:
-		pr_err("%s: %d error: %d %s\n",
-			name, io_req->request,
-			errno, strerror(errno));
+		ret = aio_cancel(io_req->aiocb.aio_fildes,
+			&io_req->aiocb);
+		switch (ret) {
+		case AIO_CANCELED:
+		case AIO_ALLDONE:
+			return;
+		case AIO_NOTCANCELED:
+			if (retries++ > 25) {
+				/* Give up */
+				pr_inf("%s aio request %d could not be cancelled: error=%d (%s)\n",
+					name, io_req->request,
+					errno, strerror(errno));
+			}
+			/* Wait a bit and retry */
+			(void)shim_usleep_interruptible(250000);
+			break;
+		default:
+			pr_err("%s: %d error: %d %s\n",
+				name, io_req->request,
+				errno, strerror(errno));
+			break;
+		}
 	}
 }
 
@@ -224,7 +234,6 @@ static int stress_aio(const stress_args_t *args)
 	char filename[PATH_MAX];
 	uint32_t total = 0, i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
 	double t1 = 0.0, t2 = 0.0, dt;
-	int redo;
 
 	if (!stress_get_setting("aio-requests", &opt_aio_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -341,19 +350,6 @@ cancel:
 		aio_issue_cancel(args->name, &io_reqs[i]);
 		total += io_reqs[i].count;
 	}
-	/* Short polled Wait for completion */
-	for (redo = 0; redo < 20; redo++) {
-		bool inprogress = false;
-
-		for (i = 0; i < opt_aio_requests; i++) {
-			ret = aio_error(&io_reqs[i].aiocb);
-			if (ret == EINPROGRESS)
-				inprogress = true;
-		}
-		if (!inprogress)
-			break;
-		(void)shim_usleep_interruptible(250000);
-	} while (redo);
 
 	(void)close(fd);
 finish:
