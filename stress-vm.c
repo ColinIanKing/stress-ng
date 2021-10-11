@@ -1996,8 +1996,7 @@ static size_t TARGET_CLONES stress_vm_mscan(
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
-	volatile uint8_t *ptr = (volatile uint8_t *)buf;
-	uint8_t *end;
+	volatile uint8_t *ptr = (volatile uint8_t *)buf, *end;
 	uint64_t c = get_counter(args);
 
 	(void)sz;
@@ -2015,7 +2014,7 @@ static size_t TARGET_CLONES stress_vm_mscan(
 		if (UNLIKELY(!keep_stressing_flag() || (max_ops && (c >= max_ops))))
 			break;
 	}
-	end = (uint8_t *)ptr;
+	end = (volatile uint8_t *)ptr;
 
 	add_counter(args, c);
 
@@ -2036,7 +2035,7 @@ static size_t TARGET_CLONES stress_vm_mscan(
 		if (UNLIKELY(!keep_stressing_flag() || (max_ops && (c >= max_ops))))
 			break;
 	}
-	end = (uint8_t *)ptr;
+	end = (volatile uint8_t *)ptr;
 
 	add_counter(args, c);
 
