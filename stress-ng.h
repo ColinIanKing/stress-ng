@@ -1401,12 +1401,10 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 				_Pragma("GCC diagnostic ignored \"-Wdeprecated-declarations\"") \
 				_Pragma("GCC diagnostic ignored \"-Wcast-qual\"")
 				_Pragma("GCC diagnostic ignored \"-Wnonnull\"")
-#define STRESS_PRAGMA_CLOBBERED	_Pragma("GCC diagnostic ignored \"-Wclobbered\"")
 #else
 #define STRESS_PRAGMA_PUSH
 #define STRESS_PRAGMA_POP
 #define STRESS_PRAGMA_WARN_OFF
-#define STRESS_PRAGMA_CLOBBERED
 #endif
 
 /* Logging helpers */
