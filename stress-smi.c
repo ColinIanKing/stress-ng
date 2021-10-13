@@ -31,8 +31,6 @@ static const stress_help_t help[] = {
 };
 
 #if defined(STRESS_ARCH_X86) &&		\
-    defined(HAVE_LIBKMOD_H) &&		\
-    defined(HAVE_LIB_KMOD) &&		\
     defined(HAVE_CPUID_H) &&		\
     defined(HAVE___GET_CPUID) &&	\
     defined(HAVE_IOPORT) &&		\
@@ -160,14 +158,25 @@ static int stress_smi(const stress_args_t *args)
 	int ret, rc = EXIT_SUCCESS;
 	bool already_loaded = false;
 	bool read_msr_ok = true;
-	uint64_t s1 = 0;
+	bool load_module = false;
+	uint64_t s1 = 0, val;
 	double d1 = 0.0;
 	const int cpus = stress_get_processors_online();
 
-	if (args->instance == 0) {
+	/*
+	 *  If MSR can't be read maybe we need to load
+	 *  the module to do so
+	 */
+	if (stress_smi_readmsr64(0, MSR_SMI_COUNT, &val) < 0)
+		load_module = true;
+
+	/*
+	 *  Module load failure is not a problem, it just means
+	 *  we can't get the SMI count
+	 */
+	if (load_module && (args->instance == 0)) {
 		ret = stress_module_load(args->name, "msr", NULL, &already_loaded);
-		if (ret < 0)
-			return EXIT_NO_RESOURCE;
+		(void)ret;
 	}
 
 	if (ioperm(APM_PORT, 2, 1) < 0) {
@@ -219,8 +228,10 @@ static int stress_smi(const stress_args_t *args)
 				args->name);
 		}
 
-		ret = stress_module_unload(args->name, "msr", already_loaded);
-		(void)ret;
+		if (load_module) {
+			ret = stress_module_unload(args->name, "msr", already_loaded);
+			(void)ret;
+		}
 	}
 
 	return rc;
