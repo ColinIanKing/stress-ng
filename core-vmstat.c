@@ -60,6 +60,7 @@ int stress_set_iostat(const char *const opt)
 
 static pid_t vmstat_pid;
 
+#if defined(HAVE_SYS_SYSMACROS_H)
 /*
  *  stress_iostat_follow_link
  *	recursively follow link until no more links
@@ -308,7 +309,6 @@ static void stress_read_iostat(const char *iostat_name, stress_iostat_t *iostat)
 	}
 }
 
-
 #define STRESS_IOSTAT_DELTA(field)					\
 	iostat->field = ((iostat_current.field > iostat_prev.field) ?	\
 	(iostat_current.field - iostat_prev.field) : 0)
@@ -340,6 +340,7 @@ static void stress_get_iostat(const char *iostat_name, stress_iostat_t *iostat)
 	STRESS_IOSTAT_DELTA(discard_ticks);
 	(void)memcpy(&iostat_prev, &iostat_current, sizeof(iostat_prev));
 }
+#endif
 
 /*
  *  stress_next_field()
@@ -644,11 +645,13 @@ static double stress_get_cpu_ghz_average(void)
 void stress_vmstat_start(void)
 {
 	stress_vmstat_t vmstat;
-	stress_iostat_t iostat;
 	size_t tz_num = 0;
 	stress_tz_info_t *tz_info, *tz_info_list;
 	int32_t vmstat_sleep, thermalstat_sleep, iostat_sleep;
+#if defined(HAVE_SYS_SYSMACROS_H)
 	char iostat_name[PATH_MAX];
+	stress_iostat_t iostat;
+#endif
 
 	if ((vmstat_delay == 0) &&
 	    (thermalstat_delay == 0) &&
@@ -674,11 +677,12 @@ void stress_vmstat_start(void)
 			tz_num++;
 	}
 
-
+#if defined(HAVE_SYS_SYSMACROS_H)
 	if (stress_iostat_iostat_name(iostat_name, sizeof(iostat_name)) == NULL)
 		iostat_sleep = 0;
 	if (iostat_delay)
 		stress_get_iostat(iostat_name, &iostat);
+#endif
 
 	while (keep_stressing_flag()) {
 		int32_t sleep_delay = INT_MAX;
@@ -688,8 +692,10 @@ void stress_vmstat_start(void)
 			sleep_delay = STRESS_MINIMUM(vmstat_delay, sleep_delay);
 		if (thermalstat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(thermalstat_delay, sleep_delay);
+#if defined(HAVE_SYS_SYSMACROS_H)
 		if (iostat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(iostat_delay, sleep_delay);
+#endif
 
 		(void)sleep((unsigned int)sleep_delay);
 
@@ -785,6 +791,7 @@ void stress_vmstat_start(void)
 			}
 		}
 
+#if defined(HAVE_SYS_SYSMACROS_H)
 		if (iostat_delay == iostat_sleep) {
 			double clk_scale = (iostat_delay > 0) ? 1.0 / iostat_delay : 0.0;
 			static uint32_t iostat_count = 0;
@@ -803,6 +810,7 @@ void stress_vmstat_start(void)
 				(double)iostat.write_io * clk_scale,
 				(double)iostat.discard_io * clk_scale);
 		}
+#endif
 	}
 }
 
