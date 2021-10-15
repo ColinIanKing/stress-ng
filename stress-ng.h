@@ -1388,11 +1388,13 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 #endif
 
 #if defined(__clang__) &&	\
-    NEED_CLANG(4, 0, 0)
+    NEED_CLANG(4, 0, 0) &&	\
+    defined(HAVE_PRAGMA)
 #define STRESS_PRAGMA_PUSH	_Pragma("GCC diagnostic push")
 #define STRESS_PRAGMA_POP	_Pragma("GCC diagnostic pop")
 #define STRESS_PRAGMA_WARN_OFF	_Pragma("GCC diagnostic ignored \"-Weverything\"")
 #elif defined(__GNUC__) &&	\
+      defined(HAVE_PRAGMA) &&	\
       NEED_GNUC(4, 4, 0)
 #define STRESS_PRAGMA_PUSH	_Pragma("GCC diagnostic push")
 #define STRESS_PRAGMA_POP	_Pragma("GCC diagnostic pop")

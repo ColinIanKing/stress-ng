@@ -142,10 +142,14 @@ static int stress_fork_fn(
 				break;
 			case STRESS_VFORK:
 				fork_fn_name = "vfork";
+#if defined(HAVE_PRAGMA_INSIDE)
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
+#endif
 				pid = vfork();
+#if defined(HAVE_PRAGMA_INSIDE)
 STRESS_PRAGMA_POP
+#endif
 				break;
 			default:
 				/* This should not happen */

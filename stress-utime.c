@@ -179,7 +179,8 @@ static int stress_utime(const stress_args_t *args)
 
 #if defined(O_DIRECTORY) &&	\
     defined(O_PATH) &&		\
-    defined(UTIME_NOW)
+    defined(UTIME_NOW) &&	\
+    defined(HAVE_PRAGMA_INSIDE)
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
 		if (dir_fd >= 0) {
