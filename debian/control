@@ -19,7 +19,7 @@ Build-Depends: debhelper (>= 13),
                libjudy-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
                libatomic1 [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
                libkmod-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64]
-Homepage: https://kernel.ubuntu.com/~cking/stress-ng
+Homepage: https://github.com/ColinIanKing/stress-ng
 
 Package: stress-ng
 Architecture: any
