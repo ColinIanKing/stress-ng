@@ -376,6 +376,10 @@
 #include <sys/select.h>
 #endif
 
+#if defined(HAVE_SYS_SYSCTL_H)
+#include <sys/sysctl.h>
+#endif
+
 #if defined(HAVE_SEM_SYSV)
 #include <sys/sem.h>
 #endif
@@ -453,6 +457,9 @@
 #include <sys/vfs.h>
 #endif
 
+#if defined(HAVE_SYS_VMMETER_H)
+#include <sys/vmmeter.h>
+#endif
 
 /*
  *  SCSI related headers

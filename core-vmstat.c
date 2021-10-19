@@ -28,6 +28,38 @@ static int32_t vmstat_delay = 0;
 static int32_t thermalstat_delay = 0;
 static int32_t iostat_delay = 0;
 
+#if defined(__FreeBSD__)
+static int freebsd_getsysctl(const char *name, void *ptr, size_t size)
+{
+	int ret;
+	size_t nsize = size;
+	if (!ptr)
+		return -1;
+
+	(void)memset(ptr, 0, size);
+
+	ret = sysctlbyname(name, ptr, &nsize, NULL, 0);
+	if ((ret < 0) || (nsize != size)) {
+		(void)memset(ptr, 0, size);
+		return -1;
+	}
+	return 0;
+}
+
+/*
+ *  freebsd_getsysctl_uint()
+ *	get an unsigned int sysctl value by name
+ */
+static unsigned int freebsd_getsysctl_uint(const char *name)
+{
+	unsigned int val;
+
+	freebsd_getsysctl(name, &val, sizeof(val));
+
+	return val;
+}
+#endif
+
 static int stress_set_generic_stat(
 	const char *const opt,
 	const char *name,
@@ -55,8 +87,6 @@ int stress_set_iostat(const char *const opt)
 {
 	return stress_set_generic_stat(opt, "iostat", &iostat_delay);
 }
-
-#if defined(__linux__)
 
 static pid_t vmstat_pid;
 
@@ -271,15 +301,14 @@ static char *stress_iostat_iostat_name(
 	return NULL;
 }
 
+#if defined(__linux__)
 /*
  *  stress_read_iostat()
- *	read the stats from an iostat stat file
+ *	read the stats from an iostat stat file, linux variant
  */
 static void stress_read_iostat(const char *iostat_name, stress_iostat_t *iostat)
 {
 	FILE *fp;
-
-	(void)memset(iostat, 0, sizeof(*iostat));
 
 	fp = fopen(iostat_name, "r");
 	if (fp) {
@@ -308,6 +337,16 @@ static void stress_read_iostat(const char *iostat_name, stress_iostat_t *iostat)
 			(void)memset(iostat, 0, sizeof(*iostat));
 	}
 }
+#else
+/*
+ *  stress_read_iostat()
+ *	nop-op default
+ */
+static void stress_read_iostat(const char *iostat_name, stress_iostat_t *iostat)
+{
+	(void)iostat_name;
+}
+#endif
 
 #define STRESS_IOSTAT_DELTA(field)					\
 	iostat->field = ((iostat_current.field > iostat_prev.field) ?	\
@@ -322,6 +361,7 @@ static void stress_get_iostat(const char *iostat_name, stress_iostat_t *iostat)
 	static stress_iostat_t iostat_prev;
 	stress_iostat_t iostat_current;
 
+	(void)memset(&iostat_current, 0, sizeof(iostat_current));
 	stress_read_iostat(iostat_name, &iostat_current);
 	STRESS_IOSTAT_DELTA(read_io);
 	STRESS_IOSTAT_DELTA(read_merges);
@@ -342,6 +382,7 @@ static void stress_get_iostat(const char *iostat_name, stress_iostat_t *iostat)
 }
 #endif
 
+#if defined(__linux__)
 /*
  *  stress_next_field()
  *	skip to next field, returns false if end of
@@ -375,8 +416,6 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 {
 	FILE *fp;
 	char buffer[1024];
-
-	(void)memset(vmstat, 0, sizeof(*vmstat));
 
 	fp = fopen("/proc/stat", "r");
 	if (fp) {
@@ -454,13 +493,13 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 			if (!strncmp(buffer, "procs_running", 13)) {
 				if (!stress_next_field(&ptr))
 					continue;
-				/* context switches */
+				/* processes running */
 				vmstat->procs_running = (uint64_t)atoll(ptr);
 			}
 			if (!strncmp(buffer, "procs_blocked", 13)) {
 				if (!stress_next_field(&ptr))
 					continue;
-				/* context switches */
+				/* procesess blocked */
 				vmstat->procs_blocked = (uint64_t)atoll(ptr);
 			}
 			if (!strncmp(buffer, "swap", 4)) {
@@ -541,6 +580,37 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 		(void)fclose(fp);
 	}
 }
+#elif defined(__FreeBSD__)
+/*
+ *  stress_read_vmstat()
+ *	read vmstat statistics, FreeBSD variant, partially implemented
+ */
+static void stress_read_vmstat(stress_vmstat_t *vmstat)
+{
+	struct vmtotal t;
+
+	vmstat->interrupt = freebsd_getsysctl_uint("vm.stats.sys.v_intr");
+	vmstat->context_switch = freebsd_getsysctl_uint("vm.stats.sys.v_swtch");
+	vmstat->swap_in = freebsd_getsysctl_uint("vm.stats.vm.v_swapin");
+	vmstat->swap_out = freebsd_getsysctl_uint("vm.stats.vm.v_swapout");
+	vmstat->block_in = freebsd_getsysctl_uint("vm.stats.vm.v_vnodepgsin");
+	vmstat->block_out = freebsd_getsysctl_uint("vm.stats.vm.v_vnodepgsin");
+	vmstat->memory_free = freebsd_getsysctl_uint("vm.stats.vm.v_free_count");
+
+	freebsd_getsysctl("vm.vmtotal", &t, sizeof(t));
+	vmstat->procs_running = t.t_rq - 1;
+	vmstat->procs_blocked = t.t_dw + t.t_pw;
+}
+#else
+/*
+ *  stress_read_vmstat()
+ *	read vmstat statistics, no-op
+ */
+static void stress_read_vmstat(stress_vmstat_t *vmstat)
+{
+	(void)vmstat;
+}
+#endif
 
 #define STRESS_VMSTAT_COPY(field)	vmstat->field = (vmstat_current.field)
 #define STRESS_VMSTAT_DELTA(field)					\
@@ -556,6 +626,7 @@ static void stress_get_vmstat(stress_vmstat_t *vmstat)
 	static stress_vmstat_t vmstat_prev;
 	stress_vmstat_t vmstat_current;
 
+	(void)memset(vmstat, 0, sizeof(*vmstat));
 	stress_read_vmstat(&vmstat_current);
 	STRESS_VMSTAT_COPY(procs_running);
 	STRESS_VMSTAT_COPY(procs_blocked);
@@ -578,6 +649,7 @@ static void stress_get_vmstat(stress_vmstat_t *vmstat)
 	(void)memcpy(&vmstat_prev, &vmstat_current, sizeof(vmstat_prev));
 }
 
+#if defined(__linux__)
 /*
  *  stress_get_tz_info()
  *	get temperature in degrees C from a thermal zone
@@ -599,7 +671,9 @@ static double stress_get_tz_info(stress_tz_info_t *tz_info)
 	}
 	return temp;
 }
+#endif
 
+#if defined(__linux__)
 /*
  *  stress_get_cpu_ghz_average()
  *	compute average CPU frequencies in GHz
@@ -637,6 +711,31 @@ static double stress_get_cpu_ghz_average(void)
 
 	return (n == 0) ? 0.0 : (total_freq / n) / 1000000.0;
 }
+#elif defined(__FreeBSD__)
+static double stress_get_cpu_ghz_average(void)
+{
+	const int32_t ncpus = stress_get_processors_configured();
+	int32_t i;
+	double total = 0.0;
+
+	for (i = 0; i < ncpus; i++) {
+		char name[32];
+		
+		(void)snprintf(name, sizeof(name), "dev.cpu.%" PRIi32 ".freq", i);
+		total += (double)freebsd_getsysctl_uint(name);
+	}
+	total /= 1000.0; 
+	if (ncpus > 0)
+		return total / (double)ncpus;
+
+	return 0.0;
+}
+#else
+static double stress_get_cpu_ghz_average(void)
+{
+	return 0.0;
+}
+#endif
 
 /*
  *  stress_vmstat_start()
@@ -759,23 +858,28 @@ void stress_vmstat_start(void)
 			double min1, min5, min15, ghz;
 			char therms[1 + (tz_num * 7)];
 			char cpuspeed[6];
+#if defined(__linux__)
 			char *ptr;
+#endif
 			static uint32_t thermalstat_count = 0;
 
 			(void)memset(therms, 0, sizeof(therms));
 
+#if defined(__linux__)
 			for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
 				(void)snprintf(ptr, 8, " %6.6s", tz_info->type);
 				ptr += 7;
 			}
-
+#endif
 			if ((thermalstat_count++ % 25) == 0)
 				pr_inf("therm:   GHz  LdA1  LdA5 LdA15 %s\n", therms);
 
+#if defined(__linux__)
 			for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
 				(void)snprintf(ptr, 8, " %6.2f", stress_get_tz_info(tz_info));
 				ptr += 7;
 			}
+#endif
 			ghz = stress_get_cpu_ghz_average();
 			if (ghz > 0.0)
 				(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.2f", ghz);
@@ -827,18 +931,3 @@ void stress_vmstat_stop(void)
 		(void)waitpid(vmstat_pid, &status, 0);
 	}
 }
-
-#else
-
-/*
- *  no-ops for non-linux cases
- */
-void stress_vmstat_start(void)
-{
-}
-
-void stress_vmstat_stop(void)
-{
-}
-
-#endif
