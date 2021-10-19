@@ -490,7 +490,7 @@ int stress_get_load_avg(
 	double *min5,
 	double *min15)
 {
-#if NEED_GLIBC(2, 2, 0) &&	\
+#if defined(GETLOADAVG) && 	\
     !defined(__UCLIBC__)
 	int rc;
 	double loadavg[3];
