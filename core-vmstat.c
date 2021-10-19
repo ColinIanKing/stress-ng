@@ -757,7 +757,7 @@ void stress_vmstat_start(void)
 
 		if (thermalstat_delay == thermalstat_sleep) {
 			double min1, min5, min15, ghz;
-			char therms[1 + (tz_num * 6)];
+			char therms[1 + (tz_num * 7)];
 			char cpuspeed[6];
 			char *ptr;
 			static uint32_t thermalstat_count = 0;
