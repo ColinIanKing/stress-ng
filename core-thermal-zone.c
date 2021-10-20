@@ -49,6 +49,21 @@ static uint32_t stress_tz_type_instance(
 }
 
 /*
+ *  stress_tz_type_fix()
+ *	fix up type name, replace non-alpha/digits with _
+ */
+static void stress_tz_type_fix(char *type)
+{
+	char *ptr;
+
+	for (ptr = type; *ptr; ptr++) {
+		if (isalnum((int)*ptr))
+			continue;
+		*ptr = '_';
+	}
+}
+
+/*
  *  stress_tz_init()
  *	gather all thermal zones
  */
@@ -96,6 +111,7 @@ int stress_tz_init(stress_tz_info_t **tz_info_list)
 
 			if (fgets(type, sizeof(type), fp) != NULL) {
 				type[strcspn(type, "\n")] = '\0';
+				stress_tz_type_fix(type);
 				tz_info->type = strdup(type);
 				tz_info->type_instance = stress_tz_type_instance(*tz_info_list, type);
 			}
