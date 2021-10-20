@@ -626,6 +626,7 @@ static void stress_get_vmstat(stress_vmstat_t *vmstat)
 	static stress_vmstat_t vmstat_prev;
 	stress_vmstat_t vmstat_current;
 
+	(void)memset(&vmstat_current, 0, sizeof(vmstat_current));
 	(void)memset(vmstat, 0, sizeof(*vmstat));
 	stress_read_vmstat(&vmstat_current);
 	STRESS_VMSTAT_COPY(procs_running);
