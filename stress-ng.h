@@ -376,7 +376,8 @@
 #include <sys/select.h>
 #endif
 
-#if defined(HAVE_SYS_SYSCTL_H)
+#if defined(HAVE_SYS_SYSCTL_H) &&	\
+    !defined(__linux__)
 #include <sys/sysctl.h>
 #endif
 
