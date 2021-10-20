@@ -215,7 +215,8 @@ static int stress_atomic(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64);
+		if (sizeof(long int) == sizeof(uint64_t))
+			DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64);
 		DO_ATOMIC_OPS(uint32_t, &g_shared->atomic.val32);
 		DO_ATOMIC_OPS(uint16_t, &g_shared->atomic.val16);
 		DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8);
