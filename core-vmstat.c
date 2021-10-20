@@ -90,7 +90,8 @@ int stress_set_iostat(const char *const opt)
 
 static pid_t vmstat_pid;
 
-#if defined(HAVE_SYS_SYSMACROS_H)
+#if defined(HAVE_SYS_SYSMACROS_H) &&	\
+    defined(__linux__)
 /*
  *  stress_iostat_follow_link
  *	recursively follow link until no more links
@@ -748,7 +749,8 @@ void stress_vmstat_start(void)
 	size_t tz_num = 0;
 	stress_tz_info_t *tz_info, *tz_info_list;
 	int32_t vmstat_sleep, thermalstat_sleep, iostat_sleep;
-#if defined(HAVE_SYS_SYSMACROS_H)
+#if defined(HAVE_SYS_SYSMACROS_H) &&	\
+    defined(__linux__)
 	char iostat_name[PATH_MAX];
 	stress_iostat_t iostat;
 #endif
@@ -777,7 +779,8 @@ void stress_vmstat_start(void)
 			tz_num++;
 	}
 
-#if defined(HAVE_SYS_SYSMACROS_H)
+#if defined(HAVE_SYS_SYSMACROS_H) &&	\
+    defined(__linux__)
 	if (stress_iostat_iostat_name(iostat_name, sizeof(iostat_name)) == NULL)
 		iostat_sleep = 0;
 	if (iostat_delay)
@@ -792,7 +795,8 @@ void stress_vmstat_start(void)
 			sleep_delay = STRESS_MINIMUM(vmstat_delay, sleep_delay);
 		if (thermalstat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(thermalstat_delay, sleep_delay);
-#if defined(HAVE_SYS_SYSMACROS_H)
+#if defined(HAVE_SYS_SYSMACROS_H) &&	\
+    defined(__linux__)
 		if (iostat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(iostat_delay, sleep_delay);
 #endif
@@ -896,7 +900,8 @@ void stress_vmstat_start(void)
 			}
 		}
 
-#if defined(HAVE_SYS_SYSMACROS_H)
+#if defined(HAVE_SYS_SYSMACROS_H) &&	\
+    defined(__linux__)
 		if (iostat_delay == iostat_sleep) {
 			double clk_scale = (iostat_delay > 0) ? 1.0 / iostat_delay : 0.0;
 			static uint32_t iostat_count = 0;
