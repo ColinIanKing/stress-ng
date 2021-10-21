@@ -701,6 +701,7 @@ static const struct option long_options[] = {
 	{ "rawudp-port",1,	0,	OPT_rawudp_port },
 	{ "rdrand",	1,	0,	OPT_rdrand },
 	{ "rdrand-ops",	1,	0,	OPT_rdrand_ops },
+	{ "rdrand-seed",0,	0,	OPT_rdrand_seed },
 	{ "readahead",	1,	0,	OPT_readahead },
 	{ "readahead-ops",1,	0,	OPT_readahead_ops },
 	{ "readahead-bytes",1,	0,	OPT_readahead_bytes },

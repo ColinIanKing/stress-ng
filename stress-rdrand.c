@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C) 2021 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -27,11 +28,37 @@
 static const stress_help_t help[] = {
 	{ NULL,	"rdrand N",	"start N workers exercising rdrand (x86 only)" },
 	{ NULL,	"rdrand-ops N",	"stop after N rdrand bogo operations" },
+	{ NULL, "rdrand-seed",	"use rdseed instead of rdrand" },
 	{ NULL,	NULL,		NULL }
 };
 
 #define STRESS_SANE_LOOPS_QUICK	16
 #define STRESS_SANE_LOOPS	65536
+
+static int stress_set_rdrand_seed(const char *opt)
+{
+#if defined(HAVE_CPUID_H) &&	\
+    defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_CPUID) &&	\
+    defined(HAVE_ASM_RDRAND) &&	\
+    defined(HAVE_ASM_RDSEED) &&	\
+    NEED_GNUC(4,6,0)
+	bool rdrand_seed = true;
+
+	(void)opt;
+	return stress_set_setting("rdrand-seed", TYPE_ID_BOOL, &rdrand_seed);
+#else
+	(void)opt;
+	/* Really unlikely */
+	pr_inf("rdrand-seed ignored, cpu does not support feature, defaulting to rdrand\n");
+	return 0;
+#endif
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_rdrand_seed,	stress_set_rdrand_seed },
+	{ 0,			NULL }
+};
 
 #if defined(HAVE_CPUID_H) &&	\
     defined(STRESS_ARCH_X86) &&	\
@@ -40,6 +67,9 @@ static const stress_help_t help[] = {
     NEED_GNUC(4,6,0)
 
 #define HAVE_RAND_CAPABILITY
+#if defined(HAVE_ASM_RDSEED)
+#define HAVE_SEED_CAPABILITY
+#endif
 
 static bool rdrand_supported = false;
 
@@ -83,6 +113,21 @@ static inline uint64_t rand64(void)
 
 	return ret;
 }
+
+/*
+ *  rdseed64()
+ *	read 64 bit random value
+ */
+static inline uint64_t seed64(void)
+{
+	uint64_t        ret;
+
+	asm volatile("1:;\n\
+	rdseed %0;\n\
+	jnc 1b;\n":"=r"(ret));
+
+	return ret;
+}
 #else
 /*
  *  rdrand64()
@@ -104,7 +149,6 @@ static inline uint32_t rand64(void)
 }
 #endif
 #endif
-
 
 #if defined(STRESS_ARCH_PPC64) &&	\
     defined(HAVE_ASM_DARN)
@@ -182,9 +226,46 @@ static inline uint64_t rand64(void)
 	rand64();	\
 }
 
-#define RAND64x256()	\
+#if defined(HAVE_SEED_CAPABILITY)
+/*
+ *  Unrolled 32 times
+ */
+#define SEED64x32()	\
 {			\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
+	seed64();	\
 }
+#endif
 
 static int stress_rdrand_sane(const stress_args_t *args)
 {
@@ -236,31 +317,55 @@ static int stress_rdrand_sane(const stress_args_t *args)
 static int stress_rdrand(const stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
+#if defined(HAVE_SEED_CAPABILITY)
+	bool rdrand_seed = false;
+
+	(void)stress_get_setting("rdrand-seed", &rdrand_seed);
+#endif
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (rdrand_supported) {
 		double time_start, duration, billion_bits;
 		bool lock = false;
+		register int i;
 
 		rc = stress_rdrand_sane(args);
 
 		time_start = stress_time_now();
-		do {
-			register int i;
 
-			for (i = 0; i < 4096; i++) {
-				RAND64x32()
-				RAND64x32()
-				RAND64x32()
-				RAND64x32()
-				RAND64x32()
-				RAND64x32()
-				RAND64x32()
-				RAND64x32()
-			}
-			add_counter(args, i);
-		} while (keep_stressing(args));
+#if defined(HAVE_SEED_CAPABILITY)
+		if (rdrand_seed) {
+			do {
+				for (i = 0; i < 4096; i++) {
+					SEED64x32()
+					SEED64x32()
+					SEED64x32()
+					SEED64x32()
+					SEED64x32()
+					SEED64x32()
+					SEED64x32()
+					SEED64x32()
+				}
+				add_counter(args, i);
+			} while (keep_stressing(args));
+		} else
+#endif
+		{
+			do {
+				for (i = 0; i < 4096; i++) {
+					RAND64x32()
+					RAND64x32()
+					RAND64x32()
+					RAND64x32()
+					RAND64x32()
+					RAND64x32()
+					RAND64x32()
+					RAND64x32()
+				}
+				add_counter(args, i);
+			} while (keep_stressing(args));
+		}
 
 		duration = stress_time_now() - time_start;
 		billion_bits = ((double)get_counter(args) * 64.0 * 256.0) / 1000000000.0;
@@ -288,6 +393,7 @@ static int stress_rdrand(const stress_args_t *args)
 stressor_info_t stress_rdrand_info = {
 	.stressor = stress_rdrand,
 	.supported = stress_rdrand_supported,
+	.opt_set_funcs = opt_set_funcs,
 	.class = CLASS_CPU,
 	.help = help
 };
@@ -303,6 +409,7 @@ static int stress_rdrand_supported(const char *name)
 stressor_info_t stress_rdrand_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_rdrand_supported,
+	.opt_set_funcs = opt_set_funcs,
 	.class = CLASS_CPU,
 	.help = help
 };

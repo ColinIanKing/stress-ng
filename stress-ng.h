@@ -3437,6 +3437,7 @@ typedef enum {
 
 	OPT_rdrand,
 	OPT_rdrand_ops,
+	OPT_rdrand_seed,
 
 	OPT_readahead,
 	OPT_readahead_ops,
