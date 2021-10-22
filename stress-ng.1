@@ -671,11 +671,11 @@ stressor unless you want to risk hanging your machine.
 stop after N bind mount bogo operations.
 .TP
 .B \-\-branch N
-start N workers that randomly jump to 256 randomly selected locations and
+start N workers that randomly branch to 1024 randomly selected locations and
 hence exercise the CPU branch prediction logic.
 .TP
 .B \-\-branch\-ops N
-stop the branch stressors after N jumps
+stop the branch stressors after N \(mu 1024 branches
 .TP
 .B \-\-brk N
 start N workers that grow the data segment by one page at a time using multiple
