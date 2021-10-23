@@ -91,7 +91,8 @@ static int stress_vm_splice(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	if ((fd = open("/dev/null", O_WRONLY)) < 0) {
+	fd = open("/dev/null", O_WRONLY);
+	if (fd < 0) {
 		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)munmap(buf, sz);
