@@ -474,7 +474,7 @@ git-commit-id.h:
 $(OBJS): stress-ng.h Makefile
 
 stress-ng.1.gz: stress-ng.1
-	$(V)gzip -c $< > $@
+	$(V)gzip -n -c $< > $@
 
 .PHONY: dist
 dist:
