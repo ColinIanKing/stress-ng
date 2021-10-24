@@ -252,7 +252,7 @@ cleanup:
 	for (i = 0; i < RMAP_CHILD_MAX; i++) {
 		if (pids[i] <= 0)
 			continue;
-		(void)kill(pids[i], SIGKILL);
+		(void)stress_killpid(pids[i]);
 	}
 	for (i = 0; i < RMAP_CHILD_MAX; i++) {
 		int status, ret;
@@ -266,7 +266,7 @@ cleanup:
 				pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			(void)kill(pids[i], SIGTERM);
-			(void)kill(pids[i], SIGKILL);
+			(void)stress_killpid(pids[i]);
 			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}

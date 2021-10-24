@@ -696,7 +696,7 @@ static void NORETURN waste_resources(
 		if (info[i].pid > 0) {
 			int status;
 
-			(void)kill(info[i].pid, SIGKILL);
+			(void)stress_killpid(info[i].pid);
 			(void)shim_waitpid(info[i].pid, &status, 0);
 		}
 	}

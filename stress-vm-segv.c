@@ -124,7 +124,7 @@ again:
 #endif
 kill_child:
 			(void)kill(pid, SIGTERM);
-			(void)kill(pid, SIGKILL);
+			(void)stress_killpid(pid);
 			(void)shim_waitpid(pid, &status, 0);
 		} else if (pid == 0) {
 			/* Child */

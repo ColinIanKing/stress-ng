@@ -186,7 +186,7 @@ static int stress_unshare(const stress_args_t *args)
 			if (pids[i] > 0) {
 				int ret;
 
-				ret = kill(pids[i], SIGKILL);
+				ret = stress_killpid(pids[i]);
 				if (ret == 0) {
 					if (shim_waitpid(pids[i], &status, 0) < 0) {
 						if (errno != EINTR)

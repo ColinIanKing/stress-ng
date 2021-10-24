@@ -266,7 +266,7 @@ reap:
 		if (pids[i] > 0) {
 			int status;
 
-			(void)kill(pids[i], SIGKILL);
+			(void)stress_killpid(pids[i]);
 			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}

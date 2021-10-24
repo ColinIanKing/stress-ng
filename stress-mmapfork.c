@@ -237,7 +237,7 @@ reap:
 
 			if (UNLIKELY(pids[i] < 0))
 				continue;
-			(void)kill(pids[i], SIGKILL);
+			(void)stress_killpid(pids[i]);
 			(void)shim_waitpid(pids[i], &status, 0);
 		}
 		inc_counter(args);

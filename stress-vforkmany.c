@@ -276,7 +276,7 @@ STRESS_PRAGMA_POP
 			if (errno == EINTR)
 				continue;
 			/* Something went wrong, kill */
-			(void)kill(chpid, SIGKILL);
+			(void)stress_killpid(chpid);
 		}
 	}
 finish:

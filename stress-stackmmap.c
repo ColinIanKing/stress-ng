@@ -196,7 +196,7 @@ again:
 					pr_dbg("%s: waitpid(): errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				(void)kill(pid, SIGTERM);
-				(void)kill(pid, SIGKILL);
+				(void)stress_killpid(pid);
 				(void)shim_waitpid(pid, &status, 0);
 			}
 		} else if (pid == 0) {

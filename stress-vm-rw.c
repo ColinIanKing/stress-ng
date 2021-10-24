@@ -343,7 +343,7 @@ fail:
 	}
 	(void)close(ctxt->pipe_wr[0]);
 	(void)close(ctxt->pipe_rd[1]);
-	(void)kill(ctxt->pid, SIGKILL);
+	(void)stress_killpid(ctxt->pid);
 	(void)shim_waitpid(ctxt->pid, &status, 0);
 	(void)munmap(localbuf, ctxt->sz);
 

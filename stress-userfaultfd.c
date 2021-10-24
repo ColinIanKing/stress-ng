@@ -401,7 +401,7 @@ do_read:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	/* Run it over, zap child */
-	(void)kill(pid, SIGKILL);
+	(void)stress_killpid(pid);
 	if (shim_waitpid(pid, &status, 0) < 0) {
 		pr_dbg("%s: waitpid failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));

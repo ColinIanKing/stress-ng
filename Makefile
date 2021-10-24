@@ -350,6 +350,7 @@ CORE_SRC = \
 	core-ignite-cpu.c \
 	core-io-priority.c \
 	core-job.c \
+	core-killpid.c \
 	core-limit.c \
 	core-log.c \
 	core-madvise.c \

@@ -594,7 +594,7 @@ reap:
 
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		if (pids[i] > 0)
-			(void)kill(pids[i], SIGKILL);
+			(void)stress_killpid(pids[i]);
 	}
 	for (i = 0; i < semaphore_sysv_procs; i++) {
 		if (pids[i] > 0) {
