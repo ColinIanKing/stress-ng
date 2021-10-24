@@ -132,7 +132,7 @@ static int stress_kill(const stress_args_t *args)
 		 */
 		if (pid > 1) {
 			ret = kill(pid, 0);
-			(void)pid;
+			(void)ret;
 #if defined(SIGSTOP) && 	\
     defined(SIGCONT)
 			ret = kill(pid, SIGSTOP);
