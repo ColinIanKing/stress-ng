@@ -162,6 +162,7 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 			pre_ptr += 8;
 			shim_mb();
 		}
+		stress_void_ptr_put(pre_ptr);
 	} else {
 		/* Benchmark prefetch */
 		t3 = stress_time_now();
