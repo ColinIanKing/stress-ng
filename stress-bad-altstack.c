@@ -266,7 +266,7 @@ again:
 
 			/* Child */
 			stress_mwc_reseed();
-			rnd = stress_mwc32() % 10;
+			rnd = stress_mwc32() % 11;
 
 			stress_set_oom_adjustment(args->name, true);
 			stress_process_dumpable(false);
@@ -298,8 +298,16 @@ again:
 				if (!keep_stressing(args))
 					break;
 				CASE_FALLTHROUGH;
-#endif
 			case 4:
+				/* Illegal write-only stack */
+				ret = mprotect(stack, STRESS_MINSIGSTKSZ, PROT_WRITE);
+				if (ret == 0)
+					stress_bad_altstack_force_fault(stack);
+				if (!keep_stressing(args))
+					break;
+				CASE_FALLTHROUGH;
+#endif
+			case 5:
 				/* Illegal NULL stack */
 				ret = stress_sigaltstack(NULL, STRESS_SIGSTKSZ);
 				if (ret == 0)
@@ -307,7 +315,7 @@ again:
 				if (!keep_stressing(args))
 					break;
 				CASE_FALLTHROUGH;
-			case 5:
+			case 6:
 				/* Illegal text segment stack */
 				ret = stress_sigaltstack(stress_signal_handler, STRESS_SIGSTKSZ);
 				if (ret == 0)
@@ -315,11 +323,11 @@ again:
 				if (!keep_stressing(args))
 					break;
 				CASE_FALLTHROUGH;
-			case 6:
+			case 7:
 				/* Small stack */
 				stress_bad_altstack_force_fault(NULL);
 				CASE_FALLTHROUGH;
-			case 7:
+			case 8:
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 				/* Illegal stack on VDSO, otherwises NULL stack */
 				if (vdso) {
@@ -331,7 +339,7 @@ again:
 				}
 #endif
 				CASE_FALLTHROUGH;
-			case 8:
+			case 9:
 				/* Illegal /dev/zero mapped stack */
 				if (zero_stack != MAP_FAILED) {
 					ret = stress_sigaltstack(zero_stack, STRESS_MINSIGSTKSZ);
@@ -342,7 +350,7 @@ again:
 				}
 				CASE_FALLTHROUGH;
 #if defined(O_TMPFILE)
-			case 9:
+			case 10:
 				/* Illegal mapped stack to empty file, causes BUS error */
 				if (bus_stack != MAP_FAILED) {
 					ret = stress_sigaltstack(bus_stack, STRESS_MINSIGSTKSZ);
