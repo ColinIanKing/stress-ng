@@ -117,6 +117,26 @@ static const int mmap_flags[] = {
 #if defined(MAP_PREFAULT_READ)
 	MAP_PREFAULT_READ,
 #endif
+/* NetBSD */
+#if defined(MAP_WIRED)
+	MAP_WIRED,
+#endif
+/* NetBSD */
+#if defined(MAP_ALIGNMENT_64KB)
+	MAP_ALIGNMENT_64KB,
+#endif
+/* NetBSD */
+#if defined(MAP_ALIGNMENT_16MB)
+	MAP_ALIGNMENT_16MB,
+#endif
+/* OpenBSD */
+#if defined(MAP_CONCEAL)
+	MAP_CONCEAL,
+#endif
+/* OpenBSD */
+#if defined(MAP_COPY)
+	MAP_COPY,
+#endif
 	0
 };
 
