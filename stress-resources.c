@@ -70,8 +70,8 @@ typedef struct {
 	int wd_inotify;
 #endif
 #if defined(HAVE_PTSNAME)
-	int pty_master;
-	int pty_slave;
+	int pty_mtx;
+	int pty;
 #endif
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_TIMER_CREATE) &&	\
@@ -236,8 +236,8 @@ static void NORETURN waste_resources(
 		info[i].fd_inotify = -1;
 #endif
 #if defined(HAVE_PTSNAME)
-		info[i].pty_slave = -1;
-		info[i].pty_master = -1;
+		info[i].pty = -1;
+		info[i].pty_mtx = -1;
 #endif
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_SEM_POSIX)
@@ -461,13 +461,13 @@ static void NORETURN waste_resources(
 			break;
 #endif
 #if defined(HAVE_PTSNAME)
-		info[i].pty_master = open("/dev/ptmx", O_RDWR | flag);
-		info[i].pty_slave = -1;
-		if (info[i].pty_master >= 0) {
-			const char *slavename = ptsname(info[i].pty_master);
+		info[i].pty_mtx = open("/dev/ptmx", O_RDWR | flag);
+		info[i].pty = -1;
+		if (info[i].pty_mtx >= 0) {
+			const char *ptyname = ptsname(info[i].pty_mtx);
 
-			if (slavename)
-				info[i].pty_slave = open(slavename, O_RDWR | flag);
+			if (ptyname)
+				info[i].pty = open(ptyname, O_RDWR | flag);
 		}
 		if (!keep_stressing_flag())
 			break;
@@ -651,10 +651,10 @@ static void NORETURN waste_resources(
 #endif
 
 #if defined(HAVE_PTSNAME)
-		if (info[i].pty_slave != -1)
-			(void)close(info[i].pty_slave);
-		if (info[i].pty_master != -1)
-			(void)close(info[i].pty_master);
+		if (info[i].pty != -1)
+			(void)close(info[i].pty);
+		if (info[i].pty_mtx != -1)
+			(void)close(info[i].pty_mtx);
 #endif
 
 #if defined(HAVE_LIB_PTHREAD) &&	\
