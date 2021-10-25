@@ -136,6 +136,10 @@ static const int madvise_options[] = {
 #if defined(MADV_POPULATE_WRITE)
 	MADV_POPULATE_WRITE,
 #endif
+/* OpenBSD */
+#if defined(MADV_SPACEAVAIL)
+	MADV_SPACEAVAIL,
+#endif
 };
 
 /*
