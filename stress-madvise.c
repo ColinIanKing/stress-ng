@@ -140,6 +140,10 @@ static const int madvise_options[] = {
 #if defined(MADV_SPACEAVAIL)
 	MADV_SPACEAVAIL,
 #endif
+/* OS X */
+#if defined(MADV_ZERO_WIRED_PAGES)
+	MADV_ZERO_WIRED_PAGES,
+#endif
 };
 
 /*
