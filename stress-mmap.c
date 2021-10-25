@@ -467,6 +467,17 @@ retry:
 				uint64_t page = (i + j) % pages4k;
 				if (mapped[page] == PAGE_MAPPED) {
 					mapped[page] = 0;
+#if defined(HAVE_MQUERY) &&	\
+    defined(MAP_FIXED)
+					{
+						/* Exercise OpenBSD mquery */
+						void *query;
+
+						query = mquery(mappings[page], page_size,
+								PROT_READ, MAP_FIXED, -1, 0);
+						(void)query;
+					}
+#endif
 					(void)stress_madvise_random(mappings[page], page_size);
 					stress_mmap_mprotect(args->name, mappings[page],
 						page_size, page_size, context->mmap_mprotect);
