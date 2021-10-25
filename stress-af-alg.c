@@ -726,26 +726,26 @@ static void stress_af_alg_dump_crypto_list(void)
 	for (ci = crypto_info_list; ci; ci = ci->next) {
 		if (ci->internal)
 			continue;
-		fprintf(stdout, "{ .crypto_type = %s, .type = \"%s\", .name = \"%s\"",
+		(void)fprintf(stdout, "{ .crypto_type = %s, .type = \"%s\", .name = \"%s\"",
 			type_to_type_string(ci->crypto_type), ci->type, ci->name);
 		if (ci->block_size)
-			fprintf(stdout, ",\t.block_size = %d",
+			(void)fprintf(stdout, ",\t.block_size = %d",
 				ci->block_size);
 		if (ci->max_key_size)
-			fprintf(stdout, ",\t.max_key_size = %d",
+			(void)fprintf(stdout, ",\t.max_key_size = %d",
 				ci->max_key_size);
 		if (ci->max_auth_size)
-			fprintf(stdout, ",\t.max_auth_size = %d",
+			(void)fprintf(stdout, ",\t.max_auth_size = %d",
 				ci->max_auth_size);
 		if (ci->iv_size)
-			fprintf(stdout, ",\t.iv_size = %d",
+			(void)fprintf(stdout, ",\t.iv_size = %d",
 				ci->iv_size);
 		if (ci->digest_size)
-			fprintf(stdout, ",\t.digest_size = %d",
+			(void)fprintf(stdout, ",\t.digest_size = %d",
 				ci->digest_size);
-		fprintf(stdout, " },\n");
+		(void)fprintf(stdout, " },\n");
 	}
-	fflush(stdout);
+	(void)fflush(stdout);
 }
 
 /*

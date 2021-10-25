@@ -2556,8 +2556,8 @@ extern void __stack_chk_fail(void);
 NORETURN WEAK void __stack_chk_fail(void)
 {
 	if (stress_stack_check_flag) {
-		fprintf(stderr, "Stack overflow detected! Aborting stress-ng.\n");
-		fflush(stderr);
+		(void)fprintf(stderr, "Stack overflow detected! Aborting stress-ng.\n");
+		(void)fflush(stderr);
 		abort();
 	}
 	/* silently exit */

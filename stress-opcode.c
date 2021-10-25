@@ -372,7 +372,7 @@ again:
 			 * corruption since the child will
 			 * die soon anyhow
 			 */
-			fflush(NULL);
+			(void)fflush(NULL);
 			(void)close(fileno(stdin));
 			(void)close(fileno(stdout));
 			(void)close(fileno(stderr));
