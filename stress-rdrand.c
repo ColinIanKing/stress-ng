@@ -147,6 +147,25 @@ static inline uint32_t rand64(void)
 
 	return ret;
 }
+
+/*
+ *  seed64()
+ *	read 2 x 32 bit random value
+ */
+static inline uint32_t seed64(void)
+{
+	uint32_t        ret;
+
+	asm volatile("1:;\n\
+	rdseed %0;\n\
+	jnc 1b;\n":"=r"(ret));
+
+	asm volatile("1:;\n\
+	rdseed %0;\n\
+	jnc 1b;\n":"=r"(ret));
+
+	return ret;
+}
 #endif
 #endif
 
