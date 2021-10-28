@@ -2,7 +2,7 @@ Source: stress-ng
 Rules-Requires-Root: no
 Section: devel
 Priority: optional
-Maintainer: Colin King <colin.king@canonical.com>
+Maintainer: Colin King <colin.king@ubuntu.com>
 Standards-Version: 4.1.2
 Build-Depends: debhelper (>= 13),
                debhelper-compat (=13),
