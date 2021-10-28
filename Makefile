@@ -16,9 +16,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.13.05
+VERSION=0.13.06
 #
-# Codename "wakeboarding interstellar wombat"
+# Codename "effulgent golden cetacean"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
