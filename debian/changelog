@@ -1,3 +1,62 @@
+stress-ng (0.13.06-1) unstable; urgency=medium
+
+  [Alexander Kanavin]
+  * Makefile: do not write the timestamp into compressed manpage.
+
+  [John Kacur]
+  * stress-ng: Conscientious Language effort
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Debian: update control - use ubuntu email
+  * Add autobuild detection of sys/loadavg.h
+  * stress-rdrand: add missing 2x32 read variant of rdseed
+  * stress-dev: optimization: cache all dev entries in a hash table
+  * debian/watch: update to use github tarball name mangling
+  * debian/copyright: Fix URLs to project and email contact
+  * Rename HAVE_STRLCPY and HAVE_STRLCAT to fix Nixos libbsd macro clash
+  * stress-bad-ioctl: optimization: cache a copy of all dev names
+  * voidify returns from fflush and fprintf calls
+  * stress-mmap: exercise OpenBSD mquery system call on mapped pages
+  * stress-madvise: add OS X MADV_ZERO_WIRED_PAGES madvise advise
+  * stress-madvise: Add OpenBSD MADV_SPACEAVAIL madvise option
+  * stress-mmap: Add some missing NetBSD and OpenBSD mmap flag types
+  * Add stress_killpid helper to kill and fast reap memory
+  * stress-bad-altstack: make stack write-only to cause double trap
+  * stress-prefetch: stash pre_ptr to force compiler to use it in
+    the benchmark loop
+  * stress-kill: fix incorrect voidification of return value from kill
+  * stress-vm-splice: break open statement into two statements
+  * stress-branch: update copyright
+  * stress-branch: remove empty line
+  * stress-branch: shrink branch code, increase branches from 256 to 1024
+  * README.md Add another link to a performance regression found by
+    stress-ng
+  * stress-rdrand: add option to exercise rdseed x86 instruction
+  * core-thermal-zone: replace non-alpha/digits in type name with _
+  * core-vmstat: disable iostat for non-linux systems
+  * stress-atomic: don't perform atomic 64 bit ops on 32 bit platforms
+  * core-vmstat: ensure all fields in vmstat_current are zero'd
+  * stress-ng.h: Don't include sys/sysctl.h in Linux, it has been
+    deprecated
+  * Makefile.config: Fix sys/vmmeter.h autodetection
+  * stress-atomic: Add finder build time detection of atomic intrinsics
+  * core-vmstat: Add FreeBSD implimentation to system statistics
+  * core-helper.c: fix typo, GETLOADAVG should be HAVE_GETLOADAVG
+  * core-vmstat: fix buffer overrun on therms
+  * Add build time detection for getloadavg
+  * Debian control: update homepage URL
+  * README.md: Add tarball version information
+  * Add build time pragma support detection
+  * stress-bad-altstack: move pragmas to be around the function
+    stress_bad_altstack_force_fault
+  * stress-smi: make not being able to load a module non-fatal
+  * core-vmstat: don't build in iostat metrics if major/minor macros
+    aren't available
+  * REAME.md: Fix typo, 650 -> 260
+
+ -- Colin King <colin.king@ubuntu.com>  Thu, 28 Oct 2021 09:36:17 +0100
+
 stress-ng (0.13.05-1) unstable; urgency=medium
 
   * Makefile: bump version
