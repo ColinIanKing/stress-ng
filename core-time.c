@@ -29,6 +29,7 @@
 #define SECONDS_IN_DAY		(24.0 * SECONDS_IN_HOUR)
 #define SECONDS_IN_YEAR		(365.2425 * SECONDS_IN_DAY)
 				/* Approx, for Gregorian calendar */
+#define ONE_MILLIONTH		(1.0E-6)
 
 /*
  *  stress_timeval_to_double()
@@ -36,7 +37,7 @@
  */
 double stress_timeval_to_double(const struct timeval *tv)
 {
-	return (double)tv->tv_sec + ((double)tv->tv_usec / 1000000.0);
+	return (double)tv->tv_sec + ((double)tv->tv_usec * ONE_MILLIONTH);
 }
 
 /*
