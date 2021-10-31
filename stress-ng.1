@@ -3374,6 +3374,19 @@ start N workers that each create a file and then repeatedly rename it.
 .B \-\-rename\-ops N
 stop rename stress workers after N bogo rename operations.
 .TP
+.B \-\-resched N
+start N workers that exercise process rescheduling. Each stressor spawns
+a child process for each of the positive nice levels and iterates over the
+nice levels from 0 to the lowest priority level (highest nice value). For
+each of the nice levels 1024 iterations over 3 non-real time scheduling
+polices SCHED_OTHER, SCHED_BATCH and SCHED_IDLE are set and a sched_yield
+occurs to force heavy rescheduling activity.  When the -v verbose option
+is used the distribution of the number of yields across the nice levels is
+printed for the first stressor out of the N stressors.
+.TP
+.B \-\-resched\-ops N
+stop after N rescheduling sched_yield calls.
+.TP
 .B \-\-resources N
 start N workers that consume various system resources. Each worker will spawn
 1024 child processes that iterate 1024 times consuming shared memory, heap,

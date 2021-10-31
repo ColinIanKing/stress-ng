@@ -711,6 +711,8 @@ static const struct option long_options[] = {
 	{ "remap-ops",	1,	0,	OPT_remap_ops },
 	{ "rename",	1,	0,	OPT_rename },
 	{ "rename-ops",	1,	0,	OPT_rename_ops },
+	{ "resched",	1,	0,	OPT_resched },
+	{ "resched-ops",1,	0,	OPT_resched_ops },
 	{ "resources",	1,	0,	OPT_resources },
 	{ "resources-ops",1,	0,	OPT_resources_ops },
 	{ "revio",	1,	0,	OPT_revio },

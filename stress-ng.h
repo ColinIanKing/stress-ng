@@ -2633,6 +2633,7 @@ typedef struct {
 	MACRO(reboot)		\
 	MACRO(remap)		\
 	MACRO(rename)		\
+	MACRO(resched)		\
 	MACRO(resources)	\
 	MACRO(revio)		\
 	MACRO(rlimit)		\
@@ -3454,6 +3455,9 @@ typedef enum {
 	OPT_remap_ops,
 
 	OPT_rename_ops,
+
+	OPT_resched,
+	OPT_resched_ops,
 
 	OPT_resources,
 	OPT_resources_ops,
