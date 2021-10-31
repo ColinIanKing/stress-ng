@@ -206,6 +206,38 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_ATOMIC_OPS)
 
+#if defined(__sh__)
+/*
+ *  sh gcc can break by running out of spill registers, so
+ *  crank down the optimization for this on sh until this
+ *  gcc bug is resolved.
+ */
+#define ATOMIC_OPTIMIZE OPTIMIZE0
+#else
+#define ATOMIC_OPTIMIZE
+#endif
+
+static void ATOMIC_OPTIMIZE stress_atomic_uint64(void)
+{
+	if (sizeof(long int) == sizeof(uint64_t))
+		DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64);
+}
+
+static void ATOMIC_OPTIMIZE stress_atomic_uint32(void)
+{
+	DO_ATOMIC_OPS(uint32_t, &g_shared->atomic.val32);
+}
+
+static void ATOMIC_OPTIMIZE stress_atomic_uint16(void)
+{
+	DO_ATOMIC_OPS(uint16_t, &g_shared->atomic.val16);
+}
+
+static void ATOMIC_OPTIMIZE stress_atomic_uint8(void)
+{
+	DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8);
+}
+
 /*
  *  stress_atomic()
  *      stress gcc atomic memory ops
@@ -215,11 +247,11 @@ static int stress_atomic(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (sizeof(long int) == sizeof(uint64_t))
-			DO_ATOMIC_OPS(uint64_t, &g_shared->atomic.val64);
-		DO_ATOMIC_OPS(uint32_t, &g_shared->atomic.val32);
-		DO_ATOMIC_OPS(uint16_t, &g_shared->atomic.val16);
-		DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8);
+		stress_atomic_uint64();
+		stress_atomic_uint32();
+		stress_atomic_uint16();
+		stress_atomic_uint8();
+
 		inc_counter(args);
 	} while (keep_stressing(args));
 
