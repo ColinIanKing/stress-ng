@@ -24,6 +24,8 @@
  */
 #include "stress-ng.h"
 
+#define STRESS_ATOMIC_MAX_PROCS		(3)
+
 #if defined(HAVE_ATOMIC_ADD_FETCH)
 #define HAVE_ATOMIC_OPS
 #define	SHIM_ATOMIC_ADD_FETCH(ptr, val, memorder)	do { __atomic_add_fetch(ptr, val, memorder); } while (0)
@@ -238,14 +240,8 @@ static void ATOMIC_OPTIMIZE stress_atomic_uint8(void)
 	DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8);
 }
 
-/*
- *  stress_atomic()
- *      stress gcc atomic memory ops
- */
-static int stress_atomic(const stress_args_t *args)
+static void stress_atomic_exercise(const stress_args_t *args)
 {
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
 	do {
 		stress_atomic_uint64();
 		stress_atomic_uint32();
@@ -254,6 +250,41 @@ static int stress_atomic(const stress_args_t *args)
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+}
+
+/*
+ *  stress_atomic()
+ *      stress gcc atomic memory ops
+ */
+static int stress_atomic(const stress_args_t *args)
+{
+	pid_t pids[STRESS_ATOMIC_MAX_PROCS];
+	size_t i;
+
+	for (i = 0; i < STRESS_ATOMIC_MAX_PROCS; i++)
+		pids[i] = -1;
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	for (i = 0; i < STRESS_ATOMIC_MAX_PROCS; i++) {
+		pids[i] = fork();
+
+		if (pids[i] == 0) {
+			stress_atomic_exercise(args);
+			_exit(0);
+		}
+	}
+
+	stress_atomic_exercise(args);
+
+	for (i = 0; i < STRESS_ATOMIC_MAX_PROCS; i++) {
+		if (pids[i] > 0) {
+			int status;
+
+			(void)kill(pids[i], SIGKILL);
+			(void)waitpid(pids[i], &status, 0);
+		}
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
