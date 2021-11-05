@@ -722,11 +722,11 @@ static double stress_get_cpu_ghz_average(void)
 
 	for (i = 0; i < ncpus; i++) {
 		char name[32];
-		
+
 		(void)snprintf(name, sizeof(name), "dev.cpu.%" PRIi32 ".freq", i);
 		total += (double)freebsd_getsysctl_uint(name);
 	}
-	total /= 1000.0; 
+	total /= 1000.0;
 	if (ncpus > 0)
 		return total / (double)ncpus;
 
