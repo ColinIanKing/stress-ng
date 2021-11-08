@@ -387,7 +387,7 @@ static int stress_rdrand(const stress_args_t *args)
 		}
 
 		duration = stress_time_now() - time_start;
-		billion_bits = ((double)get_counter(args) * 64.0 * 256.0) / 1000000000.0;
+		billion_bits = ((double)get_counter(args) * 64.0 * 256.0) * ONE_BILLIONTH;
 
 		pr_lock(&lock);
 		pr_dbg_lock(&lock, "%s: %.3f billion random bits read "

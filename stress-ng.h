@@ -1473,6 +1473,10 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define PB			(1ULL << 50)
 #define EB			(1ULL << 60)
 
+#define ONE_BILLIONTH		(1.0E-9)
+#define ONE_MILLIONTH		(1.0E-6)
+#define ONE_THOUSANDTH		(1.0E-3)
+
 #define PAGE_4K_SHIFT		(12)
 #define PAGE_4K			(1 << PAGE_4K_SHIFT)
 

@@ -29,7 +29,6 @@
 #define SECONDS_IN_DAY		(24.0 * SECONDS_IN_HOUR)
 #define SECONDS_IN_YEAR		(365.2425 * SECONDS_IN_DAY)
 				/* Approx, for Gregorian calendar */
-#define ONE_MILLIONTH		(1.0E-6)
 
 /*
  *  stress_timeval_to_double()

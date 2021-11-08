@@ -512,7 +512,7 @@ static void stress_sys_dir(
 		(void)shim_pthread_spin_unlock(&lock);
 		drain_kmsg = false;
 		time_start = stress_time_now();
-		time_end = time_start + ((double)DURATION_PER_SYSFS_FILE / 1000000.0);
+		time_end = time_start + ((double)DURATION_PER_SYSFS_FILE * ONE_MILLIONTH);
 		time_out = time_start + 1.0;
 		/*
 		 *  wait for a timeout, or until woken up

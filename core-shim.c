@@ -609,7 +609,7 @@ int shim_nanosleep_uint64(uint64_t nsec)
 	}
 #else
 	useconds_t usec = nsec / 1000;
-	const double t_end = stress_time_now() + ((double)usec) / 1000000.0;
+	const double t_end = stress_time_now() + (((double)usec) * ONE_MILLIONTH);
 
 	for (;;) {
 		errno = 0;
@@ -653,7 +653,7 @@ int shim_usleep_interruptible(uint64_t usec)
 #if defined(HAVE_NANOSLEEP)
 	struct timespec t, trem;
 
-	t.tv_sec = usec / 1000000;
+	t.tv_sec = usec * ONE_MILLIONTH;
 	t.tv_nsec = ((long int)usec - (t.tv_sec * 1000000)) * 1000;
 
 	errno = 0;

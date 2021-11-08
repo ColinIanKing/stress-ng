@@ -711,7 +711,7 @@ static double stress_get_cpu_ghz_average(void)
 	if (n_cpus > -1)
 		free(cpu_list);
 
-	return (n == 0) ? 0.0 : (total_freq / n) / 1000000.0;
+	return (n == 0) ? 0.0 : (total_freq / n) * ONE_MILLIONTH;
 }
 #elif defined(__FreeBSD__)
 static double stress_get_cpu_ghz_average(void)
