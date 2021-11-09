@@ -4428,6 +4428,14 @@ struct shim_getcpu_cache {
         unsigned long blob[128 / sizeof(long)];
 };
 
+/* futex2 waitv shim */
+struct shim_futex_waitv {
+	uint64_t val;
+	uint64_t uaddr;
+	uint32_t flags;
+	uint32_t __reserved;
+};
+
 /*
  *  shim'd abstracted system or library calls
  *  that have a layer of OS abstraction
@@ -4713,5 +4721,6 @@ extern pid_t shim_waitpid(pid_t pid, int *wstatus, int options);
 extern pid_t shim_wait(int *wstatus);
 extern pid_t shim_wait3(int *wstatus, int options, struct rusage *rusage);
 extern pid_t shim_wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage);
-
+extern int shim_futex_waitv(struct shim_futex_waitv *waiters, unsigned int nr_futexes,
+	unsigned int flags, struct timespec *timeout, clockid_t clockid);
 #endif

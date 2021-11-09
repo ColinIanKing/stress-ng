@@ -36,6 +36,52 @@ static const stress_help_t help[] = {
 #define THRESHOLD	(100000)
 
 /*
+ *  stress_futex_wait()
+ *     exercise futex_wait and every 16th time futex_waitv
+ */
+static int stress_futex_wait(uint32_t *futex, const int val, const uint64_t nsec)
+{
+	struct timespec t;
+
+#if defined(FUTEX_32) &&		\
+    defined(CLOCK_MONOTONIC)
+	static int try_futex_waitv = true;
+	static int try = 0;
+
+	if (try_futex_waitv && try++ > 16) {
+		struct shim_futex_waitv w;
+
+		w.val = (uint64_t)val;
+		w.uaddr = (uintptr_t)futex;
+		w.flags = FUTEX_32;
+		w.__reserved = 0;
+
+		try = 0;
+		if (clock_gettime(CLOCK_MONOTONIC, &t) == 0) {
+			int ret;
+
+			t.tv_nsec += nsec;
+			if (t.tv_nsec > 1000000000) {
+				t.tv_sec++;
+				t.tv_nsec -= 1000000000;
+			}
+
+			ret = shim_futex_waitv(&w, 1, 0, &t, CLOCK_MONOTONIC);
+			if ((ret < 0) && (ret == ENOSYS)) {
+				try_futex_waitv = false;
+			} else {
+				return ret;
+			}
+		}
+	}
+#endif
+	t.tv_sec = 0;
+	t.tv_nsec = nsec;
+
+	return shim_futex_wait(futex, val, &t);
+}
+
+/*
  *  stress_futex()
  *	stress system by futex calls. The intention is not to
  * 	efficiently use futex, but to stress the futex system call
@@ -96,14 +142,13 @@ again:
 
 		do {
 			/* Small timeout to force rapid timer wakeups */
-			const struct timespec t = { .tv_sec = 0, .tv_nsec = 5000 };
 			int ret;
 
 			/* Break early before potential long wait */
 			if (!keep_stressing_flag())
 				break;
 
-			ret = shim_futex_wait(futex, 0, &t);
+			ret = stress_futex_wait(futex, 0, 5000);
 
 			/* timeout, re-do, stress on stupid fast polling */
 			if ((ret < 0) && (errno == ETIMEDOUT)) {

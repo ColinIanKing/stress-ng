@@ -2033,3 +2033,20 @@ int shim_process_mrelease(int pidfd, unsigned int flags)
 #endif
 }
 
+/*
+ *  shim_futex_waitv()
+ *      system call wrapper for Linux 5.16 futex_waitv
+ */
+int shim_futex_waitv(
+	struct shim_futex_waitv *waiters,
+	unsigned int nr_futexes,
+	unsigned int flags,
+	struct timespec *timeout,
+	clockid_t clockid)
+{
+#if defined(__NR_futex_waitv)
+	return (int)syscall(__NR_futex_waitv, waiters, nr_futexes, flags, timeout, clockid);
+#else
+	return (int)shim_enosys(0, waiters, nr_futexes, flags, timeout, clockid);
+#endif
+}
