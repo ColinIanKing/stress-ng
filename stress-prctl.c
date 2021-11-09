@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C) 2021 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -97,7 +98,7 @@ static const stress_help_t help[] = {
 
 /*
  *  getauxv_addr()
- *	fine the address of the auxv vector. This
+ *	find the address of the auxv vector. This
  *	is located at the end of the environment.
  *	Returns NULL if not found.
  */
