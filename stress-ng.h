@@ -1900,65 +1900,76 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define STRESS_ARCH_SPARC
 #endif
 
-/* GCC5.0+ target_clones attribute */
-#if defined(HAVE_TARGET_CLONES) &&	\
-    defined(STRESS_ARCH_X86)
-#if defined(__MMX_WITH_SSE__)
+/* GCC5.0+ target_clones attribute, x86 */
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_TARGET_CLONES)
+
+#if defined(HAVE_TARGET_CLONES_MMX)
 #define TARGET_CLONE_MMX	"mmx",
+#define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_MMX
 #endif
 
-#if defined(__AVX__)
+#if defined(HAVE_TARGET_CLONES_AVX)
 #define TARGET_CLONE_AVX	"avx",
+#define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_AVX
 #endif
 
-#if defined(__AVX2__)
+#if defined(HAVE_TARGET_CLONES_AVX2)
 #define TARGET_CLONE_AVX2	"avx2",
+#define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_AVX2
 #endif
 
-#if defined(__SSE__)
+#if defined(HAVE_TARGET_CLONES_SSE)
 #define TARGET_CLONE_SSE	"sse",
+#define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_SSE
 #endif
 
-#if defined(__SSE2__)
+#if defined(HAVE_TARGET_CLONES_SSE2)
 #define TARGET_CLONE_SSE2	"sse2",
+#define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_SSE2
 #endif
 
-#if defined(__SSE3__)
+#if defined(HAVE_TARGET_CLONES_SSE3)
 #define TARGET_CLONE_SSE3	"sse3",
+#define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_SSE3
 #endif
 
-#if defined(__SSSE3__)
+#if defined(HAVE_TARGET_CLONES_SSSE3)
 #define TARGET_CLONE_SSSE3	"ssse3",
+#define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_SSSE3
 #endif
 
-#if defined(__SSE4_1__)
+#if defined(HAVE_TARGET_CLONES_SSE4_1)
 #define TARGET_CLONE_SSE4_1	"sse4.1",
+#define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_SSE4_1
 #endif
 
-#if defined(__SSE4_2__)
+#if defined(HAVE_TARGET_CLONES_SSE4_2)
 #define TARGET_CLONE_SSE4_2	"sse4.2",
+#define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_SSE4_2
 #endif
 
-#if defined(__AVX512F__)
+#if defined(HAVE_TARGET_CLONES_SKYLAKE_AVX512)
 #define TARGET_CLONE_SKYLAKE_AVX512	"arch=skylake-avx512",
+#define TARGET_CLONE_USE
 #else
 #define TARGET_CLONE_SKYLAKE_AVX512
 #endif
@@ -1972,11 +1983,20 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 	TARGET_CLONE_SKYLAKE_AVX512		\
 	"default"
 
+#if defined(TARGET_CLONE_USE)
 #define TARGET_CLONES	__attribute__((target_clones(TARGET_CLONES_ALL)))
-#elif defined(HAVE_TARGET_CLONES) && 	\
-      defined(STRESS_ARCH_PPC64)
+#endif
+#endif
+
+/* GCC5.0+ target_clones attribute, ppc64 */
+
+#if defined(STRESS_ARCH_PPC64) &&	\
+    defined(HAVE_TARGET_CLONES) && 	\
+    defined(HAVE_TARGET_CLONES_POWER9)
 #define TARGET_CLONES	__attribute__((target_clones("cpu=power9,default")))
-#else
+#endif
+
+#if !defined(TARGET_CLONES)
 #define TARGET_CLONES
 #endif
 

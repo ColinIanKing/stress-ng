@@ -34,13 +34,14 @@
     defined(__GLIBC__) && \
     NEED_GNUC(5,5,0)
 
-#if (defined(__x86_64__) || defined(__x86_64))
-#define TARGET_CLONES	__attribute__((target_clones("sse","sse2","ssse3", "sse4.1", "sse4a", "avx","avx2","default")))
-#elif defined(__PPC64__)
-#define TARGET_CLONES	 __attribute__((target_clones("cpu=power9,default")))
+#if defined(__x86_64__) || \
+    defined(__x86_64) || \
+    defined(__PPC64__)
 #else
-#error target clones not supported
+#error arch not supported
 #endif
+
+#define TARGET_CLONES	__attribute__((target_clones(TARGET_CLONE)))
 
 static int TARGET_CLONES have_target_clones(void)
 {
