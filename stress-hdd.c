@@ -763,9 +763,9 @@ static int stress_hdd(const stress_args_t *args)
 
 			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 				size_t j;
-				size_t offset = (i == 0) ?
+				size_t offset = ((i == 0) ?
 					hdd_bytes :
-					(stress_mwc64() % hdd_bytes) & ~511UL;
+					(stress_mwc64() % hdd_bytes)) & ~511UL;
 rnd_wr_retry:
 				if (!keep_stressing(args)) {
 					(void)close(fd);
