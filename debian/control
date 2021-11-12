@@ -3,7 +3,7 @@ Rules-Requires-Root: no
 Section: devel
 Priority: optional
 Maintainer: Colin King <colin.king@ubuntu.com>
-Standards-Version: 4.1.2
+Standards-Version: 4.5.1
 Build-Depends: debhelper (>= 13),
                debhelper-compat (=13),
                zlib1g-dev,
