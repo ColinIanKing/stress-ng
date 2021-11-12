@@ -170,6 +170,47 @@ static inline void stress_arch_prctl(void)
 #endif
 	}
 #endif
+
+#if defined(HAVE_ASM_PRCTL_H) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&		\
+    defined(ARCH_GET_XCOMP_SUPP) &&		\
+    (defined(__x86_64__) || defined(__x86_64))
+	{
+		uint64_t features;
+		int ret;
+
+		ret = shim_arch_prctl(ARCH_GET_XCOMP_SUPP, (unsigned long)&features);
+		(void)ret;
+	}
+#endif
+#if defined(HAVE_ASM_PRCTL_H) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&		\
+    defined(ARCH_GET_XCOMP_PERM) &&		\
+    (defined(__x86_64__) || defined(__x86_64))
+	{
+		uint64_t features;
+		int ret;
+
+		ret = shim_arch_prctl(ARCH_GET_XCOMP_PERM, (unsigned long)&features);
+		(void)ret;
+	}
+#endif
+#if defined(HAVE_ASM_PRCTL_H) &&		\
+    defined(HAVE_SYS_PRCTL_H) &&		\
+    defined(ARCH_REQ_XCOMP_PERM) &&		\
+    (defined(__x86_64__) || defined(__x86_64))
+	{
+		unsigned long idx;
+		int ret;
+
+		for (idx = 0; idx < 255; idx++) {
+			errno = 0;
+			ret = shim_arch_prctl(ARCH_REQ_XCOMP_PERM, idx);
+			if ((ret < 0) && (errno == -EINVAL))
+				break;
+		}
+	}
+#endif
 }
 
 #if defined(PR_SET_SYSCALL_USER_DISPATCH) &&	\
