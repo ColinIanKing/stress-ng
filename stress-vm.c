@@ -713,6 +713,65 @@ static size_t TARGET_CLONES stress_vm_gray(
 }
 
 /*
+ *  stress_vm_grayflip()
+ *	fill all of memory with a gray code based pattern that
+ *	flips as many bits as possible on each write.
+ */
+static size_t TARGET_CLONES stress_vm_grayflip(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	const stress_args_t *args,
+	const uint64_t max_ops)
+{
+	static uint8_t val;
+	uint8_t v;
+	volatile uint8_t *ptr;
+	size_t bit_errors = 0;
+	const uint64_t c_orig = get_counter(args);
+	uint64_t c;
+
+	for (c = c_orig, v = val, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; v++) {
+		register uint8_t gray;
+
+		if (UNLIKELY(!keep_stressing_flag()))
+			return 0;
+
+		gray = (v >> 1) ^ v;
+		*ptr++ = gray;
+		gray = ~gray;
+		*ptr++ = gray;
+	}
+	(void)stress_mincore_touch_pages(buf, sz);
+	inject_random_bit_errors(buf, sz);
+
+	for (v = val, ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; v++) {
+		register uint8_t gray;
+
+		if (UNLIKELY(!keep_stressing_flag()))
+			break;
+
+		gray = (v >> 1) ^ v;
+		if (UNLIKELY(*(ptr++) != gray))
+			bit_errors++;
+		c++;
+		gray = ~gray;
+		if (UNLIKELY(*(ptr++) != gray))
+			bit_errors++;
+		c++;
+		if (UNLIKELY(max_ops && c >= max_ops))
+			break;
+	}
+	val++;
+
+	stress_vm_check("gray code", bit_errors);
+	set_counter(args, c);
+
+	return bit_errors;
+}
+
+
+/*
  *  stress_vm_incdec()
  *	work through memory incrementing it and then decrementing
  *	it by a value that changes on each test iteration.
@@ -2078,6 +2137,7 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "galpat-0",	stress_vm_galpat_zero },
 	{ "galpat-1",	stress_vm_galpat_one },
 	{ "gray",	stress_vm_gray },
+	{ "grayflip",	stress_vm_grayflip },
 	{ "rowhammer",	stress_vm_rowhammer },
 	{ "incdec",	stress_vm_incdec },
 	{ "inc-nybble",	stress_vm_inc_nybble },
