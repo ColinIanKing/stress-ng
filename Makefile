@@ -322,6 +322,7 @@ STRESS_SRC = \
 	stress-utime.c \
 	stress-vdso.c \
 	stress-vecmath.c \
+	stress-vecwide.c \
 	stress-verity.c \
 	stress-vforkmany.c \
 	stress-vm.c \

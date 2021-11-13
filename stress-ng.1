@@ -4310,6 +4310,18 @@ and the vector math optimisations produced by the compiler.
 .B \-\-vecmath\-ops N
 stop after N bogo vector integer math operations.
 .TP
+.B \-\-vecwide N
+start N workers that perform various 8 bit math operations on vectors
+of 4, 8, 16, 32, 64, 128, 256, 512, 1024 and 2048 bytes. With the -v option
+the relative compute performance vs the expected compute performance based
+on total run time is shown for the first vecwide worker. The vecwide stressor
+exercises various processor vector instruction mixes and how well the
+compiler can map the vector operations to the target instruction set.
+.TP
+.B \-\-vecwide\-ops N
+stop after N bogo vector operations (2048 iterations of a mix of vector
+instruction operations).
+.TP
 .B \-\-verity N
 start N workers that exercise read-only file based authenticy protection
 using the verity ioctls FS_IOC_ENABLE_VERITY and FS_IOC_MEASURE_VERITY.

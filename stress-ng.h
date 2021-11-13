@@ -2742,6 +2742,7 @@ typedef struct {
 	MACRO(utime)		\
 	MACRO(vdso)		\
 	MACRO(vecmath)		\
+	MACRO(vecwide)		\
 	MACRO(verity)		\
 	MACRO(vfork)		\
 	MACRO(vforkmany)	\
@@ -3800,6 +3801,9 @@ typedef enum {
 
 	OPT_vecmath,
 	OPT_vecmath_ops,
+
+	OPT_vecwide,
+	OPT_vecwide_ops,
 
 	OPT_verify,
 

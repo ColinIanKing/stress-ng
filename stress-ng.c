@@ -940,6 +940,8 @@ static const struct option long_options[] = {
 	{ "vdso-func",	1,	0,	OPT_vdso_func },
 	{ "vecmath",	1,	0,	OPT_vecmath },
 	{ "vecmath-ops",1,	0,	OPT_vecmath_ops },
+	{ "vecwide",	1,	0,	OPT_vecwide},
+	{ "vecwide-ops",1,	0,	OPT_vecwide_ops },
 	{ "verbose",	0,	0,	OPT_verbose },
 	{ "verify",	0,	0,	OPT_verify },
 	{ "verity",	1,	0,	OPT_verity },
