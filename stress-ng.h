@@ -1974,6 +1974,13 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define TARGET_CLONE_SKYLAKE_AVX512
 #endif
 
+#if defined(HAVE_TARGET_CLONES_ALDERLAKE)
+#define TARGET_CLONE_ALDERLAKE	"arch=alderlake",
+#define TARGET_CLONE_USE
+#else
+#define TARGET_CLONE_ALDERLAKE
+#endif
+
 #define TARGET_CLONES_ALL			\
 	TARGET_CLONE_AVX TARGET_CLONE_AVX2 	\
 	TARGET_CLONE_MMX TARGET_CLONE_SSE	\
@@ -1981,6 +1988,7 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 	TARGET_CLONE_SSSE3 TARGET_CLONE_SSE4_1	\
 	TARGET_CLONE_SSE4_2			\
 	TARGET_CLONE_SKYLAKE_AVX512		\
+	TARGET_CLONE_ALDERLAKE			\
 	"default"
 
 #if defined(TARGET_CLONE_USE)
