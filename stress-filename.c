@@ -281,6 +281,14 @@ static void stress_filename_test(
 	const bool should_pass)
 {
 	int fd;
+	int ret;
+	struct stat buf;
+
+	/* exercise dcache lookup of non-existent filename */
+	ret = stat(filename, &buf);
+	if (ret == 0)
+		pr_fail("%s: stat succeeded on non-existent file\n",
+			args->name);
 
 	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		if ((!should_pass) && (errno == ENAMETOOLONG))
@@ -291,8 +299,20 @@ static void stress_filename_test(
 			args->name, sz_max, errno, strerror(errno));
 	} else {
 		(void)close(fd);
+
+		/* exercise dcache lookup of existent filename */
+		ret = stat(filename, &buf);
+		(void)ret;
+
 		(void)unlink(filename);
 	}
+
+	/* exercise dcache lookup of non-existent filename */
+	ret = stat(filename, &buf);
+	if (ret == 0)
+		pr_fail("%s: stat succeeded on non-existent unlinked file\n",
+			args->name);
+	(void)ret;
 }
 
 /*
