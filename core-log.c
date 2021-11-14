@@ -43,15 +43,13 @@ void pr_lock(bool *lock)
 
 	*lock = false;
 
-	fd = open("/dev/stdout", O_RDONLY);
+	fd = fileno(stdout);
 	if (fd < 0)
 		return;
 
 	ret = flock(fd, LOCK_EX);
 	if (ret == 0)
 		*lock = true;
-
-	(void)close(fd);
 #else
 	(void)lock;
 #endif
@@ -71,15 +69,13 @@ void pr_unlock(bool *lock)
 	if (!*lock)
 		return;
 
-	fd = open("/dev/stdout", O_RDONLY);
+	fd = fileno(stdout);
 	if (fd < 0)
 		return;
 
 	ret = flock(fd, LOCK_UN);
 	if (ret == 0)
 		*lock = false;
-
-	(void)close(fd);
 #else
 	(void)lock;
 #endif
