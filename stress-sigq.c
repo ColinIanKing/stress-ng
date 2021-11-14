@@ -159,6 +159,9 @@ again:
 				info.si_uid = myuid;
 				info.si_value = s;
 				(void)shim_rt_sigqueueinfo(pid, SIGUSR1, &info);
+
+				/* Exercise invalid signal */
+				(void)shim_rt_sigqueueinfo(pid, 0, &info);
 			}
 #endif
 			inc_counter(args);
