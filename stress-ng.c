@@ -2047,7 +2047,6 @@ again:
 				stress_set_oom_adjustment(name, false);
 				stress_set_max_limits();
 				stress_set_iopriority(ionice_class, ionice_level);
-				//stress_set_proc_name(name);
 				(void)umask(0077);
 
 				pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
