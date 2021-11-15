@@ -76,9 +76,9 @@ static void stress_resched_child(
 		int ret, k;
 
 		for (k = 0; k < 1024; k++) {
+#if defined(HAVE_SCHEDULING)
 			size_t j;
 
-#if defined(HAVE_SCHEDULING)
 			for (j = 0; j < SIZEOF_ARRAY(normal_policies); j++) {
 				struct sched_param param;
 
