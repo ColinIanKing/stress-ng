@@ -78,22 +78,27 @@ static void stress_resched_child(
 		for (k = 0; k < 1024; k++) {
 			size_t j;
 
-			for (j = 0; j < SIZEOF_ARRAY(normal_policies); j++) {
 #if defined(HAVE_SCHEDULING)
+			for (j = 0; j < SIZEOF_ARRAY(normal_policies); j++) {
 				struct sched_param param;
 
 				(void)memset(&param, 0, sizeof(param));
 				param.sched_priority = 0;
 				ret = sched_setscheduler(pid, normal_policies[j], &param);
 				(void)ret;
-#endif
 				ret = shim_sched_yield();
 				(void)ret;
 				if (yields)
 					yields[i]++;
-
 				inc_counter(args);
 			}
+#else
+			ret = shim_sched_yield();
+			(void)ret;
+			if (yields)
+				yields[i]++;
+			inc_counter(args);
+#endif
 		}
 
 		ret = nice(1);
