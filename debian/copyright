@@ -5,6 +5,7 @@ Source: https://github.com/ColinIanKing/stress-ng
 
 Files: *
 Copyright: 2013-2021, Canonical, Ltd.
+           2021, Colin Ian King
 License: GPL-2+
  On Debian systems, the complete text of the GNU General Public
  License can be found in `/usr/share/common-licenses/GPL-2'.
