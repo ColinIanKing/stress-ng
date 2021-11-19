@@ -119,6 +119,9 @@ static const unsigned int fan_stress_settings[] = {
 #if defined(FAN_Q_OVERFLOW)
 	FAN_Q_OVERFLOW,
 #endif
+#if defined(FAN_FS_ERROR)
+	FAN_FS_ERROR,
+#endif
 	0
 };
 
