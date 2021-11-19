@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016-2021 Canonical, Ltd.
+ * Copyright 2021 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,15 +16,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
-
 
 static const stress_help_t help[] = {
 	{ NULL,	"memrate N",		"start N workers exercised memory read/writes" },
@@ -34,7 +28,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-typedef uint64_t (*stress_memrate_func_t)(void *start, void *end, uint64_t rd_mbs, uint64_t wr_mbs);
+typedef uint64_t (*stress_memrate_func_t)(void *start, void *end, uint64_t rd_mbs, uint64_t wr_mbs, bool *valid);
 
 typedef struct {
 	const char 	*name;
@@ -44,6 +38,7 @@ typedef struct {
 typedef struct {
 	double		duration;
 	double		kbytes;
+	bool		valid;
 } stress_memrate_stats_t;
 
 typedef struct {
@@ -83,12 +78,15 @@ static int stress_set_memrate_wr_mbs(const char *opt)
 	return stress_set_setting("memrate-wr-mbs", TYPE_ID_UINT64, &memrate_wr_mbs);
 }
 
+#define SINGLE_ARG(...) __VA_ARGS__
+
 #define STRESS_MEMRATE_READ(size, type)				\
 static uint64_t stress_memrate_read##size(			\
 	void *start,						\
 	void *end,						\
 	uint64_t rd_mbs,					\
-	uint64_t wr_mbs)					\
+	uint64_t wr_mbs,					\
+	bool *valid)						\
 {								\
 	register volatile type *ptr;				\
 	double t1;						\
@@ -131,6 +129,7 @@ static uint64_t stress_memrate_read##size(			\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
+	*valid = true;						\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
@@ -147,7 +146,8 @@ static uint64_t stress_memrate_write##size(			\
 	void *start,						\
 	void *end,						\
 	uint64_t rd_mbs,					\
-	uint64_t wr_mbs)					\
+	uint64_t wr_mbs,					\
+	bool *valid)						\
 {								\
 	register volatile type *ptr;				\
 	double t1;						\
@@ -190,8 +190,96 @@ static uint64_t stress_memrate_write##size(			\
 			(void)nanosleep(&t, NULL);		\
 		}						\
 	}							\
+	*valid = true;						\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
+
+/*
+ *
+ * See https://akkadia.org/drepper/cpumemory.pdf - section 6.1
+ *  non-temporal writes using movntdq. Data is not going to be
+ *  read, so no need to cache. Write directly to memory.
+ */
+
+#define STRESS_MEMRATE_WRITE_NT(size, type, movtype, op, init)	\
+static uint64_t stress_memrate_write_nt##size(			\
+	void *start,						\
+	void *end,						\
+	uint64_t rd_mbs,					\
+	uint64_t wr_mbs,					\
+	bool *valid)						\
+{								\
+	register type *ptr;					\
+	double t1;						\
+	const double dur = 1.0 / (double)wr_mbs;		\
+	double total_dur = 0.0;					\
+								\
+	(void)rd_mbs;						\
+								\
+	if (!__builtin_cpu_supports("sse") && 			\
+            !__builtin_cpu_supports("sse2")) {			\
+		*valid = false;					\
+		return 0;					\
+	}							\
+								\
+	t1 = stress_time_now();					\
+	for (ptr = start; ptr < (type *)end;) {			\
+		double t2, dur_remainder;			\
+		uint32_t i;					\
+								\
+		if (!keep_stressing_flag())			\
+			break;					\
+		for (i = 0; (i < (uint32_t)MB) &&		\
+		     (ptr < (type *)end);			\
+		     ptr += 8, i += size) {			\
+			movtype v = (movtype)init;		\
+			movtype *vptr = (movtype *)ptr;		\
+								\
+			op(&vptr[0], v);			\
+			op(&vptr[1], v);			\
+			op(&vptr[2], v);			\
+			op(&vptr[3], v);			\
+			op(&vptr[4], v);			\
+			op(&vptr[5], v);			\
+			op(&vptr[6], v);			\
+			op(&vptr[7], v);			\
+		}						\
+		t2 = stress_time_now();				\
+		total_dur += dur;				\
+		dur_remainder = total_dur - (t2 - t1);		\
+								\
+		if (dur_remainder >= 0.0) {			\
+			struct timespec t;			\
+			time_t sec = (time_t)dur_remainder;	\
+								\
+			t.tv_sec = sec;				\
+			t.tv_nsec = (long)((dur_remainder -	\
+				(double)sec) * 			\
+				STRESS_NANOSECOND);		\
+			(void)nanosleep(&t, NULL);		\
+		}						\
+	}							\
+	*valid = true;						\
+	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
+}
+
+#if defined(HAVE_XMMINTRIN_H) &&	\
+    defined(HAVE_INT128_T) &&		\
+    defined(HAVE_V2DI) && 		\
+    defined(HAVE_BUILTIN_SUPPORTS) &&	\
+    defined(HAVE_BUILTIN_IA32_MOVNTDQ)
+STRESS_MEMRATE_WRITE_NT(128, __uint128_t, __v2di, __builtin_ia32_movntdq, SINGLE_ARG({ 0, i }))
+#endif
+#if defined(HAVE_XMMINTRIN_H) &&	\
+    defined(HAVE_BUILTIN_SUPPORTS) &&	\
+    defined(HAVE_BUILTIN_IA32_MOVNTI64)
+STRESS_MEMRATE_WRITE_NT(64, uint64_t, long long int, __builtin_ia32_movnti64, i)
+#endif
+#if defined(HAVE_XMMINTRIN_H) &&	\
+    defined(HAVE_BUILTIN_SUPPORTS) &&	\
+    defined(HAVE_BUILTIN_IA32_MOVNTI)
+STRESS_MEMRATE_WRITE_NT(32, uint32_t, int, __builtin_ia32_movnti, i)
+#endif
 
 #if defined(HAVE_INT128_T)
 STRESS_MEMRATE_WRITE(128, __uint128_t)
@@ -202,17 +290,35 @@ STRESS_MEMRATE_WRITE(16, uint16_t)
 STRESS_MEMRATE_WRITE(8, uint8_t)
 
 static stress_memrate_info_t memrate_info[] = {
+#if defined(HAVE_XMMINTRIN_H) &&	\
+    defined(HAVE_INT128_T) &&		\
+    defined(HAVE_V2DI) && 		\
+    defined(HAVE_BUILTIN_IA32_MOVNTDQ)
+	{ "write128nt",	stress_memrate_write_nt128 },
+#endif
+#if defined(HAVE_XMMINTRIN_H) &&	\
+    defined(HAVE_BUILTIN_IA32_MOVNTI64)
+	{ "write64nt",	stress_memrate_write_nt64 },
+#endif
+#if defined(HAVE_XMMINTRIN_H) &&	\
+    defined(HAVE_BUILTIN_IA32_MOVNTI)
+	{ "write32nt",	stress_memrate_write_nt32 },
+#endif
+
 #if defined(HAVE_INT128_T)
 	{ "write128",	stress_memrate_write128 },
-	{ "read128",	stress_memrate_read128 },
 #endif
 	{ "write64",	stress_memrate_write64 },
-	{ "read64",	stress_memrate_read64 },
 	{ "write32",	stress_memrate_write32 },
-	{ "read32",	stress_memrate_read32 },
 	{ "write16",	stress_memrate_write16 },
-	{ "read16",	stress_memrate_read16 },
 	{ "write8",	stress_memrate_write8 },
+
+#if defined(HAVE_INT128_T)
+	{ "read128",	stress_memrate_read128 },
+#endif
+	{ "read64",	stress_memrate_read64 },
+	{ "read32",	stress_memrate_read32 },
+	{ "read16",	stress_memrate_read16 },
 	{ "read8",	stress_memrate_read8 }
 };
 
@@ -278,14 +384,16 @@ static int stress_memrate_child(const stress_args_t *args, void *ctxt)
 			double t1, t2;
 			uint64_t kbytes;
 			stress_memrate_info_t *info = &memrate_info[i];
+			bool valid = false;
 
 			t1 = stress_time_now();
 			kbytes = info->func(buffer, buffer_end,
 					    context->memrate_rd_mbs,
-					    context->memrate_wr_mbs);
+					    context->memrate_wr_mbs, &valid);
 			context->stats[i].kbytes += (double)kbytes;
 			t2 = stress_time_now();
 			context->stats[i].duration += (t2 - t1);
+			context->stats[i].valid = valid;
 
 			if (!keep_stressing(args))
 				break;
@@ -327,6 +435,7 @@ static int stress_memrate(const stress_args_t *args)
 	for (i = 0; i < memrate_items; i++) {
 		context.stats[i].duration = 0.0;
 		context.stats[i].kbytes = 0.0;
+		context.stats[i].valid = false;
 	}
 
 	context.memrate_bytes = (context.memrate_bytes + 63) & ~(63ULL);
@@ -339,17 +448,19 @@ static int stress_memrate(const stress_args_t *args)
 
 	pr_lock(&lock);
 	for (i = 0; i < memrate_items; i++) {
+		if (!context.stats[i].valid)
+			continue;
 		if (context.stats[i].duration > 0.001) {
 			char tmp[32];
 			const double rate = context.stats[i].kbytes / (context.stats[i].duration * KB);
 
-			pr_inf_lock(&lock, "%s: %8.8s: %12.2f MB/sec\n",
+			pr_inf_lock(&lock, "%s: %10.10s: %12.2f MB/sec\n",
 				args->name, memrate_info[i].name, rate);
 
 			(void)snprintf(tmp, sizeof(tmp), "%s MB/sec", memrate_info[i].name);
 			stress_misc_stats_set(args->misc_stats, i, tmp, rate);
 		} else {
-			pr_inf_lock(&lock, "%s: %8.8s: interrupted early\n",
+			pr_inf_lock(&lock, "%s: %10.10s: interrupted early\n",
 				args->name, memrate_info[i].name);
 		}
 	}
