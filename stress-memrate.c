@@ -263,22 +263,46 @@ static uint64_t stress_memrate_write_nt##size(			\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
-#if defined(HAVE_XMMINTRIN_H) &&	\
+#define __BUILTIN_NONTEMPORAL_STORE(a, b)	__builtin_nontemporal_store(b, a)
+
+#if defined(HAVE_INT128_T) &&		\
+    defined(HAVE_BUILTIN_SUPPORTS) &&	\
+    defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
+/* Clang non-temporal stores */
+STRESS_MEMRATE_WRITE_NT(128, __uint128_t, __uint128_t, __BUILTIN_NONTEMPORAL_STORE, i)
+#define HAVE_WRITE128NT
+#elif defined(HAVE_XMMINTRIN_H) &&	\
     defined(HAVE_INT128_T) &&		\
     defined(HAVE_V2DI) && 		\
     defined(HAVE_BUILTIN_SUPPORTS) &&	\
     defined(HAVE_BUILTIN_IA32_MOVNTDQ)
+/* gcc x86 non-temporal stores */
 STRESS_MEMRATE_WRITE_NT(128, __uint128_t, __v2di, __builtin_ia32_movntdq, SINGLE_ARG({ 0, i }))
+#define HAVE_WRITE128NT
 #endif
-#if defined(HAVE_XMMINTRIN_H) &&	\
+
+#if defined(HAVE_BUILTIN_SUPPORTS) &&	\
+    defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
+/* Clang non-temporal stores */
+STRESS_MEMRATE_WRITE_NT(64, uint64_t, uint64_t, __BUILTIN_NONTEMPORAL_STORE, i)
+#define HAVE_WRITE64NT
+#elif defined(HAVE_XMMINTRIN_H) &&	\
     defined(HAVE_BUILTIN_SUPPORTS) &&	\
     defined(HAVE_BUILTIN_IA32_MOVNTI64)
 STRESS_MEMRATE_WRITE_NT(64, uint64_t, long long int, __builtin_ia32_movnti64, i)
+#define HAVE_WRITE64NT
 #endif
-#if defined(HAVE_XMMINTRIN_H) &&	\
+
+#if defined(HAVE_BUILTIN_SUPPORTS) &&	\
+    defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
+/* Clang non-temporal stores */
+STRESS_MEMRATE_WRITE_NT(32, uint32_t, uint32_t, __BUILTIN_NONTEMPORAL_STORE, i)
+#define HAVE_WRITE32NT
+#elif defined(HAVE_XMMINTRIN_H) &&	\
     defined(HAVE_BUILTIN_SUPPORTS) &&	\
     defined(HAVE_BUILTIN_IA32_MOVNTI)
 STRESS_MEMRATE_WRITE_NT(32, uint32_t, int, __builtin_ia32_movnti, i)
+#define HAVE_WRITE32NT
 #endif
 
 #if defined(HAVE_INT128_T)
@@ -290,18 +314,13 @@ STRESS_MEMRATE_WRITE(16, uint16_t)
 STRESS_MEMRATE_WRITE(8, uint8_t)
 
 static stress_memrate_info_t memrate_info[] = {
-#if defined(HAVE_XMMINTRIN_H) &&	\
-    defined(HAVE_INT128_T) &&		\
-    defined(HAVE_V2DI) && 		\
-    defined(HAVE_BUILTIN_IA32_MOVNTDQ)
+#if defined(HAVE_WRITE128NT)
 	{ "write128nt",	stress_memrate_write_nt128 },
 #endif
-#if defined(HAVE_XMMINTRIN_H) &&	\
-    defined(HAVE_BUILTIN_IA32_MOVNTI64)
+#if defined(HAVE_WRITE64NT)
 	{ "write64nt",	stress_memrate_write_nt64 },
 #endif
-#if defined(HAVE_XMMINTRIN_H) &&	\
-    defined(HAVE_BUILTIN_IA32_MOVNTI)
+#if defined(HAVE_WRITE32NT)
 	{ "write32nt",	stress_memrate_write_nt32 },
 #endif
 
