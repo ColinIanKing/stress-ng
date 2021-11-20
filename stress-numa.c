@@ -325,7 +325,7 @@ static int stress_numa(const stress_args_t *args)
 			mode |= MPOL_F_RELATIVE_NODES;
 #endif
 
-		switch (stress_mwc8() % 10) {
+		switch (stress_mwc8() % 11) {
 		case 0:
 #if defined(MPOL_DEFAULT)
 			ret = shim_set_mempolicy(MPOL_DEFAULT | mode, NULL, max_nodes);
@@ -366,6 +366,13 @@ static int stress_numa(const stress_args_t *args)
 			/* Invalid mode */
 			ret = shim_set_mempolicy(mode | MPOL_F_STATIC_NODES | MPOL_F_RELATIVE_NODES, node_mask, max_nodes);
 			break;
+#if defined(MPOL_F_NUMA_BALANCING) &&	\
+    defined(MPOL_LOCAL)
+		case 9:
+			/* Invalid  MPOL_F_NUMA_BALANCING | MPOL_LOCAL */
+			ret = shim_set_mempolicy(MPOL_F_NUMA_BALANCING | MPOL_LOCAL, node_mask, max_nodes);
+			break;
+#endif
 		default:
 			/* Intentionally invalid mode */
 			ret = shim_set_mempolicy(~0, node_mask, max_nodes);
