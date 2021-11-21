@@ -4102,6 +4102,8 @@ static inline void ALWAYS_INLINE shim_clflush(volatile void *ptr)
 {
 	asm volatile("clflush %0" : "+m" (*(volatile char *)ptr));
 }
+#elif defined(DCACHE)
+#define shim_clflush(ptr)	shim_cacheflush((char *)ptr, 64, DCACHE)
 #else
 #define shim_clflush(ptr)	do { } while (0) /* No-op */
 #endif
