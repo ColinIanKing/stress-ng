@@ -3957,7 +3957,7 @@ static inline bool ALWAYS_INLINE OPTIMIZE3 keep_stressing_flag(void)
 	return g_keep_stressing_flag;
 }
 
-static inline void OPTIMIZE3 keep_stressing_set_flag(const bool setting)
+static inline void ALWAYS_INLINE OPTIMIZE3 keep_stressing_set_flag(const bool setting)
 {
 	g_keep_stressing_flag = setting;
 }
@@ -3966,7 +3966,7 @@ static inline void OPTIMIZE3 keep_stressing_set_flag(const bool setting)
  *  keep_stressing()
  *      returns true if we can keep on running a stressor
  */
-static inline bool OPTIMIZE3 keep_stressing(const stress_args_t *args)
+static inline bool ALWAYS_INLINE OPTIMIZE3 keep_stressing(const stress_args_t *args)
 {
 	return (LIKELY(g_keep_stressing_flag) &&
 		LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
