@@ -298,7 +298,7 @@ uint64_t stress_get_uint64_percent(
 /*
  *  stress_get_uint64_byte_memory()
  *	get memory size from string. If it contains %
- *	at the end, then covert it into the available
+ *	at the end, then convert it into the available
  *	physical memory scaled by that percentage divided
  *	by the number of stressor instances
  */
@@ -315,7 +315,7 @@ uint64_t stress_get_uint64_byte_memory(
 /*
  *  stress_get_uint64_byte_filesystem()
  *	get file size from string. If it contains %
- *	at the end, then covert it into the available
+ *	at the end, then convert it into the available
  *	file system space scaled by that percentage divided
  *	by the number of stressor instances
  */

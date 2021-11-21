@@ -146,7 +146,7 @@ static int stress_munmap_child(const stress_args_t *args, void *context)
 		if (n < 7)
 			continue;	/* bad sscanf data */
 		if (start >= end)
-			continue;	/* invalid addresse range */
+			continue;	/* invalid address range */
 		size = (uintptr_t)end - (uintptr_t)start;
 		(void)madvise(start, size, MADV_DONTDUMP);
 	}
@@ -164,7 +164,7 @@ static int stress_munmap_child(const stress_args_t *args, void *context)
 		if (n < 7)
 			continue;	/* bad sscanf data */
 		if (start >= end)
-			continue;	/* invalid addresse range */
+			continue;	/* invalid address range */
 		if (start == context)
 			continue;	/* don't want to unmap shared context */
 		if (((const void *)args >= start) && ((const void *)args < end))
