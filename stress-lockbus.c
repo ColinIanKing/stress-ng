@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C) 2021 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -39,21 +34,37 @@ static const stress_help_t help[] = {
       defined(STRESS_ARCH_ARM)))
 
 #if defined(HAVE_ATOMIC_ADD_FETCH)
-#define MEM_LOCK(ptr, inc)			\
-do {						\
+#define MEM_LOCK(ptr, inc)				\
+do {							\
 	 __atomic_add_fetch(ptr, inc, __ATOMIC_SEQ_CST);\
 } while (0)
 #else
-#define MEM_LOCK(ptr, inc)			\
-do {						\
-	asm volatile("lock addl %1,%0" :	\
-		     "+m" (*ptr) :		\
-		     "ir" (inc));		\
+#define MEM_LOCK(ptr, inc)				\
+do {							\
+	asm volatile("lock addl %1,%0" :		\
+		     "+m" (*ptr) :			\
+		     "ir" (inc));			\
 } while (0)
 #endif
 
 #define BUFFER_SIZE	(1024 * 1024 * 16)
 #define CHUNK_SIZE	(64 * 4)
+
+#if defined(HAVE_SYNC_BOOL_COMPARE_AND_SWAP)
+/* basically locked cmpxchg */
+#define SYNC_BOOL_COMPARE_AND_SWAP(ptr, old_val, new_val) 	\
+do {								\
+	__sync_bool_compare_and_swap(ptr, old_val, new_val);	\
+} while (0)
+#else
+/* no-op */
+#define SYNC_BOOL_COMPARE_AND_SWAP(ptr, old_val, new_val)	\
+do {								\
+	(void)ptr;						\
+	(void)old_val;						\
+	(void)new_val;						\
+}
+#endif
 
 #define MEM_LOCK_AND_INC(ptr, inc)		\
 do {						\
@@ -159,6 +170,25 @@ static int stress_lockbus(const stress_args_t *args)
 		MEM_LOCK_AND_INCx8(ptr0, inc);
 		MEM_LOCKx8(ptr1);
 		MEM_LOCKx8(ptr2);
+
+#if defined(HAVE_SYNC_BOOL_COMPARE_AND_SWAP)
+		{
+			register uint32_t val;
+			register const uint32_t zero = 0;
+
+			val = *ptr0;
+			SYNC_BOOL_COMPARE_AND_SWAP(ptr0, val, zero);
+			SYNC_BOOL_COMPARE_AND_SWAP(ptr0, zero, val);
+
+			val = *ptr1;
+			SYNC_BOOL_COMPARE_AND_SWAP(ptr1, val, zero);
+			SYNC_BOOL_COMPARE_AND_SWAP(ptr1, zero, val);
+
+			val = *ptr2;
+			SYNC_BOOL_COMPARE_AND_SWAP(ptr2, val, zero);
+			SYNC_BOOL_COMPARE_AND_SWAP(ptr2, zero, val);
+		}
+#endif
 
 		inc_counter(args);
 	} while (keep_stressing(args));
