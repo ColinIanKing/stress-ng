@@ -4153,7 +4153,10 @@ extern void stress_perf_init(void);
 #endif
 
 /* CPU helpers */
+extern void stress_x86_cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx);
 extern WARN_UNUSED bool stress_cpu_is_x86(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_clflushopt(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_clwb(void);
 
 typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context);
 

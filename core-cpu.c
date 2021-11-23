@@ -24,22 +24,105 @@
  */
 #include "stress-ng.h"
 
+#define CPUID_pcommit		(1U << 22)
+#define CPUID_clflushopt	(1U << 23)
+#define CPUID_clwb		(1U << 24)
+
+/*
+ *  stress_x86_cpuid()
+ *	cpuid for x86
+ */
+void stress_x86_cpuid(
+	uint32_t *eax,
+	uint32_t *ebx,
+	uint32_t *ecx,
+	uint32_t *edx)
+{
+#if defined(STRESS_ARCH_X86)
+        asm volatile("cpuid"
+            : "=a" (*eax),
+              "=b" (*ebx),
+              "=c" (*ecx),
+              "=d" (*edx)
+            : "0" (*eax), "2" (*ecx)
+            : "memory");
+#else
+	*eax = 0;
+	*ebx = 0;
+	*ecx = 0;
+	*edx = 0;
+#endif
+}
+
+/*
+ *  stress_cpu_is_x86()
+ *	Intel x86 test
+ */
 bool stress_cpu_is_x86(void)
 {
-#if defined(HAVE_CPUID_H) &&	\
-    defined(STRESS_ARCH_X86) && 	\
-    defined(HAVE_CPUID) &&	\
-    NEED_GNUC(4,6,0)
-	uint32_t eax, ebx, ecx, edx;
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
 
 	/* Intel CPU? */
-	__cpuid(0, eax, ebx, ecx, edx);
+	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
 	if ((memcmp(&ebx, "Genu", 4) == 0) &&
 	    (memcmp(&edx, "ineI", 4) == 0) &&
 	    (memcmp(&ecx, "ntel", 4) == 0))
 		return true;
 	else
 		return false;
+#else
+	return false;
+#endif
+}
+
+/*
+ *  stress_cpu_x86_extended_features
+ *	cpuid EAX=7, ECX=0: Extended Features
+ */
+static void stress_cpu_x86_extended_features(
+	uint32_t *ebx,
+	uint32_t *ecx,
+	uint32_t *edx)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 7;
+
+	stress_x86_cpuid(&eax, ebx, ecx, edx);
+#else
+	*ebx = 0;
+	*ecx = 0;
+	*edx = 0;
+#endif
+}
+
+bool stress_cpu_x86_has_clflushopt(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_cpu_x86_extended_features(&ebx, &ecx, &edx);
+
+	return !!(ebx & CPUID_clflushopt);
+#else
+	return false;
+#endif
+}
+
+bool stress_cpu_x86_has_clwb(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_cpu_x86_extended_features(&ebx, &ecx, &edx);
+
+	return !!(ebx & CPUID_clwb);
 #else
 	return false;
 #endif
