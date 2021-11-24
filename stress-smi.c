@@ -31,8 +31,6 @@ static const stress_help_t help[] = {
 };
 
 #if defined(STRESS_ARCH_X86) &&		\
-    defined(HAVE_CPUID_H) &&		\
-    defined(HAVE___GET_CPUID) &&	\
     defined(HAVE_IOPORT) &&		\
     defined(HAVE_SYS_IO_H) &&		\
     defined(__linux__)
