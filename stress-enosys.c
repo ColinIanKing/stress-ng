@@ -34,6 +34,11 @@ static const stress_help_t help[] = {
 
 #define HASH_SYSCALL_SIZE	(1987)
 
+#define CALL_UNDEFINED		(0)
+#define CALL_BY_SYSCALL		(1)	/* syscall() call */
+#define CALL_BY_X86_SYSCALL	(2)	/* x86 syscall opcode */
+#define CALL_BY_X86_INT80	(3)	/* x86 int $80 */
+
 #if defined(__NR_syscalls)
 #define MAX_SYSCALL	__NR_syscalls
 #else
@@ -61,22 +66,11 @@ typedef struct hash_syscall {
 
 static stress_hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
 
+static int stress_call_type = CALL_UNDEFINED;
+static sigjmp_buf jmp_env;
+
 #if defined(STRESS_EXERCISE_X86_SYSCALL)
 static bool stress_x86syscall_available;
-
-static bool stress_check_x86syscall(void)
-{
-	uint32_t eax, ebx, ecx, edx;
-
-	/* Intel CPU? */
-	if (!stress_cpu_is_x86())
-		return false;
-	/* ..and supports syscall? */
-	__cpuid(0x80000001, eax, ebx, ecx, edx);
-	if (!(edx & (1ULL << 11)))
-		return false;
-	return true;
-}
 
 /*
  *  x86_64_syscall6()
@@ -87,28 +81,34 @@ static inline long x86_64_syscall6(
 	long arg3, long arg4, long arg5, long arg6)
 {
 	long ret;
-	unsigned long _arg1 = arg1;
-	unsigned long _arg2 = arg2;
-	unsigned long _arg3 = arg3;
-	unsigned long _arg4 = arg4;
-	unsigned long _arg5 = arg5;
-	unsigned long _arg6 = arg6;
 
-	register long __arg1 asm ("rdi") = _arg1;
-	register long __arg2 asm ("rsi") = _arg2;
-	register long __arg3 asm ("rdx") = _arg3;
-	register long __arg4 asm ("r10") = _arg4;
-	register long __arg5 asm ("r8") = _arg5;
-	register long __arg6 asm ("r9") = _arg6;
+	stress_call_type = CALL_BY_X86_SYSCALL;
 
-	asm volatile ("syscall\n\t"
+	{
+		unsigned long _arg1 = arg1;
+		unsigned long _arg2 = arg2;
+		unsigned long _arg3 = arg3;
+		unsigned long _arg4 = arg4;
+		unsigned long _arg5 = arg5;
+		unsigned long _arg6 = arg6;
+
+		register long __arg1 asm ("rdi") = _arg1;
+		register long __arg2 asm ("rsi") = _arg2;
+		register long __arg3 asm ("rdx") = _arg3;
+		register long __arg4 asm ("r10") = _arg4;
+		register long __arg5 asm ("r8") = _arg5;
+		register long __arg6 asm ("r9") = _arg6;
+
+
+		asm volatile ("syscall\n\t"
 			: "=a" (ret)
 			: "0" (number), "r" (__arg1), "r" (__arg2), "r" (__arg3),
 			  "r" (__arg4), "r" (__arg5), "r" (__arg6)
 			: "memory", "cc", "r11", "cx");
-	if (ret < 0) {
-		errno = -ret;
-		ret = -1;
+		if (ret < 0) {
+			errno = -ret;
+			ret = -1;
+		}
 	}
 	return ret;
 }
@@ -121,6 +121,8 @@ static inline int x86_0x80_syscall6(
 	long arg6)
 {
 	int ret;
+
+	stress_call_type = CALL_BY_X86_INT80;
 
 	asm (
 	     "movl %6, %%eax\n"
@@ -157,6 +159,8 @@ static inline long syscall7(long number, long arg1, long arg2,
 			    long arg3, long arg4, long arg5,
 			    long arg6, long arg7)
 {
+	stress_call_type = CALL_BY_SYSCALL;
+
 	return syscall(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 }
 STRESS_PRAGMA_POP
@@ -194,13 +198,16 @@ static void exercise_syscall(
 	long arg6, long arg7)
 {
 	int ret;
-	bool enosys = false;
+	NOCLOBBER bool enosys = false;
 	const pid_t pid = getpid();
 
 	if (!keep_stressing(args))
 		_exit(EXIT_SUCCESS);
 
 	itimer_set(args);
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret)
+		goto try_x86_syscall;
 	ret = (int)syscall7(number, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
 	exit_if_child(pid);
 	if ((ret < 0) && (errno != ENOSYS))
@@ -211,21 +218,45 @@ static void exercise_syscall(
 		_exit(0);
 	}
 
+try_x86_syscall:
 #if defined(STRESS_EXERCISE_X86_SYSCALL)
-	itimer_set(args);
-	if (stress_x86syscall_available) {
-		ret = x86_64_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
-		exit_if_child(pid);
-		if ((ret < 0) && (errno != ENOSYS))
-			enosys = true;
+	{
+		static bool x86_syscall_ok = true;
+
+		itimer_set(args);
+		ret = sigsetjmp(jmp_env, 1);
+		if (ret) {
+			x86_syscall_ok = false;
+			goto try_x86_0x80;
+		}
+		if (stress_x86syscall_available && x86_syscall_ok) {
+			ret = x86_64_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
+			exit_if_child(pid);
+			if ((ret < 0) && (errno != ENOSYS))
+				enosys = true;
+		}
 	}
+try_x86_0x80:
 #endif
+
 #if defined(STRESS_EXERCISE_X86_0X80)
-	itimer_set(args);
-	ret = x86_0x80_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
-	exit_if_child(pid);
-	if ((ret < 0) && (errno != ENOSYS))
-		enosys = true;
+	{
+		static bool x86_0x80_ok = true;
+
+		itimer_set(args);
+		ret = sigsetjmp(jmp_env, 1);
+		if (ret) {
+			x86_0x80_ok = false;
+			goto try_no_more;
+		}
+		if (x86_0x80_ok) {
+			ret = x86_0x80_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
+			exit_if_child(pid);
+			if ((ret < 0) && (errno != ENOSYS))
+				enosys = true;
+		}
+	}
+try_no_more:
 #endif
 	if (enosys)
 		_exit(errno);
@@ -3311,6 +3342,17 @@ static void NORETURN MLOCKED_TEXT stress_badhandler(int signum)
 	_exit(1);
 }
 
+static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
+{
+	(void)signum;
+
+	if (stress_call_type == CALL_UNDEFINED) {
+		/* No idea how we got here, bail out */
+		_exit(1);
+	}
+	siglongjmp(jmp_env, 1);
+}
+
 /*
  *  Call a system call in a child context so we don't clobber
  *  the parent
@@ -3347,6 +3389,8 @@ static inline int stress_do_syscall(const stress_args_t *args, const long number
 			if (stress_sighandler(args->name, sigs[i], stress_badhandler, NULL) < 0)
 				_exit(EXIT_FAILURE);
 		}
+		if (stress_sighandler(args->name, SIGILL, stress_sigill_handler, NULL) < 0)
+			_exit(EXIT_FAILURE);
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -3412,9 +3456,8 @@ static int stress_enosys(const stress_args_t *args)
 	pid_t pid;
 
 #if defined(STRESS_EXERCISE_X86_SYSCALL)
-	stress_x86syscall_available = stress_check_x86syscall();
+	stress_x86syscall_available = stress_cpu_x86_has_syscall();
 #endif
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	if (!keep_stressing(args))
