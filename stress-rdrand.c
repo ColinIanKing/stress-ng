@@ -37,12 +37,9 @@ static const stress_help_t help[] = {
 
 static int stress_set_rdrand_seed(const char *opt)
 {
-#if defined(HAVE_CPUID_H) &&	\
-    defined(STRESS_ARCH_X86) &&	\
-    defined(HAVE_CPUID) &&	\
+#if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_ASM_RDRAND) &&	\
-    defined(HAVE_ASM_RDSEED) &&	\
-    NEED_GNUC(4,6,0)
+    defined(HAVE_ASM_RDSEED)
 	bool rdrand_seed = true;
 
 	(void)opt;
@@ -60,11 +57,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_CPUID_H) &&	\
-    defined(STRESS_ARCH_X86) &&	\
-    defined(HAVE_CPUID) &&	\
-    defined(HAVE_ASM_RDRAND) &&	\
-    NEED_GNUC(4,6,0)
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_ASM_RDRAND)
 
 #define HAVE_RAND_CAPABILITY
 #if defined(HAVE_ASM_RDSEED)

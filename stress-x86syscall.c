@@ -46,10 +46,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(__linux__) &&	\
-    (defined(__x86_64__) || defined(__x86_64)) && \
-    defined(HAVE_CPUID_H) &&    \
-    defined(HAVE_CPUID) &&      \
-    NEED_GNUC(4,6,0)
+    (defined(__x86_64__) || defined(__x86_64))
 
 typedef int (*stress_wfunc_t)(void);
 

@@ -112,10 +112,6 @@
 #include <complex.h>
 #endif
 
-#if defined(HAVE_CPUID_H)
-#include <cpuid.h>
-#endif
-
 #if defined(HAVE_CRYPT_H)
 #include <crypt.h>
 #endif

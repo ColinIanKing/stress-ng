@@ -3076,10 +3076,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 #endif
 	{ "collatz",		stress_cpu_collatz },
 	{ "correlate",		stress_cpu_correlate },
-#if defined(HAVE_CPUID_H) &&	\
-    defined(STRESS_ARCH_X86) &&	\
-    defined(HAVE_CPUID) &&	\
-    NEED_GNUC(4,6,0)
+#if defined(STRESS_ARCH_X86)
 	{ "cpuid",		stress_cpu_cpuid },
 #endif
 	{ "crc16",		stress_cpu_crc16 },

@@ -46,10 +46,7 @@ static const stress_help_t help[] = {
 #endif
 
 #if defined(__linux__) &&       \
-    (defined(__x86_64__) || defined(__x86_64)) && \
-    defined(HAVE_CPUID_H) &&    \
-    defined(HAVE_CPUID) &&      \
-    NEED_GNUC(4,6,0)
+   (defined(__x86_64__) || defined(__x86_64))
 #define STRESS_EXERCISE_X86_SYSCALL
 #endif
 
