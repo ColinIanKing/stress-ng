@@ -41,36 +41,6 @@ static const stress_help_t help[] = {
 #define APM_PORT	(0xb2)
 
 /*
- *  stress_smi_zero_regs
- *	inline helper to clear a..d
- */
-static inline void stress_smi_zero_regs(
-	uint32_t *a,
-	uint32_t *b,
-	uint32_t *c,
-	uint32_t *d)
-{
-	*a = 0;
-	*b = 0;
-	*c = 0;
-	*d = 0;
-}
-
-/*
- *  stress_smi_cpu_has_msr()
- *	return non-zero if CPU has MSR support
- */
-static inline int stress_smi_cpu_has_msr(void)
-{
-	uint32_t a, b, c, d;
-
-	stress_smi_zero_regs(&a, &b, &c, &d);
-	__get_cpuid(1, &a, &b, &c, &d);
-	return d & (1 << 5);
-
-}
-
-/*
  *  stress_smi_supported()
  *      check if we can run this with SHIM_CAP_SYS_MODULE capability
  */
@@ -94,7 +64,7 @@ static int stress_smi_supported(const char *name)
                         "rights for this stressor\n", name);
                 return -1;
 	}
-	if (!stress_smi_cpu_has_msr()) {
+	if (!stress_cpu_x86_has_msr()) {
                 pr_inf_skip("%s stressor will be skipped, "
                         "CPU cannot read model specific registers (MSR)\n",
                         name);

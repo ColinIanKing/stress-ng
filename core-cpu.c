@@ -25,6 +25,7 @@
 #include "stress-ng.h"
 
 #define CPUID_tsc		(1U << 4)
+#define CPUID_msr		(1U << 5)
 #define CPUID_syscall		(1U << 11)
 #define CPUID_rdrand		(1U << 30)
 #define CPUID_pcommit		(1U << 22)
@@ -174,6 +175,22 @@ bool stress_cpu_x86_has_tsc(void)
 	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
 
 	return !!(edx & CPUID_tsc);
+#else
+	return false;
+#endif
+}
+
+bool stress_cpu_x86_has_msr(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0x1, ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
+	return !!(edx & CPUID_msr);
 #else
 	return false;
 #endif
