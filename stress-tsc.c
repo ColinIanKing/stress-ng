@@ -85,10 +85,7 @@ static int stress_tsc_supported(const char *name)
 }
 #endif
 
-#if defined(HAVE_CPUID_H) &&	\
-    defined(STRESS_ARCH_X86) && 	\
-    defined(HAVE_CPUID) &&	\
-    NEED_GNUC(4,6,0)
+#if defined(STRESS_ARCH_X86)
 
 #define HAVE_STRESS_TSC_CAPABILITY
 
@@ -100,8 +97,6 @@ static bool tsc_supported = false;
  */
 static int stress_tsc_supported(const char *name)
 {
-	uint32_t eax, ebx, ecx, edx;
-
 	/* Intel CPU? */
 	if (!stress_cpu_is_x86()) {
 		pr_inf_skip("%s stressor will be skipped, "
@@ -109,8 +104,7 @@ static int stress_tsc_supported(const char *name)
 		return -1;
 	}
 	/* ..and supports tsc? */
-	__cpuid(1, eax, ebx, ecx, edx);
-	if (!(edx & 0x10)) {
+	if (!stress_cpu_x86_has_tsc()) {
 		pr_inf_skip("%s stressor will be skipped, CPU "
 			"does not support the tsc instruction\n", name);
 		return -1;

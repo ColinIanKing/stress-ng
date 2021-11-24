@@ -4159,6 +4159,7 @@ extern WARN_UNUSED bool stress_cpu_x86_has_clflushopt(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_clwb(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_syscall(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_rdrand(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_tsc(void);
 
 typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context);
 
