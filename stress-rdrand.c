@@ -37,19 +37,19 @@ static const stress_help_t help[] = {
 
 static int stress_set_rdrand_seed(const char *opt)
 {
+	(void)opt;
+
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_ASM_RDRAND) &&	\
     defined(HAVE_ASM_RDSEED)
-	bool rdrand_seed = true;
+	if (stress_cpu_x86_has_rdseed()) {
+		bool rdrand_seed = true;
 
-	(void)opt;
-	return stress_set_setting("rdrand-seed", TYPE_ID_BOOL, &rdrand_seed);
-#else
-	(void)opt;
-	/* Really unlikely */
+		return stress_set_setting("rdrand-seed", TYPE_ID_BOOL, &rdrand_seed);
+	}
+#endif
 	pr_inf("rdrand-seed ignored, cpu does not support feature, defaulting to rdrand\n");
 	return 0;
-#endif
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

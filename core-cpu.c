@@ -27,6 +27,7 @@
 #define CPUID_tsc		(1U << 4)
 #define CPUID_msr		(1U << 5)
 #define CPUID_syscall		(1U << 11)
+#define CPUID_rdseed		(1U << 18)
 #define CPUID_rdrand		(1U << 30)
 #define CPUID_pcommit		(1U << 22)
 #define CPUID_clflushopt	(1U << 23)
@@ -127,6 +128,22 @@ bool stress_cpu_x86_has_clwb(void)
 	stress_cpu_x86_extended_features(&ebx, &ecx, &edx);
 
 	return !!(ebx & CPUID_clwb);
+#else
+	return false;
+#endif
+}
+
+bool stress_cpu_x86_has_rdseed(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_cpu_x86_extended_features(&ebx, &ecx, &edx);
+
+	return !!(ebx & CPUID_rdseed);
 #else
 	return false;
 #endif
