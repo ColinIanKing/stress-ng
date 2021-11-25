@@ -30,22 +30,16 @@
 #define FLAGS_CACHE_FENCE	(0x04)
 #define FLAGS_CACHE_SFENCE	(0x08)
 #define FLAGS_CACHE_CLFLUSHOPT	(0x10)
+#define FLAGS_CACHE_NOAFF	(0x20)
 
 typedef void (*cache_write_func_t)(uint64_t inc, const uint64_t r, uint64_t *pi, uint64_t *pk);
 typedef void (*cache_write_page_func_t)(uint8_t *const addr, const uint64_t size);
 
-#if defined(HAVE_BUILTIN_SFENCE)
 #define FLAGS_CACHE_MASK	(FLAGS_CACHE_PREFETCH |	\
 				 FLAGS_CACHE_FLUSH |	\
 				 FLAGS_CACHE_FENCE |	\
-				 FLAGS_CACHE_SFENCE)
-#else
-#define FLAGS_CACHE_MASK	(FLAGS_CACHE_PREFETCH |	\
-				 FLAGS_CACHE_FLUSH |	\
-				 FLAGS_CACHE_FENCE)
-#endif
-
-#define FLAGS_CACHE_NOAFF	(0x10)
+				 FLAGS_CACHE_SFENCE |	\
+				 FLAGS_CACHE_CLFLUSHOPT)
 
 static sigjmp_buf jmp_env;
 
@@ -180,7 +174,6 @@ static void clflushopt(void *p)
 		if (!keep_stressing_flag())				\
 			break;						\
 	}
-
 
 #define CACHE_WRITE_USE_MOD(x, flags)					\
 static void OPTIMIZE3 stress_cache_write_mod_ ## x(			\
@@ -389,7 +382,10 @@ static int stress_cache(const stress_args_t *args)
 	do {
 		r++;
 		if (r & 1) {
-			cache_write_funcs[masked_flags](inc, r, &i, &k);
+			uint32_t flags;
+
+			flags = masked_flags ? masked_flags : stress_mwc32() & FLAGS_CACHE_MASK;
+			cache_write_funcs[flags](inc, r, &i, &k);
 		} else {
 			register uint64_t j;
 
