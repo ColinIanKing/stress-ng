@@ -45,7 +45,7 @@ uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool g_keep_stressing_flag = true;	/* false to exit stressor */
 volatile bool g_caught_sigint = false;		/* true if stopped by SIGINT */
 pid_t g_pgrp;					/* process group leader */
-const char *g_app_name = "stress-ng";		/* Name of application */
+const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
 stress_put_val_t g_put_val;			/* sync data to somewhere */

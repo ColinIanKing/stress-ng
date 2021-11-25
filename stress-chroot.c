@@ -209,7 +209,7 @@ static int stress_chroot_test5(const stress_args_t *args)
 static int stress_chroot_test6(const stress_args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
-	const char *dev = "/dev/null";
+	const char dev[] = "/dev/null";
 
 	do_chroot(dev, &ret1, &ret2, &errno1, &errno2);
 

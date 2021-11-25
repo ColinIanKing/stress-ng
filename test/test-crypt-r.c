@@ -31,8 +31,8 @@
 int main(void)
 {
 	char *ptr;
-	const char *key = "keystring";
-	const char *salt = "saltstring";
+	static const char key[] = "keystring";
+	static const char salt[] = "saltstring";
 	static struct crypt_data data;
 
 	ptr = crypt_r(key, salt, &data);

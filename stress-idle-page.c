@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const char *bitmap_file = "/sys/kernel/mm/page_idle/bitmap";
+static const char bitmap_file[] = "/sys/kernel/mm/page_idle/bitmap";
 
 static const stress_help_t help[] = {
 	{ NULL,	"idle-page N",	   "start N idle page scanning workers" },

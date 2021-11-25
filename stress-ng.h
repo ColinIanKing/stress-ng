@@ -3936,7 +3936,7 @@ typedef struct stress_cpus {
 } stress_cpus_t;
 
 /* Various global option settings and flags */
-extern const char *g_app_name;		/* Name of application */
+extern const char g_app_name[];		/* Name of application */
 extern stress_shared_t *g_shared;	/* shared memory */
 extern uint64_t	g_opt_timeout;		/* timeout in seconds */
 extern uint64_t	g_opt_flags;		/* option flags */

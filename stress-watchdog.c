@@ -67,7 +67,7 @@ static const int sigs[] = {
 #endif
 };
 
-static const char *dev_watchdog = "/dev/watchdog";
+static const char dev_watchdog[] = "/dev/watchdog";
 static int fd;
 
 static void stress_watchdog_magic_close(void)

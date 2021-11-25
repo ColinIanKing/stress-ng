@@ -30,7 +30,7 @@
 
 int main(void)
 {
-	static const char *filename = "/tmp/test-fdatasync.tmp";
+	static const char filename[] = "/tmp/test-fdatasync.tmp";
 	int fd, err = 1;
 
 	fd = open(filename, O_RDWR | O_CREAT, 0666);

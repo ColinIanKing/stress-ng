@@ -32,7 +32,7 @@
 
 int main(void)
 {
-	static const char *filename = "/tmp/futimes.tmp";
+	static const char filename[] = "/tmp/futimes.tmp";
 	int fd, ret;
 
 	fd = open(filename, O_RDWR | O_CREAT, 0666);

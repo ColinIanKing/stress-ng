@@ -70,7 +70,7 @@ const char *stress_get_sched_name(const int sched)
     !defined(__minix__) &&						\
     !defined(__APPLE__)
 
-static const char *prefix = "sched";
+static const char prefix[] = "sched";
 
 #if defined(SCHED_DEADLINE) &&	\
     defined(__linux__)

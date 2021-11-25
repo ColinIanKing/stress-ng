@@ -24,7 +24,7 @@
  */
 #include "stress-ng.h"
 
-static const char *option = "taskset";
+static const char option[] = "taskset";
 
 #if defined(HAVE_AFFINITY)
 

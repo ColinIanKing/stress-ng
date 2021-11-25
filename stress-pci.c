@@ -105,7 +105,7 @@ static void stress_pci_info_free(stress_pci_info_t *pci_info_list)
 static stress_pci_info_t *stress_pci_info_get(void)
 {
 	struct dirent **list = NULL;
-	static const char *sys_devices = "/sys/devices";
+	static const char sys_devices[] = "/sys/devices";
 	int i, n;
 	stress_pci_info_t *pci_info_list = NULL;
 
