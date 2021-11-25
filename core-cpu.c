@@ -91,15 +91,9 @@ static void stress_cpu_x86_extended_features(
 	uint32_t *ecx,
 	uint32_t *edx)
 {
-#if defined(STRESS_ARCH_X86)
 	uint32_t eax = 7;
 
 	stress_x86_cpuid(&eax, ebx, ecx, edx);
-#else
-	*ebx = 0;
-	*ecx = 0;
-	*edx = 0;
-#endif
 }
 #endif
 
