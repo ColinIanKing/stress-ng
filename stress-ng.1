@@ -718,6 +718,10 @@ thrash the CPU cache.  The code does not intelligently determine the CPU cache
 configuration and so it may be sub-optimal in producing hit-miss read/write
 activity for some processors.
 .TP
+.B \-\-cache\-clflushopt
+use optimized cache line flush (x86 only). This is a no-op for non-x86
+architectures and older x86 processors that do not support this feature.
+.TP
 .B \-\-cache\-fence
 force write serialization on each store operation (x86 only). This is a no-op
 for non-x86 architectures.

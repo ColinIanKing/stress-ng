@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C) Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -28,6 +29,7 @@
 #define FLAGS_CACHE_FLUSH	(0x02)
 #define FLAGS_CACHE_FENCE	(0x04)
 #define FLAGS_CACHE_SFENCE	(0x08)
+#define FLAGS_CACHE_CLFLUSHOPT	(0x10)
 
 typedef void (*cache_write_func_t)(uint64_t inc, const uint64_t r, uint64_t *pi, uint64_t *pk);
 typedef void (*cache_write_page_func_t)(uint8_t *const addr, const uint64_t size);
@@ -50,6 +52,9 @@ static sigjmp_buf jmp_env;
 static const stress_help_t help[] = {
 	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
 	{ NULL,	"cache-ops N",	 	"stop after N cache bogo operations" },
+#if defined(HAVE_ASM_CLFLUSHOPT)
+	{ NULL, "cache-clflushopt",	"optimized cache line flush (x86 only)" },
+#endif
 	{ NULL, "cache-no-affinity",	"do not change CPU affinity" },
 	{ NULL,	"cache-fence",		"serialize stores" },
 	{ NULL,	"cache-flush",		"flush cache after every memory write (x86 only)" },
@@ -113,12 +118,20 @@ static int stress_cache_set_sfence(const char *opt)
 #endif
 }
 
+static int stress_cache_set_clflushopt(const char *opt)
+{
+	(void)opt;
+
+	return stress_cache_set_flag(FLAGS_CACHE_CLFLUSHOPT);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_cache_prefetch,		stress_cache_set_prefetch },
 	{ OPT_cache_flush,		stress_cache_set_flush },
 	{ OPT_cache_fence,		stress_cache_set_fence },
 	{ OPT_cache_sfence,		stress_cache_set_sfence },
 	{ OPT_cache_no_affinity,	stress_cache_set_noaff },
+	{ OPT_cache_clflushopt,		stress_cache_set_clflushopt },
 	{ 0,				NULL }
 };
 
@@ -126,6 +139,16 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define SHIM_SFENCE()		__builtin_ia32_sfence()
 #else
 #define SHIM_SFENCE()
+#endif
+
+#if defined(HAVE_ASM_CLFLUSHOPT)
+static void clflushopt(void *p)
+{
+        asm volatile("clflushopt (%0)\n" : : "r"(p) : "memory");
+}
+#define SHIM_CLFLUSHOPT(p)	clflushopt(p)
+#else
+#define SHIM_CLFLUSHOPT(p)
 #endif
 
 /*
@@ -140,6 +163,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 									\
 		if ((flags) & FLAGS_CACHE_PREFETCH) {			\
 			shim_builtin_prefetch(&mem_cache[i + 1], 1, 1);	\
+		}							\
+		if ((flags) & FLAGS_CACHE_CLFLUSHOPT) {			\
+			SHIM_CLFLUSHOPT(&mem_cache[i]);			\
 		}							\
 		mem_cache[i] += mem_cache[k] + r;			\
 		if ((flags) & FLAGS_CACHE_FLUSH) {			\
@@ -187,6 +213,22 @@ CACHE_WRITE_USE_MOD(12, FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE)
 CACHE_WRITE_USE_MOD(13, FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH)
 CACHE_WRITE_USE_MOD(14, FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH)
 CACHE_WRITE_USE_MOD(15, FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(16, FLAGS_CACHE_CLFLUSHOPT)
+CACHE_WRITE_USE_MOD(17, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(18, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(19, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(20, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_FENCE)
+CACHE_WRITE_USE_MOD(21, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(22, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(23, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(24, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE)
+CACHE_WRITE_USE_MOD(25, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(26, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(27, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(28, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE)
+CACHE_WRITE_USE_MOD(29, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(30, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(31, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
 
 static const cache_write_func_t cache_write_funcs[] = {
 	stress_cache_write_mod_0,
@@ -205,6 +247,22 @@ static const cache_write_func_t cache_write_funcs[] = {
 	stress_cache_write_mod_13,
 	stress_cache_write_mod_14,
 	stress_cache_write_mod_15,
+	stress_cache_write_mod_16,
+	stress_cache_write_mod_17,
+	stress_cache_write_mod_18,
+	stress_cache_write_mod_19,
+	stress_cache_write_mod_20,
+	stress_cache_write_mod_21,
+	stress_cache_write_mod_22,
+	stress_cache_write_mod_23,
+	stress_cache_write_mod_24,
+	stress_cache_write_mod_25,
+	stress_cache_write_mod_26,
+	stress_cache_write_mod_27,
+	stress_cache_write_mod_28,
+	stress_cache_write_mod_29,
+	stress_cache_write_mod_30,
+	stress_cache_write_mod_31,
 };
 
 typedef void (*cache_read_func_t)(uint64_t *pi, uint64_t *pk, uint32_t *ptotal);
@@ -294,6 +352,23 @@ static int stress_cache(const stress_args_t *args)
 	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_SFENCE)) {
 		pr_inf("%s: sfence is not available, ignoring this option\n",
 			args->name);
+	}
+#endif
+
+#if !defined(HAVE_ASM_CLFLUSHOPT)
+	if ((args->instance == 0) && (cache_flags & FLAGS_ASM_CLFLUSHOPT)) {
+		pr_inf("%s: sfence is not available, ignoring this option\n",
+			args->name);
+	}
+#endif
+
+#if defined(HAVE_ASM_CLFLUSHOPT)
+	if (!stress_cpu_x86_has_clflushopt() && (cache_flags & FLAGS_CACHE_CLFLUSHOPT)) {
+		cache_flags &= ~FLAGS_CACHE_CLFLUSHOPT;
+		if (args->instance == 0) {
+			pr_inf("%s: clflushopt is not available, ignoring this option\n",
+				args->name);
+		}
 	}
 #endif
 

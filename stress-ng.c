@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C) 2021 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -254,6 +255,7 @@ static const struct option long_options[] = {
 	{ "bsearch-size",1,	0,	OPT_bsearch_size },
 	{ "cache",	1,	0, 	OPT_cache },
 	{ "cache-ops",	1,	0,	OPT_cache_ops },
+	{ "cache-clflushopt",0,	0,	OPT_cache_clflushopt },
 	{ "cache-prefetch",0,	0,	OPT_cache_prefetch },
 	{ "cache-flush",0,	0,	OPT_cache_flush },
 	{ "cache-fence",0,	0,	OPT_cache_fence },
