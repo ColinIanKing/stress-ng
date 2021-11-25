@@ -81,6 +81,7 @@ bool stress_cpu_is_x86(void)
 #endif
 }
 
+#if defined(STRESS_ARCH_X86)
 /*
  *  stress_cpu_x86_extended_features
  *	cpuid EAX=7, ECX=0: Extended Features
@@ -100,6 +101,7 @@ static void stress_cpu_x86_extended_features(
 	*edx = 0;
 #endif
 }
+#endif
 
 bool stress_cpu_x86_has_clflushopt(void)
 {
