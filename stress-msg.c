@@ -163,7 +163,7 @@ static void stress_msgsnd(const int msgq_id)
 	/* Invalid msgq_id */
 	msg.mtype = 1;
 	msg.value = 0;
-	ret = msgsnd(-1, &msg, sizeof(msg), 0);
+	ret = msgsnd(-1, &msg, sizeof(msg.value), 0);
 	(void)ret;
 
 	/* Zero msg length + 0 msg.type */
@@ -173,7 +173,7 @@ static void stress_msgsnd(const int msgq_id)
 
 	/* Illegal flags, may or may not succeed */
 	msg.mtype = 1;
-	ret = msgsnd(msgq_id, &msg, sizeof(msg), ~0);
+	ret = msgsnd(msgq_id, &msg, sizeof(msg.value), ~0);
 	(void)ret;
 }
 
