@@ -37,6 +37,7 @@ static const stress_help_t help[] = {
 
 #define MSR_SMI_COUNT   (0x00000034)
 #define APM_PORT	(0xb2)
+#define STRESS_SMI_NOP	(0x90)	/* SMI No-op command */
 
 /*
  *  stress_smi_supported()
@@ -162,7 +163,7 @@ static int stress_smi(const stress_args_t *args)
 	}
 
 	do {
-		outb(1, 0xb2);
+		outb(STRESS_SMI_NOP, APM_PORT);
 		inc_counter(args);
 	} while (keep_stressing(args));
 
