@@ -2886,6 +2886,7 @@ typedef enum {
 	OPT_class,
 	OPT_cache_ops,
 	OPT_cache_clflushopt,
+	OPT_cache_cldemote,
 	OPT_cache_prefetch,
 	OPT_cache_flush,
 	OPT_cache_fence,
@@ -4152,13 +4153,14 @@ extern void stress_perf_init(void);
 /* CPU helpers */
 extern void stress_x86_cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx);
 extern WARN_UNUSED bool stress_cpu_is_x86(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_cldemote(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_clflushopt(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_clwb(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_syscall(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_msr(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_rdrand(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_rdseed(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_syscall(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_tsc(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_msr(void);
 
 typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context);
 

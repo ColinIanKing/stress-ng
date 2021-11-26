@@ -32,6 +32,7 @@
 #define CPUID_pcommit		(1U << 22)
 #define CPUID_clflushopt	(1U << 23)
 #define CPUID_clwb		(1U << 24)
+#define CPUID_cldemote		(1U << 25)	/* EAX=7, ECX=0, -> ECX */
 
 /*
  *  stress_x86_cpuid()
@@ -124,6 +125,22 @@ bool stress_cpu_x86_has_clwb(void)
 	stress_cpu_x86_extended_features(&ebx, &ecx, &edx);
 
 	return !!(ebx & CPUID_clwb);
+#else
+	return false;
+#endif
+}
+
+bool stress_cpu_x86_has_cldemote(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_cpu_x86_extended_features(&ebx, &ecx, &edx);
+
+	return !!(ecx & CPUID_cldemote);
 #else
 	return false;
 #endif

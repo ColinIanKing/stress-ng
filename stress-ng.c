@@ -255,6 +255,7 @@ static const struct option long_options[] = {
 	{ "bsearch-size",1,	0,	OPT_bsearch_size },
 	{ "cache",	1,	0, 	OPT_cache },
 	{ "cache-ops",	1,	0,	OPT_cache_ops },
+	{ "cache-cldemote",0,	0,	OPT_cache_cldemote },
 	{ "cache-clflushopt",0,	0,	OPT_cache_clflushopt },
 	{ "cache-prefetch",0,	0,	OPT_cache_prefetch },
 	{ "cache-flush",0,	0,	OPT_cache_flush },

@@ -30,22 +30,27 @@
 #define FLAGS_CACHE_FENCE	(0x04)
 #define FLAGS_CACHE_SFENCE	(0x08)
 #define FLAGS_CACHE_CLFLUSHOPT	(0x10)
-#define FLAGS_CACHE_NOAFF	(0x20)
+#define FLAGS_CACHE_CLDEMOTE	(0x20)
+#define FLAGS_CACHE_NOAFF	(0x80)
 
 typedef void (*cache_write_func_t)(uint64_t inc, const uint64_t r, uint64_t *pi, uint64_t *pk);
 typedef void (*cache_write_page_func_t)(uint8_t *const addr, const uint64_t size);
 
-#define FLAGS_CACHE_MASK	(FLAGS_CACHE_PREFETCH |	\
-				 FLAGS_CACHE_FLUSH |	\
-				 FLAGS_CACHE_FENCE |	\
-				 FLAGS_CACHE_SFENCE |	\
-				 FLAGS_CACHE_CLFLUSHOPT)
+#define FLAGS_CACHE_MASK	(FLAGS_CACHE_PREFETCH |		\
+				 FLAGS_CACHE_FLUSH |		\
+				 FLAGS_CACHE_FENCE |		\
+				 FLAGS_CACHE_SFENCE |		\
+				 FLAGS_CACHE_CLFLUSHOPT |	\
+				 FLAGS_CACHE_CLDEMOTE)
 
 static sigjmp_buf jmp_env;
 
 static const stress_help_t help[] = {
 	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
 	{ NULL,	"cache-ops N",	 	"stop after N cache bogo operations" },
+#if defined(HAVE_ASM_CLDEMOTE)
+	{ NULL,	"cache-cldemote",	"cache line demote (x86 only)" },
+#endif
 #if defined(HAVE_ASM_CLFLUSHOPT)
 	{ NULL, "cache-clflushopt",	"optimized cache line flush (x86 only)" },
 #endif
@@ -119,13 +124,21 @@ static int stress_cache_set_clflushopt(const char *opt)
 	return stress_cache_set_flag(FLAGS_CACHE_CLFLUSHOPT);
 }
 
+static int stress_cache_set_cldemote(const char *opt)
+{
+	(void)opt;
+
+	return stress_cache_set_flag(FLAGS_CACHE_CLDEMOTE);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_cache_prefetch,		stress_cache_set_prefetch },
-	{ OPT_cache_flush,		stress_cache_set_flush },
-	{ OPT_cache_fence,		stress_cache_set_fence },
-	{ OPT_cache_sfence,		stress_cache_set_sfence },
-	{ OPT_cache_no_affinity,	stress_cache_set_noaff },
+	{ OPT_cache_cldemote,		stress_cache_set_cldemote },
 	{ OPT_cache_clflushopt,		stress_cache_set_clflushopt },
+	{ OPT_cache_fence,		stress_cache_set_fence },
+	{ OPT_cache_flush,		stress_cache_set_flush },
+	{ OPT_cache_no_affinity,	stress_cache_set_noaff },
+	{ OPT_cache_prefetch,		stress_cache_set_prefetch },
+	{ OPT_cache_sfence,		stress_cache_set_sfence },
 	{ 0,				NULL }
 };
 
@@ -145,6 +158,16 @@ static void clflushopt(void *p)
 #define SHIM_CLFLUSHOPT(p)
 #endif
 
+#if defined(HAVE_ASM_CLDEMOTE)
+static void cldemote(void *p)
+{
+        asm volatile("cldemote (%0)\n" : : "r"(p) : "memory");
+}
+#define SHIM_CLDEMOTE(p)	cldemote(p)
+#else
+#define SHIM_CLDEMOTE(p)
+#endif
+
 /*
  * The compiler optimises out the unused cache flush and mfence calls
  */
@@ -157,6 +180,9 @@ static void clflushopt(void *p)
 									\
 		if ((flags) & FLAGS_CACHE_PREFETCH) {			\
 			shim_builtin_prefetch(&mem_cache[i + 1], 1, 1);	\
+		}							\
+		if ((flags) & FLAGS_CACHE_CLDEMOTE) {			\
+			SHIM_CLDEMOTE(&mem_cache[i]);			\
 		}							\
 		if ((flags) & FLAGS_CACHE_CLFLUSHOPT) {			\
 			SHIM_CLFLUSHOPT(&mem_cache[i]);			\
@@ -222,6 +248,38 @@ CACHE_WRITE_USE_MOD(28, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACH
 CACHE_WRITE_USE_MOD(29, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH)
 CACHE_WRITE_USE_MOD(30, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH)
 CACHE_WRITE_USE_MOD(31, FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(32,  FLAGS_CACHE_CLDEMOTE | 0)
+CACHE_WRITE_USE_MOD(33,  FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(34,  FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(35,  FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(36,  FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_FENCE)
+CACHE_WRITE_USE_MOD(37,  FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(38,  FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(39,  FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(40,  FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_SFENCE)
+CACHE_WRITE_USE_MOD(41,  FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_SFENCE | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(42, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(43, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_SFENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(44, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE)
+CACHE_WRITE_USE_MOD(45, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(46, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(47, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(48, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT)
+CACHE_WRITE_USE_MOD(49, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(50, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(51, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(52, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_FENCE)
+CACHE_WRITE_USE_MOD(53, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(54, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(55, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(56, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE)
+CACHE_WRITE_USE_MOD(57, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(58, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(59, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(60, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE)
+CACHE_WRITE_USE_MOD(61, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH)
+CACHE_WRITE_USE_MOD(62, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_FLUSH)
+CACHE_WRITE_USE_MOD(63, FLAGS_CACHE_CLDEMOTE | FLAGS_CACHE_CLFLUSHOPT | FLAGS_CACHE_SFENCE | FLAGS_CACHE_FENCE | FLAGS_CACHE_PREFETCH | FLAGS_CACHE_FLUSH)
 
 static const cache_write_func_t cache_write_funcs[] = {
 	stress_cache_write_mod_0,
@@ -256,6 +314,38 @@ static const cache_write_func_t cache_write_funcs[] = {
 	stress_cache_write_mod_29,
 	stress_cache_write_mod_30,
 	stress_cache_write_mod_31,
+	stress_cache_write_mod_32,
+	stress_cache_write_mod_33,
+	stress_cache_write_mod_34,
+	stress_cache_write_mod_35,
+	stress_cache_write_mod_36,
+	stress_cache_write_mod_37,
+	stress_cache_write_mod_38,
+	stress_cache_write_mod_39,
+	stress_cache_write_mod_40,
+	stress_cache_write_mod_41,
+	stress_cache_write_mod_42,
+	stress_cache_write_mod_43,
+	stress_cache_write_mod_44,
+	stress_cache_write_mod_45,
+	stress_cache_write_mod_46,
+	stress_cache_write_mod_47,
+	stress_cache_write_mod_48,
+	stress_cache_write_mod_49,
+	stress_cache_write_mod_50,
+	stress_cache_write_mod_51,
+	stress_cache_write_mod_52,
+	stress_cache_write_mod_53,
+	stress_cache_write_mod_54,
+	stress_cache_write_mod_55,
+	stress_cache_write_mod_56,
+	stress_cache_write_mod_57,
+	stress_cache_write_mod_58,
+	stress_cache_write_mod_59,
+	stress_cache_write_mod_60,
+	stress_cache_write_mod_61,
+	stress_cache_write_mod_62,
+	stress_cache_write_mod_63,
 };
 
 typedef void (*cache_read_func_t)(uint64_t *pi, uint64_t *pk, uint32_t *ptotal);
