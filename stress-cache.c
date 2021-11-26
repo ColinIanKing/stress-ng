@@ -439,8 +439,8 @@ static int stress_cache(const stress_args_t *args)
 #endif
 
 #if !defined(HAVE_ASM_CLFLUSHOPT)
-	if ((args->instance == 0) && (cache_flags & FLAGS_ASM_CLFLUSHOPT)) {
-		pr_inf("%s: sfence is not available, ignoring this option\n",
+	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_CLFLUSHOPT)) {
+		pr_inf("%s: clflushopt is not available, ignoring this option\n",
 			args->name);
 	}
 #endif
