@@ -25,15 +25,15 @@
 #include "stress-ng.h"
 
 /*
- *  stress_check_value()
- *	sanity check number of workers
+ *  stress_check_max_stressors()
+ *	sanity check number of stressors
  */
-void stress_check_value(
+void stress_check_max_stressors(
 	const char *const msg,
 	const int val)
 {
 	if ((val < 0) || (val > STRESS_PROCS_MAX)) {
-		(void)fprintf(stderr, "Number of %s workers must be between "
+		(void)fprintf(stderr, "Number of %s stressors must be between "
 			"0 and %d\n", msg, STRESS_PROCS_MAX);
 		longjmp(g_error_env, 1);
 	}

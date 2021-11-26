@@ -4203,7 +4203,7 @@ extern WARN_UNUSED uint64_t stress_get_uint64_byte_memory(
 extern WARN_UNUSED uint64_t stress_get_uint64_byte_filesystem(
 	const char *const str, const uint32_t instances);
 extern WARN_UNUSED uint64_t stress_get_uint64_time(const char *const str);
-extern void stress_check_value(const char *const msg, const int val);
+extern void stress_check_max_stressors(const char *const msg, const int val);
 extern void stress_check_range(const char *const opt, const uint64_t val,
 	const uint64_t lo, const uint64_t hi);
 extern void stress_check_range_bytes(const char *const opt,

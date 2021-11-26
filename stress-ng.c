@@ -3038,7 +3038,7 @@ next_opt:
 				g_opt_flags |= OPT_FLAGS_SET;
 				ss->num_instances = stress_get_int32(optarg);
 				stress_get_processors(&ss->num_instances);
-				stress_check_value(name, ss->num_instances);
+				stress_check_max_stressors(name, ss->num_instances);
 
 				goto next_opt;
 			}
@@ -3081,7 +3081,7 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_ALL;
 			g_opt_parallel = stress_get_int32(optarg);
 			stress_get_processors(&g_opt_parallel);
-			stress_check_value("all", g_opt_parallel);
+			stress_check_max_stressors("all", g_opt_parallel);
 			break;
 		case OPT_backoff:
 			i64 = (int64_t)stress_get_uint64(optarg);
@@ -3154,7 +3154,7 @@ next_opt:
 			g_opt_flags |= OPT_FLAGS_RANDOM;
 			i32 = stress_get_int32(optarg);
 			stress_get_processors(&i32);
-			stress_check_value("random", i32);
+			stress_check_max_stressors("random", i32);
 			stress_set_setting("random", TYPE_ID_INT32, &i32);
 			break;
 		case OPT_sched:
