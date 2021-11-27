@@ -23,16 +23,16 @@
  *
  */
 #include "stress-ng.h"
-
-#define CPUID_tsc		(1U << 4)
-#define CPUID_msr		(1U << 5)
-#define CPUID_syscall		(1U << 11)
-#define CPUID_rdseed		(1U << 18)
-#define CPUID_rdrand		(1U << 30)
-#define CPUID_pcommit		(1U << 22)
-#define CPUID_clflushopt	(1U << 23)
-#define CPUID_clwb		(1U << 24)
-#define CPUID_cldemote		(1U << 25)	/* EAX=7, ECX=0, -> ECX */
+						/* Input -> Output */
+#define CPUID_tsc		(1U << 4)	/* EAX=0x1 -> EDX */
+#define CPUID_msr		(1U << 5)	/* EAX=0x1 -> EDX */
+#define CPUID_rdrand		(1U << 30)	/* EAX=0x1 -> ECX */
+#define CPUID_rdseed		(1U << 18)	/* EAX=0x7, ECX=0x0 -> EBX */
+#define CPUID_pcommit		(1U << 22)	/* EAX=0x7, ECX=0x0, -> EBX */
+#define CPUID_clflushopt	(1U << 23)	/* EAX=0x7, ECX=0x0, -> EBX */
+#define CPUID_clwb		(1U << 24)	/* EAX=0x7, ECX=0x0, -> EBX */
+#define CPUID_cldemote		(1U << 25)	/* EAX=0x7, ECX=00x, -> ECX */
+#define CPUID_syscall		(1U << 11)	/* EAX=0x80000001  -> EDX */
 
 /*
  *  stress_x86_cpuid()
