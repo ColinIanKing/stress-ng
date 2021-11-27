@@ -27,7 +27,22 @@
 static const stress_help_t help[] = {
 	{ NULL,	"hrtimers N",	  "start N workers that exercise high resolution timers" },
 	{ NULL,	"hrtimers-ops N", "stop after N bogo high-res timer bogo operations" },
+	{ NULL, "hrtimers-adjust","adjust rate to try and maximum timer rate" },
 	{ NULL,	NULL,		  NULL }
+};
+
+static int stress_set_hrtimers_adjust(const char *opt)
+{
+        bool hrtimers_adjust = true;
+
+        (void)opt;
+
+        return stress_set_setting("hrtimers-adjust", TYPE_ID_BOOL, &hrtimers_adjust);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_hrtimers_adjust,	stress_set_hrtimers_adjust },
+	{ 0,			NULL },
 };
 
 #if defined(HAVE_LIB_RT) &&		\
@@ -38,6 +53,7 @@ static volatile uint64_t *timer_counter;
 static uint64_t max_ops;
 static timer_t timerid;
 static double start;
+static long ns_delay;
 
 #define PROCS_MAX	(32)
 
@@ -47,8 +63,12 @@ static double start;
  */
 static void stress_hrtimers_set(struct itimerspec *timer)
 {
+	if (ns_delay < 0) {
+		timer->it_value.tv_nsec = (stress_mwc64() % 50000) + 1;
+	} else {
+		timer->it_value.tv_nsec = ns_delay;
+	}
 	timer->it_value.tv_sec = 0;
-	timer->it_value.tv_nsec = (stress_mwc64() % 50000) + 1;
 	timer->it_interval.tv_sec = timer->it_value.tv_sec;
 	timer->it_interval.tv_nsec = timer->it_value.tv_nsec;
 }
@@ -86,6 +106,7 @@ static void MLOCKED_TEXT stress_hrtimers_handler(int sig)
 		if ((stress_time_now() - start) > (double)g_opt_timeout)
 			goto cancel;
 	stress_hrtimers_set(&timer);
+	(void)timer_settime(timerid, 0, &timer, NULL);
 	return;
 
 cancel:
@@ -104,9 +125,12 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 	struct sigevent sev;
 	struct itimerspec timer;
 	sigset_t mask;
+	static uint64_t last_count;
+	double previous_time, dt;
 	int ret;
 
 	timer_counter = counter;
+	last_count = *counter;
 
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);
@@ -136,9 +160,43 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 		return EXIT_FAILURE;
 	}
 
+	previous_time = stress_time_now();
+
 	do {
-		/* The sleep will be interrupted on each hrtimer tick */
-		(void)sleep(1);
+		if (ns_delay < 0) {
+			(void)sleep(1);
+		} else {
+			long ns_adjust = ns_delay >> 2;
+			double now;
+
+			/* The sleep will be interrupted on each hrtimer tick */
+			(void)sleep(1);
+
+			now = stress_time_now();
+			dt = now - previous_time;
+
+			if (dt > 0.1) {
+				static double last_signal_rate = -1.0;
+				double signal_rate;
+				const uint64_t signal_count = *counter - last_count;
+
+				previous_time = now;
+
+				/* Handle unlikely time warping */
+				if (UNLIKELY(dt <= 0.0))
+					continue;
+
+				signal_rate = (double)signal_count / dt;
+				if (last_signal_rate > 0.0) {
+					if (last_signal_rate > signal_rate) {
+						ns_delay += ns_adjust;
+					} else {
+						ns_delay -= ns_adjust;
+					}
+				}
+				last_signal_rate = signal_rate;
+			}
+		}
 	} while (stress_hrtimers_keep_stressing());
 
 	if (timer_delete(timerid) < 0) {
@@ -156,7 +214,12 @@ static int stress_hrtimers(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const size_t counters_sz = sizeof(*counters) * PROCS_MAX;
 	const size_t sz = (counters_sz + page_size) & ~(page_size - 1);
+        bool hrtimers_adjust = false;
+	double start_time, dt;
 	size_t i;
+
+        (void)stress_get_setting("hrtimers-adjust", &hrtimers_adjust);
+	ns_delay = hrtimers_adjust ? 50000 : -1;
 
 	max_ops = args->max_ops / PROCS_MAX;
 
@@ -188,6 +251,8 @@ static int stress_hrtimers(const stress_args_t *args)
 		}
 	}
 
+	start_time = stress_time_now();
+
 	do {
 		struct timespec req;
 
@@ -199,6 +264,12 @@ static int stress_hrtimers(const stress_args_t *args)
 		for (i = 0; i < PROCS_MAX; i++)
 			add_counter(args, counters[i]);
 	} while (keep_stressing(args));
+
+	dt = stress_time_now() - start_time;
+	if (dt > 0.0) {
+		pr_inf("%s: hrtimer signals at %.3f MHz\n",
+			args->name, ((double)get_counter(args) / dt) / 1000000.0);
+	}
 
 
 reap:
@@ -225,12 +296,14 @@ reap:
 stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_hrtimers,
 	.class = CLASS_SCHEDULER,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
 stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #endif

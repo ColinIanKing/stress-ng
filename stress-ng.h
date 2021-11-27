@@ -3099,6 +3099,7 @@ typedef enum {
 
 	OPT_hrtimers,
 	OPT_hrtimers_ops,
+	OPT_hrtimers_adjust,
 
 	OPT_hsearch,
 	OPT_hsearch_ops,

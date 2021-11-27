@@ -420,6 +420,7 @@ static const struct option long_options[] = {
 	{ "heapsort-size",1,	0,	OPT_heapsort_integers },
 	{ "hrtimers",	1,	0,	OPT_hrtimers },
 	{ "hrtimers-ops",1,	0,	OPT_hrtimers_ops },
+	{ "hrtimers-adjust",0,	0,	OPT_hrtimers_adjust },
 	{ "help",	0,	0,	OPT_help },
 	{ "hsearch",	1,	0,	OPT_hsearch },
 	{ "hsearch-ops",1,	0,	OPT_hsearch_ops },

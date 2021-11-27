@@ -1916,6 +1916,11 @@ with the SCHED_RR policy.
 .B \-\-hrtimers\-ops N
 stop hrtimers stressors after N timer event bogo operations
 .TP
+.B \-\-hrtimers\-adjust
+enable automatic timer rate adjustment to try to maximize the hrtimer frequency.
+The signal rate is measured every 0.1 seconds and the hrtimer delay is adjusted
+to try and set the optimal hrtimer delay to generate the highest hrtimer rates.
+.TP
 .B \-\-hsearch N
 start N workers that search a 80% full hash table using hsearch(3). By default,
 there are 8192 elements inserted into the hash table.  This is a useful method
