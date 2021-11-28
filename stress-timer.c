@@ -163,6 +163,7 @@ static void MLOCKED_TEXT stress_timer_handler(int sig)
 		if (ret > 0)
 			overruns += (uint64_t)ret;
 		stress_timer_set(&timer);
+		(void)timer_settime(timerid, 0, &timer, NULL);
 		return;
 	}
 
