@@ -2558,6 +2558,7 @@ typedef struct {
 	MACRO(get)		\
 	MACRO(getdent)		\
 	MACRO(getrandom)	\
+	MACRO(goto)		\
 	MACRO(handle)		\
 	MACRO(hdd)		\
 	MACRO(heapsort)		\
@@ -3084,6 +3085,10 @@ typedef enum {
 
 	OPT_getdent,
 	OPT_getdent_ops,
+
+	OPT_goto,
+	OPT_goto_ops,
+	OPT_goto_direction,
 
 	OPT_handle,
 	OPT_handle_ops,

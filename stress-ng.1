@@ -1786,6 +1786,21 @@ the getrandom(2) system call (Linux) or getentropy(2) (OpenBSD).
 .B \-\-getrandom\-ops N
 stop getrandom workers after N bogo get operations.
 .TP
+.B \-\-goto N
+start N workers that perform 1024 forward branches (to next instruction) or
+backward branches (to previous instruction) for each bogo operation loop.
+By default, every 1024 branches the direction is randomly chosen to be
+forward or backward.  This stressor exercises suboptimal pipelined execution
+and branch prediction logic.
+.TP
+.B \-\-goto\-ops N
+stop goto workers after N bogo loops of 1024 branch instructions.
+.TP
+.B \-\-goto\-direction [ forward | backward | random ]
+select the branching direction in the stressor loop, forward for forward only
+branching, backward for a backward only branching, random for a random choice
+of forward or random branching every 1024 branches.
+.TP
 .B \-\-handle N
 start N workers that exercise the name_to_handle_at(2) and open_by_handle_at(2)
 system calls. (Linux only).
