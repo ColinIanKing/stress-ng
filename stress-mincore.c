@@ -72,8 +72,8 @@ static int stress_mincore_file(const stress_args_t *args)
 	}
 	ret = shim_fallocate(fd, 0, (off_t)0, (off_t)args->page_size);
 	if (ret < 0) {
-		(void)stress_temp_dir_rm_args(args);
 		(void)close(fd);
+		(void)stress_temp_dir_rm_args(args);
 		return -1;
 	}
 	return fd;
@@ -232,8 +232,8 @@ err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (fd >= 0) {
-		(void)stress_temp_dir_rm_args(args);
 		(void)close(fd);
+		(void)stress_temp_dir_rm_args(args);
 	}
 	if (fdmapped != MAP_FAILED)
 		(void)munmap((void *)fdmapped, page_size);
