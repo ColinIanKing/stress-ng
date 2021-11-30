@@ -271,16 +271,16 @@ cleanup:
 		}
 	}
 
-	(void)munmap((void *)counters, counters_sz);
-	(void)close(fd);
-	(void)stress_temp_dir_rm_args(args);
-
 	for (i = 0; i < MAPPINGS_MAX; i++) {
 		if (mappings[i] != MAP_FAILED)
 			(void)munmap((void *)mappings[i], MAPPING_PAGES * page_size);
 		if (paddings[i] != MAP_FAILED)
 			(void)munmap((void *)paddings[i], page_size);
 	}
+
+	(void)munmap((void *)counters, counters_sz);
+	(void)close(fd);
+	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
 }
