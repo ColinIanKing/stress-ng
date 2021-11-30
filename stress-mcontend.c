@@ -336,18 +336,17 @@ static int stress_mcontend(const stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return EXIT_NO_RESOURCE;
 	}
+	(void)unlink(filename);
+
 	rc = page_write_sync(fd, args->page_size);
 	if (rc < 0) {
 		pr_inf("%s: mmap backing file write failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
-		(void)unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 		return EXIT_NO_RESOURCE;
 
 	}
-	(void)unlink(filename);
-	(void)stress_temp_dir_rm_args(args);
 
 	pa.args = args;
 	/*
@@ -360,6 +359,7 @@ static int stress_mcontend(const stress_args_t *args)
 		pr_inf("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
+		(void)stress_temp_dir_rm_args(args);
 		return EXIT_NO_RESOURCE;
 	}
 	data[1] = mmap(NULL, args->page_size , PROT_READ | PROT_WRITE,
@@ -369,6 +369,7 @@ static int stress_mcontend(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		(void)munmap(data[0], args->page_size);
 		(void)close(fd);
+		(void)stress_temp_dir_rm_args(args);
 		return EXIT_NO_RESOURCE;
 	}
 	(void)close(fd);
@@ -393,6 +394,9 @@ static int stress_mcontend(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	(void)close(fd);
+	(void)stress_temp_dir_rm_args(args);
 
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		if (ret[i] == 0)
