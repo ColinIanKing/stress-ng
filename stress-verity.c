@@ -149,6 +149,7 @@ static int stress_verity(const stress_args_t *args)
 			case EINVAL:
 			case ENOTTY:
 			case EOPNOTSUPP:
+			case ENOSYS:
 				if (args->instance == 0)
 					pr_inf_skip("%s: verity is not supported on the "
 						"file system or by the kernel, skipping stress test\n",
