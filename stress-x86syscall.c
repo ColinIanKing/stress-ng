@@ -242,7 +242,7 @@ static char *x86syscall_list_str(void)
 	char *str = NULL;
 	size_t i, len = 0;
 
-	for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
+	for (i = 0; x86syscalls[i].name; i++) {
 		if (x86syscalls[i].exercise) {
 			char *tmp;
 
@@ -256,7 +256,6 @@ static char *x86syscall_list_str(void)
 				*tmp = '\0';
 			} else {
 				(void)strcat(tmp, " ");
-				str = tmp;
 			}
 			(void)strcat(tmp, x86syscalls[i].name);
 			str = tmp;
@@ -279,7 +278,7 @@ static int x86syscall_check_x86syscall_func(void)
 	if (!stress_get_setting("x86syscall-func", &name))
 		return 0;
 
-	for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
+	for (i = 0; x86syscalls[i].name; i++) {
 		const bool match = !strcmp(x86syscalls[i].name, name);
 
 		exercise |= match;
@@ -288,7 +287,7 @@ static int x86syscall_check_x86syscall_func(void)
 
 	if (!exercise) {
 		(void)fprintf(stderr, "invalid x86syscall-func '%s', must be one of:", name);
-		for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++)
+		for (i = 0; x86syscalls[i].name; i++)
 			(void)fprintf(stderr, " %s", x86syscalls[i].name);
 		(void)fprintf(stderr, "\n");
 		return -1;
@@ -324,7 +323,7 @@ static int stress_x86syscall(const stress_args_t *args)
 	do {
 		size_t i;
 
-		for (i = 0; i < SIZEOF_ARRAY(x86syscalls); i++) {
+		for (i = 0; x86syscalls[i].name; i++) {
 			if (x86syscalls[i].exercise) {
 				x86syscalls[i].func();
 				inc_counter(args);
