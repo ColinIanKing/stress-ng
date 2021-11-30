@@ -231,15 +231,15 @@ redo: 			errno = 0;
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	if (fd >= 0) {
-		(void)close(fd);
-		(void)stress_temp_dir_rm_args(args);
-	}
 	if (fdmapped != MAP_FAILED)
 		(void)munmap((void *)fdmapped, page_size);
 	if (mapped != MAP_FAILED)
 		(void)munmap((void *)mapped, page_size);
 
+	if (fd >= 0) {
+		(void)close(fd);
+		(void)stress_temp_dir_rm_args(args);
+	}
 	return rc;
 }
 
