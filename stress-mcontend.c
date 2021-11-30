@@ -395,15 +395,15 @@ static int stress_mcontend(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)close(fd);
-	(void)stress_temp_dir_rm_args(args);
-
 	for (i = 0; i < MAX_READ_THREADS; i++) {
 		if (ret[i] == 0)
 			(void)pthread_join(pthreads[i], NULL);
 	}
 	(void)munmap(data[0], args->page_size);
 	(void)munmap(data[1], args->page_size);
+
+	(void)close(fd);
+	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;
 }
