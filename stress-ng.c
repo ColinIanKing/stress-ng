@@ -1556,7 +1556,7 @@ static void stress_clean_dir_files(
 	struct dirent **names = NULL;
 
 	if (stat(path, &statbuf) < 0) {
-		pr_inf("STAT FAIL: %s %d %s\n", path, errno, strerror(errno));
+		pr_dbg("stress-ng: failed to stat %s, errno=%d (%s)\n", path, errno, strerror(errno));
 		return;
 	}
 
