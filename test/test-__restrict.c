@@ -23,12 +23,12 @@
  *
  */
 
-void test(char * __restrict ptr1, char * __restrict ptr2, int n)
+void test(char * __restrict dst, char * __restrict src, int n)
 {
 	int i;
 
-	for (i = 0; *ptr1 && (i < n); i++)
-		*ptr1++ = *ptr2++;
+	for (i = 0; *src && (i < n); i++)
+		*dst++ = *src++;
 }
 
 int main(void)
