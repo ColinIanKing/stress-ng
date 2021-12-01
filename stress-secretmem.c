@@ -176,6 +176,7 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)close(fd);
+	free(mappings);
 
 	return EXIT_SUCCESS;
 }
