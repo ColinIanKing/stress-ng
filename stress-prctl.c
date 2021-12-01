@@ -897,6 +897,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		const pid_t ppid = getppid();
 
 		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid, SHIM_PIDTYPE_PID, 0);
+		(void)ret;
 	}
 #endif
 
@@ -907,6 +908,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		const pid_t ppid = getppid();
 
 		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid, SHIM_PIDTYPE_PID, 0);
+		(void)ret;
 	}
 #endif
 
