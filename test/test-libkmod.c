@@ -44,6 +44,8 @@ int main(void)
 		struct kmod_module *mod = kmod_module_get_module(l);
 		const char *module_name = kmod_module_get_name(mod);
 
+		(void)module_name;
+
 		ret = kmod_module_get_initstate(mod);
 		(void)ret;
 		ret = kmod_module_get_refcnt(mod);
