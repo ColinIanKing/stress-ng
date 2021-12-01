@@ -31,7 +31,6 @@
 int main(void)
 {
 	struct sigevent sev = { 0 };
-	struct timespec t = { 0 };
 	timer_t timerid;
 
 	sev.sigev_notify = SIGEV_SIGNAL;
