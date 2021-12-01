@@ -68,6 +68,8 @@ static void stress_stackmmap_push_msync(void)
 	}
 	if (keep_stressing_flag())
 		stress_stackmmap_push_msync();
+
+	stress_uint64_put((uint64_t)waste[1]);
 }
 
 /*

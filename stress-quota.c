@@ -356,6 +356,7 @@ static int stress_quota(const stress_args_t *args)
 					pr_err("%s: out of memory\n",
 						args->name);
 					(void)closedir(dir);
+					n_devs = i;
 					goto tidy;
 				}
 			}
