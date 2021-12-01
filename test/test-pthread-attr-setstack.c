@@ -36,5 +36,5 @@ int main(void)
 	if (ret)
 		return -1;
 
-	return ret = pthread_attr_setstack(&attr, stack, sizeof(stack));
+	return pthread_attr_setstack(&attr, stack, sizeof(stack));
 }
