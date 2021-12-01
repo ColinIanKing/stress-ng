@@ -3115,8 +3115,7 @@ static void stress_dev_parport_linux(
 		int ret;
 
 		ret = ioctl(fd, PPRELEASE);
-		if (ret == 0)
-			claimed = true;
+		(void)ret;
 		ret = shim_pthread_spin_unlock(&parport_lock);
 		(void)ret;
 	}
