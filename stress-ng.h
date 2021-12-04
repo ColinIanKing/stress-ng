@@ -2651,6 +2651,7 @@ typedef struct {
 	MACRO(qsort)		\
 	MACRO(quota)		\
 	MACRO(radixsort)	\
+	MACRO(randlist)		\
 	MACRO(ramfs)		\
 	MACRO(rawdev)		\
 	MACRO(rawpkt)		\
@@ -3456,6 +3457,12 @@ typedef enum {
 	OPT_radixsort,
 	OPT_radixsort_ops,
 	OPT_radixsort_size,
+
+	OPT_randlist,
+	OPT_randlist_ops,
+	OPT_randlist_compact,
+	OPT_randlist_items,
+	OPT_randlist_size,
 
 	OPT_ramfs,
 	OPT_ramfs_ops,

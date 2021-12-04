@@ -3326,6 +3326,29 @@ repeatedly read 256 sequential blocks starting from a random block on the raw de
 T}
 .TE
 .TP
+.B \-\-randlist N
+start N workers that creates a list of objects in randomized memory order and traverses
+the list setting and reading the objects. This is designed to exerise memory and cache
+thrashing. Normally the objects are allocated on the heap, however for objects of page
+size or larger there is a 1 in 16 chance of objects being allocated using shared
+anonymous memory mapping to mix up the address spaces of the allocations to create more
+TLB thrashing.
+.TP
+.B \-\-randlist\-ops N
+stop randlist workers after N list traversals
+.TP
+.B \-\-randist\-compact
+Allocate all the list objects using one large heap allocation and divide this up
+for all the list objects. This removes the overhead of the heap keeping track of
+each list object, hence uses less memory.
+.TP
+.B \-\-randlist\-items N
+Allocate N items on the list. By default, 100,000 items are allocated.
+.TP
+.B \-\-randlist\-size N
+Allocate each item to be N bytes in size. By default, the size is 64 bytes of
+data payload plus the list handling pointer overhead.
+.TP
 .B \-\-rawsock N
 start N workers that send and receive packet data using raw sockets on the
 localhost. Requires CAP_NET_RAW to run.
