@@ -2475,6 +2475,12 @@ typedef struct {
 #if defined(HAVE_ATOMIC)
 	uint32_t softlockup_count;			/* Atomic counter of softlock children */
 #endif
+	struct {
+#if defined(HAVE_LIB_PTHREAD)
+		shim_pthread_spinlock_t lock;		/* protection lock */
+#endif
+		volatile double start_time;		/* Time to complete operation */
+	} syncload;
 	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	stress_checksum_t *checksums;			/* per stressor counter checksum */
 	size_t	checksums_length;			/* size of checksums mapping */
@@ -2717,6 +2723,7 @@ typedef struct {
 	MACRO(switch)		\
 	MACRO(symlink)		\
 	MACRO(sync_file)	\
+	MACRO(syncload)		\
 	MACRO(sysbadaddr)	\
 	MACRO(sysinfo)		\
 	MACRO(sysinval)		\
@@ -3712,6 +3719,11 @@ typedef enum {
 	OPT_sync_file,
 	OPT_sync_file_ops,
 	OPT_sync_file_bytes,
+
+	OPT_syncload,
+	OPT_syncload_ops,
+	OPT_syncload_msbusy,
+	OPT_syncload_mssleep,
 
 	OPT_sysbadaddr,
 	OPT_sysbadaddr_ops,

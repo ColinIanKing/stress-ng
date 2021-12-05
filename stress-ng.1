@@ -4093,6 +4093,22 @@ specify the size of the file to be sync'd. One can specify the size as % of free
 space on the file system in units of Bytes, KBytes, MBytes and GBytes using the
 suffix b, k, m or g.
 .TP
+.B \-\-syncload N
+start N workers that produce sporadic short lived loads synchronized across N
+stressor processes. By default repeated cycles of 125ms busy load followed by 62.5ms sleep
+occur across all the workers in step to create bursts of load to exercise C state
+transistions and CPU frequency scaling. The busy load and sleeps have +/-10% jitter
+added to try exercising scheduling patterns.
+.TP
+.B \-\-syncload\-ops N
+stop syncload workers after N load/sleep cycles.
+.TP
+.B \-\-syncload\-msbusy M
+specify the busy load duration in milliseconds.
+.TP
+.B \-\-syncload\-mssleep M
+specify the sleep duration in milliseconds.
+.TP
 .B \-\-sysbadaddr N
 start N workers that pass bad addresses to system calls to exercise bad address
 and fault handling. The addresses used are null pointers, read only pages,

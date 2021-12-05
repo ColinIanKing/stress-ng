@@ -303,6 +303,7 @@ STRESS_SRC = \
 	stress-swap.c \
 	stress-switch.c \
 	stress-sync-file.c \
+	stress-syncload.c \
 	stress-sysbadaddr.c \
 	stress-sysinfo.c \
 	stress-sysinval.c \

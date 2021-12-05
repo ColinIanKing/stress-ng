@@ -878,6 +878,10 @@ static const struct option long_options[] = {
 	{ "sync-file",		1,	0,	OPT_sync_file },
 	{ "sync-file-ops", 	1,	0,	OPT_sync_file_ops },
 	{ "sync-file-bytes", 	1,	0,	OPT_sync_file_bytes },
+	{ "syncload",		1,	0,	OPT_syncload },
+	{ "syncload-ops",	1,	0,	OPT_syncload_ops },
+	{ "syncload-msbusy",	1,	0,	OPT_syncload_msbusy },
+	{ "syncload-mssleep",	1,	0,	OPT_syncload_mssleep },
 	{ "sysbadaddr",		1,	0,	OPT_sysbadaddr },
 	{ "sysbadaddr-ops",	1,	0,	OPT_sysbadaddr_ops },
 	{ "sysfs",		1,	0,	OPT_sysfs },
@@ -3652,6 +3656,8 @@ int main(int argc, char **argv, char **envp)
 #endif
 #if defined(HAVE_LIB_PTHREAD)
 	shim_pthread_spin_init(&g_shared->warn_once.lock, 0);
+	shim_pthread_spin_init(&g_shared->syncload.lock, 0);
+	g_shared->syncload.start_time = 0.0;
 #endif
 
 	/*
