@@ -193,7 +193,7 @@ static int stress_randlist(const stress_args_t *args)
 			}
 retry:
 			if (do_mmap && (stress_mwc8() < 16)) {
-				ptr = mmap(NULL, size, PROT_READ | PROT_WRITE,
+				ptr = (stress_randlist_item_t *)mmap(NULL, size, PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (ptr == MAP_FAILED) {
 					do_mmap = false;
@@ -202,7 +202,7 @@ retry:
 				ptr->alloc_type = STRESS_RANDLIST_ALLOC_MMAP;
 				mmap_allocs++;
 			} else {
-				ptr = calloc(1, size);
+				ptr = (stress_randlist_item_t *)calloc(1, size);
 				if (!ptr) {
 					stress_randlist_free_ptrs(compact_ptr, ptrs, i, randlist_size);
 					stress_randlist_enomem(args);
