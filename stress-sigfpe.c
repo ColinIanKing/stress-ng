@@ -135,30 +135,30 @@ static int stress_sigfpe(const stress_args_t *args)
 	 */
 	static const stress_fpe_err_t fpe_errs[] = {
 #if defined(FPE_INTDIV)
-		{ SNG_INTDIV,	FPE_INTDIV },
+		{ SNG_INTDIV,	FPE_INTDIV },	/* can be trapped */
 #endif
 #if defined(FPE_FLTDIV)
-		{ SNG_FLTDIV,	FPE_FLTDIV },
+		{ SNG_FLTDIV,	FPE_FLTDIV },	/* NaN or Inf, no trap */
 #endif
 #if defined(FE_DIVBYZERO) &&	\
     defined(FPE_FLTDIV)
-		{ FE_DIVBYZERO,	FPE_FLTDIV },
+		{ FE_DIVBYZERO,	FPE_FLTDIV },	/* Nan or Inf, no trap */
 #endif
 #if defined(FE_INEXACT) &&	\
     defined(FPE_FLTRES)
-		{ FE_INEXACT,	FPE_FLTRES },
+		{ FE_INEXACT,	FPE_FLTRES },	/* Floating-point inexact result, no trap */
 #endif
 #if defined(FE_INVALID) &&	\
     defined(FPE_FLTINV)
-		{ FE_INVALID,	FPE_FLTINV },
+		{ FE_INVALID,	FPE_FLTINV },	/* Invalid floating-point operation */
 #endif
 #if defined(FE_OVERFLOW) &&	\
     defined(FPE_FLTOVF)
-		{ FE_OVERFLOW,	FPE_FLTOVF },
+		{ FE_OVERFLOW,	FPE_FLTOVF },	/* Floating-point overflow  */
 #endif
 #if defined(FE_UNDERFLOW) &&	\
     defined(FPE_FLTUND)
-		{ FE_UNDERFLOW,	FPE_FLTUND },
+		{ FE_UNDERFLOW,	FPE_FLTUND },	/* Floating-point underflow */
 #endif
 	};
 
