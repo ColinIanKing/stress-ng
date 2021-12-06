@@ -229,6 +229,11 @@ static int stress_sigfpe(const stress_args_t *args)
 
 			switch (exception) {
 			case SNG_FLTDIV:
+				/*
+				 * This is undefined behaviour, so NaN or infinity should
+				 * occur, should not generate a division by zero trap but
+				 * exercise it anyhow just to cover this scenario
+				 */
 				stress_float_put((float)1.0 / (float)zero);
 				break;
 			case SNG_INTDIV:
