@@ -477,7 +477,7 @@ static int stress_cache(const stress_args_t *args)
 			flags = masked_flags ? masked_flags : stress_mwc32() & FLAGS_CACHE_MASK;
 			cache_write_funcs[flags](inc, r, &i, &k);
 		} else {
-			register uint64_t j;
+			register volatile uint64_t j;
 
 			for (j = 0; j < mem_cache_size; j++) {
 				i += inc;
