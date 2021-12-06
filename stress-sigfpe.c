@@ -244,6 +244,9 @@ static int stress_sigfpe(const stress_args_t *args)
 				(void)feraiseexcept((int)exception);
 				break;
 			}
+#if defined(STRESS_ARCH_M68K)
+			shim_sched_yield();
+#endif
 		}
 		i++;
 		i %= SIZEOF_ARRAY(fpe_errs);
