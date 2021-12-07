@@ -167,6 +167,8 @@ static int stress_randlist(const stress_args_t *args)
 
 		compact_ptr = calloc(randlist_items, size);
 		if (!compact_ptr) {
+			stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+			free(ptrs);
 			stress_randlist_enomem(args);
 			return EXIT_NO_RESOURCE;
 		}
