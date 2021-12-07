@@ -26,6 +26,11 @@
 
 #define MISALIGN_LOOPS		(32768)
 
+/* Disable atomic ops for SH4 as this breaks gcc on Debian sid */
+#if defined(STRESS_ARCH_SH4)
+#undef HAVE_ATOMIC
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"misaligned N",	   	"start N workers performing misaligned read/writes" },
 	{ NULL,	"misaligned-ops N",	"stop after N misaligned bogo operations" },

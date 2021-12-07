@@ -1895,6 +1895,11 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define STRESS_ARCH_SPARC
 #endif
 
+/* Arch specific SH4 */
+#if defined(__SH4__)
+#define STRESS_ARCH_SH4
+#endif
+
 /* GCC5.0+ target_clones attribute, x86 */
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_TARGET_CLONES)
