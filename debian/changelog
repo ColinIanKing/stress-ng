@@ -1,3 +1,80 @@
+stress-ng (0.13.08-1) unstable; urgency=medium
+
+  [Alexander Kanavin]
+  * Do not preserve ownership when installing example jobs
+
+  [John Kacur]
+  * stress-ng: Fix potential overrun in msgsnd
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * Manual: update date and update contributors
+  * stress-misaligned: disable atomic ops for SH4
+  * stress-randlist: ensure memory pointed to by ptrs is free'd
+  * debian/control: update standards version to 4.6.0
+  * stress-randlist: clear up gcc warning on openhipster
+  * stress-cache: make loop variable j a register volatile
+  * stress-sigfpe: add work around for M68K linux devices
+  * stress-sigfpe: annotate expected use of specific fpe flags
+  * stress-sigfpe: Add comment regarding floating point division by zero
+  * Add syncload synchronized bursty load stressor
+  * stress-ng: reformat long_options, align 2nd value
+  * stress-randlist: fix the class type
+  * stress-stackmmap: stash non-stack address to clean up scan-build warning
+  * test/test-pthread-attr-setstack.c: remove redundant assignment to ret
+  * stress-secretmem: fix memory leak on object mappings
+  * test/test-getmntent: exercise mount struct
+  * test/test-libkmod: voidify variable module_name
+  * test/test-timer-create: remove redundant variable t
+  * stress-dev: remove redundant assignment to variable claimed
+  * stress-prctl: voidify return from prctl calls
+  * stress-x86syscall: fix --x86syscall-func segfault
+  * test/test-__restrict: use src dst names for ptr2, ptr1 and fix eos check
+  * stress-mincore: unmap before closing fd, fixes a hidden file issue on fuse
+  * stress-mcontend: unmap before closing fd, fixes a hidden file issue on fuse
+  * stress-rmap: unmap before closing fd, fixes a hidden file issue on fuse
+  * stress-ng: make pr_inf stat error message a verbose debug error message
+  * stress-mincore: close fd before removing directory
+  * stress-mcontend: close file early, ensure directory is deleted on error
+  * stress-verity: add ENOSYS error return check for non-implemented verity functionality
+  * stress-timer: set timer on each timer duration update
+  * README.md: Add one more project citation
+  * stress-goto: add a new stressor to exercise heavy goto branching
+  * core-cpu: annotate cpuid registers that need to be set and values returned
+  * stress-hrtimers: update copyright
+  * stress-hrtimers: add --hrtimers-adjust for automatic rate adjustment
+  * Rename stress_check_value to stress_check_max_stressors
+  * stress-smi: use no-op command instant of 1 to trigger SMI
+  * stress-cache: fix build issue
+  * stress-cache: remove some white spaces
+  * stress-cache: add --cldemote option
+  * stress-cache: use random cache flags if none are provided
+  * core-cpu: remove unnecessary inner #ifdef'd code
+  * stress-cache: add --clflushopt option
+  * Replace char *str = "text" with char str[] = "text"
+  * core-cpu: declare stress_cpu_x86_extended_features only for x86 arches
+  * stress-rdrand: only allow --rdrand-seed if rdseed instruction is available
+  * Remove need for HAVE_CPUID_H and HAVE_CPUID checks
+  * Remove __get_cpuid usage and build checking
+  * stress-smi: use stress_cpu_x86_has_msr helper
+  * stress-x86syscall: use stress_cpu_x86_has_syscall helper
+  * stress-tsc: use stress_cpu_x86_has_tsc helper
+  * stress-rdrand: use stress_cpu_x86_has_rdrand helper
+  * stress-enosys: don't use __cpuid and check for SIGILL on syscalls
+  * stress-cpu: use stress-ng cpuid rather than gcc __cpuid
+  * core-cpu: add stress-ng x86 cpuid implementation
+  * stress-lockbus: add sync_bool_compare_and_swap
+  * stress-ng: make a couple of the inline helpers always inline
+  * Fix some spelling mistakes in comments
+  * core-perf: Add Cgroup Switches and add missing tab in CPU Migrations
+  * stress-ng.h: implement shim_clflush as a cacheflush call
+  * stress-memrate: use clang __builtin_nontemporal_store
+  * stress-numa: exercise invalid MPOL_F_NUMA_BALANCING | MPOL_LOCAL mbind options
+  * stress-memrate: add non-temporal (cacheless) writes for x86
+  * stress-fanotify: add FAN_FS_ERROR flag
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Tue, 7 Dec 2021 13:19:23 +0100
+
 stress-ng (0.13.07-1) unstable; urgency=medium
 
   * Makefile: bump version
