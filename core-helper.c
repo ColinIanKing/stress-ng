@@ -192,15 +192,10 @@ int stress_set_temp_path(const char *path)
 	stress_temp_path_free();
 
 	stress_temp_path = stress_const_optdup(path);
-	if (!stress_temp_path)
-		return -1;
-
-	if (access(path, R_OK | W_OK) < 0) {
-		(void)fprintf(stderr, "aborting: temp-path '%s' must be readable "
-			"and writeable\n", path);
+	if (!stress_temp_path) {
+		(void)fprintf(stderr, "aborting: cannot allocate memory for '%s'\n", path);
 		return -1;
 	}
-
 	return 0;
 }
 
@@ -213,6 +208,22 @@ const char *stress_get_temp_path(void)
 	if (!stress_temp_path)
 		return ".";
 	return stress_temp_path;
+}
+
+/*
+ *  stress_check_temp_path()
+ *	check if temp path is accessible
+ */
+int stress_check_temp_path(void)
+{
+	const char *path = stress_get_temp_path();
+
+	if (access(path, R_OK | W_OK) < 0) {
+		(void)fprintf(stderr, "aborting: temp-path '%s' must be readable "
+			"and writeable\n", path);
+		return -1;
+	}
+	return 0;
 }
 
 /*

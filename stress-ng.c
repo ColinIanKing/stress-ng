@@ -3475,6 +3475,10 @@ int main(int argc, char **argv, char **envp)
 	ret = stress_parse_opts(argc, argv, false);
 	if (ret != EXIT_SUCCESS)
 		exit(ret);
+
+	if (stress_check_temp_path() < 0)
+		exit(EXIT_FAILURE);
+
 	/*
 	 *  Load in job file options
 	 */
