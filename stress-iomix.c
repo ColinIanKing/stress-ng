@@ -460,13 +460,19 @@ static void stress_iomix_sync(
 #endif
 #if defined(HAVE_SYNC_FILE_RANGE) &&	\
     defined(SYNC_FILE_RANGE_WRITE)
-		(void)sync_file_range(fd, stress_iomix_rnd_offset(iomix_bytes),
-				65536, SYNC_FILE_RANGE_WRITE);
-		if (!keep_stressing(args))
-			break;
-		tv.tv_sec = stress_mwc32() % 4;
-		tv.tv_usec = stress_mwc32() % 1000000;
-		(void)select(0, NULL, NULL, NULL, &tv);
+		{
+			const off_t posn = stress_iomix_rnd_offset(iomix_bytes);
+
+			(void)sync_file_range(fd, posn, 65536,
+				SYNC_FILE_RANGE_WRITE);
+			stress_iomix_fadvise_random_dontneed(fd, posn, 65536);
+
+			if (!keep_stressing(args))
+				break;
+			tv.tv_sec = stress_mwc32() % 4;
+			tv.tv_usec = stress_mwc32() % 1000000;
+			(void)select(0, NULL, NULL, NULL, &tv);
+		}
 #else
 		(void)iomix_bytes;
 #endif
