@@ -88,124 +88,63 @@ int stress_set_iostat(const char *const opt)
 	return stress_set_generic_stat(opt, "iostat", &iostat_delay);
 }
 
+/*
+ *  stress_find_mount_dev()
+ *	find the path of the device that the file is located on
+ */
+char *stress_find_mount_dev(const char *name)
+{
+	struct stat statbuf;
+	FILE *mtab_fp;
+	struct mntent *mnt;
+	dev_t dev;
+	static char dev_path[PATH_MAX];
+
+	if (stat(name, &statbuf) < 0)
+		return NULL;
+
+	/* Cater for UBI char mounts */
+	if (S_ISBLK(statbuf.st_mode) || S_ISCHR(statbuf.st_mode))
+		dev = statbuf.st_rdev;	
+	else
+		dev = statbuf.st_dev;
+
+	/* Try /proc/mounts then /etc/mtab */
+	mtab_fp = setmntent("/proc/mounts", "r");
+	if (!mtab_fp) {
+		mtab_fp = setmntent("/etc/mtab", "r");
+		if (!mtab_fp)
+			return NULL;
+	}
+
+	while ((mnt = getmntent(mtab_fp))) {
+		if ((!strcmp(name, mnt->mnt_dir)) || 
+		    (!strcmp(name, mnt->mnt_fsname)))
+			break;
+
+		if ((mnt->mnt_fsname[0] == '/') &&
+		    (stat(mnt->mnt_fsname, &statbuf) == 0) &&
+		    (statbuf.st_rdev == dev))
+			break;
+
+		if ((stat(mnt->mnt_dir, &statbuf) == 0) &&
+		    (statbuf.st_dev == dev))
+			break;
+	}
+	(void)endmntent(mtab_fp);
+
+	if (!mnt)
+		return NULL;
+	if (!mnt->mnt_fsname)
+		return NULL;
+
+	return realpath(mnt->mnt_fsname, dev_path);
+}
+
 static pid_t vmstat_pid;
 
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
-/*
- *  stress_iostat_follow_link
- *	recursively follow link until no more links
- */
-static void stress_iostat_follow_link(
-	const char *path,
-	char *buf,
-	const size_t buflen)
-{
-	char tmp[buflen], prev[buflen];
-
-	(void)memset(prev, 0, sizeof(prev));
-
-	shim_strlcpy(tmp, path, buflen);
-	for (;;) {
-		ssize_t ret;
-
-		ret = shim_readlink(tmp, buf, buflen - 1);
-		if (ret < 0) {
-			(void)shim_strlcpy(buf, path, buflen);
-			return;
-		}
-		buf[ret] = '\0';
-		if (!strncmp(prev, buf, buflen))
-			return;
-		(void)shim_strlcpy(prev, buf, buflen);
-	}
-}
-
-/*
- *  stress_iostat_dev_trim()
- *	trim device numbers off end, /dev/sda2 -> /dev/sda
- */
-static void stress_iostat_dev_trim(char *devname)
-{
-	char *ptr;
-
-	for (ptr = devname; *ptr; ptr++)
-		;
-
-	for (--ptr; (ptr > devname) && isdigit((int)*ptr); ptr--)
-		*ptr = '\0';
-}
-
-/*
- *  stress_iostat_dev_trim_nvme()
- *	trim 'p' character off end for an already trimmed nvme devname,
- *	/dev/nvme0n1p -> /dev/nvme0n1
- */
-static void stress_iostat_dev_trim_nvme(char *devname)
-{
-	char *ptr;
-
-	for (ptr = devname; *ptr; ptr++)
-		;
-
-	if ((--ptr > devname) && (*ptr == 'p'))
-		*ptr = '\0';
-}
-
-/*
- *  stress_iostat_get_iostat_name
- *	try to find the /sys/block/$dev/stat name from a given
- *	device number. Returns null if not found.
- */
-static char *stress_iostat_get_iostat_name(
-	const dev_t rdev,
-	char *name,
-	const size_t namelen)
-{
-	DIR *dp;
-	struct dirent *d;
-	struct stat statbuf;
-
-	(void)memset(name, 0, namelen);
-
-	dp = opendir("/dev/");
-	if (!dp)
-		return NULL;
-	while ((d = readdir(dp)) != NULL) {
-		if ((d->d_type & DT_BLK) == 0)
-			continue;
-
-		(void)snprintf(name, namelen, "/dev/%s", d->d_name);
-		if (stat(name, &statbuf) < 0)
-			continue;
-		if (statbuf.st_rdev == rdev) {
-			(void)closedir(dp);
-
-			(void)snprintf(name, namelen, "/sys/block/%s/stat", d->d_name);
-			if (stat(name, &statbuf) == 0)
-				return name;
-
-			/* strip off digits from end of dev, retry */
-			stress_iostat_dev_trim(d->d_name);
-			(void)snprintf(name, namelen, "/sys/block/%s/stat", d->d_name);
-			if (stat(name, &statbuf) == 0)
-				return name;
-
-			/* strip off 'p' from end of dev in case of a nvme
-			 * device, retry */
-			stress_iostat_dev_trim_nvme(d->d_name);
-			(void)snprintf(name, namelen, "/sys/block/%s/stat", d->d_name);
-			if (stat(name, &statbuf) == 0)
-				return name;
-
-			(void)memset(name, 0, namelen);
-			return NULL;
-		}
-	}
-	(void)memset(name, 0, namelen);
-	(void)closedir(dp);
-	return NULL;
-}
 
 /*
  *  stress_iostat_iostat_name()
@@ -216,93 +155,27 @@ static char *stress_iostat_iostat_name(
 	char *iostat_name,
 	const size_t iostat_name_len)
 {
-	const char *temp_path = stress_get_temp_path();
-	struct stat statbuf;
-	int ret;
-	FILE *fp;
-	char buf[4096];
-	int f_major, f_minor;
+	char *temp_path, *dev;
 
 	/* Resolve links */
-	stress_iostat_follow_link(temp_path, iostat_name, iostat_name_len);
-
-	/* Get dev info */
-	ret = stat(iostat_name, &statbuf);
-	if (ret < 0) {
-		*iostat_name = '\0';
+	temp_path = realpath(stress_get_temp_path(), NULL);
+	if (!temp_path)
 		return NULL;
-	}
 
-	/*
-	 *  Scan mountinfo for mount points that match the device
-	 */
-	fp = fopen("/proc/self/mountinfo", "r");
-	if (!fp) {
-		*iostat_name = '\0';
+	/* Find device */
+	dev = stress_find_mount_dev(temp_path);
+	if (!dev)
 		return NULL;
-	}
 
-	f_major = major(statbuf.st_dev);
-	f_minor = major(statbuf.st_dev);
+	/* Skip over leading /dev */
+	if (!strncmp(dev, "/dev", 4))
+		dev += 4;
 
-	(void)memset(buf, 0, sizeof(buf));
-	while (fgets(buf, sizeof(buf), fp)) {
-		int mnt_major, mnt_minor;
+	(void)snprintf(iostat_name, iostat_name_len, "/sys/block/%s/stat", dev);
 
-		ret = sscanf(buf, "%*d %*d %d:%d", &mnt_major, &mnt_minor);
-		if (ret != 2)
-			continue;
-		if ((f_major == mnt_major) && (f_minor == mnt_minor)) {
-			/*
-			 * parse something like:
-			 *  31 1 253:1 / / rw,relatime shared:1 - ext4 /dev/mapper/vgubuntu-root rw,errors=remount-ro
-			 *  ..and look for - field, e.g. ext4 /dev/mapper/vgubuntu-root
-			 */
-			char *start = strstr(buf, " - "), *end, *tmp;
-
-			if (!start)
-				continue;
-
-			/* Skip over ' - ' and following non-spaces */
-			for (start += 3; *start && *start != ' '; start++)
-				start++;
-			if (!*start)
-				continue;
-
-			/* skip over spaces to get to dev name */
-			while (*start == ' ')
-				start++;
-			if (!*start)
-				continue;
-
-			/* now look for the end of dev name */
-			for (end = start; *end && *end != ' '; end++)
-				;
-			if (!*end)
-				continue;
-			*end = '\0';
-
-			/* get rdev block info of this device */
-			ret = stat(start, &statbuf);
-			if (ret < 0)
-				continue;
-
-			/* ..and find any matching devices in /dev and resolve the iostate_name */
-			tmp = stress_iostat_get_iostat_name(statbuf.st_rdev, iostat_name, iostat_name_len);
-			if (tmp) {
-				(void)fclose(fp);
-				return tmp;
-			}
-		}
-	}
-	/* nothing found */
-	(void)fclose(fp);
-	*iostat_name = '\0';
-
-	return NULL;
+	return iostat_name;
 }
 
-#if defined(__linux__)
 /*
  *  stress_read_iostat()
  *	read the stats from an iostat stat file, linux variant
@@ -338,16 +211,6 @@ static void stress_read_iostat(const char *iostat_name, stress_iostat_t *iostat)
 			(void)memset(iostat, 0, sizeof(*iostat));
 	}
 }
-#else
-/*
- *  stress_read_iostat()
- *	nop-op default
- */
-static void stress_read_iostat(const char *iostat_name, stress_iostat_t *iostat)
-{
-	(void)iostat_name;
-}
-#endif
 
 #define STRESS_IOSTAT_DELTA(field)					\
 	iostat->field = ((iostat_current.field > iostat_prev.field) ?	\
