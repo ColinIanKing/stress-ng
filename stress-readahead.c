@@ -236,6 +236,12 @@ rnd_rd_retry:
 			inc_counter(args);
 		}
 
+#if defined(HAVE_POSIX_FADVISE) &&	\
+    defined(POSIX_FADV_DONTNEED)
+		ret = posix_fadvise(fd, 0, readahead_bytes, POSIX_FADV_DONTNEED);
+		(void)ret;
+#endif
+
                 /* Exercise illegal fd */
                 ret = readahead(~0, 0, 512);
                 (void)ret;
