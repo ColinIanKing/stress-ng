@@ -1867,7 +1867,7 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 /* Arch specific RISC-V */
 #if defined(__riscv) || \
     defined(__riscv__)
-#define STRESS_ARCH_RISC_V	(1)
+#define STRESS_ARCH_RISCV	(1)
 #endif
 
 /* Arch specific, IBM S390 */
@@ -4142,7 +4142,7 @@ static inline void ALWAYS_INLINE shim_clflush(volatile void *ptr)
  */
 static inline void ALWAYS_INLINE shim_mfence(void)
 {
-#if defined(STRESS_ARCH_RISC_V) &&	\
+#if defined(STRESS_ARCH_RISCV) &&	\
     defined(HAVE_ASM_RISCV_FENCE)
 	 asm volatile ("fence" ::: "memory");
 #else
