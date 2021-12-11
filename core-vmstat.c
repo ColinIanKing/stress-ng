@@ -105,7 +105,7 @@ char *stress_find_mount_dev(const char *name)
 
 	/* Cater for UBI char mounts */
 	if (S_ISBLK(statbuf.st_mode) || S_ISCHR(statbuf.st_mode))
-		dev = statbuf.st_rdev;	
+		dev = statbuf.st_rdev;
 	else
 		dev = statbuf.st_dev;
 
@@ -118,7 +118,7 @@ char *stress_find_mount_dev(const char *name)
 	}
 
 	while ((mnt = getmntent(mtab_fp))) {
-		if ((!strcmp(name, mnt->mnt_dir)) || 
+		if ((!strcmp(name, mnt->mnt_dir)) ||
 		    (!strcmp(name, mnt->mnt_fsname)))
 			break;
 
