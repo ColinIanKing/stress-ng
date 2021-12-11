@@ -52,6 +52,11 @@ static off_t stress_iomix_rnd_offset(const off_t max)
 	return (off_t)(stress_mwc64() % max);
 }
 
+/*
+ *  stress_iomix_fadvise_random_dontneed()
+ *	hint that the data at offset is not needed
+ *	and the I/O is random for more stress
+ */
 static void stress_iomix_fadvise_random_dontneed(
 	const int fd,
 	const off_t offset,
