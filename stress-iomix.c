@@ -52,6 +52,29 @@ static off_t stress_iomix_rnd_offset(const off_t max)
 	return (off_t)(stress_mwc64() % max);
 }
 
+static void stress_iomix_fadvise_random_dontneed(
+	const int fd,
+	const off_t offset,
+	const off_t len)
+{
+#if defined(HAVE_POSIX_FADVISE) &&	\
+    (defined(POSIX_FADV_RANDOM) ||	\
+     defined(POSIX_FADV_DONTNEED))
+	int flag = 0;
+#if defined(POSIX_FADV_RANDOM)
+	flag |= POSIX_FADV_RANDOM;
+#endif
+#if defined(POSIX_FADV_DONTNEED)
+	flag |= POSIX_FADV_DONTNEED;
+#endif
+	(void)posix_fadvise(fd, offset, len, flag);
+#else
+	(void)fd;
+	(void)offset;
+	(void)len;
+#endif
+}
+
 /*
  *  stress_iomix_fsync_min_1Hz()
  *	sync written data at most every once a second while
@@ -291,6 +314,9 @@ static void stress_iomix_rd_seq_bursts(
 			if (!keep_stressing(args))
 				return;
 			inc_counter(args);
+
+			/* Add some unhelpful advice */
+			stress_iomix_fadvise_random_dontneed(fd, posn, 4096);
 		}
 		tv.tv_sec = 0;
 		tv.tv_usec = stress_mwc32() % 1000000;
@@ -319,10 +345,10 @@ static void stress_iomix_rd_rnd_bursts(
 			off_t ret, posn;
 
 			posn = stress_iomix_rnd_offset(iomix_bytes);
-#if defined(HAVE_POSIX_FADVISE) &&      \
-    defined(POSIX_FADV_RANDOM)
-			(void)posix_fadvise(fd, posn, (off_t)len, POSIX_FADV_RANDOM);
-#endif
+
+			/* Add some unhelpful advice */
+			stress_iomix_fadvise_random_dontneed(fd, posn, len);
+
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret < 0) {
 				pr_fail("%s: lseek failed, errno=%d (%s)\n",
@@ -373,6 +399,9 @@ static void stress_iomix_rd_seq_slow(
 			char buffer[512];
 			ssize_t rc;
 			const size_t len = 1 + (stress_mwc32() & (sizeof(buffer) - 1));
+
+			/* Add some unhelpful advice */
+			stress_iomix_fadvise_random_dontneed(fd, posn, len);
 
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
@@ -603,6 +632,9 @@ static void stress_iomix_rd_bytes(
 		while (posn != 0) {
 			char buffer[1];
 			ssize_t rc;
+
+			/* Add some unhelpful advice */
+			stress_iomix_fadvise_random_dontneed(fd, posn, sizeof(buffer));
 
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret < 0) {
