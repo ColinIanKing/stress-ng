@@ -4121,14 +4121,51 @@ extern void stress_cwd_readwriteable(void);
 extern const char *stress_signal_name(const int signum);
 extern const char *stress_strsignal(const int signum);
 
-#if defined(STRESS_ARCH_X86)
+/* CPU helpers */
+extern void stress_x86_cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx);
+extern WARN_UNUSED bool stress_cpu_is_x86(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_cldemote(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_clfsh(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_clflushopt(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_clwb(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_msr(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_rdrand(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_rdseed(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_syscall(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_tsc(void);
+
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_ASM_CLFLUSH)
+
+typedef void (*shim_clflush_func_t)(volatile void *ptr);
+
+static inline void ALWAYS_INLINE shim_clflush_select(volatile void *ptr);
+static shim_clflush_func_t shim_clflush_func =  shim_clflush_select;
+
+static inline void ALWAYS_INLINE shim_clflush_op(volatile void *ptr)
+{
+	asm volatile("clflush (%0)\n" : : "r"(ptr) : "memory");
+}
+
+static inline void ALWAYS_INLINE shim_clflush_nop(volatile void *ptr)
+{
+	(void)ptr;
+}
+
+static inline void ALWAYS_INLINE shim_clflush_select(volatile void *ptr)
+{
+	shim_clflush_func = stress_cpu_x86_has_clfsh() ? shim_clflush_op : shim_clflush_nop;
+
+	shim_clflush_func(ptr);
+}
+
 /*
  *  shim_clflush()
  *	flush a cache line
  */
 static inline void ALWAYS_INLINE shim_clflush(volatile void *ptr)
 {
-	asm volatile("clflush %0" : "+m" (*(volatile char *)ptr));
+	shim_clflush_func(ptr);
 }
 #elif defined(DCACHE)
 #define shim_clflush(ptr)	shim_cacheflush((char *)ptr, 64, DCACHE)
@@ -4184,18 +4221,6 @@ extern void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *procs_head,
 	const double duration);
 extern void stress_perf_init(void);
 #endif
-
-/* CPU helpers */
-extern void stress_x86_cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx);
-extern WARN_UNUSED bool stress_cpu_is_x86(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_cldemote(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_clflushopt(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_clwb(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_msr(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_rdrand(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_rdseed(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_syscall(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_tsc(void);
 
 typedef int stress_oomable_child_func_t(const stress_args_t *args, void *context);
 

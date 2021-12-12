@@ -1,6 +1,7 @@
 /*
  * Copyright (C) 2016-2017 Intel, Ltd.
  * Copyright (C) 2016-2021 Canonical, Ltd.
+ * Copyright (C)      2021 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
