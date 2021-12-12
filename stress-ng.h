@@ -1892,12 +1892,12 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #if defined(__sparc) ||		\
     defined(__sparc__) ||	\
     defined(__sparc_v9__)
-#define STRESS_ARCH_SPARC
+#define STRESS_ARCH_SPARC	(1)
 #endif
 
 /* Arch specific SH4 */
 #if defined(__SH4__)
-#define STRESS_ARCH_SH4
+#define STRESS_ARCH_SH4		(1)
 #endif
 
 /* GCC5.0+ target_clones attribute, x86 */
