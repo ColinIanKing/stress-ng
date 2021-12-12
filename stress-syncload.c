@@ -85,7 +85,7 @@ static void stress_syncload_pause(void)
 }
 #endif
 
-#if defined(HAVE_ASM_YIELD)
+#if defined(HAVE_ASM_ARM_YIELD)
 static void stress_syncload_yield(void)
 {
 	__asm__ __volatile__("yield;\n");
@@ -132,7 +132,7 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 #if defined(HAVE_ASM_X86_PAUSE)
 	stress_syncload_pause,
 #endif
-#if defined(HAVE_ASM_YIELD)
+#if defined(HAVE_ASM_ARM_YIELD)
 	stress_syncload_yield,
 #endif
 	stress_syncload_sched_yield,

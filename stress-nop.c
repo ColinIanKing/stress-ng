@@ -62,7 +62,7 @@ STRESS_NOP_SPIN_OP(nop, "nop;\n")
 #if defined(HAVE_ASM_X86_PAUSE)
 STRESS_NOP_SPIN_OP(pause, "pause;\n")
 #endif
-#if defined(HAVE_ASM_YIELD)
+#if defined(HAVE_ASM_ARM_YIELD)
 STRESS_NOP_SPIN_OP(yield, "yield;\n")
 #endif
 
@@ -96,7 +96,7 @@ stress_nop_instr_t nop_instr[] = {
 #if defined(HAVE_ASM_X86_PAUSE)
 	{ "pause",	stress_nop_spin_pause },
 #endif
-#if defined(HAVE_ASM_YIELD)
+#if defined(HAVE_ASM_ARM_YIELD)
 	{ "yield",	stress_nop_spin_yield },
 #endif
 	{ NULL,		NULL },
