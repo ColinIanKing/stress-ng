@@ -375,7 +375,7 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "chunk256",	stress_memthrash_random_chunk256 },
 	{ "chunkpage",	stress_memthrash_random_chunkpage },
 	{ "flip",	stress_memthrash_flip_mem },
-#if defined(HAVE_ASM_CLFLUSH)
+#if defined(HAVE_ASM_X86_CLFLUSH)
 	{ "flush",	stress_memthrash_flush },
 #endif
 #if defined(MEM_LOCK)

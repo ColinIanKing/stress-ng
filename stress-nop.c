@@ -59,7 +59,7 @@ static void stress_nop_spin_ ## name(const stress_args_t *args)	\
 }
 
 STRESS_NOP_SPIN_OP(nop, "nop;\n")
-#if defined(HAVE_ASM_PAUSE)
+#if defined(HAVE_ASM_X86_PAUSE)
 STRESS_NOP_SPIN_OP(pause, "pause;\n")
 #endif
 #if defined(HAVE_ASM_YIELD)
@@ -93,7 +93,7 @@ stress_nop_instr_t nop_instr[] = {
 	{ "nop10",	stress_nop_spin_nop10 },
 	{ "nop11",	stress_nop_spin_nop11 },
 #endif
-#if defined(HAVE_ASM_PAUSE)
+#if defined(HAVE_ASM_X86_PAUSE)
 	{ "pause",	stress_nop_spin_pause },
 #endif
 #if defined(HAVE_ASM_YIELD)

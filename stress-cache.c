@@ -42,15 +42,15 @@ static sigjmp_buf jmp_env;
 static const stress_help_t help[] = {
 	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
 	{ NULL,	"cache-ops N",	 	"stop after N cache bogo operations" },
-#if defined(HAVE_ASM_CLDEMOTE)
+#if defined(HAVE_ASM_X86_CLDEMOTE)
 	{ NULL,	"cache-cldemote",	"cache line demote (x86 only)" },
 #endif
-#if defined(HAVE_ASM_CLFLUSHOPT)
+#if defined(HAVE_ASM_X86_CLFLUSHOPT)
 	{ NULL, "cache-clflushopt",	"optimized cache line flush (x86 only)" },
 #endif
 	{ NULL, "cache-no-affinity",	"do not change CPU affinity" },
 	{ NULL,	"cache-fence",		"serialize stores" },
-#if defined(HAVE_ASM_CLFLUSH)
+#if defined(HAVE_ASM_X86_CLFLUSH)
 	{ NULL,	"cache-flush",		"flush cache after every memory write (x86 only)" },
 #endif
 	{ NULL,	"cache-level N",	"only exercise specified cache" },
@@ -144,7 +144,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define SHIM_SFENCE()
 #endif
 
-#if defined(HAVE_ASM_CLFLUSH)
+#if defined(HAVE_ASM_X86_CLFLUSH)
 static void clflush(void *p)
 {
         asm volatile("clflush (%0)\n" : : "r"(p) : "memory");
@@ -154,7 +154,7 @@ static void clflush(void *p)
 #define SHIM_CLFLUSH(p)
 #endif
 
-#if defined(HAVE_ASM_CLFLUSHOPT)
+#if defined(HAVE_ASM_X86_CLFLUSHOPT)
 static void clflushopt(void *p)
 {
         asm volatile("clflushopt (%0)\n" : : "r"(p) : "memory");
@@ -164,7 +164,7 @@ static void clflushopt(void *p)
 #define SHIM_CLFLUSHOPT(p)
 #endif
 
-#if defined(HAVE_ASM_CLDEMOTE)
+#if defined(HAVE_ASM_X86_CLDEMOTE)
 static void cldemote(void *p)
 {
         asm volatile("cldemote (%0)\n" : : "r"(p) : "memory");
@@ -444,14 +444,14 @@ static int stress_cache(const stress_args_t *args)
 	}
 #endif
 
-#if !defined(HAVE_ASM_CLFLUSH)
+#if !defined(HAVE_ASM_X86_CLFLUSH)
 	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_CLFLUSH)) {
 		pr_inf("%s: clflush is not available, ignoring this option\n",
 			args->name);
 	}
 #endif
 
-#if defined(HAVE_ASM_CLFLUSH)
+#if defined(HAVE_ASM_X86_CLFLUSH)
 	if (!stress_cpu_x86_has_clfsh() && (cache_flags & FLAGS_CACHE_CLFLUSH)) {
 		cache_flags &= ~FLAGS_CACHE_CLFLUSH;
 		if (args->instance == 0) {
@@ -461,14 +461,14 @@ static int stress_cache(const stress_args_t *args)
 	}
 #endif
 
-#if !defined(HAVE_ASM_CLFLUSHOPT)
+#if !defined(HAVE_ASM_X86_CLFLUSHOPT)
 	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_CLFLUSHOPT)) {
 		pr_inf("%s: clflushopt is not available, ignoring this option\n",
 			args->name);
 	}
 #endif
 
-#if defined(HAVE_ASM_CLFLUSHOPT)
+#if defined(HAVE_ASM_X86_CLFLUSHOPT)
 	if (!stress_cpu_x86_has_clflushopt() && (cache_flags & FLAGS_CACHE_CLFLUSHOPT)) {
 		cache_flags &= ~FLAGS_CACHE_CLFLUSHOPT;
 		if (args->instance == 0) {

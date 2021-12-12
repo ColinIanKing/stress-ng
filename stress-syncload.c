@@ -78,7 +78,7 @@ static void stress_syncload_nop(void)
 #endif
 }
 
-#if defined(HAVE_ASM_PAUSE)
+#if defined(HAVE_ASM_X86_PAUSE)
 static void stress_syncload_pause(void)
 {
 	__asm__ __volatile__("pause;\n");
@@ -129,7 +129,7 @@ static void stress_syncload_loop(void)
 static const stress_syncload_op_t stress_syncload_ops[] = {
 	stress_syncload_none,
 	stress_syncload_nop,
-#if defined(HAVE_ASM_PAUSE)
+#if defined(HAVE_ASM_X86_PAUSE)
 	stress_syncload_pause,
 #endif
 #if defined(HAVE_ASM_YIELD)

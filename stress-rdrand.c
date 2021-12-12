@@ -39,9 +39,9 @@ static int stress_set_rdrand_seed(const char *opt)
 {
 	(void)opt;
 
-#if defined(STRESS_ARCH_X86) &&	\
-    defined(HAVE_ASM_RDRAND) &&	\
-    defined(HAVE_ASM_RDSEED)
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_ASM_X86_RDRAND) &&	\
+    defined(HAVE_ASM_X86_RDSEED)
 	if (stress_cpu_x86_has_rdseed()) {
 		bool rdrand_seed = true;
 
@@ -58,10 +58,10 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(STRESS_ARCH_X86) &&	\
-    defined(HAVE_ASM_RDRAND)
+    defined(HAVE_ASM_X86_RDRAND)
 
 #define HAVE_RAND_CAPABILITY
-#if defined(HAVE_ASM_RDSEED)
+#if defined(HAVE_ASM_X86_RDSEED)
 #define HAVE_SEED_CAPABILITY
 #endif
 

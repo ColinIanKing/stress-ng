@@ -4135,7 +4135,7 @@ extern WARN_UNUSED bool stress_cpu_x86_has_syscall(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_tsc(void);
 
 #if defined(STRESS_ARCH_X86) &&	\
-    defined(HAVE_ASM_CLFLUSH)
+    defined(HAVE_ASM_X86_CLFLUSH)
 
 typedef void (*shim_clflush_func_t)(volatile void *ptr);
 
