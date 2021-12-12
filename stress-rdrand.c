@@ -161,7 +161,7 @@ static inline uint32_t seed64(void)
 #endif
 
 #if defined(STRESS_ARCH_PPC64) &&	\
-    defined(HAVE_ASM_DARN)
+    defined(HAVE_ASM_PPC64_DARN)
 
 #define HAVE_RAND_CAPABILITY
 
