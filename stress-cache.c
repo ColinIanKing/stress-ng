@@ -501,15 +501,19 @@ static int stress_cache(const stress_args_t *args)
 	do {
 		int jmpret;
 
+		r++;
+
 		jmpret = sigsetjmp(jmp_env, 1);
 		/*
 		 *  We return here if we segfault, so
 		 *  check if we need to terminate
 		 */
-		if (jmpret && !keep_stressing(args))
+		if (jmpret) {
+			if (keep_stressing(args))
+				goto next;
 			break;
+		}
 
-		r++;
 		if (r & 1) {
 			uint32_t flags;
 
@@ -581,6 +585,7 @@ static int stress_cache(const stress_args_t *args)
 		}
 		inc_counter(args);
 
+next:
 		/* Move forward a bit */
 		i += inc;
 		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
