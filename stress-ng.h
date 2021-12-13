@@ -1387,7 +1387,7 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 
 /* do nothing */
 #if defined(HAVE_ASM_NOP)
-#define FORCE_DO_NOTHING() __asm__ __volatile__("nop;")
+#define FORCE_DO_NOTHING() __asm__ __volatile__(ARCH_ASM_NOP)
 #elif defined(HAVE_ASM_NOTHING)
 #define FORCE_DO_NOTHING() __asm__ __volatile__("")
 #else
@@ -1851,6 +1851,7 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #if defined(__x86_64__) || defined(__x86_64) || \
     defined(__i386__)   || defined(__i386)
 #define STRESS_ARCH_X86		(1)
+#define ARCH_ASM_NOP "nop;\n"
 #endif
 
 /* Arch specific, ARM */
@@ -1862,22 +1863,26 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
     defined(__ARM_ARCH_7M__)  || defined(__ARM_ARCH_7EM__) || \
     defined(__ARM_ARCH_8A__)  || defined(__aarch64__)
 #define STRESS_ARCH_ARM		(1)
+#define ARCH_ASM_NOP "nop;\n"
 #endif
 
 /* Arch specific RISC-V */
 #if defined(__riscv) || \
     defined(__riscv__)
 #define STRESS_ARCH_RISCV	(1)
+#define ARCH_ASM_NOP "nop;\n"
 #endif
 
 /* Arch specific, IBM S390 */
 #if defined(__s390__)
 #define STRESS_ARCH_S390	(1)
+#define ARCH_ASM_NOP "nop;\n"
 #endif
 
 /* Arch specific PPC64 */
 #if defined(__PPC64__)
 #define STRESS_ARCH_PPC64	(1)
+#define ARCH_ASM_NOP "nop;\n"
 #endif
 
 /* Arch specific M68K */
@@ -1886,6 +1891,7 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
     defined(__mc68010__) ||	\
     defined(__mc68020__)
 #define STRESS_ARCH_M68K	(1)
+#define ARCH_ASM_NOP "nop;\n"
 #endif
 
 /* Arch specific SPARC */
@@ -1893,11 +1899,13 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
     defined(__sparc__) ||	\
     defined(__sparc_v9__)
 #define STRESS_ARCH_SPARC	(1)
+#define ARCH_ASM_NOP "nop;\n"
 #endif
 
 /* Arch specific SH4 */
 #if defined(__SH4__)
 #define STRESS_ARCH_SH4		(1)
+#define ARCH_ASM_NOP "nop;\n"
 #endif
 
 /* GCC5.0+ target_clones attribute, x86 */

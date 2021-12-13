@@ -1,3 +1,4 @@
+#include "stress-ng.h"
 /*
  * Copyright (C) 2017-2021 Canonical, Ltd.
  *
@@ -23,10 +24,13 @@
  *
  */
 
+#if defined(ARCH_ASM_NOP)
 int main(void)
 {
-	__asm__ __volatile__("nop;");
+	__asm__ __volatile__(ARCH_ASM_NOP);
 
 	return 0;
 }
-
+#else
+#error no nop instruction defined
+#endif
