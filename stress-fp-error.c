@@ -158,6 +158,7 @@ static int stress_fp_error(const stress_args_t *args)
 #endif
 
 #if defined(FE_INEXACT)
+#if !defined(STRESS_ARCH_ALPHA)
 		/*
 		 * Use volatiles to force compiler to generate code
 		 * to perform run time computation of 1.0 / M_PI
@@ -167,6 +168,7 @@ static int stress_fp_error(const stress_args_t *args)
 		SET_VOLATILE(d2, M_PI);
 		stress_fp_check(args, "1.0 / M_PI", d1 / d2, d1 / d2,
 			false, false, 0, FE_INEXACT);
+#endif
 
 		/*
 		 * Use volatiles to force compiler to generate code
