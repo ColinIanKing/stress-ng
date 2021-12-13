@@ -1900,6 +1900,13 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define STRESS_ARCH_SH4		(1)
 #endif
 
+/* Arch specific ALPHA */
+#if defined(__alpha) ||		\
+    defined(__alpha__)
+#define STRESS_ARCH_ALPHA	(1)
+#endif
+
+
 /* GCC5.0+ target_clones attribute, x86 */
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_TARGET_CLONES)

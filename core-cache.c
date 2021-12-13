@@ -408,6 +408,98 @@ static int stress_get_cpu_cache_auxval(stress_cpu_t *cpu)
 #endif
 }
 
+#if defined(STRESS_ARCH_ALPHA)
+/*
+ *  stress_get_cpu_cache_alpha()
+ *	find cache information as provided by linux Alpha from
+ *	/proc/cpu. Assume cache layout for 1st CPU is same for
+ *	all CPUs.
+ */
+static int stress_get_cpu_cache_alpha(
+	stress_cpu_t *cpu,
+	const char *cpu_path)
+{
+	FILE *fp;
+	const size_t count = 4;
+	size_t idx = 0;
+
+	(void)cpu_path;
+
+	/*
+	 * parse /proc/cpu info in the form:
+	 * L1 Icache		: 64K, 2-way, 64b line
+	 * L1 Dcache		: 64K, 2-way, 64b line
+	 * L2 cache		: n/a
+	 * L3 cache		: n/a
+	 */
+	cpu->caches = calloc(count, sizeof(*(cpu->caches)));
+	if (!cpu->caches) {
+		pr_err("failed to allocate %zu bytes for cpu caches\n",
+			count * sizeof(*(cpu->caches)));
+		return 0;
+	}
+
+	fp = fopen("/proc/cpuinfo", "r");
+	if (fp) {
+		char buffer[4096];
+
+		while ((idx < count) && fgets(buffer, sizeof(buffer), fp)) {
+			stress_cache_type_t cache_type = CACHE_TYPE_UNKNOWN;
+			uint16_t cache_level = 0;
+			char *ptr;
+			int cache_size, cache_ways, cache_line_size, n;
+
+			if (!strncmp("L1 Icache", buffer, 9)) {
+				cache_type = CACHE_TYPE_INSTRUCTION;
+				cache_level = 1;
+			} else if (!strncmp("L1 Dcache", buffer, 9))  {
+				cache_type = CACHE_TYPE_DATA;
+				cache_level = 1;
+			}
+			else if (!strncmp("L2 cache", buffer, 8)) {
+				cache_type = CACHE_TYPE_DATA;
+				cache_level = 2;
+			}
+			else if (!strncmp("L3 cache", buffer, 8)) {
+				cache_type = CACHE_TYPE_DATA;
+				cache_level = 3;
+			}
+			else
+				continue;
+			ptr = strchr(buffer, ':');
+			if (!ptr)
+				continue;
+			ptr++;
+			cache_size = 0;
+			cache_ways = 0;
+			cache_line_size = 0;
+			n = sscanf(ptr, "%dK, %d-way, %db line",
+				&cache_size, &cache_ways, &cache_line_size);
+			if (n != 3)
+				continue;
+			cpu->caches[idx].type = cache_type;
+			cpu->caches[idx].level = cache_level;
+			cpu->caches[idx].size = cache_size * 1024;
+			cpu->caches[idx].ways = cache_ways;
+			cpu->caches[idx].line_size = cache_line_size;
+			idx++;
+		}
+		(void)fclose(fp);
+	}
+
+	if (idx == 0) {
+		free(cpu->caches);
+		cpu->caches = NULL;
+		cpu->cache_count = 0;
+
+		return 0;
+	}
+	cpu->cache_count = idx;
+
+	return idx;
+}
+#endif
+
 /*
  *  stress_get_cpu_cache_sparc64()
  *	find cache information as provided by linux SPARC64
@@ -611,6 +703,11 @@ static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path
 	/* Try cache info for sparc CPUs */
 	if (stress_get_cpu_cache_sparc64(cpu, cpu_path) > 0)
 		return;
+
+#if defined(STRESS_ARCH_ALPHA)
+	if (stress_get_cpu_cache_alpha(cpu, cpu_path) > 0)
+		return;
+#endif
 
 	return;
 }
