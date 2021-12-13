@@ -1908,6 +1908,14 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define ARCH_ASM_NOP "nop;\n"
 #endif
 
+/* Arch specific Kalray VLIW core */
+#if defined(__KVX__) || \
+    defined(__kvx__)
+#define STRESS_ARCH_KVX	(1)
+
+#define ARCH_ASM_NOP "nop;;\n"
+#endif
+
 /* GCC5.0+ target_clones attribute, x86 */
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_TARGET_CLONES)
