@@ -303,6 +303,7 @@ stress_cpu_cache_t *stress_get_cpu_cache(const stress_cpus_t *cpus, const uint16
 	return stress_get_cache_by_cpu(cpu, cache_level);
 }
 
+#if defined(STRESS_ARCH_SPARC)
 static int stress_get_cpu_cache_value(
 	const char *cpu_path,
 	const char *file,
@@ -319,6 +320,7 @@ static int stress_get_cpu_cache_value(
 	}
 	return -1;
 }
+#endif
 
 /*
  *  stress_get_cpu_cache_auxval()
@@ -500,6 +502,7 @@ static int stress_get_cpu_cache_alpha(
 }
 #endif
 
+#if defined(STRESS_ARCH_SPARC)
 /*
  *  stress_get_cpu_cache_sparc64()
  *	find cache information as provided by linux SPARC64
@@ -575,6 +578,7 @@ static int stress_get_cpu_cache_sparc64(
 
 	return count;
 }
+#endif
 
 /*
  *  index_filter()
@@ -700,9 +704,11 @@ static void stress_get_cpu_cache_details(stress_cpu_t *cpu, const char *cpu_path
 	if (stress_get_cpu_cache_auxval(cpu) > 0)
 		return;
 
+#if defined(STRESS_ARCH_SPARC)
 	/* Try cache info for sparc CPUs */
 	if (stress_get_cpu_cache_sparc64(cpu, cpu_path) > 0)
 		return;
+#endif
 
 #if defined(STRESS_ARCH_ALPHA)
 	if (stress_get_cpu_cache_alpha(cpu, cpu_path) > 0)
