@@ -412,6 +412,12 @@ static int stress_cache(const stress_args_t *args)
 	uint64_t inc = (mem_cache_size >> 2) + 1;
 	void *bad_addr;
 
+	if (sigsetjmp(jmp_env, 1)) {
+		pr_inf("%s: premature SIGSEGV caught, skipping stressor\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
 	if (stress_sighandler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 	if (stress_sighandler(args->name, SIGBUS , stress_cache_sighandler, NULL) < 0)
@@ -493,6 +499,16 @@ static int stress_cache(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+		int jmpret;
+
+		jmpret = sigsetjmp(jmp_env, 1);
+		/*
+		 *  We return here if we segfault, so
+		 *  check if we need to terminate
+		 */
+		if (jmpret && !keep_stressing(args))
+			break;
+
 		r++;
 		if (r & 1) {
 			uint32_t flags;
@@ -552,7 +568,7 @@ static int stress_cache(const stress_args_t *args)
 		 * Periodically exercise invalid cache ops
 		 */
 		if ((r & 0x1f) == 0) {
-			ret = sigsetjmp(jmp_env, 1);
+			jmpret = sigsetjmp(jmp_env, 1);
 			/*
 			 *  We return here if we segfault, so
 			 *  first check if we need to terminate
@@ -560,7 +576,7 @@ static int stress_cache(const stress_args_t *args)
 			if (!keep_stressing(args))
 				break;
 
-			if (!ret)
+			if (!jmpret)
 				stress_cache_flush(mem_cache, bad_addr, args->page_size);
 		}
 		inc_counter(args);
