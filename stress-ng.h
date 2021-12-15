@@ -1906,6 +1906,12 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define STRESS_ARCH_ALPHA	(1)
 #endif
 
+/* Arch specific HPPA  */
+#if defined(__hppa) ||		\
+    defined(__hppa__)
+#define STRESS_ARCH_HPPA	(1)
+#undef HAVE_SIGALTSTACK
+#endif
 
 /* GCC5.0+ target_clones attribute, x86 */
 #if defined(STRESS_ARCH_X86) &&	\
