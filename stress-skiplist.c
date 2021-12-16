@@ -81,7 +81,7 @@ static skip_node_t *skip_node_alloc(const size_t levels)
 {
 	const size_t sz = sizeof(skip_node_t) + (levels * sizeof(skip_node_t *));
 
-	return (skip_node_t *)malloc(sz);
+	return (skip_node_t *)calloc(1, sz);
 }
 
 /*
@@ -234,6 +234,7 @@ static int stress_skiplist(const stress_args_t *args)
 			if (!skip_list_insert(&list, v)) {
 				pr_inf("%s: out of memory initializing the skip list\n",
 					args->name);
+				skip_list_free(&list);
 				return EXIT_NO_RESOURCE;
 			}
 		}
