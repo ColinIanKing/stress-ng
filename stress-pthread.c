@@ -492,18 +492,14 @@ static int stress_pthread(const stress_args_t *args)
 
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)
 			/*
-			 *  We mmap our own per pthread stack to ensure we
+			 *  We allocate our own per pthread stack to ensure we
 			 *  have one available before the pthread is started
 			 *  and this allows us to exercise the pthread stack
 			 *  setting.
 			 */
-			pthreads[i].stack = mmap(NULL, stack_size, PROT_READ | PROT_WRITE,
-				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-			if (pthreads[i].stack == MAP_FAILED)
+			pthreads[i].stack = calloc(1, stack_size);
+			if (!pthreads[i].stack)
 				break;
-
-			/* Ensure stack is all in physical memory */
-			stress_mincore_touch_pages(pthreads[i].stack, stack_size);
 
 			ret = pthread_attr_init(&attr);
 			if (ret) {
@@ -621,8 +617,8 @@ reap:
 				}
 			}
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)
-			if (pthreads[j].stack != MAP_FAILED)
-				(void)munmap(pthreads[j].stack, stack_size);
+			if (pthreads[j].stack != NULL)
+				free(pthreads[j].stack);
 #endif
 		}
 	} while (!locked && keep_running() && keep_stressing(args));
