@@ -1447,6 +1447,29 @@ int stress_get_bad_fd(void)
 }
 
 /*
+ *  stress_sigaltstack_no_check()
+ *	attempt to set up an alternative signal stack with no
+ *	minimum size check on stack
+ *	  stack - must be at least MINSIGSTKSZ
+ *	  size  - size of stack (- STACK_ALIGNMENT)
+ */
+int stress_sigaltstack_no_check(void *stack, const size_t size)
+{
+#if defined(HAVE_SIGALTSTACK)
+	stack_t ss;
+
+	ss.ss_sp = (void *)stack;
+	ss.ss_size = size;
+	ss.ss_flags = 0;
+	return sigaltstack(&ss, NULL);
+#else
+	(void)stack;
+	(void)size;
+#endif
+	return 0;
+}
+
+/*
  *  stress_sigaltstack()
  *	attempt to set up an alternative signal stack
  *	  stack - must be at least MINSIGSTKSZ
@@ -1455,17 +1478,13 @@ int stress_get_bad_fd(void)
 int stress_sigaltstack(void *stack, const size_t size)
 {
 #if defined(HAVE_SIGALTSTACK)
-	stack_t ss;
-
 	if (size < (size_t)STRESS_MINSIGSTKSZ) {
 		pr_err("sigaltstack stack size %zu must be more than %zuK\n",
 			size, (size_t)STRESS_MINSIGSTKSZ / 1024);
 		return -1;
 	}
-	ss.ss_sp = (void *)stack;
-	ss.ss_size = size;
-	ss.ss_flags = 0;
-	if (sigaltstack(&ss, NULL) < 0) {
+
+	if (stress_sigaltstack_no_check(stack, size) < 0) {
 		pr_fail("sigaltstack failed: errno=%d (%s)\n",
 			errno, strerror(errno));
 		return -1;

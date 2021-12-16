@@ -208,6 +208,7 @@ again:
 			uint32_t rnd;
 			int ret;
 			stack_t ss, old_ss;
+			size_t sz;
 #if defined(SIGXCPU) &&	\
     defined(RLIMIT_CPU)
 			struct rlimit rlim;
@@ -325,7 +326,16 @@ again:
 				CASE_FALLTHROUGH;
 			case 7:
 				/* Small stack */
-				stress_bad_altstack_force_fault(NULL);
+				for (sz = 0; sz <= STRESS_SIGSTKSZ; sz += 256) {
+					ret = stress_sigaltstack_no_check(stack, sz);
+					if (ret == 0)
+						break;
+				}
+				if (ret == 0)
+					stress_bad_altstack_force_fault(stack);
+				if (!keep_stressing(args))
+					break;
+				stress_bad_altstack_force_fault(g_shared->nullptr);
 				CASE_FALLTHROUGH;
 			case 8:
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
@@ -366,7 +376,7 @@ again:
 			case 0:
 				/* Illegal unmapped stack */
 				(void)munmap(stack, STRESS_MINSIGSTKSZ);
-				stress_bad_altstack_force_fault(NULL);
+				stress_bad_altstack_force_fault(g_shared->nullptr);
 				break;
 			}
 
