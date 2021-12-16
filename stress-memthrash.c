@@ -257,6 +257,7 @@ static void HOT OPTIMIZE3 stress_memthrash_prefetch(
 	}
 }
 
+#if defined(HAVE_ASM_X86_CLFLUSH)
 static void HOT OPTIMIZE3 stress_memthrash_flush(
 	const stress_args_t *args,
 	const size_t mem_size)
@@ -275,6 +276,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flush(
 		shim_clflush(ptr);
 	}
 }
+#endif
 
 static void HOT OPTIMIZE3 stress_memthrash_mfence(
 	const stress_args_t *args,
