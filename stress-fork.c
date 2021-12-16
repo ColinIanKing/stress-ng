@@ -146,7 +146,7 @@ static int stress_fork_fn(
 STRESS_PRAGMA_PUSH
 STRESS_PRAGMA_WARN_OFF
 #endif
-				pid = vfork();
+				pid = shim_vfork();
 #if defined(HAVE_PRAGMA_INSIDE)
 STRESS_PRAGMA_POP
 #endif

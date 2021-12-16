@@ -1385,6 +1385,14 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 #define shim_builtin_memmove		memmove
 #endif
 
+/* use syscall if we can, fallback to vfork otherwise */
+#if defined(HAVE_SYSCALL_H) &&  \
+    defined(__NR_vfork)
+#define shim_vfork()    syscall(__NR_vfork)
+#else
+#define shim_vfork()    vfork()
+#endif
+
 /* do nothing */
 #if defined(HAVE_ASM_NOP)
 #define FORCE_DO_NOTHING() __asm__ __volatile__("nop;")
