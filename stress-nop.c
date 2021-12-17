@@ -40,7 +40,7 @@ typedef struct {
 	void (*func)(const stress_args_t *args);
 } stress_nop_instr_t;
 
-#define OPx1(op)	__asm__ __volatile__(op);
+#define OPx1(op)	op();
 #define OPx4(op)	OPx1(op) OPx1(op) OPx1(op) OPx1(op)
 #define OPx16(op)	OPx4(op) OPx4(op) OPx4(op) OPx4(op)
 #define OPx64(op)	do { OPx16(op) OPx16(op) OPx16(op) OPx16(op) } while (0)
@@ -52,52 +52,127 @@ static void stress_nop_spin_ ## name(const stress_args_t *args)	\
 		register int i = 1024;		\
 						\
 		while (i--)			\
-			OPx64(op);		\
+			OPx64(op); 		\
 						\
 		inc_counter(args);		\
 	} while (keep_stressing(args));		\
 }
 
-STRESS_NOP_SPIN_OP(nop, "nop;\n")
-#if defined(HAVE_ASM_X86_PAUSE)
-STRESS_NOP_SPIN_OP(pause, "pause;\n")
+static inline void stress_op_nop(void)
+{
+#if defined(STRESS_ARCH_KVX)
+	/*
+	 * Extra ;; required for KVX to indicate end of
+	 * a VLIW instruction bundle
+	 */
+	__asm__ __volatile__("nop;;\n");
+#else
+	__asm__ __volatile__("nop;\n");
 #endif
+}
+
+STRESS_NOP_SPIN_OP(nop, stress_op_nop)
+
+#if defined(HAVE_ASM_X86_PAUSE)
+static inline void stress_op_x86_pause(void)
+{
+	__asm__ __volatile__("pause;\n" ::: "memory");
+}
+
+STRESS_NOP_SPIN_OP(x86_pause, stress_op_x86_pause);
+#endif
+
 #if defined(HAVE_ASM_ARM_YIELD)
-STRESS_NOP_SPIN_OP(yield, "yield;\n")
+static inline void stress_op_arm_yield(void)
+{
+	__asm__ __volatile__("yield;\n");
+}
+
+STRESS_NOP_SPIN_OP(arm_yield, stress_op_arm_yield);
 #endif
 
 #if defined(STRESS_ARCH_X86)
-STRESS_NOP_SPIN_OP(nop2, ".byte 0x66, 0x90\n")
-STRESS_NOP_SPIN_OP(nop3, ".byte 0x0f, 0x1f, 0x00\n")
-STRESS_NOP_SPIN_OP(nop4, ".byte 0x0f, 0x1f, 0x40, 0x00\n")
-STRESS_NOP_SPIN_OP(nop5, ".byte 0x0f, 0x1f, 0x44, 0x00, 0x00\n")
-STRESS_NOP_SPIN_OP(nop6, ".byte 0x66, 0x0f, 0x1f, 0x44, 0x00, 0x00\n")
-STRESS_NOP_SPIN_OP(nop7, ".byte 0x0f, 0x1f, 0x80, 0x00, 0x00, 0x00, 0x00\n")
-STRESS_NOP_SPIN_OP(nop8, ".byte 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00\n")
-STRESS_NOP_SPIN_OP(nop9, ".byte 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00\n")
-STRESS_NOP_SPIN_OP(nop10, ".byte 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00\n")
-STRESS_NOP_SPIN_OP(nop11, ".byte 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00\n")
+static inline void stress_op_x86_nop2(void)
+{
+	__asm__ __volatile__(".byte 0x66, 0x90;\n");
+}
+
+static inline void stress_op_x86_nop3(void)
+{
+	__asm__ __volatile__(".byte 0x0f, 0x1f, 0x00;\n");
+}
+
+static inline void stress_op_x86_nop4(void)
+{
+	__asm__ __volatile__(".byte 0x0f, 0x1f, 0x40, 0x00;\n");
+}
+
+static inline void stress_op_x86_nop5(void)
+{
+	__asm__ __volatile__(".byte 0x0f, 0x1f, 0x44, 0x00, 0x00;\n");
+}
+
+static inline void stress_op_x86_nop6(void)
+{
+	__asm__ __volatile__(".byte 0x66, 0x0f, 0x1f, 0x44, 0x00, 0x00;\n");
+}
+
+static inline void stress_op_x86_nop7(void)
+{
+	__asm__ __volatile__(".byte 0x0f, 0x1f, 0x80, 0x00, 0x00, 0x00, 0x00;\n");
+}
+
+static inline void stress_op_x86_nop8(void)
+{
+	__asm__ __volatile__(".byte 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
+}
+
+static inline void stress_op_x86_nop9(void)
+{
+	__asm__ __volatile__(".byte 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
+}
+
+static inline void stress_op_x86_nop10(void)
+{
+	__asm__ __volatile__(".byte 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
+}
+
+static inline void stress_op_x86_nop11(void)
+{
+	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
+}
+
+STRESS_NOP_SPIN_OP(x86_nop2, stress_op_x86_nop2);
+STRESS_NOP_SPIN_OP(x86_nop3, stress_op_x86_nop3);
+STRESS_NOP_SPIN_OP(x86_nop4, stress_op_x86_nop4);
+STRESS_NOP_SPIN_OP(x86_nop5, stress_op_x86_nop5);
+STRESS_NOP_SPIN_OP(x86_nop6, stress_op_x86_nop6);
+STRESS_NOP_SPIN_OP(x86_nop7, stress_op_x86_nop7);
+STRESS_NOP_SPIN_OP(x86_nop8, stress_op_x86_nop8);
+STRESS_NOP_SPIN_OP(x86_nop9, stress_op_x86_nop9);
+STRESS_NOP_SPIN_OP(x86_nop10, stress_op_x86_nop10);
+STRESS_NOP_SPIN_OP(x86_nop11, stress_op_x86_nop11);
 #endif
 
 stress_nop_instr_t nop_instr[] = {
 	{ "nop",	stress_nop_spin_nop },
 #if defined(STRESS_ARCH_X86)
-	{ "nop2",	stress_nop_spin_nop2 },
-	{ "nop3",	stress_nop_spin_nop3 },
-	{ "nop4",	stress_nop_spin_nop4 },
-	{ "nop5",	stress_nop_spin_nop5 },
-	{ "nop6",	stress_nop_spin_nop6 },
-	{ "nop7",	stress_nop_spin_nop7 },
-	{ "nop8",	stress_nop_spin_nop8 },
-	{ "nop9",	stress_nop_spin_nop9 },
-	{ "nop10",	stress_nop_spin_nop10 },
-	{ "nop11",	stress_nop_spin_nop11 },
+	{ "nop2",	stress_nop_spin_x86_nop2 },
+	{ "nop3",	stress_nop_spin_x86_nop3 },
+	{ "nop4",	stress_nop_spin_x86_nop4 },
+	{ "nop5",	stress_nop_spin_x86_nop5 },
+	{ "nop6",	stress_nop_spin_x86_nop6 },
+	{ "nop7",	stress_nop_spin_x86_nop7 },
+	{ "nop8",	stress_nop_spin_x86_nop8 },
+	{ "nop9",	stress_nop_spin_x86_nop9 },
+	{ "nop10",	stress_nop_spin_x86_nop10 },
+	{ "nop11",	stress_nop_spin_x86_nop11 },
 #endif
 #if defined(HAVE_ASM_X86_PAUSE)
-	{ "pause",	stress_nop_spin_pause },
+	{ "pause",	stress_nop_spin_x86_pause },
 #endif
 #if defined(HAVE_ASM_ARM_YIELD)
-	{ "yield",	stress_nop_spin_yield },
+	{ "yield",	stress_nop_spin_arm_yield },
 #endif
 	{ NULL,		NULL },
 };
