@@ -401,7 +401,7 @@ static int stress_cache(const stress_args_t *args)
 	NOCLOBBER bool pinned = false;
 #endif
 	uint32_t cache_flags = 0;
-	uint32_t masked_flags;
+	NOCLOBBER uint32_t masked_flags;
 	NOCLOBBER uint32_t total = 0;
 	int ret = EXIT_SUCCESS;
 	uint8_t *const mem_cache = g_shared->mem_cache;
