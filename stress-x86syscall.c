@@ -301,7 +301,6 @@ static int x86syscall_check_x86syscall_func(void)
  */
 static int stress_x86syscall(const stress_args_t *args)
 {
-	char *str;
 	double t1, t2, t3, dt, overhead_ns;
 	uint64_t counter;
 
@@ -309,6 +308,8 @@ static int stress_x86syscall(const stress_args_t *args)
 		return EXIT_FAILURE;
 
 	if (args->instance == 0) {
+		char *str;
+
 		str = x86syscall_list_str();
 		if (str) {
 			pr_inf("%s: exercising syscall on: %s\n",
