@@ -93,7 +93,7 @@ int stress_set_iostat(const char *const opt)
  *  stress_find_mount_dev()
  *	find the path of the device that the file is located on
  */
-char *stress_find_mount_dev(const char *name)
+static char *stress_find_mount_dev(const char *name)
 {
 	struct stat statbuf;
 	FILE *mtab_fp;
