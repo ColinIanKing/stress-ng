@@ -108,9 +108,11 @@ static void MLOCKED_TEXT aio_signal_handler(int sig, siginfo_t *si, void *uconte
  */
 static void aio_issue_cancel(const char *name, stress_io_req_t *io_req)
 {
-	int ret, retries = 0;
+	int retries = 0;
 
 	for (;;) {
+		int ret;
+
 		ret = aio_error(&io_req->aiocb);
 		if (ret != EINPROGRESS)
 			return;
