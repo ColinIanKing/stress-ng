@@ -395,7 +395,7 @@ static int stress_cache(const stress_args_t *args)
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
 	cpu_set_t mask;
-	uint32_t cpu = 0;
+	NOCLOBBER uint32_t cpu = 0;
 	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
 	cpu_set_t proc_mask;
 	NOCLOBBER bool pinned = false;
