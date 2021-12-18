@@ -1386,12 +1386,7 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 #endif
 
 /* use syscall if we can, fallback to vfork otherwise */
-#if defined(HAVE_SYSCALL_H) &&  \
-    defined(__NR_vfork)
-#define shim_vfork()    syscall(__NR_vfork)
-#else
-#define shim_vfork()    vfork()
-#endif
+#define shim_vfork()		g_shared->vfork()
 
 /* do nothing */
 #if defined(HAVE_ASM_NOP)
@@ -2470,6 +2465,7 @@ typedef struct {
 	uint32_t mem_cache_ways;			/* cache ways size */
 	uint64_t zero;					/* zero'd data */
 	void *nullptr;					/* Null pointer */
+	pid_t (*vfork)(void);				/* vfork syscall */
 	stress_mapped_t mapped;				/* mmap'd pages to help testing */
 	struct {
 		uint32_t hash[STRESS_WARN_HASH_MAX];	/* hash patterns */

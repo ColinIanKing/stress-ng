@@ -2641,6 +2641,7 @@ static inline void stress_shared_map(const int32_t num_procs)
 	/* Paraniod */
 	(void)memset(g_shared, 0, sz);
 	g_shared->length = sz;
+	g_shared->vfork = vfork;
 
 #if defined(HAVE_MPROTECT)
 	last_page = ((uint8_t *)g_shared) + sz - page_size;

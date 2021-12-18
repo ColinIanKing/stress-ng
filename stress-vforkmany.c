@@ -193,14 +193,7 @@ vfork_again:
 				if (pid >= 0)
 					start_pid = getpid();
 			} else {
-#if defined(HAVE_PRAGMA_INSIDE)
-STRESS_PRAGMA_PUSH
-STRESS_PRAGMA_WARN_OFF
-#endif
 				pid = shim_vfork();
-#if defined(HAVE_PRAGMA_INSIDE)
-STRESS_PRAGMA_POP
-#endif
 				inc_counter(args);
 			}
 			if (pid < 0) {
