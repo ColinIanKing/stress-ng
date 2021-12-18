@@ -113,11 +113,11 @@ static void stress_randlist_free_ptrs(
 	const size_t n,
 	const size_t randlist_size)
 {
-	size_t i;
-
 	if (compact_ptr) {
 		free(compact_ptr);
 	} else {
+		size_t i;
+
 		for (i = 0; i < n; i++) {
 			stress_randlist_free_item(&ptrs[i], randlist_size);
 		}
