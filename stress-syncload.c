@@ -145,9 +145,9 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 
 static inline void stress_syncload_settime(void)
 {
+#if defined(HAVE_LIB_PTHREAD)
 	int ret;
 
-#if defined(HAVE_LIB_PTHREAD)
 	ret = shim_pthread_spin_lock(&g_shared->syncload.lock);
 #endif
 	g_shared->syncload.start_time = stress_time_now();
@@ -165,9 +165,9 @@ static inline double stress_syncload_gettime(void)
 	double t;
 
 	do {
+#if defined(HAVE_LIB_PTHREAD)
 		int ret;
 
-#if defined(HAVE_LIB_PTHREAD)
 		ret = shim_pthread_spin_lock(&g_shared->syncload.lock);
 #endif
 		t = g_shared->syncload.start_time;
