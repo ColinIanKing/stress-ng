@@ -232,15 +232,23 @@ static int stress_syncload(const stress_args_t *args)
 			delay_type = 0;
 
 		timeout += sec_busy + stress_syncload_jitter(sec_busy);
-		while (stress_time_now() < timeout)
+		while (stress_time_now() < timeout) {
 			op();
+#if defined(__APPLE__)
+			shim_sched_yield();
+#endif
+		}
 
 		if (!keep_stressing_flag())
 			break;
 
 		timeout += sec_sleep + stress_syncload_jitter(sec_sleep);
-		if (stress_time_now() < timeout)
+		if (stress_time_now() < timeout) {
 			shim_nanosleep_uint64(syncload_mssleep * 1000000);
+#if defined(__APPLE__)
+			shim_sched_yield();
+#endif
+		}
 
 		inc_counter(args);
 	} while (keep_stressing(args));
