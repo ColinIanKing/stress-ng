@@ -1,3 +1,58 @@
+stress-ng (0.13.09-1) unstable; urgency=medium
+
+  * stress-syncload: add build time check that atomic ops on doubles
+    is supported
+  * stress-ng.h: Make start_time naturally aligned for improved
+    atomic performance
+  * stress-syncload: Remove sched yield
+  * stress-ng.h: no need for start_time to be volatile
+  * stress-syncload: use atomic load/store in preference to spinlock
+  * stress-synload: add yield points for OS X builds
+  * stress-x86syscall: reduce the scope of variable str
+  * stress-x86syscall: reduce the scope of variable str
+  * stress-randlist: reduce the scope of variable i
+  * stress-aio: reduce the scope of variable ret
+  * stress-cache: ensure variable cpu is not clobbered
+  * stress-syncload: only declare ret if it is required
+  * core-vmstat: only build stress_find_mount_dev for linux
+  * core-vmstat: make stress_find_mount_dev static
+  * stress-vforkmany, fork: use indirect vfork call
+  * stress-nop: inline each nop instruction and add Kalray VLIW nop
+  * stress-cache: ensure variable masked_flags is not clobbered
+  * stress-bad-altstack: use valid smallest alternative stack
+  * stress-skiplist: zero allocated list items and free list on
+    alloc failure
+  * stress-*fork: use vfork shim wrapper macro to use syscall or vfork
+  * stress-memthrash: define stress_memthrash_flush only for x86
+  * stress-pthread: use calloc'd stack in preference to mmap'd one
+  * Add hppa architecture and disable sigaltstack
+  * stress-cache: move on to next round if SIGSEGV occurs w/o timeout
+  * stress-cache: add more SIGSEGV detection and fix ret return
+  * test-fanonify: remove include of stress-ng.h
+  * core-cache: only perform sparc cache checks for sparc builds
+  * stress-fp-error: workaround 1 / PI inexact fp error issue
+  * core-cache: add Linux arch Alpha cache size detection
+  * stress-ng.h: ensure ARCH specific #defines are defined to a value
+  * Rename ARM asm macros and tests with ARM in name, part #1, ARM
+  * Rename ppc64 asm macros and tests with ppc64 in name, part #1, ppc64
+  * Rename x86 asm macros and tests with x86 in name, part #1, x86
+  * Add autocheck of clflush x86 instruction and check if it is
+    available at run time
+  * Rename STRESS_ARCH_RISC_V to STRESS_ARCH_RISCV
+  * Add RISC-V memory fence shim helper
+  * core-vmstat: update copyright
+  * stress-readahead: Update copyright
+  * stress-iomix: update copyright
+  * stress-iomix: try to drop cached data after sync'd to file
+  * stress-iomix: add in missing comment
+  * stress-iomix: add madvise calls to make reads more effort
+  * stress-readahead: add fadvise call to try and drop cached data
+  * core-vmstat: remove some trailing white spaces
+  * core-vmstat: improve device name lookup for iostat
+  * stress-ng: Fix --temp-path directory checking (#163)
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sun, 19 Dec 2021 20:42:44 +0100
+
 stress-ng (0.13.08-1) unstable; urgency=medium
 
   [Alexander Kanavin]
