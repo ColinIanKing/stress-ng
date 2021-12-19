@@ -145,9 +145,9 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 
 static inline void stress_syncload_settime(void)
 {
-#if defined(HAVE_ATOMIC_LOAD) &&	\
-    defined(HAVE_ATOMIC_STORE) &&	\
-    defined(__ATOMIC_CONSUME) &&	\
+#if defined(HAVE_ATOMIC_LOAD_DOUBLE) &&		\
+    defined(HAVE_ATOMIC_STORE_DOUBLE) &&	\
+    defined(__ATOMIC_CONSUME) &&		\
     defined(__ATOMIC_RELEASE)
 		double now = stress_time_now();
 
@@ -173,9 +173,9 @@ static inline double stress_syncload_gettime(const stress_args_t *args)
 	double t;
 
 	do {
-#if defined(HAVE_ATOMIC_LOAD) &&	\
-    defined(HAVE_ATOMIC_STORE) &&	\
-    defined(__ATOMIC_CONSUME) &&	\
+#if defined(HAVE_ATOMIC_LOAD_DOUBLE) &&		\
+    defined(HAVE_ATOMIC_STORE_DOUBLE) &&	\
+    defined(__ATOMIC_CONSUME) &&		\
     defined(__ATOMIC_RELEASE)
 		__atomic_load(&t, &g_shared->syncload.start_time, __ATOMIC_CONSUME);
 #elif defined(HAVE_LIB_PTHREAD)
