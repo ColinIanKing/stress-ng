@@ -2508,7 +2508,7 @@ typedef struct {
 #if defined(HAVE_LIB_PTHREAD)
 		shim_pthread_spinlock_t lock;		/* protection lock */
 #endif
-		volatile double start_time;		/* Time to complete operation */
+		double start_time;			/* Time to complete operation */
 	} syncload;
 	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	stress_checksum_t *checksums;			/* per stressor counter checksum */
