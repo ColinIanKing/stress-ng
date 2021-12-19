@@ -145,39 +145,55 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 
 static inline void stress_syncload_settime(void)
 {
-#if defined(HAVE_LIB_PTHREAD)
+#if defined(HAVE_ATOMIC_LOAD) &&	\
+    defined(HAVE_ATOMIC_STORE) &&	\
+    defined(__ATOMIC_CONSUME) &&	\
+    defined(__ATOMIC_RELEASE)
+		double now = stress_time_now();
+
+		__atomic_store(&g_shared->syncload.start_time, &now, __ATOMIC_RELEASE);
+#elif defined(HAVE_LIB_PTHREAD)
 	int ret;
 
 	ret = shim_pthread_spin_lock(&g_shared->syncload.lock);
-#endif
 	g_shared->syncload.start_time = stress_time_now();
 	shim_mb();
-#if defined(HAVE_LIB_PTHREAD)
 	if (ret == 0) {
 		ret = shim_pthread_spin_unlock(&g_shared->syncload.lock);
 		(void)ret;
 	}
+#else
+	g_shared->syncload.start_time = stress_time_now();
+	shim_mb();
 #endif
 }
 
-static inline double stress_syncload_gettime(void)
+static inline double stress_syncload_gettime(const stress_args_t *args)
 {
 	double t;
 
 	do {
-#if defined(HAVE_LIB_PTHREAD)
+#if defined(HAVE_ATOMIC_LOAD) &&	\
+    defined(HAVE_ATOMIC_STORE) &&	\
+    defined(__ATOMIC_CONSUME) &&	\
+    defined(__ATOMIC_RELEASE)
+		__atomic_load(&t, &g_shared->syncload.start_time, __ATOMIC_CONSUME);
+#elif defined(HAVE_LIB_PTHREAD)
 		int ret;
 
 		ret = shim_pthread_spin_lock(&g_shared->syncload.lock);
-#endif
-		t = g_shared->syncload.start_time;
-#if defined(HAVE_LIB_PTHREAD)
+		t = (volatile double)g_shared->syncload.start_time;
 		if (ret == 0) {
 			ret = shim_pthread_spin_unlock(&g_shared->syncload.lock);
 			(void)ret;
 		}
+#else
+		/* Racy version */
+		shim_mb();
+		t = (volatile double)g_shared->syncload.start_time;
+		shim_mb();
 #endif
-	} while ((t <= 0.0) && keep_stressing_flag());
+	} while ((t <= 0.0) && keep_stressing(args));
 
 	return t;
 }
@@ -220,7 +236,7 @@ static int stress_syncload(const stress_args_t *args)
 	if (args->instance == 0)
 		stress_syncload_settime();
 
-	timeout = stress_syncload_gettime();
+	timeout = stress_syncload_gettime(args);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
