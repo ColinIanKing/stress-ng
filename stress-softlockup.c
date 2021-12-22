@@ -170,14 +170,6 @@ static int stress_softlockup(const stress_args_t *args)
 			"of this stressor\n", args->name, cpus_online);
 	}
 
-	if (g_opt_timeout == TIMEOUT_NOT_SET) {
-		timeout = 60;
-		if (first_instance) {
-			pr_inf("%s: timeout has not been set, forcing timeout to "
-				"be %" PRIu64 " seconds\n", args->name, timeout);
-		}
-	}
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 again:
