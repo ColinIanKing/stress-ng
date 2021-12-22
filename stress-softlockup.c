@@ -114,6 +114,7 @@ static int stress_softlockup(const stress_args_t *args)
 	size_t policy = 0;
 	int max_prio = 0;
 	bool good_policy = false;
+	const bool first_instance = (args->instance == 0);
 	const uint32_t cpus_online = (uint32_t)stress_get_processors_online();
 	const uint32_t num_instances = args->num_instances;
 	struct sigaction old_action_xcpu;
@@ -126,14 +127,13 @@ static int stress_softlockup(const stress_args_t *args)
 	timeout = g_opt_timeout;
 	(void)memset(&param, 0, sizeof(param));
 
-	if (!args->instance) {
-		if (SIZEOF_ARRAY(policies) == (0)) {
-			if (args->instance == 0)
-				pr_inf_skip("%s: no scheduling policies "
+	if (SIZEOF_ARRAY(policies) == 0) {
+		if (first_instance) {
+			pr_inf_skip("%s: no scheduling policies "
 					"available, skipping test\n",
 					args->name);
-			return EXIT_NOT_IMPLEMENTED;
 		}
+		return EXIT_NOT_IMPLEMENTED;
 	}
 
 	/* Get the max priorities for each sched policy */
@@ -152,28 +152,30 @@ static int stress_softlockup(const stress_args_t *args)
 	 *  policies, so check for this
 	 */
 	if (!good_policy) {
-		if (args->instance == 0)
+		if (first_instance) {
 			pr_inf_skip("%s: cannot get valid maximum priorities for the "
 				"scheduling policies, skipping test\n",
 					args->name);
+		}
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
-	if (!args->instance) {
-		if (max_prio < 1)
-			pr_inf("%s: running with a low maximum priority of %d\n",
-				args->name, max_prio);
+	if ((max_prio < 1) && (args->instance == 0)) {
+		pr_inf("%s: running with a low maximum priority of %d\n",
+			args->name, max_prio);
 	}
 
-	if (num_instances < cpus_online) {
+	if ((num_instances < cpus_online) && (first_instance)) {
 		pr_inf("%s: for best results, run with at least %d instances "
 			"of this stressor\n", args->name, cpus_online);
 	}
 
 	if (g_opt_timeout == TIMEOUT_NOT_SET) {
 		timeout = 60;
-		pr_inf("%s: timeout has not been set, forcing timeout to "
-			"be %" PRIu64 " seconds\n", args->name, timeout);
+		if (first_instance) {
+			pr_inf("%s: timeout has not been set, forcing timeout to "
+				"be %" PRIu64 " seconds\n", args->name, timeout);
+		}
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
