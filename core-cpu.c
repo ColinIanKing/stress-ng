@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014-2021 Canonical, Ltd.
+ * Copyright (C)      2021 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -99,6 +94,10 @@ static void stress_cpu_x86_extended_features(
 }
 #endif
 
+/*
+ *  stress_cpu_x86_has_clflushopt()
+ *	does x86 cpu support clflushopt?
+ */
 bool stress_cpu_x86_has_clflushopt(void)
 {
 #if defined(STRESS_ARCH_X86)
@@ -115,6 +114,10 @@ bool stress_cpu_x86_has_clflushopt(void)
 #endif
 }
 
+/*
+ *  stress_cpu_x86_has_clwb()
+ *	does x86 cpu support clwb?
+ */
 bool stress_cpu_x86_has_clwb(void)
 {
 #if defined(STRESS_ARCH_X86)
@@ -131,6 +134,10 @@ bool stress_cpu_x86_has_clwb(void)
 #endif
 }
 
+/*
+ *  stress_cpu_x86_has_cldemote()
+ *	does x86 cpu support cldemote?
+ */
 bool stress_cpu_x86_has_cldemote(void)
 {
 #if defined(STRESS_ARCH_X86)
@@ -147,6 +154,10 @@ bool stress_cpu_x86_has_cldemote(void)
 #endif
 }
 
+/*
+ *  stress_cpu_x86_has_rdseed()
+ *	does x86 cpu support rdseed?
+ */
 bool stress_cpu_x86_has_rdseed(void)
 {
 #if defined(STRESS_ARCH_X86)
@@ -163,6 +174,10 @@ bool stress_cpu_x86_has_rdseed(void)
 #endif
 }
 
+/*
+ *  stress_cpu_x86_has_syscall()
+ *	does x86 cpu support syscall?
+ */
 bool stress_cpu_x86_has_syscall(void)
 {
 #if defined(STRESS_ARCH_X86)
@@ -179,6 +194,10 @@ bool stress_cpu_x86_has_syscall(void)
 #endif
 }
 
+/*
+ *  stress_cpu_x86_has_rdrand()
+ *	does x86 cpu support rdrand?
+ */
 bool stress_cpu_x86_has_rdrand(void)
 {
 #if defined(STRESS_ARCH_X86)
@@ -195,6 +214,10 @@ bool stress_cpu_x86_has_rdrand(void)
 #endif
 }
 
+/*
+ *  stress_cpu_x86_has_tsc()
+ *	does x86 cpu support tsc?
+ */
 bool stress_cpu_x86_has_tsc(void)
 {
 #if defined(STRESS_ARCH_X86)
@@ -211,6 +234,10 @@ bool stress_cpu_x86_has_tsc(void)
 #endif
 }
 
+/*
+ *  stress_cpu_x86_has_msr()
+ *	does x86 cpu support MSRs?
+ */
 bool stress_cpu_x86_has_msr(void)
 {
 #if defined(STRESS_ARCH_X86)
@@ -227,6 +254,10 @@ bool stress_cpu_x86_has_msr(void)
 #endif
 }
 
+/*
+ *  stress_cpu_x86_has_clfsh()
+ *	does x86 cpu support clflush?
+ */
 bool stress_cpu_x86_has_clfsh(void)
 {
 #if defined(STRESS_ARCH_X86)
