@@ -658,7 +658,7 @@ static int stress_procfs(const stress_args_t *args)
 	n = scandir("/proc", &dlist, NULL, alphasort);
 	if (n <= 0) {
 		if (args->instance == 0)
-			pr_inf_skip("%s: no /sys entries found, skipping stressor\n", args->name);
+			pr_inf_skip("%s: no /proc entries found, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	n = stress_dirent_proc_prune(dlist, n);
@@ -723,7 +723,7 @@ static int stress_procfs(const stress_args_t *args)
 
 	rc = shim_pthread_spin_lock(&lock);
 	if (rc) {
-		pr_dbg("%s: failed to lock spin lock for sysfs_path\n", args->name);
+		pr_dbg("%s: spin lock failed for %s\n", args->name, proc_path);
 	} else {
 		shim_strlcpy(proc_path, "", sizeof(proc_path));
 		rc = shim_pthread_spin_unlock(&lock);
