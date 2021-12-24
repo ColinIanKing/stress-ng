@@ -110,7 +110,6 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 	(void)stress_get_setting("memfd-fds", &memfd_fds);
 
 	size = memfd_bytes / memfd_fds;
-
 	if (size < min_size)
 		size = min_size;
 
@@ -321,7 +320,6 @@ clean:
 
 	return EXIT_SUCCESS;
 }
-
 
 /*
  *  stress_memfd()
