@@ -20,7 +20,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"kvm N",	"start N workers exercising /dev/kvm" },
-	{ NULL, "kvm-ops N",	"stop after N /dev/kvm bogo I/O operations" },
+	{ NULL, "kvm-ops N",	"stop after N kvm create/run/destroy operations" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -261,13 +261,13 @@ tidy_kvm_fd:
 
 stressor_info_t stress_kvm_info = {
 	.stressor = stress_kvm,
-	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
+	.class = CLASS_DEV | CLASS_OS,
 	.help = help
 };
 #else
 stressor_info_t stress_kvm_info = {
 	.stressor = stress_not_implemented,
-	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
+	.class = CLASS_DEV | CLASS_OS,
 	.help = help
 };
 #endif
