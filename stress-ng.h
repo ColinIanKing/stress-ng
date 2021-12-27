@@ -563,6 +563,10 @@
 #include <linux/kd.h>
 #endif
 
+#if defined(HAVE_LINUX_KVM_H)
+#include <linux/kvm.h>
+#endif
+
 #if defined(HAVE_LINUX_LANDLOCK_H)
 #include <linux/landlock.h>
 #endif
@@ -2616,6 +2620,7 @@ typedef struct {
 	MACRO(key)		\
 	MACRO(kill)		\
 	MACRO(klog)		\
+	MACRO(kvm)		\
 	MACRO(l1cache)		\
 	MACRO(landlock)		\
 	MACRO(lease)		\
@@ -3209,6 +3214,9 @@ typedef enum {
 
 	OPT_klog,
 	OPT_klog_ops,
+
+	OPT_kvm,
+	OPT_kvm_ops,
 
 	OPT_l1cache,
 	OPT_l1cache_ops,

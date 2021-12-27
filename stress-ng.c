@@ -474,6 +474,8 @@ static const struct option long_options[] = {
 	{ "kill-ops",		1,	0,	OPT_kill_ops },
 	{ "klog",		1,	0,	OPT_klog },
 	{ "klog-ops",		1,	0,	OPT_klog_ops },
+	{ "kvm",		1,	0,	OPT_kvm },
+	{ "kvm-ops",		1,	0,	OPT_kvm_ops },
 	{ "l1cache",		1,	0, 	OPT_l1cache },
 	{ "l1cache-ops",	1,	0,	OPT_l1cache_ops },
 	{ "l1cache-line-size",	1,	0,	OPT_l1cache_line_size },
