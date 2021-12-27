@@ -183,8 +183,10 @@ static int stress_kvm(const stress_args_t *args)
 
 			ret = ioctl(vcpu_fd, KVM_RUN, 0);
 			if (ret < 0) {
-				pr_fail("%s: ioctl KVM_RUN failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				if (errno != EINTR) {
+					pr_fail("%s: ioctl KVM_RUN failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
 				goto tidy_run;
 			}
 			switch (run->exit_reason) {
