@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2021 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -37,7 +38,7 @@ static sigjmp_buf jmpbuf;
 
 typedef struct {
 	const char *name;
-	void (*func)(const stress_args_t *args);
+	void (*func)(const stress_args_t *args, const bool flag);
 } stress_nop_instr_t;
 
 #define OPx1(op)	op();
@@ -46,7 +47,9 @@ typedef struct {
 #define OPx64(op)	do { OPx16(op) OPx16(op) OPx16(op) OPx16(op) } while (0)
 
 #define STRESS_NOP_SPIN_OP(name, op)		\
-static void stress_nop_spin_ ## name(const stress_args_t *args)	\
+static void stress_nop_spin_ ## name(		\
+	const stress_args_t *args,		\
+	const bool flag)			\
 {						\
 	do {					\
 		register int i = 1024;		\
@@ -55,7 +58,7 @@ static void stress_nop_spin_ ## name(const stress_args_t *args)	\
 			OPx64(op); 		\
 						\
 		inc_counter(args);		\
-	} while (keep_stressing(args));		\
+	} while (flag && keep_stressing(args));	\
 }
 
 static inline void stress_op_nop(void)
@@ -184,6 +187,8 @@ static inline void stress_op_s390_nopr(void)
 STRESS_NOP_SPIN_OP(s390_nopr, stress_op_s390_nopr);
 #endif
 
+void stress_nop_random(const stress_args_t *args, const bool flag);
+
 stress_nop_instr_t nop_instr[] = {
 	{ "nop",	stress_nop_spin_nop },
 #if defined(STRESS_ARCH_X86)
@@ -208,12 +213,24 @@ stress_nop_instr_t nop_instr[] = {
 	{ "yield",	stress_nop_spin_arm_yield },
 #endif
 #if defined(STRESS_ARCH_PPC64)
-	{ "yield",	stress_nop_spin_ppc64_yield },
 	{ "mdoio",	stress_nop_spin_ppc64_mdoio },
 	{ "mdoom",	stress_nop_spin_ppc64_mdoom },
+	{ "yield",	stress_nop_spin_ppc64_yield },
 #endif
+	{ "random",	stress_nop_random },
 	{ NULL,		NULL },
 };
+
+void stress_nop_random(const stress_args_t *args, const bool flag)
+{
+	(void)flag;
+
+	do {
+		const size_t n = stress_mwc8() % (SIZEOF_ARRAY(nop_instr) - 2);
+
+		nop_instr[n].func(args, false);
+	} while (keep_stressing(args));
+}
 
 static int stress_set_nop_instr(const char *opt)
 {
@@ -270,7 +287,7 @@ static int stress_nop(const stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	instr->func(args);
+	instr->func(args, true);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
