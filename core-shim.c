@@ -259,7 +259,10 @@ int shim_getdents64(
  */
 int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
 {
-#if defined(__NR_getrandom)
+#if defined(HAVE_SYS_RANDOM_H) &&	\
+    defined(HAVE_GETRANDOM)
+	return (int)getrandom(buff, buflen, flags);
+#elif defined(__NR_getrandom)
 	return (int)syscall(__NR_getrandom, buff, buflen, flags);
 #elif defined(__OpenBSD__) || defined(__APPLE__)
 	(void)flags;

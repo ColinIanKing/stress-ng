@@ -371,7 +371,7 @@
 #include <sys/quota.h>
 #endif
 
-#if defined(__APPLE__)
+#if defined(HAVE_SYS_RANDOM_H)
 #include <sys/random.h>
 #endif
 
