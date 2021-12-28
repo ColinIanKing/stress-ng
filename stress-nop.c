@@ -175,6 +175,15 @@ STRESS_NOP_SPIN_OP(ppc64_mdoio, stress_op_ppc64_mdoio);
 STRESS_NOP_SPIN_OP(ppc64_mdoom, stress_op_ppc64_mdoom);
 #endif
 
+#if defined(STRESS_ARCH_S390)
+static inline void stress_op_s390_nopr(void)
+{
+	__asm__ __volatile__("nopr %r0;\n");
+}
+
+STRESS_NOP_SPIN_OP(s390_nopr, stress_op_s390_nopr);
+#endif
+
 stress_nop_instr_t nop_instr[] = {
 	{ "nop",	stress_nop_spin_nop },
 #if defined(STRESS_ARCH_X86)
@@ -188,6 +197,9 @@ stress_nop_instr_t nop_instr[] = {
 	{ "nop9",	stress_nop_spin_x86_nop9 },
 	{ "nop10",	stress_nop_spin_x86_nop10 },
 	{ "nop11",	stress_nop_spin_x86_nop11 },
+#endif
+#if defined(STRESS_ARCH_S390)
+	{ "nopr",	stress_nop_spin_s390_nopr },
 #endif
 #if defined(HAVE_ASM_X86_PAUSE)
 	{ "pause",	stress_nop_spin_x86_pause },
