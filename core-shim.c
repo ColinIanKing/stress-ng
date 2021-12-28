@@ -192,7 +192,9 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
  */
 int shim_gettid(void)
 {
-#if defined(__NR_gettid)
+#if defined(HAVE_GETTID)
+	return gettid();
+#elif defined(__NR_gettid)
 	return (int)syscall(__NR_gettid);
 #else
 	return (int)shim_enosys(0);
