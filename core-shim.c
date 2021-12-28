@@ -841,6 +841,11 @@ int shim_mincore(void *addr, size_t length, unsigned char *vec)
 #define STATX_COPY(x)		buffer->x = statxbuf.x;
 #define STATX_COPY_TS(x)	buffer->x.tv_sec = statxbuf.x.tv_sec;		\
 				buffer->x.tv_nsec = statxbuf.x.tv_nsec;
+
+/*
+ *  shim_statx()
+ *	extended stat, Linux only variant
+ */
 int shim_statx(
 	int dfd,
 	const char *filename,
@@ -920,7 +925,7 @@ int shim_futex_wait(
 }
 
 /*
- *  dup3()
+ *  shim_dup3()
  *	linux special dup3
  */
 int shim_dup3(int oldfd, int newfd, int flags)
@@ -934,7 +939,10 @@ int shim_dup3(int oldfd, int newfd, int flags)
 #endif
 }
 
-
+/*
+ *  shim_sync_file_range()
+ *	sync data on a specified data range
+ */
 int shim_sync_file_range(
 	int fd,
 	shim_off64_t offset,
@@ -1399,8 +1407,8 @@ int shim_pidfd_getfd(int pidfd, int targetfd, unsigned int flags)
 }
 
 /*
- * If we have the fancy new Linux 5.2 mount system
- * calls then provide shim wrappers for these
+ *  If we have the fancy new Linux 5.2 mount system
+ *  calls then provide shim wrappers for these
  */
 int shim_fsopen(const char *fsname, unsigned int flags)
 {
@@ -1450,6 +1458,10 @@ int shim_move_mount(
 #endif
 }
 
+/*
+ *  sys_clone3()
+ *	Linux clone3 system call wrapper
+ */
 int sys_clone3(struct shim_clone_args *cl_args, size_t size)
 {
 #if defined(__NR_clone3)
@@ -1459,6 +1471,10 @@ int sys_clone3(struct shim_clone_args *cl_args, size_t size)
 #endif
 }
 
+/*
+ *  shim_ustat
+ *	ustat system call wrapper
+ */
 int shim_ustat(dev_t dev, struct shim_ustat *ubuf)
 {
 #if defined(HAVE_USTAT) &&	\
