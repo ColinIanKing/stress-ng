@@ -472,12 +472,10 @@ int shim_seccomp(unsigned int operation, unsigned int flags, void *args)
  */
 int shim_unshare(int flags)
 {
-#if defined(__NR_unshare)
-#if NEED_GLIBC(2,14,0)
+#if defined(HAVE_UNSHARE)
 	return unshare(flags);
-#else
+#elif defined(__NR_unshare)
 	return (int)syscall(__NR_unshare, flags);
-#endif
 #else
 	return (int)shim_enosys(0, flags);
 #endif
