@@ -546,12 +546,16 @@ int shim_munlock(const void *addr, size_t len)
 
 /*
  *  shim_mlock2()
- *	wrapper for mlock2(2) - lock memory
+ *	wrapper for mlock2(2) - lock memory; force call
+ *	via syscall if possible as zero flags call goes
+ *	via mlock() in libc or mlock2() for non-zero flags.
  */
 int shim_mlock2(const void *addr, size_t len, int flags)
 {
 #if defined(__NR_mlock2)
 	return (int)syscall(__NR_mlock2, addr, len, flags);
+#elif defined(HAVE_MLOCK2)
+	return mlock2(addr, len, flags);
 #else
 	return (int)shim_enosys(0, addr, len, flags);
 #endif
