@@ -337,7 +337,9 @@ int shim_membarrier(int cmd, int flags, int cpu_id)
  */
 int shim_memfd_create(const char *name, unsigned int flags)
 {
-#if defined(__NR_memfd_create)
+#if defined(HAVE_MEMFD_CREATE)
+	return memfd_create(name, flags);
+#elif defined(__NR_memfd_create)
 	return (int)syscall(__NR_memfd_create, name, flags);
 #else
 	return (int)shim_enosys(0, name, flags);

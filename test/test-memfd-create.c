@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2021 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,30 +16,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
-
 #define _GNU_SOURCE
-
-#include <unistd.h>
-#include <features.h>
-#include "../stress-version.h"
-#if !(NEED_GLIBC(2,27,0))
-#include <sys/syscall.h>
-#endif
+#include <sys/mman.h>
 
 int main(void)
 {
-#if NEED_GLIBC(2,27,0)
-	extern int memfd_create(const char *name, unsigned int flags);
-
 	return memfd_create("testmfd", 0);
-#else
-	return syscall(__NR_memfd_create, "testmfd", 0);
-#endif
 }
