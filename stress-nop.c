@@ -154,6 +154,27 @@ STRESS_NOP_SPIN_OP(x86_nop10, stress_op_x86_nop10);
 STRESS_NOP_SPIN_OP(x86_nop11, stress_op_x86_nop11);
 #endif
 
+#if defined(STRESS_ARCH_PPC64)
+static inline void stress_op_ppc64_yield(void)
+{
+	__asm__ __volatile__("or 27,27,27;\n");
+}
+
+static inline void stress_op_ppc64_mdoio(void)
+{
+	__asm__ __volatile__("or 29,29,29;\n");
+}
+
+static inline void stress_op_ppc64_mdoom(void)
+{
+	__asm__ __volatile__("or 30,30,30;\n");
+}
+
+STRESS_NOP_SPIN_OP(ppc64_yield, stress_op_ppc64_yield);
+STRESS_NOP_SPIN_OP(ppc64_mdoio, stress_op_ppc64_mdoio);
+STRESS_NOP_SPIN_OP(ppc64_mdoom, stress_op_ppc64_mdoom);
+#endif
+
 stress_nop_instr_t nop_instr[] = {
 	{ "nop",	stress_nop_spin_nop },
 #if defined(STRESS_ARCH_X86)
@@ -173,6 +194,11 @@ stress_nop_instr_t nop_instr[] = {
 #endif
 #if defined(HAVE_ASM_ARM_YIELD)
 	{ "yield",	stress_nop_spin_arm_yield },
+#endif
+#if defined(STRESS_ARCH_PPC64)
+	{ "yield",	stress_nop_spin_ppc64_yield },
+	{ "mdoio",	stress_nop_spin_ppc64_mdoio },
+	{ "mdoom",	stress_nop_spin_ppc64_mdoom },
 #endif
 	{ NULL,		NULL },
 };

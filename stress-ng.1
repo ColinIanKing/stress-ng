@@ -3004,7 +3004,8 @@ equivalent to 256 loops of 256 no-op instructions.
 .B \-\-nop\-instr INSTR
 use alternative nop instruction INSTR. For x86 CPUs INSTR can be one
 of nop, pause, nop2 (2 byte nop) through to nop11 (11 byte nop). For
-ARM CPUs, INSTR can be one of nop and yield. For other processors, INSTR
+ARM CPUs, INSTR can be one of nop or yield. For PPC64 CPUs, INSTR
+can be one of nop, mdoio, mdoom or yield.  For other processors, INSTR
 is only nop. If the chosen INSTR generates an SIGILL signal, then the
 stressor falls back to the vanilla nop instruction.
 .TP
