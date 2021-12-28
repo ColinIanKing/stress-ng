@@ -60,7 +60,10 @@ int shim_sched_yield(void)
  */
 int shim_cacheflush(char *addr, int nbytes, int cache)
 {
-#if defined(__NR_cacheflush)
+#if defined(HAVE_ASM_CACHECTL_H) &&	\
+    defined(HAVE_CACHEFLUSH)
+	return cacheflush(addr, bytes, cache);
+#elif defined(__NR_cacheflush)
 	return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
 #else
 	return (int)shim_enosys(0, addr, nbytes, cache);

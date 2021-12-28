@@ -295,6 +295,10 @@
 #include <sys/auxv.h>
 #endif
 
+#if defined(HAVE_ASM_CACHECTL_H)
+#include <asm/cachectl.h>
+#endif
+
 #if defined(HAVE_SYS_CAPABILITY_H)
 #include <sys/capability.h>
 #endif
