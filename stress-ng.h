@@ -4648,9 +4648,8 @@ struct shim_termios2 {
 #define SHIM_STATX_ALL			(0x00000fffU)
 
 struct shim_statx_timestamp {
-	int64_t	tv_sec;
-	int32_t	tv_nsec;
-	int32_t	__reserved;
+	uint64_t tv_sec;
+	uint32_t tv_nsec;
 };
 
 /* shim'd statx */
@@ -4662,11 +4661,10 @@ struct shim_statx {
 	uint32_t stx_uid;
 	uint32_t stx_gid;
 	uint16_t stx_mode;
-	uint16_t __spare0[1];
 	uint64_t stx_ino;
 	uint64_t stx_size;
 	uint64_t stx_blocks;
-	uint64_t __spare1[1];
+	uint64_t stx_attributes_mask;
 	struct shim_statx_timestamp stx_atime;
 	struct shim_statx_timestamp stx_btime;
 	struct shim_statx_timestamp stx_ctime;
@@ -4837,7 +4835,7 @@ extern int shim_sched_yield(void);
 extern int shim_set_mempolicy(int mode, unsigned long *nodemask,
 	unsigned long maxnode);
 extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
-extern ssize_t shim_statx(int dfd, const char *filename, unsigned int flags,
+extern int shim_statx(int dfd, const char *filename, unsigned int flags,
 	unsigned int mask, struct shim_statx *buffer);
 extern int shim_setxattr(const char *path, const char *name, const void *value,
 	size_t size, int flags);
