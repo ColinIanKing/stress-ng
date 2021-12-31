@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014-2021 Canonical, Ltd.
+ * Copyright (C)      2021 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -164,7 +159,6 @@ static inline void stress_proc_rw(
 		bool writeable = true;
 		size_t len;
 		ssize_t i;
-		off_t dec;
 		bool skip_fifo = true;
 
 		ret = shim_pthread_spin_lock(&lock);
@@ -333,21 +327,29 @@ static inline void stress_proc_rw(
 		}
 
 		/*
-		 *  exercise 16 one byte reads backwards through procfs file
+		 *  exercise 13 x 5 byte reads backwards through procfs file to
+		 *  ensure we perform some weird misaligned non-word sized reads
 		 */
 		if (!skip_fifo) {
+			off_t dec;
+
 			pos = lseek(fd, 0, SEEK_END);
 			if (pos < 0)
 				goto mmap_test;
-			dec = pos / 16;
+			dec = pos / 13;
 			if (dec < 1)
 				dec = 1;
-			while (--pos > 0) {
-				pos = lseek(fd, pos, SEEK_SET);
-				if (pos < 0)
-				break;
-				ret = read(fd, buffer, 1);
+			while (pos > 0) {
+				off_t seek_pos;
+
+				seek_pos = lseek(fd, pos, SEEK_SET);
+				if (seek_pos < 0)
+					break;
+				ret = read(fd, buffer, 5);
 				(void)ret;
+
+				if (dec > pos)
+					dec = pos;
 				pos -= dec;
 			}
 		}
