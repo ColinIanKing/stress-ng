@@ -2090,7 +2090,7 @@ static void stress_dev_console_linux(
 			 * of scancode and keycode for scancode < 89
 			 */
 			(void)memset(&bad_arg, 0, sizeof(bad_arg));
-			bad_arg.scancode = 1;
+			bad_arg.scancode = -1;
 			bad_arg.keycode = 2;
 
 			ret = ioctl(fd, KDSETKEYCODE, &bad_arg);
@@ -2357,7 +2357,6 @@ static void stress_dev_console_linux(
 		(void)ret;
 	}
 #endif
-
 }
 #endif
 
