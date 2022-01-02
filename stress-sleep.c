@@ -110,6 +110,26 @@ static void *stress_pthread_func(void *c)
 			break;
 		if (shim_usleep(10000) < 0)
 			break;
+#if defined(HAVE_PSELECT)
+		tv.tv_sec = 0;
+		tv.tv_nsec = 1;
+		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+			goto skip_pselect;
+		tv.tv_sec = 0;
+		tv.tv_nsec = 10;
+		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+			goto skip_pselect;
+		tv.tv_sec = 0;
+		tv.tv_nsec = 100;
+		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+			goto skip_pselect;
+		tv.tv_sec = 0;
+		tv.tv_nsec = 1000;
+		if (pselect(0, NULL, NULL, NULL, &tv, NULL) < 0)
+			goto skip_pselect;
+
+skip_pselect:
+#endif
 
 #if defined(HAVE_SYS_SELECT_H)
 		timeout.tv_sec = 0;
