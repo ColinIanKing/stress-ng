@@ -3405,7 +3405,7 @@ static void stress_dev_files(const stress_args_t *args, dev_info_t *dev_info_lis
 	if (!keep_stressing_flag())
 		return;
 
-	for (di = dev_info_list; di; di = di->next) {
+	for (di = dev_info_list; di && keep_stressing(args); di = di->next) {
 		int ret;
 
 		/* Should never happen */
