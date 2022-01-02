@@ -3183,8 +3183,6 @@ static inline void stress_dev_rw(
 		if (!dev_info || !keep_stressing_flag())
 			break;
 
-		continue;
-
 		/* state info no yet associated */
 		if (UNLIKELY(!dev_info->state)) {
 			shim_sched_yield();
