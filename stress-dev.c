@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,34 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+/*
+ *  Device information is held in a linked list of dev_info_t objects. Each
+ *  nth element in the list also points to a unique device state which is
+ *  the nth  dev_state_t structure in a memory mapped shared memory region.
+ *  This allows child processes can keep the state up to date even if they die
+ *  because the state information is also in the parent address space too.
+ */
+typedef struct {
+	/*
+	 *  These fields could be bit fields but updating would
+	 *  need atomic operations on the bit fields. Make it simpler
+	 *  by using bool types
+	 */
+	bool scsi_checked;	/* True if dev checked as SCSI dev */
+	bool scsi_device;	/* True if SCSI dev */
+	bool open_failed;	/* True if open failed */
+	bool open_succeeded;	/* True if open succeeded */
+} dev_state_t;
+
+typedef struct dev_info {
+	char *path;		/* Full path of device, e.g. /dev/null */
+	char *name;		/* basename of path, e.g. null */
+	dev_state_t *state;	/* Pointer to shared memory state */
+	struct dev_info *next;	/* Next device in device list */
+} dev_info_t;
 
 static const stress_help_t help[] = {
 	{ NULL,	"dev N",	"start N device entry thrashing stressors" },
@@ -48,7 +69,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #define STRESS_DEV_THREADS_MAX		(4)
 #define STRESS_DEV_OPEN_TRIES_MAX	(8)
-#define STRESS_DEV_HASH_SIZE		(113)
 
 typedef struct stress_dev_func {
 	const char *devpath;
@@ -56,19 +76,10 @@ typedef struct stress_dev_func {
 	void (*func)(const stress_args_t *args, const int fd, const char *devpath);
 } stress_dev_func_t;
 
-typedef struct stress_dev_hash_info {
-	char    *dev_path;			/* Device driver path */
-	struct stress_dev_hash_info *next;	/* Next one in hash list */
-	bool	open_fail;			/* True if failed to open */
-	bool	open_ok;			/* True if open OK */
-	bool	is_scsi;			/* True if SCSI device */
-} stress_dev_hash_info_t;
-
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
 static shim_pthread_spinlock_t parport_lock;
-static stress_dev_hash_info_t *stress_dev_hash_info;
-static stress_dev_hash_info_t *stress_dev_hash[STRESS_DEV_HASH_SIZE];
+static dev_info_t *pthread_dev_info;
 
 /*
  *  linux_xen_guest()
@@ -130,154 +141,6 @@ done:
 #else
 	return false;
 #endif
-}
-
-/*
- *  stress_dev_new()
- *	add a new device path to hash
- */
-static stress_dev_hash_info_t *stress_dev_new(const char *dev_path)
-{
-	stress_dev_hash_info_t *dev_hash_info;
-	const uint32_t hash = stress_hash_pjw(dev_path) % STRESS_DEV_HASH_SIZE;
-	dev_hash_info = stress_dev_hash[hash];
-
-	while (dev_hash_info) {
-		if (!strcmp(dev_path, dev_hash_info->dev_path))
-			return dev_hash_info;
-		dev_hash_info = dev_hash_info->next;
-	}
-
-	dev_hash_info = calloc(1, sizeof(*dev_hash_info));
-	dev_hash_info->dev_path = strdup(dev_path);
-	if (!dev_hash_info->dev_path) {
-		free(dev_hash_info);
-		return NULL;
-	}
-	dev_hash_info->open_fail = false;
-	dev_hash_info->open_ok = false;
-	dev_hash_info->is_scsi = false;
-
-	dev_hash_info->next = stress_dev_hash[hash];
-	stress_dev_hash[hash] = dev_hash_info;
-
-	return dev_hash_info;
-}
-
-/*
- *  stress_free()
- *	free tree
- */
-static void stress_dev_free(void)
-{
-	size_t i;
-
-	for (i = 0; i < STRESS_DEV_HASH_SIZE; i++) {
-		stress_dev_hash_info_t *dev_hash_info = stress_dev_hash[i];
-
-		while (dev_hash_info) {
-			stress_dev_hash_info_t *next = dev_hash_info->next;
-
-			free(dev_hash_info->dev_path);
-			free(dev_hash_info);
-			dev_hash_info = next;
-		}
-	}
-}
-
-/*
- *  stress_dev_dir()
- *	read dev directory, add device information to tree
- */
-static void stress_dev_dir(
-	const stress_args_t *args,
-	const char *path,
-	const int depth,
-	const char *tty_name)
-{
-	struct dirent **dlist;
-	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
-	int i, n;
-
-	if (!keep_stressing_flag())
-		return;
-
-	/* Don't want to go too deep */
-	if (depth > 20)
-		return;
-
-	dlist = NULL;
-	n = scandir(path, &dlist, NULL, alphasort);
-	if (n <= 0)
-		goto done;
-
-	for (i = 0; i < n; i++) {
-		int ret;
-		struct stat buf;
-		char tmp[PATH_MAX];
-		struct dirent *d = dlist[i];
-		size_t len;
-
-		if (!keep_stressing(args))
-			break;
-		if (stress_is_dot_filename(d->d_name))
-			continue;
-		/*
-		 *  Avoid https://bugs.xenserver.org/browse/XSO-809
-		 *  see: LP#1741409, so avoid opening /dev/hpet
-		 */
-		if (!strcmp(d->d_name, "hpet") && linux_xen_guest())
-			continue;
-		if (!strncmp(d->d_name, "ttyS", 4))
-			continue;
-
-		len = strlen(d->d_name);
-
-		/*
-		 *  Exercise no more than 3 of the same device
-		 *  driver, e.g. ttyS0..ttyS1
-		 */
-		if (len > 1) {
-			int dev_n;
-			char *ptr = d->d_name + len - 1;
-
-			while (ptr > d->d_name && isdigit((int)*ptr))
-				ptr--;
-			ptr++;
-			dev_n = atoi(ptr);
-			if (dev_n > 2)
-				continue;
-		}
-
-		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
-		/*
-		 *  Avoid any actions on owner's tty
-		 */
-		if (tty_name && !strcmp(tty_name, tmp))
-			continue;
-
-		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
-		switch (d->d_type) {
-		case DT_DIR:
-			ret = stat(tmp, &buf);
-			if (ret < 0)
-				continue;
-			if ((buf.st_mode & flags) == 0)
-				continue;
-			stress_dev_dir(args, tmp, depth + 1, tty_name);
-			break;
-		case DT_BLK:
-		case DT_CHR:
-			if (strstr(tmp, "watchdog"))
-				continue;
-			stress_dev_new(tmp);
-			break;
-		default:
-			break;
-		}
-	}
-done:
-	stress_dirent_list_free(dlist, n);
 }
 
 /*
@@ -1072,11 +935,10 @@ static void stress_dev_blk(
 	stress_uint64_put((uint64_t)offset);
 }
 
-#if defined(__linux__)
-static inline const char *dev_basename(const char *devpath)
+static inline char *stress_dev_basename(char *devpath)
 {
-	const char *ptr = devpath;
-	const char *base = devpath;
+	char *ptr = devpath;
+	char *base = devpath;
 
 	while (*ptr) {
 		if ((*ptr == '/') && (*(ptr + 1)))
@@ -1087,24 +949,25 @@ static inline const char *dev_basename(const char *devpath)
 	return base;
 }
 
-static inline bool is_scsi_dev(stress_dev_hash_info_t *dev_hash_info)
+#if defined(__linux__)
+static inline bool is_scsi_dev(dev_info_t *dev_info)
 {
 	int i, n;
 	static const char scsi_device_path[] = "/sys/class/scsi_device/";
 	struct dirent **scsi_device_list;
 	bool is_scsi = false;
-	const char *devname = dev_basename(dev_hash_info->dev_path);
 
-	if (!*devname)
+	if (dev_info->state->scsi_device)
+		return true;
+	if (dev_info->state->scsi_checked)
 		return false;
 
-	if (dev_hash_info->is_scsi)
-		return true;
+	dev_info->state->scsi_checked = true;
 
 	scsi_device_list = NULL;
 	n = scandir(scsi_device_path, &scsi_device_list, NULL, alphasort);
 	if (n <= 0)
-		return is_scsi;
+		return false;
 
 	for (i = 0; !is_scsi && (i < n); i++) {
 		int j, m;
@@ -1123,7 +986,7 @@ static inline bool is_scsi_dev(stress_dev_hash_info_t *dev_hash_info)
 			continue;
 
 		for (j = 0; j < m; j++) {
-			if (!strcmp(devname, scsi_block_list[j]->d_name)) {
+			if (!strcmp(dev_info->name, scsi_block_list[j]->d_name)) {
 				is_scsi = true;
 				break;
 			}
@@ -1135,15 +998,15 @@ static inline bool is_scsi_dev(stress_dev_hash_info_t *dev_hash_info)
 	stress_dirent_list_free(scsi_device_list, n);
 
 	if (is_scsi)
-		dev_hash_info->is_scsi = true;
+		dev_info->state->scsi_device = true;
 
 	return is_scsi;
 }
 
 #else
-static inline bool is_scsi_dev(stress_dev_hash_info_t *dev_hash_info)
+static inline bool is_scsi_dev(dev_info_t *dev_info)
 {
-	(void)dev_hash_info;
+	(void)dev_info;
 
 	/* Assume not */
 	return false;
@@ -1157,12 +1020,12 @@ static inline bool is_scsi_dev(stress_dev_hash_info_t *dev_hash_info)
 static void stress_dev_scsi_blk(
 	const stress_args_t *args,
 	const int fd,
-	stress_dev_hash_info_t *dev_hash_info)
+	dev_info_t *dev_info)
 {
 	(void)args;
 	(void)fd;
 
-	if (!is_scsi_dev(dev_hash_info))
+	if (!is_scsi_dev(dev_info))
 		return;
 
 #if defined(SG_GET_VERSION_NUM)
@@ -3258,18 +3121,18 @@ static inline void stress_dev_unlock(const char *path, const int fd)
 
 static int stress_dev_open_lock(
 	const stress_args_t *args,
-	stress_dev_hash_info_t *dev_hash_info,
+	dev_info_t *dev_info,
 	const int mode)
 {
 	int fd, ret;
 
-	fd = stress_open_timeout(args->name, dev_hash_info->dev_path, mode, 250000000);
+	fd = stress_open_timeout(args->name, dev_info->path, mode, 250000000);
 	if (fd < 0) {
 		if (errno == EBUSY)
-			dev_hash_info->open_fail = true;
+			dev_info->state->open_failed = true;
 		return -1;
 	}
-	ret = stress_dev_lock(dev_hash_info->dev_path, fd);
+	ret = stress_dev_lock(dev_info->path, fd);
 	if (ret < 0) {
 		(void)close(fd);
 		return -1;
@@ -3308,26 +3171,34 @@ static inline void stress_dev_rw(
     defined(HAVE_TERMIOS)
 		struct termios tios;
 #endif
-		stress_dev_hash_info_t *dev_hash_info;
+		dev_info_t *dev_info;
 		char *path;
 
 		ret = shim_pthread_spin_lock(&lock);
 		if (ret)
 			return;
-		dev_hash_info = stress_dev_hash_info;
+		dev_info = pthread_dev_info;
 		(void)shim_pthread_spin_unlock(&lock);
 
-		if (!dev_hash_info || !keep_stressing_flag())
+		if (!dev_info || !keep_stressing_flag())
 			break;
 
-		path = dev_hash_info->dev_path;
+		continue;
 
-		if (dev_hash_info->open_fail)
+		/* state info no yet associated */
+		if (UNLIKELY(!dev_info->state)) {
+			shim_sched_yield();
+			continue;
+		}
+
+		path = dev_info->path;
+
+		if (dev_info->state->open_failed)
 			goto next;
 
 		t_start = stress_time_now();
 
-		fd = stress_dev_open_lock(args, dev_hash_info, O_RDONLY | O_NONBLOCK | O_NDELAY);
+		fd = stress_dev_open_lock(args, dev_info, O_RDONLY | O_NONBLOCK | O_NDELAY);
 		if (fd < 0)
 			goto next;
 
@@ -3349,7 +3220,7 @@ static inline void stress_dev_rw(
 
 		if (S_ISBLK(buf.st_mode)) {
 			stress_dev_blk(args, fd, path);
-			stress_dev_scsi_blk(args, fd, dev_hash_info);
+			stress_dev_scsi_blk(args, fd, dev_info);
 #if defined(HAVE_LINUX_HDREG_H)
 			stress_dev_hd_linux(args, fd, path);
 #endif
@@ -3454,7 +3325,7 @@ static inline void stress_dev_rw(
 			goto next;
 		}
 
-		fd = stress_dev_open_lock(args, dev_hash_info, O_RDONLY | O_NONBLOCK | O_NDELAY);
+		fd = stress_dev_open_lock(args, dev_info, O_RDONLY | O_NONBLOCK | O_NDELAY);
 		if (fd < 0)
 			goto next;
 
@@ -3481,10 +3352,10 @@ static inline void stress_dev_rw(
 		 *   O_RDONLY | O_WRONLY allows one to
 		 *   use the fd for ioctl() only operations
 		 */
-		fd = stress_dev_open_lock(args, dev_hash_info, O_RDONLY | O_WRONLY);
+		fd = stress_dev_open_lock(args, dev_info, O_RDONLY | O_WRONLY);
 		if (fd < 0) {
 			if (errno == EINTR)
-				dev_hash_info->open_fail = true;
+				dev_info->state->open_failed = true;
 		} else {
 			stress_dev_close_unlock(path, fd);
 		}
@@ -3522,74 +3393,232 @@ static void *stress_dev_thread(void *arg)
 }
 
 /*
- *  stress_dev_file()
- *	stress a specific device file
- */
-static void stress_dev_file(const stress_args_t *args, char *path)
-{
-	int ret;
-	int32_t loops = args->instance < 8 ? (int32_t)args->instance + 1 : 8;
-	stress_dev_hash_info_t dev_hash_info;
-
-	dev_hash_info.dev_path = path;
-
-	ret = shim_pthread_spin_lock(&lock);
-	if (!ret) {
-		stress_dev_hash_info = &dev_hash_info;
-		(void)shim_pthread_spin_unlock(&lock);
-		stress_dev_rw(args, loops);
-		inc_counter(args);
-	}
-}
-
-/*
- *  stress_dev_dir()
+ *  stress_dev_files()
  *	stress all device files
  */
-static void stress_dev_files(const stress_args_t *args)
+static void stress_dev_files(const stress_args_t *args, dev_info_t *dev_info_list)
 {
 	int32_t loops = args->instance < 8 ? (int32_t)args->instance + 1 : 8;
 	static int try_failed;
-	size_t i;
+	dev_info_t *di;
 
 	if (!keep_stressing_flag())
 		return;
 
-	for (i = 0; keep_stressing(args) && (i < STRESS_DEV_HASH_SIZE); i++) {
-		stress_dev_hash_info_t *dev_hash_info;
+	for (di = dev_info_list; di; di = di->next) {
+		int ret;
 
-		for (dev_hash_info = stress_dev_hash[i];
-		     keep_stressing(args) && dev_hash_info;
-		     dev_hash_info = dev_hash_info->next) {
-			int ret;
+		/* Should never happen */
+		if (UNLIKELY(!di->state))
+			continue;
 
-			if (dev_hash_info->open_fail)
-				continue;
+		/* Skip if open failed on an earlier attempt */
+		if (di->state->open_failed)
+			continue;
+
+		stress_dev_procname(di->path);
+
+		/* If it was opened OK before, no need for try_open check */
+		if (!di->state->open_succeeded) {
 			/* Limit the number of locked up try failures */
 			if (try_failed > STRESS_DEV_OPEN_TRIES_MAX)
 				continue;
-			stress_dev_procname(dev_hash_info->dev_path);
 
-			/* If it was opened OK before, no need for try_open check */
-			if (!dev_hash_info->open_ok) {
-				ret = stress_try_open(args, dev_hash_info->dev_path, O_RDONLY | O_NONBLOCK | O_NDELAY, 1500000000);
-				if (ret == STRESS_TRY_OPEN_FAIL) {
-					dev_hash_info->open_fail = true;
-					try_failed++;
-					continue;
-				}
-				if (ret == STRESS_TRY_AGAIN)
-					continue;
+			ret = stress_try_open(args, di->path, O_RDONLY | O_NONBLOCK | O_NDELAY, 1500000000);
+			if (ret == STRESS_TRY_OPEN_FAIL) {
+				di->state->open_failed = true;
+				try_failed++;
+				continue;
 			}
-			ret = shim_pthread_spin_lock(&lock);
-			if (!ret) {
-				stress_dev_hash_info = dev_hash_info;
-				(void)shim_pthread_spin_unlock(&lock);
-				stress_dev_rw(args, loops);
-				inc_counter(args);
-			}
-			dev_hash_info->open_ok = true;
+			if (ret == STRESS_TRY_AGAIN)
+				continue;
 		}
+
+		ret = shim_pthread_spin_lock(&lock);
+		if (!ret) {
+			pthread_dev_info = di;
+			(void)shim_pthread_spin_unlock(&lock);
+			stress_dev_rw(args, loops);
+			inc_counter(args);
+		}
+		di->state->open_succeeded = true;
+	}
+}
+
+/*
+ *  stress_dev_infos_opened()
+ *	return number of devices that were successfully opened
+ */
+static size_t stress_dev_infos_opened(dev_info_t *list)
+{
+	dev_info_t *di;
+	size_t opened = 0;
+
+	for (di = list; di; di = di->next) {
+		if (di->state->open_succeeded)
+			opened++;
+	}
+	return opened;
+}
+
+/*
+ *  stress_dev_infos_free()
+ *	free list of device information
+ */
+static void stress_dev_infos_free(dev_info_t **list)
+{
+	dev_info_t *di = *list;
+
+	while (di) {
+		dev_info_t *next = di->next;
+
+		free(di->path);
+		free(di);
+		di = next;
+	}
+	*list = NULL;
+}
+
+/*
+ *  stress_dev_info_add()
+ *	add new device path to device info list
+ */
+static dev_info_t *stress_dev_info_add(const char *path, dev_info_t **list)
+{
+	dev_info_t *new_dev;
+
+	new_dev = calloc(1, sizeof(*new_dev));
+	if (!new_dev)
+		return NULL;
+
+	new_dev->path = strdup(path);
+	if (!new_dev->path) {
+		free(new_dev);
+		return NULL;
+	}
+
+	new_dev->name = stress_dev_basename(new_dev->path);
+	new_dev->next = *list;
+	new_dev->state = NULL;
+
+	*list = new_dev;
+
+	return new_dev;
+}
+
+/*
+ *  stress_dev_infos_get()
+ *	traverse device directories adding device infor to list
+ */
+static size_t stress_dev_infos_get(
+	const stress_args_t *args,
+	const char *path,
+	const char *tty_name,
+	dev_info_t **list)
+{
+	struct dirent **dlist;
+	int i, n;
+	size_t total = 0;
+	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
+
+	n = scandir(path, &dlist, NULL, alphasort);
+	if (n <= 0)
+		return 0;
+
+	for (i = 0; i < n; i++) {
+		int ret;
+		struct stat buf;
+		char tmp[PATH_MAX];
+		struct dirent *d = dlist[i];
+		size_t len;
+
+		if (!keep_stressing(args))
+			break;
+		if (stress_is_dot_filename(d->d_name))
+			continue;
+		/*
+		 *  Avoid https://bugs.xenserver.org/browse/XSO-809
+		 *  see: LP#1741409, so avoid opening /dev/hpet
+		 */
+		if (!strcmp(d->d_name, "hpet") && linux_xen_guest())
+			continue;
+		if (!strncmp(d->d_name, "ttyS", 4))
+			continue;
+
+		len = strlen(d->d_name);
+
+		/*
+		 *  Exercise no more than 3 of the same device
+		 *  driver, e.g. ttyS0..ttyS1
+		 */
+		if (len > 1) {
+			int dev_n;
+			char *ptr = d->d_name + len - 1;
+
+			while (ptr > d->d_name && isdigit((int)*ptr))
+				ptr--;
+			ptr++;
+			dev_n = atoi(ptr);
+			if (dev_n > 2)
+				continue;
+		}
+
+		(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
+
+		/* Don't exercise our tty */
+		if (tty_name && !strcmp(tty_name, tmp))
+			continue;
+
+		switch (d->d_type) {
+		case DT_DIR:
+			ret = stat(tmp, &buf);
+			if (ret < 0)
+				continue;
+			if ((buf.st_mode & flags) == 0)
+				continue;
+			total += stress_dev_infos_get(args, tmp, tty_name, list);
+			break;
+		case DT_BLK:
+		case DT_CHR:
+			if (strstr(tmp, "watchdog"))
+				continue;
+			stress_dev_info_add(tmp, list);
+			total++;
+			break;
+		default:
+			break;
+		}
+	}
+	stress_dirent_list_free(dlist, n);
+
+	return total;
+}
+
+/*
+ *  stress_dev_state_init()
+ *	initialize state flags
+ */
+static inline void stress_dev_state_init(dev_state_t *dev_state)
+{
+	dev_state->scsi_checked = false;
+	dev_state->scsi_device = false;
+	dev_state->open_succeeded = false;
+	dev_state->open_failed = false;
+}
+
+/*
+ *  stress_dev_info_list_state_init
+ *	initialize and associate shared memory device state
+ *	information with device information.
+ */
+static void stress_dev_info_list_state_init(dev_info_t *list, dev_state_t *dev_state)
+{
+	dev_info_t *di;
+	dev_state_t *ds;
+
+	for (di = list, ds = dev_state; di; di = di->next, ds++) {
+		stress_dev_state_init(ds);
+		di->state = ds;
 	}
 }
 
@@ -3605,9 +3634,15 @@ static int stress_dev(const stress_args_t *args)
 	char *dev_file = NULL;
 	const int stdout_fd = fileno(stdout);
 	const char *tty_name = (stdout_fd >= 0) ? ttyname(stdout_fd) : NULL;
-	stress_dev_hash_info_t dev_null = { "/dev/null", NULL, false, false, false };
+	dev_state_t dev_state_null, *mmap_dev_states;
+	dev_info_t dev_null = { "/dev/null", "null", &dev_state_null, NULL };
+	size_t n_devs = 0, mmap_dev_states_size;
+	const size_t page_size = args->page_size;
+	dev_info_t *dev_info_list = NULL;
 
-	stress_dev_hash_info = &dev_null;
+	stress_dev_state_init(&dev_state_null);
+
+	pthread_dev_info = &dev_null;
 	pa.args = args;
 	pa.data = NULL;
 
@@ -3629,10 +3664,32 @@ static int stress_dev(const stress_args_t *args)
 				args->name, dev_file);
 			return EXIT_FAILURE;
 		}
+
+		if (stress_dev_info_add(dev_file, &dev_info_list))
+			n_devs = 1;
+	} else {
+		n_devs = stress_dev_infos_get(args, "/dev", tty_name, &dev_info_list);
 	}
 
-	if (!dev_file)
-		stress_dev_dir(args, "/dev", 0, tty_name);
+	/* This should be rare */
+	if (n_devs == 0) {
+		pr_inf("%s: cannot allocate device information or find any "
+			"testable devices, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	mmap_dev_states_size = sizeof(*mmap_dev_states) * n_devs;
+	mmap_dev_states_size = (mmap_dev_states_size + page_size - 1) & ~(page_size - 1);
+	mmap_dev_states = mmap(NULL, mmap_dev_states_size, PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (mmap_dev_states == MAP_FAILED) {
+		pr_inf("%s: cannot allocate shared memory for device state data, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto deinit;
+	}
+
+	stress_dev_info_list_state_init(dev_info_list, mmap_dev_states);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -3694,17 +3751,14 @@ again:
 			}
 
 			do {
-				if (dev_file)
-					stress_dev_file(args, dev_file);
-				else
-					stress_dev_files(args);
+				stress_dev_files(args, dev_info_list);
 			} while (keep_stressing(args));
 
 			r = shim_pthread_spin_lock(&lock);
 			if (r) {
 				pr_dbg("%s: failed to lock spin lock for dev_path\n", args->name);
 			} else {
-				stress_dev_hash_info = NULL;
+				pthread_dev_info = NULL;
 				r = shim_pthread_spin_unlock(&lock);
 				(void)r;
 			}
@@ -3717,6 +3771,18 @@ again:
 		}
 	} while (keep_stressing(args));
 
+	stress_dev_infos_opened(dev_info_list);
+
+	if (args->instance == 0) {
+		const size_t opened = stress_dev_infos_opened(dev_info_list);
+
+		pr_inf("%s: %zd of %zd devices opened and exercised\n",
+			args->name, opened, n_devs);
+	}
+
+	(void)munmap((void *)mmap_dev_states, mmap_dev_states_size);
+
+deinit:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)shim_pthread_spin_destroy(&lock);
 
@@ -3727,8 +3793,7 @@ again:
 	(void)ioctl_set_timeout;
 	(void)ioctl_clr_timeout;
 
-	if (!dev_file)
-		stress_dev_free();
+	stress_dev_infos_free(&dev_info_list);
 
 	return rc;
 }
