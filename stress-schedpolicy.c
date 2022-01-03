@@ -215,22 +215,24 @@ static int stress_schedpolicy(const stress_args_t *args)
 			n = 0;
 
 			/* Exercise invalid sched_getparam syscall*/
-			(void)memset(&param, 0, sizeof param);
+			(void)memset(&param, 0, sizeof(param));
 			ret = sched_getparam(-1, &param);
 			(void)ret;
 
 #if defined(__linux__)
 			/* Linux allows NULL param, will return EFAULT */
+			(void)memset(&param, 0, sizeof(param));
 			ret = sched_getparam(pid, NULL);
 			(void)ret;
 #endif
 
 			/* Exercise bad pid, ESRCH error */
+			(void)memset(&param, 0, sizeof(param));
 			ret = sched_getparam(stress_get_unused_pid_racy(false), &param);
 			(void)ret;
 
 			/* Exercise invalid sched_setparam syscall */
-			(void)memset(&param, 0, sizeof param);
+			(void)memset(&param, 0, sizeof(param));
 			ret = sched_setparam(-1, &param);
 			(void)ret;
 
@@ -258,7 +260,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 		ret = sched_getscheduler(stress_get_unused_pid_racy(false));
 		(void)ret;
 
-		(void)memset(&param, 0, sizeof param);
+		(void)memset(&param, 0, sizeof(param));
 		ret = sched_getparam(pid, &param);
 		if ((ret < 0) && ((errno != EINVAL) && (errno != EPERM)))
 			pr_fail("%s: sched_getparam failed, errno=%d (%s)\n",
@@ -285,6 +287,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 		}
 
 		/* Exercise invalid sched_getattr syscalls */
+		(void)memset(&attr, 0, sizeof(attr));
 		ret = shim_sched_getattr(pid, &attr, sizeof(attr), ~0U);
 		(void)ret;
 
