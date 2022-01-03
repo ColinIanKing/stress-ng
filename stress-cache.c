@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
- * Copyright (C) Colin Ian King
+ * Copyright (C) 2021-2022 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -513,7 +513,6 @@ static int stress_cache(const stress_args_t *args)
 				goto next;
 			break;
 		}
-
 		if (r & 1) {
 			uint32_t flags;
 
@@ -589,6 +588,7 @@ next:
 		/* Move forward a bit */
 		i += inc;
 		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
+
 	} while (keep_stressing(args));
 
 	stress_uint32_put(total);
