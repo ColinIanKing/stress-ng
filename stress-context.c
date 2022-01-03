@@ -121,6 +121,7 @@ static int stress_context(const stress_args_t *args)
 	size_t i;
 
 	(void)memset(&uctx_main, 0, sizeof(uctx_main));
+	(void)memset(context, 0, sizeof(context));
 
 	context_counter = 0;
 	stress_max_ops = args->max_ops * 1000;
