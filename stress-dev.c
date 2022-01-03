@@ -2985,6 +2985,49 @@ static void stress_dev_parport_linux(
 }
 #endif
 
+#if defined(__linux__)
+/*
+ *   stress_dev_bus_usb_linux()
+ *   	Exercise Linux usb devices
+ */
+static void stress_dev_bus_usb_linux(
+	const stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+	(void)args;
+	(void)fd;
+	(void)devpath;
+
+#if defined(USBDEVFS_GET_SPEED) ||		\
+    (defined(HAVE_USBDEVFS_GETDRIVER) &&	\
+     defined(USBDEVFS_GETDRIVER))
+	{
+		int ret, fdwr;
+
+		fdwr = open(devpath, O_RDWR);
+		if (fd < 0)
+			return;
+
+#if defined(USBDEVFS_GET_SPEED)
+			ret = ioctl(fdwr, USBDEVFS_GET_SPEED, 0);
+			(void)ret;
+#endif
+
+#if defined(HAVE_USBDEVFS_GETDRIVER) &&	\
+    defined(USBDEVFS_GETDRIVER)
+		{
+			struct usbdevfs_getdriver dr;
+
+			ret = ioctl(fdwr, USBDEVFS_GETDRIVER, &dr);
+			(void)ret;
+		}
+#endif
+		(void)close(fdwr);
+	}
+#endif
+}
+#endif
 
 #define DEV_FUNC(dev, func) \
 	{ dev, sizeof(dev) - 1, func }
@@ -3036,6 +3079,9 @@ static const stress_dev_func_t dev_funcs[] = {
 #endif
 #if defined(__linux__)
 	DEV_FUNC("/dev/parport",stress_dev_parport_linux),
+#endif
+#if defined(__linux__)
+	DEV_FUNC("/dev/bus/usb",stress_dev_bus_usb_linux),
 #endif
 };
 
