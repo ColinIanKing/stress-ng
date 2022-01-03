@@ -59,7 +59,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #define MAX_MOUNTS		(256)
 #define NO_MEM_RETRIES_MAX	(256)
+#if !defined(TMPFS_MAGIC)
 #define TMPFS_MAGIC		(0x01021994)
+#endif
 #define MAX_TMPFS_SIZE		(512 * MB)
 
 /* Misc randomly chosen mmap flags */
