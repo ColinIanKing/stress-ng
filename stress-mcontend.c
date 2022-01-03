@@ -37,7 +37,8 @@ static inline void mem_barrier(void)
 	asm volatile("": : :"memory");
 }
 
-#if defined(STRESS_ARCH_X86)
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_ASM_X86_PAUSE)
 static inline void cpu_relax(void)
 {
 	asm volatile("pause\n": : :"memory");
@@ -188,7 +189,8 @@ static inline HOT OPTIMIZE3 void stress_memory_contend(const stress_pthread_args
 		read64(data1);
 	}
 
-#if defined(STRESS_ARCH_X86)
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_ASM_X86_PAUSE)
 	for (i = 0; i < 1024; i++) {
 		vdata0[0] = (uint64_t)i;
 		cpu_relax();
