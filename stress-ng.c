@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
- * Copyright (C) 2021 Colin Ian King
+ * Copyright (C) 2021-2022 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -3447,14 +3441,18 @@ int main(int argc, char **argv, char **envp)
 		exit(EXIT_FAILURE);
 	stress_set_proc_name_init(argc, argv, envp);
 
-	if (setjmp(g_error_env) == 1)
-		exit(EXIT_FAILURE);
+	if (setjmp(g_error_env) == 1) {
+		ret = EXIT_FAILURE;
+		goto exit_temp_path_free;
+	}
 
 	yaml = NULL;
 
 	/* --exec stressor uses this to exec itself and then exit early */
-	if ((argc == 2) && !strcmp(argv[1], "--exec-exit"))
-		exit(EXIT_SUCCESS);
+	if ((argc == 2) && !strcmp(argv[1], "--exec-exit")) {
+		ret = EXIT_FAILURE;
+		goto exit_temp_path_free;
+	}
 
 	stressors_head = NULL;
 	stressors_tail = NULL;
@@ -3468,29 +3466,35 @@ int main(int argc, char **argv, char **envp)
 		pr_err("sysconf failed, number of cpus configured "
 			"unknown: errno=%d: (%s)\n",
 			errno, strerror(errno));
-		exit(EXIT_FAILURE);
+		ret = EXIT_FAILURE;
+		goto exit_settings_free;
 	}
 	ticks_per_sec = stress_get_ticks_per_second();
 	if (ticks_per_sec < 0) {
 		pr_err("sysconf failed, clock ticks per second "
 			"unknown: errno=%d (%s)\n",
 			errno, strerror(errno));
-		exit(EXIT_FAILURE);
+		ret = EXIT_FAILURE;
+		goto exit_settings_free;
 	}
 
 	ret = stress_parse_opts(argc, argv, false);
 	if (ret != EXIT_SUCCESS)
-		exit(ret);
+		goto exit_settings_free;
 
-	if (stress_check_temp_path() < 0)
-		exit(EXIT_FAILURE);
+	if (stress_check_temp_path() < 0) {
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
+	}
 
 	/*
 	 *  Load in job file options
 	 */
 	(void)stress_get_setting("job", &job_filename);
-	if (stress_parse_jobfile(argc, argv, job_filename) < 0)
-		exit(EXIT_FAILURE);
+	if (stress_parse_jobfile(argc, argv, job_filename) < 0) {
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
+	}
 
 	/*
 	 *  Sanity check minimize/maximize options
@@ -3498,7 +3502,8 @@ int main(int argc, char **argv, char **envp)
 	if ((g_opt_flags & OPT_FLAGS_MINMAX_MASK) == OPT_FLAGS_MINMAX_MASK) {
 		(void)fprintf(stderr, "maximize and minimize cannot "
 			"be used together\n");
-		exit(EXIT_FAILURE);
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
 	}
 
 	/*
@@ -3508,7 +3513,8 @@ int main(int argc, char **argv, char **envp)
 	    (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL)) {
 		(void)fprintf(stderr, "cannot invoke --sequential and --all "
 			"options together\n");
-		exit(EXIT_FAILURE);
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
 	}
 	(void)stress_get_setting("class", &class);
 
@@ -3516,7 +3522,8 @@ int main(int argc, char **argv, char **envp)
 	    !(g_opt_flags & (OPT_FLAGS_SEQUENTIAL | OPT_FLAGS_ALL))) {
 		(void)fprintf(stderr, "class option is only used with "
 			"--sequential or --all options\n");
-		exit(EXIT_FAILURE);
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
 	}
 
 	/*
@@ -3526,7 +3533,8 @@ int main(int argc, char **argv, char **envp)
 	    (OPT_FLAGS_NO_RAND_SEED | OPT_FLAGS_SEED)) {
 		(void)fprintf(stderr, "cannot invoke mutually exclusive "
 			"--seed and --no-rand-seed options together\n");
-		exit(EXIT_FAILURE);
+		ret = EXIT_FAILURE;
+		goto exit_stressors_free;
 	}
 
 	/*
@@ -3566,8 +3574,10 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Throw away excluded stressors
 	 */
-	if (stress_exclude() < 0)
-		exit(EXIT_FAILURE);
+	if (stress_exclude() < 0) {
+		ret = EXIT_FAILURE;
+		goto exit_logging_close;
+	}
 
 	/*
 	 *  Setup random stressors if requested
@@ -3591,8 +3601,10 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Get various user defined settings
 	 */
-	if (sched_settings_apply(false) < 0)
-		exit(EXIT_FAILURE);
+	if (sched_settings_apply(false) < 0) {
+		ret = EXIT_FAILURE;
+		goto exit_logging_close;
+	}
 	(void)stress_get_setting("ionice-class", &ionice_class);
 	(void)stress_get_setting("ionice-level", &ionice_level);
 	stress_set_iopriority(ionice_class, ionice_level);
@@ -3604,8 +3616,10 @@ int main(int argc, char **argv, char **envp)
 	 *  Enable signal handers
 	 */
 	for (i = 0; i < SIZEOF_ARRAY(terminate_signals); i++) {
-		if (stress_sighandler("stress-ng", terminate_signals[i], stress_handle_terminate, NULL) < 0)
-			exit(EXIT_FAILURE);
+		if (stress_sighandler("stress-ng", terminate_signals[i], stress_handle_terminate, NULL) < 0) {
+			ret = EXIT_FAILURE;
+			goto exit_logging_close;
+		}
 	}
 	/*
 	 *  Ignore other signals
@@ -3635,20 +3649,20 @@ int main(int argc, char **argv, char **envp)
 	if (!stressors_head) {
 		pr_err("No stress workers invoked%s\n",
 			g_unsupported ? " (one or more were unsupported)" : "");
-		stress_stressors_free();
 		/*
 		 *  If some stressors were given but marked as
 		 *  unsupported then this is not an error.
 		 */
-		exit(g_unsupported ? EXIT_SUCCESS : EXIT_FAILURE);
+		ret = g_unsupported ? EXIT_SUCCESS : EXIT_FAILURE;
+		goto exit_logging_close;
 	}
 
 	/*
 	 *  Show the stressors we're going to run
 	 */
 	if (stress_show_stressors() < 0) {
-		stress_stressors_free();
-		exit(EXIT_FAILURE);
+		ret = EXIT_FAILURE;
+		goto exit_logging_close;
 	}
 
 	/*
@@ -3683,9 +3697,8 @@ int main(int argc, char **argv, char **envp)
 	g_shared->mem_cache_ways = 0;
 	(void)stress_get_setting("cache-ways", &g_shared->mem_cache_ways);
 	if (stress_cache_alloc("cache allocate") < 0) {
-		stress_shared_unmap();
-		stress_stressors_free();
-		exit(EXIT_FAILURE);
+		ret = EXIT_FAILURE;
+		goto exit_shared_unmap;
 	}
 
 #if defined(STRESS_THERMAL_ZONES)
@@ -3799,4 +3812,21 @@ int main(int argc, char **argv, char **envp)
 	if (!metrics_success)
 		exit(EXIT_METRICS_UNTRUSTWORTHY);
 	exit(EXIT_SUCCESS);
+
+exit_shared_unmap:
+	stress_shared_unmap();
+
+exit_logging_close:
+	shim_closelog();
+	pr_closelog();
+
+exit_stressors_free:
+	stress_stressors_free();
+
+exit_settings_free:
+	stress_settings_free();
+
+exit_temp_path_free:
+	stress_temp_path_free();
+	exit(ret);
 }
