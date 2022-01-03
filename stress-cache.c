@@ -420,7 +420,7 @@ static int stress_cache(const stress_args_t *args)
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
-	if (stress_sighandler(args->name, SIGBUS , stress_cache_sighandler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGBUS, stress_cache_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("cache-flags", &cache_flags);
