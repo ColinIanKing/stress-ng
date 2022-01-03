@@ -258,6 +258,8 @@ static int stress_numa(const stress_args_t *args)
 		unsigned cpu, curr_node;
 		struct shim_getcpu_cache cache;
 
+		(void)memset(node_mask, 0, sizeof(node_mask));
+
 		/*
 		 *  Fetch memory policy
 		 */
