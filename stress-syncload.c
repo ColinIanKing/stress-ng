@@ -177,7 +177,7 @@ static inline double stress_syncload_gettime(const stress_args_t *args)
     defined(HAVE_ATOMIC_STORE_DOUBLE) &&	\
     defined(__ATOMIC_CONSUME) &&		\
     defined(__ATOMIC_RELEASE)
-		__atomic_load(&t, &g_shared->syncload.start_time, __ATOMIC_CONSUME);
+		__atomic_load(&g_shared->syncload.start_time, &t, __ATOMIC_CONSUME);
 #elif defined(HAVE_LIB_PTHREAD)
 		int ret;
 
@@ -196,6 +196,13 @@ static inline double stress_syncload_gettime(const stress_args_t *args)
 	} while ((t <= 0.0) && keep_stressing(args));
 
 	return t;
+}
+
+static void stress_syncload_init(void)
+{
+	g_shared->syncload.start_time = stress_time_now();
+
+	pr_inf("syncload.start_time %f\n", g_shared->syncload.start_time);
 }
 
 /*
@@ -233,9 +240,6 @@ static int stress_syncload(const stress_args_t *args)
 
 	stress_sysload_x86_has_rdrand = stress_cpu_x86_has_rdrand();
 
-	if (args->instance == 0)
-		stress_syncload_settime();
-
 	timeout = stress_syncload_gettime(args);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -269,5 +273,6 @@ stressor_info_t stress_syncload_info = {
 	.stressor = stress_syncload,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
+	.init = stress_syncload_init,
 	.help = help
 };
