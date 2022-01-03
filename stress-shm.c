@@ -134,6 +134,7 @@ static int stress_shm_posix_child(
 	/* Make sure this is killable by OOM killer */
 	stress_set_oom_adjustment(args->name, true);
 
+	(void)memset(&msg, 0, sizeof(msg));
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = SIG_IGN;
 #if defined(SA_NOCLDWAIT)
