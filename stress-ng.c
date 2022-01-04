@@ -1862,8 +1862,8 @@ redo:
 static void MLOCKED_TEXT stress_handle_terminate(int signum)
 {
 	static char buf[128];
-
 	const int fd = fileno(stderr);
+	ssize_t ret;
 	terminate_signum = signum;
 	keep_stressing_set_flag(false);
 
@@ -1874,7 +1874,8 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 	case SIGBUS:
 		snprintf(buf, sizeof(buf), "%s: info:  [%d] stressor terminated with unexpected signal %s\n",
 			g_app_name, (int)getpid(), stress_strsignal(signum));
-		write(fd, buf, strlen(buf));
+		ret = write(fd, buf, strlen(buf));
+		(void)ret;
 		stress_kill_stressors(SIGALRM);
 		_exit(EXIT_SIGNALED);
 	default:
