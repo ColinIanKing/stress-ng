@@ -143,31 +143,6 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 	stress_syncload_loop,
 };
 
-static inline void stress_syncload_settime(void)
-{
-#if defined(HAVE_ATOMIC_LOAD_DOUBLE) &&		\
-    defined(HAVE_ATOMIC_STORE_DOUBLE) &&	\
-    defined(__ATOMIC_CONSUME) &&		\
-    defined(__ATOMIC_RELEASE)
-		double now = stress_time_now();
-
-		__atomic_store(&g_shared->syncload.start_time, &now, __ATOMIC_RELEASE);
-#elif defined(HAVE_LIB_PTHREAD)
-	int ret;
-
-	ret = shim_pthread_spin_lock(&g_shared->syncload.lock);
-	g_shared->syncload.start_time = stress_time_now();
-	shim_mb();
-	if (ret == 0) {
-		ret = shim_pthread_spin_unlock(&g_shared->syncload.lock);
-		(void)ret;
-	}
-#else
-	g_shared->syncload.start_time = stress_time_now();
-	shim_mb();
-#endif
-}
-
 static inline double stress_syncload_gettime(const stress_args_t *args)
 {
 	double t;
