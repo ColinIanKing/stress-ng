@@ -24,8 +24,12 @@
  */
 #include "stress-ng.h"
 
+#if !defined(_DEFAULT_SOURCE)
 #define _DEFAULT_SOURCE 1
+#endif
+#if !defined(_BSD_SOURCE)
 #define _BSD_SOURCE 1
+#endif
 
 #define GIDS_MAX 	(1024)
 #define MOUNTS_MAX	(256)
