@@ -450,6 +450,23 @@ static int stress_cache(const stress_args_t *args)
 	}
 #endif
 
+#if !defined(HAVE_ASM_X86_CLDEMOTE)
+	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_CLDEMOTE)) {
+		pr_inf("%s: cldemote is not available, ignoring this option\n",
+			args->name);
+	}
+#endif
+
+#if defined(HAVE_ASM_X86_CLDEMOTE)
+	if (!stress_cpu_x86_has_cldemote() && (cache_flags & FLAGS_CACHE_CLDEMOTE)) {
+		cache_flags &= ~FLAGS_CACHE_CLDEMOTE;
+		if (args->instance == 0) {
+			pr_inf("%s: cldemote is not available, ignoring this option\n",
+				args->name);
+		}
+	}
+#endif
+
 #if !defined(HAVE_ASM_X86_CLFLUSH)
 	if ((args->instance == 0) && (cache_flags & FLAGS_CACHE_CLFLUSH)) {
 		pr_inf("%s: clflush is not available, ignoring this option\n",
