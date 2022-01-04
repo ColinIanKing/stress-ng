@@ -62,7 +62,7 @@ int shim_cacheflush(char *addr, int nbytes, int cache)
 {
 #if defined(HAVE_ASM_CACHECTL_H) &&	\
     defined(HAVE_CACHEFLUSH)
-	return cacheflush(addr, bytes, cache);
+	return cacheflush(addr, nbytes, cache);
 #elif defined(__NR_cacheflush)
 	return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
 #else
