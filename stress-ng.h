@@ -1926,6 +1926,13 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define STRESS_ARCH_KVX		(1)
 #endif
 
+/* Arch specific MIPS */
+#if defined(__mips) || 		\
+    defined(__mips__) ||	\
+    defined(_mips)
+#define STRESS_ARCH_MIPS	(1)
+#endif
+
 /* GCC5.0+ target_clones attribute, x86 */
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_TARGET_CLONES)
