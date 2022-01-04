@@ -862,7 +862,7 @@ int shim_statx(
 	(void)memset(&statxbuf, 0, sizeof(statxbuf));
 	ret = statx(dfd, filename, flags, mask, &statxbuf);
 #elif defined(__NR_statx)
-	struct statx statxbuf;
+	struct shim_statx statxbuf;
 
 	(void)memset(buffer, 0, sizeof(*buffer));
 	(void)memset(&statxbuf, 0, sizeof(statxbuf));
