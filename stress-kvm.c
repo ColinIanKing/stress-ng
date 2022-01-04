@@ -205,9 +205,9 @@ static int stress_kvm(const stress_args_t *args)
 			}
 #if defined(KVM_GET_REGS)
 			{
-				struct kvm_regs regs;
+				struct kvm_regs kregs;
 
-				ret = ioctl(vcpu_fd, KVM_GET_REGS, &regs);
+				ret = ioctl(vcpu_fd, KVM_GET_REGS, &kregs);
 				(void)ret;
 			}
 #endif
