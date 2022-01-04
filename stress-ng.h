@@ -726,10 +726,6 @@
 #define HAVE_ADD_KEY
 #endif
 
-#if defined(__NR_getcpu)
-#define HAVE_GETCPU
-#endif
-
 #if defined(__NR_getdents)
 #define HAVE_GETDENTS
 #endif
@@ -740,10 +736,6 @@
 
 #if defined(__NR_get_thread_area)
 #define HAVE_GET_THREAD_AREA
-#endif
-
-#if defined(__NR_gettid)
-#define HAVE_GETTID
 #endif
 
 #if defined(__NR_get_robust_list)
