@@ -854,17 +854,24 @@ int shim_statx(
 	struct shim_statx *buffer)
 {
 	int ret;
+
+#if defined(HAVE_STATX)
 	struct statx statxbuf;
 
 	(void)memset(buffer, 0, sizeof(*buffer));
 	(void)memset(&statxbuf, 0, sizeof(statxbuf));
-
-
-#if defined(HAVE_STATX)
 	ret = statx(dfd, filename, flags, mask, &statxbuf);
 #elif defined(__NR_statx)
+	struct statx statxbuf;
+
+	(void)memset(buffer, 0, sizeof(*buffer));
+	(void)memset(&statxbuf, 0, sizeof(statxbuf));
 	ret = syscall(__NR_statx, dfd, filename, flags, mask, &statxbuf);
 #else
+	struct shim_statx statxbuf;
+
+	(void)memset(buffer, 0, sizeof(*buffer));
+	(void)memset(&statxbuf, 0, sizeof(statxbuf));
 	ret = shim_enosys(0, dfd, filename, flags, mask, &statxbuf);
 #endif
 	STATX_COPY(stx_mask);
