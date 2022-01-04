@@ -4650,34 +4650,13 @@ struct shim_termios2 {
 #define SHIM_STATX_BTIME		(0x00000800U)
 #define SHIM_STATX_ALL			(0x00000fffU)
 
-struct shim_statx_timestamp {
-	uint64_t tv_sec;
-	uint32_t tv_nsec;
-};
-
-/* shim'd statx */
-struct shim_statx {
-	uint32_t stx_mask;
-	uint32_t stx_blksize;
-	uint64_t stx_attributes;
-	uint32_t stx_nlink;
-	uint32_t stx_uid;
-	uint32_t stx_gid;
-	uint16_t stx_mode;
-	uint64_t stx_ino;
-	uint64_t stx_size;
-	uint64_t stx_blocks;
-	uint64_t stx_attributes_mask;
-	struct shim_statx_timestamp stx_atime;
-	struct shim_statx_timestamp stx_btime;
-	struct shim_statx_timestamp stx_ctime;
-	struct shim_statx_timestamp stx_mtime;
-	uint32_t stx_rdev_major;
-	uint32_t stx_rdev_minor;
-	uint32_t stx_dev_major;
-	uint32_t stx_dev_minor;
-	uint64_t __spare2[14];
-};
+#if defined(HAVE_STATX)
+typedef struct statx shim_statx_t;
+#else
+typedef struct {
+	char __reserved[512];
+} shim_statx_t;
+#endif
 
 /* old ustat struct */
 struct shim_ustat {
@@ -4839,7 +4818,7 @@ extern int shim_set_mempolicy(int mode, unsigned long *nodemask,
 	unsigned long maxnode);
 extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
 extern int shim_statx(int dfd, const char *filename, unsigned int flags,
-	unsigned int mask, struct shim_statx *buffer);
+	unsigned int mask, shim_statx_t *buffer);
 extern int shim_setxattr(const char *path, const char *name, const void *value,
 	size_t size, int flags);
 extern size_t shim_strlcat(char *dst, const char *src, size_t len);

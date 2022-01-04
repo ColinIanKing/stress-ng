@@ -848,10 +848,6 @@ int shim_mincore(void *addr, size_t length, unsigned char *vec)
 #endif
 }
 
-#define STATX_COPY(x)		buffer->x = statxbuf.x;
-#define STATX_COPY_TS(x)	buffer->x.tv_sec = statxbuf.x.tv_sec;		\
-				buffer->x.tv_nsec = statxbuf.x.tv_nsec;
-
 /*
  *  shim_statx()
  *	extended stat, Linux only variant
@@ -861,50 +857,16 @@ int shim_statx(
 	const char *filename,
 	unsigned int flags,
 	unsigned int mask,
-	struct shim_statx *buffer)
+	shim_statx_t *buffer)
 {
-	int ret;
-
+	(void)memset(buffer, 0, sizeof(*buffer));
 #if defined(HAVE_STATX)
-	struct statx statxbuf;
-
-	(void)memset(buffer, 0, sizeof(*buffer));
-	(void)memset(&statxbuf, 0, sizeof(statxbuf));
-	ret = statx(dfd, filename, flags, mask, &statxbuf);
+	return statx(dfd, filename, flags, mask, (struct statx *)buffer);
 #elif defined(__NR_statx)
-	struct shim_statx statxbuf;
-
-	(void)memset(buffer, 0, sizeof(*buffer));
-	(void)memset(&statxbuf, 0, sizeof(statxbuf));
-	ret = syscall(__NR_statx, dfd, filename, flags, mask, &statxbuf);
+	return syscall(__NR_statx, dfd, filename, flags, mask, buffer);
 #else
-	struct shim_statx statxbuf;
-
-	(void)memset(buffer, 0, sizeof(*buffer));
-	(void)memset(&statxbuf, 0, sizeof(statxbuf));
-	ret = shim_enosys(0, dfd, filename, flags, mask, &statxbuf);
+	return shim_enosys(0, dfd, filename, flags, mask, buffer);
 #endif
-	STATX_COPY(stx_mask);
-	STATX_COPY(stx_blksize);
-	STATX_COPY(stx_attributes);
-	STATX_COPY(stx_nlink);
-	STATX_COPY(stx_uid);
-	STATX_COPY(stx_gid);
-	STATX_COPY(stx_mode);
-	STATX_COPY(stx_ino);
-	STATX_COPY(stx_size);
-	STATX_COPY(stx_blocks);
-	STATX_COPY(stx_attributes_mask);
-	STATX_COPY_TS(stx_atime);
-	STATX_COPY_TS(stx_btime);
-	STATX_COPY_TS(stx_ctime);
-	STATX_COPY_TS(stx_mtime);
-	STATX_COPY(stx_rdev_major);
-	STATX_COPY(stx_rdev_minor);
-	STATX_COPY(stx_dev_major);
-	STATX_COPY(stx_dev_minor);
-
-	return ret;
 }
 
 #undef STATX_COPY

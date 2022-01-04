@@ -589,7 +589,7 @@ static void stress_io_uring_statx_setup(
 	struct io_uring_sqe *sqe)
 {
 	static const char *pathname = "";
-	struct shim_statx statxbuf;
+	shim_statx_t statxbuf;
 
 	sqe->opcode = IORING_OP_STATX;
 	sqe->fd = io_uring_file->fd;

@@ -101,7 +101,7 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 	struct stat buf;
 #if defined(AT_EMPTY_PATH) &&	\
     defined(AT_SYMLINK_NOFOLLOW)
-	struct shim_statx bufx;
+	shim_statx_t bufx;
 #endif
 	stress_stat_info_t *si = ctxt->si;
 	int ret;
