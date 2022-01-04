@@ -61,9 +61,19 @@ int shim_sched_yield(void)
 int shim_cacheflush(char *addr, int nbytes, int cache)
 {
 #if defined(HAVE_ASM_CACHECTL_H) &&	\
-    defined(HAVE_CACHEFLUSH)
-	return cacheflush(addr, nbytes, cache);
+    defined(HAVE_CACHEFLUSH) && 	\
+    defined(STRESS_ARCH_MIPS)
+	extern int cacheflush(void *addr, int nbytes, int cache);
+
+	return cacheflush((void *)addr, nbytes, cache);
+#elif defined(HAVE_BUILTIN___CLEAR_CACHE)
+	/* More portable builtin */
+	(void)cache;
+
+	__builtin___clear_cache((void *)addr, (void *)(addr + nbytes));
+	return 0;
 #elif defined(__NR_cacheflush)
+	/* potentially incorrect args, needs per-arch fixing */
 	return (int)syscall(__NR_cacheflush, addr, nbytes, cache);
 #else
 	return (int)shim_enosys(0, addr, nbytes, cache);
