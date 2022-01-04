@@ -143,41 +143,14 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 	stress_syncload_loop,
 };
 
-static inline double stress_syncload_gettime(const stress_args_t *args)
+static inline double stress_syncload_gettime(void)
 {
-	double t;
-
-	do {
-#if defined(HAVE_ATOMIC_LOAD_DOUBLE) &&		\
-    defined(HAVE_ATOMIC_STORE_DOUBLE) &&	\
-    defined(__ATOMIC_CONSUME) &&		\
-    defined(__ATOMIC_RELEASE)
-		__atomic_load(&g_shared->syncload.start_time, &t, __ATOMIC_CONSUME);
-#elif defined(HAVE_LIB_PTHREAD)
-		int ret;
-
-		ret = shim_pthread_spin_lock(&g_shared->syncload.lock);
-		t = (volatile double)g_shared->syncload.start_time;
-		if (ret == 0) {
-			ret = shim_pthread_spin_unlock(&g_shared->syncload.lock);
-			(void)ret;
-		}
-#else
-		/* Racy version */
-		shim_mb();
-		t = (volatile double)g_shared->syncload.start_time;
-		shim_mb();
-#endif
-	} while ((t <= 0.0) && keep_stressing(args));
-
-	return t;
+	return g_shared->syncload.start_time;
 }
 
 static void stress_syncload_init(void)
 {
 	g_shared->syncload.start_time = stress_time_now();
-
-	pr_inf("syncload.start_time %f\n", g_shared->syncload.start_time);
 }
 
 /*
@@ -215,7 +188,7 @@ static int stress_syncload(const stress_args_t *args)
 
 	stress_sysload_x86_has_rdrand = stress_cpu_x86_has_rdrand();
 
-	timeout = stress_syncload_gettime(args);
+	timeout = stress_syncload_gettime();
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
