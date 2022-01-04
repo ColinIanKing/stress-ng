@@ -37,7 +37,23 @@ typedef void (*cache_write_page_func_t)(uint8_t *const addr, const uint64_t size
 				 FLAGS_CACHE_CLFLUSHOPT |	\
 				 FLAGS_CACHE_CLDEMOTE)
 
+typedef struct {
+	uint32_t flag;		/* cache mask flag */
+	const char *name;	/* human readable form */
+} mask_flag_info_t;
+
+static mask_flag_info_t mask_flag_info[] = {
+	{ FLAGS_CACHE_PREFETCH,		"prefetch" },
+	{ FLAGS_CACHE_CLFLUSH,		"clflush" },
+	{ FLAGS_CACHE_FENCE,		"fence" },
+	{ FLAGS_CACHE_SFENCE,		"sfence" },
+	{ FLAGS_CACHE_CLFLUSHOPT,	"clflushopt" },
+	{ FLAGS_CACHE_CLDEMOTE,		"cldemote" },
+};
+
 static sigjmp_buf jmp_env;
+static volatile uint32_t masked_flags;
+static uint64_t disabled_flags;
 
 static const stress_help_t help[] = {
 	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
@@ -363,6 +379,31 @@ static void NORETURN MLOCKED_TEXT stress_cache_sighandler(int signum)
 	siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
 }
 
+static void NORETURN MLOCKED_TEXT stress_cache_sigillhandler(int signum)
+{
+	(void)signum;
+	size_t i = 0;
+	uint32_t mask = masked_flags;
+
+	/* Find top bit that is set, work from most modern flag to least */
+	while (mask >>= 1)
+		i++;
+	mask = 1U << i;
+
+	/* bit set? then disable it */
+	if (mask) {
+		for (i = 0; i < SIZEOF_ARRAY(mask_flag_info); i++) {
+			if (mask_flag_info[i].flag & mask) {
+				masked_flags &= ~mask;
+				disabled_flags |= mask;
+				break;
+			}
+		}
+	}
+
+	siglongjmp(jmp_env, 1);         /* Ugly, bounce back */
+}
+
 /*
  *  exercise invalid cache flush ops
  */
@@ -401,7 +442,6 @@ static int stress_cache(const stress_args_t *args)
 	NOCLOBBER bool pinned = false;
 #endif
 	uint32_t cache_flags = 0;
-	NOCLOBBER uint32_t masked_flags;
 	NOCLOBBER uint32_t total = 0;
 	int ret = EXIT_SUCCESS;
 	uint8_t *const mem_cache = g_shared->mem_cache;
@@ -412,6 +452,8 @@ static int stress_cache(const stress_args_t *args)
 	uint64_t inc = (mem_cache_size >> 2) + 1;
 	void *bad_addr;
 
+	disabled_flags = 0;
+
 	if (sigsetjmp(jmp_env, 1)) {
 		pr_inf("%s: premature SIGSEGV caught, skipping stressor\n",
 			args->name);
@@ -421,6 +463,8 @@ static int stress_cache(const stress_args_t *args)
 	if (stress_sighandler(args->name, SIGSEGV, stress_cache_sighandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 	if (stress_sighandler(args->name, SIGBUS, stress_cache_sighandler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+	if (stress_sighandler(args->name, SIGILL, stress_cache_sigillhandler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
 	(void)stress_get_setting("cache-flags", &cache_flags);
@@ -533,7 +577,7 @@ static int stress_cache(const stress_args_t *args)
 		if (r & 1) {
 			uint32_t flags;
 
-			flags = masked_flags ? masked_flags : stress_mwc32() & FLAGS_CACHE_MASK;
+			flags = masked_flags ? masked_flags : ((stress_mwc32() & FLAGS_CACHE_MASK) & masked_flags);
 			cache_write_funcs[flags](inc, r, &i, &k);
 		} else {
 			register volatile uint64_t j;
@@ -607,6 +651,31 @@ next:
 		i = (i >= mem_cache_size) ? i - mem_cache_size : i;
 
 	} while (keep_stressing(args));
+
+	/*
+	 *  Hit an illegal instruction, report the disabled flags
+	 */
+	if ((args->instance == 0) && (disabled_flags)) {
+		char buf[1024], *ptr = buf;
+		size_t j, buf_len = sizeof(buf);
+
+		(void)memset(buf, 0, sizeof(buf));
+		for (j = 0; j < SIZEOF_ARRAY(mask_flag_info); j++) {
+			if (mask_flag_info[j].flag & disabled_flags) {
+				const size_t len = strlen(mask_flag_info[j].name);
+
+				shim_strlcpy(ptr, " ", buf_len);
+				buf_len--;
+				ptr++;
+
+				shim_strlcpy(ptr, mask_flag_info[j].name, buf_len);
+				buf_len -= len;
+				ptr+= len;
+			}
+		}
+		*ptr = '\0';
+		pr_inf("%s: disabled%s due to illegal instruction signal\n", args->name, buf);
+	}
 
 	stress_uint32_put(total);
 
