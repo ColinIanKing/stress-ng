@@ -1,6 +1,6 @@
 #
 # Copyright (C) 2013-2021 Canonical, Ltd.
-# Copyright (C) 2021 Colin Ian King
+# Copyright (C) 2021-2022 Colin Ian King
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.13.09
+VERSION=0.13.10
 #
 # Codename "effulgent golden cetacean"
 #
