@@ -1,3 +1,79 @@
+stress-ng (0.13.10-1) unstable; urgency=medium
+
+  * Makefile: bump date and update copyright year
+  * Manual: update date
+  * stress-kvm: rename regs to kregs to avoid name shadowing
+  * core-shim: typedef statx buf to simplify different statx sizes
+  * stress-set: only #define some macros if they are not already defined
+  * stress-get: only #define some macros if they are not already defined
+  * stress-memfd: only use MAP_POPULATE if it is defined
+  * core-shim: make shim_cacheflush use builtin gcc variant where
+    applicable
+  * stress-ng.h: Add MIPS arch macro
+  * stress-cache: disable cache flags one by one if SIGILL occurs
+  * stress-cache: add cldemote instruction runtime and build time checks
+  * core-shim: fix typo in cacheflush wrapper on bytes/nbytes arg
+  * core-shim: use shim statx struct for __NR_statx call
+  * stress-ng.h: don't define HAVE_GETCPU and HAVE_GETTID
+  * stress-ng: voidify return from write
+  * stress-syncload: remove need for atomic reads of start time
+  * stress-syncload: remove stress_syncload_settime
+  * core-shim: fix statx shim for non-Linux systems
+  * stress-shm: zero msg struct to clean up valgrind warning
+  * stress-schedpolicy: zero structs on get calls to silence valgrind
+    warnings
+  * stress-numa: memset nodemask to keep valgrind happy
+  * stress-tmpfs: only define TMPFS_MAGIC if it is not already defined
+  * stress-inode-flags: flags argument should be long int rather than int
+  * stress-syncload: fix atomic load arg order reversal
+  * stress-context: zero all context bytes to keep valgrind happy
+  * stress-dev: add usb core device ioctl exerciser
+  * stress-ng: improve error clean-up paths in main
+  * stress-mcontent: update copyright year
+  * stress-mcontend: add check for pause instruction
+  * stress-cache: update copyright year
+  * stress-ng.c: use static buffer to format message, write to stderr
+  * stress-cache: remove space between arguments in function call
+  * stress-dev: use invalid keycode to stop ESC being remapped
+  * stress-sleep: update copyright
+  * stress-sleep: add nanosecond sleep delays using pselect
+  * stress-dev: remove debug continue statement
+  * stress-dev: add yield point check while traversing devices
+  * stress-fiemap: remove blank line
+  * stress-dev: remove hashing, replace with device list and device state
+  * stress-kill: kill unused pid for -ESRCH error
+  * stress-fallocate: remove empty line
+  * stress-eventfd: remove empty line
+  * stress-procfs: rework procfs reverse read to force misaligned reads
+  * Forgot to commit changes to stress-ng.h
+  * core-shim: add missing comment blocks
+  * core-shim: add statx system call autobuild detection
+  * core-shim: Add mlock2 system call autobuild detection
+  * core-shim: Add unshare system call autobuild detection
+  * core-shim: Add memfd_create system call autobuild detection
+  * core-shim: Add getrandom system call autobuild detection
+  * core-shim: Add getcpu system call autobuild detection
+  * core-shim: Add gettid system call autobuild detection
+  * core-shim: Add cacheflush system call autobuild detection
+  * stress-nop: add a random nop option
+  * stress-nop: add S390 nopr nop variant
+  * stress-nop: add mdoio, mdoom and yield nops for PPC64
+  * stress-kvm: re-word kvm help text, remove CLASS_MEMORY flag
+  * stress-kvm: Fix GPL comment boilerplate
+  * stress-kvm: don't treat EINTR on KVM_RUN as an error
+  * Add Linux kvm stressor, initially just supporting x86
+  * stress-memfd: remove some blank lines
+  * stress-memfd: clean up some minor white space issues
+  * core-hash: remove UNLIKELY macro, it confusing cppcheck
+  * core-cpu: update copyright and add more comment blocks
+  * stress-softlockup: update copyright
+  * stress-softlockup: remove redundant unset global timeout check
+  * stress-softlockup: print some messages only from 1st instance
+  * stress-procfs: fix pr_* messages, use correct stressor name and
+    path name
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Tue, 4 Jan 2022 22:20:02 +0100
+
 stress-ng (0.13.09-1) unstable; urgency=medium
 
   * stress-syncload: add build time check that atomic ops on doubles
