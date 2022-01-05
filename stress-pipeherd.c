@@ -113,6 +113,9 @@ static int stress_pipeherd(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	for (i = 0; i < PIPE_HERD_MAX; i++)
+		pids[i] = -1;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 #if defined(HAVE_GETRUSAGE) &&	\
@@ -121,7 +124,7 @@ static int stress_pipeherd(const stress_args_t *args)
     defined(HAVE_RUSAGE_RU_NVCSW)
 	t1 = stress_time_now();
 #endif
-	for (i = 0; i < PIPE_HERD_MAX; i++) {
+	for (i = 0; keep_stressing(args) && (i < PIPE_HERD_MAX); i++) {
 		pid_t pid;
 
 		pid = fork();
