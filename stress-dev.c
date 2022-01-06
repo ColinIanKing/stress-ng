@@ -3564,11 +3564,14 @@ static size_t stress_dev_infos_get(
 	size_t total = 0;
 	const mode_t flags = S_IRGRP | S_IWGRP | S_IROTH | S_IWOTH;
 
+	if (!keep_stressing(args))
+		return 0;
+
 	n = scandir(path, &dlist, NULL, alphasort);
 	if (n <= 0)
 		return 0;
 
-	for (i = 0; i < n; i++) {
+	for (i = 0; keep_stressing(args) && (i < n); i++) {
 		int ret;
 		struct stat buf;
 		char tmp[PATH_MAX];
