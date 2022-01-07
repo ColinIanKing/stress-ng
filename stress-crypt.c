@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -118,7 +113,7 @@ static int stress_crypt(const stress_args_t *args)
 			passwd[i] = seedchars[stress_mwc32() % sizeof(seedchars)];
 		passwd[i] = '\0';
 
-		for (i = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
+		for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(crypt_methods)); i++) {
 			int ret;
 
 			ret = stress_crypt_id(args,
@@ -127,10 +122,11 @@ static int stress_crypt(const stress_args_t *args)
 					      passwd, salt);
 			if (ret < 0)
 				failed++;
+			else
+				inc_counter(args);
 		}
 		if (failed)
 			break;
-		inc_counter(args);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
