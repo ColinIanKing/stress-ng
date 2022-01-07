@@ -47,13 +47,25 @@ static const stress_help_t help[] = {
 #define OPTIMIZE0       __attribute__((optimize("-O0")))
 #endif
 
-#define NOPS()		\
-asm volatile(		\
-	"nop\n"		\
-	"nop\n"		\
-	"nop\n"		\
-	"nop\n"		\
-);
+static inline void stress_op_nop(void)
+{
+#if defined(STRESS_ARCH_KVX)
+	/*
+	 * Extra ;; required for KVX to indicate end of
+	 * a VLIW instruction bundle
+	 */
+	__asm__ __volatile__("nop\n;;\n");
+#else
+	__asm__ __volatile__("nop;\n");
+#endif
+}
+
+#define NOPS()	do {		\
+	stress_op_nop();	\
+	stress_op_nop();	\
+	stress_op_nop();	\
+	stress_op_nop();	\
+} while (0);
 
 typedef struct {
 	uint64_t crit_count;		/* critical path entry count */
