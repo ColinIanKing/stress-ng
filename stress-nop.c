@@ -68,7 +68,7 @@ static inline void stress_op_nop(void)
 	 * Extra ;; required for KVX to indicate end of
 	 * a VLIW instruction bundle
 	 */
-	__asm__ __volatile__("nop;;\n");
+	__asm__ __volatile__("nop\n;;\n");
 #else
 	__asm__ __volatile__("nop;\n");
 #endif
