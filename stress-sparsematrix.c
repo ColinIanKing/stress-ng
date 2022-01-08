@@ -651,8 +651,14 @@ static int stress_sparse_method_test(
 			v = ~0ULL;
 
 		gv = info->get(handle, x, y);
-		if (gv == 0)
-			info->put(handle, x, y, v);
+		if (gv == 0) {
+			if (info->put(handle, x, y, v) < 0) {
+				pr_err("%s: failed to put into "
+					"sparse matrix at position "
+					"(%" PRIu32 ",%" PRIu32 ")\n",
+					args->name, x, y);
+			}
+		}
 	}
 	stress_mwc_seed(w, z);
 	for (i = 0; i < sparsematrix_items; i++) {
