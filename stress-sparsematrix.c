@@ -52,7 +52,7 @@ typedef void * (*func_create)(const uint32_t n);
 typedef int (*func_destroy)(void *handle);
 typedef int (*func_put)(void *handle, const uint32_t x, const uint32_t y, const uint64_t value);
 typedef int (*func_del)(void *handle, const uint32_t x, const uint32_t y);
-typedef int (*func_get)(void *handle, const uint32_t x, const uint32_t y, uint64_t *value);
+typedef uint64_t (*func_get)(void *handle, const uint32_t x, const uint32_t y);
 
 typedef struct {
 	const char              *name;  /* human readable form of sparse method */
@@ -276,16 +276,11 @@ static sparse_hash_node_t *hash_get_node(void *handle, const uint32_t x, const u
  *  hash_get()
  *	get the (x,y) value in hash table based sparse matrix
  */
-static int hash_get(void *handle, const uint32_t x, const uint32_t y, uint64_t *value)
+static uint64_t hash_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_hash_node_t *node = hash_get_node(handle, x, y);
 
-	if (!node) {
-		*value = 0;
-	} else {
-		*value = node->value;
-	}
-	return 0;
+	return node ? node->value : 0;
 }
 
 /*
@@ -296,9 +291,8 @@ static int hash_del(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_hash_node_t *node = hash_get_node(handle, x, y);
 
-	if (node) {
+	if (node)
 		node->value = 0;
-	}
 	return 0;
 }
 
@@ -350,13 +344,12 @@ static int judy_put(void *handle, const uint32_t x, const uint32_t y, const uint
  *  judy_get()
  *	get the (x,y) value in judy array based sparse matrix
  */
-static int judy_get(void *handle, const uint32_t x, const uint32_t y, uint64_t *value)
+static uint64_t judy_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	Word_t *pvalue;
 
 	JLG(pvalue, *(Pvoid_t *)handle, ((Word_t)x << 32) | y);
-	*value = pvalue ? *(uint64_t *)pvalue : 0;
-	return 0;
+	return pvalue ? *(uint64_t *)pvalue : 0;
 }
 
 /*
@@ -464,7 +457,7 @@ static int rb_del(void *handle, const uint32_t x, const uint32_t y)
  *  rb_get()
  *	get the (x,y) value in a red back tree sparse matrix
  */
-static int rb_get(void *handle, const uint32_t x, const uint32_t y, uint64_t *value)
+static uint64_t rb_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_rb_t node, *found;
 
@@ -472,12 +465,7 @@ static int rb_get(void *handle, const uint32_t x, const uint32_t y, uint64_t *va
 	node.xy = ((uint64_t)x << 32) | y;
 
 	found = RB_FIND(sparse_rb_tree, handle, &node);
-	if (!found) {
-		*value = 0;
-	} else {
-		*value = found->value;
-	}
-	return 0;
+	return found ? found->value : 0;
 }
 
 
@@ -629,16 +617,11 @@ static int list_del(void *handle, const uint32_t x, const uint32_t y)
  *  list_get()
  *	get the (x,y) value in a circular list based sparse matrix
  */
-static int list_get(void *handle, const uint32_t x, const uint32_t y, uint64_t *value)
+static uint64_t list_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	const sparse_x_list_node_t *x_node = list_get_node(handle, x, y);
 
-	if (x_node) {
-		*value = x_node->value;
-	} else {
-		*value = 0;
-	}
-	return 0;
+	return x_node ? x_node->value : 0;
 }
 #endif
 
@@ -673,7 +656,7 @@ static int stress_sparse_method_test(
 		if (v == 0)
 			v = ~0ULL;
 
-		info->get(handle, x, y, &gv);
+		gv = info->get(handle, x, y);
 		if (gv == 0)
 			info->put(handle, x, y, v);
 	}
@@ -687,7 +670,7 @@ static int stress_sparse_method_test(
 		if (v == 0)
 			v = ~0ULL;
 
-		info->get(handle, x, y, &gv);
+		gv = info->get(handle, x, y);
 		if (gv != v) {
 			pr_err("%s: mismatch (%" PRIu32 ",%" PRIu32
 				") was %" PRIx64 ", got %" PRIx64 "\n",
@@ -699,10 +682,8 @@ static int stress_sparse_method_test(
 	for (i = 0; i < sparsematrix_items; i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;
-		uint64_t gv;
 
-		info->get(handle, x, y, &gv);
-		(void)gv;
+		(void)info->get(handle, x, y);
 	}
 
 	stress_mwc_seed(w, z);
