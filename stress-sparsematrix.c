@@ -51,7 +51,7 @@
 typedef void * (*func_create)(const uint32_t n);
 typedef int (*func_destroy)(void *handle);
 typedef int (*func_put)(void *handle, const uint32_t x, const uint32_t y, const uint64_t value);
-typedef int (*func_del)(void *handle, const uint32_t x, const uint32_t y);
+typedef void (*func_del)(void *handle, const uint32_t x, const uint32_t y);
 typedef uint64_t (*func_get)(void *handle, const uint32_t x, const uint32_t y);
 
 typedef struct {
@@ -287,13 +287,12 @@ static uint64_t hash_get(void *handle, const uint32_t x, const uint32_t y)
  *  hash_del()
  *	zero the (x,y) value in sparse hash table
  */
-static int hash_del(void *handle, const uint32_t x, const uint32_t y)
+static void hash_del(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_hash_node_t *node = hash_get_node(handle, x, y);
 
 	if (node)
 		node->value = 0;
-	return 0;
 }
 
 #if defined(HAVE_JUDY)
@@ -356,14 +355,13 @@ static uint64_t judy_get(void *handle, const uint32_t x, const uint32_t y)
  *  judy_del()
  *	zero the (x,y) value in sparse judy array
  */
-static int judy_del(void *handle, const uint32_t x, const uint32_t y)
+static void judy_del(void *handle, const uint32_t x, const uint32_t y)
 {
 	Word_t *pvalue;
 
 	JLG(pvalue, *(Pvoid_t *)handle, ((Word_t)x << 32) | y);
 	if (!pvalue)
 		*pvalue = 0;
-	return 0;
 }
 #endif
 
@@ -439,18 +437,17 @@ static int rb_put(void *handle, const uint32_t x, const uint32_t y, const uint64
  *  rb_del()
  *	zero the (x,y) value in red black tree sparse matrix
  */
-static int rb_del(void *handle, const uint32_t x, const uint32_t y)
+static void rb_del(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_rb_t node, *found;
 	node.xy = ((uint64_t)x << 32) | y;
 
 	found = RB_FIND(sparse_rb_tree, handle, &node);
 	if (!found)
-		return -1;
+		return;
 
 	RB_REMOVE(sparse_rb_tree, handle, found);
 	free(found);
-	return 0;
 }
 
 /*
@@ -602,15 +599,12 @@ static sparse_x_list_node_t *list_get_node(void *handle, const uint32_t x, const
  *  list_del()
  *	zero the (x,y) value in a circular list based sparse matrix
  */
-static int list_del(void *handle, const uint32_t x, const uint32_t y)
+static void list_del(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_x_list_node_t *x_node = list_get_node(handle, x, y);
 
-	if (x_node) {
+	if (x_node)
 		x_node->value = 0;
-	}
-
-	return 0;
 }
 
 /*
