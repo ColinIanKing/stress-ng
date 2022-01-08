@@ -43,6 +43,11 @@
 #define HAVE_RB_TREE	(1)
 #endif
 
+#if defined(HAVE_JUDY_H) && \
+    defined(HAVE_LIB_JUDY)
+#define HAVE_JUDY	(1)
+#endif
+
 typedef void * (*func_create)(const uint32_t n);
 typedef int (*func_destroy)(void *handle);
 typedef int (*func_put)(void *handle, const uint32_t x, const uint32_t y, const uint64_t value);
@@ -63,7 +68,7 @@ static const stress_sparsematrix_method_info_t sparsematrix_methods[];
 static const stress_help_t help[] = {
 	{ NULL,	"sparsematrix N",	 "start N workers that exercise a sparse matrix" },
 	{ NULL,	"sparsematrix-ops N",	 "stop after N bogo sparse matrix operations" },
-	{ NULL,	"sparsematrix-method M", "select storage method: all, hash, list or rb" },
+	{ NULL,	"sparsematrix-method M", "select storage method: all, hash, judy, list or rb" },
 	{ NULL,	"sparsematrix-items N",	 "N is the number of items in the spare matrix" },
 	{ NULL,	"sparsematrix-size N",	 "M is the width and height X x Y of the matrix" },
 	{ NULL,	NULL,		 NULL }
@@ -297,6 +302,78 @@ static int hash_del(void *handle, const uint32_t x, const uint32_t y)
 	return 0;
 }
 
+#if defined(HAVE_JUDY)
+/*
+ *  judy_create()
+ *	create a judy array based sparse matrix
+ */
+static void *judy_create(const uint32_t n)
+{
+	static Pvoid_t PJLArray;
+
+	(void)n;
+	PJLArray = (Pvoid_t)NULL;
+	return (void *)&PJLArray;
+}
+
+/*
+ *  judy_destroy()
+ *	destroy a judy array based sparse matrix
+ */
+static int judy_destroy(void *handle)
+{
+	Word_t ret;
+
+	JLFA(ret, *(Pvoid_t *)handle);
+	(void)ret;
+
+	return 0;
+}
+
+/*
+ *  judy_put()
+ *	put a value into a judy based sparse matrix
+ */
+static int judy_put(void *handle, const uint32_t x, const uint32_t y, const uint64_t value)
+{
+	Word_t *pvalue;
+
+	JLI(pvalue, *(Pvoid_t *)handle, ((Word_t)x << 32) | y);
+	if ((pvalue == NULL) || (pvalue == PJERR))
+		return -1;
+
+	*pvalue = (Word_t)value;
+	return 0;
+}
+
+/*
+ *  judy_get()
+ *	get the (x,y) value in judy array based sparse matrix
+ */
+static int judy_get(void *handle, const uint32_t x, const uint32_t y, uint64_t *value)
+{
+	Word_t *pvalue;
+
+	JLG(pvalue, *(Pvoid_t *)handle, ((Word_t)x << 32) | y);
+	*value = pvalue ? *(uint64_t *)pvalue : 0;
+	return 0;
+}
+
+/*
+ *  judy_del()
+ *	zero the (x,y) value in sparse judy array
+ */
+static int judy_del(void *handle, const uint32_t x, const uint32_t y)
+{
+	Word_t *pvalue;
+
+	JLG(pvalue, *(Pvoid_t *)handle, ((Word_t)x << 32) | y);
+	if (!pvalue)
+		*pvalue = 0;
+	return 0;
+}
+#endif
+
 #if defined(HAVE_RB_TREE)
 
 /*
@@ -326,12 +403,11 @@ static void *rb_create(const uint32_t n)
 	(void)n;
 
 	RB_INIT(&rb_root);
-
 	return &rb_root;
 }
 
 /*
- *  rb_create()
+ *  rb_destroy()
  *	destroy a red black tree based sparse matrix
  */
 static int rb_destroy(void *handle)
@@ -418,7 +494,6 @@ static void *list_create(const uint32_t n)
 	static sparse_y_list_t y_head;
 
 	CIRCLEQ_INIT(&y_head);
-
 	(void)n;
 
 	return (void *)&y_head;
@@ -648,6 +723,9 @@ static int stress_sparse_method_test(
 static const stress_sparsematrix_method_info_t sparsematrix_methods[] = {
 	{ "all",	NULL, NULL, NULL, NULL, NULL },
 	{ "hash",	hash_create, hash_destroy, hash_put, hash_del, hash_get },
+#if defined(HAVE_JUDY)
+	{ "judy",	judy_create, judy_destroy, judy_put, judy_del, judy_get },
+#endif
 #if defined(HAVE_SYS_QUEUE_CIRCLEQ)
 	{ "list",	list_create, list_destroy, list_put, list_del, list_get },
 #endif

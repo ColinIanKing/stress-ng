@@ -3947,11 +3947,11 @@ stop softlockup stress workers after N bogo scheduler policy changes.
 .TP
 .B \-\-sparsematrix N
 start N workers that exercise 3 different sparse matrix implementations
-based on hashing, red-back tree and 2-d circular linked-lists. The sparse
-matrix is populated with values, random values potentially non-existing
-values are read, known existing values are read and known existing values
-are marked as zero. This default 500 x 500 sparse matrix is used and 5000
-items are put into the sparse matrix making it 2% utilized.
+based on hashing, judy arrays, red-back tree and 2-d circular linked-lists.
+The sparse matrix is populated with values, random values potentially
+non-existing values are read, known existing values are read and known
+existing values are marked as zero. This default 500 x 500 sparse matrix
+is used and 5000 items are put into the sparse matrix making it 2% utilized.
 .TP
 .B \-\-sparsematrix\-ops N
 stop after N sparsematrix test iterations.
@@ -3964,7 +3964,7 @@ full sparse matrix.
 .B \-\-sparsematrix\-size N
 use a N \(mu N sized sparse matrix
 .TP
-.B \-\-sparsematrix\-method [ all | hash | rb | list ]
+.B \-\-sparsematrix\-method [ all | hash | judy | rb | list ]
 specify the type of sparse matrix implementation to use. The 'all' method
 uses all the methods and is the default.
 .TP
