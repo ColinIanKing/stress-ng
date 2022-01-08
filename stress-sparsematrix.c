@@ -49,7 +49,7 @@
 #endif
 
 typedef void * (*func_create)(const uint32_t n);
-typedef int (*func_destroy)(void *handle);
+typedef void (*func_destroy)(void *handle);
 typedef int (*func_put)(void *handle, const uint32_t x, const uint32_t y, const uint64_t value);
 typedef void (*func_del)(void *handle, const uint32_t x, const uint32_t y);
 typedef uint64_t (*func_get)(void *handle, const uint32_t x, const uint32_t y);
@@ -188,13 +188,13 @@ static void *hash_create(const uint32_t n)
  *  hash_destroy()
  *	destroy a hash table based sparse matrix
  */
-static int hash_destroy(void *handle)
+static void hash_destroy(void *handle)
 {
 	size_t i, n;
 	sparse_hash_table_t *table = (sparse_hash_table_t *)handle;
 
 	if (!handle)
-		return -1;
+		return;
 
 	n = table->n;
 	for (i = 0; i < n; i++) {
@@ -211,8 +211,6 @@ static int hash_destroy(void *handle)
 	table->n = 0;
 	table->table = 0;
 	free(table);
-
-	return 0;
 }
 
 /*
@@ -313,14 +311,12 @@ static void *judy_create(const uint32_t n)
  *  judy_destroy()
  *	destroy a judy array based sparse matrix
  */
-static int judy_destroy(void *handle)
+static void judy_destroy(void *handle)
 {
 	Word_t ret;
 
 	JLFA(ret, *(Pvoid_t *)handle);
 	(void)ret;
-
-	return 0;
 }
 
 /*
@@ -401,11 +397,9 @@ static void *rb_create(const uint32_t n)
  *  rb_destroy()
  *	destroy a red black tree based sparse matrix
  */
-static int rb_destroy(void *handle)
+static void rb_destroy(void *handle)
 {
 	(void)handle;
-
-	return 0;
 }
 
 /*
@@ -488,7 +482,7 @@ static void *list_create(const uint32_t n)
  *  list_destroy()
  *	destroy a circular list based sparse matrix
  */
-static int list_destroy(void *handle)
+static void list_destroy(void *handle)
 {
 	sparse_y_list_t *y_head = (sparse_y_list_t *)handle;
 
@@ -506,7 +500,6 @@ static int list_destroy(void *handle)
 		CIRCLEQ_REMOVE(y_head, y_node, sparse_y_list);
 		free(y_node);
 	}
-	return 0;
 }
 
 /*
@@ -695,7 +688,9 @@ static int stress_sparse_method_test(
 
 		info->del(handle, x, y);
 	}
-	return info->destroy(handle);
+	info->destroy(handle);
+
+	return 0;
 }
 
 /*
