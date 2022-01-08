@@ -74,9 +74,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		 NULL }
 };
 
-static volatile bool do_jmp = true;
-static sigjmp_buf jmp_env;
-
 #if defined(HAVE_RB_TREE)
 typedef struct sparse_rb {
 	uint64_t xy;		/* x,y matrix position */
@@ -147,20 +144,6 @@ static int stress_set_sparsematrix_size(const char *opt)
 	stress_check_range("sparsematrix-size", sparsematrix_size,
 		MIN_SPARSEMATRIX_SIZE, MAX_SPARSEMATRIX_SIZE);
 	return stress_set_setting("sparsematrix-size", TYPE_ID_UINT32, &sparsematrix_size);
-}
-
-/*
- *  stress_sparsematrix_handler()
- *	SIGALRM generic handler
- */
-static void MLOCKED_TEXT stress_sparsematrix_handler(int signum)
-{
-	(void)signum;
-
-	if (do_jmp) {
-		do_jmp = false;
-		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
-	}
 }
 
 /*
@@ -635,7 +618,7 @@ static int stress_sparse_method_test(
 		return -1;
 
 	stress_mwc_seed(w, z);
-	for (i = 0; i < sparsematrix_items; i++) {
+	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;
 		uint64_t v = value_map(x, y);
@@ -657,7 +640,7 @@ static int stress_sparse_method_test(
 		}
 	}
 	stress_mwc_seed(w, z);
-	for (i = 0; i < sparsematrix_items; i++) {
+	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;
 		uint64_t v = value_map(x, y);
@@ -675,7 +658,7 @@ static int stress_sparse_method_test(
 	}
 
 	/* Random fetches, most probably all zero unset values */
-	for (i = 0; i < sparsematrix_items; i++) {
+	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;
 
@@ -683,7 +666,7 @@ static int stress_sparse_method_test(
 	}
 
 	stress_mwc_seed(w, z);
-	for (i = 0; i < sparsematrix_items; i++) {
+	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;
 		uint64_t v = value_map(x, y);
@@ -756,8 +739,6 @@ static int stress_sparsematrix(const stress_args_t *args)
 	uint64_t sparsematrix_items = DEFAULT_SPARSEMATRIX_ITEMS;
 	uint64_t capacity;
 	double percent_full;
-	struct sigaction old_action;
-	int ret;
 	stress_sparsematrix_method_info_t const *all = &sparsematrix_methods[0];
 	stress_sparsematrix_method_info_t const *info = all;
 
@@ -796,18 +777,6 @@ static int stress_sparsematrix(const stress_args_t *args)
 			percent_full);
 	}
 
-	if (stress_sighandler(args->name, SIGALRM, stress_sparsematrix_handler, &old_action) < 0)
-		return EXIT_FAILURE;
-
-	ret = sigsetjmp(jmp_env, 1);
-	if (ret) {
-		/*
-		 * We return here if SIGALRM jmp'd back
-		 */
-		(void)stress_sigrestore(args->name, SIGALRM, &old_action);
-		goto tidy;
-	}
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
@@ -826,9 +795,6 @@ static int stress_sparsematrix(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
-	do_jmp = false;
-	(void)stress_sigrestore(args->name, SIGALRM, &old_action);
-tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
