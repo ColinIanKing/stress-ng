@@ -296,6 +296,7 @@ STRESS_SRC = \
 	stress-sockmany.c \
 	stress-softlockup.c \
 	stress-spawn.c \
+	stress-sparsematrix.c \
 	stress-splice.c \
 	stress-stack.c \
 	stress-stackmmap.c \

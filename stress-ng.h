@@ -2755,6 +2755,7 @@ typedef struct {
 	MACRO(sockmany)		\
 	MACRO(softlockup)	\
 	MACRO(spawn)		\
+	MACRO(sparsematrix)	\
 	MACRO(splice)		\
 	MACRO(stack)		\
 	MACRO(stackmmap)	\
@@ -3732,6 +3733,12 @@ typedef enum {
 
 	OPT_spawn,
 	OPT_spawn_ops,
+
+	OPT_sparsematrix,
+	OPT_sparsematrix_ops,
+	OPT_sparsematrix_items,
+	OPT_sparsematrix_method,
+	OPT_sparsematrix_size,
 
 	OPT_splice,
 	OPT_splice_ops,

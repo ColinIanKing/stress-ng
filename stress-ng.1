@@ -3945,6 +3945,29 @@ trigger watchdog timeout reboots.
 .B \-\-softlockup\-ops N
 stop softlockup stress workers after N bogo scheduler policy changes.
 .TP
+.B \-\-sparsematrix N
+start N workers that exercise 3 different sparse matrix implementations
+based on hashing, red-back tree and 2-d circular linked-lists. The sparse
+matrix is populated with values, random values potentially non-existing
+values are read, known existing values are read and known existing values
+are marked as zero. This default 500 x 500 sparse matrix is used and 5000
+items are put into the sparse matrix making it 2% utilized.
+.TP
+.B \-\-sparsematrix\-ops N
+stop after N sparsematrix test iterations.
+.TP
+.B \-\-sparsematrix\-items N
+populate the sparse matrix with N items. If N is greater than the number
+of elements in the sparse matrix than N will be capped to create at 100%
+full sparse matrix.
+.TP
+.B \-\-sparsematrix\-size N
+use a N \(mu N sized sparse matrix
+.TP
+.B \-\-sparsematrix\-method [ all | hash | rb | list ]
+specify the type of sparse matrix implementation to use. The 'all' method
+uses all the methods and is the default.
+.TP
 .B \-\-spawn N
 start N workers continually spawn children using posix_spawn(3) that exec
 stress-ng and then exit almost immediately. Currently Linux only.
