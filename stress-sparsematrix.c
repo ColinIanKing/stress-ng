@@ -625,6 +625,7 @@ static int stress_sparse_method_test(
 {
 	void *handle;
 	uint64_t i;
+	int rc = 0;
 
 	const uint32_t w = stress_mwc32();
 	const uint32_t z = stress_mwc32();
@@ -650,6 +651,8 @@ static int stress_sparse_method_test(
 					"sparse matrix at position "
 					"(%" PRIu32 ",%" PRIu32 ")\n",
 					args->name, x, y);
+				rc = -1;
+				goto err;
 			}
 		}
 	}
@@ -688,9 +691,10 @@ static int stress_sparse_method_test(
 
 		info->del(handle, x, y);
 	}
+err:
 	info->destroy(handle);
 
-	return 0;
+	return rc;
 }
 
 /*
