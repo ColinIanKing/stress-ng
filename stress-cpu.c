@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -1001,6 +996,15 @@ static void stress_cpu_sdbm(const char *name)
 static void stress_cpu_nhash(const char *name)
 {
 	stress_cpu_hash_generic(name, "nhash", stress_hash_nhash, 0x1cc86e3);
+}
+
+/*
+ *  stress_cpu_crc32c()
+ *	stress test hash crc32c
+ */
+static void stress_cpu_crc32c(const char *name)
+{
+	stress_cpu_hash_generic(name, "crc32c", stress_hash_crc32c, 0);
 }
 
 /*
@@ -3080,6 +3084,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "cpuid",		stress_cpu_cpuid },
 #endif
 	{ "crc16",		stress_cpu_crc16 },
+	{ "crc32c",		stress_cpu_crc32c },
 #if defined(HAVE_FLOAT_DECIMAL32) &&	\
     !defined(__clang__)
 	{ "decimal32",		stress_cpu_decimal32 },
