@@ -3950,7 +3950,9 @@ stop softlockup stress workers after N bogo scheduler policy changes.
 .TP
 .B \-\-sparsematrix N
 start N workers that exercise 3 different sparse matrix implementations
-based on hashing, judy arrays, red-back tree and 2-d circular linked-lists.
+based on hashing, Judy array, 2-d circular linked-lists, memory mapped
+2-d matrix (non-sparse), quick hashing (on preallocated nodes) and red-black
+tree.
 The sparse matrix is populated with values, random values potentially
 non-existing values are read, known existing values are read and known
 existing values are marked as zero. This default 500 x 500 sparse matrix
@@ -3967,9 +3969,41 @@ full sparse matrix.
 .B \-\-sparsematrix\-size N
 use a N \(mu N sized sparse matrix
 .TP
-.B \-\-sparsematrix\-method [ all | hash | judy | rb | list ]
+.B \-\-sparsematrix\-method [ all | hash | judy | list | mmap | qhash | rb ]
 specify the type of sparse matrix implementation to use. The 'all' method
 uses all the methods and is the default.
+.TS
+expand;
+lB2 lB lB
+l l s.
+Method	Description
+all	T{
+exercise with all the sparsematrix stressor methods (see below):
+T}
+hash	T{
+use a hash table and allocate nodes on the heap each unique value at a (x, y)
+matrix position.
+T}
+judy	T{
+use a Judy array with a unique 1-to-1 mapping of (x, y) matrix position into
+the array.
+T}
+list	T{
+use a circular linked-list for sparse y positions each with circular linked-lists for
+sparse x positions for the (x, y) matrix co-ordinates.
+T}
+mmap	T{
+a non-sparse mmap the entire 2-d matrix space. Only (x, y) matrix positions that
+are referenced will get physically mapped. Note that large sparse matrices cannot be mmap'd
+due to lack of virtual address limitiations, and too many referenced pages can trigger
+the out of memory killer on Linux.
+T}
+qhash	T{
+use a hash table with pre-allocated nodes for each unique value. This is a quick hash
+table implementation, nodes are not allocated each time with calloc and are allocated
+from a pre-allocated pool leading to quicker hash table performance than the hash method.
+T}
+.TE
 .TP
 .B \-\-spawn N
 start N workers continually spawn children using posix_spawn(3) that exec

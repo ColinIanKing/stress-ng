@@ -19,7 +19,7 @@
 #include "stress-ng.h"
 
 /* Number of items in sparse matrix */
-#define MIN_SPARSEMATRIX_ITEMS		(10)
+#define MIN_SPARSEMATRIX_ITEMS		(100)
 #define MAX_SPARSEMATRIX_ITEMS		(10000000)
 #define DEFAULT_SPARSEMATRIX_ITEMS	(5000)
 
@@ -48,8 +48,12 @@
 #define HAVE_JUDY	(1)
 #endif
 
-typedef void * (*func_create)(const uint32_t n);
-typedef void (*func_destroy)(void *handle);
+#define SPARSE_TEST_OK		(0)
+#define SPARSE_TEST_FAILED	(-1)
+#define SPARSE_TEST_ENOMEM	(-2)
+
+typedef void * (*func_create)(const uint32_t n, const uint32_t x, const uint32_t y);
+typedef void (*func_destroy)(void *handle, size_t *objmem);
 typedef int (*func_put)(void *handle, const uint32_t x, const uint32_t y, const uint64_t value);
 typedef void (*func_del)(void *handle, const uint32_t x, const uint32_t y);
 typedef uint64_t (*func_get)(void *handle, const uint32_t x, const uint32_t y);
@@ -84,15 +88,29 @@ typedef struct sparse_rb {
 #endif
 
 typedef struct sparse_hash_node {
+	struct sparse_hash_node *next;
 	uint64_t xy;		/* x,y matrix position */
 	uint64_t value;		/* value in matrix x,y */
-	struct sparse_hash_node *next;
 } sparse_hash_node_t;
 
 typedef struct sparse_hash_table {
 	uint32_t n;		/* size of hash table */
 	sparse_hash_node_t **table;
 } sparse_hash_table_t;
+
+typedef struct sparse_qhash_node {
+	struct sparse_qhash_node *next;
+	uint64_t xy;		/* x,y matrix position */
+	uint64_t value;		/* value in matrix x,y */
+} sparse_qhash_node_t;
+
+typedef struct sparse_qhash_table {
+	uint32_t n;		/* size of hash table */
+	uint32_t n_nodes;	/* number of nodes */
+	sparse_qhash_node_t **table;
+	sparse_qhash_node_t *nodes;
+	size_t idx;
+} sparse_qhash_table_t;
 
 #if defined(HAVE_SYS_QUEUE_CIRCLEQ)
 
@@ -117,6 +135,22 @@ CIRCLEQ_HEAD(sparse_y_list, sparse_y_list_node);
 typedef struct sparse_y_list sparse_y_list_t;
 
 #endif
+
+typedef struct {
+	void *mmap;
+	uint32_t x;
+	uint32_t y;
+	size_t mmap_size;
+} sparse_mmap_t;
+
+typedef struct {
+	bool	skip_no_mem;	/* True if can't allocate memory */
+	size_t	max_objmem;	/* Object memory allocation estimate */
+	double	put_duration;	/* Total put duration time, seconds */
+	double	get_duration;	/* Total get duration time, seconds */
+	uint64_t put_ops;	/* Totoal put object op count */
+	uint64_t get_ops;	/* Totoal put object op count */
+} test_info_t;
 
 /*
  *  stress_set_sparsematrix_items()
@@ -150,18 +184,23 @@ static int stress_set_sparsematrix_size(const char *opt)
  *  hash_create()
  *	create a hash table based sparse matrix
  */
-static void *hash_create(const uint32_t n)
+static void *hash_create(const uint32_t n, const uint32_t x, const uint32_t y)
 {
 	sparse_hash_table_t *table;
 	uint32_t n_prime = (size_t)stress_get_prime64((uint64_t)n);
+
+	(void)x;
+	(void)y;
 
 	table = (sparse_hash_table_t *)calloc(1, sizeof(*table));
 	if (!table)
 		return NULL;
 
 	table->table = (sparse_hash_node_t **)calloc((size_t)n_prime, sizeof(sparse_hash_node_t *));
-	if (!table)
+	if (!table) {
+		free(table);
 		return NULL;
+	}
 	table->n = n_prime;
 
 	return (void *)table;
@@ -171,11 +210,12 @@ static void *hash_create(const uint32_t n)
  *  hash_destroy()
  *	destroy a hash table based sparse matrix
  */
-static void hash_destroy(void *handle)
+static void hash_destroy(void *handle, size_t *objmem)
 {
 	size_t i, n;
 	sparse_hash_table_t *table = (sparse_hash_table_t *)handle;
 
+	*objmem = 0;
 	if (!handle)
 		return;
 
@@ -187,9 +227,12 @@ static void hash_destroy(void *handle)
 		while (node) {
 			next = node->next;
 			free(node);
+			*objmem += sizeof(*node);
 			node = next;
 		}
 	}
+	*objmem += sizeof(*table) +
+		   sizeof(*table->table) * table->n;
 	free(table->table);
 	table->n = 0;
 	table->table = 0;
@@ -276,16 +319,164 @@ static void hash_del(void *handle, const uint32_t x, const uint32_t y)
 		node->value = 0;
 }
 
+/*
+ *  qhash_create()
+ *	create a hash table based sparse matrix
+ */
+static void *qhash_create(const uint32_t n, const uint32_t x, const uint32_t y)
+{
+	sparse_qhash_table_t *table;
+	uint32_t n_prime = (size_t)stress_get_prime64((uint64_t)n);
+
+	(void)x;
+	(void)y;
+
+	table = (sparse_qhash_table_t *)calloc(1, sizeof(*table));
+	if (!table)
+		return NULL;
+
+	table->table = (sparse_qhash_node_t **)calloc((size_t)n_prime, sizeof(sparse_qhash_node_t *));
+	if (!table) {
+		free(table);
+		return NULL;
+	}
+	table->nodes = (sparse_qhash_node_t *)calloc((size_t)n, sizeof(sparse_qhash_node_t));
+	if (!table->nodes) {
+		free(table->table);
+		free(table);
+		return NULL;
+	}
+	memset(table->nodes, 0xff, (size_t)n * sizeof(sparse_qhash_node_t));
+	table->n_nodes = n;
+	table->n = n_prime;
+	table->idx = 0;
+
+	return (void *)table;
+}
+
+/*
+ *  qhash_destroy()
+ *	destroy a hash table based sparse matrix
+ */
+static void qhash_destroy(void *handle, size_t *objmem)
+{
+	sparse_qhash_table_t *table = (sparse_qhash_table_t *)handle;
+
+	*objmem = 0;
+	if (!handle)
+		return;
+
+	*objmem = sizeof(*table) +
+		  (sizeof(*table->nodes) * table->n_nodes) +
+		  (sizeof(*table->table) * table->n);
+
+	free(table->nodes);
+	table->nodes = NULL;
+
+	free(table->table);
+	table->table = NULL;
+	table->n = 0;
+	table->n_nodes = 0;
+	table->idx = 0;
+
+	free(table);
+	table = NULL;
+}
+
+/*
+ *  qhash_put()
+ *	put a value into a hash based sparse matrix
+ */
+static int qhash_put(void *handle, const uint32_t x, const uint32_t y, const uint64_t value)
+{
+	sparse_qhash_node_t *node;
+	sparse_qhash_table_t *table = (sparse_qhash_table_t *)handle;
+	size_t hash;
+	uint64_t xy = ((uint64_t)x << 32) | y;
+
+	if (!table)
+		return -1;
+	if (table->idx >= table->n_nodes)
+		return -1;
+
+	hash = (((size_t)x << 3) ^ y) % table->n;
+
+	/* Find and put */
+	for (node = table->table[hash]; node; node = node->next) {
+		if (node->xy == xy) {
+			node->value = value;
+			return 0;
+		}
+	}
+
+	/* add */
+	node = &table->nodes[table->idx++];
+	node->value = value;
+	node->next = table->table[hash];
+	node->xy = xy;
+	table->table[hash] = node;
+	return 0;
+}
+
+/*
+ *  qhash_get_node()
+ *	find the hash table node of a (x,y) value in a hash table
+ */
+static sparse_qhash_node_t *qhash_get_node(void *handle, const uint32_t x, const uint32_t y)
+{
+	sparse_qhash_table_t *table = (sparse_qhash_table_t *)handle;
+	sparse_qhash_node_t *node;
+	size_t hash;
+	uint64_t xy = ((uint64_t)x << 32) | y;
+
+	if (!table)
+		return NULL;
+	hash = (((size_t)x << 3) ^ y) % table->n;
+
+	for (node = table->table[hash]; node; node = node->next) {
+		if (node->xy == xy)
+			return node;
+	}
+	return NULL;
+}
+
+/*
+ *  qhash_get()
+ *	get the (x,y) value in hash table based sparse matrix
+ */
+static uint64_t qhash_get(void *handle, const uint32_t x, const uint32_t y)
+{
+	sparse_qhash_node_t *node = qhash_get_node(handle, x, y);
+
+	return node ? node->value : 0;
+}
+
+/*
+ *  hash_del()
+ *	zero the (x,y) value in sparse hash table
+ */
+static void qhash_del(void *handle, const uint32_t x, const uint32_t y)
+{
+	sparse_qhash_node_t *node = qhash_get_node(handle, x, y);
+
+	if (node)
+		node->value = 0;
+}
+
 #if defined(HAVE_JUDY)
+
 /*
  *  judy_create()
  *	create a judy array based sparse matrix
  */
-static void *judy_create(const uint32_t n)
+static void *judy_create(const uint32_t n, const uint32_t x, const uint32_t y)
 {
 	static Pvoid_t PJLArray;
 
 	(void)n;
+	(void)x;
+	(void)y;
+
 	PJLArray = (Pvoid_t)NULL;
 	return (void *)&PJLArray;
 }
@@ -294,9 +485,12 @@ static void *judy_create(const uint32_t n)
  *  judy_destroy()
  *	destroy a judy array based sparse matrix
  */
-static void judy_destroy(void *handle)
+static void judy_destroy(void *handle, size_t *objmem)
 {
 	Word_t ret;
+
+	JLMU(ret, *(Pvoid_t *)handle);
+	*objmem = (size_t)ret;
 
 	JLFA(ret, *(Pvoid_t *)handle);
 	(void)ret;
@@ -346,6 +540,8 @@ static void judy_del(void *handle, const uint32_t x, const uint32_t y)
 
 #if defined(HAVE_RB_TREE)
 
+static size_t rb_objmem;
+
 /*
  *  sparse_node_cmp()
  *	rb tree comparison function
@@ -368,10 +564,13 @@ RB_GENERATE(sparse_rb_tree, sparse_rb, rb, sparse_node_cmp);
  *  rb_create()
  *	create a red black tree based sparse matrix
  */
-static void *rb_create(const uint32_t n)
+static void *rb_create(const uint32_t n, const uint32_t x, const uint32_t y)
 {
 	(void)n;
+	(void)x;
+	(void)y;
 
+	rb_objmem = 0;
 	RB_INIT(&rb_root);
 	return &rb_root;
 }
@@ -380,8 +579,10 @@ static void *rb_create(const uint32_t n)
  *  rb_destroy()
  *	destroy a red black tree based sparse matrix
  */
-static void rb_destroy(void *handle)
+static void rb_destroy(void *handle, size_t *objmem)
 {
+	*objmem = rb_objmem;
+	rb_objmem = 0;
 	(void)handle;
 }
 
@@ -404,6 +605,7 @@ static int rb_put(void *handle, const uint32_t x, const uint32_t y, const uint64
 		new_node->value = value;
 		new_node->xy = node.xy;
 		RB_INSERT(sparse_rb_tree, handle, new_node);
+		rb_objmem += sizeof(*new_node);
 	} else {
 		found->value = value;
 	}
@@ -441,8 +643,6 @@ static uint64_t rb_get(void *handle, const uint32_t x, const uint32_t y)
 	found = RB_FIND(sparse_rb_tree, handle, &node);
 	return found ? found->value : 0;
 }
-
-
 #endif
 
 #if defined(HAVE_SYS_QUEUE_CIRCLEQ)
@@ -451,12 +651,14 @@ static uint64_t rb_get(void *handle, const uint32_t x, const uint32_t y)
  *  list_create()
  *	create a circular list based sparse matrix
  */
-static void *list_create(const uint32_t n)
+static void *list_create(const uint32_t n, const uint32_t x, const uint32_t y)
 {
 	static sparse_y_list_t y_head;
 
 	CIRCLEQ_INIT(&y_head);
 	(void)n;
+	(void)x;
+	(void)y;
 
 	return (void *)&y_head;
 }
@@ -465,10 +667,11 @@ static void *list_create(const uint32_t n)
  *  list_destroy()
  *	destroy a circular list based sparse matrix
  */
-static void list_destroy(void *handle)
+static void list_destroy(void *handle, size_t *objmem)
 {
 	sparse_y_list_t *y_head = (sparse_y_list_t *)handle;
 
+	*objmem = 0;
 	while (!CIRCLEQ_EMPTY(y_head)) {
 		sparse_y_list_node_t *y_node = CIRCLEQ_FIRST(y_head);
 
@@ -478,15 +681,17 @@ static void list_destroy(void *handle)
 			sparse_x_list_node_t *x_node = CIRCLEQ_FIRST(x_head);
 
 			CIRCLEQ_REMOVE(x_head, x_node, sparse_x_list);
+			*objmem += sizeof(*x_node);
 			free(x_node);
 		}
 		CIRCLEQ_REMOVE(y_head, y_node, sparse_y_list);
+		*objmem += sizeof(*y_node);
 		free(y_node);
 	}
 }
 
 /*
- *  rb_put()
+ *  list_put()
  *	put a value into a circular list based sparse matrix
  */
 static int list_put(void *handle, const uint32_t x, const uint32_t y, const uint64_t value)
@@ -531,7 +736,7 @@ find_x:
 		if (x_node->x > x) {
 			new_x_node = calloc(1, sizeof(*new_x_node));
 			if (!new_x_node)
-				return -1;
+				return -1;  /* Leaves new_y_node allocated */
 			new_x_node->x = x;
 			new_x_node->value = value;
 			CIRCLEQ_INSERT_BEFORE(x_head, x_node, new_x_node, sparse_x_list);
@@ -540,7 +745,7 @@ find_x:
 	}
 	new_x_node = calloc(1, sizeof(*new_x_node));
 	if (!new_x_node)
-		return -1;
+		return -1;  /* Leaves new_y_node allocated */
 	new_x_node->x = x;
 	new_x_node->value = value;
 	CIRCLEQ_INSERT_TAIL(x_head, new_x_node, sparse_x_list);
@@ -597,27 +802,35 @@ static uint64_t list_get(void *handle, const uint32_t x, const uint32_t y)
 
 static uint64_t value_map(const uint32_t x, const uint32_t y)
 {
-	return ((uint64_t)~x << 11) ^ y;
+	return ((uint64_t)x << 32) ^ y;
+	//return ((uint64_t)~x << 11) ^ y;
 }
 
 static int stress_sparse_method_test(
 	const stress_args_t *args,
 	const uint64_t sparsematrix_items,
 	const uint32_t sparsematrix_size,
-	const stress_sparsematrix_method_info_t *info)
+	const stress_sparsematrix_method_info_t *info,
+	test_info_t *test_info)
 {
 	void *handle;
 	uint64_t i;
-	int rc = 0;
+	int rc = SPARSE_TEST_OK;
+	size_t objmem = 0;
+	double t1, t2;
 
 	const uint32_t w = stress_mwc32();
 	const uint32_t z = stress_mwc32();
 
-	handle = info->create(sparsematrix_size);
-	if (!handle)
-		return -1;
+	handle = info->create(sparsematrix_items, sparsematrix_size, sparsematrix_size);
+	if (!handle) {
+		test_info->skip_no_mem = true;
+		return SPARSE_TEST_ENOMEM;
+	}
 
 	stress_mwc_seed(w, z);
+
+	t1 = stress_time_now();
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;
@@ -634,12 +847,17 @@ static int stress_sparse_method_test(
 					"sparse matrix at position "
 					"(%" PRIu32 ",%" PRIu32 ")\n",
 					args->name, x, y);
-				rc = -1;
+				rc = SPARSE_TEST_FAILED;
 				goto err;
 			}
 		}
 	}
+	t2 = stress_time_now();
+	test_info->put_ops += i;
+	test_info->put_duration += (t2 - t1);
+
 	stress_mwc_seed(w, z);
+	t1 = stress_time_now();
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;
@@ -656,14 +874,21 @@ static int stress_sparse_method_test(
 				args->name, x, y, v, gv);
 		}
 	}
+	t2 = stress_time_now();
+	test_info->get_ops += i;
+	test_info->get_duration += (t2 - t1);
 
 	/* Random fetches, most probably all zero unset values */
+	t1 = stress_time_now();
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;
 
 		(void)info->get(handle, x, y);
 	}
+	t2 = stress_time_now();
+	test_info->get_ops += i;
+	test_info->get_duration += (t2 - t1);
 
 	stress_mwc_seed(w, z);
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
@@ -675,9 +900,117 @@ static int stress_sparse_method_test(
 		info->del(handle, x, y);
 	}
 err:
-	info->destroy(handle);
+	info->destroy(handle, &objmem);
+	if (objmem > test_info->max_objmem)
+		test_info->max_objmem = objmem;
 
 	return rc;
+}
+
+static void *mmap_create(const uint32_t n, const uint32_t x, const uint32_t y)
+{
+	const size_t page_size = stress_get_pagesize();
+	static sparse_mmap_t m;
+	size_t shmall, freemem, totalmem, freeswap, max_phys;
+
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+
+	(void)n;
+
+	/*
+	 *  We do 2 x random gets so that can touch as much
+ 	 *  2 x n x pages. Make sure there is enough spare
+	 *  physical pages to allow this w/o OOMing
+	 */
+	max_phys = n * page_size * 2;
+	
+	m.mmap_size = (size_t)x * (size_t)y * sizeof(uint64_t);
+	m.mmap_size = (m.mmap_size + page_size - 1) & ~(page_size - 1);
+
+	if (max_phys > freemem + freeswap)
+		return NULL;
+
+	m.x = x;
+	m.y = y;
+
+	m.mmap = mmap(NULL, m.mmap_size, PROT_READ | PROT_WRITE,
+		MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (m.mmap == MAP_FAILED)
+		return NULL;
+	return (void *)&m;
+}
+
+static void mmap_destroy(void *handle, size_t *objmem)
+{
+	sparse_mmap_t *m = (sparse_mmap_t *)handle;
+	const size_t page_size = stress_get_pagesize();
+	unsigned char *vec;
+	size_t pages;
+
+	*objmem = 0;
+	if (!m)
+		return;
+	if (m->mmap == MAP_FAILED || !m->mmap)
+		return;
+	if (!m->mmap_size)
+		return;
+
+	pages = m->mmap_size / page_size;
+	vec = calloc(pages, 1);
+	if (!vec) {
+		*objmem = m->mmap_size;
+	} else {
+		if (shim_mincore(m->mmap, m->mmap_size, vec) == 0) {
+			size_t i;
+			size_t n = 0;
+
+			for (i = 0; i < pages; i++)
+				n += vec[i] ? page_size : 0;
+			*objmem = n;
+		} else {
+			*objmem = m->mmap_size;
+		}
+		free(vec);
+	}
+	(void)munmap(m->mmap, m->mmap_size);
+}
+
+static int mmap_put(void *handle, const uint32_t x, const uint32_t y, const uint64_t value)
+{
+	sparse_mmap_t *m = (sparse_mmap_t *)handle;
+	off_t offset;
+
+	if (m->x <= x || m->y <= y)
+		return -1;
+
+	offset = (x + ((off_t)m->y * y));
+	*((uint64_t *)(m->mmap) + offset) = value;
+
+	return 0;
+}
+
+static void mmap_del(void *handle, const uint32_t x, const uint32_t y)
+{
+	sparse_mmap_t *m = (sparse_mmap_t *)handle;
+	off_t offset;
+
+	if (m->x <= x || m->y <= y)
+		return;
+
+	offset = (x + ((off_t)m->y * y));
+	*((uint64_t *)(m->mmap) + offset) = 0;
+}
+
+static uint64_t mmap_get(void *handle, const uint32_t x, const uint32_t y)
+{
+	sparse_mmap_t *m = (sparse_mmap_t *)handle;
+	size_t offset;
+
+	if (m->x <= x || m->y <= y)
+		return -1;
+
+	offset = (x + ((off_t)m->y * y));
+	return *((uint64_t *)(m->mmap) + offset);
 }
 
 /*
@@ -692,6 +1025,8 @@ static const stress_sparsematrix_method_info_t sparsematrix_methods[] = {
 #if defined(HAVE_SYS_QUEUE_CIRCLEQ)
 	{ "list",	list_create, list_destroy, list_put, list_del, list_get },
 #endif
+	{ "mmap",	mmap_create, mmap_destroy, mmap_put, mmap_del, mmap_get },
+	{ "qhash",	qhash_create, qhash_destroy, qhash_put, qhash_del, qhash_get },
 #if defined(HAVE_RB_TREE)
 	{ "rb",		rb_create, rb_destroy, rb_put, rb_del, rb_get },
 #endif
@@ -704,18 +1039,18 @@ static const stress_sparsematrix_method_info_t sparsematrix_methods[] = {
  */
 static int stress_set_sparsematrix_method(const char *name)
 {
-	stress_sparsematrix_method_info_t const *info;
+	size_t i;
 
-	for (info = sparsematrix_methods; info->name; info++) {
-		if (!strcmp(info->name, name)) {
-			stress_set_setting("sparsematrix-method", TYPE_ID_UINTPTR_T, &info);
+	for (i = 0; sparsematrix_methods[i].name; i++) {
+		if (!strcmp(sparsematrix_methods[i].name, name)) {
+			stress_set_setting("sparsematrix-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
 
 	(void)fprintf(stderr, "sparsematrix-method must be one of:");
-	for (info = sparsematrix_methods; info->name; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; sparsematrix_methods[i].name; i++) {
+		(void)fprintf(stderr, " %s", sparsematrix_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
@@ -729,6 +1064,12 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,				NULL }
 };
 
+static void stress_sparsematrix_create_failed(const stress_args_t *args, const char *name)
+{
+	pr_inf("%s: failed to create sparse matrix with '%s' method, out of memory\n",
+		args->name, name);
+}
+
 /*
  *  stress_sparsematrix()
  *	stress sparsematrix
@@ -739,10 +1080,22 @@ static int stress_sparsematrix(const stress_args_t *args)
 	uint64_t sparsematrix_items = DEFAULT_SPARSEMATRIX_ITEMS;
 	uint64_t capacity;
 	double percent_full;
-	stress_sparsematrix_method_info_t const *all = &sparsematrix_methods[0];
-	stress_sparsematrix_method_info_t const *info = all;
+	int rc = EXIT_NO_RESOURCE;
+	test_info_t test_info[SIZEOF_ARRAY(sparsematrix_methods)];
+	size_t i, begin, end;
+	size_t method = 0;	/* All methods */
+	bool lock = false;
 
-	(void)stress_get_setting("sparsematrix-method", &info);
+	for (i = 0; i < SIZEOF_ARRAY(test_info); i++) {
+		test_info[i].skip_no_mem = false;
+		test_info[i].max_objmem = 0;
+		test_info[i].put_duration = 0.0;
+		test_info[i].get_duration = 0.0;
+		test_info[i].put_ops = 0;
+		test_info[i].get_ops = 0;
+	}
+
+	(void)stress_get_setting("sparsematrix-method", &method);
 
 	if (!stress_get_setting("sparsematrix-size", &sparsematrix_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -780,24 +1133,71 @@ static int stress_sparsematrix(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (info == all) {
+		if (method == 0) {	/* All methods */
 			size_t i;
 
 			for (i = 1; sparsematrix_methods[i].name; i++) {
-				stress_sparse_method_test(args, (size_t)sparsematrix_items,
-					(size_t)sparsematrix_size, &sparsematrix_methods[i]);
+				if (stress_sparse_method_test(args,
+						(size_t)sparsematrix_items,
+						(size_t)sparsematrix_size,
+						&sparsematrix_methods[i],
+						&test_info[i]) == SPARSE_TEST_FAILED) {
+					stress_sparsematrix_create_failed(args, sparsematrix_methods[i].name);
+					goto err;
+				}
 			}
 		} else {
-			stress_sparse_method_test(args, (size_t)sparsematrix_items,
-				(size_t)sparsematrix_size, info);
+			if (stress_sparse_method_test(args,
+					(size_t)sparsematrix_items,
+					(size_t)sparsematrix_size,
+					&sparsematrix_methods[method],
+					&test_info[method]) == SPARSE_TEST_FAILED) {
+				stress_sparsematrix_create_failed(args, sparsematrix_methods[method].name);
+				goto err;
+			}
 		}
 
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+	if (method == 0) {	/* All methods */
+		begin = 1;
+		end = ~0;
+	} else {
+		begin = method;
+		end = method + 1;
+	}
+
+	pr_lock(&lock);
+	for (i = begin; i < end && sparsematrix_methods[i].name; i++) {
+		char str[12];
+
+		if (test_info[i].max_objmem) {
+			stress_uint64_to_str(str, sizeof(str), (uint64_t)test_info[i].max_objmem);
+		} else {
+			strlcpy(str, "n/a", sizeof(str));
+		}
+
+		if (test_info[i].skip_no_mem) {
+			pr_inf_lock(&lock, "%s: %-6s skipped (out of memory)\n",
+				args->name, sparsematrix_methods[i].name);
+		} else {
+			pr_inf_lock(&lock, "%s: %-6s %8.8s %15.2f Get/s %15.2f Put/s\n",
+				args->name,
+				sparsematrix_methods[i].name, str,
+				test_info[i].get_duration > 0.0 ?
+					test_info[i].get_ops / test_info[i].get_duration : 0.0,
+				test_info[i].put_duration > 0.0 ?
+					test_info[i].put_ops / test_info[i].put_duration : 0.0);
+		}
+	}
+	pr_unlock(&lock);
+
+	rc = EXIT_SUCCESS;
+err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_sparsematrix_info = {
