@@ -919,11 +919,11 @@ static void *mmap_create(const uint32_t n, const uint32_t x, const uint32_t y)
 
 	/*
 	 *  We do 2 x random gets so that can touch as much
- 	 *  2 x n x pages. Make sure there is enough spare
+	 *  2 x n x pages. Make sure there is enough spare
 	 *  physical pages to allow this w/o OOMing
 	 */
 	max_phys = n * page_size * 2;
-	
+
 	m.mmap_size = (size_t)x * (size_t)y * sizeof(uint64_t);
 	m.mmap_size = (m.mmap_size + page_size - 1) & ~(page_size - 1);
 
