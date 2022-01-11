@@ -1004,7 +1004,7 @@ static void stress_cpu_nhash(const char *name)
  */
 static void stress_cpu_crc32c(const char *name)
 {
-	stress_cpu_hash_generic(name, "crc32c", stress_hash_crc32c, 0);
+	stress_cpu_hash_generic(name, "crc32c", stress_hash_crc32c, 0x923ab2b3);
 }
 
 /*
