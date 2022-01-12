@@ -126,9 +126,11 @@ static void aio_issue_cancel(const char *name, stress_io_req_t *io_req)
 		case AIO_NOTCANCELED:
 			if (retries++ > 25) {
 				/* Give up */
-				pr_inf("%s aio request %d could not be cancelled: error=%d (%s)\n",
-					name, io_req->request,
-					errno, strerror(errno));
+				if ((errno != 0) && (errno != EINTR)) {
+					pr_inf("%s aio request %d could not be cancelled: error=%d (%s)\n",
+						name, io_req->request,
+						errno, strerror(errno));
+				}
 			}
 			/* Wait a bit and retry */
 			(void)shim_usleep_interruptible(250000);
