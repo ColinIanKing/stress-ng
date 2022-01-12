@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -90,6 +85,8 @@ static int do_chattr(
 		if (fd < 0)
 			continue;
 
+		if (!keep_stressing(args))
+			goto tidy_fd;
 		ret = ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &orig);
 		if (ret < 0) {
 			if ((errno != EOPNOTSUPP) &&
@@ -97,9 +94,11 @@ static int do_chattr(
 			    (errno != EINVAL))
 				pr_inf("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			goto tidy;
+			goto tidy_fd;
 		}
 
+		if (!keep_stressing(args))
+			goto tidy_fd;
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero);
 		if (ret < 0) {
 			rc = -1;
@@ -108,15 +107,19 @@ static int do_chattr(
 			    (errno != EINVAL))
 				pr_inf("%s: ioctl SHIM_EXT2_IOC_SETFLAGS failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-			goto tidy;
+			goto tidy_fd;
 		}
 
+		if (!keep_stressing(args))
+			goto tidy_fd;
 		fdw = open(filename, O_RDWR);
 		if (fdw < 0)
-			goto tidy;
+			goto tidy_fd;
 		n = write(fdw, &zero, sizeof(zero));
 		(void)n;
 
+		if (!keep_stressing(args))
+			goto tidy_fdw;
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flag);
 		if ((ret < 0) &&
                     ((errno == EOPNOTSUPP) ||
@@ -124,15 +127,21 @@ static int do_chattr(
 		     (errno == EINTR)))
 			rc = -1;
 
+		if (!keep_stressing(args))
+			goto tidy_fdw;
 		n = write(fdw, &zero, sizeof(zero));
 		(void)n;
 
+		if (!keep_stressing(args))
+			goto tidy_fdw;
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero);
 		(void)ret;
 
 		/*
 		 *  Try some random flag, exercises any illegal flags
 		 */
+		if (!keep_stressing(args))
+			goto tidy_fdw;
 		rnd = 1ULL << (stress_mwc8() & 0x1f);
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &rnd);
 		(void)ret;
@@ -140,11 +149,14 @@ static int do_chattr(
 		/*
 		 *  Restore original setting
 		 */
+		if (!keep_stressing(args))
+			goto tidy_fdw;
 		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &orig);
 		(void)ret;
+tidy_fdw:
 
 		(void)close(fdw);
-tidy:
+tidy_fd:
 		(void)close(fd);
 		(void)unlink(filename);
 		return rc;
