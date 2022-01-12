@@ -2678,7 +2678,7 @@ static inline void stress_shared_map(const int32_t num_procs)
 	 *  memory segment so that we can sanity check these for
 	 *  any form of corruption
 	 */
-	len = sizeof(stress_checksum_t) * STRESS_PROCS_MAX;
+	len = sizeof(stress_checksum_t) * num_procs;
 	sz = (len + page_size) & ~(page_size - 1);
 	g_shared->checksums = (stress_checksum_t *)mmap(NULL, sz,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
