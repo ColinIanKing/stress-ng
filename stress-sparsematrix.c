@@ -1175,7 +1175,7 @@ static int stress_sparsematrix(const stress_args_t *args)
 		if (test_info[i].max_objmem) {
 			stress_uint64_to_str(str, sizeof(str), (uint64_t)test_info[i].max_objmem);
 		} else {
-			strlcpy(str, "n/a", sizeof(str));
+			shim_strlcpy(str, "n/a", sizeof(str));
 		}
 
 		if (test_info[i].skip_no_mem) {
