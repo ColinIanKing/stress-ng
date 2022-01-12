@@ -62,23 +62,37 @@ static const stress_fallocate_modes_t modes[] = {
 #endif
 };
 
+static void MLOCKED_TEXT stress_fpunch_child_handler(int signum)
+{
+	(void)signum;
+
+	_exit(EXIT_SUCCESS);
+}
+
 /*
  *  stress_punch_pwrite()
  *	fill a file hole with data, try to use pwrite if possible
  *	as this does not need an lseek overhead call
  */
 static ssize_t stress_punch_pwrite(
+	const stress_args_t *args,
 	const int fd,
 	const char *buf,
 	const size_t size,
 	const off_t offset)
 {
 #if defined(HAVE_PWRITEV)
+	if (!keep_stressing(args))
+		return 0;
 	return pwrite(fd, buf, size, offset);
 #else
+	if (!keep_stressing(args))
+		return 0;
 	if (lseek(fd, offset, SEEK_SET) < (off_t)-1)
-		return;
+		return 0;
 
+	if (!keep_stressing(args))
+		return 0;
 	return write(fd, buf, size);
 #endif
 }
@@ -107,7 +121,7 @@ static void stress_punch_action(
 	/* Don't duplicate writes to previous location */
 	if ((mode->write_before) &&
 	    (prev_size == size) && (prev_offset == offset))
-		(void)stress_punch_pwrite(fd, buf_before, size, offset);
+		(void)stress_punch_pwrite(args, fd, buf_before, size, offset);
 	if (!keep_stressing(args))
 		return;
 	(void)shim_fallocate(fd, mode->mode, offset, size);
@@ -115,7 +129,7 @@ static void stress_punch_action(
 		return;
 
 	if (mode->write_after)
-		(void)stress_punch_pwrite(fd, buf_after, size, offset);
+		(void)stress_punch_pwrite(args, fd, buf_after, size, offset);
 	if (!keep_stressing(args))
 		return;
 
@@ -225,7 +239,7 @@ static int stress_fpunch(const stress_args_t *args)
 		ssize_t r;
 
 		offset -= stride;
-		r = stress_punch_pwrite(fd, buf_before, sizeof(buf_before), offset);
+		r = stress_punch_pwrite(args, fd, buf_before, sizeof(buf_before), offset);
 		n += (r > 0) ? r : 0;
 	}
 
@@ -246,18 +260,25 @@ static int stress_fpunch(const stress_args_t *args)
 	for (i = 0; i < STRESS_PUNCH_PIDS; i++) {
 		pids[i] = fork();
 		if (pids[i] == 0) {
+			ret = stress_sighandler(args->name, SIGALRM, stress_fpunch_child_handler, NULL);
+			(void)ret;
+
 			stress_punch_file(args, fd, punch_length, buf_before, buf_after);
 			_exit(EXIT_SUCCESS);
 		}
 	}
 
-	stress_punch_file(args, fd, punch_length, buf_before, buf_after);
+	/* Wait for test run duration to complete */
+	(void)sleep((unsigned int)g_opt_timeout);
 
+	for (i = 0; i < STRESS_PUNCH_PIDS; i++) {
+		if (pids[i] > 1)
+			(void)kill(pids[i], SIGKILL);
+	}
 	for (i = 0; i < STRESS_PUNCH_PIDS; i++) {
 		if (pids[i] > 1) {
 			int status;
 
-			(void)kill(pids[i], SIGKILL);
 			(void)waitpid(pids[i], &status, 0);
 		}
 	}
