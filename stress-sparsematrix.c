@@ -1134,8 +1134,6 @@ static int stress_sparsematrix(const stress_args_t *args)
 
 	do {
 		if (method == 0) {	/* All methods */
-			size_t i;
-
 			for (i = 1; sparsematrix_methods[i].name; i++) {
 				if (stress_sparse_method_test(args,
 						(size_t)sparsematrix_items,
