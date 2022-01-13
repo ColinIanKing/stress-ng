@@ -31,6 +31,21 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+/*
+ *  scheduling scopes, added in to Linux on commit
+ *  61bc346ce64a3864ac55f5d18bdc1572cda4fb18
+ *  "uapi/linux/prctl: provide macro definitions for the PR_SCHED_CORE type argument"
+ */
+#if !defined(PR_SCHED_CORE_SCOPE_THREAD)
+#define PR_SCHED_CORE_SCOPE_THREAD		(0)
+#endif
+#if !defined(PR_SCHED_CORE_SCOPE_THREAD_GROUP)
+#define PR_SCHED_CORE_SCOPE_THREAD_GROUP	(1)
+#endif
+#if !defined(PR_SCHED_CORE_SCOPE_PROCESS_GROUP)
+#define PR_SCHED_CORE_SCOPE_PROCESS_GROUP	(2)
+#endif
+
 #if defined(HAVE_SYS_PRCTL_H) &&		\
     defined(HAVE_PRCTL) &&			\
     (defined(PR_SET_PDEATHSIG) ||		/* 1 */ \
@@ -881,11 +896,28 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		unsigned long cookie = 0;
 		const pid_t bad_pid = stress_get_unused_pid_racy(false);
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0, SHIM_PIDTYPE_PID, &cookie);
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0,
+				PR_SCHED_CORE_SCOPE_THREAD, &cookie);
 		(void)ret;
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, getpid(), SHIM_PIDTYPE_PID, &cookie);
+
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, getpid(),
+				PR_SCHED_CORE_SCOPE_THREAD, &cookie);
 		(void)ret;
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, bad_pid, SHIM_PIDTYPE_PID, &cookie);
+
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, bad_pid,
+				PR_SCHED_CORE_SCOPE_THREAD, &cookie);
+		(void)ret;
+
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0,
+				PR_SCHED_CORE_SCOPE_THREAD_GROUP, &cookie);
+		(void)ret;
+
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0,
+				PR_SCHED_CORE_SCOPE_PROCESS_GROUP, &cookie);
+		(void)ret;
+
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, getgid(),
+				PR_SCHED_CORE_SCOPE_PROCESS_GROUP, &cookie);
 		(void)ret;
 	}
 #endif
@@ -896,7 +928,8 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 	{
 		const pid_t ppid = getppid();
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid, SHIM_PIDTYPE_PID, 0);
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid,
+				PR_SCHED_CORE_SCOPE_THREAD, 0);
 		(void)ret;
 	}
 #endif
@@ -907,7 +940,8 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 	{
 		const pid_t ppid = getppid();
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid, SHIM_PIDTYPE_PID, 0);
+		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid,
+				PR_SCHED_CORE_SCOPE_THREAD, 0);
 		(void)ret;
 	}
 #endif
