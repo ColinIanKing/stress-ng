@@ -327,10 +327,14 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 			args->name, "hash", "hashes/sec");
 		for (i = 1; hash_methods[i].name; i++) {
 			stress_hash_stats_t *stats = hash_methods[i].stats;
+
 			if (stats->duration > 0.0 && stats->total > 0) {
+				const double rate = (double)((stats->duration > 0.0) ?
+					(double)stats->total / stats->duration : (double)0.0);
+
 				pr_inf_lock(&lock, "%s: %12.12s %15.2f\n",
-					args->name, hash_methods[i].name,
-					stats->duration > 0.0 ? (double)stats->total / stats->duration : 0.0);
+					args->name, hash_methods[i].name, rate);
+			
 			}
 		}
 		pr_unlock(&lock);
