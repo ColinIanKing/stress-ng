@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -79,7 +74,8 @@ static NOINLINE OPTIMIZE0 void stress_sigsegv_x86_trap(void)
 {
 	int a = 1, b = 2;
 
-	asm(".byte 0xf2\n\t"
+	 __asm__ __volatile__(
+	    ".byte 0xf2\n\t"
 	    ".byte 0xf2\n\t"
 	    ".byte 0xf2\n\t"
 	    ".byte 0xf2\n\t"
@@ -112,6 +108,22 @@ static NOINLINE OPTIMIZE0 void stress_sigsegv_x86_trap(void)
             : "r" (b), "r" (a));
 	/*
  	 *  Should not get here
+	 */
+}
+#endif
+
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(__linux__)
+/*
+ *  stress_sigsegv_x86_int88()
+ *	making an illegal int trap causes a SIGSEGV on
+ *	x86 linux implementations, so exercise this
+ */
+static NOINLINE OPTIMIZE0 void stress_sigsegv_x86_int88(void)
+{
+	__asm__ __volatile__("int $88\n");
+	/*
+	 *  Should not get here
 	 */
 }
 #endif
@@ -208,13 +220,21 @@ static int stress_sigsegv(const stress_args_t *args)
 			code = -1;
 			fault_addr = 0;
 #endif
-			/* Trip a SIGSEGV/SIGILL/SIGBUS */
+			switch (stress_mwc8() >> 6) {
 #if defined(STRESS_ARCH_X86) &&	\
     defined(__linux__)
-			if (stress_mwc8() > 250)
+			case 0:
+				/* Trip a SIGSEGV/SIGILL/SIGBUS */
 				stress_sigsegv_x86_trap();
+				CASE_FALLTHROUGH;
+			case 1:
+				stress_sigsegv_x86_int88();
+				CASE_FALLTHROUGH;
 #endif
-			*ptr = 0;
+			default:
+				*ptr = 0;
+				break;
+			}
 		}
 	}
 	rc = EXIT_SUCCESS;
