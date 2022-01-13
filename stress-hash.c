@@ -135,7 +135,7 @@ static void stress_hash_method_murmur3_32(const char *name, const struct stress_
 	/*
 	 *  Murmur produces different results depending on the Endianness
 	 */
-	stress_hash_generic(name, hmi, stress_hash_murmur3_32_wrapper, 0x54b572fa, 0x54b572fa);
+	stress_hash_generic(name, hmi, stress_hash_murmur3_32_wrapper, 0x54b572fa, 0xc250b788);
 }
 
 uint32_t stress_hash_pjw_wrapper(const char *str, const size_t len)
