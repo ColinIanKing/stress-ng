@@ -334,7 +334,6 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 
 				pr_inf_lock(&lock, "%s: %12.12s %15.2f\n",
 					args->name, hash_methods[i].name, rate);
-			
 			}
 		}
 		pr_unlock(&lock);
