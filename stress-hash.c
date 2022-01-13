@@ -121,7 +121,7 @@ uint32_t stress_hash_murmur3_32_wrapper(const char *str, const size_t len)
 {
 	const uint32_t seed = 0xf12b35e1; /* arbitrary value */
 
-	return (uint32_t)stress_hash_murmur3_32((uint8_t *)str, len, seed);
+	return (uint32_t)stress_hash_murmur3_32((const uint8_t *)str, len, seed);
 }
 
 /*
