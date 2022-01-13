@@ -147,6 +147,7 @@ STRESS_SRC = \
 	stress-getdent.c \
 	stress-goto.c \
 	stress-handle.c \
+	stress-hash.c \
 	stress-hdd.c \
 	stress-heapsort.c \
 	stress-hrtimers.c \

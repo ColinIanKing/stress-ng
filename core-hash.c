@@ -281,7 +281,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_crc32c(const char *str)
 {
 	register uint32_t crc = ~0;
 	register uint8_t val;
-	register uint8_t *ptr = (uint8_t *)str;
+	register const uint8_t *ptr = (const uint8_t *)str;
 
 	while ((val = *ptr++))
 		crc = (crc >> 8) ^ crc32c_table[(crc ^ val) & 0xff];

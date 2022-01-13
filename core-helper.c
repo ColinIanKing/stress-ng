@@ -1037,6 +1037,29 @@ void stress_strnrnd(char *str, const size_t len)
 }
 
 /*
+ *  stress_uint8rnd4()
+ *	fill a uint8_t buffer full of random data
+ *	buffer *must* be multiple of 4 bytes in size
+ */
+void stress_uint8rnd4(uint8_t *data, const size_t len)
+{
+	register size_t i = len >> 2;
+	register uint8_t *ptr = data;
+
+	while (i--) {
+		register uint32_t v = stress_mwc32();
+
+		*ptr++ = (uint8_t)v;
+		v >>= 8;
+		*ptr++ = (uint8_t)v;
+		v >>= 8;
+		*ptr++ = (uint8_t)v;
+		v >>= 8;
+		*ptr++ = (uint8_t)v;
+	}
+}
+
+/*
  *  pr_run_info()
  *	short info about the system we are running stress-ng on
  *	for the -v option

@@ -2606,6 +2606,7 @@ typedef struct {
 	MACRO(getrandom)	\
 	MACRO(goto)		\
 	MACRO(handle)		\
+	MACRO(hash)		\
 	MACRO(hdd)		\
 	MACRO(heapsort)		\
 	MACRO(hrtimers)		\
@@ -3142,6 +3143,10 @@ typedef enum {
 
 	OPT_handle,
 	OPT_handle_ops,
+
+	OPT_hash,
+	OPT_hash_ops,
+	OPT_hash_method,
 
 	OPT_hdd_bytes,
 	OPT_hdd_write_size,
@@ -4351,6 +4356,7 @@ extern WARN_UNUSED const char *stress_get_temp_path(void);
 extern WARN_UNUSED int stress_check_temp_path(void);
 extern void stress_temp_path_free(void);
 extern void stress_strnrnd(char *str, const size_t len);
+extern void stress_uint8rnd4(uint8_t *data, const size_t len);
 extern void stress_get_cache_size(uint64_t *l2, uint64_t *l3);
 extern WARN_UNUSED unsigned int stress_get_cpu(void);
 extern WARN_UNUSED const char *stress_get_compiler(void);

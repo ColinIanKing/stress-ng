@@ -4,15 +4,15 @@ stress-ng will stress test a computer system in various selectable ways. It
 was designed to exercise various physical subsystems of a computer as well as
 the various operating system kernel interfaces. Stress-ng features:
 
-  * Over 260 stress tests
+  * Over 270 stress tests
   * 85+ CPU specific stress tests that exercise floating point, integer,
     bit manipulation and control flow
   * over 20 virtual memory stress tests
   * portable: builds on Linux, Solaris, *BSD, Minix, Android, MacOS X,
     GNU/Hurd, Haiku, Windows Subsystem for Linux and SunOs/Dilos with
     gcc, clang, tcc and pcc.
-  * tested on x86-64, i386, s390x, ppc64el, armhf, arm64, sparc64, risc-v,
-    m68k, mips64
+  * tested on armhf, arm64, hppa, i386, m68k, mips32, mips64, ppc64el,
+    risc-v, s390x, sparc64, x86-64
 
 stress-ng was originally intended to make a machine work hard and trip hardware
 issues such as thermal overruns as well as operating system bugs that only

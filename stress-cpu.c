@@ -859,155 +859,6 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_collatz(const char *name)
 }
 
 /*
- *  stress_cpu_hash_generic()
- *	stress test generic string hash function
- */
-static void stress_cpu_hash_generic(
-	const char *name,
-	const char *hash_name,
-	uint32_t (*hash_func)(const char *str),
-	const uint32_t result)
-{
-	char buffer[128];
-	size_t i;
-	uint32_t i_sum = 0;
-
-	STRESS_MWC_SEED();
-	random_buffer((uint8_t *)buffer, sizeof(buffer));
-	/* Make it ASCII range ' '..'_' */
-	for (i = 0; i < sizeof(buffer); i++)
-		buffer[i] = (buffer[i] & 0x3f) + ' ';
-
-	for (i = sizeof(buffer) - 1; i; i--) {
-		buffer[i] = '\0';
-		i_sum += hash_func(buffer);
-	}
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != result))
-		pr_fail("%s: %s error detected, failed hash %s sum\n",
-			name, hash_name, hash_name);
-}
-
-/*
- *  stress_cpu_jenkin()
- *	multiple iterations on jenkin hash
- */
-static void stress_cpu_jenkin(const char *name)
-{
-	uint8_t buffer[128];
-	size_t i;
-	uint32_t i_sum = 0;
-	const uint32_t sum = 0xc53302a5;
-
-	STRESS_MWC_SEED();
-	random_buffer(buffer, sizeof(buffer));
-
-	for (i = sizeof(buffer) - 1; i; i--) {
-		buffer[i] = '\0';
-		i_sum += stress_hash_jenkin(buffer, sizeof(buffer));
-	}
-
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
-		pr_fail("%s: jenkin error detected, failed hash jenkin sum\n",
-			name);
-}
-
-/*
- *  stress_cpu_little_endian()
- *	returns true if CPU is little endian
- */
-static inline bool stress_cpu_little_endian(void)
-{
-	const uint32_t x = 0x12345678;
-	const uint8_t *y = (const uint8_t *)&x;
-
-	return *y == 0x78;
-}
-
-/*
- *  stress_cpu_murmur3_32
- *	 multiple iterations on murmur3_32 hash, based on
- *	 Austin Appleby's Murmur3 hash, code derived from
- *	 https://en.wikipedia.org/wiki/MurmurHash
- */
-static void stress_cpu_murmur3_32(const char *name)
-{
-	uint8_t buffer[128];
-	size_t i;
-	uint32_t sum, i_sum = 0;
-	const uint32_t seed = 0xf12b35e1; /* arbitrary value */
-
-	STRESS_MWC_SEED();
-	random_buffer(buffer, sizeof(buffer));
-	for (i = sizeof(buffer) - 1; i; i--) {
-		buffer[i] = '\0';
-		i_sum += stress_hash_murmur3_32((uint8_t *)buffer, sizeof(buffer), seed);
-	}
-
-	/*
-	 *  Murmur produces different results depending on the Endianness
-	 */
-	sum = stress_cpu_little_endian() ? 0xa53a4bb1 : 0x71eb83cc;
-
-	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
-		pr_fail("%s: murmur3_32 error detected, failed hash murmur3_32 sum\n",
-			name);
-}
-
-/*
- *  stress_cpu_pjw()
- *	stress test hash pjw
- */
-static void stress_cpu_pjw(const char *name)
-{
-	stress_cpu_hash_generic(name, "pjw", stress_hash_pjw, 0xa89a91c0);
-}
-
-/*
- *  stress_cpu_djb2a()
- *	stress test hash djb2a
- */
-static void stress_cpu_djb2a(const char *name)
-{
-	stress_cpu_hash_generic(name, "djb2a", stress_hash_djb2a, 0x6a60cb5a);
-}
-
-/*
- *  stress_cpu_fnv1a()
- *	stress test hash fnv1a
- */
-static void HOT stress_cpu_fnv1a(const char *name)
-{
-	stress_cpu_hash_generic(name, "fnv1a", stress_hash_fnv1a, 0x8ef17e80);
-}
-
-/*
- *  stress_cpu_sdbm()
- *	stress test hash sdbm
- */
-static void stress_cpu_sdbm(const char *name)
-{
-	stress_cpu_hash_generic(name, "sdbm", stress_hash_sdbm, 0x46357819);
-}
-
-/*
- *  stress_cpu_nhash()
- *	stress test hash nhash
- */
-static void stress_cpu_nhash(const char *name)
-{
-	stress_cpu_hash_generic(name, "nhash", stress_hash_nhash, 0x1cc86e3);
-}
-
-/*
- *  stress_cpu_crc32c()
- *	stress test hash crc32c
- */
-static void stress_cpu_crc32c(const char *name)
-{
-	stress_cpu_hash_generic(name, "crc32c", stress_hash_crc32c, 0x923ab2b3);
-}
-
-/*
  *  stress_cpu_idct()
  *	compute 8x8 Inverse Discrete Cosine Transform
  */
@@ -3084,7 +2935,6 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "cpuid",		stress_cpu_cpuid },
 #endif
 	{ "crc16",		stress_cpu_crc16 },
-	{ "crc32c",		stress_cpu_crc32c },
 #if defined(HAVE_FLOAT_DECIMAL32) &&	\
     !defined(__clang__)
 	{ "decimal32",		stress_cpu_decimal32 },
@@ -3101,7 +2951,6 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "div16",		stress_cpu_div16 },
 	{ "div32",		stress_cpu_div32 },
 	{ "div64",		stress_cpu_div64 },
-	{ "djb2a",		stress_cpu_djb2a },
 	{ "double",		stress_cpu_double },
 	{ "euler",		stress_cpu_euler },
 	{ "explog",		stress_cpu_explog },
@@ -3136,7 +2985,6 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "float128",		stress_cpu_float128 },
 #endif
 	{ "floatconversion",	stress_cpu_floatconversion },
-	{ "fnv1a",		stress_cpu_fnv1a },
 	{ "gamma",		stress_cpu_gamma },
 	{ "gcd",		stress_cpu_gcd },
 	{ "gray",		stress_cpu_gray },
@@ -3176,28 +3024,23 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "int32longdouble",	stress_cpu_int32_longdouble },
 	{ "intconversion",	stress_cpu_intconversion },
 	{ "ipv4checksum",	stress_cpu_ipv4checksum },
-	{ "jenkin",		stress_cpu_jenkin },
 	{ "jmp",		stress_cpu_jmp },
 	{ "lfsr32",		stress_cpu_lfsr32 },
 	{ "ln2",		stress_cpu_ln2 },
 	{ "longdouble",		stress_cpu_longdouble },
 	{ "loop",		stress_cpu_loop },
 	{ "matrixprod",		stress_cpu_matrix_prod },
-	{ "murmur3_32",		stress_cpu_murmur3_32 },
-	{ "nhash",		stress_cpu_nhash },
 	{ "nsqrt",		stress_cpu_nsqrt },
 	{ "omega",		stress_cpu_omega },
 	{ "parity",		stress_cpu_parity },
 	{ "phi",		stress_cpu_phi },
 	{ "pi",			stress_cpu_pi },
-	{ "pjw",		stress_cpu_pjw },
 	{ "prime",		stress_cpu_prime },
 	{ "psi",		stress_cpu_psi },
 	{ "queens",		stress_cpu_queens },
 	{ "rand",		stress_cpu_rand },
 	{ "rand48",		stress_cpu_rand48 },
 	{ "rgb",		stress_cpu_rgb },
-	{ "sdbm",		stress_cpu_sdbm },
 	{ "sieve",		stress_cpu_sieve },
 	{ "stats",		stress_cpu_stats },
 	{ "sqrt", 		stress_cpu_sqrt },
