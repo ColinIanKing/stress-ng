@@ -329,11 +329,11 @@ static int stress_mcontend(const stress_args_t *args)
 	if (fd < 0) {
 		pr_inf("%s: open failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 		return EXIT_NO_RESOURCE;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	rc = page_write_sync(fd, args->page_size);
 	if (rc < 0) {

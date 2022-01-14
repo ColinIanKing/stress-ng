@@ -193,7 +193,7 @@ static int stress_dup2_race(info_t *info)
 
 		(void)waitpid(pid, &status, 0);
 	}
-	(void)unlink(info->fifoname);
+	(void)shim_unlink(info->fifoname);
 
 	return 0;
 }
@@ -371,7 +371,7 @@ tidy_fds:
 #if defined(STRESS_DUP2_RACE)
 	if (info != MAP_FAILED) {
 		if (info->fifoname[0])
-			(void)unlink(info->fifoname);
+			(void)shim_unlink(info->fifoname);
 		(void)stress_temp_dir_rm_args(args);
 	}
 

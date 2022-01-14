@@ -263,7 +263,7 @@ static int stress_aio(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto finish;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	(void)sigemptyset(&sa.sa_mask);
 	sa.sa_flags = SA_RESTART | SA_SIGINFO;

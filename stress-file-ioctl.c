@@ -93,7 +93,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 #if defined(FICLONE) || defined(FICLONERANGE)
 	(void)stress_temp_filename_args(args, filename, sizeof(filename), rnd + 1);
@@ -105,7 +105,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 		pr_err("%s: cannot create %s\n", args->name, filename);
 		return ret;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 #endif
 
 	(void)shim_fallocate(fd, 0, 0, file_sz);

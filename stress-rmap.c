@@ -161,13 +161,13 @@ static int stress_rmap(const stress_args_t *args)
 		rc = exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 		(void)munmap((void *)counters, counters_sz);
 
 		return (int)rc;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	if (shim_fallocate(fd, 0, 0, (off_t)sz) < 0) {
 		pr_fail("%s: fallocate failed, errno=%d (%s)\n",

@@ -249,7 +249,7 @@ reap:
 		}
 	}
 
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
 	pr_dbg("%s: %" PRIu64 " lease sigio interrupts caught\n", args->name, lease_sigio);

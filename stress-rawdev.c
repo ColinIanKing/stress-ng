@@ -372,11 +372,11 @@ static int stress_rawdev(const stress_args_t *args)
 	if (ret <  0) {
 		pr_err("%s: cannot stat %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
-		(void)unlink(path);
+		(void)shim_unlink(path);
 		(void)close(fd);
 		return EXIT_FAILURE;
 	}
-	(void)unlink(path);
+	(void)shim_unlink(path);
 	(void)close(fd);
 
 	if (!stress_rawdev_path(stat_buf.st_dev, devpath, sizeof(devpath))) {

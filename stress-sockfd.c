@@ -227,7 +227,7 @@ retry:
 	if (addr) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
-		(void)unlink(addr_un->sun_path);
+		(void)shim_unlink(addr_un->sun_path);
 	}
 #endif
 
@@ -351,7 +351,7 @@ die:
 	if (addr) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
-		(void)unlink(addr_un->sun_path);
+		(void)shim_unlink(addr_un->sun_path);
 	}
 #endif
 

@@ -178,7 +178,7 @@ static void stress_dir_tidy(
 
 		(void)stress_temp_filename_args(args,
 			path, sizeof(path), gray_code);
-		(void)rmdir(path);
+		(void)shim_rmdir(path);
 	}
 }
 
@@ -228,7 +228,7 @@ static void stress_invalid_mkdir(const char *path)
 	(void)stress_strnrnd(filename + len, sizeof(filename) - len);
 	ret = mkdir(filename,  S_IRUSR | S_IWUSR);
 	if (ret == 0)
-		(void)rmdir(filename);
+		(void)shim_rmdir(filename);
 }
 
 /*
@@ -260,16 +260,16 @@ static void stress_invalid_rmdir(const char *path)
 	(void)shim_strlcpy(filename, path, sizeof(filename));
 	/* remove . - exercise EINVAL error */
 	(void)shim_strlcat(filename, "/.", sizeof(filename));
-	ret = rmdir(filename);
+	ret = shim_rmdir(filename);
 	(void)ret;
 
 	/* remove /.. - exercise ENOTEMPTY error */
 	(void)shim_strlcat(filename, ".", sizeof(filename));
-	ret = rmdir(filename);
+	ret = shim_rmdir(filename);
 	(void)ret;
 
 	/* remove / - exercise EBUSY error */
-	ret = rmdir("/");
+	ret = shim_rmdir("/");
 	(void)ret;
 }
 
@@ -310,6 +310,7 @@ static int stress_dir(const stress_args_t *args)
 
 			(void)stress_temp_filename_args(args,
 				path, sizeof(path), gray_code);
+			(void)shim_force_rmdir(path);
 			if (stress_mkdir(dir_fd, path, S_IRUSR | S_IWUSR) < 0) {
 				if ((errno != ENOSPC) &&
 				    (errno != ENOMEM) &&
@@ -344,7 +345,7 @@ static int stress_dir(const stress_args_t *args)
 	{
 		int rmret;
 
-		rmret = rmdir("");
+		rmret = shim_rmdir("");
 		(void)rmret;
 	}
 

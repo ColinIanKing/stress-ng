@@ -294,7 +294,7 @@ static int open_with_openat_cwd(void)
 		tv[1].tv_sec = 0;
 		(void)obsolete_futimesat(AT_FDCWD, filename, tv);
 
-		(void)unlink(filename);
+		(void)shim_force_unlink(filename);
 	}
 	return fd;
 }
@@ -319,7 +319,7 @@ static int open_with_openat_dir_fd(void)
 	fd = openat(dir_fd, filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (fd >= 0) {
 		(void)obsolete_futimesat(dir_fd, filename, NULL);
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 	}
 	(void)close(dir_fd);
 	return fd;
@@ -381,13 +381,13 @@ static int open_with_openat2_cwd(void)
 		fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, 0);
 		if (fd >= 0) {
 			/* Unxexpected, but handle it anyhow */
-			(void)unlink(filename);
+			(void)shim_unlink(filename);
 			return fd;
 		}
 
 		fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, sizeof(how));
 		if (fd >= 0) {
-			(void)unlink(filename);
+			(void)shim_unlink(filename);
 			return fd;
 		}
 

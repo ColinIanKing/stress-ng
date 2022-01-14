@@ -110,7 +110,7 @@ static int stress_filename_probe_length(
 			return -1;
 		}
 		(void)close(fd);
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 		max = i;
 	}
 	*sz_max = max + 1;
@@ -174,7 +174,7 @@ static int stress_filename_probe(
 			}
 		} else {
 			(void)close(fd);
-			(void)unlink(filename);
+			(void)shim_unlink(filename);
 			allowed[j] = (char)i;
 			j++;
 		}
@@ -240,11 +240,11 @@ static void stress_filename_tidy(const char *path)
 				continue;
 			(void)stress_mk_filename(filename, sizeof(filename),
 				path, d->d_name);
-			(void)unlink(filename);
+			(void)shim_unlink(filename);
 		}
 		(void)closedir(dir);
 	}
-	(void)rmdir(path);
+	(void)shim_rmdir(path);
 }
 
 /*
@@ -304,7 +304,7 @@ static void stress_filename_test(
 		ret = stat(filename, &buf);
 		(void)ret;
 
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 	}
 
 	/* exercise dcache lookup of non-existent filename */

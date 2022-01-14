@@ -277,8 +277,8 @@ restart:
 		(void)stress_temp_filename(newname, PATH_MAX,
 			args->name, args->pid, inst2, i++);
 		if (rename(oldname, newname) < 0) {
-			(void)unlink(oldname);
-			(void)unlink(newname);
+			(void)shim_unlink(oldname);
+			(void)shim_unlink(newname);
 			goto restart;
 		}
 
@@ -292,8 +292,8 @@ restart:
 		(void)stress_temp_filename(newname, PATH_MAX,
 			args->name, args->pid, inst1, i++);
 		if (rename(oldname, newname) < 0) {
-			(void)unlink(oldname);
-			(void)unlink(newname);
+			(void)shim_unlink(oldname);
+			(void)shim_unlink(newname);
 			goto restart;
 		}
 
@@ -316,14 +316,14 @@ restart:
 			new = stress_basename(newname);
 
 			if (exercise_renameat(args, old, tmp_fd, new, tmp_fd, bad_fd) < 0) {
-				(void)unlink(oldname);
-				(void)unlink(newname);
+				(void)shim_unlink(oldname);
+				(void)shim_unlink(newname);
 				goto restart;
 			}
 
 			if (renameat(tmp_fd, old, tmp_fd, new) < 0) {
-				(void)unlink(oldname);
-				(void)unlink(newname);
+				(void)shim_unlink(oldname);
+				(void)shim_unlink(newname);
 				goto restart;
 			}
 			(void)shim_fsync(tmp_fd);
@@ -349,14 +349,14 @@ restart:
 			new = stress_basename(newname);
 
 			if (exercise_renameat2(args, old, tmp_fd, new, tmp_fd, bad_fd) < 0) {
-				(void)unlink(oldname);
-				(void)unlink(newname);
+				(void)shim_unlink(oldname);
+				(void)shim_unlink(newname);
 				goto restart;
 			}
 
 			if (renameat2(tmp_fd, old, tmp_fd, new, RENAME_NOREPLACE) < 0) {
-				(void)unlink(oldname);
-				(void)unlink(newname);
+				(void)shim_unlink(oldname);
+				(void)shim_unlink(newname);
 				goto restart;
 			}
 			tmpname = oldname;
@@ -378,9 +378,9 @@ restart:
 		(void)close(tmp_fd);
 #endif
 	if (*oldname)
-		(void)unlink(oldname);
+		(void)shim_unlink(oldname);
 	if (*newname)
-		(void)unlink(newname);
+		(void)shim_unlink(newname);
 	(void)stress_temp_dir_rm(args->name, args->pid, inst1);
 	(void)stress_temp_dir_rm(args->name, args->pid, inst2);
 

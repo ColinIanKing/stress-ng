@@ -143,12 +143,12 @@ static int stress_msync(const stress_args_t *args)
 		rc = exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 
 		return (int)rc;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	if (ftruncate(fd, (off_t)sz) < 0) {
 		pr_err("%s: ftruncate failed, errno=%d (%s)\n",

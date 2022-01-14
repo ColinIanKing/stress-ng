@@ -68,7 +68,7 @@ static void stress_mknod_tidy(
 
 		(void)stress_temp_filename_args(args,
 			path, sizeof(path), gray_code);
-		(void)unlink(path);
+		(void)shim_unlink(path);
 	}
 }
 
@@ -159,15 +159,18 @@ static int stress_do_mknod(
 		(void)shim_strlcpy(tmp, path, sizeof(tmp));
 		filename = basename(tmp);
 
+		(void)shim_force_unlink(path);
 		ret = mknodat(bad_fd, filename, mode, dev);
 		if (ret == 0)
-			(void)unlink(path);
+			(void)shim_unlink(path);
 
 		ret = mknodat(dir_fd, filename, mode, dev);
 	} else {
+		(void)shim_force_unlink(path);
 		ret = mknod(path, mode, dev);
 	}
 #else
+	(void)shim_force_unlink(path);
 	ret = mknod(path, mode, dev);
 #endif
 	(void)dir_fd;
@@ -197,7 +200,7 @@ static void stress_mknod_test_dev(
 	if (ret < 0)
 		(void)stress_mknod_check_errno(args, mode_str, path, errno);
 
-	(void)unlink(path);
+	(void)shim_unlink(path);
 }
 
 /*

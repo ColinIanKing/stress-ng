@@ -693,7 +693,7 @@ static int stress_hdd(const stress_args_t *args)
 			 *  not support O_DIRECT:
 			 *  https://bugzilla.kernel.org/show_bug.cgi?id=213041
 			 */
-			(void)unlink(filename);
+			(void)shim_unlink(filename);
 			goto finish;
 		}
 
@@ -736,7 +736,7 @@ static int stress_hdd(const stress_args_t *args)
 			ret = truncate("", (off_t)0);
 			(void)ret;
 		}
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 
 		if (!keep_stressing(args)) {
 			(void)close(fd);

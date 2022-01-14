@@ -158,7 +158,7 @@ tidy_fdw:
 		(void)close(fdw);
 tidy_fd:
 		(void)close(fd);
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 		return rc;
 	}
 	return rc;
@@ -211,8 +211,8 @@ static int stress_chattr(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)unlink(filename);
-	(void)rmdir(pathname);
+	(void)shim_unlink(filename);
+	(void)shim_rmdir(pathname);
 
 	return rc;
 }

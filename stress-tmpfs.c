@@ -150,7 +150,7 @@ static int stress_tmpfs_open(const stress_args_t *args, off_t *len)
 			}
 			max_size /= args->num_instances;
 
-			(void)unlink(path);
+			(void)shim_unlink(path);
 			/*
 			 *  make file with hole; we want this
 			 *  to be autopopulated with pages

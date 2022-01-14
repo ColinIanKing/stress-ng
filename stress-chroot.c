@@ -338,11 +338,11 @@ again:
 tidy_all:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 tidy_dir:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)rmdir(temppath);
+	(void)shim_rmdir(temppath);
 tidy_ret:
 	return ret;
 }

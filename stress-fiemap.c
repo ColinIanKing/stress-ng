@@ -283,7 +283,7 @@ static int stress_fiemap(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto dir_clean;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	memset(&fiemap, 0, sizeof(fiemap));
 	fiemap.fm_length = ~0UL;

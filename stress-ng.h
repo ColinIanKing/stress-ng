@@ -965,6 +965,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_SKIP_SILENT	 STRESS_BIT_ULL(39)	/* --skip-silent */
 #define OPT_FLAGS_SMART		 STRESS_BIT_ULL(40)	/* --smart */
 #define OPT_FLAGS_NO_OOM_ADJUST	 STRESS_BIT_ULL(41)	/* --no-oom-adjust */
+#define OPT_FLAGS_KEEP_FILES	 STRESS_BIT_ULL(42)	/* --keep-files */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -3219,6 +3220,8 @@ typedef enum {
 	OPT_kcmp,
 	OPT_kcmp_ops,
 
+	OPT_keep_files,
+
 	OPT_key,
 	OPT_key_ops,
 
@@ -4810,6 +4813,8 @@ extern int shim_quotactl_fd(unsigned int fd, unsigned int cmd, int id, void *add
 extern ssize_t shim_readlink(const char *pathname, char *buf, size_t bufsiz);
 extern int shim_reboot(int magic, int magic2, int cmd, void *arg);
 extern int shim_removexattr(const char *path, const char *name);
+extern int shim_rmdir(const char *pathname);
+extern int shim_force_rmdir(const char *pathname);
 extern void *shim_sbrk(intptr_t increment);
 extern int shim_sched_getattr(pid_t pid, struct shim_sched_attr *attr,
 	unsigned int size, unsigned int flags);
@@ -4834,16 +4839,26 @@ extern int shim_sysfs(int option, ...);
 extern int shim_tgkill(int tgid, int tid, int sig);
 extern int shim_tkill(int tid, int sig);
 extern int shim_fremovexattr(int fd, const char *name);
+extern int shim_unlink(const char *pathname);
+extern int shim_force_unlink(const char *pathname);
+extern int shim_unlinkat(int dirfd, const char *pathname, int flags);
 extern int shim_unshare(int flags);
 extern int shim_userfaultfd(int flags);
 extern int shim_usleep(uint64_t usec);
 extern int shim_usleep_interruptible(uint64_t usec);
 extern int shim_ustat(dev_t dev, struct shim_ustat *ubuf);
 extern int shim_vhangup(void);
+
 extern pid_t shim_waitpid(pid_t pid, int *wstatus, int options);
 extern pid_t shim_wait(int *wstatus);
 extern pid_t shim_wait3(int *wstatus, int options, struct rusage *rusage);
 extern pid_t shim_wait4(pid_t pid, int *wstatus, int options, struct rusage *rusage);
 extern int shim_futex_waitv(struct shim_futex_waitv *waiters, unsigned int nr_futexes,
 	unsigned int flags, struct timespec *timeout, clockid_t clockid);
+#endif
+
+#if !defined(STRESS_CORE_SHIM)
+int unlink() __attribute__ ((deprecated("use shim_unlink")));
+int unlinkat() __attribute__ ((deprecated("use shim_unlinkat")));
+int rmdir() __attribute__ ((deprecated("use shim_rmdir")));
 #endif

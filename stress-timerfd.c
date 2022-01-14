@@ -212,7 +212,7 @@ static int stress_timerfd(const stress_args_t *args)
 		rc = exit_status(errno);
 		goto close_file_fd;
 	}
-	(void)unlink(file_fd_name);
+	(void)shim_unlink(file_fd_name);
 
 #if defined(CLOCK_REALTIME_ALARM)
 	/* Check timerfd_create cannot succeed without capability */

@@ -108,7 +108,7 @@ static int stress_stackmmap(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto tidy_dir;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	if (ftruncate(fd, MMAPSTACK_SIZE) < 0) {
 		pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

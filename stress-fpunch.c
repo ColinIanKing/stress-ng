@@ -218,7 +218,7 @@ static int stress_fpunch(const stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	(void)memset(buf_before, 0xff, sizeof(buf_before));
 	(void)memset(buf_after, 0xa5, sizeof(buf_after));

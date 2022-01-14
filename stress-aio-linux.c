@@ -451,7 +451,7 @@ retry_open:
 		rc = exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 		goto finish;
 	}
 
@@ -469,7 +469,7 @@ retry_open:
 		if (fds[i] < 0)
 			fds[i] = fds[0];
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

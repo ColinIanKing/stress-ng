@@ -276,7 +276,7 @@ tidy:
 		(void)fchmod(fd, S_IRUSR | S_IWUSR);
 		(void)close(fd);
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
 	return rc;

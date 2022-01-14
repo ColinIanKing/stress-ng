@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "4 January 2022"
+.TH STRESS-NG 1 "14 January 2022"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -203,6 +203,11 @@ run parallel \- run stressors together in parallel
 .PP
 Note that 'run parallel' is the default.
 .RE
+.TP
+.B \-\-keep\-files
+do not remove files and directories created by the stressors. This can be
+useful for debugging purposes. Not generally recommended as it can fill up
+a file system.
 .TP
 .B \-k, \-\-keep\-name
 by default, stress\-ng will attempt to change the name of the stress

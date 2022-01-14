@@ -369,7 +369,7 @@ do_exec:
 				if (exec_garbage) {
 					if (fd != -1)
 						(void)close(fd);
-					(void)unlink(filename);
+					(void)shim_unlink(filename);
 				}
 
 				/* Child, immediately exit */
@@ -411,7 +411,7 @@ do_exec:
     defined(O_PATH)
 err:
 #endif
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
 	return rc;

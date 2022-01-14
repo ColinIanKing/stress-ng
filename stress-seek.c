@@ -102,7 +102,7 @@ static int stress_seek(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto finish;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	/* Generate file with hole at the end */
 	if (lseek(fd, (off_t)len, SEEK_SET) < 0) {
 		rc = exit_status(errno);

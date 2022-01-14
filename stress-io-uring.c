@@ -746,7 +746,7 @@ static int stress_io_uring(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto clean;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

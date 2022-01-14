@@ -699,12 +699,12 @@ static int stress_mmap(const stress_args_t *args)
 			rc = exit_status(errno);
 			pr_fail("%s: open %s failed, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
-			(void)unlink(filename);
+			(void)shim_unlink(filename);
 			(void)stress_temp_dir_rm_args(args);
 
 			return (int)rc;
 		}
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 		if (lseek(context.fd, (off_t)(context.sz - args->page_size), SEEK_SET) < 0) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

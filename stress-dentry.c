@@ -113,7 +113,7 @@ static void stress_dentry_unlink(
 
 			stress_temp_filename_args(args,
 				path, sizeof(path), gray_code * 2);
-			(void)unlink(path);
+			(void)shim_unlink(path);
 		}
 		break;
 	case ORDER_STRIDE:
@@ -125,7 +125,7 @@ static void stress_dentry_unlink(
 
 			stress_temp_filename_args(args,
 				path, sizeof(path), gray_code * 2);
-			(void)unlink(path);
+			(void)shim_unlink(path);
 		}
 		break;
 	case ORDER_FORWARD:
@@ -136,7 +136,7 @@ static void stress_dentry_unlink(
 
 			stress_temp_filename_args(args,
 				path, sizeof(path), gray_code * 2);
-			(void)unlink(path);
+			(void)shim_unlink(path);
 		}
 		break;
 	}

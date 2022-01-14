@@ -265,7 +265,7 @@ tidy_dir_fd:
 	(void)close(data.dir_fd);
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)unlink(file_name);
+	(void)shim_unlink(file_name);
 	stress_temp_dir_rm_args(args);
 	(void)shim_pthread_spin_destroy(&spinlock);
 

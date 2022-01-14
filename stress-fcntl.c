@@ -750,8 +750,8 @@ tidy:
 		(void)close(path_fd);
 	if (fd >= 0)
 		(void)close(fd);
-	(void)unlink(filename);
-	(void)rmdir(pathname);
+	(void)shim_unlink(filename);
+	(void)shim_rmdir(pathname);
 
 	return rc;
 }

@@ -166,7 +166,7 @@ static void stress_dirdeep_make(
 		 */
 		ret = linkat(dir_fd, "h", dir_fd, "i", ~0);
 		if (ret == 0) {
-			ret = unlinkat(dir_fd, "i", 0);
+			ret = shim_unlinkat(dir_fd, "i", 0);
 			(void)ret;
 		}
 #if defined(AT_SYMLINK_FOLLOW)
@@ -200,7 +200,7 @@ static void stress_dirdeep_make(
 #if defined(HAVE_UNLINKAT)
 		ret = linkat(dir_fd, "h", dir_fd, "u", 0);
 		if (ret == 0) {
-			ret = unlinkat(dir_fd, "u", 0);
+			ret = shim_unlinkat(dir_fd, "u", 0);
 			(void)ret;
 		}
 #endif
@@ -325,13 +325,13 @@ static void stress_dir_tidy(
 			stress_dir_tidy(args, path, len + 2, path_len);
 		} else {
 			free(namelist[n]);
-			(void)unlink(path);
+			(void)shim_unlink(path);
 		}
 	}
 	path[len] = '\0';
 	free(namelist);
 
-	(void)rmdir(path);
+	(void)shim_rmdir(path);
 }
 
 

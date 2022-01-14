@@ -246,7 +246,7 @@ static int stress_verity(const stress_args_t *args)
 #endif
 
 		(void)close(fd);
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 
 		inc_counter(args);
 	} while (keep_stressing(args));
@@ -256,7 +256,7 @@ static int stress_verity(const stress_args_t *args)
 clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
 	return ret;

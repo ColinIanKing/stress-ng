@@ -270,7 +270,7 @@ STRESS_PRAGMA_POP
 		(void)close(dir_fd);
 #endif
 	(void)close(fd);
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
 	return EXIT_SUCCESS;

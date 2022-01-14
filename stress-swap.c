@@ -309,7 +309,7 @@ tidy_close:
 	(void)close(fd);
 tidy_rm:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 tidy_free:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

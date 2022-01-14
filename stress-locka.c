@@ -253,7 +253,7 @@ static int stress_locka(const stress_args_t *args)
 		ret = exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)rmdir(pathname);
+		(void)shim_rmdir(pathname);
 		return ret;
 	}
 
@@ -317,8 +317,8 @@ tidy:
 	stress_locka_info_free();
 
 	(void)close(fd);
-	(void)unlink(filename);
-	(void)rmdir(pathname);
+	(void)shim_unlink(filename);
+	(void)shim_rmdir(pathname);
 
 	return ret;
 }

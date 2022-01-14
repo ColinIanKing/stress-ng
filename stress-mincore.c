@@ -65,7 +65,7 @@ static int stress_mincore_file(const stress_args_t *args)
 	(void)stress_temp_filename_args(args, filename,
 					sizeof(filename), stress_mwc32());
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	if (fd < 0) {
 		(void)stress_temp_dir_rm_args(args);
 		return -1;

@@ -135,7 +135,7 @@ static int stress_readahead(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		goto close_finish;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 #if defined(HAVE_POSIX_FADVISE) &&	\
     defined(POSIX_FADV_DONTNEED)

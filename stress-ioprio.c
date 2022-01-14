@@ -62,7 +62,7 @@ static int stress_ioprio(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto cleanup_dir;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

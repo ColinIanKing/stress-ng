@@ -225,7 +225,7 @@ retry:
 	if (sctp_domain == AF_UNIX) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
-		(void)unlink(addr_un->sun_path);
+		(void)shim_unlink(addr_un->sun_path);
 	}
 #endif
 	/* Inform parent we're all done */
@@ -342,7 +342,7 @@ die:
 	if (addr && sctp_domain == AF_UNIX) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
-		(void)unlink(addr_un->sun_path);
+		(void)shim_unlink(addr_un->sun_path);
 	}
 #endif
 	if (pid) {

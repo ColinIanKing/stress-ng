@@ -149,7 +149,7 @@ static int stress_dev_shm(const stress_args_t *args)
 			args->name, path, errno, strerror(errno));
 		return EXIT_SUCCESS;
 	}
-	(void)unlink(path);
+	(void)shim_unlink(path);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

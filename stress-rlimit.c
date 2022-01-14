@@ -308,7 +308,7 @@ static int stress_rlimit(const stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return EXIT_FAILURE;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	for (i = 0; i < SIZEOF_ARRAY(limits); i++) {
 		limits[i].ret = getrlimit(limits[i].resource, &limits[i].old_limit);

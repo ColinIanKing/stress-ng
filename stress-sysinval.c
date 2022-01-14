@@ -2394,7 +2394,7 @@ static int stress_sysinval(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto err_dir;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	stress_syscall_exercised =
 		(bool *)mmap(NULL, stress_syscall_exercised_sz,

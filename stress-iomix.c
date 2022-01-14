@@ -884,7 +884,7 @@ static int stress_iomix(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto unmap;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 #if defined(FALLOC_FL_ZERO_RANGE)
 	ret = shim_fallocate(fd, FALLOC_FL_ZERO_RANGE, 0, iomix_bytes);

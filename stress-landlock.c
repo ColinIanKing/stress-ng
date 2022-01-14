@@ -223,7 +223,7 @@ static int stress_landlock_flag(const stress_args_t *args, void *ctxt)
 	if (fd > -1) {
 		pr_fail("%s: failed to landlock writable file %s\n",
 			args->name, filename);
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 		(void)close(fd);
 		rc = EXIT_FAILURE;
 		goto close_parent;

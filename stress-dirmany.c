@@ -73,7 +73,7 @@ static void stress_dirmany_remove(
 		char filename[PATH_MAX + 20];
 
 		(void)snprintf(filename, sizeof(filename), "%s/f%16.16" PRIx64, path, i);
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 	}
 	*remove_time += (stress_time_now() - t_now);
 }

@@ -924,7 +924,7 @@ int stress_temp_dir_mk(
 		ret = -errno;
 		pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 			name, tmp, errno, strerror(errno));
-		(void)rmdir(tmp);
+		(void)shim_rmdir(tmp);
 	}
 
 	return ret;
@@ -952,7 +952,7 @@ int stress_temp_dir_rm(
 	char tmp[PATH_MAX + 1];
 
 	stress_temp_dir(tmp, sizeof(tmp), name, pid, instance);
-	ret = rmdir(tmp);
+	ret = shim_rmdir(tmp);
 	if (ret < 0) {
 		ret = -errno;
 		pr_fail("%s: rmdir '%s' failed, errno=%d (%s)\n",

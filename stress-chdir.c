@@ -256,7 +256,7 @@ tidy:
 		if (fds[i] >= 0)
 			(void)close(fds[i]);
 		if (paths[i]) {
-			(void)rmdir(paths[i]);
+			(void)shim_rmdir(paths[i]);
 			free(paths[i]);
 		}
 	}

@@ -320,7 +320,7 @@ cleanup:
  */
 static int rm_file(const stress_args_t *args, const char *path)
 {
-	if ((unlink(path) < 0) && errno != ENOENT) {
+	if ((shim_unlink(path) < 0) && errno != ENOENT) {
 		pr_err("%s: cannot remove file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
 		return -1;
@@ -352,7 +352,7 @@ static int rm_dir(const stress_args_t *args, const char *path)
 		}
 		(void)closedir(dp);
 	}
-	ret = rmdir(path);
+	ret = shim_rmdir(path);
 	if (ret < 0 && errno != ENOENT)
 		pr_err("%s: cannot remove directory %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));

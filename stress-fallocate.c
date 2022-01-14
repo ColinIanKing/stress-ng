@@ -145,7 +145,7 @@ static int stress_fallocate(const stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	pipe_ret = pipe(pipe_fds);
 
@@ -310,7 +310,7 @@ done:
 	 *  exist.
 	 */
 	(void)stress_temp_dir_args(args, filename, sizeof(filename));
-	(void)rmdir(filename);
+	(void)shim_rmdir(filename);
 
 	return EXIT_SUCCESS;
 }

@@ -368,7 +368,7 @@ static int stress_revio(const stress_args_t *args)
 				args->name, filename, errno, strerror(errno));
 			goto finish;
 		}
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 		if (ftruncate(fd, (off_t)revio_bytes) < 0) {
 			pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

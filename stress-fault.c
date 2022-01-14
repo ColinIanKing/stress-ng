@@ -157,7 +157,7 @@ redo:
 		 * ptr later
 		 */
 		if (i & 1)
-			(void)unlink(filename);
+			(void)shim_unlink(filename);
 
 		ptr = (uint8_t *)mmap(NULL, 1, PROT_READ | PROT_WRITE,
 			MAP_SHARED, fd, 0);
@@ -186,7 +186,7 @@ redo:
 next:
 		/* Remove file on-non major fault case */
 		if (!(i & 1))
-			(void)unlink(filename);
+			(void)shim_unlink(filename);
 
 		/*
 		 *  Force a minor page fault by remapping an existing
@@ -217,7 +217,7 @@ next:
 
 	if (mapto != MAP_FAILED)
 		(void)munmap(mapto, page_size);
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
 #if defined(HAVE_GETRUSAGE) &&		\

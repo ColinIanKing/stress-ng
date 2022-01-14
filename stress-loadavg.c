@@ -189,7 +189,7 @@ static int stress_loadavg(const stress_args_t *args)
 
 	/*  Not a failure if can't open a file */
 	fd = open(filename, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR);
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 #endif
 
 	/*

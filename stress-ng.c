@@ -56,6 +56,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_dry_run,		OPT_FLAGS_DRY_RUN },
 	{ OPT_ftrace,		OPT_FLAGS_FTRACE },
 	{ OPT_ignite_cpu,	OPT_FLAGS_IGNITE_CPU },
+	{ OPT_keep_files, 	OPT_FLAGS_KEEP_FILES },
 	{ OPT_keep_name, 	OPT_FLAGS_KEEP_NAME },
 	{ OPT_log_brief,	OPT_FLAGS_LOG_BRIEF },
 	{ OPT_maximize,		OPT_FLAGS_MAXIMIZE },
@@ -466,6 +467,7 @@ static const struct option long_options[] = {
 	{ "kcmp-ops",		1,	0,	OPT_kcmp_ops },
 	{ "key",		1,	0,	OPT_key },
 	{ "key-ops",		1,	0,	OPT_key_ops },
+	{ "keep-files",		0,	0,	OPT_keep_files },
 	{ "keep-name",		0,	0,	OPT_keep_name },
 	{ "kill",		1,	0,	OPT_kill },
 	{ "kill-ops",		1,	0,	OPT_kill_ops },
@@ -1047,6 +1049,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"ionice-level L",	"specify ionice level (0 max, 7 min)" },
 	{ "j",		"job jobfile",		"run the named jobfile" },
 	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
+	{ NULL,		"keep-files",		"do not remove files or directories" },
 	{ NULL,		"log-brief",		"less verbose log messages" },
 	{ NULL,		"log-file filename",	"log messages to a log file" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
@@ -1587,7 +1590,7 @@ static void stress_clean_dir_files(
 
 	n = scandir(path, &names, stress_dot_filter, alphasort);
 	if (n < 0) {
-		(void)rmdir(path);
+		(void)shim_rmdir(path);
 		return;
 	}
 
@@ -1616,11 +1619,11 @@ static void stress_clean_dir_files(
 		switch (names[n]->d_type) {
 		case DT_DIR:
 			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
-			(void)rmdir(path);
+			(void)shim_rmdir(path);
 			break;
 		case DT_LNK:
 		case DT_REG:
-			(void)unlink(path);
+			(void)shim_unlink(path);
 			break;
 		default:
 			break;
@@ -1633,7 +1636,7 @@ static void stress_clean_dir_files(
 
 		if ((statbuf.st_mode & S_IFMT) == S_IFDIR) {
 			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
-			(void)rmdir(path);
+			(void)shim_rmdir(path);
 		} else if (((statbuf.st_mode & S_IFMT) == S_IFLNK) ||
 			   ((statbuf.st_mode & S_IFMT) == S_IFREG)) {
 			(void)unlink(path);
@@ -1642,7 +1645,7 @@ static void stress_clean_dir_files(
 	}
 	*ptr = '\0';
 	free(names);
-	(void)rmdir(path);
+	(void)shim_rmdir(path);
 }
 
 /*

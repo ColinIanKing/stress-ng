@@ -387,12 +387,12 @@ static int stress_madvise(const stress_args_t *args)
 		ret = exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
 
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	for (n = 0; n < sz; n += page_size) {
 		ssize_t wret;
 

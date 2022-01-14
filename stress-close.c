@@ -228,7 +228,7 @@ static int stress_close(const stress_args_t *args)
 			pr_err("%s: cannot create %s\n", args->name, filename);
 			return exit_status(errno);
 		}
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 	}
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

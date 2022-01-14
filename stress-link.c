@@ -53,7 +53,7 @@ static void stress_link_unlink(
 
 		(void)stress_temp_filename_args(args,
 			path, sizeof(path), i);
-		(void)unlink(path);
+		(void)shim_force_unlink(path);
 	}
 	(void)sync();
 }
@@ -188,7 +188,7 @@ static int stress_link_generic(
 					/* Try hard link on differet random mount point */
 					ret = linkfunc(mnts[random_mount((size_t)mounts_max)], tmp_newpath);
 					if (ret == 0)
-						(void)unlink(tmp_newpath);
+						(void)shim_unlink(tmp_newpath);
 				}
 			}
 			if (lstat(newpath, &stbuf) < 0) {
@@ -233,7 +233,7 @@ err_unlink:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)unlink(oldpath);
+	(void)shim_unlink(oldpath);
 	(void)stress_temp_dir_rm_args(args);
 
 	stress_mount_free(mnts, mounts_max);

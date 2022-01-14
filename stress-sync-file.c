@@ -139,7 +139,7 @@ static int stress_sync_file(const stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

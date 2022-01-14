@@ -17,6 +17,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
+#define STRESS_CORE_SHIM
+
 #include "stress-ng.h"
 
 /*
@@ -2090,4 +2092,55 @@ int shim_futex_waitv(
 #else
 	return (int)shim_enosys(0, waiters, nr_futexes, flags, timeout, clockid);
 #endif
+}
+
+/*
+ *  shim_unlink()
+ *	unlink, skip operation if --keep-files is enabled
+ */
+int shim_unlink(const char *pathname)
+{
+	if (g_opt_flags & OPT_FLAGS_KEEP_FILES)
+		return 0;
+	return unlink(pathname);
+}
+
+/*
+ *  shim_force_unlink(const char *pathname)
+ *	unlink always
+ */
+int shim_force_unlink(const char *pathname)
+{
+	return unlink(pathname);
+}
+
+/*
+ *  shim_unlinkat()
+ *	unlinkat, skip operation if --keep-files is enabled
+ */
+int shim_unlinkat(int dirfd, const char *pathname, int flags)
+{
+	if (g_opt_flags & OPT_FLAGS_KEEP_FILES)
+		return 0;
+	return unlinkat(dirfd, pathname, flags);
+}
+
+/*
+ *  shim_rmdir()
+ *	rmdir, skip operation if --keep-files is enabled
+ */
+int shim_rmdir(const char *pathname)
+{
+	if (g_opt_flags & OPT_FLAGS_KEEP_FILES)
+		return 0;
+	return rmdir(pathname);
+}
+
+/*
+ *  shim_force_rmdir()
+ *	rmdir always
+ */
+int shim_force_rmdir(const char *pathname)
+{
+	return rmdir(pathname);
 }

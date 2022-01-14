@@ -173,7 +173,7 @@ close_out:
 close_in:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fdin);
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 dir_out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);

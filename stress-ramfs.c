@@ -193,12 +193,12 @@ static int stress_ramfs_fs_ops(const stress_args_t *args, const char *pathname)
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
-		if (unlink(symlinkname) < 0) {
+		if (shim_unlink(symlinkname) < 0) {
 			pr_fail("%s: cannot unlink symbolic file on ram based file system, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
-		if (unlink(filename) < 0) {
+		if (shim_unlink(filename) < 0) {
 			pr_fail("%s: cannot unlink file on ram based file system, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
@@ -216,7 +216,7 @@ static int stress_ramfs_fs_ops(const stress_args_t *args, const char *pathname)
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 		}
-		if (rmdir(filename) < 0) {
+		if (shim_rmdir(filename) < 0) {
 			pr_fail("%s: cannot remove directory on ram based file system, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;

@@ -555,7 +555,7 @@ static int stress_fanotify(const stress_args_t *args)
 			(void)close(fd);
 
 			/* Force remove */
-			(void)unlink(filename);
+			(void)shim_unlink(filename);
 		} while (keep_stressing(args));
 
 		_exit(EXIT_SUCCESS);
@@ -686,7 +686,7 @@ tidy:
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 	stress_mount_free(mnts, n_mnts);
 

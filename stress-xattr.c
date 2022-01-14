@@ -508,7 +508,7 @@ out_close:
 out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(hugevalue);
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 out_free:
 #if defined(XATTR_SIZE_MAX)
