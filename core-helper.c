@@ -924,7 +924,7 @@ int stress_temp_dir_mk(
 		ret = -errno;
 		pr_fail("%s: mkdir '%s' failed, errno=%d (%s)\n",
 			name, tmp, errno, strerror(errno));
-		(void)unlink(tmp);
+		(void)rmdir(tmp);
 	}
 
 	return ret;
