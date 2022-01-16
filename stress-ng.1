@@ -1790,8 +1790,11 @@ stop after N handle bogo operations.
 .TP
 .B \-\-hash N
 start N workers that exercise various hashing functions. Random strings from
-1 to 128 bytes are hashed and the hashing rate is calculated from the number
-of hashes performed over a period of time.
+1 to 128 bytes are hashed and the hashing rate and chi squared is calculated
+from the number of hashes performed over a period of time. The chi squared
+value is the goodness-of-fit measure, it is the actual distribution of items
+in hash buckets versus the expected distribution of items. Typically a chi
+squared value of 0.95..1.05 indicates a good hash distribution.
 .TP
 .B \-\-hash\-ops N
 stop after N hashing rounds
@@ -1820,6 +1823,12 @@ T}
 jenkin	T{
 Jenkin's integer hash
 T}
+muladd32	T{
+simple multiply and add hash using 32 bit math and xor folding of overflow
+T}
+muladd64	T{
+simple multiply and add hash using 64 bit math and xor folding of overflow
+T}
 murmur3_32	T{
 murmur3_32 hash, Austin Appleby's Murmur3 hash, 32 bit variant
 T}
@@ -1827,10 +1836,14 @@ nhash	T{
 exim's nhash
 T}
 pjw	T{
-128 rounds of hash pjw function on 128 to 1 bytes of random strings.
+a non-cryptographic hash function created by Peter J. Weinberger of AT&T Bell Labs,
+used in UNIX ELF object files.
 T}
 sdbm	T{
 sdbm hash as used in the SDBM database and GNU awk
+T}
+xor	T{
+simple rotate shift and xor of values
 T}
 .TE
 .TP
