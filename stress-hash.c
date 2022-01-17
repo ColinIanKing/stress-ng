@@ -131,7 +131,7 @@ static void stress_hash_generic(
 
 
 
-uint32_t stress_hash_adler32(const char *str, const size_t len)
+uint32_t OPTIMIZE3 stress_hash_adler32(const char *str, const size_t len)
 {
 	register const uint32_t mod = 65521;
 	register uint32_t a = 1, b = 0;
