@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Colin Ian King
+ * Copyright (C) 2021-2022 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -184,7 +184,7 @@ static int stress_syncload(const stress_args_t *args)
 	sec_busy = syncload_msbusy / 1000.0;
 	sec_sleep = syncload_mssleep / 1000.0;
 
-	stress_mwc_seed(0x6deb3a92, 0x189f7245);
+	stress_mwc_set_seed(0x6deb3a92, 0x189f7245);
 
 	stress_sysload_x86_has_rdrand = stress_cpu_x86_has_rdrand();
 

@@ -828,7 +828,7 @@ static int stress_sparse_method_test(
 		return SPARSE_TEST_ENOMEM;
 	}
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 
 	t1 = stress_time_now();
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
@@ -856,7 +856,7 @@ static int stress_sparse_method_test(
 	test_info->put_ops += i;
 	test_info->put_duration += (t2 - t1);
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	t1 = stress_time_now();
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
@@ -890,7 +890,7 @@ static int stress_sparse_method_test(
 	test_info->get_ops += i;
 	test_info->get_duration += (t2 - t1);
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (i = 0; keep_stressing_flag() && (i < sparsematrix_items); i++) {
 		const uint32_t x = stress_mwc32() % sparsematrix_size;
 		const uint32_t y = stress_mwc32() % sparsematrix_size;

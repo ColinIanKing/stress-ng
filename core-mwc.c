@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -126,15 +121,25 @@ void stress_mwc_reseed(void)
 }
 
 /*
- *  stress_mwc_seed()
+ *  stress_mwc_set_seed()
  *      set mwc seeds
  */
-void stress_mwc_seed(const uint32_t w, const uint32_t z)
+void stress_mwc_set_seed(const uint32_t w, const uint32_t z)
 {
 	mwc.w = w;
 	mwc.z = z;
 
 	mwc_flush();
+}
+
+/*
+ *  stress_mwc_get_seed()
+ *      get mwc seeds
+ */
+void stress_mwc_get_seed(uint32_t *w, uint32_t *z)
+{
+	*w = mwc.w;
+	*z = mwc.z;
 }
 
 /*

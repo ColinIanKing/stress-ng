@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -339,12 +334,12 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 	w = stress_mwc32();
 	z = stress_mwc32();
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ) {
 		*(ptr++) = stress_mwc64();
 	}
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (bit_errors = 0, ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ) {
 		uint64_t val = stress_mwc64();
 
@@ -362,7 +357,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 
 	inject_random_bit_errors(buf, sz);
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (bit_errors = 0, ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ) {
 		uint64_t val = stress_mwc64();
 
@@ -375,7 +370,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 	if (UNLIKELY(!keep_stressing_flag()))
 		goto ret;
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint64_t *)buf_end; ptr > (uint64_t *)buf; ) {
 		*--ptr = stress_mwc64();
 	}
@@ -385,7 +380,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 	inject_random_bit_errors(buf, sz);
 
 	(void)stress_mincore_touch_pages(buf, sz);
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint64_t *)buf_end; ptr > (uint64_t *)buf; ) {
 		uint64_t val = stress_mwc64();
 
@@ -399,7 +394,7 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 	if (UNLIKELY(!keep_stressing_flag()))
 		goto ret;
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint64_t *)buf_end; ptr > (uint64_t *)buf; ) {
 		uint64_t val = stress_mwc64();
 
@@ -906,7 +901,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 		swaps[i] = (stress_mwc64() % chunks) * chunk_sz;
 	}
 
-	stress_mwc_seed(w1, z1);
+	stress_mwc_set_seed(w1, z1);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 		(void)memset((void *)ptr, val, chunk_sz);
@@ -954,7 +949,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	stress_mwc_seed(w1, z1);
+	stress_mwc_set_seed(w1, z1);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		volatile uint8_t *p = (volatile uint8_t *)ptr;
 		const volatile uint8_t *p_end = (volatile uint8_t *)ptr + chunk_sz;
@@ -998,7 +993,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 	w = stress_mwc32();
 	z = stress_mwc32();
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 
@@ -1020,7 +1015,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 
@@ -1066,7 +1061,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 	w = stress_mwc32();
 	z = stress_mwc32();
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 
@@ -1106,7 +1101,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 
 	inject_random_bit_errors(buf, sz);
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 		ROR8(val);
@@ -1154,7 +1149,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 	w = stress_mwc32();
 	z = stress_mwc32();
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 
@@ -1203,7 +1198,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 
 	inject_random_bit_errors(buf, sz);
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
 		uint8_t val = stress_mwc8();
 
@@ -1523,7 +1518,7 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 	w = stress_mwc32();
 	z = stress_mwc32();
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += chunk_sz) {
 		*(ptr + 0) = stress_mwc64();
 		*(ptr + 1) = stress_mwc64();
@@ -1543,7 +1538,7 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 
-	stress_mwc_seed(w, z);
+	stress_mwc_set_seed(w, z);
 	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += chunk_sz) {
 		bit_errors += stress_vm_count_bits(*(ptr + 0) ^ stress_mwc64());
 		bit_errors += stress_vm_count_bits(*(ptr + 1) ^ stress_mwc64());
