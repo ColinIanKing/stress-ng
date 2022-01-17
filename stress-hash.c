@@ -129,6 +129,34 @@ static void stress_hash_generic(
 			name, hmi->name, result, i_sum);
 }
 
+
+
+uint32_t stress_hash_adler32(const char *str, const size_t len)
+{
+	register const uint32_t mod = 65521;
+	register uint32_t a = 1, b = 0;
+
+	(void)len;
+
+	while (*str) {
+		a = (a + *str++) % mod;
+		b = (b + a) % mod;
+	}
+	return (b << 16) | a;
+}
+
+/*
+ *  stress_hash_method_adler32()
+ *	multiple iterations on adler32 hash
+ */
+static void stress_hash_method_adler32(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_adler32, 0xa6705071, 0xa6705071);
+}
+
 uint32_t stress_hash_jenkin_wrapper(const char *str, const size_t len)
 {
 	return (uint32_t)stress_hash_jenkin((const uint8_t *)str, len);
@@ -384,6 +412,7 @@ static HOT OPTIMIZE3 void stress_hash_all(
  */
 static stress_hash_method_info_t hash_methods[] = {
 	{ "all",		stress_hash_all,		NULL },	/* Special "all test */
+	{ "adler32",		stress_hash_method_adler32,	NULL },
 	{ "crc32c",		stress_hash_method_crc32c,	NULL },
 	{ "djb2a",		stress_hash_method_djb2a,	NULL },
 	{ "fnv1a",		stress_hash_method_fnv1a,	NULL },
