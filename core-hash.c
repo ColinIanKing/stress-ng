@@ -293,7 +293,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_crc32c(const char *str)
  *  stress_hash_adler32()
  *	Mark Adler 32 bit hash
  */
-uint32_t OPTIMIZE3 stress_hash_adler32(const char *str, const size_t len)
+uint32_t HOT OPTIMIZE3 stress_hash_adler32(const char *str, const size_t len)
 {
 	register const uint32_t mod = 65521;
 	register uint32_t a = 1, b = 0;
@@ -311,7 +311,7 @@ uint32_t OPTIMIZE3 stress_hash_adler32(const char *str, const size_t len)
  *  stress_hash_muladd32()
  *	simple 32 bit multiply/add hash
  */
-uint32_t OPTIMIZE3 stress_hash_muladd32(const char *str, const size_t len)
+uint32_t HOT OPTIMIZE3 stress_hash_muladd32(const char *str, const size_t len)
 {
 	register uint32_t prod = len;
 
@@ -327,7 +327,7 @@ uint32_t OPTIMIZE3 stress_hash_muladd32(const char *str, const size_t len)
  *  stress_hash_muladd64()
  *	simple 64 bit multiply/add hash
  */
-uint32_t OPTIMIZE3 stress_hash_muladd64(const char *str, const size_t len)
+uint32_t HOT OPTIMIZE3 stress_hash_muladd64(const char *str, const size_t len)
 {
 	register uint64_t prod = len;
 
@@ -344,7 +344,7 @@ uint32_t OPTIMIZE3 stress_hash_muladd64(const char *str, const size_t len)
  *	Kernighan and Ritchie hash, from The C programming Language,
  *	section 6.6, "Hashing" 2nd Edition.
  */
-uint32_t OPTIMIZE3 stress_hash_kandr(const char *str)
+uint32_t HOT OPTIMIZE3 stress_hash_kandr(const char *str)
 {
 	register uint32_t hash;
 
@@ -354,7 +354,7 @@ uint32_t OPTIMIZE3 stress_hash_kandr(const char *str)
 	return hash;
 }
 
-static OPTIMIZE3 inline uint32_t hash_rol_uint32(const uint32_t x, const uint32_t bits)
+static HOT OPTIMIZE3 inline uint32_t hash_rol_uint32(const uint32_t x, const uint32_t bits)
 {
 	return (x << bits) | x >> (32 - bits);
 }
@@ -364,7 +364,7 @@ static OPTIMIZE3 inline uint32_t hash_rol_uint32(const uint32_t x, const uint32_
  *	Coffin hash
  * 	https://stackoverflow.com/a/7666668/5407270
  */
-uint32_t OPTIMIZE3 stress_hash_coffin(const char *str)
+uint32_t HOT OPTIMIZE3 stress_hash_coffin(const char *str)
 {
 	register uint32_t result = 0x55555555;
 	while (*str) {
@@ -380,7 +380,7 @@ uint32_t OPTIMIZE3 stress_hash_coffin(const char *str)
  *      https://github.com/aappleby/smhasher/blob/master/src/Hashes.cpp
  *
  */
-uint32_t OPTIMIZE3 stress_hash_x17(const char *str)
+uint32_t HOT OPTIMIZE3 stress_hash_x17(const char *str)
 {
 	register uint8_t *ptr = (uint8_t *)str;
 	register uint8_t val;
