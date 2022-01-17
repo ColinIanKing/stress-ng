@@ -367,12 +367,88 @@ static HOT OPTIMIZE3 inline uint32_t hash_rol_uint32(const uint32_t x, const uin
 uint32_t HOT OPTIMIZE3 stress_hash_coffin(const char *str)
 {
 	register uint32_t result = 0x55555555;
+
 	while (*str) {
 		result ^= *str++;
 		result = hash_rol_uint32(result, 5);
 	}
 	return result;
 }
+
+/*
+ *  stress_hash_coffin32_le()
+ *	Coffin hash, 32 bit optimized fetch, little endian version
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_coffin32_le(const char *str, size_t len)
+{
+	register uint32_t result = 0x55555555;
+	register uint32_t *ptr32 = (uint32_t *)str;
+	register uint32_t val = *ptr32;
+
+	while (len > 4) {
+		register uint32_t tmp;
+
+		tmp = val & 0xff;
+		len -= 4;
+		result = hash_rol_uint32(result ^ tmp, 5);
+		tmp = val >> 8 & 0xff;
+		ptr32++;
+		result = hash_rol_uint32(result ^ tmp, 5);
+		tmp = val >> 16 & 0xff;
+		result = hash_rol_uint32(result ^ tmp, 5);
+		tmp = val >> 24 & 0xff;
+		val = *ptr32;
+		result = hash_rol_uint32(result ^ tmp, 5);
+	}
+
+	{
+		register uint8_t *ptr8 = (uint8_t *)ptr32;
+
+		while (len--) {
+			result ^= *ptr8++;
+			result = hash_rol_uint32(result, 5);
+		}
+	}
+	return result;
+}
+
+/*
+ *  stress_hash_coffin32_be()
+ *	Coffin hash, 32 bit optimized fetch, big endian version
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_coffin32_be(const char *str, size_t len)
+{
+	register uint32_t result = 0x55555555;
+	register uint32_t *ptr32 = (uint32_t *)str;
+	register uint32_t val = *ptr32;
+
+	while (len > 4) {
+		register uint32_t tmp;
+
+		tmp = val >> 24 & 0xff;
+		len -= 4;
+		result = hash_rol_uint32(result ^ tmp, 5);
+		tmp = val >> 16 & 0xff;
+		ptr32++;
+		result = hash_rol_uint32(result ^ tmp, 5);
+		tmp = val >> 8 & 0xff;
+		result = hash_rol_uint32(result ^ tmp, 5);
+		tmp = val & 0xff;
+		val = *ptr32;
+		result = hash_rol_uint32(result ^ tmp, 5);
+	}
+
+	{
+		register uint8_t *ptr8 = (uint8_t *)ptr32;
+
+		while (len--) {
+			result ^= *ptr8++;
+			result = hash_rol_uint32(result, 5);
+		}
+	}
+	return result;
+}
+
 
 /*
  * stress_hash_x17

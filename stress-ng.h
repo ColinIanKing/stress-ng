@@ -4442,6 +4442,8 @@ extern WARN_UNUSED uint32_t stress_hash_muladd32(const char *str, const size_t l
 extern WARN_UNUSED uint32_t stress_hash_muladd64(const char *str, const size_t len);
 extern WARN_UNUSED uint32_t stress_hash_kandr(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_coffin(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_coffin32_le(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_coffin32_be(const char *str, const size_t len);
 extern WARN_UNUSED uint32_t stress_hash_x17(const char *str);
 
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);

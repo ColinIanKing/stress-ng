@@ -33,11 +33,12 @@ typedef struct {
 
 struct stress_hash_method_info;
 
-typedef void (*stress_hash_func)(const char *name, const struct stress_hash_method_info *hmi, const stress_bucket_t *bucket);
+typedef uint32_t (*stress_hash_func)(const char *str, const size_t len);
+typedef void (*stress_method_func)(const char *name, const struct stress_hash_method_info *hmi, const stress_bucket_t *bucket);
 
 typedef struct stress_hash_method_info {
 	const char		*name;	/* human readable form of stressor */
-	const stress_hash_func	func;	/* the hash method function */
+	const stress_method_func	func;	/* the hash method function */
 	stress_hash_stats_t	*stats;
 } stress_hash_method_info_t;
 
@@ -71,7 +72,7 @@ static void stress_hash_generic(
 	const char *name,
 	const stress_hash_method_info_t *hmi,
 	const stress_bucket_t *bucket,
-	uint32_t (*hash_func)(const char *str, const size_t len),
+	const stress_hash_func hash_func,
 	const uint32_t le_result,
 	const uint32_t be_result)
 {
@@ -385,6 +386,36 @@ static void stress_hash_method_coffin(
 	stress_hash_generic(name, hmi, bucket, stress_hash_coffin_wrapper, 0xdc02e07b, 0xdc02e07b);
 }
 
+uint32_t stress_hash_coffin32_wrapper_le(const char *str, const size_t len)
+{
+	(void)len;
+
+	return stress_hash_coffin32_le(str, len);	/* Little Endian */
+}
+
+uint32_t stress_hash_coffin32_wrapper_be(const char *str, const size_t len)
+{
+	(void)len;
+
+	return stress_hash_coffin32_be(str, len);	/* Big Endian */
+}
+
+/*
+ *  stress_hash_method_coffin32()
+ *	stress test hash coffin
+ */
+static void stress_hash_method_coffin32(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	const stress_hash_func wrapper = stress_hash_little_endian() ?
+		stress_hash_coffin32_wrapper_le :
+		stress_hash_coffin32_wrapper_be;
+
+	stress_hash_generic(name, hmi, bucket, wrapper, 0xdc02e07b, 0xdc02e07b);
+}
+
 uint32_t stress_hash_x17_wrapper(const char *str, const size_t len)
 {
 	(void)len;
@@ -431,6 +462,7 @@ static stress_hash_method_info_t hash_methods[] = {
 	{ "all",		stress_hash_all,		NULL },	/* Special "all test */
 	{ "adler32",		stress_hash_method_adler32,	NULL },
 	{ "coffin",		stress_hash_method_coffin,	NULL },
+	{ "coffin32",		stress_hash_method_coffin32,	NULL },
 	{ "crc32c",		stress_hash_method_crc32c,	NULL },
 	{ "djb2a",		stress_hash_method_djb2a,	NULL },
 	{ "fnv1a",		stress_hash_method_fnv1a,	NULL },
