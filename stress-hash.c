@@ -416,6 +416,7 @@ uint32_t stress_hash_md5crc32c_wrapper(const char *str, const size_t len)
 	static char salt[] = "$1$xZ_2MpWl";
 
 	hash_encrypted = crypt(str, salt);
+printf("%s %s\n", str, hash_encrypted);
 	return stress_hash_crc32c(hash_encrypted);
 }
 
@@ -431,6 +432,8 @@ static void stress_hash_method_md5crc32c(
 	stress_hash_generic(name, hmi, bucket, stress_hash_md5crc32c_wrapper, 0x8c57a748, 0x8c57a748);
 
 	if (!hash_encrypted)
+		hmi->stats->enabled = false;
+	if (*hash_encrypted == '*')
 		hmi->stats->enabled = false;
 }
 #endif
