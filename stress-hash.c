@@ -20,8 +20,9 @@
 
 typedef struct {
 	double_t	duration;
-	uint64_t	total;
 	double		chi_squared;
+	uint64_t	total;
+	bool		enabled;
 } stress_hash_stats_t;
 
 typedef struct {
@@ -404,6 +405,8 @@ static void stress_hash_method_x17(
 	stress_hash_generic(name, hmi, bucket, stress_hash_x17_wrapper, 0xd5c97ec8, 0xd5c97ec8);
 }
 
+static char *hash_encrypted;
+
 #if defined(HAVE_LIB_CRYPT) &&  \
     defined(HAVE_CRYPT_H)
 uint32_t stress_hash_md5crc32c_wrapper(const char *str, const size_t len)
@@ -412,7 +415,8 @@ uint32_t stress_hash_md5crc32c_wrapper(const char *str, const size_t len)
 
 	static char salt[] = "$1$xZ_2MpWl";
 
-	return stress_hash_crc32c(crypt(str, salt));
+	hash_encrypted = crypt(str, salt);
+	return stress_hash_crc32c(hash_encrypted);
 }
 
 /*
@@ -425,6 +429,9 @@ static void stress_hash_method_md5crc32c(
 	const stress_bucket_t *bucket)
 {
 	stress_hash_generic(name, hmi, bucket, stress_hash_md5crc32c_wrapper, 0x8c57a748, 0x8c57a748);
+
+	if (!hash_encrypted)
+		hmi->stats->enabled = false;
 }
 #endif
 
@@ -442,7 +449,8 @@ static HOT OPTIMIZE3 void stress_hash_all(
 
 	(void)hmi;
 
-	h->func(name, h, bucket);
+	if (h->stats->enabled)
+		h->func(name, h, bucket);
 	i++;
 	if (!hash_methods[i].func)
 		i = 1;
@@ -528,6 +536,9 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 
 	for (i = 0; hash_methods[i].name; i++) {
 		hash_stats[i].duration = 0.0;
+		hash_stats[i].enabled = true;
+		hash_stats[i].total = false;
+		hash_stats[i].chi_squared = 0.0;
 		hash_methods[i].stats = &hash_stats[i];
 	}
 
@@ -536,7 +547,8 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		(void)hm->func(args->name, hm, &bucket);
+		if (hm->stats->enabled)
+			(void)hm->func(args->name, hm, &bucket);
 		inc_counter(args);
 	} while (keep_stressing(args));
 
@@ -547,7 +559,7 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 		for (i = 1; hash_methods[i].name; i++) {
 			stress_hash_stats_t *stats = hash_methods[i].stats;
 
-			if (stats->duration > 0.0 && stats->total > 0) {
+			if (stats->enabled && stats->duration > 0.0 && stats->total > 0) {
 				const double rate = (double)((stats->duration > 0.0) ?
 					(double)stats->total / stats->duration : (double)0.0);
 
