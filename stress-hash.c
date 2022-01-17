@@ -75,7 +75,7 @@ static void stress_hash_generic(
 	const uint32_t le_result,
 	const uint32_t be_result)
 {
-	char buffer[bucket->n_keys];
+	char ALIGN64 buffer[bucket->n_keys];
 	double sum = 0.0, n, m, divisor;
 	uint32_t i_sum = 0;
 	size_t i;
