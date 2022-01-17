@@ -290,6 +290,56 @@ uint32_t HOT OPTIMIZE3 stress_hash_crc32c(const char *str)
 }
 
 /*
+ *  stress_hash_adler32()
+ *	Mark Adler 32 bit hash
+ */
+uint32_t OPTIMIZE3 stress_hash_adler32(const char *str, const size_t len)
+{
+	register const uint32_t mod = 65521;
+	register uint32_t a = 1, b = 0;
+
+	(void)len;
+
+	while (*str) {
+		a = (a + *str++) % mod;
+		b = (b + a) % mod;
+	}
+	return (b << 16) | a;
+}
+
+/*
+ *  stress_hash_muladd32()
+ *	simple 32 bit multiply/add hash
+ */
+uint32_t OPTIMIZE3 stress_hash_muladd32(const char *str, const size_t len)
+{
+	register uint32_t prod = len;
+
+	while (*str) {
+		register uint32_t top = (prod >> 24);
+		prod *= *str++;
+		prod += top;
+	}
+	return prod;
+}
+
+/*
+ *  stress_hash_muladd64()
+ *	simple 64 bit multiply/add hash
+ */
+uint32_t OPTIMIZE3 stress_hash_muladd64(const char *str, const size_t len)
+{
+	register uint64_t prod = len;
+
+	while (*str) {
+		register uint64_t top = (prod >> 56);
+		prod *= *str++;
+		prod += top;
+	}
+	return (prod >> 32) ^ prod;
+}
+
+/*
  *  stress_hash_create()
  *	create a hash table with size of n base hash entries
  */

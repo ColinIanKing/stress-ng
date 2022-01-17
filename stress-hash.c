@@ -129,22 +129,6 @@ static void stress_hash_generic(
 			name, hmi->name, result, i_sum);
 }
 
-
-
-uint32_t OPTIMIZE3 stress_hash_adler32(const char *str, const size_t len)
-{
-	register const uint32_t mod = 65521;
-	register uint32_t a = 1, b = 0;
-
-	(void)len;
-
-	while (*str) {
-		a = (a + *str++) % mod;
-		b = (b + a) % mod;
-	}
-	return (b << 16) | a;
-}
-
 /*
  *  stress_hash_method_adler32()
  *	multiple iterations on adler32 hash
@@ -339,18 +323,6 @@ static void stress_hash_method_xor(
 	stress_hash_generic(name, hmi, bucket, stress_hash_xor, 0xe6d601eb, 0xe6d601eb);
 }
 
-uint32_t OPTIMIZE3 stress_hash_muladd32(const char *str, const size_t len)
-{
-	register uint32_t prod = len;
-
-	while (*str) {
-		register uint32_t top = (prod >> 24);
-		prod *= *str++;
-		prod += top;
-	}
-	return prod;
-}
-
 /*
  *  stress_hash_method_muladd32()
  *	simple product hash
@@ -361,18 +333,6 @@ static void stress_hash_method_muladd32(
 	const stress_bucket_t *bucket)
 {
 	stress_hash_generic(name, hmi, bucket, stress_hash_muladd32, 0x7f0a8d4d, 0x7f0a8d4d);
-}
-
-uint32_t OPTIMIZE3 stress_hash_muladd64(const char *str, const size_t len)
-{
-	register uint64_t prod = len;
-
-	while (*str) {
-		register uint64_t top = (prod >> 56);
-		prod *= *str++;
-		prod += top;
-	}
-	return (prod >> 32) ^ prod;
 }
 
 /*
