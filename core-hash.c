@@ -340,6 +340,59 @@ uint32_t OPTIMIZE3 stress_hash_muladd64(const char *str, const size_t len)
 }
 
 /*
+ *  stress_hash_kandr
+ *	Kernighan and Ritchie hash, from The C programming Language,
+ *	section 6.6, "Hashing" 2nd Edition.
+ */
+uint32_t OPTIMIZE3 stress_hash_kandr(const char *str)
+{
+	register uint32_t hash;
+
+	for (hash = 0; *str; str++)
+		hash = *str + 31 * hash;
+
+	return hash;
+}
+
+static OPTIMIZE3 inline uint32_t hash_rol_uint32(const uint32_t x, const uint32_t bits)
+{
+	return (x << bits) | x >> (32 - bits);
+}
+
+/*
+ * stress_hash_coffin()
+ *	Coffin hash
+ * 	https://stackoverflow.com/a/7666668/5407270
+ */
+uint32_t OPTIMIZE3 stress_hash_coffin(const char *str)
+{
+	register uint32_t result = 0x55555555;
+	while (*str) {
+		result ^= *str++;
+		result = hash_rol_uint32(result, 5);
+	}
+	return result;
+}
+
+/*
+ * stress_hash_x17
+ *	multiply by 17 hash
+ *      https://github.com/aappleby/smhasher/blob/master/src/Hashes.cpp
+ *
+ */
+uint32_t OPTIMIZE3 stress_hash_x17(const char *str)
+{
+	register uint8_t *ptr = (uint8_t *)str;
+	register uint8_t val;
+	register uint32_t hash = 0x5179efb3;  /* seed */
+
+	while ((val = *ptr++)) {
+		hash = (17 * hash) + (val - ' ');
+	}
+	return hash ^ (hash >> 16);
+}
+
+/*
  *  stress_hash_create()
  *	create a hash table with size of n base hash entries
  */

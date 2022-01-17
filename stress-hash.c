@@ -347,6 +347,87 @@ static void stress_hash_method_muladd64(
 	stress_hash_generic(name, hmi, bucket, stress_hash_muladd64, 0x99109f5c, 0x99109f5c);
 }
 
+uint32_t stress_hash_kandr_wrapper(const char *str, const size_t len)
+{
+	(void)len;
+
+	return stress_hash_kandr(str);
+}
+
+/*
+ *  stress_hash_method_kandr()
+ *	stress test hash kandr
+ */
+static void stress_hash_method_kandr(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_kandr_wrapper, 0x1e197d9, 0x1e197d9);
+}
+
+uint32_t stress_hash_coffin_wrapper(const char *str, const size_t len)
+{
+	(void)len;
+
+	return stress_hash_coffin(str);
+}
+
+/*
+ *  stress_hash_method_coffin()
+ *	stress test hash coffin
+ */
+static void stress_hash_method_coffin(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_coffin_wrapper, 0xdc02e07b, 0xdc02e07b);
+}
+
+uint32_t stress_hash_x17_wrapper(const char *str, const size_t len)
+{
+	(void)len;
+
+	return stress_hash_x17(str);
+}
+
+/*
+ *  stress_hash_method_x17()
+ *	stress test hash x17
+ */
+static void stress_hash_method_x17(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_x17_wrapper, 0xd5c97ec8, 0xd5c97ec8);
+}
+
+#if defined(HAVE_LIB_CRYPT) &&  \
+    defined(HAVE_CRYPT_H)
+uint32_t stress_hash_md5crc32c_wrapper(const char *str, const size_t len)
+{
+	(void)len;
+
+	static char salt[] = "$1$xZ_2MpWl";
+
+	return stress_hash_crc32c(crypt(str, salt));
+}
+
+/*
+ *  stress_hash_method_md5crc32c()
+ *	stress test crypto md5crc32c hash
+ */
+static void stress_hash_method_md5crc32c(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_md5crc32c_wrapper, 0x8c57a748, 0x8c57a748);
+}
+#endif
+
 /*
  *  stress_hash_all()
  *	iterate over all hash stressor methods
@@ -373,16 +454,23 @@ static HOT OPTIMIZE3 void stress_hash_all(
 static stress_hash_method_info_t hash_methods[] = {
 	{ "all",		stress_hash_all,		NULL },	/* Special "all test */
 	{ "adler32",		stress_hash_method_adler32,	NULL },
+	{ "coffin",		stress_hash_method_coffin,	NULL },
 	{ "crc32c",		stress_hash_method_crc32c,	NULL },
 	{ "djb2a",		stress_hash_method_djb2a,	NULL },
 	{ "fnv1a",		stress_hash_method_fnv1a,	NULL },
 	{ "jenkin",		stress_hash_method_jenkin,	NULL },
+	{ "kandr",		stress_hash_method_kandr,	NULL },
+#if defined(HAVE_LIB_CRYPT) &&  \
+    defined(HAVE_CRYPT_H)
+	{ "md5crc32c",		stress_hash_method_md5crc32c,	NULL },
+#endif
 	{ "muladd32",		stress_hash_method_muladd32,	NULL },
 	{ "muladd64",		stress_hash_method_muladd64,	NULL },
 	{ "murmur3_32",		stress_hash_method_murmur3_32,	NULL },
 	{ "nhash",		stress_hash_method_nhash,	NULL },
 	{ "pjw",		stress_hash_method_pjw,		NULL },
 	{ "sdbm",		stress_hash_method_sdbm,	NULL },
+	{ "x17",		stress_hash_method_x17,		NULL },
 	{ "xor",		stress_hash_method_xor,		NULL },
 	{ NULL,			NULL,				NULL }
 };

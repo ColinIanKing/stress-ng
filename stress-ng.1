@@ -1813,6 +1813,9 @@ T}
 adler32	T{
 Mark Adler checksum, a modification of the Fletcher checksum
 T}
+coffin	T{
+xor and 5 bit rotate left hash
+T}
 crc32c	T{
 compute CRC32C (Castagnoli CRC32) integer hash
 T}
@@ -1825,6 +1828,12 @@ variant
 T}
 jenkin	T{
 Jenkin's integer hash
+T}
+kandr	T{
+Kernighan and Richie multiply by 31 and add hash
+T}
+md5crc32c	T{
+encrypt with md5 and apply crc32c hash on the result
 T}
 muladd32	T{
 simple multiply and add hash using 32 bit math and xor folding of overflow
@@ -1844,6 +1853,10 @@ used in UNIX ELF object files.
 T}
 sdbm	T{
 sdbm hash as used in the SDBM database and GNU awk
+T}
+x17	T{
+multiply by 17 and add. The multiplication can be optimized down to a fast right shift by 4
+and add on some architectures.
 T}
 xor	T{
 simple rotate shift and xor of values

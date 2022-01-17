@@ -4414,6 +4414,10 @@ extern size_t stress_text_addr(char **start, char **end);
 extern WARN_UNUSED bool stress_check_capability(const int capability);
 extern WARN_UNUSED bool stress_sigalrm_pending(void);
 extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
+
+/*
+ *  Hashing core functions
+ */
 extern WARN_UNUSED stress_hash_table_t *stress_hash_create(const size_t n);
 extern stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table,
 	const char *str);
@@ -4433,6 +4437,13 @@ extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_nhash(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_murmur3_32(const uint8_t* key, size_t len, uint32_t seed);
 extern WARN_UNUSED uint32_t stress_hash_crc32c(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_adler32(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_muladd32(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_muladd64(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_kandr(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_coffin(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_x17(const char *str);
+
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);
 extern WARN_UNUSED uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t n);
