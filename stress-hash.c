@@ -154,7 +154,7 @@ static void stress_hash_method_adler32(
 	const struct stress_hash_method_info *hmi,
 	stress_bucket_t *bucket)
 {
-	stress_hash_generic(name, hmi, bucket, stress_hash_adler32, 0xa6705071, 0xa6705071);
+	stress_hash_generic(name, hmi, bucket, stress_hash_adler32, 0xe0d8c860, 0xe0d8c860);
 }
 
 uint32_t stress_hash_jenkin_wrapper(const char *str, const size_t len)
@@ -360,7 +360,7 @@ static void stress_hash_method_muladd32(
 	const struct stress_hash_method_info *hmi,
 	stress_bucket_t *bucket)
 {
-	stress_hash_generic(name, hmi, bucket, stress_hash_muladd32, 0x4c6b767e, 0x4c6b767e);
+	stress_hash_generic(name, hmi, bucket, stress_hash_muladd32, 0x7f0a8d4d, 0x7f0a8d4d);
 }
 
 uint32_t OPTIMIZE3 stress_hash_muladd64(const char *str, const size_t len)
@@ -384,7 +384,7 @@ static void stress_hash_method_muladd64(
 	const struct stress_hash_method_info *hmi,
 	stress_bucket_t *bucket)
 {
-	stress_hash_generic(name, hmi, bucket, stress_hash_muladd64, 0x4c6b767e, 0x4c6b767e);
+	stress_hash_generic(name, hmi, bucket, stress_hash_muladd64, 0x99109f5c, 0x99109f5c);
 }
 
 /*
