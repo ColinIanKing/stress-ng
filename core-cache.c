@@ -23,8 +23,8 @@
 #if defined(__linux__)
 
 typedef struct {
-	const char	*name;		/* cache type name */
-	const uint32_t	value;		/* cache type ID */
+	const char	*name;			/* cache type name */
+	const stress_cache_type_t value;	/* cache type ID */
 } stress_generic_map_t;
 
 typedef enum {
