@@ -382,7 +382,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin(const char *str)
 uint32_t HOT OPTIMIZE3 stress_hash_coffin32_le(const char *str, size_t len)
 {
 	register uint32_t result = 0x55555555;
-	register uint32_t *ptr32 = (uint32_t *)str;
+	register const uint32_t *ptr32 = (const uint32_t *)str;
 	register uint32_t val = *ptr32;
 
 	while (len > 4) {
@@ -402,7 +402,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_le(const char *str, size_t len)
 	}
 
 	{
-		register uint8_t *ptr8 = (uint8_t *)ptr32;
+		register const uint8_t *ptr8 = (const uint8_t *)ptr32;
 
 		while (len--) {
 			result ^= *ptr8++;
@@ -419,7 +419,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_le(const char *str, size_t len)
 uint32_t HOT OPTIMIZE3 stress_hash_coffin32_be(const char *str, size_t len)
 {
 	register uint32_t result = 0x55555555;
-	register uint32_t *ptr32 = (uint32_t *)str;
+	register const uint32_t *ptr32 = (const uint32_t *)str;
 	register uint32_t val = *ptr32;
 
 	while (len > 4) {
@@ -439,7 +439,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_be(const char *str, size_t len)
 	}
 
 	{
-		register uint8_t *ptr8 = (uint8_t *)ptr32;
+		register const uint8_t *ptr8 = (const uint8_t *)ptr32;
 
 		while (len--) {
 			result ^= *ptr8++;
@@ -458,7 +458,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_be(const char *str, size_t len)
  */
 uint32_t HOT OPTIMIZE3 stress_hash_x17(const char *str)
 {
-	register uint8_t *ptr = (uint8_t *)str;
+	register const uint8_t *ptr = (const uint8_t *)str;
 	register uint8_t val;
 	register uint32_t hash = 0x5179efb3;  /* seed */
 
