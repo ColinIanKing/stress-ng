@@ -55,10 +55,6 @@ static int stress_sigtrap(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	while (keep_stressing(args)) {
-		int ret;
-
-		(void)ret;
-
 		switch (stress_mwc1()) {
 		case 0:
 #if defined(__linux__) &&	\

@@ -1008,24 +1008,32 @@ stress_cpu_int(uint8_t, 8, \
 	0x12, 0x1a,
 	C1, C2, C3)
 
+#define float_thresh(x, _type)	x = (_type)		\
+	((fabs((double)x) > 1.0) ?	\
+	((_type)(0.1 + (double)x - (long)x)) :	\
+	((_type)(x)))
+
 #define float_ops(_type, a, b, c, d, _sin, _cos)	\
 	do {						\
 		a = a + b;				\
 		b = a * c;				\
 		c = a - b;				\
-		d = a / b;				\
-		a = c / (_type)0.1923L;			\
+		d = a / (_type)8.1;			\
+		float_thresh(d, _type);			\
+		a = c / (_type)5.1923;			\
+		float_thresh(a, _type);			\
+		float_thresh(c, _type);			\
 		b = c + a;				\
-		c = b * (_type)3.12L;			\
+		c = b * (_type)_sin(b);			\
 		d = d + b + (_type)_sin(a);		\
-		a = (b + c) / c;			\
+		a = (_type)_cos(b + c);			\
 		b = b * c;				\
-		c = c + (_type)1.0L;			\
+		c = c + (_type)1.5;			\
 		d = d - (_type)_sin(c);			\
 		a = a * (_type)_cos(b);			\
 		b = b + (_type)_cos(c);			\
-		c = (_type)_sin(a + b) / (_type)2.344L;	\
-		b = d - (_type)1.0L;			\
+		c = (_type)_sin(a + b) / (_type)2.344;	\
+		b = d - (_type)0.5;			\
 	} while (0)
 
 /*
@@ -1038,8 +1046,8 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 	const uint32_t r1 = stress_mwc32(),		\
 		       r2 = stress_mwc32();		\
 	_type a = (_type)0.18728L, 			\
-	      b = (_type)r1,				\
-	      c = (_type)r2,				\
+	      b = (_type)((double)r1 / 65536.0),	\
+	      c = (_type)((double)r2 / 65536.0),	\
 	      d = (_type)0.0,				\
 	      r;					\
 							\
@@ -1108,9 +1116,9 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 	_type cI = (_type)I;					\
 	_type a = FP(0.18728, _ltype) + 			\
 		cI * FP(0.2762, _ltype),			\
-		b = (_type)r1 - cI * FP(0.11121, _ltype),	\
-		c = (_type)r2 + cI * stress_mwc32(), 		\
-		d = (_type)0.0,					\
+		b = (_type)((double)r1/(double)(1UL<<31)) - cI * FP(0.11121, _ltype),	\
+		c = (_type)((double)r2/(double)(1UL<<31)) + cI * stress_mwc32(),	\
+		d = (_type)0.5,					\
 		r;						\
 								\
 	(void)name;						\

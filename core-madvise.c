@@ -149,7 +149,7 @@ void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
 		if (start >= end)
 			continue;	/* invalid addresse range */
 
-		ret = madvise(start, (size_t)(end - start), advise);
+		ret = madvise(start, (size_t)((uint8_t *)end - (uint8_t *)start), advise);
 		(void)ret;
 
 		/*

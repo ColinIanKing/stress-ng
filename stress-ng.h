@@ -1259,6 +1259,7 @@ typedef struct {
 /* -O3 attribute support */
 #if defined(__GNUC__) &&	\
     !defined(__clang__) &&	\
+    !defined(__ICC) &&		\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE3 	__attribute__((optimize("-O3")))
 #else
@@ -1268,6 +1269,7 @@ typedef struct {
 /* -O1 attribute support */
 #if defined(__GNUC__) &&	\
     !defined(__clang__) &&	\
+    !defined(__ICC) &&		\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE1 	__attribute__((optimize("-O1")))
 #else
@@ -1277,6 +1279,7 @@ typedef struct {
 /* -O0 attribute support */
 #if defined(__GNUC__) &&	\
     !defined(__clang__) &&	\
+    !defined(__ICC) &&		\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE0 	__attribute__((optimize("-O0")))
 #else
@@ -1936,6 +1939,10 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
     defined(__mips__) ||	\
     defined(_mips)
 #define STRESS_ARCH_MIPS	(1)
+#endif
+
+#if defined(__ICC)
+#undef HAVE_TARGET_CLONES
 #endif
 
 /* GCC5.0+ target_clones attribute, x86 */

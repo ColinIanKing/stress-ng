@@ -116,8 +116,10 @@ static void stress_wcscasecmp(
 	const size_t len2,
 	bool *failed)
 {
+	typedef int (*test_wcscasecmp_t)(const wchar_t *s1, const wchar_t *s2);
+
 	register size_t i;
-	int (*test_wcscasecmp)(const wchar_t *s1, const wchar_t *s2) = libc_func;
+	test_wcscasecmp_t test_wcscasecmp = (test_wcscasecmp_t)libc_func;
 
 	(void)len2;
 
@@ -152,8 +154,10 @@ static void stress_wcsncasecmp(
 	const size_t len2,
 	bool *failed)
 {
+	typedef int (*test_wcsncasecmp_t)(const wchar_t *s1, const wchar_t *s2, size_t n);
+
 	register size_t i;
-	int (*test_wcsncasecmp)(const wchar_t *s1, const wchar_t *s2, size_t n) = libc_func;
+	test_wcsncasecmp_t test_wcsncasecmp = (test_wcsncasecmp_t)libc_func;
 
 	(void)len2;
 
@@ -217,8 +221,10 @@ static void stress_wcscpy(
 	const size_t len2,
 	bool *failed)
 {
+	typedef wchar_t * (*test_wcscpy_t)(wchar_t *dest, const wchar_t *src);
+
 	register size_t i;
-	wchar_t * (*test_wcscpy)(wchar_t *dest, const wchar_t *src) = libc_func;
+	test_wcscpy_t test_wcscpy = (test_wcscpy_t)libc_func;
 	wchar_t buf[len1 + len2 + 1];
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
@@ -280,8 +286,10 @@ static void stress_wcscat(
 	const size_t len2,
 	bool *failed)
 {
+	typedef wchar_t * (*test_wcscat_t)(wchar_t *dest, const wchar_t *src);
+
 	register size_t i;
-	wchar_t * (*test_wcscat)(wchar_t *dest, const wchar_t *src) = libc_func;
+	test_wcscat_t test_wcscat = (test_wcscat_t)libc_func;
 	wchar_t buf[len1 + len2 + 1];
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
@@ -313,8 +321,10 @@ static void stress_wcsncat(
 	const size_t len2,
 	bool *failed)
 {
+	typedef wchar_t * (*test_wcsncat_t)(wchar_t *dest, const wchar_t *src, size_t n);
+
 	register size_t i;
-	wchar_t * (*test_wcsncat)(wchar_t *dest, const wchar_t *src, size_t n) = libc_func;
+	test_wcsncat_t test_wcsncat = (test_wcsncat_t)libc_func;
 	wchar_t buf[len1 + len2 + 1];
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
@@ -346,8 +356,10 @@ static void stress_wcschr(
 	const size_t len2,
 	bool *failed)
 {
+	typedef wchar_t * (*test_wcschr_t)(const wchar_t *wcs, wchar_t wc);
+
 	register size_t i;
-	wchar_t * (*test_wcschr)(const wchar_t *wcs, wchar_t wc) = libc_func;
+	test_wcschr_t test_wcschr = (test_wcschr_t)libc_func;
 
 	(void)len2;
 
@@ -375,8 +387,10 @@ static void stress_wcsrchr(
 	const size_t len2,
 	bool *failed)
 {
+	typedef wchar_t * (*test_wcsrchr_t)(const wchar_t *wcs, wchar_t wc);
+
 	register size_t i;
-	wchar_t * (*test_wcsrchr)(const wchar_t *wcs, wchar_t wc) = libc_func;
+	test_wcsrchr_t test_wcsrchr = (test_wcsrchr_t)libc_func;
 
 	(void)len2;
 
@@ -405,8 +419,10 @@ static void stress_wcscmp(
 	const size_t len2,
 	bool *failed)
 {
+	typedef int * (*test_wcscmp_t)(const wchar_t *s1, const wchar_t *s2);
+
 	register size_t i;
-	int * (*test_wcscmp)(const wchar_t *s1, const wchar_t *s2) = libc_func;
+	test_wcscmp_t test_wcscmp = (test_wcscmp_t)libc_func;
 
 	(void)len2;
 
@@ -441,8 +457,10 @@ static void stress_wcsncmp(
 	const size_t len2,
 	bool *failed)
 {
+	typedef int (*test_wcsncmp_t)(const wchar_t *s1, const wchar_t *s2, size_t n);
+
 	register size_t i;
-	int (*test_wcsncmp)(const wchar_t *s1, const wchar_t *s2, size_t n) = libc_func;
+	test_wcsncmp_t test_wcsncmp = (test_wcsncmp_t)libc_func;
 
 	for (i = 1; keep_stressing_flag() && (i < len1); i++) {
 		WCSCHK(name, 0 == test_wcsncmp(str1, str1, len1), failed);
@@ -475,8 +493,10 @@ static void stress_wcslen(
 	const size_t len2,
 	bool *failed)
 {
+	typedef size_t (*test_wcslen_t)(const wchar_t *s);
 	register size_t i;
-	size_t (*test_wcslen)(const wchar_t *s) = libc_func;
+
+	test_wcslen_t test_wcslen = (test_wcslen_t)libc_func;
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
 		WCSCHK(name, len1 - 1 == test_wcslen(str1), failed);
@@ -504,8 +524,10 @@ static void stress_wcscoll(
 	const size_t len2,
 	bool *failed)
 {
+	typedef int (*test_wcscoll_t)(const wchar_t *ws1, const wchar_t *ws2);
+
 	register size_t i;
-	int (*test_wcscoll)(const wchar_t *ws1, const wchar_t *ws2) = libc_func;
+	test_wcscoll_t test_wcscoll = (test_wcscoll_t)libc_func;
 
 	(void)len2;
 
@@ -540,8 +562,10 @@ static void stress_wcsxfrm(
 	const size_t len2,
 	bool *failed)
 {
+	typedef size_t (*test_wcsxfrm_t)(wchar_t* destination, const wchar_t* source, size_t num);
+
 	register size_t i;
-	size_t (*test_wcsxfrm)(wchar_t* destination, const wchar_t* source, size_t num) = libc_func;
+	test_wcsxfrm_t test_wcsxfrm = (test_wcsxfrm_t)libc_func;
 	wchar_t buf[len1 + len2];
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {

@@ -35,7 +35,8 @@ static const stress_help_t help[] = {
     defined(HAVE_ASM_NOP) &&		\
     defined(__NR_rseq) &&		\
     defined(__GNUC__) &&		\
-    !defined(__clang__)
+    !defined(__clang__) &&		\
+    !defined(__ICC)
 
 #define STRESS_ACCESS_ONCE(x)     (*(__volatile__  __typeof__(x) *)&(x))
 
