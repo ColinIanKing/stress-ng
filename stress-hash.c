@@ -142,7 +142,7 @@ static void stress_hash_method_adler32(
 	stress_hash_generic(name, hmi, bucket, stress_hash_adler32, 0xe0d8c860, 0xe0d8c860);
 }
 
-uint32_t stress_hash_jenkin_wrapper(const char *str, const size_t len)
+static uint32_t stress_hash_jenkin_wrapper(const char *str, const size_t len)
 {
 	return (uint32_t)stress_hash_jenkin((const uint8_t *)str, len);
 }
@@ -159,7 +159,7 @@ static void stress_hash_method_jenkin(
 	stress_hash_generic(name, hmi, bucket, stress_hash_jenkin_wrapper, 0xa6705071, 0xa6705071);
 }
 
-uint32_t stress_hash_murmur3_32_wrapper(const char *str, const size_t len)
+static uint32_t stress_hash_murmur3_32_wrapper(const char *str, const size_t len)
 {
 	const uint32_t seed = 0xf12b35e1; /* arbitrary value */
 
@@ -183,7 +183,7 @@ static void stress_hash_method_murmur3_32(
 	stress_hash_generic(name, hmi, bucket, stress_hash_murmur3_32_wrapper, 0x54b572fa, 0xc250b788);
 }
 
-uint32_t stress_hash_pjw_wrapper(const char *str, const size_t len)
+static uint32_t stress_hash_pjw_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -202,7 +202,7 @@ static void stress_hash_method_pjw(
 	stress_hash_generic(name, hmi, bucket, stress_hash_pjw_wrapper, 0xa89a91c0, 0xa89a91c0);
 }
 
-uint32_t stress_hash_djb2a_wrapper(const char *str, const size_t len)
+static uint32_t stress_hash_djb2a_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -221,7 +221,7 @@ static void stress_hash_method_djb2a(
 	stress_hash_generic(name, hmi, bucket, stress_hash_djb2a_wrapper, 0x6a60cb5a, 0x6a60cb5a);
 }
 
-uint32_t stress_hash_fnv1a_wrapper(const char *str, const size_t len)
+static uint32_t stress_hash_fnv1a_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -240,7 +240,7 @@ static void HOT stress_hash_method_fnv1a(
 	stress_hash_generic(name, hmi, bucket, stress_hash_fnv1a_wrapper, 0x8ef17e80, 0x8ef17e80);
 }
 
-uint32_t stress_hash_sdbm_wrapper(const char *str, const size_t len)
+static uint32_t stress_hash_sdbm_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -259,7 +259,7 @@ static void stress_hash_method_sdbm(
 	stress_hash_generic(name, hmi, bucket, stress_hash_sdbm_wrapper, 0x46357819, 0x46357819);
 }
 
-uint32_t stress_hash_nhash_wrapper(const char *str, const size_t len)
+static uint32_t stress_hash_nhash_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -278,7 +278,7 @@ static void stress_hash_method_nhash(
 	stress_hash_generic(name, hmi, bucket, stress_hash_nhash_wrapper, 0x1cc86e3, 0x1cc86e3);
 }
 
-uint32_t stress_hash_crc32c_wrapper(const char *str, const size_t len)
+static uint32_t stress_hash_crc32c_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -297,7 +297,7 @@ static void stress_hash_method_crc32c(
 	stress_hash_generic(name, hmi, bucket, stress_hash_crc32c_wrapper, 0x923ab2b3, 0x923ab2b3);
 }
 
-uint32_t OPTIMIZE3 stress_hash_xor(const char *str, const size_t len)
+static uint32_t OPTIMIZE3 stress_hash_xor(const char *str, const size_t len)
 {
 	register uint32_t sum = 0;
 
@@ -348,7 +348,7 @@ static void stress_hash_method_muladd64(
 	stress_hash_generic(name, hmi, bucket, stress_hash_muladd64, 0x99109f5c, 0x99109f5c);
 }
 
-uint32_t stress_hash_kandr_wrapper(const char *str, const size_t len)
+static uint32_t stress_hash_kandr_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -367,7 +367,7 @@ static void stress_hash_method_kandr(
 	stress_hash_generic(name, hmi, bucket, stress_hash_kandr_wrapper, 0x1e197d9, 0x1e197d9);
 }
 
-uint32_t stress_hash_coffin_wrapper(const char *str, const size_t len)
+static uint32_t stress_hash_coffin_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -386,14 +386,14 @@ static void stress_hash_method_coffin(
 	stress_hash_generic(name, hmi, bucket, stress_hash_coffin_wrapper, 0xdc02e07b, 0xdc02e07b);
 }
 
-uint32_t stress_hash_coffin32_wrapper_le(const char *str, const size_t len)
+static uint32_t stress_hash_coffin32_wrapper_le(const char *str, const size_t len)
 {
 	(void)len;
 
 	return stress_hash_coffin32_le(str, len);	/* Little Endian */
 }
 
-uint32_t stress_hash_coffin32_wrapper_be(const char *str, const size_t len)
+static uint32_t stress_hash_coffin32_wrapper_be(const char *str, const size_t len)
 {
 	(void)len;
 
@@ -416,7 +416,7 @@ static void stress_hash_method_coffin32(
 	stress_hash_generic(name, hmi, bucket, wrapper, 0xdc02e07b, 0xdc02e07b);
 }
 
-uint32_t stress_hash_x17_wrapper(const char *str, const size_t len)
+static uint32_t stress_hash_x17_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
