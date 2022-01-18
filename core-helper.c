@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2014-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -1488,8 +1483,8 @@ int stress_sigaltstack_no_check(void *stack, const size_t size)
 #else
 	(void)stack;
 	(void)size;
-#endif
 	return 0;
+#endif
 }
 
 /*
@@ -1646,10 +1641,15 @@ unsigned int stress_get_cpu(void)
  */
 const char *stress_get_compiler(void)
 {
-#if defined(__clang_major__) &&	\
-    defined(__clang_minor__)
+#if defined(__TINYC__)
+	static const char cc[] = "tcc" XSTRINGIFY(__TINYC__) "";
+#elif defined(__PCC__) &&			\
+       defined(__PCC_MINOR__)
+	static const char cc[] = "pcc" XSTRINGIFY(__PCC__) "." XSTRINGIFY(__PCC_MINOR__) "." XSTRINGIFY(__PCC_MINORMINOR__) "";
+#elif defined(__clang_major__) &&	\
+      defined(__clang_minor__)
 	static const char cc[] = "clang " XSTRINGIFY(__clang_major__) "." XSTRINGIFY(__clang_minor__) "";
-#elif defined(__GNUC__) &&	\
+#elif defined(__GNUC__) &&		\
       defined(__GNUC_MINOR__)
 	static const char cc[] = "gcc " XSTRINGIFY(__GNUC__) "." XSTRINGIFY(__GNUC_MINOR__) "";
 #else

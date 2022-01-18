@@ -20,6 +20,10 @@
 #ifndef STRESS_NG_H
 #define STRESS_NG_H
 
+#if defined (__PCC__)
+#pragma GCC diagnostic ignored "-Wunknown-pragmas"
+#endif
+
 #define _GNU_SOURCE
 #define _ATFILE_SOURCE
 #ifndef _LARGEFILE_SOURCE

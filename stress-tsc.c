@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
- * Copyright (C)      2021 Colin Ian King.
+ * Copyright (C) 2021-2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -80,7 +80,9 @@ static int stress_tsc_supported(const char *name)
 }
 #endif
 
-#if defined(STRESS_ARCH_X86)
+#if defined(STRESS_ARCH_X86) &&		\
+    !defined(__PCC__) &&		\
+    !defined(__TINYC__)
 
 #define HAVE_STRESS_TSC_CAPABILITY
 

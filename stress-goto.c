@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Colin Ian King
+ * Copyright (C) 2021-2022 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -63,7 +63,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #define MAX_LABELS	(0x400)
 
-#if defined(HAVE_LABEL_AS_VALUE)
+#if defined(HAVE_LABEL_AS_VALUE) &&	\
+    !defined(__PCC__)
 
 #define G(n) L ## n:		goto *labels[n];
 
