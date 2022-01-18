@@ -31,7 +31,8 @@ ifeq ($(PEDANTIC),1)
 CFLAGS += -Wcast-qual -Wfloat-equal -Wmissing-declarations \
 	-Wmissing-format-attribute -Wno-long-long -Wpacked \
 	-Wredundant-decls -Wshadow -Wno-missing-field-initializers \
-	-Wno-missing-braces -Wno-sign-compare -Wno-multichar
+	-Wno-missing-braces -Wno-sign-compare -Wno-multichar \
+	-DHAVE_PEDANTIC
 endif
 
 #

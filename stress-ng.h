@@ -4871,7 +4871,8 @@ extern int shim_futex_waitv(struct shim_futex_waitv *waiters, unsigned int nr_fu
 	unsigned int flags, struct timespec *timeout, clockid_t clockid);
 #endif
 
-#if !defined(STRESS_CORE_SHIM)
+#if !defined(STRESS_CORE_SHIM) &&	\
+    !defined(HAVE_PEDANTIC)
 int unlink() __attribute__ ((deprecated("use shim_unlink")));
 int unlinkat() __attribute__ ((deprecated("use shim_unlinkat")));
 int rmdir() __attribute__ ((deprecated("use shim_rmdir")));
