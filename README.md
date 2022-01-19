@@ -313,6 +313,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [selftests/powerpc: Add test of mitigation patching](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=34f7f79827ec4db30cff9001dfba19f496473e8d)
 * [dm crypt: Avoid percpu_counter spinlock contention in crypt_page_alloc()](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=528b16bfc3ae5f11638e71b3b63a81f9999df727)
 * [mm/migrate: optimize hotplug-time demotion order updates](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=295be91f7ef0027fca2f2e4788e99731aa931834)
+* [powerpc/rtas: rtas_busy_delay() improvements](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=38f7b7067dae0c101be573106018e8af22a90fdf)
 
 ## Presentations
 
