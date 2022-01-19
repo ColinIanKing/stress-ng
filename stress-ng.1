@@ -4002,9 +4002,9 @@ stop softlockup stress workers after N bogo scheduler policy changes.
 .TP
 .B \-\-sparsematrix N
 start N workers that exercise 3 different sparse matrix implementations
-based on hashing, Judy array, 2-d circular linked-lists, memory mapped
-2-d matrix (non-sparse), quick hashing (on preallocated nodes) and red-black
-tree.
+based on hashing, Judy array (for 64 bit systems), 2-d circular linked-lists,
+memory mapped 2-d matrix (non-sparse), quick hashing (on preallocated nodes)
+and red-black tree.
 The sparse matrix is populated with values, random values potentially
 non-existing values are read, known existing values are read and known
 existing values are marked as zero. This default 500 x 500 sparse matrix

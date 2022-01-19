@@ -43,8 +43,9 @@
 #define HAVE_RB_TREE	(1)
 #endif
 
-#if defined(HAVE_JUDY_H) && \
-    defined(HAVE_LIB_JUDY)
+#if defined(HAVE_JUDY_H) && 	\
+    defined(HAVE_LIB_JUDY) &&	\
+    (ULONG_MAX > 0xffffffff)
 #define HAVE_JUDY	(1)
 #endif
 
