@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
  *  the wide string stress test has different classes of stressors
  */
 typedef void (*stress_wcs_func)(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -50,7 +50,7 @@ typedef void (*stress_wcs_func)(
 typedef struct {
 	const char		*name;	/* human readable form of stressor */
 	const stress_wcs_func	func;	/* the wcs method function */
-	const void		*libc_func;
+	void			*libc_func;
 } stress_wcs_method_info_t;
 
 static const stress_wcs_method_info_t wcs_methods[];
@@ -108,7 +108,7 @@ static inline void wcschk(
  *	stress on wcscasecmp
  */
 static void stress_wcscasecmp(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -146,7 +146,7 @@ static void stress_wcscasecmp(
  *	stress on wcsncasecmp
  */
 static void stress_wcsncasecmp(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -187,7 +187,7 @@ static void stress_wcsncasecmp(
  *	stress on wcslcpy
  */
 static void stress_wcslcpy(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -213,7 +213,7 @@ static void stress_wcslcpy(
  *	stress on wcscpy
  */
 static void stress_wcscpy(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -243,7 +243,7 @@ static void stress_wcscpy(
  *	stress on wcslcat
  */
 static void stress_wcslcat(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -278,7 +278,7 @@ static void stress_wcslcat(
  *	stress on wcscat
  */
 static void stress_wcscat(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -313,7 +313,7 @@ static void stress_wcscat(
  *	stress on wcsncat
  */
 static void stress_wcsncat(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -348,7 +348,7 @@ static void stress_wcsncat(
  *	stress on wcschr
  */
 static void stress_wcschr(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -379,7 +379,7 @@ static void stress_wcschr(
  *	stress on wcsrchr
  */
 static void stress_wcsrchr(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -411,7 +411,7 @@ static void stress_wcsrchr(
  *	stress on wcscmp
  */
 static void stress_wcscmp(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -449,7 +449,7 @@ static void stress_wcscmp(
  *	stress on wcsncmp
  */
 static void stress_wcsncmp(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -485,7 +485,7 @@ static void stress_wcsncmp(
  *	stress on wcslen
  */
 static void stress_wcslen(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -516,7 +516,7 @@ static void stress_wcslen(
  *	stress on wcscoll
  */
 static void stress_wcscoll(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -554,7 +554,7 @@ static void stress_wcscoll(
  *	stress on wcsxfrm
  */
 static void stress_wcsxfrm(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -588,7 +588,7 @@ static void stress_wcsxfrm(
  *	iterate over all wcs stressors
  */
 static void stress_wcs_all(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	wchar_t *str1,
 	const size_t len1,
@@ -693,7 +693,7 @@ static int stress_wcs(const stress_args_t *args)
 {
 	stress_wcs_method_info_t const *wcs_method = &wcs_methods[0];
 	stress_wcs_func func;
-	const void *libc_func;
+	void *libc_func;
 	bool failed = false;
 	wchar_t ALIGN64 str1[STR1LEN], ALIGN64 str2[STR2LEN];
 	register wchar_t *ptr1, *ptr2;

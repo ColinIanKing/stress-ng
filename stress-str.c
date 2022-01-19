@@ -28,7 +28,7 @@
  *  the STR stress test has different classes of string stressors
  */
 typedef void (*stress_str_func)(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -39,7 +39,7 @@ typedef void (*stress_str_func)(
 typedef struct {
 	const char 		*name;	/* human readable form of stressor */
 	const stress_str_func	func;	/* the stressor function */
-	const void 		*libc_func;
+	void 		*libc_func;
 } stress_str_method_info_t;
 
 static const stress_help_t help[] = {
@@ -75,7 +75,7 @@ static inline void strchk(
  *	stress on strcasecmp
  */
 static void stress_strcasecmp(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -113,7 +113,7 @@ static void stress_strcasecmp(
  *	stress on strncasecmp
  */
 static void stress_strncasecmp(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -151,7 +151,7 @@ static void stress_strncasecmp(
  *	stress on index
  */
 static void stress_index(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -195,7 +195,7 @@ static void stress_index(
  *	stress on rindex
  */
 static void stress_rindex(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -227,7 +227,7 @@ static void stress_rindex(
  *	stress on strlcpy
  */
 static void stress_strlcpy(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -256,7 +256,7 @@ static void stress_strlcpy(
  *	stress on strcpy
  */
 static void stress_strcpy(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -284,7 +284,7 @@ static void stress_strcpy(
  *	stress on strlcat
  */
 static void stress_strlcat(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -322,7 +322,7 @@ static void stress_strlcat(
  *	stress on strcat
  */
 static void stress_strcat(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -357,7 +357,7 @@ static void stress_strcat(
  *	stress on strncat
  */
 static void stress_strncat(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -390,7 +390,7 @@ static void stress_strncat(
  *	stress on strchr
  */
 static void stress_strchr(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -419,7 +419,7 @@ static void stress_strchr(
  *	stress on strrchr
  */
 static void stress_strrchr(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -448,7 +448,7 @@ static void stress_strrchr(
  *	stress on strcmp
  */
 static void stress_strcmp(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -484,7 +484,7 @@ static void stress_strcmp(
  *	stress on strncmp
  */
 static void stress_strncmp(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -517,7 +517,7 @@ static void stress_strncmp(
  *	stress on strcoll
  */
 static void stress_strcoll(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -553,7 +553,7 @@ static void stress_strcoll(
  *	stress on strlen
  */
 static void stress_strlen(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -583,7 +583,7 @@ static void stress_strlen(
  *	stress on strxfrm
  */
 static void stress_strxfrm(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -617,7 +617,7 @@ static void stress_strxfrm(
  *	iterate over all string stressors
  */
 static void stress_str_all(
-	const void *libc_func,
+	void *libc_func,
 	const char *name,
 	char *str1,
 	const size_t len1,
@@ -704,7 +704,7 @@ static int stress_str(const stress_args_t *args)
 {
 	const stress_str_method_info_t *str_method = &str_methods[0];
 	stress_str_func func;
-	const void *libc_func;
+	void *libc_func;
 	bool failed = false;
 	char ALIGN64 str1[256], ALIGN64 str2[128];
 	register char *ptr1, *ptr2;
