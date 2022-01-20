@@ -159,23 +159,10 @@ static void stress_index(
 	const size_t len2,
 	bool *failed)
 {
-	typedef int (*test_strncasecmp_t)(const char *s1, const char *s2, size_t n);
 	typedef char * (*test_index_t)(const char *s, int c);
 
 	register size_t i;
-
-	test_strncasecmp_t test_strncasecmp = (test_strncasecmp_t)libc_func;
 	test_index_t test_index = (test_index_t)libc_func;
-
-	(void)len2;
-
-	for (i = 1; keep_stressing_flag() && (i < len1); i++) {
-		STRCHK(name, 0 == test_strncasecmp(str1, str1, len1), failed);
-		STRCHK(name, 0 == test_strncasecmp(str2, str2, len2), failed);
-
-		STRCHK(name, 0 != test_strncasecmp(str2, str1, len2), failed);
-		STRCHK(name, 0 != test_strncasecmp(str1, str2, len1), failed);
-	}
 
 	(void)len2;
 
