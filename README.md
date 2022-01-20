@@ -10,7 +10,7 @@ the various operating system kernel interfaces. Stress-ng features:
   * over 20 virtual memory stress tests
   * portable: builds on Linux, Solaris, *BSD, Minix, Android, MacOS X,
     GNU/Hurd, Haiku, Windows Subsystem for Linux and SunOs/Dilos with
-    gcc, clang, tcc and pcc.
+    gcc, clang, icc, tcc and pcc.
   * tested on alpha, armhf, arm64, hppa, i386, m68k, mips32, mips64, ppc64el,
     risc-v, s390x, sparc64, x86-64
 
@@ -178,6 +178,12 @@ To build  with the PCC portable C compiler use:
 To build with the musl C library:
 ```
 	CC=musl-gcc make
+```
+
+To build with the Intel C compiler use:
+```
+	make clean
+	CC=icc make
 ```
 
 ## Contributing to stress-ng:
