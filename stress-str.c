@@ -317,7 +317,7 @@ static void stress_strcat(
 	const size_t len2,
 	bool *failed)
 {
-	typedef char * (*test_strcat_t)(char *dest, const char *src) = libc_func;
+	typedef char * (*test_strcat_t)(char *dest, const char *src);
 
 	register size_t i;
 	test_strcat_t test_strcat = (test_strcat_t)libc_func;
