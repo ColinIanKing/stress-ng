@@ -379,17 +379,18 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin(const char *str)
  *  stress_hash_coffin32_le()
  *	Coffin hash, 32 bit optimized fetch, little endian version
  */
-uint32_t HOT OPTIMIZE3 stress_hash_coffin32_le(const char *str, size_t len)
+uint32_t HOT OPTIMIZE3 stress_hash_coffin32_le(const char *str, const size_t len)
 {
 	register uint32_t result = 0x55555555;
 	register const uint32_t *ptr32 = (const uint32_t *)str;
 	register uint32_t val = *ptr32;
+	register size_t n = len;
 
-	while (len > 4) {
+	while (n > 4) {
 		register uint32_t tmp;
 
 		tmp = val & 0xff;
-		len -= 4;
+		n -= 4;
 		result = hash_rol_uint32(result ^ tmp, 5);
 		tmp = val >> 8 & 0xff;
 		ptr32++;
@@ -404,7 +405,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_le(const char *str, size_t len)
 	{
 		register const uint8_t *ptr8 = (const uint8_t *)ptr32;
 
-		while (len--) {
+		while (n--) {
 			result ^= *ptr8++;
 			result = hash_rol_uint32(result, 5);
 		}
@@ -416,17 +417,18 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_le(const char *str, size_t len)
  *  stress_hash_coffin32_be()
  *	Coffin hash, 32 bit optimized fetch, big endian version
  */
-uint32_t HOT OPTIMIZE3 stress_hash_coffin32_be(const char *str, size_t len)
+uint32_t HOT OPTIMIZE3 stress_hash_coffin32_be(const char *str, const size_t len)
 {
 	register uint32_t result = 0x55555555;
 	register const uint32_t *ptr32 = (const uint32_t *)str;
 	register uint32_t val = *ptr32;
+	register size_t n = len;
 
-	while (len > 4) {
+	while (n > 4) {
 		register uint32_t tmp;
 
 		tmp = val >> 24 & 0xff;
-		len -= 4;
+		n -= 4;
 		result = hash_rol_uint32(result ^ tmp, 5);
 		tmp = val >> 16 & 0xff;
 		ptr32++;
@@ -441,7 +443,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_be(const char *str, size_t len)
 	{
 		register const uint8_t *ptr8 = (const uint8_t *)ptr32;
 
-		while (len--) {
+		while (n--) {
 			result ^= *ptr8++;
 			result = hash_rol_uint32(result, 5);
 		}
@@ -449,6 +451,37 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_be(const char *str, size_t len)
 	return result;
 }
 
+/*
+ * stress_hash_loselose()
+ *	Kernighan and Ritchie hash, from The C programming Language,
+ *	section 6.6, "Table lookup" 1nd Edition.
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_loselose(const char *str)
+{
+	register uint32_t hash;
+
+	for (hash = 0; *str; str++) {
+		hash += *str;
+	}
+
+	return hash;
+}
+
+/*
+ * stress_hash_knuth()
+ *	Donald E. Knuth in The Art Of Computer Programming Volume 3,
+ *	"sorting and search" chapter 6.4.
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_knuth(const char *str, const size_t len)
+{
+	register uint32_t hash = (uint32_t)len;
+
+	while (*str) {
+		hash = ((hash << 5) ^ (hash >> 27)) ^ (*str++);
+	}
+
+	return hash;
+}
 
 /*
  * stress_hash_x17
@@ -466,6 +499,28 @@ uint32_t HOT OPTIMIZE3 stress_hash_x17(const char *str)
 		hash = (17 * hash) + (val - ' ');
 	}
 	return hash ^ (hash >> 16);
+}
+
+/*
+ * stress_hash_mid5()
+ *	middle 5 chars in a string
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_mid5(const char *str, const size_t len)
+{
+	switch (len) {
+	default:
+		str += (len - 5) / 2;
+		return len ^ (str[0] ^ (str[1] << 6) ^ (str[2] << 12) ^ (str[3] << 18) ^ (str[4] << 24));
+	case 4:
+		return len ^ (str[0] ^ (str[1] << 6) ^ (str[2] << 12) ^ (str[3] << 18));
+	case 3:
+		return len ^ (str[0] ^ (str[1] << 6) ^ (str[2] << 12));
+	case 2:
+		return len ^ (str[0] ^ (str[1] << 6));
+	case 1:
+		return len ^ str[0];
+	}
+	return 0;
 }
 
 /*

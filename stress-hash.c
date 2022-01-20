@@ -435,6 +435,49 @@ static void stress_hash_method_x17(
 	stress_hash_generic(name, hmi, bucket, stress_hash_x17_wrapper, 0xd5c97ec8, 0xd5c97ec8);
 }
 
+static uint32_t stress_hash_loselose_wrapper(const char *str, const size_t len)
+{
+	(void)len;
+
+	return stress_hash_loselose(str);
+}
+
+/*
+ *  stress_hash_method_loselose()
+ *	stress test hash loselose
+ */
+static void stress_hash_method_loselose(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_loselose_wrapper, 0x0007c7e1, 0x0007c7e1);
+}
+
+/*
+ *  stress_hash_method_knuth()
+ *	stress test hash knuth
+ */
+static void stress_hash_method_knuth(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_knuth, 0xe944fc94, 0xe944fc94);
+}
+
+/*
+ *  stress_hash_method_mid5()
+ *	stress test hash mid5
+ */
+static void stress_hash_method_mid5(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_mid5, 0xe4b74962, 0xe4b74962);
+}
+
 /*
  *  stress_hash_all()
  *	iterate over all hash stressor methods
@@ -468,6 +511,9 @@ static stress_hash_method_info_t hash_methods[] = {
 	{ "fnv1a",		stress_hash_method_fnv1a,	NULL },
 	{ "jenkin",		stress_hash_method_jenkin,	NULL },
 	{ "kandr",		stress_hash_method_kandr,	NULL },
+	{ "knuth",		stress_hash_method_knuth,	NULL },
+	{ "loselose",		stress_hash_method_loselose,	NULL },
+	{ "mid5",		stress_hash_method_mid5,	NULL },
 	{ "muladd32",		stress_hash_method_muladd32,	NULL },
 	{ "muladd64",		stress_hash_method_muladd64,	NULL },
 	{ "murmur3_32",		stress_hash_method_murmur3_32,	NULL },
