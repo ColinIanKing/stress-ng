@@ -172,6 +172,65 @@ static void stress_memthrash_memmove(
 #endif
 }
 
+static void HOT OPTIMIZE3 stress_memthrash_memset64(
+	const stress_args_t *args,
+	const size_t mem_size)
+{
+	register uint64_t *ptr = (uint64_t *)mem;
+	register const uint64_t *end = (uint64_t *)(((uint8_t *)mem) + mem_size);
+	register uint64_t val = stress_mwc64();
+
+	(void)args;
+
+#if defined(HAVE_BUILTIN_SUPPORTS) &&   \
+    defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
+	/* Clang non-temporal stores */
+
+	while (LIKELY(ptr < end)) {
+		__builtin_nontemporal_store(val, ptr + 0);
+		__builtin_nontemporal_store(val, ptr + 1);
+		__builtin_nontemporal_store(val, ptr + 2);
+		__builtin_nontemporal_store(val, ptr + 3);
+		__builtin_nontemporal_store(val, ptr + 4);
+		__builtin_nontemporal_store(val, ptr + 5);
+		__builtin_nontemporal_store(val, ptr + 6);
+		__builtin_nontemporal_store(val, ptr + 7);
+		ptr += 8;
+	}
+#elif defined(HAVE_XMMINTRIN_H) &&      \
+    defined(HAVE_BUILTIN_SUPPORTS) &&   \
+    defined(HAVE_BUILTIN_IA32_MOVNTI64)
+	/* gcc non-temporal stores */
+
+	while (LIKELY(ptr < end)) {
+		__builtin_ia32_movnti64((long long *)ptr + 0, (long long)val);
+		__builtin_ia32_movnti64((long long *)ptr + 1, (long long)val);
+		__builtin_ia32_movnti64((long long *)ptr + 2, (long long)val);
+		__builtin_ia32_movnti64((long long *)ptr + 3, (long long)val);
+		__builtin_ia32_movnti64((long long *)ptr + 4, (long long)val);
+		__builtin_ia32_movnti64((long long *)ptr + 5, (long long)val);
+		__builtin_ia32_movnti64((long long *)ptr + 6, (long long)val);
+		__builtin_ia32_movnti64((long long *)ptr + 7, (long long)val);
+
+		ptr += 8;
+	}
+#else
+	/* normal temporal stores */
+
+	while (LIKELY(ptr < end)) {
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+	}
+#endif
+}
+
+
 static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
 	const stress_args_t *args,
 	const size_t mem_size)
@@ -386,6 +445,7 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "matrix",	stress_memthrash_matrix },
 	{ "memmove",	stress_memthrash_memmove },
 	{ "memset",	stress_memthrash_memset },
+	{ "memset64",	stress_memthrash_memset64 },
 	{ "mfence",	stress_memthrash_mfence },
 	{ "prefetch",	stress_memthrash_prefetch },
 	{ "random",	stress_memthrash_random },
