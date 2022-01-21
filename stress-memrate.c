@@ -216,8 +216,7 @@ static uint64_t stress_memrate_write_nt##size(			\
 								\
 	(void)rd_mbs;						\
 								\
-	if (!__builtin_cpu_supports("sse") && 			\
-            !__builtin_cpu_supports("sse2")) {			\
+	if (!stress_cpu_x86_has_sse2()) {			\
 		*valid = false;					\
 		return 0;					\
 	}							\
