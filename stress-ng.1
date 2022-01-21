@@ -1842,13 +1842,16 @@ loselose	T{
 Kernighan and Richie's simple hash from "The C Programming Language", 1st Edition
 T}
 mid5	T{
-xor shift hash of the middle 5 characters of the string (Colin Ian King)
+xor shift hash of the middle 5 characters of the string. Designed by Colin Ian King
 T}
 muladd32	T{
 simple multiply and add hash using 32 bit math and xor folding of overflow
 T}
 muladd64	T{
 simple multiply and add hash using 64 bit math and xor folding of overflow
+T}
+mulxror64	T{
+64 bit multiply, xor and rotate right. Mangles 64 bits where possible. Designed by Colin Ian King
 T}
 murmur3_32	T{
 murmur3_32 hash, Austin Appleby's Murmur3 hash, 32 bit variant

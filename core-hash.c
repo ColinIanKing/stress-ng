@@ -523,6 +523,37 @@ uint32_t HOT OPTIMIZE3 stress_hash_mid5(const char *str, const size_t len)
 	return 0;
 }
 
+static HOT OPTIMIZE3 inline uint64_t hash_ror_uint64(const uint64_t x, const uint32_t bits)
+{
+	return (x >> bits) | x << (64 - bits);
+}
+
+/*
+ *  stress_hash_mulxror64()
+ *	mangles 64 bits per iteration on fast path, scaling by the 64 bits
+ *	from the string and partially rolling right to remix bits back into
+ *	the hash. Designed and Implemented Colin Ian King, free to re-use.
+ */
+uint32_t HOT OPTIMIZE3 stress_hash_mulxror64(const char *str, const size_t len)
+{
+	register uint64_t hash = len;
+	register size_t i;
+
+	for (i = len >> 3; i; i--) {
+		uint64_t v;
+
+		(void)memcpy(&v, str, sizeof(v));
+		str += sizeof(v);
+		hash *= v;
+		hash ^= hash_ror_uint64(hash, 40);
+	}
+	for (i = len & 7; i; i--) {
+		hash *= *str++;
+		hash ^= hash_ror_uint64(hash, 5);
+	}
+	return (hash >> 32) ^ hash;
+}
+
 /*
  *  stress_hash_create()
  *	create a hash table with size of n base hash entries

@@ -4459,6 +4459,7 @@ extern WARN_UNUSED uint32_t stress_hash_x17(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_loselose(const char *str);
 extern WARN_UNUSED uint32_t stress_hash_knuth(const char *str, const size_t len);
 extern WARN_UNUSED uint32_t stress_hash_mid5(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_mulxror64(const char *str, const size_t len);
 
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);
