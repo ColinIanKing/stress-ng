@@ -2195,6 +2195,14 @@ attempt to read the kernel log with various sized read buffers. Linux only.
 .B \-\-klog\-ops N
 stop klog workers after N syslog operations.
 .TP
+.B \-\-kvm N
+start N workers that create, run and destroy a minimal virtual machine. The
+virtual machine reads, increments and writes to port 0x80 in a spin loop
+and the stressor handles the I/O transactions. Currently for x86 and Linux only.
+.TP
+.B \-\-kvm\-ops N
+stop kvm stressors after N virtual machines have been created, run and destroyed.
+.TP
 .B \-\-l1cache N
 start N workers that exercise the CPU level 1 cache with reads and writes. A cache
 aligned buffer that is twice the level 1 cache size is read and then written
@@ -2204,14 +2212,6 @@ million cache lines touched.  Where possible, the level 1 cache geometry is
 determined from the kernel, however, this is not possible on some architectures
 or kernels, so one may need to specify these manually. One can specify 3 out
 of the 4 cache geometric parameters, these are as follows:
-.TP
-.B \-\-kvm N
-start N workers that create, run and destroy a minimal virtual machine. The
-virtual machine reads, increments and writes to port 0x80 in a spin loop
-and the stressor handles the I/O transactions. Currently for x86 and Linux only.
-.TP
-.B \-\-kvm\-ops N
-stop kvm stressors after N virtual machines have been created, run and destroyed.
 .TP
 .B \-\-l1cache-line-size N
 specify the level 1 cache line size (in bytes)
