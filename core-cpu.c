@@ -22,6 +22,8 @@
 #define CPUID_tsc		(1U << 4)	/* EAX=0x1 -> EDX */
 #define CPUID_msr		(1U << 5)	/* EAX=0x1 -> EDX */
 #define CPUID_clfsh		(1U << 19)	/* EAX=0x1 -> EDX */
+#define CPUID_sse		(1U << 25)	/* EAX=0x1 -> EDX */
+#define CPUID_sse2		(1U << 26)	/* EAX=0x1 -> EDX */
 #define CPUID_rdrand		(1U << 30)	/* EAX=0x1 -> ECX */
 #define CPUID_rdseed		(1U << 18)	/* EAX=0x7, ECX=0x0 -> EBX */
 #define CPUID_pcommit		(1U << 22)	/* EAX=0x7, ECX=0x0, -> EBX */
@@ -269,6 +271,46 @@ bool stress_cpu_x86_has_clfsh(void)
 	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
 
 	return !!(edx & CPUID_clfsh);
+#else
+	return false;
+#endif
+}
+
+/*
+ *  stress_cpu_x86_has_sse()
+ *	does x86 cpu support sse?
+ */
+bool stress_cpu_x86_has_sse(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0x1, ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
+	return !!(edx & CPUID_sse);
+#else
+	return false;
+#endif
+}
+
+/*
+ *  stress_cpu_x86_has_sse2()
+ *	does x86 cpu support sse?
+ */
+bool stress_cpu_x86_has_sse2(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0x1, ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
+	return !!(edx & CPUID_sse2);
 #else
 	return false;
 #endif

@@ -4196,6 +4196,8 @@ extern WARN_UNUSED bool stress_cpu_x86_has_clwb(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_msr(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_rdrand(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_rdseed(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_sse(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_sse2(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_syscall(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_tsc(void);
 
