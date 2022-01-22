@@ -3749,6 +3749,7 @@ typedef enum {
 
 	OPT_switch_ops,
 	OPT_switch_freq,
+	OPT_switch_method,
 
 	OPT_spawn,
 	OPT_spawn_ops,

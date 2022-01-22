@@ -879,6 +879,7 @@ static const struct option long_options[] = {
 	{ "switch",		1,	0,	OPT_switch },
 	{ "switch-ops",		1,	0,	OPT_switch_ops },
 	{ "switch-freq",	1,	0,	OPT_switch_freq },
+	{ "switch-method",	1,	0,	OPT_switch_method },
 	{ "symlink",		1,	0,	OPT_symlink },
 	{ "symlink-ops",	1,	0,	OPT_symlink_ops },
 	{ "sync-file",		1,	0,	OPT_sync_file },

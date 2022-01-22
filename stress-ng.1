@@ -4200,8 +4200,9 @@ CAP_SYS_ADMIN to run.
 stop the swap workers after N swapon/swapoff iterations.
 .TP
 .B \-s N, \-\-switch N
-start N workers that send messages via pipe to a child to force context
-switching.
+start N workers that force context switching between two mutually
+blocking/unblocking tied processes. By default message passing over
+a pipe is used, but different methods are available.
 .TP
 .B \-\-switch\-ops N
 stop context switching workers after N bogo operations.
@@ -4210,6 +4211,27 @@ stop context switching workers after N bogo operations.
 run the context switching at the frequency of F context switches per
 second. Note that the specified switch rate may not be achieved
 because of CPU speed and memory bandwidth limitations.
+.TP
+.B \-\-switch\-method [ mq | pipe | sem-sysv ]
+select the preferred context switch block/run synchronization method, these
+are as follows:
+.TS
+expand;
+lB2 lB lB lB
+l l s s.
+Method	Description
+mq	T{
+use posix message queue with a 1 item size. Messages are passed between
+a sender and receiver process.
+T}
+pipe	T{
+single character messages are passed down a single character
+sized pipe between a sender and receiver process.
+T}
+sem-sysv	T{
+a SYSV semaphore is used to block/run two processes.
+T}
+.TE
 .TP
 .B \-\-symlink N
 start N workers creating and removing symbolic links.
