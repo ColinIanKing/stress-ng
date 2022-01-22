@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -51,8 +46,8 @@ static int stress_null(const stress_args_t *args)
 
 	do {
 		ssize_t ret;
-#if defined(__linux__)
 		off_t off;
+#if defined(__linux__)
 		void *ptr;
 		const size_t page_size = args->page_size;
 #endif
@@ -69,6 +64,13 @@ static int stress_null(const stress_args_t *args)
 			}
 			continue;
 		}
+
+		off = lseek(fd, (off_t)0, SEEK_SET);
+		(void)off;
+		off = lseek(fd, (off_t)0, SEEK_END);
+		(void)off;
+		off = lseek(fd, (off_t)stress_mwc64(), SEEK_CUR);
+		(void)off;
 
 #if defined(__linux__)
 		off = (off_t)stress_mwc64() & ~((off_t)page_size - 1);
