@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 Colin Ian King
+ * Copyright (C) 2021-2022 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,6 +17,8 @@
  *
  */
 #include "stress-ng.h"
+
+#define VERY_WIDE	(0)
 
 static const stress_help_t help[] = {
 	{ NULL,	"vecwide N",	 "start N workers performing vector math ops" },
@@ -52,8 +54,10 @@ static const stress_help_t help[] = {
 /*
  *  8 bit vectors, named by int8wN where N = number of bits width
  */
+#if VERY_WIDE
 typedef int8_t stress_vint8w8192_t	__attribute__ ((vector_size(8192 / 8)));
 typedef int8_t stress_vint8w4096_t	__attribute__ ((vector_size(4096 / 8)));
+#endif
 typedef int8_t stress_vint8w2048_t	__attribute__ ((vector_size(2048 / 8)));
 typedef int8_t stress_vint8w1024_t	__attribute__ ((vector_size(1024 / 8)));
 typedef int8_t stress_vint8w512_t	__attribute__ ((vector_size(512 / 8)));
@@ -62,7 +66,11 @@ typedef int8_t stress_vint8w128_t	__attribute__ ((vector_size(128 / 8)));
 typedef int8_t stress_vint8w64_t	__attribute__ ((vector_size(64 / 8)));
 typedef int8_t stress_vint8w32_t	__attribute__ ((vector_size(32 / 8)));
 
-#define VEC_MAX_SZ	sizeof(stress_vint8w4096_t)
+#if VERY_WIDE
+#define VEC_MAX_SZ	sizeof(stress_vint8w8192_t)
+#else
+#define VEC_MAX_SZ	sizeof(stress_vint8w2048_t)
+#endif
 
 typedef struct {
 	uint8_t	a[VEC_MAX_SZ];
@@ -112,8 +120,10 @@ static void TARGET_CLONES OPTIMIZE3 name (vec_args_t *vec_args) \
 	}							\
 }
 
+#if VERY_WIDE
 STRESS_VECWIDE(stress_vecwide_8192, stress_vint8w8192_t)
 STRESS_VECWIDE(stress_vecwide_4096, stress_vint8w4096_t)
+#endif
 STRESS_VECWIDE(stress_vecwide_2048, stress_vint8w2048_t)
 STRESS_VECWIDE(stress_vecwide_1024, stress_vint8w1024_t)
 STRESS_VECWIDE(stress_vecwide_512, stress_vint8w512_t)
@@ -123,8 +133,10 @@ STRESS_VECWIDE(stress_vecwide_64, stress_vint8w64_t)
 STRESS_VECWIDE(stress_vecwide_32, stress_vint8w32_t)
 
 static stress_vecwide_funcs_t stress_vecwide_funcs[] = {
+#if VERY_WIDE
 	{ stress_vecwide_8192, sizeof(stress_vint8w8192_t), 0.0 },
 	{ stress_vecwide_4096, sizeof(stress_vint8w4096_t), 0.0 },
+#endif
 	{ stress_vecwide_2048, sizeof(stress_vint8w2048_t), 0.0 },
 	{ stress_vecwide_1024, sizeof(stress_vint8w1024_t), 0.0 },
 	{ stress_vecwide_512,  sizeof(stress_vint8w512_t),  0.0 },
