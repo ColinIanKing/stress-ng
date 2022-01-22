@@ -1,7 +1,7 @@
 /*
  * Copyright (C) 2016-2017 Intel, Ltd.
  * Copyright (C) 2016-2021 Canonical, Ltd.
- * Copyright (C)      2021 Colin Ian King.
+ * Copyright (C) 2021-2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -91,14 +91,15 @@ static int stress_get_string_from_file(
  * - kibibytes ('K' - aka KiB).
  * - mebibytes ('M' - aka MiB).
  * - gibibytes ('G' - aka GiB).
+ * - tebibutes ('T' - aka TiB).
  *
  * Returns: size in bytes, or 0 on error.
  */
 static uint64_t stress_size_to_bytes(const char *str)
 {
-	uint64_t            bytes;
-	int                 ret;
-	char                sz;
+	uint64_t bytes;
+	int	 ret;
+	char	 sz;
 
 	if (!str) {
 		pr_dbg("%s: empty string specified\n", __func__);
@@ -124,6 +125,9 @@ static uint64_t stress_size_to_bytes(const char *str)
 		break;
 	case 'G':
 		bytes *= GB;
+		break;
+	case 'T':
+		bytes *= TB;
 		break;
 	default:
 		pr_err("unable to convert '%c' size to bytes\n", sz);
