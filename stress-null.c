@@ -33,7 +33,17 @@ static int stress_null(const stress_args_t *args)
 {
 	int fd;
 	char buffer[4096];
+	int fcntl_mask = 0;
 
+#if defined(O_APPEND)
+	fcntl_mask |= O_APPEND;
+#endif
+#if defined(O_ASYNC)
+	fcntl_mask |= O_ASYNC;
+#endif
+#if defined(O_NONBLOCK)
+	fcntl_mask |= O_NONBLOCK;
+#endif
 	if ((fd = open("/dev/null", O_RDWR)) < 0) {
 		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -46,6 +56,7 @@ static int stress_null(const stress_args_t *args)
 
 	do {
 		ssize_t ret;
+		int flag;
 		off_t off;
 #if defined(__linux__)
 		void *ptr;
@@ -71,6 +82,43 @@ static int stress_null(const stress_args_t *args)
 		(void)off;
 		off = lseek(fd, (off_t)stress_mwc64(), SEEK_CUR);
 		(void)off;
+
+		/* Illegal fallocate, should return ENODEV */
+		ret = shim_fallocate(fd, 0, 0, 4096);
+		(void)ret;
+
+		/* Fdatasync, EINVAL? */
+		ret = shim_fdatasync(fd);
+		(void)ret;
+
+		flag = fcntl(fd, F_GETFL, 0);
+		if (flag >= 0) {
+			const int newflag = O_RDWR | (stress_mwc32() & fcntl_mask);
+
+			ret = fcntl(fd, F_SETFL, newflag);
+			(void)ret;
+			ret = fcntl(fd, F_SETFL, flag);
+			(void)ret;
+		}
+
+#if defined(FIGETBSZ)
+		{
+			int isz;
+
+			ret = ioctl(fd, FIGETBSZ, &isz);
+			(void)ret;
+		}
+#endif
+
+#if defined(FIONREAD)
+		{
+			int isz = 0;
+
+			/* Should return -ENOTTY for /dev/null */
+			ret = ioctl(fd, FIONREAD, &isz);
+			(void)ret;
+		}
+#endif
 
 #if defined(__linux__)
 		off = (off_t)stress_mwc64() & ~((off_t)page_size - 1);
