@@ -181,48 +181,52 @@ static void HOT OPTIMIZE3 stress_memthrash_memset64(
     defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
 	/* Clang non-temporal stores */
 
-	while (LIKELY(ptr < end)) {
-		__builtin_nontemporal_store(val, ptr + 0);
-		__builtin_nontemporal_store(val, ptr + 1);
-		__builtin_nontemporal_store(val, ptr + 2);
-		__builtin_nontemporal_store(val, ptr + 3);
-		__builtin_nontemporal_store(val, ptr + 4);
-		__builtin_nontemporal_store(val, ptr + 5);
-		__builtin_nontemporal_store(val, ptr + 6);
-		__builtin_nontemporal_store(val, ptr + 7);
-		ptr += 8;
+	if (stress_cpu_x86_has_sse2()) {
+		while (LIKELY(ptr < end)) {
+			__builtin_nontemporal_store(val, ptr + 0);
+			__builtin_nontemporal_store(val, ptr + 1);
+			__builtin_nontemporal_store(val, ptr + 2);
+			__builtin_nontemporal_store(val, ptr + 3);
+			__builtin_nontemporal_store(val, ptr + 4);
+			__builtin_nontemporal_store(val, ptr + 5);
+			__builtin_nontemporal_store(val, ptr + 6);
+			__builtin_nontemporal_store(val, ptr + 7);
+			ptr += 8;
+		}
+		return;
 	}
 #elif defined(HAVE_XMMINTRIN_H) &&      \
     defined(HAVE_BUILTIN_SUPPORTS) &&   \
     defined(HAVE_BUILTIN_IA32_MOVNTI64)
 	/* gcc non-temporal stores */
 
-	while (LIKELY(ptr < end)) {
-		__builtin_ia32_movnti64((long long *)ptr + 0, (long long)val);
-		__builtin_ia32_movnti64((long long *)ptr + 1, (long long)val);
-		__builtin_ia32_movnti64((long long *)ptr + 2, (long long)val);
-		__builtin_ia32_movnti64((long long *)ptr + 3, (long long)val);
-		__builtin_ia32_movnti64((long long *)ptr + 4, (long long)val);
-		__builtin_ia32_movnti64((long long *)ptr + 5, (long long)val);
-		__builtin_ia32_movnti64((long long *)ptr + 6, (long long)val);
-		__builtin_ia32_movnti64((long long *)ptr + 7, (long long)val);
-
-		ptr += 8;
-	}
-#else
-	/* normal temporal stores */
-
-	while (LIKELY(ptr < end)) {
-		*ptr++ = val;
-		*ptr++ = val;
-		*ptr++ = val;
-		*ptr++ = val;
-		*ptr++ = val;
-		*ptr++ = val;
-		*ptr++ = val;
-		*ptr++ = val;
+	if (stress_cpu_x86_has_sse2()) {
+		while (LIKELY(ptr < end)) {
+			__builtin_ia32_movnti64((long long *)ptr + 0, (long long)val);
+			__builtin_ia32_movnti64((long long *)ptr + 1, (long long)val);
+			__builtin_ia32_movnti64((long long *)ptr + 2, (long long)val);
+			__builtin_ia32_movnti64((long long *)ptr + 3, (long long)val);
+			__builtin_ia32_movnti64((long long *)ptr + 4, (long long)val);
+			__builtin_ia32_movnti64((long long *)ptr + 5, (long long)val);
+			__builtin_ia32_movnti64((long long *)ptr + 6, (long long)val);
+			__builtin_ia32_movnti64((long long *)ptr + 7, (long long)val);
+			ptr += 8;
+		}
+		return;
 	}
 #endif
+	/* normal temporal stores, non-SSE fallback */
+
+	while (LIKELY(ptr < end)) {
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+		*ptr++ = val;
+	}
 }
 
 
