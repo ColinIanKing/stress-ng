@@ -26,176 +26,193 @@
 
 #define STRESS_ATOMIC_MAX_PROCS		(3)
 
+#define DO_NOTHING()	do { } while (0)
+
 #if defined(HAVE_ATOMIC_ADD_FETCH)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_ADD_FETCH(ptr, val, memorder)	do { __atomic_add_fetch(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_ADD_FETCH(ptr, val, memorder)	\
+	do { __atomic_add_fetch(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_ADD_FETCH(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_ADD_FETCH(ptr, val, memorder)	DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_AND_FETCH)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_AND_FETCH(ptr, val, memorder)	do { __atomic_and_fetch(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_AND_FETCH(ptr, val, memorder)	\
+	do { __atomic_and_fetch(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_AND_FETCH(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_AND_FETCH(ptr, val, memorder)	DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_CLEAR)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_CLEAR(ptr, memorder)		do { __atomic_clear(ptr, memorder); } while (0)
+#define	SHIM_ATOMIC_CLEAR(ptr, memorder)		\
+	do { __atomic_clear(ptr, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_CLEAR(ptr, memorder)		do { } while (0)
+#define SHIM_ATOMIC_CLEAR(ptr, memorder)		DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_FETCH_ADD)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_FETCH_ADD(ptr, val, memorder)	do { __atomic_fetch_add(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_FETCH_ADD(ptr, val, memorder)	\
+	do { __atomic_fetch_add(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_FETCH_ADD(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_FETCH_ADD(ptr, val, memorder)	DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_FETCH_AND)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_FETCH_AND(ptr, val, memorder)	do { __atomic_fetch_and(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_FETCH_AND(ptr, val, memorder)	\
+	do { __atomic_fetch_and(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_FETCH_AND(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_FETCH_AND(ptr, val, memorder)	DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_FETCH_NAND)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_FETCH_NAND(ptr, val, memorder)	do { __atomic_fetch_nand(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_FETCH_NAND(ptr, val, memorder)	\
+	do { __atomic_fetch_nand(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_FETCH_NAND(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_FETCH_NAND(ptr, val, memorder)	DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_FETCH_OR)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_FETCH_OR(ptr, val, memorder)	do { __atomic_fetch_or(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_FETCH_OR(ptr, val, memorder)	\
+	do { __atomic_fetch_or(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_FETCH_OR(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_FETCH_OR(ptr, val, memorder)	DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_FETCH_SUB)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_FETCH_SUB(ptr, val, memorder)	do { __atomic_fetch_sub(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_FETCH_SUB(ptr, val, memorder)	\
+	do { __atomic_fetch_sub(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_FETCH_SUB(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_FETCH_SUB(ptr, val, memorder)	DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_FETCH_XOR)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_FETCH_XOR(ptr, val, memorder)	do { __atomic_fetch_xor(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_FETCH_XOR(ptr, val, memorder)	\
+	do { __atomic_fetch_xor(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_FETCH_XOR(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_FETCH_XOR(ptr, val, memorder)	DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_LOAD)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_LOAD(ptr, val, memorder)		do { __atomic_load(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_LOAD(ptr, val, memorder)		\
+	do { __atomic_load(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_LOAD(ptr, val, memorder)		do { } while (0)
+#define SHIM_ATOMIC_LOAD(ptr, val, memorder)		DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_NAND_FETCH)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_NAND_FETCH(ptr, val, memorder)	do { __atomic_nand_fetch(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_NAND_FETCH(ptr, val, memorder)	\
+	do { __atomic_nand_fetch(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_NAND_FETCH(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_NAND_FETCH(ptr, val, memorder)	DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_OR_FETCH)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_OR_FETCH(ptr, val, memorder)	do { __atomic_or_fetch(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_OR_FETCH(ptr, val, memorder)	\
+	do { __atomic_or_fetch(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_OR_FETCH(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_OR_FETCH(ptr, val, memorder)	DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_STORE)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_STORE(ptr, val, memorder)		do { __atomic_store(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_STORE(ptr, val, memorder)		\
+	do { __atomic_store(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_STORE(ptr, val, memorder)		do { } while (0)
+#define SHIM_ATOMIC_STORE(ptr, val, memorder)		DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_SUB_FETCH)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_SUB_FETCH(ptr, val, memorder)	do { __atomic_sub_fetch(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_SUB_FETCH(ptr, val, memorder)	\
+	do { __atomic_sub_fetch(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_SUB_FETCH(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_SUB_FETCH(ptr, val, memorder)	DO_NOTHING()
 #endif
 
 #if defined(HAVE_ATOMIC_XOR_FETCH)
 #define HAVE_ATOMIC_OPS
-#define	SHIM_ATOMIC_XOR_FETCH(ptr, val, memorder)	do { __atomic_xor_fetch(ptr, val, memorder); } while (0)
+#define	SHIM_ATOMIC_XOR_FETCH(ptr, val, memorder)	\
+	do { __atomic_xor_fetch(ptr, val, memorder); } while (0)
 #else
-#define SHIM_ATOMIC_XOR_FETCH(ptr, val, memorder)	do { } while (0)
+#define SHIM_ATOMIC_XOR_FETCH(ptr, val, memorder)	DO_NOTHING()
 #endif
 
-#define DO_ATOMIC_OPS(type, var)				\
-do {								\
-	type tmp = (type)stress_mwc64();			\
-								\
-	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 	\
-	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_RELAXED);		\
-	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_ACQUIRE);		\
-	SHIM_ATOMIC_ADD_FETCH(var, (type)1, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_ADD_FETCH(var, (type)2, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_SUB_FETCH(var, (type)3, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_SUB_FETCH(var, (type)4, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_AND_FETCH(var, (type)~1, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_AND_FETCH(var, (type)~2, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_XOR_FETCH(var, (type)~4, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_XOR_FETCH(var, (type)~8, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_OR_FETCH(var, (type)16, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_OR_FETCH(var, (type)32, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_NAND_FETCH(var, (type)64, __ATOMIC_RELAXED);\
-	SHIM_ATOMIC_NAND_FETCH(var, (type)128, __ATOMIC_ACQUIRE);\
-	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);		\
-								\
-	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 	\
-	SHIM_ATOMIC_FETCH_ADD(var, (type)1, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_FETCH_ADD(var, (type)2, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_FETCH_SUB(var, (type)3, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_FETCH_SUB(var, (type)4, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_FETCH_AND(var, (type)~1, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_FETCH_AND(var, (type)~2, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_FETCH_XOR(var, (type)~4, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_FETCH_XOR(var, (type)~8, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_FETCH_OR(var, (type)16, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_FETCH_OR(var, (type)32, __ATOMIC_ACQUIRE);	\
+#define DO_ATOMIC_OPS(type, var)					\
+do {									\
+	type tmp = (type)stress_mwc64();				\
+									\
+	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 		\
+	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_RELAXED);			\
+	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_ACQUIRE);			\
+	SHIM_ATOMIC_ADD_FETCH(var, (type)1, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_ADD_FETCH(var, (type)2, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_SUB_FETCH(var, (type)3, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_SUB_FETCH(var, (type)4, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_AND_FETCH(var, (type)~1, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_AND_FETCH(var, (type)~2, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_XOR_FETCH(var, (type)~4, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_XOR_FETCH(var, (type)~8, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_OR_FETCH(var, (type)16, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_OR_FETCH(var, (type)32, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_NAND_FETCH(var, (type)64, __ATOMIC_RELAXED);	\
+	SHIM_ATOMIC_NAND_FETCH(var, (type)128, __ATOMIC_ACQUIRE);	\
+	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);			\
+									\
+	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 		\
+	SHIM_ATOMIC_FETCH_ADD(var, (type)1, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_FETCH_ADD(var, (type)2, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_FETCH_SUB(var, (type)3, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_FETCH_SUB(var, (type)4, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_FETCH_AND(var, (type)~1, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_FETCH_AND(var, (type)~2, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_FETCH_XOR(var, (type)~4, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_FETCH_XOR(var, (type)~8, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_FETCH_OR(var, (type)16, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_FETCH_OR(var, (type)32, __ATOMIC_ACQUIRE);		\
 	SHIM_ATOMIC_FETCH_NAND(var, (type)64, __ATOMIC_RELAXED);	\
 	SHIM_ATOMIC_FETCH_NAND(var, (type)128, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);		\
-								\
-	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 	\
-	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_RELAXED);		\
-	SHIM_ATOMIC_ADD_FETCH(var, (type)1, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_SUB_FETCH(var, (type)3, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_AND_FETCH(var, (type)~1, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_XOR_FETCH(var, (type)~4, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_OR_FETCH(var, (type)16, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_NAND_FETCH(var, (type)64, __ATOMIC_RELAXED);\
-	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_ACQUIRE);		\
-	SHIM_ATOMIC_ADD_FETCH(var, (type)2, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_SUB_FETCH(var, (type)4, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_AND_FETCH(var, (type)~2, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_XOR_FETCH(var, (type)~8, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_OR_FETCH(var, (type)32, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_NAND_FETCH(var, (type)128, __ATOMIC_ACQUIRE);\
-	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);		\
-								\
-	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 	\
-	SHIM_ATOMIC_FETCH_ADD(var, (type)1, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_FETCH_SUB(var, (type)3, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_FETCH_AND(var, (type)~1, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_FETCH_XOR(var, (type)~4, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_FETCH_OR(var, (type)16, __ATOMIC_RELAXED);	\
+	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);			\
+									\
+	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 		\
+	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_RELAXED);			\
+	SHIM_ATOMIC_ADD_FETCH(var, (type)1, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_SUB_FETCH(var, (type)3, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_AND_FETCH(var, (type)~1, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_XOR_FETCH(var, (type)~4, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_OR_FETCH(var, (type)16, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_NAND_FETCH(var, (type)64, __ATOMIC_RELAXED);	\
+	SHIM_ATOMIC_LOAD(var, &tmp, __ATOMIC_ACQUIRE);			\
+	SHIM_ATOMIC_ADD_FETCH(var, (type)2, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_SUB_FETCH(var, (type)4, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_AND_FETCH(var, (type)~2, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_XOR_FETCH(var, (type)~8, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_OR_FETCH(var, (type)32, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_NAND_FETCH(var, (type)128, __ATOMIC_ACQUIRE);	\
+	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);			\
+									\
+	SHIM_ATOMIC_STORE(var, &tmp, __ATOMIC_RELAXED); 		\
+	SHIM_ATOMIC_FETCH_ADD(var, (type)1, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_FETCH_SUB(var, (type)3, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_FETCH_AND(var, (type)~1, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_FETCH_XOR(var, (type)~4, __ATOMIC_RELAXED);		\
+	SHIM_ATOMIC_FETCH_OR(var, (type)16, __ATOMIC_RELAXED);		\
 	SHIM_ATOMIC_FETCH_NAND(var, (type)64, __ATOMIC_RELAXED);	\
-	SHIM_ATOMIC_FETCH_ADD(var, (type)2, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_FETCH_SUB(var, (type)4, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_FETCH_AND(var, (type)~2, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_FETCH_XOR(var, (type)~8, __ATOMIC_ACQUIRE);	\
-	SHIM_ATOMIC_FETCH_OR(var, (type)32, __ATOMIC_ACQUIRE);	\
+	SHIM_ATOMIC_FETCH_ADD(var, (type)2, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_FETCH_SUB(var, (type)4, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_FETCH_AND(var, (type)~2, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_FETCH_XOR(var, (type)~8, __ATOMIC_ACQUIRE);		\
+	SHIM_ATOMIC_FETCH_OR(var, (type)32, __ATOMIC_ACQUIRE);		\
 	SHIM_ATOMIC_FETCH_NAND(var, (type)128, __ATOMIC_ACQUIRE);	\
 	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);			\
 } while (0)
