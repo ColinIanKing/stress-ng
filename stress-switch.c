@@ -491,19 +491,6 @@ static int stress_set_switch_method(const char *name)
 	return -1;
 }
 
-static stress_switch_method_t *stress_switch_method_default(const char *name)
-{
-	stress_switch_method_t *info;
-
-	for (info = stress_switch_methods; info->name; info++) {
-		if (!strcmp(info->name, name))
-			return info;
-	}
-
-	/* not found, use first */
-	return stress_switch_methods;
-}
-
 /*
  *  stress_switch
  *	stress by heavy context switching
@@ -512,7 +499,7 @@ static int stress_switch(const stress_args_t *args)
 {
 	uint64_t switch_freq = 0, switch_delay, threshold;
 
-	stress_switch_method_t *switch_method = stress_switch_method_default("pipe");
+	stress_switch_method_t *switch_method;
 
 	(void)stress_get_setting("switch-freq", &switch_freq);
 	(void)stress_get_setting("switch-method", (void *)&switch_method);
@@ -521,6 +508,11 @@ static int stress_switch(const stress_args_t *args)
 	threshold = switch_freq / THRESH_FREQ;
 
 	return switch_method->func(args, switch_freq, switch_delay, threshold);
+}
+
+static void stress_switch_set_default(void)
+{
+	stress_set_switch_method("pipe");
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
@@ -533,5 +525,6 @@ stressor_info_t stress_switch_info = {
 	.stressor = stress_switch,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.set_default = stress_switch_set_default,
 	.help = help
 };
