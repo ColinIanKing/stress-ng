@@ -276,6 +276,7 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	PERF_INFO_TP("irq/irq_handler_exit",		"IRQ Exit"),
 	PERF_INFO_TP("irq/softirq_entry",		"Soft IRQ Entry"),
 	PERF_INFO_TP("irq/softirq_exit",		"Soft IRQ Exit"),
+	PERF_INFO_TP("nmi/nmi_handler",			"NMI handler"),
 
 	PERF_INFO_TP("writeback/writeback_dirty_inode",	"Writeback Dirty Inode"),
 	PERF_INFO_TP("writeback/writeback_dirty_page",	"Writeback Dirty Page"),
