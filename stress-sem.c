@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_SEM_POSIX_PROCS     (2)
+#define MAX_SEM_POSIX_PROCS     (64)
+#define DEFAULT_SEM_POSIX_PROCS (2)
 
 static const stress_help_t help[] = {
 	{ NULL,	"sem N",	"start N workers doing semaphore operations" },
@@ -37,7 +36,7 @@ static int stress_set_semaphore_posix_procs(const char *opt)
 
 	semaphore_posix_procs = stress_get_uint64(opt);
 	stress_check_range("sem-procs", semaphore_posix_procs,
-		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
+		MIN_SEM_POSIX_PROCS, MAX_SEM_POSIX_PROCS);
 	return stress_set_setting("sem-procs", TYPE_ID_UINT64, &semaphore_posix_procs);
 }
 
@@ -46,13 +45,13 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_SEMAPHORE_H) && \
+#if defined(HAVE_SEM_POSIX_H) && \
     defined(HAVE_LIB_PTHREAD) && \
     defined(HAVE_SEM_POSIX)
 
 static sem_t sem;
-static pthread_t pthreads[MAX_SEMAPHORE_PROCS];
-static int p_ret[MAX_SEMAPHORE_PROCS];
+static pthread_t pthreads[MAX_SEM_POSIX_PROCS];
+static int p_ret[MAX_SEM_POSIX_PROCS];
 
 /*
  *  semaphore_posix_thrash()
@@ -127,16 +126,16 @@ static void *semaphore_posix_thrash(void *arg)
  */
 static int stress_sem(const stress_args_t *args)
 {
-	uint64_t semaphore_posix_procs = DEFAULT_SEMAPHORE_PROCS;
+	uint64_t semaphore_posix_procs = DEFAULT_SEM_POSIX_PROCS;
 	uint64_t i;
 	bool created = false;
 	stress_pthread_args_t p_args;
 
 	if (!stress_get_setting("sem-procs", &semaphore_posix_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			semaphore_posix_procs = MAX_SEMAPHORE_PROCS;
+			semaphore_posix_procs = MAX_SEM_POSIX_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			semaphore_posix_procs = MIN_SEMAPHORE_PROCS;
+			semaphore_posix_procs = MIN_SEM_POSIX_PROCS;
 	}
 
 	/* create a semaphore */

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,10 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define STRESS_PTHREAD_EXIT_GROUP_MAX	(16)
 
 static const stress_help_t help[] = {
 	{ NULL,	"exit-group N",		"start N workers that exercise exit_group" },
@@ -33,8 +30,6 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LIB_PTHREAD) && 	\
     defined(__NR_exit_group)
 
-#define STRESS_PTHREAD_EXIT_GROUP_MAX	(16)
-
 /* per pthread data */
 typedef struct {
 	pthread_t pthread;	/* The pthread */
@@ -44,7 +39,7 @@ typedef struct {
 static pthread_mutex_t mutex;
 static volatile bool keep_running_flag;
 static uint64_t pthread_count;
-static stress_exit_group_info_t pthreads[MAX_PTHREAD];
+static stress_exit_group_info_t pthreads[STRESS_PTHREAD_EXIT_GROUP_MAX];
 
 static inline void stop_running(void)
 {

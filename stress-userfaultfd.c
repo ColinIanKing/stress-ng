@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_USERFAULT_BYTES	(4 * KB)
+#define MAX_USERFAULT_BYTES	(MAX_MEM_LIMIT)
+#define DEFAULT_USERFAULT_BYTES	(256 * MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"userfaultfd N",	"start N page faulting workers with userspace handling" },
@@ -55,7 +54,7 @@ static int stress_set_userfaultfd_bytes(const char *opt)
 
 	userfaultfd_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("userfaultfd-bytes", userfaultfd_bytes,
-		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
+		MIN_USERFAULT_BYTES, MAX_MEM_LIMIT);
 	return stress_set_setting("userfaultfd-bytes", TYPE_ID_SIZE_T, &userfaultfd_bytes);
 }
 
@@ -183,7 +182,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	bool do_poll = true;
 	static uint8_t stack[STACK_SIZE]; /* Child clone stack */
 	uint8_t *stack_top = (uint8_t *)stress_get_stack_top((void *)stack, STACK_SIZE);
-	size_t userfaultfd_bytes = DEFAULT_MMAP_BYTES;
+	size_t userfaultfd_bytes = DEFAULT_USERFAULT_BYTES;
 
 	(void)context;
 
@@ -191,11 +190,11 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			userfaultfd_bytes = MAX_32;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			userfaultfd_bytes = MIN_MMAP_BYTES;
+			userfaultfd_bytes = MIN_USERFAULT_BYTES;
 	}
 	userfaultfd_bytes /= args->num_instances;
-	if (userfaultfd_bytes < MIN_MMAP_BYTES)
-		userfaultfd_bytes = MIN_MMAP_BYTES;
+	if (userfaultfd_bytes < MIN_USERFAULT_BYTES)
+		userfaultfd_bytes = MIN_USERFAULT_BYTES;
 	if (userfaultfd_bytes < args->page_size)
 		userfaultfd_bytes = args->page_size;
 

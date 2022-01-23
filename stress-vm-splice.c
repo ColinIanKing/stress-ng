@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_VM_SPLICE_BYTES	(4 * KB)
+#define MAX_VM_SPLICE_BYTES	(64 * MB)
+#define DEFAULT_VM_SPLICE_BYTES	(64 * KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"vm-splice N",		"start N workers reading/writing using vmsplice" },

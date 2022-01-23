@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_EXECS		(1)
+#define MAX_EXECS		(16000)
+#define DEFAULT_EXECS		(1)
 
 #if defined(__linux__)
 /*
@@ -212,7 +211,7 @@ static inline int stress_do_exec(stress_exec_args_t *ea)
  */
 static int stress_exec(const stress_args_t *args)
 {
-	static pid_t pids[MAX_FORKS];
+	static pid_t pids[MAX_EXECS];
 	char path[PATH_MAX + 1];
 	char filename[PATH_MAX];
 	ssize_t len;

@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#define MIN_FALLOCATE_BYTES	(1 * MB)
+#define MAX_FALLOCATE_BYTES	(MAX_FILE_LIMIT)
+#define DEFAULT_FALLOCATE_BYTES	(1 * GB)
+
 static const stress_help_t help[] = {
 	{ NULL,	"fallocate N",		"start N workers fallocating 16MB files" },
 	{ NULL,	"fallocate-ops N",	"stop after N fallocate bogo operations" },

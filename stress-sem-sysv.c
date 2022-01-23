@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_SEM_SYSV_PROCS     (2)
+#define MAX_SEM_SYSV_PROCS     (64)
+#define DEFAULT_SEM_SYSV_PROCS (2)
 
 #define STRESS_MAX_SEMS		(100)
 
@@ -48,7 +47,7 @@ static int stress_set_semaphore_sysv_procs(const char *opt)
 
 	semaphore_sysv_procs = stress_get_uint64(opt);
 	stress_check_range("sem-sysv-procs", semaphore_sysv_procs,
-		MIN_SEMAPHORE_PROCS, MAX_SEMAPHORE_PROCS);
+		MIN_SEM_SYSV_PROCS, MAX_SEM_SYSV_PROCS);
 	return stress_set_setting("sem-sysv-procs", TYPE_ID_UINT64, &semaphore_sysv_procs);
 }
 
@@ -557,16 +556,16 @@ static void stress_sem_sysv_sigchild(int sig)
  */
 static int stress_sem_sysv(const stress_args_t *args)
 {
-	pid_t pids[MAX_SEMAPHORE_PROCS];
+	pid_t pids[MAX_SEM_SYSV_PROCS];
 	uint64_t i;
-	uint64_t semaphore_sysv_procs = DEFAULT_SEMAPHORE_PROCS;
+	uint64_t semaphore_sysv_procs = DEFAULT_SEM_SYSV_PROCS;
 	int rc = EXIT_SUCCESS;
 
 	if (!stress_get_setting("sem-sysv-procs", &semaphore_sysv_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			semaphore_sysv_procs = MAX_SEMAPHORE_PROCS;
+			semaphore_sysv_procs = MAX_SEM_SYSV_PROCS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			semaphore_sysv_procs = MIN_SEMAPHORE_PROCS;
+			semaphore_sysv_procs = MIN_SEM_SYSV_PROCS;
 	}
 
 	if (!g_shared->sem_sysv.init) {

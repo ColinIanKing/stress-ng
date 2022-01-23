@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
- * Copyright (C)      2021 Colin Ian King.
+ * Copyright (C) 2021-2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +18,14 @@
  *
  */
 #include "stress-ng.h"
+
+#define MIN_MEMFD_BYTES		(2 * MB)
+#define MAX_MEMFD_BYTES		(MAX_MEM_LIMIT)
+#define DEFAULT_MEMFD_BYTES	(256 * MB)
+
+#define MIN_MEMFD_FDS		(8)
+#define MAX_MEMFD_FDS		(4096)
+#define DEFAULT_MEMFD_FDS	(256)
 
 static const stress_help_t help[] = {
 	{ NULL,	"memfd N",	 "start N workers allocating memory with memfd_create" },

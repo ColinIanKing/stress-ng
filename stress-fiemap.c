@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#define MIN_FIEMAP_SIZE		(1 * MB)
+#define MAX_FIEMAP_SIZE		(MAX_FILE_LIMIT)
+#define DEFAULT_FIEMAP_SIZE	(16 * MB)
+
 #define MAX_FIEMAP_PROCS	(4)		/* Number of FIEMAP stressors */
 #define COUNT_MAX		(128)
 

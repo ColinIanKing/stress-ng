@@ -19,6 +19,14 @@
  */
 #include "stress-ng.h"
 
+#define MIN_VM_BYTES		(4 * KB)
+#define MAX_VM_BYTES		(MAX_MEM_LIMIT)
+#define DEFAULT_VM_BYTES	(256 * MB)
+
+#define MIN_VM_HANG		(0)
+#define MAX_VM_HANG		(3600)
+#define DEFAULT_VM_HANG		(~0ULL)
+
 /*
  *  For testing, set this to 1 to simulate random memory errors
  */

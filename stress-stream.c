@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,12 +16,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  * This stressor is loosely based on the STREAM Sustainable
  * Memory Bandwidth In High Performance Computers tool.
  *   https://www.cs.virginia.edu/stream/
@@ -34,6 +29,10 @@
  *
  */
 #include "stress-ng.h"
+
+#define MIN_STREAM_L3_SIZE	(4 * KB)
+#define MAX_STREAM_L3_SIZE	(MAX_MEM_LIMIT)
+#define DEFAULT_STREAM_L3_SIZE	(4 * MB)
 
 typedef struct {
 	const char *name;

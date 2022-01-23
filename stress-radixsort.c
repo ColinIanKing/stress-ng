@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_RADIXSORT_SIZE	(1 * KB)
+#define MAX_RADIXSORT_SIZE	(4 * MB)
+#define DEFAULT_RADIXSORT_SIZE	(256 * KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"radixsort N",	    "start N workers radix sorting random strings" },
@@ -63,7 +62,7 @@ static int stress_set_radixsort_size(const char *opt)
 
 	radixsort_size = stress_get_uint64(opt);
 	stress_check_range("radixsort-size", radixsort_size,
-		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
+		MIN_RADIXSORT_SIZE, MAX_RADIXSORT_SIZE);
 	return stress_set_setting("radixsort-size", TYPE_ID_UINT64, &radixsort_size);
 }
 

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,16 +16,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
 
-#define MAX_MALLOC_PTHREADS		(32)
+#define MIN_MALLOC_BYTES	(1 * KB)
+#define MAX_MALLOC_BYTES	(MAX_MEM_LIMIT)
+#define DEFAULT_MALLOC_BYTES	(64 * KB)
+
+#define MIN_MALLOC_MAX		(32)
+#define MAX_MALLOC_MAX		(256 * 1024)
+#define DEFAULT_MALLOC_MAX	(64 * KB)
+
+#define MIN_MALLOC_THRESHOLD	(1)
+#define MAX_MALLOC_THRESHOLD	(256 * MB)
+#define DEFAULT_MALLOC_THRESHOLD (128 * KB)
+
+#define MAX_MALLOC_PTHREADS	(32)
 
 static size_t malloc_max;		/* Maximum number of allocations */
 static size_t malloc_bytes;		/* Maximum per-allocation size */

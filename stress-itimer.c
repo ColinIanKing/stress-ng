@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_ITIMER_FREQ		(1)
+#define MAX_ITIMER_FREQ		(100000000)
+#define DEFAULT_ITIMER_FREQ	(1000000)
 
 static volatile uint64_t itimer_counter = 0;
 static uint64_t max_ops;
@@ -58,7 +57,7 @@ static int stress_set_itimer_freq(const char *opt)
 
 	itimer_freq = stress_get_uint64(opt);
 	stress_check_range("itimer-freq", itimer_freq,
-		MIN_TIMER_FREQ, MAX_TIMER_FREQ);
+		MIN_ITIMER_FREQ, MAX_ITIMER_FREQ);
 	return stress_set_setting("itimer-freq", TYPE_ID_UINT64, &itimer_freq);
 }
 
@@ -151,7 +150,7 @@ static int stress_itimer(const stress_args_t *args)
 {
 	struct itimerval timer;
 	sigset_t mask;
-	uint64_t itimer_freq = DEFAULT_TIMER_FREQ;
+	uint64_t itimer_freq = DEFAULT_ITIMER_FREQ;
 
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGINT);

@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_MATRIX3D_SIZE	(16)
+#define MAX_MATRIX3D_SIZE	(1024)
+#define DEFAULT_MATRIX3D_SIZE	(64)
 
 static const stress_help_t help[] = {
 	{ NULL,	"matrix-3d N",		"start N workers exercising 3D matrix operations" },
@@ -989,9 +988,9 @@ static int stress_matrix(const stress_args_t *args)
 
 	if (!stress_get_setting("matrix-3d-size", &matrix_3d_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			matrix_3d_size = MAX_MATRIX_SIZE;
+			matrix_3d_size = MAX_MATRIX3D_SIZE;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			matrix_3d_size = MIN_MATRIX_SIZE;
+			matrix_3d_size = MIN_MATRIX3D_SIZE;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

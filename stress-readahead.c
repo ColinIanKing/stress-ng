@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
- * Copyright     2021 Colin Ian King
+ * Copyright (C) 2021-2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -16,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_READAHEAD_BYTES	(1 * MB)
+#define MAX_READAHEAD_BYTES	(MAX_FILE_LIMIT)
+#define DEFAULT_READAHEAD_BYTES	(64 * MB)
 
 #define BUF_ALIGNMENT		(4096)
 #define BUF_SIZE		(4096)
@@ -42,7 +40,7 @@ static int stress_set_readahead_bytes(const char *opt)
 
 	readahead_bytes = stress_get_uint64_byte_filesystem(opt, 1);
 	stress_check_range_bytes("readahead-bytes", readahead_bytes,
-		MIN_HDD_BYTES, MAX_HDD_BYTES);
+		MIN_READAHEAD_BYTES, MAX_READAHEAD_BYTES);
 	return stress_set_setting("readahead-bytes", TYPE_ID_UINT64, &readahead_bytes);
 }
 

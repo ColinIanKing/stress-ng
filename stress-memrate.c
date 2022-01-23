@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2016-2021 Canonical, Ltd.
- * Copyright 2021 Colin Ian King
+ * Copyright (C) 2021-2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +18,10 @@
  *
  */
 #include "stress-ng.h"
+
+#define MIN_MEMRATE_BYTES       (4 * KB)
+#define MAX_MEMRATE_BYTES       (MAX_MEM_LIMIT)
+#define DEFAULT_MEMRATE_BYTES   (256 * MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"memrate N",		"start N workers exercised memory read/writes" },

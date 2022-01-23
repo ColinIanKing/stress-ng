@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_AIO_LINUX_REQUESTS		(1)
+#define MAX_AIO_LINUX_REQUESTS		(4096)
+#define DEFAULT_AIO_LINUX_REQUESTS	(64)
 
 #define BUFFER_SZ		(4096)
 #define DEFAULT_AIO_MAX_NR	(65536)
@@ -355,12 +354,12 @@ static int stress_aiol(const stress_args_t *args)
 
 	if (!stress_get_setting("aiol-requests", &aio_linux_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			aio_linux_requests = MAX_AIO_REQUESTS;
+			aio_linux_requests = MAX_AIO_LINUX_REQUESTS;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			aio_linux_requests = MIN_AIO_REQUESTS;
+			aio_linux_requests = MIN_AIO_LINUX_REQUESTS;
 	}
-	if ((aio_linux_requests < MIN_AIO_REQUESTS) ||
-	    (aio_linux_requests > MAX_AIO_REQUESTS)) {
+	if ((aio_linux_requests < MIN_AIO_LINUX_REQUESTS) ||
+	    (aio_linux_requests > MAX_AIO_LINUX_REQUESTS)) {
 		pr_err("%s: iol_requests out of range", args->name);
 		return EXIT_FAILURE;
 	}

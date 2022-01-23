@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#define MIN_AIO_REQUESTS	(1)
+#define MAX_AIO_REQUESTS	(4096)
+#define DEFAULT_AIO_REQUESTS	(16)
+
 static const stress_help_t help[] = {
 	{ NULL,	"aio N",	"start N workers that issue async I/O requests" },
 	{ NULL,	"aio-ops N",	"stop after N bogo async I/O requests" },

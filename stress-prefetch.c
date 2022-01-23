@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2016-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Canonical, Ltd.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,35 +16,23 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
- * This stressor is loosely based on the STREAM Sustainable
- * Memory Bandwidth In High Performance Computers tool.
- *   https://www.cs.virginia.edu/stream/
- *   https://www.cs.virginia.edu/stream/FTP/Code/stream.c
- *
- * This is loosely based on a variant of the STREAM benchmark code,
- * so DO NOT submit results based on this as it is intended to
- * stress memory and compute and NOT intended for STREAM accurate
- * tuned or non-tuned benchmarking whatsoever.  I believe this
- * conforms to section 3a, 3b of the original License.
- *
  */
 #include "stress-ng.h"
 
-static const stress_help_t help[] = {
-	{ NULL,	"stream N",		"start N workers exercising memory bandwidth" },
-	{ NULL,	"stream-ops N",		"stop after N bogo stream operations" },
-	{ NULL,	"stream-l3-size N",	"specify the L3 cache size of the CPU" },
-	{ NULL,	NULL,                   NULL }
-};
+#define MIN_PREFETCH_L3_SIZE      (4 * KB)
+#define MAX_PREFETCH_L3_SIZE      (MAX_MEM_LIMIT)
+#define DEFAULT_PREFETCH_L3_SIZE  (4 * MB)
 
 #define STRESS_PREFETCH_OFFSETS	(128)
 #define STRESS_CACHE_LINE_SIZE	(64)
+
+
+static const stress_help_t help[] = {
+	{ NULL,	"prefetch N" ,		"start N workers exercising memory prefetching " },
+	{ NULL,	"prefetch-ops N",	"stop after N bogo prefetching operations" },
+	{ NULL,	"prefetch-l3-size N",	"specify the L3 cache size of the CPU" },
+	{ NULL,	NULL,                   NULL }
+};
 
 typedef struct {
 	size_t	offset;
@@ -60,7 +49,7 @@ static int stress_set_prefetch_L3_size(const char *opt)
 
 	stream_L3_size = stress_get_uint64_byte(opt);
 	stress_check_range_bytes("stream-L3-size", stream_L3_size,
-		MIN_STREAM_L3_SIZE, SIZE_MAX);
+		MIN_PREFETCH_L3_SIZE, SIZE_MAX);
 	sz = (size_t)stream_L3_size;
 
 	return stress_set_setting("stream-L3-size", TYPE_ID_SIZE_T, &sz);
@@ -68,7 +57,7 @@ static int stress_set_prefetch_L3_size(const char *opt)
 
 static inline uint64_t get_prefetch_L3_size(const stress_args_t *args)
 {
-	uint64_t cache_size = DEFAULT_STREAM_L3_SIZE;
+	uint64_t cache_size = DEFAULT_PREFETCH_L3_SIZE;
 #if defined(__linux__)
 	stress_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;

@@ -19,6 +19,14 @@
  */
 #include "stress-ng.h"
 
+#define MIN_HDD_BYTES		(1 * MB)
+#define MAX_HDD_BYTES		(MAX_FILE_LIMIT)
+#define DEFAULT_HDD_BYTES	(1 * GB)
+
+#define MIN_HDD_WRITE_SIZE	(1)
+#define MAX_HDD_WRITE_SIZE	(4 * MB)
+#define DEFAULT_HDD_WRITE_SIZE	(64 * 1024)
+
 #define BUF_ALIGNMENT		(4096)
 #define HDD_IO_VEC_MAX		(16)		/* Must be power of 2 */
 

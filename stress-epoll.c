@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,15 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_EPOLL_PORT		(1024)
+#define MAX_EPOLL_PORT		(65535)
+#define DEFAULT_EPOLL_PORT	(6000)
+
+#define MAX_EPOLL_EVENTS 	(1024)
+#define MAX_SERVERS		(4)
 
 static const stress_help_t help[] = {
 	{ NULL,	"epoll N",	  "start N workers doing epoll handled socket activity" },
@@ -31,9 +33,6 @@ static const stress_help_t help[] = {
 	{ NULL,	"epoll-domain D", "specify socket domain, default is unix" },
 	{ NULL,	NULL,		  NULL }
 };
-
-#define MAX_EPOLL_EVENTS 	(1024)
-#define MAX_SERVERS		(4)
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     defined(HAVE_EPOLL_CREATE) &&	\

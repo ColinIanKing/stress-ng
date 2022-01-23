@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_COPY_FILE_BYTES	(128 * MB)
+#define MAX_COPY_FILE_BYTES	(MAX_FILE_LIMIT)
+#define DEFAULT_COPY_FILE_BYTES	(256 * MB)
+#define DEFAULT_COPY_FILE_SIZE	(2 * MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"copy-file N",		"start N workers that copy file data" },
@@ -62,9 +62,9 @@ static int stress_copy_file(const stress_args_t *args)
 
 	if (!stress_get_setting("copy-file-bytes", &copy_file_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			copy_file_bytes = MAX_HDD_BYTES;
+			copy_file_bytes = MAX_COPY_FILE_BYTES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			copy_file_bytes = MIN_HDD_BYTES;
+			copy_file_bytes = MIN_COPY_FILE_BYTES;
 	}
 
 	copy_file_bytes /= args->num_instances;

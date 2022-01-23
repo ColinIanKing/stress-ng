@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_CLONES		(1)
+#define MAX_CLONES		(1000000)
+#define DEFAULT_CLONES		(8192)
 
 #define CLONE_STACK_SIZE	(8*1024)
 
@@ -152,7 +151,7 @@ static int stress_set_clone_max(const char *opt)
 
 	clone_max = stress_get_uint32(opt);
 	stress_check_range("clone-max", clone_max,
-		MIN_ZOMBIES, MAX_ZOMBIES);
+		MIN_CLONES, MAX_CLONES);
 	return stress_set_setting("clone-max", TYPE_ID_UINT32, &clone_max);
 }
 
@@ -324,7 +323,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 {
 	/* Child */
 	uint32_t max_clones = 0;
-	uint32_t clone_max = DEFAULT_ZOMBIES;
+	uint32_t clone_max = DEFAULT_CLONES;
 	bool use_clone3 = true;
 	const size_t mmap_size = args->page_size * 32768;
 	void *ptr;
@@ -338,9 +337,9 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 
 	if (!stress_get_setting("clone-max", &clone_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
-			clone_max = MAX_ZOMBIES;
+			clone_max = MAX_CLONES;
 		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
-			clone_max = MIN_ZOMBIES;
+			clone_max = MIN_CLONES;
 	}
 
 	/*

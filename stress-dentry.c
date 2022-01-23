@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,20 +16,18 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
 
-#define ORDER_FORWARD	0x00
-#define ORDER_REVERSE	0x01
-#define ORDER_STRIDE	0x02
-#define ORDER_RANDOM	0x03
-#define ORDER_NONE	0x04
+#define MIN_DENTRIES		(1)
+#define MAX_DENTRIES		(1000000)
+#define DEFAULT_DENTRIES	(2048)
+
+#define ORDER_FORWARD		(0x00)
+#define ORDER_REVERSE		(0x01)
+#define ORDER_STRIDE		(0x02)
+#define ORDER_RANDOM		(0x03)
+#define ORDER_NONE		(0x04)
 
 typedef struct {
 	const char *name;

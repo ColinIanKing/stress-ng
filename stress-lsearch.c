@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MIN_LSEARCH_SIZE	(1 * KB)
+#define MAX_LSEARCH_SIZE	(1 * MB)
+#define DEFAULT_LSEARCH_SIZE	(8 * KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"lsearch N",	  "start N workers that exercise a linear search" },
@@ -41,7 +40,7 @@ static int stress_set_lsearch_size(const char *opt)
 
 	lsearch_size = stress_get_uint64(opt);
 	stress_check_range("lsearch-size", lsearch_size,
-		MIN_TSEARCH_SIZE, MAX_TSEARCH_SIZE);
+		MIN_LSEARCH_SIZE, MAX_LSEARCH_SIZE);
 	return stress_set_setting("lsearch-size", TYPE_ID_UINT64, &lsearch_size);
 }
 

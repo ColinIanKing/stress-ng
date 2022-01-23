@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,22 +16,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#define MAX_SIGSUSPEND_PIDS	(4)
+#define CACHE_STRIDE_SHIFT	(6)
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigsuspend N",	    "start N workers exercising sigsuspend" },
 	{ NULL,	"sigsuspend-ops N", "stop after N bogo sigsuspend wakes" },
 	{ NULL,	NULL,		    NULL }
 };
-
-#define CACHE_STRIDE_SHIFT	(6)
 
 /*
  *  stress_usr1_handler()
