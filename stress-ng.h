@@ -44,7 +44,8 @@
 #endif
 
 /*
- *  Standard includes
+ *  Standard includes, assume we have this as the
+ *  minimal standard baseline
  */
 #include <ctype.h>
 #include <dirent.h>
@@ -4126,32 +4127,32 @@ extern stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table,
 extern WARN_UNUSED stress_hash_t *stress_hash_get(
 	stress_hash_table_t *hash_table, const char *str);
 extern void stress_hash_delete(stress_hash_table_t *hash_table);
+
+extern WARN_UNUSED uint32_t stress_hash_adler32(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_coffin(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_coffin32_be(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_coffin32_le(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_crc32c(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_djb2a(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_fnv1a(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_jenkin(const uint8_t *data, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_kandr(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_knuth(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_loselose(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_mid5(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_muladd32(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_muladd64(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_mulxror64(const char *str, const size_t len);
+extern WARN_UNUSED uint32_t stress_hash_murmur3_32(const uint8_t *key, size_t len, uint32_t seed);
+extern WARN_UNUSED uint32_t stress_hash_nhash(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_pjw(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
+extern WARN_UNUSED uint32_t stress_hash_x17(const char *str);
+
 extern WARN_UNUSED int stress_try_open(const stress_args_t *args,
 	const char *path, const int flags, const unsigned long timeout_ns);
 extern WARN_UNUSED int stress_open_timeout(const char *name,
         const char *path, const int flags, const unsigned long timeout_ns);
-extern WARN_UNUSED uint32_t stress_hash_jenkin(const uint8_t *data,
-	const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_pjw(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_djb2a(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_fnv1a(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_nhash(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_murmur3_32(const uint8_t* key, size_t len, uint32_t seed);
-extern WARN_UNUSED uint32_t stress_hash_crc32c(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_adler32(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_muladd32(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_muladd64(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_kandr(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_coffin(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_coffin32_le(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_coffin32_be(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_x17(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_loselose(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_knuth(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_mid5(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_mulxror64(const char *str, const size_t len);
-
 extern void stress_dirent_list_free(struct dirent **dlist, const int n);
 extern WARN_UNUSED int stress_dirent_list_prune(struct dirent **dlist, const int n);
 extern WARN_UNUSED uint16_t stress_ipv4_checksum(uint16_t *ptr, const size_t n);
@@ -4168,14 +4169,17 @@ extern WARN_UNUSED size_t stress_get_extents(const int fd);
 extern WARN_UNUSED bool stress_redo_fork(const int err);
 extern int stress_killpid(const pid_t pid);
 
+/* S.M.A.R.T. helpers */
 extern void stress_smart_start(void);
 extern void stress_smart_stop(void);
 
+/* ftrace helpers */
 extern int stress_ftrace_start(void);
 extern void stress_ftrace_stop(void);
 extern void stress_ftrace_free(void);
 extern void stress_ftrace_add_pid(const pid_t pid);
 
+/* kernel module helpers */
 extern int stress_module_load(const char *name, const char *alias,
 	const char *options, bool *already_loaded);
 extern int stress_module_unload(const char *name, const char *alias,
@@ -4292,14 +4296,14 @@ typedef uint64_t	shim_off64_t;
 
 /* clone3 clone args */
 struct shim_clone_args {
-	uint64_t flags;			/* Flags bit mask */
-	uint64_t pidfd;			/* (pid_t *) PID fd */
-	uint64_t child_tid;		/* (pid_t *) child TID */
-	uint64_t parent_tid;		/* (pid_t *) parent TID */
-	uint64_t exit_signal;		/* exit signal */
-	uint64_t stack;			/* lowest address of stack */
-	uint64_t stack_size;		/* size of stack */
-	uint64_t tls;			/* tls address */
+	uint64_t flags;		/* Flags bit mask */
+	uint64_t pidfd;		/* (pid_t *) PID fd */
+	uint64_t child_tid;	/* (pid_t *) child TID */
+	uint64_t parent_tid;	/* (pid_t *) parent TID */
+	uint64_t exit_signal;	/* exit signal */
+	uint64_t stack;		/* lowest address of stack */
+	uint64_t stack_size;	/* size of stack */
+	uint64_t tls;		/* tls address */
 };
 
 struct shim_getcpu_cache {
@@ -4436,6 +4440,7 @@ static inline void *shim_unconstify_ptr(const void *ptr)
 #define shim_unconstify_ptr(ptr)        (ptr)
 #endif
 
+/* Shim'd kernel system calls */
 extern int shim_arch_prctl(int code, unsigned long addr);
 extern int shim_brk(void *addr);
 extern int shim_cacheflush(char *addr, int nbytes, int cache);
@@ -4568,7 +4573,6 @@ extern int shim_usleep(uint64_t usec);
 extern int shim_usleep_interruptible(uint64_t usec);
 extern int shim_ustat(dev_t dev, struct shim_ustat *ubuf);
 extern int shim_vhangup(void);
-
 extern pid_t shim_waitpid(pid_t pid, int *wstatus, int options);
 extern pid_t shim_wait(int *wstatus);
 extern pid_t shim_wait3(int *wstatus, int options, struct rusage *rusage);
