@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -129,8 +124,8 @@ static void stress_af_alg_add_crypto_defconfigs(void);
  */
 static stress_crypto_type_t name_to_type(const char *buffer)
 {
-	char *ptr = strchr(buffer, ':');
-        const char *end = ptr + strlen(buffer);
+	const char *ptr = strchr(buffer, ':');
+	const char *end = ptr + strlen(buffer);
 	size_t i;
 
 	if (!ptr)
@@ -866,7 +861,7 @@ static int stress_af_alg(const stress_args_t *args)
  */
 static char *dup_field(const char *buffer)
 {
-	char *ptr = strchr(buffer, ':');
+	const char *ptr = strchr(buffer, ':');
 	char *eol = strchr(buffer, '\n');
 
 	if (!ptr)
