@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,11 +16,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  */
 #include "stress-ng.h"
 
@@ -40,11 +36,11 @@ static const stress_help_t help[] = {
 
 /* fanotify stats */
 typedef struct {
-	uint64_t	open;
-	uint64_t	close_write;
-	uint64_t	close_nowrite;
-	uint64_t	access;
-	uint64_t	modify;
+	uint64_t open;		/* # opens */
+	uint64_t close_write;	/* # close writes */
+	uint64_t close_nowrite;	/* # close no writes */
+	uint64_t access;	/* # accesses */
+	uint64_t modify;	/* # modifications */
 } stress_fanotify_account_t;
 
 #endif
