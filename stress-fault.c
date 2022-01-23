@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -75,7 +70,6 @@ static int stress_fault(const stress_args_t *args)
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
-	i = 0;
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
 		return EXIT_FAILURE;
@@ -92,6 +86,7 @@ static int stress_fault(const stress_args_t *args)
     defined(HAVE_RUSAGE_RU_MINFLT)
 	t1 = stress_time_now();
 #endif
+	i = 0;
 	do {
 		int fd;
 		uint8_t *ptr;
