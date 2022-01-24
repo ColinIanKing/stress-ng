@@ -487,7 +487,7 @@ static void stress_hash_method_mulxror64(
 	const struct stress_hash_method_info *hmi,
 	const stress_bucket_t *bucket)
 {
-	stress_hash_generic(name, hmi, bucket, stress_hash_mulxror64, 0xe4b74962, 0xe4b74962);
+	stress_hash_generic(name, hmi, bucket, stress_hash_mulxror64, 0x8d38b213, 0x8d38b213);
 }
 
 
@@ -522,7 +522,6 @@ static stress_hash_method_info_t hash_methods[] = {
 	{ "crc32c",		stress_hash_method_crc32c,	NULL },
 	{ "djb2a",		stress_hash_method_djb2a,	NULL },
 	{ "fnv1a",		stress_hash_method_fnv1a,	NULL },
-	{ "mulxror64",		stress_hash_method_mulxror64,	NULL },
 	{ "jenkin",		stress_hash_method_jenkin,	NULL },
 	{ "kandr",		stress_hash_method_kandr,	NULL },
 	{ "knuth",		stress_hash_method_knuth,	NULL },
@@ -530,6 +529,7 @@ static stress_hash_method_info_t hash_methods[] = {
 	{ "mid5",		stress_hash_method_mid5,	NULL },
 	{ "muladd32",		stress_hash_method_muladd32,	NULL },
 	{ "muladd64",		stress_hash_method_muladd64,	NULL },
+	{ "mulxror64",		stress_hash_method_mulxror64,	NULL },
 	{ "murmur3_32",		stress_hash_method_murmur3_32,	NULL },
 	{ "nhash",		stress_hash_method_nhash,	NULL },
 	{ "pjw",		stress_hash_method_pjw,		NULL },
