@@ -908,10 +908,6 @@ typedef unsigned long int __kernel_ulong_t;
  */
 #define NOCLOBBER	static
 
-#if (_BSD_SOURCE || _SVID_SOURCE || !defined(__gnu_hurd__))
-#define STRESS_PAGE_IN
-#endif
-
 #define STRESS_TRY_OPEN_OK	  (0)		/* File can be opened */
 #define STRESS_TRY_OPEN_FORK_FAIL (1)		/* Try failed, e.g. can't fork */
 #define STRESS_TRY_OPEN_WAIT_FAIL (2)		/* Wait on child open failed */
