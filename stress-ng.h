@@ -3689,6 +3689,7 @@ extern void stress_misc_stats_set(stress_misc_stats_t *misc_stats,
 extern WARN_UNUSED int stress_tty_width(void);
 extern WARN_UNUSED size_t stress_get_extents(const int fd);
 extern WARN_UNUSED bool stress_redo_fork(const int err);
+extern void stress_sighandler_nop(int sig);
 extern int stress_killpid(const pid_t pid);
 
 /* S.M.A.R.T. helpers */

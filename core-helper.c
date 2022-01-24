@@ -2689,3 +2689,12 @@ bool stress_redo_fork(const int err)
 	}
 	return false;
 }
+
+/*
+ *  stress_sighandler_nop()
+ *	no-operation signal handler
+ */
+void stress_sighandler_nop(int sig)
+{
+	(void)sig;
+}
