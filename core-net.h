@@ -19,10 +19,18 @@
 #ifndef CORE_NET_H
 #define CORE_NET_H
 
-/* Network helpers */
+/* Network domains flags */
+#define DOMAIN_INET		(0x00000001)	/* AF_INET */
+#define DOMAIN_INET6		(0x00000002)	/* AF_INET6 */
+#define DOMAIN_UNIX		(0x00000004)	/* AF_UNIX */
+
+#define DOMAIN_INET_ALL		(DOMAIN_INET | DOMAIN_INET6)
+#define DOMAIN_ALL		(DOMAIN_INET | DOMAIN_INET6 | DOMAIN_UNIX)
+
 #define NET_ADDR_ANY		(0)
 #define NET_ADDR_LOOPBACK	(1)
 
+/* Network helpers */
 extern void stress_set_net_port(const char *optname, const char *opt,
 	const int min_port, const int max_port, int *port);
 extern WARN_UNUSED int stress_set_net_domain(const int domain_mask,

@@ -1091,14 +1091,6 @@ typedef union {
 	volatile void 		*void_ptr_val;
 } stress_put_val_t;
 
-/* Network domains flags */
-#define DOMAIN_INET		(0x00000001)	/* AF_INET */
-#define DOMAIN_INET6		(0x00000002)	/* AF_INET6 */
-#define DOMAIN_UNIX		(0x00000004)	/* AF_UNIX */
-
-#define DOMAIN_INET_ALL		(DOMAIN_INET | DOMAIN_INET6)
-#define DOMAIN_ALL		(DOMAIN_INET | DOMAIN_INET6 | DOMAIN_UNIX)
-
 /* Large prime to stride around large VM regions */
 #define PRIME_64		(0x8f0000000017116dULL)
 
