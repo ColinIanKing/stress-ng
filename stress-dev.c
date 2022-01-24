@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-put.h"
 
 /*
  *  Device information is held in a linked list of dev_info_t objects. Each

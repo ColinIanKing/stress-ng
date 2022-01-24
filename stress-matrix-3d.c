@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-put.h"
 
 #define MIN_MATRIX3D_SIZE	(16)
 #define MAX_MATRIX3D_SIZE	(1024)

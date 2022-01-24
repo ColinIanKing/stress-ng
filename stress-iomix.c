@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-put.h"
 
 #define MIN_IOMIX_BYTES		(1 * MB)
 #define MAX_IOMIX_BYTES		(MAX_FILE_LIMIT)

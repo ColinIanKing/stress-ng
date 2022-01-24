@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-put.h"
 
 static sigjmp_buf jmp_env;
 static volatile bool do_jmp = true;

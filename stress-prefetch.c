@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-put.h"
 
 #define MIN_PREFETCH_L3_SIZE      (4 * KB)
 #define MAX_PREFETCH_L3_SIZE      (MAX_MEM_LIMIT)

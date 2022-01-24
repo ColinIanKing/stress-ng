@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-put.h"
 
 #define VERY_WIDE	(0)
 

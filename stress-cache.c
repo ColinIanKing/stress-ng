@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-put.h"
 
 #define FLAGS_CACHE_PREFETCH	(0x01)
 #define FLAGS_CACHE_CLFLUSH	(0x02)
