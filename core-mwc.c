@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+/* MWC random number initial seed */
+#define STRESS_MWC_SEED_Z	(362436069UL)
+#define STRESS_MWC_SEED_W	(521288629UL)
+
 /* Fast random number generator state */
 typedef struct {
 	uint32_t w;
@@ -146,6 +150,15 @@ void stress_mwc_get_seed(uint32_t *w, uint32_t *z)
 {
 	*w = mwc.w;
 	*z = mwc.z;
+}
+
+/*
+ *  stress_mwc_seed()
+ *      set default mwc seed
+ */
+void stress_mwc_seed(void)
+{
+	stress_mwc_set_seed(STRESS_MWC_SEED_W, STRESS_MWC_SEED_Z);
 }
 
 /*

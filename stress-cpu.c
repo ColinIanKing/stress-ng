@@ -608,7 +608,7 @@ static void HOT OPTIMIZE3 stress_cpu_rand(const char *name)
 	uint32_t i_sum = 0;
 	const uint32_t sum = 0xc253698c;
 
-	STRESS_MWC_SEED();
+	stress_mwc_seed();
 	for (i = 0; i < 16384; i++)
 		i_sum += stress_mwc32();
 
@@ -977,7 +977,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
 	register _type a, b;					\
 	int i;							\
 								\
-	STRESS_MWC_SEED();					\
+	stress_mwc_seed();					\
 	a = (_type)stress_mwc32();				\
 	b = (_type)stress_mwc32();				\
 								\
@@ -1217,7 +1217,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz ## _ ## _name(cons
 	       flt_d = (_ftype)0.0,				\
 	       flt_r;						\
 								\
-	STRESS_MWC_SEED();					\
+	stress_mwc_seed();					\
 	int_a = stress_mwc32();					\
 	int_b = stress_mwc32();					\
 								\

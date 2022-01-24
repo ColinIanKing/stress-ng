@@ -86,7 +86,7 @@ static void stress_hash_generic(
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	if (verify) {
-		STRESS_MWC_SEED();
+		stress_mwc_seed();
 	} else {
 		stress_mwc_reseed();
 	}

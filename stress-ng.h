@@ -1519,11 +1519,6 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define STRESS_SETBIT(a, i)	(a[i / STRESS_NBITS(a)] |= \
 				 (TYPEOF_CAST(a[0])1 << (i & (STRESS_NBITS(a)-1))))
 
-/* MWC random number initial seed */
-#define STRESS_MWC_SEED_Z	(362436069UL)
-#define STRESS_MWC_SEED_W	(521288629UL)
-#define STRESS_MWC_SEED()	stress_mwc_set_seed(STRESS_MWC_SEED_W, STRESS_MWC_SEED_Z)
-
 #define SIZEOF_ARRAY(a)		(sizeof(a) / sizeof(a[0]))
 
 /* Arch specific, x86 */
@@ -3485,6 +3480,7 @@ extern uint64_t stress_mwc64(void);
 extern uint16_t stress_mwc16(void);
 extern uint8_t stress_mwc8(void);
 extern uint8_t stress_mwc1(void);
+extern void stress_mwc_seed(void);
 extern void stress_mwc_set_seed(const uint32_t w, const uint32_t z);
 extern void stress_mwc_get_seed(uint32_t *w, uint32_t *z);
 extern void stress_mwc_reseed(void);
