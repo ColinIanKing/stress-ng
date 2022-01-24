@@ -22,6 +22,7 @@
 #include "core-perf.h"
 #include "core-smart.h"
 #include "core-thermal-zone.h"
+#include "core-thrash.h"
 
 typedef struct {
 	const int opt;			/* optarg option */

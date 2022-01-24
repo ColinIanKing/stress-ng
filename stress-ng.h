@@ -3734,10 +3734,6 @@ extern stress_cpu_cache_t *stress_get_cpu_cache(const stress_cpus_t *cpus,
 	const uint16_t cache_level);
 extern void stress_free_cpu_caches(stress_cpus_t *cpus);
 
-/* CPU thrashing start/stop helpers */
-extern int  stress_thrash_start(void);
-extern void stress_thrash_stop(void);
-
 /* Used to set options for specific stressors */
 extern void stress_adjust_pthread_max(const uint64_t max);
 extern void stress_adjust_sleep_max(const uint64_t max);

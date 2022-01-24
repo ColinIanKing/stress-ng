@@ -274,7 +274,6 @@ static int stress_swap(const stress_args_t *args)
 			pr_fail("%s: swapoff failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
-			(void)stress_thrash_stop();
 			goto tidy_close;
 		}
 
