@@ -406,7 +406,7 @@ OBJS += $(CONFIG_OBJS)
 
 .o: Makefile
 
-%.o: %.c stress-ng.h config.h git-commit-id.h
+%.o: %.c stress-ng.h config.h git-commit-id.h core-capabilities.h core-put.h  core-target-clones.h
 	$(Q)echo "CC $<"
 	$(V)$(CC) $(CFLAGS) -c -o $@ $<
 
