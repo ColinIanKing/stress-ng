@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-perf.h"
 
 typedef struct {
 	const int opt;			/* optarg option */
