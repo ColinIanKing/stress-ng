@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-ftrace.h"
 #include "core-hash.h"
 #include "core-perf.h"
 #include "core-smart.h"

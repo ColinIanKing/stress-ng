@@ -3649,12 +3649,6 @@ extern WARN_UNUSED bool stress_redo_fork(const int err);
 extern void stress_sighandler_nop(int sig);
 extern int stress_killpid(const pid_t pid);
 
-/* ftrace helpers */
-extern int stress_ftrace_start(void);
-extern void stress_ftrace_stop(void);
-extern void stress_ftrace_free(void);
-extern void stress_ftrace_add_pid(const pid_t pid);
-
 /* kernel module helpers */
 extern int stress_module_load(const char *name, const char *alias,
 	const char *options, bool *already_loaded);
