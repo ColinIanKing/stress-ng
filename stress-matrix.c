@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-put.h"
+#include "core-target-clones.h"
 
 #define MIN_MATRIX_SIZE		(16)
 #define MAX_MATRIX_SIZE		(8192)

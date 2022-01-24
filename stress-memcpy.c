@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-target-clones.h"
 
 #define ALIGN_SIZE	(64)
 

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-target-clones.h"
 
 #define MIN_VM_BYTES		(4 * KB)
 #define MAX_VM_BYTES		(MAX_MEM_LIMIT)

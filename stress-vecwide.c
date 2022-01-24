@@ -18,6 +18,7 @@
  */
 #include "stress-ng.h"
 #include "core-put.h"
+#include "core-target-clones.h"
 
 #define VERY_WIDE	(0)
 

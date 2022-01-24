@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-put.h"
+#include "core-target-clones.h"
 
 #define GAMMA 		(0.57721566490153286060651209008240243104215933593992L)
 #define OMEGA		(0.56714329040978387299996866221035554975381578718651L)

@@ -25,6 +25,7 @@
  */
 #include "stress-ng.h"
 #include "core-put.h"
+#include "core-target-clones.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"vecmath N",	 "start N workers performing vector math ops" },
