@@ -1401,15 +1401,6 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 /* use syscall if we can, fallback to vfork otherwise */
 #define shim_vfork()		g_shared->vfork()
 
-/* do nothing */
-#if defined(HAVE_ASM_NOP)
-#define FORCE_DO_NOTHING() __asm__ __volatile__("nop;")
-#elif defined(HAVE_ASM_NOTHING)
-#define FORCE_DO_NOTHING() __asm__ __volatile__("")
-#else
-#define FORCE_DO_NOTHING() while (0)
-#endif
-
 /* Logging helpers */
 extern int pr_msg(FILE *fp, const uint64_t flag,
 	const char *const fmt, va_list va) FORMAT(printf, 3, 0);

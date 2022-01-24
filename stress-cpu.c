@@ -35,6 +35,15 @@
 #define CORRELATE_LEN		(CORRELATE_DATA_LEN / 16)
 #define SIEVE_SIZE              (104730)
 
+/* do nothing */
+#if defined(HAVE_ASM_NOP)
+#define FORCE_DO_NOTHING() __asm__ __volatile__("nop;")
+#elif defined(HAVE_ASM_NOTHING)
+#define FORCE_DO_NOTHING() __asm__ __volatile__("")
+#else
+#define FORCE_DO_NOTHING() while (0)
+#endif
+
 /*
  * Some math workarounds for functions that some
  * math libraries don't have implemented (yet)
