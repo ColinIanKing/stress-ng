@@ -161,7 +161,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
-static void clflush(void *p)
+static inline void clflush(void *p)
 {
         asm volatile("clflush (%0)\n" : : "r"(p) : "memory");
 }
@@ -171,7 +171,7 @@ static void clflush(void *p)
 #endif
 
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
-static void clflushopt(void *p)
+static inline void clflushopt(void *p)
 {
         asm volatile("clflushopt (%0)\n" : : "r"(p) : "memory");
 }
@@ -181,7 +181,7 @@ static void clflushopt(void *p)
 #endif
 
 #if defined(HAVE_ASM_X86_CLDEMOTE)
-static void cldemote(void *p)
+static inline void cldemote(void *p)
 {
         asm volatile("cldemote (%0)\n" : : "r"(p) : "memory");
 }
