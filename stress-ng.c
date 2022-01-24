@@ -18,8 +18,9 @@
  *
  */
 #include "stress-ng.h"
-#include "core-perf.h"
 #include "core-hash.h"
+#include "core-perf.h"
+#include "core-smart.h"
 #include "core-thermal-zone.h"
 
 typedef struct {

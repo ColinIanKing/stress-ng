@@ -3649,10 +3649,6 @@ extern WARN_UNUSED bool stress_redo_fork(const int err);
 extern void stress_sighandler_nop(int sig);
 extern int stress_killpid(const pid_t pid);
 
-/* S.M.A.R.T. helpers */
-extern void stress_smart_start(void);
-extern void stress_smart_stop(void);
-
 /* ftrace helpers */
 extern int stress_ftrace_start(void);
 extern void stress_ftrace_stop(void);
