@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-net.h"
 
 #define DEFAULT_SOCKABUSE_PORT	(12000)
 #define MSGVEC_SIZE		(4)

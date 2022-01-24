@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-net.h"
 
 #define MIN_UDP_PORT		(1024)
 #define MAX_UDP_PORT		(65535)

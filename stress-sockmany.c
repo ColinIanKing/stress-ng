@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-net.h"
 
 #define DEFAULT_SOCKET_MANY_PORT (11000)
 #define SOCKET_MANY_BUF		(8)

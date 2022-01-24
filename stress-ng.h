@@ -3713,20 +3713,6 @@ extern int stress_mincore_touch_pages_interruptible(void *buf,
 extern void stress_mount_free(char *mnts[], const int n);
 extern WARN_UNUSED int stress_mount_get(char *mnts[], const int max);
 
-/* Network helpers */
-#define NET_ADDR_ANY		(0)
-#define NET_ADDR_LOOPBACK	(1)
-
-extern void stress_set_net_port(const char *optname, const char *opt,
-	const int min_port, const int max_port, int *port);
-extern WARN_UNUSED int stress_set_net_domain(const int domain_mask,
-	const char *name, const char *domain_name, int *domain);
-extern void stress_set_sockaddr(const char *name, const uint32_t instance,
-	const pid_t ppid, const int domain, const int port,
-	struct sockaddr **sockaddr, socklen_t *len, const int net_addr);
-extern void stress_set_sockaddr_port(const int domain, const int port,
-	struct sockaddr *sockaddr);
-
 /* CPU caches */
 extern stress_cpus_t *stress_get_all_cpu_cache_details(void);
 extern uint16_t stress_get_max_cache_level(const stress_cpus_t *cpus);

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-net.h"
 
 #define MIN_SCTP_PORT		(1024)
 #define MAX_SCTP_PORT		(65535)

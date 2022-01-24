@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-net.h"
 
 #define MIN_DCCP_PORT		(1024)
 #define MAX_DCCP_PORT		(65535)

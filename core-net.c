@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-net.h"
 
 typedef struct {
 	const char *name;

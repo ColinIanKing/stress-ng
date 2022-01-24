@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-net.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"udp-flood N",		"start N workers that performs a UDP flood attack" },

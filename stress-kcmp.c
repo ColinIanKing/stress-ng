@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-net.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"kcmp N",	"start N workers exercising kcmp" },
