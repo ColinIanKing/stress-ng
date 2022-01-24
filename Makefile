@@ -491,6 +491,7 @@ dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile Makefile.config $(SRC) stress-ng.h stress-ng.1 \
+		core-capabilities.h core-put.h  core-target-clones.h \
 		core-personality.c core-io-uring.c \
 		COPYING syscalls.txt mascot README.md \
 		stress-af-alg-defconfigs.h README.Android test snap \
