@@ -19,6 +19,8 @@
  */
 #include "stress-ng.h"
 #include "core-perf.h"
+#include "core-hash.h"
+#include "core-thermal-zone.h"
 
 typedef struct {
 	const int opt;			/* optarg option */

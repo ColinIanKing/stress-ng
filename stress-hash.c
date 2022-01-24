@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-hash.h"
 
 typedef struct {
 	double_t	duration;

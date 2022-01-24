@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "git-commit-id.h"
 #include "core-capabilities.h"
+#include "core-hash.h"
 
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */

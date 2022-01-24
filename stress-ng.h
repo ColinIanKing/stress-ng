@@ -3628,37 +3628,6 @@ extern WARN_UNUSED bool stress_check_capability(const int capability);
 extern WARN_UNUSED bool stress_sigalrm_pending(void);
 extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
 
-/*
- *  Hashing core functions
- */
-extern WARN_UNUSED stress_hash_table_t *stress_hash_create(const size_t n);
-extern stress_hash_t *stress_hash_add(stress_hash_table_t *hash_table,
-	const char *str);
-extern WARN_UNUSED stress_hash_t *stress_hash_get(
-	stress_hash_table_t *hash_table, const char *str);
-extern void stress_hash_delete(stress_hash_table_t *hash_table);
-
-extern WARN_UNUSED uint32_t stress_hash_adler32(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_coffin(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_coffin32_be(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_coffin32_le(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_crc32c(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_djb2a(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_fnv1a(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_jenkin(const uint8_t *data, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_kandr(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_knuth(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_loselose(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_mid5(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_muladd32(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_muladd64(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_mulxror64(const char *str, const size_t len);
-extern WARN_UNUSED uint32_t stress_hash_murmur3_32(const uint8_t *key, size_t len, uint32_t seed);
-extern WARN_UNUSED uint32_t stress_hash_nhash(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_pjw(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_sdbm(const char *str);
-extern WARN_UNUSED uint32_t stress_hash_x17(const char *str);
-
 extern WARN_UNUSED int stress_try_open(const stress_args_t *args,
 	const char *path, const int flags, const unsigned long timeout_ns);
 extern WARN_UNUSED int stress_open_timeout(const char *name,
@@ -3748,17 +3717,7 @@ extern int stress_mincore_touch_pages_interruptible(void *buf,
 extern void stress_mount_free(char *mnts[], const int n);
 extern WARN_UNUSED int stress_mount_get(char *mnts[], const int max);
 
-/* Thermal Zones */
-#if defined(STRESS_THERMAL_ZONES)
-extern int stress_tz_init(stress_tz_info_t **tz_info_list);
-extern void stress_tz_free(stress_tz_info_t **tz_info_list);
-extern int stress_tz_get_temperatures(stress_tz_info_t **tz_info_list,
-	stress_tz_t *tz);
-extern void stress_tz_dump(FILE *yaml, stress_stressor_t *procs_head);
-#endif
-
 /* Network helpers */
-
 #define NET_ADDR_ANY		(0)
 #define NET_ADDR_LOOPBACK	(1)
 

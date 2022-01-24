@@ -24,6 +24,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-thermal-zone.h"
 
 static int32_t vmstat_delay = 0;
 static int32_t thermalstat_delay = 0;
