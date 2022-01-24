@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -14,12 +15,6 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
- *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
  *
  */
 #include "stress-ng.h"
@@ -288,8 +283,8 @@ static int stress_affinity(const stress_args_t *args)
 	pid_t pids[STRESS_AFFINITY_PROCS];
 	size_t i;
 	stress_affinity_info_t *info;
-	size_t counters_sz = sizeof(info->counters[0]) * STRESS_AFFINITY_PROCS;
-	size_t info_sz = ((sizeof(*info) + counters_sz) + args->page_size) & ~(args->page_size - 1);
+	const size_t counters_sz = sizeof(info->counters[0]) * STRESS_AFFINITY_PROCS;
+	const size_t info_sz = ((sizeof(*info) + counters_sz) + args->page_size) & ~(args->page_size - 1);
 
 	info = (stress_affinity_info_t *)mmap(NULL, info_sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
