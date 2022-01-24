@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 
 #define MIN_FORKS		(1)
 #define MAX_FORKS		(16000)

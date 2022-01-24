@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-put.h"
+#include "core-pragma.h"
 
 static const stress_help_t help[] =
 {

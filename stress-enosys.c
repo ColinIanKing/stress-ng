@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"enosys N",	"start N workers that call non-existent system calls" },
