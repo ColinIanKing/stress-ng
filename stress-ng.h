@@ -2102,12 +2102,6 @@ typedef pthread_mutex_t		shim_pthread_spinlock_t;
 /* stress process prototype */
 typedef int (*stress_func_t)(const stress_args_t *args);
 
-/* Fast random number generator state */
-typedef struct {
-	uint32_t w;
-	uint32_t z;
-} stress_mwc_t;
-
 /* perf related constants */
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H) &&	\

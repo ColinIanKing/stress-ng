@@ -19,6 +19,12 @@
  */
 #include "stress-ng.h"
 
+/* Fast random number generator state */
+typedef struct {
+	uint32_t w;
+	uint32_t z;
+} stress_mwc_t;
+
 static stress_mwc_t mwc = {
 	STRESS_MWC_SEED_W,
 	STRESS_MWC_SEED_Z
