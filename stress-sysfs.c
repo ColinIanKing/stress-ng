@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-put.h"
+#include "core-capabilities.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"sysfs N",	"start N workers reading files from /sys" },

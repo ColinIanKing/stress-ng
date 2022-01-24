@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"chroot N",	"start N workers thrashing chroot" },

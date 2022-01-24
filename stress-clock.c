@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"clock N",	"start N workers thrashing clocks and POSIX timers" },

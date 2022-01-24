@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 
 #define MIN_SHM_SYSV_BYTES	(1 * MB)
 #define MAX_SHM_SYSV_BYTES	(256 * MB)

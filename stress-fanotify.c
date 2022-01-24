@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"fanotify N",	  "start N workers exercising fanotify events" },

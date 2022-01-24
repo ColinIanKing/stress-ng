@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 
 #define MIN_CHDIR_DIRS		(64)
 #define MAX_CHDIR_DIRS		(65536)

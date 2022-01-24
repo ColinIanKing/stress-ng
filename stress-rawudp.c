@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 
 #define MIN_RAWUDP_PORT		(1024)
 #define MAX_RAWUDP_PORT		(65535)

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 
 #define MIN_TIMERFD_FREQ	(1)
 #define MAX_TIMERFD_FREQ	(100000000)

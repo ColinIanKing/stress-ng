@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,6 +24,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 
 #if !defined(_DEFAULT_SOURCE)
 #define _DEFAULT_SOURCE 1
