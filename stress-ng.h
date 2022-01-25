@@ -115,10 +115,6 @@
 #include <grp.h>
 #endif
 
-#if defined(HAVE_INTEL_IPSEC_MB_H)
-#include <intel-ipsec-mb.h>
-#endif
-
 #if defined(HAVE_KEYUTILS_H)
 #include <keyutils.h>
 #endif

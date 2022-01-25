@@ -24,6 +24,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_INTEL_IPSEC_MB_H)
+#include <intel-ipsec-mb.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"ipsec-mb N",	  "start N workers exercising the IPSec MB encoding" },
 	{ NULL,	"ipsec-mb-ops N", "stop after N ipsec bogo encoding operations" },
