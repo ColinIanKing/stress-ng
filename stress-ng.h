@@ -343,10 +343,6 @@
 #include <sys/shm.h>
 #endif
 
-#if defined(HAVE_SYS_SIGNALFD_H)
-#include <sys/signalfd.h>
-#endif
-
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>
 #endif

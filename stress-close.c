@@ -26,6 +26,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_SYS_SIGNALFD_H)
+#include <sys/signalfd.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"close N",	"start N workers that exercise races on close" },
 	{ NULL,	"close-ops N",	"stop after N bogo close operations" },
