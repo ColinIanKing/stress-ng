@@ -1194,18 +1194,9 @@ static int stress_zlib_inflate(
 				stream_inf.avail_out = DATA_SIZE;
 				stream_inf.next_out = out;
 
-				pr_dbg_v("INF: %6d %6d\n", stream_inf.avail_in,
-					stream_inf.avail_out);
 				ret = inflate(&stream_inf, Z_NO_FLUSH);
-				pr_dbg_v("INF: %6d %6d written=%6lld rc=%2d\n",
-					stream_inf.avail_in,
-					stream_inf.avail_out,
-					DATA_SIZE - stream_inf.avail_out, ret);
-
 				switch (ret) {
 				case Z_BUF_ERROR:
-					pr_dbg_v("%s: zlib inflate error: %s\n",
-						args->name, stress_zlib_err(ret));
 					break;
 				case Z_NEED_DICT:
 				case Z_DATA_ERROR:
@@ -1233,12 +1224,6 @@ static int stress_zlib_inflate(
 	} while (sz > 0);
 
 finish:
-	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		pr_dbg_v("%s: inflate xsum value %" PRIu64
-			", xsum.xchars %" PRIu64 "\n",
-			args->name, xsum.xsum, xsum.xchars);
-	}
-
 	if (write(xsum_fd, &xsum, sizeof(xsum)) < 0) {
 		pr_fail("%s: zlib inflate pipe write failed for xsum, errno=%d (%s)\n",
 			args->name, err, strerror(err));
@@ -1349,14 +1334,7 @@ static int stress_zlib_deflate(
 				stream_def.avail_out = DATA_SIZE;
 				stream_def.next_out = out;
 
-				pr_dbg_v("DEF: %6d %6d\n", stream_def.avail_in,
-					stream_def.avail_out);
 				ret = deflate(&stream_def, flush);
-				pr_dbg_v("DEF: %6d %6d written=%6lld rc=%2d\n",
-					stream_def.avail_in,
-					stream_def.avail_out,
-					DATA_SIZE - stream_def.avail_out, ret);
-
 				if (ret == Z_STREAM_ERROR) {
 					pr_fail("%s: zlib deflate error: %s\n",
 						args->name, stress_zlib_err(ret));
@@ -1425,12 +1403,6 @@ finish:
 		args->name, args->instance,
 		bytes_in ? 100.0 * (double)bytes_out / (double)bytes_in : 0,
 		(t2 - t1 > 0.0) ? (bytes_in / (t2 - t1)) / MB : 0.0);
-
-	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		pr_dbg_v("%s: deflate xsum value %" PRIu64
-			", xsum.xchars %" PRIu64 "\n",
-			args->name, xsum.xsum, xsum.xchars);
-	}
 
 	ret = EXIT_SUCCESS;
 xsum_error:

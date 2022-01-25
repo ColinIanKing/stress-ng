@@ -1400,14 +1400,6 @@ extern void pr_unlock(bool *locked);
 extern void pr_inf_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3);
 extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3);
 
-/* volatile debug print macro */
-#ifdef DEBUG
-#define pr_dbg_v(fmt, ...) \
-	do { if (DEBUG) pr_dbg(fmt, __VA_ARGS__); } while (0)
-#else
-#define pr_dbg_v(fmt, ...)
-#endif
-
 #if defined(HAVE_SYSLOG_H)
 #define shim_syslog(priority, format, ...)	\
 		syslog(priority, format, __VA_ARGS__)

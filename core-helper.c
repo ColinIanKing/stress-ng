@@ -2297,8 +2297,6 @@ ignore_eintr:
 			rbytes += ret;
 	} while (ret > 0 && (rbytes != size));
 
-	pr_dbg_v("stress_read_buffer: size=%ld read=%ld sz2=%ld\n", size, rbytes, ret);
-
 	return (ret <= 0)? ret : rbytes;
 }
 
@@ -2322,8 +2320,6 @@ ignore_eintr:
 		if (ret > 0)
 			wbytes += ret;
 	} while (ret > 0 && (wbytes != size));
-
-	pr_dbg_v("stress_write_buffer: size=%ld written=%ld sz2=%ld\n", size, wbytes, ret);
 
 	return (ret <= 0)? ret : wbytes;
 }
