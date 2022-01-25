@@ -159,10 +159,6 @@
 #include <sound/asound.h>
 #endif
 
-#if defined(HAVE_SPAWN_H)
-#include <spawn.h>
-#endif
-
 #if defined(HAVE_STRINGS_H)
 #include <strings.h>
 #endif
