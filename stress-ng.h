@@ -748,10 +748,6 @@
 #define HAVE_IOPRIO_SET
 #endif
 
-#if defined(__NR_membarrier)
-#define HAVE_MEMBARRIER
-#endif
-
 #if defined(__NR_mmap2)
 #define HAVE_MMAP2
 #endif
