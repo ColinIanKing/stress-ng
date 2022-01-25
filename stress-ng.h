@@ -192,10 +192,6 @@
 #include <utime.h>
 #endif
 
-#if defined(HAVE_WCHAR)
-#include <wchar.h>
-#endif
-
 #if defined(HAVE_XMMINTRIN_H)
 #include <xmmintrin.h>
 #endif
