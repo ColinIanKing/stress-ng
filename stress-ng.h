@@ -740,10 +740,6 @@
 #define HAVE_GETDENTS64
 #endif
 
-#if defined(__NR_get_thread_area)
-#define HAVE_GET_THREAD_AREA
-#endif
-
 #if defined(__NR_ioprio_get)
 #define HAVE_IOPRIO_GET
 #endif

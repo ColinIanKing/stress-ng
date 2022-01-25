@@ -23,6 +23,10 @@
 #define MAX_PTHREAD		(30000)
 #define DEFAULT_PTHREAD		(1024)
 
+#if defined(__NR_get_thread_area)
+#define HAVE_GET_THREAD_AREA
+#endif
+
 #if defined(__NR_get_robust_list)
 #define HAVE_GET_ROBUST_LIST
 #endif
