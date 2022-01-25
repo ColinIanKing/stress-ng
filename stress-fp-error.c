@@ -82,6 +82,7 @@ static void stress_fp_check(
 {
 #if defined(__linux__) &&		\
     !defined(STRESS_ARCH_M68K) &&	\
+    !defined(__ICC) &&			\
     NEED_GNUC(4,8,0)
 	if (stress_double_same(val, val_expected, is_nan, is_inf) &&
 	    (fetestexcept(excepts_expected) & excepts_expected) &&
@@ -178,7 +179,7 @@ static int stress_fp_error(const stress_args_t *args)
 		SET_VOLATILE(d1, DBL_MAX);
 		SET_VOLATILE(d2, DBL_MAX / 2.0);
 		stress_fp_check(args, "DBL_MAX + DBL_MAX / 2.0",
-			DBL_MAX + DBL_MAX / 2.0, (double)INFINITY,
+			d1 + d2, (double)INFINITY,
 			false, true, 0, FE_OVERFLOW | FE_INEXACT);
 #endif
 
