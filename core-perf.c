@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-perf.h"
 #include "core-perf-event.h"
 
 #if defined(STRESS_PERF_STATS) &&	\
