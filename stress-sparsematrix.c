@@ -18,6 +18,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_JUDY_H)
+#include <Judy.h>
+#endif
+
 /* Number of items in sparse matrix */
 #define MIN_SPARSEMATRIX_ITEMS		(100)
 #define MAX_SPARSEMATRIX_ITEMS		(10000000)

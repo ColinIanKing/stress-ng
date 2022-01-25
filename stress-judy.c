@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_JUDY_H)
+#include <Judy.h>
+#endif
+
 #define MIN_JUDY_SIZE		(1 * KB)
 #define MAX_JUDY_SIZE		(4 * MB)
 #define DEFAULT_JUDY_SIZE	(256 * KB)

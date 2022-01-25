@@ -115,10 +115,6 @@
 #include <grp.h>
 #endif
 
-#if defined(HAVE_JUDY_H)
-#include <Judy.h>
-#endif
-
 #if defined(HAVE_INTEL_IPSEC_MB_H)
 #include <intel-ipsec-mb.h>
 #endif
