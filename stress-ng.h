@@ -650,10 +650,6 @@
 #include <linux/vt.h>
 #endif
 
-#if defined(HAVE_LINUX_WATCHDOG_H)
-#include <linux/watchdog.h>
-#endif
-
 /*
  *  We want sys/xattr.h in preference
  *  to the older attr/xattr.h if both
