@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(__NR_mmap2)
+#define HAVE_MMAP2
+#endif
+
 #define MIN_MMAP_BYTES		(4 * KB)
 #define MAX_MMAP_BYTES		(MAX_MEM_LIMIT)
 #define DEFAULT_MMAP_BYTES	(256 * MB)
