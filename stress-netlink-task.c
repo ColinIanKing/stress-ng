@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_LINUX_TASKSTATS_H)
+#include <linux/taskstats.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"netlink-task N",	"start N workers exercising netlink tasks events" },
 	{ NULL,	"netlink-task-ops N",	"stop netlink-task workers after N bogo events" },

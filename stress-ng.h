@@ -579,10 +579,6 @@
 #include <linux/sysctl.h>
 #endif
 
-#if defined(HAVE_LINUX_TASKSTATS_H)
-#include <linux/taskstats.h>
-#endif
-
 #if defined(HAVE_LINUX_UDP_H)
 #include <linux/udp.h>
 #endif
