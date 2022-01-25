@@ -19,6 +19,21 @@
 #ifndef CORE_CACHE_H
 #define CORE_CACHE_H
 
+/*
+ *  cacheflush(2) cache options
+ */
+#ifdef ICACHE
+#define SHIM_ICACHE	(ICACHE)
+#else
+#define SHIM_ICACHE	(1 << 0)
+#endif
+
+#ifdef DCACHE
+#define SHIM_DCACHE	(DCACHE)
+#else
+#define SHIM_DCACHE	(1 << 1)
+#endif
+
 #if defined(STRESS_ARCH_X86) &&	\
     defined(HAVE_ASM_X86_CLFLUSH)
 

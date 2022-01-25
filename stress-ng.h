@@ -773,21 +773,6 @@ typedef unsigned long int __kernel_ulong_t;
 #define STRESS_BIT_UL(shift)	(1UL << shift)
 #define STRESS_BIT_ULL(shift)	(1ULL << shift)
 
-/*
- *  cacheflush(2) cache options
- */
-#ifdef ICACHE
-#define SHIM_ICACHE	(ICACHE)
-#else
-#define SHIM_ICACHE	(1 << 0)
-#endif
-
-#ifdef DCACHE
-#define SHIM_DCACHE	(DCACHE)
-#else
-#define SHIM_DCACHE	(1 << 1)
-#endif
-
 #if !defined(EXIT_SUCCESS)
 #define EXIT_SUCESSS			(0)
 #endif
