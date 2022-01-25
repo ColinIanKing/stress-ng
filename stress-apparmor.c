@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_SYS_APPARMOR_H)
+#include <sys/apparmor.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"apparmor",	  "start N workers exercising AppArmor interfaces" },
 	{ NULL,	"apparmor-ops N", "stop after N bogo AppArmor worker bogo operations" },

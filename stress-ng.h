@@ -258,10 +258,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#if defined(HAVE_SYS_APPARMOR_H)
-#include <sys/apparmor.h>
-#endif
-
 #if defined(HAVE_SYS_AUXV_H)
 #include <sys/auxv.h>
 #endif
