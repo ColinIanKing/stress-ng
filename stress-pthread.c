@@ -23,6 +23,14 @@
 #define MAX_PTHREAD		(30000)
 #define DEFAULT_PTHREAD		(1024)
 
+#if defined(__NR_get_robust_list)
+#define HAVE_GET_ROBUST_LIST
+#endif
+
+#if defined(__NR_set_robust_list)
+#define HAVE_SET_ROBUST_LIST
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"pthread N",	 "start N workers that create multiple threads" },
 	{ NULL,	"pthread-ops N", "stop pthread workers after N bogo threads created" },

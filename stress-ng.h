@@ -744,10 +744,6 @@
 #define HAVE_GET_THREAD_AREA
 #endif
 
-#if defined(__NR_get_robust_list)
-#define HAVE_GET_ROBUST_LIST
-#endif
-
 #if defined(__NR_ioprio_get)
 #define HAVE_IOPRIO_GET
 #endif
@@ -778,10 +774,6 @@
 
 #if defined(__NR_sched_setattr)
 #define HAVE_SCHED_SETATTR
-#endif
-
-#if defined(__NR_set_robust_list)
-#define HAVE_SET_ROBUST_LIST
 #endif
 
 #if defined(__NR_set_thread_area)
