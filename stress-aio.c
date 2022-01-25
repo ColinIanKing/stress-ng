@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_AIO_H)
+#include <aio.h>
+#endif
+
 #define MIN_AIO_REQUESTS	(1)
 #define MAX_AIO_REQUESTS	(4096)
 #define DEFAULT_AIO_REQUESTS	(16)
