@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-hash.h"
 
 /*
  *  stress_hash_jenkin()
