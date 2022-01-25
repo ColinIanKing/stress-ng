@@ -119,10 +119,6 @@
 #include <keyutils.h>
 #endif
 
-#if defined(HAVE_LIBAIO_H)
-#include <libaio.h>
-#endif
-
 #if defined(HAVE_LIBGEN_H)
 #include <libgen.h>
 #endif

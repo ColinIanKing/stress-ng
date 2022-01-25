@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LIBAIO_H)
+#include <libaio.h>
+#endif
+
 #define MIN_AIO_LINUX_REQUESTS		(1)
 #define MAX_AIO_LINUX_REQUESTS		(4096)
 #define DEFAULT_AIO_LINUX_REQUESTS	(64)
