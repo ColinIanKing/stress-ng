@@ -760,14 +760,6 @@
 #define HAVE_PKEY_SET
 #endif
 
-#if defined(__NR_sched_getattr)
-#define HAVE_SCHED_GETATTR
-#endif
-
-#if defined(__NR_sched_setattr)
-#define HAVE_SCHED_SETATTR
-#endif
-
 #if defined(__NR_userfaultfd)
 #define HAVE_USERFAULTFD
 #endif
