@@ -24,6 +24,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_PERSONALITY_H)
+#include <sys/personality.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"personality N",	"start N workers that change their personality" },
 	{ NULL,	"personality-ops N",	"stop after N bogo personality calls" },

@@ -302,10 +302,6 @@
 #include <sys/param.h>
 #endif
 
-#if defined(HAVE_SYS_PERSONALITY_H)
-#include <sys/personality.h>
-#endif
-
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
 #endif
