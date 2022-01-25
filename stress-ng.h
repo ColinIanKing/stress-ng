@@ -451,10 +451,6 @@
 #include <linux/hdreg.h>
 #endif
 
-#if defined(HAVE_LINUX_IF_ALG_H)
-#include <linux/if_alg.h>
-#endif
-
 #if defined(HAVE_LINUX_IF_PACKET_H)
 #include <linux/if_packet.h>
 #endif

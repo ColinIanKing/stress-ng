@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LINUX_IF_ALG_H)
+#include <linux/if_alg.h>
+#endif
+
 #define ALLOC_SLOP	(64)
 
 static const stress_help_t help[] = {
