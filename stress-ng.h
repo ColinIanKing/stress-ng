@@ -447,10 +447,6 @@
 #include <linux/fd.h>
 #endif
 
-#if defined(HAVE_LINUX_GENETLINK_H)
-#include <linux/genetlink.h>
-#endif
-
 #if defined(HAVE_LINUX_HDREG_H)
 #include <linux/hdreg.h>
 #endif

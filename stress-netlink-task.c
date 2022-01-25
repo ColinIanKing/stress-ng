@@ -24,6 +24,10 @@
 #include <linux/taskstats.h>
 #endif
 
+#if defined(HAVE_LINUX_GENETLINK_H)
+#include <linux/genetlink.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"netlink-task N",	"start N workers exercising netlink tasks events" },
 	{ NULL,	"netlink-task-ops N",	"stop netlink-task workers after N bogo events" },
