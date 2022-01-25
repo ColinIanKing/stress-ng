@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-thrash.h"
 
 #if defined(__linux__) &&	\
     defined(HAVE_PTRACE)
