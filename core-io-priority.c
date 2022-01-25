@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-io-priority.h"
 
 /*
  *  stress_get_opt_ionice_class()

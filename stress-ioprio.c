@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-io-priority.h"
 
 #if defined(__NR_ioprio_get)
 #define HAVE_IOPRIO_GET
