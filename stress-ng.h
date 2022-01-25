@@ -776,10 +776,6 @@
 #define HAVE_SET_THREAD_AREA
 #endif
 
-#if defined(__NR_syslog)
-#define HAVE_SYSLOG
-#endif
-
 #if defined(__NR_userfaultfd)
 #define HAVE_USERFAULTFD
 #endif
