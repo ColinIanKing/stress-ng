@@ -768,10 +768,6 @@
 #define HAVE_SCHED_SETATTR
 #endif
 
-#if defined(__NR_set_thread_area)
-#define HAVE_SET_THREAD_AREA
-#endif
-
 #if defined(__NR_userfaultfd)
 #define HAVE_USERFAULTFD
 #endif
