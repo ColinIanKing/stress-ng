@@ -99,10 +99,6 @@
 #include <netinet/sctp.h>
 #endif
 
-#if defined(HAVE_COMPLEX_H)
-#include <complex.h>
-#endif
-
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
 #endif

@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_COMPLEX_H)
+#include <complex.h>
+#endif
+
 typedef void (*stress_funccall_func)(const stress_args_t *argse);
 
 typedef struct {
