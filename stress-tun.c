@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_LINUX_IF_TUN_H)
+#include <linux/if_tun.h>
+#endif
+
 #define PACKETS_TO_SEND		(64)
 
 static const stress_help_t help[] = {

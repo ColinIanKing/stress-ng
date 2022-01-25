@@ -455,10 +455,6 @@
 #include <linux/if_packet.h>
 #endif
 
-#if defined(HAVE_LINUX_IF_TUN_H)
-#include <linux/if_tun.h>
-#endif
-
 #if defined(HAVE_LINUX_FILTER_H)
 #include <linux/filter.h>
 #endif

@@ -21,6 +21,10 @@
 #include "core-capabilities.h"
 #include "core-net.h"
 
+#if defined(HAVE_LINUX_IF_TUN_H)
+#include <linux/if_tun.h>
+#endif
+
 #define MIN_RAWPKT_PORT		(1024)
 #define MAX_RAWPKT_PORT		(65535)
 #define DEFAULT_RAWPKT_PORT	(14000)
