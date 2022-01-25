@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-cache.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"mcontend N",	  "start N workers that produce memory contention" },
