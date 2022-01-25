@@ -626,10 +626,6 @@
 #include <linux/unix_diag.h>
 #endif
 
-#if defined(HAVE_LINUX_USERFAULTFD_H)
-#include <linux/userfaultfd.h>
-#endif
-
 #if defined(HAVE_LINUX_USBDEVICE_FS_H)
 #include <linux/usbdevice_fs.h>
 #endif

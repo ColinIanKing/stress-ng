@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LINUX_USERFAULTFD_H)
+#include <linux/userfaultfd.h>
+#endif
+
 #define MIN_USERFAULT_BYTES	(4 * KB)
 #define MAX_USERFAULT_BYTES	(MAX_MEM_LIMIT)
 #define DEFAULT_USERFAULT_BYTES	(256 * MB)
