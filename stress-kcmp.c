@@ -21,6 +21,10 @@
 #include "core-capabilities.h"
 #include "core-net.h"
 
+#if defined(__NR_kcmp)
+#define HAVE_KCMP
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"kcmp N",	"start N workers exercising kcmp" },
 	{ NULL,	"kcmp-ops N",	"stop after N kcmp bogo operations" },

@@ -756,10 +756,6 @@
 #define HAVE_IOPRIO_SET
 #endif
 
-#if defined(__NR_kcmp)
-#define HAVE_KCMP
-#endif
-
 #if defined(__NR_membarrier)
 #define HAVE_MEMBARRIER
 #endif
