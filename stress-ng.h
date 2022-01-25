@@ -422,13 +422,6 @@
 /*
  *  Linux specific includes
  */
-#if defined(HAVE_LINUX_ANDROID_BINDER_H)
-#include <linux/android/binder.h>
-#endif
-
-#if defined(HAVE_LINUX_ANDROID_BINDERFS_H)
-#include <linux/android/binderfs.h>
-#endif
 
 #if defined(HAVE_LINUX_AUDIT_H)
 #include <linux/audit.h>

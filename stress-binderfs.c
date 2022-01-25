@@ -20,6 +20,14 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_LINUX_ANDROID_BINDER_H)
+#include <linux/android/binder.h>
+#endif
+
+#if defined(HAVE_LINUX_ANDROID_BINDERFS_H)
+#include <linux/android/binderfs.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"binderfs N",		"start N workers exercising binderfs" },
 	{ NULL,	"binderfs-ops N",	"stop after N bogo binderfs operations" },
