@@ -506,10 +506,6 @@
 #include <linux/fs.h>
 #endif
 
-#if defined(HAVE_LINUX_FSVERITY_H)
-#include <linux/fsverity.h>
-#endif
-
 #if defined(HAVE_LINUX_FUTEX_H)
 #include <linux/futex.h>
 #endif
