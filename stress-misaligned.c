@@ -23,6 +23,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-target-clones.h"
 
 #define MISALIGN_LOOPS		(32768)
 
