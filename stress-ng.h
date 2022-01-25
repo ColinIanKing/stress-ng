@@ -732,10 +732,6 @@
  */
 #if defined(__linux__)
 
-#if defined(__NR_add_key)
-#define HAVE_ADD_KEY
-#endif
-
 #if defined(__NR_getdents)
 #define HAVE_GETDENTS
 #endif
@@ -764,10 +760,6 @@
 #define HAVE_KCMP
 #endif
 
-#if defined(__NR_keyctl)
-#define HAVE_KEYCTL
-#endif
-
 #if defined(__NR_membarrier)
 #define HAVE_MEMBARRIER
 #endif
@@ -782,10 +774,6 @@
 
 #if defined(__NR_pkey_set)
 #define HAVE_PKEY_SET
-#endif
-
-#if defined(__NR_request_key)
-#define HAVE_REQUEST_KEY
 #endif
 
 #if defined(__NR_sched_getattr)

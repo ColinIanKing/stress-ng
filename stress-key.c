@@ -30,8 +30,26 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+#if defined(__NR_add_key)
+#define HAVE_ADD_KEY
+#endif
+
+#if defined(__NR_keyctl)
+#define HAVE_KEYCTL
+#endif
+
+#if defined(__NR_request_key)
+#define HAVE_REQUEST_KEY
+#endif
+
+
+/*
+ *  Note we don't need HAVE_REQUEST_KEY to be defined
+ *  as this is an optional extra system call that can
+ *  be overlooked in this stressor if it is not available
+ */
 #if defined(HAVE_KEYUTILS_H) && \
-    defined(HAVE_ADD_KEY) && \
+    defined(HAVE_ADD_KEY) &&	\
     defined(HAVE_KEYCTL)
 
 #define MAX_KEYS 		(256)
