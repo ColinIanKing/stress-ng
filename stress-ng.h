@@ -579,10 +579,6 @@
 #include <linux/version.h>
 #endif
 
-#if defined(HAVE_LINUX_VIDEODEV2_H)
-#include <linux/videodev2.h>
-#endif
-
 /*
  *  We want sys/xattr.h in preference
  *  to the older attr/xattr.h if both

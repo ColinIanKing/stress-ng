@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_LINUX_VIDEODEV2_H)
+#include <linux/videodev2.h>
+#endif
+
 #if defined(HAVE_LINUX_VT_H)
 #include <linux/vt.h>
 #endif
