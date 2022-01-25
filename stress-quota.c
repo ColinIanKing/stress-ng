@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_SYS_QUOTA_H)
+#include <sys/quota.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"quota N",	"start N workers exercising quotactl commands" },
 	{ NULL,	"quota-ops N",	"stop after N quotactl bogo operations" },

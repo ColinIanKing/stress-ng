@@ -326,10 +326,6 @@
 #include <sys/queue.h>
 #endif
 
-#if defined(HAVE_SYS_QUOTA_H)
-#include <sys/quota.h>
-#endif
-
 #if defined(HAVE_SYS_RANDOM_H)
 #include <sys/random.h>
 #endif
