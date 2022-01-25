@@ -72,21 +72,6 @@
 
 #include "config.h"
 
-#ifndef SCHED_FLAG_RESET_ON_FORK
-#define SCHED_FLAG_RESET_ON_FORK	(0x01)
-#endif
-
-/*
- * SCHED_DEADLINE
- */
-#ifndef SCHED_FLAG_RECLAIM
-#define SCHED_FLAG_RECLAIM  		(0x02)
-#endif
-
-#ifndef SCHED_FLAG_DL_OVERRUN
-#define SCHED_FLAG_DL_OVERRUN   	(0x04)
-#endif
-
 /*
  *  Networking includes that are part of
  *  Single UNIX Specification V2
