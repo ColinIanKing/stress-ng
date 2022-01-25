@@ -103,10 +103,6 @@
 #include <complex.h>
 #endif
 
-#if defined(HAVE_CRYPT_H)
-#include <crypt.h>
-#endif
-
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
 #endif

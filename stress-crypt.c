@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_CRYPT_H)
+#include <crypt.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"crypt N",	"start N workers performing password encryption" },
 	{ NULL,	"crypt-ops N",	"stop after N bogo crypt operations" },
