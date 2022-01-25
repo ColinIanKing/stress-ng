@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_LINUX_VT_H)
+#include <linux/vt.h>
+#endif
+
 /*
  *  Device information is held in a linked list of dev_info_t objects. Each
  *  nth element in the list also points to a unique device state which is
