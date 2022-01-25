@@ -16,6 +16,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 #include "stress-ng.h"
+#include "core-cache.h"
 
 #define STRESS_SYNCLOAD_MS_DEFAULT	(125)	/* 125 milliseconds */
 #define STRESS_SYNCLOAD_MS_MIN		(1)	/* 1 millisecond */

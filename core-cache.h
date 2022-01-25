@@ -71,4 +71,27 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 #define shim_builtin_prefetch		__builtin_prefetch
 #endif
 
+/*
+ *  shim_mfence()
+ *	serializing memory fence
+ */
+static inline void ALWAYS_INLINE shim_mfence(void)
+{
+#if defined(STRESS_ARCH_RISCV) &&	\
+    defined(HAVE_ASM_RISCV_FENCE)
+	 asm volatile ("fence" ::: "memory");
+#else
+#if NEED_GNUC(4, 2, 0) &&	\
+    !defined(__PCC__)
+	__sync_synchronize();
+#else
+#if defined(STRESS_ARCH_X86)
+	asm volatile("mfence" : : : "memory");
+#else
+	/* Other arches not yet implemented for older GCC flavours */
+#endif
+#endif
+#endif
+}
+
 #endif

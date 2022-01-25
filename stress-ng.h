@@ -3387,29 +3387,6 @@ extern WARN_UNUSED bool stress_cpu_x86_has_sse2(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_syscall(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_tsc(void);
 
-/*
- *  shim_mfence()
- *	serializing memory fence
- */
-static inline void ALWAYS_INLINE shim_mfence(void)
-{
-#if defined(STRESS_ARCH_RISCV) &&	\
-    defined(HAVE_ASM_RISCV_FENCE)
-	 asm volatile ("fence" ::: "memory");
-#else
-#if NEED_GNUC(4, 2, 0) &&	\
-    !defined(__PCC__)
-	__sync_synchronize();
-#else
-#if defined(STRESS_ARCH_X86)
-	asm volatile("mfence" : : : "memory");
-#else
-	/* Other arches not yet implemented for older GCC flavours */
-#endif
-#endif
-#endif
-}
-
 /* Fast random numbers */
 extern uint32_t stress_mwc32(void);
 extern uint64_t stress_mwc64(void);
