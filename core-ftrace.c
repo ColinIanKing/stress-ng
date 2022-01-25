@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-ftrace.h"
 
 #if defined(HAVE_LIB_BSD) &&	\
     defined(__linux__)
