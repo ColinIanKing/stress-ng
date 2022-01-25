@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_SENDFILE_H)
+#include <sys/sendfile.h>
+#endif
+
 #define MIN_SENDFILE_SIZE	(1 * KB)
 #define MAX_SENDFILE_SIZE	(1 * GB)
 #define DEFAULT_SENDFILE_SIZE	(4 * MB)

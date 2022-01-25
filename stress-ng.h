@@ -343,10 +343,6 @@
 #include <sys/sem.h>
 #endif
 
-#if defined(HAVE_SYS_SENDFILE_H)
-#include <sys/sendfile.h>
-#endif
-
 #if defined(HAVE_SYS_SHM_H)
 #include <sys/shm.h>
 #endif
