@@ -467,10 +467,6 @@
 #include <linux/if_tun.h>
 #endif
 
-#if defined(HAVE_LINUX_IO_URING_H)
-#include <linux/io_uring.h>
-#endif
-
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
 #endif
