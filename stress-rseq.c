@@ -19,6 +19,10 @@
 #include "stress-ng.h"
 #include "core-pragma.h"
 
+#if defined(HAVE_LINUX_RSEQ_H)
+#include <linux/rseq.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"rseq N",	"start N workers that exercise restartable sequences" },
 	{ NULL,	"rseq-ops N",	"stop after N bogo restartable sequence operations" },

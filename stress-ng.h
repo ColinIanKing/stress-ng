@@ -562,10 +562,6 @@
 #include <linux/random.h>
 #endif
 
-#if defined(HAVE_LINUX_RSEQ_H)
-#include <linux/rseq.h>
-#endif
-
 #if defined(HAVE_LINUX_RTC_H)
 #include <linux/rtc.h>
 #endif
