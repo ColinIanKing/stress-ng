@@ -22,6 +22,10 @@
 #include "core-capabilities.h"
 #include "core-hash.h"
 
+#if defined(HAVE_LINUX_FIEMAP_H)
+#include <linux/fiemap.h>
+#endif
+
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
 #endif

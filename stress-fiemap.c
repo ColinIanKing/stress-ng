@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LINUX_FIEMAP_H)
+#include <linux/fiemap.h>
+#endif
+
 #define MIN_FIEMAP_SIZE		(1 * MB)
 #define MAX_FIEMAP_SIZE		(MAX_FILE_LIMIT)
 #define DEFAULT_FIEMAP_SIZE	(16 * MB)
