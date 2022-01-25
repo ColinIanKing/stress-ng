@@ -28,6 +28,8 @@
     defined(HAVE_LIB_KMOD) && 	\
     defined(__linux__)
 
+#include <libkmod.h>
+
 /*
  *  stress_module_load()
  *	load a linux kernel module

@@ -123,10 +123,6 @@
 #include <libgen.h>
 #endif
 
-#if defined(HAVE_LIBKMOD_H)
-#include <libkmod.h>
-#endif
-
 #if defined(HAVE_LINK_H)
 #include <link.h>
 #endif
