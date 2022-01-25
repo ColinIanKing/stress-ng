@@ -1367,19 +1367,6 @@ typedef struct {
 #define UNLIKELY(x)	(x)
 #endif
 
-#if !defined(HAVE_BUILTIN_PREFETCH) || defined(__PCC__)
-/* a fake prefetch var-args no-op */
-static inline void shim_builtin_prefetch(const void *addr, ...)
-{
-	va_list ap;
-
-	va_start(ap, addr);
-	va_end(ap);
-}
-#else
-#define shim_builtin_prefetch		__builtin_prefetch
-#endif
-
 #if defined(HAVE_BUILTIN_MEMMOVE)
 #define shim_builtin_memmove		__builtin_memmove
 #else

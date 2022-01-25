@@ -58,4 +58,17 @@ static inline void ALWAYS_INLINE shim_clflush(volatile void *ptr)
 #define shim_clflush(ptr)	do { } while (0) /* No-op */
 #endif
 
+#if !defined(HAVE_BUILTIN_PREFETCH) || defined(__PCC__)
+/* a fake prefetch var-args no-op */
+static inline void shim_builtin_prefetch(const void *addr, ...)
+{
+	va_list ap;
+
+	va_start(ap, addr);
+	va_end(ap);
+}
+#else
+#define shim_builtin_prefetch		__builtin_prefetch
+#endif
+
 #endif
