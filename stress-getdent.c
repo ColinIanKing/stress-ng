@@ -24,6 +24,14 @@
  */
 #include "stress-ng.h"
 
+#if defined(__NR_getdents)
+#define HAVE_GETDENTS
+#endif
+
+#if defined(__NR_getdents64)
+#define HAVE_GETDENTS64
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"getdent N",	 "start N workers reading directories using getdents" },
 	{ NULL,	"getdent-ops N", "stop after N getdents bogo operations" },
