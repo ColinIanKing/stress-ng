@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-smart.h"
 
 #define DEVS_MAX      		(256)
 
