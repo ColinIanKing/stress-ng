@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_QUEUE_H)
+#include <sys/queue.h>
+#endif
+
 #define MIN_LIST_SIZE		(64)
 #define MAX_LIST_SIZE		(1000000)
 #define DEFAULT_LIST_SIZE	(5000)

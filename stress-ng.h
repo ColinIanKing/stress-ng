@@ -302,10 +302,6 @@
 #include <sys/ptrace.h>
 #endif
 
-#if defined(HAVE_SYS_QUEUE_H)
-#include <sys/queue.h>
-#endif
-
 #if defined(HAVE_SYS_RANDOM_H)
 #include <sys/random.h>
 #endif
