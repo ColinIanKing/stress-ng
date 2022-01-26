@@ -18,6 +18,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LINUX_KVM_H)
+#include <linux/kvm.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"kvm N",	"start N workers exercising /dev/kvm" },
 	{ NULL, "kvm-ops N",	"stop after N kvm create/run/destroy operations" },

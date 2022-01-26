@@ -426,10 +426,6 @@
 #include <linux/kd.h>
 #endif
 
-#if defined(HAVE_LINUX_KVM_H)
-#include <linux/kvm.h>
-#endif
-
 #if defined(HAVE_LINUX_LANDLOCK_H)
 #include <linux/landlock.h>
 #endif
