@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2014-2021 Canonical, Ltd.
- * Copyright (C)      2021 Colin Ian King
+ * Copyright (C) 2021-2022 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +18,10 @@
  *
  */
 #define STRESS_CORE_SHIM
+
+#if defined(HAVE_ASM_CACHECTL_H)
+#include <asm/cachectl.h>
+#endif
 
 #include "stress-ng.h"
 
