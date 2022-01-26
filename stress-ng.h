@@ -538,10 +538,6 @@
 #include <linux/unix_diag.h>
 #endif
 
-#if defined(HAVE_LINUX_USBDEVICE_FS_H)
-#include <linux/usbdevice_fs.h>
-#endif
-
 #if defined(HAVE_LINUX_VERSION_H)
 #include <linux/version.h>
 #endif

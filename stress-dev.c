@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_LINUX_USBDEVICE_FS_H)
+#include <linux/usbdevice_fs.h>
+#endif
+
 #if defined(HAVE_LINUX_VIDEODEV2_H)
 #include <linux/videodev2.h>
 #endif
@@ -3008,9 +3012,10 @@ static void stress_dev_bus_usb_linux(
 	(void)fd;
 	(void)devpath;
 
-#if defined(USBDEVFS_GET_SPEED) ||		\
+#if defined(HAVE_LINUX_USBDEVICE_FS_H) &&	\
+    (defined(USBDEVFS_GET_SPEED) ||		\
     (defined(HAVE_USBDEVFS_GETDRIVER) &&	\
-     defined(USBDEVFS_GETDRIVER))
+     defined(USBDEVFS_GETDRIVER)))
 	{
 		int ret, fdwr;
 
