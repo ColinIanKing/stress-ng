@@ -374,10 +374,6 @@
 /*
  *  Linux specific includes
  */
-#if defined(HAVE_LINUX_AUDIT_H)
-#include <linux/audit.h>
-#endif
-
 #if defined(HAVE_LINUX_CDROM_H)
 #include <linux/cdrom.h>
 #endif
