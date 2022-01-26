@@ -390,10 +390,6 @@
 #include <linux/connector.h>
 #endif
 
-#if defined(HAVE_LINUX_DM_IOCTL_H)
-#include <linux/dm-ioctl.h>
-#endif
-
 #if defined(HAVE_LINUX_FD_H)
 #include <linux/fd.h>
 #endif

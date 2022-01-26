@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_LINUX_DM_IOCTL_H)
+#include <linux/dm-ioctl.h>
+#endif
+
 #if defined(HAVE_LINUX_KD_H)
 #include <linux/kd.h>
 #endif
