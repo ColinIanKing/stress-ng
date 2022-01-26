@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_SYS_FSUID_H)
+#include <sys/fsuid.h>
+#endif
+
 #if !defined(_DEFAULT_SOURCE)
 #define _DEFAULT_SOURCE 1
 #endif
