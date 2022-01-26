@@ -507,10 +507,6 @@
 #include <linux/random.h>
 #endif
 
-#if defined(HAVE_LINUX_RTC_H)
-#include <linux/rtc.h>
-#endif
-
 #if defined(HAVE_LINUX_RTNETLINK_H)
 #include <linux/rtnetlink.h>
 #endif
