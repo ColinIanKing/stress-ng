@@ -426,10 +426,6 @@
 #include <linux/kd.h>
 #endif
 
-#if defined(HAVE_LINUX_LANDLOCK_H)
-#include <linux/landlock.h>
-#endif
-
 #if defined(HAVE_LINUX_LOOP_H)
 #include <linux/loop.h>
 #endif
