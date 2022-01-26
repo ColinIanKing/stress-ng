@@ -386,10 +386,6 @@
 #include <linux/connector.h>
 #endif
 
-#if defined(HAVE_LINUX_FD_H)
-#include <linux/fd.h>
-#endif
-
 #if defined(HAVE_LINUX_HDREG_H)
 #include <linux/hdreg.h>
 #endif

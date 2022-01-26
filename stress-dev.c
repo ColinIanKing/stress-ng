@@ -24,6 +24,10 @@
 #include <linux/dm-ioctl.h>
 #endif
 
+#if defined(HAVE_LINUX_FD_H)
+#include <linux/fd.h>
+#endif
+
 #if defined(HAVE_LINUX_KD_H)
 #include <linux/kd.h>
 #endif

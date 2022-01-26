@@ -42,15 +42,6 @@ static const stress_help_t help[] = {
 #define STRESS_ALARM_MASK	(STRESS_ALARM_INTMAX | STRESS_ALARM_ZERO | STRESS_ALARM_RANDOM)
 
 /*
- *  stress_alarm_handler()
- *	catch SIGALRM signal
- */
-static void stress_alarm_handler(int sig)
-{
-	(void)sig;
-}
-
-/*
  *  stress_alarm
  *	stress alarm(3)
  */
@@ -59,7 +50,7 @@ static int stress_alarm(const stress_args_t *args)
 	const double t_end = stress_time_now() + (double)g_opt_timeout;
 	pid_t pid;
 
-	if (stress_sighandler(args->name, SIGALRM, stress_alarm_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGALRM, stress_sighandler_nop, NULL) < 0)
                 return EXIT_FAILURE;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
