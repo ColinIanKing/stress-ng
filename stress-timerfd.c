@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_SYS_TIMERFD_H)
+#include <sys/timerfd.h>
+#endif
+
 #define MIN_TIMERFD_FREQ	(1)
 #define MAX_TIMERFD_FREQ	(100000000)
 #define DEFAULT_TIMERFD_FREQ	(1000000)
