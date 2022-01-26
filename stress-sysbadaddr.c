@@ -24,6 +24,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
+#endif
+
 typedef void *(*stress_bad_addr_t)(const stress_args_t *args);
 typedef int (*stress_bad_syscall_t)(void *addr);
 

@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
+#endif
+
 #define MIN_HDD_BYTES		(1 * MB)
 #define MAX_HDD_BYTES		(MAX_FILE_LIMIT)
 #define DEFAULT_HDD_BYTES	(1 * GB)

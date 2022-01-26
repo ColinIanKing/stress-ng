@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-io-priority.h"
 
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
+#endif
+
 #if defined(__NR_ioprio_get)
 #define HAVE_IOPRIO_GET
 #endif

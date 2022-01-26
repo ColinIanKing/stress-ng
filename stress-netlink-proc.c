@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"netlink-proc N",	"start N workers exercising netlink process events" },
 	{ NULL,	"netlink-proc-ops N",	"stop netlink-proc workers after N bogo events" },

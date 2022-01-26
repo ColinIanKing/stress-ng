@@ -384,10 +384,6 @@
 #include <sys/ucred.h>
 #endif
 
-#if defined(HAVE_SYS_UIO_H)
-#include <sys/uio.h>
-#endif
-
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
 #endif

@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_UIO_H)
+#include <sys/uio.h>
+#endif
+
 #define MIN_VM_RW_BYTES		(4 * KB)
 #define MAX_VM_RW_BYTES		(MAX_MEM_LIMIT)
 #define DEFAULT_VM_RW_BYTES	(16 * MB)
