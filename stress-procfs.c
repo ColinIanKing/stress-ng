@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_ASM_MTRR_H)
+#include <asm/mtrr.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"procfs N",	"start N workers reading portions of /proc" },
 	{ NULL,	"procfs-ops N",	"stop procfs workers after N bogo read operations" },

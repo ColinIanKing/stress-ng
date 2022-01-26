@@ -224,10 +224,6 @@
 #include <asm/prctl.h>
 #endif
 
-#if defined(HAVE_ASM_MTRR_H)
-#include <asm/mtrr.h>
-#endif
-
 /*
  *  Various sys include files
  */
