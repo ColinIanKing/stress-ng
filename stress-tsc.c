@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_PLATFORM_PPC_H)
+#include <sys/platform/ppc.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"tsc N",	"start N workers reading the time stamp counter" },
 	{ NULL,	"tsc-ops N",	"stop after N TSC bogo operations" },

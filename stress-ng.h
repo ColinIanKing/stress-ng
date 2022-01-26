@@ -306,10 +306,6 @@
 #include <sys/prctl.h>
 #endif
 
-#if defined(HAVE_SYS_PLATFORM_PPC_H)
-#include <sys/platform/ppc.h>
-#endif
-
 #if defined(HAVE_PTRACE)
 #include <sys/ptrace.h>
 #endif
