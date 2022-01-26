@@ -23,6 +23,10 @@
 #include <asm/cachectl.h>
 #endif
 
+#if defined(HAVE_MODIFY_LDT)
+#include <asm/ldt.h>
+#endif
+
 #include "stress-ng.h"
 
 /*

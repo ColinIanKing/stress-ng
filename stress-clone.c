@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_MODIFY_LDT)
+#include <asm/ldt.h>
+#endif
+
 #define MIN_CLONES		(1)
 #define MAX_CLONES		(1000000)
 #define DEFAULT_CLONES		(8192)

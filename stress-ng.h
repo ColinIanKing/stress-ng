@@ -228,10 +228,6 @@
 #include <asm/mtrr.h>
 #endif
 
-#if defined(HAVE_MODIFY_LDT)
-#include <asm/ldt.h>
-#endif
-
 /*
  *  Various sys include files
  */

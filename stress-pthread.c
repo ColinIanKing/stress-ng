@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_MODIFY_LDT)
+#include <asm/ldt.h>
+#endif
+
 #define MIN_PTHREAD		(1)
 #define MAX_PTHREAD		(30000)
 #define DEFAULT_PTHREAD		(1024)
