@@ -391,14 +391,9 @@
 #include <scsi/scsi.h>
 #endif
 
-#if defined(HAVE_SCSI_SG_H)
-#include <scsi/sg.h>
-#endif
-
 /*
  *  Linux specific includes
  */
-
 #if defined(HAVE_LINUX_AUDIT_H)
 #include <linux/audit.h>
 #endif
