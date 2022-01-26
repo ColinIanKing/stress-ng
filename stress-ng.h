@@ -196,20 +196,12 @@
 #include <xmmintrin.h>
 #endif
 
-#if defined(HAVE_SYS_TREE_H)
-#include <sys/tree.h>
-#endif
-
 #if defined(HAVE_BSD_STDLIB_H)
 #include <bsd/stdlib.h>
 #endif
 
 #if defined(HAVE_BSD_STRING_H)
 #include <bsd/string.h>
-#endif
-
-#if defined(HAVE_BSD_SYS_TREE_H)
-#include <bsd/sys/tree.h>
 #endif
 
 #if defined(HAVE_BSD_UNISTD_H)

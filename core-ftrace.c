@@ -21,6 +21,14 @@
 #include "core-capabilities.h"
 #include "core-ftrace.h"
 
+#if defined(HAVE_SYS_TREE_H)
+#include <sys/tree.h>
+#endif
+
+#if defined(HAVE_BSD_SYS_TREE_H)
+#include <bsd/sys/tree.h>
+#endif
+
 #if defined(HAVE_LIB_BSD) &&	\
     defined(__linux__)
 

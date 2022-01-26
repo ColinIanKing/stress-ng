@@ -18,6 +18,14 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_TREE_H)
+#include <sys/tree.h>
+#endif
+
+#if defined(HAVE_BSD_SYS_TREE_H)
+#include <bsd/sys/tree.h>
+#endif
+
 #if defined(HAVE_JUDY_H)
 #include <Judy.h>
 #endif

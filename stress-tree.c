@@ -19,6 +19,14 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_TREE_H)
+#include <sys/tree.h>
+#endif
+
+#if defined(HAVE_BSD_SYS_TREE_H)
+#include <bsd/sys/tree.h>
+#endif
+
 #define MIN_TREE_SIZE		(1000)
 #define MAX_TREE_SIZE		(25000000)
 #define DEFAULT_TREE_SIZE	(250000)
