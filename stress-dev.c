@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_LINUX_KD_H)
+#include <linux/kd.h>
+#endif
+
 #if defined(HAVE_LINUX_USBDEVICE_FS_H)
 #include <linux/usbdevice_fs.h>
 #endif

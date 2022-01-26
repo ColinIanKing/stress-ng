@@ -422,10 +422,6 @@
 #include <linux/hpet.h>
 #endif
 
-#if defined(HAVE_LINUX_KD_H)
-#include <linux/kd.h>
-#endif
-
 #if defined(HAVE_LINUX_LOOP_H)
 #include <linux/loop.h>
 #endif
