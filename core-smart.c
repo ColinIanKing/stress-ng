@@ -21,6 +21,10 @@
 #include "core-capabilities.h"
 #include "core-smart.h"
 
+#if defined(HAVE_SCSI_SCSI_IOCTL_H)
+#include <scsi/scsi_ioctl.h>
+#endif
+
 #define DEVS_MAX      		(256)
 
 #define SENSE_BUF_SZ		(0x20)
