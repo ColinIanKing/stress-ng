@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_LINUX_LOOP_H)
+#include <linux/loop.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"loop N",	"start N workers exercising loopback devices" },
 	{ NULL,	"loop-ops N",	"stop after N bogo loopback operations" },
