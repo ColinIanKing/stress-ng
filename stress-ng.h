@@ -454,10 +454,6 @@
 #include <linux/netlink.h>
 #endif
 
-#if defined(HAVE_LINUX_OPENAT2_H)
-#include <linux/openat2.h>
-#endif
-
 #if defined(HAVE_LINUX_PCI_H)
 #include <linux/pci.h>
 #endif

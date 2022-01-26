@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,14 +16,12 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
  */
 #include "stress-ng.h"
+
+#if defined(HAVE_LINUX_OPENAT2_H)
+#include <linux/openat2.h>
+#endif
 
 typedef int (*stress_open_func_t)(void);
 
@@ -379,6 +378,7 @@ static int open_with_openat2_cwd(void)
 
 		/* Exercise illegal usize field */
 		fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, 0);
+
 		if (fd >= 0) {
 			/* Unxexpected, but handle it anyhow */
 			(void)shim_unlink(filename);
