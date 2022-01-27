@@ -27,6 +27,10 @@
 #include <sys/eventfd.h>
 #endif
 
+#if defined(HAVE_SYS_INOTIFY_H)
+#include <sys/inotify.h>
+#endif
+
 #if defined(HAVE_SYS_TIMERFD_H)
 #include <sys/timerfd.h>
 #endif

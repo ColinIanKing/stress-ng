@@ -197,10 +197,6 @@
 #include <sys/ipc.h>
 #endif
 
-#if defined(HAVE_SYS_INOTIFY_H)
-#include <sys/inotify.h>
-#endif
-
 #if defined(HAVE_SYS_MOUNT_H)
 #include <sys/mount.h>
 #endif

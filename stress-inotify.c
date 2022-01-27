@@ -24,6 +24,10 @@
 #include <sys/epoll.h>
 #endif
 
+#if defined(HAVE_SYS_INOTIFY_H)
+#include <sys/inotify.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"inotify N",	 "start N workers exercising inotify events" },
 	{ NULL,	"inotify-ops N", "stop inotify workers after N bogo operations" },

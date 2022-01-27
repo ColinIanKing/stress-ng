@@ -36,6 +36,10 @@
 #include <sys/fanotify.h>
 #endif
 
+#if defined(HAVE_SYS_INOTIFY_H)
+#include <sys/inotify.h>
+#endif
+
 #if defined(HAVE_LINUX_NETLINK_H)
 #include <linux/netlink.h>
 #endif
