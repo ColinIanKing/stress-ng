@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SEM_SYSV)
+#include <sys/sem.h>
+#endif
+
 #define MIN_SEM_SYSV_PROCS     (2)
 #define MAX_SEM_SYSV_PROCS     (64)
 #define DEFAULT_SEM_SYSV_PROCS (2)

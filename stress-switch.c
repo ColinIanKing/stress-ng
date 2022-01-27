@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SEM_SYSV)
+#include <sys/sem.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ "s N","switch N",	 	"start N workers doing rapid context switches" },
 	{ NULL,	"switch-ops N",	 	"stop after N context switch bogo operations" },

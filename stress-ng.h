@@ -213,10 +213,6 @@
 #include <sys/select.h>
 #endif
 
-#if defined(HAVE_SEM_SYSV)
-#include <sys/sem.h>
-#endif
-
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>
 #endif
