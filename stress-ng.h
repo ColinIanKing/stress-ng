@@ -418,10 +418,6 @@
 #include <linux/perf_event.h>
 #endif
 
-#if defined(HAVE_LINUX_PTP_CLOCK_H)
-#include <linux/ptp_clock.h>
-#endif
-
 #if defined(HAVE_LINUX_POSIX_TYPES_H)
 #include <linux/posix_types.h>
 #endif
