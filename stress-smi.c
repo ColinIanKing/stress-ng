@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_SYS_IO_H)
+#include <sys/io.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"smi N",	"start N workers that trigger SMIs" },
 	{ NULL,	"smi-ops N",	"stop after N SMIs have been triggered" },
