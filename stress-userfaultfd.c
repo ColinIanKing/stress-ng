@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(__NR_userfaultfd)
+#define HAVE_USERFAULTFD
+#endif
+
 #if defined(HAVE_LINUX_USERFAULTFD_H)
 #include <linux/userfaultfd.h>
 #endif

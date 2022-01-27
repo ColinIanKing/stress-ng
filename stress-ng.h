@@ -351,10 +351,6 @@
 #define HAVE_PKEY_SET
 #endif
 
-#if defined(__NR_userfaultfd)
-#define HAVE_USERFAULTFD
-#endif
-
 #endif
 
 #include "stress-version.h"
