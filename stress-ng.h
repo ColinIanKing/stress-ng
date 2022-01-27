@@ -414,10 +414,6 @@
 #include <linux/netlink.h>
 #endif
 
-#if defined(HAVE_LINUX_PCI_H)
-#include <linux/pci.h>
-#endif
-
 #if defined(HAVE_LINUX_PERF_EVENT_H)
 #include <linux/perf_event.h>
 #endif

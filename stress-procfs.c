@@ -24,6 +24,10 @@
 #include <asm/mtrr.h>
 #endif
 
+#if defined(HAVE_LINUX_PCI_H)
+#include <linux/pci.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"procfs N",	"start N workers reading portions of /proc" },
 	{ NULL,	"procfs-ops N",	"stop procfs workers after N bogo read operations" },
