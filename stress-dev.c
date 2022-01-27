@@ -56,6 +56,10 @@
 #include <linux/ppdev.h>
 #endif
 
+#if defined(HAVE_LINUX_RANDOM_H)
+#include <linux/random.h>
+#endif
+
 #if defined(HAVE_SCSI_SCSI_H)
 #include <scsi/scsi.h>
 #endif

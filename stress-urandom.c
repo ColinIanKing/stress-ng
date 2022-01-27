@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_LINUX_RANDOM_H)
+#include <linux/random.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ "u N","urandom N",	 "start N workers reading /dev/urandom" },
 	{ NULL, "urandom-ops N", "stop after N urandom bogo read operations" },

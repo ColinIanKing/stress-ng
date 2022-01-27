@@ -325,10 +325,6 @@
 #include <linux/posix_types.h>
 #endif
 
-#if defined(HAVE_LINUX_RANDOM_H)
-#include <linux/random.h>
-#endif
-
 #if defined(HAVE_LINUX_VERSION_H)
 #include <linux/version.h>
 #endif
