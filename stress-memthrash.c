@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-cache.h"
 
+#if defined(HAVE_XMMINTRIN_H)
+#include <xmmintrin.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"memthrash N",		"start N workers thrashing a 16MB memory buffer" },
 	{ NULL,	"memthrash-ops N",	"stop after N memthrash bogo operations" },

@@ -183,10 +183,6 @@
 #include <utime.h>
 #endif
 
-#if defined(HAVE_XMMINTRIN_H)
-#include <xmmintrin.h>
-#endif
-
 #if defined(HAVE_BSD_STDLIB_H)
 #include <bsd/stdlib.h>
 #endif

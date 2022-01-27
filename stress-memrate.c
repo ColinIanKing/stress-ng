@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_XMMINTRIN_H)
+#include <xmmintrin.h>
+#endif
+
 #define MIN_MEMRATE_BYTES       (4 * KB)
 #define MAX_MEMRATE_BYTES       (MAX_MEM_LIMIT)
 #define DEFAULT_MEMRATE_BYTES   (256 * MB)
