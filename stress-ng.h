@@ -341,10 +341,6 @@
 #include <linux/sockios.h>
 #endif
 
-#if defined(HAVE_LINUX_SYSCTL_H)
-#include <linux/sysctl.h>
-#endif
-
 #if defined(HAVE_LINUX_VERSION_H)
 #include <linux/version.h>
 #endif
