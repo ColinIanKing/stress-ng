@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
+#endif
+
 #define MIN_IOMIX_BYTES		(1 * MB)
 #define MAX_IOMIX_BYTES		(MAX_FILE_LIMIT)
 #define DEFAULT_IOMIX_BYTES	(1 * GB)

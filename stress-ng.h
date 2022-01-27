@@ -366,10 +366,6 @@
 #include <linux/filter.h>
 #endif
 
-#if defined(HAVE_LINUX_FS_H)
-#include <linux/fs.h>
-#endif
-
 #if defined(HAVE_LINUX_MEMBARRIER_H)
 #include <linux/membarrier.h>
 #endif

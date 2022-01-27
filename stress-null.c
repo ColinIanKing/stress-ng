@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"null N",	"start N workers writing to /dev/null" },
 	{ NULL,	"null-ops N",	"stop after N /dev/null bogo write operations" },

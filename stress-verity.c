@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
+#endif
+
 #if defined(HAVE_LINUX_FSVERITY_H)
 #include <linux/fsverity.h>
 #endif

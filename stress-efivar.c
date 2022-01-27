@@ -26,6 +26,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"efivar N",	"start N workers that read EFI variables" },
 	{ NULL,	"efivar-ops N",	"stop after N EFI variable bogo read operations" },
