@@ -52,6 +52,14 @@
 #include <scsi/scsi.h>
 #endif
 
+#if defined(HAVE_SCSI_SCSI_IOCTL_H)
+#include <scsi/scsi_ioctl.h>
+#endif
+
+#if defined(HAVE_SCSI_SG_H)
+#include <scsi/sg.h>
+#endif
+
 #if defined(HAVE_LINUX_PTP_CLOCK_H)
 #include <linux/ptp_clock.h>
 #endif
