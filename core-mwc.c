@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_AUXV_H)
+#include <sys/auxv.h>
+#endif
+
 /* MWC random number initial seed */
 #define STRESS_MWC_SEED_Z	(362436069UL)
 #define STRESS_MWC_SEED_W	(521288629UL)

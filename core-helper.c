@@ -22,6 +22,10 @@
 #include "core-capabilities.h"
 #include "core-hash.h"
 
+#if defined(HAVE_SYS_AUXV_H)
+#include <sys/auxv.h>
+#endif
+
 #if defined(HAVE_LINUX_FIEMAP_H)
 #include <linux/fiemap.h>
 #endif
@@ -2482,7 +2486,8 @@ size_t stress_hostname_length(void)
  */
 static inline long stress_min_aux_sig_stack_size(void)
 {
-#if defined(HAVE_GETAUXVAL) &&	\
+#if defined(HAVE_SYS_AUXV_H) && \
+    defined(HAVE_GETAUXVAL) &&	\
     defined(AT_MINSIGSTKSZ)
 	long sz = getauxval(AT_MINSIGSTKSZ);
 

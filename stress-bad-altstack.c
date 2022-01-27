@@ -21,6 +21,10 @@
 #include "core-put.h"
 #include "core-pragma.h"
 
+#if defined(HAVE_SYS_AUXV_H)
+#include <sys/auxv.h>
+#endif
+
 static const stress_help_t help[] =
 {
 	{ NULL,	"bad-altstack N",	"start N workers exercising bad signal stacks" },

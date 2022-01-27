@@ -20,6 +20,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_AUXV_H)
+#include <sys/auxv.h>
+#endif
+
 #if defined(__linux__)
 
 typedef struct {
