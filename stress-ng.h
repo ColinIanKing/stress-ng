@@ -439,10 +439,6 @@
 #include <linux/udp.h>
 #endif
 
-#if defined(HAVE_LINUX_UNIX_DIAG_H)
-#include <linux/unix_diag.h>
-#endif
-
 #if defined(HAVE_LINUX_VERSION_H)
 #include <linux/version.h>
 #endif
