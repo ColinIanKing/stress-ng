@@ -20,6 +20,11 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_LIB_DL)
+#include <dlfcn.h>
+#include <gnu/lib-names.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"dynlib N",	"start N workers exercising dlopen/dlclose" },
 	{ NULL,	"dynlib-ops N",	"stop after N dlopen/dlclose bogo operations" },

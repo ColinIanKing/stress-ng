@@ -443,11 +443,6 @@
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
 
-#if defined(HAVE_LIB_DL)
-#include <dlfcn.h>
-#include <gnu/lib-names.h>
-#endif
-
 /*
  *  Various system calls not included in libc (yet)
  */
