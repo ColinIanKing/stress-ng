@@ -21,6 +21,10 @@
 #include "core-capabilities.h"
 #include "core-net.h"
 
+#if defined(HAVE_SYS_EPOLL_H)
+#include <sys/epoll.h>
+#endif
+
 #if defined(__NR_kcmp)
 #define HAVE_KCMP
 #endif

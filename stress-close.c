@@ -26,6 +26,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_SYS_EPOLL_H)
+#include <sys/epoll.h>
+#endif
+
 #if defined(HAVE_SYS_SIGNALFD_H)
 #include <sys/signalfd.h>
 #endif

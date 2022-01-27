@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-net.h"
 
+#if defined(HAVE_SYS_EPOLL_H)
+#include <sys/epoll.h>
+#endif
+
 #define MIN_EPOLL_PORT		(1024)
 #define MAX_EPOLL_PORT		(65535)
 #define DEFAULT_EPOLL_PORT	(6000)

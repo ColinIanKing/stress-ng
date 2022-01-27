@@ -213,10 +213,6 @@
 #include <sys/capability.h>
 #endif
 
-#if defined(HAVE_SYS_EPOLL_H)
-#include <sys/epoll.h>
-#endif
-
 #if defined(HAVE_SYS_EVENTFD_H)
 #include <sys/eventfd.h>
 #endif

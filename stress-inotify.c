@@ -1,5 +1,6 @@
 /*
  * Copyright (C) 2012-2021 Canonical, Ltd.
+ * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -15,16 +16,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
- * This code is a complete clean re-write of the stress tool by
- * Colin Ian King <colin.king@canonical.com> and attempts to be
- * backwardly compatible with the stress tool by Amos Waterland
- * <apw@rossby.metr.ou.edu> but has more stress tests and more
- * functionality.
- *
- * stress-inotify.c is derived from the eCryptfs inotify tests
- * that I authored in 2012.
  */
+
 #include "stress-ng.h"
+
+#if defined(HAVE_SYS_EPOLL_H)
+#include <sys/epoll.h>
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"inotify N",	 "start N workers exercising inotify events" },
