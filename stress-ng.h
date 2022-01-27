@@ -382,10 +382,6 @@
 #include <linux/connector.h>
 #endif
 
-#if defined(HAVE_LINUX_HDREG_H)
-#include <linux/hdreg.h>
-#endif
-
 #if defined(HAVE_LINUX_IF_PACKET_H)
 #include <linux/if_packet.h>
 #endif
