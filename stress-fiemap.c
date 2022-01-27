@@ -23,6 +23,10 @@
 #include <linux/fiemap.h>
 #endif
 
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
+#endif
+
 #define MIN_FIEMAP_SIZE		(1 * MB)
 #define MAX_FIEMAP_SIZE		(MAX_FILE_LIMIT)
 #define DEFAULT_FIEMAP_SIZE	(16 * MB)
