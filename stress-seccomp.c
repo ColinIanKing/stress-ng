@@ -23,6 +23,10 @@
 #include <linux/audit.h>
 #endif
 
+#if defined(HAVE_LINUX_SECCOMP_H)
+#include <linux/seccomp.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"seccomp N",	 "start N workers performing seccomp call filtering" },
 	{ NULL,	"seccomp-ops N", "stop after N seccomp bogo operations" },

@@ -23,6 +23,10 @@
 #include <linux/audit.h>
 #endif
 
+#if defined(HAVE_LINUX_SECCOMP_H)
+#include <linux/seccomp.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"opcode N",	   "start N workers exercising random opcodes" },
 	{ NULL,	"opcode-ops N",	   "stop after N opcode bogo operations" },

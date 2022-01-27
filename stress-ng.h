@@ -361,10 +361,6 @@
 #include <linux/rtnetlink.h>
 #endif
 
-#if defined(HAVE_LINUX_SECCOMP_H)
-#include <linux/seccomp.h>
-#endif
-
 #if defined(HAVE_LINUX_SOCKET_H)
 #include <linux/socket.h>
 #endif
