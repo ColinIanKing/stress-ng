@@ -23,6 +23,10 @@
 #include <linux/if_alg.h>
 #endif
 
+#if defined(HAVE_LINUX_SOCKET_H)
+#include <linux/socket.h>
+#endif
+
 #define ALLOC_SLOP	(64)
 
 static const stress_help_t help[] = {
