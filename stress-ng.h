@@ -197,10 +197,6 @@
 #include <sys/ipc.h>
 #endif
 
-#if defined(HAVE_SYS_MSG_H)
-#include <sys/msg.h>
-#endif
-
 #if defined(HAVE_SYS_PARAM_H)
 #include <sys/param.h>
 #endif

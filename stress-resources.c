@@ -31,6 +31,10 @@
 #include <sys/inotify.h>
 #endif
 
+#if defined(HAVE_SYS_MSG_H)
+#include <sys/msg.h>
+#endif
+
 #if defined(HAVE_SEM_SYSV)
 #include <sys/sem.h>
 #endif
