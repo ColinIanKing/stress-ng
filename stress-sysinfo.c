@@ -23,6 +23,10 @@
 #include <linux/fs.h>
 #endif
 
+#if defined(HAVE_SYS_STATVFS_H)
+#include <sys/statvfs.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"sysinfo N",	 "start N workers reading system information" },
 	{ NULL,	"sysinfo-ops N", "stop after sysinfo bogo operations" },

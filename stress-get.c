@@ -24,6 +24,10 @@
 #include <linux/sysctl.h>
 #endif
 
+#if defined(HAVE_SYS_STATVFS_H)
+#include <sys/statvfs.h>
+#endif
+
 #if defined(HAVE_UCONTEXT_H)
 #include <ucontext.h>
 #endif

@@ -233,10 +233,6 @@
 #include <sys/statfs.h>
 #endif
 
-#if defined(HAVE_SYS_STATVFS_H)
-#include <sys/statvfs.h>
-#endif
-
 #if defined(__sun__)
 /* Disable for SunOs/Solaris because */
 #undef HAVE_SYS_SWAP_H
