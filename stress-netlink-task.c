@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_LINUX_CN_PROC_H)
+#include <linux/cn_proc.h>
+#endif
+
 #if defined(HAVE_LINUX_TASKSTATS_H)
 #include <linux/taskstats.h>
 #endif

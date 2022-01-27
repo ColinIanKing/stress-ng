@@ -367,10 +367,6 @@
 /*
  *  Linux specific includes
  */
-#if defined(HAVE_LINUX_CN_PROC_H)
-#include <linux/cn_proc.h>
-#endif
-
 #if defined(HAVE_LINUX_CONNECTOR_H)
 #include <linux/connector.h>
 #endif
