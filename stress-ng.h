@@ -360,10 +360,6 @@
 #include <sys/vfs.h>
 #endif
 
-#if defined(HAVE_SYS_VMMETER_H)
-#include <sys/vmmeter.h>
-#endif
-
 /*
  *  Linux specific includes
  */
