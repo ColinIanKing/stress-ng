@@ -419,10 +419,6 @@
 #include <linux/serial.h>
 #endif
 
-#if defined(HAVE_LINUX_SOCK_DIAG_H)
-#include <linux/sock_diag.h>
-#endif
-
 #if defined(HAVE_LINUX_SOCKET_H)
 #include <linux/socket.h>
 #endif
