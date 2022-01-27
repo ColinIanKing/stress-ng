@@ -175,10 +175,6 @@
 #include <termios.h>
 #endif
 
-#if defined(HAVE_UCONTEXT_H)
-#include <ucontext.h>
-#endif
-
 #if defined(HAVE_UTIME_H)
 #include <utime.h>
 #endif

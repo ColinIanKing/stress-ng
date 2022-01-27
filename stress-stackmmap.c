@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_UCONTEXT_H)
+#include <ucontext.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"stackmmap N",	   "start N workers exercising a filebacked stack" },
 	{ NULL,	"stackmmap-ops N", "stop after N bogo stackmmap operations" },
