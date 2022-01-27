@@ -31,6 +31,10 @@
 #include <linux/seccomp.h>
 #endif
 
+#if defined(HAVE_SYS_PRCTL_H)
+#include <sys/prctl.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"opcode N",	   "start N workers exercising random opcodes" },
 	{ NULL,	"opcode-ops N",	   "stop after N opcode bogo operations" },

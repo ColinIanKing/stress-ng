@@ -27,6 +27,10 @@
 #include <linux/futex.h>
 #endif
 
+#if defined(HAVE_SYS_PRCTL_H)
+#include <sys/prctl.h>
+#endif
+
 #define MIN_PTHREAD		(1)
 #define MAX_PTHREAD		(30000)
 #define DEFAULT_PTHREAD		(1024)

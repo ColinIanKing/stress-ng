@@ -23,6 +23,10 @@
 #include <linux/landlock.h>
 #endif
 
+#if defined(HAVE_SYS_PRCTL_H)
+#include <sys/prctl.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"landlock N",	  "start N workers stressing landlock file operations" },
 	{ NULL,	"landlock-ops N", "stop after N landlock bogo operations" },

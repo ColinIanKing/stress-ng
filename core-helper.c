@@ -34,6 +34,10 @@
 #include <sys/loadavg.h>
 #endif
 
+#if defined(HAVE_SYS_PRCTL_H)
+#include <sys/prctl.h>
+#endif
+
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
 #endif
