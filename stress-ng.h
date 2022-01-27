@@ -197,10 +197,6 @@
 #include <sys/ipc.h>
 #endif
 
-#if defined(HAVE_SYS_MOUNT_H)
-#include <sys/mount.h>
-#endif
-
 #if defined(HAVE_SYS_MSG_H)
 #include <sys/msg.h>
 #endif

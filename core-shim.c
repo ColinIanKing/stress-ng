@@ -44,6 +44,10 @@
 #include <asm/ldt.h>
 #endif
 
+#if defined(HAVE_SYS_MOUNT_H)
+#include <sys/mount.h>
+#endif
+
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
 #endif

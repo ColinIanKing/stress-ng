@@ -28,6 +28,10 @@
 #include <linux/android/binderfs.h>
 #endif
 
+#if defined(HAVE_SYS_MOUNT_H)
+#include <sys/mount.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"binderfs N",		"start N workers exercising binderfs" },
 	{ NULL,	"binderfs-ops N",	"stop after N bogo binderfs operations" },

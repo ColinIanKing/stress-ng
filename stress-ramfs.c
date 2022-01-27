@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_SYS_MOUNT_H)
+#include <sys/mount.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"ramfs N",	 "start N workers exercising ramfs mounts" },
 	{ NULL,	"ramfs-ops N",	 "stop after N bogo ramfs mount operations" },

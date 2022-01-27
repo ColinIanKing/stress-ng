@@ -24,6 +24,10 @@
 #include <sys/ucred.h>
 #endif
 
+#if defined(HAVE_SYS_MOUNT_H)
+#include <sys/mount.h>
+#endif
+
 /*
  *  stress_mount_add()
  *	add a new mount point to table
