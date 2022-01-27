@@ -338,21 +338,6 @@
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
 
-/*
- *  Various system calls not included in libc (yet)
- */
-#if defined(__linux__)
-
-#if defined(__NR_pkey_get)
-#define HAVE_PKEY_GET
-#endif
-
-#if defined(__NR_pkey_set)
-#define HAVE_PKEY_SET
-#endif
-
-#endif
-
 #include "stress-version.h"
 
 /*

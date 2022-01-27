@@ -19,6 +19,14 @@
  */
 #define STRESS_CORE_SHIM
 
+#if defined(__NR_pkey_get)
+#define HAVE_PKEY_GET
+#endif
+
+#if defined(__NR_pkey_set)
+#define HAVE_PKEY_SET
+#endif
+
 #if defined(HAVE_USTAT_H)
 #if defined(__sun__)
 /* ustat and long file support on sun does not build */
