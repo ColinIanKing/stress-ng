@@ -394,10 +394,6 @@
 #include <linux/fs.h>
 #endif
 
-#if defined(HAVE_LINUX_MEDIA_H)
-#include <linux/media.h>
-#endif
-
 #if defined(HAVE_LINUX_MEMBARRIER_H)
 #include <linux/membarrier.h>
 #endif
