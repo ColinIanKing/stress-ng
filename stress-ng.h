@@ -95,10 +95,6 @@
 #include <netinet/tcp.h>
 #endif
 
-#if defined(HAVE_NETINET_SCTP_H)
-#include <netinet/sctp.h>
-#endif
-
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
 #endif

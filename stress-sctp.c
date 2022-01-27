@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-net.h"
 
+#if defined(HAVE_NETINET_SCTP_H)
+#include <netinet/sctp.h>
+#endif
+
 #define MIN_SCTP_PORT		(1024)
 #define MAX_SCTP_PORT		(65535)
 #define DEFAULT_SCTP_PORT	(9000)
