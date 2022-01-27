@@ -217,10 +217,6 @@
 #include <sys/sem.h>
 #endif
 
-#if defined(HAVE_SYS_SHM_H)
-#include <sys/shm.h>
-#endif
-
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>
 #endif

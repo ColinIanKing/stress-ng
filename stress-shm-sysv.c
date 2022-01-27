@@ -24,6 +24,10 @@
 #include <linux/mempolicy.h>
 #endif
 
+#if defined(HAVE_SYS_SHM_H)
+#include <sys/shm.h>
+#endif
+
 #define MIN_SHM_SYSV_BYTES	(1 * MB)
 #define MAX_SHM_SYSV_BYTES	(256 * MB)
 #define DEFAULT_SHM_SYSV_BYTES	(8 * MB)
