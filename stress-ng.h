@@ -374,10 +374,6 @@
 /*
  *  Linux specific includes
  */
-#if defined(HAVE_LINUX_CDROM_H)
-#include <linux/cdrom.h>
-#endif
-
 #if defined(HAVE_LINUX_CN_PROC_H)
 #include <linux/cn_proc.h>
 #endif
