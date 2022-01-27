@@ -329,10 +329,6 @@
 #include <linux/filter.h>
 #endif
 
-#if defined(HAVE_LINUX_MEMBARRIER_H)
-#include <linux/membarrier.h>
-#endif
-
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>
 #endif

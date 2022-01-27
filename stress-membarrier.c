@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LINUX_MEMBARRIER_H)
+#include <linux/membarrier.h>
+#endif
+
 #if defined(__NR_membarrier)
 #define HAVE_MEMBARRIER
 #endif
