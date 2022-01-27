@@ -321,9 +321,6 @@
 /*
  *  Linux specific includes
  */
-#if defined(HAVE_LINUX_FILTER_H)
-#include <linux/filter.h>
-#endif
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>

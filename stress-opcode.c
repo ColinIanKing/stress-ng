@@ -23,6 +23,10 @@
 #include <linux/audit.h>
 #endif
 
+#if defined(HAVE_LINUX_FILTER_H)
+#include <linux/filter.h>
+#endif
+
 #if defined(HAVE_LINUX_SECCOMP_H)
 #include <linux/seccomp.h>
 #endif
