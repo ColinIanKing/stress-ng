@@ -335,10 +335,6 @@
 #include <sys/timex.h>
 #endif
 
-#if defined(HAVE_SYS_UCRED_H)
-#include <sys/ucred.h>
-#endif
-
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
 #endif
