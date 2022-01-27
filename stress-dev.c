@@ -48,6 +48,10 @@
 #include <linux/media.h>
 #endif
 
+#if defined(HAVE_SCSI_SCSI_H)
+#include <scsi/scsi.h>
+#endif
+
 #if defined(HAVE_LINUX_PTP_CLOCK_H)
 #include <linux/ptp_clock.h>
 #endif

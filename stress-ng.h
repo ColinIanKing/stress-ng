@@ -365,13 +365,6 @@
 #endif
 
 /*
- *  SCSI related headers
- */
-#if defined(HAVE_SCSI_SCSI_H)
-#include <scsi/scsi.h>
-#endif
-
-/*
  *  Linux specific includes
  */
 #if defined(HAVE_LINUX_CN_PROC_H)
