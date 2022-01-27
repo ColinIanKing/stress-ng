@@ -208,10 +208,6 @@
 #include <bsd/unistd.h>
 #endif
 
-#if defined(HAVE_BSD_WCHAR)
-#include <bsd/wchar.h>
-#endif
-
 #if defined(HAVE_ASM_PRCTL_H)
 #include <asm/prctl.h>
 #endif

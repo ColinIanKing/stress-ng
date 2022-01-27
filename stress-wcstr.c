@@ -20,6 +20,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_BSD_WCHAR)
+#include <bsd/wchar.h>
+#endif
+
 #if defined(HAVE_WCHAR)
 #include <wchar.h>
 #endif
