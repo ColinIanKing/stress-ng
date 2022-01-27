@@ -30,6 +30,10 @@
 #include <sys/epoll.h>
 #endif
 
+#if defined(HAVE_LINUX_NETLINK_H)
+#include <linux/netlink.h>
+#endif
+
 #if defined(HAVE_SYS_SIGNALFD_H)
 #include <sys/signalfd.h>
 #endif
