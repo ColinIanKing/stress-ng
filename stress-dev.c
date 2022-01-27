@@ -52,6 +52,10 @@
 #include <linux/media.h>
 #endif
 
+#if defined(HAVE_LINUX_PPDEV_H)
+#include <linux/ppdev.h>
+#endif
+
 #if defined(HAVE_SCSI_SCSI_H)
 #include <scsi/scsi.h>
 #endif
