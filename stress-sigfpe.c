@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_FENV_H)
+#include <fenv.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"sigfpe N",	"start N workers generating floating point math faults" },
 	{ NULL,	"sigfpe-ops N",	"stop after N bogo floating point math faults" },
