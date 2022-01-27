@@ -26,6 +26,10 @@
 #include <linux/fiemap.h>
 #endif
 
+#if defined(HAVE_SYS_LOADAVG_H)
+#include <sys/loadavg.h>
+#endif
+
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
 #endif
