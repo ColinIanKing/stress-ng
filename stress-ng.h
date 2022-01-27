@@ -179,10 +179,6 @@
 #include <bsd/unistd.h>
 #endif
 
-#if defined(HAVE_ASM_PRCTL_H)
-#include <asm/prctl.h>
-#endif
-
 /*
  *  Various sys include files
  */

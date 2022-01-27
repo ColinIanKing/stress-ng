@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_ASM_PRCTL_H)
+#include <asm/prctl.h>
+#endif
+
 #if defined(HAVE_LINUX_SECCOMP_H)
 #include <linux/seccomp.h>
 #endif
