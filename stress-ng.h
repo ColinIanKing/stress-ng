@@ -209,10 +209,6 @@
 #include <sys/param.h>
 #endif
 
-#if defined(HAVE_PTRACE)
-#include <sys/ptrace.h>
-#endif
-
 #if defined(HAVE_SYS_RANDOM_H)
 #include <sys/random.h>
 #endif
