@@ -32,6 +32,10 @@
 #include <linux/fd.h>
 #endif
 
+#if defined(HAVE_LINUX_HPET_H)
+#include <linux/hpet.h>
+#endif
+
 #if defined(HAVE_LINUX_KD_H)
 #include <linux/kd.h>
 #endif

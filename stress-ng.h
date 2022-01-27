@@ -402,10 +402,6 @@
 #include <linux/futex.h>
 #endif
 
-#if defined(HAVE_LINUX_HPET_H)
-#include <linux/hpet.h>
-#endif
-
 #if defined(HAVE_LINUX_MEDIA_H)
 #include <linux/media.h>
 #endif
