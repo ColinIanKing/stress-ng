@@ -78,12 +78,14 @@ static void socket_pair_close(
  *	this stressor needs to be oom-able in the parent
  *	and child cases
  */
-static int stress_sockpair_oomable(const stress_args_t *args)
+static int stress_sockpair_oomable(const stress_args_t *args, void *context)
 {
 	pid_t pid;
 	static int socket_pair_fds[MAX_SOCKET_PAIRS][2];
 	int socket_pair_fds_bad[2];
 	int i, max, ret;
+
+	(void)context;
 
 	/* exercise invalid socketpair domain */
 	socket_pair_fds_bad[0] = -1;
@@ -263,7 +265,6 @@ abort:
 		socket_pair_close(socket_pair_fds, max, 1);
 	}
 finish:
-	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
 }
@@ -274,12 +275,18 @@ finish:
  */
 static int stress_sockpair(const stress_args_t *args)
 {
+	int rc;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sighandler_nop, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
-	return stress_sockpair_oomable(args);
+	rc = stress_oomable_child(args, NULL, stress_sockpair_oomable, STRESS_OOMABLE_DROP_CAP);
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	return rc;
 }
 
 stressor_info_t stress_sockpair_info = {
