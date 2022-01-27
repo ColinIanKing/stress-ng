@@ -111,10 +111,6 @@
 #include <grp.h>
 #endif
 
-#if defined(HAVE_LIBGEN_H)
-#include <libgen.h>
-#endif
-
 #if defined(HAVE_LINK_H)
 #include <link.h>
 #endif

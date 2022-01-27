@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LIBGEN_H)
+#include <libgen.h>
+#endif
+
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #endif

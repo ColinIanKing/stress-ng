@@ -24,6 +24,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LIBGEN_H)
+#include <libgen.h>
+#endif
+
 static const stress_help_t hardlink_help[] = {
 	{ NULL,	"link N",	 "start N workers creating hard links" },
 	{ NULL,	"link-ops N",	 "stop after N link bogo operations" },
