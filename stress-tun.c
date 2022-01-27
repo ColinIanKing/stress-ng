@@ -24,6 +24,10 @@
 #include <linux/if_tun.h>
 #endif
 
+#if defined(HAVE_LINUX_SOCKIOS_H)
+#include <linux/sockios.h>
+#endif
+
 #define PACKETS_TO_SEND		(64)
 
 static const stress_help_t help[] = {

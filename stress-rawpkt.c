@@ -29,6 +29,10 @@
 #include <linux/if_tun.h>
 #endif
 
+#if defined(HAVE_LINUX_SOCKIOS_H)
+#include <linux/sockios.h>
+#endif
+
 #if defined(HAVE_LINUX_UDP_H)
 #include <linux/udp.h>
 #endif

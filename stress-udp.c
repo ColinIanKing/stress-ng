@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-net.h"
 
+#if defined(HAVE_LINUX_SOCKIOS_H)
+#include <linux/sockios.h>
+#endif
+
 #define MIN_UDP_PORT		(1024)
 #define MAX_UDP_PORT		(65535)
 #define DEFAULT_UDP_PORT	(7000)

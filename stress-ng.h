@@ -337,10 +337,6 @@
 #include <linux/socket.h>
 #endif
 
-#if defined(HAVE_LINUX_SOCKIOS_H)
-#include <linux/sockios.h>
-#endif
-
 #if defined(HAVE_LINUX_VERSION_H)
 #include <linux/version.h>
 #endif

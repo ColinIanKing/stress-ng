@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-net.h"
 
+#if defined(HAVE_LINUX_SOCKIOS_H)
+#include <linux/sockios.h>
+#endif
+
 #define MIN_SOCKET_PORT		(1024)
 #define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)
