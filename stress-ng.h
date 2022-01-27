@@ -294,11 +294,6 @@
 #include <sys/select.h>
 #endif
 
-#if defined(HAVE_SYS_SYSCTL_H) &&	\
-    !defined(__linux__)
-#include <sys/sysctl.h>
-#endif
-
 #if defined(HAVE_SEM_SYSV)
 #include <sys/sem.h>
 #endif

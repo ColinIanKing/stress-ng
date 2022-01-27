@@ -20,6 +20,11 @@
 #include "stress-ng.h"
 #include "core-thermal-zone.h"
 
+#if defined(HAVE_SYS_SYSCTL_H) &&       \
+    !defined(__linux__)
+#include <sys/sysctl.h>
+#endif
+
 #if defined(HAVE_SYS_VMMETER_H)
 #include <sys/vmmeter.h>
 #endif
