@@ -28,6 +28,10 @@
 #include <sys/epoll.h>
 #endif
 
+#if defined(HAVE_SYS_EVENTFD_H)
+#include <sys/eventfd.h>
+#endif
+
 #if defined(HAVE_LINUX_NETLINK_H)
 #include <linux/netlink.h>
 #endif

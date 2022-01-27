@@ -1,6 +1,6 @@
 /*
  * Copyright (C) 2013-2021 Canonical, Ltd.
- * Copyright (C)      2021 Colin Ian King.
+ * Copyright (C) 2021-2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,6 +18,10 @@
  *
  */
 #include "stress-ng.h"
+
+#if defined(HAVE_SYS_EVENTFD_H)
+#include <sys/eventfd.h>
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"eventfd N",	 "start N workers stressing eventfd read/writes" },

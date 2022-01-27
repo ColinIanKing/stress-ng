@@ -23,6 +23,10 @@
 #define HAVE_USERFAULTFD
 #endif
 
+#if defined(HAVE_SYS_EVENTFD_H)
+#include <sys/eventfd.h>
+#endif
+
 #if defined(HAVE_SYS_TIMERFD_H)
 #include <sys/timerfd.h>
 #endif
