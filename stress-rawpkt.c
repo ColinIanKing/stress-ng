@@ -21,6 +21,10 @@
 #include "core-capabilities.h"
 #include "core-net.h"
 
+#if defined(HAVE_LINUX_IF_PACKET_H)
+#include <linux/if_packet.h>
+#endif
+
 #if defined(HAVE_LINUX_IF_TUN_H)
 #include <linux/if_tun.h>
 #endif
