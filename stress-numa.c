@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+#include <linux/mempolicy.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"numa N",	"start N workers stressing NUMA interfaces" },
 	{ NULL,	"numa-ops N",	"stop after N NUMA bogo operations" },

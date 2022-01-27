@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+#include <linux/mempolicy.h>
+#endif
+
 #define MIN_SHM_SYSV_BYTES	(1 * MB)
 #define MAX_SHM_SYSV_BYTES	(256 * MB)
 #define DEFAULT_SHM_SYSV_BYTES	(8 * MB)
