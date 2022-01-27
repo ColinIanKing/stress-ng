@@ -115,10 +115,6 @@
 #include <grp.h>
 #endif
 
-#if defined(HAVE_KEYUTILS_H)
-#include <keyutils.h>
-#endif
-
 #if defined(HAVE_LIBGEN_H)
 #include <libgen.h>
 #endif
