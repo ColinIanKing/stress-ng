@@ -341,10 +341,6 @@
 #include <linux/random.h>
 #endif
 
-#if defined(HAVE_LINUX_RTNETLINK_H)
-#include <linux/rtnetlink.h>
-#endif
-
 #if defined(HAVE_LINUX_SOCKET_H)
 #include <linux/socket.h>
 #endif

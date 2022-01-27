@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_LINUX_RTNETLINK_H)
+#include <linux/rtnetlink.h>
+#endif
+
 #if defined(HAVE_LINUX_SOCK_DIAG_H)
 #include <linux/sock_diag.h>
 #endif
