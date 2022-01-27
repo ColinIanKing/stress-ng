@@ -222,7 +222,11 @@ abort:
 		uint8_t buf[SOCKET_PAIR_BUF];
 		int val = 0, status;
 
-		(void)setpgid(pid, g_pgrp);
+		stress_set_oom_adjustment(args->name, true);
+		(void)setpgid(0, g_pgrp);
+		stress_parent_died_alarm();
+		(void)sched_settings_apply(true);
+
 		/* Parent */
 		socket_pair_close(socket_pair_fds, max, 0);
 		do {
@@ -232,7 +236,9 @@ abort:
 				socket_pair_memset(buf, (uint8_t)val++, sizeof(buf));
 				wret = write(socket_pair_fds[i][1], buf, sizeof(buf));
 				if (wret <= 0) {
-					if ((errno == EAGAIN) || (errno == EINTR) || (errno == EPIPE))
+					if (errno == EPIPE)
+						break;
+					if ((errno == EAGAIN) || (errno == EINTR))
 						continue;
 					if (errno) {
 						pr_fail("%s: write failed, errno=%d (%s)\n",
