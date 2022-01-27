@@ -23,6 +23,10 @@
 #include <asm/ldt.h>
 #endif
 
+#if defined(HAVE_LINUX_FUTEX_H)
+#include <linux/futex.h>
+#endif
+
 #define MIN_PTHREAD		(1)
 #define MAX_PTHREAD		(30000)
 #define DEFAULT_PTHREAD		(1024)
