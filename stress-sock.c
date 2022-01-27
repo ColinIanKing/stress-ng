@@ -24,6 +24,10 @@
 #include <linux/sockios.h>
 #endif
 
+#if defined(HAVE_SYS_UTSNAME_H)
+#include <sys/utsname.h>
+#endif
+
 #define MIN_SOCKET_PORT		(1024)
 #define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)

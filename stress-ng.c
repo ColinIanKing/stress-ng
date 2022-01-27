@@ -25,6 +25,10 @@
 #include "core-thermal-zone.h"
 #include "core-thrash.h"
 
+#if defined(HAVE_SYS_UTSNAME_H)
+#include <sys/utsname.h>
+#endif
+
 typedef struct {
 	const int opt;			/* optarg option */
 	const uint64_t opt_flag;	/* global options flag bit setting */

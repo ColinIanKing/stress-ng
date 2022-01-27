@@ -22,6 +22,10 @@
 #include "core-capabilities.h"
 #include "core-hash.h"
 
+#if defined(HAVE_SYS_UTSNAME_H)
+#include <sys/utsname.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"sysfs N",	"start N workers reading files from /sys" },
 	{ NULL,	"sysfs-ops N",	"stop after sysfs bogo operations" },
