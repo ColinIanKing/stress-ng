@@ -266,10 +266,6 @@
 #include <sys/utsname.h>
 #endif
 
-#if defined(HAVE_SYS_VFS_H)
-#include <sys/vfs.h>
-#endif
-
 /*
  *  Linux specific includes
  */
