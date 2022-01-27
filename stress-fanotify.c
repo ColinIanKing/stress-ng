@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_SYS_FANOTIFY_H)
+#include <sys/fanotify.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"fanotify N",	  "start N workers exercising fanotify events" },
 	{ NULL,	"fanotify-ops N", "stop fanotify workers after N bogo operations" },

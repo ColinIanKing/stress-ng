@@ -197,10 +197,6 @@
 #include <sys/capability.h>
 #endif
 
-#if defined(HAVE_SYS_FANOTIFY_H)
-#include <sys/fanotify.h>
-#endif
-
 #if defined(HAVE_SYS_IO_H)
 #include <sys/io.h>
 #endif
