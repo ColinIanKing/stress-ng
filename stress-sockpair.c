@@ -199,6 +199,8 @@ again:
 						goto abort;
 					else if (errno == EPERM)  /* Occurs on socket closure */
 						goto abort;
+					else if (errno == EPIPE)  /* Pipe broke */
+						goto abort;
 					else if (errno) {
 						pr_fail("%s: read failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
@@ -267,6 +269,9 @@ finish:
 static int stress_sockpair(const stress_args_t *args)
 {
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	if (stress_sighandler(args->name, SIGPIPE, stress_sighandler_nop, NULL) < 0)
+		return EXIT_NO_RESOURCE;
 
 	return stress_sockpair_oomable(args);
 }
