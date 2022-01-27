@@ -36,6 +36,10 @@
 #include <sys/uio.h>
 #endif
 
+#if defined(HAVE_LINUX_VERSION_H)
+#include <linux/version.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"netlink-proc N",	"start N workers exercising netlink process events" },
 	{ NULL,	"netlink-proc-ops N",	"stop netlink-proc workers after N bogo events" },
