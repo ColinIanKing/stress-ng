@@ -21,6 +21,10 @@
 #include "core-capabilities.h"
 #include "core-net.h"
 
+#if defined(HAVE_LINUX_UDP_H)
+#include <linux/udp.h>
+#endif
+
 #define MIN_RAWUDP_PORT		(1024)
 #define MAX_RAWUDP_PORT		(65535)
 #define DEFAULT_RAWUDP_PORT	(13000)

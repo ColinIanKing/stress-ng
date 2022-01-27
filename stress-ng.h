@@ -357,10 +357,6 @@
 #include <linux/sysctl.h>
 #endif
 
-#if defined(HAVE_LINUX_UDP_H)
-#include <linux/udp.h>
-#endif
-
 #if defined(HAVE_LINUX_VERSION_H)
 #include <linux/version.h>
 #endif

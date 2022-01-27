@@ -29,6 +29,10 @@
 #include <linux/if_tun.h>
 #endif
 
+#if defined(HAVE_LINUX_UDP_H)
+#include <linux/udp.h>
+#endif
+
 #define MIN_RAWPKT_PORT		(1024)
 #define MAX_RAWPKT_PORT		(65535)
 #define DEFAULT_RAWPKT_PORT	(14000)
