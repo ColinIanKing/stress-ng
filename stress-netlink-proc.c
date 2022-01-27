@@ -24,6 +24,10 @@
 #include <linux/cn_proc.h>
 #endif
 
+#if defined(HAVE_LINUX_CONNECTOR_H)
+#include <linux/connector.h>
+#endif
+
 #if defined(HAVE_SYS_UIO_H)
 #include <sys/uio.h>
 #endif
