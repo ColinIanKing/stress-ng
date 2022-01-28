@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SEMAPHORE_H)
+#include <semaphore.h>
+#endif
+
 #define MIN_SEM_POSIX_PROCS     (2)
 #define MAX_SEM_POSIX_PROCS     (64)
 #define DEFAULT_SEM_POSIX_PROCS (2)

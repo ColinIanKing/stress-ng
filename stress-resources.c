@@ -51,6 +51,10 @@
 #include <mqueue.h>
 #endif
 
+#if defined(HAVE_SEMAPHORE_H)
+#include <semaphore.h>
+#endif
+
 #define RESOURCE_FORKS 	(1024)
 #define MAX_LOOPS	(1024)
 
