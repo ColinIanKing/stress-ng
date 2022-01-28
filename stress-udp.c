@@ -24,11 +24,16 @@
 #include <linux/sockios.h>
 #endif
 
+#if defined(HAVE_LINUX_UDP_H)
+#include <linux/udp.h>
+#endif
+
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
 #endif
 
 #include <netinet/in.h>
+
 
 #define MIN_UDP_PORT		(1024)
 #define MAX_UDP_PORT		(65535)
