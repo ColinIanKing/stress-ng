@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_MQUEUE_H)
+#include <mqueue.h>
+#endif
+
 #if defined(HAVE_SEM_SYSV)
 #include <sys/sem.h>
 #endif

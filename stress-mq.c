@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_MQUEUE_H)
+#include <mqueue.h>
+#endif
+
 #define MIN_MQ_SIZE		(1)
 #define MAX_MQ_SIZE		(32)
 #define DEFAULT_MQ_SIZE		(10)

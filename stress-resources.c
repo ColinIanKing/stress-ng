@@ -47,6 +47,10 @@
 #include <sys/timerfd.h>
 #endif
 
+#if defined(HAVE_MQUEUE_H)
+#include <mqueue.h>
+#endif
+
 #define RESOURCE_FORKS 	(1024)
 #define MAX_LOOPS	(1024)
 

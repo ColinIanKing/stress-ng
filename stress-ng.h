@@ -114,10 +114,6 @@
 #include <mntent.h>
 #endif
 
-#if defined(HAVE_MQUEUE_H)
-#include <mqueue.h>
-#endif
-
 #if defined(HAVE_POLL_H)
 #include <poll.h>
 #endif
