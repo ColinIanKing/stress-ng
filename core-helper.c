@@ -54,6 +54,10 @@
 #include <sys/utsname.h>
 #endif
 
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
+#endif
+
 /* prctl(2) timer slack support */
 #if defined(HAVE_SYS_PRCTL_H) && \
     defined(HAVE_PRCTL) && \
