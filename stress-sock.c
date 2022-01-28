@@ -41,6 +41,7 @@
 #endif
 
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 #define MIN_SOCKET_PORT		(1024)
 #define MAX_SOCKET_PORT		(65535)
