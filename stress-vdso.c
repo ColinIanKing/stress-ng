@@ -23,6 +23,10 @@
 #include <sys/auxv.h>
 #endif
 
+#if defined(HAVE_LINK_H)
+#include <link.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"vdso N",	"start N workers exercising functions in the VDSO" },
 	{ NULL,	"vdso-ops N",	"stop after N vDSO function calls" },

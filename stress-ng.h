@@ -102,10 +102,6 @@
 #include <grp.h>
 #endif
 
-#if defined(HAVE_LINK_H)
-#include <link.h>
-#endif
-
 #if defined(HAVE_LOCALE_H)
 #include <locale.h>
 #endif
