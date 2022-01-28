@@ -45,7 +45,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_SEM_POSIX_H) && \
+#if defined(HAVE_SEMAPHORE_H) && \
     defined(HAVE_LIB_PTHREAD) && \
     defined(HAVE_SEM_POSIX)
 
