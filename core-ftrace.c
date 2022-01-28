@@ -25,6 +25,10 @@
 #include <sys/tree.h>
 #endif
 
+#if defined(HAVE_SYS_STATFS_H)
+#include <sys/statfs.h>
+#endif
+
 #if defined(HAVE_BSD_SYS_TREE_H)
 #include <bsd/sys/tree.h>
 #endif

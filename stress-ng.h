@@ -205,10 +205,6 @@
 #include <sys/select.h>
 #endif
 
-#if defined(HAVE_SYS_STATFS_H)
-#include <sys/statfs.h>
-#endif
-
 #if defined(HAVE_SYSCALL_H)
 #include <sys/syscall.h>
 #endif
