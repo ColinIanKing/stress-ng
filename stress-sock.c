@@ -24,6 +24,10 @@
 #include <linux/sockios.h>
 #endif
 
+#if defined(HAVE_NETINET_TCP_H)
+#include <netinet/tcp.h>
+#endif
+
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
 #endif

@@ -87,10 +87,6 @@
 #include <netinet/ip.h>
 #endif
 
-#if defined(HAVE_NETINET_TCP_H)
-#include <netinet/tcp.h>
-#endif
-
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
 #endif
