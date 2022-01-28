@@ -31,6 +31,10 @@
 #include <sys/prctl.h>
 #endif
 
+#if defined(HAVE_SYS_CAPABILITY_H)
+#include <sys/capability.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"procfs N",	"start N workers reading portions of /proc" },
 	{ NULL,	"procfs-ops N",	"stop procfs workers after N bogo read operations" },
