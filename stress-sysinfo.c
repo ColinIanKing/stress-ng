@@ -23,6 +23,10 @@
 #include <linux/fs.h>
 #endif
 
+#if defined(HAVE_SYS_SYSMACROS_H)
+#include <sys/sysmacros.h>
+#endif
+
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>
 #endif

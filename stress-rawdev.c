@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_SYSMACROS_H)
+#include <sys/sysmacros.h>
+#endif
+
 #if defined(HAVE_SYS_MOUNT_H)
 #include <sys/mount.h>
 #endif

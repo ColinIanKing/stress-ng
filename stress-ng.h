@@ -218,10 +218,6 @@
 #endif
 #endif
 
-#if defined(HAVE_SYS_SYSMACROS_H)
-#include <sys/sysmacros.h>
-#endif
-
 /*
  *  Linux specific includes
  */
