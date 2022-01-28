@@ -27,6 +27,10 @@
 #include <linux/userfaultfd.h>
 #endif
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 #define MIN_USERFAULT_BYTES	(4 * KB)
 #define MAX_USERFAULT_BYTES	(MAX_MEM_LIMIT)
 #define DEFAULT_USERFAULT_BYTES	(256 * MB)

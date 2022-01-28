@@ -23,6 +23,10 @@
 #include <sys/select.h>
 #endif
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ "P N", "poll N",	"start N workers exercising zero timeout polling" },
 	{ NULL,	"poll-ops N",	"stop after N poll bogo operations" },

@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 #if defined(HAVE_SYS_TIMEX_H)
 #include <sys/timex.h>
 #endif

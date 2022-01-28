@@ -43,6 +43,10 @@
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 #if defined(HAVE_UTIME_H)
 #include <utime.h>
 #endif

@@ -28,6 +28,10 @@
 #include <linux/pci.h>
 #endif
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"procfs N",	"start N workers reading portions of /proc" },
 	{ NULL,	"procfs-ops N",	"stop procfs workers after N bogo read operations" },

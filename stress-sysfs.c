@@ -26,6 +26,10 @@
 #include <sys/utsname.h>
 #endif
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"sysfs N",	"start N workers reading files from /sys" },
 	{ NULL,	"sysfs-ops N",	"stop after sysfs bogo operations" },

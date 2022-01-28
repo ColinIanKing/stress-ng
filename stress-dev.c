@@ -96,6 +96,10 @@
 #include <sys/capability.h>
 #endif
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 /*
  *  Device information is held in a linked list of dev_info_t objects. Each
  *  nth element in the list also points to a unique device state which is

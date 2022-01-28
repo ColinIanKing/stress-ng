@@ -23,6 +23,10 @@
 #include <libaio.h>
 #endif
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 #define MIN_AIO_LINUX_REQUESTS		(1)
 #define MAX_AIO_LINUX_REQUESTS		(4096)
 #define DEFAULT_AIO_LINUX_REQUESTS	(64)
@@ -643,6 +647,7 @@ retry_open:
 		if (!keep_stressing(args))
 			break;
 
+#if defined(HAVE_POLL_H)
 		/*
 		 *  Exercise aio_poll with illegal settings
 		 */
@@ -663,6 +668,7 @@ retry_open:
 		inc_counter(args);
 		if (!keep_stressing(args))
 			break;
+#endif
 
 		/*
 		 *  Async fdsync and fsync every 256 iterations, older kernels don't

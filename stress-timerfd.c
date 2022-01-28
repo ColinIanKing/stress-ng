@@ -24,6 +24,10 @@
 #include <sys/timerfd.h>
 #endif
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 #define MIN_TIMERFD_FREQ	(1)
 #define MAX_TIMERFD_FREQ	(100000000)
 #define DEFAULT_TIMERFD_FREQ	(1000000)

@@ -23,6 +23,10 @@
 #include <mqueue.h>
 #endif
 
+#if defined(HAVE_POLL_H)
+#include <poll.h>
+#endif
+
 #define MIN_MQ_SIZE		(1)
 #define MAX_MQ_SIZE		(32)
 #define DEFAULT_MQ_SIZE		(10)
