@@ -24,6 +24,10 @@
 #include <linux/sockios.h>
 #endif
 
+#if defined(HAVE_NETINET_IP_H)
+#include <netinet/ip.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"rawsock N",		"start N workers performing raw socket send/receives " },
 	{ NULL,	"rawsock-ops N",	"stop after N raw socket bogo operations" },

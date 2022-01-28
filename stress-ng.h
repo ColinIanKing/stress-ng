@@ -86,10 +86,6 @@
 #include <net/if.h>
 #endif
 
-#if defined(HAVE_NETINET_IP_H)
-#include <netinet/ip.h>
-#endif
-
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
 #endif

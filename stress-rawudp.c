@@ -25,6 +25,10 @@
 #include <linux/udp.h>
 #endif
 
+#if defined(HAVE_NETINET_IP_H)
+#include <netinet/ip.h>
+#endif
+
 #define MIN_RAWUDP_PORT		(1024)
 #define MAX_RAWUDP_PORT		(65535)
 #define DEFAULT_RAWUDP_PORT	(13000)
