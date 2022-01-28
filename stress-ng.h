@@ -189,10 +189,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#if defined(HAVE_SYS_CAPABILITY_H)
-#include <sys/capability.h>
-#endif
-
 #if defined(HAVE_SYS_PARAM_H)
 #include <sys/param.h>
 #endif

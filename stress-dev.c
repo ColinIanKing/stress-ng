@@ -92,6 +92,10 @@
 #include <linux/vt.h>
 #endif
 
+#if defined(HAVE_SYS_CAPABILITY_H)
+#include <sys/capability.h>
+#endif
+
 /*
  *  Device information is held in a linked list of dev_info_t objects. Each
  *  nth element in the list also points to a unique device state which is

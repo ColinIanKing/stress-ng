@@ -23,6 +23,10 @@
 #include <keyutils.h>
 #endif
 
+#if defined(HAVE_SYS_CAPABILITY_H)
+#include <sys/capability.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"key N",	"start N workers exercising key operations" },
 	{ NULL,	"key-ops N",	"stop after N key bogo operations" },

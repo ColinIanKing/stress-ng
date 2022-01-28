@@ -23,6 +23,10 @@
 #include <sys/platform/ppc.h>
 #endif
 
+#if defined(HAVE_SYS_CAPABILITY_H)
+#include <sys/capability.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"tsc N",	"start N workers reading the time stamp counter" },
 	{ NULL,	"tsc-ops N",	"stop after N TSC bogo operations" },

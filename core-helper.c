@@ -22,12 +22,16 @@
 #include "core-capabilities.h"
 #include "core-hash.h"
 
+#if defined(HAVE_LINUX_FIEMAP_H)
+#include <linux/fiemap.h>
+#endif
+
 #if defined(HAVE_SYS_AUXV_H)
 #include <sys/auxv.h>
 #endif
 
-#if defined(HAVE_LINUX_FIEMAP_H)
-#include <linux/fiemap.h>
+#if defined(HAVE_SYS_CAPABILITY_H)
+#include <sys/capability.h>
 #endif
 
 #if defined(HAVE_SYS_LOADAVG_H)
