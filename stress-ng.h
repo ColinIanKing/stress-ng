@@ -201,10 +201,6 @@
 #include <sys/param.h>
 #endif
 
-#if defined(HAVE_SYS_RANDOM_H)
-#include <sys/random.h>
-#endif
-
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
 #endif

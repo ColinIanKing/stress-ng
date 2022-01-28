@@ -19,6 +19,8 @@
  */
 #define STRESS_CORE_SHIM
 
+#include "stress-ng.h"
+
 #if defined(__NR_pkey_get)
 #define HAVE_PKEY_GET
 #endif
@@ -52,7 +54,9 @@
 #include <sys/prctl.h>
 #endif
 
-#include "stress-ng.h"
+#if defined(HAVE_SYS_RANDOM_H)
+#include <sys/random.h>
+#endif
 
 /*
  *  Various shim abstraction wrappers around systems calls and
