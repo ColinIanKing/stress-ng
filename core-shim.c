@@ -38,6 +38,10 @@
 #endif
 #endif
 
+#if defined(HAVE_LINUX_FUTEX_H)
+#include <linux/futex.h>
+#endif
+
 #if defined(HAVE_ASM_CACHECTL_H)
 #include <asm/cachectl.h>
 #endif
