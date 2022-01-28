@@ -24,6 +24,18 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_XATTR_H)
+#include <sys/xattr.h>
+#undef HAVE_ATTR_XATTR_H
+#elif defined(HAVE_ATTR_XATTR_H)
+#include <attr/xattr.h>
+#endif
+/*  Sanity check */
+#if defined(HAVE_SYS_XATTR_H) &&        \
+    defined(HAVE_ATTR_XATTR_H)
+#error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"xattr N",	"start N workers stressing file extended attributes" },
 	{ NULL,	"xattr-ops N",	"stop after N bogo xattr operations" },

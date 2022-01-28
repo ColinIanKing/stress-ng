@@ -62,6 +62,18 @@
 #include <sys/timex.h>
 #endif
 
+#if defined(HAVE_SYS_XATTR_H)
+#include <sys/xattr.h>
+#undef HAVE_ATTR_XATTR_H
+#elif defined(HAVE_ATTR_XATTR_H)
+#include <attr/xattr.h>
+#endif
+/*  Sanity check */
+#if defined(HAVE_SYS_XATTR_H) &&        \
+    defined(HAVE_ATTR_XATTR_H)
+#error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
+#endif
+
 /*
  *  Various shim abstraction wrappers around systems calls and
  *  GCC helper functions that may not be supported by some
