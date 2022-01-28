@@ -54,6 +54,14 @@
 #include <sys/utsname.h>
 #endif
 
+/* prctl(2) timer slack support */
+#if defined(HAVE_SYS_PRCTL_H) && \
+    defined(HAVE_PRCTL) && \
+    defined(PR_SET_TIMERSLACK) && \
+    defined(PR_GET_TIMERSLACK)
+#define HAVE_PRCTL_TIMER_SLACK
+#endif
+
 #if !defined(PR_SET_DISABLE)
 #define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
 #endif

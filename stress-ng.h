@@ -879,14 +879,6 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define STRESS_ARCH_MIPS	(1)
 #endif
 
-/* prctl(2) timer slack support */
-#if defined(HAVE_SYS_PRCTL_H) && \
-    defined(HAVE_PRCTL) && \
-    defined(PR_SET_TIMERSLACK) && \
-    defined(PR_GET_TIMERSLACK)
-#define HAVE_PRCTL_TIMER_SLACK
-#endif
-
 static inline void ALWAYS_INLINE shim_mb(void)
 {
 	asm volatile ("" ::: "memory");
