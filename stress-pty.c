@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_TERMIO_H)
+#include <termio.h>
+#endif
+
 #define MIN_PTYS		(8)
 #define MAX_PTYS		(65536)
 #define DEFAULT_PTYS		(65536)

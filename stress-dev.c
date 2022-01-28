@@ -100,6 +100,10 @@
 #include <poll.h>
 #endif
 
+#if defined(HAVE_TERMIO_H)
+#include <termio.h>
+#endif
+
 /*
  *  Device information is held in a linked list of dev_info_t objects. Each
  *  nth element in the list also points to a unique device state which is
