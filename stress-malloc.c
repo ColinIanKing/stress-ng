@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_MALLOC_H)
+#include <malloc.h>
+#endif
+
 #define MIN_MALLOC_BYTES	(1 * KB)
 #define MAX_MALLOC_BYTES	(MAX_MEM_LIMIT)
 #define DEFAULT_MALLOC_BYTES	(64 * KB)

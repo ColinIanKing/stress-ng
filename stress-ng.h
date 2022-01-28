@@ -24,7 +24,9 @@
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
+#ifndef _GNU_SOURCE
 #define _GNU_SOURCE
+#endif
 #define _ATFILE_SOURCE
 #ifndef _LARGEFILE_SOURCE
 #define _LARGEFILE_SOURCE
@@ -32,6 +34,7 @@
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
 #endif
+#define _FORTIFY_SOURCE 2
 
 #if !defined(_FILE_OFFSET_BITS)
 #define _FILE_OFFSET_BITS 	(64)
@@ -105,10 +108,6 @@
 
 #if defined(HAVE_LOCALE_H)
 #include <locale.h>
-#endif
-
-#if defined(HAVE_MALLOC_H)
-#include <malloc.h>
 #endif
 
 #if defined(HAVE_MNTENT_H)
