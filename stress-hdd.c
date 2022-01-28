@@ -23,6 +23,10 @@
 #include <sys/uio.h>
 #endif
 
+#if defined(HAVE_UTIME_H)
+#include <utime.h>
+#endif
+
 #define MIN_HDD_BYTES		(1 * MB)
 #define MAX_HDD_BYTES		(MAX_FILE_LIMIT)
 #define DEFAULT_HDD_BYTES	(1 * GB)

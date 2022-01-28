@@ -43,6 +43,10 @@
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
 
+#if defined(HAVE_UTIME_H)
+#include <utime.h>
+#endif
+
 typedef void *(*stress_bad_addr_t)(const stress_args_t *args);
 typedef int (*stress_bad_syscall_t)(void *addr);
 

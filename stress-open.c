@@ -23,6 +23,10 @@
 #include <linux/openat2.h>
 #endif
 
+#if defined(HAVE_UTIME_H)
+#include <utime.h>
+#endif
+
 typedef int (*stress_open_func_t)(void);
 
 static const stress_help_t help[] = {

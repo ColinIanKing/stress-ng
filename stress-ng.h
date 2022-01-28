@@ -146,10 +146,6 @@
 #include <termios.h>
 #endif
 
-#if defined(HAVE_UTIME_H)
-#include <utime.h>
-#endif
-
 #if defined(HAVE_BSD_STDLIB_H)
 #include <bsd/stdlib.h>
 #endif

@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-pragma.h"
 
+#if defined(HAVE_UTIME_H)
+#include <utime.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"utime N",	"start N workers updating file timestamps" },
 	{ NULL,	"utime-ops N",	"stop after N utime bogo operations" },

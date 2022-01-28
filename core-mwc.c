@@ -23,6 +23,10 @@
 #include <sys/auxv.h>
 #endif
 
+#if defined(HAVE_UTIME_H)
+#include <utime.h>
+#endif
+
 /* MWC random number initial seed */
 #define STRESS_MWC_SEED_Z	(362436069UL)
 #define STRESS_MWC_SEED_W	(521288629UL)

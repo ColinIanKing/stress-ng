@@ -23,6 +23,10 @@
 #include <sys/select.h>
 #endif
 
+#if defined(HAVE_UTIME_H)
+#include <utime.h>
+#endif
+
 #define MIN_DENTRIES		(1)
 #define MAX_DENTRIES		(1000000)
 #define DEFAULT_DENTRIES	(2048)
