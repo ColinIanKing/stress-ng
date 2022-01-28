@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
+
 #define MIN_FIFO_READERS	(1)
 #define MAX_FIFO_READERS	(64)
 #define DEFAULT_FIFO_READERS	(4)

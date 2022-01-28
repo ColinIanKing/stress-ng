@@ -20,6 +20,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
+
 #define MIN_SLEEP		(1)
 #define MAX_SLEEP		(30000)
 #define DEFAULT_SLEEP		(1024)

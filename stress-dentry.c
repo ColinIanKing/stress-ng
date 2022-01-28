@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
+
 #define MIN_DENTRIES		(1)
 #define MAX_DENTRIES		(1000000)
 #define DEFAULT_DENTRIES	(2048)
@@ -214,12 +218,14 @@ static void stress_dentry_misc(const char *path)
 	}
 #endif
 
+#if defined(HAVE_SYS_SELECT_H)
 	FD_ZERO(&rdfds);
 	FD_SET(fd, &rdfds);
 	timeout.tv_sec = 0;
 	timeout.tv_usec = 0;
 	ret = select(fd + 1, &rdfds, NULL, NULL, &timeout);
 	(void)ret;
+#endif
 
 #if defined(HAVE_FLOCK) &&	\
     defined(LOCK_EX) &&		\

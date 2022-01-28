@@ -24,6 +24,10 @@
 #include <sys/fanotify.h>
 #endif
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"fanotify N",	  "start N workers exercising fanotify events" },
 	{ NULL,	"fanotify-ops N", "stop fanotify workers after N bogo operations" },

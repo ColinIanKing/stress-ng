@@ -24,6 +24,10 @@
 #include <sys/apparmor.h>
 #endif
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"apparmor",	  "start N workers exercising AppArmor interfaces" },
 	{ NULL,	"apparmor-ops N", "stop after N bogo AppArmor worker bogo operations" },

@@ -23,6 +23,10 @@
 #include <linux/rtc.h>
 #endif
 
+#if defined(HAVE_SYS_SELECT_H)
+#include <sys/select.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"rtc N",	"start N workers that exercise the RTC interfaces" },
 	{ NULL,	"rtc-ops N",	"stop after N RTC bogo operations" },
@@ -153,6 +157,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 	}
 #endif
 
+#if defined(HAVE_SYS_SELECT_H)
 	/*
 	 *  Very short delay select on the device
 	 *  that should normally always timeout because
@@ -163,6 +168,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 	FD_ZERO(&rfds);
 	FD_SET(fd, &rfds);
 	(void)select(fd + 1, &rfds, NULL, NULL, &timeout);
+#endif
 
 #if defined(RTC_VL_READ)
 	if (ioctl(fd, RTC_VL_READ, &tmp) < 0) {
