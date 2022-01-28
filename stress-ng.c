@@ -29,6 +29,10 @@
 #include <sys/utsname.h>
 #endif
 
+#if defined(HAVE_SYSLOG_H)
+#include <syslog.h>
+#endif
+
 typedef struct {
 	const int opt;			/* optarg option */
 	const uint64_t opt_flag;	/* global options flag bit setting */
