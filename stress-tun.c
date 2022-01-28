@@ -32,6 +32,8 @@
 #include <net/if.h>
 #endif
 
+#include <arpa/inet.h>
+
 #define PACKETS_TO_SEND		(64)
 
 static const stress_help_t help[] = {

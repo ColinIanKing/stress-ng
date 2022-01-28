@@ -40,6 +40,8 @@
 #include <sys/utsname.h>
 #endif
 
+#include <netinet/in.h>
+
 #define MIN_SOCKET_PORT		(1024)
 #define MAX_SOCKET_PORT		(65535)
 #define DEFAULT_SOCKET_PORT	(5000)

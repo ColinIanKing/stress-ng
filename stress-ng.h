@@ -75,13 +75,6 @@
 
 #include "config.h"
 
-/*
- *  Networking includes that are part of
- *  Single UNIX Specification V2
- */
-#include <arpa/inet.h>
-#include <netinet/in.h>
-
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
 #endif

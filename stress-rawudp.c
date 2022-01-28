@@ -29,6 +29,8 @@
 #include <netinet/ip.h>
 #endif
 
+#include <arpa/inet.h>
+
 #define MIN_RAWUDP_PORT		(1024)
 #define MAX_RAWUDP_PORT		(65535)
 #define DEFAULT_RAWUDP_PORT	(13000)

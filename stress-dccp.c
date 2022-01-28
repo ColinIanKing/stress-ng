@@ -28,6 +28,8 @@
 #include <linux/sockios.h>
 #endif
 
+#include <netinet/in.h>
+
 #define MIN_DCCP_PORT		(1024)
 #define MAX_DCCP_PORT		(65535)
 #define DEFAULT_DCCP_PORT	(10000)

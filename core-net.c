@@ -29,6 +29,8 @@
 #include <sys/un.h>
 #endif
 
+#include <netinet/in.h>
+
 typedef struct {
 	const char *name;
 	const int  domain;

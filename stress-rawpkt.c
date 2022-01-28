@@ -45,6 +45,8 @@
 #include <netinet/ip.h>
 #endif
 
+#include <arpa/inet.h>
+
 #define MIN_RAWPKT_PORT		(1024)
 #define MAX_RAWPKT_PORT		(65535)
 #define DEFAULT_RAWPKT_PORT	(14000)

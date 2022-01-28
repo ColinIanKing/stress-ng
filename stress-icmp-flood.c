@@ -28,6 +28,8 @@
 #include <netinet/ip_icmp.h>
 #endif
 
+#include <arpa/inet.h>
+
 static const stress_help_t help[] = {
 	{ NULL,	"icmp-flood N",		"start N ICMP packet flood workers" },
 	{ NULL,	"icmp-flood-ops N",	"stop after N ICMP bogo operations (ICMP packets)" },
