@@ -25,6 +25,10 @@
 #include "stress-ng.h"
 #include "core-net.h"
 
+#if defined(HAVE_SYS_UN_H)
+#include <sys/un.h>
+#endif
+
 typedef struct {
 	const char *name;
 	const int  domain;

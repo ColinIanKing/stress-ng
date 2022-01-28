@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-net.h"
 
+#if defined(HAVE_SYS_UN_H)
+#include <sys/un.h>
+#endif
+
 #if defined(HAVE_NETINET_SCTP_H)
 #include <netinet/sctp.h>
 #endif

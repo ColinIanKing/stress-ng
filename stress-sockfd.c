@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-net.h"
 
+#if defined(HAVE_SYS_UN_H)
+#include <sys/un.h>
+#endif
+
 #define MIN_SOCKET_FD_PORT	(1024)
 #define MAX_SOCKET_FD_PORT	(65535)
 #define DEFAULT_SOCKET_FD_PORT	(8000)

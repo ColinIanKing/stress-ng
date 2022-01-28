@@ -238,10 +238,6 @@
 #include <sys/timex.h>
 #endif
 
-#if defined(HAVE_SYS_UN_H)
-#include <sys/un.h>
-#endif
-
 /*
  *  Linux specific includes
  */
