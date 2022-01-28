@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-net.h"
 
+#if defined(HAVE_NETINET_TCP_H)
+#include <netinet/tcp.h>
+#endif
+
 #define DEFAULT_SOCKET_MANY_PORT (11000)
 #define SOCKET_MANY_BUF		(8)
 #define SOCKET_MANY_FDS		(100000)
