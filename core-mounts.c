@@ -28,6 +28,10 @@
 #include <sys/mount.h>
 #endif
 
+#if defined(HAVE_MNTENT_H)
+#include <mntent.h>
+#endif
+
 /*
  *  stress_mount_add()
  *	add a new mount point to table

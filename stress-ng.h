@@ -106,10 +106,6 @@
 #include <locale.h>
 #endif
 
-#if defined(HAVE_MNTENT_H)
-#include <mntent.h>
-#endif
-
 #if defined(HAVE_POLL_H)
 #include <poll.h>
 #endif

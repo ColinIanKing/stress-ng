@@ -33,6 +33,10 @@
 #include <sys/vmmeter.h>
 #endif
 
+#if defined(HAVE_MNTENT_H)
+#include <mntent.h>
+#endif
+
 static int32_t vmstat_delay = 0;
 static int32_t thermalstat_delay = 0;
 static int32_t iostat_delay = 0;
