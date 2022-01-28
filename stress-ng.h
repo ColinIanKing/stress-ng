@@ -98,10 +98,6 @@
 #include <float.h>
 #endif
 
-#if defined(HAVE_GRP_H)
-#include <grp.h>
-#endif
-
 #if defined(HAVE_LOCALE_H)
 #include <locale.h>
 #endif

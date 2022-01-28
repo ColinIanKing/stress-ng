@@ -24,6 +24,10 @@
 #include <sys/fsuid.h>
 #endif
 
+#if defined(HAVE_GRP_H)
+#include <grp.h>
+#endif
+
 #if !defined(_DEFAULT_SOURCE)
 #define _DEFAULT_SOURCE 1
 #endif
