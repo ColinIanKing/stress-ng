@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(HAVE_SYS_TIMEX_H)
+#include <sys/timex.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"clock N",	"start N workers thrashing clocks and POSIX timers" },
 	{ NULL,	"clock-ops N",	"stop clock workers after N bogo operations" },

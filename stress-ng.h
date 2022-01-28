@@ -226,10 +226,6 @@
 #include <sys/sysmacros.h>
 #endif
 
-#if defined(HAVE_SYS_TIMEX_H)
-#include <sys/timex.h>
-#endif
-
 /*
  *  Linux specific includes
  */

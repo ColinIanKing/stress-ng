@@ -58,6 +58,10 @@
 #include <sys/random.h>
 #endif
 
+#if defined(HAVE_SYS_TIMEX_H)
+#include <sys/timex.h>
+#endif
+
 /*
  *  Various shim abstraction wrappers around systems calls and
  *  GCC helper functions that may not be supported by some

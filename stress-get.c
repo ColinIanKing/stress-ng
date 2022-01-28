@@ -28,6 +28,10 @@
 #include <sys/statvfs.h>
 #endif
 
+#if defined(HAVE_SYS_TIMEX_H)
+#include <sys/timex.h>
+#endif
+
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
 #endif
