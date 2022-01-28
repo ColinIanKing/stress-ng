@@ -60,18 +60,6 @@
 #include <linux/random.h>
 #endif
 
-#if defined(HAVE_SCSI_SCSI_H)
-#include <scsi/scsi.h>
-#endif
-
-#if defined(HAVE_SCSI_SCSI_IOCTL_H)
-#include <scsi/scsi_ioctl.h>
-#endif
-
-#if defined(HAVE_SCSI_SG_H)
-#include <scsi/sg.h>
-#endif
-
 #if defined(HAVE_LINUX_SERIAL_H)
 #include <linux/serial.h>
 #endif
@@ -90,6 +78,22 @@
 
 #if defined(HAVE_LINUX_VT_H)
 #include <linux/vt.h>
+#endif
+
+#if defined(HAVE_SCSI_SCSI_H)
+#include <scsi/scsi.h>
+#endif
+
+#if defined(HAVE_SCSI_SCSI_IOCTL_H)
+#include <scsi/scsi_ioctl.h>
+#endif
+
+#if defined(HAVE_SCSI_SG_H)
+#include <scsi/sg.h>
+#endif
+
+#if defined(HAVE_SOUND_ASOUND_H)
+#include <sound/asound.h>
 #endif
 
 #if defined(HAVE_SYS_CAPABILITY_H)

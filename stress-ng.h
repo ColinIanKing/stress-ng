@@ -98,10 +98,6 @@
 #include <pthread.h>
 #endif
 
-#if defined(HAVE_SOUND_ASOUND_H)
-#include <sound/asound.h>
-#endif
-
 #if defined(HAVE_STRINGS_H)
 #include <strings.h>
 #endif
