@@ -143,6 +143,21 @@
 
 #include "stress-version.h"
 
+#if defined(CHECK_UNEXPECTED) && 	\
+    defined(HAVE_PRAGMA) &&		\
+    defined(__GNUC__)
+#define UNEXPECTED_PRAGMA(x) _Pragma (#x)
+#define UNEXPECTED_XSTR(x) UNEXPECTED_STR(x)
+#define UNEXPECTED_STR(x) # x
+#define UNEXPECTED	UNEXPECTED_PRAGMA(message	\
+	"unexpected default codepath: line #" 		\
+	UNEXPECTED_XSTR(__LINE__) " in " 		\
+	UNEXPECTED_XSTR(__FILE__));
+#else
+#define UNEXPECTED
+#endif
+
+
 /*
  *  BeagleBoneBlack with 4.1.15 kernel does not
  *  define the following, these should be defined

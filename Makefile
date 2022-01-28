@@ -36,6 +36,13 @@ CFLAGS += -Wcast-qual -Wfloat-equal -Wmissing-declarations \
 endif
 
 #
+# Expected build warnings
+#
+ifeq ($(UNEXPECTED),1)
+CFLAGS += -DCHECK_UNEXPECTED
+endif
+
+#
 # Verbosity
 #
 override undefine V
