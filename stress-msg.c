@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SYS_IPC_H)
+#include <sys/ipc.h>
+#endif
+
 #if defined(HAVE_SYS_MSG_H)
 #include <sys/msg.h>
 #endif

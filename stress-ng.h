@@ -193,10 +193,6 @@
 #include <sys/capability.h>
 #endif
 
-#if defined(HAVE_SYS_IPC_H)
-#include <sys/ipc.h>
-#endif
-
 #if defined(HAVE_SYS_PARAM_H)
 #include <sys/param.h>
 #endif

@@ -24,6 +24,10 @@
 #include <linux/mempolicy.h>
 #endif
 
+#if defined(HAVE_SYS_IPC_H)
+#include <sys/ipc.h>
+#endif
+
 #if defined(HAVE_SYS_SHM_H)
 #include <sys/shm.h>
 #endif
