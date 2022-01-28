@@ -25,6 +25,10 @@
 #include <linux/perf_event.h>
 #endif
 
+#if defined(HAVE_LOCALE_H)
+#include <locale.h>
+#endif
+
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
 /* perf enabled systems */
