@@ -87,10 +87,6 @@
 #include <netinet/ip.h>
 #endif
 
-#if defined(HAVE_NETINET_IP_ICMP_H)
-#include <netinet/ip_icmp.h>
-#endif
-
 #if defined(HAVE_NETINET_TCP_H)
 #include <netinet/tcp.h>
 #endif
