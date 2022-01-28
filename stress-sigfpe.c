@@ -24,6 +24,10 @@
 #include <fenv.h>
 #endif
 
+#if defined(HAVE_FLOAT_H)
+#include <float.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"sigfpe N",	"start N workers generating floating point math faults" },
 	{ NULL,	"sigfpe-ops N",	"stop after N bogo floating point math faults" },

@@ -94,10 +94,6 @@
 #include <features.h>
 #endif
 
-#if defined(HAVE_FLOAT_H)
-#include <float.h>
-#endif
-
 #if defined(HAVE_LOCALE_H)
 #include <locale.h>
 #endif

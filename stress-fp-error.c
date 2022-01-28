@@ -23,6 +23,11 @@
 #include <fenv.h>
 #endif
 
+#if defined(HAVE_FLOAT_H)
+#include <float.h>
+#endif
+
+
 static const stress_help_t help[] = {
 	{ NULL,	"fp-error N",	  "start N workers exercising floating point errors" },
 	{ NULL,	"fp-error-ops N", "stop after N fp-error bogo operations" },
