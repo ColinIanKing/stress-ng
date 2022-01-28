@@ -37,6 +37,10 @@
 #include <linux/udp.h>
 #endif
 
+#if defined(HAVE_NET_IF_H)
+#include <net/if.h>
+#endif
+
 #if defined(HAVE_NETINET_IP_H)
 #include <netinet/ip.h>
 #endif

@@ -28,6 +28,10 @@
 #include <linux/sockios.h>
 #endif
 
+#if defined(HAVE_NET_IF_H)
+#include <net/if.h>
+#endif
+
 #define PACKETS_TO_SEND		(64)
 
 static const stress_help_t help[] = {

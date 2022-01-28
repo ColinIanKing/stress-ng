@@ -23,6 +23,10 @@
 #include <linux/sockios.h>
 #endif
 
+#if defined(HAVE_NET_IF_H)
+#include <net/if.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"netdev N",	"start N workers exercising netdevice ioctls" },
 	{ NULL,	"netdev-ops N",	"stop netdev workers after N bogo operations" },

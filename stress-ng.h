@@ -82,10 +82,6 @@
 #include <arpa/inet.h>
 #include <netinet/in.h>
 
-#if defined(HAVE_NET_IF_H)
-#include <net/if.h>
-#endif
-
 #if defined(HAVE_FEATURES_H)
 #include <features.h>
 #endif
