@@ -20,6 +20,14 @@
 #include "stress-ng.h"
 #include "core-capabilities.h"
 
+#if defined(__sun__)
+/* Disable for SunOs/Solaris because */
+#undef HAVE_SYS_SWAP_H
+#endif
+#if defined(HAVE_SYS_SWAP_H)
+#include <sys/swap.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"swap N",	"start N workers exercising swapon/swapoff" },
 	{ NULL,	"swap-ops N",	"stop after N swapon/swapoff operations" },
