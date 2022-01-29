@@ -163,24 +163,19 @@ static inline bool check_invalid_clock_id(const clockid_t id) {
 
 #define FD_TO_CLOCKID(fd)	((~(clockid_t)(fd) << 3) | 3)
 
+#if defined(__NR_clock_adjtime) &&	\
+    defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(CLOCK_THREAD_CPUTIME_ID) &&	\
+    defined(ADJ_SETOFFSET)
 /*
  *   shim_clock_adjtime
  *	wrapper for linux clock_adjtime system call
  */
 static int shim_clock_adjtime(clockid_t clk_id, struct shim_timex *tx)
 {
-#if defined(HAVE_SYS_TIMEX_H) &&	\
-    defined(CLOCK_THREAD_CPUTIME_ID) &&	\
-    defined(__NR_clock_adjtime)
 	return (int)syscall(__NR_clock_adjtime, clk_id, tx);
-#else
-	(void)clk_id;
-	(void)tx;
-
-	errno = ENOSYS;
-	return -1;
-#endif
 }
+#endif
 
 /*
  *  stress_clock()
@@ -359,7 +354,6 @@ static int stress_clock(const stress_args_t *args)
 					(void)ret_st;
 				}
 
-				/* Exercise clock_adjtime on non-permitted timespec object values */
 				(void)memset(&t, 0, sizeof(t));
 				t.tv_sec = -1;
 				ret_st = clock_nanosleep(clocks_nanosleep[0], TIMER_ABSTIME, &t, NULL);
@@ -397,6 +391,7 @@ static int stress_clock(const stress_args_t *args)
 
 #if defined(__NR_clock_adjtime) &&	\
     defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(CLOCK_THREAD_CPUTIME_ID) &&	\
     defined(ADJ_SETOFFSET)
 		{
 			size_t i;
