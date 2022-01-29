@@ -108,6 +108,7 @@ int shim_sched_yield(void)
 #elif defined(__NR_sched_yield)
 	return syscall(__NR_sched_yield);
 #else
+	UNEXPECTED
 	return sleep(0);
 #endif
 }
@@ -266,6 +267,7 @@ int shim_gettid(void)
 #elif defined(__NR_gettid)
 	return (int)syscall(__NR_gettid);
 #else
+	UNEXPECTED
 	return (int)shim_enosys(0);
 #endif
 }
@@ -286,6 +288,7 @@ long shim_getcpu(
 #elif defined(__NR_getcpu)
 	return (long)syscall(__NR_getcpu, cpu, node, tcache);
 #else
+	UNEXPECTED
 	return (long)shim_enosys(0, cpu, node, tcache);
 #endif
 }
@@ -338,6 +341,7 @@ int shim_getrandom(void *buff, size_t buflen, unsigned int flags)
 
 	return getentropy(buff, buflen);
 #else
+	UNEXPECTED
 	return (int)shim_enosys(0, buff, buflen, flags);
 #endif
 }
@@ -1089,6 +1093,7 @@ void *shim_sbrk(intptr_t increment)
 #elif defined(__NR_sbrk)
 	return (void *)syscall(__NR_sbrk, increment);
 #else
+	UNEXPECTED
 	return (void *)(intptr_t)shim_enosys(0, increment);
 #endif
 }
@@ -1871,6 +1876,7 @@ int shim_nice(int inc)
 #else
 	(void)inc;
 
+	UNEXPECTED
 	errno = -ENOSYS;
 	return -1;
 #endif

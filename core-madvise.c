@@ -112,6 +112,7 @@ int stress_madvise_random(void *addr, const size_t length)
 		return madvise(addr, length, madvise_options[i]);
 	}
 #else
+	UNEXPECTED
 	(void)addr;
 	(void)length;
 #endif

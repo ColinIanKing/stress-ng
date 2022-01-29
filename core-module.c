@@ -200,4 +200,6 @@ int stress_module_unload(
 	return -1;
 }
 
+UNEXPECTED
+
 #endif

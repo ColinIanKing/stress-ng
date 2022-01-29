@@ -308,6 +308,8 @@ size_t stress_get_pagesize(void)
 			return page_size;
 		}
 	}
+#else
+	UNEXPECTED
 #endif
 #if defined(HAVE_GETPAGESIZE)
 	{
@@ -341,6 +343,7 @@ int32_t stress_get_processors_online(void)
 		processors_online = 1;
 #else
 	processors_online = 1;
+	UNEXPECTED
 #endif
 	return processors_online;
 }
@@ -362,6 +365,7 @@ int32_t stress_get_processors_configured(void)
 		processors_configured = stress_get_processors_online();
 #else
 	processors_configured = 1;
+	UNEXPECTED
 #endif
 	return processors_configured;
 }
@@ -381,6 +385,7 @@ int32_t stress_get_ticks_per_second(void)
 	ticks_per_second = (int32_t)sysconf(_SC_CLK_TCK);
 	return ticks_per_second;
 #else
+	UNEXPECTED
 	return -1;
 #endif
 }
@@ -425,6 +430,8 @@ void stress_get_memlimits(
 		return;
 	}
 	(void)fclose(fp);
+#else
+	UNEXPECTED
 #endif
 }
 
@@ -451,6 +458,7 @@ uint64_t stress_get_phys_mem_size(void)
 		phys_pages = max_pages;
 	return phys_pages * page_size;
 #else
+	UNEXPECTED
 	return 0ULL;
 #endif
 }
@@ -485,6 +493,7 @@ uint64_t stress_get_filesystem_size(void)
 
 	return (uint64_t)buf.f_bsize * blocks;
 #else
+	UNEXPECTED
 	return 0ULL;
 #endif
 }
@@ -511,6 +520,7 @@ uint64_t stress_get_filesystem_available_inodes(void)
 
 	return (uint64_t)buf.f_favail;
 #else
+	UNEXPECTED
 	return 0ULL;
 #endif
 }
@@ -528,6 +538,7 @@ int stress_set_nonblock(const int fd)
 		flags = 0;
 	return fcntl(fd, F_SETFL, O_NONBLOCK | flags);
 #else
+	UNEXPECTED
 	flags = 1;
 	return ioctl(fd, FIOBIO, &flags);
 #endif
@@ -590,6 +601,8 @@ void stress_parent_died_alarm(void)
     defined(HAVE_SYS_PRCTL_H) &&	\
     defined(PR_SET_PDEATHSIG)
 	(void)prctl(PR_SET_PDEATHSIG, SIGALRM);
+#else
+	UNEXPECTED
 #endif
 }
 
@@ -617,6 +630,8 @@ int stress_process_dumpable(const bool dumpable)
 		lim.rlim_max = 0;
 		(void)setrlimit(RLIMIT_CORE, &lim);
 	}
+#else
+	UNEXPECTED
 #endif
 
 	/*
@@ -655,6 +670,7 @@ int stress_set_timer_slack_ns(const char *opt)
 	timer_slack = stress_get_uint32(opt);
 	(void)stress_set_setting("timer-slack", TYPE_ID_UINT32, &timer_slack);
 #else
+	UNEXPECTED
 	(void)opt;
 #endif
 	return 0;
@@ -673,6 +689,8 @@ void stress_set_timer_slack(void)
 
 	if (stress_get_setting("timer-slack", &timer_slack))
 		(void)prctl(PR_SET_TIMERSLACK, timer_slack);
+#else
+	UNEXPECTED
 #endif
 }
 
@@ -689,6 +707,7 @@ void stress_set_proc_name_init(int argc, char *argv[], char *envp[])
 	(void)argc;
 	(void)argv;
 	(void)envp;
+	UNEXPECTED
 #endif
 }
 
@@ -1442,6 +1461,7 @@ size_t stress_get_max_file_limit(void)
 	}
 #else
 	max_sysconf = SIZE_MAX;
+	UNEXPECTED
 #endif
 	/* return the lowest of these two */
 	return STRESS_MINIMUM(max_rlim, max_sysconf);
@@ -1510,6 +1530,8 @@ int stress_get_bad_fd(void)
 		if (fcntl((int)i, F_GETFL) == -1)
 			return i;
 	}
+#else
+	UNEXPECTED
 #endif
 	return -1;
 }
@@ -1531,6 +1553,7 @@ int stress_sigaltstack_no_check(void *stack, const size_t size)
 	ss.ss_flags = 0;
 	return sigaltstack(&ss, NULL);
 #else
+	UNEXPECTED
 	(void)stack;
 	(void)size;
 	return 0;
@@ -1558,6 +1581,7 @@ int stress_sigaltstack(void *stack, const size_t size)
 		return -1;
 	}
 #else
+	UNEXPECTED
 	(void)stack;
 	(void)size;
 #endif
@@ -1726,6 +1750,8 @@ const char *stress_get_uname_info(void)
 		(void)snprintf(str, sizeof(str), "%s %s %s", buf.machine, buf.sysname, buf.release);
 		return str;
 	}
+#else
+	UNEXPECTED
 #endif
 	return "unknown";
 }
@@ -2103,6 +2129,7 @@ bool stress_is_dev_tty(const int fd)
 		return true;
 	return !strncmp("/dev/tty", name, 8);
 #else
+	UNEXPECTED
 	(void)fd;
 
 	/* Assume it is */
@@ -2400,6 +2427,7 @@ int stress_get_kernel_release(void)
 
 	return stress_kernel_release(major, minor, patchlevel);
 #else
+	UNEXPECTED
 	return -1;
 #endif
 }
@@ -2525,6 +2553,8 @@ static inline long stress_min_aux_sig_stack_size(void)
 
 	if (sz > 0)
 		return sz;
+#else
+	UNEXPECTED
 #endif
 	return -1;
 }
@@ -2690,6 +2720,7 @@ int stress_tty_width(void)
 		return max_width;
 	return ret;
 #else
+	UNEXPECTED
 	return max_width;
 #endif
 }
@@ -2713,6 +2744,7 @@ size_t stress_get_extents(const int fd)
 
 	return fiemap.fm_mapped_extents;
 #else
+	UNEXPECTED
 	(void)fd;
 
 	return 0;

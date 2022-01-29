@@ -27,6 +27,8 @@
 
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
+#else
+UNEXPECTED
 #endif
 
 #include <netinet/in.h>

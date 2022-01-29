@@ -42,6 +42,7 @@ int stress_mlock_region(const void *addr_start, const void *addr_end)
 
 	return shim_mlock((const void *)m_addr_start, len);
 #else
+	UNEXPECTED
 	(void)addr_start;
 	(void)addr_end;
 
