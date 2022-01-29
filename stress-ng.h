@@ -34,7 +34,9 @@
 #ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
 #endif
+#if !defined(__PCC__)
 #define _FORTIFY_SOURCE 2
+#endif
 
 #if !defined(_FILE_OFFSET_BITS)
 #define _FILE_OFFSET_BITS 	(64)
