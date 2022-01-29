@@ -89,6 +89,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_skip_silent,	OPT_FLAGS_SKIP_SILENT },
 	{ OPT_smart,		OPT_FLAGS_SMART },
 	{ OPT_sock_nodelay,	OPT_FLAGS_SOCKET_NODELAY },
+	{ OPT_stdout,		OPT_FLAGS_STDOUT },
 #if defined(HAVE_SYSLOG_H)
 	{ OPT_syslog,		OPT_FLAGS_SYSLOG },
 #endif
@@ -879,6 +880,7 @@ static const struct option long_options[] = {
 	{ "stack-ops",		1,	0,	OPT_stack_ops },
 	{ "stackmmap",		1,	0,	OPT_stackmmap },
 	{ "stackmmap-ops",	1,	0,	OPT_stackmmap_ops },
+	{ "stdout",		0,	0,	OPT_stdout },
 	{ "str",		1,	0,	OPT_str },
 	{ "str-ops",		1,	0,	OPT_str_ops },
 	{ "str-method",		1,	0,	OPT_str_method },

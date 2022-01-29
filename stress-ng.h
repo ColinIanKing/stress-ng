@@ -296,6 +296,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_SMART		 STRESS_BIT_ULL(40)	/* --smart */
 #define OPT_FLAGS_NO_OOM_ADJUST	 STRESS_BIT_ULL(41)	/* --no-oom-adjust */
 #define OPT_FLAGS_KEEP_FILES	 STRESS_BIT_ULL(42)	/* --keep-files */
+#define OPT_FLAGS_STDOUT	 STRESS_BIT_ULL(43)	/* --stdout */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -2324,6 +2325,8 @@ typedef enum {
 
 	OPT_stackmmap,
 	OPT_stackmmap_ops,
+
+	OPT_stdout,
 
 	OPT_str,
 	OPT_str_ops,
