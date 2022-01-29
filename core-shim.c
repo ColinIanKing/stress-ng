@@ -2172,7 +2172,7 @@ int shim_unlinkat(int dirfd, const char *pathname, int flags)
 #elif defined(__NR_unlinkat)
 	return (int)syscall(__NR_unlinkat, dirfd, pathname, flags);
 #else
-	return (int)shim_enosys(__NR_unlinkat, dirfd, pathname, flags);
+	return (int)shim_enosys(0, dirfd, pathname, flags);
 #endif
 }
 
