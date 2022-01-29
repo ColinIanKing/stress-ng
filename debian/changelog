@@ -1,3 +1,382 @@
+stress-ng (0.13.11-1) unstable; urgency=medium
+
+  [Aboorva Devarajan]
+  * stress-sem: fix macro definition
+
+  [Jules Maselbas]
+  * stress-rseq: inline the nop instruction and add Kalray VLIW nop
+  * stress-nop: Fix nop asm instruction for KVX
+
+  [Colin Ian King]
+  * Debian: update changelog
+  * debian: update copyright year
+  * Makefile: bump version
+  * Makefile: add two missing header files from make dist rule
+  * Manual: update contributors list
+  * core-log: forgot to check-in the --stdout changes
+  * Add --stdout option to send run time messages to --stdout
+  * stress-kvm: only allow on x86-64 for now.
+  * stress-hash: set correct big endian checksum for mulxror64
+  * core-shim: fix build error on Minix, replace __NR_unlinkat with 0
+  * core-shim: fully implement shim_unlinkat
+  * stress-clock: don't build shim_clock_adjtime if it is not required
+  * stress-clock: fix build issue on BSD for shim_clock_adjtime
+  * stress-dev: only define stress_dev_tty if TCGETS is available
+  * stress-dir: include libgen.h for basename definition
+  * stress-dev: include libgen.h for basename definition
+  * core-shim: include core-pragma.h to fix OS X build failure
+  * Manual: update contributors and date
+  * Signed-off-by: Colin Ian King <colin.i.king@gmail.com>
+  * core-*, stress-*: update copyright
+  * stress-ng.h: Disable fortified build for PCC
+  * stress-clock: move shim_clock_adjtime to stress-clock
+  * core-*: add UNEXPECTED #ifdef checking
+  * stress-*: add UNEXPECTED #ifdef checking
+  * stress-dev: add unexpected build failure #else path detection
+  * core-shim: move include linux/futex.h to core
+  * stress-sysfs: move include linux/fs.h to stressor
+  * core-helper: move include linux/fs.h to core
+  * stress-udp: move include linux/udp.h to stressor
+  * core-helper: move HAVE_PRCTL_TIMER_SLACK to core
+  * stress-prctl: move include sys/capability.h to stressor
+  * stress-sockmany: move include netinet/tcp.h to stressor
+  * stress-sock: netinet/in.h and arpa/inet.h to stressor
+  * stress-*: move include netinet/in.h and arpa/inet.h to stressors
+  * stress-*: move include net/if.h to stressors
+  * stress-*: move include netinet/ip.h to stressors
+  * stress-dev: move include sound/asound.h to stressors
+  * stress-dev, stress-pty: move include termio.h to stressors
+  * stress-*: move include poll.h to stressors
+  * core-log, stress-ng: move include syslog.h to core
+  * core-perf: move include local.h to core
+  * stress-fp-error, stress-sigfpe: move include float.h to stressor
+  * stress-set: move include grp.h to stressor
+  * core-mounts, core-vmstat: move include mntent.h to core
+  * stress-resources, stress-sem: move include semaphore.h to stressors
+  * stress-vdso: move include link.h to stressor
+  * stress-*: move include utime.h to stressors
+  * stress-mq, stress-resources, stress-switch: move include mqueue.h
+    to stressors
+  * stress-malloc: move include malloc.h to stressor
+  * core-*, stress-*: move xattr includes to core and stressors
+  * stress-sock: move include netinet/tcp.h to stressor
+  * stress-icmp-flood, stress-ping-sock: move include netinet/ip_icmp.h
+    to stressors
+  * core-*, stress-*: move include sys/capability.h to core and
+    stressors
+  * stress-*: move include sys/select.h to stressors
+  * stress-msg, stress-resource, stress-shmsysv: move include
+    sys/ipc.h to core and stressors
+  * core-*, stress-*: move include sys/sysmacros.h to core and stressors
+  * core-*, stress-*: move include sys/statfs.h to core and stressors
+  * core-*, stress-*: move include sys/swap.h to core and stressors
+  * stress-swap: move include sys/swap.h to stressor
+  * core-*, stress-*: include sys/un.h to core and stressors
+  * core-shim: move include sys/random.h to core
+  * stress-msg, stress-resources: move include sys/msg.h to stressor
+  * stress-resources, stress-sem-sysv, stress-switch: move include
+    sys/sem.h to stressor
+  * stress-shm-sysv: move include sys/shm.h to stressor
+  * core-*, stress-*: move include sys/mount.h to core and stressors
+  * stress-*: move include sys/utsname.h to stressors
+  * stress-get: move include sys/vfs.h to stressor
+  * stress-ptrace, stress-vm-segv: move include sys/ptrace.h to
+    stressors
+  * stress-*: move include sys/statvfs.h to stressors
+  * stress-*: move include sys/prctl.h to stressors
+  * stress-*: move include sys/inotify.h to stressors
+  * stress-ioport, stress-smi: move include sys/io.h to stressors
+  * stress-fp-error, stress-sigfpe: move include fenv.h to stressors
+  * stress-close, stress-fanotify: move include sys/fanotify.h
+    to stressors
+  * stress-*: move include sys/eventfd.h to stressors
+  * stress-prctl: move include asm/prctl.h to stressor
+  * stress-*: move include libgen.h to stressors
+  * stress-sctp: move include netinet/sctp.h to stressor
+  * core-shim: move HAVE_PKEY_GET/HAVE_PKEY_SET to core
+  * stress-*: move HAVE_USERFAULTFD to stressors
+  * stress-netlink-proc: move include linux/version.h to stressor
+  * stress-key: move include keyutils.h to stressor
+  * stress-dev, stress-getrandom, stress-urandom: move include
+    linux/random.h to stressors
+  * stress-af-alg: move include linux/socket.h to stressor
+  * stress-*: move include linux/netlink.h to stressors
+  * stress-*: move include linux/sockios.h to stressors
+  * stress-get: move include linux/sysctl.h to stressor
+  * stress-numa, stress-shm-sysv: move include linux/mempolicy.h
+    to stressor
+  * stress-opcode, stress-seccomp: move include linux/filter.h
+    to stressor
+  * stress-sockdiag: move include linux/rtnetlink.h to stressor
+  * stress-rawpkt, stress-udp: move include linux/udp.h to stressor
+  * stress-dev: move include linux/ppdev.h to stressor
+  * stress-rawpkt: move include linux/if_packet.h to stressor
+  * core-perf: move include linux/perf_event.h to corew
+  * stress-membarrier: move include linux/membarrier.h to stressor
+  * stress-*: move include linux/secccomp.h to stressors
+  * stress-*: move include sys/epoll.h to stressors
+  * stress-*: move include ucontext.h to stressors
+  * core-*, stress-*: move include sys/auxv.h to core and stressors
+  * stress-memrate, stress-memthrash: move include xmmintrin.h
+    to stressors
+  * core-helper: move include sys/mount.h to core
+  * core-shim: move include sys/ustat.h to core
+  * stress-fiemap: forgot to add in linux/fs.h
+  * core-mounts: move include sys/ucred.h to core
+  * stress-wcstr: move include bsd/wchar.h to stressort
+  * stress-dynlib: move dynlib includes to stressor
+  * stress-*: move include linux/fs.h to stressor
+  * core-vmstat: move include sys/sysctl.h to stressor
+  * core-vmstat: move include sys/vmmeter.h to stressor
+  * stress-sockdiag: move include linux/sock_diag.h to stressor
+  * stress-sockdiag: move include linux/unix_diag.h to stressor
+  * stress-netlink-{proc|task}: move include linux/connector.h
+    to stressor
+  * stress-netlink-{proc|task}: move include linux/cn_proc.h
+    to stressor
+  * stress-dev: add in some missing scsi includes
+  * stress-dev: move include scsi/scsi.h to stressor
+  * stress-dev: move include linux/media.h to stressor
+  * stress-dev: move include linux/hdreg.h to stressor
+  * stress-dev: move include linux/ptp_clock.h to stressor
+  * stress-procfs: move include linux/pci.h to stressor
+  * stress-futex, stress-pthread: move include linux/futex.h to
+    stressors
+  * stress-dev: move include linux/hpet.h to stressor
+  * stress-dev: move include linux/cdrom.h to stressor
+  * stress-sockpair: call sockpair stressor from OOMable restart
+    handler
+  * stress-sockpair: try to make parent more OOM friendly
+  * stress-sockpair: add EPIPE checking and EPIPE signal handler
+  * stress-alarm: use the no-op signal handler
+  * stress-loop: move include linux/loop.h to stressor
+  * stress-opcode, stress-seccomp: move include linux/audit.h to
+    stressors
+  * stress-dev: move include linux/dm-ioctl.h to stressor
+  * stress-dev: move include linux/kd.h to stressor
+  * stress-landlock: move include linux/landlock.h to stressor
+  * stress-kvm: move include linux/kvm.h to stressor
+  * stress-open: move include linux/openat2.h to stressor
+  * coreftrace, stress-*, move tree includes into core and stressors
+  * stress-resources, stress-timerfd: move include sys/timerfd.h
+    to stressors
+  * stress-procfs: move include asm/mtrr.h to stressor
+  * stress-*, core-shim: move include asm/ldt.h to stressor
+  * stress-dev: move include linux/usbdevice_fs.h to stressor
+  * Revert "stress-ng.h: remove usbdevice_fs.h"
+  * core-smart: move include scsi/scsi_sg.h to core
+  * stress-rtc: move include linux/rtc.h to stressor
+  * core-shim: move include scsi/scsi_ioctl.h to core
+  * stress-list: move include sys/queue.h to stressor
+  * core-shim: move include asm/cachectl.h to core
+  * stress-set: move include sys/fsuid.h to stressor
+  * stress-tsc: move include sys/platform/ppc.h to stressor
+  * stress-*.c: move include sys/uio.h to some stressors
+  * stress-ng.h: remove usbdevice_fs.h
+  * stress-dev: move include videodev2.h to stressor
+  * stress-dev: move include vt.h to stressor
+  * stress-rawpkt, stress-tun: move include if_tun.h to stressors
+  * stress-af-alg: move include if_alg.h to stressor
+  * stress-netlink-task: move include genetlink.h to stressor
+  * stress-fiemap, core-helper: move include fiemap.h to stressor
+    and core
+  * stress-netlink-task: move include taskstats.h to stressor
+  * stress-io-uring: move include io-uring.h to stressor
+  * stress-binderfs: move include binderfs headers to stressor
+  * stress-personality: move include personality.h to stressor
+  * stress-rseq: move include rseq.h to stressor
+  * stress-sigfd, stress-close: move include wchar.h to stressors
+  * stress-wcstr: move include wchar.h to stressor
+  * stress-sendfile: move include sendfile.h to stressor
+  * stress-verity: move include fsverity.h to stressor
+  * stress-userfaultfd: move include userfaultfd.h to stressor
+  * stress-quota: move include quota.h to stressor
+  * stress-watchog: move include watchdog.h to stressor
+  * stress-spawn.c: move include spawn.h to stressor
+  * core-module: move include libkmod.h into core-module
+  * stress-apparmor: move include sys/apparmor.h to stressor
+  * stress-aio-linux: move libaio.h include to the stressor
+  * stress-ipsec-mb: update copyright
+  * stress-ipsec-mb: move intel-ipsec-mb.h into the stressor
+  * stress-judy, stress-sparsematrix: move Judy.h into stressors
+  * stress-cpu, stress-funccall: move complex.h into stressors
+  * stress-crypt: move crypt.h include into stress-crypt.h
+  * stress-aio: move aio.h include into stress-aio.h
+  * stress-ng.h: remove ioprio macros
+  * core-io-priority.h: add include file with io priority macros
+  * core-sched.c: move sched related macros to core-sched.c
+  * stress-getdent.c: move getdent system call macros to
+    stress-getdent.c
+  * core-cache.h: move two more cache macros to core-cache.h
+  * stress-ioprio: move ioprio related syscall macros to stress-ioprio
+  * stress-mmap: move mmap2 related syscall macro to stress-mmmap
+  * stress-schedpolicy: move sched attr related syscall macros to
+    stress-schedpolicy
+  * stress-ng.h: remove HAVE_SET_THREAD_AREA, it is not used
+  * stress-membarrier: move syslog related syscall macro to
+    stress-membarrier
+  * stress-klog: move syslog related syscall macro to stress-klog
+  * stress-pthread: move thread area related syscall macro to
+    stress-pthread
+  * stress-pthread: move robust list related syscall macros to
+    stress-pthread
+  * stress-kcmp: move kcmp related syscall macro to stress-kcmp
+  * stress-key: move key related syscall macros to stress-key
+  * core-perf: include core-perf.h
+  * stress-fp-error: relax checks for icc compiler
+  * core-ftrace: include core-ftrace.h
+  * core-thrash: include core-thrash.h
+  * core-thermal-zone: include core-thermal-zone.h
+  * core-smart: include core-smart.h
+  * core-hash: include core-hash.h
+  * stress-misaligned: include core-target-clones.h
+  * core-helper: fix stress_get_prime64, value should be different
+    on each call
+  * README.md: Add another kernel improvement where stress-ng was used
+  * stress-ng.h: remove debug macro pr_dbg_v
+  * core-cache.h: move shim_mfence to core-cache.h from stress-ng.h
+  * core-cache.h: move shim_builtin_prefetch to core-cache.h from
+    stress-ng.h
+  * core-cache.h: move cache helper functions/macros to core-cache.h
+    from stress-ng.h
+  * stress-ng.h: remove macro STRESS_PAGE_IN, it it no longer used
+  * core-net.h: move some network macros from stress-ng.h
+    to core-net.h
+  * stress-rawudp: add in missing core-net.h include
+  * core-ftrace.h: move ftrace helper definitions to core-ftrace.h
+    from stress-ng.h
+  * core-net.h: move net helper definitions to core-net.h from
+    stress-ng.h
+  * core-thrash.h: move thrash helper definitions to core-trash.h
+    from stress-ng.h
+  * core-smart.h: more SMART helper definitions to core-smart.h
+    from stress-ng.h
+  * core-thermal-zone.h: more helper definitions to
+    core-thermal-zone.h from stress-ng.h
+  * core-perf.h: more perf helper definitions to core-perf.h from
+    stress-ng.h
+  * core-helper: add a no-operation signal handler
+    stress_sighandler_nop
+  * core-hash: fix verify checksum for hash mulxror64
+  * stress-apparmor: update copyright boilerplate message
+  * stress-apparmor: include core-capabilities.h
+  * core-mwc: move STRESS_MWC* macros to stress-mwc.c
+  * stress-cpu.h: move FORCE_DO_NOTHING macro to stress-cpu.c
+  * core-pragma: move pragma related macros to new header
+  * Makefile: Add core*h as part of obj build dependencies
+  * Makefile: add new core-*h files to make dist rule
+  * core-capabilities: move *CAP* capability macros to new header
+  * core-target-clones: move TARGET_CLONES macros to new header
+  * core-put: fix copyright
+  * core-put: move put helpers to core-put.h
+  * stress-cache: make helper asm functions inline
+  * core-mwc: move mwc struct typedef to core-mwc.c
+  * stress-affinity: constify a couple of variables
+  * stress-ng.h: Add in some spaces between #includes
+  * stress-atomic: update copyright
+  * stress-af-alg: constify some string pointers
+  * stress-atomic: clean up macros
+  * stress-switch: use the set_default callback to set the default
+    method
+  * stress-ng.h: cleanup, re-ordering, comment updates
+  * core-perf: add NMI perf metric
+  * stress-ng.h: move per-stressor macros to stressors
+  * stress-fault: move initialization of i, update copyright
+  * stress-fanotify: comment struct fields, update copyright
+  * core-cpu: update copyright year
+  * core-cache: add TiB and clear up some minor space formatting
+  * stress-vecwide: limit to 2K wide
+  * stress-switch: update copyright
+  * stress-switch: add mq and sem-sysv methods
+  * stress-null: exercise more with fcntl and ioctl
+  * stress-null: add lseeks to /dev/null for more kernel exercising
+  * stress-memthrash: add check for SSE2 for non-temporal writes
+  * stress-memthrash: update copyright
+  * stress-memthrash: add a 8 x 64 bit memset using non-temporal
+    stores if possible
+  * stress-memrate: only use non-temporal stores for SSE2 enabled CPUs
+  * core-cpu: add sse and sse2 CPUID checks for x86
+  * stress-hash: add mulxror64 hash
+  * Manual: move kvm options to correct place in manual
+  * stress-hash: add 3 more hash functions to the mix
+  * stress-str: remove assignment after typedef
+  * README.md: Add Intel icc compiler notes
+  * README.md: Add alpha to architectures validated with stress-ng
+  * stress-str: fix index() test, remove code that got incorrectly
+    merged in
+  * stress-sparsematrix: deprecate judy arrays for 32 bit systems
+  * stress-str,wcstr: deconsitify void * func pointer
+  * README.md: add another linux commit that used stress-ng to
+    improve performance
+  * Various changes to make stress-ng build with the Intel
+    compiler icc
+  * core-cache: use correct type for value
+  * Fix pcc and tcc build issues, add pcc + tcc version information
+  * stress-ng.h: don't used deprecated attribute for non-gcc/clang
+    toolchains
+  * stress-enosys: disable x86 syscall exercising for tcc builds
+  * stress-hash: make functions static
+  * Disable deprecated warnings for pedantic builds
+  * core-hash: Add in missing const to pointers
+  * stress-hash: add 32 bit fetch optimized coffin hash
+  * core-hash: add HOT attribute to hash functions
+  * stress-hash: remove md5crc32c, it is way too slow
+  * stress-hash: remove debug
+  * stress-hash: check for error return string marker in md5 crypt
+    result
+  * stress-hash: don't exercise md5 if it fails
+  * core-hash: add more hash methods
+  * core-hash: Move adler, muladd32 and mullad64 from stress-hash
+    to core-hash
+  * stress-mwc: rename stress_mwc_seed and add stress_mwc_get_seed
+  * stress-hash: add OPTIMIZE3 -O3 hint on adler hash function
+  * stress-cache: constify bucket parameter
+  * stress-hash: fix --verfiy checksum values
+  * stress-hash: align buffer to 64 byte boundary
+  * stress-hash: add the adler32 hash
+  * stress-hash: add 3 more simple hash methods and a goodness score
+  * Add --keep-files option
+  * core-helper: unlink should be rmdir for failed stress_temp_dir_mk
+  * stress-hash: remove empty line
+  * stress-hash: use variable rate for hashing rate calculation
+  * stress-hash: correct the big endian murmur3_32 hash checksum
+  * stress-prctl: use linux uapi defined names for prctl
+  * stress-sigsegv: add int instruction to trigger SIGSEGV on x86
+  * stress-sparsematrix: clean up variable name shadowing
+  * stress-hash: constify a parameter
+  * Move cpu hash stressors into a new hash test stressor
+  * stress-chattr: add more yield points during chattr exercising
+  * stress-fpunch: update copyright
+  * stress-aio: update copyright
+  * stress-aio: don't warn if cancelled is OK or EINTR
+  * stress-fpunch: make children more yielding
+  * stress-ng: ensure checksum region is large enough
+  * stress-sparsematrix: use shim'd strlcpy to fix build issues (#170)
+  * stress-cpu: fix crc32c checksum verification check
+  * stress-sparsematrix: clean up some tab/whitespaces
+  * stress-sparsematrix: add non-sparse mmap and sparse qhash methods
+  * stress-cpu: add CRC32C to hash random strings
+  * stress-sparsematrix: remove SIGALRM handling, replace with yield
+    points
+  * stress-sparsematrix: bail out early if put fails
+  * stress-sparsematrix: make sparse destroy a void return func
+  * stress-sparsematrix: add error checking in put failures
+  * stress-sparsematrix: make del() void since the error return is
+    ignored
+  * stress-sparsematrix: optimize get(), return value rather than by
+    pointer arg
+  * stress-sparsematrix: add implementation using judy arrays
+  * stress-sparsematrix: Add a sparse matrix memory/cache stressor
+  * stress-crypt: add yield point per crypto iteration
+  * stress-dev: add yield point while scanning for available devs
+  * stress-misaligned: add yield point when scanning through list
+    of functions
+  * stress-misaligned: add more yield points for slower emulated
+    systems
+  * stress-pipeherd: add yield check on startup
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sat, 29 Jan 2022 23:24:25 +0100
+
 stress-ng (0.13.10-1) unstable; urgency=medium
 
   * Makefile: bump date and update copyright year
