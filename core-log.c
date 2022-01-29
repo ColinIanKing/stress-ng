@@ -27,6 +27,11 @@ static uint16_t	abort_fails;	/* count of failures */
 static bool	abort_msg_emitted;
 static FILE	*log_file = NULL;
 
+static inline FILE *pr_file(void)
+{
+	return g_opt_flags & OPT_FLAGS_STDOUT ? stdout : stderr;
+}
+
 /*
  *  pr_lock()
  *	attempt to get a lock, it's just too bad
@@ -42,7 +47,7 @@ void pr_lock(bool *lock)
 
 	*lock = false;
 
-	fd = fileno(stdout);
+	fd = fileno(pr_file());
 	if (fd < 0)
 		return;
 
@@ -68,7 +73,7 @@ void pr_unlock(bool *lock)
 	if (!*lock)
 		return;
 
-	fd = fileno(stdout);
+	fd = fileno(pr_file());
 	if (fd < 0)
 		return;
 
@@ -259,7 +264,7 @@ void pr_dbg(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(stderr, PR_DEBUG, false, fmt, ap);
+	(void)pr_msg_lockable(pr_file(), PR_DEBUG, false, fmt, ap);
 	va_end(ap);
 }
 
@@ -273,7 +278,7 @@ void pr_dbg_skip(const char *fmt, ...)
 
 	va_start(ap, fmt);
 	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
-		(void)pr_msg_lockable(stderr, PR_DEBUG, false, fmt, ap);
+		(void)pr_msg_lockable(pr_file(), PR_DEBUG, false, fmt, ap);
 	va_end(ap);
 }
 
@@ -289,7 +294,7 @@ void pr_dbg_lock(bool *lock, const char *fmt, ...)
 	(void)lock;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(stderr, PR_DEBUG, true, fmt, ap);
+	(void)pr_msg_lockable(pr_file(), PR_DEBUG, true, fmt, ap);
 	va_end(ap);
 }
 
@@ -302,7 +307,7 @@ void pr_inf(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(stderr, PR_INFO, false, fmt, ap);
+	(void)pr_msg_lockable(pr_file(), PR_INFO, false, fmt, ap);
 	va_end(ap);
 }
 
@@ -316,7 +321,7 @@ void pr_inf_skip(const char *fmt, ...)
 
 	va_start(ap, fmt);
 	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
-		(void)pr_msg_lockable(stderr, PR_INFO, false, fmt, ap);
+		(void)pr_msg_lockable(pr_file(), PR_INFO, false, fmt, ap);
 	va_end(ap);
 }
 
@@ -332,7 +337,7 @@ void pr_inf_lock(bool *lock, const char *fmt, ...)
 	(void)lock;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(stderr, PR_INFO, true, fmt, ap);
+	(void)pr_msg_lockable(pr_file(), PR_INFO, true, fmt, ap);
 	va_end(ap);
 }
 
@@ -345,7 +350,7 @@ void pr_err(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(stderr, PR_ERROR, false, fmt, ap);
+	(void)pr_msg_lockable(pr_file(), PR_ERROR, false, fmt, ap);
 	va_end(ap);
 }
 
@@ -359,7 +364,7 @@ void pr_err_skip(const char *fmt, ...)
 
 	va_start(ap, fmt);
 	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
-		(void)pr_msg_lockable(stderr, PR_ERROR, false, fmt, ap);
+		(void)pr_msg_lockable(pr_file(), PR_ERROR, false, fmt, ap);
 	va_end(ap);
 }
 
@@ -372,7 +377,7 @@ void pr_fail(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(stderr, PR_FAIL, false, fmt, ap);
+	(void)pr_msg_lockable(pr_file(), PR_FAIL, false, fmt, ap);
 	va_end(ap);
 }
 
@@ -385,6 +390,6 @@ void pr_tidy(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(stderr, g_caught_sigint ? PR_INFO : PR_DEBUG, true, fmt, ap);
+	(void)pr_msg_lockable(pr_file(), g_caught_sigint ? PR_INFO : PR_DEBUG, true, fmt, ap);
 	va_end(ap);
 }
