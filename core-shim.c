@@ -62,10 +62,6 @@
 #include <sys/random.h>
 #endif
 
-#if defined(HAVE_SYS_TIMEX_H)
-#include <sys/timex.h>
-#endif
-
 #if defined(HAVE_SYS_XATTR_H)
 #include <sys/xattr.h>
 #undef HAVE_ATTR_XATTR_H
@@ -1779,21 +1775,6 @@ ssize_t shim_process_madvise(
 #else
 	return (ssize_t)shim_enosys(0, pidfd,
 		iovec, vlen, advice, flags);
-#endif
-}
-
-/*
- *   shim_clock_adjtime
- *	wrapper for linux clock_adjtime system call
- */
-int shim_clock_adjtime(clockid_t clk_id, struct shim_timex *tx)
-{
-#if defined(HAVE_SYS_TIMEX_H) &&	\
-    defined(CLOCK_THREAD_CPUTIME_ID) &&	\
-    defined(__NR_clock_adjtime)
-	return (int)syscall(__NR_clock_adjtime, clk_id, tx);
-#else
-	return (int)shim_enosys(0, clk_id, tx);
 #endif
 }
 

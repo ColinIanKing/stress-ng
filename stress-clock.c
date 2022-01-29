@@ -34,6 +34,14 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+#if defined(HAVE_SYS_TIMEX_H)
+#define shim_timex      timex
+#else
+struct shim_timex {
+	char data[128];
+};
+#endif
+
 #if defined(HAVE_LIB_RT) &&		\
     defined(HAVE_CLOCK_GETTIME) &&	\
     defined(HAVE_CLOCK_SETTIME)
@@ -154,6 +162,21 @@ static inline bool check_invalid_clock_id(const clockid_t id) {
 #endif
 
 #define FD_TO_CLOCKID(fd)	((~(clockid_t)(fd) << 3) | 3)
+
+/*
+ *   shim_clock_adjtime
+ *	wrapper for linux clock_adjtime system call
+ */
+static int shim_clock_adjtime(clockid_t clk_id, struct shim_timex *tx)
+{
+#if defined(HAVE_SYS_TIMEX_H) &&	\
+    defined(CLOCK_THREAD_CPUTIME_ID) &&	\
+    defined(__NR_clock_adjtime)
+	return (int)syscall(__NR_clock_adjtime, clk_id, tx);
+#else
+	return (int)shim_enosys(0, clk_id, tx);
+#endif
+}
 
 /*
  *  stress_clock()
