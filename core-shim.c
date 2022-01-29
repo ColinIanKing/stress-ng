@@ -2167,7 +2167,13 @@ int shim_unlinkat(int dirfd, const char *pathname, int flags)
 {
 	if (g_opt_flags & OPT_FLAGS_KEEP_FILES)
 		return 0;
+#if defined(HAVE_UNLINKAT)
 	return unlinkat(dirfd, pathname, flags);
+#elif defined(__NR_unlinkat)
+	return (int)syscall(__NR_unlinkat, dirfd, pathname, flags);
+#else
+	return (int)shim_enosys(__NR_unlinkat, dirfd, pathname, flags);
+#endif
 }
 
 /*
