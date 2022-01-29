@@ -582,7 +582,8 @@ static void stress_dev_video_linux(
 #endif
 
 #if defined(HAVE_TERMIOS_H) &&	\
-    defined(HAVE_TERMIOS)
+    defined(HAVE_TERMIOS) &&	\
+    defined(TCGETS)
 static void stress_dev_tty(
 	const stress_args_t *args,
 	const int fd,
@@ -3805,8 +3806,8 @@ static inline void stress_dev_rw(
 #endif
 		}
 #if defined(HAVE_TERMIOS_H) &&	\
-    defined(TCGETS) && \
-    defined(HAVE_TERMIOS)
+    defined(HAVE_TERMIOS) &&	\
+    defined(TCGETS)
 		if (S_ISCHR(buf.st_mode) &&
 		    strncmp("/dev/vsock", path, 10) &&
 		    strncmp("/dev/dri", path, 8) &&
