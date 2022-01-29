@@ -503,6 +503,7 @@ dist:
 		core-capabilities.h core-put.h  core-target-clones.h \
 		core-pragma.h core-perf.h core-thermal-zone.h core-smart.h \
 		core-thrash.h core-net.h core-ftrace.h core-cache.h \
+		core-hash.h core-io-priority.h \
 		core-personality.c core-io-uring.c \
 		COPYING syscalls.txt mascot README.md \
 		stress-af-alg-defconfigs.h README.Android test snap \
