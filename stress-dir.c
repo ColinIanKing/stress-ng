@@ -23,6 +23,10 @@
 #define MAX_DIR_DIRS		(65536)
 #define DEFAULT_DIR_DIRS	(8192)
 
+#if defined(HAVE_LIBGEN_H)
+#include <libgen.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"dir N",	"start N directory thrashing stressors" },
 	{ NULL,	"dir-ops N",	"stop after N directory bogo operations" },
