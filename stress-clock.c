@@ -174,7 +174,11 @@ static int shim_clock_adjtime(clockid_t clk_id, struct shim_timex *tx)
     defined(__NR_clock_adjtime)
 	return (int)syscall(__NR_clock_adjtime, clk_id, tx);
 #else
-	return (int)shim_enosys(0, clk_id, tx);
+	(void)clk_id;
+	(void)tx;
+
+	errno = ENOSYS;
+	return -1;
 #endif
 }
 
