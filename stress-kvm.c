@@ -40,7 +40,9 @@ static const stress_help_t help[] = {
     defined(KVM_RUN) &&				\
     defined(KVM_EXIT_IO) &&			\
     defined(KVM_EXIT_SHUTDOWN) &&		\
-    defined(STRESS_ARCH_X86)
+    defined(STRESS_ARCH_X86) &&			\
+    !defined(__i386__) &&			\
+    !defined(__i386)
 
 /*
  *  Minimal x86 kernel, read/increment/write port $80 loop
