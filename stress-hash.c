@@ -488,7 +488,7 @@ static void stress_hash_method_mulxror64(
 	const struct stress_hash_method_info *hmi,
 	const stress_bucket_t *bucket)
 {
-	stress_hash_generic(name, hmi, bucket, stress_hash_mulxror64, 0x8d38b213, 0x8d38b213);
+	stress_hash_generic(name, hmi, bucket, stress_hash_mulxror64, 0x8d38b213, 0x458932cd);
 }
 
 
