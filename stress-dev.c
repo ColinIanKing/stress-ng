@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-put.h"
 
+#if defined(HAVE_LIBGEN_H)
+#include <libgen.h>
+#endif
+
 #if defined(HAVE_LINUX_BLKZONED_H)
 #include <linux/blkzoned.h>
 #endif
