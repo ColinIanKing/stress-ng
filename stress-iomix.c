@@ -151,6 +151,8 @@ static void stress_iomix_wr_seq_bursts(
     defined(POSIX_FADV_SEQUENTIAL)
 		if (posn < iomix_bytes)
 			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
+#else
+		UNEXPECTED
 #endif
 		for (i = 0; (i < n) && (posn < iomix_bytes); i++) {
 			char buffer[512];
@@ -191,6 +193,8 @@ static void stress_iomix_wr_rnd_bursts(
 #if defined(HAVE_POSIX_FADVISE) &&      \
     defined(POSIX_FADV_RANDOM)
 	(void)posix_fadvise(fd, 0, iomix_bytes, POSIX_FADV_RANDOM);
+#else
+	UNEXPECTED
 #endif
 	do {
 		const int n = stress_mwc8();
@@ -254,6 +258,8 @@ static void stress_iomix_wr_seq_slow(
     defined(POSIX_FADV_SEQUENTIAL)
 		if (posn < iomix_bytes)
 			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
+#else
+		UNEXPECTED
 #endif
 		while (posn < iomix_bytes) {
 			char buffer[512];
@@ -307,6 +313,8 @@ static void stress_iomix_rd_seq_bursts(
     defined(POSIX_FADV_SEQUENTIAL)
 		if (posn < iomix_bytes)
 			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
+#else
+		UNEXPECTED
 #endif
 		for (i = 0; (i < n) && (posn < iomix_bytes); i++) {
 			char buffer[512];
@@ -403,6 +411,8 @@ static void stress_iomix_rd_seq_slow(
     defined(POSIX_FADV_SEQUENTIAL)
 		if (posn < iomix_bytes)
 			(void)posix_fadvise(fd, posn, iomix_bytes - posn, POSIX_FADV_SEQUENTIAL);
+#else
+		UNEXPECTED
 #endif
 		while (posn < iomix_bytes) {
 			char buffer[512];
@@ -461,6 +471,8 @@ static void stress_iomix_sync(
 		(void)select(0, NULL, NULL, NULL, &tv);
 		if (!keep_stressing(args))
 			break;
+#else
+		UNEXPECTED
 #endif
 #if defined(HAVE_SYNC_FILE_RANGE) &&	\
     defined(SYNC_FILE_RANGE_WRITE)
@@ -479,6 +491,7 @@ static void stress_iomix_sync(
 		}
 #else
 		(void)iomix_bytes;
+		UNEXPECTED
 #endif
 	} while (keep_stressing(args));
 }
@@ -717,7 +730,11 @@ static void stress_iomix_inode_ioctl(
 	ret = ioctl(fd, FS_IOC_SETFLAGS, &attr);
 	if (ret < 0)
 		return;
+#else
+	UNEXPECTED
 #endif
+#else
+	UNEXPECTED
 #endif
 	*ok = true;
 }
@@ -740,36 +757,58 @@ static void stress_iomix_inode_flags(
 		bool ok = false;
 #if defined(FS_APPEND_FL)
 		stress_iomix_inode_ioctl(args, fd, FS_APPEND_FL, &ok);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_COMPR_FL)
 		stress_iomix_inode_ioctl(args, fd, FS_COMPR_FL, &ok);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_IMMUTABLE_FL)
 		stress_iomix_inode_ioctl(args, fd, FS_IMMUTABLE_FL, &ok);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_JOURNAL_DATA_FL)
 		stress_iomix_inode_ioctl(args, fd, FS_JOURNAL_DATA_FL, &ok);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_NOATIME_FL)
 		stress_iomix_inode_ioctl(args, fd, FS_NOATIME_FL, &ok);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_NOCOW_FL)
 		stress_iomix_inode_ioctl(args, fd, FS_NOCOW_FL, &ok);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_NODUMP_FL)
 		stress_iomix_inode_ioctl(args, fd, FS_NODUMP_FL, &ok);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_NOTAIL_FL)
 		stress_iomix_inode_ioctl(args, fd, FS_NOTAIL_FL, &ok);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_SECRM_FL)
 		stress_iomix_inode_ioctl(args, fd, FS_SECRM_FL, &ok);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_SYNC_FL)
 		stress_iomix_inode_ioctl(args, fd, FS_SYNC_FL, &ok);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_UNRM_FL)
 		stress_iomix_inode_ioctl(args, fd, FS_UNRM_FL, &ok);
+#else
+		UNEXPECTED
 #endif
 		if (!ok)
 			_exit(EXIT_SUCCESS);

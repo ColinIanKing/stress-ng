@@ -163,6 +163,8 @@ static int stress_watchdog(const stress_args_t *args)
 #if defined(WDIOC_KEEPALIVE)
 		ret = ioctl(fd, WDIOC_KEEPALIVE, 0);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 
 #if defined(WDIOC_GETTIMEOUT)
@@ -172,6 +174,8 @@ static int stress_watchdog(const stress_args_t *args)
 			ret = ioctl(fd, WDIOC_GETTIMEOUT, &timeout);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(WDIOC_GETPRETIMEOUT)
@@ -181,6 +185,8 @@ static int stress_watchdog(const stress_args_t *args)
 			ret = ioctl(fd, WDIOC_GETPRETIMEOUT, &timeout);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(WDIOC_GETPRETIMEOUT)
@@ -190,6 +196,8 @@ static int stress_watchdog(const stress_args_t *args)
 			ret = ioctl(fd, WDIOC_GETTIMELEFT, &timeout);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(WDIOC_GETSUPPORT)
@@ -199,6 +207,8 @@ static int stress_watchdog(const stress_args_t *args)
 			ret = ioctl(fd, WDIOC_GETSUPPORT, &ident);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(WDIOC_GETSTATUS)
@@ -208,6 +218,8 @@ static int stress_watchdog(const stress_args_t *args)
 			ret = ioctl(fd, WDIOC_GETSTATUS, &flags);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(WDIOC_GETBOOTSTATUS)
@@ -217,6 +229,8 @@ static int stress_watchdog(const stress_args_t *args)
 			ret = ioctl(fd, WDIOC_GETBOOTSTATUS, &flags);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(WDIOC_GETTEMP)
@@ -226,6 +240,8 @@ static int stress_watchdog(const stress_args_t *args)
 			ret = ioctl(fd, WDIOC_GETBOOTSTATUS, &temperature);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 		stress_watchdog_magic_close();
 		ret = close(fd);

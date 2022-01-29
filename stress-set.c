@@ -22,10 +22,14 @@
 
 #if defined(HAVE_SYS_FSUID_H)
 #include <sys/fsuid.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_GRP_H)
 #include <grp.h>
+#else
+UNEXPECTED
 #endif
 
 #if !defined(_DEFAULT_SOURCE)
@@ -139,6 +143,8 @@ static int stress_set(const stress_args_t *args)
 		uid_t uid;
 #if defined(HAVE_SETREUID)
 		uid_t bad_uid;
+#else
+		UNEXPECTED
 #endif
 		struct rlimit rlim;
 
@@ -187,6 +193,8 @@ static int stress_set(const stress_args_t *args)
 			if (!keep_stressing(args))
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_SETTIMEOFDAY)
@@ -205,6 +213,8 @@ static int stress_set(const stress_args_t *args)
 				}
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETPGRP) &&	\
@@ -217,6 +227,8 @@ static int stress_set(const stress_args_t *args)
 			if (!keep_stressing(args))
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 		/* getuid always succeeds */
@@ -252,6 +264,8 @@ static int stress_set(const stress_args_t *args)
 				(void)ret;
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_SETREUID)
@@ -269,7 +283,10 @@ static int stress_set(const stress_args_t *args)
 					args->name, errno, strerror(errno));
 			}
 		}
+#else
+		UNEXPECTED
 #endif
+
 #if defined(HAVE_SETREGID)
 #if defined(HAVE_GETRESGID)
 		{
@@ -294,9 +311,13 @@ static int stress_set(const stress_args_t *args)
 				}
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 		ret = setregid((gid_t)-1, (gid_t)-1);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_SETRESUID)
@@ -335,9 +356,13 @@ static int stress_set(const stress_args_t *args)
 				(void)ret;
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 		ret = setresuid((uid_t)-1, (uid_t)-1, (uid_t)-1);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_SETRESGID)
@@ -375,9 +400,13 @@ static int stress_set(const stress_args_t *args)
 				(void)ret;
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 		ret = setresgid((gid_t)-1, (gid_t)-1, (gid_t)-1);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_SETFSGID) && 	\
@@ -408,6 +437,8 @@ static int stress_set(const stress_args_t *args)
 				}
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_SETFSUID) && 	\
@@ -438,6 +469,8 @@ static int stress_set(const stress_args_t *args)
 				}
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(__NR_sgetmask) &&	\
@@ -473,6 +506,8 @@ static int stress_set(const stress_args_t *args)
 			if (!keep_stressing(args))
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 		/*
 		 *  Invalid setrlimit syscall with invalid

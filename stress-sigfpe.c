@@ -22,10 +22,14 @@
 
 #if defined(HAVE_FENV_H)
 #include <fenv.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_FLOAT_H)
 #include <float.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {
@@ -140,29 +144,43 @@ static int stress_sigfpe(const stress_args_t *args)
 	static const stress_fpe_err_t fpe_errs[] = {
 #if defined(FPE_INTDIV)
 		{ SNG_INTDIV,	FPE_INTDIV },	/* can be trapped */
+#else
+		UNEXPECTED
 #endif
 #if defined(FPE_FLTDIV)
 		{ SNG_FLTDIV,	FPE_FLTDIV },	/* NaN or Inf, no trap */
+#else
+		UNEXPECTED
 #endif
 #if defined(FE_DIVBYZERO) &&	\
     defined(FPE_FLTDIV)
 		{ FE_DIVBYZERO,	FPE_FLTDIV },	/* Nan or Inf, no trap */
+#else
+		UNEXPECTED
 #endif
 #if defined(FE_INEXACT) &&	\
     defined(FPE_FLTRES)
 		{ FE_INEXACT,	FPE_FLTRES },	/* Floating-point inexact result, no trap */
+#else
+		UNEXPECTED
 #endif
 #if defined(FE_INVALID) &&	\
     defined(FPE_FLTINV)
 		{ FE_INVALID,	FPE_FLTINV },	/* Invalid floating-point operation */
+#else
+		UNEXPECTED
 #endif
 #if defined(FE_OVERFLOW) &&	\
     defined(FPE_FLTOVF)
 		{ FE_OVERFLOW,	FPE_FLTOVF },	/* Floating-point overflow  */
+#else
+		UNEXPECTED
 #endif
 #if defined(FE_UNDERFLOW) &&	\
     defined(FPE_FLTUND)
 		{ FE_UNDERFLOW,	FPE_FLTUND },	/* Floating-point underflow */
+#else
+		UNEXPECTED
 #endif
 	};
 

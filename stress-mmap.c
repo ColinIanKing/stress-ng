@@ -686,6 +686,7 @@ static int stress_mmap(const stress_args_t *args)
 #else
 			pr_inf("%s: --mmap-odirect selected by not supported by this system\n",
 				args->name);
+			UNEXPECTED
 #endif
 		}
 		if (mmap_osync) {
@@ -694,6 +695,7 @@ static int stress_mmap(const stress_args_t *args)
 #else
 			pr_inf("%s: --mmap-osync selected by not supported by this system\n",
 				args->name);
+			UNEXPECTED
 #endif
 		}
 

@@ -22,14 +22,20 @@
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
 #include <linux/sockios.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_UDP_H)
 #include <linux/udp.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
+#else
+UNEXPECTED
 #endif
 
 #include <netinet/in.h>
@@ -202,6 +208,8 @@ again:
 				}
 				(void)ret;
 			}
+#else
+			UNEXPECTED
 #endif
 #if defined(UDP_ENCAP)
 			{
@@ -215,6 +223,8 @@ again:
 				}
 				(void)ret;
 			}
+#else
+			UNEXPECTED
 #endif
 #if defined(UDP_NO_CHECK6_TX)
 			{
@@ -228,6 +238,8 @@ again:
 				}
 				(void)ret;
 			}
+#else
+			UNEXPECTED
 #endif
 #if defined(UDP_NO_CHECK6_RX)
 			{
@@ -240,6 +252,8 @@ again:
 				}
 				(void)ret;
 			}
+#else
+			UNEXPECTED
 #endif
 #if defined(UDP_SEGMENT)
 			{
@@ -253,6 +267,8 @@ again:
 				}
 				(void)ret;
 			}
+#else
+			UNEXPECTED
 #endif
 			do {
 				size_t i;
@@ -274,6 +290,8 @@ again:
 
 					(void)ioctl(fd, SIOCOUTQ, &pending);
 				}
+#else
+			UNEXPECTED
 #endif
 			} while (keep_stressing(args));
 			(void)close(fd);
@@ -357,6 +375,8 @@ again:
 
 				(void)ioctl(fd, SIOCINQ, &pending);
 			}
+#else
+			UNEXPECTED
 #endif
 
 			n = recvfrom(fd, buf, sizeof(buf), 0, addr, &len);

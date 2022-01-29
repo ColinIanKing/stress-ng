@@ -21,18 +21,26 @@
 
 #if defined(HAVE_LINUX_NETLINK_H)
 #include <linux/netlink.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_RTNETLINK_H)
 #include <linux/rtnetlink.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_SOCK_DIAG_H)
 #include <linux/sock_diag.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_UNIX_DIAG_H)
 #include <linux/unix_diag.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {

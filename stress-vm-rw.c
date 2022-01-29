@@ -21,6 +21,8 @@
 
 #if defined(HAVE_SYS_UIO_H)
 #include <sys/uio.h>
+#else
+UNEXPECTED
 #endif
 
 #define MIN_VM_RW_BYTES		(4 * KB)

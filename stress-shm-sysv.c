@@ -22,14 +22,20 @@
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)
 #include <linux/mempolicy.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_IPC_H)
 #include <sys/ipc.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_SHM_H)
 #include <sys/shm.h>
+#else
+UNEXPECTED
 #endif
 
 #define MIN_SHM_SYSV_BYTES	(1 * MB)
@@ -178,12 +184,16 @@ static void exercise_shmat(
 	addr = shmat(shm_id, NULL, SHM_RDONLY);
 	if (addr != (void *)-1)
 		(void)shmdt(addr);
+#else
+	UNEXPECTED
 #endif
 
 #if defined(SHM_EXEC)
 	addr = shmat(shm_id, NULL, SHM_EXEC);
 	if (addr != (void *)-1)
 		(void)shmdt(addr);
+#else
+	UNEXPECTED
 #endif
 
 #if defined(SHM_RND)
@@ -202,8 +212,12 @@ static void exercise_shmat(
 			if (addr != remap)
 				(void)shmdt(addr);
 		}
+#else
+	UNEXPECTED
 #endif
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if defined(SHM_RND)
@@ -215,6 +229,8 @@ static void exercise_shmat(
 		if (addr != (void *)-1)
 			(void)shmdt(addr);
 	}
+#else
+	UNEXPECTED
 #endif
 
 	/* Exercise shmat with SHM_REMAP flag on NULL address */
@@ -223,6 +239,8 @@ static void exercise_shmat(
 	if (addr != (void *)-1) {
 		(void)shmdt(addr);
 	}
+#else
+	UNEXPECTED
 #endif
 
 	/* Exercise invalid shmat with unaligned page address */
@@ -242,6 +260,8 @@ static void exercise_shmat(
 	addr = shmat(shm_id, unaligned, SHM_RND);
 	if (addr != (void *) -1)
 		(void)shmdt(addr);
+#else
+	UNEXPECTED
 #endif
 }
 
@@ -320,6 +340,8 @@ static void exercise_shmctl(const size_t sz, const stress_args_t *args)
 			pr_fail("%s: shmctl IPC_STAT unexpectedly succeeded on non-existent shared "
 				"memory segment, errno=%d (%s)\n", args->name, errno, strerror(errno));
 	}
+#else
+	UNEXPECTED
 #endif
 }
 
@@ -378,6 +400,8 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
 		(void)shmctl(shm_id, IPC_RMID, NULL);
 	}
+#else
+	/* UNEXPECTED */
 #endif
 
 #if defined(SHMMAX)
@@ -387,6 +411,8 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 			"size argument, errno=%d (%s)\n", name, errno, strerror(errno));
 		(void)shmctl(shm_id, IPC_RMID, NULL);
 	}
+#else
+	/* UNEXPECTED */
 #endif
 
 #if defined(SHM_HUGETLB)
@@ -407,6 +433,8 @@ static void exercise_shmget(const size_t sz, const char *name, const bool cap_ip
 	shm_id = shmget(IPC_PRIVATE, sz, IPC_CREAT);
 	if (shm_id >= 0)
 		(void)shmctl(shm_id, IPC_RMID, NULL);
+#else
+	UNEXPECTED
 #endif
 
 	shm_id = shmget(key, sz, IPC_EXCL);
@@ -669,6 +697,8 @@ static int stress_shm_sysv_child(
 					(void)ret;
 				}
 			}
+#else
+			UNEXPECTED
 #endif
 #if defined(IPC_STAT) &&	\
     defined(HAVE_SHMID_DS)
@@ -685,8 +715,12 @@ static int stress_shm_sysv_child(
 					ret = shmctl(shm_id, SHM_SET, &ds);
 					(void)ret;
 				}
+#else
+				/* UNEXPECTED */
 #endif
 			}
+#else
+			UNEXPECTED
 #endif
 #if defined(IPC_INFO) &&	\
     defined(HAVE_SHMINFO)
@@ -697,6 +731,8 @@ static int stress_shm_sysv_child(
 					pr_fail("%s: shmctl IPC_INFO failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 			}
+#else
+			UNEXPECTED
 #endif
 #if defined(SHM_INFO) &&	\
     defined(HAVE_SHMINFO)
@@ -707,6 +743,8 @@ static int stress_shm_sysv_child(
 					pr_fail("%s: shmctl SHM_INFO failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 			}
+#else
+			UNEXPECTED
 #endif
 #if defined(SHM_LOCK) &&	\
     defined(SHM_UNLOCK)
@@ -717,6 +755,8 @@ static int stress_shm_sysv_child(
 				(void)ret;
 
 			}
+#else
+			UNEXPECTED
 #endif
 			/*
 			 *  Exercise NUMA mem_policy on shm
@@ -755,6 +795,8 @@ static int stress_shm_sysv_child(
 					ret = shmctl(shm_ids[i], IPC_STAT, &ds);
 					(void)ret;
 				}
+#else
+				UNEXPECTED
 #endif
 				ret = shmdt(addrs[i]);
 				(void)ret;

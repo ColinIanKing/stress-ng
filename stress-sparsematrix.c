@@ -22,6 +22,10 @@
 #include <sys/tree.h>
 #endif
 
+#if defined(HAVE_SYS_QUEUE_H)
+#include <sys/queue.h>
+#endif
+
 #if defined(HAVE_BSD_SYS_TREE_H)
 #include <bsd/sys/tree.h>
 #endif
@@ -97,7 +101,8 @@ typedef struct sparse_rb {
 	uint64_t value;		/* value in matrix x,y */
 	RB_ENTRY(sparse_rb) rb;	/* red-black tree node entry */
 } sparse_rb_t;
-
+#else
+UNEXPECTED
 #endif
 
 typedef struct sparse_hash_node {
@@ -146,7 +151,8 @@ typedef struct sparse_y_list_node {
 CIRCLEQ_HEAD(sparse_y_list, sparse_y_list_node);
 
 typedef struct sparse_y_list sparse_y_list_t;
-
+#else
+UNEXPECTED
 #endif
 
 typedef struct {
@@ -549,6 +555,8 @@ static void judy_del(void *handle, const uint32_t x, const uint32_t y)
 	if (!pvalue)
 		*pvalue = 0;
 }
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_RB_TREE)
@@ -656,6 +664,8 @@ static uint64_t rb_get(void *handle, const uint32_t x, const uint32_t y)
 	found = RB_FIND(sparse_rb_tree, handle, &node);
 	return found ? found->value : 0;
 }
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_QUEUE_CIRCLEQ)
@@ -811,6 +821,8 @@ static uint64_t list_get(void *handle, const uint32_t x, const uint32_t y)
 
 	return x_node ? x_node->value : 0;
 }
+#else
+UNEXPECTED
 #endif
 
 static uint64_t value_map(const uint32_t x, const uint32_t y)

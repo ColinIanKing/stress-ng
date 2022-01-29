@@ -112,6 +112,8 @@ static int stress_chdir(const stress_args_t *args)
 
 #if defined(O_DIRECTORY)
 		flags |= O_DIRECTORY;
+#else
+		UNEXPECTED
 #endif
 		(void)stress_temp_filename_args(args,
 			path, sizeof(path), rnd | gray_code);

@@ -206,6 +206,8 @@ static int stress_chmod(const stress_args_t *args)
 	}
 #if defined(O_DIRECTORY)
 	dfd = open(pathname, O_DIRECTORY | O_RDONLY);
+#else
+	UNEXPECTED
 #endif
 
 	stress_strnrnd(longpath, sizeof(longpath));
@@ -288,6 +290,8 @@ tidy:
 #if defined(O_DIRECTORY)
 	if (dfd >= 0)
 		(void)close(dfd);
+#else
+	UNEXPECTED
 #endif
 	if (fd >= 0) {
 		(void)fchmod(fd, 0666);

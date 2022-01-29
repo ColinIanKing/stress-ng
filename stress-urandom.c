@@ -22,6 +22,8 @@
 
 #if defined(HAVE_LINUX_RANDOM_H)
 #include <linux/random.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {
@@ -142,6 +144,8 @@ static int stress_urandom(const stress_args_t *args)
 			/* Try to avoid emptying entropy pool */
 			if (val < 128)
 				goto next;
+#else
+			UNEXPECTED
 #endif
 			ret = read(fd_rnd, buffer, 1);
 			if (ret < 0) {
@@ -170,10 +174,14 @@ next:
 #if defined(RNDCLEARPOOL)
 				ret = ioctl(fd_rnd, RNDCLEARPOOL, NULL);
 				check_eperm(args, ret, errno);
+#else
+				UNEXPECTED
 #endif
 #if defined(RNDZAPENTCNT)
 				ret = ioctl(fd_rnd, RNDZAPENTCNT, NULL);
 				check_eperm(args, ret, errno);
+#else
+				UNEXPECTED
 #endif
 #if defined(RNDADDTOENTCNT)
 				{
@@ -186,10 +194,14 @@ next:
 					ret = ioctl(fd_rnd, RNDADDTOENTCNT, &count);
 					check_eperm(args, ret, errno);
 				}
+#else
+				UNEXPECTED
 #endif
 #if defined(RNDRESEEDCRNG)
 				ret = ioctl(fd_rnd, RNDRESEEDCRNG, stress_mwc32());
 				check_eperm(args, ret, errno);
+#else
+				UNEXPECTED
 #endif
 				/*
 				 *  Exercise invalid ioctl command

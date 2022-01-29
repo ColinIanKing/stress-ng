@@ -73,10 +73,10 @@ static int stress_seek(const stress_args_t *args)
 	char filename[PATH_MAX];
 	uint8_t buf[512];
 	const off_t bad_off_t = max_off_t();
-#if defined(OPT_SEEK_PUNCH)
+#if defined(FALLOC_FL_PUNCH_HOLE)
 	bool seek_punch = false;
 
-	(void)stress_get_setting("seek-punch", TYPE_ID_BOOL, &seek_punch);
+	(void)stress_get_setting("seek-punch", &seek_punch);
 #endif
 
 	if (!stress_get_setting("seek-size", &seek_size)) {
@@ -179,6 +179,8 @@ re_read:
 				pr_fail("%s: lseek SEEK_END failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 		}
+#else
+		UNEXPECTED
 #endif
 #if defined(SEEK_CUR)
 		if (lseek(fd, 0, SEEK_CUR) < 0) {
@@ -186,6 +188,8 @@ re_read:
 				pr_fail("%s: lseek SEEK_CUR failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 		}
+#else
+		UNEXPECTED
 #endif
 #if defined(SEEK_HOLE) &&	\
     !defined(__APPLE__)
@@ -194,6 +198,8 @@ re_read:
 				pr_fail("%s: lseek SEEK_HOLE failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 		}
+#else
+		UNEXPECTED
 #endif
 #if defined(SEEK_DATA) &&	\
     !defined(__APPLE__)
@@ -202,6 +208,8 @@ re_read:
 				pr_fail("%s: lseek SEEK_DATA failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 		}
+#else
+		UNEXPECTED
 #endif
 #if defined(SEEK_HOLE) &&	\
     defined(SEEK_DATA) &&	\
@@ -220,16 +228,18 @@ re_read:
 			}
 		}
 #endif
-#if defined(OPT_SEEK_PUNCH)
-		if (!seek_punch_hole)
+#if defined(FALLOC_FL_PUNCH_HOLE)
+		if (!seek_punch)
 			continue;
 
 		offset = (off_t)(stress_mwc64() % len);
 		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
 				  FALLOC_FL_KEEP_SIZE, offset, 8192) < 0) {
 			if (errno == EOPNOTSUPP)
-				seek_punch_hole = false;
+				seek_punch = false;
 		}
+#else
+		UNEXPECTED
 #endif
 		/*
 		 *  Exercise lseek on an invalid fd

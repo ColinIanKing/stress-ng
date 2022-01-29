@@ -418,12 +418,16 @@ static void stress_cache_flush(void *addr, void *bad_addr, int size)
 	(void)shim_cacheflush(addr, -1, SHIM_DCACHE);
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
 	__builtin___clear_cache(addr, addr);
+#else
+	UNEXPECTED
 #endif
 	(void)shim_cacheflush(bad_addr, size, SHIM_ICACHE);
 	(void)shim_cacheflush(bad_addr, size, SHIM_DCACHE);
 	(void)shim_cacheflush(bad_addr, size, SHIM_ICACHE | SHIM_DCACHE);
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
 	__builtin___clear_cache(addr, (void *)((uint8_t *)addr - 1));
+#else
+	UNEXPECTED
 #endif
 }
 
@@ -487,6 +491,8 @@ static int stress_cache(const stress_args_t *args)
 			"CPU %d (instance %" PRIu32 ")\n",
 			args->name, sched_getcpu(), pinned);
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if !defined(HAVE_BUILTIN_SFENCE)
@@ -623,6 +629,8 @@ static int stress_cache(const stress_args_t *args)
 			}
 
 		}
+#else
+		UNEXPECTED
 #endif
 		(void)shim_cacheflush((char *)stress_cache, 8192, SHIM_ICACHE);
 		(void)shim_cacheflush((char *)mem_cache, (int)mem_cache_size, SHIM_DCACHE);

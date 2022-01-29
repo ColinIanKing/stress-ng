@@ -73,6 +73,8 @@ static int stress_futex_wait(uint32_t *futex, const int val, const uint64_t nsec
 			}
 		}
 	}
+#else
+	/* UNEXPECTED */
 #endif
 	t.tv_sec = 0;
 	t.tv_nsec = nsec;

@@ -167,6 +167,8 @@ static void *stress_close_func(void *arg)
 		 */
 		if (fcntl((int)fd_rnd, F_GETFL) == -1)
 			(void)close(fd_rnd);
+#else
+		UNEXPECTED
 #endif
 		/*
 		 *  close a range of fds
@@ -254,6 +256,8 @@ static int stress_close(const stress_args_t *args)
 		}
 		(void)shim_unlink(filename);
 	}
+#else
+	UNEXPECTED
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -398,6 +402,8 @@ static int stress_close(const stress_args_t *args)
 				(void)close(ret);
 				goto tidy;
 			}
+#else
+			UNEXPECTED
 #endif
 			ret = fstat(fd, &statbuf);
 			(void)ret;
@@ -438,6 +444,8 @@ tidy:
 	if (file_fd >= 0)
 		(void)close(file_fd);
 	(void)stress_temp_dir_rm_args(args);
+#else
+	UNEXPECTED
 #endif
 
 	return rc;

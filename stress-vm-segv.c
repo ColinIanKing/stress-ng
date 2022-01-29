@@ -22,6 +22,8 @@
 
 #if defined(HAVE_PTRACE)
 #include <sys/ptrace.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {

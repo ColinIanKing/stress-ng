@@ -22,6 +22,8 @@
 
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
+#else
+UNEXPECTED
 #endif
 
 #define MIN_SOCKET_FD_PORT	(1024)
@@ -233,6 +235,8 @@ retry:
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
+#else
+	UNEXPECTED
 #endif
 
 	ret = EXIT_SUCCESS;

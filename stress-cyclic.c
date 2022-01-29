@@ -142,6 +142,8 @@ static void stress_cyclic_stats(
 
 	rt_stats->ns += (double)delta_ns;
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_CLOCK_GETTIME) &&	\
@@ -169,6 +171,8 @@ static int stress_cyclic_clock_nanosleep(
 		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_CLOCK_GETTIME)	&&	\
@@ -196,6 +200,8 @@ static int stress_cyclic_posix_nanosleep(
 		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_CLOCK_GETTIME)
@@ -240,6 +246,8 @@ static int stress_cyclic_poll(
 	}
 	return 0;
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_PSELECT) &&		\
@@ -267,6 +275,8 @@ static int stress_cyclic_pselect(
 		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_CLOCK_GETTIME) &&	\
@@ -342,6 +352,8 @@ restore:
 	stress_sigrestore(args->name, SIGRTMIN, &old_action);
 	return ret;
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_CLOCK_GETTIME)
@@ -367,6 +379,8 @@ static int stress_cyclic_usleep(
 		stress_cyclic_stats(rt_stats, cyclic_sleep, &t1, &t2);
 	return 0;
 }
+#else
+	UNEXPECTED
 #endif
 
 static sigjmp_buf jmp_env;

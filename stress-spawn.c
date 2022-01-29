@@ -21,6 +21,8 @@
 
 #if defined(HAVE_SPAWN_H)
 #include <spawn.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {

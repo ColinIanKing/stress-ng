@@ -117,6 +117,8 @@ try_read:
 			stress_uint8_put(*ptr);
 #if defined(MS_SYNC)
 			(void)msync((void *)ptr, args->page_size, MS_SYNC);
+#else
+			UNEXPECTED
 #endif
 			(void)munmap((void *)ptr, args->page_size);
 		}

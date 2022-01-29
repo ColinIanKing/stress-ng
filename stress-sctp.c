@@ -22,10 +22,20 @@
 
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_NETINET_SCTP_H)
 #include <netinet/sctp.h>
+#else
+UNEXPECTED
+#endif
+
+#if defined(HAVE_NETINET_TCP_H)
+#include <netinet/tcp.h>
+#else
+UNEXPECTED
 #endif
 
 #define MIN_SCTP_PORT		(1024)
@@ -51,6 +61,8 @@ static const stress_help_t help[] = {
 #endif
 
 static uint64_t	sigpipe_count;
+#else
+UNEXPECTED
 #endif
 
 /*
@@ -114,36 +126,58 @@ static void stress_sctp_sockopts(const int fd)
 {
 #if defined(SCTP_RTOINFO)
 	STRESS_SCTP_SOCKOPT(SCTP_RTOINFO, struct sctp_rtoinfo)
+#else
+	UNEXPECTED
 #endif
 #if defined(SCTP_ASSOCINFO)
 	STRESS_SCTP_SOCKOPT(SCTP_ASSOCINFO, struct sctp_assocparams)
+#else
+	UNEXPECTED
 #endif
 #if defined(SCTP_INITMSG)
 	STRESS_SCTP_SOCKOPT(SCTP_INITMSG, struct sctp_initmsg)
+#else
+	UNEXPECTED
 #endif
 #if defined(SCTP_NODELAY)
 	STRESS_SCTP_SOCKOPT(SCTP_NODELAY, int)
+#else
+	UNEXPECTED
 #endif
 #if defined(SCTP_PRIMARY_ADDR)
 	STRESS_SCTP_SOCKOPT(SCTP_PRIMARY_ADDR, struct sctp_prim)
+#else
+	UNEXPECTED
 #endif
 #if defined(SCTP_PEER_ADDR_PARAMS)
 	STRESS_SCTP_SOCKOPT(SCTP_PEER_ADDR_PARAMS, struct sctp_paddrparams)
+#else
+	UNEXPECTED
 #endif
 #if defined(SCTP_EVENTS)
 	STRESS_SCTP_SOCKOPT(SCTP_EVENTS, struct sctp_event_subscribe)
+#else
+	UNEXPECTED
 #endif
 #if defined(SCTP_MAXSEG)
 	STRESS_SCTP_SOCKOPT(SCTP_MAXSEG, struct sctp_assoc_value)
+#else
+	UNEXPECTED
 #endif
 #if defined(SCTP_STATUS)
 	STRESS_SCTP_SOCKOPT(SCTP_STATUS, struct sctp_status)
+#else
+	UNEXPECTED
 #endif
 #if defined(SCTP_GET_PEER_ADDR_INFO) && 0
 	STRESS_SCTP_SOCKOPT(SCTP_GET_PEER_ADDR_INFO, struct sctp_paddrinfo)
+#else
+	/* UNEXPECTED */
 #endif
 #if defined(SCTP_GET_ASSOC_STATS)
 	STRESS_SCTP_SOCKOPT(SCTP_GET_ASSOC_STATS, struct sctp_assoc_stats)
+#else
+	UNEXPECTED
 #endif
 }
 
@@ -237,6 +271,8 @@ retry:
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
+#else
+	UNEXPECTED
 #endif
 	/* Inform parent we're all done */
 	(void)kill(getppid(), SIGALRM);
@@ -313,17 +349,19 @@ static int stress_sctp_server(
 		if (sfd >= 0) {
 			size_t i;
 
-#if defined(SOCKET_NODELAY)
+#if defined(TCP_NODELAY)
 			int one = 1;
 
-			if (opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
+			if (g_opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
 				if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
 					pr_inf("%s: setsockopt TCP_NODELAY "
 						"failed and disabled, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;
+					g_opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;
 				}
 			}
+#else
+			UNEXPECTED
 #endif
 
 			(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
@@ -354,6 +392,8 @@ die:
 
 		(void)shim_unlink(addr_un->sun_path);
 	}
+#else
+	UNEXPECTED
 #endif
 	if (pid) {
 		(void)kill(pid, SIGKILL);

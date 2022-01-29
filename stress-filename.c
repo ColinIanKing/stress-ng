@@ -354,6 +354,8 @@ static int stress_filename(const stress_args_t *args)
 			args->name, pathname, errno, strerror(errno));
 		goto tidy_dir;
 	}
+#else
+	UNEXPECTED
 #endif
 
 	(void)shim_strlcpy(filename, pathname, sizeof(filename) - 1);

@@ -121,6 +121,8 @@ static void stress_stack_alloc(
 			last_size = mlock_sz;
 		}
 	}
+#else
+	UNEXPECTED
 #endif
 	inc_counter(args);
 

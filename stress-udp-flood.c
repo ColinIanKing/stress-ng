@@ -22,6 +22,8 @@
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
 #include <linux/sockios.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {
@@ -108,6 +110,8 @@ static int stress_udp_flood(const stress_args_t *args)
 
 			(void)ioctl(fd, SIOCOUTQ, &pending);
 		}
+#else
+		UNEXPECTED
 #endif
 
 		if (!keep_stressing(args))

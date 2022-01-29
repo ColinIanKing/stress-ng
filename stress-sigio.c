@@ -21,6 +21,8 @@
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {

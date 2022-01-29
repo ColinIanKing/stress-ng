@@ -22,6 +22,8 @@
 
 #if defined(HAVE_NETINET_TCP_H)
 #include <netinet/tcp.h>
+#else
+UNEXPECTED
 #endif
 
 #define DEFAULT_SOCKET_MANY_PORT (11000)
@@ -240,6 +242,8 @@ static int stress_sockmany_server(
 				ret = setsockopt(fd, SOL_TCP, TCP_QUICKACK, &one, sizeof(one));
 				(void)ret;
 			}
+#else
+			UNEXPECTED
 #endif
 			(void)memset(buf, 'A' + (msgs % 26), sizeof(buf));
 			sret = send(sfd, buf, sizeof(buf), 0);

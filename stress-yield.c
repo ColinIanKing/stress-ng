@@ -66,6 +66,8 @@ static int stress_yield(const stress_args_t *args)
 		pr_inf("%s: limiting to %" PRId32 " child yielder%s (instance %"
 			PRIu32 ")\n", args->name, cpus, (cpus == 1) ? "" : "s", args->instance);
 	}
+#else
+	UNEXPECTED
 #endif
 
 	/*

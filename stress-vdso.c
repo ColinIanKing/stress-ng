@@ -21,10 +21,14 @@
 
 #if defined(HAVE_SYS_AUXV_H)
 #include <sys/auxv.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_LINK_H)
 #include <link.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {

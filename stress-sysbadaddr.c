@@ -21,14 +21,20 @@
 
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UIO_H)
 #include <sys/uio.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_XATTR_H)
@@ -45,10 +51,14 @@
 
 #if defined(HAVE_POLL_H)
 #include <poll.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_UTIME_H)
 #include <utime.h>
+#else
+UNEXPECTED
 #endif
 
 typedef void *(*stress_bad_addr_t)(const stress_args_t *args);
@@ -447,6 +457,8 @@ static int bad_ioctl(void *addr)
 {
 	return ioctl(0, TCGETS, addr);
 }
+#else
+UNEXPECTED
 #endif
 
 static int bad_lchown(void *addr)
@@ -469,6 +481,8 @@ static int bad_madvise(void *addr)
 {
 	return madvise((void *)addr, 8192, MADV_NORMAL);
 }
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_MEMFD_CREATE)
@@ -500,6 +514,8 @@ static int bad_mlock(void *addr)
 {
 	return shim_mlock((void *)addr, 4096);
 }
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_MLOCK2)
@@ -538,6 +554,8 @@ static int bad_msync(void *addr)
 {
 	return shim_msync((void *)addr, 4096, MS_SYNC);
 }
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_NANOSLEEP)
@@ -546,6 +564,8 @@ static int bad_nanosleep(void *addr)
 	return nanosleep((struct timespec *)addr,
 		(struct timespec *)inc_addr(addr, 1));
 }
+#else
+UNEXPECTED
 #endif
 
 static int bad_open(void *addr)
@@ -591,6 +611,8 @@ static int bad_poll(void *addr)
 {
 	return poll((struct pollfd *)addr, (nfds_t)16, (int)1);
 }
+#else
+UNEXPECTED
 #endif
 
 static int bad_pwrite(void *addr)
@@ -649,6 +671,8 @@ static int bad_sched_getaffinity(void *addr)
 {
 	return sched_getaffinity(getpid(), (size_t)8192, (cpu_set_t *)addr);
 }
+#else
+UNEXPECTED
 #endif
 
 static int bad_select(void *addr)
@@ -687,6 +711,8 @@ static int bad_statfs(void *addr)
 {
 	return statfs(".", (struct statfs *)addr);
 }
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_SYSINFO_H) && 	\
@@ -695,6 +721,8 @@ static int bad_sysinfo(void *addr)
 {
 	return sysinfo((struct sysinfo *)addr);
 }
+#else
+UNEXPECTED
 #endif
 
 static int bad_time(void *addr)
@@ -711,6 +739,8 @@ static int bad_timer_create(void *addr)
 	timerid++;
 	return timer_create(CLOCK_MONOTONIC, (struct sigevent *)addr, timerid);
 }
+#else
+UNEXPECTED
 #endif
 
 static int bad_times(void *addr)
@@ -729,6 +759,8 @@ static int bad_uname(void *addr)
 {
 	return uname((struct utsname *)addr);
 }
+#else
+UNEXPECTED
 #endif
 
 static int bad_ustat(void *addr)
@@ -771,6 +803,8 @@ static int bad_waitid(void *addr)
 {
 	return waitid(P_PID, (id_t)getpid(), (siginfo_t *)addr, 0);
 }
+#else
+UNEXPECTED
 #endif
 
 static int bad_write(void *addr)
@@ -799,6 +833,8 @@ static int bad_writev(void *addr)
 	}
 	return (int)ret;
 }
+#else
+UNEXPECTED
 #endif
 
 static stress_bad_syscall_t bad_syscalls[] = {

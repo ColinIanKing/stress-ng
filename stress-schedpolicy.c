@@ -92,6 +92,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 #if defined(HAVE_SCHED_GETATTR) &&	\
     defined(HAVE_SCHED_SETATTR)
 		struct shim_sched_attr attr;
+#else
+		UNEXPECTED
 #endif
 		struct sched_param param;
 		int ret = 0;
@@ -369,6 +371,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 			sched_util_max_value--;
 			counter = 0;
 		}
+#else
+		UNEXPECTED
 #endif
 
 		(void)shim_sched_yield();

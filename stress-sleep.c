@@ -22,6 +22,8 @@
 
 #if defined(HAVE_SYS_SELECT_H)
 #include <sys/select.h>
+#else
+UNEXPECTED
 #endif
 
 #define MIN_SLEEP		(1)

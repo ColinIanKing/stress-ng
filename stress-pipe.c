@@ -186,6 +186,8 @@ static int stress_pipe(const stress_args_t *args)
 		pipe_change_size(args, pipefds[0], pipe_size);
 		pipe_change_size(args, pipefds[1], pipe_size);
 	}
+#else
+	UNEXPECTED
 #endif
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

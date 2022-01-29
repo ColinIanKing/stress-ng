@@ -56,6 +56,8 @@ static void stress_flock_child(
 			if (!cont)
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 		/*
@@ -85,6 +87,8 @@ static void stress_flock_child(
 				"errno=%d (%s)\n", args->name, errno, strerror(errno));
 			(void)flock(fd, LOCK_UN);
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(LOCK_SH)
@@ -98,6 +102,8 @@ static void stress_flock_child(
 			if (!cont)
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(LOCK_SH) &&		\
@@ -112,6 +118,8 @@ static void stress_flock_child(
 			if (!cont)
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(LOCK_MAND) &&	\
@@ -126,6 +134,8 @@ static void stress_flock_child(
 			if (!cont)
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(LOCK_MAND) &&	\
@@ -140,6 +150,8 @@ static void stress_flock_child(
 			if (!cont)
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(LOCK_EX) &&		\
@@ -155,6 +167,8 @@ static void stress_flock_child(
 			if (!cont)
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 #if defined(__linux__)
 		if ((i & 0xff) == 0) {

@@ -146,6 +146,8 @@ static int shim_io_getevents_random(
 			return ret;
 	}
 	/* ..fall through and use vanilla io_getevents */
+#else
+	UNEXPECTED
 #endif
 	return shim_io_getevents(ctx_id, min_nr, nr, events, timeout);
 }
@@ -642,6 +644,8 @@ retry_open:
 				(void)ret;
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 		inc_counter(args);
 		if (!keep_stressing(args))
@@ -668,6 +672,8 @@ retry_open:
 		inc_counter(args);
 		if (!keep_stressing(args))
 			break;
+#else
+		UNEXPECTED
 #endif
 
 		/*

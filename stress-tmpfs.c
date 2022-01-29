@@ -21,6 +21,8 @@
 
 #if defined(HAVE_SYS_STATFS_H)
 #include <sys/statfs.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {

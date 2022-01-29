@@ -76,16 +76,22 @@ static void stress_sockabuse_fd(const int fd)
 	VOID_RET(int, fchown(fd, uid, gid));
 #if defined(F_GETFD)
 	VOID_RET(int, fcntl(fd, F_GETFD));
+#else
+	UNEXPECTED
 #endif
 #if defined(HAVE_FLOCK) &&      \
     defined(LOCK_UN)
 	VOID_RET(int, flock(fd, LOCK_UN));
+#else
+	UNEXPECTED
 #endif
 #if (defined(HAVE_SYS_XATTR_H) ||       \
      defined(HAVE_ATTR_XATTR_H)) &&     \
     defined(HAVE_SETXATTR) &&		\
     defined(XATTR_CREATE)
 	VOID_RET(ssize_t, shim_fsetxattr(fd, "test", "value", 5, XATTR_CREATE));
+#else
+	UNEXPECTED
 #endif
 	VOID_RET(int, fstat(fd, &statbuf));
 	VOID_RET(int, ftruncate(fd, 0));
@@ -97,6 +103,8 @@ static void stress_sockabuse_fd(const int fd)
 
 		VOID_RET(ssize_t, shim_flistxattr(fd, list, sizeof(list)));
 	}
+#else
+	UNEXPECTED
 #endif
 #if defined(HAVE_FUTIMENS)
 	{
@@ -111,6 +119,8 @@ static void stress_sockabuse_fd(const int fd)
 			VOID_RET(int, futimens(fd, timespec));
 		}
 	}
+#else
+	UNEXPECTED
 #endif
 	addrlen = sizeof(addr);
 	VOID_RET(int, getpeername(fd, &addr, &addrlen));
@@ -120,9 +130,13 @@ static void stress_sockabuse_fd(const int fd)
 
 		VOID_RET(int, ioctl(fd, FIONREAD, &n));
 	}
+#else
+	UNEXPECTED
 #endif
 #if defined(SEEK_SET)
 	VOID_RET(off_t, lseek(fd, 0, SEEK_SET));
+#else
+	UNEXPECTED
 #endif
 	VOID_RET(int, shim_pidfd_send_signal(fd, SIGUSR1, NULL, 0));
 	ptr = mmap(NULL, 4096, PROT_READ, MAP_SHARED, fd, 0);

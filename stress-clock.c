@@ -206,6 +206,8 @@ static int stress_clock(const stress_args_t *args)
 			ret = clock_settime(CLOCK_THREAD_CPUTIME_ID, &t);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_CLOCK_GETRES)
@@ -237,6 +239,8 @@ static int stress_clock(const stress_args_t *args)
 						args->name, clocks[i].name, errno, strerror(errno));
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_CLOCK_GETTIME) &&	\
@@ -306,6 +310,8 @@ static int stress_clock(const stress_args_t *args)
 				}
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_CLOCK_NANOSLEEP) &&	\
@@ -358,6 +364,8 @@ static int stress_clock(const stress_args_t *args)
 						errno, strerror(errno));
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(__NR_clock_adjtime) &&	\
@@ -397,6 +405,8 @@ static int stress_clock(const stress_args_t *args)
 				}
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 
 
@@ -482,6 +492,8 @@ static int stress_clock(const stress_args_t *args)
 				}
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(__linux__)
@@ -501,6 +513,8 @@ static int stress_clock(const stress_args_t *args)
 
 				ret = poll(pollfds, 1, 0);
 				(void)ret;
+#else
+				UNEXPECTED
 #endif
 				ret = clock_gettime(clkid, &t);
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY) &&
@@ -515,6 +529,8 @@ static int stress_clock(const stress_args_t *args)
 					pr_fail("%s: clock_getres failed for /dev/ptp0, errno=%d (%s)",
 					args->name, errno, strerror(errno));
 				}
+#else
+				UNEXPECTED
 #endif
 				(void)close(fd);
 			}

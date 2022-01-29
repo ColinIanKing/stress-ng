@@ -67,9 +67,7 @@ static void check_return(const stress_args_t *args, const int ret, const char *c
 		}
 	}
 }
-
 #endif
-
 
 /*
  *  do_fcntl()
@@ -93,6 +91,8 @@ static int do_fcntl(
 		ret = fcntl(fd, F_DUPFD, bad_fd);
 		(void)ret;
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if defined(F_DUPFD) &&		\
@@ -105,6 +105,8 @@ static int do_fcntl(
 		if (ret > -1)
 			(void)close(ret);
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if defined(F_GETFD)
@@ -127,11 +129,15 @@ static int do_fcntl(
 			ret = fcntl(fd, F_SETFD, new_flags);
 			check_return(args, ret, "F_SETFD");
 		}
+#else
+		UNEXPECTED
 #endif
 		/* Exercise invalid fd */
 		old_flags = fcntl(bad_fd, F_GETFD);
 		(void)old_flags;
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if defined(F_GETFL)
@@ -154,8 +160,12 @@ static int do_fcntl(
 			ret = fcntl(fd, F_SETFL, new_flags);
 			check_return(args, ret, "F_SETFL");
 		}
+#else
+		UNEXPECTED
 #endif
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if defined(F_SETOWN) &&	\
@@ -166,6 +176,8 @@ static int do_fcntl(
 #if defined(HAVE_GETPGRP)
 		ret = fcntl(fd, F_SETOWN, -getpgrp());
 		check_return(args, ret, "F_SETOWN");
+#else
+		UNEXPECTED
 #endif
 		ret = fcntl(fd, F_SETOWN, args->pid);
 		check_return(args, ret, "F_SETOWN");
@@ -182,6 +194,8 @@ static int do_fcntl(
 		ret = fcntl(fd, F_SETOWN, args->pid);
 		(void)ret;
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if defined(F_GETOWN) &&	\
@@ -244,6 +258,8 @@ static int do_fcntl(
 		owner.pid = getpgrp();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 #if defined(F_OWNER_TID) &&	\
     defined(__linux__)
@@ -251,6 +267,8 @@ static int do_fcntl(
 		owner.pid = shim_gettid();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 	}
 #endif
@@ -268,8 +286,11 @@ static int do_fcntl(
 		owner.type = F_OWNER_PGRP;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 #if defined(F_OWNER_GID)
+		/* deprecated, renamed to F_OWNER_PGRP */
 		owner.type = F_OWNER_GID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		(void)ret;
@@ -279,6 +300,8 @@ static int do_fcntl(
 		owner.type = F_OWNER_TID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 	}
 #endif
@@ -301,6 +324,8 @@ static int do_fcntl(
 		ret = fcntl(fd, F_SETSIG, 0);
 		(void)ret;
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if defined(F_GETSIG)
@@ -310,9 +335,12 @@ static int do_fcntl(
 		ret = fcntl(fd, F_GETSIG);
 		check_return(args, ret, "F_GETSIG");
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if defined(F_GETOWNER_UIDS)
+	/* Not defined in libc fcntl.h */
 	{
 		int ret;
 		uid_t uids[2];
@@ -329,6 +357,8 @@ static int do_fcntl(
 		ret = fcntl(fd, F_GETLEASE);
 		check_return(args, ret, "F_GETLEASE");
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if defined(F_GETLK) &&		\
@@ -574,6 +604,8 @@ lock_abort:	{ /* Nowt */ }
 		check_return(args, ret, "F_OFD_SETLK (F_UNLCK)");
 ofd_lock_abort:	{ /* Nowt */ }
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if (defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)) | \
@@ -618,6 +650,8 @@ ofd_lock_abort:	{ /* Nowt */ }
 		hint = ~0UL;
 		ret = fcntl(fd, F_SET_FILE_RW_HINT, &hint);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 #if defined(F_GET_RW_HINT) &&	\
     defined(F_SET_RW_HINT)
@@ -629,6 +663,8 @@ ofd_lock_abort:	{ /* Nowt */ }
 				(void)ret;
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 
 	}
@@ -658,6 +694,8 @@ ofd_lock_abort:	{ /* Nowt */ }
 		if (ret > -1)
 			(void)close(ret);
 	}
+#else
+	UNEXPECTED
 #endif
 #if defined(F_GETOWN)
 	{
@@ -668,6 +706,8 @@ ofd_lock_abort:	{ /* Nowt */ }
 		(void)ret;
 
 	}
+#else
+	UNEXPECTED
 #endif
 #else
 	(void)path_fd;

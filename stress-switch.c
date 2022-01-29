@@ -21,10 +21,14 @@
 
 #if defined(HAVE_MQUEUE_H)
 #include <mqueue.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SEM_SYSV)
 #include <sys/sem.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {

@@ -110,48 +110,78 @@ static int stress_inode_flags_stressor(
 		stress_inode_flags_ioctl(args, data->dir_fd, 0);
 #if defined(FS_DIRSYNC_FL)
 		stress_inode_flags_ioctl(args, data->dir_fd, FS_DIRSYNC_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_PROJINHERIT_FL)
 		stress_inode_flags_ioctl(args, data->dir_fd, FS_PROJINHERIT_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_SYNC_FL)
 		stress_inode_flags_ioctl(args, data->dir_fd, FS_SYNC_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_TOPDIR_FL)
 		stress_inode_flags_ioctl(args, data->dir_fd, FS_TOPDIR_FL);
+#else
+		UNEXPECTED
 #endif
-#if defined(FS_APPEND_LF)
+#if defined(FS_APPEND_FL)
 		stress_inode_flags_ioctl(args, data->file_fd, FS_APPEND_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_COMPR_FL)
 		stress_inode_flags_ioctl(args, data->file_fd, FS_COMPR_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_IMMUTABLE_FL)
 		stress_inode_flags_ioctl(args, data->file_fd, FS_IMMUTABLE_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_JOURNAL_DATA_FL)
 		stress_inode_flags_ioctl(args, data->file_fd, FS_JOURNAL_DATA_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_NOCOW_FL)
 		stress_inode_flags_ioctl(args, data->file_fd, FS_NOCOW_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_NODUMP_FL)
 		stress_inode_flags_ioctl(args, data->file_fd, FS_NODUMP_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_NOTAIL_FL)
 		stress_inode_flags_ioctl(args, data->file_fd, FS_NOTAIL_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_PROJINHERIT_FL)
 		stress_inode_flags_ioctl(args, data->file_fd, FS_PROJINHERIT_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_SECRM_FL)
 		stress_inode_flags_ioctl(args, data->file_fd, FS_SECRM_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_SYNC_FL)
 		stress_inode_flags_ioctl(args, data->file_fd, FS_SYNC_FL);
+#else
+		UNEXPECTED
 #endif
 #if defined(FS_UNRM_FL)
 		stress_inode_flags_ioctl(args, data->file_fd, FS_UNRM_FL);
+#else
+		UNEXPECTED
 #endif
 		ret = shim_pthread_spin_lock(&spinlock);
 		if (!ret) {

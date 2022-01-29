@@ -76,6 +76,8 @@ static void exercise_inotify1(void)
 	fd = inotify_init1(~0);
 	if (fd >= 0)
 		(void)close(fd);
+#else
+	UNEXPECTED
 #endif
 }
 
@@ -114,6 +116,8 @@ static void exercise_inotify_add_watch(
 	wd = inotify_add_watch(fd, watchname, IN_MASK_CREATE | IN_MASK_ADD);
 	if (wd >= 0)
 		(void)inotify_rm_watch(fd, wd);
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_MASK_CREATE) &&	\
@@ -128,6 +132,8 @@ static void exercise_inotify_add_watch(
 		(void)inotify_rm_watch(fd, wd);
 	if (wd2 >= 0)
 		(void)inotify_rm_watch(fd, wd2);
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_MASK_ADD)
@@ -135,6 +141,8 @@ static void exercise_inotify_add_watch(
 	wd = inotify_add_watch(bad_fd, watchname, IN_MASK_ADD);
 	if (wd >= 0)
 		(void)inotify_rm_watch(fd, wd);
+#else
+	UNEXPECTED
 #endif
 
 	(void)close(fd);
@@ -172,6 +180,8 @@ static void exercise_inotify_rm_watch(const int bad_fd)
 		return;
 	ret = inotify_rm_watch(fd, 1);
 	(void)ret;
+#else
+	UNEXPECTED
 #endif
 
 	(void)close(fd);
@@ -452,6 +462,8 @@ static void inotify_attrib_file(
 		inotify_attrib_helper, IN_ATTRIB, NULL, bad_fd);
 	(void)rm_file(args, filepath);
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_ACCESS)
@@ -499,6 +511,8 @@ static void inotify_access_file(
 		inotify_access_helper, IN_ACCESS, NULL, bad_fd);
 	(void)rm_file(args, filepath);
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_MODIFY)
@@ -544,6 +558,8 @@ static void inotify_modify_file(
 	inotify_exercise(args, filepath, path, "inotify_file",
 		inotify_modify_helper, IN_MODIFY, NULL, bad_fd);
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_CREATE)
@@ -575,6 +591,8 @@ static void inotify_creat_file(
 		inotify_creat_helper, IN_CREATE, NULL, bad_fd);
 	(void)rm_file(args, filepath);
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_OPEN)
@@ -609,6 +627,8 @@ static void inotify_open_file(
 		inotify_open_helper, IN_OPEN, NULL, bad_fd);
 	(void)rm_file(args, filepath);
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_DELETE)
@@ -637,6 +657,8 @@ static void inotify_delete_file(
 	/* We remove (again) it just in case the test failed */
 	(void)rm_file(args, filepath);
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_DELETE_SELF)
@@ -665,6 +687,8 @@ static void inotify_delete_self(
 	/* We remove (again) in case the test failed */
 	(void)rm_dir(args, filepath);
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_MOVE_SELF)
@@ -682,6 +706,8 @@ static int inotify_move_self_helper(
 	}
 	return 0;
 }
+#else
+	UNEXPECTED
 #endif
 
 static void inotify_move_self(
@@ -739,6 +765,8 @@ static void inotify_moved_to(
 	(void)rm_file(args, newfile);
 	(void)rm_dir(args, olddir);
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_MOVED_FROM)
@@ -778,6 +806,8 @@ static void inotify_moved_from(
 	(void)rm_file(args, oldfile);	/* In case rename failed */
 	(void)rm_dir(args, newdir);
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_CLOSE_WRITE)
@@ -816,6 +846,8 @@ static void inotify_close_write_file(
 	(void)rm_file(args, filepath);
 	(void)close(fd);
 }
+#else
+	UNEXPECTED
 #endif
 
 #if defined(IN_CLOSE_NOWRITE)
@@ -855,6 +887,8 @@ static void inotify_close_nowrite_file(
 	(void)rm_file(args, filepath);
 	(void)close(fd);
 }
+#else
+	UNEXPECTED
 #endif
 
 static const stress_inotify_t inotify_stressors[] = {

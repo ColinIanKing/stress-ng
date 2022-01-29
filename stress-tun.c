@@ -22,14 +22,20 @@
 
 #if defined(HAVE_LINUX_IF_TUN_H)
 #include <linux/if_tun.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
 #include <linux/sockios.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_NET_IF_H)
 #include <net/if.h>
+#else
+UNEXPECTED
 #endif
 
 #include <arpa/inet.h>
@@ -260,11 +266,15 @@ child_cleanup_fd:
 #if defined(TUNSETNOCSUM)
 			ret = ioctl(fd, TUNSETNOCSUM, 1);
 			(void)ret;
+#else
+			UNEXPECTED
 #endif
 
 #if defined(SIOCGIFHWADDR)
 			ret = ioctl(fd, SIOCGIFHWADDR, &ifr);
 			(void)ret;
+#else
+			UNEXPECTED
 #endif
 
 #if defined(TUNGETVNETHDRSZ)
@@ -275,10 +285,14 @@ child_cleanup_fd:
 				if (ret == 0) {
 #if defined(TUNSETVNETHDRSZ)
 					ret = ioctl(fd, TUNSETVNETHDRSZ, &vnet_hdr_sz);
+#else
+					UNEXPECTED
 #endif
 				}
 				(void)ret;
 			}
+#else
+			UNEXPECTED
 #endif
 
 #if defined(TUNGETSNDBUF)
@@ -289,10 +303,14 @@ child_cleanup_fd:
 				if (ret == 0) {
 #if defined(TUNSETVNETHDRSZ)
 					ret = ioctl(fd, TUNSETSNDBUF, &sndbuf);
+#else
+				UNEXPECTED
 #endif
 				}
 				(void)ret;
 			}
+#else
+			UNEXPECTED
 #endif
 
 #if defined(TUNGETVNETLE)
@@ -303,10 +321,14 @@ child_cleanup_fd:
 				if (ret == 0) {
 #if defined(TUNSETVNETLE)
 					ret = ioctl(fd, TUNSETVNETLE, &val);
+#else
+				UNEXPECTED
 #endif
 				}
 				(void)ret;
 			}
+#else
+			UNEXPECTED
 #endif
 
 #if defined(TUNGETVNETBE)
@@ -317,15 +339,21 @@ child_cleanup_fd:
 				if (ret == 0) {
 #if defined(TUNSETVNETBE)
 					ret = ioctl(fd, TUNSETVNETBE, &val);
+#else
+				UNEXPECTED
 #endif
 				}
 				(void)ret;
 			}
+#else
+			UNEXPECTED
 #endif
 
 #if defined(TUNGETDEVNETNS)
 			ret = ioctl(fd, TUNGETDEVNETNS, NULL /* not required */);
 			(void)ret;
+#else
+			UNEXPECTED
 #endif
 
 			sfd = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);

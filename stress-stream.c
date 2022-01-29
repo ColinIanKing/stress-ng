@@ -360,6 +360,8 @@ static inline void *stress_stream_mmap(const stress_args_t *args, uint64_t sz)
 
 		ret = madvise(ptr, sz, advice);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 	}
 	return ptr;

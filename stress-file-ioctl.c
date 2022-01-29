@@ -127,6 +127,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 #if defined(FIONCLEX)
 		{
@@ -135,6 +137,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 #if defined(FIONBIO)
 		{
@@ -157,6 +161,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 #endif
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(FIOASYNC)
@@ -180,6 +186,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 #endif
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(FIOQSIZE)
@@ -197,6 +205,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 			}
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 /* Disable this at the moment, it is fragile */
@@ -212,6 +222,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 			exercised++;
 		}
 #endif
+#else
+		/* UNEXPECTED */
 #endif
 
 #if defined(FIGETBSZ)
@@ -225,6 +237,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(FICLONE)
@@ -234,6 +248,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(FICLONERANGE)
@@ -251,6 +267,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(FIDEDUPERANGE)
@@ -285,6 +303,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(FIONREAD)
@@ -304,18 +324,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 			exercised++;
 		}
-#endif
-
-
-#if defined(FIONWRITE)
-		{
-			int isz = 0;
-
-			ret = ioctl(fd, FIONWRITE, &isz);
-			(void)ret;
-
-			exercised++;
-		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(FS_IOC_GETVERSION)
@@ -327,6 +337,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(_IOW) &&	\
@@ -396,6 +408,8 @@ struct shim_space_resv {
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(FS_IOC_RESVSP64)
@@ -428,6 +442,8 @@ struct shim_space_resv {
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(FS_IOC_UNRESVSP)
@@ -444,6 +460,8 @@ struct shim_space_resv {
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(FS_IOC_UNRESVSP64)
@@ -460,6 +478,8 @@ struct shim_space_resv {
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(FS_IOC_ZERO_RANGE)
@@ -476,6 +496,8 @@ struct shim_space_resv {
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #endif
@@ -498,6 +520,8 @@ struct shim_space_resv {
 
 			exercised++;
 		}
+#else
+		UNEXPECTED
 #endif
 		if (!exercised) {	/* cppcheck-suppress knownConditionTrueFalse */
 			pr_inf("%s: no available file ioctls to exercise\n",

@@ -130,7 +130,13 @@ static int shim_faccessat(int dir_fd, const char *pathname, int mode, int flags)
 #if defined(HAVE_FACCESSAT2)
 	return faccessat2(dir_fd, pathname, mode, flags);
 #elif defined(__NR_faccessat2)
-	return (int)syscall(__NR_faccessat2, dir_fd, pathname, mode, flags);
+	int ret;
+
+	ret = (int)syscall(__NR_faccessat2, dir_fd, pathname, mode, flags);
+	if ((ret < 0) && (errno != ENOSYS))
+		return ret;
+	else
+		return faccessat(dir_fd, pathname, mode, flags);
 #else
 	return faccessat(dir_fd, pathname, mode, flags);
 #endif
@@ -214,6 +220,8 @@ static int stress_access(const stress_args_t *args)
 			 */
 			ret = shim_faccessat(bad_fd, filename, modes[i].access_mode, 0);
 			(void)ret;
+#else
+	UNEXPECTED
 #endif
 #if defined(HAVE_FACCESSAT2) &&	\
     defined(AT_SYMLINK_NOFOLLOW)
@@ -232,6 +240,8 @@ static int stress_access(const stress_args_t *args)
 			ret = faccessat2(bad_fd, filename, modes[i].access_mode,
 				AT_SYMLINK_NOFOLLOW);
 			(void)ret;
+#else
+			/* UNEXPECTED */
 #endif
 			if (modes[i].access_mode != 0) {
 				const mode_t chmod_mode = modes[i].chmod_mode ^ all_mask;
@@ -263,6 +273,8 @@ static int stress_access(const stress_args_t *args)
 						(unsigned int)chmod_mode,
 						errno, strerror(errno));
 				}
+#else
+	UNEXPECTED
 #endif
 			}
 		}

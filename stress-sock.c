@@ -22,22 +22,32 @@
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
 #include <linux/sockios.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_NET_IF_H)
 #include <net/if.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_NETINET_TCP_H)
 #include <netinet/tcp.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
+#else
+UNEXPECTED
 #endif
 
 #include <netinet/in.h>
@@ -125,6 +135,8 @@ static int stress_set_socket_opts(const char *opt)
 		{ "sendmsg",	SOCKET_OPT_SENDMSG },
 #if defined(HAVE_SENDMMSG)
 		{ "sendmmsg",	SOCKET_OPT_SENDMMSG },
+#else
+		UNEXPECTED
 #endif
 		{ NULL,		0 }
 	};

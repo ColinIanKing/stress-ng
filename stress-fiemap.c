@@ -136,6 +136,8 @@ static int stress_fiemap_writer(
 		(void)shim_usleep(1000);
 		if (!stress_fiemap_count(args, counters))
 			break;
+#else
+		UNEXPECTED
 #endif
 	} while (keep_stressing(args));
 	rc = EXIT_SUCCESS;

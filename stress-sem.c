@@ -21,6 +21,8 @@
 
 #if defined(HAVE_SEMAPHORE_H)
 #include <semaphore.h>
+#else
+UNEXPECTED
 #endif
 
 #define MIN_SEM_POSIX_PROCS     (2)

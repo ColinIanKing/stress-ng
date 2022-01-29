@@ -68,6 +68,8 @@ static int stress_io(const stress_args_t *args)
 		 *  exercise with an invalid fd
 		 */
 		(void)syncfs(bad_fd);
+#else
+		UNEXPECTED
 #endif
 		inc_counter(args);
 	} while (keep_stressing(args));
@@ -82,6 +84,8 @@ static int stress_io(const stress_args_t *args)
 			(void)close(fds[i]);
 
 	stress_mount_free(mnts, n_mnts);
+#else
+	UNEXPECTED
 #endif
 
 	return EXIT_SUCCESS;

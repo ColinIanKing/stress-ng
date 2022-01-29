@@ -103,6 +103,8 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 #if defined(MCL_FUTURE)
 	if (brk_context->brk_mlock)
 		(void)shim_mlockall(MCL_FUTURE);
+#else
+	UNEXPECTED
 #endif
 
 	do {
@@ -147,6 +149,8 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_MERGEABLE)
 			(void)madvise(ptr, page_size, MADV_MERGEABLE);
+#else
+			UNEXPECTED
 #endif
 		}
 		inc_counter(args);

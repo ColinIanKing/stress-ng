@@ -215,6 +215,8 @@ static ssize_t stress_hdd_write(
 #if defined(HAVE_FUTIMES)
 	if (hdd_flags & HDD_OPT_UTIMES)
 		stress_hdd_utimes(fd);
+#else
+	UNEXPECTED
 #endif
 	errno = 0;
 	if (hdd_flags & HDD_OPT_IOVEC) {
@@ -268,14 +270,20 @@ static ssize_t stress_hdd_write(
 #if defined(HAVE_FSYNC)
 	if (hdd_flags & HDD_OPT_FSYNC)
 		(void)shim_fsync(fd);
+#else
+	UNEXPECTED
 #endif
 #if defined(HAVE_FDATASYNC)
 	if (hdd_flags & HDD_OPT_FDATASYNC)
 		(void)shim_fdatasync(fd);
+#else
+	UNEXPECTED
 #endif
 #if defined(HAVE_SYNCFS)
 	if (hdd_flags & HDD_OPT_SYNCFS)
 		(void)syncfs(fd);
+#else
+	UNEXPECTED
 #endif
 
 	return ret;
@@ -295,6 +303,8 @@ static ssize_t stress_hdd_read(
 #if defined(HAVE_FUTIMES)
 	if (hdd_flags & HDD_OPT_UTIMES)
 		stress_hdd_utimes(fd);
+#else
+	UNEXPECTED
 #endif
 
 	errno = 0;
@@ -372,6 +382,8 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 	/* invalid preadv2 flags */
 	ret = preadv2(fd, iov, HDD_IO_VEC_MAX, 0, ~0);
 	(void)ret;
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
@@ -383,6 +395,8 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 	/* invalid preadv offset */
 	ret = preadv(fd, iov, HDD_IO_VEC_MAX, -1);
 	(void)ret;
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UIO_H)
@@ -416,6 +430,8 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 		iov[i].iov_len = (size_t)1;
 		data++;
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
@@ -431,6 +447,8 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 	/* invalid pwritev2 flags */
 	ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, 0, ~0);
 	(void)ret;
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UIO_H) &&	\
@@ -442,12 +460,16 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 	/* invalid pwritev offset */
 	ret = pwritev(fd, iov, HDD_IO_VEC_MAX, -1);
 	(void)ret;
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UIO_H)
 	/* invalid writev fd */
 	ret = writev(-1, iov, HDD_IO_VEC_MAX);
 	(void)ret;
+#else
+	UNEXPECTED
 #endif
 
 	/* invalid write fd */

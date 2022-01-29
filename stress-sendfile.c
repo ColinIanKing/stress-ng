@@ -21,6 +21,8 @@
 
 #if defined(HAVE_SYS_SENDFILE_H)
 #include <sys/sendfile.h>
+#else
+UNEXPECTED
 #endif
 
 #define MIN_SENDFILE_SIZE	(1 * KB)

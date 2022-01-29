@@ -135,6 +135,8 @@ redo:
 			ret = ioctl(fd, FIONREAD, &isz);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 		sz = read(fd, &val, sizeof(val));
 		if (sz < 0) {

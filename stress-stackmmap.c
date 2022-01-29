@@ -22,6 +22,8 @@
 
 #if defined(HAVE_UCONTEXT_H)
 #include <ucontext.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {
@@ -155,6 +157,8 @@ static int stress_stackmmap(const stress_args_t *args)
 	 */
 	(void)mprotect((void *)stack_mmap, page_size, PROT_NONE);
 	(void)mprotect((void *)(stack_mmap + MMAPSTACK_SIZE - page_size), page_size, PROT_NONE);
+#else
+	UNEXPECTED
 #endif
 
 	(void)memset(&c_test, 0, sizeof(c_test));

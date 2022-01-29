@@ -110,6 +110,8 @@ static int stress_ioprio(const stress_args_t *args)
 		}
 		if (!keep_stressing(args))
 			break;
+#else
+		UNEXPECTED
 #endif
 		if (shim_ioprio_get(IOPRIO_WHO_PGRP, 0) < 0) {
 			if (errno != EINVAL) {

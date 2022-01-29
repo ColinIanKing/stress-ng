@@ -161,6 +161,8 @@ static int stress_fork_fn(
 #if defined(HAVE_GETPGID)
 				const pid_t my_pid = getpid();
 				const pid_t my_pgid = getpgid(my_pid);
+#else
+				UNEXPECTED
 #endif
 
 				/*
@@ -196,6 +198,8 @@ static int stress_fork_fn(
 #if defined(HAVE_GETPGID)
 				ret = setpgid(my_pid, my_pgid);
 				(void)ret;
+#else
+				UNEXPECTED
 #endif
 
 				/* -ve pgid is EINVAL */

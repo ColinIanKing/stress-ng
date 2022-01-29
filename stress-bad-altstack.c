@@ -96,6 +96,8 @@ static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 #if defined(O_TMPFILE)
 	if (bus_stack != MAP_FAILED)
 		(void)munmap(bus_stack, STRESS_MINSIGSTKSZ);
+#else
+	UNEXPECTED
 #endif
 	/*
 	 *  If we've not got this far we've not
@@ -116,6 +118,8 @@ static int stress_bad_altstack(const stress_args_t *args)
 	stress_set_oom_adjustment(args->name, true);
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 	unsigned long vdso = getauxval(AT_SYSINFO_EHDR);
+#else
+	UNEXPECTED
 #endif
 	int fd;
 #if defined(O_TMPFILE)
@@ -140,6 +144,8 @@ static int stress_bad_altstack(const stress_args_t *args)
 				MAP_PRIVATE, tmp_fd, 0);
 		(void)close(tmp_fd);
 	}
+#else
+	UNEXPECTED
 #endif
 
 	fd = open("/dev/zero", O_RDONLY);
@@ -260,6 +266,8 @@ again:
 			rlim.rlim_cur = 1;
 			rlim.rlim_max = 1;
 			(void)setrlimit(RLIMIT_CPU, &rlim);
+#else
+			UNEXPECTED
 #endif
 
 			/* Set alternative stack for testing */
@@ -391,6 +399,8 @@ again:
 #if defined(O_TMPFILE)
 	if (bus_stack != MAP_FAILED)
 		(void)munmap(bus_stack, STRESS_MINSIGSTKSZ);
+#else
+	UNEXPECTED
 #endif
 	if (zero_stack != MAP_FAILED)
 		(void)munmap(zero_stack, STRESS_MINSIGSTKSZ);

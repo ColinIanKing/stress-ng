@@ -21,6 +21,8 @@
 
 #if defined(HAVE_SYS_SIGNALFD_H)
 #include <sys/signalfd.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {

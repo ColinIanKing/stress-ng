@@ -155,6 +155,8 @@ static int stress_binderfs(const stress_args_t *args)
 				goto close_control;
 		}
 close_control:
+#else
+		UNEXPECTED
 #endif
 		(void)close(fd);
 

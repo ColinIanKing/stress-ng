@@ -135,6 +135,8 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 	/* invalid flags in statx */
 	ret = shim_statx(AT_EMPTY_PATH, si->path, AT_SYMLINK_NOFOLLOW, ~0, &bufx);
 	(void)ret;
+#else
+	UNEXPECTED
 #endif
 	/*
 	 *  Opening /dev files such as /dev/urandom

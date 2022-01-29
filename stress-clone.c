@@ -283,6 +283,8 @@ static int clone_func(void *arg)
 			(void)close(fd);
 		}
 	}
+#else
+	UNEXPECTED
 #endif
 
 #if defined(HAVE_MODIFY_LDT) &&	\

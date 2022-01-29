@@ -234,7 +234,11 @@ static int stress_get(const stress_args_t *args)
 			if (!keep_stressing_flag())
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETDOMAINNAME)
@@ -246,6 +250,8 @@ static int stress_get(const stress_args_t *args)
 			if (!keep_stressing_flag())
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETHOSTID)
@@ -257,6 +263,8 @@ static int stress_get(const stress_args_t *args)
 			if (!keep_stressing_flag())
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETHOSTNAME)
@@ -268,6 +276,8 @@ static int stress_get(const stress_args_t *args)
 			if (!keep_stressing_flag())
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 		ptr = getcwd(path, sizeof path);
@@ -337,6 +347,8 @@ static int stress_get(const stress_args_t *args)
 #if defined(HAVE_GETPGRP)
 		pid = getpgrp();
 		(void)pid;
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETPGID)
@@ -352,6 +364,8 @@ static int stress_get(const stress_args_t *args)
 
 		if (!keep_stressing_flag())
 			break;
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETPRIORITY)
@@ -378,6 +392,8 @@ static int stress_get(const stress_args_t *args)
 			ret = getpriority(priorities[i], ~(id_t)0);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETRESGID)
@@ -391,6 +407,8 @@ static int stress_get(const stress_args_t *args)
 			if (!keep_stressing_flag())
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETRESUID)
@@ -404,6 +422,8 @@ static int stress_get(const stress_args_t *args)
 			if (!keep_stressing_flag())
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 		/* Invalid getrlimit syscall and ignoring failure */
 		(void)getrlimit(INT_MAX, &rlim);
@@ -464,6 +484,8 @@ static int stress_get(const stress_args_t *args)
 			if (!keep_stressing_flag())
 				break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_SYSCTL_H) &&	\
@@ -512,6 +534,8 @@ static int stress_get(const stress_args_t *args)
 		(void)ret;
 		if (!keep_stressing_flag())
 			break;
+#else
+		UNEXPECTED
 #endif
 
 		(void)shim_gettid();
@@ -632,16 +656,22 @@ static int stress_get(const stress_args_t *args)
 				pr_fail("%s: uname failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETPAGESIZE)
 		ret = getpagesize();
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETDTABLESIZE)
 		ret = getdtablesize();
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_LOOKUP_DCOOKIE)
@@ -651,6 +681,8 @@ static int stress_get(const stress_args_t *args)
 			ret = (int)syscall(__NR_lookup_dcookie, buf, sizeof(buf));
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_TIMEX_H) &&	\
@@ -664,6 +696,8 @@ static int stress_get(const stress_args_t *args)
 				pr_fail("%s: adjtimex failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_TIMEX_H) &&	\
@@ -673,6 +707,8 @@ static int stress_get(const stress_args_t *args)
 		if (cap_sys_time && verify && (ret < 0) && (errno != EPERM))
 			pr_fail("%s: adjtime failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
+#else
+		UNEXPECTED
 #endif
 
 #if defined(__NR_lookup_dcookie)
@@ -731,6 +767,8 @@ static int stress_get(const stress_args_t *args)
 
 			statvfs(mnts[i], &buf);
 		}
+#else
+		UNEXPECTED
 #endif
 
 		inc_counter(args);

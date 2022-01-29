@@ -21,18 +21,26 @@
 
 #if defined(HAVE_LINUX_AUDIT_H)
 #include <linux/audit.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_FILTER_H)
 #include <linux/filter.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_SECCOMP_H)
 #include <linux/seccomp.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {
@@ -318,6 +326,8 @@ static int stress_seccomp_set_filter(
 			/* Invalid flags, EINVAL */
 			(void)shim_seccomp(SECCOMP_GET_NOTIF_SIZES, ~0, &sizes);
 		}
+#else
+		UNEXPECTED
 #endif
 #if defined(SECCOMP_GET_ACTION_AVAIL)
 		{
@@ -328,6 +338,8 @@ static int stress_seccomp_set_filter(
 				(void)shim_seccomp(SECCOMP_GET_ACTION_AVAIL, ~0, (void *)&seccomp_actions[i]);
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 #if defined(SECCOMP_SET_MODE_STRICT)
 		if (stress_mwc8() < 16) {
@@ -335,6 +347,8 @@ static int stress_seccomp_set_filter(
 			(void)shim_seccomp(SECCOMP_SET_MODE_STRICT, ~0, NULL);
 			(void)shim_seccomp(SECCOMP_SET_MODE_STRICT, 0, &i);
 		}
+#else
+		UNEXPECTED
 #endif
 		/* Exercise invalid op */
 		(void)shim_seccomp(~0, 0, NULL);

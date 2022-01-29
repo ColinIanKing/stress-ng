@@ -21,6 +21,8 @@
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_LINUX_FSVERITY_H)
@@ -97,6 +99,8 @@ static int stress_verity(const stress_args_t *args)
 #if defined(FS_IOC_READ_VERITY_METADATA)
 		struct shim_fsverity_read_metadata_arg md_arg;
 		char md_buf[4096];
+#else
+		UNEXPECTED
 #endif
 
 		fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
@@ -202,6 +206,8 @@ static int stress_verity(const stress_args_t *args)
 					args->name);
 			}
 		}
+#else
+		UNEXPECTED
 #endif
 		(void)close(fd);
 
@@ -246,6 +252,8 @@ static int stress_verity(const stress_args_t *args)
 		md_arg.length = (uint64_t)sizeof(md_buf);
 
 		(void)ioctl(fd, FS_IOC_READ_VERITY_METADATA, &md_arg);
+#else
+		UNEXPECTED
 #endif
 
 		(void)close(fd);

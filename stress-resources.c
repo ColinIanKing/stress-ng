@@ -197,6 +197,7 @@ static void NORETURN waste_resources(
 		}
 	}
 #else
+	UNEXPECTED
 	mlock_size = page_size * MAX_LOOPS;
 #endif
 
@@ -356,6 +357,7 @@ static void NORETURN waste_resources(
 			(void)fcntl(info[i].fd_pipe[1], F_SETPIPE_SZ, pipe_size);
 		}
 #else
+		UNEXPECTED
 		(void)pipe_size;
 #endif
 		if (!keep_stressing_flag())
@@ -367,6 +369,8 @@ static void NORETURN waste_resources(
 		info[i].fd_ev = eventfd(0, 0);
 		if (!keep_stressing_flag())
 			break;
+#else
+		UNEXPECTED
 #endif
 #if defined(HAVE_MEMFD_CREATE)
 		(void)snprintf(name, sizeof(name), "memfd-%" PRIdMAX "-%zu",
@@ -383,6 +387,8 @@ static void NORETURN waste_resources(
 		}
 		if (!keep_stressing_flag())
 			break;
+#else
+		UNEXPECTED
 #endif
 #if defined(__NR_memfd_secret)
 		info[i].fd_memfd_secret = shim_memfd_secret(0);
@@ -415,6 +421,8 @@ static void NORETURN waste_resources(
 		info[i].fd_uf = shim_userfaultfd(0);
 		if (!keep_stressing_flag())
 			break;
+#else
+		UNEXPECTED
 #endif
 #if defined(O_TMPFILE)
 		info[i].fd_tmp = open("/tmp", O_TMPFILE | O_RDWR | flag,
@@ -442,7 +450,11 @@ static void NORETURN waste_resources(
 				(void)fcntl(info[i].fd_tmp, F_SETLK, &f);
 			}
 		}
+#else
+		UNEXPECTED
 #endif
+#else
+		UNEXPECTED
 #endif
 #if defined(HAVE_SYS_INOTIFY_H)
 		info[i].fd_inotify = inotify_init();

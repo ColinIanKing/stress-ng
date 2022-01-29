@@ -39,6 +39,8 @@ static const unsigned int sync_modes[] = {
 	SYNC_FILE_RANGE_WAIT_AFTER,
 	0	/* No-op */
 };
+#else
+UNEXPECTED
 #endif
 
 static int stress_set_sync_file_bytes(const char *opt)
@@ -85,6 +87,8 @@ static int stress_sync_allocate(
 			args->name, errno, strerror(errno));
 		return -errno;
 	}
+#else
+	UNEXPECTED
 #endif
 
 	ret = shim_fallocate(fd, 0, (off_t)0, sync_file_bytes);

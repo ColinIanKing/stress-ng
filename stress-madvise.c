@@ -190,6 +190,7 @@ static int stress_random_advise(const stress_args_t *args)
 		poison_count++;
 	}
 #else
+	UNEXPECTED
 	(void)args;
 #endif
 

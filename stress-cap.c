@@ -83,6 +83,8 @@ static int stress_capgetset_pid(
 		ret = capset(&uch, ucd);
 		(void)ret;
 	}
+#else
+	UNEXPECTED
 #endif
 
 	/*
@@ -101,6 +103,8 @@ static int stress_capgetset_pid(
 	uch.pid = -pid;
 	ret = capget(&uch, ucd);
 	(void)ret;
+#else
+	UNEXPECTED
 #endif
 
 #if defined(_LINUX_CAPABILITY_VERSION_3)
@@ -111,6 +115,8 @@ static int stress_capgetset_pid(
 	uch.pid = stress_get_unused_pid_racy(false);
 	ret = capget(&uch, ucd);
 	(void)ret;
+#else
+	UNEXPECTED
 #endif
 
 	/*

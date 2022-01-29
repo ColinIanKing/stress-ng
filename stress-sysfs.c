@@ -24,14 +24,20 @@
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_POLL_H)
 #include <poll.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {
@@ -267,6 +273,8 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			if (stress_time_now() - t_start > threshold)
 				goto next;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_PPOLL)
@@ -286,6 +294,8 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			ret = ppoll(fds, 1, &ts, &sigmask);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 		/*
@@ -304,6 +314,8 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			ret = ioctl(fd, FIGETBSZ, &isz);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 #if defined(FIONREAD)
 		{
@@ -312,6 +324,8 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			ret = ioctl(fd, FIONREAD , &isz);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 		if (stress_kmsg_drain(ctxt->kmsgfd)) {
@@ -660,6 +674,8 @@ static int stress_sysfs(const stress_args_t *args)
 				os_release = (major * 100) + minor;
 		}
 	}
+#else
+	UNEXPECTED
 #endif
 	sysfs_hash_table = stress_hash_create(1021);
 	if (!sysfs_hash_table) {

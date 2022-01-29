@@ -21,6 +21,8 @@
 
 #if defined(HAVE_SEM_SYSV)
 #include <sys/sem.h>
+#else
+UNEXPECTED
 #endif
 
 #define MIN_SEM_SYSV_PROCS     (2)
@@ -206,6 +208,8 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 			ret = semtimedop(sem_id, sems, STRESS_MAX_SEMS * 3, &timeout);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 
 		for (i = 0; i < 1000; i++) {
@@ -277,6 +281,8 @@ timed_out:
 				s.buf = &ds;
 				ret = semctl(sem_id, 2, IPC_SET, &s);
 				(void)ret;
+#else
+				UNEXPECTED
 #endif
 			}
 
@@ -302,6 +308,8 @@ timed_out:
 			}
 #endif
 		}
+#else
+		UNEXPECTED
 #endif
 #if defined(SEM_STAT) &&	\
     defined(__linux__)
@@ -402,6 +410,8 @@ timed_out:
 		/* Exercise with an illegal sem number */
 		ret = semctl(sem_id, ~0, GETVAL, 0);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 #if defined(GETPID)
 		ret = semctl(sem_id, 0, GETPID, 0);
@@ -414,6 +424,8 @@ timed_out:
 		/* Exercise with an illegal sem number */
 		ret = semctl(sem_id, ~0, GETPID, 0);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 #if defined(GETNCNT)
 		ret = semctl(sem_id, 0, GETNCNT, 0);
@@ -426,6 +438,8 @@ timed_out:
 		/* Exercise with an illegal sem number */
 		ret = semctl(sem_id, ~0, GETNCNT, 0);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 #if defined(GETZCNT)
 		ret = semctl(sem_id, 0, GETZCNT, 0);
@@ -438,6 +452,8 @@ timed_out:
 		/* Exercise with an illegal sem number */
 		ret = semctl(sem_id, ~0, GETZCNT, 0);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 		/*
 		 * Now exercise invalid options and arguments
@@ -476,6 +492,8 @@ timed_out:
 			ret = semtimedop(sem_id, &semwait, -1, &timeout);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 		{
 			struct sembuf semwait;

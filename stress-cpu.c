@@ -813,6 +813,8 @@ static void HOT TARGET_CLONES stress_cpu_fft(const char *name)
 	(void)memcpy(tmp, buf, sizeof(*tmp) * FFT_SIZE);
 	fft_partial(buf, tmp, FFT_SIZE, 1);
 }
+#else
+	UNEXPECTED
 #endif
 
 /*
@@ -1697,6 +1699,8 @@ static void stress_cpu_zeta(const char *name)
 		stress_long_double_put((long double)z);
 	}
 }
+#else
+	UNEXPECTED
 #endif
 
 /*
@@ -2955,6 +2959,8 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "cdouble",		stress_cpu_complex_double },
 	{ "cfloat",		stress_cpu_complex_float },
 	{ "clongdouble",	stress_cpu_complex_long_double },
+#else
+	UNEXPECTED
 #endif
 	{ "collatz",		stress_cpu_collatz },
 	{ "correlate",		stress_cpu_correlate },

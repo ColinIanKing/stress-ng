@@ -22,6 +22,8 @@
 
 #if defined(HAVE_UTIME_H)
 #include <utime.h>
+#else
+UNEXPECTED
 #endif
 
 static const stress_help_t help[] = {
@@ -67,6 +69,8 @@ static int stress_utime(const stress_args_t *args)
     defined(UTIME_NOW)
 	(void)stress_temp_dir_args(args, path, sizeof(path));
 	dir_fd = open(path, O_DIRECTORY | O_PATH);
+#else
+	UNEXPECTED
 #endif
 
 	(void)stress_temp_filename_args(args,
@@ -139,6 +143,8 @@ static int stress_utime(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 			break;
 		}
+#else
+		UNEXPECTED
 #endif
 
 #if defined(UTIME_OMIT)
@@ -149,6 +155,8 @@ static int stress_utime(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 			break;
 		}
+#else
+		UNEXPECTED
 #endif
 #endif
 
@@ -175,6 +183,8 @@ static int stress_utime(const stress_args_t *args)
 		/* Exercise invalid flags */
 		ret = utimensat(AT_FDCWD, filename, ts, ~0);
 		(void)ret;
+#else
+		UNEXPECTED
 #endif
 
 #if defined(O_DIRECTORY) &&	\
@@ -223,6 +233,8 @@ STRESS_PRAGMA_POP
 		}
 #endif
 #endif
+#else
+		UNEXPECTED
 #endif
 
 #if defined(HAVE_UTIME_H)
@@ -252,6 +264,8 @@ STRESS_PRAGMA_POP
 			ret = utime(hugename, &utbuf);
 			(void)ret;
 		}
+#else
+		UNEXPECTED
 #endif
 		/* forces metadata writeback */
 		if (utime_fsync) {

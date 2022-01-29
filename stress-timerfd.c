@@ -22,10 +22,14 @@
 
 #if defined(HAVE_SYS_TIMERFD_H)
 #include <sys/timerfd.h>
+#else
+UNEXPECTED
 #endif
 
 #if defined(HAVE_POLL_H)
 #include <poll.h>
+#else
+UNEXPECTED
 #endif
 
 #define MIN_TIMERFD_FREQ	(1)
