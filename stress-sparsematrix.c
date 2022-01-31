@@ -552,7 +552,7 @@ static void judy_del(void *handle, const uint32_t x, const uint32_t y)
 	Word_t *pvalue;
 
 	JLG(pvalue, *(Pvoid_t *)handle, ((Word_t)x << 32) | y);
-	if (!pvalue)
+	if (pvalue)
 		*pvalue = 0;
 }
 #else
