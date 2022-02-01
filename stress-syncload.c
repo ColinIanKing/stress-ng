@@ -17,6 +17,7 @@
  */
 #include "stress-ng.h"
 #include "core-cache.h"
+#include "core-target-clones.h"
 
 #define STRESS_SYNCLOAD_MS_DEFAULT	(125)	/* 125 milliseconds */
 #define STRESS_SYNCLOAD_MS_MIN		(1)	/* 1 millisecond */
@@ -128,6 +129,37 @@ static void stress_syncload_loop(void)
 	}
 }
 
+#if defined(HAVE_VECMATH)
+
+typedef int8_t stress_vint8w1024_t       __attribute__ ((vector_size(1024 / 8)));
+
+static void stress_syncload_vecmath_init(stress_vint8w1024_t *a, const size_t len)
+{
+	uint32_t *data = (uint32_t *)a;
+	size_t i, n = len >> 2;
+
+	for (i = 0; i < n; i++)
+		data[i] = stress_mwc32();
+}
+
+static void TARGET_CLONES stress_syncload_vecmath(void)
+{
+	static stress_vint8w1024_t a, b, c;
+	static bool init = false;
+
+	if (!init) {
+		stress_syncload_vecmath_init(&a, sizeof(a));
+		stress_syncload_vecmath_init(&b, sizeof(b));
+		stress_syncload_vecmath_init(&c, sizeof(c));
+		init = true;
+	}
+
+	c *= b;
+	c += a;
+}
+
+#endif
+
 static const stress_syncload_op_t stress_syncload_ops[] = {
 	stress_syncload_none,
 	stress_syncload_nop,
@@ -144,6 +176,9 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 #endif
 	stress_syncload_mfence,
 	stress_syncload_loop,
+#if defined(HAVE_VECMATH)
+	stress_syncload_vecmath,
+#endif
 };
 
 static inline double stress_syncload_gettime(void)
