@@ -238,7 +238,7 @@ static int stress_syncload(const stress_args_t *args)
 			delay_type = 0;
 
 		timeout += sec_busy + stress_syncload_jitter(sec_busy);
-		while (stress_time_now() < timeout)
+		while (keep_stressing_flag() && (stress_time_now() < timeout))
 			op();
 
 		if (!keep_stressing_flag())
