@@ -17,6 +17,7 @@
  */
 #include "stress-ng.h"
 #include "core-cache.h"
+#include "core-put.h"
 #include "core-target-clones.h"
 
 #define STRESS_SYNCLOAD_MS_DEFAULT	(125)	/* 125 milliseconds */
@@ -129,6 +130,22 @@ static void stress_syncload_loop(void)
 	}
 }
 
+static void stress_syncload_nice(void)
+{
+	int niceness;
+
+	niceness = nice(0);
+	(void)niceness;
+}
+
+static void stress_syncload_spinwrite(void)
+{
+	register int i = 1000;
+
+	while (i--)
+		stress_uint32_put(i);
+}
+
 #if defined(HAVE_VECMATH)
 
 typedef int8_t stress_vint8w1024_t       __attribute__ ((vector_size(1024 / 8)));
@@ -179,6 +196,8 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 #if defined(HAVE_VECMATH)
 	stress_syncload_vecmath,
 #endif
+	stress_syncload_nice,
+	stress_syncload_spinwrite,
 };
 
 static inline double stress_syncload_gettime(void)
