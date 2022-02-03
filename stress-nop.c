@@ -33,7 +33,10 @@ static sigjmp_buf jmpbuf;
 typedef struct {
 	const char *name;
 	void (*func)(const stress_args_t *args, const bool flag);
+	bool ignore;
 } stress_nop_instr_t;
+
+static stress_nop_instr_t *current_instr = NULL;
 
 #define OPx1(op)	op();
 #define OPx4(op)	OPx1(op) OPx1(op) OPx1(op) OPx1(op)
@@ -77,6 +80,28 @@ static inline void stress_op_x86_pause(void)
 }
 
 STRESS_NOP_SPIN_OP(x86_pause, stress_op_x86_pause);
+#endif
+
+#if defined(HAVE_ASM_X86_TPAUSE)
+static void x86_tpause(uint32_t ecx, uint32_t delay)
+{
+	uint32_t lo, hi;
+	uint64_t val;
+
+	__asm__ __volatile__("rdtsc\n" : "=a"(lo),"=d"(hi));
+	val = (((uint64_t)hi << 32) | lo) + delay;
+	lo = val & 0xffffffff;
+	hi = val >> 32;
+	__asm__ __volatile__("tpause %%ecx\n" :: "c"(ecx), "d"(hi), "a"(lo));
+}
+
+static void stress_op_x86_tpause(void)
+{
+	x86_tpause(0, 5000);
+	x86_tpause(1, 5000);
+}
+
+STRESS_NOP_SPIN_OP(x86_tpause, stress_op_x86_tpause);
 #endif
 
 #if defined(HAVE_ASM_ARM_YIELD)
@@ -184,36 +209,50 @@ STRESS_NOP_SPIN_OP(s390_nopr, stress_op_s390_nopr);
 void stress_nop_random(const stress_args_t *args, const bool flag);
 
 stress_nop_instr_t nop_instr[] = {
-	{ "nop",	stress_nop_spin_nop },
+	{ "nop",	stress_nop_spin_nop,		false },
 #if defined(STRESS_ARCH_X86)
-	{ "nop2",	stress_nop_spin_x86_nop2 },
-	{ "nop3",	stress_nop_spin_x86_nop3 },
-	{ "nop4",	stress_nop_spin_x86_nop4 },
-	{ "nop5",	stress_nop_spin_x86_nop5 },
-	{ "nop6",	stress_nop_spin_x86_nop6 },
-	{ "nop7",	stress_nop_spin_x86_nop7 },
-	{ "nop8",	stress_nop_spin_x86_nop8 },
-	{ "nop9",	stress_nop_spin_x86_nop9 },
-	{ "nop10",	stress_nop_spin_x86_nop10 },
-	{ "nop11",	stress_nop_spin_x86_nop11 },
+	{ "nop2",	stress_nop_spin_x86_nop2,	false },
+	{ "nop3",	stress_nop_spin_x86_nop3,	false },
+	{ "nop4",	stress_nop_spin_x86_nop4,	false },
+	{ "nop5",	stress_nop_spin_x86_nop5,	false },
+	{ "nop6",	stress_nop_spin_x86_nop6,	false },
+	{ "nop7",	stress_nop_spin_x86_nop7,	false },
+	{ "nop8",	stress_nop_spin_x86_nop8,	false },
+	{ "nop9",	stress_nop_spin_x86_nop9,	false },
+	{ "nop10",	stress_nop_spin_x86_nop10,	false },
+	{ "nop11",	stress_nop_spin_x86_nop11,	false },
 #endif
 #if defined(STRESS_ARCH_S390)
-	{ "nopr",	stress_nop_spin_s390_nopr },
+	{ "nopr",	stress_nop_spin_s390_nopr,	false },
 #endif
 #if defined(HAVE_ASM_X86_PAUSE)
-	{ "pause",	stress_nop_spin_x86_pause },
+	{ "pause",	stress_nop_spin_x86_pause,	false },
+#endif
+#if defined(HAVE_ASM_X86_TPAUSE)
+	{ "tpause",	stress_nop_spin_x86_tpause,	false },
 #endif
 #if defined(HAVE_ASM_ARM_YIELD)
-	{ "yield",	stress_nop_spin_arm_yield },
+	{ "yield",	stress_nop_spin_arm_yield,	false },
 #endif
 #if defined(STRESS_ARCH_PPC64)
-	{ "mdoio",	stress_nop_spin_ppc64_mdoio },
-	{ "mdoom",	stress_nop_spin_ppc64_mdoom },
-	{ "yield",	stress_nop_spin_ppc64_yield },
+	{ "mdoio",	stress_nop_spin_ppc64_mdoio,	false },
+	{ "mdoom",	stress_nop_spin_ppc64_mdoom,	false },
+	{ "yield",	stress_nop_spin_ppc64_yield,	false },
 #endif
-	{ "random",	stress_nop_random },
-	{ NULL,		NULL },
+	{ "random",	stress_nop_random,		false },
+	{ NULL,		NULL ,				false },
 };
+
+static inline void stress_nop_callfunc(
+	const stress_nop_instr_t *instr,
+	const stress_args_t *args,
+	const bool flag)
+{
+	if (UNLIKELY(instr->ignore))
+		stress_nop_spin_nop(args, flag);
+	else
+		instr->func(args, flag);
+}
 
 void stress_nop_random(const stress_args_t *args, const bool flag)
 {
@@ -222,15 +261,18 @@ void stress_nop_random(const stress_args_t *args, const bool flag)
 	do {
 		const size_t n = stress_mwc8() % (SIZEOF_ARRAY(nop_instr) - 2);
 
-		nop_instr[n].func(args, false);
+		current_instr = &nop_instr[n];
+		if (!current_instr->ignore)
+			stress_nop_callfunc(current_instr, args, false);
 	} while (keep_stressing(args));
 }
 
 static int stress_set_nop_instr(const char *opt)
 {
-	stress_nop_instr_t const *instr;
+	stress_nop_instr_t *instr;
 
 	for (instr = nop_instr; instr->func; instr++) {
+		current_instr = instr;
 		if (!strcmp(instr->name, opt)) {
 			stress_set_setting("nop-instr", TYPE_ID_UINTPTR_T, &instr);
 			return 0;
@@ -250,6 +292,8 @@ static void stress_sigill_nop_handler(int signum)
 {
 	(void)signum;
 
+	current_instr->ignore = true;
+
 	siglongjmp(jmpbuf, 1);
 }
 
@@ -259,29 +303,35 @@ static void stress_sigill_nop_handler(int signum)
  */
 static int stress_nop(const stress_args_t *args)
 {
-	stress_nop_instr_t const *instr = &nop_instr[0];
+	stress_nop_instr_t *instr = &nop_instr[0];
+	bool do_random;
 
 	(void)stress_get_setting("nop-instr", &instr);
 
 	if (stress_sighandler(args->name, SIGILL, stress_sigill_nop_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
 
+	do_random = (instr->func == stress_nop_random);
+
 	if (sigsetjmp(jmpbuf, 1) != 0) {
 		/* We reach here on an SIGILL trap */
-		if (instr != &nop_instr[0]) {
-			pr_inf("%s '%s' instruction was illegal, falling back to nop\n",
-				args->name, instr->name);
-			instr = &nop_instr[0];
-		} else {
+		if (current_instr == &nop_instr[0]) {
 			/* Really should be able to do nop, skip */
 			pr_inf("%s 'nop' instruction was illegal, skipping stressor\n",
 				args->name);
 			return EXIT_NO_RESOURCE;
+		} else {
+			/* not random choice?, then default to nop */
+			if (!do_random)
+				instr = &nop_instr[0];
+			pr_inf("%s '%s' instruction was illegal, ignoring, defaulting to nop\n",
+				args->name, current_instr->name);
 		}
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	instr->func(args, true);
+	current_instr = instr;
+	stress_nop_callfunc(instr, args, true);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
