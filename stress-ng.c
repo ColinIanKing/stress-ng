@@ -3738,6 +3738,7 @@ int main(int argc, char **argv, char **envp)
 		stress_tz_init(&g_shared->tz_info);
 #endif
 
+	stress_clear_warn_once();
 	stress_stressors_init();
 
 	/* Start thrasher process if required */

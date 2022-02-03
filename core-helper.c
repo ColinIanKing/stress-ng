@@ -2776,3 +2776,16 @@ void stress_sighandler_nop(int sig)
 {
 	(void)sig;
 }
+
+/*
+ *  stress_clear_warn_once()
+ *	clear the linux warn once warnings flag, kernel warn once
+ *	messages can be re-issued
+ */
+void stress_clear_warn_once(void)
+{
+#if defined(__linux__)
+	if (stress_check_capability(SHIM_CAP_IS_ROOT))
+		(void)system_write("/sys/kernel/debug/clear_warn_once", "1", 1);
+#endif
+}
