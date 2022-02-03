@@ -812,9 +812,6 @@ static const long skip_syscalls[] = {
 #if defined(SYS_io_cancel)
 	SYS_io_cancel,
 #endif
-#if defined(SYS_ioctl)
-	SYS_ioctl,
-#endif
 #if defined(SYS_io_destroy)
 	SYS_io_destroy,
 #endif
@@ -850,6 +847,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(SYS_io_uring_setup)
 	SYS_io_uring_setup,
+#endif
+#if defined(SYS_ioctl)
+	SYS_ioctl,
 #endif
 #if defined(SYS_ipc)
 	SYS_ipc,
@@ -1666,6 +1666,15 @@ static const long skip_syscalls[] = {
 #endif
 
 /* Linux syscall numbers */
+#if defined(__NR__llseek)
+	__NR__llseek,
+#endif
+#if defined(__NR__newselect)
+	__NR__newselect,
+#endif
+#if defined(__NR__sysctl)
+	__NR__sysctl,
+#endif
 #if defined(__NR_accept)
 	__NR_accept,
 #endif
@@ -1774,17 +1783,32 @@ static const long skip_syscalls[] = {
 #if defined(__NR_clock_adjtime)
 	__NR_clock_adjtime,
 #endif
+#if defined(__NR_clock_adjtime64)
+	__NR_clock_adjtime64,
+#endif
 #if defined(__NR_clock_getres)
 	__NR_clock_getres,
+#endif
+#if defined(__NR_clock_getres_time64)
+	__NR_clock_getres_time64,
 #endif
 #if defined(__NR_clock_gettime)
 	__NR_clock_gettime,
 #endif
+#if defined(__NR_clock_gettime64)
+	__NR_clock_gettime64,
+#endif
 #if defined(__NR_clock_nanosleep)
 	__NR_clock_nanosleep,
 #endif
+#if defined(__NR_clock_nanosleep64)
+	__NR_clock_nanosleep64,
+#endif
 #if defined(__NR_clock_settime)
 	__NR_clock_settime,
+#endif
+#if defined(__NR_clock_settime64)
+	__NR_clock_settime64,
 #endif
 #if defined(__NR_clone)
 	__NR_clone,
@@ -1797,6 +1821,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_close)
 	__NR_close,
+#endif
+#if defined(__NR_close_range)
+	__NR_close_range,
 #endif
 #if defined(__NR_cmpxchg_badaddr)
 	__NR_cmpxchg_badaddr,
@@ -1861,17 +1888,29 @@ static const long skip_syscalls[] = {
 #if defined(__NR_epoll_ctl)
 	__NR_epoll_ctl,
 #endif
+#if defined(__NR_epoll_ctl_old)
+	__NR_epoll_ctl_old,
+#endif
 #if defined(__NR_epoll_pwait)
 	__NR_epoll_pwait,
 #endif
+#if defined(__NR_epoll_pwait2)
+	__NR_epoll_pwait2,
+#endif
 #if defined(__NR_epoll_wait)
 	__NR_epoll_wait,
+#endif
+#if defined(__NR_epoll_wait_old)
+	__NR_epoll_wait_old,
 #endif
 #if defined(__NR_eventfd)
 	__NR_eventfd,
 #endif
 #if defined(__NR_eventfd2)
 	__NR_eventfd2,
+#endif
+#if defined(__NR_exec_with_loader)
+	__NR_exec_with_loader,
 #endif
 #if defined(__NR_execv)
 	__NR_execv,
@@ -1881,9 +1920,6 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_execveat)
 	__NR_execveat,
-#endif
-#if defined(__NR_exec_with_loader)
-	__NR_exec_with_loader,
 #endif
 #if defined(__NR_exit)
 	__NR_exit,
@@ -1963,6 +1999,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_fork)
 	__NR_fork,
 #endif
+#if defined(__NR_fp_udfiex_crtl)
+	__NR_fp_udfiex_crtl,
+#endif
 #if defined(__NR_free_hugepages)
 	__NR_free_hugepages,
 #endif
@@ -2014,8 +2053,23 @@ static const long skip_syscalls[] = {
 #if defined(__NR_futex)
 	__NR_futex,
 #endif
+#if defined(__NR_futex_time64)
+	__NR_futex_time64,
+#endif
 #if defined(__NR_futimesat)
 	__NR_futimesat,
+#endif
+#if defined(__NR_get_kernel_syms)
+	__NR_get_kernel_syms,
+#endif
+#if defined(__NR_get_mempolicy)
+	__NR_get_mempolicy,
+#endif
+#if defined(__NR_get_robust_list)
+	__NR_get_robust_list,
+#endif
+#if defined(__NR_get_thread_area)
+	__NR_get_thread_area,
 #endif
 #if defined(__NR_getcpu)
 	__NR_getcpu,
@@ -2065,12 +2119,6 @@ static const long skip_syscalls[] = {
 #if defined(__NR_getitimer)
 	__NR_getitimer,
 #endif
-#if defined(__NR_get_kernel_syms)
-	__NR_get_kernel_syms,
-#endif
-#if defined(__NR_get_mempolicy)
-	__NR_get_mempolicy,
-#endif
 #if defined(__NR_getpagesize)
 	__NR_getpagesize,
 #endif
@@ -2113,9 +2161,6 @@ static const long skip_syscalls[] = {
 #if defined(__NR_getrlimit)
 	__NR_getrlimit,
 #endif
-#if defined(__NR_get_robust_list)
-	__NR_get_robust_list,
-#endif
 #if defined(__NR_getrusage)
 	__NR_getrusage,
 #endif
@@ -2127,9 +2172,6 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_getsockopt)
 	__NR_getsockopt,
-#endif
-#if defined(__NR_get_thread_area)
-	__NR_get_thread_area,
 #endif
 #if defined(__NR_gettid)
 	__NR_gettid,
@@ -2182,9 +2224,6 @@ static const long skip_syscalls[] = {
 #if defined(__NR_io_cancel)
 	__NR_io_cancel,
 #endif
-#if defined(__NR_ioctl)
-	__NR_ioctl,
-#endif
 #if defined(__NR_io_destroy)
 	__NR_io_destroy,
 #endif
@@ -2194,17 +2233,8 @@ static const long skip_syscalls[] = {
 #if defined(__NR_io_pgetevents)
 	__NR_io_pgetevents,
 #endif
-#if defined(__NR_ioperm)
-	__NR_ioperm,
-#endif
-#if defined(__NR_iopl)
-	__NR_iopl,
-#endif
-#if defined(__NR_ioprio_get)
-	__NR_ioprio_get,
-#endif
-#if defined(__NR_ioprio_set)
-	__NR_ioprio_set,
+#if defined(__NR_io_pgetevents_time64)
+	__NR_io_pgetevents_time64,
 #endif
 #if defined(__NR_io_setup)
 	__NR_io_setup,
@@ -2220,6 +2250,21 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_io_uring_setup)
 	__NR_io_uring_setup,
+#endif
+#if defined(__NR_ioctl)
+	__NR_ioctl,
+#endif
+#if defined(__NR_ioperm)
+	__NR_ioperm,
+#endif
+#if defined(__NR_iopl)
+	__NR_iopl,
+#endif
+#if defined(__NR_ioprio_set)
+	__NR_ioprio_set,
+#endif
+#if defined(__NR_ioprio_get)
+	__NR_ioprio_get,
 #endif
 #if defined(__NR_ipc)
 	__NR_ipc,
@@ -2326,6 +2371,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_memfd_create)
 	__NR_memfd_create,
 #endif
+#if defined(__NR_memfd_secret)
+	__NR_memfd_secret,
+#endif
 #if defined(__NR_memory_ordering)
 	__NR_memory_ordering,
 #endif
@@ -2380,6 +2428,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_mount)
 	__NR_mount,
 #endif
+#if defined(__NR_mount_setattr)
+	__NR_mount_setattr,
+#endif
 #if defined(__NR_move_mount)
 	__NR_move_mount,
 #endif
@@ -2404,8 +2455,14 @@ static const long skip_syscalls[] = {
 #if defined(__NR_mq_timedreceive)
 	__NR_mq_timedreceive,
 #endif
+#if defined(__NR_mq_timedreceive_time64)
+	__NR_mq_timedreceive_time64,
+#endif
 #if defined(__NR_mq_timedsend)
 	__NR_mq_timedsend,
+#endif
+#if defined(__NR_mq_timedsend_time64)
+	__NR_mq_timedsend_time64,
 #endif
 #if defined(__NR_mq_unlink)
 	__NR_mq_unlink,
@@ -2488,6 +2545,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_olddebug_setcontext)
 	__NR_olddebug_setcontext,
 #endif
+#if defined(__NR_old_getpagesize)
+	__NR_old_getpagesize,
+#endif
 #if defined(__NR_oldfstat)
 	__NR_oldfstat,
 #endif
@@ -2527,6 +2587,10 @@ static const long skip_syscalls[] = {
 #if defined(__NR_or1k_atomic)
 	__NR_or1k_atomic,
 #endif
+/* TODO: all NR_osf calls */
+#if defined(__NR_osf_adjtime)
+	__NR_osf_adjtime,
+#endif
 #if defined(__NR_pause)
 	__NR_pause,
 #endif
@@ -2539,17 +2603,20 @@ static const long skip_syscalls[] = {
 #if defined(__NR_pciconfig_write)
 	__NR_pciconfig_write,
 #endif
-#if defined(__NR_perfctr)
-	__NR_perfctr,
-#endif
 #if defined(__NR_perf_event_open)
 	__NR_perf_event_open,
+#endif
+#if defined(__NR_perfctr)
+	__NR_perfctr,
 #endif
 #if defined(__NR_perfmonctl)
 	__NR_perfmonctl,
 #endif
 #if defined(__NR_personality)
 	__NR_personality,
+#endif
+#if defined(__NR_pidfd_getfd)
+	__NR_pidfd_getfd,
 #endif
 #if defined(__NR_pidfd_open)
 	__NR_pidfd_open,
@@ -2587,6 +2654,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_ppoll)
 	__NR_ppoll,
 #endif
+#if defined(__NR_ppoll_time64)
+	__NR_ppoll_time64,
+#endif
 #if defined(__NR_prctl)
 	__NR_prctl,
 #endif
@@ -2605,6 +2675,12 @@ static const long skip_syscalls[] = {
 #if defined(__NR_prlimit64)
 	__NR_prlimit64,
 #endif
+#if defined(__NR_process_madvise)
+	__NR_process_madvise,
+#endif
+#if defined(__NR_process_mrelease)
+	__NR_process_mrelease,
+#endif
 #if defined(__NR_process_vm_readv)
 	__NR_process_vm_readv,
 #endif
@@ -2619,6 +2695,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_pselect6)
 	__NR_pselect6,
+#endif
+#if defined(__NR_pselect6_time64)
+	__NR_pselect6_time64,
 #endif
 #if defined(__NR_ptrace)
 	__NR_ptrace,
@@ -2643,6 +2722,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_quotactl)
 	__NR_quotactl,
+#endif
+#if defined(__NR_quotactl_fd)
+	__NR_quotactl_fd,
 #endif
 #if defined(__NR_read)
 	__NR_read,
@@ -2673,6 +2755,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_recvmmsg)
 	__NR_recvmmsg,
+#endif
+#if defined(__NR_recvmmsg_time64)
+	__NR_recvmmsg_time64,
 #endif
 #if defined(__NR_recvmsg)
 	__NR_recvmsg,
@@ -2728,9 +2813,6 @@ static const long skip_syscalls[] = {
 #if defined(__NR_rseq)
 	__NR_rseq,
 #endif
-#if defined(__NR_rtas)
-	__NR_rtas,
-#endif
 #if defined(__NR_rt_sigaction)
 	__NR_rt_sigaction,
 #endif
@@ -2752,8 +2834,14 @@ static const long skip_syscalls[] = {
 #if defined(__NR_rt_sigtimedwait)
 	__NR_rt_sigtimedwait,
 #endif
+#if defined(__NR_rt_sigtimedwait_time64)
+	__NR_rt_sigtimedwait_time64,
+#endif
 #if defined(__NR_rt_tgsigqueueinfo)
 	__NR_rt_tgsigqueueinfo,
+#endif
+#if defined(__NR_rtas)
+	__NR_rtas,
 #endif
 #if defined(__NR_s390_guarded_storage)
 	__NR_s390_guarded_storage,
@@ -2770,23 +2858,23 @@ static const long skip_syscalls[] = {
 #if defined(__NR_s390_sthyi)
 	__NR_s390_sthyi,
 #endif
-#if defined(__NR_sched_getaffinity)
-	__NR_sched_getaffinity,
-#endif
 #if defined(__NR_sched_get_affinity)
 	__NR_sched_get_affinity,
-#endif
-#if defined(__NR_sched_getattr)
-	__NR_sched_getattr,
-#endif
-#if defined(__NR_sched_getparam)
-	__NR_sched_getparam,
 #endif
 #if defined(__NR_sched_get_priority_max)
 	__NR_sched_get_priority_max,
 #endif
 #if defined(__NR_sched_get_priority_min)
 	__NR_sched_get_priority_min,
+#endif
+#if defined(__NR_sched_getaffinity)
+	__NR_sched_getaffinity,
+#endif
+#if defined(__NR_sched_getattr)
+	__NR_sched_getattr,
+#endif
+#if defined(__NR_sched_getparam)
+	__NR_sched_getparam,
 #endif
 #if defined(__NR_sched_getscheduler)
 	__NR_sched_getscheduler,
@@ -2797,11 +2885,11 @@ static const long skip_syscalls[] = {
 #if defined(__NR_sched_rr_stress_get_interval)
 	__NR_sched_rr_stress_get_interval,
 #endif
-#if defined(__NR_sched_setaffinity)
-	__NR_sched_setaffinity,
-#endif
 #if defined(__NR_sched_set_affinity)
 	__NR_sched_set_affinity,
+#endif
+#if defined(__NR_sched_setaffinity)
+	__NR_sched_setaffinity,
 #endif
 #if defined(__NR_sched_setattr)
 	__NR_sched_setattr,
@@ -2860,6 +2948,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_semtimedop)
 	__NR_semtimedop,
 #endif
+#if defined(__NR_semtimedop_time64)
+	__NR_semtimedop_time64,
+#endif
 #if defined(__NR_send)
 	__NR_send,
 #endif
@@ -2877,6 +2968,21 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_sendto)
 	__NR_sendto,
+#endif
+#if defined(__NR_set_mempolicy)
+	__NR_set_mempolicy,
+#endif
+#if defined(__NR_set_mempolicy_home_node)
+	__NR_set_mempolicy_home_node,
+#endif
+#if defined(__NR_set_robust_list)
+	__NR_set_robust_list,
+#endif
+#if defined(__NR_set_thread_area)
+	__NR_set_thread_area,
+#endif
+#if defined(__NR_set_tid_address)
+	__NR_set_tid_address,
 #endif
 #if defined(__NR_setdomainname)
 	__NR_setdomainname,
@@ -2913,9 +3019,6 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_setitimer)
 	__NR_setitimer,
-#endif
-#if defined(__NR_set_mempolicy)
-	__NR_set_mempolicy,
 #endif
 #if defined(__NR_setns)
 	__NR_setns,
@@ -2956,20 +3059,11 @@ static const long skip_syscalls[] = {
 #if defined(__NR_setrlimit)
 	__NR_setrlimit,
 #endif
-#if defined(__NR_set_robust_list)
-	__NR_set_robust_list,
-#endif
 #if defined(__NR_setsid)
 	__NR_setsid,
 #endif
 #if defined(__NR_setsockopt)
 	__NR_setsockopt,
-#endif
-#if defined(__NR_set_thread_area)
-	__NR_set_thread_area,
-#endif
-#if defined(__NR_set_tid_address)
-	__NR_set_tid_address,
 #endif
 #if defined(__NR_settimeofday)
 	__NR_settimeofday,
@@ -3112,6 +3206,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_syncfs)
 	__NR_syncfs,
 #endif
+#if defined(__NR_sys_debug_setcontext)
+	__NR_sys_debug_setcontext,
+#endif
 #if defined(__NR_syscall)
 	__NR_syscall,
 #endif
@@ -3132,9 +3229,6 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR__sysctl)
 	__NR__sysctl,
-#endif
-#if defined(__NR_sys_debug_setcontext)
-	__NR_sys_debug_setcontext,
 #endif
 #if defined(__NR_sysfs)
 	__NR_sysfs,
@@ -3166,6 +3260,21 @@ static const long skip_syscalls[] = {
 #if defined(__NR_timer_delete)
 	__NR_timer_delete,
 #endif
+#if defined(__NR_timer_getoverrun)
+	__NR_timer_getoverrun,
+#endif
+#if defined(__NR_timer_gettime)
+	__NR_timer_gettime,
+#endif
+#if defined(__NR_timer_gettime64)
+	__NR_timer_gettime64,
+#endif
+#if defined(__NR_timer_settime)
+	__NR_timer_settime,
+#endif
+#if defined(__NR_timer_settime64)
+	__NR_timer_settime64,
+#endif
 #if defined(__NR_timerfd)
 	__NR_timerfd,
 #endif
@@ -3175,17 +3284,14 @@ static const long skip_syscalls[] = {
 #if defined(__NR_timerfd_gettime)
 	__NR_timerfd_gettime,
 #endif
+#if defined(__NR_timerfd_gettime64)
+	__NR_timerfd_gettime64,
+#endif
 #if defined(__NR_timerfd_settime)
 	__NR_timerfd_settime,
 #endif
-#if defined(__NR_timer_getoverrun)
-	__NR_timer_getoverrun,
-#endif
-#if defined(__NR_timer_gettime)
-	__NR_timer_gettime,
-#endif
-#if defined(__NR_timer_settime)
-	__NR_timer_settime,
+#if defined(__NR_timerfd_settime64)
+	__NR_timerfd_settime64,
 #endif
 #if defined(__NR_times)
 	__NR_times,
@@ -3261,6 +3367,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_utimensat)
 	__NR_utimensat,
+#endif
+#if defined(__NR_utimensat_time64)
+	__NR_utimensat_time64,
 #endif
 #if defined(__NR_utimes)
 	__NR_utimes,
