@@ -3461,14 +3461,18 @@ static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
  *  Call a system call in a child context so we don't clobber
  *  the parent
  */
-static inline int stress_do_syscall(const stress_args_t *args, const unsigned long number)
+static inline int stress_do_syscall(
+	const stress_args_t *args,
+	const unsigned long number,
+	const bool random)
 {
 	pid_t pid;
 	int rc = 0;
 
 	/* Check if this is a known non-ENOSYS syscall */
-	if (syscall_find(number))
+	if (syscall_find(number)) {
 		return rc;
+	}
 	if (!keep_stressing(args))
 		return 0;
 	pid = fork();
@@ -3544,8 +3548,10 @@ static inline int stress_do_syscall(const stress_args_t *args, const unsigned lo
 		rc = WEXITSTATUS(status);
 
 		/* Add to known syscalls that don't return ENOSYS */
-		if (rc != ENOSYS)
-			syscall_add(number);
+		if (rc != ENOSYS) {
+			if ((!random) || (random && number < 65536))
+				syscall_add(number);
+		}
 		inc_counter(args);
 	}
 	return rc;
@@ -3576,6 +3582,8 @@ again:
 			args->name, errno, strerror(errno));
 	} else if (pid > 0) {
 		int status, ret;
+
+printf("REDO\n");
 
 		(void)setpgid(pid, g_pgrp);
 		/* Parent, wait for child */
@@ -3637,39 +3645,39 @@ again:
 			for (number = 0; number < MAX_SYSCALL + 1024; number++) {
 				if (!keep_stressing(args))
 					goto finish;
-				stress_do_syscall(args, number);
+				stress_do_syscall(args, number, false);
 			}
 
 			/* Random syscalls */
 			for (j = 0; j < 1024; j++) {
 				if (!keep_stressing(args))
 					goto finish;
-				stress_do_syscall(args, stress_mwc8() & mask);
+				stress_do_syscall(args, stress_mwc8() & mask, true);
 				if (!keep_stressing(args))
 					goto finish;
-				stress_do_syscall(args, stress_mwc16() & mask);
+				stress_do_syscall(args, stress_mwc16() & mask, true);
 				if (!keep_stressing(args))
 					goto finish;
-				stress_do_syscall(args, stress_mwc32() & mask);
+				stress_do_syscall(args, stress_mwc32() & mask, true);
 				if (!keep_stressing(args))
 					goto finish;
-				stress_do_syscall(args, (long)(stress_mwc64() & mask));
+				stress_do_syscall(args, (long)(stress_mwc64() & mask), true);
 			}
 
 			/* Various bit masks */
 			for (number = 1; number; number <<= 1) {
 				if (!keep_stressing(args))
 					goto finish;
-				stress_do_syscall(args, number);
+				stress_do_syscall(args, number, false);
 				if (!keep_stressing(args))
 					goto finish;
-				stress_do_syscall(args, number | 1);
+				stress_do_syscall(args, number | 1, false);
 				if (!keep_stressing(args))
 					goto finish;
-				stress_do_syscall(args, number | (number << 1));
+				stress_do_syscall(args, number | (number << 1), false);
 				if (!keep_stressing(args))
 					goto finish;
-				stress_do_syscall(args, ~number);
+				stress_do_syscall(args, ~number, false);
 			}
 
 			/* Various high syscalls */
@@ -3679,7 +3687,7 @@ again:
 				for (n = 0; n < 0x100; n++) {
 					if (!keep_stressing(args))
 						goto finish;
-					stress_do_syscall(args, n + number);
+					stress_do_syscall(args, n + number, false);
 				}
 			}
 		} while (keep_stressing(args));
