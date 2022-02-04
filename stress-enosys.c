@@ -3583,8 +3583,6 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-printf("REDO\n");
-
 		(void)setpgid(pid, g_pgrp);
 		/* Parent, wait for child */
 		ret = shim_waitpid(pid, &status, 0);
