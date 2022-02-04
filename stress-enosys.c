@@ -56,7 +56,7 @@ static const stress_help_t help[] = {
 
 typedef struct hash_syscall {
 	struct hash_syscall *next;
-	long	number;
+	unsigned long	number;
 } stress_hash_syscall_t;
 
 static stress_hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
@@ -314,7 +314,7 @@ static const int syscall_ignore[] = {
 #endif
 };
 
-static inline bool HOT OPTIMIZE3 syscall_find(long number)
+static inline bool HOT OPTIMIZE3 syscall_find(unsigned long number)
 {
 	register stress_hash_syscall_t *h;
 	register int i;
@@ -335,7 +335,7 @@ static inline bool HOT OPTIMIZE3 syscall_find(long number)
 	return false;
 }
 
-static inline void HOT OPTIMIZE3 syscall_add(long number)
+static inline void HOT OPTIMIZE3 syscall_add(const unsigned long number)
 {
 	const long hash = number % HASH_SYSCALL_SIZE;
 	stress_hash_syscall_t *newh, *h = hash_syscall_table[hash];
@@ -3461,7 +3461,7 @@ static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
  *  Call a system call in a child context so we don't clobber
  *  the parent
  */
-static inline int stress_do_syscall(const stress_args_t *args, const long number)
+static inline int stress_do_syscall(const stress_args_t *args, const unsigned long number)
 {
 	pid_t pid;
 	int rc = 0;
@@ -3631,7 +3631,7 @@ again:
 			syscall_add(skip_syscalls[j]);
 
 		do {
-			long number;
+			unsigned long number;
 
 			/* Low sequential syscalls */
 			for (number = 0; number < MAX_SYSCALL + 1024; number++) {
