@@ -19,9 +19,7 @@
  */
 #include "stress-ng.h"
 
-#if defined(HAVE_XMMINTRIN_H)
-#include <xmmintrin.h>
-#endif
+#include "core-nt-store.h"
 
 #define MIN_MEMRATE_BYTES       (4 * KB)
 #define MAX_MEMRATE_BYTES       (MAX_MEM_LIMIT)
@@ -174,14 +172,16 @@ static uint64_t stress_memrate_write##size(			\
 		for (i = 0; (i < (uint32_t)MB) &&		\
 		     (ptr < (type *)end);			\
 		     ptr += 8, i += size) {			\
-			ptr[0] = (uint8_t)i;			\
-			ptr[1] = (uint8_t)i;			\
-			ptr[2] = (uint8_t)i;			\
-			ptr[3] = (uint8_t)i;			\
-			ptr[4] = (uint8_t)i;			\
-			ptr[5] = (uint8_t)i;			\
-			ptr[6] = (uint8_t)i;			\
-			ptr[7] = (uint8_t)i;			\
+			type v = (type)i;			\
+								\
+			ptr[0] = v;				\
+			ptr[1] = v;				\
+			ptr[2] = v;				\
+			ptr[3] = v;				\
+			ptr[4] = v;				\
+			ptr[5] = v;				\
+			ptr[6] = v;				\
+			ptr[7] = v;				\
 		}						\
 		t2 = stress_time_now();				\
 		total_dur += dur;				\
@@ -209,8 +209,8 @@ static uint64_t stress_memrate_write##size(			\
  *  read, so no need to cache. Write directly to memory.
  */
 
-#define STRESS_MEMRATE_WRITE_NT(size, type, movtype, op, init)	\
-static uint64_t stress_memrate_write_nt##size(			\
+#define STRESS_MEMRATE_WRITE_NT(size, type, op, init)		\
+static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	void *start,						\
 	void *end,						\
 	uint64_t rd_mbs,					\
@@ -236,20 +236,20 @@ static uint64_t stress_memrate_write_nt##size(			\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < (uint32_t)MB) &&		\
+		for (i = 0; (i < (type)MB) &&			\
 		     (ptr < (type *)end);			\
 		     ptr += 8, i += size) {			\
-			movtype v = (movtype)init;		\
-			movtype *vptr = (movtype *)ptr;		\
+			register type *vptr = (type *)ptr;	\
+			register type v = (type)i;		\
 								\
-			op(&vptr[0], v);			\
-			op(&vptr[1], v);			\
-			op(&vptr[2], v);			\
-			op(&vptr[3], v);			\
-			op(&vptr[4], v);			\
-			op(&vptr[5], v);			\
-			op(&vptr[6], v);			\
-			op(&vptr[7], v);			\
+			op(vptr + 0, v);			\
+			op(vptr + 1, v);			\
+			op(vptr + 2, v);			\
+			op(vptr + 3, v);			\
+			op(vptr + 4, v);			\
+			op(vptr + 5, v);			\
+			op(vptr + 6, v);			\
+			op(vptr + 7, v);			\
 		}						\
 		t2 = stress_time_now();				\
 		total_dur += dur;				\
@@ -270,46 +270,16 @@ static uint64_t stress_memrate_write_nt##size(			\
 	return ((uintptr_t)ptr - (uintptr_t)start) / KB;	\
 }
 
-#define __BUILTIN_NONTEMPORAL_STORE(a, b)	__builtin_nontemporal_store(b, a)
-
-#if defined(HAVE_INT128_T) &&		\
-    defined(HAVE_BUILTIN_SUPPORTS) &&	\
-    defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
-/* Clang non-temporal stores */
-STRESS_MEMRATE_WRITE_NT(128, __uint128_t, __uint128_t, __BUILTIN_NONTEMPORAL_STORE, i)
-#define HAVE_WRITE128NT
-#elif defined(HAVE_XMMINTRIN_H) &&	\
-    defined(HAVE_INT128_T) &&		\
-    defined(HAVE_V2DI) && 		\
-    defined(HAVE_BUILTIN_SUPPORTS) &&	\
-    defined(HAVE_BUILTIN_IA32_MOVNTDQ)
-/* gcc x86 non-temporal stores */
-STRESS_MEMRATE_WRITE_NT(128, __uint128_t, __v2di, __builtin_ia32_movntdq, SINGLE_ARG({ 0, i }))
-#define HAVE_WRITE128NT
+#if defined(HAVE_NT_STORE128)
+STRESS_MEMRATE_WRITE_NT(128, __uint128_t, stress_nt_store128, i)
 #endif
 
-#if defined(HAVE_BUILTIN_SUPPORTS) &&	\
-    defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
-/* Clang non-temporal stores */
-STRESS_MEMRATE_WRITE_NT(64, uint64_t, uint64_t, __BUILTIN_NONTEMPORAL_STORE, i)
-#define HAVE_WRITE64NT
-#elif defined(HAVE_XMMINTRIN_H) &&	\
-    defined(HAVE_BUILTIN_SUPPORTS) &&	\
-    defined(HAVE_BUILTIN_IA32_MOVNTI64)
-STRESS_MEMRATE_WRITE_NT(64, uint64_t, long long int, __builtin_ia32_movnti64, i)
-#define HAVE_WRITE64NT
+#if defined(HAVE_NT_STORE64)
+STRESS_MEMRATE_WRITE_NT(64, uint64_t, stress_nt_store64, i)
 #endif
 
-#if defined(HAVE_BUILTIN_SUPPORTS) &&	\
-    defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
-/* Clang non-temporal stores */
-STRESS_MEMRATE_WRITE_NT(32, uint32_t, uint32_t, __BUILTIN_NONTEMPORAL_STORE, i)
-#define HAVE_WRITE32NT
-#elif defined(HAVE_XMMINTRIN_H) &&	\
-    defined(HAVE_BUILTIN_SUPPORTS) &&	\
-    defined(HAVE_BUILTIN_IA32_MOVNTI)
-STRESS_MEMRATE_WRITE_NT(32, uint32_t, int, __builtin_ia32_movnti, i)
-#define HAVE_WRITE32NT
+#if defined(HAVE_NT_STORE32)
+STRESS_MEMRATE_WRITE_NT(32, uint32_t, stress_nt_store32, i)
 #endif
 
 #if defined(HAVE_INT128_T)
@@ -321,13 +291,13 @@ STRESS_MEMRATE_WRITE(16, uint16_t)
 STRESS_MEMRATE_WRITE(8, uint8_t)
 
 static stress_memrate_info_t memrate_info[] = {
-#if defined(HAVE_WRITE128NT)
+#if defined(HAVE_NT_STORE128)
 	{ "write128nt",	stress_memrate_write_nt128 },
 #endif
-#if defined(HAVE_WRITE64NT)
+#if defined(HAVE_NT_STORE64)
 	{ "write64nt",	stress_memrate_write_nt64 },
 #endif
-#if defined(HAVE_WRITE32NT)
+#if defined(HAVE_NT_STORE32)
 	{ "write32nt",	stress_memrate_write_nt32 },
 #endif
 
