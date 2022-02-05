@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-target-clones.h"
+#include "core-nt-store.h"
 
 #define MISALIGN_LOOPS		(32768)
 
@@ -386,6 +387,35 @@ static void stress_misaligned_int32wr(uint8_t *buffer, const size_t page_size)
 	}
 }
 
+#if defined(HAVE_NT_STORE32)
+static void stress_misaligned_int32wrnt(uint8_t *buffer, const size_t page_size)
+{
+	register int i = MISALIGN_LOOPS;
+	uint32_t *ptr1 = (uint32_t *)(buffer + 1);
+	uint32_t *ptr2 = (uint32_t *)(buffer + 5);
+	uint32_t *ptr3 = (uint32_t *)(buffer + 9);
+	uint32_t *ptr4 = (uint32_t *)(buffer + 13);
+	uint32_t *ptr5 = (uint32_t *)(buffer + page_size - 1);
+	uint32_t *ptr6 = (uint32_t *)(buffer + page_size - 5);
+	uint32_t *ptr7 = (uint32_t *)(buffer + page_size - 9);
+	uint32_t *ptr8 = (uint32_t *)(buffer + page_size - 13);
+	uint32_t *ptr9 = (uint32_t *)(buffer + 63);
+
+	while (keep_stressing_flag() && --i) {
+		stress_nt_store32(ptr1, (uint32_t)i);
+		stress_nt_store32(ptr2, (uint32_t)i);
+		stress_nt_store32(ptr3, (uint32_t)i);
+		stress_nt_store32(ptr4, (uint32_t)i);
+		stress_nt_store32(ptr5, (uint32_t)i);
+		stress_nt_store32(ptr6, (uint32_t)i);
+		stress_nt_store32(ptr7, (uint32_t)i);
+		stress_nt_store32(ptr8, (uint32_t)i);
+		stress_nt_store32(ptr9, (uint32_t)i);
+	}
+}
+
+#endif
+
 static void stress_misaligned_int32inc(uint8_t *buffer, const size_t page_size)
 {
 	register int i = MISALIGN_LOOPS;
@@ -514,6 +544,26 @@ static void stress_misaligned_int64wr(uint8_t *buffer, const size_t page_size)
 	}
 }
 
+#if defined(HAVE_NT_STORE64)
+static void stress_misaligned_int64wrnt(uint8_t *buffer, const size_t page_size)
+{
+	register int i = MISALIGN_LOOPS;
+	uint64_t *ptr1 = (uint64_t *)(buffer + 1);
+	uint64_t *ptr2 = (uint64_t *)(buffer + 9);
+	uint64_t *ptr3 = (uint64_t *)(buffer + page_size - 1);
+	uint64_t *ptr4 = (uint64_t *)(buffer + page_size - 9);
+	uint64_t *ptr5 = (uint64_t *)(buffer + 63);
+
+	while (keep_stressing_flag() && --i) {
+		stress_nt_store64(ptr1, (uint64_t)i);
+		stress_nt_store64(ptr2, (uint64_t)i);
+		stress_nt_store64(ptr3, (uint64_t)i);
+		stress_nt_store64(ptr4, (uint64_t)i);
+		stress_nt_store64(ptr5, (uint64_t)i);
+	}
+}
+#endif
+
 static void stress_misaligned_int64inc(uint8_t *buffer, const size_t page_size)
 {
 	register int i = MISALIGN_LOOPS;
@@ -616,6 +666,22 @@ static void stress_misaligned_int128wr(uint8_t *buffer, const size_t page_size)
 	}
 }
 
+#if defined(HAVE_NT_STORE128) && 0
+static void stress_misaligned_int128wrnt(uint8_t *buffer, const size_t page_size)
+{
+	register int i = MISALIGN_LOOPS;
+	__uint128_t *ptr1 = (__uint128_t *)(buffer + 1);
+	__uint128_t *ptr2 = (__uint128_t *)(buffer + page_size - 1);
+	__uint128_t *ptr3 = (__uint128_t *)(buffer + 63);
+
+	while (keep_stressing_flag() && --i) {
+		stress_nt_store128(ptr1, (__uint128_t)i);
+		stress_nt_store128(ptr2, (__uint128_t)i);
+		stress_nt_store128(ptr3, (__uint128_t)i);
+	}
+}
+#endif
+
 static void TARGET_CLONE_NO_SSE stress_misaligned_int128inc(uint8_t *buffer, const size_t page_size)
 {
 	register int i = MISALIGN_LOOPS;
@@ -669,6 +735,9 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 #endif
 	{ "int32rd",	stress_misaligned_int32rd,	false,	false },
 	{ "int32wr",	stress_misaligned_int32wr,	false,	false },
+#if defined(HAVE_NT_STORE64)
+	{ "int32wrnt",	stress_misaligned_int32wrnt,	false,	false },
+#endif
 	{ "int32inc",	stress_misaligned_int32inc,	false,	false },
 #if defined(HAVE_ATOMIC_FETCH_ADD_4) &&	\
     defined(HAVE_ATOMIC) &&		\
@@ -677,6 +746,9 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 #endif
 	{ "int64rd",	stress_misaligned_int64rd,	false,	false },
 	{ "int64wr",	stress_misaligned_int64wr,	false,	false },
+#if defined(HAVE_NT_STORE64)
+	{ "int64wrnt",	stress_misaligned_int64wrnt,	false,	false },
+#endif
 	{ "int64inc",	stress_misaligned_int64inc,	false,	false },
 #if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
     defined(HAVE_ATOMIC) &&		\
@@ -686,6 +758,9 @@ static stress_misaligned_method_info_t stress_misaligned_methods[] = {
 #if defined(HAVE_INT128_T)
 	{ "int128rd",	stress_misaligned_int128rd,	false,	false },
 	{ "int128wr",	stress_misaligned_int128wr,	false,	false },
+#if defined(HAVE_NT_STORE128) && 0
+	{ "int128wrnt",	stress_misaligned_int128wrnt,	false,	false },
+#endif
 	{ "int128inc",	stress_misaligned_int128inc,	false,	false },
 #if defined(HAVE_ATOMIC_FETCH_ADD_8) &&	\
     defined(HAVE_ATOMIC) &&		\
