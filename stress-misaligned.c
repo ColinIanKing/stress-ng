@@ -747,7 +747,7 @@ static void stress_misaligned_exercised(const stress_args_t *args)
 	if (args->instance != 0)
 		return;
 
-	for (info = &stress_misaligned_methods[1]; info->func && keep_stressing_flag(); info++) {
+	for (info = &stress_misaligned_methods[1]; info->func; info++) {
 		if (info->exercised) {
 			char *tmp;
 			const size_t name_len = strlen(info->name);
