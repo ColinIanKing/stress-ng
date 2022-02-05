@@ -19,10 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-cache.h"
-
-#if defined(HAVE_XMMINTRIN_H)
-#include <xmmintrin.h>
-#endif
+#include "core-nt-store.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"memthrash N",		"start N workers thrashing a 16MB memory buffer" },
@@ -182,39 +179,17 @@ static void HOT OPTIMIZE3 stress_memthrash_memset64(
 
 	(void)args;
 
-#if defined(HAVE_BUILTIN_SUPPORTS) &&   \
-    defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
-	/* Clang non-temporal stores */
-
+#if defined(HAVE_NT_STORE64)
 	if (stress_cpu_x86_has_sse2()) {
 		while (LIKELY(ptr < end)) {
-			__builtin_nontemporal_store(val, ptr + 0);
-			__builtin_nontemporal_store(val, ptr + 1);
-			__builtin_nontemporal_store(val, ptr + 2);
-			__builtin_nontemporal_store(val, ptr + 3);
-			__builtin_nontemporal_store(val, ptr + 4);
-			__builtin_nontemporal_store(val, ptr + 5);
-			__builtin_nontemporal_store(val, ptr + 6);
-			__builtin_nontemporal_store(val, ptr + 7);
-			ptr += 8;
-		}
-		return;
-	}
-#elif defined(HAVE_XMMINTRIN_H) &&      \
-    defined(HAVE_BUILTIN_SUPPORTS) &&   \
-    defined(HAVE_BUILTIN_IA32_MOVNTI64)
-	/* gcc non-temporal stores */
-
-	if (stress_cpu_x86_has_sse2()) {
-		while (LIKELY(ptr < end)) {
-			__builtin_ia32_movnti64((long long *)ptr + 0, (long long)val);
-			__builtin_ia32_movnti64((long long *)ptr + 1, (long long)val);
-			__builtin_ia32_movnti64((long long *)ptr + 2, (long long)val);
-			__builtin_ia32_movnti64((long long *)ptr + 3, (long long)val);
-			__builtin_ia32_movnti64((long long *)ptr + 4, (long long)val);
-			__builtin_ia32_movnti64((long long *)ptr + 5, (long long)val);
-			__builtin_ia32_movnti64((long long *)ptr + 6, (long long)val);
-			__builtin_ia32_movnti64((long long *)ptr + 7, (long long)val);
+			stress_nt_store64(ptr + 0, val);
+			stress_nt_store64(ptr + 1, val);
+			stress_nt_store64(ptr + 2, val);
+			stress_nt_store64(ptr + 3, val);
+			stress_nt_store64(ptr + 4, val);
+			stress_nt_store64(ptr + 5, val);
+			stress_nt_store64(ptr + 6, val);
+			stress_nt_store64(ptr + 7, val);
 			ptr += 8;
 		}
 		return;
