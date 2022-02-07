@@ -204,8 +204,11 @@ static void *stress_malloc_loop(void *ptr)
 	for (;;) {
 		const unsigned int rnd = stress_mwc32();
 		const unsigned int i = rnd % malloc_max;
-		const unsigned int action = (rnd >> 12) & 1;
+		const unsigned int action = (rnd >> 12);
 		const unsigned int do_calloc = (rnd >> 14) & 0x1f;
+#if defined(HAVE_MALLOC_TRIM)
+		const unsigned int do_trim = (rnd & 0x7);
+#endif
 
 		/*
 		 * With many instances running it is wise to
@@ -256,6 +259,10 @@ static void *stress_malloc_loop(void *ptr)
 				}
 			}
 		}
+#if defined(HAVE_MALLOC_TRIM)
+		if (do_trim == 0)
+			(void)malloc_trim(0);
+#endif
 	}
 
 	for (j = 0; j < malloc_max; j++) {
