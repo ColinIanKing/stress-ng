@@ -245,7 +245,7 @@ static int stress_rseq_oomable(const stress_args_t *args, void *context)
 	(void)memset(&sa, 0, sizeof(sa));
 	sa.sa_handler = sigsegv_handler;
 	if (sigaction(SIGSEGV, &sa, NULL) < 0) {
-		fprintf(stderr, "Failed to set SIGSEGV hhandler\n");
+		(void)fprintf(stderr, "Failed to set SIGSEGV hhandler\n");
 		exit(1);
 	}
 

@@ -1625,7 +1625,7 @@ static void stress_clean_dir_files(
 			continue;
 		}
 
-		snprintf(ptr, (size_t)(end - ptr), "/%s", names[n]->d_name);
+		(void)snprintf(ptr, (size_t)(end - ptr), "/%s", names[n]->d_name);
 		name_len = strlen(ptr);
 		free(names[n]);
 
@@ -1900,7 +1900,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 	case SIGSEGV:
 	case SIGFPE:
 	case SIGBUS:
-		snprintf(buf, sizeof(buf), "%s: info:  [%d] stressor terminated with unexpected signal %s\n",
+		(void)snprintf(buf, sizeof(buf), "%s: info:  [%d] stressor terminated with unexpected signal %s\n",
 			g_app_name, (int)getpid(), stress_strsignal(signum));
 		ret = write(fd, buf, strlen(buf));
 		(void)ret;
@@ -3279,18 +3279,18 @@ next_opt:
 	if (optind < argc) {
 		bool unicode = false;
 
-		printf("Error: unrecognised option:");
+		(void)printf("Error: unrecognised option:");
 		while (optind < argc) {
-			printf(" %s", argv[optind]);
+			(void)printf(" %s", argv[optind]);
 			if (((argv[optind][0] & 0xff) == 0xe2) &&
 			    ((argv[optind][1] & 0xff) == 0x88)) {
 				unicode = true;
 			}
 			optind++;
 		}
-		printf("\n");
+		(void)printf("\n");
 		if (unicode)
-			printf("note: a Unicode minus sign was used instead of an ASCII '-' for an option\n");
+			(void)printf("note: a Unicode minus sign was used instead of an ASCII '-' for an option\n");
 		return EXIT_FAILURE;
 	}
 	return EXIT_SUCCESS;

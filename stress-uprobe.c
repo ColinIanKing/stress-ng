@@ -244,7 +244,7 @@ clear_events:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* Remove uprobe */
-	snprintf(buf, sizeof(buf), "-:%s\n", event);
+	(void)snprintf(buf, sizeof(buf), "-:%s\n", event);
 	ret = stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
 		O_WRONLY | O_APPEND, buf);
 	(void)ret;

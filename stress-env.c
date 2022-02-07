@@ -77,7 +77,7 @@ static int stress_env_child(const stress_args_t *args, void *context)
 		int ret;
 		const size_t sz = 1 + (stress_mwc32() % (arg_max - 2));
 
-		snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, i);
+		(void)snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, i);
 		/*
 		 *  Set a random length for a variable
 		 */

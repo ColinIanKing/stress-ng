@@ -2112,7 +2112,7 @@ static void syscall_permute(
 			current_context->args[5]);
 
 		/*
-		printf("syscall: %s(%lx,%lx,%lx,%lx,%lx,%lx) -> %d\n",
+		(void)printf("syscall: %s(%lx,%lx,%lx,%lx,%lx,%lx) -> %d\n",
 			current_context->name,
 			current_context->args[0],
 			current_context->args[1],

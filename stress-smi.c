@@ -83,7 +83,7 @@ static int stress_smi_readmsr64(const int cpu, const uint32_t reg, uint64_t *val
 	int ret;
 
 	*val = ~0;
-	snprintf(buffer, sizeof(buffer), "/dev/cpu/%d/msr", cpu);
+	(void)snprintf(buffer, sizeof(buffer), "/dev/cpu/%d/msr", cpu);
 	if ((fd = open(buffer, O_RDONLY)) < 0)
 		return -1;
 

@@ -30,7 +30,7 @@ int main(void)
 	if (!mounts)
 		return 1;
 	while ((mount = getmntent(mounts)) != NULL)
-		printf("%s\n", mount->mnt_fsname);
+		(void)printf("%s\n", mount->mnt_fsname);
 		
 	(void)endmntent(mounts);
 	return 0;

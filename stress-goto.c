@@ -51,7 +51,7 @@ static int stress_set_goto_direction(const char *opts)
 	(void)fprintf(stderr, "hdd-opt option '%s' not known, options are:", opts);
 	for (i = 0; i < SIZEOF_ARRAY(stress_goto_direction); i++)
 		(void)fprintf(stderr, "%s %s", i == 0 ? "" : ",", stress_goto_direction[i].option);
-	fprintf(stderr, "\n");
+	(void)fprintf(stderr, "\n");
 
 	return -1;
 }
