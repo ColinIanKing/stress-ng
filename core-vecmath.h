@@ -19,6 +19,8 @@
 #ifndef CORE_VECMATH_H
 #define CORE_VECMATH_H
 
+#include "core-arch.h"
+
 /*
  *  Clang 5.0 is the lowest version of clang that
  *  can build this without issues (clang 4.0 seems

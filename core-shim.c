@@ -21,6 +21,7 @@
 
 #include "stress-ng.h"
 #include "core-pragma.h"
+#include "core-arch.h"
 
 #if defined(__NR_pkey_get)
 #define HAVE_PKEY_GET

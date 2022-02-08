@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-cache.h"
 #include "core-nt-store.h"
 

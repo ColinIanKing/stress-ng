@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 #if defined(HAVE_LINUX_KVM_H)
 #include <linux/kvm.h>

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_LINUX_MEMPOLICY_H)

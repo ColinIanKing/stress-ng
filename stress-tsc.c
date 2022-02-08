@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 #if defined(HAVE_SYS_PLATFORM_PPC_H)
 #include <sys/platform/ppc.h>

@@ -19,6 +19,8 @@
 #ifndef CORE_CACHE_H
 #define CORE_CACHE_H
 
+#include "core-arch.h"
+
 /*
  *  cacheflush(2) cache options
  */

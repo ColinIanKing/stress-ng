@@ -17,6 +17,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-pragma.h"
 
 #if defined(HAVE_LINUX_RSEQ_H)

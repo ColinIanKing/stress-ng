@@ -19,6 +19,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 #if defined(HAVE_BSD_WCHAR)
 #include <bsd/wchar.h>

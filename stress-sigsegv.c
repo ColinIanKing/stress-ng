@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 static sigjmp_buf jmp_env;
 #if defined(SA_SIGINFO)

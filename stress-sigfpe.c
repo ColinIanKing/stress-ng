@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-put.h"
 
 #if defined(HAVE_FENV_H)

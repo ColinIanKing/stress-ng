@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-target-clones.h"
 #include "core-nt-store.h"
 

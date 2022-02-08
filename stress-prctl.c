@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 #if defined(HAVE_ASM_PRCTL_H)
 #include <asm/prctl.h>

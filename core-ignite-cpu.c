@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 typedef struct {
 	const char *path;		/* Path of /sys control */

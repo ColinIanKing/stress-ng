@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-put.h"
 #include "core-target-clones.h"
 

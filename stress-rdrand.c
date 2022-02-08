@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 #if defined(HAVE_SYS_CAPABILITY_H)
 #include <sys/capability.h>

@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigtrap N",	 "start N workers generating segmentation faults" },

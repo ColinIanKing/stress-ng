@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 #if defined(HAVE_INTEL_IPSEC_MB_H)
 #include <intel-ipsec-mb.h>

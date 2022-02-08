@@ -19,6 +19,8 @@
 #ifndef CORE_TARGET_CLONES_H
 #define CORE_TARGET_CLONES_H
 
+#include "core-arch.h"
+
 #if defined(__ICC)
 #undef HAVE_TARGET_CLONES
 #endif
