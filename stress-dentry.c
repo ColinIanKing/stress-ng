@@ -162,7 +162,6 @@ static void stress_dentry_misc(const char *path)
 #if defined(HAVE_UTIME_H)
 	struct utimbuf utim;
 #endif
-	fd_set rdfds;
 	char buf[1024];
 	void *ptr;
 
@@ -224,6 +223,7 @@ static void stress_dentry_misc(const char *path)
 #if defined(HAVE_SYS_SELECT_H)
 	{
 		struct timeval timeout;
+		fd_set rdfds;
 
 		FD_ZERO(&rdfds);
 		FD_SET(fd, &rdfds);
