@@ -28,6 +28,10 @@
 #include <sys/swap.h>
 #endif
 
+#define SHIM_EXT2_IOC_GETFLAGS		_IOR('f', 1, long)
+#define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long)
+#define SHIM_FS_NOCOW_FL		0x00800000 /* No Copy-on-Write file */
+
 static const stress_help_t help[] = {
 	{ NULL,	"swap N",	"start N workers exercising swapon/swapoff" },
 	{ NULL,	"swap-ops N",	"stop after N swapon/swapoff operations" },
@@ -220,6 +224,23 @@ static int stress_swap(const stress_args_t *args)
 		goto tidy_rm;
 	}
 
+#if defined(__linux__)
+	{
+		unsigned long flags;
+
+		/*
+		 *  Disable Copy-on-Write on file where possible, since
+		 *  file systems such as btrfs have CoW enabled by default
+		 *  and we swap does not support this feature.
+		 */
+		if (ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &flags) == 0) {
+			flags |= SHIM_FS_NOCOW_FL;
+			ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flags);
+			(void)ret;
+		}
+	}
+#endif
+
 	if (stress_swap_zero(args, fd, MAX_SWAP_PAGES, page) < 0) {
 		ret = EXIT_FAILURE;
 		goto tidy_close;
@@ -230,8 +251,10 @@ static int stress_swap(const stress_args_t *args)
 	do {
 		int swapflags = 0;
 		int bad_flags;
+		char *ptr;
 		uint32_t npages = (stress_mwc32() % (MAX_SWAP_PAGES - MIN_SWAP_PAGES)) +
 				  MIN_SWAP_PAGES;
+		const size_t mmap_size = npages * args->page_size;
 
 #if defined(SWAP_FLAG_PREFER)
 		if (stress_mwc1()) {
@@ -275,6 +298,16 @@ static int stress_swap(const stress_args_t *args)
 				break;
 			}
 			goto tidy_close;
+		}
+
+		ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		if (ptr != MAP_FAILED) {
+			(void)memset(ptr, 0xff, mmap_size);
+#if defined(MADV_PAGEOUT)
+			(void)shim_madvise(ptr, mmap_size, MADV_PAGEOUT);
+#endif
+			(void)munmap(ptr, mmap_size);
 		}
 
 		ret = swapoff(filename);
