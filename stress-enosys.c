@@ -3550,7 +3550,7 @@ static inline int stress_do_syscall(
 
 		/* Add to known syscalls that don't return ENOSYS */
 		if (rc != ENOSYS) {
-			if ((!random) || (random && number < 65536))
+			if ((!random) || (number < 65536))
 				syscall_add(number);
 		}
 		inc_counter(args);
