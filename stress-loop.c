@@ -283,8 +283,11 @@ static int stress_loop(const stress_args_t *args)
 		(void)ret;
 #endif
 
-		ret = fsync(backing_fd);
-		(void)ret;
+		/*
+		 *  Sync is required to avoid loop_set_block_size
+		 *  warning messages
+		 */
+		(void)sync();
 
 #if defined(LOOP_SET_BLOCK_SIZE)
 		/*
@@ -346,6 +349,7 @@ static int stress_loop(const stress_args_t *args)
 #if defined(LOOP_GET_STATUS)
 clr_loop:
 #endif
+
 		/*
 		 *  Disassociate backing store from loop device
 		 */
