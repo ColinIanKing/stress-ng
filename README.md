@@ -375,6 +375,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [Work-in-Progress: Timing Diversity as a Protective Mechanism](https://dl.acm.org/doi/pdf/10.1145/3477244.3477614)
 * [Sequential Deep Learning Architectures for Anomaly Detection in Virtual Network Function Chains](https://arxiv.org/pdf/2109.14276.pdf)
 * [WattEdge: A Holistic Approach for Empirical Energy Measurements in Edge Computing](https://www.researchgate.net/publication/356342806_WattEdge_A_Holistic_Approach_for_Empirical_Energy_Measurements_in_Edge_Computing)
+* [FECBench: An Extensible Framework for Pinpointing Sources of Performance Interference in the Cloud-Edge Resource Spectrum](https://www.academia.edu/68455840/FECBench_An_Extensible_Framework_for_Pinpointing_Sources_of_Performance_Interference_in_the_Cloud_Edge_Resource_Spectrum)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
