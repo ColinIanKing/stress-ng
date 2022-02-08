@@ -177,12 +177,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define STRESS_BIT_UL(shift)	(1UL << shift)
 #define STRESS_BIT_ULL(shift)	(1ULL << shift)
 
-#if !defined(EXIT_SUCCESS)
-#define EXIT_SUCESSS			(0)
-#endif
-#if !defined(EXIT_FAILURE)
-#define EXIT_FAILURE			(1)
-#endif
+/* EXIT_SUCCESS, EXIT_FAILURE defined in stdlib.h */
 #define EXIT_NOT_SUCCESS		(2)
 #define EXIT_NO_RESOURCE		(3)
 #define EXIT_NOT_IMPLEMENTED		(4)
