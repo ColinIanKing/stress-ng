@@ -159,7 +159,6 @@ static void stress_dentry_misc(const char *path)
 	ssize_t sret;
 	off_t offset;
 	struct stat statbuf;
-	struct timeval timeout;
 #if defined(HAVE_UTIME_H)
 	struct utimbuf utim;
 #endif
@@ -223,12 +222,16 @@ static void stress_dentry_misc(const char *path)
 #endif
 
 #if defined(HAVE_SYS_SELECT_H)
-	FD_ZERO(&rdfds);
-	FD_SET(fd, &rdfds);
-	timeout.tv_sec = 0;
-	timeout.tv_usec = 0;
-	ret = select(fd + 1, &rdfds, NULL, NULL, &timeout);
-	(void)ret;
+	{
+		struct timeval timeout;
+
+		FD_ZERO(&rdfds);
+		FD_SET(fd, &rdfds);
+		timeout.tv_sec = 0;
+		timeout.tv_usec = 0;
+		ret = select(fd + 1, &rdfds, NULL, NULL, &timeout);
+		(void)ret;
+	}
 #endif
 
 #if defined(HAVE_FLOCK) &&	\
