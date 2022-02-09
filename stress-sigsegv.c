@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-nt-store.h"
 
 static sigjmp_buf jmp_env;
 #if defined(SA_SIGINFO)
@@ -129,6 +130,37 @@ static NOINLINE OPTIMIZE0 void stress_sigsegv_x86_int88(void)
 }
 #endif
 
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(__linux__)
+static void stress_sigsegv_rdmsr(void)
+{
+	uint32_t ecx = 0x00000010, eax, edx;
+
+	__asm__ __volatile__("rdmsr" : "=a" (eax), "=d" (edx) : "c" (ecx));
+	/*
+	 *  Should not get here
+	 */
+}
+#endif
+
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(__linux__) &&		\
+    defined(HAVE_NT_STORE128) &&	\
+    defined(HAVE_INT128_T)
+static void stress_sigsegv_misaligned128nt(void)
+{
+	/* Misaligned non-temporal 128 bit store */
+
+	__uint128_t buffer[2];
+	__uint128_t *ptr = (__uint128_t *)(((uint8_t *)buffer) + 1);
+
+	stress_nt_store128(ptr, ~(__uint128_t)0);
+	/*
+	 *  Should not get here
+	 */
+}
+#endif
+
 /*
  *  stress_sigsegv
  *	stress by generating segmentation faults by
@@ -140,6 +172,11 @@ static int stress_sigsegv(const stress_args_t *args)
 	NOCLOBBER int rc = EXIT_FAILURE;
 #if defined(SA_SIGINFO)
 	const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
+#endif
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(__linux__)
+	const bool has_msr = stress_cpu_x86_has_msr();
+	const bool has_sse2 = stress_cpu_x86_has_sse2();
 #endif
 
 	/* Allocate read only page */
@@ -229,8 +266,21 @@ static int stress_sigsegv(const stress_args_t *args)
 				stress_sigsegv_x86_trap();
 				CASE_FALLTHROUGH;
 			case 1:
+				/* Illegal int $88 */
 				stress_sigsegv_x86_int88();
 				CASE_FALLTHROUGH;
+			case 2:
+				/* Privileged instruction -> SIGSEGV */
+				if (has_msr)
+					stress_sigsegv_rdmsr();
+				CASE_FALLTHROUGH;
+#if defined(HAVE_NT_STORE128) &&	\
+    defined(HAVE_INT128_T)
+			case 3:
+				if (has_sse2)
+					stress_sigsegv_misaligned128nt();
+				CASE_FALLTHROUGH;
+#endif
 #endif
 			default:
 				*ptr = 0;
