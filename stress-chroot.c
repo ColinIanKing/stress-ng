@@ -22,7 +22,7 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"chroot N",	"start N workers thrashing chroot" },
-	{ NULL,	"chroot-ops N",	"stop chhroot workers after N bogo operations" },
+	{ NULL,	"chroot-ops N",	"stop chroot workers after N bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
 
