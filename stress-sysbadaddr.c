@@ -1137,7 +1137,7 @@ static int stress_sysbadaddr(const stress_args_t *args)
 	rx_page = mmap(NULL, page_size, PROT_EXEC | PROT_READ,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rx_page == MAP_FAILED) {
-		pr_inf("%s: cannot mmap anonymous excute-only page: "
+		pr_inf("%s: cannot mmap anonymous execute-only page: "
 		       "errno=%d (%s)\n", args->name, errno, strerror(errno));
 		ret = EXIT_NO_RESOURCE;
 		goto cleanup;
