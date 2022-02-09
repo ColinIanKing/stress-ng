@@ -62,7 +62,7 @@ static const int policies[] = {
 
 static int stress_schedpolicy(const stress_args_t *args)
 {
-	int policy = 0;
+	int policy = args->instance % SIZEOF_ARRAY(policies);
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	const bool root_or_nice_capability = stress_check_capability(SHIM_CAP_SYS_NICE);
 #endif
@@ -73,6 +73,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 	uint32_t sched_util_max_value = 0;
 	int counter = 0;
 #endif
+
 #if defined(_POSIX_PRIORITY_SCHEDULING)
 	int n = 0;
 #endif
@@ -102,29 +103,45 @@ static int stress_schedpolicy(const stress_args_t *args)
 		const pid_t pid = stress_mwc1() ? 0 : args->pid;
 		const char *new_policy_name = stress_get_sched_name(new_policy);
 
+		if (!keep_stressing(args))
+			break;
+
+		shim_sched_yield();
+		errno = 0;
+
 		switch (new_policy) {
 #if defined(SCHED_DEADLINE) &&		\
     defined(HAVE_SCHED_GETATTR) &&	\
     defined(HAVE_SCHED_SETATTR)
 		case SCHED_DEADLINE:
-			attr.size = sizeof(attr);
-			attr.sched_flags = 0;
-			attr.sched_nice = 0;
-			attr.sched_priority = 0;
-			attr.sched_policy = SCHED_DEADLINE;
-			attr.sched_runtime = 10 * 1000 * 1000;
-			attr.sched_period = 30 * 1000 * 1000;
-			attr.sched_deadline = 30 * 1000 * 1000;
-			ret = shim_sched_setattr(0, &attr, 0);
-			(void)ret;
-			break;
+			/*
+			 *  Only have 1 RT deadline instance running
+			 */
+			if (args->instance == 0) {
+				(void)memset(&attr, 0, sizeof(attr));
+				attr.size = sizeof(attr);
+				attr.sched_flags = 0;
+				attr.sched_nice = 0;
+				attr.sched_priority = 0;
+				attr.sched_policy = SCHED_DEADLINE;
+				/* runtime <= deadline <= period */
+				attr.sched_runtime = 64 * 1000000;
+				attr.sched_deadline = 128 * 1000000;
+				attr.sched_period = 256 * 1000000;
+
+				ret = shim_sched_setattr(0, &attr, 0);
+				break;
+			}
+			CASE_FALLTHROUGH;
 #endif
 
 #if defined(SCHED_IDLE)
 		case SCHED_IDLE:
+			CASE_FALLTHROUGH;
 #endif
 #if defined(SCHED_BATCH)
 		case SCHED_BATCH:
+			CASE_FALLTHROUGH;
 #endif
 #if defined(SCHED_OTHER)
 		case SCHED_OTHER:
@@ -196,6 +213,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 			 */
 			if ((errno != EPERM) &&
 			    (errno != EINVAL) &&
+			    (errno != EINTR) &&
 			    (errno != EBUSY)) {
 				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
@@ -220,7 +238,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 		if (n++ >= 1024) {
 			n = 0;
 
-			/* Exercise invalid sched_getparam syscall*/
+			/* Exercise invalid sched_getparam syscall */
 			(void)memset(&param, 0, sizeof(param));
 			ret = sched_getparam(-1, &param);
 			(void)ret;
@@ -374,8 +392,6 @@ static int stress_schedpolicy(const stress_args_t *args)
 #else
 		UNEXPECTED
 #endif
-
-		(void)shim_sched_yield();
 		policy++;
 		policy %= SIZEOF_ARRAY(policies);
 		inc_counter(args);
