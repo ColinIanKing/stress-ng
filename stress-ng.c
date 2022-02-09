@@ -971,6 +971,8 @@ static const struct option long_options[] = {
 	{ "userfaultfd",	1,	0,	OPT_userfaultfd },
 	{ "userfaultfd-ops",	1,	0,	OPT_userfaultfd_ops },
 	{ "userfaultfd-bytes",	1,	0,	OPT_userfaultfd_bytes },
+	{ "usersyscall",	1,	0,	OPT_usersyscall },
+	{ "usersyscall-ops",	1,	0,	OPT_usersyscall_ops },
 	{ "utime",		1,	0,	OPT_utime },
 	{ "utime-ops",		1,	0,	OPT_utime_ops },
 	{ "utime-fsync",	0,	0,	OPT_utime_fsync },

@@ -4511,6 +4511,15 @@ mmap N bytes per userfaultfd worker to page fault on, the default is 16MB.
 One can specify the size as % of total available memory or in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
+.B \-\-usersyscall N
+start N workers that exercise the Linux prctl userspace system call
+mechanism. A userspace system call is handled by a SIGSYS signal handler
+and exercised with the system call disabled (ENOSYS) and enabled
+(via SIGSYS) using prctl PR_SET_SYSCALL_USER_DISPATCH.
+.TP
+.B \-\-usersyscall\-ops N
+stop after N successful userspace syscalls via a SIGSYS signal handler.
+.TP
 .B \-\-utime N
 start N workers updating file timestamps. This is mainly CPU bound when the
 default is used as the system flushes metadata changes only periodically.

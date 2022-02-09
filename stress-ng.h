@@ -1268,6 +1268,7 @@ typedef struct {
 	MACRO(uprobe)		\
 	MACRO(urandom)		\
 	MACRO(userfaultfd)	\
+	MACRO(usersyscall)	\
 	MACRO(utime)		\
 	MACRO(vdso)		\
 	MACRO(vecmath)		\
@@ -2355,6 +2356,9 @@ typedef enum {
 	OPT_userfaultfd,
 	OPT_userfaultfd_ops,
 	OPT_userfaultfd_bytes,
+
+	OPT_usersyscall,
+	OPT_usersyscall_ops,
 
 	OPT_utime,
 	OPT_utime_ops,

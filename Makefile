@@ -334,6 +334,7 @@ STRESS_SRC = \
 	stress-uprobe.c \
 	stress-urandom.c \
 	stress-userfaultfd.c \
+	stress-usersyscall.c \
 	stress-utime.c \
 	stress-vdso.c \
 	stress-vecmath.c \
