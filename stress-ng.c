@@ -58,7 +58,6 @@ const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
 stress_put_val_t g_put_val;			/* sync data to somewhere */
-static bool g_unsupported = false;		/* true if stressors are unsupported */
 
 /*
  *  optarg option to global setting option flags
@@ -2764,7 +2763,7 @@ void stress_shared_unmap(void)
  *  stress_exclude_unsupported()
  *	tag stressor proc count to be excluded
  */
-static inline void stress_exclude_unsupported(void)
+static inline void stress_exclude_unsupported(bool *unsupported)
 {
 	size_t i;
 
@@ -2780,7 +2779,7 @@ static inline void stress_exclude_unsupported(void)
 				    ss->num_instances &&
 				    (stressors[i].info->supported(stressors[i].name) < 0)) {
 					stress_remove_stressor(ss);
-					g_unsupported = true;
+					*unsupported = true;
 				}
 				ss = next;
 			}
@@ -3464,6 +3463,7 @@ int main(int argc, char **argv, char **envp)
 	const uint32_t cpus_online = (uint32_t)stress_get_processors_online();
 	const uint32_t cpus_configured = (uint32_t)stress_get_processors_configured();
 	int ret;
+	bool unsupported = false;		/* true if stressors are unsupported */
 
 	/* Enable stress-ng stack smashing message */
 	stress_set_stack_smash_check_flag(true);
@@ -3600,7 +3600,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Discard stressors that we can't run
 	 */
-	stress_exclude_unsupported();
+	stress_exclude_unsupported(&unsupported);
 	stress_exclude_pathological();
 	/*
 	 *  Throw away excluded stressors
@@ -3672,19 +3672,19 @@ int main(int argc, char **argv, char **envp)
 	 *  Seq/parallel modes may have added in
 	 *  excluded stressors, so exclude check again
 	 */
-	stress_exclude_unsupported();
+	stress_exclude_unsupported(&unsupported);
 	stress_exclude_pathological();
 
 	stress_set_proc_limits();
 
 	if (!stressors_head) {
 		pr_err("No stress workers invoked%s\n",
-			g_unsupported ? " (one or more were unsupported)" : "");
+			unsupported ? " (one or more were unsupported)" : "");
 		/*
 		 *  If some stressors were given but marked as
 		 *  unsupported then this is not an error.
 		 */
-		ret = g_unsupported ? EXIT_SUCCESS : EXIT_FAILURE;
+		ret = unsupported ? EXIT_SUCCESS : EXIT_FAILURE;
 		goto exit_logging_close;
 	}
 
