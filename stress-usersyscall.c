@@ -53,6 +53,16 @@
 #define USR_SYSCALL		(0xe000)
 #endif
 
+#if defined(__linux__) &&       \
+    !defined(__TINYC__) &&      \
+    !defined(__PCC__) &&        \
+   (defined(__x86_64__) || defined(__x86_64))
+#define STRESS_EXERCISE_X86_SYSCALL
+#endif
+
+#define X_STR_(x) #x
+#define X_STR(x) X_STR_(x)
+
 static siginfo_t siginfo;
 static char selector;
 
@@ -86,6 +96,81 @@ static int stress_supported(const char *name)
 	return 0;
 }
 
+#if defined(STRESS_EXERCISE_X86_SYSCALL)
+/*
+ *  x86_64_syscall0()
+ *      syscall 0 arg wrapper
+ */
+static inline long x86_64_syscall0(long number)
+{
+	long ret;
+
+	asm volatile ("syscall\n\t"
+			: "=a" (ret)
+			: "0" (number)
+			: "memory", "cc", "r11", "cx");
+	if (ret < 0) {
+		errno = -ret;
+		ret = -1;
+	}
+	return ret;
+}
+
+/*
+ *  stress_sigsys_libc_mapping()
+ *	find address of libc text segment by scanning /proc/self/maps
+ */
+static int stress_sigsys_libc_mapping(uintptr_t *begin, uintptr_t *end)
+{
+	char perm[5], buf[1024];
+	char libc_path[PATH_MAX];
+	FILE *fp;
+	uint64_t offset, dev_major, dev_minor, inode;
+
+	fp = fopen("/proc/self/maps", "r");
+	if (!fp)
+		goto err;
+
+	*begin = ~(uintptr_t)0;
+	*end = 0;
+
+	while (fgets(buf, sizeof(buf), fp)) {
+		int n;
+		uintptr_t map_begin, map_end;
+
+		n = sscanf(buf, "%" SCNxPTR "-%" SCNxPTR "%4s %" SCNx64 " %" SCNx64
+			":%" SCNx64 " %" SCNu64 "%" X_STR(PATH_MAX) "s\n",
+			&map_begin, &map_end, perm, &offset, &dev_major, &dev_minor,
+			&inode, libc_path);
+
+		/*
+		 *  name /libc-*.so or /libc.so found?
+		 */
+		if ((n == 8) && !strncmp(perm, "r-xp", 4) &&
+		    strstr(libc_path, ".so")) {
+			if (strstr(libc_path, "/libc-") ||
+			    strstr(libc_path, "/libc.so")) {
+				if (*begin > map_begin)
+					*begin = map_begin;
+				if (*end < map_end)
+					*end = map_end;
+			}
+		}
+	}
+	(void)fclose(fp);
+
+	if ((*begin == ~(uintptr_t)0) || (*end == 0))
+		goto err;
+
+	return 0;
+
+err:
+	*begin = 0;
+	*end = 0;
+	return -1;
+}
+#endif
+
 /*
  *  stress_sigsys_handler()
  *	SIGSYS handler
@@ -114,8 +199,11 @@ static int stress_usersyscall(const stress_args_t *args)
 {
 	int ret;
 	struct sigaction action;
-
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+#if defined(STRESS_EXERCISE_X86_SYSCALL)
+	uintptr_t begin, end;
+	const bool libc_ok = (stress_sigsys_libc_mapping(&begin, &end) == 0);
+	const pid_t pid = getpid();
+#endif
 
 	(void)memset(&action, 0, sizeof action);
 	action.sa_sigaction = stress_sigsys_handler;
@@ -135,6 +223,8 @@ static int stress_usersyscall(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		/*
@@ -183,6 +273,63 @@ static int stress_usersyscall(const stress_args_t *args)
 				"got 0x%x instead\n", args->name, siginfo.si_errno);
 			continue;
 		}
+		ret = prctl(PR_SET_SYSCALL_USER_DISPATCH,
+			    PR_SYS_DISPATCH_OFF, 0, 0, 0);
+		(void)ret;
+
+#if defined(STRESS_EXERCISE_X86_SYSCALL)
+		if (libc_ok) {
+			int saved_errno, ret_libc, ret_not_libc;
+
+			/*
+			 *  Test case 3: call syscall with libc syscall bounds.
+			 *  All libc system calls don't get handled by the
+			 *  dispatch signal handler, all non-libc system calls
+			 *  get handled by SIGSYS.
+			 */
+			ret = prctl(PR_SET_SYSCALL_USER_DISPATCH,
+				    PR_SYS_DISPATCH_ON, begin, end - begin, &selector);
+			if (ret) {
+				pr_inf("%s: user dispatch failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			}
+
+			/*
+			 *  getpid via the libc syscall, normal system call
+			 */
+			errno = 0;
+			dispatcher_on();
+			ret_libc = syscall(__NR_getpid);
+			dispatcher_off();
+
+			/*
+			 *  getpid via non-libc syscall, will be handled by SIGSYS
+			 */
+			errno = 0;
+			dispatcher_on();
+			ret_not_libc = x86_64_syscall0(__NR_getpid);
+			saved_errno = errno;
+			dispatcher_off();
+
+			ret = prctl(PR_SET_SYSCALL_USER_DISPATCH,
+				    PR_SYS_DISPATCH_OFF, 0, 0, 0);
+			(void)ret;
+
+			if (ret_libc != pid) {
+				pr_err("%s: didn't get pid on libc getpid syscall, "
+					"got %d instead, errno=%d (%s)\n",
+					args->name, ret_libc,
+					saved_errno, strerror(saved_errno));
+			}
+
+			if (ret_not_libc != __NR_getpid) {
+				pr_err("%s: didn't get __NR_getpid %x on user syscall, "
+					"got 0x%x instead, errno=%d (%s)\n",
+					args->name, __NR_getpid, ret_not_libc,
+					saved_errno, strerror(saved_errno));
+			}
+		}
+#endif
 		inc_counter(args);
 	} while (keep_stressing(args));
 
