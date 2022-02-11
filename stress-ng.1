@@ -2649,10 +2649,11 @@ and requires CAP_SYS_ADMIN capabilities.
 stop memhotplug stressors after N memory offline and online bogo operations.
 .TP
 .B \-\-memrate N
-start N workers that exercise a buffer with 128, 64, 32, 16 and 8 bit reads
-and writes. x86-64 cpus that support uncached (non-temporal "nt") writes
-also exercise 128, 64 and 32 writes providing higher write rates than the
-normal cached writes.
+start N workers that exercise a buffer with 512, 256, 128, 64, 32, 16 and
+8 bit reads and writes. 512 and 256 reads and writes are available with
+compilers that support integer vectors.  x86-64 cpus that support uncached
+(non-temporal "nt") writes also exercise 128, 64 and 32 writes providing
+higher write rates than the normal cached writes.
 This memory stressor allows one to also specify the maximum read
 and write rates. The stressors will run at maximum speed if no read or
 write rates are specified.
