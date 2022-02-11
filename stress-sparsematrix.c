@@ -281,8 +281,8 @@ static int hash_put(void *handle, const uint32_t x, const uint32_t y, const uint
 			return 0;
 		}
 	}
-	/* Not found, allocate and add */
 
+	/* Not found, allocate and add */
 	node = calloc(1, sizeof(*node));
 	if (!node)
 		return -1;
