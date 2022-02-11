@@ -20,6 +20,7 @@
 #include "core-arch.h"
 #include "core-put.h"
 #include "core-target-clones.h"
+#include "core-vecmath.h"
 
 #define VERY_WIDE	(0)
 
@@ -28,29 +29,6 @@ static const stress_help_t help[] = {
 	{ NULL,	"vecwide-ops N", "stop after N vector math bogo operations" },
 	{ NULL,	NULL,		 NULL }
 };
-
-/*
- *  Clang 5.0 is the lowest version of clang that
- *  can build this without issues (clang 4.0 seems
- *  to spend forever optimizing this and causes the build
- *  to never complete)
- */
-#if defined(__clang__) && \
-    defined(__clang_major__) && \
-    __clang_major__ < 5
-#undef HAVE_VECMATH
-#endif
-
-/*
- *  gcc 5.x or earlier breaks on vector maths on
- *  PPC64 for some reason with some flavours of the toolchain
- *  so disable this test for now
- */
-#if defined(STRESS_ARCH_PPC64) && \
-    defined(__GNUC__) && \
-    __GNUC__ < 6
-#undef HAVE_VECMATH
-#endif
 
 #if defined(HAVE_VECMATH)
 
