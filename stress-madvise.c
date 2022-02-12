@@ -39,6 +39,7 @@ typedef struct madvise_ctxt {
 	void *buf;
 	size_t sz;
 	bool  is_thread;
+	char *smaps;
 } madvise_ctxt_t;
 
 static sigjmp_buf jmp_env;
@@ -154,6 +155,34 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
 	siglongjmp(jmp_env, 1);
 }
 
+#if defined(MADV_FREE)
+/*
+ *  stress_read_proc_smaps()
+ *	read smaps file for extra kernel exercising
+ */
+static void stress_read_proc_smaps(const char *smaps)
+{
+	static bool ignore = false;
+	const size_t sz = 4096;
+	ssize_t ret;
+	char buffer[sz];
+	int fd;
+
+	if (ignore)
+		return;
+
+	fd = open(smaps, O_RDONLY);
+	if (fd < 0) {
+		ignore = true;
+		return;
+	}
+	do {
+		ret = read(fd, buffer, sz);
+	} while (ret == (ssize_t)sz);
+	(void)close(fd);
+}
+#endif
+
 /*
  *  stress_random_advise()
  *	get a random advise option
@@ -231,6 +260,10 @@ static void *stress_madvise_pages(void *arg)
 		void *ptr = (void *)(((uint8_t *)buf) + n);
 
 		(void)shim_madvise(ptr, page_size, advise);
+#if defined(MADV_FREE)
+		if (advise == MADV_FREE)
+			stress_read_proc_smaps(ctxt->smaps);
+#endif
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
 	}
 	for (n = 0; n < sz; n += page_size) {
@@ -351,8 +384,11 @@ static int stress_madvise(const stress_args_t *args)
 	NOCLOBBER int num_mem_retries = 0;
 	char filename[PATH_MAX];
 	char page[page_size];
+	char smaps[PATH_MAX];
 	size_t n;
 	madvise_ctxt_t ctxt;
+
+	(void)snprintf(smaps, sizeof(smaps), "/proc/%" PRIdMAX "/smaps", (intmax_t)pid);
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
@@ -441,6 +477,7 @@ static int stress_madvise(const stress_args_t *args)
 		ctxt.args = args;
 		ctxt.buf = buf;
 		ctxt.sz = sz;
+		ctxt.smaps = smaps;
 
 #if defined(HAVE_LIB_PTHREAD)
 		{
