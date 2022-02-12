@@ -512,7 +512,7 @@ static int stress_open(const stress_args_t *args)
 
 	(void)stress_get_setting("open-fd", &open_fd);
 	if (open_fd) {
-		(void)snprintf(path, sizeof(path), "/proc/%d/fd", (int)mypid);
+		(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/fd", (intmax_t)mypid);
 		if ((stat(path, &statbuf) == 0) &&
 		    ((statbuf.st_mode & S_IFMT) == S_IFDIR)) {
 			pid = fork();

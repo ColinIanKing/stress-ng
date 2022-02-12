@@ -216,7 +216,7 @@ static int stress_landlock_flag(const stress_args_t *args, void *ctxt)
 	 *  Got a valid landlocked restricted child process,
 	 *  so now sanity check it on some test files
 	 */
-	(void)snprintf(filename, sizeof(filename), "%s/landlock-%d", path, (int)pid);
+	(void)snprintf(filename, sizeof(filename), "%s/landlock-%" PRIdMAX, path, (intmax_t)pid);
 
 	fd = open(path, O_PATH | O_CLOEXEC);
 	if (fd > -1)

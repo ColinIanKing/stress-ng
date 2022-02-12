@@ -81,7 +81,7 @@ static void *stress_uprobe_libc_start(const pid_t pid, char *libc_path)
 	uint64_t start, end, offset, dev_major, dev_minor, inode;
 	void *addr = NULL;
 
-	(void)snprintf(path, sizeof(path), "/proc/%d/maps", (int)pid);
+	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
 	fp = fopen(path, "r");
 	if (!fp)
 		return addr;
