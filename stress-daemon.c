@@ -24,8 +24,10 @@
 #elif defined(_NSIG)
 #define MAX_SIGNUM      _NSIG
 #else
-#define MAX_SIGNUM      256
+#define MAX_SIGNUM      (256)
 #endif
+
+#define MAX_BACKOFF	(10000)
 
 static const stress_help_t help[] = {
 	{ NULL,	"daemon N",	"start N workers creating multiple daemons" },
@@ -79,8 +81,8 @@ static void daemons(const stress_args_t *args, const int fd)
 				/* Minor backoff before retrying */
 				(void)shim_usleep_interruptible(backoff);
 				backoff += 100;
-				if (backoff > 10000)
-					backoff = 10000;
+				if (backoff > MAX_BACKOFF)
+					backoff = MAX_BACKOFF;
 				continue;
 			}
 			goto tidy;
