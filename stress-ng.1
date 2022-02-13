@@ -3166,6 +3166,15 @@ run a child process that scans /proc/$PID/fd and attempts to open the files
 that the stressor has opened. This exercises racing open/close operations
 on the proc interface.
 .TP
+.B \-\-pageswap N
+start N workers that exercise page swap in and swap out. Pages are allocated
+and paged out using madvise MADV_PAGEOUT. One the maximum per process number
+of mmaps are reached or 65536 pages are allocated the pages are read to
+page them back in and unmapped in reverse mapping order.
+.TP
+.B \-\-pageswap-ops N
+stop after N page allocation bogo operations.
+.TP
 .B \-\-pci N
 exercise PCI sysfs by running N workers that read data (and mmap/unmap
 PCI config or PCI resource files). Linux only. Running as root will allow

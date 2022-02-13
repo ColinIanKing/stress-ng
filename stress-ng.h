@@ -1163,6 +1163,7 @@ typedef struct {
 	MACRO(oom_pipe)		\
 	MACRO(opcode)		\
 	MACRO(open)		\
+	MACRO(pageswap)		\
 	MACRO(pci)		\
 	MACRO(personality)	\
 	MACRO(physpage)		\
@@ -1936,6 +1937,9 @@ typedef enum {
 
 	OPT_page_in,
 	OPT_pathological,
+
+	OPT_pageswap,
+	OPT_pageswap_ops,
 
 	OPT_pci,
 	OPT_pci_ops,
