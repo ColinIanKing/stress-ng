@@ -169,20 +169,23 @@ static int stress_mmapfork(const stress_args_t *args)
 				ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
 					MAP_POPULATE | MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (ptr != MAP_FAILED) {
+#if defined(MADV_WILLNEED)
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
 					segv_ret = _EXIT_SEGV_MADV_WILLNEED;
 					(void)shim_madvise(ptr, len, MADV_WILLNEED);
-
+#endif
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
 					segv_ret = _EXIT_SEGV_MEMSET;
 					(void)memset(ptr, 0, len);
 
+#if defined(MADV_DONTNEED)
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
 					segv_ret = _EXIT_SEGV_MADV_DONTNEED;
 					(void)shim_madvise(ptr, len, MADV_DONTNEED);
+#endif
 
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
