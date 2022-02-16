@@ -40,7 +40,6 @@ UNEXPECTED
 
 #include <netinet/in.h>
 
-
 #define MIN_UDP_PORT		(1024)
 #define MAX_UDP_PORT		(65535)
 #define DEFAULT_UDP_PORT	(7000)
@@ -365,7 +364,6 @@ again:
 			}
 		}
 #endif
-
 		do {
 			socklen_t len = addr_len;
 			ssize_t n;
