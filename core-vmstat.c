@@ -101,13 +101,13 @@ int stress_set_iostat(const char *const opt)
 	return stress_set_generic_stat(opt, "iostat", &iostat_delay);
 }
 
-#if defined(__linux__)
 /*
  *  stress_find_mount_dev()
  *	find the path of the device that the file is located on
  */
-static char *stress_find_mount_dev(const char *name)
+char *stress_find_mount_dev(const char *name)
 {
+#if defined(__linux__)
 	struct stat statbuf;
 	FILE *mtab_fp;
 	struct mntent *mnt;
@@ -153,8 +153,10 @@ static char *stress_find_mount_dev(const char *name)
 		return NULL;
 
 	return realpath(mnt->mnt_fsname, dev_path);
-}
+#else
+	return NULL;
 #endif
+}
 
 static pid_t vmstat_pid;
 

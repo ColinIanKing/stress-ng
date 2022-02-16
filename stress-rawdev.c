@@ -77,40 +77,6 @@ static inline unsigned long shift_ul(unsigned long v, unsigned int shift)
 }
 
 /*
- *  stress_rawdev_path()
- */
-static char *stress_rawdev_path(
-	const dev_t dev,
-	char *devpath,
-	const size_t devpath_len)
-{
-	DIR *dir;
-	struct dirent *d;
-	const dev_t majdev = makedev(major(dev), 0);
-
-	dir = opendir("/dev");
-	if (!dir)
-		return NULL;
-
-	while ((d = readdir(dir)) != NULL) {
-		int ret;
-		struct stat stat_buf;
-
-		stress_mk_filename(devpath, devpath_len, "/dev", d->d_name);
-		ret = stat(devpath, &stat_buf);
-		if ((ret == 0) &&
-		    (S_ISBLK(stat_buf.st_mode)) &&
-		    (stat_buf.st_rdev == majdev)) {
-			(void)closedir(dir);
-			return devpath;
-		}
-	}
-	(void)closedir(dir);
-
-	return NULL;
-}
-
-/*
  *  stress_rawdev_sweep()
  *	sweep reads across raw block device
  */
@@ -348,45 +314,28 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 static int stress_rawdev(const stress_args_t *args)
 {
-	int ret;
-	char path[PATH_MAX], devpath[PATH_MAX];
-	char *buffer;
-	struct stat stat_buf;
-	int fd;
+	int ret, fd;
+	char *devpath, *buffer;
+	const char *path = stress_get_temp_path();
 	size_t blks, blksz = 0, mmapsz;
 	const stress_rawdev_method_info_t *rawdev_method = &rawdev_methods[0];
 	const size_t page_size = args->page_size;
 	stress_rawdev_func func;
 
-	stress_temp_dir_args(args, path, sizeof(path));
-
-	(void)stress_get_setting("rawdev-method", &rawdev_method);
-	func = rawdev_method->func;
-
-	fd = open(path, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-	if (fd < 0) {
-		ret = exit_status(errno);
-		pr_err("%s: open failed: %d (%s)\n",
-			args->name, errno, strerror(errno));
-		return ret;
+	if (!path) {
+		pr_inf("%s: cannot determine temporary path\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
 	}
-
-	ret = fstat(fd, &stat_buf);
-	if (ret <  0) {
-		pr_err("%s: cannot stat %s: errno=%d (%s)\n",
-			args->name, path, errno, strerror(errno));
-		(void)shim_unlink(path);
-		(void)close(fd);
-		return EXIT_FAILURE;
-	}
-	(void)shim_unlink(path);
-	(void)close(fd);
-
-	if (!stress_rawdev_path(stat_buf.st_dev, devpath, sizeof(devpath))) {
+	devpath = stress_find_mount_dev(path);
+	if (!devpath) {
 		pr_inf("%s: cannot determine raw block device\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
+
+	(void)stress_get_setting("rawdev-method", &rawdev_method);
+	func = rawdev_method->func;
 
 	fd = open(devpath, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
