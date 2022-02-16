@@ -19,6 +19,12 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 
+static const stress_help_t help[] = {
+	{ NULL,	"sigsusr N",	 "start N workers exercising a userspace system call handler" },
+	{ NULL,	"sigsusr-ops N", "stop after N successful SIGSYS system callls" },
+	{ NULL,	NULL,		 NULL }
+};
+
 #if defined(SA_SIGINFO) &&	\
     defined(HAVE_SYS_PRCTL_H)
 
@@ -65,12 +71,6 @@
 
 static siginfo_t siginfo;
 static char selector;
-
-static const stress_help_t help[] = {
-	{ NULL,	"sigsusr N",	 "start N workers exercising a userspace system call handler" },
-	{ NULL,	"sigsusr-ops N", "stop after N successful SIGSYS system callls" },
-	{ NULL,	NULL,		 NULL }
-};
 
 static inline void dispatcher_off(void)
 {
