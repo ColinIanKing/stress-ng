@@ -115,11 +115,12 @@ static void *stress_loadavg_func(void *arg)
 
 	buf[0] = stress_mwc8();
 #endif
+	double t_end = stress_time_now() + (double)g_opt_timeout;
 
 	(void)arg;
 	(void)shim_nice(19);	/* be very nice */
 
-	while (keep_thread_running()) {
+	while ((stress_time_now() < t_end) && keep_thread_running()) {
 #if defined(LOADAVG_IO)
 		if (fd >= 0) {
 			ssize_t ret;
