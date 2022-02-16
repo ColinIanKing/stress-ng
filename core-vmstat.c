@@ -107,12 +107,13 @@ int stress_set_iostat(const char *const opt)
  */
 char *stress_find_mount_dev(const char *name)
 {
-#if defined(__linux__)
+	static char dev_path[PATH_MAX];
 	struct stat statbuf;
+	dev_t dev;
+
+#if defined(__linux__)
 	FILE *mtab_fp;
 	struct mntent *mnt;
-	dev_t dev;
-	static char dev_path[PATH_MAX];
 
 	if (stat(name, &statbuf) < 0)
 		return NULL;
@@ -154,6 +155,40 @@ char *stress_find_mount_dev(const char *name)
 
 	return realpath(mnt->mnt_fsname, dev_path);
 #else
+	DIR *dir;
+	struct dirent *d;
+	dev_t majdev;
+
+	if (stat(name, &statbuf) < 0)
+		return NULL;
+
+	/* Cater for UBI char mounts */
+	if (S_ISBLK(statbuf.st_mode) || S_ISCHR(statbuf.st_mode))
+		dev = statbuf.st_rdev;
+	else
+		dev = statbuf.st_dev;
+
+	majdev = makedev(major(dev), 0);
+
+	dir = opendir("/dev");
+	if (!dir)
+		return NULL;
+
+	while ((d = readdir(dir)) != NULL) {
+		int ret;
+		struct stat stat_buf;
+
+		stress_mk_filename(dev_path, sizeof(dev_path), "/dev", d->d_name);
+		ret = stat(dev_path, &stat_buf);
+		if ((ret == 0) &&
+		    (S_ISBLK(stat_buf.st_mode)) &&
+		    (stat_buf.st_rdev == majdev)) {
+			(void)closedir(dir);
+			return dev_path;
+		}
+	}
+	(void)closedir(dir);
+
 	return NULL;
 #endif
 }
