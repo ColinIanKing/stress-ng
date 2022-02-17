@@ -36,10 +36,12 @@
 #define DEFAULT_STREAM_L3_SIZE	(4 * MB)
 
 #if defined(HAVE_NT_STORE_DOUBLE)
-#define STORE(dst, src)		stress_nt_store_double(&dst, src)
+#define NT_STORE(dst, src)		stress_nt_store_double(&dst, src)
 #else
-#define STORE(dst, src)		dst = src
+#define NT_STORE(dst, src)		dst = src
 #endif
+
+#define STORE(dst, src)			dst = src
 
 typedef struct {
 	const char *name;
@@ -118,7 +120,7 @@ static inline void OPTIMIZE3 stress_stream_copy_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		STORE(c[i], a[i]);
+		NT_STORE(c[i], a[i]);
 }
 
 static inline void OPTIMIZE3 stress_stream_copy_index1(
@@ -169,7 +171,7 @@ static inline void OPTIMIZE3 stress_stream_scale_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		STORE(b[i], q * c[i]);
+		NT_STORE(b[i], q * c[i]);
 }
 
 static inline void OPTIMIZE3 stress_stream_scale_index1(
@@ -223,7 +225,7 @@ static inline void OPTIMIZE3 stress_stream_add_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		STORE(c[i], a[i] + b[i]);
+		NT_STORE(c[i], a[i] + b[i]);
 }
 
 static inline void OPTIMIZE3 stress_stream_add_index1(
@@ -278,7 +280,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		STORE(a[i], b[i] + (c[i] * q));
+		NT_STORE(a[i], b[i] + (c[i] * q));
 }
 
 static inline void OPTIMIZE3 stress_stream_triad_index1(
