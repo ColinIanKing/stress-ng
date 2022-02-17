@@ -28,19 +28,19 @@ static const stress_help_t help[] = {
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
 
-#define MAX_PIDS		(32)
+#define MAX_PIDS			(32)
 
-#define _EXIT_FAILURE			(0x01)
-#define _EXIT_SEGV_MMAP			(0x02)
-#define _EXIT_SEGV_MADV_WILLNEED	(0x04)
-#define _EXIT_SEGV_MADV_DONTNEED	(0x08)
-#define _EXIT_SEGV_MEMSET		(0x10)
-#define _EXIT_SEGV_MUNMAP		(0x20)
-#define _EXIT_MASK	(_EXIT_SEGV_MMAP | \
-			 _EXIT_SEGV_MADV_WILLNEED | \
-			 _EXIT_SEGV_MADV_DONTNEED | \
-			 _EXIT_SEGV_MEMSET | \
-			 _EXIT_SEGV_MUNMAP)
+#define MMAPFORK_FAILURE		(0x01)
+#define MMAPFORK_SEGV_MMAP		(0x02)
+#define MMAPFORK_SEGV_MADV_WILLNEED	(0x04)
+#define MMAPFORK_SEGV_MADV_DONTNEED	(0x08)
+#define MMAPFORK_SEGV_MEMSET		(0x10)
+#define MMAPFORK_SEGV_MUNMAP		(0x20)
+#define MMAPFORK_MASK	(MMAPFORK_SEGV_MMAP | \
+			 MMAPFORK_SEGV_MADV_WILLNEED | \
+			 MMAPFORK_SEGV_MADV_DONTNEED | \
+			 MMAPFORK_SEGV_MEMSET | \
+			 MMAPFORK_SEGV_MUNMAP)
 
 static volatile int segv_ret;
 
@@ -147,49 +147,49 @@ static int stress_mmapfork(const stress_args_t *args)
 				(void)sched_settings_apply(true);
 
 				if (stress_sighandler(args->name, SIGSEGV, stress_segvhandler, NULL) < 0)
-					_exit(_EXIT_FAILURE);
+					_exit(MMAPFORK_FAILURE);
 
 				(void)memset(&info, 0, sizeof(info));
 				if (sysinfo(&info) < 0) {
 					pr_fail("%s: sysinfo failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					_exit(_EXIT_FAILURE);
+					_exit(MMAPFORK_FAILURE);
 				}
 #if defined(MADV_WIPEONFORK)
 				if (wipe_ok && (wipe_ptr != MAP_FAILED) &&
 				    stress_memory_is_not_zero(wipe_ptr, wipe_size)) {
 					pr_fail("%s: madvise MADV_WIPEONFORK didn't wipe page %p\n",
 						args->name, (void *)wipe_ptr);
-					_exit(_EXIT_FAILURE);
+					_exit(MMAPFORK_FAILURE);
 				}
 #endif
 
 				len = ((size_t)info.freeram / (args->num_instances * MAX_PIDS)) / 2;
-				segv_ret = _EXIT_SEGV_MMAP;
+				segv_ret = MMAPFORK_SEGV_MMAP;
 				ptr = mmap(NULL, len, PROT_READ | PROT_WRITE,
 					MAP_POPULATE | MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 				if (ptr != MAP_FAILED) {
 #if defined(MADV_WILLNEED)
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
-					segv_ret = _EXIT_SEGV_MADV_WILLNEED;
+					segv_ret = MMAPFORK_SEGV_MADV_WILLNEED;
 					(void)shim_madvise(ptr, len, MADV_WILLNEED);
 #endif
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
-					segv_ret = _EXIT_SEGV_MEMSET;
+					segv_ret = MMAPFORK_SEGV_MEMSET;
 					(void)memset(ptr, 0, len);
 
 #if defined(MADV_DONTNEED)
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
-					segv_ret = _EXIT_SEGV_MADV_DONTNEED;
+					segv_ret = MMAPFORK_SEGV_MADV_DONTNEED;
 					(void)shim_madvise(ptr, len, MADV_DONTNEED);
 #endif
 
 					if (should_terminate(args, ppid))
 						_exit(EXIT_SUCCESS);
-					segv_ret = _EXIT_SEGV_MUNMAP;
+					segv_ret = MMAPFORK_SEGV_MUNMAP;
 					(void)munmap(ptr, len);
 				}
 				_exit(EXIT_SUCCESS);
@@ -217,7 +217,7 @@ static int stress_mmapfork(const stress_args_t *args)
 			} else {
 				pids[i] = -1;
 				if (WIFEXITED(status)) {
-					int masked = WEXITSTATUS(status) & _EXIT_MASK;
+					int masked = WEXITSTATUS(status) & MMAPFORK_MASK;
 
 					if (masked) {
 						segv_count++;
@@ -254,15 +254,15 @@ reap:
 
 		*buffer = '\0';
 
-		if (segv_reasons & _EXIT_SEGV_MMAP)
+		if (segv_reasons & MMAPFORK_SEGV_MMAP)
 			notrunc_strlcat(buffer, " mmap", &n);
-		if (segv_reasons & _EXIT_SEGV_MADV_WILLNEED)
+		if (segv_reasons & MMAPFORK_SEGV_MADV_WILLNEED)
 			notrunc_strlcat(buffer, " madvise-WILLNEED", &n);
-		if (segv_reasons & _EXIT_SEGV_MADV_DONTNEED)
+		if (segv_reasons & MMAPFORK_SEGV_MADV_DONTNEED)
 			notrunc_strlcat(buffer, " madvise-DONTNEED", &n);
-		if (segv_reasons & _EXIT_SEGV_MEMSET)
+		if (segv_reasons & MMAPFORK_SEGV_MEMSET)
 			notrunc_strlcat(buffer, " memset", &n);
-		if (segv_reasons & _EXIT_SEGV_MUNMAP)
+		if (segv_reasons & MMAPFORK_SEGV_MUNMAP)
 			notrunc_strlcat(buffer, " munmap", &n);
 
 		pr_dbg("%s: SIGSEGV errors: %" PRIu64 " (where:%s)\n",
