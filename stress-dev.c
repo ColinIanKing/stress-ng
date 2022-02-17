@@ -3729,6 +3729,39 @@ static int stress_dev_close_unlock(const char *path, const int fd)
 	return close(fd);
 }
 
+static const int open_flags[] = {
+#if defined(O_ASYNC)
+	O_ASYNC | O_RDONLY,
+	O_ASYNC | O_WRONLY,
+	O_ASYNC | O_RDWR,
+#endif
+#if defined(O_CLOEXEC)
+	O_CLOEXEC | O_RDONLY,
+	O_CLOEXEC | O_WRONLY,
+	O_CLOEXEC | O_RDWR,
+#endif
+#if defined(O_DIRECT)
+	O_DIRECT | O_RDONLY,
+	O_DIRECT | O_WRONLY,
+	O_DIRECT | O_RDWR,
+#endif
+#if defined(O_DSYNC)
+	O_DSYNC | O_RDONLY,
+	O_DSYNC | O_WRONLY,
+	O_DSYNC | O_RDWR,
+#endif
+#if defined(O_NOATIME)
+	O_NOATIME | O_RDONLY,
+	O_NOATIME | O_WRONLY,
+	O_NOATIME | O_RDWR,
+#endif
+#if defined(O_SYNC)
+	O_SYNC | O_RDONLY,
+	O_SYNC | O_WRONLY,
+	O_SYNC | O_RDWR,
+#endif
+};
+
 /*
  *  stress_dev_rw()
  *	exercise a dev entry
@@ -3949,6 +3982,14 @@ static inline void stress_dev_rw(
 			stress_dev_close_unlock(path, fd);
 		}
 
+		/*
+		 *  Exercise various open options on device
+		 */
+		for (i = 0; i < SIZEOF_ARRAY(open_flags); i++) {
+			fd = stress_dev_open_lock(args, dev_info, open_flags[i] | O_NONBLOCK);
+			if (fd >= 0)
+				stress_dev_close_unlock(path, fd);
+		}
 next:
 		if (loops > 0) {
 			if (timeout)
