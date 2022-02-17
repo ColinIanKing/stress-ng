@@ -98,4 +98,28 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store32(uint32_t *addr, reg
 #define HAVE_NT_STORE32
 #endif
 
+/*
+ *  double precision float non-temporal stores
+ */
+#if defined(HAVE_BUILTIN_SUPPORTS) &&			\
+    defined(HAVE_BUILTIN_NONTEMPORAL_STORE)
+/* Clang non-temporal stores */
+static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, register double value)
+{
+	__builtin_nontemporal_store(value, addr);
+}
+#define HAVE_NT_STORE_DOUBLE
+#elif defined(HAVE_XMMINTRIN_H) &&			\
+    (defined(__x86_64__) || defined(__x86_64)) && 	\
+    defined(HAVE_BUILTIN_SUPPORTS) &&			\
+    defined(HAVE_BUILTIN_IA32_MOVNTDQ)
+/* gcc x86 non-temporal stores */
+static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, register double value)
+{
+	__builtin_ia32_movnti64((long long int *)addr, value);
+//	__builtin_ia32_movntpd(addr, value);
+}
+#define HAVE_NT_STORE_DOUBLE
+#endif
+
 #endif

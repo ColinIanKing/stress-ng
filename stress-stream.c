@@ -29,10 +29,17 @@
  *
  */
 #include "stress-ng.h"
+#include "core-nt-store.h"
 
 #define MIN_STREAM_L3_SIZE	(4 * KB)
 #define MAX_STREAM_L3_SIZE	(MAX_MEM_LIMIT)
 #define DEFAULT_STREAM_L3_SIZE	(4 * MB)
+
+#if defined(HAVE_NT_STORE_DOUBLE)
+#define STORE(dst, src)		stress_nt_store_double(&dst, src)
+#else
+#define STORE(dst, src)		dst = src
+#endif
 
 typedef struct {
 	const char *name;
@@ -111,7 +118,7 @@ static inline void OPTIMIZE3 stress_stream_copy_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		c[i] = a[i];
+		STORE(c[i], a[i]);
 }
 
 static inline void OPTIMIZE3 stress_stream_copy_index1(
@@ -123,7 +130,7 @@ static inline void OPTIMIZE3 stress_stream_copy_index1(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		c[idx1[i]] = a[idx1[i]];
+		STORE(c[idx1[i]], a[idx1[i]]);
 }
 
 static inline void OPTIMIZE3 stress_stream_copy_index2(
@@ -136,7 +143,7 @@ static inline void OPTIMIZE3 stress_stream_copy_index2(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		c[idx1[i]] = a[idx2[i]];
+		STORE(c[idx1[i]], a[idx2[i]]);
 }
 
 static inline void OPTIMIZE3 stress_stream_copy_index3(
@@ -150,7 +157,7 @@ static inline void OPTIMIZE3 stress_stream_copy_index3(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		c[idx3[idx1[i]]] = a[idx2[i]];
+		STORE(c[idx3[idx1[i]]], a[idx2[i]]);
 }
 
 static inline void OPTIMIZE3 stress_stream_scale_index0(
@@ -162,7 +169,7 @@ static inline void OPTIMIZE3 stress_stream_scale_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		b[i] = q * c[i];
+		STORE(b[i], q * c[i]);
 }
 
 static inline void OPTIMIZE3 stress_stream_scale_index1(
@@ -175,7 +182,7 @@ static inline void OPTIMIZE3 stress_stream_scale_index1(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		b[idx1[i]] = q * c[idx1[i]];
+		STORE(b[idx1[i]], q * c[idx1[i]]);
 }
 
 static inline void OPTIMIZE3 stress_stream_scale_index2(
@@ -189,7 +196,7 @@ static inline void OPTIMIZE3 stress_stream_scale_index2(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		b[idx1[i]] = q * c[idx2[i]];
+		STORE(b[idx1[i]], q * c[idx2[i]]);
 }
 
 static inline void OPTIMIZE3 stress_stream_scale_index3(
@@ -204,7 +211,7 @@ static inline void OPTIMIZE3 stress_stream_scale_index3(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		b[idx3[idx1[i]]] = q * c[idx2[i]];
+		STORE(b[idx3[idx1[i]]], q * c[idx2[i]]);
 }
 
 static inline void OPTIMIZE3 stress_stream_add_index0(
@@ -216,7 +223,7 @@ static inline void OPTIMIZE3 stress_stream_add_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		c[i] = a[i] + b[i];
+		STORE(c[i], a[i] + b[i]);
 }
 
 static inline void OPTIMIZE3 stress_stream_add_index1(
@@ -229,7 +236,7 @@ static inline void OPTIMIZE3 stress_stream_add_index1(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		c[idx1[i]] = a[idx1[i]] + b[idx1[i]];
+		STORE(c[idx1[i]], a[idx1[i]] + b[idx1[i]]);
 }
 
 static inline void OPTIMIZE3 stress_stream_add_index2(
@@ -243,7 +250,7 @@ static inline void OPTIMIZE3 stress_stream_add_index2(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		c[idx1[i]] = a[idx2[i]] + b[idx1[i]];
+		STORE(c[idx1[i]], a[idx2[i]] + b[idx1[i]]);
 }
 
 static inline void OPTIMIZE3 stress_stream_add_index3(
@@ -258,7 +265,7 @@ static inline void OPTIMIZE3 stress_stream_add_index3(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		c[idx1[i]] = a[idx2[i]] + b[idx3[i]];
+		STORE(c[idx1[i]], a[idx2[i]] + b[idx3[i]]);
 }
 
 static inline void OPTIMIZE3 stress_stream_triad_index0(
@@ -271,7 +278,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		a[i] = b[i] + (c[i] * q);
+		STORE(a[i], b[i] + (c[i] * q));
 }
 
 static inline void OPTIMIZE3 stress_stream_triad_index1(
@@ -285,7 +292,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index1(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		a[idx1[i]] = b[idx1[i]] + (c[idx1[i]] * q);
+		STORE(a[idx1[i]], b[idx1[i]] + (c[idx1[i]] * q));
 }
 
 static inline void OPTIMIZE3 stress_stream_triad_index2(
@@ -300,7 +307,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index2(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		a[idx1[i]] = b[idx2[i]] + (c[idx1[i]] * q);
+		STORE(a[idx1[i]], b[idx2[i]] + (c[idx1[i]] * q));
 }
 
 static inline void OPTIMIZE3 stress_stream_triad_index3(
@@ -316,7 +323,7 @@ static inline void OPTIMIZE3 stress_stream_triad_index3(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
-		a[idx1[i]] = b[idx2[i]] + (c[idx3[i]] * q);
+		STORE(a[idx1[i]], b[idx2[i]] + (c[idx3[i]] * q));
 }
 
 static void stress_stream_init_data(
@@ -329,7 +336,7 @@ static void stress_stream_init_data(
 	for (i = 0; i < n; i++) {
 		const uint32_t r1 = stress_mwc32();
 
-		data[i] = (double)r1 * divisor;
+		STORE(data[i], (double)r1 * divisor);
 	}
 }
 
