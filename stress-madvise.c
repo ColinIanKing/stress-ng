@@ -116,7 +116,7 @@ static const int madvise_options[] = {
 #if defined(MADV_AUTOSYNC)
 	MADV_AUTOSYNC,
 #endif
-/* FreeBSD */
+/* FreeBSD and DragonFlyBSD */
 #if defined(MADV_CORE)
 	MADV_CORE,
 #endif
@@ -139,6 +139,26 @@ static const int madvise_options[] = {
 /* OS X */
 #if defined(MADV_ZERO_WIRED_PAGES)
 	MADV_ZERO_WIRED_PAGES,
+#endif
+/* Solaris */
+#if defined(MADV_ACCESS_DEFAULT)
+	MADV_ACCESS_DEFAULT,
+#endif
+/* Solaris */
+#if defined(MADV_ACCESS_LWP)
+	MADV_ACCESS_LWP,
+#endif
+/* Solaris */
+#if defined(MADV_ACCESS_MANY)
+	MADV_ACCESS_MANY,
+#endif
+/* DragonFlyBSD */
+#if defined(MADV_INVAL)
+	MADV_INVAL,
+#endif
+/* DragonFlyBSD */
+#if defined(MADV_NOCORE)
+	MADV_NOCORE,
 #endif
 };
 
