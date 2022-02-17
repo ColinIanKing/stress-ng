@@ -39,6 +39,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_VECMATH)
+typedef int8_t stress_vint8w1024_t	__attribute__ ((vector_size(1024 / 8)));
 typedef int8_t stress_vint8w512_t	__attribute__ ((vector_size(512 / 8)));
 typedef int8_t stress_vint8w256_t	__attribute__ ((vector_size(256 / 8)));
 typedef int8_t stress_vint8w128_t	__attribute__ ((vector_size(128 / 8)));
@@ -233,12 +234,16 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 }
 
 #if defined(HAVE_VECMATH)
+STRESS_MEMRATE_READ(1024, stress_vint8w1024_t)
+STRESS_MEMRATE_READ_RATE(1024, stress_vint8w1024_t)
 STRESS_MEMRATE_READ(512, stress_vint8w512_t)
 STRESS_MEMRATE_READ_RATE(512, stress_vint8w512_t)
 STRESS_MEMRATE_READ(256, stress_vint8w256_t)
 STRESS_MEMRATE_READ_RATE(256, stress_vint8w256_t)
+STRESS_MEMRATE_READ(128, stress_vint8w128_t)
+STRESS_MEMRATE_READ_RATE(128, stress_vint8w128_t)
 #endif
-#if defined(HAVE_INT128_T)
+#if defined(HAVE_INT128_T) && !defined(HAVE_VECMATH)
 STRESS_MEMRATE_READ(128, __uint128_t)
 STRESS_MEMRATE_READ_RATE(128, __uint128_t)
 #endif
@@ -490,12 +495,16 @@ STRESS_MEMRATE_WRITE_NT_RATE(32, uint32_t, stress_nt_store32, i)
 #endif
 
 #if defined(HAVE_VECMATH)
+STRESS_MEMRATE_WRITE(1024, stress_vint8w1024_t)
+STRESS_MEMRATE_WRITE_RATE(1024, stress_vint8w1024_t)
 STRESS_MEMRATE_WRITE(512, stress_vint8w512_t)
 STRESS_MEMRATE_WRITE_RATE(512, stress_vint8w512_t)
 STRESS_MEMRATE_WRITE(256, stress_vint8w256_t)
 STRESS_MEMRATE_WRITE_RATE(256, stress_vint8w256_t)
+STRESS_MEMRATE_WRITE(128, stress_vint8w128_t)
+STRESS_MEMRATE_WRITE_RATE(128, stress_vint8w128_t)
 #endif
-#if defined(HAVE_INT128_T)
+#if defined(HAVE_INT128_T) && !defined(HAVE_VECMATH)
 STRESS_MEMRATE_WRITE(128, __uint128_t)
 STRESS_MEMRATE_WRITE_RATE(128, __uint128_t)
 #endif
@@ -519,10 +528,12 @@ static stress_memrate_info_t memrate_info[] = {
 	{ "write32nt",	MR_WR, stress_memrate_write_nt32,	stress_memrate_write_nt_rate32 },
 #endif
 #if defined(HAVE_VECMATH)
+	{ "write1024",	MR_WR, stress_memrate_write1024,	stress_memrate_write_rate1024 },
 	{ "write512",	MR_WR, stress_memrate_write512,		stress_memrate_write_rate512 },
 	{ "write256",	MR_WR, stress_memrate_write256,		stress_memrate_write_rate256 },
+	{ "write128",	MR_WR, stress_memrate_write128,		stress_memrate_write_rate128 },
 #endif
-#if defined(HAVE_INT128_T)
+#if defined(HAVE_INT128_T) && !defined(HAVE_VECMATH)
 	{ "write128",	MR_WR, stress_memrate_write128,		stress_memrate_write_rate128 },
 #endif
 	{ "write64",	MR_WR, stress_memrate_write64,		stress_memrate_write_rate64 },
@@ -531,10 +542,12 @@ static stress_memrate_info_t memrate_info[] = {
 	{ "write8",	MR_WR, stress_memrate_write8,		stress_memrate_write_rate8 },
 
 #if defined(HAVE_VECMATH)
+	{ "read1024",	MR_RD, stress_memrate_read1024,		stress_memrate_read_rate1024 },
 	{ "read512",	MR_RD, stress_memrate_read512,		stress_memrate_read_rate512 },
 	{ "read256",	MR_RD, stress_memrate_read256,		stress_memrate_read_rate256 },
+	{ "read128",	MR_RD, stress_memrate_read128,		stress_memrate_read_rate128 },
 #endif
-#if defined(HAVE_INT128_T)
+#if defined(HAVE_INT128_T) && !defined(HAVE_VECMATH)
 	{ "read128",	MR_RD, stress_memrate_read128,		stress_memrate_read_rate128 },
 #endif
 	{ "read64",	MR_RD, stress_memrate_read64,		stress_memrate_read_rate64 },
