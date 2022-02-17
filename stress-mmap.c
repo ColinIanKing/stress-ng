@@ -140,7 +140,11 @@ static const int mmap_flags[] = {
 #if defined(MAP_COPY)
 	MAP_COPY,
 #endif
-	0
+/* Solaris */
+#if defined(MAP_LOW32)
+	MAP_LOW32,
+#endif
+	0,
 };
 
 /*
