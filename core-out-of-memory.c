@@ -82,6 +82,8 @@ static int stress_set_adjustment(const char *procname, const char *name, const c
 	const size_t len = strlen(str);
 	int i, saved_errno = 0;
 
+	/* pr_dbg("%s: %s -> %s\n", name, procname, str); */
+
 	for (i = 0; i < 32; i++) {
 		ssize_t n;
 		int fd;
@@ -131,7 +133,6 @@ void stress_set_oom_adjustment(const char *name, const bool killable)
 
 	high_priv = (getuid() == 0) && (geteuid() == 0);
 
-
 	/*
 	 *  main cannot be killable; if OPT_FLAGS_OOMABLE set make
 	 *  all child procs easily OOMable
@@ -156,9 +157,9 @@ void stress_set_oom_adjustment(const char *name, const bool killable)
 	 *  Fall back to old oom interface if we got -ENOENT
 	 */
 	if (make_killable)
-		str = high_priv ? OOM_ADJ_NO_OOM : OOM_ADJ_MIN;
-	else
 		str = OOM_ADJ_MAX;
+	else
+		str = high_priv ? OOM_ADJ_NO_OOM : OOM_ADJ_MIN;
 
 	(void)stress_set_adjustment("/proc/self/oom_adj", name, str);
 }
