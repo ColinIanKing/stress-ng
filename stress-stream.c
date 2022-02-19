@@ -37,8 +37,6 @@
 
 #if defined(HAVE_NT_STORE_DOUBLE)
 #define NT_STORE(dst, src)		stress_nt_store_double(&dst, src)
-#else
-#define NT_STORE(dst, src)		dst = src
 #endif
 
 #define STORE(dst, src)			dst = src
@@ -120,8 +118,21 @@ static inline void OPTIMIZE3 stress_stream_copy_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
+		STORE(c[i], a[i]);
+}
+
+#if defined(HAVE_NT_STORE_DOUBLE)
+static inline void OPTIMIZE3 stress_stream_copy_index0_nt(
+	double *RESTRICT c,
+	const double *RESTRICT a,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
 		NT_STORE(c[i], a[i]);
 }
+#endif
 
 static inline void OPTIMIZE3 stress_stream_copy_index1(
 	double *RESTRICT c,
@@ -171,8 +182,22 @@ static inline void OPTIMIZE3 stress_stream_scale_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
+		STORE(b[i], q * c[i]);
+}
+
+#if defined(HAVE_NT_STORE_DOUBLE)
+static inline void OPTIMIZE3 stress_stream_scale_index0_nt(
+	double *RESTRICT b,
+	const double *RESTRICT c,
+	const double q,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
 		NT_STORE(b[i], q * c[i]);
 }
+#endif
 
 static inline void OPTIMIZE3 stress_stream_scale_index1(
 	double *RESTRICT b,
@@ -225,8 +250,22 @@ static inline void OPTIMIZE3 stress_stream_add_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
+		STORE(c[i], a[i] + b[i]);
+}
+
+#if defined(HAVE_NT_STORE_DOUBLE)
+static inline void OPTIMIZE3 stress_stream_add_index0_nt(
+	const double *RESTRICT a,
+	const double *RESTRICT b,
+	double *RESTRICT c,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
 		NT_STORE(c[i], a[i] + b[i]);
 }
+#endif
 
 static inline void OPTIMIZE3 stress_stream_add_index1(
 	const double *RESTRICT a,
@@ -280,8 +319,23 @@ static inline void OPTIMIZE3 stress_stream_triad_index0(
 	register uint64_t i;
 
 	for (i = 0; i < n; i++)
+		STORE(a[i], b[i] + (c[i] * q));
+}
+
+#if defined(HAVE_NT_STORE_DOUBLE)
+static inline void OPTIMIZE3 stress_stream_triad_index0_nt(
+	double *RESTRICT a,
+	const double *RESTRICT b,
+	const double *RESTRICT c,
+	const double q,
+	const uint64_t n)
+{
+	register uint64_t i;
+
+	for (i = 0; i < n; i++)
 		NT_STORE(a[i], b[i] + (c[i] * q));
 }
+#endif
 
 static inline void OPTIMIZE3 stress_stream_triad_index1(
 	double *RESTRICT a,
@@ -456,6 +510,7 @@ static int stress_stream(const stress_args_t *args)
 	uint64_t L3, sz, n, sz_idx;
 	uint64_t stream_L3_size = DEFAULT_STREAM_L3_SIZE;
 	bool guess = false;
+	const bool has_sse2 = stress_cpu_x86_has_sse2();
 
 	if (stress_get_setting("stream-L3-size", &stream_L3_size))
 		L3 = stream_L3_size;
@@ -561,6 +616,15 @@ static int stress_stream(const stress_args_t *args)
 			break;
 		case 0:
 		default:
+#if defined(HAVE_NT_STORE_DOUBLE)
+			if (has_sse2) {
+				stress_stream_copy_index0_nt(c, a, n);
+				stress_stream_scale_index0_nt(b, c, q, n);
+				stress_stream_add_index0_nt(c, b, a, n);
+				stress_stream_triad_index0_nt(a, b, c, q, n);
+				break;
+			}
+#endif
 			stress_stream_copy_index0(c, a, n);
 			stress_stream_scale_index0(b, c, q, n);
 			stress_stream_add_index0(c, b, a, n);
