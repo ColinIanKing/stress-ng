@@ -247,10 +247,9 @@ static int pr_msg_lockable(
 		    (!(flag & PR_DEBUG))) {
 			syslog(LOG_INFO, "%s", buf);
 		}
-
+#endif
 		if (!locked)
 			pr_unlock(&lock);
-#endif
 	}
 	return ret;
 }
