@@ -105,6 +105,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 		if (pipe(pfd) < 0) {
 			pfd[0] = -1;
 			pfd[1] = -1;
+			break;
 		} else {
 			if (fcntl(pfd[0], F_SETFL, O_NONBLOCK) < 0) {
 				pr_fail("%s: fcntl F_SET_FL O_NONBLOCK failed, errno=%d (%s)\n",
