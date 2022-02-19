@@ -109,6 +109,8 @@ static int stress_virt_to_phys(
 		 *  Try to exercise /dev/mem, seek may work, read most probably
 		 *  will fail with -EPERM. Ignore any errors, the aim here is
 		 *  just to try and exercise this interface.
+		 *  Modern systems fail /dev/mem reads with -EPERM because
+		 *  of CONFIG_STRICT_DEVMEM being enabled.
 		 */
 		if (fd_mem >= 0) {
 			off_t offret;
