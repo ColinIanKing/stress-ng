@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-cache.h"
 #include "core-target-clones.h"
+#include "core-nt-store.h"
 #include "core-vecmath.h"
 
 #define MIN_VM_BYTES		(4 * KB)
@@ -1897,6 +1898,76 @@ static size_t TARGET_CLONES stress_vm_write64(
 	return 0;
 }
 
+#if defined(HAVE_NT_STORE64)
+/*
+ *  stress_vm_write_64nt()
+ *	64 bit non-temporal write, no read check
+ */
+static size_t TARGET_CLONES stress_vm_write64nt(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	const stress_args_t *args,
+	const uint64_t max_ops)
+{
+	if (stress_cpu_x86_has_sse2()) {
+		static uint64_t val;
+		uint64_t *ptr = (uint64_t *)buf;
+		register uint64_t v = val;
+		register size_t i = 0, n = sz / (sizeof(*ptr) * 32);
+
+		(void)buf_end;
+
+		while (i < n) {
+			stress_nt_store64(&ptr[0x00], v);
+			stress_nt_store64(&ptr[0x01], v);
+			stress_nt_store64(&ptr[0x02], v);
+			stress_nt_store64(&ptr[0x03], v);
+			stress_nt_store64(&ptr[0x04], v);
+			stress_nt_store64(&ptr[0x05], v);
+			stress_nt_store64(&ptr[0x06], v);
+			stress_nt_store64(&ptr[0x07], v);
+
+			stress_nt_store64(&ptr[0x08], v);
+			stress_nt_store64(&ptr[0x09], v);
+			stress_nt_store64(&ptr[0x0a], v);
+			stress_nt_store64(&ptr[0x0b], v);
+			stress_nt_store64(&ptr[0x0c], v);
+			stress_nt_store64(&ptr[0x0d], v);
+			stress_nt_store64(&ptr[0x0e], v);
+			stress_nt_store64(&ptr[0x0f], v);
+
+			stress_nt_store64(&ptr[0x10], v);
+			stress_nt_store64(&ptr[0x11], v);
+			stress_nt_store64(&ptr[0x12], v);
+			stress_nt_store64(&ptr[0x13], v);
+			stress_nt_store64(&ptr[0x14], v);
+			stress_nt_store64(&ptr[0x15], v);
+			stress_nt_store64(&ptr[0x16], v);
+			stress_nt_store64(&ptr[0x17], v);
+
+			stress_nt_store64(&ptr[0x18], v);
+			stress_nt_store64(&ptr[0x19], v);
+			stress_nt_store64(&ptr[0x1a], v);
+			stress_nt_store64(&ptr[0x1b], v);
+			stress_nt_store64(&ptr[0x1c], v);
+			stress_nt_store64(&ptr[0x1d], v);
+			stress_nt_store64(&ptr[0x1e], v);
+			stress_nt_store64(&ptr[0x1f], v);
+
+			i++;
+			if (UNLIKELY(!keep_stressing_flag() || (max_ops && (i >= max_ops))))
+				break;
+		}
+		add_counter(args, i);
+		val++;
+		return 0;
+	}
+	return stress_vm_write64(buf, buf_end, sz, args, max_ops);
+}
+#endif
+
+
 /*
  *  stress_vm_read_64()
  *	simple 64 bit read
@@ -2203,6 +2274,9 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "walk-0a",	stress_vm_walking_zero_addr },
 	{ "walk-1a",	stress_vm_walking_one_addr },
 	{ "write64",	stress_vm_write64 },
+#if defined(HAVE_NT_STORE64)
+	{ "write64nt",	stress_vm_write64nt },
+#endif
 #if defined(HAVE_VECMATH)
 	{ "write1024v",	stress_vm_write1024v },
 #endif

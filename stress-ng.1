@@ -4821,6 +4821,12 @@ sequentially write to memory using 32 x 64 bit writes per bogo loop. Each loop
 equates to one bogo operation.  This exercises raw memory writes.  Note that
 memory writes are not checked at the end of each test iteration.
 T}
+write64nt	T{
+sequentially write to memory using 32 x 64 bit non-temporal writes per bogo loop.
+Each loop equates to one bogo operation.  This exercises cacheless raw memory writes
+and is only available on x86 sse2 capable systems built with gcc and clang
+compilers.  Note that memory writes are not checked at the end of each test iteration.
+T}
 write1024v	T{
 sequentially write to memory using 1 x 1024 bit vector write per bogo loop
 (only available if the compiler supports vector types).
