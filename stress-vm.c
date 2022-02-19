@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-cache.h"
 #include "core-target-clones.h"
+#include "core-vecmath.h"
 
 #define MIN_VM_BYTES		(4 * KB)
 #define MAX_VM_BYTES		(MAX_MEM_LIMIT)
@@ -1958,6 +1959,44 @@ static size_t TARGET_CLONES stress_vm_read64(
 	return 0;
 }
 
+#if defined(HAVE_VECMATH)
+typedef int8_t stress_vint8w1024_t      __attribute__ ((vector_size(1024 / 8)));
+
+/*
+ *  stress_vm_write_1024v()
+ *	vector 1024 bit write, no read check
+ */
+static size_t TARGET_CLONES stress_vm_write1024v(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	const stress_args_t *args,
+	const uint64_t max_ops)
+{
+	static uint64_t val;
+	stress_vint8w1024_t *ptr = (stress_vint8w1024_t *)buf;
+	stress_vint8w1024_t v;
+	uint64_t *v64ptr = (uint64_t *)&v;
+	register size_t i = 0, n = sz / sizeof(*ptr);
+
+	for (i = 0; i < sizeof(v) / sizeof(uint64_t); i++)
+		v64ptr[i] = val;
+
+	(void)buf_end;
+
+	while (i < n) {
+		*ptr++ = v;
+		i++;
+		if (UNLIKELY(!keep_stressing_flag() || (max_ops && (i >= max_ops))))
+			break;
+	}
+	add_counter(args, i);
+	val++;
+
+	return 0;
+}
+#endif
+
 /*
  *  stress_vm_rowhammer()
  *
@@ -2164,6 +2203,9 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "walk-0a",	stress_vm_walking_zero_addr },
 	{ "walk-1a",	stress_vm_walking_one_addr },
 	{ "write64",	stress_vm_write64 },
+#if defined(HAVE_VECMATH)
+	{ "write1024v",	stress_vm_write1024v },
+#endif
 	{ "zero-one",	stress_vm_zero_one },
 	{ NULL,		NULL  }
 };

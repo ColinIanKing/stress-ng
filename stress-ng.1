@@ -4817,9 +4817,15 @@ works best with physical memory addressing, however, exercising these virtual
 addresses has some value too.
 T}
 write64	T{
-sequentially write memory using 32 x 64 bit writes per bogo loop. Each loop
+sequentially write to memory using 32 x 64 bit writes per bogo loop. Each loop
 equates to one bogo operation.  This exercises raw memory writes.  Note that
 memory writes are not checked at the end of each test iteration.
+T}
+write1024v	T{
+sequentially write to memory using 1 x 1024 bit vector write per bogo loop
+(only available if the compiler supports vector types).
+Each loop equates to one bogo operation.  This exercises raw memory writes.
+Note that memory writes are not checked at the end of each test iteration.
 T}
 zero-one	T{
 set all memory bits to zero and then check if any bits are not zero. Next, set
