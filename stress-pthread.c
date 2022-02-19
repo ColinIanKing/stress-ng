@@ -61,6 +61,7 @@ static const stress_help_t help[] = {
 typedef struct {
 	pthread_t pthread;	/* The pthread */
 	int	  ret;		/* pthread create return */
+	uint64_t index;		/* which pthread */
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)
 	void 	 *stack;	/* pthread stack */
 #endif
@@ -203,7 +204,13 @@ static void *stress_pthread_func(void *parg)
 	struct robust_list_head *head;
 	size_t len;
 #endif
-	const stress_args_t *args = ((stress_pthread_args_t *)parg)->args;
+	const stress_pthread_args_t *spa = (stress_pthread_args_t *)parg;
+	const stress_args_t *args = spa->args;
+	const stress_pthread_info_t *pthreads = (stress_pthread_info_t *)spa->data;
+	char str[16];
+
+	snprintf(str, sizeof(str), "%" PRIu64, pthreads->index);
+	stress_set_proc_state_str(args->name, str);
 
 #if defined(HAVE_GET_ROBUST_LIST) &&	\
     defined(HAVE_LINUX_FUTEX_H)
@@ -505,8 +512,10 @@ static int stress_pthread(const stress_args_t *args)
 			stop_running();
 			continue;
 		}
-		for (i = 0; i < pthread_max; i++)
+		for (i = 0; i < pthread_max; i++) {
 			pthreads[i].ret = -1;
+			pthreads[i].index = i;
+		}
 
 		for (i = 0; i < pthread_max; i++) {
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)

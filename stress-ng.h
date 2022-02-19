@@ -2636,6 +2636,7 @@ extern const char *stress_get_sched_name(const int sched);
 extern void stress_set_iopriority(const int32_t class, const int32_t level);
 extern void stress_set_proc_name_init(int argc, char *argv[], char *envp[]);
 extern void stress_set_proc_name(const char *name);
+extern void stress_set_proc_state_str(const char *name, const char *str);
 extern void stress_set_proc_state(const char *name, const int state);
 extern WARN_UNUSED int stress_get_unused_uid(uid_t *uid);
 extern void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum);

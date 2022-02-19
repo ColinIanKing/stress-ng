@@ -736,6 +736,25 @@ void stress_set_proc_name(const char *name)
 }
 
 /*
+ *  stress_set_proc_state_str
+ *	set process name based on run state string, see
+ *	macros STRESS_STATE_*
+ */
+void stress_set_proc_state_str(const char *name, const char *str)
+{
+	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
+		return;
+
+#if defined(HAVE_BSD_UNISTD_H) &&	\
+    defined(HAVE_SETPROCTITLE)
+	setproctitle("-%s [%s]", name, str);
+#else
+	(void)name;
+	(void)str;
+#endif
+}
+
+/*
  *  stress_set_proc_state
  *	set process name based on run state, see
  *	macros STRESS_STATE_*
@@ -752,18 +771,10 @@ void stress_set_proc_state(const char *name, const int state)
 		"wait"
 	};
 
-	(void)name;
-
-	if (g_opt_flags & OPT_FLAGS_KEEP_NAME)
-		return;
-
 	if ((state < 0) || (state >= (int)SIZEOF_ARRAY(stress_states)))
 		return;
 
-#if defined(HAVE_BSD_UNISTD_H) &&	\
-    defined(HAVE_SETPROCTITLE)
-	setproctitle("-%s [%s]", name, stress_states[state]);
-#endif
+	stress_set_proc_state_str(name, stress_states[state]);
 }
 
 /*
