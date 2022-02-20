@@ -4694,6 +4694,10 @@ Method	Description
 all	T{
 iterate over all the vm stress methods as listed below.
 T}
+cache-stripe	T{
+work through memory in 64 byte cache sized chunks, writing in ascending
+address order on even offsets and descending address order on odd offsets.
+T}
 flip	T{
 sequentially work through memory 8 times, each time just one bit in memory
 flipped (inverted). This will effectively invert each byte in 8 passes.
