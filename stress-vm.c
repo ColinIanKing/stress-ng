@@ -326,7 +326,7 @@ static inline size_t stress_vm_count_bits(uint64_t v)
 
 /*
  *  stress_vm_moving_inversion()
- *	work sequentially through memory setting 8 bytes at at a time
+ *	work sequentially through memory setting 8 bytes at a time
  *	with a random value, then check if it is correct, invert it and
  *	then check if that is correct.
  */
