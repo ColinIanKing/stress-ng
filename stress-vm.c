@@ -854,7 +854,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 		ptr[i] += val;
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
-			break;
+			return 0;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
@@ -867,7 +867,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 		ptr[j % sz] -= val;
 		c++;
 		if (UNLIKELY(max_ops && c >= max_ops))
-			break;
+			return 0;
 	}
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
@@ -975,9 +975,9 @@ static size_t TARGET_CLONES stress_vm_swap(
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
+	stress_vm_check("swap bytes", bit_errors);
 abort:
 	free(swaps);
-	stress_vm_check("swap bytes", bit_errors);
 	set_counter(args, c);
 
 	return bit_errors;
@@ -1042,8 +1042,8 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
-abort:
 	stress_vm_check("rand-set", bit_errors);
+abort:
 	set_counter(args, c);
 
 	return bit_errors;
@@ -1129,8 +1129,8 @@ static size_t TARGET_CLONES stress_vm_ror(
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
-abort:
 	stress_vm_check("ror", bit_errors);
+abort:
 	set_counter(args, c);
 
 	return bit_errors;
@@ -1233,8 +1233,8 @@ static size_t TARGET_CLONES stress_vm_flip(
 			break;
 	}
 
-abort:
 	stress_vm_check("flip", bit_errors);
+abort:
 	set_counter(args, c);
 
 	return bit_errors;
@@ -1295,8 +1295,8 @@ static size_t TARGET_CLONES stress_vm_zero_one(
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
-abort:
 	stress_vm_check("zero-one", bit_errors);
+abort:
 	set_counter(args, c);
 
 	return bit_errors;
@@ -1499,8 +1499,8 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 			break;
 	}
 
-abort:
 	stress_vm_check("inc-nybble", bit_errors);
+abort:
 	set_counter(args, c);
 
 	return bit_errors;
@@ -1563,8 +1563,8 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
-abort:
 	stress_vm_check("rand-sum", bit_errors);
+abort:
 	set_counter(args, c);
 
 	return bit_errors;
@@ -1623,8 +1623,8 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 		bit_errors += stress_vm_count_bits8(ptr8[i]);
 	}
 
-abort:
 	stress_vm_check("prime-zero", bit_errors);
+abort:
 	set_counter(args, c);
 
 	return bit_errors;
@@ -1684,8 +1684,8 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
-abort:
 	stress_vm_check("prime-one", bit_errors);
+abort:
 	set_counter(args, c);
 
 	return bit_errors;
@@ -1755,8 +1755,8 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
-abort:
 	stress_vm_check("prime-gray-zero", bit_errors);
+abort:
 	set_counter(args, c);
 
 	return bit_errors;
@@ -1827,8 +1827,8 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
 	}
-abort:
 	stress_vm_check("prime-gray-one", bit_errors);
+abort:
 	set_counter(args, c);
 
 	return bit_errors;
@@ -2207,7 +2207,7 @@ static size_t TARGET_CLONES stress_vm_mscan(
 		*ptr &= 0x7f;
 
 		if (UNLIKELY(!keep_stressing_flag() || (max_ops && (c >= max_ops))))
-			break;
+			goto abort;
 	}
 	end = (volatile uint8_t *)ptr;
 
@@ -2217,6 +2217,7 @@ static size_t TARGET_CLONES stress_vm_mscan(
 		bit_errors += stress_vm_popcount(*ptr);
 	}
 
+abort:
 	stress_vm_check("mscan", bit_errors);
 	set_counter(args, c);
 
@@ -2389,6 +2390,48 @@ abort:
 }
 
 /*
+ *  stress_vm_cache_lines()
+ *	work through memory in cache line steps touching one byte per
+ * 	cache line
+ */
+static size_t TARGET_CLONES stress_vm_cache_lines(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	const stress_args_t *args,
+	const uint64_t max_ops)
+{
+	volatile uint8_t *ptr;
+	size_t bit_errors = 0;
+	uint64_t c = get_counter(args);
+	uint8_t i;
+	static size_t offset = 0;
+
+	for (i = 0, ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += 64) {
+		*ptr = i++;
+	}
+	c++;
+	if (UNLIKELY(max_ops && c >= max_ops))
+		goto abort;
+	if (UNLIKELY(!keep_stressing_flag()))
+		goto abort;
+
+	for (i = 0, ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += 64) {
+		bit_errors += (*ptr != i++);
+	}
+	(void)stress_mincore_touch_pages(buf, sz);
+	inject_random_bit_errors(buf, sz);
+	stress_vm_check("cache-stripe", bit_errors);
+abort:
+	set_counter(args, c);
+
+	offset = (offset + 1) & 0x3f;
+
+	return bit_errors;
+}
+
+
+/*
  *  stress_vm_all()
  *	work through all vm stressors sequentially
  */
@@ -2411,41 +2454,42 @@ static size_t stress_vm_all(
 }
 
 static const stress_vm_method_info_t vm_methods[] = {
-	{ "all",	stress_vm_all },
-	{ "cache-stripe", stress_vm_cache_stripe },
-	{ "flip",	stress_vm_flip },
-	{ "galpat-0",	stress_vm_galpat_zero },
-	{ "galpat-1",	stress_vm_galpat_one },
-	{ "gray",	stress_vm_gray },
-	{ "grayflip",	stress_vm_grayflip },
-	{ "rowhammer",	stress_vm_rowhammer },
-	{ "incdec",	stress_vm_incdec },
-	{ "inc-nybble",	stress_vm_inc_nybble },
-	{ "rand-set",	stress_vm_rand_set },
-	{ "rand-sum",	stress_vm_rand_sum },
-	{ "read64",	stress_vm_read64 },
-	{ "ror",	stress_vm_ror },
-	{ "swap",	stress_vm_swap },
-	{ "move-inv",	stress_vm_moving_inversion },
-	{ "modulo-x",	stress_vm_modulo_x },
-	{ "mscan",	stress_vm_mscan },
-	{ "prime-0",	stress_vm_prime_zero },
-	{ "prime-1",	stress_vm_prime_one },
-	{ "prime-gray-0",stress_vm_prime_gray_zero },
-	{ "prime-gray-1",stress_vm_prime_gray_one },
-	{ "prime-incdec",stress_vm_prime_incdec },
-	{ "walk-0d",	stress_vm_walking_zero_data },
-	{ "walk-1d",	stress_vm_walking_one_data },
-	{ "walk-0a",	stress_vm_walking_zero_addr },
-	{ "walk-1a",	stress_vm_walking_one_addr },
-	{ "write64",	stress_vm_write64 },
+	{ "all",		stress_vm_all },
+	{ "cache-lines",	stress_vm_cache_lines },
+	{ "cache-stripe",	stress_vm_cache_stripe },
+	{ "flip",		stress_vm_flip },
+	{ "galpat-0",		stress_vm_galpat_zero },
+	{ "galpat-1",		stress_vm_galpat_one },
+	{ "gray",		stress_vm_gray },
+	{ "grayflip",		stress_vm_grayflip },
+	{ "rowhammer",		stress_vm_rowhammer },
+	{ "incdec",		stress_vm_incdec },
+	{ "inc-nybble",		stress_vm_inc_nybble },
+	{ "rand-set",		stress_vm_rand_set },
+	{ "rand-sum",		stress_vm_rand_sum },
+	{ "read64",		stress_vm_read64 },
+	{ "ror",		stress_vm_ror },
+	{ "swap",		stress_vm_swap },
+	{ "move-inv",		stress_vm_moving_inversion },
+	{ "modulo-x",		stress_vm_modulo_x },
+	{ "mscan",		stress_vm_mscan },
+	{ "prime-0",		stress_vm_prime_zero },
+	{ "prime-1",		stress_vm_prime_one },
+	{ "prime-gray-0",	stress_vm_prime_gray_zero },
+	{ "prime-gray-1",	stress_vm_prime_gray_one },
+	{ "prime-incdec",	stress_vm_prime_incdec },
+	{ "walk-0d",		stress_vm_walking_zero_data },
+	{ "walk-1d",		stress_vm_walking_one_data },
+	{ "walk-0a",		stress_vm_walking_zero_addr },
+	{ "walk-1a",		stress_vm_walking_one_addr },
+	{ "write64",		stress_vm_write64 },
 #if defined(HAVE_NT_STORE64)
-	{ "write64nt",	stress_vm_write64nt },
+	{ "write64nt",		stress_vm_write64nt },
 #endif
 #if defined(HAVE_VECMATH)
-	{ "write1024v",	stress_vm_write1024v },
+	{ "write1024v",		stress_vm_write1024v },
 #endif
-	{ "zero-one",	stress_vm_zero_one },
+	{ "zero-one",		stress_vm_zero_one },
 	{ NULL,		NULL  }
 };
 
