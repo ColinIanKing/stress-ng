@@ -150,6 +150,32 @@ static void stress_dentry_unlink(
 }
 
 /*
+ *  stress_dentry_state()
+ *	determined the number of cached dentries
+ */
+static void stress_dentry_state(int64_t *nr_dentry)
+{
+#if defined(__linux__)
+	FILE *fp;
+	int n;
+
+	fp = fopen("/proc/sys/fs/dentry-state", "r");
+	if (!fp)
+		goto err;
+	n = fscanf(fp, "%" SCNd64, nr_dentry);
+	(void)fclose(fp);
+
+	if (n != 1)
+		goto err;
+	return;
+err:
+#else
+	*nr_dentry = 0ULL;
+	return;
+#endif
+}
+
+/*
  *  stress_dentry_misc()
  *	misc ways to exercise a directory file
  */
@@ -295,6 +321,7 @@ static int stress_dentry(const stress_args_t *args)
 	uint64_t dentry_offset = dentries;
 	uint8_t dentry_order = ORDER_RANDOM;
 	char dir_path[PATH_MAX];
+	int64_t nr_dentry1, nr_dentry2, nr_dentries;
 
 	if (!stress_get_setting("dentries", &dentries)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -312,6 +339,9 @@ static int stress_dentry(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+#if defined(__linux__)
+	stress_dentry_state(&nr_dentry1);
+#endif
 	do {
 		uint64_t i, n = dentries;
 		char path[PATH_MAX];
@@ -379,6 +409,12 @@ static int stress_dentry(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 abort:
+	stress_dentry_state(&nr_dentry2);
+	nr_dentries = nr_dentry2 - nr_dentry1;
+	if ((args->instance == 0) && (nr_dentries > 0)) {
+		pr_inf("%s: %" PRId64 " dentries allocated\n",
+			args->name, nr_dentries);
+	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* force unlink of all files */
