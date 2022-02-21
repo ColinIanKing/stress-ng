@@ -1670,7 +1670,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(timerfd_gettime), 2, { ARG_CLOCKID_T, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(timerfd_settime)
-	{ SYS(timer_settime), 4, { ARG_FD, ARG_FLAG, ARG_PTR, ARG_PTR, 0, 0 } },
+	{ SYS(timerfd_settime), 4, { ARG_FD, ARG_FLAG, ARG_PTR, ARG_PTR, 0, 0 } },
 #endif
 #if DEFSYS(times)
 	{ SYS(times), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
