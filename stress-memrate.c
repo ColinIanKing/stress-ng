@@ -110,15 +110,16 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	type v;							\
+	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
 								\
 	for (ptr = start; ptr < (type *)end;) {			\
 		uint32_t i;					\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < (uint32_t)MB) &&		\
+		for (i = 0; (i < mb_loops) &&			\
 		     (ptr < (type *)end);			\
-		     ptr += 16, i += size) {			\
+		     ptr += 16, i++) {				\
 			v = ptr[0];				\
 			(void)v;				\
 			v = ptr[1];				\
@@ -170,6 +171,7 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	type v;							\
+	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
 								\
 	t1 = stress_time_now();					\
 	for (ptr = start; ptr < (type *)end;) {			\
@@ -178,9 +180,9 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < (uint32_t)MB) &&		\
+		for (i = 0; (i < mb_loops) &&			\
 		     (ptr < (type *)end);			\
-		     ptr += 16, i += size) {			\
+		     ptr += 16, i ++) {				\
 			v = ptr[0];				\
 			(void)v;				\
 			v = ptr[1];				\
@@ -265,6 +267,7 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 	type v;							\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
+	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
 								\
 	(void)memset(&v, 0xaa, sizeof(v));			\
 								\
@@ -273,9 +276,9 @@ static uint64_t TARGET_CLONES stress_memrate_write##size(	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < (uint32_t)MB) &&		\
+		for (i = 0; (i < mb_loops) &&			\
 		     (ptr < (type *)end);			\
-		     ptr += 16, i += size) {			\
+		     ptr += 16, i++) {				\
 			ptr[0] = v;				\
 			ptr[1] = v;				\
 			ptr[2] = v;				\
@@ -310,6 +313,7 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 	type v;							\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
+	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
 								\
 	(void)memset(&v, 0xaa, sizeof(v));			\
 								\
@@ -320,9 +324,9 @@ static uint64_t TARGET_CLONES stress_memrate_write_rate##size(	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < (uint32_t)MB) &&		\
+		for (i = 0; (i < mb_loops) &&			\
 		     (ptr < (type *)end);			\
-		     ptr += 16, i += size) {			\
+		     ptr += 16, i ++) {				\
 			ptr[0] = v;				\
 			ptr[1] = v;				\
 			ptr[2] = v;				\
@@ -374,6 +378,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 	register type *ptr;					\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
+	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
 								\
 	if (!stress_cpu_x86_has_sse2()) {			\
 		*valid = false;					\
@@ -385,9 +390,9 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt##size(	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < (type)MB) &&			\
+		for (i = 0; (i < mb_loops) &&			\
 		     (ptr < (type *)end);			\
-		     ptr += 16, i += size) {			\
+		     ptr += 16, i++) {				\
 			register type *vptr = (type *)ptr;	\
 			register type v = (type)i;		\
 								\
@@ -424,6 +429,7 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 	double total_dur = 0.0;					\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
+	const uint64_t mb_loops = MB / (sizeof(type) * 16);	\
 								\
 	if (!stress_cpu_x86_has_sse2()) {			\
 		*valid = false;					\
@@ -437,9 +443,9 @@ static uint64_t OPTIMIZE3 stress_memrate_write_nt_rate##size(	\
 								\
 		if (!keep_stressing_flag())			\
 			break;					\
-		for (i = 0; (i < (type)MB) &&			\
+		for (i = 0; (i < mb_loops) &&			\
 		     (ptr < (type *)end);			\
-		     ptr += 16, i += size) {			\
+		     ptr += 16, i++) {				\
 			register type *vptr = (type *)ptr;	\
 			register type v = (type)i;		\
 								\
