@@ -4694,6 +4694,11 @@ Method	Description
 all	T{
 iterate over all the vm stress methods as listed below.
 T}
+cache-lines	T{
+work through memory in 64 byte cache sized steps writing a single byte
+per cache line. Once the write is complete, the memory is read to verify
+the values are written correctly.
+T}
 cache-stripe	T{
 work through memory in 64 byte cache sized chunks, writing in ascending
 address order on even offsets and descending address order on odd offsets.
