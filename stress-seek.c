@@ -73,6 +73,10 @@ static int stress_seek(const stress_args_t *args)
 	char filename[PATH_MAX];
 	uint8_t buf[512];
 	const off_t bad_off_t = max_off_t();
+#if defined(HAVE_OFF64_T) &&	\
+    defined(HAVE_LSEEK64)
+	off64_t	offset64 = (off64_t)0;
+#endif
 #if defined(FALLOC_FL_PUNCH_HOLE)
 	bool seek_punch = false;
 
@@ -190,6 +194,42 @@ re_read:
 		}
 #else
 		UNEXPECTED
+#endif
+
+#if defined(HAVE_OFF64_T) &&	\
+    defined(HAVE_LSEEK64)
+#if defined(SEEK_SET)
+		/*
+		 *  exercise 64 bit lseek, on 64 arches this calls lseek,
+		 *  but it is worth checking anyhow just in case it is
+		 *  broken on 32 or 64 bit systems
+		 */
+		if (lseek64(fd, offset64, SEEK_SET) < 0) {
+			if (errno != EINVAL)
+				pr_fail("%s: lseek64 SEEK_SET failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+		}
+#else
+		UNEXPECTED
+#endif
+#if defined(SEEK_END)
+		if (lseek64(fd, offset64, SEEK_END) < 0) {
+			if (errno != EINVAL)
+				pr_fail("%s: lseek64 SEEK_END failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+		}
+#else
+		UNEXPECTED
+#endif
+#if defined(SEEK_CUR)
+		if (lseek64(fd, offset64, SEEK_CUR) < 0) {
+			if (errno != EINVAL)
+				pr_fail("%s: lseek64 SEEK_CUR failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+		}
+#else
+		UNEXPECTED
+#endif
 #endif
 #if defined(SEEK_HOLE) &&	\
     !defined(__APPLE__)
