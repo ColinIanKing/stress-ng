@@ -18,6 +18,9 @@
  */
 #include "stress-ng.h"
 #include "core-hash.h"
+#if defined(HAVE_XXHASH_H)
+#include <xxhash.h>
+#endif
 
 typedef struct {
 	double_t	duration;
@@ -436,12 +439,33 @@ static void stress_hash_method_x17(
 	stress_hash_generic(name, hmi, bucket, stress_hash_x17_wrapper, 0xd5c97ec8, 0xd5c97ec8);
 }
 
+#if defined(HAVE_XXHASH_H) &&	\
+    defined(HAVE_LIB_XXHASH)
+static uint32_t stress_hash_xxh64_wrapper(const char *str, const size_t len)
+{
+	return (uint32_t)XXH64(str, len, 0xf261eab7);
+}
+
+/*
+ *  stress_hash_method_xxh64()
+ *	stress test hash xxh64
+ */
+static void stress_hash_method_xxh64(
+	const char *name,
+	const struct stress_hash_method_info *hmi,
+	const stress_bucket_t *bucket)
+{
+	stress_hash_generic(name, hmi, bucket, stress_hash_xxh64_wrapper, 0x5a23bbc6, 0x5a23bbc6);
+}
+#endif
+
 static uint32_t stress_hash_loselose_wrapper(const char *str, const size_t len)
 {
 	(void)len;
 
 	return stress_hash_loselose(str);
 }
+
 
 /*
  *  stress_hash_method_loselose()
@@ -537,6 +561,10 @@ static stress_hash_method_info_t hash_methods[] = {
 	{ "sdbm",		stress_hash_method_sdbm,	NULL },
 	{ "x17",		stress_hash_method_x17,		NULL },
 	{ "xor",		stress_hash_method_xor,		NULL },
+#if defined(HAVE_XXHASH_H) &&	\
+    defined(HAVE_LIB_XXHASH)
+	{ "xxh64",		stress_hash_method_xxh64,	NULL },
+#endif
 	{ NULL,			NULL,				NULL }
 };
 
