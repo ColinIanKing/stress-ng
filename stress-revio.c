@@ -156,18 +156,26 @@ static ssize_t stress_revio_write(
 #endif
 
 	ret = write(fd, buf, count);
+	if (!keep_stressing_flag())
+		return ret;
 
 #if defined(HAVE_FSYNC)
 	if (revio_flags & REVIO_OPT_FSYNC)
 		(void)shim_fsync(fd);
+	if (!keep_stressing_flag())
+		return ret;
 #endif
 #if defined(HAVE_FDATASYNC)
 	if (revio_flags & REVIO_OPT_FDATASYNC)
 		(void)shim_fdatasync(fd);
+	if (!keep_stressing_flag())
+		return ret;
 #endif
 #if defined(HAVE_SYNCFS)
 	if (revio_flags & REVIO_OPT_SYNCFS)
 		(void)syncfs(fd);
+	if (!keep_stressing_flag())
+		return ret;
 #endif
 
 	return ret;
@@ -251,7 +259,7 @@ static int stress_revio_advise(const stress_args_t *args, const int fd, const in
 	if (!(flags & REVIO_OPT_FADV_MASK))
 		return 0;
 
-	for (i = 0; i < SIZEOF_ARRAY(revio_opts); i++) {
+	for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(revio_opts)); i++) {
 		if (revio_opts[i].flag & flags) {
 			if (posix_fadvise(fd, 0, 0, revio_opts[i].advice) < 0) {
 				pr_fail("%s: posix_fadvise failed, errno=%d (%s)\n",
