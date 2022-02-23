@@ -4138,7 +4138,7 @@ static dev_info_t *stress_dev_info_add(const char *path, dev_info_t **list)
 
 /*
  *  stress_dev_infos_get()
- *	traverse device directories adding device infor to list
+ *	traverse device directories adding device info to list
  */
 static size_t stress_dev_infos_get(
 	const stress_args_t *args,

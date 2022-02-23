@@ -659,7 +659,7 @@ stress-ng (0.13.06-1) unstable; urgency=medium
     deprecated
   * Makefile.config: Fix sys/vmmeter.h autodetection
   * stress-atomic: Add finder build time detection of atomic intrinsics
-  * core-vmstat: Add FreeBSD implimentation to system statistics
+  * core-vmstat: Add FreeBSD implementation to system statistics
   * core-helper.c: fix typo, GETLOADAVG should be HAVE_GETLOADAVG
   * core-vmstat: fix buffer overrun on therms
   * Add build time detection for getloadavg
@@ -762,7 +762,7 @@ stress-ng (0.13.04-1) unstable; urgency=medium
   * stress-fifo: periodically exercise FIONREAD on read end of pipe
   * stress-fifo: periodically perform invalid lseek on pipe fd
   * stress-pthread: use phread_mutexattr calls to use priority
-    inheritence
+    inheritance
   * stress-misaligned: perform misaligned read/writes on page and cache
     boundaries
 
@@ -858,7 +858,7 @@ stress-ng (0.13.01-1) unstable; urgency=medium
   * stress-set: exercise getresgid with valid and invalid arguments
   * stress-sem: exercise semop and semtimedop with invalid arguments
   * stress-sem-sysv: exercise semget with some invalid arguments
-  * stress-sem-sysv: exercise semctl with invalid cmd paramater
+  * stress-sem-sysv: exercise semctl with invalid cmd parameter
   * stress-mq: cast UINT_MAX to long to clean up pedantic build warning
   * stress-seccomp: add more seccomp operation tests
   * core-try-open: voidify return from alarm, we are ignoring it
@@ -900,7 +900,7 @@ stress-ng (0.13.01-1) unstable; urgency=medium
   * stress-mq: exercise invalid mq descriptor on mq_getattr/mq_setattr
   * stress-mremap: workaround pedantic static analysis warnings
   * stress-mremap: exercise invalid flags and new size
-  * stress-mmap: call wth invalid offset
+  * stress-mmap: call with invalid offset
   * stress-open: exercise openat2 with invalid usize argument
   * stress-handle: exercise open_by_handle_at with another bad fd
   * stress-pkey: exercise pkey_free with invalid pkey id
@@ -970,7 +970,7 @@ stress-ng (0.13.01-1) unstable; urgency=medium
   * stress-get: add a couple more test cases for ugetrlimit
   * stress-chroot: fix use-after-free error when free'ing path
   * stress-timer: add commented out invalid timer_delete call
-  * stress-brk: add mergable page hint with madvise
+  * stress-brk: add mergeable page hint with madvise
   * core-shim: use brk system call in preference to libc wrapper
   * stress-chroot: add two more corner test cases, add more comments
   * stress-cpu: add 16 bit division method div16
@@ -992,7 +992,7 @@ stress-ng (0.13.01-1) unstable; urgency=medium
   * stress-affinity: whitespace and comment clean-up
   * stress-revio: use stress_get_extents helper
   * Add file hole punching (and filling) stressor, --fpunch
-  * stress-wait: constify pid_arg arguement
+  * stress-wait: constify pid_arg argument
   * stress-cpu: make variable solutions const, add some line spacing
   * stress-cpu: move queens_solutions into function
   * stress-cpu: make array factorials const
@@ -1067,10 +1067,10 @@ stress-ng (0.13.00-1) unstable; urgency=medium
   * Add new PCI sysfs stressor to read/mmap PCI config and resources
   * Remove trailing tabs from various sources
   * stress-prtcl: use shim'd enum for PIDTYPE values
-  * Detemine minimal stack size via sysconf, then PTHREAD_STACK_MIN
+  * Determine minimal stack size via sysconf, then PTHREAD_STACK_MIN
     then guess
   * stress-memcpy: add naive_o0 and naive_o3 options
-  * stress-af-alg: no need to report zero unused algorithmns
+  * stress-af-alg: no need to report zero unused algorithms
   * core-madvise: Add MADV_POPULATE_READ and MADV_POPULATE_WRITE flags
   * stress-madvise: add MADV_POPULATE_READ and MADV_POPULATE_WRITE flags
   * core-mincore: use MADV_POPULATE_READ to fault pages in
@@ -1120,7 +1120,7 @@ stress-ng (0.12.12-1) unstable; urgency=medium
   * core-hash: make primes array const
   * core-cache: format struct initialization in the coding style
   * Manual: update date and fix smi formatting
-  * stress-smi: add smi extry in manual, make bogo-ops more frequent
+  * stress-smi: add smi entry in manual, make bogo-ops more frequent
   * stress-smi: use SHIM_CAP_SYS_RAWIO instead on CAP_SYS_RAWIO
   * test/test-libkmod: clean up test code
   * core-smart: only define helpers for stress_smart_read_devs if
@@ -1746,7 +1746,7 @@ stress-ng (0.12.09-1) unstable; urgency=medium
   * stress-chdir: move yield point detection to start of loop
   * stress-dentry: add yield point detection before starting iteration
   * stress-mknod: add yield point detection before starting iteration
-  * stress-filename: add probing of maximum filename lenth
+  * stress-filename: add probing of maximum filename length
   * stress-hdd: cater for read failure on vfat on ENOSPC
   * stress-xattr: silently ignore E2BIG error on *setxattr calls
   * stress-dup: fix tidy clean up paths for tmp path and mmap'd memory
@@ -2945,7 +2945,7 @@ stress-ng (0.11.21-1) unstable; urgency=medium
     checking
   * README: update number of stress tests
   * stress-dirdeep: add post recursion yield point check
-  * stress-io-uring: add built-time checking for io-uring opcode enums
+  * stress-io-uring: add build-time checking for io-uring opcode enums
   * Makefile: provide personality build information
   * Makefile: make core first to keep order alphabetic
   * stress-io-uring: exercise NOP and FSYNC IO opcodes
@@ -3052,7 +3052,7 @@ stress-ng (0.11.20-1) unstable; urgency=medium
   * stress-zlib: print args.stream_bytes as unsigned long long
   * stress-ng.h: build in target clone types if gcc supports the feature
   * stress-enosys: re-write int $80 x86-64 syscall
-  * stress-dev: clean up intentation
+  * stress-dev: clean up indentation
   * syscalls.txt: add openat2 notes
   * Makefile.config: add config test for struct open_how
   * stress-open: call open() directly if possible
@@ -4629,7 +4629,7 @@ stress-ng (0.10.11-1) unstable; urgency=medium
   * README: update number of stressors
   * stress-zero: add lseeks as these are allowed on /dev/zero
   * stress-zombie: don't give up when we hit out of memory
-  * stress-schedpolicy: exercise sched_util_max if it is useable
+  * stress-schedpolicy: exercise sched_util_max if it is usable
   * stress-cache: add --cpu-sfence sfence instruction support (x86 only)
   * stress-af-alg: fix typo: rd -> rc
   * stress-af-alf: fix stack clobbering issue on arm64/armhf
@@ -5532,7 +5532,7 @@ stress-ng (0.09.51-0ubuntu1) unstable; urgency=medium
   * rename personality.c to core-personality.c, update Makefile
   * Replace deconstification with a opt arg duplication
   * stress-clone: remove a deconstification
-  * Rename core helper source, add core- prefix to souce
+  * Rename core helper source, add core- prefix to source
   * helper: prefix some helper functions with stress_
   * Add a new idle scan page scanning stress test for Linux
   * Remove per-stressor umask as is now set before running each stressor
@@ -6325,7 +6325,7 @@ stress-ng (0.09.32-1) unstable; urgency=medium
   * stress-cpu: Add LIKELY hint on callfunc stressor, speeds up
     by ~0.8%
   * stress-cpu: optimize primes a little further
-  * Add UNLIKEY hint on sqrt stressor, speeds up by ~3%
+  * Add UNLIKELY hint on sqrt stressor, speeds up by ~3%
   * stress-cpu: add UNLIKELY hint on hanoi zero depth
   * stress-ng: call free_settings to fix memory leak on process exits
   * cache: fix removed assignment to cpu count and make buffer larger
@@ -7834,7 +7834,7 @@ stress-ng (0.08.00-1) unstable; urgency=medium
   * stress-shm: allocate addr and shm_names on heap rather than stack
   * Ensure that when rounding to nearest page we don't round to zero
   * Add new set/get_settings() mechanism to stash settings
-  * stress-vm-splice: ensure minimial mmap size is at least a page size
+  * stress-vm-splice: ensure minimal mmap size is at least a page size
   * Use the correct number of procs for sequential running
   * Rework the proc info setup, clean up and refactor chunks of code
   * Pass a list of proc_info_t's to stress_run, remove not_runnable flag
@@ -9673,7 +9673,7 @@ stress-ng (0.05.02-1) unstable; urgency=medium
   * stress-shm-sysv: add more allocation smarts
   * stress-shm-sysv: add mmap failure abort and OOM counting
   * stress-shm: add mmap failure abort and OOM counting
-  * stress-seek: set a useable upper seek limit for 32 bit arches
+  * stress-seek: set a usable upper seek limit for 32 bit arches
   * stress-mmap: add mmap retry mechanism if we can't mmap memory
   * stress-memfd: trap SIGBUS as well as SIGKILL for OOM catching
   * stress-vm: add spacing on OOM restarts message

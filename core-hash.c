@@ -455,7 +455,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin32_be(const char *str, const size_t len
 /*
  * stress_hash_loselose()
  *	Kernighan and Ritchie hash, from The C programming Language,
- *	section 6.6, "Table lookup" 1nd Edition.
+ *	section 6.6, "Table lookup" 1st Edition.
  */
 uint32_t HOT OPTIMIZE3 stress_hash_loselose(const char *str)
 {

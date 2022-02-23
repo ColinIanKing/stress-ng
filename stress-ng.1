@@ -4077,12 +4077,12 @@ the array.
 T}
 list	T{
 use a circular linked-list for sparse y positions each with circular linked-lists for
-sparse x positions for the (x, y) matrix co-ordinates.
+sparse x positions for the (x, y) matrix coordinates.
 T}
 mmap	T{
 a non-sparse mmap the entire 2-d matrix space. Only (x, y) matrix positions that
 are referenced will get physically mapped. Note that large sparse matrices cannot be mmap'd
-due to lack of virtual address limitiations, and too many referenced pages can trigger
+due to lack of virtual address limitations, and too many referenced pages can trigger
 the out of memory killer on Linux.
 T}
 qhash	T{
@@ -4277,7 +4277,7 @@ suffix b, k, m or g.
 start N workers that produce sporadic short lived loads synchronized across N
 stressor processes. By default repeated cycles of 125ms busy load followed by 62.5ms sleep
 occur across all the workers in step to create bursts of load to exercise C state
-transistions and CPU frequency scaling. The busy load and sleeps have +/-10% jitter
+transitions and CPU frequency scaling. The busy load and sleeps have +/-10% jitter
 added to try exercising scheduling patterns.
 .TP
 .B \-\-syncload\-ops N

@@ -143,7 +143,7 @@ void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
 		if (n < 7)
 			continue;	/* bad sscanf data */
 		if (start >= end)
-			continue;	/* invalid addresse range */
+			continue;	/* invalid address range */
 
 		ret = madvise(start, (size_t)((uint8_t *)end - (uint8_t *)start), advise);
 		(void)ret;
