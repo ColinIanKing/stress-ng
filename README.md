@@ -60,6 +60,7 @@ Debian, Ubuntu:
   * libatomic1
   * zlib1g-dev
   * libkmod-dev
+  * libxxhash-dev
 
 RHEL, Fedora, Centos:
 
@@ -74,6 +75,7 @@ RHEL, Fedora, Centos:
   * libatomic
   * zlib-devel
   * kmod-devel
+  * xxhash-devel
 
 RHEL, Fedora, Centos (static builds):
 
@@ -88,6 +90,7 @@ RHEL, Fedora, Centos (static builds):
   * libatomic-static
   * zlib-devel
   * glibc-static
+  * xxhash-devel
 
 SUSE:
   * keyutils-devel
@@ -101,6 +104,7 @@ SUSE:
   * libatomic1
   * zlib-devel
   * libkmod-devel
+  * xxhash-devel
 
 NOTE: the build will try to detect build dependencies and will build an image
 with functionality disabled if the support libraries are not installed.
