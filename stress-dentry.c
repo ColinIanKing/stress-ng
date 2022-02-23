@@ -169,10 +169,9 @@ static void stress_dentry_state(int64_t *nr_dentry)
 		goto err;
 	return;
 err:
-#else
+#endif
 	*nr_dentry = 0ULL;
 	return;
-#endif
 }
 
 /*
