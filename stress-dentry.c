@@ -338,9 +338,7 @@ static int stress_dentry(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-#if defined(__linux__)
 	stress_dentry_state(&nr_dentry1);
-#endif
 	do {
 		uint64_t i, n = dentries;
 		char path[PATH_MAX];
