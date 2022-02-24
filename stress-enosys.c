@@ -2057,6 +2057,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_futex_time64)
 	__NR_futex_time64,
 #endif
+#if defined(__NR_futimens)
+	__NR_futimens,
+#endif
 #if defined(__NR_futimesat)
 	__NR_futimesat,
 #endif
@@ -2071,6 +2074,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_get_thread_area)
 	__NR_get_thread_area,
+#endif
+#if defined(__NR_gettls)
+	__NR_gettls,
 #endif
 #if defined(__NR_getcpu)
 	__NR_getcpu,
@@ -2443,6 +2449,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_mpx)
 	__NR_mpx,
+#endif
+#if defined(__NR_mq_close)
+	__NR_mq_close,
 #endif
 #if defined(__NR_mq_getsetattr)
 	__NR_mq_getsetattr,
