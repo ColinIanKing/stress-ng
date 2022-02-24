@@ -510,7 +510,9 @@ static int stress_stream(const stress_args_t *args)
 	uint64_t L3, sz, n, sz_idx;
 	uint64_t stream_L3_size = DEFAULT_STREAM_L3_SIZE;
 	bool guess = false;
+#if defined(HAVE_NT_STORE_DOUBLE)
 	const bool has_sse2 = stress_cpu_x86_has_sse2();
+#endif
 
 	if (stress_get_setting("stream-L3-size", &stream_L3_size))
 		L3 = stream_L3_size;
