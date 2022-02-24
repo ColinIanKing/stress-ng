@@ -2682,6 +2682,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_preadv2)
 	__NR_preadv2,
 #endif
+#if defined(__NR_prlimit)
+	__NR_prlimit,
+#endif
 #if defined(__NR_prlimit64)
 	__NR_prlimit64,
 #endif
