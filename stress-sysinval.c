@@ -206,6 +206,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(_llseek)
 	{ SYS(_llseek), 5, { ARG_FD, ARG_UINT, ARG_UINT, ARG_PTR, ARG_INT } },
 #endif
+#if DEFSYS(_newselect)
+	{ SYS(_newselect), 5, { ARG_FD, ARG_PTR, ARG_PTR, ARG_PTR, ARG_PTR, 0 } },
+#endif
 #if DEFSYS(_sysctl)
 	{ SYS(_sysctl), 1, { ARG_PTR } },
 #endif
@@ -224,6 +227,12 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(acct)
 	{ SYS(acct), 1, { ARG_PTR | ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(acl_get)
+	{ SYS(acl_get), 3, { ARG_PTR, ARG_INT, ARG_PTR, 0, 0, 0 } },
+#endif
+#if DEFSYS(acl_set)
+	{ SYS(acl_set), 2, { ARG_PTR, ARG_PTR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(add_key)
 	{ SYS(add_key), 5, { ARG_ADD_KEY_TYPES, ARG_ADD_KEY_DESCRS, ARG_PTR, ARG_LEN, ARG_UINT, 0 } },
 	{ SYS(add_key), 5, { ARG_PTR, ARG_PTR, ARG_PTR, ARG_LEN, ARG_UINT, 0 } },
@@ -238,6 +247,10 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	*/
 	{ SYS(adjtimex), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(afs_syscall)
+	/* Should be ENOSYS */
+	{ SYS(afs_syscall), 0, { 0, 0, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(alarm) && 0
 	{ SYS(alarm), 1, { ARG_SECONDS, 0, 0, 0, 0, 0 } },
 #endif
@@ -247,12 +260,15 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 #if DEFSYS(arc_gettls)
 	/* ARC only */
+	{ SYS(arc_gettls), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(arc_settls)
 	/* ARC only */
+	{ SYS(arc_settls), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(arc_usr_cmpxchg)
 	/* ARC only */
+	{ SYS(arc_usr_cmpxchg), 3, { ARG_PTR, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
 #if DEFSYS(arch_prctl)
 	{ SYS(arch_prctl), 2, { ARG_INT, ARG_UINT } },
@@ -260,17 +276,20 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 #if DEFSYS(atomic_barrier)
 	/* m68k only */
+	{ SYS(atomic_barrier), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(atomic_cmpxchg_32)
 	/* m68k only */
+	{ SYS(atomic_cmpxchg_32), 6, { ARG_UINT, ARG_INT, ARG_INT, ARG_INT, ARG_INT, ARG_PTR } },
 #endif
 #if DEFSYS(bdflush)
 	/* deprecated */
-	{ SYS(bdflush), 2, { ARG_INT, ARG_PTR } },
-	{ SYS(bdflush), 2, { ARG_INT, ARG_UINT } },
+	{ SYS(bdflush), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(bdflush), 2, { ARG_INT, ARG_UINT, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(bfin_spinlock)
 	/* blackfin, removed in 4.17 */
+	{ SYS(bfin_spinlock, 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(bind)
 	{ SYS(bind), 3, { ARG_SOCKFD, ARG_PTR | ARG_STRUCT_SOCKADDR, ARG_SOCKLEN_T, 0, 0, 0 } },
@@ -286,10 +305,18 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(brk), 1, { ARG_PTR_WR | ARG_BRK_ADDR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(breakpoint)
+	{ SYS(breakpoint), 0, { 0, 0, 0, 0, 0, 0 } },
 	/* ARM OABI only */
+#endif
+#if DEFSYS(cachectl)
+	/* MIPS */
+	{ SYS(cachectl), 3, { ARG_PTR, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
 #if DEFSYS(cacheflush)
 	{ SYS(cacheflush), 3, { ARG_PTR, ARG_INT, ARG_INT, 0, 0, 0 } },
+#endif
+#if DEFSYS(cache_sync)
+	/* Unknown */
 #endif
 #if DEFSYS(capget)
 	{ SYS(capget), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
@@ -308,6 +335,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(chown)
 	{ SYS(chown), 2, { ARG_PTR | ARG_EMPTY_FILENAME, ARG_INT, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(chown32)
+	{ SYS(chown32), 2, { ARG_PTR | ARG_EMPTY_FILENAME, ARG_INT, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(chroot)
 	{ SYS(chroot), 1, { ARG_PTR | ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
 	{ SYS(chroot), 1, { ARG_PTR | ARG_DEVZERO_FILENAME, 0, 0, 0, 0, 0 } },
@@ -315,31 +345,69 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(clock_adjtime)
 	{ SYS(clock_adjtime), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(clock_adjtime64)
+	{ SYS(clock_adjtime64), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(clock_getres)
 	{ SYS(clock_getres), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(clock_getres), 2, { ARG_CLOCKID_T, ARG_PTR_WR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(clock_getres_time64)
+	{ SYS(clock_getres_time64), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(clock_getres_time64), 2, { ARG_CLOCKID_T, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(clock_gettime)
 	{ SYS(clock_gettime), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(clock_gettime), 2, { ARG_CLOCKID_T, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(clock_gettime64)
+	{ SYS(clock_gettime64), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(clock_gettime64), 2, { ARG_CLOCKID_T, ARG_PTR_WR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(clock_nanosleep)
 	{ SYS(clock_nanosleep), 4, { ARG_CLOCKID_T, ARG_UINT, ARG_PTR, ARG_PTR, 0, 0 } },
 #endif
+#if DEFSYS(clock_nanosleep64)
+	{ SYS(clock_nanosleep64), 4, { ARG_CLOCKID_T, ARG_UINT, ARG_PTR, ARG_PTR, 0, 0 } },
+#endif
 #if DEFSYS(clock_settime)
 	{ SYS(clock_settime), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(clock_settime64)
+	{ SYS(clock_settime64), 2, { ARG_CLOCKID_T, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(clone)
 	/* { SYS(clone), 6, { ARG_FUNC_PTR, ARG_PTR, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } }, */
 #endif
 #if DEFSYS(clone2)
 	/* IA-64 only */
+	/* { SYS(clone2), 6, { ARG_FUNC_PTR, ARG_PTR, ARG_INT, ARG_PTR, ARG_PTR, ARG_UINT } }, */
 #endif
 #if DEFSYS(clone3)
 	/* { SYS(clone3), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(close)
 	{ SYS(close), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(close_range)
+	{ SYS(close_range), 3, { ARG_FD, ARG_FD, ARG_UINT, 0, 0, 0 } },
+#endif
+#if DEFSYS(compat_exit)
+	/* exiting the testing child is not a good idea */
+#endif
+#if DEFSYS(compat_read)
+	{ SYS(compat_read), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
+	{ SYS(compat_read), 3, { ARG_FD, ARG_PTR_WR, ARG_LEN, 0, 0, 0 } },
+#endif
+#if DEFSYS(compat_restart_syscall)
+	{ SYS(compat_restart_syscall), 0, { 0, 0, 0, 0, 0, 0 } },
+	{ SYS(compat_restart_syscall), 0, { 0, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(compat_rt_sigreturn)
+	/* { SYS(compat_rt_sigreturn), 1, { ARG_PTR, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(compat_write)
+	{ SYS(compat_write), 3, { ARG_FD, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 #endif
 #if DEFSYS(cmpxchg_badaddr)
 	/* Tile only, removed 4.17 */
@@ -398,14 +466,17 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(evendfd2)
 	{ SYS(eventfd2), 2, { ARG_INT, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
-#if DEFSYS(exec)
-	/* too risky for now */
+#if DEFSYS(exec_with_loader)
+	/* { SYS(exec_with_loader), 5, { ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR, ARG_PTR, 0 } }, */
 #endif
 #if DEFSYS(execv)
-	/* too risky for now */
+	/* { SYS(execv), 2, { ARG_PTR, ARG_PTR, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(execve)
-	/* too risky for now */
+	/* { SYS(execve), 2, { ARG_PTR, ARG_PTR, ARG_PTR, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(execveat)
+	/* { SYS(execveat), 5, { ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR, ARG_PTR, ARG_INT, 0 } }, */
 #endif
 #if DEFSYS(exit)
 	/* exiting the testing child is not a good idea */
@@ -423,7 +494,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(fadvise64), 4, { ARG_FD, ARG_UINT, ARG_LEN, ARG_INT, 0, 0 } },
 #endif
 #if DEFSYS(fadvise64_64)
-	/* TODO */
+	{ SYS(fadvise64_64), 4, { ARG_FD, ARG_UINT, ARG_LEN, ARG_INT, 0, 0 } },
 #endif
 #if DEFSYS(fallocate)
 	{ SYS(fallocate), 4, { ARG_FD, ARG_MODE, ARG_INT, ARG_INT, 0, 0 } },
@@ -444,7 +515,10 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(fchmodat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_MODE, ARG_FLAG, 0, 0 } },
 #endif
 #if DEFSYS(fchown)
-	// { SYS(fchown), 3, { ARG_FD, 0, 0, 0, 0, 0 } },
+	/* { SYS(fchown), 3, { ARG_FD, 0, 0, 0, 0, 0 } }, ;*/
+#endif
+#if DEFSYS(fchown32)
+	/* { SYS(fchown32), 3, { ARG_FD, 0, 0, 0, 0, 0 } }, ;*/
 #endif
 #if DEFSYS(fchownat)
 	{ SYS(fchownat), 5, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_UINT, ARG_UINT, ARG_UINT, 0 } },
@@ -474,6 +548,15 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(flock)
 	{ SYS(flock), 2, { ARG_FD, ARG_INT, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(fork)
+	/* { SYS(fork), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
+#if DEFSYS(fp_udfiex_crtl)
+	{ SYS(fp_udfiex_crtl), ARG_INT, ARG_INT, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(free_hugepages)
+	{ SYS(free_hugepages), ARG_PTR, 0, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(fremovexattr)
 	{ SYS(fremovexattr), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
 #endif
@@ -493,6 +576,8 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(fstat), 2, { ARG_FD, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(fstat64)
+	{ SYS(fstat), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(fstat), 2, { ARG_FD, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(fstatat)
 	{ SYS(fstatat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
@@ -510,8 +595,16 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(fstatfs), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(fstatfs), 2, { ARG_FD, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(fstatfs64)
+	{ SYS(fstatfs64), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(fstatfs64), 2, { ARG_FD, ARG_PTR_WR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(fsync)
 	{ SYS(fsync), 1, { ARG_FD, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(ftime)
+	/* Deprecated */
+	{ SYS(ftime), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(ftruncate)
 	{ SYS(ftruncate), 2, { ARG_FD, ARG_LEN, 0, 0, 0, 0 } },
@@ -522,8 +615,15 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(futex)
 	{ SYS(futex), 6, { ARG_FUTEX_PTR, ARG_INT, ARG_INT, ARG_FUTEX_PTR, ARG_FUTEX_PTR, ARG_INT } },
 #endif
+#if DEFSYS(futex_time64)
+	{ SYS(futex_time64), 6, { ARG_FUTEX_PTR, ARG_INT, ARG_INT, ARG_FUTEX_PTR, ARG_FUTEX_PTR, ARG_INT } },
+#endif
 #if DEFSYS(futimens)
 	{ SYS(futimens), 4, { ARG_FD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
+#endif
+#if DEFSYS(futimesat)
+	/* Obsolete */
+	{ SYS(futimesat), 4, { ARG_FD, ARG_EMPTY_FILENAME, ARG_PTR, 0 , 0, 0 } },
 #endif
 #if DEFSYS(get_kernel_syms)
 	/* deprecated in 2.6 */
@@ -543,6 +643,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 #if DEFSYS(get_tls)
 	/* ARM OABI only */
+	{ SYS(get_tls), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getcpu)
 	{ SYS(getcpu), 3, { ARG_NON_NULL_PTR, ARG_NON_NULL_PTR, ARG_PTR, 0, 0, 0 } },
@@ -567,23 +668,26 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(getdomainname), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
 	{ SYS(getdomainname), 2, { ARG_PTR_WR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(getdtablesize)
+	{ SYS(getdtablesize), 0, { 0, 0, 0, 0, 0, 0 } }, */
+#endif
 #if DEFSYS(getegid)
-	/* { SYS(getegid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(getegid), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getegid32)
-	/* { SYS(getegid32), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(getegid32), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(geteuid)
-	/* { SYS(geteuid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(geteuid), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(geteuid32)
-	/* { SYS(geteuid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(geteuid32), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getgid)
-	/* { SYS(getgid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(getgid), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getgid32)
-	/* { SYS(getgid32), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(getgid32), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getgroups)
 	{ SYS(getgroups), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
@@ -602,7 +706,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(getitimer), 2, { ARG_INT, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getpagesize)
-	/* { SYS(getpagesize), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(getpagesize), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getpeername)
 	{ SYS(getpeername), 3, { ARG_SOCKFD, ARG_PTR, ARG_PTR, 0, 0, 0 } },
@@ -612,10 +716,14 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(getpgid), 1, { ARG_PID, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getpid)
-	/* { SYS(getpid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(getpid), 0, { 0, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(getpmsg)
+	/* Unimplimented */
+	/* { SYS(getpmsg), 0, { 0, 0, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(getppid)
-	/* { SYS(getppid), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(getppid), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getpriority)
 	{ SYS(getpriority), 2, { ARG_INT, ARG_INT, 0, 0, 0, 0 } },
@@ -666,24 +774,24 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(getsockopt), 5, { ARG_SOCKFD, ARG_INT, ARG_INT, ARG_PTR_WR, ARG_PTR_WR, 0 } },
 #endif
 #if DEFSYS(gettid)
-	/* { SYS(gettid), 0, { 0, 0, 0, 0, 0, 0 } }, */
-#endif
-#if DEFSYS(getuid)
-	/* { SYS(getuid), 0, { 0, 0, 0, 0, 0, 0 } }, */
-#endif
-#if DEFSYS(getuid32)
-	/* { SYS(getuid32), 0, { 0, 0, 0, 0, 0, 0 } }, */
-#endif
-#if DEFSYS(getunwind)
-	/* IA-64-specific, obsolete too */
-	{ SYS(getunwind), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
-	{ SYS(getunwind), 2, { ARG_PTR_WR, ARG_LEN, 0, 0, 0, 0 } },
+	{ SYS(gettid), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(gettimeofday)
 	{ SYS(gettimeofday), 2, { ARG_NON_NULL_PTR, ARG_NON_NULL_PTR, 0, 0, 0, 0 } },
 	{ SYS(gettimeofday), 2, { ARG_PTR_WR, ARG_NON_NULL_PTR, 0, 0, 0, 0 } },
 	{ SYS(gettimeofday), 2, { ARG_NON_NULL_PTR, ARG_PTR_WR, 0, 0, 0, 0 } },
 	{ SYS(gettimeofday), 2, { ARG_PTR_WR, ARG_PTR_WR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(getuid)
+	{ SYS(getuid), 0, { 0, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(getuid32)
+	{ SYS(getuid32), 0, { 0, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(getunwind)
+	/* IA-64-specific, obsolete too */
+	{ SYS(getunwind), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
+	{ SYS(getunwind), 2, { ARG_PTR_WR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getxattr)
 	{ SYS(getxattr), 4, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_PTR, ARG_LEN, 0, 0 } },
@@ -693,12 +801,15 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 #if DEFSYS(getxgid)
 	/* Alpha only */
+	{ SYS(getxgid), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getxpid)
 	/* Alpha only */
+	{ SYS(getxpid), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getxuid)
 	/* Alpha only */
+	{ SYS(getxuid), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(init_module)
 	{ SYS(init_module), 3, { ARG_PTR, ARG_LEN, ARG_PTR } },
@@ -708,7 +819,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(inotify_add_watch), 3, { ARG_FD, ARG_DEVNULL_FILENAME, ARG_UINT, 0, 0, 0 } },
 #endif
 #if DEFSYS(inotify_init)
-	/* { SYS(inotify_init), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(inotify_init), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(inotify_init1)
 	{ SYS(inotify_init1), 3, { ARG_FLAG, 0, 0, 0, 0, 0 } },
@@ -726,7 +837,13 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(io_getevents), 5, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, 0 } },
 #endif
 #if DEFSYS(io_pgetevents)
-	/* TODO */
+	{ SYS(io_getevents), 6, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
+#endif
+#if DEFSYS(io_pgetevents_time32)
+	{ SYS(io_getevents_time32), 6, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
+#endif
+#if DEFSYS(io_pgetevents_time64)
+	{ SYS(io_getevents_time64), 6, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
 #endif
 #if DEFSYS(io_setup)
 	{ SYS(io_setup), 2, { ARG_UINT, ARG_PTR, 0, 0, 0, 0 } },
@@ -735,10 +852,13 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(io_setup), 3, { ARG_UINT, ARG_INT, ARG_PTR, 0, 0, 0 } },
 #endif
 #if DEFSYS(io_uring_enter)
+	{ SYS(io_uring_enter), 6, { ARG_FD, ARG_UINT, ARG_UINT, ARG_UINT, ARG_PTR, ARG_LEN } },
 #endif
 #if DEFSYS(io_uring_register)
+	{ SYS(io_uring_register), 4, { ARG_FD, ARG_UINT, ARG_PTR, ARG_UINT, 0, 0 } },
 #endif
 #if DEFSYS(io_uring_setup)
+	{ SYS(io_uring_setup), 2, { ARG_LEN, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(ioctl)
 	{ SYS(ioctl), 4, { ARG_FD, ARG_UINT, ARG_PTR, ARG_PTR, 0, 0 } },
@@ -763,6 +883,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 #if DEFSYS(kern_features)
 	/* SPARC64 only */
+	{ SYS(kern_features), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(kexec_file_load)
 	/* { SYS(kexec_file_load), 5, { ARG_FD, ARG_FD, ARG_UINT, ARG_PTR, ARG_FLAG, 0 } }, */
@@ -791,6 +912,12 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(lchown32)
 	{ SYS(lchown32), 3, { ARG_EMPTY_FILENAME, ARG_INT, ARG_INT, 0, 0, 0 } },
 #endif
+#if DEFSYS(lgetxattr)
+	{ SYS(lgetxattr), 4, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_PTR, ARG_LEN, 0, 0 } },
+	{ SYS(lgetxattr), 4, { ARG_DEVNULL_FILENAME, ARG_PTR, ARG_PTR, ARG_LEN, 0, 0 } },
+	{ SYS(lgetxattr), 4, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_PTR_WR, ARG_LEN, 0, 0 } },
+	{ SYS(lgetxattr), 4, { ARG_DEVNULL_FILENAME, ARG_PTR, ARG_PTR_WR, ARG_LEN, 0, 0 } },
+#endif
 #if DEFSYS(link)
 	{ SYS(link), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 #endif
@@ -811,6 +938,12 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(llistxattr), 3, { ARG_EMPTY_FILENAME, ARG_PTR, ARG_LEN, 0, 0, 0 } },
 	{ SYS(llistxattr), 3, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, ARG_LEN, 0, 0, 0 } },
 	{ SYS(llistxattr), 3, { ARG_DEVNULL_FILENAME, ARG_PTR, ARG_LEN, 0, 0, 0 } },
+#endif
+#if DEFSYS(llseek)
+	{ SYS(llseek), 5, { ARG_FD, ARG_UINT, ARG_UINT, ARG_PTR, ARG_UINT, 0 } },
+#endif
+#if DEFSYS(lock)
+	/* Unimplimented, deprecated */
 #endif
 #if DEFSYS(lookup_dcookie)
 	{ SYS(lookup_dcookie), 3, { ARG_UINT, ARG_PTR, ARG_LEN, 0, 0, 0 } },
@@ -837,20 +970,33 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(lstat64), 2, { ARG_DEVNULL_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
 	{ SYS(lstat64), 2, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(lws_enties)
+	/* PARISC, todo */
+#endif
 #if DEFSYS(madvise)
 	{ SYS(madvise), 3, { ARG_PTR, ARG_LEN, ARG_INT, 0, 0, 0 } },
+#endif
+#if DEFSYS(madvise1)
+	/* Unimplimented, deprecated */
 #endif
 #if DEFSYS(mbind)
 	{ SYS(mbind), 6, { ARG_PTR, ARG_UINT, ARG_INT, ARG_PTR, ARG_UINT, ARG_UINT } },
 #endif
 #if DEFSYS(memory_ordering)
 	/* SPARC64 only */
+	{ SYS(memory_ordering), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(membarrier)
 	{ SYS(membarrier), 2, { ARG_INT, ARG_FLAG, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(memfd_create)
 	{ SYS(memfd_create), 2, { ARG_EMPTY_FILENAME, ARG_UINT, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(memfd_secret)
+	{ SYS(memfd_secret), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(memory_ordering)
+	{ SYS(memory_ordering), 1, { ARG_UINT, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(migrate_pages)
 	{ SYS(migrate_pages), 4, { ARG_PID, ARG_UINT, ARG_PTR, ARG_PTR, 0, 0 } },
@@ -897,13 +1043,16 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(mount), 5, { ARG_EMPTY_FILENAME, ARG_EMPTY_FILENAME, ARG_PTR, ARG_UINT, ARG_UINT, 0 } },
 #endif
 #if DEFSYS(move_mount)
-	//{ SYS(move_mount), 1, { 0, 0, 0, 0, 0, 0 } },
+	/* { SYS(move_mount), 1, { 0, 0, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(move_pages)
 	{ SYS(move_pages), 6, { ARG_PID, ARG_UINT, ARG_PTR, ARG_PTR, ARG_PTR, ARG_FLAG } },
 #endif
 #if DEFSYS(mprotect)
 	{ SYS(mprotect), 3, { ARG_PTR, ARG_LEN, ARG_UINT, 0, 0, 0 } },
+#endif
+#if DEFSYS(mpx)
+	/* Unimplimented, deprecated */
 #endif
 #if DEFSYS(mq_close)
 	{ SYS(mq_close), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
@@ -928,8 +1077,14 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(mq_timedreceive)
 	{ SYS(mq_timedreceive), 4, { ARG_INT, ARG_PTR_WR, ARG_LEN, ARG_PTR, 0, 0 } },
 #endif
+#if DEFSYS(mq_timedreceive_time64)
+	{ SYS(mq_timedreceive_time64), 4, { ARG_INT, ARG_PTR_WR, ARG_LEN, ARG_PTR, 0, 0 } },
+#endif
 #if DEFSYS(mq_timedsend)
 	{ SYS(mq_timedsend), 4, { ARG_INT, ARG_PTR, ARG_LEN, ARG_INT, 0, 0 } },
+#endif
+#if DEFSYS(mq_timedsend_time64)
+	{ SYS(mq_timedsend_time64), 4, { ARG_INT, ARG_PTR, ARG_LEN, ARG_INT, 0, 0 } },
 #endif
 #if DEFSYS(mq_unlink)
 	{ SYS(mq_unlink), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
@@ -960,7 +1115,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(munlockall), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(munmap)
-	//{ SYS(munmap), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
+	/* { SYS(munmap), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(name_to_handle_at)
 	{ SYS(name_to_handle_at), 5, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_PTR, ARG_FLAG } },
@@ -969,8 +1124,33 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(nanosleep)
 	{ SYS(nanosleep), 2, { ARG_PTR, ARG_PTR, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(newfstat)
+	{ SYS(newfstat), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(newfstat64)
+	{ SYS(newfstat64), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(newfstatat)
-	/* TODO */
+	{ SYS(newfstatat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_INT, 0, 0 } },
+#endif
+#if DEFSYS(newfstatat64)
+	{ SYS(newfstatat64), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_INT, 0, 0 } },
+#endif
+#if DEFSYS(newlstat)
+	{ SYS(newlstat), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(newlstat), 2, { ARG_EMPTY_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
+	{ SYS(newlstat), 2, { ARG_DEVNULL_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(newlstat), 2, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(newstat)
+	{ SYS(newstat), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(newstat), 2, { ARG_EMPTY_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
+	{ SYS(newstat), 2, { ARG_DEVNULL_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(newstat), 2, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
+#endif
+#if DEFSYS(newuname)
+	{ SYS(newuname), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
+	{ SYS(newuname), 1, { ARG_PTR_WR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(nfsservctl)
 	{ SYS(nfsservctl), 3, { ARG_INT, ARG_PTR, ARG_PTR, 0, 0, 0 } },
@@ -979,23 +1159,35 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(nice)
 	{ SYS(nice), 1, { ARG_INT, 0, 0, 0, 0, 0 } },
 #endif
+#if DEFSYS(ni_syscall)
+	/* Omit */
+#endif
 #if DEFSYS(old_adjtimex)
-	/* TODO */
+	{ SYS(old_adjtimex), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(old_getrlimit)
-	/* TODO */
+	{ SYS(old_getrlimit), 2, { ARG_RND, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(old_getrlimit), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(old_getrlimit), 2, { ARG_RND, ARG_PTR_WR, 0, 0, 0, 0 } },
+	{ SYS(old_getrlimit), 2, { ARG_INT, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(oldolduname)
-	/* TODO */
+	{ SYS(oldolduname), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
+	{ SYS(oldolduname), 1, { ARG_PTR_WR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(oldstat)
-	/* TODO */
+	{ SYS(oldstat), 2, { ARG_EMPTY_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(oldstat), 2, { ARG_EMPTY_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
+	{ SYS(oldstat), 2, { ARG_DEVNULL_FILENAME, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(oldstat), 2, { ARG_DEVNULL_FILENAME, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(oldumount)
-	/* TODO */
+	{ SYS(oldumount), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
+	{ SYS(oldumount), 1, { ARG_DEVNULL_FILENAME, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(olduname)
-	/* TODO */
+	{ SYS(olduname), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
+	{ SYS(olduname), 1, { ARG_PTR_WR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(open)
 	{ SYS(open), 3, { ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, 0, 0, 0 } },
@@ -1004,7 +1196,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(open_by_handle_at), 3, { ARG_FD, ARG_PTR, ARG_FLAG, 0, 0, 0 } },
 #endif
 #if DEFSYS(open_tree)
-	//{ SYS(open_tree), 1, { 0, 0, 0, 0, 0, 0 } },
+	{ SYS(open_tree), 3, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_UINT, 0, 0, 0 } },
 #endif
 #if DEFSYS(openat)
 	{ SYS(openat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_FLAG, ARG_MODE, 0, 0 } },
@@ -1110,6 +1302,9 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(process_madvise)
 	{ SYS(process_madvise), 6, { ARG_INT, ARG_PID, ARG_PTR, ARG_LEN, ARG_INT, ARG_FLAG } },
 #endif
+#if DEFSYS(process_mrelease)
+	{ SYS(process_mrelease), 2, { ARG_PID, ARG_INT, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(process_vm_readv)
 	{ SYS(process_vm_readv), 6, { ARG_PID, ARG_PTR, ARG_UINT, ARG_PTR, ARG_UINT, ARG_UINT } },
 	{ SYS(process_vm_readv), 6, { ARG_PID, ARG_PTR, ARG_UINT, ARG_PTR_WR, ARG_UINT, ARG_UINT } },
@@ -1172,7 +1367,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(readv), 3, { ARG_FD, ARG_PTR_WR, ARG_INT, 0, 0, 0 } },
 #endif
 #if DEFSYS(reboot)
-	// { SYS(reboot), 3, { ARG_INT, ARG_INT, ARG_PTR, 0, 0, 0 } },
+	/* { SYS(reboot), 3, { ARG_INT, ARG_INT, ARG_PTR, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(recv)
 	{ SYS(recv), 4, { ARG_SOCKFD, ARG_PTR, ARG_LEN, ARG_FLAG, 0, 0 } },
@@ -1208,11 +1403,15 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #if DEFSYS(request_key)
 	{ SYS(request_key), 4, { ARG_PTR, ARG_PTR, ARG_PTR, ARG_INT, 0, 0 } },
 #endif
+#if DEFSYS(restart_syscall)
+	{ SYS(restart_syscall), 0, { 0, 0, 0, 0, 0, 0 } },
+	{ SYS(restart_syscall), 0, { 0, 0, 0, 0, 0, 0 } },
+#endif
 #if DEFSYS(riscv_flush_icache)
 	{ SYS(riscv_flush_icache), 3, { ARG_PTR, ARG_PTR, ARG_INT, 0, 0, 0 } },
 #endif
 #if DEFSYS(rmdir)
-	//{ SYS(rmdir), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } },
+	/* { SYS(rmdir), 1, { ARG_EMPTY_FILENAME, 0, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(rseq)
 	{ SYS(rseq), 4, { ARG_PTR, ARG_LEN, ARG_FLAG, ARG_UINT, 0, 0 } },
@@ -1233,7 +1432,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(rt_sigqueueinfo), 3, { ARG_PID, ARG_INT, ARG_PTR, 0, 0, 0 } },
 #endif
 #if DEFSYS(rt_sigreturn)
-	//{ SYS(rt_sigreturn), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
+	/* { SYS(rt_sigreturn), 1, { ARG_PTR, 0, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(rt_sigsuspend)
 	{ SYS(rt_sigsuspend), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
@@ -1301,7 +1500,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(sched_setparam), 2, { ARG_PID, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(sched_yield)
-	//{ SYS(sched_yield), 0, { 0, 0, 0, 0, 0, 0 } },
+	/* { SYS(sched_yield), 0, { 0, 0, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(seccomp)
 	{ SYS(seccomp), 3, { ARG_UINT, ARG_FLAG, ARG_PTR, 0, 0, 0 } },
@@ -1375,7 +1574,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(set_tid_address), 1, { ARG_PTR, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(setdomainname)
-	//{ SYS(setdomainname), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } },
+	/* { SYS(setdomainname), 2, { ARG_PTR, ARG_LEN, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(setfsgid)
 	{ SYS(setfsgid), 1, { ARG_GID, 0, 0, 0, 0, 0 } },
@@ -1454,7 +1653,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(setrlimit), 2, { ARG_INT, ARG_PTR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(setsid)
-	//{ SYS(setsid), 0, { 0, 0, 0, 0, 0, 0 } },
+	/* { SYS(setsid), 0, { 0, 0, 0, 0, 0, 0 } }, */
 #endif
 #if DEFSYS(setsockopt)
 	{ SYS(setsockopt), 5, { ARG_SOCKFD, ARG_INT, ARG_INT, ARG_PTR, ARG_LEN, 0 } },
@@ -1608,7 +1807,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(symlinkat), 3, { ARG_EMPTY_FILENAME, ARG_FD, ARG_EMPTY_FILENAME, 0, 0, 0 } },
 #endif
 #if DEFSYS(sync)
-	//{ SYS(sync), 0, { 0, 0, 0, 0, 0, 0 } },
+	{ SYS(sync), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(sync_file_range)
 	{ SYS(sync_file_range), 4, { ARG_FD, ARG_UINT, ARG_UINT, ARG_FLAG, 0, 0 } },
