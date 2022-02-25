@@ -66,30 +66,6 @@ static stress_clone_list_t clones;
  */
 static const uint64_t flags[] = {
 	0,
-#if defined(CLONE_FILES)
-	CLONE_FILES,
-#endif
-#if defined(CLONE_FS)
-	CLONE_FS,
-#endif
-#if defined(CLONE_IO)
-	CLONE_IO,
-#endif
-#if defined(CLONE_NEWIPC)
-	CLONE_NEWIPC,
-#endif
-#if defined(CLONE_NEWNET)
-	CLONE_NEWNET,
-#endif
-#if defined(CLONE_NEWNS)
-	CLONE_NEWNS,
-#endif
-#if defined(CLONE_NEWUSER)
-	CLONE_NEWUSER,
-#endif
-#if defined(CLONE_NEWUTS)
-	CLONE_NEWUTS,
-#endif
 /*
  * Avoid CLONE_VM for now as child may memory clobber parent
 #if defined(CLONE_SIGHAND) && 	\
@@ -97,20 +73,86 @@ static const uint64_t flags[] = {
 	CLONE_SIGHAND | CLONE_VM,
 #endif
  */
-#if defined(CLONE_SYSVSEM)
-	CLONE_SYSVSEM,
+#if defined(CLONE_FS)
+	CLONE_FS,
 #endif
-#if defined(CLONE_UNTRACED)
-	CLONE_UNTRACED,
+#if defined(CLONE_FILES)
+	CLONE_FILES,
+#endif
+#if defined(CLONE_SIGHAND)
+	CLONE_SIGHAND,
 #endif
 #if defined(CLONE_PIDFD)
 	CLONE_PIDFD,
 #endif
+/*
+#if defined(CLONE_PTRACE)
+	CLONE_PTRACE,
+#endif
+*/
+/*
+#if defined(CLONE_VFORK)
+	CLONE_VFORK,
+#endif
+*/
+#if defined(CLONE_PARENT)
+	CLONE_PARENT,
+#endif
+#if defined(CLONE_THREAD)
+	CLONE_THREAD,
+#endif
+#if defined(CLONE_NEWNS)
+	CLONE_NEWNS,
+#endif
+#if defined(CLONE_SYSVSEM)
+	CLONE_SYSVSEM,
+#endif
+/*
+#if defined(CLONE_SETTLS)
+	CLONE_SETTLS,
+#endif
+*/
+#if defined(CLONE_PARENT_SETTID)
+	CLONE_PARENT_SETTID,
+#endif
+#if defined(CLONE_CHILD_CLEARTID)
+	CLONE_CHILD_CLEARTID,
+#endif
+#if defined(CLONE_DETACHED)
+	CLONE_DETACHED,
+#endif
+#if defined(CLONE_UNTRACED)
+	CLONE_UNTRACED,
+#endif
+#if defined(CLONE_CHILD_SETTID)
+	CLONE_CHILD_SETTID,
+#endif
 #if defined(CLONE_NEWCGROUP)
 	CLONE_NEWCGROUP,
 #endif
+#if defined(CLONE_NEWUTS)
+	CLONE_NEWUTS,
+#endif
+#if defined(CLONE_NEWIPC)
+	CLONE_NEWIPC,
+#endif
+#if defined(CLONE_NEWUSER)
+	CLONE_NEWUSER,
+#endif
+#if defined(CLONE_NEWPID)
+	CLONE_NEWPID,
+#endif
+#if defined(CLONE_NEWNET)
+	CLONE_NEWNET,
+#endif
+#if defined(CLONE_IO)
+	CLONE_IO,
+#endif
 #if defined(CLONE_CLEAR_SIGHAND)
 	CLONE_CLEAR_SIGHAND,
+#endif
+#if defined(CLONE_INTO_CGROUP)
+	CLONE_INTO_CGROUP,
 #endif
 #if defined(CLONE_NEWTIME)
 	CLONE_NEWTIME,
