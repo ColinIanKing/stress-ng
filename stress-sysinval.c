@@ -840,13 +840,13 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(io_getevents), 5, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, 0 } },
 #endif
 #if DEFSYS(io_pgetevents)
-	{ SYS(io_getevents), 6, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
+	{ SYS(io_pgetevents), 6, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
 #endif
 #if DEFSYS(io_pgetevents_time32)
-	{ SYS(io_getevents_time32), 6, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
+	{ SYS(io_pgetevents_time32), 6, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
 #endif
 #if DEFSYS(io_pgetevents_time64)
-	{ SYS(io_getevents_time64), 6, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
+	{ SYS(io_pgetevents_time64), 6, { ARG_INT, ARG_INT, ARG_INT, ARG_PTR, ARG_PTR, ARG_PTR } },
 #endif
 #if DEFSYS(io_setup)
 	{ SYS(io_setup), 2, { ARG_UINT, ARG_PTR, 0, 0, 0, 0 } },
