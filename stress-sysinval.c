@@ -37,8 +37,8 @@ static const stress_help_t help[] = {
 #define SYSCALL_ERRNO_ZERO	(0x02)	/* Syscalls that return 0 */
 #define SYSCALL_TIMED_OUT	(0x03)	/* Syscalls that time out */
 
-#define MAX_CRASHES		(10)
-#define SYSCALL_TIMEOUT_USEC	(10000)	/* Timeout syscalls duration */
+#define MAX_CRASHES		(100000)
+#define SYSCALL_TIMEOUT_USEC	(1000)	/* Timeout syscalls duration */
 
 /*
  *  tuple of system call number and stringified system call
@@ -161,6 +161,8 @@ typedef struct stress_syscall_args_hash {
   * child crashes.
  */
 static stress_syscall_arg_hash_t *hash_table[SYSCALL_HASH_TABLE_SIZE];
+
+static sigjmp_buf jmpbuf;
 
 static double time_end;
 
@@ -295,10 +297,11 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(bind), 3, { ARG_SOCKFD, ARG_PTR | ARG_STRUCT_SOCKADDR, ARG_SOCKLEN_T, 0, 0, 0 } },
 #endif
 #if DEFSYS(bpf)
+	/*
 	{ SYS(bpf), 3, { ARG_BPF_CMDS, ARG_PTR | ARG_BPF_ATTR, ARG_BPF_LEN, 0, 0, 0 } },
 	{ SYS(bpf), 3, { ARG_BPF_CMDS, ARG_PTR | ARG_BPF_ATTR, ARG_LEN, 0, 0, 0 } },
 	{ SYS(bpf), 3, { ARG_INT, ARG_PTR | ARG_BPF_ATTR, ARG_LEN, 0, 0, 0 } },
-
+	*/
 #endif
 #if DEFSYS(brk)
 	{ SYS(brk), 1, { ARG_PTR | ARG_BRK_ADDR, 0, 0, 0, 0, 0 } },
@@ -2094,7 +2097,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 };
 
-static bool *stress_syscall_exercised;
+static volatile bool *stress_syscall_exercised;
 
 /*
  *  running context shared between parent and child
@@ -2109,9 +2112,9 @@ typedef struct {
 	const char *name;
 	size_t idx;
 	uint64_t counter;
-	uint64_t skip_crashed;
-	uint64_t skip_errno_zero;
-	uint64_t skip_timed_out;
+	volatile uint64_t skip_crashed;
+	volatile uint64_t skip_errno_zero;
+	volatile uint64_t skip_timed_out;
 	uint64_t crash_count[SIZEOF_ARRAY(stress_syscall_args)];
 	unsigned long args[6];
 	unsigned char filler[4096];
@@ -2349,6 +2352,7 @@ static void MLOCKED_TEXT stress_syscall_itimer_handler(int sig)
 
 	if (current_context) {
 		current_context->type = SYSCALL_TIMED_OUT;
+		siglongjmp(jmpbuf, 1);
 	}
 }
 
@@ -2367,7 +2371,7 @@ static void syscall_permute(
 	const stress_args_t *args,
 	const int arg_num,
 	const stress_syscall_arg_t *stress_syscall_arg,
-	bool *syscall_exercised)
+	volatile bool *syscall_exercised)
 {
 	unsigned long arg_bitmask = stress_syscall_arg->arg_bitmasks[arg_num];
 	size_t i;
@@ -2390,12 +2394,6 @@ static void syscall_permute(
 				switch (h->type) {
 				case SYSCALL_CRASH:
 					current_context->skip_crashed++;
-					break;
-				case SYSCALL_ERRNO_ZERO:
-					current_context->skip_errno_zero++;
-					break;
-				case SYSCALL_TIMED_OUT:
-					current_context->skip_timed_out++;
 					break;
 				default:
 					break;
@@ -2420,6 +2418,13 @@ static void syscall_permute(
 		ret = setitimer(ITIMER_REAL, &it, NULL);
 		(void)ret;
 
+		ret = sigsetjmp(jmpbuf, 1);
+		if (ret == 1) {
+			/* timed out! */
+			current_context->type = SYSCALL_TIMED_OUT;
+			goto timed_out;
+		}
+
 		*syscall_exercised = true;
 
 		ret = (int)syscall((long)syscall_num,
@@ -2441,18 +2446,20 @@ static void syscall_permute(
 			current_context->args[5], ret);
 		*/
 
-
+timed_out:
 		if (current_context->type == SYSCALL_TIMED_OUT) {
 			/*
 			 *  Remember syscalls that block for too long so we don't retry them
 			 */
 			hash_table_add(hash, syscall_num, current_context->args, SYSCALL_TIMED_OUT);
+			current_context->skip_timed_out++;
 		} else if (ret == 0) {
 			/*
 			 *  For this child we remember syscalls that don't fail
 			 *  so we don't retry them
 			 */
 			hash_table_add(hash, syscall_num, current_context->args, SYSCALL_ERRNO_ZERO);
+			current_context->skip_errno_zero++;
 		}
 		current_context->type = SYSCALL_FAIL;	/* it just failed */
 		return;
@@ -2574,14 +2581,13 @@ static inline int stress_do_syscall(const stress_args_t *args)
 		while (keep_stressing_flag()) {
 			const size_t sz = SIZEOF_ARRAY(reorder);
 
-			for (i = 0; i < SIZEOF_ARRAY(reorder); i++) {
+			for (i = 0; i < SIZEOF_ARRAY(reorder); i++)
 				reorder[i] = i;
-			}
 
 			/*
 			 * 50% of the time we do syscalls in shuffled order
 			 */
-			if (0 && stress_mwc1()) {
+			if (stress_mwc1()) {
 				/*
 				 *  Shuffle syscall order
 				 */
@@ -2598,18 +2604,15 @@ static inline int stress_do_syscall(const stress_args_t *args)
 			}
 
 			for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(stress_syscall_args)); i++) {
-				size_t idx;
 				const size_t j = reorder[i];
 
 				(void)memset(current_context->args, 0, sizeof(current_context->args));
 				current_context->syscall = stress_syscall_args[j].syscall;
-				idx = (uintptr_t)&stress_syscall_args[j] -
-				       (uintptr_t)stress_syscall_args;
-				current_context->idx = idx;
+				current_context->idx = j;
 				current_context->name = stress_syscall_args[j].name;
 
 				/* Ignore too many crashes from this system call */
-				if (current_context->crash_count[idx] >= MAX_CRASHES)
+				if (current_context->crash_count[j] >= MAX_CRASHES)
 					continue;
 				syscall_permute(args, 0, &stress_syscall_args[j], &stress_syscall_exercised[j]);
 			}
@@ -2669,7 +2672,7 @@ static int stress_sysinval_child(const stress_args_t *args, void *context)
 static int stress_sysinval(const stress_args_t *args)
 {
 	int ret, rc = EXIT_NO_RESOURCE;
-	size_t i, syscalls_exercised, syscalls_unique;
+	size_t i, syscalls_exercised, syscalls_unique, syscalls_crashed;
 	const size_t page_size = args->page_size;
 	const size_t current_context_size =
 		(sizeof(*current_context) + page_size) & ~(page_size - 1);
@@ -2777,6 +2780,8 @@ static int stress_sysinval(const stress_args_t *args)
 	futex_ptrs[0] = (unsigned long)(small_ptr + page_size -1);
 	futex_ptrs[1] = (unsigned long)page_ptr;
 
+	memset(current_context->crash_count, 0, sizeof(current_context->crash_count));
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	rc = stress_oomable_child(args, NULL, stress_sysinval_child, STRESS_OOMABLE_DROP_CAP);
@@ -2785,6 +2790,7 @@ static int stress_sysinval(const stress_args_t *args)
 	(void)memset(syscall_unique, 0, sizeof(syscall_unique));
 	syscalls_exercised = 0;
 	syscalls_unique = 0;
+	syscalls_crashed = 0;
 
 	/*
 	 *  Determine the number of syscalls that we can test vs
@@ -2812,12 +2818,14 @@ static int stress_sysinval(const stress_args_t *args)
 			syscalls_unique++;
 		if (exercised)
 			syscalls_exercised++;
+		if (current_context->crash_count[i] > 0)
+			syscalls_crashed += current_context->crash_count[i];
 	}
 	pr_dbg("%s: %zd of %zd (%.2f%%) unique system calls exercised\n",
 		args->name, syscalls_exercised, syscalls_unique,
 		(double)(syscalls_exercised * 100) / (double)syscalls_unique);
 	pr_dbg("%s: %" PRIu64 " unique syscalls argument combinations causing premature child termination\n",
-		args->name, current_context->skip_crashed);
+		args->name, syscalls_crashed);
 	pr_dbg("%s: ignored %" PRIu64 " unique syscall patterns that were not failing and %" PRIu64 " that timed out\n",
 		args->name, current_context->skip_errno_zero, current_context->skip_timed_out);
 
