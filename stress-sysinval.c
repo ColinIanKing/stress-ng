@@ -2674,6 +2674,7 @@ static int stress_sysinval(const stress_args_t *args)
 	const size_t stress_syscall_exercised_sz = stress_syscall_args_sz * sizeof(*stress_syscall_exercised);
 	bool syscall_exercised[stress_syscall_args_sz];
 	bool syscall_unique[stress_syscall_args_sz];
+	bool lock = false;
 
 	time_end = stress_time_now() + (double)g_opt_timeout;
 
@@ -2821,13 +2822,15 @@ static int stress_sysinval(const stress_args_t *args)
 		if (current_context->crash_count[i] > 0)
 			syscalls_crashed += current_context->crash_count[i];
 	}
-	pr_dbg("%s: %" PRIu64 " of %" PRIu64 " (%.2f%%) unique system calls exercised\n",
+	pr_lock(&lock);
+	pr_dbg_lock(&lock, "%s: %" PRIu64 " of %" PRIu64 " (%.2f%%) unique system calls exercised\n",
 		args->name, syscalls_exercised, syscalls_unique,
 		100.0 * ((double)syscalls_exercised) / (double)syscalls_unique);
-	pr_dbg("%s: %" PRIu64 " unique syscalls argument combinations causing premature child termination\n",
+	pr_dbg_lock(&lock, "%s: %" PRIu64 " unique syscalls argument combinations causing premature child termination\n",
 		args->name, syscalls_crashed);
-	pr_dbg("%s: ignored %" PRIu64 " unique syscall patterns that were not failing and %" PRIu64 " that timed out\n",
+	pr_dbg_lock(&lock, "%s: ignored %" PRIu64 " unique syscall patterns that were not failing and %" PRIu64 " that timed out\n",
 		args->name, current_context->skip_errno_zero, current_context->skip_timed_out);
+	pr_unlock(&lock);
 
 	set_counter(args, current_context->counter);
 
