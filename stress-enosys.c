@@ -924,6 +924,9 @@ static const long skip_syscalls[] = {
 #if defined(SYS_mbind)
 	SYS_mbind,
 #endif
+#if defined(SYS_memory_ordering)
+	SYS_memory_ordering,
+#endif
 #if defined(SYS_membarrier)
 	SYS_membarrier,
 #endif
@@ -2429,6 +2432,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_mmap2)
 	__NR_mmap2,
 #endif
+#if defined(__NR_mmap_pgoff)
+	__NR_mmap_pgoff,
+#endif
 #if defined(__NR_modify_ldt)
 	__NR_modify_ldt,
 #endif
@@ -2461,6 +2467,12 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_mq_open)
 	__NR_mq_open,
+#endif
+#if defined(__NR_mq_receive)
+	__NR_mq_receive,
+#endif
+#if defined(__NR_mq_send)
+	__NR_mq_send,
 #endif
 #if defined(__NR_mq_timedreceive)
 	__NR_mq_timedreceive,
@@ -2585,14 +2597,14 @@ static const long skip_syscalls[] = {
 #if defined(__NR_open)
 	__NR_open,
 #endif
-#if defined(__NR_openat)
-	__NR_openat,
-#endif
 #if defined(__NR_open_by_handle_at)
 	__NR_open_by_handle_at,
 #endif
 #if defined(__NR_open_tree)
 	__NR_open_tree,
+#endif
+#if defined(__NR_openat)
+	__NR_openat,
 #endif
 #if defined(__NR_or1k_atomic)
 	__NR_or1k_atomic,
@@ -3033,6 +3045,9 @@ static const long skip_syscalls[] = {
 #if defined(__NR_setitimer)
 	__NR_setitimer,
 #endif
+#if defined(__NR_setmntent)
+	__NR_setmntent,
+#endif
 #if defined(__NR_setns)
 	__NR_setns,
 #endif
@@ -3134,6 +3149,12 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_sigsuspend)
 	__NR_sigsuspend,
+#endif
+#if defined(__NR_sigtimedwait)
+	__NR_sigtimedwait,
+#endif
+#if defined(__NR_sigwaitinfo)
+	__NR_sigwaitinfo,
 #endif
 #if defined(__NR_socket)
 	__NR_socket,
@@ -3407,6 +3428,9 @@ static const long skip_syscalls[] = {
 #endif
 #if defined(__NR_vserver)
 	__NR_vserver,
+#endif
+#if defined(__NR_wait3)
+	__NR_wait3,
 #endif
 #if defined(__NR_wait4)
 	__NR_wait4,
