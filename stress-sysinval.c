@@ -2673,7 +2673,8 @@ static int stress_sysinval_child(const stress_args_t *args, void *context)
 static int stress_sysinval(const stress_args_t *args)
 {
 	int ret, rc = EXIT_NO_RESOURCE;
-	size_t i, syscalls_exercised, syscalls_unique, syscalls_crashed;
+	size_t i;
+	uint64_t syscalls_exercised, syscalls_unique, syscalls_crashed;
 	const size_t page_size = args->page_size;
 	const size_t current_context_size =
 		(sizeof(*current_context) + page_size) & ~(page_size - 1);
@@ -2822,9 +2823,9 @@ static int stress_sysinval(const stress_args_t *args)
 		if (current_context->crash_count[i] > 0)
 			syscalls_crashed += current_context->crash_count[i];
 	}
-	pr_dbg("%s: %zd of %zd (%.2f%%) unique system calls exercised\n",
+	pr_dbg("%s: %" PRIu64 " of %" PRIu64 " (%.2f%%) unique system calls exercised\n",
 		args->name, syscalls_exercised, syscalls_unique,
-		(double)(syscalls_exercised * 100) / (double)syscalls_unique);
+		100.0 * ((double)syscalls_exercised) / (double)syscalls_unique);
 	pr_dbg("%s: %" PRIu64 " unique syscalls argument combinations causing premature child termination\n",
 		args->name, syscalls_crashed);
 	pr_dbg("%s: ignored %" PRIu64 " unique syscall patterns that were not failing and %" PRIu64 " that timed out\n",
