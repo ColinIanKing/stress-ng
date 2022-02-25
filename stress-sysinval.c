@@ -22,7 +22,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"sysinval N",		"start N workers that pass invalid args to syscalls" },
 	{ NULL,	"sysinval-ops N",	"stop after N sysinval bogo syscalls" },
-	{ NULL,	NULL,		    NULL }
+	{ NULL,	NULL,		    	NULL }
 };
 
 #if defined(HAVE_SYSCALL_H) &&	\
@@ -32,6 +32,7 @@ static const stress_help_t help[] = {
 #define ARG_BITMASK(x, bitmask)	(((x) & (bitmask)) == (bitmask))
 
 #define SYSCALL_HASH_TABLE_SIZE	(10007)	/* Hash table size (prime) */
+#define HASH_TABLE_POOL_SIZE	(32768) /* Hash table pool size */
 #define SYSCALL_FAIL		(0x00)	/* Expected behaviour */
 #define	SYSCALL_CRASH		(0x01)	/* Syscalls that crash the child */
 #define SYSCALL_ERRNO_ZERO	(0x02)	/* Syscalls that return 0 */
@@ -153,17 +154,26 @@ typedef struct stress_syscall_args_hash {
 } stress_syscall_arg_hash_t;
 
 /*
+ *  hash table contains two tables, one the hash lookup table
+ *  and the second is a pool of pre-allocated items. The index
+ *  reflects the next free index into the pool to be allocated
+ */
+typedef struct {
+	stress_syscall_arg_hash_t *table[SYSCALL_HASH_TABLE_SIZE];
+	stress_syscall_arg_hash_t pool[HASH_TABLE_POOL_SIZE];
+	size_t index;
+} stress_syscall_hash_table_t;
+
+/*
  *  hash table - in the parent context this records system
  *  calls that crash the child. in the child context this
  *  contains the same crasher data that the parent has plus
  *  a cache of the system calls that return 0 and we don't
- *  want to retest - this child cached data is lost when the
-  * child crashes.
+ *  want to retest
  */
-static stress_syscall_arg_hash_t *hash_table[SYSCALL_HASH_TABLE_SIZE];
+static stress_syscall_hash_table_t *hash_table;
 
 static sigjmp_buf jmpbuf;
-
 static double time_end;
 
 static const int sigs[] = {
@@ -2314,36 +2324,16 @@ static void hash_table_add(
 {
 	stress_syscall_arg_hash_t *h;
 
-	h = calloc(1, sizeof(*h));
-	if (!h)
+	if (hash_table->index >= HASH_TABLE_POOL_SIZE)
 		return;
+	h = &hash_table->pool[hash_table->index];
 	h->hash = hash;
 	h->syscall = syscall_num;
 	h->type = type;
 	(void)memcpy(h->args, args, sizeof(h->args));
-	h->next = hash_table[hash];
-	hash_table[hash] = h;
-}
-
-/*
- *  hash_table_free()
- *	free the hash table
- */
-static void hash_table_free(void)
-{
-	size_t i;
-
-	for (i = 0; i < SIZEOF_ARRAY(hash_table); i++) {
-		stress_syscall_arg_hash_t *h = hash_table[i];
-
-		while (h) {
-			stress_syscall_arg_hash_t *next = h->next;
-
-			free(h);
-			h = next;
-		}
-		hash_table[i] = NULL;
-	}
+	h->next = hash_table->table[hash];
+	hash_table->table[hash] = h;
+	hash_table->index++;
 }
 
 static void MLOCKED_TEXT stress_syscall_itimer_handler(int sig)
@@ -2386,7 +2376,7 @@ static void syscall_permute(
 		int ret;
 		const unsigned long syscall_num = stress_syscall_arg->syscall;
 		const unsigned long hash = stress_syscall_hash(syscall_num, current_context->args);
-		stress_syscall_arg_hash_t *h = hash_table[hash];
+		stress_syscall_arg_hash_t *h = hash_table->table[hash];
 		struct itimerval it;
 
 		while (h) {
@@ -2617,7 +2607,6 @@ static inline int stress_do_syscall(const stress_args_t *args)
 					continue;
 				syscall_permute(args, 0, &stress_syscall_args[j], &stress_syscall_exercised[j]);
 			}
-			hash_table_free();
 		}
 		_exit(EXIT_SUCCESS);
 	} else {
@@ -2721,6 +2710,15 @@ static int stress_sysinval(const stress_args_t *args)
 				MAP_SHARED | MAP_ANONYMOUS,
 				-1, 0);
 	if (stress_syscall_exercised == MAP_FAILED) {
+		pr_fail("%s: mmap failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto tidy;
+	}
+
+	hash_table = mmap(NULL, sizeof(*hash_table),
+			PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (hash_table == MAP_FAILED) {
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto tidy;
@@ -2837,6 +2835,8 @@ tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (stress_syscall_exercised && stress_syscall_exercised != MAP_FAILED)
 		(void)munmap((void *)stress_syscall_exercised, stress_syscall_exercised_sz);
+	if (hash_table && hash_table != MAP_FAILED)
+		(void)munmap((void *)hash_table, sizeof(*hash_table));
 	if (page_ptr_wr && page_ptr_wr != MAP_FAILED)
 		(void)munmap((void *)page_ptr_wr, page_ptr_wr_size);
 	if (page_ptr && page_ptr != MAP_FAILED)
@@ -2853,7 +2853,6 @@ tidy:
 err_dir:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
-	hash_table_free();
 
 	return rc;
 }
