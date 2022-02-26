@@ -165,6 +165,7 @@ static int stress_yield(const stress_args_t *args)
 stressor_info_t stress_yield_info = {
 	.stressor = stress_yield,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.verify = true,
 	.help = help
 };
 #else

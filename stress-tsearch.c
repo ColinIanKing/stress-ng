@@ -150,5 +150,6 @@ stressor_info_t stress_tsearch_info = {
 	.stressor = stress_tsearch,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = true,
 	.help = help
 };

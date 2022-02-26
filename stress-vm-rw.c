@@ -421,6 +421,7 @@ stressor_info_t stress_vm_rw_info = {
 	.stressor = stress_vm_rw,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = true,
 	.help = help
 };
 #else

@@ -461,6 +461,7 @@ typedef struct {
 	const stress_class_t class;	/* stressor class */
 	const stress_opt_set_func_t *opt_set_funcs;	/* option functions */
 	const stress_help_t *help;	/* stressor help options */
+	const bool verify;		/* true = has verification mode */
 } stressor_info_t;
 
 /* pthread wrapped stress_args_t */
@@ -2379,6 +2380,7 @@ typedef enum {
 	OPT_vecwide_ops,
 
 	OPT_verify,
+	OPT_verifiable,
 
 	OPT_verity,
 	OPT_verity_ops,

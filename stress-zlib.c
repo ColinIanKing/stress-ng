@@ -1581,6 +1581,7 @@ stressor_info_t stress_zlib_info = {
 	.set_default = stress_zlib_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = true,
 	.help = help
 };
 #else

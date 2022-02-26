@@ -421,6 +421,7 @@ stressor_info_t stress_exec_info = {
 	.supported = stress_exec_supported,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = true,
 	.help = help
 };
 #else

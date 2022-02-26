@@ -986,6 +986,7 @@ static const struct option long_options[] = {
 	{ "vecwide-ops",	1,	0,	OPT_vecwide_ops },
 	{ "verbose",		0,	0,	OPT_verbose },
 	{ "verify",		0,	0,	OPT_verify },
+	{ "verifiable",		0,	0,	OPT_verifiable },
 	{ "verity",		1,	0,	OPT_verity },
 	{ "verity-ops",		1,	0,	OPT_verity_ops },
 	{ "version",		0,	0,	OPT_version },
@@ -1415,6 +1416,24 @@ static void stress_usage_help(const stress_help_t help_info[])
 			(void)printf("%*.*s\n", n, n, start);
 		}
 	}
+}
+
+/*
+ *  stress_verfiable()
+ *	show the stressors that have --verify ability
+ */
+static void stress_verifiable(void)
+{
+	size_t i;
+	bool space = false;
+
+	for (i = 0; stressors[i].name; i++)
+		if (stressors[i].info->verify) {
+			(void)printf("%s%s", space ? " " : "",
+				stress_munge_underscore(stressors[i].name));
+			space = true;
+		}
+	(void)putchar('\n');
 }
 
 /*
@@ -3256,6 +3275,9 @@ next_opt:
 			break;
 		case OPT_version:
 			stress_version();
+			exit(EXIT_SUCCESS);
+		case OPT_verifiable:
+			stress_verifiable();
 			exit(EXIT_SUCCESS);
 		case OPT_vmstat:
 			if (stress_set_vmstat(optarg) < 0)

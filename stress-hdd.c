@@ -1019,5 +1019,6 @@ stressor_info_t stress_hdd_info = {
 	.stressor = stress_hdd,
 	.class = CLASS_IO | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = true,
 	.help = help
 };

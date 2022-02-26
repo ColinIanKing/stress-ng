@@ -128,6 +128,7 @@ stressor_info_t stress_spawn_info = {
 	.stressor = stress_spawn,
 	.supported = stress_spawn_supported,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.verify = true,
 	.help = help
 };
 #else
