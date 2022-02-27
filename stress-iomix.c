@@ -23,6 +23,9 @@
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>
 #endif
+#if defined(HAVE_SYS_SENDFILE_H)
+#include <sys/sendfile.h>
+#endif
 
 #define MIN_IOMIX_BYTES		(1 * MB)
 #define MAX_IOMIX_BYTES		(MAX_FILE_LIMIT)
@@ -142,7 +145,7 @@ static void stress_iomix_wr_seq_bursts(
 
 		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
-		if (ret < 0) {
+		if (ret == (off_t)-1) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return;
@@ -209,7 +212,7 @@ static void stress_iomix_wr_rnd_bursts(
 
 			posn = stress_iomix_rnd_offset(iomix_bytes);
 			ret = lseek(fd, posn, SEEK_SET);
-			if (ret < 0) {
+			if (ret == (off_t)-1) {
 				pr_fail("%s: lseek failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				return;
@@ -249,7 +252,7 @@ static void stress_iomix_wr_seq_slow(
 		off_t ret, posn = 0;
 
 		ret = lseek(fd, 0, SEEK_SET);
-		if (ret < 0) {
+		if (ret == (off_t)-1) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return;
@@ -303,7 +306,7 @@ static void stress_iomix_rd_seq_bursts(
 
 		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
-		if (ret < 0) {
+		if (ret == (off_t)-1) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return;
@@ -367,7 +370,7 @@ static void stress_iomix_rd_rnd_bursts(
 			stress_iomix_fadvise_random_dontneed(fd, posn, len);
 
 			ret = lseek(fd, posn, SEEK_SET);
-			if (ret < 0) {
+			if (ret == (off_t)-1) {
 				pr_fail("%s: lseek failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				return;
@@ -402,7 +405,7 @@ static void stress_iomix_rd_seq_slow(
 		off_t ret, posn = 0;
 
 		ret = lseek(fd, 0, SEEK_SET);
-		if (ret < 0) {
+		if (ret == (off_t)-1) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return;
@@ -580,7 +583,7 @@ static void stress_iomix_wr_bytes(
 		off_t ret, posn = 0;
 
 		ret = lseek(fd, 0, SEEK_SET);
-		if (ret < 0) {
+		if (ret == (off_t)-1) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return;
@@ -619,7 +622,7 @@ static void stress_iomix_wr_rev_bytes(
 		off_t ret, posn = iomix_bytes;
 
 		ret = lseek(fd, 0, SEEK_SET);
-		if (ret < 0) {
+		if (ret == (off_t)-1) {
 			pr_fail("%s: lseek failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return;
@@ -665,7 +668,7 @@ static void stress_iomix_rd_bytes(
 			stress_iomix_fadvise_random_dontneed(fd, posn, sizeof(buffer));
 
 			ret = lseek(fd, posn, SEEK_SET);
-			if (ret < 0) {
+			if (ret == (off_t)-1) {
 				pr_fail("%s: lseek failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				return;
@@ -884,6 +887,42 @@ static void stress_iomix_copy_file_range(
 }
 #endif
 
+#if defined(HAVE_SYS_SENDFILE_H)
+/*
+ *  stress_iomix_sendfile()
+ *	lots of copies with copy_file_range
+ */
+static void stress_iomix_sendfile(
+	const stress_args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
+{
+	do {
+		off_t from = stress_mwc64() % iomix_bytes;
+		off_t to = stress_mwc64() % iomix_bytes;
+		off_t ret;
+		const size_t size = stress_mwc16();
+		struct timeval tv;
+
+		ret = lseek(fd, to, SEEK_SET);
+		if (ret != (off_t)-1) {
+			int sret;
+
+			sret = sendfile(fd, fd, &from, size);
+			(void)sret;
+		}
+
+		if (!keep_stressing(args))
+			return;
+		stress_iomix_fsync_min_1Hz(fd);
+
+		tv.tv_sec = 0;
+		tv.tv_usec = stress_mwc32() % 130000;
+		(void)select(0, NULL, NULL, NULL, &tv);
+	} while (keep_stressing(args));
+}
+#endif
+
 static stress_iomix_func iomix_funcs[] = {
 	stress_iomix_wr_seq_bursts,
 	stress_iomix_wr_rnd_bursts,
@@ -909,6 +948,9 @@ static stress_iomix_func iomix_funcs[] = {
 #endif
 #if defined(HAVE_COPY_FILE_RANGE)
 	stress_iomix_copy_file_range,
+#endif
+#if defined(HAVE_SYS_SENDFILE_H)
+	stress_iomix_sendfile,
 #endif
 };
 
