@@ -887,7 +887,8 @@ static void stress_iomix_copy_file_range(
 }
 #endif
 
-#if defined(HAVE_SYS_SENDFILE_H)
+#if defined(HAVE_SYS_SENDFILE_H) &&	\
+    defined(HAVE_SENDFILE)
 /*
  *  stress_iomix_sendfile()
  *	lots of copies with copy_file_range
@@ -949,7 +950,8 @@ static stress_iomix_func iomix_funcs[] = {
 #if defined(HAVE_COPY_FILE_RANGE)
 	stress_iomix_copy_file_range,
 #endif
-#if defined(HAVE_SYS_SENDFILE_H)
+#if defined(HAVE_SYS_SENDFILE_H) &&	\
+    defined(HAVE_SENDFILE)
 	stress_iomix_sendfile,
 #endif
 };

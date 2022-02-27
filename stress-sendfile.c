@@ -52,6 +52,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(HAVE_SYS_SENDFILE_H) &&	\
+    defined(HAVE_SENDFILE) &&		\
     NEED_GLIBC(2,1,0)
 
 /*
