@@ -2086,9 +2086,10 @@ stop io stress workers after N bogo operations.
 .TP
 .B \-\-iomix N
 start N workers that perform a mix of sequential, random and memory mapped
-read/write operations as well as forced sync'ing and (if run as root)
-cache dropping.  Multiple child processes are spawned to all share a single
-file and perform different I/O operations on the same file.
+read/write operations as well as random copy file read/writes, forced
+sync'ing and (if run as root) cache dropping.  Multiple child processes
+are spawned to all share a single file and perform different I/O operations
+on the same file.
 .TP
 .B \-\-iomix\-bytes N
 write N bytes for each iomix worker process, the default is 1 GB. One can

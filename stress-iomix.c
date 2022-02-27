@@ -851,6 +851,39 @@ static void stress_iomix_drop_caches(
 }
 #endif
 
+#if defined(HAVE_COPY_FILE_RANGE)
+/*
+ *  stress_iomix_copy_file_range()
+ *	lots of copies with copy_file_range
+ */
+static void stress_iomix_copy_file_range(
+	const stress_args_t *args,
+	const int fd,
+	const off_t iomix_bytes)
+{
+	do {
+		off_t from = stress_mwc64() % iomix_bytes;
+		off_t to = stress_mwc64() % iomix_bytes;
+		const size_t size = stress_mwc16();
+		struct timeval tv;
+		int ret;
+
+		ret = copy_file_range(fd, &from, fd, &to, size, 0);
+		(void)ret;
+		ret = copy_file_range(fd, &to, fd, &from, size, 0);
+		(void)ret;
+
+		if (!keep_stressing(args))
+			return;
+		stress_iomix_fsync_min_1Hz(fd);
+
+		tv.tv_sec = 0;
+		tv.tv_usec = stress_mwc32() % 100000;
+		(void)select(0, NULL, NULL, NULL, &tv);
+	} while (keep_stressing(args));
+}
+#endif
+
 static stress_iomix_func iomix_funcs[] = {
 	stress_iomix_wr_seq_bursts,
 	stress_iomix_wr_rnd_bursts,
@@ -872,7 +905,10 @@ static stress_iomix_func iomix_funcs[] = {
 	stress_iomix_inode_flags,
 #endif
 #if defined(__linux__)
-	stress_iomix_drop_caches
+	stress_iomix_drop_caches,
+#endif
+#if defined(HAVE_COPY_FILE_RANGE)
+	stress_iomix_copy_file_range,
 #endif
 };
 
