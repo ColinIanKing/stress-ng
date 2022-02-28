@@ -1116,6 +1116,7 @@ static const stress_help_t help_generic[] = {
 #endif
 	{ "v",		"verbose",		"verbose output" },
 	{ NULL,		"verify",		"verify results (not available on all tests)" },
+	{ NULL,		"verifiable",		"show stressors that enable verification via --verify" },
 	{ "V",		"version",		"show version" },
 	{ "Y",		"yaml file",		"output results to YAML formatted file" },
 	{ "x",		"exclude",		"list of stressors to exclude (not run)" },
