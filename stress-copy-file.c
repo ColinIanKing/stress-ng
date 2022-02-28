@@ -50,6 +50,52 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_COPY_FILE_RANGE)
 
 /*
+ *  stress_copy_file_range_verify()
+ *	verify copy file from fd_in to fd_out worked correctly for
+ *	--verify option
+ */
+static int stress_copy_file_range_verify(
+	const int fd_in,
+	off_t *off_in,
+	const int fd_out,
+	off_t *off_out,
+	const ssize_t bytes)
+{
+	ssize_t n, bytes_in, bytes_out, bytes_left = bytes;
+	ssize_t buf_sz = STRESS_MINIMUM(bytes, 1024);
+	off_t off_ret;
+
+
+	while (bytes_left >= 0) {
+		char buf_in[buf_sz], buf_out[buf_sz];
+
+		off_ret = lseek(fd_in, *off_in, SEEK_SET);
+		if (off_ret != *off_in)
+			return -1;
+		off_ret = lseek(fd_out, *off_out, SEEK_SET);
+		if (off_ret != *off_out)
+			return -1;
+
+		bytes_in = read(fd_in, buf_in, sizeof(buf_in));
+		if (bytes_in <= 0)
+			break;
+		bytes_out = read(fd_out, buf_out, sizeof(buf_out));
+		if (bytes_out <= 0)
+			break;
+
+		n = STRESS_MINIMUM(bytes_in, bytes_out);
+		if (memcmp(buf_in, buf_out, n) != 0)
+			return -1;
+		bytes_left -= n;
+		*off_in += n;
+		*off_out += n;
+	}
+	if (bytes_left > 0)
+		return -1;
+	return 0;
+}
+
+/*
  *  stress_copy_file
  *	stress reading chunks of file using copy_file_range()
  */
@@ -100,7 +146,7 @@ static int stress_copy_file(const stress_args_t *args)
 	}
 
 	(void)snprintf(tmp, sizeof(tmp), "%s-copy", filename);
-	if ((fd_out = open(tmp, O_CREAT | O_WRONLY,  S_IRUSR | S_IWUSR)) < 0) {
+	if ((fd_out = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, tmp, errno, strerror(errno));
@@ -112,10 +158,12 @@ static int stress_copy_file(const stress_args_t *args)
 
 	do {
 		ssize_t copy_ret;
-		shim_loff_t off_in, off_out;
+		shim_loff_t off_in, off_out, off_in_orig, off_out_orig;
 
-		off_in = (shim_loff_t)(stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE));
-		off_out = (shim_loff_t)(stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE));
+		off_in_orig = (shim_loff_t)(stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE));
+		off_in = off_in_orig;
+		off_out_orig = (shim_loff_t)(stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE));
+		off_out = off_out_orig;
 
 		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
 						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
@@ -135,6 +183,14 @@ static int stress_copy_file(const stress_args_t *args)
 			pr_fail("%s: copy_file_range failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_out;
+		}
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			copy_ret = stress_copy_file_range_verify(fd_in, &off_in_orig,
+					fd_out, &off_out_orig, DEFAULT_COPY_FILE_SIZE);
+			if (copy_ret < 0) {
+				pr_fail("%s: copy_file_range verify failed, input offset=%jd, output offset=%jd\n",
+					args->name, (intmax_t)off_in_orig, off_out_orig);
+			}
 		}
 
 		/*
@@ -178,6 +234,7 @@ stressor_info_t stress_copy_file_info = {
 	.stressor = stress_copy_file,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = true,
 	.help = help
 };
 #else
