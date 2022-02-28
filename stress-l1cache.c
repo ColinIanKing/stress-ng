@@ -278,23 +278,46 @@ static int stress_l1cache(const stress_args_t *args)
 		cache_start = cache_aligned + set_offset;
 		cache_end = cache_start + (l1cache_size << 1);
 
-		for (i = 0; i < 1000000; i++) {
-			register volatile uint8_t *ptr;
+		/*
+		 * cycle around 2 x cache size to force evictions
+		 * in cache set steps to hit every cache line in
+		 * the set, reads then writes
+		 */	
+		if (UNLIKELY(g_opt_flags & OPT_FLAGS_VERIFY)) {
+			for (i = 0; i < 1000000; i++) {
+				register volatile uint8_t *ptr;
 
-			/*
-			 * cycle around 2 x cache size to force evictions
-			 * in cache set steps to hit every cache line in
-			 * the set, reads then writes
-			 */
-			for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
-				*(ptr);
+				for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
+					*(ptr);
 
-			for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
-				*(ptr) = (uint8_t)set;
+				for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
+					*(ptr) = (uint8_t)set;
 
-			set++;
-			if (set >= l1cache_sets)
-				set = 0;
+				if (UNLIKELY(g_opt_flags & OPT_FLAGS_VERIFY)) {
+					for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
+						if (*ptr != (uint8_t)set)	
+							pr_fail("%s: cache value mismatch at offset %zd\n",
+								args->name, (size_t)(ptr - cache_start));
+				}
+
+				set++;
+				if (set >= l1cache_sets)
+					set = 0;
+			}
+		} else {
+			for (i = 0; i < 1000000; i++) {
+				register volatile uint8_t *ptr;
+
+				for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
+					*(ptr);
+
+				for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
+					*(ptr) = (uint8_t)set;
+
+				set++;
+				if (set >= l1cache_sets)
+					set = 0;
+			}
 		}
 		add_counter(args, l1cache_sets);
 	} while (keep_stressing(args));
@@ -310,5 +333,6 @@ stressor_info_t stress_l1cache_info = {
 	.stressor = stress_l1cache,
 	.class = CLASS_CPU_CACHE,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = true,
 	.help = help
 };
