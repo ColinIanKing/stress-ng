@@ -131,8 +131,9 @@ static int stress_set_malloc_touch(const char *opt)
 static inline size_t stress_alloc_size(const size_t size)
 {
 	const size_t len = stress_mwc64() % size;
+	const size_t min_size = sizeof(uintptr_t);
 
-	return len ? len : 1;
+	return len >= min_size ? len : min_size;
 }
 
 static void stress_malloc_page_touch(
@@ -190,11 +191,12 @@ static void *stress_malloc_loop(void *ptr)
 	const size_t page_size = args->page_size;
 	uint64_t *counters = malloc_args->counters;
 	uint64_t *counter = &counters[malloc_args->instance];
-	void **addr;
+	uintptr_t **addr;
 	static void *nowt = NULL;
 	size_t j;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
-	addr = (void **)calloc(malloc_max, sizeof(*addr));
+	addr = (uintptr_t **)calloc(malloc_max, sizeof(*addr));
 	if (!addr) {
 		pr_dbg("%s: cannot allocate address buffer: %d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -227,6 +229,10 @@ static void *stress_malloc_loop(void *ptr)
 		if (addr[i]) {
 			/* 50% free, 50% realloc */
 			if (action) {
+				if (verify && (uintptr_t)addr[i] != *addr[i]) {
+					pr_fail("%s: allocation at %p does not contain correct value\n",
+						args->name, addr[i]);
+				}
 				free(addr[i]);
 				addr[i] = NULL;
 				(*counter)++;
@@ -237,7 +243,11 @@ static void *stress_malloc_loop(void *ptr)
 				tmp = realloc(addr[i], len);
 				if (tmp) {
 					addr[i] = tmp;
-					stress_malloc_page_touch(addr[i], len, page_size);
+					stress_malloc_page_touch((void *)addr[i], len, page_size);
+					if (verify && (uintptr_t)addr[i] != *addr[i]) {
+						pr_fail("%s: allocation at %p does not contain correct value\n",
+							args->name, addr[i]);
+					}
 					(*counter)++;
 				}
 			}
@@ -254,7 +264,8 @@ static void *stress_malloc_loop(void *ptr)
 					addr[i] = malloc(len);
 				}
 				if (addr[i]) {
-					stress_malloc_page_touch(addr[i], len, page_size);
+					stress_malloc_page_touch((void *)addr[i], len, page_size);
+					*addr[i] = (uintptr_t)addr[i];	/* stash address */
 					(*counter)++;
 				}
 			}
@@ -266,6 +277,10 @@ static void *stress_malloc_loop(void *ptr)
 	}
 
 	for (j = 0; j < malloc_max; j++) {
+		if (verify && addr[j] && (uintptr_t)addr[j] != *addr[j]) {
+			pr_fail("%s: allocation at %p does not contain correct value\n",
+				args->name, addr[j]);
+		}
 		free(addr[j]);
 	}
 	free(addr);
@@ -391,5 +406,6 @@ stressor_info_t stress_malloc_info = {
 	.stressor = stress_malloc,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = true,
 	.help = help
 };
