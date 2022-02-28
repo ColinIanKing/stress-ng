@@ -282,8 +282,9 @@ static int stress_l1cache(const stress_args_t *args)
 		 * cycle around 2 x cache size to force evictions
 		 * in cache set steps to hit every cache line in
 		 * the set, reads then writes
-		 */	
+		 */
 		if (UNLIKELY(g_opt_flags & OPT_FLAGS_VERIFY)) {
+			/* Verify slow path */
 			for (i = 0; i < 1000000; i++) {
 				register volatile uint8_t *ptr;
 
@@ -295,7 +296,7 @@ static int stress_l1cache(const stress_args_t *args)
 
 				if (UNLIKELY(g_opt_flags & OPT_FLAGS_VERIFY)) {
 					for (ptr = cache_start; ptr < cache_end; ptr += l1cache_set_size)
-						if (*ptr != (uint8_t)set)	
+						if (*ptr != (uint8_t)set)
 							pr_fail("%s: cache value mismatch at offset %zd\n",
 								args->name, (size_t)(ptr - cache_start));
 				}
@@ -305,6 +306,7 @@ static int stress_l1cache(const stress_args_t *args)
 					set = 0;
 			}
 		} else {
+			/* non-verify fast path */
 			for (i = 0; i < 1000000; i++) {
 				register volatile uint8_t *ptr;
 
