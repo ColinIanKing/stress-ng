@@ -57,6 +57,7 @@ static int stress_utime(const stress_args_t *args)
 	char hugename[PATH_MAX + 16];
 	int ret, fd;
 	bool utime_fsync = false;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	(void)stress_get_setting("utime-fsync", &utime_fsync);
 
@@ -96,13 +97,12 @@ static int stress_utime(const stress_args_t *args)
 		struct timespec ts[2];
 #endif
 
-		if (gettimeofday(&timevals[0], NULL) == 0) {
-			timevals[1] = timevals[0];
-			if (utimes(filename, timevals) < 0) {
-				pr_dbg("%s: utimes failed: errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				break;
-			}
+		(void)gettimeofday(&timevals[0], NULL);
+		timevals[1] = timevals[0];
+		if (utimes(filename, timevals) < 0) {
+			pr_dbg("%s: utimes failed: errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			break;
 		}
 		if (utimes(filename, NULL) < 0) {
 			pr_dbg("%s: utimes failed: errno=%d (%s)\n",
@@ -240,18 +240,34 @@ STRESS_PRAGMA_POP
 #if defined(HAVE_UTIME_H)
 		{
 			struct utimbuf utbuf;
-			const double actime = stress_time_now();
+			struct timeval tv;
 
-			utbuf.actime = (time_t)actime;
+			(void)gettimeofday(&tv, NULL);
+			utbuf.actime = (time_t)tv.tv_sec;
 			utbuf.modtime = utbuf.actime;
 
 			if (utime(filename, &utbuf) < 0) {
-				pr_dbg("%s: utime failed: errno=%d (%s)\n",
+				pr_err("%s: utime failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
+
+			if (verify) {
+				struct stat statbuf;
+
+				if (stat(filename, &statbuf) == 0) {
+					if (statbuf.st_atime < tv.tv_sec) {
+						pr_err("%s: utime failed: access time is less than expected time\n",
+							args->name);
+					}
+					if (statbuf.st_mtime < tv.tv_sec) {
+						pr_err("%s: utime failed: modified time is less than expected time\n",
+							args->name);
+					}
+				}
+			}
 			if (utime(filename, NULL) < 0) {
-				pr_dbg("%s: utime failed: errno=%d (%s)\n",
+				pr_err("%s: utime failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
@@ -299,5 +315,6 @@ stressor_info_t stress_utime_info = {
 	.stressor = stress_utime,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = true,
 	.help = help
 };
