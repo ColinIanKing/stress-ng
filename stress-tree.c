@@ -138,28 +138,48 @@ SPLAY_GENERATE(stress_splay_tree, tree_node, u.splay, tree_node_cmp_fwd);
 static void stress_tree_rb(
 	const stress_args_t *args,
 	const size_t n,
-	struct tree_node *data)
+	struct tree_node *nodes)
 {
 	size_t i;
 	register struct tree_node *node, *next;
+	struct tree_node *find;
 
 	RB_INIT(&rb_root);
 
-	for (node = data, i = 0; i < n; i++, node++) {
+	for (node = nodes, i = 0; i < n; i++, node++) {
 		register struct tree_node *res;
 
 		res = RB_FIND(stress_rb_tree, &rb_root, node);
 		if (!res)
 			RB_INSERT(stress_rb_tree, &rb_root, node);
 	}
-	for (node = data, i = 0; i < n; i++, node++) {
-		struct tree_node *find;
 
+	/* Manditory forward tree check */
+	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = RB_FIND(stress_rb_tree, &rb_root, node);
 		if (!find)
 			pr_err("%s: rb tree node #%zd not found\n",
 				args->name, i);
 	}
+	if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		/* optional reverse find */
+		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
+			find = RB_FIND(stress_rb_tree, &rb_root, node);
+			if (!find)
+				pr_err("%s: rb tree node #%zd not found\n",
+					args->name, i);
+		}
+		/* optional random find */
+		for (i = 0; i < n; i++) {
+			const size_t j = stress_mwc32() % n;
+
+			find = RB_FIND(stress_rb_tree, &rb_root, &nodes[j]);
+			if (!find)
+				pr_err("%s: rb tree node #%zd not found\n",
+					args->name, j);
+		}
+	}
+
 	for (node = RB_MIN(stress_rb_tree, &rb_root); node; node = next) {
 		next = RB_NEXT(stress_rb_tree, &rb_root, node);
 		RB_REMOVE(stress_rb_tree, &rb_root, node);
@@ -173,6 +193,7 @@ static void stress_tree_splay(
 {
 	size_t i;
 	register struct tree_node *node, *next;
+	struct tree_node *find;
 
 	SPLAY_INIT(&splay_root);
 
@@ -183,13 +204,31 @@ static void stress_tree_splay(
 		if (!res)
 			SPLAY_INSERT(stress_splay_tree, &splay_root, node);
 	}
-	for (node = nodes, i = 0; i < n; i++, node++) {
-		struct tree_node *find;
 
+	/* Manditory forward tree check */
+	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 		if (!find)
 			pr_err("%s: splay tree node #%zd not found\n",
 				args->name, i);
+	}
+	if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		/* optional reverse find */
+		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
+			find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
+			if (!find)
+				pr_err("%s: splay tree node #%zd not found\n",
+					args->name, i);
+		}
+		/* optional random find */
+		for (i = 0; i < n; i++) {
+			const size_t j = stress_mwc32() % n;
+
+			find = SPLAY_FIND(stress_splay_tree, &splay_root, &nodes[j]);
+			if (!find)
+				pr_err("%s: splay tree node #%zd not found\n",
+					args->name, j);
+		}
 	}
 	for (node = SPLAY_MIN(stress_splay_tree, &splay_root); node; node = next) {
 		next = SPLAY_NEXT(stress_splay_tree, &splay_root, node);
@@ -238,22 +277,40 @@ static void binary_remove_tree(struct tree_node *node)
 static void stress_tree_binary(
 	const stress_args_t *args,
 	const size_t n,
-	struct tree_node *data)
+	struct tree_node *nodes)
 {
 	size_t i;
 	struct tree_node *node, *head = NULL;
+	struct tree_node *find;
 
-	for (node = data, i = 0; i < n; i++, node++) {
+	for (node = nodes, i = 0; i < n; i++, node++) {
 		binary_insert(&head, node);
 	}
 
-	for (node = data, i = 0; i < n; i++, node++) {
-		struct tree_node *find;
-
+	/* Manditory forward tree check */
+	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = binary_find(head, node);
 		if (!find)
 			pr_err("%s: binary tree node #%zd not found\n",
 				args->name, i);
+	}
+	if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		/* optional reverse find */
+		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
+			find = binary_find(head, node);
+			if (!find)
+				pr_err("%s: binary tree node #%zd not found\n",
+					args->name, i);
+		}
+		/* optional random find */
+		for (i = 0; i < n; i++) {
+			const size_t j = stress_mwc32() % n;
+
+			find = binary_find(head, &nodes[j]);
+			if (!find)
+				pr_err("%s: binary tree node #%zd not found\n",
+					args->name, j);
+		}
 	}
 	binary_remove_tree(head);
 }
@@ -413,22 +470,41 @@ static void avl_remove_tree(struct tree_node *node)
 static void stress_tree_avl(
 	const stress_args_t *args,
 	const size_t n,
-	struct tree_node *data)
+	struct tree_node *nodes)
 {
 	size_t i;
 	struct tree_node *node, *head = NULL;
+	struct tree_node *find;
 
-	for (node = data, i = 0; i < n; i++, node++) {
+	for (node = nodes, i = 0; i < n; i++, node++) {
 		bool taller = false;
 		avl_insert(&head, node, &taller);
 	}
-	for (node = data, i = 0; i < n; i++, node++) {
-		struct tree_node *find;
 
+	/* Manditory forward tree check */
+	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = avl_find(head, node);
 		if (!find)
 			pr_err("%s: avl tree node #%zd not found\n",
 				args->name, i);
+	}
+	if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		/* optional reverse find */
+		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
+			find = avl_find(head, node);
+			if (!find)
+				pr_err("%s: avl tree node #%zd not found\n",
+					args->name, i);
+		}
+		/* optional random find */
+		for (i = 0; i < n; i++) {
+			const size_t j = stress_mwc32() % n;
+
+			find = avl_find(head, &nodes[j]);
+			if (!find)
+				pr_err("%s: avl tree node #%zd not found\n",
+					args->name, j);
+		}
 	}
 	avl_remove_tree(head);
 }
@@ -436,12 +512,12 @@ static void stress_tree_avl(
 static void stress_tree_all(
 	const stress_args_t *args,
 	const size_t n,
-	struct tree_node *data)
+	struct tree_node *nodes)
 {
-	stress_tree_rb(args, n, data);
-	stress_tree_splay(args, n, data);
-	stress_tree_binary(args, n, data);
-	stress_tree_avl(args, n, data);
+	stress_tree_rb(args, n, nodes);
+	stress_tree_splay(args, n, nodes);
+	stress_tree_binary(args, n, nodes);
+	stress_tree_avl(args, n, nodes);
 }
 #endif
 
@@ -589,6 +665,7 @@ stressor_info_t stress_tree_info = {
 	.stressor = stress_tree,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = true,
 	.help = help
 };
 #else
