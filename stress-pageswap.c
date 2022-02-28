@@ -25,6 +25,7 @@ static const stress_help_t help[] = {
 };
 
 typedef struct page_info {
+	struct page_info *self;		/* address of page info for verification */
 	struct page_info *next;		/* next page in list */
 	size_t size;			/* size of page */
 } page_info_t;
@@ -43,14 +44,19 @@ static int stress_pageswap_supported(const char *name)
 }
 
 #if defined(MADV_PAGEOUT)
-static void stress_pageswap_unmap(page_info_t **head)
+static void stress_pageswap_unmap(const stress_args_t *args, page_info_t **head)
 {
 	page_info_t *pi = *head;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	while (pi) {
 		page_info_t *next = pi->next;
 
 		(void)madvise(pi, pi->size, MADV_PAGEOUT);
+		if (verify && (pi->self != pi)) {
+			pr_fail("%s: page at %p does not contain expected data\n",
+				args->name, pi);
+		}
 		(void)munmap(pi, pi->size);
 		pi = next;
 	}
@@ -79,27 +85,28 @@ static int stress_pageswap_child(const stress_args_t *args, void *context)
 		pi = (page_info_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 		if (pi == MAP_FAILED) {
-			stress_pageswap_unmap(&head);
+			stress_pageswap_unmap(args, &head);
 			max = 0;
 		} else {
 			page_info_t *oldhead = head;
 
 			pi->size = page_size;
 			pi->next = head;
+			pi->self = pi;
 			head = pi;
 
 			(void)madvise(pi, pi->size, MADV_PAGEOUT);
 			if (oldhead)
 				(void)madvise(oldhead, oldhead->size, MADV_PAGEOUT);
 			if (max++ > 65536) {
-				stress_pageswap_unmap(&head);
+				stress_pageswap_unmap(args, &head);
 				max = 0;
 			}
 			inc_counter(args);
 		}
 	} while (keep_stressing(args));
 
-	stress_pageswap_unmap(&head);
+	stress_pageswap_unmap(args, &head);
 
 	return EXIT_SUCCESS;
 }
@@ -123,6 +130,7 @@ stressor_info_t stress_pageswap_info = {
 	.stressor = stress_pageswap,
 	.supported = stress_pageswap_supported,
 	.class = CLASS_OS | CLASS_VM,
+	.verify = true,
 	.help = help
 };
 
