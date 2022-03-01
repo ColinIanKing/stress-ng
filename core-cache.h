@@ -84,7 +84,9 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 	va_start(ap, addr);
 	va_end(ap);
 }
+#undef HAVE_BUILTIN_PREFETCH
 #else
+#define HAVE_BUILTIN_PREFETCH
 #define shim_builtin_prefetch		__builtin_prefetch
 #endif
 
