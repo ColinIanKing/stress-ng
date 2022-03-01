@@ -758,6 +758,6 @@ stressor_info_t stress_wcs_info = {
 	.set_default = stress_wcs_set_default,
 	.class = CLASS_CPU | CLASS_CPU_CACHE | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

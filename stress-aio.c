@@ -378,6 +378,7 @@ stressor_info_t stress_aio_info = {
 	.stressor = stress_aio,
 	.class = CLASS_IO | CLASS_INTERRUPT | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

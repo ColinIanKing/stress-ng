@@ -205,6 +205,7 @@ static int stress_oom_pipe(const stress_args_t *args)
 stressor_info_t stress_oom_pipe_info = {
 	.stressor = stress_oom_pipe,
 	.class = CLASS_MEMORY | CLASS_OS | CLASS_PATHOLOGICAL,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

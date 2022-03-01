@@ -202,6 +202,7 @@ static int stress_unshare(const stress_args_t *args)
 stressor_info_t stress_unshare_info = {
 	.stressor = stress_unshare,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

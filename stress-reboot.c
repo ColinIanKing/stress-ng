@@ -165,6 +165,7 @@ static int stress_reboot(const stress_args_t *args)
 stressor_info_t stress_reboot_info = {
 	.stressor = stress_reboot,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 

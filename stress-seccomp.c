@@ -483,6 +483,7 @@ stressor_info_t stress_seccomp_info = {
 	.stressor = stress_seccomp,
 	.supported = stress_seccomp_supported,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

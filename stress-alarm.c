@@ -164,6 +164,6 @@ again:
 stressor_info_t stress_alarm_info = {
 	.stressor = stress_alarm,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

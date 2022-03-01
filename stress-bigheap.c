@@ -160,6 +160,6 @@ stressor_info_t stress_bigheap_info = {
 	.stressor = stress_bigheap,
 	.class = CLASS_OS | CLASS_VM,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

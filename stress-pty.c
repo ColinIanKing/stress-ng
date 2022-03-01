@@ -380,6 +380,7 @@ stressor_info_t stress_pty_info = {
 	.stressor = stress_pty,
 	.class = CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

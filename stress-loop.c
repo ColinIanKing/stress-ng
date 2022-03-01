@@ -416,6 +416,7 @@ stressor_info_t stress_loop_info = {
 	.stressor = stress_loop,
 	.supported = stress_loop_supported,
 	.class = CLASS_OS | CLASS_DEV,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

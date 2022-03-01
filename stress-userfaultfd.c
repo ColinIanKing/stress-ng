@@ -452,6 +452,7 @@ stressor_info_t stress_userfaultfd_info = {
 	.stressor = stress_userfaultfd,
 	.class = CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

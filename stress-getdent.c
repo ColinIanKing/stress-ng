@@ -288,6 +288,7 @@ static int stress_getdent(const stress_args_t *args)
 stressor_info_t stress_getdent_info = {
 	.stressor = stress_getdent,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

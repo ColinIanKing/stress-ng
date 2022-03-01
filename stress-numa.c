@@ -617,6 +617,7 @@ numa_free:
 stressor_info_t stress_numa_info = {
 	.stressor = stress_numa,
 	.class = CLASS_CPU | CLASS_MEMORY | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

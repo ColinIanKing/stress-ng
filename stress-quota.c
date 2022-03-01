@@ -449,6 +449,7 @@ stressor_info_t stress_quota_info = {
 	.stressor = stress_quota,
 	.supported = stress_quota_supported,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

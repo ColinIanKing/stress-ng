@@ -192,6 +192,7 @@ static int stress_cap(const stress_args_t *args)
 stressor_info_t stress_cap_info = {
 	.stressor = stress_cap,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

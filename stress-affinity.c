@@ -347,7 +347,7 @@ stressor_info_t stress_affinity_info = {
 	.class = CLASS_SCHEDULER,
 	.supported = stress_affinity_supported,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help,
 };
 #else

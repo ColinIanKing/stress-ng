@@ -450,6 +450,12 @@ typedef struct {
 	int (*opt_set_func)(const char *opt); /* function to set it */
 } stress_opt_set_func_t;
 
+typedef enum {
+	VERIFY_NONE	= 0x00,
+	VERIFY_OPTIONAL = 0x01,
+	VERIFY_ALWAYS   = 0x02,
+} stress_verify_t;
+
 /* stressor information */
 typedef struct {
 	int (*stressor)(const stress_args_t *args);	/* stressor function */
@@ -461,7 +467,7 @@ typedef struct {
 	const stress_class_t class;	/* stressor class */
 	const stress_opt_set_func_t *opt_set_funcs;	/* option functions */
 	const stress_help_t *help;	/* stressor help options */
-	const bool verify;		/* true = has verification mode */
+	const stress_verify_t verify;	/* true = has verification mode */
 } stressor_info_t;
 
 /* pthread wrapped stress_args_t */

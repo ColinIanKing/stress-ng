@@ -773,6 +773,6 @@ stressor_info_t stress_mmap_info = {
 	.stressor = stress_mmap,
 	.class = CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

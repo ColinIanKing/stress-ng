@@ -346,6 +346,7 @@ stressor_info_t stress_memfd_info = {
 	.stressor = stress_memfd,
 	.class = CLASS_OS | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

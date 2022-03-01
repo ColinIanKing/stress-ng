@@ -1063,6 +1063,7 @@ stressor_info_t stress_af_alg_info = {
 	.deinit = stress_af_alg_deinit,
 	.class = CLASS_CPU | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 

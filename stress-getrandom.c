@@ -149,6 +149,7 @@ stressor_info_t stress_getrandom_info = {
 	.stressor = stress_getrandom,
 	.supported = stress_getrandom_supported,
 	.class = CLASS_OS | CLASS_CPU,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

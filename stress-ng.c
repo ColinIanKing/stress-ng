@@ -1420,21 +1420,33 @@ static void stress_usage_help(const stress_help_t help_info[])
 }
 
 /*
- *  stress_verfiable()
- *	show the stressors that have --verify ability
+ *  stress_verfiable_mode()
+ *	show the stressors that are verified by their verify mode
  */
-static void stress_verifiable(void)
+static void stress_verifiable_mode(stress_verify_t mode)
 {
 	size_t i;
 	bool space = false;
 
 	for (i = 0; stressors[i].name; i++)
-		if (stressors[i].info->verify) {
+		if (stressors[i].info->verify == mode) {
 			(void)printf("%s%s", space ? " " : "",
 				stress_munge_underscore(stressors[i].name));
 			space = true;
 		}
 	(void)putchar('\n');
+}
+
+/*
+ *  stress_verfiable()
+ *	show the stressors that have --verify ability
+ */
+static void stress_verifiable(void)
+{
+	(void)printf("Verification always enabled:\n");
+	stress_verifiable_mode(VERIFY_ALWAYS);
+	(void)printf("\nVerification enabled by --verify option:\n");
+	stress_verifiable_mode(VERIFY_OPTIONAL);
 }
 
 /*

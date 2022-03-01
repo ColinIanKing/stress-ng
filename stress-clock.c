@@ -569,7 +569,7 @@ static int stress_clock(const stress_args_t *args)
 stressor_info_t stress_clock_info = {
 	.stressor = stress_clock,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else

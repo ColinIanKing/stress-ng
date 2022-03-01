@@ -141,6 +141,7 @@ static int stress_crypt(const stress_args_t *args)
 stressor_info_t stress_crypt_info = {
 	.stressor = stress_crypt,
 	.class = CLASS_CPU,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

@@ -261,6 +261,7 @@ static int stress_handle(const stress_args_t *args)
 stressor_info_t stress_handle_info = {
 	.stressor = stress_handle,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

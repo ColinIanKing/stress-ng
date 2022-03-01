@@ -268,6 +268,7 @@ tidy_child1:
 stressor_info_t stress_tee_info = {
 	.stressor = stress_tee,
 	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

@@ -287,6 +287,7 @@ stressor_info_t stress_fifo_info = {
 	.stressor = stress_fifo,
 	.class = CLASS_PIPE_IO | CLASS_OS | CLASS_SCHEDULER,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

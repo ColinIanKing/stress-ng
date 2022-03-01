@@ -257,6 +257,7 @@ stressor_info_t stress_eventfd_info = {
 	.stressor = stress_eventfd,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

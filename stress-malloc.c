@@ -406,6 +406,6 @@ stressor_info_t stress_malloc_info = {
 	.stressor = stress_malloc,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY | CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

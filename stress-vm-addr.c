@@ -475,5 +475,6 @@ stressor_info_t stress_vm_addr_info = {
 	.stressor = stress_vm_addr,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };

@@ -197,6 +197,7 @@ stressor_info_t stress_cpu_online_info = {
 	.stressor = stress_cpu_online,
 	.supported = stress_cpu_online_supported,
 	.class = CLASS_CPU | CLASS_OS | CLASS_PATHOLOGICAL,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

@@ -345,6 +345,7 @@ stressor_info_t stress_lockf_info = {
 	.stressor = stress_lockf,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

@@ -261,6 +261,7 @@ cleanup_dir:
 stressor_info_t stress_ioprio_info = {
 	.stressor = stress_ioprio,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

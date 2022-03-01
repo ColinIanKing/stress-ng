@@ -245,6 +245,7 @@ static int stress_netdev(const stress_args_t *args)
 stressor_info_t stress_netdev_info = {
 	.stressor = stress_netdev,
 	.class = CLASS_NETWORK,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

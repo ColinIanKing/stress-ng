@@ -264,6 +264,7 @@ static int stress_symlink(const stress_args_t *args)
 stressor_info_t stress_link_info = {
 	.stressor = stress_link,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = hardlink_help
 };
 #else
@@ -277,5 +278,6 @@ stressor_info_t stress_link_info = {
 stressor_info_t stress_symlink_info = {
 	.stressor = stress_symlink,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = symlink_help
 };

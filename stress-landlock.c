@@ -348,6 +348,7 @@ stressor_info_t stress_landlock_info = {
 	.stressor = stress_landlock,
 	.class = CLASS_OS,
 	.supported = stress_landlock_supported,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

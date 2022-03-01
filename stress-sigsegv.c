@@ -301,7 +301,7 @@ stressor_info_t stress_sigsegv_info = {
 	.stressor = stress_sigsegv,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 #if defined(SA_SIGINFO)
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 #endif
 	.help = help
 };

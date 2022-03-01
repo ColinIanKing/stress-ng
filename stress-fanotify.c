@@ -702,6 +702,7 @@ stressor_info_t stress_fanotify_info = {
 	.stressor = stress_fanotify,
 	.supported = stress_fanotify_supported,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

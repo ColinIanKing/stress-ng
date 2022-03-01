@@ -538,5 +538,6 @@ stressor_info_t stress_switch_info = {
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.set_default = stress_switch_set_default,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };

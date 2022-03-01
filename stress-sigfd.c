@@ -191,7 +191,7 @@ finish:
 stressor_info_t stress_sigfd_info = {
 	.stressor = stress_sigfd,
 	.class = CLASS_INTERRUPT | CLASS_OS,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else

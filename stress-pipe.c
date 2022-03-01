@@ -301,6 +301,6 @@ stressor_info_t stress_pipe_info = {
 	.stressor = stress_pipe,
 	.class = CLASS_PIPE_IO | CLASS_MEMORY | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

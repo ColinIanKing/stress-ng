@@ -298,5 +298,6 @@ static const stress_help_t help[] = {
 stressor_info_t stress_access_info = {
 	.stressor = stress_access,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };

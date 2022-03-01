@@ -405,6 +405,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 stressor_info_t stress_schedpolicy_info = {
 	.stressor = stress_schedpolicy,
 	.class = CLASS_INTERRUPT | CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

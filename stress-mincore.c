@@ -242,6 +242,7 @@ stressor_info_t stress_mincore_info = {
 	.stressor = stress_mincore,
 	.class = CLASS_OS | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

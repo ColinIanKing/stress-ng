@@ -180,7 +180,7 @@ finish:
 stressor_info_t stress_futex_info = {
 	.stressor = stress_futex,
 	.class = CLASS_SCHEDULER | CLASS_OS,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else

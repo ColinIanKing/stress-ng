@@ -151,5 +151,6 @@ finish:
 stressor_info_t stress_sigabrt_info = {
 	.stressor = stress_sigabrt,
 	.class = CLASS_INTERRUPT | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };

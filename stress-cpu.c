@@ -3284,6 +3284,6 @@ stressor_info_t stress_cpu_info = {
 	.set_default = stress_cpu_set_default,
 	.class = CLASS_CPU,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

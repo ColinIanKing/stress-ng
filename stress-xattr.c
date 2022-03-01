@@ -527,6 +527,7 @@ out_free:
 stressor_info_t stress_xattr_info = {
 	.stressor = stress_xattr,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

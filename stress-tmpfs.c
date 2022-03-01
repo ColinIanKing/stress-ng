@@ -396,7 +396,7 @@ stressor_info_t stress_tmpfs_info = {
 	.stressor = stress_tmpfs,
 	.class = CLASS_MEMORY | CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else

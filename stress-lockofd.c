@@ -319,6 +319,7 @@ tidy:
 stressor_info_t stress_lockofd_info = {
 	.stressor = stress_lockofd,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

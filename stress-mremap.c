@@ -318,6 +318,7 @@ stressor_info_t stress_mremap_info = {
 	.stressor = stress_mremap,
 	.class = CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else

@@ -405,6 +405,7 @@ stressor_info_t stress_tun_info = {
 	.class = CLASS_NETWORK | CLASS_OS,
 	.supported = stress_tun_supported,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

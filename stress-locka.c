@@ -320,6 +320,7 @@ tidy:
 stressor_info_t stress_locka_info = {
 	.stressor = stress_locka,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

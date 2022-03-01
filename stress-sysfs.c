@@ -833,7 +833,7 @@ finish:
 stressor_info_t stress_sysfs_info = {
 	.stressor = stress_sysfs,
 	.class = CLASS_OS,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else

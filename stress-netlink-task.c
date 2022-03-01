@@ -324,6 +324,7 @@ stressor_info_t stress_netlink_task_info = {
 	.stressor = stress_netlink_task,
 	.supported = stress_netlink_task_supported,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

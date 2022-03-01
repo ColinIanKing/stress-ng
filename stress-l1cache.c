@@ -335,6 +335,6 @@ stressor_info_t stress_l1cache_info = {
 	.stressor = stress_l1cache,
 	.class = CLASS_CPU_CACHE,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

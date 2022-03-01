@@ -518,7 +518,7 @@ stressor_info_t stress_mq_info = {
 	.stressor = stress_mq,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else

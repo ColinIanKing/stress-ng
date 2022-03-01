@@ -268,6 +268,6 @@ static int stress_sysinfo(const stress_args_t *args)
 stressor_info_t stress_sysinfo_info = {
 	.stressor = stress_sysinfo,
 	.class = CLASS_OS,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };

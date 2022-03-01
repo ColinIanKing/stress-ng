@@ -462,6 +462,7 @@ stressor_info_t stress_rawpkt_info = {
 	.class = CLASS_NETWORK | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_rawpkt_supported,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

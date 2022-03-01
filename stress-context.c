@@ -162,6 +162,7 @@ static int stress_context(const stress_args_t *args)
 stressor_info_t stress_context_info = {
 	.stressor = stress_context,
 	.class = CLASS_MEMORY | CLASS_CPU,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

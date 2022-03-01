@@ -153,6 +153,7 @@ try_read:
 stressor_info_t stress_full_info = {
 	.stressor = stress_full,
 	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

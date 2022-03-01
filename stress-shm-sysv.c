@@ -1025,6 +1025,7 @@ stressor_info_t stress_shm_sysv_info = {
 	.stressor = stress_shm_sysv,
 	.class = CLASS_VM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

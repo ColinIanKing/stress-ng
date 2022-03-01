@@ -249,6 +249,7 @@ static int stress_remap(const stress_args_t *args)
 stressor_info_t stress_remap_info = {
 	.stressor = stress_remap,
 	.class = CLASS_MEMORY | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

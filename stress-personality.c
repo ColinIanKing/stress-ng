@@ -103,6 +103,7 @@ static int stress_personality(const stress_args_t *args)
 stressor_info_t stress_personality_info = {
 	.stressor = stress_personality,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

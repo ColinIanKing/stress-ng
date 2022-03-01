@@ -638,6 +638,7 @@ stressor_info_t stress_sem_sysv_info = {
 	.deinit = stress_semaphore_sysv_deinit,
 	.class = CLASS_OS | CLASS_SCHEDULER,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

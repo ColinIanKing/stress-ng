@@ -329,7 +329,7 @@ stressor_info_t stress_fork_info = {
 	.stressor = stress_fork,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = fork_opt_set_funcs,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = fork_help
 };
 

@@ -192,5 +192,6 @@ static int stress_zero(const stress_args_t *args)
 stressor_info_t stress_zero_info = {
 	.stressor = stress_zero,
 	.class = CLASS_DEV | CLASS_MEMORY | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };

@@ -434,6 +434,7 @@ stressor_info_t stress_dnotify_info = {
 	.stressor = stress_dnotify,
 	.class = CLASS_FILESYSTEM | CLASS_SCHEDULER | CLASS_OS,
 	.supported = stress_dnotify_supported,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

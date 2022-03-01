@@ -204,6 +204,7 @@ err:
 stressor_info_t stress_seal_info = {
 	.stressor = stress_seal,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

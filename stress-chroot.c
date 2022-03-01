@@ -365,6 +365,7 @@ stressor_info_t stress_chroot_info = {
 	.stressor = stress_not_implemented,
 	.supported = stress_chroot_supported,
 	.class = CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #endif

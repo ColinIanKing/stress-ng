@@ -269,6 +269,7 @@ tidy_kvm_fd:
 stressor_info_t stress_kvm_info = {
 	.stressor = stress_kvm,
 	.class = CLASS_DEV | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

@@ -281,6 +281,7 @@ static int stress_mknod(const stress_args_t *args)
 stressor_info_t stress_mknod_info = {
 	.stressor = stress_mknod,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else

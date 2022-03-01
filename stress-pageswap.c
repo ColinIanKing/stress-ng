@@ -130,7 +130,7 @@ stressor_info_t stress_pageswap_info = {
 	.stressor = stress_pageswap,
 	.supported = stress_pageswap_supported,
 	.class = CLASS_OS | CLASS_VM,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 

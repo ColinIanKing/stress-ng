@@ -336,7 +336,7 @@ finish:
 stressor_info_t stress_kcmp_info = {
 	.stressor = stress_kcmp,
 	.class = CLASS_OS,
-	.verify = true,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else

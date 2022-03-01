@@ -180,6 +180,7 @@ stressor_info_t stress_klog_info = {
 	.stressor = stress_klog,
 	.class = CLASS_OS,
 	.help = help,
+	.verify = VERIFY_ALWAYS,
 	.supported = stress_klog_supported
 };
 #else

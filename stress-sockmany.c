@@ -331,5 +331,6 @@ finish:
 stressor_info_t stress_sockmany_info = {
 	.stressor = stress_sockmany,
 	.class = CLASS_NETWORK | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
