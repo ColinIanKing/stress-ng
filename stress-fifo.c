@@ -142,20 +142,20 @@ redo:
 		if (sz < 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
-			pr_err("%s: fifo read failed: errno=%d (%s)\n",
+			pr_fail("%s: fifo read failed: errno=%d (%s)\n",
 				name, errno, strerror(errno));
 			break;
 		}
 		if (sz == 0)
 			break;
 		if (sz != sizeof(val)) {
-			pr_err("%s: fifo read did not get uint64\n",
+			pr_fail("%s: fifo read did not get uint64\n",
 				name);
 			break;
 		}
 		if ((val < lastval) &&
 		    ((~val & wrap_mask) && (lastval & wrap_mask))) {
-			pr_err("%s: fifo read did not get "
+			pr_fail("%s: fifo read did not get "
 				"expected value\n", name);
 			break;
 		}
@@ -210,7 +210,7 @@ static int stress_fifo(const stress_args_t *args)
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {
 		rc = exit_status(errno);
-		pr_err("%s: mkfifo failed: errno=%d (%s)\n",
+		pr_fail("%s: mkfifo failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto tidy;
 	}
@@ -234,7 +234,7 @@ static int stress_fifo(const stress_args_t *args)
 			rc = 0;
 		} else {
 			rc = exit_status(fd);
-			pr_err("%s: fifo write open failed: "
+			pr_fail("%s: fifo write open failed: "
 				"errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
