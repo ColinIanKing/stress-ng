@@ -207,7 +207,7 @@ static void OPTIMIZE3 stress_list_slistt(
 		}
 
 		if (!found)
-			pr_err("%s: slistt entry #%zd not found\n",
+			pr_fail("%s: slistt entry #%zd not found\n",
 				args->name, i);
 	}
 	while (head) {
@@ -246,7 +246,7 @@ static void stress_list_list(
 		}
 
 		if (!found)
-			pr_err("%s: list entry #%zd not found\n",
+			pr_fail("%s: list entry #%zd not found\n",
 				args->name, i);
 	}
 	while (!LIST_EMPTY(&head)) {
@@ -285,7 +285,7 @@ static void stress_list_slist(
 		}
 
 		if (!found)
-			pr_err("%s: slist entry #%zd not found\n",
+			pr_fail("%s: slist entry #%zd not found\n",
 				args->name, i);
 	}
 	while (!SLIST_EMPTY(&head)) {
@@ -323,7 +323,7 @@ static void stress_list_circleq(
 		}
 
 		if (!found)
-			pr_err("%s: circleq entry #%zd not found\n",
+			pr_fail("%s: circleq entry #%zd not found\n",
 				args->name, i);
 	}
 	while ((entry = CIRCLEQ_FIRST(&head)) != (struct list_entry *)&head) {
@@ -361,7 +361,7 @@ static void stress_list_stailq(
 		}
 
 		if (!found)
-			pr_err("%s: stailq entry #%zd not found\n",
+			pr_fail("%s: stailq entry #%zd not found\n",
 				args->name, i);
 	}
 	while ((entry = STAILQ_FIRST(&head)) != NULL) {
@@ -399,7 +399,7 @@ static void stress_list_tailq(
 		}
 
 		if (!found)
-			pr_err("%s: tailq entry #%zd not found\n",
+			pr_fail("%s: tailq entry #%zd not found\n",
 				args->name, i);
 	}
 	while ((entry = TAILQ_FIRST(&head)) != NULL) {

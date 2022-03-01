@@ -119,7 +119,7 @@ static void stress_semaphore_sysv_init(void)
 			"(%s), skipping semaphore stressor\n",
 			errno, strerror(errno));
 	} else {
-		pr_err("semaphore init (System V) failed: errno=%d: "
+		pr_fail("semaphore init (System V) failed: errno=%d: "
 			"(%s)\n", errno, strerror(errno));
 		_exit(EXIT_FAILURE);
 	}

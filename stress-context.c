@@ -92,7 +92,7 @@ static int stress_context_init(
 	(void)memset(context_info, 0, sizeof(*context_info));
 
 	if (getcontext(&context_info->cu.uctx) < 0) {
-		pr_err("%s: getcontext failed: %d (%s)\n",
+		pr_fail("%s: getcontext failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	}
@@ -135,7 +135,7 @@ static int stress_context(const stress_args_t *args)
 
 	/* And start.. */
 	if (swapcontext(&uctx_main, &context[0].cu.uctx) < 0) {
-		pr_err("%s: swapcontext failed: %d (%s)\n",
+		pr_fail("%s: swapcontext failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}

@@ -282,7 +282,7 @@ static void NORETURN stress_rawpkt_client(
 
 		n = sendto(fd, buf, sizeof(struct ethhdr) + ip->tot_len, 0, (struct sockaddr *)&sadr, sizeof(sadr));
 		if (n < 0) {
-			pr_err("%s: raw socket sendto failed on port %d, errno=%d (%s)\n",
+			pr_fail("%s: raw socket sendto failed on port %d, errno=%d (%s)\n",
 				args->name, port, errno, strerror(errno));
 		}
 #if defined(SIOCOUTQ)

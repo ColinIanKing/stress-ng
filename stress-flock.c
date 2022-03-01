@@ -78,7 +78,7 @@ static void stress_flock_child(
 		 */
 		ret = flock(fd, LOCK_NB);
 		if (ret == 0) {
-			pr_err("%s: flock failed expected EINVAL, instead got "
+			pr_fail("%s: flock failed expected EINVAL, instead got "
 				"errno=%d (%s)\n", args->name, errno, strerror(errno));
 			(void)flock(fd, LOCK_UN);
 		}

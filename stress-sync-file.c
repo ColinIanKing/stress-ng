@@ -83,7 +83,7 @@ static int stress_sync_allocate(
 	if (ret < 0) {
 		if ((errno == ENOSPC) || (errno == EINTR))
 			return -errno;
-		pr_err("%s: fdatasync failed: errno=%d (%s)\n",
+		pr_fail("%s: fdatasync failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return -errno;
 	}

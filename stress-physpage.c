@@ -70,7 +70,7 @@ static int stress_virt_to_phys(
 			args->name, (void *)virt_addr, errno, strerror(errno));
 		goto err;
 	} else if (n != (ssize_t)sizeof(pageinfo)) {
-		pr_err("%s: read address %p in /proc/self/pagemap returned %zd bytes, expected %zd\n",
+		pr_fail("%s: read address %p in /proc/self/pagemap returned %zd bytes, expected %zd\n",
 			args->name, (void *)virt_addr, (size_t)n, sizeof(pageinfo));
 		goto err;
 	}
@@ -99,7 +99,7 @@ static int stress_virt_to_phys(
 			goto err;
 		}
 		if (page_count < 1) {
-			pr_err("%s: got zero page count for physical address %p\n",
+			pr_fail("%s: got zero page count for physical address %p\n",
 				args->name, (void *)phys_addr);
 			goto err;
 		}

@@ -185,7 +185,7 @@ static int stress_setup_io_uring(
 				args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
-		pr_err("%s: io_uring_setup failed, errno=%d (%s)\n",
+		pr_fail("%s: io_uring_setup failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -306,7 +306,7 @@ static inline int stress_io_uring_complete(
 			if (errno == EOPNOTSUPP) {
 				*supported = false;
 			} else  {
-				pr_err("%s: completion opcode=%d (%s), error=%d (%s)\n",
+				pr_fail("%s: completion opcode=%d (%s), error=%d (%s)\n",
 					args->name, opcode,
 					stress_io_uring_opcode_name(opcode),
 					err, strerror(err));

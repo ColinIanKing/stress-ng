@@ -206,7 +206,7 @@ static int stress_netlink_taskstats_monitor(
 		ret = stress_netlink_sendcmd(args, sock, id, pid, TASKSTATS_CMD_GET,
 			TASKSTATS_CMD_ATTR_PID, &pid_data, sizeof(pid_data));
 		if (ret < 0) {
-			pr_err("%s: sendto TASKSTATS_CMD_GET failed: %d (%s)\n",
+			pr_fail("%s: sendto TASKSTATS_CMD_GET failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
@@ -274,18 +274,18 @@ static int stress_netlink_task(const stress_args_t *args)
 	ret = stress_netlink_sendcmd(args, sock, GENL_ID_CTRL, pid, CTRL_CMD_GETFAMILY,
 		CTRL_ATTR_FAMILY_NAME, (const void *)name, sizeof(name));
 	if (ret < 0) {
-		pr_err("%s: sendto CTRL_CMD_GETFAMILY failed: %d (%s)\n",
+		pr_fail("%s: sendto CTRL_CMD_GETFAMILY failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 	}
 	len = recv(sock, &nlmsg, sizeof(nlmsg), 0);
 	if (len < 0) {
-		pr_err("%s: recv failed: %d (%s)\n",
+		pr_fail("%s: recv failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(sock);
 		return EXIT_FAILURE;
 	}
 	if (!NLMSG_OK((&nlmsg.n), (unsigned int)len)) {
-		pr_err("%s: recv NLMSG error\n",
+		pr_fail("%s: recv NLMSG error\n",
 			args->name);
 		(void)close(sock);
 		return EXIT_FAILURE;
@@ -297,7 +297,7 @@ static int stress_netlink_task(const stress_args_t *args)
 
 		id = *id_ptr;
 	} else {
-		pr_err("%s: failed to get family id\n", args->name);
+		pr_fail("%s: failed to get family id\n", args->name);
 		(void)close(sock);
 		return EXIT_FAILURE;
 	}

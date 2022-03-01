@@ -79,7 +79,7 @@ static int stress_klog(const stress_args_t *args)
 						"not permitted, skipping stressor\n",
 						args->name);
 			} else {
-				pr_err("%s: cannot determine syslog buffer "
+				pr_fail("%s: cannot determine syslog buffer "
 					"size: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
@@ -88,7 +88,7 @@ static int stress_klog(const stress_args_t *args)
 	}
 	if (len == 0) {
 		if (!args->instance)
-			pr_err("%s: zero sized syslog buffer, aborting.\n", args->name);
+			pr_inf("%s: zero sized syslog buffer, skipping stressor.\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	if (len > (ssize_t)(4 * MB)) {

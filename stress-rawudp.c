@@ -148,7 +148,7 @@ static void NORETURN stress_rawudp_client(
 
 		n = sendto(fd, buf, ip->tot_len, 0, (struct sockaddr *)&s_in, sizeof(s_in));
 		if (n < 0) {
-			pr_err("%s: raw socket sendto failed on port %d, errno=%d (%s)\n",
+			pr_fail("%s: raw socket sendto failed on port %d, errno=%d (%s)\n",
 				args->name, port, errno, strerror(errno));
 		}
 		(void)close(fd);

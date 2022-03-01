@@ -550,7 +550,7 @@ retry_bind:
 			goto err_close;
 		} else {
 			if (memcmp(input, output, DATA_LEN)) {
-				pr_err("%s: decrypted data "
+				pr_fail("%s: decrypted data "
 					"different from original data "
 					"using kernel crypto engine %s "
 					"(possible kernel bug)\n",

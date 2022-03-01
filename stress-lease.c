@@ -163,7 +163,7 @@ static int stress_try_lease(
 		if (!keep_stressing_flag())
 			break;
 		if (errno != EAGAIN) {
-			pr_err("%s: fcntl failed: errno=%d: (%s)\n",
+			pr_fail("%s: fcntl failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}

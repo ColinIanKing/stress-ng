@@ -455,7 +455,7 @@ again:
 
 			ssjret = sigsetjmp(jmp_env, 1);
 			if (ssjret != 0) {
-				pr_err("%s: caught an unexpected segmentation fault\n", args->name);
+				pr_fail("%s: caught an unexpected segmentation fault\n", args->name);
 				_exit(EXIT_FAILURE);
 			}
 

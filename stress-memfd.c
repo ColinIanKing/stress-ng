@@ -165,7 +165,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 				case ENOSYS:
 				case EFAULT:
 				default:
-					pr_err("%s: memfd_create failed: errno=%d (%s)\n",
+					pr_fail("%s: memfd_create failed: errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					keep_stressing_set_flag(false);
 					goto clean;

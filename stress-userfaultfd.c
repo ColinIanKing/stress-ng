@@ -251,7 +251,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 			break;
 		default:
 			rc = exit_status(errno);
-			pr_err("%s: userfaultfd failed, errno = %d (%s)\n",
+			pr_fail("%s: userfaultfd failed, errno = %d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;
 		}
@@ -266,13 +266,13 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	api.api = UFFD_API;
 	api.features = 0;
 	if (ioctl(fd, UFFDIO_API, &api) < 0) {
-		pr_err("%s: ioctl UFFDIO_API failed, errno = %d (%s)\n",
+		pr_fail("%s: ioctl UFFDIO_API failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
 	if (api.api != UFFD_API) {
-		pr_err("%s: ioctl UFFDIO_API API check failed\n",
+		pr_fail("%s: ioctl UFFDIO_API API check failed\n",
 			args->name);
 		rc = EXIT_FAILURE;
 		goto unmap_data;
@@ -284,7 +284,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 	reg.range.len = sz;
 	reg.mode = UFFDIO_REGISTER_MODE_MISSING;
 	if (ioctl(fd, UFFDIO_REGISTER, &reg) < 0) {
-		pr_err("%s: ioctl UFFDIO_REGISTER failed, errno = %d (%s)\n",
+		pr_fail("%s: ioctl UFFDIO_REGISTER failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;
@@ -292,14 +292,14 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 
 	/* OK, so do we have copy supported? */
 	if ((reg.ioctls & uffdio_copy) != uffdio_copy) {
-		pr_err("%s: ioctl UFFDIO_REGISTER did not support _UFFDIO_COPY\n",
+		pr_fail("%s: ioctl UFFDIO_REGISTER did not support _UFFDIO_COPY\n",
 			args->name);
 		rc = EXIT_FAILURE;
 		goto unmap_data;
 	}
 	/* OK, so do we have zeropage supported? */
 	if ((reg.ioctls & uffdio_zeropage) != uffdio_zeropage) {
-		pr_err("%s: ioctl UFFDIO_REGISTER did not support _UFFDIO_ZEROPAGE\n",
+		pr_fail("%s: ioctl UFFDIO_REGISTER did not support _UFFDIO_ZEROPAGE\n",
 			args->name);
 		rc = EXIT_FAILURE;
 		goto unmap_data;
@@ -422,7 +422,7 @@ do_read:
 unreg:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	if (ioctl(fd, UFFDIO_UNREGISTER, &reg) < 0) {
-		pr_err("%s: ioctl UFFDIO_UNREGISTER failed, errno = %d (%s)\n",
+		pr_fail("%s: ioctl UFFDIO_UNREGISTER failed, errno = %d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto unmap_data;

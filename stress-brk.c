@@ -131,7 +131,7 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 				(void)ignore;
 
 			} else {
-				pr_err("%s: sbrk(%d) failed: errno=%d (%s)\n",
+				pr_fail("%s: sbrk(%d) failed: errno=%d (%s)\n",
 					args->name, (int)page_size, errno,
 					strerror(errno));
 				return EXIT_FAILURE;

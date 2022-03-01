@@ -158,7 +158,7 @@ static void stress_tree_rb(
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = RB_FIND(stress_rb_tree, &rb_root, node);
 		if (!find)
-			pr_err("%s: rb tree node #%zd not found\n",
+			pr_fail("%s: rb tree node #%zd not found\n",
 				args->name, i);
 	}
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -166,7 +166,7 @@ static void stress_tree_rb(
 		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
 			find = RB_FIND(stress_rb_tree, &rb_root, node);
 			if (!find)
-				pr_err("%s: rb tree node #%zd not found\n",
+				pr_fail("%s: rb tree node #%zd not found\n",
 					args->name, i);
 		}
 		/* optional random find */
@@ -175,7 +175,7 @@ static void stress_tree_rb(
 
 			find = RB_FIND(stress_rb_tree, &rb_root, &nodes[j]);
 			if (!find)
-				pr_err("%s: rb tree node #%zd not found\n",
+				pr_fail("%s: rb tree node #%zd not found\n",
 					args->name, j);
 		}
 	}
@@ -209,7 +209,7 @@ static void stress_tree_splay(
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 		if (!find)
-			pr_err("%s: splay tree node #%zd not found\n",
+			pr_fail("%s: splay tree node #%zd not found\n",
 				args->name, i);
 	}
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -217,7 +217,7 @@ static void stress_tree_splay(
 		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 			if (!find)
-				pr_err("%s: splay tree node #%zd not found\n",
+				pr_fail("%s: splay tree node #%zd not found\n",
 					args->name, i);
 		}
 		/* optional random find */
@@ -226,7 +226,7 @@ static void stress_tree_splay(
 
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, &nodes[j]);
 			if (!find)
-				pr_err("%s: splay tree node #%zd not found\n",
+				pr_fail("%s: splay tree node #%zd not found\n",
 					args->name, j);
 		}
 	}
@@ -291,7 +291,7 @@ static void stress_tree_binary(
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = binary_find(head, node);
 		if (!find)
-			pr_err("%s: binary tree node #%zd not found\n",
+			pr_fail("%s: binary tree node #%zd not found\n",
 				args->name, i);
 	}
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -299,7 +299,7 @@ static void stress_tree_binary(
 		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
 			find = binary_find(head, node);
 			if (!find)
-				pr_err("%s: binary tree node #%zd not found\n",
+				pr_fail("%s: binary tree node #%zd not found\n",
 					args->name, i);
 		}
 		/* optional random find */
@@ -308,7 +308,7 @@ static void stress_tree_binary(
 
 			find = binary_find(head, &nodes[j]);
 			if (!find)
-				pr_err("%s: binary tree node #%zd not found\n",
+				pr_fail("%s: binary tree node #%zd not found\n",
 					args->name, j);
 		}
 	}
@@ -485,7 +485,7 @@ static void stress_tree_avl(
 	for (node = nodes, i = 0; i < n; i++, node++) {
 		find = avl_find(head, node);
 		if (!find)
-			pr_err("%s: avl tree node #%zd not found\n",
+			pr_fail("%s: avl tree node #%zd not found\n",
 				args->name, i);
 	}
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -493,7 +493,7 @@ static void stress_tree_avl(
 		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
 			find = avl_find(head, node);
 			if (!find)
-				pr_err("%s: avl tree node #%zd not found\n",
+				pr_fail("%s: avl tree node #%zd not found\n",
 					args->name, i);
 		}
 		/* optional random find */
@@ -502,7 +502,7 @@ static void stress_tree_avl(
 
 			find = avl_find(head, &nodes[j]);
 			if (!find)
-				pr_err("%s: avl tree node #%zd not found\n",
+				pr_fail("%s: avl tree node #%zd not found\n",
 					args->name, j);
 		}
 	}

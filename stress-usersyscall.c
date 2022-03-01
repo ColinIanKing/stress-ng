@@ -242,7 +242,7 @@ static int stress_usersyscall(const stress_args_t *args)
 		/*  Expect ENOSYS for the system call return */
 		ret = syscall(USR_SYSCALL);
 		if (errno != ENOSYS) {
-			pr_err("%s: didn't get ENOSYS on user syscall, errno=%d (%s)\n",
+			pr_fail("%s: didn't get ENOSYS on user syscall, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 
@@ -256,20 +256,20 @@ static int stress_usersyscall(const stress_args_t *args)
 		dispatcher_off();
 		/*  Should return USR_SYSCALL */
 		if (ret != USR_SYSCALL) {
-			pr_err("%s: didn't get 0x%x on user syscall, "
+			pr_fail("%s: didn't get 0x%x on user syscall, "
 				"got 0x%x instead, errno=%d (%s)\n",
 				args->name, USR_SYSCALL, ret, errno, strerror(errno));
 			continue;
 		}
 		/* check handler si_code */
 		if (siginfo.si_code != SYS_USER_DISPATCH) {
-			pr_err("%s: didn't get SYS_USER_DISPATCH in siginfo.si_code, "
+			pr_fail("%s: didn't get SYS_USER_DISPATCH in siginfo.si_code, "
 				"got 0x%x instead\n", args->name, siginfo.si_code);
 			continue;
 		}
 		/* check handler si_error */
 		if (siginfo.si_errno != 0) {
-			pr_err("%s: didn't get 0x0 in siginfo.si_errno, "
+			pr_fail("%s: didn't get 0x0 in siginfo.si_errno, "
 				"got 0x%x instead\n", args->name, siginfo.si_errno);
 			continue;
 		}
@@ -316,14 +316,14 @@ static int stress_usersyscall(const stress_args_t *args)
 			(void)ret;
 
 			if (ret_libc != pid) {
-				pr_err("%s: didn't get pid on libc getpid syscall, "
+				pr_fail("%s: didn't get pid on libc getpid syscall, "
 					"got %d instead, errno=%d (%s)\n",
 					args->name, ret_libc,
 					saved_errno, strerror(saved_errno));
 			}
 
 			if (ret_not_libc != __NR_getpid) {
-				pr_err("%s: didn't get __NR_getpid %x on user syscall, "
+				pr_fail("%s: didn't get __NR_getpid %x on user syscall, "
 					"got 0x%x instead, errno=%d (%s)\n",
 					args->name, __NR_getpid, ret_not_libc,
 					saved_errno, strerror(saved_errno));

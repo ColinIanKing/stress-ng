@@ -95,7 +95,7 @@ static void stress_fifo_reader(
 
 	fd = open(fifoname, O_RDONLY | O_NONBLOCK);
 	if (fd < 0) {
-		pr_err("%s: fifo read open failed: errno=%d (%s)\n",
+		pr_fail("%s: fifo read open failed: errno=%d (%s)\n",
 			name, errno, strerror(errno));
 		return;
 	}

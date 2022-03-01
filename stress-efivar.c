@@ -154,7 +154,7 @@ static int efi_get_data(
 		return rc;
 
 	if (fstat(fd, &statbuf) < 0) {
-		pr_err("%s: failed to stat %s, errno=%d (%s)\n",
+		pr_fail("%s: failed to stat %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto err_vars;
 	}
@@ -163,7 +163,7 @@ static int efi_get_data(
 
 	n = read(fd, buf, buf_len);
 	if ((n < 0) && (errno != EIO) && (errno != EAGAIN) && (errno != EINTR)) {
-		pr_err("%s: failed to read %s, errno=%d (%s)\n",
+		pr_fail("%s: failed to read %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto err_vars;
 	}
@@ -255,7 +255,7 @@ static int efi_get_variable(const stress_args_t *args, const char *varname, stre
 
 	ret = fstat(fd, &statbuf);
 	if (ret < 0) {
-		pr_err("%s: failed to stat %s, errno=%d (%s)\n",
+		pr_fail("%s: failed to stat %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
 		goto err_efi_vars;
@@ -263,7 +263,7 @@ static int efi_get_variable(const stress_args_t *args, const char *varname, stre
 
 	n = read(fd, data, sizeof(data));
 	if ((n < 0) && (errno != EIO) && (errno != EAGAIN) && (errno != EINTR)) {
-		pr_err("%s: failed to read %s, errno=%d (%s)\n",
+		pr_fail("%s: failed to read %s, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
 		goto err_efi_vars;
@@ -273,7 +273,7 @@ static int efi_get_variable(const stress_args_t *args, const char *varname, stre
     defined(FS_IOC_SETFLAGS)
 	ret = ioctl(fd, FS_IOC_GETFLAGS, &flags);
 	if (ret < 0) {
-		pr_err("%s: ioctl FS_IOC_GETFLAGS on %s failed, errno=%d (%s)\n",
+		pr_fail("%s: ioctl FS_IOC_GETFLAGS on %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
 		goto err_efi_vars;
@@ -281,7 +281,7 @@ static int efi_get_variable(const stress_args_t *args, const char *varname, stre
 
 	ret = ioctl(fd, FS_IOC_SETFLAGS, &flags);
 	if (ret < 0) {
-		pr_err("%s: ioctl FS_IOC_SETFLAGS on %s failed, errno=%d (%s)\n",
+		pr_fail("%s: ioctl FS_IOC_SETFLAGS on %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		rc = -1;
 	}
@@ -384,7 +384,7 @@ static int stress_efivar(const stress_args_t *args)
 	efi_ignore = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (efi_ignore == MAP_FAILED) {
-		pr_err("%s: cannot mmap shared memory: %d (%s))\n",
+		pr_fail("%s: cannot mmap shared memory: %d (%s))\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

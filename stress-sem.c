@@ -146,7 +146,7 @@ static int stress_sem(const stress_args_t *args)
 
 	/* create a semaphore */
 	if (sem_init(&sem, 0, 1) < 0) {
-		pr_err("semaphore init (POSIX) failed: errno=%d: "
+		pr_fail("semaphore init (POSIX) failed: errno=%d: "
 			"(%s)\n", errno, strerror(errno));
 		return EXIT_FAILURE;
 	}

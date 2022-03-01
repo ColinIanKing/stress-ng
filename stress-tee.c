@@ -219,7 +219,7 @@ static int stress_tee(const stress_args_t *args)
 				ret = EXIT_NO_RESOURCE;
 				goto tidy_child2;
 			}
-			pr_err("%s: tee failed: errno=%d (%s)\n",
+			pr_fail("%s: tee failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_child2;
 		} else {

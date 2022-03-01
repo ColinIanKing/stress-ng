@@ -178,7 +178,7 @@ static int stress_access(const stress_args_t *args)
 
 			ret = fchmod(fd, modes[i].chmod_mode);
 			if (CHMOD_ERR(ret)) {
-				pr_err("%s: fchmod %3.3o failed: %d (%s)\n",
+				pr_fail("%s: fchmod %3.3o failed: %d (%s)\n",
 					args->name, (unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno));
 				goto tidy;
@@ -245,7 +245,7 @@ static int stress_access(const stress_args_t *args)
 
 				ret = fchmod(fd, chmod_mode);
 				if (CHMOD_ERR(ret)) {
-					pr_err("%s: fchmod %3.3o failed: %d (%s)\n",
+					pr_fail("%s: fchmod %3.3o failed: %d (%s)\n",
 						args->name, (unsigned int)chmod_mode,
 						errno, strerror(errno));
 					goto tidy;

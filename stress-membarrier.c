@@ -145,7 +145,7 @@ static int stress_membarrier(const stress_args_t *args)
 					args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
-		pr_err("%s: membarrier failed: errno=%d: (%s)\n",
+		pr_fail("%s: membarrier failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -169,7 +169,7 @@ static int stress_membarrier(const stress_args_t *args)
 
 	do {
 		if (stress_membarrier_exercise(args) < 0) {
-			pr_err("%s: membarrier failed: errno=%d: (%s)\n",
+			pr_fail("%s: membarrier failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 		inc_counter(args);

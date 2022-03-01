@@ -868,7 +868,7 @@ static int stress_sparse_method_test(
 		gv = info->get(handle, x, y);
 		if (gv == 0) {
 			if (info->put(handle, x, y, v) < 0) {
-				pr_err("%s: failed to put into "
+				pr_fail("%s: failed to put into "
 					"sparse matrix at position "
 					"(%" PRIu32 ",%" PRIu32 ")\n",
 					args->name, x, y);
@@ -894,7 +894,7 @@ static int stress_sparse_method_test(
 
 		gv = info->get(handle, x, y);
 		if (gv != v) {
-			pr_err("%s: mismatch (%" PRIu32 ",%" PRIu32
+			pr_fail("%s: mismatch (%" PRIu32 ",%" PRIu32
 				") was %" PRIx64 ", got %" PRIx64 "\n",
 				args->name, x, y, v, gv);
 		}

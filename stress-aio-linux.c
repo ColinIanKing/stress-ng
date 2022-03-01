@@ -370,7 +370,7 @@ static int stress_aiol(const stress_args_t *args)
 	}
 	if ((aio_linux_requests < MIN_AIO_LINUX_REQUESTS) ||
 	    (aio_linux_requests > MAX_AIO_LINUX_REQUESTS)) {
-		pr_err("%s: iol_requests out of range", args->name);
+		pr_fail("%s: iol_requests out of range", args->name);
 		return EXIT_FAILURE;
 	}
 
@@ -415,20 +415,20 @@ static int stress_aiol(const stress_args_t *args)
 		 *  return value, so set errno accordingly
 		 */
 		if ((errno == EAGAIN) || (errno == EACCES)) {
-			pr_err("%s: io_setup failed, ran out of "
+			pr_fail("%s: io_setup failed, ran out of "
 				"available events, consider increasing "
 				"/proc/sys/fs/aio-max-nr, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			goto free_memory;
 		} else if (errno == ENOMEM) {
-			pr_err("%s: io_setup failed, ran out of "
+			pr_fail("%s: io_setup failed, ran out of "
 				"memory, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			rc = EXIT_NO_RESOURCE;
 			goto free_memory;
 		} else if (errno == ENOSYS) {
-			pr_err("%s: io_setup failed, no io_setup "
+			pr_fail("%s: io_setup failed, no io_setup "
 				"system call with this kernel, "
 				"errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

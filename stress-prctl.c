@@ -308,7 +308,7 @@ static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
 		/* EINVAL will occur on kernels where this is not supported */
 		if ((errno == EINVAL) || (errno == ENOSYS))
 			return 0;
-		pr_err("%s: prctl PR_SET_SYSCALL_USER_DISPATCH enable failed, errno=%d (%s)\n",
+		pr_fail("%s: prctl PR_SET_SYSCALL_USER_DISPATCH enable failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto err;
 	}
@@ -321,19 +321,19 @@ static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
 	ret = prctl(PR_SET_SYSCALL_USER_DISPATCH,
 		PR_SYS_DISPATCH_OFF, 0, 0, 0);
 	if (ret < 0) {
-		pr_err("%s: prctl PR_SET_SYSCALL_USER_DISPATCH disable failed, errno=%d (%s)\n",
+		pr_fail("%s: prctl PR_SET_SYSCALL_USER_DISPATCH disable failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto err;
 	}
 
 	if (!prctl_sigsys_info.handled) {
-		pr_err("%s: prctl PR_SET_SYSCALL_USER_DISPATCH syscall emulation failed\n",
+		pr_fail("%s: prctl PR_SET_SYSCALL_USER_DISPATCH syscall emulation failed\n",
 			args->name);
 		goto err;
 	}
 
 	if (prctl_sigsys_info.syscall != __NR_kill) {
-		pr_err("%s: prctl PR_SET_SYSCALL_USER_DISPATCH syscall expected syscall 0x%x, got 0x%x instead\n",
+		pr_fail("%s: prctl PR_SET_SYSCALL_USER_DISPATCH syscall expected syscall 0x%x, got 0x%x instead\n",
 			args->name, __NR_kill, prctl_sigsys_info.syscall);
 		goto err;
 	}

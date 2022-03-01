@@ -73,13 +73,13 @@ static int stress_binderfs_umount(const stress_args_t *args, const char *pathnam
 			break;
 
 		if (errno != EBUSY) {
-			pr_err("%s: umount failed on binderfs, errno=%d (%s)\n",
+			pr_fail("%s: umount failed on binderfs, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 		t2 = stress_time_now();
 		if (t2 - t1 > UNMOUNT_TIMEOUT) {
-			pr_err("%s: umount failed, timed out trying after %.3f seconds\n",
+			pr_fail("%s: umount failed, timed out trying after %.3f seconds\n",
 				args->name, t2 - t1);
 			return EXIT_FAILURE;
 		}
@@ -129,7 +129,7 @@ static int stress_binderfs(const stress_args_t *args)
 				rc = EXIT_NO_RESOURCE;
 				goto clean;
 			} else {
-				pr_err("%s: mount failed on binderfs at %s, errno=%d (%s)\n",
+				pr_fail("%s: mount failed on binderfs at %s, errno=%d (%s)\n",
 					args->name, pathname, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto clean;
@@ -140,7 +140,7 @@ static int stress_binderfs(const stress_args_t *args)
 			pathname, "binder-control");
 		fd = open(filename, O_RDONLY | O_CLOEXEC);
 		if (fd < 0) {
-			pr_err("%s: cannot open binder control file, errno=%d (%s)\n",
+			pr_fail("%s: cannot open binder control file, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)stress_binderfs_umount(args, pathname);
 			rc = EXIT_FAILURE;

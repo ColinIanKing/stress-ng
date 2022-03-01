@@ -247,7 +247,7 @@ STRESS_PRAGMA_POP
 			utbuf.modtime = utbuf.actime;
 
 			if (utime(filename, &utbuf) < 0) {
-				pr_err("%s: utime failed: errno=%d (%s)\n",
+				pr_fail("%s: utime failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
@@ -257,17 +257,17 @@ STRESS_PRAGMA_POP
 
 				if (stat(filename, &statbuf) == 0) {
 					if (statbuf.st_atime < tv.tv_sec) {
-						pr_err("%s: utime failed: access time is less than expected time\n",
+						pr_fail("%s: utime failed: access time is less than expected time\n",
 							args->name);
 					}
 					if (statbuf.st_mtime < tv.tv_sec) {
-						pr_err("%s: utime failed: modified time is less than expected time\n",
+						pr_fail("%s: utime failed: modified time is less than expected time\n",
 							args->name);
 					}
 				}
 			}
 			if (utime(filename, NULL) < 0) {
-				pr_err("%s: utime failed: errno=%d (%s)\n",
+				pr_fail("%s: utime failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}

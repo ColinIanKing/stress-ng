@@ -116,7 +116,7 @@ static int stress_signal(const stress_args_t *args)
 			break;
 		}
 		if (tmp != counter) {
-			pr_err("%s: setting of SIG_DFL unexpectedly triggered a SIGCHLD\n",
+			pr_fail("%s: setting of SIG_DFL unexpectedly triggered a SIGCHLD\n",
 				args->name);
 		}
 

@@ -73,11 +73,11 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 		 *  before/after the jmpbuf
 		 */
 		if (bufchk.check0 != check0) {
-			pr_err("%s: memory corrupted before jmpbuf region\n",
+			pr_fail("%s: memory corrupted before jmpbuf region\n",
 				args->name);
 		}
 		if (bufchk.check1 != check1) {
-			pr_err("%s: memory corrupted before jmpbuf region\n",
+			pr_fail("%s: memory corrupted before jmpbuf region\n",
 				args->name);
 		}
 

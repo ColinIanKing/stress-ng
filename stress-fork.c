@@ -152,7 +152,7 @@ static int stress_fork_fn(
 				/* This should not happen */
 				fork_fn_name = "unknown";
 				pid = -1;
-				pr_err("%s: bad fork/vfork function, aborting\n", args->name);
+				pr_fail("%s: bad fork/vfork function, aborting\n", args->name);
 				errno = ENOSYS;
 				break;
 			}

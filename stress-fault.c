@@ -95,7 +95,7 @@ static int stress_fault(const stress_args_t *args)
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
 			do_jmp = false;
-			pr_err("%s: unexpected segmentation fault\n",
+			pr_fail("%s: unexpected segmentation fault\n",
 				args->name);
 			break;
 		}

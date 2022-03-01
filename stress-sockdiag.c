@@ -305,7 +305,7 @@ static int stress_sockdiag(const stress_args_t *args)
 		}
 		rc = sockdiag_send(args, fd);
 		if (rc < 0) {
-			pr_err("%s: NETLINK_SOCK_DIAG send query failed: errno=%d (%s)\n",
+			pr_fail("%s: NETLINK_SOCK_DIAG send query failed: errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			ret = EXIT_FAILURE;
 			(void)close(fd);
