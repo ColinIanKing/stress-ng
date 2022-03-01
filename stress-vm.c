@@ -1985,6 +1985,7 @@ static size_t TARGET_CLONES stress_vm_read64(
 	(void)buf_end;
 
 	while (i < n) {
+		shim_builtin_prefetch((uint8_t *)ptr + 1024, 0, 3);
 		(void)*(ptr++);
 		(void)*(ptr++);
 		(void)*(ptr++);
