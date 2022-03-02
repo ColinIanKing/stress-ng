@@ -54,7 +54,7 @@ static int stress_uprobe_supported(const char *name)
  *  stress_uprobe_write
  *     write to a uprobe sysfs file a string, open using flags setting in flags
  */
-static int stress_uprobe_write(const char *path, int flags, const char *str)
+static int stress_uprobe_write(const char *path, const int flags, const char *str)
 {
 	int fd, rc = 0;
 
