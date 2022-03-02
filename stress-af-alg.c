@@ -926,14 +926,14 @@ static bool stress_af_alg_add_crypto(stress_crypto_info_t *info)
 
 	/* Scan for duplications */
 	for (ci = crypto_info_list; ci; ci = ci->next) {
-		if (strcmp(ci->name, info->name) == 0 &&
-		    strcmp(ci->type, info->type) == 0 &&
-		    ci->block_size == info->block_size &&
-		    ci->max_key_size == info->max_key_size &&
-		    ci->max_auth_size == info->max_auth_size &&
-		    ci->iv_size == info->iv_size &&
-		    ci->digest_size == info->digest_size &&
-		    ci->internal == info->internal)
+		if ((strcmp(ci->name, info->name) == 0) &&
+		    (strcmp(ci->type, info->type) == 0) &&
+		    (ci->block_size == info->block_size) &&
+		    (ci->max_key_size == info->max_key_size) &&
+		    (ci->max_auth_size == info->max_auth_size) &&
+		    (ci->iv_size == info->iv_size) &&
+		    (ci->digest_size == info->digest_size) &&
+		    (ci->internal == info->internal))
 			return false;
 	}
 	/*
