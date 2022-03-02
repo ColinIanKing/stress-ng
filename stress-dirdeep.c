@@ -27,6 +27,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+/* digits and uppercase for very short directory names */
+static const char stress_dir_names[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 /*
  *  stress_set_dirdeep_dirs()
  *      set number of dirdeep directories from given option string
@@ -37,7 +40,7 @@ static int stress_set_dirdeep_dirs(const char *opt)
 
 	dirdeep_dirs = stress_get_uint32(opt);
 
-	stress_check_range("dirdeep-dirs", dirdeep_dirs, 1, 10);
+	stress_check_range("dirdeep-dirs", dirdeep_dirs, 1, strlen(stress_dir_names));
 	return stress_set_setting("dirdeep-dirs", TYPE_ID_UINT32, &dirdeep_dirs);
 }
 
@@ -137,7 +140,7 @@ static bool stress_dirdeep_make(
 	(void)ret;
 
 	for (i = 0; keep_stressing(args) && (i < dirdeep_dirs); i++) {
-		path[len + 1] = (char)('0' + i);
+		path[len + 1] = stress_dir_names[i];
 		if (stress_dirdeep_make(args, linkpath, path, len + 2,
 				path_len, dirdeep_dirs, dirdeep_inodes,
 				inodes_start, inodes_estimate, inodes_min, depth + 1))
@@ -251,14 +254,16 @@ static int stress_dir_exercise(
 		return -1;
 
 	for (i = 0; (i < n) && keep_stressing(args); i++) {
-		if (namelist[i]->d_name[0] == '.')
+		register const int ch = (int)namelist[n]->d_name[0];
+
+		if (ch == '.')
 			continue;
 
 		path[len] = '/';
-		path[len + 1] = namelist[i]->d_name[0];
+		path[len + 1] = ch;
 		path[len + 2] = '\0';
 
-		if (isdigit((int)namelist[i]->d_name[0])) {
+		if (isdigit(ch) || isupper(ch)) {
 			stress_dir_exercise(args, path, len + 2, path_len);
 		} else {
 			int fd;
@@ -314,16 +319,18 @@ static void stress_dir_tidy(
 		return;
 
 	while (n--) {
-		if (namelist[n]->d_name[0] == '.') {
+		register const int ch = (int)namelist[n]->d_name[0];
+
+		if (ch == '.') {
 			free(namelist[n]);
 			continue;
 		}
 
 		path[len] = '/';
-		path[len + 1] = namelist[n]->d_name[0];
+		path[len + 1] = ch;
 		path[len + 2] = '\0';
 
-		if (isdigit((int)namelist[n]->d_name[0])) {
+		if (isdigit(ch) || isupper(ch)) {
 			free(namelist[n]);
 			stress_dir_tidy(args, path, len + 2, path_len);
 		} else {
