@@ -124,11 +124,11 @@ static int shim_io_getevents(
  *	try it again.
  */
 static int shim_io_getevents_random(
-	io_context_t ctx_id,
-	long min_nr,
-	long nr,
-	struct io_event *events,
-	struct timespec *timeout)
+	const io_context_t ctx_id,
+	const long min_nr,
+	const long nr,
+	struct io_event *const events,
+	struct timespec *const timeout)
 {
 #if defined(__NR_io_pgetevents)
 	static bool try_io_pgetevents = true;
@@ -157,14 +157,15 @@ static int shim_io_getevents_random(
  *	fill buffer with some known pattern
  */
 static inline void aio_linux_fill_buffer(
-	uint8_t pattern,
+	const uint8_t pattern,
 	uint8_t *const buffer,
 	const size_t size)
 {
 	register size_t i;
+	register uint8_t pat = pattern;
 
-	for (i = 0; i < size; i++, pattern++)
-		buffer[i] = (uint8_t)pattern;
+	for (i = 0; i < size; i++, pat++)
+		buffer[i] = (uint8_t)pat;
 }
 
 /*
@@ -226,7 +227,7 @@ static ssize_t stress_aiol_wait(
 	const stress_args_t *args,
 	const io_context_t ctx,
 	struct io_event events[],
-	size_t n)
+	const size_t n)
 {
 	size_t i = 0;
 
