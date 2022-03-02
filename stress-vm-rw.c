@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_PROCESS_VM_READV) &&	\
-    defined(HAVE_PROCESS_VM_READV) &&	\
+    defined(HAVE_PROCESS_VM_WRITEV) &&	\
     defined(HAVE_CLONE) &&		\
     defined(CLONE_VM)
 
@@ -76,7 +76,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(HAVE_PROCESS_VM_READV) &&	\
-    defined(HAVE_PROCESS_VM_READV) &&	\
+    defined(HAVE_PROCESS_VM_WRITEV) &&	\
     defined(HAVE_CLONE) &&		\
     defined(CLONE_VM)
 
