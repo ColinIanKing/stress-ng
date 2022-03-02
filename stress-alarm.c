@@ -19,12 +19,6 @@
  */
 #include "stress-ng.h"
 
-static const stress_help_t help[] = {
-	{ NULL,	"alarm N",	"start N workers exercising alarm timers" },
-	{ NULL,	"alarm-ops N",	"stop after N alarm bogo operations" },
-	{ NULL, NULL,		NULL }
-};
-
 /* Sleep tests */
 #define STRESS_SLEEP_INTMAX	(1U << 0)
 #define STRESS_SLEEP_ZERO	(1U << 1)
@@ -35,6 +29,13 @@ static const stress_help_t help[] = {
 #define STRESS_ALARM_ZERO	(1U << 4)
 #define STRESS_ALARM_RANDOM	(1U << 5)
 #define STRESS_ALARM_MASK	(STRESS_ALARM_INTMAX | STRESS_ALARM_ZERO | STRESS_ALARM_RANDOM)
+
+
+static const stress_help_t help[] = {
+	{ NULL,	"alarm N",	"start N workers exercising alarm timers" },
+	{ NULL,	"alarm-ops N",	"stop after N alarm bogo operations" },
+	{ NULL, NULL,		NULL }
+};
 
 /*
  *  stress_alarm
