@@ -101,7 +101,7 @@ static int stress_supported(const char *name)
  *  x86_64_syscall0()
  *      syscall 0 arg wrapper
  */
-static inline long x86_64_syscall0(long number)
+static inline long x86_64_syscall0(const long number)
 {
 	long ret;
 
