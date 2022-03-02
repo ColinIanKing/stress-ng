@@ -60,7 +60,7 @@ static int stress_set_dirdeep_inodes(const char *opt)
  *	depth-first tree creation, create lots of sub-trees with
  *	dirdeep_dir number of subtress per level.
  */
-static void stress_dirdeep_make(
+static bool stress_dirdeep_make(
 	const stress_args_t *args,
 	const char *linkpath,
 	char *const path,
@@ -68,8 +68,9 @@ static void stress_dirdeep_make(
 	const size_t path_len,
 	const uint32_t dirdeep_dirs,
 	const uint64_t dirdeep_inodes,
-	const uint64_t inodes_target_free,
-	uint64_t *min_inodes_free,
+	const uint64_t inodes_start,
+	uint64_t *inodes_estimate,
+	uint64_t *inodes_min,
 	uint32_t depth)
 {
 	uint32_t i;
@@ -80,28 +81,33 @@ static void stress_dirdeep_make(
 #endif
 	const uint64_t inodes_avail = stress_get_filesystem_available_inodes();
 
-	if (*min_inodes_free > inodes_avail)
-		*min_inodes_free = inodes_avail;
-
-	if (inodes_avail <= inodes_target_free)
-		return;
+	if ((inodes_avail == 0) || (inodes_start == 0)) {
+		if (*inodes_estimate > dirdeep_inodes)
+			return true;
+	} else {
+		if (inodes_avail < *inodes_min)
+			*inodes_min = inodes_avail;
+		if (inodes_start - inodes_avail > dirdeep_inodes)
+			return true;
+	}
 	if (len + 2 >= path_len)
-		return;
+		return true;
 	if (!keep_stressing(args))
-		return;
+		return true;
 
 	errno = 0;
 	if (mkdir(path, S_IRUSR | S_IWUSR | S_IXUSR) < 0) {
 		if ((errno == ENOSPC) || (errno == ENOMEM) ||
 		    (errno == ENAMETOOLONG) || (errno == EDQUOT) ||
 		    (errno == EMLINK) || (errno == EPERM)) {
-			return;
+			return true;
 		}
-		pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
-			args->name, path, errno, strerror(errno));
-		return;
+		pr_fail("%s: mkdir failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return true;
 	}
 	inc_counter(args);
+	(*inodes_estimate)++;
 
 	/*
 	 *  Top level, create file to symlink and link to
@@ -113,7 +119,7 @@ static void stress_dirdeep_make(
 		if (fd < 0) {
 			pr_fail("%s: create %s failed, errno=%d (%s)\n",
 				args->name, linkpath, errno, strerror(errno));
-			return;
+			return true;
 		}
 		(void)close(fd);
 	}
@@ -123,7 +129,8 @@ static void stress_dirdeep_make(
 	path[len + 1] = 's';	/* symlink */
 	path[len + 2] = '\0';
 	ret = symlink(linkpath, path);
-	(void)ret;
+	if (ret == 0)
+		(*inodes_estimate)++;
 
 	path[len + 1] = 'h';	/* hardlink */
 	ret = link(linkpath, path);
@@ -131,13 +138,13 @@ static void stress_dirdeep_make(
 
 	for (i = 0; keep_stressing(args) && (i < dirdeep_dirs); i++) {
 		path[len + 1] = (char)('0' + i);
-		stress_dirdeep_make(args, linkpath, path, len + 2,
+		if (stress_dirdeep_make(args, linkpath, path, len + 2,
 				path_len, dirdeep_dirs, dirdeep_inodes,
-				inodes_target_free, min_inodes_free,
-				depth + 1);
+				inodes_start, inodes_estimate, inodes_min, depth + 1))
+			break;
 	}
 	if (!keep_stressing(args))
-		return;
+		return true;
 	path[len] = '\0';
 
 #if defined(HAVE_LINKAT) &&	\
@@ -209,6 +216,7 @@ static void stress_dirdeep_make(
 		(void)close(dir_fd);
 	}
 #endif
+	return false;
 }
 
 /*
@@ -343,27 +351,36 @@ static int stress_dirdeep(const stress_args_t *args)
 	size_t path_len;
 	uint32_t dirdeep_dirs = 1;
 	uint64_t dirdeep_inodes = ~0ULL;
-	const uint64_t inodes_avail = stress_get_filesystem_available_inodes();
-	uint64_t inodes_target_free;
-	uint64_t min_inodes_free = ~0ULL;
+	uint64_t inodes_start;
+	uint64_t inodes_estimate;
+	uint64_t inodes_min;
+	uint64_t inodes_exercised;
 
 	(void)stress_get_setting("dirdeep-dirs", &dirdeep_dirs);
 	(void)stress_get_setting("dirdeep-inodes", &dirdeep_inodes);
 
-	inodes_target_free = (inodes_avail > dirdeep_inodes) ?
-		inodes_avail - dirdeep_inodes : 0;
+	inodes_start = stress_get_filesystem_available_inodes();
 
 	(void)stress_temp_dir_args(args, rootpath, sizeof(rootpath));
 	path_len = strlen(rootpath);
 
 	(void)stress_mk_filename(linkpath, sizeof(linkpath), rootpath, "/f");
 
-	pr_dbg("%s: %" PRIu64 " inodes available, exercising up to %" PRIu64 " inodes\n",
-		args->name, inodes_avail, inodes_avail - inodes_target_free);
+	if (args->instance == 0) {
+		if (inodes_start) {
+			pr_dbg("%s: %" PRIu64 " inodes available, exercising up to %" PRIu64 " inodes\n",
+				args->name, inodes_start, dirdeep_inodes);
+		} else {
+			pr_dbg("%s: unknown inodes available, exercising up to %" PRIu64 " inodes\n",
+				args->name, dirdeep_inodes);
+		}
+	}
 
 	(void)shim_strlcpy(path, rootpath, sizeof(path));
+	inodes_estimate = 1;		/* created one for root */
+	inodes_min = inodes_start;
 	stress_dirdeep_make(args, linkpath, path, path_len, sizeof(path),
-		dirdeep_dirs, dirdeep_inodes, inodes_target_free, &min_inodes_free, 0);
+		dirdeep_dirs, dirdeep_inodes, inodes_start, &inodes_estimate, &inodes_min, 0);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -379,9 +396,13 @@ static int stress_dirdeep(const stress_args_t *args)
 	pr_tidy("%s: removing directories\n", args->name);
 	stress_dir_tidy(args, path, path_len, sizeof(path));
 
-	pr_dbg("%s: %" PRIu64 " inodes exercised\n", args->name, inodes_avail - min_inodes_free);
-	if ((args->instance == 0) && (inodes_target_free < min_inodes_free))
-		pr_inf("%s: note: specifying a larger --dirdeep setting or "
+	inodes_exercised = (inodes_start == 0) ? inodes_estimate : inodes_start - inodes_min;
+	pr_dbg("%s: %" PRIu64 " inodes exercised%s\n",
+		args->name, inodes_exercised,
+		(inodes_start == 0) ? " (estimated)" : "");
+
+	if ((args->instance == 0) && (inodes_exercised < dirdeep_inodes))
+		pr_inf("%s: note: specifying a larger --dirdeep or --dirdeep-dirs settings or "
 			"running the stressor for longer will use more "
 			"inodes\n", args->name);
 
