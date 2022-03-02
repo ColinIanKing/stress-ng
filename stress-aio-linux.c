@@ -31,8 +31,8 @@
 #define MAX_AIO_LINUX_REQUESTS		(4096)
 #define DEFAULT_AIO_LINUX_REQUESTS	(64)
 
-#define BUFFER_SZ		(4096)
-#define DEFAULT_AIO_MAX_NR	(65536)
+#define BUFFER_SZ			(4096)
+#define DEFAULT_AIO_MAX_NR		(65536)
 
 static const stress_help_t help[] = {
 	{ NULL,	"aiol N",	   "start N workers that exercise Linux async I/O" },
