@@ -26,6 +26,7 @@
 #define MIN_AIO_REQUESTS	(1)
 #define MAX_AIO_REQUESTS	(4096)
 #define DEFAULT_AIO_REQUESTS	(16)
+#define BUFFER_SZ		(16)
 
 static const stress_help_t help[] = {
 	{ NULL,	"aio N",	"start N workers that issue async I/O requests" },
@@ -39,8 +40,6 @@ static const stress_help_t help[] = {
     defined(HAVE_AIO_CANCEL) && \
     defined(HAVE_AIO_READ) &&	\
     defined(HAVE_AIO_WRITE)
-
-#define BUFFER_SZ	(16)
 
 /* per request async I/O data */
 typedef struct {
