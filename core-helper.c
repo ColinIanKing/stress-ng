@@ -1945,7 +1945,7 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
  *  stress_check_root()
  *	returns true if root
  */
-static bool stress_check_root(void)
+static inline bool stress_check_root(void)
 {
 	return (geteuid() == 0);
 }
