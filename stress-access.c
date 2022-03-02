@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-capabilities.h"
 
 typedef struct {
 	const mode_t	chmod_mode;
@@ -151,7 +152,7 @@ static int stress_access(const stress_args_t *args)
 #if defined(HAVE_FACCESSAT)
 	const int bad_fd = stress_get_bad_fd();
 #endif
-	const bool is_root = (geteuid() == 0);
+	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
