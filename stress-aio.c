@@ -78,14 +78,15 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	fill buffer with some known pattern
  */
 static inline void aio_fill_buffer(
-	const uint8_t request,
+	const uint8_t pattern,
 	uint8_t *const buffer,
 	const size_t size)
 {
 	register size_t i;
+	register uint8_t pat = pattern;
 
-	for (i = 0; i < size; i++)
-		buffer[i] = (uint8_t)(request + i);
+	for (i = 0; i < size; i++, pat++)
+		buffer[i] = pat;
 }
 
 /*
