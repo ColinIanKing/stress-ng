@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-cpu.h"
 #include "core-nt-store.h"
 
 static sigjmp_buf jmp_env;

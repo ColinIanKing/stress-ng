@@ -2591,21 +2591,6 @@ extern void stress_cwd_readwriteable(void);
 extern const char *stress_signal_name(const int signum);
 extern const char *stress_strsignal(const int signum);
 
-/* CPU helpers */
-extern void stress_x86_cpuid(uint32_t *eax, uint32_t *ebx, uint32_t *ecx, uint32_t *edx);
-extern WARN_UNUSED bool stress_cpu_is_x86(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_cldemote(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_clfsh(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_clflushopt(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_clwb(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_msr(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_rdrand(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_rdseed(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_sse(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_sse2(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_syscall(void);
-extern WARN_UNUSED bool stress_cpu_x86_has_tsc(void);
-
 /* Fast random numbers */
 extern uint32_t stress_mwc32(void);
 extern uint64_t stress_mwc64(void);

@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-cpu.h"
 #include "core-capabilities.h"
 
 #if defined(HAVE_SYS_IO_H)

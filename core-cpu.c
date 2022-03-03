@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-cpu.h"
 
 	/* Name + dest reg */			/* Input -> Output */
 #define CPUID_sse3_ECX		(1U << 0)	/* EAX=0x1 -> ECX */

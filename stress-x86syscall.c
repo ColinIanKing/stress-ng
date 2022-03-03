@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-cpu.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"x86syscall N",		"start N workers exercising functions using syscall" },

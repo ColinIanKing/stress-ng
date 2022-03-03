@@ -20,6 +20,7 @@
 #define CORE_CACHE_H
 
 #include "core-arch.h"
+#include "core-cpu.h"
 
 /*
  *  cacheflush(2) cache options

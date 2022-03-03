@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-cpu.h"
 #include "core-net.h"
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
