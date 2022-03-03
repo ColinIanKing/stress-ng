@@ -21,5 +21,7 @@
 int main(void)
 {
 	const __v2di v = { 0, 0 };
+
+	return sizeof(v);
 }
 
