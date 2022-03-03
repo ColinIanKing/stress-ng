@@ -206,10 +206,10 @@ static void *stress_pthread_func(void *parg)
 #endif
 	const stress_pthread_args_t *spa = (stress_pthread_args_t *)parg;
 	const stress_args_t *args = spa->args;
-	const stress_pthread_info_t *pthreads = (stress_pthread_info_t *)spa->data;
+	const stress_pthread_info_t *pthread_info = (stress_pthread_info_t *)spa->data;
 	char str[16];
 
-	snprintf(str, sizeof(str), "%" PRIu64, pthreads->index);
+	snprintf(str, sizeof(str), "%" PRIu64, pthread_info->index);
 	stress_set_proc_state_str(args->name, str);
 
 #if defined(HAVE_GET_ROBUST_LIST) &&	\
