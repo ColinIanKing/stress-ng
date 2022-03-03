@@ -2107,7 +2107,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 #endif
 };
 
-static volatile bool *stress_syscall_exercised;
+static bool *stress_syscall_exercised;
 
 /*
  *  running context shared between parent and child
