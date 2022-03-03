@@ -26,5 +26,5 @@ int main(void)
 	off_t offset = 0;
 	size_t count = 4096;
 
-	return sendfile(0, 1, &offset, 1024);
+	return sendfile(0, 1, &offset, count);
 }
