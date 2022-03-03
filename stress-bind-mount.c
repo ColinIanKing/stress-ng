@@ -54,6 +54,8 @@ static void NORETURN MLOCKED_TEXT stress_bind_mount_child_handler(int signum)
 static int stress_bind_mount_child(void *parg)
 {
 	const stress_args_t *args = ((stress_pthread_args_t *)parg)->args;
+	char path[PATH_MAX];
+	int ret;
 
 	if (stress_sighandler(args->name, SIGALRM,
 	    stress_bind_mount_child_handler, NULL) < 0) {
@@ -70,25 +72,73 @@ static int stress_bind_mount_child(void *parg)
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 
-	do {
-		int rc;
+	(void)stress_temp_dir(path, sizeof(path), args->name, getpid(), args->instance);
+	ret = mkdir(path, S_IRUSR | S_IRWXU);
+	if (ret < 0) {
+		pr_err("%s: mkdir %s failed, errno=%d (%s)\n",
+			args->name, path, errno, strerror(errno));
+		return -1;
+	}
 
-		rc = mount("/", "/", "", MS_BIND | MS_REC, 0);
+	do {
+		int rc, retries;
+		DIR *dir;
+		struct dirent *d;
+
+		rc = mount("/", path, "", MS_BIND | MS_REC | MS_RDONLY, 0);
 		if (rc < 0) {
 			if (errno != ENOSPC)
 				pr_fail("%s: bind mount failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			break;
 		}
+
 		/*
-		 * The following fails with -EBUSY, but try it anyhow
-		 *  just to make the kernel work harder
+		 *  Check if we can stat the files in the bound mount path
 		 */
-		(void)umount("/");
+		dir = opendir("/");
+		if (!dir)
+			goto bind_umount;
+		while ((d = readdir(dir)) != NULL) {
+			char bindpath[PATH_MAX + sizeof(d->d_name) + 1];
+			const char *name = d->d_name;
+			struct stat statbuf;
+
+			if (*name == '.')
+				continue;
+
+			(void)snprintf(bindpath, sizeof(bindpath), "%s/%s", path, name);
+			rc = stat(bindpath, &statbuf);
+			if (rc < 0) {
+				pr_fail("%s: failed to stat bind mounted file %s, errno=%d (%s)\n",
+					args->name, bindpath, errno, strerror(errno));
+			}
+		}
+		(void)closedir(dir);
+
+bind_umount:
+		for (retries = 0; retries < 15; retries++) {
+#if defined(HAVE_UMOUNT2) &&	\
+    defined(MNT_DETACH)
+			rc = umount2(path, MNT_DETACH);
+			if (rc == 0)
+				break;
+			(void)shim_usleep(50000);
+#else
+			/*
+			 * The following fails with -EBUSY, but try it anyhow
+			 *  just to make the kernel work harder
+			 */
+			rc = umount(path);
+			if (rc == 0)
+				break;
+#endif
+		}
 		inc_counter(args);
 	} while (keep_stressing_flag() &&
 		 (!args->max_ops || (get_counter(args) < args->max_ops)));
 
+	(void)rmdir(path);
 	return 0;
 }
 
