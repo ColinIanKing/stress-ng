@@ -107,7 +107,7 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	register volatile type *ptr;				\
+	register type *ptr;					\
 	void *start ALIGNED(1024) = context->start;		\
 	void *end ALIGNED(1024) = context->end;			\
 	type v;							\
@@ -122,37 +122,37 @@ static uint64_t TARGET_CLONES stress_memrate_read##size(	\
 		     (ptr < (type *)end);			\
 		     ptr += 16, i++) {				\
 			prefetch((uint8_t *)ptr + 1024, 0, 3);	\
-			v = ptr[0];				\
+			v = *(volatile type *)&ptr[0];		\
 			(void)v;				\
-			v = ptr[1];				\
+			v = *(volatile type *)&ptr[1];		\
 			(void)v;				\
-			v = ptr[2];				\
+			v = *(volatile type *)&ptr[2];		\
 			(void)v;				\
-			v = ptr[3];				\
+			v = *(volatile type *)&ptr[3];		\
 			(void)v;				\
-			v = ptr[4];				\
+			v = *(volatile type *)&ptr[4];		\
 			(void)v;				\
-			v = ptr[5];				\
+			v = *(volatile type *)&ptr[5];		\
 			(void)v;				\
-			v = ptr[6];				\
+			v = *(volatile type *)&ptr[6];		\
 			(void)v;				\
-			v = ptr[7];				\
+			v = *(volatile type *)&ptr[7];		\
 			(void)v;				\
-			v = ptr[8];				\
+			v = *(volatile type *)&ptr[8];		\
 			(void)v;				\
-			v = ptr[9];				\
+			v = *(volatile type *)&ptr[9];		\
 			(void)v;				\
-			v = ptr[10];				\
+			v = *(volatile type *)&ptr[10];		\
 			(void)v;				\
-			v = ptr[11];				\
+			v = *(volatile type *)&ptr[11];		\
 			(void)v;				\
-			v = ptr[12];				\
+			v = *(volatile type *)&ptr[12];		\
 			(void)v;				\
-			v = ptr[13];				\
+			v = *(volatile type *)&ptr[13];		\
 			(void)v;				\
-			v = ptr[14];				\
+			v = *(volatile type *)&ptr[14];		\
 			(void)v;				\
-			v = ptr[15];				\
+			v = *(volatile type *)&ptr[15];		\
 			(void)v;				\
 		}						\
 	}							\
@@ -165,7 +165,7 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 	const stress_memrate_context_t *context,		\
 	bool *valid)						\
 {								\
-	register volatile type *ptr;				\
+	register type *ptr;					\
 	double t1;						\
 	const double dur = 1.0 / (double)context->memrate_rd_mbs;\
 	double total_dur = 0.0;					\
@@ -185,37 +185,37 @@ static uint64_t TARGET_CLONES stress_memrate_read_rate##size(	\
 		     (ptr < (type *)end);			\
 		     ptr += 16, i ++) {				\
 			prefetch((uint8_t *)ptr + 1024, 0, 3);	\
-			v = ptr[0];				\
+			v = *(volatile type *)&ptr[0];		\
 			(void)v;				\
-			v = ptr[1];				\
+			v = *(volatile type *)&ptr[1];		\
 			(void)v;				\
-			v = ptr[2];				\
+			v = *(volatile type *)&ptr[2];		\
 			(void)v;				\
-			v = ptr[3];				\
+			v = *(volatile type *)&ptr[3];		\
 			(void)v;				\
-			v = ptr[4];				\
+			v = *(volatile type *)&ptr[4];		\
 			(void)v;				\
-			v = ptr[5];				\
+			v = *(volatile type *)&ptr[5];		\
 			(void)v;				\
-			v = ptr[6];				\
+			v = *(volatile type *)&ptr[6];		\
 			(void)v;				\
-			v = ptr[7];				\
+			v = *(volatile type *)&ptr[7];		\
 			(void)v;				\
-			v = ptr[8];				\
+			v = *(volatile type *)&ptr[8];		\
 			(void)v;				\
-			v = ptr[9];				\
+			v = *(volatile type *)&ptr[9];		\
 			(void)v;				\
-			v = ptr[10];				\
+			v = *(volatile type *)&ptr[10];		\
 			(void)v;				\
-			v = ptr[11];				\
+			v = *(volatile type *)&ptr[11];		\
 			(void)v;				\
-			v = ptr[12];				\
+			v = *(volatile type *)&ptr[12];		\
 			(void)v;				\
-			v = ptr[13];				\
+			v = *(volatile type *)&ptr[13];		\
 			(void)v;				\
-			v = ptr[14];				\
+			v = *(volatile type *)&ptr[14];		\
 			(void)v;				\
-			v = ptr[15];				\
+			v = *(volatile type *)&ptr[15];		\
 			(void)v;				\
 		}						\
 		t2 = stress_time_now();				\
