@@ -24,7 +24,6 @@
 
 int main(void)
 {
-	timer_t timerid = 0;
 	struct itimerspec value;
 
 	return timerfd_gettime(0, &value);	/* EINVAL */
