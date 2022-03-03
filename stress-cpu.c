@@ -627,6 +627,37 @@ static void HOT OPTIMIZE3 stress_cpu_rand(const char *name)
 }
 
 /*
+ *  stress_cpu_logmap()
+ *	Compute logistic map of x = r * x * (x - 1.0) where r is the
+ * 	accumulation point based on A098587. Data is scaled in the
+ *	range 0..255
+ */
+static void HOT OPTIMIZE3 stress_cpu_logmap(const char *name)
+{
+	static double x = 0.4;
+	/*
+	 * Use an accumulation point that is slightly larger
+	 * than the point where chaotic behaviour starts
+	 */
+	const double r = 3.569945671870944901842 * 1.0999999;
+	register int i;
+
+	(void)name;
+
+	for (i = 0; i < 16384; i++) {
+		/*
+		 *  Scale up a fractional part of x
+		 *  by an arbitrary value and take
+		 *  the bottom 8 bits of the result
+		 *  to make a quasi-chaotic random-ish
+		 *  value
+		 */
+		x = x * r * (1.0 - x);
+	}
+	stress_double_put(x);
+}
+
+/*
  *  stress_cpu_rand48()
  *	generate random values using rand48 family of functions
  */
@@ -3061,6 +3092,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "jmp",		stress_cpu_jmp },
 	{ "lfsr32",		stress_cpu_lfsr32 },
 	{ "ln2",		stress_cpu_ln2 },
+	{ "logmap",		stress_cpu_logmap },
 	{ "longdouble",		stress_cpu_longdouble },
 	{ "loop",		stress_cpu_loop },
 	{ "matrixprod",		stress_cpu_matrix_prod },
