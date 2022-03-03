@@ -1979,49 +1979,52 @@ static size_t TARGET_CLONES stress_vm_read64(
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
-	volatile uint64_t *ptr = (uint64_t *)buf;
+	uint64_t *ptr = (uint64_t *)buf;
 	register size_t i = 0, n = sz / (sizeof(*ptr) * 32);
 
 	(void)buf_end;
 
 	while (i < n) {
 		shim_builtin_prefetch((uint8_t *)ptr + 1024, 0, 3);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
+		(void)*(volatile uint64_t *)&ptr[0];
+		(void)*(volatile uint64_t *)&ptr[1];
+		(void)*(volatile uint64_t *)&ptr[2];
+		(void)*(volatile uint64_t *)&ptr[3];
+		(void)*(volatile uint64_t *)&ptr[4];
+		(void)*(volatile uint64_t *)&ptr[5];
+		(void)*(volatile uint64_t *)&ptr[6];
+		(void)*(volatile uint64_t *)&ptr[7];
+		ptr += 8;
 
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
+		(void)*(volatile uint64_t *)&ptr[0];
+		(void)*(volatile uint64_t *)&ptr[1];
+		(void)*(volatile uint64_t *)&ptr[2];
+		(void)*(volatile uint64_t *)&ptr[3];
+		(void)*(volatile uint64_t *)&ptr[4];
+		(void)*(volatile uint64_t *)&ptr[5];
+		(void)*(volatile uint64_t *)&ptr[6];
+		(void)*(volatile uint64_t *)&ptr[7];
+		ptr += 8;
 
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
+		(void)*(volatile uint64_t *)&ptr[0];
+		(void)*(volatile uint64_t *)&ptr[1];
+		(void)*(volatile uint64_t *)&ptr[2];
+		(void)*(volatile uint64_t *)&ptr[3];
+		(void)*(volatile uint64_t *)&ptr[4];
+		(void)*(volatile uint64_t *)&ptr[5];
+		(void)*(volatile uint64_t *)&ptr[6];
+		(void)*(volatile uint64_t *)&ptr[7];
+		ptr += 8;
 
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-		(void)*(ptr++);
-
+		(void)*(volatile uint64_t *)&ptr[0];
+		(void)*(volatile uint64_t *)&ptr[1];
+		(void)*(volatile uint64_t *)&ptr[2];
+		(void)*(volatile uint64_t *)&ptr[3];
+		(void)*(volatile uint64_t *)&ptr[4];
+		(void)*(volatile uint64_t *)&ptr[5];
+		(void)*(volatile uint64_t *)&ptr[6];
+		(void)*(volatile uint64_t *)&ptr[7];
+		ptr += 8;
 		i++;
 		if (UNLIKELY(!keep_stressing_flag() || (max_ops && (i >= max_ops))))
 			break;
