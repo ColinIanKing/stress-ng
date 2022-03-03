@@ -24,7 +24,6 @@
 
 int main(void)
 {
-	timer_t timerid = 0;
 	struct itimerspec new = { 0 };
 	struct itimerspec old = { 0 };
 
