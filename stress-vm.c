@@ -2048,11 +2048,10 @@ static size_t TARGET_CLONES stress_vm_write1024v(
 	static uint64_t val;
 	stress_vint8w1024_t *ptr = (stress_vint8w1024_t *)buf;
 	stress_vint8w1024_t v;
-	uint64_t *v64ptr = (uint64_t *)&v;
 	register size_t i = 0, n = sz / sizeof(*ptr);
 
 	for (i = 0; i < sizeof(v) / sizeof(uint64_t); i++)
-		v64ptr[i] = val;
+		((uint64_t *)&v)[i] = val;
 
 	(void)buf_end;
 
