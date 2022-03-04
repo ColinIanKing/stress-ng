@@ -27,6 +27,7 @@ typedef struct {
 } jmp_buf_check_t;
 
 static jmp_buf_check_t bufchk;
+static volatile bool longjmp_failed;
 
 static const stress_help_t help[] = {
 	{ NULL,	"longjmp N",	 "start N workers exercising setjmp/longjmp" },
@@ -39,6 +40,7 @@ static void OPTIMIZE1 NOINLINE NORETURN stress_longjmp_func(void)
 	bufchk.ts = stress_time_now();
 	longjmp(bufchk.buf, 1);	/* Jump out */
 
+	longjmp_failed = true;
 	_exit(EXIT_FAILURE);	/* Never get here */
 }
 
@@ -52,6 +54,9 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 	static uint32_t check0, check1;
 	static double t_total;
 	static uint64_t n = 0;
+
+	/* assume OK unless proven otherwise */
+	longjmp_failed = false;
 
 	check0 = stress_mwc32();
 	check1 = stress_mwc32();
@@ -89,6 +94,10 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 	if (keep_stressing(args))
 		stress_longjmp_func();
 
+	if (longjmp_failed) {
+		pr_fail("%s failed, did not detect any successful longjmp calls\n", args->name);
+	}
+
 	if (n) {
 		const double rate = (double)STRESS_NANOSECOND * t_total / (double)n;
 		pr_dbg("%s: about %.3f nanoseconds per longjmp call\n",
@@ -103,5 +112,6 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 stressor_info_t stress_longjmp_info = {
 	.stressor = stress_longjmp,
 	.class = CLASS_CPU,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
