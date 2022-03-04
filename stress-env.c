@@ -44,6 +44,7 @@ static int stress_env_child(const stress_args_t *args, void *context)
 	size_t arg_max;
 	const size_t arg_huge = 16 * MB;
 	char *value;
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 	(void)context;
 
@@ -118,24 +119,25 @@ static int stress_env_child(const stress_args_t *args, void *context)
 			stress_mwc_set_seed(seed_w, seed_z);
 
 			for (j = 0; j < i; j++) {
-				const size_t sz = stress_env_size(arg_max);
-				char *val;
+				if (verify) {
+					const size_t sz = stress_env_size(arg_max);
+					char *val;
 
-				(void)snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, j);
-				val = getenv(name);
-				if (!val) {
-					pr_fail("%s: cannot fetch environment variable %s\n",
-						args->name, name);
-				} else {
-					tmp = value[sz];
-					value[sz] = '\0';
-					if (strcmp(value, val)) {
-						pr_fail("%s: environment variable %s contains incorrect data\n",
+					(void)snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, j);
+					val = getenv(name);
+					if (!val) {
+						pr_fail("%s: cannot fetch environment variable %s\n",
 							args->name, name);
+					} else {
+						tmp = value[sz];
+						value[sz] = '\0';
+						if (strcmp(value, val)) {
+							pr_fail("%s: environment variable %s contains incorrect data\n",
+								args->name, name);
+						}
+						value[sz] = tmp;
 					}
-					value[sz] = tmp;
 				}
-
 				ret = unsetenv(name);
 				if (ret < 0) {
 					pr_fail("%s: unsentenv on variable %s failed, errno=%d (%s)\n",
@@ -178,5 +180,6 @@ static int stress_env(const stress_args_t *args)
 stressor_info_t stress_env_info = {
 	.stressor = stress_env,
 	.class = CLASS_OS | CLASS_VM,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
