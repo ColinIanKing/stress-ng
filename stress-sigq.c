@@ -78,7 +78,7 @@ again:
 			goto again;
 		if (!keep_stressing(args))
 			goto finish;
-		pr_fail("%s: fork failed, errno=%d (%s)\n",
+		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
@@ -92,7 +92,7 @@ again:
 		(void)sigemptyset(&mask);
 		(void)sigaddset(&mask, SIGUSR1);
 		if (sigprocmask(SIG_SETMASK, &mask, NULL) < 0) {
-			pr_fail("%s: sigprocmask failed, errno=%d (%s)\n",
+			pr_err("%s: sigprocmask failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			_exit(EXIT_FAILURE);
 		}
