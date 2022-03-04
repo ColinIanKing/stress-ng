@@ -48,21 +48,33 @@ static int stress_io(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		(void)sync();
+		sync();
 #if defined(HAVE_SYNCFS)
 		if ((fd != -1) && (syncfs(fd) < 0))
 			pr_fail("%s: syncfs failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 
 		/* try to sync on all the mount points */
-		for (i = 0; i < n_mnts; i++)
-			if (fds[i] != -1)
-				(void)syncfs(fds[i]);
+		for (i = 0; i < n_mnts; i++) {
+			if (fds[i] < 0)
+				continue;
+			if (syncfs(fds[i]) < 0) {
+				if ((errno != ENOSPC) &&
+				    (errno != EDQUOT) &&
+				    (errno != EINTR)) {
+					pr_fail("%s syncfs failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+			}
+		}
 
 		/*
 		 *  exercise with an invalid fd
 		 */
-		(void)syncfs(bad_fd);
+		if (syncfs(bad_fd) == 0) {
+			pr_fail("%s: syncfs on invalid fd %d succeed\n",
+				args->name, bad_fd);
+		}
 #else
 		UNEXPECTED
 #endif
