@@ -59,7 +59,7 @@ static int stress_sigsuspend(const stress_args_t *args)
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
-		pr_fail("%s: mmap failed, errno=%d (%s)\n",
+		pr_err("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -78,7 +78,7 @@ again:
 				goto again;
 			if (!keep_stressing(args))
 				goto reap;
-			pr_fail("%s: fork failed, errno=%d (%s)\n",
+			pr_err("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto reap;
 		} else if (pid[n] == 0) {
