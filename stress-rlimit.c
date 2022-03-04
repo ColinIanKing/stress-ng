@@ -169,7 +169,6 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 		 *  Exercise all known good resource ids
 		 */
 		for (i = 0; i < SIZEOF_ARRAY(resource_ids); i++) {
-
 			ret = getrlimit(resource_ids[i].resource, &rlim);
 			if (ret < 0)
 				continue;
