@@ -199,7 +199,7 @@ static int stress_sigfpe(const stress_args_t *args)
 
 	ret = sigaction(SIGFPE, &action, NULL);
 	if (ret < 0) {
-		pr_fail("%s: sigaction SIGFPE: errno=%d (%s)\n",
+		pr_err("%s: sigaction SIGFPE: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
