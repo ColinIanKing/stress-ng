@@ -25,10 +25,22 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+static size_t stress_env_size(const size_t arg_max)
+{
+	return (size_t)(1 + (stress_mwc32() % (arg_max - 2)));
+}
+
+static uint64_t stress_env_max(void)
+{
+	return stress_mwc1() ? ~(uint64_t)0 : (uint64_t)(stress_mwc16());
+}
+
 static int stress_env_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	uint64_t i = 0;
+	uint64_t env_max;
+	uint32_t seed_w, seed_z;
 	size_t arg_max;
 	const size_t arg_huge = 16 * MB;
 	char *value;
@@ -54,28 +66,37 @@ static int stress_env_child(const stress_args_t *args, void *context)
 	 *  Try and allocate a large enough buffer
 	 *  for the environment variable value
 	 */
-	for (;;) {
+	value = (char *)mmap(NULL, arg_max, PROT_READ | PROT_WRITE,
+		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (value == MAP_FAILED) {
+		arg_max = page_size;
 		value = (char *)mmap(NULL, arg_max, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-		if (value != MAP_FAILED)
-			break;
-		if (arg_max <= page_size) {
-			pr_inf("%s: could not allocate %zd bytes, "
+		if (value == MAP_FAILED) {
+			pr_inf("%s: could not allocate %zd bytes for environment variable value, "
 				"errno = %d (%s)\n",
 				args->name, arg_max,
 				errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
 		}
+		pr_inf("%s: falling back to %zd byte sized environment variable value size\n",
+			args->name, arg_max);
 	}
 
+	stress_mwc_reseed();
 	stress_strnrnd(value, arg_max);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	env_max = stress_env_max();
+	stress_mwc_get_seed(&seed_w, &seed_z);
 
 	do {
 		char name[64];
 		char tmp;
 		int ret;
-		const size_t sz = 1 + (stress_mwc32() % (arg_max - 2));
+		const size_t sz = stress_env_size(arg_max);
+		bool low_mem = false;
+		size_t shmall, freemem, totalmem, freeswap;
 
 		(void)snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, i);
 		/*
@@ -86,18 +107,50 @@ static int stress_env_child(const stress_args_t *args, void *context)
 		ret = setenv(name, value, 1);
 		value[sz] = tmp;
 
-		if (ret < 0) {
-			if (errno == ENOMEM) {
-				uint64_t j;
 
-				for (j = 0; j < i; j++) {
-					snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, j);
-					(void)unsetenv(name);
-					inc_counter(args);
-					if (!keep_stressing(args))
-						goto reap;
+		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+		if ((totalmem > 0) && (freemem < totalmem / 16))
+			low_mem = true;
+
+		if (low_mem || (i > env_max) || (ret < 0)) {
+			uint64_t j;
+
+			stress_mwc_set_seed(seed_w, seed_z);
+
+			for (j = 0; j < i; j++) {
+				const size_t sz = stress_env_size(arg_max);
+				char *val;
+
+				(void)snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, j);
+				val = getenv(name);
+				if (!val) {
+					pr_fail("%s: cannot fetch environment variable %s\n",
+						args->name, name);
+				} else {
+					tmp = value[sz];
+					value[sz] = '\0';
+					if (strcmp(value, val)) {
+						pr_fail("%s: environment variable %s contains incorrect data\n",
+							args->name, name);
+					}
+					value[sz] = tmp;
 				}
-				i = 0;
+
+				ret = unsetenv(name);
+				if (ret < 0) {
+					pr_fail("%s: unsentenv on variable %s failed, errno=%d (%s)\n",
+						args->name, name, errno, strerror(errno));
+				}
+				inc_counter(args);
+				if (!keep_stressing(args))
+					goto reap;
+			}
+			i = 0;
+			env_max = stress_env_max();
+			stress_mwc_get_seed(&seed_w, &seed_z);
+			if (low_mem) {
+				(void)kill(getpid(), SIGKILL);
+				_exit(EXIT_SUCCESS);
 			}
 		} else {
 			i++;
@@ -119,7 +172,7 @@ reap:
  */
 static int stress_env(const stress_args_t *args)
 {
-	return stress_oomable_child(args, NULL, stress_env_child, STRESS_OOMABLE_DROP_CAP);
+	return stress_oomable_child(args, NULL, stress_env_child, STRESS_OOMABLE_DROP_CAP | STRESS_OOMABLE_QUIET);
 }
 
 stressor_info_t stress_env_info = {
