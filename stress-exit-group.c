@@ -38,6 +38,7 @@ typedef struct {
 
 static pthread_mutex_t mutex;
 static volatile bool keep_running_flag;
+static volatile uint64_t exit_group_failed;
 static uint64_t pthread_count;
 static stress_exit_group_info_t pthreads[STRESS_PTHREAD_EXIT_GROUP_MAX];
 
@@ -93,6 +94,7 @@ static void *stress_exit_group_func(void *arg)
 	shim_exit_group(0);
 
 	/* should never get here */
+	exit_group_failed++;
 	return &nowt;
 }
 
@@ -124,6 +126,7 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
 	if (ret) {
 		stop_running();
 		shim_exit_group(0);
+		exit_group_failed++;
 	}
 	for (i = 0; i < STRESS_PTHREAD_EXIT_GROUP_MAX; i++)
 		pthreads[i].ret = -1;
@@ -140,6 +143,7 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
 				args->name, pthreads[i].ret, strerror(pthreads[i].ret));
 			stop_running();
 			shim_exit_group(0);
+			exit_group_failed++;
 		}
 		if (!(keep_running() && keep_stressing(args)))
 			break;
@@ -148,6 +152,7 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
 	if (ret) {
 		stop_running();
 		shim_exit_group(0);
+		exit_group_failed++;
 	}
 	/*
 	 *  Wait until they are all started or
@@ -170,6 +175,7 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
 	}
 	shim_exit_group(0);
 	/* Should never get here */
+	exit_group_failed++;
 	_exit(0);
 }
 
@@ -215,6 +221,10 @@ again:
 
         stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	if (exit_group_failed > 0)
+		pr_fail("%s: at least %" PRIu64 " exit_group() calls failed to exit\n",
+			args->name, exit_group_failed);
+
 	return EXIT_SUCCESS;
 }
 
@@ -222,6 +232,7 @@ again:
 stressor_info_t stress_exit_group_info = {
 	.stressor = stress_exit_group,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
