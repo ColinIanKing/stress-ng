@@ -33,6 +33,9 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 	long max = sysconf(_SC_MAPPED_FILES);
 	uint8_t **mappings;
 	max = STRESS_MAXIMUM(max, MMAP_MAX);
+	const uint64_t pattern0 = stress_mwc64();
+	const uint64_t pattern1 = stress_mwc64();
+	const size_t offset2pages = (page_size * 2) / sizeof(uint64_t);
 
 	(void)context;
 
@@ -53,21 +56,41 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 		size_t i, n;
 
 		for (n = 0; keep_stressing_flag() && (n < (size_t)max); n++) {
+			uint64_t *ptr;
+
 			if (!keep_stressing(args))
 				break;
 
-			mappings[n] = (uint8_t *)mmap(NULL,
-				page_size * 3,
-				PROT_READ | PROT_WRITE,
+			ptr = mmap(NULL, page_size * 3, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
-			if (mappings[n] == MAP_FAILED)
+			if (ptr == MAP_FAILED)
 				break;
+			mappings[n] = (uint8_t *)ptr;
+			*ptr = pattern0 ^ (uint64_t)n;
+			ptr += offset2pages;
+			*ptr = pattern1 ^ (uint64_t)n;
+
 			if (munmap((void *)(mappings[n] + page_size), page_size) < 0)
 				break;
 			inc_counter(args);
 		}
 
 		for (i = 0; i < n; i++) {
+			uint64_t *ptr, val;
+
+			ptr = (uint64_t *)mappings[i];
+			val = (uint64_t)i ^ pattern0;
+			if (*ptr != val) {
+				pr_fail("%s: failed: mapping %zd at %p was %" PRIx64 " and not %" PRIx64 "\n",
+					args->name, i, ptr, *ptr, val);
+			}
+			ptr += offset2pages;
+			val = (uint64_t)i ^ pattern1;
+			if (*ptr != val) {
+				pr_fail("%s: failed: mapping %zd at %p was %" PRIx64 " and not %" PRIx64 "\n",
+					args->name, i, ptr, *ptr, val);
+			}
+
 			(void)munmap((void *)mappings[i], page_size);
 			(void)munmap((void *)(mappings[i] + page_size), page_size);
 			(void)munmap((void *)(mappings[i] + page_size + page_size), page_size);
@@ -92,5 +115,6 @@ static int stress_mmapmany(const stress_args_t *args)
 stressor_info_t stress_mmapmany_info = {
 	.stressor = stress_mmapmany,
 	.class = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
