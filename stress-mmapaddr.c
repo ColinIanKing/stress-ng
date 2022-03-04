@@ -221,5 +221,6 @@ static int stress_mmapaddr(const stress_args_t *args)
 stressor_info_t stress_mmapaddr_info = {
 	.stressor = stress_mmapaddr,
 	.class = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
