@@ -174,7 +174,7 @@ again:
 
 		if (!keep_stressing(args))
 			goto finish;
-		pr_fail("%s: fork failed, errno=%d (%s)\n",
+		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
