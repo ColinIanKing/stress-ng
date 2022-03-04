@@ -393,7 +393,7 @@ again:
 			rc = EXIT_SUCCESS;
 			goto finish; 
 		}
-		pr_fail("%s: fork failed, errno=%d (%s)\n",
+		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
@@ -413,5 +413,6 @@ finish:
 stressor_info_t stress_sockabuse_info = {
 	.stressor = stress_sockabuse,
 	.class = CLASS_NETWORK | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
