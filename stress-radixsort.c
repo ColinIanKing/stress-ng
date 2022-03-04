@@ -138,8 +138,30 @@ static int stress_radixsort(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			for (i = 0; i < n - 1; i++) {
+				if (strcmp((char *)data[i], (char *)data[i + 1]) > 0) {
+					pr_fail("%s: sort error "
+						"detected, incorrect ordering "
+						"found\n", args->name);
+					break;
+				}
+			}
+		}
+
 		/* Reverse sort */
 		(void)radixsort(data, n, revtable, 0);
+
+		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			for (i = 0; i < n - 1; i++) {
+				if (strcmp((char *)data[i], (char *)data[i + 1]) < 0) {
+					pr_fail("%s: sort error "
+						"detected, incorrect ordering "
+						"found\n", args->name);
+					break;
+				}
+			}
+		}
 
 		/* Randomize first char */
 		for (ptr = text, i = 0; i < n; i++, ptr += STR_SIZE)
@@ -163,6 +185,7 @@ stressor_info_t stress_radixsort_info = {
 	.stressor = stress_radixsort,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
 #else
