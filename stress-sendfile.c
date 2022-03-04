@@ -83,7 +83,7 @@ static int stress_sendfile(const stress_args_t *args)
 
 	if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_err("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto dir_out;
 	}
@@ -94,20 +94,20 @@ static int stress_sendfile(const stress_args_t *args)
 #endif
 	if (ret < 0) {
 		rc = exit_status(errno);
-		pr_fail("%s: fallocate failed, errno=%d (%s)\n",
+		pr_err("%s: fallocate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto dir_out;
 	}
 	(void)close(fdin);
 	if ((fdin = open(filename, O_RDONLY)) < 0) {
 		rc = exit_status(errno);
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_err("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto dir_out;
 	}
 
 	if ((fdout = open("/dev/null", O_WRONLY)) < 0) {
-		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
+		pr_err("%s: open /dev/null failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 		goto close_in;
@@ -191,6 +191,7 @@ stressor_info_t stress_sendfile_info = {
 	.stressor = stress_sendfile,
 	.class = CLASS_PIPE_IO | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
