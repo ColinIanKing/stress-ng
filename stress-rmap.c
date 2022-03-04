@@ -154,7 +154,7 @@ static int stress_rmap(const stress_args_t *args)
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_err("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
@@ -165,7 +165,7 @@ static int stress_rmap(const stress_args_t *args)
 	(void)shim_unlink(filename);
 
 	if (shim_fallocate(fd, 0, 0, (off_t)sz) < 0) {
-		pr_fail("%s: fallocate failed, errno=%d (%s)\n",
+		pr_err("%s: fallocate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
