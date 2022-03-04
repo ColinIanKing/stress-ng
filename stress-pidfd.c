@@ -134,7 +134,7 @@ again:
 				goto again;
 			if (!keep_stressing(args))
 				goto finish;
-			pr_fail("%s: fork failed, errno=%d (%s)\n",
+			pr_err("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		} else if (pid == 0) {
@@ -232,6 +232,7 @@ stressor_info_t stress_pidfd_info = {
 	.stressor = stress_pidfd,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.supported = stress_pidfd_supported,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
