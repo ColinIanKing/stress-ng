@@ -121,7 +121,7 @@ static int stress_qsort(const stress_args_t *args)
 	n = (size_t)qsort_size;
 
 	if ((data = calloc(n, sizeof(*data))) == NULL) {
-		pr_fail("%s: calloc failed, out of memory\n", args->name);
+		pr_err("%s: calloc failed, out of memory\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
