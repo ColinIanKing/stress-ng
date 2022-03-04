@@ -192,7 +192,7 @@ static int stress_lockofd_contention(
 
 		lockofd_info = stress_lockofd_info_new();
 		if (!lockofd_info) {
-			pr_fail("%s: calloc failed, out of memory\n", args->name);
+			pr_err("%s: calloc failed, out of memory\n", args->name);
 			return -1;
 		}
 		lockofd_info->offset = offset;
@@ -228,7 +228,7 @@ static int stress_lockofd(const stress_args_t *args)
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
 			ret = exit_status(errno);
-			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
+			pr_err("%s: mkdir %s failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
 			return ret;
 		}
@@ -244,14 +244,14 @@ static int stress_lockofd(const stress_args_t *args)
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
-		pr_fail("%s: open %s failed, errno=%d (%s)\n",
+		pr_err("%s: open %s failed, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		(void)shim_rmdir(pathname);
 		return ret;
 	}
 
 	if (lseek(fd, 0, SEEK_SET) < 0) {
-		pr_fail("%s: lseek failed, errno=%d (%s)\n",
+		pr_err("%s: lseek failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto tidy;
 	}
@@ -266,7 +266,7 @@ redo:
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
 			ret = exit_status(errno);
-			pr_fail("%s: write failed, errno=%d (%s)\n",
+			pr_err("%s: write failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy;
 		}
@@ -280,7 +280,7 @@ again:
 			goto again;
 		if (!keep_stressing(args))
 			goto tidy;
-		pr_fail("%s: fork failed, errno=%d (%s)\n",
+		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto tidy;
 	}
