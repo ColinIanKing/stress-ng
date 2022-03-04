@@ -122,6 +122,7 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 	sigset_t mask;
 	static uint64_t last_count;
 	double previous_time, dt;
+	bool hrtimer_interrupt = false;
 	int ret;
 
 	timer_counter = counter;
@@ -159,13 +160,17 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 
 	do {
 		if (ns_delay < 0) {
-			(void)sleep(1);
+			ret = sleep(1);
+			if (ret == 0)
+				hrtimer_interrupt = true;
 		} else {
 			long ns_adjust = ns_delay >> 2;
 			double now;
 
 			/* The sleep will be interrupted on each hrtimer tick */
-			(void)sleep(1);
+			ret = sleep(1);
+			if (ret == 0)
+				hrtimer_interrupt = true;
 
 			now = stress_time_now();
 			dt = now - previous_time;
@@ -193,6 +198,11 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 			}
 		}
 	} while (stress_hrtimers_keep_stressing());
+
+	if (!hrtimer_interrupt) {
+		pr_fail("%s: did not detect any hrtimer interrupts of a sleep\n",
+			args->name);
+	}
 
 	if (timer_delete(timerid) < 0) {
 		pr_fail("%s: timer_delete failed, errno=%d (%s)\n",
@@ -292,6 +302,7 @@ stressor_info_t stress_hrtimers_info = {
 	.stressor = stress_hrtimers,
 	.class = CLASS_SCHEDULER,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
