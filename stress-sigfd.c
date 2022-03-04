@@ -63,7 +63,7 @@ static int stress_sigfd(const stress_args_t *args)
 	(void)sigemptyset(&mask);
 	(void)sigaddset(&mask, SIGRTMIN);
 	if (sigprocmask(SIG_BLOCK, &mask, NULL) < 0) {
-		pr_fail("%s: sigprocmask failed, errno=%d (%s)\n",
+		pr_err("%s: sigprocmask failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
@@ -110,7 +110,7 @@ again:
 			goto again;
 		if (!keep_stressing(args))
 			goto finish;
-		pr_fail("%s: fork failed, errno=%d (%s)\n",
+		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
