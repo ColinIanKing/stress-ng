@@ -198,6 +198,11 @@ static int stress_itimer(const stress_args_t *args)
 		set_counter(args, itimer_counter);
 	} while (keep_stressing(args));
 
+	if (itimer_counter == 0) {
+		pr_fail("%s: did not handle any itimer SIGPROF signals\n",
+			args->name);
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)memset(&timer, 0, sizeof(timer));
@@ -215,5 +220,6 @@ stressor_info_t stress_itimer_info = {
 	.stressor = stress_itimer,
 	.class = CLASS_INTERRUPT | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
