@@ -30,13 +30,20 @@ static const stress_help_t help[] = {
 
 #define TEE_IO_SIZE	(65536)
 
+static void stress_sigpipe_handler(int signum)
+{
+	(void)signum;
+
+	keep_stressing_set_flag(false);
+}
+
 /*
  *  stress_tee_spawn()
  *	spawn off tee I/O processes
  */
 static pid_t stress_tee_spawn(
 	const stress_args_t *args,
-	void (*func)(int fds[2]),
+	void (*func)(const stress_args_t *args, int fds[2]),
 	int fds[2])
 {
 	pid_t pid;
@@ -65,7 +72,7 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
-		func(fds);
+		func(args, fds);
 		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
@@ -76,15 +83,20 @@ again:
  *  stress_tee_pipe_write()
  *	write data down a pipe
  */
-static void stress_tee_pipe_write(int fds[2])
+static void stress_tee_pipe_write(const stress_args_t *args, int fds[2])
 {
-	static char buffer[TEE_IO_SIZE];
+	static uint64_t buffer[TEE_IO_SIZE / sizeof(uint64_t)];
+	uint64_t counter = 0;
 
+	(void)args;
 	(void)close(fds[0]);
 
 	(void)memset(buffer, 0, sizeof(buffer));
 	while (keep_stressing_flag()) {
 		ssize_t ret;
+
+		buffer[0] = sizeof(buffer);
+		buffer[1] = counter++;
 
 		ret = write(fds[1], buffer, sizeof(buffer));
 		if (ret < 0) {
@@ -99,19 +111,33 @@ static void stress_tee_pipe_write(int fds[2])
  *  stress_tee_pipe_read()
  *	read data from a pipe
  */
-static void stress_tee_pipe_read(int fds[2])
+static void stress_tee_pipe_read(const stress_args_t *args, int fds[2])
 {
-	static char buffer[TEE_IO_SIZE];
+	static uint64_t buffer[TEE_IO_SIZE / sizeof(uint64_t)];
+	uint64_t count = 0;
 
 	(void)close(fds[1]);
 
 	while (keep_stressing_flag()) {
 		ssize_t ret;
+		size_t n = 0;
 
-		ret = read(fds[0], buffer, sizeof(buffer));
-		if (ret < 0)
-			if (errno != EAGAIN)
-				break;
+		while (n < sizeof(buffer)) {
+			ret = read(fds[0], buffer, sizeof(buffer));
+			if (ret < 0) {
+				if (errno != EAGAIN)
+					break;
+			} else {
+				n += ret;
+			}
+		}
+		if (buffer[0] != sizeof(buffer)) {
+			pr_fail("%s: pipe read, wrong size detected\n", args->name);
+		}
+		if (buffer[1] != count) {
+			pr_fail("%s: pipe read, wrong check value detected\n", args->name);
+		}
+		count++;
 	}
 	(void)close(fds[1]);
 }
@@ -182,11 +208,14 @@ static int stress_tee(const stress_args_t *args)
 	int ret = EXIT_FAILURE, status;
 	const int release = stress_get_kernel_release();
 
+	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
+		return EXIT_NO_RESOURCE;
+
 	fd = open("/dev/null", O_WRONLY);
 	if (fd < 0) {
 		pr_err("%s: open /dev/null failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
+		return EXIT_NO_RESOURCE;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
