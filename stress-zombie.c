@@ -83,6 +83,8 @@ static bool stress_pid_not_a_zombie(const pid_t pid)
 	/* Process should not be in runnable state */
 	return (*ptr == 'R');
 #else
+	(void)pid;
+
 	return false; 	/* No idea */
 #endif
 }
