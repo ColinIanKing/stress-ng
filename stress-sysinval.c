@@ -682,7 +682,7 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(getdomainname), 2, { ARG_PTR_WR, ARG_LEN, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getdtablesize)
-	{ SYS(getdtablesize), 0, { 0, 0, 0, 0, 0, 0 } }, */
+	{ SYS(getdtablesize), 0, { 0, 0, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(getegid)
 	{ SYS(getegid), 0, { 0, 0, 0, 0, 0, 0 } },
