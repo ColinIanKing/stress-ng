@@ -45,6 +45,49 @@ static const stress_help_t help[] = {
 };
 
 /*
+ *  stress_pid_not_a_zombie()
+ *	return true if we are 100% sure the process is not a zombie
+ */
+static bool stress_pid_not_a_zombie(const pid_t pid)
+{
+#if defined(__linux__)
+	char path[PATH_MAX];
+	char buf[4096], *ptr = buf;
+	int fd;
+	ssize_t n;
+
+	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/stat", (intmax_t)pid);
+	fd = open(path, O_RDONLY);
+	if (fd < 0)
+		return false;	/* Unknown */
+	n = read(fd, buf, sizeof(buf));
+	(void)close(fd);
+	if (n < 0)
+		return false;	/* Unknown */
+	while (*ptr) {
+		if (*ptr == ')')
+			break;
+		ptr++;
+	}
+	if (!*ptr)
+		return false;	/* Unknown */
+	ptr++;
+	while (*ptr) {
+		if (*ptr != ' ')
+			break;
+		ptr++;
+	}
+	if (!*ptr)
+		return false;	/* Unknown */
+
+	/* Process should not be in runnable state */
+	return (*ptr == 'R');
+#else
+	return false; 	/* No idea */
+#endif
+}
+
+/*
  *  stress_zombie_new()
  *	allocate a new zombie, add to end of list
  */
@@ -79,11 +122,24 @@ static stress_zombie_t *stress_zombie_new(void)
  *	reap a zombie and remove a zombie from head of list, put it onto
  *	the free zombie list
  */
-static void stress_zombie_head_remove(void)
+static void stress_zombie_head_remove(const stress_args_t *args, const bool check)
 {
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
+
 	if (zombies.head) {
 		int status;
 		stress_zombie_t *head;
+
+		if (verify && check) {
+			const pid_t pid = zombies.head->pid;
+
+			if (pid > 1) {
+				(void)kill(pid, SIGKILL);
+				if (stress_pid_not_a_zombie(zombies.head->pid))
+					pr_fail("%s: pid %" PRIdMAX " is not in the expected zombie state\n",
+						args->name, (intmax_t)pid);
+			}
+		}
 
 		(void)shim_waitpid(zombies.head->pid, &status, 0);
 
@@ -161,7 +217,7 @@ static int stress_zombie(const stress_args_t *args)
 
 			zombie = stress_zombie_new();
 			if (!zombie) {
-				stress_zombie_head_remove();
+				stress_zombie_head_remove(args, false);
 				continue;
 			}
 
@@ -176,7 +232,7 @@ static int stress_zombie(const stress_args_t *args)
 			}
 			if (zombie->pid == -1) {
 				/* Reached max forks? .. then reap */
-				stress_zombie_head_remove();
+				stress_zombie_head_remove(args, false);
 				continue;
 			}
 			(void)setpgid(zombie->pid, g_pgrp);
@@ -185,7 +241,7 @@ static int stress_zombie(const stress_args_t *args)
 				max_zombies = zombies.length;
 			inc_counter(args);
 		} else {
-			stress_zombie_head_remove();
+			stress_zombie_head_remove(args, true);
 		}
 	} while (keep_stressing(args));
 
@@ -196,7 +252,7 @@ static int stress_zombie(const stress_args_t *args)
 
 	/* And reap */
 	while (zombies.head) {
-		stress_zombie_head_remove();
+		stress_zombie_head_remove(args, false);
 	}
 	/* And free */
 	stress_zombie_free();
@@ -213,5 +269,6 @@ stressor_info_t stress_zombie_info = {
 	.stressor = stress_zombie,
 	.class = CLASS_SCHEDULER | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
