@@ -61,7 +61,7 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 			if (!keep_stressing(args))
 				break;
 
-			ptr = mmap(NULL, page_size * 3, PROT_READ | PROT_WRITE,
+			ptr = (uint64_t *)mmap(NULL, page_size * 3, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (ptr == MAP_FAILED)
 				break;
