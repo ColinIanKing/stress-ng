@@ -140,7 +140,7 @@ static int stress_radixsort(const stress_args_t *args)
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (i = 0; i < n - 1; i++) {
-				if (strcmp((char *)data[i], (char *)data[i + 1]) > 0) {
+				if (strcmp((const char *)data[i], (const char *)data[i + 1]) > 0) {
 					pr_fail("%s: sort error "
 						"detected, incorrect ordering "
 						"found\n", args->name);
@@ -154,7 +154,7 @@ static int stress_radixsort(const stress_args_t *args)
 
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (i = 0; i < n - 1; i++) {
-				if (strcmp((char *)data[i], (char *)data[i + 1]) < 0) {
+				if (strcmp((const char *)data[i], (const char *)data[i + 1]) < 0) {
 					pr_fail("%s: sort error "
 						"detected, incorrect ordering "
 						"found\n", args->name);
