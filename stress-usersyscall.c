@@ -342,6 +342,7 @@ stressor_info_t stress_usersyscall_info = {
 	.stressor = stress_usersyscall,
 	.class = CLASS_OS,
 	.supported = stress_supported,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 
