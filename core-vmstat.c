@@ -107,11 +107,10 @@ int stress_set_iostat(const char *const opt)
  */
 char *stress_find_mount_dev(const char *name)
 {
+#if defined(__linux__)
 	static char dev_path[PATH_MAX];
 	struct stat statbuf;
 	dev_t dev;
-
-#if defined(__linux__)
 	FILE *mtab_fp;
 	struct mntent *mnt;
 
@@ -155,6 +154,9 @@ char *stress_find_mount_dev(const char *name)
 
 	return realpath(mnt->mnt_fsname, dev_path);
 #elif defined(HAVE_SYS_SYSMACROS_H)
+	static char dev_path[PATH_MAX];
+	struct stat statbuf;
+	dev_t dev;
 	DIR *dir;
 	struct dirent *d;
 	dev_t majdev;
@@ -191,6 +193,8 @@ char *stress_find_mount_dev(const char *name)
 
 	return NULL;
 #else
+	(void)name;
+
 	return NULL;
 #endif
 }
