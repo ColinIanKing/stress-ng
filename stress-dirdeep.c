@@ -375,6 +375,8 @@ static int stress_dirdeep(const stress_args_t *args)
 
 	if (args->instance == 0) {
 		if (inodes_start) {
+			if (dirdeep_inodes > inodes_start)
+				dirdeep_inodes = inodes_start;
 			pr_dbg("%s: %" PRIu64 " inodes available, exercising up to %" PRIu64 " inodes\n",
 				args->name, inodes_start, dirdeep_inodes);
 		} else {
