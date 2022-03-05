@@ -98,6 +98,25 @@ static int stress_swap_supported(const char *name)
 	return 0;
 }
 
+/*
+ *  stress_swapoff()
+ *	swapoff and retry if EINTR occurs
+ */
+static int stress_swapoff(const char *path)
+{
+	int ret, i;
+
+	for (i = 0; i < 25; i++) {
+		errno = 0;
+		ret = swapoff(path);
+		if (ret == 0)
+			break;
+		if ((ret < 0) && (errno != EINTR))
+			break;
+	}
+	return ret;
+}
+
 static int stress_swap_zero(
 	const stress_args_t *args,
 	const int fd,
@@ -125,7 +144,7 @@ static int stress_swap_zero(
 static int stress_swap_set_size(
 	const stress_args_t *args,
 	const int fd,
-	const uint32_t npages,
+	const size_t npages,
 	const int bad_flags)
 {
 	char signature[] = SWAP_SIGNATURE;
@@ -190,6 +209,31 @@ static int stress_swap_set_size(
 	return 0;
 }
 
+static void stress_swap_check_swapped(
+	void *addr,
+	const size_t page_size,
+	const size_t npages,
+	uint64_t *swapped_out,
+	uint64_t *swapped_total)
+{
+	unsigned char *vec;
+	register size_t n = 0;
+	register size_t i;
+
+	*swapped_total += npages;
+
+	vec = calloc(npages, sizeof(*vec));
+	if (!vec)
+		return;
+
+	shim_mincore(addr, page_size * npages, vec);
+	for (i = 0; i < npages; i++)
+		n += ((vec[i] & 1) == 0);
+
+	*swapped_out += n;
+	free(vec);
+}
+
 /*
  *  stress_swap()
  *	stress swap operations
@@ -199,8 +243,12 @@ static int stress_swap(const stress_args_t *args)
 	char filename[PATH_MAX];
 	int fd, ret;
 	uint8_t *page;
+	uint64_t swapped_out = 0;
+	uint64_t swapped_total = 0;
+	const size_t page_size = args->page_size;
+	double swapped_percent;
 
-	page = calloc(1, args->page_size);
+	page = calloc(1, page_size);
 	if (!page) {
 		pr_err("%s: failed to allocate 1 page: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -252,9 +300,9 @@ static int stress_swap(const stress_args_t *args)
 		int swapflags = 0;
 		int bad_flags;
 		char *ptr;
-		uint32_t npages = (stress_mwc32() % (MAX_SWAP_PAGES - MIN_SWAP_PAGES)) +
+		size_t npages = (size_t)(stress_mwc32() % (MAX_SWAP_PAGES - MIN_SWAP_PAGES)) +
 				  MIN_SWAP_PAGES;
-		const size_t mmap_size = npages * args->page_size;
+		const size_t mmap_size = npages * page_size;
 
 #if defined(SWAP_FLAG_PREFER)
 		if (stress_mwc1()) {
@@ -291,6 +339,8 @@ static int stress_swap(const stress_args_t *args)
 					args->name);
 				ret = EXIT_NO_RESOURCE;
 				break;
+			case EBUSY:
+				continue;
 			default:
 				pr_fail("%s: swapon failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
@@ -303,14 +353,20 @@ static int stress_swap(const stress_args_t *args)
 		ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (ptr != MAP_FAILED) {
-			(void)memset(ptr, 0xff, mmap_size);
 #if defined(MADV_PAGEOUT)
+			size_t i;
+
+			for (i = 0; i < mmap_size; i += page_size) {
+				memset(ptr + i, i, page_size);
+			}
 			(void)shim_madvise(ptr, mmap_size, MADV_PAGEOUT);
 #endif
+			stress_swap_check_swapped(ptr, page_size, npages,
+				&swapped_out, &swapped_total);
 			(void)munmap(ptr, mmap_size);
 		}
 
-		ret = swapoff(filename);
+		ret = stress_swapoff(filename);
 		if ((bad_flags == SWAP_HDR_SANE) && (ret < 0)) {
 			pr_fail("%s: swapoff failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -321,11 +377,11 @@ static int stress_swap(const stress_args_t *args)
 		/* Exercise illegal swapon filename */
 		ret = swapon("", swapflags);
 		if (ret == 0)
-			ret = swapoff("");	/* Should never happen */
+			ret = stress_swapoff("");	/* Should never happen */
 		(void)ret;
 
 		/* Exercise illegal swapoff filename */
-		ret = swapoff("");
+		ret = stress_swapoff("");
 		if (ret == 0)
 			ret = swapon("", swapflags);	/* Should never happen */
 		(void)ret;
@@ -333,11 +389,16 @@ static int stress_swap(const stress_args_t *args)
 		/* Exercise illegal swapon flags */
 		ret = swapon(filename, ~0);
 		if (ret == 0)
-			ret = swapoff(filename);	/* Should never happen */
+			ret = stress_swapoff(filename);	/* Should never happen */
 		(void)ret;
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	swapped_percent = (swapped_total == 0) ?
+		0.0 : (100.0 * (double)swapped_out) / (double)swapped_total;
+	pr_inf("%s: %" PRIu64 " of %" PRIu64 " (%.2f%%) pages were swapped out\n",
+		args->name, swapped_out, swapped_total, swapped_percent);
 
 	ret = EXIT_SUCCESS;
 tidy_close:
