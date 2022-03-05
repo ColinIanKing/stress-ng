@@ -67,6 +67,7 @@ static NOINLINE void vm_unmap_self(const size_t page_size)
  */
 static int stress_vm_segv(const stress_args_t *args)
 {
+	bool test_valid = false;
 	stress_set_oom_adjustment(args->name, true);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -84,15 +85,17 @@ again:
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
-		} else if (pid > 0) {
+		}else if (pid > 0) {
 			int status, ret;
-
+	
 			(void)setpgid(pid, g_pgrp);
 			/* Parent, wait for child */
 
 			ret = shim_waitpid(pid, &status, 0);
 			if (ret < 0)
 				goto kill_child;
+
+			test_valid = true;
 #if !defined(HAVE_PTRACE)
 			if (WTERMSIG(status) == SIGSEGV) {
 				inc_counter(args);
@@ -164,11 +167,15 @@ kill_child:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	if (test_valid && (get_counter(args) == 0))
+		pr_fail("%s: no SIGSEGV signals detected\n", args->name);
+
 	return EXIT_SUCCESS;
 }
 
 stressor_info_t stress_vm_segv_info = {
 	.stressor = stress_vm_segv,
 	.class = CLASS_VM | CLASS_MEMORY | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
