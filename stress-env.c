@@ -120,7 +120,7 @@ static int stress_env_child(const stress_args_t *args, void *context)
 
 			for (j = 0; j < i; j++) {
 				if (verify) {
-					const size_t sz = stress_env_size(arg_max);
+					const size_t env_sz = stress_env_size(arg_max);
 					char *val;
 
 					(void)snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, j);
@@ -129,13 +129,13 @@ static int stress_env_child(const stress_args_t *args, void *context)
 						pr_fail("%s: cannot fetch environment variable %s\n",
 							args->name, name);
 					} else {
-						tmp = value[sz];
-						value[sz] = '\0';
+						tmp = value[env_sz];
+						value[env_sz] = '\0';
 						if (strcmp(value, val)) {
 							pr_fail("%s: environment variable %s contains incorrect data\n",
 								args->name, name);
 						}
-						value[sz] = tmp;
+						value[env_sz] = tmp;
 					}
 				}
 				ret = unsetenv(name);
