@@ -2716,7 +2716,8 @@ static int stress_sysinval(const stress_args_t *args)
 		goto tidy;
 	}
 
-	hash_table = mmap(NULL, sizeof(*hash_table),
+	hash_table = (stress_syscall_hash_table_t *)mmap(NULL,
+			sizeof(*hash_table),
 			PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (hash_table == MAP_FAILED) {
