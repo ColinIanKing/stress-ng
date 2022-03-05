@@ -154,7 +154,7 @@ char *stress_find_mount_dev(const char *name)
 		return NULL;
 
 	return realpath(mnt->mnt_fsname, dev_path);
-#else
+#elif defined(HAVE_SYS_SYSMACROS_H)
 	DIR *dir;
 	struct dirent *d;
 	dev_t majdev;
@@ -189,6 +189,8 @@ char *stress_find_mount_dev(const char *name)
 	}
 	(void)closedir(dir);
 
+	return NULL;
+#else
 	return NULL;
 #endif
 }
