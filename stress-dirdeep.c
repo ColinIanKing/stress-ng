@@ -254,8 +254,13 @@ static int stress_dir_exercise(
 		return -1;
 
 	for (i = 0; (i < n) && keep_stressing(args); i++) {
-		register const int ch = (int)namelist[n]->d_name[0];
+		register int ch;
 
+		/* Sanity check */
+		if (!namelist[n])
+			continue;
+
+		ch = (int)namelist[n]->d_name[0];
 		if (ch == '.')
 			continue;
 
