@@ -353,16 +353,33 @@ static int stress_swap(const stress_args_t *args)
 		ptr = mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 		if (ptr != MAP_FAILED) {
-#if defined(MADV_PAGEOUT)
 			size_t i;
+			const char *p_end = ptr + mmap_size;
+			char *p;
 
-			for (i = 0; i < mmap_size; i += page_size) {
-				memset(ptr + i, i, page_size);
+			/* Add simple check value to start of each page */
+			for (i = 0, p = ptr; p < p_end; p += page_size, i++) {
+				uintptr_t *up = (uintptr_t *)p;
+
+				(void)memset(p, i, page_size);
+				*up = (uintptr_t)p;
 			}
+#if defined(MADV_PAGEOUT)
 			(void)shim_madvise(ptr, mmap_size, MADV_PAGEOUT);
 #endif
 			stress_swap_check_swapped(ptr, page_size, npages,
 				&swapped_out, &swapped_total);
+
+			/* Check page has check address value */
+			for (i = 0, p = ptr; p < p_end; p += page_size, i++) {
+				uintptr_t *up = (uintptr_t *)p;
+
+				if (*up != (uintptr_t)p) {
+					pr_fail("%s: failed: address %p contains "
+						"%" PRIuPTR " and not %" PRIuPTR "\n",
+						args->name, p, *up, (uintptr_t)p);
+				}
+			}
 			(void)munmap(ptr, mmap_size);
 		}
 
@@ -420,6 +437,7 @@ stressor_info_t stress_swap_info = {
 	.stressor = stress_swap,
 	.supported = stress_swap_supported,
 	.class = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
 #else
