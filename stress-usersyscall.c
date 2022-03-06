@@ -197,7 +197,7 @@ static void MLOCKED_TEXT stress_sigsys_handler(
  */
 static int stress_usersyscall(const stress_args_t *args)
 {
-	int ret;
+	int ret, rc;
 	struct sigaction action;
 #if defined(STRESS_EXERCISE_X86_SYSCALL)
 	uintptr_t begin, end;
@@ -256,6 +256,11 @@ static int stress_usersyscall(const stress_args_t *args)
 		dispatcher_off();
 		/*  Should return USR_SYSCALL */
 		if (ret != USR_SYSCALL) {
+			if (errno == ENOSYS) {
+				pr_inf_skip("%s: got ENOSYS for usersyscall, skipping stressor\n", args->name);
+				rc = EXIT_NOT_IMPLEMENTED;
+				goto err;
+			}
 			pr_fail("%s: didn't get 0x%x on user syscall, "
 				"got 0x%x instead, errno=%d (%s)\n",
 				args->name, USR_SYSCALL, ret, errno, strerror(errno));
@@ -333,9 +338,11 @@ static int stress_usersyscall(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+	rc = EXIT_SUCCESS;
+err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_usersyscall_info = {
