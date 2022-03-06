@@ -280,7 +280,7 @@ long shim_getcpu(
 	unsigned *node,
 	void *tcache)
 {
-#if defined(HAVE_GETCPU)
+#if defined(HAVE_GETCPU) && !defined(STRESS_ARCH_S390)
 	(void)tcache;
 	return (long)getcpu(cpu, node);
 #elif defined(__NR_getcpu)
