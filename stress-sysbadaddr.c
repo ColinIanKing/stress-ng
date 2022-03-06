@@ -61,6 +61,10 @@ UNEXPECTED
 UNEXPECTED
 #endif
 
+#if defined(HAVE_PTRACE)
+#include <sys/ptrace.h>
+#endif
+
 typedef void *(*stress_bad_addr_t)(const stress_args_t *args);
 typedef int (*stress_bad_syscall_t)(void *addr);
 
