@@ -19,7 +19,7 @@
 
 VERSION=0.13.11
 #
-# Codename "effulgent golden cetacean"
+# Codename "refulgent coruscating seadragon"
 #
 
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
