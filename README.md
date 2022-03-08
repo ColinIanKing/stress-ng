@@ -300,7 +300,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [stress-ng on gcov enabled focal kernel triggers OOPS](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1879470)
 * [sparc64: Fix opcode filtering in handling of no fault loads](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=e5e8b80d352ec999d2bba3ea584f541c83f4ca3f)
 * [opening a file with O_DIRECT on a file system that does not support it will leave an empty file](https://bugzilla.kernel.org/show_bug.cgi?id=213041)
-* [sparc64: locking/atomic, kernel OOPS on running stress-ng](https://lore.kernel.org/lkml/CADxRZqzcrnSMzy50T+kWb_mQVguWDCMu6RoXsCc+-fNDPYXbaw@mail.gmail.com/#r)
+* [locking/atomic: sparc: Fix arch_cmpxchg64_local()](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=7e1088760cfe0bb1fdb1f0bd155bfd52f080683a)
 * [btrfs: fix exhaustion of the system chunk array due to concurrent allocations](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=986aa0f276752ca4809f95b260f59fafef01a6a7)
 * [btrfs: rework chunk allocation to avoid exhaustion of the system chunk array](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=79bd37120b149532af5b21953643ed74af69654f)
 * [btrfs: fix deadlock with concurrent chunk allocations involving system chunks](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=1cb3db1cf383a3c7dbda1aa0ce748b0958759947)
