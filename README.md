@@ -274,7 +274,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [WARNING: possible circular locking dependency detected](https://www.spinics.net/lists/kernel/msg2679315.html)
 * [SMP divide error](https://bugs.centos.org/view.php?id=14366)
 * [ext4_validate_inode_bitmap:99: comm stress-ng: Corrupt inode bitmap](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1780137)
-* [4.15 s390x kernel BUG at /build/linux-Gycr4Z/linux-4.15.0/drivers/block/virtio_blk.c:565](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1788432)
+* [virtio/s390: fix race in ccw_io_helper()](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=78b1a52e05c9db11d293342e8d6d8a230a04b4e7)
 * [mm/page_idle.c: fix oops because end_pfn is larger than max_pfn](https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/mm/page_idle.c?id=d96d6145d9796d5f1eac242538d45559e9a23404)
 * [Illumos: ofdlock(): assertion failed: lckdat->l_start == 0](https://www.illumos.org/issues/9061)
 * [mm: compaction: avoid 100% CPU usage during compaction when a task is killed](https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/commit/?id=670105a25608affe01cb0ccdc2a1f4bd2327172b)
@@ -309,6 +309,8 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [io-wq: remove GFP_ATOMIC allocation off schedule out path](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=d3e9f732c415cf22faa33d6f195e291ad82dc92e)
 * [mm/swap: consider max pages in iomap_swapfile_add_extent](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=36ca7943ac18aebf8aad4c50829eb2ea5ec847df)
 * [copy_process(): Move fd_install() out of sighand->siglock critical section](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ddc204b517e60ae64db34f9832dc41dafa77c751)
+* [minix: fix bug when opening a file with O_DIRECT](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=3b8dfaf43fa3c72b64dce03c13376371e48f7ecf)
+* [block: loop: fix deadlock between open and remove](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=990e78116d38059c9306cf0560c1c4ed1cf358d3)
 
 ## Kernel improvements that used stress-ng
 
