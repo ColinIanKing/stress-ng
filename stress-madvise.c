@@ -112,6 +112,15 @@ static const int madvise_options[] = {
 #if defined(MADV_PAGEOUT)
 	MADV_PAGEOUT,
 #endif
+#if defined(MADV_POPULATE_READ)
+	MADV_POPULATE_READ,
+#endif
+#if defined(MADV_POPULATE_WRITE)
+	MADV_POPULATE_WRITE,
+#endif
+#if defined(MADV_DONTNEED_LOCKED)
+	MADV_DONTNEED_LOCKED,
+#endif
 /* FreeBSD */
 #if defined(MADV_AUTOSYNC)
 	MADV_AUTOSYNC,
