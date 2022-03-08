@@ -133,6 +133,7 @@ free_all:
 	 * currently does not destroy them.  It's a mess,
 	 * so for now, don't free them and just let it
 	 * leak, the exit() will clean up the heap for us
+	 * See: https://bugs.dragonflybsd.org/issues/1398
 	 */
 #if defined(__linux__)
 	for (i = 0; i < max; i++)
