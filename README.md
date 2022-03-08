@@ -328,6 +328,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [mm/migrate: optimize hotplug-time demotion order updates](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=295be91f7ef0027fca2f2e4788e99731aa931834)
 * [powerpc/rtas: rtas_busy_delay() improvements](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=38f7b7067dae0c101be573106018e8af22a90fdf)
 * [sched/core: Accounting forceidle time for all tasks except idle task](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b171501f258063f5c56dd2c5fdf310802d8d7dc1)
+* [running stress-ng on Minux 3.4.0-RC6 on amd64 assert in vm/region.c:313](https://github.com/Stichting-MINIX-Research-Foundation/minix/issues/333)
 
 ## Presentations
 
