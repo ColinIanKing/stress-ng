@@ -311,6 +311,8 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [copy_process(): Move fd_install() out of sighand->siglock critical section](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=ddc204b517e60ae64db34f9832dc41dafa77c751)
 * [minix: fix bug when opening a file with O_DIRECT](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=3b8dfaf43fa3c72b64dce03c13376371e48f7ecf)
 * [block: loop: fix deadlock between open and remove](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=990e78116d38059c9306cf0560c1c4ed1cf358d3)
+* [running stress-ng on Minux 3.4.0-RC6 on amd64 assert in vm/region.c:313](https://github.com/Stichting-MINIX-Research-Foundation/minix/issues/333)
+
 
 ## Kernel improvements that used stress-ng
 
@@ -328,8 +330,6 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [mm/migrate: optimize hotplug-time demotion order updates](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=295be91f7ef0027fca2f2e4788e99731aa931834)
 * [powerpc/rtas: rtas_busy_delay() improvements](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=38f7b7067dae0c101be573106018e8af22a90fdf)
 * [sched/core: Accounting forceidle time for all tasks except idle task](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=b171501f258063f5c56dd2c5fdf310802d8d7dc1)
-* [running stress-ng on Minux 3.4.0-RC6 on amd64 assert in vm/region.c:313](https://github.com/Stichting-MINIX-Research-Foundation/minix/issues/333)
-
 ## Presentations
 
 * [Stress-ng presentation at ELCE 2019 Lyon](https://static.sched.com/hosted_files/osseu19/29/Lyon-stress-ng-presentation-oct-2019.pdf)
