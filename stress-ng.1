@@ -4414,7 +4414,7 @@ msync'ing on each page.
 .B \-\-tree N
 start N workers that exercise tree data structures. The default is
 to add, find and remove 250,000 64 bit integers into AVL (avl),
-Red-Black (rb), Splay (splay) and binary trees.  The intention of
+Red-Black (rb), Splay (splay), btree and binary trees.  The intention of
 this stressor is to exercise memory and cache with the various tree
 operations.
 .TP
@@ -4426,9 +4426,9 @@ finding and removing all the items into the tree(s).
 specify the size of the tree, where N is the number of 64 bit integers
 to be added into the tree.
 .TP
-.B \-\-tree\-method [ all | avl | binary | rb | splay ]
-specify the tree to be used. By default, both the rb ad splay trees
-are used (the 'all' option).
+.B \-\-tree\-method [ all | avl | binary | btree | rb | splay ]
+specify the tree to be used. By default, all the trees are
+used (the 'all' option).
 .TP
 .B \-\-tsc N
 start N workers that read the Time Stamp Counter (TSC) 256 times per loop

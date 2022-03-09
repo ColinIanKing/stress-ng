@@ -47,7 +47,7 @@ static const stress_tree_method_info_t tree_methods[];
 static const stress_help_t help[] = {
 	{ NULL,	"tree N",	 "start N workers that exercise tree structures" },
 	{ NULL,	"tree-ops N",	 "stop after N bogo tree operations" },
-	{ NULL,	"tree-method M", "select tree method, all,avl,binary,rb,splay" },
+	{ NULL,	"tree-method M", "select tree method: all,avl,binary,btree,rb,splay" },
 	{ NULL,	"tree-size N",	 "N is the number of items in the tree" },
 	{ NULL,	NULL,		 NULL }
 };
@@ -72,6 +72,16 @@ struct avl_node {
 	struct tree_node *right;
 	uint8_t	bf;
 };
+
+#define BTREE_M		(31)
+#define BTREE_MIN	((BTREE_M >> 1) - 1)
+#define BTREE_MAX	(BTREE_M - 1)
+
+typedef struct btree_node {
+	uint64_t value[BTREE_MAX + 1];
+	struct btree_node *node[BTREE_MAX + 1];
+	int count;
+} btree_node_t;
 
 struct tree_node {
 	uint64_t value;
@@ -509,6 +519,217 @@ static void stress_tree_avl(
 	avl_remove_tree(head);
 }
 
+
+static btree_node_t *root;
+
+btree_node_t *btree_new_node(
+	const uint64_t value,
+	btree_node_t *child)
+{
+	btree_node_t *node;
+
+	node = (btree_node_t *)calloc(1, sizeof(*node));
+	if (!node)
+		return NULL;
+	node->count = 1;
+	node->value[1] = value;
+	node->node[0] = root;
+	node->node[1] = child;
+
+	return node;
+}
+
+void btree_insert_node(
+	const uint64_t value,
+	const int pos,
+	btree_node_t *node,
+        btree_node_t *child)
+{
+	register int j = node->count;
+
+	while (j > pos) {
+		node->value[j + 1] = node->value[j];
+		node->node[j + 1] = node->node[j];
+		j--;
+	}
+	node->value[j + 1] = value;
+	node->node[j + 1] = child;
+	node->count++;
+}
+
+btree_node_t *btree_split_node(
+	const uint64_t value,
+	uint64_t *new_value,
+	int pos,
+	btree_node_t *node,
+	btree_node_t *child)
+{
+	btree_node_t *new_node;
+	register int j;
+	int median = (pos > BTREE_MIN) ? BTREE_MIN + 1 : BTREE_MIN;
+
+	new_node = (btree_node_t *)calloc(1, sizeof(*new_node));
+	if (!new_node)
+		return NULL;
+
+	j = median + 1;
+	while (j <= BTREE_MAX) {
+		new_node->value[j - median] = node->value[j];
+		new_node->node[j - median] = node->node[j];
+		j++;
+	}
+	node->count = median;
+	new_node->count = BTREE_MAX - median;
+
+	if (pos <= BTREE_MIN) {
+		btree_insert_node(value, pos, node, child);
+	} else {
+		btree_insert_node(value, pos - median, new_node, child);
+	}
+	*new_value = node->value[node->count];
+	new_node->node[0] = node->node[node->count];
+	node->count--;
+
+	return new_node;
+}
+
+btree_node_t *btree_insert_value(
+	const uint64_t value,
+	uint64_t *new_value,
+	btree_node_t *node,
+	bool *make_new_node)
+{
+	register int pos;
+	btree_node_t *child;
+
+	if (UNLIKELY(!node)) {
+		*new_value = value;
+		*make_new_node = true;
+		return NULL;
+	}
+
+	if (value < node->value[1]) {
+		pos = 0;
+	} else {
+		pos = node->count;
+		while ((value < node->value[pos]) && (pos > 1))
+			pos--;
+		if (value == node->value[pos]) {
+			*make_new_node = false;
+			return node;
+		}
+	}
+	child = btree_insert_value(value, new_value, node->node[pos], make_new_node);
+	if (*make_new_node) {
+		if (node->count < BTREE_MAX) {
+			btree_insert_node(*new_value, pos, node, child);
+		} else {
+			child = btree_split_node(*new_value, new_value, pos, node, child);
+			*make_new_node = true;
+			return child;
+		}
+	}
+	*make_new_node = false;
+	return child;
+}
+
+void btree_insert(const uint64_t value)
+{
+	bool flag;
+	uint64_t new_value;
+	btree_node_t *child;
+
+	child = btree_insert_value(value, &new_value, root, &flag);
+	if (flag)
+		root = btree_new_node(new_value, child);
+}
+
+void btree_remove_tree(btree_node_t **node)
+{
+	int i;
+
+	if (!*node)
+		return;
+
+	for (i = 0; i <= (*node)->count; i++) {
+		btree_remove_tree(&(*node)->node[i]);
+		free((*node)->node[i]);
+		(*node)->node[i] = NULL;
+	}
+	free(*node);
+	*node = NULL;
+}
+
+bool btree_search(
+	btree_node_t *node,
+	const uint64_t value,
+	int *pos)
+{
+	if (!node)
+		return false;
+
+	if (value < node->value[1]) {
+		*pos = 0;
+	} else {
+		register int p;
+
+		p = node->count;
+		while ((value < node->value[p]) && (p > 1))
+			p--;
+		*pos = p;
+		if (value == node->value[*pos])
+			return true;
+	}
+  	return btree_search(node->node[*pos], value, pos);
+}
+
+bool btree_find(btree_node_t *root, const uint64_t value)
+{
+	int pos;
+
+	return btree_search(root, value, &pos);
+}
+
+static void stress_tree_btree(
+	const stress_args_t *args,
+	const size_t n,
+	struct tree_node *nodes)
+{
+	size_t i;
+	struct tree_node *node;
+	bool find;
+
+	for (node = nodes, i = 0; i < n; i++, node++)
+		btree_insert(node->value);
+
+	/* Manditory forward tree check */
+	for (node = nodes, i = 0; i < n; i++, node++) {
+		find = btree_find(root, node->value);
+		if (!find)
+			pr_fail("%s: btree node #%zd not found\n",
+				args->name, i);
+	}
+	if (g_opt_flags & OPT_FLAGS_VERIFY) {
+		/* optional reverse find */
+		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
+			find = btree_find(root, node->value);
+			if (!find)
+				pr_fail("%s: btree node #%zd not found\n",
+					args->name, i);
+		}
+		/* optional random find */
+		for (i = 0; i < n; i++) {
+			const size_t j = stress_mwc32() % n;
+
+			find = btree_find(root, nodes[j].value);
+			if (!find)
+				pr_fail("%s: btree node #%zd not found\n",
+					args->name, j);
+		}
+	}
+	btree_remove_tree(&root);
+}
+
 static void stress_tree_all(
 	const stress_args_t *args,
 	const size_t n,
@@ -518,6 +739,7 @@ static void stress_tree_all(
 	stress_tree_splay(args, n, nodes);
 	stress_tree_binary(args, n, nodes);
 	stress_tree_avl(args, n, nodes);
+	stress_tree_btree(args, n, nodes);
 }
 #endif
 
@@ -532,6 +754,7 @@ static const stress_tree_method_info_t tree_methods[] = {
 	{ "binary",	stress_tree_binary },
 	{ "rb",		stress_tree_rb },
 	{ "splay",	stress_tree_splay },
+	{ "btree",	stress_tree_btree },
 #endif
 	{ NULL,		NULL },
 };
