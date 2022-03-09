@@ -247,7 +247,7 @@ static void stress_tree_splay(
 	}
 }
 
-static void binary_insert(
+static void OPTIMIZE3 binary_insert(
 	struct tree_node **head,
 	struct tree_node *node)
 {
@@ -259,7 +259,7 @@ static void binary_insert(
 	*head = node;
 }
 
-static struct tree_node *binary_find(
+static struct tree_node * OPTIMIZE3 binary_find(
 	struct tree_node *head,
 	struct tree_node *node)
 {
@@ -273,7 +273,7 @@ static struct tree_node *binary_find(
 	return NULL;
 }
 
-static void binary_remove_tree(struct tree_node *node)
+static void OPTIMIZE3 binary_remove_tree(struct tree_node *node)
 {
 	if (node) {
 		binary_remove_tree(node->u.binary.left);
@@ -325,7 +325,7 @@ static void stress_tree_binary(
 	binary_remove_tree(head);
 }
 
-static void avl_insert(
+static void OPTIMIZE3 avl_insert(
 	struct tree_node **root,
 	struct tree_node *node,
 	bool *taller)
@@ -453,7 +453,7 @@ static void avl_insert(
 	}
 }
 
-static struct tree_node *avl_find(
+static struct tree_node OPTIMIZE3 *avl_find(
 	struct tree_node *head,
 	struct tree_node *node)
 {
@@ -467,7 +467,7 @@ static struct tree_node *avl_find(
 	return NULL;
 }
 
-static void avl_remove_tree(struct tree_node *node)
+static void OPTIMIZE3 avl_remove_tree(struct tree_node *node)
 {
 	if (node) {
 		avl_remove_tree(node->u.avl.left);
@@ -519,10 +519,7 @@ static void stress_tree_avl(
 	avl_remove_tree(head);
 }
 
-
-static btree_node_t *root;
-
-static void btree_insert_node(
+static void OPTIMIZE3 btree_insert_node(
 	const uint64_t value,
 	const int pos,
 	btree_node_t *node,
@@ -540,10 +537,10 @@ static void btree_insert_node(
 	node->count++;
 }
 
-static btree_node_t *btree_split_node(
+static btree_node_t * OPTIMIZE3 btree_split_node(
 	const uint64_t value,
 	uint64_t *new_value,
-	int pos,
+	const int pos,
 	btree_node_t *node,
 	btree_node_t *child)
 {
@@ -552,7 +549,7 @@ static btree_node_t *btree_split_node(
 	int median = (pos > BTREE_MIN) ? BTREE_MIN + 1 : BTREE_MIN;
 
 	new_node = (btree_node_t *)calloc(1, sizeof(*new_node));
-	if (!new_node)
+	if (UNLIKELY(!new_node))
 		return NULL;
 
 	j = median + 1;
@@ -576,7 +573,7 @@ static btree_node_t *btree_split_node(
 	return new_node;
 }
 
-static btree_node_t *btree_insert_value(
+static btree_node_t * OPTIMIZE3 btree_insert_value(
 	const uint64_t value,
 	uint64_t *new_value,
 	btree_node_t *node,
@@ -598,7 +595,7 @@ static btree_node_t *btree_insert_value(
 		pos = node->count;
 		while ((value < node->value[pos]) && (pos > 1))
 			pos--;
-		if (value == node->value[pos]) {
+		if (UNLIKELY(value == node->value[pos])) {
 			*make_new_node = false;
 			return node;
 		}
@@ -617,31 +614,31 @@ static btree_node_t *btree_insert_value(
 	return child;
 }
 
-static bool btree_insert(const uint64_t value)
+static bool OPTIMIZE3 btree_insert(btree_node_t **root, const uint64_t value)
 {
 	bool flag;
 	uint64_t new_value;
 	btree_node_t *child;
 	bool alloc_fail = false;
 
-	child = btree_insert_value(value, &new_value, root, &flag, &alloc_fail);
+	child = btree_insert_value(value, &new_value, *root, &flag, &alloc_fail);
 	if (flag) {
 		btree_node_t *node;
 
 		node = (btree_node_t *)calloc(1, sizeof(*node));
-		if (!node)
+		if (UNLIKELY(!node))
 			return false;
 		node->count = 1;
 		node->value[1] = new_value;
-		node->node[0] = root;
+		node->node[0] = *root;
 		node->node[1] = child;
 
-		root = node;
+		*root = node;
 	}
 	return alloc_fail;
 }
 
-static void btree_remove_tree(btree_node_t **node)
+static void OPTIMIZE3 btree_remove_tree(btree_node_t **node)
 {
 	int i;
 
@@ -657,7 +654,7 @@ static void btree_remove_tree(btree_node_t **node)
 	*node = NULL;
 }
 
-static bool btree_search(
+static inline bool OPTIMIZE3 btree_search(
 	btree_node_t *node,
 	const uint64_t value,
 	int *pos)
@@ -680,7 +677,7 @@ static bool btree_search(
   	return btree_search(node->node[*pos], value, pos);
 }
 
-static inline bool btree_find(btree_node_t *root, const uint64_t value)
+static inline bool OPTIMIZE3 btree_find(btree_node_t *root, const uint64_t value)
 {
 	int pos;
 
@@ -694,10 +691,11 @@ static void stress_tree_btree(
 {
 	size_t i;
 	struct tree_node *node;
+	btree_node_t *root = NULL;
 	bool find;
 
 	for (node = nodes, i = 0; i < n; i++, node++)
-		btree_insert(node->value);
+		btree_insert(&root, node->value);
 
 	/* Manditory forward tree check */
 	for (node = nodes, i = 0; i < n; i++, node++) {
