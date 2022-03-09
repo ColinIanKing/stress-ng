@@ -522,24 +522,7 @@ static void stress_tree_avl(
 
 static btree_node_t *root;
 
-btree_node_t *btree_new_node(
-	const uint64_t value,
-	btree_node_t *child)
-{
-	btree_node_t *node;
-
-	node = (btree_node_t *)calloc(1, sizeof(*node));
-	if (!node)
-		return NULL;
-	node->count = 1;
-	node->value[1] = value;
-	node->node[0] = root;
-	node->node[1] = child;
-
-	return node;
-}
-
-void btree_insert_node(
+static void btree_insert_node(
 	const uint64_t value,
 	const int pos,
 	btree_node_t *node,
@@ -557,7 +540,7 @@ void btree_insert_node(
 	node->count++;
 }
 
-btree_node_t *btree_split_node(
+static btree_node_t *btree_split_node(
 	const uint64_t value,
 	uint64_t *new_value,
 	int pos,
@@ -593,11 +576,12 @@ btree_node_t *btree_split_node(
 	return new_node;
 }
 
-btree_node_t *btree_insert_value(
+static btree_node_t *btree_insert_value(
 	const uint64_t value,
 	uint64_t *new_value,
 	btree_node_t *node,
-	bool *make_new_node)
+	bool *make_new_node,
+	bool *alloc_fail)
 {
 	register int pos;
 	btree_node_t *child;
@@ -619,7 +603,7 @@ btree_node_t *btree_insert_value(
 			return node;
 		}
 	}
-	child = btree_insert_value(value, new_value, node->node[pos], make_new_node);
+	child = btree_insert_value(value, new_value, node->node[pos], make_new_node, alloc_fail);
 	if (*make_new_node) {
 		if (node->count < BTREE_MAX) {
 			btree_insert_node(*new_value, pos, node, child);
@@ -633,18 +617,31 @@ btree_node_t *btree_insert_value(
 	return child;
 }
 
-void btree_insert(const uint64_t value)
+static bool btree_insert(const uint64_t value)
 {
 	bool flag;
 	uint64_t new_value;
 	btree_node_t *child;
+	bool alloc_fail = false;
 
-	child = btree_insert_value(value, &new_value, root, &flag);
-	if (flag)
-		root = btree_new_node(new_value, child);
+	child = btree_insert_value(value, &new_value, root, &flag, &alloc_fail);
+	if (flag) {
+		btree_node_t *node;
+
+		node = (btree_node_t *)calloc(1, sizeof(*node));
+		if (!node)
+			return false;
+		node->count = 1;
+		node->value[1] = new_value;
+		node->node[0] = root;
+		node->node[1] = child;
+
+		root = node;
+	}
+	return alloc_fail;
 }
 
-void btree_remove_tree(btree_node_t **node)
+static void btree_remove_tree(btree_node_t **node)
 {
 	int i;
 
@@ -660,7 +657,7 @@ void btree_remove_tree(btree_node_t **node)
 	*node = NULL;
 }
 
-bool btree_search(
+static bool btree_search(
 	btree_node_t *node,
 	const uint64_t value,
 	int *pos)
@@ -683,7 +680,7 @@ bool btree_search(
   	return btree_search(node->node[*pos], value, pos);
 }
 
-bool btree_find(btree_node_t *root, const uint64_t value)
+static inline bool btree_find(btree_node_t *root, const uint64_t value)
 {
 	int pos;
 
