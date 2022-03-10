@@ -2268,6 +2268,50 @@ static void stress_dev_cdrom_linux(
 	UNEXPECTED
 #endif
 
+#if defined(CDROM_LOCKDOOR)
+	IOCTL_TIMEOUT(0.10, {
+		int lockdoor;
+		int ret;
+
+		/* Lock */
+		lockdoor = 1;
+		ret = ioctl(fd, CDROM_LOCKDOOR, lockdoor);
+		(void)ret;
+
+		/* Unlock */
+		lockdoor = 0;
+		ret = ioctl(fd, CDROM_LOCKDOOR, lockdoor);
+		(void)ret;
+	}, return);
+#else
+	UNEXPECTED
+#endif
+
+#if defined(CDROM_SET_OPTIONS)
+	IOCTL_TIMEOUT(0.20, {
+		int option = 0;	/* Just read options */
+		int ret;
+
+		/* Read */
+		ret = ioctl(fd, CDROM_SET_OPTIONS, option);
+		if (ret >= 0) {
+			/* Set (with current options) */
+			ret = ioctl(fd, CDROM_SET_OPTIONS, option);
+			(void)ret;
+		}
+#if defined(CDROM_CLEAR_OPTIONS)
+		ret = ioctl(fd, CDROM_CLEAR_OPTIONS, 0);
+		(void)ret;
+		ret = ioctl(fd, CDROM_CLEAR_OPTIONS, option);
+		(void)ret;
+		ret = ioctl(fd, CDROM_SET_OPTIONS, option);
+		(void)ret;
+#endif
+	}, return);
+#else
+	UNEXPECTED
+#endif
+
 #if defined(CDROM_SELECT_SPEED)
 	IOCTL_TIMEOUT(0.10, {
 		unsigned int i;
