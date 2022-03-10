@@ -674,7 +674,7 @@ static inline bool OPTIMIZE3 btree_search(
 		if (value == node->value[*pos])
 			return true;
 	}
-  	return btree_search(node->node[*pos], value, pos);
+	return btree_search(node->node[*pos], value, pos);
 }
 
 static inline bool OPTIMIZE3 btree_find(btree_node_t *root, const uint64_t value)
