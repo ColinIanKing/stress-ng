@@ -240,7 +240,9 @@ static int stress_usersyscall(const stress_args_t *args)
 			break;
 		}
 		/*  Expect ENOSYS for the system call return */
+		errno = 0;
 		ret = syscall(USR_SYSCALL);
+		(void)ret;
 		if (errno != ENOSYS) {
 			pr_fail("%s: didn't get ENOSYS on user syscall, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
