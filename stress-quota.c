@@ -375,13 +375,16 @@ static int stress_quota(const stress_args_t *args)
 				break;
 			}
 		}
-		if (unique && devs[i].name)
-			devs[n_devs++] = devs[i];
-		else
-			free(devs[i].name);
+		if (devs[i].name) {
+			if (unique) {
+				devs[n_devs++] = devs[i];
+			} else {
+				free(devs[i].name);
+				devs[i].name = NULL;
+				devs[i].valid = false;
+			}
+		}
 	}
-	for (i = n_devs; i < n_mounts; i++)
-		(void)memset(&devs[i], 0, sizeof(devs[i]));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
