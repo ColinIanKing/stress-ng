@@ -625,7 +625,8 @@ static int rb_put(void *handle, const uint32_t x, const uint32_t y, const uint64
 			return -1;
 		new_node->value = value;
 		new_node->xy = node.xy;
-		RB_INSERT(sparse_rb_tree, handle, new_node);
+		if (RB_INSERT(sparse_rb_tree, handle, new_node) != NULL)
+			free(new_node);
 		rb_objmem += sizeof(sparse_rb_t);
 	} else {
 		found->value = value;
