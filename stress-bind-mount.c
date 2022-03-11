@@ -138,7 +138,7 @@ bind_umount:
 	} while (keep_stressing_flag() &&
 		 (!args->max_ops || (get_counter(args) < args->max_ops)));
 
-	(void)rmdir(path);
+	(void)shim_rmdir(path);
 	return 0;
 }
 
