@@ -428,7 +428,7 @@ stress-ng: $(OBJS)
 	$(V)sync
 
 config.h:
-	+$(MAKE) -f Makefile.config STATIC=$(STATIC) -j
+	+$(MAKE) CC=$(CC) STATIC=$(STATIC) -f Makefile.config -j
 
 .PHONY:
 makeconfig: config.h
