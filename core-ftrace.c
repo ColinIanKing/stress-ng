@@ -211,7 +211,9 @@ static int stress_ftrace_parse_trace_stat_file(const char *path, const bool star
 				tn->end_count = count;
 				tn->end_time_us = time_us;
 			}
-			RB_INSERT(rb_tree, &rb_root, tn);
+			/* If we find an exiting matching, free the unused new tn */
+			if (RB_INSERT(rb_tree, &rb_root, tn) != NULL)
+				free(tn);
 		}
 	}
 	(void)fclose(fp);
