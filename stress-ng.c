@@ -958,6 +958,7 @@ static const struct option long_options[] = {
 	{ "udp",		1,	0,	OPT_udp },
 	{ "udp-ops",		1,	0,	OPT_udp_ops },
 	{ "udp-domain",		1,	0,	OPT_udp_domain },
+	{ "udp-gro",		0,	0,	OPT_udp_gro },
 	{ "udp-lite",		0,	0,	OPT_udp_lite },
 	{ "udp-port",		1,	0,	OPT_udp_port },
 	{ "udp-flood",		1,	0,	OPT_udp_flood },

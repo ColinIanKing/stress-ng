@@ -62,6 +62,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"udp N",	"start N workers performing UDP send/receives " },
 	{ NULL,	"udp-ops N",	"stop after N udp bogo operations" },
 	{ NULL,	"udp-domain D",	"specify domain, default is ipv4" },
+	{ NULL, "udp-gro",	"enable UDP-GRO" },
 	{ NULL,	"udp-lite",	"use the UDP-Lite (RFC 3828) protocol" },
 	{ NULL,	"udp-port P",	"use ports P to P + number of workers - 1" },
 	{ NULL,	NULL,		NULL }
@@ -99,6 +100,14 @@ static int stress_set_udp_lite(const char *opt)
 	return stress_set_setting("udp-lite", TYPE_ID_BOOL, &udp_lite);
 }
 
+static int stress_set_udp_gro(const char *opt)
+{
+	bool udp_gro = true;
+
+	(void)opt;
+	return stress_set_setting("udp-gro", TYPE_ID_BOOL, &udp_gro);
+}
+
 /*
  *  stress_udp
  *	stress by heavy udp ops
@@ -112,6 +121,9 @@ static int stress_udp(const stress_args_t *args)
 	int proto = 0;
 #if defined(IPPROTO_UDPLITE)
 	bool udp_lite = false;
+#endif
+#if defined(UDP_GRO)
+	bool udp_gro = false;
 #endif
 
 	(void)stress_get_setting("udp-port", &udp_port);
@@ -130,6 +142,10 @@ static int stress_udp(const stress_args_t *args)
 				args->name);
 		}
 	}
+#endif
+
+#if defined(UDP_GRO)
+	(void)stress_get_setting("udp-gro", &udp_gro);
 #endif
 
 	pr_dbg("%s: process [%d] using udp port %d\n",
@@ -193,6 +209,17 @@ again:
 				socklen_t slen = sizeof(val);
 
 				(void)getsockopt(fd, proto, UDPLITE_RECV_CSCOV, &val, &slen);
+			}
+#endif
+
+#if defined(UDP_GRO)
+			if (udp_gro) {
+				int val, ret;
+				socklen_t slen = sizeof(val);
+
+				val = 1;
+				ret = setsockopt(fd, proto, UDP_GRO, &val, slen);
+				(void)ret;
 			}
 #endif
 
@@ -365,6 +392,17 @@ again:
 			}
 		}
 #endif
+
+#if defined(UDP_GRO)
+		if (udp_gro) {
+			int val, ret;
+			socklen_t slen = sizeof(val);
+
+			val = 1;
+			ret = setsockopt(fd, proto, UDP_GRO, &val, slen);
+			(void)ret;
+		}
+#endif
 		do {
 			socklen_t len = addr_len;
 			ssize_t n;
@@ -415,6 +453,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_udp_domain,	stress_set_udp_domain },
 	{ OPT_udp_port,		stress_set_udp_port },
 	{ OPT_udp_lite,		stress_set_udp_lite },
+	{ OPT_udp_gro,		stress_set_udp_gro },
 	{ 0,			NULL }
 };
 
