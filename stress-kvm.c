@@ -49,10 +49,14 @@ static const stress_help_t help[] = {
  *  Minimal x86 kernel, read/increment/write port $80 loop
  */
 static const uint8_t kvm_x86_kernel[] = {
+	0x31, 0xc0,  /* xor    %eax,%eax */
+	0x0f, 0xa2,  /* cpuid */
+	0x0f, 0x31,  /* rdtsc */
+	0x0f, 0x08,  /* inv */
 	0xe5, 0x80,  /* in     $0x80,%eax */
 	0x40,        /* inc    %eax       */
 	0xe7, 0x80,  /* out    %eax,$0x80 */
-	0xeb, 0xf9,  /* jmp    0 <_start> */
+	0xeb, 0xf1,  /* jmp    0 <_start> */
 };
 
 /*
