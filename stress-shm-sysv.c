@@ -675,6 +675,14 @@ static int stress_shm_sysv_child(
 			(void)stress_mincore_touch_pages(addr, sz);
 			(void)shim_msync(addr, sz, stress_mwc1() ? MS_ASYNC : MS_SYNC);
 
+#if defined(_POSIX_MEMLOCK_RANGE) &&   \
+    defined(HAVE_MLOCK)
+			/*
+			 *  Exercise mlock on 1st page of shm
+			 */
+			(void)shim_mlock(addr, 4096);
+#endif
+
 			if (!keep_stressing(args))
 				goto reap;
 			(void)stress_madvise_random(addr, sz);
@@ -814,6 +822,10 @@ static int stress_shm_sysv_child(
 reap:
 		for (i = 0; i < shm_sysv_segments; i++) {
 			if (addrs[i]) {
+#if defined(_POSIX_MEMLOCK_RANGE) &&   \
+    defined(HAVE_MLOCK)
+				(void)shim_munlock(addrs[i], 4096);
+#endif
 				if (shmdt(addrs[i]) < 0) {
 					pr_fail("%s: shmdt failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
