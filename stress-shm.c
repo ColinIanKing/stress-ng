@@ -215,6 +215,15 @@ static int stress_shm_posix_child(
 				goto reap;
 			}
 
+#if defined(_POSIX_MEMLOCK_RANGE) &&	\
+    defined(HAVE_MLOCK)
+			/*
+			 *  Exercise mlock on 1st page of shm
+			 */
+			ret = shim_mlock(addr, 4096);
+			(void)ret;
+#endif
+
 			/*
 			 *  Exercise shm duplication and reaping
 			 *  on a fork and exit
@@ -287,8 +296,13 @@ reap:
 		for (i = 0; ok && (i < (ssize_t)shm_posix_objects); i++) {
 			char *shm_name = &shm_names[i * SHM_NAME_LEN];
 
-			if (addrs[i])
+			if (addrs[i]) {
+#if defined(_POSIX_MEMLOCK_RANGE) &&	\
+    defined(HAVE_MLOCK)
+				(void)shim_munlock(addrs[i], 4096);
+#endif
 				(void)munmap(addrs[i], sz);
+			}
 			if (*shm_name) {
 				if (shm_unlink(shm_name) < 0) {
 					pr_fail("%s: shm_unlink failed, errno=%d (%s)\n",
