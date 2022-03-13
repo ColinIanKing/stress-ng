@@ -131,6 +131,11 @@ static void stress_proc_pci(const int fd)
 
 	ret = ioctl(fd, PCIIOC_CONTROLLER);
 	(void)ret;
+#if defined(PCIIOC_BASE)
+	/* EINVAL ioctl */
+	ret = ioctl(fd, PCIIOC_BASE | 0xff);
+	(void)ret;
+#endif
 }
 
 #endif
