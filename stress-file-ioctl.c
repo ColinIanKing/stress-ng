@@ -341,6 +341,21 @@ static int stress_file_ioctl(const stress_args_t *args)
 		UNEXPECTED
 #endif
 
+#if defined(HAVE_LINUX_FS_H) &&		\
+    defined(HAVE_FSXATTR_STRUCT) &&	\
+    defined(FS_IOC_FSGETXATTR)
+		{
+			struct fsxattr xattr;
+
+			ret = ioctl(fd, FS_IOC_FSGETXATTR, &xattr);
+#if defined(FS_IOC_FSSETXATTR)
+			if (ret == 0)
+				ret = ioctl(fd, FS_IOC_FSSETXATTR, &xattr);
+#endif
+			(void)ret;
+		}
+#endif
+
 #if defined(_IOW) &&	\
     defined(__linux__)
 
