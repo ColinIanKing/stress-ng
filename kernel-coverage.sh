@@ -346,11 +346,11 @@ do_stress --all 1
 #
 do_stress --brk -1 --brk-notouch --vmstat 1
 do_stress --brk -1 --brk-mlock
+do_stress --brk -1 --thrash
 
 do_stress --cpu -1 --sched batch --thermalstat 1
 do_stress --cpu -1 --taskset 0,2 --ignite-cpu
 do_stress --cpu -1 --taskset 1,2,3
-do_stress --cpu -1 --taskset 0,1,2 --thrash
 do_stress --cpu -1 --cpu-load-slice 50
 do_stress --cpu -1 --thermalstat 1 --vmstat 1 --tz
 
@@ -398,6 +398,7 @@ do_stress --mmap -1 --mmap-async
 do_stress --mmap -1 --mmap-odirect
 do_stress --mmap -1 --mmap-osync
 do_stress --mmap -1 --mmap-mmap2
+do_stress --mmap -1 --thrash
 
 do_stress --mremap -1 --mremap-mlock
 
