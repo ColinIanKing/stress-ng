@@ -58,6 +58,13 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 	struct rtc_wkalrm wake_alarm;
 	unsigned long tmp;
 #endif
+#if defined(HAVE_RTC_PARAM) &&		\
+    defined(RTC_PARAM_GET) &&		\
+    defined(RTC_PARAM_SET) &&		\
+    defined(RTC_PARAM_FEATURES)	&& 	\
+    defined(RTC_PARAM_CORRECTION)
+	struct rtc_param param;
+#endif
 	int fd, ret = 0;
 	static bool do_dev = true;
 	struct timeval timeout;
@@ -178,6 +185,42 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 			ret = -errno;
 			goto err;
 		}
+	}
+#endif
+
+#if defined(HAVE_RTC_PARAM) &&		\
+    defined(RTC_PARAM_GET) &&		\
+    defined(RTC_PARAM_SET) &&		\
+    defined(RTC_PARAM_FEATURES) &&	\
+    defined(RTC_PARAM_CORRECTION)
+
+	(void)memset(&param, 0, sizeof(param));
+	param.param = RTC_PARAM_FEATURES;
+	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
+		int r;
+
+		/* Should be EINVAL */
+		r = ioctl(fd, RTC_PARAM_SET, &param);
+		(void)r;
+	}
+
+	(void)memset(&param, 0, sizeof(param));
+	param.param = RTC_PARAM_CORRECTION;
+	param.index = 0;
+	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
+		int r;
+
+		r = ioctl(fd, RTC_PARAM_SET, &param);
+		(void)r;
+	}
+
+	(void)memset(&param, 0, sizeof(param));
+	param.param = ~0;
+	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
+		int r;
+
+		r = ioctl(fd, RTC_PARAM_SET, &param);
+		(void)r;
 	}
 #endif
 
