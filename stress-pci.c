@@ -150,13 +150,14 @@ static void stress_pci_exercise_file(
 	stress_pci_info_t *pi,
 	const char *name,
 	const bool rd,
-	const bool map)
+	const bool map,
+	const bool rom)
 {
 	char path[PATH_MAX];
 	int fd;
 
 	(void)snprintf(path, sizeof(path), "%s/%s", pi->path, name);
-	fd = open(path, O_RDONLY);
+	fd = open(path, rom ? O_RDWR : O_RDONLY);
 	if (fd >= 0) {
 		void *ptr;
 		size_t sz = 4096;
@@ -171,6 +172,11 @@ static void stress_pci_exercise_file(
 
 		sz = STRESS_MINIMUM(sz, (size_t)statbuf.st_size);
 
+		if (rom) {
+			n = write(fd, "1\n", 2);
+			(void)n;
+		}
+
 		if (map) {
 			ptr = mmap(NULL, sz, PROT_READ, MAP_SHARED, fd, 0);
 			if (ptr != MAP_FAILED)
@@ -178,6 +184,10 @@ static void stress_pci_exercise_file(
 		}
 		if (rd) {
 			n = read(fd, buf, sizeof(buf));
+			(void)n;
+		}
+		if (rom) {
+			n = write(fd, "0\n", 2);
 			(void)n;
 		}
 err:
@@ -200,10 +210,16 @@ static void stress_pci_exercise(stress_pci_info_t *pi)
 
 	for (i = 0; i < n; i++) {
 		const char *name = list[i]->d_name;
-		const bool map = (!strcmp(name, "config") ||
-		                  !strncmp(name, "resource", 8));
+		bool map = (!strcmp(name, "config") ||
+		            !strncmp(name, "resource", 8));
+		bool rom = false;
 
-		stress_pci_exercise_file(pi, name, true, map);
+		if (!strcmp(name, "rom")) {
+			map = true;
+			rom = true; 
+		}
+
+		stress_pci_exercise_file(pi, name, true, map, rom);
 		free(list[i]);
 	}
 	free(list);
