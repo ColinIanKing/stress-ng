@@ -216,9 +216,8 @@ static void stress_pci_exercise(stress_pci_info_t *pi)
 
 		if (!strcmp(name, "rom")) {
 			map = true;
-			rom = true; 
+			rom = true;
 		}
-
 		stress_pci_exercise_file(pi, name, true, map, rom);
 		free(list[i]);
 	}
