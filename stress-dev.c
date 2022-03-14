@@ -3820,6 +3820,7 @@ static inline void stress_dev_rw(
 	struct pollfd fds[1];
 	fd_set rfds;
 	const double threshold = 0.25;
+	const pid_t pid = getpid();
 
 	while ((loops == -1) || (loops > 0)) {
 		double t_start;
@@ -3865,6 +3866,8 @@ static inline void stress_dev_rw(
 			stress_dev_close_unlock(path, fd);
 			goto next;
 		}
+
+		(void)stress_read_fdinfo(pid, fd);
 
 		if (fstat(fd, &buf) < 0) {
 			pr_fail("%s: stat failed on %s, errno=%d (%s)\n",
