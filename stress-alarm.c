@@ -112,7 +112,7 @@ again:
 		_exit(err_mask);
 	} else {
 		int status, i;
-		const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
+		const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 
 		while (keep_stressing(args) &&
 		       (stress_time_now() < t_end)) {

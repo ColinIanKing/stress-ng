@@ -168,7 +168,7 @@ static int stress_get(const stress_args_t *args)
 {
 	char *mnts[MOUNTS_MAX];
 	int mounts_max;
-	const bool verify = (g_opt_flags & OPT_FLAGS_VERIFY);
+	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
 #if defined(HAVE_SYS_TIMEX_H)
 #if defined(HAVE_ADJTIMEX) || defined(HAVE_ADJTIME)
 	const bool cap_sys_time = stress_check_capability(SHIM_CAP_SYS_TIME);
