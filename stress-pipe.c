@@ -204,10 +204,13 @@ again:
 #if defined(FIONREAD)
 		int i = 0;
 #endif
+		const pid_t pid = getpid();
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
+
+		(void)stress_read_fdinfo(pid, pipefds[0]);
 
 		(void)close(pipefds[1]);
 		while (keep_stressing_flag()) {
