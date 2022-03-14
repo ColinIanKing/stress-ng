@@ -277,7 +277,8 @@ static void stress_filename_test(
 	const stress_args_t *args,
 	const char *filename,
 	const size_t sz_max,
-	const bool should_pass)
+	const bool should_pass,
+	const pid_t pid)
 {
 	int fd;
 	int ret;
@@ -297,6 +298,7 @@ static void stress_filename_test(
 			"%zu bytes, errno=%d (%s)\n",
 			args->name, sz_max, errno, strerror(errno));
 	} else {
+		stress_read_fdinfo(pid, fd);
 		(void)close(fd);
 
 		/* exercise dcache lookup of existent filename */
@@ -472,6 +474,7 @@ again:
 		}
 	} else if (pid == 0) {
 		/* Child, wrapped to catch OOMs */
+		const pid_t mypid = getpid();
 
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
@@ -492,61 +495,61 @@ again:
 
 			/* Should succeed */
 			stress_filename_generate(ptr, 1, ch);
-			stress_filename_test(args, filename, 1, true);
+			stress_filename_test(args, filename, 1, true, mypid);
 			if (!keep_stressing(args))
 				break;
 			stress_filename_generate_random(ptr, 1, chars_allowed);
-			stress_filename_test(args, filename, 1, true);
+			stress_filename_test(args, filename, 1, true, mypid);
 			if (!keep_stressing(args))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz_max, ch);
-			stress_filename_test(args, filename, sz_max, true);
+			stress_filename_test(args, filename, sz_max, true, mypid);
 			if (!keep_stressing(args))
 				break;
 			stress_filename_generate_random(ptr, sz_max, chars_allowed);
-			stress_filename_test(args, filename, sz_max, true);
+			stress_filename_test(args, filename, sz_max, true, mypid);
 			if (!keep_stressing(args))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz_max - 1, ch);
-			stress_filename_test(args, filename, sz_max - 1, true);
+			stress_filename_test(args, filename, sz_max - 1, true, mypid);
 			if (!keep_stressing(args))
 				break;
 			stress_filename_generate_random(ptr, sz_max - 1, chars_allowed);
-			stress_filename_test(args, filename, sz_max - 1, true);
+			stress_filename_test(args, filename, sz_max - 1, true, mypid);
 			if (!keep_stressing(args))
 				break;
 
 			/* Should fail */
 			stress_filename_generate(ptr, sz_max + 1, ch);
-			stress_filename_test(args, filename, sz_max + 1, false);
+			stress_filename_test(args, filename, sz_max + 1, false, mypid);
 			if (!keep_stressing(args))
 				break;
 			stress_filename_generate_random(ptr, sz_max + 1, chars_allowed);
-			stress_filename_test(args, filename, sz_max + 1, false);
+			stress_filename_test(args, filename, sz_max + 1, false, mypid);
 			if (!keep_stressing(args))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, sz, ch);
-			stress_filename_test(args, filename, sz, true);
+			stress_filename_test(args, filename, sz, true, mypid);
 			if (!keep_stressing(args))
 				break;
 			stress_filename_generate_random(ptr, sz, chars_allowed);
-			stress_filename_test(args, filename, sz, true);
+			stress_filename_test(args, filename, sz, true, mypid);
 			if (!keep_stressing(args))
 				break;
 
 			/* Should succeed */
 			stress_filename_generate(ptr, rnd_sz, ch);
-			stress_filename_test(args, filename, rnd_sz, true);
+			stress_filename_test(args, filename, rnd_sz, true, mypid);
 			if (!keep_stressing(args))
 				break;
 			stress_filename_generate_random(ptr, rnd_sz, chars_allowed);
-			stress_filename_test(args, filename, rnd_sz, true);
+			stress_filename_test(args, filename, rnd_sz, true, mypid);
 			if (!keep_stressing(args))
 				break;
 
