@@ -140,7 +140,8 @@ static int efi_get_data(
 	const char *varname,
 	const char *field,
 	void *buf,
-	size_t buf_len)
+	size_t buf_len,
+	const pid_t pid)
 {
 	int fd, rc = -1;
 	ssize_t n;
@@ -158,6 +159,8 @@ static int efi_get_data(
 			args->name, filename, errno, strerror(errno));
 		goto err_vars;
 	}
+
+	(void)stress_read_fdinfo(pid, fd);
 
 	(void)memset(buf, 0, buf_len);
 
@@ -225,7 +228,11 @@ err_vars:
  *  efi_get_variable()
  *	fetch a UEFI variable given its name.
  */
-static int efi_get_variable(const stress_args_t *args, const char *varname, stress_efi_var_t *var)
+static int efi_get_variable(
+	const stress_args_t *args,
+	const char *varname,
+	stress_efi_var_t *var,
+	const pid_t pid)
 {
 #if defined(FS_IOC_GETFLAGS) &&	\
     defined(FS_IOC_SETFLAGS)
@@ -241,12 +248,12 @@ static int efi_get_variable(const stress_args_t *args, const char *varname, stre
 	if ((!varname) || (!var))
 		return -1;
 
-	if (efi_get_data(args, varname, "raw_var", var, sizeof(*var)) < 0)
+	if (efi_get_data(args, varname, "raw_var", var, sizeof(*var), pid) < 0)
 		rc = -1;
 
 	/* Exercise reading the efi sysfs files */
 	for (i = 0; i < SIZEOF_ARRAY(efi_sysfs_names); i++) {
-		(void)efi_get_data(args, varname, efi_sysfs_names[i], data, sizeof(data));
+		(void)efi_get_data(args, varname, efi_sysfs_names[i], data, sizeof(data), pid);
 	}
 
 	(void)stress_mk_filename(filename, sizeof(filename), efi_vars, varname);
@@ -268,6 +275,8 @@ static int efi_get_variable(const stress_args_t *args, const char *varname, stre
 		rc = -1;
 		goto err_efi_vars;
 	}
+
+	(void)stress_read_fdinfo(pid, fd);
 
 #if defined(FS_IOC_GETFLAGS) &&	\
     defined(FS_IOC_SETFLAGS)
@@ -297,7 +306,7 @@ err_efi_vars:
  *  efi_vars_get()
  *	read EFI variables
  */
-static int efi_vars_get(const stress_args_t *args)
+static int efi_vars_get(const stress_args_t *args, const pid_t pid)
 {
 	int i;
 
@@ -314,7 +323,7 @@ static int efi_vars_get(const stress_args_t *args)
 			continue;
 		}
 
-		ret = efi_get_variable(args, d_name, &var);
+		ret = efi_get_variable(args, d_name, &var, pid);
 		if (ret < 0) {
 			efi_ignore[i] = true;
 			continue;
@@ -419,13 +428,15 @@ again:
 			return EXIT_FAILURE;
 		}
 	} else if (pid == 0) {
+		const pid_t mypid = getpid();
+
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		stress_set_oom_adjustment(args->name, true);
 		(void)sched_settings_apply(true);
 
 		do {
-			efi_vars_get(args);
+			efi_vars_get(args, mypid);
 		} while (keep_stressing(args));
 		_exit(0);
 	}
