@@ -53,16 +53,16 @@ static const stress_help_t help[] = {
 #define MAX_SYSFS_THREADS	(4)	/* threads stressing sysfs */
 #define DRAIN_DELAY_US		(50000)	/* backoff in (us) microsecs */
 #define DURATION_PER_SYSFS_FILE	(100000)	/* max duration per file in microsecs */
-#define OPS_PER_SYSFS_FILE	(64)	/* max iterations per sysfs file */
+#define OPS_PER_SYSFS_FILE	(28)	/* max iterations per sysfs file */
 
 static sigset_t set;
 static shim_pthread_spinlock_t lock;
-static uint32_t mixup;
 static volatile bool drain_kmsg = false;
 static volatile uint32_t counter = 0;
 static const char signum_path[] = "/sys/kernel/notes";
 static uint32_t os_release;
 static stress_hash_table_t *sysfs_hash_table;
+static uint64_t hash_items = 0;
 
 typedef struct {
 	const stress_args_t *args;	/* stressor args */
@@ -73,15 +73,7 @@ typedef struct {
 
 static uint32_t path_sum(const char *path)
 {
-	const char *ptr = path;
-	register uint32_t sum = mixup;
-
-	while (*ptr) {
-		sum <<= 1;
-		sum += (uint32_t)*(ptr++);
-	}
-
-	return sum;
+	return stress_hash_x17(path);
 }
 
 static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
@@ -131,7 +123,8 @@ static void stress_sys_add_bad(const char *path)
 	if (shim_pthread_spin_lock(&lock))
 		return;	/* Can't lock! */
 
-	stress_hash_add(sysfs_hash_table, path);
+	if (!stress_hash_add(sysfs_hash_table, path))
+		hash_items++;
 	(void)shim_pthread_spin_unlock(&lock);
 }
 
@@ -170,7 +163,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			break;
 
 		t_start = stress_time_now();
-		ret = stress_try_open(args, path, O_RDONLY | O_NONBLOCK, 1500000000);
+		ret = stress_try_open(args, path, O_RDONLY | O_NONBLOCK, 150000000);
 		if (ret == STRESS_TRY_OPEN_FAIL) {
 			stress_sys_add_bad(path);
 			goto next;
@@ -490,7 +483,6 @@ static void stress_sys_dir(
 	if (!strcmp(path, "/sys/kernel/debug/gcov"))
 		return;
 
-	mixup = stress_mwc32();
 	n = scandir(path, &dlist, NULL, mixup_sort);
 	if (n <= 0) {
 		stress_dirent_list_free(dlist, n);
@@ -536,6 +528,7 @@ static void stress_sys_dir(
 		(void)shim_strlcpy(ctxt->sysfs_path, tmp, sizeof(ctxt->sysfs_path));
 		counter = 0;
 		(void)shim_pthread_spin_unlock(&lock);
+
 		drain_kmsg = false;
 		time_start = stress_time_now();
 		time_end = time_start + ((double)DURATION_PER_SYSFS_FILE * ONE_MILLIONTH);
@@ -546,7 +539,7 @@ static void stress_sys_dir(
 		 *  has been reached
 		 */
 		do {
-			shim_usleep_interruptible(10000);
+			shim_usleep_interruptible(1000);
 			/* Cater for very long delays */
 			if ((counter == 0) && (stress_time_now() > time_out))
 				break;
@@ -774,6 +767,7 @@ again:
 
 			do {
 				int j = (int)args->instance % n;
+				int inc = (int)stress_get_prime64(((uint64_t)((args->instance + 1) * 50) + 1200));
 
 				for (i = 0; i < n; i++) {
 					char sysfspath[PATH_MAX];
@@ -788,7 +782,7 @@ again:
 							"/sys", dlist[j]->d_name);
 
 					stress_sys_dir(ctxt, sysfspath, true, 0);
-					j = (j + (int)args->num_instances) % n;
+					j = (j + inc) % n;
 				}
 			} while (keep_stressing(args));
 
@@ -816,6 +810,8 @@ again:
 		}
 	} while (keep_stressing(args));
 
+	pr_dbg("%s: skipped %" PRIu64 " out of %" PRIu64 " sysfs files accessed\n",
+		args->name, hash_items, get_counter(args));
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
