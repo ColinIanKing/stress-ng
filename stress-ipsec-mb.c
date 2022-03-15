@@ -76,7 +76,7 @@ static int stress_set_ipsec_mb_feature(const char *opt)
 		if (!strcmp(opt, init_mb[i].name)) {
 			uint64_t ipsec_mb_feature = init_mb[i].features;
 
-			return stress_set_setting("ipsec-mb-feature", TYPE_ID_INT, &ipsec_mb_feature);
+			return stress_set_setting("ipsec-mb-feature", TYPE_ID_UINT64, &ipsec_mb_feature);
 		}
 	}
 
