@@ -224,6 +224,14 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 	}
 #endif
 
+	/* Exercise an illegal RTC ioctl, -> -ENOTTY */
+	{
+		char buf[4096];
+
+		(void)memset(buf, 0, sizeof(buf));
+		(void)ioctl(fd, 0xff, buf);
+	}
+
 #if defined(RTC_RD_TIME) || defined(RTC_ALM_READ) || \
     defined(RTC_WKALM_RD) || defined(RTC_IRQP_READ)
 err:
