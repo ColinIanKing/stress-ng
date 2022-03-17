@@ -1969,7 +1969,6 @@ static void stress_dev_cdrom_linux(
 	UNEXPECTED
 #endif
 
-
 #if defined(CDROM_DISC_STATUS)
 	IOCTL_TIMEOUT(0.10, {
 		int ret;
@@ -1980,6 +1979,7 @@ static void stress_dev_cdrom_linux(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(CDROM_GET_CAPABILITY)
 	IOCTL_TIMEOUT(0.10, {
 		int ret;
@@ -2307,6 +2307,29 @@ static void stress_dev_cdrom_linux(
 		ret = ioctl(fd, CDROM_SET_OPTIONS, option);
 		(void)ret;
 #endif
+	}, return);
+#else
+	UNEXPECTED
+#endif
+
+#if defined(CDROM_SELECT_DISC) &&	\
+    defined(CDSL_CURRENT)
+	IOCTL_TIMEOUT(0.10, {
+		int ret;
+
+		ret = ioctl(fd, CDROM_SELECT_DISC, CDSL_CURRENT);
+		(void)ret;
+	}, return);
+#else
+	UNEXPECTED
+#endif
+
+#if defined(CDROMCLOSETRAY)
+	IOCTL_TIMEOUT(0.10, {
+		int ret;
+
+		ret = ioctl(fd, CDROMCLOSETRAY, 0);
+		(void)ret;
 	}, return);
 #else
 	UNEXPECTED
