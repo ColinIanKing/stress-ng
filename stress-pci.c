@@ -199,7 +199,7 @@ err:
  *  stress_pci_exercise()
  *	exercise all PCI files in a given PCI info path
  */
-static void stress_pci_exercise(stress_pci_info_t *pi)
+static void stress_pci_exercise(const stress_args_t *args, stress_pci_info_t *pi)
 {
 	int i, n;
 	struct dirent **list = NULL;
@@ -208,7 +208,7 @@ static void stress_pci_exercise(stress_pci_info_t *pi)
 	if (n == 0)
 		pi->ignore = true;
 
-	for (i = 0; i < n; i++) {
+	for (i = 0; keep_stressing(args) && (i < n); i++) {
 		const char *name = list[i]->d_name;
 		bool map = (!strcmp(name, "config") ||
 		            !strncmp(name, "resource", 8));
@@ -219,7 +219,11 @@ static void stress_pci_exercise(stress_pci_info_t *pi)
 			rom = true;
 		}
 		stress_pci_exercise_file(pi, name, true, map, rom);
+	}
+
+	for (i = 0; i < n; i++) {
 		free(list[i]);
+		list[i] = NULL;
 	}
 	free(list);
 }
@@ -269,6 +273,8 @@ static int stress_pci(const stress_args_t *args)
 		NOCLOBBER stress_pci_info_t *pi;
 
 		for (pi = pci_info_list; pi; pi = pi->next) {
+			if (!keep_stressing(args))
+				break;
 			ret = sigsetjmp(jmp_env, 1);
 
 			if (ret) {
@@ -278,7 +284,7 @@ static int stress_pci(const stress_args_t *args)
 
 			if (pi->ignore)
 				continue;
-			stress_pci_exercise(pi);
+			stress_pci_exercise(args, pi);
 			inc_counter(args);
 		}
 	} while (keep_stressing(args));
