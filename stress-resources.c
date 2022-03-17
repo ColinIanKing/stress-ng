@@ -309,14 +309,17 @@ static void NORETURN waste_resources(
 		(void)snprintf(tmpfilename, sizeof(tmpfilename),
 			"/tmp/stress-ng-%8.8x%8.8x-", (int)pid, (int)stress_mwc32());
 		posn = strlen(tmpfilename);
-		for (j = 0; j < 256; j++) {
+		for (j = 0; keep_stressing_flag() && (j < 256); j++) {
 			int fd;
+
 			stress_strnrnd(tmpfilename + posn, sizeof(tmpfilename) - posn - 1);
 			tmpfilename[sizeof(tmpfilename) - 1] = '\0';
 			fd = open(tmpfilename, O_RDONLY);
 			if (fd >= 0)
 				(void)close(fd);
 		}
+		if (!keep_stressing_flag())
+			break;
 
 		if ((shmall + freemem + totalmem > 0) &&
 		    (freemem > 0) && (freemem < mem_slack))
