@@ -22,3 +22,4 @@ List of TODO items:
 2. xattr on in-memory file systems like tmpfs
 3. inode consumer
 4. mtrr exerciser
+5. floppy disk ioctls, drivers/block/floppy.c
