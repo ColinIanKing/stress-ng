@@ -39,10 +39,12 @@ static const stress_help_t help[] = {
 
 #define CLONE_STACK_SIZE	(128*1024)
 
-static void NORETURN MLOCKED_TEXT stress_bind_mount_child_handler(int signum)
+static void MLOCKED_TEXT stress_bind_mount_child_handler(int signum)
 {
-	(void)signum;
-
+	if (signum == SIGALRM) {
+		keep_stressing_set_flag(false);
+		return;
+	}
 	_exit(0);
 }
 
