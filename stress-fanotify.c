@@ -265,7 +265,7 @@ static int test_fanotify_mark(const char *name, char *mounts[])
 	if (ret_fd < 0) {
 		pr_err("%s: cannot initialize fanotify, errno=%d (%s)\n",
 			name, errno, strerror(errno));
-		return -1;
+		return -errno;
 	}
 
 	/* Exercise fanotify_mark with invalid mask */
@@ -603,7 +603,18 @@ static int stress_fanotify(const stress_args_t *args)
 		ret = test_fanotify_mark(args->name, mnts);
 		if (ret < 0) {
 			free(buffer);
-			rc = EXIT_FAILURE;
+			switch (-ret) {
+			case EMFILE:
+				pr_inf("%s: too many open files, skipping stressor\n", args->name);
+				rc = EXIT_NO_RESOURCE;
+				break;
+			case ENOMEM:
+				pr_inf("%s: out of memory, skipping stressor\n", args->name);
+				rc = EXIT_NO_RESOURCE;
+				break;
+			default:
+				rc = EXIT_FAILURE;
+			}
 			goto tidy;
 		}
 
