@@ -565,3 +565,12 @@ endif
 	cp -r example-jobs/*.job ${DESTDIR}${JOBDIR}
 	mkdir -p ${DESTDIR}${BASHDIR}
 	cp bash-completion/stress-ng ${DESTDIR}${BASHDIR}
+
+.PHONY: uninstall
+uninstall:
+	rm -f ${DESTDIR}${BINDIR}/stress-ng
+	rm -f ${DESTDIR}${MANDIR}/stress-ng.1.gz
+	rm -f ${DESTDIR}${MANDIR}/stress-ng.1
+	rm -f ${DESTDIR}${JOBDIR}/*.job
+	rm -f ${DESTDIR}${BASHDIR}/stress-ng
+	
