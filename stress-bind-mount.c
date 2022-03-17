@@ -58,13 +58,13 @@ static int stress_bind_mount_child(void *parg)
 	int ret;
 
 	if (stress_sighandler(args->name, SIGALRM,
-	    stress_bind_mount_child_handler, NULL) < 0) {
+				stress_bind_mount_child_handler, NULL) < 0) {
 		pr_fail("%s: SIGALRM sighandler failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
 	if (stress_sighandler(args->name, SIGSEGV,
-	    stress_bind_mount_child_handler, NULL) < 0) {
+				stress_bind_mount_child_handler, NULL) < 0) {
 		pr_fail("%s: SIGSEGV sighandler failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -75,9 +75,10 @@ static int stress_bind_mount_child(void *parg)
 	(void)stress_temp_dir(path, sizeof(path), args->name, getpid(), args->instance);
 	ret = mkdir(path, S_IRUSR | S_IRWXU);
 	if (ret < 0) {
+		(void)shim_rmdir(path);
 		pr_err("%s: mkdir %s failed, errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
-		return -1;
+		return EXIT_NO_RESOURCE;
 	}
 
 	do {
