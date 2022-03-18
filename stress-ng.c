@@ -1101,7 +1101,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"sequential N",		"run all stressors one by one, invoking N of them" },
 	{ NULL,		"skip-silent",		"silently skip unimplemented stressors" },
 	{ NULL,		"stressors",		"show available stress tests" },
-	{ NULL,		"smarg",		"show changes in S.M.A.R.T. data" },
+	{ NULL,		"smart",		"show changes in S.M.A.R.T. data" },
 #if defined(HAVE_SYSLOG_H)
 	{ NULL,		"syslog",		"log messages to the syslog" },
 #endif
