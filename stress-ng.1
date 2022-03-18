@@ -4077,7 +4077,7 @@ all	T{
 exercise with all the sparsematrix stressor methods (see below):
 T}
 hash	T{
-use a hash table and allocate nodes on the heap each unique value at a (x, y)
+use a hash table and allocate nodes on the heap for each unique value at a (x, y)
 matrix position.
 T}
 judy	T{
@@ -4089,7 +4089,7 @@ use a circular linked-list for sparse y positions each with circular linked-list
 sparse x positions for the (x, y) matrix coordinates.
 T}
 mmap	T{
-a non-sparse mmap the entire 2-d matrix space. Only (x, y) matrix positions that
+use a non-sparse mmap the entire 2-d matrix space. Only (x, y) matrix positions that
 are referenced will get physically mapped. Note that large sparse matrices cannot be mmap'd
 due to lack of virtual address limitations, and too many referenced pages can trigger
 the out of memory killer on Linux.
