@@ -1009,7 +1009,7 @@ fft	T{
 4096 sample Fast Fourier Transform
 T}
 fletcher16	T{
-1024 rounds of a naive implementation of a 16 bit Fletcher's checksum
+1024 rounds of a na\[:i]ve implementation of a 16 bit Fletcher's checksum
 T}
 float	T{
 1000 iterations of a mix of floating point operations
@@ -2613,7 +2613,7 @@ lB2 lB lB lB
 l l s s.
 Method	Description
 all	T{
-use libc, builtin and naive methods
+use libc, builtin and na\[:i]ve methods
 T}
 libc	T{
 use libc memcpy and memmove functions, this is the default
@@ -2622,14 +2622,14 @@ builtin	T{
 use the compiler built in optimized memcpy and memmove functions
 T}
 naive	T{
-use naive byte by byte copying and memory moving build with default
+use na\[:i]ve byte by byte copying and memory moving build with default
 compiler optimization flags
 T}
 naive_o0	T{
-use unoptimized naive byte by byte copying and memory moving
+use unoptimized na\[:i]ve byte by byte copying and memory moving
 T}
 naive_o3	T{
-use optimized naive byte by byte copying and memory moving build with -O3
+use optimized na\[:i]ve byte by byte copying and memory moving build with -O3
 optimization and where possible use CPU specific optimizations
 T}
 .TE
@@ -3944,7 +3944,7 @@ into the x86 ring -2 system management mode (SMM) by exercising the advanced
 power management (APM) port 0xb2. This requires the --pathological option and
 root privilege and is only implemented on x86 Linux platforms. This probably
 does not work in a virtualized environment.  The stressor will attempt to
-determine the time stolen by SMIs with some naive benchmarking.
+determine the time stolen by SMIs with some na\[:i]ve benchmarking.
 .TP
 .B \-\-smi\-ops N
 stop after N attempts to trigger the SMI.
