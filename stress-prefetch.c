@@ -218,7 +218,6 @@ static int stress_prefetch(const stress_args_t *args)
 
 	(void)memset(l3_data, 0xa5, l3_data_mmap_size);
 
-
 	for (i = 0; i < SIZEOF_ARRAY(prefetch_info); i++) {
 		prefetch_info[i].offset = i * STRESS_CACHE_LINE_SIZE;
 		prefetch_info[i].count = 0;
