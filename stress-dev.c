@@ -2846,8 +2846,6 @@ static void stress_dev_floppy_linux(
 	(void)args;
 	(void)devpath;
 
-	printf("floppy %s\n", devpath);
-
 #if defined(FDMSGON)
 	{
 		int ret;
