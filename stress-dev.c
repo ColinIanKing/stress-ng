@@ -2837,6 +2837,58 @@ UNEXPECTED
 #endif
 
 #if defined(__linux__)
+static void stress_dev_floppy_linux(
+	const stress_args_t *args,
+	const int fd,
+	const char *devpath)
+{
+
+	(void)args;
+	(void)devpath;
+
+	printf("floppy %s\n", devpath);
+
+#if defined(FDMSGON)
+	{
+		int ret;
+
+		ret = ioctl(fd, FDMSGON, 0);
+		(void)ret;
+	}
+#endif
+
+#if defined(FDCLRPRM)
+	{
+		int ret;
+
+		ret = ioctl(fd, FDCLRPRM, 0);
+		(void)ret;
+	}
+#endif
+
+#if defined(FDFLUSH)
+	{
+		int ret;
+
+		ret = ioctl(fd, FDFLUSH, 0);
+		(void)ret;
+	}
+#endif
+
+#if defined(FDMSGOFF)
+	{
+		int ret;
+
+		ret = ioctl(fd, FDMSGOFF, 0);
+		(void)ret;
+	}
+#endif
+
+
+}
+#endif
+
+#if defined(__linux__)
 static void stress_dev_kmsg_linux(
 	const stress_args_t *args,
 	const int fd,
@@ -3646,6 +3698,7 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/sg",	stress_dev_scsi_generic_linux),
 	DEV_FUNC("/dev/sr0",    stress_dev_cdrom_linux),
 	DEV_FUNC("/dev/console",stress_dev_console_linux),
+	DEV_FUNC("/dev/fd0",	stress_dev_floppy_linux),
 #else
 	UNEXPECTED
 #endif
