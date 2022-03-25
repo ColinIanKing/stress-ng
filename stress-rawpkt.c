@@ -245,6 +245,7 @@ static void NORETURN stress_rawpkt_client(
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
+	(void)memset(&sadr, 0, sizeof(sadr));
 	(void)memset(buf, 0, sizeof(buf));
 
 	(void)memcpy(eth->h_dest, hwaddr->ifr_addr.sa_data, sizeof(eth->h_dest));
