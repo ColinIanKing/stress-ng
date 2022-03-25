@@ -94,9 +94,8 @@ static int OPTIMIZE1 stress_longjmp(const stress_args_t *args)
 	if (keep_stressing(args))
 		stress_longjmp_func();
 
-	if (longjmp_failed) {
+	if (longjmp_failed)
 		pr_fail("%s failed, did not detect any successful longjmp calls\n", args->name);
-	}
 
 	if (n) {
 		const double rate = (double)STRESS_NANOSECOND * t_total / (double)n;
