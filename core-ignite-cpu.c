@@ -20,6 +20,10 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 
+#define SETTING_FREQ			(0x01)
+#define SETTING_ENERGY_PERF_BIAS	(0x02)
+#define SETTING_GOVERNOR		(0x04)
+
 typedef struct {
 	const char *path;		/* Path of /sys control */
 	const char *default_setting;	/* Default maximizing setting to use */
@@ -33,7 +37,8 @@ typedef struct {
 	uint64_t max_freq;		/* Max scaling frequency */
 	uint64_t cur_freq;		/* Original scaling frequency */
 	char cur_governor[128];		/* Original governor setting */
-	bool set_failed;		/* True if we can't set the freq */
+	uint8_t setting_flag;		/* 0 if setting can't be read or set */
+	int8_t	energy_perf_bias;	/* Energy perf bias */
 } stress_cpu_setting_t;
 
 static stress_cpu_setting_t *cpu_settings; /* Array of cpu settings */
@@ -55,32 +60,43 @@ static stress_settings_t settings[] = {
 	SETTING(NULL, NULL)
 };
 
-static int stress_ignite_cpu_set(
+
+static void stress_ignite_cpu_set(
 	const int32_t cpu,
 	const uint64_t freq,
-	const char *governor)
+	const int8_t energy_perf_bias,
+	const char *governor,
+	uint8_t *setting_flag)
 {
 	char path[PATH_MAX];
-	ssize_t ret1 = 0, ret2 = 0;
 
-	if (freq > 0) {
+	if ((*setting_flag & SETTING_FREQ) && (freq > 0)) {
 		char buffer[128];
 
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRId32
 			"/cpufreq/scaling_setspeed", cpu);
 		(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", freq);
-		ret1 = system_write(path, buffer, strlen(buffer));
+		if (system_write(path, buffer, strlen(buffer)) < 0)
+			*setting_flag &= ~SETTING_FREQ;
 	}
+	if ((*setting_flag & SETTING_ENERGY_PERF_BIAS) && (energy_perf_bias >= 0)) {
+		char buffer[128];
 
-	if (*governor != '\0') {
+		(void)snprintf(path, sizeof(path),
+			"/sys/devices/system/cpu/cpu%" PRIu32
+			"/power/energy_perf_bias", cpu);
+		(void)snprintf(buffer, sizeof(buffer), "%" PRIu8 "\n", energy_perf_bias);
+		if (system_write(path, buffer, strlen(buffer)) < 0)
+			*setting_flag &= ~SETTING_ENERGY_PERF_BIAS;
+	}
+	if ((*setting_flag & SETTING_GOVERNOR) && (*governor != '\0')) {
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRIu32
 			"/cpufreq/scaling_governor", cpu);
-		ret2 = system_write(path, governor, strlen(governor));
+		if (system_write(path, governor, strlen(governor)) < 0)
+			*setting_flag &= ~SETTING_GOVERNOR;
 	}
-
-	return ((ret1 < 0) || (ret2 < 0)) ? -1 : 0;
 }
 
 /*
@@ -112,9 +128,9 @@ void stress_ignite_cpu_start(void)
 		for (cpu = 0; cpu < max_cpus; cpu++) {
 			ssize_t ret;
 
-			/* Assume failed */
 			cpu_settings[cpu].max_freq = 0;
-			cpu_settings[cpu].set_failed = true;
+			cpu_settings[cpu].setting_flag = 0;
+			cpu_settings[cpu].energy_perf_bias = -1;
 
 			(void)memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
@@ -125,7 +141,7 @@ void stress_ignite_cpu_start(void)
 				ret = sscanf(buffer, "%" SCNu64,
 					&cpu_settings[cpu].max_freq);
 				if (ret == 1)
-					cpu_settings[cpu].set_failed = false;
+					cpu_settings[cpu].setting_flag |= SETTING_FREQ;
 			}
 
 			(void)memset(buffer, 0, sizeof(buffer));
@@ -136,8 +152,8 @@ void stress_ignite_cpu_start(void)
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
 					&cpu_settings[cpu].cur_freq);
-				if (ret == 1)
-					cpu_settings[cpu].set_failed = false;
+				if (ret != 1)
+					cpu_settings[cpu].setting_flag &= ~SETTING_FREQ;
 			}
 
 			(void)memset(cpu_settings[cpu].cur_governor, 0,
@@ -147,7 +163,23 @@ void stress_ignite_cpu_start(void)
 				"/cpufreq/scaling_governor", cpu);
 			ret = system_read(path, cpu_settings[cpu].cur_governor,
 					  sizeof(cpu_settings[cpu].cur_governor));
-			(void)ret;
+			if (ret > 0)
+				cpu_settings[cpu].setting_flag |= SETTING_GOVERNOR;
+
+			(void)memset(buffer, 0, sizeof(buffer));
+			(void)snprintf(path, sizeof(path),
+				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/power/energy_perf_bias", cpu);
+			ret = system_read(path, buffer, sizeof(buffer));
+			if (ret > 0) {
+				int8_t bias;
+
+				ret = sscanf(buffer, "%" SCNd8, &bias);
+				if (ret == 1) {
+					cpu_settings[cpu].energy_perf_bias = bias;
+					cpu_settings[cpu].setting_flag |= SETTING_ENERGY_PERF_BIAS;
+				}
+			}
 		}
 	}
 
@@ -223,16 +255,15 @@ void stress_ignite_cpu_start(void)
 				 *  Attempt to crank CPUs up to max freq
 				 */
 				for (cpu = 0; cpu < max_cpus; cpu++) {
-					int ret;
-
-					if (cpu_settings[cpu].set_failed)
+pr_inf("HERE: %d %d\n", cpu, cpu_settings[cpu].setting_flag);
+					if (cpu_settings[cpu].setting_flag == 0)
 						continue;
 
-					ret = stress_ignite_cpu_set(cpu,
+					stress_ignite_cpu_set(cpu,
 						cpu_settings[cpu].max_freq,
-						"performance");
-					if (ret < 0)
-						cpu_settings[cpu].set_failed = true;
+						0,
+						"performance",
+						&cpu_settings[cpu].setting_flag);
 				}
 			}
 			(void)sleep(1);
@@ -265,7 +296,9 @@ void stress_ignite_cpu_stop(void)
 		for (cpu = 0; cpu < max_cpus; cpu++) {
 			stress_ignite_cpu_set(cpu,
 				cpu_settings[cpu].cur_freq,
-				cpu_settings[cpu].cur_governor);
+				cpu_settings[cpu].energy_perf_bias,
+				cpu_settings[cpu].cur_governor,
+				&cpu_settings[cpu].setting_flag);
 		}
 		free(cpu_settings);
 	}
