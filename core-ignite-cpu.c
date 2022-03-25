@@ -20,9 +20,11 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 
-#define SETTING_FREQ			(0x01)
-#define SETTING_ENERGY_PERF_BIAS	(0x02)
-#define SETTING_GOVERNOR		(0x04)
+#define SETTING_SCALING_FREQ		(0x01)
+#define SETTING_CPUINFO_FREQ		(0x02)
+#define SETTING_FREQ			(SETTING_SCALING_FREQ | SETTING_CPUINFO_FREQ)
+#define SETTING_ENERGY_PERF_BIAS	(0x04)
+#define SETTING_GOVERNOR		(0x08)
 
 typedef struct {
 	const char *path;		/* Path of /sys control */
@@ -34,7 +36,10 @@ typedef struct {
 } stress_settings_t;
 
 typedef struct {
-	uint64_t max_freq;		/* Max scaling frequency */
+	uint64_t scaling_max_freq;	/* Max scaling frequency */
+	uint64_t scaling_min_freq;	/* Min scaling frequency */
+	uint64_t cpuinfo_max_freq;	/* Max cpu frequency */
+	uint64_t cpuinfo_min_freq;	/* Min cpu frequency */
 	uint64_t cur_freq;		/* Original scaling frequency */
 	char cur_governor[128];		/* Original governor setting */
 	uint8_t setting_flag;		/* 0 if setting can't be read or set */
@@ -62,27 +67,42 @@ static stress_settings_t settings[] = {
 
 
 static void stress_ignite_cpu_set(
+	bool maximize_freq,
 	const int32_t cpu,
-	const uint64_t freq,
+	const uint64_t max_freq,
+	const uint64_t min_freq,
 	const int8_t energy_perf_bias,
 	const char *governor,
 	uint8_t *setting_flag)
 {
 	char path[PATH_MAX];
+	char buffer[128];
 
-	if ((*setting_flag & SETTING_FREQ) && (freq > 0)) {
-		char buffer[128];
+	if (((*setting_flag & SETTING_FREQ) == SETTING_FREQ) && (max_freq > 0) && (min_freq < max_freq)) {
+		uint64_t freq_delta = (max_freq - min_freq) / 10;
+		uint64_t freq;
 
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRId32
-			"/cpufreq/scaling_setspeed", cpu);
-		(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", freq);
+			"/cpufreq/scaling_max_freq", cpu);
+		(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", max_freq);
 		if (system_write(path, buffer, strlen(buffer)) < 0)
-			*setting_flag &= ~SETTING_FREQ;
-	}
-	if ((*setting_flag & SETTING_ENERGY_PERF_BIAS) && (energy_perf_bias >= 0)) {
-		char buffer[128];
+			*setting_flag &= ~SETTING_SCALING_FREQ;
 
+		/* Try to set min to be 90% of max down to lowest, which ever works first*/
+		(void)snprintf(path, sizeof(path),
+			"/sys/devices/system/cpu/cpu%" PRId32
+			"/cpufreq/scaling_min_freq", cpu);
+		freq = (maximize_freq) ? max_freq - freq_delta : min_freq;
+		while ((freq_delta > 0) && (freq >= min_freq)) {
+			(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", freq);
+			if (system_write(path, buffer, strlen(buffer)) >= 0)
+				break;
+			freq -= freq_delta;
+		}
+	}
+
+	if ((*setting_flag & SETTING_ENERGY_PERF_BIAS) && (energy_perf_bias >= 0)) {
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRIu32
 			"/power/energy_perf_bias", cpu);
@@ -90,6 +110,7 @@ static void stress_ignite_cpu_set(
 		if (system_write(path, buffer, strlen(buffer)) < 0)
 			*setting_flag &= ~SETTING_ENERGY_PERF_BIAS;
 	}
+
 	if ((*setting_flag & SETTING_GOVERNOR) && (*governor != '\0')) {
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRIu32
@@ -128,7 +149,10 @@ void stress_ignite_cpu_start(void)
 		for (cpu = 0; cpu < max_cpus; cpu++) {
 			ssize_t ret;
 
-			cpu_settings[cpu].max_freq = 0;
+			cpu_settings[cpu].scaling_max_freq = 0;
+			cpu_settings[cpu].scaling_min_freq = 0;
+			cpu_settings[cpu].cpuinfo_max_freq = 0;
+			cpu_settings[cpu].cpuinfo_min_freq = 0;
 			cpu_settings[cpu].setting_flag = 0;
 			cpu_settings[cpu].energy_perf_bias = -1;
 
@@ -139,21 +163,43 @@ void stress_ignite_cpu_start(void)
 			ret = system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
-					&cpu_settings[cpu].max_freq);
+					&cpu_settings[cpu].scaling_max_freq);
 				if (ret == 1)
-					cpu_settings[cpu].setting_flag |= SETTING_FREQ;
+					cpu_settings[cpu].setting_flag |= SETTING_SCALING_FREQ;
+			}
+			(void)memset(buffer, 0, sizeof(buffer));
+			(void)snprintf(path, sizeof(path),
+				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/cpufreq/scaling_min_freq", cpu);
+			ret = system_read(path, buffer, sizeof(buffer));
+			if (ret > 0) {
+				ret = sscanf(buffer, "%" SCNu64,
+					&cpu_settings[cpu].scaling_min_freq);
+				if (ret != 1)
+					cpu_settings[cpu].setting_flag &= ~SETTING_SCALING_FREQ;
 			}
 
 			(void)memset(buffer, 0, sizeof(buffer));
 			(void)snprintf(path, sizeof(path),
 				"/sys/devices/system/cpu/cpu%" PRIu32
-				"/cpufreq/scaling_cur_freq", cpu);
+				"/cpufreq/cpuinfo_max_freq", cpu);
 			ret = system_read(path, buffer, sizeof(buffer));
 			if (ret > 0) {
 				ret = sscanf(buffer, "%" SCNu64,
-					&cpu_settings[cpu].cur_freq);
+					&cpu_settings[cpu].cpuinfo_max_freq);
+				if (ret == 1)
+					cpu_settings[cpu].setting_flag |= SETTING_CPUINFO_FREQ;
+			}
+			(void)memset(buffer, 0, sizeof(buffer));
+			(void)snprintf(path, sizeof(path),
+				"/sys/devices/system/cpu/cpu%" PRIu32
+				"/cpufreq/cpuinfo_min_freq", cpu);
+			ret = system_read(path, buffer, sizeof(buffer));
+			if (ret > 0) {
+				ret = sscanf(buffer, "%" SCNu64,
+					&cpu_settings[cpu].cpuinfo_min_freq);
 				if (ret != 1)
-					cpu_settings[cpu].setting_flag &= ~SETTING_FREQ;
+					cpu_settings[cpu].setting_flag &= ~SETTING_CPUINFO_FREQ;
 			}
 
 			(void)memset(cpu_settings[cpu].cur_governor, 0,
@@ -255,12 +301,12 @@ void stress_ignite_cpu_start(void)
 				 *  Attempt to crank CPUs up to max freq
 				 */
 				for (cpu = 0; cpu < max_cpus; cpu++) {
-pr_inf("HERE: %d %d\n", cpu, cpu_settings[cpu].setting_flag);
 					if (cpu_settings[cpu].setting_flag == 0)
 						continue;
 
-					stress_ignite_cpu_set(cpu,
-						cpu_settings[cpu].max_freq,
+					stress_ignite_cpu_set(true, cpu,
+						cpu_settings[cpu].cpuinfo_max_freq,
+						cpu_settings[cpu].cpuinfo_min_freq,
 						0,
 						"performance",
 						&cpu_settings[cpu].setting_flag);
@@ -294,8 +340,9 @@ void stress_ignite_cpu_stop(void)
 		int32_t cpu;
 
 		for (cpu = 0; cpu < max_cpus; cpu++) {
-			stress_ignite_cpu_set(cpu,
-				cpu_settings[cpu].cur_freq,
+			stress_ignite_cpu_set(false, cpu,
+				cpu_settings[cpu].cpuinfo_max_freq,
+				cpu_settings[cpu].cpuinfo_min_freq,
 				cpu_settings[cpu].energy_perf_bias,
 				cpu_settings[cpu].cur_governor,
 				&cpu_settings[cpu].setting_flag);
