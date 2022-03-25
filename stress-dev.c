@@ -2837,56 +2837,6 @@ UNEXPECTED
 #endif
 
 #if defined(__linux__)
-static void stress_dev_floppy_linux(
-	const stress_args_t *args,
-	const int fd,
-	const char *devpath)
-{
-
-	(void)args;
-	(void)devpath;
-
-#if defined(FDMSGON)
-	{
-		int ret;
-
-		ret = ioctl(fd, FDMSGON, 0);
-		(void)ret;
-	}
-#endif
-
-#if defined(FDCLRPRM)
-	{
-		int ret;
-
-		ret = ioctl(fd, FDCLRPRM, 0);
-		(void)ret;
-	}
-#endif
-
-#if defined(FDFLUSH)
-	{
-		int ret;
-
-		ret = ioctl(fd, FDFLUSH, 0);
-		(void)ret;
-	}
-#endif
-
-#if defined(FDMSGOFF)
-	{
-		int ret;
-
-		ret = ioctl(fd, FDMSGOFF, 0);
-		(void)ret;
-	}
-#endif
-
-
-}
-#endif
-
-#if defined(__linux__)
 static void stress_dev_kmsg_linux(
 	const stress_args_t *args,
 	const int fd,
@@ -3184,10 +3134,10 @@ static void stress_dev_ptp_linux(
 
 #if defined(HAVE_LINUX_FD_H)
 /*
- *  stress_dev_fd_linux()
+ *  stress_dev_floppy_linux()
  *	minor exercising of the floppy device
  */
-static void stress_dev_fd_linux(
+static void stress_dev_floppy_linux(
 	const stress_args_t *args,
 	const int fd,
 	const char *devpath)
@@ -3212,6 +3162,39 @@ static void stress_dev_fd_linux(
 		int ret;
 
 		ret = ioctl(fd, FDFLUSH, 0);
+		(void)ret;
+	}
+#else
+	UNEXPECTED
+#endif
+
+#if defined(FDTWADDLE)
+	{
+		int ret;
+
+		ret = ioctl(fd, FDTWADDLE, 0);
+		(void)ret;
+	}
+#else
+	UNEXPECTED
+#endif
+
+#if defined(FDCLRPRM)
+	{
+		int ret;
+
+		ret = ioctl(fd, FDCLRPRM, 0);
+		(void)ret;
+	}
+#else
+	UNEXPECTED
+#endif
+
+#if defined(FDWERRORCLR)
+	{
+		int ret;
+
+		ret = ioctl(fd, FDWERRORCLR, 0);
 		(void)ret;
 	}
 #else
@@ -3284,6 +3267,17 @@ static void stress_dev_fd_linux(
 	}
 #else
 	UNEXPECTED
+#endif
+
+#if defined(_IO)
+	{
+		int ret;
+
+		/* Invalid ioctl */
+		ret = ioctl(fd, _IO(2, 0xff), 0);
+		(void)ret;
+
+	}
 #endif
 
 #if defined(FDMSGOFF)
@@ -3696,7 +3690,6 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/sg",	stress_dev_scsi_generic_linux),
 	DEV_FUNC("/dev/sr0",    stress_dev_cdrom_linux),
 	DEV_FUNC("/dev/console",stress_dev_console_linux),
-	DEV_FUNC("/dev/fd0",	stress_dev_floppy_linux),
 #else
 	UNEXPECTED
 #endif
@@ -3716,7 +3709,7 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/snd/control",	stress_dev_snd_control_linux),
 #if defined(HAVE_LINUX_FD_H) &&	\
     defined(HAVE_FLOPPY_STRUCT)
-	DEV_FUNC("/dev/fd",	stress_dev_fd_linux),
+	DEV_FUNC("/dev/fd0",	stress_dev_floppy_linux),
 #else
 	UNEXPECTED
 #endif
