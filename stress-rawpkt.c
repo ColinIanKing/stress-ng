@@ -326,6 +326,7 @@ static int stress_rawpkt_server(
 	int saddr_len = sizeof(saddr);
 	const uint32_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifaddr->ifr_addr))->sin_addr)));
 	uint64_t all_pkts = 0;
+	const ssize_t min_size = sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -342,7 +343,7 @@ static int stress_rawpkt_server(
 		ssize_t n;
 
 		n = recvfrom(fd, buf, sizeof(buf), 0, &saddr, (socklen_t *)&saddr_len);
-		if (n > 0) {
+		if (n >= min_size) {
 			all_pkts++;
 			if ((eth->h_proto == htons(ETH_P_IP)) &&
 			    (ip->saddr == addr) &&
