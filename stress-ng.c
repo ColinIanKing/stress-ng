@@ -1290,7 +1290,8 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
 	keep_stressing_set_flag(false);
 	wait_flag = false;
 
-	(void)kill(-getpid(), SIGALRM);
+	/* Send alarm to all process in group */
+	(void)kill(-getgid(), SIGALRM);
 }
 
 /*
