@@ -1027,6 +1027,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKRAGET)
 	/* readahead */
 	{
@@ -1034,22 +1035,49 @@ static void stress_dev_blk(
 		int ret;
 
 		ret = ioctl(fd, BLKRAGET, &ra);
+#if defined(BLKRASET)
+		if (ret == 0)
+			ret = ioctl(fd, BLKRASET, ra);
+#endif
 		(void)ret;
 	}
 #else
 	UNEXPECTED
 #endif
+
+#if defined(BLKFRAGET)
+	/* readahead */
+	{
+		unsigned long fra;
+		int ret;
+
+		ret = ioctl(fd, BLKFRAGET, &fra);
+#if defined(BLKFRASET)
+		if (ret == 0)
+			ret = ioctl(fd, BLKFRASET, fra);
+#endif
+		(void)ret;
+	}
+#else
+	UNEXPECTED
+#endif
+
 #if defined(BLKROGET)
 	/* readonly state */
 	{
 		int ret, ro;
 
 		ret = ioctl(fd, BLKROGET, &ro);
+#if defined(BLKROSET)
+		if (ret == 0)
+			ret = ioctl(BLKROSET, ro);
+#endif
 		(void)ret;
 	}
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKBSZGET)
 	/* get block device soft block size */
 	{
@@ -1061,6 +1089,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKPBSZGET)
 	/* get block device physical block size */
 	{
@@ -1073,6 +1102,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKIOMIN)
 	{
 		unsigned int sz;
@@ -1084,6 +1114,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKIOOPT)
 	{
 		unsigned int sz;
@@ -1095,6 +1126,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKALIGNOFF)
 	{
 		unsigned int sz;
@@ -1106,6 +1138,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKROTATIONAL)
 	{
 		unsigned short rotational;
@@ -1117,6 +1150,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKSECTGET)
 	{
 		unsigned short max_sectors;
@@ -1128,6 +1162,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKGETSIZE)
 	{
 		unsigned long sz;
@@ -1139,6 +1174,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKGETSIZE64)
 	{
 		uint64_t sz;
@@ -1150,6 +1186,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKGETZONESZ)
 	{
 		uint32_t sz;
@@ -1161,6 +1198,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 #if defined(BLKGETNRZONES)
 	{
 		uint32_t sz;
@@ -1172,6 +1210,7 @@ static void stress_dev_blk(
 #else
 	UNEXPECTED
 #endif
+
 	offset = lseek(fd, 0, SEEK_END);
 	stress_uint64_put((uint64_t)offset);
 
