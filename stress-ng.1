@@ -1414,9 +1414,19 @@ of the tree is created in each level.
 .B \-\-dirdeep\-ops N
 stop directory depth workers after N bogo directory operations.
 .TP
+.B \-\-dirdeep-bytes N
+allocated file size, the default is 0. One can specify the size as % of free
+space on the file system or in units of Bytes, KBytes, MBytes and GBytes using
+the suffix b, k, m or g. Used in conjunction with the \-\-dirdeep\-files
+option.
+.TP
 .B \-\-dirdeep\-dirs N
 create N directories at each tree level. The default is just 1 but can be
 increased to a maximum of 36 per level.
+.TP
+.B \-\-dirdeep\-files N
+create N files  at each tree level. The default is 0 with the file size specified
+by the \-\-dirdeep\-bytes option.
 .TP
 .B \-\-dirdeep\-inodes N
 consume up to N inodes per dirdeep stressor while creating directories and

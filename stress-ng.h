@@ -1519,7 +1519,9 @@ typedef enum {
 
 	OPT_dirdeep,
 	OPT_dirdeep_ops,
+	OPT_dirdeep_bytes,
 	OPT_dirdeep_dirs,
+	OPT_dirdeep_files,
 	OPT_dirdeep_inodes,
 
 	OPT_dirmany,
