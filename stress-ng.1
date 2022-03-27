@@ -1424,7 +1424,7 @@ links. The value N can be the number of inodes or a percentage of the total
 available free inodes on the filesystem being used.
 .TP
 .B \-\-dirmany N
-start N stressors that create as many empty files in a directory as possible
+start N stressors that create as many files in a directory as possible
 and then remove them. The file creation phase stops when an error occurs
 (for example, out of inodes, too many files, quota reached, etc.) and then
 the files are removed. This cycles until the the run time is reached or the
@@ -1433,6 +1433,11 @@ light weight directory exercising stressor compared to the dentry stressor.
 .TP
 .B \-\-dirmany\-ops N
 stop dirmany stressors after N empty files have been created.
+.TP
+.B \-\-dirmany\-bytes N
+allocated file size, the default is 0. One can specify the size as % of free
+space on the file system or in units of Bytes, KBytes, MBytes and GBytes using
+the suffix b, k, m or g.
 .TP
 .B \-\-dnotify N
 start N workers performing file system activities such as making/deleting

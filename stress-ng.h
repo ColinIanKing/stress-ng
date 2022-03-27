@@ -1524,6 +1524,7 @@ typedef enum {
 
 	OPT_dirmany,
 	OPT_dirmany_ops,
+	OPT_dirmany_bytes,
 
 	OPT_dnotify,
 	OPT_dnotify_ops,

@@ -19,15 +19,35 @@
  */
 #include "stress-ng.h"
 
+#define MIN_DIRMANY_BYTES     (0)
+#define MAX_DIRMANY_BYTES     (MAX_FILE_LIMIT)
+#define DEFAULT_DIRMANY_BYTES (0)
+
 static const stress_help_t help[] = {
-	{ NULL,	"dirmany N",	"start N directory file populating stressors" },
-	{ NULL,	"dirmany-ops N","stop after N directory file bogo operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"dirmany N",		"start N directory file populating stressors" },
+	{ NULL,	"dirmany-ops N",	"stop after N directory file bogo operations" },
+	{ NULL, "dirmany-filsize" ,	"specify size of files (default 0" },
+	{ NULL,	NULL,			NULL }
 };
+
+/*
+ *  stress_set_dirmany_bytes()
+ *      set size of files to be created
+ */
+static int stress_set_dirmany_bytes(const char *opt)
+{
+	off_t dirmany_bytes;
+
+	dirmany_bytes = (off_t)stress_get_uint64_byte_filesystem(opt, 1);
+	stress_check_range_bytes("dirmany-bytes", (uint64_t)dirmany_bytes,
+		MIN_DIRMANY_BYTES, MAX_DIRMANY_BYTES);
+	return stress_set_setting("dirmany-bytes", TYPE_ID_OFF_T, &dirmany_bytes);
+}
 
 static uint64_t stress_dirmany_create(
 	const stress_args_t *args,
 	const char *path,
+	const off_t dirmany_bytes,
 	const double t_start,
 	const double i_start,
 	double *create_time)
@@ -46,6 +66,16 @@ static uint64_t stress_dirmany_create(
 		fd = open(filename, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
 		if (fd < 0)
 			break;
+		if (dirmany_bytes > 0) {
+			int ret;
+
+#if defined(HAVE_POSIX_FALLOCATE)
+			ret = posix_fallocate(fd, (off_t)0, dirmany_bytes);
+#else
+			ret = shim_fallocate(fd, 0, (off_t)0, dirmany_bytes);
+#endif
+			(void)ret;
+		}
 		inc_counter(args);
 		(void)close(fd);
 	}
@@ -84,6 +114,7 @@ static int stress_dirmany(const stress_args_t *args)
 	char pathname[PATH_MAX];
 	const double t_start = stress_time_now();
 	double create_time = 0.0, remove_time = 0.0, total_time = 0.0;
+	off_t dirmany_bytes = 0;
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 
@@ -91,12 +122,21 @@ static int stress_dirmany(const stress_args_t *args)
 	if (ret < 0)
 		return exit_status(-ret);
 
+	(void)stress_get_setting("dirmany-bytes", &dirmany_bytes);
+
+	if (args->instance == 0) {
+		char sz[32];
+
+		pr_dbg("%s: %s byte file size\n", args->name, 
+			stress_uint64_to_str(sz, sizeof(sz), (uint64_t)dirmany_bytes));
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		uint64_t i_end;
 
-		i_end = stress_dirmany_create(args, pathname, t_start, i_start, &create_time);
+		i_end = stress_dirmany_create(args, pathname, dirmany_bytes, t_start, i_start, &create_time);
 		stress_dirmany_remove(pathname, i_start, i_end, &remove_time);
 		i_start = i_end;
 
@@ -120,8 +160,14 @@ static int stress_dirmany(const stress_args_t *args)
 	return ret;
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_dirmany_bytes,	stress_set_dirmany_bytes },
+	{ 0,			NULL }
+};
+
 stressor_info_t stress_dirmany_info = {
 	.stressor = stress_dirmany,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };

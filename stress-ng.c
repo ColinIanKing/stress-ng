@@ -341,6 +341,7 @@ static const struct option long_options[] = {
 	{ "dirdeep-inodes",	1,	0,	OPT_dirdeep_inodes },
 	{ "dirmany",		1,	0,	OPT_dirmany },
 	{ "dirmany-ops",	1,	0,	OPT_dirmany_ops },
+	{ "dirmany-bytes",	1,	0,	OPT_dirmany_bytes },
 	{ "dry-run",		0,	0,	OPT_dry_run },
 	{ "dnotify",		1,	0,	OPT_dnotify },
 	{ "dnotify-ops",	1,	0,	OPT_dnotify_ops },
