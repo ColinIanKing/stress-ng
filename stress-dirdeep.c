@@ -188,7 +188,7 @@ static bool stress_dirdeep_make(
 				depth + 1);
 		if (len + 6 < path_len) {
 			for (j = 0; keep_stressing(args) && (j < dirdeep_files); j++) {
-				int ret, fd;
+				int fd;
 
 				(void)snprintf(path + len, path_len - len, "/%-4.4" PRIx32, j);
 				fd = open(path, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
