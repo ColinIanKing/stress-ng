@@ -18,7 +18,12 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-capabilities.h"
+
+#if defined(HAVE_ASM_MTRR_H)
+#include <asm/mtrr.h>
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"physpage N",	  "start N workers performing physical page lookup" },
@@ -45,6 +50,69 @@ static int stress_physpage_supported(const char *name)
 	}
 	return 0;
 }
+
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_ASM_MTRR_H) &&		\
+    defined(HAVE_MTRR_GENTRY) &&	\
+    defined(HAVE_MTRR_SENTRY) &&	\
+    defined(MTRRIOC_GET_ENTRY)
+void stress_physpage_mtrr(
+	const stress_args_t *args,
+	const uintptr_t phys_addr,
+	const size_t page_size)
+{
+	int fd;
+	size_t i;
+	static const int mtrr_types[] = {
+		0, 	/* uncachable */
+		1, 	/* write-combining */
+		4, 	/* write-through */
+		5, 	/* write-protect */
+		6, 	/* write-back */
+		0xff,	/* Illegal */
+	};
+
+	fd = open("/proc/mtrr", O_RDWR);
+	if (fd < 0)
+		return;
+
+	for (i = 0; i < SIZEOF_ARRAY(mtrr_types); i++) {
+		struct mtrr_sentry sentry;
+		int ret;
+		bool found = false;
+
+		sentry.base = phys_addr;
+		sentry.size = page_size;
+		sentry.type = mtrr_types[i];
+
+		ret = ioctl(fd, MTRRIOC_ADD_ENTRY, &sentry);
+		if (ret != 0)
+			goto err;
+		if (lseek(fd, 0, SEEK_SET) == 0) {
+			struct mtrr_gentry gentry;
+
+			gentry.regnum = 0;
+			while (ioctl(fd, MTRRIOC_GET_ENTRY, &gentry) == 0) {
+				if ((gentry.size == sentry.size) &&
+				    (gentry.base == sentry.base) &&
+				    (gentry.type == sentry.type)) {
+					found = true;
+				}
+				gentry.regnum++;
+			}
+			if (!found) {
+				pr_fail("%s: cannot find mtrr entry at %p, size %zd, type %d\n",
+					args->name, (void *)phys_addr, page_size, mtrr_types[i]);
+			}
+		}
+err:
+		ret = ioctl(fd, MTRRIOC_DEL_ENTRY, &sentry);
+		if (ret < 0)
+			break;
+	}
+	(void)close(fd);
+}
+#endif
 
 static int stress_virt_to_phys(
 	const stress_args_t *args,
@@ -104,7 +172,7 @@ static int stress_virt_to_phys(
 			goto err;
 		}
 
-
+		phys_addr = pfn * page_size;
 		/*
 		 *  Try to exercise /dev/mem, seek may work, read most probably
 		 *  will fail with -EPERM. Ignore any errors, the aim here is
@@ -116,7 +184,6 @@ static int stress_virt_to_phys(
 			off_t offret;
 			uint8_t *ptr;
 
-			phys_addr = pfn * page_size;
 			offret = lseek(fd_mem, (off_t)phys_addr, SEEK_SET);
 			if (offret != (off_t)-1) {
 				ssize_t rdret;
@@ -126,11 +193,19 @@ static int stress_virt_to_phys(
 				(void)rdret;
 			}
 
-			ptr = mmap(NULL, args->page_size, PROT_READ,
+			ptr = mmap(NULL, page_size, PROT_READ,
 				MAP_SHARED, fd_mem, (off_t)phys_addr);
 			if (ptr != MAP_FAILED)
-				(void)munmap((void *)ptr, args->page_size);
+				(void)munmap((void *)ptr, page_size);
 		}
+
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_ASM_MTRR_H) &&		\
+    defined(HAVE_MTRR_GENTRY) &&	\
+    defined(HAVE_MTRR_SENTRY) &&	\
+    defined(MTRRIOC_GET_ENTRY)
+		stress_physpage_mtrr(args, phys_addr, page_size);
+#endif
 		return 0;
 	} else {
 		/*
