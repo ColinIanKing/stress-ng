@@ -106,6 +106,14 @@ SUSE:
   * libkmod-devel
   * xxhash-devel
 
+ClearLinux:
+  * devpkg-libattr
+  * devpkg-libbsd
+  * devpkg-libsctp
+  * devpkg-Judy
+  * devpkg-libgcrypt
+  * devpkg-kmod
+
 NOTE: the build will try to detect build dependencies and will build an image
 with functionality disabled if the support libraries are not installed.
 
