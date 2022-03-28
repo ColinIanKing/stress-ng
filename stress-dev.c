@@ -3730,8 +3730,8 @@ static const stress_dev_func_t dev_funcs[] = {
 	DEV_FUNC("/dev/kmsg",	stress_dev_kmsg_linux),
 	DEV_FUNC("/dev/nvram",	stress_dev_nvram_linux),
 	DEV_FUNC("/dev/cdrom",  stress_dev_cdrom_linux),
-	DEV_FUNC("/dev/sg",	stress_dev_scsi_generic_linux),
 	DEV_FUNC("/dev/sr0",    stress_dev_cdrom_linux),
+	DEV_FUNC("/dev/sg",	stress_dev_scsi_generic_linux),
 	DEV_FUNC("/dev/console",stress_dev_console_linux),
 #else
 	UNEXPECTED
