@@ -25,6 +25,13 @@
 UNEXPECTED
 #endif
 
+#if defined(HAVE_SYS_XATTR_H)
+#include <sys/xattr.h>
+#undef HAVE_ATTR_XATTR_H
+#elif defined(HAVE_ATTR_XATTR_H)
+#include <attr/xattr.h>
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"tmpfs N",	    "start N workers mmap'ing a file on tmpfs" },
 	{ NULL,	"tmpfs-ops N",	    "stop after N tmpfs bogo ops" },
@@ -229,6 +236,26 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		if (!keep_stressing_flag())
 			break;
 
+#if (defined(HAVE_SYS_XATTR_H) ||       \
+     defined(HAVE_ATTR_XATTR_H)) &&     \
+    defined(HAVE_FREMOVEXATTR) &&       \
+    defined(HAVE_FSETXATTR)
+		{
+			int ret;
+
+			char attrname[32];
+			char attrdata[32];
+
+			(void)snprintf(attrname, sizeof(attrname), "user.var_%" PRIx32, stress_mwc32());
+			(void)snprintf(attrdata, sizeof(attrdata), "data-%" PRIx32, stress_mwc32());
+
+			/* Not supported, but exercise it anyhow */
+			ret = shim_fsetxattr(fd, attrname, attrdata, strlen(attrdata), XATTR_CREATE);
+			if (ret == 0)
+				ret = shim_fremovexattr(fd, attrname);
+			(void)ret;
+		}
+#endif
 		offset = (off_t)(stress_mwc64() % (sz + 1));
 		if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
 			char data[1];

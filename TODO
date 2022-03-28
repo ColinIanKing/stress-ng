@@ -19,5 +19,4 @@
 List of TODO items:
 
 1. Documentation/watch_queue.rst
-2. xattr on in-memory file systems like tmpfs
-3. inode consumer
+2. inode consumer
