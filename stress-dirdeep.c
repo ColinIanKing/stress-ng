@@ -459,8 +459,13 @@ static int stress_dirdeep(const stress_args_t *args)
 		}
 	} else {
 		if (args->instance == 0) {
-			pr_dbg("%s: unknown inodes available, exercising up to %" PRIu64 " inodes\n",
-				args->name, dirdeep_inodes);
+			if (dirdeep_inodes == ~0ULL) {
+				pr_dbg("%s: unknown inodes available, exercising potentially millions of inodes\n",
+					args->name);
+			} else {
+				pr_dbg("%s: unknown inodes available, exercising up to %" PRIu64 " inodes\n",
+					args->name, dirdeep_inodes);
+			}
 		}
 	}
 
