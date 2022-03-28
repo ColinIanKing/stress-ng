@@ -1830,17 +1830,19 @@ redo:
 
 					if (WIFSIGNALED(status)) {
 #if defined(WTERMSIG)
-#if NEED_GLIBC(2,1,0)
-						const char *signame = strsignal(WTERMSIG(status));
+						const int wterm_signal = WTERMSIG(status);
 
-						pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d (%s)\n",
-							ret, stressor_name,
-							WTERMSIG(status), signame);
+						if (wterm_signal != SIGALRM) {
+#if NEED_GLIBC(2,1,0)
+							const char *signame = strsignal(wterm_signal);
+
+							pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d (%s)\n",
+								ret, stressor_name, wterm_signal, signame);
 #else
-						pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d\n",
-							ret, stressor_name,
-							WTERMSIG(status));
+							pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d\n",
+								ret, stressor_name, wterm_signal);
 #endif
+						}
 #else
 						pr_dbg("process [%d] (stress-ng-%s) terminated on signal\n",
 							ret, stressor_name);
