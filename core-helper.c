@@ -83,6 +83,8 @@
 int __dso_handle;
 #endif
 
+#define STRESS_ABS_MIN_STACK_SIZE	(64 * 1024)
+
 static bool stress_stack_check_flag;
 
 typedef struct {
@@ -2620,20 +2622,17 @@ size_t stress_sig_stack_size(void)
 	min = stress_min_aux_sig_stack_size();
 #if defined(_SC_SIGSTKSZ)
 	sz = sysconf(_SC_SIGSTKSZ);
-	if (sz > min)
+	if (min < sz)
 		min = sz;
 #endif
 #if defined(SIGSTKSZ)
 	if (SIGSTKSZ > min) {
 		/* SIGSTKSZ may be sysconf(_SC_SIGSTKSZ) */
 		min = SIGSTKSZ;
-		if (min < 0)
-			min = 8192;
 	}
-#else
-	if (8192 > min)
-		min = 8192;
 #endif
+	if (min < STRESS_ABS_MIN_STACK_SIZE)
+		min = STRESS_ABS_MIN_STACK_SIZE;
 	sz = min;
 
 	return (size_t)sz;
@@ -2654,20 +2653,17 @@ size_t stress_min_sig_stack_size(void)
 	min = stress_min_aux_sig_stack_size();
 #if defined(_SC_MINSIGSTKSZ)
 	sz = sysconf(_SC_MINSIGSTKSZ);
-	if (sz > min)
+	if (min < sz)
 		min = sz;
 #endif
 #if defined(SIGSTKSZ)
 	if (SIGSTKSZ > min) {
 		/* SIGSTKSZ may be sysconf(_SC_SIGSTKSZ) */
 		min = SIGSTKSZ;
-		if (min < 0)
-			min = 8192;
 	}
-#else
-	if (8192 > min)
-		min = 8192;
 #endif
+	if (min < STRESS_ABS_MIN_STACK_SIZE)
+		min = STRESS_ABS_MIN_STACK_SIZE;
 	sz = min;
 
 	return (size_t)sz;
