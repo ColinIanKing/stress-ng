@@ -71,6 +71,10 @@ void stress_klog_start(void)
 				msg = "soft lockup";
 				goto log_err;
 			}
+			if (strstr(buf, "Out of memory")) {
+				msg = "out of memory";
+				goto log_info;
+			}
 			if ((priority > 3) && strstr(buf, "OOM")) {
 				msg = "out of memory";
 				goto log_info;
