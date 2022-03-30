@@ -102,10 +102,10 @@ void stress_klog_start(void)
 			continue;
 
 log_info:
-			pr_inf("klog: %s: %s '%s'\n", msg, ts, ptr);
+			pr_inf("klog-check: %s: %s '%s'\n", msg, ts, ptr);
 			continue;
 log_err:
-			pr_err("klog: %s: %s '%s'\n", msg, ts, ptr);
+			pr_err("klog-check: %s: %s '%s'\n", msg, ts, ptr);
 		}
 	}
 	(void)fclose(klog_fp);
