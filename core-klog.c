@@ -51,12 +51,12 @@ void stress_klog_start(void)
 
 			ptr = strchr(buf, ';');
 			if (!ptr)
-				goto log_next;
+				continue;
 			ptr++;
 
 			n = sscanf(buf, "%d,%d,%" SCNu64, &priority, &facility, &timestamp);
 			if (n != 3)
-				goto log_next;
+				continue;
 
 			snprintf(ts, sizeof(ts), "[%" PRIu64 ".%6.6" PRIu64 "]",
 				timestamp / 1000000, timestamp % 1000000);
@@ -102,8 +102,6 @@ log_info:
 			continue;
 log_err:
 			pr_err("klog: %s: %s '%s'\n", msg, ts, ptr);
-			continue;
-log_next:
 		}
 	}
 	(void)fclose(klog_fp);
