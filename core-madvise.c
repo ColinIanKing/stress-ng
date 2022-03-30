@@ -152,7 +152,7 @@ void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
 		 *  Readable protection? read pages
 		 */
 		if ((prot[0] == 'r') && (path[0] != '[')) {
-			const size_t page_size = stress_get_pagesize();
+			const size_t page_size = stress_get_page_size();
 
 			volatile uint8_t *ptr = (volatile uint8_t *)start;
 

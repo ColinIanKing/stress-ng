@@ -59,7 +59,7 @@ static volatile bool keep_mounting = true;
 static int stress_set_ramfs_size(const char *opt)
 {
 	uint64_t ramfs_size;
-	const uint64_t page_size = (uint64_t)stress_get_pagesize();
+	const uint64_t page_size = (uint64_t)stress_get_page_size();
 	const uint64_t page_mask = ~(page_size - 1);
 
 	ramfs_size = stress_get_uint64_byte(opt);

@@ -1623,7 +1623,7 @@ static void stress_dev_random_linux(
 static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
 {
 	void *ptr;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = stress_get_page_size();
 
 	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (ptr != MAP_FAILED) {
@@ -2985,7 +2985,7 @@ static void stress_dev_port_linux(
 {
 	off_t off;
 	uint8_t *ptr;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = stress_get_page_size();
 
 	(void)args;
 	(void)devpath;

@@ -2060,7 +2060,7 @@ static void MLOCKED_TEXT stress_run(
 {
 	double time_start, time_finish;
 	int32_t started_instances = 0;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = stress_get_page_size();
 
 	wait_flag = true;
 	time_start = stress_time_now();
@@ -2697,7 +2697,7 @@ static void *stress_map_page(int prot, char *prot_str, size_t page_size)
  */
 static inline void stress_shared_map(const int32_t num_procs)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = stress_get_page_size();
 	size_t len = sizeof(stress_shared_t) +
 		     (sizeof(stress_stats_t) * (size_t)num_procs);
 	size_t sz = (len + (page_size << 1)) & ~(page_size - 1);
@@ -2797,7 +2797,7 @@ err_unmap_shared:
  */
 void stress_shared_unmap(void)
 {
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = stress_get_page_size();
 
 	(void)munmap((void *)g_shared->mapped.page_wo, page_size);
 	(void)munmap((void *)g_shared->mapped.page_ro, page_size);
@@ -3539,7 +3539,7 @@ int main(int argc, char **argv, char **envp)
 	stressors_tail = NULL;
 	stress_mwc_reseed();
 
-	(void)stress_get_pagesize();
+	(void)stress_get_page_size();
 	stressor_set_defaults();
 	g_pgrp = getpid();
 

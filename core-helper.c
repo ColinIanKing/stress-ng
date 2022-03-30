@@ -290,10 +290,10 @@ size_t stress_mk_filename(
 }
 
 /*
- *  stress_get_pagesize()
- *	get pagesize
+ *  stress_get_page_size()
+ *	get page_size
  */
-size_t stress_get_pagesize(void)
+size_t stress_get_page_size(void)
 {
 	static size_t page_size = 0;
 
@@ -451,7 +451,7 @@ uint64_t stress_get_phys_mem_size(void)
 {
 #if defined(STRESS_SC_PAGES)
 	uint64_t phys_pages = 0;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = stress_get_page_size();
 	const uint64_t max_pages = ~0ULL / page_size;
 
 	phys_pages = (uint64_t)sysconf(STRESS_SC_PAGES);
@@ -1239,7 +1239,7 @@ void pr_yaml_runinfo(FILE *yaml)
 		pr_yaml(yaml, "      freeswap: %lu\n", info.freeswap);
 	}
 #endif
-	pr_yaml(yaml, "      pagesize: %zd\n", stress_get_pagesize());
+	pr_yaml(yaml, "      pagesize: %zd\n", stress_get_page_size());
 	pr_yaml(yaml, "      cpus: %" PRId32 "\n", stress_get_processors_configured());
 	pr_yaml(yaml, "      cpus-online: %" PRId32 "\n", stress_get_processors_online());
 	pr_yaml(yaml, "      ticks-per-second: %" PRId32 "\n", stress_get_ticks_per_second());
@@ -1875,7 +1875,7 @@ size_t stress_probe_max_pipe_size(void)
 		return max_pipe_size;
 
 #if defined(F_SETPIPE_SZ)
-	page_size = stress_get_pagesize();
+	page_size = stress_get_page_size();
 
 	/*
 	 *  Try and find maximum pipe size directly
@@ -1908,7 +1908,7 @@ size_t stress_probe_max_pipe_size(void)
 ret:
 	max_pipe_size = sz;
 #else
-	max_pipe_size = stress_get_pagesize();
+	max_pipe_size = stress_get_page_size();
 #endif
 	return max_pipe_size;
 }

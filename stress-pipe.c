@@ -57,7 +57,7 @@ static int stress_set_pipe_data_size(const char *opt)
 
 	pipe_data_size = (size_t)stress_get_uint64_byte(opt);
 	stress_check_range_bytes("pipe-data-size", pipe_data_size,
-		4, stress_get_pagesize());
+		4, stress_get_page_size());
 	return stress_set_setting("pipe-data-size,", TYPE_ID_SIZE_T, &pipe_data_size);
 }
 

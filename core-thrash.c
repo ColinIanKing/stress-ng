@@ -46,7 +46,7 @@ static int stress_pagein_proc(const pid_t pid)
 	char buffer[4096];
 	int fdmem, rc = 0;
 	FILE *fpmap;
-	const size_t page_size = stress_get_pagesize();
+	const size_t page_size = stress_get_page_size();
 
 	if ((pid == parent_pid) || (pid == getpid()))
 		return 0;
