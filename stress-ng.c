@@ -3810,10 +3810,6 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_THRASH)
 		stress_thrash_stop();
 
-	pr_inf("%s run completed in %.2fs%s\n",
-		success ? "successful" : "unsuccessful",
-		duration, stress_duration_to_str(duration));
-
 	/*
 	 *  Save results to YAML file
 	 */
@@ -3862,6 +3858,10 @@ int main(int argc, char **argv, char **envp)
 	stress_vmstat_stop();
 	stress_ftrace_stop();
 	stress_ftrace_free();
+
+	pr_inf("%s run completed in %.2fs%s\n",
+		success ? "successful" : "unsuccessful",
+		duration, stress_duration_to_str(duration));
 
 	/*
 	 *  Tidy up
