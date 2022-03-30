@@ -2188,7 +2188,9 @@ again:
 					 *  be untrustyworthy
 					 */
 					if (!stats->counter_ready) {
-						pr_inf("%s: NOTE: bogo-ops counter in non-ready state, metrics are untrustworthy (process may have been terminated prematurely)\n",
+						pr_inf("%s: NOTE: bogo-ops counter in non-ready state, "
+							"metrics are untrustworthy (process may have been "
+							"terminated prematurely)\n",
 							name);
 						rc = EXIT_METRICS_UNTRUSTWORTHY;
 					}
