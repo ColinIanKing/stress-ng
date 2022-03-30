@@ -409,13 +409,26 @@ static int stress_madvise(const stress_args_t *args)
 	const pid_t pid = getpid();
 	int fd = -1;
 	NOCLOBBER int ret;
-	NOCLOBBER int flags = MAP_PRIVATE;
-	NOCLOBBER int num_mem_retries = 0;
+	NOCLOBBER int flags;
+	NOCLOBBER int num_mem_retries;
 	char filename[PATH_MAX];
 	char page[page_size];
 	char smaps[PATH_MAX];
 	size_t n;
 	madvise_ctxt_t ctxt;
+#if defined(MADV_FREE)
+	NOCLOBBER uint64_t madv_frees_raced;
+	NOCLOBBER uint64_t madv_frees;
+	NOCLOBBER uint8_t madv_tries;
+#endif
+
+	flags = MAP_PRIVATE;
+	num_mem_retries = 0;
+#if defined(MADV_FREE)
+	madv_frees_raced = 0;
+	madv_frees = 0;
+	madv_tries = 0;
+#endif
 
 	(void)snprintf(smaps, sizeof(smaps), "/proc/%" PRIdMAX "/smaps", (intmax_t)pid);
 
@@ -464,7 +477,8 @@ static int stress_madvise(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		NOCLOBBER void *buf;
+		NOCLOBBER uint8_t *buf;
+		bool file_mapped;
 
 		if (num_mem_retries >= NUM_MEM_RETRIES_MAX) {
 			pr_err("%s: gave up trying to mmap, no available memory\n",
@@ -475,10 +489,11 @@ static int stress_madvise(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 
-		if (stress_mwc1()) {
-			buf = mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, fd, 0);
+		file_mapped = stress_mwc1();
+		if (file_mapped) {
+			buf = (uint8_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE, flags, fd, 0);
 		} else {
-			buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+			buf = (uint8_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 				flags | MAP_ANONYMOUS, 0, 0);
 		}
 		if (buf == MAP_FAILED) {
@@ -543,6 +558,40 @@ static int stress_madvise(const stress_args_t *args)
 		(void)madvise(buf, sz, ~0);
 
 #endif
+
+#if defined(MADV_FREE)
+		if (file_mapped) {
+			register uint8_t val;
+
+			madv_tries++;
+			if (madv_tries < 16)
+				goto madv_free_out;
+
+			madv_tries = 0;
+			val = stress_mwc8();
+
+			for (n = 0; n < sz; n += page_size) {
+				register uint8_t v = val + n;
+
+				buf[n] = v;
+			}
+			if (madvise(buf, sz, MADV_FREE) != 0)
+				goto madv_free_out;
+			if (lseek(fd, 0, SEEK_SET) != 0)
+				goto madv_free_out;
+			if (read(fd, buf, sz) != (ssize_t)sz)
+				goto madv_free_out;
+
+			for (n = 0; n < sz; n += page_size) {
+				register uint8_t v = val + n;
+
+				if (buf[n] != v)
+					madv_frees_raced++;
+			}
+			madv_frees += sz / page_size;
+madv_free_out:
+		}
+#endif
 		(void)munmap((void *)buf, sz);
 
 
@@ -558,6 +607,7 @@ static int stress_madvise(const stress_args_t *args)
 		}
 #endif
 
+
 		inc_counter(args);
 	} while (keep_stressing(args));
 
@@ -565,6 +615,10 @@ static int stress_madvise(const stress_args_t *args)
 
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
+
+	if (madv_frees_raced)
+		pr_inf("%s: MADV_FREE: %" PRIu64" of %" PRIu64 " were racy\n",
+			args->name, madv_frees_raced, madv_frees);
 
 	if (sigbus_count)
 		pr_inf("%s: caught %" PRIu64 " SIGBUS signal%s\n",
