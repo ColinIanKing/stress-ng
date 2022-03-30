@@ -292,6 +292,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_NO_OOM_ADJUST	 STRESS_BIT_ULL(41)	/* --no-oom-adjust */
 #define OPT_FLAGS_KEEP_FILES	 STRESS_BIT_ULL(42)	/* --keep-files */
 #define OPT_FLAGS_STDOUT	 STRESS_BIT_ULL(43)	/* --stdout */
+#define OPT_FLAGS_KLOG_CHECK	 STRESS_BIT_ULL(44)	/* --klog-check */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1724,6 +1725,8 @@ typedef enum {
 	OPT_klog,
 	OPT_klog_ops,
 
+	OPT_klog_check,
+
 	OPT_kvm,
 	OPT_kvm_ops,
 
@@ -2703,6 +2706,8 @@ extern WARN_UNUSED const char *stress_get_compiler(void);
 extern WARN_UNUSED const char *stress_get_uname_info(void);
 extern WARN_UNUSED int stress_cache_alloc(const char *name);
 extern void stress_cache_free(void);
+extern void stress_klog_start(void);
+extern void stress_klog_stop(void);
 extern void stress_ignite_cpu_start(void);
 extern void stress_ignite_cpu_stop(void);
 extern ssize_t system_write(const char *path, const char *buf, const size_t buf_len);

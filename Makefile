@@ -370,6 +370,7 @@ CORE_SRC = \
 	core-io-priority.c \
 	core-job.c \
 	core-killpid.c \
+	core-klog.c \
 	core-limit.c \
 	core-log.c \
 	core-madvise.c \

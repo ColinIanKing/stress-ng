@@ -71,6 +71,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_ignite_cpu,	OPT_FLAGS_IGNITE_CPU },
 	{ OPT_keep_files, 	OPT_FLAGS_KEEP_FILES },
 	{ OPT_keep_name, 	OPT_FLAGS_KEEP_NAME },
+	{ OPT_klog_check,	OPT_FLAGS_KLOG_CHECK },
 	{ OPT_log_brief,	OPT_FLAGS_LOG_BRIEF },
 	{ OPT_maximize,		OPT_FLAGS_MAXIMIZE },
 	{ OPT_metrics,		OPT_FLAGS_METRICS },
@@ -490,6 +491,7 @@ static const struct option long_options[] = {
 	{ "kill-ops",		1,	0,	OPT_kill_ops },
 	{ "klog",		1,	0,	OPT_klog },
 	{ "klog-ops",		1,	0,	OPT_klog_ops },
+	{ "klog-check",		0,	0,	OPT_klog_check },
 	{ "kvm",		1,	0,	OPT_kvm },
 	{ "kvm-ops",		1,	0,	OPT_kvm_ops },
 	{ "l1cache",		1,	0, 	OPT_l1cache },
@@ -1075,6 +1077,7 @@ static const stress_help_t help_generic[] = {
 	{ "j",		"job jobfile",		"run the named jobfile" },
 	{ "k",		"keep-name",		"keep stress worker names to be 'stress-ng'" },
 	{ NULL,		"keep-files",		"do not remove files or directories" },
+	{ NULL,		"klog-check",		"check kernel message log for errors" },
 	{ NULL,		"log-brief",		"less verbose log messages" },
 	{ NULL,		"log-file filename",	"log messages to a log file" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
@@ -3793,6 +3796,7 @@ int main(int argc, char **argv, char **envp)
 
 	stress_vmstat_start();
 	stress_smart_start();
+	stress_klog_start();
 
 	if (g_opt_flags & OPT_FLAGS_SEQUENTIAL) {
 		stress_run_sequential(&duration,
@@ -3853,6 +3857,7 @@ int main(int argc, char **argv, char **envp)
 	 */
 	stress_times_dump(yaml, ticks_per_sec, duration);
 
+	stress_klog_stop();
 	stress_smart_stop();
 	stress_vmstat_stop();
 	stress_ftrace_stop();
