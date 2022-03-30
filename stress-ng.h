@@ -966,6 +966,7 @@ typedef struct {
 	uint32_t mem_cache_ways;			/* cache ways size */
 	uint64_t zero;					/* zero'd data */
 	void *nullptr;					/* Null pointer */
+	bool     klog_error;				/* True if error detected in klog */
 	pid_t (*vfork)(void);				/* vfork syscall */
 	stress_mapped_t mapped;				/* mmap'd pages to help testing */
 	struct {

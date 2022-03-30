@@ -19,14 +19,13 @@
 #include "stress-ng.h"
 
 static pid_t klog_pid = -1;
-static bool klog_errors = false;
 
 void stress_klog_start(void)
 {
 #if defined(__linux__)
 	FILE *klog_fp;
 
-	klog_errors = false;
+	g_shared->klog_error = false;
 
 	if (!(g_opt_flags & OPT_FLAGS_KLOG_CHECK))
 		return;
@@ -109,7 +108,7 @@ log_info:
 			continue;
 log_err:
 			pr_err("klog-check: %s: %s '%s'\n", msg, ts, ptr);
-			klog_errors = true;
+			g_shared->klog_error = true;
 		}
 	}
 	(void)fclose(klog_fp);
@@ -120,7 +119,7 @@ void stress_klog_stop(bool *success)
 {
 #if defined(__linux__)
 	if (g_opt_flags & OPT_FLAGS_KLOG_CHECK) {
-		if (klog_errors)
+		if (g_shared->klog_error)
 			*success = false;
 
 		if (klog_pid > 1) {
@@ -130,7 +129,7 @@ void stress_klog_stop(bool *success)
 			(void)waitpid(klog_pid, &status, 0);
 		}
 		klog_pid = -1;
-		klog_errors = 0;
+		g_shared->klog_error = 0;
 	}
 #else
 	(void)success;
