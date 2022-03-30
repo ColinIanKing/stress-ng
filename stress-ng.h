@@ -2707,7 +2707,7 @@ extern WARN_UNUSED const char *stress_get_uname_info(void);
 extern WARN_UNUSED int stress_cache_alloc(const char *name);
 extern void stress_cache_free(void);
 extern void stress_klog_start(void);
-extern void stress_klog_stop(void);
+extern void stress_klog_stop(bool *success);
 extern void stress_ignite_cpu_start(void);
 extern void stress_ignite_cpu_stop(void);
 extern ssize_t system_write(const char *path, const char *buf, const size_t buf_len);

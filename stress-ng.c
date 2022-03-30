@@ -3857,7 +3857,7 @@ int main(int argc, char **argv, char **envp)
 	 */
 	stress_times_dump(yaml, ticks_per_sec, duration);
 
-	stress_klog_stop();
+	stress_klog_stop(&success);
 	stress_smart_stop();
 	stress_vmstat_stop();
 	stress_ftrace_stop();
