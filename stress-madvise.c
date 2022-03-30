@@ -589,8 +589,8 @@ static int stress_madvise(const stress_args_t *args)
 					madv_frees_raced++;
 			}
 			madv_frees += sz / page_size;
-madv_free_out:
 		}
+madv_free_out:
 #endif
 		(void)munmap((void *)buf, sz);
 
