@@ -2060,6 +2060,7 @@ static void MLOCKED_TEXT stress_run(
 {
 	double time_start, time_finish;
 	int32_t started_instances = 0;
+	const size_t page_size = stress_get_pagesize();
 
 	wait_flag = true;
 	time_start = stress_time_now();
@@ -2163,7 +2164,7 @@ again:
 						.num_instances = (uint32_t)g_stressor_current->num_instances,
 						.pid = getpid(),
 						.ppid = getppid(),
-						.page_size = stress_get_pagesize(),
+						.page_size = page_size,
 						.mapped = &g_shared->mapped,
 						.misc_stats = stats->misc_stats
 					};
