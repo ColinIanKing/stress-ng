@@ -546,7 +546,7 @@ lite-test: all
 
 .PHONY: slow-test-all
 slow-test-all: all
-	./stress-ng --seq 0 -t 15 --pathological --verbose --times --tz --metrics
+	./stress-ng --seq 0 -t 15 --pathological --verbose --times --tz --metrics --klog-check
 
 .PHONY: tags
 tags:
