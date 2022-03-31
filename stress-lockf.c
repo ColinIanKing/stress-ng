@@ -220,8 +220,6 @@ static int stress_lockf_contention(
 			rc = lockf(fd, F_TEST, LOCK_SIZE);
 			(void)rc;
 		}
-
-
 		inc_counter(args);
 	} while (keep_stressing(args));
 
