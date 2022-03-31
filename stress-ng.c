@@ -3495,6 +3495,37 @@ static inline void stress_mlock_executable(void)
 #endif
 }
 
+/*
+ *  stress_yaml_open()
+ *	open YAML results file
+ */
+static FILE *stress_yaml_open(const char *yaml_filename)
+{
+	FILE *yaml = NULL;
+
+	if (yaml_filename) {
+		yaml = fopen(yaml_filename, "w");
+		if (!yaml)
+			pr_err("Cannot output YAML data to %s\n", yaml_filename);
+
+		pr_yaml(yaml, "---\n");
+		pr_yaml_runinfo(yaml);
+	}
+	return yaml;
+}
+
+/*
+ *  stress_yaml_open()
+ *	close YAML results file
+ */
+static void stress_yaml_close(FILE *yaml)
+{
+	if (yaml) {
+		pr_yaml(yaml, "...\n");
+		(void)fclose(yaml);
+	}
+}
+
 int main(int argc, char **argv, char **envp)
 {
 	double duration = 0.0;			/* stressor run time in secs */
@@ -3813,17 +3844,7 @@ int main(int argc, char **argv, char **envp)
 	if (g_opt_flags & OPT_FLAGS_THRASH)
 		stress_thrash_stop();
 
-	/*
-	 *  Save results to YAML file
-	 */
-	if (yaml_filename) {
-		yaml = fopen(yaml_filename, "w");
-		if (!yaml)
-			pr_err("Cannot output YAML data to %s\n", yaml_filename);
-
-		pr_yaml(yaml, "---\n");
-		pr_yaml_runinfo(yaml);
-	}
+	yaml = stress_yaml_open(yaml_filename);
 
 	/*
 	 *  Dump metrics
@@ -3881,10 +3902,7 @@ int main(int argc, char **argv, char **envp)
 	 */
 	shim_closelog();
 	pr_closelog();
-	if (yaml) {
-		pr_yaml(yaml, "...\n");
-		(void)fclose(yaml);
-	}
+	stress_yaml_close(yaml);
 
 	/*
 	 *  Done!
