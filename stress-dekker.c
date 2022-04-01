@@ -56,7 +56,6 @@ void stress_dekker_p0(const stress_args_t *args)
 	check0 = dekker->check;
 	dekker->check++;
 	check1 = dekker->check;
-	inc_counter(args);
 
 	dekker->turn = 1;
 	dekker->wants_to_enter[0] = false;
