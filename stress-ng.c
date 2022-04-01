@@ -671,6 +671,8 @@ static const struct option long_options[] = {
 #endif
 	{ "personality",	1,	0,	OPT_personality },
 	{ "personality-ops",	1,	0,	OPT_personality_ops },
+	{ "peterson",		1,	0,	OPT_peterson },
+	{ "peterson-ops",	1,	0,	OPT_peterson_ops },
 	{ "physpage",		1,	0,	OPT_physpage },
 	{ "physpage-ops",	1,	0,	OPT_physpage_ops },
 	{ "pidfd",		1,	0,	OPT_pidfd },

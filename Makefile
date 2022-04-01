@@ -234,6 +234,7 @@ STRESS_SRC = \
 	stress-pageswap.c \
 	stress-pci.c \
 	stress-personality.c \
+	stress-peterson.c \
 	stress-physpage.c \
 	stress-pidfd.c \
 	stress-ping-sock.c \

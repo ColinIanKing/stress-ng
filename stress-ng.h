@@ -1176,6 +1176,7 @@ typedef struct {
 	MACRO(pageswap)		\
 	MACRO(pci)		\
 	MACRO(personality)	\
+	MACRO(peterson)		\
 	MACRO(physpage)		\
 	MACRO(pidfd)		\
 	MACRO(ping_sock)	\
@@ -1966,6 +1967,9 @@ typedef enum {
 
 	OPT_personality,
 	OPT_personality_ops,
+
+	OPT_peterson,
+	OPT_peterson_ops,
 
 	OPT_physpage,
 	OPT_physpage_ops,

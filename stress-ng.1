@@ -1363,7 +1363,7 @@ and falls back to using GCC __sync_synchronize if they are not available. The
 stressors contain simple mutex and memory coherency sanity checks.
 .TP
 .B \-\-dekker\-ops N
-stop dekker workers after N mutex operations
+stop dekker workers after N mutex operations.
 .TP
 .B \-D N, \-\-dentry N
 start N workers that create and remove directory entries.  This should create
@@ -3230,6 +3230,15 @@ system call. (Linux only).
 .TP
 .B \-\-personality\-ops N
 stop personality stress workers after N bogo personality operations.
+.TP
+.B \-\-peterson N
+start N workers that exercises mutex exclusion between two processes using
+shared memory with the Peterson Algorithm. Where possible this uses memory fencing
+and falls back to using GCC __sync_synchronize if they are not available. The
+stressors contain simple mutex and memory coherency sanity checks.
+.TP
+.B \-\-peterson\-ops N
+stop peterson workers after N mutex operations.
 .TP
 .B \-\-physpage N
 start N workers that use /proc/self/pagemap and /proc/kpagecount to determine
