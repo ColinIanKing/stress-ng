@@ -20,7 +20,7 @@
 #include "core-cache.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"dekker N",		"start N workers that exercise dekker algorithm" },
+	{ NULL,	"dekker N",		"start N workers that exercise ther Dekker algorithm" },
 	{ NULL,	"dekker-ops N",		"stop after N dekker mutex bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
