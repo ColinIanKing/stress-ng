@@ -40,7 +40,6 @@ void stress_peterson_p0(const stress_args_t *args)
 	int check0, check1;
 
 	peterson->flag[0] = true;
-	//shim_mfence();
 	peterson->turn = 1;
 	shim_mfence();
 	while (peterson->flag[1] && peterson->turn == 1) {
@@ -50,7 +49,6 @@ void stress_peterson_p0(const stress_args_t *args)
 	check0 = peterson->check;
 	peterson->check++;
 	check1 = peterson->check;
-	inc_counter(args);
 
 	peterson->flag[0] = false;
 	shim_mfence();
@@ -66,7 +64,6 @@ void stress_peterson_p1(const stress_args_t *args)
 	int check0, check1;
 
 	peterson->flag[1] = true;
-	//shim_mfence();
 	peterson->turn = 0;
 	shim_mfence();
 	while (peterson->flag[0] && peterson->turn == 0) {
