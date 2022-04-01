@@ -1356,6 +1356,15 @@ by default, messages are sent using send(2). This option allows one to specify
 the sending method using send(2), sendmsg(2) or sendmmsg(2).  Note that
 sendmmsg is only available for Linux systems that support this system call.
 .TP
+.B \-\-dekker N
+start N workers that exercises mutex exclusion between two processes using
+shared memory with the Dekker Algorithm. Where possible this uses memory fencing
+and falls back to using GCC __sync_synchronize if they are not available. The
+stressors contain simple mutex and memory coherency sanity checks.
+.TP
+.B \-\-dekker\-ops N
+stop dekker workers after N mutex operations
+.TP
 .B \-D N, \-\-dentry N
 start N workers that create and remove directory entries.  This should create
 file system meta data activity. The directory entry names are suffixed by a

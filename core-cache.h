@@ -100,13 +100,15 @@ static inline void ALWAYS_INLINE shim_mfence(void)
 #if defined(STRESS_ARCH_RISCV) &&	\
     defined(HAVE_ASM_RISCV_FENCE)
 	 asm volatile ("fence" ::: "memory");
-#else
-#if NEED_GNUC(4, 2, 0) &&	\
-    !defined(__PCC__)
-	__sync_synchronize();
+#define HAVE_SHIM_MFENCE
 #else
 #if defined(STRESS_ARCH_X86)
 	asm volatile("mfence" : : : "memory");
+#define HAVE_SHIM_MFENCE
+#else
+#if defined(HAVE_SYNC_SYNCHRONIZE)
+	__sync_synchronize();
+#define HAVE_SHIM_MFENCE
 #else
 	/* Other arches not yet implemented for older GCC flavours */
 #endif

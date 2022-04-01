@@ -324,6 +324,8 @@ static const struct option long_options[] = {
 	{ "dccp-ops",		1,	0,	OPT_dccp_ops },
 	{ "dccp-opts",		1,	0,	OPT_dccp_opts },
 	{ "dccp-port",		1,	0,	OPT_dccp_port },
+	{ "dekker",		1,	0,	OPT_dekker },
+	{ "dekker-ops",		1,	0,	OPT_dekker_ops },
 	{ "dentry",		1,	0,	OPT_dentry },
 	{ "dentry-ops",		1,	0,	OPT_dentry_ops },
 	{ "dentries",		1,	0,	OPT_dentries },

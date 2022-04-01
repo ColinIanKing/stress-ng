@@ -1059,6 +1059,7 @@ typedef struct {
 	MACRO(cyclic)		\
 	MACRO(daemon)		\
 	MACRO(dccp)		\
+	MACRO(dekker)		\
 	MACRO(dentry)		\
 	MACRO(dev)		\
 	MACRO(dev_shm)		\
@@ -1503,6 +1504,9 @@ typedef enum {
 	OPT_dccp_ops,
 	OPT_dccp_opts,
 	OPT_dccp_port,
+
+	OPT_dekker,
+	OPT_dekker_ops,
 
 	OPT_dentry_ops,
 	OPT_dentries,

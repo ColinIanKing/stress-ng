@@ -117,6 +117,7 @@ STRESS_SRC = \
 	stress-cyclic.c \
 	stress-daemon.c \
 	stress-dccp.c \
+	stress-dekker.c \
 	stress-dentry.c \
 	stress-dev.c \
 	stress-dev-shm.c \
