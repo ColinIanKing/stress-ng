@@ -41,6 +41,15 @@ static int stress_set_utime_fsync(const char *opt)
 	return stress_set_setting("utime-fsync", TYPE_ID_BOOL, &utime_fsync);
 }
 
+static int shim_utime(const char *filename, const struct utimbuf *times)
+{
+#if defined(__NR_utime)
+	return (int)syscall(__NR_utime, filename, times);
+#else
+	return utime(filename, times)
+#endif
+}
+
 /*
  *  stress_utime()
  *	stress system by setting file utime
@@ -246,7 +255,7 @@ STRESS_PRAGMA_POP
 			utbuf.actime = (time_t)tv.tv_sec;
 			utbuf.modtime = utbuf.actime;
 
-			if (utime(filename, &utbuf) < 0) {
+			if (shim_utime(filename, &utbuf) < 0) {
 				pr_fail("%s: utime failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
@@ -266,18 +275,18 @@ STRESS_PRAGMA_POP
 					}
 				}
 			}
-			if (utime(filename, NULL) < 0) {
+			if (shim_utime(filename, NULL) < 0) {
 				pr_fail("%s: utime failed: errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				break;
 			}
 
 			/* Exercise invalid timename, ENOENT */
-			ret = utime("", &utbuf);
+			ret = shim_utime("", &utbuf);
 			(void)ret;
 
 			/* Exercise huge filename, ENAMETOOLONG */
-			ret = utime(hugename, &utbuf);
+			ret = shim_utime(hugename, &utbuf);
 			(void)ret;
 		}
 #else
