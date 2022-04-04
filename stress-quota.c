@@ -393,14 +393,14 @@ static int stress_quota(const stress_args_t *args)
 			"devices with quota enabled\n", args->name);
 	} else {
 		do {
-			int failed = 0, enosys = 0;
+			int failed = 0, skipped = 0;
 
 			for (i = 0; keep_stressing_flag() && (i < n_devs); i++) {
 				int ret;
 
 				/* This failed before, so don't retest */
-				if (devs[i].enosys) {
-					enosys++;
+				if ((devs[i].enosys) || (devs[i].esrch)) {
+					skipped++;
 					continue;
 				}
 
@@ -409,7 +409,7 @@ static int stress_quota(const stress_args_t *args)
 				case 0:
 					break;
 				case ENOSYS:
-					enosys++;
+					skipped++;
 					break;
 				case EPERM:
 					goto abort;
@@ -425,7 +425,7 @@ static int stress_quota(const stress_args_t *args)
 			 * Accounting not on for all the devices?
 			 * then do a non-fatal skip test
 			 */
-			if (enosys == n_devs) {
+			if (skipped == n_devs) {
 				rc = EXIT_SUCCESS;
 				goto tidy;
 			}
