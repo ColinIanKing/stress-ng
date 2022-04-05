@@ -803,24 +803,26 @@ static void stress_dev_tty(
 	UNEXPECTED
 #endif
 
-#if defined(TCOOFF) && 	\
+#if defined(TCXONC) &&	\
+    defined(TCOOFF) && 	\
     defined(TCOON)
 	{
-		ret = ioctl(fd, TCOOFF, 0);
+		ret = ioctl(fd, TCXONC, TCOOFF);
 		if (ret == 0)
-			ret = ioctl(fd, TCOON, 0);
+			ret = ioctl(fd, TCXONC, TCOON);
 		(void)ret;
 	}
 #else
 	UNEXPECTED
 #endif
 
-#if defined(TCIOFF) &&	\
+#if defined(TCXONC) &&	\
+    defined(TCIOFF) &&	\
     defined(TCION)
 	{
-		ret = ioctl(fd, TCIOFF, 0);
+		ret = ioctl(fd, TCXONC, TCIOFF);
 		if (ret == 0)
-			ret = ioctl(fd, TCION, 0);
+			ret = ioctl(fd, TCXONC, TCION);
 		(void)ret;
 	}
 #else
