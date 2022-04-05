@@ -46,7 +46,7 @@ static int shim_utime(const char *filename, const struct utimbuf *times)
 #if defined(__NR_utime)
 	return (int)syscall(__NR_utime, filename, times);
 #else
-	return utime(filename, times)
+	return utime(filename, times);
 #endif
 }
 
