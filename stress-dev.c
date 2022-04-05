@@ -4005,6 +4005,7 @@ static inline void stress_dev_rw(
 		    strncmp("/dev/vsock", path, 10) &&
 		    strncmp("/dev/dri", path, 8) &&
 		    strncmp("/dev/nmem", path, 9) &&
+		    strncmp("/dev/ndctl", path, 10) &&
 		    (ioctl(fd, TCGETS, &tios) == 0))
 			stress_dev_tty(args, fd, path);
 #else
