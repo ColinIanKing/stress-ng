@@ -18,7 +18,9 @@
  */
 #include "stress-ng.h"
 
+#if defined(__linux__)
 static pid_t klog_pid = -1;
+#endif
 
 void stress_klog_start(void)
 {
