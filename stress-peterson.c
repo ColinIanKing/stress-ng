@@ -93,7 +93,7 @@ static int stress_peterson(const stress_args_t *args)
 	const size_t sz = STRESS_MAXIMUM(args->page_size, sizeof(*peterson));
 	pid_t pid;
 
-	peterson = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+	peterson = (peterson_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (peterson == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zd bytes for bekker shared struct, skipping stressor\n",
