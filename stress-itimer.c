@@ -35,7 +35,7 @@ static const stress_help_t help[] = {
 	{ NULL, NULL,		NULL }
 };
 
-static const int stress_itimers[] = {
+static const shim_itimer_which_t stress_itimers[] = {
 #if defined(ITIMER_REAL)
 	ITIMER_REAL,
 #endif
