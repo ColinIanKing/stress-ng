@@ -73,7 +73,7 @@ static int stress_nice(const stress_args_t *args)
 		pid = fork();
 		if (pid == 0) {
 #if defined(HAVE_GETPRIORITY)
-			static const int prio_which[] = {
+			static const shim_priority_which_t prio_which[] = {
 				PRIO_PROCESS,
 				PRIO_USER,
 				PRIO_PGRP,
@@ -119,8 +119,8 @@ static int stress_nice(const stress_args_t *args)
 			 *  Exercise setpriority calls that uses illegal
 			 *  arguments to get more kernel test coverage
 			 */
-			(void)setpriority(INT_MIN, 0, max_prio - 1);
-			(void)setpriority(INT_MAX, 0, max_prio - 1);
+			(void)setpriority((shim_priority_which_t)INT_MIN, 0, max_prio - 1);
+			(void)setpriority((shim_priority_which_t)INT_MAX, 0, max_prio - 1);
 #endif
 
 			switch (which) {

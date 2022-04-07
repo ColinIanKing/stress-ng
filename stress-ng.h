@@ -179,6 +179,12 @@ typedef unsigned long int __kernel_ulong_t;
 #define shim_rlimit_resource_t int
 #endif
 
+#if defined(HAVE_PRIORITY_WHICH_T)
+#define shim_priority_which_t	__priority_which_t
+#else
+#define shim_priority_which_t	int
+#endif
+
 #if defined(__sun__)
 #if defined(HAVE_GETDOMAINNAME)
 extern int getdomainname(char *name, size_t len);

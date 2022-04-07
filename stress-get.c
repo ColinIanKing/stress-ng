@@ -138,7 +138,7 @@ static const shim_rlimit_resource_t rlimits[] = {
 };
 
 #if defined(HAVE_GETPRIORITY)
-static const int priorities[] = {
+static const shim_priority_which_t priorities[] = {
 #if defined(PRIO_PROCESS)
 	PRIO_PROCESS,
 #endif
@@ -370,13 +370,13 @@ static int stress_get(const stress_args_t *args)
 
 #if defined(HAVE_GETPRIORITY)
 		/*
-		 *  Exercise getpriority calls that uses illegal
+		 *  Exercise getpriority calls that use illegal
 		 *  arguments to get more kernel test coverage
 		 */
-		(void)getpriority(INT_MIN, 0);
-		(void)getpriority(INT_MAX, 0);
+		(void)getpriority((shim_priority_which_t)INT_MIN, 0);
+		(void)getpriority((shim_priority_which_t)INT_MAX, 0);
 		pid = stress_get_unused_pid_racy(false);
-		(void)getpriority(pid, 0);
+		(void)getpriority((shim_priority_which_t)0, pid);
 
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++) {
 			errno = 0;
