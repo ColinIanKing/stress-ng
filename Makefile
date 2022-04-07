@@ -404,7 +404,7 @@ OBJS = $(SRC:.c=.o)
 APPARMOR_PARSER=/sbin/apparmor_parser
 
 all: makeconfig
-	+$(MAKE) stress-ng VERBOSE=$(VERBOSE)
+	$(MAKE) stress-ng VERBOSE=$(VERBOSE)
 
 #
 #  Load in and set flags based on config
@@ -431,7 +431,7 @@ stress-ng: $(OBJS)
 	$(V)sync
 
 config.h:
-	+$(MAKE) CC=$(CC) STATIC=$(STATIC) -f Makefile.config -j
+	$(MAKE) CC=$(CC) STATIC=$(STATIC) -f Makefile.config
 
 .PHONY:
 makeconfig: config.h
@@ -536,6 +536,7 @@ clean:
 	$(V)rm -f apparmor-data.bin
 	$(V)rm -f *.o
 	$(V)rm -f config config.h
+	$(V)rm -rf configs
 	$(V)rm -f tags
 
 .PHONY: fast-test-all
