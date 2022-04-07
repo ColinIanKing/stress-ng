@@ -41,14 +41,14 @@ typedef struct {
 #define MAX_RLIMIT_NOFILE	(32)
 
 typedef struct {
-	const int resource;		/* rlimit resource ID */
+	const shim_rlimit_resource_t resource;	/* rlimit resource ID */
 	const struct rlimit new_limit;	/* new rlimit setting */
 	struct rlimit old_limit;	/* original old rlimit setting */
 	int ret;			/* saved old rlimit setting return status */
 } stress_limits_t;
 
 typedef struct {
-	const int resource;
+	const shim_rlimit_resource_t resource;
 	const char *name;
 } stress_resource_id_t;
 
@@ -184,7 +184,7 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 		/*
 		 *  Exercise illegal bad resource id
 		 */
-		ret = getrlimit(~0, &rlim);
+		ret = getrlimit((shim_rlimit_resource_t)~0, &rlim);
 		(void)ret;
 
 

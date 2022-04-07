@@ -42,7 +42,7 @@ UNEXPECTED
 #define GIDS_MAX 	(1024)
 
 typedef struct {
-	int	id;
+	shim_rlimit_resource_t id;
 	int	ret;
 	struct rlimit rlim;
 } stress_rlimit_info_t;
@@ -514,8 +514,8 @@ static int stress_set(const stress_args_t *args)
 		 *  resource attribute resulting in EINVAL error
 		 */
 		(void)memset(&rlim, 0, sizeof(rlim));
-		if ((getrlimit(INT_MAX, &rlim) < 0) && (errno == EINVAL)) {
-			(void)setrlimit(INT_MAX, &rlim);
+		if ((getrlimit((shim_rlimit_resource_t)INT_MAX, &rlim) < 0) && (errno == EINVAL)) {
+			(void)setrlimit((shim_rlimit_resource_t)INT_MAX, &rlim);
 		}
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {

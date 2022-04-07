@@ -92,7 +92,7 @@ static const stress_rusage_t rusages[] = {
 #undef RLIMIT_FSIZE
 #endif
 
-static const int rlimits[] = {
+static const shim_rlimit_resource_t rlimits[] = {
 #if defined(RLIMIT_AS)
 	RLIMIT_AS,
 #endif
@@ -426,7 +426,7 @@ static int stress_get(const stress_args_t *args)
 		UNEXPECTED
 #endif
 		/* Invalid getrlimit syscall and ignoring failure */
-		(void)getrlimit(INT_MAX, &rlim);
+		(void)getrlimit((shim_rlimit_resource_t)INT_MAX, &rlim);
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 			ret = getrlimit(rlimits[i], &rlim);
@@ -457,9 +457,9 @@ static int stress_get(const stress_args_t *args)
     NEED_GLIBC(2,13,0) &&	\
     defined(EOVERFLOW)
 		/* Invalid prlimit syscall and ignoring failure */
-		(void)prlimit(mypid, INT_MAX, NULL, &rlim);
+		(void)prlimit(mypid, (shim_rlimit_resource_t)INT_MAX, NULL, &rlim);
 		pid = stress_get_unused_pid_racy(false);
-		(void)prlimit(pid, INT_MAX, NULL, &rlim);
+		(void)prlimit(pid, (shim_rlimit_resource_t)INT_MAX, NULL, &rlim);
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
 			struct rlimit rlims[2];
