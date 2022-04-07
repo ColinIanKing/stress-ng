@@ -173,9 +173,13 @@ typedef long int __kernel_long_t;
 typedef unsigned long int __kernel_ulong_t;
 #endif
 
-#if defined(__sun__) && 	\
-    defined(HAVE_GETDOMAINNAME)
+#if defined(__sun__)
+#if defined(HAVE_GETDOMAINNAME)
 extern int getdomainname(char *name, size_t len);
+#endif
+#if defined(HAVE_SETDOMAINNAME)
+extern int setdomainname(const char *name, size_t len);
+#endif
 #endif
 
 #define STRESS_BIT_U(shift)	(1U << shift)
