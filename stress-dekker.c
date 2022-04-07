@@ -109,7 +109,7 @@ static int stress_dekker(const stress_args_t *args)
 	const size_t sz = STRESS_MAXIMUM(args->page_size, sizeof(*dekker));
 	pid_t pid;
 
-	dekker = mmap(NULL, sz, PROT_READ | PROT_WRITE,
+	dekker = (dekker_t *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (dekker == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zd bytes for bekker shared struct, skipping stressor\n",
