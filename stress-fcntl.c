@@ -25,6 +25,12 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+#if defined(HAVE_PID_TYPE)
+#define shim_pid_type		enum __pid_type
+#else
+#define shim_pid_type		int
+#endif
+
 #if defined(F_DUPFD) || 	\
     defined(F_DUPFD_CLOEXEC) || \
     defined(F_GETFD) ||		\
@@ -235,13 +241,13 @@ static int do_fcntl(
 
 #if defined(F_OWNER_PID)
 		/* This is intended to probably fail with -ESRCH */
-		owner.type = F_OWNER_PID;
+		owner.type = (shim_pid_type)F_OWNER_PID;
 		owner.pid = stress_get_unused_pid_racy(false);
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		(void)ret;
 
 		/* set to stressor's pid */
-		owner.type = F_OWNER_PID;
+		owner.type = (shim_pid_type)F_OWNER_PID;
 		owner.pid = args->pid;
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		(void)ret;
@@ -249,7 +255,7 @@ static int do_fcntl(
 #endif
 #if defined(HAVE_GETPGRP) &&	\
     defined(F_OWNER_PGRP)
-		owner.type = F_OWNER_PGRP;
+		owner.type = (shim_pid_type)F_OWNER_PGRP;
 		owner.pid = getpgrp();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		(void)ret;
@@ -258,7 +264,7 @@ static int do_fcntl(
 #endif
 #if defined(F_OWNER_TID) &&	\
     defined(__linux__)
-		owner.type = F_OWNER_TID;
+		owner.type = (shim_pid_type)F_OWNER_TID;
 		owner.pid = shim_gettid();
 		ret = fcntl(fd, F_SETOWN_EX, &owner);
 		(void)ret;
@@ -273,12 +279,12 @@ static int do_fcntl(
 		int ret;
 		struct f_owner_ex owner;
 
-		owner.type = F_OWNER_PID;
+		owner.type = (shim_pid_type)F_OWNER_PID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		check_return(args, ret, "F_GETOWN_EX, F_OWNER_PID");
 
 #if defined(F_OWNER_PGRP)
-		owner.type = F_OWNER_PGRP;
+		owner.type = (shim_pid_type)F_OWNER_PGRP;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		(void)ret;
 #else
@@ -286,13 +292,13 @@ static int do_fcntl(
 #endif
 #if defined(F_OWNER_GID)
 		/* deprecated, renamed to F_OWNER_PGRP */
-		owner.type = F_OWNER_GID;
+		owner.type = (shim_pid_type)F_OWNER_GID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		(void)ret;
 #endif
 #if defined(F_OWNER_TID) &&	\
     defined(__linux__)
-		owner.type = F_OWNER_TID;
+		owner.type = (shim_pid_type)F_OWNER_TID;
 		ret = fcntl(fd, F_GETOWN_EX, &owner);
 		(void)ret;
 #else
