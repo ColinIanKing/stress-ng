@@ -549,13 +549,13 @@ static int stress_madvise(const stress_args_t *args)
 
 #if defined(MADV_NORMAL)
 		/* Exercise no-op madvise on 0 size */
-		(void)madvise(buf, 0, MADV_NORMAL);
+		(void)madvise((void *)buf, 0, MADV_NORMAL);
 
 		/* Invalid size, ENOMEM */
-		(void)madvise(buf, 0xffff0000, MADV_NORMAL);
+		(void)madvise((void *)buf, 0xffff0000, MADV_NORMAL);
 
 		/* Invalid advice option, EINVAL */
-		(void)madvise(buf, sz, ~0);
+		(void)madvise((void *)buf, sz, ~0);
 
 #endif
 
@@ -575,7 +575,7 @@ static int stress_madvise(const stress_args_t *args)
 
 				buf[n] = v;
 			}
-			if (madvise(buf, sz, MADV_FREE) != 0)
+			if (madvise((void *)buf, sz, MADV_FREE) != 0)
 				goto madv_free_out;
 			if (lseek(fd, 0, SEEK_SET) != 0)
 				goto madv_free_out;
@@ -600,7 +600,7 @@ madv_free_out:
 			void *bad_addr = (void *)(~(uintptr_t)0 & ~(page_size -1));
 
 			/* Invalid madvise on unmapped pages */
-			(void)madvise(buf, sz, MADV_NORMAL);
+			(void)madvise((void *)buf, sz, MADV_NORMAL);
 
 			/* Invalid madvise on wrapped address */
 			(void)madvise(bad_addr, page_size * 2, MADV_NORMAL);
