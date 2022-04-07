@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pragma.h"
 
 #if defined(HAVE_SYS_TREE_H)
 #include <sys/tree.h>
@@ -504,6 +505,8 @@ static void *judy_create(const uint32_t n, const uint32_t x, const uint32_t y)
  *  judy_destroy()
  *	destroy a judy array based sparse matrix
  */
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 static void judy_destroy(void *handle, size_t *objmem)
 {
 	Word_t ret;
@@ -514,6 +517,7 @@ static void judy_destroy(void *handle, size_t *objmem)
 	JLFA(ret, *(Pvoid_t *)handle);
 	(void)ret;
 }
+STRESS_PRAGMA_POP
 
 /*
  *  judy_put()
