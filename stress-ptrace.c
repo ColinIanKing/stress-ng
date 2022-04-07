@@ -23,6 +23,12 @@
 #include <sys/ptrace.h>
 #endif
 
+#if defined(HAVE_PTRACE_REQUEST)
+#define shim_ptrace_request	enum __ptrace_request
+#else
+#define shim_ptrace_request	int
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"ptrace N",	"start N workers that trace a child using ptrace" },
 	{ NULL,	"ptrace-ops N",	"stop ptrace workers after N system calls are traced" },
@@ -192,7 +198,7 @@ again:
 				int ret;
 
 				/* exercise invalid options */
-				ret = ptrace(~0L, pid, 0, PTRACE_O_TRACESYSGOOD);
+				ret = ptrace((shim_ptrace_request)~0L, pid, 0, PTRACE_O_TRACESYSGOOD);
 				(void)ret;
 
 				/* exercise invalid pid */
