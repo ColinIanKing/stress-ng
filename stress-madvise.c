@@ -616,9 +616,11 @@ madv_free_out:
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 
+#if defined(MADV_FREE)
 	if (madv_frees_raced)
 		pr_inf("%s: MADV_FREE: %" PRIu64" of %" PRIu64 " were racy\n",
 			args->name, madv_frees_raced, madv_frees);
+#endif
 
 	if (sigbus_count)
 		pr_inf("%s: caught %" PRIu64 " SIGBUS signal%s\n",
