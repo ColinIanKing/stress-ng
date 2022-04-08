@@ -41,7 +41,7 @@ static void stress_dekker_p0(const stress_args_t *args)
 
 	dekker->wants_to_enter[0] = true;
 	shim_mfence();
-	while (dekker->wants_to_enter[1]) {
+	while (LIKELY(dekker->wants_to_enter[1])) {
 		if (dekker->turn != 0) {
 			dekker->wants_to_enter[0] = false;
 			shim_mfence();
@@ -73,7 +73,7 @@ static void stress_dekker_p1(const stress_args_t *args)
 
 	dekker->wants_to_enter[1] = true;
 	shim_mfence();
-	while (dekker->wants_to_enter[0]) {
+	while (LIKELY(dekker->wants_to_enter[0])) {
 		if (dekker->turn != 1) {
 			dekker->wants_to_enter[1] = false;
 			shim_mfence();
