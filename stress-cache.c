@@ -205,7 +205,7 @@ static inline void cldemote(void *p)
  * The compiler optimises out the unused cache flush and mfence calls
  */
 #define CACHE_WRITE_MOD(flags)						\
-	for (j = 0; j < mem_cache_size; j++) {				\
+	for (j = 0; LIKELY(j < mem_cache_size); j++) {			\
 		i += inc;						\
 		i = (i >= mem_cache_size) ? i - mem_cache_size : i;	\
 		k += 33;						\
