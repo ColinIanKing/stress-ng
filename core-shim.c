@@ -76,6 +76,12 @@
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
 
+#if defined(HAVE_RUSAGE_WHO_T)
+#define shim_rusage_who_t	__rusage_who_t
+#else
+#define shim_rusage_who_t	int
+#endif
+
 /*
  *  Various shim abstraction wrappers around systems calls and
  *  GCC helper functions that may not be supported by some
@@ -2072,7 +2078,7 @@ int shim_memfd_secret(unsigned long flags)
 int shim_getrusage(int who, struct rusage *usage)
 {
 #if defined(HAVE_GETRUSAGE)
-	return getrusage(who, usage);
+	return getrusage((shim_rusage_who_t)who, usage);
 #elif defined(__NR_getrusage)
 	return (int)syscall(__NR_getrusage, who, usage);
 #else
