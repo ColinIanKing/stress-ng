@@ -2450,7 +2450,7 @@ static void stress_cpu_parity(const char *name)
 /*
  *  stress_cpu_dither
  *	perform 8 bit to 1 bit gray scale
- *	Floyd–Steinberg dither
+ *	Floyd-Steinberg dither
  */
 static void TARGET_CLONES stress_cpu_dither(const char *name)
 {
