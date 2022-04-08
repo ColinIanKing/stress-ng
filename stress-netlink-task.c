@@ -49,10 +49,10 @@ static const stress_help_t help[] = {
     defined(HAVE_LINUX_GENETLINK_H) &&	\
     defined(HAVE_LINUX_TASKSTATS_H)
 
-#define NLA_DATA(na)            ((void *)((char*)(na) + NLA_HDRLEN))
+#define NLA_DATA(na)            ((void *)((char *)(na) + NLA_HDRLEN))
 #define NLA_PAYLOAD(len)        ((len) - NLA_HDRLEN)
 
-#define GENL_MSG_DATA(glh)       ((void *)(NLMSG_DATA(glh) + GENL_HDRLEN))
+#define GENL_MSG_DATA(glh)       ((void *)((char *)NLMSG_DATA(glh) + GENL_HDRLEN))
 #define GENL_MSG_PAYLOAD(glh)    (NLMSG_PAYLOAD(glh, 0) - GENL_HDRLEN)
 
 /*
