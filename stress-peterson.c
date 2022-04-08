@@ -35,7 +35,7 @@ typedef struct peterson {
 
 peterson_t *peterson;
 
-void stress_peterson_p0(const stress_args_t *args)
+static void stress_peterson_p0(const stress_args_t *args)
 {
 	int check0, check1;
 
@@ -59,7 +59,7 @@ void stress_peterson_p0(const stress_args_t *args)
 	}
 }
 
-void stress_peterson_p1(const stress_args_t *args)
+static void stress_peterson_p1(const stress_args_t *args)
 {
 	int check0, check1;
 
