@@ -35,7 +35,7 @@ typedef struct dekker {
 
 dekker_t *dekker;
 
-void stress_dekker_p0(const stress_args_t *args)
+static void stress_dekker_p0(const stress_args_t *args)
 {
 	int check0, check1;
 
@@ -67,7 +67,7 @@ void stress_dekker_p0(const stress_args_t *args)
 	}
 }
 
-void stress_dekker_p1(const stress_args_t *args)
+static void stress_dekker_p1(const stress_args_t *args)
 {
 	int check0, check1;
 
