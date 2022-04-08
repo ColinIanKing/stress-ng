@@ -105,7 +105,6 @@ static int stress_apparmor_supported(const char *name)
 	return 0;
 }
 
-
 /*
  *  stress_apparmor_handler()
  *      signal handler
@@ -204,7 +203,6 @@ static void stress_apparmor_dir(
 	}
 	(void)closedir(dp);
 }
-
 
 /*
  *  apparmor_spawn()
@@ -438,7 +436,6 @@ static inline void apparmor_corrupt_set_seq(
 	p++;
 }
 
-
 /*
  *  apparmor_corrupt_flip_byte_random()
  *	ramndomly flip entire bytes
@@ -634,7 +631,6 @@ static int apparmor_stress_corruption(
 
 	return rc;
 }
-
 
 static const stress_apparmor_func apparmor_funcs[] = {
 	apparmor_stress_profiles,
