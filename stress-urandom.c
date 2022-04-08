@@ -243,12 +243,33 @@ next:
 			ret = select(fd_rnd_blk + 1, &rdfds, NULL, NULL, &timeout);
 			if (ret > 0) {
 				if (FD_ISSET(fd_rnd_blk, &rdfds)) {
-					ret = read(fd_rnd, buffer, 1);
+					ret = -1;
+#if defined(__linux__)
+					char *ptr;
+
+					/*
+					 *  Older kernels will EFAULT on reads of data off the end of
+					 *  a page, where as newer kernels 5.18-rc2+ will return a
+					 *  single byte in the same way as reading /dev/zero does,
+					 *  as fixed in Linux kernel commit:
+					 *  "random: allow partial reads if later user copies fail"
+					 */
+					ptr = (char *)mmap(NULL, args->page_size, PROT_WRITE,
+						MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+					if (ptr != MAP_FAILED) {
+						/* Exercise 2 byte read on last 1 byte of page */
+						ret = read(fd_rnd, ptr + args->page_size - 1, 2);
+						(void)munmap((void *)ptr, args->page_size);
+					}
+#endif
 					if (ret < 0) {
-						if ((errno != EAGAIN) && (errno != EINTR)) {
-							pr_fail("%s: read of /dev/random failed, errno=%d (%s)\n",
-								args->name, errno, strerror(errno));
-							goto err;
+						ret = read(fd_rnd, buffer, 1);
+						if (ret < 0) {
+							if ((errno != EAGAIN) && (errno != EINTR)) {
+								pr_fail("%s: read of /dev/random failed, errno=%d (%s)\n",
+									args->name, errno, strerror(errno));
+								goto err;
+							}
 						}
 					}
 				}
