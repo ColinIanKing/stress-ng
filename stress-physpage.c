@@ -56,7 +56,7 @@ static int stress_physpage_supported(const char *name)
     defined(HAVE_MTRR_GENTRY) &&	\
     defined(HAVE_MTRR_SENTRY) &&	\
     defined(MTRRIOC_GET_ENTRY)
-void stress_physpage_mtrr(
+static void stress_physpage_mtrr(
 	const stress_args_t *args,
 	const uintptr_t phys_addr,
 	const size_t page_size)
