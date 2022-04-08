@@ -432,7 +432,7 @@ static void OPTIMIZE0 stress_cpu_loop(const char *name)
 	uint32_t i, i_sum = 0;
 	const uint32_t sum = 134209536UL;
 
-	for (i = 0; i < 16384; i++) {
+	for (i = 0; LIKELY(i < 16384); i++) {
 		i_sum += i;
 		FORCE_DO_NOTHING();
 	}
@@ -629,7 +629,7 @@ static void HOT OPTIMIZE3 stress_cpu_rand(const char *name)
 	const uint32_t sum = 0xc253698c;
 
 	stress_mwc_seed();
-	for (i = 0; i < 16384; i++)
+	for (i = 0; LIKELY(i < 16384); i++)
 		i_sum += stress_mwc32();
 
 	if ((g_opt_flags & OPT_FLAGS_VERIFY) && (i_sum != sum))
@@ -681,7 +681,7 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 	(void)name;
 
 	srand48(0x0defaced);
-	for (i = 0; i < 16384; i++) {
+	for (i = 0; LIKELY(i < 16384); i++) {
 		d += drand48();
 		l += lrand48();
 	}
@@ -701,7 +701,7 @@ static void HOT OPTIMIZE3 stress_cpu_lfsr32(const char *name)
 
 	(void)name;
 
-	for (i = 0; i < 16384; i++) {
+	for (i = 0; LIKELY(i < 16384); i++) {
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 	}
 	stress_uint32_put(lfsr);
@@ -793,7 +793,7 @@ static void HOT OPTIMIZE3 stress_cpu_apery(const char *name)
 
 	(void)name;
 
-	for (n = 1; n < 100000; n++) {
+	for (n = 1; LIKELY(n < 100000); n++) {
 		long double n3 = (long double)n;
 
 		a_ = a;
@@ -1553,7 +1553,7 @@ static void HOT stress_cpu_explog(const char *name)
 
 	(void)name;
 
-	for (i = 1; i < 100000; i++)
+	for (i = 1; LIKELY(i < 100000); i++)
 		n = exp(log(n) / 1.00002);
 }
 
@@ -1889,7 +1889,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_gray(const char *name)
 	register uint32_t i;
 	register uint64_t sum = 0;
 
-	for (i = 0; i < 0x10000; i++) {
+	for (i = 0; LIKELY(i < 0x10000); i++) {
 		register uint32_t gray_code;
 
 		/* Binary to Gray code */
