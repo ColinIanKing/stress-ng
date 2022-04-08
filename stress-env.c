@@ -108,7 +108,6 @@ static int stress_env_child(const stress_args_t *args, void *context)
 		ret = setenv(name, value, 1);
 		value[sz] = tmp;
 
-
 		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
 		if ((totalmem > 0) && (freemem < totalmem / 16))
 			low_mem = true;
