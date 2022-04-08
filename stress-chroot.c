@@ -255,8 +255,7 @@ static int stress_chroot_test7(const stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const stress_chroot_test_func test_chroot_test_funcs[] =
-{
+static const stress_chroot_test_func test_chroot_test_funcs[] = {
 	stress_chroot_test1,
 	stress_chroot_test2,
 	stress_chroot_test3,
