@@ -216,7 +216,6 @@ static void *stress_inode_flags_thread(void *arg)
 	return &nowt;
 }
 
-
 /*
  *  stress_inode_flags
  *	stress reading all of /dev
