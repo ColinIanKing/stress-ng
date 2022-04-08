@@ -268,6 +268,7 @@ static const struct option long_options[] = {
 	{ "cache-cldemote",	0,	0,	OPT_cache_cldemote },
 	{ "cache-clflushopt",	0,	0,	OPT_cache_clflushopt },
 	{ "cache-prefetch",	0,	0,	OPT_cache_prefetch },
+	{ "cache-enable-all",	0,	0,	OPT_cache_enable_all },
 	{ "cache-flush",	0,	0,	OPT_cache_flush },
 	{ "cache-fence",	0,	0,	OPT_cache_fence },
 	{ "cache-level",	1,	0,	OPT_cache_level},

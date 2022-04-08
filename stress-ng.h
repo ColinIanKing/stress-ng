@@ -1461,6 +1461,7 @@ typedef enum {
 	OPT_cache_ops,
 	OPT_cache_clflushopt,
 	OPT_cache_cldemote,
+	OPT_cache_enable_all,
 	OPT_cache_prefetch,
 	OPT_cache_flush,
 	OPT_cache_fence,

@@ -66,12 +66,13 @@ static const stress_help_t help[] = {
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
 	{ NULL, "cache-clflushopt",	"optimized cache line flush (x86 only)" },
 #endif
-	{ NULL, "cache-no-affinity",	"do not change CPU affinity" },
+	{ NULL, "cache-enable-all",	"enable all cache options (fence,flush,sfence,etc..)" },
 	{ NULL,	"cache-fence",		"serialize stores" },
 #if defined(HAVE_ASM_X86_CLFLUSH)
 	{ NULL,	"cache-flush",		"flush cache after every memory write (x86 only)" },
 #endif
 	{ NULL,	"cache-level N",	"only exercise specified cache" },
+	{ NULL, "cache-no-affinity",	"do not change CPU affinity" },
 	{ NULL,	"cache-prefetch",	"prefetch on memory reads/writes" },
 #if defined(HAVE_BUILTIN_SFENCE)
 	{ NULL,	"cache-sfence",		"serialize stores with sfence" },
@@ -89,6 +90,13 @@ static int stress_cache_set_flag(const uint32_t flag)
 	(void)stress_set_setting("cache-flags", TYPE_ID_UINT32, &cache_flags);
 
 	return 0;
+}
+
+static int stress_cache_set_enable_all(const char *opt)
+{
+	(void)opt;
+
+	return stress_cache_set_flag(FLAGS_CACHE_MASK);
 }
 
 static int stress_cache_set_prefetch(const char *opt)
@@ -148,6 +156,7 @@ static int stress_cache_set_cldemote(const char *opt)
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_cache_cldemote,		stress_cache_set_cldemote },
 	{ OPT_cache_clflushopt,		stress_cache_set_clflushopt },
+	{ OPT_cache_enable_all,		stress_cache_set_enable_all },
 	{ OPT_cache_fence,		stress_cache_set_fence },
 	{ OPT_cache_flush,		stress_cache_set_flush },
 	{ OPT_cache_no_affinity,	stress_cache_set_noaff },
