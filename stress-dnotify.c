@@ -310,6 +310,7 @@ static int dnotify_creat_helper(
 {
 	(void)signum;
 	int fd;
+
 	if ((fd = creat(path, FILE_FLAGS)) < 0) {
 		pr_err("%s: cannot create file %s: errno=%d (%s)\n",
 			args->name, path, errno, strerror(errno));
