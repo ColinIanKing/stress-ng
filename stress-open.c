@@ -278,8 +278,17 @@ static int open_create_eisdir(void)
     defined(AT_FDCWD)
 static int open_with_openat_cwd(void)
 {
+	char cwd[PATH_MAX];
 	char filename[PATH_MAX];
-	int fd;
+	const char *temp_path = stress_get_temp_path();
+	int fd, ret;
+
+	if (!temp_path)
+		return -1;
+	if (!getcwd(cwd, sizeof(cwd)))
+		return -1;
+	if (chdir(temp_path) < 0)
+		return -1;
 
 	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
 		(int)getpid(), stress_mwc32());
@@ -299,6 +308,9 @@ static int open_with_openat_cwd(void)
 
 		(void)shim_force_unlink(filename);
 	}
+
+	ret = chdir(cwd);
+	(void)ret;
 	return fd;
 }
 #endif
@@ -358,12 +370,20 @@ static int open_with_openat2_cwd(void)
 		(unsigned int)~0,	/* Intentionally illegal */
 	};
 
+	char cwd[PATH_MAX];
 	char filename[PATH_MAX];
-	int fd;
+	const char *temp_path = stress_get_temp_path();
+	int fd = -1, ret;
 	size_t i = 0;
 	static size_t j;
 	struct open_how how;
 
+	if (!temp_path)
+		return -1;
+	if (!getcwd(cwd, sizeof(cwd)))
+		return -1;
+	if (chdir(temp_path) < 0)
+		return -1;
 	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
 		(int)getpid(), stress_mwc32());
 
@@ -382,21 +402,23 @@ static int open_with_openat2_cwd(void)
 
 		/* Exercise illegal usize field */
 		fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, 0);
-
 		if (fd >= 0) {
 			/* Unxexpected, but handle it anyhow */
 			(void)shim_unlink(filename);
-			return fd;
+			break;
 		}
 
 		fd = (int)syscall(__NR_openat2, AT_FDCWD, filename, &how, sizeof(how));
 		if (fd >= 0) {
 			(void)shim_unlink(filename);
-			return fd;
+			break;
 		}
-
 	}
-	return -1;
+
+	ret = chdir(cwd);
+	(void)ret;
+
+	return fd;
 }
 #endif
 
