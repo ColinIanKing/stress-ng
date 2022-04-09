@@ -1038,6 +1038,7 @@ typedef struct {
 		shim_pthread_spinlock_t lock;		/* protection lock */
 #endif
 		double start_time ALIGNED(8);		/* Time to complete operation */
+		uint32_t value;				/* Dummy value to operate on */
 	} syncload;
 	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	stress_checksum_t *checksums;			/* per stressor counter checksum */

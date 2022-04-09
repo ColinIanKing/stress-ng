@@ -121,6 +121,11 @@ static void stress_syncload_mfence(void)
 	shim_mfence();
 }
 
+static void stress_syncload_mb(void)
+{
+	shim_mb();
+}
+
 static void stress_syncload_loop(void)
 {
 	register int i = 1000;
@@ -129,6 +134,14 @@ static void stress_syncload_loop(void)
 		__asm__ __volatile__("");
 	}
 }
+
+#if defined(HAVE_ATOMIC_ADD_FETCH) &&	\
+    defined(__ATOMIC_ACQUIRE)
+static void stress_syncload_atomic(void)
+{
+	__atomic_add_fetch(&g_shared->syncload.value, 1, __ATOMIC_ACQUIRE);
+}
+#endif
 
 static void stress_syncload_nice(void)
 {
@@ -192,12 +205,17 @@ static const stress_syncload_op_t stress_syncload_ops[] = {
 	stress_syncload_rdrand,
 #endif
 	stress_syncload_mfence,
+	stress_syncload_mb,
 	stress_syncload_loop,
 #if defined(HAVE_VECMATH)
 	stress_syncload_vecmath,
 #endif
 	stress_syncload_nice,
 	stress_syncload_spinwrite,
+#if defined(HAVE_ATOMIC_ADD_FETCH) &&	\
+    defined(__ATOMIC_ACQUIRE)
+	stress_syncload_atomic,
+#endif
 };
 
 static inline double stress_syncload_gettime(void)
