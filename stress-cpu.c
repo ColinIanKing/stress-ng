@@ -1748,7 +1748,7 @@ static void stress_cpu_zeta(const char *name)
 
 /*
  * stress_cpu_gamma()
- *	stress Euler–Mascheroni constant gamma
+ *	stress Euler-Mascheroni constant gamma
  */
 static void HOT OPTIMIZE3 stress_cpu_gamma(const char *name)
 {
