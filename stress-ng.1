@@ -2199,6 +2199,24 @@ select an interval timer frequency based around the interval timer
 frequency +/- 12.5% random jitter. This tries to force more variability in
 the timer interval to make the scheduling less predictable.
 .TP
+.B \-\-jpeg N
+start N workers that use jpeg compression on a machine generated RGB plasma
+field image. The image contains smooth colour transitions and also hard edges
+and the starting raster line is changed on each image compression cycle.
+.TP
+.B \-\-jpeg\-ops N
+stop after N jpeg compression operations.
+.TP
+.B \-\-jpeg\-height H
+use a RGB sample image height of H pixels. The default is 512 pixels.
+.TP
+.B \-\-jpeg\-width H
+use a RGB sample image width of H pixels. The default is 512 pixels.
+.TP
+.B \-\-jpeg\-quality Q
+use the compression quality Q. The range is 1..100 (1 lowest, 100 highest), with a
+default of 95
+.TP
 .B \-\-judy N
 start N workers that insert, search and delete 32 bit integers in a Judy
 array using a predictable yet sparse array index. By default,

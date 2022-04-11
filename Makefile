@@ -173,6 +173,7 @@ STRESS_SRC = \
 	stress-io-uring.c \
 	stress-ipsec-mb.c \
 	stress-itimer.c \
+	stress-jpeg.c \
 	stress-judy.c \
 	stress-kcmp.c \
 	stress-key.c \

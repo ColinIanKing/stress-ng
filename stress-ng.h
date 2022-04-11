@@ -1143,6 +1143,7 @@ typedef struct {
 	MACRO(io_uring)		\
 	MACRO(ipsec_mb)		\
 	MACRO(itimer)		\
+	MACRO(jpeg)		\
 	MACRO(judy)		\
 	MACRO(kcmp)		\
 	MACRO(key)		\
@@ -1741,6 +1742,12 @@ typedef enum {
 	OPT_itimer_ops,
 	OPT_itimer_freq,
 	OPT_itimer_rand,
+
+	OPT_jpeg,
+	OPT_jpeg_ops,
+	OPT_jpeg_height,
+	OPT_jpeg_width,
+	OPT_jpeg_quality,
 
 	OPT_judy,
 	OPT_judy_ops,

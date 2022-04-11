@@ -54,6 +54,7 @@ parts:
             - libsctp-dev
             - libatomic1
             - libjudy-dev
+            - libjpeg-dev
             - try: [libipsec-mb-dev, libkmkod-dev]
 apps:
     stress-ng:
