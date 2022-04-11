@@ -40,8 +40,8 @@ static int stress_set_jpeg_height(const char *opt)
 	int32_t jpeg_height;
 
 	jpeg_height = stress_get_uint32(opt);
-        stress_check_range("jpeg-height", jpeg_height, 256, 4096);
-        return stress_set_setting("jpeg-height", TYPE_ID_INT32, &jpeg_height);
+	stress_check_range("jpeg-height", jpeg_height, 256, 4096);
+	return stress_set_setting("jpeg-height", TYPE_ID_INT32, &jpeg_height);
 }
 
 /*
@@ -53,8 +53,8 @@ static int stress_set_jpeg_width(const char *opt)
 	int32_t jpeg_width;
 
 	jpeg_width = stress_get_uint32(opt);
-        stress_check_range("jpeg-width", jpeg_width, 256, 4096);
-        return stress_set_setting("jpeg-width", TYPE_ID_INT32, &jpeg_width);
+	stress_check_range("jpeg-width", jpeg_width, 256, 4096);
+	return stress_set_setting("jpeg-width", TYPE_ID_INT32, &jpeg_width);
 }
 
 /*
@@ -66,8 +66,8 @@ static int stress_set_jpeg_quality(const char *opt)
 	int32_t jpeg_quality;
 
 	jpeg_quality = stress_get_uint32(opt);
-        stress_check_range("jpeg-quality", jpeg_quality, 1, 100);
-        return stress_set_setting("jpeg-quality", TYPE_ID_INT32, &jpeg_quality);
+	stress_check_range("jpeg-quality", jpeg_quality, 1, 100);
+	return stress_set_setting("jpeg-quality", TYPE_ID_INT32, &jpeg_quality);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
