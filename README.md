@@ -5,7 +5,7 @@ was designed to exercise various physical subsystems of a computer as well as
 the various operating system kernel interfaces. Stress-ng features:
 
   * Over 270 stress tests
-  * 85+ CPU specific stress tests that exercise floating point, integer,
+  * 80+ CPU specific stress tests that exercise floating point, integer,
     bit manipulation and control flow
   * over 20 virtual memory stress tests
   * portable: builds on Linux, Solaris, *BSD, Minix, Android, MacOS X,
@@ -54,6 +54,7 @@ Debian, Ubuntu:
   * libcap-dev
   * libgcrypt11-dev
   * libipsec-mb-dev
+  * libjpeg-dev
   * libjudy-dev
   * libkeyutils-dev
   * libsctp-dev
@@ -69,6 +70,7 @@ RHEL, Fedora, Centos:
   * libbsd-devel
   * libcap-devel
   * libgcrypt-devel
+  * libjpeg-devel
   * Judy-devel
   * keyutils-libs-devel
   * lksctp-tools-devel
@@ -84,6 +86,7 @@ RHEL, Fedora, Centos (static builds):
   * libbsd-devel
   * libcap-devel
   * libgcrypt-devel
+  * libjpeg-devel
   * Judy-devel
   * keyutils-libs-devel
   * lksctp-tools-devel
@@ -100,6 +103,7 @@ SUSE:
   * libbsd-devel
   * libcap-devel
   * libseccomp-devel
+  * libjpeg-turbo
   * lksctp-tools-devel
   * libatomic1
   * zlib-devel
@@ -110,6 +114,7 @@ ClearLinux:
   * devpkg-libattr
   * devpkg-libbsd
   * devpkg-libsctp
+  * devpkg-libjpeg-turbo
   * devpkg-Judy
   * devpkg-libgcrypt
   * devpkg-kmod
