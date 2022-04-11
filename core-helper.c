@@ -1762,11 +1762,15 @@ unsigned int stress_get_cpu(void)
  */
 const char *stress_get_compiler(void)
 {
-#if defined(__TINYC__)
-	static const char cc[] = "tcc" XSTRINGIFY(__TINYC__) "";
+#if   defined(__ICC) && 		\
+      defined(__INTEL_COMPILER) &&	\
+      defined(__INTEL_COMPILER_UPDATE)
+	static const char cc[] = "icc " XSTRINGIFY(__INTEL_COMPILER) "." XSTRINGIFY(__INTEL_COMPILER_UPDATE) "";
+#elif defined(__TINYC__)
+	static const char cc[] = "tcc " XSTRINGIFY(__TINYC__) "";
 #elif defined(__PCC__) &&			\
        defined(__PCC_MINOR__)
-	static const char cc[] = "pcc" XSTRINGIFY(__PCC__) "." XSTRINGIFY(__PCC_MINOR__) "." XSTRINGIFY(__PCC_MINORMINOR__) "";
+	static const char cc[] = "pcc " XSTRINGIFY(__PCC__) "." XSTRINGIFY(__PCC_MINOR__) "." XSTRINGIFY(__PCC_MINORMINOR__) "";
 #elif defined(__clang_major__) &&	\
       defined(__clang_minor__)
 	static const char cc[] = "clang " XSTRINGIFY(__clang_major__) "." XSTRINGIFY(__clang_minor__) "";
