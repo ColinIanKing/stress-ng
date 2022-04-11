@@ -223,7 +223,7 @@ static int stress_jpeg(const stress_args_t *args)
 	} while (keep_stressing(args));
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	pr_inf("%s: compressed to %.1f%% of original size, %.2f secs of jpeg compute, %.2f jpegs/sec\n",
+	pr_dbg("%s: compressed to %.1f%% of original size, %.2f secs of jpeg compute, %.2f jpegs/sec\n",
 		args->name, 100.0 * size_compressed / size_uncompressed,
 		t_jpeg, (double)get_counter(args) / t_jpeg);
 
