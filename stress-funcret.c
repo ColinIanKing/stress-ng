@@ -167,6 +167,15 @@ stress_funcret1(stress_uint64x128_t)
 stress_funcret_deep1(stress_uint64x128_t)
 stress_funcret_deeper1(stress_uint64x128_t)
 
+static void stress_funcret_setvar(void *ptr, const size_t size)
+{
+	register size_t i;
+	register uint8_t *ptr8 = (uint8_t *)ptr;
+
+	for (i = 0; i < size; i++)
+		ptr8[i] = stress_mwc8();
+}
+
 #define stress_funcret_type(type)					\
 static void NOINLINE stress_funcret_ ## type(const stress_args_t *args);	\
 									\
@@ -174,11 +183,8 @@ static void NOINLINE stress_funcret_ ## type(const stress_args_t *args)	\
 {									\
 	register size_t i;						\
 	type a;								\
-	uint8_t data[sizeof(a)];					\
 									\
-	for (i = 0; i < sizeof(data); i++) 				\
-		data[i] = stress_mwc8();				\
-	(void)memcpy(&a, data, sizeof(a));				\
+	stress_funcret_setvar(&a, sizeof(a));				\
 									\
 	do {								\
 		for (i = 0; i < 1000; i++) {				\
