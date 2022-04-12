@@ -104,7 +104,7 @@ static inline int stress_socket_fd_recv(const int fd)
 	struct iovec iov;
 	struct msghdr msg;
 	struct cmsghdr *cmsg;
-	char msg_data[1];
+	char msg_data[1] = { 0 };
 	char ctrl[CMSG_SPACE(sizeof(int))];
 
 	iov.iov_base = msg_data;
