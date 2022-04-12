@@ -262,12 +262,18 @@ static int stress_rgb_compress_to_jpeg(
 	JSAMPROW row_pointer[y_max];
 	int row_stride;
 	FILE *fp;
+#if defined(HAVE_OPEN_MEMSTREAM)
 	char *ptr;
+#endif
 	size_t size = 0;
 	int32_t y;
 	static int32_t yy = 0;
 
+#if defined(HAVE_OPEN_MEMSTREAM)
 	fp = open_memstream(&ptr, &size);
+#else
+	fp = fopen("/dev/null", "w");
+#endif
 	if (!fp)
 		return -1;
 
@@ -295,8 +301,9 @@ static int stress_rgb_compress_to_jpeg(
 	jpeg_finish_compress(&cinfo);
 	(void)fclose(fp);
 	jpeg_destroy_compress(&cinfo);
+#if defined(HAVE_OPEN_MEMSTREAM)
 	free(ptr);
-
+#endif
 	return (int)size;
 }
 
@@ -370,9 +377,11 @@ static int stress_jpeg(const stress_args_t *args)
 	} while (keep_stressing(args));
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	pr_dbg("%s: compressed to %.1f%% of original size, %.2f secs of jpeg compute, %.2f jpegs/sec\n",
-		args->name, 100.0 * size_compressed / size_uncompressed,
-		t_jpeg, (double)get_counter(args) / t_jpeg);
+	if ((size_compressed > 0) && (size_uncompressed > 0)) {
+		pr_dbg("%s: compressed to %.1f%% of original size, %.2f secs of jpeg compute, %.2f jpegs/sec\n",
+			args->name, 100.0 * size_compressed / size_uncompressed,
+			t_jpeg, (double)get_counter(args) / t_jpeg);
+	}
 
 	(void)munmap((void *)rgb, rgb_size);
 
