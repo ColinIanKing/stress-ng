@@ -484,6 +484,7 @@ static const struct option long_options[] = {
 	{ "jpeg",		1,	0,	OPT_jpeg },
 	{ "jpeg-ops",		1,	0,	OPT_jpeg_ops },
 	{ "jpeg-height",	1,	0,	OPT_jpeg_height },
+	{ "jpeg-image",		1,	0,	OPT_jpeg_image },
 	{ "jpeg-width",		1,	0,	OPT_jpeg_width },
 	{ "jpeg-quality",	1,	0,	OPT_jpeg_quality },
 	{ "judy",		1,	0,	OPT_judy },

@@ -22,13 +22,33 @@
 #include <jpeglib.h>
 #endif
 
+#define JPEG_IMAGE_PLASMA	(0x00)
+#define JPEG_IMAGE_NOISE	(0x01)
+#define JPEG_IMAGE_GRADIENT	(0x02)
+#define JPEG_IMAGE_XSTRIPES	(0x03)
+#define JPEG_IMAGE_FLAT		(0x04)
+
+typedef struct {
+	const char *name;
+	const int  type;
+} jpeg_image_type_t;
+
 static const stress_help_t help[] = {
 	{ NULL,	"jpeg N",		"start N workers that burn cycles with no-ops" },
 	{ NULL,	"jpeg-ops N",		"stop after N jpeg bogo no-op operations" },
 	{ NULL,	"jpeg-height N",	"image height in pixels "},
+	{ NULL,	"jpeg-image type",	"image type, one of plasma, noise, gradient, xstripes or flat" },
 	{ NULL,	"jpeg-width N",		"image width  in pixels "},
 	{ NULL,	"jpeg-quality Q",	"compression quality 1 (low) .. 100 (high)" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	NULL,			NULL }
+};
+
+static const jpeg_image_type_t jpeg_image_types[] = {
+	{ "plasma",	JPEG_IMAGE_PLASMA },
+	{ "noise",	JPEG_IMAGE_NOISE },
+	{ "gradient",	JPEG_IMAGE_GRADIENT },
+	{ "xstripes",	JPEG_IMAGE_XSTRIPES },
+	{ "flat",	JPEG_IMAGE_FLAT },
 };
 
 /*
@@ -70,8 +90,31 @@ static int stress_set_jpeg_quality(const char *opt)
 	return stress_set_setting("jpeg-quality", TYPE_ID_INT32, &jpeg_quality);
 }
 
+/*
+ *  stress_set_jpeg_image()
+ *      set image to compress
+ */
+static int stress_set_jpeg_image(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(jpeg_image_types); i++) {
+		if (strcmp(opt, jpeg_image_types[i].name) == 0) {
+			return stress_set_setting("jpeg-image", TYPE_ID_INT, &jpeg_image_types[i].type);
+		}
+	}
+	(void)fprintf(stderr, "jpeg-image must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(jpeg_image_types); i++) {
+                (void)fprintf(stderr, " %s", jpeg_image_types[i].name);
+        }
+        (void)fprintf(stderr, "\n");
+
+	return -1;
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_jpeg_height,	stress_set_jpeg_height },
+	{ OPT_jpeg_image,	stress_set_jpeg_image },
 	{ OPT_jpeg_width,	stress_set_jpeg_width },
 	{ OPT_jpeg_quality,	stress_set_jpeg_quality },
 	{ 0,			NULL }
@@ -120,6 +163,90 @@ static void OPTIMIZE3 stress_rgb_plasma(
 			*ptr++ = 127 * plasma(x, y, tx) + 127;
 			*ptr++ = 127 * plasma(x, y, ty + x) + 127;
 			*ptr++ = 127 * plasma(x, y, tz + y) + 127;
+		}
+	}
+}
+
+static void OPTIMIZE3 stress_rgb_noise(
+	uint8_t		*rgb,
+	const int32_t	x_max,
+	const int32_t	y_max)
+{
+	int32_t i, size = x_max * y_max * 3, n;
+	uint32_t *ptr32 = (uint32_t *)rgb;
+	uint8_t *ptr8;
+
+	n = size >> 2;
+	for (i = 0; i < n; i++) {
+		*ptr32++ = stress_mwc32();
+	}
+	n = size & 3;
+	ptr8 = (uint8_t *)ptr32;
+	for (i = 0; i < n; i++) {
+		*ptr8++ = stress_mwc8();
+	}
+}
+
+static void OPTIMIZE3 stress_rgb_gradient(
+	uint8_t		*rgb,
+	const int32_t	x_max,
+	const int32_t	y_max)
+{
+	double y = 0.0, dy = 256.0 / y_max;
+	register int sy;
+
+	for (sy = 0; sy < y_max; sy++, y += dy) {
+		double x = 0.0, dx = 256.0 / x_max;
+		register int sx;
+
+		for (sx = 0; sx < x_max; sx++, x += dx) {
+			*rgb++ = (uint8_t)x;
+			*rgb++ = (uint8_t)y;
+			*rgb++ = (uint8_t)(x + y);
+		}
+	}
+}
+
+static void OPTIMIZE3 stress_rgb_xstripes(
+	uint8_t		*rgb,
+	const int32_t	x_max,
+	const int32_t	y_max)
+{
+	register int y;
+
+	for (y = 0; y < y_max; y++) {
+		const uint32_t v = stress_mwc32();
+		const uint8_t r = v & 0xff;
+		const uint8_t g = (v >> 8) & 0xff;
+		const uint8_t b = (v >> 16) & 0xff;
+		register int x;
+
+		for (x = 0; x < x_max; x++) {
+			*rgb++ = r;
+			*rgb++ = g;
+			*rgb++ = b;
+		}
+	}
+}
+
+static void OPTIMIZE3 stress_rgb_flat(
+	uint8_t		*rgb,
+	const int32_t	x_max,
+	const int32_t	y_max)
+{
+	const uint32_t v = stress_mwc32();
+	const uint8_t r = v & 0xff;
+	const uint8_t g = (v >> 8) & 0xff;
+	const uint8_t b = (v >> 16) & 0xff;
+	register int y;
+
+	for (y = 0; y < y_max; y++) {
+		register int x;
+
+		for (x = 0; x < x_max; x++) {
+			*rgb++ = r;
+			*rgb++ = g;
+			*rgb++ = b;
 		}
 	}
 }
@@ -187,10 +314,12 @@ static int stress_jpeg(const stress_args_t *args)
 	double t1, t2, t_jpeg;
 	int32_t jpeg_quality = 95;
 	size_t rgb_size;
+	int jpeg_image = JPEG_IMAGE_PLASMA;
 
 	(void)stress_get_setting("jpeg-width", &x_max);
 	(void)stress_get_setting("jpeg-height", &y_max);
 	(void)stress_get_setting("jpeg-quality", &jpeg_quality);
+	(void)stress_get_setting("jpeg-image", &jpeg_image);
 
 	rgb_size = x_max * y_max * 3;
 	rgb = mmap(NULL, rgb_size, PROT_READ | PROT_WRITE,
@@ -203,7 +332,24 @@ static int stress_jpeg(const stress_args_t *args)
 
 	stress_mwc_set_seed(0xf1379ab2, 0x679ce25d);
 
-	stress_rgb_plasma(rgb, x_max, y_max);
+	switch (jpeg_image) {
+	default:
+	case JPEG_IMAGE_PLASMA:
+		stress_rgb_plasma(rgb, x_max, y_max);
+		break;
+	case JPEG_IMAGE_NOISE:
+		stress_rgb_noise(rgb, x_max, y_max);
+		break;
+	case JPEG_IMAGE_GRADIENT:
+		stress_rgb_gradient(rgb, x_max, y_max);
+		break;
+	case JPEG_IMAGE_XSTRIPES:
+		stress_rgb_xstripes(rgb, x_max, y_max);
+		break;
+	case JPEG_IMAGE_FLAT:
+		stress_rgb_flat(rgb, x_max, y_max);
+		break;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

@@ -2200,15 +2200,41 @@ frequency +/- 12.5% random jitter. This tries to force more variability in
 the timer interval to make the scheduling less predictable.
 .TP
 .B \-\-jpeg N
-start N workers that use jpeg compression on a machine generated RGB plasma
-field image. The image contains smooth colour transitions and also hard edges
-and the starting raster line is changed on each image compression cycle.
+start N workers that use jpeg compression on a machine generated plasma
+field image. The default image is a plasma field, however different image
+types may be selected. The starting raster line is changed on each compression
+iteration to cycle around the data.
 .TP
 .B \-\-jpeg\-ops N
 stop after N jpeg compression operations.
 .TP
 .B \-\-jpeg\-height H
 use a RGB sample image height of H pixels. The default is 512 pixels.
+.TP
+.B \-\-jpeg\-image plasma | noise | gradient | xstripes | flat
+select the source image type to be compressed. Available image types are:
+.TS
+expand;
+lB2 lB lB
+l l s.
+Type	Description
+plasma	T{
+plasma field with smooth colour transitions and hard boundary edges.
+T}
+noise	T{
+random white noise red, green, blue pixels.
+T}
+gradient	T{
+linear gradient of the red, green and blue components across the width
+and height of the image.
+T}
+xstripes	T{
+a random colour for each horizontal line.
+T}
+flat	T{
+a single random colour for the entire image.
+T}
+.TE
 .TP
 .B \-\-jpeg\-width H
 use a RGB sample image width of H pixels. The default is 512 pixels.

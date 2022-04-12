@@ -1746,6 +1746,7 @@ typedef enum {
 	OPT_jpeg,
 	OPT_jpeg_ops,
 	OPT_jpeg_height,
+	OPT_jpeg_image,
 	OPT_jpeg_width,
 	OPT_jpeg_quality,
 
