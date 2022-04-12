@@ -31,7 +31,6 @@ int main(void)
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	JSAMPROW row_pointer[y_max];
-	int row_stride;
 	int y;
 
 	cinfo.err = jpeg_std_error(&jerr);
@@ -46,7 +45,6 @@ int main(void)
 	jpeg_set_quality(&cinfo, (int)quality, TRUE);
 	jpeg_start_compress(&cinfo, TRUE);
 
-	row_stride = x_max * 3; /* JSAMPLEs per row in image_buffer */
 	for (ptr = rgb, y = 0; y < y_max; y++, ptr += 3 * x_max)
 		row_pointer[y] = ptr;
 
