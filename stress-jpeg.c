@@ -311,7 +311,7 @@ static int stress_jpeg(const stress_args_t *args)
 	uint8_t *rgb;
 	double size_compressed = 0.0;
 	double size_uncompressed = 0.0;
-	double t1, t2, t_jpeg;
+	double t_jpeg;
 	int32_t jpeg_quality = 95;
 	size_t rgb_size;
 	int jpeg_image = JPEG_IMAGE_PLASMA;
@@ -356,6 +356,7 @@ static int stress_jpeg(const stress_args_t *args)
 	t_jpeg = 0.0;
 	do {
 		int size;
+		double t1, t2;
 
 		t1 = stress_time_now();
 		size = stress_rgb_compress_to_jpeg(rgb, x_max, y_max, jpeg_quality);
