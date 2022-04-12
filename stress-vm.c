@@ -687,7 +687,7 @@ static size_t TARGET_CLONES stress_vm_gray(
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
-	static uint8_t val;
+	static uint8_t val = 0;
 	uint8_t v;
 	volatile uint8_t *ptr;
 	size_t bit_errors = 0;
@@ -731,7 +731,7 @@ static size_t TARGET_CLONES stress_vm_grayflip(
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
-	static uint8_t val;
+	static uint8_t val = 0;
 	uint8_t v;
 	volatile uint8_t *ptr;
 	size_t bit_errors = 0;
@@ -2048,13 +2048,29 @@ static size_t TARGET_CLONES stress_vm_write1024v(
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
-	static uint64_t val;
 	stress_vint8w1024_t *ptr = (stress_vint8w1024_t *)buf;
 	stress_vint8w1024_t v;
+	static uint64_t val = 0;
+	uint64_t *const valptr = (uint64_t *)&v;
 	register size_t i = 0, n = sz / sizeof(*ptr);
 
-	for (i = 0; i < sizeof(v) / sizeof(uint64_t); i++)
-		((uint64_t *)&v)[i] = val;
+	/* 16 x 64 = 1024 bits, unrolled loop */
+	valptr[0x0] = val;
+	valptr[0x1] = val;
+	valptr[0x2] = val;
+	valptr[0x3] = val;
+	valptr[0x4] = val;
+	valptr[0x5] = val;
+	valptr[0x6] = val;
+	valptr[0x7] = val;
+	valptr[0x8] = val;
+	valptr[0x9] = val;
+	valptr[0xa] = val;
+	valptr[0xb] = val;
+	valptr[0xc] = val;
+	valptr[0xd] = val;
+	valptr[0xe] = val;
+	valptr[0xf] = val;
 
 	(void)buf_end;
 
