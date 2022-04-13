@@ -1,3 +1,192 @@
+stress-ng (0.14.00-1) unstable; urgency=medium
+
+  [Mike Koreneff]
+  * fix ipsec avx feature selection
+
+  [Colin Ian King]
+  * Makefile: bump version and update codename
+  * stress-jpeg: add build time detection for open_memstream()
+  * test/test-libjpeg: remove variable row_stride
+  * stress-jpeg: reduce scope of variables t1 and t2
+  * stress-funcret: add a helper function to set variable data
+  * stress-vm: clean up some static analysis pedantic warnings
+  * stress-sockfd: clean up pedantic cppcheck warning
+  * stress-jpeg: add --jpeg-image option to select source image type
+  * README.md: Update library dependencies, add libjpeg
+  * stress-jpeg: clean up some whitespace/tab indentations
+  * Add more compiler version detection smarts.
+  * stress-jpeg: make jpeg stats debug only
+  * Makefile.config: fix typos in function names
+  * stress-jpeg: Add jpeg compression stressor
+  * stress-cpu: Replace another unicode char in comment with -
+  * Add two more CPU loading mechanisms
+  * stress-open: ensure openat/openat2 open file in the temp path
+  * stress-inode-flags: remove empty line
+  * stress-env: remove blank line
+  * stress-dnotify: add in empty line
+  * stress-tsearch: clean up conditional formatting
+  * stress-chroot: clean up formatting of test_chroot_test_funcs
+  * stress-apparmor: remove some blank lines
+  * REAME.md: add another kernel fix to issues found by stress-ng
+  * stress-cpu: add some branch optimization hints with LIKELY()
+  * stress-dekker: add LIKELY hints
+  * stress-cache: add LIKELY annotation on loop bounds check
+  * stress-cache: add --cache-enable-all to enable all cache exercising
+    options
+  * stress-cpu: Replace unicode char in comment with -
+  * stress-physpage: make functions static
+  * stress-peterson: make functions static
+  * stress-dekker: make functions static
+  * stress-urandom: exercise off-page reads of /dev/random
+  * stress-netlink-task: cast pointer to char * for pointer arithmetic
+    warning fix
+  * stress-landlock: cast argument to enum landlock_rule_type
+  * Add build time check and a shim for enum __rusage_who_t
+  * Add build time check and a shim for enum __ptrace_request
+  * Add build time check and a shim for enum __pid_type
+  * Add build time check and a shim for __itimer_which_t
+  * Add build time check and a shim for __priority_which_t
+  * Add build time check and a shim for __rlimit_resource_t
+  * stress-sparsematrix: workaround clang warnings on JLFA macro
+  * stress-peterson: cast return from mmap to clean up Solaris build
+    warning
+  * stress-dekker: cast return from mmap to clean up Solaris build warning
+  * stress-ng: add workaround for setdomainname on Solaris
+  * stress-ng: add workaround for getdomainname on Solaris
+  * stress-madvise: cast buf to void * to clear up solaris build warnings
+  * core-klog: fix build warning on unused variable for non-Linux builds
+  * Makefile.config: check for sys/capability.h with test-cap test
+  * stress-madvise: only print raced frees if MADV_FREE is defined
+  * Makefile.config: fix tpause and pause instruction checks
+  * Makefile.config: use makefile targets for each config check, speeds
+    up config checking
+  * stress-dev: avoid tty ioctls on /dev/ndctl devices
+  * stress-utime: fix build failure; missing ;
+  * stress-dev: avoid tty ioctls on /dev/nmem devices
+  * stress-dev: pass size by reference for BLKBSZSET ioctl
+  * stress-dev: fix misuse of TCOOFF, TCOON, TCOIOFF, TCION args
+  * Makefile.config: add more CPU specific information for specific target
+    clones
+  * stress-utime: use system call for utime in preference to libc call
+  * stress-quota: skip stressor if no quota enabled filesystems are found
+  * stress-peterson: don't inc counter in p0
+  * stress-dekker: don't inc counter in p0
+  * stress-dekker: fix grammer in the short help information
+  * Add the Peterson Algorithm stressor, --peterson, --peterson-ops
+  * Add Dekker Algorithm stressor, --dekker, --dekker-ops
+  * stress-lockf: remove some empty lines
+  * stress-ng: add YAML open/close helper functions
+  * kernel-coverage: add --klog check to sanity check for kernel splats
+  * Makefile: add --klog-check to make slow-test-all rule
+  * stress-ng: rename stress_get_pagesize to stress_get_page_size
+  * stress-ng: call stress_get_pagesize just once
+  * stress-ng: break overly long message into a few lines
+  * stress-ng: move successful run message to later in termination phase
+  * core-klog: use global shared flag so child can indicate error to main
+    parent
+  * core-klog: flag an error for stress-ng exit() when klog errors are
+    detected
+  * core-klog: prefix messages with klog-check: so they can be easily found
+  * core-klog: make Out of memory message a warning
+  * stress-madvise: move goto label to start of a statment
+  * core-klog: use continues instead of gotos
+  * Add --klog-check, a simple kernel log error checker
+  * stress-madvise: add racy madvise/read checks
+  * core-helper: bump minimum stack size for signal handlers to 64K
+  * Manual: remove extraneous word, no major change
+  * stress-tmp: exercise minimal xattr set/remove on tmp file system
+  * stress-ng: silently ignore SIGALRM terminations in debug
+  * README.md: Add ClearLinux library dependencies
+  * Remove mtrr from TODO now that this is covered
+  * stress-physpage: Add mtrr add/del on physical page for x86
+  * stress-dirdeep: don't print 2^64-1 inodes when we don't know how many
+    are available
+  * TODO: Remove floppy disk ioctls
+  * stress-dev: reorder device entry checking, keep cdroms together
+  * test/test-libxxhash: return hash value, clean up clang scan warning
+  * stress-dirdeep: remove duplicated shadow'd declaration of variable ret
+  * stress-pipe: fix name shadowing on variable pid
+  * stress-dirdeep: add --dirdeep-files and --dirdeep-bytes options
+  * stress-dirmany: add a file size option --dirmany-bytes
+  * stress-dev: add in block device BLKBSZSET ioctl
+  * stress-dev: add block ioctls BLKRASET, BLKFRAGET, BLKFRASET, BLKROSET
+  * README.md: update commit sha for minix file system bug report
+  * core-ignite-cpu: try to maximize intel-pstate cpu freqs
+  * core-ignite-cpu: add energy_perf_bias setting
+  * stress-longjmp: remove { } brackets
+  * stress-ng: Fix SIGINT sending alarm signal to all stressors
+  * stress-rawpkt: zero sadr to ensure struct is completely initialized
+  * stress-rawpkt: add recv size sanity check before processing pkt data
+  * stress-dev: remove duplicate floppy ioctls, add a couple more floppy
+    ioctls
+  * stress-prefetch: remove blank line
+  * stress-dev: remove debug message
+  * stress-dev: add first cut of simple floppy IOCTLS
+  * core-target-clones: Add tigerlake, sapphirerapids and rocketlake
+    target clones
+  * Manual: update copyright for Colin Ian King
+  * Manual: clean up grammar for the sparse matrix options
+  * Manual: spell naive with nroff formatted double dotted i.
+  * core-helper: add stress_get_open_count to find number of open files
+  * Manual: fix missing comma between contributor names
+  * Fix typo: smarg -> smart
+  * Makefile: add uninstall make rule
+  * stress-bind-mount: don't call _exit on SIGALRM
+  * stress-resources: add yield point on dcache open resource for-loop
+  * stress-pci: add more yield points for systems with many PCI devices
+  * stress-fanotify: add out of file descriptor and out of memory failures
+  * stress-bind-mount: add tmp directory removal
+  * Update TODO list, add floppy disk ioctls to items to do
+  * stress-dev: add two more CDROM ioctls
+  * kernel-coverage: update copyright
+  * stress-rtc: exercise illegal RTC ioctl
+  * Manual: update contributors
+  * kernel-coverage: increase sysfs coverage to 10 minutes
+  * stress-sysfs: increase rate of sysfs files being exercised
+  * stress-*: ensure boolean is assigned a boolean value
+  * stress-pipe: exercise child's fd info for the opened pipe
+  * stress-dev: exercise child's fd info for the opened device file
+  * stress-efivar: exercise child's fd info for the opened file
+  * stress-filename: exercise child's fd info for the opened file
+  * stress-rtc: exercise RTC_PARAM_GET and RTC_PARAM_SET
+  * kernel-coverage: enable memory thrasher for vm and brk stressors
+  * stress-pci: remove white space and empty line
+  * stress-file-ioctl: add FS_IOC_FSGETXATTR/FS_IOC_FSSETXATTR ioctls
+  * stress-procfs: exercise invalid /proc/pci ioctl
+  * stress-pci: attempt to read pci ROM via mmap
+  * kernel-coveage: exercise UDP-GRO
+  * stress-upd: add --upd-gro to enable Generic Receive Offload if
+    supported
+  * stress-shm-sysv: mlock/munlock 1st page of each mapping for more shm
+    work
+  * stress-shm: mlock/munlock 1st page of each mapping for more shm work
+  * stress-kvm: add some more instructions into vm code
+  * Makefile.config: remove debug make rules
+  * stress-skiplist: add a level check to avoid static analysis false
+    warning
+  * core-ftrace: free object if RB_INSERT finds an existing matching node
+  * stress-sparsematrix: free a new node if RB_INSERT finds existing value
+  * stress-sparsematrix: reference object size by the actual type
+  * stress-quota: replace memset with explicit setting of name and valid
+  * stress-usersyscall: voidify return from syscall
+  * stress-bind-mount: use shim wrapper for rmdir
+  * Makefile: pass CC down to Makefile.config to allow clang scan build to
+    work
+  * stress-tree: replace spaces with tab in indentation
+  * stress-dev: add some more CD-ROM ioctls for more coverage
+  * stress-tree: add some more optimizations, ~8-15% faster btree
+  * stress-tree: make btree functions static, manually inline node
+    allocation
+  * stress-tree: add a 31 node btree to the tree mix
+  * stress-hsearch: add DragonFlyBSD notes on hdestroy semantics
+  * README.md: move bug report to correct place in README
+  * README.md: Add a Minix kernel bug found by stress-ng
+  * README.md: Add a few more kernel fixes to bugs found by stress-ng
+  * README.md: replace bug report URL with kernel commit SHA link
+  * stress-madvise: add MADV_POPULATE_READ MADV_POPULATE_WRITE
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Wed, 13 Apr 2022 08:41:14 +0100
+
 stress-ng (0.13.12-1) unstable; urgency=medium
 
   [Maya Rashish]
