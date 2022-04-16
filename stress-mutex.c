@@ -44,6 +44,14 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
+#if defined(HAVE_PTHREAD_MUTEXATTR_T) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_INIT) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_DESTROY) &&		\
+    defined(HAVE_PTHREAD_MUTEXATTR_SETPRIOCEILING) &&	\
+    defined(HAVE_PTHREAD_MUTEXATTR_SETPROTOCOL)
+#define HAVE_PTHREAD_MUTEXATTR
+#endif
+
 #if defined(_POSIX_PRIORITY_SCHEDULING) &&	\
     defined(HAVE_LIB_PTHREAD) &&		\
     defined(HAVE_PTHREAD_MUTEX_T) &&		\
@@ -74,15 +82,33 @@ static void *mutex_exercise(void *arg)
 	const stress_args_t *args = pthread_info->args;
 	static void *nowt = NULL;
 	int max = (pthread_info->prio_max * 7) / 8;
+#if defined(HAVE_PTHREAD_MUTEXATTR)
+	int mutexattr_ret;
+	pthread_mutexattr_t mutexattr;
+#endif
 
 	stress_mwc_reseed();
+
+#if defined(HAVE_PTHREAD_MUTEXATTR)
+	/*
+	 *  Attempt to use priority inheritance on mutex
+	 */
+	mutexattr_ret = pthread_mutexattr_init(&mutexattr);
+	if (mutexattr_ret == 0) {
+		int ret;
+
+		ret = pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_INHERIT);
+		(void)ret;
+		ret = pthread_mutexattr_setprioceiling(&mutexattr, max);
+		(void)ret;
+	}
+#endif
 
 	do {
 		struct sched_param param;
 
 		param.sched_priority = max > 0 ? (int)stress_mwc32() % max : max;
 		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
-
 		if (pthread_mutex_lock(&mutex) < 0) {
 			pr_fail("%s: pthread_mutex_lock failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -101,7 +127,12 @@ static void *mutex_exercise(void *arg)
 		}
 	} while (keep_stressing(args));
 
-	kill(args->pid, SIGALRM);
+	(void)kill(args->pid, SIGALRM);
+#if defined(HAVE_PTHREAD_MUTEXATTR)
+	if (mutexattr_ret == 0) {
+		(void)pthread_mutexattr_destroy(&mutexattr);
+	}
+#endif
 
 	return &nowt;
 }
