@@ -843,6 +843,7 @@ void stress_vmstat_start(void)
 		}
 #endif
 	}
+	_exit(0);
 }
 
 /*
