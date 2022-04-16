@@ -1191,6 +1191,7 @@ typedef struct {
 	MACRO(msg)		\
 	MACRO(msync)		\
 	MACRO(munmap)		\
+	MACRO(mutex)		\
 	MACRO(nanosleep)	\
 	MACRO(netdev)		\
 	MACRO(netlink_proc)	\
@@ -1949,6 +1950,10 @@ typedef enum {
 
 	OPT_munmap,
 	OPT_munmap_ops,
+
+	OPT_mutex,
+	OPT_mutex_ops,
+	OPT_mutex_procs,
 
 	OPT_nanosleep,
 	OPT_nanosleep_ops,

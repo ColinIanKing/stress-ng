@@ -3115,6 +3115,20 @@ are handled where possible by forcing the child process to call _exit(2).
 .B \-\-munmap\-ops N
 stop after N page unmappings.
 .TP
+.B \-\-mutex N
+start N stressors that exercise pthread mutex locking and unlocking. If run
+with enough privilege then the FIFO scheduler is used and a random priority between
+0 and 80% of the maximum FIFO priority level is selected for the locking operation.
+The minimum FIFO priority level is selected for the critical mutex section and
+unlocking operation to exercise random inverted priority scheduling.
+.TP
+.B \-\-mutex\-ops N
+stop after N bogo mutex lock/unlock operations.
+.TP
+.B \-\-mutex\-procs N
+By default 2 threads are used for locking/unlocking on a single mutex. This option
+allows the default to be changed to 2 to 64 concurrent threads.
+.TP
 .B \-\-nanosleep N
 start N workers that each run 256 pthreads that call nanosleep with random
 delays from 1 to 2^18 nanoseconds. This should exercise the high resolution

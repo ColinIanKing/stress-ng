@@ -1,0 +1,196 @@
+/*
+ * Copyright (C)      2022 Colin Ian King.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ */
+#include "stress-ng.h"
+
+#define MIN_MUTEX_PROCS		(2)
+#define MAX_MUTEX_PROCS		(64)
+#define DEFAULT_MUTEX_PROCS	(2)
+
+static const stress_help_t help[] = {
+	{ NULL,	"mutex N",	"start N workers exercising mutex operations" },
+	{ NULL,	"mutex-ops N",	"stop after N mutex bogo operations" },
+	{ NULL, "mutex-procs N","select the number of concurrent processes" },
+	{ NULL,	NULL,		NULL }
+};
+
+static int stress_set_mutex_procs(const char *opt)
+{
+	uint64_t mutex_procs;
+
+	mutex_procs = stress_get_uint64(opt);
+	stress_check_range("mutex-procs", mutex_procs,
+		MIN_MUTEX_PROCS, MAX_MUTEX_PROCS);
+	return stress_set_setting("mutex-procs", TYPE_ID_UINT64, &mutex_procs);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mutex_procs,	stress_set_mutex_procs },
+	{ 0,			NULL }
+};
+
+#if defined(_POSIX_PRIORITY_SCHEDULING) &&	\
+    defined(HAVE_LIB_PTHREAD) &&		\
+    defined(HAVE_PTHREAD_MUTEX_T) &&		\
+    defined(HAVE_PTHREAD_MUTEX_INIT) &&		\
+    defined(HAVE_PTHREAD_MUTEX_DESTROY) &&	\
+    defined(HAVE_PTHREAD_SETSCHEDPARAM) &&	\
+    defined(HAVE_SCHED_GET_PRIORITY_MIN) &&	\
+    defined(HAVE_SCHED_GET_PRIORITY_MAX) &&	\
+    defined(SCHED_FIFO)
+
+pthread_mutex_t mutex;
+
+typedef struct {
+	const stress_args_t *args;
+	int prio_min;
+	int prio_max;
+	pthread_t pthread;
+	int ret;
+} pthread_info_t;
+
+/*
+ *  mutex_exercise()
+ *	exercise the mutex
+ */
+static void *mutex_exercise(void *arg)
+{
+	pthread_info_t *pthread_info = (pthread_info_t *)arg;
+	const stress_args_t *args = pthread_info->args;
+	static void *nowt = NULL;
+	int max = (pthread_info->prio_max * 7) / 8;
+
+	stress_mwc_reseed();
+
+	do {
+		struct sched_param param;
+
+		param.sched_priority = max > 0 ? (int)stress_mwc32() % max : max;
+		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
+
+		if (pthread_mutex_lock(&mutex) < 0) {
+			pr_fail("%s: pthread_mutex_lock failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			break;
+		}
+		param.sched_priority = pthread_info->prio_min;
+		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
+
+		inc_counter(args);
+		shim_sched_yield();
+
+		if (pthread_mutex_unlock(&mutex) < 0) {
+			pr_fail("%s: pthread_mutex_unlock failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			break;
+		}
+	} while (keep_stressing(args));
+
+	kill(args->pid, SIGALRM);
+
+	return &nowt;
+}
+
+/*
+ *  stress_mutex()
+ *	stress system with priority changing mutex lock/unlocks
+ */
+static int stress_mutex(const stress_args_t *args)
+{
+	size_t i;
+	bool created = false;
+	int prio_min, prio_max;
+	pthread_info_t pthread_info[DEFAULT_MUTEX_PROCS];
+	uint64_t mutex_procs = DEFAULT_MUTEX_PROCS;
+
+	if (!stress_get_setting("mutex-procs", &mutex_procs)) {
+		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
+			mutex_procs = MAX_MUTEX_PROCS;
+		if (g_opt_flags & OPT_FLAGS_MINIMIZE)
+			mutex_procs = MIN_MUTEX_PROCS;
+	}
+
+	(void)memset(&pthread_info, 0, sizeof(pthread_info));
+
+	if (pthread_mutex_init(&mutex, NULL) < 0) {
+		pr_fail("pthread_mutex_init failed: errno=%d: "
+			"(%s)\n", errno, strerror(errno));
+		return EXIT_FAILURE;
+	}
+
+	prio_min = sched_get_priority_min(SCHED_FIFO);
+	prio_max = sched_get_priority_max(SCHED_FIFO);
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	for (i = 0; i < DEFAULT_MUTEX_PROCS; i++) {
+		pthread_info[i].args = args;
+		pthread_info[i].prio_min = prio_min;
+		pthread_info[i].prio_max = prio_max;
+		pthread_info[i].ret = pthread_create(&pthread_info[i].pthread, NULL,
+                                mutex_exercise, (void *)&pthread_info[i]);
+		if ((pthread_info[i].ret) && (pthread_info[i].ret != EAGAIN)) {
+			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
+				args->name, pthread_info[i].ret, strerror(pthread_info[i].ret));
+			break;
+		}
+		if (!keep_stressing_flag())
+			break;
+		created = true;
+	}
+
+	if (!created) {
+		pr_inf("%s: could not create any pthreads\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	/* Wait for termination */
+	while (keep_stressing(args))
+		pause();
+
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	for (i = 0; i < DEFAULT_MUTEX_PROCS; i++) {
+		int ret;
+
+		if (pthread_info[i].ret)
+			continue;
+
+		ret = pthread_join(pthread_info[i].pthread, NULL);
+		(void)ret;
+	}
+	(void)pthread_mutex_destroy(&mutex);
+
+	return EXIT_SUCCESS;
+}
+
+stressor_info_t stress_mutex_info = {
+	.stressor = stress_mutex,
+	.class = CLASS_OS | CLASS_SCHEDULER,
+	.verify = VERIFY_ALWAYS,
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
+};
+#else
+stressor_info_t stress_mutex_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_OS | CLASS_SCHEDULER,
+	.opt_set_funcs = opt_set_funcs,
+	.help = help
+};
+#endif

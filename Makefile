@@ -221,6 +221,7 @@ STRESS_SRC = \
 	stress-msg.c \
 	stress-msync.c \
 	stress-munmap.c \
+	stress-mutex.c \
 	stress-nanosleep.c \
 	stress-netdev.c \
 	stress-netlink-proc.c \
