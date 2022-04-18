@@ -1190,6 +1190,7 @@ typedef struct {
 	MACRO(mremap)		\
 	MACRO(msg)		\
 	MACRO(msync)		\
+	MACRO(msyncmany)	\
 	MACRO(munmap)		\
 	MACRO(mutex)		\
 	MACRO(nanosleep)	\
@@ -1948,6 +1949,9 @@ typedef enum {
 	OPT_msync,
 	OPT_msync_bytes,
 	OPT_msync_ops,
+
+	OPT_msyncmany,
+	OPT_msyncmany_ops,
 
 	OPT_munmap,
 	OPT_munmap_ops,

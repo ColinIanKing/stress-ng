@@ -220,6 +220,7 @@ STRESS_SRC = \
 	stress-mremap.c \
 	stress-msg.c \
 	stress-msync.c \
+	stress-msyncmany.c \
 	stress-munmap.c \
 	stress-mutex.c \
 	stress-nanosleep.c \

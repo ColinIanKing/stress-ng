@@ -1,0 +1,161 @@
+/*
+ * Copyright (C)      2022 Colin Ian King.
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+ */
+#include "stress-ng.h"
+
+static const stress_help_t help[] = {
+	{ NULL,	"msyncmany N",		"start N workers stressing msync on many mapped pages" },
+	{ NULL,	"msyncmany-ops N",	"stop after N msyncmany bogo operations" },
+	{ NULL,	NULL,		  NULL }
+};
+
+#if defined(HAVE_MSYNC)
+
+#define MMAP_MAX	(32768)
+
+static int stress_msyncmany_child(const stress_args_t *args, void *context)
+{
+	const size_t page_size = args->page_size;
+	long max = sysconf(_SC_MAPPED_FILES);
+	uint8_t **mappings;
+	max = STRESS_MINIMUM(max, MMAP_MAX);
+	int fd = *(int *)context;
+	size_t i, n;
+	uint64_t *mapped = NULL;
+	int rc = EXIT_SUCCESS;
+
+	(void)context;
+
+	if (max < 1) {
+		pr_fail("%s: sysconf(_SC_MAPPED_FILES) is too low, max = %ld\n",
+			args->name, max);
+		return EXIT_NO_RESOURCE;
+	}
+	mappings = calloc((size_t)max, sizeof(*mappings));
+	if (!mappings) {
+		pr_fail("%s: malloc failed, out of memory\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	for (n = 0; keep_stressing_flag() && (n < (size_t)max); n++) {
+		uint64_t *ptr;
+
+		if (!keep_stressing(args))
+			break;
+
+		ptr = (uint64_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+			MAP_SHARED, fd, 0);
+		if (ptr == MAP_FAILED)
+			break;
+		if (!mapped)
+			mapped = ptr;
+		mappings[n] = (uint8_t *)ptr;
+	}
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	if (!mapped) {
+		pr_inf("%s: no mappings made, out of resources\n", args->name);
+		rc = EXIT_NO_RESOURCE;
+		goto finish;
+	}
+
+	do {
+		int ret;
+		uint64_t pattern = stress_mwc64();
+
+		*mapped = pattern;
+
+		ret = msync(mapped, args->page_size, MS_SYNC | MS_INVALIDATE);
+		if (ret < 0) {
+			pr_fail("%s: msync failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			rc = EXIT_FAILURE;
+			break;
+		}
+		for (i = 0; i < n; i++) {
+			const uint64_t *ptr = (uint64_t *)mappings[i];
+
+			if (*ptr != pattern) {
+				pr_fail("%s: failed: mapping %zd at %p contained %" PRIx64 " and not %" PRIx64 "\n",
+					args->name, i, ptr, *ptr, pattern);
+			}
+		}
+		inc_counter(args);
+	} while (keep_stressing(args));
+
+finish:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	for (i = 0; i < n; i++)
+		(void)munmap((void *)mappings[i], page_size);
+
+	free(mappings);
+	(void)close(fd);
+	return rc;
+}
+
+/*
+ *  stress_msyncmany()
+ *	stress mmap with many pages being mapped
+ */
+static int stress_msyncmany(const stress_args_t *args)
+{
+	int ret, fd;
+	char filename[PATH_MAX];
+
+	ret = stress_temp_dir_mk_args(args);
+        if (ret < 0)
+                return exit_status(-ret);
+
+	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
+	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (fd < 0) {
+		pr_inf("%s: cannot create %s, skipping stressor\n", args->name, filename);
+		(void)stress_temp_dir_rm_args(args);
+		return EXIT_NO_RESOURCE;
+	}
+	(void)shim_unlink(filename);
+
+	ret = shim_fallocate(fd, 0, 0, args->page_size);
+	if (ret < 0) {
+		pr_inf("%s: cannot allocate data for file %s, skipping stressor\n", args->name, filename);
+		(void)stress_temp_dir_rm_args(args);
+		return EXIT_NO_RESOURCE;
+	}
+	ret = stress_oomable_child(args, (void *)&fd, stress_msyncmany_child, STRESS_OOMABLE_NORMAL);
+	(void)close(fd);
+	(void)stress_temp_dir_rm_args(args);
+
+	return ret;
+}
+
+stressor_info_t stress_msyncmany_info = {
+	.stressor = stress_msyncmany,
+	.class = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
+	.help = help
+};
+#else
+stressor_info_t stress_msyncmany_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_VM | CLASS_OS,
+	.verify = VERIFY_ALWAYS,
+	.help = help
+};
+#endif

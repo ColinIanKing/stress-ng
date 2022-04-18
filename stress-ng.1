@@ -3108,6 +3108,15 @@ allocate N bytes for the memory mapped file, the default is 256MB. One
 can specify the size as % of total available memory or in units of Bytes,
 KBytes, MBytes and GBytes using the suffix b, k, m or g.
 .TP
+.B \-\-msyncmany N
+start N stressors that memory map up to 32768 pages on the same page of
+a temporary file, change the first 32 bits in a page and msync the data back
+to the file.  The other 32767 pages are examined to see if the 32 bit
+check value is msync'd back to these pages.
+.TP
+.B \-\-msyncmany\-ops N
+stop after N msync calls in the msyncmany stressors are completed.
+.TP
 .B \-\-munmap N
 start N stressors that exercise unmapping of shared non-executable mapped
 regions of child processes (Linux only). The unmappings map shared memory regions page
