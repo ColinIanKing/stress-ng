@@ -924,6 +924,13 @@ static bool stress_af_alg_add_crypto(stress_crypto_info_t *info)
 	if ((info->name == NULL) || (info->type == NULL))
 		return false;
 
+	/*
+	 * Deprecated in Linux 5.9
+	 * see commit 9ace6771831017ce75a2bdf03c284b686dd39dba
+         */
+	if (strcmp(info->name, "ecb(arc4)") == 0)
+		return false;
+
 	/* Scan for duplications */
 	for (ci = crypto_info_list; ci; ci = ci->next) {
 		if ((strcmp(ci->name, info->name) == 0) &&
