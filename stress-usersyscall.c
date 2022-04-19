@@ -123,7 +123,7 @@ static inline long x86_64_syscall0(const long number)
 static int stress_sigsys_libc_mapping(uintptr_t *begin, uintptr_t *end)
 {
 	char perm[5], buf[1024];
-	char libc_path[PATH_MAX];
+	char libc_path[PATH_MAX + 1];
 	FILE *fp;
 	uint64_t offset, dev_major, dev_minor, inode;
 
