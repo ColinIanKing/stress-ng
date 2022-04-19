@@ -138,7 +138,7 @@ static bool keep_running(void)
  */
 static bool keep_thread_running(void)
 {
-	return keep_running() & keep_thread_running_flag;
+	return keep_running() && keep_thread_running_flag;
 }
 
 /*
