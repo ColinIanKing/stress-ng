@@ -255,7 +255,7 @@ static int stress_rgb_compress_to_jpeg(
 	uint8_t		*rgb,
 	const int32_t	x_max,
 	const int32_t	y_max,
-	int32_t		quality)
+	const int32_t	quality)
 {
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
