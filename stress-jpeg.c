@@ -125,17 +125,17 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 static inline double OPTIMIZE3 plasma(const double x, const double y, const double time)
 {
-	const double pi2 = 2 * 3.1415;
+	const double tau = 2 * M_PI;
 	double cx, cy;
 	double value;
 
-	value = sin((time - x) * pi2);
-	value += cos((time + y) * pi2);
-	value += sin((time + x - y) * pi2);
-	value += sin((time + x + y) * pi2);
+	value = sin((time - x) * tau);
+	value += cos((time + y) * tau);
+	value += sin((time + x - y) * tau);
+	value += sin((time + x + y) * tau);
 
-	cx = x - 0.5 + sin(time * pi2) / 3;
-	cy = y - 0.5 + cos(time * pi2) / 3;
+	cx = x - 0.5 + sin(time * tau) / 3;
+	cy = y - 0.5 + cos(time * tau) / 3;
 	value += sin(sqrt(128*(cx * cx + cy * cy)));
 
 	return value;
