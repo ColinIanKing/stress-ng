@@ -67,7 +67,7 @@ struct shim_loop_config {
 };
 
 
-static const char *loop_attr[] = {
+static const char * const loop_attr[] = {
 	"backing_file",
 	"offset",
 	"sizelimit",
