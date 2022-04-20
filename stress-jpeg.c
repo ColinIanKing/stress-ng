@@ -134,9 +134,9 @@ static inline double OPTIMIZE3 plasma(const double x, const double y, const doub
 	value += sin((time + x - y) * tau);
 	value += sin((time + x + y) * tau);
 
-	cx = x - 0.5 + sin(time * tau) / 3;
-	cy = y - 0.5 + cos(time * tau) / 3;
-	value += sin(sqrt(128*(cx * cx + cy * cy)));
+	cx = x - 0.5 + sin(time * tau) / 3.0;
+	cy = y - 0.5 + cos(time * tau) / 3.0;
+	value += sin(sqrt(128.0 * (cx * cx + cy * cy)));
 
 	return value;
 }
@@ -148,9 +148,9 @@ static void OPTIMIZE3 stress_rgb_plasma(
 {
 	register uint8_t *ptr = rgb;
 	register int32_t sy;
-	const double tx = (double)stress_mwc32() / 100;
-	const double ty = (double)stress_mwc32() / 100;
-	const double tz = (double)stress_mwc32() / 100;
+	const double tx = (double)stress_mwc32() / 100.0;
+	const double ty = (double)stress_mwc32() / 100.0;
+	const double tz = (double)stress_mwc32() / 100.0;
 	const double dx = 1.0 / (double)x_max;
 	const double dy = 1.0 / (double)y_max;
 	double y;
@@ -260,7 +260,6 @@ static int stress_rgb_compress_to_jpeg(
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
 	JSAMPROW row_pointer[y_max];
-	int row_stride;
 	FILE *fp;
 #if defined(HAVE_OPEN_MEMSTREAM)
 	char *ptr;
@@ -268,6 +267,7 @@ static int stress_rgb_compress_to_jpeg(
 	size_t size = 0;
 	int32_t y;
 	static int32_t yy = 0;
+	const int row_stride = x_max * 3;
 
 #if defined(HAVE_OPEN_MEMSTREAM)
 	fp = open_memstream(&ptr, &size);
@@ -289,7 +289,6 @@ static int stress_rgb_compress_to_jpeg(
 	jpeg_set_quality(&cinfo, (int)quality, TRUE);
 	jpeg_start_compress(&cinfo, TRUE);
 
-	row_stride = x_max * 3; /* JSAMPLEs per row in image_buffer */
 	for (y = 0; y < y_max; y++, rgb += row_stride) {
 		yy %= y_max;
 		row_pointer[yy] = rgb;
