@@ -901,51 +901,13 @@ static void stress_rand_data_zero(
 	(void)memset((void *)data, 0, size);
 }
 
-
-static const stress_zlib_rand_data_func rand_data_funcs[] = {
-	stress_rand_data_00_ff,
-	stress_rand_data_01,
-	stress_rand_data_digits,
-	stress_rand_data_bcd,
-	stress_rand_data_binary,
-	stress_rand_data_brown,
-	stress_rand_data_double,
-	stress_rand_data_fixed,
-	stress_rand_data_gray,
-	stress_rand_data_latin,
-	stress_rand_data_lrand48,
-	stress_rand_data_nybble,
-	stress_rand_data_objcode,
-	stress_rand_data_parity,
-	stress_rand_data_pink,
-	stress_rand_data_rarely_1,
-	stress_rand_data_rarely_0,
-#if defined(__x86_64__) || defined(__x86_64)
-	stress_rand_data_rdrand,
-#endif
-	stress_rand_data_text,
-	stress_rand_data_utf8,
-	stress_rand_data_zero,
-};
-
-/*
- *  stress_zlib_random_test()
- *	randomly select data generation function
- */
-static HOT OPTIMIZE3 void stress_zlib_random_test(
-	const stress_args_t *args,
-	uint8_t *data,
-	const size_t size)
-{
-	rand_data_funcs[stress_mwc32() % SIZEOF_ARRAY(rand_data_funcs)](args, data, size);
-}
+static void stress_zlib_random_test(const stress_args_t *args, uint8_t *data, const size_t size);
 
 /*
  * Table of zlib data methods
  */
 static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "random",	stress_zlib_random_test }, /* Special "random" test */
-
 	{ "00ff",	stress_rand_data_00_ff },
 	{ "ascii01",	stress_rand_data_01 },
 	{ "asciidigits",stress_rand_data_digits },
@@ -974,6 +936,22 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "zero",	stress_rand_data_zero },
 	{ NULL,		NULL }
 };
+
+/*
+ *  stress_zlib_random_test()
+ *	randomly select data generation function
+ */
+static void stress_zlib_random_test(
+	const stress_args_t *args,
+	uint8_t *data,
+	const size_t size)
+{
+	/* We ignore 1st method (random) and last (NULL) entry */
+	const int max = SIZEOF_ARRAY(zlib_rand_data_methods) - 2;
+	const int idx = (stress_mwc32() % max) + 1;
+
+	zlib_rand_data_methods[idx].func(args, data, size);
+}
 
 /*
  *  stress_set_zlib_level
