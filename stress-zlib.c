@@ -444,6 +444,41 @@ static void stress_rand_data_fixed(
 		*(ptr++) = 0x04030201;
 }
 
+#if defined(__x86_64__) || defined(__x86_64)
+/*
+ *  rdrand64()
+ *	read 64 bit random value
+ */
+static inline uint64_t rand64(void)
+{
+	uint64_t        ret;
+
+	asm volatile("1:;\n\
+	rdrand %0;\n\
+	jnc 1b;\n":"=r"(ret));
+
+	return ret;
+}
+
+/*
+ *  stress_rand_data_rdrand()
+ *	fill buffer with data from x86 rdrand instruction
+ */
+static void stress_rand_data_rdrand(
+	const stress_args_t *args,
+	uint8_t *data,
+	const size_t size)
+{
+	register uint64_t *ptr = (uint64_t *)data;
+	register uint64_t *end = (uint64_t *)(data + size);
+
+	(void)args;
+
+	while (ptr < end)
+		*(ptr++) = rand64();
+}
+#endif
+
 /*
  *  stress_rand_data_double()
  *	fill buffer with double precision floating point binary data
@@ -885,6 +920,9 @@ static const stress_zlib_rand_data_func rand_data_funcs[] = {
 	stress_rand_data_pink,
 	stress_rand_data_rarely_1,
 	stress_rand_data_rarely_0,
+#if defined(__x86_64__) || defined(__x86_64)
+	stress_rand_data_rdrand,
+#endif
 	stress_rand_data_text,
 	stress_rand_data_utf8,
 	stress_rand_data_zero,
@@ -901,7 +939,6 @@ static HOT OPTIMIZE3 void stress_zlib_random_test(
 {
 	rand_data_funcs[stress_mwc32() % SIZEOF_ARRAY(rand_data_funcs)](args, data, size);
 }
-
 
 /*
  * Table of zlib data methods
@@ -929,6 +966,9 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "pink",	stress_rand_data_pink },
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
+#if defined(__x86_64__) || defined(__x86_64)
+	{ "rdrand",	stress_rand_data_rdrand },
+#endif
 	{ "text",	stress_rand_data_text },
 	{ "utf8",	stress_rand_data_utf8 },
 	{ "zero",	stress_rand_data_zero },
