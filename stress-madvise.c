@@ -216,7 +216,10 @@ static void stress_read_proc_smaps(const char *smaps)
  *  stress_random_advise()
  *	get a random advise option
  */
-static int stress_random_advise(const stress_args_t *args)
+static int stress_random_advise(
+	const stress_args_t *args,
+	void *addr,
+	const size_t size)
 {
 	const int idx = stress_mwc32() % SIZEOF_ARRAY(madvise_options);	/* cppcheck-suppress moduloofone */
 	const int advise = madvise_options[idx];
@@ -231,6 +234,13 @@ static int stress_random_advise(const stress_args_t *args)
 
 #if defined(MADV_HWPOISON)
 	if (advise == MADV_HWPOISON) {
+		const size_t page_size = args->page_size;
+		const size_t vec_size = (size + page_size - 1) / page_size;
+		size_t i;
+		unsigned char vec[vec_size];
+		int ret;
+		uint8_t *ptr = (uint8_t *)addr;
+
 		/*
 		 * Try for another madvise option if
 		 * we've poisoned too many pages.
@@ -239,6 +249,30 @@ static int stress_random_advise(const stress_args_t *args)
 		 */
 		if ((args->instance > 0) ||
 		    (poison_count >= NUM_POISON_MAX))
+			return madv_normal;
+
+		/*
+		 * Don't poison page if it's not physically backed
+		 */
+		(void)memset(vec, 0, vec_size);
+		ret = shim_mincore(addr, size, vec);
+		if (ret < 0)
+			return madv_normal;
+		for (i = 0; i < vec_size; i++) {
+			if (vec[i] == 0)
+				return madv_normal;
+		}
+		/*
+		 * Don't poison page if it's all zero as it may
+		 * be mapped to the common zero page and poisoning
+		 * this shared page can cause issues.
+		 */
+		for (i = 0; i < size; i++) {
+			if (ptr[i])
+				break;
+		}
+		/* ..all zero? then don't madvise it */
+		if (i == size)
 			return madv_normal;
 		poison_count++;
 	}
@@ -285,8 +319,8 @@ static void *stress_madvise_pages(void *arg)
 	}
 
 	for (n = 0; n < sz; n += page_size) {
-		const int advise = stress_random_advise(args);
 		void *ptr = (void *)(((uint8_t *)buf) + n);
+		const int advise = stress_random_advise(args, ptr, page_size);
 
 		(void)shim_madvise(ptr, page_size, advise);
 #if defined(MADV_FREE)
@@ -297,8 +331,8 @@ static void *stress_madvise_pages(void *arg)
 	}
 	for (n = 0; n < sz; n += page_size) {
 		size_t m = (stress_mwc64() % sz) & ~(page_size - 1);
-		const int advise = stress_random_advise(args);
 		void *ptr = (void *)(((uint8_t *)buf) + m);
+		const int advise = stress_random_advise(args, ptr, page_size);
 
 		(void)shim_madvise(ptr, page_size, advise);
 		(void)shim_msync(ptr, page_size, MS_ASYNC);
