@@ -64,6 +64,10 @@
 #define FORCE_DO_NOTHING() while (0)
 #endif
 
+#if defined(HAVE_INT128_T)
+#define _UINT128(hi, lo)	((((__uint128_t)hi << 64) | (__uint128_t)lo))
+#endif
+
 /*
  * Some math workarounds for functions that some
  * math libraries don't have implemented (yet)
@@ -1047,8 +1051,6 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
 
 /* For compilers that support int128 .. */
 #if defined(HAVE_INT128_T)
-
-#define _UINT128(hi, lo)	((((__uint128_t)hi << 64) | (__uint128_t)lo))
 
 stress_cpu_int(__uint128_t, 128,
 	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
@@ -2513,25 +2515,56 @@ static void TARGET_CLONES stress_cpu_dither(const char *name)
 }
 
 /*
+ *  stress_cpu_div8
+ *	perform 50000 x 8 bit divisions, these are traditionally
+ *	slow ops
+ */
+static void TARGET_CLONES stress_cpu_div8(const char *name)
+{
+	register uint16_t i = 50000, j = 0;
+	const uint8_t delta = 0xff / 224;
+	uint8_t sum = 0;
+
+	(void)name;
+
+	while (i > 0) {
+		const uint8_t n = STRESS_MINIMUM(i, 224);
+		register uint8_t k, l;
+		for (l = 0, k = 1; l < n; l++, k += delta) {
+			register uint8_t r = j / k;
+			sum += r;
+		}
+		i -= n;
+		j += delta;
+	}
+	stress_uint8_put(sum);
+}
+
+/*
  *  stress_cpu_div16
  *	perform 50000 x 16 bit divisions, these are traditionally
  *	slow ops
  */
 static void TARGET_CLONES stress_cpu_div16(const char *name)
 {
-	register uint16_t i, j;
-	const uint16_t di = 0xdUL;
-	const uint16_t max = 0xfde8;
+	register uint16_t i = 50000, j = 0;
+	const uint16_t delta = 0xffff / 224;
+	uint16_t sum = 0;
 
 	(void)name;
 
-	for (i = 0, j = 1; i < max; i += di) {
-		register uint32_t r = i / j;
-
-		j = 1 | ((j << 1) ^ j);
-		stress_uint16_put(r);
+	while (i > 0) {
+		const uint16_t n = STRESS_MINIMUM(i, 224);
+		register uint16_t k, l;
+		for (l = 0, k = 1; l < n; l++, k += delta) {
+			register uint16_t r = j / k;
+			sum += r;
+		}
+		i -= n;
+		j += delta;
 	}
-}	
+	stress_uint16_put(sum);
+}
 
 /*
  *  stress_cpu_div32
@@ -2540,39 +2573,79 @@ static void TARGET_CLONES stress_cpu_div16(const char *name)
  */
 static void TARGET_CLONES stress_cpu_div32(const char *name)
 {
-	register uint32_t i, j;
-	const uint32_t di = 0x0014e3dUL;
-	const uint32_t max = 0xfeff9bd4UL;
+	register uint32_t i = 50000, j = 0;
+	const uint32_t delta = 0xffffffff / 224;
+	uint32_t sum = 0;
 
 	(void)name;
 
-	for (i = 0, j = 1; i < max; i += di) {
-		register uint32_t r = i / j;
-
-		j = 1 | ((j << 1) ^ j);
-		stress_uint32_put(r);
+	while (i > 0) {
+		const uint32_t n = STRESS_MINIMUM(i, 224);
+		register uint32_t k, l;
+		for (l = 0, k = 1; l < n; l++, k += delta) {
+			register uint32_t r = j / k;
+			sum += r;
+		}
+		i -= n;
+		j += delta;
 	}
+	stress_uint32_put(sum);
 }
 
 /*
  *  stress_cpu_div64
  *	perform 50000 x 64 bit divisions, these are traditionally
- *	really slow ops
+ *	slow ops
  */
 static void TARGET_CLONES stress_cpu_div64(const char *name)
 {
-	register uint64_t i, j;
-	const uint64_t di = 0x000014ced130f7513LL;
-	const uint64_t dj = 0x000013cba9876543ULL;
-	const uint64_t max = 0xfe00000000000000ULL;
+	register uint64_t i = 50000, j = 0;
+	const uint64_t delta = 0xffffffffffffffffULL / 224;
+	uint64_t sum = 0;
 
 	(void)name;
 
-	for (i = 0, j = 0x7fffffffffffULL; i < max; i += di, j -= dj) {
-		register uint64_t r = i / j;
-		stress_uint64_put(r);
+	while (i > 0) {
+		const uint64_t n = STRESS_MINIMUM(i, 224);
+		register uint64_t k, l;
+		for (l = 0, k = 1; l < n; l++, k += delta) {
+			register uint64_t r = j / k;
+			sum += r;
+		}
+		i -= n;
+		j += delta;
 	}
+	stress_uint64_put(sum);
 }
+
+#if defined(HAVE_INT128_T)
+/*
+ *  stress_cpu_div128
+ *	perform 50000 x 128 bit divisions, these are traditionally
+ *	slow ops
+ */
+static void TARGET_CLONES stress_cpu_div128(const char *name)
+{
+	register __uint128_t i = 50000, j = 0;
+	const uint64_t delta64 = 0xffffffffffffffffULL;
+	const __uint128_t delta = _UINT128(delta64, delta64) / 224;
+	__uint128_t sum = 0;
+
+	(void)name;
+
+	while (i > 0) {
+		const __uint128_t n = STRESS_MINIMUM(i, 224);
+		register __uint128_t k, l;
+		for (l = 0, k = 1; l < n; l++, k += delta) {
+			register __uint128_t r = j / k;
+			sum += r;
+		}
+		i -= n;
+		j += delta;
+	}
+	stress_uint64_put((uint64_t)sum);
+}
+#endif
 
 /*
  *  stress_cpu_cpuid()
@@ -3024,9 +3097,13 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "decimal128",		stress_cpu_decimal128 },
 #endif
 	{ "dither",		stress_cpu_dither },
+	{ "div8",		stress_cpu_div8 },
 	{ "div16",		stress_cpu_div16 },
 	{ "div32",		stress_cpu_div32 },
 	{ "div64",		stress_cpu_div64 },
+#if defined(HAVE_INT128_T)
+	{ "div128",		stress_cpu_div128 },
+#endif
 	{ "double",		stress_cpu_double },
 	{ "euler",		stress_cpu_euler },
 	{ "explog",		stress_cpu_explog },
