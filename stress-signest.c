@@ -225,32 +225,34 @@ finish:
 		}
 	}
 
-	buf = calloc(sz, sizeof(*buf));
-	if (buf) {
-		for (ptr = buf, i = 0; i < SIZEOF_ARRAY(signals); i++) {
-			if (signal_info.signalled & (1U << i)) {
-				const char *name = stress_signal_name(signals[i]);
+	if (args->instance == 0) {
+		buf = calloc(sz, sizeof(*buf));
+		if (buf) {
+			for (ptr = buf, i = 0; i < SIZEOF_ARRAY(signals); i++) {
+				if (signal_info.signalled & (1U << i)) {
+					const char *name = stress_signal_name(signals[i]);
 
-				if (name) {
-					if (strncmp(name, "SIG", 3) == 0)
-						name += 3;
-					ptr += snprintf(ptr, (buf + sz - ptr), " %s", name);
-				} else {
-					ptr += snprintf(ptr, (buf + sz - ptr), " SIG%d", signals[i]);
+					if (name) {
+						if (strncmp(name, "SIG", 3) == 0)
+							name += 3;
+						ptr += snprintf(ptr, (buf + sz - ptr), " %s", name);
+					} else {
+						ptr += snprintf(ptr, (buf + sz - ptr), " SIG%d", signals[i]);
+					}
 				}
 			}
+			pr_inf("%s: %d unique nested signals handled,%s\n", args->name, n, buf);
+			free(buf);
+		} else {
+			pr_inf("%s: %d unique nested signals handled\n", args->name, n);
 		}
-		pr_inf("%s: %d unique nested signals handled,%s\n", args->name, n, buf);
-		free(buf);
-	} else {
-		pr_inf("%s: %d unique nested signals handled\n", args->name, n);
-	}
-	if (signal_info.stack_depth) {
-		pr_dbg("%s: stack depth %td bytes (~%td bytes per signal)\n",
-			args->name, signal_info.stack_depth,
-			signal_info.max_depth ? signal_info.stack_depth / signal_info.max_depth : 0);
-	} else {
-		pr_dbg("%s: stack depth unknown, didn't use alternative signal stack\n", args->name);
+		if (signal_info.stack_depth) {
+			pr_dbg("%s: stack depth %td bytes (~%td bytes per signal)\n",
+				args->name, signal_info.stack_depth,
+				signal_info.max_depth ? signal_info.stack_depth / signal_info.max_depth : 0);
+		} else {
+			pr_dbg("%s: stack depth unknown, didn't use alternative signal stack\n", args->name);
+		}
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
