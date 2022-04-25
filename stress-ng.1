@@ -5208,16 +5208,20 @@ T}
 latin	T{
 Random latin sentences from a sample of Lorem Ipsum text.
 T}
-logmap	T{
-Values generated from a logistical map of the equation
-\[*X]n+1 = r \(mu  \[*X]n \(mu (1 - \[*X]n) where r > \[~~] 3.56994567
-to produce chaotic data. The values are scaled by a large arbitrary
-value and the lower 8 bits of this value are compressed.
+lehmer	T{
+Fast random values generated using Lehmer's generator using a
+128 bit multiply.
 T}
 lfsr32	T{
 Values generated from a 32 bit Galois linear feedback shift register using
 the polynomial  x\[ua]32 + x\[ua]31 + x\[ua]29 + x + 1. This generates a
 ring of  2\[ua]32 - 1 unique values (all 32 bit values except for 0).
+T}
+logmap	T{
+Values generated from a logistical map of the equation
+\[*X]n+1 = r \(mu  \[*X]n \(mu (1 - \[*X]n) where r > \[~~] 3.56994567
+to produce chaotic data. The values are scaled by a large arbitrary
+value and the lower 8 bits of this value are compressed.
 T}
 lrand48	T{
 Uniformly distributed pseudo-random 32 bit values generated from lrand48(3).

@@ -726,6 +726,52 @@ static void stress_rand_data_lfsr32(
 	}
 }
 
+#if defined(HAVE_INT128_T)
+/*
+ *  stress_rand_data_lehmer()
+ *	fills buffer with random data from lehmer
+ *	random number generator, see:
+ *
+ *      D. H. Lehmer; Mathematical methods in large-scale computing units.
+ *      Proceedings of a Second Symposium on Large Scale Digital
+ *	Calculating Machinery. Annals of the Computation Laboratory,
+ *	Harvard Univ. 26 (1951), pp. 141-146.
+ *
+ * 	P L'Ecuyer; Tables of linear congruential generators of different
+ *	sizes and good lattice structure. Mathematics of Computation of
+ *	the American Mathematical Society 68.225 (1999): 249-260.
+ */
+static void stress_rand_data_lehmer(
+	const stress_args_t *args,
+	uint8_t *data,
+	const size_t size)
+{
+	static __uint128_t state;
+	static bool seeded = false;
+	register uint64_t *ptr, *end;
+
+	(void)args;
+
+	if (UNLIKELY(!seeded)) {
+		uint32_t *ptr32 = (uint32_t *)&state;
+
+		*ptr32++ = stress_mwc32();
+		*ptr32++ = stress_mwc32();
+		*ptr32++ = stress_mwc32();
+		*ptr32++ = stress_mwc32();
+		seeded = true;
+	}
+
+	ptr = (uint64_t *)data;
+	end = (uint64_t *)(data + size);
+
+	while (ptr < end) {
+		state *= 0xda942042e4dd58b5ULL;
+		*(ptr++) = (state >> 64);
+	}
+}
+#endif
+
 /*
  *  stress_rand_data_lrand48()
  *	fills buffer with random data from lrand48
@@ -918,6 +964,9 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "gray",	stress_rand_data_gray },
 	{ "fixed",	stress_rand_data_fixed },
 	{ "latin",	stress_rand_data_latin },
+#if defined(HAVE_INT128_T)
+	{ "lehmer",	stress_rand_data_lehmer },
+#endif
 	{ "logmap",	stress_rand_data_logmap },
 	{ "lfsr32",	stress_rand_data_lfsr32 },
 	{ "lrand48",	stress_rand_data_lrand48 },
