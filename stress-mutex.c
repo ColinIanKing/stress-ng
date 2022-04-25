@@ -23,11 +23,20 @@
 #define DEFAULT_MUTEX_PROCS	(2)
 
 static const stress_help_t help[] = {
-	{ NULL,	"mutex N",	"start N workers exercising mutex operations" },
-	{ NULL,	"mutex-ops N",	"stop after N mutex bogo operations" },
-	{ NULL, "mutex-procs N","select the number of concurrent processes" },
+	{ NULL,	"mutex N",		"start N workers exercising mutex operations" },
+	{ NULL,	"mutex-ops N",		"stop after N mutex bogo operations" },
+	{ NULL, "mutex-procs N",	"select the number of concurrent processes" },
+	{ NULL, "mutex-affinity",	"change CPU affinity randomly across locks" },
 	{ NULL,	NULL,		NULL }
 };
+
+static int stress_set_mutex_affinity(const char *opt)
+{
+	bool mutex_affinity = true;
+
+	(void)opt;
+	return stress_set_setting("mutex-affinity", TYPE_ID_BOOL, &mutex_affinity);
+}
 
 static int stress_set_mutex_procs(const char *opt)
 {
@@ -40,6 +49,7 @@ static int stress_set_mutex_procs(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_mutex_affinity,	stress_set_mutex_affinity },
 	{ OPT_mutex_procs,	stress_set_mutex_procs },
 	{ 0,			NULL }
 };
@@ -68,6 +78,7 @@ typedef struct {
 	const stress_args_t *args;
 	int prio_min;
 	int prio_max;
+	bool mutex_affinity;
 	pthread_t pthread;
 	int ret;
 } pthread_info_t;
@@ -82,10 +93,13 @@ static void *mutex_exercise(void *arg)
 	const stress_args_t *args = pthread_info->args;
 	static void *nowt = NULL;
 	int max = (pthread_info->prio_max * 7) / 8;
+	uint32_t cpus = (uint32_t)stress_get_processors_configured();
 #if defined(HAVE_PTHREAD_MUTEXATTR)
 	int mutexattr_ret;
 	pthread_mutexattr_t mutexattr;
 #endif
+	if (!cpus)
+		cpus = 1;
 
 	stress_mwc_reseed();
 
@@ -106,7 +120,6 @@ static void *mutex_exercise(void *arg)
 
 	do {
 		struct sched_param param;
-
 		param.sched_priority = max > 0 ? (int)stress_mwc32() % max : max;
 		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
 		if (pthread_mutex_lock(&mutex) < 0) {
@@ -116,7 +129,17 @@ static void *mutex_exercise(void *arg)
 		}
 		param.sched_priority = pthread_info->prio_min;
 		(void)pthread_setschedparam(pthread_info->pthread, SCHED_FIFO, &param);
+#if defined(HAVE_PTHREAD_SETAFFINITY_NP)
+		if (pthread_info->mutex_affinity) {
+			cpu_set_t cpuset;
+			const uint32_t cpu = stress_mwc32() % cpus;
 
+			CPU_ZERO(&cpuset);
+			CPU_SET(cpu, &cpuset);
+
+			(void)pthread_setaffinity_np(pthread_info->pthread, sizeof(cpuset), &cpuset);
+		}
+#endif
 		inc_counter(args);
 		shim_sched_yield();
 
@@ -148,7 +171,9 @@ static int stress_mutex(const stress_args_t *args)
 	int prio_min, prio_max;
 	pthread_info_t pthread_info[DEFAULT_MUTEX_PROCS];
 	uint64_t mutex_procs = DEFAULT_MUTEX_PROCS;
+	bool mutex_affinity = false;
 
+	(void)stress_get_setting("mutex-affinity", &mutex_affinity);
 	if (!stress_get_setting("mutex-procs", &mutex_procs)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
 			mutex_procs = MAX_MUTEX_PROCS;
@@ -173,6 +198,7 @@ static int stress_mutex(const stress_args_t *args)
 		pthread_info[i].args = args;
 		pthread_info[i].prio_min = prio_min;
 		pthread_info[i].prio_max = prio_max;
+		pthread_info[i].mutex_affinity = mutex_affinity;
 		pthread_info[i].ret = pthread_create(&pthread_info[i].pthread, NULL,
                                 mutex_exercise, (void *)&pthread_info[i]);
 		if ((pthread_info[i].ret) && (pthread_info[i].ret != EAGAIN)) {

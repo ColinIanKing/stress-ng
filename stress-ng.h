@@ -1958,6 +1958,7 @@ typedef enum {
 
 	OPT_mutex,
 	OPT_mutex_ops,
+	OPT_mutex_affinity,
 	OPT_mutex_procs,
 
 	OPT_nanosleep,

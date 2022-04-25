@@ -641,6 +641,7 @@ static const struct option long_options[] = {
 	{ "munmap-ops",		1,	0,	OPT_munmap_ops },
 	{ "mutex",		1,	0,	OPT_mutex },
 	{ "mutex-ops",		1,	0,	OPT_mutex_ops },
+	{ "mutex-affinity",	0,	0,	OPT_mutex_affinity },
 	{ "mutex-procs",	1,	0,	OPT_mutex_procs },
 	{ "nanosleep",		1,	0,	OPT_nanosleep },
 	{ "nanosleep-ops",	1,	0,	OPT_nanosleep_ops },

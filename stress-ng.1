@@ -3144,6 +3144,9 @@ unlocking operation to exercise random inverted priority scheduling.
 .B \-\-mutex\-ops N
 stop after N bogo mutex lock/unlock operations.
 .TP
+.B \-\-mutex\-affinity
+enable random CPU affinity changing between mutex lock and unlock.
+.TP
 .B \-\-mutex\-procs N
 By default 2 threads are used for locking/unlocking on a single mutex. This option
 allows the default to be changed to 2 to 64 concurrent threads.
