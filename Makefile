@@ -43,15 +43,20 @@ CFLAGS += -DCHECK_UNEXPECTED
 endif
 
 #
-# Verbosity
+# Disable any user defined PREFV setting
 #
-override undefine V
+ifneq ($(PRE_V),)
+override undefine PRE_V
+endif
+#
+# Verbosity prefixes
+#
 ifeq ($(VERBOSE),)
-V=@
-Q=@
+PRE_V=@
+PRE_Q=@
 else
-V=
-Q=@#
+PRE_V=
+PRE_Q=@#
 endif
 
 GREP = grep
@@ -425,13 +430,13 @@ OBJS += $(CONFIG_OBJS)
 	 core-target-clones.h core-pragma.h core-perf.h core-thermal-zone.h \
 	 core-smart.h core-thrash.h core-net.h core-ftrace.h core-cache.h \
 	 core-nt-store.h core-arch.h core-cpu.h core-vecmath.h
-	$(Q)echo "CC $<"
-	$(V)$(CC) $(CFLAGS) -c -o $@ $<
+	$(PRE_Q)echo "CC $<"
+	$(PRE_V)$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-ng: $(OBJS)
-	$(Q)echo "LD $@"
-	$(V)$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -o $@
-	$(V)sync
+	$(PRE_Q)echo "LD $@"
+	$(PRE_V)$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -o $@
+	$(PRE_V)sync
 
 config.h:
 	$(MAKE) CC=$(CC) STATIC=$(STATIC) -f Makefile.config
@@ -444,25 +449,25 @@ makeconfig: config.h
 #  parser output
 #
 apparmor-data.o: usr.bin.pulseaudio.eg
-	$(V)$(APPARMOR_PARSER) -Q usr.bin.pulseaudio.eg  -o apparmor-data.bin
-	$(V)echo "#include <stddef.h>" > apparmor-data.c
-	$(V)echo "char g_apparmor_data[]= { " >> apparmor-data.c
-	$(V)od -tx1 -An -v < apparmor-data.bin | \
+	$(PRE_V)$(APPARMOR_PARSER) -Q usr.bin.pulseaudio.eg  -o apparmor-data.bin
+	$(PRE_V)echo "#include <stddef.h>" > apparmor-data.c
+	$(PRE_V)echo "char g_apparmor_data[]= { " >> apparmor-data.c
+	$(PRE_V)od -tx1 -An -v < apparmor-data.bin | \
 		sed 's/[0-9a-f][0-9a-f]/0x&,/g' | \
 		sed '$$ s/.$$//' >> apparmor-data.c
-	$(V)echo "};" >> apparmor-data.c
-	$(V)echo "const size_t g_apparmor_data_len = sizeof(g_apparmor_data);" >> apparmor-data.c
-	$(Q)echo "CC $<"
-	$(V)$(CC) -c apparmor-data.c -o apparmor-data.o
-	$(V)rm -rf apparmor-data.c apparmor-data.bin
+	$(PRE_V)echo "};" >> apparmor-data.c
+	$(PRE_V)echo "const size_t g_apparmor_data_len = sizeof(g_apparmor_data);" >> apparmor-data.c
+	$(PRE_Q)echo "CC $<"
+	$(PRE_V)$(CC) -c apparmor-data.c -o apparmor-data.o
+	$(PRE_V)rm -rf apparmor-data.c apparmor-data.bin
 
 #
 #  extract the PER_* personality enums
 #
 personality.h:
-	$(V)$(CPP) $(CONFIG_CFLAGS) core-personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
+	$(PRE_V)$(CPP) $(CONFIG_CFLAGS) core-personality.c | $(GREP) -e "PER_[A-Z0-9]* =.*," | cut -d "=" -f 1 \
 	| sed "s/.$$/,/" > personality.h
-	$(Q)echo "MK personality.h"
+	$(PRE_Q)echo "MK personality.h"
 
 stress-personality.c: personality.h
 
@@ -471,28 +476,28 @@ stress-personality.c: personality.h
 #  so we can check if these enums exist
 #
 io-uring.h:
-	$(V)$(CPP) $(CFLAGS) core-io-uring.c  | $(GREP) IORING_OP | sed 's/,//' | \
+	$(PRE_V)$(CPP) $(CFLAGS) core-io-uring.c  | $(GREP) IORING_OP | sed 's/,//' | \
 	sed 's/IORING_OP_/#define HAVE_IORING_OP_/' > io-uring.h
-	$(Q)echo "MK io-uring.h"
+	$(PRE_Q)echo "MK io-uring.h"
 
 stress-io-uring.c: io-uring.h
 
 core-perf.o: core-perf.c core-perf-event.c
-	$(V)$(CC) $(CFLAGS) -E core-perf-event.c | $(GREP) "PERF_COUNT" | \
+	$(PRE_V)$(CC) $(CFLAGS) -E core-perf-event.c | $(GREP) "PERF_COUNT" | \
 	sed 's/,/ /' | sed s/'^ *//' | \
 	awk {'print "#define _SNG_" $$1 " (1)"'} > core-perf-event.h
-	$(Q)echo CC $<
-	$(V)$(CC) $(CFLAGS) -c -o $@ $<
+	$(PRE_Q)echo CC $<
+	$(PRE_V)$(CC) $(CFLAGS) -c -o $@ $<
 
 stress-vecmath.o: stress-vecmath.c
-	$(Q)echo CC $<
-	$(V)$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
+	$(PRE_Q)echo CC $<
+	$(PRE_V)$(CC) $(CFLAGS) -fno-builtin -c -o $@ $<
 
 #
 #  define STRESS_GIT_COMMIT_ID
 #
 git-commit-id.h:
-	$(Q)echo "MK $@"
+	$(PRE_Q)echo "MK $@"
 	@if [ -e .git/HEAD -a -e .git/index ]; then \
 		echo "#define STRESS_GIT_COMMIT_ID \"$(shell git rev-parse HEAD)\"" > $@ ; \
 	else \
@@ -502,7 +507,7 @@ git-commit-id.h:
 $(OBJS): stress-ng.h Makefile
 
 stress-ng.1.gz: stress-ng.1
-	$(V)gzip -n -c $< > $@
+	$(PRE_V)gzip -n -c $< > $@
 
 .PHONY: dist
 dist:
@@ -530,17 +535,17 @@ pdf:
 
 .PHONY: clean
 clean:
-	$(V)rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
-	$(V)rm -f stress-ng-$(VERSION).tar.xz
-	$(V)rm -f io-uring.h
-	$(V)rm -f git-commit-id.h
-	$(V)rm -f perf-event.h
-	$(V)rm -f personality.h
-	$(V)rm -f apparmor-data.bin
-	$(V)rm -f *.o
-	$(V)rm -f config config.h
-	$(V)rm -rf configs
-	$(V)rm -f tags
+	$(PRE_V)rm -f stress-ng $(OBJS) stress-ng.1.gz stress-ng.pdf
+	$(PRE_V)rm -f stress-ng-$(VERSION).tar.xz
+	$(PRE_V)rm -f io-uring.h
+	$(PRE_V)rm -f git-commit-id.h
+	$(PRE_V)rm -f perf-event.h
+	$(PRE_V)rm -f personality.h
+	$(PRE_V)rm -f apparmor-data.bin
+	$(PRE_V)rm -f *.o
+	$(PRE_V)rm -f config config.h
+	$(PRE_V)rm -rf configs
+	$(PRE_V)rm -f tags
 
 .PHONY: fast-test-all
 fast-test-all: all
