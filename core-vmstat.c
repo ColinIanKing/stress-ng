@@ -708,6 +708,15 @@ void stress_vmstat_start(void)
 		stress_get_iostat(iostat_name, &iostat);
 #endif
 
+#if defined(SCHED_DEADLINE)
+	{
+		int ret;
+
+		ret = stress_set_sched(getpid(), SCHED_DEADLINE, 99, true);
+		(void)ret;
+	}
+#endif
+
 	while (keep_stressing_flag()) {
 		int32_t sleep_delay = INT_MAX;
 		long clk_tick;
