@@ -132,7 +132,7 @@ again:
 		while (!*ptr && keep_stressing(args))
 			shim_usleep(10000);
 
-		do {
+		while (keep_stressing(args)) {
 			ssize_t sret;
 
 			sret = sendto(fd, &pkt, sizeof(pkt), 0,
@@ -150,7 +150,7 @@ again:
 				(void)ret;
 			}
 #endif
-		} while (keep_stressing(args));
+		}
 		(void)close(fd);
 
 		(void)kill(getppid(), SIGALRM);
@@ -176,7 +176,7 @@ again:
 
 		(void)memset(&addr, 0, sizeof(addr));
 
-		do {
+		while (keep_stressing(args)) {
 			stress_raw_packet_t pkt;
 			socklen_t len = sizeof(addr);
 			ssize_t n;
@@ -203,7 +203,7 @@ again:
 			}
 #endif
 			inc_counter(args);
-		} while (keep_stressing(args));
+		}
 
 		(void)close(fd);
 die:
