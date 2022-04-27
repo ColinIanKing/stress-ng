@@ -99,15 +99,14 @@ static int stress_set_jpeg_image(const char *opt)
 	size_t i;
 
 	for (i = 0; i < SIZEOF_ARRAY(jpeg_image_types); i++) {
-		if (strcmp(opt, jpeg_image_types[i].name) == 0) {
+		if (strcmp(opt, jpeg_image_types[i].name) == 0)
 			return stress_set_setting("jpeg-image", TYPE_ID_INT, &jpeg_image_types[i].type);
-		}
 	}
 	(void)fprintf(stderr, "jpeg-image must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(jpeg_image_types); i++) {
-                (void)fprintf(stderr, " %s", jpeg_image_types[i].name);
-        }
-        (void)fprintf(stderr, "\n");
+	for (i = 0; i < SIZEOF_ARRAY(jpeg_image_types); i++)
+		(void)fprintf(stderr, " %s", jpeg_image_types[i].name);
+
+	(void)fprintf(stderr, "\n");
 
 	return -1;
 }
