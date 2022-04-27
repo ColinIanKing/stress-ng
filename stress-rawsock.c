@@ -67,6 +67,15 @@ static int stress_rawsock(const stress_args_t *args)
 {
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
+	bool *ptr;
+
+	ptr = (bool *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
+	if (ptr == MAP_FAILED) {
+		pr_err_skip("%s: failed to allocate shared page, skipping stressor, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
@@ -117,6 +126,10 @@ again:
 		pkt.iph.saddr = addr.sin_addr.s_addr;
 		pkt.iph.daddr = addr.sin_addr.s_addr;
 
+		/* Wait for server to start */
+		while (!*ptr && keep_stressing(args))
+			shim_usleep(10000);
+
 		do {
 			ssize_t sret;
 
@@ -139,6 +152,7 @@ again:
 		(void)close(fd);
 
 		(void)kill(getppid(), SIGALRM);
+		(void)munmap((void *)ptr, args->page_size);
 		_exit(EXIT_SUCCESS);
 	} else {
 		/* Parent, server */
@@ -159,6 +173,7 @@ again:
 		}
 
 		(void)memset(&addr, 0, sizeof(addr));
+		*ptr = true;
 
 		do {
 			stress_raw_packet_t pkt;
@@ -197,6 +212,7 @@ die:
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	(void)munmap((void *)ptr, args->page_size);
 
 	return rc;
 }
