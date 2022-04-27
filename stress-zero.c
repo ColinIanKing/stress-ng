@@ -168,8 +168,6 @@ static int stress_zero(const stress_args_t *args)
 			(void)munmap(ptr, page_size);
 		}
 #endif
-
-
 		/*
 		 *  lseek on /dev/zero just because we can
 		 */
