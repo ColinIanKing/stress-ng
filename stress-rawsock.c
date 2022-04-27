@@ -77,6 +77,8 @@ static int stress_rawsock(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
+	/* Delay start to stop herd of socket connections */
+	(void)shim_usleep(10000 * args->instance);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
@@ -173,13 +175,13 @@ again:
 		}
 
 		(void)memset(&addr, 0, sizeof(addr));
-		*ptr = true;
 
 		do {
 			stress_raw_packet_t pkt;
 			socklen_t len = sizeof(addr);
 			ssize_t n;
 
+			*ptr = true;
 			n = recvfrom(fd, &pkt, sizeof(pkt), 0,
 					(struct sockaddr *)&addr, &len);
 			if (UNLIKELY(n == 0)) {
