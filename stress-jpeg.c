@@ -197,9 +197,9 @@ static void OPTIMIZE3 stress_rgb_brown(
 	int32_t i, size = x_max * y_max * 3;
 	uint8_t *ptr = (uint8_t *)rgb;
 	const uint32_t val = stress_mwc32();
-	register uint8_t r = (val >> 24) && 0xff;
-	register uint8_t g = (val >> 16) && 0xff;
-	register uint8_t b = (val >> 8) && 0xff;
+	register uint8_t r = (val >> 24) & 0xff;
+	register uint8_t g = (val >> 16) & 0xff;
+	register uint8_t b = (val >> 8) & 0xff;
 
 	for (i = 0; i < size; i++) {
 		const uint8_t v = stress_mwc8();
