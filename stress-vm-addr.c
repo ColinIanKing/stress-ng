@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-bitops.h"
 #include "core-target-clones.h"
 
 #define MIN_VM_ADDR_BYTES	(8 * MB)
@@ -55,20 +56,6 @@ static bool HOT OPTIMIZE3 keep_stressing_vm(const stress_args_t *args)
 {
 	return (LIKELY(keep_stressing_flag()) &&
 	        LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
-}
-
-/*
- *  reverse64
- *	generic fast-ish 64 bit reverse
- */
-static inline uint64_t reverse64(register uint64_t x)
-{
-	x = (((x & 0xaaaaaaaaaaaaaaaaULL) >> 1)  | ((x & 0x5555555555555555ULL) << 1));
-	x = (((x & 0xccccccccccccccccULL) >> 2)  | ((x & 0x3333333333333333ULL) << 2));
-	x = (((x & 0xf0f0f0f0f0f0f0f0ULL) >> 4)  | ((x & 0x0f0f0f0f0f0f0f0fULL) << 4));
-	x = (((x & 0xff00ff00ff00ff00ULL) >> 8)  | ((x & 0x00ff00ff00ff00ffULL) << 8));
-	x = (((x & 0xffff0000ffff0000ULL) >> 16) | ((x & 0x0000ffff0000ffffULL) << 16));
-	return ((x >> 32) | (x << 32));
 }
 
 /*
@@ -179,11 +166,11 @@ static size_t TARGET_CLONES stress_vm_addr_rev(
 		;
 
 	for (n = 0; n < sz; n++) {
-		size_t i = reverse64(n << shift) & mask;
+		size_t i = stress_reverse64(n << shift) & mask;
 		*(buf + i) = rnd;
 	}
 	for (n = 0; n < sz; n++) {
-		size_t i = reverse64(n << shift) & mask;
+		size_t i = stress_reverse64(n << shift) & mask;
 		if (*(buf + i) != rnd)
 			errs++;
 	}
@@ -208,11 +195,11 @@ static size_t TARGET_CLONES stress_vm_addr_revinv(
 		;
 
 	for (n = 0; n < sz; n++) {
-		size_t i = (reverse64(n << shift) ^ mask) & mask;
+		size_t i = (stress_reverse64(n << shift) ^ mask) & mask;
 		*(buf + i) = rnd;
 	}
 	for (n = 0; n < sz; n++) {
-		size_t i = (reverse64(n << shift) ^ mask) & mask;
+		size_t i = (stress_reverse64(n << shift) ^ mask) & mask;
 		if (*(buf + i) != rnd)
 			errs++;
 	}
