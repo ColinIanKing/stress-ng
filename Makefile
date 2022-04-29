@@ -429,7 +429,7 @@ OBJS += $(CONFIG_OBJS)
 %.o: %.c stress-ng.h config.h git-commit-id.h core-capabilities.h core-put.h \
 	 core-target-clones.h core-pragma.h core-perf.h core-thermal-zone.h \
 	 core-smart.h core-thrash.h core-net.h core-ftrace.h core-cache.h \
-	 core-nt-store.h core-arch.h core-cpu.h core-vecmath.h core-builtin.h 
+	 core-nt-store.h core-arch.h core-cpu.h core-vecmath.h core-builtin.h
 	$(PRE_Q)echo "CC $<"
 	$(PRE_V)$(CC) $(CFLAGS) -c -o $@ $<
 
