@@ -57,4 +57,15 @@
 #else
 #define NEED_CLANG(major, minor, patchlevel)	(0)
 #endif
+
+#if defined(__ICC) &&			\
+    defined(__INTEL_COMPILER) && 	\
+    defined(__INTEL_COMPILER_UPDATE)
+#define NEED_ICC(major, minor, patchlevel)		\
+	STRESS_VERSION_NUMBER(major, minor, patchlevel) <=	\
+	STRESS_VERSION_NUMBER(__INTEL_COMPILER, __INTEL_COMPILER_UPDATE, 0)
+#else
+#define NEED_ICC(major, minor, patchlevel)	(0)
+#endif
+
 #endif

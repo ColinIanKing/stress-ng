@@ -644,7 +644,8 @@ typedef struct {
 #endif
 
 #if ((defined(__GNUC__) && NEED_GNUC(3, 3, 0)) ||	\
-     (defined(__clang__) && NEED_CLANG(3, 0, 0))) &&	\
+     (defined(__clang__) && NEED_CLANG(3, 0, 0)) ||	\
+     (defined(__ICC) && NEED_ICC(2021, 0, 0))) &&	\
     !defined(__PCC__)
 #define ALIGNED(a)	__attribute__((aligned(a)))
 #else
@@ -652,22 +653,10 @@ typedef struct {
 #endif
 
 /* Force alignment to nearest 128 bytes */
-#if ((defined(__GNUC__) && NEED_GNUC(3, 3, 0)) ||	\
-     (defined(__clang__) && NEED_CLANG(3, 0, 0))) &&	\
-    defined(HAVE_ALIGNED_128)
 #define ALIGN128	ALIGNED(128)
-#else
-#define ALIGN128
-#endif
 
 /* Force alignment to nearest 64 bytes */
-#if ((defined(__GNUC__) && NEED_GNUC(3, 3, 0)) ||	\
-     (defined(__clang__) && NEED_CLANG(3, 0, 0))) &&	\
-    defined(HAVE_ALIGNED_64)
 #define ALIGN64		ALIGNED(64)
-#else
-#define ALIGN64
-#endif
 
 #if (defined(__GNUC__) && NEED_GNUC(4, 6, 0)) ||	\
     (defined(__clang__) && NEED_CLANG(3, 0, 0))
@@ -676,12 +665,7 @@ typedef struct {
 #define SECTION(s)
 #endif
 
-/* Choose cacheline alignment */
-#if defined(ALIGN128)
-#define ALIGN_CACHELINE ALIGN128
-#else
 #define ALIGN_CACHELINE ALIGN64
-#endif
 
 /* GCC hot attribute */
 #if (defined(__GNUC__) && NEED_GNUC(4, 6, 0)) ||	\
