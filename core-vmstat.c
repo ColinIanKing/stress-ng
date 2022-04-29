@@ -107,7 +107,10 @@ int stress_set_iostat(const char *const opt)
  */
 char *stress_find_mount_dev(const char *name)
 {
-#if defined(__linux__)
+#if defined(__linux__) && 	\
+    defined(HAVE_GETMNTENT) &&	\
+    defined(HAVE_ENDMNTENT) &&	\
+    defined(HAVE_SETMNTENT)
 	static char dev_path[PATH_MAX];
 	struct stat statbuf;
 	dev_t dev;
