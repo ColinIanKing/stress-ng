@@ -3027,7 +3027,8 @@ start N workers that perform fixed address allocations from the top virtual
 address down to 128K.  The allocated sizes are from 1 page to 8 pages and
 various random mmap flags are used MAP_SHARED/MAP_PRIVATE, MAP_LOCKED,
 MAP_NORESERVE, MAP_POPULATE. If successfully map'd then the allocation
-is remap'd to an address that is several pages higher in memory. Mappings
+is remap'd first to a large range of addresses based on a random start
+and finally an address that is several pages higher in memory. Mappings
 and remappings are madvised with random madvise options to further exercise
 the mappings.
 .TP
