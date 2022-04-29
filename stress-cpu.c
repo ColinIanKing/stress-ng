@@ -1562,7 +1562,7 @@ static void HOT stress_cpu_explog(const char *name)
 	(void)name;
 
 	for (i = 1; LIKELY(i < 100000); i++)
-		n = exp(log(n) / 1.00002);
+		n = shim_exp(shim_log(n) / 1.00002);
 }
 
 /*
