@@ -321,6 +321,11 @@
 #define shim_rint(x)	rint(x)
 #endif
 
+#if defined(HAVE_BUILTIN_ROUNDL)
+#define shim_roundl(x)	__builtin_roundl(x)
+#else
+#define shim_roundl(x)	roundl(x)
+#endif
 
 /*
  *  the CPU stress test has different classes of cpu stressor
@@ -2144,7 +2149,7 @@ static inline long double HOT OPTIMIZE3 factorial(int n)
 	if (n < (int)SIZEOF_ARRAY(factorials))
 		return factorials[n];
 
-	return roundl(shim_expl(shim_lgammal((long double)(n + 1))));
+	return shim_roundl(shim_expl(shim_lgammal((long double)(n + 1))));
 }
 
 /*
@@ -2958,7 +2963,7 @@ static void stress_cpu_factorial(const char *name)
 
 	for (n = 1; n < 150; n++) {
 		long double np1 = (long double)(n + 1);
-		long double fact = roundl(shim_expl(shim_lgammal(np1)));
+		long double fact = shim_roundl(shim_expl(shim_lgammal(np1)));
 		long double dn;
 
 		f *= (long double)n;
