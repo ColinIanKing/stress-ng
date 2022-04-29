@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-builtin.h"
 
 #if defined(HAVE_LIBJPEG_H)
 #include <jpeglib.h>
@@ -128,14 +129,14 @@ static inline double OPTIMIZE3 plasma(const double x, const double y, const doub
 	double cx, cy;
 	double value;
 
-	value = sin((time - x) * tau);
-	value += cos((time + y) * tau);
-	value += sin((time + x - y) * tau);
-	value += sin((time + x + y) * tau);
+	value = shim_sin((time - x) * tau);
+	value += shim_cos((time + y) * tau);
+	value += shim_sin((time + x - y) * tau);
+	value += shim_sin((time + x + y) * tau);
 
-	cx = x - 0.5 + sin(time * tau) / 3.0;
-	cy = y - 0.5 + cos(time * tau) / 3.0;
-	value += sin(sqrt(128.0 * (cx * cx + cy * cy)));
+	cx = x - 0.5 + shim_sin(time * tau) / 3.0;
+	cy = y - 0.5 + shim_cos(time * tau) / 3.0;
+	value += shim_sin(shim_sqrt(128.0 * (cx * cx + cy * cy)));
 
 	return value;
 }
