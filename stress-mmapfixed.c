@@ -98,6 +98,7 @@ static bool stress_mmapfixed_is_mapped(
 static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
+	const uintptr_t page_mask = ~((uintptr_t)(page_size - 1));
 	uintptr_t addr = MMAP_TOP;
 	int ret;
 
@@ -150,8 +151,15 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
     defined(MREMAP_MAYMOVE)
 		{
 			uint8_t *newbuf;
+			uintptr_t mask = ~(uintptr_t)0;
 			const uintptr_t newaddr = addr ^
 				((page_size << 3) | (page_size << 4));
+#if UINTPTR_MAX == MAX_32
+			const uintptr_t rndaddr_base = (uintptr_t)stress_mwc32() & page_mask;
+#else
+			const uintptr_t rndaddr_base = (uintptr_t)stress_mwc64() & page_mask;
+#endif
+			uintptr_t last_rndaddr = 0;
 
 			if (stress_mmapfixed_is_mapped((void *)newaddr, sz, page_size))
 				goto unmap;
@@ -162,6 +170,27 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 				buf = newbuf;
 
 			(void)stress_madvise_random(buf, sz);
+
+			for (mask = ~(uintptr_t)0; mask > page_size; mask >>= 1) {
+				uintptr_t rndaddr = rndaddr_base & mask;
+
+				if (rndaddr == last_rndaddr)
+					continue;
+				last_rndaddr = rndaddr;
+
+
+				if (rndaddr <= page_size)
+					break;
+				if (stress_mmapfixed_is_mapped((void *)rndaddr, sz, page_size))
+					continue;
+				newbuf = mremap(buf, sz, sz,
+						MREMAP_FIXED | MREMAP_MAYMOVE,
+						(void *)rndaddr);
+				if (newbuf && (newbuf != MAP_FAILED)) {
+					buf = newbuf;
+					(void)stress_madvise_random(buf, sz);
+				}
+			}
 		}
 unmap:
 #endif
