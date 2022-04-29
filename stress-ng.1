@@ -2221,28 +2221,32 @@ stop after N jpeg compression operations.
 .B \-\-jpeg\-height H
 use a RGB sample image height of H pixels. The default is 512 pixels.
 .TP
-.B \-\-jpeg\-image plasma | noise | gradient | xstripes | flat
+.B \-\-jpeg\-image [ brown | flat | gradient | noise | plasma | xstripes ]
 select the source image type to be compressed. Available image types are:
 .TS
 expand;
 lB2 lB lB
 l l s.
 Type	Description
-plasma	T{
-plasma field with smooth colour transitions and hard boundary edges.
+brown	T{
+brown noise, red and green values vary by a 3 bit value, blue values
+vary by a 2 bit value.
 T}
-noise	T{
-random white noise red, green, blue pixels.
+flat	T{
+a single random colour for the entire image.
 T}
 gradient	T{
 linear gradient of the red, green and blue components across the width
 and height of the image.
 T}
+noise	T{
+random white noise for red, green, blue values.
+T}
+plasma	T{
+plasma field with smooth colour transitions and hard boundary edges.
+T}
 xstripes	T{
 a random colour for each horizontal line.
-T}
-flat	T{
-a single random colour for the entire image.
 T}
 .TE
 .TP

@@ -28,6 +28,7 @@
 #define JPEG_IMAGE_GRADIENT	(0x02)
 #define JPEG_IMAGE_XSTRIPES	(0x03)
 #define JPEG_IMAGE_FLAT		(0x04)
+#define JPEG_IMAGE_BROWN	(0x05)
 
 typedef struct {
 	const char *name;
@@ -38,18 +39,19 @@ static const stress_help_t help[] = {
 	{ NULL,	"jpeg N",		"start N workers that burn cycles with no-ops" },
 	{ NULL,	"jpeg-ops N",		"stop after N jpeg bogo no-op operations" },
 	{ NULL,	"jpeg-height N",	"image height in pixels "},
-	{ NULL,	"jpeg-image type",	"image type, one of plasma, noise, gradient, xstripes or flat" },
+	{ NULL,	"jpeg-image type",	"image type: one of brown, flat, gradient, noise, plasma or xstripes" },
 	{ NULL,	"jpeg-width N",		"image width  in pixels "},
 	{ NULL,	"jpeg-quality Q",	"compression quality 1 (low) .. 100 (high)" },
 	{ NULL,	NULL,			NULL }
 };
 
 static const jpeg_image_type_t jpeg_image_types[] = {
-	{ "plasma",	JPEG_IMAGE_PLASMA },
-	{ "noise",	JPEG_IMAGE_NOISE },
-	{ "gradient",	JPEG_IMAGE_GRADIENT },
-	{ "xstripes",	JPEG_IMAGE_XSTRIPES },
+	{ "brown",	JPEG_IMAGE_BROWN },
 	{ "flat",	JPEG_IMAGE_FLAT },
+	{ "gradient",	JPEG_IMAGE_GRADIENT },
+	{ "noise",	JPEG_IMAGE_NOISE },
+	{ "plasma",	JPEG_IMAGE_PLASMA },
+	{ "xstripes",	JPEG_IMAGE_XSTRIPES },
 };
 
 /*
@@ -186,6 +188,32 @@ static void OPTIMIZE3 stress_rgb_noise(
 		*ptr8++ = stress_mwc8();
 	}
 }
+
+static void OPTIMIZE3 stress_rgb_brown(
+	uint8_t		*rgb,
+	const int32_t	x_max,
+	const int32_t	y_max)
+{
+	int32_t i, size = x_max * y_max * 3;
+	uint8_t *ptr = (uint8_t *)rgb;
+	const uint32_t val = stress_mwc32();
+	register uint8_t r = (val >> 24) && 0xff;
+	register uint8_t g = (val >> 16) && 0xff;
+	register uint8_t b = (val >> 8) && 0xff;
+
+	for (i = 0; i < size; i++) {
+		const uint8_t v = stress_mwc8();
+
+		*ptr++ = r;
+		*ptr++ = g;
+		*ptr++ = b;
+
+		r += (v & 7) - 3;
+		g += ((v >> 3) & 7) - 3;
+		b += ((v >> 6) & 3) - 1;
+	}
+}
+
 
 static void OPTIMIZE3 stress_rgb_gradient(
 	uint8_t		*rgb,
@@ -354,6 +382,9 @@ static int stress_jpeg(const stress_args_t *args)
 		break;
 	case JPEG_IMAGE_FLAT:
 		stress_rgb_flat(rgb, x_max, y_max);
+		break;
+	case JPEG_IMAGE_BROWN:
+		stress_rgb_brown(rgb, x_max, y_max);
 		break;
 	}
 
