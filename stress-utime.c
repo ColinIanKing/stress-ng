@@ -41,6 +41,15 @@ static int stress_set_utime_fsync(const char *opt)
 	return stress_set_setting("utime-fsync", TYPE_ID_BOOL, &utime_fsync);
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_utime_fsync,	stress_set_utime_fsync },
+	{ 0,			NULL }
+};
+
+#if defined(HAVE_UTIME_H)
+
+#if defined(HAVE_UTIME) &&	\
+    defined(HAVE_UTIMBUF)
 static int shim_utime(const char *filename, const struct utimbuf *times)
 {
 #if defined(__NR_utime)
@@ -49,6 +58,7 @@ static int shim_utime(const char *filename, const struct utimbuf *times)
 	return utime(filename, times);
 #endif
 }
+#endif
 
 /*
  *  stress_utime()
@@ -246,7 +256,9 @@ STRESS_PRAGMA_POP
 		UNEXPECTED
 #endif
 
-#if defined(HAVE_UTIME_H)
+#if defined(HAVE_UTIME_H) &&	\
+    defined(HAVE_UTIME) &&	\
+    defined(HAVE_UTIMBUF)
 		{
 			struct utimbuf utbuf;
 			struct timeval tv;
@@ -315,11 +327,6 @@ STRESS_PRAGMA_POP
 	return EXIT_SUCCESS;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_utime_fsync,	stress_set_utime_fsync },
-	{ 0,			NULL }
-};
-
 stressor_info_t stress_utime_info = {
 	.stressor = stress_utime,
 	.class = CLASS_FILESYSTEM | CLASS_OS,
@@ -327,3 +334,15 @@ stressor_info_t stress_utime_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
+
+#else
+
+stressor_info_t stress_utime_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
+	.help = help
+};
+
+#endif
