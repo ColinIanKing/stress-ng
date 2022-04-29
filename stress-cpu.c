@@ -157,6 +157,12 @@
 #endif
 #endif
 
+#if defined(HAVE_BUILTIN_CEXP)
+#define shim_cexp(x)	__builtin_cexp(x)
+#else
+#define shim_cexp(x)	cexp(x)
+#endif
+
 #if defined(HAVE_BUILTIN_COSF)
 #define shim_cosf(x)	__builtin_cosf(x)
 #else
@@ -835,7 +841,7 @@ static void HOT OPTIMIZE3 fft_partial(
 			const double complex negI = -(double complex)I;
 			double complex v = tmp[i];
 			double complex t =
-				cexp((negI * (double)PI * (double)i) /
+				shim_cexp((negI * (double)PI * (double)i) /
 				     (double)n) * tmp[i + m];
 			data[i / 2] = v + t;
 			data[(i + n) / 2] = v - t;
