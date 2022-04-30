@@ -2449,6 +2449,122 @@ abort:
 	return bit_errors;
 }
 
+/*
+ *  stress_vm_fwdrev()
+ *	write forwards even bytes and reverse odd bytes
+ */
+static size_t TARGET_CLONES stress_vm_fwdrev(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	const stress_args_t *args,
+	const uint64_t max_ops)
+{
+	size_t bit_errors = 0;
+	uint8_t *fwdptr, *revptr;
+	uint64_t c = get_counter(args);
+	uint32_t rnd = stress_mwc64(), val;
+
+	(void)sz;
+
+	for (val = rnd, fwdptr = (uint8_t *)buf, revptr = (uint8_t *)buf_end; fwdptr < (uint8_t *)buf_end; ) {
+		*(fwdptr + 0) = (rnd >> 0x00) & 0xff;
+		shim_mb();
+		*(revptr - 1) = (rnd >> 0x08) & 0xff;
+		shim_mb();
+		*(fwdptr + 2) = (rnd >> 0x10) & 0xff;
+		shim_mb();
+		*(revptr - 3) = (rnd >> 0x18) & 0xff;
+		shim_mb();
+		val++;
+		*(fwdptr + 4) = (rnd >> 0x00) & 0xff;
+		shim_mb();
+		*(revptr - 5) = (rnd >> 0x08) & 0xff;
+		shim_mb();
+		*(fwdptr + 6) = (rnd >> 0x10) & 0xff;
+		shim_mb();
+		*(revptr - 7) = (rnd >> 0x18) & 0xff;
+		shim_mb();
+		val++;
+		*(fwdptr + 8) = (rnd >> 0x00) & 0xff;
+		shim_mb();
+		*(revptr - 9) = (rnd >> 0x08) & 0xff;
+		shim_mb();
+		*(fwdptr + 10) = (rnd >> 0x10) & 0xff;
+		shim_mb();
+		*(revptr - 11) = (rnd >> 0x18) & 0xff;
+		shim_mb();
+		val++;
+		*(fwdptr + 12) = (rnd >> 0x00) & 0xff;
+		shim_mb();
+		*(revptr - 13) = (rnd >> 0x08) & 0xff;
+		shim_mb();
+		*(fwdptr + 14) = (rnd >> 0x10) & 0xff;
+		shim_mb();
+		*(revptr - 15) = (rnd >> 0x18) & 0xff;
+		shim_mb();
+		fwdptr += 16;
+		revptr -= 16;
+		val++;
+		c++;
+		if (UNLIKELY(max_ops && c >= max_ops))
+			goto abort;
+		if (UNLIKELY(!keep_stressing_flag()))
+			goto abort;
+	}
+
+	for (val = rnd, fwdptr = (uint8_t *)buf, revptr = (uint8_t *)buf_end; fwdptr < (uint8_t *)buf_end; ) {
+		bit_errors += (*(fwdptr + 0) != ((rnd >> 0x00) & 0xff));
+		shim_mb();
+		bit_errors += (*(revptr - 1) != ((rnd >> 0x08) & 0xff));
+		shim_mb();
+		bit_errors += (*(fwdptr + 2) != ((rnd >> 0x10) & 0xff));
+		shim_mb();
+		bit_errors += (*(revptr - 3) != ((rnd >> 0x18) & 0xff));
+		shim_mb();
+		val++;
+		bit_errors += (*(fwdptr + 4) != ((rnd >> 0x00) & 0xff));
+		shim_mb();
+		bit_errors += (*(revptr - 5) != ((rnd >> 0x08) & 0xff));
+		shim_mb();
+		bit_errors += (*(fwdptr + 6) != ((rnd >> 0x10) & 0xff));
+		shim_mb();
+		bit_errors += (*(revptr - 7) != ((rnd >> 0x18) & 0xff));
+		val++;
+		bit_errors += (*(fwdptr + 8) != ((rnd >> 0x00) & 0xff));
+		shim_mb();
+		bit_errors += (*(revptr - 9) != ((rnd >> 0x08) & 0xff));
+		shim_mb();
+		bit_errors += (*(fwdptr + 10) != ((rnd >> 0x10) & 0xff));
+		shim_mb();
+		bit_errors += (*(revptr - 11) != ((rnd >> 0x18) & 0xff));
+		shim_mb();
+		val++;
+		bit_errors += (*(fwdptr + 12) != ((rnd >> 0x00) & 0xff));
+		shim_mb();
+		bit_errors += (*(revptr - 13) != ((rnd >> 0x08) & 0xff));
+		shim_mb();
+		bit_errors += (*(fwdptr + 14) != ((rnd >> 0x10) & 0xff));
+		shim_mb();
+		bit_errors += (*(revptr - 15) != ((rnd >> 0x18) & 0xff));
+		shim_mb();
+		fwdptr += 16;
+		revptr -= 16;
+		val++;
+		c++;
+		if (UNLIKELY(max_ops && c >= max_ops))
+			goto abort;
+		if (UNLIKELY(!keep_stressing_flag()))
+			goto abort;
+	}
+
+	stress_vm_check("walking one (data)", bit_errors);
+abort:
+	set_counter(args, c);
+
+	return bit_errors;
+}
+
 
 /*
  *  stress_vm_all()
@@ -2477,6 +2593,7 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "cache-lines",	stress_vm_cache_lines },
 	{ "cache-stripe",	stress_vm_cache_stripe },
 	{ "flip",		stress_vm_flip },
+	{ "fwdrev",		stress_vm_fwdrev },
 	{ "galpat-0",		stress_vm_galpat_zero },
 	{ "galpat-1",		stress_vm_galpat_one },
 	{ "gray",		stress_vm_gray },

@@ -4847,6 +4847,11 @@ flip	T{
 sequentially work through memory 8 times, each time just one bit in memory
 flipped (inverted). This will effectively invert each byte in 8 passes.
 T}
+fwdrev	T{
+write to even addressed bytes in a forward direction and odd addressed bytes
+in reverse direction. rhe contents are sanity checked once all the addresses
+have been written to.
+T}
 galpat-0	T{
 galloping pattern zeros. This sets all bits to 0 and flips just 1 in 4096 bits
 to 1. It then checks to see if the 1s are pulled down to 0 by their neighbours
