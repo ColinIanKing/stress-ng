@@ -37,7 +37,8 @@ static const stress_help_t help[] = {
 #if defined(SOCK_RAW) &&	\
     defined(IPPROTO_RAW) &&	\
     defined(HAVE_ICMPHDR) &&	\
-    defined(__linux__)
+    defined(__linux__) &&	\
+    defined(HAVE_LIB_PTHREAD)
 
 typedef struct {
 	struct iphdr	iph;
@@ -67,18 +68,7 @@ static int stress_rawsock(const stress_args_t *args)
 {
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
-	bool *ptr;
 
-	ptr = (bool *)mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
-	if (ptr == MAP_FAILED) {
-		pr_err_skip("%s: failed to allocate shared page, skipping stressor, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
-	}
-
-	/* Delay start to stop herd of socket connections */
-	(void)shim_usleep(10000 * args->instance);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
@@ -112,7 +102,7 @@ again:
 
 		(void)memset(&addr, 0, sizeof(addr));
 		addr.sin_family = AF_INET;
-		addr.sin_port = 0;
+		addr.sin_port = 45000;
 		addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
 		(void)memset(&pkt, 0, sizeof(pkt));
@@ -129,8 +119,17 @@ again:
 		pkt.iph.daddr = addr.sin_addr.s_addr;
 
 		/* Wait for server to start */
-		while (!*ptr && keep_stressing(args))
-			shim_usleep(10000);
+		while (keep_stressing(args)) {
+			uint32_t ready;
+
+			shim_pthread_spin_lock(&g_shared->rawsock.lock);
+			ready = g_shared->rawsock.ready;
+			shim_pthread_spin_unlock(&g_shared->rawsock.lock);
+
+			if (ready == args->num_instances)
+				break;
+			shim_usleep(20000);
+		}
 
 		while (keep_stressing(args)) {
 			ssize_t sret;
@@ -146,6 +145,9 @@ again:
 			if ((pkt.data & 0xff) == 0) {
 				int ret, queued;
 
+				if (!keep_stressing(args))
+					break;
+
 				ret = ioctl(fd, SIOCOUTQ, &queued);
 				(void)ret;
 			}
@@ -154,7 +156,6 @@ again:
 		(void)close(fd);
 
 		(void)kill(getppid(), SIGALRM);
-		(void)munmap((void *)ptr, args->page_size);
 		_exit(EXIT_SUCCESS);
 	} else {
 		/* Parent, server */
@@ -167,6 +168,9 @@ again:
 			rc = EXIT_FAILURE;
 			goto die;
 		}
+		if (!keep_stressing(args))
+			goto die;
+
 		if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW)) < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -176,12 +180,15 @@ again:
 
 		(void)memset(&addr, 0, sizeof(addr));
 
+		shim_pthread_spin_lock(&g_shared->rawsock.lock);
+		g_shared->rawsock.ready++;
+		shim_pthread_spin_unlock(&g_shared->rawsock.lock);
+
 		while (keep_stressing(args)) {
 			stress_raw_packet_t pkt;
 			socklen_t len = sizeof(addr);
 			ssize_t n;
 
-			*ptr = true;
 			n = recvfrom(fd, &pkt, sizeof(pkt), 0,
 					(struct sockaddr *)&addr, &len);
 			if (UNLIKELY(n == 0)) {
@@ -197,6 +204,9 @@ again:
 			/* Occasionally exercise SIOCINQ */
 			if ((pkt.data & 0xff) == 0) {
 				int ret, queued;
+
+				if (!keep_stressing(args))
+					break;
 
 				ret = ioctl(fd, SIOCINQ, &queued);
 				(void)ret;
@@ -214,7 +224,6 @@ die:
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap((void *)ptr, args->page_size);
 
 	return rc;
 }

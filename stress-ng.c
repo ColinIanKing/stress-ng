@@ -3815,6 +3815,7 @@ int main(int argc, char **argv, char **envp)
 #if defined(HAVE_LIB_PTHREAD)
 	shim_pthread_spin_init(&g_shared->warn_once.lock, 0);
 	shim_pthread_spin_init(&g_shared->syncload.lock, 0);
+	shim_pthread_spin_init(&g_shared->rawsock.lock, 0);
 	g_shared->syncload.start_time = 0.0;
 #endif
 

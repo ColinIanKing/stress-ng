@@ -1027,6 +1027,12 @@ typedef struct {
 	uint8_t  str_shared[STR_SHARED_SIZE];		/* str copying buffer */
 	stress_checksum_t *checksums;			/* per stressor counter checksum */
 	size_t	checksums_length;			/* size of checksums mapping */
+	struct {
+		uint32_t ready;				/* incremented when rawsock stressor is ready */
+#if defined(HAVE_LIB_PTHREAD)
+		shim_pthread_spinlock_t lock;		/* protection lock */
+#endif
+	} rawsock;
 	stress_stats_t stats[0];			/* Shared statistics */
 } stress_shared_t;
 
