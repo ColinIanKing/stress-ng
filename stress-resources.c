@@ -95,6 +95,12 @@ typedef struct {
 #if defined(HAVE_LIB_PTHREAD)
 	pthread_t pthread;
 	int pthread_ret;
+#if defined(HAVE_PTHREAD_MUTEX_T) &&	\
+    defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
+    defined(HAVE_PTHREAD_MUTEX_DESTROY)
+	pthread_mutex_t mutex;
+	int mutex_ret;
+#endif
 #endif
 #if defined(HAVE_SYS_INOTIFY_H)
 	int fd_inotify;
@@ -248,6 +254,12 @@ static void NORETURN waste_resources(
 #if defined(HAVE_LIB_PTHREAD)
 		info[i].pthread_ret = -1;
 		info[i].pthread = 0;
+#if defined(HAVE_PTHREAD_MUTEX_T) &&	\
+    defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
+    defined(HAVE_PTHREAD_MUTEX_DESTROY)
+		(void)memset(&info[i].mutex, 0, sizeof(info[i].mutex));
+		info[i].mutex_ret = -1;
+#endif
 #endif
 
 #if defined(HAVE_LIB_RT) &&		\
@@ -524,6 +536,11 @@ static void NORETURN waste_resources(
 			info[i].pthread_ret =
 				pthread_create(&info[i].pthread, NULL,
 					stress_pthread_func, NULL);
+#if defined(HAVE_PTHREAD_MUTEX_T) &&	\
+    defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
+    defined(HAVE_PTHREAD_MUTEX_DESTROY)
+			info[i].mutex_ret = pthread_mutex_init(&info[i].mutex, NULL);
+#endif
 			if (!keep_stressing_flag())
 				break;
 		}
@@ -670,6 +687,11 @@ static void NORETURN waste_resources(
 #if defined(HAVE_LIB_PTHREAD)
 		if ((!i) && (!info[i].pthread_ret) && (info[i].pthread))
 			(void)pthread_join(info[i].pthread, NULL);
+#if defined(HAVE_PTHREAD_MUTEX_T) &&	\
+    defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
+    defined(HAVE_PTHREAD_MUTEX_DESTROY)
+			(void)pthread_mutex_destroy(&info[i].mutex);
+#endif
 #endif
 
 #if defined(HAVE_LIB_RT) &&		\
