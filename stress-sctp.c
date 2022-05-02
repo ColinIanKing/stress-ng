@@ -47,6 +47,7 @@ UNEXPECTED
 static const stress_help_t help[] = {
 	{ NULL,	"sctp N",	 "start N workers performing SCTP send/receives " },
 	{ NULL,	"sctp-ops N",	 "stop after N SCTP bogo operations" },
+	{ NULL,	"sctp-if I",	 "use network interface I, e.g. lo, eth0, etc." },
 	{ NULL,	"sctp-domain D", "specify sctp domain, default is ipv4" },
 	{ NULL,	"sctp-port P",	 "use SCTP ports P to P + number of workers - 1" },
 	{ NULL, "sctp-sched S",	 "specify sctp scheduler" },
@@ -94,9 +95,15 @@ static int stress_set_sctp_domain(const char *name)
 	return ret;
 }
 
+static int stress_set_sctp_if(const char *name)
+{
+        return stress_set_setting("sctp-if", TYPE_ID_STR, name);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sctp_port,	stress_set_sctp_port },
 	{ OPT_sctp_domain,	stress_set_sctp_domain },
+	{ OPT_sctp_if,		stress_set_sctp_if },
+	{ OPT_sctp_port,	stress_set_sctp_port },
 	{ 0,			NULL }
 };
 
@@ -189,7 +196,8 @@ static void stress_sctp_client(
 	const stress_args_t *args,
 	const pid_t ppid,
 	const int sctp_port,
-	const int sctp_domain)
+	const int sctp_domain,
+	const char *sctp_if)
 {
 	struct sockaddr *addr;
 
@@ -223,8 +231,8 @@ retry:
 			_exit(EXIT_FAILURE);
 		}
 
-		stress_set_sockaddr(args->name, args->instance, ppid,
-			sctp_domain, sctp_port,
+		stress_set_sockaddr_if(args->name, args->instance, ppid,
+			sctp_domain, sctp_port, sctp_if,
 			&addr, &addr_len, NET_ADDR_LOOPBACK);
 		if (connect(fd, addr, addr_len) < 0) {
 			(void)close(fd);
@@ -287,7 +295,8 @@ static int stress_sctp_server(
 	const pid_t pid,
 	const pid_t ppid,
 	const int sctp_port,
-	const int sctp_domain)
+	const int sctp_domain,
+	const char *sctp_if)
 {
 	char buf[SOCKET_BUF];
 	int fd, status;
@@ -324,8 +333,8 @@ static int stress_sctp_server(
 		goto die_close;
 	}
 
-	stress_set_sockaddr(args->name, args->instance, ppid,
-		sctp_domain, sctp_port, &addr, &addr_len, NET_ADDR_ANY);
+	stress_set_sockaddr_if(args->name, args->instance, ppid,
+		sctp_domain, sctp_port, sctp_if, &addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
@@ -420,9 +429,23 @@ static int stress_sctp(const stress_args_t *args)
 	int sctp_port = DEFAULT_SCTP_PORT;
 	int sctp_domain = AF_INET;
 	int ret = EXIT_FAILURE;
+	char *sctp_if = NULL;
 
-	(void)stress_get_setting("sctp-port", &sctp_port);
 	(void)stress_get_setting("sctp-domain", &sctp_domain);
+	(void)stress_get_setting("sctp-if", &sctp_if);
+	(void)stress_get_setting("sctp-port", &sctp_port);
+
+	if (sctp_if) {
+		int ret;
+		struct sockaddr if_addr;
+
+		ret = stress_net_interface_exists(sctp_if, sctp_domain, &if_addr);
+		if (ret < 0) {
+			pr_inf("%s: interface '%s' is not enabled for domain '%s', defaulting to using loopback\n",
+				args->name, sctp_if, stress_net_domain(sctp_domain));
+			sctp_if = NULL;
+		}
+	}
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sctp_sigpipe, NULL) < 0)
 		return EXIT_FAILURE;
@@ -443,12 +466,10 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_sctp_client(args, ppid,
-			sctp_port, sctp_domain);
+		stress_sctp_client(args, ppid, sctp_port, sctp_domain, sctp_if);
 		_exit(EXIT_SUCCESS);
 	} else {
-		ret = stress_sctp_server(args, pid, ppid,
-			sctp_port, sctp_domain);
+		ret = stress_sctp_server(args, pid, ppid, sctp_port, sctp_domain, sctp_if);
 	}
 
 finish:

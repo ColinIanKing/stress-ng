@@ -792,6 +792,7 @@ static const struct option long_options[] = {
 	{ "sctp",		1,	0,	OPT_sctp },
 	{ "sctp-ops",		1,	0,	OPT_sctp_ops },
 	{ "sctp-domain",	1,	0,	OPT_sctp_domain },
+	{ "sctp-if",		1,	0,	OPT_sctp_if },
 	{ "sctp-port",		1,	0,	OPT_sctp_port },
 	{ "seal",		1,	0,	OPT_seal },
 	{ "seal-ops",		1,	0,	OPT_seal_ops },
