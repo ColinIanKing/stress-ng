@@ -111,9 +111,7 @@ static int stress_set_udp_gro(const char *opt)
 
 static int stress_set_udp_if(const char *name)
 {
-	stress_set_setting("udp-if", TYPE_ID_STR, name);
-
-	return 0;
+	return stress_set_setting("udp-if", TYPE_ID_STR, name);
 }
 
 /*
