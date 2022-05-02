@@ -399,6 +399,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [WattEdge: A Holistic Approach for Empirical Energy Measurements in Edge Computing](https://www.researchgate.net/publication/356342806_WattEdge_A_Holistic_Approach_for_Empirical_Energy_Measurements_in_Edge_Computing)
 * [FECBench: An Extensible Framework for Pinpointing Sources of Performance Interference in the Cloud-Edge Resource Spectrum](https://www.academia.edu/68455840/FECBench_An_Extensible_Framework_for_Pinpointing_Sources_of_Performance_Interference_in_the_Cloud_Edge_Resource_Spectrum)
 * [A general method for evaluating the overhead when consolidating servers: performance degradation in virtual machines and containers](https://link.springer.com/article/10.1007/s11227-022-04318-5)
+* [Fight Hardware with Hardware: System-wide Detection and Mitigation of Side-Channel Attacks using Performance Counters](https://dl.acm.org/doi/10.1145/3519601)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
