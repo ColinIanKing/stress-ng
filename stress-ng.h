@@ -2405,6 +2405,7 @@ typedef enum {
 	OPT_udp_domain,
 	OPT_udp_lite,
 	OPT_udp_gro,
+	OPT_udp_if,
 
 	OPT_udp_flood,
 	OPT_udp_flood_ops,

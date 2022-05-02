@@ -4598,6 +4598,10 @@ disconnects on the local host.
 specify the domain to use, the default is ipv4. Currently ipv4, ipv6 and unix
 are supported.
 .TP
+.B \-\-udp\-if NAME
+specify the interface name to use. If the interface NAME does not exist, is not
+up or does not support the domain then the loopback (lo) interface is used as the default.
+.TP
 .B \-\-udp\-gro
 enable UDP-GRO (Generic Receive Offload) if supported.
 .TP

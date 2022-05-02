@@ -65,6 +65,7 @@ static const stress_help_t help[] = {
 	{ NULL, "udp-gro",	"enable UDP-GRO" },
 	{ NULL,	"udp-lite",	"use the UDP-Lite (RFC 3828) protocol" },
 	{ NULL,	"udp-port P",	"use ports P to P + number of workers - 1" },
+	{ NULL,	"udp-if I",	"use network interface I, e.g. lo, eth0, etc." },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -108,6 +109,13 @@ static int stress_set_udp_gro(const char *opt)
 	return stress_set_setting("udp-gro", TYPE_ID_BOOL, &udp_gro);
 }
 
+static int stress_set_udp_if(const char *name)
+{
+	stress_set_setting("udp-if", TYPE_ID_STR, name);
+
+	return 0;
+}
+
 /*
  *  stress_udp
  *	stress by heavy udp ops
@@ -125,7 +133,9 @@ static int stress_udp(const stress_args_t *args)
 #if defined(UDP_GRO)
 	bool udp_gro = false;
 #endif
+	char *udp_if = NULL;
 
+	(void)stress_get_setting("udp-if", &udp_if);
 	(void)stress_get_setting("udp-port", &udp_port);
 	(void)stress_get_setting("udp-domain", &udp_domain);
 #if defined(IPPROTO_UDPLITE)
@@ -147,6 +157,17 @@ static int stress_udp(const stress_args_t *args)
 #if defined(UDP_GRO)
 	(void)stress_get_setting("udp-gro", &udp_gro);
 #endif
+	if (udp_if) {
+		int ret;
+		struct sockaddr if_addr;
+
+		ret = stress_net_interface_exists(udp_if, udp_domain, &if_addr);
+		if (ret < 0) {
+			pr_inf("%s: interface '%s' is not enabled for domain '%s', defaulting to using loopback\n",
+				args->name, udp_if, stress_net_domain(udp_domain));
+			udp_if = NULL;
+		}
+	}
 
 	pr_dbg("%s: process [%d] using udp port %d\n",
 		args->name, (int)args->pid, udp_port + (int)args->instance);
@@ -181,8 +202,9 @@ again:
 				(void)kill(getppid(), SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
-			stress_set_sockaddr(args->name, args->instance, ppid,
-				udp_domain, udp_port,
+
+			stress_set_sockaddr_if(args->name, args->instance, ppid,
+				udp_domain, udp_port, udp_if,
 				&addr, &len, NET_ADDR_ANY);
 #if defined(IPPROTO_UDPLITE) &&	\
     defined(UDPLITE_SEND_CSCOV)
@@ -379,6 +401,7 @@ again:
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
+		stress_set_sockif(args->name, udp_if, fd);
 #if !defined(__minix__)
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 			/*
@@ -454,6 +477,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_udp_port,		stress_set_udp_port },
 	{ OPT_udp_lite,		stress_set_udp_lite },
 	{ OPT_udp_gro,		stress_set_udp_gro },
+	{ OPT_udp_if,		stress_set_udp_if },
 	{ 0,			NULL }
 };
 

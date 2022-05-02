@@ -28,6 +28,13 @@ UNEXPECTED
 
 #include <netinet/in.h>
 
+#if defined(HAVE_IFADDRS_H)
+#include <ifaddrs.h>
+#endif
+#if defined(HAVE_NET_IF_H)
+#include <net/if.h>
+#endif
+
 typedef struct {
 	const char *name;
 	const int  domain;
@@ -39,6 +46,45 @@ static const stress_domain_t domains[] = {
 	{ "ipv6",	AF_INET6,	DOMAIN_INET6 },
 	{ "unix",	AF_UNIX,	DOMAIN_UNIX },
 };
+
+/*
+ *  stress_net_interface_exists()
+ *	check if interface exists, returns -1 if failed / not found
+ *	0 if interface exists
+ */
+int stress_net_interface_exists(const char *interface, const int domain, struct sockaddr *addr)
+{
+#if defined(HAVE_IFADDRS_H)
+	struct ifaddrs *ifaddr, *ifa;
+	int ret = -1;
+
+	if (!interface)
+		return -1;
+	if (!addr)
+		return -1;
+
+	if (getifaddrs(&ifaddr) < 0)
+		return -1;
+	for (ifa = ifaddr; ifa; ifa = ifa->ifa_next) {
+		if (!ifa->ifa_addr)
+			continue;
+		if (!ifa->ifa_name)
+			continue;
+		if (ifa->ifa_addr->sa_family != domain)
+			continue;
+		if (strcmp(ifa->ifa_name, interface) == 0) {
+			(void)memcpy(addr, ifa->ifa_addr, sizeof(*addr));
+			ret = 0;
+			break;
+		}
+	}
+	freeifaddrs(ifaddr);
+
+	return ret;
+#else
+	return -1;
+#endif
+}
 
 /*
  *  stress_set_net_port()
@@ -58,6 +104,21 @@ void stress_set_net_port(
 		(uint64_t)(max_port - STRESS_PROCS_MAX));
 
 	*port = (int)val;
+}
+
+/*
+ *  stress_net_domain()
+ *	return human readable domain name from domain number
+ */
+const char *stress_net_domain(const int domain)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(domains); i++) {
+		if (domains[i].domain == domain)
+			return domains[i].name;
+	}
+	return "unknown";
 }
 
 /*
@@ -91,12 +152,13 @@ int stress_set_net_domain(
 /*
  *  setup socket address
  */
-void stress_set_sockaddr(
+void stress_set_sockaddr_if(
 	const char *name,
 	const uint32_t instance,
 	const pid_t ppid,
 	const int domain,
 	const int port,
+	const char *ifname,
 	struct sockaddr **sockaddr,
 	socklen_t *len,
 	const int net_addr)
@@ -104,6 +166,9 @@ void stress_set_sockaddr(
 	(void)ppid;
 
 	uint16_t sin_port = (uint16_t)port + (uint16_t)instance;
+
+	*sockaddr = NULL;
+	*len = 0;
 
 	/* Handle overflow to omit ports 0..1023 */
 	if ((port > 1024) && (sin_port < 1024))
@@ -115,16 +180,19 @@ void stress_set_sockaddr(
 		static struct sockaddr_in addr;
 
 		(void)memset(&addr, 0, sizeof(addr));
-		addr.sin_family = (sa_family_t)domain;
-		switch (net_addr) {
-		case NET_ADDR_LOOPBACK:
-			addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
-			break;
-		case NET_ADDR_ANY:
-		default:
-			addr.sin_addr.s_addr = htonl(INADDR_ANY);
-			break;
+
+		if ((!ifname) || (!stress_net_interface_exists(ifname, domain, (struct sockaddr *)&addr))) {
+			switch (net_addr) {
+			case NET_ADDR_LOOPBACK:
+				addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+				break;
+			case NET_ADDR_ANY:
+			default:
+				addr.sin_addr.s_addr = htonl(INADDR_ANY);
+				break;
+			}
 		}
+		addr.sin_family = (sa_family_t)domain;
 		addr.sin_port = htons(sin_port);
 		*sockaddr = (struct sockaddr *)&addr;
 		*len = sizeof(addr);
@@ -139,16 +207,19 @@ void stress_set_sockaddr(
 		static const struct in6_addr in6addr_loopback = IN6ADDR_LOOPBACK_INIT;
 #endif
 		(void)memset(&addr, 0, sizeof(addr));
-		addr.sin6_family = (sa_family_t)domain;
-		switch (net_addr) {
-		case NET_ADDR_LOOPBACK:
-			addr.sin6_addr = in6addr_loopback;
-			break;
-		case NET_ADDR_ANY:
-		default:
-			addr.sin6_addr = in6addr_any;
-			break;
+
+		if ((!ifname) || (!stress_net_interface_exists(ifname, domain, (struct sockaddr *)&addr))) {
+			switch (net_addr) {
+			case NET_ADDR_LOOPBACK:
+				addr.sin6_addr = in6addr_loopback;
+				break;
+			case NET_ADDR_ANY:
+			default:
+				addr.sin6_addr = in6addr_any;
+				break;
+			}
 		}
+		addr.sin6_family = (sa_family_t)domain;
 		addr.sin6_port = htons(sin_port);
 		*sockaddr = (struct sockaddr *)&addr;
 		*len = sizeof(addr);
@@ -175,6 +246,19 @@ void stress_set_sockaddr(
 		(void)kill(getppid(), SIGALRM);
 		_exit(EXIT_FAILURE);
 	}
+}
+
+void stress_set_sockaddr(
+	const char *name,
+	const uint32_t instance,
+	const pid_t ppid,
+	const int domain,
+	const int port,
+	struct sockaddr **sockaddr,
+	socklen_t *len,
+	const int net_addr)
+{
+	stress_set_sockaddr_if(name, instance, ppid, domain, port, NULL, sockaddr, len, net_addr);
 }
 
 /*
@@ -210,3 +294,22 @@ void HOT stress_set_sockaddr_port(
 		break;
 	}
 }
+
+
+int stress_set_sockif(
+	const char *name,
+	const char *interface,
+	const int sfd)
+{
+	struct ifreq ifr;
+
+	(void)memset(&ifr, 0, sizeof(ifr));
+	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), interface);
+
+	if (setsockopt(sfd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0) {
+		pr_inf("%s: cannot bind to interface '%s', using default loopback interface\n", name, interface);
+		return -1;
+	}
+	return 0;
+}
+
