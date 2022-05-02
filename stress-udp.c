@@ -378,8 +378,8 @@ again:
 			rc = EXIT_FAILURE;
 			goto die;
 		}
-		stress_set_sockaddr(args->name, args->instance, ppid,
-			udp_domain, udp_port,
+		stress_set_sockaddr_if(args->name, args->instance, ppid,
+			udp_domain, udp_port, udp_if,
 			&addr, &addr_len, NET_ADDR_ANY);
 #if defined(IPPROTO_UDPLITE)
 		if (proto == IPPROTO_UDPLITE) {
