@@ -37,8 +37,8 @@
 #define SOCKET_BUF		(8192)	/* Socket I/O buffer size */
 
 static const stress_help_t help[] = {
-	{ "S N", "sock N",		"start N workers exercising socket I/O" },
-	{ NULL,	"sock-ops N",		"stop after N socket bogo operations" },
+	{ NULL, "sockabuse N",		"start N workers abusing socket I/O" },
+	{ NULL,	"sockabuse-ops N",	"stop after N socket abusing bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 
