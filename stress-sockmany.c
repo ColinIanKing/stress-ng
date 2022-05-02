@@ -38,6 +38,7 @@ typedef struct {
 static const stress_help_t help[] = {
 	{ NULL, "sockmany N",		"start N workers exercising many socket connections" },
 	{ NULL,	"sockmany-ops N",	"stop after N sockmany bogo operations" },
+	{ NULL,	"sockmany-if I",	""use network interface I, e.g. lo, eth0, etc." },
 	{ NULL,	NULL,			NULL }
 };
 
