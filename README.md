@@ -390,7 +390,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [C-Balancer: A System for Container Profiling and Scheduling](https://arxiv.org/pdf/2009.08912.pdf)
 * [Modelling VM Latent Characteristics and Predicting Application Performance using Semi-supervised Non-negative Matrix Factorization](https://ieeexplore.ieee.org/document/9284328)
 * [Semi-dynamic load balancing: efficient distributed learning in non-dedicated environments](https://dl.acm.org/doi/10.1145/3419111.3421299)
-* [Streamline: A Fast, Flushless Cache Covert-Channel Attack byEnabling Asynchronous Collusion](https://dl.acm.org/doi/pdf/10.1145/3445814.3446742)
+* [Streamline: A Fast, Flushless Cache Covert-Channel Attack by Enabling Asynchronous Collusion](https://dl.acm.org/doi/pdf/10.1145/3445814.3446742)
 * [Experimental Analysis in Hadoop MapReduce: A Closer Look at Fault Detection and Recovery Techniques](https://www.mdpi.com/1131714)
 * [Performance Characteristics of theBlueField-2 SmartNIC](https://arxiv.org/pdf/2105.06619.pdf)
 * [Evaluating Latency in Multiprocessing Embedded Systems for the Smart Grid](https://www.mdpi.com/1996-1073/14/11/3322)
@@ -401,6 +401,13 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [A general method for evaluating the overhead when consolidating servers: performance degradation in virtual machines and containers](https://link.springer.com/article/10.1007/s11227-022-04318-5)
 * [Fight Hardware with Hardware: System-wide Detection and Mitigation of Side-Channel Attacks using Performance Counters](https://dl.acm.org/doi/10.1145/3519601)
 * [A Performance Analysis of Hardware-assisted Security Technologies](https://openscholarship.wustl.edu/cgi/viewcontent.cgi?article=1556&context=eng_etds)
+* [Green Cloud Software Engineering for Big Data Processing](https://eprints.leedsbeckett.ac.uk/id/eprint/7294/1/GreenCloudSoftwareEngineeringForBigDataProcessingPV-KOR.pdf)
+* [PTEMagnet: Fine-Grained Physical Memory Reservation for Faster Page Walks in Public Clouds](https://www.pure.ed.ac.uk/ws/portalfiles/portal/196157550/PTEMagnet_MARGARITOV_DOA19112020_AFV.pdf)
+* [Real-Time Detection for Cache Side Channel Attack using Performance Counter Monitor](https://www.proquest.com/docview/2533920884)
+* [The Price of Meltdown and Spectre: Energy Overhead of Mitigations at Operating System Level](https://www4.cs.fau.de/Publications/2021/herzog_2021_eurosec.pdf)
+* [An Empirical Study of Thermal Attacks on Edge Platforms](https://digitalcommons.kennesaw.edu/cgi/viewcontent.cgi?article=1590&context=undergradsymposiumksu)
+* [Subverting Linux’ Integrity Measurement Architecture](https://svs.informatik.uni-hamburg.de/publications/2020/2020-08-27-Bohling-IMA.pdf)
+* [Quantifying the Interaction Between Structural Properties of Software and Hardware in the ARM Big.LITTLE Architecture](https://research.abo.fi/ws/files/26568716/QuantifyingInteraction.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
