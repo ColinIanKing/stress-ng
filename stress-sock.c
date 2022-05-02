@@ -180,9 +180,7 @@ static int stress_set_socket_port(const char *opt)
 
 static int stress_set_sock_if(const char *name)
 {
-	stress_set_setting("sock-if", TYPE_ID_STR, name);
-
-	return 0;
+	return stress_set_setting("sock-if", TYPE_ID_STR, name);
 }
 
 /*
