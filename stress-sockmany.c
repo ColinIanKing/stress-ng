@@ -41,6 +41,11 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
+static int stress_set_sockmany_if(const char *name)
+{
+	return stress_set_setting("sockmany-if", TYPE_ID_STR, name);
+}
+
 /*
  *  stress_sockmany_cleanup()
  *	close sockets
@@ -65,7 +70,8 @@ static void stress_sockmany_cleanup(int fds[], const int n)
 static int stress_sockmany_client(
 	const stress_args_t *args,
 	const pid_t ppid,
-	stress_sock_fds_t *sock_fds)
+	stress_sock_fds_t *sock_fds,
+	const char *sockmany_if)
 {
 	struct sockaddr *addr;
 	static int fds[SOCKET_MANY_FDS];
@@ -106,8 +112,8 @@ retry:
 				goto finish;
 			}
 
-			stress_set_sockaddr(args->name, args->instance, ppid,
-				AF_INET, socket_port,
+			stress_set_sockaddr_if(args->name, args->instance, ppid,
+				AF_INET, socket_port, sockmany_if,
 				&addr, &addr_len, NET_ADDR_ANY);
 			if (connect(fds[i], addr, addr_len) < 0) {
 				int save_errno = errno;
@@ -158,7 +164,8 @@ finish:
 static int stress_sockmany_server(
 	const stress_args_t *args,
 	const pid_t pid,
-	const pid_t ppid)
+	const pid_t ppid,
+	const char *sockmany_if)
 {
 	char buf[SOCKET_MANY_BUF];
 	int fd, status;
@@ -189,8 +196,8 @@ static int stress_sockmany_server(
 		goto die_close;
 	}
 
-	stress_set_sockaddr(args->name, args->instance, ppid,
-		AF_INET, socket_port,
+	stress_set_sockaddr_if(args->name, args->instance, ppid,
+		AF_INET, socket_port, sockmany_if,
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
@@ -288,6 +295,21 @@ static int stress_sockmany(const stress_args_t *args)
 	pid_t pid, ppid = getppid();
 	stress_sock_fds_t *sock_fds;
 	int rc = EXIT_SUCCESS;
+	char *sockmany_if = NULL;
+
+	(void)stress_get_setting("sockmany-if", &sockmany_if);
+
+	if (sockmany_if) {
+		int ret;
+		struct sockaddr if_addr;
+
+		ret = stress_net_interface_exists(sockmany_if, AF_INET, &if_addr);
+		if (ret < 0) {
+			pr_inf("%s: interface '%s' is not enabled for domain '%s', defaulting to using loopback\n",
+				args->name, sockmany_if, stress_net_domain(AF_INET));
+			sockmany_if = NULL;
+		}
+	}
 
 	sock_fds = (stress_sock_fds_t *)mmap(NULL, sizeof(*sock_fds), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -314,10 +336,10 @@ again:
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	} else if (pid == 0) {
-		rc = stress_sockmany_client(args, ppid, sock_fds);
+		rc = stress_sockmany_client(args, ppid, sock_fds, sockmany_if);
 		_exit(rc);
 	} else {
-		rc = stress_sockmany_server(args, pid, ppid);
+		rc = stress_sockmany_server(args, pid, ppid, sockmany_if);
 	}
 	pr_dbg("%s: %d sockets opened at one time\n", args->name, sock_fds->max_fd);
 
@@ -328,9 +350,15 @@ finish:
 	return rc;
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_sockmany_if,	stress_set_sockmany_if },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_sockmany_info = {
 	.stressor = stress_sockmany,
 	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

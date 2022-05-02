@@ -4164,6 +4164,10 @@ TCP/IP socket connections to a server on port 10000.
 .B \-\-sockmany\-ops N
 stop after N connections.
 .TP
+.B \-\-sockmany\-if NAME
+use network interface NAME. If the interface NAME does not exist, is not
+up or does not support the domain then the loopback (lo) interface is used as the default.
+.TP
 .B \-\-sockpair N
 start N workers that perform socket pair I/O read/writes. This involves a pair
 of client/server processes performing randomly sized socket I/O operations.
