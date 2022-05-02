@@ -4084,6 +4084,10 @@ and disconnects on the local host.
 specify the domain to use, the default is ipv4. Currently ipv4, ipv6 and unix
 are supported.
 .TP
+.B \-\-sock\-if NAME
+use network interface NAME. If the interface NAME does not exist, is not
+up or does not support the domain then the loopback (lo) interface is used as the default.
+.TP
 .B \-\-sock\-nodelay
 This disables the TCP Nagle algorithm, so data segments are always sent
 as soon as possible.  This stops data from being buffered before being
@@ -4599,7 +4603,7 @@ specify the domain to use, the default is ipv4. Currently ipv4, ipv6 and unix
 are supported.
 .TP
 .B \-\-udp\-if NAME
-specify the interface name to use. If the interface NAME does not exist, is not
+use network interface NAME. If the interface NAME does not exist, is not
 up or does not support the domain then the loopback (lo) interface is used as the default.
 .TP
 .B \-\-udp\-gro

@@ -85,6 +85,7 @@ typedef struct {
 static const stress_help_t help[] = {
 	{ "S N", "sock N",		"start N workers exercising socket I/O" },
 	{ NULL,	"sock-domain D",	"specify socket domain, default is ipv4" },
+	{ NULL,	"sock-if I",		"use network interface I, e.g. lo, eth0, etc." },
 	{ NULL,	"sock-nodelay",		"disable Nagle algorithm, send data immediately" },
 	{ NULL,	"sock-ops N",		"stop after N socket bogo operations" },
 	{ NULL,	"sock-opts option", 	"socket options [send|sendmsg|sendmmsg]" },
@@ -175,6 +176,13 @@ static int stress_set_socket_port(const char *opt)
 		MIN_SOCKET_PORT, MAX_SOCKET_PORT - STRESS_PROCS_MAX,
 		&socket_port);
 	return stress_set_setting("sock-port", TYPE_ID_INT, &socket_port);
+}
+
+static int stress_set_sock_if(const char *name)
+{
+	stress_set_setting("sock-if", TYPE_ID_STR, name);
+
+	return 0;
 }
 
 /*
@@ -473,6 +481,7 @@ static void stress_sock_client(
 	const int socket_type,
 	const int socket_protocol,
 	const int socket_port,
+	const char *socket_if,
 	const bool rt,
 	const bool socket_zerocopy)
 {
@@ -529,8 +538,8 @@ retry:
 			_exit(EXIT_FAILURE);
 		}
 
-		stress_set_sockaddr(args->name, args->instance, ppid,
-			socket_domain, socket_port,
+		stress_set_sockaddr_if(args->name, args->instance, ppid,
+			socket_domain, socket_port, socket_if,
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
 			int errno_tmp = errno;
@@ -893,6 +902,7 @@ static int stress_sock_server(
 	const int socket_type,
 	const int socket_protocol,
 	const int socket_port,
+	const char *socket_if,
 	const bool rt,
 	const bool socket_zerocopy)
 {
@@ -947,8 +957,8 @@ static int stress_sock_server(
 	/* exercise invalid optname */
 	(void)setsockopt(fd, SOL_SOCKET, -1, &so_reuseaddr, sizeof(so_reuseaddr));
 
-	stress_set_sockaddr(args->name, args->instance, ppid,
-		socket_domain, socket_port,
+	stress_set_sockaddr_if(args->name, args->instance, ppid,
+		socket_domain, socket_port, socket_if,
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
@@ -1213,13 +1223,27 @@ static int stress_sock(const stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	const bool rt = stress_sock_kernel_rt();
 	char *mmap_buffer;
+	char *socket_if = NULL;
 
+	(void)stress_get_setting("sock-if", &socket_if);
 	(void)stress_get_setting("sock-domain", &socket_domain);
 	(void)stress_get_setting("sock-type", &socket_type);
 	(void)stress_get_setting("sock-protocol", &socket_protocol);
 	(void)stress_get_setting("sock-port", &socket_port);
 	(void)stress_get_setting("sock-opts", &socket_opts);
 	(void)stress_get_setting("sock-zerocopy", &socket_zerocopy);
+
+	if (socket_if) {
+		int ret;
+		struct sockaddr if_addr;
+
+		ret = stress_net_interface_exists(socket_if, socket_domain, &if_addr);
+		if (ret < 0) {
+			pr_inf("%s: interface '%s' is not enabled for domain '%s', defaulting to using loopback\n",
+				args->name, socket_if, stress_net_domain(socket_domain));
+			socket_if = NULL;
+		}
+	}
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, socket_port + (int)args->instance);
@@ -1251,13 +1275,13 @@ again:
 	} else if (pid == 0) {
 		stress_sock_client(args, mmap_buffer, ppid, socket_opts,
 			socket_domain, socket_type, socket_protocol,
-			socket_port, rt, socket_zerocopy);
+			socket_port, socket_if, rt, socket_zerocopy);
 		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 		_exit(rc);
 	} else {
 		rc = stress_sock_server(args, mmap_buffer, pid, ppid, socket_opts,
 			socket_domain, socket_type, socket_protocol,
-			socket_port, rt, socket_zerocopy);
+			socket_port, socket_if, rt, socket_zerocopy);
 		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 
 	}
@@ -1269,6 +1293,7 @@ finish:
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sock_domain,	stress_set_socket_domain },
+	{ OPT_sock_if,		stress_set_sock_if },
 	{ OPT_sock_opts,	stress_set_socket_opts },
 	{ OPT_sock_type,	stress_set_socket_type },
 	{ OPT_sock_port,	stress_set_socket_port },

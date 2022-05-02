@@ -868,6 +868,7 @@ static const struct option long_options[] = {
 	{ "smi-ops",		1,	0,	OPT_smi_ops },
 	{ "sock",		1,	0,	OPT_sock },
 	{ "sock-domain",	1,	0,	OPT_sock_domain },
+	{ "sock-if",		1,	0,	OPT_sock_if },
 	{ "sock-nodelay",	0,	0,	OPT_sock_nodelay },
 	{ "sock-ops",		1,	0,	OPT_sock_ops },
 	{ "sock-opts",		1,	0,	OPT_sock_opts },
