@@ -50,6 +50,7 @@ typedef struct {
 static const stress_help_t help[] = {
 	{ NULL,	"dccp N",		"start N workers exercising network DCCP I/O" },
 	{ NULL,	"dccp-domain D",	"specify DCCP domain, default is ipv4" },
+	{ NULL,	"dccp-if I",		"use network interface I, e.g. lo, eth0, etc." },
 	{ NULL,	"dccp-ops N",		"stop after N DCCP  bogo operations" },
 	{ NULL,	"dccp-opts option",	"DCCP data send options [send|sendmsg|sendmmsg]" },
 	{ NULL,	"dccp-port P",		"use DCCP ports P to P + number of workers - 1" },
@@ -118,8 +119,14 @@ static int stress_set_dccp_domain(const char *name)
 	return ret;
 }
 
+static int stress_set_dccp_if(const char *name)
+{
+        return stress_set_setting("dccp-if", TYPE_ID_STR, name);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_dccp_domain,	stress_set_dccp_domain },
+	{ OPT_dccp_if,		stress_set_dccp_if },
 	{ OPT_dccp_opts,	stress_set_dccp_opts },
 	{ OPT_dccp_port,	stress_set_dccp_port },
 	{ 0,			NULL },
@@ -136,7 +143,8 @@ static void stress_dccp_client(
 	const stress_args_t *args,
 	const pid_t ppid,
 	const int dccp_port,
-	const int dccp_domain)
+	const int dccp_domain,
+	const char *dccp_if)
 {
 	struct sockaddr *addr;
 
@@ -168,8 +176,8 @@ retry:
 			_exit(EXIT_FAILURE);
 		}
 
-		stress_set_sockaddr(args->name, args->instance, ppid,
-			dccp_domain, dccp_port,
+		stress_set_sockaddr_if(args->name, args->instance, ppid,
+			dccp_domain, dccp_port, dccp_if,
 			&addr, &addr_len, NET_ADDR_ANY);
 		if (connect(fd, addr, addr_len) < 0) {
 			int err = errno;
@@ -225,6 +233,7 @@ static int stress_dccp_server(
 	const pid_t ppid,
 	const int dccp_port,
 	const int dccp_domain,
+	const char *dccp_if,
 	const int dccp_opts)
 {
 	char buf[DCCP_BUF];
@@ -266,8 +275,8 @@ static int stress_dccp_server(
 		goto die_close;
 	}
 
-	stress_set_sockaddr(args->name, args->instance, ppid,
-		dccp_domain, dccp_port,
+	stress_set_sockaddr_if(args->name, args->instance, ppid,
+		dccp_domain, dccp_port, dccp_if,
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
@@ -426,10 +435,24 @@ static int stress_dccp(const stress_args_t *args)
 	int dccp_domain = AF_INET;
 	int dccp_opts = DCCP_OPT_SEND;
 	int rc = EXIT_SUCCESS;
+	char *dccp_if = NULL;
 
+	(void)stress_get_setting("dcpp-if", &dccp_if);
 	(void)stress_get_setting("dccp-port", &dccp_port);
 	(void)stress_get_setting("dccp-domain", &dccp_domain);
 	(void)stress_get_setting("dccp-opts", &dccp_opts);
+
+	if (dccp_if) {
+		int ret;
+		struct sockaddr if_addr;
+
+		ret = stress_net_interface_exists(dccp_if, dccp_domain, &if_addr);
+		if (ret < 0) {
+			pr_inf("%s: interface '%s' is not enabled for domain '%s', defaulting to using loopback\n",
+				args->name, dccp_if, stress_net_domain(dccp_domain));
+			dccp_if = NULL;
+		}
+	}
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, dccp_port + (int)args->instance);
@@ -447,11 +470,11 @@ again:
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
 		(void)sched_settings_apply(true);
-		stress_dccp_client(args, ppid, dccp_port, dccp_domain);
+		stress_dccp_client(args, ppid, dccp_port, dccp_domain, dccp_if);
 		_exit(EXIT_SUCCESS);
 	} else {
 		rc = stress_dccp_server(args, pid, ppid, dccp_port,
-			dccp_domain, dccp_opts);
+			dccp_domain, dccp_if, dccp_opts);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

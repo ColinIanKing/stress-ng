@@ -1357,6 +1357,10 @@ the local host.
 specify the domain to use, the default is ipv4. Currently ipv4 and ipv6
 are supported.
 .TP
+.B \-\-dccp\-if NAME
+use network interface NAME. If the interface NAME does not exist, is not
+up or does not support the domain then the loopback (lo) interface is used as the default.
+.TP
 .B \-\-dccp\-port P
 start DCCP at port P. For N dccp worker processes, ports P to P - 1 are
 used.

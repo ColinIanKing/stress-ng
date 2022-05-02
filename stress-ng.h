@@ -1525,6 +1525,7 @@ typedef enum {
 
 	OPT_dccp,
 	OPT_dccp_domain,
+	OPT_dccp_if,
 	OPT_dccp_ops,
 	OPT_dccp_opts,
 	OPT_dccp_port,

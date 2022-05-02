@@ -322,6 +322,7 @@ static const struct option long_options[] = {
 	{ "daemon",		1,	0,	OPT_daemon },
 	{ "daemon-ops",		1,	0,	OPT_daemon_ops },
 	{ "dccp",		1,	0,	OPT_dccp },
+	{ "dccp-if",		1,	0,	OPT_dccp_if },
 	{ "dccp-domain",	1,	0,	OPT_dccp_domain },
 	{ "dccp-ops",		1,	0,	OPT_dccp_ops },
 	{ "dccp-opts",		1,	0,	OPT_dccp_opts },
