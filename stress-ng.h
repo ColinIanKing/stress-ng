@@ -2088,6 +2088,7 @@ typedef enum {
 
 	OPT_rawudp,
 	OPT_rawudp_ops,
+	OPT_rawudp_if,
 	OPT_rawudp_port,
 
 	OPT_rdrand,

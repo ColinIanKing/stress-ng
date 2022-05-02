@@ -3612,6 +3612,10 @@ are used. The default starting port is port 14000.
 start N workers that send and receive UDP packets using raw sockets on the
 localhost. Requires CAP_NET_RAW to run.
 .TP
+.B \-\-rawudp\-if NAME
+use network interface NAME. If the interface NAME does not exist, is not
+up or does not support the domain then the loopback (lo) interface is used as the default.
+.TP
 .B \-\-rawudp\-ops N
 stop rawudp workers after N packets are received.
 .TP

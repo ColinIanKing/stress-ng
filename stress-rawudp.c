@@ -43,8 +43,9 @@
 static const stress_help_t help[] = {
 	{ NULL, "rawudp N",	"start N workers exercising raw UDP socket I/O" },
 	{ NULL,	"rawudp-ops N",	"stop after N raw socket UDP bogo operations" },
+	{ NULL,	"rawudp-if I",	"use network interface I, e.g. lo, eth0, etc." },
 	{ NULL,	"rawudp-port P","use raw socket ports P to P + number of workers - 1" },
-	{ NULL,	NULL,			NULL }
+	{ NULL,	NULL,		NULL }
 };
 
 /*
@@ -63,10 +64,10 @@ static int stress_rawudp_supported(const char *name)
 }
 
 /*
- *  stress_set_rawudp-port()
+ *  stress_set_rawudp_port()
  *	set port to use
  */
-static int stress_set_port(const char *opt)
+static int stress_set_rawudp_port(const char *opt)
 {
 	int port;
 
@@ -76,11 +77,16 @@ static int stress_set_port(const char *opt)
 	return stress_set_setting("rawudp-port", TYPE_ID_INT, &port);
 }
 
+static int stress_set_rawudp_if(const char *name)
+{
+	return stress_set_setting("rawudp-if", TYPE_ID_STR, name);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_rawudp_port,	stress_set_port },
+	{ OPT_rawudp_port,	stress_set_rawudp_port },
+	{ OPT_rawudp_if,	stress_set_rawudp_if },
 	{ 0,			NULL }
 };
-
 
 #if defined(HAVE_LINUX_UDP_H)
 
@@ -91,7 +97,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static void NORETURN stress_rawudp_client(
 	const stress_args_t *args,
 	const pid_t ppid,
-	unsigned long addr,
+	in_addr_t addr,
 	const int port)
 {
 	int rc = EXIT_FAILURE;
@@ -110,7 +116,7 @@ static void NORETURN stress_rawudp_client(
 
 	s_in.sin_family = AF_INET;
 	s_in.sin_port = (in_port_t)port;
-	s_in.sin_addr.s_addr = (in_addr_t)addr;
+	s_in.sin_addr.s_addr = addr;
 
 	ip->ihl      = 5;	/* Header length in 32 bit words */
 	ip->version  = 4;	/* IPv4 */
@@ -168,7 +174,7 @@ err:
  */
 static int stress_rawudp_server(
 	const stress_args_t *args,
-	unsigned long addr,
+	in_addr_t addr,
 	const int port)
 {
 	int fd;
@@ -192,7 +198,7 @@ static int stress_rawudp_server(
 
 	s_in.sin_family = AF_INET;
 	s_in.sin_port = htons(port);
-	s_in.sin_addr.s_addr = (in_addr_t)addr;
+	s_in.sin_addr.s_addr = addr;
 	addr_len = (socklen_t)sizeof(s_in);
 
 	if ((bind(fd, (struct sockaddr *)&s_in, addr_len) < 0)) {
@@ -235,14 +241,32 @@ static void stress_sock_sigpipe_handler(int signum)
 static int stress_rawudp(const stress_args_t *args)
 {
 	pid_t pid;
-	int port = DEFAULT_RAWUDP_PORT;
+	int rawudp_port = DEFAULT_RAWUDP_PORT;
 	int rc = EXIT_FAILURE;
-	unsigned long addr = inet_addr("127.0.0.1");
+	in_addr_t addr = (in_addr_t)inet_addr("127.0.0.1");
+	char *rawudp_if = NULL;
 
-	(void)stress_get_setting("rawudp-port", &port);
+	(void)stress_get_setting("rawudp-if", &rawudp_if);
+	(void)stress_get_setting("rawudp-port", &rawudp_port);
+
+	if (rawudp_if) {
+		int ret;
+		struct sockaddr if_addr;
+
+		ret = stress_net_interface_exists(rawudp_if, AF_INET, &if_addr);
+		if (ret < 0) {
+			pr_inf("%s: interface '%s' is not enabled for domain '%s', defaulting to using loopback\n",
+				args->name, rawudp_if, stress_net_domain(AF_INET));
+			rawudp_if = NULL;
+		} else {
+			addr = ((struct sockaddr_in *)&if_addr)->sin_addr.s_addr;
+		}
+	}
+
+	rawudp_port += args->instance;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, port + (int)args->instance);
+		args->name, (int)args->pid, rawudp_port);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -261,11 +285,11 @@ again:
 			args->name, errno, strerror(errno));
 		return rc;
 	} else if (pid == 0) {
-		stress_rawudp_client(args, args->pid, addr, port);
+		stress_rawudp_client(args, args->pid, addr, rawudp_port);
 	} else {
 		int status;
 
-		rc = stress_rawudp_server(args, addr, port);
+		rc = stress_rawudp_server(args, addr, rawudp_port);
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
