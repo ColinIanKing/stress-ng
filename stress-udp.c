@@ -401,7 +401,6 @@ again:
 			rc = EXIT_FAILURE;
 			goto die_close;
 		}
-		stress_set_sockif(args->name, udp_if, fd);
 #if !defined(__minix__)
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 			/*

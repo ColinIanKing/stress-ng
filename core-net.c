@@ -294,22 +294,3 @@ void HOT stress_set_sockaddr_port(
 		break;
 	}
 }
-
-
-int stress_set_sockif(
-	const char *name,
-	const char *interface,
-	const int sfd)
-{
-	struct ifreq ifr;
-
-	(void)memset(&ifr, 0, sizeof(ifr));
-	snprintf(ifr.ifr_name, sizeof(ifr.ifr_name), interface);
-
-	if (setsockopt(sfd, SOL_SOCKET, SO_BINDTODEVICE, (void *)&ifr, sizeof(ifr)) < 0) {
-		pr_inf("%s: cannot bind to interface '%s', using default loopback interface\n", name, interface);
-		return -1;
-	}
-	return 0;
-}
-
