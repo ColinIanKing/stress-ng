@@ -48,8 +48,14 @@ static int stress_set_udp_flood_domain(const char *name)
 	return ret;
 }
 
+static int stress_set_udp_flood_if(const char *name)
+{
+	return stress_set_setting("udp-flood-if", TYPE_ID_STR, name);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_udp_flood_domain,	stress_set_udp_flood_domain },
+	{ OPT_udp_flood_if,	stress_set_udp_flood_if },
 	{ 0,			NULL }
 };
 
@@ -68,12 +74,26 @@ static int stress_udp_flood(const stress_args_t *args)
 	socklen_t addr_len;
 	const size_t sz_max = 23 + args->instance;
 	size_t sz = 1;
+	char *udp_flood_if = NULL;
 
 	static const char data[64] =
 		"0123456789ABCDEFGHIJKLMNOPQRSTUV"
 		"WXYZabcdefghijklmnopqrstuvwxyz@!";
 
 	(void)stress_get_setting("udp-flood-domain", &udp_flood_domain);
+	(void)stress_get_setting("udp-flood-if", &udp_flood_if);
+
+	if (udp_flood_if) {
+		int ret;
+		struct sockaddr if_addr;
+
+		ret = stress_net_interface_exists(udp_flood_if, udp_flood_domain, &if_addr);
+		if (ret < 0) {
+			pr_inf("%s: interface '%s' is not enabled for domain '%s', defaulting to using loopback\n",
+				args->name, udp_flood_if, stress_net_domain(udp_flood_domain));
+			udp_flood_if = NULL;
+		}
+	}
 
 	if ((fd = socket(udp_flood_domain, SOCK_DGRAM, AF_PACKET)) < 0) {
 		if (errno == EPROTONOSUPPORT) {
@@ -86,8 +106,8 @@ static int stress_udp_flood(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	stress_set_sockaddr(args->name, args->instance, args->pid,
-		udp_flood_domain, port,
+	stress_set_sockaddr_if(args->name, args->instance, args->pid,
+		udp_flood_domain, port, udp_flood_if,
 		&addr, &addr_len, NET_ADDR_ANY);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

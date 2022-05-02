@@ -2414,6 +2414,7 @@ typedef enum {
 	OPT_udp_flood,
 	OPT_udp_flood_ops,
 	OPT_udp_flood_domain,
+	OPT_udp_flood_if,
 
 	OPT_unshare,
 	OPT_unshare_ops,

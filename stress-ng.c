@@ -990,6 +990,7 @@ static const struct option long_options[] = {
 	{ "udp-port",		1,	0,	OPT_udp_port },
 	{ "udp-flood",		1,	0,	OPT_udp_flood },
 	{ "udp-flood-domain",	1,	0,	OPT_udp_flood_domain },
+	{ "udp-flood-if",	1,	0,	OPT_udp_flood_if },
 	{ "udp-flood-ops",	1,	0,	OPT_udp_flood_ops },
 	{ "udp-if",		1,	0,	OPT_udp_if },
 	{ "unshare",		1,	0,	OPT_unshare },

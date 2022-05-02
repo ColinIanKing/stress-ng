@@ -4640,6 +4640,10 @@ available on systems that support AF_PACKET.
 specify the domain to use, the default is ipv4. Currently ipv4 and ipv6 are
 supported.
 .TP
+.B \-\-udp\-flood\-if NAME
+use network interface NAME. If the interface NAME does not exist, is not
+up or does not support the domain then the loopback (lo) interface is used as the default.
+.TP
 .B \-\-udp\-flood\-ops N
 stop udp-flood stress workers after N bogo operations.
 .TP
