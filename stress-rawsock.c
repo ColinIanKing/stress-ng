@@ -159,7 +159,7 @@ again:
 		_exit(EXIT_SUCCESS);
 	} else {
 		/* Parent, server */
-		int fd, status;
+		int fd = -1, status;
 		struct sockaddr_in addr;
 
 		(void)setpgid(pid, g_pgrp);
@@ -215,12 +215,14 @@ again:
 			inc_counter(args);
 		}
 
-		(void)close(fd);
 die:
 		if (pid) {
 			(void)kill(pid, SIGKILL);
 			(void)shim_waitpid(pid, &status, 0);
 		}
+		/* close recv socket after sender closed */
+		if (fd > -1)
+			(void)close(fd);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
