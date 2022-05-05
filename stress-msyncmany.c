@@ -91,6 +91,8 @@ static int stress_msyncmany_child(const stress_args_t *args, void *context)
 		for (i = 0; i < n; i++) {
 			const uint64_t *ptr = (uint64_t *)mappings[i];
 
+			if (!ptr)
+				continue;
 			if (*ptr != pattern) {
 				pr_fail("%s: failed: mapping %zd at %p contained %" PRIx64 " and not %" PRIx64 "\n",
 					args->name, i, ptr, *ptr, pattern);
