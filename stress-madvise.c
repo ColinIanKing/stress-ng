@@ -279,6 +279,8 @@ static int stress_random_advise(
 #else
 	UNEXPECTED
 	(void)args;
+	(void)addr;
+	(void)size;
 #endif
 
 #if defined(MADV_SOFT_OFFLINE)
