@@ -81,7 +81,7 @@ static int stress_msyncmany_child(const stress_args_t *args, void *context)
 
 		*mapped = pattern;
 
-		ret = msync(mapped, args->page_size, MS_SYNC | MS_INVALIDATE);
+		ret = msync((void *)mapped, args->page_size, MS_SYNC | MS_INVALIDATE);
 		if (ret < 0) {
 			pr_fail("%s: msync failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
