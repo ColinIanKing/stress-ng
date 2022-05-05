@@ -428,7 +428,7 @@ static int stress_sctp(const stress_args_t *args)
 	pid_t pid, ppid = getppid();
 	int sctp_port = DEFAULT_SCTP_PORT;
 	int sctp_domain = AF_INET;
-	int ret = EXIT_FAILURE;
+	int ret;
 	char *sctp_if = NULL;
 
 	(void)stress_get_setting("sctp-domain", &sctp_domain);
@@ -436,7 +436,6 @@ static int stress_sctp(const stress_args_t *args)
 	(void)stress_get_setting("sctp-port", &sctp_port);
 
 	if (sctp_if) {
-		int ret;
 		struct sockaddr if_addr;
 
 		ret = stress_net_interface_exists(sctp_if, sctp_domain, &if_addr);
@@ -454,6 +453,7 @@ static int stress_sctp(const stress_args_t *args)
 		args->name, (intmax_t)args->pid,
 		sctp_port + (int)args->instance);
 
+	ret = EXIT_FAILURE;
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
