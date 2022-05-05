@@ -287,7 +287,7 @@ static int stress_rgb_compress_to_jpeg(
 {
 	struct jpeg_compress_struct cinfo;
 	struct jpeg_error_mgr jerr;
-	JSAMPROW row_pointer[y_max];
+	JSAMPROW *row_pointer;
 	FILE *fp;
 #if defined(HAVE_OPEN_MEMSTREAM)
 	char *ptr;
@@ -297,13 +297,21 @@ static int stress_rgb_compress_to_jpeg(
 	static int32_t yy = 0;
 	const int row_stride = x_max * 3;
 
+	if (y_max < 1)
+		return 0;
+	row_pointer = calloc((size_t)y_max, sizeof(JSAMPROW));
+	if (!row_pointer)
+		return 0;
+
 #if defined(HAVE_OPEN_MEMSTREAM)
 	fp = open_memstream(&ptr, &size);
 #else
 	fp = fopen("/dev/null", "w");
 #endif
-	if (!fp)
+	if (!fp) {
+		free(row_pointer);
 		return -1;
+	}
 
 	cinfo.err = jpeg_std_error(&jerr);
 	jpeg_create_compress(&cinfo);
@@ -331,6 +339,8 @@ static int stress_rgb_compress_to_jpeg(
 #if defined(HAVE_OPEN_MEMSTREAM)
 	free(ptr);
 #endif
+	free(row_pointer);
+
 	return (int)size;
 }
 
