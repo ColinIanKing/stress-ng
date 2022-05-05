@@ -76,8 +76,11 @@ static int stress_utime(const stress_args_t *args)
 	char hugename[PATH_MAX + 16];
 	int ret, fd;
 	bool utime_fsync = false;
+#if defined(O_DIRECTORY) &&	\
+    defined(O_PATH) &&		\
+    defined(UTIME_NOW)
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-
+#endif
 	(void)stress_get_setting("utime-fsync", &utime_fsync);
 
 	ret = stress_temp_dir_mk_args(args);
