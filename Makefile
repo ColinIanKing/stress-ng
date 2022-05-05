@@ -505,7 +505,7 @@ git-commit-id.h:
 		echo "#define STRESS_GIT_COMMIT_ID \"\"" > $@ ; \
 	fi
 
-$(OBJS): stress-ng.h Makefile
+$(OBJS): stress-ng.h Makefile Makefile.config
 
 stress-ng.1.gz: stress-ng.1
 	$(PRE_V)gzip -n -c $< > $@
