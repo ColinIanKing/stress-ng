@@ -18,6 +18,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_PTHREAD_NP_H)
+#include <pthread_np.h>
+#endif
+
 #define MIN_MUTEX_PROCS		(2)
 #define MAX_MUTEX_PROCS		(64)
 #define DEFAULT_MUTEX_PROCS	(2)
