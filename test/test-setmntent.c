@@ -25,4 +25,5 @@ int main(void)
 	FILE *fp;
 
 	fp = setmntent("/etc/mtab", "r");
+	return (fp != NULL);
 }
