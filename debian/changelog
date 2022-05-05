@@ -1,3 +1,118 @@
+stress-ng (0.14.01-1) unstable; urgency=medium
+
+  [Alexander Kanavin]
+  * Makefile: quote CC
+
+  [Thinh Tran]
+  * stress-rawsock: close recv socket once sender is closed
+
+  [Colin Ian King]
+  * Makefile: bump version
+  * stress-jpeg: don't allocate row_pointer array on stack, use heap
+    instead
+  * stress-msyncmany: sanity check for null ptr
+  * stress-sctp: remove shadowed variable ret
+  * stress-zlib: fall back to stress_mwc64 if rdrand is not supported
+  * stress-msync: cast address to void * to clean up build warning on
+    OpenHipster
+  * Add check for pthread_np.h as required for DragonFlyBSD
+  * test-setmntent: clean up cppcheck style warning
+  * test/test-endmntent: remove unused variable mount
+  * stress-utime: use correct defines to check for verify
+  * stress-utime: only declare variable verify when it is required
+  * README.md: update Linux distro flavours
+  * stress-mmapfixed: clean up build warning on unused variable page_mask
+  * stress-madavise: voidify addr and size args
+  * Makefile: add in Makefile.comfig build dependency
+  * Makefile.config: disable FAST_MATH as this causes fp-error to regress
+  * README.md: Add some more references to papers that use stress-ng
+  * README.md: reference another academic paper
+  * README.md: reference https://dl.acm.org/doi/10.1145/3519601
+  * README.md: remove extranous ]
+  * README.md: add another kernel bug found with stress-ng
+  * stress-sockmany: fix double "" build failure
+  * stress-sockmany: add in missing --sockmany-if short help
+  * stress-udp-flood: add in missing --udp-flood-if help
+  * stress-rawudp: add --rawudp-if interface option to specify desired
+    network interface
+  * stress-udp-flood: add --udp-flood-if interface option to specify
+    desired network interface
+  * stress-udp: fix missing interface on socket setup
+  * stress-sockmany: add --sockmany-if interface option to specify
+    desired network interface
+  * stress-sockabuse: fix help information, replace cut-n-paste help
+  * stress-sctp: add --sctp-if interface option to specify desired
+    network interface
+  * stress-sock: return setting error status for --sock-if
+  * stress-udp: return setting error status for --udp-if
+  * stress-dccp: add --dccp-if interface option to specify desired
+    network interface
+  * core-net: remove deprecated helper stress_set_sockif
+  * stress-sock: add --sock-if interface option to specify desired
+    network interface
+  * stress-udp: add --udp-if interface option to specify desired network
+    interface
+  * stress-rawsock: start recv only once all senders are up and running
+  * stress-vm: add forward and reverse memory exercising, fwdrev method
+  * stress-resources: add mutex create/destroy resource usage
+  * stress-ng.h, stress-version.h: Add ICC support for alignment hinting
+  * stress-jpeg: fix bitwise & on bits of RGB brown noise
+  * Add clang builtin bit reversal build time checks
+  * core-bitops.h: Add reverse64/32/16/8 integer reversal functions
+  * Manual: update mmapfixed manual to reflect the new range mremappings
+  * stress-mmapfixed: walk through a large address range based on random
+    start
+  * Makefile: remove trailing space
+  * stress-jpeg: add brown noise source image type
+  * stress-utime: add check for struct utimbuf and utime()
+  * Add build-time checks for endmntent and setmntent
+  * Makefile.config: re-format dependencies
+  * stress-jpeg: use builtin shim wrappers for math functions
+  * stress-cpu: use builtin roundl where possible
+  * stress-cpu: use shim_exp and shim_log in stress_cpu_explog()
+  * stress-cpu: use builtin cexp if it exists
+  * Add FAST_MATH check for -ffast-math compiler option
+  * stress-jpeg: clean up some spacing/table formatting
+  * stress-zero: remove some empty lines
+  * core-vmstat: run vmstats with real time deadline scheduling where
+    possible
+  * stress-rawsock: check keep stressing state before each send/recv
+  * stress-rawsock: stagger start time of instances to reduce lockup
+    races
+  * stress-rawsock: make client wait for server to start
+  * Makefile: rename verbose V and quiet Q prefix variables to PRE_V
+    and PRE_Q
+  * Update copyright on various source files
+  * stress-zlib: add fast Lehmer random number generator
+  * stress-mutex: swap order of options help around
+  * stress-mutex: add --mutex-affinity option to enable random CPU
+    affinity setting
+  * stress-cpu: add div8 and div128 division cpu stressor methods
+  * stress-signest: only dump out signal stats on instance 0
+  * stress-zlib: remove duplicated table of random data generators
+  * stress-zlib: add a rdrand random data generator method
+  * stress-madvise: don't poison zero pages that are in-core
+  * stress-ng: log how stress-ng was invoked with -v verbose mode
+  * stress-loop: constify loop_attr
+  * stress-jpeg: make quality parameter const
+  * stress-jpeg: make constants double, make row_stride const
+  * stress-jpeg: rename 2 * pi as tau, use M_PI for pi constant
+  * stress-usersyscall: make libc_path larger to avoid potiential
+    overflows
+  * stress-pthread: use && instead of & bit-wise operator
+  * stress-klog: use || instead of bitwise operator
+  * stress-loadavg: use && instead of bitwise & operator
+  * core-thrash: make prot array larger to avoid sscanf overflow
+  * stress-af-alg: ignore deprecated skciper ecb(arc4)
+  * Add the msyncmany stressor
+  * stress-cache: add --cache-clwb (cache line writeback) option
+  * core-vmstat: call _exit() on vmstat termination
+  * stress-mutex: add priority inheritence on mutex
+  * Add a pthread mutex stressor --mutex, --mutex-ops and --mutex-procs
+    options
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Thu, 5 May 2022 23:45:24 +0100
+
 stress-ng (0.14.00-1) unstable; urgency=medium
 
   [Mike Koreneff]
