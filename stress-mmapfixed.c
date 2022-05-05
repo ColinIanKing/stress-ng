@@ -98,7 +98,12 @@ static bool stress_mmapfixed_is_mapped(
 static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
+#if defined(HAVE_MREMAP) &&	\
+    NEED_GLIBC(2,4,0) && 	\
+    defined(MREMAP_FIXED) &&	\
+    defined(MREMAP_MAYMOVE)
 	const uintptr_t page_mask = ~((uintptr_t)(page_size - 1));
+#endif
 	uintptr_t addr = MMAP_TOP;
 	int ret;
 
