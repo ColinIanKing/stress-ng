@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-cpu.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"zlib N",		"start N workers compressing data with zlib" },
@@ -444,7 +445,8 @@ static void stress_rand_data_fixed(
 		*(ptr++) = 0x04030201;
 }
 
-#if defined(__x86_64__) || defined(__x86_64)
+#if defined(HAVE_ASM_X86_RDRAND) &&		\
+    (defined(__x86_64__) || defined(__x86_64))
 /*
  *  rdrand64()
  *	read 64 bit random value
@@ -474,8 +476,13 @@ static void stress_rand_data_rdrand(
 
 	(void)args;
 
-	while (ptr < end)
-		*(ptr++) = rand64();
+	if (stress_cpu_x86_has_rdrand()) {
+		while (ptr < end)
+			*(ptr++) = rand64();
+	} else {
+		while (ptr < end)
+			*(ptr++) = stress_mwc64();
+	}
 }
 #endif
 
@@ -977,7 +984,8 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "pink",	stress_rand_data_pink },
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
-#if defined(__x86_64__) || defined(__x86_64)
+#if defined(HAVE_ASM_X86_RDRAND) &&		\
+    (defined(__x86_64__) || defined(__x86_64))
 	{ "rdrand",	stress_rand_data_rdrand },
 #endif
 	{ "text",	stress_rand_data_text },
