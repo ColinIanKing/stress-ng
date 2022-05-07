@@ -623,6 +623,8 @@ static const struct option long_options[] = {
 	{ "mmaphuge-mmaps",	1,	0,	OPT_mmaphuge_mmaps },
 	{ "mmapmany",		1,	0,	OPT_mmapmany },
 	{ "mmapmany-ops",	1,	0,	OPT_mmapmany_ops },
+	{ "mprotect",		1,	0,	OPT_mprotect },
+	{ "mprotect-ops",	1,	0,	OPT_mprotect_ops },
 	{ "mq",			1,	0,	OPT_mq },
 	{ "mq-ops",		1,	0,	OPT_mq_ops },
 	{ "mq-size",		1,	0,	OPT_mq_size },

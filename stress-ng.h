@@ -1176,6 +1176,7 @@ typedef struct {
 	MACRO(mmapfork)		\
 	MACRO(mmaphuge)		\
 	MACRO(mmapmany)		\
+	MACRO(mprotect)		\
 	MACRO(mq)		\
 	MACRO(mremap)		\
 	MACRO(msg)		\
@@ -1923,6 +1924,9 @@ typedef enum {
 
 	OPT_mmapmany,
 	OPT_mmapmany_ops,
+
+	OPT_mprotect,
+	OPT_mprotect_ops,
 
 	OPT_mq,
 	OPT_mq_ops,

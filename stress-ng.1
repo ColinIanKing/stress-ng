@@ -3064,6 +3064,17 @@ the maximum allowed mappings or a maximum of 262144 mappings are made.
 .B \-\-mmapmany\-ops N
 stop after N mmapmany bogo operations
 .TP
+.B \-\-mprotect N
+start N workers that exercise changing page protection settings and access
+memory after each change. 8 processes per worker contend with each other
+changing page proection settings on a shared memory region of just a few pages
+to cause TLB flushes. A read and write to the pages can cause segmentation
+faults and these are handled by the stressor. All combinations of page
+protection settings are exercised including invalid combinations.
+.TP
+.B \-\-mprotect\-ops N
+stop after N mprotect calls.
+.TP
 .B \-\-mq N
 start N sender and receiver processes that continually send and receive
 messages using POSIX message queues. (Linux only).
