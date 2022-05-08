@@ -2699,6 +2699,7 @@ extern void stress_set_proc_state(const char *name, const int state);
 extern WARN_UNUSED int stress_get_unused_uid(uid_t *uid);
 extern void NORETURN MLOCKED_TEXT stress_sig_handler_exit(int signum);
 extern void stress_clear_warn_once(void);
+extern WARN_UNUSED size_t stress_flag_permutation(const int flags, int **permutations);
 
 /* Memory locking */
 extern int stress_mlock_region(const void *addr_start, const void *addr_end);

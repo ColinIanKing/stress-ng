@@ -2834,3 +2834,49 @@ void stress_clear_warn_once(void)
 		(void)system_write("/sys/kernel/debug/clear_warn_once", "1", 1);
 #endif
 }
+
+/*
+ *  stress_flag_permutation()
+ *	given flag mask in flags, generate all possible permutations
+ *	of bit flags. e.g.
+ *		flags = 0x81;
+ *			-> b00000000
+ *			   b00000001
+ *			   b10000000
+ *			   b10000001
+ */
+size_t stress_flag_permutation(const int flags, int **permutations)
+{
+	int flag_bits = flags;
+	size_t i, j, n_flags, n_bits;
+	int *perms;
+
+	*permutations = NULL;
+
+	for (n_bits = 0, flag_bits = flags; flag_bits; flag_bits >>= 1)
+		n_bits += (flag_bits & 1);
+
+	n_flags = 1U << n_bits;
+	perms = calloc((size_t)n_flags, sizeof(*perms));
+	if (!perms)
+		return 0;
+
+	/*
+	 *  Generate all the possible flag settings in order
+	 */
+	for (j = 0; j < n_flags; j++) {
+		int j_mask = 1;
+
+		for (i = 0; i < 32; i++) {
+			const int i_mask = 1U << i;
+
+			if (flags & i_mask) {
+				if (j & j_mask)
+					perms[j] |= i_mask;
+				j_mask <<= 1;
+			}
+		}
+	}
+	*permutations = perms;
+	return n_flags;
+}

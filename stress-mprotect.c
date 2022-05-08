@@ -85,9 +85,7 @@ static int stress_mprotect(const stress_args_t *args)
 	size_t i;
 	uint8_t *mem;
 	pid_t pids[MPROTECT_MAX];
-	int prot_bits = 0;
-	int j, n_flags, n_bits, flags;
-	int *prot_flags;
+	int prot_bits = 0, n_flags, *prot_flags;
 
 #if defined(PROT_NONE)
 	prot_bits |= PROT_NONE;
@@ -111,31 +109,11 @@ static int stress_mprotect(const stress_args_t *args)
 	prot_bits |= PROT_GROWSDOWN;
 #endif
 
-	for (n_bits = 0, flags = prot_bits; flags; flags >>= 1) {
-		n_bits += (flags & 1);
-	}
-	n_flags = 1U << n_bits;
-	prot_flags = calloc((size_t)n_flags, sizeof(*prot_flags));
+	n_flags = stress_flag_permutation(prot_bits, &prot_flags);
 	if (!prot_flags) {
-		pr_inf("%s: cannot allocate %d protection masks, skipping stressor\n",
-			args->name, n_bits);
+		pr_inf("%s: cannot allocate protection masks, skipping stressor\n",
+			args->name);
 		return EXIT_NO_RESOURCE;
-	}
-
-	/*
-	 *  Generate all the possible protection settings
-	 */
-	for (j = 0; j < n_flags; j++) {
-		int j_mask = 1;
-
-		for (i = 0; i < 32; i++) {
-			int i_mask = 1U << i;
-			if (prot_bits & i_mask) {
-				if (j & j_mask)
-					prot_flags[j] |= i_mask;
-				j_mask <<= 1;
-			}
-		}
 	}
 
 	mem = (uint8_t *)mmap(NULL, mem_size, PROT_READ | PROT_WRITE,
