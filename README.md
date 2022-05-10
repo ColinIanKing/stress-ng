@@ -41,6 +41,12 @@ where version is the relevant version number, for example:
 
 https://github.com/ColinIanKing/stress-ng/tarball/V0.13.05
 
+## Running latest stress-ng snapshot in a container
+
+```
+        docker run --rm ghcr.io/colinianking/stress-ng:master --help
+```
+
 ## Building stress-ng
 
 To build, the following libraries will ensure a fully functional stress-ng
@@ -119,6 +125,23 @@ ClearLinux:
   * devpkg-Judy
   * devpkg-libgcrypt
   * devpkg-kmod
+
+Alpine Linux:
+  * build-base
+  * libaio-dev
+  * libattr
+  * libbsd-dev
+  * libcap-dev
+  * libcap-dev
+  * libgcrypt-dev
+  * jpeg-dev
+  * judy-dev (presently in testing, see [#13779](https://gitlab.alpinelinux.org/alpine/aports/-/issues/13779))
+  * keyutils-dev
+  * lksctp-tools-dev
+  * libatomic
+  * zlib-dev
+  * kmod-dev
+  * xxhash-dev
 
 NOTE: the build will try to detect build dependencies and will build an image
 with functionality disabled if the support libraries are not installed.
