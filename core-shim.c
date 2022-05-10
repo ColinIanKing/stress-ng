@@ -212,6 +212,14 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 	ret = fallocate(fd, mode, offset, len);
 	/* mode not supported? try with zero mode (dirty hack) */
 	if ((ret < 0) && (errno == EOPNOTSUPP)) {
+#if defined(FALLOC_FL_PUNCH_HOLE)
+		if (mode & FALLOC_FL_PUNCH_HOLE)
+			return ret;
+#endif
+#if defined(FALLOC_FL_COLLAPSE_RANGE)
+		if (mode & FALLOC_FL_COLLAPSE_RANGE)
+			return ret;
+#endif
 		ret = (int)syscall(__NR_fallocate, fd, 0, offset, len);
 		/* fallocate failed, try emulation mode */
 		if ((ret < 0) && (errno == EOPNOTSUPP)) {
@@ -225,6 +233,14 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 	ret = syscall(__NR_fallocate, fd, mode, offset, len);
 	/* mode not supported? try with zero mode (dirty hack) */
 	if ((ret < 0) && (errno == EOPNOTSUPP)) {
+#if defined(FALLOC_FL_PUNCH_HOLE)
+		if (mode & FALLOC_FL_PUNCH_HOLE)
+			return ret;
+#endif
+#if defined(FALLOC_FL_COLLAPSE_RANGE)
+		if (mode & FALLOC_FL_COLLAPSE_RANGE)
+			return ret;
+#endif
 		ret = syscall(__NR_fallocate, fd, 0, offset, len);
 		/* fallocate failed, try emulation mode */
 		if ((ret < 0) && (errno == EOPNOTSUPP)) {
@@ -242,6 +258,14 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 	int ret;
 
 	(void)mode;
+#if defined(FALLOC_FL_PUNCH_HOLE)
+		if (mode & FALLOC_FL_PUNCH_HOLE)
+			return ret;
+#endif
+#if defined(FALLOC_FL_COLLAPSE_RANGE)
+		if (mode & FALLOC_FL_COLLAPSE_RANGE)
+			return ret;
+#endif
 
 	/*
 	 *  posix_fallocate returns 0 for success, > 0 as errno
@@ -255,6 +279,14 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 	return ret;
 #else
 	(void)mode;
+#if defined(FALLOC_FL_PUNCH_HOLE)
+		if (mode & FALLOC_FL_PUNCH_HOLE)
+			return ret;
+#endif
+#if defined(FALLOC_FL_COLLAPSE_RANGE)
+		if (mode & FALLOC_FL_COLLAPSE_RANGE)
+			return ret;
+#endif
 
 	return shim_emulate_fallocate(fd, offset, len);
 #endif
