@@ -132,7 +132,7 @@ Alpine Linux:
   * libattr
   * libbsd-dev
   * libcap-dev
-  * libcap-dev
+  * libseccomp-dev
   * libgcrypt-dev
   * jpeg-dev
   * judy-dev (presently in testing, see [#13779](https://gitlab.alpinelinux.org/alpine/aports/-/issues/13779))
