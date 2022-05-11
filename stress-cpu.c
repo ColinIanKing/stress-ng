@@ -477,7 +477,7 @@ static void HOT OPTIMIZE3 stress_cpu_lfsr32(const char *name)
 
 /*
  *  stress_cpu_nsqrt()
- *	iterative Newton–Raphson square root
+ *	iterative Newton-Raphson square root
  */
 static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 {
