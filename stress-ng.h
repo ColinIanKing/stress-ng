@@ -1505,6 +1505,7 @@ typedef enum {
 	OPT_cpu_ops,
 	OPT_cpu_method,
 	OPT_cpu_load_slice,
+	OPT_cpu_old_metrics,
 
 	OPT_cpu_online,
 	OPT_cpu_online_ops,

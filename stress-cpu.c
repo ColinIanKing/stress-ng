@@ -77,6 +77,7 @@ typedef void (*stress_cpu_func)(const char *name);
 typedef struct {
 	const char		*name;	/* human readable form of stressor */
 	const stress_cpu_func	func;	/* the cpu method function */
+	const double bogo_op_rate;	/* normalizing bogo-ops rate */
 } stress_cpu_method_info_t;
 
 static const stress_help_t help[] = {
@@ -85,6 +86,7 @@ static const stress_help_t help[] = {
 	{ "l P", "cpu-load P",		"load CPU by P %, 0=sleep, 100=full load (see -c)" },
 	{ NULL,	 "cpu-load-slice S",	"specify time slice during busy load" },
 	{ NULL,  "cpu-method M",	"specify stress cpu method M, default is all" },
+	{ NULL,	 "cpu-old-metrics",	"use old CPU metrics instead of normalized metrics" },
 	{ NULL,	 NULL,			NULL }
 };
 
@@ -93,7 +95,16 @@ static const stress_cpu_method_info_t cpu_methods[];
 /* Don't make this static to ensure dithering does not get optimised out */
 uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
 
-static int stress_set_cpu_load(const char *opt) {
+static int stress_set_cpu_old_metrics(const char *opt)
+{
+	bool old_metrics = true;
+
+	(void)opt;
+	return stress_set_setting("cpu-old-metrics", TYPE_ID_BOOL, &old_metrics);
+}
+
+static int stress_set_cpu_load(const char *opt)
+{
 	int32_t cpu_load;
 
 	cpu_load = stress_get_int32(opt);
@@ -2800,167 +2811,180 @@ static void stress_cpu_stats(const char *name)
 
 /*
  *  stress_cpu_all()
- *	iterate over all cpu stressors
+ *	dummy function, not called
  */
 static HOT OPTIMIZE3 void stress_cpu_all(const char *name)
 {
-	static int i = 1;	/* Skip over stress_cpu_all */
-
-	cpu_methods[i++].func(name);
-	if (!cpu_methods[i].func)
-		i = 1;
+	(void)name;
 }
 
 /*
  * Table of cpu stress methods
  */
 static const stress_cpu_method_info_t cpu_methods[] = {
-	{ "all",		stress_cpu_all },	/* Special "all test */
+	{ "all",		stress_cpu_all,			10000.0	},	/* Special "all test */
 
-	{ "ackermann",		stress_cpu_ackermann },
-	{ "apery",		stress_cpu_apery },
-	{ "bitops",		stress_cpu_bitops },
-	{ "callfunc",		stress_cpu_callfunc },
+	{ "ackermann",		stress_cpu_ackermann,		2008.64	},
+	{ "apery",		stress_cpu_apery,		9344.95	},
+	{ "bitops",		stress_cpu_bitops,		6573.24	},
+	{ "callfunc",		stress_cpu_callfunc,		3132911.03 },
 #if defined(HAVE_COMPLEX_H) &&		\
     defined(HAVE_COMPLEX) &&		\
     defined(__STDC_IEC_559_COMPLEX__) &&\
     !defined(__UCLIBC__)
-	{ "cdouble",		stress_cpu_complex_double },
-	{ "cfloat",		stress_cpu_complex_float },
-	{ "clongdouble",	stress_cpu_complex_long_double },
+	{ "cdouble",		stress_cpu_complex_double,	8969.40 },
+	{ "cfloat",		stress_cpu_complex_float,	2656.19 },
+	{ "clongdouble",	stress_cpu_complex_long_double,	794.78 },
 #else
 	UNEXPECTED
 #endif
-	{ "collatz",		stress_cpu_collatz },
-	{ "correlate",		stress_cpu_correlate },
+	{ "collatz",		stress_cpu_collatz,		860193.45 },
+	{ "correlate",		stress_cpu_correlate,		216.02 },
 #if defined(STRESS_ARCH_X86)
-	{ "cpuid",		stress_cpu_cpuid },
+	{ "cpuid",		stress_cpu_cpuid,		212.07 },
 #endif
-	{ "crc16",		stress_cpu_crc16 },
+	{ "crc16",		stress_cpu_crc16,		249.93 },
 #if defined(HAVE_FLOAT_DECIMAL32) &&	\
     !defined(__clang__)
-	{ "decimal32",		stress_cpu_decimal32 },
+	{ "decimal32",		stress_cpu_decimal32,		724.47 },
 #endif
 #if defined(HAVE_FLOAT_DECIMAL64) &&	\
     !defined(__clang__)
-	{ "decimal64",		stress_cpu_decimal64 },
+	{ "decimal64",		stress_cpu_decimal64,		916.39 },
 #endif
 #if defined(HAVE_FLOAT_DECIMAL128) &&	\
     !defined(__clang__)
-	{ "decimal128",		stress_cpu_decimal128 },
+	{ "decimal128",		stress_cpu_decimal128,		330.52 },
 #endif
-	{ "dither",		stress_cpu_dither },
-	{ "div8",		stress_cpu_div8 },
-	{ "div16",		stress_cpu_div16 },
-	{ "div32",		stress_cpu_div32 },
-	{ "div64",		stress_cpu_div64 },
+	{ "dither",		stress_cpu_dither,		234.77 },
+	{ "div8",		stress_cpu_div8,		8815.50 },
+	{ "div16",		stress_cpu_div16,		8843.39 },
+	{ "div32",		stress_cpu_div32,		9937.25 },
+	{ "div64",		stress_cpu_div64,		2833.72 },
 #if defined(HAVE_INT128_T)
-	{ "div128",		stress_cpu_div128 },
+	{ "div128",		stress_cpu_div128,		1536.66 },
 #endif
-	{ "double",		stress_cpu_double },
-	{ "euler",		stress_cpu_euler },
-	{ "explog",		stress_cpu_explog },
-	{ "factorial",		stress_cpu_factorial },
-	{ "fibonacci",		stress_cpu_fibonacci },
+	{ "double",		stress_cpu_double,		11172.11 },
+	{ "euler",		stress_cpu_euler,		26895846.22 },
+	{ "explog",		stress_cpu_explog,		343.85 },
+	{ "factorial",		stress_cpu_factorial,		9474.40 },
+	{ "fibonacci",		stress_cpu_fibonacci,		35976352.02 },
 #if defined(HAVE_COMPLEX_H) &&		\
     defined(HAVE_COMPLEX) &&		\
     defined(__STDC_IEC_559_COMPLEX__) &&\
     !defined(__UCLIBC__)
-	{ "fft",		stress_cpu_fft },
+	{ "fft",		stress_cpu_fft,			1516.20 },
 #endif
-	{ "fletcher16",		stress_cpu_fletcher16 },
-	{ "float",		stress_cpu_float },
+	{ "fletcher16",		stress_cpu_fletcher16,		650.59 },
+	{ "float",		stress_cpu_float,		11085.77 },
 #if defined(HAVE_FLOAT16) &&	\
     !defined(__clang__)
-	{ "float16",		stress_cpu_float16 },
+	{ "float16",		stress_cpu_float16,		8885.55 },
 #endif
 #if defined(HAVE_FLOAT32) &&	\
     !defined(__clang__)
-	{ "float32",		stress_cpu_float32 },
+	{ "float32",		stress_cpu_float32,		8885.55 },
 #endif
 #if defined(HAVE_FLOAT64) &&	\
     !defined(__clang__)
-	{ "float64",		stress_cpu_float64 },
+	{ "float64",		stress_cpu_float64,		10582.13},
 #endif
 #if defined(HAVE_FLOAT80) &&	\
     !defined(__clang__)
-	{ "float80",		stress_cpu_float80 },
+	{ "float80",		stress_cpu_float80,		1699.80 },
 #endif
 #if defined(HAVE_FLOAT128) &&	\
     !defined(__clang__)
-	{ "float128",		stress_cpu_float128 },
+	{ "float128",		stress_cpu_float128,		725.41 },
 #endif
-	{ "floatconversion",	stress_cpu_floatconversion },
-	{ "gamma",		stress_cpu_gamma },
-	{ "gcd",		stress_cpu_gcd },
-	{ "gray",		stress_cpu_gray },
-	{ "hamming",		stress_cpu_hamming },
-	{ "hanoi",		stress_cpu_hanoi },
-	{ "hyperbolic",		stress_cpu_hyperbolic },
-	{ "idct",		stress_cpu_idct },
+	{ "floatconversion",	stress_cpu_floatconversion,	2705.07 },
+	{ "gamma",		stress_cpu_gamma,		492.74 },
+	{ "gcd",		stress_cpu_gcd,			1586.81 },
+	{ "gray",		stress_cpu_gray,		62248.86 },
+	{ "hamming",		stress_cpu_hamming,		1036.58 },
+	{ "hanoi",		stress_cpu_hanoi,		54804.26 },
+	{ "hyperbolic",		stress_cpu_hyperbolic,		1556.08 },
+	{ "idct",		stress_cpu_idct,		71989.07 },
 #if defined(HAVE_INT128_T)
-	{ "int128",		stress_cpu_int128 },
+	{ "int128",		stress_cpu_int128,		30658.82 },
 #endif
-	{ "int64",		stress_cpu_int64 },
-	{ "int32",		stress_cpu_int32 },
-	{ "int16",		stress_cpu_int16 },
-	{ "int8",		stress_cpu_int8 },
+	{ "int64",		stress_cpu_int64,		61950.47 },
+	{ "int32",		stress_cpu_int32,		65527.15 },
+	{ "int16",		stress_cpu_int16,		65656.46 },
+	{ "int8",		stress_cpu_int8,		65610.66 },
 #if defined(HAVE_INT128_T)
-	{ "int128float",	stress_cpu_int128_float },
-	{ "int128double",	stress_cpu_int128_double },
-	{ "int128longdouble",	stress_cpu_int128_longdouble },
+	{ "int128float",	stress_cpu_int128_float,	18312.51 },
+	{ "int128double",	stress_cpu_int128_double,	9798.38 },
+	{ "int128longdouble",	stress_cpu_int128_longdouble,	1397.33 },
 #if defined(HAVE_FLOAT_DECIMAL32) &&	\
     !defined(__clang__)
-	{ "int128decimal32",	stress_cpu_int128_decimal32 },
+	{ "int128decimal32",	stress_cpu_int128_decimal32,	1696.86 },
 #endif
 #if defined(HAVE_FLOAT_DECIMAL64) &&	\
     !defined(__clang__)
-	{ "int128decimal64",	stress_cpu_int128_decimal64 },
+	{ "int128decimal64",	stress_cpu_int128_decimal64,	2242.01 },
 #endif
 #if defined(HAVE_FLOAT_DECIMAL128) &&	\
     !defined(__clang__)
-	{ "int128decimal128",	stress_cpu_int128_decimal128 },
+	{ "int128decimal128",	stress_cpu_int128_decimal128,	347.19 },
 #endif
 #endif
-	{ "int64float",		stress_cpu_int64_float },
-	{ "int64double",	stress_cpu_int64_double },
-	{ "int64longdouble",	stress_cpu_int64_longdouble },
-	{ "int32float",		stress_cpu_int32_float },
-	{ "int32double",	stress_cpu_int32_double },
-	{ "int32longdouble",	stress_cpu_int32_longdouble },
-	{ "intconversion",	stress_cpu_intconversion },
-	{ "ipv4checksum",	stress_cpu_ipv4checksum },
-	{ "jmp",		stress_cpu_jmp },
-	{ "lfsr32",		stress_cpu_lfsr32 },
-	{ "ln2",		stress_cpu_ln2 },
-	{ "logmap",		stress_cpu_logmap },
-	{ "longdouble",		stress_cpu_longdouble },
-	{ "loop",		stress_cpu_loop },
-	{ "matrixprod",		stress_cpu_matrix_prod },
-	{ "nsqrt",		stress_cpu_nsqrt },
-	{ "omega",		stress_cpu_omega },
-	{ "parity",		stress_cpu_parity },
-	{ "phi",		stress_cpu_phi },
-	{ "pi",			stress_cpu_pi },
-	{ "prime",		stress_cpu_prime },
-	{ "psi",		stress_cpu_psi },
-	{ "queens",		stress_cpu_queens },
-	{ "rand",		stress_cpu_rand },
-	{ "rand48",		stress_cpu_rand48 },
-	{ "rgb",		stress_cpu_rgb },
-	{ "sieve",		stress_cpu_sieve },
-	{ "stats",		stress_cpu_stats },
-	{ "sqrt", 		stress_cpu_sqrt },
-	{ "trig",		stress_cpu_trig },
-	{ "union",		stress_cpu_union },
+	{ "int64float",		stress_cpu_int64_float,		25297.02 },
+	{ "int64double",	stress_cpu_int64_double,	11390.72 },
+	{ "int64longdouble",	stress_cpu_int64_longdouble,	1399.64 },
+	{ "int32float",		stress_cpu_int32_float,		26033.76 },
+	{ "int32double",	stress_cpu_int32_double,	11617.23 },
+	{ "int32longdouble",	stress_cpu_int32_longdouble,	1408.24 },
+	{ "intconversion",	stress_cpu_intconversion,	1390.75 },
+	{ "ipv4checksum",	stress_cpu_ipv4checksum,	23394.01 },
+	{ "jmp",		stress_cpu_jmp,			122704.94 },
+	{ "lfsr32",		stress_cpu_lfsr32,		52110.43 },
+	{ "ln2",		stress_cpu_ln2,			118136.97 },
+	{ "logmap",		stress_cpu_logmap,		23417.85 },
+	{ "longdouble",		stress_cpu_longdouble,		1801.60 },
+	{ "loop",		stress_cpu_loop,		31424.67 },
+	{ "matrixprod",		stress_cpu_matrix_prod,		263.84 },
+	{ "nsqrt",		stress_cpu_nsqrt,		32783.07 },
+	{ "omega",		stress_cpu_omega,		4038977.72 },
+	{ "parity",		stress_cpu_parity,		30013.93 },
+	{ "phi",		stress_cpu_phi,			20462354.45 },
+	{ "pi",			stress_cpu_pi,			469787.65 },
+	{ "prime",		stress_cpu_prime,		443.99 },
+	{ "psi",		stress_cpu_psi,			6121992.09 },
+	{ "queens",		stress_cpu_queens,		637.03 },
+	{ "rand",		stress_cpu_rand,		16530.45 },
+	{ "rand48",		stress_cpu_rand48,		5037.84 },
+	{ "rgb",		stress_cpu_rgb,			71888.49 },
+	{ "sieve",		stress_cpu_sieve,		3437.93 },
+	{ "stats",		stress_cpu_stats,		428002.41 },
+	{ "sqrt", 		stress_cpu_sqrt,		5821.64 },
+	{ "trig",		stress_cpu_trig,		1200.32 },
+	{ "union",		stress_cpu_union,		30434.40 },
 #if defined(HAVE_COMPLEX_H) &&		\
     defined(HAVE_COMPLEX) &&		\
     defined(__STDC_IEC_559_COMPLEX__) &&\
     !defined(__UCLIBC__)
-	{ "zeta",		stress_cpu_zeta },
+	{ "zeta",		stress_cpu_zeta,		1339.96 },
 #endif
-	{ NULL,			NULL }
+	{ NULL,			NULL,				1.0 }
 };
+
+static double stress_cpu_counter_scale[SIZEOF_ARRAY(cpu_methods)];
+
+static void stress_cpu_method(int method, const stress_args_t *args, double *counter)
+{
+	if (method == 0) {
+		static int i = 1;	/* Skip over stress_cpu_all */
+
+		method = i;
+		i++;
+		if (!cpu_methods[i].func)
+			i = 1;
+	}
+	cpu_methods[method].func(args->name);
+	*counter += stress_cpu_counter_scale[method];
+	set_counter(args, (uint64_t)*counter);
+}
 
 /*
  *  stress_set_cpu_method()
@@ -2968,18 +2992,18 @@ static const stress_cpu_method_info_t cpu_methods[] = {
  */
 static int stress_set_cpu_method(const char *name)
 {
-	stress_cpu_method_info_t const *info;
+	size_t i;
 
-	for (info = cpu_methods; info->func; info++) {
-		if (!strcmp(info->name, name)) {
-			stress_set_setting("cpu-method", TYPE_ID_UINTPTR_T, &info);
+	for (i = 0; cpu_methods[i].func; i++) {
+		if (!strcmp(cpu_methods[i].name, name)) {
+			stress_set_setting("cpu-method", TYPE_ID_SIZE_T, &i);
 			return 0;
 		}
 	}
 
 	(void)fprintf(stderr, "cpu-method must be one of:");
-	for (info = cpu_methods; info->func; info++) {
-		(void)fprintf(stderr, " %s", info->name);
+	for (i = 0; cpu_methods[i].func; i++) {
+		(void)fprintf(stderr, " %s", cpu_methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 
@@ -3023,18 +3047,27 @@ static double stress_per_cpu_time(void)
 static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 {
 	double bias;
-	const stress_cpu_method_info_t *cpu_method = &cpu_methods[0];
-	stress_cpu_func func;
+	size_t cpu_method = 0;
 	int32_t cpu_load = 100;
 	int32_t cpu_load_slice = -64;
+	double counter = 0.0;
+	bool cpu_old_metrics = false;
+	size_t i;
 
 	(void)stress_get_setting("cpu-load", &cpu_load);
 	(void)stress_get_setting("cpu-load-slice", &cpu_load_slice);
 	(void)stress_get_setting("cpu-method", &cpu_method);
+	(void)stress_get_setting("cpu-old-metrics", &cpu_old_metrics);
 
-	func = cpu_method->func;
+	if (cpu_old_metrics) {
+		for (i = 0; i < SIZEOF_ARRAY(stress_cpu_counter_scale); i++)
+			stress_cpu_counter_scale[i] = 1.0;
+	} else {
+		for (i = 0; i < SIZEOF_ARRAY(stress_cpu_counter_scale); i++)
+			stress_cpu_counter_scale[i] = 1484.50 / cpu_methods[i].bogo_op_rate;
+	}
 
-	pr_dbg("%s using method '%s'\n", args->name, cpu_method->name);
+	pr_dbg("%s using method '%s'\n", args->name, cpu_methods[cpu_method].name);
 
 	/*
 	 * It is unlikely, but somebody may request to do a zero
@@ -3052,8 +3085,7 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 	 */
 	if (cpu_load == 100) {
 		do {
-			(void)func(args->name);
-			inc_counter(args);
+			stress_cpu_method(cpu_method, args, &counter);
 		} while (keep_stressing(args));
 		return EXIT_SUCCESS;
 	}
@@ -3074,10 +3106,9 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 			int j;
 
 			for (j = 0; j < -cpu_load_slice; j++) {
-				(void)func(args->name);
+				stress_cpu_method(cpu_method, args, &counter);
 				if (!keep_stressing_flag())
 					break;
-				inc_counter(args);
 			}
 			t2 = stress_per_cpu_time();
 		} else if (cpu_load_slice == 0) {
@@ -3085,22 +3116,20 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 			const uint16_t r = stress_mwc16();
 			double slice_end = t1 + ((double)r / 131072.0);
 			do {
-				(void)func(args->name);
+				stress_cpu_method(cpu_method, args, &counter);
 				t2 = stress_per_cpu_time();
 				if (!keep_stressing_flag())
 					break;
-				inc_counter(args);
 			} while (t2 < slice_end);
 		} else {
 			/* > 0, time slice in milliseconds */
 			const double slice_end = t1 + ((double)cpu_load_slice / 1000.0);
 
 			do {
-				(void)func(args->name);
+				stress_cpu_method(cpu_method, args, &counter);
 				t2 = stress_per_cpu_time();
 				if (!keep_stressing_flag())
 					break;
-				inc_counter(args);
 			} while (t2 < slice_end);
 		}
 
@@ -3149,6 +3178,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_cpu_load,		stress_set_cpu_load },
 	{ OPT_cpu_load_slice,	stress_set_cpu_load_slice },
 	{ OPT_cpu_method,	stress_set_cpu_method },
+	{ OPT_cpu_old_metrics,	stress_set_cpu_old_metrics },
 	{ 0,			NULL },
 };
 

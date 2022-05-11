@@ -929,6 +929,16 @@ frequency scaling and passive/active thermal cooling mechanisms.
 Note: This option only applies to the \-\-cpu stressor option and not to
 all of the cpu class of stressors.
 .TP
+.B \-\-cpu\-old\-metrics
+as of version V0.14.02 the cpu stressor now normalizes each of the cpu
+stressor method bogo-op counters to try and ensure a similar bogo-op rate
+for all the methods to avoid the shorter running (and faster) methods from
+skewing the bogo-op rates when using the default "all" method.
+This is based on a reference Intel i5-8350U processor and hence the bogo-ops
+normalizing factors will be skew somewhat on different CPUs, but so
+significantly as the original bogo-op counter rates. To disable the normalization
+and fall back to the original metrics, use this option.
+.TP
 .B \-\-cpu\-method method
 specify a cpu stress method. By default, all the stress methods are exercised
 sequentially, however one can specify just one method to be used if required.
