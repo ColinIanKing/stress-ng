@@ -798,7 +798,7 @@ again:
 			/* Forcefully kill threads */
 			for (i = 0; i < MAX_SYSFS_THREADS; i++) {
 				if (pthreads_ret[i] == 0)
-					(void)pthread_kill(pthreads[i], SIGHUP);
+					(void)pthread_kill(pthreads[i], SIGKILL);
 			}
 
 			for (i = 0; i < MAX_SYSFS_THREADS; i++) {
