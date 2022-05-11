@@ -214,6 +214,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 			if ((errno != EPERM) &&
 			    (errno != EINVAL) &&
 			    (errno != EINTR) &&
+			    (errno != ENOSYS) &&
 			    (errno != EBUSY)) {
 				pr_fail("%s: sched_setscheduler "
 					"failed: errno=%d (%s) "
