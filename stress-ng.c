@@ -2073,8 +2073,24 @@ void stress_misc_stats_set(
 	misc_stats[idx].value = value;
 }
 
+#if defined(HAVE_GETRUSAGE)
 /*
- *  stress_run ()
+ *  stress_getrusage()
+ *	accumulate rusgage stats
+ */
+static void stress_getrusage(const int who, stress_stats_t *stats)
+{
+	struct rusage usage;
+
+	if (shim_getrusage(who, &usage) == 0) {
+		stats->rusage_utime += (double)usage.ru_utime.tv_sec + ((double)usage.ru_utime.tv_usec) / 1000000.0;
+		stats->rusage_stime += (double)usage.ru_stime.tv_sec + ((double)usage.ru_stime.tv_usec) / 1000000.0;
+	}
+}
+#endif
+
+/*
+ *  stress_run()
  *	kick off and run stressors
  */
 static void MLOCKED_TEXT stress_run(
@@ -2237,10 +2253,19 @@ again:
 					(void)stress_tz_get_temperatures(&g_shared->tz_info, &stats->tz);
 #endif
 				stats->finish = stress_time_now();
+#if defined(HAVE_GETRUSAGE)
+				stats->rusage_utime = 0.0;
+				stats->rusage_stime = 0.0;
+				stress_getrusage(RUSAGE_SELF, stats);
+				stress_getrusage(RUSAGE_CHILDREN, stats);
+#else
+				(void)memset(&stats->tms, 0, sizeof(stats->tms));
 				if (times(&stats->tms) == (clock_t)-1) {
 					pr_dbg("times failed: errno=%d (%s)\n",
 						errno, strerror(errno));
 				}
+#endif
+
 				pr_dbg("%s: exited [%d] (instance %" PRIu32 ")\n",
 					name, (int)getpid(), j);
 
@@ -2461,10 +2486,13 @@ static void stress_metrics_dump(
 
 			run_ok  |= stats->run_ok;
 			c_total += stats->counter;
-			u_total += (uint64_t)(stats->tms.tms_utime +
-					      stats->tms.tms_cutime);
-			s_total += (uint64_t)(stats->tms.tms_stime +
-					      stats->tms.tms_cstime);
+#if defined(HAVE_GETRUSAGE)
+			u_total += stats->rusage_utime;
+			s_total += stats->rusage_stime;
+#else
+			u_total += (uint64_t)(stats->tms.tms_utime + stats->tms.tms_cutime);
+			s_total += (uint64_t)(stats->tms.tms_stime + stats->tms.tms_cstime);
+#endif
 			r_total += stats->finish - stats->start;
 		}
 		/* Real time in terms of average wall clock time of all procs */
@@ -2475,8 +2503,13 @@ static void stress_metrics_dump(
 		    (c_total == 0) && (!run_ok))
 			continue;
 
+#if defined(HAVE_GETRUSAGE)
+		u_time = u_total;
+		s_time = u_total;
+#else
 		u_time = (ticks_per_sec > 0) ? (double)u_total / (double)ticks_per_sec : 0.0;
 		s_time = (ticks_per_sec > 0) ? (double)s_total / (double)ticks_per_sec : 0.0;
+#endif
 		t_time = u_time + s_time;
 
 		/* Total usr + sys time of all procs */
