@@ -788,6 +788,8 @@ redo:
 		(void)close(context.fd);
 		(void)stress_temp_dir_rm_args(args);
 	}
+	if (context.mmap_prot_perms)
+		free(context.mmap_prot_perms);
 
 	return ret;
 }
