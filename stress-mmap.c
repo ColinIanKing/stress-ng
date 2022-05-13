@@ -50,9 +50,26 @@ typedef struct {
 	bool mmap_file;
 	bool mmap_async;
 	mmap_func_t mmap;
+	size_t mmap_prot_count;
+	int *mmap_prot_perms;
 } stress_mmap_context_t;
 
 #define NO_MEM_RETRIES_MAX	(65536)
+
+static const int mmap_prot[] = {
+#if defined(PROT_NONE)
+	PROT_NONE,
+#endif
+#if defined(PROT_EXEC)
+	PROT_EXEC,
+#endif
+#if defined(PROT_READ)
+	PROT_READ,
+#endif
+#if defined(PROT_WRITE)
+	PROT_WRITE,
+#endif
+};
 
 /* Misc randomly chosen mmap flags */
 static const int mmap_flags[] = {
@@ -607,6 +624,18 @@ cleanup:
 		(void)munmap(NULL, 0);
 		(void)munmap(NULL, ~(size_t)0);
 
+		/*
+		 *  Step #7, random choice from any of the valid/invalid
+		 *  mmap flag permutations
+		 */
+		if ((context->mmap_prot_perms) && (context->mmap_prot_count > 0)) {
+			const size_t rnd = stress_mwc16() % context->mmap_prot_count;
+			const int rnd_prot = context->mmap_prot_perms[rnd];
+
+			buf = mmap(NULL, sz, rnd_prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+			if (buf != MAP_FAILED)
+				(void)munmap((void *)buf, sz);
+		}
 		inc_counter(args);
 	} while (keep_stressing(args));
 
@@ -627,8 +656,9 @@ static int stress_mmap(const stress_args_t *args)
 	bool mmap_osync = false;
 	bool mmap_odirect = false;
 	bool mmap_mmap2 = false;
-	int ret;
+	int ret, all_prot_flags = 0;
 	stress_mmap_context_t context;
+	size_t i;
 
 	context.fd = -1;
 	context.mmap = (mmap_func_t)mmap;
@@ -647,6 +677,10 @@ static int stress_mmap(const stress_args_t *args)
 	(void)stress_get_setting("mmap-osync", &mmap_osync);
 	(void)stress_get_setting("mmap-odirect", &mmap_odirect);
 	(void)stress_get_setting("mmap-mmap2", &mmap_mmap2);
+
+	for (i = 0; i < SIZEOF_ARRAY(mmap_prot); i++)
+		all_prot_flags |= mmap_prot[i];
+	context.mmap_prot_count = stress_flag_permutation(all_prot_flags, &context.mmap_prot_perms);
 
 	if (mmap_osync || mmap_odirect)
 		context.mmap_file = true;
