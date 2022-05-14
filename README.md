@@ -351,6 +351,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [arch/arm64: Fix topology initialization for core scheduling](https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/commit/?id=5524cbb1bfcdff0cad0aaa9f94e6092002a07259)
 * [running stress-ng on Minux 3.4.0-RC6 on amd64 assert in vm/region.c:313](https://github.com/Stichting-MINIX-Research-Foundation/minix/issues/333)
 * [unshare test triggers unhandled page fault](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1959215)
+* [request_module DoS](https://www.spinics.net/lists/kernel/msg4349826.html)
 
 ## Kernel improvements that used stress-ng
 
