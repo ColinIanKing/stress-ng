@@ -93,6 +93,54 @@ static int open_flags[] = {
 #if defined(O_TRUNC)
 	O_TRUNC,
 #endif
+/*
+ *  FreeBSD extras
+ */
+#if defined(O_SEARCH)
+	O_SEARCH,
+#endif
+#if defined(O_SHLOCK)
+	O_SHLOCK,
+#endif
+#if defined(O_VERIFY)
+	O_VERIFY,
+#endif
+#if defined(O_RESOLVE_BENEATH)
+	O_RESOLVE_BENEATH,
+#endif
+/*
+ *  OpenBSD extras
+ */
+#if defined(O_EXLOCK)
+	O_EXLOCK,
+#endif
+/*
+ *  NetBSD extras
+ */
+#if defined(O_NOSIGPIPE)
+	O_NOSIGPIPE,
+#endif
+#if defined(O_RSYNC)
+	O_RSYNC,
+#endif
+#if defined(O_ALT_IO)
+	O_ALT_IO,
+#endif
+#if defined(O_REGULAR)
+	O_REGULAR,
+#endif
+/*
+ *  Oracle Solaris
+ */
+#if defined(O_NOLINKS)
+	O_NOLINKS,
+#endif
+#if defined(O_TTY_INIT)
+	O_TTY_INIT,
+#endif
+#if defined(O_XATTR)
+	O_XATTR,
+#endif
 };
 
 static int stress_set_open_fd(const char *opt)
