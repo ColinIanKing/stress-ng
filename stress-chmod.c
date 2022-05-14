@@ -29,6 +29,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+static int mode_count;
+static int *mode_perms;
+
 static const mode_t modes[] = {
 #if defined(S_ISUID)
 	S_ISUID,
@@ -135,9 +138,16 @@ static int do_chmod(
 	const char *longpath,
 	const size_t i,
 	const mode_t mask,
-	const mode_t all_mask)
+	const mode_t all_mask,
+	const int mode_count,
+	const int *mode_perms)
 {
 	int ret;
+	static int index;
+
+	(void)chmod(filename, (mode_t)mode_perms[index]);
+	index++;
+	index %= mode_count;
 
 	CHECK(chmod(filename, modes[i]) < 0);
 	CHECK(chmod(filename, mask) < 0);
@@ -191,6 +201,11 @@ static int stress_chmod(const stress_args_t *args)
 	mode_t all_mask = 0;
 	char filename[PATH_MAX], pathname[PATH_MAX], longpath[PATH_MAX + 16];
 	char tmp[PATH_MAX], *filebase;
+
+	for (i = 0; modes[i]; i++)
+		all_mask |= modes[i];
+
+	mode_count = stress_flag_permutation((int)all_mask, &mode_perms);
 
 	/*
 	 *  Allow for multiple workers to chmod the *same* file
@@ -253,9 +268,6 @@ static int stress_chmod(const stress_args_t *args)
 		}
 	}
 
-	for (i = 0; modes[i]; i++)
-		all_mask |= modes[i];
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
@@ -267,7 +279,8 @@ static int stress_chmod(const stress_args_t *args)
 				pr_fail("%s: fchmod failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-			if (do_chmod(dfd, bad_fd, filebase, filename, longpath, i, mask, all_mask) < 0) {
+			if (do_chmod(dfd, bad_fd, filebase, filename, longpath, i,
+				     mask, all_mask, mode_count, mode_perms) < 0) {
 				if ((errno == ENOENT) || (errno == ENOTDIR)) {
 					/*
 					 * File was removed during test by
@@ -299,6 +312,9 @@ tidy:
 	}
 	(void)shim_unlink(filename);
 	(void)shim_rmdir(pathname);
+
+	if (mode_perms)
+		free(mode_perms);
 
 	return rc;
 }
