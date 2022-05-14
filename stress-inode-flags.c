@@ -51,6 +51,56 @@ static volatile bool keep_running;
 static sigset_t set;
 static shim_pthread_spinlock_t spinlock;
 
+static int inode_flag_count, *inode_flag_perms;
+
+static const int inode_flags[] = {
+#if defined(FS_DIRSYNC_FL)
+	FS_DIRSYNC_FL,
+#endif
+#if defined(FS_PROJINHERIT_FL)
+	FS_PROJINHERIT_FL,
+#endif
+#if defined(FS_SYNC_FL)
+	FS_SYNC_FL,
+#endif
+#if defined(FS_TOPDIR_FL)
+	FS_TOPDIR_FL,
+#endif
+#if defined(FS_APPEND_FL)
+	FS_APPEND_FL,
+#endif
+#if defined(FS_COMPR_FL)
+	FS_COMPR_FL,
+#endif
+#if defined(FS_IMMUTABLE_FL)
+	FS_IMMUTABLE_FL,
+#endif
+#if defined(FS_JOURNAL_DATA_FL)
+	FS_JOURNAL_DATA_FL,
+#endif
+#if defined(FS_NOCOW_FL)
+	FS_NOCOW_FL,
+#endif
+#if defined(FS_NODUMP_FL)
+	FS_NODUMP_FL,
+#endif
+#if defined(FS_NOTAIL_FL)
+	FS_NOTAIL_FL,
+#endif
+#if defined(FS_PROJINHERIT_FL)
+	FS_PROJINHERIT_FL,
+#endif
+#if defined(FS_SECRM_FL)
+	FS_SECRM_FL,
+#endif
+#if defined(FS_SYNC_FL)
+	FS_SYNC_FL,
+#endif
+#if defined(FS_UNRM_FL)
+	FS_UNRM_FL,
+#endif
+};
+
 /*
  *  stress_inode_flags_ioctl()
  *	try and toggle an inode flag on/off
@@ -104,91 +154,21 @@ static int stress_inode_flags_stressor(
 	const stress_args_t *args,
 	stress_data_t *data)
 {
+	int index = 0;
+
 	while (keep_running && keep_stressing(args)) {
-		int ret;
+		size_t i;
+
+		/* Work through all inode flag permutations */
+		stress_inode_flags_ioctl(args, data->dir_fd, inode_flag_perms[index]);
+		index++;
+		index %= inode_flag_count;
 
 		stress_inode_flags_ioctl(args, data->dir_fd, 0);
-#if defined(FS_DIRSYNC_FL)
-		stress_inode_flags_ioctl(args, data->dir_fd, FS_DIRSYNC_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_PROJINHERIT_FL)
-		stress_inode_flags_ioctl(args, data->dir_fd, FS_PROJINHERIT_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_SYNC_FL)
-		stress_inode_flags_ioctl(args, data->dir_fd, FS_SYNC_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_TOPDIR_FL)
-		stress_inode_flags_ioctl(args, data->dir_fd, FS_TOPDIR_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_APPEND_FL)
-		stress_inode_flags_ioctl(args, data->file_fd, FS_APPEND_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_COMPR_FL)
-		stress_inode_flags_ioctl(args, data->file_fd, FS_COMPR_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_IMMUTABLE_FL)
-		stress_inode_flags_ioctl(args, data->file_fd, FS_IMMUTABLE_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_JOURNAL_DATA_FL)
-		stress_inode_flags_ioctl(args, data->file_fd, FS_JOURNAL_DATA_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_NOCOW_FL)
-		stress_inode_flags_ioctl(args, data->file_fd, FS_NOCOW_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_NODUMP_FL)
-		stress_inode_flags_ioctl(args, data->file_fd, FS_NODUMP_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_NOTAIL_FL)
-		stress_inode_flags_ioctl(args, data->file_fd, FS_NOTAIL_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_PROJINHERIT_FL)
-		stress_inode_flags_ioctl(args, data->file_fd, FS_PROJINHERIT_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_SECRM_FL)
-		stress_inode_flags_ioctl(args, data->file_fd, FS_SECRM_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_SYNC_FL)
-		stress_inode_flags_ioctl(args, data->file_fd, FS_SYNC_FL);
-#else
-		UNEXPECTED
-#endif
-#if defined(FS_UNRM_FL)
-		stress_inode_flags_ioctl(args, data->file_fd, FS_UNRM_FL);
-#else
-		UNEXPECTED
-#endif
-		ret = shim_pthread_spin_lock(&spinlock);
-		if (!ret) {
-			inc_counter(args);
-			ret = shim_pthread_spin_unlock(&spinlock);
-			(void)ret;
-		}
+
+		for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(inode_flags)); i++)
+			stress_inode_flags_ioctl(args, data->dir_fd, inode_flags[i]);
+
 		stress_inode_flags_ioctl_sane(data->file_fd);
 	}
 	stress_inode_flags_ioctl_sane(data->file_fd);
@@ -224,11 +204,21 @@ static int stress_inode_flags(const stress_args_t *args)
 {
 	size_t i;
 	pthread_t pthreads[MAX_INODE_FLAG_THREADS];
-	int rc, ret[MAX_INODE_FLAG_THREADS];
+	int rc, ret[MAX_INODE_FLAG_THREADS], all_inode_flags;
 	stress_pthread_args_t pa[MAX_INODE_FLAG_THREADS];
 	stress_data_t data;
 	char tmp[PATH_MAX], file_name[PATH_MAX];
 	char *dir_name;
+
+	for (all_inode_flags = 0, i = 0; i < SIZEOF_ARRAY(inode_flags); i++)
+		all_inode_flags |= inode_flags[i];
+
+	inode_flag_count = stress_flag_permutation(all_inode_flags, &inode_flag_perms);
+
+	if ((inode_flag_count == 0) || (!inode_flag_perms)) {
+		pr_inf("%s: no inode flags to exercise, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	rc = shim_pthread_spin_init(&spinlock, SHIM_PTHREAD_PROCESS_SHARED);
 	if (rc) {
