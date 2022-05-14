@@ -36,6 +36,65 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+static int open_count, *open_perms;
+
+static int open_flags[] = {
+#if defined(O_APPEND)
+	O_APPEND,
+#endif
+#if defined(O_ASYNC)
+	O_ASYNC,
+#endif
+#if defined(O_CLOEXEC)
+	O_CLOEXEC,
+#endif
+#if defined(O_CREAT)
+	O_CREAT,
+#endif
+#if defined(O_DIRECT)
+	O_DIRECT,
+#endif
+#if defined(O_DIRECTORY)
+	O_DIRECTORY,
+#endif
+#if defined(O_DSYNC)
+	O_DSYNC,
+#endif
+#if defined(O_EXCL)
+	O_EXCL,
+#endif
+#if defined(O_LARGEFILE)
+	O_LARGEFILE,
+#endif
+#if defined(O_NOATIME)
+	O_NOATIME,
+#endif
+#if defined(O_NOCTTY)
+	O_NOCTTY,
+#endif
+#if defined(O_NOFOLLOW)
+	O_NOFOLLOW,
+#endif
+#if defined(O_NONBLOCK)
+	O_NONBLOCK,
+#endif
+#if defined(O_NDELAY)
+	O_NDELAY,
+#endif
+#if defined(O_PATH)
+	O_PATH,
+#endif
+#if defined(O_SYNC)
+	O_SYNC,
+#endif
+#if defined(O_TMPFILE)
+	O_TMPFILE,
+#endif
+#if defined(O_TRUNC)
+	O_TRUNC,
+#endif
+};
+
 static int stress_set_open_fd(const char *opt)
 {
 	bool open_fd = true;
@@ -152,6 +211,52 @@ static inline int open_arg3(const char *pathname, int flags, mode_t mode)
 
 		(void)obsolete_futimes(fd, tv);
 	}
+	return fd;
+}
+
+static int open_flag_perm(void)
+{
+	static int index = 0;
+	int fd;
+	const int mode = S_IRUSR | S_IWUSR;
+	const int flags = open_perms[index];
+	char filename[PATH_MAX];
+
+	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
+		(int)getpid(), stress_mwc32());
+
+	if (UNLIKELY((open_count == 0) || (!open_perms))) {
+		fd = open(filename, O_CREAT | O_RDWR, mode);
+		(void)unlink(filename);
+		return fd;
+	}
+
+#if defined(O_CREATE)
+	if (!(flags & O_CREATE)) {
+#if defined(O_DIRECTORY)
+		if (flags & O_DIRECTORY) {
+			(void)mkdir(filename);
+		} else
+			fd = open(filename, O_CREAT | O_RDWR, mode);
+			if (fd >= 0)
+				(void)close(fd);
+		}
+	}
+#else
+	fd = open(filename, O_CREAT | O_RDWR, mode);
+	if (fd >= 0)
+		void)close(fd);
+#endif
+#endif
+	fd = open(filename, flags, mode);
+#if defined(O_DIRECTORY)
+	if (flags & O_DIRECTORY)
+		(void)rmdir(filename);
+#endif
+	(void)unlink(filename);
+	index++;
+	index %= open_count;
+
 	return fd;
 }
 
@@ -423,6 +528,7 @@ static int open_with_openat2_cwd(void)
 #endif
 
 static stress_open_func_t open_funcs[] = {
+	open_flag_perm,
 	open_dev_zero_rd,
 	open_dev_null_wr,
 #if defined(O_TMPFILE)
@@ -505,11 +611,12 @@ static int stress_open(const stress_args_t *args)
 	int *fds;
 	char path[PATH_MAX];
 	size_t max_fds = stress_get_max_file_limit();
-	size_t sz;
+	size_t i, sz;
 	pid_t pid = -1;
 	const pid_t mypid = getpid();
 	struct stat statbuf;
 	bool open_fd = false;
+	int all_open_flags;
 
 	/*
 	 *  32 bit systems may OOM if we have too many open fds, so
@@ -545,6 +652,11 @@ static int stress_open(const stress_args_t *args)
 			}
 		}
 	}
+
+	for (all_open_flags = 0, i = 0; i < SIZEOF_ARRAY(open_flags); i++)
+		all_open_flags |= open_flags[i];
+	open_count = stress_flag_permutation(all_open_flags, &open_perms);
+	printf("%d\n", open_count);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -606,6 +718,8 @@ close_all:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	(void)munmap((void *)fds, sz);
+	if (open_perms)
+		free(open_perms);
 
 	if (pid > 1) {
 		int status;
