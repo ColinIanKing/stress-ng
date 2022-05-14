@@ -52,6 +52,8 @@ typedef struct {
 	mmap_func_t mmap;
 	size_t mmap_prot_count;
 	int *mmap_prot_perms;
+	size_t mmap_flag_count;
+	int *mmap_flag_perms;
 } stress_mmap_context_t;
 
 #define NO_MEM_RETRIES_MAX	(65536)
@@ -68,6 +70,21 @@ static const int mmap_prot[] = {
 #endif
 #if defined(PROT_WRITE)
 	PROT_WRITE,
+#endif
+};
+
+static const int mmap_std_flags[] = {
+#if defined(MAP_ANONYMOUS)
+	MAP_ANONYMOUS,
+#endif
+#if defined(MAP_SHARED)
+	MAP_SHARED,
+#endif
+#if defined(MAP_SHARED_VALIDATE)
+	MAP_SHARED_VALIDATE,
+#endif
+#if defined(MAP_PRIVATE)
+	MAP_PRIVATE,
 #endif
 };
 
@@ -636,6 +653,28 @@ cleanup:
 			if (buf != MAP_FAILED)
 				(void)munmap((void *)buf, sz);
 		}
+
+		/*
+		 *  Step #8, work through all flag permutations
+		 */
+		if ((context->mmap_flag_perms) && (context->mmap_flag_count > 0)) {
+			static int index;
+			const int flag = context->mmap_flag_perms[index];
+			int tmpfd;
+
+			if (flag & MAP_ANONYMOUS)
+				tmpfd = -1;
+			else
+				tmpfd = open("/dev/zero", O_RDONLY);
+
+			buf = mmap(NULL, page_size, PROT_READ, flag, tmpfd, 0);
+			if (buf != MAP_FAILED)
+				(void)munmap((void *)buf, page_size);
+			if (tmpfd >= 0)
+				(void)close(tmpfd);
+			index++;
+			index %= context->mmap_flag_count;
+		}
 		inc_counter(args);
 	} while (keep_stressing(args));
 
@@ -656,7 +695,7 @@ static int stress_mmap(const stress_args_t *args)
 	bool mmap_osync = false;
 	bool mmap_odirect = false;
 	bool mmap_mmap2 = false;
-	int ret, all_prot_flags = 0;
+	int ret, all_flags;
 	stress_mmap_context_t context;
 	size_t i;
 
@@ -678,9 +717,15 @@ static int stress_mmap(const stress_args_t *args)
 	(void)stress_get_setting("mmap-odirect", &mmap_odirect);
 	(void)stress_get_setting("mmap-mmap2", &mmap_mmap2);
 
-	for (i = 0; i < SIZEOF_ARRAY(mmap_prot); i++)
-		all_prot_flags |= mmap_prot[i];
-	context.mmap_prot_count = stress_flag_permutation(all_prot_flags, &context.mmap_prot_perms);
+	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(mmap_prot); i++)
+		all_flags |= mmap_prot[i];
+	context.mmap_prot_count = stress_flag_permutation(all_flags, &context.mmap_prot_perms);
+
+	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(mmap_std_flags); i++)
+		all_flags |= mmap_std_flags[i];
+	for (i = 0; i < SIZEOF_ARRAY(mmap_flags); i++)
+		all_flags |= mmap_flags[i];
+	context.mmap_flag_count = stress_flag_permutation(all_flags, &context.mmap_flag_perms);
 
 	if (mmap_osync || mmap_odirect)
 		context.mmap_file = true;
@@ -790,6 +835,8 @@ redo:
 	}
 	if (context.mmap_prot_perms)
 		free(context.mmap_prot_perms);
+	if (context.mmap_flag_perms)
+		free(context.mmap_flag_perms);
 
 	return ret;
 }
