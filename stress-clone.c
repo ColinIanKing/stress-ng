@@ -61,6 +61,45 @@ static const stress_help_t help[] = {
 
 static stress_clone_list_t clones;
 
+static int flag_count;
+static int *flag_perms;
+static const int all_flags =
+#if defined(CLONE_FS)
+	CLONE_FS |
+#endif
+#if defined(CLONE_PIDFD)
+	CLONE_PIDFD |
+#endif
+#if defined(CLONE_PTRACE)
+	CLONE_PTRACE |
+#endif
+#if defined(CLONE_VFORK)
+	CLONE_VFORK |
+#endif
+#if defined(CLONE_PARENT)
+	CLONE_PARENT |
+#endif
+#if defined(CLONE_SYSVSEM)
+	CLONE_SYSVSEM |
+#endif
+#if defined(CLONE_DETACHED)
+	CLONE_DETACHED |
+#endif
+#if defined(CLONE_UNTRACED)
+	CLONE_UNTRACED |
+#endif
+#if defined(CLONE_IO)
+	CLONE_IO |
+#endif
+#if defined(CLONE_FILES)
+	CLONE_FILES |
+#endif
+#if defined(CLONE_SYSVSEM)
+	CLONE_SYSVSEM |
+#endif
+	0;
+
+
 /*
  *  A random selection of clone flags that are worth exercising
  */
@@ -400,16 +439,24 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 
 	do {
 		if (clones.length < clone_max) {
+			static size_t index;
 			stress_clone_t *clone_info;
 			stress_clone_args_t clone_arg = { args };
 			const uint32_t rnd = stress_mwc32();
-			const uint64_t flag = flags[rnd % SIZEOF_ARRAY(flags)];	/* cppcheck-suppress moduloofone */
+			uint64_t flag;
 			const bool try_clone3 = rnd >> 31;
 			pid_t child_tid = -1, parent_tid = -1;
-
 			clone_info = stress_clone_new();
 			if (!clone_info)
 				break;
+
+			if (rnd & 0x80000000UL) {
+				flag = flags[rnd % SIZEOF_ARRAY(flags)];	/* cppcheck-suppress moduloofone */
+			} else {
+				flag = (unsigned int)flag_perms[index];
+				index++;
+				index %= flag_count;
+			}
 
 			if (use_clone3 && try_clone3) {
 				struct shim_clone_args cl_args;
@@ -483,11 +530,16 @@ static int stress_clone(const stress_args_t *args)
 {
 	int rc;
 
+	flag_count = stress_flag_permutation(all_flags, &flag_perms);
+
 	stress_set_oom_adjustment(args->name, false);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	rc = stress_oomable_child(args, NULL, stress_clone_child, STRESS_OOMABLE_DROP_CAP);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	if (flag_perms)
+		free(flag_perms);
 
 	return rc;
 }
