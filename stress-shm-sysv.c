@@ -85,6 +85,14 @@ typedef struct {
 } stress_shm_msg_t;
 
 static const int shm_flags[] = {
+#if defined(SHM_HUGETLB) &&	\
+    defined(SHM_HUGE_1GB)
+	SHM_HUGETLB | SHM_HUGE_1GB,
+#endif
+#if defined(SHM_HUGETLB) &&	\
+    defined(SHM_HUGE_2MB)
+	SHM_HUGETLB | SHM_HUGE_2MB,
+#endif
 #if defined(SHM_HUGETLB)
 	SHM_HUGETLB,
 #endif
@@ -619,6 +627,7 @@ static int stress_shm_sysv_child(
 						goto reap;
 				} while (!unique);
 
+errno = 0;
 				shm_id = shmget(key, sz,
 					IPC_CREAT | IPC_EXCL |
 					S_IRUSR | S_IWUSR | rnd_flag);
