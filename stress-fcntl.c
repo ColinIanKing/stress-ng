@@ -53,6 +53,27 @@ static const stress_help_t help[] = {
     (defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)) | \
     (defined(F_GET_RW_HINT) && defined(F_SET_RW_HINT))
 
+static int setfl_flag_count;
+static int *setfl_flag_perms;
+
+static const int all_setfl_flags =
+#if defined(O_APPEND)
+	O_APPEND |
+#endif
+#if defined(O_ASYNC)
+	O_ASYNC |
+#endif
+#if defined(O_DIRECT)
+	O_DIRECT |
+#endif
+#if defined(O_NOATIME)
+	O_NOATIME |
+#endif
+#if defined(O_NONBLOCK)
+	O_NONBLOCK |
+#endif
+	0;
+
 /*
  *  check_return()
  *	sanity check fcntl() return for errors
@@ -152,6 +173,17 @@ static int do_fcntl(
     defined(O_APPEND)
 		if (old_flags > -1) {
 			int new_flags, ret;
+
+			/* Exercise all permutations of SETFL flags */
+			if ((setfl_flag_count > 0) && (setfl_flag_perms)) {
+				static int index;
+
+				ret = fcntl(fd, F_SETFL, setfl_flag_perms[index]);
+				(void)ret;
+
+				index++;
+				index %= setfl_flag_count;
+			}
 
 			new_flags = old_flags | O_APPEND;
 			ret = fcntl(fd, F_SETFL, new_flags);
@@ -727,6 +759,8 @@ static int stress_fcntl(const stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 	char filename[PATH_MAX], pathname[PATH_MAX];
 
+	setfl_flag_count = stress_flag_permutation(all_setfl_flags, &setfl_flag_perms);
+
 	/*
 	 *  Allow for multiple workers to chmod the *same* file
 	 */
@@ -793,6 +827,9 @@ tidy:
 		(void)close(fd);
 	(void)shim_unlink(filename);
 	(void)shim_rmdir(pathname);
+
+	if (setfl_flag_perms)
+		free(setfl_flag_perms);
 
 	return rc;
 }
