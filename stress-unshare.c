@@ -46,6 +46,45 @@ static const stress_help_t help[] = {
 #define UNSHARE(flags)	\
 	check_unshare(args, flags, #flags)
 
+static const int clone_flags[] = {
+#if defined(CLONE_FS)
+	CLONE_FS,
+#endif
+#if defined(CLONE_FILES)
+	CLONE_FILES,
+#endif
+#if defined(CLONE_NEWCGROUP)
+	CLONE_NEWCGROUP,
+#endif
+#if defined(CLONE_NEWIPC)
+	CLONE_NEWIPC,
+#endif
+#if defined(CLONE_NEWNS)
+	CLONE_NEWNS,
+#endif
+#if defined(CLONE_NEWPID)
+	CLONE_NEWPID,
+#endif
+#if defined(CLONE_NEWUSER)
+	CLONE_NEWUSER,
+#endif
+#if defined(CLONE_NEWUTS)
+	CLONE_NEWUTS,
+#endif
+#if defined(CLONE_SYSVSEM)
+	CLONE_SYSVSEM,
+#endif
+#if defined(CLONE_THREAD)
+	CLONE_THREAD,
+#endif
+#if defined(CLONE_SIGHAND)
+	CLONE_SIGHAND,
+#endif
+#if defined(CLONE_VM)
+	CLONE_VM,
+#endif
+};
+
 /*
  *  unshare with some error checking
  */
@@ -93,15 +132,26 @@ static int stress_unshare(const stress_args_t *args)
 #if defined(CLONE_NEWNET)
 	const uid_t euid = geteuid();
 #endif
+	int clone_flag_count, *clone_flag_perms, all_flags;
+	size_t i;
+
+	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(clone_flags); i++)
+		all_flags |= clone_flags[i];
+
+	clone_flag_count = stress_flag_permutation(all_flags, &clone_flag_perms);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t i, n;
+		size_t n;
 
 		(void)memset(pids, 0, sizeof(pids));
 
 		for (n = 0; n < MAX_PIDS; n++) {
+			static int index;
+			int clone_flag = 0;
+			const bool do_flag_perm = stress_mwc1();
+
 			if (!keep_stressing_flag())
 				break;
 			if (!enough_memory()) {
@@ -109,6 +159,13 @@ static int stress_unshare(const stress_args_t *args)
 				(void)sleep(1);
 				break;
 			}
+
+			if (do_flag_perm) {
+				clone_flag = clone_flag_perms[index];
+				index++;
+				index %= clone_flag_count;
+			}
+			
 			pids[n] = fork();
 			if (pids[n] < 0) {
 				/* Out of resources for fork */
@@ -123,6 +180,8 @@ static int stress_unshare(const stress_args_t *args)
 				/* Make sure this is killable by OOM killer */
 				stress_set_oom_adjustment(args->name, true);
 
+				if (do_flag_perm)
+					UNSHARE(clone_flag);
 #if defined(CLONE_FS)
 				UNSHARE(CLONE_FS);
 #endif
@@ -195,6 +254,9 @@ static int stress_unshare(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	if (clone_flag_perms)
+		free(clone_flag_perms);
 
 	return EXIT_SUCCESS;
 }
