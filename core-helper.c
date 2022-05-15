@@ -2847,7 +2847,7 @@ void stress_clear_warn_once(void)
  */
 size_t stress_flag_permutation(const int flags, int **permutations)
 {
-	int flag_bits = flags;
+	unsigned int flag_bits = (unsigned int)flags;
 	size_t i, j, n_flags, n_bits;
 	int *perms;
 
