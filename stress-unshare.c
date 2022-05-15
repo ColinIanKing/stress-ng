@@ -165,7 +165,7 @@ static int stress_unshare(const stress_args_t *args)
 				index++;
 				index %= clone_flag_count;
 			}
-			
+
 			pids[n] = fork();
 			if (pids[n] < 0) {
 				/* Out of resources for fork */
