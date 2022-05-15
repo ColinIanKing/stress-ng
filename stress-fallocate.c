@@ -113,6 +113,12 @@ static int stress_fallocate(const stress_args_t *args)
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
 	off_t fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
+	int i, mode_count, *mode_perms, all_modes;
+
+	for (all_modes = 0, i = 0; i < (int)SIZEOF_ARRAY(modes); i++)
+		all_modes |= modes[i];
+	mode_count = stress_flag_permutation(all_modes, &mode_perms);
+	printf("COUNT: %d\n", mode_count);
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
@@ -214,8 +220,6 @@ static int stress_fallocate(const stress_args_t *args)
 			/*
 			 *  non-portable Linux fallocate()
 			 */
-			int i;
-
 			(void)shim_fallocate(fd, 0, (off_t)0, fallocate_bytes);
 			if (!keep_stressing_flag())
 				break;
@@ -224,13 +228,22 @@ static int stress_fallocate(const stress_args_t *args)
 				break;
 
 			for (i = 0; i < 64; i++) {
-				size_t j = (stress_mwc32() >> 8) % SIZEOF_ARRAY(modes);	/* cppcheck-suppress moduloofone */
-				off_t offset = ((off_t)stress_mwc64() % fallocate_bytes) & ~0xfff;
+				const size_t j = (stress_mwc32() >> 8) % SIZEOF_ARRAY(modes);	/* cppcheck-suppress moduloofone */
+				const off_t offset = ((off_t)stress_mwc64() % fallocate_bytes) & ~0xfff;
 
-				(void)shim_fallocate(fd, modes[j], offset, 64 * KB);
+				if (shim_fallocate(fd, modes[j], offset, 64 * KB) == 0)
+					(void)shim_fsync(fd);
 				if (!keep_stressing_flag())
 					break;
-				(void)shim_fsync(fd);
+			}
+			/* Exercise all the mode permutations, most will fail */
+			for (i = 0; i < mode_count; i++) {
+				const off_t offset = ((off_t)stress_mwc64() % fallocate_bytes) & ~0xfff;
+
+				if (shim_fallocate(fd, mode_perms[i], offset, 64 * KB) == 0)
+					(void)shim_fsync(fd);
+				if (!keep_stressing_flag())
+					break;
 			}
 			if (ftruncate(fd, 0) < 0)
 				ftrunc_errs++;
@@ -315,6 +328,9 @@ done:
 	 */
 	(void)stress_temp_dir_args(args, filename, sizeof(filename));
 	(void)shim_rmdir(filename);
+
+	if (mode_perms)
+		free(mode_perms);
 
 	return EXIT_SUCCESS;
 }
