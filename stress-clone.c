@@ -450,7 +450,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 			if (!clone_info)
 				break;
 
-			if (rnd & 0x80000000UL) {
+			if ((rnd & 0x80000000UL) || (flag_count == 0) || (!flag_perms)) {
 				flag = flags[rnd % SIZEOF_ARRAY(flags)];	/* cppcheck-suppress moduloofone */
 			} else {
 				flag = (unsigned int)flag_perms[index];
