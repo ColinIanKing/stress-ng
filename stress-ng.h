@@ -1115,6 +1115,7 @@ typedef struct {
 	MACRO(getdent)		\
 	MACRO(getrandom)	\
 	MACRO(goto)		\
+	MACRO(gpu)		\
 	MACRO(handle)		\
 	MACRO(hash)		\
 	MACRO(hdd)		\
@@ -1665,6 +1666,14 @@ typedef enum {
 	OPT_goto,
 	OPT_goto_ops,
 	OPT_goto_direction,
+
+	OPT_gpu,
+	OPT_gpu_ops,
+	OPT_gpu_frag,
+	OPT_gpu_uploads,
+	OPT_gpu_size,
+	OPT_gpu_xsize,
+	OPT_gpu_ysize,
 
 	OPT_handle,
 	OPT_handle_ops,
