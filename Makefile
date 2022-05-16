@@ -160,7 +160,6 @@ STRESS_SRC = \
 	stress-getrandom.c \
 	stress-getdent.c \
 	stress-goto.c \
-	stress-gpu.c \
 	stress-handle.c \
 	stress-hash.c \
 	stress-hdd.c \
