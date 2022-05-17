@@ -46,7 +46,7 @@ static const stress_help_t help[] = {
 #define SHIM_EXT2_IOC_GETFLAGS		_IOR('f', 1, long)
 #define SHIM_EXT2_IOC_SETFLAGS		_IOW('f', 2, long)
 
-static const unsigned long flags[] = {
+static const unsigned int flags[] = {
 	SHIM_EXT2_NOATIME_FL,		/* chattr 'A' */
 	SHIM_EXT2_SYNC_FL, 		/* chattr 'S' */
 	SHIM_EXT2_DIRSYNC_FL,		/* chattr 'D' */
@@ -173,6 +173,13 @@ static int stress_chattr(const stress_args_t *args)
 	const pid_t ppid = getppid();
 	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX], pathname[PATH_MAX];
+	int all_flags, flag_count, *flag_perms;
+	size_t i, index;
+
+	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(flags); i++)
+		all_flags |= flags[i];
+
+	flag_count = stress_flag_permutation(all_flags, &flag_perms);
 
 	/*
 	 *  Allow for multiple workers to chattr the *same* file
@@ -191,11 +198,12 @@ static int stress_chattr(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	index = 0;
 	do {
 		size_t i, fail = 0;
 
 		for (i = 0; i < SIZEOF_ARRAY(flags); i++) {
-			if (do_chattr(args, filename, flags[i]) < 0)
+			if (do_chattr(args, filename, (unsigned long)flags[i]) < 0)
 				fail++;
 		}
 
@@ -206,6 +214,13 @@ static int stress_chattr(const stress_args_t *args)
 			rc = EXIT_NOT_IMPLEMENTED;
 			break;
 		}
+
+		/* Try next flag permutation */
+		if ((flag_count > 0) && (flag_perms)) {
+			(void)do_chattr(args, filename, (unsigned long)flag_perms[index]);
+			index++;
+			index %= flag_count;
+		}
 		inc_counter(args);
 	} while (keep_stressing(args));
 
@@ -213,6 +228,9 @@ static int stress_chattr(const stress_args_t *args)
 
 	(void)shim_unlink(filename);
 	(void)shim_rmdir(pathname);
+
+	if (flag_perms)
+		free(flag_perms);
 
 	return rc;
 }
