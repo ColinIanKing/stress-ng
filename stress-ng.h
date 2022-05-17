@@ -2896,6 +2896,7 @@ extern void stress_madvise_pid_all_pages(const pid_t pid, const int advise);
 extern int stress_mincore_touch_pages(void *buf, const size_t buf_len);
 extern int stress_mincore_touch_pages_interruptible(void *buf,
 	const size_t buf_len);
+extern int stress_pagein_self(const char *name);
 
 /* Mounts */
 extern void stress_mount_free(char *mnts[], const int n);

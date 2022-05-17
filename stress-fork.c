@@ -188,8 +188,10 @@ static int stress_fork_fn(
 #if defined(MADV_RANDOM)
 					flags |= MADV_RANDOM;
 #endif
-					if (flags)
+					if (flags) {
 						stress_madvise_pid_all_pages(getpid(), flags);
+						stress_pagein_self(args->name);
+					}
 				}
 
 				/* exercise some setpgid calls before we die */

@@ -28,12 +28,102 @@
 static pid_t thrash_pid;
 static pid_t parent_pid;
 static volatile bool thrash_run;
+static sigjmp_buf jmp_env;
+static bool jmp_env_set;
 
 static void MLOCKED_TEXT stress_thrash_handler(int signum)
 {
 	(void)signum;
 
 	thrash_run = false;
+}
+
+static void MLOCKED_TEXT stress_pagein_handler(int signum)
+{
+	(void)signum;
+
+	if (jmp_env_set)
+		siglongjmp(jmp_env, 1);
+}
+
+/*
+ *  stress_pagein_self()
+ *	force pages into memory for current process
+ */
+int stress_pagein_self(const char *name)
+{
+	char path[PATH_MAX];
+	char buffer[4096];
+	int rc = 0, ret;
+	FILE *fpmap = NULL;
+	const size_t page_size = stress_get_page_size();
+	struct sigaction bus_action, segv_action;
+
+	jmp_env_set = false;
+
+	ret = stress_sighandler(name, SIGBUS, stress_pagein_handler, &bus_action);
+	(void)ret;
+	ret = stress_sighandler(name, SIGSEGV, stress_pagein_handler, &segv_action);
+	(void)ret;
+
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret == 1)
+		goto err;
+
+	(void)snprintf(path, sizeof(path), "/proc/self/maps");
+	fpmap = fopen(path, "r");
+	if (!fpmap)
+		return -errno;
+
+	/*
+	 * Look for field 0060b000-0060c000 r--p 0000b000 08:01 1901726
+	 */
+	while (fgets(buffer, sizeof(buffer), fpmap)) {
+		uintmax_t begin, end, len;
+		uintptr_t off;
+		char tmppath[1024];
+		char prot[6];
+
+		if (sscanf(buffer, "%" SCNx64 "-%" SCNx64
+		           " %5s %*x %*x:%*x %*d %1023s", &begin, &end, prot, tmppath) != 4) {
+			continue;
+		}
+
+		/* Avoid VDSO etc.. */
+		if (strncmp("[v", tmppath, 2) == 0)
+			continue;
+
+		/* ignore non-readable or non-private mappings */
+		if (prot[0] != 'r')
+			continue;
+		len = end - begin;
+
+		/* Ignore bad range */
+		if ((begin >= end) || (len == 0) || (begin == 0))
+			continue;
+		/* Skip huge ranges more than 2GB */
+		if (len > 0x80000000UL)
+			continue;
+
+		for (off = begin; off < end; off += page_size) {
+			volatile uint8_t *ptr = (uint8_t *)off;
+			const uint8_t value = *ptr;
+
+			if (prot[1] == 'w')
+				*ptr = value;
+		}
+	}
+
+err:
+	if (fpmap)
+		(void)fclose(fpmap);
+
+	jmp_env_set = false;
+	/* Restore action */
+	(void)sigaction(SIGBUS, &bus_action, NULL);
+	(void)sigaction(SIGSEGV, &segv_action, NULL);
+
+	return rc;
 }
 
 /*
