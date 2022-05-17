@@ -120,7 +120,8 @@ static int stress_virt_to_phys(
 	const int fd_pm,
 	const int fd_pc,
 	const int fd_mem,
-	const uintptr_t virt_addr)
+	const uintptr_t virt_addr,
+	const bool writable)
 {
 	off_t offset;
 	uint64_t pageinfo;
@@ -197,6 +198,16 @@ static int stress_virt_to_phys(
 				MAP_SHARED, fd_mem, (off_t)phys_addr);
 			if (ptr != MAP_FAILED)
 				(void)munmap((void *)ptr, page_size);
+			if (writable) {
+				ptr = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+					MAP_SHARED, fd_mem, (off_t)phys_addr);
+				if (ptr != MAP_FAILED) {
+					uint8_t val = *ptr;
+
+					*(volatile uint8_t *)ptr = val;
+					(void)munmap((void *)ptr, page_size);
+				}
+			}
 		}
 
 #if defined(STRESS_ARCH_X86) &&		\
@@ -249,7 +260,9 @@ static int stress_physpage(const stress_args_t *args)
 	/*
 	 *  this may fail, silently ignore failures
 	 */
-	fd_mem = open("/dev/mem", O_RDONLY);
+	fd_mem = open("/dev/mem", O_RDWR);
+	if (fd_mem < 0)
+		fd_mem = open("/dev/mem", O_RDONLY);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -259,9 +272,9 @@ static int stress_physpage(const stress_args_t *args)
 		nptr = mmap(ptr, page_size, PROT_READ | PROT_WRITE,
 			MAP_POPULATE | MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (nptr != MAP_FAILED) {
-			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)nptr);
+			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)nptr, true);
 			(void)munmap(nptr, page_size);
-			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)g_shared->stats);
+			(void)stress_virt_to_phys(args, page_size, fd_pm, fd_pc, fd_mem, (uintptr_t)g_shared->stats, false);
 
 		}
 		ptr += page_size;
