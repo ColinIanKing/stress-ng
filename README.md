@@ -296,7 +296,7 @@ stress-ng: info:  [1171584] vdso               9.88 nanoseconds per call (averag
 
 Generate and measure branch misses using perf metrics:
 ```
-sudo stress-ng --branch 1 --perf -t 10 2>& 1 | grep Branch
+sudo stress-ng --branch 1 --perf -t 10 --stdout | grep Branch
 stress-ng: info:  [1171714]                604,703,327 Branch Instructions            53.30 M/sec
 stress-ng: info:  [1171714]                598,760,234 Branch Misses                  52.77 M/sec (99.02%)
 ```
