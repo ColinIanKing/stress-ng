@@ -131,9 +131,9 @@ static void stress_zombie_head_remove(const stress_args_t *args, const bool chec
 	if (zombies.head) {
 		int status;
 		stress_zombie_t *head;
+		const pid_t pid = zombies.head->pid;
 
 		if (verify && check) {
-			const pid_t pid = zombies.head->pid;
 
 			if (pid > 1) {
 				(void)kill(pid, SIGKILL);
@@ -143,7 +143,7 @@ static void stress_zombie_head_remove(const stress_args_t *args, const bool chec
 			}
 		}
 
-		(void)shim_waitpid(zombies.head->pid, &status, 0);
+		(void)shim_waitpid(pid, &status, 0);
 
 		head = zombies.head;
 		if (zombies.tail == zombies.head) {
