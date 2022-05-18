@@ -84,7 +84,7 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 				break;
 			}
 		}
-		(void)memset(mem, 0, mmap_size);
+		(void)memset(mem, 0xff, mmap_size);
 
 		for (i = 0; i < tlb_procs; i++)
 			pids[i] = -1;
@@ -124,6 +124,12 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 					/* Force tlb shoot down on page */
 					(void)mprotect(ptr, page_size, PROT_READ);
 					(void)memcpy(buffer, ptr, page_size);
+				}
+				for (ptr = mem; ptr < mem + mmap_size; ptr += page_size) {
+					(void)mprotect(ptr, page_size, PROT_WRITE);
+					(void)memcpy(ptr, buffer, page_size);
+				}
+				for (ptr = mem; ptr < mem + mmap_size; ptr += page_size) {
 					(void)munmap(ptr, page_size);
 				}
 				_exit(0);
