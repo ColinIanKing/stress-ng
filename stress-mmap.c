@@ -58,6 +58,9 @@ typedef struct {
 
 #define NO_MEM_RETRIES_MAX	(65536)
 
+static sigjmp_buf jmp_env;
+static bool jmp_env_set;
+
 static const int mmap_prot[] = {
 #if defined(PROT_NONE)
 	PROT_NONE,
@@ -180,6 +183,14 @@ static const int mmap_flags[] = {
 #endif
 	0,
 };
+
+static void MLOCKED_TEXT stress_mmap_sighandler(int signum)
+{
+	(void)signum;
+
+	if (jmp_env_set)
+		siglongjmp(jmp_env, 1);
+}
 
 /*
  *   mmap2_try()
@@ -371,11 +382,15 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 	const size_t pages4k = sz / page_size;
 	const bool mmap_file = context->mmap_file;
 	const int fd = context->fd;
-	int no_mem_retries = 0;
+	NOCLOBBER int no_mem_retries = 0;
 	const int bad_fd = stress_get_bad_fd();
 	const int ms_flags = context->mmap_async ? MS_ASYNC : MS_SYNC;
 	uint8_t *mapped, **mappings;
 	void *hint;
+	int ret;
+
+	ret = stress_sighandler(args->name, SIGBUS, stress_mmap_sighandler, NULL);
+	(void)ret;
 
 	mapped = calloc(pages4k, sizeof(*mapped));
 	if (!mapped) {
@@ -393,8 +408,7 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 
 	do {
 		size_t n;
-		const int rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags); /* cppcheck-suppress moduloofone */
-		int rnd_flag = mmap_flags[rnd];
+		int ret, rnd, rnd_flag;
 		uint8_t *buf = NULL;
 
 #if defined(MAP_HUGETLB) ||		\
@@ -410,6 +424,22 @@ retry:
 
 		if (!keep_stressing_flag())
 			break;
+
+		/*
+		 *  ret is 1 if SIGBUS occurs, so re-try mmap. This
+		 *  can occur when Hugepages are allocated but not
+		 *  available to containers or pods that don't have
+		 *  access to the hugepages mount points. It's a useful
+		 *  corner case worth exercising to see if the kernel
+		 *  generates a SIGBUS, so we need to handle it.
+		 */
+		ret = sigsetjmp(jmp_env, 1);
+		if (ret == 1)
+			continue;
+		jmp_env_set = true;
+
+		rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags); /* cppcheck-suppress moduloofone */
+		rnd_flag = mmap_flags[rnd];
 		/*
 		 *  ARM64, one can opt-int to getting VAs from 52 bit
 		 *  space by hinting with an address that is > 48 bits.
@@ -457,6 +487,7 @@ retry:
 				(void)shim_usleep(100000);
 			continue;	/* Try again */
 		}
+
 		no_mem_retries = 0;
 		if (mmap_file) {
 			(void)memset(buf, 0xff, sz);
@@ -678,6 +709,8 @@ cleanup:
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+	jmp_env_set = false;
+
 	free(mappings);
 	free(mapped);
 
@@ -698,6 +731,8 @@ static int stress_mmap(const stress_args_t *args)
 	int ret, all_flags;
 	stress_mmap_context_t context;
 	size_t i;
+
+	jmp_env_set = false;
 
 	context.fd = -1;
 	context.mmap = (mmap_func_t)mmap;
