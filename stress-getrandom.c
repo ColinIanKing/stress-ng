@@ -31,6 +31,7 @@ static const stress_help_t help[] = {
 
 #if defined(__OpenBSD__) || 	\
     defined(__APPLE__) || 	\
+    defined(__FreeBSD__) ||	\
     (defined(__linux__) && defined(__NR_getrandom))
 
 #if defined(__OpenBSD__) ||	\
