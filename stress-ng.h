@@ -349,6 +349,7 @@ extern int setdomainname(const char *name, size_t len);
 #define CLASS_DEV		STRESS_BIT_UL(11)	/* device (null, zero, etc) */
 #define CLASS_SECURITY		STRESS_BIT_UL(12)	/* security APIs */
 #define CLASS_PATHOLOGICAL	STRESS_BIT_UL(13)	/* can hang a machine */
+#define CLASS_GPU		STRESS_BIT_UL(14)	/* GPU */
 
 
 /* Help information for options */
@@ -1120,6 +1121,7 @@ typedef struct {
 	MACRO(getdent)		\
 	MACRO(getrandom)	\
 	MACRO(goto)		\
+	MACRO(gpu)		\
 	MACRO(handle)		\
 	MACRO(hash)		\
 	MACRO(hdd)		\
@@ -1672,6 +1674,14 @@ typedef enum {
 	OPT_goto,
 	OPT_goto_ops,
 	OPT_goto_direction,
+
+	OPT_gpu,
+	OPT_gpu_ops,
+	OPT_gpu_frag,
+	OPT_gpu_uploads,
+	OPT_gpu_size,
+	OPT_gpu_xsize,
+	OPT_gpu_ysize,
 
 	OPT_handle,
 	OPT_handle_ops,

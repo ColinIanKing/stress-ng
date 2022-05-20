@@ -66,6 +66,8 @@ Debian, Ubuntu:
   * libkeyutils-dev
   * libsctp-dev
   * libatomic1
+  * libglvnd-dev
+  * libgbm-dev
   * zlib1g-dev
   * libkmod-dev
   * libxxhash-dev
@@ -82,6 +84,13 @@ RHEL, Fedora, Centos:
   * keyutils-libs-devel
   * lksctp-tools-devel
   * libatomic
+  * libgbm-devel
+  * libglvnd-core-devel
+  * libglvnd-devel
+  * libX11-devel
+  * libXau-devel
+  * libxcb-devel
+  * xorg-x11-proto-devel
   * zlib-devel
   * kmod-devel
   * xxhash-devel
@@ -98,6 +107,13 @@ RHEL, Fedora, Centos (static builds):
   * keyutils-libs-devel
   * lksctp-tools-devel
   * libatomic-static
+  * libgbm-devel
+  * libglvnd-core-devel
+  * libglvnd-devel
+  * libX11-devel
+  * libXau-devel
+  * libxcb-devel
+  * xorg-x11-proto-devel
   * zlib-devel
   * glibc-static
   * xxhash-devel
@@ -113,6 +129,8 @@ SUSE:
   * libjpeg-turbo
   * lksctp-tools-devel
   * libatomic1
+  * libglvnd-devel
+  * libgbm-devel
   * zlib-devel
   * libkmod-devel
   * xxhash-devel
@@ -125,6 +143,7 @@ ClearLinux:
   * devpkg-Judy
   * devpkg-libgcrypt
   * devpkg-kmod
+  * devpkg-mesa
 
 Alpine Linux:
   * build-base
@@ -139,6 +158,7 @@ Alpine Linux:
   * keyutils-dev
   * lksctp-tools-dev
   * libatomic
+  * mesa-dev
   * zlib-dev
   * kmod-dev
   * xxhash-dev
