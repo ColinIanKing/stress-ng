@@ -80,7 +80,7 @@ allows one to ramp up the stress tests over time.
 .TP
 .B \-\-class name
 specify the class of stressors to run. Stressors are classified into one or
-more of the following classes: cpu, cpu-cache, device, io, interrupt,
+more of the following classes: cpu, cpu-cache, device, gpu, io, interrupt,
 filesystem, memory, network, os, pipe, scheduler and vm.  Some stressors fall
 into just one class. For example the 'get' stressor is just in the 'os'
 class. Other stressors fall into more than one class, for example,
@@ -1848,6 +1848,29 @@ stop goto workers after N bogo loops of 1024 branch instructions.
 select the branching direction in the stressor loop, forward for forward only
 branching, backward for a backward only branching, random for a random choice
 of forward or random branching every 1024 branches.
+.TP
+.B \-\-gpu N
+start N worker that exercise the GPU. This specifies a 2d texture image
+that allows the elements of an image array to be read by shaders,
+and render primitives using an opengl context.
+.TP
+.B \-\-gpu-ops N
+stop gpu workers after N render loop operations.
+.TP
+.B \-\-gpu-frag N
+specify shader core usage per pixel, this sets N loops in the fragment shader.
+.TP
+.B \-\-gpu-tex-size N
+specify upload texture NxN, by default this value is 4096x4096.
+.TP
+.B \-\-gpu-xsize X
+use a framebuffer size of X pixels. The default is 256 pixels.
+.TP
+.B \-\-gpu-ysize Y
+use a framebuffer size of Y pixels. The default is 256 pixels.
+.TP
+.B \-\-gpu-upload N
+specify upload texture N times per frame, the default value is 1.
 .TP
 .B \-\-handle N
 start N workers that exercise the name_to_handle_at(2) and open_by_handle_at(2)
