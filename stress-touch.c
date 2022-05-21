@@ -338,7 +338,6 @@ static int stress_touch(const stress_args_t *args)
 		}
 	}
 
-
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	stress_touch_dir_clean(args);
