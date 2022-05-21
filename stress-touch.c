@@ -331,10 +331,16 @@ static int stress_touch(const stress_args_t *args)
 	}
 	for (i = 0; i < TOUCH_PROCS; i++) {
 		if (pids[i] > 1)  {
-			int status;
+			for (;;) {
+				int status;
 
-			ret = waitpid(pids[i], &status, 0);
-			(void)ret;
+				ret = waitpid(pids[i], &status, 0);
+				if (ret == 0)
+					break;
+				if (errno == EINTR)
+					continue;
+				break;
+			}
 		}
 	}
 
