@@ -336,6 +336,7 @@ STRESS_SRC = \
 	stress-timerfd.c \
 	stress-tlb-shootdown.c \
 	stress-tmpfs.c \
+	stress-touch.c \
 	stress-tree.c \
 	stress-tsc.c \
 	stress-tsearch.c \

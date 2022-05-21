@@ -1297,6 +1297,7 @@ typedef struct {
 	MACRO(timerfd)		\
 	MACRO(tlb_shootdown)	\
 	MACRO(tmpfs)		\
+	MACRO(touch)		\
 	MACRO(tree)		\
 	MACRO(tsc)		\
 	MACRO(tsearch)		\
@@ -2397,6 +2398,11 @@ typedef enum {
 	OPT_tmpfs_ops,
 	OPT_tmpfs_mmap_async,
 	OPT_tmpfs_mmap_file,
+
+	OPT_touch,
+	OPT_touch_ops,
+	OPT_touch_opts,
+	OPT_touch_method,
 
 	OPT_tree,
 	OPT_tree_ops,

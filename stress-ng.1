@@ -4578,6 +4578,43 @@ see \-\-tmpfs\-mmap\-file.
 enable tmpfs file based memory mapping and by default use synchronous
 msync'ing on each page.
 .TP
+.B \-\-touch N
+touch files by using open(2) or creat(2) and then closing and unlinking them. The
+filename contains the bogo-op number and is incremented on each touch operation,
+hence this fills the dentry cache. Note that the user time and system time may be very low
+as most of the run time is waiting for file I/O and this produces very large bogo-op
+rates for the very low CPU time used.
+.TP
+.B \-\-touch\-opts direct, dsync, excl, noatime, sync
+specify various file open options as a comma separated list. Options are as
+follows:
+.TS
+expand;
+lB lB lB lB
+l l s s.
+Option	Description
+direct	T{
+try to minimize cache effects of the I/O to and from this file, using the O_DIRECT open flag.
+T}
+dsync	T{
+ensure output has been transferred to underlying hardware and file metadata
+has been updated using the O_DSYNC open flag.
+T}
+excl	T{
+fail if file already exists (it should not).
+T}
+noatime	T{
+do not update the file last access time if the file is read.
+T}
+sync	T{
+ensure output has been transferred to underlying hardware using the O_SYNC open flag.
+T}
+.TE
+.TP
+.B \-\-touch\-method [ random | open | creat ]
+select the method the file is created, either randomly using open(2) or create(2), just
+using open(2) with the O_CREAT open flag, or with creat(2).
+.TP
 .B \-\-tree N
 start N workers that exercise tree data structures. The default is
 to add, find and remove 250,000 64 bit integers into AVL (avl),
