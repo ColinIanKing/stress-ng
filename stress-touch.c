@@ -19,14 +19,16 @@
  */
 #include "stress-ng.h"
 
-typedef struct {
-	const char *opt;
-	const int open_flag;
-} touch_opts_t;
+#define TOUCH_PROCS	(4)
 
 #define TOUCH_RANDOM	(0)
 #define TOUCH_OPEN	(1)
 #define TOUCH_CREAT	(2)
+
+typedef struct {
+	const char *opt;
+	const int open_flag;
+} touch_opts_t;
 
 typedef struct {
 	const char *method;
@@ -62,6 +64,8 @@ typedef struct {
 #else
 #define TOUCH_OPT_SYNC		(0)
 #endif
+
+static shim_pthread_spinlock_t spinlock;
 
 static const stress_help_t help[] = {
 	{ NULL,	"touch N",	"start N stressors that touch and remove files" },
@@ -147,35 +151,58 @@ static int stress_set_touch_method(const char *opts)
 	return -1;
 }
 
-/*
- *  stress_touch
- *	stress file creation and removal
- */
-static int stress_touch(const stress_args_t *args)
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_touch_opts,	stress_set_touch_opts },
+	{ OPT_touch_method,	stress_set_touch_method },
+	{ 0,			NULL },
+};
+
+#if defined(HAVE_LIB_PTHREAD)
+
+static void stress_touch_dir_clean(const stress_args_t *args)
 {
-	int ret;
-	int open_flags = 0;
-	int touch_method = TOUCH_RANDOM;
+	char tmp[PATH_MAX];
+	DIR *dir;
+	struct dirent *d;
 
-	stress_get_setting("touch-opts", &open_flags);
-	stress_get_setting("touch-method", &touch_method);
+	sync();
+	stress_temp_dir(tmp, sizeof(tmp), args->name, args->pid, args->instance);
+	dir = opendir(tmp);
 
-	if ((args->instance == 0) &&
-	    (touch_method == TOUCH_CREAT) &&
-	    (open_flags != 0))
-		pr_inf("%s: note: touch-opts are not used for creat touch method\n", args->name);
+	if (!dir)
+		return;
+	while ((d = readdir(dir)) != NULL) {
+		char filename[PATH_MAX + sizeof(d->d_name) + 1];
+		struct stat statbuf;
 
-	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
-		return exit_status(-ret);
+		(void)snprintf(filename, sizeof(filename), "%s/%s\n", tmp, d->d_name);
+		if (stat(filename, &statbuf) < 0)
+			continue;
+		if ((statbuf.st_mode & S_IFMT) == S_IFREG)
+			(void)unlink(filename);
+	}
+	(void)closedir(dir);
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+}
 
+static void stress_touch_child(
+	const stress_args_t *args,
+	const int touch_method,
+	const int open_flags)
+{
 	do {
 		char filename[PATH_MAX];
-		uint64_t counter = get_counter(args);
-		int fd;
+		uint64_t counter;
+		int fd, ret;
 
+		ret = shim_pthread_spin_lock(&spinlock);
+		if (ret)
+			break;
+		counter = get_counter(args);
+		inc_counter(args);
+		ret = shim_pthread_spin_unlock(&spinlock);
+		if (ret)
+			break;
 		(void)stress_temp_filename_args(args, filename,
 			sizeof(filename), counter);
 
@@ -250,22 +277,76 @@ static int stress_touch(const stress_args_t *args)
 		}
 
 		(void)unlink(filename);
-
-		inc_counter(args);
 	} while (keep_stressing(args));
+}
+
+/*
+ *  stress_touch
+ *	stress file creation and removal
+ */
+static int stress_touch(const stress_args_t *args)
+{
+	int ret;
+	int open_flags = 0;
+	int touch_method = TOUCH_RANDOM;
+	pid_t pids[TOUCH_PROCS];
+	size_t i;
+
+	ret = shim_pthread_spin_init(&spinlock, SHIM_PTHREAD_PROCESS_SHARED);
+	if (ret) {
+		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
+			args->name, ret, strerror(ret));
+		return EXIT_NO_RESOURCE;
+	}
+
+	stress_get_setting("touch-opts", &open_flags);
+	stress_get_setting("touch-method", &touch_method);
+
+	if ((args->instance == 0) &&
+	    (touch_method == TOUCH_CREAT) &&
+	    (open_flags != 0))
+		pr_inf("%s: note: touch-opts are not used for creat touch method\n", args->name);
+
+	ret = stress_temp_dir_mk_args(args);
+	if (ret < 0)
+		return exit_status(-ret);
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	for (i = 0; i < TOUCH_PROCS; i++) {
+		pids[i] = fork();
+
+		if (pids[i] == 0) {
+			stress_touch_child(args, touch_method, open_flags);
+			_exit(0);
+		}
+	}
+	stress_touch_child(args, touch_method, open_flags);
+
+	keep_stressing_set_flag(false);
+
+	for (i = 0; i < TOUCH_PROCS; i++) {
+		if (pids[i] > 1)
+			(void)kill(pids[i], SIGALRM);
+	}
+	for (i = 0; i < TOUCH_PROCS; i++) {
+		if (pids[i] > 1)  {
+			int status;
+
+			ret = waitpid(pids[i], &status, 0);
+			(void)ret;
+		}
+	}
+
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	stress_touch_dir_clean(args);
 	(void)stress_temp_dir_rm_args(args);
+	(void)shim_pthread_spin_destroy(&spinlock);
 
-	return ret;
+	return EXIT_SUCCESS;
 }
-
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_touch_opts,	stress_set_touch_opts },
-	{ OPT_touch_method,	stress_set_touch_method },
-	{ 0,			NULL },
-};
 
 stressor_info_t stress_touch_info = {
 	.stressor = stress_touch,
@@ -274,3 +355,14 @@ stressor_info_t stress_touch_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
+
+#else
+stressor_info_t stress_touch_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_FILESYSTEM | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
+	.help = help
+};
+
+#endif
