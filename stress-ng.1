@@ -4585,7 +4585,7 @@ hence this fills the dentry cache. Note that the user time and system time may b
 as most of the run time is waiting for file I/O and this produces very large bogo-op
 rates for the very low CPU time used.
 .TP
-.B \-\-touch\-opts direct, dsync, excl, noatime, sync
+.B \-\-touch\-opts all, direct, dsync, excl, noatime, sync
 specify various file open options as a comma separated list. Options are as
 follows:
 .TS
@@ -4593,6 +4593,9 @@ expand;
 lB lB lB lB
 l l s s.
 Option	Description
+all	T{
+use all the open options, namely direct, dsync, excl, noatime and sync
+T}
 direct	T{
 try to minimize cache effects of the I/O to and from this file, using the O_DIRECT open flag.
 T}

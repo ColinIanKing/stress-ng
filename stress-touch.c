@@ -65,22 +65,38 @@ typedef struct {
 #define TOUCH_OPT_SYNC		(0)
 #endif
 
-static shim_pthread_spinlock_t spinlock;
+#if defined(O_TRUNC)
+#define TOUCH_OPT_TRUNC		O_TRUNC
+#else
+#define TOUCH_OPT_TRUNC		(0)
+#endif
+
+static shim_pthread_spinlock_t *spinlock;
+
+#define TOUCH_OPT_ALL	\
+	(TOUCH_OPT_DIRECT |	\
+	 TOUCH_OPT_DSYNC |	\
+	 TOUCH_OPT_EXCL |	\
+	 TOUCH_OPT_NOATIME |	\
+	 TOUCH_OPT_SYNC |	\
+	 TOUCH_OPT_TRUNC )
 
 static const stress_help_t help[] = {
 	{ NULL,	"touch N",	"start N stressors that touch and remove files" },
 	{ NULL,	"touch-ops N",	"stop after N touch bogo operations" },
-	{ NULL, "touch-opts",	"touch open options direct,dsync,excl,noatime,sync" },
+	{ NULL, "touch-opts",	"touch open options all,direct,dsync,excl,noatime,sync,trunc" },
 	{ NULL, "touch-method",	"specify method to touch tile file, open | create" },
 	{ NULL,	NULL,		NULL }
 };
 
 static const touch_opts_t touch_opts[] = {
+	{ "all",	TOUCH_OPT_ALL },
 	{ "direct",	TOUCH_OPT_DIRECT },
 	{ "dsync",	TOUCH_OPT_DSYNC },
 	{ "excl",	TOUCH_OPT_EXCL },
 	{ "noatime",	TOUCH_OPT_NOATIME },
 	{ "sync",	TOUCH_OPT_SYNC },
+	{ "trunc",	TOUCH_OPT_TRUNC },
 };
 
 static const touch_method_t touch_method[] = {
@@ -195,12 +211,12 @@ static void stress_touch_child(
 		uint64_t counter;
 		int fd, ret;
 
-		ret = shim_pthread_spin_lock(&spinlock);
+		ret = shim_pthread_spin_lock(spinlock);
 		if (ret)
 			break;
 		counter = get_counter(args);
 		inc_counter(args);
-		ret = shim_pthread_spin_unlock(&spinlock);
+		ret = shim_pthread_spin_unlock(spinlock);
 		if (ret)
 			break;
 		(void)stress_temp_filename_args(args, filename,
@@ -265,8 +281,8 @@ static void stress_touch_child(
 #endif
 			case -1:
 				/* Unexpected failures, fail on these */
-				pr_fail("%s: creat failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: creat %s failed, errno=%d (%s)\n",
+					args->name, filename, errno, strerror(errno));
 				break;
 			default:
 				/* Silently ignore anything else */
@@ -292,7 +308,14 @@ static int stress_touch(const stress_args_t *args)
 	pid_t pids[TOUCH_PROCS];
 	size_t i;
 
-	ret = shim_pthread_spin_init(&spinlock, SHIM_PTHREAD_PROCESS_SHARED);
+	spinlock = mmap(NULL, sizeof(*spinlock), PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (spinlock == MAP_FAILED) {
+		pr_inf("%s: cannot allocate shared spinlock, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	ret = shim_pthread_spin_init(spinlock, SHIM_PTHREAD_PROCESS_SHARED);
 	if (ret) {
 		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
 			args->name, ret, strerror(ret));
@@ -348,7 +371,8 @@ static int stress_touch(const stress_args_t *args)
 
 	stress_touch_dir_clean(args);
 	(void)stress_temp_dir_rm_args(args);
-	(void)shim_pthread_spin_destroy(&spinlock);
+	(void)shim_pthread_spin_destroy(spinlock);
+	(void)munmap((void *)spinlock, sizeof(*spinlock));
 
 	return EXIT_SUCCESS;
 }
