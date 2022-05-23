@@ -30,7 +30,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int stress_l1cache_set(const char *opt, const char *name, size_t max)
+static int stress_l1cache_set(const char *opt, const char *name, const size_t max)
 {
 	uint32_t val32;
 	uint64_t val64;
@@ -74,7 +74,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_l1cache_ln2()
  *	calculate log base 2
  */
-static uint32_t stress_l1cache_ln2(uint32_t val)
+static uint32_t stress_l1cache_ln2(const uint32_t val)
 {
 	int ln2 = 0;
 
@@ -91,10 +91,10 @@ static uint32_t stress_l1cache_ln2(uint32_t val)
  */
 static int stress_l1cache_info_check(
 	const stress_args_t *args,
-	uint32_t ways,
-	uint32_t size,
-	uint32_t sets,
-	uint32_t line_size)
+	const uint32_t ways,
+	const uint32_t size,
+	const uint32_t sets,
+	const uint32_t line_size)
 {
 	uint64_t sz = size ? size :
 		(uint64_t)ways * (uint64_t)sets * (uint64_t)line_size;
