@@ -150,7 +150,7 @@ static int monitor(const stress_args_t *args, const int sock)
  *  spawn_several()
  *	create a bunch of processes
  */
-static void spawn_several(const char *name, int n, int max)
+static void spawn_several(const char *name, const int n, const int max)
 {
 	pid_t pid;
 
