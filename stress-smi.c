@@ -195,7 +195,7 @@ static int stress_smi(const stress_args_t *args)
 					args->name);
 			}
 		} else {
-			pr_inf("%s: cannot determine SMI rate, MSI_SMI_COUNT not readable\n",
+			pr_inf("%s: cannot determine SMI rate, MSR_SMI_COUNT not readable\n",
 				args->name);
 		}
 
