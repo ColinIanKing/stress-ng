@@ -118,7 +118,6 @@ static int stress_fallocate(const stress_args_t *args)
 	for (all_modes = 0, i = 0; i < (int)SIZEOF_ARRAY(modes); i++)
 		all_modes |= modes[i];
 	mode_count = stress_flag_permutation(all_modes, &mode_perms);
-	printf("COUNT: %d\n", mode_count);
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
