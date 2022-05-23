@@ -163,7 +163,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *	modern libc maps the obsolete futimesat to utimesat
  */
 static inline int obsolete_futimesat(
-	int dir_fd,
+	const int dir_fd,
 	const char *pathname,
 	const struct timeval tv[2])
 {
@@ -197,7 +197,7 @@ static inline int obsolete_futimesat(
  *  obsolete_futimes()
  *	modern libc maps the obsolete futimes to utimes
  */
-static inline int obsolete_futimes(int fd, const struct timeval tv[2])
+static inline int obsolete_futimes(const int fd, const struct timeval tv[2])
 {
 	int ret;
 
@@ -223,7 +223,7 @@ static inline int obsolete_futimes(int fd, const struct timeval tv[2])
 	return ret;
 }
 
-static inline int open_arg2(const char *pathname, int flags)
+static inline int open_arg2(const char *pathname, const int flags)
 {
 	int fd;
 
@@ -238,7 +238,7 @@ static inline int open_arg2(const char *pathname, int flags)
 	return fd;
 }
 
-static inline int open_arg3(const char *pathname, int flags, mode_t mode)
+static inline int open_arg3(const char *pathname, const int flags, const mode_t mode)
 {
 	int fd;
 
