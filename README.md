@@ -373,6 +373,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 
 * [Stress-ng presentation at ELCE 2019 Lyon](https://static.sched.com/hosted_files/osseu19/29/Lyon-stress-ng-presentation-oct-2019.pdf)
 * [Video of the above presentation](https://www.youtube.com/watch?v=8QaXStKfq3A)
+* [Stress-ng: How to Stress Test Your Computer (and Possibly Break It)](https://www.youtube.com/watch?v=gD3Hn02VSHA)
 
 ## Citations
 
