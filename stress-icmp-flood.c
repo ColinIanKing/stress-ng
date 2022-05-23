@@ -69,6 +69,16 @@ static int stress_icmp_flood(const stress_args_t *args)
 	struct sockaddr_in servaddr;
 	uint64_t counter, sendto_fails = 0;
 
+	const size_t max_payload_len = MAX_PAYLOAD_SIZE + 1;
+	const size_t max_pkt_len = sizeof(struct iphdr) + sizeof(struct icmphdr) + max_payload_len;
+	char pkt[max_pkt_len];
+	struct iphdr *const ip_hdr = (struct iphdr *)pkt;
+	struct icmphdr *const icmp_hdr = (struct icmphdr *)(pkt + sizeof(struct iphdr));
+	char *const payload = pkt + sizeof(struct iphdr) + sizeof(struct icmphdr);
+
+	(void)memset(pkt, 0, sizeof(pkt));
+	stress_strnrnd(payload, MAX_PAYLOAD_SIZE);
+
 	fd = socket(AF_INET, SOCK_RAW, IPPROTO_RAW);
 	if (fd < 0) {
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
@@ -98,9 +108,6 @@ static int stress_icmp_flood(const stress_args_t *args)
 		const size_t payload_len = (stress_mwc32() % MAX_PAYLOAD_SIZE) + 1;
 		const size_t pkt_len =
 			sizeof(struct iphdr) + sizeof(struct icmphdr) + payload_len;
-		char pkt[pkt_len];
-		struct iphdr *const ip_hdr = (struct iphdr *)pkt;
-		struct icmphdr *const icmp_hdr = (struct icmphdr *)(pkt + sizeof(struct iphdr));
 
 		(void)memset(pkt, 0, sizeof(pkt));
 
@@ -124,8 +131,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 		 * Generating random data is expensive so do it every 64 packets
 		 */
 		if ((get_counter(args) & 0x3f) == 0)
-			stress_strnrnd(pkt + sizeof(struct iphdr) +
-				sizeof(struct icmphdr), payload_len);
+			stress_strnrnd(payload, payload_len);
 		icmp_hdr->checksum = stress_ipv4_checksum((uint16_t *)icmp_hdr,
 			sizeof(struct icmphdr) + payload_len);
 
