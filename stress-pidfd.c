@@ -27,7 +27,7 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_PIDFD_SEND_SIGNAL)
 
-static int stress_pidfd_open(pid_t pid, unsigned int flag)
+static int stress_pidfd_open(const pid_t pid, const unsigned int flag)
 {
 	int fd;
 	const pid_t bad_pid = stress_get_unused_pid_racy(false);
