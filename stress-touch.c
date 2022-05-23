@@ -1,5 +1,4 @@
 /*
- * Copyright (C) 2013-2021 Canonical, Ltd.
  * Copyright (C)      2022 Colin Ian King.
  *
  * This program is free software; you can redistribute it and/or
