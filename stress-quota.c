@@ -90,10 +90,10 @@ static int stress_quota_supported(const char *name)
  *	just fall back to quotactl.
  */
 static int do_quotactl_call(
-	int cmd,
+	const int cmd,
 	stress_dev_info_t *dev,
-	int id,
-	caddr_t addr)
+	const int id,
+	const caddr_t addr)
 {
 	static bool have_quotactl_fd = true;
 	int ret, fd;
@@ -138,10 +138,10 @@ static int do_quotactl(
 	int *failed,
 	int *enosys,
 	int *esrch,
-	int cmd,
+	const int cmd,
 	stress_dev_info_t *dev,
-	int id,
-	caddr_t addr)
+	const int id,
+	const caddr_t addr)
 {
 	int ret = do_quotactl_call(cmd, dev, id, addr);
 
