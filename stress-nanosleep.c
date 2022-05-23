@@ -37,7 +37,7 @@ static sigset_t set;
 static const stress_help_t help[] = {
 	{ NULL,	"nanosleep N",		"start N workers performing short sleeps" },
 	{ NULL,	"nanosleep-ops N",	"stop after N bogo sleep operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 #if defined(HAVE_LIB_PTHREAD)
