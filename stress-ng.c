@@ -1748,7 +1748,7 @@ static void stress_clean_dir_files(
 static void stress_clean_dir(
 	const char *name,
 	const pid_t pid,
-	uint32_t instance)
+	const uint32_t instance)
 {
 	char path[PATH_MAX];
 	const char *temp_path = stress_get_temp_path();
