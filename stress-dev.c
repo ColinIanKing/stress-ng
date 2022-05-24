@@ -1693,7 +1693,7 @@ static void stress_dev_kmem_linux(
  */
 static void cdrom_get_address_msf(
 	const int fd,
-	int track,
+	const int track,
 	uint8_t *min,
 	uint8_t *seconds,
 	uint8_t *frames)
