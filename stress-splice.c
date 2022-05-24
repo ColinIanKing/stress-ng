@@ -49,6 +49,10 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_SPLICE)
 
+/*
+ *  stress_splice_pipe_size()
+ *	set random splice flags
+ */
 static int stress_splice_flag(void)
 {
 	int flag = 0;
@@ -60,6 +64,21 @@ static int stress_splice_flag(void)
 	flag |= (stress_mwc1() ? SPLICE_F_MORE : 0);
 #endif
 	return flag;
+}
+
+/*
+ *  stress_splice_pipe_size()
+ *	attempt to se pipe size of multiples of the splice buffer length
+ */
+static int stress_splice_pipe_size(const int fd)
+{
+#if defined(F_SETPIPE_SZ)
+	size_t pipe_size = (1 + (stress_mwc8() & 3)) * SPLICE_BUFFER_LEN;
+
+	return fcntl(fd, F_SETPIPE_SZ, pipe_size);
+#else
+	return 0;
+#endif
 }
 
 /*
@@ -210,6 +229,19 @@ static int stress_splice(const stress_args_t *args)
 	}
 
 	/*
+	 *  We may as well exercise setting pipe size at start/end
+	 *  of pipe for more kernel exercising
+ 	 */
+	(void)stress_splice_pipe_size(fds1[0]);
+	(void)stress_splice_pipe_size(fds1[1]);
+	(void)stress_splice_pipe_size(fds2[0]);
+	(void)stress_splice_pipe_size(fds2[1]);
+	(void)stress_splice_pipe_size(fds3[0]);
+	(void)stress_splice_pipe_size(fds3[1]);
+	(void)stress_splice_pipe_size(fds4[0]);
+	(void)stress_splice_pipe_size(fds4[1]);
+
+	/*
 	 *  place data in fds3 for splice loop pipes
 	 */
 	use_splice_loop = stress_splice_non_block_write_4K(fds3[1]);
@@ -249,10 +281,13 @@ static int stress_splice(const stress_args_t *args)
 				break;
 		}
 
+
 		ret = splice(fds1[0], NULL, fds2[1], NULL,
 			splice_bytes, stress_splice_flag());
 		if (ret < 0)
 			break;
+
+
 		ret = splice(fds2[0], NULL, fd_out, NULL,
 			splice_bytes, stress_splice_flag());
 		if (ret < 0)
