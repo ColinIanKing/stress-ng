@@ -75,7 +75,7 @@ static inline bool efi_var_ignore(char *d_name)
  *  guid_to_str()
  *	turn efi GUID to a string
  */
-static inline void guid_to_str(const uint8_t *guid, char *guid_str, size_t guid_len)
+static inline void guid_to_str(const uint8_t *guid, char *guid_str, const size_t guid_len)
 {
 	if (!guid_str)
 		return;
@@ -140,7 +140,7 @@ static int efi_get_data(
 	const char *varname,
 	const char *field,
 	void *buf,
-	size_t buf_len,
+	const size_t buf_len,
 	const pid_t pid)
 {
 	int fd, rc = -1;
