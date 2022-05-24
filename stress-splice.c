@@ -47,8 +47,20 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL }
 };
 
-#if defined(HAVE_SPLICE) &&	\
-    defined(SPLICE_F_MOVE)
+#if defined(HAVE_SPLICE)
+
+static int stress_splice_flag(void)
+{
+	int flag = 0;
+
+#if defined(SPLICE_F_MOVE)
+	flag |= (stress_mwc1() ? SPLICE_F_MOVE : 0);
+#endif
+#if defined(SPLICE_F_MORE)
+	flag |= (stress_mwc1() ? SPLICE_F_MORE : 0);
+#endif
+	return flag;
+}
 
 /*
  *  stress_splice_write()
@@ -112,12 +124,12 @@ static void stress_splice_looped_pipe(
 	if (!*use_splice_loop)
 		return;
 
-	ret = splice(fds3[0], 0, fds4[1], 0, 4096, SPLICE_F_MOVE);
+	ret = splice(fds3[0], 0, fds4[1], 0, 4096, stress_splice_flag());
 	if (ret < 0) {
 		*use_splice_loop = false;
 		return;
 	}
-	ret = splice(fds4[0], 0, fds3[1], 0, 4096, SPLICE_F_MOVE);
+	ret = splice(fds4[0], 0, fds3[1], 0, 4096, stress_splice_flag());
 	if (ret < 0) {
 		*use_splice_loop = false;
 		return;
@@ -216,7 +228,7 @@ static int stress_splice(const stress_args_t *args)
 		 */
 		if (use_splice) {
 			ret = splice(fd_in, NULL, fds1[1], NULL,
-				splice_bytes, SPLICE_F_MOVE);
+				splice_bytes, stress_splice_flag());
 			if (ret < 0) {
 				if (errno == EINVAL) {
 					if (args->instance == 0) {
@@ -238,11 +250,11 @@ static int stress_splice(const stress_args_t *args)
 		}
 
 		ret = splice(fds1[0], NULL, fds2[1], NULL,
-			splice_bytes, SPLICE_F_MOVE);
+			splice_bytes, stress_splice_flag());
 		if (ret < 0)
 			break;
 		ret = splice(fds2[0], NULL, fd_out, NULL,
-			splice_bytes, SPLICE_F_MOVE);
+			splice_bytes, stress_splice_flag());
 		if (ret < 0)
 			break;
 
@@ -250,22 +262,22 @@ static int stress_splice(const stress_args_t *args)
 		off_in = 1;
 		off_out = 1;
 		ret = splice(fds1[0], &off_in, fds1[1], &off_out,
-			4096, SPLICE_F_MOVE);
+			4096, stress_splice_flag());
 		(void)ret;
 
 		off_out = 1;
 		ret = splice(fd_in, NULL, fds1[1], &off_out,
-			splice_bytes, SPLICE_F_MOVE);
+			splice_bytes, stress_splice_flag());
 		(void)ret;
 
 		off_in = 1;
 		ret = splice(fds1[0], &off_in, fd_out, NULL,
-			splice_bytes, SPLICE_F_MOVE);
+			splice_bytes, stress_splice_flag());
 		(void)ret;
 
 		/* Exercise no-op splice of zero size */
 		ret = splice(fd_in, NULL, fds1[1], NULL,
-			0, SPLICE_F_MOVE);
+			0, stress_splice_flag());
 		(void)ret;
 
 		/* Exercise invalid splice flags */
@@ -282,7 +294,7 @@ static int stress_splice(const stress_args_t *args)
 		off_in = 0;
 		off_out = 0;
 		ret = splice(fds1[1], &off_in, fds1[1], &off_out,
-			4096, SPLICE_F_MOVE);
+			4096, stress_splice_flag());
 		(void)ret;
 
 		/* Exercise splice loop from one pipe to another and back */
