@@ -299,7 +299,7 @@ timed_out:
 				/*
 				 *  SETALL across the semaphores will clobber the state
 				 *  and cause waits on semaphores because of the unlocked
-				 *  state change. Currenltly this is disabled.
+				 *  state change. Currently this is disabled.
 				 */
 				if (ret == 0)
 					ret = semctl(sem_id, 2, SETALL, s);
