@@ -130,6 +130,12 @@ static int stress_xattr(const stress_args_t *args)
 				goto out_finished;
 		}
 
+		/* Exercise empty zero length value */
+		ret = shim_fsetxattr(fd, "user.var_empty", "", 0, XATTR_CREATE);
+		if (ret == 0)
+			ret = shim_fremovexattr(fd, "user.var_empty");
+		(void)ret;
+
 		(void)snprintf(attrname, sizeof(attrname), "user.var_%d", MAX_XATTRS);
 		(void)snprintf(value, sizeof(value), "orig-value-%d", MAX_XATTRS);
 
