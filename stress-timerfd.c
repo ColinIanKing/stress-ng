@@ -36,6 +36,11 @@ UNEXPECTED
 #define MAX_TIMERFD_FREQ	(100000000)
 #define DEFAULT_TIMERFD_FREQ	(1000000)
 
+#if !defined(TFD_IOC_SET_TICKS) &&	\
+    defined(_IOW)
+#define TFD_IOC_SET_TICKS	_IOW('T', 0, __u64)
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"timerfd N",	  "start N workers producing timerfd events" },
 	{ NULL,	"timerfd-ops N",  "stop after N timerfd bogo events" },
@@ -376,6 +381,17 @@ static int stress_timerfd(const stress_args_t *args)
 		/* Exercise timerfd_settime with invalid flags */
 		ret = timerfd_settime(bad_fd, ~0, &timer, NULL);
 		(void)ret;
+
+#if defined(HAVE_SYS_TIMERFD_H) &&	\
+    defined(TFD_IOC_SET_TICKS)
+		/* Exercise timer tick setting ioctl */
+		{
+			unsigned long arg = 1ULL;
+
+			ret = ioctl(timerfds[0], TFD_IOC_SET_TICKS, &arg);
+			(void)ret;
+		}
+#endif
 
 		/*
 		 *  Periodically read /proc/$pid/fdinfo/timerfd[0],
