@@ -203,7 +203,7 @@ static inline int obsolete_futimes(const int fd, const struct timeval tv[2])
 
 #if defined(__NR_futimes)
 	/* Try direct system call first */
-	ret = (int)syscall(__NR_futimet, fd, tv);
+	ret = (int)syscall(__NR_futimes, fd, tv);
 	if ((ret == 0) || (errno != ENOSYS))
 		return ret;
 #endif
@@ -256,7 +256,20 @@ static inline int open_arg3(const char *pathname, const int flags, const mode_t 
 		tv[0].tv_sec = -1;
 		tv[1].tv_usec = -1;
 		tv[1].tv_sec = -1;
+		(void)obsolete_futimes(fd, tv);
 
+		/* Exercise illegal futimes, usec too large */
+		tv[0].tv_usec = 1000000;
+		tv[0].tv_sec = 0;
+		tv[1].tv_usec = 1000000;
+		tv[1].tv_sec = 0;
+		(void)obsolete_futimes(fd, tv);
+
+		/* Exercise illegal futimes, usec too small */
+		tv[0].tv_usec = -1;
+		tv[0].tv_sec = 0;
+		tv[1].tv_usec = -1;
+		tv[1].tv_sec = 0;
 		(void)obsolete_futimes(fd, tv);
 	}
 	return fd;
