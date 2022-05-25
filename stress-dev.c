@@ -1622,7 +1622,11 @@ static void stress_dev_random_linux(
  *  stress_dev_mem_mmap_linux()
  *	Linux mmap'ing on a device
  */
-static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
+static void stress_dev_mem_mmap_linux(
+	const int fd,
+	const char *devpath,
+	const bool read_page,
+	const bool write_page)
 {
 	void *ptr;
 	const size_t page_size = stress_get_page_size();
@@ -1651,10 +1655,27 @@ static void stress_dev_mem_mmap_linux(const int fd, const bool read_page)
 	}
 
 	ptr = mmap(NULL, page_size, PROT_READ | PROT_WRITE, MAP_PRIVATE, fd, 0);
-	if (ptr != MAP_FAILED) {
+	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, page_size);
-	}
+#if defined(STRESS_ARCH_X86)
+	if (write_page) {
+		int fdwr;
 
+		fdwr = open(devpath, O_RDWR);
+		if (fdwr >= 0) {
+			if (lseek(fdwr, (off_t)0, SEEK_SET) == 0) {
+				char buffer[1];
+				ssize_t ret;
+
+				/* Page zero, offset zero should contain zero */
+				(void)memset(buffer, 0, sizeof(buffer));
+				ret = write(fdwr, buffer, sizeof(buffer));
+				(void)ret;
+			}
+			(void)close(fdwr);
+		}
+	}
+#endif
 }
 
 static void stress_dev_mem_linux(
@@ -1665,7 +1686,7 @@ static void stress_dev_mem_linux(
 	(void)args;
 	(void)devpath;
 
-	stress_dev_mem_mmap_linux(fd, true);
+	stress_dev_mem_mmap_linux(fd, devpath, true, true);
 }
 #endif
 
@@ -1678,7 +1699,7 @@ static void stress_dev_kmem_linux(
 	(void)args;
 	(void)devpath;
 
-	stress_dev_mem_mmap_linux(fd, false);
+	stress_dev_mem_mmap_linux(fd, devpath, false, false);
 }
 #endif
 
@@ -2890,7 +2911,7 @@ static void stress_dev_kmsg_linux(
 	(void)args;
 	(void)devpath;
 
-	stress_dev_mem_mmap_linux(fd, true);
+	stress_dev_mem_mmap_linux(fd, devpath, true, false);
 }
 #endif
 
@@ -2903,7 +2924,7 @@ static void stress_dev_nvram_linux(
 	(void)args;
 	(void)devpath;
 
-	stress_dev_mem_mmap_linux(fd, true);
+	stress_dev_mem_mmap_linux(fd, devpath, true, false);
 }
 #endif
 
