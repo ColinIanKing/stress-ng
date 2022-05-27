@@ -387,7 +387,7 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 	const int ms_flags = context->mmap_async ? MS_ASYNC : MS_SYNC;
 	uint8_t *mapped, **mappings;
 	void *hint;
-	int ret;
+	int ret, mask = ~0;
 
 	ret = stress_sighandler(args->name, SIGBUS, stress_mmap_sighandler, NULL);
 	(void)ret;
@@ -448,7 +448,7 @@ retry:
 		 */
 		hint = stress_mwc1() ? NULL : (void *)~(uintptr_t)0;
 		buf = (uint8_t *)context->mmap(hint, sz,
-			PROT_READ | PROT_WRITE, context->flags | rnd_flag, fd, 0);
+			PROT_READ | PROT_WRITE, (context->flags | rnd_flag) & mask, fd, 0);
 		if (buf == MAP_FAILED) {
 #if defined(MAP_POPULATE)
 			/* Force MAP_POPULATE off, just in case */
@@ -461,7 +461,7 @@ retry:
 #if defined(MAP_HUGETLB)
 			/* Force MAP_HUGETLB off, just in case */
 			if (rnd_flag & MAP_HUGETLB) {
-				rnd_flag &= ~MAP_HUGETLB;
+				mask &= ~MAP_HUGETLB;
 				no_mem_retries++;
 				goto retry;
 			}
@@ -469,7 +469,7 @@ retry:
 #if defined(MAP_UNINITIALIZED)
 			/* Force MAP_UNINITIALIZED off, just in case */
 			if (rnd_flag & MAP_UNINITIALIZED) {
-				rnd_flag &= ~MAP_UNINITIALIZED;
+				mask &= ~MAP_UNINITIALIZED;
 				no_mem_retries++;
 				goto retry;
 			}
@@ -477,7 +477,7 @@ retry:
 #if defined(MAP_DENYWRITE)
 			/* Force MAP_DENYWRITE off, just in case */
 			if (rnd_flag & MAP_DENYWRITE) {
-				rnd_flag &= ~MAP_DENYWRITE;
+				mask &= ~MAP_DENYWRITE;
 				no_mem_retries++;
 				goto retry;
 			}
