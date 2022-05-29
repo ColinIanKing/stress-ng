@@ -323,7 +323,7 @@ static void stress_gpu_run(const GLsizei texsize, const GLsizei uploads)
 
 EGLConfig get_config(void)
 {
-	EGLint egl_config_attribs[] = {
+	static const EGLint egl_config_attribs[] = {
 		EGL_BUFFER_SIZE, 32,
 		EGL_DEPTH_SIZE, EGL_DONT_CARE,
 		EGL_STENCIL_SIZE, EGL_DONT_CARE,
