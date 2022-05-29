@@ -379,8 +379,6 @@ static int stress_gpu(const stress_args_t * args)
 		stress_gpu_run(texsize, uploads);
 		if (glGetError() != GL_NO_ERROR)
 			return EXIT_NO_RESOURCE;
-		else
-			break;
 		inc_counter(args);
 	} while (keep_stressing(args));
 
