@@ -134,7 +134,11 @@ static const char frag_shader[] =
     "a = clamp(a, -1.0, 1.0);\n"
     "gl_FragColor = v_color + 0.000001 * a;\n" "}\n";
 
-static GLuint compile_shader(const char *text, const int size, const GLenum type)
+static GLuint compile_shader(
+	const stress_args_t *args,
+	const char *text,
+	const int size,
+	const GLenum type)
 {
 	GLuint shader;
 	GLint compiled;
@@ -150,8 +154,14 @@ static GLuint compile_shader(const char *text, const int size, const GLenum type
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
 		if (infoLen > 1) {
 			char *infoLog = malloc(infoLen);
+
+			if (!infoLog) {
+				pr_inf("%s: failed to allocate infoLog, skipping stressor\n", args->name);
+				glDeleteShader(shader);
+				return 0;
+			}
 			glGetShaderInfoLog(shader, infoLen, NULL, infoLog);
-			pr_inf("Error compiling shader:\n%s\n", infoLog);
+			pr_inf("%s: failed to compile shader:\n%s\n", args->name, infoLog);
 			free(infoLog);
 		}
 		glDeleteShader(shader);
@@ -160,40 +170,60 @@ static GLuint compile_shader(const char *text, const int size, const GLenum type
 	return shader;
 }
 
-void load_shaders(void)
+int load_shaders(const stress_args_t *args)
 {
 	GLint linked;
 	GLuint vertexShader;
 	GLuint fragmentShader;
+	const char *name = args->name;
 
-	if ((vertexShader =
-	     compile_shader(vert_shader, sizeof(vert_shader),
-			    GL_VERTEX_SHADER)) == 0)
-		pr_inf("ERROR: Failed to compile vertex shader\n");
-	if ((fragmentShader =
-	     compile_shader(frag_shader, sizeof(frag_shader),
-			    GL_FRAGMENT_SHADER)) == 0)
-		pr_inf("ERROR: Failed to compile fragment shader\n");
-	if ((program = glCreateProgram()) == 0)
-		pr_inf("Error creating the shader program\n");
+	vertexShader = compile_shader(args, vert_shader, sizeof(vert_shader),
+			    GL_VERTEX_SHADER);
+	if (vertexShader == 0) {
+		pr_inf("%s: failed to compile vertex shader, skipping stressor\n", name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	fragmentShader = compile_shader(args, frag_shader, sizeof(frag_shader),
+			    GL_FRAGMENT_SHADER);
+	if (fragmentShader == 0) {
+		pr_inf("%s: failed to compile fragment shader, skipping stressor\n", name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	program = glCreateProgram();
+	if (program == 0) {
+		pr_inf("%s: failed to create the shader program\n", name);
+		return EXIT_NO_RESOURCE;
+	}
+
 	glAttachShader(program, vertexShader);
 	glAttachShader(program, fragmentShader);
 	glLinkProgram(program);
 	glGetProgramiv(program, GL_LINK_STATUS, &linked);
 	if (!linked) {
 		GLint infoLen = 0;
+
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLen);
 		if (infoLen > 1) {
 			char *infoLog = malloc(infoLen);
+
+			if (!infoLog) {
+				pr_inf("%s: failed to allocate infoLog, skipping stressor\n", name);
+				glDeleteProgram(program);
+				return EXIT_NO_RESOURCE;
+			}
 			glGetProgramInfoLog(program, infoLen, NULL, infoLog);
-			pr_inf("Error linking shader program:\n%s\n", infoLog);
+			pr_fail("%s: failed to link shader program:\n%s\n", name, infoLog);
 			free(infoLog);
 		}
 		glDeleteProgram(program);
-		exit(EXIT_FAILURE);
+		return EXIT_FAILURE;
 	}
 
 	glUseProgram(program);
+
+	return EXIT_SUCCESS;
 }
 
 static const GLfloat vertex[] = {
@@ -216,22 +246,35 @@ static const GLfloat color[] = {
 	1, 1, 0, 1,
 };
 
-void gles2_init(const uint32_t width, const uint32_t height, const int frag_n, const GLsizei texsize)
+int gles2_init(
+	const stress_args_t *args,
+	const uint32_t width,
+	const uint32_t height,
+	const int frag_n,
+	const GLsizei texsize)
 {
-	pr_inf("GL_VENDOR: %s\n", (char *)glGetString(GL_VENDOR));
-	pr_inf("GL_VERSION: %s\n", (char *)glGetString(GL_VERSION));
-	pr_inf("GL_RENDERER: %s\n", (char *)glGetString(GL_RENDERER));
+	int ret;
 
-	load_shaders();
+	if (args->instance == 0) {
+		pr_inf("GL_VENDOR: %s\n", (char *)glGetString(GL_VENDOR));
+		pr_inf("GL_VERSION: %s\n", (char *)glGetString(GL_VERSION));
+		pr_inf("GL_RENDERER: %s\n", (char *)glGetString(GL_RENDERER));
+	}
+
+	ret = load_shaders(args);
+	if (ret != EXIT_SUCCESS)
+		return ret;
 
 	glClearColor(0, 0, 0, 0);
 	glViewport(0, 0, width, height);
 
 	GLint ufrag_n = glGetUniformLocation(program, "frag_n");
 	glUniform1i(ufrag_n, frag_n);
-	if (glGetError() != GL_NO_ERROR)
-		pr_inf("ERROR: Failed to get the storage location of %d\n",
-		       frag_n);
+	if (glGetError() != GL_NO_ERROR) {
+		pr_fail("%s: failed to get the storage location of %d\n",
+		       args->name, frag_n);
+		return EXIT_FAILURE;
+	}
 
 	GLint apos = glGetAttribLocation(program, "pos");
 	glEnableVertexAttribArray(apos);
@@ -244,8 +287,11 @@ void gles2_init(const uint32_t width, const uint32_t height, const int frag_n, c
 	if (texsize > 0) {
 		GLint maxsize;
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxsize);
-		if (texsize > maxsize)
-			pr_inf("ERROR: Image size exceeds max texture size \n");
+		if (texsize > maxsize) {
+			pr_inf("%s: image size %u exceeds maximum texture size %u\n",
+				args->name, (unsigned int)texsize, (unsigned int)maxsize);
+			return EXIT_FAILURE;
+		}
 
 		GLuint texobj = 0;
 		glGenTextures(1, &texobj);
@@ -253,7 +299,12 @@ void gles2_init(const uint32_t width, const uint32_t height, const int frag_n, c
 
 		GLint bytesPerImage = texsize * texsize * 4;
 		teximage = malloc(bytesPerImage);
+		if (!teximage) {
+			pr_inf("%s: failed to allocate teximage, skipping stressor\n", args->name);
+			return EXIT_NO_RESOURCE;
+		}
 	}
+	return EXIT_SUCCESS;
 }
 
 static void stress_gpu_run(const GLsizei texsize, const GLsizei uploads)
@@ -362,6 +413,7 @@ static void egl_init(const uint32_t size_x, const uint32_t size_y)
 static int stress_gpu(const stress_args_t *args)
 {
 	int frag_n = 0;
+	int ret;
 	uint32_t size_x = 256;
 	uint32_t size_y = 256;
 	GLsizei texsize = 4096;
@@ -374,7 +426,9 @@ static int stress_gpu(const stress_args_t *args)
 	(void)stress_get_setting("gpu-upload", &uploads);
 
 	egl_init(size_x, size_y);
-	gles2_init(size_x, size_y, frag_n, texsize);
+	ret = gles2_init(args, size_x, size_y, frag_n, texsize);
+	if (ret != EXIT_SUCCESS)
+		goto deinit;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -385,12 +439,14 @@ static int stress_gpu(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
+	ret = EXIT_SUCCESS;
+deinit:
 	if (teximage)
 		free(teximage);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	return EXIT_SUCCESS;
+	return ret;
 }
 
 stressor_info_t stress_gpu_info = {
