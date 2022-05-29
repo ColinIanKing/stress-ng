@@ -321,7 +321,7 @@ static void stress_gpu_run(const GLsizei texsize, const GLsizei uploads)
 	glFinish();
 }
 
-EGLConfig get_config(void)
+int get_config(const stress_args_t *args, EGLConfig *config)
 {
 	static const EGLint egl_config_attribs[] = {
 		EGL_BUFFER_SIZE, 32,
@@ -332,82 +332,118 @@ EGLConfig get_config(void)
 		EGL_NONE,
 	};
 
+	int i;
 	EGLint num_configs;
-	if (eglGetConfigs(display, NULL, 0, &num_configs) == EGL_FALSE)
-		pr_inf("EGL: There are no EGL configs \n");
+
+	if (eglGetConfigs(display, NULL, 0, &num_configs) == EGL_FALSE) {
+		pr_inf("%s: EGL: no EGL configs found, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	EGLConfig *configs = malloc(num_configs * sizeof(EGLConfig));
 	if ((eglChooseConfig(display, egl_config_attribs,
 			     configs, num_configs,
-			     &num_configs) == EGL_FALSE) || (num_configs == 0))
-		pr_inf("EGL: can't choose EGL config \n");
+			     &num_configs) == EGL_FALSE) || (num_configs == 0)) {
+		pr_inf("%s: EGL: can't choose EGL config, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
-	for (int i = 0; i < num_configs; ++i) {
+	for (i = 0; i < num_configs; ++i) {
 		EGLint gbm_format;
 
 		if (eglGetConfigAttrib(display, configs[i],
 				       EGL_NATIVE_VISUAL_ID,
-				       &gbm_format) == EGL_FALSE)
-			pr_inf("EGL: eglGetConfigAttrib failed \n");
+				       &gbm_format) == EGL_FALSE) {
+			pr_inf("%s: EGL: eglGetConfigAttrib failed, skipping stressor\n", args->name);
+			return EXIT_NO_RESOURCE;
+		}
 
 		if (gbm_format != GBM_FORMAT_ARGB8888)
 			continue;
 
-		EGLConfig config = configs[i];
+		*config = configs[i];
 		free(configs);
-		return config;
+
+		return EXIT_SUCCESS;
 	}
-	exit(EXIT_NO_RESOURCE);
+
+	pr_inf("%s: EGL: cannot get configuration, skipping stressor\n", args->name);
+	return EXIT_NO_RESOURCE;
 }
 
-static void egl_init(const uint32_t size_x, const uint32_t size_y)
+static int egl_init(
+	const stress_args_t *args,
+	const uint32_t size_x,
+	const uint32_t size_y)
 {
-	int fd = open(devicenode, O_RDWR);
-	if (fd < 0)
-		pr_inf("ERROR: couldn't open %s, skipping\n", devicenode);
-
-	gbm = gbm_create_device(fd);
-	if (gbm == NULL)
-		pr_inf("ERROR: couldn't create gbm device \n");
-
-	if ((display =
-	     eglGetPlatformDisplay(EGL_PLATFORM_GBM_KHR, gbm,
-				   NULL)) == EGL_NO_DISPLAY)
-		pr_inf("EGL: eglGetPlatformDisplay failed with vendor \n");
-
+	int ret, fd;
+	EGLConfig config;
+	EGLContext context;
 	EGLint majorVersion;
 	EGLint minorVersion;
-	if (eglInitialize(display, &majorVersion, &minorVersion) == EGL_FALSE)
-		pr_inf("EGL: Failed to initialize EGL \n");
 
-	if (eglBindAPI(EGL_OPENGL_ES_API) == EGL_FALSE)
-		pr_inf("EGL: Failed to bind OpenGL ES \n");
+	static const EGLint contextAttribs[] = {
+		EGL_CONTEXT_CLIENT_VERSION, 2,
+		EGL_NONE
+	};
 
-	EGLConfig config = get_config();
+	fd = open(devicenode, O_RDWR);
+	if (fd < 0) {
+		pr_inf("%s: couldn't open %s, skipping stressor\n", args->name, devicenode);
+		return EXIT_NO_RESOURCE;
+	}
+
+	gbm = gbm_create_device(fd);
+	if (!gbm) {
+		pr_inf("%s: couldn't create gbm device, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	display = eglGetPlatformDisplay(EGL_PLATFORM_GBM_KHR, gbm, NULL);
+	if (display == EGL_NO_DISPLAY) {
+		pr_inf("%s: EGL: eglGetPlatformDisplay failed with vendor, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	if (eglInitialize(display, &majorVersion, &minorVersion) == EGL_FALSE) {
+		pr_inf("%s: EGL: failed to initialize EGL, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	if (eglBindAPI(EGL_OPENGL_ES_API) == EGL_FALSE) {
+		pr_inf("%s: EGL: Failed to bind OpenGL ES\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	ret = get_config(args, &config);
+	if (ret != EXIT_SUCCESS)
+		return ret;
 
 	gs = gbm_surface_create(gbm, size_x, size_y, GBM_BO_FORMAT_ARGB8888,
 				GBM_BO_USE_LINEAR | GBM_BO_USE_SCANOUT |
 				GBM_BO_USE_RENDERING);
-	if (!gs)
-		pr_inf("ERROR: Could not create gbm surface \n");
+	if (!gs) {
+		pr_inf("%s: could not create gbm surface, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
-	if ((surface =
-	     eglCreatePlatformWindowSurface(display, config, gs,
-					    NULL)) == EGL_NO_SURFACE)
-		pr_inf("EGL: Failed to allocate surface \n");
+	surface = eglCreatePlatformWindowSurface(display, config, gs, NULL);
+	if (surface == EGL_NO_SURFACE) {
+		pr_inf("%s: EGL: Failed to allocate surface\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
-	EGLContext context;
-	const EGLint contextAttribs[] = {
-		EGL_CONTEXT_CLIENT_VERSION, 2,
-		EGL_NONE
-	};
-	if ((context =
-	     eglCreateContext(display, config, EGL_NO_CONTEXT,
-			      contextAttribs)) == EGL_NO_CONTEXT)
-		pr_inf("EGL: Failed to create context \n");
+	context = eglCreateContext(display, config, EGL_NO_CONTEXT, contextAttribs);
+	if (context == EGL_NO_CONTEXT) {
+		pr_inf("%s: EGL: Failed to create context\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
-	if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE)
-		pr_inf("EGL: Failed to make context current \n");
+	if (eglMakeCurrent(display, surface, surface, context) == EGL_FALSE) {
+		pr_inf("%s: EGL: Failed to make context current\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+	return EXIT_SUCCESS;
 }
 
 static int stress_gpu(const stress_args_t *args)
@@ -425,7 +461,10 @@ static int stress_gpu(const stress_args_t *args)
 	(void)stress_get_setting("gpu-tex-size", &texsize);
 	(void)stress_get_setting("gpu-upload", &uploads);
 
-	egl_init(size_x, size_y);
+	ret = egl_init(args, size_x, size_y);
+	if (ret != EXIT_SUCCESS)
+		goto deinit;
+
 	ret = gles2_init(args, size_x, size_y, frag_n, texsize);
 	if (ret != EXIT_SUCCESS)
 		goto deinit;
