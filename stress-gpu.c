@@ -43,13 +43,14 @@ static const stress_help_t help[] = {
 	{NULL, NULL, NULL}
 };
 
-static int stress_set_gpu(const char *opt, const char *name, size_t max)
+static int stress_set_gpu(const char *opt, const char *name, const size_t max)
 {
 	int32_t gpu32;
 	int64_t gpu64;
+
 	gpu64 = stress_get_uint64(opt);
 	stress_check_range(name, gpu64, 1, max);
-	gpu32 = (uint32_t) gpu64;
+	gpu32 = (uint32_t)gpu64;
 	return stress_set_setting(name, TYPE_ID_INT32, &gpu32);
 }
 
@@ -68,7 +69,7 @@ static int stress_set_gpu_ysize(const char *opt)
 	return stress_set_gpu(opt, "gpu-ysize", INT_MAX);
 }
 
-static int stress_set_gpu_gl(const char *opt, const char *name, size_t max)
+static int stress_set_gpu_gl(const char *opt, const char *name, const size_t max)
 {
 	int gpu_val;
 	gpu_val = stress_get_int32(opt);
@@ -103,22 +104,22 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	defined(HAVE_LIB_GBM) && \
 	defined(HAVE_GBM_H)
 
-GLuint program;
-EGLDisplay display;
-EGLSurface surface;
-struct gbm_device *gbm;
-struct gbm_surface *gs;
+static GLuint program;
+static EGLDisplay display;
+static EGLSurface surface;
+static struct gbm_device *gbm;
+static struct gbm_surface *gs;
 
-const char *devicenode = "/dev/dri/renderD128";
+static const char *devicenode = "/dev/dri/renderD128";
 static GLubyte *teximage = NULL;
 
-const char vert_shader[] =
+static const char vert_shader[] =
     "attribute vec4 pos;\n"
     "attribute vec4 color;\n"
     "varying vec4 v_color;\n"
     "void main()\n" "{\n" "v_color = color;\n" "gl_Position = pos;\n" "}\n";
 
-const char frag_shader[] =
+static const char frag_shader[] =
     "precision mediump float;\n"
     "varying vec4 v_color;\n"
     "uniform int frag_n;\n"
@@ -133,7 +134,7 @@ const char frag_shader[] =
     "a = clamp(a, -1.0, 1.0);\n"
     "gl_FragColor = v_color + 0.000001 * a;\n" "}\n";
 
-static GLuint compile_shader(const char *text, int size, GLenum type)
+static GLuint compile_shader(const char *text, const int size, const GLenum type)
 {
 	GLuint shader;
 	GLint compiled;
@@ -145,6 +146,7 @@ static GLuint compile_shader(const char *text, int size, GLenum type)
 	glGetShaderiv(shader, GL_COMPILE_STATUS, &compiled);
 	if (!compiled) {
 		GLint infoLen = 0;
+
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
 		if (infoLen > 1) {
 			char *infoLog = malloc(infoLen);
@@ -163,6 +165,7 @@ void load_shaders(void)
 	GLint linked;
 	GLuint vertexShader;
 	GLuint fragmentShader;
+
 	if ((vertexShader =
 	     compile_shader(vert_shader, sizeof(vert_shader),
 			    GL_VERTEX_SHADER)) == 0)
@@ -213,7 +216,7 @@ static const GLfloat color[] = {
 	1, 1, 0, 1,
 };
 
-void gles2_init(uint32_t width, uint32_t height, int frag_n, GLsizei texsize)
+void gles2_init(const uint32_t width, const uint32_t height, const int frag_n, const GLsizei texsize)
 {
 	pr_inf("GL_VENDOR: %s\n", (char *)glGetString(GL_VENDOR));
 	pr_inf("GL_VERSION: %s\n", (char *)glGetString(GL_VERSION));
@@ -253,7 +256,7 @@ void gles2_init(uint32_t width, uint32_t height, int frag_n, GLsizei texsize)
 	}
 }
 
-static void stress_gpu_run(GLsizei texsize, GLsizei uploads)
+static void stress_gpu_run(const GLsizei texsize, const GLsizei uploads)
 {
 	if (texsize > 0) {
 		for (int i = 0; i < uploads; i++) {
@@ -306,7 +309,7 @@ EGLConfig get_config(void)
 	exit(EXIT_NO_RESOURCE);
 }
 
-static void egl_init(uint32_t size_x, uint32_t size_y)
+static void egl_init(const uint32_t size_x, const uint32_t size_y)
 {
 	int fd = open(devicenode, O_RDWR);
 	if (fd < 0)
@@ -356,7 +359,7 @@ static void egl_init(uint32_t size_x, uint32_t size_y)
 		pr_inf("EGL: Failed to make context current \n");
 }
 
-static int stress_gpu(const stress_args_t * args)
+static int stress_gpu(const stress_args_t *args)
 {
 	int frag_n = 0;
 	uint32_t size_x = 256;
