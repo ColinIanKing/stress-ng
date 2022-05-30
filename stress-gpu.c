@@ -290,7 +290,6 @@ int gles2_init(
 	if (texsize > 0) {
 		GLint maxsize, bytesPerImage;
 		GLuint texobj = 0;
-		
 
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxsize);
 		if (texsize > maxsize) {
