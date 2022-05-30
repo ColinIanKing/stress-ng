@@ -733,6 +733,75 @@ static void stress_rand_data_lfsr32(
 	}
 }
 
+/*
+ *  stress_rand_data_gcr()
+ *	fills buffer with random data expanded from 4 to 5 bits
+ *	using Group coded recording.
+ */
+static void stress_rand_data_gcr(
+	const stress_args_t *args,
+	uint8_t *data,
+	const size_t size)
+{
+	/* CBM 2040 GCR */
+	static const uint8_t gcr45[] = {
+		0x0a, 0x0b, 0x12, 0x13,
+		0x0e, 0x0f, 0x16, 0x17,
+		0x09, 0x19, 0x1a, 0x1b,
+		0x0d, 0x1d, 0x1e, 0x15
+	};
+
+	register uint8_t *ptr = (uint8_t *)data;
+	register uint8_t *end = (uint8_t *)(data + size);
+
+	(void)args;
+
+	for (;;) {
+		uint32_t rnd = stress_mwc32();
+		uint64_t gcr;
+
+		/* 32 bits to 40 bits */
+		gcr = gcr45[rnd & 0xf];
+		gcr <<= 5;
+		rnd >>= 4;
+		gcr |= gcr45[rnd & 0xf];
+		gcr <<= 5;
+		rnd >>= 4;
+		gcr |= gcr45[rnd & 0xf];
+		gcr <<= 5;
+		rnd >>= 4;
+		gcr |= gcr45[rnd & 0xf];
+		gcr <<= 5;
+		rnd >>= 4;
+		gcr |= gcr45[rnd & 0xf];
+		gcr <<= 5;
+		rnd >>= 4;
+		gcr |= gcr45[rnd & 0xf];
+		gcr <<= 5;
+		rnd >>= 4;
+		gcr |= gcr45[rnd & 0xf];
+		gcr <<= 5;
+		rnd >>= 4;
+		gcr |= gcr45[rnd & 0xf];
+
+		*ptr++ = gcr >> 32;
+		if (ptr >= end)
+			break;
+		*ptr++ = gcr >> 24;
+		if (ptr >= end)
+			break;
+		*ptr++ = gcr >> 16;
+		if (ptr >= end)
+			break;
+		*ptr++ = gcr >> 8;
+		if (ptr >= end)
+			break;
+		*ptr++ = gcr >> 0;
+		if (ptr >= end)
+			break;
+	}
+}
+
 #if defined(HAVE_INT128_T)
 /*
  *  stress_rand_data_lehmer()
@@ -968,6 +1037,7 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "binary",	stress_rand_data_binary },
 	{ "brown",	stress_rand_data_brown },
 	{ "double",	stress_rand_data_double },
+	{ "gcr",	stress_rand_data_gcr },
 	{ "gray",	stress_rand_data_gray },
 	{ "fixed",	stress_rand_data_fixed },
 	{ "latin",	stress_rand_data_latin },
