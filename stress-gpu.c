@@ -256,6 +256,7 @@ int gles2_init(
 	const GLsizei texsize)
 {
 	int ret;
+	GLint ufrag_n, apos, acolor;
 
 	if (args->instance == 0) {
 		pr_inf("GL_VENDOR: %s\n", (char *)glGetString(GL_VENDOR));
@@ -270,7 +271,7 @@ int gles2_init(
 	glClearColor(0, 0, 0, 0);
 	glViewport(0, 0, width, height);
 
-	GLint ufrag_n = glGetUniformLocation(program, "frag_n");
+	ufrag_n = glGetUniformLocation(program, "frag_n");
 	glUniform1i(ufrag_n, frag_n);
 	if (glGetError() != GL_NO_ERROR) {
 		pr_fail("%s: failed to get the storage location of %d\n",
@@ -278,16 +279,19 @@ int gles2_init(
 		return EXIT_FAILURE;
 	}
 
-	GLint apos = glGetAttribLocation(program, "pos");
+	apos = glGetAttribLocation(program, "pos");
 	glEnableVertexAttribArray(apos);
 	glVertexAttribPointer(apos, 4, GL_FLOAT, 0, 0, vertex);
 
-	GLint acolor = glGetAttribLocation(program, "color");
+	acolor = glGetAttribLocation(program, "color");
 	glEnableVertexAttribArray(acolor);
 	glVertexAttribPointer(acolor, 4, GL_FLOAT, 0, 0, color);
 
 	if (texsize > 0) {
-		GLint maxsize;
+		GLint maxsize, bytesPerImage;
+		GLuint texobj = 0;
+		
+
 		glGetIntegerv(GL_MAX_TEXTURE_SIZE, &maxsize);
 		if (texsize > maxsize) {
 			pr_inf("%s: image size %u exceeds maximum texture size %u\n",
@@ -295,11 +299,11 @@ int gles2_init(
 			return EXIT_FAILURE;
 		}
 
-		GLuint texobj = 0;
+		texobj = 0;
 		glGenTextures(1, &texobj);
 		glBindTexture(GL_TEXTURE_2D, texobj);
 
-		GLint bytesPerImage = texsize * texsize * 4;
+		bytesPerImage = texsize * texsize * 4;
 		teximage = malloc(bytesPerImage);
 		if (!teximage) {
 			pr_inf("%s: failed to allocate teximage, skipping stressor\n", args->name);
@@ -312,7 +316,9 @@ int gles2_init(
 static void stress_gpu_run(const GLsizei texsize, const GLsizei uploads)
 {
 	if (texsize > 0) {
-		for (int i = 0; i < uploads; i++) {
+		int i;
+
+		for (i = 0; i < uploads; i++) {
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, texsize,
 				     texsize, 0, GL_RGBA, GL_UNSIGNED_BYTE,
 				     teximage);
@@ -336,13 +342,14 @@ int get_config(const stress_args_t *args, EGLConfig *config)
 
 	int i;
 	EGLint num_configs;
+	EGLConfig *configs;
 
 	if (eglGetConfigs(display, NULL, 0, &num_configs) == EGL_FALSE) {
 		pr_inf("%s: EGL: no EGL configs found, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
-	EGLConfig *configs = malloc(num_configs * sizeof(EGLConfig));
+	configs = malloc(num_configs * sizeof(EGLConfig));
 	if ((eglChooseConfig(display, egl_config_attribs,
 			     configs, num_configs,
 			     &num_configs) == EGL_FALSE) || (num_configs == 0)) {
