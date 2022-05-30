@@ -34,14 +34,14 @@
 #endif
 
 static const stress_help_t help[] = {
-	{NULL, "gpu N", "start N worker"},
-	{NULL, "gpu-ops N", "stop after N gpu render bogo operations"},
-	{NULL, "gpu-frag N", "specify shader core usage per pixel"},
-	{NULL, "gpu-tex-size N", "specify upload texture NxN"},
-	{NULL, "gpu-upload N", "specify upload texture N times per frame"},
-	{NULL, "gpu-xsize X", "specify framebuffer size x"},
-	{NULL, "gpu-ysize Y", "specify framebuffer size y"},
-	{NULL, NULL, NULL}
+	{ NULL,	"gpu N",		"start N GPU worker" },
+	{ NULL,	"gpu-ops N",		"stop after N gpu render bogo operations" },
+	{ NULL,	"gpu-frag N",		"specify shader core usage per pixel" },
+	{ NULL,	"gpu-tex-size N",	"specify upload texture NxN" },
+	{ NULL,	"gpu-upload N",		"specify upload texture N times per frame" },
+	{ NULL,	"gpu-xsize X",		"specify framebuffer size x" },
+	{ NULL,	"gpu-ysize Y",		"specify framebuffer size y" },
+	{ NULL,	NULL,			NULL }
 };
 
 static int stress_set_gpu(const char *opt, const char *name, const size_t max)
@@ -73,6 +73,7 @@ static int stress_set_gpu_ysize(const char *opt)
 static int stress_set_gpu_gl(const char *opt, const char *name, const size_t max)
 {
 	int gpu_val;
+
 	gpu_val = stress_get_int32(opt);
 	stress_check_range(name, gpu_val, 1, max);
 	return stress_set_setting(name, TYPE_ID_INT32, &gpu_val);
@@ -89,20 +90,20 @@ static int stress_set_gpu_size(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{OPT_gpu_frag, stress_set_gpu_frag},
-	{OPT_gpu_uploads, stress_set_gpu_upload},
-	{OPT_gpu_size, stress_set_gpu_size},
-	{OPT_gpu_xsize, stress_set_gpu_xsize},
-	{OPT_gpu_ysize, stress_set_gpu_ysize},
-	{0, NULL}
+	{ OPT_gpu_frag,		stress_set_gpu_frag },
+	{ OPT_gpu_uploads,	stress_set_gpu_upload },
+	{ OPT_gpu_size,		stress_set_gpu_size },
+	{ OPT_gpu_xsize,	stress_set_gpu_xsize },
+	{ OPT_gpu_ysize,	stress_set_gpu_ysize },
+	{ 0,			NULL }
 };
 
-#if defined(HAVE_LIB_EGL) && \
-	defined(HAVE_EGL_H) && \
-	defined(HAVE_EGL_EXT_H) && \
-	defined(HAVE_LIB_GLES2) && \
-	defined(HAVE_GLES2_H) && \
-	defined(HAVE_LIB_GBM) && \
+#if defined(HAVE_LIB_EGL) &&		\
+	defined(HAVE_EGL_H) &&		\
+	defined(HAVE_EGL_EXT_H) &&	\
+	defined(HAVE_LIB_GLES2) &&	\
+	defined(HAVE_GLES2_H) &&	\
+	defined(HAVE_LIB_GBM) &&	\
 	defined(HAVE_GBM_H)
 
 static GLuint program;
