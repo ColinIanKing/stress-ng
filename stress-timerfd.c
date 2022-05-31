@@ -37,8 +37,9 @@ UNEXPECTED
 #define DEFAULT_TIMERFD_FREQ	(1000000)
 
 #if !defined(TFD_IOC_SET_TICKS) &&	\
-    defined(_IOW)
-#define TFD_IOC_SET_TICKS	_IOW('T', 0, __u64)
+    defined(_IOW) &&			\
+    defined(__linux__)
+#define TFD_IOC_SET_TICKS	_IOW('T', 0, uint64_t)
 #endif
 
 static const stress_help_t help[] = {
