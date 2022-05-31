@@ -183,18 +183,18 @@ static int shim_clock_adjtime(clockid_t clk_id, struct shim_timex *tx)
  */
 static int stress_clock(const stress_args_t *args)
 {
-	/*
-	 * Use same random number seed for each
-	 * test run to ensure predictable repeatable
-	 * 'random' sleep duration timings
-	 */
-	stress_mwc_set_seed(0xf238, 0x1872);
 	bool test_invalid_timespec = true;
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 
 #if defined(CHECK_INVALID_CLOCK_ID)
 	const bool invalid_clock_id = check_invalid_clock_id(INT_MAX);
 #endif
+	/*
+	 * Use same random number seed for each
+	 * test run to ensure predictable repeatable
+	 * 'random' sleep duration timings
+	 */
+	stress_mwc_set_seed(0xf238, 0x1872);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
