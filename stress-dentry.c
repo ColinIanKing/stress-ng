@@ -363,7 +363,6 @@ static int stress_dentry(const stress_args_t *args)
 			}
 			(void)close(fd);
 
-
 			inc_counter(args);
 		}
 
