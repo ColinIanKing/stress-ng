@@ -385,6 +385,7 @@ CORE_SRC = \
 	core-killpid.c \
 	core-klog.c \
 	core-limit.c \
+	core-lock.c \
 	core-log.c \
 	core-madvise.c \
 	core-mincore.c \

@@ -874,6 +874,14 @@ static inline void ALWAYS_INLINE add_counter(const stress_args_t *args, const ui
 	shim_mb();
 }
 
+/*
+ *  abstracted untyped locking primitives
+ */
+extern WARN_UNUSED void *stress_lock_create(void);
+extern int stress_lock_destroy(void *lock_handle);
+extern int stress_lock_acquire(void *lock_handle);
+extern int stress_lock_release(void *lock_handle);
+
 /* pthread porting shims, spinlock or fallback to mutex */
 #if defined(HAVE_LIB_PTHREAD)
 #if defined(HAVE_LIB_PTHREAD_SPINLOCK) &&	\
@@ -988,9 +996,7 @@ typedef struct {
 	stress_mapped_t mapped;				/* mmap'd pages to help testing */
 	struct {
 		uint32_t hash[STRESS_WARN_HASH_MAX];	/* hash patterns */
-#if defined(HAVE_LIB_PTHREAD)
-		shim_pthread_spinlock_t lock;		/* protection lock */
-#endif
+		void *lock;				/* protection lock */
 	} warn_once;
 	uint32_t warn_once_flags;			/* Warn once flags */
 	struct {
@@ -1012,7 +1018,7 @@ typedef struct {
 #if defined(STRESS_PERF_STATS)
 	struct {
 		bool no_perf;				/* true = Perf not available */
-		shim_pthread_spinlock_t lock;		/* spinlock on no_perf updates */
+		void *lock;				/* lock on no_perf updates */
 	} perf;
 #endif
 	bool *af_alg_hash_skip;				/* Shared array of hash skip flags */
@@ -1024,9 +1030,6 @@ typedef struct {
 	uint32_t softlockup_count;			/* Atomic counter of softlock children */
 #endif
 	struct {
-#if defined(HAVE_LIB_PTHREAD)
-		shim_pthread_spinlock_t lock;		/* protection lock */
-#endif
 		double start_time ALIGNED(8);		/* Time to complete operation */
 		uint32_t value;				/* Dummy value to operate on */
 	} syncload;
@@ -1035,9 +1038,6 @@ typedef struct {
 	size_t	checksums_length;			/* size of checksums mapping */
 	struct {
 		uint32_t ready;				/* incremented when rawsock stressor is ready */
-#if defined(HAVE_LIB_PTHREAD)
-		shim_pthread_spinlock_t lock;		/* protection lock */
-#endif
 	} rawsock;
 	stress_stats_t stats[0];			/* Shared statistics */
 } stress_shared_t;

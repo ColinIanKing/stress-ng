@@ -420,9 +420,9 @@ int stress_perf_open(stress_perf_t *sp)
 	if (!sp->perf_opened) {
 		int ret;
 
-		ret = shim_pthread_spin_lock(&g_shared->perf.lock);
+		ret = stress_lock_acquire(g_shared->perf.lock);
 		if (ret) {
-			pr_dbg("perf: spin lock on perf.lock failed: %d (%s)\n",
+			pr_dbg("perf: lock on perf lock failed: %d (%s)\n",
 				ret, strerror(ret));
 			return -1;
 		}
@@ -431,9 +431,9 @@ int stress_perf_open(stress_perf_t *sp)
 				"perf events [%u]\n", getpid());
 			g_shared->perf.no_perf = true;
 		}
-		ret = shim_pthread_spin_unlock(&g_shared->perf.lock);
+		ret = stress_lock_release(g_shared->perf.lock);
 		if (ret) {
-			pr_dbg("perf: spin unlock on perf.lock failed: %d (%s)\n",
+			pr_dbg("perf: unlock on perf lock failed: %d (%s)\n",
 				ret, strerror(ret));
 			return -1;
 		}

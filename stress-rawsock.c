@@ -28,6 +28,8 @@
 #include <netinet/ip.h>
 #endif
 
+static void *rawsock_lock;
+
 static const stress_help_t help[] = {
 	{ NULL,	"rawsock N",		"start N workers performing raw socket send/receives " },
 	{ NULL,	"rawsock-ops N",	"stop after N raw socket bogo operations" },
@@ -44,6 +46,16 @@ typedef struct {
 	struct iphdr	iph;
 	uint32_t	data;
 } stress_raw_packet_t;
+
+static void stress_rawsock_init(void)
+{
+	rawsock_lock = stress_lock_create();
+}
+
+static void stress_rawsock_deinit(void)
+{
+	stress_lock_destroy(rawsock_lock);
+}
 
 /*
  *  stress_rawsock_supported()
@@ -68,6 +80,11 @@ static int stress_rawsock(const stress_args_t *args)
 {
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
+
+	if (!rawsock_lock) {
+		pr_inf("%s: failed to create rawsock lock, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
@@ -122,9 +139,9 @@ again:
 		while (keep_stressing(args)) {
 			uint32_t ready;
 
-			shim_pthread_spin_lock(&g_shared->rawsock.lock);
+			(void)stress_lock_acquire(rawsock_lock);
 			ready = g_shared->rawsock.ready;
-			shim_pthread_spin_unlock(&g_shared->rawsock.lock);
+			(void)stress_lock_release(rawsock_lock);
 
 			if (ready == args->num_instances)
 				break;
@@ -180,9 +197,9 @@ again:
 
 		(void)memset(&addr, 0, sizeof(addr));
 
-		shim_pthread_spin_lock(&g_shared->rawsock.lock);
+		(void)stress_lock_acquire(rawsock_lock);
 		g_shared->rawsock.ready++;
-		shim_pthread_spin_unlock(&g_shared->rawsock.lock);
+		(void)stress_lock_release(rawsock_lock);
 
 		while (keep_stressing(args)) {
 			stress_raw_packet_t pkt;
@@ -234,7 +251,9 @@ stressor_info_t stress_rawsock_info = {
 	.stressor = stress_rawsock,
 	.class = CLASS_NETWORK | CLASS_OS,
 	.supported = stress_rawsock_supported,
-	.help = help
+	.help = help,
+	.init = stress_rawsock_init,
+	.deinit = stress_rawsock_deinit,
 };
 #else
 stressor_info_t stress_rawsock_info = {

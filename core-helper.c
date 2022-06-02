@@ -2239,15 +2239,10 @@ bool stress_warn_once_hash(const char *filename, const int line)
 {
 	uint32_t free_slot, i, j, h = (stress_hash_pjw(filename) + (uint32_t)line);
 	bool not_warned_yet = true;
-#if defined(HAVE_LIB_PTHREAD)
-        int ret;
-#endif
 	if (!g_shared)
 		return true;
 
-#if defined(HAVE_LIB_PTHREAD)
-        ret = shim_pthread_spin_lock(&g_shared->warn_once.lock);
-#endif
+        stress_lock_acquire(g_shared->warn_once.lock);
 	free_slot = STRESS_WARN_HASH_MAX;
 
 	/*
@@ -2273,10 +2268,7 @@ bool stress_warn_once_hash(const char *filename, const int line)
 		g_shared->warn_once.hash[free_slot] = h;
 	}
 unlock:
-#if defined(HAVE_LIB_PTHREAD)
-        if (!ret)
-                shim_pthread_spin_unlock(&g_shared->warn_once.lock);
-#endif
+	stress_lock_release(g_shared->warn_once.lock);
         return not_warned_yet;
 }
 

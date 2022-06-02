@@ -3887,18 +3887,21 @@ int main(int argc, char **argv, char **envp)
 	stress_shared_map(stress_get_total_num_instances(stressors_head));
 
 	/*
-	 *  Setup spinlocks
+	 *  Initialize global locks
 	 */
 #if defined(STRESS_PERF_STATS) &&	\
     defined(HAVE_LINUX_PERF_EVENT_H)
-	shim_pthread_spin_init(&g_shared->perf.lock, 0);
+	g_shared->perf.lock = stress_lock_create();
+	if (!g_shared->perf.lock) {
+		pr_err("failed to create perf lock\n");
+		goto exit_shared_unmap;
+	}
 #endif
-#if defined(HAVE_LIB_PTHREAD)
-	shim_pthread_spin_init(&g_shared->warn_once.lock, 0);
-	shim_pthread_spin_init(&g_shared->syncload.lock, 0);
-	shim_pthread_spin_init(&g_shared->rawsock.lock, 0);
-	g_shared->syncload.start_time = 0.0;
-#endif
+	g_shared->warn_once.lock = stress_lock_create();
+	if (!g_shared->warn_once.lock) {
+		pr_err("failed to create warn_once lock\n");
+		goto exit_destroy_perf_lock;
+	}
 
 	/*
 	 *  Assign procs with shared stats memory
@@ -3994,6 +3997,9 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Tidy up
 	 */
+	(void)stress_lock_destroy(g_shared->warn_once.lock);
+	(void)stress_lock_destroy(g_shared->perf.lock);
+
 	stress_stressors_deinit();
 	stress_stressors_free();
 	stress_cache_free();
@@ -4018,6 +4024,9 @@ int main(int argc, char **argv, char **envp)
 	if (!metrics_success)
 		exit(EXIT_METRICS_UNTRUSTWORTHY);
 	exit(EXIT_SUCCESS);
+
+exit_destroy_perf_lock:
+	(void)stress_lock_destroy(g_shared->perf.lock);
 
 exit_shared_unmap:
 	stress_shared_unmap();
