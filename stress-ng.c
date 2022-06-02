@@ -1654,6 +1654,25 @@ static int stress_dot_filter(const struct dirent *d)
 	return 1;
 }
 
+static void stress_unset_inode_flags(const char *filename, const int flag)
+{
+#if defined(FS_IOC_SETFLAGS)
+	int fd;
+        const long int flag = 0;
+
+	fd = open(filenae, O_RDWR | flag);
+	if (fd < 0)
+		return;
+
+        ret = ioctl(fd, FS_IOC_SETFLAGS, &flag);
+        (void)ret;
+	(void)close(fd);
+#else
+	(void)filename;
+	(void)flag;
+#endif
+}
+
 /*
  *  stress_clean_dir_files()
  *  	recursively delete files in directories
@@ -1717,11 +1736,15 @@ static void stress_clean_dir_files(
 		/* Modern fast d_type method */
 		switch (names[n]->d_type) {
 		case DT_DIR:
+#if defined(O_DIRECTORY)
+			stress_unset_inode_flags(temp_path, O_DIRECTORY);
+#endif
 			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
 			(void)shim_rmdir(path);
 			break;
 		case DT_LNK:
 		case DT_REG:
+			stress_unset_inode_flags(temp_path, 0);
 			(void)shim_unlink(path);
 			break;
 		default:
@@ -1734,10 +1757,14 @@ static void stress_clean_dir_files(
 			continue;
 
 		if ((statbuf.st_mode & S_IFMT) == S_IFDIR) {
+#if defined(O_DIRECTORY)
+			stress_unset_inode_flags(temp_path, O_DIRECTORY);
+#endif
 			stress_clean_dir_files(temp_path, temp_path_len, path, path_posn + name_len);
 			(void)shim_rmdir(path);
 		} else if (((statbuf.st_mode & S_IFMT) == S_IFLNK) ||
 			   ((statbuf.st_mode & S_IFMT) == S_IFREG)) {
+			stress_unset_inode_flags(temp_path, 0);
 			(void)unlink(path);
 		}
 #endif

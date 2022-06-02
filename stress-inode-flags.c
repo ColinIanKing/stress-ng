@@ -161,17 +161,22 @@ static int stress_inode_flags_stressor(
 
 		/* Work through all inode flag permutations */
 		stress_inode_flags_ioctl(args, data->dir_fd, inode_flag_perms[index]);
+		stress_inode_flags_ioctl(args, data->file_fd, inode_flag_perms[index]);
 		index++;
 		index %= inode_flag_count;
+		stress_inode_flags_ioctl_sane(data->dir_fd);
+		stress_inode_flags_ioctl_sane(data->file_fd);
 
 		stress_inode_flags_ioctl(args, data->dir_fd, 0);
-
 		for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(inode_flags)); i++)
 			stress_inode_flags_ioctl(args, data->dir_fd, inode_flags[i]);
+		stress_inode_flags_ioctl_sane(data->dir_fd);
 
+		stress_inode_flags_ioctl(args, data->file_fd, 0);
+		for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(inode_flags)); i++)
+			stress_inode_flags_ioctl(args, data->file_fd, inode_flags[i]);
 		stress_inode_flags_ioctl_sane(data->file_fd);
 	}
-	stress_inode_flags_ioctl_sane(data->file_fd);
 
 	return 0;
 }
@@ -279,6 +284,9 @@ static int stress_inode_flags(const stress_args_t *args)
 				rc = EXIT_FAILURE;
 		}
 	}
+
+	stress_inode_flags_ioctl_sane(data.dir_fd);
+	stress_inode_flags_ioctl_sane(data.file_fd);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(data.file_fd);
