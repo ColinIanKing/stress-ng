@@ -399,6 +399,7 @@ static void NORETURN waste_resources(
 				if (info[i].ptr_memfd == MAP_FAILED)
 					info[i].ptr_memfd = NULL;
 			}
+			shim_fallocate(info[i].fd_memfd, 0, 0, (off_t)stress_mwc16());
 		}
 		if (!keep_stressing_flag())
 			break;
