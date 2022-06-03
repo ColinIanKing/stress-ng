@@ -30,7 +30,7 @@ static const stress_help_t help[] = {
 
 static sigjmp_buf jmp_env;
 
-static void NORETURN MLOCKED_TEXT stress_segv_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_sig_handler(int signum)
 {
 	(void)signum;
 
@@ -48,7 +48,9 @@ static void stress_mprotect_mem(
 	int ret;
 	const uint8_t *mem_end = mem + (page_size * mem_pages);
 
-	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGSEGV, stress_sig_handler, NULL) < 0)
+		return;
+	if (stress_sighandler(args->name, SIGBUS, stress_sig_handler, NULL) < 0)
 		return;
 
 	ret = sigsetjmp(jmp_env, 1);
