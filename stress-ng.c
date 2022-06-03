@@ -3998,7 +3998,10 @@ int main(int argc, char **argv, char **envp)
 	 *  Tidy up
 	 */
 	(void)stress_lock_destroy(g_shared->warn_once.lock);
+#if defined(STRESS_PERF_STATS) && 	\
+    defined(HAVE_LINUX_PERF_EVENT_H)
 	(void)stress_lock_destroy(g_shared->perf.lock);
+#endif
 
 	stress_stressors_deinit();
 	stress_stressors_free();
@@ -4026,7 +4029,10 @@ int main(int argc, char **argv, char **envp)
 	exit(EXIT_SUCCESS);
 
 exit_destroy_perf_lock:
+#if defined(STRESS_PERF_STATS) && 	\
+    defined(HAVE_LINUX_PERF_EVENT_H)
 	(void)stress_lock_destroy(g_shared->perf.lock);
+#endif
 
 exit_shared_unmap:
 	stress_shared_unmap();
