@@ -1631,6 +1631,12 @@ static void stress_dev_mem_mmap_linux(
 	void *ptr;
 	const size_t page_size = stress_get_page_size();
 
+#if !defined(STRESS_ARCH_X86)
+	/* voidify for non-x86 */
+	(void)devpath;
+	(void)write_page;
+#endif
+
 	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (ptr != MAP_FAILED) {
 		(void)munmap(ptr, page_size);
