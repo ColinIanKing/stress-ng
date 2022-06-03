@@ -70,7 +70,7 @@ typedef struct {
 #define TOUCH_OPT_TRUNC		(0)
 #endif
 
-static shim_pthread_spinlock_t *spinlock;
+static void *touch_lock;
 
 #define TOUCH_OPT_ALL	\
 	(TOUCH_OPT_DIRECT |	\
@@ -210,12 +210,12 @@ static void stress_touch_child(
 		uint64_t counter;
 		int fd, ret;
 
-		ret = shim_pthread_spin_lock(spinlock);
+		ret = stress_lock_acquire(touch_lock);
 		if (ret)
 			break;
 		counter = get_counter(args);
 		inc_counter(args);
-		ret = shim_pthread_spin_unlock(spinlock);
+		ret = stress_lock_release(touch_lock);
 		if (ret)
 			break;
 		(void)stress_temp_filename_args(args, filename,
@@ -307,17 +307,9 @@ static int stress_touch(const stress_args_t *args)
 	pid_t pids[TOUCH_PROCS];
 	size_t i;
 
-	spinlock = mmap(NULL, sizeof(*spinlock), PROT_READ | PROT_WRITE,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (spinlock == MAP_FAILED) {
-		pr_inf("%s: cannot allocate shared spinlock, skipping stressor\n", args->name);
-		return EXIT_NO_RESOURCE;
-	}
-
-	ret = shim_pthread_spin_init(spinlock, SHIM_PTHREAD_PROCESS_SHARED);
-	if (ret) {
-		pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
-			args->name, ret, strerror(ret));
+	touch_lock = stress_lock_create();
+	if (!touch_lock) {
+		pr_inf("%s: cannot create lock, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -370,8 +362,7 @@ static int stress_touch(const stress_args_t *args)
 
 	stress_touch_dir_clean(args);
 	(void)stress_temp_dir_rm_args(args);
-	(void)shim_pthread_spin_destroy(spinlock);
-	(void)munmap((void *)spinlock, sizeof(*spinlock));
+	(void)stress_lock_destroy(touch_lock);
 
 	return EXIT_SUCCESS;
 }
