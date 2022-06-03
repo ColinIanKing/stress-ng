@@ -431,4 +431,11 @@ int stress_thrash_start(void)
 void stress_thrash_stop(void)
 {
 }
+
+int stress_pagein_self(const char *name)
+{
+	(void)name;
+
+	return 0;
+}
 #endif
