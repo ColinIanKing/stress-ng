@@ -41,7 +41,10 @@
 #define LOCK_METHOD_PTHREAD_SPINLOCK	(0)
 #endif
 
-#if defined(LOCK_METHOD_PTHREAD_SPINLOCK)
+#if defined(HAVE_LIB_PTHREAD) &&		\
+    defined(HAVE_PTHREAD_MUTEX_T) &&       	\
+    defined(HAVE_PTHREAD_MUTEX_DESTROY) &&	\
+    defined(HAVE_PTHREAD_MUTEX_INIT)
 #define LOCK_METHOD_PTHREAD_MUTEX	(0x0002)
 #else
 #define LOCK_METHOD_PTHREAD_MUTEX	(0)
