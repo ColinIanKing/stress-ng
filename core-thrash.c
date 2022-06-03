@@ -55,7 +55,7 @@ int stress_pagein_self(const char *name)
 	char path[PATH_MAX];
 	char buffer[4096];
 	int rc = 0, ret;
-	FILE *fpmap = NULL;
+	NOCLOBBER FILE *fpmap = NULL;
 	const size_t page_size = stress_get_page_size();
 	struct sigaction bus_action, segv_action;
 
