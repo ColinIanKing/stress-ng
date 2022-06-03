@@ -860,15 +860,15 @@ uint64_t stress_uint64_zero(void)
  */
 static void stress_base36_encode_uint64(char dst[14], uint64_t val)
 {
-        static const char b36[] = "abcdefghijklmnopqrstuvwxyz0123456789";
-        const int b = 36;
-        char *ptr = dst;
+	static const char b36[] = "abcdefghijklmnopqrstuvwxyz0123456789";
+	const int b = 36;
+	char *ptr = dst;
 
-        while (val) {
-                *ptr++ = b36[val % b];
-                val /= b;
-        }
-        *ptr = '\0';
+	while (val) {
+		*ptr++ = b36[val % b];
+		val /= b;
+	}
+	*ptr = '\0';
 }
 
 /*
@@ -2132,30 +2132,30 @@ size_t stress_text_addr(char **start, char **end)
 	extern char __executable_start;
 	intptr_t text_start = (intptr_t)&__executable_start;
 #elif defined(__APPLE__)
-        extern char _mh_execute_header;
-        intptr_t text_start = (intptr_t)&_mh_execute_header;
+	extern char _mh_execute_header;
+	intptr_t text_start = (intptr_t)&_mh_execute_header;
 #elif defined(__OpenBSD__)
-        extern char _start[];
-        intptr_t text_start = (intptr_t)&_start[0];
+	extern char _start[];
+	intptr_t text_start = (intptr_t)&_start[0];
 #elif defined(__TINYC__)
-        extern char _start;
-        intptr_t text_start = (intptr_t)&_start;
+	extern char _start;
+	intptr_t text_start = (intptr_t)&_start;
 #else
-        extern char _start;
-        intptr_t text_start = (intptr_t)&_start;
+	extern char _start;
+	intptr_t text_start = (intptr_t)&_start;
 #endif
 
 #if defined(__APPLE__)
-        extern void *get_etext(void);
-        intptr_t text_end = (intptr_t)get_etext();
+	extern void *get_etext(void);
+	intptr_t text_end = (intptr_t)get_etext();
 #elif defined(__TINYC__)
-        extern char _etext;
-        intptr_t text_end = (intptr_t)&_etext;
+	extern char _etext;
+	intptr_t text_end = (intptr_t)&_etext;
 #else
-        extern char etext;
-        intptr_t text_end = (intptr_t)&etext;
+	extern char etext;
+	intptr_t text_end = (intptr_t)&etext;
 #endif
-        const size_t text_len = (size_t)(text_end - text_start);
+	const size_t text_len = (size_t)(text_end - text_start);
 
 	if ((start == NULL) || (end == NULL) || (text_start >= text_end))
 		return 0;
@@ -2242,7 +2242,7 @@ bool stress_warn_once_hash(const char *filename, const int line)
 	if (!g_shared)
 		return true;
 
-        stress_lock_acquire(g_shared->warn_once.lock);
+	stress_lock_acquire(g_shared->warn_once.lock);
 	free_slot = STRESS_WARN_HASH_MAX;
 
 	/*
@@ -2269,7 +2269,8 @@ bool stress_warn_once_hash(const char *filename, const int line)
 	}
 unlock:
 	stress_lock_release(g_shared->warn_once.lock);
-        return not_warned_yet;
+
+	return not_warned_yet;
 }
 
 /*
@@ -2552,9 +2553,9 @@ int stress_read_fdinfo(const pid_t pid, const int fd)
 	char buf[4096];
 
 	(void)snprintf(path, sizeof(path), "/proc/%d/fdinfo/%d",
-                (int)pid, fd);
+		(int)pid, fd);
 
-        return (int)system_read(path, buf, sizeof(buf));
+	return (int)system_read(path, buf, sizeof(buf));
 #else
 	(void)pid;
 	(void)fd;
