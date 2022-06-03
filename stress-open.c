@@ -288,7 +288,7 @@ static int open_flag_perm(void)
 
 	if (UNLIKELY((open_count == 0) || (!open_perms))) {
 		fd = open_arg3(filename, O_CREAT | O_RDWR, mode);
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 		return fd;
 	}
 
@@ -312,9 +312,9 @@ static int open_flag_perm(void)
 	fd = open_arg3(filename, flags, mode);
 #if defined(O_DIRECTORY)
 	if (flags & O_DIRECTORY)
-		(void)rmdir(filename);
+		(void)shim_rmdir(filename);
 #endif
-	(void)unlink(filename);
+	(void)shim_unlink(filename);
 	index++;
 	index %= open_count;
 
