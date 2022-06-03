@@ -287,7 +287,7 @@ static int open_flag_perm(void)
 		(int)getpid(), stress_mwc32());
 
 	if (UNLIKELY((open_count == 0) || (!open_perms))) {
-		fd = open(filename, O_CREAT | O_RDWR, mode);
+		fd = open_arg3(filename, O_CREAT | O_RDWR, mode);
 		(void)unlink(filename);
 		return fd;
 	}
@@ -298,18 +298,18 @@ static int open_flag_perm(void)
 		if (flags & O_DIRECTORY) {
 			(void)mkdir(filename);
 		} else
-			fd = open(filename, O_CREAT | O_RDWR, mode);
+			fd = open_arg3(filename, O_CREAT | O_RDWR, mode);
 			if (fd >= 0)
 				(void)close(fd);
 		}
 	}
 #else
-	fd = open(filename, O_CREAT | O_RDWR, mode);
+	fd = open_arg3(filename, O_CREAT | O_RDWR, mode);
 	if (fd >= 0)
 		void)close(fd);
 #endif
 #endif
-	fd = open(filename, flags, mode);
+	fd = open_arg3(filename, flags, mode);
 #if defined(O_DIRECTORY)
 	if (flags & O_DIRECTORY)
 		(void)rmdir(filename);
@@ -655,7 +655,7 @@ static void stress_fd_dir(const char *path)
 			int fd;
 
 			stress_mk_filename(name, sizeof(name), path, de->d_name);
-			fd = open(name, O_RDONLY);
+			fd = open_arg2(name, O_RDONLY);
 			if (fd >= 0)
 				(void)close(fd);
 		}
@@ -717,7 +717,6 @@ static int stress_open(const stress_args_t *args)
 	for (all_open_flags = 0, i = 0; i < SIZEOF_ARRAY(open_flags); i++)
 		all_open_flags |= open_flags[i];
 	open_count = stress_flag_permutation(all_open_flags, &open_perms);
-	printf("%d\n", open_count);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
