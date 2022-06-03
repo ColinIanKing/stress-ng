@@ -219,6 +219,14 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 				FALLOC_FL_KEEP_SIZE, whence, (off_t)page_size);
 			(void)ret;
 #endif
+
+			/*
+			 *  ..and allocate space, this should fill file with zeros
+			 *  and kernel compaction should kick in.
+			 */
+			ret = shim_fallocate(fds[i], 0, size, 0);
+			(void)ret;
+
 			if (!keep_stressing_flag())
 				goto clean;
 		}
