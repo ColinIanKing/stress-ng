@@ -28,8 +28,6 @@
 #include <netinet/ip.h>
 #endif
 
-static void *rawsock_lock;
-
 static const stress_help_t help[] = {
 	{ NULL,	"rawsock N",		"start N workers performing raw socket send/receives " },
 	{ NULL,	"rawsock-ops N",	"stop after N raw socket bogo operations" },
@@ -39,13 +37,14 @@ static const stress_help_t help[] = {
 #if defined(SOCK_RAW) &&	\
     defined(IPPROTO_RAW) &&	\
     defined(HAVE_ICMPHDR) &&	\
-    defined(__linux__) &&	\
-    defined(HAVE_LIB_PTHREAD)
+    defined(__linux__)
 
 typedef struct {
 	struct iphdr	iph;
 	uint32_t	data;
 } stress_raw_packet_t;
+
+static void *rawsock_lock;
 
 static void stress_rawsock_init(void)
 {
