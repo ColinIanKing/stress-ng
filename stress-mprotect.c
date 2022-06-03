@@ -154,7 +154,7 @@ static int stress_mprotect(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(mem, mem_size);
+	(void)munmap((void *)mem, mem_size);
 	free(prot_flags);
 
 	return EXIT_SUCCESS;
