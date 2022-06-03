@@ -372,6 +372,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [running stress-ng on Minux 3.4.0-RC6 on amd64 assert in vm/region.c:313](https://github.com/Stichting-MINIX-Research-Foundation/minix/issues/333)
 * [unshare test triggers unhandled page fault](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1959215)
 * [request_module DoS](https://www.spinics.net/lists/kernel/msg4349826.html)
+* [NUMA Benchmark Regression In Linux 5.18](https://lore.kernel.org/lkml/YmrWK%2FKoU1zrAxPI@fuller.cnet)
 
 ## Kernel improvements that used stress-ng
 
