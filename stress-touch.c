@@ -172,8 +172,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,			NULL },
 };
 
-#if defined(HAVE_LIB_PTHREAD)
-
 static void stress_touch_dir_clean(const stress_args_t *args)
 {
 	char tmp[PATH_MAX];
@@ -374,14 +372,3 @@ stressor_info_t stress_touch_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
-
-#else
-stressor_info_t stress_touch_info = {
-	.stressor = stress_not_implemented,
-	.class = CLASS_FILESYSTEM | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
-	.verify = VERIFY_ALWAYS,
-	.help = help
-};
-
-#endif
