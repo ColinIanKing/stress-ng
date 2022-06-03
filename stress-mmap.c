@@ -680,7 +680,7 @@ cleanup:
 			const size_t rnd = stress_mwc16() % context->mmap_prot_count;
 			const int rnd_prot = context->mmap_prot_perms[rnd];
 
-			buf = mmap(NULL, sz, rnd_prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+			buf = (uint8_t *)mmap(NULL, sz, rnd_prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 			if (buf != MAP_FAILED)
 				(void)munmap((void *)buf, sz);
 		}
@@ -698,7 +698,7 @@ cleanup:
 			else
 				tmpfd = open("/dev/zero", O_RDONLY);
 
-			buf = mmap(NULL, page_size, PROT_READ, flag, tmpfd, 0);
+			buf = (uint8_t *)mmap(NULL, page_size, PROT_READ, flag, tmpfd, 0);
 			if (buf != MAP_FAILED)
 				(void)munmap((void *)buf, page_size);
 			if (tmpfd >= 0)
