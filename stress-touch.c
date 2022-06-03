@@ -194,7 +194,7 @@ static void stress_touch_dir_clean(const stress_args_t *args)
 		if (stat(filename, &statbuf) < 0)
 			continue;
 		if ((statbuf.st_mode & S_IFMT) == S_IFREG)
-			(void)unlink(filename);
+			(void)shim_unlink(filename);
 	}
 	(void)closedir(dir);
 
@@ -291,7 +291,7 @@ static void stress_touch_child(
 			(void)close(fd);
 		}
 
-		(void)unlink(filename);
+		(void)shim_unlink(filename);
 	} while (keep_stressing(args));
 }
 
