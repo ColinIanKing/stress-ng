@@ -156,7 +156,7 @@ static void stress_malloc_page_touch(
 /*
  *  stress_malloc_keep_stressing(args)
  *      check if SIGALRM has triggered to the bogo ops count
- *      has been reached, counter is racy, but that's OK
+ *      has been reached
  */
 static inline bool stress_malloc_keep_stressing(const stress_args_t *args)
 {
