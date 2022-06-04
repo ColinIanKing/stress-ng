@@ -1116,20 +1116,11 @@ void stress_strnrnd(char *str, const size_t len)
  */
 void stress_uint8rnd4(uint8_t *data, const size_t len)
 {
-	register size_t i = len >> 2;
-	register uint8_t *ptr = data;
+	register uint32_t *ptr32 = (uint32_t *)data;
+	register uint32_t *ptr32end = (uint32_t *)(data + len);
 
-	while (i--) {
-		register uint32_t v = stress_mwc32();
-
-		*ptr++ = (uint8_t)v;
-		v >>= 8;
-		*ptr++ = (uint8_t)v;
-		v >>= 8;
-		*ptr++ = (uint8_t)v;
-		v >>= 8;
-		*ptr++ = (uint8_t)v;
-	}
+	while (ptr32 < ptr32end)
+		*ptr32++ = stress_mwc32();
 }
 
 /*
