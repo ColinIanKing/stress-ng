@@ -28,7 +28,6 @@ typedef struct {
 	bool	 affinity_pin;		/* True if --affinity-pin set */
 	uint64_t affinity_delay;	/* Affinity nanosecond delay, 0 default */
 	uint64_t affinity_sleep;	/* Affinity nanosecond delay, 0 default */
-	uint64_t counters[0];		/* Child stressor bogo counters */
 } stress_affinity_info_t;
 
 static const stress_help_t help[] = {
@@ -40,6 +39,8 @@ static const stress_help_t help[] = {
 	{ NULL,	"affinity-sleep", "sleep in nanoseconds between affinity changes" },
 	{ NULL,	NULL,		  NULL }
 };
+
+static void *counter_lock;	/* Counter lock */
 
 static int stress_set_affinity_delay(const char *opt)
 {
@@ -142,37 +143,6 @@ static void stress_affinity_reap(const pid_t *pids)
 }
 
 /*
- *  stress_affinity_racy_count()
- *	racy bogo op counter, we have a lot of contention
- *	if we lock the args->counter, so sum per-process
- *	counters in a racy way.
- */
-static uint64_t stress_affinity_racy_count(const uint64_t *counters)
-{
-	register uint64_t count = 0;
-	register size_t i;
-
-	for (i = 0; i < STRESS_AFFINITY_PROCS; i++)
-		count += counters[i];
-
-	return count;
-}
-
-/*
- *  affinity_keep_stressing(args)
- *	check if SIGALRM has triggered to the bogo ops count
- *	has been reached, counter is racy, but that's OK
- */
-static bool HOT OPTIMIZE3 affinity_keep_stressing(
-	const stress_args_t *args,
-	uint64_t *counters)
-{
-	return (LIKELY(g_keep_stressing_flag) &&
-		LIKELY(!args->max_ops ||
-                (stress_affinity_racy_count(counters) < args->max_ops)));
-}
-
-/*
  *  stress_affinity_spin_delay()
  *	delay by delay nanoseconds, spinning on rescheduling
  *	eat cpu cycles.
@@ -197,12 +167,11 @@ static void stress_affinity_child(
 	const stress_args_t *args,
 	stress_affinity_info_t *info,
 	const pid_t *pids,
-	const size_t instance,
 	const bool pin_controller)
 {
 	uint32_t cpu = args->instance;
 	cpu_set_t mask0;
-	uint64_t *counters = info->counters;
+	bool keep_stressing_affinity = true;
 
 	CPU_ZERO(&mask0);
 
@@ -235,7 +204,7 @@ static void stress_affinity_child(
 				 * and since that can be dynamically
 				 * set, we should just retry
 				 */
-				continue;
+				goto affinity_continue;
 			}
 			pr_fail("%s: failed to move to CPU %" PRIu32 ", errno=%d (%s)\n",
 				args->name, cpu, errno, strerror(errno));
@@ -267,13 +236,20 @@ static void stress_affinity_child(
 		ret = sched_setaffinity(0, sizeof(mask), &mask0);
 		(void)ret;
 
-		counters[instance]++;
+affinity_continue:
+		stress_lock_acquire(counter_lock);
+		keep_stressing_affinity = keep_stressing(args);
+		if (keep_stressing_affinity)
+			inc_counter(args);
+		stress_lock_release(counter_lock);
+		if (!keep_stressing_affinity)
+			break;
 
 		if (info->affinity_delay > 0)
 			stress_affinity_spin_delay(info->affinity_delay, info);
 		if (info->affinity_sleep > 0)
 			shim_nanosleep_uint64(info->affinity_sleep);
-	} while (affinity_keep_stressing(args, counters));
+	} while (keep_stressing_affinity);
 
 	stress_affinity_reap(pids);
 }
@@ -283,14 +259,20 @@ static int stress_affinity(const stress_args_t *args)
 	pid_t pids[STRESS_AFFINITY_PROCS];
 	size_t i;
 	stress_affinity_info_t *info;
-	const size_t counters_sz = sizeof(info->counters[0]) * STRESS_AFFINITY_PROCS;
-	const size_t info_sz = ((sizeof(*info) + counters_sz) + args->page_size) & ~(args->page_size - 1);
+	const size_t info_sz = (sizeof(*info) + args->page_size) & ~(args->page_size - 1);
+
+	counter_lock = stress_lock_create();
+	if (!counter_lock) {
+		pr_inf("%s: failed to create counter lock. skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	info = (stress_affinity_info_t *)mmap(NULL, info_sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (info == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %zd bytes for shared counters, skipping stressor\n",
 			args->name, info_sz);
+		(void)stress_lock_destroy(counter_lock);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -315,13 +297,13 @@ static int stress_affinity(const stress_args_t *args)
 		pids[i] = fork();
 
 		if (pids[i] == 0) {
-			stress_affinity_child(args, info, pids, i, false);
+			stress_affinity_child(args, info, pids, false);
 			_exit(EXIT_SUCCESS);
 		}
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	stress_affinity_child(args, info, pids, 0, true);
+	stress_affinity_child(args, info, pids, true);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/*
@@ -331,13 +313,8 @@ static int stress_affinity(const stress_args_t *args)
 	 */
 	stress_affinity_reap(pids);
 
-	/*
-	 *  Set counter, this is always going to be >= the bogo_ops
-	 *  threshold because it is racy, but that is OK
-	 */
-	set_counter(args, stress_affinity_racy_count(info->counters));
-
 	(void)munmap((void *)info, info_sz);
+	(void)stress_lock_destroy(counter_lock);
 
 	return EXIT_SUCCESS;
 }
