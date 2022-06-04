@@ -64,10 +64,13 @@ static void pipe_fill(
 	const size_t buffer_size)
 {
 	size_t i;
+	static uint32_t val = 0;
 
 	for (i = 0; i < max; i += page_size) {
 		ssize_t ret;
+		uint32_t *u32ptr = (uint32_t *)(buffer + i);
 
+		*u32ptr = val++;
 		ret = write(fd, buffer, buffer_size);
 		if (ret < (ssize_t)buffer_size)
 			return;
@@ -91,7 +94,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 		pr_err("%s: cannot allocate pipe write buffer\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
-	(void)memset(buffer, 'X', page_size);
+	stress_uint8rnd4((uint8_t *)buffer, page_size);
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
 	ret = stress_drop_capabilities(args->name);
