@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "git-commit-id.h"
+#include "core-builtin.h"
 #include "core-capabilities.h"
 #include "core-hash.h"
 
@@ -1406,7 +1407,7 @@ bool stress_is_prime64(const uint64_t n)
 		return n >= 2;
 	if ((n % 2 == 0) || (n % 3 == 0))
 		return false;
-	max_d = 1.0 + sqrt((double)n);
+	max_d = 1.0 + shim_sqrt((double)n);
 	max = (uint64_t)max_d;
 	for (i = 5; i < max; i+= 6)
 		if ((n % i == 0) || (n % (i + 2) == 0))
