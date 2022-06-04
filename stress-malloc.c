@@ -49,6 +49,7 @@ static size_t malloc_pthreads;		/* Number of pthreads */
 static size_t malloc_threshold;		/* When to use mmap and not sbrk */
 #endif
 static bool malloc_touch;		/* True will touch allocate pages */
+static void *counter_lock;		/* Counter lock */
 
 #if defined(HAVE_LIB_PTHREAD)
 /* per pthread data */
@@ -60,7 +61,6 @@ typedef struct {
 
 typedef struct {
 	const stress_args_t *args;			/* args info */
-	uint64_t *counters;				/* bogo op counters */
 	size_t instance;				/* per thread instance number */
 } stress_malloc_args_t;
 
@@ -154,34 +154,19 @@ static void stress_malloc_page_touch(
 }
 
 /*
- *  stress_malloc_racy_count()
- *	racy bogo op counter, we have a lot of contention
- *	if we lock the args->counter, so sum per-process
- *	counters in a racy way.
- */
-static uint64_t stress_malloc_racy_count(const uint64_t *counters)
-{
-	register uint64_t count = 0;
-	register size_t i;
-
-	for (i = 0; i < malloc_pthreads + 1; i++)
-		count += counters[i];
-
-	return count;
-}
-
-/*
  *  stress_malloc_keep_stressing(args)
  *      check if SIGALRM has triggered to the bogo ops count
  *      has been reached, counter is racy, but that's OK
  */
-static bool HOT OPTIMIZE3 stress_malloc_keep_stressing(
-        const stress_args_t *args,
-        uint64_t *counters)
+static inline bool stress_malloc_keep_stressing(const stress_args_t *args)
 {
-        return (LIKELY(g_keep_stressing_flag) &&
-                LIKELY(!args->max_ops ||
-                (stress_malloc_racy_count(counters) < args->max_ops)));
+	bool ret;
+
+	stress_lock_acquire(counter_lock);
+	ret = keep_stressing(args);
+	stress_lock_release(counter_lock);
+
+	return ret;
 }
 
 static void *stress_malloc_loop(void *ptr)
@@ -189,8 +174,6 @@ static void *stress_malloc_loop(void *ptr)
 	const stress_malloc_args_t *malloc_args = (stress_malloc_args_t *)ptr;
 	const stress_args_t *args = malloc_args->args;
 	const size_t page_size = args->page_size;
-	uint64_t *counters = malloc_args->counters;
-	uint64_t *counter = &counters[malloc_args->instance];
 	uintptr_t **addr;
 	static void *nowt = NULL;
 	size_t j;
@@ -223,7 +206,7 @@ static void *stress_malloc_loop(void *ptr)
 		if (!keep_thread_running_flag)
 			break;
 #endif
-		if (!stress_malloc_keep_stressing(args, counters))
+		if (!stress_malloc_keep_stressing(args))
 			break;
 
 		if (addr[i]) {
@@ -235,7 +218,9 @@ static void *stress_malloc_loop(void *ptr)
 				}
 				free(addr[i]);
 				addr[i] = NULL;
-				(*counter)++;
+				stress_lock_acquire(counter_lock);
+				inc_counter(args);
+				stress_lock_release(counter_lock);
 			} else {
 				void *tmp;
 				const size_t len = stress_alloc_size(malloc_bytes);
@@ -248,7 +233,9 @@ static void *stress_malloc_loop(void *ptr)
 						pr_fail("%s: allocation at %p does not contain correct value\n",
 							args->name, addr[i]);
 					}
-					(*counter)++;
+					stress_lock_acquire(counter_lock);
+					inc_counter(args);
+					stress_lock_release(counter_lock);
 				}
 			}
 		} else {
@@ -266,7 +253,9 @@ static void *stress_malloc_loop(void *ptr)
 				if (addr[i]) {
 					stress_malloc_page_touch((void *)addr[i], len, page_size);
 					*addr[i] = (uintptr_t)addr[i];	/* stash address */
-					(*counter)++;
+					stress_lock_acquire(counter_lock);
+					inc_counter(args);
+					stress_lock_release(counter_lock);
 				}
 			}
 		}
@@ -298,14 +287,11 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 	 *  pthread instance 0 is actually the main child process,
 	 *  insances 1..N are pthreads 0..N-1
 	 */
-	uint64_t counters[MAX_MALLOC_PTHREADS + 1];
 	stress_malloc_args_t malloc_args[MAX_MALLOC_PTHREADS + 1];
 
-	(void)memset(counters, 0, sizeof(counters));
 	(void)memset(malloc_args, 0, sizeof(malloc_args));
 
 	malloc_args[0].args = args;
-	malloc_args[0].counters = counters;
 	malloc_args[0].instance = 0;
 
 	(void)context;
@@ -317,7 +303,6 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 	(void)memset(pthreads, 0, sizeof(pthreads));
 	for (j = 0; j < malloc_pthreads; j++) {
 		malloc_args[j + 1].args = args;
-		malloc_args[j + 1].counters = counters;
 		malloc_args[j + 1].instance = j + 1;
 		pthreads[j].ret = pthread_create(&pthreads[j].pthread, NULL,
 			stress_malloc_loop, (void *)&malloc_args);
@@ -346,8 +331,6 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 	}
 #endif
 
-	set_counter(args, stress_malloc_racy_count(counters));
-
 	return EXIT_SUCCESS;
 }
 
@@ -358,6 +341,14 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
  */
 static int stress_malloc(const stress_args_t *args)
 {
+	int ret;
+
+	counter_lock = stress_lock_create();
+	if (!counter_lock) {
+		pr_inf("%s: failed to create counter lock. skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
 	malloc_bytes = DEFAULT_MALLOC_BYTES;
 	if (!stress_get_setting("malloc-bytes", &malloc_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -390,7 +381,11 @@ static int stress_malloc(const stress_args_t *args)
 	malloc_touch = false;
 	(void)stress_get_setting("malloc-touch", &malloc_touch);
 
-	return stress_oomable_child(args, NULL, stress_malloc_child, STRESS_OOMABLE_NORMAL);
+	ret = stress_oomable_child(args, NULL, stress_malloc_child, STRESS_OOMABLE_NORMAL);
+
+	(void)stress_lock_destroy(counter_lock);
+
+	return ret;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
