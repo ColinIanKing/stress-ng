@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-target-clones.h"
 
 #define MIN_MEMFD_BYTES		(2 * MB)
 #define MAX_MEMFD_BYTES		(MAX_MEM_LIMIT)
@@ -88,6 +89,49 @@ static const unsigned int flags[] = {
 	MFD_HUGETLB | MFD_HUGE_1GB,
 #endif
 };
+
+static inline void TARGET_CLONES stress_memfd_fill_pages(void *ptr, const size_t size)
+{
+	uint64_t *u64ptr = (uint64_t *)ptr;
+	uint64_t *u64end = (uint64_t *)((uintptr_t)ptr + size);
+	uint64_t v = stress_mwc64();
+
+	while (u64ptr < u64end) {
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		*u64ptr++ = v;
+		v++;
+	}
+}
 
 /*
  *  Create allocations using memfd_create, ftruncate and mmap
@@ -206,7 +250,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			 * to force page it in
 			 */
 			maps[i] = mmap(NULL, size, PROT_WRITE, mmap_flags, fds[i], 0);
-			(void)stress_mincore_touch_pages(maps[i], size);
+			stress_memfd_fill_pages(maps[i], size);
 			(void)stress_madvise_random(maps[i], size);
 
 #if defined(FALLOC_FL_PUNCH_HOLE) &&	\
