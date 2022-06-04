@@ -41,6 +41,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
+static void *counter_lock;	/* Counter lock */
+
 static int stress_set_fiemap_bytes(const char *opt)
 {
 	uint64_t fiemap_bytes;
@@ -61,21 +63,23 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(FS_IOC_FIEMAP)
 
 /*
- *  stress_fiemap_count()
- *     racy bogo counter across child processes, avoids
- *     locking but is not accurate
+ *  stress_fiemap_keep_stressing()
+ *	check if we need to terminate,
+ *	increment counter if do_increment is true
  */
-static bool stress_fiemap_count(const stress_args_t *args, uint64_t *counters)
+static bool stress_fiemap_keep_stressing(
+	const stress_args_t *args,
+	const bool do_increment)
 {
-	size_t i;
-	uint64_t counter;
+	bool ret;
 
-	for (counter = 0, i = 0; i < MAX_FIEMAP_PROCS; i++) {
-		counter += counters[i];
-	}
+	stress_lock_acquire(counter_lock);
+	ret = keep_stressing(args);
+	if (ret && do_increment)
+		inc_counter(args);
+	stress_lock_release(counter_lock);
 
-	set_counter(args, counter);
-	return keep_stressing(args);
+	return ret;
 }
 
 /*
@@ -87,8 +91,7 @@ static bool stress_fiemap_count(const stress_args_t *args, uint64_t *counters)
 static int stress_fiemap_writer(
 	const stress_args_t *args,
 	const int fd,
-	const uint64_t fiemap_bytes,
-	uint64_t *counters)
+	const uint64_t fiemap_bytes)
 {
 	uint8_t buf[1];
 	const uint64_t len = fiemap_bytes - sizeof(buf);
@@ -106,7 +109,7 @@ static int stress_fiemap_writer(
 		offset = (stress_mwc64() % len) & ~0x1fffUL;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0)
 			break;
-		if (!stress_fiemap_count(args, counters))
+		if (!stress_fiemap_keep_stressing(args, false))
 			break;
 		if (write(fd, buf, sizeof(buf)) < 0) {
 			if (errno == ENOSPC)
@@ -117,7 +120,7 @@ static int stress_fiemap_writer(
 				goto tidy;
 			}
 		}
-		if (!stress_fiemap_count(args, counters))
+		if (!stress_fiemap_keep_stressing(args, false))
 			break;
 #if defined(FALLOC_FL_PUNCH_HOLE) && \
     defined(FALLOC_FL_KEEP_SIZE)
@@ -134,12 +137,12 @@ static int stress_fiemap_writer(
 				punch_hole = false;
 		}
 		(void)shim_usleep(1000);
-		if (!stress_fiemap_count(args, counters))
+		if (!stress_fiemap_keep_stressing(args, false))
 			break;
 #else
 		UNEXPECTED
 #endif
-	} while (keep_stressing(args));
+	} while (stress_fiemap_keep_stressing(args, false));
 	rc = EXIT_SUCCESS;
 tidy:
 	(void)close(fd);
@@ -153,7 +156,6 @@ tidy:
  */
 static void stress_fiemap_ioctl(
 	const stress_args_t *args,
-	uint64_t *counter,
 	const int fd)
 {
 	int c = stress_mwc32() % COUNT_MAX;
@@ -214,22 +216,18 @@ static void stress_fiemap_ioctl(
 			break;
 		}
 		free(fiemap);
-		(*counter)++;
 		if (c++ > COUNT_MAX) {
 			c = 0;
 			fdatasync(fd);
 		}
-	} while (keep_stressing(args));
+	} while (stress_fiemap_keep_stressing(args, true));
 }
 
 /*
  *  stress_fiemap_spawn()
  *	helper to spawn off fiemap stressor
  */
-static inline pid_t stress_fiemap_spawn(
-	const stress_args_t *args,
-	uint64_t *counter,
-	const int fd)
+static inline pid_t stress_fiemap_spawn(const stress_args_t *args, const int fd)
 {
 	pid_t pid;
 
@@ -241,7 +239,7 @@ static inline pid_t stress_fiemap_spawn(
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 		stress_mwc_reseed();
-		stress_fiemap_ioctl(args, counter, fd);
+		stress_fiemap_ioctl(args, fd);
 		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
@@ -258,10 +256,14 @@ static int stress_fiemap(const stress_args_t *args)
 	int ret, fd, rc = EXIT_FAILURE, status;
 	char filename[PATH_MAX];
 	size_t i, n;
-	uint64_t *counters;
-	const size_t counters_sz = sizeof(*counters) * MAX_FIEMAP_PROCS;
 	uint64_t fiemap_bytes = DEFAULT_FIEMAP_SIZE;
 	struct fiemap fiemap;
+
+	counter_lock = stress_lock_create();
+	if (!counter_lock) {
+		pr_err("%s: failed to create counter lock\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	if (!stress_get_setting("fiemap-bytes", &fiemap_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -272,16 +274,6 @@ static int stress_fiemap(const stress_args_t *args)
 	fiemap_bytes /= args->num_instances;
 	if (fiemap_bytes < MIN_FIEMAP_SIZE)
 		fiemap_bytes = MIN_FIEMAP_SIZE;
-
-	/* We need some share memory for counter accounting */
-	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (counters == MAP_FAILED) {
-		pr_err("%s: mmap failed: errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
-	}
-	(void)memset(counters, 0, counters_sz);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
@@ -320,16 +312,18 @@ static int stress_fiemap(const stress_args_t *args)
 			goto reap;
 		}
 
-		pids[n] = stress_fiemap_spawn(args, &counters[n], fd);
+		pids[n] = stress_fiemap_spawn(args, fd);
 		if (pids[n] < 0)
 			goto reap;
 	}
-	rc = stress_fiemap_writer(args, fd, fiemap_bytes, counters);
+	rc = stress_fiemap_writer(args, fd, fiemap_bytes);
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	/* And reap stressors */
 	for (i = 0; i < n; i++) {
 		(void)kill(pids[i], SIGKILL);
+	}
+	for (i = 0; i < n; i++) {
 		(void)shim_waitpid(pids[i], &status, 0);
 	}
 close_clean:
@@ -340,7 +334,8 @@ dir_clean:
 	(void)stress_temp_dir_rm_args(args);
 clean:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	(void)munmap(counters, counters_sz);
+
+	stress_lock_destroy(counter_lock);
 
 	return rc;
 }
