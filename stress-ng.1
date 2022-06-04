@@ -532,10 +532,7 @@ start N workers that run 16 processes that rapidly change CPU affinity
 poor cache behaviour and high context switch rate.
 .TP
 .B \-\-affinity\-ops N
-stop affinity workers after N bogo affinity operations. Note
-that the counters across the 16 processes are not locked to improve affinity
-test rates so the final number of bogo-ops will be equal or more than the
-specified ops stop threshold because of racy unlocked bogo-op counting.
+stop affinity workers after N bogo affinity operations.
 .TP
 .B \-\-affinity\-delay N
 delay for N nanoseconds before changing affinity to the next CPU.
