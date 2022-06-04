@@ -486,6 +486,40 @@ static void stress_rand_data_rdrand(
 }
 #endif
 
+#define ROR32(x, n) x = (((x) >> n) | ((x) << (32 - n)))
+
+static void OPTIMIZE3 stress_rand_data_ror32(
+	const stress_args_t *args,
+	uint8_t *data,
+	const size_t size)
+{
+	register uint16_t *ptr = (uint16_t *)data;
+	register uint16_t *end = (uint16_t *)(data + size);
+
+	(void)args;
+
+	while (ptr < end) {
+		register uint32_t val = stress_mwc32();
+
+		ptr[0x00] = val;
+		ROR32(val, 1);
+		ptr[0x01] = val;
+		ROR32(val, 2);
+		ptr[0x02] = val;
+		ROR32(val, 3);
+		ptr[0x03] = val;
+		ROR32(val, 4);
+		ptr[0x04] = val;
+		ROR32(val, 5);
+		ptr[0x05] = val;
+		ROR32(val, 6);
+		ptr[0x06] = val;
+		ROR32(val, 7);
+		ptr[0x07] = val;
+		ptr += 8;
+	}
+}
+
 /*
  *  stress_rand_data_double()
  *	fill buffer with double precision floating point binary data
@@ -1058,6 +1092,7 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
     (defined(__x86_64__) || defined(__x86_64))
 	{ "rdrand",	stress_rand_data_rdrand },
 #endif
+	{ "ror32",	stress_rand_data_ror32 },
 	{ "text",	stress_rand_data_text },
 	{ "utf8",	stress_rand_data_utf8 },
 	{ "zero",	stress_rand_data_zero },
