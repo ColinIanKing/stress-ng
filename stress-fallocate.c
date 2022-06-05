@@ -113,9 +113,10 @@ static int stress_fallocate(const stress_args_t *args)
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
 	off_t fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
-	int i, mode_count, *mode_perms, all_modes;
+	int *mode_perms, all_modes;
+	size_t i, mode_count;
 
-	for (all_modes = 0, i = 0; i < (int)SIZEOF_ARRAY(modes); i++)
+	for (all_modes = 0, i = 0; i < SIZEOF_ARRAY(modes); i++)
 		all_modes |= modes[i];
 	mode_count = stress_flag_permutation(all_modes, &mode_perms);
 
@@ -270,8 +271,6 @@ static int stress_fallocate(const stress_args_t *args)
 		 *  Exercise with various illegal mode flags
 		 */
 		if (SIZEOF_ARRAY(illegal_modes) > 1) {
-			size_t i;
-
 			for (i = 0; i < SIZEOF_ARRAY(illegal_modes); i++) {
 				ret = shim_fallocate(fd, illegal_modes[i], (off_t)0, fallocate_bytes);
 				(void)ret;
