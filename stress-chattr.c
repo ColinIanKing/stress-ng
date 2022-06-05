@@ -173,8 +173,8 @@ static int stress_chattr(const stress_args_t *args)
 	const pid_t ppid = getppid();
 	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX], pathname[PATH_MAX];
-	int all_flags, flag_count, *flag_perms;
-	size_t i, index;
+	int all_flags, *flag_perms;
+	size_t i, index, flag_count;
 
 	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(flags); i++)
 		all_flags |= flags[i];
@@ -200,7 +200,7 @@ static int stress_chattr(const stress_args_t *args)
 
 	index = 0;
 	do {
-		size_t i, fail = 0;
+		size_t fail = 0;
 
 		for (i = 0; i < SIZEOF_ARRAY(flags); i++) {
 			if (do_chattr(args, filename, (unsigned long)flags[i]) < 0)
