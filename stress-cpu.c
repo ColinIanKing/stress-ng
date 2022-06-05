@@ -840,7 +840,7 @@ stress_cpu_int(uint8_t, 8, \
 
 #define float_thresh(x, _type)	x = (_type)		\
 	((fabs((double)x) > 1.0) ?	\
-	((_type)(0.1 + (double)x - (long)x)) :	\
+	((_type)(0.1 + (double)x - (double)(long)x)) :	\
 	((_type)(x)))
 
 #define float_ops(_type, a, b, c, d, _sin, _cos)	\
@@ -2205,7 +2205,7 @@ static void stress_cpu_parity(const char *name)
 		/*
 		 *  Compute parity using built-in function
 		 */
-		p = __builtin_parity((unsigned int)val);
+		p = (uint32_t)__builtin_parity((unsigned int)val);
 		if ((g_opt_flags & OPT_FLAGS_VERIFY) && (p != parity))
 			pr_fail("%s: parity error detected, using "
 				"the __builtin_parity function\n",  name);
@@ -2292,10 +2292,10 @@ static void TARGET_CLONES stress_cpu_div8(const char *name)
 	(void)name;
 
 	while (i > 0) {
-		const uint8_t n = STRESS_MINIMUM(i, 224);
+		const uint8_t n = (uint8_t)STRESS_MINIMUM(i, 224);
 		register uint8_t k, l;
 		for (l = 0, k = 1; l < n; l++, k += delta) {
-			register uint8_t r = j / k;
+			register uint8_t r = (uint8_t)(j / k);
 			sum += r;
 		}
 		i -= n;
@@ -2971,10 +2971,10 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 
 static double stress_cpu_counter_scale[SIZEOF_ARRAY(cpu_methods)];
 
-static void stress_cpu_method(int method, const stress_args_t *args, double *counter)
+static void stress_cpu_method(size_t method, const stress_args_t *args, double *counter)
 {
 	if (method == 0) {
-		static int i = 1;	/* Skip over stress_cpu_all */
+		static size_t i = 1;	/* Skip over stress_cpu_all */
 
 		method = i;
 		i++;
