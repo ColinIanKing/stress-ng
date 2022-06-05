@@ -63,7 +63,7 @@ struct shim_loop_config {
         uint32_t		fd;
         uint32_t		block_size;
         struct loop_info64      info;
-        uint64_t 		__reserved[8];
+        uint64_t 		reserved[8];
 };
 
 
