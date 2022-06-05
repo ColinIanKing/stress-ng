@@ -49,9 +49,9 @@ static int stress_set_gpu(const char *opt, const char *name, const size_t max)
 	int32_t gpu32;
 	int64_t gpu64;
 
-	gpu64 = stress_get_uint64(opt);
-	stress_check_range(name, gpu64, 1, max);
-	gpu32 = (uint32_t)gpu64;
+	gpu64 = (int64_t)stress_get_uint64(opt);
+	stress_check_range(name, (uint64_t)gpu64, 1, max);
+	gpu32 = (int32_t)gpu64;
 	return stress_set_setting(name, TYPE_ID_INT32, &gpu32);
 }
 
@@ -72,10 +72,10 @@ static int stress_set_gpu_ysize(const char *opt)
 
 static int stress_set_gpu_gl(const char *opt, const char *name, const size_t max)
 {
-	int gpu_val;
+	int32_t gpu_val;
 
 	gpu_val = stress_get_int32(opt);
-	stress_check_range(name, gpu_val, 1, max);
+	stress_check_range(name, (uint64_t)gpu_val, 1, max);
 	return stress_set_setting(name, TYPE_ID_INT32, &gpu_val);
 }
 
@@ -155,8 +155,9 @@ static GLuint compile_shader(
 
 		glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLen);
 		if (infoLen > 1) {
-			char *infoLog = malloc(infoLen);
+			char *infoLog;
 
+			infoLog = malloc((size_t)infoLen);
 			if (!infoLog) {
 				pr_inf("%s: failed to allocate infoLog, skipping stressor\n", args->name);
 				glDeleteShader(shader);
@@ -172,7 +173,7 @@ static GLuint compile_shader(
 	return shader;
 }
 
-int load_shaders(const stress_args_t *args)
+static int load_shaders(const stress_args_t *args)
 {
 	GLint linked;
 	GLuint vertexShader;
@@ -208,8 +209,9 @@ int load_shaders(const stress_args_t *args)
 
 		glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLen);
 		if (infoLen > 1) {
-			char *infoLog = malloc(infoLen);
+			char *infoLog;
 
+			infoLog = malloc((size_t)infoLen);
 			if (!infoLog) {
 				pr_inf("%s: failed to allocate infoLog, skipping stressor\n", name);
 				glDeleteProgram(program);
@@ -248,7 +250,7 @@ static const GLfloat color[] = {
 	1, 1, 0, 1,
 };
 
-int gles2_init(
+static int gles2_init(
 	const stress_args_t *args,
 	const uint32_t width,
 	const uint32_t height,
@@ -256,12 +258,13 @@ int gles2_init(
 	const GLsizei texsize)
 {
 	int ret;
-	GLint ufrag_n, apos, acolor;
+	GLint ufrag_n;
+	GLuint apos, acolor;
 
 	if (args->instance == 0) {
-		pr_inf("GL_VENDOR: %s\n", (char *)glGetString(GL_VENDOR));
-		pr_inf("GL_VERSION: %s\n", (char *)glGetString(GL_VERSION));
-		pr_inf("GL_RENDERER: %s\n", (char *)glGetString(GL_RENDERER));
+		pr_inf("GL_VENDOR: %s\n", (const char *)glGetString(GL_VENDOR));
+		pr_inf("GL_VERSION: %s\n", (const char *)glGetString(GL_VERSION));
+		pr_inf("GL_RENDERER: %s\n", (const char *)glGetString(GL_RENDERER));
 	}
 
 	ret = load_shaders(args);
@@ -269,7 +272,7 @@ int gles2_init(
 		return ret;
 
 	glClearColor(0, 0, 0, 0);
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, (GLsizei)width, (GLsizei)height);
 
 	ufrag_n = glGetUniformLocation(program, "frag_n");
 	glUniform1i(ufrag_n, frag_n);
@@ -279,11 +282,11 @@ int gles2_init(
 		return EXIT_FAILURE;
 	}
 
-	apos = glGetAttribLocation(program, "pos");
+	apos = (GLuint)glGetAttribLocation(program, "pos");
 	glEnableVertexAttribArray(apos);
 	glVertexAttribPointer(apos, 4, GL_FLOAT, 0, 0, vertex);
 
-	acolor = glGetAttribLocation(program, "color");
+	acolor = (GLuint)glGetAttribLocation(program, "color");
 	glEnableVertexAttribArray(acolor);
 	glVertexAttribPointer(acolor, 4, GL_FLOAT, 0, 0, color);
 
@@ -303,7 +306,7 @@ int gles2_init(
 		glBindTexture(GL_TEXTURE_2D, texobj);
 
 		bytesPerImage = texsize * texsize * 4;
-		teximage = malloc(bytesPerImage);
+		teximage = malloc((size_t)bytesPerImage);
 		if (!teximage) {
 			pr_inf("%s: failed to allocate teximage, skipping stressor\n", args->name);
 			return EXIT_NO_RESOURCE;
@@ -328,7 +331,7 @@ static void stress_gpu_run(const GLsizei texsize, const GLsizei uploads)
 	glFinish();
 }
 
-int get_config(const stress_args_t *args, EGLConfig *config)
+static int get_config(const stress_args_t *args, EGLConfig *config)
 {
 	static const EGLint egl_config_attribs[] = {
 		EGL_BUFFER_SIZE, 32,
@@ -348,7 +351,8 @@ int get_config(const stress_args_t *args, EGLConfig *config)
 		return EXIT_NO_RESOURCE;
 	}
 
-	configs = malloc(num_configs * sizeof(EGLConfig));
+	/* Use calloc to avoid multiplication overflow */
+	configs = calloc((size_t)num_configs, sizeof(EGLConfig));
 	if ((eglChooseConfig(display, egl_config_attribs,
 			     configs, num_configs,
 			     &num_configs) == EGL_FALSE) || (num_configs == 0)) {
