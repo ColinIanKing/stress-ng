@@ -50,10 +50,11 @@ static int stress_futex_wait(uint32_t *futex, const int val, const uint64_t nsec
 	if (try_futex_waitv && try++ > 16) {
 		struct shim_futex_waitv w;
 
+		(void)memset(&w, 0, sizeof(w));
+
 		w.val = (uint64_t)val;
 		w.uaddr = (uintptr_t)futex;
 		w.flags = FUTEX_32;
-		w.__reserved = 0;
 
 		try = 0;
 		if (clock_gettime(CLOCK_MONOTONIC, &t) == 0) {
