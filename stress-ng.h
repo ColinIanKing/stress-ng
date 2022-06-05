@@ -394,6 +394,7 @@ typedef struct {
 	struct {
 		uint64_t counter;	/* Copy of stats counter */
 		bool     run_ok;	/* Copy of run_ok */
+		uint8_t	 reserved[7];	/* Padding */
 	} data;
 	uint32_t	hash;		/* Hash of data */
 } stress_checksum_t;
@@ -924,12 +925,14 @@ typedef int (*stress_func_t)(const stress_args_t *args);
 typedef struct {
 	uint64_t counter;		/* perf counter */
 	int	 fd;			/* perf per counter fd */
+	uint8_t	 padding[4];		/* padding */
 } stress_perf_stat_t;
 
 /* per stressor perf info */
 typedef struct {
 	stress_perf_stat_t	perf_stat[STRESS_PERF_MAX]; /* perf counters */
 	int			perf_opened;	/* count of opened counters */
+	uint8_t	 padding[4];		/* padding */
 } stress_perf_t;
 #endif
 
@@ -977,6 +980,7 @@ typedef struct {
 #endif
 	bool counter_ready;		/* counter can be read */
 	bool run_ok;			/* true if stressor exited OK */
+	uint8_t padding[6];		/* padding */
 } stress_stats_t;
 
 #define	STRESS_WARN_HASH_MAX		(128)
