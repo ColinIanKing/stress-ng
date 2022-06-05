@@ -21,7 +21,6 @@
 
 #define MIN_DIRMANY_BYTES     (0)
 #define MAX_DIRMANY_BYTES     (MAX_FILE_LIMIT)
-#define DEFAULT_DIRMANY_BYTES (0)
 
 static const stress_help_t help[] = {
 	{ NULL,	"dirmany N",		"start N directory file populating stressors" },
