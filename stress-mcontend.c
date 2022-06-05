@@ -38,7 +38,7 @@ static sigset_t set;
     defined(HAVE_ASM_X86_PAUSE)
 static inline void cpu_relax(void)
 {
-	asm volatile("pause\n": : :"memory");
+	__asm__ __volatile__("pause\n": : :"memory");
 }
 #endif
 
