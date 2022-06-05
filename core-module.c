@@ -35,7 +35,8 @@ int stress_module_load(
 	const char *options,	/* module options */
 	bool *already_loaded)	/* set to true if already loaded */
 {
-	int ret, flags = 0;
+	int ret;
+	unsigned int flags = 0;
 	struct kmod_ctx *ctx;
 	struct kmod_list *l, *list = NULL;
 
