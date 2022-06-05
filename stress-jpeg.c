@@ -62,8 +62,8 @@ static int stress_set_jpeg_height(const char *opt)
 {
 	int32_t jpeg_height;
 
-	jpeg_height = stress_get_uint32(opt);
-	stress_check_range("jpeg-height", jpeg_height, 256, 4096);
+	jpeg_height = stress_get_int32(opt);
+	stress_check_range("jpeg-height", (uint32_t)jpeg_height, 256, 4096);
 	return stress_set_setting("jpeg-height", TYPE_ID_INT32, &jpeg_height);
 }
 
@@ -75,8 +75,8 @@ static int stress_set_jpeg_width(const char *opt)
 {
 	int32_t jpeg_width;
 
-	jpeg_width = stress_get_uint32(opt);
-	stress_check_range("jpeg-width", jpeg_width, 256, 4096);
+	jpeg_width = stress_get_int32(opt);
+	stress_check_range("jpeg-width", (uint32_t)jpeg_width, 256, 4096);
 	return stress_set_setting("jpeg-width", TYPE_ID_INT32, &jpeg_width);
 }
 
@@ -88,8 +88,8 @@ static int stress_set_jpeg_quality(const char *opt)
 {
 	int32_t jpeg_quality;
 
-	jpeg_quality = stress_get_uint32(opt);
-	stress_check_range("jpeg-quality", jpeg_quality, 1, 100);
+	jpeg_quality = stress_get_int32(opt);
+	stress_check_range("jpeg-quality", (uint32_t)jpeg_quality, 1, 100);
 	return stress_set_setting("jpeg-quality", TYPE_ID_INT32, &jpeg_quality);
 }
 
@@ -150,9 +150,9 @@ static void OPTIMIZE3 stress_rgb_plasma(
 {
 	register uint8_t *ptr = rgb;
 	register int32_t sy;
-	const double tx = (double)stress_mwc32() / 100.0;
-	const double ty = (double)stress_mwc32() / 100.0;
-	const double tz = (double)stress_mwc32() / 100.0;
+	const double tx = ((double)stress_mwc32()) / 100.0;
+	const double ty = ((double)stress_mwc32()) / 100.0;
+	const double tz = ((double)stress_mwc32()) / 100.0;
 	const double dx = 1.0 / (double)x_max;
 	const double dy = 1.0 / (double)y_max;
 	double y;
@@ -162,9 +162,9 @@ static void OPTIMIZE3 stress_rgb_plasma(
 		double x;
 
 		for (x = 0.0, sx = 0; sx < x_max; x += dx, sx++) {
-			*ptr++ = 127 * plasma(x, y, tx) + 127;
-			*ptr++ = 127 * plasma(x, y, ty + x) + 127;
-			*ptr++ = 127 * plasma(x, y, tz + y) + 127;
+			*ptr++ = (uint8_t)(127.0 * plasma(x, y, tx) + 127.0);
+			*ptr++ = (uint8_t)(127.0 * plasma(x, y, ty + x) + 127.0);
+			*ptr++ = (uint8_t)(127.0 * plasma(x, y, tz + y) + 127.0);
 		}
 	}
 }
@@ -317,8 +317,8 @@ static int stress_rgb_compress_to_jpeg(
 	jpeg_create_compress(&cinfo);
 	jpeg_stdio_dest(&cinfo, fp);
 
-	cinfo.image_width = x_max;
-	cinfo.image_height = y_max;
+	cinfo.image_width = (JDIMENSION)x_max;
+	cinfo.image_height = (JDIMENSION)y_max;
 	cinfo.input_components = 3;
 	cinfo.in_color_space = JCS_RGB;
 	jpeg_set_defaults(&cinfo);
@@ -332,7 +332,7 @@ static int stress_rgb_compress_to_jpeg(
 	}
 	yy++;
 
-	(void)jpeg_write_scanlines(&cinfo, row_pointer, y_max);
+	(void)jpeg_write_scanlines(&cinfo, row_pointer, (JDIMENSION)y_max);
 	jpeg_finish_compress(&cinfo);
 	(void)fclose(fp);
 	jpeg_destroy_compress(&cinfo);
@@ -365,7 +365,7 @@ static int stress_jpeg(const stress_args_t *args)
 	(void)stress_get_setting("jpeg-quality", &jpeg_quality);
 	(void)stress_get_setting("jpeg-image", &jpeg_image);
 
-	rgb_size = x_max * y_max * 3;
+	rgb_size = (size_t)x_max * (size_t)y_max * 3;
 	rgb = mmap(NULL, rgb_size, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rgb == MAP_FAILED) {
