@@ -56,7 +56,7 @@ static int stress_set_iomix_bytes(const char *opt)
  */
 static off_t stress_iomix_rnd_offset(const off_t max)
 {
-	return (off_t)(stress_mwc64() % max);
+	return (off_t)(stress_mwc64() % (uint64_t)max);
 }
 
 /*
@@ -367,7 +367,7 @@ static void stress_iomix_rd_rnd_bursts(
 			posn = stress_iomix_rnd_offset(iomix_bytes);
 
 			/* Add some unhelpful advice */
-			stress_iomix_fadvise_random_dontneed(fd, posn, len);
+			stress_iomix_fadvise_random_dontneed(fd, posn, (ssize_t)len);
 
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret == (off_t)-1) {
@@ -423,7 +423,7 @@ static void stress_iomix_rd_seq_slow(
 			const size_t len = 1 + (stress_mwc32() & (sizeof(buffer) - 1));
 
 			/* Add some unhelpful advice */
-			stress_iomix_fadvise_random_dontneed(fd, posn, len);
+			stress_iomix_fadvise_random_dontneed(fd, posn, (ssize_t)len);
 
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
@@ -865,11 +865,11 @@ static void stress_iomix_copy_file_range(
 	const off_t iomix_bytes)
 {
 	do {
-		off_t from = stress_mwc64() % iomix_bytes;
-		off_t to = stress_mwc64() % iomix_bytes;
+		off_t from = stress_iomix_rnd_offset(iomix_bytes);
+		off_t to = stress_iomix_rnd_offset(iomix_bytes);
 		const size_t size = stress_mwc16();
 		struct timeval tv;
-		int ret;
+		ssize_t ret;
 
 		ret = copy_file_range(fd, &from, fd, &to, size, 0);
 		(void)ret;
@@ -899,15 +899,15 @@ static void stress_iomix_sendfile(
 	const off_t iomix_bytes)
 {
 	do {
-		off_t from = stress_mwc64() % iomix_bytes;
-		off_t to = stress_mwc64() % iomix_bytes;
+		off_t from = stress_iomix_rnd_offset(iomix_bytes);
+		off_t to = stress_iomix_rnd_offset(iomix_bytes);
 		off_t ret;
 		const size_t size = stress_mwc16();
 		struct timeval tv;
 
 		ret = lseek(fd, to, SEEK_SET);
 		if (ret != (off_t)-1) {
-			int sret;
+			ssize_t sret;
 
 			sret = sendfile(fd, fd, &from, size);
 			(void)sret;
