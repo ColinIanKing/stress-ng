@@ -309,7 +309,7 @@ static uint32_t OPTIMIZE3 stress_hash_xor(const char *str, const size_t len)
 
 	while (*str) {
 		register uint32_t top = sum >> 31;
-		sum ^= *str++;
+		sum ^= (uint8_t)*str++;
 		sum <<= 1;
 		sum |= top;
 	}
@@ -568,7 +568,7 @@ static stress_hash_method_info_t hash_methods[] = {
 	{ NULL,			NULL,				NULL }
 };
 
-stress_hash_stats_t hash_stats[SIZEOF_ARRAY(hash_methods)];
+static stress_hash_stats_t hash_stats[SIZEOF_ARRAY(hash_methods)];
 
 /*
  *  stress_set_hash_method()
