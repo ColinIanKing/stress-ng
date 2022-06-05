@@ -2968,7 +2968,7 @@ struct shim_futex_waitv {
 	uint64_t val;
 	uint64_t uaddr;
 	uint32_t flags;
-	uint32_t __reserved;
+	uint32_t reserved;
 };
 
 /*
@@ -3048,7 +3048,7 @@ struct shim_termios2 {
 typedef struct statx shim_statx_t;
 #else
 typedef struct {
-	char __reserved[512];
+	char reserved[512];
 } shim_statx_t;
 #endif
 
