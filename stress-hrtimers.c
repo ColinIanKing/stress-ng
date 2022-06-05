@@ -159,17 +159,19 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 	previous_time = stress_time_now();
 
 	do {
+		unsigned int sl_ret;
+
 		if (ns_delay < 0) {
-			ret = sleep(1);
-			if (ret == 0)
+			sl_ret = sleep(1);
+			if (sl_ret == 0)
 				hrtimer_interrupt = true;
 		} else {
 			long ns_adjust = ns_delay >> 2;
 			double now;
 
 			/* The sleep will be interrupted on each hrtimer tick */
-			ret = sleep(1);
-			if (ret == 0)
+			sl_ret = sleep(1);
+			if (sl_ret == 0)
 				hrtimer_interrupt = true;
 
 			now = stress_time_now();
@@ -272,8 +274,10 @@ static int stress_hrtimers(const stress_args_t *args)
 
 	dt = stress_time_now() - start_time;
 	if (dt > 0.0) {
+		const uint64_t c = get_counter(args);
+
 		pr_inf("%s: hrtimer signals at %.3f MHz\n",
-			args->name, ((double)get_counter(args) / dt) / 1000000.0);
+			args->name, ((double)c / dt) / 1000000.0);
 	}
 
 
