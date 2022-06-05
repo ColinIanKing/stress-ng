@@ -59,9 +59,9 @@ PRE_V=
 PRE_Q=@#
 endif
 
-ifeq ($(findstring clang,$(CC)),clang)
-CFLAGS += -Weverything
-endif
+#ifeq ($(findstring clang,$(CC)),clang)
+#CFLAGS += -Weverything
+#endif
 
 GREP = grep
 #
