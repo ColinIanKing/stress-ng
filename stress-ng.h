@@ -3228,7 +3228,7 @@ extern int shim_futex_waitv(struct shim_futex_waitv *waiters, unsigned int nr_fu
 #if !defined(STRESS_CORE_SHIM) &&	\
     !defined(HAVE_PEDANTIC) &&		\
     (defined(__GNUC__) && defined(__clang__))
-int unlink() __attribute__ ((deprecated("use shim_unlink")));
-int unlinkat() __attribute__ ((deprecated("use shim_unlinkat")));
-int rmdir() __attribute__ ((deprecated("use shim_rmdir")));
+int unlink(const char *pathname) __attribute__ ((deprecated("use shim_unlink")));
+int unlinkat(int dirfd, const char *pathname, int flags) __attribute__ ((deprecated("use shim_unlinkat")));
+int rmdir(const char *pathname) __attribute__ ((deprecated("use shim_rmdir")));
 #endif
