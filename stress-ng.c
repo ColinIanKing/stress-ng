@@ -1447,12 +1447,12 @@ static void stress_usage_help(const stress_help_t help_info[])
 				space = ptr;
 			wd++;
 			if (wd >= cols - 28) {
-				const int n = space - start;
+				const size_t n = space - start;
 
 				if (!first)
 					(void)printf("%-28s", "");
 				first = false;
-				(void)printf("%*.*s\n", n, n,start);
+				(void)printf("%*.*s\n", (int)n, (int)n, start);
 				start = space + 1;
 				wd = 0;
 			}
