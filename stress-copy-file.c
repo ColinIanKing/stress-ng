@@ -84,7 +84,7 @@ static int stress_copy_file_range_verify(
 			break;
 
 		n = STRESS_MINIMUM(bytes_in, bytes_out);
-		if (memcmp(buf_in, buf_out, n) != 0)
+		if (memcmp(buf_in, buf_out, (size_t)n) != 0)
 			return -1;
 		bytes_left -= n;
 		*off_in += n;
@@ -209,7 +209,7 @@ static int stress_copy_file(const stress_args_t *args)
 		 *  Exercise with bad flags
 		 */
 		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
-						&off_out, DEFAULT_COPY_FILE_SIZE, ~0);
+						&off_out, DEFAULT_COPY_FILE_SIZE, ~0U);
 		(void)copy_ret;
 
 		(void)shim_fsync(fd_out);
