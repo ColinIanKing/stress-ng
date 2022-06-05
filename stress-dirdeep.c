@@ -21,7 +21,6 @@
 
 #define MIN_DIRDEEP_BYTES	(0)
 #define MAX_DIRDEEP_BYTES	(MAX_FILE_LIMIT)
-#define DEFAULT_DIRDEEP_BYTES	(0)
 
 static const stress_help_t help[] = {
 	{ NULL,	"dirdeep N",		"start N directory depth stressors" },
@@ -331,7 +330,7 @@ static int stress_dir_exercise(
 			continue;
 
 		path[len] = '/';
-		path[len + 1] = ch;
+		path[len + 1] = (char)ch;
 		path[len + 2] = '\0';
 
 		if (isdigit(ch) || isupper(ch)) {
