@@ -62,7 +62,7 @@ static int stress_pkey(const stress_args_t *args)
 			(void)shim_pkey_free(pkey);
 
 		/* Exercise invalid pkey access_rights */
-		pkey = shim_pkey_alloc(0, ~0);
+		pkey = shim_pkey_alloc(0, (unsigned int)~0);
 		if (pkey >= 0)
 			(void)shim_pkey_free(pkey);
 

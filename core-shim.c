@@ -772,7 +772,7 @@ int shim_usleep_interruptible(uint64_t usec)
 #if defined(HAVE_NANOSLEEP)
 	struct timespec t, trem;
 
-	t.tv_sec = usec * ONE_MILLIONTH;
+	t.tv_sec = (time_t)((double)usec * ONE_MILLIONTH);
 	t.tv_nsec = ((long int)usec - (t.tv_sec * 1000000)) * 1000;
 
 	errno = 0;
@@ -954,7 +954,7 @@ int shim_mincore(void *addr, size_t length, unsigned char *vec)
 int shim_statx(
 	int dfd,
 	const char *filename,
-	unsigned int flags,
+	int flags,
 	unsigned int mask,
 	shim_statx_t *buffer)
 {
@@ -1089,7 +1089,7 @@ int shim_brk(void *addr)
 #elif defined(__NR_brk)
 	int ret;
 
-	ret = syscall(__NR_brk, addr);
+	ret = (int)syscall(__NR_brk, addr);
 	(void)ret;
 	return (errno == 0) ? 0 : ENOMEM;
 #elif defined(HAVE_BRK)
@@ -1259,7 +1259,7 @@ int shim_fdatasync(int fd)
  *   shim_pkey_alloc()
  *	wrapper for pkey_alloc()
  */
-int shim_pkey_alloc(unsigned long flags, unsigned long access_rights)
+int shim_pkey_alloc(unsigned int flags, unsigned int access_rights)
 {
 #if defined(HAVE_PKEY_ALLOC)
 	return pkey_alloc(flags, access_rights);
