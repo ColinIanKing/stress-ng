@@ -21,7 +21,6 @@
 #include "core-target-clones.h"
 
 #define MIN_MEMFD_BYTES		(2 * MB)
-#define MAX_MEMFD_BYTES		(MAX_MEM_LIMIT)
 #define DEFAULT_MEMFD_BYTES	(256 * MB)
 
 #define MIN_MEMFD_FDS		(8)
@@ -268,7 +267,7 @@ static int stress_memfd_child(const stress_args_t *args, void *context)
 			 *  ..and allocate space, this should fill file with zeros
 			 *  and kernel compaction should kick in.
 			 */
-			ret = shim_fallocate(fds[i], 0, size, 0);
+			ret = shim_fallocate(fds[i], 0, (off_t)size, 0);
 			(void)ret;
 
 			if (!keep_stressing_flag())
