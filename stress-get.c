@@ -376,7 +376,7 @@ static int stress_get(const stress_args_t *args)
 		(void)getpriority((shim_priority_which_t)INT_MIN, 0);
 		(void)getpriority((shim_priority_which_t)INT_MAX, 0);
 		pid = stress_get_unused_pid_racy(false);
-		(void)getpriority((shim_priority_which_t)0, pid);
+		(void)getpriority((shim_priority_which_t)0, (id_t)pid);
 
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++) {
 			errno = 0;
