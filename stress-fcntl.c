@@ -53,7 +53,7 @@ static const stress_help_t help[] = {
     (defined(F_GET_FILE_RW_HINT) && defined(F_SET_FILE_RW_HINT)) | \
     (defined(F_GET_RW_HINT) && defined(F_SET_RW_HINT))
 
-static int setfl_flag_count;
+static size_t setfl_flag_count;
 static int *setfl_flag_perms;
 
 static const int all_setfl_flags =
