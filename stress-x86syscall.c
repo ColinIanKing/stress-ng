@@ -93,9 +93,9 @@ static inline long x86_64_syscall1(long number, long arg1)
 {
 	long ret;
 	unsigned long _arg1 = arg1;
-	register long __arg1 asm ("rdi") = _arg1;
+	register long __arg1 __asm__("rdi") = _arg1;
 
-	asm volatile ("syscall\n\t"
+	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
 			: "0" (number), "r" (__arg1)
 			: "memory", "cc", "r11", "cx");
@@ -115,10 +115,10 @@ static inline long x86_64_syscall2(long number, long arg1, long arg2)
 	long ret;
 	unsigned long _arg1 = arg1;
 	unsigned long _arg2 = arg2;
-	register long __arg1 asm ("rdi") = _arg1;
-	register long __arg2 asm ("rsi") = _arg2;
+	register long __arg1 __asm__("rdi") = _arg1;
+	register long __arg2 __asm__("rsi") = _arg2;
 
-	asm volatile ("syscall\n\t"
+	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
 			: "0" (number), "r" (__arg1), "r" (__arg2)
 			: "memory", "cc", "r11", "cx");
@@ -139,11 +139,11 @@ static inline long x86_64_syscall3(long number, long arg1, long arg2, long arg3)
 	unsigned long _arg1 = arg1;
 	unsigned long _arg2 = arg2;
 	unsigned long _arg3 = arg3;
-	register long __arg1 asm ("rdi") = _arg1;
-	register long __arg2 asm ("rsi") = _arg2;
-	register long __arg3 asm ("rdx") = _arg3;
+	register long __arg1 __asm__("rdi") = _arg1;
+	register long __arg2 __asm__("rsi") = _arg2;
+	register long __arg3 __asm__("rdx") = _arg3;
 
-	asm volatile ("syscall\n\t"
+	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
 			: "0" (number), "r" (__arg1), "r" (__arg2), "r" (__arg3)
 			: "memory", "cc", "r11", "cx");

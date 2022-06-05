@@ -185,7 +185,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_ASM_X86_CLFLUSH)
 static inline void clflush(void *p)
 {
-        asm volatile("clflush (%0)\n" : : "r"(p) : "memory");
+        __asm__ __volatile__("clflush (%0)\n" : : "r"(p) : "memory");
 }
 #define SHIM_CLFLUSH(p)		clflush(p)
 #else
@@ -195,7 +195,7 @@ static inline void clflush(void *p)
 #if defined(HAVE_ASM_X86_CLFLUSHOPT)
 static inline void clflushopt(void *p)
 {
-        asm volatile("clflushopt (%0)\n" : : "r"(p) : "memory");
+        __asm__ __volatile__("clflushopt (%0)\n" : : "r"(p) : "memory");
 }
 #define SHIM_CLFLUSHOPT(p)	clflushopt(p)
 #else
@@ -205,7 +205,7 @@ static inline void clflushopt(void *p)
 #if defined(HAVE_ASM_X86_CLDEMOTE)
 static inline void cldemote(void *p)
 {
-        asm volatile("cldemote (%0)\n" : : "r"(p) : "memory");
+        __asm__ __volatile__("cldemote (%0)\n" : : "r"(p) : "memory");
 }
 #define SHIM_CLDEMOTE(p)	cldemote(p)
 #else
@@ -215,7 +215,7 @@ static inline void cldemote(void *p)
 #if defined(HAVE_ASM_X86_CLWB)
 static inline void clwb(void *p)
 {
-        asm volatile("clwb (%0)\n" : : "r"(p) : "memory");
+        __asm__ __volatile__("clwb (%0)\n" : : "r"(p) : "memory");
 }
 #define SHIM_CLWB(p)		clwb(p)
 #else

@@ -47,7 +47,7 @@ static shim_clflush_func_t shim_clflush_func =  shim_clflush_select;
 
 static inline void ALWAYS_INLINE shim_clflush_op(volatile void *ptr)
 {
-	asm volatile("clflush (%0)\n" : : "r"(ptr) : "memory");
+	__asm__ __volatile__("clflush (%0)\n" : : "r"(ptr) : "memory");
 }
 
 static inline void ALWAYS_INLINE shim_clflush_nop(volatile void *ptr)
@@ -99,11 +99,11 @@ static inline void ALWAYS_INLINE shim_mfence(void)
 {
 #if defined(STRESS_ARCH_RISCV) &&	\
     defined(HAVE_ASM_RISCV_FENCE)
-	 asm volatile ("fence" ::: "memory");
+	 __asm__ __volatile__("fence" ::: "memory");
 #define HAVE_SHIM_MFENCE
 #else
 #if defined(STRESS_ARCH_X86)
-	asm volatile("mfence" : : : "memory");
+	__asm__ __volatile__("mfence" : : : "memory");
 #define HAVE_SHIM_MFENCE
 #else
 #if defined(HAVE_SYNC_SYNCHRONIZE)

@@ -89,12 +89,12 @@ static inline long x86_64_syscall6(
 		unsigned long _arg5 = arg5;
 		unsigned long _arg6 = arg6;
 
-		register long __arg1 asm ("rdi") = _arg1;
-		register long __arg2 asm ("rsi") = _arg2;
-		register long __arg3 asm ("rdx") = _arg3;
-		register long __arg4 asm ("r10") = _arg4;
-		register long __arg5 asm ("r8") = _arg5;
-		register long __arg6 asm ("r9") = _arg6;
+		register long __arg1 __asm__ ("rdi") = _arg1;
+		register long __arg2 __asm__ ("rsi") = _arg2;
+		register long __arg3 __asm__ ("rdx") = _arg3;
+		register long __arg4 __asm__ ("r10") = _arg4;
+		register long __arg5 __asm__ ("r8") = _arg5;
+		register long __arg6 __asm__ ("r9") = _arg6;
 
 
 		asm volatile ("syscall\n\t"

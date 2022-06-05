@@ -176,7 +176,7 @@ void stress_x86_cpuid(
 	uint32_t *edx)
 {
 #if defined(STRESS_ARCH_X86)
-        asm volatile("cpuid"
+        __asm__ __volatile__("cpuid"
             : "=a" (*eax),
               "=b" (*ebx),
               "=c" (*ecx),
