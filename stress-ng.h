@@ -494,9 +494,9 @@ typedef struct {
 	void (*deinit)(void);		/* stressor de-init, NULL = ignore */
 	void (*set_default)(void);	/* default set-up */
 	void (*set_limit)(uint64_t max);/* set limits */
-	const stress_class_t class;	/* stressor class */
 	const stress_opt_set_func_t *opt_set_funcs;	/* option functions */
 	const stress_help_t *help;	/* stressor help options */
+	const stress_class_t class;	/* stressor class */
 	const stress_verify_t verify;	/* true = has verification mode */
 } stressor_info_t;
 
@@ -2600,18 +2600,21 @@ typedef struct stress_cpu_cache {
 	uint32_t           ways;	/* cache ways */
 	stress_cache_type_t type;	/* cache type */
 	uint16_t           level;	/* cache level, L1, L2 etc */
+	uint8_t		   padding[2];	/* padding */
 } stress_cpu_cache_t;
 
 typedef struct stress_cpu {
 	stress_cpu_cache_t *caches;	/* CPU cache data */
-	uint32_t       num;		/* CPU # number */
-	uint32_t       cache_count;	/* CPU cache #  */
-	bool           online;		/* CPU online when true */
+	uint32_t	num;		/* CPU # number */
+	uint32_t	cache_count;	/* CPU cache #  */
+	bool		online;		/* CPU online when true */
+	uint8_t		padding[7];	/* padding */
 } stress_cpu_t;
 
 typedef struct stress_cpus {
 	stress_cpu_t *cpus;		/* CPU data */
-	uint32_t   count;		/* CPU count */
+	uint32_t	count;		/* CPU count */
+	uint8_t		padding[4];	/* padding */
 } stress_cpus_t;
 
 /* Various global option settings and flags */
