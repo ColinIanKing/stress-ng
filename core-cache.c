@@ -178,11 +178,9 @@ out:
  */
 static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *index_path)
 {
-	const size_t index_posn = index_path ? strlen(index_path) : 0;
-	const size_t path_len = index_posn + 32;
 	int ret = EXIT_FAILURE;
 	char tmp[2048];
-	char path[path_len];
+	char path[PATH_MAX];
 
 	(void)memset(path, 0, sizeof(path));
 	if (!cache)
@@ -318,8 +316,7 @@ static int stress_get_cpu_cache_value(
 	const char *file,
 	uint64_t *value)
 {
-	const size_t cpu_path_len = strlen(cpu_path);
-	char path[cpu_path_len + 128];
+	char path[PATH_MAX];
 	char tmp[128];
 
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, file);
@@ -643,8 +640,7 @@ static int stress_get_cpu_cache_index(
 	struct dirent **namelist = NULL;
 	int n;
 	uint32_t i;
-	const size_t cpu_path_len = strlen(cpu_path);
-	char path[cpu_path_len + 128];
+	char path[PATH_MAX];
 
 	(void)stress_mk_filename(path, sizeof(path), cpu_path, SYS_CPU_CACHE_DIR);
 	n = scandir(path, &namelist, index_filter, index_sort);
@@ -667,7 +663,7 @@ static int stress_get_cpu_cache_index(
 
 	for (i = 0; i < cpu->cache_count; i++) {
 		const char *name = namelist[i]->d_name;
-		char fullpath[strlen(path) + strlen(name) + 2];
+		char fullpath[PATH_MAX];
 
 		(void)memset(fullpath, 0, sizeof(fullpath));
 		(void)stress_mk_filename(fullpath, sizeof(fullpath), path, name);
@@ -758,8 +754,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 
 	for (i = 0; i < cpu_count; i++) {
 		const char *name = namelist[i]->d_name;
-		const size_t fullpath_len = strlen(SYS_CPU_PREFIX) + strlen(name) + 2;
-		char fullpath[fullpath_len];
+		char fullpath[PATH_MAX];
 		stress_cpu_t *const cpu = &cpus->cpus[i];
 
 		(void)memset(fullpath, 0, sizeof(fullpath));
@@ -769,7 +764,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 			/* 1st CPU cannot be taken offline */
 			cpu->online = 1;
 		} else {
-			char onlinepath[fullpath_len + 8];
+			char onlinepath[PATH_MAX + 8];
 			char tmp[2048];
 
 			(void)memset(onlinepath, 0, sizeof(onlinepath));
