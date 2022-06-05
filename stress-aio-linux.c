@@ -493,7 +493,7 @@ retry_open:
 		 */
 		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
 		for (bufptr = buffer, i = 0, off = offset; i < aio_linux_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
-			const uint8_t pattern = j + ((((intptr_t)bufptr) >> 12) & 0xff);
+			const uint8_t pattern = (uint8_t)(j + ((((intptr_t)bufptr) >> 12) & 0xff));
 
 			aio_linux_fill_buffer(pattern, bufptr, BUFFER_SZ);
 
@@ -542,7 +542,7 @@ retry_open:
 				continue;
 
 			bufptr = obj->u.c.buf;
-			pattern = j + ((((intptr_t)bufptr) >> 12) & 0xff);
+			pattern = (uint8_t)(j + ((((intptr_t)bufptr) >> 12) & 0xff));
 
 			if (aio_linux_check_buffer(pattern, bufptr, BUFFER_SZ) != true) {
 				if (warnings++ < 5) {
