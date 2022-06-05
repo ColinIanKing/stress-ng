@@ -245,7 +245,7 @@ static inline void stress_slab_shrink(void)
 	DIR *dir;
 	struct dirent *d;
 	static const char slabpath[] = "/sys/kernel/slab";
-	int ret;
+	ssize_t ret;
 
 	/*
 	 *  older shrink interface, may fail
@@ -281,9 +281,9 @@ static inline void stress_drop_caches(void)
 #if defined(__linux__)
 	static int method = 0;
 	char str[3];
-	int ret;
+	ssize_t ret;
 
-	str[0] = '1' + method;
+	str[0] = '1' + (char)method;
 	str[1] = '\0';
 
 	ret = system_write("/proc/sys/vm/drop_caches", str, 1);
