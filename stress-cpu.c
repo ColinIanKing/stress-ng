@@ -66,7 +66,7 @@
 #endif
 
 #if defined(HAVE_INT128_T)
-#define _UINT128(hi, lo)	((((__uint128_t)hi << 64) | (__uint128_t)lo))
+#define STRESS_UINT128(hi, lo)	((((__uint128_t)hi << 64) | (__uint128_t)lo))
 #endif
 
 /*
@@ -817,9 +817,9 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_cpu_int ## _sz(const char *name)\
 #if defined(HAVE_INT128_T)
 
 stress_cpu_int(__uint128_t, 128,
-	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
-	_UINT128(0x62f086e6160e4e,0xd84c9f800365858),
-	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3))
+	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	STRESS_UINT128(0x62f086e6160e4e,0xd84c9f800365858),
+	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3))
 #endif
 
 stress_cpu_int(uint64_t, 64, \
@@ -1076,42 +1076,42 @@ stress_cpu_int_fp(uint64_t, 64, long double, longdouble,
 
 #if defined(HAVE_INT128_T)
 stress_cpu_int_fp(__uint128_t, 128, float, float,
-	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
-	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
-	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
+	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	shim_sinf, shim_cosf)
 stress_cpu_int_fp(__uint128_t, 128, double, double,
-	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
-	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
-	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
+	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	shim_sin, shim_cos)
 stress_cpu_int_fp(__uint128_t, 128, long double, longdouble,
-	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
-	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
-	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
+	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	shim_sinl, shim_cosl)
 #if defined(HAVE_FLOAT_DECIMAL32) &&	\
     !defined(__clang__)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal32, decimal32,
-	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
-	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
-	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
+	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	(_Decimal32)shim_sinf, (_Decimal32)shim_cosf)
 #endif
 #if defined(HAVE_FLOAT_DECIMAL64) &&	\
     !defined(__clang__)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal64, decimal64,
-	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
-	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
-	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
+	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	(_Decimal64)shim_sin, (_Decimal64)shim_cos)
 #endif
 #if defined(HAVE_FLOAT_DECIMAL128) &&	\
     !defined(__clang__)
 stress_cpu_int_fp(__uint128_t, 128, _Decimal128, decimal128,
-	_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
-	_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
-	_UINT128(C1, C1), _UINT128(C2, C2), _UINT128(C3, C3),
+	STRESS_UINT128(0x132af604d8b9183a,0x5e3af8fa7a663d74),
+	STRESS_UINT128(0x0062f086e6160e4e,0x0d84c9f800365858),
+	STRESS_UINT128(C1, C1), STRESS_UINT128(C2, C2), STRESS_UINT128(C3, C3),
 	(_Decimal128)shim_sinl, (_Decimal128)shim_cosl)
 #endif
 #endif
@@ -2392,7 +2392,7 @@ static void TARGET_CLONES stress_cpu_div128(const char *name)
 {
 	register __uint128_t i = 50000, j = 0;
 	const uint64_t delta64 = 0xffffffffffffffffULL;
-	const __uint128_t delta = _UINT128(delta64, delta64) / 224;
+	const __uint128_t delta = STRESS_UINT128(delta64, delta64) / 224;
 	__uint128_t sum = 0;
 
 	(void)name;
