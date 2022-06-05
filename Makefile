@@ -59,6 +59,10 @@ PRE_V=
 PRE_Q=@#
 endif
 
+ifeq ($(findstring clang,$(CC)),clang)
+CFLAGS += -Weverything
+endif
+
 GREP = grep
 #
 # SunOS requires special grep for -e support
@@ -490,7 +494,7 @@ stress-io-uring.c: io-uring.h
 core-perf.o: core-perf.c core-perf-event.c
 	$(PRE_V)$(CC) $(CFLAGS) -E core-perf-event.c | $(GREP) "PERF_COUNT" | \
 	sed 's/,/ /' | sed s/'^ *//' | \
-	awk {'print "#define _SNG_" $$1 " (1)"'} > core-perf-event.h
+	awk {'print "#define STRESS_" $$1 " (1)"'} > core-perf-event.h
 	$(PRE_Q)echo CC $<
 	$(PRE_V)$(CC) $(CFLAGS) -c -o $@ $<
 

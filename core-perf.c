@@ -85,7 +85,7 @@ typedef struct {
 	  ((PERF_COUNT_HW_CACHE_RESULT_ ## result_id) << 16),	\
 	  NULL, label }
 
-#define STRESS_PERF_DEFINED(x) _SNG_PERF_COUNT_ ## x
+#define STRESS_PERF_DEFINED(x) STRESS_PERF_COUNT_ ## x
 
 
 /*
