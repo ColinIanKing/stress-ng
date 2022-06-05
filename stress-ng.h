@@ -1045,7 +1045,7 @@ typedef struct {
 	struct {
 		uint32_t ready;				/* incremented when rawsock stressor is ready */
 	} rawsock;
-	stress_stats_t stats[0];			/* Shared statistics */
+	stress_stats_t stats[];				/* Shared statistics */
 } stress_shared_t;
 
 /* Stress test classes */
