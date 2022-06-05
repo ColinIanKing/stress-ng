@@ -395,8 +395,9 @@ static void *stress_madvise_pages(void *arg)
 
 static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
 {
-	int pidfd, ret;
+	int pidfd;
 	struct iovec vec;
+	ssize_t ret;
 
 	(void)pid;
 
@@ -420,7 +421,7 @@ static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
 
 #if defined(MADV_PAGEOUT)
 		/* exercise invalid flags */
-		ret = shim_process_madvise(pidfd, &vec, 1, MADV_PAGEOUT, ~0);
+		ret = shim_process_madvise(pidfd, &vec, 1, MADV_PAGEOUT, ~0U);
 		(void)ret;
 #endif
 
@@ -607,7 +608,7 @@ static int stress_madvise(const stress_args_t *args)
 			val = stress_mwc8();
 
 			for (n = 0; n < sz; n += page_size) {
-				register uint8_t v = val + n;
+				register uint8_t v = (uint8_t)(val + n);
 
 				buf[n] = v;
 			}
@@ -619,7 +620,7 @@ static int stress_madvise(const stress_args_t *args)
 				goto madv_free_out;
 
 			for (n = 0; n < sz; n += page_size) {
-				register uint8_t v = val + n;
+				register uint8_t v = (uint8_t)(val + n);
 
 				if (buf[n] != v)
 					madv_frees_raced++;
