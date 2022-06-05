@@ -61,9 +61,9 @@ static const stress_help_t help[] = {
 
 static stress_clone_list_t clones;
 
-static int flag_count;
+static size_t flag_count;
 static int *flag_perms;
-static const int all_flags =
+static const unsigned int all_flags =
 #if defined(CLONE_FS)
 	CLONE_FS |
 #endif
@@ -379,7 +379,7 @@ static int clone_func(void *arg)
 			/* Exercise invalid size */
 			(void)shim_modify_ldt(1, &ud, 1);
 			/* Exercise invalid entries */
-			ud.entry_number = ~0;
+			ud.entry_number = ~0U;
 			(void)shim_modify_ldt(1, &ud, sizeof(ud));
 		}
 
@@ -530,7 +530,7 @@ static int stress_clone(const stress_args_t *args)
 {
 	int rc;
 
-	flag_count = stress_flag_permutation(all_flags, &flag_perms);
+	flag_count = stress_flag_permutation((int)all_flags, &flag_perms);
 
 	stress_set_oom_adjustment(args->name, false);
 
