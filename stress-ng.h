@@ -959,7 +959,6 @@ typedef struct {
 /* Per stressor statistics and accounting info */
 typedef struct {
 	uint64_t counter;		/* number of bogo ops */
-	bool counter_ready;		/* counter can be read */
 	double start;			/* wall clock start time */
 	double finish;			/* wall clock stop time */
 #if defined(STRESS_PERF_STATS)
@@ -968,7 +967,6 @@ typedef struct {
 #if defined(STRESS_THERMAL_ZONES)
 	stress_tz_t tz;			/* thermal zones */
 #endif
-	bool run_ok;			/* true if stressor exited OK */
 	stress_checksum_t *checksum;	/* pointer to checksum data */
 	stress_misc_stats_t misc_stats[STRESS_MISC_STATS_MAX];
 #if defined(HAVE_GETRUSAGE)
@@ -977,6 +975,8 @@ typedef struct {
 #else
 	struct tms tms;			/* run time stats of process */
 #endif
+	bool counter_ready;		/* counter can be read */
+	bool run_ok;			/* true if stressor exited OK */
 } stress_stats_t;
 
 #define	STRESS_WARN_HASH_MAX		(128)
