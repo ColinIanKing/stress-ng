@@ -78,7 +78,7 @@ static dev_ioctl_info_t *stress_bad_ioctl_dev_new(
 		return NULL;
 	}
 	node->ignore = false;
-	node->ioctl_state = ~0;
+	node->ioctl_state = (uint16_t)~0;
 
 	*head = node;
 	return node;
