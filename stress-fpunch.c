@@ -119,7 +119,7 @@ static void stress_punch_action(
 		(void)stress_punch_pwrite(args, fd, buf_before, size, offset);
 	if (!keep_stressing(args))
 		return;
-	(void)shim_fallocate(fd, mode->mode, offset, size);
+	(void)shim_fallocate(fd, mode->mode, offset, (off_t)size);
 	if (!keep_stressing(args))
 		return;
 
@@ -204,6 +204,7 @@ static int stress_fpunch(const stress_args_t *args)
 	size_t i, extents, n;
 	char buf_before[BUF_SIZE], buf_after[BUF_SIZE];
 	const size_t stride = sizeof(buf_before) << 1;
+	const size_t max_punches = (size_t)(punch_length / (off_t)stride);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -230,12 +231,12 @@ static int stress_fpunch(const stress_args_t *args)
 	 */
 	offset = punch_length;
 	n = 0;
-	for (i = 0; keep_stressing(args) && (i < punch_length / stride); i++) {
+	for (i = 0; keep_stressing(args) && (i < max_punches); i++) {
 		ssize_t r;
 
 		offset -= stride;
 		r = stress_punch_pwrite(args, fd, buf_before, sizeof(buf_before), offset);
-		n += (r > 0) ? r : 0;
+		n += (r > 0) ? (size_t)r : 0;
 	}
 
 	if (!keep_stressing(args))
