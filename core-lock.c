@@ -383,7 +383,7 @@ void *stress_lock_create(void)
 	int ret;
 
 	errno = ENOMEM;
-	if (LOCK_METHOD_ALL == 0)
+	if (LOCK_METHOD_ALL == (0))
 		goto no_locks;
 
 	lock = (stress_lock_t *)mmap(NULL, sizeof(*lock), PROT_READ | PROT_WRITE,
