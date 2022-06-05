@@ -88,7 +88,7 @@ static void stress_itimer_set(struct itimerval *timer)
 		rate = rate_us;
 	}
 
-	timer->it_value.tv_sec = (time_t)rate * ONE_MILLIONTH;
+	timer->it_value.tv_sec = (time_t)(rate * ONE_MILLIONTH);
 	timer->it_value.tv_usec = (suseconds_t)rate % 1000000;
 	if (timer->it_value.tv_sec == 0 &&
 	    timer->it_value.tv_usec < 1)
