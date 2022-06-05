@@ -1072,7 +1072,7 @@ static void stress_dev_blk(
 		ret = ioctl(fd, BLKROGET, &ro);
 #if defined(BLKROSET)
 		if (ret == 0)
-			ret = ioctl(BLKROSET, ro);
+			ret = ioctl(fd, BLKROSET, &ro);
 #endif
 		(void)ret;
 	}
