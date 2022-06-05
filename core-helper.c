@@ -1426,7 +1426,7 @@ bool stress_is_prime64(const uint64_t n)
 uint64_t stress_get_prime64(const uint64_t n)
 {
 	static uint64_t p = 1009;
-	uint64_t odd_n = (n & ~1) + 1;
+	uint64_t odd_n = (n & ~1UL) + 1;
 
 	if (p < odd_n)
 		p = odd_n;
@@ -1485,7 +1485,7 @@ static inline size_t stress_get_open_count(void)
 
 	dir = opendir("/proc/self/fd");
 	if (!dir)
-		return -1;
+		return (size_t)-1;
 
 	while ((d = readdir(dir)) != NULL) {
 		if (isdigit((int)d->d_name[0]))
@@ -2585,7 +2585,7 @@ static inline long stress_min_aux_sig_stack_size(void)
 #if defined(HAVE_SYS_AUXV_H) && \
     defined(HAVE_GETAUXVAL) &&	\
     defined(AT_MINSIGSTKSZ)
-	long sz = getauxval(AT_MINSIGSTKSZ);
+	long sz = (long)getauxval(AT_MINSIGSTKSZ);
 
 	if (sz > 0)
 		return sz;
@@ -2606,7 +2606,7 @@ size_t stress_sig_stack_size(void)
 
 	/* return cached copy */
 	if (sz > 0)
-		return sz;
+		return (size_t)sz;
 
 	min = stress_min_aux_sig_stack_size();
 #if defined(_SC_SIGSTKSZ)
@@ -2637,7 +2637,7 @@ size_t stress_min_sig_stack_size(void)
 
 	/* return cached copy */
 	if (sz > 0)
-		return sz;
+		return (size_t)sz;
 
 	min = stress_min_aux_sig_stack_size();
 #if defined(_SC_MINSIGSTKSZ)
@@ -2668,7 +2668,7 @@ size_t stress_min_pthread_stack_size(void)
 
 	/* return cached copy */
 	if (sz > 0)
-		return sz;
+		return (size_t)sz;
 
 	min = stress_min_aux_sig_stack_size();
 #if defined(__SC_THREAD_STACK_MIN_VALUE)
@@ -2832,14 +2832,14 @@ void stress_clear_warn_once(void)
  */
 size_t stress_flag_permutation(const int flags, int **permutations)
 {
-	unsigned int flag_bits = (unsigned int)flags;
+	unsigned int flag_bits;
 	unsigned int n_bits;
 	register unsigned int j, n_flags;
 	int *perms;
 
 	*permutations = NULL;
 
-	for (n_bits = 0, flag_bits = flags; flag_bits; flag_bits >>= 1U)
+	for (n_bits = 0, flag_bits = (unsigned int)flags; flag_bits; flag_bits >>= 1U)
 		n_bits += (flag_bits & 1U);
 
 	n_flags = 1U << n_bits;
@@ -2851,10 +2851,11 @@ size_t stress_flag_permutation(const int flags, int **permutations)
 	 *  Generate all the possible flag settings in order
 	 */
 	for (j = 0; j < n_flags; j++) {
-		register int i, j_mask = 1;
+		register int i;
+		register unsigned int j_mask = 1U;
 
 		for (i = 0; i < 32; i++) {
-			const int i_mask = 1U << i;
+			const int i_mask = (int)(1U << i);
 
 			if (flags & i_mask) {
 				if (j & j_mask)
