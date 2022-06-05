@@ -186,7 +186,7 @@ static int stress_landlock_flag(const stress_args_t *args, void *ctxt)
 
 	/* Exercise illegal flags */
 	ret = shim_landlock_add_rule(ruleset_fd, LANDLOCK_RULE_PATH_BENEATH,
-		&path_beneath, ~0);
+		&path_beneath, ~0U);
 	(void)ret;
 	/* Exercise illegal rule type */
 	ret = shim_landlock_add_rule(ruleset_fd, (enum landlock_rule_type)~0,
@@ -320,7 +320,7 @@ static int stress_landlock(const stress_args_t *args)
 
 		/* Exercise with a mix of valid and invalid flags */
 		for (i = 0; i < SIZEOF_ARRAY(landlock_access_flags); i++) {
-			uint32_t flag = landlock_access_flags[i];
+			uint32_t flag = (uint32_t)landlock_access_flags[i];
 
 			flags |= flag;
 			stress_landlock_test(args, stress_landlock_flag, &flag, &failures);
