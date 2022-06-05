@@ -145,7 +145,7 @@
 #if defined(HAVE_CCOS)
 #define	shim_ccos(x)	ccos(x)
 #else
-#define	shim_ccos(x)	shim_cos(x)
+#define	shim_ccos(x)	shim_cos((double)x)
 #endif
 #endif
 
@@ -207,7 +207,7 @@
 #if defined(HAVE_CSIN)
 #define	shim_csin(x)	csin(x)
 #else
-#define	shim_csin(x)	shim_sin(x)
+#define	shim_csin(x)	shim_sin((double)x)
 #endif
 #endif
 
