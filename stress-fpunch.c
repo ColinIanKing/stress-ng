@@ -57,7 +57,7 @@ static const stress_fallocate_modes_t modes[] = {
 #endif
 };
 
-static void MLOCKED_TEXT stress_fpunch_child_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_fpunch_child_handler(int signum)
 {
 	(void)signum;
 
