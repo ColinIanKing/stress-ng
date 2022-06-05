@@ -130,7 +130,7 @@ again:
 		(void)waitpid(pid, &status, 0);
 
 		if (verify && WIFEXITED(status)) {
-			const int err_mask = WEXITSTATUS(status);
+			const unsigned int err_mask = (unsigned int)WEXITSTATUS(status);
 
 			if (err_mask & STRESS_SLEEP_MASK) {
 				pr_fail("%s: failed on tests: %s%s%s%s%s\n",
