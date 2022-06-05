@@ -796,7 +796,7 @@ static int stress_hdd(const stress_args_t *args)
 
 			for (i = 0; i < hdd_bytes; i += hdd_write_size) {
 				size_t j;
-				size_t offset = ((i == 0) ?
+				uint64_t offset = ((i == 0) ?
 					hdd_bytes :
 					(stress_mwc64() % hdd_bytes)) & ~511UL;
 rnd_wr_retry:
@@ -809,7 +809,7 @@ rnd_wr_retry:
 					buf[j] = data_value(offset, j, args);
 				}
 
-				ret = stress_hdd_write(fd, buf, offset,
+				ret = stress_hdd_write(fd, buf, (off_t)offset,
 					hdd_write_size, hdd_flags);
 				if (ret <= 0) {
 					if ((errno == EAGAIN) || (errno == EINTR))
