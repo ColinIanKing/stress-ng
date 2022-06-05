@@ -24,10 +24,10 @@
 typedef struct {
 	volatile uint32_t cpu;		/* Pinned CPU to use, in pin mode */
 	uint32_t cpus;			/* Number of CPUs available */
-	bool	 affinity_rand;		/* True if --affinity-rand set */
-	bool	 affinity_pin;		/* True if --affinity-pin set */
 	uint64_t affinity_delay;	/* Affinity nanosecond delay, 0 default */
 	uint64_t affinity_sleep;	/* Affinity nanosecond delay, 0 default */
+	bool	 affinity_rand;		/* True if --affinity-rand set */
+	bool	 affinity_pin;		/* True if --affinity-pin set */
 } stress_affinity_info_t;
 
 static const stress_help_t help[] = {
