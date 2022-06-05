@@ -49,7 +49,7 @@ static uint64_t stress_dirmany_create(
 	const char *path,
 	const off_t dirmany_bytes,
 	const double t_start,
-	const double i_start,
+	const uint64_t i_start,
 	double *create_time)
 {
 	const double t_now = stress_time_now();
