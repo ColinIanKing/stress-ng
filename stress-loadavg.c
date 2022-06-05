@@ -113,7 +113,7 @@ static void *stress_loadavg_func(void *arg)
 	const int fd = *(int *)pargs->data;
 	char buf[1];
 
-	buf[0] = stress_mwc8();
+	buf[0] = (char)stress_mwc8();
 #endif
 	double t_end = stress_time_now() + (double)g_opt_timeout;
 
@@ -149,7 +149,7 @@ static int stress_loadavg(const stress_args_t *args)
 {
 	uint64_t i, j, pthread_max;
 	const uint64_t threads_max = stress_loadavg_threads_max();
-	const int32_t instances = (args->num_instances > 1 ?
+	const uint32_t instances = (args->num_instances > 1 ?
 				   args->num_instances : 1);
 	int ret;
 #if defined(LOADAVG_IO)
