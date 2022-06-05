@@ -128,7 +128,7 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 	(void)ret;
 
 	/* invalid flags in statx */
-	ret = shim_statx(AT_EMPTY_PATH, si->path, AT_SYMLINK_NOFOLLOW, ~0, &bufx);
+	ret = shim_statx(AT_EMPTY_PATH, si->path, AT_SYMLINK_NOFOLLOW, ~0U, &bufx);
 	(void)ret;
 #else
 	UNEXPECTED
