@@ -21,14 +21,14 @@
 #include "core-cache.h"
 #include "core-put.h"
 
-#define FLAGS_CACHE_PREFETCH	(0x0001)
-#define FLAGS_CACHE_CLFLUSH	(0x0002)
-#define FLAGS_CACHE_FENCE	(0x0004)
-#define FLAGS_CACHE_SFENCE	(0x0008)
-#define FLAGS_CACHE_CLFLUSHOPT	(0x0010)
-#define FLAGS_CACHE_CLDEMOTE	(0x0020)
-#define FLAGS_CACHE_CLWB	(0x0040)
-#define FLAGS_CACHE_NOAFF	(0x8000)
+#define FLAGS_CACHE_PREFETCH	(0x0001U)
+#define FLAGS_CACHE_CLFLUSH	(0x0002U)
+#define FLAGS_CACHE_FENCE	(0x0004U)
+#define FLAGS_CACHE_SFENCE	(0x0008U)
+#define FLAGS_CACHE_CLFLUSHOPT	(0x0010U)
+#define FLAGS_CACHE_CLDEMOTE	(0x0020U)
+#define FLAGS_CACHE_CLWB	(0x0040U)
+#define FLAGS_CACHE_NOAFF	(0x8000U)
 
 typedef void (*cache_write_func_t)(uint64_t inc, const uint64_t r, uint64_t *pi, uint64_t *pk);
 typedef void (*cache_write_page_func_t)(uint8_t *const addr, const uint64_t size);
@@ -703,7 +703,7 @@ static int stress_cache(const stress_args_t *args)
 
 #if defined(HAVE_ASM_X86_CLFLUSH)
 	if (!stress_cpu_x86_has_clfsh() && (cache_flags & FLAGS_CACHE_CLFLUSH)) {
-		cache_flags &= ~FLAGS_CACHE_CLFLUSH;
+		cache_flags &= (uint32_t)~FLAGS_CACHE_CLFLUSH;
 		if (args->instance == 0) {
 			pr_inf("%s: clflush is not available, ignoring this option\n",
 				args->name);
@@ -843,7 +843,7 @@ static int stress_cache(const stress_args_t *args)
 				break;
 
 			if (!jmpret)
-				stress_cache_flush(mem_cache, bad_addr, args->page_size);
+				stress_cache_flush(mem_cache, bad_addr, (int)args->page_size);
 		}
 		inc_counter(args);
 
