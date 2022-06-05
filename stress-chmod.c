@@ -29,8 +29,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-static int mode_count;
-static int *mode_perms;
 
 static const mode_t modes[] = {
 #if defined(S_ISUID)
@@ -139,7 +137,7 @@ static int do_chmod(
 	const size_t i,
 	const mode_t mask,
 	const mode_t all_mask,
-	const int mode_count,
+	const size_t mode_count,
 	const int *mode_perms)
 {
 	int ret;
@@ -201,6 +199,8 @@ static int stress_chmod(const stress_args_t *args)
 	mode_t all_mask = 0;
 	char filename[PATH_MAX], pathname[PATH_MAX], longpath[PATH_MAX + 16];
 	char tmp[PATH_MAX], *filebase;
+	int *mode_perms;
+	size_t mode_count;
 
 	for (i = 0; modes[i]; i++)
 		all_mask |= modes[i];
