@@ -32,7 +32,6 @@ static const stress_help_t help[] = {
     defined(F_UNLCK)
 
 #define LOCK_FILE_SIZE	(1024 * 1024)
-#define LOCK_SIZE	(8)
 #define LOCK_MAX	(1024)
 
 typedef struct stress_lockofd_info {
