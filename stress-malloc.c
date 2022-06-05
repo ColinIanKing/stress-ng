@@ -214,7 +214,7 @@ static void *stress_malloc_loop(void *ptr)
 			if (action) {
 				if (verify && (uintptr_t)addr[i] != *addr[i]) {
 					pr_fail("%s: allocation at %p does not contain correct value\n",
-						args->name, addr[i]);
+						args->name, (void *)addr[i]);
 				}
 				free(addr[i]);
 				addr[i] = NULL;
@@ -231,7 +231,7 @@ static void *stress_malloc_loop(void *ptr)
 					stress_malloc_page_touch((void *)addr[i], len, page_size);
 					if (verify && (uintptr_t)addr[i] != *addr[i]) {
 						pr_fail("%s: allocation at %p does not contain correct value\n",
-							args->name, addr[i]);
+							args->name, (void *)addr[i]);
 					}
 					stress_lock_acquire(counter_lock);
 					inc_counter(args);
@@ -268,7 +268,7 @@ static void *stress_malloc_loop(void *ptr)
 	for (j = 0; j < malloc_max; j++) {
 		if (verify && addr[j] && (uintptr_t)addr[j] != *addr[j]) {
 			pr_fail("%s: allocation at %p does not contain correct value\n",
-				args->name, addr[j]);
+				args->name, (void *)addr[j]);
 		}
 		free(addr[j]);
 	}
