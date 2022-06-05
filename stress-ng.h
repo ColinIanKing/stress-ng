@@ -3179,7 +3179,7 @@ extern int shim_pidfd_getfd(int pidfd, int targetfd, unsigned int flags);
 extern int shim_pidfd_open(pid_t pid, unsigned int flags);
 extern int shim_pidfd_send_signal(int pidfd, int sig, siginfo_t *info,
 	unsigned int flags);
-extern int shim_pkey_alloc(unsigned long flags, unsigned long access_rights);
+extern int shim_pkey_alloc(unsigned int flags, unsigned int access_rights);
 extern int shim_pkey_free(int pkey);
 extern int shim_pkey_mprotect(void *addr, size_t len, int prot, int pkey);
 extern int shim_pkey_get(int pkey);
@@ -3205,7 +3205,7 @@ extern int shim_sched_yield(void);
 extern int shim_set_mempolicy(int mode, unsigned long *nodemask,
 	unsigned long maxnode);
 extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
-extern int shim_statx(int dfd, const char *filename, unsigned int flags,
+extern int shim_statx(int dfd, const char *filename, int flags,
 	unsigned int mask, shim_statx_t *buffer);
 extern int shim_setxattr(const char *path, const char *name, const void *value,
 	size_t size, int flags);
