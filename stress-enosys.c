@@ -58,7 +58,7 @@ static const stress_help_t help[] = {
 
 typedef struct hash_syscall {
 	struct hash_syscall *next;
-	unsigned long	number;
+	long	number;
 } stress_hash_syscall_t;
 
 static stress_hash_syscall_t *hash_syscall_table[HASH_SYSCALL_SIZE];
@@ -82,28 +82,27 @@ static inline long x86_64_syscall6(
 	stress_call_type = CALL_BY_X86_SYSCALL;
 
 	{
-		unsigned long _arg1 = arg1;
-		unsigned long _arg2 = arg2;
-		unsigned long _arg3 = arg3;
-		unsigned long _arg4 = arg4;
-		unsigned long _arg5 = arg5;
-		unsigned long _arg6 = arg6;
+		long tmp_arg1 = arg1;
+		long tmp_arg2 = arg2;
+		long tmp_arg3 = arg3;
+		long tmp_arg4 = arg4;
+		long tmp_arg5 = arg5;
+		long tmp_arg6 = arg6;
 
-		register long __arg1 __asm__ ("rdi") = _arg1;
-		register long __arg2 __asm__ ("rsi") = _arg2;
-		register long __arg3 __asm__ ("rdx") = _arg3;
-		register long __arg4 __asm__ ("r10") = _arg4;
-		register long __arg5 __asm__ ("r8") = _arg5;
-		register long __arg6 __asm__ ("r9") = _arg6;
+		register long asm_arg1 __asm__ ("rdi") = tmp_arg1;
+		register long asm_arg2 __asm__ ("rsi") = tmp_arg2;
+		register long asm_arg3 __asm__ ("rdx") = tmp_arg3;
+		register long asm_arg4 __asm__ ("r10") = tmp_arg4;
+		register long asm_arg5 __asm__ ("r8")  = tmp_arg5;
+		register long asm_arg6 __asm__ ("r9")  = tmp_arg6;
 
-
-		asm volatile ("syscall\n\t"
+		__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
-			: "0" (number), "r" (__arg1), "r" (__arg2), "r" (__arg3),
-			  "r" (__arg4), "r" (__arg5), "r" (__arg6)
+			: "0" (number), "r" (asm_arg1), "r" (asm_arg2), "r" (asm_arg3),
+			  "r" (asm_arg4), "r" (asm_arg5), "r" (asm_arg6)
 			: "memory", "cc", "r11", "cx");
 		if (ret < 0) {
-			errno = -ret;
+			errno = -(int)ret;
 			ret = -1;
 		}
 	}
@@ -121,7 +120,7 @@ static inline int x86_0x80_syscall6(
 
 	stress_call_type = CALL_BY_X86_INT80;
 
-	asm (
+	__asm__ __volatile__(
 	     "movl %6, %%eax\n"
 	     "movl %%eax, %%ebp\n"
 	     "movl %0, %%eax\n"
@@ -227,7 +226,7 @@ try_x86_syscall:
 			goto try_x86_0x80;
 		}
 		if (stress_x86syscall_available && x86_syscall_ok) {
-			ret = x86_64_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
+			ret = (int)x86_64_syscall6(number, arg1, arg2, arg3, arg4, arg5, arg6);
 			exit_if_child(pid);
 			if ((ret < 0) && (errno != ENOSYS))
 				enosys = true;
@@ -316,7 +315,7 @@ static const int syscall_ignore[] = {
 #endif
 };
 
-static inline bool HOT OPTIMIZE3 syscall_find(unsigned long number)
+static inline bool HOT OPTIMIZE3 syscall_find(long number)
 {
 	register stress_hash_syscall_t *h;
 	register int i;
@@ -337,7 +336,7 @@ static inline bool HOT OPTIMIZE3 syscall_find(unsigned long number)
 	return false;
 }
 
-static inline void HOT OPTIMIZE3 syscall_add(const unsigned long number)
+static inline void HOT OPTIMIZE3 syscall_add(const long number)
 {
 	const long hash = number % HASH_SYSCALL_SIZE;
 	stress_hash_syscall_t *newh, *h = hash_syscall_table[hash];
@@ -3501,7 +3500,7 @@ static void NORETURN MLOCKED_TEXT stress_sigill_handler(int signum)
  */
 static inline int stress_do_syscall(
 	const stress_args_t *args,
-	const unsigned long number,
+	const long number,
 	const bool random)
 {
 	pid_t pid;
@@ -3675,7 +3674,7 @@ again:
 			syscall_add(skip_syscalls[j]);
 
 		do {
-			unsigned long number;
+			long number;
 
 			/* Low sequential syscalls */
 			for (number = 0; number < MAX_SYSCALL + 1024; number++) {
