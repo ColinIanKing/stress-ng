@@ -29,7 +29,7 @@ int main(void)
 	uint32_t ret;
 #endif
 
-	asm volatile("1:;\n\
+	__asm__ __volatile__("1:;\n\
 		     rdseed %0;\n\
 		     jnc 1b;\n":"=r"(ret));
 	return 0;

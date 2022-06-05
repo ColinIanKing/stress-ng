@@ -27,7 +27,7 @@ static inline unsigned long rand64(void)
 	unsigned long val;
 
 	/* Unconditioned raw deliver a raw number */
-	asm volatile("darn %0, 0\n" : "=r"(val) :);
+	__asm__ __volatile__("darn %0, 0\n" : "=r"(val) :);
 	return val;
 }
 

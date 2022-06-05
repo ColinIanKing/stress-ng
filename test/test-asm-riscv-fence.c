@@ -21,7 +21,7 @@
     defined(__riscv__)
 int main(void)
 {
-	asm volatile ("fence" ::: "memory");
+	__asm__ __volatile__("fence" ::: "memory");
 
 	return 0;
 }

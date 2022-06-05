@@ -837,7 +837,7 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 static inline void ALWAYS_INLINE shim_mb(void)
 {
 #if defined(HAVE_ASM_MB)
-	asm volatile ("" ::: "memory");
+	__asm__ __volatile__("" ::: "memory");
 #endif
 }
 

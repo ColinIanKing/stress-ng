@@ -19,7 +19,7 @@
 
 static inline void clflush(void *ptr)
 {
-	asm volatile("clflush (%0)\n" : : "r"(ptr) : "memory");
+	__asm__ __volatile__("clflush (%0)\n" : : "r"(ptr) : "memory");
 }
 
 int main(int argc, char **argv)

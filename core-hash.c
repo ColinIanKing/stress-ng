@@ -280,7 +280,7 @@ static const uint32_t ALIGN64 crc32c_table[256] = {
  */
 uint32_t HOT OPTIMIZE3 stress_hash_crc32c(const char *str)
 {
-	register uint32_t crc = ~0;
+	register uint32_t crc = ~0U;
 	register uint8_t val;
 	register const uint8_t *ptr = (const uint8_t *)str;
 
@@ -302,7 +302,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_adler32(const char *str, const size_t len)
 	(void)len;
 
 	while (*str) {
-		a = (a + *str++) % mod;
+		a = (a + (uint8_t)*str++) % mod;
 		b = (b + a) % mod;
 	}
 	return (b << 16) | a;
@@ -314,11 +314,11 @@ uint32_t HOT OPTIMIZE3 stress_hash_adler32(const char *str, const size_t len)
  */
 uint32_t HOT OPTIMIZE3 stress_hash_muladd32(const char *str, const size_t len)
 {
-	register uint32_t prod = len;
+	register uint32_t prod = (uint32_t)len;
 
 	while (*str) {
 		register uint32_t top = (prod >> 24);
-		prod *= *str++;
+		prod *= (uint8_t)*str++;
 		prod += top;
 	}
 	return prod;
@@ -334,10 +334,10 @@ uint32_t HOT OPTIMIZE3 stress_hash_muladd64(const char *str, const size_t len)
 
 	while (*str) {
 		register uint64_t top = (prod >> 56);
-		prod *= *str++;
+		prod *= (uint8_t)*str++;
 		prod += top;
 	}
-	return (prod >> 32) ^ prod;
+	return (uint32_t)((prod >> 32) ^ prod);
 }
 
 /*
@@ -350,7 +350,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_kandr(const char *str)
 	register uint32_t hash;
 
 	for (hash = 0; *str; str++)
-		hash = *str + 31 * hash;
+		hash = (uint8_t)*str + 31 * hash;
 
 	return hash;
 }
@@ -370,7 +370,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_coffin(const char *str)
 	register uint32_t result = 0x55555555;
 
 	while (*str) {
-		result ^= *str++;
+		result ^= (uint8_t)*str++;
 		result = hash_rol_uint32(result, 5);
 	}
 	return result;
@@ -462,7 +462,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_loselose(const char *str)
 	register uint32_t hash;
 
 	for (hash = 0; *str; str++) {
-		hash += *str;
+		hash += (uint8_t)*str;
 	}
 
 	return hash;
@@ -478,7 +478,7 @@ uint32_t HOT OPTIMIZE3 stress_hash_knuth(const char *str, const size_t len)
 	register uint32_t hash = (uint32_t)len;
 
 	while (*str) {
-		hash = ((hash << 5) ^ (hash >> 27)) ^ (*str++);
+		hash = ((hash << 5) ^ (hash >> 27)) ^ ((uint8_t)*str++);
 	}
 
 	return hash;
@@ -508,18 +508,19 @@ uint32_t HOT OPTIMIZE3 stress_hash_x17(const char *str)
  */
 uint32_t HOT OPTIMIZE3 stress_hash_mid5(const char *str, const size_t len)
 {
+	const uint8_t *ustr = (const uint8_t *)str;
 	switch (len) {
 	default:
-		str += (len - 5) / 2;
-		return len ^ (str[0] ^ (str[1] << 6) ^ (str[2] << 12) ^ (str[3] << 18) ^ (str[4] << 24));
+		ustr += (len - 5) / 2;
+		return (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6) ^ (ustr[2] << 12) ^ (ustr[3] << 18) ^ (ustr[4] << 24));
 	case 4:
-		return len ^ (str[0] ^ (str[1] << 6) ^ (str[2] << 12) ^ (str[3] << 18));
+		return (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6) ^ (ustr[2] << 12) ^ (ustr[3] << 18));
 	case 3:
-		return len ^ (str[0] ^ (str[1] << 6) ^ (str[2] << 12));
+		return (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6) ^ (ustr[2] << 12));
 	case 2:
-		return len ^ (str[0] ^ (str[1] << 6));
+		return (uint32_t)len ^ (uint32_t)(ustr[0] ^ (ustr[1] << 6));
 	case 1:
-		return len ^ str[0];
+		return (uint32_t)len ^ ustr[0];
 	}
 	return 0;
 }
@@ -549,10 +550,10 @@ uint32_t HOT OPTIMIZE3 stress_hash_mulxror64(const char *str, const size_t len)
 		hash ^= hash_ror_uint64(hash, 40);
 	}
 	for (i = len & 7; i; i--) {
-		hash *= *str++;
+		hash *= (uint8_t)*str++;
 		hash ^= hash_ror_uint64(hash, 5);
 	}
-	return (hash >> 32) ^ hash;
+	return (uint32_t)((hash >> 32) ^ hash);
 }
 
 /*

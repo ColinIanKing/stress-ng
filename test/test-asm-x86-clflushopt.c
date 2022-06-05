@@ -19,7 +19,7 @@
 
 static inline void clflushopt(void *p)
 {
-	asm volatile("clflushopt (%0)\n" : : "r"(p) : "memory");
+	__asm__ __volatile__("clflushopt (%0)\n" : : "r"(p) : "memory");
 }
 
 int main(int argc, char **argv)

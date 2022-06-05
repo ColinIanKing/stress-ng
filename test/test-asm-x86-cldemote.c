@@ -19,7 +19,7 @@
 
 static inline void cldemote(void *p)
 {
-	asm volatile("cldemote (%0)\n" : : "r"(p) : "memory");
+	__asm__ __volatile__("cldemote (%0)\n" : : "r"(p) : "memory");
 }
 
 int main(int argc, char **argv)
