@@ -324,7 +324,7 @@ static int test_fanotify_mark(const char *name, char *mounts[])
  *  fanotify_event_init()
  *	initialize fanotify
  */
-static int fanotify_event_init(const char *name, char *mounts[], const int flags)
+static int fanotify_event_init(const char *name, char *mounts[], const unsigned int flags)
 {
 	int fan_fd, count = 0, i;
 
