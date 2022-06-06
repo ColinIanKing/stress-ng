@@ -110,7 +110,7 @@ static inline long x86_64_syscall0(const long number)
 			: "0" (number)
 			: "memory", "cc", "r11", "cx");
 	if (ret < 0) {
-		errno = -ret;
+		errno = (int)-ret;
 		ret = -1;
 	}
 	return ret;
@@ -241,7 +241,7 @@ static int stress_usersyscall(const stress_args_t *args)
 		}
 		/*  Expect ENOSYS for the system call return */
 		errno = 0;
-		ret = syscall(USR_SYSCALL);
+		ret = (int)syscall(USR_SYSCALL);
 		(void)ret;
 		if (errno != ENOSYS) {
 			pr_fail("%s: didn't get ENOSYS on user syscall, errno=%d (%s)\n",
@@ -254,7 +254,7 @@ static int stress_usersyscall(const stress_args_t *args)
 		 */
 		(void)memset(&siginfo, 0, sizeof(siginfo));
 		dispatcher_on();
-		ret = syscall(USR_SYSCALL);
+		ret = (int)syscall(USR_SYSCALL);
 		dispatcher_off();
 		/*  Should return USR_SYSCALL */
 		if (ret != USR_SYSCALL) {
@@ -306,7 +306,7 @@ static int stress_usersyscall(const stress_args_t *args)
 			 */
 			errno = 0;
 			dispatcher_on();
-			ret_libc = syscall(__NR_getpid);
+			ret_libc = (int)syscall(__NR_getpid);
 			dispatcher_off();
 
 			/*
@@ -314,7 +314,7 @@ static int stress_usersyscall(const stress_args_t *args)
 			 */
 			errno = 0;
 			dispatcher_on();
-			ret_not_libc = x86_64_syscall0(__NR_getpid);
+			ret_not_libc = (int)x86_64_syscall0(__NR_getpid);
 			saved_errno = errno;
 			dispatcher_off();
 
