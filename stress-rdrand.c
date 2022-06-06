@@ -339,6 +339,7 @@ static int stress_rdrand(const stress_args_t *args)
 		double time_start, duration, billion_bits;
 		bool lock = false;
 		register int i;
+		uint64_t c;
 
 		rc = stress_rdrand_sane(args);
 
@@ -357,7 +358,7 @@ static int stress_rdrand(const stress_args_t *args)
 					SEED64x32()
 					SEED64x32()
 				}
-				add_counter(args, i);
+				add_counter(args, (uint64_t)i);
 			} while (keep_stressing(args));
 		} else
 #endif
@@ -373,12 +374,13 @@ static int stress_rdrand(const stress_args_t *args)
 					RAND64x32()
 					RAND64x32()
 				}
-				add_counter(args, i);
+				add_counter(args, (uint64_t)i);
 			} while (keep_stressing(args));
 		}
 
 		duration = stress_time_now() - time_start;
-		billion_bits = ((double)get_counter(args) * 64.0 * 256.0) * ONE_BILLIONTH;
+		c = get_counter(args);
+		billion_bits = ((double)c * 64.0 * 256.0) * ONE_BILLIONTH;
 
 		pr_lock(&lock);
 		pr_dbg_lock(&lock, "%s: %.3f billion random bits read "
