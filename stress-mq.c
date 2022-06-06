@@ -124,7 +124,7 @@ static int stress_mq(const stress_args_t *args)
 
 		sysconf_ret = sysconf(_SC_MQ_PRIO_MAX);
 		if ((sysconf_ret > 0) && (sysconf_ret < (long)UINT_MAX))
-			max_prio = sysconf_ret + 1;
+			max_prio = (unsigned int)(sysconf_ret + 1);
 	}
 #endif
 
