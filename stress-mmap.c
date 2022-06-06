@@ -408,7 +408,7 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 
 	do {
 		size_t n;
-		int ret, rnd, rnd_flag;
+		int rnd, rnd_flag;
 		uint8_t *buf = NULL;
 
 #if defined(MAP_HUGETLB) ||		\
@@ -517,15 +517,15 @@ retry:
 			off_t offset = 0;
 
 			for (n = 0; n < pages4k; n++, offset += page_size) {
-				ssize_t ret;
+				ssize_t wret;
 
 				if (lseek(fd, offset, SEEK_SET) < 0)
 					continue;
 
-				ret = write(fd, mappings[n], page_size);
-				(void)ret;
-				ret = read(fd, mappings[n], page_size);
-				(void)ret;
+				wret = write(fd, mappings[n], page_size);
+				(void)wret;
+				wret = read(fd, mappings[n], page_size);
+				(void)wret;
 			}
 		}
 
