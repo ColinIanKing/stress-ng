@@ -944,7 +944,7 @@ static int stress_sock_server(
 	}
 	/* exercise invalid setsockopt lengths */
 	(void)setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, 0);
-	(void)setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, -1);
+	(void)setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, (socklen_t)-1);
 
 	/* exercise invalid setsockopt fd */
 	(void)setsockopt(-1, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr));
