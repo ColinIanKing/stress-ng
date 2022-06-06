@@ -64,7 +64,7 @@ typedef struct {
 
 typedef struct {
 	const int	flags;	/* MMAP flag */
-	const ssize_t	sz;	/* MMAP size */
+	const size_t	sz;	/* MMAP size */
 } stress_mmaphuge_setting_t;
 
 typedef struct {
