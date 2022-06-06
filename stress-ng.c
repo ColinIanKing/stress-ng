@@ -3666,7 +3666,7 @@ int main(int argc, char **argv, char **envp)
 
 	/* --exec stressor uses this to exec itself and then exit early */
 	if ((argc == 2) && !strcmp(argv[1], "--exec-exit")) {
-		ret = EXIT_FAILURE;
+		ret = EXIT_SUCCESS;
 		goto exit_temp_path_free;
 	}
 
