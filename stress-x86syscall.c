@@ -226,7 +226,7 @@ static stress_x86syscall_t x86syscalls[] = {
  *  MUST NOT be static to avoid optimizer from removing the
  *  indirect calls
  */
-stress_x86syscall_t ___dummy_x86syscalls[] = {
+stress_x86syscall_t dummy_x86syscalls[] = {
 	{ wrap_dummy,		"dummy",		true },
 };
 
@@ -339,8 +339,8 @@ static int stress_x86syscall(const stress_args_t *args)
 		int j;
 
 		for (j = 0; j < 1000000; j++) {
-			if (___dummy_x86syscalls[0].exercise) {
-				___dummy_x86syscalls[0].func();
+			if (dummy_x86syscalls[0].exercise) {
+				dummy_x86syscalls[0].func();
 				inc_counter(args);
 			}
 		}
@@ -352,7 +352,8 @@ static int stress_x86syscall(const stress_args_t *args)
 
 	dt = t2 - t1;
 	if (dt > 0.0) {
-		const double ns = ((dt * (double)STRESS_NANOSECOND) / (double)get_counter(args)) - overhead_ns;
+		const uint64_t c = get_counter(args);
+		const double ns = ((dt * (double)STRESS_NANOSECOND) / (double)c) - overhead_ns;
 
 		pr_inf("%s: %.2f nanoseconds per call (excluding %.2f nanoseconds test overhead)\n",
 			args->name, ns, overhead_ns);
