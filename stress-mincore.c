@@ -42,8 +42,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_MINCORE) &&	\
     NEED_GLIBC(2,2,0)
 
-#define VEC_MAX_SIZE 	(64)
-
 /*
  *  stress_mincore_file()
  *	create a temp file for file-back mmap'd page, return
