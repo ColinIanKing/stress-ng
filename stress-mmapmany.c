@@ -82,13 +82,13 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 			val = (uint64_t)i ^ pattern0;
 			if (*ptr != val) {
 				pr_fail("%s: failed: mapping %zd at %p was %" PRIx64 " and not %" PRIx64 "\n",
-					args->name, i, ptr, *ptr, val);
+					args->name, i, (void *)ptr, *ptr, val);
 			}
 			ptr += offset2pages;
 			val = (uint64_t)i ^ pattern1;
 			if (*ptr != val) {
 				pr_fail("%s: failed: mapping %zd at %p was %" PRIx64 " and not %" PRIx64 "\n",
-					args->name, i, ptr, *ptr, val);
+					args->name, i, (void *)ptr, *ptr, val);
 			}
 
 			(void)munmap((void *)mappings[i], page_size);
