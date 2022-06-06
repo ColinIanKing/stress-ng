@@ -104,7 +104,7 @@ static int stress_exec_which(const stress_exec_args_t *ea)
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
 	case 1:
-		ret = shim_execveat(0, ea->path, ea->argv_new, ea->env_new, AT_EMPTY_PATH);
+		ret = shim_execveat(0, ea->path, ea->argv_new, ea->env_new, 0);
 		break;
 	case 2:
 		ret = shim_execveat(ea->fdexec, "", ea->argv_new, ea->env_new, AT_EMPTY_PATH);
@@ -268,7 +268,7 @@ static int stress_exec(const stress_args_t *args)
 
 			if (pids[i] == 0) {
 				int fd_out, fd_in, fd = -1;
-				const int which = stress_mwc8() % 3;
+				int which = stress_mwc8() % 3;
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
 				int exec_garbage = stress_mwc1();
@@ -309,6 +309,8 @@ static int stress_exec(const stress_args_t *args)
 					char buffer[1024];
 					ssize_t n;
 
+					which = 0;
+
 					fd = open(filename, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IXUSR);
 					if (fd < 0) {
 						exec_garbage = 0;
@@ -336,7 +338,6 @@ static int stress_exec(const stress_args_t *args)
 				}
 do_exec:
 #endif
-
 				exec_args.path = exec_garbage ? filename : path;
 				exec_args.args = args;
 				exec_args.which = which;
@@ -351,6 +352,17 @@ do_exec:
 				rc = EXIT_SUCCESS;
 				if (ret < 0) {
 					switch (errno) {
+					case 0:
+						/* Should not happen? */
+						rc = EXIT_SUCCESS;
+						break;
+#if defined(ENOEXEC)
+					case ENOEXEC:
+						/* we expect this error if exec'ing garbage */
+						if (exec_garbage)
+							rc = EXIT_SUCCESS;
+						break;
+#endif
 					case ENOMEM:
 						CASE_FALLTHROUGH;
 					case EMFILE:
