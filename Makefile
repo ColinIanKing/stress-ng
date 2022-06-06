@@ -59,6 +59,10 @@ PRE_V=
 PRE_Q=@#
 endif
 
+ifeq ($(findstring icc,$(CC)),icc)
+CFLAGS += -no-inline-max-size -no-inline-max-total-size
+endif
+
 #ifeq ($(findstring clang,$(CC)),clang)
 #CFLAGS += -Weverything
 #endif
