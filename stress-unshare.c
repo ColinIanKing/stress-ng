@@ -132,8 +132,8 @@ static int stress_unshare(const stress_args_t *args)
 #if defined(CLONE_NEWNET)
 	const uid_t euid = geteuid();
 #endif
-	int clone_flag_count, *clone_flag_perms, all_flags;
-	size_t i;
+	int *clone_flag_perms, all_flags;
+	size_t i, clone_flag_count;
 
 	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(clone_flags); i++)
 		all_flags |= clone_flags[i];
