@@ -110,11 +110,11 @@ static int stress_swapoff(const char *path)
 		errno = 0;
 		ret = swapoff(path);
 		if (ret == 0)
-			break;
+			return ret;
 		if ((ret < 0) && (errno != EINTR))
 			break;
 	}
-	return ret;
+	return -1;
 }
 
 static int stress_swap_zero(
@@ -144,7 +144,7 @@ static int stress_swap_zero(
 static int stress_swap_set_size(
 	const stress_args_t *args,
 	const int fd,
-	const size_t npages,
+	const uint32_t npages,
 	const int bad_flags)
 {
 	char signature[] = SWAP_SIGNATURE;
@@ -172,7 +172,7 @@ static int stress_swap_set_size(
 		"SNG-SWP-%" PRIx32, args->instance);
 
 	if (bad_flags & SWAP_HDR_BAD_VERSION)
-		swap_info.version = ~SWAP_VERSION;	/* Invalid */
+		swap_info.version = (uint32_t)~SWAP_VERSION;	/* Invalid */
 	else
 		swap_info.version = SWAP_VERSION;
 
@@ -187,7 +187,7 @@ static int stress_swap_set_size(
 		swap_info.last_page = npages - 1;
 
 	if (bad_flags & SWAP_HDR_BAD_NR_BAD)
-		swap_info.nr_badpages = ~0;		/* Dire */
+		swap_info.nr_badpages = ~0U;		/* Dire */
 	else
 		swap_info.nr_badpages = 0;
 
@@ -212,21 +212,21 @@ static int stress_swap_set_size(
 static void stress_swap_check_swapped(
 	void *addr,
 	const size_t page_size,
-	const size_t npages,
+	const uint32_t npages,
 	uint64_t *swapped_out,
 	uint64_t *swapped_total)
 {
 	unsigned char *vec;
 	register size_t n = 0;
-	register size_t i;
+	register uint32_t i;
 
 	*swapped_total += npages;
 
-	vec = calloc(npages, sizeof(*vec));
+	vec = calloc((size_t)npages, sizeof(*vec));
 	if (!vec)
 		return;
 
-	shim_mincore(addr, page_size * npages, vec);
+	shim_mincore(addr, page_size * (size_t)npages, vec);
 	for (i = 0; i < npages; i++)
 		n += ((vec[i] & 1) == 0);
 
@@ -300,9 +300,9 @@ static int stress_swap(const stress_args_t *args)
 		int swapflags = 0;
 		int bad_flags;
 		char *ptr;
-		size_t npages = (size_t)(stress_mwc32() % (MAX_SWAP_PAGES - MIN_SWAP_PAGES)) +
+		uint32_t npages = (stress_mwc32() % (MAX_SWAP_PAGES - MIN_SWAP_PAGES)) +
 				  MIN_SWAP_PAGES;
-		const size_t mmap_size = npages * page_size;
+		const size_t mmap_size = (size_t)npages * page_size;
 
 #if defined(SWAP_FLAG_PREFER)
 		if (stress_mwc1()) {
@@ -359,9 +359,9 @@ static int stress_swap(const stress_args_t *args)
 
 			/* Add simple check value to start of each page */
 			for (i = 0, p = ptr; p < p_end; p += page_size, i++) {
-				uintptr_t *up = (uintptr_t *)p;
+				uintptr_t *up = (uintptr_t *)(uintptr_t)p;
 
-				(void)memset(p, i, page_size);
+				(void)memset(p, (int)i, page_size);
 				*up = (uintptr_t)p;
 			}
 #if defined(MADV_PAGEOUT)
@@ -372,12 +372,12 @@ static int stress_swap(const stress_args_t *args)
 
 			/* Check page has check address value */
 			for (i = 0, p = ptr; p < p_end; p += page_size, i++) {
-				uintptr_t *up = (uintptr_t *)p;
+				uintptr_t *up = (uintptr_t *)(uintptr_t)p;
 
 				if (*up != (uintptr_t)p) {
 					pr_fail("%s: failed: address %p contains "
 						"%" PRIuPTR " and not %" PRIuPTR "\n",
-						args->name, p, *up, (uintptr_t)p);
+						args->name, (void *)p, *up, (uintptr_t)p);
 				}
 			}
 			(void)munmap(ptr, mmap_size);
