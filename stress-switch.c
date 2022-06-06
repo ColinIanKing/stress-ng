@@ -275,7 +275,7 @@ static int stress_switch_sem_sysv(
 	const uint64_t threshold)
 {
 	pid_t pid;
-	int sem_id;
+	int sem_id = -1;
 	int i;
 
 	for (i = 0; i < 100; i++) {
