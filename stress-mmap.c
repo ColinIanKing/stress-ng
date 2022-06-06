@@ -677,12 +677,12 @@ cleanup:
 		 *  mmap flag permutations
 		 */
 		if ((context->mmap_prot_perms) && (context->mmap_prot_count > 0)) {
-			const size_t rnd = stress_mwc16() % context->mmap_prot_count;
-			const int rnd_prot = context->mmap_prot_perms[rnd];
+			const size_t rnd_sz = stress_mwc16() % context->mmap_prot_count;
+			const int rnd_prot = context->mmap_prot_perms[rnd_sz];
 
-			buf = (uint8_t *)mmap(NULL, sz, rnd_prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+			buf = (uint8_t *)mmap(NULL, rnd_sz, rnd_prot, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 			if (buf != MAP_FAILED)
-				(void)munmap((void *)buf, sz);
+				(void)munmap((void *)buf, rnd_sz);
 		}
 
 		/*
