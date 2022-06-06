@@ -176,7 +176,7 @@ static int stress_randlist(const stress_args_t *args)
 				return EXIT_SUCCESS;
 			}
 			ptrs[i] = ptr;
-			ptr = (stress_randlist_item_t *)((char *)ptr + size);
+			ptr = (stress_randlist_item_t *)((uintptr_t)ptr + size);
 		}
 		heap_allocs++;
 	} else {
@@ -216,7 +216,7 @@ retry:
 	 *  Shuffle into random item order
 	 */
 	for (i = 0; i < randlist_items; i++) {
-		size_t n = random() % randlist_items;
+		size_t n = (size_t)stress_mwc32() % randlist_items;
 
 		ptr = ptrs[i];
 		ptrs[i] = ptrs[n];
