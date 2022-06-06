@@ -55,7 +55,7 @@ static void stress_pageswap_unmap(const stress_args_t *args, page_info_t **head)
 		(void)madvise(pi, pi->size, MADV_PAGEOUT);
 		if (verify && (pi->self != pi)) {
 			pr_fail("%s: page at %p does not contain expected data\n",
-				args->name, pi);
+				args->name, (void *)pi);
 		}
 		(void)munmap(pi, pi->size);
 		pi = next;
@@ -74,10 +74,9 @@ static int stress_pageswap_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = STRESS_MAXIMUM(args->page_size, sizeof(page_info_t));
 	size_t max = 0;
+	page_info_t *head = NULL;
 
 	(void)context;
-
-	page_info_t *head = NULL;
 
 	do {
 		page_info_t *pi;
