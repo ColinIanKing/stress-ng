@@ -97,7 +97,7 @@ static void TARGET_CLONES OPTIMIZE3 name (vec_args_t *vec_args) \
 	res = a + b + c;					\
 								\
 	for (i = 0; i < (int)sizeof(res); i++) {		\
-		stress_uint8_put(res[i]);			\
+		stress_uint8_put((uint8_t)res[i]);		\
 	}							\
 }
 
@@ -147,7 +147,7 @@ static int stress_vecwide(const stress_args_t *args)
 		stress_vecwide_funcs[i].duration = 0.0;
 
 	for (i = 0; i < SIZEOF_ARRAY(vec_args->a); i++) {
-		vec_args->a[i] = (int8_t)i;
+		vec_args->a[i] = (uint8_t)i;
 		vec_args->b[i] = stress_mwc8();
 		vec_args->c[i] = stress_mwc8();
 		vec_args->s[i] = stress_mwc8();
