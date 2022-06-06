@@ -664,7 +664,7 @@ cleanup:
 		if (fd >= 0)
 			stress_mmap_invalid(NULL, args->page_size << 2, PROT_READ | PROT_WRITE,
 					MAP_PRIVATE, fd,
-					(((~(size_t)0) & ~(args->page_size - 1)) - args->page_size));
+					(off_t)(((~(size_t)0) & ~(args->page_size - 1)) - args->page_size));
 
 		/*
 		 *  Step #6, invalid unmappings
