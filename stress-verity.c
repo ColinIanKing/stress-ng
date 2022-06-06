@@ -61,7 +61,7 @@ struct shim_fsverity_read_metadata_arg {
 	uint64_t offset;
 	uint64_t length;
 	uint64_t buf_ptr;
-	uint64_t __reserved;
+	uint64_t reserved;
 };
 
 /*
