@@ -192,10 +192,9 @@ vfork_again:
 				inc_counter(args);
 			}
 			if (pid < 0) {
-				/* failed, only exit of not the first parent */
+				/* failed */
 				shim_sched_yield();
 				_exit(0);
-				goto vfork_again;
 			} else if (pid == 0) {
 				if (vm) {
 					int flags = 0;
