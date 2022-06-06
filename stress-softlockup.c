@@ -123,7 +123,7 @@ static int stress_softlockup(const stress_args_t *args)
 	timeout = g_opt_timeout;
 	(void)memset(&param, 0, sizeof(param));
 
-	if (SIZEOF_ARRAY(policies) == 0) {
+	if (SIZEOF_ARRAY(policies) == (0)) {
 		if (first_instance) {
 			pr_inf_skip("%s: no scheduling policies "
 					"available, skipping test\n",
