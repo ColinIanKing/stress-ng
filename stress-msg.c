@@ -316,7 +316,7 @@ again:
 					(void)msgrcv(-1, &msg, sizeof(msg.value), mtype, 0);
 
 					/* Exercise invalid msgrcv message size */
-					(void)msgrcv(msgq_id, &msg, -1, mtype, 0);
+					(void)msgrcv(msgq_id, &msg, (size_t)-1, mtype, 0);
 					(void)msgrcv(msgq_id, &msg, 0, mtype, 0);
 
 					/* Exercise invalid msgrcv message flag */
