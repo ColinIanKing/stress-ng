@@ -102,7 +102,7 @@ static void stress_syncload_rdrand(void)
 	if (stress_sysload_x86_has_rdrand) {
 		int64_t        ret;
 
-		asm volatile("1:;\n\
+		__asm__ __volatile__("1:;\n\
 			     rdrand %0;\n\
 			     jnc 1b;\n":"=r"(ret));
 		return;
