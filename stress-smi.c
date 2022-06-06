@@ -82,9 +82,9 @@ static int stress_smi_readmsr64(const int cpu, const uint32_t reg, uint64_t *val
 	char buffer[PATH_MAX];
 	uint64_t value = 0;
 	int fd;
-	int ret;
+	ssize_t ret;
 
-	*val = ~0;
+	*val = ~0UL;
 	(void)snprintf(buffer, sizeof(buffer), "/dev/cpu/%d/msr", cpu);
 	if ((fd = open(buffer, O_RDONLY)) < 0)
 		return -1;
@@ -183,7 +183,7 @@ static int stress_smi(const stress_args_t *args)
 
 		if (read_msr_ok) {
 			const double secs = d2 - d1;
-			const uint64_t smis = (s2 - s1) / cpus;
+			const uint64_t smis = (s2 - s1) / (uint64_t)cpus;
 			const double rate = (secs > 0.0) ? (double)smis / secs : 0.0;
 			const double duration = (rate > 0.0) ? 1000000.0 / rate : 0.0;
 
