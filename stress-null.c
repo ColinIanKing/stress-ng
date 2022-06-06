@@ -97,7 +97,7 @@ static int stress_null(const stress_args_t *args)
 
 		flag = fcntl(fd, F_GETFL, 0);
 		if (flag >= 0) {
-			const int newflag = O_RDWR | (stress_mwc32() & fcntl_mask);
+			const int newflag = O_RDWR | ((int)stress_mwc32() & fcntl_mask);
 
 			ret = fcntl(fd, F_SETFL, newflag);
 			(void)ret;
