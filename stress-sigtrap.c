@@ -52,13 +52,12 @@ static int stress_sigtrap(const stress_args_t *args)
 
 	while (keep_stressing(args)) {
 		switch (stress_mwc1()) {
-		case 0:
 #if defined(__linux__) &&	\
     defined(STRESS_ARCH_X86)
-			asm("int $3");
+		case 0:
+			__asm__ __volatile__("int $3");
 			break;
 #endif
-		CASE_FALLTHROUGH;
 		default:
 			raise(SIGTRAP);
 			break;
