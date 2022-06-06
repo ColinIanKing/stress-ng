@@ -56,7 +56,6 @@ static const stress_help_t help[] = {
 
 #define PAGES		(16)
 #define TRACK_SIGCOUNT	(0)
-#define EXIT_TRAPPED	(255)
 
 typedef void(*stress_opcode_func)(uint8_t *ops_begin, const uint8_t *ops_end, uint32_t *op);
 
@@ -118,6 +117,7 @@ static struct sock_fprog prog = {
 
 #endif
 
+#if TRACK_SIGCOUNT
 #if defined(NSIG)
 #define MAX_SIGS	(NSIG)
 #elif defined(_NSIG)
@@ -126,7 +126,6 @@ static struct sock_fprog prog = {
 #define MAX_SIGS	(256)
 #endif
 
-#if TRACK_SIGCOUNT
 static uint64_t *sig_count;
 #endif
 
