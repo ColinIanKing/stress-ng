@@ -98,7 +98,7 @@ static inline uint64_t rand64(void)
 {
 	uint64_t        ret;
 
-	asm volatile("1:;\n\
+	__asm__ __volatile__("1:;\n\
 	rdrand %0;\n\
 	jnc 1b;\n":"=r"(ret));
 
@@ -113,7 +113,7 @@ static inline uint64_t seed64(void)
 {
 	uint64_t        ret;
 
-	asm volatile("1:;\n\
+	__asm__ __volatile__("1:;\n\
 	rdseed %0;\n\
 	jnc 1b;\n":"=r"(ret));
 
@@ -128,11 +128,11 @@ static inline uint32_t rand64(void)
 {
 	uint32_t        ret;
 
-	asm volatile("1:;\n\
+	__asm__ volatile__("1:;\n\
 	rdrand %0;\n\
 	jnc 1b;\n":"=r"(ret));
 
-	asm volatile("1:;\n\
+	__asm__ __volatile__("1:;\n\
 	rdrand %0;\n\
 	jnc 1b;\n":"=r"(ret));
 
@@ -147,11 +147,11 @@ static inline uint32_t seed64(void)
 {
 	uint32_t        ret;
 
-	asm volatile("1:;\n\
+	__asm__ __volatile__("1:;\n\
 	rdseed %0;\n\
 	jnc 1b;\n":"=r"(ret));
 
-	asm volatile("1:;\n\
+	__asm__ __volatile__("1:;\n\
 	rdseed %0;\n\
 	jnc 1b;\n":"=r"(ret));
 
@@ -190,7 +190,7 @@ static inline uint64_t rand64(void)
 	uint64_t val;
 
 	/* Unconditioned raw deliver a raw number */
-	asm volatile("darn %0, 0\n" : "=r"(val) :);
+	__asm__ __volatile__("darn %0, 0\n" : "=r"(val) :);
 	return val;
 }
 #endif
