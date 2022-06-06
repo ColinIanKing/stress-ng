@@ -52,8 +52,6 @@ static int stress_ramfs_supported(const char *name)
     defined(CLONE_NEWNS) && \
     defined(CLONE_VM)
 
-#define CLONE_STACK_SIZE	(128*1024)
-
 static volatile bool keep_mounting = true;
 
 static int stress_set_ramfs_size(const char *opt)
@@ -128,7 +126,6 @@ static void stress_ramfs_umount(const stress_args_t *args, const char *path)
 			 *  has been successfully umounted
 			 */
 			goto misc_tests;
-			break;
 		default:
 			/* Unexpected, so report it */
 			pr_inf("%s: umount failed %s: %d %s\n", args->name,
