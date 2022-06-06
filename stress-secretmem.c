@@ -114,14 +114,14 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 	do {
 		ssize_t n;
 		uint8_t *redo_unmapping = NULL;
-		size_t sz = 0;
+		off_t sz = 0;
 		off_t offset;
 
 		for (n = 0; keep_stressing_flag() && (n < MMAP_MAX); n++) {
 			if (!keep_stressing(args))
 				break;
 
-			offset = (off_t)sz;
+			offset = sz;
 			sz += page_size3;
 
 			/* expand secret memory size */
