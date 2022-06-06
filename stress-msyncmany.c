@@ -33,7 +33,6 @@ static int stress_msyncmany_child(const stress_args_t *args, void *context)
 	const size_t page_size = args->page_size;
 	long max = sysconf(_SC_MAPPED_FILES);
 	uint8_t **mappings;
-	max = STRESS_MINIMUM(max, MMAP_MAX);
 	int fd = *(int *)context;
 	size_t i, n;
 	uint64_t *mapped = NULL;
@@ -41,6 +40,7 @@ static int stress_msyncmany_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
+	max = STRESS_MINIMUM(max, MMAP_MAX);
 	if (max < 1) {
 		pr_fail("%s: sysconf(_SC_MAPPED_FILES) is too low, max = %ld\n",
 			args->name, max);
@@ -95,7 +95,7 @@ static int stress_msyncmany_child(const stress_args_t *args, void *context)
 				continue;
 			if (*ptr != pattern) {
 				pr_fail("%s: failed: mapping %zd at %p contained %" PRIx64 " and not %" PRIx64 "\n",
-					args->name, i, ptr, *ptr, pattern);
+					args->name, i, (const void *)ptr, *ptr, pattern);
 			}
 		}
 		inc_counter(args);
@@ -134,7 +134,7 @@ static int stress_msyncmany(const stress_args_t *args)
 	}
 	(void)shim_unlink(filename);
 
-	ret = shim_fallocate(fd, 0, 0, args->page_size);
+	ret = shim_fallocate(fd, 0, 0, (off_t)args->page_size);
 	if (ret < 0) {
 		pr_inf("%s: cannot allocate data for file %s, skipping stressor\n", args->name, filename);
 		(void)stress_temp_dir_rm_args(args);
