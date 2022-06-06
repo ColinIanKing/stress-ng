@@ -215,7 +215,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 	}
 
 	(void)memset(&param, 0, sizeof(param));
-	param.param = ~0;
+	param.param = ~0U;
 	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
 		int r;
 
