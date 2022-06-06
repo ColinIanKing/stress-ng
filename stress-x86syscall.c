@@ -92,12 +92,12 @@ static int stress_x86syscall_supported(const char *name)
 static inline long x86_64_syscall1(long number, long arg1)
 {
 	long ret;
-	unsigned long _arg1 = arg1;
-	register long __arg1 __asm__("rdi") = _arg1;
+	unsigned long tmp_arg1 = arg1;
+	register long asm_arg1 __asm__("rdi") = tmp_arg1;
 
 	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
-			: "0" (number), "r" (__arg1)
+			: "0" (number), "r" (asm_arg1)
 			: "memory", "cc", "r11", "cx");
 	if (ret < 0) {
 		errno = ret;
@@ -113,14 +113,14 @@ static inline long x86_64_syscall1(long number, long arg1)
 static inline long x86_64_syscall2(long number, long arg1, long arg2)
 {
 	long ret;
-	unsigned long _arg1 = arg1;
-	unsigned long _arg2 = arg2;
-	register long __arg1 __asm__("rdi") = _arg1;
-	register long __arg2 __asm__("rsi") = _arg2;
+	unsigned long tmp_arg1 = arg1;
+	unsigned long tmp_arg2 = arg2;
+	register long asm_arg1 __asm__("rdi") = tmp_arg1;
+	register long asm_arg2 __asm__("rsi") = tmp_arg2;
 
 	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
-			: "0" (number), "r" (__arg1), "r" (__arg2)
+			: "0" (number), "r" (asm_arg1), "r" (asm_arg2)
 			: "memory", "cc", "r11", "cx");
 	if (ret < 0) {
 		errno = ret;
@@ -136,16 +136,16 @@ static inline long x86_64_syscall2(long number, long arg1, long arg2)
 static inline long x86_64_syscall3(long number, long arg1, long arg2, long arg3)
 {
 	long ret;
-	unsigned long _arg1 = arg1;
-	unsigned long _arg2 = arg2;
-	unsigned long _arg3 = arg3;
-	register long __arg1 __asm__("rdi") = _arg1;
-	register long __arg2 __asm__("rsi") = _arg2;
-	register long __arg3 __asm__("rdx") = _arg3;
+	unsigned long tmp_arg1 = arg1;
+	unsigned long tmp_arg2 = arg2;
+	unsigned long tmp_arg3 = arg3;
+	register long asm_arg1 __asm__("rdi") = tmp_arg1;
+	register long asm_arg2 __asm__("rsi") = tmp_arg2;
+	register long asm_arg3 __asm__("rdx") = tmp_arg3;
 
 	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
-			: "0" (number), "r" (__arg1), "r" (__arg2), "r" (__arg3)
+			: "0" (number), "r" (asm_arg1), "r" (asm_arg2), "r" (asm_arg3)
 			: "memory", "cc", "r11", "cx");
 	if (ret < 0) {
 		errno = ret;
