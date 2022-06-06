@@ -224,7 +224,7 @@ static int stress_set_mmap_bytes(const char *opt)
 
 	mmap_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("mmap-bytes", mmap_bytes,
-		MIN_MMAP_BYTES, MAX_MEM_LIMIT);
+		MIN_MMAP_BYTES, MAX_MMAP_BYTES);
 	return stress_set_setting("mmap-bytes", TYPE_ID_SIZE_T, &mmap_bytes);
 }
 
