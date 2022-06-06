@@ -44,7 +44,7 @@ static bool stress_mmapfixed_is_mapped_slow(
 	const size_t page_size)
 {
 	unsigned char vec[PAGE_CHUNKS];
-	ssize_t n = len;
+	ssize_t n = (ssize_t)len;
 
 	while (n > 0) {
 		size_t n_pages = len / page_size, sz;
