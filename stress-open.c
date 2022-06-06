@@ -721,7 +721,7 @@ static int stress_open(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		size_t i, n;
+		size_t n;
 		int ret;
 		unsigned int min_fd = UINT_MAX, max_fd = 0;
 
