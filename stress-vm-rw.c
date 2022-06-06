@@ -66,7 +66,7 @@ static int stress_set_vm_rw_bytes(const char *opt)
 
 	vm_rw_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("vm-rw-bytes", vm_rw_bytes,
-		MIN_VM_RW_BYTES, MAX_MEM_LIMIT);
+		MIN_VM_RW_BYTES, MAX_VM_RW_BYTES);
 	return stress_set_setting("vm-rw-bytes", TYPE_ID_SIZE_T, &vm_rw_bytes);
 }
 
@@ -147,7 +147,7 @@ redo_rd1:
 			for (ptr = buf; ptr < end; ptr += args->page_size) {
 				if (*ptr != msg_rd.val) {
 					pr_fail("%s: memory at %p (offset %tx): %d vs %d\n",
-						args->name, ptr, ptr - buf, *ptr, msg_rd.val);
+						args->name, (void *)ptr, ptr - buf, *ptr, msg_rd.val);
 					goto cleanup;
 				}
 				*ptr = 0;
@@ -256,7 +256,7 @@ redo_rd2:
 			for (ptr1 = localbuf; ptr1 < end; ptr1 += args->page_size) {
 				if (*ptr1) {
 					pr_fail("%s: memory at %p (offset %tx): %d vs %d\n",
-						args->name, ptr1, ptr1 - localbuf, *ptr1, msg_rd.val);
+						args->name, (void *)ptr1, ptr1 - localbuf, *ptr1, msg_rd.val);
 					goto fail;
 				}
 				*ptr1 = 0;
