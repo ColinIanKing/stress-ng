@@ -105,7 +105,7 @@ static inline long x86_64_syscall0(const long number)
 {
 	long ret;
 
-	asm volatile ("syscall\n\t"
+	__asm__ __volatile__("syscall\n\t"
 			: "=a" (ret)
 			: "0" (number)
 			: "memory", "cc", "r11", "cx");
