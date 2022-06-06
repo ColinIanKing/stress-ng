@@ -153,11 +153,11 @@ static void stress_wait_continued(const stress_args_t *args, const int status)
 }
 
 /*
- *  _shim_waitpid
+ *  syscall_shim_waitpid
  *	waitpid that prefers waitpid syscall if it is available
  *	over the libc waitpid that may use wait4 instead
  */
-static pid_t _shim_waitpid(pid_t pid, int *wstatus, int options)
+static pid_t syscall_shim_waitpid(pid_t pid, int *wstatus, int options)
 {
 #if defined(__NR_waitpid)
 	return (pid_t)syscall(__NR_waitpid, pid, wstatus, options);
@@ -216,7 +216,7 @@ static int stress_wait(const stress_args_t *args)
 		/*
 		 *  Exercise waitpid
 		 */
-		wret = _shim_waitpid(pid_r, &status, options);
+		wret = syscall_shim_waitpid(pid_r, &status, options);
 		if ((wret < 0) && (errno != EINTR) && (errno != ECHILD)) {
 			pr_fail("%s: waitpid failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
