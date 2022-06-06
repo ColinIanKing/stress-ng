@@ -41,7 +41,7 @@ static int stress_set_msync_bytes(const char *opt)
 
 	msync_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("msync-bytes", msync_bytes,
-		MIN_MSYNC_BYTES, MAX_MEM_LIMIT);
+		MIN_MSYNC_BYTES, MAX_MSYNC_BYTES);
 	return stress_set_setting("msync-bytes", TYPE_ID_SIZE_T, &msync_bytes);
 }
 
