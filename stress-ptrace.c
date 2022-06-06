@@ -195,7 +195,7 @@ again:
 			/* periodicially perform invalid ptrace calls */
 			if ((i & 0x1ff) == 0) {
 				const pid_t bad_pid = stress_get_unused_pid_racy(false);
-				int ret;
+				long ret;
 
 				/* exercise invalid options */
 				ret = ptrace((shim_ptrace_request)~0L, pid, 0, PTRACE_O_TRACESYSGOOD);
