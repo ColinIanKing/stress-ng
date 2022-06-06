@@ -22,7 +22,6 @@
 #define DEFAULT_MREMAP_BYTES	(256 * MB)
 #define MIN_MREMAP_BYTES	(4 * KB)
 #define MAX_MREMAP_BYTES	(MAX_MEM_LIMIT)
-#define DEFAULT_MREMAP_BYTES	(256 * MB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"mremap N",	  "start N workers stressing mremap" },
@@ -38,7 +37,7 @@ static int stress_set_mremap_bytes(const char *opt)
 
 	mremap_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("mremap-bytes", mremap_bytes,
-		MIN_MREMAP_BYTES, MAX_MEM_LIMIT);
+		MIN_MREMAP_BYTES, MAX_MREMAP_BYTES);
 	return stress_set_setting("mremap-bytes", TYPE_ID_SIZE_T, &mremap_bytes);
 }
 
