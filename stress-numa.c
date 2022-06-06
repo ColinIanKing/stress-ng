@@ -118,7 +118,7 @@ static void stress_numa_free_nodes(stress_node_t *nodes)
  *  hex_to_int()
  *	convert ASCII hex digit to integer
  */
-static inline int hex_to_int(const char ch)
+static int hex_to_int(const char ch)
 {
 	if ((ch >= '0') && (ch <= '9'))
 		return ch - '0';
