@@ -80,7 +80,7 @@ static inline void stress_op_x86_pause(void)
 	__asm__ __volatile__("pause;\n" ::: "memory");
 }
 
-STRESS_NOP_SPIN_OP(x86_pause, stress_op_x86_pause);
+STRESS_NOP_SPIN_OP(x86_pause, stress_op_x86_pause)
 #endif
 
 #if defined(HAVE_ASM_X86_TPAUSE)
@@ -102,7 +102,7 @@ static void stress_op_x86_tpause(void)
 	x86_tpause(1, 5000);
 }
 
-STRESS_NOP_SPIN_OP(x86_tpause, stress_op_x86_tpause);
+STRESS_NOP_SPIN_OP(x86_tpause, stress_op_x86_tpause)
 #endif
 
 #if defined(HAVE_ASM_ARM_YIELD)
@@ -165,16 +165,16 @@ static inline void stress_op_x86_nop11(void)
 	__asm__ __volatile__(".byte 0x66, 0x66, 0x66, 0x0f, 0x1f, 0x84, 0x00, 0x00, 0x00, 0x00, 0x00;\n");
 }
 
-STRESS_NOP_SPIN_OP(x86_nop2, stress_op_x86_nop2);
-STRESS_NOP_SPIN_OP(x86_nop3, stress_op_x86_nop3);
-STRESS_NOP_SPIN_OP(x86_nop4, stress_op_x86_nop4);
-STRESS_NOP_SPIN_OP(x86_nop5, stress_op_x86_nop5);
-STRESS_NOP_SPIN_OP(x86_nop6, stress_op_x86_nop6);
-STRESS_NOP_SPIN_OP(x86_nop7, stress_op_x86_nop7);
-STRESS_NOP_SPIN_OP(x86_nop8, stress_op_x86_nop8);
-STRESS_NOP_SPIN_OP(x86_nop9, stress_op_x86_nop9);
-STRESS_NOP_SPIN_OP(x86_nop10, stress_op_x86_nop10);
-STRESS_NOP_SPIN_OP(x86_nop11, stress_op_x86_nop11);
+STRESS_NOP_SPIN_OP(x86_nop2, stress_op_x86_nop2)
+STRESS_NOP_SPIN_OP(x86_nop3, stress_op_x86_nop3)
+STRESS_NOP_SPIN_OP(x86_nop4, stress_op_x86_nop4)
+STRESS_NOP_SPIN_OP(x86_nop5, stress_op_x86_nop5)
+STRESS_NOP_SPIN_OP(x86_nop6, stress_op_x86_nop6)
+STRESS_NOP_SPIN_OP(x86_nop7, stress_op_x86_nop7)
+STRESS_NOP_SPIN_OP(x86_nop8, stress_op_x86_nop8)
+STRESS_NOP_SPIN_OP(x86_nop9, stress_op_x86_nop9)
+STRESS_NOP_SPIN_OP(x86_nop10, stress_op_x86_nop10)
+STRESS_NOP_SPIN_OP(x86_nop11, stress_op_x86_nop11)
 #endif
 
 #if defined(STRESS_ARCH_PPC64)
@@ -207,9 +207,9 @@ static inline void stress_op_s390_nopr(void)
 STRESS_NOP_SPIN_OP(s390_nopr, stress_op_s390_nopr);
 #endif
 
-void stress_nop_random(const stress_args_t *args, const bool flag);
+static void stress_nop_random(const stress_args_t *args, const bool flag);
 
-stress_nop_instr_t nop_instr[] = {
+static stress_nop_instr_t nop_instr[] = {
 	{ "nop",	stress_nop_spin_nop,		false },
 #if defined(STRESS_ARCH_X86)
 	{ "nop2",	stress_nop_spin_x86_nop2,	false },
@@ -255,7 +255,7 @@ static inline void stress_nop_callfunc(
 		instr->func(args, flag);
 }
 
-void stress_nop_random(const stress_args_t *args, const bool flag)
+static void stress_nop_random(const stress_args_t *args, const bool flag)
 {
 	(void)flag;
 
