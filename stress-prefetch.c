@@ -51,7 +51,7 @@ static int stress_set_prefetch_L3_size(const char *opt)
 
 	stream_L3_size = stress_get_uint64_byte(opt);
 	stress_check_range_bytes("stream-L3-size", stream_L3_size,
-		MIN_PREFETCH_L3_SIZE, SIZE_MAX);
+		MIN_PREFETCH_L3_SIZE, MAX_PREFETCH_L3_SIZE);
 	sz = (size_t)stream_L3_size;
 
 	return stress_set_setting("stream-L3-size", TYPE_ID_SIZE_T, &sz);
@@ -111,7 +111,7 @@ static inline void OPTIMIZE3 stress_prefetch_benchmark(
 	uint64_t *total_count)
 {
 	double t1, t2, t3, t4;
-	const size_t l3_data_size = (uint8_t *)l3_data_end - (uint8_t *)l3_data;
+	const size_t l3_data_size = (uintptr_t)l3_data_end - (uintptr_t)l3_data;
 	volatile uint64_t *ptr;
 	uint64_t *pre_ptr;
 
@@ -214,7 +214,7 @@ static int stress_prefetch(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	l3_data_end = (uint64_t *)((uint8_t *)l3_data + l3_data_size);
+	l3_data_end = (uint64_t *)((uintptr_t)l3_data + l3_data_size);
 
 	(void)memset(l3_data, 0xa5, l3_data_mmap_size);
 
