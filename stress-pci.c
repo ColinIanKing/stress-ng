@@ -233,7 +233,7 @@ static void stress_pci_exercise(const stress_args_t *args, stress_pci_info_t *pi
  *	handle unexpected SIGSEGV or SIGBUS errors when mmaping
  *	or reading PCI data
  */
-static void MLOCKED_TEXT stress_pci_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_pci_handler(int signum)
 {
 	(void)signum;
 
