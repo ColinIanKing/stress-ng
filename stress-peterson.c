@@ -28,12 +28,12 @@ static const stress_help_t help[] = {
 #if defined(HAVE_SHIM_MFENCE)
 
 typedef struct peterson {
-	volatile bool	flag[2];
 	volatile int	turn;
 	volatile int check;
+	volatile bool	flag[2];
 } peterson_t;
 
-peterson_t *peterson;
+static peterson_t *peterson;
 
 static void stress_peterson_p0(const stress_args_t *args)
 {
