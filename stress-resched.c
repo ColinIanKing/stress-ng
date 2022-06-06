@@ -34,7 +34,7 @@ static const stress_help_t help[] = {
 #define HAVE_SCHEDULING
 #endif
 
-static void stress_resched_child(
+static void NORETURN stress_resched_child(
 	const stress_args_t *args,
 	const int niceness,
 	const int max_niceness,
@@ -151,13 +151,13 @@ static int stress_resched(const stress_args_t *args)
 #endif
 #endif
 	pids_max = max_prio + 1; /* 0.. max_prio */
-	pids = calloc(pids_max, sizeof(*pids));
+	pids = calloc((size_t)pids_max, sizeof(*pids));
 	if (!pids) {
 		pr_inf("%s: cannot allocate pids array, skipping stressor, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
-	yields_size = ((sizeof(*yields) * pids_max) + args->page_size - 1) & ~(args->page_size - 1);
+	yields_size = ((sizeof(*yields) * (size_t)pids_max) + args->page_size - 1) & ~(args->page_size - 1);
 	yields = (uint64_t *)mmap(NULL, yields_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (yields == MAP_FAILED)
