@@ -125,10 +125,10 @@ static int stress_tsc_supported(const char *name)
  */
 static inline void rdtsc(void)
 {
-#if STRESS_TSC_SERIALIZED
-	asm volatile("cpuid\nrdtsc\n" : : : "%edx", "%eax");
+#if defined(STRESS_TSC_SERIALIZED)
+	__asm__ __volatile__("cpuid\nrdtsc\n" : : : "%edx", "%eax");
 #else
-	asm volatile("rdtsc\n" : : : "%edx", "%eax");
+	__asm__ __volatile__("rdtsc\n" : : : "%edx", "%eax");
 #endif
 }
 
@@ -177,7 +177,7 @@ static inline void rdtsc(void)
 {
 	uint64_t tick;
 
-	asm("\tstck\t%0\n" : "=Q" (tick) : : "cc");
+	__asm__ __volatile__("\tstck\t%0\n" : "=Q" (tick) : : "cc");
 }
 #endif
 
@@ -231,10 +231,10 @@ static int stress_tsc(const stress_args_t *args)
 
 	if (tsc_supported) {
 		do {
-			TSCx32();
-			TSCx32();
-			TSCx32();
-			TSCx32();
+			TSCx32()
+			TSCx32()
+			TSCx32()
+			TSCx32()
 			inc_counter(args);
 		} while (keep_stressing(args));
 	}
