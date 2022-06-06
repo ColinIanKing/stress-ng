@@ -43,7 +43,7 @@ static void stress_mprotect_mem(
 	uint8_t *mem,
 	const size_t mem_pages,
 	const int *prot_flags,
-	const int n_flags)
+	const size_t n_flags)
 {
 	int ret;
 	const uint8_t *mem_end = mem + (page_size * mem_pages);
@@ -59,12 +59,12 @@ static void stress_mprotect_mem(
 	while (keep_stressing(args)) {
 		const uint32_t page = stress_mwc32() % mem_pages;
 		uint8_t *ptr = mem + (page_size * page);
-		const size_t max_size = mem_end - ptr;
+		const size_t max_size = (size_t)(mem_end - ptr);
 		const size_t size = stress_mwc32() % max_size;
 		int i;
 
 		for (i = 0; (i < 10) && keep_stressing(args); i++) {
-			const uint8_t j = stress_mwc16() % n_flags;
+			const int j = stress_mwc16() % n_flags;
 
 			if (mprotect((void *)ptr, size, prot_flags[j]) == 0) {
 				inc_counter(args);
@@ -87,7 +87,8 @@ static int stress_mprotect(const stress_args_t *args)
 	size_t i;
 	uint8_t *mem;
 	pid_t pids[MPROTECT_MAX];
-	int prot_bits = 0, n_flags, *prot_flags;
+	int prot_bits = 0, *prot_flags;
+	size_t n_flags;
 
 #if defined(PROT_NONE)
 	prot_bits |= PROT_NONE;
