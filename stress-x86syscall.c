@@ -92,7 +92,7 @@ static int stress_x86syscall_supported(const char *name)
 static inline long x86_64_syscall1(long number, long arg1)
 {
 	long ret;
-	unsigned long tmp_arg1 = arg1;
+	long tmp_arg1 = arg1;
 	register long asm_arg1 __asm__("rdi") = tmp_arg1;
 
 	__asm__ __volatile__("syscall\n\t"
@@ -100,7 +100,7 @@ static inline long x86_64_syscall1(long number, long arg1)
 			: "0" (number), "r" (asm_arg1)
 			: "memory", "cc", "r11", "cx");
 	if (ret < 0) {
-		errno = ret;
+		errno = (int)ret;
 		ret = -1;
 	}
 	return ret;
@@ -113,8 +113,8 @@ static inline long x86_64_syscall1(long number, long arg1)
 static inline long x86_64_syscall2(long number, long arg1, long arg2)
 {
 	long ret;
-	unsigned long tmp_arg1 = arg1;
-	unsigned long tmp_arg2 = arg2;
+	long tmp_arg1 = arg1;
+	long tmp_arg2 = arg2;
 	register long asm_arg1 __asm__("rdi") = tmp_arg1;
 	register long asm_arg2 __asm__("rsi") = tmp_arg2;
 
@@ -123,7 +123,7 @@ static inline long x86_64_syscall2(long number, long arg1, long arg2)
 			: "0" (number), "r" (asm_arg1), "r" (asm_arg2)
 			: "memory", "cc", "r11", "cx");
 	if (ret < 0) {
-		errno = ret;
+		errno = (int)ret;
 		ret = -1;
 	}
 	return ret;
@@ -136,9 +136,9 @@ static inline long x86_64_syscall2(long number, long arg1, long arg2)
 static inline long x86_64_syscall3(long number, long arg1, long arg2, long arg3)
 {
 	long ret;
-	unsigned long tmp_arg1 = arg1;
-	unsigned long tmp_arg2 = arg2;
-	unsigned long tmp_arg3 = arg3;
+	long tmp_arg1 = arg1;
+	long tmp_arg2 = arg2;
+	long tmp_arg3 = arg3;
 	register long asm_arg1 __asm__("rdi") = tmp_arg1;
 	register long asm_arg2 __asm__("rsi") = tmp_arg2;
 	register long asm_arg3 __asm__("rdx") = tmp_arg3;
@@ -148,7 +148,7 @@ static inline long x86_64_syscall3(long number, long arg1, long arg2, long arg3)
 			: "0" (number), "r" (asm_arg1), "r" (asm_arg2), "r" (asm_arg3)
 			: "memory", "cc", "r11", "cx");
 	if (ret < 0) {
-		errno = ret;
+		errno = (int)ret;
 		ret = -1;
 	}
 	return ret;
@@ -163,7 +163,7 @@ static int wrap_getcpu(void)
 {
 	unsigned cpu, node;
 
-	return x86_64_syscall3(__NR_getcpu, (long)&cpu, (long)&node, (long)NULL);
+	return (int)x86_64_syscall3(__NR_getcpu, (long)&cpu, (long)&node, (long)NULL);
 }
 #endif
 
@@ -176,7 +176,7 @@ static int wrap_gettimeofday(void)
 {
 	struct timeval tv;
 
-	return x86_64_syscall2(__NR_gettimeofday, (long)&tv, (long)NULL);
+	return (int)x86_64_syscall2(__NR_gettimeofday, (long)&tv, (long)NULL);
 }
 #endif
 
@@ -189,7 +189,7 @@ static int wrap_time(void)
 {
 	time_t t;
 
-	return x86_64_syscall1(__NR_time, (long)&t);
+	return (int)x86_64_syscall1(__NR_time, (long)&t);
 }
 #endif
 
