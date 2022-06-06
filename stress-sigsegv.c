@@ -153,7 +153,7 @@ static void stress_sigsegv_misaligned128nt(void)
 	/* Misaligned non-temporal 128 bit store */
 
 	__uint128_t buffer[2];
-	__uint128_t *ptr = (__uint128_t *)(((uint8_t *)buffer) + 1);
+	__uint128_t *ptr = (__uint128_t *)((uintptr_t)buffer + 1);
 
 	stress_nt_store128(ptr, ~(__uint128_t)0);
 	/*
