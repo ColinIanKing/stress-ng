@@ -133,6 +133,21 @@ static int stress_reboot(const stress_args_t *args)
 			}
 		}
 
+		ret = shim_reboot(0, 0, SHIM_LINUX_REBOOT_CMD_SW_SUSPEND, 0);
+		if (ret < 0) {
+			if (reboot_capable) {
+				if (errno != EINVAL) {
+					pr_fail("%s: reboot with incorrect magic didn't return EINVAL, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+			} else {
+				if ((errno != EPERM) && (errno != EINVAL)) {
+					pr_fail("%s: reboot when not reboot capable didn't return EPERM, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+				}
+			}
+		}
+
 		if (!reboot_capable) {
 			size_t i;
 
