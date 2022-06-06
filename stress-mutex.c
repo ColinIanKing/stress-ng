@@ -76,7 +76,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_SCHED_GET_PRIORITY_MAX) &&	\
     defined(SCHED_FIFO)
 
-pthread_mutex_t mutex;
+static pthread_mutex_t mutex;
 
 typedef struct {
 	const stress_args_t *args;
