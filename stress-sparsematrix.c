@@ -70,7 +70,7 @@
 #define SPARSE_TEST_FAILED	(-1)
 #define SPARSE_TEST_ENOMEM	(-2)
 
-typedef void * (*func_create)(const uint32_t n, const uint32_t x, const uint32_t y);
+typedef void * (*func_create)(const uint64_t n, const uint32_t x, const uint32_t y);
 typedef void (*func_destroy)(void *handle, size_t *objmem);
 typedef int (*func_put)(void *handle, const uint32_t x, const uint32_t y, const uint64_t value);
 typedef void (*func_del)(void *handle, const uint32_t x, const uint32_t y);
@@ -113,7 +113,7 @@ typedef struct sparse_hash_node {
 } sparse_hash_node_t;
 
 typedef struct sparse_hash_table {
-	uint32_t n;		/* size of hash table */
+	uint64_t n;		/* size of hash table */
 	sparse_hash_node_t **table;
 } sparse_hash_table_t;
 
@@ -124,8 +124,8 @@ typedef struct sparse_qhash_node {
 } sparse_qhash_node_t;
 
 typedef struct sparse_qhash_table {
-	uint32_t n;		/* size of hash table */
-	uint32_t n_nodes;	/* number of nodes */
+	uint64_t n;		/* size of hash table */
+	uint64_t n_nodes;	/* number of nodes */
 	sparse_qhash_node_t **table;
 	sparse_qhash_node_t *nodes;
 	size_t idx;
@@ -135,8 +135,8 @@ typedef struct sparse_qhash_table {
 
 typedef struct sparse_x_list_node {
 	CIRCLEQ_ENTRY(sparse_x_list_node) sparse_x_list;
-	uint32_t x;		/* x matrix position */
 	uint64_t value;		/* value in matrix x,y */
+	uint32_t x;		/* x matrix position */
 } sparse_x_list_node_t;
 
 CIRCLEQ_HEAD(sparse_x_list, sparse_x_list_node);
@@ -158,18 +158,18 @@ UNEXPECTED
 
 typedef struct {
 	void *mmap;
+	size_t mmap_size;
 	uint32_t x;
 	uint32_t y;
-	size_t mmap_size;
 } sparse_mmap_t;
 
 typedef struct {
-	bool	skip_no_mem;	/* True if can't allocate memory */
 	size_t	max_objmem;	/* Object memory allocation estimate */
 	double	put_duration;	/* Total put duration time, seconds */
 	double	get_duration;	/* Total get duration time, seconds */
 	uint64_t put_ops;	/* Totoal put object op count */
 	uint64_t get_ops;	/* Totoal put object op count */
+	bool	skip_no_mem;	/* True if can't allocate memory */
 } test_info_t;
 
 /*
@@ -204,10 +204,10 @@ static int stress_set_sparsematrix_size(const char *opt)
  *  hash_create()
  *	create a hash table based sparse matrix
  */
-static void *hash_create(const uint32_t n, const uint32_t x, const uint32_t y)
+static void *hash_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	sparse_hash_table_t *table;
-	uint32_t n_prime = (size_t)stress_get_prime64((uint64_t)n);
+	uint64_t n_prime = (uint64_t)stress_get_prime64(n);
 
 	(void)x;
 	(void)y;
@@ -343,10 +343,10 @@ static void hash_del(void *handle, const uint32_t x, const uint32_t y)
  *  qhash_create()
  *	create a hash table based sparse matrix
  */
-static void *qhash_create(const uint32_t n, const uint32_t x, const uint32_t y)
+static void *qhash_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	sparse_qhash_table_t *table;
-	uint32_t n_prime = (size_t)stress_get_prime64((uint64_t)n);
+	uint64_t n_prime = stress_get_prime64(n);
 
 	(void)x;
 	(void)y;
@@ -489,7 +489,7 @@ static void qhash_del(void *handle, const uint32_t x, const uint32_t y)
  *  judy_create()
  *	create a judy array based sparse matrix
  */
-static void *judy_create(const uint32_t n, const uint32_t x, const uint32_t y)
+static void *judy_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	static Pvoid_t PJLArray;
 
@@ -589,7 +589,7 @@ RB_GENERATE(sparse_rb_tree, sparse_rb, rb, sparse_node_cmp);
  *  rb_create()
  *	create a red black tree based sparse matrix
  */
-static void *rb_create(const uint32_t n, const uint32_t x, const uint32_t y)
+static void *rb_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	(void)n;
 	(void)x;
@@ -679,7 +679,7 @@ UNEXPECTED
  *  list_create()
  *	create a circular list based sparse matrix
  */
-static void *list_create(const uint32_t n, const uint32_t x, const uint32_t y)
+static void *list_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	static sparse_y_list_t y_head;
 
@@ -937,7 +937,7 @@ err:
 	return rc;
 }
 
-static void *mmap_create(const uint32_t n, const uint32_t x, const uint32_t y)
+static void *mmap_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	const size_t page_size = stress_get_page_size();
 	static sparse_mmap_t m;
@@ -952,7 +952,7 @@ static void *mmap_create(const uint32_t n, const uint32_t x, const uint32_t y)
 	 *  2 x n x pages. Make sure there is enough spare
 	 *  physical pages to allow this w/o OOMing
 	 */
-	max_phys = n * page_size * 2;
+	max_phys = (size_t)n * page_size * 2;
 
 	m.mmap_size = (size_t)x * (size_t)y * sizeof(uint64_t);
 	m.mmap_size = (m.mmap_size + page_size - 1) & ~(page_size - 1);
@@ -1022,24 +1022,24 @@ static int mmap_put(void *handle, const uint32_t x, const uint32_t y, const uint
 static void mmap_del(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_mmap_t *m = (sparse_mmap_t *)handle;
-	off_t offset;
+	uint64_t offset;
 
 	if (m->x <= x || m->y <= y)
 		return;
 
-	offset = (x + ((off_t)m->y * y));
+	offset = (x + ((uint64_t)m->y * y));
 	*((uint64_t *)(m->mmap) + offset) = 0;
 }
 
 static uint64_t mmap_get(void *handle, const uint32_t x, const uint32_t y)
 {
 	sparse_mmap_t *m = (sparse_mmap_t *)handle;
-	size_t offset;
+	uint64_t offset;
 
 	if (m->x <= x || m->y <= y)
-		return -1;
+		return (uint64_t)-1;
 
-	offset = (x + ((off_t)m->y * y));
+	offset = (x + ((uint64_t)m->y * y));
 	return *((uint64_t *)(m->mmap) + offset);
 }
 
@@ -1167,7 +1167,7 @@ static int stress_sparsematrix(const stress_args_t *args)
 			for (i = 1; sparsematrix_methods[i].name; i++) {
 				if (stress_sparse_method_test(args,
 						(size_t)sparsematrix_items,
-						(size_t)sparsematrix_size,
+						sparsematrix_size,
 						&sparsematrix_methods[i],
 						&test_info[i]) == SPARSE_TEST_FAILED) {
 					stress_sparsematrix_create_failed(args, sparsematrix_methods[i].name);
@@ -1177,7 +1177,7 @@ static int stress_sparsematrix(const stress_args_t *args)
 		} else {
 			if (stress_sparse_method_test(args,
 					(size_t)sparsematrix_items,
-					(size_t)sparsematrix_size,
+					sparsematrix_size,
 					&sparsematrix_methods[method],
 					&test_info[method]) == SPARSE_TEST_FAILED) {
 				stress_sparsematrix_create_failed(args, sparsematrix_methods[method].name);
@@ -1190,7 +1190,7 @@ static int stress_sparsematrix(const stress_args_t *args)
 
 	if (method == 0) {	/* All methods */
 		begin = 1;
-		end = ~0;
+		end = ~0U;
 	} else {
 		begin = method;
 		end = method + 1;
@@ -1214,9 +1214,9 @@ static int stress_sparsematrix(const stress_args_t *args)
 				args->name,
 				sparsematrix_methods[i].name, str,
 				test_info[i].get_duration > 0.0 ?
-					test_info[i].get_ops / test_info[i].get_duration : 0.0,
+					(double)test_info[i].get_ops / test_info[i].get_duration : 0.0,
 				test_info[i].put_duration > 0.0 ?
-					test_info[i].put_ops / test_info[i].put_duration : 0.0);
+					(double)test_info[i].put_ops / test_info[i].put_duration : 0.0);
 		}
 	}
 	pr_unlock(&lock);
