@@ -98,7 +98,7 @@ static const touch_opts_t touch_opts[] = {
 	{ "trunc",	TOUCH_OPT_TRUNC },
 };
 
-static const touch_method_t touch_method[] = {
+static const touch_method_t touch_methods[] = {
 	{ "random",	TOUCH_RANDOM },
 	{ "open",	TOUCH_OPEN },
 	{ "creat",	TOUCH_CREAT },
@@ -152,16 +152,16 @@ static int stress_set_touch_method(const char *opts)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(touch_method); i++) {
-		if (!strcmp(opts, touch_method[i].method)) {
-			stress_set_setting("touch-method", TYPE_ID_INT, &touch_method[i].method_type);
+	for (i = 0; i < SIZEOF_ARRAY(touch_methods); i++) {
+		if (!strcmp(opts, touch_methods[i].method)) {
+			stress_set_setting("touch-method", TYPE_ID_INT, &touch_methods[i].method_type);
 			return 0;
 		}
 	}
 	fprintf(stderr, "touch-method '%s' not known, methods are:", opts);
-	for (i = 0; i < SIZEOF_ARRAY(touch_method); i++)
+	for (i = 0; i < SIZEOF_ARRAY(touch_methods); i++)
 			(void)fprintf(stderr, "%s %s",
-				i == 0 ? "" : ",", touch_method[i].method);
+				i == 0 ? "" : ",", touch_methods[i].method);
 	(void)fprintf(stderr, "\n");
 	return -1;
 }
