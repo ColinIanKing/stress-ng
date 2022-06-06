@@ -143,7 +143,7 @@ static int stress_set_vm_bytes(const char *opt)
 
 	vm_bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("vm-bytes", vm_bytes,
-		MIN_VM_BYTES, MAX_MEM_LIMIT);
+		MIN_VM_BYTES, MAX_VM_BYTES);
 	return stress_set_setting("vm-bytes", TYPE_ID_SIZE_T, &vm_bytes);
 }
 
