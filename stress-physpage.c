@@ -63,7 +63,7 @@ static void stress_physpage_mtrr(
 {
 	int fd;
 	size_t i;
-	static const int mtrr_types[] = {
+	static const uint32_t mtrr_types[] = {
 		0, 	/* uncachable */
 		1, 	/* write-combining */
 		4, 	/* write-through */
@@ -82,7 +82,7 @@ static void stress_physpage_mtrr(
 		bool found = false;
 
 		sentry.base = phys_addr;
-		sentry.size = page_size;
+		sentry.size = (uint32_t)page_size;
 		sentry.type = mtrr_types[i];
 
 		ret = ioctl(fd, MTRRIOC_ADD_ENTRY, &sentry);
