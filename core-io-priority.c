@@ -56,6 +56,7 @@ int32_t stress_get_opt_ionice_class(const char *const str)
 	(void)fprintf(stderr, "\n");
 
 	_exit(EXIT_FAILURE);
+	return 0;
 }
 
 #if defined(__NR_ioprio_set)
