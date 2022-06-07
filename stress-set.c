@@ -251,7 +251,7 @@ static int stress_set(const stress_args_t *args)
 				gid_t bad_groups[1] = { (gid_t)-1 };
 
 				/* Exercise invalid groups */
-				ret = setgroups(-1, groups);
+				ret = setgroups((size_t)-1, groups);
 				(void)ret;
 
 				ret = setgroups(0, groups);
@@ -290,9 +290,9 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETREGID)
 #if defined(HAVE_GETRESGID)
 		{
-			gid_t rgid = -1;
-			gid_t egid = -1;
-			gid_t sgid = -1;
+			gid_t rgid = (gid_t)-1;
+			gid_t egid = (gid_t)-1;
+			gid_t sgid = (gid_t)-1;
 
 			ret = getresgid(&rgid, &egid, &sgid);
 			if (ret == 0) {
@@ -323,9 +323,9 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETRESUID)
 #if defined(HAVE_GETRESUID)
 		{
-			uid_t ruid = -1;
-			uid_t euid = -1;
-			uid_t suid = -1;
+			uid_t ruid = (uid_t)-1;
+			uid_t euid = (uid_t)-1;
+			uid_t suid = (uid_t)-1;
 
 			ret = getresuid(&ruid, &euid, &suid);
 			if (ret == 0) {
@@ -368,9 +368,9 @@ static int stress_set(const stress_args_t *args)
 #if defined(HAVE_SETRESGID)
 #if defined(HAVE_GETRESGID)
 		{
-			gid_t rgid = -1;
-			gid_t egid = -1;
-			gid_t sgid = -1;
+			gid_t rgid = (gid_t)-1;
+			gid_t egid = (gid_t)-1;
+			gid_t sgid = (gid_t)-1;
 
 			ret = getresgid(&rgid, &egid, &sgid);
 			if (ret == 0) {
