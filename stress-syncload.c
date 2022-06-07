@@ -26,7 +26,7 @@
 
 typedef void(* stress_syncload_op_t)(void);
 
-bool stress_sysload_x86_has_rdrand;
+static bool stress_sysload_x86_has_rdrand;
 
 static const stress_help_t help[] = {
 	{ NULL,	"syncload N",		"start N workers that synchronize load spikes" },
@@ -156,7 +156,7 @@ static void stress_syncload_spinwrite(void)
 	register int i = 1000;
 
 	while (i--)
-		stress_uint32_put(i);
+		stress_uint32_put((uint32_t)i);
 }
 
 #if defined(HAVE_VECMATH)
@@ -256,8 +256,8 @@ static int stress_syncload(const stress_args_t *args)
 	(void)stress_get_setting("syncload-msbusy", &syncload_msbusy);
 	(void)stress_get_setting("syncload-mssleep", &syncload_mssleep);
 
-	sec_busy = syncload_msbusy / 1000.0;
-	sec_sleep = syncload_mssleep / 1000.0;
+	sec_busy = (double)syncload_msbusy / 1000.0;
+	sec_sleep = (double)syncload_mssleep / 1000.0;
 
 	stress_mwc_set_seed(0x6deb3a92, 0x189f7245);
 
