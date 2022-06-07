@@ -77,7 +77,7 @@ static int sockdiag_send(const stress_args_t *args, const int fd)
 		.udr = {
 			.sdiag_family = AF_UNIX,
 			.sdiag_protocol = 0,
-			.udiag_states = -1,
+			.udiag_states = (unsigned int)-1,
 			.udiag_ino = 0,
 			.udiag_cookie = { 0 },
 			.udiag_show = 0,
@@ -185,7 +185,7 @@ static int sockdiag_send(const stress_args_t *args, const int fd)
 			if (errno != EINTR)
 				return -1;
 		}
-		request.udr.udiag_show = ~0;
+		request.udr.udiag_show = ~0U;
 		ret = sendmsg(fd, &msg, 0);
 		if (ret > 0)
 			return 1;
