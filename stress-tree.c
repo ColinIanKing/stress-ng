@@ -173,7 +173,7 @@ static void stress_tree_rb(
 	}
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		/* optional reverse find */
-		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
+		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = RB_FIND(stress_rb_tree, &rb_root, node);
 			if (!find)
 				pr_fail("%s: rb tree node #%zd not found\n",
@@ -224,7 +224,7 @@ static void stress_tree_splay(
 	}
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		/* optional reverse find */
-		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
+		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = SPLAY_FIND(stress_splay_tree, &splay_root, node);
 			if (!find)
 				pr_fail("%s: splay tree node #%zd not found\n",
@@ -306,7 +306,7 @@ static void stress_tree_binary(
 	}
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		/* optional reverse find */
-		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
+		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = binary_find(head, node);
 			if (!find)
 				pr_fail("%s: binary tree node #%zd not found\n",
@@ -500,7 +500,7 @@ static void stress_tree_avl(
 	}
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		/* optional reverse find */
-		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
+		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = avl_find(head, node);
 			if (!find)
 				pr_fail("%s: avl tree node #%zd not found\n",
@@ -706,7 +706,7 @@ static void stress_tree_btree(
 	}
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
 		/* optional reverse find */
-		for (node = &nodes[n - 1]; i = n - 1, node >= nodes; node--, i--) {
+		for (node = &nodes[n - 1], i = n - 1; node >= nodes; node--, i--) {
 			find = btree_find(root, node->value);
 			if (!find)
 				pr_fail("%s: btree node #%zd not found\n",
