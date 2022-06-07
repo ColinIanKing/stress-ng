@@ -229,6 +229,7 @@ static void *stress_malloc_loop(void *ptr)
 				if (tmp) {
 					addr[i] = tmp;
 					stress_malloc_page_touch((void *)addr[i], len, page_size);
+					*addr[i] = (uintptr_t)addr[i];	/* stash address */
 					if (verify && (uintptr_t)addr[i] != *addr[i]) {
 						pr_fail("%s: allocation at %p does not contain correct value\n",
 							args->name, (void *)addr[i]);
