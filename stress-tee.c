@@ -128,7 +128,7 @@ static void stress_tee_pipe_read(const stress_args_t *args, int fds[2])
 				if (errno != EAGAIN)
 					break;
 			} else {
-				n += ret;
+				n += (size_t)ret;
 			}
 		}
 		if (buffer[0] != sizeof(buffer)) {
