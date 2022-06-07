@@ -56,16 +56,7 @@ static const stress_help_t help[] = {
     defined(PR_SET_SECCOMP) &&		\
     defined(SECCOMP_SET_MODE_FILTER)
 
-#if defined(NSIG)
-#define MAX_SIGNUM	NSIG
-#elif defined(_NSIG)
-#define MAX_SIGNUM	_NSIG
-#else
-#define MAX_SIGNUM	256
-#endif
-
-#define EXIT_TRAPPED	255
-
+#define EXIT_TRAPPED	(255)
 #define SYSCALL_NR	(offsetof(struct seccomp_data, nr))
 
 #define ALLOW_SYSCALL(syscall) \
@@ -171,7 +162,7 @@ static uint32_t seccomp_actions[] = {
 #if defined(SECCOMP_RET_LOG)
 	SECCOMP_RET_ALLOW,
 #endif
-	~0,	/* Invalid */
+	~0U,	/* Invalid */
 };
 #endif
 
@@ -324,7 +315,7 @@ static int stress_seccomp_set_filter(
 			 */
 			(void)shim_seccomp(SECCOMP_GET_NOTIF_SIZES, 0, &sizes);
 			/* Invalid flags, EINVAL */
-			(void)shim_seccomp(SECCOMP_GET_NOTIF_SIZES, ~0, &sizes);
+			(void)shim_seccomp(SECCOMP_GET_NOTIF_SIZES, ~0U, &sizes);
 		}
 #else
 		UNEXPECTED
@@ -335,7 +326,7 @@ static int stress_seccomp_set_filter(
 				/* Valid flags */
 				(void)shim_seccomp(SECCOMP_GET_ACTION_AVAIL, 0, (void *)&seccomp_actions[i]);
 				/* Invalid flags, EINVAL */
-				(void)shim_seccomp(SECCOMP_GET_ACTION_AVAIL, ~0, (void *)&seccomp_actions[i]);
+				(void)shim_seccomp(SECCOMP_GET_ACTION_AVAIL, ~0U, (void *)&seccomp_actions[i]);
 			}
 		}
 #else
@@ -344,14 +335,14 @@ static int stress_seccomp_set_filter(
 #if defined(SECCOMP_SET_MODE_STRICT)
 		if (stress_mwc8() < 16) {
 			(void)shim_seccomp(SECCOMP_SET_MODE_STRICT, 0, NULL);
-			(void)shim_seccomp(SECCOMP_SET_MODE_STRICT, ~0, NULL);
+			(void)shim_seccomp(SECCOMP_SET_MODE_STRICT, ~0U, NULL);
 			(void)shim_seccomp(SECCOMP_SET_MODE_STRICT, 0, &i);
 		}
 #else
 		UNEXPECTED
 #endif
 		/* Exercise invalid op */
-		(void)shim_seccomp(~0, 0, NULL);
+		(void)shim_seccomp(~0U, 0, NULL);
 
 redo_seccomp:
 		if (shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, p) == 0)
