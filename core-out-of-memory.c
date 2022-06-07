@@ -192,6 +192,7 @@ int stress_oomable_child(
 	int ooms = 0;
 	int segvs = 0;
 	int buserrs = 0;
+	int rc = EXIT_SUCCESS;
 	size_t signal_idx = 0;
 	const bool not_quiet = !(flag & STRESS_OOMABLE_QUIET);
 
@@ -301,8 +302,10 @@ rewait:
 				goto again;
 			}
 		}
+		rc = WEXITSTATUS(status);
 	} else if (pid == 0) {
 		/* Child */
+		int ret;
 
 		if (!keep_stressing(args))
 			_exit(EXIT_SUCCESS);
@@ -322,7 +325,13 @@ rewait:
 		}
 		if (!keep_stressing(args))
 			_exit(EXIT_SUCCESS);
-		_exit(func(args, context));
+
+		ret = func(args, context);
+		pr_fail_check(&rc);
+		if (rc != EXIT_SUCCESS)
+			ret = rc;
+
+		_exit(ret);
 	}
 
 report:
@@ -333,5 +342,5 @@ report:
 			args->name, ooms, segvs, buserrs);
 	}
 
-	return EXIT_SUCCESS;
+	return rc;
 }
