@@ -489,7 +489,7 @@ timed_out:
 			 */
 			timeout.tv_sec = 0;
 			timeout.tv_nsec = 10000;
-			ret = semtimedop(sem_id, &semwait, -1, &timeout);
+			ret = semtimedop(sem_id, &semwait, (size_t)-1, &timeout);
 			(void)ret;
 		}
 #else
@@ -506,7 +506,7 @@ timed_out:
 			/*
 			 *  Exercise invalid nsops, E2BIG
 			 */
-			ret = semop(sem_id, &semwait, -1);
+			ret = semop(sem_id, &semwait, (size_t)-1);
 			(void)ret;
 		}
 
@@ -516,7 +516,7 @@ timed_out:
 		{
 			struct sembuf semwait;
 
-			semwait.sem_num = -1;
+			semwait.sem_num = (unsigned short)-1;
 			semwait.sem_op = -1;
 			semwait.sem_flg = SEM_UNDO;
 
