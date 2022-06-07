@@ -36,12 +36,7 @@ static const stress_help_t help[] = {
 
 #include "zlib.h"
 
-#define DATA_SIZE_1K 	(KB)		/* Must be a multiple of 8 bytes */
-#define DATA_SIZE_4K 	(KB * 4)	/* Must be a multiple of 8 bytes */
-#define DATA_SIZE_16K 	(KB * 16)	/* Must be a multiple of 8 bytes */
 #define DATA_SIZE_64K 	(KB * 64)	/* Must be a multiple of 8 bytes */
-#define DATA_SIZE_128K 	(KB * 128)	/* Must be a multiple of 8 bytes */
-
 #define DATA_SIZE DATA_SIZE_64K
 
 typedef void (*stress_zlib_rand_data_func)(const stress_args_t *args,
@@ -200,9 +195,9 @@ static void stress_rand_data_bcd(
 		register uint32_t v = r - (t * 100);
 		register uint32_t d1 = (v * 0x199a) >> 16;
 		/* d1 = v / 10 using multiplication rather than division */
-		register uint8_t  d0 = v - (d1 * 10);
+		register uint8_t  d0 = (uint8_t)(v - (d1 * 10));
 		/* d0 = v % 10 using multiplication rather than division */
-		*ptr++ = (d1 << 4 | d0);
+		*ptr++ = (uint8_t)(d1 << 4 | d0);
 	}
 }
 
@@ -501,21 +496,21 @@ static void OPTIMIZE3 stress_rand_data_ror32(
 	while (ptr < end) {
 		register uint32_t val = stress_mwc32();
 
-		ptr[0x00] = val;
+		ptr[0x00] = (uint16_t)val;
 		ROR32(val, 1);
-		ptr[0x01] = val;
+		ptr[0x01] = (uint16_t)val;
 		ROR32(val, 2);
-		ptr[0x02] = val;
+		ptr[0x02] = (uint16_t)val;
 		ROR32(val, 3);
-		ptr[0x03] = val;
+		ptr[0x03] = (uint16_t)val;
 		ROR32(val, 4);
-		ptr[0x04] = val;
+		ptr[0x04] = (uint16_t)val;
 		ROR32(val, 5);
-		ptr[0x05] = val;
+		ptr[0x05] = (uint16_t)val;
 		ROR32(val, 6);
-		ptr[0x06] = val;
+		ptr[0x06] = (uint16_t)val;
 		ROR32(val, 7);
-		ptr[0x07] = val;
+		ptr[0x07] = (uint16_t)val;
 		ptr += 8;
 	}
 }
@@ -567,7 +562,7 @@ static void stress_rand_data_gray(
 	(void)args;
 
 	for (i = 0; ptr < end; i++)
-		*(ptr++) = (v >> 1) ^ i;
+		*(ptr++) = (uint16_t)((v >> 1) ^ i);
 
 	val = v;
 }
@@ -658,7 +653,7 @@ static void stress_rand_data_pink(
 	uint64_t sum = 0;
 	const uint64_t max = (PINK_MAX_ROWS + 1) * (1 << (PINK_BITS - 1));
 	uint64_t rows[PINK_MAX_ROWS];
-	const float scalar = 256.0 / max;
+	const float scalar = 256.0 / (float)max;
 
 	(void)args;
 	(void)memset(rows, 0, sizeof(rows));
@@ -669,18 +664,18 @@ static void stress_rand_data_pink(
 		idx = (idx + 1) & mask;
 		if (idx) { /* cppcheck-suppress knownConditionTrueFalse */
 #if defined(HAVE_BUILTIN_CTZ)
-			const size_t j = __builtin_ctz(idx);
+			const size_t j = (size_t)__builtin_ctz(idx);
 #else
-			const size_t j = stress_builtin_ctz(idx);
+			const size_t j = (size_t)stress_builtin_ctz(idx);
 #endif
 
 			sum -= rows[j];
 			rnd = (int64_t)stress_mwc64() >> PINK_SHIFT;
 			sum += rnd;
-			rows[j] = rnd;
+			rows[j] = (uint64_t)rnd;
 		}
 		rnd = (int64_t)stress_mwc64() >> PINK_SHIFT;
-		*(ptr++) = (int)((scalar * ((int64_t)sum + rnd)) + 128.0);
+		*(ptr++) = (uint8_t)(int)((scalar * ((int64_t)sum + rnd)) + 128.0);
 	}
 }
 
@@ -818,19 +813,19 @@ static void stress_rand_data_gcr(
 		rnd >>= 4;
 		gcr |= gcr45[rnd & 0xf];
 
-		*ptr++ = gcr >> 32;
+		*ptr++ = (uint8_t)(gcr >> 32);
 		if (ptr >= end)
 			break;
-		*ptr++ = gcr >> 24;
+		*ptr++ = (uint8_t)(gcr >> 24);
 		if (ptr >= end)
 			break;
-		*ptr++ = gcr >> 16;
+		*ptr++ = (uint8_t)(gcr >> 16);
 		if (ptr >= end)
 			break;
-		*ptr++ = gcr >> 8;
+		*ptr++ = (uint8_t)(gcr >> 8);
 		if (ptr >= end)
 			break;
-		*ptr++ = gcr >> 0;
+		*ptr++ = (uint8_t)gcr >> 0;
 		if (ptr >= end)
 			break;
 	}
@@ -903,7 +898,7 @@ static void stress_rand_data_lrand48(
 	(void)args;
 
 	while (ptr < end)
-		*(ptr++) = lrand48();
+		*(ptr++) = (uint32_t)lrand48();
 }
 
 /*
@@ -1033,7 +1028,7 @@ static void stress_rand_data_objcode(
 		text_start = (char *)stress_rand_data_objcode;
 		text_end = (char *)stress_rand_data_bcd;
 	}
-	text = text_start + (stress_mwc64() % (text_end - text_start));
+	text = text_start + (stress_mwc64() % (uint64_t)(text_end - text_start));
 
 	for (dataptr = (char *)data, i = 0; i < size; i++, dataptr++) {
 		*dataptr = *text;
@@ -1185,15 +1180,15 @@ static int stress_set_zlib_window_bits(const char *opt)
 	zlib_window_bits = stress_get_int32(opt);
 	if (zlib_window_bits > 31) {
 		/* auto detect inflate format */
-		stress_check_range("zlib-window-bits", zlib_window_bits, 40, 47);
+		stress_check_range("zlib-window-bits", (uint64_t)zlib_window_bits, 40, 47);
 	} else if (zlib_window_bits > 15) {
 		/* gzip format */
-		stress_check_range("zlib-window-bits", zlib_window_bits, 24, 31);
+		stress_check_range("zlib-window-bits", (uint64_t)zlib_window_bits, 24, 31);
 	} else if (zlib_window_bits > 0) {
 		/* zlib format */
-		stress_check_range("zlib-window-bits", zlib_window_bits, 8, 15);
+		stress_check_range("zlib-window-bits", (uint64_t)zlib_window_bits, 8, 15);
 	} else {
-		stress_check_range("zlib-window-bits", zlib_window_bits, -15, -8);
+		stress_check_range("zlib-window-bits", (uint64_t)zlib_window_bits, -15, -8);
 	}
 	return stress_set_setting("zlib-window-bits", TYPE_ID_INT32, &zlib_window_bits);
 }
@@ -1363,7 +1358,7 @@ static int stress_zlib_inflate(
 				}
 			}
 
-			stream_inf.avail_in = sz;
+			stream_inf.avail_in = (unsigned int)sz;
 			stream_inf.next_in = in;
 			do {
 				stream_inf.avail_out = DATA_SIZE;
@@ -1475,26 +1470,29 @@ static int stress_zlib_deflate(
 		do {
 			static unsigned char in[DATA_SIZE];
 			unsigned char *xsum_in = (unsigned char *)in;
+			uint64_t diff = zlib_args.stream_bytes - stream_bytes_out;
 
-			int gen_sz = ((zlib_args.stream_bytes - stream_bytes_out >= DATA_SIZE)
-					|| (zlib_args.stream_bytes - stream_bytes_out == 0) /* cppcheck-suppress knownConditionTrueFalse */
-					|| (zlib_args.stream_bytes == 0))
-				? DATA_SIZE : (zlib_args.stream_bytes - stream_bytes_out);
+			int gen_sz = (int)((diff >= DATA_SIZE)
+					|| (diff == 0) /* cppcheck-suppress knownConditionTrueFalse */
+					|| (zlib_args.stream_bytes == 0)) ? DATA_SIZE : diff;
 
-			if (zlib_args.stream_bytes > 0)
+			if (zlib_args.stream_bytes > 0) {
 				flush = (stream_bytes_out + gen_sz < zlib_args.stream_bytes
 					&& keep_stressing(args))
 					? Z_NO_FLUSH : Z_FINISH;
-			else
+			} else {
 				flush = keep_stressing(args) ? Z_NO_FLUSH : Z_FINISH;
+			}
 
 			info->func(args, (uint8_t *)in, DATA_SIZE);
 
-			stream_def.avail_in = gen_sz;
+			stream_def.avail_in = (unsigned int)gen_sz;
 			stream_def.next_in = (unsigned char *)in;
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
-				for (int i = 0; i < gen_sz; i++) {
+				int i;
+
+				for (i = 0; i < gen_sz; i++) {
 					xsum.xsum += xsum_in[i];
 					xsum.xchars++;
 				}
@@ -1517,9 +1515,9 @@ static int stress_zlib_deflate(
 					ret = EXIT_FAILURE;
 					goto xsum_error;
 				}
-				def_size = DATA_SIZE - stream_def.avail_out;
-				bytes_out += def_size;
-				stream_bytes_out += (def_size) ? gen_sz : 0;
+				def_size = (int)(DATA_SIZE - stream_def.avail_out);
+				bytes_out += (uint64_t)def_size;
+				stream_bytes_out += (uint64_t)((def_size) ? gen_sz : 0);
 
 				/* continue if nothing has been deflated */
 				if (def_size == 0)
@@ -1577,7 +1575,7 @@ finish:
 	pr_inf("%s: instance %" PRIu32 ": compression ratio: %5.2f%% (%.2f MB/sec)\n",
 		args->name, args->instance,
 		bytes_in ? 100.0 * (double)bytes_out / (double)bytes_in : 0,
-		(t2 - t1 > 0.0) ? (bytes_in / (t2 - t1)) / MB : 0.0);
+		(t2 - t1 > 0.0) ? ((double)bytes_in / (t2 - t1)) / MB : 0.0);
 
 	ret = EXIT_SUCCESS;
 xsum_error:
