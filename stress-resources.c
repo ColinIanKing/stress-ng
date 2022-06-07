@@ -84,6 +84,7 @@ typedef struct {
 #endif
 #if defined(__NR_memfd_secret)
 	int fd_memfd_secret;
+	int padding1;
 	void *ptr_memfd_secret;
 #endif
 #if defined(HAVE_USERFAULTFD)
@@ -98,8 +99,8 @@ typedef struct {
 #if defined(HAVE_PTHREAD_MUTEX_T) &&	\
     defined(HAVE_PTHREAD_MUTEX_INIT) &&	\
     defined(HAVE_PTHREAD_MUTEX_DESTROY)
-	pthread_mutex_t mutex;
 	int mutex_ret;
+	pthread_mutex_t mutex;
 #endif
 #endif
 #if defined(HAVE_SYS_INOTIFY_H)
@@ -127,6 +128,7 @@ typedef struct {
 #if defined(HAVE_LIB_PTHREAD) &&	\
     defined(HAVE_SEM_POSIX)
 	bool semok;
+	uint8_t padding[3];
 	sem_t sem;
 #endif
 #if defined(HAVE_SEM_SYSV)
@@ -409,7 +411,7 @@ static void NORETURN waste_resources(
 #if defined(__NR_memfd_secret)
 		info[i].fd_memfd_secret = shim_memfd_secret(0);
 		if (info[i].fd_memfd_secret != -1) {
-			if (ftruncate(info[i].fd_memfd_secret, page_size) == 0) {
+			if (ftruncate(info[i].fd_memfd_secret, (off_t)page_size) == 0) {
 				info[i].ptr_memfd_secret = mmap(NULL,
 					page_size,
 					PROT_READ | PROT_WRITE, MAP_SHARED,
