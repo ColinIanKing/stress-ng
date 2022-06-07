@@ -69,8 +69,8 @@ static int stress_set_timerfd_fds(const char *opt)
 {
 	int timerfd_fds;
 
-	timerfd_fds = stress_get_uint32(opt);
-	stress_check_range("timerfd-fds", timerfd_fds, 1, TIMER_FDS_MAX);
+	timerfd_fds = (int)stress_get_uint32(opt);
+	stress_check_range("timerfd-fds", (uint64_t)timerfd_fds, 1, TIMER_FDS_MAX);
 	return stress_set_setting("timerfd-fds", TYPE_ID_INT, &timerfd_fds);
 }
 
@@ -316,7 +316,7 @@ static int stress_timerfd(const stress_args_t *args)
 		}
 #endif
 #if defined(USE_POLL)
-		ret = poll(pollfds, j, 0);
+		ret = poll(pollfds, (nfds_t)j, 0);
 		if (ret < 0) {
 			if (errno == EINTR)
 				continue;
