@@ -53,9 +53,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_splice_pipe_size()
  *	set random splice flags
  */
-static int stress_splice_flag(void)
+static unsigned int stress_splice_flag(void)
 {
-	int flag = 0;
+	unsigned int flag = 0;
 
 #if defined(SPLICE_F_MOVE)
 	flag |= (stress_mwc1() ? SPLICE_F_MOVE : 0);
