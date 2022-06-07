@@ -2017,6 +2017,8 @@ int shim_stime(const time_t *t)
 
 	return stime(ut);
 #else
+	int stime(time_t *t);
+
 	return stime(t);
 #endif
 #elif defined(__NR_stime)

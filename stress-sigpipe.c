@@ -43,6 +43,7 @@ static int NORETURN pipe_child(void *ptr)
 	(void)ptr;
 
 	_exit(EXIT_SUCCESS);
+	return 0;
 }
 #endif
 

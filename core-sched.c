@@ -348,6 +348,7 @@ int32_t stress_get_opt_sched(const char *const str)
 		(void)fprintf(stderr, "\n");
 	}
 	_exit(EXIT_FAILURE);
+	return 0;
 }
 
 /*

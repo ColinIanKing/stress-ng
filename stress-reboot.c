@@ -75,6 +75,7 @@ static int reboot_clone_func(void *arg)
 
 	/* Should never get here */
 	exit(errno);
+	return 0;
 }
 #endif
 

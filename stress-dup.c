@@ -80,6 +80,7 @@ static int stress_dup2_race_clone(void *arg)
 	(void)close(fd);
 
 	_exit(0);
+	return 0;
 }
 
 static void stress_dup2_sigalrm(int sig)

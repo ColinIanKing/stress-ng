@@ -176,6 +176,7 @@ static int stress_set_setting_generic(
 err:
 	(void)fprintf(stderr, "cannot allocate setting '%s'\n", name);
 	_exit(EXIT_NO_RESOURCE);
+	return 0;
 }
 
 /*
