@@ -172,7 +172,7 @@ static void MLOCKED_TEXT stress_sigpipe_handler(int signum)
 	pipe_broken = true;
 }
 
-static void MLOCKED_TEXT stress_bad_read_handler(int signum)
+static void NORETURN MLOCKED_TEXT stress_bad_read_handler(int signum)
 {
 	(void)signum;
 
