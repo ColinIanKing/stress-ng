@@ -318,8 +318,6 @@ rewait:
 
 		/* Explicitly drop capabilities, makes it more OOM-able */
 		if (flag & STRESS_OOMABLE_DROP_CAP) {
-			int ret;
-
 			ret = stress_drop_capabilities(args->name);
 			(void)ret;
 		}
