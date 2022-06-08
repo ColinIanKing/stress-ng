@@ -462,7 +462,7 @@ makeconfig: config.h
 #  parser output
 #
 apparmor-data.o: usr.bin.pulseaudio.eg
-	$(PRE_V)$(APPARMOR_PARSER) -Q usr.bin.pulseaudio.eg  -o apparmor-data.bin
+	$(PRE_V)$(APPARMOR_PARSER) -Q usr.bin.pulseaudio.eg  -o apparmor-data.bin >/dev/null 2>&1
 	$(PRE_V)echo "#include <stddef.h>" > apparmor-data.c
 	$(PRE_V)echo "char g_apparmor_data[]= { " >> apparmor-data.c
 	$(PRE_V)od -tx1 -An -v < apparmor-data.bin | \
