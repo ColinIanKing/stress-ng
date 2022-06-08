@@ -160,6 +160,12 @@
 #define UNEXPECTED
 #endif
 
+#define VOID_RET(type, x)	\
+do {				\
+	type ret = x;		\
+				\
+	(void)ret;		\
+} while(0)			\
 
 /*
  *  BeagleBoneBlack with 4.1.15 kernel does not

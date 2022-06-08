@@ -42,13 +42,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-#define VOID_RET(type, x)	\
-do {				\
-	type ret = x;		\
-				\
-	(void)ret;		\
-} while(0)			\
-
 /*
  *  stress_sockabuse_fd
  *	exercise and abuse the fd
