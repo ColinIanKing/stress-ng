@@ -21,6 +21,9 @@ Build-Depends: debhelper (>= 13),
                libatomic1 [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
                libkmod-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
                libxxhash-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64]
+               libglvnd-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64]
+               libgbm-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64]
+
 Homepage: https://github.com/ColinIanKing/stress-ng
 
 Package: stress-ng
