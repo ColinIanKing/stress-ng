@@ -201,6 +201,7 @@ static int stress_get(const stress_args_t *args)
 		pid_t pid;
 
 		(void)mypid;
+		(void)pid;
 
 		if (!keep_stressing_flag())
 			break;
