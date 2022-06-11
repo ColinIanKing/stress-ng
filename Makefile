@@ -93,6 +93,44 @@ JOBDIR=/usr/share/stress-ng/example-jobs
 BASHDIR=/usr/share/bash-completion/completions
 
 #
+# Header files
+#
+HEADERS = \
+	core-arch.h \
+	core-bitops.h \
+	core-builtin.h \
+	core-cache.h \
+	core-capabilities.h \
+	core-cpu.h \
+	core-ftrace.h \
+	core-hash.h \
+	core-io-priority.h \
+	core-io-uring.c \
+	core-nt-store.h \
+	core-net.h \
+	core-perf.h \
+	core-personality.c \
+	core-pragma.h \
+	core-put.h \
+	core-smart.h \
+	core-target-clones.h \
+	core-thermal-zone.h \
+	core-thrash.h \
+	core-vecmath.h \
+	stress-af-alg-defconfigs.h \
+	stress-ng.h \
+	stress-version.h
+
+#
+#  Build time generated header files
+#
+HEADERS_GEN = \
+	config.h \
+	git-commit-id.h \
+	io-uring.h \
+	personality.h
+
+#
 #  Stressors
 #
 STRESS_SRC = \
@@ -438,11 +476,7 @@ OBJS += $(CONFIG_OBJS)
 
 .o: Makefile
 
-%.o: %.c stress-ng.h config.h git-commit-id.h core-capabilities.h core-put.h \
-	 core-target-clones.h core-pragma.h core-perf.h core-thermal-zone.h \
-	 core-smart.h core-thrash.h core-net.h core-ftrace.h core-cache.h \
-	 core-nt-store.h core-arch.h core-cpu.h core-vecmath.h core-builtin.h \
-	 core-bitops.h
+%.o: %.c $(HEADERS) $(HEADERS_GEN)
 	$(PRE_Q)echo "CC $<"
 	$(PRE_V)$(CC) $(CFLAGS) -c -o $@ $<
 
@@ -526,17 +560,12 @@ stress-ng.1.gz: stress-ng.1
 dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
-	cp -rp Makefile Makefile.config $(SRC) stress-ng.h stress-ng.1 \
-		core-capabilities.h core-put.h  core-target-clones.h \
-		core-pragma.h core-perf.h core-thermal-zone.h core-smart.h \
-		core-thrash.h core-net.h core-ftrace.h core-cache.h \
-		core-hash.h core-io-priority.h core-nt-store.h \
-		core-personality.c core-io-uring.c core-arch.h \
-		core-cpu.h core-vecmath.h core-builtin.h core-bitops.h \
+	cp -rp Makefile Makefile.config $(SRC) $(HEADERS) stress-ng.1 \
+		core-personality.c core-io-uring.c \
 		COPYING syscalls.txt mascot README.md \
-		stress-af-alg-defconfigs.h README.Android test snap \
+		README.Android test snap \
 		TODO core-perf-event.c usr.bin.pulseaudio.eg \
-		stress-version.h bash-completion example-jobs .travis.yml \
+		bash-completion example-jobs .travis.yml \
 		kernel-coverage.sh code-of-conduct.txt stress-ng-$(VERSION)
 	tar -Jcf stress-ng-$(VERSION).tar.xz stress-ng-$(VERSION)
 	rm -rf stress-ng-$(VERSION)
