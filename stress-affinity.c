@@ -40,8 +40,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		  NULL }
 };
 
-static void *counter_lock;	/* Counter lock */
-
 static int stress_set_affinity_delay(const char *opt)
 {
 	uint64_t affinity_delay;
@@ -92,6 +90,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  */
 #if defined(HAVE_AFFINITY) && \
     defined(HAVE_SCHED_GETAFFINITY)
+
+static void *counter_lock;	/* Counter lock */
 
 /*
  *  stress_affinity_supported()
