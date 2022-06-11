@@ -61,12 +61,12 @@ static int stress_binderfs_supported(const char *name)
 
 static int stress_binderfs_umount(const stress_args_t *args, const char *pathname)
 {
-	int ret;
 	double t1;
 
 	t1 = stress_time_now();
 	for (;;) {
 		double t2;
+		int ret;
 
 		ret = umount(pathname);
 		if (ret == 0)
