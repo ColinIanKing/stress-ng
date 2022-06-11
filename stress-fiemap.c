@@ -41,8 +41,6 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		   NULL }
 };
 
-static void *counter_lock;	/* Counter lock */
-
 static int stress_set_fiemap_bytes(const char *opt)
 {
 	uint64_t fiemap_bytes;
@@ -61,6 +59,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_LINUX_FS_H) &&		\
     defined(HAVE_LINUX_FIEMAP_H) && 	\
     defined(FS_IOC_FIEMAP)
+
+static void *counter_lock;	/* Counter lock */
 
 /*
  *  stress_fiemap_keep_stressing()
