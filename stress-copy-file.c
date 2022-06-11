@@ -61,12 +61,13 @@ static int stress_copy_file_range_verify(
 	off_t *off_out,
 	const ssize_t bytes)
 {
-	ssize_t n, bytes_in, bytes_out, bytes_left = bytes;
+	ssize_t bytes_left = bytes;
 	ssize_t buf_sz = STRESS_MINIMUM(bytes, 1024);
 	off_t off_ret;
 
-
 	while (bytes_left >= 0) {
+		ssize_t n, bytes_in, bytes_out;
+
 		char buf_in[buf_sz], buf_out[buf_sz];
 
 		off_ret = lseek(fd_in, *off_in, SEEK_SET);
