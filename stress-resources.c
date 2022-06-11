@@ -828,12 +828,9 @@ static int stress_resources(const stress_args_t *args)
 
 			pid = fork();
 			if (pid == 0) {
-				int ret;
-
 				(void)setpgid(0, g_pgrp);
 				stress_set_oom_adjustment(args->name, true);
-				ret = stress_drop_capabilities(args->name);
-				(void)ret;
+				VOID_RET(int, stress_drop_capabilities(args->name));
 				(void)sched_settings_apply(true);
 
 				waste_resources(args, page_size, pipe_size, mem_slack);

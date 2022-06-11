@@ -82,10 +82,8 @@ static int stress_personality(const stress_args_t *args)
 			/*
 			 *  Exercise invalid personalities
 			 */
-			ret = personality(0xbad00000 | stress_mwc32());
-			(void)ret;
-			ret = personality(p);
-			(void)ret;
+			VOID_RET(int, personality(0xbad00000 | stress_mwc32()));
+			VOID_RET(int, personality(p));
 		}
 		if (fails == n) {
 			pr_fail("%s: all %zu personalities failed "

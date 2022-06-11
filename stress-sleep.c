@@ -222,12 +222,7 @@ tidy:
 
 	thread_terminate = true;
 	for (i = 0; i < n; i++) {
-		ret = pthread_join(ctxts[i].pthread, NULL);
-		(void)ret;
-		/*
-		if (ret)
-			pr_dbg("%s: pthread join, ret=%d\n", args->name, ret);
-		*/
+		VOID_RET(int, pthread_join(ctxts[i].pthread, NULL));
 	}
 
 	if (limited) {

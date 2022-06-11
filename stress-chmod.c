@@ -104,8 +104,6 @@ static int do_fchmod(
 	const mode_t mask,
 	const mode_t all_mask)
 {
-	int ret;
-
 	CHECK(fchmod(fd, modes[i]) < 0);
 	CHECK(fchmod(fd, mask) < 0);
 	CHECK(fchmod(fd, modes[i] ^ all_mask) < 0);
@@ -114,8 +112,7 @@ static int do_fchmod(
 	/*
 	 *  Exercise bad fchmod, ignore failure
 	 */
-	ret = fchmod(bad_fd, modes[i]);
-	(void)ret;
+	VOID_RET(int, fchmod(bad_fd, modes[i]));
 
 	return 0;
 }
@@ -140,7 +137,6 @@ static int do_chmod(
 	const size_t mode_count,
 	const int *mode_perms)
 {
-	int ret;
 	static int index;
 
 	(void)chmod(filename, (mode_t)mode_perms[index]);
@@ -162,8 +158,7 @@ static int do_chmod(
 		/*
 		 *  Exercise bad fchmodat, ignore failure
 		 */
-		ret = fchmodat(bad_fd, filebase, modes[i], 0);
-		(void)ret;
+		VOID_RET(int, fchmodat(bad_fd, filebase, modes[i], 0));
 	}
 #else
 	(void)dfd;
@@ -174,14 +169,12 @@ static int do_chmod(
 	/*
 	 *  Exercise illegal filename
 	 */
-	ret = chmod("", modes[i]);
-	(void)ret;
+	VOID_RET(int, chmod("", modes[i]));
 
 	/*
 	 *  Exercise illegal overly long pathname
 	 */
-	ret = chmod(longpath, modes[i]);
-	(void)ret;
+	VOID_RET(int, chmod(longpath, modes[i]));
 
 	return 0;
 }

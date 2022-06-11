@@ -110,14 +110,10 @@ again:
 
 			ret = kill(pid, SIGSTOP);
 			if (ret == 0) {
-				ret = kill(pid, SIGCONT);
-				(void)ret;
+				VOID_RET(int, kill(pid, SIGCONT));
 			}
-			ret = kill(pid, SIGKILL);
-			(void)ret;
-
-			ret = waitpid(pid, &wstatus, 0);
-			(void)ret;
+			VOID_RET(int, kill(pid, SIGKILL));
+			VOID_RET(int, waitpid(pid, &wstatus, 0));
 		}
 		set_counter(args, counter);
 	} while (keep_stressing(args));

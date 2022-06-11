@@ -192,10 +192,8 @@ static int stress_chdir(const stress_args_t *args)
 			 *  root.
 			 */
 			if (!is_root && (fchmod(fd, 0000) == 0)) {
-				rc = fchdir(fd);
-				(void)rc;
-				rc = fchmod(fd, statbuf.st_mode & 0777);
-				(void)rc;
+				VOID_RET(int, fchdir(fd));
+				VOID_RET(int, fchmod(fd, statbuf.st_mode & 0777));
 			}
 
 			while (keep_stressing(args)) {
@@ -213,32 +211,27 @@ static int stress_chdir(const stress_args_t *args)
 		/*
 		 *  chdir to a non-existent path
 		 */
-		rc = chdir(badpath);
-		(void)rc;
+		VOID_RET(int, chdir(badpath));
 
 		/*
 		 *  chdir to an invalid non-directory
 		 */
-		rc = chdir("/dev/null");
-		(void)rc;
+		VOID_RET(int, chdir("/dev/null"));
 
 		/*
 		 *  fchdir to an invalid file descriptor
 		 */
-		rc = fchdir(-1);
-		(void)rc;
+		VOID_RET(int, fchdir(-1));
 
 		/*
 		 *  chdir to a bad directory
 		 */
-		rc = chdir("");
-		(void)rc;
+		VOID_RET(int, chdir(""));
 
 		/*
 		 *  chdir to an overly long directory name
 		 */
-		rc = chdir(longpath);
-		(void)rc;
+		VOID_RET(int, chdir(longpath));
 
 		inc_counter(args);
 	} while (keep_stressing(args));

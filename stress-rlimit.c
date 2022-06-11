@@ -184,8 +184,7 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 		/*
 		 *  Exercise illegal bad resource id
 		 */
-		ret = getrlimit((shim_rlimit_resource_t)~0, &rlim);
-		(void)ret;
+		VOID_RET(int, getrlimit((shim_rlimit_resource_t)~0, &rlim));
 
 
 		/*
@@ -230,9 +229,7 @@ static int stress_rlimit_child(const stress_args_t *args, void *ctxt)
 				if (oldbrk != (void *)-1) {
 					ptr = shim_sbrk(MAX_RLIMIT_DATA);
 					if (ptr != (void *)-1) {
-						int rc = shim_brk(oldbrk);
-
-						(void)rc;
+						VOID_RET(int, shim_brk(oldbrk));
 					}
 				}
 				break;

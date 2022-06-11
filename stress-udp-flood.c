@@ -129,7 +129,7 @@ static int stress_udp_flood(const stress_args_t *args)
 		if ((port & 0x1f) == 0) {
 			int pending;
 
-			(void)ioctl(fd, SIOCOUTQ, &pending);
+			VOID_RET(int, ioctl(fd, SIOCOUTQ, &pending));
 		}
 #else
 		UNEXPECTED

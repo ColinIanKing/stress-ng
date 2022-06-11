@@ -123,7 +123,6 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 	static uint64_t last_count;
 	double previous_time, dt;
 	bool hrtimer_interrupt = false;
-	int ret;
 
 	timer_counter = counter;
 	last_count = *counter;
@@ -132,8 +131,7 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 	(void)sigaddset(&mask, SIGINT);
 	(void)sigprocmask(SIG_SETMASK, &mask, NULL);
 
-	ret = stress_set_sched(getpid(), SCHED_RR, UNDEFINED, true);
-	(void)ret;
+	VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, UNDEFINED, true));
 
 	start = stress_time_now();
 	if (stress_sighandler(args->name, SIGRTMIN, stress_hrtimers_handler, NULL) < 0)
@@ -290,10 +288,9 @@ reap:
 	}
 	for (i = 0; i < PROCS_MAX; i++) {
 		if (pids[i] > 0) {
-			int status, ret;
+			int status;
 
-			ret = shim_waitpid(pids[i], &status, 0);
-			(void)ret;
+			VOID_RET(int, shim_waitpid(pids[i], &status, 0));
 		}
 	}
 

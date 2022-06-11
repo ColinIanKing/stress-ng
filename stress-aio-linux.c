@@ -567,13 +567,11 @@ retry_open:
 
 				cancel = 0;
 
-				ret = shim_io_cancel(ctx, &cb[0], &event);
-				(void)ret;
+				VOID_RET(int, shim_io_cancel(ctx, &cb[0], &event));
 
 				/* Exercise with io_cancel invalid context */
 				(void)memset(&bad_ctx, stress_mwc8() | 0x1, sizeof(bad_ctx));
-				ret = shim_io_cancel(bad_ctx, &cb[0], &event);
-				(void)ret;
+				VOID_RET(int, shim_io_cancel(bad_ctx, &cb[0], &event));
 
 				/* Exercise with io_invalid iocb */
 				bad_iocb.aio_fildes = bad_fd;
@@ -581,40 +579,32 @@ retry_open:
 				bad_iocb.u.c.buf = NULL;
 				bad_iocb.u.c.offset = 0;
 				bad_iocb.u.c.nbytes = 0;
-				ret = shim_io_cancel(ctx, &bad_iocb, &event);
-				(void)ret;
+				VOID_RET(int, shim_io_cancel(ctx, &bad_iocb, &event));
 
 				/* Exercise io_destroy with illegal context, EINVAL */
-				ret = shim_io_destroy(bad_ctx);
-				(void)ret;
-				ret = shim_io_destroy(NULL);
-				(void)ret;
+				VOID_RET(int, shim_io_destroy(bad_ctx));
+				VOID_RET(int, shim_io_destroy(NULL));
 
 				/* Exercise io_getevents with illegal context, EINVAL */
 				timeout.tv_sec = 0;
 				timeout.tv_nsec = 100000;
-				ret = shim_io_getevents(bad_ctx, 1, 1, events, &timeout);
-				(void)ret;
+				VOID_RET(int, shim_io_getevents(bad_ctx, 1, 1, events, &timeout));
 
 				/* Exercise io_getevents with illegal min */
 				timeout.tv_sec = 0;
 				timeout.tv_nsec = 100000;
-				ret = shim_io_getevents(ctx, 1, 0, events, &timeout);
-				(void)ret;
-				ret = shim_io_getevents(ctx, -1, 0, events, &timeout);
-				(void)ret;
+				VOID_RET(int, shim_io_getevents(ctx, 1, 0, events, &timeout));
+				VOID_RET(int, shim_io_getevents(ctx, -1, 0, events, &timeout));
 
 				/* Exercise io_getevents with illegal nr */
 				timeout.tv_sec = 0;
 				timeout.tv_nsec = 100000;
-				ret = shim_io_getevents(ctx, 0, -1, events, &timeout);
-				(void)ret;
+				VOID_RET(int, shim_io_getevents(ctx, 0, -1, events, &timeout));
 
 				/* Exercise io_getevents with illegal timeout */
 				timeout.tv_sec = 0;
 				timeout.tv_nsec = ~0L;
-				ret = shim_io_getevents(ctx, 0, 1, events, &timeout);
-				(void)ret;
+				VOID_RET(int, shim_io_getevents(ctx, 0, 1, events, &timeout));
 
 				/* Exercise io_setup with illegal nr_events */
 				ret = shim_io_setup(0, &bad_ctx);
@@ -631,18 +621,14 @@ retry_open:
 				bad_iocb.u.c.offset = 0;
 				bad_iocb.u.c.nbytes = 0;
 				bad_iocbs[0] = &bad_iocb;
-				ret = shim_io_submit(bad_ctx, 1, bad_iocbs);
-				(void)ret;
+				VOID_RET(int, shim_io_submit(bad_ctx, 1, bad_iocbs));
 
 				/* Exercise io_submit with useless or illegal nr ios */
-				ret = shim_io_submit(ctx, 0, bad_iocbs);
-				(void)ret;
-				ret = shim_io_submit(ctx, -1, bad_iocbs);
-				(void)ret;
+				VOID_RET(int, shim_io_submit(ctx, 0, bad_iocbs));
+				VOID_RET(int, shim_io_submit(ctx, -1, bad_iocbs));
 
 				/* Exercise io_submit with illegal iocb */
-				ret = shim_io_submit(ctx, 1, bad_iocbs);
-				(void)ret;
+				VOID_RET(int, shim_io_submit(ctx, 1, bad_iocbs));
 			}
 		}
 #else

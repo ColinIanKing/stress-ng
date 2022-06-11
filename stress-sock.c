@@ -316,9 +316,9 @@ static void stress_sock_ioctl(
 		ret = ioctl(fd, FIOGETOWN, &own);
 #if defined(FIOSETOWN)
 		if (ret == 0)
-			ret = ioctl(fd, FIOSETOWN, &own);
-		(void)ret;
+			VOID_RET(int, ioctl(fd, FIOSETOWN, &own));
 #endif
+		(void)ret;
 	}
 #endif
 
@@ -329,7 +329,7 @@ static void stress_sock_ioctl(
 		ret = ioctl(fd, SIOCGPGRP, &own);
 #if defined(SIOCSPGRP)
 		if (ret == 0)
-			ret = ioctl(fd, SIOCSPGRP, &own);
+			VOID_RET(int, ioctl(fd, SIOCSPGRP, &own));
 #endif
 		(void)ret;
 	}
@@ -337,12 +337,10 @@ static void stress_sock_ioctl(
 #if defined(SIOCGIFCONF) && \
     defined(HAVE_IFCONF)
 	if (!rt) {
-		int ret;
 		struct ifconf ifc;
 
 		(void)memset(&ifc, 0, sizeof(ifc));
-		ret = ioctl(fd, SIOCGIFCONF, &ifc);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SIOCGIFCONF, &ifc));
 	}
 #endif
 
@@ -355,22 +353,18 @@ static void stress_sock_ioctl(
 #if defined(SIOCGSTAMP) &&	\
     (ULONG_MAX > 4294967295UL)
 	{
-		int ret;
 		struct timeval tv;
 
-		ret = ioctl(fd, SIOCGSTAMP, &tv);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SIOCGSTAMP, &tv));
 	}
 #endif
 
 #if defined(SIOCGSTAMP_NEW) &&	\
     (ULONG_MAX > 4294967295UL)
 	{
-		int ret;
 		struct timeval tv;
 
-		ret = ioctl(fd, SIOCGSTAMP_NEW, &tv);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SIOCGSTAMP_NEW, &tv));
 	}
 #endif
 
@@ -406,7 +400,6 @@ static void stress_sock_ioctl(
  */
 static void stress_sock_invalid_recv(const int fd, const int opt)
 {
-	ssize_t n;
 	char buf[16];
 	struct iovec vec[1];
 	struct msghdr msg;
@@ -418,12 +411,10 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 	switch (opt) {
 	case SOCKET_OPT_RECV:
 		/* exercise invalid flags */
-		n = recv(fd, buf, sizeof(buf), ~0);
-		(void)n;
+		VOID_RET(ssize_t, recv(fd, buf, sizeof(buf), ~0));
 
 		/* exercise invalid fd */
-		n = recv(~0, buf, sizeof(buf), 0);
-		(void)n;
+		VOID_RET(ssize_t, recv(~0, buf, sizeof(buf), 0));
 		break;
 	case SOCKET_OPT_RECVMSG:
 		vec[0].iov_base = buf;
@@ -433,12 +424,10 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 		msg.msg_iovlen = 1;
 
 		/* exercise invalid flags */
-		n = recvmsg(fd, &msg, ~0);
-		(void)n;
+		VOID_RET(ssize_t, recvmsg(fd, &msg, ~0));
 
 		/* exercise invalid fd */
-		n = recvmsg(~0, &msg, 0);
-		(void)n;
+		VOID_RET(ssize_t, recvmsg(~0, &msg, 0));
 		break;
 #if defined(HAVE_RECVMMSG)
 	case SOCKET_OPT_RECVMMSG:
@@ -449,18 +438,15 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
 		msgvec[0].msg_hdr.msg_iovlen = 1;
 
 		/* exercise invalid flags */
-		n = recvmmsg(fd, msgvec, MSGVEC_SIZE, ~0, NULL);
-		(void)n;
+		VOID_RET(ssize_t, recvmmsg(fd, msgvec, MSGVEC_SIZE, ~0, NULL));
 
 		/* exercise invalid fd */
-		n = recvmmsg(~0, msgvec, MSGVEC_SIZE, 0, NULL);
-		(void)n;
+		VOID_RET(ssize_t, recvmmsg(~0, msgvec, MSGVEC_SIZE, 0, NULL));
 
 		/* exercise invalid timespec */
 		ts.tv_sec = 0;
 		ts.tv_nsec = 0;
-		n = recvmmsg(~0, msgvec, MSGVEC_SIZE, 0, &ts);
-		(void)n;
+		VOID_RET(ssize_t, recvmmsg(~0, msgvec, MSGVEC_SIZE, 0, &ts));
 		break;
 #endif
 	}
@@ -581,10 +567,8 @@ retry:
 				&mtu, &optlen);
 			if (ret == 0) {
 				optlen = sizeof(mtu);
-				ret = setsockopt(fd, IPPROTO_IP, IP_MTU,
-					&mtu, optlen);
+				VOID_RET(int, setsockopt(fd, IPPROTO_IP, IP_MTU, &mtu, optlen));
 			}
-			(void)ret;
 		}
 #endif
 #if defined(IP_TOS) &&	\
@@ -617,9 +601,8 @@ retry:
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &val, &optlen);
 				if (ret == 0) {
 					optlen = sizeof(val);
-					ret = setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &val, optlen);
+					VOID_RET(int, setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, &val, optlen));
 				}
-				(void)ret;
 			}
 #endif
 #if defined(TCP_CORK)
@@ -630,9 +613,8 @@ retry:
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_CORK, &val, &optlen);
 				if (ret == 0) {
 					optlen = sizeof(val);
-					ret = setsockopt(fd, IPPROTO_TCP, TCP_CORK, &val, optlen);
+					VOID_RET(int, setsockopt(fd, IPPROTO_TCP, TCP_CORK, &val, optlen));
 				}
-				(void)ret;
 			}
 #endif
 #if defined(TCP_DEFER_ACCEPT)
@@ -643,9 +625,8 @@ retry:
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &val, &optlen);
 				if (ret == 0) {
 					optlen = sizeof(val);
-					ret = setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &val, optlen);
+					VOID_RET(int, setsockopt(fd, IPPROTO_TCP, TCP_DEFER_ACCEPT, &val, optlen));
 				}
-				(void)ret;
 			}
 #endif
 #if defined(TCP_KEEPCNT)
@@ -656,9 +637,8 @@ retry:
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &val, &optlen);
 				if (ret == 0) {
 					optlen = sizeof(val);
-					ret = setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &val, optlen);
+					VOID_RET(int, setsockopt(fd, IPPROTO_TCP, TCP_KEEPCNT, &val, optlen));
 				}
-				(void)ret;
 			}
 #endif
 #if defined(TCP_KEEPIDLE)
@@ -669,9 +649,8 @@ retry:
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &val, &optlen);
 				if (ret == 0) {
 					optlen = sizeof(val);
-					ret = setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &val, optlen);
+					VOID_RET(int, setsockopt(fd, IPPROTO_TCP, TCP_KEEPIDLE, &val, optlen));
 				}
-				(void)ret;
 			}
 #endif
 #if defined(TCP_KEEPINTVL)
@@ -682,9 +661,8 @@ retry:
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &val, &optlen);
 				if (ret == 0) {
 					optlen = sizeof(val);
-					ret = setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &val, optlen);
+					VOID_RET(int, setsockopt(fd, IPPROTO_TCP, TCP_KEEPINTVL, &val, optlen));
 				}
-				(void)ret;
 			}
 #endif
 #if defined(TCP_LINGER2)
@@ -695,9 +673,8 @@ retry:
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_LINGER2, &val, &optlen);
 				if (ret == 0) {
 					optlen = sizeof(val);
-					ret = setsockopt(fd, IPPROTO_TCP, TCP_LINGER2, &val, optlen);
+					VOID_RET(int, setsockopt(fd, IPPROTO_TCP, TCP_LINGER2, &val, optlen));
 				}
-				(void)ret;
 			}
 #endif
 #if defined(TCP_MAXSEG)
@@ -708,9 +685,8 @@ retry:
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_MAXSEG, &val, &optlen);
 				if (ret == 0) {
 					optlen = sizeof(val);
-					ret = setsockopt(fd, IPPROTO_TCP, TCP_MAXSEG, &val, optlen);
+					VOID_RET(int, setsockopt(fd, IPPROTO_TCP, TCP_MAXSEG, &val, optlen));
 				}
-				(void)ret;
 			}
 #endif
 #if defined(TCP_SYNCNT)
@@ -721,9 +697,8 @@ retry:
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_SYNCNT, &val, &optlen);
 				if (ret == 0) {
 					optlen = sizeof(val);
-					ret = setsockopt(fd, IPPROTO_TCP, TCP_SYNCNT, &val, optlen);
+					VOID_RET(int, setsockopt(fd, IPPROTO_TCP, TCP_SYNCNT, &val, optlen));
 				}
-				(void)ret;
 			}
 #endif
 #if defined(TCP_USER_TIMEOUT)
@@ -734,9 +709,8 @@ retry:
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &val, &optlen);
 				if (ret == 0) {
 					optlen = sizeof(val);
-					ret = setsockopt(fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &val, optlen);
+					VOID_RET(int, setsockopt(fd, IPPROTO_TCP, TCP_USER_TIMEOUT, &val, optlen));
 				}
-				(void)ret;
 			}
 #endif
 #if defined(TCP_WINDOW_CLAMP)
@@ -747,9 +721,8 @@ retry:
 				ret = getsockopt(fd, IPPROTO_TCP, TCP_WINDOW_CLAMP, &val, &optlen);
 				if (ret == 0) {
 					optlen = sizeof(val);
-					ret = setsockopt(fd, IPPROTO_TCP, TCP_WINDOW_CLAMP, &val, optlen);
+					VOID_RET(int, setsockopt(fd, IPPROTO_TCP, TCP_WINDOW_CLAMP, &val, optlen));
 				}
-				(void)ret;
 			}
 #endif
 		}
@@ -779,11 +752,9 @@ retry:
 			 *  performance.
 			 */
 			if ((count & 0x3ff) == 0) {
-				int ret;
 				size_t bytes = MMAP_IO_SIZE;
 
-				ret = ioctl(fd, FIONREAD, &bytes);
-				(void)ret;
+				VOID_RET(int, ioctl(fd, FIONREAD, &bytes));
 				count = 0;
 
 				if (bytes > MMAP_IO_SIZE)
@@ -798,7 +769,7 @@ retry:
 			{
 				int pending;
 
-				(void)ioctl(fd, SIOCINQ, &pending);
+				VOID_RET(int, ioctl(fd, SIOCINQ, &pending));
 			}
 #endif
 
@@ -860,11 +831,10 @@ retry:
     defined(IP_MTU)
 		/* Exercise IP_MTU */
 		if (socket_domain == AF_INET) {
-			int ret, mtu;
+			int mtu;
 			socklen_t mtu_len = sizeof(mtu);
 
-			ret = getsockopt(fd, IPPROTO_IP, IP_MTU, &mtu, &mtu_len);
-			(void)ret;
+			VOID_RET(int, getsockopt(fd, IPPROTO_IP, IP_MTU, &mtu, &mtu_len));
 		}
 #endif
 
@@ -921,7 +891,6 @@ static int stress_sock_server(
 #else
 	(void)socket_zerocopy;
 #endif
-
 	(void)setpgid(pid, g_pgrp);
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
@@ -1015,15 +984,11 @@ static int stress_sock_server(
 			 *  Exercise illegal sockname lengths
 			 */
 			{
-				int ret;
-
 				len = 0;
-				ret = getsockname(fd, &saddr, &len);
-				(void)ret;
+				VOID_RET(int, getsockname(fd, &saddr, &len));
 
 				len = 1;
-				ret = getsockname(fd, &saddr, &len);
-				(void)ret;
+				VOID_RET(int, getsockname(fd, &saddr, &len));
 			}
 
 			len = sizeof(sndbuf);
@@ -1036,13 +1001,13 @@ static int stress_sock_server(
 #if defined(SOL_TCP) &&	\
     defined(TCP_QUICKACK)
 			{
-				int ret, one = 1;
+				int one = 1;
+
 				/*
 				 * We try do to a TCP_QUICKACK, failing is OK as
 				 * it's just a faster optimization option
 				 */
-				ret = setsockopt(fd, SOL_TCP, TCP_QUICKACK, &one, sizeof(one));
-				(void)ret;
+				VOID_RET(int, setsockopt(fd, SOL_TCP, TCP_QUICKACK, &one, sizeof(one)));
 			}
 #endif
 
@@ -1128,7 +1093,7 @@ static int stress_sock_server(
 			{
 				int pending;
 
-				(void)ioctl(sfd, SIOCOUTQ, &pending);
+				VOID_RET(int, ioctl(sfd, SIOCOUTQ, &pending));
 			}
 #endif
 			stress_sock_ioctl(fd, socket_domain, rt);

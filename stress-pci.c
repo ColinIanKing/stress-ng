@@ -161,7 +161,6 @@ static void stress_pci_exercise_file(
 	if (fd >= 0) {
 		void *ptr;
 		size_t sz = 4096;
-		ssize_t n;
 		char buf[sz];
 		struct stat statbuf;
 
@@ -173,8 +172,7 @@ static void stress_pci_exercise_file(
 		sz = STRESS_MINIMUM(sz, (size_t)statbuf.st_size);
 
 		if (rom) {
-			n = write(fd, "1\n", 2);
-			(void)n;
+			VOID_RET(ssize_t, write(fd, "1\n", 2));
 		}
 
 		if (map) {
@@ -183,12 +181,10 @@ static void stress_pci_exercise_file(
 				(void)munmap(ptr, sz);
 		}
 		if (rd) {
-			n = read(fd, buf, sizeof(buf));
-			(void)n;
+			VOID_RET(ssize_t, read(fd, buf, sizeof(buf)));
 		}
 		if (rom) {
-			n = write(fd, "0\n", 2);
-			(void)n;
+			VOID_RET(ssize_t, write(fd, "0\n", 2));
 		}
 err:
 		(void)close(fd);

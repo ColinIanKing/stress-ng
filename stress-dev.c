@@ -250,15 +250,13 @@ static void ioctl_set_timeout(const double secs)
 #if defined(ITIMER_REAL)
 	if (secs > 0.0) {
 		struct itimerval it;
-		int ret;
 		time_t tsecs = (time_t)secs;
 
 		it.it_interval.tv_sec = (time_t)secs;
 		it.it_interval.tv_usec = (suseconds_t)(1000000.0 * (secs - (double)tsecs));
 		it.it_value.tv_sec = it.it_interval.tv_sec;
 		it.it_value.tv_usec = it.it_interval.tv_usec;
-		ret = setitimer(ITIMER_REAL, &it, NULL);
-		(void)ret;
+		VOID_RET(int, setitimer(ITIMER_REAL, &it, NULL));
 	}
 #else
 	UNEXPECTED
@@ -274,11 +272,9 @@ static void ioctl_clr_timeout(void)
 {
 #if defined(ITIMER_REAL)
 	struct itimerval it;
-	int ret;
 
 	(void)memset(&it, 0, sizeof(it));
-	ret = setitimer(ITIMER_REAL, &it, NULL);
-	(void)ret;
+	VOID_RET(int, setitimer(ITIMER_REAL, &it, NULL));
 #else
 	UNEXPECTED
 #endif
@@ -361,10 +357,8 @@ static void stress_dev_vcs_linux(
     defined(HAVE_VT_MODE)
 	{
 		struct vt_mode mode;
-		int ret;
 
-		ret = ioctl(fd, VT_GETMODE, &mode);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VT_GETMODE, &mode));
 	}
 #else
 	UNEXPECTED
@@ -373,10 +367,8 @@ static void stress_dev_vcs_linux(
     defined(HAVE_VT_STAT)
 	{
 		struct vt_stat vt_stat;
-		int ret;
 
-		ret = ioctl(fd, VT_GETSTATE, &vt_stat);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VT_GETSTATE, &vt_stat));
 	}
 #else
 	UNEXPECTED
@@ -398,10 +390,8 @@ static void stress_dev_dm_linux(
     defined(HAVE_DM_IOCTL)
 	{
 		struct dm_ioctl dm;
-		int ret;
 
-		ret = ioctl(fd, DM_VERSION, &dm);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, DM_VERSION, &dm));
 	}
 #else
 	UNEXPECTED
@@ -410,10 +400,8 @@ static void stress_dev_dm_linux(
     defined(HAVE_DM_IOCTL)
 	{
 		struct dm_ioctl dm;
-		int ret;
 
-		ret = ioctl(fd, DM_DEV_STATUS, &dm);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, DM_DEV_STATUS, &dm));
 	}
 #else
 	UNEXPECTED
@@ -435,11 +423,9 @@ static void stress_dev_video_linux(
     defined(HAVE_V4L2_CAPABILITY)
 	{
 		struct v4l2_capability c;
-		int ret;
 
 		(void)memset(&c, 0, sizeof(c));
-		ret = ioctl(fd, VIDIOC_QUERYCAP, &c);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_QUERYCAP, &c));
 	}
 #else
 	UNEXPECTED
@@ -448,11 +434,9 @@ static void stress_dev_video_linux(
     defined(HAVE_V4L2_FRAMEBUFFER)
 	{
 		struct v4l2_framebuffer f;
-		int ret;
 
 		(void)memset(&f, 0, sizeof(f));
-		ret = ioctl(fd, VIDIOC_G_FBUF, &f);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_G_FBUF, &f));
 	}
 #else
 	UNEXPECTED
@@ -461,11 +445,9 @@ static void stress_dev_video_linux(
     defined(HAVE_V4L2_STD_ID)
 	{
 		v4l2_std_id id;
-		int ret;
 
 		(void)memset(&id, 0, sizeof(id));
-		ret = ioctl(fd, VIDIOC_G_STD, &id);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_G_STD, &id));
 	}
 #else
 	UNEXPECTED
@@ -474,31 +456,27 @@ static void stress_dev_video_linux(
     defined(HAVE_V4L2_AUDIO)
 	{
 		struct v4l2_audio a;
-		int ret;
 
 		(void)memset(&a, 0, sizeof(a));
-		ret = ioctl(fd, VIDIOC_G_AUDIO, &a);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_G_AUDIO, &a));
 	}
 #else
 	UNEXPECTED
 #endif
 #if defined(VIDIOC_G_INPUT)
 	{
-		int in = 0, ret;
+		int in = 0;
 
-		ret = ioctl(fd, VIDIOC_G_INPUT, &in);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_G_INPUT, &in));
 	}
 #else
 	UNEXPECTED
 #endif
 #if defined(VIDIOC_G_OUTPUT)
 	{
-		int in = 0, ret;
+		int in = 0;
 
-		ret = ioctl(fd, VIDIOC_G_OUTPUT, &in);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_G_OUTPUT, &in));
 	}
 #else
 	UNEXPECTED
@@ -507,11 +485,9 @@ static void stress_dev_video_linux(
     defined(HAVE_V4L2_AUDIOOUT)
 	{
 		struct v4l2_audioout a;
-		int ret;
 
 		(void)memset(&a, 0, sizeof(a));
-		ret = ioctl(fd, VIDIOC_G_AUDOUT, &a);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_G_AUDOUT, &a));
 	}
 #else
 	UNEXPECTED
@@ -520,11 +496,9 @@ static void stress_dev_video_linux(
     defined(HAVE_V4L2_JPEGCOMPRESSION)
 	{
 		struct v4l2_jpegcompression a;
-		int ret;
 
 		(void)memset(&a, 0, sizeof(a));
-		ret = ioctl(fd, VIDIOC_G_JPEGCOMP, &a);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_G_JPEGCOMP, &a));
 	}
 #else
 	UNEXPECTED
@@ -533,11 +507,9 @@ static void stress_dev_video_linux(
     defined(HAVE_V4L2_STD_ID)
 	{
 		v4l2_std_id a;
-		int ret;
 
 		(void)memset(&a, 0, sizeof(a));
-		ret = ioctl(fd, VIDIOC_QUERYSTD, &a);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_QUERYSTD, &a));
 	}
 #else
 	UNEXPECTED
@@ -545,10 +517,8 @@ static void stress_dev_video_linux(
 #if defined(VIDIOC_G_PRIORITY)
 	{
 		uint32_t a;
-		int ret;
 
-		ret = ioctl(fd, VIDIOC_G_PRIORITY, &a);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_G_PRIORITY, &a));
 	}
 #else
 	UNEXPECTED
@@ -557,11 +527,9 @@ static void stress_dev_video_linux(
     defined(HAVE_V4L2_ENC_IDX)
 	{
 		struct v4l2_enc_idx a;
-		int ret;
 
 		(void)memset(&a, 0, sizeof(a));
-		ret = ioctl(fd, VIDIOC_G_ENC_INDEX, &a);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_G_ENC_INDEX, &a));
 	}
 #else
 	UNEXPECTED
@@ -570,11 +538,9 @@ static void stress_dev_video_linux(
     defined(HAVE_V4L2_DV_TIMINGS)
 	{
 		struct v4l2_dv_timings a;
-		int ret;
 
 		(void)memset(&a, 0, sizeof(a));
-		ret = ioctl(fd, VIDIOC_QUERY_DV_TIMINGS, &a);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, VIDIOC_QUERY_DV_TIMINGS, &a));
 	}
 #else
 	UNEXPECTED
@@ -590,8 +556,8 @@ static void stress_dev_tty(
 	const int fd,
 	const char *devpath)
 {
-	int ret;
 	struct termios t;
+	int ret;
 
 	(void)args;
 	(void)devpath;
@@ -599,8 +565,7 @@ static void stress_dev_tty(
 	if (!isatty(fd))
 		return;
 
-	ret = tcgetattr(fd, &t);
-	(void)ret;
+	VOID_RET(int, tcgetattr(fd, &t));
 #if defined(TCGETS)
 	{
 		ret = ioctl(fd, TCGETS, &t);
@@ -652,8 +617,7 @@ static void stress_dev_tty(
 	{
 		int ptnum;
 
-		ret = ioctl(fd, TIOCGPTN, &ptnum);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, TIOCGPTN, &ptnum));
 	}
 #else
 	UNEXPECTED
@@ -664,8 +628,7 @@ static void stress_dev_tty(
 		int sig = SIGCONT;
 
 		/* generally causes EINVAL */
-		ret = ioctl(fd, TIOCSIG, &sig);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, TIOCSIG, &sig));
 	}
 #else
 	UNEXPECTED
@@ -692,8 +655,7 @@ static void stress_dev_tty(
 	{
 		int n;
 
-		ret = ioctl(fd, FIONREAD, &n);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, FIONREAD, &n));
 	}
 #else
 	UNEXPECTED
@@ -702,8 +664,7 @@ static void stress_dev_tty(
 	{
 		int n;
 
-		ret = ioctl(fd, TIOCINQ, &n);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, TIOCINQ, &n));
 	}
 #else
 	UNEXPECTED
@@ -712,8 +673,7 @@ static void stress_dev_tty(
 	{
 		int n;
 
-		ret = ioctl(fd, TIOCOUTQ, &n);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, TIOCOUTQ, &n));
 	}
 #else
 	UNEXPECTED
@@ -739,8 +699,7 @@ static void stress_dev_tty(
 	{
 		pid_t gsid;
 
-		ret = ioctl(fd, TIOCGSID, &gsid);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, TIOCGSID, &gsid));
 	}
 #else
 	UNEXPECTED
@@ -796,8 +755,7 @@ static void stress_dev_tty(
 
 #if defined(TIOCGPTPEER)
 	{
-		ret = ioctl(fd, TIOCGPTPEER, O_RDWR);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, TIOCGPTPEER, O_RDWR));
 	}
 #else
 	UNEXPECTED
@@ -852,8 +810,7 @@ static void stress_dev_tty(
 	{
 		char state;
 
-		ret = ioctl(fd, KDGETLED, &state);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, KDGETLED, &state));
 	}
 #else
 	UNEXPECTED
@@ -863,8 +820,7 @@ static void stress_dev_tty(
 	{
 		char type;
 
-		ret = ioctl(fd, KDGKBTYPE, &type);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, KDGKBTYPE, &type));
 	}
 #else
 	UNEXPECTED
@@ -874,8 +830,7 @@ static void stress_dev_tty(
 	{
 		int mode;
 
-		ret = ioctl(fd, KDGETMODE, &mode);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, KDGETMODE, &mode));
 	}
 #else
 	UNEXPECTED
@@ -885,8 +840,7 @@ static void stress_dev_tty(
 	{
 		long mode;
 
-		ret = ioctl(fd, KDGKBMODE, &mode);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, KDGKBMODE, &mode));
 	}
 #else
 	UNEXPECTED
@@ -896,8 +850,7 @@ static void stress_dev_tty(
 	{
 		long mode;
 
-		ret = ioctl(fd, KDGKBMETA, &mode);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, KDGKBMETA, &mode));
 	}
 #else
 	UNEXPECTED
@@ -910,14 +863,12 @@ static void stress_dev_tty(
 #if defined(TIOCMSET)
 		if (ret == 0) {
 #if defined(TIOCMBIC)
-			ret = ioctl(fd, TIOCMBIC, &status);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, TIOCMBIC, &status));
 #else
 			UNEXPECTED
 #endif
 #if defined(TIOCMBIS)
-			ret = ioctl(fd, TIOCMBIS, &status);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, TIOCMBIS, &status));
 #else
 			UNEXPECTED
 #endif
@@ -937,8 +888,7 @@ static void stress_dev_tty(
 	{
 		struct serial_icounter_struct counter;
 
-		ret = ioctl(fd, TIOCGICOUNT, &counter);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, TIOCGICOUNT, &counter));
 	}
 #else
 	UNEXPECTED
@@ -975,19 +925,17 @@ static void stress_dev_tty(
     defined(TCSETSF2)
 		if (ret == 0) {
 #if defined(TCSETSF2)
-			ret = ioctl(fd, TCSETSF2, &t2);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, TCSETSF2, &t2));
 #else
 			UNEXPECTED
 #endif
 #if defined(TCSETSW2)
-			ret = ioctl(fd, TCSETSW2, &t2);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, TCSETSW2, &t2));
 #else
 			UNEXPECTED
 #endif
 #if defined(TCSETS2)
-			ret = ioctl(fd, TCSETS2, &t2);
+			VOID_RET(int, ioctl(fd, TCSETS2, &t2));
 			(void)ret;
 #else
 			UNEXPECTED
@@ -1022,9 +970,7 @@ static void stress_dev_blk(
 
 #if defined(BLKFLSBUF)
 	{
-		int ret;
-		ret = ioctl(fd, BLKFLSBUF, 0);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, BLKFLSBUF, 0));
 	}
 #else
 	UNEXPECTED
@@ -1100,10 +1046,8 @@ static void stress_dev_blk(
 	/* get block device physical block size */
 	{
 		unsigned int sz;
-		int ret;
 
-		ret = ioctl(fd, BLKPBSZGET, &sz);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, BLKPBSZGET, &sz));
 	}
 #else
 	UNEXPECTED
@@ -1112,10 +1056,8 @@ static void stress_dev_blk(
 #if defined(BLKIOMIN)
 	{
 		unsigned int sz;
-		int ret;
 
-		ret = ioctl(fd, BLKIOMIN, &sz);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, BLKIOMIN, &sz));
 	}
 #else
 	UNEXPECTED
@@ -1124,10 +1066,8 @@ static void stress_dev_blk(
 #if defined(BLKIOOPT)
 	{
 		unsigned int sz;
-		int ret;
 
-		ret = ioctl(fd, BLKIOOPT, &sz);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, BLKIOOPT, &sz));
 	}
 #else
 	UNEXPECTED
@@ -1136,10 +1076,8 @@ static void stress_dev_blk(
 #if defined(BLKALIGNOFF)
 	{
 		unsigned int sz;
-		int ret;
 
-		ret = ioctl(fd, BLKALIGNOFF, &sz);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, BLKALIGNOFF, &sz));
 	}
 #else
 	UNEXPECTED
@@ -1148,10 +1086,8 @@ static void stress_dev_blk(
 #if defined(BLKROTATIONAL)
 	{
 		unsigned short rotational;
-		int ret;
 
-		ret = ioctl(fd, BLKROTATIONAL, &rotational);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, BLKROTATIONAL, &rotational));
 	}
 #else
 	UNEXPECTED
@@ -1160,10 +1096,8 @@ static void stress_dev_blk(
 #if defined(BLKSECTGET)
 	{
 		unsigned short max_sectors;
-		int ret;
 
-		ret = ioctl(fd, BLKSECTGET, &max_sectors);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, BLKSECTGET, &max_sectors));
 	}
 #else
 	UNEXPECTED
@@ -1172,10 +1106,8 @@ static void stress_dev_blk(
 #if defined(BLKGETSIZE)
 	{
 		unsigned long sz;
-		int ret;
 
-		ret = ioctl(fd, BLKGETSIZE, &sz);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, BLKGETSIZE, &sz));
 	}
 #else
 	UNEXPECTED
@@ -1184,10 +1116,8 @@ static void stress_dev_blk(
 #if defined(BLKGETSIZE64)
 	{
 		uint64_t sz;
-		int ret;
 
-		ret = ioctl(fd, BLKGETSIZE64, &sz);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, BLKGETSIZE64, &sz));
 	}
 #else
 	UNEXPECTED
@@ -1196,10 +1126,8 @@ static void stress_dev_blk(
 #if defined(BLKGETZONESZ)
 	{
 		uint32_t sz;
-		int ret;
 
-		ret = ioctl(fd, BLKGETZONESZ, &sz);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, BLKGETZONESZ, &sz));
 	}
 #else
 	UNEXPECTED
@@ -1208,10 +1136,8 @@ static void stress_dev_blk(
 #if defined(BLKGETNRZONES)
 	{
 		uint32_t sz;
-		int ret;
 
-		ret = ioctl(fd, BLKGETNRZONES, &sz);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, BLKGETNRZONES, &sz));
 	}
 #else
 	UNEXPECTED
@@ -1322,55 +1248,47 @@ static void stress_dev_scsi_blk(
 
 #if defined(SG_GET_VERSION_NUM)
 	{
-		int ret, ver;
+		int ver;
 
-		ret = ioctl(fd, SG_GET_VERSION_NUM, &ver);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SG_GET_VERSION_NUM, &ver));
 	}
 #else
 	UNEXPECTED
 #endif
 #if defined(SCSI_IOCTL_GET_IDLUN)
 	{
-		int ret;
 		struct sng_scsi_idlun {
 			int four_in_one;
 			int host_unique_id;
 		} lun;
 
 		(void)memset(&lun, 0, sizeof(lun));
-		ret = ioctl(fd, SCSI_IOCTL_GET_IDLUN, &lun);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SCSI_IOCTL_GET_IDLUN, &lun));
 	}
 #else
 	UNEXPECTED
 #endif
 #if defined(SCSI_IOCTL_GET_BUS_NUMBER)
 	{
-		int ret, bus;
+		int bus;
 
-		ret = ioctl(fd, SCSI_IOCTL_GET_BUS_NUMBER, &bus);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SCSI_IOCTL_GET_BUS_NUMBER, &bus));
 	}
 #else
 	UNEXPECTED
 #endif
 #if defined(SG_GET_TIMEOUT)
 	{
-		int ret;
-
-		ret = ioctl(fd, SG_GET_TIMEOUT, 0);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SG_GET_TIMEOUT, 0));
 	}
 #else
 	UNEXPECTED
 #endif
 #if defined(SG_GET_RESERVED_SIZE)
 	{
-		int ret, sz;
+		int sz;
 
-		ret = ioctl(fd, SG_GET_RESERVED_SIZE, &sz);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SG_GET_RESERVED_SIZE, &sz));
 	}
 #else
 	UNEXPECTED
@@ -1380,8 +1298,7 @@ static void stress_dev_scsi_blk(
 		/* Old ioctl was 20 chars, new API 8 chars, 32 is plenty */
 		char pci[32];
 
-		ret = ioctl(fd, SCSI_IOCTL_GET_PCI, pci);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SCSI_IOCTL_GET_PCI, pci));
 	}
 #else
 	/* UNEXPECTED */
@@ -1404,40 +1321,34 @@ static void stress_dev_scsi_generic_linux(
 
 #if defined(SG_GET_VERSION_NUM)
 	{
-		int ret, version = 0;
+		int version = 0;
 
-		ret = ioctl(fd, SG_GET_VERSION_NUM, &version);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SG_GET_VERSION_NUM, &version));
 	}
 #else
 	UNEXPECTED
 #endif
 #if defined(SG_GET_TIMEOUT)
 	{
-		int ret;
-
-		ret = ioctl(fd, SG_GET_TIMEOUT, 0);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SG_GET_TIMEOUT, 0));
 	}
 #else
 	UNEXPECTED
 #endif
 #if defined(SG_GET_LOW_DMA)
 	{
-		int ret, low;
+		int low;
 
-		ret = ioctl(fd, SG_GET_LOW_DMA, &low);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SG_GET_LOW_DMA, &low));
 	}
 #else
 	UNEXPECTED
 #endif
 #if defined(SG_GET_PACK_ID)
 	{
-		int ret, pack_id;
+		int pack_id;
 
-		ret = ioctl(fd, SG_GET_PACK_ID, &pack_id);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SG_GET_PACK_ID, &pack_id));
 	}
 #else
 	UNEXPECTED
@@ -3593,11 +3504,9 @@ static void stress_dev_parport_linux(
 
 #if defined(PPRSTATUS)
 	{
-		int ret;
 		char reg;
 
-		ret = ioctl(fd, PPRSTATUS, &reg);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, PPRSTATUS, &reg));
 	}
 #else
 	UNEXPECTED
@@ -3605,11 +3514,9 @@ static void stress_dev_parport_linux(
 
 #if defined(PPRCONTROL)
 	{
-		int ret;
 		char reg;
 
-		ret = ioctl(fd, PPRCONTROL, &reg);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, PPRCONTROL, &reg));
 	}
 #else
 	UNEXPECTED
@@ -3617,11 +3524,9 @@ static void stress_dev_parport_linux(
 
 #if defined(PPGETTIME32)
 	{
-		int ret;
 		int32_t time32[2];
 
-		ret = ioctl(fd, PPGETTIME32, time32);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, PPGETTIME32, time32));
 	}
 #else
 	/* UNEXPECTED */
@@ -3629,11 +3534,9 @@ static void stress_dev_parport_linux(
 
 #if defined(PPGETTIME64)
 	{
-		int ret;
 		int64_t time64[2];
 
-		ret = ioctl(fd, PPGETTIME64, time64);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, PPGETTIME64, time64));
 	}
 #else
 	/* UNEXPECTED */
@@ -3641,10 +3544,7 @@ static void stress_dev_parport_linux(
 
 #if defined(PPYIELD)
 	{
-		int ret;
-
-		ret = ioctl(fd, PPYIELD);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, PPYIELD));
 	}
 #else
 	UNEXPECTED
@@ -3654,12 +3554,8 @@ static void stress_dev_parport_linux(
 #if defined(PPCLAIM) &&	\
     defined(PPRELEASE)
 	if ((args->instance == 0) && claimed) {
-		int ret;
-
-		ret = ioctl(fd, PPRELEASE);
-		(void)ret;
-		ret = shim_pthread_spin_unlock(&parport_lock);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, PPRELEASE));
+		VOID_RET(int, shim_pthread_spin_unlock(&parport_lock));
 	}
 #else
 	UNEXPECTED
@@ -3688,15 +3584,14 @@ static void stress_dev_bus_usb_linux(
     (defined(HAVE_USBDEVFS_GETDRIVER) &&	\
      defined(USBDEVFS_GETDRIVER)))
 	{
-		int ret, fdwr;
+		int fdwr;
 
 		fdwr = open(devpath, O_RDWR);
 		if (fd < 0)
 			return;
 
 #if defined(USBDEVFS_GET_SPEED)
-		ret = ioctl(fdwr, USBDEVFS_GET_SPEED, 0);
-		(void)ret;
+		VOID_RET(int, ioctl(fdwr, USBDEVFS_GET_SPEED, 0));
 #else
 		UNEXPECTED
 #endif
@@ -3706,8 +3601,7 @@ static void stress_dev_bus_usb_linux(
 		{
 			struct usbdevfs_getdriver dr;
 
-			ret = ioctl(fdwr, USBDEVFS_GETDRIVER, &dr);
-			(void)ret;
+			VOID_RET(int, ioctl(fdwr, USBDEVFS_GETDRIVER, &dr));
 		}
 #else
 		UNEXPECTED
@@ -3843,8 +3737,7 @@ static inline int stress_dev_lock(const char *path, const int fd)
 
 		ret = flock(fd, LOCK_EX | LOCK_NB);
 		if (ret < 0) {
-			ret = ioctl(fd, TIOCNXCL);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, TIOCNXCL));
 			return -1;
 		}
 	}
@@ -3864,21 +3757,17 @@ static inline void stress_dev_unlock(const char *path, const int fd)
 {
 #if defined(TIOCEXCL) &&	\
     defined(TIOCNXCL)
-	int ret;
-
 	if (strncmp(path, "/dev/tty", 8))
 		return;
 
 #if defined(LOCK_EX) &&	\
     defined(LOCK_NB) &&	\
     defined(LOCK_UN)
-	ret = flock(fd, LOCK_UN);
-	(void)ret;
+	VOID_RET(int, flock(fd, LOCK_UN));
 #else
 	UNEXPECTED
 #endif
-	ret = ioctl(fd, TIOCNXCL);
-	(void)ret;
+	VOID_RET(int, ioctl(fd, TIOCNXCL));
 #else
 	(void)path;
 	(void)fd;
@@ -4055,8 +3944,7 @@ static inline void stress_dev_rw(
 		FD_ZERO(&rfds);
 		fds[0].fd = fd;
 		fds[0].events = POLLIN;
-		ret = poll(fds, 1, 0);
-		(void)ret;
+		VOID_RET(int, poll(fds, 1, 0));
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
@@ -4075,8 +3963,7 @@ static inline void stress_dev_rw(
 			FD_SET(fd, &wfds);
 			tv.tv_sec = 0;
 			tv.tv_usec = 10000;
-			ret = select(fd + 1, &rfds, &wfds, NULL, &tv);
-			(void)ret;
+			VOID_RET(int, select(fd + 1, &rfds, &wfds, NULL, &tv));
 
 			if (stress_time_now() - t_start > threshold) {
 				timeout = true;
@@ -4087,8 +3974,7 @@ static inline void stress_dev_rw(
 #endif
 
 #if defined(F_GETFD)
-		ret = fcntl(fd, F_GETFD, NULL);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_GETFD, NULL));
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
@@ -4099,8 +3985,7 @@ static inline void stress_dev_rw(
 		UNEXPECTED
 #endif
 #if defined(F_GETFL)
-		ret = fcntl(fd, F_GETFL, NULL);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_GETFL, NULL));
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
@@ -4111,8 +3996,7 @@ static inline void stress_dev_rw(
 		UNEXPECTED
 #endif
 #if defined(F_GETSIG)
-		ret = fcntl(fd, F_GETSIG, NULL);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_GETSIG, NULL));
 
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
@@ -4146,8 +4030,7 @@ static inline void stress_dev_rw(
 		if (ptr != MAP_FAILED)
 			(void)munmap(ptr, args->page_size);
 
-		ret = shim_fsync(fd);
-		(void)ret;
+		VOID_RET(int, shim_fsync(fd));
 
 		for (i = 0; i < SIZEOF_ARRAY(dev_funcs); i++) {
 			if (!strncmp(path, dev_funcs[i].devpath, dev_funcs[i].devpath_len))
@@ -4534,8 +4417,7 @@ again:
 						args->name, errno, strerror(errno));
 				/* Ring ring, time to die */
 				(void)kill(pid, SIGALRM);
-				wret = shim_waitpid(pid, &status, 0);
-				(void)wret;
+				VOID_RET(int, shim_waitpid(pid, &status, 0));
 			} else {
 				if (WIFEXITED(status) &&
 				    WEXITSTATUS(status) != 0) {
@@ -4580,8 +4462,7 @@ again:
 				pr_dbg("%s: failed to lock spin lock for dev_path\n", args->name);
 			} else {
 				pthread_dev_info = NULL;
-				r = shim_pthread_spin_unlock(&lock);
-				(void)r;
+				VOID_RET(int, shim_pthread_spin_unlock(&lock));
 			}
 
 			for (i = 0; i < STRESS_DEV_THREADS_MAX; i++) {

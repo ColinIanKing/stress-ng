@@ -199,16 +199,13 @@ static int stress_get(const stress_args_t *args)
 		struct rlimit rlim;
 		time_t t, t1, t2;
 		pid_t pid;
-		gid_t gid;
-		uid_t uid;
 
 		(void)mypid;
 
 		if (!keep_stressing_flag())
 			break;
 
-		pid = getppid();
-		(void)pid;
+		VOID_RET(pid_t, getppid());
 
 		if (!keep_stressing_flag())
 			break;
@@ -218,8 +215,7 @@ static int stress_get(const stress_args_t *args)
 		{
 			ucontext_t context;
 
-			ret = getcontext(&context);
-			(void)ret;
+			VOID_RET(int, getcontext(&context));
 			if (!keep_stressing_flag())
 				break;
 		}
@@ -229,8 +225,7 @@ static int stress_get(const stress_args_t *args)
 		{
 			ucontext_t context;
 
-			ret = getcontext(&context);
-			(void)ret;
+			VOID_RET(int, getcontext(&context));
 			if (!keep_stressing_flag())
 				break;
 		}
@@ -245,8 +240,7 @@ static int stress_get(const stress_args_t *args)
 		{
 			char name[128];
 
-			ret = getdomainname(name, sizeof(name));
-			(void)ret;
+			VOID_RET(int, getdomainname(name, sizeof(name)));
 			if (!keep_stressing_flag())
 				break;
 		}
@@ -256,10 +250,7 @@ static int stress_get(const stress_args_t *args)
 
 #if defined(HAVE_GETHOSTID)
 		{
-			long id;
-
-			id = gethostid();
-			(void)id;
+			VOID_RET(long, gethostid());
 			if (!keep_stressing_flag())
 				break;
 		}
@@ -271,8 +262,7 @@ static int stress_get(const stress_args_t *args)
 		{
 			char name[128];
 
-			ret = gethostname(name, sizeof(name));
-			(void)ret;
+			VOID_RET(int, gethostname(name, sizeof(name)));
 			if (!keep_stressing_flag())
 				break;
 		}
@@ -297,17 +287,10 @@ static int stress_get(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 
-		gid = getgid();
-		(void)gid;
-
-		gid = getegid();
-		(void)gid;
-
-		uid = getuid();
-		(void)uid;
-
-		uid = geteuid();
-		(void)uid;
+		VOID_RET(gid_t, getgid());
+		VOID_RET(gid_t, getegid());
+		VOID_RET(uid_t, getuid());
+		VOID_RET(uid_t, geteuid());
 
 		if (!keep_stressing_flag())
 			break;
@@ -315,8 +298,7 @@ static int stress_get(const stress_args_t *args)
 		/*
 		 *  Zero size should return number of gids to fetch
 		 */
-		ret = getgroups(0, gids);
-		(void)ret;
+		VOID_RET(int, getgroups(0, gids));
 
 		/*
 		 *  Try to get GIDS_MAX number of gids
@@ -328,8 +310,7 @@ static int stress_get(const stress_args_t *args)
 		/*
 		 *  Exercise invalid getgroups calls
 		 */
-		ret = getgroups(1, gids);
-		(void)ret;
+		VOID_RET(int, getgroups(1, gids));
 #if defined(__NR_getgroups)
 		/*
 		 *  libc may detect a -ve gidsetsize argument and not call
@@ -338,29 +319,25 @@ static int stress_get(const stress_args_t *args)
 		 *  valgrind happy.
 		 */
 		(void)memset(gids, 0, sizeof(gids));
-		ret = (int)syscall(__NR_getgroups, -1, gids);
-		(void)ret;
+		VOID_RET(int, syscall(__NR_getgroups, -1, gids));
 #endif
 		if (!keep_stressing_flag())
 			break;
 
 #if defined(HAVE_GETPGRP)
-		pid = getpgrp();
-		(void)pid;
+		VOID_RET(pid_t, getpgrp());
 #else
 		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETPGID)
-		pid = getpgid(mypid);
-		(void)pid;
+		VOID_RET(pid_t, getpgid(mypid));
 
 		/*
 		 *  Exercise with an possibly invalid pid
 		 */
 		pid = stress_get_unused_pid_racy(false);
-		pid = getpgid(pid);
-		(void)pid;
+		VOID_RET(pid_t, getpgid(pid));
 
 		if (!keep_stressing_flag())
 			break;
@@ -389,8 +366,7 @@ static int stress_get(const stress_args_t *args)
 		}
 		/* Exercise getpriority calls using non-zero who argument */
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++){
-			ret = getpriority(priorities[i], ~(id_t)0);
-			(void)ret;
+			VOID_RET(int, getpriority(priorities[i], ~(id_t)0));
 		}
 #else
 		UNEXPECTED
@@ -448,8 +424,7 @@ static int stress_get(const stress_args_t *args)
 		(void)syscall(__NR_ugetrlimit, -1, &rlim);
 
 		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
-			ret = syscall(__NR_ugetrlimit, rlimits[i], &rlim);
-			(void)ret;
+			VOID_RET(int, (int)syscall(__NR_ugetrlimit, rlimits[i], &rlim));
 		}
 #endif
 
@@ -508,8 +483,7 @@ static int stress_get(const stress_args_t *args)
 			sysctl_args.newval = NULL;
 			sysctl_args.newlen = 0;
 
-			ret = (int)syscall(__NR__sysctl, &sysctl_args);
-			(void)ret;
+			VOID_RET(int, (int)syscall(__NR__sysctl, &sysctl_args));
 		}
 #endif
 
@@ -530,8 +504,7 @@ static int stress_get(const stress_args_t *args)
 			pr_fail("%s: getsid failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 		pid = stress_get_unused_pid_racy(false);
-		ret = getsid(pid);
-		(void)ret;
+		VOID_RET(int, getsid(pid));
 		if (!keep_stressing_flag())
 			break;
 #else
@@ -661,15 +634,13 @@ static int stress_get(const stress_args_t *args)
 #endif
 
 #if defined(HAVE_GETPAGESIZE)
-		ret = getpagesize();
-		(void)ret;
+		VOID_RET(int, getpagesize());
 #else
 		UNEXPECTED
 #endif
 
 #if defined(HAVE_GETDTABLESIZE)
-		ret = getdtablesize();
-		(void)ret;
+		VOID_RET(int, getdtablesize());
 #else
 		UNEXPECTED
 #endif
@@ -678,8 +649,7 @@ static int stress_get(const stress_args_t *args)
 		{
 			char buf[PATH_MAX];
 
-			ret = (int)syscall(__NR_lookup_dcookie, buf, sizeof(buf));
-			(void)ret;
+			VOID_RET(int, (int)syscall(__NR_lookup_dcookie, buf, sizeof(buf)));
 		}
 #else
 		UNEXPECTED
@@ -716,13 +686,11 @@ static int stress_get(const stress_args_t *args)
 		 *  Exercise some random cookie lookups, really likely
 		 *  to fail.
 		 */
-		ret = shim_lookup_dcookie(stress_mwc64(), path, sizeof(path));
-		(void)ret;
+		VOID_RET(int, shim_lookup_dcookie(stress_mwc64(), path, sizeof(path)));
 #endif
 
 #if defined(__NR_sgetmask)
-		ret = shim_sgetmask();
-		(void)ret;
+		VOID_RET(int, shim_sgetmask());
 #endif
 
 		/* Get number of file system types */

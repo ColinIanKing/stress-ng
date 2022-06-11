@@ -158,7 +158,6 @@ static int stress_shm_posix_child(
 			void *addr;
 			char *shm_name = &shm_names[i * SHM_NAME_LEN];
 			struct stat statbuf;
-			off_t off;
 
 			shm_name[0] = '\0';
 
@@ -220,8 +219,7 @@ static int stress_shm_posix_child(
 			/*
 			 *  Exercise mlock on 1st page of shm
 			 */
-			ret = shim_mlock(addr, 4096);
-			(void)ret;
+			VOID_RET(int, shim_mlock(addr, 4096));
 #endif
 
 			/*
@@ -240,8 +238,7 @@ static int stress_shm_posix_child(
 			(void)stress_madvise_random(addr, sz);
 			(void)shim_msync(addr, sz, stress_mwc1() ? MS_ASYNC : MS_SYNC);
 			(void)shim_fsync(shm_fd);
-			off = lseek(shm_fd, (off_t)0, SEEK_SET);
-			(void)off;
+			VOID_RET(off_t, lseek(shm_fd, (off_t)0, SEEK_SET));
 
 			/* Shrink the mapping */
 			(void)shim_fallocate(shm_fd, 0, 0, (off_t)sz);

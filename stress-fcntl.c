@@ -110,8 +110,7 @@ static int do_fcntl(
 			(void)close(ret);
 
 		/* Exercise invalid fd */
-		ret = fcntl(fd, F_DUPFD, bad_fd);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_DUPFD, bad_fd));
 	}
 #else
 	UNEXPECTED
@@ -155,8 +154,7 @@ static int do_fcntl(
 		UNEXPECTED
 #endif
 		/* Exercise invalid fd */
-		old_flags = fcntl(bad_fd, F_GETFD);
-		(void)old_flags;
+		VOID_RET(int, fcntl(bad_fd, F_GETFD));
 	}
 #else
 	UNEXPECTED
@@ -178,8 +176,7 @@ static int do_fcntl(
 			if ((setfl_flag_count > 0) && (setfl_flag_perms)) {
 				static int index;
 
-				ret = fcntl(fd, F_SETFL, setfl_flag_perms[index]);
-				(void)ret;
+				VOID_RET(int, fcntl(fd, F_SETFL, setfl_flag_perms[index]));
 
 				index++;
 				index %= setfl_flag_count;
@@ -216,16 +213,13 @@ static int do_fcntl(
 		check_return(args, ret, "F_SETOWN");
 
 		/* This should return -EINVAL */
-		ret = fcntl(fd, F_SETOWN, INT_MIN);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETOWN, INT_MIN));
 
 		/* This is intended to probably fail with -ESRCH */
-		ret = fcntl(fd, F_SETOWN, stress_get_unused_pid_racy(false));
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETOWN, stress_get_unused_pid_racy(false)));
 
 		/* And set back to current pid */
-		ret = fcntl(fd, F_SETOWN, args->pid);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETOWN, args->pid));
 	}
 #else
 	UNEXPECTED
@@ -268,29 +262,25 @@ static int do_fcntl(
      defined(F_OWNER_PGRP) ||	\
      (defined(F_OWNER_TID) && defined(__linux__)))
 	{
-		int ret;
 		struct f_owner_ex owner;
 
 #if defined(F_OWNER_PID)
 		/* This is intended to probably fail with -ESRCH */
 		owner.type = (shim_pid_type)F_OWNER_PID;
 		owner.pid = stress_get_unused_pid_racy(false);
-		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETOWN_EX, &owner));
 
 		/* set to stressor's pid */
 		owner.type = (shim_pid_type)F_OWNER_PID;
 		owner.pid = args->pid;
-		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETOWN_EX, &owner));
 
 #endif
 #if defined(HAVE_GETPGRP) &&	\
     defined(F_OWNER_PGRP)
 		owner.type = (shim_pid_type)F_OWNER_PGRP;
 		owner.pid = getpgrp();
-		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETOWN_EX, &owner));
 #else
 		UNEXPECTED
 #endif
@@ -298,8 +288,7 @@ static int do_fcntl(
     defined(__linux__)
 		owner.type = (shim_pid_type)F_OWNER_TID;
 		owner.pid = shim_gettid();
-		ret = fcntl(fd, F_SETOWN_EX, &owner);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETOWN_EX, &owner));
 #else
 		UNEXPECTED
 #endif
@@ -317,22 +306,19 @@ static int do_fcntl(
 
 #if defined(F_OWNER_PGRP)
 		owner.type = (shim_pid_type)F_OWNER_PGRP;
-		ret = fcntl(fd, F_GETOWN_EX, &owner);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_GETOWN_EX, &owner));
 #else
 		UNEXPECTED
 #endif
 #if defined(F_OWNER_GID)
 		/* deprecated, renamed to F_OWNER_PGRP */
 		owner.type = (shim_pid_type)F_OWNER_GID;
-		ret = fcntl(fd, F_GETOWN_EX, &owner);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_GETOWN_EX, &owner));
 #endif
 #if defined(F_OWNER_TID) &&	\
     defined(__linux__)
 		owner.type = (shim_pid_type)F_OWNER_TID;
-		ret = fcntl(fd, F_GETOWN_EX, &owner);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_GETOWN_EX, &owner));
 #else
 		UNEXPECTED
 #endif
@@ -351,11 +337,9 @@ static int do_fcntl(
 		check_return(args, ret, "F_SETSIG");
 
 		/* Exercise illegal signal number */
-		ret = fcntl(fd, F_SETSIG, ~0);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETSIG, ~0));
 		/* Apparently zero restores default behaviour */
-		ret = fcntl(fd, F_SETSIG, 0);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETSIG, 0));
 	}
 #else
 	UNEXPECTED
@@ -538,24 +522,21 @@ static int do_fcntl(
 		f.l_start = 0;
 		f.l_len = len;
 		f.l_pid = args->pid;
-		ret = fcntl(fd, F_SETLK, &f);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETLK, &f));
 
 		f.l_type = F_SETLK;
 		f.l_whence = ~0;
 		f.l_start = 0;
 		f.l_len = len;
 		f.l_pid = args->pid;
-		ret = fcntl(fd, F_SETLK, &f);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETLK, &f));
 
 		f.l_type = F_SETLK;
 		f.l_whence = SEEK_SET;
 		f.l_start = 0;
 		f.l_len = 0;
 		f.l_pid = 0;
-		ret = fcntl(fd, F_SETLK, &f);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SETLK, &f));
 
 lock_abort:	{ /* Nowt */ }
 	}
@@ -675,14 +656,12 @@ ofd_lock_abort:	{ /* Nowt */ }
 		if (ret == 0) {
 			for (i = 0; i < SIZEOF_ARRAY(hints); i++) {
 				hint = hints[i];
-				ret = fcntl(fd, F_SET_FILE_RW_HINT, &hint);
-				(void)ret;
+				VOID_RET(int, fcntl(fd, F_SET_FILE_RW_HINT, &hint));
 			}
 		}
 		/* Exercise invalid hint type */
 		hint = ~0UL;
-		ret = fcntl(fd, F_SET_FILE_RW_HINT, &hint);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_SET_FILE_RW_HINT, &hint));
 #else
 		UNEXPECTED
 #endif
@@ -692,8 +671,7 @@ ofd_lock_abort:	{ /* Nowt */ }
 		if (ret == 0) {
 			for (i = 0; i < SIZEOF_ARRAY(hints); i++) {
 				hint = hints[i];
-				ret = fcntl(fd, F_SET_RW_HINT, &hint);
-				(void)ret;
+				VOID_RET(int, fcntl(fd, F_SET_RW_HINT, &hint));
 			}
 		}
 #else
@@ -705,13 +683,10 @@ ofd_lock_abort:	{ /* Nowt */ }
 
 #if defined(F_GETFD)
 	{
-		int ret;
-
 		/*
 		 *  and exercise with an invalid fd
 		 */
-		ret = fcntl(bad_fd, F_GETFD, F_GETFD);
-		(void)ret;
+		VOID_RET(int, fcntl(bad_fd, F_GETFD, F_GETFD));
 	}
 #else
 	(void)bad_fd;
@@ -732,12 +707,8 @@ ofd_lock_abort:	{ /* Nowt */ }
 #endif
 #if defined(F_GETOWN)
 	{
-		int ret;
-
 		/* Exercise not allowed F_GETOWN on a path fd, EBADF */
-		ret = fcntl(path_fd, F_GETOWN);
-		(void)ret;
-
+		VOID_RET(int, fcntl(path_fd, F_GETOWN));
 	}
 #else
 	UNEXPECTED

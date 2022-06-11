@@ -181,8 +181,6 @@ err:
 static void stress_dentry_misc(const char *path)
 {
 	int fd, flags = O_RDONLY, ret;
-	ssize_t sret;
-	off_t offset;
 	struct stat statbuf;
 #if defined(HAVE_UTIME_H)
 	struct utimbuf utim;
@@ -203,27 +201,21 @@ static void stress_dentry_misc(const char *path)
 	(void)utime(path, &utim);
 #endif
 
-	ret = fstat(fd, &statbuf);
-	(void)ret;
+	VOID_RET(int, fstat(fd, &statbuf));
 
 	/* Not really legal */
-	offset = lseek(fd, 0, SEEK_END);
-	(void)offset;
+	VOID_RET(off_t, lseek(fd, 0, SEEK_END));
 
-	offset = lseek(fd, 0, SEEK_SET);
-	(void)offset;
+	VOID_RET(off_t, lseek(fd, 0, SEEK_SET));
 
 	/* Not allowed */
-	sret = read(fd, buf, sizeof(buf));
-	(void)sret;
+	VOID_RET(ssize_t, read(fd, buf, sizeof(buf)));
 
 	/* Not allowed */
-	ret = ftruncate(fd, 0);
-	(void)ret;
+	VOID_RET(int, ftruncate(fd, 0));
 
 	/* Not allowed */
-	ret = shim_fallocate(fd, 0, (off_t)0, statbuf.st_size);
-	(void)ret;
+	VOID_RET(int, shim_fallocate(fd, 0, (off_t)0, statbuf.st_size));
 
 	/* mmap */
 	ptr = mmap(NULL, 4096, PROT_READ, MAP_ANONYMOUS | MAP_PRIVATE, fd, 0);
@@ -240,8 +232,7 @@ static void stress_dentry_misc(const char *path)
 		ts[1].tv_sec = UTIME_NOW;
 		ts[1].tv_nsec = UTIME_NOW;
 
-		ret = futimens(fd, &ts[0]);
-		(void)ret;
+		VOID_RET(int, futimens(fd, &ts[0]));
 	}
 #endif
 
@@ -254,8 +245,7 @@ static void stress_dentry_misc(const char *path)
 		FD_SET(fd, &rdfds);
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 0;
-		ret = select(fd + 1, &rdfds, NULL, NULL, &timeout);
-		(void)ret;
+		VOID_RET(int, select(fd + 1, &rdfds, NULL, NULL, &timeout));
 	}
 #endif
 
@@ -267,8 +257,7 @@ static void stress_dentry_misc(const char *path)
 	 */
 	ret = flock(fd, LOCK_EX);
 	if (ret == 0) {
-		ret = flock(fd, LOCK_UN);
-		(void)ret;
+		VOID_RET(int, flock(fd, LOCK_UN));
 	}
 #elif defined(F_SETLKW) &&	\
       defined(F_RDLCK) &&	\
@@ -289,8 +278,7 @@ static void stress_dentry_misc(const char *path)
 			lock.l_len = 0;
 			lock.l_whence = SEEK_SET;
 			lock.l_type = F_UNLCK;
-			ret = fcntl(fd, F_SETLKW, &lock);
-			(void)ret;
+			VOID_RET(int, fcntl(fd, F_SETLKW, &lock));
 		}
 	}
 #endif
@@ -299,8 +287,7 @@ static void stress_dentry_misc(const char *path)
 	{
 		int flag;
 
-		ret = fcntl(fd, F_GETFL, &flag);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_GETFL, &flag));
 	}
 #endif
 	(void)close(fd);
@@ -374,7 +361,6 @@ static int stress_dentry(const stress_args_t *args)
 		 */
 		for (i = 0; i < n; i++) {
 			const uint64_t gray_code = (i >> 1) ^ i;
-			int rc;
 
 			if (!keep_stressing(args))
 				goto abort;
@@ -383,14 +369,12 @@ static int stress_dentry(const stress_args_t *args)
 				path, sizeof(path), dentry_offset + (gray_code * 2) + 1);
 
 			/* The following should fail, ignore error return */
-			rc = access(path, R_OK);
-			(void)rc;
+			VOID_RET(int, access(path, R_OK));
 
 			stress_temp_filename_args(args,
 				path, sizeof(path), dentry_offset + i);
 			/* The following should fail, ignore error return */
-			rc = access(path, R_OK);
-			(void)rc;
+			VOID_RET(int, access(path, R_OK));
 		}
 		dentry_offset += dentries;
 

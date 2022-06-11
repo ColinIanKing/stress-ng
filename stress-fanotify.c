@@ -256,7 +256,7 @@ static void fanotify_event_init_invalid(void)
  */
 static int test_fanotify_mark(const char *name, char *mounts[])
 {
-	int ret_fd, ret;
+	int ret_fd;
 #if defined(FAN_MARK_INODE)
 	const int bad_fd = stress_get_bad_fd();
 #endif
@@ -270,55 +270,46 @@ static int test_fanotify_mark(const char *name, char *mounts[])
 
 	/* Exercise fanotify_mark with invalid mask */
 #if defined(FAN_MARK_MOUNT)
-	ret = fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
-			~0U, AT_FDCWD, mounts[0]);
-	(void)ret;
+	VOID_RET(int, fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_MOUNT,
+			~0U, AT_FDCWD, mounts[0]));
 #endif
 
 	/* Exercise fanotify_mark with invalid flag */
-	ret = fanotify_mark(ret_fd, ~0U, FAN_ACCESS, AT_FDCWD, mounts[0]);
-	(void)ret;
+	VOID_RET(int, fanotify_mark(ret_fd, ~0U, FAN_ACCESS, AT_FDCWD, mounts[0]));
 
 	/* Exercise fanotify_mark on bad fd */
 #if defined(FAN_MARK_INODE)
-	ret = fanotify_mark(bad_fd, FAN_MARK_ADD | FAN_MARK_INODE,
-		FAN_ACCESS, AT_FDCWD, mounts[0]);
-	(void)ret;
+	VOID_RET(int, fanotify_mark(bad_fd, FAN_MARK_ADD | FAN_MARK_INODE,
+		FAN_ACCESS, AT_FDCWD, mounts[0]));
 #endif
 
 	/* Exercise fanotify_mark by passing two operations simultaneously */
-	ret = fanotify_mark(ret_fd, FAN_MARK_REMOVE | FAN_MARK_ADD,
-		FAN_ACCESS, AT_FDCWD, mounts[0]);
-	(void)ret;
+	VOID_RET(int, fanotify_mark(ret_fd, FAN_MARK_REMOVE | FAN_MARK_ADD,
+		FAN_ACCESS, AT_FDCWD, mounts[0]));
 
 	/* Exercise valid fanotify_mark to increase kernel coverage */
 #if defined(FAN_MARK_INODE)
-	ret = fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_INODE,
-		FAN_ACCESS, AT_FDCWD, mounts[0]);
-	(void)ret;
+	VOID_RET(int, fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_INODE,
+		FAN_ACCESS, AT_FDCWD, mounts[0]));
 #endif
 
 #if defined(FAN_MARK_IGNORED_MASK)
-	ret = fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_IGNORED_MASK,
-		FAN_ACCESS, AT_FDCWD, mounts[0]);
-	(void)ret;
+	VOID_RET(int, fanotify_mark(ret_fd, FAN_MARK_ADD | FAN_MARK_IGNORED_MASK,
+		FAN_ACCESS, AT_FDCWD, mounts[0]));
 #endif
 
 	/* Exercise other invalid combinations of flags */
-	ret = fanotify_mark(ret_fd, FAN_MARK_REMOVE,
-		0, AT_FDCWD, mnts[0]);
-	(void)ret;
+	VOID_RET(int, fanotify_mark(ret_fd, FAN_MARK_REMOVE,
+		0, AT_FDCWD, mnts[0]));
 
 #if defined(FAN_MARK_ONLYDIR)
-	ret = fanotify_mark(ret_fd, FAN_MARK_FLUSH | FAN_MARK_ONLYDIR,
-		FAN_ACCESS, AT_FDCWD, mnts[0]);
-	(void)ret;
+	VOID_RET(int, fanotify_mark(ret_fd, FAN_MARK_FLUSH | FAN_MARK_ONLYDIR,
+		FAN_ACCESS, AT_FDCWD, mnts[0]));
 #endif
 
 #if defined(FAN_MARK_EVICTABLE)
-	ret = fanotify_mark(ret_fd, FAN_MARK_EVICTABLE,
-		FAN_ACCESS, AT_FDCWD, mnts[0]);
-	(void)ret;
+	VOID_RET(int, fanotify_mark(ret_fd, FAN_MARK_EVICTABLE,
+		FAN_ACCESS, AT_FDCWD, mnts[0]));
 #endif
 
 	(void)close(ret_fd);
@@ -391,34 +382,27 @@ static void fanotify_event_clear(const int fan_fd)
 	 */
 	for (i = 0; i < n_mnts; i++) {
 		size_t j;
-#if defined(FAN_MARK_MOUNT) || defined(FAN_MARK_FILESYSTEM)
-		int ret;
-#endif
 
 		for (j = 0; j < SIZEOF_ARRAY(fan_stress_settings); j++) {
 #if defined(FAN_MARK_MOUNT)
-			ret = fanotify_mark(fan_fd, FAN_MARK_REMOVE | FAN_MARK_MOUNT,
-				fan_stress_settings[j], AT_FDCWD, mnts[i]);
-			(void)ret;
+			VOID_RET(int, fanotify_mark(fan_fd, FAN_MARK_REMOVE | FAN_MARK_MOUNT,
+				fan_stress_settings[j], AT_FDCWD, mnts[i]));
 #endif
 
 #if defined(FAN_MARK_FILESYSTEM)
-			ret = fanotify_mark(fan_fd, FAN_MARK_REMOVE | FAN_MARK_FILESYSTEM,
-				fan_stress_settings[j], AT_FDCWD, mnts[i]);
-			(void)ret;
+			VOID_RET(int, fanotify_mark(fan_fd, FAN_MARK_REMOVE | FAN_MARK_FILESYSTEM,
+				fan_stress_settings[j], AT_FDCWD, mnts[i]));
 #endif
 		}
 #if defined(FAN_MARK_FLUSH) &&	\
     defined(FAN_MARK_MOUNT)
-		ret = fanotify_mark(fan_fd, FAN_MARK_FLUSH | FAN_MARK_MOUNT,
-				0, AT_FDCWD, mnts[i]);
-		(void)ret;
+		VOID_RET(int, fanotify_mark(fan_fd, FAN_MARK_FLUSH | FAN_MARK_MOUNT,
+				0, AT_FDCWD, mnts[i]));
 #endif
 #if defined(FAN_MARK_FLUSH) &&	\
     defined(FAN_MARK_FILESYSTEM)
-		ret = fanotify_mark(fan_fd, FAN_MARK_FLUSH | FAN_MARK_FILESYSTEM,
-				0, AT_FDCWD, mnts[i]);
-		(void)ret;
+		VOID_RET(int, fanotify_mark(fan_fd, FAN_MARK_FLUSH | FAN_MARK_FILESYSTEM,
+				0, AT_FDCWD, mnts[i]));
 #endif
 	}
 #endif
@@ -528,7 +512,6 @@ static int stress_fanotify(const stress_args_t *args)
 
 		do {
 			int fd;
-			ssize_t n;
 			char buffer[64];
 
 			/* Force FAN_CLOSE_NOWRITE */
@@ -549,8 +532,7 @@ static int stress_fanotify(const stress_args_t *args)
 				(void)kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
-			n = write(fd, "test", 4);
-			(void)n;
+			VOID_RET(ssize_t, write(fd, "test", 4));
 			(void)close(fd);
 
 			/* Force FAN_ACCESS */
@@ -561,8 +543,7 @@ static int stress_fanotify(const stress_args_t *args)
 				(void)kill(args->ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
-			n = read(fd, buffer, sizeof(buffer));
-			(void)n;
+			VOID_RET(ssize_t, read(fd, buffer, sizeof(buffer)));
 			(void)close(fd);
 
 			/* Force remove */
@@ -655,8 +636,7 @@ static int stress_fanotify(const stress_args_t *args)
 				 *  of bytes that are ready to be read
 				 *  for some extra stress
 				 */
-				ret = ioctl(fan_fd1, FIONREAD, &isz);
-				(void)ret;
+				VOID_RET(int, ioctl(fan_fd1, FIONREAD, &isz));
 			}
 #endif
 			if (FD_ISSET(fan_fd1, &rfds))

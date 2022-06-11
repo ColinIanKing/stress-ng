@@ -99,7 +99,6 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 	shim_statx_t bufx;
 #endif
 	stress_stat_info_t *si = ctxt->si;
-	int ret;
 
 	if ((stat(si->path, &buf) < 0) && (errno != ENOMEM)) {
 		si->ignore |= IGNORE_STAT;
@@ -116,20 +115,16 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 	}
 
 	/* invalid dfd in statx */
-	ret = shim_statx(-1, "baddfd", AT_SYMLINK_NOFOLLOW, SHIM_STATX_ALL, &bufx);
-	(void)ret;
+	VOID_RET(int, shim_statx(-1, "baddfd", AT_SYMLINK_NOFOLLOW, SHIM_STATX_ALL, &bufx));
 
 	/* invalid path in statx */
-	ret = shim_statx(AT_EMPTY_PATH, "", AT_SYMLINK_NOFOLLOW, SHIM_STATX_ALL, &bufx);
-	(void)ret;
+	VOID_RET(int, shim_statx(AT_EMPTY_PATH, "", AT_SYMLINK_NOFOLLOW, SHIM_STATX_ALL, &bufx));
 
 	/* invalid mask in statx */
-	ret = shim_statx(AT_EMPTY_PATH, si->path, ~0, SHIM_STATX_ALL, &bufx);
-	(void)ret;
+	VOID_RET(int, shim_statx(AT_EMPTY_PATH, si->path, ~0, SHIM_STATX_ALL, &bufx));
 
 	/* invalid flags in statx */
-	ret = shim_statx(AT_EMPTY_PATH, si->path, AT_SYMLINK_NOFOLLOW, ~0U, &bufx);
-	(void)ret;
+	VOID_RET(int, shim_statx(AT_EMPTY_PATH, si->path, AT_SYMLINK_NOFOLLOW, ~0U, &bufx));
 #else
 	UNEXPECTED
 #endif
@@ -152,16 +147,13 @@ static void stress_fstat_helper(const stress_ctxt_t *ctxt)
 	}
 
 	/* Exercise stat on an invalid path, ENOENT */
-	ret = stat("", &buf);
-	(void)ret;
+	VOID_RET(int, stat("", &buf));
 
 	/* Exercise lstat on an invalid path, ENOENT */
-	ret = lstat("", &buf);
-	(void)ret;
+	VOID_RET(int, lstat("", &buf));
 
 	/* Exercise fstat on an invalid fd, EBADF */
-	ret = fstat(ctxt->bad_fd, &buf);
-	(void)ret;
+	VOID_RET(int, fstat(ctxt->bad_fd, &buf));
 }
 
 #if defined(HAVE_LIB_PTHREAD)

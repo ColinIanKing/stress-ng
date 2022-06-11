@@ -232,10 +232,9 @@ again:
 #if defined(FIONREAD)
 			/* Occasionally exercise FIONREAD on read end */
 			if ((i++ & 0x1ff) == 0) {
-				int ret, bytes;
+				int bytes;
 
-				ret = ioctl(pipefds[0], FIONREAD, &bytes);
-				(void)ret;
+				VOID_RET(int, ioctl(pipefds[0], FIONREAD, &bytes));
 			}
 #endif
 			if (!strncmp(buf, PIPE_STOP, 3))

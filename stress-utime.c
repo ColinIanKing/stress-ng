@@ -133,12 +133,10 @@ static int stress_utime(const stress_args_t *args)
 		}
 
 		/* Exercise with invalid filename, ENOENT */
-		ret = utimes("", timevals);
-		(void)ret;
+		VOID_RET(int, utimes("", timevals));
 
 		/* Exercise huge filename, ENAMETOOLONG */
-		ret = utimes(hugename, timevals);
-		(void)ret;
+		VOID_RET(int, utimes(hugename, timevals));
 
 #if defined(HAVE_FUTIMENS)
 		if (futimens(fd, NULL) < 0) {
@@ -152,8 +150,7 @@ static int stress_utime(const stress_args_t *args)
 		ts[0].tv_nsec = UTIME_NOW;
 		ts[1].tv_sec = UTIME_NOW;
 		ts[1].tv_nsec = UTIME_NOW;
-		ret = futimens(-1, ts);
-		(void)ret;
+		VOID_RET(int, futimens(-1, ts));
 
 #if defined(UTIME_NOW)
 		ts[0].tv_sec = UTIME_NOW;
@@ -191,20 +188,16 @@ static int stress_utime(const stress_args_t *args)
 		ts[1].tv_sec = UTIME_NOW;
 		ts[1].tv_nsec = UTIME_NOW;
 
-		ret = utimensat(AT_FDCWD, filename, ts, 0);
-		(void)ret;
+		VOID_RET(int, utimensat(AT_FDCWD, filename, ts, 0));
 
 		/* Exercise invalid filename, ENOENT */
-		ret = utimensat(AT_FDCWD, "", ts, 0);
-		(void)ret;
+		VOID_RET(int, utimensat(AT_FDCWD, "", ts, 0));
 
 		/* Exercise huge filename, ENAMETOOLONG */
-		ret = utimensat(AT_FDCWD, hugename, ts, 0);
-		(void)ret;
+		VOID_RET(int, utimensat(AT_FDCWD, hugename, ts, 0));
 
 		/* Exercise invalid flags */
-		ret = utimensat(AT_FDCWD, filename, ts, ~0);
-		(void)ret;
+		VOID_RET(int, utimensat(AT_FDCWD, filename, ts, ~0));
 #else
 		UNEXPECTED
 #endif
@@ -222,36 +215,30 @@ STRESS_PRAGMA_WARN_OFF
 			ts[1].tv_sec = UTIME_NOW;
 			ts[1].tv_nsec = UTIME_NOW;
 
-			ret = utimensat(dir_fd, "", ts, 0);
-			(void)ret;
+			VOID_RET(int, utimensat(dir_fd, "", ts, 0));
 		}
 STRESS_PRAGMA_POP
 #endif
 
 #if defined(UTIME_OMIT)
 		ts[1].tv_nsec = UTIME_OMIT;
-		ret = utimensat(AT_FDCWD, filename, ts, 0);
-		(void)ret;
+		VOID_RET(int, utimensat(AT_FDCWD, filename, ts, 0));
 #endif
 
 
 #if defined(AT_SYMLINK_NOFOLLOW)
 #if defined(UTIME_NOW)
 		ts[1].tv_nsec = UTIME_NOW;
-		ret = utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
-		(void)ret;
+		VOID_RET(int, utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW));
 		if (utime_fsync) {
-			ret = shim_fsync(fd);
-			(void)ret;
+			VOID_RET(int, shim_fsync(fd));
 		}
 #endif
 #if defined(UTIME_OMIT)
 		ts[1].tv_nsec = UTIME_OMIT;
-		ret = utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW);
-		(void)ret;
+		VOID_RET(int, utimensat(AT_FDCWD, filename, ts, AT_SYMLINK_NOFOLLOW));
 		if (utime_fsync) {
-			ret = shim_fsync(fd);
-			(void)ret;
+			VOID_RET(int, shim_fsync(fd));
 		}
 #endif
 #endif
@@ -297,20 +284,17 @@ STRESS_PRAGMA_POP
 			}
 
 			/* Exercise invalid timename, ENOENT */
-			ret = shim_utime("", &utbuf);
-			(void)ret;
+			VOID_RET(int, shim_utime("", &utbuf));
 
 			/* Exercise huge filename, ENAMETOOLONG */
-			ret = shim_utime(hugename, &utbuf);
-			(void)ret;
+			VOID_RET(int, shim_utime(hugename, &utbuf));
 		}
 #else
 		UNEXPECTED
 #endif
 		/* forces metadata writeback */
 		if (utime_fsync) {
-			ret = shim_fsync(fd);
-			(void)ret;
+			VOID_RET(int, shim_fsync(fd));
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));

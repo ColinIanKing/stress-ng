@@ -241,8 +241,7 @@ static int stress_usersyscall(const stress_args_t *args)
 		}
 		/*  Expect ENOSYS for the system call return */
 		errno = 0;
-		ret = (int)syscall(USR_SYSCALL);
-		(void)ret;
+		VOID_RET(int, syscall(USR_SYSCALL));
 		if (errno != ENOSYS) {
 			pr_fail("%s: didn't get ENOSYS on user syscall, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -280,9 +279,8 @@ static int stress_usersyscall(const stress_args_t *args)
 				"got 0x%x instead\n", args->name, siginfo.si_errno);
 			continue;
 		}
-		ret = prctl(PR_SET_SYSCALL_USER_DISPATCH,
-			    PR_SYS_DISPATCH_OFF, 0, 0, 0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SET_SYSCALL_USER_DISPATCH,
+			    PR_SYS_DISPATCH_OFF, 0, 0, 0));
 
 #if defined(STRESS_EXERCISE_X86_SYSCALL)
 		if (libc_ok) {
@@ -318,9 +316,8 @@ static int stress_usersyscall(const stress_args_t *args)
 			saved_errno = errno;
 			dispatcher_off();
 
-			ret = prctl(PR_SET_SYSCALL_USER_DISPATCH,
-				    PR_SYS_DISPATCH_OFF, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_SYSCALL_USER_DISPATCH,
+				    PR_SYS_DISPATCH_OFF, 0, 0, 0));
 
 			if (ret_libc != pid) {
 				pr_fail("%s: didn't get pid on libc getpid syscall, "

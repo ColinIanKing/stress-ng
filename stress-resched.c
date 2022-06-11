@@ -67,7 +67,7 @@ static void NORETURN stress_resched_child(
 	(void)sched_settings_apply(true);
 
 	for (i = niceness; i < max_niceness; i++) {
-		int ret, k;
+		int k;
 
 		for (k = 0; k < 1024; k++) {
 #if defined(HAVE_SCHEDULING)
@@ -78,25 +78,21 @@ static void NORETURN stress_resched_child(
 
 				(void)memset(&param, 0, sizeof(param));
 				param.sched_priority = 0;
-				ret = sched_setscheduler(pid, normal_policies[j], &param);
-				(void)ret;
-				ret = shim_sched_yield();
-				(void)ret;
+				VOID_RET(int, sched_setscheduler(pid, normal_policies[j], &param));
+				VOID_RET(int, shim_sched_yield());
 				if (yields)
 					yields[i]++;
 				inc_counter(args);
 			}
 #else
-			ret = shim_sched_yield();
-			(void)ret;
+			VOID_RET(int, shim_sched_yield());
 			if (yields)
 				yields[i]++;
 			inc_counter(args);
 #endif
 		}
 
-		ret = nice(1);
-		(void)ret;
+		VOID_RET(int, nice(1));
 
 		if (!keep_stressing(args))
 			break;
@@ -196,10 +192,9 @@ static int stress_resched(const stress_args_t *args)
 	/* Reap children */
 	for (i = 0; i < pids_max; i++) {
 		if (pids[i] != -1) {
-			int status, ret;
+			int status;
 
-			ret = waitpid(pids[i], &status, 0);
-			(void)ret;
+			VOID_RET(int, waitpid(pids[i], &status, 0));
 		}
 	}
 

@@ -139,9 +139,8 @@ static int stress_uprobe(const stress_args_t *args)
 	(void)snprintf(event, sizeof(event), "stressngprobe%d%" PRIu32,
 		getpid(), args->instance);
 
-	ret = stress_uprobe_write("/sys/kernel/debug/tracing/current_tracer",
-		O_WRONLY | O_CREAT | O_TRUNC, "nop\n");
-	(void)ret;
+	VOID_RET(int, stress_uprobe_write("/sys/kernel/debug/tracing/current_tracer",
+		O_WRONLY | O_CREAT | O_TRUNC, "nop\n"));
 	(void)snprintf(buf, sizeof(buf), "p:%s %s:%p\n", event, libc_path, (void *)offset);
 	ret = stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
 		O_WRONLY | O_CREAT | O_APPEND, buf);
@@ -236,18 +235,16 @@ terminate:
 
 	(void)close(fd);
 	/* Stop events */
-	ret = stress_uprobe_write("/sys/kernel/debug/tracing/events/uprobes/enable",
-		O_WRONLY, "0\n");
-	(void)ret;
+	VOID_RET(int, stress_uprobe_write("/sys/kernel/debug/tracing/events/uprobes/enable",
+		O_WRONLY, "0\n"));
 
 clear_events:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* Remove uprobe */
 	(void)snprintf(buf, sizeof(buf), "-:%s\n", event);
-	ret = stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
-		O_WRONLY | O_APPEND, buf);
-	(void)ret;
+	VOID_RET(int, stress_uprobe_write("/sys/kernel/debug/tracing/uprobe_events",
+		O_WRONLY | O_APPEND, buf));
 
 	return rc;
 }

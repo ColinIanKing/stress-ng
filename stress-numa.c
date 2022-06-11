@@ -274,31 +274,20 @@ static int stress_numa(const stress_args_t *args)
 		}
 
 		/* Exercise invalid max_nodes */
-		ret = shim_get_mempolicy(&mode, node_mask, 0,
-					 buf, MPOL_F_NODE);
-		(void)ret;
+		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, 0, buf, MPOL_F_NODE));
 
 		/* Exercise invalid flag */
-		ret = shim_get_mempolicy(&mode, node_mask, max_nodes, buf, ~0UL);
-		(void)ret;
+		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, max_nodes, buf, ~0UL));
 
 		/* Exercise invalid NULL addr condition */
-		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
-					 NULL, MPOL_F_ADDR);
-		(void)ret;
+		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, max_nodes, NULL, MPOL_F_ADDR));
 
-		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
-					 buf, MPOL_F_NODE);
-		(void)ret;
+		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, max_nodes, buf, MPOL_F_NODE));
 
 		/* Exercise MPOL_F_MEMS_ALLOWED flag syscalls */
-		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
-					 buf, MPOL_F_MEMS_ALLOWED);
-		(void)ret;
+		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, max_nodes, buf, MPOL_F_MEMS_ALLOWED));
 
-		ret = shim_get_mempolicy(&mode, node_mask, max_nodes,
-					 buf, MPOL_F_MEMS_ALLOWED | MPOL_F_NODE);
-		(void)ret;
+		VOID_RET(int, shim_get_mempolicy(&mode, node_mask, max_nodes, buf, MPOL_F_MEMS_ALLOWED | MPOL_F_NODE));
 
 		if (!keep_stressing_flag())
 			break;
@@ -330,57 +319,55 @@ static int stress_numa(const stress_args_t *args)
 		switch (stress_mwc8() % 11) {
 		case 0:
 #if defined(MPOL_DEFAULT)
-			ret = shim_set_mempolicy(MPOL_DEFAULT | mode, NULL, max_nodes);
+			VOID_RET(long, shim_set_mempolicy(MPOL_DEFAULT | mode, NULL, max_nodes));
 			break;
 #endif
 		case 1:
 #if defined(MPOL_BIND)
-			ret = shim_set_mempolicy(MPOL_BIND | mode, node_mask, max_nodes);
+			VOID_RET(long, shim_set_mempolicy(MPOL_BIND | mode, node_mask, max_nodes));
 			break;
 #endif
 		case 2:
 #if defined(MPOL_INTERLEAVE)
-			ret = shim_set_mempolicy(MPOL_INTERLEAVE | mode, node_mask, max_nodes);
+			VOID_RET(long, shim_set_mempolicy(MPOL_INTERLEAVE | mode, node_mask, max_nodes));
 			break;
 #endif
 		case 3:
 #if defined(MPOL_PREFERRED)
-			ret = shim_set_mempolicy(MPOL_PREFERRED | mode, node_mask, max_nodes);
+			VOID_RET(long, shim_set_mempolicy(MPOL_PREFERRED | mode, node_mask, max_nodes));
 			break;
 #endif
 		case 4:
 #if defined(MPOL_LOCAL)
-			ret = shim_set_mempolicy(MPOL_LOCAL | mode, node_mask, max_nodes);
+			VOID_RET(long, shim_set_mempolicy(MPOL_LOCAL | mode, node_mask, max_nodes));
 			break;
 #endif
 		case 5:
 #if defined(MPOL_PREFERRED_MANY)
-			ret = shim_set_mempolicy(MPOL_PREFERRED_MANY | mode, node_mask, max_nodes);
+			VOID_RET(long, shim_set_mempolicy(MPOL_PREFERRED_MANY | mode, node_mask, max_nodes));
 			break;
 #endif
 		case 6:
-			ret = shim_set_mempolicy(0, node_mask, max_nodes);
+			VOID_RET(long, shim_set_mempolicy(0, node_mask, max_nodes));
 			break;
 		case 7:
-			ret = shim_set_mempolicy(mode, node_mask, max_nodes);
+			VOID_RET(long, shim_set_mempolicy(mode, node_mask, max_nodes));
 			break;
 		case 8:
 			/* Invalid mode */
-			ret = shim_set_mempolicy(mode | MPOL_F_STATIC_NODES | MPOL_F_RELATIVE_NODES, node_mask, max_nodes);
+			VOID_RET(long, shim_set_mempolicy(mode | MPOL_F_STATIC_NODES | MPOL_F_RELATIVE_NODES, node_mask, max_nodes));
 			break;
 #if defined(MPOL_F_NUMA_BALANCING) &&	\
     defined(MPOL_LOCAL)
 		case 9:
 			/* Invalid  MPOL_F_NUMA_BALANCING | MPOL_LOCAL */
-			ret = shim_set_mempolicy(MPOL_F_NUMA_BALANCING | MPOL_LOCAL, node_mask, max_nodes);
+			VOID_RET(long, shim_set_mempolicy(MPOL_F_NUMA_BALANCING | MPOL_LOCAL, node_mask, max_nodes));
 			break;
 #endif
 		default:
 			/* Intentionally invalid mode */
-			ret = shim_set_mempolicy(~0, node_mask, max_nodes);
+			VOID_RET(long, shim_set_mempolicy(~0, node_mask, max_nodes));
 		}
-		(void)ret;
-
 
 		/*
 		 *  Fetch CPU and node, we just waste some cycled
@@ -439,37 +426,30 @@ static int stress_numa(const stress_args_t *args)
 			break;
 
 		/* Exercise invalid start address */
-		lret = shim_mbind((void *)(buf + 7), MMAP_SZ, MPOL_BIND, node_mask,
-			max_nodes, MPOL_MF_STRICT);
-		(void)lret;
+		VOID_RET(long, shim_mbind((void *)(buf + 7), MMAP_SZ, MPOL_BIND, node_mask,
+			max_nodes, MPOL_MF_STRICT));
 
 		/* Exercise wrap around */
-		lret = shim_mbind((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size * 2,
-			MPOL_BIND, node_mask, max_nodes, MPOL_MF_STRICT);
-		(void)lret;
+		VOID_RET(long, shim_mbind((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size * 2,
+			MPOL_BIND, node_mask, max_nodes, MPOL_MF_STRICT));
 
 		/* Exercise invalid length */
-		lret = shim_mbind((void *)buf, ~0UL, MPOL_BIND, node_mask,
-			max_nodes, MPOL_MF_STRICT);
-		(void)lret;
+		VOID_RET(long, shim_mbind((void *)buf, ~0UL, MPOL_BIND, node_mask,
+			max_nodes, MPOL_MF_STRICT));
 
 		/* Exercise zero length, allowed, but is a no-op */
-		lret = shim_mbind((void *)buf, 0, MPOL_BIND, node_mask,
-			max_nodes, MPOL_MF_STRICT);
-		(void)lret;
+		VOID_RET(long, shim_mbind((void *)buf, 0, MPOL_BIND, node_mask,
+			max_nodes, MPOL_MF_STRICT));
 
 		/* Exercise invalid max_nodes */
-		lret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
-			0, MPOL_MF_STRICT);
-		(void)lret;
-		lret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
-			0xffffffff, MPOL_MF_STRICT);
-		(void)lret;
+		VOID_RET(long, shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
+			0, MPOL_MF_STRICT));
+		VOID_RET(long, shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
+			0xffffffff, MPOL_MF_STRICT));
 
 		/* Exercise invalid flags */
-		lret = shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
-			max_nodes, ~0U);
-		(void)lret;
+		VOID_RET(long, shim_mbind((void *)buf, MMAP_SZ, MPOL_BIND, node_mask,
+			max_nodes, ~0U));
 
 		/* Check mbind syscall cannot succeed without capability */
 		if (!cap_sys_nice) {
@@ -501,26 +481,19 @@ static int stress_numa(const stress_args_t *args)
 		/*
 	 	 *  Ignore any failures, this is not strictly important
 		 */
-		lret = shim_migrate_pages(args->pid, max_nodes,
-			old_node_mask, node_mask);
-		(void)lret;
+		VOID_RET(long, shim_migrate_pages(args->pid, max_nodes,
+			old_node_mask, node_mask));
 
 		/*
 		 *  Exercise illegal pid
 		 */
-		lret = shim_migrate_pages(~0, max_nodes, old_node_mask,
-			node_mask);
-		(void)lret;
+		VOID_RET(long, shim_migrate_pages(~0, max_nodes, old_node_mask, node_mask));
 
 		/*
 		 *  Exercise illegal max_nodes
 		 */
-		lret = shim_migrate_pages(args->pid, ~0UL, old_node_mask,
-			node_mask);
-		(void)lret;
-		lret = shim_migrate_pages(args->pid, 0, old_node_mask,
-			node_mask);
-		(void)lret;
+		VOID_RET(long, shim_migrate_pages(args->pid, ~0UL, old_node_mask, node_mask));
+		VOID_RET(long, shim_migrate_pages(args->pid, 0, old_node_mask, node_mask));
 
 		if (!keep_stressing_flag())
 			break;
@@ -553,52 +526,44 @@ static int stress_numa(const stress_args_t *args)
 		/* Exercise MPOL_MF_MOVE_ALL, this needs privilege, ignore failure */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
-		lret = shim_move_pages(args->pid, num_pages, pages, dest_nodes, status, MPOL_MF_MOVE_ALL);
-		(void)lret;
+		VOID_RET(long, shim_move_pages(args->pid, num_pages, pages, dest_nodes, status, MPOL_MF_MOVE_ALL));
 #endif
 
 		/* Exercise invalid pid on move pages */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
-		lret = shim_move_pages(~0, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
-		(void)lret;
+		VOID_RET(long, shim_move_pages(~0, 1, pages, dest_nodes, status, MPOL_MF_MOVE));
 
 		/* Exercise 0 nr_pages */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
-		lret = shim_move_pages(args->pid, 0, pages, dest_nodes, status, MPOL_MF_MOVE);
-		(void)lret;
+		VOID_RET(long, shim_move_pages(args->pid, 0, pages, dest_nodes, status, MPOL_MF_MOVE));
 
 		/* Exercise invalid move flags */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
-		lret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, ~0);
-		(void)lret;
+		VOID_RET(long, shim_move_pages(args->pid, 1, pages, dest_nodes, status, ~0));
 
 		/* Exercise zero flag, should succeed */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
-		lret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, 0);
-		(void)lret;
+		VOID_RET(long, shim_move_pages(args->pid, 1, pages, dest_nodes, status, 0));
 
 		/* Exercise invalid address */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = (void *)(~(uintptr_t)0 & ~(args->page_size - 1));
-		lret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
-		(void)lret;
+		VOID_RET(long, shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE));
 
 		/* Exercise invalid dest_node */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
 		dest_nodes[0] = ~0;
-		lret = shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE);
-		(void)lret;
+		VOID_RET(long, shim_move_pages(args->pid, 1, pages, dest_nodes, status, MPOL_MF_MOVE));
 
 		/* Exercise NULL nodes */
 		(void)memset(status, 0, sizeof(status));
 		pages[0] = buf;
-		lret = shim_move_pages(args->pid, 1, pages, NULL, status, MPOL_MF_MOVE);
-		(void)lret;
+		VOID_RET(long, shim_move_pages(args->pid, 1, pages, NULL, status, MPOL_MF_MOVE));
 
 		inc_counter(args);
 	} while (keep_stressing(args));

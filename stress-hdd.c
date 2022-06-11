@@ -353,7 +353,6 @@ static ssize_t stress_hdd_read(
  */
 static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 {
-	ssize_t ret;
 #if defined(HAVE_SYS_UIO_H)
 	struct iovec iov[HDD_IO_VEC_MAX];
 	size_t i;
@@ -372,16 +371,13 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 #if defined(HAVE_SYS_UIO_H) &&	\
     defined(HAVE_PREADV2)
 	/* invalid preadv2 fd */
-	ret = preadv2(-1, iov, HDD_IO_VEC_MAX, 0, 0);
-	(void)ret;
+	VOID_RET(ssize_t, preadv2(-1, iov, HDD_IO_VEC_MAX, 0, 0));
 
 	/* invalid preadv2 offset, don't use -1 */
-	ret = preadv2(fd, iov, HDD_IO_VEC_MAX, -2, 0);
-	(void)ret;
+	VOID_RET(ssize_t, preadv2(fd, iov, HDD_IO_VEC_MAX, -2, 0));
 
 	/* invalid preadv2 flags */
-	ret = preadv2(fd, iov, HDD_IO_VEC_MAX, 0, ~0);
-	(void)ret;
+	VOID_RET(ssize_t, preadv2(fd, iov, HDD_IO_VEC_MAX, 0, ~0));
 #else
 	UNEXPECTED
 #endif
@@ -389,25 +385,21 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
 #if defined(HAVE_SYS_UIO_H) &&	\
     defined(HAVE_PREADV)
 	/* invalid preadv fd */
-	ret = preadv(-1, iov, HDD_IO_VEC_MAX, 0);
-	(void)ret;
+	VOID_RET(ssize_t, preadv(-1, iov, HDD_IO_VEC_MAX, 0));
 
 	/* invalid preadv offset */
-	ret = preadv(fd, iov, HDD_IO_VEC_MAX, -1);
-	(void)ret;
+	VOID_RET(ssize_t, preadv(fd, iov, HDD_IO_VEC_MAX, -1));
 #else
 	UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UIO_H)
 	/* invalid readv fd */
-	ret = readv(-1, iov, HDD_IO_VEC_MAX);
-	(void)ret;
+	VOID_RET(ssize_t, readv(-1, iov, HDD_IO_VEC_MAX));
 #endif
 
 	/* invalid read fd */
-	ret = read(-1, buf, 1);
-	(void)ret;
+	VOID_RET(ssize_t, read(-1, buf, 1));
 }
 
 /*
@@ -416,7 +408,6 @@ static void stress_hdd_invalid_read(const int fd, uint8_t *buf)
  */
 static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 {
-	ssize_t ret;
 #if defined(HAVE_SYS_UIO_H)
 	struct iovec iov[HDD_IO_VEC_MAX];
 	size_t i;
@@ -437,16 +428,13 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 #if defined(HAVE_SYS_UIO_H) &&	\
     defined(HAVE_PWRITEV2)
 	/* invalid pwritev2 fd */
-	ret = pwritev2(-1, iov, HDD_IO_VEC_MAX, 0, 0);
-	(void)ret;
+	VOID_RET(ssize_t, pwritev2(-1, iov, HDD_IO_VEC_MAX, 0, 0));
 
 	/* invalid pwritev2 offset, don't use -1 */
-	ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, -2, 0);
-	(void)ret;
+	VOID_RET(ssize_t, pwritev2(fd, iov, HDD_IO_VEC_MAX, -2, 0));
 
 	/* invalid pwritev2 flags */
-	ret = pwritev2(fd, iov, HDD_IO_VEC_MAX, 0, ~0);
-	(void)ret;
+	VOID_RET(ssize_t, pwritev2(fd, iov, HDD_IO_VEC_MAX, 0, ~0));
 #else
 	UNEXPECTED
 #endif
@@ -454,27 +442,23 @@ static void stress_hdd_invalid_write(const int fd, uint8_t *buf)
 #if defined(HAVE_SYS_UIO_H) &&	\
     defined(HAVE_PWRITEV)
 	/* invalid pwritev fd */
-	ret = pwritev(-1, iov, HDD_IO_VEC_MAX, 0);
-	(void)ret;
+	VOID_RET(ssize_t, pwritev(-1, iov, HDD_IO_VEC_MAX, 0));
 
 	/* invalid pwritev offset */
-	ret = pwritev(fd, iov, HDD_IO_VEC_MAX, -1);
-	(void)ret;
+	VOID_RET(ssize_t, pwritev(fd, iov, HDD_IO_VEC_MAX, -1));
 #else
 	UNEXPECTED
 #endif
 
 #if defined(HAVE_SYS_UIO_H)
 	/* invalid writev fd */
-	ret = writev(-1, iov, HDD_IO_VEC_MAX);
-	(void)ret;
+	VOID_RET(ssize_t, writev(-1, iov, HDD_IO_VEC_MAX));
 #else
 	UNEXPECTED
 #endif
 
 	/* invalid write fd */
-	ret = write(-1, buf, 1);
-	(void)ret;
+	VOID_RET(ssize_t, write(-1, buf, 1));
 }
 
 /*
@@ -734,8 +718,7 @@ static int stress_hdd(const stress_args_t *args)
     defined(RWH_WRITE_LIFE_SHORT)
 		{
 			uint64_t hint = RWH_WRITE_LIFE_SHORT;
-			ret = fcntl(fd, F_SET_FILE_RW_HINT, &hint);
-			(void)ret;
+			VOID_RET(int, fcntl(fd, F_SET_FILE_RW_HINT, &hint));
 		}
 #endif
 
@@ -748,12 +731,10 @@ static int stress_hdd(const stress_args_t *args)
 				goto finish;
 			}
 			/* Exercise invalid ftruncate size, EINVAL */
-			ret = ftruncate(fd, (off_t)-1);
-			(void)ret;
+			VOID_RET(int, ftruncate(fd, (off_t)-1));
 
 			/* Exercise invalid fd, EBADF */
-			ret = ftruncate(-1, (off_t)0);
-			(void)ret;
+			VOID_RET(int, ftruncate(-1, (off_t)0));
 		} else {
 			if (truncate(filename, (off_t)0) < 0) {
 				pr_fail("%s: truncate failed, errno=%d (%s)\n",
@@ -762,12 +743,10 @@ static int stress_hdd(const stress_args_t *args)
 				goto finish;
 			}
 			/* Exercise invalid truncate size, EINVAL */
-			ret = truncate(filename, (off_t)-1);
-			(void)ret;
+			VOID_RET(int, truncate(filename, (off_t)-1));
 
 			/* Exercise invalid path, ENOENT */
-			ret = truncate("", (off_t)0);
-			(void)ret;
+			VOID_RET(int, truncate("", (off_t)0));
 		}
 		(void)shim_unlink(filename);
 

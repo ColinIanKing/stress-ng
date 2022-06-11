@@ -869,12 +869,9 @@ static void stress_iomix_copy_file_range(
 		off_t to = stress_iomix_rnd_offset(iomix_bytes);
 		const size_t size = stress_mwc16();
 		struct timeval tv;
-		ssize_t ret;
 
-		ret = copy_file_range(fd, &from, fd, &to, size, 0);
-		(void)ret;
-		ret = copy_file_range(fd, &to, fd, &from, size, 0);
-		(void)ret;
+		VOID_RET(ssize_t, copy_file_range(fd, &from, fd, &to, size, 0));
+		VOID_RET(ssize_t, copy_file_range(fd, &to, fd, &from, size, 0));
 
 		if (!keep_stressing(args))
 			return;

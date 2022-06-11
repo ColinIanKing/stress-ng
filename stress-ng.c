@@ -2003,7 +2003,6 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 {
 	static char buf[128];
 	const int fd = fileno(stderr);
-	ssize_t ret;
 	terminate_signum = signum;
 	keep_stressing_set_flag(false);
 
@@ -2014,8 +2013,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 	case SIGBUS:
 		(void)snprintf(buf, sizeof(buf), "%s: info:  [%d] stressor terminated with unexpected signal %s\n",
 			g_app_name, (int)getpid(), stress_strsignal(signum));
-		ret = write(fd, buf, strlen(buf));
-		(void)ret;
+		VOID_RET(ssize_t, write(fd, buf, strlen(buf)));
 		stress_kill_stressors(SIGALRM);
 		_exit(EXIT_SIGNALED);
 	default:
@@ -3841,8 +3839,7 @@ int main(int argc, char **argv, char **envp)
 	 *  Ignore other signals
 	 */
 	for (i = 0; i < SIZEOF_ARRAY(ignore_signals); i++) {
-		ret = stress_sighandler("stress-ng", ignore_signals[i], SIG_IGN, NULL);
-		(void)ret;	/* We don't care if it fails */
+		VOID_RET(int, stress_sighandler("stress-ng", ignore_signals[i], SIG_IGN, NULL));
 	}
 
 	/*

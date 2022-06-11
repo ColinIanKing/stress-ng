@@ -120,8 +120,7 @@ again:
 			char re[7];
 
 			/* Exercise read on small buffer */
-			ret = read(fd1, re, sizeof(re));
-			(void)ret;
+			VOID_RET(ssize_t, read(fd1, re, sizeof(re)));
 
 			for (;;) {
 				if (!keep_stressing_flag())
@@ -151,13 +150,11 @@ again:
 
 				/* Exercise write using small buffer */
 				(void)memset(re, 0, sizeof(re));
-				ret = write(fd1, re, sizeof(re));
-				(void)ret;
+				VOID_RET(ssize_t, write(fd1, re, sizeof(re)));
 
 				/* Exercise write on buffer out of range */
 				val = ~0UL;
-				ret = write(fd1, &val, sizeof(val));
-				(void)ret;
+				VOID_RET(ssize_t, write(fd1, &val, sizeof(val)));
 			}
 
 			val = 1;

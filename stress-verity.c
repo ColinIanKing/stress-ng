@@ -112,13 +112,13 @@ static int stress_verity(const stress_args_t *args)
 		}
 		for (i = 0; i < 16; i++) {
 			const off_t off = (off_t)i * 64 * 1024;
+			ssize_t n;
 
 			(void)memset(block, i, sizeof(block));
-			ret = (int)lseek(fd, off, SEEK_SET);
-			(void)ret;
+			VOID_RET(off_t, lseek(fd, off, SEEK_SET));
 
-			ret = (int)write(fd, block, sizeof(block));
-			if (ret < 0) {
+			n = write(fd, block, sizeof(block));
+			if (n < 0) {
 				ret = exit_status(errno);
 				pr_err("%s: cannot write %s\n", args->name, filename);
 				(void)close(fd);
@@ -191,8 +191,7 @@ static int stress_verity(const stress_args_t *args)
 		 */
 		digest->digest_algorithm = FS_VERITY_HASH_ALG_SHA256;
 		digest->digest_size = 32;
-		ret = ioctl(fd, FS_IOC_MEASURE_VERITY, digest);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, FS_IOC_MEASURE_VERITY, digest));
 
 #if defined(FS_IOC_GETFLAGS) &&	\
     defined(FS_VERITY_FL)
@@ -223,13 +222,13 @@ static int stress_verity(const stress_args_t *args)
 		}
 		for (i = 0; i < 16; i++) {
 			const off_t off = (off_t)i * 64 * 1024;
+			ssize_t n;
 
 			(void)memset(block, i, sizeof(block));
-			ret = (int)lseek(fd, off, SEEK_SET);
-			(void)ret;
+			VOID_RET(off_t, lseek(fd, off, SEEK_SET));
 
-			ret = (int)read(fd, block, sizeof(block));
-			if (ret < 0) {
+			n = read(fd, block, sizeof(block));
+			if (n < 0) {
 				ret = exit_status(errno);
 				pr_err("%s: cannot read %s\n", args->name, filename);
 				(void)close(fd);
@@ -251,7 +250,7 @@ static int stress_verity(const stress_args_t *args)
 		md_arg.buf_ptr = (uint64_t)(intptr_t)md_buf;
 		md_arg.length = (uint64_t)sizeof(md_buf);
 
-		(void)ioctl(fd, FS_IOC_READ_VERITY_METADATA, &md_arg);
+		VOID_RET(int, ioctl(fd, FS_IOC_READ_VERITY_METADATA, &md_arg));
 #else
 		UNEXPECTED
 #endif

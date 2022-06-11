@@ -133,8 +133,7 @@ static int stress_xattr(const stress_args_t *args)
 		/* Exercise empty zero length value */
 		ret = shim_fsetxattr(fd, "user.var_empty", "", 0, XATTR_CREATE);
 		if (ret == 0)
-			ret = shim_fremovexattr(fd, "user.var_empty");
-		(void)ret;
+			VOID_RET(int, shim_fremovexattr(fd, "user.var_empty"));
 
 		(void)snprintf(attrname, sizeof(attrname), "user.var_%d", MAX_XATTRS);
 		(void)snprintf(value, sizeof(value), "orig-value-%d", MAX_XATTRS);
@@ -142,8 +141,7 @@ static int stress_xattr(const stress_args_t *args)
 		/*
 		 *  Exercise bad/invalid fd
 		 */
-		ret = shim_fsetxattr(bad_fd, attrname, value, strlen(value), XATTR_CREATE);
-		(void)ret;
+		VOID_RET(int, shim_fsetxattr(bad_fd, attrname, value, strlen(value), XATTR_CREATE));
 
 		/*
 		 *  Exercise invalid flags
@@ -170,17 +168,14 @@ static int stress_xattr(const stress_args_t *args)
 			goto out_close;
 		}
 		/* Exercise invalid filename, ENOENT */
-		ret = shim_setxattr("", attrname, value, strlen(value), 0);
-		(void)ret;
+		VOID_RET(int, shim_setxattr("", attrname, value, strlen(value), 0));
 
 		/* Exercise invalid attrname, ERANGE */
-		ret = shim_setxattr(filename, "", value, strlen(value), 0);
-		(void)ret;
+		VOID_RET(int, shim_setxattr(filename, "", value, strlen(value), 0));
 
 		/* Exercise huge value length, E2BIG */
 		if (hugevalue) {
-			ret = shim_setxattr(filename, "hugevalue", hugevalue, hugevalue_sz, 0);
-			(void)ret;
+			VOID_RET(int, shim_setxattr(filename, "hugevalue", hugevalue, hugevalue_sz, 0));
 		}
 
 		/*
@@ -354,13 +349,9 @@ static int stress_xattr(const stress_args_t *args)
 			}
 
 			/* Exercise getxattr syscall having small value buffer */
-			sret = shim_getxattr(filename, attrname, small_tmp, sizeof(small_tmp));
-			(void)sret;
-			sret = shim_getxattr(filename, "", small_tmp, 0);
-			(void)sret;
-			sret = shim_getxattr(filename, "", small_tmp, sizeof(small_tmp));
-			(void)sret;
-
+			VOID_RET(ssize_t, shim_getxattr(filename, attrname, small_tmp, sizeof(small_tmp)));
+			VOID_RET(ssize_t, shim_getxattr(filename, "", small_tmp, 0));
+			VOID_RET(ssize_t, shim_getxattr(filename, "", small_tmp, sizeof(small_tmp)));
 			sret = shim_getxattr(filename, attrname, tmp, sizeof(tmp));
 			if (sret < 0) {
 				pr_fail("%s: getxattr failed, errno=%d (%s)\n",
@@ -388,8 +379,7 @@ static int stress_xattr(const stress_args_t *args)
 
 			/* Invalid attribute name */
 			(void)memset(&bad_attrname, 0, sizeof(bad_attrname));
-			sret = shim_lgetxattr(filename, bad_attrname, tmp, sizeof(tmp));
-			(void)sret;
+			VOID_RET(ssize_t, shim_lgetxattr(filename, bad_attrname, tmp, sizeof(tmp)));
 #endif
 			if (!keep_stressing(args))
 				goto out_finished;
@@ -398,17 +388,14 @@ static int stress_xattr(const stress_args_t *args)
 		/*
 		 *  Exercise bad/invalid fd
 		 */
-		sret = shim_fgetxattr(bad_fd, "user.var_bad", tmp, sizeof(tmp));
-		(void)sret;
+		VOID_RET(ssize_t, shim_fgetxattr(bad_fd, "user.var_bad", tmp, sizeof(tmp)));
 
 		/* Invalid attribute name */
 		(void)memset(&bad_attrname, 0, sizeof(bad_attrname));
-		sret = shim_fgetxattr(fd, bad_attrname, tmp, sizeof(tmp));
-		(void)sret;
+		VOID_RET(ssize_t, shim_fgetxattr(fd, bad_attrname, tmp, sizeof(tmp)));
 
 		/* Exercise fgetxattr syscall having small value buffer */
-		sret = shim_fgetxattr(fd, attrname, small_tmp, sizeof(small_tmp));
-		(void)sret;
+		VOID_RET(ssize_t, shim_fgetxattr(fd, attrname, small_tmp, sizeof(small_tmp)));
 
 		/* Determine how large a buffer we required... */
 		sret = shim_flistxattr(fd, NULL, 0);
@@ -433,17 +420,14 @@ static int stress_xattr(const stress_args_t *args)
 		/*
 		 *  Exercise bad/invalid fd
 		 */
-		sret = shim_flistxattr(bad_fd, NULL, 0);
-		(void)sret;
+		VOID_RET(ssize_t, shim_flistxattr(bad_fd, NULL, 0));
 
 		/*
 		 *  Exercise invalid path, ENOENT
 		 */
-		sret = shim_listxattr(bad_filename, NULL, 0);
-		(void)sret;
+		VOID_RET(ssize_t, shim_listxattr(bad_filename, NULL, 0));
 #if defined(HAVE_LLISTXATTR)
-		sret = shim_llistxattr(bad_filename, NULL, 0);
-		(void)sret;
+		VOID_RET(ssize_t, shim_llistxattr(bad_filename, NULL, 0));
 #endif
 
 		for (j = 0; j < i; j++) {

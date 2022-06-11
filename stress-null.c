@@ -61,7 +61,6 @@ static int stress_null(const stress_args_t *args)
 	do {
 		ssize_t ret;
 		int flag;
-		off_t off;
 #if defined(__linux__)
 		void *ptr;
 		const size_t page_size = args->page_size;
@@ -80,37 +79,29 @@ static int stress_null(const stress_args_t *args)
 			continue;
 		}
 
-		off = lseek(fd, (off_t)0, SEEK_SET);
-		(void)off;
-		off = lseek(fd, (off_t)0, SEEK_END);
-		(void)off;
-		off = lseek(fd, (off_t)stress_mwc64(), SEEK_CUR);
-		(void)off;
+		VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_SET));
+		VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_END));
+		VOID_RET(off_t, lseek(fd, (off_t)stress_mwc64(), SEEK_CUR));
 
 		/* Illegal fallocate, should return ENODEV */
-		ret = shim_fallocate(fd, 0, 0, 4096);
-		(void)ret;
+		VOID_RET(int, shim_fallocate(fd, 0, 0, 4096));
 
 		/* Fdatasync, EINVAL? */
-		ret = shim_fdatasync(fd);
-		(void)ret;
+		VOID_RET(int, shim_fdatasync(fd));
 
 		flag = fcntl(fd, F_GETFL, 0);
 		if (flag >= 0) {
 			const int newflag = O_RDWR | ((int)stress_mwc32() & fcntl_mask);
 
-			ret = fcntl(fd, F_SETFL, newflag);
-			(void)ret;
-			ret = fcntl(fd, F_SETFL, flag);
-			(void)ret;
+			VOID_RET(int, fcntl(fd, F_SETFL, newflag));
+			VOID_RET(int, fcntl(fd, F_SETFL, flag));
 		}
 
 #if defined(FIGETBSZ)
 		{
 			int isz;
 
-			ret = ioctl(fd, FIGETBSZ, &isz);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
 		}
 #endif
 
@@ -119,19 +110,20 @@ static int stress_null(const stress_args_t *args)
 			int isz = 0;
 
 			/* Should return -ENOTTY for /dev/null */
-			ret = ioctl(fd, FIONREAD, &isz);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, FIONREAD, &isz));
 		}
 #endif
 
 #if defined(__linux__)
-		off = (off_t)stress_mwc64() & ~((off_t)page_size - 1);
-		ptr = mmap(NULL, page_size, PROT_WRITE,
-			MAP_PRIVATE | MAP_ANONYMOUS, fd, off);
-		if (ptr != MAP_FAILED) {
-			(void)memset(ptr, stress_mwc8(), page_size);
-			(void)shim_msync(ptr, page_size, MS_SYNC);
-			(void)munmap(ptr, page_size);
+		{
+			const off_t off = (off_t)stress_mwc64() & ~((off_t)page_size - 1);
+			ptr = mmap(NULL, page_size, PROT_WRITE,
+				MAP_PRIVATE | MAP_ANONYMOUS, fd, off);
+			if (ptr != MAP_FAILED) {
+				(void)memset(ptr, stress_mwc8(), page_size);
+				(void)shim_msync(ptr, page_size, MS_SYNC);
+				(void)munmap(ptr, page_size);
+			}
 		}
 #endif
 

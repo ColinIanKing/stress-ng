@@ -198,30 +198,24 @@ static int stress_link_generic(
 		}
 
 		/* exercise invalid newpath size, EINVAL */
-		rret = readlink(oldpath, testpath, 0);
-		(void)rret;
+		VOID_RET(ssize_t, readlink(oldpath, testpath, 0));
 
 		/* exercise empty oldpath, ENOENT */
-		rret = readlink("", testpath, sizeof(testpath));
-		(void)rret;
+		VOID_RET(ssize_t, readlink("", testpath, sizeof(testpath)));
 
 		/* exercise non-link, EINVAL */
-		rret = readlink("/", testpath, sizeof(testpath));
-		(void)rret;
+		VOID_RET(ssize_t, readlink("/", testpath, sizeof(testpath)));
 
 #if defined(HAVE_READLINKAT) && 	\
     defined(AT_FDCWD)
 		/* exercise invalid newpath size, EINVAL */
-		rret = readlinkat(AT_FDCWD, ".", testpath, 0);
-		(void)rret;
+		VOID_RET(ssize_t, readlinkat(AT_FDCWD, ".", testpath, 0));
 
 		/* exercise invalid newpath size, EINVAL */
-		rret = readlinkat(AT_FDCWD, "", testpath, sizeof(testpath));
-		(void)rret;
+		VOID_RET(ssize_t, readlinkat(AT_FDCWD, "", testpath, sizeof(testpath)));
 
 		/* exercise non-link, EINVAL */
-		rret = readlinkat(AT_FDCWD, "/", testpath, sizeof(testpath));
-		(void)rret;
+		VOID_RET(ssize_t, readlinkat(AT_FDCWD, "/", testpath, sizeof(testpath)));
 #endif
 
 err_unlink:

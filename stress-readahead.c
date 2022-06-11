@@ -237,28 +237,23 @@ rnd_rd_retry:
 
 #if defined(HAVE_POSIX_FADVISE) &&	\
     defined(POSIX_FADV_DONTNEED)
-		ret = posix_fadvise(fd, 0, readahead_bytes, POSIX_FADV_DONTNEED);
-		(void)ret;
+		VOID_RET(int, posix_fadvise(fd, 0, readahead_bytes, POSIX_FADV_DONTNEED));
 #endif
 
                 /* Exercise illegal fd */
-                ret = readahead(~0, 0, 512);
-                (void)ret;
+                VOID_RET(ssize_t, readahead(~0, 0, 512));
 
 		/* Exercise zero size readahead */
-                ret = readahead(fd, 0, 0);
-                (void)ret;
+                VOID_RET(ssize_t, readahead(fd, 0, 0));
 
 		/* Exercise invalid readahead on write-only file, EBADF */
 		if (fd_wr >= 0) {
-			ret = readahead(fd_wr, 0, 512);
-			(void)ret;
+			VOID_RET(ssize_t, readahead(fd_wr, 0, 512));
 		}
 
                 /* Exercise large sizes and illegal sizes */
 		for (i = 15; i < sizeof(size_t) * 8; i += 4) {
-			ret = readahead(fd, 0, 1ULL << i);
-			(void)ret;
+			VOID_RET(ssize_t, readahead(fd, 0, 1ULL << i));
 		}
 	} while (keep_stressing(args));
 

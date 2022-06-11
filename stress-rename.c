@@ -144,9 +144,7 @@ static int exercise_renameat2(
 	 * Exercise RENAME_EXCHANGE on same file creating absolutely
 	 * no difference other than increase in kernel test coverage
 	 */
-	ret = renameat2(oldfd, old_name, oldfd, old_name,
-		RENAME_EXCHANGE);
-	(void)ret;
+	VOID_RET(int, renameat2(oldfd, old_name, oldfd, old_name, RENAME_EXCHANGE));
 
 #endif
 

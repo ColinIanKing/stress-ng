@@ -124,14 +124,12 @@ static int stress_getdents_dir(
 	/*
 	 *  exercise getdents on bad fd
 	 */
-	nread = shim_getdents((unsigned int)bad_fd, (struct shim_linux_dirent *)buf, buf_sz);
-	(void)nread;
+	VOID_RET(int, shim_getdents((unsigned int)bad_fd, (struct shim_linux_dirent *)buf, buf_sz));
 
 	/*
 	 *  exercise getdents with illegal zero size
 	 */
-	nread = shim_getdents((unsigned int)fd, (struct shim_linux_dirent *)buf, 0);
-	(void)nread;
+	VOID_RET(int, shim_getdents((unsigned int)fd, (struct shim_linux_dirent *)buf, 0));
 
 	do {
 		char *ptr = buf;
@@ -187,7 +185,7 @@ static int stress_getdents64_dir(
 	const size_t page_size,
 	const int bad_fd)
 {
-	int fd, rc = 0, nread;
+	int fd, rc = 0;
 	char *buf;
 	unsigned int buf_sz;
 
@@ -206,11 +204,11 @@ static int stress_getdents64_dir(
 	/*
 	 *  exercise getdents64 on bad fd
 	 */
-	nread = shim_getdents64((unsigned int)bad_fd, (struct shim_linux_dirent64 *)buf, buf_sz);
-	(void)nread;
+	VOID_RET(int, shim_getdents64((unsigned int)bad_fd, (struct shim_linux_dirent64 *)buf, buf_sz));
 
 	do {
 		char *ptr = buf;
+		int nread;
 
 		nread = shim_getdents64((unsigned int)fd, (struct shim_linux_dirent64 *)buf, buf_sz);
 		if (nread < 0) {

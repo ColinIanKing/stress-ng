@@ -180,15 +180,13 @@ static int stress_ioport(const stress_args_t *args)
 					offret = lseek(fd, offset, SEEK_SET);
 					if (offret != (off_t)-1) {
 						val = ~v;
-						n = write(fd, &val, sizeof(val));
-						(void)n;
+						VOID_RET(ssize_t, write(fd, &val, sizeof(val)));
 					}
 
 					offret = lseek(fd, offset, SEEK_SET);
 					if (offret != (off_t)-1) {
 						val = v;
-						n = write(fd, &val, sizeof(val));
-						(void)n;
+						VOID_RET(ssize_t, write(fd, &val, sizeof(val)));
 					}
 				}
 			}
@@ -198,12 +196,9 @@ static int stress_ioport(const stress_args_t *args)
 		/*
 		 *  Exercise invalid ioperm settings
 		 */
-		ret = ioperm(IO_PORT, 0, 1);
-		(void)ret;
-		ret = ioperm(~0UL, 1, 1);
-		(void)ret;
-		ret = ioperm(IO_PORT, 1, 1);
-		(void)ret;
+		VOID_RET(int, ioperm(IO_PORT, 0, 1));
+		VOID_RET(int, ioperm(~0UL, 1, 1));
+		VOID_RET(int, ioperm(IO_PORT, 1, 1));
 
 #if defined(HAVE_IOPL)
 		{
@@ -217,8 +212,7 @@ static int stress_ioport(const stress_args_t *args)
 			 *  iopl settings
 			 */
 			for (i = 0; i < SIZEOF_ARRAY(levels); i++) {
-				ret = iopl(levels[i]);
-				(void)ret;
+				VOID_RET(int, iopl(levels[i]));
 			}
 		}
 #else

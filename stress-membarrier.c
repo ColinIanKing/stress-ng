@@ -75,21 +75,17 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 	mask = (unsigned int)ret;
 	for (i = 1; i; i <<= 1) {
 		if (i & mask) {
-			ret = shim_membarrier((int)i, 0, 0);
-			(void)ret;
+			VOID_RET(int, shim_membarrier((int)i, 0, 0));
 
 			/* Exercise illegal flags */
-			ret = shim_membarrier((int)i, ~0, 0);
-			(void)ret;
+			VOID_RET(int, shim_membarrier((int)i, ~0, 0));
 
 			/* Exercise illegal cpu_id */
-			ret = shim_membarrier((int)i, 0, INT_MAX);
-			(void)ret;
+			VOID_RET(int, shim_membarrier((int)i, 0, INT_MAX));
 
 #if defined(MEMBARRIER_CMD_FLAG_CPU)
 			/* Exercise MEMBARRIER_CMD_FLAG_CPU flag */
-			ret = shim_membarrier((int)i, MEMBARRIER_CMD_FLAG_CPU, 0);
-			(void)ret;
+			VOID_RET(int, shim_membarrier((int)i, MEMBARRIER_CMD_FLAG_CPU, 0));
 #endif
 		}
 	}
@@ -97,8 +93,7 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 	/* Exercise illegal command */
 	for (i = 1; i; i <<= 1) {
 		if (!(i & mask)) {
-			ret = shim_membarrier((int)i, 0, 0);
-			(void)ret;
+			VOID_RET(int, shim_membarrier((int)i, 0, 0));
 			break;
 		}
 	}

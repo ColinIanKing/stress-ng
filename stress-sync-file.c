@@ -180,20 +180,16 @@ static int stress_sync_file(const stress_args_t *args)
 		/*
 		 *  Exercise sync_file_range with a bad fd
 		 */
-		ret = shim_sync_file_range(bad_fd, 0, 4096, mode);
-		(void)ret;
+		VOID_RET(int, shim_sync_file_range(bad_fd, 0, 4096, mode));
 
 		/*
 		 *  Exercise sync_file_range with illegal offset and nbytes
 		 */
-		ret = shim_sync_file_range(fd, -1, 4096, mode);
-		(void)ret;
-		ret = shim_sync_file_range(fd, 0, -1, mode);
-		(void)ret;
+		VOID_RET(int, shim_sync_file_range(fd, -1, 4096, mode));
+		VOID_RET(int, shim_sync_file_range(fd, 0, -1, mode));
 
 		/* Sync from halfway along file to end */
-		ret = shim_sync_file_range(fd, sync_file_bytes << 2, 0, mode);
-		(void)ret;
+		VOID_RET(int, shim_sync_file_range(fd, sync_file_bytes << 2, 0, mode));
 
 		ret = stress_sync_allocate(args, fd, sync_file_bytes);
 		if (ret < 0) {

@@ -79,7 +79,6 @@ static int do_chattr(
 		int fd, fdw, ret;
 		unsigned long zero = 0UL;
 		unsigned long orig, rnd;
-		ssize_t n;
 
 		fd = open(filename, O_RDONLY | O_NONBLOCK | O_CREAT, S_IRUSR | S_IWUSR);
 		if (fd < 0)
@@ -115,8 +114,7 @@ static int do_chattr(
 		fdw = open(filename, O_RDWR);
 		if (fdw < 0)
 			goto tidy_fd;
-		n = write(fdw, &zero, sizeof(zero));
-		(void)n;
+		VOID_RET(ssize_t, write(fdw, &zero, sizeof(zero)));
 
 		if (!keep_stressing(args))
 			goto tidy_fdw;
@@ -129,13 +127,11 @@ static int do_chattr(
 
 		if (!keep_stressing(args))
 			goto tidy_fdw;
-		n = write(fdw, &zero, sizeof(zero));
-		(void)n;
+		VOID_RET(ssize_t, write(fdw, &zero, sizeof(zero)));
 
 		if (!keep_stressing(args))
 			goto tidy_fdw;
-		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &zero));
 
 		/*
 		 *  Try some random flag, exercises any illegal flags
@@ -143,16 +139,14 @@ static int do_chattr(
 		if (!keep_stressing(args))
 			goto tidy_fdw;
 		rnd = 1ULL << (stress_mwc8() & 0x1f);
-		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &rnd);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &rnd));
 
 		/*
 		 *  Restore original setting
 		 */
 		if (!keep_stressing(args))
 			goto tidy_fdw;
-		ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &orig);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &orig));
 tidy_fdw:
 
 		(void)close(fdw);

@@ -289,35 +289,28 @@ static void stress_mmap_mprotect(
 {
 #if defined(HAVE_MPROTECT)
 	if (mmap_mprotect) {
-		int ret;
 		void *last_page = (void *)(~(uintptr_t)0 & ~(page_size - 1));
 
 		/* Invalid mix of PROT_GROWSDOWN | PROT_GROWSUP */
 #if defined(PROT_GROWSDOWN) &&	\
     defined(PROT_GROWSUP)
-		ret = mprotect(addr, len, PROT_READ | PROT_WRITE | PROT_GROWSDOWN | PROT_GROWSUP);
-		(void)ret;
+		VOID_RET(int, mprotect(addr, len, PROT_READ | PROT_WRITE | PROT_GROWSDOWN | PROT_GROWSUP));
 #endif
 
 		/* Invalid non-page aligned start address */
-		ret = mprotect((void *)(((uint8_t *)addr) + 7), len, PROT_READ | PROT_WRITE);
-		(void)ret;
+		VOID_RET(int, mprotect((void *)(((uint8_t *)addr) + 7), len, PROT_READ | PROT_WRITE));
 
 		/* Exercise zero len (should succeed) */
-		ret = mprotect(addr, 0, PROT_READ | PROT_WRITE);
-		(void)ret;
+		VOID_RET(int, mprotect(addr, 0, PROT_READ | PROT_WRITE));
 
 		/* Exercise flags all set */
-		ret = mprotect(addr, len, ~0);
-		(void)ret;
+		VOID_RET(int, mprotect(addr, len, ~0));
 
 		/* Exercise invalid unmapped addressed, should return ENOMEM */
-		ret = mprotect(last_page, page_size, PROT_READ | PROT_WRITE);
-		(void)ret;
+		VOID_RET(int, mprotect(last_page, page_size, PROT_READ | PROT_WRITE));
 
 		/* Exercise invalid wrapped range, should return EINVAL */
-		ret = mprotect(last_page, page_size << 1, PROT_READ | PROT_WRITE);
-		(void)ret;
+		VOID_RET(int, mprotect(last_page, page_size << 1, PROT_READ | PROT_WRITE));
 
 		/* Cycle through potection */
 		if (mprotect(addr, len, PROT_NONE) < 0)
@@ -389,8 +382,7 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 	void *hint;
 	int ret, mask = ~0;
 
-	ret = stress_sighandler(args->name, SIGBUS, stress_mmap_sighandler, NULL);
-	(void)ret;
+	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_mmap_sighandler, NULL));
 
 	mapped = calloc(pages4k, sizeof(*mapped));
 	if (!mapped) {
@@ -517,15 +509,11 @@ retry:
 			off_t offset = 0;
 
 			for (n = 0; n < pages4k; n++, offset += page_size) {
-				ssize_t wret;
-
 				if (lseek(fd, offset, SEEK_SET) < 0)
 					continue;
 
-				wret = write(fd, mappings[n], page_size);
-				(void)wret;
-				wret = read(fd, mappings[n], page_size);
-				(void)wret;
+				VOID_RET(ssize_t, write(fd, mappings[n], page_size));
+				VOID_RET(ssize_t, read(fd, mappings[n], page_size));
 			}
 		}
 
@@ -543,11 +531,8 @@ retry:
     defined(MAP_FIXED)
 					{
 						/* Exercise OpenBSD mquery */
-						void *query;
-
-						query = mquery(mappings[page], page_size,
-								PROT_READ, MAP_FIXED, -1, 0);
-						(void)query;
+						VOID_RET(void *, mquery(mappings[page], page_size,
+								PROT_READ, MAP_FIXED, -1, 0));
 					}
 #endif
 					(void)stress_madvise_random(mappings[page], page_size);

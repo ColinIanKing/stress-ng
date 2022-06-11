@@ -177,7 +177,6 @@ static void stress_affinity_child(
 
 	do {
 		cpu_set_t mask;
-		int ret;
 
 		cpu = info->affinity_rand ? (stress_mwc32() >> 4) : cpu + 1;
 		cpu %= info->cpus;
@@ -221,20 +220,16 @@ static void stress_affinity_child(
 			}
 		}
 		/* Exercise getaffinity with invalid pid */
-		ret = sched_getaffinity(-1, sizeof(mask), &mask);
-		(void)ret;
+		VOID_RET(int, sched_getaffinity(-1, sizeof(mask), &mask));
 
 		/* Exercise getaffinity with mask size */
-		ret = sched_getaffinity(0, 0, &mask);
-		(void)ret;
+		VOID_RET(int, sched_getaffinity(0, 0, &mask));
 
 		/* Exercise setaffinity with invalid mask size */
-		ret = sched_setaffinity(0, 0, &mask);
-		(void)ret;
+		VOID_RET(int, sched_setaffinity(0, 0, &mask));
 
 		/* Exercise setaffinity with invalid mask */
-		ret = sched_setaffinity(0, sizeof(mask), &mask0);
-		(void)ret;
+		VOID_RET(int, sched_setaffinity(0, sizeof(mask), &mask0));
 
 affinity_continue:
 		stress_lock_acquire(counter_lock);

@@ -113,12 +113,8 @@ static void *mutex_exercise(void *arg)
 	 */
 	mutexattr_ret = pthread_mutexattr_init(&mutexattr);
 	if (mutexattr_ret == 0) {
-		int ret;
-
-		ret = pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_INHERIT);
-		(void)ret;
-		ret = pthread_mutexattr_setprioceiling(&mutexattr, max);
-		(void)ret;
+		VOID_RET(int, pthread_mutexattr_setprotocol(&mutexattr, PTHREAD_PRIO_INHERIT));
+		VOID_RET(int, pthread_mutexattr_setprioceiling(&mutexattr, max));
 	}
 #endif
 
@@ -227,13 +223,10 @@ static int stress_mutex(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < DEFAULT_MUTEX_PROCS; i++) {
-		int ret;
-
 		if (pthread_info[i].ret)
 			continue;
 
-		ret = pthread_join(pthread_info[i].pthread, NULL);
-		(void)ret;
+		VOID_RET(int, pthread_join(pthread_info[i].pthread, NULL));
 	}
 	(void)pthread_mutex_destroy(&mutex);
 

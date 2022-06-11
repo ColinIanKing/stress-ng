@@ -124,10 +124,8 @@ static void efi_lseek_read(const int fd, const off_t offset, const int whence)
 	offret = lseek(fd, offset, whence);
 	if (offret != (off_t)-1) {
 		char data[1];
-		ssize_t n;
 
-		n = read(fd, data, sizeof(data));
-		(void)n;
+		VOID_RET(ssize_t, read(fd, data, sizeof(data)));
 	}
 }
 
@@ -161,7 +159,6 @@ static int efi_get_data(
 	}
 
 	(void)stress_read_fdinfo(pid, fd);
-
 	(void)memset(buf, 0, buf_len);
 
 	n = read(fd, buf, buf_len);
@@ -203,18 +200,16 @@ static int efi_get_data(
 
 #if defined(FIGETBSZ)
 	{
-		int ret, isz;
+		int isz;
 
-		ret = ioctl(fd, FIGETBSZ, &isz);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
 	}
 #endif
 #if defined(FIONREAD)
 	{
-		int ret, isz;
+		int isz;
 
-		ret = ioctl(fd, FIONREAD, &isz);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, FIONREAD, &isz));
 	}
 #endif
 

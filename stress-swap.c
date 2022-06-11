@@ -283,8 +283,7 @@ static int stress_swap(const stress_args_t *args)
 		 */
 		if (ioctl(fd, SHIM_EXT2_IOC_GETFLAGS, &flags) == 0) {
 			flags |= SHIM_FS_NOCOW_FL;
-			ret = ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flags);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, SHIM_EXT2_IOC_SETFLAGS, &flags));
 		}
 	}
 #endif
@@ -394,20 +393,17 @@ static int stress_swap(const stress_args_t *args)
 		/* Exercise illegal swapon filename */
 		ret = swapon("", swapflags);
 		if (ret == 0)
-			ret = stress_swapoff("");	/* Should never happen */
-		(void)ret;
+			VOID_RET(int, stress_swapoff(""));	/* Should never happen */
 
 		/* Exercise illegal swapoff filename */
 		ret = stress_swapoff("");
 		if (ret == 0)
-			ret = swapon("", swapflags);	/* Should never happen */
-		(void)ret;
+			VOID_RET(int, swapon("", swapflags));	/* Should never happen */
 
 		/* Exercise illegal swapon flags */
 		ret = swapon(filename, ~0);
 		if (ret == 0)
-			ret = stress_swapoff(filename);	/* Should never happen */
-		(void)ret;
+			VOID_RET(int, stress_swapoff(filename));/* Should never happen */
 
 		inc_counter(args);
 	} while (keep_stressing(args));

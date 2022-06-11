@@ -113,32 +113,22 @@ static size_t stress_mlock_max_lockable(void)
  */
 static void stress_mlock_misc(const stress_args_t *args, const size_t page_size)
 {
-	int ret;
-
 	(void)args;
 
 	/*
 	 *  mlock/munlock with invalid or unusual arguments
 	 */
-	ret = shim_mlock((void *)~0, page_size);
-	(void)ret;
-	ret = shim_munlock((void *)~0, page_size);
-	(void)ret;
+	VOID_RET(int, shim_mlock((void *)~0, page_size));
+	VOID_RET(int, shim_munlock((void *)~0, page_size));
 
-	ret = shim_mlock((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size << 1);
-	(void)ret;
-	ret = shim_munlock((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size << 1);
-	(void)ret;
+	VOID_RET(int, shim_mlock((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size << 1));
+	VOID_RET(int, shim_munlock((void *)(~(uintptr_t)0 & ~(page_size - 1)), page_size << 1));
 
-	ret = shim_mlock((void *)0, ~(size_t)0);
-	(void)ret;
-	ret = munlock((void *)0, ~(size_t)0);
-	(void)ret;
+	VOID_RET(int, shim_mlock((void *)0, ~(size_t)0));
+	VOID_RET(int, munlock((void *)0, ~(size_t)0));
 
-	ret = shim_mlock((void *)0, 0);
-	(void)ret;
-	ret = munlock((void *)0, 0);
-	(void)ret;
+	VOID_RET(int, shim_mlock((void *)0, 0));
+	VOID_RET(int, munlock((void *)0, 0));
 
 #if defined(HAVE_MLOCKALL)
 	{

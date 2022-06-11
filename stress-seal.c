@@ -186,8 +186,7 @@ static int stress_seal(const stress_args_t *args)
 		/*
 		 *  And try (and ignore error) from a F_SEAL_FUTURE_WRITE
 		 */
-		ret = fcntl(fd, F_ADD_SEALS, F_SEAL_FUTURE_WRITE);
-		(void)ret;
+		VOID_RET(int, fcntl(fd, F_ADD_SEALS, F_SEAL_FUTURE_WRITE));
 next:
 		(void)close(fd);
 

@@ -309,14 +309,12 @@ static int stress_wait(const stress_args_t *args)
 		/*
 		 *  Exercise wait4 with invalid PID, errno -> ESRCH
 		 */
-		wret = shim_wait4(INT_MIN, &status, options, &usage);
-		(void)wret;
+		VOID_RET(int, shim_wait4(INT_MIN, &status, options, &usage));
 
 		/*
 		 *  Exercise wait4 with invalid options, errno -> EINVAL
 		 */
-		wret = shim_wait4(0, &status, ~0, &usage);
-		(void)wret;
+		VOID_RET(int, shim_wait4(0, &status, ~0, &usage));
 #endif
 
 #if defined(HAVE_WAITID)

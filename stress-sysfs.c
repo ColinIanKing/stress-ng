@@ -147,7 +147,6 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		uint8_t *ptr;
 		fd_set rfds;
 		struct timeval tv;
-		off_t lret;
 		ssize_t rret;
 
 		ret = shim_pthread_spin_lock(&lock);
@@ -248,8 +247,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		tv.tv_sec = 0;
 		tv.tv_usec = 0;
 		FD_ZERO(&rfds);
-		ret = select(fd + 1, &rfds, NULL, NULL, &tv);
-		(void)ret;
+		VOID_RET(int, select(fd + 1, &rfds, NULL, NULL, &tv));
 		if (stress_time_now() - t_start > threshold)
 			goto next;
 
@@ -261,8 +259,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			fds[0].events = POLLIN;
 			fds[0].revents = 0;
 
-			ret = poll(fds, 1, 1);
-			(void)ret;
+			VOID_RET(int, poll(fds, 1, 1));
 			if (stress_time_now() - t_start > threshold)
 				goto next;
 		}
@@ -284,8 +281,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 			ts.tv_nsec = 1000;
 
 			(void)sigemptyset(&sigmask);
-			ret = ppoll(fds, 1, &ts, &sigmask);
-			(void)ret;
+			VOID_RET(int, ppoll(fds, 1, &ts, &sigmask));
 		}
 #else
 		UNEXPECTED
@@ -294,8 +290,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		/*
 		 *  lseek
 		 */
-		lret = lseek(fd, (off_t)0, SEEK_SET);
-		(void)lret;
+		VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_SET));
 
 		/*
 		 *  simple ioctls

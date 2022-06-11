@@ -119,9 +119,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	ret = getsockopt(fd, IPPROTO_SCTP, opt,		\
 		 &info, &opt_len);			\
 	if (ret == 0) {					\
-		ret = setsockopt(fd, IPPROTO_SCTP, opt,	\
-			&info, opt_len);		\
-		(void)ret;				\
+		VOID_RET(int, setsockopt(fd,		\
+			IPPROTO_SCTP, opt, &info,	\
+			opt_len));			\
 	}						\
 }
 

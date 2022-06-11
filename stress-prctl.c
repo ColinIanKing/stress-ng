@@ -157,8 +157,7 @@ static inline void stress_arch_prctl(void)
 		ret = shim_arch_prctl(ARCH_GET_CPUID, 0);
 #if defined(ARCH_SET_CPUID)
 		if (ret >= 0)
-			ret = shim_arch_prctl(ARCH_SET_CPUID, (unsigned long)ret);
-		(void)ret;
+			VOID_RET(int, shim_arch_prctl(ARCH_SET_CPUID, (unsigned long)ret));
 #endif
 	}
 #endif
@@ -174,8 +173,7 @@ static inline void stress_arch_prctl(void)
 		ret = shim_arch_prctl(ARCH_GET_FS, (unsigned long)&fs);
 #if defined(ARCH_SET_FS)
 		if (ret == 0)
-			ret = shim_arch_prctl(ARCH_SET_FS, fs);
-		(void)ret;
+			VOID_RET(int, shim_arch_prctl(ARCH_SET_FS, fs));
 #endif
 	}
 #endif
@@ -191,8 +189,7 @@ static inline void stress_arch_prctl(void)
 		ret = shim_arch_prctl(ARCH_GET_GS, (unsigned long)&gs);
 #if defined(ARCH_SET_GS)
 		if (ret == 0)
-			ret = shim_arch_prctl(ARCH_SET_GS, gs);
-		(void)ret;
+			VOID_RET(int, shim_arch_prctl(ARCH_SET_GS, gs));
 #endif
 	}
 #endif
@@ -203,10 +200,8 @@ static inline void stress_arch_prctl(void)
     (defined(__x86_64__) || defined(__x86_64))
 	{
 		uint64_t features;
-		int ret;
 
-		ret = shim_arch_prctl(ARCH_GET_XCOMP_SUPP, (unsigned long)&features);
-		(void)ret;
+		VOID_RET(int, shim_arch_prctl(ARCH_GET_XCOMP_SUPP, (unsigned long)&features));
 	}
 #endif
 #if defined(HAVE_ASM_PRCTL_H) &&		\
@@ -215,10 +210,8 @@ static inline void stress_arch_prctl(void)
     (defined(__x86_64__) || defined(__x86_64))
 	{
 		uint64_t features;
-		int ret;
 
-		ret = shim_arch_prctl(ARCH_GET_XCOMP_PERM, (unsigned long)&features);
-		(void)ret;
+		VOID_RET(int, shim_arch_prctl(ARCH_GET_XCOMP_PERM, (unsigned long)&features));
 	}
 #endif
 #if defined(HAVE_ASM_PRCTL_H) &&		\
@@ -340,8 +333,7 @@ static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
 
 	rc = EXIT_SUCCESS;
 err:
-	ret = sigaction(SIGSYS, &oldaction, NULL);
-	(void)ret;
+	VOID_RET(int, sigaction(SIGSYS, &oldaction, NULL));
 
 	return rc;
 }
@@ -366,14 +358,12 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #endif
 #if defined(PR_CAPBSET_READ) &&	\
     defined(CAP_CHOWN)
-	ret = prctl(PR_CAPBSET_READ, CAP_CHOWN);
-	(void)ret;
+	VOID_RET(int, prctl(PR_CAPBSET_READ, CAP_CHOWN));
 #endif
 
 #if defined(PR_CAPBSET_DROP) &&	\
     defined(CAP_CHOWN)
-	ret = prctl(PR_CAPBSET_DROP, CAP_CHOWN);
-	(void)ret;
+	VOID_RET(int, prctl(PR_CAPBSET_DROP, CAP_CHOWN));
 #endif
 
 #if defined(PR_GET_CHILD_SUBREAPER)
@@ -385,10 +375,8 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_CHILD_SUBREAPER)
 		if (ret == 0) {
-			ret = prctl(PR_SET_CHILD_SUBREAPER, !reaper);
-			(void)ret;
-			ret = prctl(PR_SET_CHILD_SUBREAPER, reaper);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_CHILD_SUBREAPER, !reaper));
+			VOID_RET(int, prctl(PR_SET_CHILD_SUBREAPER, reaper));
 		}
 #endif
 	}
@@ -401,8 +389,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_DUMPABLE)
 		if (ret >= 0) {
-			ret = prctl(PR_SET_DUMPABLE, ret);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_DUMPABLE, ret));
 		}
 #endif
 	}
@@ -418,8 +405,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_ENDIAN)
 		if (ret == 0) {
-			ret = prctl(PR_SET_ENDIAN, endian);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_ENDIAN, endian));
 		}
 #endif
 	}
@@ -435,8 +421,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_FP_MODE)
 		if (mode >= 0) {
-			ret = prctl(PR_SET_FP_MODE, mode);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_FP_MODE, mode));
 		}
 #endif
 	}
@@ -452,8 +437,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SVE_SET_VL)
 		if (vl >= 0) {
-			ret = prctl(PR_SVE_SET_VL, vl);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SVE_SET_VL, vl));
 		}
 #endif
 	}
@@ -464,18 +448,15 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		int ctrl;
 
 		/* exercise invalid args */
-		ctrl = prctl(PR_GET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0);
-		(void)ctrl;
+		VOID_RET(int, prctl(PR_GET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0));
 		ctrl = prctl(PR_GET_TAGGED_ADDR_CTRL, 0, 0, 0, 0);
 		(void)ctrl;
 
 #if defined(PR_SET_TAGGED_ADDR_CTRL)
 		if (ctrl >= 0) {
 			/* exercise invalid args */
-			ret = prctl(PR_SET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0);
-			(void)ret;
-			ret = prctl(PR_SET_TAGGED_ADDR_CTRL, ctrl, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_TAGGED_ADDR_CTRL, ~0, ~0, ~0, ~0));
+			VOID_RET(int, prctl(PR_SET_TAGGED_ADDR_CTRL, ctrl, 0, 0, 0));
 		}
 #endif
 	}
@@ -491,8 +472,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_FPEMU)
 		if (ret == 0) {
-			ret = prctl(PR_SET_FPEMU, control);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_FPEMU, control));
 		}
 #endif
 	}
@@ -508,8 +488,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_FPEXC)
 		if (ret == 0) {
-			ret = prctl(PR_SET_FPEXC, mode);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_FPEXC, mode));
 		}
 #endif
 	}
@@ -524,10 +503,8 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_KEEPCAPS)
 		if (ret == 0) {
-			ret = prctl(PR_SET_KEEPCAPS, !flag);
-			(void)ret;
-			ret = prctl(PR_SET_KEEPCAPS, flag);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_KEEPCAPS, !flag));
+			VOID_RET(int, prctl(PR_SET_KEEPCAPS, flag));
 		}
 #endif
 	}
@@ -535,30 +512,23 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_MCE_KILL_GET)
 	/* exercise invalid args */
-	ret = prctl(PR_MCE_KILL_GET, ~0, ~0, ~0, ~0);
-	(void)ret;
+	VOID_RET(int, prctl(PR_MCE_KILL_GET, ~0, ~0, ~0, ~0));
 	/* now exercise what is expected */
-	ret = prctl(PR_MCE_KILL_GET, 0, 0, 0, 0);
-	(void)ret;
+	VOID_RET(int, prctl(PR_MCE_KILL_GET, 0, 0, 0, 0));
 #endif
 
 #if defined(PR_MCE_KILL)
 	/* exercise invalid args */
-	ret = prctl(PR_MCE_KILL, PR_MCE_KILL_CLEAR, ~0, ~0, ~0);
-	(void)ret;
-	ret = prctl(PR_MCE_KILL, PR_MCE_KILL_SET, ~0, ~0, ~0);
-	(void)ret;
-	ret = prctl(PR_MCE_KILL, ~0, ~0, ~0, ~0);
-	(void)ret;
+	VOID_RET(int, prctl(PR_MCE_KILL, PR_MCE_KILL_CLEAR, ~0, ~0, ~0));
+	VOID_RET(int, prctl(PR_MCE_KILL, PR_MCE_KILL_SET, ~0, ~0, ~0));
+	VOID_RET(int, prctl(PR_MCE_KILL, ~0, ~0, ~0, ~0));
 	/* now exercise what is expected */
-	ret = prctl(PR_MCE_KILL, PR_MCE_KILL_CLEAR, 0, 0, 0);
-	(void)ret;
+	VOID_RET(int, prctl(PR_MCE_KILL, PR_MCE_KILL_CLEAR, 0, 0, 0));
 #endif
 
 #if defined(PR_SET_MM) &&	\
     defined(PR_SET_MM_BRK)
-	ret = prctl(PR_SET_MM, PR_SET_MM_BRK, sbrk(0), 0, 0);
-	(void)ret;
+	VOID_RET(int, prctl(PR_SET_MM, PR_SET_MM_BRK, sbrk(0), 0, 0));
 #endif
 
 #if defined(PR_SET_MM) &&		\
@@ -572,12 +542,10 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		(void)stress_text_addr(&start, &end);
 
 		addr = ((intptr_t)start) & mask;
-		ret = prctl(PR_SET_MM, PR_SET_MM_START_CODE, addr, 0, 0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SET_MM, PR_SET_MM_START_CODE, addr, 0, 0));
 
 		addr = ((intptr_t)end) & mask;
-		ret = prctl(PR_SET_MM, PR_SET_MM_END_CODE, addr, 0, 0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SET_MM, PR_SET_MM_END_CODE, addr, 0, 0));
 	}
 #endif
 
@@ -587,8 +555,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		const intptr_t mask = ~((intptr_t)args->page_size - 1);
 		const intptr_t addr = ((intptr_t)environ) & mask;
 
-		ret = prctl(PR_SET_MM, PR_SET_MM_ENV_START, addr, 0, 0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SET_MM, PR_SET_MM_ENV_START, addr, 0, 0));
 	}
 #endif
 
@@ -598,22 +565,19 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		void *auxv = getauxv_addr();
 
 		if (auxv) {
-			ret = prctl(PR_SET_MM, PR_SET_MM_AUXV, auxv, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_MM, PR_SET_MM_AUXV, auxv, 0, 0));
 		}
 	}
 #endif
 
 #if defined(PR_MPX_ENABLE_MANAGEMENT)
 	/* no longer implemented, use invalid args to force -EINVAL */
-	ret = prctl(PR_MPX_ENABLE_MANAGEMENT, ~0, ~0, ~0, ~0);
-	(void)ret;
+	VOID_RET(int, prctl(PR_MPX_ENABLE_MANAGEMENT, ~0, ~0, ~0, ~0));
 #endif
 
 #if defined(PR_MPX_DISABLE_MANAGEMENT)
 	/* no longer implemented, use invalid args to force -EINVAL */
-	ret = prctl(PR_MPX_DISABLE_MANAGEMENT, ~0, ~0, ~0, ~0);
-	(void)ret;
+	VOID_RET(int, prctl(PR_MPX_DISABLE_MANAGEMENT, ~0, ~0, ~0, ~0));
 #endif
 
 #if defined(PR_GET_NAME)
@@ -622,13 +586,12 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 		(void)memset(name, 0, sizeof name);
 
-		ret = prctl(PR_GET_NAME, name);
+		ret =prctl(PR_GET_NAME, name);
 		(void)ret;
 
 #if defined(PR_SET_NAME)
 		if (ret == 0) {
-			ret = prctl(PR_SET_NAME, name);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_NAME, name));
 		}
 #endif
 	}
@@ -642,11 +605,9 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #if defined(PR_SET_NO_NEW_PRIVS)
 		if (ret >= 0) {
 			/* exercise invalid args */
-			ret = prctl(PR_SET_NO_NEW_PRIVS, ret, ~0, ~0, ~0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_NO_NEW_PRIVS, ret, ~0, ~0, ~0));
 			/* now exercise what is expected */
-			ret = prctl(PR_SET_NO_NEW_PRIVS, ret, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_NO_NEW_PRIVS, ret, 0, 0, 0));
 		}
 #endif
 	}
@@ -662,10 +623,8 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #if defined(PR_SET_PDEATHSIG)
 		if (ret == 0) {
 			/* Exercise invalid signal */
-			ret = prctl(PR_SET_PDEATHSIG, 0x10000);
-			(void)ret;
-			ret = prctl(PR_SET_PDEATHSIG, sig);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_PDEATHSIG, 0x10000));
+			VOID_RET(int, prctl(PR_SET_PDEATHSIG, sig));
 		}
 #endif
 	}
@@ -676,18 +635,15 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		ret = prctl(PR_SET_PTRACER, mypid, 0, 0, 0);
 		(void)ret;
 #if defined(PR_SET_PTRACER_ANY)
-		ret = prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SET_PTRACER, PR_SET_PTRACER_ANY, 0, 0, 0));
 #endif
-		ret = prctl(PR_SET_PTRACER, 0, 0, 0, 0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SET_PTRACER, 0, 0, 0, 0));
 	}
 #endif
 
 #if defined(PR_GET_SECCOMP)
 	{
-		ret = prctl(PR_GET_SECCOMP);
-		(void)ret;
+		VOID_RET(int, prctl(PR_GET_SECCOMP));
 
 #if defined(PR_SET_SECCOMP)
 	/* skip this for the moment */
@@ -698,12 +654,10 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #if defined(PR_GET_SECUREBITS)
 	{
 		ret = prctl(PR_GET_SECUREBITS, 0, 0, 0, 0);
-		(void)ret;
 
 #if defined(PR_SET_SECUREBITS)
 		if (ret >= 0) {
-			ret = prctl(PR_SET_SECUREBITS, ret, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_SECUREBITS, ret, 0, 0, 0));
 		}
 #endif
 	}
@@ -717,32 +671,27 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #if defined(PR_SET_THP_DISABLE)
 		if (ret >= 0) {
 			/* exercise invalid args */
-			ret = prctl(PR_SET_THP_DISABLE, 0, 0, ~0, ~0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_THP_DISABLE, 0, 0, ~0, ~0));
 			/* now exercise what is expected */
-			ret = prctl(PR_SET_THP_DISABLE, 0, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_THP_DISABLE, 0, 0, 0, 0));
 		}
 #endif
 	}
 #endif
 
 #if defined(PR_TASK_PERF_EVENTS_DISABLE)
-	ret = prctl(PR_TASK_PERF_EVENTS_DISABLE);
-	(void)ret;
+	VOID_RET(int, prctl(PR_TASK_PERF_EVENTS_DISABLE));
 #endif
 
 #if defined(PR_TASK_PERF_EVENTS_ENABLE)
-	ret = prctl(PR_TASK_PERF_EVENTS_ENABLE);
-	(void)ret;
+	VOID_RET(int, prctl(PR_TASK_PERF_EVENTS_ENABLE));
 #endif
 
 #if defined(PR_GET_TID_ADDRESS)
 	{
 		uint64_t val;
 
-		ret = prctl(PR_GET_TID_ADDRESS, &val);
-		(void)ret;
+		VOID_RET(int, prctl(PR_GET_TID_ADDRESS, &val));
 	}
 #endif
 
@@ -756,11 +705,9 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #if defined(PR_SET_TIMERSLACK)
 		if (slack >= 0) {
 			/* Zero timer slack will set to default timer slack */
-			ret = prctl(PR_SET_TIMERSLACK, 0, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_TIMERSLACK, 0, 0, 0, 0));
 			/* And restore back to original setting */
-			ret = prctl(PR_SET_TIMERSLACK, slack, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_TIMERSLACK, slack, 0, 0, 0));
 		}
 #endif
 	}
@@ -773,8 +720,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_TIMING)
 		if (ret >= 0) {
-			ret = prctl(PR_SET_TIMING, ret, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_TIMING, ret, 0, 0, 0));
 		}
 #endif
 	}
@@ -790,8 +736,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_TSC)
 		if (ret == 0) {
-			ret = prctl(PR_SET_TSC, state, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_TSC, state, 0, 0, 0));
 		}
 #endif
 	}
@@ -807,8 +752,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 #if defined(PR_SET_UNALIGN)
 		if (ret == 0) {
-			ret = prctl(PR_SET_UNALIGN, control, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_UNALIGN, control, 0, 0, 0));
 		}
 #endif
 	}
@@ -819,8 +763,7 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		unsigned long lval;
 
 		/* exercise invalid args */
-		ret = prctl(PR_GET_SPECULATION_CTRL, ~0, ~0, ~0, ~0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_GET_SPECULATION_CTRL, ~0, ~0, ~0, ~0));
 
 #if defined(PR_SPEC_STORE_BYPASS)
 		lval = (unsigned long)prctl(PR_GET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, 0, 0, 0);
@@ -829,16 +772,13 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 			lval &= ~PR_SPEC_PRCTL;
 #if defined(PR_SPEC_ENABLE)
 
-			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, PR_SPEC_ENABLE, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, PR_SPEC_ENABLE, 0, 0));
 #endif
 #if defined(PR_SPEC_DISABLE)
-			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, PR_SPEC_DISABLE, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, PR_SPEC_DISABLE, 0, 0));
 #endif
 			/* ..and restore */
-			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, lval, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_STORE_BYPASS, lval, 0, 0));
 #endif
 		}
 
@@ -847,16 +787,13 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		if (lval & PR_SPEC_PRCTL) {
 			lval &= ~PR_SPEC_PRCTL;
 #if defined(PR_SPEC_ENABLE)
-			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, PR_SPEC_ENABLE, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, PR_SPEC_ENABLE, 0, 0));
 #endif
 #if defined(PR_SPEC_DISABLE)
-			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, PR_SPEC_DISABLE, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, PR_SPEC_DISABLE, 0, 0));
 #endif
 			/* ..and restore */
-			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, lval, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_INDIRECT_BRANCH, lval, 0, 0));
 		}
 #endif
 
@@ -865,16 +802,13 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		if (lval & PR_SPEC_PRCTL) {
 			lval &= ~PR_SPEC_PRCTL;
 #if defined(PR_SPEC_ENABLE)
-			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_ENABLE, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_ENABLE, 0, 0));
 #endif
 #if defined(PR_SPEC_DISABLE)
-			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_DISABLE, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, PR_SPEC_DISABLE, 0, 0));
 #endif
 			/* ..and restore */
-			ret = prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, lval, 0, 0);
-			(void)ret;
+			VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, PR_SPEC_L1D_FLUSH, lval, 0, 0));
 		}
 #endif
 	}
@@ -883,19 +817,16 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 #if defined(PR_SET_SPECULATION_CTRL)
 	{
 		/* exercise invalid args */
-		ret = prctl(PR_SET_SPECULATION_CTRL, ~0, ~0, ~0, ~0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SET_SPECULATION_CTRL, ~0, ~0, ~0, ~0));
 	}
 #endif
 
 #if defined(PR_GET_IO_FLUSHER)
 	{
-		ret = prctl(PR_GET_IO_FLUSHER, 0, 0, 0, 0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_GET_IO_FLUSHER, 0, 0, 0, 0));
 
 #if defined(PR_SET_IO_FLUSHER)
-		ret = prctl(PR_SET_IO_FLUSHER, ret, 0, 0, 0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SET_IO_FLUSHER, ret, 0, 0, 0));
 #endif
 	}
 #endif
@@ -906,29 +837,23 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		unsigned long cookie = 0;
 		const pid_t bad_pid = stress_get_unused_pid_racy(false);
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0,
-				PR_SCHED_CORE_SCOPE_THREAD, &cookie);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0,
+				PR_SCHED_CORE_SCOPE_THREAD, &cookie));
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, getpid(),
-				PR_SCHED_CORE_SCOPE_THREAD, &cookie);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, getpid(),
+				PR_SCHED_CORE_SCOPE_THREAD, &cookie));
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, bad_pid,
-				PR_SCHED_CORE_SCOPE_THREAD, &cookie);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, bad_pid,
+				PR_SCHED_CORE_SCOPE_THREAD, &cookie));
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0,
-				PR_SCHED_CORE_SCOPE_THREAD_GROUP, &cookie);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0,
+				PR_SCHED_CORE_SCOPE_THREAD_GROUP, &cookie));
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0,
-				PR_SCHED_CORE_SCOPE_PROCESS_GROUP, &cookie);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, 0,
+				PR_SCHED_CORE_SCOPE_PROCESS_GROUP, &cookie));
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, getgid(),
-				PR_SCHED_CORE_SCOPE_PROCESS_GROUP, &cookie);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SCHED_CORE, PR_SCHED_CORE_GET, getgid(),
+				PR_SCHED_CORE_SCOPE_PROCESS_GROUP, &cookie));
 	}
 #endif
 
@@ -938,9 +863,8 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 	{
 		const pid_t ppid = getppid();
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid,
-				PR_SCHED_CORE_SCOPE_THREAD, 0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid,
+				PR_SCHED_CORE_SCOPE_THREAD, 0));
 	}
 #endif
 
@@ -950,17 +874,15 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 	{
 		const pid_t ppid = getppid();
 
-		ret = prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid,
-				PR_SCHED_CORE_SCOPE_THREAD, 0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_SCHED_CORE, PR_SCHED_CORE_CREATE, ppid,
+				PR_SCHED_CORE_SCOPE_THREAD, 0));
 	}
 #endif
 
 #if defined(PR_PAC_RESET_KEYS)
 	{
 		/* exercise invalid args */
-		ret = prctl(PR_PAC_RESET_KEYS, ~0, ~0, ~0, ~0);
-		(void)ret;
+		VOID_RET(int, prctl(PR_PAC_RESET_KEYS, ~0, ~0, ~0, ~0));
 	}
 #endif
 	stress_arch_prctl();
@@ -969,10 +891,8 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 
 	/* exercise bad ptrcl command */
 	{
-		ret = prctl(-1, ~0, ~0, ~0, ~0);
-		(void)ret;
-		ret = prctl(0xf00000, ~0, ~0, ~0, ~0);
-		(void)ret;
+		VOID_RET(int, prctl(-1, ~0, ~0, ~0, ~0));
+		VOID_RET(int, prctl(0xf00000, ~0, ~0, ~0, ~0));
 	}
 
 	(void)ret;

@@ -285,38 +285,30 @@ re_read:
 		 *  Exercise lseek on an invalid fd
 		 */
 		offset = (off_t)(stress_mwc64() % len);
-		offset = lseek(bad_fd, (off_t)offset, SEEK_SET);
-		(void)offset;
+		VOID_RET(off_t, lseek(bad_fd, (off_t)offset, SEEK_SET));
 
 		/*
 		 *  Exercise lseek with invalid offsets, EINVAL
 		 */
-		offset = lseek(fd, ~(off_t)0, SEEK_SET);
-		(void)offset;
-		offset = lseek(fd, bad_off_t, SEEK_SET);
-		(void)offset;
-		offset = lseek(fd, bad_off_t, SEEK_CUR);
-		(void)offset;
-		offset = lseek(fd, bad_off_t, SEEK_END);
-		(void)offset;
+		VOID_RET(off_t, lseek(fd, ~(off_t)0, SEEK_SET));
+		VOID_RET(off_t, lseek(fd, bad_off_t, SEEK_SET));
+		VOID_RET(off_t, lseek(fd, bad_off_t, SEEK_CUR));
+		VOID_RET(off_t, lseek(fd, bad_off_t, SEEK_END));
 		/*
 		 *  Exercise lseek with invalid offsets, ENXIO
 		 */
 #if defined(SEEK_DATA) &&	\
     !defined(__APPLE__)
-		offset = lseek(fd, (off_t)(len + sizeof(buf) + 1), SEEK_DATA);
-		(void)offset;
+		VOID_RET(off_t, lseek(fd, (off_t)(len + sizeof(buf) + 1), SEEK_DATA));
 #endif
 #if defined(SEEK_HOLE) &&	\
     !defined(__APPLE__)
-		offset = (off_t)lseek(fd, (off_t)(len + sizeof(buf) + 1), SEEK_HOLE);
-		(void)offset;
+		VOID_RET(off_t, lseek(fd, (off_t)(len + sizeof(buf) + 1), SEEK_HOLE));
 #endif
 		/*
 		 *  Exercise lseek with invalid whence
 		 */
-		offset = lseek(fd, 0, ~0);
-		(void)offset;
+		VOID_RET(off_t, lseek(fd, 0, ~0));
 
 		inc_counter(args);
 	} while (keep_stressing(args));

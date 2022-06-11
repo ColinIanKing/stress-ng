@@ -2413,8 +2413,7 @@ static void syscall_permute(
 		it.it_interval.tv_usec = SYSCALL_TIMEOUT_USEC;
 		it.it_value.tv_sec = 0;
 		it.it_value.tv_usec = SYSCALL_TIMEOUT_USEC;
-		ret = setitimer(ITIMER_REAL, &it, NULL);
-		(void)ret;
+		VOID_RET(int, setitimer(ITIMER_REAL, &it, NULL));
 
 		ret = sigsetjmp(jmpbuf, 1);
 		if (ret == 1) {
@@ -2632,8 +2631,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 			 *  it is really dead and buried
 			 */
 			(void)kill(pid, SIGKILL);
-			ret = waitpid(pid, &status, 0);
-			(void)ret;
+			VOID_RET(int, waitpid(pid, &status, 0));
 		}
 		if (current_context->type == SYSCALL_CRASH) {
 			const size_t idx = current_context->idx;

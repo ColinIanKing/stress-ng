@@ -36,7 +36,7 @@ static int do_fchown(
 	const uid_t uid,
 	const gid_t gid)
 {
-	int ret, tmp;
+	int tmp;
 
 	if (fchown(fd, uid, gid) < 0)
 		return -errno;
@@ -65,15 +65,13 @@ static int do_fchown(
 	/*
 	 *  Exercise fchown with invalid fd
 	 */
-	ret = fchown(bad_fd, uid, gid);
-	(void)ret;
+	VOID_RET(int, fchown(bad_fd, uid, gid));
 
 	return 0;
 
 restore:
 	tmp = errno;
-	ret = fchown(fd, uid, gid);
-	(void)ret;
+	VOID_RET(int, fchown(fd, uid, gid));
 
 	return -tmp;
 }
@@ -89,7 +87,7 @@ static int do_chown(
 	const uid_t uid,
 	const gid_t gid)
 {
-	int ret, tmp;
+	int tmp;
 
 	if (chown_func(filename, uid, gid) < 0)
 		return -errno;
@@ -119,8 +117,7 @@ static int do_chown(
 
 restore:
 	tmp = errno;
-	ret = chown_func(filename, uid, gid);
-	(void)ret;
+	VOID_RET(int, chown_func(filename, uid, gid));
 
 	return -tmp;
 }

@@ -234,12 +234,11 @@ again:
 
 #if defined(UDP_GRO)
 			if (udp_gro) {
-				int val, ret;
+				int val;
 				socklen_t slen = sizeof(val);
 
 				val = 1;
-				ret = setsockopt(fd, proto, UDP_GRO, &val, slen);
-				(void)ret;
+				VOID_RET(int, setsockopt(fd, proto, UDP_GRO, &val, slen));
 			}
 #endif
 
@@ -251,9 +250,8 @@ again:
 				ret = getsockopt(fd, proto, UDP_CORK, &val, &slen);
 				if (ret == 0) {
 					slen = sizeof(val);
-					ret = setsockopt(fd, proto, UDP_CORK, &val, slen);
+					VOID_RET(int, setsockopt(fd, proto, UDP_CORK, &val, slen));
 				}
-				(void)ret;
 			}
 #else
 			UNEXPECTED
@@ -266,9 +264,8 @@ again:
 				ret = getsockopt(fd, proto, UDP_ENCAP, &val, &slen);
 				if (ret == 0) {
 					slen = sizeof(val);
-					ret = setsockopt(fd, proto, UDP_ENCAP, &val, slen);
+					VOID_RET(int, setsockopt(fd, proto, UDP_ENCAP, &val, slen));
 				}
-				(void)ret;
 			}
 #else
 			UNEXPECTED
@@ -281,9 +278,8 @@ again:
 				ret = getsockopt(fd, proto, UDP_NO_CHECK6_TX, &val, &slen);
 				if (ret == 0) {
 					slen = sizeof(val);
-					ret = setsockopt(fd, proto, UDP_NO_CHECK6_TX, &val, slen);
+					VOID_RET(int, setsockopt(fd, proto, UDP_NO_CHECK6_TX, &val, slen));
 				}
-				(void)ret;
 			}
 #else
 			UNEXPECTED
@@ -295,9 +291,8 @@ again:
 				ret = getsockopt(fd, proto, UDP_NO_CHECK6_RX, &val, &slen);
 				if (ret == 0) {
 					slen = sizeof(val);
-					ret = setsockopt(fd, proto, UDP_NO_CHECK6_RX, &val, slen);
+					VOID_RET(int, setsockopt(fd, proto, UDP_NO_CHECK6_RX, &val, slen));
 				}
-				(void)ret;
 			}
 #else
 			UNEXPECTED
@@ -310,9 +305,8 @@ again:
 				ret = getsockopt(fd, proto, UDP_SEGMENT, &val, &slen);
 				if (ret == 0) {
 					slen = sizeof(val);
-					ret = setsockopt(fd, proto, UDP_SEGMENT, &val, slen);
+					VOID_RET(int, setsockopt(fd, proto, UDP_SEGMENT, &val, slen));
 				}
-				(void)ret;
 			}
 #else
 			UNEXPECTED
@@ -335,7 +329,7 @@ again:
 				{
 					int pending;
 
-					(void)ioctl(fd, SIOCOUTQ, &pending);
+					VOID_RET(int, ioctl(fd, SIOCOUTQ, &pending));
 				}
 #else
 			UNEXPECTED
@@ -415,12 +409,11 @@ again:
 
 #if defined(UDP_GRO)
 		if (udp_gro) {
-			int val, ret;
+			int val;
 			socklen_t slen = sizeof(val);
 
 			val = 1;
-			ret = setsockopt(fd, proto, UDP_GRO, &val, slen);
-			(void)ret;
+			VOID_RET(int, setsockopt(fd, proto, UDP_GRO, &val, slen));
 		}
 #endif
 		do {
@@ -430,7 +423,7 @@ again:
 			{
 				int pending;
 
-				(void)ioctl(fd, SIOCINQ, &pending);
+				VOID_RET(int, ioctl(fd, SIOCINQ, &pending));
 			}
 #else
 			UNEXPECTED

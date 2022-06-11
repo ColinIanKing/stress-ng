@@ -397,7 +397,6 @@ static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
 {
 	int pidfd;
 	struct iovec vec;
-	ssize_t ret;
 
 	(void)pid;
 
@@ -407,22 +406,18 @@ static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
 	pidfd = shim_pidfd_open(pid, 0);
 	if (pidfd >= 0) {
 #if defined(MADV_PAGEOUT)
-		ret = shim_process_madvise(pidfd, &vec, 1, MADV_PAGEOUT, 0);
-		(void)ret;
+		VOID_RET(ssize_t, shim_process_madvise(pidfd, &vec, 1, MADV_PAGEOUT, 0));
 #endif
 #if defined(MADV_COLD)
-		ret = shim_process_madvise(pidfd, &vec, 1, MADV_COLD, 0);
-		(void)ret;
+		VOID_RET(ssize_t, shim_process_madvise(pidfd, &vec, 1, MADV_COLD, 0));
 #endif
 
 		/* exercise invalid behaviour */
-		ret = shim_process_madvise(pidfd, &vec, 1, ~0, 0);
-		(void)ret;
+		VOID_RET(ssize_t, shim_process_madvise(pidfd, &vec, 1, ~0, 0));
 
 #if defined(MADV_PAGEOUT)
 		/* exercise invalid flags */
-		ret = shim_process_madvise(pidfd, &vec, 1, MADV_PAGEOUT, ~0U);
-		(void)ret;
+		VOID_RET(ssize_t, shim_process_madvise(pidfd, &vec, 1, MADV_PAGEOUT, ~0U));
 #endif
 
 		(void)close(pidfd);
@@ -430,9 +425,8 @@ static void stress_process_madvise(const pid_t pid, void *buf, const size_t sz)
 
 #if defined(MADV_PAGEOUT)
 	/* exercise invalid pidfd */
-	ret = shim_process_madvise(-1, &vec, 1, MADV_PAGEOUT, 0);
+	VOID_RET(ssize_t, shim_process_madvise(-1, &vec, 1, MADV_PAGEOUT, 0));
 #endif
-	(void)ret;
 }
 
 /*
@@ -505,10 +499,7 @@ static int stress_madvise(const stress_args_t *args)
 
 	(void)shim_unlink(filename);
 	for (n = 0; n < sz; n += page_size) {
-		ssize_t wret;
-
-		wret = write(fd, page, sizeof(page));
-		(void)wret;
+		VOID_RET(ssize_t, write(fd, page, sizeof(page)));
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -630,7 +621,6 @@ static int stress_madvise(const stress_args_t *args)
 madv_free_out:
 #endif
 		(void)munmap((void *)buf, sz);
-
 
 #if defined(MADV_NORMAL)
 		{

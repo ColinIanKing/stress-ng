@@ -225,8 +225,7 @@ static int stress_clock(const stress_args_t *args)
 			 *  currently return -EINVAL, but it may not do so in the
 			 *  future.
 			 */
-			ret = clock_settime(CLOCK_THREAD_CPUTIME_ID, &t);
-			(void)ret;
+			VOID_RET(int, clock_settime(CLOCK_THREAD_CPUTIME_ID, &t));
 		}
 #else
 		UNEXPECTED
@@ -345,24 +344,20 @@ static int stress_clock(const stress_args_t *args)
 
 			if (n++ >= 1024) {
 				n = 0;
-				int ret_st;
 
 				/* Exercise clock_nanosleep on invalid clock id */
 				if (invalid_clock_id) {
 					(void)memset(&t, 0, sizeof(t));
-					ret_st = clock_nanosleep(INT_MAX, TIMER_ABSTIME, &t, NULL);
-					(void)ret_st;
+					VOID_RET(int, clock_nanosleep(INT_MAX, TIMER_ABSTIME, &t, NULL));
 				}
 
 				(void)memset(&t, 0, sizeof(t));
 				t.tv_sec = -1;
-				ret_st = clock_nanosleep(clocks_nanosleep[0], TIMER_ABSTIME, &t, NULL);
-				(void)ret_st;
+				VOID_RET(int, clock_nanosleep(clocks_nanosleep[0], TIMER_ABSTIME, &t, NULL));
 
 				(void)memset(&t, 0, sizeof(t));
 				t.tv_nsec = STRESS_NANOSECOND;
-				ret_st = clock_nanosleep(clocks_nanosleep[0], TIMER_ABSTIME, &t, NULL);
-				(void)ret_st;
+				VOID_RET(int, clock_nanosleep(clocks_nanosleep[0], TIMER_ABSTIME, &t, NULL));
 			}
 
 			/*
@@ -399,11 +394,8 @@ static int stress_clock(const stress_args_t *args)
 
 			/* Exercise clock_adjtime on invalid clock id */
 			if (invalid_clock_id) {
-				int ret_st;
-
 				(void)memset(&tx, 0, sizeof(tx));
-				ret_st = shim_clock_adjtime(INT_MAX, &tx);
-				(void)ret_st;
+				VOID_RET(int, shim_clock_adjtime(INT_MAX, &tx));
 			}
 
 			/*

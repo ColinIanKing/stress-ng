@@ -203,13 +203,11 @@ static int stress_loop(const stress_args_t *args)
 		for (i = 0; i < SIZEOF_ARRAY(loop_attr); i++) {
 			char attr_path[PATH_MAX];
 			char buf[4096];
-			ssize_t rret;
 
 			(void)snprintf(attr_path, sizeof(attr_path),
 				"/sys/devices/virtual/block/loop%ld/loop/%s",
 				dev_num, loop_attr[i]);
-			rret = system_read(attr_path, buf, sizeof(buf));
-			(void)rret;
+			VOID_RET(ssize_t, system_read(attr_path, buf, sizeof(buf)));
 		}
 
 #if defined(LOOP_GET_STATUS)
@@ -225,8 +223,7 @@ static int stress_loop(const stress_args_t *args)
 		 */
 		info.lo_flags |= (LO_FLAGS_AUTOCLEAR | LO_FLAGS_READ_ONLY);
 #if defined(LOOP_SET_STATUS)
-		ret = ioctl(loop_dev, LOOP_SET_STATUS, &info);
-		(void)ret;
+		VOID_RET(int, ioctl(loop_dev, LOOP_SET_STATUS, &info));
 		switch (stress_mwc1()) {
 		case 0:
 			info.lo_encrypt_type = LO_CRYPT_NONE;
@@ -239,8 +236,7 @@ static int stress_loop(const stress_args_t *args)
 			info.lo_encrypt_key_size = LO_KEY_SIZE - 1;
 			break;
 		}
-		ret = ioctl(loop_dev, LOOP_SET_STATUS, &info);
-		(void)ret;
+		VOID_RET(int, ioctl(loop_dev, LOOP_SET_STATUS, &info));
 #endif
 #endif
 
@@ -268,8 +264,7 @@ static int stress_loop(const stress_args_t *args)
 		 */
 		info.lo_flags |= (LO_FLAGS_AUTOCLEAR | LO_FLAGS_READ_ONLY);
 #if defined(LOOP_SET_STATUS64)
-		ret = ioctl(loop_dev, LOOP_SET_STATUS64, &info64);
-		(void)ret;
+		VOID_RET(int, ioctl(loop_dev, LOOP_SET_STATUS64, &info64));
 #endif
 #endif
 
@@ -277,10 +272,8 @@ static int stress_loop(const stress_args_t *args)
 		/*
 		 *  Resize command (even though we have not changed size)
 		 */
-		ret = ftruncate(backing_fd, (off_t)backing_size * 2);
-		(void)ret;
-		ret = ioctl(loop_dev, LOOP_SET_CAPACITY);
-		(void)ret;
+		VOID_RET(int, ftruncate(backing_fd, (off_t)backing_size * 2));
+		VOID_RET(int, ioctl(loop_dev, LOOP_SET_CAPACITY));
 #endif
 
 		/*
@@ -296,19 +289,16 @@ static int stress_loop(const stress_args_t *args)
 		 *  kernel.
 		 */
 		blk_size = (unsigned long)blk_sizes[stress_mwc8() % SIZEOF_ARRAY(blk_sizes)];
-		ret = ioctl(loop_dev, LOOP_SET_BLOCK_SIZE, blk_size);
-		(void)ret;
+		VOID_RET(int, ioctl(loop_dev, LOOP_SET_BLOCK_SIZE, blk_size));
 
 #endif
 
 #if defined(LOOP_SET_DIRECT_IO)
 		dio = 1;
-		ret = ioctl(loop_dev, LOOP_SET_DIRECT_IO, dio);
-		(void)ret;
+		VOID_RET(int, ioctl(loop_dev, LOOP_SET_DIRECT_IO, dio));
 
 		dio = 0;
-		ret = ioctl(loop_dev, LOOP_SET_DIRECT_IO, dio);
-		(void)ret;
+		VOID_RET(int, ioctl(loop_dev, LOOP_SET_DIRECT_IO, dio));
 #endif
 
 #if defined(LOOP_CHANGE_FD)
@@ -316,14 +306,12 @@ static int stress_loop(const stress_args_t *args)
 		 *  Attempt to change fd using a known illegal
 		 *  fd to force a failure.
 		 */
-		ret = ioctl(loop_dev, LOOP_CHANGE_FD, bad_fd);
-		(void)ret;
+		VOID_RET(int, ioctl(loop_dev, LOOP_CHANGE_FD, bad_fd));
 		/*
 		 *  This should fail because backing store is
 		 *  not read-only.
 		 */
-		ret = ioctl(loop_dev, LOOP_CHANGE_FD, backing_fd);
-		(void)ret;
+		VOID_RET(int, ioctl(loop_dev, LOOP_CHANGE_FD, backing_fd));
 #endif
 
 #if defined(LOOP_CONFIGURE)
@@ -335,14 +323,12 @@ static int stress_loop(const stress_args_t *args)
 			(void)memset(&config, 0, sizeof(config));
 			config.fd = (uint32_t)bad_fd;
 
-			ret = ioctl(loop_dev, LOOP_CONFIGURE, &config);
-			(void)ret;
+			VOID_RET(int, ioctl(loop_dev, LOOP_CONFIGURE, &config));
 
 			/*
 			 *  Attempt to configure with NULL config
 			 */
-			ret = ioctl(loop_dev, LOOP_CONFIGURE, NULL);
-			(void)ret;
+			VOID_RET(int, ioctl(loop_dev, LOOP_CONFIGURE, NULL));
 		}
 #endif
 
@@ -385,17 +371,14 @@ destroy_loop:
 			}
 		}
 		/* Remove invalid loop device */
-		ret = ioctl(ctrl_dev, LOOP_CTL_REMOVE, -1);
-		(void)ret;
+		VOID_RET(int, ioctl(ctrl_dev, LOOP_CTL_REMOVE, -1));
 
 		/* Exercise invalid ioctl */
-		ret = ioctl(ctrl_dev, (LOOP_SET_FD & 0xff00) | 0xff, -1);
-		(void)ret;
+		VOID_RET(int, ioctl(ctrl_dev, (LOOP_SET_FD & 0xff00) | 0xff, -1));
 next:
 		(void)close(ctrl_dev);
 #if defined(LOOP_SET_CAPACITY)
-		ret = ftruncate(backing_fd, (off_t)backing_size);
-		(void)ret;
+		VOID_RET(int, ftruncate(backing_fd, (off_t)backing_size));
 #endif
 
 		inc_counter(args);

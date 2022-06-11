@@ -136,23 +136,19 @@ static void stress_ramfs_umount(const stress_args_t *args, const char *path)
 
 misc_tests:
 	/* Exercise umount again, EINVAL */
-	ret = umount(path);
-	(void)ret;
+	VOID_RET(int, umount(path));
 
 	/* Exercise umount of empty path, ENOENT */
-	ret = umount("");
-	(void)ret;
+	VOID_RET(int, umount(""));
 
 	/* Exercise illegal flags */
 #if defined(HAVE_UMOUNT2)
-	ret = umount2(path, ~0);
-	(void)ret;
+	VOID_RET(int, umount2(path, ~0));
 #endif
 
 	/* Exercise umount of hugepath, ENAMETOOLONG */
 	stress_strnrnd(hugepath, sizeof(hugepath));
-	ret = umount(hugepath);
-	(void)ret;
+	VOID_RET(int, umount(hugepath));
 }
 
 /*

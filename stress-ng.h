@@ -162,9 +162,9 @@
 
 #define VOID_RET(type, x)	\
 do {				\
-	type ret = x;		\
+	type void_ret = x;	\
 				\
-	(void)ret;		\
+	(void)void_ret;		\
 } while(0)			\
 
 /*

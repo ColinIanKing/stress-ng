@@ -170,8 +170,7 @@ again:
 			}
 
 			/* Exercise fstat'ing the pidfd */
-			ret = fstat(pidfd, &statbuf);
-			(void)ret;
+			VOID_RET(int, fstat(pidfd, &statbuf));
 
 			/* Exercise illegal mmap'ing the pidfd */
 			ptr = mmap(NULL, args->page_size, PROT_READ,

@@ -402,11 +402,10 @@ static int stress_seccomp(const stress_args_t *args)
 			 *  causing seccomp to kill it and the parent
 			 *  sees it die on a SIGSYS
 			 */
-			int fd, rc = EXIT_SUCCESS, ret;
+			int fd, rc = EXIT_SUCCESS;
 
 			stress_process_dumpable(false);
-			ret = stress_sighandler(args->name, SIGSYS, stress_sigsys, NULL);
-			(void)ret;
+			VOID_RET(int, stress_sighandler(args->name, SIGSYS, stress_sigsys, NULL));
 
 			(void)stress_seccomp_set_huge_filter(args);
 			if (stress_seccomp_set_filter(args, allow_write, do_random) < 0)

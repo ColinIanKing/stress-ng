@@ -366,22 +366,17 @@ static int stress_timerfd(const stress_args_t *args)
 		}
 
 		/* Exercise invalid timerfd_gettime syscalls on bad fd */
-		ret = timerfd_gettime(bad_fd, &value);
-		(void)ret;
+		VOID_RET(int, timerfd_gettime(bad_fd, &value));
 
-		ret = timerfd_gettime(file_fd, &value);
-		(void)ret;
+		VOID_RET(int, timerfd_gettime(file_fd, &value));
 
 		/* Exercise invalid timerfd_settime syscalls on bad fd */
-		ret = timerfd_settime(bad_fd, 0, &timer, NULL);
-		(void)ret;
+		VOID_RET(int, timerfd_settime(bad_fd, 0, &timer, NULL));
 
-		ret = timerfd_settime(file_fd, 0, &timer, NULL);
-		(void)ret;
+		VOID_RET(int, timerfd_settime(file_fd, 0, &timer, NULL));
 
 		/* Exercise timerfd_settime with invalid flags */
-		ret = timerfd_settime(bad_fd, ~0, &timer, NULL);
-		(void)ret;
+		VOID_RET(int, timerfd_settime(bad_fd, ~0, &timer, NULL));
 
 #if defined(HAVE_SYS_TIMERFD_H) &&	\
     defined(TFD_IOC_SET_TICKS)
@@ -389,8 +384,7 @@ static int stress_timerfd(const stress_args_t *args)
 		{
 			unsigned long arg = 1ULL;
 
-			ret = ioctl(timerfds[0], TFD_IOC_SET_TICKS, &arg);
-			(void)ret;
+			VOID_RET(int, ioctl(timerfds[0], TFD_IOC_SET_TICKS, &arg));
 		}
 #endif
 

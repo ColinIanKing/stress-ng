@@ -149,24 +149,19 @@ static int stress_set(const stress_args_t *args)
 		struct rlimit rlim;
 
 		/* setsid will fail, ignore return */
-		pid = setsid();
-		(void)pid;
+		VOID_RET(pid_t, setsid());
 		if (!keep_stressing(args))
 			break;
 
 		/* getgid always succeeds */
 		gid = getgid();
-		ret = setgid(gid);
-		(void)ret;
+		VOID_RET(int, setgid(gid));
 		if (!keep_stressing(args))
 			break;
 
 		if (*longname) {
-			ret = sethostname(longname, sizeof(longname));
-			(void)ret;
-
-			ret = sethostname(hostname, strlen(hostname));
-			(void)ret;
+			VOID_RET(int, sethostname(longname, sizeof(longname)));
+			VOID_RET(int, sethostname(hostname, strlen(hostname)));
 		}
 
 #if defined(HAVE_GETPGID) &&	\
@@ -177,19 +172,15 @@ static int stress_set(const stress_args_t *args)
 				const pid_t bad_pid = stress_get_unused_pid_racy(false);
 
 				/* Exercise invalid pgid */
-				ret = setpgid(mypid, bad_pid);
-				(void)ret;
+				VOID_RET(int, setpgid(mypid, bad_pid));
 
 				/* Exercise invalid pid */
-				ret = setpgid(bad_pid, pid);
-				(void)ret;
+				VOID_RET(int, setpgid(bad_pid, pid));
 
 				/* Exercise invalid pid and pgid */
-				ret = setpgid(bad_pid, bad_pid);
-				(void)ret;
+				VOID_RET(int, setpgid(bad_pid, bad_pid));
 			}
-			ret = setpgid(mypid, pid);
-			(void)ret;
+			VOID_RET(int, setpgid(mypid, pid));
 			if (!keep_stressing(args))
 				break;
 		}
@@ -222,8 +213,7 @@ static int stress_set(const stress_args_t *args)
 		/* getpgrp always succeeds */
 		pid = getpgrp();
 		if (pid != -1) {
-			ret = setpgrp();
-			(void)ret;
+			VOID_RET(int, setpgrp());
 			if (!keep_stressing(args))
 				break;
 		}
@@ -233,8 +223,7 @@ static int stress_set(const stress_args_t *args)
 
 		/* getuid always succeeds */
 		uid = getuid();
-		ret = setuid(uid);
-		(void)ret;
+		VOID_RET(int, setuid(uid));
 		if (!keep_stressing(args))
 			break;
 
@@ -251,17 +240,10 @@ static int stress_set(const stress_args_t *args)
 				gid_t bad_groups[1] = { (gid_t)-1 };
 
 				/* Exercise invalid groups */
-				ret = setgroups((size_t)-1, groups);
-				(void)ret;
-
-				ret = setgroups(0, groups);
-				(void)ret;
-
-				ret = setgroups(1, bad_groups);
-				(void)ret;
-
-				ret = setgroups((size_t)n, groups);
-				(void)ret;
+				VOID_RET(int, setgroups((size_t)-1, groups));
+				VOID_RET(int, setgroups(0, groups));
+				VOID_RET(int, setgroups(1, bad_groups));
+				VOID_RET(int, setgroups((size_t)n, groups));
 			}
 		}
 #else
@@ -269,8 +251,7 @@ static int stress_set(const stress_args_t *args)
 #endif
 
 #if defined(HAVE_SETREUID)
-		ret = setreuid((uid_t)-1, (uid_t)-1);
-		(void)ret;
+		VOID_RET(int, setreuid((uid_t)-1, (uid_t)-1));
 
 		/*
 		 *  Validate setreuid syscalls exercised to increase the current
@@ -296,26 +277,20 @@ static int stress_set(const stress_args_t *args)
 
 			ret = getresgid(&rgid, &egid, &sgid);
 			if (ret == 0) {
-				ret = setregid(rgid, egid);
-				(void)ret;
-				ret = setregid((gid_t)-1, egid);
-				(void)ret;
-				ret = setregid(rgid, (gid_t)-1);
-				(void)ret;
+				VOID_RET(int, setregid(rgid, egid));
+				VOID_RET(int, setregid((gid_t)-1, egid));
+				VOID_RET(int, setregid(rgid, (gid_t)-1));
 
 				if (geteuid() != 0) {
-					ret = setregid((gid_t)-2, egid);
-					(void)ret;
-					ret = setregid(rgid, (gid_t)-2);
-					(void)ret;
+					VOID_RET(int, setregid((gid_t)-2, egid));
+					VOID_RET(int, setregid(rgid, (gid_t)-2));
 				}
 			}
 		}
 #else
 		UNEXPECTED
 #endif
-		ret = setregid((gid_t)-1, (gid_t)-1);
-		(void)ret;
+		VOID_RET(int, setregid((gid_t)-1, (gid_t)-1));
 #else
 		UNEXPECTED
 #endif
@@ -329,38 +304,26 @@ static int stress_set(const stress_args_t *args)
 
 			ret = getresuid(&ruid, &euid, &suid);
 			if (ret == 0) {
-				ret = setresuid(ruid, euid, suid);
-				(void)ret;
-				ret = setresuid(ruid, euid, (uid_t)-1);
-				(void)ret;
-				ret = setresuid(ruid, (uid_t)-1, suid);
-				(void)ret;
-				ret = setresuid(ruid, (uid_t)-1, (uid_t)-1);
-				(void)ret;
-				ret = setresuid((uid_t)-1, euid, suid);
-				(void)ret;
-				ret = setresuid((uid_t)-1, euid, (uid_t)-1);
-				(void)ret;
-				ret = setresuid((uid_t)-1, (uid_t)-1, suid);
-				(void)ret;
+				VOID_RET(int, setresuid(ruid, euid, suid));
+				VOID_RET(int, setresuid(ruid, euid, (uid_t)-1));
+				VOID_RET(int, setresuid(ruid, (uid_t)-1, suid));
+				VOID_RET(int, setresuid(ruid, (uid_t)-1, (uid_t)-1));
+				VOID_RET(int, setresuid((uid_t)-1, euid, suid));
+				VOID_RET(int, setresuid((uid_t)-1, euid, (uid_t)-1));
+				VOID_RET(int, setresuid((uid_t)-1, (uid_t)-1, suid));
 
 				if (geteuid() != 0) {
-					ret = setresuid((uid_t)-2, euid, suid);
-					(void)ret;
-					ret = setresuid(ruid, (uid_t)-2, suid);
-					(void)ret;
-					ret = setresuid(ruid, euid, (uid_t)-2);
-					(void)ret;
+					VOID_RET(int, setresuid((uid_t)-2, euid, suid));
+					VOID_RET(int, setresuid(ruid, (uid_t)-2, suid));
+					VOID_RET(int, setresuid(ruid, euid, (uid_t)-2));
 				}
-				ret = setresuid(ruid, euid, suid);
-				(void)ret;
+				VOID_RET(int, setresuid(ruid, euid, suid));
 			}
 		}
 #else
 		UNEXPECTED
 #endif
-		ret = setresuid((uid_t)-1, (uid_t)-1, (uid_t)-1);
-		(void)ret;
+		VOID_RET(int, setresuid((uid_t)-1, (uid_t)-1, (uid_t)-1));
 #else
 		UNEXPECTED
 #endif
@@ -374,37 +337,25 @@ static int stress_set(const stress_args_t *args)
 
 			ret = getresgid(&rgid, &egid, &sgid);
 			if (ret == 0) {
-				ret = setresgid(rgid, egid, sgid);
-				(void)ret;
-				ret = setresgid(rgid, egid, (gid_t)-1);
-				(void)ret;
-				ret = setresgid(rgid, (gid_t)-1, sgid);
-				(void)ret;
-				ret = setresgid(rgid, (gid_t)-1, (gid_t)-1);
-				(void)ret;
-				ret = setresgid((gid_t)-1, egid, sgid);
-				(void)ret;
-				ret = setresgid((gid_t)-1, egid, (gid_t)-1);
-				(void)ret;
-				ret = setresgid((gid_t)-1, (gid_t)-1, sgid);
-				(void)ret;
+				VOID_RET(int, setresgid(rgid, egid, sgid));
+				VOID_RET(int, setresgid(rgid, egid, (gid_t)-1));
+				VOID_RET(int, setresgid(rgid, (gid_t)-1, sgid));
+				VOID_RET(int, setresgid(rgid, (gid_t)-1, (gid_t)-1));
+				VOID_RET(int, setresgid((gid_t)-1, egid, sgid));
+				VOID_RET(int, setresgid((gid_t)-1, egid, (gid_t)-1));
+				VOID_RET(int, setresgid((gid_t)-1, (gid_t)-1, sgid));
 				if (geteuid() != 0) {
-					ret = setresgid((gid_t)-2, egid, sgid);
-					(void)ret;
-					ret = setresgid(rgid, (gid_t)-2, sgid);
-					(void)ret;
-					ret = setresgid(rgid, egid, (gid_t)-2);
-					(void)ret;
+					VOID_RET(int, setresgid((gid_t)-2, egid, sgid));
+					VOID_RET(int, ret = setresgid(rgid, (gid_t)-2, sgid));
+					VOID_RET(int, ret = setresgid(rgid, egid, (gid_t)-2));
 				}
-				ret = setresgid(rgid, egid, sgid);
-				(void)ret;
+				VOID_RET(int, setresgid(rgid, egid, sgid));
 			}
 		}
 #else
 		UNEXPECTED
 #endif
-		ret = setresgid((gid_t)-1, (gid_t)-1, (gid_t)-1);
-		(void)ret;
+		VOID_RET(int, setresgid((gid_t)-1, (gid_t)-1, (gid_t)-1));
 #else
 		UNEXPECTED
 #endif
@@ -425,15 +376,11 @@ static int stress_set(const stress_args_t *args)
 					 * something else knowing it can
 					 * be restored successfully
 					 */
-					ret = setfsgid(gid);
-					(void)ret;
-
-					ret = setfsgid((uid_t)getegid());
-					(void)ret;
+					VOID_RET(int, setfsgid(gid));
+					VOID_RET(int, setfsgid((uid_t)getegid()));
 
 					/* And restore */
-					ret = setfsgid((uid_t)fsgid);
-					(void)ret;
+					VOID_RET(int, setfsgid((uid_t)fsgid));
 				}
 			}
 		}
@@ -457,15 +404,11 @@ static int stress_set(const stress_args_t *args)
 					 * something else knowing it can
 					 * be restored successfully
 					 */
-					ret = setfsuid(uid);
-					(void)ret;
-
-					ret = setfsuid((uid_t)geteuid());
-					(void)ret;
+					VOID_RET(int, setfsuid(uid));
+					VOID_RET(int, setfsuid((uid_t)geteuid()));
 
 					/* And restore */
-					ret = setfsuid((uid_t)fsuid);
-					(void)ret;
+					VOID_RET(int, setfsuid((uid_t)fsuid));
 				}
 			}
 		}
@@ -491,18 +434,14 @@ static int stress_set(const stress_args_t *args)
 			ret = getdomainname(name, sizeof(name));
 			if (ret == 0) {
 				/* Exercise zero length name (OK-ish) */
-				ret = setdomainname(name, 0);
-				(void)ret;
+				VOID_RET(int, setdomainname(name, 0));
 
 				/* Exercise long name (-EINVAL) */
-				ret = setdomainname(name, sizeof(name));
-				(void)ret;
+				VOID_RET(int, setdomainname(name, sizeof(name)));
 
 				/* Set name back */
-				(void)ret;
-				ret = setdomainname(name, strlen(name));
+				VOID_RET(int, setdomainname(name, strlen(name)));
 			}
-			(void)ret;
 			if (!keep_stressing(args))
 				break;
 		}
@@ -528,8 +467,7 @@ static int stress_set(const stress_args_t *args)
 				}
 
 				/* Valid setrlimit syscall and ignoring failure */
-				ret = setrlimit(rlimits[i].id, &rlimits[i].rlim);
-				(void)ret;
+				(void)setrlimit(rlimits[i].id, &rlimits[i].rlim);
 			}
 		}
 
@@ -568,8 +506,7 @@ static int stress_set(const stress_args_t *args)
 			static bool test_stime = true;
 
 			if (test_stime && (time(&t) != ((time_t)-1))) {
-				ret = shim_stime(&t);
-				(void)ret;
+				VOID_RET(int, shim_stime(&t));
 				test_stime = false;
 			}
 		}

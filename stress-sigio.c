@@ -58,7 +58,6 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 
 	async_sigs++;
 
-
 	if (rd_fd > 0) {
 		/*
 		 *  Data is ready, so drain as much as possible
@@ -199,8 +198,7 @@ again:
 
 finish:
 	/*  And ignore IO signals from now on */
-	ret = stress_sighandler(args->name, SIGIO, SIG_IGN, NULL);
-	(void)ret;
+	VOID_RET(int, stress_sighandler(args->name, SIGIO, SIG_IGN, NULL));
 
 	rc = EXIT_SUCCESS;
 reap:
@@ -211,8 +209,7 @@ reap:
 
 err:
 	if (flags != -1) {
-		ret = fcntl(fds[0], F_SETFL, flags & ~(O_ASYNC | O_NONBLOCK));
-		(void)ret;
+		VOID_RET(int, fcntl(fds[0], F_SETFL, flags & ~(O_ASYNC | O_NONBLOCK)));
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

@@ -50,8 +50,7 @@ static int stress_kill(const stress_args_t *args)
 
 	pid = fork();
 	if (pid == 0) {
-		ret = stress_sighandler(args->name, SIGUSR1, stress_kill_handle_sigusr1, NULL);
-		(void)ret;
+		VOID_RET(int, stress_sighandler(args->name, SIGUSR1, stress_kill_handle_sigusr1, NULL));
 
 		while (keep_stressing(args)) {
 			if (kill(ppid, 0) < 0)
@@ -110,40 +109,31 @@ static int stress_kill(const stress_args_t *args)
 		 * Exercise the kernel by sending illegal signal numbers,
 		 * should return -EINVAL
 		 */
-		ret = kill(args->pid, -1);
-		(void)ret;
-		ret = kill(args->pid, INT_MIN);
-		(void)ret;
-		ret = kill(0, INT_MIN);
-		(void)ret;
+		VOID_RET(int, kill(args->pid, -1));
+		VOID_RET(int, kill(args->pid, INT_MIN));
+		VOID_RET(int, kill(0, INT_MIN));
 
 		/*
 		 * Exercise the kernel by sending illegal pid INT_MIN,
 		 * should return -ESRCH but not sure if that is portable
 		 */
-		ret = kill(INT_MIN, 0);
-		(void)ret;
+		VOID_RET(int, kill(INT_MIN, 0));
 
 		/*
 		 * Send child process some signals to keep it busy
 		 */
 		if (pid > 1) {
-			ret = kill(pid, 0);
-			(void)ret;
+			VOID_RET(int, kill(pid, 0));
 #if defined(SIGSTOP) && 	\
     defined(SIGCONT)
-			ret = kill(pid, SIGSTOP);
-			(void)ret;
-			ret = kill(pid, SIGCONT);
-			(void)ret;
+			VOID_RET(int, kill(pid, SIGSTOP));
+			VOID_RET(int, kill(pid, SIGCONT));
 #endif
-			ret = kill(pid, SIGUSR1);
-			(void)ret;
+			VOID_RET(int, kill(pid, SIGUSR1));
 		}
 
 		bad_pid = stress_get_unused_pid_racy(false);
-		ret = kill(bad_pid, 0);
-		(void)ret;
+		VOID_RET(int, kill(bad_pid, 0));
 
 		inc_counter(args);
 	} while (keep_stressing(args));
@@ -153,10 +143,8 @@ static int stress_kill(const stress_args_t *args)
 	if (pid != -1) {
 		int status;
 
-		ret = kill(pid, SIGKILL);
-		(void)ret;
-		ret = waitpid(pid, &status, 0);
-		(void)ret;
+		VOID_RET(int, kill(pid, SIGKILL));
+		VOID_RET(int, waitpid(pid, &status, 0));
 	}
 
 	return EXIT_SUCCESS;

@@ -281,7 +281,6 @@ static int stress_splice(const stress_args_t *args)
 				break;
 		}
 
-
 		ret = splice(fds1[0], NULL, fds2[1], NULL,
 			splice_bytes, stress_splice_flag());
 		if (ret < 0)
@@ -296,41 +295,34 @@ static int stress_splice(const stress_args_t *args)
 		/* Exercise -ESPIPE errors */
 		off_in = 1;
 		off_out = 1;
-		ret = splice(fds1[0], &off_in, fds1[1], &off_out,
-			4096, stress_splice_flag());
-		(void)ret;
+		VOID_RET(ssize_t, splice(fds1[0], &off_in, fds1[1], &off_out,
+			4096, stress_splice_flag()));
 
 		off_out = 1;
-		ret = splice(fd_in, NULL, fds1[1], &off_out,
-			splice_bytes, stress_splice_flag());
-		(void)ret;
+		VOID_RET(ssize_t, splice(fd_in, NULL, fds1[1], &off_out,
+			splice_bytes, stress_splice_flag()));
 
 		off_in = 1;
-		ret = splice(fds1[0], &off_in, fd_out, NULL,
-			splice_bytes, stress_splice_flag());
-		(void)ret;
+		VOID_RET(ssize_t, splice(fds1[0], &off_in, fd_out, NULL,
+			splice_bytes, stress_splice_flag()));
 
 		/* Exercise no-op splice of zero size */
-		ret = splice(fd_in, NULL, fds1[1], NULL,
-			0, stress_splice_flag());
-		(void)ret;
+		VOID_RET(ssize_t, splice(fd_in, NULL, fds1[1], NULL,
+			0, stress_splice_flag()));
 
 		/* Exercise invalid splice flags */
-		ret = splice(fd_in, NULL, fds1[1], NULL,
-			1, ~0U);
-		(void)ret;
+		VOID_RET(ssize_t, splice(fd_in, NULL, fds1[1], NULL,
+			1, ~0U));
 
 		/* Exercise 1 byte splice, zero flags */
-		ret = splice(fd_in, NULL, fds1[1], NULL,
-			1, 0);
-		(void)ret;
+		VOID_RET(ssize_t, splice(fd_in, NULL, fds1[1], NULL,
+			1, 0));
 
 		/* Exercise splicing to oneself */
 		off_in = 0;
 		off_out = 0;
-		ret = splice(fds1[1], &off_in, fds1[1], &off_out,
-			4096, stress_splice_flag());
-		(void)ret;
+		VOID_RET(ssize_t, splice(fds1[1], &off_in, fds1[1], &off_out,
+			4096, stress_splice_flag()));
 
 		/* Exercise splice loop from one pipe to another and back */
 		stress_splice_looped_pipe(fds3, fds4, &use_splice_loop);

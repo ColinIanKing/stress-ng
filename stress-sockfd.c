@@ -213,10 +213,8 @@ retry:
 			rc = ioctl(fds[n], FIONREAD, &nbytes);
 			if ((rc == 0) && (nbytes >= 1)) {
 				char data;
-				ssize_t rd;
 
-				rd  = read(fds[n], &data, sizeof(data));
-				(void)rd;
+				VOID_RET(ssize_t, read(fds[n], &data, sizeof(data)));
 			}
 		}
 
@@ -342,8 +340,7 @@ static int stress_socket_server(
 						break;
 					}
 					(void)close(new_fd);
-					ret = stress_socket_fd_sendmsg(sfd, bad_fd);
-					(void)ret;
+					VOID_RET(ssize_t, stress_socket_fd_sendmsg(sfd, bad_fd));
 					msgs++;
 					inc_counter(args);
 				}

@@ -181,14 +181,12 @@ static void *stress_close_func(void *arg)
 		/*
 		 *  close an invalid range of fds
 		 */
-		ret = shim_close_range(FDS_START + FDS_TO_DUP, FDS_START, 0);
-		(void)ret;
+		VOID_RET(int, shim_close_range(FDS_START + FDS_TO_DUP, FDS_START, 0));
 
 		/*
 		 *  close with invalid fds and flags
 		 */
-		ret = shim_close_range(FDS_START + FDS_TO_DUP, FDS_START, ~0U);
-		(void)ret;
+		VOID_RET(int, shim_close_range(FDS_START + FDS_TO_DUP, FDS_START, ~0U));
 	}
 
 	return &nowt;
@@ -366,30 +364,24 @@ static int stress_close(const stress_args_t *args)
 			dupfd = dup(fd);
 			if (not_root) {
 #if defined(HAVE_FCHOWNAT)
-				ret = fchownat(fd, "", uid, gid, 0);
-				(void)ret;
+				VOID_RET(int, fchownat(fd, "", uid, gid, 0));
 
-				ret = fchownat(fd, "", uid, gid, ~0);
-				(void)ret;
+				VOID_RET(int, fchownat(fd, "", uid, gid, ~0));
 #endif
-				ret = fchown(fd, uid, gid);
-				(void)ret;
+				VOID_RET(int, fchown(fd, uid, gid));
 			}
 #if defined(HAVE_FACCESSAT)
-			ret = faccessat(fd, "", F_OK, 0);
-			(void)ret;
+			VOID_RET(int, faccessat(fd, "", F_OK, 0));
 
 			/*
 			 * Exercise bad dirfd resulting in Error EBADF
 			 */
-			ret = faccessat(bad_fd, "", F_OK, 0);
-			(void)ret;
+			VOID_RET(int, faccessat(bad_fd, "", F_OK, 0));
 
 			/*
 			 * Exercise invalid flags syscall
 			 */
-			ret = faccessat(fd, "", ~0, 0);
-			(void)ret;
+			VOID_RET(int, faccessat(fd, "", ~0, 0));
 
 			/*
 			 * Invalid faccessat syscall with pathname is relative and dirfd
@@ -405,8 +397,7 @@ static int stress_close(const stress_args_t *args)
 #else
 			UNEXPECTED
 #endif
-			ret = fstat(fd, &statbuf);
-			(void)ret;
+			VOID_RET(int, fstat(fd, &statbuf));
 
 			(void)close(fd);
 			if (dupfd != -1)

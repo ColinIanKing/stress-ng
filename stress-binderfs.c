@@ -87,12 +87,10 @@ static int stress_binderfs_umount(const stress_args_t *args, const char *pathnam
 	}
 
 	/* Exercise mount on already umounted path */
-	ret = umount(pathname);
-	(void)ret;
+	VOID_RET(int, umount(pathname));
 
 	/* Exercise mount on invalid path */
-	ret = umount("");
-	(void)ret;
+	VOID_RET(int, umount(""));
 
 	return EXIT_SUCCESS;
 }

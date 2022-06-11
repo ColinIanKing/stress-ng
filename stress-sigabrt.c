@@ -86,10 +86,7 @@ again:
 		} else if (pid == 0) {
 			/* Randomly select death by abort or SIGABRT */
 			if (sigabrt_info->handler_enabled) {
-				int ret;
-
-				ret = stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL);
-				(void)ret;
+				VOID_RET(int, stress_sighandler(args->name, SIGABRT, stress_sigabrt_handler, NULL));
 
 				/*
 				 * Aborting with a handler will call the handler, the handler will

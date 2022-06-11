@@ -228,10 +228,8 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		offset = (off_t)(stress_mwc64() % (sz + 1));
 		if (lseek(fd, offset, SEEK_SET) != (off_t)-1) {
 			char data[1];
-			ssize_t rd;
 
-			rd = read(fd, data, sizeof(data));
-			(void)rd;
+			VOID_RET(ssize_t, read(fd, data, sizeof(data)));
 		}
 		if (!keep_stressing_flag())
 			break;

@@ -123,13 +123,8 @@ static void *stress_loadavg_func(void *arg)
 	while ((stress_time_now() < t_end) && keep_thread_running()) {
 #if defined(LOADAVG_IO)
 		if (fd >= 0) {
-			ssize_t ret;
-			off_t off;
-
-			off = lseek(fd, (off_t)stress_mwc16(), SEEK_SET);
-			(void)off;
-			ret = write(fd, buf, sizeof(buf));
-			(void)ret;
+			VOID_RET(off_t, lseek(fd, (off_t)stress_mwc16(), SEEK_SET));
+			VOID_RET(ssize_t, write(fd, buf, sizeof(buf)));
 		}
 #endif
 		inc_counter(pargs->args);

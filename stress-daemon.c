@@ -90,13 +90,11 @@ static void daemons(const stress_args_t *args, const int fd)
 			/* Child */
 			uint8_t buf[1] = { 0xff };
 			ssize_t sz;
-			int ret;
 
 			if (chdir("/") < 0)
 				goto err2;
 			(void)umask(0);
-			ret = stress_drop_capabilities(args->name);
-			(void)ret;
+			VOID_RET(int, stress_drop_capabilities(args->name));
 
 			sz = write(fd, buf, sizeof(buf));
 			if (sz != sizeof(buf))

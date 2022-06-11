@@ -102,17 +102,13 @@ static inline void stress_dir_flock(const int dir_fd)
  */
 static inline void stress_dir_truncate(const char *path, const int dir_fd)
 {
-	int ret;
-
 	if (dir_fd >= 0) {
 		/* Invalid ftruncate */
-		ret = ftruncate(dir_fd, 0);
-		(void)ret;
+		VOID_RET(int, ftruncate(dir_fd, 0));
 	}
 
 	/* Invalid truncate */
-	ret = truncate(path, 0);
-	(void)ret;
+	VOID_RET(int, truncate(path, 0));
 }
 
 /*
@@ -241,10 +237,7 @@ static void stress_invalid_mkdir(const char *path)
 static void stress_invalid_mkdirat(const int bad_fd)
 {
 #if defined(HAVE_MKDIRAT)
-	int ret;
-
-	ret = mkdirat(bad_fd, "bad", S_IRUSR | S_IWUSR);
-	(void)ret;
+	VOID_RET(int, mkdirat(bad_fd, "bad", S_IRUSR | S_IWUSR));
 #else
 	(void)bad_fd;
 #endif
@@ -257,23 +250,19 @@ static void stress_invalid_mkdirat(const int bad_fd)
  */
 static void stress_invalid_rmdir(const char *path)
 {
-	int ret;
 	char filename[PATH_MAX + 16];
 
 	(void)shim_strlcpy(filename, path, sizeof(filename));
 	/* remove . - exercise EINVAL error */
 	(void)shim_strlcat(filename, "/.", sizeof(filename));
-	ret = shim_rmdir(filename);
-	(void)ret;
+	VOID_RET(int, shim_rmdir(filename));
 
 	/* remove /.. - exercise ENOTEMPTY error */
 	(void)shim_strlcat(filename, ".", sizeof(filename));
-	ret = shim_rmdir(filename);
-	(void)ret;
+	VOID_RET(int, shim_rmdir(filename));
 
 	/* remove / - exercise EBUSY error */
-	ret = shim_rmdir("/");
-	(void)ret;
+	VOID_RET(int, shim_rmdir("/"));
 }
 
 /*

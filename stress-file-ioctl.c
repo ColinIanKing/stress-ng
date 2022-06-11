@@ -122,9 +122,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 #if defined(FIOCLEX)
 		{
-			ret = ioctl(fd, FIOCLEX);
-			(void)ret;
-
+			VOID_RET(int, ioctl(fd, FIOCLEX));
 			exercised++;
 		}
 #else
@@ -132,9 +130,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 #endif
 #if defined(FIONCLEX)
 		{
-			ret = ioctl(fd, FIONCLEX);
-			(void)ret;
-
+			VOID_RET(int, ioctl(fd, FIONCLEX));
 			exercised++;
 		}
 #else
@@ -214,11 +210,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 #if defined(FIFREEZE) &&	\
     defined(FITHAW)
 		{
-			ret = ioctl(fd, FIFREEZE);
-			(void)ret;
-			ret = ioctl(fd, FITHAW);
-			(void)ret;
-
+			VOID_RET(int, ioctl(fd, FIFREEZE));
+			VOID_RET(int, ioctl(fd, FITHAW));
 			exercised++;
 		}
 #endif
@@ -234,7 +227,6 @@ static int stress_file_ioctl(const stress_args_t *args)
 			if ((ret == 0) && (isz < 1))
 				pr_fail("%s: ioctl FIGETBSZ returned unusual block size %d\n",
 					args->name, isz);
-
 			exercised++;
 		}
 #else
@@ -243,9 +235,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 #if defined(FICLONE)
 		{
-			ret = ioctl(dfd, FICLONE, fd);
-			(void)ret;
-
+			VOID_RET(int, ioctl(dfd, FICLONE, fd));
 			exercised++;
 		}
 #else
@@ -262,9 +252,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 			fcr.src_length = file_sz;
 			fcr.dest_offset = 0;
 
-			ret = ioctl(dfd, FICLONERANGE, &fcr);
-			(void)ret;
-
+			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
 			exercised++;
 		}
 #else
@@ -290,17 +278,14 @@ static int stress_file_ioctl(const stress_args_t *args)
 			d->info[0].bytes_deduped = 0;
 			d->info[0].status = 0;
 			d->info[0].reserved = 0;
-			ret = ioctl(fd, FIDEDUPERANGE, d);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, FIDEDUPERANGE, d));
 
 			/*
 			 * and exercise illegal dest_count to force an
 			 * ENOMEM error
 			 */
 			d->dest_count = (uint16_t)~0U;
-			ret = ioctl(fd, FIDEDUPERANGE, d);
-			(void)ret;
-
+			VOID_RET(int, ioctl(fd, FIDEDUPERANGE, d));
 			exercised++;
 		}
 #else
@@ -311,17 +296,13 @@ static int stress_file_ioctl(const stress_args_t *args)
 		{
 			int isz = 0;
 
-			ret = ioctl(fd, FIONREAD, &isz);
-			(void)ret;
-
+			VOID_RET(int, ioctl(fd, FIONREAD, &isz));
 			exercised++;
 
 			/*
 			 *  exercise invalid fd
 			 */
-			ret = ioctl(bad_fd, FIONREAD, &isz);
-			(void)ret;
-
+			VOID_RET(int, ioctl(bad_fd, FIONREAD, &isz));
 			exercised++;
 		}
 #else
@@ -332,9 +313,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 		{
 			int ver;
 
-			ret = ioctl(fd, FS_IOC_GETVERSION, &ver);
-			(void)ret;
-
+			VOID_RET(int, ioctl(fd, FS_IOC_GETVERSION, &ver));
 			exercised++;
 		}
 #else
@@ -402,25 +381,21 @@ struct shim_space_resv {
 			r.l_whence = SEEK_SET;
 			r.l_start = (int64_t)0;
 			r.l_len = (int64_t)file_sz * 2;
-			ret = ioctl(fd, FS_IOC_RESVSP, &r);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, FS_IOC_RESVSP, &r));
 
 			if (lseek(fd, (off_t)0, SEEK_SET) != (off_t)-1) {
 				(void)memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_CUR;
 				r.l_start = (int64_t)0;
 				r.l_len = (int64_t)file_sz;
-				ret = ioctl(fd, FS_IOC_RESVSP, &r);
-				(void)ret;
+				VOID_RET(int, ioctl(fd, FS_IOC_RESVSP, &r));
 
 				(void)memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_END;
 				r.l_start = (int64_t)0;
 				r.l_len = (int64_t)1;
-				ret = ioctl(fd, FS_IOC_RESVSP, &r);
-				(void)ret;
+				VOID_RET(int, ioctl(fd, FS_IOC_RESVSP, &r));
 			}
-
 			exercised++;
 		}
 #else
@@ -436,25 +411,21 @@ struct shim_space_resv {
 			r.l_start = (int64_t)0;
 			r.l_len = (int64_t)file_sz * 2;
 
-			ret = ioctl(fd, FS_IOC_RESVSP64, &r);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, FS_IOC_RESVSP64, &r));
 
 			if (lseek(fd, (off_t)0, SEEK_SET) != (off_t)-1) {
 				(void)memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_CUR;
 				r.l_start = (int64_t)0;
 				r.l_len = (int64_t)file_sz;
-				ret = ioctl(fd, FS_IOC_RESVSP64, &r);
-				(void)ret;
+				VOID_RET(int, ioctl(fd, FS_IOC_RESVSP64, &r));
 
 				(void)memset(&r, 0, sizeof(r));
 				r.l_whence = SEEK_END;
 				r.l_start = (int64_t)0;
 				r.l_len = (int64_t)1;
-				ret = ioctl(fd, FS_IOC_RESVSP64, &r);
-				(void)ret;
+				VOID_RET(int, ioctl(fd, FS_IOC_RESVSP64, &r));
 			}
-
 			exercised++;
 		}
 #else
@@ -470,9 +441,7 @@ struct shim_space_resv {
 			r.l_start = (int64_t)file_sz;
 			r.l_len = (int64_t)file_sz * 2;
 
-			ret = ioctl(fd, FS_IOC_UNRESVSP, &r);
-			(void)ret;
-
+			VOID_RET(int, ioctl(fd, FS_IOC_UNRESVSP, &r));
 			exercised++;
 		}
 #else
@@ -488,9 +457,7 @@ struct shim_space_resv {
 			r.l_start = (int64_t)file_sz;
 			r.l_len = (int64_t)file_sz * 2;
 
-			ret = ioctl(fd, FS_IOC_UNRESVSP64, &r);
-			(void)ret;
-
+			VOID_RET(int, ioctl(fd, FS_IOC_UNRESVSP64, &r));
 			exercised++;
 		}
 #else
@@ -506,9 +473,7 @@ struct shim_space_resv {
 			r.l_start = (int64_t)0;
 			r.l_len = (int64_t)file_sz / 2;
 
-			ret = ioctl(fd, FS_IOC_ZERO_RANGE, &r);
-			(void)ret;
-
+			VOID_RET(int, ioctl(fd, FS_IOC_ZERO_RANGE, &r));
 			exercised++;
 		}
 #else
@@ -522,17 +487,14 @@ struct shim_space_resv {
 			int block;
 
 			block = 0;
-			ret = ioctl(fd, FIBMAP, &block);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, FIBMAP, &block));
 
 			/*
 			 *  and exercise huge block request
 			 *  that should return -ERANGE or -EINVAL;
 			 */
 			block = -1;
-			ret = ioctl(fd, FIBMAP, &block);
-			(void)ret;
-
+			VOID_RET(int, ioctl(fd, FIBMAP, &block));
 			exercised++;
 		}
 #else

@@ -160,8 +160,7 @@ redo: 			errno = 0;
 				/* Force page to be resident */
 				*fdmapped = stress_mwc8();
 #if defined(MS_ASYNC)
-				ret = shim_msync((void *)fdmapped, page_size, MS_ASYNC);
-				(void)ret;
+				VOID_RET(int, shim_msync((void *)fdmapped, page_size, MS_ASYNC));
 #endif
 				ret = shim_mincore((void *)fdmapped, page_size, vec);
 				if (ret < 0) {

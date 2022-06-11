@@ -87,10 +87,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 			goto err;
 		}
 	} else {
-		int r;
-
-		r = ioctl(fd, RTC_SET_TIME, &rtc_tm);
-		(void)r;
+		VOID_RET(int, ioctl(fd, RTC_SET_TIME, &rtc_tm));
 	}
 #endif
 
@@ -104,10 +101,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 		}
 	} else {
 #if defined(RTC_ALM_SET)
-		int r;
-
-		r = ioctl(fd, RTC_ALM_SET, &rtc_tm);
-		(void)r;
+		VOID_RET(int, ioctl(fd, RTC_ALM_SET, &rtc_tm));
 #endif
 	}
 #endif
@@ -122,10 +116,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 		}
 	} else {
 #if defined(RTC_WKALM_SET)
-		int r;
-
-		r = ioctl(fd, RTC_WKALM_SET, &wake_alarm);
-		(void)r;
+		VOID_RET(int, ioctl(fd, RTC_WKALM_SET, &wake_alarm));
 #endif
 	}
 #endif
@@ -140,10 +131,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 		}
 	} else {
 #if defined(RTC_EPOCH_SET)
-		int r;
-
-		r = ioctl(fd, RTC_EPOCH_SET, tmp);
-		(void)r;
+		VOID_RET(int, ioctl(fd, RTC_EPOCH_SET, tmp));
 #endif
 	}
 #endif
@@ -157,10 +145,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 			goto err;
 		}
 	} else {
-		int r;
-
-		r = ioctl(fd, RTC_IRQP_SET, tmp);
-		(void)r;
+		VOID_RET(int, ioctl(fd, RTC_IRQP_SET, tmp));
 	}
 #endif
 
@@ -197,30 +182,21 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 	(void)memset(&param, 0, sizeof(param));
 	param.param = RTC_PARAM_FEATURES;
 	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
-		int r;
-
 		/* Should be EINVAL */
-		r = ioctl(fd, RTC_PARAM_SET, &param);
-		(void)r;
+		VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
 	}
 
 	(void)memset(&param, 0, sizeof(param));
 	param.param = RTC_PARAM_CORRECTION;
 	param.index = 0;
 	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
-		int r;
-
-		r = ioctl(fd, RTC_PARAM_SET, &param);
-		(void)r;
+		VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
 	}
 
 	(void)memset(&param, 0, sizeof(param));
 	param.param = ~0U;
 	if (ioctl(fd, RTC_PARAM_GET, &param) == 0) {
-		int r;
-
-		r = ioctl(fd, RTC_PARAM_SET, &param);
-		(void)r;
+		VOID_RET(int, ioctl(fd, RTC_PARAM_SET, &param));
 	}
 #endif
 
@@ -229,7 +205,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 		char buf[4096];
 
 		(void)memset(buf, 0, sizeof(buf));
-		(void)ioctl(fd, 0xff, buf);
+		VOID_RET(int, ioctl(fd, 0xff, buf));
 	}
 
 #if defined(RTC_RD_TIME) || defined(RTC_ALM_READ) || \

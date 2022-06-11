@@ -418,12 +418,11 @@ static inline void *stress_stream_mmap(const stress_args_t *args, uint64_t sz)
 		ptr = MAP_FAILED;
 	} else {
 #if defined(HAVE_MADVISE)
-		int ret, advice = MADV_NORMAL;
+		int advice = MADV_NORMAL;
 
 		(void)stress_get_setting("stream-madvise", &advice);
 
-		ret = madvise(ptr, sz, advice);
-		(void)ret;
+		VOID_RET(int, madvise(ptr, sz, advice));
 #else
 		UNEXPECTED
 #endif

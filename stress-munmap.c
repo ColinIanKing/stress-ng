@@ -114,13 +114,11 @@ static int stress_munmap_child(const stress_args_t *args, void *context)
 	const pid_t pid = getpid();
 	munmap_context_t *ctxt = (munmap_context_t *)context;
 	void *start, *end, *offset;
-	int ret, major, minor, n;
+	int major, minor, n;
 	uint64_t inode;
 
-	ret = stress_sighandler(args->name, SIGSEGV, stress_munmap_sig_handler, NULL);
-	(void)ret;
-	ret = stress_sighandler(args->name, SIGBUS, stress_munmap_sig_handler, NULL);
-	(void)ret;
+	VOID_RET(int, stress_sighandler(args->name, SIGSEGV, stress_munmap_sig_handler, NULL));
+	VOID_RET(int, stress_sighandler(args->name, SIGBUS, stress_munmap_sig_handler, NULL));
 
 	(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/maps", (intmax_t)pid);
 	fp = fopen(path, "r");
@@ -231,10 +229,7 @@ static int stress_munmap(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	while (keep_stressing(args)) {
-		int ret;
-
-		ret = stress_oomable_child(args, (void *)ctxt, stress_munmap_child, STRESS_OOMABLE_QUIET);
-		(void)ret;
+		VOID_RET(int, stress_oomable_child(args, (void *)ctxt, stress_munmap_child, STRESS_OOMABLE_QUIET));
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

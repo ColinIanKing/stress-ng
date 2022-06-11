@@ -126,7 +126,7 @@ static int stress_smi_count(const int cpus, uint64_t *count)
  */
 static int stress_smi(const stress_args_t *args)
 {
-	int ret, rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS;
 	bool already_loaded = false;
 	bool read_msr_ok = true;
 	bool load_module = false;
@@ -146,8 +146,7 @@ static int stress_smi(const stress_args_t *args)
 	 *  we can't get the SMI count
 	 */
 	if (load_module && (args->instance == 0)) {
-		ret = stress_module_load(args->name, "msr", NULL, &already_loaded);
-		(void)ret;
+		VOID_RET(int, stress_module_load(args->name, "msr", NULL, &already_loaded));
 	}
 
 	if (ioperm(APM_PORT, 2, 1) < 0) {
@@ -171,8 +170,7 @@ static int stress_smi(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	ret = ioperm(APM_PORT, 2, 0);
-	(void)ret;
+	VOID_RET(int, ioperm(APM_PORT, 2, 0));
 
 	if (args->instance == 0) {
 		uint64_t s2;
@@ -200,8 +198,7 @@ static int stress_smi(const stress_args_t *args)
 		}
 
 		if (load_module) {
-			ret = stress_module_unload(args->name, "msr", already_loaded);
-			(void)ret;
+			VOID_RET(int, stress_module_unload(args->name, "msr", already_loaded));
 		}
 	}
 

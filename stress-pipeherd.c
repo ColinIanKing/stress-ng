@@ -138,8 +138,7 @@ static int stress_pipeherd(const stress_args_t *args)
 		}
 	}
 
-	rc = stress_pipeherd_read_write(args, fd, pipeherd_yield);
-	(void)rc;
+	VOID_RET(int, stress_pipeherd_read_write(args, fd, pipeherd_yield));
 	sz = read(fd[0], &counter, sizeof(counter));
 	if (sz > 0)
 		set_counter(args, counter);

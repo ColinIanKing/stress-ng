@@ -128,10 +128,8 @@ static int stress_sysinfo(const stress_args_t *args)
 				/*
 				 *  Exercise invalid mount points
 				 */
-				ret = statfs("/invalid_stress_ng", &statfs_buf);
-				(void)ret;
-				ret = statfs("", &statfs_buf);
-				(void)ret;
+				VOID_RET(int, statfs("/invalid_stress_ng", &statfs_buf));
+				VOID_RET(int, statfs("", &statfs_buf));
 
 				fd = open(mnts[i], O_RDONLY | O_DIRECTORY);
 				if (fd < 0)
@@ -141,8 +139,7 @@ static int stress_sysinfo(const stress_args_t *args)
 				{
 					char label[FSLABEL_MAX];
 
-					ret = ioctl(fd, FS_IOC_GETFSLABEL, label);
-					(void)ret;
+					VOID_RET(int, ioctl(fd, FS_IOC_GETFSLABEL, label));
 				}
 #else
 				UNEXPECTED
@@ -165,8 +162,7 @@ static int stress_sysinfo(const stress_args_t *args)
 				/*
 				 *  Exercise invalid fd
 				 */
-				ret = fstatfs(bad_fd, &statfs_buf);
-				(void)ret;
+				VOID_RET(int, fstatfs(bad_fd, &statfs_buf));
 			}
 		}
 #endif
@@ -205,8 +201,7 @@ static int stress_sysinfo(const stress_args_t *args)
 			 * invalid
 			 */
 			sbuf.st_dev = makedev(~0, stress_mwc32());
-			ret = shim_ustat(sbuf.st_dev, &ubuf);
-			(void)ret;
+			VOID_RET(int, shim_ustat(sbuf.st_dev, &ubuf));
 #endif
 		}
 
@@ -242,8 +237,7 @@ static int stress_sysinfo(const stress_args_t *args)
 				/*
 				 *  Exercise invalid mount point
 				 */
-				ret = statvfs("/invalid_stress_ng", &statvfs_buf);
-				(void)ret;
+				VOID_RET(int, statvfs("/invalid_stress_ng", &statvfs_buf));
 			}
 		}
 #endif

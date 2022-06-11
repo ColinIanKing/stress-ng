@@ -205,8 +205,7 @@ static int stress_semaphore_sysv_thrash(const stress_args_t *args)
 			}
 			timeout.tv_sec = 0;
 			timeout.tv_nsec = 100000;
-			ret = semtimedop(sem_id, sems, STRESS_MAX_SEMS * 3, &timeout);
-			(void)ret;
+			VOID_RET(int, semtimedop(sem_id, sems, STRESS_MAX_SEMS * 3, &timeout));
 		}
 #else
 		UNEXPECTED
@@ -279,8 +278,7 @@ timed_out:
 			} else {
 #if defined(IPC_SET)
 				s.buf = &ds;
-				ret = semctl(sem_id, 2, IPC_SET, &s);
-				(void)ret;
+				VOID_RET(int, semctl(sem_id, 2, IPC_SET, &s));
 #else
 				UNEXPECTED
 #endif
@@ -293,8 +291,7 @@ timed_out:
 				nsems = 64;
 			s.array = calloc(nsems, sizeof(*s.array));
 			if (s.array) {
-				ret = semctl(sem_id, 2, GETALL, s);
-				(void)ret;
+				VOID_RET(int, semctl(sem_id, 2, GETALL, s));
 #if defined(SETALL) && 0
 				/*
 				 *  SETALL across the semaphores will clobber the state
@@ -319,13 +316,11 @@ timed_out:
 
 			/* Exercise with a 0 index into kernel array */
 			s.buf = &ds;
-			ret = semctl(0, 0, SEM_STAT, &s);
-			(void)ret;
+			VOID_RET(int, semctl(0, 0, SEM_STAT, &s));
 
 			/* Exercise with a probably illegal index into kernel array */
 			s.buf = &ds;
-			ret = semctl(0x1fffffff, 0, SEM_STAT, &s);
-			(void)ret;
+			VOID_RET(int, semctl(0x1fffffff, 0, SEM_STAT, &s));
 		}
 #endif
 #if defined(SEM_STAT_ANY) &&	\
@@ -336,13 +331,11 @@ timed_out:
 
 			/* Exercise with a 0 index into kernel array */
 			s.__buf = &si;
-			ret = semctl(0, 0, SEM_STAT_ANY, &s);
-			(void)ret;
+			VOID_RET(int, semctl(0, 0, SEM_STAT_ANY, &s));
 
 			/* Exercise with a probably illegal index into kernel array */
 			s.__buf = &si;
-			ret = semctl(0x1fffffff, 0, SEM_STAT_ANY, &s);
-			(void)ret;
+			VOID_RET(int, semctl(0x1fffffff, 0, SEM_STAT_ANY, &s));
 		}
 #endif
 #if defined(IPC_INFO) &&	\
@@ -363,16 +356,14 @@ timed_out:
 			 *  actually ignored, so should be OK
 			 */
 			s.__buf = &si;
-			ret = semctl(0x1fffffff, 0, IPC_INFO, &s);
-			(void)ret;
+			VOID_RET(int, semctl(0x1fffffff, 0, IPC_INFO, &s));
 
 			/*
 			 *  Exercise with an illegal sem number, this arg is
 			 *  also ignored, so should be OK
 			 */
 			s.__buf = &si;
-			ret = semctl(sem_id, ~0, IPC_INFO, &s);
-			(void)ret;
+			VOID_RET(int, semctl(sem_id, ~0, IPC_INFO, &s));
 		}
 #endif
 #if defined(SEM_INFO) &&	\
@@ -390,76 +381,61 @@ timed_out:
 
 			/* Exercise with probably an illegal sem id */
 			s.__buf = &si;
-			ret = semctl(0x1fffffff, 0, IPC_INFO, &s);
-			(void)ret;
+			VOID_RET(int, semctl(0x1fffffff, 0, IPC_INFO, &s));
 
 			/* Exercise with an illegal sem number */
 			s.__buf = &si;
-			ret = semctl(sem_id, ~0, IPC_INFO, &s);
-			(void)ret;
+			VOID_RET(int, semctl(sem_id, ~0, IPC_INFO, &s));
 		}
 #endif
 #if defined(GETVAL)
-		ret = semctl(sem_id, 0, GETVAL, 0);
-		(void)ret;
+		VOID_RET(int, semctl(sem_id, 0, GETVAL, 0));
 
 		/* Exercise with probably an illegal sem id */
-		ret = semctl(0x1fffffff, 0, GETVAL, 0);
-		(void)ret;
+		VOID_RET(int, semctl(0x1fffffff, 0, GETVAL, 0));
 
 		/* Exercise with an illegal sem number */
-		ret = semctl(sem_id, ~0, GETVAL, 0);
-		(void)ret;
+		VOID_RET(int, semctl(sem_id, ~0, GETVAL, 0));
 #else
 		UNEXPECTED
 #endif
 #if defined(GETPID)
-		ret = semctl(sem_id, 0, GETPID, 0);
-		(void)ret;
+		VOID_RET(int, semctl(sem_id, 0, GETPID, 0));
 
 		/* Exercise with probably an illegal sem id */
-		ret = semctl(0x1fffffff, 0, GETPID, 0);
-		(void)ret;
+		VOID_RET(int, semctl(0x1fffffff, 0, GETPID, 0));
 
 		/* Exercise with an illegal sem number */
-		ret = semctl(sem_id, ~0, GETPID, 0);
-		(void)ret;
+		VOID_RET(int, semctl(sem_id, ~0, GETPID, 0));
 #else
 		UNEXPECTED
 #endif
 #if defined(GETNCNT)
-		ret = semctl(sem_id, 0, GETNCNT, 0);
-		(void)ret;
+		VOID_RET(int, semctl(sem_id, 0, GETNCNT, 0));
 
 		/* Exercise with probably an illegal sem id */
-		ret = semctl(0x1fffffff, 0, GETNCNT, 0);
-		(void)ret;
+		VOID_RET(int, semctl(0x1fffffff, 0, GETNCNT, 0));
 
 		/* Exercise with an illegal sem number */
-		ret = semctl(sem_id, ~0, GETNCNT, 0);
-		(void)ret;
+		VOID_RET(int, semctl(sem_id, ~0, GETNCNT, 0));
 #else
 		UNEXPECTED
 #endif
 #if defined(GETZCNT)
-		ret = semctl(sem_id, 0, GETZCNT, 0);
-		(void)ret;
+		VOID_RET(int, semctl(sem_id, 0, GETZCNT, 0));
 
 		/* Exercise with probably an illegal sem id */
-		ret = semctl(0x1fffffff, 0, GETZCNT, 0);
-		(void)ret;
+		VOID_RET(int, semctl(0x1fffffff, 0, GETZCNT, 0));
 
 		/* Exercise with an illegal sem number */
-		ret = semctl(sem_id, ~0, GETZCNT, 0);
-		(void)ret;
+		VOID_RET(int, semctl(sem_id, ~0, GETZCNT, 0));
 #else
 		UNEXPECTED
 #endif
 		/*
 		 * Now exercise invalid options and arguments
 		 */
-		ret = semctl(sem_id, -1, SETVAL, 0);
-		(void)ret;
+		VOID_RET(int, semctl(sem_id, -1, SETVAL, 0));
 #if defined(HAVE_SEMTIMEDOP)
 		if (got_semtimedop) {
 			/*
@@ -473,24 +449,21 @@ timed_out:
 			semwait.sem_num = 0;
 			semwait.sem_op = -1;
 			semwait.sem_flg = SEM_UNDO;
-			ret = semtimedop(sem_id, &semwait, 1, &timeout);
-			(void)ret;
+			VOID_RET(int, semtimedop(sem_id, &semwait, 1, &timeout));
 
 			/*
 			 *  Exercise invalid semid, EINVAL
 			 */
 			timeout.tv_sec = 0;
 			timeout.tv_nsec = 10000;
-			ret = semtimedop(-1, &semwait, 1, &timeout);
-			(void)ret;
+			VOID_RET(int, semtimedop(-1, &semwait, 1, &timeout));
 
 			/*
 			 *  Exercise invalid nsops, E2BIG
 			 */
 			timeout.tv_sec = 0;
 			timeout.tv_nsec = 10000;
-			ret = semtimedop(sem_id, &semwait, (size_t)-1, &timeout);
-			(void)ret;
+			VOID_RET(int, semtimedop(sem_id, &semwait, (size_t)-1, &timeout));
 		}
 #else
 		UNEXPECTED
@@ -500,14 +473,12 @@ timed_out:
 			/*
 			 *  Exercise invalid semid, EINVAL
 			 */
-			ret = semop(-1, &semwait, 1);
-			(void)ret;
+			VOID_RET(int, semop(-1, &semwait, 1));
 
 			/*
 			 *  Exercise invalid nsops, E2BIG
 			 */
-			ret = semop(sem_id, &semwait, (size_t)-1);
-			(void)ret;
+			VOID_RET(int, semop(sem_id, &semwait, (size_t)-1));
 		}
 
 		/*
@@ -520,8 +491,7 @@ timed_out:
 			semwait.sem_op = -1;
 			semwait.sem_flg = SEM_UNDO;
 
-			ret = semop(sem_id, &semwait, 1);
-			(void)ret;
+			VOID_RET(int, semop(sem_id, &semwait, 1));
 		}
 
 		/*

@@ -132,8 +132,7 @@ redo:
 		if ((count & 0xff) == 0) {
 			int isz = 0;
 
-			ret = ioctl(fd, FIONREAD, &isz);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, FIONREAD, &isz));
 		}
 #else
 		UNEXPECTED
@@ -162,12 +161,10 @@ redo:
 		lastval = val;
 
 		if ((count & 0x1ff) == 0) {
-			off_t off;
 			void *ptr;
 
 			/* Exercise lseek -> ESPIPE */
-			off = lseek(fd, 0, SEEK_CUR);
-			(void)off;
+			VOID_RET(off_t, lseek(fd, 0, SEEK_CUR));
 
 			/* Exercise mmap -> ENODEV */
 			ptr = mmap(NULL, args->page_size, PROT_READ,

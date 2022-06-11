@@ -183,13 +183,10 @@ static int stress_sem(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	for (i = 0; i < semaphore_posix_procs; i++) {
-		int ret;
-
 		if (p_ret[i])
 			continue;
 
-		ret = pthread_join(pthreads[i], NULL);
-		(void)ret;
+		VOID_RET(int, pthread_join(pthreads[i], NULL));
 	}
 	(void)sem_destroy(&sem);
 

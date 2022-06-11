@@ -196,22 +196,18 @@ static int stress_copy_file(const stress_args_t *args)
 		/*
 		 *  Exercise with bad fds
 		 */
-		copy_ret = shim_copy_file_range(fd_bad, &off_in, fd_out,
-						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
-		(void)copy_ret;
-		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_bad,
-						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
-		(void)copy_ret;
-		copy_ret = shim_copy_file_range(fd_out, &off_in, fd_in,
-						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
+		VOID_RET(ssize_t, shim_copy_file_range(fd_bad, &off_in, fd_out,
+						&off_out, DEFAULT_COPY_FILE_SIZE, 0));
+		VOID_RET(ssize_t, shim_copy_file_range(fd_in, &off_in, fd_bad,
+						&off_out, DEFAULT_COPY_FILE_SIZE, 0));
+		VOID_RET(ssize_t, shim_copy_file_range(fd_out, &off_in, fd_in,
+						&off_out, DEFAULT_COPY_FILE_SIZE, 0));
 		(void)copy_ret;
 		/*
 		 *  Exercise with bad flags
 		 */
-		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
-						&off_out, DEFAULT_COPY_FILE_SIZE, ~0U);
-		(void)copy_ret;
-
+		VOID_RET(ssize_t, shim_copy_file_range(fd_in, &off_in, fd_out,
+						&off_out, DEFAULT_COPY_FILE_SIZE, ~0U));
 		(void)shim_fsync(fd_out);
 		inc_counter(args);
 	} while (keep_stressing(args));

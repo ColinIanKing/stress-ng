@@ -163,7 +163,6 @@ static int stress_remap(const stress_args_t *args)
 
 	do {
 		size_t order[N_PAGES];
-		int ret;
 
 		/* Reverse pages */
 		for (i = 0; i < N_PAGES; i++)
@@ -206,32 +205,23 @@ static int stress_remap(const stress_args_t *args)
 		 *  exercise some illegal remapping calls
 		 */
 		if (unmapped) {
-			ret = remap_file_pages((void *)unmapped, page_size, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, remap_file_pages((void *)unmapped, page_size, 0, 0, 0));
 
 			/* Illegal flags */
-			ret = remap_file_pages((void *)unmapped, page_size, 0, 0, ~0);
-			(void)ret;
+			VOID_RET(int, remap_file_pages((void *)unmapped, page_size, 0, 0, ~0));
 
 			/* Invalid prot */
-			ret = remap_file_pages((void *)unmapped, page_size, ~0, order[0], 0);
-			(void)ret;
+			VOID_RET(int, remap_file_pages((void *)unmapped, page_size, ~0, order[0], 0));
 		}
 		if (mapped) {
-			ret = remap_file_pages((void *)(mapped + page_size), page_size, 0, 0, 0);
-			(void)ret;
+			VOID_RET(int, remap_file_pages((void *)(mapped + page_size), page_size, 0, 0, 0));
 
 			/* Illegal flags */
-			ret = remap_file_pages((void *)(mapped + page_size), page_size, 0, 0, ~0);
-			(void)ret;
+			VOID_RET(int, remap_file_pages((void *)(mapped + page_size), page_size, 0, 0, ~0));
 
 			/* Invalid prot */
-			ret = remap_file_pages((void *)(mapped + page_size), page_size, ~0, order[0], 0);
-			(void)ret;
+			VOID_RET(int, remap_file_pages((void *)(mapped + page_size), page_size, ~0, order[0], 0));
 		}
-
-
-
 		inc_counter(args);
 	} while (keep_stressing(args));
 

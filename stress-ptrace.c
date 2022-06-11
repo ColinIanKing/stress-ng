@@ -114,33 +114,15 @@ again:
 		 *  A simple mix of system calls
 		 */
 		while (keep_stressing_flag()) {
-			pid_t pidtmp;
-			gid_t gidtmp;
-			uid_t uidtmp;
-			time_t ttmp;
-
-			pidtmp = getppid();
-			(void)pidtmp;
-
+			VOID_RET(pid_t, getppid());
 #if defined(HAVE_GETPGRP)
-			pidtmp = getpgrp();
-			(void)pidtmp;
+			VOID_RET(pid_t, getpgrp());
 #endif
-
-			gidtmp = getgid();
-			(void)gidtmp;
-
-			gidtmp = getegid();
-			(void)gidtmp;
-
-			uidtmp = getuid();
-			(void)uidtmp;
-
-			uidtmp = geteuid();
-			(void)uidtmp;
-
-			ttmp = time(NULL);
-			(void)ttmp;
+			VOID_RET(gid_t, getgid());
+			VOID_RET(gid_t, getegid());
+			VOID_RET(uid_t, getuid());
+			VOID_RET(uid_t, geteuid());
+			VOID_RET(time_t, time(NULL));
 		}
 		_exit(0);
 	} else {
@@ -195,16 +177,12 @@ again:
 			/* periodicially perform invalid ptrace calls */
 			if ((i & 0x1ff) == 0) {
 				const pid_t bad_pid = stress_get_unused_pid_racy(false);
-				long ret;
 
 				/* exercise invalid options */
-				ret = ptrace((shim_ptrace_request)~0L, pid, 0, PTRACE_O_TRACESYSGOOD);
-				(void)ret;
+				VOID_RET(long, ptrace((shim_ptrace_request)~0L, pid, 0, PTRACE_O_TRACESYSGOOD));
 
 				/* exercise invalid pid */
-				ret = ptrace(PTRACE_SETOPTIONS, bad_pid,
-					0, PTRACE_O_TRACESYSGOOD);
-				(void)ret;
+				VOID_RET(long, ptrace(PTRACE_SETOPTIONS, bad_pid, 0, PTRACE_O_TRACESYSGOOD));
 			}
 			i++;
 

@@ -125,10 +125,8 @@ static inline void stress_proc_self_timer_read(void)
 {
 #if defined(__linux__)
 	char buf[1024];
-	ssize_t n;
 
-	n = system_read("/proc/self/timers", buf, sizeof(buf));
-	(void)n;
+	VOID_RET(ssize_t, system_read("/proc/self/timers", buf, sizeof(buf)));
 #endif
 }
 
@@ -227,20 +225,16 @@ static int stress_timer(const stress_args_t *args)
 		struct timespec req;
 
 		if (n++ >= 1024) {
-			int ret;
-
 			n = 0;
 
 			/* Exercise nanosleep on non-permitted timespec object values */
 			(void)memset(&req, 0, sizeof(req));
 			req.tv_sec = -1;
-			ret= nanosleep(&req, NULL);
-			(void)ret;
+			VOID_RET(int, nanosleep(&req, NULL));
 
 			(void)memset(&req, 0, sizeof(req));
 			req.tv_nsec = STRESS_NANOSECOND;
-			ret = nanosleep(&req, NULL);
-			(void)ret;
+			VOID_RET(int, nanosleep(&req, NULL));
 		}
 
 		req.tv_sec = 0;
@@ -261,11 +255,8 @@ static int stress_timer(const stress_args_t *args)
 #if defined(__linux__)
 	/* Some BSD flavours segfault on duplicated timer_delete calls */
 	{
-		int ret;
-
 		/* Re-delete already deleted timer */
-		ret = timer_delete(timerid);
-		(void)ret;
+		VOID_RET(int, timer_delete(timerid));
 	
 		/*
 		 * The manual states that EINVAL is returned when
@@ -273,8 +264,7 @@ static int stress_timer(const stress_args_t *args)
 		 * will most probably segfault librt, so ignore this
 		 * test case for now.
 		 *
-		ret = timer_delete((timer_t)stress_mwc32());
-		(void)ret;
+		VOID_RET(int, timer_delete((timer_t)stress_mwc32()));
 		 */
 	}
 #endif

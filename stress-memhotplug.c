@@ -117,8 +117,7 @@ static void stress_memhotplug_mem_toggle(stress_mem_info_t *mem_info)
 
 	stress_memhotplug_set_timer(5);
 	errno = 0;
-	n = write(fd, "online", 6);
-	(void)n;
+	VOID_RET(ssize_t, write(fd, "online", 6));
 	stress_memhotplug_set_timer(0);
 	(void)close(fd);
 }

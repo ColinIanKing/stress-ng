@@ -279,57 +279,49 @@ static inline void stress_bad_ioctl_rw(
 
 		(void)memset(buf, 0, page_size);
 
-		ret = ioctl(fd, _IOR(type, nr, uint64_t), buf64);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint64_t), buf64));
 		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			break;
 		}
 
-		ret = ioctl(fd, _IOR(type, nr, uint32_t), buf32);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint32_t), buf32));
 		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			break;
 		}
 
-		ret = ioctl(fd, _IOR(type, nr, uint16_t), buf16);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint16_t), buf16));
 		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			break;
 		}
 
-		ret = ioctl(fd, _IOR(type, nr, uint8_t), buf8);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint8_t), buf8));
 		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			break;
 		}
 
-		ret = ioctl(fd, _IOR(type, nr, stress_4k_page_t), buf);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, stress_4k_page_t), buf));
 		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			break;
 		}
 
-		ret = ioctl(fd, _IOR(type, nr, uint8_t), NULL);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint8_t), NULL));
 		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			break;
 		}
 
-		ret = ioctl(fd, _IOR(type, nr, uint8_t), args->mapped->page_none);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint8_t), args->mapped->page_none));
 		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			break;
 		}
 
-		ret = ioctl(fd, _IOR(type, nr, uint8_t), args->mapped->page_ro);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, _IOR(type, nr, uint8_t), args->mapped->page_ro));
 		if (stress_time_now() - t_start > threshold) {
 			(void)close(fd);
 			break;
@@ -492,8 +484,7 @@ again:
 				pr_dbg("%s: failed to lock spin lock for dev_path\n", args->name);
 			} else {
 				dev_ioctl_node = NULL;
-				r = shim_pthread_spin_unlock(&lock);
-				(void)r;
+				VOID_RET(int, shim_pthread_spin_unlock(&lock));
 			}
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {

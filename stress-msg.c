@@ -160,24 +160,20 @@ static void stress_msgget(void)
  */
 static void stress_msgsnd(const int msgq_id)
 {
-	int ret;
 	stress_msg_t msg;
 
 	/* Invalid msgq_id */
 	msg.mtype = 1;
 	msg.value = 0;
-	ret = msgsnd(-1, &msg, sizeof(msg.value), 0);
-	(void)ret;
+	VOID_RET(int, msgsnd(-1, &msg, sizeof(msg.value), 0));
 
 	/* Zero msg length + 0 msg.type */
 	msg.mtype = 0;
-	ret = msgsnd(msgq_id, &msg, 0, 0);
-	(void)ret;
+	VOID_RET(int, msgsnd(msgq_id, &msg, 0, 0));
 
 	/* Illegal flags, may or may not succeed */
 	msg.mtype = 1;
-	ret = msgsnd(msgq_id, &msg, sizeof(msg.value), ~0);
-	(void)ret;
+	VOID_RET(int, msgsnd(msgq_id, &msg, sizeof(msg.value), ~0));
 }
 
 #if defined(__linux__)
@@ -303,11 +299,8 @@ again:
 				 *  and we don't care if it succeeds or not
 				 */
 				if ((i & 0xfff) == 0) {
-					ssize_t ret;
-
-					ret = msgrcv(msgq_id, &msg, sizeof(msg.value), mtype,
-						MSG_COPY | IPC_NOWAIT);
-					(void)ret;
+					VOID_RET(ssize_t, msgrcv(msgq_id, &msg, sizeof(msg.value), mtype,
+						MSG_COPY | IPC_NOWAIT));
 				}
 #endif
 

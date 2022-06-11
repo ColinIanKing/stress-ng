@@ -256,9 +256,7 @@ static int stress_fpunch(const stress_args_t *args)
 	for (i = 0; i < STRESS_PUNCH_PIDS; i++) {
 		pids[i] = fork();
 		if (pids[i] == 0) {
-			ret = stress_sighandler(args->name, SIGALRM, stress_fpunch_child_handler, NULL);
-			(void)ret;
-
+			VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_fpunch_child_handler, NULL));
 			stress_punch_file(args, fd, punch_length, buf_before, buf_after);
 			_exit(EXIT_SUCCESS);
 		}

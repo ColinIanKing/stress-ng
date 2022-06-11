@@ -84,7 +84,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 	const size_t page_size = args->page_size;
 
 	size_t i;
-	int fds[max_pipes * 2], *fd, pipes_open = 0, ret;
+	int fds[max_pipes * 2], *fd, pipes_open = 0;
 	const bool aggressive = (g_opt_flags & OPT_FLAGS_AGGRESSIVE);
 	const size_t buffer_size = page_size;
 	char *buffer;
@@ -97,8 +97,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 	stress_uint8rnd4((uint8_t *)buffer, page_size);
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
-	ret = stress_drop_capabilities(args->name);
-	(void)ret;
+	VOID_RET(int, stress_drop_capabilities(args->name));
 
 	for (i = 0; i < max_pipes * 2; i++)
 		fds[i] = -1;

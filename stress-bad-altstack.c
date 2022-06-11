@@ -79,10 +79,7 @@ static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 	 * while in this context. Not sure if this is portable
 	 * so ignore this for now.
 	{
-		register int ret;
-
-		ret = stress_sigaltstack(stack, STRESS_MINSIGSTKSZ);
-		(void)ret;
+		VOID_RET(int, stress_sigaltstack(stack, STRESS_MINSIGSTKSZ));
 	}
 	 */
 

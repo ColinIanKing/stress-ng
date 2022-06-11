@@ -256,28 +256,22 @@ static int do_quotas(const stress_args_t *args, stress_dev_info_t *const dev)
 	/*
 	 *  ..and exercise with some invalid arguments..
 	 */
-	err = quotactl(~0, dev->name, USRQUOTA, (caddr_t)buffer);
-	(void)err;
+	VOID_RET(int, quotactl(~0, dev->name, USRQUOTA, (caddr_t)buffer));
 #if defined(Q_GETINFO)
 	{
 		struct dqinfo dqinfo;
 
-		err = quotactl(QCMD(Q_GETQUOTA, USRQUOTA), "", 0, (caddr_t)&dqinfo);
-		(void)err;
-		err = quotactl(QCMD(Q_GETQUOTA, USRQUOTA), dev->name, ~0, (caddr_t)&dqinfo);
-		(void)err;
-		err = quotactl(QCMD(Q_GETQUOTA, -1), dev->name, ~0, (caddr_t)&dqinfo);
-		(void)err;
+		VOID_RET(int, quotactl(QCMD(Q_GETQUOTA, USRQUOTA), "", 0, (caddr_t)&dqinfo));
+		VOID_RET(int, quotactl(QCMD(Q_GETQUOTA, USRQUOTA), dev->name, ~0, (caddr_t)&dqinfo));
+		VOID_RET(int, quotactl(QCMD(Q_GETQUOTA, -1), dev->name, ~0, (caddr_t)&dqinfo));
 	}
 #endif
 #if defined(Q_SYNC)
 	/* special Q_SYNC without specific device will sync all */
-	err = quotactl(QCMD(Q_SYNC, USRQUOTA), NULL, 0, NULL);
-	(void)err;
+	VOID_RET(int, quotactl(QCMD(Q_SYNC, USRQUOTA), NULL, 0, NULL));
 
 	/* invalid Q_SYNC with "" device name */
-	err = quotactl(QCMD(Q_SYNC, USRQUOTA), "", 0, NULL);
-	(void)err;
+	VOID_RET(int, quotactl(QCMD(Q_SYNC, USRQUOTA), "", 0, NULL));
 #endif
 
 	if (tested == 0) {

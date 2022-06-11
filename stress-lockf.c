@@ -212,13 +212,11 @@ static int stress_lockf_contention(
 		 *  Occasionally exercise lock on a bad fd, ignore error
 		 */
 		if (counter++ >= 65536) {
-			rc = lockf(bad_fd, lockf_cmd, LOCK_SIZE);
-			(void)rc;
+			VOID_RET(int, lockf(bad_fd, lockf_cmd, LOCK_SIZE));
 			counter = 0;
 
 			/* Exercise F_TEST, ignore result */
-			rc = lockf(fd, F_TEST, LOCK_SIZE);
-			(void)rc;
+			VOID_RET(int, lockf(fd, F_TEST, LOCK_SIZE));
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));

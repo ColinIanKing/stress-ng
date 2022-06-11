@@ -76,10 +76,7 @@ static void stress_watchdog_magic_close(void)
 	 *  where writing "V" will forcefully disable the watchdog
 	 */
 	if (fd >= 0) {
-		ssize_t ret;
-
-		ret = write(fd, "V", 1);
-		(void)ret;
+		VOID_RET(ssize_t, write(fd, "V", 1));
 	}
 }
 
@@ -161,8 +158,7 @@ static int stress_watchdog(const stress_args_t *args)
 		stress_watchdog_magic_close();
 
 #if defined(WDIOC_KEEPALIVE)
-		ret = ioctl(fd, WDIOC_KEEPALIVE, 0);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, WDIOC_KEEPALIVE, 0));
 #else
 		UNEXPECTED
 #endif
@@ -171,8 +167,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int timeout;
 
-			ret = ioctl(fd, WDIOC_GETTIMEOUT, &timeout);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, WDIOC_GETTIMEOUT, &timeout));
 		}
 #else
 		UNEXPECTED
@@ -182,8 +177,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int timeout;
 
-			ret = ioctl(fd, WDIOC_GETPRETIMEOUT, &timeout);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, WDIOC_GETPRETIMEOUT, &timeout));
 		}
 #else
 		UNEXPECTED
@@ -193,8 +187,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int timeout;
 
-			ret = ioctl(fd, WDIOC_GETTIMELEFT, &timeout);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, WDIOC_GETTIMELEFT, &timeout));
 		}
 #else
 		UNEXPECTED
@@ -204,8 +197,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			struct watchdog_info ident;
 
-			ret = ioctl(fd, WDIOC_GETSUPPORT, &ident);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, WDIOC_GETSUPPORT, &ident));
 		}
 #else
 		UNEXPECTED
@@ -215,8 +207,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int flags;
 
-			ret = ioctl(fd, WDIOC_GETSTATUS, &flags);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, WDIOC_GETSTATUS, &flags));
 		}
 #else
 		UNEXPECTED
@@ -226,8 +217,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int flags;
 
-			ret = ioctl(fd, WDIOC_GETBOOTSTATUS, &flags);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, WDIOC_GETBOOTSTATUS, &flags));
 		}
 #else
 		UNEXPECTED
@@ -237,8 +227,7 @@ static int stress_watchdog(const stress_args_t *args)
 		{
 			int temperature;
 
-			ret = ioctl(fd, WDIOC_GETBOOTSTATUS, &temperature);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, WDIOC_GETBOOTSTATUS, &temperature));
 		}
 #else
 		UNEXPECTED

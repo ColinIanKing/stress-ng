@@ -218,37 +218,32 @@ static int stress_kvm(const stress_args_t *args)
 			{
 				struct kvm_regs kregs;
 
-				ret = ioctl(vcpu_fd, KVM_GET_REGS, &kregs);
-				(void)ret;
+				VOID_RET(int, ioctl(vcpu_fd, KVM_GET_REGS, &kregs));
 			}
 #endif
 #if defined(KVM_GET_FPU)
 			{
 				struct kvm_fpu fpu;
 
-				ret = ioctl(vcpu_fd, KVM_GET_FPU, &fpu);
-				(void)ret;
+				VOID_RET(int, ioctl(vcpu_fd, KVM_GET_FPU, &fpu));
 			}
 #endif
 #if defined(KVM_GET_MP_STATE)
 			{
 				struct kvm_mp_state state;
 
-				ret = ioctl(vcpu_fd, KVM_GET_MP_STATE, &state);
-				(void)ret;
+				VOID_RET(int, ioctl(vcpu_fd, KVM_GET_MP_STATE, &state));
 			}
 #endif
 #if defined(KVM_GET_XSAVE)
 			{
 				struct kvm_xsave xsave;
 
-				ret = ioctl(vcpu_fd, KVM_GET_XSAVE, &xsave);
-				(void)ret;
+				VOID_RET(int, ioctl(vcpu_fd, KVM_GET_XSAVE, &xsave));
 			}
 #endif
 #if defined(KVM_GET_TSC_KHZ)
-			ret = ioctl(vcpu_fd, KVM_GET_TSC_KHZ, 0);
-			(void)ret;
+			VOID_RET(int, ioctl(vcpu_fd, KVM_GET_TSC_KHZ, 0));
 #endif
 		}
 tidy_run:

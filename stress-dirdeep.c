@@ -172,8 +172,7 @@ static bool stress_dirdeep_make(
 		(*inodes_estimate)++;
 
 	path[len + 1] = 'h';	/* hardlink */
-	ret = link(linkpath, path);
-	(void)ret;
+	VOID_RET(int, link(linkpath, path));
 
 	for (i = 0; keep_stressing(args) && (i < dirdeep_dirs); i++) {
 		uint32_t j;
@@ -228,23 +227,20 @@ static bool stress_dirdeep_make(
 		/*
 		 *  Exercise linkat onto hardlink h
 		 */
-		ret = linkat(dir_fd, "h", dir_fd, "a", 0);
-		(void)ret;
+		VOID_RET(int, linkat(dir_fd, "h", dir_fd, "a", 0));
 
 		/*
 		 *  Exercise linkat with invalid flags
 		 */
 		ret = linkat(dir_fd, "h", dir_fd, "i", ~0);
 		if (ret == 0) {
-			ret = shim_unlinkat(dir_fd, "i", 0);
-			(void)ret;
+			VOID_RET(int, shim_unlinkat(dir_fd, "i", 0));
 		}
 #if defined(AT_SYMLINK_FOLLOW)
 		/*
 		 *  Exercise linkat AT_SYMLINK_FOLLOW onto hardlink h
 		 */
-		ret = linkat(dir_fd, "h", dir_fd, "b", AT_SYMLINK_FOLLOW);
-		(void)ret;
+		VOID_RET(int, linkat(dir_fd, "h", dir_fd, "b", AT_SYMLINK_FOLLOW));
 #endif
 #if defined(AT_EMPTY_PATH) &&	\
     defined(O_PATH)
@@ -261,8 +257,7 @@ static bool stress_dirdeep_make(
 			 * Need CAP_DAC_READ_SEARCH for this to work,
 			 * ignore return for now
 			 */
-			ret = linkat(pathfd, "", dir_fd, "c", AT_EMPTY_PATH);
-			(void)ret;
+			VOID_RET(int, linkat(pathfd, "", dir_fd, "c", AT_EMPTY_PATH));
 			(void)close(pathfd);
 		}
 		path[len] = '\0';
@@ -270,8 +265,7 @@ static bool stress_dirdeep_make(
 #if defined(HAVE_UNLINKAT)
 		ret = linkat(dir_fd, "h", dir_fd, "u", 0);
 		if (ret == 0) {
-			ret = shim_unlinkat(dir_fd, "u", 0);
-			(void)ret;
+			VOID_RET(int, shim_unlinkat(dir_fd, "u", 0));
 		}
 #endif
 		/*
@@ -343,8 +337,7 @@ static int stress_dir_exercise(
 			if (fd >= 0) {
 				const uint16_t rnd = stress_mwc16();
 #if defined(HAVE_FUTIMENS)
-				int ret = futimens(fd, timespec);
-				(void)ret;
+				VOID_RET(int, futimens(fd, timespec));
 #endif
 				/* Occasional flushing */
 				if (rnd >= 0xfff0) {

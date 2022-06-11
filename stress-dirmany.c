@@ -66,14 +66,11 @@ static uint64_t stress_dirmany_create(
 		if (fd < 0)
 			break;
 		if (dirmany_bytes > 0) {
-			int ret;
-
 #if defined(HAVE_POSIX_FALLOCATE)
-			ret = posix_fallocate(fd, (off_t)0, dirmany_bytes);
+			VOID_RET(int, posix_fallocate(fd, (off_t)0, dirmany_bytes));
 #else
-			ret = shim_fallocate(fd, 0, (off_t)0, dirmany_bytes);
+			VOID_RET(int, shim_fallocate(fd, 0, (off_t)0, dirmany_bytes));
 #endif
-			(void)ret;
 		}
 		inc_counter(args);
 		(void)close(fd);

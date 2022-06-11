@@ -162,8 +162,7 @@ static void stress_pthread_tid_address(const stress_args_t *args)
 			pid_t tid1, tid2;
 
 			/* Nullify */
-			tid1 = (pid_t)syscall(__NR_set_tid_address, NULL);
-			(void)tid1;
+			VOID_RET(pid_t, (pid_t)syscall(__NR_set_tid_address, NULL));
 
 			/* This always succeeds */
 			tid1 = (pid_t)syscall(__NR_set_tid_address, tid_addr);
@@ -189,10 +188,6 @@ static void *stress_pthread_func(void *parg)
 {
 	static void *nowt = NULL;
 	int ret;
-#if defined(HAVE_GET_ROBUST_LIST) &&	\
-    defined(HAVE_LINUX_FUTEX_H)
-	long lret;
-#endif
 	const pid_t tgid = getpid();
 #if defined(HAVE_GETTID)
 	const pid_t tid = shim_gettid();
@@ -235,58 +230,37 @@ static void *stress_pthread_func(void *parg)
 		}
 
 		/* Exercise invalid zero length */
-		lret = sys_set_robust_list(head, 0);
-		(void)lret;
+		VOID_RET(long, sys_set_robust_list(head, 0));
 
 		/* Exercise invalid length */
-		lret = sys_set_robust_list(head, (size_t)-1);
-		(void)lret;
+		VOID_RET(long, sys_set_robust_list(head, (size_t)-1));
 #endif
 	/*
 	 *  Check get_robust_list with an invalid PID
 	 */
 	}
-	lret = sys_get_robust_list(-1, &head, &len);
-	(void)lret;
+	VOID_RET(long, sys_get_robust_list(-1, &head, &len));
 #endif
 
 	/*
 	 *  Exercise tgkill (no-op on systems that do
 	 *  not support this system call)
 	 */
-	ret = shim_tgkill(tgid, tid, 0);
-	(void)ret;
-
-	ret = shim_tgkill(-1, tid, 0);
-	(void)ret;
-
-	ret = shim_tgkill(tgid, -1, 0);
-	(void)ret;
-
-	ret = shim_tgkill(tgid, tid, -1);
-	(void)ret;
-
-	ret = shim_tgkill(stress_get_unused_pid_racy(false), tid, 0);
-	(void)ret;
-
-	ret = shim_tgkill(tgid, stress_get_unused_pid_racy(false), 0);
-	(void)ret;
+	VOID_RET(int, shim_tgkill(tgid, tid, 0));
+	VOID_RET(int, shim_tgkill(-1, tid, 0));
+	VOID_RET(int, shim_tgkill(tgid, -1, 0));
+	VOID_RET(int, shim_tgkill(tgid, tid, -1));
+	VOID_RET(int, shim_tgkill(stress_get_unused_pid_racy(false), tid, 0));
+	VOID_RET(int, shim_tgkill(tgid, stress_get_unused_pid_racy(false), 0));
 
 	/*
 	 *  Exercise tkill, this is either supported directly, emulated
 	 *  by tgkill or a no-op if systems don't support tkill or tgkill
 	 */
-	ret = shim_tkill(tid, 0);
-	(void)ret;
-
-	ret = shim_tkill(-1, 0);
-	(void)ret;
-
-	ret = shim_tkill(tid, -1);
-	(void)ret;
-
-	ret = shim_tkill(stress_get_unused_pid_racy(false), 0);
-	(void)ret;
+	VOID_RET(int, shim_tkill(tid, 0));
+	VOID_RET(int, shim_tkill(-1, 0));
+	VOID_RET(int, shim_tkill(tid, -1));
+	VOID_RET(int, ret = shim_tkill(stress_get_unused_pid_racy(false), 0));
 
 #if defined(HAVE_ASM_LDT_H) && 	\
     defined(STRESS_ARCH_X86) &&	\
@@ -301,8 +275,7 @@ static void *stress_pthread_func(void *parg)
 		ret = (int)syscall(__NR_get_thread_area, &u_info);
 #if defined(HAVE_GET_THREAD_AREA)
 		if (ret == 0) {
-			ret = (int)syscall(__NR_set_thread_area, &u_info);
-			(void)ret;
+			VOID_RET(int, (int)syscall(__NR_set_thread_area, &u_info));
 		}
 #else
 		(void)ret;
@@ -404,8 +377,7 @@ yield:
 		timeout.tv_nsec = 1000000;
 
 		/* Ignore error return, just exercise the call */
-		ret = sigtimedwait(&mask, &info, &timeout);
-		(void)ret;
+		VOID_RET(int, sigtimedwait(&mask, &info, &timeout));
 	}
 #endif
 
@@ -482,10 +454,8 @@ static int stress_pthread(const stress_args_t *args)
 	ret = pthread_mutexattr_init(&mutex_attr);
 	if (ret == 0) {
 		mutex_attr_init = true;
-		ret = pthread_mutexattr_setprotocol(&mutex_attr, PTHREAD_PRIO_INHERIT);
-		(void)ret;
-		ret = pthread_mutexattr_setprioceiling(&mutex_attr, 127);
-		(void)ret;
+		VOID_RET(int, pthread_mutexattr_setprotocol(&mutex_attr, PTHREAD_PRIO_INHERIT));
+		VOID_RET(int, pthread_mutexattr_setprioceiling(&mutex_attr, 127));
 	} else {
 		mutex_attr_init = false;
 	}
@@ -626,8 +596,7 @@ static int stress_pthread(const stress_args_t *args)
 				continue;
 
 			(void)memset(&value, 0, sizeof(value));
-			ret = pthread_sigqueue(pthreads[j].pthread, SIGUSR1, value);
-			(void)ret;
+			VOID_RET(int, pthread_sigqueue(pthreads[j].pthread, SIGUSR1, value));
 		}
 #endif
 

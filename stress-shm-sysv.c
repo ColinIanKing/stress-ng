@@ -176,7 +176,6 @@ static void exercise_shmat(
 	uint64_t buffer[(page_size / sizeof(uint64_t)) + 1];
 	/* Unaligned buffer */
 	const uint8_t *unaligned = ((uint8_t *)buffer) + 1;
-	int ret;
 
 	/* Exercise shmat syscall on invalid shm_id */
 	addr = shmat(-1, NULL, 0);
@@ -258,8 +257,7 @@ static void exercise_shmat(
 		(void)shmdt(addr);
 
 	/* Exercise invalid shmdt with unaligned page address */
-	ret = shmdt(unaligned);
-	(void)ret;
+	VOID_RET(int, shmdt(unaligned));
 
 	/*
 	 * Exercise valid shmat syscall with unaligned
@@ -320,19 +318,14 @@ static void exercise_shmctl(const size_t sz, const stress_args_t *args)
 		return;
 
 	/* Exercise invalid commands */
-	ret = shmctl(shm_id, -1, NULL);
-	(void)ret;
-
-	ret = shmctl(shm_id, 0x7ffffff, NULL);
-	(void)ret;
+	VOID_RET(int, shmctl(shm_id, -1, NULL));
+	VOID_RET(int, shmctl(shm_id, 0x7ffffff, NULL));
 
 #if !defined(STRESS_ARCH_M68K)
-	ret = shmctl(shm_id, IPC_SET | IPC_RMID, NULL);
-	(void)ret;
+	VOID_RET(int, shmctl(shm_id, IPC_SET | IPC_RMID, NULL));
 
 	/* Exercise invalid shmid */
-	ret = shmctl(bad_shmid, IPC_RMID, NULL);
-	(void)ret;
+	VOID_RET(int, shmctl(bad_shmid, IPC_RMID, NULL));
 
 	/* Cleaning up the shared memory segment */
 	(void)shmctl(shm_id, IPC_RMID, NULL);
@@ -511,15 +504,13 @@ static void stress_shm_sysv_linux_proc_map(const void *addr, const size_t sz)
 	if (fd >= 0) {
 		char pathlink[PATH_MAX];
 		void *ptr;
-		ssize_t ret;
 
 		/*
 		 *  Readlink will return the /SYSV key info, but since this kind
 		 *  of interface may change format, we skip checking it against
 		 *  the key
 		 */
-		ret = shim_readlink(path, pathlink, sizeof(pathlink));
-		(void)ret;
+		VOID_RET(ssize_t, shim_readlink(path, pathlink, sizeof(pathlink)));
 
 		/*
 		 *  The vfs allows us to mmap this file, which corresponds
@@ -711,8 +702,7 @@ errno = 0;
 
 				ret = shmctl(shm_id, SHM_LOCK, NULL);
 				if (ret == 0) {
-					ret = shmctl(shm_id, SHM_UNLOCK, NULL);
-					(void)ret;
+					VOID_RET(int, shmctl(shm_id, SHM_UNLOCK, NULL));
 				}
 			}
 #else
@@ -727,12 +717,8 @@ errno = 0;
 					pr_fail("%s: shmctl IPC_STAT failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 #if defined(SHM_SET)
-				else {
-					int ret;
-
-					ret = shmctl(shm_id, SHM_SET, &ds);
-					(void)ret;
-				}
+				else
+					VOID_RET(int, shmctl(shm_id, SHM_SET, &ds));
 #else
 				/* UNEXPECTED */
 #endif
@@ -767,11 +753,7 @@ errno = 0;
 #if defined(SHM_LOCK) &&	\
     defined(SHM_UNLOCK)
 			if (shmctl(shm_id, SHM_LOCK, (struct shmid_ds *)NULL) < 0) {
-				int ret;
-
-				ret = shmctl(shm_id, SHM_UNLOCK, (struct shmid_ds *)NULL);
-				(void)ret;
-
+				VOID_RET(int, shmctl(shm_id, SHM_UNLOCK, (struct shmid_ds *)NULL));
 			}
 #else
 			UNEXPECTED
@@ -788,10 +770,8 @@ errno = 0;
 				ret = shim_get_mempolicy(&mode, node_mask, 1,
 					addrs[i], MPOL_F_ADDR);
 				if (ret == 0) {
-					ret = shim_set_mempolicy(MPOL_DEFAULT, NULL, 1);
-					(void)ret;
+					VOID_RET(int, shim_set_mempolicy(MPOL_DEFAULT, NULL, 1));
 				}
-				(void)ret;
 			}
 #endif
 #if defined(__linux__)
@@ -802,28 +782,24 @@ errno = 0;
 
 		pid = fork();
 		if (pid == 0) {
-			int ret;
-
 			for (i = 0; i < shm_sysv_segments; i++) {
 #if defined(IPC_STAT) &&	\
     defined(HAVE_SHMID_DS)
 
 				if (shm_ids[i] >= 0) {
 					struct shmid_ds ds;
-					ret = shmctl(shm_ids[i], IPC_STAT, &ds);
-					(void)ret;
+
+					VOID_RET(int, shmctl(shm_ids[i], IPC_STAT, &ds));
 				}
 #else
 				UNEXPECTED
 #endif
-				ret = shmdt(addrs[i]);
-				(void)ret;
+				VOID_RET(int, shmdt(addrs[i]));
 
 			}
 			/* Exercise repeated shmdt on addresses, EINVAL */
 			for (i = 0; i < shm_sysv_segments; i++) {
-				ret = shmdt(addrs[i]);
-				(void)ret;
+				VOID_RET(int, shmdt(addrs[i]));
 			}
 
 			_exit(EXIT_SUCCESS);
@@ -842,9 +818,10 @@ reap:
 			}
 			if (shm_ids[i] >= 0) {
 				if (shmctl(shm_ids[i], IPC_RMID, NULL) < 0) {
-					if ((errno != EIDRM) && (errno != EINVAL))
+					if ((errno != EIDRM) && (errno != EINVAL)) {
 						pr_fail("%s: shmctl IPC_RMID failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
+					}
 				}
 			}
 

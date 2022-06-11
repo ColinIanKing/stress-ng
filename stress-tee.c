@@ -232,7 +232,6 @@ static int stress_tee(const stress_args_t *args)
 		goto tidy_child1;
 	(void)close(pipe_out[0]);
 
-
 	do {
 		len = tee(pipe_in[0], pipe_out[1],
 			INT_MAX, 0 & SPLICE_F_NONBLOCK);

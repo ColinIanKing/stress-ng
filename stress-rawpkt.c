@@ -289,10 +289,9 @@ static void NORETURN stress_rawpkt_client(
 #if defined(SIOCOUTQ)
 		/* Occasionally exercise SIOCOUTQ */
 		if ((id & 0xff) == 0) {
-			int ret, queued;
+			int queued;
 
-			ret = ioctl(fd, SIOCOUTQ, &queued);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, SIOCOUTQ, &queued));
 		}
 #endif
 	} while (keep_stressing(args));
@@ -356,10 +355,9 @@ static int stress_rawpkt_server(
 #if defined(SIOCINQ)
 		/* Exercise SIOCINQ */
 		if ((all_pkts & 0xff) == 0) {
-			int ret, queued;
+			int queued;
 
-			ret = ioctl(fd, SIOCINQ, &queued);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, SIOCINQ, &queued));
 		}
 #endif
 	} while (keep_stressing(args));

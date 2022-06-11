@@ -236,20 +236,16 @@ again:
 				if (!(i & 1023)) {
 #if defined(__linux__)
 					char buffer[1024];
-					off_t off;
 					struct stat statbuf;
 					void *ptr;
-					int ret;
 #if defined(HAVE_POLL_H)
 					struct pollfd fds[1];
 #endif
 					/* On Linux, one can seek on a mq descriptor */
-					off = lseek(mq, 0, SEEK_SET);
-					(void)off;
+					VOID_RET(off_t, lseek(mq, 0, SEEK_SET));
 
 					/* Attempt a fstat too */
-					ret = fstat(mq, &statbuf);
-					(void)ret;
+					VOID_RET(int, fstat(mq, &statbuf));
 
 					/* illegal mmap, should be ENODEV */
 					ptr = mmap(NULL, 16, PROT_READ, MAP_SHARED, mq, 0);
@@ -260,8 +256,7 @@ again:
 					fds[0].fd = mq;
 					fds[0].events = POLLIN;
 					fds[0].revents = 0;
-					ret = poll(fds, 1, 0);
-					(void)ret;
+					VOID_RET(int, poll(fds, 1, 0));
 #endif
 					/* Read state of queue from mq fd */
 					sret = read(mq, buffer, sizeof(buffer));

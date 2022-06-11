@@ -242,13 +242,13 @@ static int stress_sockmany_server(
 #if defined(SOL_TCP) &&	\
     defined(TCP_QUICKACK)
 			{
-				int ret, one = 1;
+				int one = 1;
+
 				/*
 				 * We try do to a TCP_QUICKACK, failing is OK as
 				 * it's just a faster optimization option
 				 */
-				ret = setsockopt(fd, SOL_TCP, TCP_QUICKACK, &one, sizeof(one));
-				(void)ret;
+				VOID_RET(int, setsockopt(fd, SOL_TCP, TCP_QUICKACK, &one, sizeof(one)));
 			}
 #else
 			UNEXPECTED

@@ -406,8 +406,7 @@ do_read:
 		(void)memset(&wake, 0, sizeof(wake));
 		wake.start = (uintptr_t)data;
 		wake.len = page_size;
-		ret = ioctl(fd, UFFDIO_WAKE, &wake);
-		(void)ret;
+		VOID_RET(int, ioctl(fd, UFFDIO_WAKE, &wake));
 
 		inc_counter(args);
 	} while (keep_stressing(args));

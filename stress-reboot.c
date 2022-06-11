@@ -63,14 +63,11 @@ static int reboot_clone_func(void *arg)
 
 	/* Random starting reboot command */
 	for (i = 0; i < SIZEOF_ARRAY(boot_magic); i++) {
-		int ret;
-
 		errno = 0;
-		ret = shim_reboot((int)SHIM_LINUX_BOOT_MAGIC1,
+		VOID_RET(int, shim_reboot((int)SHIM_LINUX_BOOT_MAGIC1,
 			(int)boot_magic[j],
-			SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL);
+			SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL));
 		j = (j + 1) % SIZEOF_ARRAY(boot_magic);
-		(void)ret;
 	}
 
 	/* Should never get here */

@@ -157,7 +157,6 @@ static int stress_bind_mount(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		int ret;
 		static char stack[CLONE_STACK_SIZE];
 		char *stack_top = (char *)stress_get_stack_top((void *)stack, CLONE_STACK_SIZE);
 
@@ -174,8 +173,7 @@ static int stress_bind_mount(const stress_args_t *args)
 				args->name, errno, strerror(errno));
 			return rc;
 		}
-		ret = shim_waitpid(pid, &status, 0);
-		(void)ret;
+		VOID_RET(int, shim_waitpid(pid, &status, 0));
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

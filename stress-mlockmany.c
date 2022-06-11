@@ -67,8 +67,7 @@ static int stress_mlockmany(const stress_args_t *args)
 	stress_set_oom_adjustment(args->name, true);
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
-	ret = stress_drop_capabilities(args->name);
-	(void)ret;
+	VOID_RET(int, stress_drop_capabilities(args->name));
 
 	if (mlockmany_procs == UNSET_MLOCK_PROCS) {
 		mlockmany_procs = args->num_instances > 0 ? DEFAULT_MLOCK_PROCS / args->num_instances : 1;

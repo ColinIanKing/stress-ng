@@ -45,7 +45,6 @@ static void stress_mprotect_mem(
 	const int *prot_flags,
 	const size_t n_flags)
 {
-	int ret;
 	const uint8_t *mem_end = mem + (page_size * mem_pages);
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_sig_handler, NULL) < 0)
@@ -53,8 +52,7 @@ static void stress_mprotect_mem(
 	if (stress_sighandler(args->name, SIGBUS, stress_sig_handler, NULL) < 0)
 		return;
 
-	ret = sigsetjmp(jmp_env, 1);
-	(void)ret;
+	VOID_RET(int, sigsetjmp(jmp_env, 1));
 
 	while (keep_stressing(args)) {
 		const uint32_t page = stress_mwc32() % mem_pages;

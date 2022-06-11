@@ -120,12 +120,10 @@ static void stress_inode_flags_ioctl(
 		return;
 
 	attr |= flag;
-	ret = ioctl(fd, FS_IOC_SETFLAGS, &attr);
-	(void)ret;
+	VOID_RET(int, ioctl(fd, FS_IOC_SETFLAGS, &attr));
 
 	attr &= ~flag;
-	ret = ioctl(fd, FS_IOC_SETFLAGS, &attr);
-	(void)ret;
+	VOID_RET(int, ioctl(fd, FS_IOC_SETFLAGS, &attr));
 }
 
 /*
@@ -134,11 +132,9 @@ static void stress_inode_flags_ioctl(
  */
 static inline void stress_inode_flags_ioctl_sane(const int fd)
 {
-	int ret;
 	const long int flag = 0;
 
-	ret = ioctl(fd, FS_IOC_SETFLAGS, &flag);
-	(void)ret;
+	VOID_RET(int, ioctl(fd, FS_IOC_SETFLAGS, &flag));
 }
 
 /*

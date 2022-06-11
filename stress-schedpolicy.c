@@ -148,21 +148,18 @@ static int stress_schedpolicy(const stress_args_t *args)
 #endif
 			/* Exercise illegal policy */
 			(void)memset(&param, 0, sizeof(param));
-			ret = sched_setscheduler(pid, -1, &param);
-			(void)ret;
+			VOID_RET(int, sched_setscheduler(pid, -1, &param));
 
 			/* Exercise invalid PID */
 			param.sched_priority = 0;
-			ret = sched_setscheduler(-1, new_policy, &param);
-			(void)ret;
+			VOID_RET(int, sched_setscheduler(-1, new_policy, &param));
 
 			/* Exercise invalid priority */
 			param.sched_priority = ~0;
-			ret = sched_setscheduler(pid, new_policy, &param);
-			(void)ret;
+			VOID_RET(int, sched_setscheduler(pid, new_policy, &param));
 
 			param.sched_priority = 0;
-			ret = sched_setscheduler(pid, new_policy, &param);
+			VOID_RET(int, sched_setscheduler(pid, new_policy, &param));
 
 			break;
 #if defined(SCHED_RR)
@@ -171,8 +168,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 			{
 				struct timespec t;
 
-				ret = sched_rr_get_interval(pid, &t);
-				(void)ret;
+				VOID_RET(int, sched_rr_get_interval(pid, &t));
 			}
 #endif
 			CASE_FALLTHROUGH;
@@ -241,30 +237,25 @@ static int stress_schedpolicy(const stress_args_t *args)
 
 			/* Exercise invalid sched_getparam syscall */
 			(void)memset(&param, 0, sizeof(param));
-			ret = sched_getparam(-1, &param);
-			(void)ret;
+			VOID_RET(int, sched_getparam(-1, &param));
 
 #if defined(__linux__)
 			/* Linux allows NULL param, will return EFAULT */
 			(void)memset(&param, 0, sizeof(param));
-			ret = sched_getparam(pid, NULL);
-			(void)ret;
+			VOID_RET(int, sched_getparam(pid, NULL));
 #endif
 
 			/* Exercise bad pid, ESRCH error */
 			(void)memset(&param, 0, sizeof(param));
-			ret = sched_getparam(stress_get_unused_pid_racy(false), &param);
-			(void)ret;
+			VOID_RET(int, sched_getparam(stress_get_unused_pid_racy(false), &param));
 
 			/* Exercise invalid sched_setparam syscall */
 			(void)memset(&param, 0, sizeof(param));
-			ret = sched_setparam(-1, &param);
-			(void)ret;
+			VOID_RET(int, sched_setparam(-1, &param));
 
 #if defined(__linux__)
 			/* Linux allows NULL param, will return EFAULT */
-			ret = sched_setparam(pid, NULL);
-			(void)ret;
+			VOID_RET(int, sched_setparam(pid, NULL));
 #endif
 
 			/*
@@ -273,17 +264,14 @@ static int stress_schedpolicy(const stress_args_t *args)
 			 * don't own
 			 */
 			if (!root_or_nice_capability) {
-				ret = sched_setparam(stress_get_unused_pid_racy(false), &param);
-				(void)ret;
+				VOID_RET(int, sched_setparam(stress_get_unused_pid_racy(false), &param));
 			}
 		}
 		/* Exercise with invalid PID */
-		ret = sched_getscheduler(-1);
-		(void)ret;
+		VOID_RET(int, sched_getscheduler(-1));
 
 		/* Exercise with bad pid, ESRCH error */
-		ret = sched_getscheduler(stress_get_unused_pid_racy(false));
-		(void)ret;
+		VOID_RET(int, sched_getscheduler(stress_get_unused_pid_racy(false)));
 
 		(void)memset(&param, 0, sizeof(param));
 		ret = sched_getparam(pid, &param);
@@ -305,27 +293,23 @@ static int stress_schedpolicy(const stress_args_t *args)
 
 			(void)memset(large_attr, 0, sizeof(large_attr));
 
-			ret = shim_sched_getattr(pid,
+			VOID_RET(int, shim_sched_getattr(pid,
 				(struct shim_sched_attr *)large_attr,
-				(unsigned int)sizeof(large_attr), 0);
-			(void)ret;
+				(unsigned int)sizeof(large_attr), 0));
 		}
 
 		/* Exercise invalid sched_getattr syscalls */
 		(void)memset(&attr, 0, sizeof(attr));
-		ret = shim_sched_getattr(pid, &attr, sizeof(attr), ~0U);
-		(void)ret;
+		VOID_RET(int, shim_sched_getattr(pid, &attr, sizeof(attr), ~0U));
 
 		/* Exercise -ve pid */
 		(void)memset(&attr, 0, sizeof(attr));
-		ret = shim_sched_getattr(-1, &attr, sizeof(attr), 0);
-		(void)ret;
+		VOID_RET(int, shim_sched_getattr(-1, &attr, sizeof(attr), 0));
 
 		/* Exercise bad pid, ESRCH error */
 		(void)memset(&attr, 0, sizeof(attr));
-		ret = shim_sched_getattr(stress_get_unused_pid_racy(false),
-			&attr, sizeof(attr), 0);
-		(void)ret;
+		VOID_RET(int, shim_sched_getattr(stress_get_unused_pid_racy(false),
+			&attr, sizeof(attr), 0));
 
 		/*
 		 *  Nothing too clever here, just get and set for now
@@ -365,11 +349,8 @@ static int stress_schedpolicy(const stress_args_t *args)
 		 * syscalls succeed only correct value will be set,
 		 * hence ignoring whether syscall succeeds or fails
 		 */
-		ret = shim_sched_setattr(pid, &attr, ~0U);
-		(void)ret;
-
-		ret = shim_sched_setattr(-1, &attr, 0);
-		(void)ret;
+		VOID_RET(int, shim_sched_setattr(pid, &attr, ~0U));
+		VOID_RET(int, shim_sched_setattr(-1, &attr, 0));
 
 		attr.size = sizeof(attr);
 		ret = shim_sched_setattr(pid, &attr, 0);

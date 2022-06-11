@@ -105,13 +105,11 @@ static int stress_mmapfixed_child(const stress_args_t *args, void *context)
 	const uintptr_t page_mask = ~((uintptr_t)(page_size - 1));
 #endif
 	uintptr_t addr = MMAP_TOP;
-	int ret;
 
 	(void)context;
 
-	ret = stress_sighandler(args->name, SIGSEGV,
-				stress_sig_handler_exit, NULL);
-	(void)ret;
+	VOID_RET(int, stress_sighandler(args->name, SIGSEGV,
+				stress_sig_handler_exit, NULL));
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

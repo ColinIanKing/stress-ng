@@ -135,7 +135,6 @@ static int stress_urandom(const stress_args_t *args)
 		 * this fails, just skip this part of the stressor
 		 */
 		if (fd_rnd >= 0) {
-			off_t offset;
 #if defined(RNDGETENTCNT)
 			unsigned long val = 0;
 
@@ -159,8 +158,7 @@ static int stress_urandom(const stress_args_t *args)
 #if defined(RNDGETENTCNT)
 next:
 #endif
-			offset = lseek(fd_rnd, (off_t)0, SEEK_SET);
-			(void)offset;
+			VOID_RET(off_t, lseek(fd_rnd, (off_t)0, SEEK_SET));
 
 			if (!sys_admin) {
 				/*
@@ -206,8 +204,7 @@ next:
 				/*
 				 *  Exercise invalid ioctl command
 				 */
-				ret = ioctl(fd_rnd, 0xffff, NULL);
-				(void)ret;
+				VOID_RET(int, ioctl(fd_rnd, 0xffff, NULL));
 #if defined(__linux__)
 				if (fd_rnd_wr >= 0) {
 					buffer[0] = stress_mwc8();

@@ -58,10 +58,8 @@ static void stress_flock_child(
 		/*
 		 *  Exercise flock with invalid fd
 		 */
-		ret = flock(bad_fd, LOCK_EX);
-		(void)ret;
-		ret = flock(bad_fd, LOCK_UN);
-		(void)ret;
+		(void)flock(bad_fd, LOCK_EX);
+		(void)flock(bad_fd, LOCK_UN);
 
 #if defined(LOCK_NB)
 		if (flock(fd, LOCK_EX | LOCK_NB) == 0) {
@@ -168,10 +166,8 @@ static void stress_flock_child(
 #if defined(__linux__)
 		if ((i & 0xff) == 0) {
 			char buf[4096];
-			ssize_t rret;
 
-			rret = system_read("/proc/locks", buf, sizeof(buf));
-			(void)rret;
+			VOID_RET(ssize_t, system_read("/proc/locks", buf, sizeof(buf)));
 		}
 #endif
 	}

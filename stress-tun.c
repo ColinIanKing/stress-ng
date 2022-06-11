@@ -264,15 +264,13 @@ child_cleanup_fd:
 				break;
 			}
 #if defined(TUNSETNOCSUM)
-			ret = ioctl(fd, TUNSETNOCSUM, 1);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, TUNSETNOCSUM, 1));
 #else
 			UNEXPECTED
 #endif
 
 #if defined(SIOCGIFHWADDR)
-			ret = ioctl(fd, SIOCGIFHWADDR, &ifr);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, SIOCGIFHWADDR, &ifr));
 #else
 			UNEXPECTED
 #endif
@@ -284,12 +282,11 @@ child_cleanup_fd:
 				ret = ioctl(fd, TUNGETVNETHDRSZ, &vnet_hdr_sz);
 				if (ret == 0) {
 #if defined(TUNSETVNETHDRSZ)
-					ret = ioctl(fd, TUNSETVNETHDRSZ, &vnet_hdr_sz);
+					VOID_RET(int, ioctl(fd, TUNSETVNETHDRSZ, &vnet_hdr_sz));
 #else
 					UNEXPECTED
 #endif
 				}
-				(void)ret;
 			}
 #else
 			UNEXPECTED
@@ -302,12 +299,11 @@ child_cleanup_fd:
 				ret = ioctl(fd, TUNGETSNDBUF, &sndbuf);
 				if (ret == 0) {
 #if defined(TUNSETVNETHDRSZ)
-					ret = ioctl(fd, TUNSETSNDBUF, &sndbuf);
+					VOID_RET(int, ioctl(fd, TUNSETSNDBUF, &sndbuf));
 #else
 				UNEXPECTED
 #endif
 				}
-				(void)ret;
 			}
 #else
 			UNEXPECTED
@@ -320,12 +316,11 @@ child_cleanup_fd:
 				ret = ioctl(fd, TUNGETVNETLE, &val);
 				if (ret == 0) {
 #if defined(TUNSETVNETLE)
-					ret = ioctl(fd, TUNSETVNETLE, &val);
+					VOID_RET(int, ioctl(fd, TUNSETVNETLE, &val));
 #else
 				UNEXPECTED
 #endif
 				}
-				(void)ret;
 			}
 #else
 			UNEXPECTED
@@ -338,20 +333,18 @@ child_cleanup_fd:
 				ret = ioctl(fd, TUNGETVNETBE, &val);
 				if (ret == 0) {
 #if defined(TUNSETVNETBE)
-					ret = ioctl(fd, TUNSETVNETBE, &val);
+					VOID_RET(int, ioctl(fd, TUNSETVNETBE, &val));
 #else
 				UNEXPECTED
 #endif
 				}
-				(void)ret;
 			}
 #else
 			UNEXPECTED
 #endif
 
 #if defined(TUNGETDEVNETNS)
-			ret = ioctl(fd, TUNGETDEVNETNS, NULL /* not required */);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, TUNGETDEVNETNS, NULL /* not required */));
 #else
 			UNEXPECTED
 #endif

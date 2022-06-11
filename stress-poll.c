@@ -258,8 +258,7 @@ abort:
 			/* Exercise illegal poll timeout */
 			ts.tv_sec = 0;
 			ts.tv_nsec = 1999999999;
-			ret = ppoll(poll_fds, max_fds, &ts, &sigmask);
-			(void)ret;
+			VOID_RET(int, ppoll(poll_fds, max_fds, &ts, &sigmask));
 			if (!keep_stressing(args))
 				break;
 
@@ -278,8 +277,7 @@ abort:
 					if (setrlimit(RLIMIT_NOFILE, &new_rlim) == 0) {
 						ts.tv_sec = 0;
 						ts.tv_nsec = 0;
-						ret = ppoll(poll_fds, max_fds, &ts, &sigmask);
-						(void)ret;
+						VOID_RET(int, ppoll(poll_fds, max_fds, &ts, &sigmask));
 
 						(void)setrlimit(RLIMIT_NOFILE, &old_rlim);
 						if (!keep_stressing(args))

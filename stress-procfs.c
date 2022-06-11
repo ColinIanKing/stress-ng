@@ -127,14 +127,10 @@ static void stress_proc_mtrr(const int fd)
     defined(PCIIOC_CONTROLLER)
 static void stress_proc_pci(const int fd)
 {
-	int ret;
-
-	ret = ioctl(fd, PCIIOC_CONTROLLER);
-	(void)ret;
+	VOID_RET(int, ioctl(fd, PCIIOC_CONTROLLER));
 #if defined(PCIIOC_BASE)
 	/* EINVAL ioctl */
-	ret = ioctl(fd, PCIIOC_BASE | 0xff);
-	(void)ret;
+	VOID_RET(int, ioctl(fd, PCIIOC_BASE | 0xff));
 #endif
 }
 
@@ -242,11 +238,9 @@ static inline void stress_proc_rw(
 				ns_fd = ioctl(fd, NS_GET_PARENT);
 				if (ns_fd >= 0)
 					(void)close(ns_fd);
-				ret = ioctl(fd, NS_GET_NSTYPE);
-				(void)ret;
+				VOID_RET(int, ioctl(fd, NS_GET_NSTYPE));
 				/* The following returns -EINVAL */
-				ret = ioctl(fd, NS_GET_OWNER_UID, &uid);
-				(void)ret;
+				VOID_RET(int, ioctl(fd, NS_GET_OWNER_UID, &uid));
 			}
 		}
 #endif
@@ -338,8 +332,7 @@ static inline void stress_proc_rw(
 				pos = lseek(fd, offset, SEEK_SET);
 				if (pos == offset) {
 					/* Causes incorrect 2nd read */
-					ret = read(fd, buffer, sizeof(buffer));
-					(void)ret;
+					VOID_RET(ssize_t, read(fd, buffer, sizeof(buffer)));
 				}
 			}
 		}
@@ -363,8 +356,7 @@ static inline void stress_proc_rw(
 				seek_pos = lseek(fd, pos, SEEK_SET);
 				if (seek_pos < 0)
 					break;
-				ret = read(fd, buffer, 5);
-				(void)ret;
+				VOID_RET(ssize_t, read(fd, buffer, 5));
 
 				if (dec > pos)
 					dec = pos;
@@ -396,8 +388,7 @@ mmap_test:
 			/*
 			 *  ioctl(), bytes ready to read
 			 */
-			ret = ioctl(fd, FIONREAD, &nbytes);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, FIONREAD, &nbytes));
 		}
 		if (stress_time_now() - t_start > threshold) {
 			timeout = true;
@@ -414,8 +405,7 @@ mmap_test:
 			fds[0].events = POLLIN;
 			fds[0].revents = 0;
 
-			ret = poll(fds, 1, 0);
-			(void)ret;
+			VOID_RET(int, poll(fds, 1, 0));
 		}
 #endif
 
@@ -441,8 +431,7 @@ mmap_test:
 			goto next;
 		}
 
-		ret = read(fd, buffer, 1);
-		(void)ret;
+		VOID_RET(ssize_t, read(fd, buffer, 1));
 err:
 		(void)close(fd);
 		if (stress_time_now() - t_start > threshold) {
@@ -456,8 +445,7 @@ err:
 			 */
 			if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
 				return;
-			ret = write(fd, buffer, 0);
-			(void)ret;
+			VOID_RET(ssize_t, write(fd, buffer, 0));
 			(void)close(fd);
 		}
 
@@ -569,7 +557,6 @@ static void stress_proc_dir(
 				(void)stress_mk_filename(tmp, sizeof(tmp), path, d->d_name);
 				(void)shim_strlcpy(proc_path, tmp, sizeof(proc_path));
 				(void)shim_pthread_spin_unlock(&lock);
-
 
 				stress_proc_rw(ctxt, loops);
 				inc_counter(args);
@@ -746,8 +733,7 @@ static int stress_procfs(const stress_args_t *args)
 		pr_dbg("%s: spin lock failed for %s\n", args->name, proc_path);
 	} else {
 		shim_strlcpy(proc_path, "", sizeof(proc_path));
-		rc = shim_pthread_spin_unlock(&lock);
-		(void)rc;
+		VOID_RET(int, shim_pthread_spin_unlock(&lock));
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

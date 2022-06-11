@@ -72,16 +72,14 @@ static int stress_capgetset_pid(
 		 *  Exercise invalid pid -> EPERM
 		 */
 		uch.pid = INT_MIN;
-		ret = capset(&uch, ucd);
-		(void)ret;
+		VOID_RET(int, capset(&uch, ucd));
 
 		/*
 		 *  Exercise invalid version -> EINVAL
 		 */
 		uch.version = 0x1234dead;
 		uch.pid = pid;
-		ret = capset(&uch, ucd);
-		(void)ret;
+		VOID_RET(int, capset(&uch, ucd));
 	}
 #else
 	UNEXPECTED
@@ -92,8 +90,7 @@ static int stress_capgetset_pid(
 	 */
 	uch.version = 0x1234dead;
 	uch.pid = pid;
-	ret = capget(&uch, ucd);
-	(void)ret;
+	VOID_RET(int, capget(&uch, ucd));
 
 #if defined(_LINUX_CAPABILITY_VERSION_3)
 	/*
@@ -101,8 +98,7 @@ static int stress_capgetset_pid(
 	 */
 	uch.version = _LINUX_CAPABILITY_VERSION_3;
 	uch.pid = -pid;
-	ret = capget(&uch, ucd);
-	(void)ret;
+	VOID_RET(int, capget(&uch, ucd));
 #else
 	UNEXPECTED
 #endif
@@ -113,8 +109,7 @@ static int stress_capgetset_pid(
 	 */
 	uch.version = _LINUX_CAPABILITY_VERSION_3;
 	uch.pid = stress_get_unused_pid_racy(false);
-	ret = capget(&uch, ucd);
-	(void)ret;
+	VOID_RET(int, capget(&uch, ucd));
 #else
 	UNEXPECTED
 #endif
@@ -125,15 +120,13 @@ static int stress_capgetset_pid(
 #if defined(_LINUX_CAPABILITY_VERSION_2)
 	uch.version = _LINUX_CAPABILITY_VERSION_2;
 	uch.pid = pid;
-	ret = capget(&uch, ucd);
-	(void)ret;
+	VOID_RET(int, capget(&uch, ucd));
 #endif
 
 #if defined(_LINUX_CAPABILITY_VERSION_1)
 	uch.version = _LINUX_CAPABILITY_VERSION_1;
 	uch.pid = pid;
-	ret = capget(&uch, ucd);
-	(void)ret;
+	VOID_RET(int, capget(&uch, ucd));
 #endif
 
 	uch.version = ~0U;

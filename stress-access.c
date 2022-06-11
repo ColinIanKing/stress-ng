@@ -207,15 +207,13 @@ static int stress_access(const stress_args_t *args)
 			 *  first choice if it is possible.
 			 */
 			for (j = 0; j < SIZEOF_ARRAY(access_flags); j++) {
-				ret = shim_faccessat(AT_FDCWD, filename, modes[i].access_mode, access_flags[j]);
-				(void)ret;
+				VOID_RET(int, shim_faccessat(AT_FDCWD, filename, modes[i].access_mode, access_flags[j]));
 			}
 
 			/*
 			 *  Exercise bad dir_fd
 			 */
-			ret = shim_faccessat(bad_fd, filename, modes[i].access_mode, 0);
-			(void)ret;
+			VOID_RET(int, shim_faccessat(bad_fd, filename, modes[i].access_mode, 0));
 #else
 	UNEXPECTED
 #endif
@@ -233,9 +231,8 @@ static int stress_access(const stress_args_t *args)
 			/*
 			 *  Exercise bad dir_fd
 			 */
-			ret = faccessat2(bad_fd, filename, modes[i].access_mode,
-				AT_SYMLINK_NOFOLLOW);
-			(void)ret;
+			VOID_RET(int, faccessat2(bad_fd, filename, modes[i].access_mode,
+				AT_SYMLINK_NOFOLLOW));
 #else
 			/* UNEXPECTED */
 #endif

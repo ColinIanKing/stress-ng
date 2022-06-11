@@ -159,13 +159,12 @@ again:
 #if defined(SIOCOUTQ)
 			/* Occasionally exercise SIOCINQ */
 			if ((pkt.data & 0xff) == 0) {
-				int ret, queued;
+				int queued;
 
 				if (!keep_stressing(args))
 					break;
 
-				ret = ioctl(fd, SIOCOUTQ, &queued);
-				(void)ret;
+				VOID_RET(int, ioctl(fd, SIOCOUTQ, &queued));
 			}
 #endif
 		}
@@ -219,13 +218,12 @@ again:
 #if defined(SIOCINQ)
 			/* Occasionally exercise SIOCINQ */
 			if ((pkt.data & 0xff) == 0) {
-				int ret, queued;
+				int queued;
 
 				if (!keep_stressing(args))
 					break;
 
-				ret = ioctl(fd, SIOCINQ, &queued);
-				(void)ret;
+				VOID_RET(int, ioctl(fd, SIOCINQ, &queued));
 			}
 #endif
 			inc_counter(args);
