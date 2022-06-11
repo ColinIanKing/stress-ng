@@ -28,5 +28,5 @@ int main(int argc, char **argv)
 	uint32_t u32 = __builtin_bitreverse32(r & 0xffffffffUL);
 	uint64_t u64 = __builtin_bitreverse64(r);
 
-	return 0;
+	return (int)u64 | (int)u32 | (int)u16 | (int)u8;
 }
