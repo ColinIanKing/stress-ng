@@ -55,7 +55,9 @@ parts:
             - libatomic1
             - libjudy-dev
             - libjpeg-dev
-            - try: [libipsec-mb-dev, libkmkod-dev]
+            - try: [libipsec-mb-dev, libkmkod-dev, libglvnd-dev, libgbm-dev]
+            - try: [ibattr1-dev, libxxhash-dev]
+
 apps:
     stress-ng:
         plugs: [ home, log-observe, system-observe, hardware-observe, system-trace, hardware-random-observe ]
