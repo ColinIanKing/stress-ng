@@ -104,9 +104,11 @@ static int stress_swap_supported(const char *name)
  */
 static int stress_swapoff(const char *path)
 {
-	int ret, i;
+	int i;
 
 	for (i = 0; i < 25; i++) {
+		int ret;
+
 		errno = 0;
 		ret = swapoff(path);
 		if (ret == 0)
