@@ -380,7 +380,6 @@ static bool stress_lock_valid(stress_lock_t *lock)
 void *stress_lock_create(void)
 {
 	stress_lock_t *lock;
-	int ret;
 
 	errno = ENOMEM;
 	if (LOCK_METHOD_ALL == (0))
@@ -441,8 +440,7 @@ void *stress_lock_create(void)
 	if (lock->init(lock) == 0)
 		return lock;
 
-	ret = stress_lock_destroy(lock);
-	(void)ret;
+	VOID_RET(int, stress_lock_destroy(lock));
 
 	return NULL;
 

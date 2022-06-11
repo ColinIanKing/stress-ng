@@ -133,7 +133,7 @@ void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
 		return;
 	while (fgets(buf, sizeof(buf), fp)) {
 		void *start, *end, *offset;
-		int major, minor, n, ret;
+		int major, minor, n;
 		uint64_t inode;
 		char prot[5];
 
@@ -145,8 +145,7 @@ void stress_madvise_pid_all_pages(const pid_t pid, const int advise)
 		if (start >= end)
 			continue;	/* invalid address range */
 
-		ret = madvise(start, (size_t)((uint8_t *)end - (uint8_t *)start), advise);
-		(void)ret;
+		VOID_RET(int, madvise(start, (size_t)((uint8_t *)end - (uint8_t *)start), advise));
 
 		/*
 		 *  Readable protection? read pages

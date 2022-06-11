@@ -27,12 +27,10 @@ static void stress_try_kill(
 	int i;
 
 	for (i = 0; i < 10; i++) {
-		int ret, status;
+		int status;
 
-		ret = kill(pid, SIGKILL);
-		(void)ret;
-		ret = waitpid(pid, &status, WNOHANG);
-		(void)ret;
+		VOID_RET(int, kill(pid, SIGKILL));
+		VOID_RET(int, waitpid(pid, &status, WNOHANG));
 		if ((kill(pid, 0) < 0) && (errno == ESRCH))
 			return;
 		(void)shim_usleep(100000);

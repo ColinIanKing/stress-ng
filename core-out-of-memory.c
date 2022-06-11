@@ -225,7 +225,6 @@ again:
 		int status, ret;
 
 		(void)setpgid(pid, g_pgrp);
-
 rewait:
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -318,8 +317,7 @@ rewait:
 
 		/* Explicitly drop capabilities, makes it more OOM-able */
 		if (flag & STRESS_OOMABLE_DROP_CAP) {
-			ret = stress_drop_capabilities(args->name);
-			(void)ret;
+			VOID_RET(int, stress_drop_capabilities(args->name));
 		}
 		if (!keep_stressing(args))
 			_exit(EXIT_SUCCESS);

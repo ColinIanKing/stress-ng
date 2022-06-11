@@ -156,8 +156,7 @@ int stress_module_unload(
 			pr_dbg("%s: cannot unload %s, it is in use\n",
 				name, module_name);
 		}
-		ret = stress_module_unload_mod_and_deps(mod);
-		(void)ret;
+		VOID_RET(int, stress_module_unload_mod_and_deps(mod));
 	}
 
 	kmod_module_unref_list(list);

@@ -266,7 +266,6 @@ void stress_ftrace_add_pid(const pid_t pid)
 	char *path;
 	char buffer[32];
 	int fd;
-	ssize_t ret;
 
 	if (!(g_opt_flags & OPT_FLAGS_FTRACE))
 		return;
@@ -284,8 +283,7 @@ void stress_ftrace_add_pid(const pid_t pid)
 	} else {
 		snprintf(buffer, sizeof(buffer), "%" PRIdMAX , (intmax_t)pid);
 	}
-	ret = write(fd, buffer, strlen(buffer));
-	(void)ret;
+	VOID_RET(ssize_t, write(fd, buffer, strlen(buffer)));
 	(void)close(fd);
 }
 

@@ -712,12 +712,7 @@ void stress_vmstat_start(void)
 #endif
 
 #if defined(SCHED_DEADLINE)
-	{
-		int ret;
-
-		ret = stress_set_sched(getpid(), SCHED_DEADLINE, 99, true);
-		(void)ret;
-	}
+	VOID_RET(int, stress_set_sched(getpid(), SCHED_DEADLINE, 99, true));
 #endif
 
 	while (keep_stressing_flag()) {

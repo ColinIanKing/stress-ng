@@ -1087,10 +1087,7 @@ int shim_brk(void *addr)
 #if defined(__APPLE__)
 	return (int)brk(addr);
 #elif defined(__NR_brk)
-	int ret;
-
-	ret = (int)syscall(__NR_brk, addr);
-	(void)ret;
+	VOID_RET(int, (int)syscall(__NR_brk, addr));
 	return (errno == 0) ? 0 : ENOMEM;
 #elif defined(HAVE_BRK)
 	return brk(addr);

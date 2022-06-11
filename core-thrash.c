@@ -61,10 +61,8 @@ int stress_pagein_self(const char *name)
 
 	jmp_env_set = false;
 
-	ret = stress_sighandler(name, SIGBUS, stress_pagein_handler, &bus_action);
-	(void)ret;
-	ret = stress_sighandler(name, SIGSEGV, stress_pagein_handler, &segv_action);
-	(void)ret;
+	VOID_RET(int, stress_sighandler(name, SIGBUS, stress_pagein_handler, &bus_action));
+	VOID_RET(int, stress_sighandler(name, SIGSEGV, stress_pagein_handler, &segv_action));
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret == 1)
@@ -181,13 +179,11 @@ static int stress_pagein_proc(const pid_t pid)
 		for (off = begin; thrash_run && (off < end); off += page_size) {
 			unsigned long data;
 			off_t pos;
-			ssize_t sz;
 
 			pos = lseek(fdmem, (off_t)off, SEEK_SET);
 			if (pos != (off_t)off)
 				continue;
-			sz = read(fdmem, &data, sizeof(data));
-			(void)sz;
+			VOID_RET(ssize_t, read(fdmem, &data, sizeof(data)));
 		}
 	}
 
@@ -205,13 +201,10 @@ exit_fdmem:
 static inline void stress_compact_memory(void)
 {
 #if defined(__linux__)
-	ssize_t ret;
-
 	if (!thrash_run)
 		return;
 
-	ret = system_write("/proc/sys/vm/compact_memory", "1", 1);
-	(void)ret;
+	VOID_RET(ssize_t, system_write("/proc/sys/vm/compact_memory", "1", 1));
 #endif
 }
 
@@ -222,7 +215,6 @@ static inline void stress_compact_memory(void)
 static inline void stress_zone_reclaim(void)
 {
 #if defined(__linux__)
-	ssize_t ret;
 	char mode[2];
 
 	if (!thrash_run)
@@ -231,8 +223,7 @@ static inline void stress_zone_reclaim(void)
 	mode[0] = '0' + (stress_mwc8() & 7);
 	mode[1] = '\0';
 
-	ret = system_write("/proc/sys/vm/zone_reclaim_mode", mode, 1);
-	(void)ret;
+	VOID_RET(ssize_t, system_write("/proc/sys/vm/zone_reclaim_mode", mode, 1));
 #endif
 }
 
@@ -245,13 +236,11 @@ static inline void stress_slab_shrink(void)
 	DIR *dir;
 	struct dirent *d;
 	static const char slabpath[] = "/sys/kernel/slab";
-	ssize_t ret;
 
 	/*
 	 *  older shrink interface, may fail
 	 */
-	ret = system_write("/sys/kernel/slab/cache/shrink", "1", 1);
-	(void)ret;
+	VOID_RET(ssize_t, system_write("/sys/kernel/slab/cache/shrink", "1", 1));
 
 	dir = opendir(slabpath);
 	if (!dir)
@@ -265,8 +254,7 @@ static inline void stress_slab_shrink(void)
 			char path[PATH_MAX];
 
 			(void)snprintf(path, sizeof(path), "%s/%s", slabpath, d->d_name);
-			ret = system_write(path, "1", 1);
-			(void)ret;
+			VOID_RET(ssize_t, system_write(path, "1", 1));
 		}
 	}
 	(void)closedir(dir);
@@ -281,14 +269,11 @@ static inline void stress_drop_caches(void)
 #if defined(__linux__)
 	static int method = 0;
 	char str[3];
-	ssize_t ret;
 
 	str[0] = '1' + (char)method;
 	str[1] = '\0';
 
-	ret = system_write("/proc/sys/vm/drop_caches", str, 1);
-	(void)ret;
-
+	VOID_RET(ssize_t, system_write("/proc/sys/vm/drop_caches", str, 1));
 	if (method++ >= 2)
 		method = 0;
 #endif
@@ -301,13 +286,10 @@ static inline void stress_drop_caches(void)
 static inline void stress_merge_memory(void)
 {
 #if defined(__linux__)
-	ssize_t ret;
-
 	if (!thrash_run)
 		return;
 
-	ret = system_write("/proc/sys/mm/ksm/run", KSM_RUN_MERGE, 1);
-	(void)ret;
+	VOID_RET(ssize_t, system_write("/proc/sys/mm/ksm/run", KSM_RUN_MERGE, 1));
 #endif
 }
 
@@ -371,10 +353,7 @@ int stress_thrash_start(void)
 		return -1;
 	} else if (thrash_pid == 0) {
 #if defined(SCHED_RR)
-		int ret;
-
-		ret = stress_set_sched(getpid(), SCHED_RR, 10, true);
-		(void)ret;
+		VOID_RET(int, stress_set_sched(getpid(), SCHED_RR, 10, true));
 #endif
 		stress_set_proc_name("stress-ng-thrash");
 		if (stress_sighandler("main", SIGALRM, stress_thrash_handler, NULL) < 0)
