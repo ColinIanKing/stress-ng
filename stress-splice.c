@@ -77,6 +77,8 @@ static int stress_splice_pipe_size(const int fd)
 
 	return fcntl(fd, F_SETPIPE_SZ, pipe_size);
 #else
+	(void)fd;
+
 	return 0;
 #endif
 }
