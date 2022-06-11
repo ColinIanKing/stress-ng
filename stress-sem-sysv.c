@@ -478,7 +478,7 @@ timed_out:
 			/*
 			 *  Exercise invalid nsops, E2BIG
 			 */
-			VOID_RET(int, semop(sem_id, &semwait, (size_t)-1));
+			VOID_RET(int, semop(sem_id, &semwait, -1));
 		}
 
 		/*
