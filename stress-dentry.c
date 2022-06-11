@@ -180,7 +180,7 @@ err:
  */
 static void stress_dentry_misc(const char *path)
 {
-	int fd, flags = O_RDONLY, ret;
+	int fd, flags = O_RDONLY;
 	struct stat statbuf;
 #if defined(HAVE_UTIME_H)
 	struct utimbuf utim;
@@ -255,9 +255,13 @@ static void stress_dentry_misc(const char *path)
 	/*
 	 *  flock capable systems..
 	 */
-	ret = flock(fd, LOCK_EX);
-	if (ret == 0) {
-		VOID_RET(int, flock(fd, LOCK_UN));
+	{
+		int ret;
+
+		ret = flock(fd, LOCK_EX);
+		if (ret == 0) {
+			VOID_RET(int, flock(fd, LOCK_UN));
+		}
 	}
 #elif defined(F_SETLKW) &&	\
       defined(F_RDLCK) &&	\
@@ -267,6 +271,7 @@ static void stress_dentry_misc(const char *path)
 	 */
 	{
 		struct flock lock;
+		int ret;
 
 		lock.l_start = 0;
 		lock.l_len = 0;
