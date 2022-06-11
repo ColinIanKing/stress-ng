@@ -245,7 +245,7 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			if (ret < 0) {
 				if (errno == EAGAIN)
 					continue;
-				if (errno == ENOMEM)
+				if ((errno == ENOMEM) || (errno == EPERM))
 					break;
 				pr_fail("%s: mlock failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
