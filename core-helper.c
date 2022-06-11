@@ -1111,17 +1111,46 @@ void stress_strnrnd(char *str, const size_t len)
 }
 
 /*
+ *  stress_little_endian()
+ *	returns true if CPU is little endian
+ */
+bool stress_little_endian(void)
+{
+	const uint32_t x = 0x12345678;
+	const uint8_t *y = (const uint8_t *)&x;
+
+	return *y == 0x78;
+}
+
+static inline uint32_t OPTIMIZE3 stress_swap32(uint32_t val)
+{
+	register uint32_t swap;
+
+	swap = ((val >> 24) & 0x000000ff) |
+	       ((val << 8)  & 0x00ff0000) |
+	       ((val >> 8)  & 0x0000ff00) |
+	       ((val << 24) & 0xff000000);
+
+	return swap;
+}
+
+/*
  *  stress_uint8rnd4()
  *	fill a uint8_t buffer full of random data
  *	buffer *must* be multiple of 4 bytes in size
  */
-void stress_uint8rnd4(uint8_t *data, const size_t len)
+void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 {
 	register uint32_t *ptr32 = (uint32_t *)data;
 	register uint32_t *ptr32end = (uint32_t *)(data + len);
 
-	while (ptr32 < ptr32end)
-		*ptr32++ = stress_mwc32();
+	if (stress_little_endian()) {
+		while (ptr32 < ptr32end)
+			*ptr32++ = stress_mwc32();
+	} else {
+		while (ptr32 < ptr32end)
+			*ptr32++ = stress_swap32(stress_mwc32());
+	}
 }
 
 /*

@@ -57,18 +57,6 @@ static const stress_help_t help[] = {
 static stress_hash_method_info_t hash_methods[];
 
 /*
- *  stress_hash_little_endian()
- *	returns true if CPU is little endian
- */
-static inline bool stress_hash_little_endian(void)
-{
-	const uint32_t x = 0x12345678;
-	const uint8_t *y = (const uint8_t *)&x;
-
-	return *y == 0x78;
-}
-
-/*
  *  stress_hash_generic()
  *	stress test generic string hash function
  */
@@ -84,7 +72,7 @@ static void stress_hash_generic(
 	double sum = 0.0, n, m, divisor;
 	uint32_t i_sum = 0;
 	size_t i;
-	const uint32_t result = stress_hash_little_endian() ? le_result: be_result;
+	const uint32_t result = stress_little_endian() ? le_result: be_result;
 	stress_hash_stats_t *stats = hmi->stats;
 	double t1, t2;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
@@ -413,7 +401,7 @@ static void stress_hash_method_coffin32(
 	const struct stress_hash_method_info *hmi,
 	const stress_bucket_t *bucket)
 {
-	const stress_hash_func wrapper = stress_hash_little_endian() ?
+	const stress_hash_func wrapper = stress_little_endian() ?
 		stress_hash_coffin32_wrapper_le :
 		stress_hash_coffin32_wrapper_be;
 
