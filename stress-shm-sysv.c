@@ -304,14 +304,13 @@ static int get_bad_shmid(const stress_args_t *args)
 static void exercise_shmctl(const size_t sz, const stress_args_t *args)
 {
 	key_t key;
-	int shm_id, ret;
+	int shm_id;
 #if !defined(STRESS_ARCH_M68K)
 	const int bad_shmid = get_bad_shmid(args);
 #endif
 
 	/* Get a unique random key */
 	key = (key_t)stress_mwc16();
-
 
 	shm_id = shmget(key, sz, IPC_CREAT);
 	if (shm_id < 0)
@@ -336,6 +335,7 @@ static void exercise_shmctl(const size_t sz, const stress_args_t *args)
     defined(HAVE_SHMID_DS)
 	{
 		struct shmid_ds buf;
+		int ret;
 
 		ret = shmctl(shm_id, IPC_STAT, &buf);
 		if ((ret >= 0) && (errno == 0))
