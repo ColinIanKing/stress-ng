@@ -173,7 +173,7 @@ static int stress_fork_fn(
 				 */
 				if (setsid() != (pid_t) -1)
 					shim_vhangup();
-				if (vm) {
+				if ((which == STRESS_FORK) && vm) {
 					int flags = 0;
 
 #if defined(MADV_MERGEABLE)
