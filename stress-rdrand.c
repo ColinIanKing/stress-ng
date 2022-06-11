@@ -128,7 +128,7 @@ static inline uint32_t rand64(void)
 {
 	uint32_t        ret;
 
-	__asm__ volatile__("1:;\n\
+	__asm__ __volatile__("1:;\n\
 	rdrand %0;\n\
 	jnc 1b;\n":"=r"(ret));
 
