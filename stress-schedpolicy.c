@@ -159,7 +159,7 @@ static int stress_schedpolicy(const stress_args_t *args)
 			VOID_RET(int, sched_setscheduler(pid, new_policy, &param));
 
 			param.sched_priority = 0;
-			VOID_RET(int, sched_setscheduler(pid, new_policy, &param));
+			ret = sched_setscheduler(pid, new_policy, &param);
 
 			break;
 #if defined(SCHED_RR)
