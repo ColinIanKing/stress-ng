@@ -211,10 +211,10 @@ static int pr_msg_lockable(
 		if (g_opt_flags & OPT_FLAGS_LOG_BRIEF) {
 			size_t n = (size_t)vsnprintf(buf, sizeof(buf), fmt, ap);
 			if (log_file) {
-				(void)fwrite(buf, 1, n, log_file);
+				VOID_RET(size_t, fwrite(buf, 1, n, log_file));
 				(void)fflush(log_file);
 			}
-			(void)fwrite(buf, 1, n, fp);
+			VOID_RET(size_t, fwrite(buf, 1, n, fp));
 		} else {
 			size_t n = (size_t)snprintf(buf, sizeof(buf), "%s%s [%d] ",
 				ts, type, (int)getpid());
