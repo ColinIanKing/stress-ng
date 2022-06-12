@@ -561,7 +561,6 @@ dist:
 	rm -rf stress-ng-$(VERSION)
 	mkdir stress-ng-$(VERSION)
 	cp -rp Makefile Makefile.config $(SRC) $(HEADERS) stress-ng.1 \
-		core-personality.c core-io-uring.c \
 		COPYING syscalls.txt mascot README.md Dockerfile \
 		README.Android test snap presentations .github \
 		TODO core-perf-event.c usr.bin.pulseaudio.eg \
