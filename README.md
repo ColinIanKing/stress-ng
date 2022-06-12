@@ -456,6 +456,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [An Empirical Study of Thermal Attacks on Edge Platforms](https://digitalcommons.kennesaw.edu/cgi/viewcontent.cgi?article=1590&context=undergradsymposiumksu)
 * [Subverting Linux’ Integrity Measurement Architecture](https://svs.informatik.uni-hamburg.de/publications/2020/2020-08-27-Bohling-IMA.pdf)
 * [Quantifying the Interaction Between Structural Properties of Software and Hardware in the ARM Big.LITTLE Architecture](https://research.abo.fi/ws/files/26568716/QuantifyingInteraction.pdf)
+* [Introducing k4.0s: a Model for Mixed-Criticality Container Orchestration in Industry 4.0 ](https://arxiv.org/pdf/2205.14188.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
