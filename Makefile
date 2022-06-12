@@ -17,12 +17,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.14.01
+VERSION=0.14.02
 #
 # Codename "jubilant jumping leporid"
 #
 
-CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O3 -std=gnu99
+CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
 
 #
 # Pedantic flags
