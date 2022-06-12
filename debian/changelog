@@ -1,3 +1,349 @@
+stress-ng (0.14.02-1) unstable; urgency=medium
+
+  [Aleksandar N. Kostadinov]
+  * README.md: alpine and container instructions
+  * build container image
+
+  [Dorinda Bassey]
+  * stress-gpu: Add GPU stressor
+
+  [Iyán Méndez Veiga]
+  * Enable getrandom test on FreeBSD
+
+  [Mayuresh Chitale]
+  * stress-malloc: Fix for issue #201
+
+  [Colin Ian King]
+  * Makefile: bump version and drop O3 to O2
+  * README.md: Add another paper citation
+  * core-log: use VOID_RET on fwrite returns to clean up warning on
+    Oracle Linux
+  * stress-splice: voidify unused arg fd
+  * stress-mlock: handle EPERM failure on Solaris
+  * stress-get: voidify pid to clear up Nixos build warning
+  * stress-memfd: cater for EINVAL on some BSD flavours
+  * stress-sem-sysv: remove size_t cast on semop arg -1
+  * stress-fork: don't touch VM in vfork mode
+  * stress-schedpolicy: undo voidify on schedpolicy call
+  * test/test-builtin-bitreverse: access variables to clean up cppcheck
+    warning
+  * stress-swap: move variable ret to a deeper scope
+  * stress-shm-sysv: move variable ret to a deeper scope
+  * stress-dentry: move variable ret to deeper scope
+  * stress-copyfile: move variables n, bytes_in, bytes_out to deeper scope
+  * stress-binderfs: move ret to deeper scope
+  * core-helper: add little endian check and 32 bit endian swapping
+  * stress-rdrand: fix missing __ before volatile
+  * Makefile.config: add extra check for compilation and linking
+  * snapcraft: add in more dependencies
+  * Makefile: define header variables for required dependencies
+  * stress-fiemap: declare counter_lock only when it is required
+  * stress-affinity: declare counter_lock only when it is required
+  * stress-set: setgroups size arg maybe int or size_t, use int as type
+  * core-*: use VOID_RET for return voidifications
+  * stress-*: use VOID_RET for return voidifications
+  * debian/control: add gpu stressor debian library dependencies
+  * core-shim: constify stime prototype argument
+  * stress-ng.h: move VOID_RET from stress-sockabuse to main header
+  * Makefile: redirect apparmor parser output to /dev/null
+  * stress-sigpipe: remove return from no-return function
+  * core-out-of-memory: clean up name shadowing warning on variable ret
+  * Clean up some more tcc warnings, minor changes
+  * core-io-priority: return int from stress_get_opt_ionice_class on
+    exit()
+  * stress-ng: disable fortified source #define for tcc
+  * stress-quota: minor type conversion clean ups
+  * stress-splice: make flags unsigned int, clean up type warnings
+  * stress-zlib: clean up some implicit type cast warnings
+  * stress-zlib: annotate non-return function with NORETURN
+  * stress-tree: fix for-loop initializer for i, replace ; with ,
+  * stress-timerfd: clean up some implicit type cast warnings
+  * stress-tee: clean up some implicit type cast warnings
+  * stress-syncload: clean up some implicit type cast warnings, make a
+    bool static
+  * stress-sockdiag: clean up some implicit type cast warnings
+  * stress-set: clean up some implicit type cast warnings
+  * stress-sem-sysv: clean up some implicit cast warnings
+  * stress-seccomp: clean up implicit cast warnings, remove unused macro
+  * stress-resources: cast size to off_t, add some struct padding
+  * stress-fanotify: add Linux 5.19 FAN_MARK_EVICTABLE
+  * core-out-of-memory: pass the error status back to parent
+  * stress-switch: ensure sem_id is initialized to -1
+  * stress-swap: use uint32_t for swap size as this is the max limit
+  * stress-rtc: clean up implicit type cast warning
+  * stress-sparsematrix: clean up implicit type casts, optimize struct
+    packing
+  * stress-softlockup: add parentheses to mark code as explicitly dead
+  * stress-sock: cast -1 to socklen_t in setsockopt call
+  * stress-sigsegv: use uintptr_t cast for pointer math
+  * stress-secretmem: make offset variable sz an off_t
+  * stress-resched: clean up type cast warnings
+  * stress-randlist: clean up casting issues, use mwc random numbers
+  * stress-prefetch: clean up implicit cast warnings
+  * stress-opcode: clean up unused macro warnings
+  * stress-wait: rename _ prefixed function, prefix it with syscall
+  * stress-vm-rw: use macro MAX_VM_RW_BYTES, cast pointers to void *
+  * stress-vforkmany: remove redundant goto after exit call
+  * stress-vecwide: clean up implicit type cast warnings
+  * stress-usersyscall: clean up implicit type cast warnings
+  * stress-unshare: fix type of clone_flag_count, it should be size_t
+  * stress-zlib: use __asm__ __volatile__ instead of asm volatile
+  * stress-smi: clean up implicit type cast warnings
+  * stress-clone: remove macro CLONE_STACK_SIZE and break statement
+  * stress-ptrace: clean up implicit type cast warnings
+  * stress-prctl: fix implicit type conversion warnings
+  * stress-physpage: clean up implicit type cast warnings
+  * stress-pageswap: clean up pedantic build warnings
+  * stress-null: cast uint32_t from random value to int
+  * stress-mutex: make mutex variable static
+  * stress-msyncmany: clean up some implicit type casts
+  * stress-exec: don't use execve for absolute path without full path
+    prefix
+  * stress-ng: make --exec-exit exit with success
+  * Makefile: don't limit inlining max sizes for ICC toolchain
+  * stress-open: remove inline from two helper functions
+  * stress-aio: remove inline from aio_fill_buffer
+  * stress-bad-altstack: remove inline from
+    stress_bad_altstack_force_fault
+  * stress-numa: remove inline from single use helper function
+  * stress-open: remove duplicated declaration of variable i, cleans
+    up name shadowing
+  * stress-touch: rename array touch_method to touch_methods
+  * stress-x86syscall: clean up implicit cast warnings
+  * stress-x86syscall: rename ___ prefixed array
+  * stress-x86syscall: rename variables to remove _ prefix
+  * stress-vm: use MAX_VM_BYTES for maximum VM limit size
+  * stress-verity: remove __ prefix off reserved
+  * stress-usersyscall: user __asm__ __volatile__ instead of asm volatile
+  * stress-tsc: use __asm__ __volatile__ instead of asm volatile
+  * stress-syncload: use __asm__ __volatile__ instead of asm volatile
+  * stress-sigtrap: use __asm__ __volatile__ instead of asm
+  * stress-reboot: exercise SHIM_LINUX_REBOOT_CMD_SW_SUSPEND with
+    incorrect magic
+  * stress-rdrand: clean up some implicit cast warnings
+  * stress-rdrand: use __asm__ __volatile__ instead of asm volatile
+  * stress-peterson: make peterson object static, move bools in struct
+    to remove struct hole
+  * stress-pci: add NORETURN attribute to handler that does not return
+  * stress-nop: make some objects static, remove extraneous ; after macro
+  * stress-msync: use MAX_MSYNC_BYTES for the maximum limit
+  * stress-msg: cast size -1 to size_t
+  * stress-mremap: use MAX_MREMAP_BYTES for limit, remove duplicated
+    DEFAULT_MREMAP_BYTES
+  * stress-mq: add explicit type cast for max_prio
+  * stress-mprotect: clean up some integer type warnings on implicit casts
+  * stress-mmapmany: cast ptr to void * for printing address
+  * stress-mmaphuge: make size size_t to match mmap size argument
+  * stress-mmapfixed: cast len to ssize_t to clean up implicit cast
+    warning
+  * stress-mmap: cast size parameter to off_t, clean up implicit cast
+  * stress-mmap: use MAX_MMAP_BYTES for the maximum mapping size
+  * stress-mmap: clean up shadowing of variable rnd
+  * stress-mmap: clean up variable shadowing of variable ret
+  * stress-mincore: remove redundant macro VEC_MAX_SIZE
+  * README.md: Add another kernel optimization reference
+  * Makefle: disable pedantic build warning
+  * stress-memrate: cast i to int to clean up implicit cast warning
+  * stress-memfd: clean up implicit cast on size and remove unused macro
+    MAX_MEMFD_BYTES
+  * stress-mcontend: use __asm__ __volatile__ for asm volatile
+  * stress-memcontend: use shim_mb inline function for memory barrier
+  * stress-malloc: cast addr to void * for printf %p format
+  * stress-madvise: clean up some implicit cast warnings
+  * stress-loop: rename __reserved to reserved to remove __ prefix
+  * stress-lockofd: remove redundant macro LOCK_SIZE
+  * stress-locka: remove redundant macro LOCK_SIZE
+  * stress-loadavg: make instances same type as args->instances
+  * stress-link: clean up implicit cast warnings
+  * stress-itimer: clean up implicit cast warning
+  * stress-iomix: clean up a handful of implicit cast warnings
+  * stress-hrtimes: clean up some implicit cast warnings
+  * stress-hdd: use uint64_t for offset rather than size_t
+  * stress-hash: make hash_stats static, clear up implicit cast warning
+  * stress-gpu: clean up some implicit casting warnings
+  * stress-get: cast pid to id_t for getpriority call
+  * stress-futex: use long type for nanoseconds to match timespec struct
+  * stress-fstat: ensure unsigned flag parameter is correct type
+  * stress-fpunch: clear up implicit cast warnings
+  * stress-fpunch: add NORETURN annotation to handler that calls _exit
+  * stress-fcntl: use size_t type for setfl_flag_count
+  * stress-fanotify: use correct type for flags
+  * stress-fallocate: use correct type for i and remove shadowed variable
+  * stress-enosys: clean up syscall arg types and use __asm__
+    __volatile__
+  * stress-dirmany: remove unused macro DEFAULT_DIRMANY_BYTES
+  * stress-dirmany: fix type of i_start parameter, should be uint64_t
+  * stress-dirdeep: remove unused macro and cast int to a char
+  * stress-dev: cast -1 to unsigned int
+  * stress-dev: fix BLKROSET ioctl, missing fd and pass by ref
+  * stress-cpu: clean up some implicit type casting warnings with
+    explicit casting
+  * core-builtin: case complex arg in shim'd csin/ccos to double
+  * stress-cpu: rename _ prefixed macro with STRESS_ prefix
+  * stress-copy-file: clean up some implicit type cast warnings
+  * stress-clone: clean up some implicit type cast warnings
+  * stress-chmod: make mode_count and mode_perms non-static
+  * stress-chattr: clean up some type casting warnings
+  * stress-cache: clean up some implicit type casts
+  * stress-bad-ioctl: cast int to uint16_t to clean up implicit casting
+  * stress-alarm: add explicit type casts to avoid any type conversion
+    warnings
+  * stress-aio-linux: add explicit type casts to avoid any type
+    conversion warnings
+  * stress-ng: include core-put.h for global put storage
+  * stress-ng: use size_t for string pointer length
+  * stress-ng: explicitly cast pid_t to pid arg in kill call
+  * stress-ng.h: forgot to check in changes in statx and pkey_alloc shims
+  * stress-affinity: move bools in struct for better packing
+  * core-thrash: clean up some type warning issues
+  * core-smart: add explicit type casts to avoid any type conversion
+    warnings
+  * core-shim/stress-pkey: add explicit type casts to avoid any type
+    conversion warnings
+  * stress-ng.h: make stats a flexible array rather than a zero length
+    array
+  * core-module: use correct type for flags parameter
+  * core-locks: add ( ) around 0 to silence clang pedantic warning
+  * core-helper: add explicit type casts to avoid any type conversion
+    warnings
+  * core-hash: add explicit type casts to avoid any type conversion
+    warnings
+  * stress-ng: use __asm__ __volatile__ instead of asm volatile
+  * stress-ng.h: add some more struct padding
+  * stress-landlock: add in some missing type casts
+  * core-perf: replace _SNG_ macro prefix with STRESS_
+  * core-cache: remove need for variable sized arrays on stack
+  * Makefile.config: add memory barrier asm build time support check
+  * stress-ng.h: add struct padding to keep alignments naturally aligned
+  * stress-ng: move two bools together to pack stress_stats_t more
+    efficiently
+  * stress-jpeg: tidy up some type conversion casting
+  * stress-ng.h: add all args to deprecated function prototypes
+  * stress-futex: zero futex with memset rather than set all fields
+  * stress-ng.h: rename __ prefixed variables as these are reserved
+    prefix chars
+  * Manual: remove racy counter notes now that these are fixed
+  * stress-malloc: clean up racy comment
+  * stress-fiemap: replace racy counters with fast locking counters
+  * stress-affinity: replace racy counters with fast locking counters
+  * stress-malloc: replace racy counters with fast locking counters
+  * stress-zlib: add a ror32 random data generator
+  * core-helper: use register vars in stress_flag_permutation
+  * core-helper: use builtin sqrt shim for prime computation
+  * core-helper: optimize stress_uint8rnd4 a little more
+  * stress-oom-pipe: fill pages so kernel page compaction works harder
+  * stress-memfd: fill pages so kernel page compaction works harder
+  * stress-dev: voidify function args for non-x86 builds
+  * core-thrash: make fpmap non-clobberable by longjmp
+  * stress-mprotect: cast ptr to void * to clean up OpenHipster warnings
+  * stress-mmap: cast mmap return to uint8_t * to clean up OpenHipster
+    warnings
+  * stress-touch: remove the need for pthreads
+  * stress-touch: use generic stress-ng locks rather than spinlock
+  * core-lock: add more pthread mutex build time checks
+  * stress-rawsock: remove PTHREAD dependency, move rawsock_lock
+  * stress-mprotect: handle SIGBUS for OS X
+  * core-thrash: implement no-op stress_pagein_self for non-Linux systems
+  * stress-touch: use shim version of unlink
+  * stress-open: use shim version of unlink and rmdir
+  * stress-open: use open_arg2/3 helpers, remove debug
+  * stress-ng: only destroy perf.lock if perf stats are enabled
+  * README.md: Add NUMA performance regression link
+  * core-helper: replace whitespaces with tabs
+  * stress-memfd: allocate file space with fallocate
+  * stress-resources: allocate memory using fallocate on memory fd
+  * core-lock: add generic locking API
+  * stress-inode-flags: clear all inode flags to enable tmp file deletion
+  * stress-timerfd: add linux check to ioctl #define, use uint64_t as type
+  * stress-dentry: remove empty line
+  * stress-clock: move random seed setting to match stress-ng coding style
+  * Manual: update contributors list
+  * stress-zlib: add 5 bit GCR encoded random data method
+  * stress-gpu: remove empty line
+  * stress-gpu: use stress-ng variable declaration style
+  * stress-gpu: minor formatting tweaks to match stress-ng coding style
+  * stress-gpu: update copyright text
+  * stress-gpu: some more failure checking clean-ups
+  * stress-gpu: make egl_config_attribs static const
+  * stress-gpu: re-work error handling messages to keep with stress-ng
+    style
+  * stress-gpu: constify some function args and make functions and
+    objects static
+  * stress-gpu: remove trailing space
+  * stress-gpu: remove break in while loop for successful GPU bogo ops
+  * stress-mmap: disable mmap random flags using mask
+  * stress-sem-sysv: fix spelling mistake in comment
+  * stress-xattr: exercise empty xattr value
+  * stress-open: fix __NR_futimes syscall type, exercise more illegal
+    tv values
+  * stress-timerfd: exercise TFD_IOC_SET_TICKS ioctl
+  * stress-dev: perform write of zero to page zero on /dev/mem
+  * stress-splice: set randomly pipe sizes where possible
+  * stress-splice: add random flag SPLICE_F_MORE, SPLICE_F_MOVE
+  * stress-efivar: constify function arguments
+  * stress-dev: constify function argument
+  * stress-quota: constify function arguments
+  * stress-pidfd: constify function arguments
+  * stress-open: constify arguments
+  * stress-netlink-proc: constify arguments
+  * stress-l1cache: constify arguments
+  * stress-touch: correct the copyright information
+  * stress-ng: constify argument instance
+  * stress-smi: Fix spelling mistake "MSI" -> "MSR"
+  * stress-fallocator: remove debug printf
+  * stress-nanosleep: clean up missing tab in table formatting
+  * stress-icmp-flood: minor buffer + offset changes with const pointers
+  * README.md: Add URL to Linux Foundation presentation
+  * stress-touch: use shared memory for spinlock, fix locking issue;
+    add all opts
+  * stress-touch: handle EINTR on waitpid gracefully
+  * stress-touch: remove empty line
+  * stress-touch: add concurrency to exercise parallel touching in
+    directory
+  * Add touch stressor that open/create/closes/unlinks files rapidly
+  * stress-mmap: handle SIGBUS for hugepage mappings
+  * Add Linux Foundation Webinar slide deck (PDF)
+  * stress-tlb-shootdown: add page writes to increase DTLB write misses
+  * stress-zombie: move pid scope, re-use pid rather than head dereference
+  * stress-zombie: use pid to check for process
+  * core-thrash: add helper to pagein pages in a process, use this in
+    fork stressor
+  * stress-physpage: write to mmap'ing of the physical page if possible
+  * README.md: use --stdout instead of stderr redirection
+  * stress-chattr: exercise chattr flag permutations for more coverage
+  * stress-sysinval: add more flag bits to flag arguments
+  * stress-fcntl: exercise all SETFL flag permutations for more coverage
+  * stress-unshare: remove tabs from empty line
+  * stress-unshare: exercise all permutations of unshare clone flags
+  * stress-shm-sysv: add some more shm mode flags
+  * stress-fallocate: exercise all the permutations of fallocate
+    mode flags
+  * stress-clone: add check for zero clone permutations
+  * stress-clone: exercise permutations of clone flags
+  * core-helper: use unsigned int for flag shifting to avoid sign bit
+    propagation
+  * README.md: Add another issue found with stress-ng
+  * stress-mmap: exercise all permutations of mmap flags for more coverage
+  * stress-chmod: exercise all mode permutations for more coverage
+  * stress-open: add *BSD and Solaris open flags for wider testing
+  * stress-inode-flags: work through all permutations of inode flags
+  * stress-open: exercise every open flag permutation
+  * stress-mmap: ensure context.mmap_prot_perms is free'd if used
+  * stress-mmap: exercise random protection flags
+  * Usage rusage stats if they are available rather than times
+  * stress-cpu: Fix comment, remove non-ASCII character
+  * stress-cpu: normalized method cpu bogo ops for more consistent metrics
+  * Manual: update contributors list
+  * README.md: add libseccomp-dev for Alpine Linux
+  * stress-schedpolicy: check for ENOSYS when setting policy
+  * stress-sysfs: forceful kill using SIGKILL and not SIGHUP
+  * core-shim: handle non punch fallocate workarounds
+  * Add helper to generate bit flag permutations, use it in mprotect
+  * README.md: update number of stressors
+  * stress-mprotect: add mprotect stressor
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Sun, 12 Jun 2022 12:09:02 +0100
+
 stress-ng (0.14.01-1) unstable; urgency=medium
 
   [Alexander Kanavin]
