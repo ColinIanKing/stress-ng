@@ -563,7 +563,7 @@ dist:
 	cp -rp Makefile Makefile.config $(SRC) $(HEADERS) stress-ng.1 \
 		core-personality.c core-io-uring.c \
 		COPYING syscalls.txt mascot README.md \
-		README.Android test snap \
+		README.Android test snap presentations \
 		TODO core-perf-event.c usr.bin.pulseaudio.eg \
 		bash-completion example-jobs .travis.yml \
 		kernel-coverage.sh code-of-conduct.txt stress-ng-$(VERSION)
