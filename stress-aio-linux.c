@@ -278,7 +278,8 @@ static int stress_aiol_alloc(
 	struct iocb **cb,
 	struct io_event **events,
 	struct iocb ***cbs,
-	int **fds)
+	int **fds,
+	struct iovec **iov)
 {
 	int ret;
 
@@ -297,8 +298,13 @@ static int stress_aiol_alloc(
 	*fds = calloc(n, sizeof(**fds));
 	if (!*fds)
 		goto free_cbs;
+	*iov = calloc(n, sizeof(**iov));
+	if (!*iov)
+		goto free_fds;
 	return 0;
 
+free_fds:
+	free(*fds);
 free_cbs:
 	free(*cbs);
 free_events:
@@ -329,13 +335,15 @@ static void stress_aiol_free(
 	struct iocb *cb,
 	struct io_event *events,
 	struct iocb **cbs,
-	int *fds)
+	int *fds,
+	struct iovec *iov)
 {
 	free(buffer);
 	free(cb);
 	free(events);
 	free(cbs);
 	free(fds);
+	free(iov);
 }
 
 /*
@@ -354,6 +362,7 @@ static int stress_aiol(const stress_args_t *args)
 	struct iocb *cb;
 	struct io_event *events;
 	struct iocb **cbs;
+	struct iovec *iov;
 	int *fds;
 	uint32_t aio_max_nr = DEFAULT_AIO_MAX_NR;
 	int j = 0;
@@ -396,8 +405,8 @@ static int stress_aiol(const stress_args_t *args)
 				args->name, aio_linux_requests);
 	}
 
-	if (stress_aiol_alloc(args, aio_linux_requests, &buffer, &cb, &events, &cbs, &fds)) {
-		stress_aiol_free(buffer, cb, events, cbs, fds);
+	if (stress_aiol_alloc(args, aio_linux_requests, &buffer, &cb, &events, &cbs, &fds, &iov)) {
+		stress_aiol_free(buffer, cb, events, cbs, fds, iov);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -552,6 +561,60 @@ retry_open:
 				}
 			}
 		}
+
+		/*
+		 *  async pwritev
+		 */
+		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+		for (bufptr = buffer, i = 0, off = offset; i < aio_linux_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
+			const uint8_t pattern = (uint8_t)(j + ((((intptr_t)bufptr) >> 12) & 0xff));
+
+			aio_linux_fill_buffer(pattern, bufptr, BUFFER_SZ);
+
+			iov[i].iov_base = bufptr;
+			iov[i].iov_len = BUFFER_SZ;
+
+			cb[i].aio_fildes = fds[i];
+			cb[i].aio_lio_opcode = IO_CMD_PWRITEV;
+			cb[i].u.c.buf = &iov[i];
+			cb[i].u.c.offset = off;
+			cb[i].u.c.nbytes = 1;
+			cbs[i] = &cb[i];
+		}
+		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, false) < 0)
+			break;
+		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
+			break;
+		inc_counter(args);
+		if (!keep_stressing(args))
+			break;
+
+		/*
+		 *  async preadv
+		 */
+		(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
+		for (bufptr = buffer, i = 0, off = offset; i < aio_linux_requests; i++, bufptr += BUFFER_SZ, off += BUFFER_SZ) {
+			const uint8_t pattern = (uint8_t)(j + ((((intptr_t)bufptr) >> 12) & 0xff));
+
+			aio_linux_fill_buffer(pattern, bufptr, BUFFER_SZ);
+
+			iov[i].iov_base = bufptr;
+			iov[i].iov_len = BUFFER_SZ;
+
+			cb[i].aio_fildes = fds[i];
+			cb[i].aio_lio_opcode = IO_CMD_PREADV;
+			cb[i].u.c.buf = &iov[i];
+			cb[i].u.c.offset = off;
+			cb[i].u.c.nbytes = 1;
+			cbs[i] = &cb[i];
+		}
+		if (stress_aiol_submit(args, ctx, cbs, aio_linux_requests, false) < 0)
+			break;
+		if (stress_aiol_wait(args, ctx, events, aio_linux_requests) < 0)
+			break;
+		inc_counter(args);
+		if (!keep_stressing(args))
+			break;
 
 #if defined(__NR_io_cancel)
 		{
@@ -709,7 +772,7 @@ finish:
 
 free_memory:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	stress_aiol_free(buffer, cb, events, cbs, fds);
+	stress_aiol_free(buffer, cb, events, cbs, fds, iov);
 	return rc;
 }
 
