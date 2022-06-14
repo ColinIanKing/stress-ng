@@ -409,6 +409,24 @@ mmap_test:
 		}
 #endif
 
+#if defined(HAVE_POLL_H) &&	\
+    defined(HAVE_PPOLL) &&	\
+    defined(SIGPIPE)
+		{
+			struct pollfd fds[1];
+			struct timespec ts;
+			sigset_t sigmask;
+
+			ts.tv_sec = 0;
+                        ts.tv_nsec = 2000;
+
+                        (void)sigemptyset(&sigmask);
+                        (void)sigaddset(&sigmask, SIGPIPE);
+
+			VOID_RET(int, ppoll(fds, 1, &ts, &sigmask));
+		}
+#endif
+
 		/*
 		 *  Seek and read
 		 */
