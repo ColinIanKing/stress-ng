@@ -131,17 +131,20 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  */
 static void stress_sctp_sockopts(const int fd)
 {
-#if defined(SCTP_RTOINFO)
+#if defined(SCTP_RTOINFO) && 	\
+    defined(HAVE_SCTP_RTOINFO)
 	STRESS_SCTP_SOCKOPT(SCTP_RTOINFO, struct sctp_rtoinfo)
 #else
 	UNEXPECTED
 #endif
-#if defined(SCTP_ASSOCINFO)
+#if defined(SCTP_ASSOCINFO) &&	\
+    defined(HAVE_SCTP_ASSOCPARAMS)
 	STRESS_SCTP_SOCKOPT(SCTP_ASSOCINFO, struct sctp_assocparams)
 #else
 	UNEXPECTED
 #endif
-#if defined(SCTP_INITMSG)
+#if defined(SCTP_INITMSG) &&	\
+    defined(HAVE_SCTP_INITMSG)
 	STRESS_SCTP_SOCKOPT(SCTP_INITMSG, struct sctp_initmsg)
 #else
 	UNEXPECTED
@@ -151,38 +154,183 @@ static void stress_sctp_sockopts(const int fd)
 #else
 	UNEXPECTED
 #endif
-#if defined(SCTP_PRIMARY_ADDR)
+#if defined(SCTP_PRIMARY_ADDR) &&	\
+    defined(HAVE_SCTP_PRIM)
 	STRESS_SCTP_SOCKOPT(SCTP_PRIMARY_ADDR, struct sctp_prim)
 #else
 	UNEXPECTED
 #endif
-#if defined(SCTP_PEER_ADDR_PARAMS)
+#if defined(SCTP_PEER_ADDR_PARAMS) &&	\
+    defined(HAVE_SCTP_PADDRPARAMS)
 	STRESS_SCTP_SOCKOPT(SCTP_PEER_ADDR_PARAMS, struct sctp_paddrparams)
 #else
 	UNEXPECTED
 #endif
-#if defined(SCTP_EVENTS)
+#if defined(SCTP_EVENTS) &&	\
+    defined(HAVE_SCTP_EVENT_SUBSCRIBE)
 	STRESS_SCTP_SOCKOPT(SCTP_EVENTS, struct sctp_event_subscribe)
 #else
 	UNEXPECTED
 #endif
 #if defined(SCTP_MAXSEG)
+	{
+		static bool once = false;
+
+		if (once == false) {
+			STRESS_SCTP_SOCKOPT(SCTP_MAXSEG, int)
+			once = true;
+		}
+	}
+#if defined(HAVE_SCTP_ASSOC_VALUE)
 	STRESS_SCTP_SOCKOPT(SCTP_MAXSEG, struct sctp_assoc_value)
 #else
 	UNEXPECTED
 #endif
-#if defined(SCTP_STATUS)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_STATUS) && 	\
+    defined(HAVE_SCTP_STATUS)
 	STRESS_SCTP_SOCKOPT(SCTP_STATUS, struct sctp_status)
 #else
 	UNEXPECTED
 #endif
-#if defined(SCTP_GET_PEER_ADDR_INFO) && 0
+#if defined(SCTP_GET_PEER_ADDR_INFO) &&	\
+    defined(HAVE_SCTP_PADDRINFO)
 	STRESS_SCTP_SOCKOPT(SCTP_GET_PEER_ADDR_INFO, struct sctp_paddrinfo)
 #else
-	/* UNEXPECTED */
+	UNEXPECTED
 #endif
-#if defined(SCTP_GET_ASSOC_STATS)
+#if defined(SCTP_GET_ASSOC_STATS) &&	\
+    defined(HAVE_SCTP_ASSOC_STATS)
 	STRESS_SCTP_SOCKOPT(SCTP_GET_ASSOC_STATS, struct sctp_assoc_stats)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_MAX_BURST)
+	{
+		static bool once = false;
+
+		if (once == false) {
+			STRESS_SCTP_SOCKOPT(SCTP_MAX_BURST, unsigned int)
+			once = true;
+		}
+	}
+#if defined(HAVE_SCTP_ASSOC_VALUE)
+	STRESS_SCTP_SOCKOPT(SCTP_MAX_BURST, struct sctp_assoc_value)
+#else
+	UNEXPECTED
+#endif
+#endif
+#if defined(SCTP_AUTOCLOSE)
+	STRESS_SCTP_SOCKOPT(SCTP_AUTOCLOSE, unsigned int)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_GET_PEER_ADDRS) &&	\
+    defined(HAVE_SCTP_GETADDRS)
+	STRESS_SCTP_SOCKOPT(SCTP_GET_PEER_ADDRS, struct sctp_getaddrs)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_GET_LOCAL_ADDRS) &&	\
+    defined(HAVE_SCTP_GETADDRS)
+	STRESS_SCTP_SOCKOPT(SCTP_GET_LOCAL_ADDRS, struct sctp_getaddrs)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_ADAPTATION_LAYER) &&	\
+    defined(HAVE_SCTP_SETADAPTION)
+	STRESS_SCTP_SOCKOPT(SCTP_ADAPTATION_LAYER, struct sctp_setadaptation)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_CONTEXT) &&	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+	STRESS_SCTP_SOCKOPT(SCTP_CONTEXT, struct sctp_assoc_value)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_FRAGMENT_INTERLEAVE)
+	STRESS_SCTP_SOCKOPT(SCTP_FRAGMENT_INTERLEAVE, int)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_PARTIAL_DELIVERY_POINT)
+	STRESS_SCTP_SOCKOPT(SCTP_PARTIAL_DELIVERY_POINT, uint32_t)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_AUTO_ASCONF)
+	STRESS_SCTP_SOCKOPT(SCTP_AUTO_ASCONF, int)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_DEFAULT_PRINFO) &&	\
+    defined(HAVE_SCTP_DEFAULT_PRINFO)
+	STRESS_SCTP_SOCKOPT(SCTP_DEFAULT_PRINFO, struct sctp_default_prinfo)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_STREAM_SCHEDULER) &&	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+	STRESS_SCTP_SOCKOPT(SCTP_STREAM_SCHEDULER, struct sctp_assoc_value)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_STREAM_SCHEDULER_VALUE) && \
+    defined(HAVE_SCTP_STREAM_VALUE)
+	STRESS_SCTP_SOCKOPT(SCTP_STREAM_SCHEDULER_VALUE, struct sctp_stream_value)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_INTERLEAVING_SUPPORTED) &&	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+	STRESS_SCTP_SOCKOPT(SCTP_INTERLEAVING_SUPPORTED, struct sctp_assoc_value)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_REUSE_PORT) &&	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+	STRESS_SCTP_SOCKOPT(SCTP_REUSE_PORT, struct sctp_assoc_value)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_EVENT) &&	\
+    defined(HAVE_SCTP_EVENT_SUBSCRIBE)
+	STRESS_SCTP_SOCKOPT(SCTP_EVENT, struct sctp_event_subscribe)
+#endif
+#if defined(SCTP_ASCONF_SUPPORTED) &&	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+	STRESS_SCTP_SOCKOPT(SCTP_ASCONF_SUPPORTED, struct sctp_assoc_value)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_AUTH_SUPPORTED) &&	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+	STRESS_SCTP_SOCKOPT(SCTP_AUTH_SUPPORTED, struct sctp_assoc_value)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_ECN_SUPPORTED) &&	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+	STRESS_SCTP_SOCKOPT(SCTP_ECN_SUPPORTED, struct sctp_assoc_value)
+#else
+	UNEXPECTED
+#endif
+#if defined(SCTP_EXPOSE_POTENTIALLY_FAILED_STATE) && 	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+	STRESS_SCTP_SOCKOPT(SCTP_EXPOSE_POTENTIALLY_FAILED_STATE, struct sctp_assoc_value)
+#endif
+#if defined(SCTP_REMOTE_UDP_ENCAPS_PORT) && 	\
+    defined(HAVE_SCTP_ASSOCIATION)
+	STRESS_SCTP_SOCKOPT(SCTP_REMOTE_UDP_ENCAPS_PORT, struct sctp_association)
+#else
+	//UNEXPECTED
+#endif
+#if defined(SCTP_PLPMTUD_PROBE_INTERVAL) &&	\
+    defined(HAVE_SCTP_PROBEINTERVAL)
+	STRESS_SCTP_SOCKOPT(SCTP_PLPMTUD_PROBE_INTERVAL, struct sctp_probeinterval)
 #else
 	UNEXPECTED
 #endif
@@ -210,7 +358,9 @@ static void stress_sctp_client(
 		int fd;
 		int retries = 0;
 		socklen_t addr_len = 0;
+#if defined(HAVE_SCTP_EVENT_SUBSCRIBE)
 		struct sctp_event_subscribe events;
+#endif
 retry:
 		if (!keep_stressing_flag()) {
 			(void)kill(getppid(), SIGALRM);
@@ -247,6 +397,7 @@ retry:
 			}
 			goto retry;
 		}
+#if defined(HAVE_SCTP_EVENT_SUBSCRIBE)
 		(void)memset(&events, 0, sizeof(events));
 		events.sctp_data_io_event = 1;
 		if (setsockopt(fd, SOL_SCTP, SCTP_EVENTS, &events,
@@ -257,6 +408,7 @@ retry:
 			(void)kill(getppid(), SIGALRM);
 			_exit(EXIT_FAILURE);
 		}
+#endif
 
 		do {
 			int flags;
