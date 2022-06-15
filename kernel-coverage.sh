@@ -419,6 +419,9 @@ do_stress --pthread -1 --pthread-max 1024
 
 do_stress --sctp -1 --sctp-domain ipv4
 do_stress --sctp -1 --sctp-domain ipv6
+do_stress --sctp -1 --sctp-domain ipv4 --sctp-sched fcfs
+do_stress --sctp -1 --sctp-domain ipv4 --sctp-sched prio
+do_stress --sctp -1 --sctp-domain ipv4 --sctp-sched rr
 
 do_stress --shm -1 --shm-objs 100000
 
