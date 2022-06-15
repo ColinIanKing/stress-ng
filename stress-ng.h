@@ -2180,6 +2180,7 @@ typedef enum {
 	OPT_sctp_domain,
 	OPT_sctp_if,
 	OPT_sctp_port,
+	OPT_sctp_sched,
 
 	OPT_seal,
 	OPT_seal_ops,

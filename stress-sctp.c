@@ -44,6 +44,11 @@ UNEXPECTED
 
 #define SOCKET_BUF		(8192)	/* Socket I/O buffer size */
 
+typedef struct {
+	const int	sched_type;
+	const char 	*name;
+} stress_sctp_sched_t;
+
 static const stress_help_t help[] = {
 	{ NULL,	"sctp N",	 "start N workers performing SCTP send/receives " },
 	{ NULL,	"sctp-ops N",	 "stop after N SCTP bogo operations" },
@@ -80,6 +85,42 @@ static int stress_set_sctp_port(const char *opt)
 	return stress_set_setting("sctp-port", TYPE_ID_INT, &sctp_port);
 }
 
+static const stress_sctp_sched_t stress_sctp_scheds[] = {
+#if defined(HAVE_SCTP_SCHED_TYPE) &&	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+	{ (int)SCTP_SS_FCFS,	"fcfs" },
+	{ (int)SCTP_SS_PRIO,	"prio" },
+	{ (int)SCTP_SS_RR,	"rr", },
+#endif
+};
+
+/*
+ *  stress_set_sctp_sched()
+ *	set scheduler to use
+ */
+static int stress_set_sctp_sched(const char *opt)
+{
+#if defined(HAVE_SCTP_SCHED_TYPE) && 	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_sctp_scheds); i++) {
+		if (!strcmp(opt, stress_sctp_scheds[i].name)) {
+			return stress_set_setting("sctp-sched", TYPE_ID_INT, &stress_sctp_scheds[i].sched_type);
+		}
+	}
+	(void)fprintf(stderr, "sctp-sched must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_sctp_scheds); i++) {
+                (void)fprintf(stderr, " %s", stress_sctp_scheds[i].name);
+        }
+        (void)fprintf(stderr, "\n");
+	return -1;
+#else
+	pr_inf("sctp-sched option ignored, no SCTP scheduler types available\n");
+	return 0;
+#endif
+}
+
 /*
  *  stress_set_sctp_domain()
  *	set the socket domain option
@@ -104,6 +145,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sctp_domain,	stress_set_sctp_domain },
 	{ OPT_sctp_if,		stress_set_sctp_if },
 	{ OPT_sctp_port,	stress_set_sctp_port },
+	{ OPT_sctp_sched,	stress_set_sctp_sched },
 	{ 0,			NULL }
 };
 
@@ -345,6 +387,7 @@ static void stress_sctp_client(
 	const pid_t ppid,
 	const int sctp_port,
 	const int sctp_domain,
+	const int sctp_sched,
 	const char *sctp_if)
 {
 	struct sockaddr *addr;
@@ -409,6 +452,16 @@ retry:
 			_exit(EXIT_FAILURE);
 		}
 #endif
+#if defined(HAVE_SCTP_SCHED_TYPE) &&	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+		if (sctp_sched > -1) {
+			struct sctp_assoc_value val;
+
+			(void)memset(&val, 0, sizeof(val));
+			val.assoc_value = sctp_sched;
+			(void)setsockopt(fd, SOL_SCTP, SCTP_STREAM_SCHEDULER, &val, sizeof(val));
+		}
+#endif
 
 		do {
 			int flags;
@@ -448,6 +501,7 @@ static int stress_sctp_server(
 	const pid_t ppid,
 	const int sctp_port,
 	const int sctp_domain,
+	const int sctp_sched,
 	const char *sctp_if)
 {
 	char buf[SOCKET_BUF];
@@ -499,6 +553,33 @@ static int stress_sctp_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
+#if defined(TCP_NODELAY)
+	{
+		int one = 1;
+
+		if (g_opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
+			if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
+				pr_inf("%s: setsockopt TCP_NODELAY "
+					"failed and disabled, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				g_opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;
+			}
+		}
+	}
+#else
+	UNEXPECTED
+#endif
+
+#if defined(HAVE_SCTP_SCHED_TYPE) &&	\
+    defined(HAVE_SCTP_ASSOC_VALUE)
+	if (sctp_sched > -1) {
+		struct sctp_assoc_value val;
+
+		(void)memset(&val, 0, sizeof(val));
+		val.assoc_value = sctp_sched;
+		(void)setsockopt(fd, SOL_SCTP, SCTP_STREAM_SCHEDULER, &val, sizeof(val));
+	}
+#endif
 
 	do {
 		int sfd;
@@ -509,21 +590,6 @@ static int stress_sctp_server(
 		sfd = accept(fd, (struct sockaddr *)NULL, NULL);
 		if (sfd >= 0) {
 			size_t i;
-
-#if defined(TCP_NODELAY)
-			int one = 1;
-
-			if (g_opt_flags & OPT_FLAGS_SOCKET_NODELAY) {
-				if (setsockopt(fd, SOL_TCP, TCP_NODELAY, &one, sizeof(one)) < 0) {
-					pr_inf("%s: setsockopt TCP_NODELAY "
-						"failed and disabled, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					g_opt_flags &= ~OPT_FLAGS_SOCKET_NODELAY;
-				}
-			}
-#else
-			UNEXPECTED
-#endif
 
 			(void)memset(buf, 'A' + (get_counter(args) % 26), sizeof(buf));
 
@@ -580,12 +646,14 @@ static int stress_sctp(const stress_args_t *args)
 	pid_t pid, ppid = getppid();
 	int sctp_port = DEFAULT_SCTP_PORT;
 	int sctp_domain = AF_INET;
+	int sctp_sched = -1;	/* Undefined */
 	int ret;
 	char *sctp_if = NULL;
 
 	(void)stress_get_setting("sctp-domain", &sctp_domain);
 	(void)stress_get_setting("sctp-if", &sctp_if);
 	(void)stress_get_setting("sctp-port", &sctp_port);
+	(void)stress_get_setting("sctp-sched", &sctp_sched);
 
 	if (sctp_if) {
 		struct sockaddr if_addr;
@@ -618,10 +686,10 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_sctp_client(args, ppid, sctp_port, sctp_domain, sctp_if);
+		stress_sctp_client(args, ppid, sctp_port, sctp_domain, sctp_sched, sctp_if);
 		_exit(EXIT_SUCCESS);
 	} else {
-		ret = stress_sctp_server(args, pid, ppid, sctp_port, sctp_domain, sctp_if);
+		ret = stress_sctp_server(args, pid, ppid, sctp_port, sctp_domain, sctp_sched, sctp_if);
 	}
 
 finish:
