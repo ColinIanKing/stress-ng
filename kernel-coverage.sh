@@ -465,7 +465,8 @@ do_stress --tun -1 --tun-tap
 
 do_stress --udp -1 --udp-domain ipv4
 do_stress --udp -1 --udp-domain ipv6
-do_stress --udp -1 --udp-lite
+do_stress --udp -1 --udp-lite --udp-domain ipv4
+do_stress --udp -1 --udp-lite --udp-domain ipv6
 do_stress --udp -1 --udp-gro
 
 do_stress --udp-flood -1 --udp-flood-domain ipv4
