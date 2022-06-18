@@ -31,6 +31,11 @@ static const stress_help_t help[] = {
 #define shim_pid_type		int
 #endif
 
+/* As of glibc6, this is not defined */
+#if !defined(F_GETOWNER_UIDS) && defined(__linux__)
+#define F_GETOWNER_UIDS  	(17)
+#endif
+
 #if defined(F_DUPFD) || 	\
     defined(F_DUPFD_CLOEXEC) || \
     defined(F_GETFD) ||		\
