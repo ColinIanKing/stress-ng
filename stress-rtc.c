@@ -99,6 +99,7 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 			ret = -errno;
 			goto err;
 		}
+
 	} else {
 #if defined(RTC_ALM_SET)
 		VOID_RET(int, ioctl(fd, RTC_ALM_SET, &rtc_tm));
@@ -118,6 +119,27 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 #if defined(RTC_WKALM_SET)
 		VOID_RET(int, ioctl(fd, RTC_WKALM_SET, &wake_alarm));
 #endif
+	}
+#endif
+
+#if defined(RTC_AIE_ON) && 	\
+    defined(RTC_AIE_OFF)
+	if (ioctl(fd, RTC_AIE_ON, NULL) == 0) {
+		(void)ioctl(fd, RTC_AIE_OFF, NULL);
+	}
+#endif
+
+#if defined(RTC_UIE_ON) && 	\
+    defined(RTC_UIE_OFF)
+	if (ioctl(fd, RTC_UIE_ON, NULL) == 0) {
+		(void)ioctl(fd, RTC_UIE_OFF, NULL);
+	}
+#endif
+
+#if defined(RTC_PIE_ON) && 	\
+    defined(RTC_PIE_OFF)
+	if (ioctl(fd, RTC_PIE_ON, NULL) == 0) {
+		(void)ioctl(fd, RTC_PIE_OFF, NULL);
 	}
 #endif
 
