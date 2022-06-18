@@ -1123,6 +1123,16 @@ static void stress_dev_blk(
 	UNEXPECTED
 #endif
 
+#if defined(BLKGETDISKSEQ)
+	{
+		uint64_t diskseq;
+
+		VOID_RET(int, ioctl(fd, BLKGETDISKSEQ, &diskseq));
+	}
+#else
+	UNEXPECTED
+#endif
+
 #if defined(BLKGETZONESZ)
 	{
 		uint32_t sz;
