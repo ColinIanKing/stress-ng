@@ -219,6 +219,12 @@ static void stress_rawpkt_getsockopts(const int fd)
 		(void)getsockopt(fd, SOL_PACKET, PACKET_QDISC_BYPASS, &val, &len);
 	}
 #endif
+	{
+		int val;
+		socklen_t len = sizeof(val);
+
+		(void)getsockopt(fd, SOL_PACKET, ~(int)0, &val, &len);
+	}
 }
 
 /*
