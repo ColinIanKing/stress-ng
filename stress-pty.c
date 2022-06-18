@@ -144,7 +144,7 @@ static int stress_pty(const stress_args_t *args)
 			(void)stress_read_fdinfo(pid, ptys[i].leader);
 			(void)stress_read_fdinfo(pid, ptys[i].follower);
 
-#if defined(DHAVE_TCGETATTR)
+#if defined(HAVE_TCGETATTR)
 			{
 				struct termios ios;
 
