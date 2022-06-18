@@ -100,11 +100,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_LINUX_UDP_H) &&	\
     defined(HAVE_LINUX_IF_PACKET_H)
 /*
- *  stress_rawpkt_getsockopts()
+ *  stress_rawpkt_sockopts()
  *	fetch some SOL_PACKET specific stats, ignore failures
  *	just exercise the interface.
  */
-static void stress_rawpkt_getsockopts(const int fd)
+static void stress_rawpkt_sockopts(const int fd)
 {
 #if defined(PACKET_STATISTICS)
 	{
@@ -116,34 +116,42 @@ static void stress_rawpkt_getsockopts(const int fd)
 #endif
 #if defined(PACKET_AUXDATA)
 	{
-		int val;
+		int ret, val;
 		socklen_t len = sizeof(val);
 
-		(void)getsockopt(fd, SOL_PACKET, PACKET_AUXDATA, &val, &len);
+		ret = getsockopt(fd, SOL_PACKET, PACKET_AUXDATA, &val, &len);
+		if (ret == 0)
+			(void)setsockopt(fd, SOL_PACKET, PACKET_AUXDATA, &val, len);
 	}
 #endif
 #if defined(PACKET_ORIGDEV)
 	{
-		int val;
+		int ret, val;
 		socklen_t len = sizeof(val);
 
-		(void)getsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, &len);
+		ret = getsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, &len);
+		if (ret == 0)
+			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
 	}
 #endif
 #if defined(PACKET_VNET_HDR)
 	{
-		int val;
+		int ret, val;
 		socklen_t len = sizeof(val);
 
-		(void)getsockopt(fd, SOL_PACKET, PACKET_VNET_HDR, &val, &len);
+		ret = getsockopt(fd, SOL_PACKET, PACKET_VNET_HDR, &val, &len);
+		if (ret == 0)
+			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
 	}
 #endif
 #if defined(PACKET_VERSION)
 	{
-		int val;
+		int ret, val;
 		socklen_t len = sizeof(val);
 
-		(void)getsockopt(fd, SOL_PACKET, PACKET_VERSION, &val, &len);
+		ret = getsockopt(fd, SOL_PACKET, PACKET_VERSION, &val, &len);
+		if (ret == 0)
+			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
 	}
 #endif
 #if defined(PACKET_HDRLEN)
@@ -157,42 +165,52 @@ static void stress_rawpkt_getsockopts(const int fd)
 #endif
 #if defined(PACKET_RESERVE)
 	{
-		int val;
+		int ret, val;
 		socklen_t len = sizeof(val);
 
-		(void)getsockopt(fd, SOL_PACKET, PACKET_RESERVE, &val, &len);
+		ret = getsockopt(fd, SOL_PACKET, PACKET_RESERVE, &val, &len);
+		if (ret == 0)
+			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
 	}
 #endif
 #if defined(PACKET_LOSS)
 	{
-		int val;
+		int ret, val;
 		socklen_t len = sizeof(val);
 
-		(void)getsockopt(fd, SOL_PACKET, PACKET_LOSS, &val, &len);
+		ret = getsockopt(fd, SOL_PACKET, PACKET_LOSS, &val, &len);
+		if (ret == 0)
+			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
 	}
 #endif
 #if defined(PACKET_TIMESTAMP)
 	{
-		int val;
+		int ret, val;
 		socklen_t len = sizeof(val);
 
-		(void)getsockopt(fd, SOL_PACKET, PACKET_TIMESTAMP, &val, &len);
+		ret = getsockopt(fd, SOL_PACKET, PACKET_TIMESTAMP, &val, &len);
+		if (ret == 0)
+			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
 	}
 #endif
 #if defined(PACKET_FANOUT)
 	{
-		int val;
+		int ret, val;
 		socklen_t len = sizeof(val);
 
-		(void)getsockopt(fd, SOL_PACKET, PACKET_FANOUT, &val, &len);
+		ret = getsockopt(fd, SOL_PACKET, PACKET_FANOUT, &val, &len);
+		if (ret == 0)
+			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
 	}
 #endif
 #if defined(PACKET_IGNORE_OUTGOING)
 	{
-		int val;
+		int ret, val;
 		socklen_t len = sizeof(val);
 
-		(void)getsockopt(fd, SOL_PACKET, PACKET_IGNORE_OUTGOING, &val, &len);
+		ret = getsockopt(fd, SOL_PACKET, PACKET_IGNORE_OUTGOING, &val, &len);
+		if (ret == 0)
+			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
 	}
 #endif
 #if defined(PACKET_ROLLOVER_STATS)
@@ -205,18 +223,22 @@ static void stress_rawpkt_getsockopts(const int fd)
 #endif
 #if defined(PACKET_TX_HAS_OFF)
 	{
-		int val;
+		int ret, val;
 		socklen_t len = sizeof(val);
 
-		(void)getsockopt(fd, SOL_PACKET, PACKET_TX_HAS_OFF, &val, &len);
+		ret = getsockopt(fd, SOL_PACKET, PACKET_TX_HAS_OFF, &val, &len);
+		if (ret == 0)
+			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
 	}
 #endif
 #if defined(PACKET_QDISC_BYPASS)
 	{
-		int val;
+		int ret, val;
 		socklen_t len = sizeof(val);
 
-		(void)getsockopt(fd, SOL_PACKET, PACKET_QDISC_BYPASS, &val, &len);
+		ret = getsockopt(fd, SOL_PACKET, PACKET_QDISC_BYPASS, &val, &len);
+		if (ret == 0)
+			(void)setsockopt(fd, SOL_PACKET, PACKET_ORIGDEV, &val, len);
 	}
 #endif
 	{
@@ -303,7 +325,7 @@ static void NORETURN stress_rawpkt_client(
 #endif
 	} while (keep_stressing(args));
 
-	stress_rawpkt_getsockopts(fd);
+	stress_rawpkt_sockopts(fd);
 	(void)close(fd);
 
 	rc = EXIT_SUCCESS;
@@ -369,7 +391,7 @@ static int stress_rawpkt_server(
 #endif
 	} while (keep_stressing(args));
 
-	stress_rawpkt_getsockopts(fd);
+	stress_rawpkt_sockopts(fd);
 	(void)close(fd);
 die:
 	pr_dbg("%s: %" PRIu64 " packets sent, %" PRIu64 " packets received\n", args->name, get_counter(args), all_pkts);
