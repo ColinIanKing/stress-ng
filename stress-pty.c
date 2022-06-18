@@ -352,7 +352,38 @@ static int stress_pty(const stress_args_t *args)
 						args->name, errno, strerror(errno));
 			}
 #endif
+#if defined(TIOCGPTLCK)
+			{
+				int ret, locked = 0;
 
+				ret = ioctl(ptys[i].leader, TIOCGPTLCK, &locked);
+#if defined(TIOCSPTLCK)
+				if (ret == 0)
+					ret = ioctl(ptys[i].leader, TIOCSPTLCK, &locked);
+#endif
+
+				(void)ret;
+			}
+#endif
+#if defined(TIOCGPTN)
+			{
+				unsigned int ptynum = 0;
+
+				(void)ioctl(ptys[i].leader, TIOCGPTN, &ptynum);	/* BSD */
+			}
+#endif
+#if defined(TIOCGPKT)
+			{
+				int val, ret;
+
+				ret = ioctl(ptys[i].leader, TIOCGPKT, &val);
+#if defined(TIOCPKT)
+				if (ret == 0)
+					ret = ioctl(ptys[i].leader, TIOCPKT, &val);
+#endif
+				(void)ret;
+			}
+#endif
 			if (!keep_stressing_flag())
 				goto clean;
 		}
