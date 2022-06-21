@@ -198,10 +198,8 @@ static int stress_get(const stress_args_t *args)
 		struct timezone tz;
 		struct rlimit rlim;
 		time_t t, t1, t2;
-		pid_t pid;
 
 		(void)mypid;
-		(void)pid;
 
 		if (!keep_stressing_flag())
 			break;
@@ -332,14 +330,17 @@ static int stress_get(const stress_args_t *args)
 #endif
 
 #if defined(HAVE_GETPGID)
-		VOID_RET(pid_t, getpgid(mypid));
+		{
+			pid_t pid;
 
-		/*
-		 *  Exercise with an possibly invalid pid
-		 */
-		pid = stress_get_unused_pid_racy(false);
-		VOID_RET(pid_t, getpgid(pid));
+			VOID_RET(pid_t, getpgid(mypid));
 
+			/*
+			 *  Exercise with an possibly invalid pid
+			 */
+			pid = stress_get_unused_pid_racy(false);
+			VOID_RET(pid_t, getpgid(pid));
+		}
 		if (!keep_stressing_flag())
 			break;
 #else
@@ -347,14 +348,17 @@ static int stress_get(const stress_args_t *args)
 #endif
 
 #if defined(HAVE_GETPRIORITY)
-		/*
-		 *  Exercise getpriority calls that use illegal
-		 *  arguments to get more kernel test coverage
-		 */
-		(void)getpriority((shim_priority_which_t)INT_MIN, 0);
-		(void)getpriority((shim_priority_which_t)INT_MAX, 0);
-		pid = stress_get_unused_pid_racy(false);
-		(void)getpriority((shim_priority_which_t)0, (id_t)pid);
+		{
+			pid_t pid;
+			/*
+			 *  Exercise getpriority calls that use illegal
+			 *  arguments to get more kernel test coverage
+			 */
+			(void)getpriority((shim_priority_which_t)INT_MIN, 0);
+			(void)getpriority((shim_priority_which_t)INT_MAX, 0);
+			pid = stress_get_unused_pid_racy(false);
+			(void)getpriority((shim_priority_which_t)0, (id_t)pid);
+		}
 
 		for (i = 0; i < SIZEOF_ARRAY(priorities); i++) {
 			errno = 0;
@@ -432,31 +436,35 @@ static int stress_get(const stress_args_t *args)
 #if defined(HAVE_PRLIMIT) &&	\
     NEED_GLIBC(2,13,0) &&	\
     defined(EOVERFLOW)
-		/* Invalid prlimit syscall and ignoring failure */
-		(void)prlimit(mypid, (shim_rlimit_resource_t)INT_MAX, NULL, &rlim);
-		pid = stress_get_unused_pid_racy(false);
-		(void)prlimit(pid, (shim_rlimit_resource_t)INT_MAX, NULL, &rlim);
+		{
+			pid_t pid;
 
-		for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
-			struct rlimit rlims[2];
+			/* Invalid prlimit syscall and ignoring failure */
+			(void)prlimit(mypid, (shim_rlimit_resource_t)INT_MAX, NULL, &rlim);
+			pid = stress_get_unused_pid_racy(false);
+			(void)prlimit(pid, (shim_rlimit_resource_t)INT_MAX, NULL, &rlim);
 
-			ret = prlimit(mypid, rlimits[i], NULL, &rlims[0]);
-			if (verify && (ret < 0) && (errno != EOVERFLOW))
-				pr_fail("%s: prlimit(%" PRIdMAX ", %zu, ..) failed, errno=%d (%s)\n",
-					args->name, (intmax_t)mypid, i, errno, strerror(errno));
-			if (!ret) {
-				ret = prlimit(mypid, rlimits[i], &rlims[0], NULL);
+			for (i = 0; i < SIZEOF_ARRAY(rlimits); i++) {
+				struct rlimit rlims[2];
+
+				ret = prlimit(mypid, rlimits[i], NULL, &rlims[0]);
 				if (verify && (ret < 0) && (errno != EOVERFLOW))
 					pr_fail("%s: prlimit(%" PRIdMAX ", %zu, ..) failed, errno=%d (%s)\n",
 						args->name, (intmax_t)mypid, i, errno, strerror(errno));
-				ret = prlimit(mypid, rlimits[i], &rlims[0], &rlims[1]);
-				if (verify && (ret < 0) && (errno != EOVERFLOW))
-					pr_fail("%s: prlimit(%" PRIdMAX", %zu, ..) failed, errno=%d (%s)\n",
-						args->name, (intmax_t)mypid, i, errno, strerror(errno));
-			}
+				if (!ret) {
+					ret = prlimit(mypid, rlimits[i], &rlims[0], NULL);
+					if (verify && (ret < 0) && (errno != EOVERFLOW))
+						pr_fail("%s: prlimit(%" PRIdMAX ", %zu, ..) failed, errno=%d (%s)\n",
+							args->name, (intmax_t)mypid, i, errno, strerror(errno));
+					ret = prlimit(mypid, rlimits[i], &rlims[0], &rlims[1]);
+					if (verify && (ret < 0) && (errno != EOVERFLOW))
+						pr_fail("%s: prlimit(%" PRIdMAX", %zu, ..) failed, errno=%d (%s)\n",
+							args->name, (intmax_t)mypid, i, errno, strerror(errno));
+				}
 
-			/* Exercise invalid pids */
-			(void)prlimit(pid, rlimits[i], NULL, &rlims[0]);
+				/* Exercise invalid pids */
+				(void)prlimit(pid, rlimits[i], NULL, &rlims[0]);
+			}
 			if (!keep_stressing_flag())
 				break;
 		}
@@ -500,14 +508,18 @@ static int stress_get(const stress_args_t *args)
 		}
 
 #if defined(HAVE_GETSID)
-		ret = getsid(mypid);
-		if (verify && (ret < 0))
-			pr_fail("%s: getsid failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-		pid = stress_get_unused_pid_racy(false);
-		VOID_RET(int, getsid(pid));
+		{
+			pid_t pid;
+
+			ret = getsid(mypid);
+			if (verify && (ret < 0))
+				pr_fail("%s: getsid failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			pid = stress_get_unused_pid_racy(false);
+			VOID_RET(int, getsid(pid));
+		}
 		if (!keep_stressing_flag())
-			break;
+		break;
 #else
 		UNEXPECTED
 #endif
