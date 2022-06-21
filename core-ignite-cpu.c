@@ -51,6 +51,7 @@ static stress_cpu_setting_t *cpu_settings; /* Array of cpu settings */
 static pid_t pid;			/* PID of ignite process */
 static bool enabled;			/* true if ignite process running */
 static int32_t max_cpus;		/* max cpus configured */
+static int latency_fd;			/* /dev/cpu_dma_latency fd */
 
 #define SETTING(path, default_setting)	\
 	{ path, default_setting, 0, NULL, 0, false }
@@ -78,7 +79,7 @@ static void stress_ignite_cpu_set(
 	char path[PATH_MAX];
 	char buffer[128];
 
-	if (((*setting_flag & SETTING_FREQ) == SETTING_FREQ) && (max_freq > 0) && (min_freq < max_freq)) {
+	if (((*setting_flag & SETTING_FREQ) == SETTING_FREQ) && (max_freq > 0) && (min_freq <= max_freq)) {
 		uint64_t freq_delta = (max_freq - min_freq) / 10;
 		uint64_t freq;
 
@@ -89,11 +90,11 @@ static void stress_ignite_cpu_set(
 		if (system_write(path, buffer, strlen(buffer)) < 0)
 			*setting_flag &= ~SETTING_SCALING_FREQ;
 
-		/* Try to set min to be 90% of max down to lowest, which ever works first*/
+		/* Try to set min to be 100% of max down to lowest, which ever works first*/
 		(void)snprintf(path, sizeof(path),
 			"/sys/devices/system/cpu/cpu%" PRId32
 			"/cpufreq/scaling_min_freq", cpu);
-		freq = (maximize_freq) ? max_freq - freq_delta : min_freq;
+		freq = (maximize_freq) ? max_freq : min_freq;
 		while ((freq_delta > 0) && (freq >= min_freq)) {
 			(void)snprintf(buffer, sizeof(buffer), "%" PRIu64 "\n", freq);
 			if (system_write(path, buffer, strlen(buffer)) >= 0)
@@ -131,6 +132,13 @@ void stress_ignite_cpu_start(void)
 
 	if (enabled)
 		return;
+
+	latency_fd = open("/dev/cpu_dma_latency", O_WRONLY);
+	if (latency_fd != -1) {
+		int32_t lat = 0;
+
+		VOID_RET(ssize_t, write(latency_fd, &lat, sizeof(lat)));
+	}
 
 	max_cpus = stress_get_processors_configured();
 	if (max_cpus < 1)
@@ -330,6 +338,10 @@ void stress_ignite_cpu_stop(void)
 	size_t i;
 	int status;
 
+	if (latency_fd != -1) {
+		(void)close(latency_fd);
+		latency_fd = -1;
+	}
 	if (pid > -1) {
 		(void)kill(pid, SIGTERM);
 		(void)kill(pid, SIGKILL);
