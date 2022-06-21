@@ -41,6 +41,58 @@ static const stress_help_t help[] = {
 #define APM_PORT	(0xb2)
 #define STRESS_SMI_NOP	(0x90)	/* SMI No-op command */
 
+typedef struct {
+	uint64_t regs[16];
+} smi_regs_t;
+
+/*
+ *  Stringification macros
+ */
+#define XSTRINGIFY(s) STRINGIFY(s)
+#define STRINGIFY(s) #s
+
+#define SAVE_REG(r, reg, idx)			\
+	__asm__ __volatile__("mov %%" XSTRINGIFY(reg) ", %0\n" : "+m" (r.regs[idx]))
+
+static const char * const reg_names[] = {
+	"r8",	/* 0 */
+	"r9",	/* 1 */
+	"r10",	/* 2 */
+	"r11",	/* 3 */
+	"r12",	/* 4 */
+	"r13",	/* 5 */
+	"r14",	/* 6 */
+	"r15",	/* 7 */
+	"rsi",	/* 8 */
+	"rdi",	/* 9 */
+	"rbp",	/* 10 */
+	"rax",	/* 11 */
+	"rbx",	/* 12 */
+	"rcx",	/* 13 */
+	"rdx",	/* 14 */
+	"rsp"	/* 15 */
+};
+
+#define SAVE_REGS(r)			\
+do {					\
+	SAVE_REG(r, r8, 0);		\
+	SAVE_REG(r, r9, 1);		\
+	SAVE_REG(r, r10, 2);		\
+	SAVE_REG(r, r11, 3);		\
+	SAVE_REG(r, r12, 4);		\
+	SAVE_REG(r, r13, 5);		\
+	SAVE_REG(r, r14, 6);		\
+	SAVE_REG(r, r15, 7);		\
+	SAVE_REG(r, rsi, 8);		\
+	SAVE_REG(r, rdi, 9);		\
+	SAVE_REG(r, rbp, 10);		\
+	SAVE_REG(r, rax, 11);		\
+	SAVE_REG(r, rbx, 12);		\
+	SAVE_REG(r, rcx, 13);		\
+	SAVE_REG(r, rdx, 14);		\
+	SAVE_REG(r, rsp, 15);		\
+} while (0)
+
 /*
  *  stress_smi_supported()
  *      check if we can run this with SHIM_CAP_SYS_MODULE capability
@@ -133,6 +185,7 @@ static int stress_smi(const stress_args_t *args)
 	uint64_t s1 = 0, val;
 	double d1 = 0.0;
 	const int cpus = stress_get_processors_online();
+	static smi_regs_t r1, r2;
 
 	/*
 	 *  If MSR can't be read maybe we need to load
@@ -154,7 +207,6 @@ static int stress_smi(const stress_args_t *args)
 			"permissions on the APM port 0x%2x\n",
 			args->name, APM_PORT);
 	}
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (args->instance == 0) {
@@ -163,8 +215,30 @@ static int stress_smi(const stress_args_t *args)
 			read_msr_ok = false;
 	}
 
+	(void)memset(&r1, 0, sizeof(r1));
+	(void)memset(&r2, 0, sizeof(r2));
+
 	do {
-		outb(STRESS_SMI_NOP, APM_PORT);
+		size_t i;
+		const uint16_t port = APM_PORT;
+		const uint8_t data = STRESS_SMI_NOP;
+
+		SAVE_REGS(r1);
+		__asm__ __volatile__(
+			"out %0,%1\n\t" :: "a" (data), "d" (port));
+		SAVE_REGS(r2);
+		/* out instruction clobbers rax, rdx, so copy these */
+		r2.regs[11] = r1.regs[11];	/* RAX */
+		r2.regs[14] = r1.regs[14];	/* RDX */
+
+		/* check for register clobbering */
+		for (i = 0; i < SIZEOF_ARRAY(r1.regs); i++) {
+			if (r1.regs[i] != r2.regs[i]) {
+				pr_fail("%s: register %s, before SMI: %" PRIx64 ", after SMI: %" PRIx64 "\n",
+					args->name, reg_names[i],
+					r1.regs[i], r2.regs[i]);
+			}
+		}
 		inc_counter(args);
 	} while (keep_stressing(args));
 
