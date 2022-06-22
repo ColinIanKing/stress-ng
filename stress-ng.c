@@ -60,6 +60,7 @@ stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
 stress_put_val_t g_put_val;			/* sync data to somewhere */
 
+static void stress_kill_stressors(const int sig);
 /*
  *  optarg option to global setting option flags
  */
@@ -1337,8 +1338,8 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
 	keep_stressing_set_flag(false);
 	wait_flag = false;
 
-	/* Send alarm to all process in group */
-	(void)kill((pid_t)-getgid(), SIGALRM);
+	/* Send alarm to all stressors */
+	stress_kill_stressors(SIGALRM);
 }
 
 /*
@@ -2018,6 +2019,7 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 		stress_kill_stressors(SIGALRM);
 		_exit(EXIT_SIGNALED);
 	default:
+		stress_kill_stressors(SIGALRM);
 		break;
 	}
 }
