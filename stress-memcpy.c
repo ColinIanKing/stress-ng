@@ -131,7 +131,12 @@ static hint void *name(void *dest, const void *src, size_t n)		\
 
 TEST_NAIVE_MEMMOVE(test_naive_memmove, NOINLINE)
 TEST_NAIVE_MEMMOVE(test_naive_memmove_o0, NOINLINE OPTIMIZE0)
+#if NEED_CLANG(9, 0, 0)
 TEST_NAIVE_MEMMOVE(test_naive_memmove_o3, NOINLINE OPTIMIZE3 TARGET_CLONES)
+#else
+/* older gcc versions segfault on TARGET_CLONES */
+TEST_NAIVE_MEMMOVE(test_naive_memmove_o3, NOINLINE OPTIMIZE3)
+#endif
 
 static NOINLINE void stress_memcpy_libc(
 	stress_buffer_t *b,
