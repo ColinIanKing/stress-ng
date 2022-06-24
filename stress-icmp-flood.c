@@ -71,7 +71,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 
 	const size_t max_payload_len = MAX_PAYLOAD_SIZE + 1;
 	const size_t max_pkt_len = sizeof(struct iphdr) + sizeof(struct icmphdr) + max_payload_len;
-	char pkt[max_pkt_len];
+	char ALIGN64 pkt[max_pkt_len];
 	struct iphdr *const ip_hdr = (struct iphdr *)pkt;
 	struct icmphdr *const icmp_hdr = (struct icmphdr *)(pkt + sizeof(struct iphdr));
 	char *const payload = pkt + sizeof(struct iphdr) + sizeof(struct icmphdr);
