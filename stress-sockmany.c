@@ -89,7 +89,7 @@ static int stress_sockmany_client(
 		int i;
 
 		for (i = 0; i < SOCKET_MANY_FDS; i++) {
-			char buf[SOCKET_MANY_BUF];
+			char ALIGN64 buf[SOCKET_MANY_BUF];
 			ssize_t n;
 			int retries = 0;
 			socklen_t addr_len = 0;
@@ -168,7 +168,7 @@ static int stress_sockmany_server(
 	const pid_t ppid,
 	const char *sockmany_if)
 {
-	char buf[SOCKET_MANY_BUF];
+	char ALIGN64 buf[SOCKET_MANY_BUF];
 	int fd, status;
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
