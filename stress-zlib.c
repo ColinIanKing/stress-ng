@@ -69,7 +69,7 @@ typedef struct morse {
 	char *str;
 } morse_t;
 
-static const morse_t morse[] = {
+static const morse_t ALIGN64 morse[] = {
 	{ 'a', ".-" },
 	{ 'b', "-.." },
 	{ 'c', "-.-." },
@@ -773,7 +773,7 @@ static void stress_rand_data_gcr(
 	const size_t size)
 {
 	/* CBM 2040 GCR */
-	static const uint8_t gcr45[] = {
+	static const uint8_t ALIGN64 gcr45[] = {
 		0x0a, 0x0b, 0x12, 0x13,
 		0x0e, 0x0f, 0x16, 0x17,
 		0x09, 0x19, 0x1a, 0x1b,
@@ -939,7 +939,7 @@ static void stress_rand_data_morse(
 	register size_t i;
 	static const char *ptr = NULL;
 	char *dataptr = (char *)data;
-	static char *morse_table[256];
+	static char ALIGN64 *morse_table[256];
 	static bool morse_table_init = false;
 
 	(void)args;
@@ -1284,8 +1284,8 @@ static int stress_zlib_inflate(
 	ssize_t sz;
 	int ret, err = 0;
 	z_stream stream_inf;
-	static unsigned char in[DATA_SIZE];
-	static unsigned char out[DATA_SIZE];
+	static unsigned char ALIGN64 in[DATA_SIZE];
+	static unsigned char ALIGN64 out[DATA_SIZE];
 	stress_xsum_t xsum;
 	stress_zlib_args_t zlib_args;
 
@@ -1468,7 +1468,7 @@ static int stress_zlib_deflate(
 
 		stream_bytes_out = 0;
 		do {
-			static unsigned char in[DATA_SIZE];
+			static unsigned ALIGN64 char in[DATA_SIZE];
 			unsigned char *xsum_in = (unsigned char *)in;
 			uint64_t diff = zlib_args.stream_bytes - stream_bytes_out;
 
@@ -1500,7 +1500,7 @@ static int stress_zlib_deflate(
 
 			bytes_in += DATA_SIZE;
 			do {
-				static unsigned char out[DATA_SIZE];
+				static unsigned char ALIGN64 out[DATA_SIZE];
 				ssize_t sz;
 				int def_size;
 
