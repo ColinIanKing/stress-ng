@@ -165,8 +165,10 @@ again:
 				}
 			} else {
 				if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
-					pr_fail("%s: futex_wait failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					if (errno != EINTR) {
+						pr_fail("%s: futex_wait failed, errno=%d (%s)\n",
+							args->name, errno, strerror(errno));
+					}
 				}
 				inc_counter(args);
 			}
