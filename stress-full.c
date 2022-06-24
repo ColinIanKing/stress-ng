@@ -52,7 +52,7 @@ static int stress_full(const stress_args_t *args)
 		int fd, w;
 		ssize_t i;
 		off_t offset;
-		char buffer[4096];
+		char ALIGN64 buffer[4096];
 		uint8_t *ptr;
 
 		if ((fd = open("/dev/full", O_RDWR)) < 0) {
