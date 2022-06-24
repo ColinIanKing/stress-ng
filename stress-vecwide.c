@@ -74,7 +74,13 @@ typedef struct {
 #define STRESS_VECWIDE(name, type)				\
 static void TARGET_CLONES OPTIMIZE3 name (vec_args_t *vec_args) \
 {								\
-	type a, b, c, s, v23, v3, res;				\
+	type ALIGN64 a;						\
+	type ALIGN64 b;						\
+	type ALIGN64 c;						\
+	type ALIGN64 s;						\
+	type ALIGN64 v23;					\
+	type ALIGN64 v3;					\
+	type ALIGN64 res;					\
 	register int i;						\
 								\
 	(void)memcpy(&a, vec_args->a, sizeof(a));		\
