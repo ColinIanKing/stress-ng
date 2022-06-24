@@ -85,7 +85,7 @@ again:
  */
 static void stress_tee_pipe_write(const stress_args_t *args, int fds[2])
 {
-	static uint64_t buffer[TEE_IO_SIZE / sizeof(uint64_t)];
+	static uint64_t ALIGN64 buffer[TEE_IO_SIZE / sizeof(uint64_t)];
 	uint64_t counter = 0;
 
 	(void)args;
@@ -113,7 +113,7 @@ static void stress_tee_pipe_write(const stress_args_t *args, int fds[2])
  */
 static void stress_tee_pipe_read(const stress_args_t *args, int fds[2])
 {
-	static uint64_t buffer[TEE_IO_SIZE / sizeof(uint64_t)];
+	static uint64_t ALIGN64 buffer[TEE_IO_SIZE / sizeof(uint64_t)];
 	uint64_t count = 0;
 
 	(void)close(fds[1]);
