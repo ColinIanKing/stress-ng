@@ -116,7 +116,7 @@ static key_serial_t shim_request_key(
  */
 static int stress_key(const stress_args_t *args)
 {
-	key_serial_t keys[MAX_KEYS];
+	key_serial_t ALIGN64 keys[MAX_KEYS];
 	pid_t ppid = getppid();
 	int rc = EXIT_SUCCESS;
 	bool timeout_supported = true;
@@ -136,8 +136,8 @@ static int stress_key(const stress_args_t *args)
 
 	do {
 		size_t i = 0, n = 0;
-		char description[64];
-		char payload[64];
+		char ALIGN64 description[64];
+		char ALIGN64 payload[64];
 
 		/* Add as many keys as we are allowed */
 		for (n = 0; n < MAX_KEYS; n++) {
