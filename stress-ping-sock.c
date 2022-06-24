@@ -48,7 +48,7 @@ static int stress_ping_sock(const stress_args_t *args)
 	int rand_port;
 	char ALIGN64 buf[sizeof(*icmp_hdr) + sz];
 
-	static const char data[64] =
+	static const char ALIGN64 data[64] =
 		"0123456789ABCDEFGHIJKLMNOPQRSTUV"
 		"WXYZabcdefghijklmnopqrstuvwxyz@!";
 
