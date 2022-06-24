@@ -143,8 +143,9 @@ static int stress_pipe(const stress_args_t *args)
 
 	(void)stress_get_setting("pipe-data-size", &pipe_data_size);
 
-	buf = calloc(pipe_data_size, sizeof(*buf));
-	if (!buf) {
+	buf = (char *)mmap(NULL, pipe_data_size, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (buf == MAP_FAILED) {
 		pr_err("%s: failed to allocate buffer\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -160,7 +161,7 @@ static int stress_pipe(const stress_args_t *args)
 		if (pipe(pipefds) < 0) {
 			pr_fail("%s: pipe failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			free(buf);
+			(void)munmap((void *)buf, pipe_data_size);
 			return EXIT_FAILURE;
 		}
 	}
@@ -168,7 +169,7 @@ static int stress_pipe(const stress_args_t *args)
 	if (pipe(pipefds) < 0) {
 		pr_fail("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		free(buf);
+		(void)munmap((void *)buf, pipe_data_size);
 		return EXIT_FAILURE;
 	}
 #endif
@@ -193,7 +194,7 @@ again:
 			goto again;
 		(void)close(pipefds[0]);
 		(void)close(pipefds[1]);
-		free(buf);
+		(void)munmap((void *)buf, pipe_data_size);
 		if (!keep_stressing(args))
 			goto finish;
 		pr_fail("%s: fork failed, errno=%d (%s)\n",
@@ -246,7 +247,7 @@ again:
 			}
 		}
 		(void)close(pipefds[0]);
-		free(buf);
+		(void)munmap((void *)buf, pipe_data_size);
 		_exit(EXIT_SUCCESS);
 	} else {
 		int val = 0, status;
@@ -283,7 +284,7 @@ again:
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 		(void)close(pipefds[1]);
-		free(buf);
+		(void)munmap((void *)buf, pipe_data_size);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
