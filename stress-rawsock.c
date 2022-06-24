@@ -101,7 +101,7 @@ again:
 	} else if (pid == 0) {
 		/* Child, client */
 		int fd;
-		stress_raw_packet_t pkt;
+		stress_raw_packet_t ALIGN64 pkt;
 		struct sockaddr_in addr;
 
 		(void)setpgid(0, g_pgrp);
@@ -200,7 +200,7 @@ again:
 		(void)stress_lock_release(rawsock_lock);
 
 		while (keep_stressing(args)) {
-			stress_raw_packet_t pkt;
+			stress_raw_packet_t ALIGN64 pkt;
 			socklen_t len = sizeof(addr);
 			ssize_t n;
 
