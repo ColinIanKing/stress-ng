@@ -260,7 +260,7 @@ static void stress_free_congestion_controls(char *ctrls[], const size_t n)
  */
 static size_t stress_get_congestion_controls(const int socket_domain, char **ctrls[])
 {
-	char buf[4096], *ptr, *ctrl;
+	char ALIGN64 buf[4096], *ptr, *ctrl;
 	char **array = NULL;
 	size_t n_ctrls;
 
@@ -400,11 +400,11 @@ static void stress_sock_ioctl(
  */
 static void stress_sock_invalid_recv(const int fd, const int opt)
 {
-	char buf[16];
-	struct iovec vec[1];
+	char ALIGN64 buf[16];
+	struct ALIGN64 iovec vec[1];
 	struct msghdr msg;
 #if defined(HAVE_RECVMMSG)
-	struct mmsghdr msgvec[MSGVEC_SIZE];
+	struct mmsghdr ALIGN64 msgvec[MSGVEC_SIZE];
 	struct timespec ts;
 #endif
 
@@ -731,10 +731,10 @@ retry:
 			ssize_t n = 0;
 			size_t i, j;
 			char *recvfunc = "recv";
-			struct msghdr msg;
-			struct iovec vec[MMAP_IO_SIZE / 16];
+			struct msghdr ALIGN64 msg;
+			struct iovec ALIGN64 vec[MMAP_IO_SIZE / 16];
 #if defined(HAVE_RECVMMSG)
-			struct mmsghdr msgvec[MSGVEC_SIZE];
+			struct mmsghdr ALIGN64 msgvec[MSGVEC_SIZE];
 			const int max_opt = 3;
 #else
 			const int max_opt = 2;
@@ -967,10 +967,10 @@ static int stress_sock_server(
 			struct sockaddr saddr;
 			socklen_t len;
 			int sndbuf, opt;
-			struct msghdr msg;
-			struct iovec vec[MMAP_IO_SIZE / 16];
+			struct msghdr ALIGN64 msg;
+			struct iovec ALIGN64 vec[MMAP_IO_SIZE / 16];
 #if defined(HAVE_SENDMMSG)
-			struct mmsghdr msgvec[MSGVEC_SIZE];
+			struct mmsghdr ALIGN64 msgvec[MSGVEC_SIZE];
 #endif
 
 			len = sizeof(saddr);
