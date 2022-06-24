@@ -397,7 +397,7 @@ static void stress_sctp_client(
 	(void)sched_settings_apply(true);
 
 	do {
-		char buf[SOCKET_BUF];
+		char ALIGN64 buf[SOCKET_BUF];
 		int fd;
 		int retries = 0;
 		socklen_t addr_len = 0;
@@ -504,7 +504,7 @@ static int stress_sctp_server(
 	const int sctp_sched,
 	const char *sctp_if)
 {
-	char buf[SOCKET_BUF];
+	char ALIGN64 buf[SOCKET_BUF];
 	int fd, status;
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
