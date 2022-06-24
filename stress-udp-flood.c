@@ -77,7 +77,7 @@ static int stress_udp_flood(const stress_args_t *args)
 	size_t sz = 1;
 	char *udp_flood_if = NULL;
 
-	static const char data[64] =
+	static const char ALIGN64 data[64] =
 		"0123456789ABCDEFGHIJKLMNOPQRSTUV"
 		"WXYZabcdefghijklmnopqrstuvwxyz@!";
 
