@@ -36,7 +36,7 @@ static const stress_help_t help[] = {
 static int stress_null(const stress_args_t *args)
 {
 	int fd;
-	char buffer[4096];
+	char ALIGN64 buffer[4096];
 	int fcntl_mask = 0;
 
 #if defined(O_APPEND)
