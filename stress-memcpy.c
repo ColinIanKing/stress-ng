@@ -156,6 +156,16 @@ static NOINLINE void stress_memcpy_libc(
 	(void)memmove_check(memmove, aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
 }
 
+static void *stress_builtin_memcpy_wrapper(void *restrict dst, const void *restrict src, size_t n)
+{
+	return __builtin_memcpy(dst, src, n);
+}
+
+static void *stress_builtin_memmove_wrapper(void *dst, const void *src, size_t n)
+{
+	return __builtin_memmove(dst, src, n);
+}
+
 static NOINLINE void stress_memcpy_builtin(
 	stress_buffer_t *b,
 	uint8_t *b_str,
@@ -167,14 +177,14 @@ static NOINLINE void stress_memcpy_builtin(
 
 	s_method_name = "builtin";
 
-	(void)memcpy_check(__builtin_memcpy, aligned_buf, str_shared, STR_SHARED_SIZE);
-	(void)memcpy_check(__builtin_memcpy, str_shared, aligned_buf, STR_SHARED_SIZE / 2);
-	(void)memmove_check(shim_builtin_memmove, aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
-	(void)memcpy_check(__builtin_memcpy, b_str, b, STR_SHARED_SIZE);
-	(void)memmove_check(shim_builtin_memmove, aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
-	(void)memcpy_check(__builtin_memcpy, b, b_str, STR_SHARED_SIZE);
-	(void)memmove_check(shim_builtin_memmove, aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
-	(void)memmove_check(shim_builtin_memmove, aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
+	(void)memcpy_check(stress_builtin_memcpy_wrapper, aligned_buf, str_shared, STR_SHARED_SIZE);
+	(void)memcpy_check(stress_builtin_memcpy_wrapper, str_shared, aligned_buf, STR_SHARED_SIZE / 2);
+	(void)memmove_check(stress_builtin_memmove_wrapper, aligned_buf, aligned_buf + 64, STR_SHARED_SIZE - 64);
+	(void)memcpy_check(stress_builtin_memcpy_wrapper, b_str, b, STR_SHARED_SIZE);
+	(void)memmove_check(stress_builtin_memmove_wrapper, aligned_buf + 64, aligned_buf, STR_SHARED_SIZE - 64);
+	(void)memcpy_check(stress_builtin_memcpy_wrapper, b, b_str, STR_SHARED_SIZE);
+	(void)memmove_check(stress_builtin_memmove_wrapper, aligned_buf + 1, aligned_buf, STR_SHARED_SIZE - 1);
+	(void)memmove_check(stress_builtin_memmove_wrapper, aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
 #else
 	/*
 	 *  Compiler may fall back to turning these into inline'd
