@@ -401,7 +401,7 @@ static void stress_sock_ioctl(
 static void stress_sock_invalid_recv(const int fd, const int opt)
 {
 	char ALIGN64 buf[16];
-	struct ALIGN64 iovec vec[1];
+	struct iovec ALIGN64 vec[1];
 	struct msghdr msg;
 #if defined(HAVE_RECVMMSG)
 	struct mmsghdr ALIGN64 msgvec[MSGVEC_SIZE];
