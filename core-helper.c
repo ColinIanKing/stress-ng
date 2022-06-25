@@ -59,6 +59,14 @@
 #include <linux/fs.h>
 #endif
 
+#if defined(HAVE_SYS_VFS_H)
+#include <sys/vfs.h>
+#endif
+
+#if defined(HAVE_LINUX_MAGIC_H)
+#include <linux/magic.h>
+#endif
+
 /* prctl(2) timer slack support */
 #if defined(HAVE_SYS_PRCTL_H) && \
     defined(HAVE_PRCTL) && \
@@ -87,6 +95,227 @@ int __dso_handle;
 #define STRESS_ABS_MIN_STACK_SIZE	(64 * 1024)
 
 static bool stress_stack_check_flag;
+
+typedef struct {
+	const unsigned long	fs_magic;
+	const char *		fs_name;
+} stress_fs_name_t;
+
+#if defined(HAVE_LINUX_MAGIC_H) &&	\
+    defined(HAVE_SYS_STATFS_H)
+static const stress_fs_name_t stress_fs_names[] = {
+#if defined(ADFS_SUPER_MAGIC)
+	{ ADFS_SUPER_MAGIC,	"adfs" },
+#endif
+#if defined(AFFS_SUPER_MAGIC)
+	{ AFFS_SUPER_MAGIC,	"affs" },
+#endif
+#if defined(AFS_SUPER_MAGIC)
+	{ AFS_SUPER_MAGIC,	"afs" },
+#endif
+#if defined(AUTOFS_SUPER_MAGIC)
+	{ AUTOFS_SUPER_MAGIC,	"autofs" },
+#endif
+#if defined(CEPH_SUPER_MAGIC)
+	{ CEPH_SUPER_MAGIC,	"ceph" },
+#endif
+#if defined(CODA_SUPER_MAGIC)
+	{ CODA_SUPER_MAGIC,	"coda" },
+#endif
+#if defined(CRAMFS_MAGIC)
+	{ CRAMFS_MAGIC,		"cramfs" },
+#endif
+#if defined(CRAMFS_MAGIC_WEND)
+	{ CRAMFS_MAGIC,		"cramfs" },
+#endif
+#if defined(DEBUGFS_MAGIC)
+	{ DEBUGFS_MAGIC,	"debugfs" },
+#endif
+#if defined(SECURITYFS_MAGIC)
+	{ SECURITYFS_MAGIC,	"securityfs" },
+#endif
+#if defined(SELINUX_MAGIC)
+	{ SELINUX_MAGIC,	"selinux" },
+#endif
+#if defined(SMACK_MAGIC)
+	{ SMACK_MAGIC,		"smack" },
+#endif
+#if defined(RAMFS_MAGIC)
+	{ RAMFS_MAGIC,		"ramfs" },
+#endif
+#if defined(TMPFS_MAGIC)
+	{ TMPFS_MAGIC,		"tmpfs" },
+#endif
+#if defined(HUGETLBFS_MAGIC)
+	{ HUGETLBFS_MAGIC,	"hugetlbfs" },
+#endif
+#if defined(SQUASHFS_MAGIC)
+	{ SQUASHFS_MAGIC,	"squashfs" },
+#endif
+#if defined(ECRYPTFS_SUPER_MAGIC)
+	{ ECRYPTFS_SUPER_MAGIC,	"ecryptfs" },
+#endif
+#if defined(EFS_SUPER_MAGIC)
+	{ EFS_SUPER_MAGIC,	"efs" },
+#endif
+#if defined(EROFS_SUPER_MAGIC_V1)
+	{ EROFS_SUPER_MAGIC_V1,	"erofs" },
+#endif
+#if defined(EXT2_SUPER_MAGIC)
+	{ EXT2_SUPER_MAGIC,	"ext2" },
+#endif
+#if defined(EXT3_SUPER_MAGIC)
+	{ EXT3_SUPER_MAGIC,	"ext3" },
+#endif
+#if defined(XENFS_SUPER_MAGIC)
+	{ XENFS_SUPER_MAGIC,	"xenfs" },
+#endif
+#if defined(EXT4_SUPER_MAGIC)
+	{ EXT4_SUPER_MAGIC,	"ext4" },
+#endif
+#if defined(BTRFS_SUPER_MAGIC)
+	{ BTRFS_SUPER_MAGIC,	"btrfs" },
+#endif
+#if defined(NILFS_SUPER_MAGIC)
+	{ NILFS_SUPER_MAGIC,	"nilfs" },
+#endif
+#if defined(F2FS_SUPER_MAGIC)
+	{ F2FS_SUPER_MAGIC,	"f2fs" },
+#endif
+#if defined(HPFS_SUPER_MAGIC)
+	{ HPFS_SUPER_MAGIC,	"hpfs" },
+#endif
+#if defined(ISOFS_SUPER_MAGIC)
+	{ ISOFS_SUPER_MAGIC,	"isofs" },
+#endif
+#if defined(JFFS2_SUPER_MAGIC)
+	{ JFFS2_SUPER_MAGIC,	"jffs2" },
+#endif
+#if defined(XFS_SUPER_MAGIC)
+	{ XFS_SUPER_MAGIC,	"xfs" },
+#endif
+#if defined(PSTOREFS_MAGIC)
+	{ PSTOREFS_MAGIC,	"pstorefs" },
+#endif
+#if defined(EFIVARFS_MAGIC)
+	{ EFIVARFS_MAGIC,	"efivars" },
+#endif
+#if defined(HOSTFS_SUPER_MAGIC)
+	{ HOSTFS_SUPER_MAGIC,	"hostfs" },
+#endif
+#if defined(OVERLAYFS_SUPER_MAGIC)
+	{ OVERLAYFS_SUPER_MAGIC, "overlayfs" },
+#endif
+#if defined(FUSE_SUPER_MAGIC)
+	{ FUSE_SUPER_MAGIC,	"fuse" },
+#endif
+#if defined(MINIX_SUPER_MAGIC)
+	{ MINIX_SUPER_MAGIC,	"minix" },
+#endif
+#if defined(MINIX_SUPER_MAGIC2)
+	{ MINIX_SUPER_MAGIC2,	"minix" },
+#endif
+#if defined(MINIX2_SUPER_MAGIC)
+	{ MINIX2_SUPER_MAGIC,	"minix2" },
+#endif
+#if defined(MINIX2_SUPER_MAGIC2)
+	{ MINIX2_SUPER_MAGIC2,	"minix2" },
+#endif
+#if defined(MINIX3_SUPER_MAGIC)
+	{ MINIX3_SUPER_MAGIC,	"minix3" },
+#endif
+#if defined(MSDOS_SUPER_MAGIC)
+	{ MSDOS_SUPER_MAGIC,	"msdos" },
+#endif
+#if defined(EXFAT_SUPER_MAGIC)
+	{ EXFAT_SUPER_MAGIC,	"exfat" },
+#endif
+#if defined(NCP_SUPER_MAGIC)
+	{ NCP_SUPER_MAGIC,	"ncp" },
+#endif
+#if defined(NFS_SUPER_MAGIC)
+	{ NFS_SUPER_MAGIC,	"nfs" },
+#endif
+#if defined(OCFS2_SUPER_MAGIC)
+	{ OCFS2_SUPER_MAGIC,	"ocfs2" },
+#endif
+#if defined(OPENPROM_SUPER_MAGIC)
+	{ OPENPROM_SUPER_MAGIC,	"openprom" },
+#endif
+#if defined(QNX4_SUPER_MAGIC)
+	{ QNX4_SUPER_MAGIC,	"qnx4" },
+#endif
+#if defined(QNX6_SUPER_MAGIC)
+	{ QNX6_SUPER_MAGIC,	"qnx6" },
+#endif
+#if defined(AFS_FS_MAGIC)
+	{ AFS_FS_MAGIC,		"afs" },
+#endif
+#if defined(REISERFS_SUPER_MAGIC)
+	{ REISERFS_SUPER_MAGIC,	"reiserfs" },
+#endif
+#if defined(SMB_SUPER_MAGIC)
+	{ SMB_SUPER_MAGIC,	"smb" },
+#endif
+#if defined(CIFS_SUPER_MAGIC)
+	{ CIFS_SUPER_MAGIC,	"cifs" },
+#endif
+#if defined(SMB2_SUPER_MAGIC)
+	{ SMB2_SUPER_MAGIC,	"smb2" },
+#endif
+#if defined(CGROUP_SUPER_MAGIC)
+	{ CGROUP_SUPER_MAGIC,	"cgroup" },
+#endif
+#if defined(CGROUP2_SUPER_MAGIC)
+	{ CGROUP2_SUPER_MAGIC,	"cgroup2" },
+#endif
+#if defined(RDTGROUP_SUPER_MAGIC)
+	{ RDTGROUP_SUPER_MAGIC,	"rdtgroup" },
+#endif
+#if defined(DAXFS_MAGIC)
+	{ DAXFS_MAGIC,		"daxfs" },
+#endif
+#if defined(BINFMTFS_MAGIC)
+	{ BINFMTFS_MAGIC,	"binfmtfs" },
+#endif
+#if defined(DEVPTS_SUPER_MAGIC)
+	{ DEVPTS_SUPER_MAGIC,	"devpts" },
+#endif
+#if defined(BINDERFS_SUPER_MAGIC)
+	{ BINDERFS_SUPER_MAGIC,	"binderfs" },
+#endif
+#if defined(FUTEXFS_SUPER_MAGIC)
+	{ FUTEXFS_SUPER_MAGIC,	"futexfs" },
+#endif
+#if defined(PIPEFS_MAGIC)
+	{ PIPEFS_MAGIC,		"pipefs" },
+#endif
+#if defined(PROC_SUPER_MAGIC)
+	{ PROC_SUPER_MAGIC,	"proc" },
+#endif
+#if defined(SOCKFS_MAGIC)
+	{ SOCKFS_MAGIC,		"sockfs" },
+#endif
+#if defined(SYSFS_MAGIC)
+	{ SYSFS_MAGIC,		"sysfs" },
+#endif
+#if defined(NSFS_MAGIC)
+	{ NSFS_MAGIC,		"nsfs" },
+#endif
+#if defined(BPF_FS_MAGIC)
+	{ BPF_FS_MAGIC,		"bpf_fs" },
+#endif
+#if defined(AAFS_MAGIC)
+	{ AAFS_MAGIC,		"aafs" },
+#endif
+#if defined(ZONEFS_MAGIC)
+	{ ZONEFS_MAGIC,		"zonefs" },
+#endif
+#if defined(UDF_SUPER_MAGIC)
+	{ UDF_SUPER_MAGIC,	"udf" },
+#endif
+};
+#endif
 
 typedef struct {
 	const int  signum;
@@ -2895,4 +3124,46 @@ size_t stress_flag_permutation(const int flags, int **permutations)
 	}
 	*permutations = perms;
 	return (size_t)n_flags;
+}
+
+/*
+ *  stress_fs_magic_to_name()
+ *	return the human readable file system type based on fs type magic
+ */
+const char *stress_fs_magic_to_name(const unsigned long fs_magic)
+{
+#if defined(HAVE_LINUX_MAGIC_H) &&	\
+    defined(HAVE_SYS_STATFS_H)
+	size_t i;
+	static char unknown[32];
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_fs_names); i++) {
+		if (stress_fs_names[i].fs_magic == fs_magic)
+			return stress_fs_names[i].fs_name;
+	}
+#endif
+	(void)snprintf(unknown, sizeof(unknown), "unknown 0x%lx", fs_magic);
+
+	return unknown;
+}
+
+/*
+ *  stress_fs_type()
+ *	return the file system type that the given filename is in
+ */
+const char *stress_fs_type(const char *filename)
+{
+#if defined(HAVE_LINUX_MAGIC_H) &&	\
+    defined(HAVE_SYS_STATFS_H)
+	struct statfs buf;
+	static char tmp[64];
+
+	if (statfs(filename, &buf) != 0) {
+		return "";
+	}
+	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s", stress_fs_magic_to_name((unsigned long)buf.f_type));
+	return tmp;
+#else
+	return "";
+#endif
 }
