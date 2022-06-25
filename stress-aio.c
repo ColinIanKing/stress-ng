@@ -241,6 +241,7 @@ static int stress_aio(const stress_args_t *args)
 	char filename[PATH_MAX];
 	uint32_t total = 0, i, opt_aio_requests = DEFAULT_AIO_REQUESTS;
 	double t1 = 0.0, t2 = 0.0, dt;
+	const char *fs_type;
 
 	if (!stress_get_setting("aio-requests", &opt_aio_requests)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -271,6 +272,7 @@ static int stress_aio(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto finish;
 	}
+	fs_type = stress_fs_type(filename);
 	(void)shim_unlink(filename);
 
 	(void)sigemptyset(&sa.sa_mask);
@@ -336,10 +338,10 @@ static int stress_aio(const stress_args_t *args)
 				break;
 			default:
 				/* Something went wrong */
-				pr_fail("%s: aio_error, io_reqs[%" PRIu32 "].status = %d (%s)\n",
+				pr_fail("%s: aio_error, io_reqs[%" PRIu32 "].status = %d (%s)%s\n",
 					args->name, i,
 					io_reqs[i].status,
-					strerror(io_reqs[i].status));
+					strerror(io_reqs[i].status), fs_type);
 
 				goto cancel;
 			}

@@ -31,7 +31,7 @@
 #define MAX_IOMIX_BYTES		(MAX_FILE_LIMIT)
 #define DEFAULT_IOMIX_BYTES	(1 * GB)
 
-typedef void (*stress_iomix_func)(const stress_args_t *args, const int fd, const off_t iomix_bytes);
+typedef void (*stress_iomix_func)(const stress_args_t *args, const int fd, const char *fs_type, const off_t iomix_bytes);
 
 static const stress_help_t help[] = {
 	{ NULL,	"iomix N",	 "start N workers that have a mix of I/O operations" },
@@ -135,6 +135,7 @@ static void stress_iomix_fsync_min_1Hz(const int fd)
 static void stress_iomix_wr_seq_bursts(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 	do {
@@ -146,8 +147,8 @@ static void stress_iomix_wr_seq_bursts(
 		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret == (off_t)-1) {
-			pr_fail("%s: lseek failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			return;
 		}
 #if defined(HAVE_POSIX_FADVISE) &&      \
@@ -167,8 +168,8 @@ static void stress_iomix_wr_seq_bursts(
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
 				if (errno != EPERM) {
-					pr_fail("%s: write failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: write failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
 					return;
 				}
 			}
@@ -191,6 +192,7 @@ static void stress_iomix_wr_seq_bursts(
 static void stress_iomix_wr_rnd_bursts(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 #if defined(HAVE_POSIX_FADVISE) &&      \
@@ -213,8 +215,8 @@ static void stress_iomix_wr_rnd_bursts(
 			posn = stress_iomix_rnd_offset(iomix_bytes);
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret == (off_t)-1) {
-				pr_fail("%s: lseek failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				return;
 			}
 
@@ -222,8 +224,8 @@ static void stress_iomix_wr_rnd_bursts(
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
 				if (errno != EPERM) {
-					pr_fail("%s: write failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: write failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
 					return;
 				}
 			}
@@ -246,6 +248,7 @@ static void stress_iomix_wr_rnd_bursts(
 static void stress_iomix_wr_seq_slow(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 	do {
@@ -253,8 +256,8 @@ static void stress_iomix_wr_seq_slow(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret == (off_t)-1) {
-			pr_fail("%s: lseek failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			return;
 		}
 #if defined(HAVE_POSIX_FADVISE) &&      \
@@ -274,8 +277,8 @@ static void stress_iomix_wr_seq_slow(
 			rc = write(fd, buffer, len);
 			if (rc < 0) {
 				if (errno != EPERM) {
-					pr_fail("%s: write failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: write failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
 					return;
 				}
 			}
@@ -296,6 +299,7 @@ static void stress_iomix_wr_seq_slow(
 static void stress_iomix_rd_seq_bursts(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 	do {
@@ -307,8 +311,8 @@ static void stress_iomix_rd_seq_bursts(
 		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
 		if (ret == (off_t)-1) {
-			pr_fail("%s: lseek failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			return;
 		}
 
@@ -326,8 +330,8 @@ static void stress_iomix_rd_seq_bursts(
 
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail("%s: read failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: read failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				return;
 			}
 			posn += rc;
@@ -351,6 +355,7 @@ static void stress_iomix_rd_seq_bursts(
 static void stress_iomix_rd_rnd_bursts(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 	do {
@@ -371,15 +376,15 @@ static void stress_iomix_rd_rnd_bursts(
 
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret == (off_t)-1) {
-				pr_fail("%s: lseek failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				return;
 			}
 
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail("%s: read failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: read failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				return;
 			}
 			if (!keep_stressing(args))
@@ -399,6 +404,7 @@ static void stress_iomix_rd_rnd_bursts(
 static void stress_iomix_rd_seq_slow(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 	do {
@@ -406,8 +412,8 @@ static void stress_iomix_rd_seq_slow(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret == (off_t)-1) {
-			pr_fail("%s: lseek failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			return;
 		}
 #if defined(HAVE_POSIX_FADVISE) &&      \
@@ -427,8 +433,8 @@ static void stress_iomix_rd_seq_slow(
 
 			rc = read(fd, buffer, len);
 			if (rc < 0) {
-				pr_fail("%s: read failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: read failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				return;
 			}
 			(void)shim_usleep(333333);
@@ -448,8 +454,11 @@ static void stress_iomix_rd_seq_slow(
 static void stress_iomix_sync(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
+	(void)fs_type;
+
 	do {
 		struct timeval tv;
 
@@ -508,8 +517,11 @@ static void stress_iomix_sync(
 static void stress_iomix_bad_advise(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
+	(void)fs_type;
+
 	do {
 		off_t posn = stress_iomix_rnd_offset(iomix_bytes);
 
@@ -528,6 +540,7 @@ static void stress_iomix_bad_advise(
 static void stress_iomix_rd_wr_mmap(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 	void *mmaps[128];
@@ -538,6 +551,7 @@ static void stress_iomix_rd_wr_mmap(
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
+	(void)fs_type;
 
 	do {
 		for (i = 0; i < SIZEOF_ARRAY(mmaps); i++) {
@@ -577,6 +591,7 @@ static void stress_iomix_rd_wr_mmap(
 static void stress_iomix_wr_bytes(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 	do {
@@ -584,8 +599,8 @@ static void stress_iomix_wr_bytes(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret == (off_t)-1) {
-			pr_fail("%s: lseek failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			return;
 		}
 		while (posn < iomix_bytes) {
@@ -595,8 +610,8 @@ static void stress_iomix_wr_bytes(
 			rc = write(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
 				if (errno != EPERM) {
-					pr_fail("%s: write failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: write failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
 					return;
 			}	}
 			(void)shim_usleep(1000);
@@ -616,6 +631,7 @@ static void stress_iomix_wr_bytes(
 static void stress_iomix_wr_rev_bytes(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 	do {
@@ -623,8 +639,8 @@ static void stress_iomix_wr_rev_bytes(
 
 		ret = lseek(fd, 0, SEEK_SET);
 		if (ret == (off_t)-1) {
-			pr_fail("%s: lseek failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			return;
 		}
 		while (posn != 0) {
@@ -634,8 +650,8 @@ static void stress_iomix_wr_rev_bytes(
 			rc = write(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
 				if (errno != EPERM) {
-					pr_fail("%s: write failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: write failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
 					return;
 			}	}
 			(void)shim_usleep(1000);
@@ -655,6 +671,7 @@ static void stress_iomix_wr_rev_bytes(
 static void stress_iomix_rd_bytes(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 	do {
@@ -669,16 +686,16 @@ static void stress_iomix_rd_bytes(
 
 			ret = lseek(fd, posn, SEEK_SET);
 			if (ret == (off_t)-1) {
-				pr_fail("%s: lseek failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				return;
 			}
 
 			rc = read(fd, buffer, sizeof(buffer));
 			if (rc < 0) {
 				if (errno != EPERM) {
-					pr_fail("%s: write failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: write failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
 					return;
 				}
 			}
@@ -750,10 +767,12 @@ static void stress_iomix_inode_ioctl(
 static void stress_iomix_inode_flags(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 	(void)args;
 	(void)fd;
+	(void)fs_type;
 	(void)iomix_bytes;
 
 	do {
@@ -828,9 +847,11 @@ static void stress_iomix_inode_flags(
 static void stress_iomix_drop_caches(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
 	(void)fd;
+	(void)fs_type;
 	(void)iomix_bytes;
 
 	do {
@@ -862,8 +883,11 @@ static void stress_iomix_drop_caches(
 static void stress_iomix_copy_file_range(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
+	(void)fs_type;
+
 	do {
 		off_t from = stress_iomix_rnd_offset(iomix_bytes);
 		off_t to = stress_iomix_rnd_offset(iomix_bytes);
@@ -893,8 +917,11 @@ static void stress_iomix_copy_file_range(
 static void stress_iomix_sendfile(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t iomix_bytes)
 {
+	(void)fs_type;
+
 	do {
 		off_t from = stress_iomix_rnd_offset(iomix_bytes);
 		off_t to = stress_iomix_rnd_offset(iomix_bytes);
@@ -968,6 +995,7 @@ static int stress_iomix(const stress_args_t *args)
 	const size_t sz = (counters_sz + page_size) & ~(page_size - 1);
 	size_t i;
 	int pids[SIZEOF_ARRAY(iomix_funcs)];
+	const char *fs_type;
 
 	counters = (void *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -1003,6 +1031,7 @@ static int stress_iomix(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto unmap;
 	}
+	fs_type = stress_fs_type(filename);
 	(void)shim_unlink(filename);
 
 #if defined(FALLOC_FL_ZERO_RANGE)
@@ -1015,8 +1044,8 @@ static int stress_iomix(const stress_args_t *args)
 			ret = EXIT_NO_RESOURCE;
 		} else {
 			ret = EXIT_FAILURE;
-			pr_fail("%s: fallocate failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: fallocate failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 		}
 		goto tidy;
 	}
@@ -1037,7 +1066,7 @@ static int stress_iomix(const stress_args_t *args)
 		} else if (pids[i] == 0) {
 			/* Child */
 			(void)sched_settings_apply(true);
-			iomix_funcs[i](&tmp_args, fd, iomix_bytes);
+			iomix_funcs[i](&tmp_args, fd, fs_type, iomix_bytes);
 			_exit(EXIT_SUCCESS);
 		}
 	}

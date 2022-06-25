@@ -146,8 +146,9 @@ static int stress_chdir(const stress_args_t *args)
 	}
 
 	if (!got_statbuf && *path) {
-		pr_fail("%s: fstat on %s failed, errno=%d (%s)\n",
-			args->name, path, errno, strerror(errno));
+		pr_fail("%s: fstat on %s failed, errno=%d (%s)%s\n",
+			args->name, path, errno, strerror(errno),
+			stress_fs_type(path));
 		goto abort;
 	}
 
@@ -160,16 +161,20 @@ static int stress_chdir(const stress_args_t *args)
 
 			if (mkdir_ok[i] && (chdir(paths[i]) < 0)) {
 				if (errno != ENOMEM) {
-					pr_fail("%s: chdir %s failed, errno=%d (%s)\n",
-						args->name, paths[i], errno, strerror(errno));
+					pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
+						args->name, paths[i],
+						errno, strerror(errno),
+						stress_fs_type(path));
 					goto abort;
 				}
 			}
 
 			if ((fd >= 0) && (fchdir(fd) < 0)) {
 				if (errno != ENOMEM) {
-					pr_fail("%s: fchdir failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: fchdir failed, errno=%d (%s)%s\n",
+						args->name,
+						errno, strerror(errno),
+						stress_fs_type(paths[i]));
 					goto abort;
 				}
 			}
@@ -179,8 +184,10 @@ static int stress_chdir(const stress_args_t *args)
 			 */
 			if (chdir("/") < 0) {
 				if ((errno != ENOMEM) && (errno != EACCES)) {
-					pr_fail("%s: chdir / failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: chdir / failed, errno=%d (%s)%s\n",
+						args->name,
+						errno, strerror(errno),
+						stress_fs_type("/"));
 					goto abort;
 				}
 			}
@@ -202,8 +209,10 @@ static int stress_chdir(const stress_args_t *args)
 					break;
 				/* Maybe low memory, force retry */
 				if (errno != ENOMEM) {
-					pr_fail("%s: chdir %s failed, errno=%d (%s)\n",
-						args->name, cwd, errno, strerror(errno));
+					pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
+						args->name, cwd,
+						errno, strerror(errno),
+						stress_fs_type(cwd));
 					goto tidy;
 				}
 			}
@@ -239,8 +248,9 @@ static int stress_chdir(const stress_args_t *args)
 	ret = EXIT_SUCCESS;
 abort:
 	if (chdir(cwd) < 0)
-		pr_fail("%s: chdir %s failed, errno=%d (%s)\n",
-			args->name, cwd, errno, strerror(errno));
+		pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
+			args->name, cwd, errno, strerror(errno),
+			stress_fs_type(cwd));
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	/* force unlink of all files */

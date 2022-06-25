@@ -91,8 +91,9 @@ static int do_chattr(
 			if ((errno != EOPNOTSUPP) &&
 			    (errno != ENOTTY) &&
 			    (errno != EINVAL))
-				pr_inf("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed: errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_inf("%s: ioctl SHIM_EXT2_IOC_GETFLAGS failed: errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno),
+					stress_fs_type(filename));
 			goto tidy_fd;
 		}
 
@@ -104,8 +105,9 @@ static int do_chattr(
 			if ((errno != EOPNOTSUPP) &&
 			    (errno != ENOTTY) &&
 			    (errno != EINVAL))
-				pr_inf("%s: ioctl SHIM_EXT2_IOC_SETFLAGS failed: errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_inf("%s: ioctl SHIM_EXT2_IOC_SETFLAGS failed: errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno),
+					stress_fs_type(filename));
 			goto tidy_fd;
 		}
 

@@ -182,8 +182,9 @@ static int stress_chown(const stress_args_t *args)
 			if (++retries >= 100) {
 				pr_err("%s: chown: file %s took %d "
 					"retries to open and gave up "
-					"(instance %" PRIu32 ")\n",
-					args->name, filename, retries, args->instance);
+					"(instance %" PRIu32 ")%s\n",
+					args->name, filename, retries, args->instance,
+					stress_fs_type(filename));
 				goto tidy;
 			}
 		}
@@ -196,8 +197,9 @@ static int stress_chown(const stress_args_t *args)
 
 		ret = do_fchown(fd, bad_fd, cap_chown, uid, gid);
 		if ((ret < 0) && (ret != -EPERM))
-			pr_fail("%s: fchown failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: fchown failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno),
+				stress_fs_type(filename));
 
 		ret = do_chown(chown, filename, cap_chown, uid, gid);
 		if (ret < 0) {
@@ -210,8 +212,9 @@ static int stress_chown(const stress_args_t *args)
 				goto tidy;
 			}
 			if (ret != -EPERM)
-				pr_fail("%s: chown %s failed, errno=%d (%s)\n",
-					args->name, filename, errno, strerror(errno));
+				pr_fail("%s: chown %s failed, errno=%d (%s)%s\n",
+					args->name, filename, errno, strerror(errno),
+					stress_fs_type(filename));
 		}
 		ret = do_chown(lchown, filename, cap_chown, uid, gid);
 		if (ret < 0) {
@@ -224,8 +227,9 @@ static int stress_chown(const stress_args_t *args)
 				goto tidy;
 			}
 			if (ret != -EPERM)
-				pr_fail("%s: chown %s failed, errno=%d (%s)\n",
-					args->name, filename, errno, strerror(errno));
+				pr_fail("%s: lchown %s failed, errno=%d (%s)%s\n",
+					args->name, filename, errno, strerror(errno),
+					stress_fs_type(filename));
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));

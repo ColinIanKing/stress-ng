@@ -251,8 +251,9 @@ restart:
 	if ((fp = fopen(oldname, "w+")) == NULL) {
 		int rc = exit_status(errno);
 
-		pr_err("%s: fopen failed: errno=%d: (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_err("%s: fopen failed: errno=%d: (%s)%s\n",
+			args->name, errno, strerror(errno),
+			stress_fs_type(oldname));
 		(void)stress_temp_dir_rm(args->name, args->pid, inst1);
 		(void)stress_temp_dir_rm(args->name, args->pid, inst2);
 #if defined(EXERCISE_RENAMEAT) ||	\

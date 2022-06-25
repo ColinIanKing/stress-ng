@@ -153,6 +153,7 @@ static int stress_access(const stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 #endif
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
+	const char *fs_type;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -168,6 +169,7 @@ static int stress_access(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		goto tidy;
 	}
+	fs_type = stress_fs_type(filename);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -179,27 +181,27 @@ static int stress_access(const stress_args_t *args)
 
 			ret = fchmod(fd, modes[i].chmod_mode);
 			if (CHMOD_ERR(ret)) {
-				pr_fail("%s: fchmod %3.3o failed: %d (%s)\n",
+				pr_fail("%s: fchmod %3.3o failed: %d (%s)%s\n",
 					args->name, (unsigned int)modes[i].chmod_mode,
-					errno, strerror(errno));
+					errno, strerror(errno), fs_type);
 				goto tidy;
 			}
 			ret = access(filename, modes[i].access_mode);
 			if (ret < 0) {
-				pr_fail("%s: access %3.3o on chmod mode %3.3o failed: %d (%s)\n",
+				pr_fail("%s: access %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
 					args->name,
 					modes[i].access_mode,
 					(unsigned int)modes[i].chmod_mode,
-					errno, strerror(errno));
+					errno, strerror(errno), fs_type);
 			}
 #if defined(HAVE_FACCESSAT)
 			ret = shim_faccessat(AT_FDCWD, filename, modes[i].access_mode, 0);
 			if ((ret < 0) && (errno != ENOSYS)) {
-				pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed: %d (%s)\n",
+				pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
 					args->name,
 					modes[i].access_mode,
 					(unsigned int)modes[i].chmod_mode,
-					errno, strerror(errno));
+					errno, strerror(errno), fs_type);
 			}
 
 			/*
@@ -222,11 +224,11 @@ static int stress_access(const stress_args_t *args)
 			ret = faccessat2(AT_FDCWD, filename, modes[i].access_mode,
 				AT_SYMLINK_NOFOLLOW);
 			if ((ret < 0) && (errno != ENOSYS)) {
-				pr_fail("%s: faccessat2 %3.3o on chmod mode %3.3o failed: %d (%s)\n",
+				pr_fail("%s: faccessat2 %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
 					args->name,
 					modes[i].access_mode,
 					(unsigned int)modes[i].chmod_mode,
-					errno, strerror(errno));
+					errno, strerror(errno), fs_type);
 			}
 			/*
 			 *  Exercise bad dir_fd
@@ -243,28 +245,28 @@ static int stress_access(const stress_args_t *args)
 
 				ret = fchmod(fd, chmod_mode);
 				if (CHMOD_ERR(ret)) {
-					pr_fail("%s: fchmod %3.3o failed: %d (%s)\n",
+					pr_fail("%s: fchmod %3.3o failed: %d (%s)%s\n",
 						args->name, (unsigned int)chmod_mode,
-						errno, strerror(errno));
+						errno, strerror(errno), fs_type);
 					goto tidy;
 				}
 				ret = access(filename, modes[i].access_mode);
 				if ((ret == 0) && dont_ignore) {
-					pr_fail("%s: access %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)\n",
+					pr_fail("%s: access %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)%s\n",
 						args->name,
 						modes[i].access_mode,
 						(unsigned int)chmod_mode,
-						errno, strerror(errno));
+						errno, strerror(errno), fs_type);
 				}
 #if defined(HAVE_FACCESSAT)
 				ret = faccessat(AT_FDCWD, filename, modes[i].access_mode,
 					AT_SYMLINK_NOFOLLOW);
 				if ((ret == 0) && dont_ignore) {
-					pr_fail("%s: faccessat %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)\n",
+					pr_fail("%s: faccessat %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)%s\n",
 						args->name,
 						modes[i].access_mode,
 						(unsigned int)chmod_mode,
-						errno, strerror(errno));
+						errno, strerror(errno), fs_type);
 				}
 #else
 	UNEXPECTED

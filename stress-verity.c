@@ -120,7 +120,10 @@ static int stress_verity(const stress_args_t *args)
 			n = write(fd, block, sizeof(block));
 			if (n < 0) {
 				ret = exit_status(errno);
-				pr_err("%s: cannot write %s\n", args->name, filename);
+				pr_err("%s: cannot write %s, errno=%d (%s)%s\n",
+					args->name, filename,
+					errno, strerror(errno),
+					stress_fs_type(filename));
 				(void)close(fd);
 				goto clean;
 			}
@@ -132,8 +135,9 @@ static int stress_verity(const stress_args_t *args)
 		fd = open(filename, O_RDONLY);
 		if (fd < 0) {
 			ret = exit_status(errno);
-			pr_err("%s: cannot re-open %s, errno=%d (%s)\n",
-				args->name, filename, errno, strerror(errno));
+			pr_err("%s: cannot re-open %s, errno=%d (%s)%s\n",
+				args->name, filename, errno, strerror(errno),
+				stress_fs_type(filename));
 			goto clean;
 		}
 
@@ -178,8 +182,9 @@ static int stress_verity(const stress_args_t *args)
 				break;
 			default:
 				pr_inf("%s: verity ioctl FS_IOC_ENABLE_VERITY "
-					"failed on file %s, errno=%d (%s)\n",
-					args->name, filename, errno, strerror(errno));
+					"failed on file %s, errno=%d (%s)%s\n",
+					args->name, filename, errno, strerror(errno),
+					stress_fs_type(filename));
 				ret = EXIT_FAILURE;
 			}
 			(void)close(fd);
@@ -230,7 +235,10 @@ static int stress_verity(const stress_args_t *args)
 			n = read(fd, block, sizeof(block));
 			if (n < 0) {
 				ret = exit_status(errno);
-				pr_err("%s: cannot read %s\n", args->name, filename);
+				pr_err("%s: cannot read %s, errno=%d (%s)%s\n",
+					args->name, filename,
+					errno, strerror(errno),
+					stress_fs_type(filename));
 				(void)close(fd);
 				goto clean;
 			}

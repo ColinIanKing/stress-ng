@@ -254,8 +254,9 @@ static int stress_chmod(const stress_args_t *args)
 			if (++retries >= 10000) {
 				pr_err("%s: chmod: file %s took %d "
 					"retries to open and gave up "
-					"(instance %" PRIu32 ")\n",
-					args->name, filename, retries, args->instance);
+					"(instance %" PRIu32 ")%s\n",
+					args->name, filename, retries, args->instance,
+					stress_fs_type(filename));
 				goto tidy;
 			}
 		}
@@ -269,8 +270,9 @@ static int stress_chmod(const stress_args_t *args)
 		for (i = 0; modes[i]; i++) {
 			mask |= modes[i];
 			if (do_fchmod(fd, bad_fd, i, mask, all_mask) < 0) {
-				pr_fail("%s: fchmod failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: fchmod failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno),
+					stress_fs_type(filename));
 			}
 			if (do_chmod(dfd, bad_fd, filebase, filename, longpath, i,
 				     mask, all_mask, mode_count, mode_perms) < 0) {
@@ -282,8 +284,9 @@ static int stress_chmod(const stress_args_t *args)
 					rc = EXIT_SUCCESS;
 					goto tidy;
 				}
-				pr_fail("%s: chmod %s failed, errno=%d (%s)\n",
-					args->name, filename, errno, strerror(errno));
+				pr_fail("%s: chmod %s failed, errno=%d (%s)%s\n",
+					args->name, filename, errno, strerror(errno),
+					stress_fs_type(filename));
 			}
 		}
 		inc_counter(args);

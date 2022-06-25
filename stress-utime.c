@@ -122,13 +122,15 @@ static int stress_utime(const stress_args_t *args)
 		(void)gettimeofday(&timevals[0], NULL);
 		timevals[1] = timevals[0];
 		if (utimes(filename, timevals) < 0) {
-			pr_dbg("%s: utimes failed: errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno),
+				stress_fs_type(filename));
 			break;
 		}
 		if (utimes(filename, NULL) < 0) {
-			pr_dbg("%s: utimes failed: errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_dbg("%s: utimes failed: errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno),
+				stress_fs_type(filename));
 			break;
 		}
 
@@ -140,8 +142,9 @@ static int stress_utime(const stress_args_t *args)
 
 #if defined(HAVE_FUTIMENS)
 		if (futimens(fd, NULL) < 0) {
-			pr_dbg("%s: futimens failed: errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno),
+				stress_fs_type(filename));
 			break;
 		}
 
@@ -158,8 +161,9 @@ static int stress_utime(const stress_args_t *args)
 		ts[1].tv_sec = UTIME_NOW;
 		ts[1].tv_nsec = UTIME_NOW;
 		if (futimens(fd, ts) < 0) {
-			pr_dbg("%s: futimens failed: errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno),
+				stress_fs_type(filename));
 			break;
 		}
 #else
@@ -170,8 +174,9 @@ static int stress_utime(const stress_args_t *args)
 		ts[0].tv_sec = UTIME_OMIT;
 		ts[0].tv_nsec = UTIME_OMIT;
 		if (futimens(fd, ts) < 0) {
-			pr_dbg("%s: futimens failed: errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_dbg("%s: futimens failed: errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno),
+				stress_fs_type(filename));
 			break;
 		}
 #else
@@ -258,8 +263,9 @@ STRESS_PRAGMA_POP
 			utbuf.modtime = utbuf.actime;
 
 			if (shim_utime(filename, &utbuf) < 0) {
-				pr_fail("%s: utime failed: errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: utime failed: errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno),
+					stress_fs_type(filename));
 				break;
 			}
 
@@ -278,8 +284,9 @@ STRESS_PRAGMA_POP
 				}
 			}
 			if (shim_utime(filename, NULL) < 0) {
-				pr_fail("%s: utime failed: errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: utime failed: errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno),
+					stress_fs_type(filename));
 				break;
 			}
 

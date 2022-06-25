@@ -258,6 +258,7 @@ static int stress_fiemap(const stress_args_t *args)
 	size_t i, n;
 	uint64_t fiemap_bytes = DEFAULT_FIEMAP_SIZE;
 	struct fiemap fiemap;
+	const char *fs_type;
 
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
@@ -289,16 +290,17 @@ static int stress_fiemap(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto dir_clean;
 	}
+	fs_type = stress_fs_type(filename);
 	(void)shim_unlink(filename);
 
-	memset(&fiemap, 0, sizeof(fiemap));
+	(void)memset(&fiemap, 0, sizeof(fiemap));
 	fiemap.fm_length = ~0UL;
 	if (ioctl(fd, FS_IOC_FIEMAP, &fiemap) < 0) {
 		errno = EOPNOTSUPP;
 		if (errno == EOPNOTSUPP) {
 			if (args->instance == 0)
-				pr_inf_skip("%s: FS_IOC_FIEMAP not supported on the file system, skipping stressor\n",
-					args->name);
+				pr_inf_skip("%s: FS_IOC_FIEMAP not supported on the file system, skipping stressor%s\n",
+					args->name, fs_type);
 			rc = EXIT_NOT_IMPLEMENTED;
 			goto close_clean;
 		}

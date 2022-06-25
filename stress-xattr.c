@@ -60,6 +60,7 @@ static int stress_xattr(const stress_args_t *args)
 	char filename[PATH_MAX];
 	char bad_filename[PATH_MAX + 4];
 	char *hugevalue = NULL;
+	const char *fs_type;
 #if defined(XATTR_SIZE_MAX)
 	const size_t hugevalue_sz = XATTR_SIZE_MAX + 16;
 	char *large_tmp;
@@ -88,6 +89,7 @@ static int stress_xattr(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto out;
 	}
+	fs_type = stress_fs_type(filename);
 	(void)snprintf(bad_filename, sizeof(bad_filename), "%s_bad", filename);
 
 	hugevalue = calloc(1, hugevalue_sz);
@@ -116,14 +118,14 @@ static int stress_xattr(const stress_args_t *args)
 					if (args->instance == 0)
 						pr_inf_skip("%s stressor will be "
 							"skipped, filesystem does not "
-							"support xattr.\n", args->name);
+							"support xattr%s\n", args->name, fs_type);
 					rc = EXIT_NO_RESOURCE;
 					goto out_close;
 				}
 				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
 					break;
-				pr_fail("%s: fsetxattr failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: fsetxattr failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
 			}
 			if (!keep_stressing(args))
@@ -149,7 +151,8 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_fsetxattr(fd, attrname, value, strlen(value), ~0);
 		if (ret >= 0) {
 			pr_fail("%s: fsetxattr unexpectedly succeeded on invalid flags, "
-				"errno=%d (%s)\n", args->name, errno, strerror(errno));
+				"errno=%d (%s)%s\n", args->name,
+				errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 
@@ -157,14 +160,16 @@ static int stress_xattr(const stress_args_t *args)
 		ret = shim_lsetxattr(filename, attrname, value, strlen(value), ~0);
 		if (ret >= 0) {
 			pr_fail("%s: lsetxattr unexpectedly succeeded on invalid flags, "
-				"errno=%d (%s)\n", args->name, errno, strerror(errno));
+				"errno=%d (%s)%s\n", args->name,
+				errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 #endif
 		ret = shim_setxattr(filename, attrname, value, strlen(value), ~0);
 		if (ret >= 0) {
 			pr_fail("%s: setxattr unexpectedly succeeded on invalid flags, "
-				"errno=%d (%s)\n", args->name, errno, strerror(errno));
+				"errno=%d (%s)%s\n", args->name,
+				errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 		/* Exercise invalid filename, ENOENT */
@@ -187,8 +192,8 @@ static int stress_xattr(const stress_args_t *args)
 		if (ret >= 0) {
 			pr_fail("%s: fsetxattr succeeded unexpectedly, "
 				"replaced attribute which "
-				"doesn't exist, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				"doesn't exist, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 
@@ -198,8 +203,8 @@ static int stress_xattr(const stress_args_t *args)
 		if (ret >= 0) {
 			pr_fail("%s: lsetxattr succeeded unexpectedly, "
 				"replaced attribute which "
-				"doesn't exist, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				"doesn't exist, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 #endif
@@ -208,8 +213,8 @@ static int stress_xattr(const stress_args_t *args)
 		if (ret >= 0) {
 			pr_fail("%s: setxattr succeeded unexpectedly, "
 				"replaced attribute which "
-				"doesn't exist, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				"doesn't exist, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 
@@ -221,8 +226,8 @@ static int stress_xattr(const stress_args_t *args)
 		if (ret >= 0) {
 			pr_fail("%s: fsetxattr succeeded unexpectedly, "
 				"created attribute with size greater "
-				"than permitted size, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				"than permitted size, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 #endif
@@ -235,8 +240,8 @@ static int stress_xattr(const stress_args_t *args)
 		if (ret >= 0) {
 			pr_fail("%s: lsetxattr succeeded unexpectedly, "
 				"created attribute with size greater "
-				"than permitted size, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				"than permitted size, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 #endif
@@ -248,8 +253,8 @@ static int stress_xattr(const stress_args_t *args)
 		if (ret >= 0) {
 			pr_fail("%s: setxattr succeeded unexpectedly, "
 				"created attribute with size greater "
-				"than permitted size, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				"than permitted size, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 #endif
@@ -265,8 +270,8 @@ static int stress_xattr(const stress_args_t *args)
 		if (ret >= 0) {
 			pr_fail("%s: fsetxattr succeeded unexpectedly, "
 				"created attribute which "
-				"already exists, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				"already exists, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 
@@ -276,8 +281,8 @@ static int stress_xattr(const stress_args_t *args)
 		if (ret >= 0) {
 			pr_fail("%s: lsetxattr succeeded unexpectedly, "
 				"created attribute which "
-				"already exists, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				"already exists, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 #endif
@@ -286,8 +291,8 @@ static int stress_xattr(const stress_args_t *args)
 		if (ret >= 0) {
 			pr_fail("%s: setxattr succeeded unexpectedly, "
 				"created attribute which "
-				"already exists, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+				"already exists, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			goto out_close;
 		}
 
@@ -300,8 +305,8 @@ static int stress_xattr(const stress_args_t *args)
 			if (ret < 0) {
 				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
 					break;
-				pr_fail("%s: fsetxattr failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: fsetxattr failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
 			}
 
@@ -311,8 +316,8 @@ static int stress_xattr(const stress_args_t *args)
 			if (ret < 0) {
 				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
 					break;
-				pr_fail("%s: setxattr failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: setxattr failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
 			}
 
@@ -323,8 +328,8 @@ static int stress_xattr(const stress_args_t *args)
 			if (ret < 0) {
 				if ((errno == ENOSPC) || (errno == EDQUOT) || (errno == E2BIG))
 					break;
-				pr_fail("%s: lsetxattr failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: lsetxattr failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
 			}
 #endif
@@ -338,8 +343,8 @@ static int stress_xattr(const stress_args_t *args)
 			(void)memset(tmp, 0, sizeof(tmp));
 			sret = shim_fgetxattr(fd, attrname, tmp, sizeof(tmp));
 			if (sret < 0) {
-				pr_fail("%s: fgetxattr failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: fgetxattr failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
 			}
 			if (strncmp(value, tmp, (size_t)sret)) {
@@ -367,8 +372,8 @@ static int stress_xattr(const stress_args_t *args)
 #if defined(HAVE_LGETXATTR)
 			sret = shim_lgetxattr(filename, attrname, tmp, sizeof(tmp));
 			if (sret < 0) {
-				pr_fail("%s: lgetxattr failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: lgetxattr failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
 			}
 			if (strncmp(value, tmp, (size_t)sret)) {
@@ -411,8 +416,8 @@ static int stress_xattr(const stress_args_t *args)
 			free(buffer);
 
 			if (sret < 0) {
-				pr_fail("%s: listxattr failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: listxattr failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				goto out_close;
 			}
 		}

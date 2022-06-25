@@ -67,14 +67,15 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static int stress_sync_allocate(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	const off_t sync_file_bytes)
 {
 	int ret;
 
 	ret = ftruncate(fd, 0);
 	if (ret < 0) {
-		pr_err("%s: ftruncate failed: errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_err("%s: ftruncate failed: errno=%d (%s)%s\n",
+			args->name, errno, strerror(errno), fs_type);
 		return -errno;
 	}
 
@@ -83,8 +84,8 @@ static int stress_sync_allocate(
 	if (ret < 0) {
 		if ((errno == ENOSPC) || (errno == EINTR))
 			return -errno;
-		pr_fail("%s: fdatasync failed: errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: fdatasync failed: errno=%d (%s)%s\n",
+			args->name, errno, strerror(errno), fs_type);
 		return -errno;
 	}
 #else
@@ -95,8 +96,8 @@ static int stress_sync_allocate(
 	if (ret < 0) {
 		if (errno == ENOSPC)
 			return -errno;
-		pr_err("%s: fallocate failed: errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_err("%s: fallocate failed: errno=%d (%s)%s\n",
+			args->name, errno, strerror(errno), fs_type);
 		return -errno;
 	}
 	return 0;
@@ -112,6 +113,7 @@ static int stress_sync_file(const stress_args_t *args)
 	const int bad_fd = stress_get_bad_fd();
 	off_t sync_file_bytes = DEFAULT_SYNC_FILE_BYTES;
 	char filename[PATH_MAX];
+	const char *fs_type;
 
 	if (!stress_get_setting("sync_file-bytes", &sync_file_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -142,6 +144,7 @@ static int stress_sync_file(const stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
+	fs_type = stress_fs_type(filename);
 	(void)shim_unlink(filename);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -151,7 +154,7 @@ static int stress_sync_file(const stress_args_t *args)
 		const size_t mode_index = stress_mwc32() % SIZEOF_ARRAY(sync_modes);
 		const unsigned int mode = sync_modes[mode_index];
 
-		ret = stress_sync_allocate(args, fd, sync_file_bytes);
+		ret = stress_sync_allocate(args, fd, fs_type, sync_file_bytes);
 		if (ret < 0) {
 			if (ret == -ENOSPC)
 				continue;
@@ -168,8 +171,8 @@ static int stress_sync_file(const stress_args_t *args)
 						args->name);
 					goto err;
 				}
-				pr_fail("%s: sync_file_range (forward), errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: sync_file_range (forward), errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				break;
 			}
 			offset += sz;
@@ -191,7 +194,7 @@ static int stress_sync_file(const stress_args_t *args)
 		/* Sync from halfway along file to end */
 		VOID_RET(int, shim_sync_file_range(fd, sync_file_bytes << 2, 0, mode));
 
-		ret = stress_sync_allocate(args, fd, sync_file_bytes);
+		ret = stress_sync_allocate(args, fd, fs_type, sync_file_bytes);
 		if (ret < 0) {
 			if (ret == -ENOSPC)
 				continue;
@@ -208,8 +211,8 @@ static int stress_sync_file(const stress_args_t *args)
 						args->name);
 					goto err;
 				}
-				pr_fail("%s: sync_file_range (reverse), errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: sync_file_range (reverse), errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				break;
 			}
 			offset += sz;
@@ -217,7 +220,7 @@ static int stress_sync_file(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 
-		ret = stress_sync_allocate(args, fd, sync_file_bytes);
+		ret = stress_sync_allocate(args, fd, fs_type, sync_file_bytes);
 		if (ret < 0) {
 			if (ret == -ENOSPC)
 				continue;
@@ -233,8 +236,8 @@ static int stress_sync_file(const stress_args_t *args)
 						args->name);
 					goto err;
 				}
-				pr_fail("%s: sync_file_range (random), errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: sync_file_range (random), errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				break;
 			}
 		}

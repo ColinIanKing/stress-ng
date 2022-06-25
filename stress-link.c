@@ -129,8 +129,9 @@ static int stress_link_generic(
 					goto err_unlink;
 				}
 				rc = exit_status(errno);
-				pr_fail("%s: %s failed, errno=%d (%s)\n",
-					args->name, funcname, errno, strerror(errno));
+				pr_fail("%s: %s failed, errno=%d (%s)%s\n",
+					args->name, funcname, errno, strerror(errno),
+					stress_fs_type(oldpath));
 				n = i;
 				break;
 			}
@@ -156,8 +157,9 @@ static int stress_link_generic(
 					if (dir_fd >= 0) {
 						rret = readlinkat(dir_fd, filename, buf, sizeof(buf) - 1);
 						if ((rret < 0) && (errno != ENOSYS)) {
-							pr_fail("%s: readlinkat failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
+							pr_fail("%s: readlinkat failed, errno=%d (%s)%s\n",
+							args->name, errno, strerror(errno),
+							stress_fs_type(filename));
 						}
 						(void)close(dir_fd);
 					}
@@ -167,8 +169,9 @@ static int stress_link_generic(
 				rret = shim_readlink(newpath, buf, sizeof(buf) - 1);
 				if (rret < 0) {
 					rc = exit_status(errno);
-					pr_fail("%s: readlink failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: readlink failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno),
+						stress_fs_type(newpath));
 				} else {
 					buf[rret] = '\0';
 					if ((size_t)rret != oldpathlen)
@@ -192,8 +195,9 @@ static int stress_link_generic(
 			}
 			if (lstat(newpath, &stbuf) < 0) {
 				rc = exit_status(errno);
-				pr_fail("%s: lstat failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: lstat failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno),
+					stress_fs_type(newpath));
 			}
 		}
 

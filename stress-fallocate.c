@@ -115,6 +115,7 @@ static int stress_fallocate(const stress_args_t *args)
 	off_t fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
 	int *mode_perms, all_modes;
 	size_t i, mode_count;
+	const char *fs_type;
 
 	for (all_modes = 0, i = 0; i < SIZEOF_ARRAY(modes); i++)
 		all_modes |= modes[i];
@@ -155,6 +156,7 @@ static int stress_fallocate(const stress_args_t *args)
 		(void)stress_temp_dir_rm_args(args);
 		return ret;
 	}
+	fs_type = stress_fs_type(filename);
 	(void)shim_unlink(filename);
 
 	pipe_ret = pipe(pipe_fds);
@@ -174,8 +176,8 @@ static int stress_fallocate(const stress_args_t *args)
 			struct stat buf;
 
 			if (fstat(fd, &buf) < 0)
-				pr_fail("%s: fstat failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: fstat failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 			else if (buf.st_size != fallocate_bytes)
 				pr_fail("%s: file size %jd does not match size the expected file size of %jd\n",
 					args->name, (intmax_t)buf.st_size,

@@ -57,6 +57,7 @@ typedef uint64_t	buffer_t;
 static int do_readahead(
 	const stress_args_t *args,
 	const int fd,
+	const char *fs_type,
 	off_t *offsets,
 	const uint64_t rounded_readahead_bytes)
 {
@@ -65,8 +66,8 @@ static int do_readahead(
 	for (i = 0; i < MAX_OFFSETS; i++) {
 		offsets[i] = (stress_mwc64() % (rounded_readahead_bytes - BUF_SIZE)) & ~(BUF_SIZE - 1);
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
-			pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			return -1;
 		}
 	}
@@ -90,6 +91,7 @@ static int stress_readahead(const stress_args_t *args)
 	int flags = O_CREAT | O_RDWR | O_TRUNC;
 	int fd, fd_wr;
 	struct stat statbuf;
+	const char *fs_type;
 
 	if (!stress_get_setting("readahead-bytes", &readahead_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -123,14 +125,15 @@ static int stress_readahead(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		goto finish;
 	}
+	fs_type = stress_fs_type(filename);
 
 	/* write-only open, ignore failure */
 	fd_wr = open(filename, O_WRONLY, S_IRUSR | S_IWUSR);
 
 	if (ftruncate(fd, (off_t)0) < 0) {
 		rc = exit_status(errno);
-		pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",
+			args->name, errno, strerror(errno), fs_type);
 		goto close_finish;
 	}
 	(void)shim_unlink(filename);
@@ -138,8 +141,8 @@ static int stress_readahead(const stress_args_t *args)
 #if defined(HAVE_POSIX_FADVISE) &&	\
     defined(POSIX_FADV_DONTNEED)
 	if (posix_fadvise(fd, 0, readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
-		pr_fail("%s: posix_fadvise failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: posix_fadvise failed, errno=%d (%s)%s\n",
+			args->name, errno, strerror(errno), fs_type);
 		goto close_finish;
 	}
 
@@ -173,16 +176,16 @@ seq_wr_retry:
 			if (errno == ENOSPC)
 				break;
 			if (errno) {
-				pr_fail("%s: pwrite failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: pwrite failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				goto close_finish;
 			}
 		}
 	}
 
 	if (fstat(fd, &statbuf) < 0) {
-		pr_fail("%s: fstat failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: fstat failed, errno=%d (%s)%s\n",
+			args->name, errno, strerror(errno), fs_type);
 		goto close_finish;
 	}
 
@@ -195,7 +198,7 @@ seq_wr_retry:
 	do {
 		off_t offsets[MAX_OFFSETS];
 
-		if (do_readahead(args, fd, offsets, rounded_readahead_bytes) < 0)
+		if (do_readahead(args, fd, fs_type, offsets, rounded_readahead_bytes) < 0)
 			goto close_finish;
 
 		for (i = 0; i < MAX_OFFSETS; i++) {
@@ -207,8 +210,8 @@ rnd_rd_retry:
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto rnd_rd_retry;
 				if (errno) {
-					pr_fail("%s: read failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: read failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
 					goto close_finish;
 				}
 				continue;

@@ -356,6 +356,7 @@ static int stress_revio(const stress_args_t *args)
 	do {
 		int fd;
 		size_t extents;
+		const char *fs_type;
 
 		/*
 		 * aggressive option with no other option enables
@@ -375,10 +376,11 @@ static int stress_revio(const stress_args_t *args)
 				args->name, filename, errno, strerror(errno));
 			goto finish;
 		}
+		fs_type = stress_fs_type(filename);
 		(void)shim_unlink(filename);
 		if (ftruncate(fd, (off_t)revio_bytes) < 0) {
-			pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			(void)close(fd);
 			goto finish;
 		}
@@ -398,8 +400,8 @@ seq_wr_retry:
 
 			lseek_ret = lseek(fd, offset, SEEK_SET);
 			if (lseek_ret < 0) {
-				pr_fail("%s: write failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: write failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				(void)close(fd);
 				goto finish;
 			}
@@ -413,8 +415,8 @@ seq_wr_retry:
 				if (errno == ENOSPC)
 					break;
 				if (errno) {
-					pr_fail("%s: write failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: write failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
 					(void)close(fd);
 					goto finish;
 				}

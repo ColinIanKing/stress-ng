@@ -136,13 +136,15 @@ static int stress_copy_file(const stress_args_t *args)
 	(void)shim_unlink(tmp);
 	if (ftruncate(fd_in, (off_t)copy_file_bytes) < 0) {
 		rc = exit_status(errno);
-		pr_fail("%s: ftruncated failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: ftruncated failed, errno=%d (%s)%s\n",
+			args->name, errno, strerror(errno),
+			stress_fs_type(tmp));
 		goto tidy_in;
 	}
 	if (shim_fsync(fd_in) < 0) {
-		pr_fail("%s: fsync failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: fsync failed, errno=%d (%s)%s\n",
+			args->name, errno, strerror(errno),
+			stress_fs_type(tmp));
 		goto tidy_in;
 	}
 

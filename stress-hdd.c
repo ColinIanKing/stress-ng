@@ -683,6 +683,7 @@ static int stress_hdd(const stress_args_t *args)
 		int fd;
 		struct stat statbuf;
 		uint64_t hdd_read_size;
+		const char *fs_type;
 
 		/*
 		 * aggressive option with no other option enables
@@ -714,6 +715,8 @@ static int stress_hdd(const stress_args_t *args)
 			goto finish;
 		}
 
+		fs_type = stress_fs_type(filename);
+
 #if defined(F_SET_FILE_RW_HINT) &&	\
     defined(RWH_WRITE_LIFE_SHORT)
 		{
@@ -725,8 +728,8 @@ static int stress_hdd(const stress_args_t *args)
 		/* Exercise ftruncate or truncate */
 		if (stress_mwc1()) {
 			if (ftruncate(fd, (off_t)0) < 0) {
-				pr_fail("%s: ftruncate failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				(void)close(fd);
 				goto finish;
 			}
@@ -737,8 +740,8 @@ static int stress_hdd(const stress_args_t *args)
 			VOID_RET(int, ftruncate(-1, (off_t)0));
 		} else {
 			if (truncate(filename, (off_t)0) < 0) {
-				pr_fail("%s: truncate failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: truncate failed, errno=%d (%s)%s\n",
+					args->name, errno, strerror(errno), fs_type);
 				(void)close(fd);
 				goto finish;
 			}
@@ -796,8 +799,8 @@ rnd_wr_retry:
 					if (errno == ENOSPC)
 						break;
 					if (errno) {
-						pr_fail("%s: write failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
+						pr_fail("%s: write failed, errno=%d (%s)%s\n",
+							args->name, errno, strerror(errno), fs_type);
 						(void)close(fd);
 						goto finish;
 					}
@@ -828,8 +831,8 @@ seq_wr_retry:
 					if (errno == ENOSPC)
 						break;
 					if (errno) {
-						pr_fail("%s: write failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
+						pr_fail("%s: write failed, errno=%d (%s)%s\n",
+							args->name, errno, strerror(errno), fs_type);
 						(void)close(fd);
 						goto finish;
 					}
@@ -840,8 +843,8 @@ seq_wr_retry:
 		}
 
 		if (fstat(fd, &statbuf) < 0) {
-			pr_fail("%s: fstat failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
+			pr_fail("%s: fstat failed, errno=%d (%s)%s\n",
+				args->name, errno, strerror(errno), fs_type);
 			(void)close(fd);
 			continue;
 		}
@@ -868,8 +871,8 @@ seq_rd_retry:
 					if (errno == ENOSPC)	/* e.g. on vfat */
 						continue;
 					if (errno) {
-						pr_fail("%s: read failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
+						pr_fail("%s: read failed, errno=%d (%s)%s\n",
+							args->name, errno, strerror(errno), fs_type);
 						(void)close(fd);
 						goto finish;
 					}
@@ -922,8 +925,8 @@ seq_rd_retry:
 					(stress_mwc64() % (hdd_bytes - hdd_write_size)) & ~511UL : 0;
 
 				if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
-					pr_fail("%s: lseek failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
+					pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
+						args->name, errno, strerror(errno), fs_type);
 					(void)close(fd);
 					goto finish;
 				}
@@ -940,8 +943,8 @@ rnd_rd_retry:
 					if (errno == ENOSPC)	/* e.g. on vfat */
 						continue;
 					if (errno) {
-						pr_fail("%s: read failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
+						pr_fail("%s: read failed, errno=%d (%s)%s\n",
+							args->name, errno, strerror(errno), fs_type);
 						(void)close(fd);
 						goto finish;
 					}
