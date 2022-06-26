@@ -3132,10 +3132,10 @@ size_t stress_flag_permutation(const int flags, int **permutations)
  */
 const char *stress_fs_magic_to_name(const unsigned long fs_magic)
 {
+	static char unknown[32];
 #if defined(HAVE_LINUX_MAGIC_H) &&	\
     defined(HAVE_SYS_STATFS_H)
 	size_t i;
-	static char unknown[32];
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_fs_names); i++) {
 		if (stress_fs_names[i].fs_magic == fs_magic)
