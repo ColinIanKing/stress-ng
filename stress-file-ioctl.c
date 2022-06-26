@@ -77,7 +77,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 #if defined(FICLONE) || defined(FICLONERANGE)
 	int dfd;
 #endif
-	const off_t file_sz = 8192;
+	const off_t file_sz = 1024 * 1024;
 	uint32_t rnd = stress_mwc32();
 
 	ret = stress_temp_dir_mk_args(args);
@@ -245,13 +245,21 @@ static int stress_file_ioctl(const stress_args_t *args)
 #if defined(FICLONERANGE)
 		{
 			struct file_clone_range fcr;
+			const off_t sz = 4096 * (stress_mwc8() & 0x3);
+			off_t offset = (stress_mwc8() * 4096) & (file_sz - 1);
+
+			(void)memset(&fcr, 0, sizeof(fcr));
+			fcr.src_fd = fd;
+			fcr.src_offset = offset;
+			fcr.src_length = sz;
+			fcr.dest_offset = offset;
+			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
 
 			(void)memset(&fcr, 0, sizeof(fcr));
 			fcr.src_fd = fd;
 			fcr.src_offset = 0;
 			fcr.src_length = file_sz;
 			fcr.dest_offset = 0;
-
 			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
 			exercised++;
 		}
