@@ -261,6 +261,29 @@ static int stress_file_ioctl(const stress_args_t *args)
 			fcr.src_length = file_sz;
 			fcr.dest_offset = 0;
 			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
+
+			/* Exercise invalid parameters */
+			(void)memset(&fcr, 0, sizeof(fcr));
+			fcr.src_fd = fd;
+			fcr.src_offset = 0;
+			fcr.src_length = ~0;	/* invalid length */
+			fcr.dest_offset = 0;
+			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
+
+			(void)memset(&fcr, 0, sizeof(fcr));
+			fcr.src_fd = dfd;	/* invalid fd */
+			fcr.src_offset = 0;
+			fcr.src_length = 0;
+			fcr.dest_offset = 0;
+			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
+
+			(void)memset(&fcr, 0, sizeof(fcr));
+			fcr.src_fd = dfd;
+			fcr.src_offset = file_sz;	/* invalid offset */
+			fcr.src_length = 4096;
+			fcr.dest_offset = file_sz;
+			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
+
 			exercised++;
 		}
 #else
