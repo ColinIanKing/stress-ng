@@ -178,15 +178,11 @@ static int stress_swap_set_size(
 	else
 		swap_info.version = SWAP_VERSION;
 
+	swap_info.last_page = npages - 1;		/* default */
 	if (bad_flags & SWAP_HDR_ZERO_LAST_PAGE)
 		swap_info.last_page = 0;		/* Invalid */
-	else
-		swap_info.last_page = npages - 1;
-
-	if (bad_flags & SWAP_HDR_BAD_LAST_PAGE)
+	else if (bad_flags & SWAP_HDR_BAD_LAST_PAGE)
 		swap_info.last_page = npages + 1;	/* Invalid */
-	else
-		swap_info.last_page = npages - 1;
 
 	if (bad_flags & SWAP_HDR_BAD_NR_BAD)
 		swap_info.nr_badpages = ~0U;		/* Dire */
