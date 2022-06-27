@@ -184,7 +184,7 @@ again:
 						args->name, args->instance);
 				}
 			}
-		} else if (pid == 0) {
+		} else {
 			/* Child, stress memory */
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();

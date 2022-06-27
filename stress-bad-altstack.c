@@ -208,7 +208,7 @@ again:
 				if (WTERMSIG(status) == SIGSEGV)
 					inc_counter(args);
 			}
-		} else if (pid == 0) {
+		} else {
 			uint32_t rnd;
 			int ret;
 			stack_t ss, old_ss;
