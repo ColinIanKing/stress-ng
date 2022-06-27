@@ -302,7 +302,7 @@ rewait:
 			}
 		}
 		rc = WEXITSTATUS(status);
-	} else if (pid == 0) {
+	} else {
 		/* Child */
 		int ret;
 
