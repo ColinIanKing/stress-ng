@@ -471,7 +471,7 @@ again:
 				}
 			}
 		}
-	} else if (pid == 0) {
+	} else {
 		/* Child, wrapped to catch OOMs */
 		const pid_t mypid = getpid();
 
