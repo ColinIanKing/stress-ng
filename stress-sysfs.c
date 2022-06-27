@@ -752,7 +752,7 @@ again:
 					break;
 				}
 			}
-		} else if (pid == 0) {
+		} else {
 			/* Child, spawn threads for sysfs stressing */
 
 			for (i = 0; i < MAX_SYSFS_THREADS; i++) {
