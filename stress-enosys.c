@@ -3653,7 +3653,7 @@ again:
 				}
 			}
 		}
-	} else if (pid == 0) {
+	} else {
 		const unsigned long mask = ULONG_MAX;
 		ssize_t j;
 
