@@ -158,7 +158,6 @@ redo:
 		ptr = (uint8_t *)mmap(NULL, 1, PROT_READ | PROT_WRITE,
 			MAP_SHARED, fd, 0);
 		(void)close(fd);
-		fd = -1;
 
 		if (ptr == MAP_FAILED) {
 			if ((errno == EAGAIN) ||
