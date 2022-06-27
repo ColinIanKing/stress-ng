@@ -253,7 +253,8 @@ static int stress_dccp_server(
 		goto die;
 	}
 	if ((fd = socket(dccp_domain, SOCK_DCCP, IPPROTO_DCCP)) < 0) {
-		if (errno == ESOCKTNOSUPPORT) {
+		if ((errno == ESOCKTNOSUPPORT) ||
+		    (errno == EPROTONOSUPPORT)) {
 			/*
 			 *  Protocol not supported - then return
 			 *  EXIT_NOT_IMPLEMENTED and skip the test
