@@ -407,6 +407,7 @@ again:
 		int attr_count = 0;
 		stress_msg_t ALIGN64 msg;
 		uint64_t values[PRIOS_MAX];
+		uint64_t i = 0;
 
 		/* Parent */
 		(void)setpgid(pid, g_pgrp);
@@ -418,7 +419,6 @@ again:
 			int ret;
 			unsigned int prio = stress_mwc8() % PRIOS_MAX;
 			const uint64_t timed = (msg.value & 1);
-			uint64_t i = 0;
 
 			if ((attr_count++ & 31) == 0) {
 				struct mq_attr old_attr;
