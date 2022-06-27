@@ -85,15 +85,6 @@ static int stress_set_sctp_port(const char *opt)
 	return stress_set_setting("sctp-port", TYPE_ID_INT, &sctp_port);
 }
 
-static const stress_sctp_sched_t stress_sctp_scheds[] = {
-#if defined(HAVE_SCTP_SCHED_TYPE) &&	\
-    defined(HAVE_SCTP_ASSOC_VALUE)
-	{ (int)SCTP_SS_FCFS,	"fcfs" },
-	{ (int)SCTP_SS_PRIO,	"prio" },
-	{ (int)SCTP_SS_RR,	"rr", },
-#endif
-};
-
 /*
  *  stress_set_sctp_sched()
  *	set scheduler to use
@@ -103,6 +94,12 @@ static int stress_set_sctp_sched(const char *opt)
 #if defined(HAVE_SCTP_SCHED_TYPE) && 	\
     defined(HAVE_SCTP_ASSOC_VALUE)
 	size_t i;
+
+	static const stress_sctp_sched_t stress_sctp_scheds[] = {
+		{ (int)SCTP_SS_FCFS,	"fcfs" },
+		{ (int)SCTP_SS_PRIO,	"prio" },
+		{ (int)SCTP_SS_RR,	"rr", },
+	};
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_sctp_scheds); i++) {
 		if (!strcmp(opt, stress_sctp_scheds[i].name)) {
@@ -116,6 +113,7 @@ static int stress_set_sctp_sched(const char *opt)
         (void)fprintf(stderr, "\n");
 	return -1;
 #else
+	(void)opt;
 	pr_inf("sctp-sched option ignored, no SCTP scheduler types available\n");
 	return 0;
 #endif
