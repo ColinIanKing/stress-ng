@@ -987,7 +987,7 @@ fork_again:
 				if (shm_ids[i] != -1)
 					(void)shmctl(shm_ids[i], IPC_RMID, NULL);
 			}
-		} else if (pid == 0) {
+		} else {
 			/* Child, stress memory */
 			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
