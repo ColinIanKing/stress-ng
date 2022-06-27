@@ -138,7 +138,6 @@ static int stress_set(const stress_args_t *args)
 
 	do {
 		int ret;
-		pid_t pid;
 		gid_t gid;
 		uid_t uid;
 #if defined(HAVE_SETREUID)
@@ -166,23 +165,27 @@ static int stress_set(const stress_args_t *args)
 
 #if defined(HAVE_GETPGID) &&	\
     defined(HAVE_SETPGID)
-		pid = getpgid(mypid);
-		if (pid != -1) {
-			if (!cap_root) {
-				const pid_t bad_pid = stress_get_unused_pid_racy(false);
+		{
+			pid_t pid;
 
-				/* Exercise invalid pgid */
-				VOID_RET(int, setpgid(mypid, bad_pid));
+			pid = getpgid(mypid);
+			if (pid != -1) {
+				if (!cap_root) {
+					const pid_t bad_pid = stress_get_unused_pid_racy(false);
 
-				/* Exercise invalid pid */
-				VOID_RET(int, setpgid(bad_pid, pid));
+					/* Exercise invalid pgid */
+					VOID_RET(int, setpgid(mypid, bad_pid));
 
-				/* Exercise invalid pid and pgid */
-				VOID_RET(int, setpgid(bad_pid, bad_pid));
+					/* Exercise invalid pid */
+					VOID_RET(int, setpgid(bad_pid, pid));
+
+					/* Exercise invalid pid and pgid */
+					VOID_RET(int, setpgid(bad_pid, bad_pid));
+				}
+				VOID_RET(int, setpgid(mypid, pid));
+				if (!keep_stressing(args))
+					break;
 			}
-			VOID_RET(int, setpgid(mypid, pid));
-			if (!keep_stressing(args))
-				break;
 		}
 #else
 		UNEXPECTED
@@ -210,12 +213,16 @@ static int stress_set(const stress_args_t *args)
 
 #if defined(HAVE_GETPGRP) &&	\
     defined(HAVE_SETPGRP)
-		/* getpgrp always succeeds */
-		pid = getpgrp();
-		if (pid != -1) {
-			VOID_RET(int, setpgrp());
-			if (!keep_stressing(args))
-				break;
+		{
+			pid_t pid;
+
+			/* getpgrp always succeeds */
+			pid = getpgrp();
+			if (pid != -1) {
+				VOID_RET(int, setpgrp());
+				if (!keep_stressing(args))
+					break;
+			}
 		}
 #else
 		UNEXPECTED
