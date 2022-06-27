@@ -373,6 +373,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [unshare test triggers unhandled page fault](https://bugs.launchpad.net/ubuntu/+source/linux/+bug/1959215)
 * [request_module DoS](https://www.spinics.net/lists/kernel/msg4349826.html)
 * [NUMA Benchmark Regression In Linux 5.18](https://lore.kernel.org/lkml/YmrWK%2FKoU1zrAxPI@fuller.cnet)
+* [Underflow in mas_spanning_rebalance() and test](https://lore.kernel.org/linux-mm/20220625003854.1230114-1-Liam.Howlett@oracle.com/)
 
 ## Kernel improvements that used stress-ng
 
