@@ -131,7 +131,7 @@ kill_child:
 			(void)kill(pid, SIGTERM);
 			(void)stress_killpid(pid);
 			(void)shim_waitpid(pid, &status, 0);
-		} else if (pid == 0) {
+		} else {
 			/* Child */
 			sigset_t set;
 			const size_t page_size = args->page_size;
