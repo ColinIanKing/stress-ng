@@ -323,7 +323,7 @@ static int open_flag_perm(void)
 
 static int open_dev_zero_rd(void)
 {
-	int flags = 0;
+	int flags = O_RDONLY;
 #if defined(O_ASYNC)
 	flags |= (stress_mwc32() & O_ASYNC);
 #endif
@@ -342,13 +342,12 @@ static int open_dev_zero_rd(void)
 #if defined(O_NDELAY)
 	flags |= (stress_mwc32() & O_NDELAY);
 #endif
-
-	return open_arg2("/dev/zero", O_RDONLY | flags);
+	return open_arg2("/dev/zero", flags);
 }
 
 static int open_dev_null_wr(void)
 {
-	int flags = 0;
+	int flags = O_WRONLY;
 #if defined(O_ASYNC)
 	flags |= (stress_mwc32() & O_ASYNC);
 #endif
@@ -370,14 +369,13 @@ static int open_dev_null_wr(void)
 #if defined(O_SYNC)
 	flags |= (stress_mwc32() & O_SYNC);
 #endif
-
-	return open_arg2("/dev/null", O_WRONLY | flags);
+	return open_arg2("/dev/null", flags);
 }
 
 #if defined(O_TMPFILE)
 static int open_tmp_rdwr(void)
 {
-	int flags = 0;
+	int flags = O_TMPFILE | O_RDWR;
 #if defined(O_TRUNC)
 	flags |= (stress_mwc32() & O_TRUNC);
 #endif
@@ -390,7 +388,7 @@ static int open_tmp_rdwr(void)
 #if defined(O_DIRECT)
 	flags |= (stress_mwc32() & O_DIRECT);
 #endif
-	return open_arg3("/tmp", O_TMPFILE | flags | O_RDWR, S_IRUSR | S_IWUSR);
+	return open_arg3("/tmp", flags, S_IRUSR | S_IWUSR);
 }
 #endif
 
