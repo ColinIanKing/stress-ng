@@ -424,7 +424,7 @@ again:
 				pr_fail("%s: child mount/umount failed\n", args->name);
 				return EXIT_FAILURE;
 			}
-		} else if (pid == 0) {
+		} else {
 			_exit(stress_ramfs_child(args));
 		}
 	} while (keep_stressing(args));
