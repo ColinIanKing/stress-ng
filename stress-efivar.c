@@ -422,7 +422,7 @@ again:
 				args->instance);
 			return EXIT_FAILURE;
 		}
-	} else if (pid == 0) {
+	} else {
 		const pid_t mypid = getpid();
 
 		(void)setpgid(0, g_pgrp);
