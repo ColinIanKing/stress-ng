@@ -322,6 +322,7 @@ err_msg:
 	*events = NULL;
 	*cbs = NULL;
 	*fds = NULL;
+	*iov = NULL;
 
 	return -1;
 }
