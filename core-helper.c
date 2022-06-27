@@ -3164,6 +3164,8 @@ const char *stress_fs_type(const char *filename)
 	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s", stress_fs_magic_to_name((unsigned long)buf.f_type));
 	return tmp;
 #else
+	(void)filename;
+
 	return "";
 #endif
 }
