@@ -205,7 +205,7 @@ again:
 				(void)stress_killpid(pid);
 				(void)shim_waitpid(pid, &status, 0);
 			}
-		} else if (pid == 0) {
+		} else {
 			/* Child */
 
 			(void)setpgid(0, g_pgrp);
