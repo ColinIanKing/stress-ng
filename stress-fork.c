@@ -138,6 +138,7 @@ static int stress_fork_fn(
 
 		for (n = 0; n < fork_max; n++) {
 			pid_t pid;
+			const uint8_t rnd = stress_mwc8();
 
 			switch (which) {
 			case STRESS_FORK:
@@ -176,18 +177,45 @@ static int stress_fork_fn(
 				if ((which == STRESS_FORK) && vm) {
 					int flags = 0;
 
+					switch (rnd & 7) {
+					case 0:
 #if defined(MADV_MERGEABLE)
-					flags |= MADV_MERGEABLE;
+						flags |= MADV_MERGEABLE;
 #endif
 #if defined(MADV_WILLNEED)
-					flags |= MADV_WILLNEED;
+						flags |= MADV_WILLNEED;
 #endif
 #if defined(MADV_HUGEPAGE)
-					flags |= MADV_HUGEPAGE;
+						flags |= MADV_HUGEPAGE;
 #endif
 #if defined(MADV_RANDOM)
-					flags |= MADV_RANDOM;
+						flags |= MADV_RANDOM;
 #endif
+						break;
+					case 1:
+#if defined(MADV_COLD)
+						flags |= MADV_COLD;
+#endif
+						break;
+					case 2:
+#if defined(MADV_PAGEOUT)
+						flags |= MADV_PAGEOUT;
+#endif
+						break;
+					case 3:
+#if defined(MADV_WILLNEED)
+						flags |= MADV_WILLNEED;
+#endif
+						break;
+					case 4:
+#if defined(MADV_NOHUGEPAGE)
+						flags |= MADV_NOHUGEPAGE;
+#endif
+						break;
+					/* cases 5..7 */
+					default:
+						break;
+					}
 					if (flags) {
 						stress_madvise_pid_all_pages(getpid(), flags);
 						stress_pagein_self(args->name);
