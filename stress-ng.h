@@ -283,10 +283,10 @@ extern int setdomainname(const char *name, size_t len);
 #define PR_INFO			 STRESS_BIT_ULL(1)	/* Print info */
 #define PR_DEBUG		 STRESS_BIT_ULL(2) 	/* Print debug */
 #define PR_FAIL			 STRESS_BIT_ULL(3) 	/* Print test failure message */
-#define PR_ALL			 (PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL)
+#define PR_WARN			 STRESS_BIT_ULL(4)	/* Print warning */
+#define PR_ALL			 (PR_ERROR | PR_INFO | PR_DEBUG | PR_FAIL | PR_WARN)
 
 /* Option bit masks */
-#define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(4)	/* Don't actually run */
 #define OPT_FLAGS_METRICS	 STRESS_BIT_ULL(5)	/* Dump metrics at end */
 #define OPT_FLAGS_RANDOM	 STRESS_BIT_ULL(6)	/* Randomize */
 #define OPT_FLAGS_SET		 STRESS_BIT_ULL(7)	/* Set if user specifies stress procs */
@@ -327,6 +327,7 @@ extern int setdomainname(const char *name, size_t len);
 #define OPT_FLAGS_KEEP_FILES	 STRESS_BIT_ULL(42)	/* --keep-files */
 #define OPT_FLAGS_STDOUT	 STRESS_BIT_ULL(43)	/* --stdout */
 #define OPT_FLAGS_KLOG_CHECK	 STRESS_BIT_ULL(44)	/* --klog-check */
+#define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(45)	/* Don't actually run */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -747,6 +748,7 @@ extern void pr_err(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_err_skip(const char *fmt, ...)  FORMAT(printf, 1, 2);
 extern void pr_fail(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_tidy(const char *fmt, ...) FORMAT(printf, 1, 2);
+extern void pr_warn(const char *fmt, ...) FORMAT(printf, 1, 2);
 
 extern void pr_lock(bool *locked);
 extern void pr_unlock(bool *locked);

@@ -207,6 +207,8 @@ static int pr_msg_lockable(
 			type = "info: ";
 		if (flag & PR_FAIL)
 			type = "fail: ";
+		if (flag & PR_WARN)
+			type = "warn: ";
 
 		if (g_opt_flags & OPT_FLAGS_LOG_BRIEF) {
 			size_t n = (size_t)vsnprintf(buf, sizeof(buf), fmt, ap);
@@ -392,3 +394,17 @@ void pr_tidy(const char *fmt, ...)
 	(void)pr_msg_lockable(pr_file(), g_caught_sigint ? PR_INFO : PR_DEBUG, true, fmt, ap);
 	va_end(ap);
 }
+
+/*
+ *  pr_warn()
+ *	print warning messages
+ */
+void pr_warn(const char *fmt, ...)
+{
+	va_list ap;
+
+	va_start(ap, fmt);
+	(void)pr_msg_lockable(pr_file(), PR_WARN, false, fmt, ap);
+	va_end(ap);
+}
+

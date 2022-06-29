@@ -2274,7 +2274,7 @@ again:
 					 *  be untrustyworthy
 					 */
 					if (!stats->counter_ready) {
-						pr_inf("%s: WARNING: bogo-ops counter in non-ready state, "
+						pr_warn("%s: WARNING: bogo-ops counter in non-ready state, "
 							"metrics are untrustworthy (process may have been "
 							"terminated prematurely)\n",
 							name);
@@ -2317,7 +2317,7 @@ again:
 				    (duration < (double)g_opt_timeout) &&
 				    (!(g_stressor_current->bogo_ops && stats->counter >= g_stressor_current->bogo_ops))) {
 
-					pr_inf("%s: WARNING: finished prematurely after just %.2fs%s\n",
+					pr_warn("%s: WARNING: finished prematurely after just %.2fs%s\n",
 						name, duration, stress_duration_to_str((double)g_opt_timeout));
 				}
 
