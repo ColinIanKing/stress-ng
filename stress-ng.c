@@ -2168,6 +2168,7 @@ static void MLOCKED_TEXT stress_run(
 			int32_t ionice_class = UNDEFINED;
 			int32_t ionice_level = UNDEFINED;
 			stress_stats_t *stats = g_stressor_current->stats[j];
+			double duration;
 
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
@@ -2273,7 +2274,7 @@ again:
 					 *  be untrustyworthy
 					 */
 					if (!stats->counter_ready) {
-						pr_inf("%s: NOTE: bogo-ops counter in non-ready state, "
+						pr_inf("%s: WARNING: bogo-ops counter in non-ready state, "
 							"metrics are untrustworthy (process may have been "
 							"terminated prematurely)\n",
 							name);
@@ -2309,6 +2310,15 @@ again:
 
 				pr_dbg("%s: exited [%d] (instance %" PRIu32 ")\n",
 					name, (int)getpid(), j);
+
+				duration = stats->finish - stats->start;
+				if (!g_caught_sigint &&
+				    (duration < (double)g_opt_timeout) &&
+				    (!(g_stressor_current->bogo_ops && stats->counter >= g_stressor_current->bogo_ops))) {
+
+					pr_inf("%s: WARNING: finished prematurely after just %.2fs%s\n",
+						name, duration, stress_duration_to_str((double)g_opt_timeout));
+				}
 
 child_exit:
 				stress_stressors_free();
