@@ -34,6 +34,8 @@
 #include <syslog.h>
 #endif
 
+#include <float.h>
+
 typedef struct {
 	const int opt;			/* optarg option */
 	const uint64_t opt_flag;	/* global options flag bit setting */
@@ -2423,6 +2425,8 @@ static void stress_metrics_check(bool *success)
 {
 	stress_stressor_t *ss;
 	bool ok = true;
+	uint64_t counter_check = 0;
+	double min_run_time = DBL_MAX;
 
 	for (ss = stressors_head; ss; ss = ss->next) {
 		int32_t j;
@@ -2431,6 +2435,11 @@ static void stress_metrics_check(bool *success)
 			const stress_stats_t *const stats = ss->stats[j];
 			const stress_checksum_t *checksum = stats->checksum;
 			stress_checksum_t stats_checksum;
+			const double duration = stats->finish - stats->start;
+
+			counter_check |= stats->counter;
+			if (duration < min_run_time)
+				min_run_time = duration;
 
 			if (checksum == NULL) {
 				pr_fail("%s instance %d unexpected null checksum data\n",
@@ -2464,6 +2473,14 @@ static void stress_metrics_check(bool *success)
 			}
 		}
 	}
+
+	/*
+	 *  Bogo ops counter should be not zero for the majority of
+	 *  stressors after 30 seconds of run time
+	 */
+	if (!counter_check && (min_run_time > 30.0))
+		pr_warn("metrics-check: all bogo-op counters are zero, data may be incorrect\n");
+
 	if (ok) {
 		pr_dbg("metrics-check: all stressor metrics validated and sane\n");
 	} else {
