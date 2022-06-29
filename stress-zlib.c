@@ -743,20 +743,27 @@ static void TARGET_CLONES stress_rand_data_brown(
 	(void)args;
 
 	while (ptr < end) {
-		uint32_t val = stress_mwc32();
-		v += ((val % 31) - 15);
-		val >>= 8;
-		*(ptr++) = v;
-		v += ((val % 31) - 15);
-		val >>= 8;
-		*(ptr++) = v;
-		v += ((val % 31) - 15);
-		val >>= 8;
-		*(ptr++) = v;
-		v += ((val % 31) - 15);
-		*(ptr++) = v;
+		register uint32_t rnd = stress_mwc32();
+
+		v += (((rnd & 0xff) % 31) - 15);
+		val = v;
+		*ptr++ = v;
+		rnd >>= 8;
+
+		v += (((rnd & 0xff) % 31) - 15);
+		val = v;
+		*ptr++ = v;
+		rnd >>= 8;
+
+		v += (((rnd & 0xff) % 31) - 15);
+		val = v;
+		*ptr++ = v;
+		rnd >>= 8;
+
+		v += (((rnd & 0xff) % 31) - 15);
+		val = v;
+		*ptr++ = v;
 	}
-	val = v;
 }
 
 /*
