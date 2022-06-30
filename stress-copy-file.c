@@ -78,15 +78,21 @@ static int stress_copy_file_range_verify(
 			return -1;
 
 		bytes_in = read(fd_in, buf_in, sizeof(buf_in));
-		if (bytes_in <= 0)
+		if (bytes_in == 0)
+			return 0;
+		if (bytes_in < 0)
 			break;
 		bytes_out = read(fd_out, buf_out, sizeof(buf_out));
+		if (bytes_out == 0)
+			return 0;
 		if (bytes_out <= 0)
 			break;
 
 		n = STRESS_MINIMUM(bytes_in, bytes_out);
-		if (memcmp(buf_in, buf_out, (size_t)n) != 0)
+		if (memcmp(buf_in, buf_out, (size_t)n) != 0) {
+			pr_inf("n = %jd\n", n);
 			return -1;
+		}
 		bytes_left -= n;
 		*off_in += n;
 		*off_out += n;
@@ -188,11 +194,13 @@ static int stress_copy_file(const stress_args_t *args)
 			goto tidy_out;
 		}
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
-			copy_ret = stress_copy_file_range_verify(fd_in, &off_in_orig,
-					fd_out, &off_out_orig, DEFAULT_COPY_FILE_SIZE);
+			off_in = off_in_orig;
+			off_out = off_out_orig;
+			copy_ret = stress_copy_file_range_verify(fd_in, &off_in,
+					fd_out, &off_out, DEFAULT_COPY_FILE_SIZE);
 			if (copy_ret < 0) {
 				pr_fail("%s: copy_file_range verify failed, input offset=%jd, output offset=%jd\n",
-					args->name, (intmax_t)off_in_orig, off_out_orig);
+					args->name, (intmax_t)off_in_orig, (intmax_t)off_out_orig);
 			}
 		}
 
