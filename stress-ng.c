@@ -2313,8 +2313,8 @@ again:
 				pr_dbg("%s: exited [%d] (instance %" PRIu32 ")\n",
 					name, (int)getpid(), j);
 
-				/* Allow for some slops of ~0.1 secs */
-				duration = (stats->finish - stats->start) + 0.1;
+				/* Allow for some slops of ~0.5 secs */
+				duration = (stats->finish - stats->start) + 0.5;
 				if (!g_caught_sigint &&
 				    (duration < (double)g_opt_timeout) &&
 				    (!(g_stressor_current->bogo_ops && stats->counter >= g_stressor_current->bogo_ops))) {
