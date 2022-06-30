@@ -33,6 +33,11 @@ UNEXPECTED
 UNEXPECTED
 #endif
 
+#if defined(SA_SIGINFO) &&	\
+    !defined(STRESS_ARCH_HPPA)
+#define STRESS_CHECK_SIGINFO
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"sigfpe N",	"start N workers generating floating point math faults" },
 	{ NULL,	"sigfpe-ops N",	"stop after N bogo floating point math faults" },
@@ -47,7 +52,7 @@ static const stress_help_t help[] = {
 #define SNG_FLTDIV	(0x80000000)
 
 static sigjmp_buf jmp_env;
-#if defined(SA_SIGINFO)
+#if defined(STRESS_CHECK_SIGINFO)
 static volatile siginfo_t siginfo;
 #endif
 
@@ -55,7 +60,7 @@ static volatile siginfo_t siginfo;
  *  stress_fpehandler()
  *	SIGFPE handler
  */
-#if defined(SA_SIGINFO)
+#if defined(STRESS_CHECK_SIGINFO)
 static void NORETURN MLOCKED_TEXT stress_fpehandler(int num, siginfo_t *info, void *ucontext)
 {
 	(void)num;
@@ -76,7 +81,7 @@ static void NORETURN MLOCKED_TEXT stress_fpehandler(int num)
 }
 #endif
 
-#if defined(SA_SIGINFO)
+#if defined(STRESS_CHECK_SIGINFO)
 /*
  *  stress_sigfpe_errstr()
  *	convert sigfpe error code to string
@@ -187,13 +192,13 @@ static int stress_sigfpe(const stress_args_t *args)
 
 	(void)memset(&action, 0, sizeof action);
 
-#if defined(SA_SIGINFO)
+#if defined(STRESS_CHECK_SIGINFO)
 	action.sa_sigaction = stress_fpehandler;
 #else
 	action.sa_handler = stress_fpehandler;
 #endif
 	(void)sigemptyset(&action.sa_mask);
-#if defined(SA_SIGINFO)
+#if defined(STRESS_CHECK_SIGINFO)
 	action.sa_flags = SA_SIGINFO;
 #endif
 
@@ -207,13 +212,13 @@ static int stress_sigfpe(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (;;) {
-#if defined(SA_SIGINFO)
+#if defined(STRESS_CHECK_SIGINFO)
 		static int expected_err_code;
 		int code;
 #endif
 		unsigned int exception;
 
-#if defined(SA_SIGINFO)
+#if defined(STRESS_CHECK_SIGINFO)
 		code = fpe_errs[i].err_code;
 		expected_err_code = code;
 #endif
@@ -234,8 +239,7 @@ static int stress_sigfpe(const stress_args_t *args)
 			 */
 			(void)feclearexcept(FE_ALL_EXCEPT);
 
-#if defined(SA_SIGINFO) && \
-    !defined(STRESS_ARCH_HPPA)
+#if defined(STRESS_CHECK_SIGINFO)
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) &&
 			    (siginfo.si_code >= 0) &&
 			    (siginfo.si_code != expected_err_code)) {
@@ -247,7 +251,7 @@ static int stress_sigfpe(const stress_args_t *args)
 #endif
 			inc_counter(args);
 		} else {
-#if defined(SA_SIGINFO)
+#if defined(STRESS_CHECK_SIGINFO)
 			siginfo.si_code = 0;
 #endif
 
