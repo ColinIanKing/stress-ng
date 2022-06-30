@@ -732,7 +732,6 @@ void stress_vmstat_start(void)
 		if (iostat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(iostat_delay, sleep_delay);
 #endif
-pr_inf("sleep_delay = %u\n", sleep_delay);
 		t1 += sleep_delay;
 		t2 = stress_time_now();
 
