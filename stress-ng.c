@@ -2170,7 +2170,7 @@ static void MLOCKED_TEXT stress_run(
 			int32_t ionice_class = UNDEFINED;
 			int32_t ionice_level = UNDEFINED;
 			stress_stats_t *stats = g_stressor_current->stats[j];
-			double duration;
+			double duration, fork_time_start;
 
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
@@ -2188,6 +2188,7 @@ static void MLOCKED_TEXT stress_run(
 again:
 			if (!keep_stressing_flag())
 				break;
+			fork_time_start = stress_time_now();
 			pid = fork();
 			switch (pid) {
 			case -1:
@@ -2314,7 +2315,7 @@ again:
 					name, (int)getpid(), j);
 
 				/* Allow for some slops of ~0.5 secs */
-				duration = (stats->finish - stats->start) + 0.5;
+				duration = (stats->finish - fork_time_start) + 0.5;
 				if (!g_caught_sigint &&
 				    (duration < (double)g_opt_timeout) &&
 				    (!(g_stressor_current->bogo_ops && stats->counter >= g_stressor_current->bogo_ops))) {
