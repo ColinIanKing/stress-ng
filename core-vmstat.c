@@ -673,6 +673,7 @@ void stress_vmstat_start(void)
 	size_t tz_num = 0;
 	stress_tz_info_t *tz_info, *tz_info_list;
 	int32_t vmstat_sleep, thermalstat_sleep, iostat_sleep;
+	double t1, t2;
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
     defined(__linux__)
 	char iostat_name[PATH_MAX];
@@ -715,9 +716,12 @@ void stress_vmstat_start(void)
 	VOID_RET(int, stress_set_sched(getpid(), SCHED_DEADLINE, 99, true));
 #endif
 
+	t1 = stress_time_now();
+
 	while (keep_stressing_flag()) {
 		int32_t sleep_delay = INT_MAX;
 		long clk_tick;
+		double delta;
 
 		if (vmstat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(vmstat_delay, sleep_delay);
@@ -728,8 +732,15 @@ void stress_vmstat_start(void)
 		if (iostat_delay > 0)
 			sleep_delay = STRESS_MINIMUM(iostat_delay, sleep_delay);
 #endif
+pr_inf("sleep_delay = %u\n", sleep_delay);
+		t1 += sleep_delay;
+		t2 = stress_time_now();
 
-		(void)sleep((unsigned int)sleep_delay);
+		delta = t1 - t2;
+		if (delta > 0) {
+			uint64_t nsec = (uint64_t)(delta * 1000000000.0);
+			(void)shim_nanosleep_uint64(nsec);
+		}
 
 		/* This may change each time we get stats */
 		clk_tick = sysconf(_SC_CLK_TCK) * sysconf(_SC_NPROCESSORS_ONLN);
