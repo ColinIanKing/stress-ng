@@ -191,7 +191,7 @@ static int pr_msg_lockable(
 		*ts = '\0';
 	}
 
-	if ((flag & PR_FAIL) || (g_opt_flags & flag)) {
+	if ((flag & (PR_FAIL | PR_WARN)) || (g_opt_flags & flag)) {
 		char buf[4096];
 		const char *type = "";
 		bool lock = false;

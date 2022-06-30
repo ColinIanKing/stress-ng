@@ -2316,7 +2316,12 @@ again:
 
 				/* Allow for some slops of ~0.5 secs */
 				duration = (stats->finish - fork_time_start) + 0.5;
-				if (!g_caught_sigint &&
+
+				/*
+				 * Apparently succeeded but terminated early?
+				 * Could be a bug, so report a warning
+				 */
+				if (stats->run_ok && !g_caught_sigint &&
 				    (duration < (double)g_opt_timeout) &&
 				    (!(g_stressor_current->bogo_ops && stats->counter >= g_stressor_current->bogo_ops))) {
 
