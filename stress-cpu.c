@@ -3075,6 +3075,8 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 	 */
 	if (cpu_load == 0) {
 		(void)sleep((unsigned int)g_opt_timeout);
+
+		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 		return EXIT_SUCCESS;
 	}
 
@@ -3087,6 +3089,8 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 		do {
 			stress_cpu_method(cpu_method, args, &counter);
 		} while (keep_stressing(args));
+
+		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 		return EXIT_SUCCESS;
 	}
 
