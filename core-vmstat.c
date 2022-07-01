@@ -154,7 +154,6 @@ char *stress_find_mount_dev(const char *name)
 		return NULL;
 	if (!mnt->mnt_fsname)
 		return NULL;
-
 	return realpath(mnt->mnt_fsname, dev_path);
 #elif defined(HAVE_SYS_SYSMACROS_H)
 	static char dev_path[PATH_MAX];
@@ -216,7 +215,8 @@ static char *stress_iostat_iostat_name(
 	char *iostat_name,
 	const size_t iostat_name_len)
 {
-	char *temp_path, *dev;
+	char *temp_path, *dev, *ptr;
+	struct stat statbuf;
 
 	/* Resolve links */
 	temp_path = realpath(stress_get_temp_path(), NULL);
@@ -231,10 +231,25 @@ static char *stress_iostat_iostat_name(
 	/* Skip over leading /dev */
 	if (!strncmp(dev, "/dev", 4))
 		dev += 4;
+	if (*dev == '/')
+		dev++;
 
-	(void)snprintf(iostat_name, iostat_name_len, "/sys/block/%s/stat", dev);
+	ptr = dev + strlen(dev) - 1;
 
-	return iostat_name;
+	/*
+	 *  Try /dev/sda12, then /dev/sda1, then /dev/sda, then terminate
+	 */
+	while (ptr >= dev) {
+		(void)snprintf(iostat_name, iostat_name_len, "/sys/block/%s/stat", dev);
+		if (stat(iostat_name, &statbuf) == 0)
+			return iostat_name;
+		if (!isdigit(*ptr))
+			break;
+		*ptr = '\0';
+		ptr--;
+	}
+
+	return NULL;
 }
 
 /*
