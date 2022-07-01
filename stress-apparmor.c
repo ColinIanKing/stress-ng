@@ -438,7 +438,7 @@ static inline void apparmor_corrupt_set_seq(
 
 /*
  *  apparmor_corrupt_flip_byte_random()
- *	ramndomly flip entire bytes
+ *	randomly flip entire bytes
  */
 static inline void apparmor_corrupt_flip_byte_random(
 	char *copy, const size_t len)
