@@ -402,7 +402,7 @@ again:
 			 * Originally we unmapped these, but this is
 			 * another system call required that may go
 			 * wrong because libc or the stack has been
-			 * trashsed, so just skip it.
+			 * trashed, so just skip it.
 			 *
 			(void)munmap(opcodes, page_size * PAGES);
 			 */
