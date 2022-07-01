@@ -252,6 +252,7 @@ static int stress_syncload(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+		double now;
 		const stress_syncload_op_t op = stress_syncload_ops[delay_type];
 
 		delay_type++;
@@ -263,9 +264,11 @@ static int stress_syncload(const stress_args_t *args)
 			op();
 
 		timeout += sec_sleep;
-		if (stress_time_now() < timeout) {
-			double duration = timeout - stress_time_now();
-			shim_nanosleep_uint64((uint64_t)(duration * 1000000000.0));
+		now = stress_time_now();
+		if (now < timeout) {
+			const uint64_t duration_us = (uint64_t)((timeout - now) * 1000000);
+
+			shim_nanosleep_uint64(duration_us * 1000);
 		}
 
 		inc_counter(args);
