@@ -229,20 +229,6 @@ static void stress_syncload_init(void)
 }
 
 /*
- *  Add +/- 10% jitter to delays
- */
-static double stress_syncload_jitter(const double sec)
-{
-	switch ((stress_mwc8() >> 3) & 2) {
-	case 0:
-		return sec / 10;
-	case 1:
-		return -sec / 10;
-	}
-	return 0.0;
-}
-
-/*
  *  stress_syncload()
  *	stress that does lots of not a lot
  */
@@ -259,8 +245,6 @@ static int stress_syncload(const stress_args_t *args)
 	sec_busy = (double)syncload_msbusy / 1000.0;
 	sec_sleep = (double)syncload_mssleep / 1000.0;
 
-	stress_mwc_set_seed(0x6deb3a92, 0x189f7245);
-
 	stress_sysload_x86_has_rdrand = stress_cpu_x86_has_rdrand();
 
 	timeout = stress_syncload_gettime();
@@ -274,16 +258,15 @@ static int stress_syncload(const stress_args_t *args)
 		if (delay_type >= SIZEOF_ARRAY(stress_syncload_ops))
 			delay_type = 0;
 
-		timeout += sec_busy + stress_syncload_jitter(sec_busy);
+		timeout += sec_busy;
 		while (keep_stressing_flag() && (stress_time_now() < timeout))
 			op();
 
-		if (!keep_stressing_flag())
-			break;
-
-		timeout += sec_sleep + stress_syncload_jitter(sec_sleep);
-		if (stress_time_now() < timeout)
-			shim_nanosleep_uint64(syncload_mssleep * 1000000);
+		timeout += sec_sleep;
+		if (stress_time_now() < timeout) {
+			double duration = timeout - stress_time_now();
+			shim_nanosleep_uint64((uint64_t)(duration * 1000000000.0));
+		}
 
 		inc_counter(args);
 	} while (keep_stressing(args));
