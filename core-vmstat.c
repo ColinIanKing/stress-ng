@@ -775,7 +775,7 @@ void stress_vmstat_start(void)
 			static uint32_t vmstat_count = 0;
 
 			if ((vmstat_count++ % 25) == 0)
-				pr_inf("vmstat %2s %2s %9s %9s %9s %9s "
+				pr_inf("vmstat: %2s %2s %9s %9s %9s %9s "
 					"%4s %4s %6s %6s %4s %4s %2s %2s "
 					"%2s %2s %2s\n",
 					"r", "b", "swpd", "free", "buff",
@@ -784,7 +784,7 @@ void stress_vmstat_start(void)
 					"wa", "st");
 
 			stress_get_vmstat(&vmstat);
-			pr_inf("vmstat %2" PRIu64 " %2" PRIu64 /* procs */
+			pr_inf("vmstat: %2" PRIu64 " %2" PRIu64 /* procs */
 			       " %9" PRIu64 " %9" PRIu64	/* vm used */
 			       " %9" PRIu64 " %9" PRIu64	/* memory_buff */
 			       " %4" PRIu64 " %4" PRIu64	/* si, so*/
@@ -860,11 +860,11 @@ void stress_vmstat_start(void)
 			static uint32_t iostat_count = 0;
 
 			if ((iostat_count++ % 25) == 0)
-				pr_inf("iostat: Inflght  Rd K/s   Wr K/s Dscd K/s     Rd/s     Wr/s   Dscd/s\n");
+				pr_inf("iostat: Inflght   Rd K/s   Wr K/s Dscd K/s     Rd/s     Wr/s   Dscd/s\n");
 
 			stress_get_iostat(iostat_name, &iostat);
 			/* sectors are 512 bytes, so >> 1 to get stats in 1024 bytes */
-			pr_inf("iostat %7.0f %8.0f %8.0f %8.0f %8.0f %8.0f %8.0f\n",
+			pr_inf("iostat: %7.0f %8.0f %8.0f %8.0f %8.0f %8.0f %8.0f\n",
 				(double)iostat.in_flight * clk_scale,
 				(double)(iostat.read_sectors >> 1) * clk_scale,
 				(double)(iostat.write_sectors >> 1) * clk_scale,
