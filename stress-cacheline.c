@@ -126,10 +126,11 @@ do {			\
 static void stress_cacheline_child(
 	const stress_args_t *args,
 	const int instance,
-	volatile uint8_t *cache_line,
+	uint8_t *cache_line,
 	const size_t cache_line_size)
 {
-	volatile uint8_t *data = cache_line + instance;
+	volatile uint8_t *data = (volatile uint8_t *)(cache_line + instance);
+	volatile uint8_t *vol_cache_line = (volatile uint8_t *)cache_line;
 	register uint8_t val;
 	register size_t i;
 
@@ -144,7 +145,7 @@ static void stress_cacheline_child(
 	}
 
 	for (i = 0; i < cache_line_size; i++) {
-		data[0] += cache_line[i];
+		data[0] += vol_cache_line[i];
 		shim_mb();
 	}
 
@@ -159,7 +160,7 @@ static void stress_cacheline_child(
 static int stress_cacheline(const stress_args_t *args)
 {
 	size_t cache_line_size = (size_t)get_L1_line_size(args);
-	volatile uint8_t *cache_line;
+	uint8_t *cache_line;
 	pid_t *pids;
 	size_t i;
 
@@ -221,6 +222,6 @@ static int stress_cacheline(const stress_args_t *args)
 
 stressor_info_t stress_cacheline_info = {
 	.stressor = stress_cacheline,
-	.class = CLASS_CPU,
+	.class = CLASS_CPU_CACHE,
 	.help = help
 };
