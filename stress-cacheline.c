@@ -50,7 +50,7 @@ do {						\
 	(val) = tmp;                           	\
 } while (0)
 
-static inline uint64_t get_L1_line_size(const stress_args_t *args)
+static uint64_t get_L1_line_size(const stress_args_t *args)
 {
 	uint64_t cache_size = DEFAULT_L1_SIZE;
 #if defined(__linux__)
@@ -99,58 +99,68 @@ do {			\
 	shim_mb();	\
 	ROR8(data);	\
 	shim_mb();	\
-	(data) *= 3;	\
-	shim_mb();	\
-	(data) ^= 0x01;	\
-	shim_mb();	\
-	(data) ^= 0x10;	\
-	shim_mb();	\
-	(data) ^= 0x02;	\
-	shim_mb();	\
-	(data) ^= 0x20;	\
-	shim_mb();	\
-	(data) ^= 0x04;	\
-	shim_mb();	\
-	(data) ^= 0x40;	\
-	shim_mb();	\
-	(data) ^= 0x08;	\
-	shim_mb();	\
-	(data) ^= 0x80;	\
-	shim_mb();	\
-	(data) ^= 0xff;	\
-	shim_mb();	\
-	ROR8(data);	\
-	shim_mb();	\
 } while (0)
 
-static void stress_cacheline_child(
+static ALWAYS_INLINE inline void stress_cacheline_child(
 	const stress_args_t *args,
 	const int instance,
 	uint8_t *cache_line,
 	const size_t cache_line_size)
 {
-	volatile uint8_t *data = (volatile uint8_t *)(cache_line + instance);
-	volatile uint8_t *vol_cache_line = (volatile uint8_t *)cache_line;
-	register uint8_t val;
-	register size_t i;
+	volatile uint8_t *data8 = (volatile uint8_t *)(cache_line + instance);
+	register uint8_t val8;
+	volatile uint16_t *data16;
+	volatile uint32_t *data32;
+	volatile uint64_t *data64;
+#if defined(HAVE_INT128_T)
+        volatile __uint128_t *data128;
+#endif
+	ssize_t i;
 
-	val = *(data);
+	val8 = *(data8);
 
-	EXERCISE((*data));
-	EXERCISE(val);
+	EXERCISE((*data8));
+	EXERCISE(val8);
 
-	if (val != *data) {
+	if (val8 != *data8) {
 		pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-			args->name, instance, val, *data);
+			args->name, instance, val8, *data8);
 	}
 
-	for (i = 0; i < cache_line_size; i++) {
-		data[0] += vol_cache_line[i];
-		shim_mb();
-	}
-
-	*data = val;
+	/* 2 byte reads from same location */
+	data16 = (uint16_t *)(((uintptr_t)data8) & ~(uintptr_t)1);
+	(void)*(data16);
 	shim_mb();
+
+	/* 4 byte reads from same location */
+	data32 = (uint32_t *)(((uintptr_t)data8) & ~(uintptr_t)3);
+	(void)*(data32);
+	shim_mb();
+
+	/* 8 byte reads from same location */
+	data64 = (uint64_t *)(((uintptr_t)data8) & ~(uintptr_t)7);
+	(void)*(data64);
+	shim_mb();
+
+#if defined(HAVE_INT128_T)
+	/* 116 byte reads from same location */
+	data128 = (__uint128_t *)(((uintptr_t)data8) & ~(uintptr_t)15);
+	(void)*(data128);
+	shim_mb();
+#endif
+
+	/* read cache line backwards */
+	for (i = (ssize_t)cache_line_size - 8; i >= 0; i -= 8) {
+		data64 = (uint64_t *)(cache_line + i);
+		(void)*data64;
+	}
+	/* read cache line forwards */
+	for (i = 0; i < (ssize_t)cache_line_size; i += 8) {
+		data64 = (uint64_t *)(cache_line + i);
+		(void)*data64;
+	}
+
+	*data8 = val8;
 }
 
 /*
@@ -172,7 +182,7 @@ static int stress_cacheline(const stress_args_t *args)
 	if (cache_line_size > 256)
 		cache_line_size = 256;
 
-	cache_line = (uint8_t *)mmap(NULL, cache_line_size, PROT_READ | PROT_WRITE,
+	cache_line = (uint8_t *)mmap(NULL, cache_line_size * 2, PROT_READ | PROT_WRITE,
 					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (cache_line == MAP_FAILED) {
 		pr_inf("%s: could not mmap cache line buffer, skipping stressor, errno=%d (%s)\n",
