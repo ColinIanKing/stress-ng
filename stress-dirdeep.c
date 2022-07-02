@@ -316,10 +316,10 @@ static int stress_dir_exercise(
 		register int ch;
 
 		/* Sanity check */
-		if (!namelist[n])
+		if (!namelist[i])
 			continue;
 
-		ch = (int)namelist[n]->d_name[0];
+		ch = (int)namelist[i]->d_name[0];
 		if (ch == '.')
 			continue;
 
