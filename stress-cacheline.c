@@ -223,5 +223,6 @@ static int stress_cacheline(const stress_args_t *args)
 stressor_info_t stress_cacheline_info = {
 	.stressor = stress_cacheline,
 	.class = CLASS_CPU_CACHE,
+	.verify = VERIFY_ALWAYS,
 	.help = help
 };
