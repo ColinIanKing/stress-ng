@@ -1580,6 +1580,19 @@ init_done:
 			name, errno, strerror(errno));
 		return -1;
 	}
+
+	g_shared->cacheline_size = (size_t)STRESS_PROCS_MAX * sizeof(uint8_t) * 2;
+	g_shared->cacheline =
+		(uint8_t *)mmap(NULL, g_shared->cacheline_size,
+				PROT_READ | PROT_WRITE,
+				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+
+	if (g_shared->cacheline == MAP_FAILED) {
+		g_shared->cacheline = NULL;
+		pr_err("%s: failed to mmap cacheline buffer, errno=%d (%s)\n",
+			name, errno, strerror(errno));
+		return -1;
+	}
 	if (stress_warn_once())
 		pr_dbg("%s: shared cache buffer size: %" PRIu64 "K\n",
 			name, g_shared->mem_cache_size / 1024);
@@ -1595,6 +1608,8 @@ void stress_cache_free(void)
 {
 	if (g_shared->mem_cache)
 		(void)munmap((void *)g_shared->mem_cache, g_shared->mem_cache_size);
+	if (g_shared->cacheline)
+		(void)munmap((void *)g_shared->cacheline, g_shared->cacheline_size);
 }
 
 /*

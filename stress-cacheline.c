@@ -19,7 +19,7 @@
 #include "stress-ng.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"cacheline N",		"start N workers that exercise a cacheline" },
+	{ NULL,	"cacheline N",		"start N workers that exercise cachelines" },
 	{ NULL,	"cacheline-ops N",	"stop after N cacheline bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
@@ -52,10 +52,10 @@ do {						\
 
 static uint64_t get_L1_line_size(const stress_args_t *args)
 {
-	uint64_t cache_size = DEFAULT_L1_SIZE;
 #if defined(__linux__)
 	stress_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
+	uint64_t cache_size = DEFAULT_L1_SIZE;
 
 	cpu_caches = stress_get_all_cpu_cache_details();
 	if (!cpu_caches) {
@@ -101,14 +101,18 @@ do {			\
 	shim_mb();	\
 } while (0)
 
-static void stress_cacheline_child(
+static int stress_cacheline_child(
 	const stress_args_t *args,
-	const int instance,
-	uint8_t *cache_line,
-	const size_t cache_line_size)
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size)
 {
+	const size_t cacheline_size = g_shared->cacheline_size;
+	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
+	volatile uint8_t *data8 = cacheline + index;
+	volatile uint8_t *aligned_cacheline = (volatile uint8_t *)
+		((intptr_t)cacheline & ~(l1_cacheline_size - 1));
 	static uint8_t tmp = 0xa5;
-	volatile uint8_t *data8 = (volatile uint8_t *)(cache_line + instance);
 	register uint8_t val8;
 	volatile uint16_t *data16;
 	volatile uint32_t *data32;
@@ -117,126 +121,118 @@ static void stress_cacheline_child(
         volatile __uint128_t *data128;
 #endif
 	ssize_t i;
+	int rc = EXIT_SUCCESS;
 
 	do {
-		static uint8_t which = 0;
+		*(data8) = tmp;
+		EXERCISE((*data8));
+		val8 = tmp;
+		EXERCISE(val8);
+		if (val8 != *data8) {
+			pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+				args->name, index, val8, *data8);
+			rc = EXIT_FAILURE;
+		}
+		tmp = val8;
 
-		switch (which & 0xf0) {
-		case 0x00:
-			*(data8) = tmp;
-			EXERCISE((*data8));
-			val8 = tmp;
-			EXERCISE(val8);
-			if (val8 != *data8) {
-				pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-					args->name, instance, val8, *data8);
-			}
-			tmp = val8;
-			break;
-		case 0x10:
-			(*data8)++;
-			/* 2 byte reads from same location */
-			data16 = (uint16_t *)(((uintptr_t)data8) & ~(uintptr_t)1);
-			(void)*(data16);
-			shim_mb();
+		(*data8)++;
+		/* 2 byte reads from same location */
+		data16 = (uint16_t *)(((uintptr_t)data8) & ~(uintptr_t)1);
+		(void)*(data16);
+		shim_mb();
 
-			/* 4 byte reads from same location */
-			data32 = (uint32_t *)(((uintptr_t)data8) & ~(uintptr_t)3);
-			(void)*(data32);
-			shim_mb();
+		/* 4 byte reads from same location */
+		data32 = (uint32_t *)(((uintptr_t)data8) & ~(uintptr_t)3);
+		(void)*(data32);
+		shim_mb();
 
-			/* 8 byte reads from same location */
-			data64 = (uint64_t *)(((uintptr_t)data8) & ~(uintptr_t)7);
-			(void)*(data64);
-			shim_mb();
+		/* 8 byte reads from same location */
+		data64 = (uint64_t *)(((uintptr_t)data8) & ~(uintptr_t)7);
+		(void)*(data64);
+		shim_mb();
 
 #if defined(HAVE_INT128_T)
-			/* 116 byte reads from same location */
-			data128 = (__uint128_t *)(((uintptr_t)data8) & ~(uintptr_t)15);
-			(void)*(data128);
-			shim_mb();
+		/* 116 byte reads from same location */
+		data128 = (__uint128_t *)(((uintptr_t)data8) & ~(uintptr_t)15);
+		(void)*(data128);
+		shim_mb();
 #endif
-			break;
-		case 0x20:
-			(*data8)++;
-			/* read cache line backwards */
-			for (i = (ssize_t)cache_line_size - 8; i >= 0; i -= 8) {
-				data64 = (uint64_t *)(cache_line + i);
-				(void)*data64;
-			}
-			break;
-		case 0x30:
-			(*data8)++;
-			/* read cache line forwards */
-			for (i = 0; i < (ssize_t)cache_line_size; i += 8) {
-				data64 = (uint64_t *)(cache_line + i);
-				(void)*data64;
-			}
-			break;
-		case 0x40:
-			val8 = *(data8);
-			(*data8)++;
-			(*data8)++;
-			(*data8)++;
-			(*data8)++;
-			(*data8)++;
-			(*data8)++;
-			(*data8)++;
-			val8 += 7;
 
-			if (*data8 != val8) {
-				pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-					args->name, instance, val8, *data8);
-			}
-			break;
-		case 0x50:
-			(void)*data8;
-			*data8 = *data8;
-			(void)*data8;
-			*data8 = *data8;
-			(void)*data8;
-			*data8 = *data8;
-			(void)*data8;
-			*data8 = *data8;
-			(void)*data8;
-			*data8 = *data8;
-			(void)*data8;
-			*data8 = *data8;
-			(void)*data8;
-			*data8 = *data8;
-			(void)*data8;
-			*data8 = *data8;
-			break;
-		case 0x60:
-			for (i = 0; i < 8; i++) {
-				(void)*(data8);
-
-				val8 = 1U << i;
-				*data8 = val8;
-				if (*data8 != val8) {
-					pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-						args->name, instance, val8, *data8);
-				}
-				val8 ^= 0xff;
-				*data8 = val8;
-				if (*data8 != val8) {
-					pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-						args->name, instance, val8, *data8);
-				}
-			}
-			break;
-		default:
-			pr_inf("%s: case %x: should not get here\n", args->name, which);
-			break;
+		(*data8)++;
+		/* read cache line backwards */
+		for (i = (ssize_t)cacheline_size - 8; i >= 0; i -= 8) {
+			data64 = (uint64_t *)(aligned_cacheline + i);
+			(void)*data64;
 		}
 
-		which++;
-		if (which >= 0x70)
-			which = 0;
+		(*data8)++;
+		/* read cache line forwards */
+		for (i = 0; i < (ssize_t)cacheline_size; i += 8) {
+			data64 = (uint64_t *)(aligned_cacheline + i);
+			(void)*data64;
+		}
 
-		if (instance == 0)
+		val8 = *(data8);
+		(*data8)++;
+		(*data8)++;
+		(*data8)++;
+		(*data8)++;
+		(*data8)++;
+		(*data8)++;
+		(*data8)++;
+		val8 += 7;
+
+		if (*data8 != val8) {
+			pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+				args->name, index, val8, *data8);
+			rc = EXIT_FAILURE;
+		}
+
+		(void)*data8;
+		*data8 = *data8;
+		(void)*data8;
+		*data8 = *data8;
+		(void)*data8;
+		*data8 = *data8;
+		(void)*data8;
+		*data8 = *data8;
+		(void)*data8;
+		*data8 = *data8;
+		(void)*data8;
+		*data8 = *data8;
+		(void)*data8;
+		*data8 = *data8;
+		(void)*data8;
+		*data8 = *data8;
+
+		for (i = 0; i < 8; i++) {
+			(void)*(data8);
+
+			val8 = 1U << i;
+			*data8 = val8;
+			if (*data8 != val8) {
+				pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+					args->name, index, val8, *data8);
+				rc = EXIT_FAILURE;
+			}
+			val8 ^= 0xff;
+			*data8 = val8;
+			if (*data8 != val8) {
+				pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+					args->name, index, val8, *data8);
+				rc = EXIT_FAILURE;
+			}
+		}
+
+		if (parent)
 			inc_counter(args);
 	} while (keep_stressing(args));
+
+	/* Child tell parent it has finished */
+	if (!parent)
+		(void)kill(getppid(), SIGALRM);
+
+	return rc;
 }
 
 /*
@@ -245,60 +241,49 @@ static void stress_cacheline_child(
  */
 static int stress_cacheline(const stress_args_t *args)
 {
-	size_t cache_line_size = (size_t)get_L1_line_size(args);
-	uint8_t *cache_line;
-	pid_t *pids;
-	size_t i;
+	size_t l1_cacheline_size = (size_t)get_L1_line_size(args);
+	const int index = (int)(args->instance * 2);
+	pid_t pid;
+	int rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	if (args->instance == 0)
-		pr_dbg("%s: L1 cache line_size %" PRIu64 " bytes\n", args->name, cache_line_size);
+	if (args->instance == 0) {
+		pr_dbg("%s: L1 cache line size %" PRIu64 " bytes\n", args->name, l1_cacheline_size);
 
-	if (cache_line_size > 256)
-		cache_line_size = 256;
-
-	cache_line = (uint8_t *)mmap(NULL, cache_line_size * 2, PROT_READ | PROT_WRITE,
-					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (cache_line == MAP_FAILED) {
-		pr_inf("%s: could not mmap cache line buffer, skipping stressor, errno=%d (%s)\n",
+		if ((args->num_instances * 2) < l1_cacheline_size) {
+			pr_inf("%s: to fully exercise a %zd byte cache line, %zd instances are required\n",
+				args->name, l1_cacheline_size, l1_cacheline_size / 2);
+		}
+	}
+again:
+	pid = fork();
+	if (pid < 0) {
+		if (stress_redo_fork(errno))
+			goto again;
+		if (!keep_stressing(args))
+			goto finish;
+		pr_err("%s: fork failed: errno=%d: (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
+	} else if (pid == 0) {
+		_exit(stress_cacheline_child(args, index + 1, false, l1_cacheline_size));
+	} else {
+		int status;
+
+		stress_cacheline_child(args, index, true, l1_cacheline_size);
+
+		(void)kill(pid, SIGALRM);
+		(void)shim_waitpid(pid, &status, 0);
+
+		if (WIFEXITED(status) && (WEXITSTATUS(status) != EXIT_SUCCESS))
+			rc = WEXITSTATUS(status);
 	}
 
-	pids = calloc(cache_line_size, sizeof(*pids));
-	if (!pids) {
-		pr_inf("%s: could not alloc pids array, skipping stressor\n",
-			args->name);
-		(void)munmap((void *)cache_line, cache_line_size);
-		return EXIT_NO_RESOURCE;
-	}
-
-	for (i = 1; i < cache_line_size; i++) {
-		pids[i] = fork();
-		if (pids[i] == 0) {
-			stress_cacheline_child(args, i, cache_line, cache_line_size);
-			_exit(0);
-		}
-	}
-
-	stress_cacheline_child(args, 0, cache_line, cache_line_size);
-
-	for (i = 1; i < cache_line_size; i++) {
-		if (pids[i] > 0) {
-			int status;
-
-			(void)kill(pids[i], SIGKILL);
-			(void)waitpid(pids[i], &status, 0);
-		}
-	}
-
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	free(pids);
-	(void)munmap((void *)cache_line, cache_line_size);
-
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 stressor_info_t stress_cacheline_info = {
