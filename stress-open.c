@@ -634,7 +634,7 @@ static stress_open_func_t open_funcs[] = {
 
 /*
  *  stress_fd_dir()
- *	try to open the files the the stressor parent has open
+ *	try to open the files the stressor parent has open
  *	via the file names provided in /proc/$PID/fd. This
  *	ignores opens that fail.
  */
