@@ -1484,7 +1484,7 @@ available free inodes on the filesystem being used.
 start N stressors that create as many files in a directory as possible
 and then remove them. The file creation phase stops when an error occurs
 (for example, out of inodes, too many files, quota reached, etc.) and then
-the files are removed. This cycles until the the run time is reached or the
+the files are removed. This cycles until the run time is reached or the
 file creation count bogo-ops metric is reached. This is a much faster and
 light weight directory exercising stressor compared to the dentry stressor.
 .TP
