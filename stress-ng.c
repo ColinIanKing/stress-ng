@@ -2172,7 +2172,7 @@ static void MLOCKED_TEXT stress_run(
 			int32_t ionice_class = UNDEFINED;
 			int32_t ionice_level = UNDEFINED;
 			stress_stats_t *stats = g_stressor_current->stats[j];
-			double duration, fork_time_start;
+			double run_duration, fork_time_start;
 
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
@@ -2317,18 +2317,18 @@ again:
 					name, (int)getpid(), j);
 
 				/* Allow for some slops of ~0.5 secs */
-				duration = (stats->finish - fork_time_start) + 0.5;
+				run_duration = (stats->finish - fork_time_start) + 0.5;
 
 				/*
 				 * Apparently succeeded but terminated early?
 				 * Could be a bug, so report a warning
 				 */
 				if (stats->run_ok && !g_caught_sigint &&
-				    (duration < (double)g_opt_timeout) &&
+				    (run_duration < (double)g_opt_timeout) &&
 				    (!(g_stressor_current->bogo_ops && stats->counter >= g_stressor_current->bogo_ops))) {
 
 					pr_warn("%s: WARNING: finished prematurely after just %.2fs%s\n",
-						name, duration, stress_duration_to_str((double)g_opt_timeout));
+						name, run_duration, stress_duration_to_str((double)g_opt_timeout));
 				}
 
 child_exit:
