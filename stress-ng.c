@@ -281,6 +281,8 @@ static const struct option long_options[] = {
 	{ "cache-sfence",	0,	0,	OPT_cache_sfence },
 	{ "cache-ways",		1,	0,	OPT_cache_ways },
 	{ "cache-no-affinity",	0,	0,	OPT_cache_no_affinity },
+	{ "cacheline",		1,	0, 	OPT_cacheline },
+	{ "cacheline-ops",	1,	0,	OPT_cacheline_ops },
 	{ "cap",		1,	0, 	OPT_cap },
 	{ "cap-ops",		1,	0, 	OPT_cap_ops },
 	{ "chattr",		1,	0, 	OPT_chattr },

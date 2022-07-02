@@ -780,6 +780,15 @@ prefetching.
 specify the number of cache ways to exercise. This allows a subset of
 the overall cache size to be exercised.
 .TP
+.B \-\-cacheline N
+start N workers that have individual processes that exercise reading and
+writing each individual byte in a shared buffer that is the size of a
+cache line. The intent is to try and trigger cacheline stalls and misses
+with shared memory accesses.
+.TP
+.B \-\-cacheline\-ops N
+stop cacheline workers after N loops of the byte exercising in a cacheline.
+.TP
 .B \-\-cap N
 start N workers that read per process capabilities via calls to capget(2)
 (Linux only).

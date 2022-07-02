@@ -1081,6 +1081,7 @@ typedef struct {
 	MACRO(brk)		\
 	MACRO(bsearch)		\
 	MACRO(cache)		\
+	MACRO(cacheline)	\
 	MACRO(cap)		\
 	MACRO(chattr)		\
 	MACRO(chdir)		\
@@ -1476,6 +1477,7 @@ typedef enum {
 	OPT_binderfs_ops,
 
 	OPT_class,
+
 	OPT_cache_ops,
 	OPT_cache_clflushopt,
 	OPT_cache_cldemote,
@@ -1488,6 +1490,9 @@ typedef enum {
 	OPT_cache_no_affinity,
 	OPT_cache_prefetch,
 	OPT_cache_ways,
+
+	OPT_cacheline,
+	OPT_cacheline_ops,
 
 	OPT_cap,
 	OPT_cap_ops,
