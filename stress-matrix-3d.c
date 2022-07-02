@@ -985,7 +985,7 @@ static int stress_matrix(const stress_args_t *args)
 
 	func = matrix_3d_method->func[matrix_3d_yx];
 	if (args->instance == 0)
-		pr_dbg("%s using method '%s' (%s)\n", args->name, matrix_3d_method->name,
+		pr_dbg("%s: using method '%s' (%s)\n", args->name, matrix_3d_method->name,
 			matrix_3d_yx ? "z by y by x" : "x by y by z");
 
 	if (!stress_get_setting("matrix-3d-size", &matrix_3d_size)) {

@@ -2751,7 +2751,7 @@ static int stress_vm(const stress_args_t *args)
 
 	(void)stress_get_setting("vm-method", &context.vm_method);
 
-	pr_dbg("%s using method '%s'\n", args->name, context.vm_method->name);
+	pr_dbg("%s: using method '%s'\n", args->name, context.vm_method->name);
 
 	for (retries = 0; (retries < 100) && keep_stressing_flag(); retries++) {
 		context.bit_error_count = (uint64_t *)

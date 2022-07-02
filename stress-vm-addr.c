@@ -412,7 +412,7 @@ static int stress_vm_addr(const stress_args_t *args)
 
 	(void)stress_get_setting("vm-addr-method", &context.vm_addr_method);
 
-	pr_dbg("%s using method '%s'\n", args->name, context.vm_addr_method->name);
+	pr_dbg("%s: using method '%s'\n", args->name, context.vm_addr_method->name);
 
 	for (retries = 0; (retries < 100) && keep_stressing_flag(); retries++) {
 		context.bit_error_count = (uint64_t *)

@@ -999,7 +999,7 @@ static int stress_matrix(const stress_args_t *args)
 
 	func = matrix_method->func[matrix_yx];
 	if (args->instance == 0)
-		pr_dbg("%s using method '%s' (%s)\n", args->name, matrix_method->name,
+		pr_dbg("%s: using method '%s' (%s)\n", args->name, matrix_method->name,
 			matrix_yx ? "y by x" : "x by y");
 
 	if (!stress_get_setting("matrix-size", &matrix_size)) {

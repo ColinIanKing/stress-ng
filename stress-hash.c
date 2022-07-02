@@ -614,7 +614,7 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 		hash_methods[i].stats = &hash_stats[i];
 	}
 
-	pr_dbg("%s using method '%s'\n", args->name, hm->name);
+	pr_dbg("%s: using method '%s'\n", args->name, hm->name);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
