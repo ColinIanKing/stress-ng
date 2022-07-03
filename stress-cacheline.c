@@ -20,6 +20,12 @@
 
 #define DEFAULT_L1_SIZE		(64)
 
+#if defined(HAVE_ATOMIC_FETCH_ADD) &&	\
+    defined(__ATOMIC_RELAXED)
+#define SHIM_ATOMIC_INC(ptr)       \
+	do { __atomic_fetch_add(ptr, 1, __ATOMIC_RELAXED); } while (0)
+#endif
+
 /*
  *  8 bit rotate right
  */
@@ -427,6 +433,41 @@ static int stress_cacheline_bits(
 	return EXIT_SUCCESS;
 }
 
+#if defined(SHIM_ATOMIC_INC)
+static int stress_cacheline_atomicinc(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size)
+{
+	register int i;
+	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
+	volatile uint8_t *data8 = cacheline + index;
+	register uint8_t val8 = *(data8);
+
+	(void)parent;
+	(void)l1_cacheline_size;
+
+	for (i = 0; i < 1024; i++) {
+		SHIM_ATOMIC_INC(data8);
+		SHIM_ATOMIC_INC(data8);
+		SHIM_ATOMIC_INC(data8);
+		SHIM_ATOMIC_INC(data8);
+		SHIM_ATOMIC_INC(data8);
+		SHIM_ATOMIC_INC(data8);
+		SHIM_ATOMIC_INC(data8);
+		val8 += 7;
+
+		if (UNLIKELY(*data8 != val8)) {
+			pr_fail("%s: atomicinc method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+				args->name, index, val8, *data8);
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+#endif
+
 static int stress_cacheline_all(
 	const stress_args_t *args,
 	const int index,
@@ -435,6 +476,9 @@ static int stress_cacheline_all(
 
 static const stress_cacheline_method_t cacheline_methods[] = {
 	{ "all",	stress_cacheline_all },
+#if defined (SHIM_ATOMIC_INC)
+	{ "atomicinc",	stress_cacheline_atomicinc },
+#endif
 	{ "bits",	stress_cacheline_bits },
 	{ "inc",	stress_cacheline_inc },
 	{ "mix",	stress_cacheline_mix },
