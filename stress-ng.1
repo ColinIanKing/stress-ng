@@ -781,13 +781,58 @@ specify the number of cache ways to exercise. This allows a subset of
 the overall cache size to be exercised.
 .TP
 .B \-\-cacheline N
-start N workers that have individual processes that exercise reading and
-writing each individual byte in a shared buffer that is the size of a
-cache line. The intent is to try and trigger cacheline stalls and misses
-with shared memory accesses.
+start N workers that exercise reading and writing individual bytes
+in a shared buffer that is the size of a cache line. Each stressor has
+2 running processes that exercise just two bytes that are next to each other.
+The intent is to try and trigger cacheline corruption, stalls and misses
+with shared memory accesses. For an N byte sized cacheline, it is recommended
+to run N / 2 stressor instances.
 .TP
 .B \-\-cacheline\-ops N
 stop cacheline workers after N loops of the byte exercising in a cacheline.
+.TP
+.B \-\-cacheline\-method method
+specify a cacheline stress method. By default, all the stress methods are exercised
+sequentially, however one can specify just one method to be used if required.
+Available cacheline stress methods are described as follows:
+.TS
+expand;
+lB2 lB lB
+l l s.
+Method	Description
+all	T{
+iterate over all the below cpu stress methods.
+T}
+bits	T{
+write and read back shifted bit patterns into specifc byte in a cacheline
+and check for corruption.
+T}
+inc	T{
+increment and read back a specific byte in a cacheline and check for
+corruption every 7 increments.
+T}
+mix	T{
+perform a mix of increment, left and right rotates a specifc byte in a
+cacheline and check for corruption.
+T}
+rdfwd64	T{
+increment a specific byte in a cacheline and then read in forward direction
+an entire cacheline using 64 bit reads.
+T}
+rdints	T{
+increment a specific byte in a cacheline and then read data at that byte
+location in naturally aligned locations integer values of size 8, 16, 32, 64
+and 128 bits.
+T}
+rdrev64	T{
+increment a specific byte in a cacheline and then read in reverse direction
+an entire cacheline using 64 bit reads.
+T}
+rdwr	T{
+read and write the same 8 bit value into a specific byte in a cacheline and
+check for corruption.
+T}
+.TE
 .TP
 .B \-\-cap N
 start N workers that read per process capabilities via calls to capget(2)

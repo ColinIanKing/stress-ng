@@ -18,12 +18,6 @@
  */
 #include "stress-ng.h"
 
-static const stress_help_t help[] = {
-	{ NULL,	"cacheline N",		"start N workers that exercise cachelines" },
-	{ NULL,	"cacheline-ops N",	"stop after N cacheline bogo operations" },
-	{ NULL,	NULL,		NULL }
-};
-
 #define DEFAULT_L1_SIZE		(64)
 
 /*
@@ -31,11 +25,11 @@ static const stress_help_t help[] = {
  */
 #define ROR8(val)				\
 do {						\
-	uint8_t tmp = (val);			\
-	const uint8_t bit0 = (tmp & 1) << 7;	\
-	tmp >>= 1;                             	\
-	tmp |= bit0;                           	\
-	(val) = tmp;                           	\
+	uint8_t tmpval = (val);			\
+	const uint8_t bit0 = (tmpval & 1) << 7;	\
+	tmpval >>= 1;				\
+	tmpval |= bit0;				\
+	(val) = tmpval;				\
 } while (0)
 
 /*
@@ -43,12 +37,42 @@ do {						\
  */
 #define ROL8(val)				\
 do {						\
-	uint8_t tmp = (val);			\
-	const uint8_t bit7 = (tmp & 0x80) >> 7;	\
-	tmp <<= 1;                             	\
-	tmp |= bit7;                           	\
-	(val) = tmp;                           	\
+	uint8_t tmpval = (val);			\
+	const uint8_t bit7 = (tmpval & 0x80) >> 7;\
+	tmpval <<= 1;				\
+	tmpval |= bit7;				\
+	(val) = tmpval;				\
 } while (0)
+
+#define EXERCISE(data)	\
+do {			\
+	(data)++;	\
+	shim_mb();	\
+	ROL8(data);	\
+	shim_mb();	\
+	ROR8(data);	\
+	shim_mb();	\
+} while (0)
+
+
+
+static const stress_help_t help[] = {
+	{ NULL,	"cacheline N",		"start N workers that exercise cachelines" },
+	{ NULL,	"cacheline-ops N",	"stop after N cacheline bogo operations" },
+	{ NULL,	"cacheline-method M",	"use cacheline stressing method M" },
+	{ NULL,	NULL,		NULL }
+};
+
+typedef int (*stress_cacheline_func)(
+        const stress_args_t *args,
+        const int index,
+        const bool parent,
+        const size_t l1_cacheline_size);
+
+typedef struct {
+	const char *name;
+	const stress_cacheline_func	func;
+} stress_cacheline_method_t;
 
 static uint64_t get_L1_line_size(const stress_args_t *args)
 {
@@ -91,142 +115,392 @@ static uint64_t get_L1_line_size(const stress_args_t *args)
 	return cache_size;
 }
 
-#define EXERCISE(data)	\
-do {			\
-	(data)++;	\
-	shim_mb();	\
-	ROL8(data);	\
-	shim_mb();	\
-	ROR8(data);	\
-	shim_mb();	\
-} while (0)
-
-static int stress_cacheline_child(
+static int stress_cacheline_inc(
 	const stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size)
 {
-	const size_t cacheline_size = g_shared->cacheline_size;
+	register int i;
 	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
 	volatile uint8_t *data8 = cacheline + index;
-	volatile uint8_t *aligned_cacheline = (volatile uint8_t *)
-		((intptr_t)cacheline & ~(l1_cacheline_size - 1));
-	static uint8_t tmp = 0xa5;
-	register uint8_t val8;
-	volatile uint16_t *data16;
-	volatile uint32_t *data32;
-	volatile uint64_t *data64;
-#if defined(HAVE_INT128_T)
-        volatile __uint128_t *data128;
-#endif
-	ssize_t i;
-	int rc = EXIT_SUCCESS;
+	register uint8_t val8 = *(data8);
 
-	do {
+	(void)parent;
+	(void)l1_cacheline_size;
+
+	for (i = 0; i < 1024; i++) {
+		(*data8)++;
+		shim_mb();
+		(*data8)++;
+		shim_mb();
+		(*data8)++;
+		shim_mb();
+		(*data8)++;
+		shim_mb();
+		(*data8)++;
+		shim_mb();
+		(*data8)++;
+		shim_mb();
+		(*data8)++;
+		shim_mb();
+		val8 += 7;
+
+		if (UNLIKELY(*data8 != val8)) {
+			pr_fail("%s: inc method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+				args->name, index, val8, *data8);
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
+static int stress_cacheline_rdwr(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size)
+{
+	register int i;
+	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
+	volatile uint8_t *data8 = cacheline + index;
+	register uint8_t val8 = *(data8);
+
+	(void)parent;
+	(void)l1_cacheline_size;
+
+	for (i = 0; i < 1024; i++) {
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+		(void)*data8;
+		*data8 = *data8;
+		shim_mb();
+
+		if (UNLIKELY(*data8 != val8)) {
+			pr_fail("%s: rdwr method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+				args->name, index, val8, *data8);
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
+static int stress_cacheline_mix(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size)
+{
+	register int i;
+	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
+	volatile uint8_t *data8 = cacheline + index;
+	static uint8_t tmp = 0xa5;
+
+	(void)parent;
+	(void)l1_cacheline_size;
+
+	for (i = 0; i < 1024; i++) {
+		register uint8_t val8;
+
 		*(data8) = tmp;
 		EXERCISE((*data8));
 		val8 = tmp;
 		EXERCISE(val8);
-		if (val8 != *data8) {
-			pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+		if (UNLIKELY(val8 != *data8)) {
+			pr_fail("%s: mix method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
 				args->name, index, val8, *data8);
-			rc = EXIT_FAILURE;
+			return EXIT_FAILURE;
 		}
 		tmp = val8;
+	}
+	return EXIT_SUCCESS;
+};
+
+static int stress_cacheline_rdrev64(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size)
+{
+	register int i;
+	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
+	volatile uint8_t *data8 = cacheline + index;
+	const size_t cacheline_size = g_shared->cacheline_size;
+	volatile uint8_t *aligned_cacheline = (volatile uint8_t *)
+		((intptr_t)cacheline & ~(l1_cacheline_size - 1));
+
+	(void)parent;
+	(void)l1_cacheline_size;
+
+	for (i = 0; i < 1024; i++) {
+		register ssize_t j;
+		uint8_t val8;
 
 		(*data8)++;
+		val8 = *data8;
+
+		/* read cache line backwards */
+		for (j = (ssize_t)cacheline_size - 8; j >= 0; j -= 8) {
+			volatile uint64_t *data64 = (volatile uint64_t *)(aligned_cacheline + j);
+
+			(void)*data64;
+			shim_mb();
+		}
+		if (UNLIKELY(val8 != *data8)) {
+			pr_fail("%s: rdrev64 method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+				args->name, index, val8, *data8);
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
+static int stress_cacheline_rdfwd64(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size)
+{
+	register int i;
+	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
+	volatile uint8_t *data8 = cacheline + index;
+	const size_t cacheline_size = g_shared->cacheline_size;
+	volatile uint8_t *aligned_cacheline = (volatile uint8_t *)
+		((intptr_t)cacheline & ~(l1_cacheline_size - 1));
+
+	(void)parent;
+	(void)l1_cacheline_size;
+
+	for (i = 0; i < 1024; i++) {
+		register size_t j;
+		uint8_t val8;
+
+		(*data8)++;
+		val8 = *data8;
+
+		/* read cache line forwards */
+		for (j = 0; j < cacheline_size; j += 8) {
+			volatile uint64_t *data64 = (volatile uint64_t *)(aligned_cacheline + j);
+
+			(void)*data64;
+			shim_mb();
+		}
+		if (UNLIKELY(val8 != *data8)) {
+			pr_fail("%s: rdfwd64: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+				args->name, index, val8, *data8);
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
+static int stress_cacheline_rdints(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size)
+{
+	register int i;
+	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
+	volatile uint8_t *data8 = cacheline + index;
+	volatile uint16_t *data16 = (uint16_t *)(((uintptr_t)data8) & ~(uintptr_t)1);
+	volatile uint32_t *data32 = (uint32_t *)(((uintptr_t)data8) & ~(uintptr_t)3);
+	volatile uint64_t *data64 = (uint64_t *)(((uintptr_t)data8) & ~(uintptr_t)7);
+#if defined(HAVE_INT128_T)
+        volatile __uint128_t *data128 = (__uint128_t *)(((uintptr_t)data8) & ~(uintptr_t)15);
+#endif
+
+	(void)parent;
+	(void)l1_cacheline_size;
+
+	for (i = 0; i < 1024; i++) {
+		uint8_t val8;
+
+		/* 1 byte increment and read */
+		(*data8)++;
+		val8 = *data8;
+		shim_mb();
+
 		/* 2 byte reads from same location */
-		data16 = (uint16_t *)(((uintptr_t)data8) & ~(uintptr_t)1);
 		(void)*(data16);
 		shim_mb();
 
 		/* 4 byte reads from same location */
-		data32 = (uint32_t *)(((uintptr_t)data8) & ~(uintptr_t)3);
 		(void)*(data32);
 		shim_mb();
 
 		/* 8 byte reads from same location */
-		data64 = (uint64_t *)(((uintptr_t)data8) & ~(uintptr_t)7);
 		(void)*(data64);
 		shim_mb();
 
 #if defined(HAVE_INT128_T)
 		/* 116 byte reads from same location */
-		data128 = (__uint128_t *)(((uintptr_t)data8) & ~(uintptr_t)15);
 		(void)*(data128);
 		shim_mb();
 #endif
-
-		(*data8)++;
-		/* read cache line backwards */
-		for (i = (ssize_t)cacheline_size - 8; i >= 0; i -= 8) {
-			data64 = (uint64_t *)(aligned_cacheline + i);
-			(void)*data64;
-		}
-
-		(*data8)++;
-		/* read cache line forwards */
-		for (i = 0; i < (ssize_t)cacheline_size; i += 8) {
-			data64 = (uint64_t *)(aligned_cacheline + i);
-			(void)*data64;
-		}
-
-		val8 = *(data8);
-		(*data8)++;
-		(*data8)++;
-		(*data8)++;
-		(*data8)++;
-		(*data8)++;
-		(*data8)++;
-		(*data8)++;
-		val8 += 7;
-
-		if (*data8 != val8) {
-			pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+		if (UNLIKELY(val8 != *data8)) {
+			pr_fail("%s: rdints method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
 				args->name, index, val8, *data8);
-			rc = EXIT_FAILURE;
+			return EXIT_FAILURE;
 		}
+	}
+	return EXIT_SUCCESS;
+}
 
-		(void)*data8;
-		*data8 = *data8;
-		(void)*data8;
-		*data8 = *data8;
-		(void)*data8;
-		*data8 = *data8;
-		(void)*data8;
-		*data8 = *data8;
-		(void)*data8;
-		*data8 = *data8;
-		(void)*data8;
-		*data8 = *data8;
-		(void)*data8;
-		*data8 = *data8;
-		(void)*data8;
-		*data8 = *data8;
+static int stress_cacheline_bits(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size)
+{
+	register int i;
+	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
+	volatile uint8_t *data8 = cacheline + index;
+	register uint8_t val8 = *(data8);
 
-		for (i = 0; i < 8; i++) {
-			(void)*(data8);
+	(void)parent;
+	(void)l1_cacheline_size;
 
-			val8 = 1U << i;
-			*data8 = val8;
-			if (*data8 != val8) {
-				pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-					args->name, index, val8, *data8);
-				rc = EXIT_FAILURE;
-			}
-			val8 ^= 0xff;
-			*data8 = val8;
-			if (*data8 != val8) {
-				pr_fail("%s: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
-					args->name, index, val8, *data8);
-				rc = EXIT_FAILURE;
-			}
+	for (i = 0; i < 1024; i++) {
+		(void)*(data8);
+
+		val8 = 1U << (i & 7);
+		*data8 = val8;
+		shim_mb();
+		if (*data8 != val8) {
+			pr_fail("%s: bits method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+				args->name, index, val8, *data8);
+			return EXIT_FAILURE;
 		}
+		val8 ^= 0xff;
+		*data8 = val8;
+		shim_mb();
+		if (*data8 != val8) {
+			pr_fail("%s: bits method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+				args->name, index, val8, *data8);
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
 
+static int stress_cacheline_all(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size);
+
+static const stress_cacheline_method_t cacheline_methods[] = {
+	{ "all",	stress_cacheline_all },
+	{ "bits",	stress_cacheline_bits },
+	{ "inc",	stress_cacheline_inc },
+	{ "mix",	stress_cacheline_mix },
+	{ "rdfwd64",	stress_cacheline_rdfwd64 },
+	{ "rdints",	stress_cacheline_rdints },
+	{ "rdrev64",	stress_cacheline_rdrev64 },
+	{ "rdwr",	stress_cacheline_rdwr },
+};
+
+static int stress_cacheline_all(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size)
+{
+	size_t i;
+	const size_t n = SIZEOF_ARRAY(cacheline_methods);
+
+	for (i = 1; keep_stressing(args) && (i < n); i++) {
+		int rc;
+
+		rc = cacheline_methods[i].func(args, index, parent, l1_cacheline_size);
+		if (rc != EXIT_SUCCESS)
+			return rc;
+	}
+	return EXIT_SUCCESS;
+}
+
+/*
+ *  stress_set_cacheline_method()
+ *	set the default cachline stress method
+ */
+static int stress_set_cacheline_method(const char *name)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(cacheline_methods); i++) {
+		if (!strcmp(cacheline_methods[i].name, name)) {
+			stress_set_setting("cacheline-method", TYPE_ID_SIZE_T, &i);
+			return 0;
+		}
+	}
+
+	(void)fprintf(stderr, "cacheline-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(cacheline_methods); i++) {
+		(void)fprintf(stderr, " %s", cacheline_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+
+	return -1;
+}
+
+static int stress_cacheline_child(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size,
+	stress_cacheline_func func)
+{
+	int rc;
+
+	do {
+		rc = func(args, index, parent, l1_cacheline_size);
 		if (parent)
 			inc_counter(args);
-	} while (keep_stressing(args));
+	} while ((rc == EXIT_SUCCESS) && keep_stressing(args));
 
 	/* Child tell parent it has finished */
 	if (!parent)
@@ -245,8 +519,10 @@ static int stress_cacheline(const stress_args_t *args)
 	const int index = (int)(args->instance * 2);
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
+	size_t cacheline_method = 0;
+	stress_cacheline_func func;
 
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+	(void)stress_get_setting("cacheline-method", &cacheline_method);
 
 	if (args->instance == 0) {
 		pr_dbg("%s: L1 cache line size %" PRIu64 " bytes\n", args->name, l1_cacheline_size);
@@ -256,6 +532,11 @@ static int stress_cacheline(const stress_args_t *args)
 				args->name, l1_cacheline_size, l1_cacheline_size / 2);
 		}
 	}
+
+	pr_dbg("%s: using method '%s'\n", args->name, cacheline_methods[cacheline_method].name);
+	func = cacheline_methods[cacheline_method].func;
+
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
 	pid = fork();
 	if (pid < 0) {
@@ -267,11 +548,12 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
-		_exit(stress_cacheline_child(args, index + 1, false, l1_cacheline_size));
+		rc = stress_cacheline_child(args, index + 1, false, l1_cacheline_size, func);
+		_exit(rc);
 	} else {
 		int status;
 
-		stress_cacheline_child(args, index, true, l1_cacheline_size);
+		stress_cacheline_child(args, index, true, l1_cacheline_size, func);
 
 		(void)kill(pid, SIGALRM);
 		(void)shim_waitpid(pid, &status, 0);
@@ -286,9 +568,15 @@ finish:
 	return rc;
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_cacheline_method,	stress_set_cacheline_method },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_cacheline_info = {
 	.stressor = stress_cacheline,
 	.class = CLASS_CPU_CACHE,
 	.verify = VERIFY_ALWAYS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };

@@ -1495,6 +1495,7 @@ typedef enum {
 
 	OPT_cacheline,
 	OPT_cacheline_ops,
+	OPT_cacheline_method,
 
 	OPT_cap,
 	OPT_cap_ops,
