@@ -121,6 +121,90 @@ static uint64_t get_L1_line_size(const stress_args_t *args)
 	return cache_size;
 }
 
+static int stress_cacheline_adjacent(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size)
+{
+	register int i;
+	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
+	volatile uint8_t *data8 = cacheline + index;
+	register uint8_t val8 = *(data8);
+	volatile uint8_t *data8adjacent = (volatile uint8_t *)(((uintptr_t)data8) ^ 1);
+
+	(void)parent;
+	(void)l1_cacheline_size;
+
+	for (i = 0; i < 1024; i++) {
+		(*data8)++;
+		(void)(*data8adjacent);
+		shim_mb();
+		(*data8)++;
+		(void)(*data8adjacent);
+		shim_mb();
+		(*data8)++;
+		(void)(*data8adjacent);
+		shim_mb();
+		(*data8)++;
+		(void)(*data8adjacent);
+		shim_mb();
+		(*data8)++;
+		(void)(*data8adjacent);
+		shim_mb();
+		(*data8)++;
+		(void)(*data8adjacent);
+		shim_mb();
+		(*data8)++;
+		(void)(*data8adjacent);
+		shim_mb();
+		val8 += 7;
+
+		if (UNLIKELY(*data8 != val8)) {
+			pr_fail("%s: adjacent method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+				args->name, index, val8, *data8);
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
+static int stress_cacheline_copy(
+	const stress_args_t *args,
+	const int index,
+	const bool parent,
+	const size_t l1_cacheline_size)
+{
+	register int i;
+	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
+	volatile uint8_t *data8 = cacheline + index;
+	register uint8_t val8 = *(data8);
+	volatile uint8_t *data8adjacent = (volatile uint8_t *)(((uintptr_t)data8) ^ 1);
+
+	(void)parent;
+	(void)l1_cacheline_size;
+
+	for (i = 0; i < 1024; i++) {
+		(*data8) = (*data8adjacent);
+		(*data8) = (*data8adjacent);
+		(*data8) = (*data8adjacent);
+		(*data8) = (*data8adjacent);
+		(*data8) = (*data8adjacent);
+		(*data8) = (*data8adjacent);
+		(*data8) = (*data8adjacent);
+		(*data8) = (*data8adjacent);
+		val8 = *data8;
+
+		if (UNLIKELY(*data8 != val8)) {
+			pr_fail("%s: copy method: cache line error in offset 0x%x, expected %2" PRIx8 ", got %2" PRIx8 "\n",
+				args->name, index, val8, *data8);
+			return EXIT_FAILURE;
+		}
+	}
+	return EXIT_SUCCESS;
+}
+
+
 static int stress_cacheline_inc(
 	const stress_args_t *args,
 	const int index,
@@ -476,10 +560,12 @@ static int stress_cacheline_all(
 
 static const stress_cacheline_method_t cacheline_methods[] = {
 	{ "all",	stress_cacheline_all },
+	{ "adjacent",	stress_cacheline_adjacent },
 #if defined (SHIM_ATOMIC_INC)
 	{ "atomicinc",	stress_cacheline_atomicinc },
 #endif
 	{ "bits",	stress_cacheline_bits },
+	{ "copy",	stress_cacheline_copy },
 	{ "inc",	stress_cacheline_inc },
 	{ "mix",	stress_cacheline_mix },
 	{ "rdfwd64",	stress_cacheline_rdfwd64 },

@@ -803,6 +803,10 @@ Method	Description
 all	T{
 iterate over all the below cpu stress methods.
 T}
+adjacent	T{
+increment a specific byte in a cacheline and read the adjacent byte, check for
+corruption every 7 increments.
+T}
 atomicinc	T{
 atomically increment a specific byte in a cacheline and check for
 corruption every 7 increments.
@@ -810,6 +814,9 @@ T}
 bits	T{
 write and read back shifted bit patterns into specifc byte in a cacheline
 and check for corruption.
+T}
+copy	T{
+copy an adjacent byte to a specific byte in a cacheline.
 T}
 inc	T{
 increment and read back a specific byte in a cacheline and check for
