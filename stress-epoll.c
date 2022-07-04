@@ -884,7 +884,8 @@ static void NORETURN epoll_server(
 
 		}
 		if (n < 0) {
-			if (saved_errno != EINTR) {
+			if ((saved_errno != EINTR) &&
+			    (saved_errno != EINVAL)) {
 				pr_fail("%s: epoll_wait failed, errno=%d (%s)\n",
 					args->name, saved_errno, strerror(saved_errno));
 				rc = EXIT_FAILURE;
