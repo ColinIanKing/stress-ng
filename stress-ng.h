@@ -2505,7 +2505,6 @@ typedef enum {
 	OPT_vfork,
 	OPT_vfork_ops,
 	OPT_vfork_max,
-	OPT_vfork_vm,
 
 	OPT_vforkmany,
 	OPT_vforkmany_ops,

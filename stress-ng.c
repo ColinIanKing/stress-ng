@@ -1046,7 +1046,6 @@ static const struct option long_options[] = {
 	{ "vfork",		1,	0,	OPT_vfork },
 	{ "vfork-ops",		1,	0,	OPT_vfork_ops },
 	{ "vfork-max",		1,	0,	OPT_vfork_max },
-	{ "vfork-vm",		0,	0,	OPT_vfork_vm },
 	{ "vforkmany",		1,	0,	OPT_vforkmany },
 	{ "vforkmany-ops", 	1,	0,	OPT_vforkmany_ops },
 	{ "vforkmany-vm", 	0,	0,	OPT_vforkmany_vm },

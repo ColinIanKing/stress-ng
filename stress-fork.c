@@ -40,7 +40,6 @@ static const stress_help_t vfork_help[] = {
 	{ NULL,	"vfork N",	"start N workers spinning on vfork() and exit()" },
 	{ NULL,	"vfork-ops N",	"stop after N vfork bogo operations" },
 	{ NULL,	"vfork-max P",	"create P processes per iteration, default is 1" },
-	{ NULL, "vfork-vm",	"enable extra virtual memory pressure" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -86,19 +85,6 @@ static int stress_set_vfork_max(const char *opt)
 	stress_check_range("vfork-max", vfork_max,
 		MIN_VFORKS, MAX_VFORKS);
 	return stress_set_setting("vfork-max", TYPE_ID_UINT32, &vfork_max);
-}
-
-/*
- *  stress_set_vfork_vm()
- *	set vfork-vm flag on
- */
-static int stress_set_vfork_vm(const char *opt)
-{
-	bool vm = true;
-
-	(void)opt;
-
-	return stress_set_setting("vfork-vm", TYPE_ID_BOOL, &vm);
 }
 
 typedef struct {
@@ -148,6 +134,8 @@ static int stress_fork_fn(
 			case STRESS_VFORK:
 				fork_fn_name = "vfork";
 				pid = shim_vfork();
+				if (pid == 0)
+					_exit(0);
 				break;
 			default:
 				/* This should not happen */
@@ -174,7 +162,7 @@ static int stress_fork_fn(
 				 */
 				if (setsid() != (pid_t) -1)
 					shim_vhangup();
-				if ((which == STRESS_FORK) && vm) {
+				if (vm) {
 					int flags = 0;
 
 					switch (rnd & 7) {
@@ -324,9 +312,6 @@ static int stress_vfork(const stress_args_t *args)
 {
 	uint32_t vfork_max = DEFAULT_VFORKS;
 	int rc;
-	bool vm = false;
-
-	(void)stress_get_setting("vfork-vm", &vm);
 
 	if (!stress_get_setting("vfork-max", &vfork_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -336,7 +321,7 @@ static int stress_vfork(const stress_args_t *args)
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	rc = stress_fork_fn(args, STRESS_VFORK, vfork_max, vm);
+	rc = stress_fork_fn(args, STRESS_VFORK, vfork_max, false);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
@@ -351,7 +336,6 @@ static const stress_opt_set_func_t fork_opt_set_funcs[] = {
 
 static const stress_opt_set_func_t vfork_opt_set_funcs[] = {
 	{ OPT_vfork_max,	stress_set_vfork_max },
-	{ OPT_vfork_vm,		stress_set_vfork_vm },
 	{ 0,			NULL }
 };
 

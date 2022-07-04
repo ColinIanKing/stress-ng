@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "5 May 2022"
+.TH STRESS-NG 1 "4 Jul 2022"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -4922,10 +4922,7 @@ waiting to be reaped. One can potentially fill up the process table using
 high values for \-\-vfork\-max and \-\-vfork.
 .TP
 .B \-\-vfork\-vm
-enable detrimental performance virtual memory advice using madvise on
-all pages of the vforked process. Where possible this will try to set
-every page in the new process with using madvise MADV_MERGEABLE,
-MADV_WILLNEED, MADV_HUGEPAGE and MADV_RANDOM flags. Linux only.
+deprecated since stress-ng V0.14.03
 .TP
 .B \-\-vforkmany N
 start N workers that spawn off a chain of vfork children until the process
