@@ -569,7 +569,7 @@ static int stress_cacheline(const stress_args_t *args)
 	(void)stress_get_setting("cacheline-method", &cacheline_method);
 
 	if (args->instance == 0) {
-		pr_dbg("%s: L1 cache line size %" PRIu64 " bytes\n", args->name, l1_cacheline_size);
+		pr_dbg("%s: L1 cache line size %zd bytes\n", args->name, l1_cacheline_size);
 
 		if ((args->num_instances * 2) < l1_cacheline_size) {
 			pr_inf("%s: to fully exercise a %zd byte cache line, %zd instances are required\n",
