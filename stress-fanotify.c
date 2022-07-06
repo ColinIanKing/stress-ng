@@ -553,7 +553,10 @@ static int stress_fanotify(const stress_args_t *args)
 		_exit(EXIT_SUCCESS);
 	} else {
 		void *buffer;
-		int fan_fd1, max_fd;
+		int fan_fd1;
+#if defined(HAVE_SELECT)
+		int max_fd;
+#endif
 #if defined(FAN_CLASS_NOTIF) &&		\
     defined(FAN_REPORT_DFID_NAME)
 		int fan_fd2;
@@ -582,9 +585,13 @@ static int stress_fanotify(const stress_args_t *args)
 		if (fan_fd2 < 0) {
 			fan_fd2 = -1;
 		}
+#if defined(HAVE_SELECT)
 		max_fd = STRESS_MAXIMUM(fan_fd1, fan_fd2);
+#endif
 #else
+#if defined(HAVE_SELECT)
 		max_fd = fan_fd1;
+#endif
 #endif
 
 		ret = test_fanotify_mark(args->name, mnts);
