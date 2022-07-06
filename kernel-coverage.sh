@@ -352,6 +352,7 @@ do_stress --brk -1 --thrash
 do_stress --cpu -1 --sched batch --thermalstat 1
 do_stress --cpu -1 --taskset 0,2 --ignite-cpu
 do_stress --cpu -1 --taskset 1,2,3
+do_stress --cpu -1 --taskset 0
 do_stress --cpu -1 --cpu-load-slice 50
 do_stress --cpu -1 --thermalstat 1 --vmstat 1 --tz
 
