@@ -996,6 +996,11 @@ static int stress_iomix(const stress_args_t *args)
 	size_t i;
 	int pids[SIZEOF_ARRAY(iomix_funcs)];
 	const char *fs_type;
+	int oflags = O_CREAT | O_RDWR;
+
+#if defined(O_SYNC)
+	oflags |= O_SYNC;
+#endif
 
 	counters = (void *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -1025,7 +1030,7 @@ static int stress_iomix(const stress_args_t *args)
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
-	if ((fd = open(filename, O_CREAT | O_RDWR | O_SYNC, S_IRUSR | S_IWUSR)) < 0) {
+	if ((fd = open(filename, oflags, S_IRUSR | S_IWUSR)) < 0) {
 		ret = exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
