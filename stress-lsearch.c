@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SEARCH_H)
+#include <search.h>
+#endif
+
 #define MIN_LSEARCH_SIZE	(1 * KB)
 #define MAX_LSEARCH_SIZE	(1 * MB)
 #define DEFAULT_LSEARCH_SIZE	(8 * KB)
@@ -43,6 +47,13 @@ static int stress_set_lsearch_size(const char *opt)
 		MIN_LSEARCH_SIZE, MAX_LSEARCH_SIZE);
 	return stress_set_setting("lsearch-size", TYPE_ID_UINT64, &lsearch_size);
 }
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_lsearch_size,	stress_set_lsearch_size },
+	{ 0,			NULL }
+};
+
+#if defined(HAVE_LSEARCH)
 
 /*
  *  cmp()
@@ -114,11 +125,6 @@ static int stress_lsearch(const stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_lsearch_size,	stress_set_lsearch_size },
-	{ 0,			NULL }
-};
-
 stressor_info_t stress_lsearch_info = {
 	.stressor = stress_lsearch,
 	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
@@ -126,3 +132,15 @@ stressor_info_t stress_lsearch_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
+
+#else
+
+stressor_info_t stress_lsearch_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_CPU_CACHE | CLASS_CPU | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_OPTIONAL,
+	.help = help
+};
+
+#endif

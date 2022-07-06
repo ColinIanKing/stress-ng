@@ -63,7 +63,6 @@
 #include <math.h>
 #include <pwd.h>
 #include <sched.h>
-#include <search.h>
 #include <setjmp.h>
 #include <signal.h>
 #include <stdarg.h>
