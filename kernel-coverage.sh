@@ -279,23 +279,23 @@ do
 	echo "Filesystem: $FS"
 	if mount_filesystem $FS; then
 		DURATION=10
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts direct,utimes  --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts dsync --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts iovec,noatime --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fsync,syncfs --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fdatasync --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts rd-rnd,wr-rnd,fadv-rnd --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts rd-seq,wr-seq --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-normal --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-noreuse --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-rnd --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-seq --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-willneed --temp-path $MNT
-		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-dontneed --temp-path $MNT
-		do_stress --verity -1 --temp-path $MNT
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts direct,utimes  --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts dsync --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts iovec,noatime --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fsync,syncfs --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fdatasync --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts rd-rnd,wr-rnd,fadv-rnd --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts rd-seq,wr-seq --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-normal --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-noreuse --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-rnd --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-seq --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-willneed --temp-path $MNT --iostat 1
+		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-dontneed --temp-path $MNT --iostat 1
+		do_stress --verity -1 --temp-path $MNT --iostat 1
 		DURATION=10
-		sudo $STRESS_NG --class filesystem --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT
-		sudo $STRESS_NG --class io --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT
+		sudo $STRESS_NG --class filesystem --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1
+		sudo $STRESS_NG --class io --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1
 		DURATION=5
 		do_stress --sysinfo -1 --temp-path $MNT
 		umount_filesystem $FS
@@ -319,7 +319,7 @@ done
 ionices=$(${STRESS_NG} --ionice-class which 2>&1 | tail -1 | cut -d':' -f2-)
 for i in ${innices}
 do
-	do_stress --ionice-class $i --iomix -1 -t 30 --smart
+	do_stress --ionice-class $i --iomix -1 -t 30 --smart --iostat 1
 done
 
 #
