@@ -82,10 +82,10 @@ typedef struct {
 
 static uint64_t get_L1_line_size(const stress_args_t *args)
 {
+	uint64_t cache_size = DEFAULT_L1_SIZE;
 #if defined(__linux__)
 	stress_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
-	uint64_t cache_size = DEFAULT_L1_SIZE;
 
 	cpu_caches = stress_get_all_cpu_cache_details();
 	if (!cpu_caches) {
