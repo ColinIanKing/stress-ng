@@ -1034,7 +1034,9 @@ static inline int stress_do_syscall(
 	if (pid < 0) {
 		_exit(EXIT_NO_RESOURCE);
 	} else if (pid == 0) {
+#if defined(HAVE_SETITIMER)
 		struct itimerval it;
+#endif
 		size_t i;
 		int ret;
 
