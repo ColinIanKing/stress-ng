@@ -41,11 +41,10 @@ static void NORETURN stress_resched_child(
 	uint64_t *yields)
 {
 	int i;
-#if defined(HAVE_SCHEDULING)
+#if defined(HAVE_SCHEDULING) &&		\
+    defined(HAVE_SCHED_SETSCHEDULER)
 	const pid_t pid = getpid();
-#endif
 
-#if defined(HAVE_SCHEDULING)
 	/*
 	 *  "Normal" non-realtime scheduling policies
 	 */
