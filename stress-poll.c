@@ -185,8 +185,12 @@ abort:
 	} else {
 		/* Parent read */
 
-		int maxfd = 0, status;
+		int status;
+#if defined(HAVE_SYS_SELECT_H) &&	\
+    defined(HAVE_SELECT)
+		int maxfd = 0;
 		fd_set rfds;
+#endif
 #if defined(HAVE_PPOLL) ||	\
     defined(HAVE_PSELECT)
 		struct timespec ts;
@@ -202,7 +206,10 @@ abort:
 		}
 
 		do {
+#if defined(HAVE_SYS_SELECT_H) &&	\
+    defined(HAVE_SELECT)
 			struct timeval tv;
+#endif
 			int ret;
 
 			if (!keep_stressing(args))
@@ -289,7 +296,8 @@ abort:
 
 #endif
 
-#if defined(HAVE_SYS_SELECT_H)
+#if defined(HAVE_SYS_SELECT_H) &&	\
+    defined(HAVE_SELECT)
 			/* stress out select */
 			FD_ZERO(&rfds);
 			for (i = 0; i < max_fds; i++) {

@@ -90,7 +90,8 @@ static void *stress_pthread_func(void *c)
 	       !thread_terminate &&
 	       (!max_ops || (ctxt->counter < max_ops))) {
 		struct timespec tv;
-#if defined(HAVE_SYS_SELECT_H)
+#if defined(HAVE_SYS_SELECT_H) &&	\
+    defined(HAVE_SELECT)
 		struct timeval timeout;
 #endif
 
@@ -137,7 +138,8 @@ static void *stress_pthread_func(void *c)
 skip_pselect:
 #endif
 
-#if defined(HAVE_SYS_SELECT_H)
+#if defined(HAVE_SYS_SELECT_H) &&	\
+    defined(HAVE_SELECT)
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 10;
 		if (select(0, NULL, NULL, NULL, &timeout) < 0)

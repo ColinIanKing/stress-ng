@@ -101,6 +101,7 @@ static void stress_fifo_reader(
 	}
 	while (keep_stressing_flag()) {
 		ssize_t sz;
+#if defined(HAVE_SELECT)
 		int ret;
 		struct timeval timeout;
 		fd_set rdfds;
@@ -128,6 +129,7 @@ redo:
 				goto redo;
 			break;
 		}
+#endif
 #if defined(FIONREAD)
 		if ((count & 0xff) == 0) {
 			int isz = 0;

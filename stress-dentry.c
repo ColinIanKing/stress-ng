@@ -236,7 +236,8 @@ static void stress_dentry_misc(const char *path)
 	}
 #endif
 
-#if defined(HAVE_SYS_SELECT_H)
+#if defined(HAVE_SYS_SELECT_H) &&	\
+    defined(HAVE_SELECT)
 	{
 		struct timeval timeout;
 		fd_set rdfds;

@@ -681,6 +681,7 @@ static int bad_sched_getaffinity(void *addr)
 UNEXPECTED
 #endif
 
+#if defined(HAVE_SELECT)
 static int bad_select(void *addr)
 {
 	int fd, ret = 0;
@@ -695,6 +696,7 @@ static int bad_select(void *addr)
 	}
 	return ret;
 }
+#endif
 
 #if defined(HAVE_SETITIMER)
 static int bad_setitimer(void *addr)
@@ -971,7 +973,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 #if defined(HAVE_SCHED_GETAFFINITY)
 	bad_sched_getaffinity,
 #endif
+#if defined(HAVE_SELECT)
 	bad_select,
+#endif
 #if defined(HAVE_SETITIMER)
 	bad_setitimer,
 #endif

@@ -38,6 +38,7 @@ static const stress_help_t help[] = {
     defined(HAVE_INOTIFY1) &&		\
     defined(HAVE_SYS_INOTIFY_H) &&	\
     defined(HAVE_SYS_SELECT_H) && 	\
+    defined(HAVE_SELECT) &&		\
     NEED_GLIBC(2,9,0)
 
 #define DIR_FLAGS	(S_IRWXU | S_IRWXG)

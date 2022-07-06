@@ -184,7 +184,9 @@ static int stress_uprobe(const stress_args_t *args)
 		 */
 		int i;
 		fd_set rfds;
+#if defined(HAVE_SELECT)
 		struct timeval tv;
+#endif
 
 		/* Generate some events */
 		for (i = 0; i < 64; i++) {
@@ -199,12 +201,14 @@ static int stress_uprobe(const stress_args_t *args)
 			FD_ZERO(&rfds);
 			FD_SET(fd, &rfds);
 
+#if defined(HAVE_SELECT)
 			tv.tv_sec = 0;
 			tv.tv_usec = 1000;
 			ret = select(fd + 1, &rfds, NULL, NULL, &tv);
 
 			if (ret <= 0)
 				break;
+#endif
 
 			n = read(fd, data, sizeof(data));
 			if (n <= 0)

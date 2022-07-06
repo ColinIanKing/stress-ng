@@ -3966,7 +3966,8 @@ static inline void stress_dev_rw(
 			goto next;
 		}
 
-#if !defined(__NetBSD__)
+#if !defined(__NetBSD__) &&	\
+    defined(HAVE_SELECT)
 		{
 			struct timeval tv;
 			fd_set wfds;

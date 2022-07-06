@@ -171,7 +171,8 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 	}
 #endif
 
-#if defined(HAVE_SYS_SELECT_H)
+#if defined(HAVE_SYS_SELECT_H) &&	\
+    defined(HAVE_SELECT)
 	/*
 	 *  Very short delay select on the device
 	 *  that should normally always timeout because

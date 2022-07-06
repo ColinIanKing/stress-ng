@@ -3110,7 +3110,9 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 	bias = 0.0;
 	do {
 		double delay, t1, t2;
+#if defined(HAVE_SELECT)
 		struct timeval tv;
+#endif
 
 		t1 = stress_per_cpu_time();
 		if (cpu_load_slice < 0) {
@@ -3162,9 +3164,14 @@ static int HOT OPTIMIZE3 stress_cpu(const stress_args_t *args)
 
 			t2 = stress_time_now();
 
+#if defined(HAVE_SELECT)
 			tv.tv_sec = (time_t)delay;
 			tv.tv_usec = (long)((delay - (double)tv.tv_sec) * 1000000.0);
 			(void)select(0, NULL, NULL, NULL, &tv);
+#else
+			shim_nanosleep_uint64((uint64_t)(delay * 1000000000.0));
+#endif
+
 			t3 = stress_time_now();
 			/* Bias takes account of the time to do the delay */
 			bias = (t3 - t2) - delay;

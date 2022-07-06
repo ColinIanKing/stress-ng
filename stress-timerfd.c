@@ -55,7 +55,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_POLL_H)
 #define TIMER_FDS_MAX		(INT_MAX)
 #define USE_POLL		(1)
-#else
+#elif defined(HAVE_SELECT)
 #define USE_SELECT		(1)
 #define TIMER_FDS_MAX		(FD_SETSIZE)
 #endif
@@ -106,7 +106,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_SYS_TIMERFD_H) &&	\
     defined(HAVE_TIMERFD_CREATE) &&	\
     defined(HAVE_TIMERFD_GETTIME) &&	\
-    defined(HAVE_TIMERFD_SETTIME)
+    defined(HAVE_TIMERFD_SETTIME) &&	\
+    (defined(USE_SELECT) || defined(USE_POLL))
 
 static double rate_ns;
 

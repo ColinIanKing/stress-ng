@@ -693,7 +693,9 @@ static int stress_apparmor(const stress_args_t *args)
 	while (keep_stressing(args)) {
 		uint64_t tmp_counter = 0;
 
+#if defined(HAVE_SELECT)
 		(void)select(0, NULL, NULL, NULL, NULL);
+#endif
 
 		for (i = 0; i < n; i++)
 			tmp_counter += counters[i];

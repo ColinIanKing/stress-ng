@@ -142,7 +142,6 @@ static void stress_iomix_wr_seq_bursts(
 		off_t ret, posn;
 		const int n = stress_mwc8();
 		int i;
-		struct timeval tv;
 
 		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
@@ -179,9 +178,7 @@ static void stress_iomix_wr_seq_bursts(
 			inc_counter(args);
 			stress_iomix_fsync_min_1Hz(fd);
 		}
-		tv.tv_sec = 0;
-		tv.tv_usec = stress_mwc32() % 1000000;
-		(void)select(0, NULL, NULL, NULL, &tv);
+		shim_usleep(stress_mwc32() % 1000000);
 	} while (keep_stressing(args));
 }
 
@@ -204,7 +201,6 @@ static void stress_iomix_wr_rnd_bursts(
 	do {
 		const int n = stress_mwc8();
 		int i;
-		struct timeval tv;
 
 		for (i = 0; i < n; i++) {
 			char buffer[512];
@@ -234,10 +230,7 @@ static void stress_iomix_wr_rnd_bursts(
 			inc_counter(args);
 			stress_iomix_fsync_min_1Hz(fd);
 		}
-		tv.tv_sec = stress_mwc32() % 2;
-		tv.tv_usec = stress_mwc32() % 1000000;
-		(void)select(0, NULL, NULL, NULL, &tv);
-
+		shim_usleep(stress_mwc32() % 2000000);
 	} while (keep_stressing(args));
 }
 
@@ -306,7 +299,6 @@ static void stress_iomix_rd_seq_bursts(
 		off_t ret, posn;
 		const int n = stress_mwc8();
 		int i;
-		struct timeval tv;
 
 		posn = stress_iomix_rnd_offset(iomix_bytes);
 		ret = lseek(fd, posn, SEEK_SET);
@@ -342,9 +334,7 @@ static void stress_iomix_rd_seq_bursts(
 			/* Add some unhelpful advice */
 			stress_iomix_fadvise_random_dontneed(fd, posn, 4096);
 		}
-		tv.tv_sec = 0;
-		tv.tv_usec = stress_mwc32() % 1000000;
-		(void)select(0, NULL, NULL, NULL, &tv);
+		shim_usleep(stress_mwc32() % 1000000);
 	} while (keep_stressing(args));
 }
 
@@ -361,7 +351,6 @@ static void stress_iomix_rd_rnd_bursts(
 	do {
 		const int n = stress_mwc8();
 		int i;
-		struct timeval tv;
 
 		for (i = 0; i < n; i++) {
 			char buffer[512];
@@ -391,9 +380,7 @@ static void stress_iomix_rd_rnd_bursts(
 				return;
 			inc_counter(args);
 		}
-		tv.tv_sec = stress_mwc32() % 3;
-		tv.tv_usec = stress_mwc32() % 1000000;
-		(void)select(0, NULL, NULL, NULL, &tv);
+		shim_usleep(3000000);
 	} while (keep_stressing(args));
 }
 
@@ -460,15 +447,11 @@ static void stress_iomix_sync(
 	(void)fs_type;
 
 	do {
-		struct timeval tv;
-
 		(void)shim_fsync(fd);
 		if (!keep_stressing(args))
 			break;
 		inc_counter(args);
-		tv.tv_sec = stress_mwc32() % 4;
-		tv.tv_usec = stress_mwc32() % 1000000;
-		(void)select(0, NULL, NULL, NULL, &tv);
+		shim_usleep(stress_mwc32() % 4000000);
 		if (!keep_stressing(args))
 			break;
 
@@ -478,9 +461,7 @@ static void stress_iomix_sync(
 		(void)shim_fdatasync(-1);
 		if (!keep_stressing(args))
 			break;
-		tv.tv_sec = stress_mwc32() % 4;
-		tv.tv_usec = stress_mwc32() % 1000000;
-		(void)select(0, NULL, NULL, NULL, &tv);
+		shim_usleep(stress_mwc32() % 4000000);
 		if (!keep_stressing(args))
 			break;
 #else
@@ -497,9 +478,7 @@ static void stress_iomix_sync(
 
 			if (!keep_stressing(args))
 				break;
-			tv.tv_sec = stress_mwc32() % 4;
-			tv.tv_usec = stress_mwc32() % 1000000;
-			(void)select(0, NULL, NULL, NULL, &tv);
+			shim_usleep(stress_mwc32() % 4000000);
 		}
 #else
 		(void)iomix_bytes;
@@ -892,7 +871,6 @@ static void stress_iomix_copy_file_range(
 		off_t from = stress_iomix_rnd_offset(iomix_bytes);
 		off_t to = stress_iomix_rnd_offset(iomix_bytes);
 		const size_t size = stress_mwc16();
-		struct timeval tv;
 
 		VOID_RET(ssize_t, copy_file_range(fd, &from, fd, &to, size, 0));
 		VOID_RET(ssize_t, copy_file_range(fd, &to, fd, &from, size, 0));
@@ -901,9 +879,7 @@ static void stress_iomix_copy_file_range(
 			return;
 		stress_iomix_fsync_min_1Hz(fd);
 
-		tv.tv_sec = 0;
-		tv.tv_usec = stress_mwc32() % 100000;
-		(void)select(0, NULL, NULL, NULL, &tv);
+		shim_usleep(stress_mwc32() % 100000);
 	} while (keep_stressing(args));
 }
 #endif
@@ -927,7 +903,6 @@ static void stress_iomix_sendfile(
 		off_t to = stress_iomix_rnd_offset(iomix_bytes);
 		off_t ret;
 		const size_t size = stress_mwc16();
-		struct timeval tv;
 
 		ret = lseek(fd, to, SEEK_SET);
 		if (ret != (off_t)-1) {
@@ -941,9 +916,7 @@ static void stress_iomix_sendfile(
 			return;
 		stress_iomix_fsync_min_1Hz(fd);
 
-		tv.tv_sec = 0;
-		tv.tv_usec = stress_mwc32() % 130000;
-		(void)select(0, NULL, NULL, NULL, &tv);
+		shim_usleep(stress_mwc32() % 130000);
 	} while (keep_stressing(args));
 }
 #endif

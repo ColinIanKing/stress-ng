@@ -616,6 +616,7 @@ static int stress_fanotify(const stress_args_t *args)
 			if (fan_fd2 >= 0)
 				FD_SET(fan_fd2, &rfds);
 #endif
+#if defined(HAVE_SELECT)
 			ret = select(max_fd + 1, &rfds, NULL, NULL, NULL);
 			if (ret == -1) {
 				if (errno == EINTR)
@@ -626,6 +627,7 @@ static int stress_fanotify(const stress_args_t *args)
 			}
 			if (ret == 0)
 				continue;
+#endif
 
 #if defined(FIONREAD)
 			{

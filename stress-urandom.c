@@ -116,8 +116,10 @@ static int stress_urandom(const stress_args_t *args)
 	do {
 		uint8_t buffer[8192];
 		ssize_t ret;
+#if defined(HAVE_SELECT)
 		struct timeval timeout;
 		fd_set rdfds;
+#endif
 
 		if (fd_urnd >= 0) {
 			ret = read(fd_urnd, buffer, sizeof(buffer));
@@ -227,6 +229,7 @@ next:
 				(void)munmap(ptr, args->page_size);
 		}
 
+#if defined(HAVE_SELECT)
 		/*
 		 *  Peek if data is available on blockable /dev/random and
 		 *  try to read it.
@@ -272,6 +275,7 @@ next:
 				}
 			}
 		}
+#endif
 
 		inc_counter(args);
 	} while (keep_stressing(args));
