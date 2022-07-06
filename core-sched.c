@@ -75,7 +75,8 @@ const char *stress_get_sched_name(const int sched)
 #if (defined(_POSIX_PRIORITY_SCHEDULING) || defined(__linux__)) && 	\
     !defined(__OpenBSD__) && 						\
     !defined(__minix__) &&						\
-    !defined(__APPLE__)
+    !defined(__APPLE__) &&						\
+    !defined(__serenity__)
 
 static const char prefix[] = "sched";
 
