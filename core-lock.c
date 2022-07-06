@@ -73,7 +73,8 @@
 #define LOCK_METHOD_SEM_POSIX		(0)
 #endif
 
-#if defined(HAVE_SEM_SYSV)
+#if defined(HAVE_SEM_SYSV) && 	\
+    defined(HAVE_KEY_T)
 #define LOCK_METHOD_SEM_SYSV		(0x0020)
 #else
 #define LOCK_METHOD_SEM_SYSV		(0)

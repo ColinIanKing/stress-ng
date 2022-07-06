@@ -585,7 +585,8 @@ static void NORETURN waste_resources(
 			break;
 #endif
 
-#if defined(HAVE_SEM_SYSV)
+#if defined(HAVE_SEM_SYSV) &&	\
+    defined(HAVE_KEY_T)
 		key_t sem_key = (key_t)stress_mwc32();
 		info[i].sem_id = semget(sem_key, 1,
 			IPC_CREAT | S_IRUSR | S_IWUSR);

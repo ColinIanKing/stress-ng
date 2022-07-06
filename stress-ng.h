@@ -1030,11 +1030,14 @@ typedef struct {
 		uint32_t futex[STRESS_PROCS_MAX];	/* Shared futexes */
 		uint64_t timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
 	} futex;
+#if defined(HAVE_SEM_SYSV) && 	\
+    defined(HAVE_KEY_T)
 	struct {
 		key_t key_id;				/* System V semaphore key id */
 		int sem_id;				/* System V semaphore id */
 		bool init;				/* System V semaphore initialized */
 	} sem_sysv;
+#endif
 #if defined(STRESS_PERF_STATS)
 	struct {
 		bool no_perf;				/* true = Perf not available */

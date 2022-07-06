@@ -262,7 +262,8 @@ finish:
 	return EXIT_SUCCESS;
 }
 
-#if defined(HAVE_SEM_SYSV)
+#if defined(HAVE_SEM_SYSV) &&	\
+    defined(HAVE_KEY_T)
 /*
  *  stress_switch_sem_sysv
  *	stress by heavy context switching using semaphore
