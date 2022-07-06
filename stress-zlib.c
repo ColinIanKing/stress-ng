@@ -953,6 +953,8 @@ static void TARGET_CLONES stress_rand_data_lehmer(
 }
 #endif
 
+#if defined(HAVE_SRAND48) &&	\
+    defined(HAVE_LRAND48)
 /*
  *  stress_rand_data_lrand48()
  *	fills buffer with random data from lrand48
@@ -980,6 +982,7 @@ static void stress_rand_data_lrand48(
 		*(ptr++) = (uint32_t)lrand48();
 	}
 }
+#endif
 
 /*
  *  stress_rand_data_latin()
@@ -1161,7 +1164,10 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 #endif
 	{ "logmap",	stress_rand_data_logmap },
 	{ "lfsr32",	stress_rand_data_lfsr32 },
+#if defined(HAVE_SRAND48) &&	\
+    defined(HAVE_LRAND48)
 	{ "lrand48",	stress_rand_data_lrand48 },
+#endif
 	{ "morse",	stress_rand_data_morse },
 	{ "nybble",	stress_rand_data_nybble },
 	{ "objcode",	stress_rand_data_objcode },

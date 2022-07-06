@@ -436,6 +436,9 @@ static void HOT OPTIMIZE3 stress_cpu_logmap(const char *name)
 	stress_double_put(x);
 }
 
+#if defined(HAVE_SRAND48) &&	\
+    defined(HAVE_LRAND48) &&	\
+    defined(HAVE_DRAND48)
 /*
  *  stress_cpu_rand48()
  *	generate random values using rand48 family of functions
@@ -456,6 +459,7 @@ static void HOT OPTIMIZE3 stress_cpu_rand48(const char *name)
 	stress_double_put(d);
 	stress_uint64_put((uint64_t)l);
 }
+#endif
 
 /*
  *  stress_cpu_lfsr32()
@@ -2953,7 +2957,11 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "psi",		stress_cpu_psi,			6121992.09 },
 	{ "queens",		stress_cpu_queens,		637.03 },
 	{ "rand",		stress_cpu_rand,		16530.45 },
+#if defined(HAVE_SRAND48) &&	\
+    defined(HAVE_LRAND48) &&	\
+    defined(HAVE_DRAND48)
 	{ "rand48",		stress_cpu_rand48,		5037.84 },
+#endif
 	{ "rgb",		stress_cpu_rgb,			71888.49 },
 	{ "sieve",		stress_cpu_sieve,		3437.93 },
 	{ "stats",		stress_cpu_stats,		428002.41 },
