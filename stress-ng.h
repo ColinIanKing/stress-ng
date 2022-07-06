@@ -598,6 +598,9 @@ typedef struct {
 #define WEAK
 #endif
 
+#if defined(ALWAYS_INLINE)
+#undef ALWAYS_INLINE
+#endif
 /* force inlining hint */
 #if (defined(__GNUC__) && NEED_GNUC(3, 4, 0) 					\
      && ((!defined(__s390__) && !defined(__s390x__)) || NEED_GNUC(6, 0, 1))) ||	\
