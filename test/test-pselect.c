@@ -29,6 +29,10 @@
 
 #define MAX_FDS		(3)
 
+#if defined(__serenity__)
+#error Serenity OS does not currently support pselect
+#endif
+
 int main(void)
 {
 	static fd_set rfds, wfds;
