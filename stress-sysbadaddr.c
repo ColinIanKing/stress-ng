@@ -385,10 +385,12 @@ static int bad_gethostname(void *addr)
 }
 #endif
 
+#if defined(HAVE_GETITIMER)
 static int bad_getitimer(void *addr)
 {
 	return getitimer(ITIMER_PROF, (struct itimerval *)addr);
 }
+#endif
 
 static int bad_getpeername(void *addr)
 {
@@ -694,11 +696,13 @@ static int bad_select(void *addr)
 	return ret;
 }
 
+#if defined(HAVE_SETITIMER)
 static int bad_setitimer(void *addr)
 {
 	return setitimer(ITIMER_PROF, (struct itimerval *)addr,
 		(struct itimerval *)inc_addr(addr, 1));
 }
+#endif
 
 static int bad_setrlimit(void *addr)
 {
@@ -892,7 +896,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 #if defined(HAVE_GETHOSTNAME)
 	bad_gethostname,
 #endif
+#if defined(HAVE_GETITIMER)
 	bad_getitimer,
+#endif
 	bad_getpeername,
 	bad_getrandom,
 	bad_getrlimit,
@@ -966,7 +972,9 @@ static stress_bad_syscall_t bad_syscalls[] = {
 	bad_sched_getaffinity,
 #endif
 	bad_select,
+#if defined(HAVE_SETITIMER)
 	bad_setitimer,
+#endif
 	bad_setrlimit,
 	bad_stat,
 #if defined(HAVE_STATFS)
@@ -1045,6 +1053,7 @@ static inline int stress_do_syscall(
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
+#if defined(HAVE_SETITIMER)
 		/*
 		 * Force abort if we take too long
 		 */
@@ -1057,6 +1066,7 @@ static inline int stress_do_syscall(
 				args->name, errno, strerror(errno));
 			_exit(EXIT_NO_RESOURCE);
 		}
+#endif
 
 		ret = bad_syscall(addr);
 		if (ret < 0)
