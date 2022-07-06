@@ -70,7 +70,8 @@ static void NORETURN stress_resched_child(
 		int k;
 
 		for (k = 0; k < 1024; k++) {
-#if defined(HAVE_SCHEDULING)
+#if defined(HAVE_SCHEDULING) && 	\
+    defined(HAVE_SCHED_SETSCHEDULER)
 			size_t j;
 
 			for (j = 0; j < SIZEOF_ARRAY(normal_policies); j++) {
