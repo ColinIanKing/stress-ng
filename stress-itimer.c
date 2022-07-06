@@ -23,28 +23,11 @@
 #define MAX_ITIMER_FREQ		(100000000)
 #define DEFAULT_ITIMER_FREQ	(1000000)
 
-static volatile uint64_t itimer_counter = 0;
-static uint64_t max_ops;
-static double rate_us;
-static double start;
-
 static const stress_help_t help[] = {
 	{ NULL,	"itimer N",	"start N workers exercising interval timers" },
 	{ NULL,	"itimer-ops N",	"stop after N interval timer bogo operations" },
 	{ NULL,	"itimer-rand",	"enable random interval timer frequency" },
 	{ NULL, NULL,		NULL }
-};
-
-static const shim_itimer_which_t stress_itimers[] = {
-#if defined(ITIMER_REAL)
-	ITIMER_REAL,
-#endif
-#if defined(ITIMER_VIRTUAL)
-	ITIMER_VIRTUAL,
-#endif
-#if defined(ITIMER_PROF)
-	ITIMER_PROF,
-#endif
 };
 
 /*
@@ -68,6 +51,32 @@ static int stress_set_itimer_rand(const char *opt)
 	(void)opt;
 	return stress_set_setting("itimer-rand", TYPE_ID_BOOL, &itimer_rand);
 }
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_itimer_freq,	stress_set_itimer_freq },
+	{ OPT_itimer_rand,	stress_set_itimer_rand },
+	{ 0,			NULL }
+};
+
+#if defined(HAVE_GETITIMER) &&	\
+    defined(HAVE_SETITIMER)
+
+static volatile uint64_t itimer_counter = 0;
+static uint64_t max_ops;
+static double rate_us;
+static double start;
+
+static const shim_itimer_which_t stress_itimers[] = {
+#if defined(ITIMER_REAL)
+	ITIMER_REAL,
+#endif
+#if defined(ITIMER_VIRTUAL)
+	ITIMER_VIRTUAL,
+#endif
+#if defined(ITIMER_PROF)
+	ITIMER_PROF,
+#endif
+};
 
 /*
  *  stress_itimer_set()
@@ -210,11 +219,6 @@ static int stress_itimer(const stress_args_t *args)
 	return EXIT_SUCCESS;
 }
 
-static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_itimer_freq,	stress_set_itimer_freq },
-	{ OPT_itimer_rand,	stress_set_itimer_rand },
-	{ 0,			NULL }
-};
 
 stressor_info_t stress_itimer_info = {
 	.stressor = stress_itimer,
@@ -223,3 +227,14 @@ stressor_info_t stress_itimer_info = {
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };
+
+#else
+
+stressor_info_t stress_itimer_info = {
+	.stressor = stress_not_implemented,
+	.class = CLASS_INTERRUPT | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
+	.verify = VERIFY_ALWAYS,
+	.help = help
+};
+#endif
