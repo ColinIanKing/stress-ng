@@ -250,10 +250,12 @@ static int stress_sigsegv(const stress_args_t *args)
 				pr_fail("%s: expecting SIGSEGV/SIGILL/SIGBUS, got %s instead\n",
 					args->name, strsignal(signo));
 			}
+#if defined(SEGV_ACCERR)
 			if (verify && (signo == SIGBUS) && (code != SEGV_ACCERR)) {
 				pr_fail("%s: expecting SIGBUS si_code SEGV_ACCERR (%d), got %d instead\n",
 					args->name, SEGV_ACCERR, code);
 			}
+#endif
 #endif
 			inc_counter(args);
 		} else {
