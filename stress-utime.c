@@ -52,7 +52,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
     defined(HAVE_UTIMBUF)
 static int shim_utime(const char *filename, const struct utimbuf *times)
 {
-#if defined(__NR_utime)
+#if defined(__NR_utime) &&	\
+    defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_utime, filename, times);
 #else
 	return utime(filename, times);

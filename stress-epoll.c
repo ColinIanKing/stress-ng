@@ -131,7 +131,8 @@ static int stress_epoll_pwait(
 	int timeout,
 	const sigset_t *sigmask)
 {
-#if defined(__NR_epoll_pwait2)
+#if defined(__NR_epoll_pwait2) &&	\
+    defined(HAVE_SYSCALL)
 	if (stress_mwc1()) {
 		struct timespec timeout_ts;
 		int64_t timeout_ns = (int64_t)timeout * 1000;

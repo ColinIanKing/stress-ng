@@ -125,7 +125,8 @@ static int shim_faccessat(int dir_fd, const char *pathname, int mode, int flags)
 {
 #if defined(HAVE_FACCESSAT2)
 	return faccessat2(dir_fd, pathname, mode, flags);
-#elif defined(__NR_faccessat2)
+#elif defined(__NR_faccessat2) &&	\
+      defined(HAVE_SYSCALL)
 	int ret;
 
 	ret = (int)syscall(__NR_faccessat2, dir_fd, pathname, mode, flags);

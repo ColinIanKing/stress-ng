@@ -28,7 +28,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if defined(HAVE_SYSCALL_H)
+#if defined(HAVE_SYSCALL_H) &&	\
+    defined(HAVE_SYSCALL)
 
 #define HASH_SYSCALL_SIZE	(1987)
 

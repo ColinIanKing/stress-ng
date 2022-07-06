@@ -169,7 +169,8 @@ static int obsolete_futimesat(
 {
 	int ret;
 
-#if defined(__NR_futimesat)
+#if defined(__NR_futimesat) &&	\
+    defined(HAVE_SYSCALL)
 	/* Try direct system call first */
 	ret = (int)syscall(__NR_futimesat, dir_fd, pathname, tv);
 	if ((ret == 0) || (errno != ENOSYS))
@@ -201,7 +202,8 @@ static int obsolete_futimes(const int fd, const struct timeval tv[2])
 {
 	int ret;
 
-#if defined(__NR_futimes)
+#if defined(__NR_futimes) &&	\
+    defined(HAVE_SYSCALL)
 	/* Try direct system call first */
 	ret = (int)syscall(__NR_futimes, fd, tv);
 	if ((ret == 0) || (errno != ENOSYS))
@@ -227,7 +229,8 @@ static inline int open_arg2(const char *pathname, const int flags)
 {
 	int fd;
 
-#if defined(__NR_open)
+#if defined(__NR_open) &&	\
+    defined(HAVE_SYSCALL)
 	fd = (int)syscall(__NR_open, pathname, flags);
 #else
 	fd = open(pathname, flags);
@@ -242,7 +245,8 @@ static inline int open_arg3(const char *pathname, const int flags, const mode_t 
 {
 	int fd;
 
-#if defined(__NR_open)
+#if defined(__NR_open) &&	\
+    defined(HAVE_SYSCALL)
 	fd = (int)syscall(__NR_open, pathname, flags, mode);
 #else
 	fd = open(pathname, flags, mode);
@@ -508,7 +512,8 @@ static int open_with_openat_dir_fd(void)
 #if defined(HAVE_OPENAT2) &&		\
     defined(HAVE_LINUX_OPENAT2_H) &&	\
     defined(RESOLVE_NO_SYMLINKS) &&	\
-    defined(__NR_openat2)
+    defined(__NR_openat2) &&		\
+    defined(HAVE_SYSCALL)
 static int open_with_openat2_cwd(void)
 {
 	static const unsigned int resolve_flags[] = {

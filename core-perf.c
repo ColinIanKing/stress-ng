@@ -30,7 +30,8 @@
 #endif
 
 #if defined(STRESS_PERF_STATS) &&	\
-    defined(HAVE_LINUX_PERF_EVENT_H)
+    defined(HAVE_LINUX_PERF_EVENT_H) &&	\
+    defined(HAVE_SYSCALL)
 /* perf enabled systems */
 
 #define THOUSAND	(1.0E3)

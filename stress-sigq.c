@@ -39,7 +39,8 @@ static void MLOCKED_TEXT stress_sigqhandler(
 	(void)ucontext;
 }
 
-#if defined(__NR_rt_sigqueueinfo)
+#if defined(__NR_rt_sigqueueinfo) &&	\
+    defined(HAVE_SYSCALL)
 #define HAVE_RT_SIGQUEUEINFO
 static int shim_rt_sigqueueinfo(pid_t tgid, int sig, siginfo_t *info)
 {

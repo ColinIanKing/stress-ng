@@ -26,6 +26,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_SYSCALL_H) &&	\
+    defined(HAVE_SYSCALL) &&	\
     !defined(__APPLE__) && 	\
     !defined(__gnu_hurd__)
 

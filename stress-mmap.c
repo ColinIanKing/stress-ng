@@ -197,7 +197,9 @@ static void MLOCKED_TEXT stress_mmap_sighandler(int signum)
  *	If mmap2 is requested then try to use it for 4K page aligned
  *	offsets. Fall back to mmap() if not possible.
  */
-#if defined(HAVE_MMAP2)
+#if defined(HAVE_MMAP2) &&	\
+    defined(HAVE_SYSCALL) &&	\
+    defined(__NR_mmap2)
 static void *mmap2_try(void *addr, size_t length, int prot, int flags,
 	int fd, off_t offset)
 {
@@ -352,7 +354,8 @@ static void stress_mmap_invalid(
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, length);
 
-#if defined(__NR_mmap)
+#if defined(__NR_mmap) &&	\
+    defined(HAVE_SYSCALL)
 	/*
 	 *  libc may detect offset is invalid and not do the syscall so
 	 *  do direct syscall if possible

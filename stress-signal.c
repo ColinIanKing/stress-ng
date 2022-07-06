@@ -46,6 +46,7 @@ typedef void (*shim_sighandler_t)(int);
 static shim_sighandler_t shim_signal(int signum, shim_sighandler_t handler)
 {
 #if defined(__NR_signal) &&	\
+    defined(HAVE_SYSCALL) &&	\
     !defined(__sparc__)
 	shim_sighandler_t ret;
 

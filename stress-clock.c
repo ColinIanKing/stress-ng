@@ -164,6 +164,7 @@ static inline bool check_invalid_clock_id(const clockid_t id) {
 #define FD_TO_CLOCKID(fd)	((~(clockid_t)(fd) << 3) | 3)
 
 #if defined(__NR_clock_adjtime) &&	\
+    defined(HAVE_SYSCALL) &&		\
     defined(HAVE_SYS_TIMEX_H) &&	\
     defined(CLOCK_THREAD_CPUTIME_ID) &&	\
     defined(ADJ_SETOFFSET)

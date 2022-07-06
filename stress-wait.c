@@ -159,7 +159,8 @@ static void stress_wait_continued(const stress_args_t *args, const int status)
  */
 static pid_t syscall_shim_waitpid(pid_t pid, int *wstatus, int options)
 {
-#if defined(__NR_waitpid)
+#if defined(__NR_waitpid) &&	\
+    defined(HAVE_SYSCALL)
 	return (pid_t)syscall(__NR_waitpid, pid, wstatus, options);
 #else
 	return waitpid(pid, wstatus, options);

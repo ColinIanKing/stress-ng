@@ -235,7 +235,8 @@ static int do_fcntl(
 	{
 		int ret;
 
-#if defined(__NR_fcntl)
+#if defined(__NR_fcntl) &&	\
+    defined(HAVE_SYSCALL)
 		/*
 		 * glibc maps fcntl F_GETOWN to F_GETOWN_EX so
 		 * so try to bypass the glibc altogether

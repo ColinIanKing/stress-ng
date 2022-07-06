@@ -53,7 +53,8 @@ static const stress_help_t help[] = {
  */
 #if defined(HAVE_KEYUTILS_H) && \
     defined(HAVE_ADD_KEY) &&	\
-    defined(HAVE_KEYCTL)
+    defined(HAVE_KEYCTL) &&	\
+    defined(HAVE_SYSCALL)
 
 #define MAX_KEYS 		(256)
 #define KEYCTL_TIMEOUT		(2)

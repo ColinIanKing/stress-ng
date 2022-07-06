@@ -37,7 +37,8 @@ static const stress_help_t help[] = {
     defined(HAVE_SIGQUEUE)
 
 #if defined(__NR_signalfd4) &&		\
-    defined(__linux__)
+    defined(__linux__) &&		\
+    defined(HAVE_SYSCALL)
 #define HAVE_SIGNALFD4
 static int shim_signalfd4(
 	int ufd,

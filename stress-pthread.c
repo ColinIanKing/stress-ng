@@ -97,7 +97,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define DEFAULT_STACK_MIN		(8 * KB)
 
 #if defined(HAVE_GET_ROBUST_LIST) &&	\
-    defined(HAVE_LINUX_FUTEX_H)
+    defined(HAVE_LINUX_FUTEX_H) &&	\
+    defined(HAVE_SYSCALL) &&		\
+    defined(__NR_get_robust_list)
 static inline long sys_get_robust_list(int pid, struct robust_list_head **head_ptr, size_t *len_ptr)
 {
 	return syscall(__NR_get_robust_list, pid, head_ptr, len_ptr);
@@ -105,7 +107,9 @@ static inline long sys_get_robust_list(int pid, struct robust_list_head **head_p
 #endif
 
 #if defined(HAVE_SET_ROBUST_LIST) &&	\
-    defined(HAVE_LINUX_FUTEX_H)
+    defined(HAVE_LINUX_FUTEX_H) &&	\
+    defined(HAVE_SYSCALL) &&		\
+    defined(__NR_set_robust_list)
 static inline long sys_set_robust_list(struct robust_list_head *head, size_t len)
 {
 	return syscall(__NR_set_robust_list, head, len);
@@ -154,7 +158,8 @@ static void stress_pthread_tid_address(const stress_args_t *args)
     defined(HAVE_PRCTL) &&		\
     defined(PR_GET_TID_ADDRESS) &&	\
     defined(__NR_set_tid_address) &&	\
-    defined(HAVE_KERNEL_ULONG_T)
+    defined(HAVE_KERNEL_ULONG_T) &&	\
+    defined(HAVE_SYSCALL)
 	__kernel_ulong_t tid_addr = 0;
 
 	if (prctl(PR_GET_TID_ADDRESS, &tid_addr) == 0) {
@@ -262,10 +267,13 @@ static void *stress_pthread_func(void *parg)
 	VOID_RET(int, shim_tkill(tid, -1));
 	VOID_RET(int, ret = shim_tkill(stress_get_unused_pid_racy(false), 0));
 
-#if defined(HAVE_ASM_LDT_H) && 	\
-    defined(STRESS_ARCH_X86) &&	\
-    defined(HAVE_USER_DESC) && 	\
-    defined(HAVE_GET_THREAD_AREA)
+#if defined(HAVE_ASM_LDT_H) && 		\
+    defined(STRESS_ARCH_X86) &&		\
+    defined(HAVE_USER_DESC) && 		\
+    defined(HAVE_GET_THREAD_AREA) &&	\
+    defined(HAVE_SYSCALL) &&		\
+    defined(__NR_get_thread_area) &&	\
+    defined(__NR_set_thread_area)
 	{
 		struct user_desc u_info;
 

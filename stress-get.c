@@ -311,7 +311,8 @@ static int stress_get(const stress_args_t *args)
 		 *  Exercise invalid getgroups calls
 		 */
 		VOID_RET(int, getgroups(1, gids));
-#if defined(__NR_getgroups)
+#if defined(__NR_getgroups) &&	\
+    defined(HAVE_SYSCALL)
 		/*
 		 *  libc may detect a -ve gidsetsize argument and not call
 		 *  the system call. Override this by directly calling the
@@ -419,7 +420,8 @@ static int stress_get(const stress_args_t *args)
 				break;
 		}
 
-#if defined(__NR_ugetrlimit)
+#if defined(__NR_ugetrlimit) &&	\
+    defined(HAVE_SYSCALL)
 		/*
 		 * Legacy system call, most probably __NR_ugetrlimit
 		 * is not defined, ignore return as it's most probably
@@ -474,7 +476,8 @@ static int stress_get(const stress_args_t *args)
 #endif
 
 #if defined(HAVE_LINUX_SYSCTL_H) &&	\
-    defined(__NR__sysctl)
+    defined(__NR__sysctl) &&		\
+    defined(HAVE_SYSCALL)
 		{
 			/*
 			 *  _sysctl is a deprecated API, so it
@@ -659,7 +662,8 @@ static int stress_get(const stress_args_t *args)
 		UNEXPECTED
 #endif
 
-#if defined(HAVE_LOOKUP_DCOOKIE)
+#if defined(HAVE_LOOKUP_DCOOKIE) &&	\
+    defined(HAVE_SYSCALL)
 		{
 			char buf[PATH_MAX];
 

@@ -51,6 +51,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LINUX_LANDLOCK_H) &&		\
     defined(HAVE_LANDLOCK_RULE_TYPE) &&		\
     defined(HAVE_LANDLOCK_RULESET_ATTR) &&	\
+    defined(HAVE_SYSCALL) &&			\
     defined(__NR_landlock_create_ruleset) &&	\
     defined(__NR_landlock_restrict_self) &&	\
     defined(__NR_landlock_add_rule)

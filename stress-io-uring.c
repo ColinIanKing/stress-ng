@@ -31,6 +31,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_LINUX_IO_URING_H) &&	\
+    defined(HAVE_SYSCALL) &&		\
     defined(__NR_io_uring_enter) &&	\
     defined(__NR_io_uring_setup) &&	\
     defined(IORING_OFF_SQ_RING) &&	\

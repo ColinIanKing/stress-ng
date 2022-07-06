@@ -59,6 +59,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_LIB_AIO) &&		\
     defined(HAVE_LIBAIO_H) &&		\
     defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(HAVE_SYSCALL) &&		\
     defined(__NR_io_setup) &&		\
     defined(__NR_io_destroy) &&		\
     defined(__NR_io_submit) &&		\

@@ -53,7 +53,8 @@
 #if defined(HAVE_LINUX_FUTEX_H) &&	\
     defined(__NR_futex) &&		\
     defined(FUTEX_LOCK_PI) &&		\
-    defined(FUTEX_UNLOCK_PI)
+    defined(FUTEX_UNLOCK_PI) &&		\
+    defined(HAVE_SYSCALL)
 #define LOCK_METHOD_FUTEX		(0x0004)
 #else
 #define LOCK_METHOD_FUTEX		(0)

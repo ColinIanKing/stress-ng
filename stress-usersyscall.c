@@ -26,6 +26,7 @@ static const stress_help_t help[] = {
 };
 
 #if defined(SA_SIGINFO) &&	\
+    defined(HAVE_SYSCALL) &&	\
     defined(HAVE_SYS_PRCTL_H)
 
 #include <sys/prctl.h>

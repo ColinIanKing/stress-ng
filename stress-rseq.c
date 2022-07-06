@@ -33,6 +33,7 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LINUX_RSEQ_H) &&	\
     defined(HAVE_ASM_NOP) &&		\
     defined(__NR_rseq) &&		\
+    defined(HAVE_SYSCALL) &&		\
     defined(__GNUC__) &&		\
     !defined(__clang__) &&		\
     !defined(__ICC)

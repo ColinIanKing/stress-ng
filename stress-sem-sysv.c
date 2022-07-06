@@ -500,7 +500,8 @@ timed_out:
 		 *  is invalid without doing the actual system call
 		 */
 		(void)semctl(sem_id, 0, INT_MAX, 0);
-#if defined(__NR_semctl)
+#if defined(__NR_semctl) &&	\
+    defined(HAVE_SYSCALL)
 		(void)syscall(__NR_semctl, sem_id, 0, INT_MAX, 0);
 #endif
 	} while ((rc == EXIT_SUCCESS)  && keep_stressing(args));
