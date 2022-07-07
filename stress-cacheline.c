@@ -178,8 +178,8 @@ static int stress_cacheline_copy(
 	register int i;
 	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
 	volatile uint8_t *data8 = cacheline + index;
-	register uint8_t val8 = *(data8);
-	volatile uint8_t *data8adjacent = (volatile uint8_t *)(((uintptr_t)data8) ^ 1);
+	register uint8_t val8;
+	const volatile uint8_t *data8adjacent = (volatile uint8_t *)(((uintptr_t)data8) ^ 1);
 
 	(void)parent;
 	(void)l1_cacheline_size;
@@ -489,7 +489,7 @@ static int stress_cacheline_bits(
 	register int i;
 	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
 	volatile uint8_t *data8 = cacheline + index;
-	register uint8_t val8 = *(data8);
+	register uint8_t val8;
 
 	(void)parent;
 	(void)l1_cacheline_size;
