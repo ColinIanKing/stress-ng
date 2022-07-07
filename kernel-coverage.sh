@@ -293,6 +293,7 @@ do
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-willneed --temp-path $MNT --iostat 1
 		do_stress --hdd -1 --hdd-ops 50000 --hdd-opts fadv-dontneed --temp-path $MNT --iostat 1
 		do_stress --verity -1 --temp-path $MNT --iostat 1
+		do_stress --utime -1 --utime-fsync --temp-path $MNT --iostat 1
 		DURATION=10
 		sudo $STRESS_NG --class filesystem --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1
 		sudo $STRESS_NG --class io --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1
