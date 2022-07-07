@@ -153,6 +153,7 @@ tidy_fdw:
 
 		(void)close(fdw);
 tidy_fd:
+		(void)shim_fsync(fd);
 		(void)close(fd);
 		(void)shim_unlink(filename);
 		return rc;
