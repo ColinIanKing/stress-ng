@@ -276,6 +276,8 @@ static bool stress_dirdeep_make(
 		 */
 		(void)shim_fsync(dir_fd);
 		(void)close(dir_fd);
+
+		(void)sync();
 	}
 #endif
 	return false;
