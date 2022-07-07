@@ -231,6 +231,7 @@ static int stress_chown(const stress_args_t *args)
 					args->name, filename, errno, strerror(errno),
 					stress_fs_type(filename));
 		}
+		(void)shim_fsync(fd);
 		inc_counter(args);
 	} while (keep_stressing(args));
 
