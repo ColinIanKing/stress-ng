@@ -223,6 +223,7 @@ static int stress_link_generic(
 #endif
 
 err_unlink:
+		sync();
 		stress_link_unlink(args, n);
 
 		inc_counter(args);
