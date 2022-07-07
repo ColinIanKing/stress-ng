@@ -762,6 +762,9 @@ static int stress_open(const stress_args_t *args)
 
 			stress_read_fdinfo(mypid, fds[i]);
 
+			if ((i & 8191) == 8191)
+				sync();
+
 			inc_counter(args);
 		}
 close_all:
@@ -771,6 +774,7 @@ close_all:
 		 *  try fast close of a range, fall back to
 		 *  normal close if ENOSYS
 		 */
+		sync();
 		ret = shim_close_range(min_fd, max_fd, 0);
 		if ((ret < 1) && (errno == ENOSYS)) {
 			for (i = 0; i < n; i++)
