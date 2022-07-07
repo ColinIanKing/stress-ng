@@ -360,6 +360,7 @@ static int stress_dentry(const stress_args_t *args)
 		}
 
 		stress_dentry_misc(dir_path);
+		sync();
 
 		/*
 		 *  Now look up some bogus names to exercise
