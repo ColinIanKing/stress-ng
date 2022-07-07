@@ -24,6 +24,10 @@
 #include <linux/io_uring.h>
 #endif
 
+#if !defined(O_DSYNC)
+#define O_DSYNC		(0)
+#endif
+
 static const stress_help_t help[] = {
 	{ NULL,	"io-uring N",		"start N workers that issue io-uring I/O requests" },
 	{ NULL,	"io-uring-ops N",	"stop after N bogo io-uring I/O requests" },
@@ -179,7 +183,7 @@ static int stress_setup_io_uring(
 	struct io_uring_params p;
 
 	(void)memset(&p, 0, sizeof(p));
-	submit->io_uring_fd = shim_io_uring_setup(1, &p);
+	submit->io_uring_fd = shim_io_uring_setup(256, &p);
 	if (submit->io_uring_fd < 0) {
 		if (errno == ENOSYS) {
 			pr_inf_skip("%s: io-uring not supported by the kernel, skipping stressor\n",
@@ -355,6 +359,7 @@ static int stress_io_uring_submit(
 	sring->array[index] = index;
 	tail = next_tail;
 	if (*sring->tail != tail) {
+		shim_mb();
 		*sring->tail = tail;
 		shim_mb();
 	}
@@ -464,7 +469,7 @@ static void stress_io_uring_fsync_setup(
 {
 	sqe->fd = io_uring_file->fd;
 	sqe->opcode = IORING_OP_FSYNC;
-	sqe->len = 512;
+	sqe->len = 0;
 	sqe->off = 0;
 	sqe->user_data = (uintptr_t)io_uring_file;
 	sqe->ioprio = 0;
@@ -724,6 +729,7 @@ static int stress_io_uring(const stress_args_t *args)
 			stress_io_uring_unmap_iovecs(&io_uring_file);
 			return EXIT_NO_RESOURCE;
 		}
+		(void)memset(io_uring_file.iovecs[i].iov_base, stress_mwc8(), block_size);
 		file_size -= iov_length;
 	}
 
@@ -740,7 +746,7 @@ static int stress_io_uring(const stress_args_t *args)
 	if (rc != EXIT_SUCCESS)
 		goto clean;
 
-	if ((io_uring_file.fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+	if ((io_uring_file.fd = open(filename, O_CREAT | O_RDWR | O_DSYNC, S_IRUSR | S_IWUSR)) < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: open on %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
