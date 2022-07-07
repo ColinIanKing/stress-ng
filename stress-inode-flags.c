@@ -172,6 +172,7 @@ static int stress_inode_flags_stressor(
 		for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(inode_flags)); i++)
 			stress_inode_flags_ioctl(args, data->file_fd, inode_flags[i]);
 		stress_inode_flags_ioctl_sane(data->file_fd);
+		shim_fsync(data->file_fd);
 	}
 
 	return 0;
