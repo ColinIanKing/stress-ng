@@ -289,6 +289,7 @@ static int stress_chmod(const stress_args_t *args)
 					stress_fs_type(filename));
 			}
 		}
+		shim_fsync(fd);
 		inc_counter(args);
 	} while (keep_stressing(args));
 
