@@ -72,6 +72,7 @@ static uint64_t stress_dirmany_create(
 			VOID_RET(int, shim_fallocate(fd, 0, (off_t)0, dirmany_bytes));
 #endif
 		}
+		shim_fsync(fd);
 		inc_counter(args);
 		(void)close(fd);
 	}
