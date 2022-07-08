@@ -103,6 +103,8 @@ static int stress_kvm(const stress_args_t *args)
 
 		vm_fd = ioctl(kvm_fd, KVM_CREATE_VM, 0);
 		if (vm_fd < 0) {
+			if (errno == EINTR)
+				goto tidy_kvm_fd;
 			pr_fail("%s: ioctl KVM_CREATE_VM failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_kvm_fd;
@@ -121,6 +123,8 @@ static int stress_kvm(const stress_args_t *args)
 
 		ret = ioctl(vm_fd, KVM_SET_USER_MEMORY_REGION, &kvm_mem);
 		if (ret < 0) {
+			if (errno == EINTR)
+				goto tidy_vm_mmap;
 			pr_fail("%s: ioctl KVM_SET_USER_MEMORY_REGION failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_vm_mmap;
@@ -128,6 +132,8 @@ static int stress_kvm(const stress_args_t *args)
 
 		vcpu_fd = ioctl(vm_fd, KVM_CREATE_VCPU, 0);
 		if (vcpu_fd < 0) {
+			if (errno == EINTR)
+				goto tidy_vm_mmap;
 			pr_fail("%s: ioctl KVM_CREATE_VCPU failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_vm_mmap;
@@ -135,6 +141,8 @@ static int stress_kvm(const stress_args_t *args)
 
 		(void)memcpy(vm_mem, &kvm_x86_kernel, sizeof(kvm_x86_kernel));
 		if (ioctl(vcpu_fd, KVM_GET_SREGS, &sregs) < 0) {
+			if (errno == EINTR)
+				goto tidy_vcpu_fd;
 			pr_fail("%s: ioctl KVM_GET_SREGS failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_vcpu_fd;
@@ -163,6 +171,8 @@ static int stress_kvm(const stress_args_t *args)
 		regs.rflags = 2;
 		regs.rip = 0;
 		if (ioctl(vcpu_fd, KVM_SET_REGS, &regs) < 0) {
+			if (errno == EINTR)
+				goto tidy_vcpu_fd;
 			pr_fail("%s: ioctl KVM_SET_REGS failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_vcpu_fd;
@@ -170,6 +180,8 @@ static int stress_kvm(const stress_args_t *args)
 
 		run_size = (ssize_t)ioctl(kvm_fd, KVM_GET_VCPU_MMAP_SIZE, 0);
 		if (run_size < 0) {
+			if (errno == EINTR)
+				goto tidy_vcpu_fd;
 			pr_fail("%s: ioctl KVM_GET_VCPU_MMAP_SIZE failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy_vcpu_fd;
