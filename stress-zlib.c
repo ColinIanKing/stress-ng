@@ -286,7 +286,7 @@ static void TARGET_CLONES stress_rand_data_01(
 	(void)args;
 
 	while (ptr < end) {
-		uint8_t v = stress_mwc8();
+		register uint8_t v = stress_mwc8();
 
 		*(ptr + 0) = '0' + (v & 1);
 		v >>= 1;
@@ -322,7 +322,8 @@ static void stress_rand_data_digits(
 	(void)args;
 
 	while (ptr < end) {
-		uint32_t v = stress_mwc32();
+		register uint32_t v = stress_mwc32();
+
 		*(ptr++) = '0' + ((v & 0xff) % 10);
 		v >>= 8;
 		*(ptr++) = '0' + ((v & 0xff) % 10);
@@ -349,7 +350,7 @@ static void TARGET_CLONES stress_rand_data_00_ff(
 	(void)args;
 
 	while (ptr < end) {
-		uint8_t v = stress_mwc8();
+		register uint8_t v = stress_mwc8();
 
 		*(ptr + 0) = (v & 1) ? 0x00 : 0xff;
 		*(ptr + 1) = (v & 2) ? 0x00 : 0xff;
@@ -379,7 +380,7 @@ static void TARGET_CLONES stress_rand_data_nybble(
 	(void)args;
 
 	while (ptr < end) {
-		uint32_t v = stress_mwc32();
+		register uint32_t v = stress_mwc32();
 
 		*(ptr + 0) = v & 0xf;
 		v >>= 4;
@@ -630,7 +631,7 @@ static void TARGET_CLONES stress_rand_data_parity(
 	(void)args;
 
 	while (ptr < end) {
-		uint8_t v = stress_mwc8();
+		register uint8_t v = stress_mwc8();
 		register uint8_t p = v & 0xfe;
 
 		p ^= p >> 4;
@@ -856,8 +857,8 @@ static void TARGET_CLONES stress_rand_data_gcr(
 	(void)args;
 
 	for (;;) {
-		uint32_t rnd = stress_mwc32();
-		uint64_t gcr;
+		register uint32_t rnd = stress_mwc32();
+		register uint64_t gcr;
 
 		/* 32 bits to 40 bits */
 		gcr = gcr45[rnd & 0xf];
@@ -928,7 +929,7 @@ static void TARGET_CLONES stress_rand_data_lehmer(
 	(void)args;
 
 	if (UNLIKELY(!seeded)) {
-		uint32_t *ptr32 = (uint32_t *)&state;
+		register uint32_t *ptr32 = (uint32_t *)&state;
 
 		*ptr32++ = stress_mwc32();
 		*ptr32++ = stress_mwc32();
@@ -1411,6 +1412,7 @@ static int stress_zlib_inflate(
 
 		do {
 			int def_size;
+
 			/* read buffer size first */
 			sz = stress_read_buffer(fd, &def_size, sizeof(def_size), false);
 			if (sz == 0) {
@@ -1479,6 +1481,7 @@ static int stress_zlib_inflate(
 				}
 			} while (stream_inf.avail_out == 0);
 		} while (ret != Z_STREAM_END);
+
 		(void)inflateEnd(&stream_inf);
 		stream_inf.zalloc = Z_NULL;
 		stream_inf.zfree = Z_NULL;
@@ -1657,6 +1660,7 @@ static int stress_zlib_deflate(
 				inc_counter(args);
 			} while (stream_def.avail_out == 0);
 		} while (ret != Z_STREAM_END);
+
 		(void)deflateEnd(&stream_def);
 		stream_def.zalloc = Z_NULL;
 		stream_def.zfree = Z_NULL;
@@ -1739,10 +1743,12 @@ again:
 		(void)close(deflate_zlib_checksum_fds[1]);
 		(void)close(inflate_zlib_checksum_fds[0]);
 		(void)close(inflate_zlib_checksum_fds[1]);
+
 		if (!keep_stressing(args))
 			return EXIT_SUCCESS;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
+
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		(void)setpgid(0, g_pgrp);
