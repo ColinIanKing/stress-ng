@@ -366,8 +366,6 @@ static int stress_io_uring_submit(
 		shim_mb();
 	}
 
-printf("%d %p\n", index, next_tail);
-
 	ret = shim_io_uring_enter(submit->io_uring_fd, 1,
 		1, IORING_ENTER_GETEVENTS);
 	if (ret < 0) {
@@ -645,7 +643,7 @@ static void stress_io_uring_getxattr_setup(
 	sqe->fd = io_uring_file->fd;
 	sqe->addr = (uintptr_t)io_uring_file->filename;
 	sqe->addr2 = (uintptr_t)value;
-	seq->len = sizeof(value);
+	sqe->len = sizeof(value);
 	sqe->xattr_flags = 0;
 	sqe->ioprio = 0;
 	sqe->buf_index = 0;
