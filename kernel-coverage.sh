@@ -449,7 +449,7 @@ do_stress --stack -1 --stack-fill
 do_stress --stream -1 --stream-madvise hugepage
 do_stress --stream -1 --stream-madvise nohugepage
 do_stress --stream -1 --stream-madvise normal
-do_stress --stream -1 --stream-index 3A
+do_stress --stream -1 --stream-index 3
 
 do_stress --switch -1 --switch-freq 1000000 
 
