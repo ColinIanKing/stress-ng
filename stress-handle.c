@@ -120,7 +120,8 @@ static int stress_handle_child(const stress_args_t *args, void *context)
 		int mount_id, mount_fd, fd, i;
 		char *ptr;
 
-		if ((fhp = malloc(sizeof(*fhp))) == NULL)
+		fhp = malloc(sizeof(*fhp));
+		if (!fhp)
 			continue;
 
 		fhp->handle_bytes = 0;
@@ -162,7 +163,8 @@ static int stress_handle_child(const stress_args_t *args, void *context)
 			free(fhp);
 			break;
 		}
-		if ((fd = open_by_handle_at(mount_fd, fhp, O_RDONLY)) < 0) {
+		fd = open_by_handle_at(mount_fd, fhp, O_RDONLY);
+		if (fd < 0) {
 			/* We don't abort if EPERM occurs, that's not a test failure */
 			if (errno != EPERM) {
 				pr_fail("%s: open_by_handle_at: failed to open: errno=%d (%s)\n",
