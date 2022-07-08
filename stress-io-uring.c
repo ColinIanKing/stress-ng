@@ -53,6 +53,7 @@ static const stress_help_t help[] = {
      defined(HAVE_IORING_OP_CLOSE) ||	\
      defined(HAVE_IORING_OP_MADVISE) ||	\
      defined(HAVE_IORING_OP_STATX) || 	\
+     defined(HAVE_IORING_OP_GETXATTR) || \
      defined(HAVE_IORING_OP_SYNC_FILE_RANGE))
 
 
@@ -62,6 +63,7 @@ static const stress_help_t help[] = {
  */
 typedef struct {
 	int fd;			/* file descriptor */
+	char *filename;		/* filename */
 	struct iovec *iovecs;	/* iovecs array 1 per block to submit */
 	size_t iovecs_sz;	/* size of iovecs allocation */
 	off_t file_size;	/* size of the file (bytes) */
@@ -364,6 +366,8 @@ static int stress_io_uring_submit(
 		shim_mb();
 	}
 
+printf("%d %p\n", index, next_tail);
+
 	ret = shim_io_uring_enter(submit->io_uring_fd, 1,
 		1, IORING_ENTER_GETEVENTS);
 	if (ret < 0) {
@@ -593,12 +597,11 @@ static void stress_io_uring_statx_setup(
 	stress_io_uring_file_t *io_uring_file,
 	struct io_uring_sqe *sqe)
 {
-	static const char *pathname = "";
 	shim_statx_t statxbuf;
 
 	sqe->opcode = IORING_OP_STATX;
 	sqe->fd = io_uring_file->fd;
-	sqe->addr = (uintptr_t)pathname;
+	sqe->addr = (uintptr_t)io_uring_file->filename;
 	sqe->addr2 = (uintptr_t)&statxbuf;
 	sqe->statx_flags = AT_EMPTY_PATH;
 	sqe->ioprio = 0;
@@ -626,6 +629,30 @@ static void stress_io_uring_sync_file_range_setup(
 	sqe->buf_index = 0;
 }
 #endif
+
+#if defined(HAVE_IORING_OP_GETXATTR)
+/*
+ *  stress_io_uring_getxattr_setup()
+ *	setup getxattr submit over io_uring
+ */
+static void stress_io_uring_getxattr_setup(
+	stress_io_uring_file_t *io_uring_file,
+	struct io_uring_sqe *sqe)
+{
+	char value[1024];
+
+	sqe->opcode = IORING_OP_STATX;
+	sqe->fd = io_uring_file->fd;
+	sqe->addr = (uintptr_t)io_uring_file->filename;
+	sqe->addr2 = (uintptr_t)value;
+	seq->len = sizeof(value);
+	sqe->xattr_flags = 0;
+	sqe->ioprio = 0;
+	sqe->buf_index = 0;
+	sqe->flags = 0;
+}
+#endif
+
 
 static const stress_io_uring_setup_info_t stress_io_uring_setups[] = {
 #if defined(HAVE_IORING_OP_READV)
@@ -663,6 +690,9 @@ static const stress_io_uring_setup_info_t stress_io_uring_setups[] = {
 #endif
 #if defined(HAVE_IORING_OP_SYNC_FILE_RANGE)
 	{ IORING_OP_SYNC_FILE_RANGE, "IORING_OP_SYNC_FILE_RANGE", stress_io_uring_sync_file_range_setup },
+#endif
+#if defined(HAVE_IORING_OP_GETXATTR)
+	{ IORING_OP_GETXATTR, "IORING_OP_GETXATTR",	stress_io_uring_getxattr_setup },
 #endif
 };
 
@@ -741,6 +771,8 @@ static int stress_io_uring(const stress_args_t *args)
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
+
+	io_uring_file.filename = filename;
 
 	rc = stress_setup_io_uring(args, &submit);
 	if (rc != EXIT_SUCCESS)
