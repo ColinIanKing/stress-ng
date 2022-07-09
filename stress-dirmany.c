@@ -43,28 +43,64 @@ static int stress_set_dirmany_bytes(const char *opt)
 	return stress_set_setting("dirmany-bytes", TYPE_ID_OFF_T, &dirmany_bytes);
 }
 
+static void stress_dirmany_filename(
+	const char *pathname,
+	const size_t pathname_len,
+	char *filename,
+	const size_t filename_sz,
+	const size_t filename_len,
+	const uint64_t n)
+{
+	if (pathname_len + filename_len + 18 < filename_sz) {
+		char *ptr = filename;
+
+		(void)memcpy(ptr, pathname, pathname_len);
+		ptr += pathname_len;
+		*ptr++ = '/';
+		(void)memset(ptr, 'x', filename_len);
+		ptr += filename_len;
+		(void)snprintf(ptr, sizeof(filename) + (ptr - filename), "%16.16" PRIx64, n);
+	} else {
+		(void)snprintf(filename, filename_sz, "%16.16" PRIx64, n);
+	}
+}
+
 static uint64_t stress_dirmany_create(
 	const stress_args_t *args,
-	const char *path,
+	const char *pathname,
+	const size_t pathname_len,
 	const off_t dirmany_bytes,
 	const double t_start,
 	const uint64_t i_start,
-	double *create_time)
+	double *create_time,
+	size_t *max_len)
 {
 	const double t_now = stress_time_now();
 	const double t_left = (t_start + (double)g_opt_timeout) - t_now;
 	/* Assume create takes 60%, remove takes 40% of run time */
 	const double t_end = t_now + (t_left * 0.60);
 	uint64_t i_end = i_start;
+	size_t filename_len = 1;
+
+	*max_len = 256;
 
 	while (keep_stressing(args) && (stress_time_now() <= t_end)) {
 		char filename[PATH_MAX + 20];
 		int fd;
 
-		(void)snprintf(filename, sizeof(filename), "%s/f%16.16" PRIx64, path, i_end++);
+		stress_dirmany_filename(pathname, pathname_len, filename, sizeof(filename), filename_len, i_end);
 		fd = open(filename, O_CREAT | O_TRUNC | O_RDWR, S_IRUSR | S_IWUSR);
-		if (fd < 0)
+		if (fd < 0) {
+			if (errno == ENAMETOOLONG) {
+				filename_len--;
+				*max_len = filename_len;
+				continue;
+			}
 			break;
+		}
+		if (filename_len < *max_len)
+			filename_len++;
+		i_end++;
 		if (dirmany_bytes > 0) {
 #if defined(HAVE_POSIX_FALLOCATE)
 			VOID_RET(int, posix_fallocate(fd, (off_t)0, dirmany_bytes));
@@ -72,9 +108,11 @@ static uint64_t stress_dirmany_create(
 			VOID_RET(int, shim_fallocate(fd, 0, (off_t)0, dirmany_bytes));
 #endif
 		}
-		shim_fsync(fd);
-		inc_counter(args);
+		if ((i_end & 0xff) == 0xff)
+			shim_fsync(fd);
 		(void)close(fd);
+
+		inc_counter(args);
 	}
 
 	*create_time += (stress_time_now() - t_now);
@@ -83,19 +121,24 @@ static uint64_t stress_dirmany_create(
 }
 
 static void stress_dirmany_remove(
-	const char *path,
+	const char *pathname,
+	const size_t pathname_len,
 	const uint64_t i_start,
 	uint64_t i_end,
-	double *remove_time)
+	double *remove_time,
+	const size_t max_len)
 {
 	uint64_t i;
 	const double t_now = stress_time_now();
+	size_t filename_len = 1;
 
 	for (i = i_start; i < i_end; i++) {
 		char filename[PATH_MAX + 20];
 
-		(void)snprintf(filename, sizeof(filename), "%s/f%16.16" PRIx64, path, i);
+		stress_dirmany_filename(pathname, pathname_len, filename, sizeof(filename), filename_len, i);
 		(void)shim_unlink(filename);
+		if (filename_len < max_len)
+			filename_len++;
 	}
 	*remove_time += (stress_time_now() - t_now);
 }
@@ -112,8 +155,10 @@ static int stress_dirmany(const stress_args_t *args)
 	const double t_start = stress_time_now();
 	double create_time = 0.0, remove_time = 0.0, total_time = 0.0;
 	off_t dirmany_bytes = 0;
+	size_t pathname_len;
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
+	pathname_len = strlen(pathname);
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -124,7 +169,7 @@ static int stress_dirmany(const stress_args_t *args)
 	if (args->instance == 0) {
 		char sz[32];
 
-		pr_dbg("%s: %s byte file size\n", args->name, 
+		pr_dbg("%s: %s byte file size\n", args->name,
 			dirmany_bytes ? stress_uint64_to_str(sz, sizeof(sz), (uint64_t)dirmany_bytes) : "0");
 	}
 
@@ -132,9 +177,10 @@ static int stress_dirmany(const stress_args_t *args)
 
 	do {
 		uint64_t i_end;
+		size_t max_len;
 
-		i_end = stress_dirmany_create(args, pathname, dirmany_bytes, t_start, i_start, &create_time);
-		stress_dirmany_remove(pathname, i_start, i_end, &remove_time);
+		i_end = stress_dirmany_create(args, pathname, pathname_len, dirmany_bytes, t_start, i_start, &create_time, &max_len);
+		stress_dirmany_remove(pathname, pathname_len, i_start, i_end, &remove_time, max_len);
 		i_start = i_end;
 
 		/* Avoid i_start wraparound */
