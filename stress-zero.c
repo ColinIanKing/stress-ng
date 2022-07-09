@@ -175,6 +175,17 @@ static int stress_zero(const stress_args_t *args)
 		(void)lseek(fd, SEEK_END, 0);
 		(void)lseek(fd, SEEK_CUR, 0);
 
+#if defined(FIONBIO)
+		{
+			int opt;
+
+			opt = 1;
+			VOID_RET(int, ioctl(fd, FIONBIO, &opt));
+			opt = 0;
+			VOID_RET(int, ioctl(fd, FIONBIO, &opt));
+		}
+#endif
+
 		inc_counter(args);
 	} while (keep_stressing(args));
 
