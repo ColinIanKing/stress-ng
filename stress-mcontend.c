@@ -50,7 +50,7 @@ static inline void cpu_relax(void)
  */
 static int page_write_sync(const int fd, const size_t page_size)
 {
-	char buffer[256];
+	char ALIGN64 buffer[256];
 	size_t n = 0;
 
 	(void)memset(buffer, 0, sizeof(buffer));
