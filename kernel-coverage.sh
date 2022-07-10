@@ -350,6 +350,8 @@ do_stress --brk -1 --brk-notouch --vmstat 1
 do_stress --brk -1 --brk-mlock
 do_stress --brk -1 --thrash
 
+do_stress --cacheline 32 --cacheline-affinity
+
 do_stress --cpu -1 --sched batch --thermalstat 1
 do_stress --cpu -1 --taskset 0,2 --ignite-cpu
 do_stress --cpu -1 --taskset 1,2,3
