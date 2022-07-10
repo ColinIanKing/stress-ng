@@ -109,6 +109,11 @@ mount_filesystem()
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
+		exfat)	MKFS_CMD="mkfs.exfat"
+			MKFS_ARGS="${FSIMAGE}"
+			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
+			;;
 		ubifs)	sudo modprobe nandsim first_id_byte=0x20 \
 			second_id_byte=0xaa third_id_byte=0x00 \
 			fourth_id_byte=0x15
@@ -274,7 +279,7 @@ fi
 DURATION=180
 do_stress --dev 32
 
-for FS in bfs btrfs ext4 f2fs fat hfs hfsplus jfs minix nilfs ntfs ramfs reiserfs tmpfs ubifs udf vfat xfs
+for FS in bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix nilfs ntfs ramfs reiserfs tmpfs ubifs udf vfat xfs
 do
 	echo "Filesystem: $FS"
 	if mount_filesystem $FS; then
