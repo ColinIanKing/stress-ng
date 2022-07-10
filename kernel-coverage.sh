@@ -162,6 +162,12 @@ mount_filesystem()
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
+		overlay)
+			MKFS_CMD="true"
+			MKFS_ARGS=""
+			MNT_CMD="sudo mount -t overlay overlay -o lowerdir=/tmp/lower,upperdir=/tmp/upper,workdir=/tmp/work ${MNT}"
+			mkdir /tmp/lower /tmp/upper /tmp/work
+			;;
 		*)
 			echo "unsupported file system $1"
 			return 1
@@ -279,7 +285,7 @@ fi
 DURATION=180
 do_stress --dev 32
 
-for FS in bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix nilfs ntfs ramfs reiserfs tmpfs ubifs udf vfat xfs
+for FS in bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xf
 do
 	echo "Filesystem: $FS"
 	if mount_filesystem $FS; then
