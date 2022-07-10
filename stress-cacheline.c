@@ -60,13 +60,12 @@ do {			\
 	shim_mb();	\
 } while (0)
 
-
-
 static const stress_help_t help[] = {
 	{ NULL,	"cacheline N",		"start N workers that exercise cachelines" },
 	{ NULL,	"cacheline-ops N",	"stop after N cacheline bogo operations" },
+	{ NULL,	"cacheline-affinity",	"modify CPU affinity" },
 	{ NULL,	"cacheline-method M",	"use cacheline stressing method M" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 typedef int (*stress_cacheline_func)(
@@ -203,7 +202,6 @@ static int stress_cacheline_copy(
 	}
 	return EXIT_SUCCESS;
 }
-
 
 static int stress_cacheline_inc(
 	const stress_args_t *args,
@@ -593,6 +591,14 @@ static int stress_cacheline_all(
 	return EXIT_SUCCESS;
 }
 
+static int stress_set_cacheline_affinity(const char *opt)
+{
+	bool cacheline_affinity = true;
+
+	(void)opt;
+	return stress_set_setting("cacheline-affinity", TYPE_ID_BOOL, &cacheline_affinity);
+}
+
 /*
  *  stress_set_cacheline_method()
  *	set the default cachline stress method
@@ -617,19 +623,52 @@ static int stress_set_cacheline_method(const char *name)
 	return -1;
 }
 
+/*
+ *  stress_cacheline_change_affinity()
+ *	pin process to CPU based on clock time * 100, instance number
+ *	and parent/child offset modulo number of CPUs
+ */
+static inline void stress_cacheline_change_affinity(
+	const stress_args_t *args,
+	const uint32_t cpus,
+	bool parent)
+{
+#if defined(HAVE_AFFINITY) && \
+    defined(HAVE_SCHED_GETAFFINITY)
+	cpu_set_t mask;
+	double now = stress_time_now() * 100;
+	uint32_t cpu = ((uint32_t)args->instance + (uint32_t)parent + (uint32_t)now) % cpus;
+
+	CPU_ZERO(&mask);
+	CPU_SET((int)cpu, &mask);
+	VOID_RET(int, sched_setaffinity(0, sizeof(mask), &mask));
+#endif
+}
+
 static int stress_cacheline_child(
 	const stress_args_t *args,
 	const int index,
 	const bool parent,
 	const size_t l1_cacheline_size,
-	stress_cacheline_func func)
+	stress_cacheline_func func,
+	const bool cacheline_affinity)
 {
 	int rc;
+#if defined(HAVE_AFFINITY) && \
+    defined(HAVE_SCHED_GETAFFINITY)
+	const uint32_t cpus = (int)stress_get_processors_configured();
+#endif
 
 	do {
 		rc = func(args, index, parent, l1_cacheline_size);
 		if (parent)
 			inc_counter(args);
+
+#if defined(HAVE_AFFINITY) && \
+    defined(HAVE_SCHED_GETAFFINITY)
+		if (cacheline_affinity)
+			stress_cacheline_change_affinity(args, cpus, parent);
+#endif
 	} while ((rc == EXIT_SUCCESS) && keep_stressing(args));
 
 	/* Child tell parent it has finished */
@@ -651,7 +690,9 @@ static int stress_cacheline(const stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 	size_t cacheline_method = 0;
 	stress_cacheline_func func;
+	bool cacheline_affinity = false;
 
+	(void)stress_get_setting("cacheline-affinity", &cacheline_affinity);
 	(void)stress_get_setting("cacheline-method", &cacheline_method);
 
 	if (args->instance == 0) {
@@ -678,12 +719,12 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
-		rc = stress_cacheline_child(args, index + 1, false, l1_cacheline_size, func);
+		rc = stress_cacheline_child(args, index + 1, false, l1_cacheline_size, func, cacheline_affinity);
 		_exit(rc);
 	} else {
 		int status;
 
-		stress_cacheline_child(args, index, true, l1_cacheline_size, func);
+		stress_cacheline_child(args, index, true, l1_cacheline_size, func, cacheline_affinity);
 
 		(void)kill(pid, SIGALRM);
 		(void)shim_waitpid(pid, &status, 0);
@@ -699,8 +740,9 @@ finish:
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_cacheline_method,	stress_set_cacheline_method },
-	{ 0,			NULL },
+	{ OPT_cacheline_affinity,	stress_set_cacheline_affinity },
+	{ OPT_cacheline_method,		stress_set_cacheline_method },
+	{ 0,				NULL },
 };
 
 stressor_info_t stress_cacheline_info = {

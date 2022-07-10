@@ -791,6 +791,11 @@ to run N / 2 stressor instances.
 .B \-\-cacheline\-ops N
 stop cacheline workers after N loops of the byte exercising in a cacheline.
 .TP
+.B \-\-cacheline\-affinity
+frequently change CPU affinity, spread cacheline processes evenly across all
+online CPUs to try and maximize lower-level cache activity. Attempts to keep
+adjacent cachelines being exercised by adjacent CPUs.
+.TP
 .B \-\-cacheline\-method method
 specify a cacheline stress method. By default, all the stress methods are exercised
 sequentially, however one can specify just one method to be used if required.

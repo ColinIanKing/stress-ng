@@ -218,7 +218,7 @@ static const stress_class_info_t classes[] = {
 };
 
 /*
- *  command line options
+ *  GNU "long options" command line options
  */
 static const struct option long_options[] = {
 	{ "abort",		0,	0,	OPT_abort },
@@ -283,6 +283,7 @@ static const struct option long_options[] = {
 	{ "cache-no-affinity",	0,	0,	OPT_cache_no_affinity },
 	{ "cacheline",		1,	0, 	OPT_cacheline },
 	{ "cacheline-ops",	1,	0,	OPT_cacheline_ops },
+	{ "cacheline-affinity",	0,	0,	OPT_cacheline_affinity },
 	{ "cacheline-method",	1,	0,	OPT_cacheline_method },
 	{ "cap",		1,	0, 	OPT_cap },
 	{ "cap-ops",		1,	0, 	OPT_cap_ops },
