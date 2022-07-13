@@ -45,6 +45,7 @@ typedef int (*stress_apparmor_func)(const stress_args_t *args);
 static volatile bool apparmor_run = true;
 static char *apparmor_path = NULL;
 static void *counter_lock;
+static char *data_copy, *data_prev;
 
 extern char g_apparmor_data[];
 extern const size_t g_apparmor_data_len;
@@ -537,61 +538,61 @@ static inline void apparmor_corrupt_flip_one_bit_random(
  */
 static int apparmor_stress_corruption(const stress_args_t *args)
 {
-	char copy[g_apparmor_data_len];
-
-	int rc = EXIT_SUCCESS, i = (int)args->instance;
+	int rc = EXIT_SUCCESS, i = (int)args->instance, ret = -1;
+	int j = 0;
 	aa_kernel_interface *kern_if;
 
 	/*
 	 *  Lets feed AppArmor with some bit corrupted data...
 	 */
 	do {
-		int ret;
-
-		(void)memcpy(copy, g_apparmor_data, g_apparmor_data_len);
+		if (ret < 0 || j > 1024) {
+			(void)memcpy(data_copy, g_apparmor_data, g_apparmor_data_len);
+			j = 0;
+		}
 		/*
 		 *  Apply various corruption methods
 		 */
 		switch (i) {
 		case 0:
-			apparmor_corrupt_flip_seq(copy, g_apparmor_data_len);
+			apparmor_corrupt_flip_seq(data_copy, g_apparmor_data_len);
 			break;
 		case 1:
-			apparmor_corrupt_clr_seq(copy, g_apparmor_data_len);
+			apparmor_corrupt_clr_seq(data_copy, g_apparmor_data_len);
 			break;
 		case 2:
-			apparmor_corrupt_set_seq(copy, g_apparmor_data_len);
+			apparmor_corrupt_set_seq(data_copy, g_apparmor_data_len);
 			break;
 		case 3:
-			apparmor_corrupt_flip_bits_random(copy,
+			apparmor_corrupt_flip_bits_random(data_copy,
 				g_apparmor_data_len);
 			break;
 		case 4:
-			apparmor_corrupt_flip_byte_random(copy,
+			apparmor_corrupt_flip_byte_random(data_copy,
 				g_apparmor_data_len);
 			break;
 		case 5:
-			apparmor_corrupt_clr_bits_random(copy,
+			apparmor_corrupt_clr_bits_random(data_copy,
 				g_apparmor_data_len);
 			break;
 		case 6:
-			apparmor_corrupt_set_bits_random(copy,
+			apparmor_corrupt_set_bits_random(data_copy,
 				g_apparmor_data_len);
 			break;
 		case 7:
-			apparmor_corrupt_clr_byte_random(copy,
+			apparmor_corrupt_clr_byte_random(data_copy,
 				g_apparmor_data_len);
 			break;
 		case 8:
-			apparmor_corrupt_set_byte_random(copy,
+			apparmor_corrupt_set_byte_random(data_copy,
 				g_apparmor_data_len);
 			break;
 		case 9:
-			apparmor_corrupt_flip_bits_random_burst(copy,
+			apparmor_corrupt_flip_bits_random_burst(data_copy,
 				g_apparmor_data_len);
 			break;
 		case 10:
-			apparmor_corrupt_flip_one_bit_random(copy,
+			apparmor_corrupt_flip_one_bit_random(data_copy,
 				g_apparmor_data_len);
 			i = 0;
 			break;
@@ -611,8 +612,9 @@ static int apparmor_stress_corruption(const stress_args_t *args)
 		 *  Expect EPROTO failures
 		 */
 		ret = aa_kernel_interface_replace_policy(kern_if,
-			copy, g_apparmor_data_len);
+			data_copy, g_apparmor_data_len);
 		if (ret < 0) {
+			j--;
 			if ((errno != EPROTO) &&
 			    (errno != EPROTONOSUPPORT) &&
 			     errno != ENOENT) {
@@ -620,6 +622,9 @@ static int apparmor_stress_corruption(const stress_args_t *args)
 					"errno=%d (%s)\n", args->name, errno,
 					strerror(errno));
 			}
+			(void)memcpy(data_copy, data_prev, g_apparmor_data_len);
+		} else {
+			(void)memcpy(data_prev, data_copy, g_apparmor_data_len);
 		}
 		aa_kernel_interface_unref(kern_if);
 		i++;
@@ -644,14 +649,26 @@ static int stress_apparmor(const stress_args_t *args)
 	const size_t n = SIZEOF_ARRAY(apparmor_funcs);
 	pid_t pids[n];
 	size_t i;
+	int rc = EXIT_NO_RESOURCE;
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_apparmor_usr1_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
+	data_copy = malloc(g_apparmor_data_len);
+	if (!data_copy) {
+		pr_inf("%s: failed to allocate apparmor data copy buffer, skipping stressor\n", args->name);
+		return rc;
+	}
+	data_prev = malloc(g_apparmor_data_len);
+	if (!data_prev) {
+		pr_inf("%s: failed to allocate apparmor data prev buffer, skipping stressor\n", args->name);
+		goto err_free_data_copy;
+	}
+
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
 		pr_inf("%s: failed to create counter lock. skipping stressor\n", args->name);
-		return EXIT_NO_RESOURCE;
+		goto err_free_data_prev;
 	}
 
 	for (i = 0; i < n; i++) {
@@ -684,11 +701,17 @@ static int stress_apparmor(const stress_args_t *args)
 			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}
+
 	free(apparmor_path);
 	apparmor_path = NULL;
 	(void)stress_lock_destroy(counter_lock);
 
-	return EXIT_SUCCESS;
+err_free_data_prev:
+	free(data_prev);
+err_free_data_copy:
+	free(data_copy);
+
+	return rc;
 }
 
 stressor_info_t stress_apparmor_info = {
