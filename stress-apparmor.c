@@ -40,14 +40,16 @@ static const stress_help_t help[] = {
 
 #define APPARMOR_BUF_SZ	(4096)
 
-typedef int (*stress_apparmor_func)(const char *name,
-			     const uint64_t max_ops, uint64_t *counter);
+typedef int (*stress_apparmor_func)(const stress_args_t *args);
 
 static volatile bool apparmor_run = true;
 static char *apparmor_path = NULL;
+static void *counter_lock;
 
 extern char g_apparmor_data[];
 extern const size_t g_apparmor_data_len;
+
+//#define inc_counter(x)	{ pr_inf("%s %d\n", __func__, __LINE__); }
 
 /*
  *  stress_apparmor_supported()
@@ -105,6 +107,24 @@ static int stress_apparmor_supported(const char *name)
 	return 0;
 }
 
+static bool stress_apparmor_keep_stressing_inc(const stress_args_t *args, bool inc)
+{
+	bool ret;
+
+	/* fast check */
+	if (!apparmor_run)
+		return false;
+
+	/* slower path */
+	stress_lock_acquire(counter_lock);
+	ret = keep_stressing(args);
+	if (inc && ret)
+		inc_counter(args);
+	stress_lock_release(counter_lock);
+
+	return ret;
+}
+
 /*
  *  stress_apparmor_handler()
  *      signal handler
@@ -125,7 +145,9 @@ static void MLOCKED_TEXT stress_apparmor_usr1_handler(int signum)
  *  stress_apparmor_read()
  *	read a proc file
  */
-static void stress_apparmor_read(const char *path)
+static void stress_apparmor_read(
+	const stress_args_t *args,
+	const char *path)
 {
 	int fd;
 	ssize_t i = 0;
@@ -136,12 +158,10 @@ static void stress_apparmor_read(const char *path)
 	/*
 	 *  Multiple randomly sized reads
 	 */
-	while (keep_stressing_flag() &&
-	       apparmor_run &&
-	       (i < (4096 * APPARMOR_BUF_SZ))) {
+	while (i < (4096 * APPARMOR_BUF_SZ)) {
 		ssize_t ret, sz = 1 + (stress_mwc32() % sizeof(buffer));
 redo:
-		if (!keep_stressing_flag() || !apparmor_run)
+		if (!stress_apparmor_keep_stressing_inc(args, false))
 			break;
 		ret = read(fd, buffer, (size_t)sz);
 		if (ret < 0) {
@@ -161,6 +181,7 @@ redo:
  *	read directory
  */
 static void stress_apparmor_dir(
+	const stress_args_t *args,
 	const char *path,
 	const bool recurse,
 	const int depth)
@@ -168,7 +189,7 @@ static void stress_apparmor_dir(
 	DIR *dp;
 	struct dirent *d;
 
-	if (!keep_stressing_flag() || !apparmor_run)
+	if (!stress_apparmor_keep_stressing_inc(args, false))
 		return;
 
 	/* Don't want to go too deep */
@@ -182,7 +203,7 @@ static void stress_apparmor_dir(
 	while ((d = readdir(dp)) != NULL) {
 		char name[PATH_MAX];
 
-		if (!keep_stressing_flag() || !apparmor_run)
+		if (!stress_apparmor_keep_stressing_inc(args, false))
 			break;
 		if (stress_is_dot_filename(d->d_name))
 			continue;
@@ -190,12 +211,12 @@ static void stress_apparmor_dir(
 		case DT_DIR:
 			if (recurse) {
 				(void)stress_mk_filename(name, sizeof(name), path, d->d_name);
-				stress_apparmor_dir(name, recurse, depth + 1);
+				stress_apparmor_dir(args, name, recurse, depth + 1);
 			}
 			break;
 		case DT_REG:
 			(void)stress_mk_filename(name, sizeof(name), path, d->d_name);
-			stress_apparmor_read(name);
+			stress_apparmor_read(args, name);
 			break;
 		default:
 			break;
@@ -210,8 +231,6 @@ static void stress_apparmor_dir(
  */
 static pid_t apparmor_spawn(
 	const stress_args_t *args,
-	const uint64_t max_ops,
-	uint64_t *counter,
 	stress_apparmor_func func)
 {
 	pid_t pid;
@@ -226,7 +245,7 @@ again:
 	if (pid == 0) {
 		int ret = EXIT_SUCCESS;
 
-		if (!keep_stressing_flag())
+		if (!stress_apparmor_keep_stressing_inc(args, false))
 			goto abort;
 
 		if (stress_sighandler(args->name, SIGALRM,
@@ -237,9 +256,9 @@ again:
 		(void)setpgid(0, g_pgrp);
 		(void)sched_settings_apply(true);
 		stress_parent_died_alarm();
-		if (!keep_stressing_flag() || !apparmor_run)
+		if (!stress_apparmor_keep_stressing_inc(args, false))
 			goto abort;
-		ret = func(args->name, max_ops, counter);
+		ret = func(args);
 abort:
 		free(apparmor_path);
 		(void)kill(args->pid, SIGUSR1);
@@ -253,22 +272,15 @@ abort:
  *  apparmor_stress_profiles()
  *	hammer profile reading
  */
-static int apparmor_stress_profiles(
-	const char *name,
-	const uint64_t max_ops,
-	uint64_t *counter)
+static int apparmor_stress_profiles(const stress_args_t *args)
 {
 	char path[PATH_MAX];
 
-	(void)name;
 	(void)stress_mk_filename(path, sizeof(path), apparmor_path, "profiles");
 
 	do {
-		stress_apparmor_read(path);
-		(*counter)++;
-	} while (keep_stressing_flag() &&
-		 apparmor_run &&
-		 (!max_ops || (*counter < max_ops)));
+		stress_apparmor_read(args, path);
+	} while (stress_apparmor_keep_stressing_inc(args, true));
 
 	return EXIT_SUCCESS;
 }
@@ -277,22 +289,15 @@ static int apparmor_stress_profiles(
  *  apparmor_stress_features()
  *	hammer features reading
  */
-static int apparmor_stress_features(
-	const char *name,
-	const uint64_t max_ops,
-	uint64_t *counter)
+static int apparmor_stress_features(const stress_args_t *args)
 {
 	char path[PATH_MAX];
 
-	(void)name;
 	(void)stress_mk_filename(path, sizeof(path), apparmor_path, "features");
 
 	do {
-		stress_apparmor_dir(path, true, 0);
-		(*counter)++;
-	} while (keep_stressing_flag() &&
-		 apparmor_run &&
-		 (!max_ops || (*counter < max_ops)));
+		stress_apparmor_dir(args, path, true, 0);
+	} while (stress_apparmor_keep_stressing_inc(args, true));
 
 	return EXIT_SUCCESS;
 }
@@ -301,10 +306,7 @@ static int apparmor_stress_features(
  *  apparmor_stress_kernel_interface()
  *	load/replace/unload stressing
  */
-static int apparmor_stress_kernel_interface(
-	const char *name,
-	const uint64_t max_ops,
-	uint64_t *counter)
+static int apparmor_stress_kernel_interface(const stress_args_t *args)
 {
 	int rc = EXIT_SUCCESS;
 	aa_kernel_interface *kern_if;
@@ -316,7 +318,7 @@ static int apparmor_stress_kernel_interface(
 		int ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
 		if (ret < 0) {
 			pr_fail("%s: aa_kernel_interface_new() failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			rc = EXIT_FAILURE;
 			break;
 		}
@@ -330,7 +332,7 @@ static int apparmor_stress_kernel_interface(
 		if (ret < 0) {
 			if (errno != EEXIST) {
 				pr_fail("%s: aa_kernel_interface_load_policy() failed, errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 			}
 		}
@@ -356,17 +358,14 @@ static int apparmor_stress_kernel_interface(
 				aa_kernel_interface_unref(kern_if);
 
 				pr_fail("%s: aa_kernel_interface_remove_policy() failed, errno=%d (%s)\n",
-					name, errno, strerror(errno));
+					args->name, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				break;
 			}
 		}
 		aa_kernel_interface_unref(kern_if);
 
-		(*counter)++;
-	} while (keep_stressing_flag() &&
-		 apparmor_run &&
-                 (!max_ops || (*counter < max_ops)));
+	} while (stress_apparmor_keep_stressing_inc(args, true));
 
 	return rc;
 }
@@ -536,14 +535,11 @@ static inline void apparmor_corrupt_flip_one_bit_random(
  *	corrupt data and see if we can oops the loader
  *	parser.
  */
-static int apparmor_stress_corruption(
-	const char *name,
-	const uint64_t max_ops,
-	uint64_t *counter)
+static int apparmor_stress_corruption(const stress_args_t *args)
 {
 	char copy[g_apparmor_data_len];
 
-	int rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS, i = (int)args->instance;
 	aa_kernel_interface *kern_if;
 
 	/*
@@ -556,7 +552,7 @@ static int apparmor_stress_corruption(
 		/*
 		 *  Apply various corruption methods
 		 */
-		switch ((*counter) % 11) {
+		switch (i) {
 		case 0:
 			apparmor_corrupt_flip_seq(copy, g_apparmor_data_len);
 			break;
@@ -597,16 +593,18 @@ static int apparmor_stress_corruption(
 		case 10:
 			apparmor_corrupt_flip_one_bit_random(copy,
 				g_apparmor_data_len);
+			i = 0;
 			break;
 		default:
 			/* Should not happen */
+			i = 0;
 			break;
 		}
 
 		ret = aa_kernel_interface_new(&kern_if, NULL, NULL);
 		if (ret < 0) {
 			pr_fail("%s: aa_kernel_interface_new() failed, errno=%d (%s)\n",
-				name, errno, strerror(errno));
+				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		}
 		/*
@@ -619,15 +617,13 @@ static int apparmor_stress_corruption(
 			    (errno != EPROTONOSUPPORT) &&
 			     errno != ENOENT) {
 				pr_inf("%s: aa_kernel_interface_replace_policy() failed, "
-					"errno=%d (%s)\n", name, errno,
+					"errno=%d (%s)\n", args->name, errno,
 					strerror(errno));
 			}
 		}
 		aa_kernel_interface_unref(kern_if);
-		(*counter)++;
-	} while (keep_stressing_flag() &&
-		 apparmor_run &&
-		 (!max_ops || (*counter < max_ops)));
+		i++;
+	} while (stress_apparmor_keep_stressing_inc(args, true));
 
 	return rc;
 }
@@ -648,60 +644,28 @@ static int stress_apparmor(const stress_args_t *args)
 	const size_t n = SIZEOF_ARRAY(apparmor_funcs);
 	pid_t pids[n];
 	size_t i;
-	uint64_t *counters, max_ops, ops_per_child, ops;
-	const size_t counters_sz = n * sizeof(*counters);
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_apparmor_usr1_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	counters = mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (counters == MAP_FAILED) {
-		pr_err("%s: mmap failed: errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
-	}
-	(void)memset(counters, 0, counters_sz);
-
-	if (args->max_ops > 0) {
-		if ((args->max_ops < n)) {
-			max_ops = n;
-			ops_per_child = 1;
-		} else {
-			max_ops = args->max_ops;
-			ops_per_child = (args->max_ops / n);
-		}
-		/*
-		 * ops is the number of ops left over when dividing
-		 * max_ops amongst the child processes
-		 */
-		ops = max_ops - (ops_per_child * n);
-	} else {
-		max_ops = 0;
-		ops_per_child = 0;
-		ops = 0;
+	counter_lock = stress_lock_create();
+	if (!counter_lock) {
+		pr_inf("%s: failed to create counter lock. skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
 	}
 
 	for (i = 0; i < n; i++) {
-		pids[i] = apparmor_spawn(args,
-			ops_per_child + ((i == 0) ? ops : 0),
-			&counters[i], apparmor_funcs[i]);
+		pids[i] = apparmor_spawn(args, apparmor_funcs[i]);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
-	while (keep_stressing(args)) {
-		uint64_t tmp_counter = 0;
-
+	while (stress_apparmor_keep_stressing_inc(args, false)) {
 #if defined(HAVE_SELECT)
 		(void)select(0, NULL, NULL, NULL, NULL);
+#else
+		(void)pause();
 #endif
-
-		for (i = 0; i < n; i++)
-			tmp_counter += counters[i];
-
-		if (max_ops && tmp_counter >= max_ops)
-			break;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -718,13 +682,11 @@ static int stress_apparmor(const stress_args_t *args)
 		if (pids[i] >= 0) {
 			(void)kill(pids[i], SIGKILL);
 			(void)shim_waitpid(pids[i], &status, 0);
-			add_counter(args, counters[i]);
 		}
 	}
-	(void)munmap(counters, counters_sz);
-
 	free(apparmor_path);
 	apparmor_path = NULL;
+	(void)stress_lock_destroy(counter_lock);
 
 	return EXIT_SUCCESS;
 }
