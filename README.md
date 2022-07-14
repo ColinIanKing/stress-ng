@@ -1,4 +1,4 @@
-# stress-ng
+# stress-ng (stress next generation)
 
 stress-ng will stress test a computer system in various selectable ways. It
 was designed to exercise various physical subsystems of a computer as well as
@@ -9,11 +9,11 @@ the various operating system kernel interfaces. Stress-ng features:
     bit manipulation and control flow
   * over 20 virtual memory stress tests
   * portable: builds on Linux (Debian, Devuan, RHEL, Fedora, Centos, Slackware
-    OpenSUSE, Ubuntu, etc..), Solaris, *BSD, Minix, Android, MacOS X,
+    OpenSUSE, Ubuntu, etc..), Solaris, *BSD, Minix, Android, MacOS X, Serenity OS,
     GNU/Hurd, Haiku, Windows Subsystem for Linux and SunOs/Dilos with
     gcc, clang, icc, tcc and pcc.
   * tested on alpha, armhf, arm64, hppa, i386, m68k, mips32, mips64, ppc64el,
-    risc-v, s390x, sparc64, x86-64
+    risc-v, sh4, s390x, sparc64, x86-64
 
 stress-ng was originally intended to make a machine work hard and trip hardware
 issues such as thermal overruns as well as operating system bugs that only
