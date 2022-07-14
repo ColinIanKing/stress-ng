@@ -29,6 +29,22 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
+static void *counter_lock;
+
+static bool stress_rmap_keep_stressing_inc(const stress_args_t *args, const bool inc)
+{
+	bool ret;
+
+
+	stress_lock_acquire(counter_lock);
+	ret = keep_stressing(args);
+	if (inc && ret)
+		inc_counter(args);
+	stress_lock_release(counter_lock);
+
+	return ret;
+}
+
 /*
  *  [ MAPPING 0 ]
  *  [ page ][ MAPPING 1 ]
@@ -50,60 +66,77 @@ static void MLOCKED_TEXT NORETURN stress_rmap_handler(int signum)
 	_exit(0);
 }
 
+static void stress_rmap_touch(uint32_t *ptr, const size_t sz)
+{
+	const uint32_t *end = (uint32_t *)((uintptr_t)ptr + sz);
+	static uint32_t val = 0;
+	register const size_t inc = 64 >> 2; /* sizeof(*ptr) */
+
+	while (ptr < end) {
+		/* Bump val, never fill memory with non-zero val */
+		val++;
+		val = val ? val : 1;
+
+		*ptr = val;
+		ptr += inc;
+	}
+}
+
 static void NORETURN stress_rmap_child(
-	uint64_t *const counter,
-	const uint64_t max_ops,
+	const stress_args_t *args,
 	const size_t page_size,
-	uint8_t *mappings[MAPPINGS_MAX])
+	uint32_t *mappings[MAPPINGS_MAX])
 {
 	const size_t sz = MAPPING_PAGES * page_size;
 
 	do {
 		ssize_t i;
-		const int sync_flag = stress_mwc8() ? MS_ASYNC : MS_SYNC;
+		const uint8_t rnd8 = stress_mwc8();
+		const int sync_flag = (rnd8 & 0x80) ? MS_ASYNC : MS_SYNC;
 
-		switch (stress_mwc32() & 3) {
-		case 0: for (i = 0; keep_stressing_flag() && (i < MAPPINGS_MAX); i++) {
-				if (max_ops && *counter >= max_ops)
-					break;
+		switch (rnd8 & 3) {
+		case 0: for (i = 0; i < MAPPINGS_MAX; i++) {
 				if (mappings[i] != MAP_FAILED) {
-					(void)memset(mappings[i], stress_mwc8(), sz);
+					if (!stress_rmap_keep_stressing_inc(args, false))
+						break;
+					stress_rmap_touch(mappings[i], sz);
 					(void)shim_msync(mappings[i], sz, sync_flag);
 				}
 			}
 			break;
-		case 1: for (i = MAPPINGS_MAX - 1; keep_stressing_flag() && (i >= 0); i--) {
-				if (max_ops && *counter >= max_ops)
-					break;
+		case 1: for (i = MAPPINGS_MAX - 1; i >= 0; i--) {
 				if (mappings[i] != MAP_FAILED) {
-					(void)memset(mappings[i], stress_mwc8(), sz);
+					if (!stress_rmap_keep_stressing_inc(args, false))
+						break;
+					stress_rmap_touch(mappings[i], sz);
 					(void)shim_msync(mappings[i], sz, sync_flag);
 				}
 			}
 			break;
-		case 2: for (i = 0; keep_stressing_flag() && (i < MAPPINGS_MAX); i++) {
+		case 2: for (i = 0; i < MAPPINGS_MAX; i++) {
 				size_t j = stress_mwc32() % MAPPINGS_MAX;
-				if (max_ops && *counter >= max_ops)
-					break;
+
 				if (mappings[j] != MAP_FAILED) {
-					(void)memset(mappings[j], stress_mwc8(), sz);
+					if (!stress_rmap_keep_stressing_inc(args, false))
+						break;
+					stress_rmap_touch(mappings[j], sz);
 					(void)shim_msync(mappings[j], sz, sync_flag);
 				}
 			}
 			break;
-		case 3: for (i = 0; keep_stressing_flag() && (i < MAPPINGS_MAX - 1); i++) {
-				if (max_ops && *counter >= max_ops)
-					break;
+		case 3: for (i = 0; i < MAPPINGS_MAX - 1; i++) {
 				if (mappings[i] != MAP_FAILED) {
-					(void)memcpy(mappings[i], mappings[i + 1], sz);
+					if (!stress_rmap_keep_stressing_inc(args, false))
+						break;
+					stress_rmap_touch(mappings[i], sz);
 					(void)shim_msync(mappings[i], sz, sync_flag);
 				}
 			}
 			break;
 		}
-		(*counter)++;
-	} while (keep_stressing_flag() && (!max_ops || *counter < max_ops));
+	} while (stress_rmap_keep_stressing_inc(args, true));
 
+	(void)kill(getppid(), SIGALRM);
 
 	_exit(0);
 }
@@ -114,27 +147,22 @@ static void NORETURN stress_rmap_child(
  */
 static int stress_rmap(const stress_args_t *args)
 {
-	uint64_t *counters;
 	const size_t page_size = args->page_size;
 	const size_t sz = ((MAPPINGS_MAX - 1) + MAPPING_PAGES) * page_size;
-	const size_t counters_sz =
-		(page_size + sizeof(*counters) * RMAP_CHILD_MAX) & ~(page_size - 1);
 	int fd = -1;
 	size_t i;
 	ssize_t rc;
 	pid_t pids[RMAP_CHILD_MAX];
-	uint8_t *mappings[MAPPINGS_MAX];
-	uint8_t *paddings[MAPPINGS_MAX];
+	uint32_t *mappings[MAPPINGS_MAX];
+	uint32_t *paddings[MAPPINGS_MAX];
 	char filename[PATH_MAX];
 
-	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
-		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (counters == MAP_FAILED) {
-		pr_err("%s: mmap failed: errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
+	counter_lock = stress_lock_create();
+	if (!counter_lock) {
+		pr_inf("%s: failed to create counter lock. skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
 	}
-	(void)memset(counters, 0, counters_sz);
+
 	(void)memset(pids, 0, sizeof(pids));
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
@@ -158,7 +186,7 @@ static int stress_rmap(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
-		(void)munmap((void *)counters, counters_sz);
+		(void)stress_lock_destroy(counter_lock);
 
 		return (int)rc;
 	}
@@ -169,7 +197,7 @@ static int stress_rmap(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		(void)close(fd);
 		(void)stress_temp_dir_rm_args(args);
-		(void)munmap((void *)counters, counters_sz);
+		(void)stress_lock_destroy(counter_lock);
 
 		return EXIT_NO_RESOURCE;
 	}
@@ -181,11 +209,11 @@ static int stress_rmap(const stress_args_t *args)
 			goto cleanup;
 
 		mappings[i] =
-			(uint8_t *)mmap(0, MAPPING_PAGES * page_size, PROT_READ | PROT_WRITE,
+			(uint32_t *)mmap(0, MAPPING_PAGES * page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED, fd, offset);
 		/* Squeeze at least a page in between each mapping */
 		paddings[i] =
-			(uint8_t *)mmap(0, page_size, PROT_READ | PROT_WRITE,
+			(uint32_t *)mmap(0, page_size, PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	}
 
@@ -212,10 +240,7 @@ static int stress_rmap(const stress_args_t *args)
 
 			/* Make sure this is killable by OOM killer */
 			stress_set_oom_adjustment(args->name, true);
-			stress_rmap_child(&counters[i], 
-				(args->max_ops == 0) ? 0 :
-				(args->max_ops / RMAP_CHILD_MAX) + 1,
-				page_size, mappings);
+			stress_rmap_child(args, page_size, mappings);
 		} else {
 			(void)setpgid(pids[i], g_pgrp);
 		}
@@ -226,16 +251,8 @@ static int stress_rmap(const stress_args_t *args)
 	/*
 	 *  Wait for SIGINT or SIGALRM
 	 */
-	while (keep_stressing(args)) {
-		uint64_t c = 0;
-
-		/* Twiddle fingers */
-		(void)shim_usleep(100000);
-
-		for (i = 0; i < RMAP_CHILD_MAX; i++)
-			c += counters[i];
-
-		set_counter(args, c);
+	while (stress_rmap_keep_stressing_inc(args, false)) {
+		pause();
 	}
 
 cleanup:
@@ -273,9 +290,9 @@ cleanup:
 			(void)munmap((void *)paddings[i], page_size);
 	}
 
-	(void)munmap((void *)counters, counters_sz);
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
+	(void)stress_lock_destroy(counter_lock);
 
 	return EXIT_SUCCESS;
 }
