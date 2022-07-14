@@ -627,6 +627,16 @@ typedef struct {
 #define OPTIMIZE3
 #endif
 
+/* -O2 attribute support */
+#if defined(__GNUC__) &&	\
+    !defined(__clang__) &&	\
+    !defined(__ICC) &&		\
+    NEED_GNUC(4, 6, 0)
+#define OPTIMIZE2 	__attribute__((optimize("-O2")))
+#else
+#define OPTIMIZE2
+#endif
+
 /* -O1 attribute support */
 #if defined(__GNUC__) &&	\
     !defined(__clang__) &&	\

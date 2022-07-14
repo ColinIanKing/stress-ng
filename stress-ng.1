@@ -2798,7 +2798,7 @@ different alignments. This will exercise processor cache and system memory.
 .B \-\-memcpy\-ops N
 stop memcpy stress workers after N bogo memcpy operations.
 .TP
-.B \-\-memcpy\-method [ all | libc | builtin | naive ]
+.B \-\-memcpy\-method [ all | libc | builtin | naive | naive_o0 .. naive_o3 ]
 specify a memcpy copying method. Available memcpy methods are described
 as follows:
 .TS
@@ -2821,6 +2821,14 @@ compiler optimization flags
 T}
 naive_o0	T{
 use unoptimized na\[:i]ve byte by byte copying and memory moving
+T}
+naive_o1	T{
+use unoptimized na\[:i]ve byte by byte copying and memory moving with -O1
+optimization
+T}
+naive_o2	T{
+use optimized na\[:i]ve byte by byte copying and memory moving build with -O2
+optimization and where possible use CPU specific optimizations
 T}
 naive_o3	T{
 use optimized na\[:i]ve byte by byte copying and memory moving build with -O3

@@ -25,7 +25,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"memcpy N",	   "start N workers performing memory copies" },
 	{ NULL,	"memcpy-ops N",	   "stop after N memcpy bogo operations" },
-	{ NULL,	"memcpy-method M", "set memcpy method (M = all, libc, builtin, naive)" },
+	{ NULL,	"memcpy-method M", "set memcpy method (M = all, libc, builtin, naive..)" },
 	{ NULL,	NULL,		   NULL }
 };
 
@@ -102,10 +102,13 @@ static hint void *name(void *dest, const void *src, size_t n)		\
 
 TEST_NAIVE_MEMCPY(test_naive_memcpy, NOINLINE)
 TEST_NAIVE_MEMCPY(test_naive_memcpy_o0, NOINLINE OPTIMIZE0)
+TEST_NAIVE_MEMCPY(test_naive_memcpy_o1, NOINLINE OPTIMIZE1)
 #if NEED_CLANG(9, 0, 0)
+TEST_NAIVE_MEMCPY(test_naive_memcpy_o2, NOINLINE OPTIMIZE2 TARGET_CLONES)
 TEST_NAIVE_MEMCPY(test_naive_memcpy_o3, NOINLINE OPTIMIZE3 TARGET_CLONES)
 #else
 /* older gcc versions segfault on TARGET_CLONES */
+TEST_NAIVE_MEMCPY(test_naive_memcpy_o2, NOINLINE OPTIMIZE2)
 TEST_NAIVE_MEMCPY(test_naive_memcpy_o3, NOINLINE OPTIMIZE3)
 #endif
 
@@ -131,10 +134,13 @@ static hint void *name(void *dest, const void *src, size_t n)		\
 
 TEST_NAIVE_MEMMOVE(test_naive_memmove, NOINLINE)
 TEST_NAIVE_MEMMOVE(test_naive_memmove_o0, NOINLINE OPTIMIZE0)
+TEST_NAIVE_MEMMOVE(test_naive_memmove_o1, NOINLINE OPTIMIZE1)
 #if NEED_CLANG(9, 0, 0)
+TEST_NAIVE_MEMMOVE(test_naive_memmove_o2, NOINLINE OPTIMIZE2 TARGET_CLONES)
 TEST_NAIVE_MEMMOVE(test_naive_memmove_o3, NOINLINE OPTIMIZE3 TARGET_CLONES)
 #else
 /* older gcc versions segfault on TARGET_CLONES */
+TEST_NAIVE_MEMMOVE(test_naive_memmove_o2, NOINLINE OPTIMIZE2)
 TEST_NAIVE_MEMMOVE(test_naive_memmove_o3, NOINLINE OPTIMIZE3)
 #endif
 
@@ -226,6 +232,8 @@ static NOINLINE void name(								\
 
 STRESS_MEMCPY_NAIVE("naive", stress_memcpy_naive, test_naive_memcpy, test_naive_memmove)
 STRESS_MEMCPY_NAIVE("naive_o0", stress_memcpy_naive_o0, test_naive_memcpy_o0, test_naive_memmove_o0)
+STRESS_MEMCPY_NAIVE("naive_o1", stress_memcpy_naive_o1, test_naive_memcpy_o1, test_naive_memmove_o1)
+STRESS_MEMCPY_NAIVE("naive_o2", stress_memcpy_naive_o2, test_naive_memcpy_o2, test_naive_memmove_o2)
 STRESS_MEMCPY_NAIVE("naive_o3", stress_memcpy_naive_o3, test_naive_memcpy_o3, test_naive_memmove_o3)
 
 static NOINLINE void stress_memcpy_all(
@@ -266,6 +274,8 @@ static const stress_memcpy_method_info_t stress_memcpy_methods[] = {
 	{ "builtin",	stress_memcpy_builtin },
 	{ "naive",      stress_memcpy_naive },
 	{ "naive_o0",	stress_memcpy_naive_o0 },
+	{ "naive_o1",	stress_memcpy_naive_o1 },
+	{ "naive_o2",	stress_memcpy_naive_o2 },
 	{ "naive_o3",	stress_memcpy_naive_o3 },
 	{ NULL,         NULL }
 };
