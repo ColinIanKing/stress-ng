@@ -36,6 +36,7 @@
 static const stress_help_t help[] = {
 	{ NULL,	"gpu N",		"start N GPU worker" },
 	{ NULL,	"gpu-ops N",		"stop after N gpu render bogo operations" },
+	{ NULL,	"gpu-devnode name",	"specify CPU device node name" },
 	{ NULL,	"gpu-frag N",		"specify shader core usage per pixel" },
 	{ NULL,	"gpu-tex-size N",	"specify upload texture NxN" },
 	{ NULL,	"gpu-upload N",		"specify upload texture N times per frame" },
@@ -43,6 +44,11 @@ static const stress_help_t help[] = {
 	{ NULL,	"gpu-ysize Y",		"specify framebuffer size y" },
 	{ NULL,	NULL,			NULL }
 };
+
+static int stress_set_gpu_devnode(const char *opt)
+{
+	return stress_set_setting("gpu-devnode", TYPE_ID_STR, opt);
+}
 
 static int stress_set_gpu(const char *opt, const char *name, const size_t max)
 {
@@ -90,6 +96,7 @@ static int stress_set_gpu_size(const char *opt)
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_gpu_devnode,	stress_set_gpu_devnode },
 	{ OPT_gpu_frag,		stress_set_gpu_frag },
 	{ OPT_gpu_uploads,	stress_set_gpu_upload },
 	{ OPT_gpu_size,		stress_set_gpu_size },
@@ -112,7 +119,7 @@ static EGLSurface surface;
 static struct gbm_device *gbm;
 static struct gbm_surface *gs;
 
-static const char *devicenode = "/dev/dri/renderD128";
+static const char default_gpu_devnode[] = "/dev/dri/renderD128";
 static GLubyte *teximage = NULL;
 
 static const char vert_shader[] =
@@ -385,6 +392,7 @@ static int get_config(const stress_args_t *args, EGLConfig *config)
 
 static int egl_init(
 	const stress_args_t *args,
+	const char *gpu_devnode,
 	const uint32_t size_x,
 	const uint32_t size_y)
 {
@@ -399,9 +407,9 @@ static int egl_init(
 		EGL_NONE
 	};
 
-	fd = open(devicenode, O_RDWR);
+	fd = open(gpu_devnode, O_RDWR);
 	if (fd < 0) {
-		pr_inf("%s: couldn't open %s, skipping stressor\n", args->name, devicenode);
+		pr_inf("%s: couldn't open device %s, skipping stressor\n", args->name, gpu_devnode);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -466,14 +474,16 @@ static int stress_gpu(const stress_args_t *args)
 	uint32_t size_y = 256;
 	GLsizei texsize = 4096;
 	GLsizei uploads = 1;
+	const char *gpu_devnode = default_gpu_devnode;
 
+	(void)stress_get_setting("gpu-devnode", &gpu_devnode);
 	(void)stress_get_setting("gpu-frag", &frag_n);
 	(void)stress_get_setting("gpu-xsize", &size_x);
 	(void)stress_get_setting("gpu-ysize", &size_y);
 	(void)stress_get_setting("gpu-tex-size", &texsize);
 	(void)stress_get_setting("gpu-upload", &uploads);
 
-	ret = egl_init(args, size_x, size_y);
+	ret = egl_init(args, gpu_devnode, size_x, size_y);
 	if (ret != EXIT_SUCCESS)
 		goto deinit;
 

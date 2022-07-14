@@ -440,6 +440,7 @@ static const struct option long_options[] = {
 	{ "goto-direction", 	1,	0,	OPT_goto_direction },
 	{ "gpu",		1,	0,	OPT_gpu },
 	{ "gpu-ops",		1,	0,	OPT_gpu_ops },
+	{ "gpu-devnode",	1,	0,	OPT_gpu_devnode },
 	{ "gpu-frag",		1,	0,	OPT_gpu_frag },
 	{ "gpu-upload",		1,	0,	OPT_gpu_uploads },
 	{ "gpu-tex-size",		1,	0,	OPT_gpu_size },

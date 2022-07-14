@@ -1921,22 +1921,25 @@ start N worker that exercise the GPU. This specifies a 2-D texture image
 that allows the elements of an image array to be read by shaders,
 and render primitives using an opengl context.
 .TP
-.B \-\-gpu-ops N
+.B \-\-gpu\-ops N
 stop gpu workers after N render loop operations.
 .TP
-.B \-\-gpu-frag N
+.B \-\-gpu\-devnode DEVNAME
+specify the device node name of the GPU device, the default is /dev/dri/renderD128.
+.TP
+.B \-\-gpu\-frag N
 specify shader core usage per pixel, this sets N loops in the fragment shader.
 .TP
-.B \-\-gpu-tex-size N
+.B \-\-gpu\-tex\-size N
 specify upload texture N \(mu N, by default this value is 4096 \(mu 4096.
 .TP
-.B \-\-gpu-xsize X
+.B \-\-gpu\-xsize X
 use a framebuffer size of X pixels. The default is 256 pixels.
 .TP
-.B \-\-gpu-ysize Y
+.B \-\-gpu\-ysize Y
 use a framebuffer size of Y pixels. The default is 256 pixels.
 .TP
-.B \-\-gpu-upload N
+.B \-\-gpu\-upload N
 specify upload texture N times per frame, the default value is 1.
 .TP
 .B \-\-handle N
