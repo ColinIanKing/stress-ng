@@ -162,6 +162,8 @@ static NOINLINE void stress_memcpy_libc(
 	(void)memmove_check(memmove, aligned_buf, aligned_buf + 1, STR_SHARED_SIZE - 1);
 }
 
+#if defined(HAVE_BUILTIN_MEMCPY) &&	\
+    defined(HAVE_BUILTIN_MEMMOVE)
 static void *stress_builtin_memcpy_wrapper(void *restrict dst, const void *restrict src, size_t n)
 {
 	return __builtin_memcpy(dst, src, n);
@@ -171,6 +173,7 @@ static void *stress_builtin_memmove_wrapper(void *dst, const void *src, size_t n
 {
 	return __builtin_memmove(dst, src, n);
 }
+#endif
 
 static NOINLINE void stress_memcpy_builtin(
 	stress_buffer_t *b,
