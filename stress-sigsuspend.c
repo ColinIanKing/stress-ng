@@ -28,6 +28,21 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		    NULL }
 };
 
+static void *counter_lock;
+
+static bool stress_sigsuspend_keep_stressing_inc(const stress_args_t *args, const bool inc)
+{
+	bool ret;
+
+	stress_lock_acquire(counter_lock);
+	ret = keep_stressing(args);
+	if (inc && ret)
+		inc_counter(args);
+	stress_lock_release(counter_lock);
+
+	return ret;
+}
+
 /*
  *  stress_usr1_handler()
  *      SIGUSR1 handler
@@ -47,23 +62,15 @@ static int stress_sigsuspend(const stress_args_t *args)
 	size_t n, i;
 	sigset_t mask, oldmask;
 	int status;
-	uint64_t *counters;
-	volatile uint64_t *v_counters;
-	const size_t counters_size =
-		(sizeof(*counters) * MAX_SIGSUSPEND_PIDS) << CACHE_STRIDE_SHIFT;
 
 	if (stress_sighandler(args->name, SIGUSR1, stress_usr1_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	v_counters = counters = (uint64_t *)mmap(NULL, counters_size,
-			PROT_READ | PROT_WRITE,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	if (counters == MAP_FAILED) {
-		pr_err("%s: mmap failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
+	counter_lock = stress_lock_create();
+	if (!counter_lock) {
+		pr_inf("%s: failed to create counter lock. skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
 	}
-	(void)memset(counters, 0, counters_size);
 
 	(void)sigemptyset(&mask);
 	(void)sigprocmask(SIG_BLOCK, &mask, &oldmask);
@@ -86,10 +93,9 @@ again:
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
-			while (keep_stressing_flag()) {
+			do {
 				(void)sigsuspend(&mask);
-				v_counters[n << CACHE_STRIDE_SHIFT]++;
-			}
+			} while (stress_sigsuspend_keep_stressing_inc(args, true));
 			_exit(0);
 		}
 		(void)setpgid(pid[n], g_pgrp);
@@ -97,9 +103,7 @@ again:
 
 	/* Parent */
 	do {
-		set_counter(args, 0);
-		for (i = 0; (i < n) && keep_stressing(args); i++) {
-			add_counter(args, v_counters[i << CACHE_STRIDE_SHIFT]);
+		for (i = 0; (i < n) && stress_sigsuspend_keep_stressing_inc(args, false); i++) {
 			(void)kill(pid[i], SIGUSR1);
 		}
 	} while (keep_stressing(args));
@@ -111,7 +115,7 @@ reap:
 		(void)kill(pid[i], SIGKILL);
 		(void)shim_waitpid(pid[i], &status, 0);
 	}
-	(void)munmap((void *)counters, counters_size);
+	(void)stress_lock_destroy(counter_lock);
 
 	return EXIT_SUCCESS;
 }
