@@ -50,8 +50,6 @@ static char *data_copy, *data_prev;
 extern char g_apparmor_data[];
 extern const size_t g_apparmor_data_len;
 
-//#define inc_counter(x)	{ pr_inf("%s %d\n", __func__, __LINE__); }
-
 /*
  *  stress_apparmor_supported()
  *      check if AppArmor is supported
@@ -705,6 +703,8 @@ static int stress_apparmor(const stress_args_t *args)
 	free(apparmor_path);
 	apparmor_path = NULL;
 	(void)stress_lock_destroy(counter_lock);
+
+	rc = EXIT_SUCCESS;
 
 err_free_data_prev:
 	free(data_prev);
