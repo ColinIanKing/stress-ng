@@ -3003,8 +3003,8 @@ mincore until the address is less or equal to the page size.
 .TP
 .B \-\-misaligned N
 start N workers that perform misaligned read and writes. By default, this
-will exercise 128 bit misaligned read and writes in 8 x 16 bits, 4 x 32 bits,
-2 x 64 bits and 1 x 128 bits at the start of a page boundary, at the end
+will exercise 128 bit misaligned read and writes in 8 \(mu 16 bits, 4 \(mu 32 bits,
+2 \(mu 64 bits and 1 \(mu 128 bits at the start of a page boundary, at the end
 of a page boundary and over a cache boundary. Misaligned read and writes
 operate at 1 byte offset from the natural alignment of the data
 type. On some architectures this can cause SIGBUS, SIGILL or SIGSEGV, these are
@@ -3012,7 +3012,7 @@ handled and the misaligned stressor method causing the error is disabled.
 .TP
 .B \-\-misaligned\-ops N
 stop after N misaligned bogo operation. A misaligned bogo op is equivalent
-to 65536 x 128 bit reads or writes.
+to 65536 \(mu 128 bit reads or writes.
 .TP
 .B \-\-misaligned\-method M
 Available misaligned stress methods are described as follows:
@@ -3022,24 +3022,24 @@ lB2 lB lB lB
 l l s s.
 Method	Description
 all	iterate over all the following misaligned methods
-int16rd	8 x 16 bit integer reads
-int16wr	8 x 16 bit integer writes
-int16inc	8 x 16 bit integer increments
-int16atomic	8 x 16 bit atomic integer increments
-int32rd	4 x 32 bit integer reads
-int32wr	4 x 32 bit integer writes
-int32wtnt	4 x 32 bit non-termporal stores (x86 only)
-int32inc	4 x 32 bit integer increments
-int32atomic	4 x 32 bit atomic integer increments
-int64rd	2 x 64 bit integer reads
-int64wr	2 x 64 bit integer writes
-int64wtnt	4 x 64 bit non-termporal stores (x86 only)
-int64inc	2 x 64 bit integer increments
-int64atomic	2 x 64 bit atomic integer increments
-int128rd	1 x 128 bit integer reads
-int128wr	1 x 128 bit integer writes
-int128inc	1 x 128 bit integer increments
-int128atomic	1 x 128 bit atomic integer increments
+int16rd	8 \(mu 16 bit integer reads
+int16wr	8 \(mu 16 bit integer writes
+int16inc	8 \(mu 16 bit integer increments
+int16atomic	8 \(mu 16 bit atomic integer increments
+int32rd	4 \(mu 32 bit integer reads
+int32wr	4 \(mu 32 bit integer writes
+int32wtnt	4 \(mu 32 bit non-temporal stores (x86 only)
+int32inc	4 \(mu 32 bit integer increments
+int32atomic	4 \(mu 32 bit atomic integer increments
+int64rd	2 \(mu 64 bit integer reads
+int64wr	2 \(mu 64 bit integer writes
+int64wtnt	4 \(mu 64 bit non-temporal stores (x86 only)
+int64inc	2 \(mu 64 bit integer increments
+int64atomic	2 \(mu 64 bit atomic integer increments
+int128rd	1 \(mu 128 bit integer reads
+int128wr	1 \(mu 128 bit integer writes
+int128inc	1 \(mu 128 bit integer increments
+int128atomic	1 \(mu 128 bit atomic integer increments
 .TE
 .PP
 Note that some of these options (128 bit integer and/or atomic operations) may
@@ -4330,7 +4330,7 @@ memory mapped 2-d matrix (non-sparse), quick hashing (on preallocated nodes)
 and red-black tree.
 The sparse matrix is populated with values, random values potentially
 non-existing values are read, known existing values are read and known
-existing values are marked as zero. This default 500 x 500 sparse matrix
+existing values are marked as zero. This default 500 \(mu 500 sparse matrix
 is used and 5000 items are put into the sparse matrix making it 2% utilized.
 .TP
 .B \-\-sparsematrix\-ops N
@@ -5090,7 +5090,7 @@ sequentially set all memory to random values and then summate the number of
 bits that have changed from the original set values.
 T}
 read64	T{
-sequentially read memory using 32 x 64 bit reads per bogo loop. Each loop
+sequentially read memory using 32 \(mu 64 bit reads per bogo loop. Each loop
 equates to one bogo operation.  This exercises raw memory reads.
 T}
 ror	T{
@@ -5169,18 +5169,18 @@ works best with physical memory addressing, however, exercising these virtual
 addresses has some value too.
 T}
 write64	T{
-sequentially write to memory using 32 x 64 bit writes per bogo loop. Each loop
+sequentially write to memory using 32 \(mu 64 bit writes per bogo loop. Each loop
 equates to one bogo operation.  This exercises raw memory writes.  Note that
 memory writes are not checked at the end of each test iteration.
 T}
 write64nt	T{
-sequentially write to memory using 32 x 64 bit non-temporal writes per bogo loop.
+sequentially write to memory using 32 \(mu 64 bit non-temporal writes per bogo loop.
 Each loop equates to one bogo operation.  This exercises cacheless raw memory writes
 and is only available on x86 sse2 capable systems built with gcc and clang
 compilers.  Note that memory writes are not checked at the end of each test iteration.
 T}
 write1024v	T{
-sequentially write to memory using 1 x 1024 bit vector write per bogo loop
+sequentially write to memory using 1 \(mu 1024 bit vector write per bogo loop
 (only available if the compiler supports vector types).
 Each loop equates to one bogo operation.  This exercises raw memory writes.
 Note that memory writes are not checked at the end of each test iteration.
@@ -5411,7 +5411,7 @@ fixed	T{
 data stream is repeated 0x04030201.
 T}
 gcr	T{
-random values as 4 x 4 bit data turned into 4 x 5 bit group coded recording
+random values as 4 \(mu 4 bit data turned into 4 \(mu 5 bit group coded recording
 (GCR) patterns.  Each 5 bit GCR value starts or ends with at most one zero bit
 so that concatenated GCR codes have no more than two zero bits in a row.
 T}
