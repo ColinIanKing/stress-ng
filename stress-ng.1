@@ -242,6 +242,14 @@ allowed file descriptors.  Note that stress-ng will use about 5 of the
 available file descriptors so take this into consideration when using this
 setting.
 .TP
+.B \-\-mbind list
+set strict NUMA memory allocation based on the list of NUMA nodes provided;
+page allocations will come from the node with sufficient free memory closest
+to the specified node(s) where the allocation takes place. This uses the
+Linux set_mempolicy(2) call using the MPOL_BIND mode.  The NUMA nodes to be
+used are specified by a comma separated list of node (0 to N-1). One can
+specify a range of NUMA nodes using '-', for example: \-\-mbind 0,2-3,6,7-11
+.TP
 .B \-\-metrics
 output number of bogo operations in total performed by the stress processes.
 Note that these are not a reliable metric of performance or throughput and

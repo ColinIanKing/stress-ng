@@ -442,6 +442,7 @@ CORE_SRC = \
 	core-mounts.c \
 	core-mwc.c \
 	core-net.c \
+	core-numa.c \
 	core-out-of-memory.c \
 	core-parse-opts.c \
 	core-perf.c \

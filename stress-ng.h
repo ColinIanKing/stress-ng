@@ -1879,6 +1879,8 @@ typedef enum {
 	OPT_madvise,
 	OPT_madvise_ops,
 
+	OPT_mbind,
+
 	OPT_malloc,
 	OPT_malloc_ops,
 	OPT_malloc_bytes,

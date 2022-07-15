@@ -580,6 +580,7 @@ static const struct option long_options[] = {
 	{ "matrix-3d-zyx",	0,	0,	OPT_matrix_3d_zyx },
 	{ "maximize",		0,	0,	OPT_maximize },
 	{ "max-fd",		1,	0,	OPT_max_fd },
+	{ "mbind",		1,	0,	OPT_mbind },
 	{ "mcontend",		1,	0,	OPT_mcontend },
 	{ "mcontend-ops",	1,	0,	OPT_mcontend_ops },
 	{ "membarrier",		1,	0,	OPT_membarrier },
@@ -1130,6 +1131,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"log-file filename",	"log messages to a log file" },
 	{ NULL,		"maximize",		"enable maximum stress options" },
 	{ NULL,		"max-fd",		"set maximum file descriptor limit" },
+	{ NULL,		"mbind",		"set NUMA memory binding to specific nodes" },
 	{ "M",		"metrics",		"print pseudo metrics of activity" },
 	{ NULL,		"metrics-brief",	"enable metrics and only show non-zero results" },
 	{ NULL,		"minimize",		"enable minimal stress options" },
@@ -3383,6 +3385,10 @@ next_opt:
 				"Cannot determine maximum file descriptor limit");
 			stress_check_range(optarg, u64, 8, max_fds);
 			stress_set_setting_global("max-fd", TYPE_ID_UINT64, &u64);
+			break;
+		case OPT_mbind:
+			if (stress_set_mbind(optarg) < 0)
+				exit(EXIT_FAILURE);
 			break;
 		case OPT_no_madvise:
 			g_opt_flags &= ~OPT_FLAGS_MMAP_MADVISE;
