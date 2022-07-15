@@ -60,19 +60,18 @@ static void pipe_fill(
 	const int fd,
 	const size_t max,
 	const size_t page_size,
-	char *buffer,
-	const size_t buffer_size)
+	char *buffer)
 {
 	size_t i;
 	static uint32_t val = 0;
+	uint32_t *u32ptr = (uint32_t *)buffer;
 
 	for (i = 0; i < max; i += page_size) {
 		ssize_t ret;
-		uint32_t *u32ptr = (uint32_t *)(buffer + i);
 
 		*u32ptr = val++;
-		ret = write(fd, buffer, buffer_size);
-		if (ret < (ssize_t)buffer_size)
+		ret = write(fd, buffer, page_size);
+		if (ret < (ssize_t)page_size)
 			return;
 	}
 }
@@ -86,10 +85,9 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 	size_t i;
 	int fds[max_pipes * 2], *fd, pipes_open = 0;
 	const bool aggressive = (g_opt_flags & OPT_FLAGS_AGGRESSIVE);
-	const size_t buffer_size = page_size;
 	char *buffer;
 
-	buffer = malloc(buffer_size);
+	buffer = malloc(page_size);
 	if (!buffer) {
 		pr_err("%s: cannot allocate pipe write buffer\n", args->name);
 		return EXIT_NO_RESOURCE;
@@ -141,7 +139,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 				max_size = page_size;
 			if (fcntl(fd[1], F_SETPIPE_SZ, max_size) < 0)
 				max_size = page_size;
-			pipe_fill(fd[1], max_size, page_size, buffer, buffer_size);
+			pipe_fill(fd[1], max_size, page_size, buffer);
 			if (!aggressive)
 				pipe_empty(fd[0], max_size, page_size);
 		}
@@ -159,7 +157,7 @@ static int stress_oom_pipe_child(const stress_args_t *args, void *ctxt)
 				continue;
 			(void)fcntl(fd[0], F_SETPIPE_SZ, page_size);
 			(void)fcntl(fd[1], F_SETPIPE_SZ, page_size);
-			pipe_fill(fd[1], context->max_pipe_size, page_size, buffer, buffer_size);
+			pipe_fill(fd[1], context->max_pipe_size, page_size, buffer);
 			if (!aggressive)
 				pipe_empty(fd[0], page_size, page_size);
 		}
