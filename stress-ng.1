@@ -1605,10 +1605,10 @@ are not wired up correctly.  It also keeps track of system calls that exist
 (ones that don't return ENOSYS) so that it can focus on purely finding and
 exercising non-functional system calls. This stressor exercises system calls
 from 0 to __NR_syscalls + 1024, random system calls within constrained in the
-ranges of 0 to 2^8, 2^16, 2^24, 2^32, 2^40, 2^48, 2^56 and 2^64 bits,
-high system call numbers and various other bit patterns to try to get wide
-coverage. To keep the environment clean, each system call being tested runs
-in a child process with reduced capabilities.
+ranges of 0 to 2\[ua]8, 2\[ua]16, 2\[ua]24, 2\[ua]32, 2\[ua]40, 2\[ua]48,
+2\[ua]56 and 2\[ua]64 bits, high system call numbers and various other bit
+patterns to try to get wide coverage. To keep the environment clean, each
+system call being tested runs in a child process with reduced capabilities.
 .TP
 .B \-\-enosys\-ops N
 stop after N bogo enosys system call attempts
@@ -2968,10 +2968,10 @@ random	T{
 randomly run any of the memthrash methods except for 'random' and 'all'
 T}
 spinread	T{
-spin loop read the same random location 2^19 times
+spin loop read the same random location 2\[ua]19 times
 T}
 spinwrite	T{
-spin loop write the same random location 2^19 times
+spin loop write the same random location 2\[ua]19 times
 T}
 swap	T{
 step through memory swapping bytes in steps of 65 and 129 byte strides
@@ -3292,7 +3292,7 @@ allows the default to be changed to 2 to 64 concurrent threads.
 .TP
 .B \-\-nanosleep N
 start N workers that each run 256 pthreads that call nanosleep with random
-delays from 1 to 2^18 nanoseconds. This should exercise the high resolution
+delays from 1 to 2\[ua]18 nanoseconds. This should exercise the high resolution
 timers and scheduler.
 .TP
 .B \-\-nanosleep\-ops N
@@ -5011,7 +5011,7 @@ alter memory sequentially, some use small or large strides to step along memory.
 result.
 .PP
 The vm methods containing 'prime' in their name have a stride of the largest
-prime less than 2^64, allowing to them to thoroughly step through memory and
+prime less than 2\[ua]64, allowing to them to thoroughly step through memory and
 touch all locations just once while also doing without touching memory cells
 next to each other. This strategy exercises the cache and page non-locality.
 .PP
@@ -5487,7 +5487,7 @@ T}
 .TP
 .B \-\-zlib\-window-bits W
 specify the window bits used to specify the history buffer size. The value is
-specified as the base two logarithm of the buffer size (e.g. value 9 is 2^9 =
+specified as the base two logarithm of the buffer size (e.g. value 9 is 2\[ua]9 =
 512 bytes).
 Default is 15.
 .PP
