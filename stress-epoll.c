@@ -70,17 +70,6 @@ static timer_t epoll_timerid;
 static int max_servers = 1;
 
 /*
- *  stress_child_alarm_handler()
- *      SIGALRM handler to terminate child immediately
- */
-static void MLOCKED_TEXT NORETURN stress_child_alarm_handler(int signum)
-{
-	(void)signum;
-
-	_exit(0);
-}
-
-/*
  *  stress_set_epoll_port()
  *	set the default port base
  */
@@ -233,8 +222,6 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
-		if (stress_sighandler(args->name, SIGALRM, stress_child_alarm_handler, NULL) < 0)
-			_exit(EXIT_NO_RESOURCE);
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
@@ -729,11 +716,6 @@ static void NORETURN epoll_server(
 		rc = EXIT_NO_RESOURCE;
 		goto die;
 	}
-
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
-		rc = EXIT_FAILURE;
-		goto die;
-	}
 	if ((sfd = socket(epoll_domain, SOCK_STREAM, 0)) < 0) {
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -1023,6 +1005,9 @@ static int stress_epoll(const stress_args_t *args)
 	(void)stress_get_setting("epoll-domain", &epoll_domain);
 	(void)stress_get_setting("epoll-port", &epoll_port);
 	(void)stress_get_setting("epoll-sockets", &epoll_sockets);
+
+	if (stress_sighandler(args->name, SIGPIPE, SIG_IGN, NULL) < 0)
+		return EXIT_NO_RESOURCE;
 
 	if (max_servers == 1) {
 		pr_dbg("%s: process [%" PRIdMAX "] using socket port %d\n",
