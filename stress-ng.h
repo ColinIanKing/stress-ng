@@ -164,7 +164,7 @@ do {				\
 	type void_ret = x;	\
 				\
 	(void)void_ret;		\
-} while(0)			\
+} while (0)			\
 
 /*
  *  BeagleBoneBlack with 4.1.15 kernel does not
