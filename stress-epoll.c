@@ -669,6 +669,8 @@ retry:
 			break;
 		}
 		(void)close(fd);
+		if (!keep_stressing(args))
+			break;
 		(void)shim_sched_yield();
 		inc_counter(args);
 	} while (keep_stressing(args));
@@ -1054,7 +1056,7 @@ reap:
 		int status;
 
 		if (pids[i] > 0) {
-			(void)kill(pids[i], SIGKILL);
+			(void)kill(pids[i], SIGALRM);
 			if (shim_waitpid(pids[i], &status, 0) < 0) {
 				pr_dbg("%s: waitpid failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
