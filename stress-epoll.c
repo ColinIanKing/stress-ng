@@ -70,6 +70,17 @@ static timer_t epoll_timerid;
 static int max_servers = 1;
 
 /*
+ *  stress_child_alarm_handler()
+ *      SIGALRM handler to terminate child immediately
+ */
+static void MLOCKED_TEXT NORETURN stress_child_alarm_handler(int signum)
+{
+	(void)signum;
+
+	_exit(0);
+}
+
+/*
  *  stress_set_epoll_port()
  *	set the default port base
  */
@@ -222,6 +233,8 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
+		if (stress_sighandler(args->name, SIGALRM, stress_child_alarm_handler, NULL) < 0)
+			_exit(EXIT_NO_RESOURCE);
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
@@ -669,10 +682,10 @@ retry:
 			break;
 		}
 		(void)close(fd);
+		inc_counter(args);
 		if (!keep_stressing(args))
 			break;
 		(void)shim_sched_yield();
-		inc_counter(args);
 	} while (keep_stressing(args));
 
 #if defined(AF_UNIX) &&		\
@@ -1006,6 +1019,7 @@ static int stress_epoll(const stress_args_t *args)
 	int epoll_domain = AF_UNIX;
 	int epoll_port = DEFAULT_EPOLL_PORT;
 	int epoll_sockets = DEFAULT_EPOLL_SOCKETS;
+	uint64_t counter;
 
 	(void)stress_get_setting("epoll-domain", &epoll_domain);
 	(void)stress_get_setting("epoll-port", &epoll_port);
@@ -1052,6 +1066,7 @@ static int stress_epoll(const stress_args_t *args)
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	counter = get_counter(args);
 	for (i = 0; i < max_servers; i++) {
 		int status;
 
@@ -1063,6 +1078,7 @@ reap:
 			}
 		}
 	}
+	set_counter(args, counter);
 
 	return rc;
 }
