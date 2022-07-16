@@ -1019,7 +1019,6 @@ static int stress_epoll(const stress_args_t *args)
 	int epoll_domain = AF_UNIX;
 	int epoll_port = DEFAULT_EPOLL_PORT;
 	int epoll_sockets = DEFAULT_EPOLL_SOCKETS;
-	uint64_t counter;
 
 	(void)stress_get_setting("epoll-domain", &epoll_domain);
 	(void)stress_get_setting("epoll-port", &epoll_port);
@@ -1066,7 +1065,6 @@ static int stress_epoll(const stress_args_t *args)
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	counter = get_counter(args);
 	for (i = 0; i < max_servers; i++) {
 		int status;
 
@@ -1078,7 +1076,6 @@ reap:
 			}
 		}
 	}
-	set_counter(args, counter);
 
 	return rc;
 }
