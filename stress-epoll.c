@@ -34,13 +34,16 @@
 
 #define MAX_EPOLL_EVENTS 	(1024)
 #define MAX_SERVERS		(4)
-#define MAX_FDS			(4096)
+#define MIN_EPOLL_SOCKETS	(64)
+#define MAX_EPOLL_SOCKETS	(100000)
+#define DEFAULT_EPOLL_SOCKETS	(4096)
 
 static const stress_help_t help[] = {
-	{ NULL,	"epoll N",	  "start N workers doing epoll handled socket activity" },
-	{ NULL,	"epoll-ops N",	  "stop after N epoll bogo operations" },
-	{ NULL,	"epoll-port P",	  "use socket ports P upwards" },
-	{ NULL,	"epoll-domain D", "specify socket domain, default is unix" },
+	{ NULL,	"epoll N",	  	"start N workers doing epoll handled socket activity" },
+	{ NULL,	"epoll-ops N",	  	"stop after N epoll bogo operations" },
+	{ NULL,	"epoll-port P",	  	"use socket ports P upwards" },
+	{ NULL,	"epoll-domain D", 	"specify socket domain, default is unix" },
+	{ NULL, "epoll-sockets N",	"specify maximum number of open sockets" },
 	{ NULL,	NULL,		  NULL }
 };
 
@@ -57,7 +60,8 @@ typedef void (stress_epoll_func_t)(
 	const int child,
 	const pid_t ppid,
 	const int epoll_port,
-	const int epoll_domain);
+	const int epoll_domain,
+	const int epoll_sockets);
 
 static timer_t epoll_timerid;
 
@@ -84,12 +88,12 @@ static int stress_set_epoll_port(const char *opt)
  *  stress_set_epoll_domain()
  *	set the socket domain option
  */
-static int stress_set_epoll_domain(const char *name)
+static int stress_set_epoll_domain(const char *opt)
 {
 	int ret, epoll_domain;
 
 	ret = stress_set_net_domain(DOMAIN_ALL, "epoll-domain",
-		name, &epoll_domain);
+		opt, &epoll_domain);
 	stress_set_setting("epoll-domain", TYPE_ID_INT, &epoll_domain);
 
 	switch (epoll_domain) {
@@ -105,9 +109,23 @@ static int stress_set_epoll_domain(const char *name)
 	return ret;
 }
 
+/*
+ *  stress_set_epoll_sockets()
+ *	set the maximum number of open sockets
+ */
+static int stress_set_epoll_sockets(const char *opt)
+{
+	int epoll_sockets;
+
+        epoll_sockets = (int)stress_get_uint32(opt);
+        stress_check_range(opt, (uint64_t)epoll_sockets, MIN_EPOLL_SOCKETS, MAX_EPOLL_SOCKETS);
+        return stress_set_setting("epoll-sockets", TYPE_ID_INT, &epoll_sockets);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_epoll_domain,	stress_set_epoll_domain },
 	{ OPT_epoll_port,	stress_set_epoll_port },
+	{ OPT_epoll_sockets,	stress_set_epoll_sockets },
 	{ 0,			NULL }
 };
 
@@ -191,7 +209,8 @@ static pid_t epoll_spawn(
 	const int child,
 	const pid_t ppid,
 	const int epoll_port,
-	const int epoll_domain)
+	const int epoll_domain,
+	const int epoll_sockets)
 {
 	pid_t pid;
 
@@ -206,7 +225,7 @@ again:
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
-		func(args, child, ppid, epoll_port, epoll_domain);
+		func(args, child, ppid, epoll_port, epoll_domain, epoll_sockets);
 		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
@@ -312,6 +331,7 @@ static int epoll_notification(
 	const stress_args_t *args,
 	const int efd,
 	const int sfd,
+	const int epoll_sockets,
 	int *fd_count)
 {
 	const int bad_fd = stress_get_bad_fd();
@@ -325,7 +345,7 @@ static int epoll_notification(
 		if (!keep_stressing(args))
 			return -1;
 		/* Try to limit too many open fds */
-		if (*fd_count > MAX_FDS)
+		if (*fd_count > epoll_sockets)
 			return 0;
 
 		if ((fd = accept(sfd, &saddr, &slen)) < 0) {
@@ -678,7 +698,8 @@ static void NORETURN epoll_server(
 	const int child,
 	const pid_t ppid,
 	const int epoll_port,
-	const int epoll_domain)
+	const int epoll_domain,
+	const int epoll_sockets)
 {
 	NOCLOBBER int efd = -1, efd2 = -1, sfd = -1, rc = EXIT_SUCCESS;
 	int so_reuseaddr = 1;
@@ -924,7 +945,7 @@ static void NORETURN epoll_server(
 				 *  The listening socket has notification(s)
 				 *  pending, so handle incoming connections
 				 */
-				if (epoll_notification(args, efd, sfd, &fd_count) < 0)
+				if (epoll_notification(args, efd, sfd, epoll_sockets, &fd_count) < 0)
 					break;
 				if (test_eloop(args, efd, efd2) < 0)
 					break;
@@ -980,11 +1001,13 @@ static int stress_epoll(const stress_args_t *args)
 {
 	pid_t pids[MAX_SERVERS], ppid = getppid();
 	int i, rc = EXIT_SUCCESS;
-	int epoll_port = DEFAULT_EPOLL_PORT;
 	int epoll_domain = AF_UNIX;
+	int epoll_port = DEFAULT_EPOLL_PORT;
+	int epoll_sockets = DEFAULT_EPOLL_SOCKETS;
 
-	(void)stress_get_setting("epoll-port", &epoll_port);
 	(void)stress_get_setting("epoll-domain", &epoll_domain);
+	(void)stress_get_setting("epoll-port", &epoll_port);
+	(void)stress_get_setting("epoll-sockets", &epoll_sockets);
 
 	if (max_servers == 1) {
 		pr_dbg("%s: process [%" PRIdMAX "] using socket port %d\n",
@@ -1015,7 +1038,7 @@ static int stress_epoll(const stress_args_t *args)
 	 */
 	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < max_servers; i++) {
-		pids[i] = epoll_spawn(args, epoll_server, i, ppid, epoll_port, epoll_domain);
+		pids[i] = epoll_spawn(args, epoll_server, i, ppid, epoll_port, epoll_domain, epoll_sockets);
 		if (pids[i] < 0) {
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

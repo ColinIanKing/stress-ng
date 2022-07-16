@@ -1644,6 +1644,11 @@ domain.
 .B \-\-epoll\-ops N
 stop epoll workers after N bogo operations.
 .TP
+.B \-\-epoll\-sockets N
+specify the maximum number of concurrently open sockets allowed in server.
+Setting a high value impacts on memory usage and may trigger out of memory
+conditions.
+.TP
 .B \-\-eventfd N
 start N parent and child worker processes that read and write 8 byte event
 messages between them via the eventfd mechanism (Linux only).

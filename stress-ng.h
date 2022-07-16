@@ -1630,6 +1630,7 @@ typedef enum {
 	OPT_epoll_ops,
 	OPT_epoll_port,
 	OPT_epoll_domain,
+	OPT_epoll_sockets,
 
 	OPT_eventfd,
 	OPT_eventfd_ops,
