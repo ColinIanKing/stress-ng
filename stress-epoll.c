@@ -34,6 +34,7 @@
 
 #define MAX_EPOLL_EVENTS 	(1024)
 #define MAX_SERVERS		(4)
+#define MAX_FDS			(4096)
 
 static const stress_help_t help[] = {
 	{ NULL,	"epoll N",	  "start N workers doing epoll handled socket activity" },
@@ -231,19 +232,22 @@ static int epoll_set_fd_nonblock(const int fd)
  *  epoll_recv_data()
  *	receive data on fd
  */
-static void epoll_recv_data(const int fd)
+static void epoll_recv_data(const int fd, int *fd_count)
 {
 	while (keep_stressing_flag()) {
 		char buf[8192];
 		ssize_t n;
 
 		n = recv(fd, buf, sizeof(buf), 0);
-		if (n == -1) {
-			if (errno != EAGAIN)
+		if (n < 0) {
+			if (errno != EAGAIN) {
 				(void)close(fd);
+				(*fd_count)--;
+			}
 			break;
 		} else if (n == 0) {
 			(void)close(fd);
+			(*fd_count)--;
 			break;
 		}
 	}
@@ -307,7 +311,8 @@ static int epoll_ctl_del(const int efd, const int fd)
 static int epoll_notification(
 	const stress_args_t *args,
 	const int efd,
-	const int sfd)
+	const int sfd,
+	int *fd_count)
 {
 	const int bad_fd = stress_get_bad_fd();
 
@@ -319,6 +324,9 @@ static int epoll_notification(
 
 		if (!keep_stressing(args))
 			return -1;
+		/* Try to limit too many open fds */
+		if (*fd_count > MAX_FDS)
+			return 0;
 
 		if ((fd = accept(sfd, &saddr, &slen)) < 0) {
 			if ((errno == EAGAIN) || (errno == EWOULDBLOCK)) {
@@ -327,6 +335,10 @@ static int epoll_notification(
 			}
 			if ((errno == EMFILE) || (errno == ENFILE)) {
 				/* out of file descriptors! */
+				break;
+			}
+			if (errno == EINTR) {
+				/* interrupted */
 				break;
 			}
 			pr_fail("%s: accept failed, errno=%d (%s)\n",
@@ -342,6 +354,7 @@ static int epoll_notification(
 			(void)close(fd);
 			return -1;
 		}
+		(*fd_count)++;
 
 #if 0
 		/*
@@ -353,7 +366,7 @@ static int epoll_notification(
 		(void)epoll_ctl(efd, EPOLL_CTL_MOD, fd, &event);
 #endif
 
-		if (epoll_ctl_add(efd, fd, EPOLLIN | EPOLLET) < 0) {
+		if (epoll_ctl_add(efd, fd, EPOLLIN) < 0) {
 			pr_fail("%s: epoll_ctl_add failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
@@ -674,6 +687,7 @@ static void NORETURN epoll_server(
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
 	const int bad_fd = stress_get_bad_fd();
+	int fd_count = 0;
 
 	if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0) {
 		rc = EXIT_NO_RESOURCE;
@@ -904,12 +918,13 @@ static void NORETURN epoll_server(
 				 *  for reading anymore.. so reap fd
 				 */
 				(void)close(events[i].data.fd);
+				fd_count--;
 			} else if (sfd == events[i].data.fd) {
 				/*
 				 *  The listening socket has notification(s)
 				 *  pending, so handle incoming connections
 				 */
-				if (epoll_notification(args, efd, sfd) < 0)
+				if (epoll_notification(args, efd, sfd, &fd_count) < 0)
 					break;
 				if (test_eloop(args, efd, efd2) < 0)
 					break;
@@ -921,7 +936,7 @@ static void NORETURN epoll_server(
 				/*
 				 *  The fd has data available, so read it
 				 */
-				epoll_recv_data(events[i].data.fd);
+				epoll_recv_data(events[i].data.fd, &fd_count);
 			}
 		}
 		/*
