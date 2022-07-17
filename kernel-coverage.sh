@@ -285,7 +285,7 @@ fi
 DURATION=180
 do_stress --dev 32
 
-for FS in bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xf
+for FS in bfs btrfs ext4 exfat f2fs fat hfs hfsplus jfs minix nilfs ntfs overlay ramfs reiserfs tmpfs ubifs udf vfat xfs
 do
 	echo "Filesystem: $FS"
 	if mount_filesystem $FS; then
