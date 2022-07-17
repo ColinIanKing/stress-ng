@@ -232,11 +232,7 @@ static void stress_affinity_child(
 		VOID_RET(int, sched_setaffinity(0, sizeof(mask), &mask0));
 
 affinity_continue:
-		stress_lock_acquire(counter_lock);
-		keep_stressing_affinity = keep_stressing(args);
-		if (keep_stressing_affinity)
-			inc_counter(args);
-		stress_lock_release(counter_lock);
+		keep_stressing_affinity = inc_counter_lock(args, counter_lock, true);
 		if (!keep_stressing_affinity)
 			break;
 

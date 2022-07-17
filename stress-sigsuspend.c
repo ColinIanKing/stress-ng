@@ -30,19 +30,6 @@ static const stress_help_t help[] = {
 
 static void *counter_lock;
 
-static bool stress_sigsuspend_keep_stressing_inc(const stress_args_t *args, const bool inc)
-{
-	bool ret;
-
-	stress_lock_acquire(counter_lock);
-	ret = keep_stressing(args);
-	if (inc && ret)
-		inc_counter(args);
-	stress_lock_release(counter_lock);
-
-	return ret;
-}
-
 /*
  *  stress_usr1_handler()
  *      SIGUSR1 handler
@@ -95,7 +82,7 @@ again:
 
 			do {
 				(void)sigsuspend(&mask);
-			} while (stress_sigsuspend_keep_stressing_inc(args, true));
+			} while (inc_counter_lock(args, counter_lock, true));
 			_exit(0);
 		}
 		(void)setpgid(pid[n], g_pgrp);
@@ -103,7 +90,7 @@ again:
 
 	/* Parent */
 	do {
-		for (i = 0; (i < n) && stress_sigsuspend_keep_stressing_inc(args, false); i++) {
+		for (i = 0; (i < n) && inc_counter_lock(args, counter_lock, false); i++) {
 			(void)kill(pid[i], SIGUSR1);
 		}
 	} while (keep_stressing(args));

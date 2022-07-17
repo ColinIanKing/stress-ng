@@ -862,42 +862,6 @@ static inline void ALWAYS_INLINE shim_mb(void)
 #endif
 }
 
-/* increment the stessor bogo ops counter */
-static inline void ALWAYS_INLINE inc_counter(const stress_args_t *args)
-{
-	*args->counter_ready = false;
-	shim_mb();
-	(*(args->counter))++;
-	shim_mb();
-	*args->counter_ready = true;
-	shim_mb();
-}
-
-static inline uint64_t ALWAYS_INLINE get_counter(const stress_args_t *args)
-{
-	return *args->counter;
-}
-
-static inline void ALWAYS_INLINE set_counter(const stress_args_t *args, const uint64_t val)
-{
-	*args->counter_ready = false;
-	shim_mb();
-	*args->counter = val;
-	shim_mb();
-	*args->counter_ready = true;
-	shim_mb();
-}
-
-static inline void ALWAYS_INLINE add_counter(const stress_args_t *args, const uint64_t inc)
-{
-	*args->counter_ready = false;
-	shim_mb();
-	*args->counter += inc;
-	shim_mb();
-	*args->counter_ready = true;
-	shim_mb();
-}
-
 /*
  *  abstracted untyped locking primitives
  */
@@ -2666,14 +2630,73 @@ extern volatile bool g_caught_sigint;	/* true if stopped by SIGINT */
 extern pid_t g_pgrp;			/* proceess group leader */
 extern jmp_buf g_error_env;		/* parsing error env */
 
+/*
+ *  keep_stressing_flag()
+ *	get keep_stressing_flag state
+ */
 static inline bool ALWAYS_INLINE OPTIMIZE3 keep_stressing_flag(void)
 {
 	return g_keep_stressing_flag;
 }
 
+/*
+ *  keep_stressing_set_flag()
+ *	set keep_stressing_flag state
+ */
 static inline void ALWAYS_INLINE OPTIMIZE3 keep_stressing_set_flag(const bool setting)
 {
 	g_keep_stressing_flag = setting;
+}
+
+/*
+ *  inc_counter()
+ *	increment the stessor bogo ops counter
+ */
+static inline void ALWAYS_INLINE inc_counter(const stress_args_t *args)
+{
+	*args->counter_ready = false;
+	shim_mb();
+	(*(args->counter))++;
+	shim_mb();
+	*args->counter_ready = true;
+	shim_mb();
+}
+
+/*
+ *  get_counter()
+ *	get the stessor bogo ops counter
+ */
+static inline uint64_t ALWAYS_INLINE get_counter(const stress_args_t *args)
+{
+	return *args->counter;
+}
+
+/*
+ *  set_counter()
+ *	set the stessor bogo ops counter
+ */
+static inline void ALWAYS_INLINE set_counter(const stress_args_t *args, const uint64_t val)
+{
+	*args->counter_ready = false;
+	shim_mb();
+	*args->counter = val;
+	shim_mb();
+	*args->counter_ready = true;
+	shim_mb();
+}
+
+/*
+ *  add_counter()
+ *	add inc to the stessor bogo ops counter
+ */
+static inline void ALWAYS_INLINE add_counter(const stress_args_t *args, const uint64_t inc)
+{
+	*args->counter_ready = false;
+	shim_mb();
+	*args->counter += inc;
+	shim_mb();
+	*args->counter_ready = true;
+	shim_mb();
 }
 
 /*
@@ -2684,6 +2707,24 @@ static inline bool ALWAYS_INLINE OPTIMIZE3 keep_stressing(const stress_args_t *a
 {
 	return (LIKELY(g_keep_stressing_flag) &&
 		LIKELY(!args->max_ops || (get_counter(args) < args->max_ops)));
+}
+
+/*
+ *  inc_counter_lock()
+ *	increment the stessor bogo ops counter with lock, return true
+ *	if keep_stressing is true
+ */
+static inline bool inc_counter_lock(const stress_args_t *args, void *lock, const bool inc)
+{
+	bool ret;
+
+	stress_lock_acquire(lock);
+	ret = keep_stressing(args);
+	if (inc && ret)
+		inc_counter(args);
+	stress_lock_release(lock);
+
+	return ret;
 }
 
 /*

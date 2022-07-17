@@ -114,14 +114,7 @@ static bool stress_apparmor_keep_stressing_inc(const stress_args_t *args, bool i
 	if (!apparmor_run)
 		return false;
 
-	/* slower path */
-	stress_lock_acquire(counter_lock);
-	ret = keep_stressing(args);
-	if (inc && ret)
-		inc_counter(args);
-	stress_lock_release(counter_lock);
-
-	return ret;
+	return inc_counter_lock(args, counter_lock, inc);
 }
 
 /*

@@ -63,26 +63,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 static void *counter_lock;	/* Counter lock */
 
 /*
- *  stress_fiemap_keep_stressing()
- *	check if we need to terminate,
- *	increment counter if do_increment is true
- */
-static bool stress_fiemap_keep_stressing(
-	const stress_args_t *args,
-	const bool do_increment)
-{
-	bool ret;
-
-	stress_lock_acquire(counter_lock);
-	ret = keep_stressing(args);
-	if (ret && do_increment)
-		inc_counter(args);
-	stress_lock_release(counter_lock);
-
-	return ret;
-}
-
-/*
  *  stress_fiemap_writer()
  *	write data in random places and punch holes
  *	in data in random places to try and maximize
@@ -109,7 +89,7 @@ static int stress_fiemap_writer(
 		offset = (stress_mwc64() % len) & ~0x1fffUL;
 		if (lseek(fd, (off_t)offset, SEEK_SET) < 0)
 			break;
-		if (!stress_fiemap_keep_stressing(args, false))
+		if (!inc_counter_lock(args, counter_lock, false))
 			break;
 		if (write(fd, buf, sizeof(buf)) < 0) {
 			if (errno == ENOSPC)
@@ -120,7 +100,7 @@ static int stress_fiemap_writer(
 				goto tidy;
 			}
 		}
-		if (!stress_fiemap_keep_stressing(args, false))
+		if (!inc_counter_lock(args, counter_lock, false))
 			break;
 #if defined(FALLOC_FL_PUNCH_HOLE) && \
     defined(FALLOC_FL_KEEP_SIZE)
@@ -137,12 +117,12 @@ static int stress_fiemap_writer(
 				punch_hole = false;
 		}
 		(void)shim_usleep(1000);
-		if (!stress_fiemap_keep_stressing(args, false))
+		if (!inc_counter_lock(args, counter_lock, false))
 			break;
 #else
 		UNEXPECTED
 #endif
-	} while (stress_fiemap_keep_stressing(args, false));
+	} while (inc_counter_lock(args, counter_lock, false));
 	rc = EXIT_SUCCESS;
 tidy:
 	(void)close(fd);
@@ -220,7 +200,7 @@ static void stress_fiemap_ioctl(
 			c = 0;
 			fdatasync(fd);
 		}
-	} while (stress_fiemap_keep_stressing(args, true));
+	} while (inc_counter_lock(args, counter_lock, true));
 }
 
 /*

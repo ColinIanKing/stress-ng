@@ -31,20 +31,6 @@ static const stress_help_t help[] = {
 
 static void *counter_lock;
 
-static bool stress_rmap_keep_stressing_inc(const stress_args_t *args, const bool inc)
-{
-	bool ret;
-
-
-	stress_lock_acquire(counter_lock);
-	ret = keep_stressing(args);
-	if (inc && ret)
-		inc_counter(args);
-	stress_lock_release(counter_lock);
-
-	return ret;
-}
-
 /*
  *  [ MAPPING 0 ]
  *  [ page ][ MAPPING 1 ]
@@ -97,7 +83,7 @@ static void NORETURN stress_rmap_child(
 		switch (rnd8 & 3) {
 		case 0: for (i = 0; i < MAPPINGS_MAX; i++) {
 				if (mappings[i] != MAP_FAILED) {
-					if (!stress_rmap_keep_stressing_inc(args, false))
+					if (!inc_counter_lock(args, counter_lock, false))
 						break;
 					stress_rmap_touch(mappings[i], sz);
 					(void)shim_msync(mappings[i], sz, sync_flag);
@@ -106,7 +92,7 @@ static void NORETURN stress_rmap_child(
 			break;
 		case 1: for (i = MAPPINGS_MAX - 1; i >= 0; i--) {
 				if (mappings[i] != MAP_FAILED) {
-					if (!stress_rmap_keep_stressing_inc(args, false))
+					if (!inc_counter_lock(args, counter_lock, false))
 						break;
 					stress_rmap_touch(mappings[i], sz);
 					(void)shim_msync(mappings[i], sz, sync_flag);
@@ -117,7 +103,7 @@ static void NORETURN stress_rmap_child(
 				size_t j = stress_mwc32() % MAPPINGS_MAX;
 
 				if (mappings[j] != MAP_FAILED) {
-					if (!stress_rmap_keep_stressing_inc(args, false))
+					if (!inc_counter_lock(args, counter_lock, false))
 						break;
 					stress_rmap_touch(mappings[j], sz);
 					(void)shim_msync(mappings[j], sz, sync_flag);
@@ -126,7 +112,7 @@ static void NORETURN stress_rmap_child(
 			break;
 		case 3: for (i = 0; i < MAPPINGS_MAX - 1; i++) {
 				if (mappings[i] != MAP_FAILED) {
-					if (!stress_rmap_keep_stressing_inc(args, false))
+					if (!inc_counter_lock(args, counter_lock, false))
 						break;
 					stress_rmap_touch(mappings[i], sz);
 					(void)shim_msync(mappings[i], sz, sync_flag);
@@ -134,7 +120,7 @@ static void NORETURN stress_rmap_child(
 			}
 			break;
 		}
-	} while (stress_rmap_keep_stressing_inc(args, true));
+	} while (inc_counter_lock(args, counter_lock, true));
 
 	(void)kill(getppid(), SIGALRM);
 
@@ -251,7 +237,7 @@ static int stress_rmap(const stress_args_t *args)
 	/*
 	 *  Wait for SIGINT or SIGALRM
 	 */
-	while (stress_rmap_keep_stressing_inc(args, false)) {
+	while (inc_counter_lock(args, counter_lock, false)) {
 		pause();
 	}
 

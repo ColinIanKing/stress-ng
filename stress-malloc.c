@@ -153,22 +153,6 @@ static void stress_malloc_page_touch(
 	}
 }
 
-/*
- *  stress_malloc_keep_stressing(args)
- *      check if SIGALRM has triggered to the bogo ops count
- *      has been reached
- */
-static inline bool stress_malloc_keep_stressing(const stress_args_t *args)
-{
-	bool ret;
-
-	stress_lock_acquire(counter_lock);
-	ret = keep_stressing(args);
-	stress_lock_release(counter_lock);
-
-	return ret;
-}
-
 static void *stress_malloc_loop(void *ptr)
 {
 	const stress_malloc_args_t *malloc_args = (stress_malloc_args_t *)ptr;
@@ -206,7 +190,7 @@ static void *stress_malloc_loop(void *ptr)
 		if (!keep_thread_running_flag)
 			break;
 #endif
-		if (!stress_malloc_keep_stressing(args))
+		if (!inc_counter_lock(args, counter_lock, false))
 			break;
 
 		if (addr[i]) {
@@ -218,9 +202,9 @@ static void *stress_malloc_loop(void *ptr)
 				}
 				free(addr[i]);
 				addr[i] = NULL;
-				stress_lock_acquire(counter_lock);
-				inc_counter(args);
-				stress_lock_release(counter_lock);
+
+				if (!inc_counter_lock(args, counter_lock, true))
+					break;
 			} else {
 				void *tmp;
 				const size_t len = stress_alloc_size(malloc_bytes);
@@ -234,9 +218,8 @@ static void *stress_malloc_loop(void *ptr)
 						pr_fail("%s: allocation at %p does not contain correct value\n",
 							args->name, (void *)addr[i]);
 					}
-					stress_lock_acquire(counter_lock);
-					inc_counter(args);
-					stress_lock_release(counter_lock);
+					if (!inc_counter_lock(args, counter_lock, true))
+						break;
 				}
 			}
 		} else {
@@ -254,9 +237,8 @@ static void *stress_malloc_loop(void *ptr)
 				if (addr[i]) {
 					stress_malloc_page_touch((void *)addr[i], len, page_size);
 					*addr[i] = (uintptr_t)addr[i];	/* stash address */
-					stress_lock_acquire(counter_lock);
-					inc_counter(args);
-					stress_lock_release(counter_lock);
+					if (!inc_counter_lock(args, counter_lock, true))
+						break;
 				}
 			}
 		}
