@@ -108,8 +108,6 @@ static int stress_apparmor_supported(const char *name)
 
 static bool stress_apparmor_keep_stressing_inc(const stress_args_t *args, bool inc)
 {
-	bool ret;
-
 	/* fast check */
 	if (!apparmor_run)
 		return false;
