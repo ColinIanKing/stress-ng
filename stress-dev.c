@@ -4115,7 +4115,7 @@ static void *stress_dev_thread(void *arg)
 static void stress_dev_files(const stress_args_t *args, dev_info_t *dev_info_list)
 {
 	int32_t loops = args->instance < 8 ? (int32_t)args->instance + 1 : 8;
-	static int try_failed;
+	static int try_failed = 0;
 	dev_info_t *di;
 
 	if (!keep_stressing_flag())
