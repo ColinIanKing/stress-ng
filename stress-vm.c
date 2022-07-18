@@ -2048,29 +2048,33 @@ static size_t TARGET_CLONES stress_vm_write1024v(
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
+	typedef struct {
+		uint64_t v[16];
+	} uint64x16_t;
+
 	stress_vint8w1024_t *ptr = (stress_vint8w1024_t *)buf;
 	stress_vint8w1024_t v;
 	static uint64_t val = 0;
-	uint64_t *const valptr = (uint64_t *)&v;
+	uint64x16_t *vptr = (uint64x16_t *)&v;
 	register size_t i = 0, n = sz / sizeof(*ptr);
 
 	/* 16 x 64 = 1024 bits, unrolled loop */
-	valptr[0x0] = val;
-	valptr[0x1] = val;
-	valptr[0x2] = val;
-	valptr[0x3] = val;
-	valptr[0x4] = val;
-	valptr[0x5] = val;
-	valptr[0x6] = val;
-	valptr[0x7] = val;
-	valptr[0x8] = val;
-	valptr[0x9] = val;
-	valptr[0xa] = val;
-	valptr[0xb] = val;
-	valptr[0xc] = val;
-	valptr[0xd] = val;
-	valptr[0xe] = val;
-	valptr[0xf] = val;
+	vptr->v[0x0] = val;
+	vptr->v[0x1] = val;
+	vptr->v[0x2] = val;
+	vptr->v[0x3] = val;
+	vptr->v[0x4] = val;
+	vptr->v[0x5] = val;
+	vptr->v[0x6] = val;
+	vptr->v[0x7] = val;
+	vptr->v[0x8] = val;
+	vptr->v[0x9] = val;
+	vptr->v[0xa] = val;
+	vptr->v[0xb] = val;
+	vptr->v[0xc] = val;
+	vptr->v[0xd] = val;
+	vptr->v[0xe] = val;
+	vptr->v[0xf] = val;
 
 	(void)buf_end;
 
