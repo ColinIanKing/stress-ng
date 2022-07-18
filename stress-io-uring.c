@@ -192,7 +192,12 @@ static int stress_setup_io_uring(
 				args->name);
 			return EXIT_NOT_IMPLEMENTED;
 		}
-		pr_fail("%s: io_uring_setup failed, errno=%d (%s)\n",
+		if (errno == ENOMEM) {
+			pr_inf_skip("%s: io-uring setup failed, out of memory, skipping stressor\n",
+				args->name);
+			return EXIT_NO_RESOURCE;
+		}
+		pr_fail("%s: io-uring setup failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
