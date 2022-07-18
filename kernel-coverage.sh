@@ -63,7 +63,7 @@ mount_filesystem()
 			;;
 		ext4)	MKFS_CMD="mkfs.ext4"
 			MKFS_ARGS="-F ${FSIMAGE} -O inline_data,dir_index,metadata_csum,64bit,ea_inode,ext_attr,quota,verity,extent,filetype,huge_file,mmp"
-			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
+			MNT_CMD="sudo mount -o journal_checksum,loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
 		xfs)
@@ -145,7 +145,7 @@ mount_filesystem()
 			;;
 		btrfs)	MKFS_CMD="mkfs.btrfs"
 			MKFS_ARGS="-O extref -R quota,free-space-tree -f ${FSIMAGE}"
-			MNT_CMD="sudo mount -o compress -o loop ${FSIMAGE} ${MNT}"
+			MNT_CMD="sudo mount -o compress,autodefrag,datasum -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
 		tmpfs)	MKFS_CMD="true"
