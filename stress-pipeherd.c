@@ -98,6 +98,20 @@ static int stress_pipeherd(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+#if defined(F_GETFL) &&	\
+    defined(F_SETFL)
+	{
+		int flag;
+
+		/* Enable pipe "packet mode" if possible */
+		flag = fcntl(fd[1], F_GETFL);
+		if (flag != -1) {
+			flag |= O_DIRECT;
+			VOID_RET(int, fcntl(fd[1], F_SETFL, flag));
+		}
+	}
+#endif
+
 	counter = 0;
 	sz = write(fd[1], &counter, sizeof(counter));
 	if (sz < 0) {
