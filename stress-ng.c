@@ -2423,7 +2423,6 @@ static int stress_show_stressors(void)
 	}
 	pr_inf("dispatching hogs:%s\n", str ? str : "");
 	free(str);
-	(void)fflush(stdout);
 
 	return 0;
 }
