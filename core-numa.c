@@ -91,7 +91,8 @@ static int stress_numa_count_mem_nodes(unsigned long *max_node)
 	 *  the string back to the start.
 	 */
 	while ((*ptr != ' ') && (ptr > str)) {
-		int val, i;
+		int i;
+		unsigned int val;
 
 		/* Skip commas */
 		if (*ptr == ',') {
