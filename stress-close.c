@@ -146,7 +146,6 @@ static void *stress_close_func(void *arg)
 #endif
 
 	while (keep_stressing(args)) {
-		int fd_rnd = (int)stress_mwc32() + 64;
 		const uint64_t delay =
 			max_delay_us ? stress_mwc32() % max_delay_us : 0;
 		int fds[FDS_TO_DUP], i, ret;
@@ -162,11 +161,15 @@ static void *stress_close_func(void *arg)
 			(void)close(dupfd);
 
 #if defined(F_GETFL)
-		/*
-		 *  close random unused fd to force EBADF
-		 */
-		if (fcntl((int)fd_rnd, F_GETFL) == -1)
-			(void)close(fd_rnd);
+		{
+			int fd_rnd = (int)stress_mwc32() + 64;
+
+			/*
+			 *  close random unused fd to force EBADF
+			 */
+			if (fcntl((int)fd_rnd, F_GETFL) == -1)
+				(void)close(fd_rnd);
+		}
 #else
 		UNEXPECTED
 #endif
