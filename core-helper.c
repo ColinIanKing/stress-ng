@@ -1785,7 +1785,7 @@ static inline size_t stress_get_open_count(void)
 size_t stress_get_file_limit(void)
 {
 	struct rlimit rlim;
-	size_t i, last_opened, opened, max = 65536;	/* initial guess */
+	size_t last_opened, opened, max = 65536;	/* initial guess */
 
 	if (!getrlimit(RLIMIT_NOFILE, &rlim))
 		max = (size_t)rlim.rlim_cur;
@@ -1794,6 +1794,8 @@ size_t stress_get_file_limit(void)
 
 	opened = stress_get_open_count();
 	if (opened == 0) {
+		size_t i;
+
 		/* Determine max number of free file descriptors we have */
 		for (i = 0; i < max; i++) {
 			if (fcntl((int)i, F_GETFL) > -1) {
