@@ -458,6 +458,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [Subverting Linux’ Integrity Measurement Architecture](https://svs.informatik.uni-hamburg.de/publications/2020/2020-08-27-Bohling-IMA.pdf)
 * [Quantifying the Interaction Between Structural Properties of Software and Hardware in the ARM Big.LITTLE Architecture](https://research.abo.fi/ws/files/26568716/QuantifyingInteraction.pdf)
 * [Introducing k4.0s: a Model for Mixed-Criticality Container Orchestration in Industry 4.0 ](https://arxiv.org/pdf/2205.14188.pdf)
+* [Real-time performance assessment using fast interrupt request on a standard Linux kernel](https://onlinelibrary.wiley.com/doi/full/10.1002/eng2.12114)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
