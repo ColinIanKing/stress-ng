@@ -59,7 +59,7 @@ Debian, Ubuntu:
   * libattr1-dev
   * libbsd-dev
   * libcap-dev
-  * libgcrypt11-dev
+  * libgcrypt-dev
   * libipsec-mb-dev
   * libjpeg-dev
   * libjudy-dev
