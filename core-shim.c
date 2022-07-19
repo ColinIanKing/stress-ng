@@ -268,12 +268,12 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 
 	(void)mode;
 #if defined(FALLOC_FL_PUNCH_HOLE)
-		if (mode & FALLOC_FL_PUNCH_HOLE)
-			return ret;
+	if (mode & FALLOC_FL_PUNCH_HOLE)
+		return 0;
 #endif
 #if defined(FALLOC_FL_COLLAPSE_RANGE)
-		if (mode & FALLOC_FL_COLLAPSE_RANGE)
-			return ret;
+	if (mode & FALLOC_FL_COLLAPSE_RANGE)
+		return 0;
 #endif
 
 	/*
@@ -289,14 +289,13 @@ int shim_fallocate(int fd, int mode, off_t offset, off_t len)
 #else
 	(void)mode;
 #if defined(FALLOC_FL_PUNCH_HOLE)
-		if (mode & FALLOC_FL_PUNCH_HOLE)
-			return ret;
+	if (mode & FALLOC_FL_PUNCH_HOLE)
+		return 0;
 #endif
 #if defined(FALLOC_FL_COLLAPSE_RANGE)
-		if (mode & FALLOC_FL_COLLAPSE_RANGE)
-			return ret;
+	if (mode & FALLOC_FL_COLLAPSE_RANGE)
+		return 0;
 #endif
-
 	return shim_emulate_fallocate(fd, offset, len);
 #endif
 }
