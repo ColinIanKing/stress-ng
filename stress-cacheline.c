@@ -623,6 +623,8 @@ static int stress_set_cacheline_method(const char *name)
 	return -1;
 }
 
+#if defined(HAVE_AFFINITY) && \
+    defined(HAVE_SCHED_GETAFFINITY)
 /*
  *  stress_cacheline_change_affinity()
  *	pin process to CPU based on clock time * 100, instance number
@@ -633,8 +635,6 @@ static inline void stress_cacheline_change_affinity(
 	const uint32_t cpus,
 	bool parent)
 {
-#if defined(HAVE_AFFINITY) && \
-    defined(HAVE_SCHED_GETAFFINITY)
 	cpu_set_t mask;
 	double now = stress_time_now() * 100;
 	uint32_t cpu = ((uint32_t)args->instance + (uint32_t)parent + (uint32_t)now) % cpus;
@@ -642,8 +642,8 @@ static inline void stress_cacheline_change_affinity(
 	CPU_ZERO(&mask);
 	CPU_SET((int)cpu, &mask);
 	VOID_RET(int, sched_setaffinity(0, sizeof(mask), &mask));
-#endif
 }
+#endif
 
 static int stress_cacheline_child(
 	const stress_args_t *args,
@@ -658,6 +658,8 @@ static int stress_cacheline_child(
     defined(HAVE_SCHED_GETAFFINITY)
 	const uint32_t cpus = (int)stress_get_processors_configured();
 #endif
+
+	(void)cacheline_affinity;
 
 	do {
 		rc = func(args, index, parent, l1_cacheline_size);
