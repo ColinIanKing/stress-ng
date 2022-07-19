@@ -218,7 +218,7 @@ static int stress_tun(const stress_args_t *args)
 			len = sizeof(addr);
 			inet_pton(AF_INET, ip_addr, &addr.sin_addr.s_addr);
 
-			ret = bind(sfd, &addr, len);
+			ret = bind(sfd, (struct sockaddr *)&addr, len);
 			if (ret < 0) {
 				switch (errno) {
 				case EADDRINUSE:
