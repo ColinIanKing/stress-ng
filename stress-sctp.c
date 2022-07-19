@@ -390,9 +390,12 @@ static void stress_sctp_client(
 {
 	struct sockaddr *addr;
 
+	(void)sctp_sched;
+
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
+
 
 	do {
 		char ALIGN64 buf[SOCKET_BUF];
@@ -509,6 +512,8 @@ static int stress_sctp_server(
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
+
+	(void)sctp_sched;
 
 	(void)setpgid(pid, g_pgrp);
 
