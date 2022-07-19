@@ -67,9 +67,9 @@ static inline int stress_rtc_dev(const stress_args_t *args)
 #endif
 	int fd, ret = 0;
 	static bool do_dev = true;
-	struct timeval timeout;
 #if defined(HAVE_SYS_SELECT_H) &&	\
     defined(HAVE_SELECT)
+	struct timeval timeout;
 	fd_set rfds;
 #endif
 
