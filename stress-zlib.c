@@ -179,7 +179,7 @@ static void NORETURN MLOCKED_TEXT stress_bad_read_handler(int signum)
  *  stress_rand_data_bcd()
  *	fill buffer with random binary coded decimal digits
  */
-static void TARGET_CLONES stress_rand_data_bcd(
+static void stress_rand_data_bcd(
 	const stress_args_t *args,
 	uint64_t *RESTRICT data,
 	uint64_t *RESTRICT data_end)
