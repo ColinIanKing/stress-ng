@@ -99,7 +99,8 @@ static int stress_pipeherd(const stress_args_t *args)
 	}
 
 #if defined(F_GETFL) &&	\
-    defined(F_SETFL)
+    defined(F_SETFL) && \
+    defined(O_DIRECT)
 	{
 		int flag;
 
