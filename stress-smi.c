@@ -41,6 +41,7 @@ static const stress_help_t help[] = {
 #define APM_PORT	(0xb2)
 #define STRESS_SMI_NOP	(0x90)	/* SMI No-op command */
 
+#if defined(__x86_64__) || defined(__x86_64)
 typedef struct {
 	uint64_t regs[16];
 } smi_regs_t;
@@ -92,6 +93,8 @@ do {					\
 	SAVE_REG(r, rdx, 14);		\
 	SAVE_REG(r, rsp, 15);		\
 } while (0)
+
+#endif
 
 /*
  *  stress_smi_supported()
@@ -185,7 +188,9 @@ static int stress_smi(const stress_args_t *args)
 	uint64_t s1 = 0, val;
 	double d1 = 0.0;
 	const int cpus = stress_get_processors_online();
+#if defined(__x86_64__) || defined(__x86_64)
 	static smi_regs_t r1, r2;
+#endif
 
 	/*
 	 *  If MSR can't be read maybe we need to load
@@ -215,17 +220,24 @@ static int stress_smi(const stress_args_t *args)
 			read_msr_ok = false;
 	}
 
+#if defined(__x86_64__) || defined(__x86_64)
 	(void)memset(&r1, 0, sizeof(r1));
 	(void)memset(&r2, 0, sizeof(r2));
+#endif
 
 	do {
+#if defined(__x86_64__) || defined(__x86_64)
 		size_t i;
+#endif
 		const uint16_t port = APM_PORT;
 		const uint8_t data = STRESS_SMI_NOP;
 
+#if defined(__x86_64__) || defined(__x86_64)
 		SAVE_REGS(r1);
+#endif
 		__asm__ __volatile__(
 			"out %0,%1\n\t" :: "a" (data), "d" (port));
+#if defined(__x86_64__) || defined(__x86_64)
 		SAVE_REGS(r2);
 		/* out instruction clobbers rax, rdx, so copy these */
 		r2.regs[11] = r1.regs[11];	/* RAX */
@@ -239,6 +251,7 @@ static int stress_smi(const stress_args_t *args)
 					r1.regs[i], r2.regs[i]);
 			}
 		}
+#endif
 		inc_counter(args);
 	} while (keep_stressing(args));
 
