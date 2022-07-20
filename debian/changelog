@@ -1,3 +1,252 @@
+stress-ng (0.14.03-1) unstable; urgency=medium
+
+  [Colin Ian King]
+  * Makefile: bump version and update code name
+  * stress-sctp: voidify sctp_sched param for systems that don't use it
+  * stress-rtc: declare timeout if select is supported
+  * stress-rtc: declare rfds if select is supported
+  * core-shim: handle punch hole fallocate ops on unsupported systems as
+    a no-op
+  * stress-cacheline: only declare affinity changing helper if affinity
+    is available
+  * stress-pipeherd: add O_DIRECT build time detection
+  * Fix build failure on systems w/o O_DIRECT defined
+  * stress-zlib: disable TARGET CLONES for bcd, it segfaults gcc 8.3.0
+    x86-64
+  * stress-smi: enable SMI register clobbering for x86-64 only
+  * stress-tun: cast to correct type on bind call
+  * README.md: Add another citation
+  * stress-ng: remove extraneous fflush call
+  * stress-dev: initialize try_failed to clear up stupid cppcheck warning
+  * stress-close: only declare fd_rnd if is is required
+  * core-helper: move scope of variable i to inner scope
+  * stress-vm: alias array of uint64_t vars with vector, clean up cppcheck
+    warning
+  * core-numa: sscanf for unsigned int, use correct type for val
+  * stress-pipeherd: enable packet mode on pipe for more context switching
+  * kernel-coverage: add a few more mount options for more kernel test
+    coverage
+  * README.md: rename libgcrypt11-dev to libgcrypt-dev
+  * stress-io-uring: report ENOMEM failure on io-uring setup
+  * stress-cache: clear up cppcheck style warning
+  * kernel-coverage.sh: Fix truncated xfs invocation
+  * stress-apparmor: remove unused variable ret
+  * stress-*: introduce inc_counter_locked; locked counter read and
+    optional increment
+  * stress-ng.h: Add missing space in VOID_RET macro
+  * stress-epoll: ignore SIGPIPE signals
+  * stress-epoll: remove get/set counter calls
+  * stress-epoll: add child alarm handler to exit child immediately
+  * stress-epoll: send SIGALRM to inform processes to terminate
+  * stress-epoll: add --epoll-sockets N option to set maximum number of
+    open sockets
+  * stress-epoll: limit number of open socket fds to 4096
+  * stress-oom-pipe: allocate page sized buffers with mmap and fds with
+    calloc
+  * stress-oom-pipe: fix out of bounds access on buffer on write
+  * Manual: use x symbol rather than x for multiply, fix typos
+  * Manual: use up-arrow symbol instead of ^
+  * stress-ng.h: Add stress_set_mbind prototype
+  * Add NUMA --mbind option
+  * stress-memcpy: declare builtin wrappers if builtin functions are
+    available
+  * stress-gpu: add --gpu-devnode DEVNAME option to specify device node
+  * README.md: clarify stress-ng name, add sh4 and Serenity OS to notes
+  * stress-rmap: remove shared counters, optimize memory filling
+  * stress-sigsuspend: use lock protected counter rather than per-child
+    counters
+  * stress-iomix: use lock protected counter rather than per-child
+    counters
+  * stress-memcpy: add methods naive_o1, naive_o2 for -O1, -O2
+    optimization levels
+  * stress-apparmor: return EXIT_SUCCESS on successful completion
+  * stress-dirdeep: handle cases where number of free inodes is reported
+    as zero
+  * stress-apparmor: keep retrying with corrupted apparmor data
+  * stress-apparmor: removed shared memory for counters, use lock
+    protected counter
+  * kernel-coverage: add overlayfs
+  * kernel-coverage: add exfat
+  * kernel-coverage: add cacheline + affinity changing
+  * stress-cacheline: add cacheline-affinity option
+  * stress-mcontend: cache align buffer for minor performance improvement
+  * stress-zero: exercise FIONBIO on /dev/zero
+  * stress-dirmany: autoexpand filename to maximum allowed length
+  * stress-handle: break allocatiom/open assign and check into multiple
+    statements
+  * stress-zlib: make some vars registers and clean up some white spaces
+  * kernel-coverage: fix typo with stream index option, should be 3 and
+    not 3A
+  * stress-io-uring: fix build failures
+  * stress-io-uring: add an xattr opcode for more test coverage
+  * stress-kvm: handle EINTR more gracefully on ioctl calls
+  * TODO: remove cacheline todo item
+  * stress-io-uring: fix stressor: make ring 256 elements, memset output
+    and using O_DSYNC
+  * stress-chattr: sync chattr metadata to disk
+  * stress-cacheline: clean up some cppcheck style warnings
+  * stress-inode-flags: add fsync on file to force inode metadata updates
+  * stress-open: add periodic syncs to force metadata to disk
+  * stress-dirmany: force sync of metadata to disk for more I/O activity
+  * stress-chmod: add sync call to ensure meta data is flushed to disk
+  * stress-link: force sync to ensure metadat is written
+  * stress-dirdeep: add sync to force metadata writes
+  * stress-dentry: add sync call to ensure meta data is flushed to disk
+  * kernel-coverage: add sync'ing on utime stressor
+  * stress-chown: sync fd metadata to force more inode updates
+  * stress-resched: clean up warnings for systems that don't support
+    sched_setsceduler
+  * Add build time detection for the syscall interface
+  * stress-sysbadaddr: add itimer itimerval built time detection
+  * stress-fanotify: add select build time detection
+  * stress-resched: add detection of sched_setscheduler
+  * Add select build time detection
+  * test/test-pselect: disable pselect false positive for Serenity OS
+  * stress-cpu/zlib: add drand, lrand and srand build time checks
+  * stress-cacheline: set default cacheline size correctly
+  * stress-*search: add build time check for searching functions
+  * Add build-time check for key_t type for system V semaphores
+  * stress-sysbadaddr: add get/setitimer build timer detection
+  * stress-itimer: add get/setitimer build time detection
+  * stress-dev: define O_DELAY as 0 if it is not defined
+  * stress-iomix: cater for systems that don't support O_SYNC open flags
+  * stress-sigsegv: don't check SEGV_ACCERR if it is not defined
+  * stress-ng.h: undef ALWAYS_INLINE before redefining it
+  * core-sched: stress-schedpolicy: add Serenity OS workarounds
+  * kernel-coverage: taskset to CPU 0, run many instances on it
+  * kernel-coverage: add iostat to get I/O stats during test run
+  * stress-epoll: silently ignore EINVAL for sh4
+  * stress-fork: ensure vfork exits immediately and deprecate --vfork-vm
+    option
+  * stress-cacheline: add adjacent byte read exercising and byte copying
+    methods
+  * stress-cacheline: l1_cacheline_size is now size_t, so use %zd format
+    specifier
+  * stress-cacheline: add an atomic increment method
+  * stress-cacheline: break cacheline exercising code into methods
+  * core-vmstat: add missing colon after name of stat info name
+  * stress-*: add missing colon after stressor name for "using stressor"
+    method info
+  * stress-cacheline: share cache data among all stressors
+  * stress-cacheline: add a mix of different read/write patterns
+  * stress-cacheline: add more store/read contention across cache line
+  * stress-open: fix spelling in a comment, the the -> the
+  * Manual: replace "the the" with "the"
+  * stress-cacheline: add verify always tag since this does verifcation by
+    default
+  * stress-dirdeep: Fix incorrect indexing into directory array
+  * stress-cacheline: change class to cache class since it exercises cache
+  * stress-ng: rename duration to run_duration to avoid name shadowing
+  * stress-cacheline: exercise a cacheline between processes
+  * core-vmstat: resolve block stats device for /dev/xxNNN by removing
+    N digits
+  * stress-syncload: truncate sleeps to microsecond accuracy
+  * stress-syncload: remove jitter and use one sleep for delay
+  * docs: Fix a few typos
+  * stress-cpu: add deinit settings in return paths of stressor
+  * Manual: use multiply sign instread of x for multiply
+  * stress-peterson: remove empty line
+  * core-vmstat: remove debug.
+  * core-vmstat: add auto sleep adjustment to ensure we don't skew sleeps
+  * core-log: always report warnings, and warn if test succeeded but
+    terminated early
+  * debian/tests/fast-test-all: add klog checking
+  * stress-sigfpe: define and check STRESS_CHECK_SIGINFO for SA_SIGINFO test
+  * stress-sigfpe: silently ignore invalid error codes for HPPA
+  * stress-zlib: rename xsum -> checksum
+  * stress-copy-file: remove debug
+  * stress-copy-file: handle EOF reads correctly
+  * stress-ng: make start time for duration measurement start at fork time
+  * stress-ng: make premature time slop a bit longer
+  * stress-ng: add zero bogo-ops sanity checks for runs > 30 seconds
+  * core-log: add warn message type PR_WARN
+  * stress-ng: add some slop to duration of run
+  * stress-ng: add a warning if a stressor finishes prematurely
+  * core-target-clones.h: add Intel cooperlake target clones directive
+  * stress-zlib: fix brown noise unrolled loop
+  * stress-fork: add more madvise random options for --fork-vm option
+  * TODO: add caching item to todo list
+  * stress-ng: metrics: split out misc. metrics from bogo/ops metrics
+  * stress-zlib: pass buffer as uint64_t start/end pointers, add some
+    optimizations
+  * stress-swap: initialize swap_info.last_page more efficiently
+  * stress-mq: fix counter initialization, should be outside of loop
+  * stress-vm-segv: remove redundant check if pid == 0
+  * stress-sysfs: remove redundant check if pid == 0
+  * stress-stackmmap: remove redundant check if pid == 0
+  * stress-shm: remove redundant check if pid == 0
+  * stress-shm-sysv: remove redundant check if pid == 0
+  * stress-ramfs: remove redundant check if pid == 0
+  * stress-filename: remove redundant check if pid == 0
+  * stress-enosys: remove redundant check if pid == 0
+  * stress-efivar: remove redundant check if pid == 0
+  * stress-bad-altstack: remove redundant check if pid == 0
+  * core-out-of-memory: remove redundant check if pid == 0
+  * stress-open: initialize open flags with open default flag values
+  * TODO: remove inode consumer, this is performed in dir* stressors
+  * Makefile.config: clean up SYSV config annotations
+  * stress-dccp: add protocol not supported socket error check on server
+  * stress-dccp: add protocol not supported socket error
+  * stress-set: move pid to local scope
+  * stress-aio-linux: ensure iov is nullified on allocation failure
+  * stress-fault: remove redundant assignment to fd
+  * core-helper: voidify filename in stress_fs_type
+  * stress-sctp: clean up some warnings on OS X
+  * README.md: add another kernel issue found by stress-ng
+  * core-helper: fix build failure
+  * stress-file-ioctl: exercise FICLONERANGE with invalid parameters
+  * stress-file-ioctl: exercise FICLONERANGE with random offset and sizes
+  * stress-sock: move ALIGN64 hint to correct place in declaration
+  * stress-memcpy: use wrapper on builtins to avoid passing them as a
+    function ptr
+  * stress-*: report file system type in file based failure messages
+  * core-helper: add functions to determine underlying file system type
+    name
+  * stress-futex: silently ignore EINTR on a wait
+  * stress-zlib: cache align buffers
+  * stress-vecwide: cache align vector variables
+  * stress-tee: align data buffers to cache boundary
+  * stress-sockmany: make data cache aligned
+  * stress-sock: cache align recv/send structures
+  * stress-sctp: make data cache aligned
+  * stress-rawsock: make raw packet cache aligned
+  * stress-pipe: allocate pipe buffer with mmap, keep it page aligned
+  * stress-ping-sock: align data to cache boundary
+  * stress-null: align data to cache boundary
+  * stress-mutex: align futex to cache boundary
+  * stress-key: align data to cache boundary
+  * stress-icmp-flood: align packet to cache boundary
+  * stress-full: align data buffer to cache boundary
+  * stress-udp-flood: align data buffer to cache boundary
+  * Manual: use lB2 format specifier rather than lBw(8n)
+  * stress-memcpy: workaround gcc 8.3.0 segfault on memmove
+  * stress-ng: ensure all stressors get SIGALRM on terminate signals
+  * stress-memcpy: enable verification on each memcpy/memmove operation
+  * stress-get: move pid_t variable pid to more local context, clean up
+    icc warning
+  * stress-smi: add register clobber checks for SMI calls
+  * core-ignite-cpu: keep minimum freq same as max freq, crank to C0 via
+    /dev/cpu_dma_latency
+  * stress-fcntl: define F_GETOWNER_UIDS for linux if not defined
+  * stress-pty: fix HAVE_TCGETATTR check, remove extraneous D
+  * stress-pty: add some mission ptr ioctls for more kernel coverage
+  * stress-rtc: toggle on/off RTC_AIE_*, RTC_PIE_*, RTC_UIE* ioctls
+  * stress-dev: add block ioctl BLKGETDISKSEQ
+  * stress-rawpkt: exercise setsockopt options for more kernel coverage
+  * stress-rawpacket: issue invalid sockopt option for more kernel test
+    coverage
+  * stress-rawpkt: cater for different TPACKET hdr versions
+  * kernel-coverage: use udp lite for ipv4 and ipv6
+  * stress-dirmany: print "0 bytes" rather than "0.0 bytes" for file size
+  * kernel-coverage: add sctp scheduler options for more test coverage
+  * stress-sctp: add sctp-sched option to specify SCTP scheduler
+  * stress-sctp: add more socket options, add build time checks for sctp
+    types
+  * stress-procfs: add ppoll for more kernel testing
+  * stress-aio-linux: add async preadv and pwritev commands
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Wed, 20 Jul 2022 18:13:23 +0100
+
 stress-ng (0.14.02-1) unstable; urgency=medium
 
   [Aleksandar N. Kostadinov]
