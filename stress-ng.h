@@ -2020,6 +2020,7 @@ typedef enum {
 
 	OPT_open_ops,
 	OPT_open_fd,
+	OPT_open_max,
 
 	OPT_page_in,
 	OPT_pathological,

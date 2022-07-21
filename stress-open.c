@@ -30,10 +30,11 @@
 typedef int (*stress_open_func_t)(void);
 
 static const stress_help_t help[] = {
-	{ "o N", "open N",	"start N workers exercising open/close" },
-	{ NULL,	"open-ops N",	"stop after N open/close bogo operations" },
-	{ NULL, "open-fd",	"open files in /proc/$pid/fd" },
-	{ NULL,	NULL,		NULL }
+	{ "o N", "open N",		"start N workers exercising open/close" },
+	{ NULL,	"open-ops N",		"stop after N open/close bogo operations" },
+	{ NULL, "open-fd",		"open files in /proc/$pid/fd" },
+	{ NULL,	"open-max N",		"specficify maximum number of files to open" },
+	{ NULL,	NULL,			NULL }
 };
 
 static int open_count, *open_perms;
@@ -151,8 +152,47 @@ static int stress_set_open_fd(const char *opt)
         return stress_set_setting("open-fd", TYPE_ID_BOOL, &open_fd);
 }
 
+static size_t stress_get_max_fds(void)
+{
+	const size_t max_size = (size_t)-1;
+	size_t max_fds = 0;
+
+#if defined(RLIMIT_NOFILE)
+	struct rlimit rlim;
+
+	if (getrlimit(RLIMIT_NOFILE, &rlim) == 0) {
+		struct rlimit new_rlim = rlim;
+
+		new_rlim.rlim_cur = new_rlim.rlim_max;
+		if (setrlimit(RLIMIT_NOFILE, &new_rlim) == 0) {
+			max_fds = stress_get_max_file_limit();
+			(void)setrlimit(RLIMIT_NOFILE, &rlim);
+		}
+	}
+#endif
+
+	if (max_fds == 0)
+		max_fds = stress_get_max_file_limit();
+	if (max_fds > max_size)
+		max_fds = max_size;
+
+	return max_fds;
+}
+
+static int stress_set_open_max(const char *opt)
+{
+	size_t open_max;
+	size_t max_fds = stress_get_max_fds();
+
+	open_max = (size_t)stress_get_uint64_percent(opt, 1, (uint64_t)max_fds,
+			"cannot determine maximum number of file descriptors");
+
+        return stress_set_setting("open-max", TYPE_ID_SIZE_T, &open_max);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_open_fd,	stress_set_open_fd, },
+	{ OPT_open_max,	stress_set_open_max },
 	{ 0,		NULL }
 };
 
@@ -674,7 +714,8 @@ static int stress_open(const stress_args_t *args)
 {
 	int *fds;
 	char path[PATH_MAX];
-	size_t max_fds = stress_get_max_file_limit();
+	const size_t max_size = (size_t)-1;
+	size_t open_max = stress_get_max_file_limit();
 	size_t i, sz;
 	pid_t pid = -1;
 	const pid_t mypid = getpid();
@@ -684,26 +725,32 @@ static int stress_open(const stress_args_t *args)
 
 	/*
 	 *  32 bit systems may OOM if we have too many open fds, so
-	 *  try to constrain the max limit as a workaround.
+	 *  try to constrain the default max limit as a workaround.
 	 */
 	if (sizeof(void *) == 4)
-		max_fds = STRESS_MINIMUM(max_fds, 65536);
+		open_max = STRESS_MINIMUM(open_max, 65536);
 
-	sz = max_fds * sizeof(*fds);
+	(void)stress_get_setting("open-max", &open_max);
+	(void)stress_get_setting("open-fd", &open_fd);
+
+	/* Limit to maximum size_t allocation size */
+	if (open_max > (max_size - 1) / sizeof(*fds))
+		open_max = (max_size -1) / sizeof(*fds);
+	/* Limit to max int (fd value) */
+	if (open_max > INT_MAX)
+		open_max = INT_MAX;
+
+	if (!args->instance)
+		pr_inf("%s: using a maximum of %zd file descriptors\n", args->name, open_max);
+
+	sz = open_max * sizeof(*fds);
 	fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (fds == MAP_FAILED) {
-		max_fds = STRESS_FD_MAX;
-		sz = max_fds * sizeof(*fds);
-		fds = (int *)mmap(NULL, sz, PROT_READ | PROT_WRITE,
-			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
-		if (fds == MAP_FAILED) {
-			pr_inf("%s: cannot allocate file descriptors\n", args->name);
-			return EXIT_NO_RESOURCE;
-		}
+		pr_inf("%s: cannot allocate %zd file descriptors\n", args->name, open_max);
+		return EXIT_NO_RESOURCE;
 	}
 
-	(void)stress_get_setting("open-fd", &open_fd);
 	if (open_fd) {
 		(void)snprintf(path, sizeof(path), "/proc/%" PRIdMAX "/fd", (intmax_t)mypid);
 		if ((stat(path, &statbuf) == 0) &&
@@ -728,7 +775,7 @@ static int stress_open(const stress_args_t *args)
 		int ret;
 		unsigned int min_fd = UINT_MAX, max_fd = 0;
 
-		for (i = 0; i < max_fds; i++) {
+		for (i = 0; i < open_max; i++) {
 			for (;;) {
 				int idx;
 

@@ -3433,6 +3433,11 @@ run a child process that scans /proc/$PID/fd and attempts to open the files
 that the stressor has opened. This exercises racing open/close operations
 on the proc interface.
 .TP
+.B \-\-open\-max N
+try to open a maximum of N files (or up to the maximum per-process open file system
+limit). The value can be the number of files or a percentage of the
+maximum per-process open file system limit.
+.TP
 .B \-\-pageswap N
 start N workers that exercise page swap in and swap out. Pages are allocated
 and paged out using madvise MADV_PAGEOUT. One the maximum per process number

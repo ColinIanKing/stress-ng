@@ -694,6 +694,7 @@ static const struct option long_options[] = {
 	{ "open",		1,	0,	OPT_open },
 	{ "open-fd",		0,	0,	OPT_open_fd },
 	{ "open-ops",		1,	0,	OPT_open_ops },
+	{ "open-max",		1,	0,	OPT_open_max },
 	{ "page-in",		0,	0,	OPT_page_in },
 	{ "pageswap",		1,	0,	OPT_pageswap },
 	{ "pageswap-ops",	1,	0,	OPT_pageswap_ops },
