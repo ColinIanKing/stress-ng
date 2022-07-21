@@ -113,7 +113,7 @@ static int do_quotactl_call(
 	fd = open(dev->mount, O_DIRECTORY | O_RDONLY);
 	if (fd < 0)
 		goto do_quotactl;
-	ret = shim_quotactl_fd((unsigned int)cmd, (unsigned int)fd, id, addr);
+	ret = shim_quotactl_fd((unsigned int)fd, (unsigned int)cmd, id, addr);
 	if ((ret < 0) && (errno == ENOSYS)) {
 		/* We don't have quotactl_path, use quotactl */
 		have_quotactl_fd = false;
