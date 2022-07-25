@@ -346,7 +346,6 @@ again:
 					break;
 				inc_counter(args);
 			} while (keep_stressing(args));
-			printf("DONE\n");
 			_exit(0);
 		}
 		if (pid > 0) {
