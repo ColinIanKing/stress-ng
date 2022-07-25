@@ -35,7 +35,8 @@
 #define _LARGEFILE64_SOURCE
 #endif
 #if !defined(__PCC__) && 	\
-    !defined(__TINYC__)
+    !defined(__TINYC__) &&	\
+    !defined(_FORTIFY_SOURCE)
 #define _FORTIFY_SOURCE 2
 #endif
 
