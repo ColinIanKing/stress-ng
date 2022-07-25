@@ -1209,6 +1209,7 @@ typedef struct {
 	MACRO(pipe)		\
 	MACRO(pipeherd)		\
 	MACRO(pkey)		\
+	MACRO(plugin)		\
 	MACRO(poll)		\
 	MACRO(prctl)		\
 	MACRO(prefetch)		\
@@ -2058,6 +2059,11 @@ typedef enum {
 
 	OPT_pkey,
 	OPT_pkey_ops,
+
+	OPT_plugin,
+	OPT_plugin_ops,
+	OPT_plugin_method,
+	OPT_plugin_so,
 
 	OPT_poll_ops,
 	OPT_poll_fds,

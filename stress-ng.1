@@ -3542,6 +3542,61 @@ be cycled through on randomly chosen pre-allocated pages.
 .B \-\-pkey\-ops N
 stop after N pkey_mprotect page protection cycles.
 .TP
+.B \-\-plugin N
+start N workers that run user provided stressor functions loaded from a shared
+library. The shared library can contain one or more stressor functions prefixed
+with stress_ in their name. By default the plugin stressor will find all functions
+prefixed with stress_ in their name and exercise these one by one in a round-robin
+loop, but a specific stressor can be selected using the \-\-plugin\-method option.
+The stressor function takes no parameters and returns 0 for success and non-zero
+for failure (and will terminate the plugin stressor). Each time a stressor function
+is executed the bogo-op counter is incremented by one. The following example
+performs 10,000 nop instructions per bogo-op:
+.PP
+.in +10n
+.EX
+int stress_example(void)
+{
+        int i;
+
+        for (i = 0; i < 10000; i++) {
+                __volatile__ __asm__("nop");
+        }
+        return 0;  /* Success */
+}
+.EE
+.in
+.RS
+.PP
+and compile the source into a shared library as, for example:
+.RE
+.PP
+.in +10n
+.EX
+gcc -fpic -shared -o example.so example.c
+.EE
+.in
+.RS
+.PP
+and run as using:
+.PP
+.RE
+.PP
+.in +10n
+.EX
+stress-ng --plugin 1 --plugin-so ./example.so
+.EE
+.in
+.TP
+.B \-\-plugin\-ops N
+stop after N iterations of the user provided stressor function(s).
+.TP
+.B \-\-plugin\-so name
+specify the shared library containing the user provided stressor function(s).
+.TP
+.B \-\-plugin\-method function
+run a specific stressor function, specify the name without the leading stress_ prefix.
+.TP
 .B \-P N, \-\-poll N
 start N workers that perform zero timeout polling via the poll(2), ppoll(2),
 select(2), pselect(2) and sleep(3) calls. This wastes system and user time
