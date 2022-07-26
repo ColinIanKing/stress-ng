@@ -367,71 +367,82 @@ static int open_flag_perm(void)
 
 static int open_dev_zero_rd(void)
 {
-	int flags = O_RDONLY;
+	int flags = 0;
+
 #if defined(O_ASYNC)
-	flags |= (stress_mwc32() & O_ASYNC);
+	flags |= O_ASYNC;
 #endif
 #if defined(O_CLOEXEC)
-	flags |= (stress_mwc32() & O_CLOEXEC);
+	flags |= O_CLOEXEC;
 #endif
 #if defined(O_LARGEFILE)
-	flags |= (stress_mwc32() & O_LARGEFILE);
+	flags |= O_LARGEFILE;
 #endif
 #if defined(O_NOFOLLOW)
-	flags |= (stress_mwc32() & O_NOFOLLOW);
+	flags |= O_NOFOLLOW;
 #endif
 #if defined(O_NONBLOCK)
-	flags |= (stress_mwc32() & O_NONBLOCK);
+	flags |= O_NONBLOCK;
 #endif
 #if defined(O_NDELAY)
-	flags |= (stress_mwc32() & O_NDELAY);
+	flags |= O_NDELAY;
 #endif
+	flags &= stress_mwc32();
+	flags |= O_RDONLY;
+
 	return open_arg2("/dev/zero", flags);
 }
 
 static int open_dev_null_wr(void)
 {
-	int flags = O_WRONLY;
+	int flags = 0;
+
 #if defined(O_ASYNC)
-	flags |= (stress_mwc32() & O_ASYNC);
+	flags |= O_ASYNC;
 #endif
 #if defined(O_CLOEXEC)
-	flags |= (stress_mwc32() & O_CLOEXEC);
+	flags |= O_CLOEXEC;
 #endif
 #if defined(O_LARGEFILE)
-	flags |= (stress_mwc32() & O_LARGEFILE);
+	flags |= O_LARGEFILE;
 #endif
 #if defined(O_NOFOLLOW)
-	flags |= (stress_mwc32() & O_NOFOLLOW);
+	flags |= O_NOFOLLOW;
 #endif
 #if defined(O_NONBLOCK)
-	flags |= (stress_mwc32() & O_NONBLOCK);
+	flags |= O_NONBLOCK;
 #endif
 #if defined(O_DSYNC)
-	flags |= (stress_mwc32() & O_DSYNC);
+	flags |= O_DSYNC;
 #endif
 #if defined(O_SYNC)
-	flags |= (stress_mwc32() & O_SYNC);
+	flags |= O_SYNC;
 #endif
+	flags &= stress_mwc32();
+	flags |= O_WRONLY;
+
 	return open_arg2("/dev/null", flags);
 }
 
 #if defined(O_TMPFILE)
 static int open_tmp_rdwr(void)
 {
-	int flags = O_TMPFILE | O_RDWR;
+	int flags = 0;
+
 #if defined(O_TRUNC)
-	flags |= (stress_mwc32() & O_TRUNC);
+	flags |= O_TRUNC;
 #endif
 #if defined(O_APPEND)
-	flags |= (stress_mwc32() & O_APPEND);
+	flags |= O_APPEND;
 #endif
 #if defined(O_NOATIME)
-	flags |= (stress_mwc32() & O_NOATIME);
+	flags |= O_NOATIME;
 #endif
 #if defined(O_DIRECT)
-	flags |= (stress_mwc32() & O_DIRECT);
+	flags |= O_DIRECT;
 #endif
+	flags &= stress_mwc32();
+	flags |= O_TMPFILE | O_RDWR;
 	return open_arg3("/tmp", flags, S_IRUSR | S_IWUSR);
 }
 #endif
@@ -806,7 +817,6 @@ static int stress_open(const stress_args_t *args)
 				if (fds[i] < (int)min_fd)
 					min_fd = (unsigned int)fds[i];
 			}
-
 			stress_read_fdinfo(mypid, fds[i]);
 
 			if ((i & 8191) == 8191)
@@ -822,8 +832,9 @@ close_all:
 		 *  normal close if ENOSYS
 		 */
 		sync();
+		errno = 0;
 		ret = shim_close_range(min_fd, max_fd, 0);
-		if ((ret < 1) && (errno == ENOSYS)) {
+		if (ret < 0) {
 			for (i = 0; i < n; i++)
 				(void)close(fds[i]);
 		}
