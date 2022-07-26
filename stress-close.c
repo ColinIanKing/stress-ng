@@ -177,7 +177,7 @@ static void *stress_close_func(void *arg)
 		 *  close a range of fds
 		 */
 		ret = shim_close_range(FDS_START, FDS_START + FDS_TO_DUP, 0);
-		if ((ret < 1) && (errno == ENOSYS)) {
+		if ((ret < 0) || (errno == ENOSYS)) {
 			for (i = 0; i < FDS_TO_DUP; i++)
 				(void)close(fds[i]);
 		}
@@ -271,7 +271,7 @@ static int stress_close(const stress_args_t *args)
 
 		t1 = stress_time_now();
 
-		switch (stress_mwc8() % 14) {
+		switch (stress_mwc8() % 15) {
 		case 0:
 			domain = stress_mwc8() % SIZEOF_ARRAY(domains);	/* cppcheck-suppress moduloofone */
 			type = stress_mwc8() % SIZEOF_ARRAY(types);	/* cppcheck-suppress moduloofone */
@@ -356,6 +356,13 @@ static int stress_close(const stress_args_t *args)
 #endif
 		case 13:
 			fd = bad_fd;
+			break;
+		case 14:
+#if defined(__linux__)
+			fd = open("/proc/self/fd/0", O_RDONLY);
+#else
+			fd = dup(0);
+#endif
 			break;
 		default:
 			break;
