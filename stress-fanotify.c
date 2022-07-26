@@ -50,6 +50,7 @@ typedef struct {
 	uint64_t close_nowrite;	/* # close no writes */
 	uint64_t access;	/* # accesses */
 	uint64_t modify;	/* # modifications */
+	uint64_t rename;	/* # renames */
 } stress_fanotify_account_t;
 
 #endif
@@ -123,6 +124,9 @@ static const unsigned int fan_stress_settings[] = {
 #endif
 #if defined(FAN_Q_OVERFLOW)
 	FAN_Q_OVERFLOW,
+#endif
+#if defined(FAN_RENAME)
+	FAN_RENAME,
 #endif
 #if defined(FAN_FS_ERROR)
 	FAN_FS_ERROR,
@@ -461,6 +465,10 @@ static void stress_fanotify_read_events(
 			if (metadata->mask & FAN_MODIFY)
 				account->modify++;
 #endif
+#if defined(FAN_RENAME)
+			if (metadata->mask & FAN_RENAME)
+				account->rename++;
+#endif
 			inc_counter(args);
 			(void)close(metadata->fd);
 		}
@@ -474,7 +482,7 @@ static void stress_fanotify_read_events(
  */
 static int stress_fanotify(const stress_args_t *args)
 {
-	char pathname[PATH_MAX - 16], filename[PATH_MAX];
+	char pathname[PATH_MAX - 16], filename[PATH_MAX], filename2[PATH_MAX];
 	int ret, pid, rc = EXIT_SUCCESS;
 	stress_fanotify_account_t account;
 
@@ -482,6 +490,7 @@ static int stress_fanotify(const stress_args_t *args)
 
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	(void)stress_mk_filename(filename, sizeof(filename), pathname, "fanotify_file");
+	(void)stress_mk_filename(filename2, sizeof(filename2), pathname, "fanotify_file2");
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
@@ -546,8 +555,11 @@ static int stress_fanotify(const stress_args_t *args)
 			VOID_RET(ssize_t, read(fd, buffer, sizeof(buffer)));
 			(void)close(fd);
 
-			/* Force remove */
-			(void)shim_unlink(filename);
+			if (rename(filename, filename2) < 0)
+				(void)shim_unlink(filename);
+			else
+				(void)shim_unlink(filename2);
+
 		} while (keep_stressing(args));
 
 		_exit(EXIT_SUCCESS);
@@ -680,13 +692,15 @@ static int stress_fanotify(const stress_args_t *args)
 			"%" PRIu64 " close write, "
 			"%" PRIu64 " close nowrite, "
 			"%" PRIu64 " access, "
-			"%" PRIu64 " modify\n",
+			"%" PRIu64 " modify, "
+			"%" PRIu64 " rename\n",
 			args->name,
 			account.open,
 			account.close_write,
 			account.close_nowrite,
 			account.access,
-			account.modify);
+			account.modify,
+			account.rename);
 	}
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
