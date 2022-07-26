@@ -642,6 +642,13 @@ static int open_with_openat2_cwd(void)
 }
 #endif
 
+#if defined(__linux__)
+static int open_with_open_proc_self_fd(void)
+{
+	return open("/proc/self/fd/0", O_RDONLY);
+}
+#endif
+
 static stress_open_func_t open_funcs[] = {
 	open_flag_perm,
 	open_dev_zero_rd,
@@ -685,6 +692,9 @@ static stress_open_func_t open_funcs[] = {
     defined(RESOLVE_NO_SYMLINKS) &&	\
     defined(__NR_openat2)
 	open_with_openat2_cwd,
+#endif
+#if defined(__linux__)
+	open_with_open_proc_self_fd,
 #endif
 };
 
