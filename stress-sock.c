@@ -583,6 +583,15 @@ retry:
 				&tos, &optlen);
 		}
 #endif
+#if defined(SO_RESERVE_MEM)
+		{
+			const int mem = 4 * 1024 * 1024;
+			socklen_t optlen = sizeof(mem);
+
+			(void)setsockopt(fd, SOL_SOCKET, SO_RESERVE_MEM,
+				&mem, optlen);
+		}
+#endif
 #if defined(SO_INCOMING_CPU)
 		{
 			int cpu;
@@ -998,6 +1007,15 @@ static int stress_sock_server(
 				(void)close(sfd);
 				break;
 			}
+#if defined(SO_RESERVE_MEM)
+		{
+			const int mem = 4 * 1024 * 1024;
+			socklen_t optlen = sizeof(mem);
+
+			(void)setsockopt(fd, SOL_SOCKET, SO_RESERVE_MEM,
+				&mem, optlen);
+		}
+#endif
 #if defined(SOL_TCP) &&	\
     defined(TCP_QUICKACK)
 			{
