@@ -346,7 +346,11 @@ static int stress_prctl_syscall_user_dispatch(const stress_args_t *args)
 }
 #endif
 
-static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
+static int stress_prctl_child(
+	const stress_args_t *args,
+	const pid_t mypid,
+	void *page_anon,
+	size_t page_anon_size)
 {
 	int ret;
 
@@ -885,6 +889,20 @@ static int stress_prctl_child(const stress_args_t *args, const pid_t mypid)
 		VOID_RET(int, prctl(PR_PAC_RESET_KEYS, ~0, ~0, ~0, ~0));
 	}
 #endif
+
+#if defined(PR_SET_VMA) &&	\
+    defined(PR_SET_VMA_ANON_NAME)
+	/*
+	 *  exercise PR_SET_VMA, introduced in Linux 5.18 with
+	 *  CONFIG_ANON_VMA_NAME enabled
+	 */
+	VOID_RET(int, prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, page_anon, page_anon_size, "stress-prctl"));
+	VOID_RET(int, prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, page_anon, page_anon_size, "illegal[$name"));
+	VOID_RET(int, prctl(PR_SET_VMA, PR_SET_VMA_ANON_NAME, page_anon, page_anon_size, NULL));
+#else
+	(void)page_anon;
+	(void)page_anon_size;
+#endif
 	stress_arch_prctl();
 
 	stress_prctl_syscall_user_dispatch(args);
@@ -908,6 +926,11 @@ static int stress_prctl(const stress_args_t *args)
 {
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	void *page_anon;
+
+	page_anon = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
+				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+
 	do {
 		pid_t pid;
 again:
@@ -927,7 +950,7 @@ again:
 
 			(void)sched_settings_apply(true);
 
-			rc = stress_prctl_child(args, mypid);
+			rc = stress_prctl_child(args, mypid, page_anon, args->page_size);
 			_exit(rc);
 		}
 		if (pid > 0) {
@@ -953,6 +976,9 @@ again:
 
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	if (page_anon != MAP_FAILED)
+		(void)munmap(page_anon, args->page_size);
 
 	return EXIT_SUCCESS;
 }
