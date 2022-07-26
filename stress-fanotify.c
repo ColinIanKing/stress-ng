@@ -166,6 +166,9 @@ static const unsigned int init_flags[] =
 #if defined(FAN_REPORT_PIDFD)
 	FAN_REPORT_PIDFD,
 #endif
+#if defined(FAN_REPORT_TARGET_FID)
+	FAN_REPORT_TARGET_FID,
+#endif
 };
 
 static char *mnts[MAX_MNTS];
