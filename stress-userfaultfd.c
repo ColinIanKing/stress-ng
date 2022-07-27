@@ -77,9 +77,10 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ 0,				NULL }
 };
 
-#if defined(HAVE_USERFAULTFD) && \
-    defined(HAVE_LINUX_USERFAULTFD_H) && \
-    defined(HAVE_CLONE)
+#if defined(HAVE_USERFAULTFD) && 		\
+    defined(HAVE_LINUX_USERFAULTFD_H) && 	\
+    defined(HAVE_CLONE) &&			\
+    defined(HAVE_POSIX_MEMALIGN)
 
 /*
  *  stress_child_alarm_handler()
