@@ -317,7 +317,7 @@ static size_t stress_smart_data_diff_count(stress_smart_dev_t *dev)
  */
 static void stress_smart_data_diff(stress_smart_dev_t *dev)
 {
-	size_t i, n;
+	size_t i;
 	stress_smart_data_t *begin, *end;
 
 	begin = dev->data_begin;
@@ -328,7 +328,7 @@ static void stress_smart_data_diff(stress_smart_dev_t *dev)
 	if (!begin->count || !end->count)
 		return;
 
-	for (n = 0, i = 0; i < begin->count; i++) {
+	for (i = 0; i < begin->count; i++) {
 		const stress_smart_raw_value_t *rv1 = &begin->values[i];
 		const uint8_t attr_id = rv1->attr_id;
 		size_t j;
@@ -346,7 +346,6 @@ static void stress_smart_data_diff(stress_smart_dev_t *dev)
 						dev_name, attr_id,
 						id_str[attr_id] ? id_str[attr_id] : "?",
 						rv2->data, delta);
-					n++;
 				}
 				break;
 			}
