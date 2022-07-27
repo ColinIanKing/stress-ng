@@ -413,14 +413,16 @@ static void stress_sock_sigpipe_handler(int signum)
 static int stress_rawpkt(const stress_args_t *args)
 {
 	pid_t pid;
-	int port = DEFAULT_RAWPKT_PORT;
+	int rawpkt_port = DEFAULT_RAWPKT_PORT;
 	int fd, rc = EXIT_FAILURE;
 	struct ifreq hwaddr, ifaddr, idx;
 
-	(void)stress_get_setting("rawpkt-port", &port);
+	(void)stress_get_setting("rawpkt-port", &rawpkt_port);
+
+	rawpkt_port += args->instance;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, port + (int)args->instance);
+		args->name, (int)args->pid, rawpkt_port);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -472,11 +474,11 @@ again:
 			args->name, errno, strerror(errno));
 		return rc;
 	} else if (pid == 0) {
-		stress_rawpkt_client(args, &hwaddr, &ifaddr, &idx, args->pid, port);
+		stress_rawpkt_client(args, &hwaddr, &ifaddr, &idx, args->pid, rawpkt_port);
 	} else {
 		int status;
 
-		rc = stress_rawpkt_server(args, &ifaddr, port);
+		rc = stress_rawpkt_server(args, &ifaddr, rawpkt_port);
 		(void)kill(pid, SIGKILL);
 		(void)shim_waitpid(pid, &status, 0);
 	}
