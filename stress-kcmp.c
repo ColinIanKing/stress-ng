@@ -116,6 +116,7 @@ static int stress_kcmp(const stress_args_t *args)
 {
 	pid_t pid1;
 	int fd1;
+	const pid_t mypid = getpid();
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
@@ -152,8 +153,12 @@ static int stress_kcmp(const stress_args_t *args)
 		sfd = -1;
 		goto again;
 	}
-	stress_set_sockaddr(args->name, args->instance, args->ppid,
-		AF_INET, 23000, &addr, &addr_len, NET_ADDR_ANY);
+	if (stress_set_sockaddr(args->name, args->instance, mypid,
+		AF_INET, 23000, &addr, &addr_len, NET_ADDR_ANY) < 0) {
+		(void)close(sfd);
+		sfd = -1;
+		goto again;
+	}
 
 	if (bind(sfd, addr, addr_len) < 0) {
 		(void)close(sfd);

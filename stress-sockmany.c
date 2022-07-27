@@ -70,13 +70,12 @@ static void stress_sockmany_cleanup(int fds[], const int n)
  */
 static int stress_sockmany_client(
 	const stress_args_t *args,
-	const pid_t ppid,
+	const pid_t mypid,
 	stress_sock_fds_t *sock_fds,
 	const char *sockmany_if)
 {
 	struct sockaddr *addr;
 	static int fds[SOCKET_MANY_FDS];
-	int rc = EXIT_FAILURE;
 	const int socket_port = DEFAULT_SOCKET_MANY_PORT + (int)args->instance;
 
 	(void)setpgid(0, g_pgrp);
@@ -110,12 +109,14 @@ retry:
 				pr_fail("%s: socket failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 				stress_sockmany_cleanup(fds, i);
-				goto finish;
+				return EXIT_FAILURE;
 			}
 
-			stress_set_sockaddr_if(args->name, args->instance, ppid,
-				AF_INET, socket_port, sockmany_if,
-				&addr, &addr_len, NET_ADDR_ANY);
+			if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+					AF_INET, socket_port, sockmany_if,
+					&addr, &addr_len, NET_ADDR_ANY) < 0) {
+				return EXIT_FAILURE;
+			}
 			if (connect(fds[i], addr, addr_len) < 0) {
 				int save_errno = errno;
 
@@ -133,7 +134,7 @@ retry:
 					errno = save_errno;
 					pr_fail("%s: connect failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
-					goto finish;
+					return EXIT_FAILURE;
 				}
 				goto retry;
 			}
@@ -151,11 +152,7 @@ retry:
 		stress_sockmany_cleanup(fds, i);
 	} while (keep_stressing(args));
 
-	rc = EXIT_SUCCESS;
-finish:
-	/* Inform parent we're all done */
-	(void)kill(getppid(), SIGALRM);
-	return rc;
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -165,7 +162,7 @@ finish:
 static int stress_sockmany_server(
 	const stress_args_t *args,
 	const pid_t pid,
-	const pid_t ppid,
+	const pid_t mypid,
 	const char *sockmany_if)
 {
 	char ALIGN64 buf[SOCKET_MANY_BUF];
@@ -197,9 +194,12 @@ static int stress_sockmany_server(
 		goto die_close;
 	}
 
-	stress_set_sockaddr_if(args->name, args->instance, ppid,
-		AF_INET, socket_port, sockmany_if,
-		&addr, &addr_len, NET_ADDR_ANY);
+	if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+			AF_INET, socket_port, sockmany_if,
+			&addr, &addr_len, NET_ADDR_ANY) < 0) {
+		rc = EXIT_FAILURE;
+		goto die_close;
+	}
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
@@ -338,6 +338,10 @@ again:
 		rc = EXIT_FAILURE;
 	} else if (pid == 0) {
 		rc = stress_sockmany_client(args, ppid, sock_fds, sockmany_if);
+
+		/* Inform parent we're all done */
+		(void)kill(getppid(), SIGALRM);
+
 		_exit(rc);
 	} else {
 		rc = stress_sockmany_server(args, pid, ppid, sockmany_if);

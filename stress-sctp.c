@@ -380,9 +380,9 @@ static void stress_sctp_sockopts(const int fd)
  *  stress_sctp_client()
  *	client reader
  */
-static void stress_sctp_client(
+static int stress_sctp_client(
 	const stress_args_t *args,
-	const pid_t ppid,
+	const pid_t mypid,
 	const int sctp_port,
 	const int sctp_domain,
 	const int sctp_sched,
@@ -396,7 +396,6 @@ static void stress_sctp_client(
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
-
 	do {
 		char ALIGN64 buf[SOCKET_BUF];
 		int fd;
@@ -406,28 +405,25 @@ static void stress_sctp_client(
 		struct sctp_event_subscribe events;
 #endif
 retry:
-		if (!keep_stressing_flag()) {
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
-		}
+		if (!keep_stressing_flag())
+			return EXIT_FAILURE;
 		if ((fd = socket(sctp_domain, SOCK_STREAM, IPPROTO_SCTP)) < 0) {
 			if (errno == EPROTONOSUPPORT) {
 				if (args->instance == 0)
 					pr_inf_skip("%s: SCTP protocol not supported, skipping stressor\n",
 						args->name);
-				(void)kill(getppid(), SIGALRM);
-				_exit(EXIT_NOT_IMPLEMENTED);
+				return EXIT_FAILURE;
 			}
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			/* failed, kick parent to finish */
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 
-		stress_set_sockaddr_if(args->name, args->instance, ppid,
-			sctp_domain, sctp_port, sctp_if,
-			&addr, &addr_len, NET_ADDR_LOOPBACK);
+		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+				sctp_domain, sctp_port, sctp_if,
+				&addr, &addr_len, NET_ADDR_LOOPBACK) < 0) {
+			return EXIT_FAILURE;
+		}
 		if (connect(fd, addr, addr_len) < 0) {
 			(void)close(fd);
 			(void)shim_usleep(10000);
@@ -436,8 +432,7 @@ retry:
 				/* Give up.. */
 				pr_fail("%s: connect failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				(void)kill(getppid(), SIGALRM);
-				_exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			}
 			goto retry;
 		}
@@ -449,8 +444,7 @@ retry:
 			(void)close(fd);
 			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 #endif
 #if defined(HAVE_SCTP_SCHED_TYPE) &&	\
@@ -488,8 +482,7 @@ retry:
 #else
 	UNEXPECTED
 #endif
-	/* Inform parent we're all done */
-	(void)kill(getppid(), SIGALRM);
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -499,7 +492,7 @@ retry:
 static int stress_sctp_server(
 	const stress_args_t *args,
 	const pid_t pid,
-	const pid_t ppid,
+	const pid_t mypid,
 	const int sctp_port,
 	const int sctp_domain,
 	const int sctp_sched,
@@ -541,9 +534,11 @@ static int stress_sctp_server(
 		rc = EXIT_FAILURE;
 		goto die_close;
 	}
-
-	stress_set_sockaddr_if(args->name, args->instance, ppid,
-		sctp_domain, sctp_port, sctp_if, &addr, &addr_len, NET_ADDR_ANY);
+	if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+		sctp_domain, sctp_port, sctp_if, &addr, &addr_len, NET_ADDR_ANY) < 0) {
+		rc = EXIT_FAILURE;
+		goto die_close;
+	}
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
@@ -646,7 +641,7 @@ static void stress_sctp_sigpipe(int signum)
  */
 static int stress_sctp(const stress_args_t *args)
 {
-	pid_t pid, ppid = getppid();
+	pid_t pid, mypid = getpid();
 	int sctp_port = DEFAULT_SCTP_PORT;
 	int sctp_domain = AF_INET;
 	int sctp_sched = -1;	/* Undefined */
@@ -690,10 +685,12 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_sctp_client(args, ppid, sctp_port, sctp_domain, sctp_sched, sctp_if);
-		_exit(EXIT_SUCCESS);
+		ret = stress_sctp_client(args, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
+		/* Inform parent we're all done */
+		(void)kill(getppid(), SIGALRM);
+		_exit(ret);
 	} else {
-		ret = stress_sctp_server(args, pid, ppid, sctp_port, sctp_domain, sctp_sched, sctp_if);
+		ret = stress_sctp_server(args, pid, mypid, sctp_port, sctp_domain, sctp_sched, sctp_if);
 	}
 
 finish:

@@ -141,14 +141,13 @@ static inline int stress_socket_fd_recv(const int fd)
  *  stress_socket_client()
  *	client reader
  */
-static void NORETURN stress_socket_client(
+static int stress_socket_client(
 	const stress_args_t *args,
-	const pid_t ppid,
+	const pid_t mypid,
 	const ssize_t max_fd,
 	const int socket_fd_port)
 {
 	struct sockaddr *addr = NULL;
-	int ret = EXIT_FAILURE;
 
 	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
@@ -162,28 +161,27 @@ static void NORETURN stress_socket_client(
 
 		(void)memset(fds, 0, sizeof(fds));
 retry:
-		if (!keep_stressing_flag()) {
-			ret = EXIT_SUCCESS;
-			goto finish;
-		}
+		if (!keep_stressing_flag())
+			return EXIT_FAILURE;
 
 		if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			goto finish;
+			return EXIT_FAILURE;
 		}
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 				&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
 			(void)close(fd);
 			pr_fail("%s: setsockopt SO_REUSEADDR failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			ret = EXIT_FAILURE;
-			goto finish;
+			return EXIT_FAILURE;
 		}
 
-		stress_set_sockaddr(args->name, args->instance, ppid,
-			AF_UNIX, socket_fd_port,
-			&addr, &addr_len, NET_ADDR_ANY);
+		if (stress_set_sockaddr(args->name, args->instance, mypid,
+				AF_UNIX, socket_fd_port,
+				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+			return EXIT_FAILURE;
+		}
 		if (connect(fd, addr, addr_len) < 0) {
 			(void)close(fd);
 			(void)shim_usleep(10000);
@@ -192,15 +190,13 @@ retry:
 				/* Give up.. */
 				pr_fail("%s: connect failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				goto finish;
+				return EXIT_FAILURE;
 			}
 			goto retry;
 		}
 
-		if (!keep_stressing_flag()) {
-			ret = EXIT_SUCCESS;
-			goto finish;
-		}
+		if (!keep_stressing_flag())
+			return EXIT_SUCCESS;
 
 		for (n = 0; keep_stressing(args) && (n < max_fd); n++) {
 			int rc, nbytes;
@@ -236,13 +232,8 @@ retry:
 #else
 	UNEXPECTED
 #endif
+	return EXIT_SUCCESS;
 
-	ret = EXIT_SUCCESS;
-
-finish:
-	/* Inform parent we're all done */
-	(void)kill(getppid(), SIGALRM);
-	_exit(ret);
 }
 
 /*
@@ -284,9 +275,12 @@ static int stress_socket_server(
 		goto die_close;
 	}
 
-	stress_set_sockaddr(args->name, args->instance, ppid,
-		AF_UNIX, socket_fd_port,
-		&addr, &addr_len, NET_ADDR_ANY);
+	if (stress_set_sockaddr(args->name, args->instance, ppid,
+			AF_UNIX, socket_fd_port,
+			&addr, &addr_len, NET_ADDR_ANY) < 0) {
+		rc = EXIT_FAILURE;
+		goto die_close;
+	}
 	if (bind(fd, addr, addr_len) < 0) {
 		if (errno == EADDRINUSE) {
 			rc = EXIT_NO_RESOURCE;
@@ -375,7 +369,7 @@ die:
  */
 static int stress_sockfd(const stress_args_t *args)
 {
-	pid_t pid, ppid = getppid();
+	pid_t pid, mypid = getpid();
 	ssize_t max_fd = (ssize_t)stress_get_file_limit();
 	int socket_fd_port = DEFAULT_SOCKET_FD_PORT;
 	int ret = EXIT_SUCCESS;
@@ -414,9 +408,14 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_set_oom_adjustment(args->name, false);
-		stress_socket_client(args, ppid, max_fd, socket_fd_port);
+		ret = stress_socket_client(args, mypid, max_fd, socket_fd_port);
+
+		/* Inform parent we're all done */
+		(void)kill(getppid(), SIGALRM);
+
+		_exit(ret);
 	} else {
-		ret = stress_socket_server(args, pid, ppid, max_fd, socket_fd_port);
+		ret = stress_socket_server(args, pid, mypid, max_fd, socket_fd_port);
 	}
 
 finish:

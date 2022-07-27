@@ -58,7 +58,7 @@ static const stress_help_t help[] = {
 typedef void (stress_epoll_func_t)(
 	const stress_args_t *args,
 	const int child,
-	const pid_t ppid,
+	const pid_t mypid,
 	const int epoll_port,
 	const int epoll_domain,
 	const int epoll_sockets);
@@ -207,7 +207,7 @@ static pid_t epoll_spawn(
 	const stress_args_t *args,
 	stress_epoll_func_t func,
 	const int child,
-	const pid_t ppid,
+	const pid_t mypid,
 	const int epoll_port,
 	const int epoll_domain,
 	const int epoll_sockets)
@@ -225,7 +225,7 @@ again:
 		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
-		func(args, child, ppid, epoll_port, epoll_domain, epoll_sockets);
+		func(args, child, mypid, epoll_port, epoll_domain, epoll_sockets);
 		_exit(EXIT_SUCCESS);
 	}
 	(void)setpgid(pid, g_pgrp);
@@ -549,7 +549,7 @@ err:
  */
 static int epoll_client(
 	const stress_args_t *args,
-	const pid_t ppid,
+	const pid_t mypid,
 	const int epoll_port,
 	const int epoll_domain)
 {
@@ -620,8 +620,11 @@ retry:
 			return EXIT_FAILURE;
 		}
 
-		stress_set_sockaddr(args->name, args->instance, ppid,
-			epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
+		if (stress_set_sockaddr(args->name, args->instance, mypid,
+			epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY) < 0) {
+			(void)close(fd);
+			return EXIT_FAILURE;
+		}
 
 		errno = 0;
 		ret = connect(fd, addr, addr_len);
@@ -698,7 +701,7 @@ retry:
 static void NORETURN epoll_server(
 	const stress_args_t *args,
 	const int child,
-	const pid_t ppid,
+	const pid_t mypid,
 	const int epoll_port,
 	const int epoll_domain,
 	const int epoll_sockets)
@@ -730,8 +733,11 @@ static void NORETURN epoll_server(
 		goto die_close;
 	}
 
-	stress_set_sockaddr(args->name, args->instance, ppid,
-		epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY);
+	if (stress_set_sockaddr(args->name, args->instance, mypid,
+		epoll_domain, port, &addr, &addr_len, NET_ADDR_ANY) < 0) {
+		rc = EXIT_FAILURE;
+		goto die_close;
+	}
 
 	if (bind(sfd, addr, addr_len) < 0) {
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
@@ -996,7 +1002,7 @@ die:
  */
 static int stress_epoll(const stress_args_t *args)
 {
-	pid_t pids[MAX_SERVERS], ppid = getppid();
+	pid_t pids[MAX_SERVERS], mypid = getpid();
 	int i, rc = EXIT_SUCCESS;
 	int epoll_domain = AF_UNIX;
 	int epoll_port = DEFAULT_EPOLL_PORT;
@@ -1038,7 +1044,7 @@ static int stress_epoll(const stress_args_t *args)
 	 */
 	(void)memset(pids, 0, sizeof(pids));
 	for (i = 0; i < max_servers; i++) {
-		pids[i] = epoll_spawn(args, epoll_server, i, ppid, epoll_port, epoll_domain, epoll_sockets);
+		pids[i] = epoll_spawn(args, epoll_server, i, mypid, epoll_port, epoll_domain, epoll_sockets);
 		if (pids[i] < 0) {
 			pr_fail("%s: fork failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -1046,7 +1052,7 @@ static int stress_epoll(const stress_args_t *args)
 		}
 	}
 
-	epoll_client(args, ppid, epoll_port, epoll_domain);
+	epoll_client(args, mypid, epoll_port, epoll_domain);
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 

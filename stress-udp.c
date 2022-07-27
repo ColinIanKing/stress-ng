@@ -122,7 +122,7 @@ static int stress_udp(const stress_args_t *args)
 {
 	int udp_port = DEFAULT_UDP_PORT;
 	int udp_domain = AF_INET;
-	pid_t pid, ppid = getppid();
+	pid_t pid, mypid = getpid();
 	int rc = EXIT_SUCCESS;
 	int proto = 0;
 #if defined(IPPROTO_UDPLITE)
@@ -189,6 +189,8 @@ again:
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
+		rc = EXIT_FAILURE;
+
 		do {
 			char buf[UDP_BUF];
 			socklen_t len;
@@ -198,14 +200,14 @@ again:
 			if ((fd = socket(udp_domain, SOCK_DGRAM, proto)) < 0) {
 				pr_fail("%s: socket failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				/* failed, kick parent to finish */
-				(void)kill(getppid(), SIGALRM);
-				_exit(EXIT_FAILURE);
+				goto child_die;
 			}
 
-			stress_set_sockaddr_if(args->name, args->instance, ppid,
-				udp_domain, udp_port, udp_if,
-				&addr, &len, NET_ADDR_ANY);
+			if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+					udp_domain, udp_port, udp_if,
+					&addr, &len, NET_ADDR_ANY) < 0) {
+				goto child_die;
+			}
 #if defined(IPPROTO_UDPLITE) &&	\
     defined(UDPLITE_SEND_CSCOV)
 			if (proto == IPPROTO_UDPLITE) {
@@ -217,8 +219,7 @@ again:
 					pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 					(void)close(fd);
-					(void)kill(getppid(), SIGALRM);
-					_exit(EXIT_FAILURE);
+					goto child_die;
 				}
 				slen = sizeof(val);
 				(void)getsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, &slen);
@@ -340,6 +341,9 @@ again:
 			(void)close(fd);
 		} while (keep_stressing(args));
 
+		rc = EXIT_SUCCESS;
+child_die:
+
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
 		if ((udp_domain == AF_UNIX) && addr) {
@@ -350,7 +354,7 @@ again:
 #endif
 		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);
-		_exit(EXIT_SUCCESS);
+		_exit(rc);
 	} else {
 		/* Parent, server */
 
@@ -374,9 +378,12 @@ again:
 			rc = EXIT_FAILURE;
 			goto die;
 		}
-		stress_set_sockaddr_if(args->name, args->instance, ppid,
-			udp_domain, udp_port, udp_if,
-			&addr, &addr_len, NET_ADDR_ANY);
+		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+				udp_domain, udp_port, udp_if,
+				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+			rc = EXIT_FAILURE;
+			goto die;
+		}
 #if defined(IPPROTO_UDPLITE)
 		if (proto == IPPROTO_UDPLITE) {
 			int val = 8;	/* Just the 8 byte header */

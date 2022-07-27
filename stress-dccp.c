@@ -139,9 +139,9 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_dccp_client()
  *	client reader
  */
-static void stress_dccp_client(
+static int stress_dccp_client(
 	const stress_args_t *args,
-	const pid_t ppid,
+	const pid_t mypid,
 	const int dccp_port,
 	const int dccp_domain,
 	const char *dccp_if)
@@ -157,10 +157,8 @@ static void stress_dccp_client(
 		int retries = 0;
 		socklen_t addr_len = 0;
 retry:
-		if (!keep_stressing_flag()) {
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
-		}
+		if (!keep_stressing_flag())
+			return EXIT_FAILURE;
 		if ((fd = socket(dccp_domain, SOCK_DCCP, IPPROTO_DCCP)) < 0) {
 			if ((errno == ESOCKTNOSUPPORT) ||
 			    (errno == EPROTONOSUPPORT)) {
@@ -168,18 +166,18 @@ retry:
 				 *  Protocol not supported - then return
 				 *  EXIT_NOT_IMPLEMENTED and skip the test
 				 */
-				_exit(EXIT_NOT_IMPLEMENTED);
+				return EXIT_NOT_IMPLEMENTED;
 			}
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			/* failed, kick parent to finish */
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 
-		stress_set_sockaddr_if(args->name, args->instance, ppid,
-			dccp_domain, dccp_port, dccp_if,
-			&addr, &addr_len, NET_ADDR_ANY);
+		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+				dccp_domain, dccp_port, dccp_if,
+				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+			return EXIT_FAILURE;
+		}
 		if (connect(fd, addr, addr_len) < 0) {
 			int err = errno;
 
@@ -191,8 +189,7 @@ retry:
 				errno = err;
 				pr_fail("%s: connect failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
-				(void)kill(getppid(), SIGALRM);
-				_exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			}
 			goto retry;
 		}
@@ -220,8 +217,7 @@ retry:
 		(void)shim_unlink(addr_un->sun_path);
 	}
 #endif
-	/* Inform parent we're all done */
-	(void)kill(getppid(), SIGALRM);
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -230,8 +226,8 @@ retry:
  */
 static int stress_dccp_server(
 	const stress_args_t *args,
-	const pid_t pid,
-	const pid_t ppid,
+	const pid_t pid,	/* Pid of client child */
+	const int mypid,
 	const int dccp_port,
 	const int dccp_domain,
 	const char *dccp_if,
@@ -277,9 +273,11 @@ static int stress_dccp_server(
 		goto die_close;
 	}
 
-	stress_set_sockaddr_if(args->name, args->instance, ppid,
+	if (stress_set_sockaddr_if(args->name, args->instance, mypid,
 		dccp_domain, dccp_port, dccp_if,
-		&addr, &addr_len, NET_ADDR_ANY);
+		&addr, &addr_len, NET_ADDR_ANY) < 0) {
+		goto die_close;
+	}
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
@@ -432,7 +430,7 @@ die:
  */
 static int stress_dccp(const stress_args_t *args)
 {
-	pid_t pid, ppid = getppid();
+	pid_t pid, mypid = getpid();
 	int dccp_port = DEFAULT_DCCP_PORT;
 	int dccp_domain = AF_INET;
 	int dccp_opts = DCCP_OPT_SEND;
@@ -474,10 +472,12 @@ again:
 		return EXIT_NO_RESOURCE;
 	} else if (pid == 0) {
 		(void)sched_settings_apply(true);
-		stress_dccp_client(args, ppid, dccp_port, dccp_domain, dccp_if);
-		_exit(EXIT_SUCCESS);
+		rc = stress_dccp_client(args, mypid, dccp_port, dccp_domain, dccp_if);
+		/* Inform parent we're all done */
+		(void)kill(getppid(), SIGALRM);
+		_exit(rc);
 	} else {
-		rc = stress_dccp_server(args, pid, ppid, dccp_port,
+		rc = stress_dccp_server(args, pid, mypid, dccp_port,
 			dccp_domain, dccp_if, dccp_opts);
 	}
 finish:

@@ -456,10 +456,10 @@ static void stress_sock_invalid_recv(const int fd, const int opt)
  *  stress_sock_client()
  *	client reader
  */
-static void stress_sock_client(
+static int stress_sock_client(
 	const stress_args_t *args,
 	char *buf,
-	const pid_t ppid,
+	const pid_t mypid,
 	const int socket_opts,
 	const int socket_domain,
 	const int socket_type,
@@ -493,10 +493,8 @@ static void stress_sock_client(
 		static int count = 0;
 		socklen_t addr_len = 0;
 retry:
-		if (!keep_stressing_flag()) {
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
-		}
+		if (!keep_stressing_flag())
+			return EXIT_FAILURE;
 
 		/* Exercise illegal socket family  */
 		fd = socket(~0, socket_type, socket_protocol);
@@ -517,14 +515,14 @@ retry:
 		if (fd < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			/* failed, kick parent to finish */
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 
-		stress_set_sockaddr_if(args->name, args->instance, ppid,
-			socket_domain, socket_port, socket_if,
-			&addr, &addr_len, NET_ADDR_ANY);
+		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+				socket_domain, socket_port, socket_if,
+				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+			return EXIT_FAILURE;
+		}
 		if (connect(fd, addr, addr_len) < 0) {
 			int errno_tmp = errno;
 
@@ -535,8 +533,7 @@ retry:
 				/* Give up.. */
 				pr_fail("%s: connect failed, errno=%d (%s)\n",
 					args->name, errno_tmp, strerror(errno_tmp));
-				(void)kill(getppid(), SIGALRM);
-				_exit(EXIT_FAILURE);
+				return EXIT_FAILURE;
 			}
 			goto retry;
 		}
@@ -859,10 +856,9 @@ retry:
 		(void)shim_unlink(addr_un->sun_path);
 	}
 #endif
-	/* Inform parent we're all done */
 	stress_free_congestion_controls(ctrls, n_ctrls);
 
-	(void)kill(getppid(), SIGALRM);
+	return EXIT_SUCCESS;
 }
 
 static bool stress_send_error(const int err)
@@ -940,9 +936,11 @@ static int stress_sock_server(
 	/* exercise invalid optname */
 	(void)setsockopt(fd, SOL_SOCKET, -1, &so_reuseaddr, sizeof(so_reuseaddr));
 
-	stress_set_sockaddr_if(args->name, args->instance, ppid,
-		socket_domain, socket_port, socket_if,
-		&addr, &addr_len, NET_ADDR_ANY);
+	if (stress_set_sockaddr_if(args->name, args->instance, ppid,
+			socket_domain, socket_port, socket_if,
+			&addr, &addr_len, NET_ADDR_ANY) < 0) {
+		goto die_close;
+	}
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
 		pr_fail("%s: bind failed on port %d, errno=%d (%s)\n",
@@ -1197,7 +1195,7 @@ static bool stress_sock_kernel_rt(void)
  */
 static int stress_sock(const stress_args_t *args)
 {
-	pid_t pid, ppid = getppid();
+	pid_t pid, mypid = getpid();
 	int socket_opts = SOCKET_OPT_SEND;
 	int socket_domain = AF_INET;
 	int socket_type = SOCK_STREAM;
@@ -1262,13 +1260,16 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_sock_client(args, mmap_buffer, ppid, socket_opts,
+		rc = stress_sock_client(args, mmap_buffer, mypid, socket_opts,
 			socket_domain, socket_type, socket_protocol,
 			socket_port, socket_if, rt, socket_zerocopy);
 		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
+
+		/* Inform parent we're all done */
+		(void)kill(getppid(), SIGALRM);
 		_exit(rc);
 	} else {
-		rc = stress_sock_server(args, mmap_buffer, pid, ppid, socket_opts,
+		rc = stress_sock_server(args, mmap_buffer, pid, mypid, socket_opts,
 			socket_domain, socket_type, socket_protocol,
 			socket_port, socket_if, rt, socket_zerocopy);
 		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);

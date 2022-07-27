@@ -156,9 +156,9 @@ static void stress_sockabuse_fd(const int fd)
  *  stress_sockabuse_client()
  *	client reader
  */
-static void stress_sockabuse_client(
+static int stress_sockabuse_client(
 	const stress_args_t *args,
-	const pid_t ppid,
+	const pid_t mypid,
 	const int socket_port)
 {
 	struct sockaddr *addr;
@@ -175,21 +175,19 @@ static void stress_sockabuse_client(
 		uint64_t delay = 10000;
 
 retry:
-		if (!keep_stressing_flag()) {
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
-		}
+		if (!keep_stressing_flag())
+			return EXIT_FAILURE;
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			/* failed, kick parent to finish */
-			(void)kill(getppid(), SIGALRM);
-			_exit(EXIT_FAILURE);
+			return EXIT_FAILURE;
 		}
 
-		stress_set_sockaddr(args->name, args->instance, ppid,
-			AF_INET, socket_port,
-			&addr, &addr_len, NET_ADDR_ANY);
+		if (stress_set_sockaddr(args->name, args->instance, mypid,
+				AF_INET, socket_port,
+				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+			return EXIT_FAILURE;
+		}
 		if (connect(fd, addr, addr_len) < 0) {
 			(void)shutdown(fd, SHUT_RDWR);
 			(void)close(fd);
@@ -215,8 +213,7 @@ retry:
 		(void)close(fd);
 	} while (keep_stressing(args));
 
-	/* Inform parent we're all done */
-	(void)kill(getppid(), SIGALRM);
+	return EXIT_SUCCESS;
 }
 
 /*
@@ -226,7 +223,7 @@ retry:
 static int stress_sockabuse_server(
 	const stress_args_t *args,
 	const pid_t pid,
-	const pid_t ppid,
+	const pid_t mypid,
 	const int socket_port)
 {
 	char buf[SOCKET_BUF];
@@ -260,21 +257,22 @@ static int stress_sockabuse_server(
 			rc = exit_status(errno);
 			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			stress_sockabuse_fd(fd);
 			(void)close(fd);
 			continue;
 		}
 
-		stress_set_sockaddr(args->name, args->instance, ppid,
-			AF_INET, socket_port,
-			&addr, &addr_len, NET_ADDR_ANY);
+		if (stress_set_sockaddr(args->name, args->instance, mypid,
+				AF_INET, socket_port,
+				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+			(void)close(fd);
+			continue;
+		}
 		if (bind(fd, addr, addr_len) < 0) {
 			if (errno != EADDRINUSE) {
 				rc = exit_status(errno);
 				pr_fail("%s: bind failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}
-			stress_sockabuse_fd(fd);
 			(void)close(fd);
 			continue;
 		}
@@ -366,7 +364,7 @@ static void stress_sockabuse_sigpipe_handler(int signum)
  */
 static int stress_sockabuse(const stress_args_t *args)
 {
-	pid_t pid, ppid = getppid();
+	pid_t pid, mypid = getpid();
 	int socket_port = DEFAULT_SOCKABUSE_PORT + (int)args->instance;
 	int rc = EXIT_SUCCESS;
 
@@ -390,11 +388,15 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		stress_sockabuse_client(args, ppid,
+		rc = stress_sockabuse_client(args, mypid,
 			socket_port);
+
+		/* Inform parent we're all done */
+		(void)kill(getppid(), SIGALRM);
+
 		_exit(rc);
 	} else {
-		rc = stress_sockabuse_server(args, pid, ppid,
+		rc = stress_sockabuse_server(args, pid, mypid,
 			socket_port);
 	}
 finish:

@@ -152,10 +152,10 @@ int stress_set_net_domain(
 /*
  *  setup socket address
  */
-void stress_set_sockaddr_if(
+int stress_set_sockaddr_if(
 	const char *name,
 	const uint32_t instance,
-	const pid_t ppid,
+	const pid_t pid,
 	const int domain,
 	const int port,
 	const char *ifname,
@@ -163,15 +163,13 @@ void stress_set_sockaddr_if(
 	socklen_t *len,
 	const int net_addr)
 {
-	(void)ppid;
-
-	uint16_t sin_port = (uint16_t)port + (uint16_t)instance;
+	uint16_t sin_port = (uint16_t)port;
 
 	*sockaddr = NULL;
 	*len = 0;
 
-	/* Handle overflow to omit ports 0..1023 */
-	if ((port > 1024) && (sin_port < 1024))
+	/* omit ports 0..1023 */
+	if (sin_port < 1024)
 		sin_port += 1024;
 
 	switch (domain) {
@@ -234,8 +232,8 @@ void stress_set_sockaddr_if(
 		(void)memset(&addr, 0, sizeof(addr));
 		addr.sun_family = AF_UNIX;
 		(void)snprintf(addr.sun_path, sizeof(addr.sun_path),
-			"/tmp/stress-ng-%d-%" PRIu32,
-			(int)ppid, instance);
+			"/tmp/stress-ng-%jd-%" PRIu32,
+			(intmax_t)pid, instance);
 		*sockaddr = (struct sockaddr *)&addr;
 		*len = sizeof(addr);
 		break;
@@ -243,22 +241,22 @@ void stress_set_sockaddr_if(
 #endif
 	default:
 		pr_fail("%s: unknown domain %d\n", name, domain);
-		(void)kill(getppid(), SIGALRM);
-		_exit(EXIT_FAILURE);
+		return -1;
 	}
+	return 0;
 }
 
-void stress_set_sockaddr(
+int stress_set_sockaddr(
 	const char *name,
 	const uint32_t instance,
-	const pid_t ppid,
+	const pid_t pid,
 	const int domain,
 	const int port,
 	struct sockaddr **sockaddr,
 	socklen_t *len,
 	const int net_addr)
 {
-	stress_set_sockaddr_if(name, instance, ppid, domain, port, NULL, sockaddr, len, net_addr);
+	return stress_set_sockaddr_if(name, instance, pid, domain, port, NULL, sockaddr, len, net_addr);
 }
 
 /*
