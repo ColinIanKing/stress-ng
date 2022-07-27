@@ -975,6 +975,9 @@ rnd_rd_retry:
 				pr_dbg("%s: %" PRIu64
 					" incomplete random reads\n",
 					args->name, misreads);
+			if (baddata)
+				pr_fail("%s: incorrect data found %" PRIu64 " times\n",
+					args->name, baddata);
 		}
 
 		(void)close(fd);
