@@ -237,7 +237,7 @@ static int stress_zombie(const stress_args_t *args)
 				stress_zombie_head_remove(args, false);
 				continue;
 			}
-			(void)setpgid(zombie->pid, g_pgrp);
+			(void)setpgid(zombie->pid, getpgid(zombie->pid));
 
 			if (max_zombies < zombies.length)
 				max_zombies = zombies.length;

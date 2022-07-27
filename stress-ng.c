@@ -48,6 +48,7 @@ stress_stressor_t *g_stressor_current;
 /* Various option settings and flags */
 static volatile bool wait_flag = true;		/* false = exit run wait loop */
 static int terminate_signum;			/* signal sent to process */
+static pid_t main_pid;				/* stress-ng main pid */
 
 /* Globals */
 int32_t g_opt_sequential = DEFAULT_SEQUENTIAL;	/* # of sequential stressors */
@@ -56,7 +57,6 @@ uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool g_keep_stressing_flag = true;	/* false to exit stressor */
 volatile bool g_caught_sigint = false;		/* true if stopped by SIGINT */
-pid_t g_pgrp;					/* process group leader */
 const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
@@ -1357,13 +1357,18 @@ static void MLOCKED_TEXT stress_sigint_handler(int signum)
 }
 
 /*
- *  stress_sigalrm_parent_handler()
+ *  stress_sigalrm_handler()
  *	handle signal in parent process, don't block on waits
  */
-static void MLOCKED_TEXT stress_sigalrm_parent_handler(int signum)
+static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 {
-	(void)signum;
-	wait_flag = false;
+	if (getpid() == main_pid) {
+		/* Parent */
+		wait_flag = false;
+	} else {
+		/* Child */
+		stress_handle_stop_stressing(signum);
+	}
 }
 
 #if defined(SIGUSR2)
@@ -1419,9 +1424,7 @@ static int stress_set_handler(const char *stress, const bool child)
 		}
 	}
 #endif
-	if (stress_sighandler(stress, SIGALRM,
-	    child ? stress_handle_stop_stressing :
-		    stress_sigalrm_parent_handler, NULL) < 0)
+	if (stress_sighandler(stress, SIGALRM, stress_sigalrm_handler, NULL) < 0)
 		return -1;
 	return 0;
 }
@@ -1613,11 +1616,9 @@ static void stress_kill_stressors(const int sig)
 	/* multiple calls will always fallback to SIGKILL */
 	count++;
 	if (count > 5) {
-		pr_dbg("killing process group %d with SIGKILL\n", (int)g_pgrp);
+		pr_dbg("killing processes with SIGKILL\n");
 		signum = SIGKILL;
 	}
-
-	(void)killpg(g_pgrp, sig);
 
 	for (ss = stressors_head; ss; ss = ss->next) {
 		int32_t i;
@@ -1965,6 +1966,13 @@ redo:
 					case EXIT_NOT_IMPLEMENTED:
 						do_abort = true;
 						break;
+					case EXIT_SIGNALED:
+						do_abort = true;
+#if defined(STRESS_REPORT_EXIT_SIGNALED)
+						pr_dbg("process [%d] (stress-ng-%s) aborted via a termination signal\n",
+							ret, stressor_name);
+#endif
+						break;
 					case EXIT_BY_SYS_EXIT:
 						pr_dbg("process [%d] (stress-ng-%s) aborted via exit() which was not expected\n",
 							ret, stressor_name);
@@ -1982,7 +1990,7 @@ redo:
 						wexit_status = EXIT_NOT_SUCCESS;
 						CASE_FALLTHROUGH;
 					default:
-						pr_err("process %d (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
+						pr_err("process [%d] (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
 							ret, stressor_name, wexit_status,
 							stress_exit_status_to_string(wexit_status));
 						*success = false;
@@ -2031,12 +2039,18 @@ static void MLOCKED_TEXT stress_handle_terminate(int signum)
 	case SIGSEGV:
 	case SIGFPE:
 	case SIGBUS:
+		/*
+		 *  Critical failure, report and die ASAP
+		 */
 		(void)snprintf(buf, sizeof(buf), "%s: info:  [%d] stressor terminated with unexpected signal %s\n",
 			g_app_name, (int)getpid(), stress_strsignal(signum));
 		VOID_RET(ssize_t, write(fd, buf, strlen(buf)));
 		stress_kill_stressors(SIGALRM);
 		_exit(EXIT_SIGNALED);
 	default:
+		/*
+		 *  Kill stressors
+		 */
 		stress_kill_stressors(SIGALRM);
 		break;
 	}
@@ -3704,6 +3718,8 @@ int main(int argc, char **argv, char **envp)
 	int ret;
 	bool unsupported = false;		/* true if stressors are unsupported */
 
+	main_pid = getpid();
+
 	/* Enable stress-ng stack smashing message */
 	stress_set_stack_smash_check_flag(true);
 
@@ -3730,7 +3746,6 @@ int main(int argc, char **argv, char **envp)
 
 	(void)stress_get_page_size();
 	stressor_set_defaults();
-	g_pgrp = getpid();
 
 	if (stress_get_processors_configured() < 0) {
 		pr_err("sysconf failed, number of cpus configured "

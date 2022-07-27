@@ -104,7 +104,7 @@ static int stress_ioprio(const stress_args_t *args)
 			if (errno != EINVAL) {
 				pr_fail("%s: ioprio_get(OPRIO_WHO_PGRP, %" PRIdMAX "), "
 					"errno = %d (%s)\n",
-					args->name, (intmax_t)g_pgrp, errno, strerror(errno));
+					args->name, (intmax_t)grp, errno, strerror(errno));
 				goto cleanup_file;
 			}
 		}

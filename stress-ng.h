@@ -2636,7 +2636,6 @@ extern int32_t g_opt_sequential;	/* Number of sequential stressors */
 extern int32_t g_opt_parallel;		/* Number of parallel stressors */
 extern volatile bool g_keep_stressing_flag; /* false to exit stressor */
 extern volatile bool g_caught_sigint;	/* true if stopped by SIGINT */
-extern pid_t g_pgrp;			/* proceess group leader */
 extern jmp_buf g_error_env;		/* parsing error env */
 
 /*
