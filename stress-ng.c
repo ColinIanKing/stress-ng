@@ -1844,7 +1844,6 @@ static void MLOCKED_TEXT stress_wait_stressors(
 	 */
 	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
 		cpu_set_t proc_mask;
-		unsigned long int cpu = 0;
 		const int32_t ticks_per_sec =
 			stress_get_ticks_per_second() * 5;
 		const useconds_t usec_sleep =
@@ -1895,7 +1894,6 @@ static void MLOCKED_TEXT stress_wait_stressors(
 			}
 			if (!procs_alive)
 				break;
-			cpu++;
 		}
 	}
 do_wait:
