@@ -114,6 +114,302 @@ static int stress_set_udp_if(const char *name)
 	return stress_set_setting("udp-if", TYPE_ID_STR, name);
 }
 
+static int stress_udp_client(
+	const stress_args_t *args,
+	const pid_t mypid,
+	const int udp_domain,
+	const int udp_proto,
+	const int udp_port,
+	const bool udp_gro,
+	const char *udp_if)
+{
+	struct sockaddr *addr = NULL;
+	int rc = EXIT_FAILURE;
+
+	(void)setpgid(0, g_pgrp);
+	stress_parent_died_alarm();
+	(void)sched_settings_apply(true);
+
+	do {
+		char buf[UDP_BUF];
+		socklen_t len;
+		int fd;
+		int j = 0;
+
+		if ((fd = socket(udp_domain, SOCK_DGRAM, udp_proto)) < 0) {
+			pr_fail("%s: socket failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto child_die;
+		}
+
+		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+				udp_domain, udp_port, udp_if,
+				&addr, &len, NET_ADDR_ANY) < 0) {
+			goto child_die;
+		}
+#if defined(IPPROTO_UDPLITE) &&	\
+    defined(UDPLITE_SEND_CSCOV)
+		if (udp_proto == IPPROTO_UDPLITE) {
+			int val = 8;	/* Just the 8 byte header */
+			socklen_t slen;
+
+			slen = sizeof(val);
+			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, slen) < 0) {
+				pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+				(void)close(fd);
+				goto child_die;
+			}
+			slen = sizeof(val);
+			(void)getsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, &slen);
+		}
+#endif
+#if defined(IPPROTO_UDPLITE) &&	\
+    defined(UDPLITE_RECV_CSCOV)
+		if (udp_proto == IPPROTO_UDPLITE) {
+			int val;
+			socklen_t slen = sizeof(val);
+
+			(void)getsockopt(fd, udp_proto, UDPLITE_RECV_CSCOV, &val, &slen);
+		}
+#endif
+
+#if defined(UDP_GRO)
+		if (udp_gro) {
+			int val;
+			socklen_t slen = sizeof(val);
+
+			val = 1;
+			VOID_RET(int, setsockopt(fd, udp_proto, UDP_GRO, &val, slen));
+		}
+#endif
+
+#if defined(UDP_CORK)
+		{
+			int val, ret;
+			socklen_t slen = sizeof(val);
+
+			ret = getsockopt(fd, udp_proto, UDP_CORK, &val, &slen);
+			if (ret == 0) {
+				slen = sizeof(val);
+				VOID_RET(int, setsockopt(fd, udp_proto, UDP_CORK, &val, slen));
+			}
+		}
+#else
+		UNEXPECTED
+#endif
+#if defined(UDP_ENCAP)
+		{
+			int val, ret;
+			socklen_t slen = sizeof(val);
+
+			ret = getsockopt(fd, udp_proto, UDP_ENCAP, &val, &slen);
+			if (ret == 0) {
+				slen = sizeof(val);
+				VOID_RET(int, setsockopt(fd, udp_proto, UDP_ENCAP, &val, slen));
+			}
+		}
+#else
+		UNEXPECTED
+#endif
+#if defined(UDP_NO_CHECK6_TX)
+		{
+			int val, ret;
+			socklen_t slen = sizeof(val);
+
+			ret = getsockopt(fd, udp_proto, UDP_NO_CHECK6_TX, &val, &slen);
+			if (ret == 0) {
+				slen = sizeof(val);
+				VOID_RET(int, setsockopt(fd, udp_proto, UDP_NO_CHECK6_TX, &val, slen));
+			}
+		}
+#else
+		UNEXPECTED
+#endif
+#if defined(UDP_NO_CHECK6_RX)
+		{
+			int val, ret;
+			socklen_t slen = sizeof(val);
+			ret = getsockopt(fd, udp_proto, UDP_NO_CHECK6_RX, &val, &slen);
+			if (ret == 0) {
+				slen = sizeof(val);
+				VOID_RET(int, setsockopt(fd, udp_proto, UDP_NO_CHECK6_RX, &val, slen));
+			}
+		}
+#else
+		UNEXPECTED
+#endif
+#if defined(UDP_SEGMENT)
+		{
+			int val, ret;
+			socklen_t slen = sizeof(val);
+
+			ret = getsockopt(fd, udp_proto, UDP_SEGMENT, &val, &slen);
+			if (ret == 0) {
+				slen = sizeof(val);
+				VOID_RET(int, setsockopt(fd, udp_proto, UDP_SEGMENT, &val, slen));
+			}
+		}
+#else
+		UNEXPECTED
+#endif
+		do {
+			size_t i;
+
+			for (i = 16; i < sizeof(buf); i += 16, j++) {
+				(void)memset(buf, 'A' + (j % 26), sizeof(buf));
+				ssize_t ret = sendto(fd, buf, i, 0, addr, len);
+				if (ret < 0) {
+					if ((errno == EINTR) || (errno == ENETUNREACH))
+						break;
+					pr_fail("%s: sendto failed, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					break;
+				}
+			}
+#if defined(SIOCOUTQ)
+			{
+				int pending;
+
+				VOID_RET(int, ioctl(fd, SIOCOUTQ, &pending));
+			}
+#else
+		UNEXPECTED
+#endif
+		} while (keep_stressing(args));
+		(void)close(fd);
+	} while (keep_stressing(args));
+
+	rc = EXIT_SUCCESS;
+child_die:
+
+#if defined(AF_UNIX) &&		\
+    defined(HAVE_SOCKADDR_UN)
+	if ((udp_domain == AF_UNIX) && addr) {
+		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+
+		(void)shim_unlink(addr_un->sun_path);
+	}
+#endif
+	return rc;
+}
+
+static int stress_udp_server(
+	const stress_args_t *args,
+	const pid_t pid,
+	const pid_t mypid,
+	const int udp_domain,
+	const int udp_proto,
+	const int udp_port,
+	const bool udp_gro,
+	const char *udp_if)
+{
+	char buf[UDP_BUF];
+	int fd, status;
+#if !defined(__minix__)
+	int so_reuseaddr = 1;
+#endif
+	socklen_t addr_len = 0;
+	struct sockaddr *addr = NULL;
+	int rc = EXIT_FAILURE;
+
+	(void)setpgid(pid, g_pgrp);
+
+	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
+		goto die;
+	if ((fd = socket(udp_domain, SOCK_DGRAM, udp_proto)) < 0) {
+		pr_fail("%s: socket failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto die;
+	}
+	if (stress_set_sockaddr_if(args->name, args->instance, mypid,
+			udp_domain, udp_port, udp_if,
+			&addr, &addr_len, NET_ADDR_ANY) < 0) {
+		goto die;
+	}
+#if defined(IPPROTO_UDPLITE)
+	if (udp_proto == IPPROTO_UDPLITE) {
+		int val = 8;	/* Just the 8 byte header */
+
+		if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(val)) < 0) {
+			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto die_close;
+		}
+	}
+#endif
+	if (bind(fd, addr, addr_len) < 0) {
+		pr_fail("%s: bind failed, errno=%d (%s)\n",
+			args->name, errno, strerror(errno));
+		goto die_close;
+	}
+#if !defined(__minix__)
+	if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
+		/*
+		 *  Some systems don't support SO_REUSEADDR
+		 */
+		if (errno != EINVAL) {
+			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			goto die_close;
+		}
+	}
+#endif
+
+#if defined(UDP_GRO)
+	if (udp_gro) {
+		int val;
+		socklen_t slen = sizeof(val);
+
+		val = 1;
+		VOID_RET(int, setsockopt(fd, udp_proto, UDP_GRO, &val, slen));
+	}
+#endif
+	do {
+		socklen_t len = addr_len;
+		ssize_t n;
+#if defined(SIOCOUTQ)
+		{
+			int pending;
+
+			VOID_RET(int, ioctl(fd, SIOCINQ, &pending));
+		}
+#else
+		UNEXPECTED
+#endif
+		n = recvfrom(fd, buf, sizeof(buf), 0, addr, &len);
+		if (n == 0)
+			break;
+		if (n < 0) {
+			if (errno != EINTR)
+				pr_fail("%s: recvfrom failed, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			break;
+		}
+		inc_counter(args);
+	} while (keep_stressing(args));
+
+	rc = EXIT_SUCCESS;
+die_close:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	(void)close(fd);
+die:
+	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+#if defined(AF_UNIX) &&		\
+    defined(HAVE_SOCKADDR_UN)
+	if ((udp_domain == AF_UNIX) && addr) {
+		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
+
+		(void)shim_unlink(addr_un->sun_path);
+	}
+#endif
+	if (pid) {
+		(void)kill(pid, SIGKILL);
+		(void)shim_waitpid(pid, &status, 0);
+	}
+	return rc;
+}
+
 /*
  *  stress_udp
  *	stress by heavy udp ops
@@ -124,7 +420,7 @@ static int stress_udp(const stress_args_t *args)
 	int udp_domain = AF_INET;
 	pid_t pid, mypid = getpid();
 	int rc = EXIT_SUCCESS;
-	int proto = 0;
+	int udp_proto = 0;
 #if defined(IPPROTO_UDPLITE)
 	bool udp_lite = false;
 #endif
@@ -139,11 +435,11 @@ static int stress_udp(const stress_args_t *args)
 #if defined(IPPROTO_UDPLITE)
 	(void)stress_get_setting("udp-lite", &udp_lite);
 
-	proto = udp_lite ? IPPROTO_UDPLITE : IPPROTO_UDP;
+	udp_proto = udp_lite ? IPPROTO_UDPLITE : IPPROTO_UDP;
 
-	if ((proto == IPPROTO_UDPLITE) &&
+	if ((udp_proto == IPPROTO_UDPLITE) &&
 	    (udp_domain == AF_UNIX)) {
-		proto = 0;
+		udp_proto = 0;
 		if (args->instance == 0) {
 			pr_inf("%s: disabling UDP-Lite as it is not "
 				"available for UNIX domain UDP\n",
@@ -182,291 +478,13 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		/* Child, client */
-		struct sockaddr *addr = NULL;
+		rc = stress_udp_client(args, mypid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
 
-		(void)setpgid(0, g_pgrp);
-		stress_parent_died_alarm();
-		(void)sched_settings_apply(true);
-
-		rc = EXIT_FAILURE;
-
-		do {
-			char buf[UDP_BUF];
-			socklen_t len;
-			int fd;
-			int j = 0;
-
-			if ((fd = socket(udp_domain, SOCK_DGRAM, proto)) < 0) {
-				pr_fail("%s: socket failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				goto child_die;
-			}
-
-			if (stress_set_sockaddr_if(args->name, args->instance, mypid,
-					udp_domain, udp_port, udp_if,
-					&addr, &len, NET_ADDR_ANY) < 0) {
-				goto child_die;
-			}
-#if defined(IPPROTO_UDPLITE) &&	\
-    defined(UDPLITE_SEND_CSCOV)
-			if (proto == IPPROTO_UDPLITE) {
-				int val = 8;	/* Just the 8 byte header */
-				socklen_t slen;
-
-				slen = sizeof(val);
-				if (setsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, slen) < 0) {
-					pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					(void)close(fd);
-					goto child_die;
-				}
-				slen = sizeof(val);
-				(void)getsockopt(fd, SOL_UDPLITE, UDPLITE_SEND_CSCOV, &val, &slen);
-			}
-#endif
-#if defined(IPPROTO_UDPLITE) &&	\
-    defined(UDPLITE_RECV_CSCOV)
-			if (proto == IPPROTO_UDPLITE) {
-				int val;
-				socklen_t slen = sizeof(val);
-
-				(void)getsockopt(fd, proto, UDPLITE_RECV_CSCOV, &val, &slen);
-			}
-#endif
-
-#if defined(UDP_GRO)
-			if (udp_gro) {
-				int val;
-				socklen_t slen = sizeof(val);
-
-				val = 1;
-				VOID_RET(int, setsockopt(fd, proto, UDP_GRO, &val, slen));
-			}
-#endif
-
-#if defined(UDP_CORK)
-			{
-				int val, ret;
-				socklen_t slen = sizeof(val);
-
-				ret = getsockopt(fd, proto, UDP_CORK, &val, &slen);
-				if (ret == 0) {
-					slen = sizeof(val);
-					VOID_RET(int, setsockopt(fd, proto, UDP_CORK, &val, slen));
-				}
-			}
-#else
-			UNEXPECTED
-#endif
-#if defined(UDP_ENCAP)
-			{
-				int val, ret;
-				socklen_t slen = sizeof(val);
-
-				ret = getsockopt(fd, proto, UDP_ENCAP, &val, &slen);
-				if (ret == 0) {
-					slen = sizeof(val);
-					VOID_RET(int, setsockopt(fd, proto, UDP_ENCAP, &val, slen));
-				}
-			}
-#else
-			UNEXPECTED
-#endif
-#if defined(UDP_NO_CHECK6_TX)
-			{
-				int val, ret;
-				socklen_t slen = sizeof(val);
-
-				ret = getsockopt(fd, proto, UDP_NO_CHECK6_TX, &val, &slen);
-				if (ret == 0) {
-					slen = sizeof(val);
-					VOID_RET(int, setsockopt(fd, proto, UDP_NO_CHECK6_TX, &val, slen));
-				}
-			}
-#else
-			UNEXPECTED
-#endif
-#if defined(UDP_NO_CHECK6_RX)
-			{
-				int val, ret;
-				socklen_t slen = sizeof(val);
-				ret = getsockopt(fd, proto, UDP_NO_CHECK6_RX, &val, &slen);
-				if (ret == 0) {
-					slen = sizeof(val);
-					VOID_RET(int, setsockopt(fd, proto, UDP_NO_CHECK6_RX, &val, slen));
-				}
-			}
-#else
-			UNEXPECTED
-#endif
-#if defined(UDP_SEGMENT)
-			{
-				int val, ret;
-				socklen_t slen = sizeof(val);
-
-				ret = getsockopt(fd, proto, UDP_SEGMENT, &val, &slen);
-				if (ret == 0) {
-					slen = sizeof(val);
-					VOID_RET(int, setsockopt(fd, proto, UDP_SEGMENT, &val, slen));
-				}
-			}
-#else
-			UNEXPECTED
-#endif
-			do {
-				size_t i;
-
-				for (i = 16; i < sizeof(buf); i += 16, j++) {
-					(void)memset(buf, 'A' + (j % 26), sizeof(buf));
-					ssize_t ret = sendto(fd, buf, i, 0, addr, len);
-					if (ret < 0) {
-						if ((errno == EINTR) || (errno == ENETUNREACH))
-							break;
-						pr_fail("%s: sendto failed, errno=%d (%s)\n",
-							args->name, errno, strerror(errno));
-						break;
-					}
-				}
-#if defined(SIOCOUTQ)
-				{
-					int pending;
-
-					VOID_RET(int, ioctl(fd, SIOCOUTQ, &pending));
-				}
-#else
-			UNEXPECTED
-#endif
-			} while (keep_stressing(args));
-			(void)close(fd);
-		} while (keep_stressing(args));
-
-		rc = EXIT_SUCCESS;
-child_die:
-
-#if defined(AF_UNIX) &&		\
-    defined(HAVE_SOCKADDR_UN)
-		if ((udp_domain == AF_UNIX) && addr) {
-			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
-
-			(void)shim_unlink(addr_un->sun_path);
-		}
-#endif
 		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);
 		_exit(rc);
 	} else {
-		/* Parent, server */
-
-		char buf[UDP_BUF];
-		int fd, status;
-#if !defined(__minix__)
-		int so_reuseaddr = 1;
-#endif
-		socklen_t addr_len = 0;
-		struct sockaddr *addr = NULL;
-
-		(void)setpgid(pid, g_pgrp);
-
-		if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
-			rc = EXIT_FAILURE;
-			goto die;
-		}
-		if ((fd = socket(udp_domain, SOCK_DGRAM, proto)) < 0) {
-			pr_fail("%s: socket failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			goto die;
-		}
-		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
-				udp_domain, udp_port, udp_if,
-				&addr, &addr_len, NET_ADDR_ANY) < 0) {
-			rc = EXIT_FAILURE;
-			goto die;
-		}
-#if defined(IPPROTO_UDPLITE)
-		if (proto == IPPROTO_UDPLITE) {
-			int val = 8;	/* Just the 8 byte header */
-
-			if (setsockopt(fd, SOL_UDPLITE, UDPLITE_RECV_CSCOV, &val, sizeof(val)) < 0) {
-				pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				rc = EXIT_FAILURE;
-				goto die_close;
-			}
-		}
-#endif
-		if (bind(fd, addr, addr_len) < 0) {
-			pr_fail("%s: bind failed, errno=%d (%s)\n",
-				args->name, errno, strerror(errno));
-			rc = EXIT_FAILURE;
-			goto die_close;
-		}
-#if !defined(__minix__)
-		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-			/*
-			 *  Some systems don't support SO_REUSEADDR
-			 */
-			if (errno != EINVAL) {
-				pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
-				rc = EXIT_FAILURE;
-				goto die_close;
-			}
-		}
-#endif
-
-#if defined(UDP_GRO)
-		if (udp_gro) {
-			int val;
-			socklen_t slen = sizeof(val);
-
-			val = 1;
-			VOID_RET(int, setsockopt(fd, proto, UDP_GRO, &val, slen));
-		}
-#endif
-		do {
-			socklen_t len = addr_len;
-			ssize_t n;
-#if defined(SIOCOUTQ)
-			{
-				int pending;
-
-				VOID_RET(int, ioctl(fd, SIOCINQ, &pending));
-			}
-#else
-			UNEXPECTED
-#endif
-
-			n = recvfrom(fd, buf, sizeof(buf), 0, addr, &len);
-			if (n == 0)
-				break;
-			if (n < 0) {
-				if (errno != EINTR)
-					pr_fail("%s: recvfrom failed, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-				break;
-			}
-			inc_counter(args);
-		} while (keep_stressing(args));
-
-die_close:
-		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-		(void)close(fd);
-die:
-		stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-#if defined(AF_UNIX) &&		\
-    defined(HAVE_SOCKADDR_UN)
-		if ((udp_domain == AF_UNIX) && addr) {
-			struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
-
-			(void)shim_unlink(addr_un->sun_path);
-		}
-#endif
-		if (pid) {
-			(void)kill(pid, SIGKILL);
-			(void)shim_waitpid(pid, &status, 0);
-		}
+		rc = stress_udp_server(args, pid, mypid, udp_domain, udp_proto, udp_port, udp_gro, udp_if);
 	}
 	return rc;
 }
