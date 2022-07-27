@@ -456,8 +456,10 @@ static int stress_dccp(const stress_args_t *args)
 		}
 	}
 
+	dccp_port += args->instance;
+
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, dccp_port + (int)args->instance);
+		args->name, (int)args->pid, dccp_port);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
