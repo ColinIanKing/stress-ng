@@ -945,8 +945,8 @@ static int stress_sock_server(
 		&addr, &addr_len, NET_ADDR_ANY);
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = exit_status(errno);
-		pr_fail("%s: bind failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: bind failed on port %d, errno=%d (%s)\n",
+			args->name, socket_port, errno, strerror(errno));
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {
@@ -1232,9 +1232,10 @@ static int stress_sock(const stress_args_t *args)
 			socket_if = NULL;
 		}
 	}
+	socket_port += args->instance;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, socket_port + (int)args->instance);
+		args->name, (int)args->pid, socket_port);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
