@@ -2597,11 +2597,13 @@ a 4MB file backed shared memory mapping.
 stop madvise stressors after N bogo madvise operations.
 .TP
 .B \-\-malloc N
-start N workers continuously calling malloc(3), calloc(3), realloc(3) and
-free(3). By default, up to 65536 allocations can be active at any point, but
-this can be altered with the \-\-malloc\-max option.  Allocation, reallocation
-and freeing are chosen at random; 50% of the time memory is allocation (via
-malloc, calloc or realloc) and 50% of the time allocations are free'd.
+start N workers continuously calling malloc(3), calloc(3), realloc(3),
+posix_memalign(3), aligned_alloc(3), memalign(3) and free(3). By
+default, up to 65536 allocations can be active at any point, but
+this can be altered with the \-\-malloc\-max option.  Allocation,
+reallocation and freeing are chosen at random; 50% of the time memory
+is allocation (via one of malloc, calloc or realloc, posix_memalign,
+aligned_alloc, memalign) and 50% of the time allocations are free'd.
 Allocation sizes are also random, with the maximum allocation size controlled
 by the \-\-malloc\-bytes option, the default size being 64K.  The worker is
 re-started if it is killed by the out of memory (OOM) killer.

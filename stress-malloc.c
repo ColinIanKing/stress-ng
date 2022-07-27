@@ -37,6 +37,8 @@
 
 #define MAX_MALLOC_PTHREADS	(32)
 
+#define MK_ALIGN(x)	(1U << (3 + ((x) & 7)))
+
 static size_t malloc_max;		/* Maximum number of allocations */
 static size_t malloc_bytes;		/* Maximum per-allocation size */
 #if defined(HAVE_LIB_PTHREAD)
@@ -227,12 +229,34 @@ static void *stress_malloc_loop(void *ptr)
 			if (action) {
 				size_t len = stress_alloc_size(malloc_bytes);
 
-				if (do_calloc == 0) {
+				switch (do_calloc) {
+				case 0:
 					size_t n = ((rnd >> 15) % 17) + 1;
 					addr[i] = calloc(n, len / n);
 					len = n * (len / n);
-				} else {
+					break;
+#if defined(HAVE_POSIX_MEMALIGN)
+				case 1:
+					/* POSIX.1-2001 and POSIX.1-2008 */
+					if (posix_memalign((void **)&addr[i], MK_ALIGN(i), len) != 0)
+						addr[i] = NULL;
+					break;
+#endif
+#if defined(HAVE_ALIGNED_ALLOC)
+				case 2:
+					/* C11 aligned allocation */
+					addr[i] = aligned_alloc(MK_ALIGN(i), len);
+					break;
+#endif
+#if defined(HAVE_MEMALIGN)
+				case 3:
+					/* SunOS 4.1.3 */
+					addr[i] = memalign(MK_ALIGN(i), len);
+					break;
+#endif
+				default:
 					addr[i] = malloc(len);
+					break;
 				}
 				if (addr[i]) {
 					stress_malloc_page_touch((void *)addr[i], len, page_size);
