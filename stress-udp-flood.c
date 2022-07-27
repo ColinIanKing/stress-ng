@@ -107,9 +107,10 @@ static int stress_udp_flood(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	stress_set_sockaddr_if(args->name, args->instance, args->pid,
-		udp_flood_domain, port, udp_flood_if,
-		&addr, &addr_len, NET_ADDR_ANY);
+	if (stress_set_sockaddr_if(args->name, args->instance, args->pid,
+			udp_flood_domain, port, udp_flood_if,
+			&addr, &addr_len, NET_ADDR_ANY) < 0) {
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
