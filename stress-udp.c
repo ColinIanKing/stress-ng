@@ -167,8 +167,10 @@ static int stress_udp(const stress_args_t *args)
 		}
 	}
 
+	udp_port += args->instance;
+
 	pr_dbg("%s: process [%d] using udp port %d\n",
-		args->name, (int)args->pid, udp_port + (int)args->instance);
+		args->name, (int)args->pid, udp_port);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
