@@ -113,7 +113,6 @@ again:
 		int status;
 
 		/* Parent */
-		(void)setpgid(pid, g_pgrp);
 		(void)close(pipefds[0]);
 
 		do {

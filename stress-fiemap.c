@@ -215,14 +215,12 @@ static inline pid_t stress_fiemap_spawn(const stress_args_t *args, const int fd)
 	if (pid < 0)
 		return -1;
 	if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 		stress_mwc_reseed();
 		stress_fiemap_ioctl(args, fd);
 		_exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 

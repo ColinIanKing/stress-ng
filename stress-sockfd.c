@@ -149,7 +149,6 @@ static int stress_socket_client(
 {
 	struct sockaddr *addr = NULL;
 
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
@@ -254,8 +253,6 @@ static int stress_socket_server(
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 	const int bad_fd = stress_get_bad_fd();
-
-	(void)setpgid(pid, g_pgrp);
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;

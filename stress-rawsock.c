@@ -104,7 +104,6 @@ again:
 		stress_raw_packet_t ALIGN64 pkt;
 		struct sockaddr_in addr;
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -176,8 +175,6 @@ again:
 		/* Parent, server */
 		int fd = -1, status;
 		struct sockaddr_in addr;
-
-		(void)setpgid(pid, g_pgrp);
 
 		if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 			rc = EXIT_FAILURE;

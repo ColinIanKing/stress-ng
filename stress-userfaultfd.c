@@ -101,7 +101,6 @@ static int stress_userfaultfd_clone(void *arg)
 	stress_context_t *c = (stress_context_t *)arg;
 	const stress_args_t *args = c->args;
 
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 

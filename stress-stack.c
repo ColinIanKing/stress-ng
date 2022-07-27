@@ -164,7 +164,6 @@ static int stress_stack_child(const stress_args_t *args, void *context)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 
 	if (start_ptr == (void *) -1) {

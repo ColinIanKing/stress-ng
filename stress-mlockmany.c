@@ -122,7 +122,6 @@ static int stress_mlockmany(const stress_args_t *args)
 				void *ptr = MAP_FAILED;
 				size_t mmap_size = mlock_size;
 
-				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
 				stress_set_oom_adjustment(args->name, true);
 				(void)sched_settings_apply(true);
@@ -186,8 +185,6 @@ unmap:
 				(void)munmap(ptr, mmap_size);
 				_exit(0);
 			}
-			if (pid > -1)
-				(void)setpgid(pids[n], g_pgrp);
 			pids[n] = pid;
 			if (!keep_stressing_flag())
 				break;

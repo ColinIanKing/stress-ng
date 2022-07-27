@@ -2572,7 +2572,6 @@ static inline int stress_do_syscall(const stress_args_t *args)
 		if (stress_sighandler(args->name, SIGALRM, stress_syscall_itimer_handler, NULL) < 0)
 			_exit(EXIT_FAILURE);
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 		stress_mwc_reseed();

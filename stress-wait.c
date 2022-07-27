@@ -64,7 +64,6 @@ again:
 		func(args, pid_arg);
 		_exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 

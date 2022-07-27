@@ -71,7 +71,6 @@ static int stress_bind_mount_child(void *parg)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 
 	(void)stress_temp_dir(path, sizeof(path), args->name, getpid(), args->instance);

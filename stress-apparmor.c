@@ -243,7 +243,6 @@ again:
 			_exit(EXIT_FAILURE);
 		}
 
-		(void)setpgid(0, g_pgrp);
 		(void)sched_settings_apply(true);
 		stress_parent_died_alarm();
 		if (!stress_apparmor_keep_stressing_inc(args, false))
@@ -254,7 +253,6 @@ abort:
 		(void)kill(args->pid, SIGUSR1);
 		_exit(ret);
 	}
-	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 

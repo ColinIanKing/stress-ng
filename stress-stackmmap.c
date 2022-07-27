@@ -195,7 +195,6 @@ again:
 			int status, waitret;
 
 			/* Parent, wait for child */
-			(void)setpgid(pid, g_pgrp);
 			waitret = shim_waitpid(pid, &status, 0);
 			if (waitret < 0) {
 				if (errno != EINTR)
@@ -208,7 +207,6 @@ again:
 		} else {
 			/* Child */
 
-			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 

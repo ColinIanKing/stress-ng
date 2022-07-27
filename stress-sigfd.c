@@ -117,7 +117,6 @@ again:
 	} else if (pid == 0) {
 		int val = 0;
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -139,8 +138,6 @@ again:
 		/* Parent */
 		int status;
 		const pid_t self = getpid();
-
-		(void)setpgid(pid, g_pgrp);
 
 		do {
 			ssize_t ret;

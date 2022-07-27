@@ -76,7 +76,6 @@ again:
 				args->name, errno, strerror(errno));
 			goto reap;
 		} else if (pid[n] == 0) {
-			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
@@ -85,7 +84,6 @@ again:
 			} while (inc_counter_lock(args, counter_lock, true));
 			_exit(0);
 		}
-		(void)setpgid(pid[n], g_pgrp);
 	}
 
 	/* Parent */

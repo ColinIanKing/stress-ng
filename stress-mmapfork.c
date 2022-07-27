@@ -142,7 +142,6 @@ static int stress_mmapfork(const stress_args_t *args)
 				/* Child */
 				const pid_t ppid = getppid();
 
-				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
 				(void)sched_settings_apply(true);
 
@@ -194,7 +193,6 @@ static int stress_mmapfork(const stress_args_t *args)
 				}
 				_exit(EXIT_SUCCESS);
 			}
-			(void)setpgid(pids[i], g_pgrp);
 		}
 
 		/*

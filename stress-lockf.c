@@ -306,7 +306,6 @@ again:
 		goto tidy;
 	}
 	if (cpid == 0) {
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -315,7 +314,6 @@ again:
 		stress_lockf_info_free();
 		_exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(cpid, g_pgrp);
 
 	if (stress_lockf_contention(args, fd, bad_fd) == 0)
 		ret = EXIT_SUCCESS;

@@ -423,7 +423,6 @@ again:
 		} else if (pid > 0) {
 			int status, wret;
 
-			(void)setpgid(pid, g_pgrp);
 			/* Parent, wait for child */
 			wret = shim_waitpid(pid, &status, 0);
 			if (wret < 0) {
@@ -454,7 +453,6 @@ again:
 			if (stress_sighandler(args->name, SIGSEGV, stress_segv_handler, NULL) < 0)
 				_exit(EXIT_NO_RESOURCE);
 
-			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 			rc = shim_pthread_spin_init(&lock, SHIM_PTHREAD_PROCESS_SHARED);

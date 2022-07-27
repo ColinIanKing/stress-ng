@@ -208,7 +208,6 @@ again:
 #endif
 		return EXIT_FAILURE;
 	} else if (pid1 == 0) {
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -230,7 +229,6 @@ again:
 		/* Parent */
 		int fd2, status, pid2;
 
-		(void)setpgid(pid1, g_pgrp);
 		pid2 = getpid();
 		if ((fd2 = open("/dev/null", O_WRONLY)) < 0) {
 			pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",

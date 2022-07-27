@@ -109,8 +109,6 @@ again:
 	if (pid > 0) {
 		int status;
 
-		(void)setpgid(pid, g_pgrp);
-
 		do {
 			int ret;
 
@@ -138,7 +136,6 @@ again:
 	} else {
 		uint64_t threshold = THRESHOLD;
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

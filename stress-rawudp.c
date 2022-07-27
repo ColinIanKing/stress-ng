@@ -108,7 +108,6 @@ static void NORETURN stress_rawudp_client(
 	struct sockaddr_in s_in;
 	int one = 1;
 
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 

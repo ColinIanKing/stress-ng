@@ -61,7 +61,6 @@ static void NORETURN stress_resched_child(
 	};
 #endif
 
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 

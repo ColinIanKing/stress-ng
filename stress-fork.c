@@ -232,8 +232,6 @@ static int stress_fork_fn(
 			} else if (pid < 0) {
 				info[n].err = errno;
 			}
-			if (pid > -1)
-				(void)setpgid(pid, g_pgrp);
 			info[n].pid  = pid;
 			if (!keep_stressing(args))
 				break;

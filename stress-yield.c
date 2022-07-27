@@ -111,7 +111,6 @@ static int stress_yield(const stress_args_t *args)
 				", yielder %zd): errno=%d (%s)\n",
 				args->name, args->instance, i, errno, strerror(errno));
 		} else if (pids[i] == 0) {
-			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 

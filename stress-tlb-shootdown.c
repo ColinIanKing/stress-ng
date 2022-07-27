@@ -109,7 +109,6 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 				cpu_set_t mask;
 				char buffer[page_size];
 
-				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
 				(void)sched_settings_apply(true);
 

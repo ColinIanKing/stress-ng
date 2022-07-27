@@ -190,7 +190,6 @@ again:
 	} else if (pid == 0) {
 		char buf[buf_size];
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -221,7 +220,6 @@ again:
 		uint64_t delay = switch_delay;
 
 		/* Parent */
-		(void)setpgid(pid, g_pgrp);
 		(void)close(pipefds[0]);
 		(void)memset(buf, '_', buf_size);
 
@@ -304,7 +302,6 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -333,8 +330,6 @@ again:
 		struct sembuf sem;
 
 		/* Parent */
-		(void)setpgid(pid, g_pgrp);
-
 		t_start = stress_time_now();
 		do {
 			inc_counter(args);
@@ -422,7 +417,6 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -438,8 +432,6 @@ again:
 		uint64_t delay = switch_delay;
 
 		/* Parent */
-		(void)setpgid(pid, g_pgrp);
-
 		t_start = stress_time_now();
 		do {
 			inc_counter(args);

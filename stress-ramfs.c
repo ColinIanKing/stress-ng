@@ -242,7 +242,6 @@ static int stress_ramfs_child(const stress_args_t *args)
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
@@ -398,7 +397,6 @@ again:
 			int status, waitret;
 
 			/* Parent, wait for child */
-			(void)setpgid(pid, g_pgrp);
 			waitret = shim_waitpid(pid, &status, 0);
 			if (waitret < 0) {
 				if (errno != EINTR) {

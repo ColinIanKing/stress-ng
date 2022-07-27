@@ -277,7 +277,6 @@ static int stress_exec(const stress_args_t *args)
 #endif
 				stress_exec_args_t exec_args;
 
-				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
 				(void)sched_settings_apply(true);
 
@@ -386,8 +385,6 @@ do_exec:
 				/* Child, immediately exit */
 				_exit(rc);
 			}
-			if (pids[i] > -1)
-				(void)setpgid(pids[i], g_pgrp);
 			if (!keep_stressing_flag())
 				break;
 		}

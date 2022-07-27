@@ -113,8 +113,6 @@ fork_again:
 		static uint8_t *waste;
 		static size_t waste_size = WASTE_SIZE;
 
-		(void)setpgid(0, g_pgrp);
-
 		/*
 		 *  We want the children to be OOM'd if we
 		 *  eat up too much memory
@@ -242,7 +240,6 @@ vfork_again:
 		 * see and will then exit.  We wait for the first
 		 * one spawned to unblock and exit
 		 */
-		(void)setpgid(chpid, g_pgrp);
 		g_opt_flags &= ~OPT_FLAGS_OOMABLE;
 		stress_set_oom_adjustment(args->name, false);
 

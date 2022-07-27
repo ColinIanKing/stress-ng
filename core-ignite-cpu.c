@@ -289,7 +289,6 @@ void stress_ignite_cpu_start(void)
 	} else if (pid == 0) {
 		/* Child */
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		stress_set_proc_name("stress-ng-ignite");
 
@@ -323,9 +322,6 @@ void stress_ignite_cpu_start(void)
 			(void)sleep(1);
 		}
 		_exit(0);
-	} else {
-		/* Parent */
-		(void)setpgid(pid, g_pgrp);
 	}
 }
 

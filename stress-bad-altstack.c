@@ -175,7 +175,6 @@ again:
 		} else if (pid > 0) {
 			int status, ret;
 
-			(void)setpgid(pid, g_pgrp);
 			/* Parent, wait for child */
 			ret = waitpid(pid, &status, 0);
 			if (ret < 0) {

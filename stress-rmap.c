@@ -220,15 +220,12 @@ static int stress_rmap(const stress_args_t *args)
 			    stress_rmap_handler, NULL) < 0)
 				_exit(EXIT_FAILURE);
 
-			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 
 			/* Make sure this is killable by OOM killer */
 			stress_set_oom_adjustment(args->name, true);
 			stress_rmap_child(args, page_size, mappings);
-		} else {
-			(void)setpgid(pids[i], g_pgrp);
 		}
 	}
 

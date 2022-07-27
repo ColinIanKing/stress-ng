@@ -438,7 +438,6 @@ again:
 	} else if (pid > 0) {
 		int status;
 
-		(void)setpgid(pid, g_pgrp);
 		/* Parent, wait for child */
 		ret = shim_waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -475,7 +474,6 @@ again:
 		/* Child, wrapped to catch OOMs */
 		const pid_t mypid = getpid();
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

@@ -829,7 +829,6 @@ static int stress_resources(const stress_args_t *args)
 
 			pid = fork();
 			if (pid == 0) {
-				(void)setpgid(0, g_pgrp);
 				stress_set_oom_adjustment(args->name, true);
 				VOID_RET(int, stress_drop_capabilities(args->name));
 				(void)sched_settings_apply(true);
@@ -838,8 +837,6 @@ static int stress_resources(const stress_args_t *args)
 				_exit(0); /* should never get here */
 			}
 
-			if (pid > -1)
-				(void)setpgid(pids[i], g_pgrp);
 			pids[i] = pid;
 
 			if (!keep_stressing(args)) {

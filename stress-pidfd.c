@@ -138,7 +138,6 @@ again:
 				args->name, errno, strerror(errno));
 			return EXIT_FAILURE;
 		} else if (pid == 0) {
-			(void)setpgid(0, g_pgrp);
 			(void)pause();
 			_exit(0);
 		} else {

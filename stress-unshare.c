@@ -173,7 +173,6 @@ static int stress_unshare(const stress_args_t *args)
 					break;
 			} else if (pids[n] == 0) {
 				/* Child */
-				(void)setpgid(0, g_pgrp);
 				stress_parent_died_alarm();
 				(void)sched_settings_apply(true);
 
@@ -230,8 +229,6 @@ static int stress_unshare(const stress_args_t *args)
 				UNSHARE(CLONE_VM);
 #endif
 				_exit(0);
-			} else {
-				(void)setpgid(pids[n], g_pgrp);
 			}
 		}
 		for (i = 0; i < n; i++) {

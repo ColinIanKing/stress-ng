@@ -3538,7 +3538,6 @@ static inline int stress_do_syscall(
 		if (stress_sighandler(args->name, SIGILL, stress_sigill_handler, NULL) < 0)
 			_exit(EXIT_FAILURE);
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -3621,7 +3620,6 @@ again:
 	} else if (pid > 0) {
 		int status, ret;
 
-		(void)setpgid(pid, g_pgrp);
 		/* Parent, wait for child */
 		ret = shim_waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -3662,7 +3660,6 @@ again:
 		if (!keep_stressing(args))
 			_exit(0);
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

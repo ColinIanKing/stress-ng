@@ -407,7 +407,6 @@ again:
 				rc = EXIT_NO_RESOURCE;
 				goto err;
 			}
-			(void)setpgid(pid, g_pgrp);
 			(void)close(pipefds[1]);
 
 			while (keep_stressing_flag()) {
@@ -473,7 +472,6 @@ again:
 			free(shm_names);
 		} else {
 			/* Child, stress memory */
-			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 
 			(void)close(pipefds[0]);

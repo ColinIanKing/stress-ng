@@ -247,7 +247,6 @@ static int stress_hrtimers(const stress_args_t *args)
 		if (pids[i] == 0) {
 			/* Child */
 
-			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			stress_set_oom_adjustment(args->name, true);
 			(void)sched_settings_apply(true);

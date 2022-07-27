@@ -923,7 +923,6 @@ fork_again:
 			bool get_procinfo = true;
 #endif
 
-			(void)setpgid(pid, g_pgrp);
 			stress_set_oom_adjustment(args->name, false);
 			(void)close(pipefds[1]);
 
@@ -989,7 +988,6 @@ fork_again:
 			}
 		} else {
 			/* Child, stress memory */
-			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 

@@ -78,7 +78,6 @@ static int stress_sockmany_client(
 	static int fds[SOCKET_MANY_FDS];
 	const int socket_port = DEFAULT_SOCKET_MANY_PORT + (int)args->instance;
 
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
@@ -173,8 +172,6 @@ static int stress_sockmany_server(
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 	const int socket_port = DEFAULT_SOCKET_MANY_PORT + (int)args->instance;
-
-	(void)setpgid(pid, g_pgrp);
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;

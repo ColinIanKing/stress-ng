@@ -71,13 +71,11 @@ static pid_t fifo_spawn(
 		return -1;
 	}
 	if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 		func(args, name, fifoname);
 		_exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 

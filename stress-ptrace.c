@@ -92,7 +92,6 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -129,8 +128,6 @@ again:
 		/* Parent to do the tracing */
 		int status;
 		int i = 0;
-
-		(void)setpgid(pid, g_pgrp);
 
 		if (shim_waitpid(pid, &status, 0) < 0) {
 			if ((errno != EINTR) && (errno != ECHILD)) {

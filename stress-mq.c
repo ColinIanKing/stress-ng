@@ -218,7 +218,6 @@ again:
 		struct sigevent sigev;
 		uint64_t values[PRIOS_MAX];
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -410,7 +409,6 @@ again:
 		uint64_t i = 0;
 
 		/* Parent */
-		(void)setpgid(pid, g_pgrp);
 		(void)memset(&msg, 0, sizeof(msg));
 
 		(void)memset(&values, 0, sizeof(values));

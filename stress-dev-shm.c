@@ -165,7 +165,6 @@ again:
 			/* Parent */
 			int ret, status = 0;
 
-			(void)setpgid(pid, g_pgrp);
 			ret = shim_waitpid(pid, &status, 0);
 			if (ret < 0) {
 				if (errno != EINTR)
@@ -186,7 +185,6 @@ again:
 			}
 		} else {
 			/* Child, stress memory */
-			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 

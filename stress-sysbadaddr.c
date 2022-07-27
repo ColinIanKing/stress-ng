@@ -1055,7 +1055,6 @@ static inline int stress_do_syscall(
 				_exit(EXIT_FAILURE);
 		}
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

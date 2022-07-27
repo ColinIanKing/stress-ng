@@ -392,7 +392,6 @@ static int stress_sctp_client(
 
 	(void)sctp_sched;
 
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
@@ -507,8 +506,6 @@ static int stress_sctp_server(
 	int rc = EXIT_SUCCESS;
 
 	(void)sctp_sched;
-
-	(void)setpgid(pid, g_pgrp);
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM)) {
 		rc = EXIT_FAILURE;

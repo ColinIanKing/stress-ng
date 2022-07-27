@@ -163,7 +163,6 @@ static int stress_sockabuse_client(
 {
 	struct sockaddr *addr;
 
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
@@ -234,8 +233,6 @@ static int stress_sockabuse_server(
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 	double t1 = 0.0, t2 = 0.0, dt;
-
-	(void)setpgid(pid, g_pgrp);
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;

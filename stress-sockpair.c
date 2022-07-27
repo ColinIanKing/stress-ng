@@ -179,7 +179,6 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_set_oom_adjustment(args->name, true);
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -225,7 +224,6 @@ abort:
 		int val = 0, status;
 
 		stress_set_oom_adjustment(args->name, true);
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 

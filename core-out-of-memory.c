@@ -224,7 +224,6 @@ again:
 		/* Parent, wait for child */
 		int status, ret;
 
-		(void)setpgid(pid, g_pgrp);
 rewait:
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
@@ -309,7 +308,6 @@ rewait:
 		if (!keep_stressing(args))
 			_exit(EXIT_SUCCESS);
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 
 		/* Make sure this is killable by OOM killer */

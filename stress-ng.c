@@ -2223,7 +2223,6 @@ again:
 
 				(void)sched_settings_apply(true);
 				(void)atexit(stress_child_atexit);
-				(void)setpgid(0, g_pgrp);
 				if (stress_set_handler(name, true) < 0) {
 					rc = EXIT_FAILURE;
 					goto child_exit;
@@ -2362,7 +2361,6 @@ child_exit:
 				_exit(rc);
 			default:
 				if (pid > -1) {
-					(void)setpgid(pid, g_pgrp);
 					stats->pid = pid;
 					stats->signalled = false;
 					g_stressor_current->started_instances++;

@@ -91,7 +91,6 @@ static int stress_nice(const stress_args_t *args)
 			}
 
 			/* Child */
-			(void)setpgid(0, g_pgrp);
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
 #if defined(HAVE_GETPRIORITY) &&	\
@@ -151,8 +150,6 @@ static int stress_nice(const stress_args_t *args)
 		}
 		if (pid > 0) {
 			int status;
-
-			(void)setpgid(pid, g_pgrp);
 
 			/* Parent, wait for child */
 			if (shim_waitpid(pid, &status, 0) < 0) {

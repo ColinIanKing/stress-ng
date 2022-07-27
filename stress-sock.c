@@ -474,7 +474,6 @@ static int stress_sock_client(
 	char **ctrls;
 	int recvflag = 0;
 
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
@@ -903,8 +902,6 @@ static int stress_sock_server(
 #else
 	(void)socket_zerocopy;
 #endif
-	(void)setpgid(pid, g_pgrp);
-
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;

@@ -270,7 +270,6 @@ static void NORETURN stress_rawpkt_client(
 	struct sockaddr_ll sadr;
 	int fd;
 
-	(void)setpgid(0, g_pgrp);
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 

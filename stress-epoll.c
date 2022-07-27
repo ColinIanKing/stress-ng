@@ -222,13 +222,11 @@ again:
 		return -1;
 	}
 	if (pid == 0) {
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 		func(args, child, mypid, epoll_port, epoll_domain, epoll_sockets);
 		_exit(EXIT_SUCCESS);
 	}
-	(void)setpgid(pid, g_pgrp);
 	return pid;
 }
 

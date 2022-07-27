@@ -207,7 +207,6 @@ again:
 #endif
 		const pid_t my_pid = getpid();
 
-		(void)setpgid(0, g_pgrp);
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -253,7 +252,6 @@ again:
 		int val = 0, status;
 
 		/* Parent */
-		(void)setpgid(pid, g_pgrp);
 		(void)close(pipefds[0]);
 
 		do {
