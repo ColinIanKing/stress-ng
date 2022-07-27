@@ -952,6 +952,8 @@ typedef struct {
 	uint64_t counter;		/* number of bogo ops */
 	double start;			/* wall clock start time */
 	double finish;			/* wall clock stop time */
+	pid_t pid;			/* stressor pid */
+	bool signalled;			/* set true if signalled with a kill */
 #if defined(STRESS_PERF_STATS)
 	stress_perf_t sp;		/* perf counters */
 #endif
@@ -2578,7 +2580,6 @@ typedef struct stress_stressor_info {
 	struct stress_stressor_info *next;	/* next proc info struct in list */
 	struct stress_stressor_info *prev;	/* prev proc info struct in list */
 	const stress_t *stressor;	/* stressor */
-	pid_t	*pids;			/* stressor process id */
 	stress_stats_t **stats;		/* stressor stats info */
 	int32_t started_instances;	/* count of started instances */
 	int32_t num_instances;		/* number of instances per stressor */

@@ -1623,8 +1623,13 @@ static void stress_kill_stressors(const int sig)
 		int32_t i;
 
 		for (i = 0; i < ss->started_instances; i++) {
-			if (ss->pids[i])
-				(void)kill(ss->pids[i], signum);
+			stress_stats_t *const stats = ss->stats[i];
+			const pid_t pid = stats->pid;
+
+			if (pid && !stats->signalled) {
+				(void)kill(pid, signum);
+				stats->signalled = true;
+			}
 		}
 	}
 }
@@ -1864,7 +1869,8 @@ static void MLOCKED_TEXT stress_wait_stressors(
 				int32_t j;
 
 				for (j = 0; j < ss->started_instances; j++) {
-					const pid_t pid = ss->pids[j];
+					const stress_stats_t *const stats = ss->stats[j];
+					const pid_t pid = stats->pid;
 
 					if (pid) {
 						cpu_set_t mask;
@@ -1898,9 +1904,9 @@ do_wait:
 		int32_t j;
 
 		for (j = 0; j < ss->started_instances; j++) {
-			pid_t pid;
+			stress_stats_t *const stats = ss->stats[j];
+			const pid_t pid = stats->pid;
 redo:
-			pid = ss->pids[j];
 			if (pid) {
 				int status, ret;
 				bool do_abort = false;
@@ -1991,7 +1997,7 @@ redo:
 						stress_kill_stressors(SIGALRM);
 					}
 
-					stress_stressor_finished(&ss->pids[j]);
+					stress_stressor_finished(&stats->pid);
 					pr_dbg("process [%d] terminated\n", ret);
 
 					stress_clean_dir(name, pid, (uint32_t)j);
@@ -2002,7 +2008,7 @@ redo:
 						goto redo;
 					/* This child did not exist, mark it done anyhow */
 					if (errno == ECHILD)
-						stress_stressor_finished(&ss->pids[j]);
+						stress_stressor_finished(&stats->pid);
 				}
 			}
 		}
@@ -2079,7 +2085,6 @@ static void stress_stressors_free(void)
 	while (ss) {
 		stress_stressor_t *next = ss->next;
 
-		free(ss->pids);
 		free(ss->stats);
 		free(ss);
 
@@ -2181,7 +2186,7 @@ static void MLOCKED_TEXT stress_run(
 			int64_t backoff = DEFAULT_BACKOFF;
 			int32_t ionice_class = UNDEFINED;
 			int32_t ionice_level = UNDEFINED;
-			stress_stats_t *stats = g_stressor_current->stats[j];
+			stress_stats_t *const stats = g_stressor_current->stats[j];
 			double run_duration, fork_time_start;
 
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
@@ -2360,7 +2365,8 @@ child_exit:
 			default:
 				if (pid > -1) {
 					(void)setpgid(pid, g_pgrp);
-					g_stressor_current->pids[j] = pid;
+					stats->pid = pid;
+					stats->signalled = false;
 					g_stressor_current->started_instances++;
 					started_instances++;
 					stress_ftrace_add_pid(pid);
@@ -3518,22 +3524,12 @@ next_opt:
  *	allocate array of pids based on n pids required
  */
 static void stress_alloc_proc_resources(
-	pid_t **pids,
 	stress_stats_t ***stats,
 	const int32_t n)
 {
-	*pids = calloc((size_t)n, sizeof(pid_t));
-	if (!*pids) {
-		pr_err("cannot allocate pid list\n");
-		stress_stressors_free();
-		exit(EXIT_FAILURE);
-	}
-
 	*stats = calloc((size_t)n, sizeof(stress_stats_t *));
 	if (!*stats) {
 		pr_err("cannot allocate stats list\n");
-		free(*pids);
-		*pids = NULL;
 		stress_stressors_free();
 		exit(EXIT_FAILURE);
 	}
@@ -3572,7 +3568,7 @@ static void stress_setup_sequential(const uint32_t class)
 	for (ss = stressors_head; ss; ss = ss->next) {
 		if (ss->stressor->info->class & class)
 			ss->num_instances = g_opt_sequential;
-		stress_alloc_proc_resources(&ss->pids, &ss->stats, ss->num_instances);
+		stress_alloc_proc_resources(&ss->stats, ss->num_instances);
 	}
 }
 
@@ -3596,7 +3592,7 @@ static void stress_setup_parallel(const uint32_t class)
 		ss->bogo_ops = ss->num_instances ?
 			(ss->bogo_ops + (ss->num_instances - 1)) / ss->num_instances : 0;
 		if (ss->num_instances)
-			stress_alloc_proc_resources(&ss->pids, &ss->stats, ss->num_instances);
+			stress_alloc_proc_resources(&ss->stats, ss->num_instances);
 	}
 }
 
