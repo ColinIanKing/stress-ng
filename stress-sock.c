@@ -865,6 +865,13 @@ retry:
 	(void)kill(getppid(), SIGALRM);
 }
 
+static bool stress_send_error(const int err)
+{
+	return ((err != EINTR) &&
+		(err != EPIPE) &&
+		(err != ECONNRESET));
+}
+
 /*
  *  stress_sock_server()
  *	server writer
@@ -1054,7 +1061,7 @@ static int stress_sock_server(
 				for (i = 16; i < MMAP_IO_SIZE; i += 16) {
 					ssize_t ret = send(sfd, buf, i, sendflag);
 					if (ret < 0) {
-						if ((errno != EINTR) && (errno != EPIPE))
+						if (stress_send_error(errno))
 							pr_fail("%s: send failed, errno=%d (%s)\n",
 								args->name, errno, strerror(errno));
 						break;
@@ -1071,7 +1078,7 @@ static int stress_sock_server(
 				msg.msg_iov = vec;
 				msg.msg_iovlen = j;
 				if (sendmsg(sfd, &msg, 0) < 0) {
-					if ((errno != EINTR) && (errno != EPIPE))
+					if (stress_send_error(errno))
 						pr_fail("%s: sendmsg failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 				} else
@@ -1089,7 +1096,7 @@ static int stress_sock_server(
 					msgvec[i].msg_hdr.msg_iovlen = j;
 				}
 				if (sendmmsg(sfd, msgvec, MSGVEC_SIZE, 0) < 0) {
-					if ((errno != EINTR) && (errno != EPIPE))
+					if (stress_send_error(errno))
 						pr_fail("%s: sendmmsg failed, errno=%d (%s)\n",
 							args->name, errno, strerror(errno));
 				} else
