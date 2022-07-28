@@ -5187,12 +5187,6 @@ mscan	T{
 fill each bit in each byte with 1s then check these are set, fill each bit
 in each byte with 0s and check these are clear.
 T}
-nt-write	T{
-write to memory in 64 byte chunks using non-temporal writes (bypassing the cache).
-Each chunk is written 4 times to hammer the memory. Then check to see if the
-data is correct. Only available with processors that provide non-temporal 64
-bit writes.
-T}
 prime-0	T{
 iterate 8 times by stepping through memory in very large prime strides clearing
 just on bit at a time in every byte. Then check to see if all bits are set to
@@ -5257,6 +5251,12 @@ sequentially write to memory using 1 \(mu 1024 bit vector write per bogo loop
 (only available if the compiler supports vector types).
 Each loop equates to one bogo operation.  This exercises raw memory writes.
 Note that memory writes are not checked at the end of each test iteration.
+T}
+wrrd64nt	T{
+write to memory in 64 byte chunks using non-temporal writes (bypassing the cache).
+Each chunk is written 4 times to hammer the memory. Then check to see if the
+data is correct using non-temporal reads if they are available or normal memory reads
+if not. Only available with processors that provide non-temporal 64 bit writes.
 T}
 zero-one	T{
 set all memory bits to zero and then check if any bits are not zero. Next, set
