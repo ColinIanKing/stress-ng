@@ -2525,6 +2525,7 @@ static size_t TARGET_CLONES stress_vm_fwdrev(
 		bit_errors += (*(fwdptr + 6) != ((rnd >> 0x10) & 0xff));
 		shim_mb();
 		bit_errors += (*(revptr - 7) != ((rnd >> 0x18) & 0xff));
+		shim_mb();
 		bit_errors += (*(fwdptr + 8) != ((rnd >> 0x00) & 0xff));
 		shim_mb();
 		bit_errors += (*(revptr - 9) != ((rnd >> 0x08) & 0xff));
