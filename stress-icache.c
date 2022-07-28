@@ -41,19 +41,60 @@ static const stress_help_t help[] = {
 #define SIZE_16K	(16 * SIZE_1K)
 #define SIZE_64K	(64 * SIZE_1K)
 
+static int icache_madvise_nohugepage(
+	const stress_args_t *args,
+	void *addr,
+	size_t size)
+{
+#if defined(MADV_NOHUGEPAGE)
+	if (shim_madvise((void *)addr, size, MADV_NOHUGEPAGE) < 0) {
+		/*
+		 * We may get EINVAL on kernels that don't support this
+		 * so don't treat that as non-fatal as this is just advistory
+		 */
+		if (errno != EINVAL) {
+			pr_inf("%s: madvise MADV_NOHUGEPAGE failed on text "
+				"page %p: errno=%d (%s)\n",
+				args->name, addr, errno, strerror(errno));
+			return -1;
+		}
+	}
+#else
+	(void)args;
+	(void)addr;
+	(void)size;
+#endif
+	return 0;
+}
+
+static int NOINLINE icache_mprotect(
+	const stress_args_t *args,
+	void *addr,
+	size_t size,
+	int prot)
+{
+	int ret;
+
+	ret = mprotect(addr, size, prot);
+	if (ret < 0) {
+		pr_inf("%s: mprotect failed on text page %p: errno=%d (%s)\n",
+			args->name, addr, errno, strerror(errno));
+	}
+	return ret;
+}
+
 /*
  *  STRESS_ICACHE_FUNC()
  *	generates a simple function that is page aligned in its own
  *	section so we can change the code mapping and make it
  *	modifiable to force I-cache refreshes by modifying the code
  */
-#define STRESS_ICACHE_FUNC(func_name, page_sz)				\
-static void SECTION(stress_icache_callee) ALIGNED(page_sz)		\
+#define STRESS_ICACHE_FUNC(func_name, page_size)			\
+static void SECTION(stress_icache_callee) ALIGNED(page_size)		\
 func_name(void)								\
 {									\
 	return;								\
 }									\
-
 
 /*
  *  STRESS_ICACHE()
@@ -63,24 +104,23 @@ func_name(void)								\
  *	I-cache load misses can be observed using:
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
-#define STRESS_ICACHE(func_name, page_sz, icache_func)			\
-static int SECTION(stress_icache_caller) ALIGNED(page_sz) 		\
+#define STRESS_ICACHE(func_name, size, icache_func)			\
+static int SECTION(stress_icache_caller) ALIGNED(size) 			\
 func_name(const stress_args_t *args)					\
 {									\
-	uint8_t *addr = (uint8_t *)icache_func;				\
+	uint32_t *addr = (uint32_t *)icache_func;			\
 	const size_t ps = args->page_size;				\
 	void *page_addr = (void *)((uintptr_t)addr & ~(ps - 1));	\
+	volatile uint32_t *vaddr = (volatile uint32_t *)addr;		\
 									\
-	if (icache_madvise(args, addr, page_sz) < 0)			\
+	if (icache_madvise_nohugepage(args, addr, size) < 0)		\
 		return EXIT_NO_RESOURCE;				\
 									\
 	do {								\
-		register uint8_t val;					\
+		register uint32_t val;					\
 		register int i = 1024;					\
 									\
 		while (--i) {						\
-			volatile uint8_t *vaddr =			\
-				(volatile uint8_t *)addr;		\
 			/*						\
 			 *  Change protection to make page modifiable.  \
 			 *  It may be that some architectures don't 	\
@@ -89,14 +129,10 @@ func_name(const stress_args_t *args)					\
 			 *  fault in the stressor, just an arch 	\
 			 *  resource protection issue.			\
 			 */						\
-			if (mprotect((void *)page_addr, page_sz,	\
-			    PROT_READ | PROT_WRITE) < 0) {		\
-				pr_inf("%s: PROT_WRITE mprotect failed "\
-					"on text page %p: errno=%d "	\
-					"(%s)\n", args->name, vaddr, 	\
-					errno, strerror(errno));	\
+			if (icache_mprotect(args, (void *)page_addr, 	\
+					    size,			\
+					    PROT_READ | PROT_WRITE) < 0)\
 				return EXIT_NO_RESOURCE;		\
-			}						\
 			/*						\
 			 *  Modifying executable code on x86 will	\
 			 *  call a I-cache reload when we execute	\
@@ -119,43 +155,17 @@ func_name(const stress_args_t *args)					\
 			 *  Set back to a text segment READ/EXEC page	\
 			 *  attributes, this really should not fail.	\
 			 */						\
-			if (mprotect((void *)page_addr, page_sz,	\
-			    PROT_READ | PROT_EXEC) < 0) {		\
-				pr_err("%s: mprotect failed: errno=%d " \
-					"(%s)\n", args->name, errno,	\
-					strerror(errno));		\
+			if (icache_mprotect(args, (void *)page_addr, 	\
+					    size,			\
+					    PROT_READ | PROT_EXEC) < 0) \
 				return EXIT_FAILURE;			\
-			}						\
 			icache_func();					\
-			(void)shim_cacheflush((char *)addr, page_sz, SHIM_ICACHE); \
+			(void)shim_cacheflush((char *)addr, size, SHIM_ICACHE); \
 		}							\
 		inc_counter(args);					\
 	} while (keep_stressing(args));					\
 									\
 	return EXIT_SUCCESS;						\
-}
-
-static inline int icache_madvise(const stress_args_t *args, void *addr, size_t size)
-{
-#if defined(MADV_NOHUGEPAGE)
-	if (shim_madvise((void *)addr, size, MADV_NOHUGEPAGE) < 0) {
-		/*
-		 * We may get EINVAL on kernels that don't support this
-		 * so don't treat that as non-fatal as this is just advistory
-		 */
-		if (errno != EINVAL) {
-			pr_inf("%s: madvise MADV_NOHUGEPAGE failed on text "
-				"page %p: errno=%d (%s)\n",
-				args->name, addr, errno, strerror(errno));
-			return -1;
-		}
-	}
-#else
-	(void)args;
-	(void)addr;
-	(void)size;
-#endif
-	return 0;
 }
 
 #if defined(HAVE_ALIGNED_64K)
