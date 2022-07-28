@@ -2449,6 +2449,127 @@ abort:
 	return bit_errors;
 }
 
+#if defined(HAVE_NT_STORE64)
+/*
+ *  stress_vm_nt_write()
+ *	work through memory in cache line steps performing non-temporal
+ *	writes
+ */
+static size_t TARGET_CLONES stress_vm_nt_write(
+	void *buf,
+	void *buf_end,
+	const size_t sz,
+	const stress_args_t *args,
+	const uint64_t max_ops)
+{
+	uint64_t *ptr;
+	size_t bit_errors = 0;
+	uint64_t c = get_counter(args);
+
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
+		/* Write 64 bytes x 4 times to hammer the memory */
+		stress_nt_store64((ptr + 0x0), (uint64_t)(ptr + 0x0));
+		shim_mb();
+		stress_nt_store64((ptr + 0x1), (uint64_t)(ptr + 0x1));
+		shim_mb();
+		stress_nt_store64((ptr + 0x2), (uint64_t)(ptr + 0x2));
+		shim_mb();
+		stress_nt_store64((ptr + 0x3), (uint64_t)(ptr + 0x3));
+		shim_mb();
+		stress_nt_store64((ptr + 0x4), (uint64_t)(ptr + 0x4));
+		shim_mb();
+		stress_nt_store64((ptr + 0x5), (uint64_t)(ptr + 0x5));
+		shim_mb();
+		stress_nt_store64((ptr + 0x6), (uint64_t)(ptr + 0x6));
+		shim_mb();
+		stress_nt_store64((ptr + 0x7), (uint64_t)(ptr + 0x7));
+		shim_mb();
+
+		stress_nt_store64((ptr + 0x0), (uint64_t)(ptr + 0x0));
+		shim_mb();
+		stress_nt_store64((ptr + 0x1), (uint64_t)(ptr + 0x1));
+		shim_mb();
+		stress_nt_store64((ptr + 0x2), (uint64_t)(ptr + 0x2));
+		shim_mb();
+		stress_nt_store64((ptr + 0x3), (uint64_t)(ptr + 0x3));
+		shim_mb();
+		stress_nt_store64((ptr + 0x4), (uint64_t)(ptr + 0x4));
+		shim_mb();
+		stress_nt_store64((ptr + 0x5), (uint64_t)(ptr + 0x5));
+		shim_mb();
+		stress_nt_store64((ptr + 0x6), (uint64_t)(ptr + 0x6));
+		shim_mb();
+		stress_nt_store64((ptr + 0x7), (uint64_t)(ptr + 0x7));
+		shim_mb();
+
+		stress_nt_store64((ptr + 0x0), (uint64_t)(ptr + 0x0));
+		shim_mb();
+		stress_nt_store64((ptr + 0x1), (uint64_t)(ptr + 0x1));
+		shim_mb();
+		stress_nt_store64((ptr + 0x2), (uint64_t)(ptr + 0x2));
+		shim_mb();
+		stress_nt_store64((ptr + 0x3), (uint64_t)(ptr + 0x3));
+		shim_mb();
+		stress_nt_store64((ptr + 0x4), (uint64_t)(ptr + 0x4));
+		shim_mb();
+		stress_nt_store64((ptr + 0x5), (uint64_t)(ptr + 0x5));
+		shim_mb();
+		stress_nt_store64((ptr + 0x6), (uint64_t)(ptr + 0x6));
+		shim_mb();
+		stress_nt_store64((ptr + 0x7), (uint64_t)(ptr + 0x7));
+		shim_mb();
+
+		stress_nt_store64((ptr + 0x0), (uint64_t)(ptr + 0x0));
+		shim_mb();
+		stress_nt_store64((ptr + 0x1), (uint64_t)(ptr + 0x1));
+		shim_mb();
+		stress_nt_store64((ptr + 0x2), (uint64_t)(ptr + 0x2));
+		shim_mb();
+		stress_nt_store64((ptr + 0x3), (uint64_t)(ptr + 0x3));
+		shim_mb();
+		stress_nt_store64((ptr + 0x4), (uint64_t)(ptr + 0x4));
+		shim_mb();
+		stress_nt_store64((ptr + 0x5), (uint64_t)(ptr + 0x5));
+		shim_mb();
+		stress_nt_store64((ptr + 0x6), (uint64_t)(ptr + 0x6));
+		shim_mb();
+		stress_nt_store64((ptr + 0x7), (uint64_t)(ptr + 0x7));
+		shim_mb();
+		c++;
+	}
+	if (UNLIKELY(max_ops && c >= max_ops))
+		goto abort;
+	if (UNLIKELY(!keep_stressing_flag()))
+		goto abort;
+
+	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end;) {
+		bit_errors += (*ptr != (uint64_t)ptr);
+		ptr++;
+		bit_errors += (*ptr != (uint64_t)ptr);
+		ptr++;
+		bit_errors += (*ptr != (uint64_t)ptr);
+		ptr++;
+		bit_errors += (*ptr != (uint64_t)ptr);
+		ptr++;
+		bit_errors += (*ptr != (uint64_t)ptr);
+		ptr++;
+		bit_errors += (*ptr != (uint64_t)ptr);
+		ptr++;
+		bit_errors += (*ptr != (uint64_t)ptr);
+		ptr++;
+		bit_errors += (*ptr != (uint64_t)ptr);
+		ptr++;
+	}
+	(void)stress_mincore_touch_pages(buf, sz);
+	inject_random_bit_errors(buf, sz);
+	stress_vm_check("nt-write", bit_errors);
+abort:
+	set_counter(args, c);
+
+	return bit_errors;
+}
+#endif
+
 /*
  *  stress_vm_fwdrev()
  *	write forwards even bytes and reverse odd bytes
@@ -2602,6 +2723,9 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "move-inv",		stress_vm_moving_inversion },
 	{ "modulo-x",		stress_vm_modulo_x },
 	{ "mscan",		stress_vm_mscan },
+#if defined(HAVE_NT_STORE64)
+	{ "nt-write",		stress_vm_nt_write },
+#endif
 	{ "prime-0",		stress_vm_prime_zero },
 	{ "prime-1",		stress_vm_prime_one },
 	{ "prime-gray-0",	stress_vm_prime_gray_zero },
