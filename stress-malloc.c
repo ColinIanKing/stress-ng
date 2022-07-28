@@ -227,11 +227,11 @@ static void *stress_malloc_loop(void *ptr)
 		} else {
 			/* 50% free, 50% alloc */
 			if (action) {
-				size_t len = stress_alloc_size(malloc_bytes);
+				size_t n, len = stress_alloc_size(malloc_bytes);
 
 				switch (do_calloc) {
 				case 0:
-					size_t n = ((rnd >> 15) % 17) + 1;
+					n = ((rnd >> 15) % 17) + 1;
 					addr[i] = calloc(n, len / n);
 					len = n * (len / n);
 					break;
