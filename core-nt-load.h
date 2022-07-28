@@ -44,7 +44,7 @@ static inline __uint128_t ALWAYS_INLINE OPTIMIZE3 stress_nt_load128(__uint128_t 
 /* Clang non-temporal load */
 static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_nt_load64(uint64_t *addr)
 {
-	return __builtin_nontemporal_load(value);
+	return __builtin_nontemporal_load(addr);
 }
 #define HAVE_NT_LOAD64
 #endif
@@ -57,7 +57,7 @@ static inline uint64_t ALWAYS_INLINE OPTIMIZE3 stress_nt_load64(uint64_t *addr)
 /* Clang non-temporal load */
 static inline uint32_t ALWAYS_INLINE OPTIMIZE3 stress_nt_load32(uint32_t *addr)
 {
-	return __builtin_nontemporal_load(value);
+	return __builtin_nontemporal_load(addr);
 }
 #define HAVE_NT_LOAD32
 #endif
@@ -70,7 +70,7 @@ static inline uint32_t ALWAYS_INLINE OPTIMIZE3 stress_nt_load32(uint32_t *addr)
 /* Clang non-temporal load */
 static inline double ALWAYS_INLINE OPTIMIZE3 stress_nt_load_double(double *addr)
 {
-	return __builtin_nontemporal_load(value);
+	return __builtin_nontemporal_load(addr);
 }
 #define HAVE_NT_LOAD_DOUBLE
 #endif
