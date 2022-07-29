@@ -384,6 +384,7 @@ static const struct option long_options[] = {
 	{ "exec",		1,	0,	OPT_exec },
 	{ "exec-ops",		1,	0,	OPT_exec_ops },
 	{ "exec-max",		1,	0,	OPT_exec_max },
+	{ "exec-no-execveat",	0,	0,	OPT_exec_no_execveat },
 	{ "exit-group",		1,	0,	OPT_exit_group },
 	{ "exit-group-ops",	1,	0,	OPT_exit_group_ops },
 	{ "fallocate",		1,	0,	OPT_fallocate },

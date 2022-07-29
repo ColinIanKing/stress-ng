@@ -44,6 +44,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"exec N",	"start N workers spinning on fork() and exec()" },
 	{ NULL,	"exec-ops N",	"stop after N exec bogo operations" },
 	{ NULL,	"exec-max P",	"create P workers per iteration, default is 1" },
+	{ NULL,	"exec-no-execveat",	"do not use execveat" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -61,8 +62,21 @@ static int stress_set_exec_max(const char *opt)
 	return stress_set_setting("exec-max", TYPE_ID_INT64, &exec_max);
 }
 
+/*
+ *  stress_set_no_execveat()
+ *	do not use execveat
+ */
+static int stress_set_no_execveat(const char *opt)
+{
+	bool no_execveat = true;
+
+	(void)opt;
+	return stress_set_setting("exec-no-execveat", TYPE_ID_BOOL, &no_execveat);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_exec_max,	stress_set_exec_max },
+	{ OPT_exec_no_execveat,	stress_set_no_execveat },
 	{ 0,		NULL }
 };
 
@@ -222,10 +236,12 @@ static int stress_exec(const stress_args_t *args)
 #endif
 	uint64_t exec_fails = 0, exec_calls = 0;
 	uint64_t exec_max = DEFAULT_EXECS;
+	bool no_execveat = false;
 	char *argv_new[] = { NULL, "--exec-exit", NULL };
 	char *env_new[] = { NULL };
 
 	(void)stress_get_setting("exec-max", &exec_max);
+	(void)stress_get_setting("exec-no-execveat", &no_execveat);
 
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng
@@ -269,6 +285,8 @@ static int stress_exec(const stress_args_t *args)
 			if (pids[i] == 0) {
 				int fd_out, fd_in, fd = -1;
 				int which = stress_mwc8() % 3;
+				if (no_execveat)
+					which = 0;
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
 				int exec_garbage = stress_mwc1();
