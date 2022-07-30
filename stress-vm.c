@@ -2450,92 +2450,73 @@ abort:
 	return bit_errors;
 }
 
-#if defined(HAVE_NT_STORE64)
+#if defined(HAVE_NT_STORE128) &&	\
+    defined(HAVE_INT128_T)
+
+#if defined(HAVE_NT_LOAD128)
+#define STRESS_NT_LOAD128(ptr)	stress_nt_load128((ptr))
+#else
+#define STRESS_NT_LOAD128(ptr)	(*(ptr))
+#endif
+
 /*
- *  stress_vm_wrrd64nt()
- *	work through memory in cache line steps performing non-temporal
+ *  stress_vm_wrrd128nt()
+ *	work through memory in 128 bit steps performing non-temporal
  *	writes and if possible reads
  */
-static size_t TARGET_CLONES stress_vm_wrrd64nt(
+static size_t TARGET_CLONES stress_vm_wrrd128nt(
 	void *buf,
 	void *buf_end,
 	const size_t sz,
 	const stress_args_t *args,
 	const uint64_t max_ops)
 {
-	uint64_t *ptr;
 	size_t bit_errors = 0;
 	uint64_t c = get_counter(args);
 
-	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
-		/* Write 64 bytes x 4 times to hammer the memory */
-		stress_nt_store64((ptr + 0x0), (uint64_t)(ptr + 0x0));
+	register __uint128_t val;
+	register __uint128_t *ptr128;
+	__uint128_t *buf128 = (__uint128_t *)buf;
+	__uint128_t *buf_end128 = (__uint128_t *)buf_end;
+
+	for (val = 0, ptr128 = buf128; ptr128 < buf_end128; ptr128++) {
+		/* Write 128 bits x 4 times to hammer the memory */
+		stress_nt_store128(ptr128 + 0x00, val);
 		shim_mb();
-		stress_nt_store64((ptr + 0x1), (uint64_t)(ptr + 0x1));
+		stress_nt_store128(ptr128 + 0x01, val + 1);
 		shim_mb();
-		stress_nt_store64((ptr + 0x2), (uint64_t)(ptr + 0x2));
+		stress_nt_store128(ptr128 + 0x02, val + 2);
 		shim_mb();
-		stress_nt_store64((ptr + 0x3), (uint64_t)(ptr + 0x3));
-		shim_mb();
-		stress_nt_store64((ptr + 0x4), (uint64_t)(ptr + 0x4));
-		shim_mb();
-		stress_nt_store64((ptr + 0x5), (uint64_t)(ptr + 0x5));
-		shim_mb();
-		stress_nt_store64((ptr + 0x6), (uint64_t)(ptr + 0x6));
-		shim_mb();
-		stress_nt_store64((ptr + 0x7), (uint64_t)(ptr + 0x7));
+		stress_nt_store128(ptr128 + 0x03, val + 3);
 		shim_mb();
 
-		stress_nt_store64((ptr + 0x0), (uint64_t)(ptr + 0x0));
+		stress_nt_store128(ptr128 + 0x00, val);
 		shim_mb();
-		stress_nt_store64((ptr + 0x1), (uint64_t)(ptr + 0x1));
+		stress_nt_store128(ptr128 + 0x01, val + 1);
 		shim_mb();
-		stress_nt_store64((ptr + 0x2), (uint64_t)(ptr + 0x2));
+		stress_nt_store128(ptr128 + 0x02, val + 2);
 		shim_mb();
-		stress_nt_store64((ptr + 0x3), (uint64_t)(ptr + 0x3));
-		shim_mb();
-		stress_nt_store64((ptr + 0x4), (uint64_t)(ptr + 0x4));
-		shim_mb();
-		stress_nt_store64((ptr + 0x5), (uint64_t)(ptr + 0x5));
-		shim_mb();
-		stress_nt_store64((ptr + 0x6), (uint64_t)(ptr + 0x6));
-		shim_mb();
-		stress_nt_store64((ptr + 0x7), (uint64_t)(ptr + 0x7));
+		stress_nt_store128(ptr128 + 0x03, val + 3);
 		shim_mb();
 
-		stress_nt_store64((ptr + 0x0), (uint64_t)(ptr + 0x0));
+		stress_nt_store128(ptr128 + 0x00, val);
 		shim_mb();
-		stress_nt_store64((ptr + 0x1), (uint64_t)(ptr + 0x1));
+		stress_nt_store128(ptr128 + 0x01, val + 1);
 		shim_mb();
-		stress_nt_store64((ptr + 0x2), (uint64_t)(ptr + 0x2));
+		stress_nt_store128(ptr128 + 0x02, val + 2);
 		shim_mb();
-		stress_nt_store64((ptr + 0x3), (uint64_t)(ptr + 0x3));
-		shim_mb();
-		stress_nt_store64((ptr + 0x4), (uint64_t)(ptr + 0x4));
-		shim_mb();
-		stress_nt_store64((ptr + 0x5), (uint64_t)(ptr + 0x5));
-		shim_mb();
-		stress_nt_store64((ptr + 0x6), (uint64_t)(ptr + 0x6));
-		shim_mb();
-		stress_nt_store64((ptr + 0x7), (uint64_t)(ptr + 0x7));
+		stress_nt_store128(ptr128 + 0x03, val + 3);
 		shim_mb();
 
-		stress_nt_store64((ptr + 0x0), (uint64_t)(ptr + 0x0));
+		stress_nt_store128(ptr128 + 0x00, val);
 		shim_mb();
-		stress_nt_store64((ptr + 0x1), (uint64_t)(ptr + 0x1));
+		stress_nt_store128(ptr128 + 0x01, val + 1);
 		shim_mb();
-		stress_nt_store64((ptr + 0x2), (uint64_t)(ptr + 0x2));
+		stress_nt_store128(ptr128 + 0x02, val + 2);
 		shim_mb();
-		stress_nt_store64((ptr + 0x3), (uint64_t)(ptr + 0x3));
+		stress_nt_store128(ptr128 + 0x03, val + 3);
 		shim_mb();
-		stress_nt_store64((ptr + 0x4), (uint64_t)(ptr + 0x4));
-		shim_mb();
-		stress_nt_store64((ptr + 0x5), (uint64_t)(ptr + 0x5));
-		shim_mb();
-		stress_nt_store64((ptr + 0x6), (uint64_t)(ptr + 0x6));
-		shim_mb();
-		stress_nt_store64((ptr + 0x7), (uint64_t)(ptr + 0x7));
-		shim_mb();
+		val++;
 		c++;
 	}
 	if (UNLIKELY(max_ops && c >= max_ops))
@@ -2543,148 +2524,49 @@ static size_t TARGET_CLONES stress_vm_wrrd64nt(
 	if (UNLIKELY(!keep_stressing_flag()))
 		goto abort;
 
-	for (ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ptr += 8) {
-#if defined(HAVE_NT_LOAD64)
-		bit_errors += (stress_nt_load64(ptr + 0x0) != (uint64_t)(ptr + 0x0));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x1) != (uint64_t)(ptr + 0x1));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x2) != (uint64_t)(ptr + 0x2));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x3) != (uint64_t)(ptr + 0x3));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x4) != (uint64_t)(ptr + 0x4));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x5) != (uint64_t)(ptr + 0x5));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x6) != (uint64_t)(ptr + 0x6));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x7) != (uint64_t)(ptr + 0x7));
-		shim_mb();
+	for (val = 0, ptr128 = buf128; ptr128 < buf_end128; ptr128++) {
+		register __uint128_t tmp;
 
-		bit_errors += (stress_nt_load64(ptr + 0x0) != (uint64_t)(ptr + 0x0));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x1) != (uint64_t)(ptr + 0x1));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x2) != (uint64_t)(ptr + 0x2));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x3) != (uint64_t)(ptr + 0x3));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x4) != (uint64_t)(ptr + 0x4));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x5) != (uint64_t)(ptr + 0x5));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x6) != (uint64_t)(ptr + 0x6));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x7) != (uint64_t)(ptr + 0x7));
-		shim_mb();
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x0);
+		bit_errors += (tmp != (val + 0));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x1);
+		bit_errors += (tmp != (val + 1));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x2);
+		bit_errors += (tmp != (val + 2));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x3);
+		bit_errors += (tmp != (val + 3));
 
-		bit_errors += (stress_nt_load64(ptr + 0x0) != (uint64_t)(ptr + 0x0));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x1) != (uint64_t)(ptr + 0x1));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x2) != (uint64_t)(ptr + 0x2));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x3) != (uint64_t)(ptr + 0x3));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x4) != (uint64_t)(ptr + 0x4));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x5) != (uint64_t)(ptr + 0x5));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x6) != (uint64_t)(ptr + 0x6));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x7) != (uint64_t)(ptr + 0x7));
-		shim_mb();
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x0);
+		bit_errors += (tmp != (val + 0));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x1);
+		bit_errors += (tmp != (val + 1));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x2);
+		bit_errors += (tmp != (val + 2));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x3);
+		bit_errors += (tmp != (val + 3));
 
-		bit_errors += (stress_nt_load64(ptr + 0x0) != (uint64_t)(ptr + 0x0));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x1) != (uint64_t)(ptr + 0x1));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x2) != (uint64_t)(ptr + 0x2));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x3) != (uint64_t)(ptr + 0x3));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x4) != (uint64_t)(ptr + 0x4));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x5) != (uint64_t)(ptr + 0x5));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x6) != (uint64_t)(ptr + 0x6));
-		shim_mb();
-		bit_errors += (stress_nt_load64(ptr + 0x7) != (uint64_t)(ptr + 0x7));
-		shim_mb();
-#else
-		bit_errors += (*(ptr + 0x0) != (uint64_t)(ptr + 0x0));
-		shim_mb();
-		bit_errors += (*(ptr + 0x1) != (uint64_t)(ptr + 0x1));
-		shim_mb();
-		bit_errors += (*(ptr + 0x2) != (uint64_t)(ptr + 0x2));
-		shim_mb();
-		bit_errors += (*(ptr + 0x3) != (uint64_t)(ptr + 0x3));
-		shim_mb();
-		bit_errors += (*(ptr + 0x4) != (uint64_t)(ptr + 0x4));
-		shim_mb();
-		bit_errors += (*(ptr + 0x5) != (uint64_t)(ptr + 0x5));
-		shim_mb();
-		bit_errors += (*(ptr + 0x6) != (uint64_t)(ptr + 0x6));
-		shim_mb();
-		bit_errors += (*(ptr + 0x7) != (uint64_t)(ptr + 0x7));
-		shim_mb();
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x0);
+		bit_errors += (tmp != (val + 0));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x1);
+		bit_errors += (tmp != (val + 1));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x2);
+		bit_errors += (tmp != (val + 2));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x3);
+		bit_errors += (tmp != (val + 3));
 
-		bit_errors += (*(ptr + 0x0) != (uint64_t)(ptr + 0x0));
-		shim_mb();
-		bit_errors += (*(ptr + 0x1) != (uint64_t)(ptr + 0x1));
-		shim_mb();
-		bit_errors += (*(ptr + 0x2) != (uint64_t)(ptr + 0x2));
-		shim_mb();
-		bit_errors += (*(ptr + 0x3) != (uint64_t)(ptr + 0x3));
-		shim_mb();
-		bit_errors += (*(ptr + 0x4) != (uint64_t)(ptr + 0x4));
-		shim_mb();
-		bit_errors += (*(ptr + 0x5) != (uint64_t)(ptr + 0x5));
-		shim_mb();
-		bit_errors += (*(ptr + 0x6) != (uint64_t)(ptr + 0x6));
-		shim_mb();
-		bit_errors += (*(ptr + 0x7) != (uint64_t)(ptr + 0x7));
-		shim_mb();
-
-		bit_errors += (*(ptr + 0x0) != (uint64_t)(ptr + 0x0));
-		shim_mb();
-		bit_errors += (*(ptr + 0x1) != (uint64_t)(ptr + 0x1));
-		shim_mb();
-		bit_errors += (*(ptr + 0x2) != (uint64_t)(ptr + 0x2));
-		shim_mb();
-		bit_errors += (*(ptr + 0x3) != (uint64_t)(ptr + 0x3));
-		shim_mb();
-		bit_errors += (*(ptr + 0x4) != (uint64_t)(ptr + 0x4));
-		shim_mb();
-		bit_errors += (*(ptr + 0x5) != (uint64_t)(ptr + 0x5));
-		shim_mb();
-		bit_errors += (*(ptr + 0x6) != (uint64_t)(ptr + 0x6));
-		shim_mb();
-		bit_errors += (*(ptr + 0x7) != (uint64_t)(ptr + 0x7));
-		shim_mb();
-
-		bit_errors += (*(ptr + 0x0) != (uint64_t)(ptr + 0x0));
-		shim_mb();
-		bit_errors += (*(ptr + 0x1) != (uint64_t)(ptr + 0x1));
-		shim_mb();
-		bit_errors += (*(ptr + 0x2) != (uint64_t)(ptr + 0x2));
-		shim_mb();
-		bit_errors += (*(ptr + 0x3) != (uint64_t)(ptr + 0x3));
-		shim_mb();
-		bit_errors += (*(ptr + 0x4) != (uint64_t)(ptr + 0x4));
-		shim_mb();
-		bit_errors += (*(ptr + 0x5) != (uint64_t)(ptr + 0x5));
-		shim_mb();
-		bit_errors += (*(ptr + 0x6) != (uint64_t)(ptr + 0x6));
-		shim_mb();
-		bit_errors += (*(ptr + 0x7) != (uint64_t)(ptr + 0x7));
-		shim_mb();
-#endif
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x0);
+		bit_errors += (tmp != (val + 0));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x1);
+		bit_errors += (tmp != (val + 1));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x2);
+		bit_errors += (tmp != (val + 2));
+		tmp = STRESS_NT_LOAD128(ptr128 + 0x3);
+		bit_errors += (tmp != (val + 3));
+		val++;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
-	stress_vm_check("nt-write", bit_errors);
+	stress_vm_check("wrrd128nt", bit_errors);
 abort:
 	set_counter(args, c);
 
@@ -2846,7 +2728,7 @@ static const stress_vm_method_info_t vm_methods[] = {
 	{ "modulo-x",		stress_vm_modulo_x },
 	{ "mscan",		stress_vm_mscan },
 #if defined(HAVE_NT_STORE64)
-	{ "wrrd64nt",		stress_vm_wrrd64nt },
+	{ "wrrd128nt",		stress_vm_wrrd128nt },
 #endif
 	{ "prime-0",		stress_vm_prime_zero },
 	{ "prime-1",		stress_vm_prime_one },
