@@ -1676,6 +1676,11 @@ iteration. The default is just 1; higher values will create many temporary
 zombie processes that are waiting to be reaped. One can potentially fill up the
 process table using high values for \-\-exec\-max and \-\-exec.
 .TP
+.B \-\-exec\-method [ all | execve | execveat ]
+select the exec system call to use; all will perform a random choice between
+execve(2) and execveat(2), execve will use execve(2) and execveat will use
+execveat(2) if it is available.
+.TP
 .B \-\-exit\-group N
 start N workers that create 16 pthreads and terminate the pthreads and
 the controlling child process using exit_group(2). (Linux only stressor).

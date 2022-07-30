@@ -23,6 +23,10 @@
 #define MAX_EXECS		(16000)
 #define DEFAULT_EXECS		(1)
 
+#define EXEC_METHOD_ALL		(0)
+#define EXEC_METHOD_EXECVE	(1)
+#define EXEC_METHOD_EXECVEAT	(2)
+
 #if defined(__linux__)
 /*
  *   exec* family of args to pass
@@ -36,14 +40,26 @@ typedef struct {
     defined(O_PATH)
 	int fdexec;
 #endif
-	int which;
+	int exec_method;
 } stress_exec_args_t;
 #endif
+
+typedef struct {
+	const char *name;
+	const int method;
+} stress_exec_method_t;
+
+static const stress_exec_method_t stress_exec_methods[] = {
+	{ "all",	EXEC_METHOD_ALL },
+	{ "execve",	EXEC_METHOD_EXECVE },
+	{ "execveat",	EXEC_METHOD_EXECVEAT },
+};
 
 static const stress_help_t help[] = {
 	{ NULL,	"exec N",	"start N workers spinning on fork() and exec()" },
 	{ NULL,	"exec-ops N",	"stop after N exec bogo operations" },
 	{ NULL,	"exec-max P",	"create P workers per iteration, default is 1" },
+	{ NULL,	"exec-method M","select exec method: all, execve, execveat" },
 	{ NULL,	NULL,		NULL }
 };
 
@@ -61,8 +77,30 @@ static int stress_set_exec_max(const char *opt)
 	return stress_set_setting("exec-max", TYPE_ID_INT64, &exec_max);
 }
 
+/*
+ *  stress_set_exec_method()
+ *	set exec call method
+ */
+static int stress_set_exec_method(const char *opt)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_exec_methods); i++) {
+		if (!strcmp(opt, stress_exec_methods[i].name))
+			return stress_set_setting("exec-method", TYPE_ID_INT, &stress_exec_methods[i].method);
+	}
+
+	(void)fprintf(stderr, "exec-method must be one of:");
+	for (i = 0; i < SIZEOF_ARRAY(stress_exec_methods); i++) {
+		(void)fprintf(stderr, " %s", stress_exec_methods[i].name);
+	}
+	(void)fprintf(stderr, "\n");
+	return -1;
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_exec_max,	stress_set_exec_max },
+	{ OPT_exec_max,		stress_set_exec_max },
+	{ OPT_exec_method,	stress_set_exec_method },
 	{ 0,		NULL }
 };
 
@@ -87,29 +125,30 @@ static int stress_exec_supported(const char *name)
 }
 
 /*
- *  stress_exec_which()
+ *  stress_exec_method()
  *	perform one of the various execs depending on how
- *	ea->which is set.
+ *	ea->exec_method is set.
  */
-static int stress_exec_which(const stress_exec_args_t *ea)
+static int stress_exec_method(const stress_exec_args_t *ea)
 {
 	int ret;
 
-	switch (ea->which) {
-	case 0:
-		CASE_FALLTHROUGH;
-	default:
+	switch (ea->exec_method) {
+	case EXEC_METHOD_EXECVE:
 		ret = execve(ea->path, ea->argv_new, ea->env_new);
 		break;
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
-	case 1:
-		ret = shim_execveat(0, ea->path, ea->argv_new, ea->env_new, 0);
-		break;
-	case 2:
-		ret = shim_execveat(ea->fdexec, "", ea->argv_new, ea->env_new, AT_EMPTY_PATH);
+	case EXEC_METHOD_EXECVEAT:
+		if (stress_mwc1())
+			ret = shim_execveat(0, ea->path, ea->argv_new, ea->env_new, 0);
+		else
+			ret = shim_execveat(ea->fdexec, "", ea->argv_new, ea->env_new, AT_EMPTY_PATH);
 		break;
 #endif
+	default:
+		ret = execve(ea->path, ea->argv_new, ea->env_new);
+		break;
 	}
 	return ret;
 }
@@ -129,7 +168,7 @@ static void *stress_exec_from_pthread(void *arg)
 
 	(void)snprintf(buffer, sizeof(buffer), "%s-pthread-exec", ea->args->name);
 	stress_set_proc_name(buffer);
-	ret = stress_exec_which(ea);
+	ret = stress_exec_method(ea);
 	pthread_exit((void *)&ret);
 
 	return NULL;
@@ -190,7 +229,7 @@ static inline int stress_do_exec(stress_exec_args_t *ea)
 	 *  pthread failure or 75% of the execs just fall back to
 	 *  the normal non-pthread exec
 	 */
-	ret = stress_exec_which(ea);
+	ret = stress_exec_method(ea);
 	/*
 	 *  If exec fails, we end up here, so kill dummy pthread
 	 */
@@ -201,7 +240,7 @@ static inline int stress_do_exec(stress_exec_args_t *ea)
 	/*
 	 *  non-pthread enable systems just do normal exec
 	 */
-	return stress_exec_which(ea);
+	return stress_exec_method(ea);
 #endif
 }
 
@@ -222,10 +261,21 @@ static int stress_exec(const stress_args_t *args)
 #endif
 	uint64_t exec_fails = 0, exec_calls = 0;
 	uint64_t exec_max = DEFAULT_EXECS;
+	int exec_method = EXEC_METHOD_ALL;
 	char *argv_new[] = { NULL, "--exec-exit", NULL };
 	char *env_new[] = { NULL };
 
 	(void)stress_get_setting("exec-max", &exec_max);
+	(void)stress_get_setting("exec-method", &exec_method);
+
+#if !defined(HAVE_EXECVEAT)
+	if (args->instance == 0 &&
+	    ((exec_method == EXEC_METHOD_ALL) ||
+	     (exec_method == EXEC_METHOD_EXECVEAT))) {
+		pr_inf("%s: execveat not available, just using execve\n", args->name);
+		exec_method = EXEC_METHOD_EXECVE;
+	}
+#endif
 
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng
@@ -268,7 +318,6 @@ static int stress_exec(const stress_args_t *args)
 
 			if (pids[i] == 0) {
 				int fd_out, fd_in, fd = -1;
-				int which = stress_mwc8() % 3;
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
 				int exec_garbage = stress_mwc1();
@@ -276,6 +325,10 @@ static int stress_exec(const stress_args_t *args)
 				int exec_garbage = 0;
 #endif
 				stress_exec_args_t exec_args;
+				int method = exec_method;
+
+				if (method == EXEC_METHOD_ALL)
+					method = stress_mwc1() ? EXEC_METHOD_EXECVE : EXEC_METHOD_EXECVEAT;
 
 				stress_parent_died_alarm();
 				(void)sched_settings_apply(true);
@@ -308,8 +361,6 @@ static int stress_exec(const stress_args_t *args)
 					char buffer[1024];
 					ssize_t n;
 
-					which = 0;
-
 					fd = open(filename, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IXUSR);
 					if (fd < 0) {
 						exec_garbage = 0;
@@ -339,7 +390,7 @@ do_exec:
 #endif
 				exec_args.path = exec_garbage ? filename : path;
 				exec_args.args = args;
-				exec_args.which = which;
+				exec_args.exec_method = method;
 				exec_args.argv_new = argv_new;
 				exec_args.env_new = env_new;
 #if defined(HAVE_EXECVEAT) &&	\
@@ -348,6 +399,7 @@ do_exec:
 #endif
 
 				ret = stress_do_exec(&exec_args);
+
 				rc = EXIT_SUCCESS;
 				if (ret < 0) {
 					switch (errno) {
