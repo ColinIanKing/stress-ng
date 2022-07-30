@@ -2479,7 +2479,7 @@ static size_t TARGET_CLONES stress_vm_wrrd128nt(
 	__uint128_t *buf128 = (__uint128_t *)buf;
 	__uint128_t *buf_end128 = (__uint128_t *)buf_end;
 
-	for (val = 0, ptr128 = buf128; ptr128 < buf_end128; ptr128++) {
+	for (val = 0, ptr128 = buf128; ptr128 < buf_end128; ptr128 += 4) {
 		/* Write 128 bits x 4 times to hammer the memory */
 		stress_nt_store128(ptr128 + 0x00, val);
 		shim_mb();
@@ -2524,7 +2524,7 @@ static size_t TARGET_CLONES stress_vm_wrrd128nt(
 	if (UNLIKELY(!keep_stressing_flag()))
 		goto abort;
 
-	for (val = 0, ptr128 = buf128; ptr128 < buf_end128; ptr128++) {
+	for (val = 0, ptr128 = buf128; ptr128 < buf_end128; ptr128 += 4) {
 		register __uint128_t tmp;
 
 		tmp = STRESS_NT_LOAD128(ptr128 + 0x0);
@@ -2564,7 +2564,6 @@ static size_t TARGET_CLONES stress_vm_wrrd128nt(
 		bit_errors += (tmp != (val + 3));
 		val++;
 	}
-	(void)stress_mincore_touch_pages(buf, sz);
 	inject_random_bit_errors(buf, sz);
 	stress_vm_check("wrrd128nt", bit_errors);
 abort:
