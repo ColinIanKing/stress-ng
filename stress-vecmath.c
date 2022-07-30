@@ -156,9 +156,9 @@ do {				\
  *	stress GCC vector maths
  */
 #if defined(STRESS_ARCH_PPC64)
-static int HOT stress_vecmath(const stress_args_t *args)
+static int stress_vecmath(const stress_args_t *args)
 #else
-static int HOT TARGET_CLONES stress_vecmath(const stress_args_t *args)
+static int TARGET_CLONES stress_vecmath(const stress_args_t *args)
 #endif
 {
 	stress_vint8_t a8 = { A(INT16x8) };

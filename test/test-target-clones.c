@@ -25,9 +25,11 @@
  *  For now, only x86-64 systems with GNUC > 5.5 are known
  *  to support this attribute reliably.
  */
-#if defined(__GNUC__) && \
-    defined(__GLIBC__) && \
-    NEED_GNUC(5,5,0)
+#if (defined(__GNUC__) && \
+     defined(__GLIBC__) && \
+     NEED_GNUC(5,5,0)) || \
+    (defined(__clang__) && \
+     NEED_CLANG(14,0,0))
 
 #if defined(__x86_64__) || \
     defined(__x86_64) || \
