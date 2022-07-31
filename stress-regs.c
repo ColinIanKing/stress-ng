@@ -106,6 +106,39 @@ do {			\
 }
 #endif
 
+#if (defined(__i386__) || defined(__i386))
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress i386 registers
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+{
+	uint32_t v32 = (uint32_t)v;
+
+	register uint64_t eax __asm__("eax") = v32;
+	register uint64_t ecx __asm__("ecx") = v32 >> 1;
+	register uint64_t ebx __asm__("ebx") = v32 << 1;
+	register uint64_t edx __asm__("edx") = v32 >> 2;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	edx = eax;	\
+	eax = ebx;	\
+	ebx = ecx;	\
+	ecx = edx;	\
+} while (0);		\
+
+	SHUFFLE_REGS16();
+
+	stash = eax + ebx + ecx + edx;
+
+#undef SHUFFLE_REGS
+}
+#endif
+
+
 #if !defined(STRESS_REGS_HELPER)
 /*
  *  stress_regs_helper(void)
