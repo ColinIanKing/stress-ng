@@ -323,6 +323,46 @@ do {			\
 }
 #endif
 
+#if defined(STRESS_ARCH_SPARC)
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress sparc registers
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+{
+	register uint64_t l0 __asm__("l0") = v;
+	register uint64_t l1 __asm__("l1") = v >> 1;
+	register uint64_t l2 __asm__("l2") = v << 1;
+	register uint64_t l3 __asm__("l3") = v >> 2;
+	register uint64_t l4 __asm__("l4") = v << 2;
+	register uint64_t l5 __asm__("l5") = ~l0;
+	register uint64_t l6 __asm__("l6") = ~l1;
+	register uint64_t l7 __asm__("l7") = ~l2;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	l7 = l0;	\
+	l0 = l1;	\
+	l1 = l2;	\
+	l2 = l3;	\
+	l3 = l4;	\
+	l4 = l5;	\
+	l5 = l6;	\
+	l6 = l7;	\
+} while (0);		\
+
+	SHUFFLE_REGS16();
+
+	stash = l0 + l1 + l2 + l3 +
+		l4 + l5 + l6 + l7;
+
+#undef SHUFFLE_REGS
+}
+#endif
+
+
 #if !defined(STRESS_REGS_HELPER)
 /*
  *  stress_regs_helper(void)
