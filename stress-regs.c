@@ -53,7 +53,7 @@ do {				\
 	SHUFFLE_REGS();		\
 } while (0);
 
-#if (defined(__x86_64__) || defined(__x86_64)) &&	\
+#if (defined(__x86_64__) || defined(__x86_64)) 
 
 #define STRESS_REGS_HELPER
 /*
