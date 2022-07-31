@@ -265,6 +265,64 @@ do {			\
 }
 #endif
 
+#if defined(STRESS_ARCH_PPC64)
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress PPC64 registers
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+{
+	register uint64_t r14 __asm__("r14") = v;
+	register uint64_t r15 __asm__("r15") = v >> 1;
+	register uint64_t r16 __asm__("r16") = v << 1;
+	register uint64_t r17 __asm__("r17") = v >> 2;
+	register uint64_t r18 __asm__("r18") = v << 2;
+	register uint64_t r19 __asm__("r19") = ~r14;
+	register uint64_t r20 __asm__("r20") = ~r15;
+	register uint64_t r21 __asm__("r21") = ~r16;
+	register uint64_t r22 __asm__("r22") = ~r17;
+	register uint64_t r23 __asm__("r23") = ~r18;
+	register uint64_t r24 __asm__("r24") = r14 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t r25 __asm__("r25") = r15 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t r26 __asm__("r26") = r16 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t r27 __asm__("r27") = r17 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t r28 __asm__("r28") = r18 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t r29 __asm__("r29") = r14 ^ 0x55aaaa5555aaaa55ULL;
+	register uint64_t r30 __asm__("r30") = r15 ^ 0xaaaa5555aaaa5555ULL;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	r30 = r14;	\
+	r14 = r15;	\
+	r15 = r16;	\
+	r16 = r17;	\
+	r17 = r18;	\
+	r18 = r19;	\
+	r19 = r20;	\
+	r20 = r21;	\
+	r21 = r22;	\
+	r22 = r23;	\
+	r23 = r24;	\
+	r24 = r25;	\
+	r25 = r26;	\
+	r26 = r27;	\
+	r28 = r29;	\
+} while (0);		\
+
+	SHUFFLE_REGS16();
+
+	stash = r14 + r15 + r16 + r17 +
+		r18 + r19 + r20 + r21 +
+		r22 + r23 + r24 + r25 +
+		r26 + r27 + r28 + r29 +
+		r30;
+
+#undef SHUFFLE_REGS
+}
+#endif
+
 #if !defined(STRESS_REGS_HELPER)
 /*
  *  stress_regs_helper(void)
