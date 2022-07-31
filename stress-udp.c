@@ -181,6 +181,8 @@ static int stress_udp_client(
 			val = 1;
 			VOID_RET(int, setsockopt(fd, udp_proto, UDP_GRO, &val, slen));
 		}
+#else
+		(void)udp_gro;
 #endif
 
 #if defined(UDP_CORK)
@@ -361,6 +363,8 @@ static int stress_udp_server(
 		val = 1;
 		VOID_RET(int, setsockopt(fd, udp_proto, UDP_GRO, &val, slen));
 	}
+#else
+	(void)udp_gro;
 #endif
 	do {
 		socklen_t len = addr_len;
@@ -421,9 +425,7 @@ static int stress_udp(const stress_args_t *args)
 #if defined(IPPROTO_UDPLITE)
 	bool udp_lite = false;
 #endif
-#if defined(UDP_GRO)
 	bool udp_gro = false;
-#endif
 	char *udp_if = NULL;
 
 	(void)stress_get_setting("udp-if", &udp_if);
