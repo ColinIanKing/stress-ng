@@ -175,6 +175,49 @@ do {			\
 }
 #endif
 
+#if defined(STRESS_ARCH_RISCV)
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress RISCV registers
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+{
+	register uint64_t s1  __asm__("s1")  = v;
+	register uint64_t s2  __asm__("s2")  = v >> 1;
+	register uint64_t s3  __asm__("s3")  = v << 1;
+	register uint64_t s4  __asm__("s4")  = v >> 2;
+	register uint64_t s5  __asm__("s5")  = v << 2;
+	register uint64_t s6  __asm__("s6")  = ~s1;
+	register uint64_t s7  __asm__("s7")  = ~s2;
+	register uint64_t s8  __asm__("s8")  = ~s3;
+	register uint64_t s9  __asm__("s9")  = ~s4;
+	register uint64_t s10 __asm__("s10") = ~s5;
+	register uint64_t s11 __asm__("s11") = s1 ^ 0xa5a5a5a5a5a5a5a5ULL;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	s11 = s1;	\
+	s1  = s2;	\
+	s2  = s3;	\
+	s3  = s4;	\
+	s4  = s5;	\
+	s5  = s6;	\
+	s6  = s7;	\
+	s7  = s8;	\
+	s8  = s9;	\
+	s9  = s10;	\
+	s10 = s11;	\
+} while (0);		\
+
+	SHUFFLE_REGS16();
+
+	stash = s1 + s2 + s3 + s4 + s5 + s6 +
+		s7 + s8 + s9 + s10 + s11;
+#undef SHUFFLE_REGS
+}
+#endif
 
 #if !defined(STRESS_REGS_HELPER)
 /*
