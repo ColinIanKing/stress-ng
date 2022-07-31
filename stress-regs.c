@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-put.h"
 
 static volatile uint64_t stash;
@@ -134,6 +135,42 @@ do {			\
 
 	stash = eax + ebx + ecx + edx;
 
+#undef SHUFFLE_REGS
+}
+#endif
+
+#if defined(STRESS_ARCH_M68K)
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress m68000 registers
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+{
+	uint32_t v32 = (uint32_t)v;
+
+	register uint64_t d1 __asm__("d1") = v32;
+	register uint64_t d2 __asm__("d2") = v32 >> 1;
+	register uint64_t d3 __asm__("d3") = v32 << 1;
+	register uint64_t d4 __asm__("d4") = v32 >> 2;
+	register uint64_t d5 __asm__("d5") = v32 << 2;
+	register uint64_t d6 __asm__("d6") = v32 << 2;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	d6 = d1;	\
+	d1 = d2;	\
+	d2 = d3;	\
+	d3 = d4;	\
+	d4 = d5;	\
+	d5 = d6;	\
+} while (0);		\
+
+	SHUFFLE_REGS16();
+
+	stash = d1 + d2 + d3 +
+		d4 + d5 + d6;
 #undef SHUFFLE_REGS
 }
 #endif
