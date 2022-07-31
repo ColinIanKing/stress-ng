@@ -139,6 +139,64 @@ do {			\
 }
 #endif
 
+#if defined(STRESS_ARCH_HPPA)
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress hppa PA risc 1 registers
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+{
+	uint32_t v32 = (uint32_t)v;
+
+	register uint32_t r4  __asm__("r4")  = v32;
+	register uint32_t r5  __asm__("r5")  = v32 >> 1;
+	register uint32_t r6  __asm__("r6")  = v32 << 1;
+	register uint32_t r7  __asm__("r7")  = v32 >> 2;
+	register uint32_t r8  __asm__("r8")  = v32 << 2;
+	register uint32_t r9  __asm__("r9")  = ~r4;
+	register uint32_t r10 __asm__("r10") = ~r5;
+	register uint32_t r11 __asm__("r11") = ~r6;
+	register uint32_t r12 __asm__("r12") = ~r7;
+	register uint32_t r13 __asm__("r13") = ~r8;
+	register uint32_t r14 __asm__("r14") = r4 ^ 0xa5a5a5a5UL;
+	register uint32_t r15 __asm__("r15") = r5 ^ 0xa5a5a5a5UL;
+	register uint32_t r16 __asm__("r16") = r6 ^ 0xa5a5a5a5UL;
+	register uint32_t r17 __asm__("r17") = r7 ^ 0xa5a5a5a5UL;
+	register uint32_t r18 __asm__("r18") = r8 ^ 0xa5a5a5a5UL;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	r18 = r4;	\
+	r4  = r5;	\
+	r5  = r6;	\
+	r6  = r7;	\
+	r7  = r8;	\
+	r8  = r9;	\
+	r9  = r10;	\
+	r10 = r11;	\
+	r11 = r12;	\
+	r12 = r13;	\
+	r13 = r14;	\
+	r14 = r15;	\
+	r15 = r16;	\
+	r16 = r17;	\
+	r17 = r18;	\
+} while (0);
+
+	SHUFFLE_REGS16();
+
+	stash = r4 + r5 + r6 + r7 +
+		r8 + r9 + r10 + r11 +
+		r12 + r13 + r14 + r15 +
+		r16 + r17 + r18;
+
+#undef SHUFFLE_REGS
+}
+#endif
+
+
 #if defined(STRESS_ARCH_M68K)
 
 #define STRESS_REGS_HELPER
