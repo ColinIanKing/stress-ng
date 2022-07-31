@@ -27,6 +27,8 @@
 #define EXEC_METHOD_EXECVE	(1)
 #define EXEC_METHOD_EXECVEAT	(2)
 
+#define MAX_ARG_PAGES		(32)
+
 #if defined(__linux__)
 /*
  *   exec* family of args to pass
@@ -262,11 +264,21 @@ static int stress_exec(const stress_args_t *args)
 	uint64_t exec_fails = 0, exec_calls = 0;
 	uint64_t exec_max = DEFAULT_EXECS;
 	int exec_method = EXEC_METHOD_ALL;
-	char *argv_new[] = { NULL, "--exec-exit", NULL };
-	char *env_new[] = { NULL };
+	size_t arg_max;
+	char *argv_new[] = { NULL, "--exec-exit", NULL, NULL };
+	char *env_new[] = { NULL, NULL };
+	char *str;
 
 	(void)stress_get_setting("exec-max", &exec_max);
 	(void)stress_get_setting("exec-method", &exec_method);
+
+	arg_max = (MAX_ARG_PAGES + 1) * args->page_size;
+	str = mmap(NULL, arg_max, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (str == MAP_FAILED)
+		str = NULL;
+	else
+		(void)memset(str, 'X', arg_max - 1);
 
 #if !defined(HAVE_EXECVEAT)
 	if (args->instance == 0 &&
@@ -312,18 +324,22 @@ static int stress_exec(const stress_args_t *args)
 		(void)memset(pids, 0, sizeof(pids));
 
 		for (i = 0; i < exec_max; i++) {
-			(void)stress_mwc8();		/* force new random number */
+			const uint8_t rnd8 = stress_mwc8();
+			bool exec_garbage, big_env, big_arg;
+
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
+			exec_garbage = ((rnd8 >= 128) && (rnd8 < 128 + 64));
+#else
+			exec_garbage = false;
+#endif
+			big_env = ((rnd8 >= 128 + 64) && (rnd8 < 128 + 80));
+			big_arg = ((rnd8 >= 128 + 80) && (rnd8 < 128 + 96));
 
 			pids[i] = fork();
 
 			if (pids[i] == 0) {
 				int fd_out, fd_in, fd = -1;
-#if defined(HAVE_EXECVEAT) &&	\
-    defined(O_PATH)
-				int exec_garbage = stress_mwc1();
-#else
-				int exec_garbage = 0;
-#endif
 				stress_exec_args_t exec_args;
 				int method = exec_method;
 
@@ -371,6 +387,7 @@ static int stress_exec(const stress_args_t *args)
 					if (stress_mwc1()) {
 						buffer[0] = '#';
 						buffer[1] = '!';
+						buffer[2] = '/';
 					}
 
 					n = write(fd, buffer, sizeof(buffer));
@@ -388,6 +405,10 @@ static int stress_exec(const stress_args_t *args)
 				}
 do_exec:
 #endif
+				if (big_env)
+					env_new[0] = str;
+				if (big_arg)
+					argv_new[2] = str;
 				exec_args.path = exec_garbage ? filename : path;
 				exec_args.args = args;
 				exec_args.exec_method = method;
@@ -414,15 +435,29 @@ do_exec:
 							rc = EXIT_SUCCESS;
 						break;
 #endif
+#if defined(ENOMEM)
 					case ENOMEM:
-						CASE_FALLTHROUGH;
+						rc = EXIT_NO_RESOURCE;
+						break;
+#endif
+#if defined(EMFILE)
 					case EMFILE:
 						rc = EXIT_NO_RESOURCE;
 						break;
+#endif
+#if defined(EAGAIN)
 					case EAGAIN:
 						/* Ignore as an error */
 						rc = EXIT_SUCCESS;
 						break;
+#endif
+#if defined(E2BIG)
+					case E2BIG:
+						/* E2BIG only happens on large args or env */
+						if (!big_arg && !big_env)
+							rc = EXIT_FAILURE;
+						break;
+#endif
 					default:
 						rc = EXIT_FAILURE;
 						break;
@@ -471,6 +506,8 @@ do_exec:
     defined(O_PATH)
 err:
 #endif
+	if (str)
+		(void)munmap((void *)str, arg_max);
 	(void)shim_unlink(filename);
 	(void)stress_temp_dir_rm_args(args);
 
