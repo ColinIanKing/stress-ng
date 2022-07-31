@@ -233,6 +233,56 @@ do {			\
 }
 #endif
 
+#if defined(STRESS_ARCH_SH4)
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress 32 bit sh4 registers
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+{
+	uint32_t v32 = (uint32_t)v;
+
+	register uint32_t r2 __asm__("r2") = v32;
+	register uint32_t r3 __asm__("r3") = v32 >> 1;
+	register uint32_t r4 __asm__("r4") = v32 << 1;
+	register uint32_t r5 __asm__("r5") = v32 >> 2;
+	register uint32_t r6 __asm__("r6") = v32 << 2;
+	register uint32_t r7 __asm__("r7") = ~r2;
+	register uint32_t r8 __asm__("r8") = ~r3;
+	register uint32_t r9 __asm__("r9") = ~r4;
+	register uint32_t r10 __asm__("r10") = ~r5;
+	register uint32_t r11 __asm__("r11") = ~r6;
+	register uint32_t r12 __asm__("r12") = r2 ^ 0xa5a5a5a5UL;
+	register uint32_t r13 __asm__("r13") = r3 ^ 0xa5a5a5a5UL;
+	register uint32_t r15 __asm__("r15") = r4 ^ 0xa5a5a5a5UL;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	r15 = r2;	\
+	r2 = r3;	\
+	r3 = r4;	\
+	r4 = r5;	\
+	r5 = r6;	\
+	r6 = r7;	\
+	r7 = r8;	\
+	r8 = r9;	\
+	r9 = r10;	\
+	r10 = r11;	\
+	r11 = r12;	\
+	r12 = r13;	\
+	r13 = r15;	\
+} while (0);		\
+
+	SHUFFLE_REGS16();
+
+	stash = r2 + r3 + r4 + r5 +
+		r6 + r7;
+#undef SHUFFLE_REGS
+}
+#endif
+
 #if defined(STRESS_ARCH_RISCV)
 
 #define STRESS_REGS_HELPER
