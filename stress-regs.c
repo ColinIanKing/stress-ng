@@ -118,10 +118,10 @@ static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
 {
 	uint32_t v32 = (uint32_t)v;
 
-	register uint64_t eax __asm__("eax") = v32;
-	register uint64_t ecx __asm__("ecx") = v32 >> 1;
-	register uint64_t ebx __asm__("ebx") = v32 << 1;
-	register uint64_t edx __asm__("edx") = v32 >> 2;
+	register uint32_t eax __asm__("eax") = v32;
+	register uint32_t ecx __asm__("ecx") = v32 >> 1;
+	register uint32_t ebx __asm__("ebx") = v32 << 1;
+	register uint32_t edx __asm__("edx") = v32 >> 2;
 
 #define SHUFFLE_REGS()	\
 do {			\
