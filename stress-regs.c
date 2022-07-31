@@ -362,6 +362,45 @@ do {			\
 }
 #endif
 
+#if defined(STRESS_ARCH_MIPS) &&	\
+    defined(_MIPS_TUNE_MIPS64R2)
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress MIPS64R2 registers
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+{
+	register uint64_t s0 __asm__("s0") = v;
+	register uint64_t s1 __asm__("s1") = v >> 1;
+	register uint64_t s2 __asm__("s2") = v << 1;
+	register uint64_t s3 __asm__("s3") = v >> 2;
+	register uint64_t s4 __asm__("s4") = v << 2;
+	register uint64_t s5 __asm__("s5") = ~s0;
+	register uint64_t s6 __asm__("s6") = ~s1;
+	register uint64_t s7 __asm__("s7") = ~s2;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	s7 = s0;	\
+	s0 = s1;	\
+	s1 = s2;	\
+	s2 = s3;	\
+	s3 = s4;	\
+	s4 = s5;	\
+	s5 = s6;	\
+	s6 = s7;	\
+} while (0);		\
+
+	SHUFFLE_REGS16();
+
+	stash = s0 + s1 + s2 + s3 +
+		s4 + s5 + s6 + s7;
+
+#undef SHUFFLE_REGS
+}
+#endif
 
 #if !defined(STRESS_REGS_HELPER)
 /*
