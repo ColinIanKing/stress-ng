@@ -650,10 +650,11 @@ typedef struct {
 
 /* -O0 attribute support */
 #if defined(__GNUC__) &&	\
-    !defined(__clang__) &&	\
     !defined(__ICC) &&		\
     NEED_GNUC(4, 6, 0)
 #define OPTIMIZE0 	__attribute__((optimize("-O0")))
+#elif (defined(__clang__) && NEED_CLANG(10, 0, 0))
+#define OPTIMIZE0	__attribute__((optnone))
 #else
 #define OPTIMIZE0
 #endif
@@ -1232,6 +1233,7 @@ typedef struct {
 	MACRO(rdrand)		\
 	MACRO(readahead)	\
 	MACRO(reboot)		\
+	MACRO(regs)		\
 	MACRO(remap)		\
 	MACRO(rename)		\
 	MACRO(resched)		\
@@ -2140,6 +2142,9 @@ typedef enum {
 
 	OPT_reboot,
 	OPT_reboot_ops,
+
+	OPT_regs,
+	OPT_regs_ops,
 
 	OPT_remap,
 	OPT_remap_ops,

@@ -3860,6 +3860,16 @@ that will not actually reboot the system.
 .B \-\-reboot\-ops N
 stop the reboot stress workers after N bogo reboot cycles.
 .TP
+.B \-\-regs N
+start N workers that shuffle data around the CPU registers exercising register
+move instuctions.  Each bogo-op represents 1000 calls of a shuffling function
+that shuffles the registers 32 times. Only implemented for the GCC compiler
+since this requires register annotations and optimization level 0 to compile
+appropriately.
+.TP
+.B \-\-regs N
+stop regs stressors after N bogo operations.
+.TP
 .B \-\-remap N
 start N workers that map 512 pages and re-order these pages using the
 deprecated system call remap_file_pages(2). Several page re-orderings are
