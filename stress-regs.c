@@ -523,11 +523,13 @@ do {			\
  */
 static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
 {
-	register uint32_t s0 __asm__("s0") = v;
-	register uint32_t s1 __asm__("s1") = v >> 1;
-	register uint32_t s2 __asm__("s2") = v << 1;
-	register uint32_t s3 __asm__("s3") = v >> 2;
-	register uint32_t s4 __asm__("s4") = v << 2;
+	uint32_t v32 = (uint32_t)v;
+
+	register uint32_t s0 __asm__("s0") = v32;
+	register uint32_t s1 __asm__("s1") = v32 >> 1;
+	register uint32_t s2 __asm__("s2") = v32 << 1;
+	register uint32_t s3 __asm__("s3") = v32 >> 2;
+	register uint32_t s4 __asm__("s4") = v32 << 2;
 	register uint32_t s5 __asm__("s5") = ~s0;
 	register uint32_t s6 __asm__("s6") = ~s1;
 	register uint32_t s7 __asm__("s7") = ~s2;
