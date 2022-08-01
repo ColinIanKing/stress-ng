@@ -733,12 +733,10 @@ static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, reg
 	register uint32_t r8  __asm__("r8")  = ~r2;
 	register uint32_t r9  __asm__("r9")  = ~r3;
 	register uint32_t r10 __asm__("r10") = ~r4;
-	register uint32_t r11 __asm__("r11") = r0 ^ 0xa5a5a5a5UL;
-	register uint32_t r12 __asm__("r12") = r1 ^ 0xa5a5a5a5UL;
 
 #define SHUFFLE_REGS()	\
 do {			\
-	r12 = r0;	\
+	r10 = r0;	\
 	r0  = r1;	\
 	r1  = r2;	\
 	r2  = r3;	\
@@ -748,17 +746,15 @@ do {			\
 	r6  = r8;	\
 	r8  = r9;	\
 	r9  = r10;	\
-	r10 = r11;	\
-	r11 = r12;	\
 } while (0);		\
 
 	SHUFFLE_REGS16();
 
-	stash32 = r6;
-	REGS_CHECK(args, "r6", v, stash32);
+	stash32 = r2;
+	REGS_CHECK(args, "r2", v32, stash32);
 
-	stash32 = r0 + r1 + r2 + r3 + r4 + r5 +
-		r6 + r8 + r9 + r10 + r11 + r12;
+	stash32 = r0 + r1 + r2 + r3 + r4 +
+		  r5 + r6 + r8 + r9 + r10;
 #undef SHUFFLE_REGS
 }
 #endif
