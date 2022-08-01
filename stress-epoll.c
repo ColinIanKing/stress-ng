@@ -897,7 +897,7 @@ static void NORETURN epoll_server(
 			saved_errno = errno;
 
 			/* Invalid epoll_wait syscall having invalid maxevents argument */
-			(void)epoll_wait(efd, events, INT_MIN, 100);
+			(void)epoll_wait(efd, events, 0, 100);
 
 		} else {
 			if (!wait_segv) {
