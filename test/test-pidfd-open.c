@@ -22,6 +22,7 @@
 
 #include <sys/types.h>
 #include <unistd.h>
+#include <sys/pidfd.h>
 
 int main(void)
 {

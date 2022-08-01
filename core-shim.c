@@ -56,6 +56,10 @@
 #include <sys/mount.h>
 #endif
 
+#if defined(HAVE_SYS_PIDFD_H)
+#include <sys/pidfd.h>
+#endif
+
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
 #endif
