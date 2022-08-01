@@ -1681,6 +1681,10 @@ select the exec system call to use; all will perform a random choice between
 execve(2) and execveat(2), execve will use execve(2) and execveat will use
 execveat(2) if it is available.
 .TP
+.B \-\-exec\-fork\-method [ fork | clone ]
+select the fork systemm call to use; fork will use fork(2) and clone will use
+clone(2).
+.TP
 .B \-\-exit\-group N
 start N workers that create 16 pthreads and terminate the pthreads and
 the controlling child process using exit_group(2). (Linux only stressor).
