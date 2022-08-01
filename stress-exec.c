@@ -27,7 +27,12 @@
 #define EXEC_METHOD_EXECVE	(1)
 #define EXEC_METHOD_EXECVEAT	(2)
 
+#define EXEC_FORK_METHOD_FORK	(8)
+#define EXEC_FORK_METHOD_CLONE	(9)
+
 #define MAX_ARG_PAGES		(32)
+
+#define CLONE_STACK_SIZE	(8*1024)
 
 #if defined(__linux__)
 /*
@@ -57,12 +62,18 @@ static const stress_exec_method_t stress_exec_methods[] = {
 	{ "execveat",	EXEC_METHOD_EXECVEAT },
 };
 
+static const stress_exec_method_t stress_exec_fork_methods[] = {
+	{ "fork",	EXEC_FORK_METHOD_FORK },
+	{ "clone",	EXEC_FORK_METHOD_CLONE },
+};
+
 static const stress_help_t help[] = {
-	{ NULL,	"exec N",	"start N workers spinning on fork() and exec()" },
-	{ NULL,	"exec-ops N",	"stop after N exec bogo operations" },
-	{ NULL,	"exec-max P",	"create P workers per iteration, default is 1" },
-	{ NULL,	"exec-method M","select exec method: all, execve, execveat" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"exec N",		"start N workers spinning on fork() and exec()" },
+	{ NULL,	"exec-ops N",		"stop after N exec bogo operations" },
+	{ NULL,	"exec-max P",		"create P workers per iteration, default is 1" },
+	{ NULL,	"exec-method M",	"select exec method: all, execve, execveat" },
+	{ NULL,	"exec-fork-method M",	"select exec fork method: fork, clone" },
+	{ NULL,	NULL,			NULL }
 };
 
 /*
@@ -80,29 +91,49 @@ static int stress_set_exec_max(const char *opt)
 }
 
 /*
- *  stress_set_exec_method()
- *	set exec call method
+ * stress_search_exec_method
+ * 	search the given option in the given array and if found set the
+ * 	corresponding option.
  */
-static int stress_set_exec_method(const char *opt)
+static int stress_search_exec_method(const char* name, const stress_exec_method_t methods[], size_t nr_methods, const char *opt)
 {
 	size_t i;
 
-	for (i = 0; i < SIZEOF_ARRAY(stress_exec_methods); i++) {
-		if (!strcmp(opt, stress_exec_methods[i].name))
-			return stress_set_setting("exec-method", TYPE_ID_INT, &stress_exec_methods[i].method);
+	for (i = 0; i < nr_methods; i++) {
+		if (!strcmp(opt, methods[i].name))
+			return stress_set_setting(name, TYPE_ID_INT, &methods[i].method);
 	}
 
-	(void)fprintf(stderr, "exec-method must be one of:");
-	for (i = 0; i < SIZEOF_ARRAY(stress_exec_methods); i++) {
-		(void)fprintf(stderr, " %s", stress_exec_methods[i].name);
+	(void)fprintf(stderr, "%s must be one of:", name);
+	for (i = 0; i < nr_methods; i++) {
+		(void)fprintf(stderr, " %s", methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
 	return -1;
 }
 
+/*
+ *  stress_set_exec_method()
+ *	set exec call method
+ */
+static int stress_set_exec_method(const char *opt)
+{
+	return stress_search_exec_method("exec-method", stress_exec_methods, SIZEOF_ARRAY(stress_exec_methods), opt);
+}
+
+/*
+ *  stress_set_exec_method()
+ *	set exec call method
+ */
+static int stress_set_exec_fork_method(const char *opt)
+{
+	return stress_search_exec_method("exec-fork-method", stress_exec_fork_methods, SIZEOF_ARRAY(stress_exec_fork_methods), opt);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_exec_max,		stress_set_exec_max },
 	{ OPT_exec_method,	stress_set_exec_method },
+	{ OPT_exec_fork_method,	stress_set_exec_fork_method },
 	{ 0,		NULL }
 };
 
@@ -246,6 +277,160 @@ static inline int stress_do_exec(stress_exec_args_t *ea)
 #endif
 }
 
+struct arg_struct {
+	char path[PATH_MAX + 1];
+	char filename[PATH_MAX];
+	char *argv_new[4];
+	char *env_new[2];
+	char *str;
+	const stress_args_t *args;
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
+	int fdexec;
+#endif
+	int exec_method;
+	bool exec_garbage;
+	bool big_env;
+	bool big_arg;
+};
+
+int child_func(void *arg)
+{
+	struct arg_struct *argp = (struct arg_struct *) arg;
+	int rc, ret, fd_out, fd_in, fd = -1;
+	stress_exec_args_t exec_args;
+	int method = argp->exec_method;
+
+	if (method == EXEC_METHOD_ALL)
+		method = stress_mwc1() ? EXEC_METHOD_EXECVE : EXEC_METHOD_EXECVEAT;
+
+	stress_parent_died_alarm();
+	(void)sched_settings_apply(true);
+
+	if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
+		pr_fail("%s: child open on /dev/null failed\n",
+						argp->args->name);
+		_exit(EXIT_FAILURE);
+	}
+	if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
+		pr_fail("%s: child open on /dev/zero failed\n",
+						argp->args->name);
+		(void)close(fd_out);
+		_exit(EXIT_FAILURE);
+	}
+	(void)dup2(fd_out, STDOUT_FILENO);
+	(void)dup2(fd_out, STDERR_FILENO);
+	(void)dup2(fd_in, STDIN_FILENO);
+	(void)close(fd_out);
+	(void)close(fd_in);
+	ret = stress_drop_capabilities(argp->args->name);
+	(void)ret;
+
+	/*
+	 *  Create a garbage executable
+	 */
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
+	if (argp->exec_garbage) {
+		char buffer[1024];
+		ssize_t n;
+
+		fd = open(argp->filename, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IXUSR);
+		if (fd < 0) {
+			argp->exec_garbage = 0;
+			goto do_exec;
+		}
+
+		stress_strnrnd(buffer, sizeof(buffer));
+		if (stress_mwc1()) {
+			buffer[0] = '#';
+			buffer[1] = '!';
+			buffer[2] = '/';
+		}
+
+		n = write(fd, buffer, sizeof(buffer));
+		if (n < (ssize_t)sizeof(buffer)) {
+			argp->exec_garbage = 0;
+			goto do_exec;
+		}
+
+		(void)close(fd);
+		fd = open(argp->filename, O_PATH);
+		if (fd < 0) {
+			argp->exec_garbage = 0;
+			goto do_exec;
+		}
+	}
+do_exec:
+#endif
+	if (argp->big_env)
+		argp->env_new[0] = argp->str;
+	if (argp->big_arg)
+		argp->argv_new[2] = argp->str;
+	exec_args.path = argp->exec_garbage ? argp->filename : argp->path;
+	exec_args.args = argp->args;
+	exec_args.exec_method = method;
+	exec_args.argv_new = argp->argv_new;
+	exec_args.env_new = argp->env_new;
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
+	exec_args.fdexec = argp->exec_garbage ? fd : argp->fdexec;
+#endif
+
+	ret = stress_do_exec(&exec_args);
+
+	rc = EXIT_SUCCESS;
+	if (ret < 0) {
+		switch (errno) {
+		case 0:
+			/* Should not happen? */
+			rc = EXIT_SUCCESS;
+			break;
+#if defined(ENOEXEC)
+		case ENOEXEC:
+			/* we expect this error if exec'ing garbage */
+			if (argp->exec_garbage)
+				rc = EXIT_SUCCESS;
+			break;
+#endif
+#if defined(ENOMEM)
+		case ENOMEM:
+			rc = EXIT_NO_RESOURCE;
+			break;
+#endif
+#if defined(EMFILE)
+		case EMFILE:
+			rc = EXIT_NO_RESOURCE;
+			break;
+#endif
+#if defined(EAGAIN)
+		case EAGAIN:
+			/* Ignore as an error */
+			rc = EXIT_SUCCESS;
+			break;
+#endif
+#if defined(E2BIG)
+		case E2BIG:
+			/* E2BIG only happens on large args or env */
+			if (!argp->big_arg && !argp->big_env)
+				rc = EXIT_FAILURE;
+			break;
+#endif
+		default:
+			rc = EXIT_FAILURE;
+			break;
+		}
+	}
+	if (argp->exec_garbage) {
+		if (fd != -1)
+			(void)close(fd);
+		(void)shim_unlink(argp->filename);
+	}
+
+	/* Child, immediately exit */
+	_exit(rc);
+}
+
 /*
  *  stress_exec()
  *	stress by forking and exec'ing
@@ -261,16 +446,16 @@ static int stress_exec(const stress_args_t *args)
     defined(O_PATH)
 	int fdexec;
 #endif
-	uint64_t exec_fails = 0, exec_calls = 0;
+	uint64_t volatile exec_fails = 0, exec_calls = 0;
 	uint64_t exec_max = DEFAULT_EXECS;
 	int exec_method = EXEC_METHOD_ALL;
+	int exec_fork_method = EXEC_FORK_METHOD_FORK;
 	size_t arg_max;
-	char *argv_new[] = { NULL, "--exec-exit", NULL, NULL };
-	char *env_new[] = { NULL, NULL };
 	char *str;
 
 	(void)stress_get_setting("exec-max", &exec_max);
 	(void)stress_get_setting("exec-method", &exec_method);
+	(void)stress_get_setting("exec-fork-method", &exec_fork_method);
 
 	arg_max = (MAX_ARG_PAGES + 1) * args->page_size;
 	str = mmap(NULL, arg_max, PROT_READ | PROT_WRITE,
@@ -299,7 +484,6 @@ static int stress_exec(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 	path[len] = '\0';
-	argv_new[0] = path;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -320,158 +504,80 @@ static int stress_exec(const stress_args_t *args)
 
 	do {
 		unsigned int i;
+		char *stacks[exec_max];
+		struct arg_struct *args_array[exec_max];
 
 		(void)memset(pids, 0, sizeof(pids));
 
 		for (i = 0; i < exec_max; i++) {
+			char *stack_top;
 			const uint8_t rnd8 = stress_mwc8();
-			bool exec_garbage, big_env, big_arg;
 
+			args_array[i] = NULL;
+			stacks[i] = MAP_FAILED;
+
+			struct arg_struct arg = {
+				.argv_new = { path, "--exec-exit", NULL, NULL},
+				.env_new = { NULL, NULL },
+				.args = args,
+				.str = str,
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
-			exec_garbage = ((rnd8 >= 128) && (rnd8 < 128 + 64));
+				.fdexec = fdexec,
+#endif
+				.exec_method = exec_method,
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
+				.exec_garbage = ((rnd8 >= 128) && (rnd8 < 128 + 64)),
 #else
-			exec_garbage = false;
+				.exec_garbage = false,
 #endif
-			big_env = ((rnd8 >= 128 + 64) && (rnd8 < 128 + 80));
-			big_arg = ((rnd8 >= 128 + 80) && (rnd8 < 128 + 96));
+				.big_env = ((rnd8 >= 128 + 64) && (rnd8 < 128 + 80)),
+				.big_arg = ((rnd8 >= 128 + 80) && (rnd8 < 128 + 96))
+			};
 
-			pids[i] = fork();
+			memcpy(arg.filename, filename, sizeof(filename));
+			memcpy(arg.path, path, sizeof(path));
 
-			if (pids[i] == 0) {
-				int fd_out, fd_in, fd = -1;
-				stress_exec_args_t exec_args;
-				int method = exec_method;
-
-				if (method == EXEC_METHOD_ALL)
-					method = stress_mwc1() ? EXEC_METHOD_EXECVE : EXEC_METHOD_EXECVEAT;
-
-				stress_parent_died_alarm();
-				(void)sched_settings_apply(true);
-
-				if ((fd_out = open("/dev/null", O_WRONLY)) < 0) {
-					pr_fail("%s: child open on /dev/null failed\n",
-						args->name);
-					_exit(EXIT_FAILURE);
-				}
-				if ((fd_in = open("/dev/zero", O_RDONLY)) < 0) {
-					pr_fail("%s: child open on /dev/zero failed\n",
-						args->name);
-					(void)close(fd_out);
-					_exit(EXIT_FAILURE);
-				}
-				(void)dup2(fd_out, STDOUT_FILENO);
-				(void)dup2(fd_out, STDERR_FILENO);
-				(void)dup2(fd_in, STDIN_FILENO);
-				(void)close(fd_out);
-				(void)close(fd_in);
-				ret = stress_drop_capabilities(args->name);
-				(void)ret;
-
+			switch (exec_fork_method) {
+			case EXEC_FORK_METHOD_FORK:
+				pids[i] = fork();
+				break;
+			case EXEC_FORK_METHOD_CLONE:
 				/*
-				 *  Create a garbage executable
+				 * Since we use CLONE_VM, we need to have one
+				 * struct for each clone child.
+				 * Otherwise, they will share the same which
+				 * will be troublesome.
+				 * The same applies for stacks.
 				 */
-#if defined(HAVE_EXECVEAT) &&	\
-    defined(O_PATH)
-				if (exec_garbage) {
-					char buffer[1024];
-					ssize_t n;
-
-					fd = open(filename, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IXUSR);
-					if (fd < 0) {
-						exec_garbage = 0;
-						goto do_exec;
-					}
-
-					stress_strnrnd(buffer, sizeof(buffer));
-					if (stress_mwc1()) {
-						buffer[0] = '#';
-						buffer[1] = '!';
-						buffer[2] = '/';
-					}
-
-					n = write(fd, buffer, sizeof(buffer));
-					if (n < (ssize_t)sizeof(buffer)) {
-						exec_garbage = 0;
-						goto do_exec;
-					}
-
-					(void)close(fd);
-					fd = open(filename, O_PATH);
-					if (fd < 0) {
-						exec_garbage = 0;
-						goto do_exec;
-					}
-				}
-do_exec:
-#endif
-				if (big_env)
-					env_new[0] = str;
-				if (big_arg)
-					argv_new[2] = str;
-				exec_args.path = exec_garbage ? filename : path;
-				exec_args.args = args;
-				exec_args.exec_method = method;
-				exec_args.argv_new = argv_new;
-				exec_args.env_new = env_new;
-#if defined(HAVE_EXECVEAT) &&	\
-    defined(O_PATH)
-				exec_args.fdexec = exec_garbage ? fd : fdexec;
-#endif
-
-				ret = stress_do_exec(&exec_args);
-
-				rc = EXIT_SUCCESS;
-				if (ret < 0) {
-					switch (errno) {
-					case 0:
-						/* Should not happen? */
-						rc = EXIT_SUCCESS;
-						break;
-#if defined(ENOEXEC)
-					case ENOEXEC:
-						/* we expect this error if exec'ing garbage */
-						if (exec_garbage)
-							rc = EXIT_SUCCESS;
-						break;
-#endif
-#if defined(ENOMEM)
-					case ENOMEM:
-						rc = EXIT_NO_RESOURCE;
-						break;
-#endif
-#if defined(EMFILE)
-					case EMFILE:
-						rc = EXIT_NO_RESOURCE;
-						break;
-#endif
-#if defined(EAGAIN)
-					case EAGAIN:
-						/* Ignore as an error */
-						rc = EXIT_SUCCESS;
-						break;
-#endif
-#if defined(E2BIG)
-					case E2BIG:
-						/* E2BIG only happens on large args or env */
-						if (!big_arg && !big_env)
-							rc = EXIT_FAILURE;
-						break;
-#endif
-					default:
-						rc = EXIT_FAILURE;
-						break;
-					}
-				}
-				if (exec_garbage) {
-					if (fd != -1)
-						(void)close(fd);
-					(void)shim_unlink(filename);
+				args_array[i] = malloc(sizeof(**args_array));
+				if (args_array[i] == NULL) {
+					pr_fail("%s: cannot allocate arg struct)\n",
+						args->name);
+					continue;
 				}
 
-				/* Child, immediately exit */
-				_exit(rc);
+				memcpy(args_array[i], &arg, sizeof(arg));
+
+				stacks[i] = mmap(NULL, CLONE_STACK_SIZE, PROT_READ | PROT_WRITE,
+						     MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
+				if (stacks[i] == MAP_FAILED) {
+					pr_fail("%s: cannot allocate stack, errno=%d (%s)\n",
+						args->name, errno, strerror(errno));
+					continue;
+				}
+
+				stack_top = (char *)stress_get_stack_top(stacks[i], CLONE_STACK_SIZE);
+				pids[i] = 42;
+				pids[i] = clone(child_func, stress_align_stack(stack_top), CLONE_VM | SIGCHLD, args_array[i]);
+				break;
+			default:
+				pids[i] = fork();
 			}
+
+			if (pids[i] == 0)
+				child_func(&arg);
 			if (!keep_stressing_flag())
 				break;
 		}
@@ -482,6 +588,10 @@ do_exec:
 				(void)shim_waitpid(pids[i], &status, 0);
 				exec_calls++;
 				inc_counter(args);
+				if (args_array[i])
+					free(args_array[i]);
+				if (stacks[i] != MAP_FAILED)
+					munmap(stacks[i], CLONE_STACK_SIZE);
 				if (WEXITSTATUS(status) != EXIT_SUCCESS)
 					exec_fails++;
 			}

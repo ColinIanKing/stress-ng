@@ -1501,6 +1501,7 @@ typedef enum {
 	OPT_exec_ops,
 	OPT_exec_max,
 	OPT_exec_method,
+	OPT_exec_fork_method,
 
 	OPT_exit_group,
 	OPT_exit_group_ops,
