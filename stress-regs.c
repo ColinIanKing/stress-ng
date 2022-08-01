@@ -170,6 +170,7 @@ do {			\
 } while (0);		\
 
 	SHUFFLE_REGS16();
+
 	stash32 = eax;
 	REGS_CHECK(args, "eax", v << 1, stash32);
 
@@ -225,6 +226,9 @@ do {			\
 
 	SHUFFLE_REGS16();
 
+	stash32 = r16;
+	REGS_CHECK(args, "r16", v, stash32);
+
 	stash32 = r4 + r5 + r6 + r7 +
 		r8 + r9 + r10 + r11 +
 		r12 + r13 + r14 + r15 +
@@ -265,6 +269,9 @@ do {			\
 
 	SHUFFLE_REGS16();
 
+	stash32 = d5;
+	REGS_CHECK(args, "d5", v32, stash32);
+
 	stash32 = d1 + d2 + d3 +
 		d4 + d5 + d6;
 #undef SHUFFLE_REGS
@@ -294,31 +301,29 @@ static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, reg
 	register uint32_t r11 __asm__("r11") = ~r6;
 	register uint32_t r12 __asm__("r12") = r2 ^ 0xa5a5a5a5UL;
 	register uint32_t r13 __asm__("r13") = r3 ^ 0xa5a5a5a5UL;
-	register uint32_t r15 __asm__("r15") = r4 ^ 0xa5a5a5a5UL;
 
 #define SHUFFLE_REGS()	\
 do {			\
-	r15 = r2;	\
-	r2 = r3;	\
-	r3 = r4;	\
-	r4 = r5;	\
-	r5 = r6;	\
-	r6 = r7;	\
-	r7 = r8;	\
-	r8 = r9;	\
-	r9 = r10;	\
+	r13 = r2;	\
+	r2  = r3;	\
+	r3  = r4;	\
+	r4  = r5;	\
+	r5  = r6;	\
+	r6  = r7;	\
+	r7  = r8;	\
+	r8  = r9;	\
+	r9  = r10;	\
 	r10 = r11;	\
 	r11 = r12;	\
 	r12 = r13;	\
-	r13 = r15;	\
 } while (0);		\
 
 	SHUFFLE_REGS16();
 
-	stash32 = r2 + r3 + r4 + r5 +
-		r6 + r7 + r8 + r9 +
-		r10 + r11 + r12 + r13 +
-		r15;
+	stash32 = r8;
+	REGS_CHECK(args, "r8", v , stash32);
+
+	stash32 = r2 + r3 + r4 + r5;
 
 #undef SHUFFLE_REGS
 }
@@ -361,6 +366,9 @@ do {			\
 } while (0);		\
 
 	SHUFFLE_REGS16();
+
+	stash64 = s5;
+	REGS_CHECK(args, "s5", v, stash64);
 
 	stash64 = s1 + s2 + s3 + s4 + s5 + s6 +
 		s7 + s8 + s9 + s10 + s11;
@@ -407,6 +415,9 @@ do {			\
 } while (0);		\
 
 	SHUFFLE_REGS16();
+
+	stash64 = t6;
+	REGS_CHECK(args, "t6", v, stash64);
 
 	stash64 = t0 + t1 + t2 + t3 + t5 + t6 +
 		t7 + t8 + t9 + t10 + t11;
@@ -457,10 +468,15 @@ do {			\
 	r24 = r25;	\
 	r25 = r26;	\
 	r26 = r27;	\
+	r27 = r28;	\
 	r28 = r29;	\
+	r29 = r30;	\
 } while (0);		\
 
 	SHUFFLE_REGS16();
+
+	stash64 = r14;
+	REGS_CHECK(args, "r14", stash64);
 
 	stash64 = r14 + r15 + r16 + r17 +
 		r18 + r19 + r20 + r21 +
@@ -504,6 +520,9 @@ do {			\
 
 	SHUFFLE_REGS16();
 
+	stash64 = l5;
+	REGS_CHECK(args, "l5", v, stash64);
+
 	stash64 = l0 + l1 + l2 + l3 +
 		l4 + l5 + l6 + l7;
 
@@ -543,6 +562,9 @@ do {			\
 } while (0);		\
 
 	SHUFFLE_REGS16();
+
+	stash64 = s5;
+	REGS_CHECK(args, "s5", v, stash64);
 
 	stash64 = s0 + s1 + s2 + s3 +
 		s4 + s5 + s6 + s7;
@@ -585,6 +607,9 @@ do {			\
 } while (0);		\
 
 	SHUFFLE_REGS16();
+
+	stash32 = s5;
+	REGS_CHECK(args, "s0", v32, stash32);
 
 	stash32 = s0 + s1 + s2 + s3 +
 		s4 + s5 + s6 + s7;
@@ -672,6 +697,9 @@ do {			\
 
 	SHUFFLE_REGS16();
 
+	stash64 = x14;
+	REGS_CHECK(args, "x15", v, stash64);
+
 	stash64 = x0 + x1 + x2 + x3 + x4 +
 		x5 + x6 + x7 + x8 + x9 +
 		x10 + x11 + x12 + x13 + x14 +
@@ -725,6 +753,9 @@ do {			\
 } while (0);		\
 
 	SHUFFLE_REGS16();
+
+	stash32 = r6;
+	REGS_CHECK(args, "r6", v, stash32);
 
 	stash32 = r0 + r1 + r2 + r3 + r4 + r5 +
 		r6 + r8 + r9 + r10 + r11 + r12;
