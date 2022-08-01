@@ -20,7 +20,8 @@
 #include "core-arch.h"
 #include "core-put.h"
 
-static volatile uint64_t stash;
+static volatile uint32_t stash32;
+static volatile uint64_t stash64;
 
 static const stress_help_t help[] = {
 	{ NULL,	"regs N",	"start N workers exercising CPU generic registers" },
@@ -132,10 +133,10 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = r12;
-	REGS_CHECK(args, "r12", v, stash);
+	stash64 = r12;
+	REGS_CHECK(args, "r12", v, stash64);
 
-	stash = rax + rbx + rcx + rdx +
+	stash64 = rax + rbx + rcx + rdx +
 		rsi + rdi + r8  + r9  +
 		r10 + r11 + r12 + r13 +
 		r14 + r15;
@@ -169,8 +170,8 @@ do {			\
 } while (0);		\
 
 	SHUFFLE_REGS16();
-
-	stash = eax + ebx + ecx + edx;
+	stash32 = eax;
+	REGS_CHECK(args, "eax", v << 1, stash32);
 
 #undef SHUFFLE_REGS
 }
@@ -224,7 +225,7 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = r4 + r5 + r6 + r7 +
+	stash32 = r4 + r5 + r6 + r7 +
 		r8 + r9 + r10 + r11 +
 		r12 + r13 + r14 + r15 +
 		r16 + r17 + r18;
@@ -264,7 +265,7 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = d1 + d2 + d3 +
+	stash32 = d1 + d2 + d3 +
 		d4 + d5 + d6;
 #undef SHUFFLE_REGS
 }
@@ -314,7 +315,7 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = r2 + r3 + r4 + r5 +
+	stash32 = r2 + r3 + r4 + r5 +
 		r6 + r7 + r8 + r9 +
 		r10 + r11 + r12 + r13 +
 		r15;
@@ -361,7 +362,7 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = s1 + s2 + s3 + s4 + s5 + s6 +
+	stash64 = s1 + s2 + s3 + s4 + s5 + s6 +
 		s7 + s8 + s9 + s10 + s11;
 #undef SHUFFLE_REGS
 }
@@ -407,7 +408,7 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = t0 + t1 + t2 + t3 + t5 + t6 +
+	stash64 = t0 + t1 + t2 + t3 + t5 + t6 +
 		t7 + t8 + t9 + t10 + t11;
 #undef SHUFFLE_REGS
 }
@@ -461,7 +462,7 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = r14 + r15 + r16 + r17 +
+	stash64 = r14 + r15 + r16 + r17 +
 		r18 + r19 + r20 + r21 +
 		r22 + r23 + r24 + r25 +
 		r26 + r27 + r28 + r29 +
@@ -503,7 +504,7 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = l0 + l1 + l2 + l3 +
+	stash64 = l0 + l1 + l2 + l3 +
 		l4 + l5 + l6 + l7;
 
 #undef SHUFFLE_REGS
@@ -543,7 +544,7 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = s0 + s1 + s2 + s3 +
+	stash64 = s0 + s1 + s2 + s3 +
 		s4 + s5 + s6 + s7;
 
 #undef SHUFFLE_REGS
@@ -585,7 +586,7 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = s0 + s1 + s2 + s3 +
+	stash32 = s0 + s1 + s2 + s3 +
 		s4 + s5 + s6 + s7;
 
 #undef SHUFFLE_REGS
@@ -671,7 +672,7 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = x0 + x1 + x2 + x3 + x4 +
+	stash64 = x0 + x1 + x2 + x3 + x4 +
 		x5 + x6 + x7 + x8 + x9 +
 		x10 + x11 + x12 + x13 + x14 +
 		x15 + x16 + x17 + x18 + x19 +
@@ -725,7 +726,7 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash = r0 + r1 + r2 + r3 + r4 + r5 +
+	stash32 = r0 + r1 + r2 + r3 + r4 + r5 +
 		r6 + r8 + r9 + r10 + r11 + r12;
 #undef SHUFFLE_REGS
 }
@@ -770,7 +771,7 @@ do {			\
 	REGS_CHECK(args, "r7", v >> 1, r7);
 	REGS_CHECK(args, "r8", v >> 1, r7);
 
-	stash = r1 + r2 + r3 + r4 + r5 + r6 + r7 + r8;
+	stash64 = r1 + r2 + r3 + r4 + r5 + r6 + r7 + r8;
 
 #undef SHUFFLE_REGS
 }
