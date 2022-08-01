@@ -54,14 +54,48 @@ do {				\
 	SHUFFLE_REGS();		\
 } while (0);
 
-#if (defined(__x86_64__) || defined(__x86_64)) 
+static void regs_check32(
+	const stress_args_t *args,
+	const char *reg,
+	const uint32_t expected,
+	const uint32_t value)
+{
+	if (expected != value) {
+		pr_fail("%s: register %s was 0x%"
+			PRIx32 ", expecting 0x%" PRIx32 "\n",
+			args->name, reg, expected, value);
+	}
+}
+
+static void regs_check64(
+	const stress_args_t *args,
+	const char *reg,
+	const uint64_t expected,
+	const uint64_t value)
+{
+	if (expected != value) {
+		pr_fail("%s: register %s was 0x%"
+			PRIx64 ", expecting 0x%" PRIx64 "\n",
+			args->name, reg, expected, value);
+	}
+}
+
+#define REGS_CHECK(args, reg, expected, value)			\
+do {								\
+	if (sizeof(value) == sizeof(uint32_t)) 			\
+		regs_check32(args, reg, expected, value);	\
+	else if (sizeof(value) == sizeof(uint64_t))		\
+		regs_check64(args, reg, expected, value);	\
+} while (0);
+
+#if (defined(__x86_64__) || defined(__x86_64))
 
 #define STRESS_REGS_HELPER
 /*
  *  stress_regs_helper(void)
  *	stress x86_64 registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t rax __asm__("rax") = v;
 	register uint64_t rbx __asm__("rbx") = v >> 1;
@@ -98,6 +132,9 @@ do {			\
 
 	SHUFFLE_REGS16();
 
+	stash = r12;
+	REGS_CHECK(args, "r12", v, stash);
+
 	stash = rax + rbx + rcx + rdx +
 		rsi + rdi + r8  + r9  +
 		r10 + r11 + r12 + r13 +
@@ -114,7 +151,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress i386 registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	uint32_t v32 = (uint32_t)v;
 
@@ -146,7 +183,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress hppa PA risc 1 registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	uint32_t v32 = (uint32_t)v;
 
@@ -204,7 +241,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress m68000 registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	uint32_t v32 = (uint32_t)v;
 
@@ -240,7 +277,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress 32 bit sh4 registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	uint32_t v32 = (uint32_t)v;
 
@@ -293,7 +330,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress RISCV registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t s1  __asm__("s1")  = v;
 	register uint64_t s2  __asm__("s2")  = v >> 1;
@@ -337,7 +374,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress Alpha registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t t0  __asm__("$1")  = v;
 	register uint64_t t1  __asm__("$2")  = v >> 1;
@@ -383,7 +420,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress PPC64 registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t r14 __asm__("r14") = v;
 	register uint64_t r15 __asm__("r15") = v >> 1;
@@ -441,7 +478,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress sparc registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t l0 __asm__("l0") = v;
 	register uint64_t l1 __asm__("l1") = v >> 1;
@@ -481,7 +518,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress MIPS64R2 registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t s0 __asm__("s0") = v;
 	register uint64_t s1 __asm__("s1") = v >> 1;
@@ -521,7 +558,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress MIPS324R2 registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	uint32_t v32 = (uint32_t)v;
 
@@ -563,7 +600,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress ARM64 (aarch64) registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t x0  __asm__("x0")  = v;
 	register uint64_t x1  __asm__("x1")  = v >> 1;
@@ -653,7 +690,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress 32 bit ARM registers
  */
-static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void NOINLINE OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	uint32_t v32 = (uint32_t)v;
 
@@ -699,7 +736,7 @@ do {			\
  *  stress_regs_helper(void)
  *	stress registers, generic version
  */
-static void OPTIMIZE0 stress_regs_helper(register uint64_t v)
+static void OPTIMIZE0 stress_regs_helper(const stress_args_t *args, register uint64_t v)
 {
 	register uint64_t r1  = v;
 	register uint64_t r2  = v >> 1;
@@ -724,6 +761,15 @@ do {			\
 
 	SHUFFLE_REGS16();
 
+	REGS_CHECK(args, "r1", v << 1, r1);
+	REGS_CHECK(args, "r2", v >> 2, r2);
+	REGS_CHECK(args, "r3", v << 2, r3);
+	REGS_CHECK(args, "r4", ~v, r4);
+	REGS_CHECK(args, "r5", ~(v >> 1), r5);
+	REGS_CHECK(args, "r6", v, r6);
+	REGS_CHECK(args, "r7", v >> 1, r7);
+	REGS_CHECK(args, "r8", v >> 1, r7);
+
 	stash = r1 + r2 + r3 + r4 + r5 + r6 + r7 + r8;
 
 #undef SHUFFLE_REGS
@@ -743,7 +789,7 @@ static int stress_regs(const stress_args_t *args)
 		int i;
 
 		for (i = 0; i < 1000; i++)
-			stress_regs_helper(v);
+			stress_regs_helper(args, v);
 		v++;
 		inc_counter(args);
 	} while (keep_stressing(args));
@@ -755,6 +801,7 @@ static int stress_regs(const stress_args_t *args)
 
 stressor_info_t stress_regs_info = {
 	.stressor = stress_regs,
+	.verify = VERIFY_ALWAYS,
 	.class = CLASS_CPU,
 	.help = help
 };
@@ -763,6 +810,7 @@ stressor_info_t stress_regs_info = {
 
 stressor_info_t stress_regs_info = {
 	.stressor = stress_not_implemented,
+	.verify = VERIFY_NONE,
 	.class = CLASS_CPU,
 	.help = help
 };
