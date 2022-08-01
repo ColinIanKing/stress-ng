@@ -553,6 +553,96 @@ do {			\
 }
 #endif
 
+#if defined(STRESS_ARCH_ARM) &&	\
+    defined(__aarch64__)
+
+#define STRESS_REGS_HELPER
+/*
+ *  stress_regs_helper(void)
+ *	stress ARM64 (aarch64) registers
+ */
+static void NOINLINE OPTIMIZE0 stress_regs_helper(register uint64_t v)
+{
+	register uint64_t x0  __asm__("x0")  = v;
+	register uint64_t x1  __asm__("x1")  = v >> 1;
+	register uint64_t x2  __asm__("x2")  = v << 1;
+	register uint64_t x3  __asm__("x3")  = v >> 2;
+	register uint64_t x4  __asm__("x4")  = v << 2;
+	register uint64_t x5  __asm__("x5")  = ~x0;
+	register uint64_t x6  __asm__("x6")  = ~x1;
+	register uint64_t x7  __asm__("x7")  = ~x2;
+	register uint64_t x8  __asm__("x8")  = ~x3;
+	register uint64_t x9  __asm__("x9")  = ~x4;
+	register uint64_t x10 __asm__("x10") = x0 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t x11 __asm__("x11") = x1 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t x12 __asm__("x12") = x2 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t x13 __asm__("x13") = x3 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t x14 __asm__("x14") = x4 ^ 0xa5a5a5a5a5a5a5a5ULL;
+	register uint64_t x15 __asm__("x15") = x0 ^ 0x5555aaaa5555aaaaULL;
+	register uint64_t x16 __asm__("x16") = x1 ^ 0x55aaaa5555aaaa55ULL;
+	register uint64_t x17 __asm__("x17") = x2 ^ 0xaaaa5555aaaa5555ULL;
+	register uint64_t x18 __asm__("x18") = x3 ^ 0xaa5555aaaa5555aaULL;
+	register uint64_t x19 __asm__("x19") = x4 ^ 0x55555555aaaaaaaaULL;
+	register uint64_t x20 __asm__("x20") = x0 ^ x1;
+	register uint64_t x21 __asm__("x21") = x1 ^ x2;
+	register uint64_t x22 __asm__("x22") = x2 ^ x3;
+	register uint64_t x23 __asm__("x23") = x3 ^ x4;
+	register uint64_t x24 __asm__("x24") = x4 ^ x0;
+	register uint64_t x25 __asm__("x25") = ~x20;
+	register uint64_t x26 __asm__("x26") = ~x21;
+	register uint64_t x27 __asm__("x27") = ~x22;
+	register uint64_t x28 __asm__("x28") = ~x23;
+	register uint64_t x29 __asm__("x29") = ~x24;
+	register uint64_t x30 __asm__("x30") = x0 + x1;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	x30 = x0;	\
+	x0  = x1;	\
+	x1  = x2;	\
+	x2  = x3;	\
+	x3  = x4;	\
+	x4  = x5;	\
+	x5  = x6;	\
+	x6  = x7;	\
+	x7  = x8;	\
+	x8  = x9;	\
+	x9  = x10;	\
+	x10 = x11;	\
+	x11 = x12;	\
+	x12 = x13;	\
+	x13 = x14;	\
+	x14 = x15;	\
+	x15 = x16;	\
+	x16 = x17;	\
+	x17 = x18;	\
+	x18 = x19;	\
+	x19 = x20;	\
+	x20 = x21;	\
+	x21 = x22;	\
+	x22 = x23;	\
+	x23 = x24;	\
+	x24 = x25;	\
+	x25 = x26;	\
+	x26 = x27;	\
+	x27 = x28;	\
+	x28 = x29;	\
+	x29 = x30;	\
+} while (0);		\
+
+	SHUFFLE_REGS16();
+
+	stash = x0 + x1 + x2 + x3 + x4 +
+		x5 + x6 + x7 + x8 + x9 +
+		x10 + x11 + x12 + x13 + x14 +
+		x15 + x16 + x17 + x18 + x19 +
+		x20 + x21 + x22 + x23 + x24 +
+		x25 + x26 + x27 + x28 + x29 +
+		x30;
+#undef SHUFFLE_REGS
+}
+#endif
+
 
 #if !defined(STRESS_REGS_HELPER)
 /*
