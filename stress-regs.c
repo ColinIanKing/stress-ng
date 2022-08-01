@@ -23,8 +23,8 @@
 static volatile uint64_t stash;
 
 static const stress_help_t help[] = {
-	{ NULL,	"regs N",		"start N workers exercising functions using syscall" },
-	{ NULL,	"regs-ops N",	"stop after N syscall function calls" },
+	{ NULL,	"regs N",	"start N workers exercising CPU generic registers" },
+	{ NULL,	"regs-ops N",	"stop after N x 1000 rounds of register shuffling" },
 	{ NULL,	NULL,		NULL }
 };
 
