@@ -21,6 +21,7 @@
 #include "git-commit-id.h"
 #include "core-builtin.h"
 #include "core-capabilities.h"
+#include "core-cache.h"
 #include "core-hash.h"
 
 #if defined(HAVE_LINUX_FIEMAP_H)

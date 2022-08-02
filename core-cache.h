@@ -22,6 +22,45 @@
 #include "core-arch.h"
 #include "core-cpu.h"
 
+/* Cache types */
+typedef enum stress_cache_type {
+	CACHE_TYPE_UNKNOWN = 0,		/* Unknown type */
+	CACHE_TYPE_DATA,		/* D$ */
+	CACHE_TYPE_INSTRUCTION,		/* I$ */
+	CACHE_TYPE_UNIFIED,		/* D$ + I$ */
+} stress_cache_type_t;
+
+/* CPU cache information */
+typedef struct stress_cpu_cache {
+	uint64_t           size;      	/* cache size in bytes */
+	uint32_t           line_size;	/* cache line size in bytes */
+	uint32_t           ways;	/* cache ways */
+	stress_cache_type_t type;	/* cache type */
+	uint16_t           level;	/* cache level, L1, L2 etc */
+	uint8_t		   padding[2];	/* padding */
+} stress_cpu_cache_t;
+
+typedef struct stress_cpu {
+	stress_cpu_cache_t *caches;	/* CPU cache data */
+	uint32_t	num;		/* CPU # number */
+	uint32_t	cache_count;	/* CPU cache #  */
+	bool		online;		/* CPU online when true */
+	uint8_t		padding[7];	/* padding */
+} stress_cpu_t;
+
+typedef struct stress_cpus {
+	stress_cpu_t *cpus;		/* CPU data */
+	uint32_t	count;		/* CPU count */
+	uint8_t		padding[4];	/* padding */
+} stress_cpus_t;
+
+/* CPU cache helpers */
+extern stress_cpus_t *stress_get_all_cpu_cache_details(void);
+extern uint16_t stress_get_max_cache_level(const stress_cpus_t *cpus);
+extern stress_cpu_cache_t *stress_get_cpu_cache(const stress_cpus_t *cpus,
+	const uint16_t cache_level);
+extern void stress_free_cpu_caches(stress_cpus_t *cpus);
+
 /*
  *  cacheflush(2) cache options
  */
