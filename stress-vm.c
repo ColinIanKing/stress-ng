@@ -32,9 +32,10 @@
 #define MAX_VM_HANG		(3600)
 #define DEFAULT_VM_HANG		(~0ULL)
 
-/*
- *  For testing, set this to 1 to simulate random memory errors
- */
+/* Large prime to stride around large VM regions */
+#define PRIME_64		(0x8f0000000017116dULL)
+
+/* For testing, set this to 1 to simulate random memory errors */
 #define INJECT_BIT_ERRORS	(0)
 
 #define VM_BOGO_SHIFT		(12)

@@ -450,9 +450,6 @@ typedef union {
 	volatile void 		*void_ptr_val;
 } stress_put_val_t;
 
-/* Large prime to stride around large VM regions */
-#define PRIME_64		(0x8f0000000017116dULL)
-
 typedef uint32_t stress_class_t;
 
 typedef struct {
