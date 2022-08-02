@@ -128,6 +128,44 @@ do {								\
 #if (defined(__x86_64__) || defined(__x86_64))
 
 #define STRESS_REGS_HELPER
+
+#if defined(HAVE_INT128_T)
+static void OPTIMIZE0 stress_regs_helper_mmx(const stress_args_t *args, register uint64_t v)
+{
+	__uint128_t v128 = ((__uint128_t)v << 64) | (v ^ 0xa55a5555aaaaULL);
+	register __uint128_t xmm0 __asm__("xmm0") = v128;
+	register __uint128_t xmm1 __asm__("xmm1") = v128 >> 1;
+	register __uint128_t xmm2 __asm__("xmm2") = v128 << 1;
+	register __uint128_t xmm3 __asm__("xmm3") = v128 >> 2;
+	register __uint128_t xmm4 __asm__("xmm4") = v128 << 2;
+	register __uint128_t xmm5 __asm__("xmm5") = ~xmm0;
+	register __uint128_t xmm6 __asm__("xmm6") = ~xmm1;
+	register __uint128_t xmm7 __asm__("xmm7") = ~xmm2;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	xmm7 = xmm0;	\
+	xmm0 = xmm1;	\
+	xmm1 = xmm2;	\
+	xmm2 = xmm3;	\
+	xmm3 = xmm4;	\
+	xmm4 = xmm5;	\
+	xmm5 = xmm6;	\
+	xmm6 = xmm7;	\
+} while (0);
+
+	SHUFFLE_REGS16();
+
+	stash128 = xmm5;
+	REGS_CHECK(args, "xmm5", v128, stash128);
+
+	stash128 = xmm0 + xmm1 + xmm2 + xmm3 +
+		   xmm4 + xmm5 + xmm6 + xmm7;
+
+#undef SHUFFLE_REGS
+}
+#endif
+
 /*
  *  stress_regs_helper(void)
  *	stress x86_64 registers
@@ -180,38 +218,8 @@ do {			\
 #undef SHUFFLE_REGS
 
 #if defined(HAVE_INT128_T)
-
-	if (cpu_flags & CPU_X86_MMX) {
-		__uint128_t v128 = ((__uint128_t)v << 64) | (v ^ 0xa55a5555aaaaULL);
-		register __uint128_t xmm0 __asm__("xmm0") = v128;
-		register __uint128_t xmm1 __asm__("xmm1") = v128 >> 1;
-		register __uint128_t xmm2 __asm__("xmm2") = v128 << 1;
-		register __uint128_t xmm3 __asm__("xmm3") = v128 >> 2;
-		register __uint128_t xmm4 __asm__("xmm4") = v128 << 2;
-		register __uint128_t xmm5 __asm__("xmm5") = ~xmm0;
-		register __uint128_t xmm6 __asm__("xmm6") = ~xmm1;
-		register __uint128_t xmm7 __asm__("xmm7") = ~xmm2;
-
-#define SHUFFLE_REGS()	\
-do {			\
-	xmm7 = xmm0;	\
-	xmm0 = xmm1;	\
-	xmm1 = xmm2;	\
-	xmm2 = xmm3;	\
-	xmm3 = xmm4;	\
-	xmm4 = xmm5;	\
-	xmm5 = xmm6;	\
-	xmm6 = xmm7;	\
-} while (0);
-
-		SHUFFLE_REGS16();
-
-		stash128 = xmm5;
-		REGS_CHECK(args, "xmm5", v128, stash128);
-
-		stash128 = xmm0 + xmm1 + xmm2 + xmm3 +
-			   xmm4 + xmm5 + xmm6 + xmm7;
-	}
+	if (cpu_flags & CPU_X86_MMX)
+		stress_regs_helper_mmx(args, v);
 #endif
 
 }
