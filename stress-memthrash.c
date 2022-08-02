@@ -212,7 +212,7 @@ static void HOT OPTIMIZE3 stress_memthrash_memset64(
 	}
 }
 
-static void HOT OPTIMIZE3 TARGET_CLONES stress_memthrash_swap32(
+static void HOT OPTIMIZE3 TARGET_CLONES stress_memthrash_swap64(
 	const stress_args_t *args,
 	const size_t mem_size)
 {
@@ -546,7 +546,7 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "spinread",	stress_memthrash_spinread },
 	{ "spinwrite",	stress_memthrash_spinwrite },
 	{ "swap",	stress_memthrash_swap },
-	{ "swap32",	stress_memthrash_swap32 },
+	{ "swap64",	stress_memthrash_swap64 },
 };
 
 static void stress_memthrash_all(const stress_args_t *args, size_t mem_size)

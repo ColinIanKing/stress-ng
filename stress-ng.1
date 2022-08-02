@@ -2953,6 +2953,10 @@ T}
 chunkpage	T{
 memset page size chunks of random data into random locations
 T}
+copy128	T{
+copy 128 byte chunks from chunk N + 1 to chunk N with streaming
+reads and writes with 128 bit memory accesses where possible.
+T}
 flip	T{
 flip (invert) all bits in random locations
 T}
@@ -2993,8 +2997,8 @@ T}
 swap	T{
 step through memory swapping bytes in steps of 65 and 129 byte strides
 T}
-swap32	T{
-work through memory swapping adjacent 32 byte chunks 
+swap64	T{
+work through memory swapping adjacent 64 byte chunks
 T}
 .TE
 .TP
