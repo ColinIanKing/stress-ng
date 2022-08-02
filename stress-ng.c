@@ -23,6 +23,7 @@
 #include "core-perf.h"
 #include "core-put.h"
 #include "core-smart.h"
+#include "core-syslog.h"
 #include "core-thermal-zone.h"
 #include "core-thrash.h"
 

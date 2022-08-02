@@ -705,18 +705,6 @@ extern void pr_unlock(bool *locked);
 extern void pr_inf_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3);
 extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3);
 
-#if defined(HAVE_SYSLOG_H)
-#define shim_syslog(priority, format, ...)	\
-		syslog(priority, format, __VA_ARGS__)
-#define shim_openlog(ident, option, facility) \
-		openlog(ident, option, facility)
-#define shim_closelog()		closelog()
-#else
-#define shim_syslog(priority, format, ...)
-#define shim_openlog(ident, option, facility)
-#define shim_closelog()
-#endif
-
 /* Memory size constants */
 #define KB			(1ULL << 10)
 #define	MB			(1ULL << 20)

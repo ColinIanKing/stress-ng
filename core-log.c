@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-syslog.h"
 
 #if defined(HAVE_SYSLOG_H)
 #include <syslog.h>
