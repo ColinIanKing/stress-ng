@@ -511,17 +511,6 @@ typedef struct {
 	int pthread_ret;		/* Per thread return value */
 } stress_pthread_args_t;
 
-/* string hash linked list type */
-typedef struct stress_hash {
-	struct stress_hash *next; 	/* next hash item */
-} stress_hash_t;
-
-/* string hash table */
-typedef struct {
-	stress_hash_t	**table;	/* hash table */
-	size_t		n;		/* number of hash items in table */
-} stress_hash_table_t;
-
 /* gcc 4.7 and later support vector ops */
 #if defined(__GNUC__) &&	\
     NEED_GNUC(4, 7, 0)

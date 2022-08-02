@@ -19,6 +19,17 @@
 #ifndef CORE_HASH_H
 #define CORE_HASH_H
 
+/* hash linked list type */
+typedef struct stress_hash {
+	struct stress_hash *next; 	/* next hash item */
+} stress_hash_t;
+
+/* hash table */
+typedef struct {
+	stress_hash_t	**table;	/* hash table */
+	size_t		n;		/* number of hash items in table */
+} stress_hash_table_t;
+
 /*
  *  Hashing core functions
  */
