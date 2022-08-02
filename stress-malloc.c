@@ -39,6 +39,11 @@
 
 #define MK_ALIGN(x)	(1U << (3 + ((x) & 7)))
 
+typedef struct {
+	uintptr_t *addr;		/* Address of allocation */
+	ssize_t len;			/* Allocation length */
+} stress_malloc_info_t;
+
 static size_t malloc_max;		/* Maximum number of allocations */
 static size_t malloc_bytes;		/* Maximum per-allocation size */
 #if defined(HAVE_LIB_PTHREAD)
@@ -52,6 +57,8 @@ static size_t malloc_threshold;		/* When to use mmap and not sbrk */
 #endif
 static bool malloc_touch;		/* True will touch allocate pages */
 static void *counter_lock;		/* Counter lock */
+
+static void (*free_func)(void *ptr, size_t len);
 
 #if defined(HAVE_LIB_PTHREAD)
 /* per pthread data */
@@ -74,6 +81,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
 	{ NULL, "malloc-pthreads N",	"number of pthreads to run concurrently" },
 	{ NULL, "malloc-touch",		"touch pages force pages to be populated" },
+	{ NULL,	"malloc-zerofree",	"zero free'd memory" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -125,6 +133,36 @@ static int stress_set_malloc_touch(const char *opt)
 	return stress_set_setting("malloc-touch", TYPE_ID_BOOL, &malloc_touch_tmp);
 }
 
+static int stress_set_malloc_zerofree(const char *opt)
+{
+	bool malloc_zerofree = true;
+
+	(void)opt;
+	return stress_set_setting("malloc-zerofree", TYPE_ID_BOOL, &malloc_zerofree);
+}
+
+/*
+ *  stress_malloc_free()
+ *	standard free, ignore length
+ */
+static void stress_malloc_free(void *ptr, size_t len)
+{
+	(void)len;
+
+	free(ptr);
+}
+
+/*
+ *  stress_malloc_zerofree()
+ *	zero memory and free
+ */
+static void stress_malloc_zerofree(void *ptr, size_t len)
+{
+	if (len)
+		(void)memset(ptr, 0, len);
+	free(ptr);
+}
+
 /*
  *  stress_alloc_size()
  *	get a new allocation size, ensuring
@@ -135,7 +173,7 @@ static inline size_t stress_alloc_size(const size_t size)
 	const size_t len = stress_mwc64() % size;
 	const size_t min_size = sizeof(uintptr_t);
 
-	return len >= min_size ? len : min_size;
+	return (len >= min_size) ? len : min_size;
 }
 
 static void stress_malloc_page_touch(
@@ -143,7 +181,6 @@ static void stress_malloc_page_touch(
 	const size_t size,
 	const size_t page_size)
 {
-
 	if (malloc_touch) {
 		register uint8_t *ptr;
 		const uint8_t *end = buffer + size;
@@ -160,18 +197,15 @@ static void *stress_malloc_loop(void *ptr)
 	const stress_malloc_args_t *malloc_args = (stress_malloc_args_t *)ptr;
 	const stress_args_t *args = malloc_args->args;
 	const size_t page_size = args->page_size;
-	uintptr_t **addr;
 	static void *nowt = NULL;
 	size_t j;
 	const bool verify = !!(g_opt_flags & OPT_FLAGS_VERIFY);
-
-	addr = (uintptr_t **)calloc(malloc_max, sizeof(*addr));
-	if (!addr) {
+	stress_malloc_info_t *info = (stress_malloc_info_t *)calloc(malloc_max, sizeof(*info));
+	if (!info) {
 		pr_dbg("%s: cannot allocate address buffer: %d (%s)\n",
 			args->name, errno, strerror(errno));
 		return &nowt;
 	}
-
 	for (;;) {
 		const unsigned int rnd = stress_mwc32();
 		const unsigned int i = rnd % malloc_max;
@@ -195,15 +229,16 @@ static void *stress_malloc_loop(void *ptr)
 		if (!inc_counter_lock(args, counter_lock, false))
 			break;
 
-		if (addr[i]) {
+		if (info[i].addr) {
 			/* 50% free, 50% realloc */
 			if (action) {
-				if (verify && (uintptr_t)addr[i] != *addr[i]) {
+				if (verify && (uintptr_t)info[i].addr != *info[i].addr) {
 					pr_fail("%s: allocation at %p does not contain correct value\n",
-						args->name, (void *)addr[i]);
+						args->name, (void *)info[i].addr);
 				}
-				free(addr[i]);
-				addr[i] = NULL;
+				free_func(info[i].addr, info[i].len);
+				info[i].addr = NULL;
+				info[i].len = 0;
 
 				if (!inc_counter_lock(args, counter_lock, true))
 					break;
@@ -211,14 +246,16 @@ static void *stress_malloc_loop(void *ptr)
 				void *tmp;
 				const size_t len = stress_alloc_size(malloc_bytes);
 
-				tmp = realloc(addr[i], len);
+				tmp = realloc(info[i].addr, len);
 				if (tmp) {
-					addr[i] = tmp;
-					stress_malloc_page_touch((void *)addr[i], len, page_size);
-					*addr[i] = (uintptr_t)addr[i];	/* stash address */
-					if (verify && (uintptr_t)addr[i] != *addr[i]) {
+					info[i].addr = tmp;
+					info[i].len = len;
+
+					stress_malloc_page_touch((void *)info[i].addr, info[i].len, page_size);
+					*info[i].addr = (uintptr_t)info[i].addr;	/* stash address */
+					if (verify && (uintptr_t)info[i].addr != *info[i].addr) {
 						pr_fail("%s: allocation at %p does not contain correct value\n",
-							args->name, (void *)addr[i]);
+							args->name, (void *)info[i].addr);
 					}
 					if (!inc_counter_lock(args, counter_lock, true))
 						break;
@@ -232,37 +269,40 @@ static void *stress_malloc_loop(void *ptr)
 				switch (do_calloc) {
 				case 0:
 					n = ((rnd >> 15) % 17) + 1;
-					addr[i] = calloc(n, len / n);
+					info[i].addr = calloc(n, len / n);
 					len = n * (len / n);
 					break;
 #if defined(HAVE_POSIX_MEMALIGN)
 				case 1:
 					/* POSIX.1-2001 and POSIX.1-2008 */
-					if (posix_memalign((void **)&addr[i], MK_ALIGN(i), len) != 0)
-						addr[i] = NULL;
+					if (posix_memalign((void **)&info[i].addr, MK_ALIGN(i), len) != 0)
+						info[i].addr = NULL;
 					break;
 #endif
 #if defined(HAVE_ALIGNED_ALLOC)
 				case 2:
 					/* C11 aligned allocation */
-					addr[i] = aligned_alloc(MK_ALIGN(i), len);
+					info[i].addr = aligned_alloc(MK_ALIGN(i), len);
 					break;
 #endif
 #if defined(HAVE_MEMALIGN)
 				case 3:
 					/* SunOS 4.1.3 */
-					addr[i] = memalign(MK_ALIGN(i), len);
+					info[i].addr = memalign(MK_ALIGN(i), len);
 					break;
 #endif
 				default:
-					addr[i] = malloc(len);
+					info[i].addr = malloc(len);
 					break;
 				}
-				if (addr[i]) {
-					stress_malloc_page_touch((void *)addr[i], len, page_size);
-					*addr[i] = (uintptr_t)addr[i];	/* stash address */
+				if (LIKELY(info[i].addr != NULL)) {
+					stress_malloc_page_touch((void *)info[i].addr, len, page_size);
+					*info[i].addr = (uintptr_t)info[i].addr;	/* stash address */
+					info[i].len = len;
 					if (!inc_counter_lock(args, counter_lock, true))
 						break;
+				} else {
+					info[i].len = 0;
 				}
 			}
 		}
@@ -273,13 +313,13 @@ static void *stress_malloc_loop(void *ptr)
 	}
 
 	for (j = 0; j < malloc_max; j++) {
-		if (verify && addr[j] && (uintptr_t)addr[j] != *addr[j]) {
+		if (verify && info[j].addr && (uintptr_t)info[j].addr != *info[j].addr) {
 			pr_fail("%s: allocation at %p does not contain correct value\n",
-				args->name, (void *)addr[j]);
+				args->name, (void *)info[j].addr);
 		}
-		free(addr[j]);
+		free_func(info[j].addr, info[j].len);
 	}
-	free(addr);
+	free(info);
 
 	return &nowt;
 }
@@ -349,6 +389,7 @@ static int stress_malloc_child(const stress_args_t *args, void *context)
 static int stress_malloc(const stress_args_t *args)
 {
 	int ret;
+	bool malloc_zerofree = false;
 
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
@@ -387,6 +428,8 @@ static int stress_malloc(const stress_args_t *args)
 
 	malloc_touch = false;
 	(void)stress_get_setting("malloc-touch", &malloc_touch);
+	(void)stress_get_setting("malloc-zerofree", &malloc_zerofree);
+	free_func = malloc_zerofree ? stress_malloc_zerofree : stress_malloc_free;
 
 	ret = stress_oomable_child(args, NULL, stress_malloc_child, STRESS_OOMABLE_NORMAL);
 
@@ -401,6 +444,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_malloc_pthreads,	stress_set_malloc_pthreads },
 	{ OPT_malloc_threshold,	stress_set_malloc_threshold },
 	{ OPT_malloc_touch,	stress_set_malloc_touch },
+	{ OPT_malloc_zerofree,	stress_set_malloc_zerofree },
 	{ 0,		NULL }
 };
 

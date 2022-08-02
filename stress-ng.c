@@ -570,6 +570,7 @@ static const struct option long_options[] = {
 	{ "malloc-pthreads",	1,	0,	OPT_malloc_pthreads },
 	{ "malloc-thresh",	1,	0,	OPT_malloc_threshold },
 	{ "malloc-touch",	0,	0,	OPT_malloc_touch },
+	{ "malloc-zerofree",	0,	0,	OPT_malloc_zerofree },
 	{ "matrix",		1,	0,	OPT_matrix },
 	{ "matrix-ops",		1,	0,	OPT_matrix_ops },
 	{ "matrix-method",	1,	0,	OPT_matrix_method },

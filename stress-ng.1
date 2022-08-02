@@ -2647,6 +2647,11 @@ the malloc stressor will madvise pages into memory or use mincore to check for
 non-resident memory pages and try to force them into memory; this option
 aggressively forces pages to be memory resident.
 .TP
+.B \-\-malloc\-zerofree
+zero allocated memory before free'ing. If we have a bad allocator than this
+may be useful in touching broken allocations and triggering failures. Also useful
+for forcing extra cache/memory writes.
+.TP
 .B \-\-matrix N
 start N workers that perform various matrix operations on floating point
 values. Testing on 64 bit x86 hardware shows that this provides a good
