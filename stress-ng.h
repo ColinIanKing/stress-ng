@@ -3112,25 +3112,6 @@ struct shim_sched_attr {
 	uint32_t sched_util_max;	/* utilization hint, max */
 };
 
-#if defined(HAVE_TERMIOS_H)
-
-#define HAVE_SHIM_TERMIOS2
-/* shim_speed_t */
-typedef unsigned int shim_speed_t;
-
-/* shim termios2 */
-struct shim_termios2 {
-	tcflag_t c_iflag;		/* input mode flags */
-	tcflag_t c_oflag;		/* output mode flags */
-	tcflag_t c_cflag;		/* control mode flags */
-	tcflag_t c_lflag;		/* local mode flags */
-	cc_t c_line;			/* line discipline */
-	cc_t c_cc[NCCS];		/* control characters */
-	shim_speed_t c_ispeed;		/* input speed */
-	shim_speed_t c_ospeed;		/* output speed */
-};
-#endif
-
 /* shim'd STATX flags */
 #define SHIM_STATX_TYPE			(0x00000001U)
 #define SHIM_STATX_MODE			(0x00000002U)

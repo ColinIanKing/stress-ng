@@ -121,6 +121,25 @@
 #define O_NDELAY	(0)
 #endif
 
+#if defined(HAVE_TERMIOS_H)
+
+#define HAVE_SHIM_TERMIOS2
+/* shim_speed_t */
+typedef unsigned int shim_speed_t;
+
+/* shim termios2 */
+struct shim_termios2 {
+	tcflag_t c_iflag;		/* input mode flags */
+	tcflag_t c_oflag;		/* output mode flags */
+	tcflag_t c_cflag;		/* control mode flags */
+	tcflag_t c_lflag;		/* local mode flags */
+	cc_t c_line;			/* line discipline */
+	cc_t c_cc[NCCS];		/* control characters */
+	shim_speed_t c_ispeed;		/* input speed */
+	shim_speed_t c_ospeed;		/* output speed */
+};
+#endif
+
 /*
  *  Device information is held in a linked list of dev_info_t objects. Each
  *  nth element in the list also points to a unique device state which is
