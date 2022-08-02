@@ -1833,7 +1833,7 @@ abort:
  *  stress_vm_write_64()
  *	simple 64 bit write, no read check
  */
-static size_t TARGET_CLONES stress_vm_write64(
+static size_t OPTIMIZE3 TARGET_CLONES stress_vm_write64(
 	void *buf,
 	void *buf_end,
 	const size_t sz,
@@ -1967,7 +1967,7 @@ static size_t TARGET_CLONES stress_vm_write64nt(
  *  stress_vm_read_64()
  *	simple 64 bit read
  */
-static size_t TARGET_CLONES stress_vm_read64(
+static size_t OPTIMIZE3 TARGET_CLONES stress_vm_read64(
 	void *buf,
 	void *buf_end,
 	const size_t sz,
