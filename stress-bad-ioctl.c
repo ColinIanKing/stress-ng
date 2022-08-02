@@ -41,7 +41,7 @@ typedef struct dev_ioctl_info {
 } dev_ioctl_info_t;
 
 static sigset_t set;
-static shim_pthread_spinlock_t lock;
+static void *lock;
 static uint32_t mixup;
 static dev_ioctl_info_t *dev_ioctl_info_head;
 static volatile dev_ioctl_info_t *dev_ioctl_node;
@@ -253,11 +253,11 @@ static inline void stress_bad_ioctl_rw(
 		uint64_t rnd = stress_mwc32();
 		volatile dev_ioctl_info_t *node;
 
-		ret = shim_pthread_spin_lock(&lock);
+		ret = stress_lock_acquire(lock);
 		if (ret)
 			return;
 		node = dev_ioctl_node;
-		(void)shim_pthread_spin_unlock(&lock);
+		(void)stress_lock_release(lock);
 
 		if (!node || !keep_stressing_flag())
 			break;
@@ -377,11 +377,11 @@ static void stress_bad_ioctl_dir(const stress_args_t *args, dev_ioctl_info_t *no
 		if (offset > 1) {
 			offset--;
 		} else {
-			ret = shim_pthread_spin_lock(&lock);
+			ret = stress_lock_acquire(lock);
 			if (!ret) {
 				node->ioctl_state += stress_mwc8();
 				dev_ioctl_node = node;
-				(void)shim_pthread_spin_unlock(&lock);
+				(void)stress_lock_release(lock);
 				stress_bad_ioctl_rw(args, false);
 			}
 		}
@@ -455,10 +455,9 @@ again:
 
 			stress_parent_died_alarm();
 			(void)sched_settings_apply(true);
-			rc = shim_pthread_spin_init(&lock, SHIM_PTHREAD_PROCESS_SHARED);
-			if (rc) {
-				pr_inf("%s: pthread_spin_init failed, errno=%d (%s)\n",
-					args->name, rc, strerror(rc));
+			lock = stress_lock_create();
+			if (!lock) {
+				pr_inf("%s: lock create failed\n", args->name);
 				_exit(EXIT_NO_RESOURCE);
 			}
 
@@ -477,12 +476,12 @@ again:
 				offset = 0;
 			} while (keep_stressing(args));
 
-			r = shim_pthread_spin_lock(&lock);
+			r = stress_lock_acquire(lock);
 			if (r) {
-				pr_dbg("%s: failed to lock spin lock for dev_path\n", args->name);
+				pr_dbg("%s: failed to acquire lock for dev_path\n", args->name);
 			} else {
 				dev_ioctl_node = NULL;
-				VOID_RET(int, shim_pthread_spin_unlock(&lock));
+				(void)stress_lock_release(lock);
 			}
 
 			for (i = 0; i < MAX_DEV_THREADS; i++) {
@@ -495,7 +494,7 @@ again:
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)shim_pthread_spin_destroy(&lock);
+	(void)stress_lock_destroy(lock);
 	stress_bad_ioctl_dev_free(dev_ioctl_info_head);
 
 	return rc;
