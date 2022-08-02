@@ -37,6 +37,12 @@
 
 #include <float.h>
 
+/* Stress test classes */
+typedef struct {
+	stress_class_t class;		/* Class type bit mask */
+	const char *name;		/* Name of class */
+} stress_class_info_t;
+
 typedef struct {
 	const int opt;			/* optarg option */
 	const uint64_t opt_flag;	/* global options flag bit setting */

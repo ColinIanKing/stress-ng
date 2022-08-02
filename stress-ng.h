@@ -939,12 +939,6 @@ typedef struct {
 	stress_stats_t stats[];				/* Shared statistics */
 } stress_shared_t;
 
-/* Stress test classes */
-typedef struct {
-	stress_class_t class;		/* Class type bit mask */
-	const char *name;		/* Name of class */
-} stress_class_info_t;
-
 #define STRESSORS(MACRO)	\
 	MACRO(access) 		\
 	MACRO(af_alg) 		\
