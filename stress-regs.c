@@ -309,8 +309,8 @@ do {			\
 
 	SHUFFLE_REGS16();
 
-	stash32 = eax;
-	REGS_CHECK(args, "eax", v << 1, stash32);
+	stash32 = edx;
+	REGS_CHECK(args, "edx", v, stash32);
 
 #undef SHUFFLE_REGS
 }
