@@ -44,10 +44,7 @@ static int stress_set_seek_size(const char *opt)
 
 static int stress_set_seek_punch(const char *opt)
 {
-	(void)opt;
-	bool seek_punch = true;
-
-	return stress_set_setting("seek-punch", TYPE_ID_BOOL, &seek_punch);
+	return stress_set_setting_true("seek-punch", opt);
 }
 
 static inline off_t max_off_t(void)

@@ -36,10 +36,7 @@ static const stress_help_t help[] = {
 
 static int stress_set_mutex_affinity(const char *opt)
 {
-	bool mutex_affinity = true;
-
-	(void)opt;
-	return stress_set_setting("mutex-affinity", TYPE_ID_BOOL, &mutex_affinity);
+	return stress_set_setting_true("mutex-affinity", opt);
 }
 
 static int stress_set_mutex_procs(const char *opt)

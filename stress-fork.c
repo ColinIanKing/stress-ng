@@ -66,11 +66,7 @@ static int stress_set_fork_max(const char *opt)
  */
 static int stress_set_fork_vm(const char *opt)
 {
-	bool vm = true;
-
-	(void)opt;
-
-	return stress_set_setting("fork-vm", TYPE_ID_BOOL, &vm);
+	return stress_set_setting_true("fork-vm", opt);
 }
 
 /*

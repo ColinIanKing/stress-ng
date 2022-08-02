@@ -593,10 +593,7 @@ static int stress_cacheline_all(
 
 static int stress_set_cacheline_affinity(const char *opt)
 {
-	bool cacheline_affinity = true;
-
-	(void)opt;
-	return stress_set_setting("cacheline-affinity", TYPE_ID_BOOL, &cacheline_affinity);
+	return stress_set_setting_true("cacheline-affinity", opt);
 }
 
 /*

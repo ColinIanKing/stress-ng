@@ -38,10 +38,7 @@ static const stress_help_t help[] = {
 
 static int stress_set_af_alg_dump(const char *opt)
 {
-	bool af_alg_dump = true;
-
-	(void)opt;
-	return stress_set_setting("af-alg-dump", TYPE_ID_BOOL, &af_alg_dump);
+	return stress_set_setting_true("af-alg-dump", opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

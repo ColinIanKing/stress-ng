@@ -97,10 +97,7 @@ uint8_t pixels[STRESS_CPU_DITHER_X][STRESS_CPU_DITHER_Y];
 
 static int stress_set_cpu_old_metrics(const char *opt)
 {
-	bool old_metrics = true;
-
-	(void)opt;
-	return stress_set_setting("cpu-old-metrics", TYPE_ID_BOOL, &old_metrics);
+	return stress_set_setting_true("cpu-old-metrics", opt);
 }
 
 static int stress_set_cpu_load(const char *opt)

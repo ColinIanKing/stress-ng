@@ -43,10 +43,7 @@ static int stress_set_mremap_bytes(const char *opt)
 
 static int stress_set_mremap_mlock(const char *opt)
 {
-	bool mremap_mlock = true;
-
-	(void)opt;
-	return stress_set_setting("mremap-mlock", TYPE_ID_BOOL, &mremap_mlock);
+	return stress_set_setting_true("mremap-mlock", opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

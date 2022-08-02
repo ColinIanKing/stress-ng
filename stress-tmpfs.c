@@ -42,18 +42,12 @@ static const stress_help_t help[] = {
 
 static int stress_set_tmpfs_mmap_file(const char *opt)
 {
-	bool tmpfs_mmap_file = true;
-
-	(void)opt;
-	return stress_set_setting("tmpfs-mmap-file", TYPE_ID_BOOL, &tmpfs_mmap_file);
+	return stress_set_setting_true("tmpfs-mmap-file", opt);
 }
 
 static int stress_set_tmpfs_mmap_async(const char *opt)
 {
-	bool tmpfs_mmap_async = true;
-
-	(void)opt;
-	return stress_set_setting("tmpfs-mmap-async", TYPE_ID_BOOL, &tmpfs_mmap_async);
+	return stress_set_setting_true("tmpfs-mmap-async", opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

@@ -43,9 +43,7 @@ static int stress_set_rdrand_seed(const char *opt)
     defined(HAVE_ASM_X86_RDRAND) &&	\
     defined(HAVE_ASM_X86_RDSEED)
 	if (stress_cpu_x86_has_rdseed()) {
-		bool rdrand_seed = true;
-
-		return stress_set_setting("rdrand-seed", TYPE_ID_BOOL, &rdrand_seed);
+		return stress_set_setting_true("rdrand-seed", opt);
 	}
 #endif
 	pr_inf("rdrand-seed ignored, cpu does not support feature, defaulting to rdrand\n");

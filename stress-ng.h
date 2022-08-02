@@ -2747,6 +2747,7 @@ static inline bool inc_counter_lock(const stress_args_t *args, void *lock, const
  */
 extern int stress_set_setting(const char *name, const stress_type_id_t type_id,
 	const void *value);
+extern int stress_set_setting_true(const char *name, const char *opt);
 extern int stress_set_setting_global(const char *name, const stress_type_id_t type_id,
 	const void *value);
 extern bool stress_get_setting(const char *name, void *value);

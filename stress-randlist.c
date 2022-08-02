@@ -48,10 +48,7 @@ typedef struct stress_randlist_item {
  */
 static int stress_set_randlist_compact(const char *opt)
 {
-	bool randlist_compact = true;
-
-	(void)opt;
-	return stress_set_setting("randlist-compact", TYPE_ID_BOOL, &randlist_compact);
+	return stress_set_setting_true("randlist-compact", opt);
 }
 
 /*

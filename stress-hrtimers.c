@@ -28,11 +28,7 @@ static const stress_help_t help[] = {
 
 static int stress_set_hrtimers_adjust(const char *opt)
 {
-        bool hrtimers_adjust = true;
-
-        (void)opt;
-
-        return stress_set_setting("hrtimers-adjust", TYPE_ID_BOOL, &hrtimers_adjust);
+        return stress_set_setting_true("hrtimers-adjust", opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

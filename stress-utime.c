@@ -35,10 +35,7 @@ static const stress_help_t help[] = {
 
 static int stress_set_utime_fsync(const char *opt)
 {
-	bool utime_fsync = true;
-
-	(void)opt;
-	return stress_set_setting("utime-fsync", TYPE_ID_BOOL, &utime_fsync);
+	return stress_set_setting_true("utime-fsync", opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

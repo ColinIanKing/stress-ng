@@ -32,10 +32,7 @@ static const stress_help_t help[] = {
 
 static int stress_set_eventfd_nonblock(const char *opt)
 {
-	bool eventfd_nonblock = true;
-
-	(void)opt;
-	return stress_set_setting("eventfd-nonblock", TYPE_ID_BOOL, &eventfd_nonblock);
+	return stress_set_setting_true("eventfd-nonblock", opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

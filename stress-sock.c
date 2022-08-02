@@ -223,10 +223,7 @@ static int stress_set_socket_domain(const char *name)
 static int stress_set_socket_zerocopy(const char *opt)
 {
 #if defined(MSG_ZEROCOPY)
-	bool socket_zerocopy = true;
-
-	(void)opt;
-	return stress_set_setting("sock-zerocopy", TYPE_ID_BOOL, &socket_zerocopy);
+	return stress_set_setting_true("sock-zerocopy", opt);
 #else
 	(void)opt;
 	pr_inf("sock: cannot enable sock-zerocopy, MSG_ZEROCOPY is not available\n");

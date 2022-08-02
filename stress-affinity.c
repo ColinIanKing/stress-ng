@@ -52,18 +52,12 @@ static int stress_set_affinity_delay(const char *opt)
 
 static int stress_set_affinity_rand(const char *opt)
 {
-	bool affinity_rand = true;
-
-	(void)opt;
-	return stress_set_setting("affinity-rand", TYPE_ID_BOOL, &affinity_rand);
+	return stress_set_setting_true("affinity-rand", opt);
 }
 
 static int stress_set_affinity_pin(const char *opt)
 {
-	bool affinity_pin = true;
-
-	(void)opt;
-	return stress_set_setting("affinity-pin", TYPE_ID_BOOL, &affinity_pin);
+	return stress_set_setting_true("affinity-pin", opt);
 }
 
 static int stress_set_affinity_sleep(const char *opt)

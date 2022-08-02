@@ -49,10 +49,7 @@ static stress_lockf_info_list_t lockf_infos;
 
 static int stress_lockf_set_nonblock(const char *opt)
 {
-	bool lockf_nonblock = true;
-
-	(void)opt;
-	return stress_set_setting("lockf-nonblock", TYPE_ID_BOOL, &lockf_nonblock);
+	return stress_set_setting_true("lockf-nonblock", opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

@@ -34,18 +34,12 @@ typedef struct {
 
 static int stress_set_brk_mlock(const char *opt)
 {
-	(void)opt;
-	bool brk_mlock = true;
-
-	return stress_set_setting("brk-mlock", TYPE_ID_BOOL, &brk_mlock);
+	return stress_set_setting_true("brk-mlock", opt);
 }
 
 static int stress_set_brk_notouch(const char *opt)
 {
-	(void)opt;
-	bool brk_notouch = true;
-
-	return stress_set_setting("brk-notouch", TYPE_ID_BOOL, &brk_notouch);
+	return stress_set_setting_true("brk-notouch", opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

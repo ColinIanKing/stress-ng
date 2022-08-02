@@ -46,10 +46,7 @@ static int stress_set_itimer_freq(const char *opt)
 
 static int stress_set_itimer_rand(const char *opt)
 {
-	bool itimer_rand = true;
-
-	(void)opt;
-	return stress_set_setting("itimer-rand", TYPE_ID_BOOL, &itimer_rand);
+	return stress_set_setting_true("itimer-rand", opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

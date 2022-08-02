@@ -95,18 +95,12 @@ static int stress_set_udp_domain(const char *name)
 
 static int stress_set_udp_lite(const char *opt)
 {
-	bool udp_lite = true;
-
-	(void)opt;
-	return stress_set_setting("udp-lite", TYPE_ID_BOOL, &udp_lite);
+	return stress_set_setting_true("udp-lite", opt);
 }
 
 static int stress_set_udp_gro(const char *opt)
 {
-	bool udp_gro = true;
-
-	(void)opt;
-	return stress_set_setting("udp-gro", TYPE_ID_BOOL, &udp_gro);
+	return stress_set_setting_true("udp-gro", opt);
 }
 
 static int stress_set_udp_if(const char *name)

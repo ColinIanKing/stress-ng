@@ -146,10 +146,7 @@ static int open_flags[] = {
 
 static int stress_set_open_fd(const char *opt)
 {
-	bool open_fd = true;
-
-        (void)opt;
-        return stress_set_setting("open-fd", TYPE_ID_BOOL, &open_fd);
+        return stress_set_setting_true("open-fd", opt);
 }
 
 static size_t stress_get_max_fds(void)

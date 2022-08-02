@@ -86,10 +86,7 @@ static int stress_tun_supported(const char *name)
 
 static int stress_set_tun_tap(const char *opt)
 {
-	bool tun_tap = true;
-
-	(void)opt;
-	return stress_set_setting("tun-tap", TYPE_ID_BOOL, &tun_tap);
+	return stress_set_setting_true("tun-tap", opt);
 }
 
 /*

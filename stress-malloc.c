@@ -127,18 +127,12 @@ static int stress_set_malloc_pthreads(const char *opt)
 
 static int stress_set_malloc_touch(const char *opt)
 {
-	bool malloc_touch_tmp = true;
-
-	(void)opt;
-	return stress_set_setting("malloc-touch", TYPE_ID_BOOL, &malloc_touch_tmp);
+	return stress_set_setting_true("malloc-touch", opt);
 }
 
 static int stress_set_malloc_zerofree(const char *opt)
 {
-	bool malloc_zerofree = true;
-
-	(void)opt;
-	return stress_set_setting("malloc-zerofree", TYPE_ID_BOOL, &malloc_zerofree);
+	return stress_set_setting_true("malloc-zerofree", opt);
 }
 
 /*

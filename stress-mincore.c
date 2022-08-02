@@ -28,10 +28,7 @@ static const stress_help_t help[] = {
 
 static int stress_set_mincore_rand(const char *opt)
 {
-	bool mincore_rand = true;
-
-	(void)opt;
-	return stress_set_setting("mincore-rand", TYPE_ID_BOOL, &mincore_rand);
+	return stress_set_setting_true("mincore-rand", opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {

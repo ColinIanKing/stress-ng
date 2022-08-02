@@ -232,50 +232,32 @@ static int stress_set_mmap_bytes(const char *opt)
 
 static int stress_set_mmap_mprotect(const char *opt)
 {
-	bool mmap_mprotect = true;
-
-	(void)opt;
-	return stress_set_setting("mmap-mprotect", TYPE_ID_BOOL, &mmap_mprotect);
+	return stress_set_setting_true("mmap-mprotect", opt);
 }
 
 static int stress_set_mmap_file(const char *opt)
 {
-	bool mmap_file = true;
-
-	(void)opt;
-	return stress_set_setting("mmap-file", TYPE_ID_BOOL, &mmap_file);
+	return stress_set_setting_true("mmap-file", opt);
 }
 
 static int stress_set_mmap_async(const char *opt)
 {
-	bool mmap_async = true;
-
-	(void)opt;
-	return stress_set_setting("mmap-async", TYPE_ID_BOOL, &mmap_async);
+	return stress_set_setting_true("mmap-async", opt);
 }
 
 static int stress_set_mmap_osync(const char *opt)
 {
-	bool mmap_osync = true;
-
-	(void)opt;
-	return stress_set_setting("mmap-osync", TYPE_ID_BOOL, &mmap_osync);
+	return stress_set_setting_true("mmap-osync", opt);
 }
 
 static int stress_set_mmap_odirect(const char *opt)
 {
-	bool mmap_odirect = true;
-
-	(void)opt;
-	return stress_set_setting("mmap-odirect", TYPE_ID_BOOL, &mmap_odirect);
+	return stress_set_setting_true("mmap-odirect", opt);
 }
 
 static int stress_set_mmap_mmap2(const char *opt)
 {
-	bool mmap_mmap2 = true;
-
-	(void)opt;
-	return stress_set_setting("mmap-mmap2", TYPE_ID_BOOL, &mmap_mmap2);
+	return stress_set_setting_true("mmap-mmap2", opt);
 }
 
 /*

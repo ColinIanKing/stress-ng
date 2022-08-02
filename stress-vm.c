@@ -201,10 +201,7 @@ static int stress_set_vm_madvise(const char *opt)
 
 static int stress_set_vm_keep(const char *opt)
 {
-	bool vm_keep = true;
-
-	(void)opt;
-	return stress_set_setting("vm-keep", TYPE_ID_BOOL, &vm_keep);
+	return stress_set_setting_true("vm-keep", opt);
 }
 
 #define SET_AND_TEST(ptr, val, bit_errors)	\

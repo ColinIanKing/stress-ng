@@ -52,7 +52,7 @@ void stress_settings_free(void)
 
 /*
  *  stress_set_setting_generic()
- *	set a new setting;
+ *	set a new setting
  */
 static int stress_set_setting_generic(
 	const char *name,
@@ -181,7 +181,7 @@ err:
 
 /*
  *  stress_set_setting()
- *	set a new setting;
+ *	set a new setting
  */
 int stress_set_setting(
 	const char *name,
@@ -206,7 +206,7 @@ int stress_set_setting_global(
 
 /*
  *  stress_get_setting()
- *	get an existing setting;
+ *	get an existing setting
  */
 bool stress_get_setting(const char *name, void *value)
 {
@@ -323,4 +323,16 @@ bool stress_get_setting(const char *name, void *value)
 		}
 	}
 	return set;
+}
+
+/*
+ *  stress_set_setting_true()
+ *	create a setting of name name to true, ignore opt
+ */
+int stress_set_setting_true(const char *name, const char *opt)
+{
+        bool val = true;
+
+        (void)opt;
+        return stress_set_setting(name, TYPE_ID_BOOL, &val);
 }

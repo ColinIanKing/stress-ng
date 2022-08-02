@@ -30,11 +30,7 @@ static const stress_help_t help[] = {
 
 static int stress_set_vforkmany_vm(const char *opt)
 {
-	bool vm = true;
-
-	(void)opt;
-
-	return stress_set_setting("vforkmany-vm", TYPE_ID_BOOL, &vm);
+	return stress_set_setting_true("vforkmany-vm", opt);
 }
 
 /*

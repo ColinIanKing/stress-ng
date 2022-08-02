@@ -39,10 +39,7 @@ static const stress_help_t help[] = {
 
 static int stress_set_pipeherd_yield(const char *opt)
 {
-	bool pipeherd_yield = true;
-	(void)opt;
-
-	return stress_set_setting("pipeherd-yield", TYPE_ID_BOOL, &pipeherd_yield);
+	return stress_set_setting_true("pipeherd-yield", opt);
 }
 
 static int stress_pipeherd_read_write(const stress_args_t *args, const int fd[2], const bool pipeherd_yield)

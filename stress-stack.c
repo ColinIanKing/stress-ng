@@ -31,18 +31,12 @@ static const stress_help_t help[] = {
 
 static int stress_set_stack_fill(const char *opt)
 {
-	bool stack_fill = true;
-
-	(void)opt;
-	return stress_set_setting("stack-fill", TYPE_ID_BOOL, &stack_fill);
+	return stress_set_setting_true("stack-fill", opt);
 }
 
 static int stress_set_stack_mlock(const char *opt)
 {
-	bool stack_mlock = true;
-
-	(void)opt;
-	return stress_set_setting("stack-mlock", TYPE_ID_BOOL, &stack_mlock);
+	return stress_set_setting_true("stack-mlock", opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
