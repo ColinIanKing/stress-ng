@@ -486,7 +486,9 @@ static void stress_fanotify_read_events(
 static int stress_fanotify(const stress_args_t *args)
 {
 	char pathname[PATH_MAX - 16], filename[PATH_MAX], filename2[PATH_MAX];
-	int ret, pid, rc = EXIT_SUCCESS;
+	const pid_t ppid = getpid();
+	pid_t pid;
+	int ret, rc = EXIT_SUCCESS;
 	stress_fanotify_account_t account;
 
 	(void)memset(&account, 0, sizeof(account));
@@ -531,7 +533,7 @@ static int stress_fanotify(const stress_args_t *args)
 			if (fd < 0) {
 				pr_fail("%s: creat %s failed, errno=%d (%s)\n",
 					args->name, filename, errno, strerror(errno));
-				(void)kill(args->ppid, SIGALRM);
+				(void)kill(ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			(void)close(fd);
@@ -541,7 +543,7 @@ static int stress_fanotify(const stress_args_t *args)
 			if (fd < 0) {
 				pr_fail("%s: open %s O_WRONLY failed, errno=%d (%s)\n",
 					args->name, filename, errno, strerror(errno));
-				(void)kill(args->ppid, SIGALRM);
+				(void)kill(ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			VOID_RET(ssize_t, write(fd, "test", 4));
@@ -552,7 +554,7 @@ static int stress_fanotify(const stress_args_t *args)
 			if (fd < 0) {
 				pr_fail("%s: open %s O_RDONLY failed, errno=%d (%s)\n",
 					args->name, filename, errno, strerror(errno));
-				(void)kill(args->ppid, SIGALRM);
+				(void)kill(ppid, SIGALRM);
 				_exit(EXIT_FAILURE);
 			}
 			VOID_RET(ssize_t, read(fd, buffer, sizeof(buffer)));

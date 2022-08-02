@@ -2283,7 +2283,6 @@ again:
 						.instance = (uint32_t)j,
 						.num_instances = (uint32_t)g_stressor_current->num_instances,
 						.pid = getpid(),
-						.ppid = getppid(),
 						.page_size = page_size,
 						.mapped = &g_shared->mapped,
 						.misc_stats = stats->misc_stats

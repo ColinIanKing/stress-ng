@@ -155,7 +155,7 @@ static int stress_cap(const stress_args_t *args)
 		stress_capgetset_pid(args, args->pid, true, true);
 		if (!keep_stressing(args))
 			break;
-		stress_capgetset_pid(args, args->ppid, false, false);
+		stress_capgetset_pid(args, getppid(), false, false);
 		if (!keep_stressing(args))
 			break;
 

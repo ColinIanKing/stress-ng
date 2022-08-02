@@ -477,7 +477,6 @@ typedef struct {
 	const uint32_t instance;	/* stressor instance # */
 	const uint32_t num_instances;	/* number of instances */
 	pid_t pid;			/* stressor pid */
-	pid_t ppid;			/* stressor ppid */
 	size_t page_size;		/* page size */
 	stress_mapped_t *mapped;	/* mmap'd pages, addr of g_shared mapped */
 	stress_misc_stats_t *misc_stats;/* misc per stressor stats */
