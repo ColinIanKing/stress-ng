@@ -501,7 +501,7 @@ typedef struct {
 	const stress_opt_set_func_t *opt_set_funcs;	/* option functions */
 	const stress_help_t *help;	/* stressor help options */
 	const stress_class_t class;	/* stressor class */
-	const stress_verify_t verify;	/* true = has verification mode */
+	const stress_verify_t verify;	/* verification mode */
 } stressor_info_t;
 
 /* pthread wrapped stress_args_t */
