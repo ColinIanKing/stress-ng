@@ -30,7 +30,10 @@ static volatile __uint128_t stash128;
 #define CPU_X86_MMX	(0x00000001)
 #define CPU_X86_SSE	(0x00000002)
 
-static int cpu_flags;
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_INT128_T)
+static int x86_cpu_flags;
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"regs N",	"start N workers exercising CPU generic registers" },
@@ -274,9 +277,9 @@ do {			\
 #undef SHUFFLE_REGS
 
 #if defined(HAVE_INT128_T)
-	if (cpu_flags & CPU_X86_SSE)
+	if (x86_cpu_flags & CPU_X86_SSE)
 		stress_regs_helper_sse(args, v);
-	else if (cpu_flags & CPU_X86_MMX)
+	else if (x86_cpu_flags & CPU_X86_MMX)
 		stress_regs_helper_mmx(args, v);
 #endif
 
@@ -950,11 +953,12 @@ static int stress_regs(const stress_args_t *args)
 {
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	uint64_t v = stress_mwc64();
-	cpu_flags = 0;
 
-#if defined(STRESS_ARCH_X86)
-	cpu_flags |= stress_cpu_x86_has_mmx() ? CPU_X86_MMX : 0;
-	cpu_flags |= stress_cpu_x86_has_sse() ? CPU_X86_SSE : 0;
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_INT128_T)
+	x86_cpu_flags = 0;
+	x86_cpu_flags |= stress_cpu_x86_has_mmx() ? CPU_X86_MMX : 0;
+	x86_cpu_flags |= stress_cpu_x86_has_sse() ? CPU_X86_SSE : 0;
 #endif
 
 	do {
