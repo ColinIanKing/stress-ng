@@ -30,7 +30,7 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if (defined(__GNUC__) && NEED_GNUC(6, 0, 0)) &&	\
+#if (defined(__GNUC__) && NEED_GNUC(8, 0, 0)) &&	\
     !defined(__clang__)	&&	\
     !defined(__ICC) && 		\
     !defined(__PCC__) &&	\
