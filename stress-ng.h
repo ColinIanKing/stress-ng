@@ -815,33 +815,6 @@ extern int stress_lock_destroy(void *lock_handle);
 extern int stress_lock_acquire(void *lock_handle);
 extern int stress_lock_release(void *lock_handle);
 
-/* pthread porting shims, spinlock or fallback to mutex */
-#if defined(HAVE_LIB_PTHREAD)
-#if defined(HAVE_LIB_PTHREAD_SPINLOCK) &&	\
-    !defined(__DragonFly__) &&			\
-    !defined(__OpenBSD__)
-typedef pthread_spinlock_t 	shim_pthread_spinlock_t;
-
-#define SHIM_PTHREAD_PROCESS_SHARED		PTHREAD_PROCESS_SHARED
-#define SHIM_PTHREAD_PROCESS_PRIVATE		PTHREAD_PROCESS_PRIVATE
-
-#define shim_pthread_spin_lock(lock)		pthread_spin_lock(lock)
-#define shim_pthread_spin_unlock(lock)		pthread_spin_unlock(lock)
-#define shim_pthread_spin_init(lock, shared)	pthread_spin_init(lock, shared)
-#define shim_pthread_spin_destroy(lock)		pthread_spin_destroy(lock)
-#else
-typedef pthread_mutex_t		shim_pthread_spinlock_t;
-
-#define SHIM_PTHREAD_PROCESS_SHARED		NULL
-#define SHIM_PTHREAD_PROCESS_PRIVATE		NULL
-
-#define shim_pthread_spin_lock(lock)		pthread_mutex_lock(lock)
-#define shim_pthread_spin_unlock(lock)		pthread_mutex_unlock(lock)
-#define shim_pthread_spin_init(lock, shared)	pthread_mutex_init(lock, shared)
-#define shim_pthread_spin_destroy(lock)		pthread_mutex_destroy(lock)
-#endif
-#endif
-
 /* stress process prototype */
 typedef int (*stress_func_t)(const stress_args_t *args);
 

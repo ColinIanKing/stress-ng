@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pthread.h"
 #include "core-put.h"
 
 #if defined(HAVE_ASM_MTRR_H)

@@ -18,9 +18,10 @@
  *
  */
 #include "stress-ng.h"
-#include "core-put.h"
 #include "core-capabilities.h"
 #include "core-hash.h"
+#include "core-pthread.h"
+#include "core-put.h"
 
 #if defined(HAVE_LINUX_FS_H)
 #include <linux/fs.h>

@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pthread.h"
 
 #if defined(HAVE_LINUX_FUTEX_H)
 #include <linux/futex.h>
