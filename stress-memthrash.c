@@ -22,6 +22,7 @@
 #include "core-cache.h"
 #include "core-nt-store.h"
 #include "core-pthread.h"
+#include "core-target-clones.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"memthrash N",		"start N workers thrashing a 16MB memory buffer" },
@@ -208,6 +209,62 @@ static void HOT OPTIMIZE3 stress_memthrash_memset64(
 		*ptr++ = val;
 		*ptr++ = val;
 		*ptr++ = val;
+	}
+}
+
+static void HOT OPTIMIZE3 TARGET_CLONES stress_memthrash_swap32(
+	const stress_args_t *args,
+	const size_t mem_size)
+{
+	uint64_t *ptr = (uint64_t *)mem;
+	register const uint64_t *end = (uint64_t *)(((uint8_t *)mem) + mem_size);
+
+	(void)args;
+
+	while (LIKELY(ptr < end)) {
+		register uint64_t r0, r1, r2, r3, r4, r5, r6, r7;
+
+		r0 = ptr[0];
+		r1 = ptr[1];
+		r2 = ptr[2];
+		r3 = ptr[3];
+		r4 = ptr[4];
+		r5 = ptr[5];
+		r6 = ptr[6];
+		r7 = ptr[7];
+		shim_mb();
+
+		ptr[0] = r4;
+		ptr[1] = r5;
+		ptr[2] = r6;
+		ptr[3] = r7;
+		ptr[4] = r0;
+		ptr[5] = r1;
+		ptr[6] = r2;
+		ptr[7] = r3;
+		shim_mb();
+		ptr += 8;
+
+		r0 = ptr[0];
+		r1 = ptr[1];
+		r2 = ptr[2];
+		r3 = ptr[3];
+		r4 = ptr[4];
+		r5 = ptr[5];
+		r6 = ptr[6];
+		r7 = ptr[7];
+		shim_mb();
+
+		ptr[0] = r4;
+		ptr[1] = r5;
+		ptr[2] = r6;
+		ptr[3] = r7;
+		ptr[4] = r0;
+		ptr[5] = r1;
+		ptr[6] = r2;
+		ptr[7] = r3;
+		shim_mb();
+		ptr += 8;
 	}
 }
 
@@ -432,7 +489,8 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "random",	stress_memthrash_random },
 	{ "spinread",	stress_memthrash_spinread },
 	{ "spinwrite",	stress_memthrash_spinwrite },
-	{ "swap",	stress_memthrash_swap }
+	{ "swap",	stress_memthrash_swap },
+	{ "swap32",	stress_memthrash_swap32 },
 };
 
 static void stress_memthrash_all(const stress_args_t *args, size_t mem_size)
