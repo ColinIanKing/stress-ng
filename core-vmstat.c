@@ -37,6 +37,48 @@
 #include <mntent.h>
 #endif
 
+/* vmstat information */
+typedef struct {			/* vmstat column */
+	uint64_t	procs_running;	/* r */
+	uint64_t	procs_blocked;	/* b */
+	uint64_t	swap_total;	/* swpd info, total */
+	uint64_t	swap_free;	/* swpd info, free */
+	uint64_t	swap_used;	/* swpd used = total - free */
+	uint64_t	memory_free;	/* free */
+	uint64_t	memory_buff;	/* buff */
+	uint64_t	memory_cache;	/* cache */
+	uint64_t	swap_in;	/* si */
+	uint64_t	swap_out;	/* so */
+	uint64_t	block_in;	/* bi */
+	uint64_t	block_out;	/* bo */
+	uint64_t	interrupt;	/* in */
+	uint64_t	context_switch;	/* cs */
+	uint64_t	user_time;	/* us */
+	uint64_t	system_time;	/* sy */
+	uint64_t	idle_time;	/* id */
+	uint64_t	wait_time;	/* wa */
+	uint64_t	stolen_time;	/* st */
+} stress_vmstat_t;
+
+/* iostat information, from /sys/block/$dev/stat */
+typedef struct {
+	uint64_t	read_io;	/* number of read I/Os processed */
+	uint64_t	read_merges;	/* number of read I/Os merged with in-queue I/O */
+	uint64_t	read_sectors;	/* number of sectors read */
+	uint64_t	read_ticks;	/* total wait time for read requests */
+	uint64_t	write_io;	/* number of write I/Os processed */
+	uint64_t	write_merges;	/* number of write I/Os merged with in-queue I/O */
+	uint64_t	write_sectors;	/* number of sectors written */
+	uint64_t	write_ticks;	/* total wait time for write requests */
+	uint64_t	in_flight;	/* number of I/Os currently in flight */
+	uint64_t	io_ticks;	/* total time this block device has been active */
+	uint64_t	time_in_queue;	/* total wait time for all requests */
+	uint64_t	discard_io;	/* number of discard I/Os processed */
+	uint64_t	discard_merges;	/* number of discard I/Os merged with in-queue I/O */
+	uint64_t	discard_sectors;/* number of sectors discarded */
+	uint64_t	discard_ticks;	/* total wait time for discard requests */
+} stress_iostat_t;
+
 static int32_t vmstat_delay = 0;
 static int32_t thermalstat_delay = 0;
 static int32_t iostat_delay = 0;
