@@ -21,6 +21,7 @@
 #include "core-arch.h"
 #include "core-cache.h"
 #include "core-nt-store.h"
+#include "core-pthread.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"memthrash N",		"start N workers thrashing a 16MB memory buffer" },

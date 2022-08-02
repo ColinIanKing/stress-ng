@@ -19,6 +19,13 @@
 #ifndef CORE_PTHREAD_H
 #define CORE_PTHREAD_H
 
+/* pthread wrapped stress_args_t */
+typedef struct {
+	const stress_args_t *args;	/* Stress test args */
+	void *data;			/* Per thread private data */
+	int pthread_ret;		/* Per thread return value */
+} stress_pthread_args_t;
+
 /* pthread porting shims, spinlock or fallback to mutex */
 #if defined(HAVE_LIB_PTHREAD)
 #if defined(HAVE_LIB_PTHREAD_SPINLOCK) &&	\

@@ -504,13 +504,6 @@ typedef struct {
 	const stress_verify_t verify;	/* verification mode */
 } stressor_info_t;
 
-/* pthread wrapped stress_args_t */
-typedef struct {
-	const stress_args_t *args;	/* Stress test args */
-	void *data;			/* Per thread private data */
-	int pthread_ret;		/* Per thread return value */
-} stress_pthread_args_t;
-
 /* gcc 4.7 and later support vector ops */
 #if defined(__GNUC__) &&	\
     NEED_GNUC(4, 7, 0)

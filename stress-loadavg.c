@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pthread.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"loadavg N",	 "start N workers that create a large load average" },

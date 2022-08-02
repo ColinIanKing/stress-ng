@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-pthread.h"
 
 #if defined(__NR_userfaultfd)
 #define HAVE_USERFAULTFD

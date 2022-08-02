@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-pthread.h"
 
 #if defined(HAVE_SEMAPHORE_H)
 #include <semaphore.h>
