@@ -268,6 +268,59 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_memthrash_swap32(
 	}
 }
 
+#if defined(HAVE_INT128_T)
+static void HOT OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128(
+	const stress_args_t *args,
+	const size_t mem_size)
+{
+	__uint128_t *ptr = (__uint128_t *)mem;
+	register const __uint128_t *end = (__uint128_t *)(((uint8_t *)mem) + mem_size - 128);
+
+	(void)args;
+
+	while (LIKELY(ptr < end)) {
+		register __uint128_t r0, r1, r2, r3, r4, r5, r6, r7;
+
+		r0 = ptr[8];
+		r1 = ptr[9];
+		r2 = ptr[10];
+		r3 = ptr[11];
+		r4 = ptr[12];
+		r5 = ptr[13];
+		r6 = ptr[14];
+		r7 = ptr[15];
+		ptr[0] = r0;
+		ptr[1] = r1;
+		ptr[2] = r2;
+		ptr[3] = r3;
+		ptr[4] = r4;
+		ptr[5] = r5;
+		ptr[6] = r6;
+		ptr[7] = r7;
+		shim_mb();
+		ptr += 8;
+
+		r0 = ptr[8];
+		r1 = ptr[9];
+		r2 = ptr[10];
+		r3 = ptr[11];
+		r4 = ptr[12];
+		r5 = ptr[13];
+		r6 = ptr[14];
+		r7 = ptr[15];
+		ptr[0] = r0;
+		ptr[1] = r1;
+		ptr[2] = r2;
+		ptr[3] = r3;
+		ptr[4] = r4;
+		ptr[5] = r5;
+		ptr[6] = r6;
+		ptr[7] = r7;
+		shim_mb();
+		ptr += 8;
+	}
+}
+#endif
 
 static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
 	const stress_args_t *args,
@@ -473,6 +526,9 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "chunk64",	stress_memthrash_random_chunk64 },
 	{ "chunk256",	stress_memthrash_random_chunk256 },
 	{ "chunkpage",	stress_memthrash_random_chunkpage },
+#if defined(HAVE_INT128_T)
+	{ "copy128",	stress_memthrash_copy128 },
+#endif
 	{ "flip",	stress_memthrash_flip_mem },
 #if defined(HAVE_ASM_X86_CLFLUSH)
 	{ "flush",	stress_memthrash_flush },
