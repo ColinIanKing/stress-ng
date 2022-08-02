@@ -18,10 +18,18 @@
  */
 #include "stress-ng.h"
 #include "core-arch.h"
+#include "core-cpu.h"
 #include "core-put.h"
 
 static volatile uint32_t stash32;
 static volatile uint64_t stash64;
+#if defined(HAVE_INT128_T)
+static volatile __uint128_t stash128;
+#endif
+
+#define CPU_X86_MMX	(0x00000001)
+
+static int cpu_flags;
 
 static const stress_help_t help[] = {
 	{ NULL,	"regs N",	"start N workers exercising CPU generic registers" },
@@ -81,12 +89,40 @@ static void regs_check64(
 	}
 }
 
+#if defined(HAVE_INT128_T)
+static void regs_check128(
+	const stress_args_t *args,
+	const char *reg,
+	const __uint128_t expected,
+	const __uint128_t value)
+{
+	if (expected != value) {
+		static __uint128_t mask64 = 0xffffffffffffffffULL;
+		pr_fail("%s: register %s was 0x%" PRIx64 "%16.16" PRIx64
+			", expecting 0x%" PRIx64 "%16.16" PRIx64 "\n",
+			args->name, reg,
+			(uint64_t)(expected >> 64), (uint64_t)(expected & mask64),
+			(uint64_t)(value >> 64), (uint64_t)(value & mask64));
+	}
+}
+#else
+#define regs_check128(args, reg, expected, value) 		\
+do {								\
+	(void)args;						\
+	(void)reg;						\
+	(void)expected;						\
+	(void)value;						\
+} while (0)
+#endif
+
 #define REGS_CHECK(args, reg, expected, value)			\
 do {								\
 	if (sizeof(value) == sizeof(uint32_t)) 			\
 		regs_check32(args, reg, expected, value);	\
 	else if (sizeof(value) == sizeof(uint64_t))		\
 		regs_check64(args, reg, expected, value);	\
+	else if (sizeof(value) == (sizeof(uint64_t) << 1))	\
+		regs_check128(args, reg, expected, value);	\
 } while (0);
 
 #if (defined(__x86_64__) || defined(__x86_64))
@@ -142,6 +178,42 @@ do {			\
 		r14 + r15;
 
 #undef SHUFFLE_REGS
+
+#if defined(HAVE_INT128_T)
+
+	if (cpu_flags & CPU_X86_MMX) {
+		__uint128_t v128 = ((__uint128_t)v << 64) | (v ^ 0xa55a5555aaaaULL);
+		register __uint128_t xmm0 __asm__("xmm0") = v128;
+		register __uint128_t xmm1 __asm__("xmm1") = v128 >> 1;
+		register __uint128_t xmm2 __asm__("xmm2") = v128 << 1;
+		register __uint128_t xmm3 __asm__("xmm3") = v128 >> 2;
+		register __uint128_t xmm4 __asm__("xmm4") = v128 << 2;
+		register __uint128_t xmm5 __asm__("xmm5") = ~xmm0;
+		register __uint128_t xmm6 __asm__("xmm6") = ~xmm1;
+		register __uint128_t xmm7 __asm__("xmm7") = ~xmm2;
+
+#define SHUFFLE_REGS()	\
+do {			\
+	xmm7 = xmm0;	\
+	xmm0 = xmm1;	\
+	xmm1 = xmm2;	\
+	xmm2 = xmm3;	\
+	xmm3 = xmm4;	\
+	xmm4 = xmm5;	\
+	xmm5 = xmm6;	\
+	xmm6 = xmm7;	\
+} while (0);
+
+		SHUFFLE_REGS16();
+
+		stash128 = xmm5;
+		REGS_CHECK(args, "xmm5", v128, stash128);
+
+		stash128 = xmm0 + xmm1 + xmm2 + xmm3 +
+			   xmm4 + xmm5 + xmm6 + xmm7;
+	}
+#endif
+
 }
 #endif
 
@@ -812,6 +884,11 @@ static int stress_regs(const stress_args_t *args)
 {
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	uint64_t v = stress_mwc64();
+	cpu_flags = 0;
+
+#if defined(STRESS_ARCH_X86)
+	cpu_flags |= stress_cpu_x86_has_mmx() ? CPU_X86_MMX : 0;
+#endif
 
 	do {
 		int i;

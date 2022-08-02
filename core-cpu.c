@@ -431,6 +431,26 @@ bool stress_cpu_x86_has_clfsh(void)
 }
 
 /*
+ *  stress_cpu_x86_has_mmx()
+ *	does x86 cpu support mmx?
+ */
+bool stress_cpu_x86_has_mmx(void)
+{
+#if defined(STRESS_ARCH_X86)
+	uint32_t eax = 0x1, ebx = 0, ecx = 0, edx = 0;
+
+	if (!stress_cpu_is_x86())
+		return false;
+
+	stress_x86_cpuid(&eax, &ebx, &ecx, &edx);
+
+	return !!(edx & CPUID_mmx_EDX);
+#else
+	return false;
+#endif
+}
+
+/*
  *  stress_cpu_x86_has_sse()
  *	does x86 cpu support sse?
  */

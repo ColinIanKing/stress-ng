@@ -33,6 +33,7 @@ extern WARN_UNUSED bool stress_cpu_x86_has_rdrand(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_tsc(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_msr(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_clfsh(void);
+extern WARN_UNUSED bool stress_cpu_x86_has_mmx(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_sse(void);
 extern WARN_UNUSED bool stress_cpu_x86_has_sse2(void);
 
