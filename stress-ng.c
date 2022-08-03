@@ -23,6 +23,7 @@
 #include "core-perf.h"
 #include "core-put.h"
 #include "core-smart.h"
+#include "core-stressors.h"
 #include "core-syslog.h"
 #include "core-thermal-zone.h"
 #include "core-thrash.h"
@@ -182,17 +183,16 @@ static const int ignore_signals[] = {
 #endif
 };
 
-/*
- *  Elements in stressor array
- */
-#define STRESSOR_ELEM(name)		\
-{					\
-	&stress_ ## name ## _info,	\
-	STRESS_ ## name,		\
-	OPT_ ## name,			\
-	OPT_ ## name  ## _ops,		\
-	# name				\
-},
+/* Stressor id values */
+enum {
+	STRESS_START = -1,
+	STRESSORS(STRESSOR_ENUM)
+	/* STRESS_MAX must be last one */
+	STRESS_MAX
+};
+
+/* Stressor extern info structs */
+STRESSORS(STRESSOR_INFO)
 
 /*
  *  Human readable stress test names.
@@ -1331,7 +1331,7 @@ static int stress_exclude(void)
 		return 0;
 
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
-		stress_id_t id;
+		unsigned int id;
 		stress_stressor_t *ss = stressors_head;
 		const int32_t i = stressor_name_find(token);
 
@@ -3006,7 +3006,7 @@ static inline void stress_exclude_unsupported(bool *unsupported)
 	for (i = 0; i < SIZEOF_ARRAY(stressors); i++) {
 		if (stressors[i].info && stressors[i].info->supported) {
 			stress_stressor_t *ss = stressors_head;
-			stress_id_t id = stressors[i].id;
+			unsigned int id = stressors[i].id;
 
 			while (ss) {
 				stress_stressor_t *next = ss->next;
