@@ -1676,6 +1676,11 @@ iteration. The default is just 1; higher values will create many temporary
 zombie processes that are waiting to be reaped. One can potentially fill up the
 process table using high values for \-\-exec\-max and \-\-exec.
 .TP
+.B \-\-exec\-fork\-method [ clone | fork | vfork ]
+select the process creation method using clone(2), fork(2) or vfork(2). Note that
+vfork will only exec programs using execve due to the constraints on the shared
+stack between the parent and the child process.
+.TP
 .B \-\-exec\-method [ all | execve | execveat ]
 select the exec system call to use; all will perform a random choice between
 execve(2) and execveat(2), execve will use execve(2) and execveat will use

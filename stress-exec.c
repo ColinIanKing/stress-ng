@@ -21,35 +21,53 @@
 
 #define MIN_EXECS		(1)
 #define MAX_EXECS		(16000)
-#define DEFAULT_EXECS		(1)
+#define DEFAULT_EXECS		(4096)
+#define HASH_EXECS		(32003)	/* a prime larger than 2 x MAX_EXECS */
 
-#define EXEC_METHOD_ALL		(0)
-#define EXEC_METHOD_EXECVE	(1)
-#define EXEC_METHOD_EXECVEAT	(2)
+#define EXEC_METHOD_ALL		(0x00)
+#define EXEC_METHOD_EXECVE	(0x01)
+#define EXEC_METHOD_EXECVEAT	(0x02)
 
-#define EXEC_FORK_METHOD_FORK	(8)
-#define EXEC_FORK_METHOD_CLONE	(9)
+#define EXEC_FORK_METHOD_CLONE	(0x10)
+#define EXEC_FORK_METHOD_FORK	(0x11)
+#define EXEC_FORK_METHOD_VFORK	(0x12)
 
 #define MAX_ARG_PAGES		(32)
 
-#define CLONE_STACK_SIZE	(8*1024)
+#define CLONE_STACK_SIZE	(8 * 1024)
 
 #if defined(__linux__)
 /*
  *   exec* family of args to pass
  */
 typedef struct {
-	const stress_args_t *args;
-	const char *path;
-	char **argv_new;
-	char **env_new;
+	const stress_args_t *args;	/* stress-ng args */
+	const char *exec_prog;		/* path to program to execute */
+	const char *garbage_prog;	/* path of garbage program */
+	char *str;			/* huge argv and env string */
+	char *argv[4];			/* executable argv[] */
+	char *env[2];			/* executable env[] */
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
-	int fdexec;
+	int fdexec;			/* fd of program to exec */
 #endif
-	int exec_method;
-} stress_exec_args_t;
+	int exec_method;		/* exec method */
+	uint8_t rnd8;			/* random value */
+} stress_exec_context_t;
 #endif
+
+typedef struct stress_pid_hash {
+	struct stress_pid_hash *next;	/* next entry */
+	pid_t	pid;			/* child pid */
+	stress_exec_context_t arg;	/* exec info context */
+	void	*stack;			/* stack for clone */
+} stress_pid_hash_t;
+
+static size_t stress_pid_cache_index = 0;
+static size_t stress_pid_cache_items = 0;
+static stress_pid_hash_t *stress_pid_cache;
+static stress_pid_hash_t *stress_pid_hash_table[HASH_EXECS];
+static stress_pid_hash_t *free_list;
 
 typedef struct {
 	const char *name;
@@ -60,11 +78,14 @@ static const stress_exec_method_t stress_exec_methods[] = {
 	{ "all",	EXEC_METHOD_ALL },
 	{ "execve",	EXEC_METHOD_EXECVE },
 	{ "execveat",	EXEC_METHOD_EXECVEAT },
+	{ NULL,		-1 },
 };
 
 static const stress_exec_method_t stress_exec_fork_methods[] = {
-	{ "fork",	EXEC_FORK_METHOD_FORK },
 	{ "clone",	EXEC_FORK_METHOD_CLONE },
+	{ "fork",	EXEC_FORK_METHOD_FORK },
+	{ "vfork",	EXEC_FORK_METHOD_VFORK },
+	{ NULL,		-1 },
 };
 
 static const stress_help_t help[] = {
@@ -72,7 +93,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"exec-ops N",		"stop after N exec bogo operations" },
 	{ NULL,	"exec-max P",		"create P workers per iteration, default is 1" },
 	{ NULL,	"exec-method M",	"select exec method: all, execve, execveat" },
-	{ NULL,	"exec-fork-method M",	"select exec fork method: fork, clone" },
+	{ NULL,	"exec-fork-method M",	"select exec fork method: clone, fork, vfork" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -82,12 +103,11 @@ static const stress_help_t help[] = {
  */
 static int stress_set_exec_max(const char *opt)
 {
-	uint64_t exec_max;
+	uint32_t exec_max;
 
-	exec_max = stress_get_uint64(opt);
-	stress_check_range("exec-max", exec_max,
-		MIN_EXECS, MAX_EXECS);
-	return stress_set_setting("exec-max", TYPE_ID_INT64, &exec_max);
+	exec_max = stress_get_uint32(opt);
+	stress_check_range("exec-max", (uint64_t)exec_max, MIN_EXECS, MAX_EXECS);
+	return stress_set_setting("exec-max", TYPE_ID_INT32, &exec_max);
 }
 
 /*
@@ -95,17 +115,20 @@ static int stress_set_exec_max(const char *opt)
  * 	search the given option in the given array and if found set the
  * 	corresponding option.
  */
-static int stress_search_exec_method(const char* name, const stress_exec_method_t methods[], size_t nr_methods, const char *opt)
+static int stress_search_exec_method(
+	const char *name,
+	const stress_exec_method_t *methods,
+	const char *opt)
 {
 	size_t i;
 
-	for (i = 0; i < nr_methods; i++) {
+	for (i = 0; methods[i].name; i++) {
 		if (!strcmp(opt, methods[i].name))
 			return stress_set_setting(name, TYPE_ID_INT, &methods[i].method);
 	}
 
 	(void)fprintf(stderr, "%s must be one of:", name);
-	for (i = 0; i < nr_methods; i++) {
+	for (i = 0; methods[i].name; i++) {
 		(void)fprintf(stderr, " %s", methods[i].name);
 	}
 	(void)fprintf(stderr, "\n");
@@ -118,7 +141,7 @@ static int stress_search_exec_method(const char* name, const stress_exec_method_
  */
 static int stress_set_exec_method(const char *opt)
 {
-	return stress_search_exec_method("exec-method", stress_exec_methods, SIZEOF_ARRAY(stress_exec_methods), opt);
+	return stress_search_exec_method("exec-method", stress_exec_methods, opt);
 }
 
 /*
@@ -127,17 +150,142 @@ static int stress_set_exec_method(const char *opt)
  */
 static int stress_set_exec_fork_method(const char *opt)
 {
-	return stress_search_exec_method("exec-fork-method", stress_exec_fork_methods, SIZEOF_ARRAY(stress_exec_fork_methods), opt);
+	return stress_search_exec_method("exec-fork-method", stress_exec_fork_methods, opt);
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_exec_max,		stress_set_exec_max },
 	{ OPT_exec_method,	stress_set_exec_method },
 	{ OPT_exec_fork_method,	stress_set_exec_fork_method },
-	{ 0,		NULL }
+	{ 0,			NULL }
 };
 
 #if defined(__linux__)
+
+/*
+ *  stress_exec_free_list_add()
+ *	add sph to the free list
+ */
+static inline void stress_exec_free_list_add(stress_pid_hash_t *sph)
+{
+	sph->next = free_list;
+	free_list = sph;
+}
+
+/*
+ *  stress_exec_free_pid_list()
+ *	unmap any allocated stacks
+ */
+static void stress_exec_free_pid_list(stress_pid_hash_t *sph)
+{
+	while (sph) {
+		if (sph->stack)
+			(void)munmap(sph->stack, CLONE_STACK_SIZE);
+		sph = sph->next;
+	}
+}
+
+/*
+ *  stress_exec_alloc_pid()
+ *	allocate a pid hash item, pull it from the free list first
+ *	and if there are none available pull it from the new item
+ *	cache. Note that the new item hash cache should never run
+ *	out it is sized to the maximum number of pids allowed to
+ *	be running at any time.
+ */
+static stress_pid_hash_t *stress_exec_alloc_pid(const bool alloc_stack)
+{
+	NOCLOBBER stress_pid_hash_t *sph;
+
+	/* Any on the free list, re-use these */
+	if (free_list) {
+		sph = free_list;
+		free_list = free_list->next;
+
+		sph->next = NULL;
+	} else {
+		if (stress_pid_cache_index < stress_pid_cache_items) {
+			sph = &stress_pid_cache[stress_pid_cache_index];
+			stress_pid_cache_index++;
+		} else {
+			/* Should never occur */
+			return NULL;
+		}
+	}
+
+	if (sph && alloc_stack && !sph->stack) {
+		sph->stack = mmap(NULL, CLONE_STACK_SIZE, PROT_READ | PROT_WRITE,
+				MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
+		if (sph->stack == MAP_FAILED) {
+			sph->stack = NULL;
+			stress_exec_free_list_add(sph);
+			return NULL;
+		}
+	}
+	return sph;
+}
+
+/*
+ *  stress_exec_add_pid()
+ *	add a sph and pid to the pid hash table for fast
+ *	pid -> sph lookups later on
+ */
+static void stress_exec_add_pid(stress_pid_hash_t *sph, const pid_t pid)
+{
+	const size_t hash = (size_t)pid % HASH_EXECS;
+
+	/*
+	 *  Since pids are unique we never have
+	 *  a pid clash so we can just add
+	 *  the new pid hash to the table - this
+	 *  reall simplifies life
+	 */
+	sph->pid = pid;
+	sph->next = stress_pid_hash_table[hash];
+	stress_pid_hash_table[hash] = sph;
+}
+
+/*
+ *  stress_exec_free_pid()
+ *	free up all pid items in hash table and free list
+ */
+static void stress_exec_free_pid(void)
+{
+	size_t i;
+
+	/* Free hash table */
+	for (i = 0; i < HASH_EXECS; i++)
+		stress_exec_free_pid_list(stress_pid_hash_table[i]);
+
+	/* Free free list */
+	stress_exec_free_pid_list(free_list);
+}
+
+/*
+ *  stress_exec_remove_pid()
+ *	remove pid from the hash table and recycle it
+ *	back onto the free list
+ */
+static void stress_exec_remove_pid(const pid_t pid)
+{
+	const size_t hash = (size_t)pid % HASH_EXECS;
+	stress_pid_hash_t *sph = stress_pid_hash_table[hash];
+	stress_pid_hash_t *prev = NULL;
+
+	while (sph) {
+		if (sph->pid == pid) {
+			if (prev) {
+				prev->next = sph->next;
+			} else {
+				stress_pid_hash_table[hash] = sph->next;
+			}
+			stress_exec_free_list_add(sph);
+			return;
+		}
+		prev = sph;
+		sph = sph->next;
+	}
+}
 
 /*
  *  stress_exec_supported()
@@ -162,25 +310,25 @@ static int stress_exec_supported(const char *name)
  *	perform one of the various execs depending on how
  *	ea->exec_method is set.
  */
-static int stress_exec_method(const stress_exec_args_t *ea)
+static int stress_exec_method(const stress_exec_context_t *context)
 {
 	int ret;
 
-	switch (ea->exec_method) {
+	switch (context->exec_method) {
 	case EXEC_METHOD_EXECVE:
-		ret = execve(ea->path, ea->argv_new, ea->env_new);
+		ret = execve(context->exec_prog, context->argv, context->env);
 		break;
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
 	case EXEC_METHOD_EXECVEAT:
 		if (stress_mwc1())
-			ret = shim_execveat(0, ea->path, ea->argv_new, ea->env_new, 0);
+			ret = shim_execveat(0, context->exec_prog, context->argv, context->env, 0);
 		else
-			ret = shim_execveat(ea->fdexec, "", ea->argv_new, ea->env_new, AT_EMPTY_PATH);
+			ret = shim_execveat(context->fdexec, "", context->argv, context->env, AT_EMPTY_PATH);
 		break;
 #endif
 	default:
-		ret = execve(ea->path, ea->argv_new, ea->env_new);
+		ret = execve(context->exec_prog, context->argv, context->env);
 		break;
 	}
 	return ret;
@@ -189,19 +337,19 @@ static int stress_exec_method(const stress_exec_args_t *ea)
 #if defined(HAVE_LIB_PTHREAD)
 /*
  *  stress_exec_from_pthread()
- *	perform exec calls from inside a pthead. This should cause
+ *	perform exec calls from inside a pthread. This should cause
  * 	the kernel to also kill and reap other associated pthreads
  *	automatically such as the dummy pthead
  */
 static void *stress_exec_from_pthread(void *arg)
 {
-	const stress_exec_args_t *ea = (const stress_exec_args_t *)arg;
+	const stress_exec_context_t *context = (const stress_exec_context_t *)arg;
 	static int ret;
 	char buffer[128];
 
-	(void)snprintf(buffer, sizeof(buffer), "%s-pthread-exec", ea->args->name);
+	(void)snprintf(buffer, sizeof(buffer), "%s-pthread-exec", context->args->name);
 	stress_set_proc_name(buffer);
-	ret = stress_exec_method(ea);
+	ret = stress_exec_method(context);
 	pthread_exit((void *)&ret);
 
 	return NULL;
@@ -214,11 +362,11 @@ static void *stress_exec_from_pthread(void *arg)
  */
 static void *stress_exec_dummy_pthread(void *arg)
 {
-	const stress_exec_args_t *ea = (const stress_exec_args_t *)arg;
+	const stress_exec_context_t *context = (const stress_exec_context_t *)arg;
 	static int ret = 0;
 	char buffer[128];
 
-	(void)snprintf(buffer, sizeof(buffer), "%s-pthread-sleep", ea->args->name);
+	(void)snprintf(buffer, sizeof(buffer), "%s-pthread-sleep", context->args->name);
 	stress_set_proc_name(buffer);
 	(void)sleep(1);
 
@@ -235,7 +383,7 @@ static void *stress_exec_dummy_pthread(void *arg)
  *	to add extra work on the kernel to make it reap
  *	other pthreads.
  */
-static inline int stress_do_exec(stress_exec_args_t *ea)
+static inline int stress_do_exec(stress_exec_context_t *context)
 {
 #if defined(HAVE_LIB_PTHREAD)
 	int ret;
@@ -243,9 +391,9 @@ static inline int stress_do_exec(stress_exec_args_t *ea)
 	pthread_t pthread_exec, pthread_dummy = 0;
 
 	if ((stress_mwc8() & 3) == 0) {
-		ret_dummy = pthread_create(&pthread_dummy, NULL, stress_exec_dummy_pthread, (void *)ea);
+		ret_dummy = pthread_create(&pthread_dummy, NULL, stress_exec_dummy_pthread, (void *)context);
 
-		ret = pthread_create(&pthread_exec, NULL, stress_exec_from_pthread, (void*)ea);
+		ret = pthread_create(&pthread_exec, NULL, stress_exec_from_pthread, (void*)context);
 		if (ret == 0) {
 			int *exec_ret;
 
@@ -262,7 +410,7 @@ static inline int stress_do_exec(stress_exec_args_t *ea)
 	 *  pthread failure or 75% of the execs just fall back to
 	 *  the normal non-pthread exec
 	 */
-	ret = stress_exec_method(ea);
+	ret = stress_exec_method(context);
 	/*
 	 *  If exec fails, we end up here, so kill dummy pthread
 	 */
@@ -273,34 +421,25 @@ static inline int stress_do_exec(stress_exec_args_t *ea)
 	/*
 	 *  non-pthread enable systems just do normal exec
 	 */
-	return stress_exec_method(ea);
+	return stress_exec_method(context);
 #endif
 }
 
-struct arg_struct {
-	char path[PATH_MAX + 1];
-	char filename[PATH_MAX];
-	char *argv_new[4];
-	char *env_new[2];
-	char *str;
-	const stress_args_t *args;
+
+static int stress_exec_child(void *arg)
+{
+	stress_exec_context_t *argp = (stress_exec_context_t *)arg;
+	int rc, ret, fd_out, fd_in, fd = -1;
+	stress_exec_context_t context;
+	int method = argp->exec_method;
+	const bool big_env = ((argp->rnd8 >= 128 + 64) && (argp->rnd8 < 128 + 80));
+	const bool big_arg = ((argp->rnd8 >= 128 + 80) && (argp->rnd8 < 128 + 96));
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
-	int fdexec;
+	bool exec_garbage = ((argp->rnd8 >= 128) && (argp->rnd8 < 128 + 64));
+#else
+	bool exec_garbage = false;
 #endif
-	int exec_method;
-	bool exec_garbage;
-	bool big_env;
-	bool big_arg;
-};
-
-int child_func(void *arg)
-{
-	struct arg_struct *argp = (struct arg_struct *) arg;
-	int rc, ret, fd_out, fd_in, fd = -1;
-	stress_exec_args_t exec_args;
-	int method = argp->exec_method;
-
 	if (method == EXEC_METHOD_ALL)
 		method = stress_mwc1() ? EXEC_METHOD_EXECVE : EXEC_METHOD_EXECVEAT;
 
@@ -323,21 +462,20 @@ int child_func(void *arg)
 	(void)dup2(fd_in, STDIN_FILENO);
 	(void)close(fd_out);
 	(void)close(fd_in);
-	ret = stress_drop_capabilities(argp->args->name);
-	(void)ret;
+	VOID_RET(int, stress_drop_capabilities(argp->args->name));
 
 	/*
 	 *  Create a garbage executable
 	 */
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
-	if (argp->exec_garbage) {
+	if (exec_garbage) {
 		char buffer[1024];
 		ssize_t n;
 
-		fd = open(argp->filename, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IXUSR);
+		fd = open(argp->garbage_prog, O_CREAT | O_RDWR | O_TRUNC, S_IRUSR | S_IWUSR | S_IXUSR);
 		if (fd < 0) {
-			argp->exec_garbage = 0;
+			exec_garbage = false;
 			goto do_exec;
 		}
 
@@ -350,34 +488,33 @@ int child_func(void *arg)
 
 		n = write(fd, buffer, sizeof(buffer));
 		if (n < (ssize_t)sizeof(buffer)) {
-			argp->exec_garbage = 0;
+			exec_garbage = false;
 			goto do_exec;
 		}
 
 		(void)close(fd);
-		fd = open(argp->filename, O_PATH);
+		fd = open(argp->garbage_prog, O_PATH);
 		if (fd < 0) {
-			argp->exec_garbage = 0;
+			exec_garbage = false;
 			goto do_exec;
 		}
 	}
 do_exec:
 #endif
-	if (argp->big_env)
-		argp->env_new[0] = argp->str;
-	if (argp->big_arg)
-		argp->argv_new[2] = argp->str;
-	exec_args.path = argp->exec_garbage ? argp->filename : argp->path;
-	exec_args.args = argp->args;
-	exec_args.exec_method = method;
-	exec_args.argv_new = argp->argv_new;
-	exec_args.env_new = argp->env_new;
+	context.exec_prog = exec_garbage ? argp->garbage_prog : argp->exec_prog;
+	context.args = argp->args;
+	context.exec_method = method;
+	(void)memcpy(&context.argv, argp->argv, sizeof(context.argv));
+	(void)memcpy(&context.env, argp->env, sizeof(context.env));
+	if (big_env)
+		argp->env[0] = argp->str;
+	if (big_arg)
+		argp->argv[2] = argp->str;
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
-	exec_args.fdexec = argp->exec_garbage ? fd : argp->fdexec;
+	context.fdexec = exec_garbage ? fd : argp->fdexec;
 #endif
-
-	ret = stress_do_exec(&exec_args);
+	ret = stress_do_exec(&context);
 
 	rc = EXIT_SUCCESS;
 	if (ret < 0) {
@@ -389,7 +526,7 @@ do_exec:
 #if defined(ENOEXEC)
 		case ENOEXEC:
 			/* we expect this error if exec'ing garbage */
-			if (argp->exec_garbage)
+			if (exec_garbage)
 				rc = EXIT_SUCCESS;
 			break;
 #endif
@@ -412,7 +549,7 @@ do_exec:
 #if defined(E2BIG)
 		case E2BIG:
 			/* E2BIG only happens on large args or env */
-			if (!argp->big_arg && !argp->big_env)
+			if (!big_arg && !big_env)
 				rc = EXIT_FAILURE;
 			break;
 #endif
@@ -421,14 +558,14 @@ do_exec:
 			break;
 		}
 	}
-	if (argp->exec_garbage) {
+	if (exec_garbage) {
 		if (fd != -1)
 			(void)close(fd);
-		(void)shim_unlink(argp->filename);
+		(void)shim_unlink(argp->garbage_prog);
 	}
 
-	/* Child, immediately exit */
-	_exit(rc);
+
+	return rc;
 }
 
 /*
@@ -437,9 +574,8 @@ do_exec:
  */
 static int stress_exec(const stress_args_t *args)
 {
-	static pid_t pids[MAX_EXECS];
-	char path[PATH_MAX + 1];
-	char filename[PATH_MAX];
+	char exec_prog[PATH_MAX + 1];
+	char garbage_prog[PATH_MAX];
 	ssize_t len;
 	int ret, rc = EXIT_FAILURE;
 #if defined(HAVE_EXECVEAT) &&	\
@@ -447,15 +583,33 @@ static int stress_exec(const stress_args_t *args)
 	int fdexec;
 #endif
 	uint64_t volatile exec_fails = 0, exec_calls = 0;
-	uint64_t exec_max = DEFAULT_EXECS;
+	uint32_t exec_max = DEFAULT_EXECS;
 	int exec_method = EXEC_METHOD_ALL;
 	int exec_fork_method = EXEC_FORK_METHOD_FORK;
-	size_t arg_max;
+	size_t arg_max, cache_max;
 	char *str;
 
 	(void)stress_get_setting("exec-max", &exec_max);
 	(void)stress_get_setting("exec-method", &exec_method);
 	(void)stress_get_setting("exec-fork-method", &exec_fork_method);
+
+	/* Remind folk that vfork can only do execve in this stressor */
+	if ((exec_fork_method == EXEC_FORK_METHOD_VFORK) &&
+	    (exec_method != EXEC_METHOD_EXECVE) &&
+	    (args->instance == 0)) {
+		pr_inf("%s: limiting vfork to only use execve()\n", args->name);
+	}
+
+	cache_max = sizeof(*stress_pid_cache) * exec_max;
+	stress_pid_cache =
+		mmap(NULL, cache_max, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (stress_pid_cache == MAP_FAILED) {
+		pr_inf("%s: failed to allocate pid hash cache, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+	stress_pid_cache_index = 0;
+	stress_pid_cache_items = (size_t)exec_max;
 
 	arg_max = (MAX_ARG_PAGES + 1) * args->page_size;
 	str = mmap(NULL, arg_max, PROT_READ | PROT_WRITE,
@@ -477,23 +631,23 @@ static int stress_exec(const stress_args_t *args)
 	/*
 	 *  Determine our own self as the executable, e.g. run stress-ng
 	 */
-	len = shim_readlink("/proc/self/exe", path, sizeof(path));
+	len = shim_readlink("/proc/self/exe", exec_prog, sizeof(exec_prog));
 	if ((len < 0) || (len > PATH_MAX)) {
 		pr_fail("%s: readlink on /proc/self/exe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	}
-	path[len] = '\0';
+	exec_prog[len] = '\0';
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return exit_status(-ret);
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), stress_mwc32());
+		garbage_prog, sizeof(garbage_prog), stress_mwc32());
 
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
-	fdexec = open(path, O_PATH);
+	fdexec = open(exec_prog, O_PATH);
 	if (fdexec < 0) {
 		pr_fail("%s: open O_PATH on /proc/self/exe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -503,108 +657,104 @@ static int stress_exec(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		unsigned int i;
-		char *stacks[exec_max];
-		struct arg_struct *args_array[exec_max];
-
-		(void)memset(pids, 0, sizeof(pids));
+		NOCLOBBER uint32_t i;
 
 		for (i = 0; i < exec_max; i++) {
 			char *stack_top;
-			const uint8_t rnd8 = stress_mwc8();
+			int status;
+			pid_t pid;
+			const bool alloc_stack = (exec_fork_method == EXEC_FORK_METHOD_CLONE);
+			NOCLOBBER stress_pid_hash_t *sph;
 
-			args_array[i] = NULL;
-			stacks[i] = MAP_FAILED;
-
-			struct arg_struct arg = {
-				.argv_new = { path, "--exec-exit", NULL, NULL},
-				.env_new = { NULL, NULL },
-				.args = args,
-				.str = str,
-#if defined(HAVE_EXECVEAT) &&	\
-    defined(O_PATH)
-				.fdexec = fdexec,
-#endif
-				.exec_method = exec_method,
-#if defined(HAVE_EXECVEAT) &&	\
-    defined(O_PATH)
-				.exec_garbage = ((rnd8 >= 128) && (rnd8 < 128 + 64)),
-#else
-				.exec_garbage = false,
-#endif
-				.big_env = ((rnd8 >= 128 + 64) && (rnd8 < 128 + 80)),
-				.big_arg = ((rnd8 >= 128 + 80) && (rnd8 < 128 + 96))
-			};
-
-			memcpy(arg.filename, filename, sizeof(filename));
-			memcpy(arg.path, path, sizeof(path));
-
-			switch (exec_fork_method) {
-			case EXEC_FORK_METHOD_FORK:
-				pids[i] = fork();
-				break;
-			case EXEC_FORK_METHOD_CLONE:
-				/*
-				 * Since we use CLONE_VM, we need to have one
-				 * struct for each clone child.
-				 * Otherwise, they will share the same which
-				 * will be troublesome.
-				 * The same applies for stacks.
-				 */
-				args_array[i] = malloc(sizeof(**args_array));
-				if (args_array[i] == NULL) {
-					pr_fail("%s: cannot allocate arg struct)\n",
-						args->name);
-					continue;
-				}
-
-				memcpy(args_array[i], &arg, sizeof(arg));
-
-				stacks[i] = mmap(NULL, CLONE_STACK_SIZE, PROT_READ | PROT_WRITE,
-						     MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
-				if (stacks[i] == MAP_FAILED) {
-					pr_fail("%s: cannot allocate stack, errno=%d (%s)\n",
-						args->name, errno, strerror(errno));
-					continue;
-				}
-
-				stack_top = (char *)stress_get_stack_top(stacks[i], CLONE_STACK_SIZE);
-				pids[i] = 42;
-				pids[i] = clone(child_func, stress_align_stack(stack_top), CLONE_VM | SIGCHLD, args_array[i]);
-				break;
-			default:
-				pids[i] = fork();
-			}
-
-			if (pids[i] == 0)
-				child_func(&arg);
 			if (!keep_stressing_flag())
 				break;
-		}
-		for (i = 0; i < exec_max; i++) {
-			if (pids[i] > 0) {
-				int status;
-				/* Parent, wait for child */
-				(void)shim_waitpid(pids[i], &status, 0);
+
+			sph = stress_exec_alloc_pid(alloc_stack);
+			if (!sph)
+				continue;
+
+			sph->arg.garbage_prog = garbage_prog;
+			sph->arg.exec_prog = exec_prog;
+			sph->arg.rnd8 = stress_mwc8();
+			sph->arg.exec_method = exec_method;
+			sph->arg.str = str;
+			sph->arg.args = args;
+#if defined(HAVE_EXECVEAT) &&	\
+    defined(O_PATH)
+			sph->arg.fdexec = fdexec;
+#endif
+			sph->arg.argv[0] = exec_prog;
+			sph->arg.argv[1] = "--exec-exit";
+			sph->arg.argv[2] = NULL;
+			sph->arg.argv[3] = NULL;
+			sph->arg.env[0] = NULL;
+			sph->arg.env[1] = NULL;
+
+			switch (exec_fork_method) {
+			default:
+			case EXEC_FORK_METHOD_FORK:
+				pid = fork();
+				if (pid == 0) {
+					_exit(stress_exec_child(&sph->arg));
+				}
+				break;
+			case EXEC_FORK_METHOD_VFORK:
+				pid = vfork();
+				if (pid == 0) {
+					/*
+					 *  vfork has to be super simple to avoid clobbering
+					 *  the parent stack, so just do vanilla execve
+					 */
+					_exit(execve(exec_prog, sph->arg.argv, sph->arg.env));
+				}
+				break;
+			case EXEC_FORK_METHOD_CLONE:
+				stack_top = (char *)stress_get_stack_top(sph->stack, CLONE_STACK_SIZE);
+				stack_top = stress_align_stack(stack_top);
+				pid = clone(stress_exec_child, stack_top, CLONE_VM | SIGCHLD, &sph->arg);
+				break;
+			}
+
+			stress_exec_add_pid(sph, pid);
+
+			/* Check if we can reap children */
+			ret = waitpid(-1, &status, WNOHANG);
+			if ((ret > 0) && WIFEXITED(status)) {
+				stress_exec_remove_pid((pid_t)ret);
 				exec_calls++;
 				inc_counter(args);
-				if (args_array[i])
-					free(args_array[i]);
-				if (stacks[i] != MAP_FAILED)
-					munmap(stacks[i], CLONE_STACK_SIZE);
-				if (WEXITSTATUS(status) != EXIT_SUCCESS)
-					exec_fails++;
+			}
+		}
+
+		/* Parent, wait for children */
+		for (i = 0; i < HASH_EXECS; i++) {
+			stress_pid_hash_t *sph = stress_pid_hash_table[i];
+
+			while (sph) {
+				stress_pid_hash_t *next = sph->next;
+
+				if (LIKELY(sph->pid > 0)) {
+					int status;
+
+					(void)shim_waitpid(sph->pid, &status, 0);
+					stress_exec_remove_pid(sph->pid);
+					exec_calls++;
+					inc_counter(args);
+					if (WEXITSTATUS(status) != EXIT_SUCCESS)
+						exec_fails++;
+				}
+				sph = next;
 			}
 		}
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
 	(void)close(fdexec);
 #endif
-
 	if ((exec_fails > 0) && (g_opt_flags & OPT_FLAGS_VERIFY)) {
 		pr_fail("%s: %" PRIu64 " execs failed (%.2f%%)\n",
 			args->name, exec_fails,
@@ -616,9 +766,11 @@ static int stress_exec(const stress_args_t *args)
     defined(O_PATH)
 err:
 #endif
+	stress_exec_free_pid();
+
 	if (str)
 		(void)munmap((void *)str, arg_max);
-	(void)shim_unlink(filename);
+	(void)shim_unlink(garbage_prog);
 	(void)stress_temp_dir_rm_args(args);
 
 	return rc;
