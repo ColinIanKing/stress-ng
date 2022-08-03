@@ -572,7 +572,7 @@ static void HOT OPTIMIZE3 stress_cpu_apery(const char *name)
 			break;
 	}
 	if (shim_fabsl(a - a_) > precision)
-		pr_fail("%s: Apéry's const not accurate enough\n", name);
+		pr_fail("%s: Apéry's constant not accurate enough\n", name);
 }
 
 
