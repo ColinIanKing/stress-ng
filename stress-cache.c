@@ -558,12 +558,13 @@ static void NORETURN MLOCKED_TEXT stress_cache_sighandler(int signum)
 
 static void NORETURN MLOCKED_TEXT stress_cache_sigillhandler(int signum)
 {
-	(void)signum;
-	size_t i = 0;
 	uint32_t mask = masked_flags;
+
+	(void)signum;
 
 	/* bit set? then disable it */
 	if (mask) {
+		size_t i = 0;
 		/* Find top bit that is set, work from most modern flag to least */
 		while (mask >>= 1)
 			i++;
