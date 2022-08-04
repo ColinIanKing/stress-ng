@@ -1651,28 +1651,30 @@ static void stress_kill_stressors(const int sig)
  *  stress_exit_status_to_string()
  *	map stress-ng exit status returns into text
  */
-static char *stress_exit_status_to_string(const int status)
+static const char *stress_exit_status_to_string(const int status)
 {
-	switch (status) {
-	case EXIT_SUCCESS:
-		return "success";
-	case EXIT_FAILURE:
-		return "stress-ng core failure";
-	case EXIT_NOT_SUCCESS:
-		return "stressor failed";
-	case EXIT_NO_RESOURCE:
-		return "no resource(s)";
-	case EXIT_NOT_IMPLEMENTED:
-		return "not implemented";
-	case EXIT_SIGNALED:
-		return "killed by signal";
-	case EXIT_BY_SYS_EXIT:
-		return "stressor terminated using _exit()";
-	case EXIT_METRICS_UNTRUSTWORTHY:
-		return "metrics may be untrustworthy";
-	default:
-		return "unknown";
+	typedef struct {
+		const int status;
+		const char *description;
+	} stress_exit_status_map_t;
+
+	static const stress_exit_status_map_t stress_exit_status_map[] = {
+		{ EXIT_SUCCESS,			"success" },
+		{ EXIT_FAILURE,			"stress-ng core failure " },
+		{ EXIT_NOT_SUCCESS,		"stressor failed" },
+		{ EXIT_NO_RESOURCE,		"no resource(s)" },
+		{ EXIT_NOT_IMPLEMENTED,		"not implemented" },
+		{ EXIT_SIGNALED,		"killed by signal" },
+		{ EXIT_BY_SYS_EXIT,		"stressor terminated using _exit()" },
+		{ EXIT_METRICS_UNTRUSTWORTHY,	"metrics may be untrustworthy" },
+	};
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(stress_exit_status_map); i++) {
+		if (status == stress_exit_status_map[i].status)
+			return stress_exit_status_map[i].description;
 	}
+	return "unknown";
 }
 
 /*
