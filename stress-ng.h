@@ -863,6 +863,7 @@ typedef struct {
 #if defined(HAVE_GETRUSAGE)
 	double rusage_utime;		/* rusage user time */
 	double rusage_stime;		/* rusage system time */
+	long int rusage_maxrss;		/* rusage max RSS, 0 = unused */
 #else
 	struct tms tms;			/* run time stats of process */
 #endif

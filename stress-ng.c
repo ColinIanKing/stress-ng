@@ -2169,6 +2169,12 @@ static void stress_getrusage(const int who, stress_stats_t *stats)
 	if (shim_getrusage(who, &usage) == 0) {
 		stats->rusage_utime += (double)usage.ru_utime.tv_sec + ((double)usage.ru_utime.tv_usec) / 1000000.0;
 		stats->rusage_stime += (double)usage.ru_stime.tv_sec + ((double)usage.ru_stime.tv_usec) / 1000000.0;
+#if defined(HAVE_RUSAGE_RU_MAXRSS)
+		if (stats->rusage_maxrss < usage.ru_maxrss)
+			stats->rusage_maxrss = usage.ru_maxrss;
+#else
+		stats->rusage_maxrss = 0;	/* Not available */
+#endif
 	}
 }
 #endif
@@ -2349,7 +2355,6 @@ again:
 						errno, strerror(errno));
 				}
 #endif
-
 				pr_dbg("%s: exited [%d] (instance %" PRIu32 ")\n",
 					name, (int)getpid(), j);
 
@@ -2578,18 +2583,20 @@ static void stress_metrics_dump(
 			"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)",
 			"(usr+sys time)");
 	} else {
-		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s %12.12s\n",
+		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s %12.12s %13.13s\n",
 			"stressor", "bogo ops", "real time", "usr time",
-			"sys time", "bogo ops/s", "bogo ops/s", "CPU used per");
-		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s %12.12s\n",
+			"sys time", "bogo ops/s", "bogo ops/s", "CPU used per",
+			"RSS Max");
+		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s %12.12s %13.13s\n",
 			"", "", "(secs) ", "(secs) ", "(secs) ", "(real time)",
-			"(usr+sys time)","instance (%)");
+			"(usr+sys time)","instance (%)", "(KB)");
 	}
 	pr_yaml(yaml, "metrics:\n");
 
 	for (ss = stressors_head; ss; ss = ss->next) {
 		uint64_t c_total = 0, u_total = 0, s_total = 0;
 		double   r_total = 0.0;
+		long int maxrss = 0;
 		int32_t  j;
 		size_t i;
 		const char *munged = stress_munge_underscore(ss->stressor->name);
@@ -2604,6 +2611,10 @@ static void stress_metrics_dump(
 #if defined(HAVE_GETRUSAGE)
 			u_total += stats->rusage_utime;
 			s_total += stats->rusage_stime;
+#if defined(HAVE_RUSAGE_RU_MAXRSS)
+			if (maxrss < stats->rusage_maxrss)
+				maxrss = stats->rusage_maxrss;
+#endif
 #else
 			u_total += (uint64_t)(stats->tms.tms_utime + stats->tms.tms_cutime);
 			s_total += (uint64_t)(stats->tms.tms_stime + stats->tms.tms_cstime);
@@ -2648,7 +2659,7 @@ static void stress_metrics_dump(
 				bogo_rate);	/* bogo ops per second */
 		} else {
 			/* extended metrics */
-			pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f %12.2f\n",
+			pr_inf("%-13s %9" PRIu64 " %9.2f %9.2f %9.2f %12.2f %14.2f %12.2f %13ld\n",
 				munged,		/* stress test name */
 				c_total,	/* op count */
 				r_total,	/* average real (wall) clock time */
@@ -2656,7 +2667,8 @@ static void stress_metrics_dump(
 				s_time,		/* actual system time */
 				bogo_rate_r_time, /* bogo ops on wall clock time */
 				bogo_rate,	/* bogo ops per second */
-				cpu_usage);	/* % cpu usage */
+				cpu_usage,	/* % cpu usage */
+				maxrss);	/* maximum RSS in KB */
 		}
 
 		pr_yaml(yaml, "    - stressor: %s\n", munged);
@@ -2667,6 +2679,7 @@ static void stress_metrics_dump(
 		pr_yaml(yaml, "      user-time: %f\n", u_time);
 		pr_yaml(yaml, "      system-time: %f\n", s_time);
 		pr_yaml(yaml, "      cpu-usage-per-instance: %f\n", cpu_usage);
+		pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
 
 		for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
 			const char *description = ss->stats[0]->misc_stats[i].description;
