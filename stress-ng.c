@@ -2603,6 +2603,9 @@ static void stress_metrics_dump(
 		double u_time, s_time, t_time, bogo_rate_r_time, bogo_rate, cpu_usage;
 		bool run_ok = false;
 
+		if (!ss->stats)
+			continue;
+
 		for (j = 0; j < ss->started_instances; j++) {
 			const stress_stats_t *const stats = ss->stats[j];
 
@@ -2682,7 +2685,7 @@ static void stress_metrics_dump(
 		pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
 
 		for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
-			const char *description = ss->stats[0]->misc_stats[i].description;
+			char *description = ss->stats[0]->misc_stats[i].description;
 
 			if (*description) {
 				double metric, total = 0.0;
@@ -2708,9 +2711,11 @@ static void stress_metrics_dump(
 			int32_t j;
 			const char *munged = stress_munge_underscore(ss->stressor->name);
 
-			for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
-				const char *description = ss->stats[0]->misc_stats[i].description;
+			if (!ss->stats)
+				continue;
 
+			for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
+				char *description = ss->stats[0]->misc_stats[i].description;
 				if (*description) {
 					double metric, total = 0.0;
 
