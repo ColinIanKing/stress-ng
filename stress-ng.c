@@ -2685,7 +2685,7 @@ static void stress_metrics_dump(
 		pr_yaml(yaml, "      max-rss: %ld\n", maxrss);
 
 		for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
-			char *description = ss->stats[0]->misc_stats[i].description;
+			const char *description = ss->stats[0]->misc_stats[i].description;
 
 			if (*description) {
 				double metric, total = 0.0;
@@ -2715,7 +2715,8 @@ static void stress_metrics_dump(
 				continue;
 
 			for (i = 0; i < SIZEOF_ARRAY(ss->stats[j]->misc_stats); i++) {
-				char *description = ss->stats[0]->misc_stats[i].description;
+				const char *description = ss->stats[0]->misc_stats[i].description;
+
 				if (*description) {
 					double metric, total = 0.0;
 
