@@ -381,8 +381,6 @@ typedef enum {
 	TYPE_ID_UINTPTR_T
 } stress_type_id_t;
 
-typedef struct stress_stressor_info *stress_pstressor_info_t;
-
 /*
  *  Per ELISA request, we have a duplicated counter
  *  and run_ok flag in a different shared memory region
@@ -401,7 +399,7 @@ typedef struct {
 /* settings for storing opt arg parsed data */
 typedef struct stress_setting {
 	struct stress_setting *next;	/* next setting in list */
-	stress_pstressor_info_t	proc;
+	struct stress_stressor_info *proc;
 	char *name;			/* name of setting */
 	stress_type_id_t type_id;	/* setting type */
 	bool		global;		/* true if global */
