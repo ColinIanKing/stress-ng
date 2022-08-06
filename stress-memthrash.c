@@ -212,7 +212,7 @@ static void HOT OPTIMIZE3 stress_memthrash_memset64(
 	}
 }
 
-static void HOT OPTIMIZE3 TARGET_CLONES stress_memthrash_swap64(
+static void OPTIMIZE3 TARGET_CLONES stress_memthrash_swap64(
 	const stress_args_t *args,
 	const size_t mem_size)
 {
@@ -269,7 +269,7 @@ static void HOT OPTIMIZE3 TARGET_CLONES stress_memthrash_swap64(
 }
 
 #if defined(HAVE_INT128_T)
-static void HOT OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128(
+static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128(
 	const stress_args_t *args,
 	const size_t mem_size)
 {
