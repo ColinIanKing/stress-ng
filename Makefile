@@ -487,7 +487,6 @@ OBJS += $(CONFIG_OBJS)
 stress-ng: $(OBJS)
 	$(PRE_Q)echo "LD $@"
 	$(PRE_V)$(CC) $(CPPFLAGS) $(CFLAGS) $(OBJS) -lm $(LDFLAGS) -o $@
-	$(PRE_V)sync
 
 config.h:
 	$(MAKE) CC="$(CC)" STATIC=$(STATIC) -f Makefile.config
