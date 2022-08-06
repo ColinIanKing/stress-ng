@@ -83,7 +83,7 @@ static int stress_utime(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 
 #if defined(O_DIRECTORY) &&	\
     defined(O_PATH) &&		\
@@ -97,7 +97,7 @@ static int stress_utime(const stress_args_t *args)
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
-		ret = exit_status(errno);
+		ret = stress_exit_status(errno);
 		pr_err("%s: open failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);

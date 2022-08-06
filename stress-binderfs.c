@@ -108,7 +108,7 @@ static int stress_binderfs(const stress_args_t *args)
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

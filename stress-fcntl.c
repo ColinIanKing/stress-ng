@@ -746,7 +746,7 @@ static int stress_fcntl(const stress_args_t *args)
 		if (errno != EEXIST) {
 			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
-			return exit_status(errno);
+			return stress_exit_status(errno);
 		}
 	}
 	(void)stress_temp_filename(filename, sizeof(filename),

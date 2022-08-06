@@ -416,7 +416,7 @@ static int stress_dnotify(const stress_args_t *args)
 	stress_temp_dir_args(args, pathname, sizeof(pathname));
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

@@ -257,7 +257,7 @@ static int stress_aio(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
-		ret = exit_status(-ret);
+		ret = stress_exit_status(-ret);
 		free(io_reqs);
 
 		return ret;
@@ -267,7 +267,7 @@ static int stress_aio(const stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: open on %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto finish;

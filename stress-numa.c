@@ -239,7 +239,7 @@ static int stress_numa(const stress_args_t *args)
 	buf = mmap(NULL, MMAP_SZ, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, 0, 0);
 	if (buf == MAP_FAILED) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: mmap'd region of %zu bytes failed\n",
 			args->name, (size_t)MMAP_SZ);
 		goto numa_free;

@@ -250,7 +250,7 @@ static int stress_userfaultfd_child(const stress_args_t *args, void *context)
 			rc = EXIT_NOT_IMPLEMENTED;
 			break;
 		default:
-			rc = exit_status(errno);
+			rc = stress_exit_status(errno);
 			pr_fail("%s: userfaultfd failed, errno = %d (%s)\n",
 				args->name, errno, strerror(errno));
 			break;

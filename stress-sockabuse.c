@@ -244,14 +244,14 @@ static int stress_sockabuse_server(
 		int i;
 
 		if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {
-			rc = exit_status(errno);
+			rc = stress_exit_status(errno);
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			continue;
 		}
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR,
 			&so_reuseaddr, sizeof(so_reuseaddr)) < 0) {
-			rc = exit_status(errno);
+			rc = stress_exit_status(errno);
 			pr_fail("%s: setsockopt failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
@@ -266,7 +266,7 @@ static int stress_sockabuse_server(
 		}
 		if (bind(fd, addr, addr_len) < 0) {
 			if (errno != EADDRINUSE) {
-				rc = exit_status(errno);
+				rc = stress_exit_status(errno);
 				pr_fail("%s: bind failed, errno=%d (%s)\n",
 					args->name, errno, strerror(errno));
 			}

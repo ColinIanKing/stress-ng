@@ -167,7 +167,7 @@ static int stress_bind_mount(const stress_args_t *args)
 			CLONE_NEWUSER | CLONE_NEWNS | CLONE_VM | SIGCHLD,
 			(void *)&pargs, 0);
 		if (pid < 0) {
-			int rc = exit_status(errno);
+			int rc = stress_exit_status(errno);
 
 			pr_fail("%s: clone failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

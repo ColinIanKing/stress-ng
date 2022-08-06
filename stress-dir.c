@@ -282,7 +282,7 @@ static int stress_dir(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 
 #if defined(O_DIRECTORY)
 	dir_fd = open(pathname, O_DIRECTORY | O_RDONLY);

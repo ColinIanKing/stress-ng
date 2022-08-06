@@ -455,7 +455,7 @@ static int stress_aiol(const stress_args_t *args)
 	}
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
-		rc = exit_status(-ret);
+		rc = stress_exit_status(-ret);
 		goto free_memory;
 	}
 
@@ -469,7 +469,7 @@ retry_open:
 			flags &= ~O_DIRECT;
 			goto retry_open;
 		}
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		(void)shim_unlink(filename);

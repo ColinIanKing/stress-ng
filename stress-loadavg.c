@@ -174,7 +174,7 @@ static int stress_loadavg(const stress_args_t *args)
 #if defined(LOADAVG_IO)
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status((int)-ret);
+		return stress_exit_status((int)-ret);
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());

@@ -645,7 +645,7 @@ static int stress_hdd(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status((int)-ret);
+		return stress_exit_status((int)-ret);
 
 	/* Must have some write option */
 	if ((hdd_flags & HDD_OPT_WR_MASK) == 0)
@@ -657,7 +657,7 @@ static int stress_hdd(const stress_args_t *args)
 #if defined(HAVE_POSIX_MEMALIGN)
 	ret = posix_memalign((void **)&alloc_buf, BUF_ALIGNMENT, (size_t)hdd_write_size);
 	if (ret || !alloc_buf) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_err("%s: cannot allocate buffer\n", args->name);
 		(void)stress_temp_dir_rm_args(args);
 		return rc;

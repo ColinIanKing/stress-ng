@@ -84,7 +84,7 @@ static int stress_link_generic(
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 	(void)stress_temp_filename_args(args, oldpath, sizeof(oldpath), ~0UL);
 	if ((fd = open(oldpath, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
 		if ((errno == ENFILE) || (errno == ENOMEM) || (errno == ENOSPC))
@@ -128,7 +128,7 @@ static int stress_link_generic(
 					rc = EXIT_NO_RESOURCE;
 					goto err_unlink;
 				}
-				rc = exit_status(errno);
+				rc = stress_exit_status(errno);
 				pr_fail("%s: %s failed, errno=%d (%s)%s\n",
 					args->name, funcname, errno, strerror(errno),
 					stress_fs_type(oldpath));
@@ -168,7 +168,7 @@ static int stress_link_generic(
 
 				rret = shim_readlink(newpath, buf, sizeof(buf) - 1);
 				if (rret < 0) {
-					rc = exit_status(errno);
+					rc = stress_exit_status(errno);
 					pr_fail("%s: readlink failed, errno=%d (%s)%s\n",
 						args->name, errno, strerror(errno),
 						stress_fs_type(newpath));
@@ -194,7 +194,7 @@ static int stress_link_generic(
 				}
 			}
 			if (lstat(newpath, &stbuf) < 0) {
-				rc = exit_status(errno);
+				rc = stress_exit_status(errno);
 				pr_fail("%s: lstat failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno),
 					stress_fs_type(newpath));

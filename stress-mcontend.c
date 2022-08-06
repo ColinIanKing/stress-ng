@@ -319,7 +319,7 @@ static int stress_mcontend(const stress_args_t *args)
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
-		return exit_status(-rc);
+		return stress_exit_status(-rc);
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 

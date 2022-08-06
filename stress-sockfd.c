@@ -259,7 +259,7 @@ static int stress_socket_server(
 		goto die;
 	}
 	if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto die;
@@ -285,7 +285,7 @@ static int stress_socket_server(
 				args->name, errno, strerror(errno));
 			goto die_close;
 		}
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto die_close;

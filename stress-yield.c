@@ -93,7 +93,7 @@ static int stress_yield(const stress_args_t *args)
 	counters = (uint64_t *)mmap(NULL, counters_sz, PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (counters == MAP_FAILED) {
-		int rc = exit_status(errno);
+		int rc = stress_exit_status(errno);
 
 		pr_err("%s: mmap failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

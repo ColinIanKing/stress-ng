@@ -361,7 +361,7 @@ static int stress_rawpkt_server(
 		goto die;
 	}
 	if ((fd = socket(AF_PACKET, SOCK_RAW, htons(ETH_P_ALL))) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto die;

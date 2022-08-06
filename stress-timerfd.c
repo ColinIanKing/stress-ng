@@ -218,14 +218,14 @@ static int stress_timerfd(const stress_args_t *args)
 	/* Create a non valid timerfd file descriptor */
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
-		rc = exit_status(-ret);
+		rc = stress_exit_status(-ret);
 		goto dir_rm;
 	}
 	(void)stress_temp_filename_args(args, file_fd_name, sizeof(file_fd_name), stress_mwc32());
 	file_fd = open(file_fd_name, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 	if (file_fd < 0) {
 		pr_err("%s: cannot create %s\n", args->name, file_fd_name);
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		goto close_file_fd;
 	}
 	(void)shim_unlink(file_fd_name);

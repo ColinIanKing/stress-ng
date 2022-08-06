@@ -3183,3 +3183,20 @@ const char *stress_fs_type(const char *filename)
 	return "";
 #endif
 }
+
+/*
+ *  Indicate a stress test failed because of limited resources
+ *  rather than a failure of the tests during execution.
+ *  err is the errno of the failure.
+ */
+int stress_exit_status(const int err)
+{
+	switch (err) {
+	case ENOMEM:
+	case ENOSPC:
+		return EXIT_NO_RESOURCE;
+	case ENOSYS:
+		return EXIT_NOT_IMPLEMENTED;
+	}
+	return EXIT_FAILURE;	/* cppcheck-suppress ConfigurationNotChecked */
+}

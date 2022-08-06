@@ -60,12 +60,12 @@ static int stress_ioprio(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_WRONLY | O_CREAT, S_IRUSR | S_IWUSR)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto cleanup_dir;

@@ -76,13 +76,13 @@ static int stress_sendfile(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 
 	if ((fdin = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_err("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto dir_out;
@@ -93,14 +93,14 @@ static int stress_sendfile(const stress_args_t *args)
 	ret = shim_fallocate(fdin, 0, (off_t)0, (off_t)sz);
 #endif
 	if (ret < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_err("%s: fallocate failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto dir_out;
 	}
 	(void)close(fdin);
 	if ((fdin = open(filename, O_RDONLY)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_err("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto dir_out;

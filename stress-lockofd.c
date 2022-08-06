@@ -226,7 +226,7 @@ static int stress_lockofd(const stress_args_t *args)
 	(void)stress_temp_dir_args(args, pathname, sizeof(pathname));
 	if (mkdir(pathname, S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			ret = exit_status(errno);
+			ret = stress_exit_status(errno);
 			pr_err("%s: mkdir %s failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
 			return ret;
@@ -242,7 +242,7 @@ static int stress_lockofd(const stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		ret = exit_status(errno);
+		ret = stress_exit_status(errno);
 		pr_err("%s: open %s failed, errno=%d (%s)\n",
 			args->name, pathname, errno, strerror(errno));
 		(void)shim_rmdir(pathname);
@@ -264,7 +264,7 @@ redo:
 		if ((rc < 0) || (rc != sizeof(buffer))) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto redo;
-			ret = exit_status(errno);
+			ret = stress_exit_status(errno);
 			pr_err("%s: write failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto tidy;

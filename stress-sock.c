@@ -905,7 +905,7 @@ static int stress_sock_server(
 	}
 
 	if ((fd = socket(socket_domain, socket_type, socket_protocol)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto die;
@@ -936,7 +936,7 @@ static int stress_sock_server(
 		goto die_close;
 	}
 	if (bind(fd, addr, addr_len) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: bind failed on port %d, errno=%d (%s)\n",
 			args->name, socket_port, errno, strerror(errno));
 		goto die_close;

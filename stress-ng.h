@@ -2512,22 +2512,7 @@ extern int stress_module_load(const char *name, const char *alias,
 extern int stress_module_unload(const char *name, const char *alias,
 	const bool already_loaded);
 
-/*
- *  Indicate a stress test failed because of limited resources
- *  rather than a failure of the tests during execution.
- *  err is the errno of the failure.
- */
-static inline WARN_UNUSED ALWAYS_INLINE int exit_status(const int err)
-{
-	switch (err) {
-	case ENOMEM:
-	case ENOSPC:
-		return EXIT_NO_RESOURCE;
-	case ENOSYS:
-		return EXIT_NOT_IMPLEMENTED;
-	}
-	return EXIT_FAILURE;	/* cppcheck-suppress ConfigurationNotChecked */
-}
+extern WARN_UNUSED int stress_exit_status(const int err);
 
 /*
  *  Stack aligning for clone() system calls

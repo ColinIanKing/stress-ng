@@ -325,7 +325,7 @@ static int stress_dentry(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 
 	(void)stress_temp_dir(dir_path, sizeof(dir_path), args->name, args->pid, args->instance);
 

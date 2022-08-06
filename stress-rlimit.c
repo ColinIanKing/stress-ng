@@ -292,7 +292,7 @@ static int stress_rlimit(const stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 	if ((context.fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
 		pr_fail("%s: creat %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));

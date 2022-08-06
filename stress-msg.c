@@ -245,7 +245,7 @@ static int stress_msg(const stress_args_t *args)
 
 	msgq_id = msgget(IPC_PRIVATE, S_IRUSR | S_IWUSR | IPC_CREAT | IPC_EXCL);
 	if (msgq_id < 0) {
-		const int ret = exit_status(errno);
+		const int ret = stress_exit_status(errno);
 
 		pr_fail("%s: msgget failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

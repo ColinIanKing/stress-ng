@@ -256,7 +256,7 @@ static int stress_swap(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
-		ret = exit_status(-ret);
+		ret = stress_exit_status(-ret);
 		goto tidy_free;
 	}
 
@@ -264,7 +264,7 @@ static int stress_swap(const stress_args_t *args)
 		filename, sizeof(filename), stress_mwc32());
 	fd = open(filename, O_CREAT | O_RDWR, S_IRUSR);
 	if (fd < 0) {
-		ret = exit_status(errno);
+		ret = stress_exit_status(errno);
 		pr_fail("%s: open swap file %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto tidy_rm;

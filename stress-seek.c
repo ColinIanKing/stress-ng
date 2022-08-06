@@ -91,14 +91,14 @@ static int stress_seek(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 
 	stress_strnrnd((char *)buf, sizeof(buf));
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto finish;
@@ -107,7 +107,7 @@ static int stress_seek(const stress_args_t *args)
 	(void)shim_unlink(filename);
 	/* Generate file with hole at the end */
 	if (lseek(fd, (off_t)len, SEEK_SET) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno), fs_type);
 		goto close_finish;
@@ -116,7 +116,7 @@ static int stress_seek(const stress_args_t *args)
 		if (errno == ENOSPC) {
 			rc = EXIT_NO_RESOURCE;
 		} else {
-			rc = exit_status(errno);
+			rc = stress_exit_status(errno);
 			pr_fail("%s: write failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 		}

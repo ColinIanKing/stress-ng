@@ -105,11 +105,11 @@ static int stress_readahead(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-rc);
+		return stress_exit_status(-rc);
 
 	ret = posix_memalign((void **)&buf, BUF_ALIGNMENT, BUF_SIZE);
 	if (ret || !buf) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_err("%s: cannot allocate buffer\n", args->name);
 		(void)stress_temp_dir_rm_args(args);
 		return rc;
@@ -120,7 +120,7 @@ static int stress_readahead(const stress_args_t *args)
 
 	fd = open(filename, flags, S_IRUSR | S_IWUSR);
 	if (fd < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto finish;
@@ -131,7 +131,7 @@ static int stress_readahead(const stress_args_t *args)
 	fd_wr = open(filename, O_WRONLY, S_IRUSR | S_IWUSR);
 
 	if (ftruncate(fd, (off_t)0) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno), fs_type);
 		goto close_finish;

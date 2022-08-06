@@ -769,7 +769,7 @@ static int stress_io_uring(const stress_args_t *args)
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
 		stress_io_uring_unmap_iovecs(&io_uring_file);
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 	}
 
 	(void)stress_temp_filename_args(args,
@@ -782,7 +782,7 @@ static int stress_io_uring(const stress_args_t *args)
 		goto clean;
 
 	if ((io_uring_file.fd = open(filename, O_CREAT | O_RDWR | O_DSYNC, S_IRUSR | S_IWUSR)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: open on %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto clean;

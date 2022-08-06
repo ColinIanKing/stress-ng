@@ -84,7 +84,7 @@ static int stress_verity(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 
 	(void)stress_temp_filename_args(args, filename, sizeof(filename), rnd);
 
@@ -105,7 +105,7 @@ static int stress_verity(const stress_args_t *args)
 
 		fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 		if (fd < 0) {
-			ret = exit_status(errno);
+			ret = stress_exit_status(errno);
 			pr_err("%s: cannot create %s, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			return ret;
@@ -119,7 +119,7 @@ static int stress_verity(const stress_args_t *args)
 
 			n = write(fd, block, sizeof(block));
 			if (n < 0) {
-				ret = exit_status(errno);
+				ret = stress_exit_status(errno);
 				pr_err("%s: cannot write %s, errno=%d (%s)%s\n",
 					args->name, filename,
 					errno, strerror(errno),
@@ -134,7 +134,7 @@ static int stress_verity(const stress_args_t *args)
 
 		fd = open(filename, O_RDONLY);
 		if (fd < 0) {
-			ret = exit_status(errno);
+			ret = stress_exit_status(errno);
 			pr_err("%s: cannot re-open %s, errno=%d (%s)%s\n",
 				args->name, filename, errno, strerror(errno),
 				stress_fs_type(filename));
@@ -220,7 +220,7 @@ static int stress_verity(const stress_args_t *args)
 		 */
 		fd = open(filename, O_RDONLY);
 		if (fd < 0) {
-			ret = exit_status(errno);
+			ret = stress_exit_status(errno);
 			pr_err("%s: cannot re-open %s, errno=%d (%s)\n",
 				args->name, filename, errno, strerror(errno));
 			goto clean;
@@ -234,7 +234,7 @@ static int stress_verity(const stress_args_t *args)
 
 			n = read(fd, block, sizeof(block));
 			if (n < 0) {
-				ret = exit_status(errno);
+				ret = stress_exit_status(errno);
 				pr_err("%s: cannot read %s, errno=%d (%s)%s\n",
 					args->name, filename,
 					errno, strerror(errno),

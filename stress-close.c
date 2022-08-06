@@ -249,12 +249,12 @@ static int stress_close(const stress_args_t *args)
 	{
 		ret = stress_temp_dir_mk_args(args);
 		if (ret < 0)
-			return exit_status(-ret);
+			return stress_exit_status(-ret);
 		(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 		file_fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
 		if (file_fd < 0) {
 			pr_err("%s: cannot create %s\n", args->name, filename);
-			return exit_status(errno);
+			return stress_exit_status(errno);
 		}
 		(void)shim_unlink(filename);
 	}

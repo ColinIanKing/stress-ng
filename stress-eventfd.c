@@ -70,14 +70,14 @@ static int stress_eventfd(const stress_args_t *args)
 
 	fd1 = eventfd(0, flags);
 	if (fd1 < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: eventfd failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return rc;
 	}
 	fd2 = eventfd(0, flags);
 	if (fd2 < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: eventfd failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		(void)close(fd1);

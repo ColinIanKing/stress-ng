@@ -232,7 +232,7 @@ static int stress_inode_flags(const stress_args_t *args)
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
-		return exit_status(-rc);
+		return stress_exit_status(-rc);
 	(void)stress_temp_filename_args(args,
 		file_name, sizeof(file_name), stress_mwc32());
 

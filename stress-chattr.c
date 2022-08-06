@@ -184,7 +184,7 @@ static int stress_chattr(const stress_args_t *args)
 	stress_temp_dir(pathname, sizeof(pathname), args->name, ppid, 0);
 	if (mkdir(pathname, S_IRUSR | S_IRWXU) < 0) {
 		if (errno != EEXIST) {
-			rc = exit_status(errno);
+			rc = stress_exit_status(errno);
 			pr_fail("%s: mkdir of %s failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
 			return rc;

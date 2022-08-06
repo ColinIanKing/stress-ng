@@ -88,7 +88,7 @@ static int stress_chdir(const stress_args_t *args)
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0) {
-		ret = exit_status(-rc);
+		ret = stress_exit_status(-rc);
 		goto err;
 	}
 
@@ -129,7 +129,7 @@ static int stress_chdir(const stress_args_t *args)
 				fds[i] = -1;
 				continue;
 			}
-			ret = exit_status(errno);
+			ret = stress_exit_status(errno);
 			if (ret == EXIT_FAILURE)
 				pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
 					args->name, path, errno, strerror(errno));

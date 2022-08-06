@@ -76,7 +76,7 @@ static int stress_vm_splice(const stress_args_t *args)
 	buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		int rc = exit_status(errno);
+		int rc = stress_exit_status(errno);
 
 		pr_fail("%s: mmap failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));

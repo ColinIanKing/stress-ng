@@ -126,20 +126,20 @@ static int stress_copy_file(const stress_args_t *args)
 
         ret = stress_temp_dir_mk_args(args);
         if (ret < 0)
-                return exit_status(-ret);
+                return stress_exit_status(-ret);
 
 	(void)stress_temp_filename_args(args,
 			filename, sizeof(filename), stress_mwc32());
 	(void)snprintf(tmp, sizeof(tmp), "%s-orig", filename);
 	if ((fd_in = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, tmp, errno, strerror(errno));
 		goto tidy_dir;
 	}
 	(void)shim_unlink(tmp);
 	if (ftruncate(fd_in, (off_t)copy_file_bytes) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: ftruncated failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno),
 			stress_fs_type(tmp));
@@ -154,7 +154,7 @@ static int stress_copy_file(const stress_args_t *args)
 
 	(void)snprintf(tmp, sizeof(tmp), "%s-copy", filename);
 	if ((fd_out = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, tmp, errno, strerror(errno));
 		goto tidy_in;

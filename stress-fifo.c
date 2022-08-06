@@ -200,13 +200,13 @@ static int stress_fifo(const stress_args_t *args)
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
-		return exit_status(-rc);
+		return stress_exit_status(-rc);
 
 	(void)stress_temp_filename_args(args,
 		fifoname, sizeof(fifoname), stress_mwc32());
 
 	if (mkfifo(fifoname, S_IRUSR | S_IWUSR) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: mkfifo failed: errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto tidy;
@@ -230,7 +230,7 @@ static int stress_fifo(const stress_args_t *args)
 		if (errno == EINTR) {
 			rc = 0;
 		} else {
-			rc = exit_status(fd);
+			rc = stress_exit_status(fd);
 			pr_fail("%s: fifo write open failed: "
 				"errno=%d (%s)\n",
 				args->name, errno, strerror(errno));

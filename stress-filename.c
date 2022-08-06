@@ -401,7 +401,7 @@ static int stress_filename(const stress_args_t *args)
 	default:
 		ret = stress_filename_probe(args, filename, ptr, sz_max, &chars_allowed);
 		if (ret < 0) {
-			rc = exit_status(-ret);
+			rc = stress_exit_status(-ret);
 			goto tidy_dir;
 		}
 		break;

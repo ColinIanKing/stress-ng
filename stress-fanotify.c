@@ -498,7 +498,7 @@ static int stress_fanotify(const stress_args_t *args)
 	(void)stress_mk_filename(filename2, sizeof(filename2), pathname, "fanotify_file2");
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
-		return exit_status(-ret);
+		return stress_exit_status(-ret);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

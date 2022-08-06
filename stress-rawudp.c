@@ -189,7 +189,7 @@ static int stress_rawudp_server(
 		goto die;
 	}
 	if ((fd = socket(AF_INET, SOCK_RAW, IPPROTO_UDP)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto die;
@@ -201,7 +201,7 @@ static int stress_rawudp_server(
 	addr_len = (socklen_t)sizeof(s_in);
 
 	if ((bind(fd, (struct sockaddr *)&s_in, addr_len) < 0)) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: bind failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		goto die_close;

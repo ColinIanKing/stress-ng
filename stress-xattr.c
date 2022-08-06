@@ -78,13 +78,13 @@ static int stress_xattr(const stress_args_t *args)
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0) {
-		rc = exit_status(-ret);
+		rc = stress_exit_status(-ret);
 		goto out_free;
 	}
 
 	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
-		rc = exit_status(errno);
+		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		goto out;
