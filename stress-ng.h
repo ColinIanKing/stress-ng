@@ -37,7 +37,7 @@
 #if !defined(__PCC__) && 	\
     !defined(__TINYC__) &&	\
     !defined(_FORTIFY_SOURCE)
-#define _FORTIFY_SOURCE 2
+#define _FORTIFY_SOURCE 	(2)
 #endif
 
 #if !defined(_FILE_OFFSET_BITS)
@@ -496,7 +496,7 @@ typedef struct {
 /* gcc 4.7 and later support vector ops */
 #if defined(__GNUC__) &&	\
     NEED_GNUC(4, 7, 0)
-#define STRESS_VECTOR	1
+#define STRESS_VECTOR	(1)
 #endif
 
 /* gcc 7.0 and later support __attribute__((fallthrough)); */
@@ -631,7 +631,7 @@ typedef struct {
     !defined(__APPLE__) &&				\
     !defined(BUILD_STATIC)
 #define MLOCKED_TEXT	__attribute__((__section__("mlocked_text")))
-#define MLOCKED_SECTION 1
+#define MLOCKED_SECTION	(1)
 #else
 #define MLOCKED_TEXT
 #endif
@@ -744,7 +744,7 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 
 #define STR_SHARED_SIZE		(65536 * 32)
 #define MEM_CACHE_SIZE		(65536 * 32)
-#define DEFAULT_CACHE_LEVEL     3
+#define DEFAULT_CACHE_LEVEL     (3)
 #define UNDEFINED		(-1)
 
 #define PAGE_MAPPED		(0x01)
