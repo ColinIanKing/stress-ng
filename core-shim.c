@@ -82,6 +82,15 @@
 #define shim_rusage_who_t	int
 #endif
 
+#if defined(__sun__)
+#if defined(HAVE_GETDOMAINNAME)
+extern int getdomainname(char *name, size_t len);
+#endif
+#if defined(HAVE_SETDOMAINNAME)
+extern int setdomainname(const char *name, size_t len);
+#endif
+#endif
+
 /*
  *  Various shim abstraction wrappers around systems calls and
  *  GCC helper functions that may not be supported by some
@@ -2336,4 +2345,36 @@ int shim_rmdir(const char *pathname)
 int shim_force_rmdir(const char *pathname)
 {
 	return rmdir(pathname);
+}
+
+/*
+ *  shim_getdomainname()
+ *	shim required for sun due to non-extern
+ */
+int shim_getdomainname(char *name, size_t len)
+{
+#if defined(HAVE_GETDOMAINNAME)
+	return getdomainname(name, len);
+#elif defined(__NR_getdomainname) &&	\
+      defined(HAVE_SYSCALL)
+	return (int)syscall(__NR_getdomainname, name, len);
+#else
+	return (int)shim_enosys(0, name, name);
+#endif
+}
+
+/*
+ *  shim_setdomainname()
+ *	shim required for sun due to non-extern
+ */
+int shim_setdomainname(const char *name, size_t len)
+{
+#if defined(HAVE_GETDOMAINNAME)
+	return setdomainname(name, len);
+#elif defined(__NR_setdomainname) &&	\
+      defined(HAVE_SYSCALL)
+	return (int)syscall(__NR_setdomainname, name, len);
+#else
+	return (int)shim_enosys(0, name, name);
+#endif
 }

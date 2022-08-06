@@ -369,7 +369,7 @@ static int bad_getcwd(void *addr)
 #if defined(HAVE_GETDOMAINNAME)
 static int bad_getdomainname(void *addr)
 {
-	return getdomainname((char *)addr, 8192);
+	return shim_getdomainname((char *)addr, 8192);
 }
 #endif
 

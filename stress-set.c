@@ -441,13 +441,13 @@ static int stress_set(const stress_args_t *args)
 			ret = getdomainname(name, sizeof(name));
 			if (ret == 0) {
 				/* Exercise zero length name (OK-ish) */
-				VOID_RET(int, setdomainname(name, 0));
+				VOID_RET(int, shim_setdomainname(name, 0));
 
 				/* Exercise long name (-EINVAL) */
-				VOID_RET(int, setdomainname(name, sizeof(name)));
+				VOID_RET(int, shim_setdomainname(name, sizeof(name)));
 
 				/* Set name back */
-				VOID_RET(int, setdomainname(name, strlen(name)));
+				VOID_RET(int, shim_setdomainname(name, strlen(name)));
 			}
 			if (!keep_stressing(args))
 				break;

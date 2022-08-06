@@ -239,7 +239,7 @@ static int stress_get(const stress_args_t *args)
 		{
 			char name[128];
 
-			VOID_RET(int, getdomainname(name, sizeof(name)));
+			VOID_RET(int, shim_getdomainname(name, sizeof(name)));
 			if (!keep_stressing_flag())
 				break;
 		}

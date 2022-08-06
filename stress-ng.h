@@ -198,15 +198,6 @@ typedef unsigned long int __kernel_ulong_t;
 #define shim_itimer_which_t	int
 #endif
 
-#if defined(__sun__)
-#if defined(HAVE_GETDOMAINNAME)
-extern int getdomainname(char *name, size_t len);
-#endif
-#if defined(HAVE_SETDOMAINNAME)
-extern int setdomainname(const char *name, size_t len);
-#endif
-#endif
-
 #define STRESS_BIT_U(shift)	(1U << shift)
 #define STRESS_BIT_UL(shift)	(1UL << shift)
 #define STRESS_BIT_ULL(shift)	(1ULL << shift)
@@ -2752,6 +2743,7 @@ extern int shim_getdents(unsigned int fd, struct shim_linux_dirent *dirp,
 	unsigned int count);
 extern int shim_getdents64(unsigned int fd, struct shim_linux_dirent64 *dirp,
 	unsigned int count);
+extern int shim_getdomainname(char *name, size_t len);
 extern char *shim_getlogin(void);
 extern int shim_get_mempolicy(int *mode, unsigned long *nodemask,
 	unsigned long maxnode, void *addr, unsigned long flags);
@@ -2821,6 +2813,7 @@ extern int shim_sched_getattr(pid_t pid, struct shim_sched_attr *attr,
 	unsigned int size, unsigned int flags);
 extern int shim_sched_setattr(pid_t pid, struct shim_sched_attr *attr,
 	unsigned int flags);
+extern int shim_setdomainname(const char *name, size_t len);
 extern long shim_sgetmask(void);
 extern long shim_ssetmask(long newmask);
 extern int shim_stime(const time_t *t);
