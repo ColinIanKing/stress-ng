@@ -89,6 +89,9 @@
 int __dso_handle;
 #endif
 
+#define PAGE_4K_SHIFT			(12)
+#define PAGE_4K				(1 << PAGE_4K_SHIFT)
+
 #define STRESS_ABS_MIN_STACK_SIZE	(64 * 1024)
 
 static bool stress_stack_check_flag;

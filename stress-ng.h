@@ -706,9 +706,6 @@ extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3
 #define ONE_MILLIONTH		(1.0E-6)
 #define ONE_THOUSANDTH		(1.0E-3)
 
-#define PAGE_4K_SHIFT		(12)
-#define PAGE_4K			(1 << PAGE_4K_SHIFT)
-
 #define STACK_ALIGNMENT		(64)	/* thread stacks align to 64 bytes */
 
 #define MIN_OPS			(1ULL)
