@@ -217,7 +217,7 @@ static void *hash_create(const uint64_t n, const uint32_t x, const uint32_t y)
 		return NULL;
 
 	table->table = (sparse_hash_node_t **)calloc((size_t)n_prime, sizeof(sparse_hash_node_t *));
-	if (!table) {
+	if (!table->table) {
 		free(table);
 		return NULL;
 	}
@@ -356,7 +356,7 @@ static void *qhash_create(const uint64_t n, const uint32_t x, const uint32_t y)
 		return NULL;
 
 	table->table = (sparse_qhash_node_t **)calloc((size_t)n_prime, sizeof(sparse_qhash_node_t *));
-	if (!table) {
+	if (!table->table) {
 		free(table);
 		return NULL;
 	}
