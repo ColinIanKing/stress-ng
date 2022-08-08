@@ -1982,7 +1982,14 @@ int shim_nice(int inc)
 {
 #if defined(__NR_nice) &&	\
     defined(HAVE_SYSCALL)
-	return (int)syscall(__NR_nice, inc);
+	int ret;
+
+	ret = (int)syscall(__NR_nice, inc);
+	if ((ret < 0) && (errno == ENOSYS)) {
+		errno = 0;
+		return nice(inc);
+	}
+	return ret;
 #elif defined(HAVE_NICE)
 	return nice(inc);
 #else
