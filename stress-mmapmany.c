@@ -39,11 +39,6 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 
 	(void)context;
 
-	if (max < 1) {
-		pr_fail("%s: sysconf(_SC_MAPPED_FILES) is too low, max = %ld\n",
-			args->name, max);
-		return EXIT_NO_RESOURCE;
-	}
 	mappings = calloc((size_t)max, sizeof(*mappings));
 	if (!mappings) {
 		pr_fail("%s: malloc failed, out of memory\n", args->name);
