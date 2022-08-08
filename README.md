@@ -238,6 +238,7 @@ To build  with the PCC portable C compiler use:
 
 To build with the musl C library:
 ```
+	make clean
 	CC=musl-gcc make
 ```
 
