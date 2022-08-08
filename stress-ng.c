@@ -393,6 +393,7 @@ static const struct option long_options[] = {
 	{ "exec-max",		1,	0,	OPT_exec_max },
 	{ "exec-method",	1,	0,	OPT_exec_method },
 	{ "exec-fork-method",	1,	0,	OPT_exec_fork_method },
+	{ "exec-no-pthread",	0,	0,	OPT_exec_no_pthread },
 	{ "exit-group",		1,	0,	OPT_exit_group },
 	{ "exit-group-ops",	1,	0,	OPT_exit_group_ops },
 	{ "fallocate",		1,	0,	OPT_fallocate },
