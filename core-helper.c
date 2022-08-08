@@ -2217,8 +2217,8 @@ bool stress_sigalrm_pending(void)
 char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 {
 	typedef struct {
-		uint64_t size;
-		char *suffix;
+		const uint64_t size;
+		const char *suffix;
 	} stress_size_info_t;
 
 	static const stress_size_info_t size_info[] = {
@@ -2230,7 +2230,7 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 		{ KB, "K" },
 	};
 	size_t i;
-	char *suffix = "";
+	const char *suffix = "";
 	uint64_t scale = 1;
 
 	for (i = 0; i < SIZEOF_ARRAY(size_info); i++) {
