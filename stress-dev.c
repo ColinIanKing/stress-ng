@@ -4506,8 +4506,6 @@ again:
 		}
 	} while (keep_stressing(args));
 
-	stress_dev_infos_opened(dev_info_list);
-
 	if (args->instance == 0) {
 		const size_t opened = stress_dev_infos_opened(dev_info_list);
 
