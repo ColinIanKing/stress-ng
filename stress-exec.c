@@ -426,7 +426,7 @@ static inline int stress_do_exec(stress_exec_context_t *context)
 	/*
 	 *  If exec fails, we end up here, so kill dummy pthread
 	 */
-	if (!context->no_pthread && ret_dummy == 0)
+	if (!context->no_pthread && (ret_dummy == 0))
 		(void)pthread_kill(pthread_dummy, SIGKILL);
 	return ret;
 #else
