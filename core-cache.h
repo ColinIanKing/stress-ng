@@ -137,22 +137,36 @@ static inline void shim_builtin_prefetch(const void *addr, ...)
 static inline void ALWAYS_INLINE shim_mfence(void)
 {
 #if defined(STRESS_ARCH_RISCV) &&	\
-    defined(HAVE_ASM_RISCV_FENCE)
+    defined(HAVE_ASM_RISCV_FENCE) &&	\
+    !defined(HAVE_SHIM_MFENCE)
 	 __asm__ __volatile__("fence" ::: "memory");
-#define HAVE_SHIM_MFENCE
-#else
-#if defined(STRESS_ARCH_X86)
+#endif
+
+#if defined(STRESS_ARCH_X86) &&		\
+    !defined(HAVE_SHIM_MFENCE)
 	__asm__ __volatile__("mfence" : : : "memory");
 #define HAVE_SHIM_MFENCE
-#else
-#if defined(HAVE_SYNC_SYNCHRONIZE)
+#endif
+
+#if defined(STRESS_ARCH_PPC64) &&	\
+    !defined(HAVE_SHIM_MFENCE)
+	__asm__ __volatile__ ("msync" : : : "memory");
+#define HAVE_SHIM_MFENCE
+#endif
+
+#if defined(STRESS_ARCH_SPARC) &&	\
+    !defined(HAVE_SHIM_MFENCE)
+	 __asm__ __volatile__ ("membar #StoreLoad" : : : "memory");
+#define HAVE_SHIM_MFENCE
+#endif
+
+#if defined(HAVE_SYNC_SYNCHRONIZE) &&	\
+    !defined(HAVE_SHIM_MFENCE)
 	__sync_synchronize();
 #define HAVE_SHIM_MFENCE
-#else
+#endif
+
 	/* Other arches not yet implemented for older GCC flavours */
-#endif
-#endif
-#endif
 }
 
 #endif
