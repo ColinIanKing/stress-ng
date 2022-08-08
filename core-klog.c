@@ -62,7 +62,7 @@ void stress_klog_start(void)
 			if (n != 3)
 				continue;
 
-			snprintf(ts, sizeof(ts), "[%" PRIu64 ".%6.6" PRIu64 "]",
+			(void)snprintf(ts, sizeof(ts), "[%" PRIu64 ".%6.6" PRIu64 "]",
 				timestamp / 1000000, timestamp % 1000000);
 
 			/* Check for CPU throttling messages */
