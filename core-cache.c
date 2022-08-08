@@ -211,9 +211,9 @@ static int stress_add_cpu_cache_detail(stress_cpu_cache_t *cache, const char *in
 	cache->line_size = (uint32_t)atoi(tmp);
 
 	(void)stress_mk_filename(path, sizeof(path), index_path, "ways_of_associativity");
-	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0)
+	if (stress_get_string_from_file(path, tmp, sizeof(tmp)) < 0) {
 		cache->ways = 0;
-	else {
+	} else {
 		if (sscanf(tmp, "%" SCNu32, &cache->ways) != 1)
 			cache->ways = 0;
 	}
@@ -464,17 +464,15 @@ static int stress_get_cpu_cache_alpha(
 			} else if (!strncmp("L1 Dcache", buffer, 9))  {
 				cache_type = CACHE_TYPE_DATA;
 				cache_level = 1;
-			}
-			else if (!strncmp("L2 cache", buffer, 8)) {
+			} else if (!strncmp("L2 cache", buffer, 8)) {
 				cache_type = CACHE_TYPE_DATA;
 				cache_level = 2;
-			}
-			else if (!strncmp("L3 cache", buffer, 8)) {
+			} else if (!strncmp("L3 cache", buffer, 8)) {
 				cache_type = CACHE_TYPE_DATA;
 				cache_level = 3;
-			}
-			else
+			} else {
 				continue;
+			}
 			ptr = strchr(buffer, ':');
 			if (!ptr)
 				continue;
@@ -773,7 +771,7 @@ stress_cpus_t *stress_get_all_cpu_cache_details(void)
 			if (stress_get_string_from_file(onlinepath, tmp, sizeof(tmp)) < 0) {
 				/* Assume it is online, it is the best we can do */
 				cpu->online = 1;
-			} else  {
+			} else {
 				cpu->online = atoi(tmp);
 			}
 		}
