@@ -1690,6 +1690,9 @@ execveat(2) if it is available.
 select the fork systemm call to use; fork will use fork(2) and clone will use
 clone(2).
 .TP
+.B \-\-exec\-no\-pthread
+do not use pthread_create(3).
+.TP
 .B \-\-exit\-group N
 start N workers that create 16 pthreads and terminate the pthreads and
 the controlling child process using exit_group(2). (Linux only stressor).

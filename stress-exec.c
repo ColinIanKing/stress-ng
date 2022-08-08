@@ -53,6 +53,7 @@ typedef struct {
 #endif
 	int exec_method;		/* exec method */
 	uint8_t rnd8;			/* random value */
+	bool no_pthread;		/* do not use pthread */
 } stress_exec_context_t;
 #endif
 
@@ -94,6 +95,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"exec-max P",		"create P workers per iteration, default is 1" },
 	{ NULL,	"exec-method M",	"select exec method: all, execve, execveat" },
 	{ NULL,	"exec-fork-method M",	"select exec fork method: clone, fork, vfork" },
+	{ NULL,	"exec-no-pthread",	"do not use pthread_create" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -153,10 +155,20 @@ static int stress_set_exec_fork_method(const char *opt)
 	return stress_search_exec_method("exec-fork-method", stress_exec_fork_methods, opt);
 }
 
+/*
+ *  stress_set_exec_no_pthread()
+ *	set no pthread flag
+ */
+static int stress_set_exec_no_pthread(const char *opt)
+{
+	return stress_set_setting_true("exec-no-pthread", opt);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_exec_max,		stress_set_exec_max },
 	{ OPT_exec_method,	stress_set_exec_method },
 	{ OPT_exec_fork_method,	stress_set_exec_fork_method },
+	{ OPT_exec_no_pthread,	stress_set_exec_no_pthread },
 	{ 0,			NULL }
 };
 
@@ -390,7 +402,7 @@ static inline int stress_do_exec(stress_exec_context_t *context)
 	int ret_dummy = EINVAL;
 	pthread_t pthread_exec, pthread_dummy = 0;
 
-	if ((stress_mwc8() & 3) == 0) {
+	if (!context->no_pthread && (stress_mwc8() & 3) == 0) {
 		ret_dummy = pthread_create(&pthread_dummy, NULL, stress_exec_dummy_pthread, (void *)context);
 
 		ret = pthread_create(&pthread_exec, NULL, stress_exec_from_pthread, (void*)context);
@@ -414,7 +426,7 @@ static inline int stress_do_exec(stress_exec_context_t *context)
 	/*
 	 *  If exec fails, we end up here, so kill dummy pthread
 	 */
-	if (ret_dummy == 0)
+	if (!context->no_pthread && ret_dummy == 0)
 		(void)pthread_kill(pthread_dummy, SIGKILL);
 	return ret;
 #else
@@ -504,6 +516,7 @@ do_exec:
 	context.exec_prog = exec_garbage ? argp->garbage_prog : argp->exec_prog;
 	context.args = argp->args;
 	context.exec_method = method;
+	context.no_pthread = argp->no_pthread;
 	(void)memcpy(&context.argv, argp->argv, sizeof(context.argv));
 	(void)memcpy(&context.env, argp->env, sizeof(context.env));
 	if (big_env)
@@ -586,12 +599,14 @@ static int stress_exec(const stress_args_t *args)
 	uint32_t exec_max = DEFAULT_EXECS;
 	int exec_method = EXEC_METHOD_ALL;
 	int exec_fork_method = EXEC_FORK_METHOD_FORK;
+	bool exec_no_pthread = false;
 	size_t arg_max, cache_max;
 	char *str;
 
 	(void)stress_get_setting("exec-max", &exec_max);
 	(void)stress_get_setting("exec-method", &exec_method);
 	(void)stress_get_setting("exec-fork-method", &exec_fork_method);
+	(void)stress_get_setting("exec-no-pthread", &exec_no_pthread);
 
 	/* Remind folk that vfork can only do execve in this stressor */
 	if ((exec_fork_method == EXEC_FORK_METHOD_VFORK) &&
@@ -677,6 +692,7 @@ static int stress_exec(const stress_args_t *args)
 			sph->arg.exec_prog = exec_prog;
 			sph->arg.rnd8 = stress_mwc8();
 			sph->arg.exec_method = exec_method;
+			sph->arg.no_pthread = exec_no_pthread;
 			sph->arg.str = str;
 			sph->arg.args = args;
 #if defined(HAVE_EXECVEAT) &&	\
