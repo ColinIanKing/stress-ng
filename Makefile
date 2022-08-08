@@ -584,7 +584,7 @@ clean:
 	$(PRE_V)rm -f stress-ng-$(VERSION).tar.xz
 	$(PRE_V)rm -f io-uring.h
 	$(PRE_V)rm -f git-commit-id.h
-	$(PRE_V)rm -f perf-event.h
+	$(PRE_V)rm -f core-perf-event.h
 	$(PRE_V)rm -f personality.h
 	$(PRE_V)rm -f apparmor-data.bin
 	$(PRE_V)rm -f *.o
