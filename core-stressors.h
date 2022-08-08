@@ -292,6 +292,7 @@
 	MACRO(usersyscall)	\
 	MACRO(utime)		\
 	MACRO(vdso)		\
+	MACRO(vecfp)		\
 	MACRO(vecmath)		\
 	MACRO(vecwide)		\
 	MACRO(verity)		\

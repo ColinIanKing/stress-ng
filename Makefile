@@ -400,6 +400,7 @@ STRESS_SRC = \
 	stress-usersyscall.c \
 	stress-utime.c \
 	stress-vdso.c \
+	stress-vecfp.c \
 	stress-vecmath.c \
 	stress-vecwide.c \
 	stress-verity.c \

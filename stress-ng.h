@@ -2060,6 +2060,10 @@ typedef enum {
 	OPT_vdso_ops,
 	OPT_vdso_func,
 
+	OPT_vecfp,
+	OPT_vecfp_ops,
+	OPT_vecfp_method,
+
 	OPT_vecmath,
 	OPT_vecmath_ops,
 
