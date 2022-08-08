@@ -3621,7 +3621,7 @@ static void stress_dev_bus_usb_linux(
 		int fdwr;
 
 		fdwr = open(devpath, O_RDWR);
-		if (fd < 0)
+		if (fdwr < 0)
 			return;
 
 #if defined(USBDEVFS_GET_SPEED)
