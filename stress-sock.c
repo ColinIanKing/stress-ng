@@ -469,7 +469,7 @@ static int stress_sock_client(
 	struct sockaddr *addr;
 	size_t n_ctrls;
 	char **ctrls;
-	int recvflag = 0;
+	int recvflag = 0, rc = EXIT_FAILURE;
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -490,7 +490,7 @@ static int stress_sock_client(
 		socklen_t addr_len = 0;
 retry:
 		if (!keep_stressing_flag())
-			return EXIT_FAILURE;
+			goto free_controls;
 
 		/* Exercise illegal socket family  */
 		fd = socket(~0, socket_type, socket_protocol);
@@ -511,13 +511,13 @@ retry:
 		if (fd < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
-			return EXIT_FAILURE;
+			goto free_controls;
 		}
 
 		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
 				socket_domain, socket_port, socket_if,
 				&addr, &addr_len, NET_ADDR_ANY) < 0) {
-			return EXIT_FAILURE;
+			goto free_controls;
 		}
 		if (connect(fd, addr, addr_len) < 0) {
 			int errno_tmp = errno;
@@ -529,7 +529,7 @@ retry:
 				/* Give up.. */
 				pr_fail("%s: connect failed, errno=%d (%s)\n",
 					args->name, errno_tmp, strerror(errno_tmp));
-				return EXIT_FAILURE;
+				goto free_controls;
 			}
 			goto retry;
 		}
@@ -852,9 +852,12 @@ retry:
 		(void)shim_unlink(addr_un->sun_path);
 	}
 #endif
+
+	rc = EXIT_SUCCESS;
+free_controls:
 	stress_free_congestion_controls(ctrls, n_ctrls);
 
-	return EXIT_SUCCESS;
+	return rc;
 }
 
 static bool stress_send_error(const int err)
