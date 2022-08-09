@@ -1483,7 +1483,7 @@ static void stress_usage_help(const stress_help_t help_info[])
 				space = ptr;
 			wd++;
 			if (wd >= cols - 28) {
-				const size_t n = space - start;
+				const size_t n = (size_t)(space - start);
 
 				if (!first)
 					(void)printf("%-28s", "");
@@ -1494,7 +1494,7 @@ static void stress_usage_help(const stress_help_t help_info[])
 			}
 		}
 		if (start != ptr) {
-			const int n = ptr - start;
+			const int n = (int)(ptr - start);
 			if (!first)
 				(void)printf("%-28s", "");
 			(void)printf("%*.*s\n", n, n, start);
@@ -2151,11 +2151,11 @@ static void NORETURN stress_child_atexit(void)
 
 void stress_misc_stats_set(
 	stress_misc_stats_t *misc_stats,
-	const int idx,
+	const size_t idx,
 	const char *description,
 	const double value)
 {
-	if ((idx < 0) || (idx >= STRESS_MISC_STATS_MAX))
+	if (idx >= STRESS_MISC_STATS_MAX)
 		return;
 
 	(void)shim_strlcpy(misc_stats[idx].description, description,
@@ -2236,7 +2236,7 @@ static void MLOCKED_TEXT stress_run(
 			stats->counter = 0;
 			stats->checksum = *checksum;
 			for (i = 0; i < SIZEOF_ARRAY(stats->misc_stats); i++) {
-				stress_misc_stats_set(stats->misc_stats, i, "", -1);
+				stress_misc_stats_set(stats->misc_stats, i, "", -1.0);
 			}
 again:
 			if (!keep_stressing_flag())
@@ -2704,7 +2704,7 @@ static void stress_metrics_dump(
 				}
 				metric = ss->started_instances ? total / ss->started_instances : 0.0;
 				pr_yaml(yaml, "      %s: %f\n", stess_description_yamlify(description), metric);
-			};
+			}
 		}
 
 		pr_yaml(yaml, "\n");
@@ -2734,7 +2734,7 @@ static void stress_metrics_dump(
 					metric = ss->started_instances ? total / ss->started_instances : 0.0;
 					pr_inf("%-13s %9.2f %s (average per stressor)\n",
 						munged, metric, description);
-				};
+				}
 			}
 		}
 	}
@@ -2963,7 +2963,7 @@ static inline void stress_shared_map(const int32_t num_procs)
 	 *  memory segment so that we can sanity check these for
 	 *  any form of corruption
 	 */
-	len = sizeof(stress_checksum_t) * num_procs;
+	len = sizeof(stress_checksum_t) * (size_t)num_procs;
 	sz = (len + page_size) & ~(page_size - 1);
 	g_shared->checksums = (stress_checksum_t *)mmap(NULL, sz,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANON, -1, 0);
@@ -3396,9 +3396,10 @@ next_opt:
 			 * Note: Overly high values will be caught in the
 			 * caching code.
 			 */
-			i16 = atoi(optarg);
-			if ((i16 <= 0) || (i16 > 3))
-				i16 = DEFAULT_CACHE_LEVEL;
+			ret = atoi(optarg);
+			if ((ret <= 0) || (ret > 3))
+				ret = DEFAULT_CACHE_LEVEL;
+			i16 = (int16_t)ret;
 			stress_set_setting("cache-level", TYPE_ID_INT16, &i16);
 			break;
 		case OPT_cache_ways:
