@@ -65,6 +65,44 @@ static void check_flag(
 }
 #endif
 
+#if defined(_IOW) &&	\
+    defined(__linux__)
+
+/*
+ *  These will eventually be in linux/falloc.h for libc, but
+ *  define a shim version for now.
+ */
+struct shim_space_resv {
+	int16_t		l_type;
+	int16_t		l_whence;
+	int64_t		l_start;
+	int64_t		l_len;
+	int32_t		l_sysid;
+	uint32_t	l_pid;
+	int32_t		l_pad[4];
+};
+
+#if !defined(FS_IOC_RESVSP) &&		\
+    defined(_IOW)
+#define FS_IOC_RESVSP		_IOW('X', 40, struct shim_space_resv)
+#endif
+#if !defined(FS_IOC_UNRESVSP) &&	\
+    defined(_IOW)
+#define FS_IOC_UNRESVSP		_IOW('X', 41, struct shim_space_resv)
+#endif
+#if !defined(FS_IOC_RESVSP64) &&	\
+    defined(_IOW)
+#define FS_IOC_RESVSP64		_IOW('X', 42, struct shim_space_resv)
+#endif
+#if !defined(FS_IOC_UNRESVSP64) &&	\
+    defined(_IOW)
+#define FS_IOC_UNRESVSP64	_IOW('X', 43, struct shim_space_resv)
+#endif
+#if !defined(FS_IOC_ZERO_RANGE) &&	\
+    defined(_IOW)
+#define FS_IOC_ZERO_RANGE	_IOW('X', 57, struct shim_space_resv)
+#endif
+
 /*
  *  stress_file_ioctl
  *	stress file ioctls
@@ -364,44 +402,6 @@ static int stress_file_ioctl(const stress_args_t *args)
 #endif
 			(void)ret;
 		}
-#endif
-
-#if defined(_IOW) &&	\
-    defined(__linux__)
-
-/*
- *  These will eventually be in linux/falloc.h for libc, but
- *  define a shim version for now.
- */
-struct shim_space_resv {
-	int16_t		l_type;
-	int16_t		l_whence;
-	int64_t		l_start;
-	int64_t		l_len;
-	int32_t		l_sysid;
-	uint32_t	l_pid;
-	int32_t		l_pad[4];
-};
-
-#if !defined(FS_IOC_RESVSP) &&		\
-    defined(_IOW)
-#define FS_IOC_RESVSP		_IOW('X', 40, struct shim_space_resv)
-#endif
-#if !defined(FS_IOC_UNRESVSP) &&	\
-    defined(_IOW)
-#define FS_IOC_UNRESVSP		_IOW('X', 41, struct shim_space_resv)
-#endif
-#if !defined(FS_IOC_RESVSP64) &&	\
-    defined(_IOW)
-#define FS_IOC_RESVSP64		_IOW('X', 42, struct shim_space_resv)
-#endif
-#if !defined(FS_IOC_UNRESVSP64) &&	\
-    defined(_IOW)
-#define FS_IOC_UNRESVSP64	_IOW('X', 43, struct shim_space_resv)
-#endif
-#if !defined(FS_IOC_ZERO_RANGE) &&	\
-    defined(_IOW)
-#define FS_IOC_ZERO_RANGE	_IOW('X', 57, struct shim_space_resv)
 #endif
 
 #if defined(FS_IOC_RESVSP)
