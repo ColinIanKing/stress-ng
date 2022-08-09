@@ -201,6 +201,7 @@ int stress_set_mbind(const char *arg)
 		}
 	}
 
+	free(nodemask);
 	free(str);
 	return 0;
 }
