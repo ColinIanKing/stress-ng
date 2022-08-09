@@ -267,9 +267,9 @@ static int stress_close(const stress_args_t *args)
 		size_t domain, type;
 		int pipefds[2];
 		struct stat statbuf;
-		fd = -1;
 		double t1, t2, duration;
 
+		fd = -1;
 		t1 = stress_time_now();
 
 		switch (stress_mwc8() % 15) {
