@@ -131,7 +131,8 @@ func_name(const stress_args_t *args)					\
 			 */						\
 			if (icache_mprotect(args, (void *)page_addr, 	\
 					    size,			\
-					    PROT_READ | PROT_WRITE) < 0)\
+					    PROT_READ | PROT_WRITE | 	\
+					    PROT_EXEC) < 0)		\
 				return EXIT_NO_RESOURCE;		\
 			/*						\
 			 *  Modifying executable code on x86 will	\
