@@ -137,9 +137,9 @@ finish:
  */
 static int stress_sigpipe(const stress_args_t *args)
 {
-	s_args = args;
 	char buf[args->page_size * 2];
 
+	s_args = args;
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
