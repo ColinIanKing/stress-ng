@@ -434,9 +434,9 @@ again:
 		/* Parent */
 		t_start = stress_time_now();
 		do {
-			inc_counter(args);
 			unsigned int prio;
 
+			inc_counter(args);
 			if (mq_receive(mq, (char *)&msg, sizeof(msg), &prio) < 0)
 				break;
 
