@@ -1677,7 +1677,7 @@ constraints on the shared stack between the parent and the child process.
 .TP
 .B \-\-exec\-max P
 create P child processes that exec stress-ng and then wait for them to exit per
-iteration. The default is just 1; higher values will create many temporary
+iteration. The default is 4096; higher values may create many temporary
 zombie processes that are waiting to be reaped. One can potentially fill up the
 process table using high values for \-\-exec\-max and \-\-exec.
 .TP

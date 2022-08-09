@@ -106,7 +106,7 @@ static const stress_exec_method_t stress_exec_fork_methods[] = {
 static const stress_help_t help[] = {
 	{ NULL,	"exec N",		"start N workers spinning on fork() and exec()" },
 	{ NULL,	"exec-ops N",		"stop after N exec bogo operations" },
-	{ NULL,	"exec-max P",		"create P workers per iteration, default is 1" },
+	{ NULL,	"exec-max P",		"create P workers per iteration, default is 4096" },
 	{ NULL,	"exec-method M",	"select exec method: all, execve, execveat" },
 #if defined(HAVE_SPAWN_H) &&	\
     defined(HAVE_POSIX_SPAWN)
