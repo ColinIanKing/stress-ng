@@ -326,10 +326,10 @@ static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
 	const stress_args_t *args,
 	const size_t mem_size)
 {
-	(void)args;
-
 	volatile uint64_t *ptr = (volatile uint64_t *)mem;
 	const uint64_t *end = (uint64_t *)(((uint8_t *)mem) + mem_size);
+
+	(void)args;
 
 	while (LIKELY(ptr < end)) {
 		*ptr = *ptr ^ ~0ULL;
@@ -368,11 +368,11 @@ static void HOT OPTIMIZE3 stress_memthrash_matrix(
 	const stress_args_t *args,
 	const size_t mem_size)
 {
-	(void)args;
-	(void)mem_size;
-
 	size_t i, j;
 	volatile uint8_t *vmem = mem;
+
+	(void)args;
+	(void)mem_size;
 
 	for (i = 0; !thread_terminate && (i < MATRIX_SIZE); i+= ((stress_mwc8() & 0xf) + 1)) {
 		for (j = 0; j < MATRIX_SIZE; j+= 16) {
