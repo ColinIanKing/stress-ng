@@ -2600,8 +2600,8 @@ static void stress_metrics_dump(
 	pr_yaml(yaml, "metrics:\n");
 
 	for (ss = stressors_head; ss; ss = ss->next) {
-		uint64_t c_total = 0, u_total = 0, s_total = 0;
-		double   r_total = 0.0;
+		uint64_t c_total = 0;
+		double   r_total = 0.0, u_total = 0.0, s_total = 0.0;
 		long int maxrss = 0;
 		int32_t  j;
 		size_t i;
@@ -2625,8 +2625,8 @@ static void stress_metrics_dump(
 				maxrss = stats->rusage_maxrss;
 #endif
 #else
-			u_total += (uint64_t)(stats->tms.tms_utime + stats->tms.tms_cutime);
-			s_total += (uint64_t)(stats->tms.tms_stime + stats->tms.tms_cstime);
+			u_total += (double)(stats->tms.tms_utime + stats->tms.tms_cutime);
+			s_total += (double)(stats->tms.tms_stime + stats->tms.tms_cstime);
 #endif
 			r_total += stats->finish - stats->start;
 		}
