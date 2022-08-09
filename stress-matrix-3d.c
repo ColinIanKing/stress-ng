@@ -251,9 +251,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_mult(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	register size_t i;
+	stress_matrix_3d_type_t v = b[0][0][0];
 
 	(void)b;
-	stress_matrix_3d_type_t v = b[0][0][0];
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
@@ -281,9 +281,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_zyx_mult(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	register size_t k;
+	stress_matrix_3d_type_t v = b[0][0][0];
 
 	(void)b;
-	stress_matrix_3d_type_t v = b[0][0][0];
 
 	for (k = 0; k < n; k++) {
 		register size_t j;
@@ -311,9 +311,9 @@ static void OPTIMIZE3 TARGET_CLONES stress_matrix_3d_xyz_div(
 	stress_matrix_3d_type_t r[RESTRICT n][n][n])
 {
 	register size_t i;
+	stress_matrix_3d_type_t v = b[0][0][0];
 
 	(void)b;
-	stress_matrix_3d_type_t v = b[0][0][0];
 
 	for (i = 0; i < n; i++) {
 		register size_t j;
