@@ -112,7 +112,6 @@ static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
  */
 static int stress_bad_altstack(const stress_args_t *args)
 {
-	stress_set_oom_adjustment(args->name, true);
 #if defined(HAVE_VDSO_VIA_GETAUXVAL)
 	unsigned long vdso = getauxval(AT_SYSINFO_EHDR);
 #else
@@ -122,6 +121,7 @@ static int stress_bad_altstack(const stress_args_t *args)
 #if defined(O_TMPFILE)
 	int tmp_fd;
 #endif
+	stress_set_oom_adjustment(args->name, true);
 
 	stack = mmap(NULL, STRESS_MINSIGSTKSZ, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
