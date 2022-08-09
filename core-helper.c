@@ -72,13 +72,6 @@
 #define HAVE_PRCTL_TIMER_SLACK
 #endif
 
-#if !defined(PR_SET_DISABLE)
-#define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
-#endif
-#if !defined(SUID_DUMP_USER)
-#define SUID_DUMP_USER		(1)       /* Dump as user of process */
-#endif
-
 #if defined(NSIG)
 #define STRESS_NSIG	NSIG
 #elif defined(_NSIG)
@@ -876,6 +869,14 @@ int stress_process_dumpable(const bool dumpable)
 #if 0 && defined(HAVE_PRCTL) &&		\
     defined(HAVE_SYS_PRCTL_H) &&	\
     defined(PR_SET_DUMPABLE)
+
+#if !defined(PR_SET_DISABLE)
+#define SUID_DUMP_DISABLE	(0)       /* No setuid dumping */
+#endif
+#if !defined(SUID_DUMP_USER)
+#define SUID_DUMP_USER		(1)       /* Dump as user of process */
+#endif
+
 	(void)prctl(PR_SET_DUMPABLE,
 		dumpable ? SUID_DUMP_USER : SUID_DUMP_DISABLE);
 #endif
