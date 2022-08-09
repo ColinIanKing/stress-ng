@@ -30,9 +30,8 @@ static const stress_help_t help[] = {
 static int stress_mmapmany_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
-	long max = sysconf(_SC_MAPPED_FILES);
+	long max = STRESS_MAXIMUM(sysconf(_SC_MAPPED_FILES), MMAP_MAX);
 	uint8_t **mappings;
-	max = STRESS_MAXIMUM(max, MMAP_MAX);
 	const uint64_t pattern0 = stress_mwc64();
 	const uint64_t pattern1 = stress_mwc64();
 	const size_t offset2pages = (page_size * 2) / sizeof(uint64_t);
