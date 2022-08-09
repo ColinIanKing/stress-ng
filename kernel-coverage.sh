@@ -394,6 +394,12 @@ do_stress --epoll -1 --epoll-domain unix
 
 do_stress --eventfd -1 --eventfd-nonblock
 
+do_stress --exec 1 --exec-no-pthread
+do_stress --exec 1 --exec-fork-method clone
+do_stress --exec 1 --exec-fork-method fork
+do_stress --exec 1 --exec-fork-method spawn
+do_stress --exec 1 --exec-fork-method vfork
+
 do_stress --fork 1 --fork-vm
 
 do_stress --itimer -1 --itimer-rand
