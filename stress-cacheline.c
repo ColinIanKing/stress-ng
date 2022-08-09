@@ -347,7 +347,7 @@ static int stress_cacheline_mix(
 		tmp = val8;
 	}
 	return EXIT_SUCCESS;
-};
+}
 
 static int stress_cacheline_rdrev64(
 	const stress_args_t *args,
