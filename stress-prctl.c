@@ -924,10 +924,9 @@ static int stress_prctl_child(
  */
 static int stress_prctl(const stress_args_t *args)
 {
-	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
 	void *page_anon;
 
+	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 	page_anon = mmap(NULL, args->page_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 
