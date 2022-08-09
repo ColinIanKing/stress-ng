@@ -308,8 +308,9 @@ static int dnotify_creat_helper(
 	const char *path,
 	const void *signum)
 {
-	(void)signum;
 	int fd;
+
+	(void)signum;
 
 	if ((fd = creat(path, FILE_FLAGS)) < 0) {
 		pr_err("%s: cannot create file %s: errno=%d (%s)\n",
