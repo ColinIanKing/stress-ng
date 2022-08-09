@@ -331,7 +331,6 @@ static void stress_rand_data_digits(
 		*(ptr++) = '0' + ((v & 0xff) % 10);
 		v >>= 8;
 		*(ptr++) = '0' + ((v & 0xff) % 10);
-		v >>= 8;
 	}
 }
 
