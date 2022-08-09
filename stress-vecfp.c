@@ -48,10 +48,10 @@ typedef double (*stress_vecfp_func_t)(
 /*
  *  float vectors, named by vfloatwN where N = number of elements width
  */
-#define VEC_TYPE_T(type, elements)					\
-typedef union {								\
-	type v	 __attribute__ ((vector_size(sizeof(type) * elements)));\
-	type f[elements];						\
+#define VEC_TYPE_T(type, elements)						\
+typedef union {									\
+	type v	 ALIGNED(2048) __attribute__ ((vector_size(sizeof(type) * elements)));\
+	type f[elements] ALIGNED(2048);						\
 } stress_vecfp_ ## type ## _ ## elements ## _t;
 
 VEC_TYPE_T(float, 256)
