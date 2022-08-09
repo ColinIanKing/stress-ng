@@ -243,9 +243,11 @@ next:
 			ret = select(fd_rnd_blk + 1, &rdfds, NULL, NULL, &timeout);
 			if (ret > 0) {
 				if (FD_ISSET(fd_rnd_blk, &rdfds)) {
-					ret = -1;
 #if defined(__linux__)
 					char *ptr;
+#endif
+					ret = -1;
+#if defined(__linux__)
 
 					/*
 					 *  Older kernels will EFAULT on reads of data off the end of
