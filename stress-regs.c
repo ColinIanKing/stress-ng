@@ -617,7 +617,7 @@ do {			\
 	SHUFFLE_REGS16();
 
 	stash64 = r14;
-	REGS_CHECK(args, "r14", stash64);
+	REGS_CHECK(args, "r14", (v >> 1), stash64);
 
 	stash64 = r14 + r15 + r16 + r17 +
 		r18 + r19 + r20 + r21 +
