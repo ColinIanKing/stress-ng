@@ -19,6 +19,12 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_SPAWN_H)
+#include <spawn.h>
+#else
+UNEXPECTED
+#endif
+
 #define MIN_EXECS		(1)
 #define MAX_EXECS		(16000)
 #define DEFAULT_EXECS		(4096)
@@ -31,6 +37,10 @@
 #define EXEC_FORK_METHOD_CLONE	(0x10)
 #define EXEC_FORK_METHOD_FORK	(0x11)
 #define EXEC_FORK_METHOD_VFORK	(0x12)
+#if defined(HAVE_SPAWN_H) &&	\
+    defined(HAVE_POSIX_SPAWN)
+#define EXEC_FORK_METHOD_SPAWN	(0x13)
+#endif
 
 #define MAX_ARG_PAGES		(32)
 
@@ -85,6 +95,10 @@ static const stress_exec_method_t stress_exec_methods[] = {
 static const stress_exec_method_t stress_exec_fork_methods[] = {
 	{ "clone",	EXEC_FORK_METHOD_CLONE },
 	{ "fork",	EXEC_FORK_METHOD_FORK },
+#if defined(HAVE_SPAWN_H) &&	\
+    defined(HAVE_POSIX_SPAWN)
+	{ "spawn",	EXEC_FORK_METHOD_SPAWN },
+#endif
 	{ "vfork",	EXEC_FORK_METHOD_VFORK },
 	{ NULL,		-1 },
 };
@@ -94,7 +108,12 @@ static const stress_help_t help[] = {
 	{ NULL,	"exec-ops N",		"stop after N exec bogo operations" },
 	{ NULL,	"exec-max P",		"create P workers per iteration, default is 1" },
 	{ NULL,	"exec-method M",	"select exec method: all, execve, execveat" },
+#if defined(HAVE_SPAWN_H) &&	\
+    defined(HAVE_POSIX_SPAWN)
 	{ NULL,	"exec-fork-method M",	"select exec fork method: clone, fork, vfork" },
+#else
+	{ NULL,	"exec-fork-method M",	"select exec fork method: clone, fork, spawn, vfork" },
+#endif
 	{ NULL,	"exec-no-pthread",	"do not use pthread_create" },
 	{ NULL,	NULL,			NULL }
 };
@@ -729,6 +748,13 @@ static int stress_exec(const stress_args_t *args)
 				stack_top = stress_align_stack(stack_top);
 				pid = clone(stress_exec_child, stack_top, CLONE_VM | SIGCHLD, &sph->arg);
 				break;
+#if defined(HAVE_SPAWN_H) &&	\
+    defined(HAVE_POSIX_SPAWN)
+			case EXEC_FORK_METHOD_SPAWN:
+				if (posix_spawn(&pid, exec_prog, NULL, NULL, sph->arg.argv, sph->arg.env) != 0)
+					pid = -1;
+				break;
+#endif
 			}
 
 			stress_exec_add_pid(sph, pid);
