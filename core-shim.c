@@ -91,6 +91,8 @@ extern int setdomainname(const char *name, size_t len);
 #endif
 #endif
 
+#define FALLOCATE_BUF_SIZE	(8192)
+
 /*
  *  Various shim abstraction wrappers around systems calls and
  *  GCC helper functions that may not be supported by some
@@ -185,20 +187,19 @@ ssize_t shim_copy_file_range(
  */
 static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 {
-	const off_t buf_sz = 8192;
-	char buffer[buf_sz];
+	char buffer[FALLOCATE_BUF_SIZE];
 	off_t n;
 
 	n = lseek(fd, offset, SEEK_SET);
 	if (n == (off_t)-1)
 		return -1;
 
-	(void)memset(buffer, 0, buf_sz);
+	(void)memset(buffer, 0, FALLOCATE_BUF_SIZE);
 	n = len;
 
 	while (keep_stressing_flag() && (n > 0)) {
 		ssize_t ret;
-		size_t count = (size_t)STRESS_MINIMUM(n, buf_sz);
+		size_t count = (size_t)STRESS_MINIMUM(n, FALLOCATE_BUF_SIZE);
 
 		ret = write(fd, buffer, count);
 		if (ret >= 0) {
