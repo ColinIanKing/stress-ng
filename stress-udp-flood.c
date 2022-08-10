@@ -26,6 +26,8 @@
 UNEXPECTED
 #endif
 
+#define MAX_UDP_SIZE	(2048)
+
 static const stress_help_t help[] = {
 	{ NULL,	"udp-flood N",		"start N workers that performs a UDP flood attack" },
 	{ NULL,	"udp-flood-ops N",	"stop after N udp flood bogo operations" },
@@ -73,7 +75,7 @@ static int stress_udp_flood(const stress_args_t *args)
 	int port = 1024;
 	struct sockaddr *addr;
 	socklen_t addr_len;
-	const size_t sz_max = 23 + args->instance;
+	const size_t sz_max = STRESS_MINIMUM(23 + args->instance, MAX_UDP_SIZE);
 	size_t sz = 1;
 	char *udp_flood_if = NULL;
 
@@ -115,7 +117,7 @@ static int stress_udp_flood(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		char buf[sz];
+		char buf[MAX_UDP_SIZE];
 		int rand_port;
 
 		(void)memset(buf, data[j++ & 63], sz);
@@ -144,7 +146,7 @@ static int stress_udp_flood(const stress_args_t *args)
 		if (sendto(fd, buf, sz, 0, addr, addr_len) > 0)
 			inc_counter(args);
 
-		if (++sz > sz_max)
+		if (++sz >= sz_max)
 			sz = 1;
 	} while (keep_stressing(args));
 
