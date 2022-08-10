@@ -330,9 +330,10 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 #if defined(FIDEDUPERANGE)
 		{
-			const size_t sz = sizeof(struct file_dedupe_range) +
-					  sizeof(struct file_dedupe_range_info);
-			char buf[sz] ALIGNED(64);
+#define DEDUPE_BUF_SIZE	(sizeof(struct file_dedupe_range) + \
+			 sizeof(struct file_dedupe_range_info))
+
+			char buf[DEDUPE_BUF_SIZE] ALIGNED(64);
 
 			struct file_dedupe_range *d = (struct file_dedupe_range *)buf;
 
@@ -356,6 +357,8 @@ static int stress_file_ioctl(const stress_args_t *args)
 			d->dest_count = (uint16_t)~0U;
 			VOID_RET(int, ioctl(fd, FIDEDUPERANGE, d));
 			exercised++;
+
+#undef DEDUPE_BUF_SIZE
 		}
 #else
 		UNEXPECTED
