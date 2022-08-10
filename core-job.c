@@ -176,8 +176,8 @@ int stress_parse_jobfile(
 		/* managed to get any tokens? */
 		if (new_argc > 1) {
 			const size_t len = strlen(new_argv[1]) + 3;
-			char tmp[len];
 			int rc;
+			char *tmp;
 
 			/* Must check for --job -h option! */
 			if (!strcmp(new_argv[1], "job") ||
@@ -196,6 +196,12 @@ int stress_parse_jobfile(
 				continue;
 			}
 
+			tmp = malloc(len);
+			if (!new_argv[1]) {
+				(void)fprintf(stderr, "Out of memory parsing '%s'\n", jobfile);
+				return -1;
+			}
+
 			/* prepend -- to command to make them into stress-ng options */
 			(void)snprintf(tmp, len, "--%s", new_argv[1]);
 			new_argv[1] = tmp;
@@ -204,6 +210,7 @@ int stress_parse_jobfile(
 				ret = -1;
 				goto err;
 			}
+			free(tmp);
 			new_argv[1] = NULL;
 		}
 	}
