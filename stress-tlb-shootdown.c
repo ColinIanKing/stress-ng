@@ -42,6 +42,15 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 	const size_t mmap_size = page_size * MMAP_PAGES;
 	pid_t pids[MAX_TLB_PROCS];
 	cpu_set_t proc_mask_initial;
+	char *buffer;
+
+	buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (buffer == MAP_FAILED) {
+		pr_inf("%s: mmap of a %zu sized page failed, skipping stressor\n",
+			args->name, page_size);
+		return EXIT_NO_RESOURCE;
+	}
 
 	if (sched_getaffinity(0, sizeof(proc_mask_initial), &proc_mask_initial) < 0) {
 		pr_fail("%s: sched_getaffinity could not get CPU affinity, errno=%d (%s)\n",
@@ -107,7 +116,6 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 				break;
 			if (pids[i] == 0) {
 				cpu_set_t mask;
-				char buffer[page_size];
 
 				stress_parent_died_alarm();
 				(void)sched_settings_apply(true);
@@ -166,6 +174,8 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	(void)munmap((void *)buffer, page_size);
 
 	return EXIT_SUCCESS;
 }
