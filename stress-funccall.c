@@ -54,12 +54,41 @@ typedef long double 		stress_long_double_t;
     defined(HAVE_COMPLEX) &&			\
     defined(__STDC_IEC_559_COMPLEX__) &&	\
     !defined(__UCLIBC__)
-#define stress_complex_float_t_put stress_complex_put
-#define stress_complex_double_t_put stress_complex_put
-#define stress_complex_long_double_t_put stress_complex_put
+
 typedef complex float		stress_complex_float_t;
 typedef complex double		stress_complex_double_t;
 typedef complex long double	stress_complex_long_double_t;
+
+static inline void stress_complex_float_t_put(stress_complex_float_t a)
+{
+#if defined(HAVE_CREALF) &&	\
+    defined(HAVE_CIMAGF)
+	g_put_val.float_val = crealf(a) * cimagf(a);
+#else
+	g_put_val.float_val = a * a;
+#endif
+}
+
+static inline void stress_complex_double_t_put(stress_complex_double_t a)
+{
+#if defined(HAVE_CREAL) &&	\
+    defined(HAVE_CIMAG)
+	g_put_val.double_val = creal(a) * cimag(a);
+#else
+	g_put_val.double_val = a * a;
+#endif
+}
+
+static inline void stress_complex_long_double_t_put(stress_complex_long_double_t a)
+{
+#if defined(HAVE_CREALL) &&	\
+    defined(HAVE_CIMAGL)
+	g_put_val.long_double_val = creall(a) * cimagl(a);
+#else
+	g_put_val.long_double_val = a * a;
+#endif
+}
+
 #endif
 
 static inline float stress_mwcfloat(void)
@@ -702,15 +731,6 @@ stress_funccall_type(stress_long_double_t, stress_mwc64)
     defined(HAVE_COMPLEX) &&			\
     defined(__STDC_IEC_559_COMPLEX__) &&	\
     !defined(__UCLIBC__)
-static inline void ALWAYS_INLINE stress_complex_put(const complex double a)
-{
-#if defined(HAVE_CREAL) &&	\
-    defined(HAVE_CIMAG)
-	g_put_val.double_val = creal(a) * cimag(a);
-#else
-	g_put_val.double_val = a * a;
-#endif
-}
 
 stress_funccall_1(stress_complex_float_t)
 stress_funccall_2(stress_complex_float_t)
