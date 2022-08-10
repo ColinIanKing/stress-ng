@@ -87,10 +87,10 @@ static void MLOCKED_TEXT stress_sigio_handler(int signum)
 static int stress_sigio(const stress_args_t *args)
 {
 	int ret, rc = EXIT_FAILURE, fds[2], status, flags = -1;
+	double t_start, t_delta;
 
 	rd_fd = -1;
 	sigio_args = args;
-	double t_start, t_delta;
 	pid = -1;
 
 	time_end = stress_time_now() + (double)g_opt_timeout;
