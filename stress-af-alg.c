@@ -644,7 +644,7 @@ err:
 	return rc;
 }
 
-static void stress_af_alg_count_crypto(int *count, int *internal)
+static void stress_af_alg_count_crypto(size_t *count, size_t *internal)
 {
 	stress_crypto_info_t *ci;
 
@@ -691,12 +691,12 @@ static void stress_af_alg_sort_crypto(void)
 {
 	stress_crypto_info_t **array, *ci;
 
-	int i, n, internal;
+	size_t i, n, internal;
 
 	stress_af_alg_count_crypto(&n, &internal);
 
 	/* Attempt to sort, if we can't silently don't sort */
-	array = calloc((size_t)n, sizeof(*array));
+	array = calloc(n, sizeof(*array));
 	if (!array)
 		return;
 
@@ -756,7 +756,7 @@ static int stress_af_alg(const stress_args_t *args)
 {
 	int sockfd = -1, rc = EXIT_FAILURE;
 	int retries = MAX_AF_ALG_RETRIES;
-	int proc_count, count, internal;
+	size_t proc_count, count, internal;
 	bool af_alg_dump = false;
 
 	stress_af_alg_count_crypto(&proc_count, &internal);
@@ -778,12 +778,12 @@ static int stress_af_alg(const stress_args_t *args)
 		bool lock;
 
 		pr_lock(&lock);
-		pr_inf("%s: %d cryptographic algorithms found in /proc/crypto\n",
+		pr_inf("%s: %zd cryptographic algorithms found in /proc/crypto\n",
 			args->name, proc_count);
-		pr_inf("%s: %d cryptographic algorithms in total (with defconfigs)\n",
+		pr_inf("%s: %zd cryptographic algorithms in total (with defconfigs)\n",
 			args->name, count);
 		if (internal)
-			pr_inf("%s: %d cryptographic algorithms are internal and may be unused\n",
+			pr_inf("%s: %zd cryptographic algorithms are internal and may be unused\n",
 				args->name, internal);
 		pr_unlock(&lock);
 	}
