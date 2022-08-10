@@ -320,7 +320,7 @@ static int stress_get(const stress_args_t *args)
 		 *  valgrind happy.
 		 */
 		(void)memset(gids, 0, sizeof(gids));
-		VOID_RET(int, syscall(__NR_getgroups, -1, gids));
+		VOID_RET(long, syscall(__NR_getgroups, -1, gids));
 #endif
 		if (!keep_stressing_flag())
 			break;
