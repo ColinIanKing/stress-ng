@@ -288,9 +288,9 @@ static int stress_file_ioctl(const stress_args_t *args)
 
 			(void)memset(&fcr, 0, sizeof(fcr));
 			fcr.src_fd = fd;
-			fcr.src_offset = offset;
-			fcr.src_length = sz;
-			fcr.dest_offset = offset;
+			fcr.src_offset = (uint64_t)offset;
+			fcr.src_length = (uint64_t)sz;
+			fcr.dest_offset = (uint64_t)offset;
 			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
 
 			(void)memset(&fcr, 0, sizeof(fcr));
@@ -303,9 +303,9 @@ static int stress_file_ioctl(const stress_args_t *args)
 			/* Exercise invalid parameters */
 			(void)memset(&fcr, 0, sizeof(fcr));
 			fcr.src_fd = fd;
-			fcr.src_offset = 0;
-			fcr.src_length = ~0;	/* invalid length */
-			fcr.dest_offset = 0;
+			fcr.src_offset = 0ULL;
+			fcr.src_length = (uint64_t)~0ULL;	/* invalid length */
+			fcr.dest_offset = 0ULL;
 			VOID_RET(int, ioctl(dfd, FICLONERANGE, &fcr));
 
 			(void)memset(&fcr, 0, sizeof(fcr));
