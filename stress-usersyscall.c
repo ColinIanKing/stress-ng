@@ -63,7 +63,7 @@ static const stress_help_t help[] = {
 #if defined(__linux__) &&       \
     !defined(__TINYC__) &&      \
     !defined(__PCC__) &&        \
-   (defined(__x86_64__) || defined(__x86_64))
+   defined(STRESS_ARCH_X86_64)
 #define STRESS_EXERCISE_X86_SYSCALL
 #endif
 

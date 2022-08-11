@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 
 #if defined(__NR_mmap2)
 #define HAVE_MMAP2
@@ -113,7 +114,8 @@ static const int mmap_flags[] = {
 #if defined(MAP_LOCKED)
 	MAP_LOCKED,
 #endif
-#if defined(MAP_32BIT) && (defined(__x86_64__) || defined(__x86_64))
+#if defined(MAP_32BIT) &&	\
+    defined(STRESS_ARCH_X86_64)
 	MAP_32BIT,
 #endif
 #if defined(MAP_NOCACHE)	/* Mac OS X */

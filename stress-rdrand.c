@@ -87,7 +87,7 @@ static int stress_rdrand_supported(const char *name)
 	return 0;
 }
 
-#if defined(__x86_64__) || defined(__x86_64)
+#if defined(STRESS_ARCH_X86_64)
 /*
  *  rdrand64()
  *	read 64 bit random value

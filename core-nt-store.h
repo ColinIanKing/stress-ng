@@ -19,6 +19,8 @@
 #ifndef CORE_NT_STORE_H
 #define CORE_NT_STORE_H
 
+#include "core-arch.h"
+
 #if defined(HAVE_XMMINTRIN_H)
 #include <xmmintrin.h>
 #endif
@@ -40,7 +42,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store128(__uint128_t *addr,
 #elif defined(HAVE_XMMINTRIN_H) &&			\
     defined(HAVE_INT128_T) &&				\
     defined(HAVE_V2DI) && 				\
-    (defined(__x86_64__) || defined(__x86_64)) && 	\
+    defined(STRESS_ARCH_X86_64)	&&			\
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTDQ)
 /* gcc x86 non-temporal stores */
@@ -64,7 +66,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store64(uint64_t *addr, reg
 }
 #define HAVE_NT_STORE64
 #elif defined(HAVE_XMMINTRIN_H) &&			\
-    (defined(__x86_64__) || defined(__x86_64)) && 	\
+    defined(STRESS_ARCH_X86_64)	&&			\
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTI64)
 /* gcc x86 non-temporal stores */
@@ -87,7 +89,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store32(uint32_t *addr, reg
 }
 #define HAVE_NT_STORE32
 #elif defined(HAVE_XMMINTRIN_H) &&			\
-    (defined(__x86_64__) || defined(__x86_64)) && 	\
+    defined(STRESS_ARCH_X86_64)	&&			\
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTI)
 /* gcc x86 non-temporal stores */
@@ -110,7 +112,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, 
 }
 #define HAVE_NT_STORE_DOUBLE
 #elif defined(HAVE_XMMINTRIN_H) &&			\
-    (defined(__x86_64__) || defined(__x86_64)) && 	\
+    defined(STRESS_ARCH_X86_64)	&&			\
     defined(HAVE_BUILTIN_SUPPORTS) &&			\
     defined(HAVE_BUILTIN_IA32_MOVNTI64)
 /* gcc x86 non-temporal stores */

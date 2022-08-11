@@ -31,6 +31,7 @@
 
 /* Arch specific, x86 */
 #if defined(__x86_64__) || defined(__x86_64) || \
+    defined(__amd64__)  || defined(__amd64)  ||	\
     defined(__i386__)   || defined(__i386)
 #else
 #error modify_ldt syscall not applicable for non-x86 architectures

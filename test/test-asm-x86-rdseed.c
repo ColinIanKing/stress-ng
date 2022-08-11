@@ -19,10 +19,12 @@
 #include <stdint.h>
 
 #if defined(__x86_64__) || defined(__x86_64) || \
+    defined(__amd64__)  || defined(__amd64)  || \
     defined(__i386__)   || defined(__i386)
 int main(void)
 {
-#if defined(__x86_64__) || defined(__x86_64)
+#if defined(__x86_64__) || defined(__x86_64) || \
+    defined(__amd64__)  || defined(__amd64) 
 	uint64_t ret;
 #endif
 #if defined(__i386__)   || defined(__i386)

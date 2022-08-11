@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-cpu.h"
 
 static const stress_help_t help[] = {
@@ -43,7 +44,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(__linux__) &&		\
     !defined(__PCC__) &&		\
-    (defined(__x86_64__) || defined(__x86_64))
+    defined(STRESS_ARCH_X86_64)
 
 typedef int (*stress_wfunc_t)(void);
 

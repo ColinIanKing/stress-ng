@@ -19,10 +19,17 @@
 #ifndef CORE_ARCH_H
 #define CORE_ARCH_H
 
-/* Arch specific, x86 */
+/* Arch specific, x86-64 */
 #if defined(__x86_64__) || defined(__x86_64) || \
-    defined(__i386__)   || defined(__i386)
+    defined(__amd64__) || defined(__amd64)
 #define STRESS_ARCH_X86		(1)
+#define STRESS_ARCH_X86_64	(1)
+#endif
+
+/* Arch specific, x86-32 (i386 et al) */
+#if defined(__i386__)   || defined(__i386)
+#define STRESS_ARCH_X86		(1)
+#define STRESS_ARCH_X86_32	(1)
 #endif
 
 /* Arch specific, ARM */

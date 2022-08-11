@@ -18,7 +18,8 @@
  */
 #include <stdint.h>
 
-#if defined(__x86_64__) || defined(__x86_64)
+#if defined(__x86_64__) || defined(__x86_64) ||	\
+    defined(__amd64__)  || defined(__amd64)
 int main(void)
 {
 	uint32_t lo = 0xffffffff, hi = 0xffffffff, ecx = 0;

@@ -19,6 +19,7 @@
  */
 
 #if defined(__x86_64__) || defined(__x86_64) || \
+    defined(__amd64__)  || defined(__amd64)  || \
     defined(__i386__)   || defined(__i386)
 int main(void)
 {

@@ -21,8 +21,11 @@
 #include "core-cpu.h"
 #include "core-put.h"
 
+#if defined(STRESS_ARCH_X86) &&	\
+    defined(HAVE_INT128_T)
 #define CPU_X86_MMX	(0x00000001)
 #define CPU_X86_SSE	(0x00000002)
+#endif
 
 static const stress_help_t help[] = {
 	{ NULL,	"regs N",	"start N workers exercising CPU generic registers" },
@@ -42,7 +45,7 @@ static volatile uint64_t stash64;
 static volatile __uint128_t stash128;
 #endif
 
-#if defined(STRESS_ARCH_X86) &&	\
+#if defined(STRESS_ARCH_X86_64)	&&	\
     defined(HAVE_INT128_T)
 static int x86_cpu_flags;
 #endif
@@ -129,7 +132,7 @@ do {								\
 		regs_check128(args, reg, expected, value);	\
 } while (0);
 
-#if (defined(__x86_64__) || defined(__x86_64))
+#if defined(STRESS_ARCH_X86_64)
 
 #define STRESS_REGS_HELPER
 
@@ -286,7 +289,7 @@ do {			\
 }
 #endif
 
-#if (defined(__i386__) || defined(__i386))
+#if defined(STRESS_ARCH_X86_32)
 
 #define STRESS_REGS_HELPER
 /*

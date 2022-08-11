@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-arch.h"
 #include "core-cpu.h"
 #include "core-target-clones.h"
 
@@ -472,7 +473,7 @@ static void TARGET_CLONES stress_rand_data_fixed(
 }
 
 #if defined(HAVE_ASM_X86_RDRAND) &&		\
-    (defined(__x86_64__) || defined(__x86_64))
+    defined(STRESS_ARCH_X86_64)
 /*
  *  rdrand64()
  *	read 64 bit random value
@@ -1176,7 +1177,7 @@ static const stress_zlib_rand_data_info_t zlib_rand_data_methods[] = {
 	{ "rarely1",	stress_rand_data_rarely_1 },
 	{ "rarely0",	stress_rand_data_rarely_0 },
 #if defined(HAVE_ASM_X86_RDRAND) &&		\
-    (defined(__x86_64__) || defined(__x86_64))
+    defined(STRESS_ARCH_X86_64)
 	{ "rdrand",	stress_rand_data_rdrand },
 #endif
 	{ "ror32",	stress_rand_data_ror32 },

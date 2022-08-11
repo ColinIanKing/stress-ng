@@ -41,8 +41,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_INTEL_IPSEC_MB_H) &&	\
     defined(HAVE_LIB_IPSEC_MB) &&	\
-    defined(STRESS_ARCH_X86) &&		\
-    (defined(__x86_64__) || defined(__x86_64)) && \
+    defined(STRESS_ARCH_X86_64) &&	\
     defined(IMB_FEATURE_SSE4_2) &&	\
     defined(IMB_FEATURE_CMOV) &&	\
     defined(IMB_FEATURE_AESNI) &&	\
