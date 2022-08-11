@@ -160,8 +160,8 @@ static void stress_pci_exercise_file(
 	fd = open(path, rom ? O_RDWR : O_RDONLY);
 	if (fd >= 0) {
 		void *ptr;
-		size_t sz = 4096;
-		char buf[sz];
+		char buf[4096];
+		size_t sz;
 		struct stat statbuf;
 
 		if (fstat(fd, &statbuf) < 0)
@@ -169,8 +169,7 @@ static void stress_pci_exercise_file(
 		if (!S_ISREG(statbuf.st_mode))
 			goto err;
 
-		sz = STRESS_MINIMUM(sz, (size_t)statbuf.st_size);
-
+		sz = STRESS_MINIMUM(sizeof(buf), (size_t)statbuf.st_size);
 		if (rom) {
 			VOID_RET(ssize_t, write(fd, "1\n", 2));
 		}
