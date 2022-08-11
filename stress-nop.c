@@ -289,7 +289,7 @@ static int stress_set_nop_instr(const char *opt)
 	return -1;
 }
 
-static void stress_sigill_nop_handler(int signum)
+static void NORETURN stress_sigill_nop_handler(int signum)
 {
 	(void)signum;
 
