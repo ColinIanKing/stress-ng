@@ -72,6 +72,10 @@ static int stress_copy_file_range_verify(
 		char buf_in[COPY_FILE_MAX_BUF_SIZE];
 		char buf_out[COPY_FILE_MAX_BUF_SIZE];
 
+#if defined(HAVE_PREAD)
+		bytes_in = pread(fd_in, buf_in, sizeof(buf_in), *off_in);
+		bytes_out = pread(fd_out, buf_out, sizeof(buf_out), *off_out);
+#else
 		off_ret = lseek(fd_in, *off_in, SEEK_SET);
 		if (off_ret != *off_in)
 			return -1;
@@ -85,6 +89,7 @@ static int stress_copy_file_range_verify(
 		if (bytes_in < 0)
 			break;
 		bytes_out = read(fd_out, buf_out, sizeof(buf_out));
+#endif
 		if (bytes_out == 0)
 			return 0;
 		if (bytes_out <= 0)
