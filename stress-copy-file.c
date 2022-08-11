@@ -22,7 +22,7 @@
 #define MIN_COPY_FILE_BYTES	(128 * MB)
 #define MAX_COPY_FILE_BYTES	(MAX_FILE_LIMIT)
 #define DEFAULT_COPY_FILE_BYTES	(256 * MB)
-#define DEFAULT_COPY_FILE_SIZE	(2 * MB)
+#define DEFAULT_COPY_FILE_SIZE	(128 * KB)
 
 static const stress_help_t help[] = {
 	{ NULL,	"copy-file N",		"start N workers that copy file data" },
@@ -52,6 +52,31 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #define COPY_FILE_MAX_BUF_SIZE	(4096)
 
 /*
+ *  stress_copy_file_fill()
+ *	fill chunk of file with random value
+ */
+static int stress_copy_file_fill(const int fd, const off_t off, const ssize_t size)
+{
+	char buf[COPY_FILE_MAX_BUF_SIZE];
+	ssize_t sz = size;
+
+	(void)memset(buf, stress_mwc8(), sizeof(buf));
+
+	if (lseek(fd, off, SEEK_SET) < 0)
+		return -1;
+
+	while (sz > 0) {
+		ssize_t n;
+
+		n = write(fd, buf, sizeof(buf));
+		if (n < 0)
+			return -1;
+		sz -= n;
+	}
+	return 0;
+}
+
+/*
  *  stress_copy_file_range_verify()
  *	verify copy file from fd_in to fd_out worked correctly for
  *	--verify option
@@ -64,9 +89,8 @@ static int stress_copy_file_range_verify(
 	const ssize_t bytes)
 {
 	ssize_t bytes_left = bytes;
-	off_t off_ret;
 
-	while (bytes_left >= 0) {
+	while (bytes_left > 0) {
 		ssize_t n, bytes_in, bytes_out;
 
 		char buf_in[COPY_FILE_MAX_BUF_SIZE];
@@ -76,6 +100,8 @@ static int stress_copy_file_range_verify(
 		bytes_in = pread(fd_in, buf_in, sizeof(buf_in), *off_in);
 		bytes_out = pread(fd_out, buf_out, sizeof(buf_out), *off_out);
 #else
+		off_t off_ret;
+
 		off_ret = lseek(fd_in, *off_in, SEEK_SET);
 		if (off_ret != *off_in)
 			return -1;
@@ -178,6 +204,8 @@ static int stress_copy_file(const stress_args_t *args)
 		off_in = off_in_orig;
 		off_out_orig = (shim_loff_t)(stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE));
 		off_out = off_out_orig;
+
+		stress_copy_file_fill(fd_in, (off_t)off_in, DEFAULT_COPY_FILE_SIZE);
 
 		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
 						&off_out, DEFAULT_COPY_FILE_SIZE, 0);

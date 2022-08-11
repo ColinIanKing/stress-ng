@@ -953,7 +953,7 @@ op is equivalent to 1000 swapcontext calls.
 .TP
 .B \-\-copy\-file N
 start N stressors that copy a file using the Linux copy_file_range(2) system
-call. 2MB chunks of data are copied from random locations from one file to
+call. 128 KB chunks of data are copied from random locations from one file to
 random locations to a destination file.  By default, the files are 256 MB in
 size. Data is sync'd to the filesystem after each copy_file_range(2) call.
 .TP
