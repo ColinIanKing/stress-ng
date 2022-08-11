@@ -95,6 +95,7 @@ static void MLOCKED_TEXT NORETURN stress_sigbus_handler(int signum)
 static int stress_msync(const stress_args_t *args)
 {
 	uint8_t *buf = NULL;
+	uint8_t *data = NULL;
 	const size_t page_size = args->page_size;
 	const size_t min_size = 2 * page_size;
 	size_t msync_bytes = DEFAULT_MSYNC_BYTES;
@@ -161,17 +162,25 @@ static int stress_msync(const stress_args_t *args)
 	buf = (uint8_t *)mmap(NULL, sz,
 		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 	if (buf == MAP_FAILED) {
-		pr_err("%s: failed to mmap memory, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_err("%s: failed to mmap memory of size %zu, errno=%d (%s)\n",
+			args->name, sz, errno, strerror(errno));
 		rc = EXIT_NO_RESOURCE;
 		goto err;
+	}
+	data = (uint8_t *)mmap(NULL, page_size,
+		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+	if (data == MAP_FAILED) {
+		pr_err("%s: failed to mmap memory of size %zu, errno=%d (%s)\n",
+			args->name, page_size, errno, strerror(errno));
+		rc = EXIT_NO_RESOURCE;
+		goto err_unmap;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		off_t offset;
-		uint8_t val, data[page_size];
+		uint8_t val;
 
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
@@ -276,6 +285,9 @@ do_next:
 
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	(void)munmap((void *)data, page_size);
+err_unmap:
 	(void)munmap((void *)buf, sz);
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
