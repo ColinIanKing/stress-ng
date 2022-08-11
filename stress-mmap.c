@@ -342,7 +342,7 @@ static void stress_mmap_invalid(
 	 *  libc may detect offset is invalid and not do the syscall so
 	 *  do direct syscall if possible
 	 */
-	ptr = (void *)syscall(__NR_mmap, addr, length, prot, flags, fd, offset + 1);
+	ptr = (void *)(uintptr_t)syscall(__NR_mmap, addr, length, prot, flags, fd, offset + 1);
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, length);
 #endif
