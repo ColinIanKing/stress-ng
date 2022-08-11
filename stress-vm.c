@@ -2585,7 +2585,7 @@ static size_t TARGET_CLONES stress_vm_fwdrev(
 	size_t bit_errors = 0;
 	uint8_t *fwdptr, *revptr;
 	uint64_t c = get_counter(args);
-	uint32_t rnd = stress_mwc64();
+	uint32_t rnd = stress_mwc32();
 
 	(void)sz;
 
