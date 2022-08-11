@@ -49,6 +49,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 #if defined(HAVE_COPY_FILE_RANGE)
 
+#define COPY_FILE_MAX_BUF_SIZE	(4096)
+
 /*
  *  stress_copy_file_range_verify()
  *	verify copy file from fd_in to fd_out worked correctly for
@@ -62,13 +64,13 @@ static int stress_copy_file_range_verify(
 	const ssize_t bytes)
 {
 	ssize_t bytes_left = bytes;
-	ssize_t buf_sz = STRESS_MINIMUM(bytes, 1024);
 	off_t off_ret;
 
 	while (bytes_left >= 0) {
 		ssize_t n, bytes_in, bytes_out;
 
-		char buf_in[buf_sz], buf_out[buf_sz];
+		char buf_in[COPY_FILE_MAX_BUF_SIZE];
+		char buf_out[COPY_FILE_MAX_BUF_SIZE];
 
 		off_ret = lseek(fd_in, *off_in, SEEK_SET);
 		if (off_ret != *off_in)
