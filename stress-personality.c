@@ -42,14 +42,20 @@ static const unsigned long personalities[] = {
  */
 static int stress_personality(const stress_args_t *args)
 {
-	const ssize_t n = SIZEOF_ARRAY(personalities);
-	bool failed[(n > 0) ? n : 1];
+	const size_t n = SIZEOF_ARRAY(personalities);
+	bool *failed;
 
 	if (n == 0) {
-		pr_inf("%s: no personalities to stress test\n", args->name);
+		pr_inf("%s: no personalities to stress test, skipping stressor\n", args->name);
 		return EXIT_NOT_IMPLEMENTED;
 	}
-	(void)memset(failed, 0, sizeof(failed));
+
+	failed = (bool *)calloc(n, sizeof(*failed));
+	if (!failed) {
+		pr_inf("%s: cannot allocate %zu boolean flags, skipping stressor\n",
+			args->name, n);
+		return EXIT_NO_RESOURCE;
+	}
 
 	if (args->instance == 0)
 		pr_dbg("%s: exercising %zu personalities\n", args->name, n);
@@ -57,7 +63,7 @@ static int stress_personality(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		ssize_t i, fails = 0;
+		size_t i, fails = 0;
 
 		for (i = 0; i < n; i++) {
 			unsigned long p = personalities[i];
@@ -94,6 +100,8 @@ static int stress_personality(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	free(failed);
 
 	return EXIT_SUCCESS;
 }
