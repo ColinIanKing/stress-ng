@@ -311,11 +311,8 @@ static int stress_mcontend(const stress_args_t *args)
 	int ret[MAX_READ_THREADS];
 	void *data[MAX_MAPPINGS];
 	char filename[PATH_MAX];
-	char buffer[args->page_size];
 	stress_pthread_args_t pa;
 	int fd, rc;
-
-	(void)memset(buffer, 0, sizeof(buffer));
 
 	rc = stress_temp_dir_mk_args(args);
 	if (rc < 0)
