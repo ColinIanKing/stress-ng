@@ -721,7 +721,7 @@ static int stress_memrate(const stress_args_t *args)
 				args->name, memrate_info[i].name, rate);
 
 			(void)snprintf(tmp, sizeof(tmp), "%s MB/sec", memrate_info[i].name);
-			stress_misc_stats_set(args->misc_stats, (int)i, tmp, rate);
+			stress_misc_stats_set(args->misc_stats, i, tmp, rate);
 		} else {
 			pr_inf_lock(&lock, "%s: %10.10s: interrupted early\n",
 				args->name, memrate_info[i].name);
