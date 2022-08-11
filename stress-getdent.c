@@ -92,6 +92,18 @@ static inline int stress_getdents_rand(
 	return ret;
 }
 
+/*
+ *  stress_gendent_offset()
+ *	increment ptr by offset
+ */
+static inline void *stress_gendent_offset(void *ptr, const int offset)
+{
+	register uintptr_t u = (uintptr_t)ptr;
+
+	u += (uintptr_t)offset;
+	return (void *)u;
+}
+
 #if defined(HAVE_GETDENTS)
 /*
  *  stress_getdents_dir()
@@ -106,7 +118,7 @@ static int stress_getdents_dir(
 	const int bad_fd)
 {
 	int fd, rc = 0, nread;
-	char *buf;
+	struct shim_linux_dirent *buf;
 	unsigned int buf_sz;
 
 	if (!keep_stressing(args))
@@ -117,24 +129,25 @@ static int stress_getdents_dir(
 		return 0;
 
 	buf_sz = (unsigned int)((stress_mwc32() % BUF_SIZE) + page_size) & ~(page_size - 1);
-	buf = malloc((size_t)buf_sz);
+	buf = (struct shim_linux_dirent *)malloc((size_t)buf_sz);
 	if (!buf)
 		goto exit_close;
 
 	/*
 	 *  exercise getdents on bad fd
 	 */
-	VOID_RET(int, shim_getdents((unsigned int)bad_fd, (struct shim_linux_dirent *)buf, buf_sz));
+	VOID_RET(int, shim_getdents((unsigned int)bad_fd, buf, buf_sz));
 
 	/*
 	 *  exercise getdents with illegal zero size
 	 */
-	VOID_RET(int, shim_getdents((unsigned int)fd, (struct shim_linux_dirent *)buf, 0));
+	VOID_RET(int, shim_getdents((unsigned int)fd, buf, 0));
 
 	do {
-		char *ptr = buf;
+		struct shim_linux_dirent *ptr = buf;
+		struct shim_linux_dirent *end;
 
-		nread = shim_getdents((unsigned int)fd, (struct shim_linux_dirent *)buf, buf_sz);
+		nread = shim_getdents((unsigned int)fd, buf, buf_sz);
 		if (nread < 0) {
 			rc = -errno;
 			goto exit_free;
@@ -147,12 +160,12 @@ static int stress_getdents_dir(
 		if (!recurse || (depth < 1))
 			continue;
 
-		while (ptr < buf + nread) {
-			struct shim_linux_dirent *d = (struct shim_linux_dirent *)ptr;
-			unsigned char d_type = (unsigned char)*(ptr + d->d_reclen - 1);
-
+		end = (struct shim_linux_dirent *)stress_gendent_offset((void *)buf, nread);
+		while (ptr < end) {
+			struct shim_linux_dirent *d = ptr;
+			unsigned char d_type = (unsigned char)*((char *)ptr + d->d_reclen - 1);
 			if (d_type == DT_DIR &&
-			    stress_is_dot_filename(d->d_name)) {
+			    !stress_is_dot_filename(d->d_name)) {
 				char newpath[PATH_MAX];
 
 				(void)stress_mk_filename(newpath, sizeof(newpath), path, d->d_name);
@@ -160,7 +173,7 @@ static int stress_getdents_dir(
 				if (rc < 0)
 					goto exit_free;
 			}
-			ptr += d->d_reclen;
+			ptr = (struct shim_linux_dirent *)stress_gendent_offset((void *)ptr, d->d_reclen);
 		}
 	} while (keep_stressing(args));
 exit_free:
@@ -186,7 +199,7 @@ static int stress_getdents64_dir(
 	const int bad_fd)
 {
 	int fd, rc = 0;
-	char *buf;
+	struct shim_linux_dirent64 *buf;
 	unsigned int buf_sz;
 
 	if (!keep_stressing(args))
@@ -197,20 +210,21 @@ static int stress_getdents64_dir(
 		return 0;
 
 	buf_sz = (unsigned int)((stress_mwc32() % BUF_SIZE) + page_size) & ~(page_size - 1);
-	buf = malloc((size_t)buf_sz);
+	buf = (struct shim_linux_dirent64 *)malloc((size_t)buf_sz);
 	if (!buf)
 		goto exit_close;
 
 	/*
 	 *  exercise getdents64 on bad fd
 	 */
-	VOID_RET(int, shim_getdents64((unsigned int)bad_fd, (struct shim_linux_dirent64 *)buf, buf_sz));
+	VOID_RET(int, shim_getdents64((unsigned int)bad_fd, buf, buf_sz));
 
 	do {
-		char *ptr = buf;
+		struct shim_linux_dirent64 *ptr = (struct shim_linux_dirent64 *)buf;
+		struct shim_linux_dirent64 *end;
 		int nread;
 
-		nread = shim_getdents64((unsigned int)fd, (struct shim_linux_dirent64 *)buf, buf_sz);
+		nread = shim_getdents64((unsigned int)fd, buf, buf_sz);
 		if (nread < 0) {
 			rc = -errno;
 			goto exit_free;
@@ -223,11 +237,12 @@ static int stress_getdents64_dir(
 		if (!recurse || (depth < 1))
 			continue;
 
-		while (ptr < buf + nread) {
-			struct shim_linux_dirent64 *d = (struct shim_linux_dirent64 *)ptr;
+		end = (struct shim_linux_dirent64 *)stress_gendent_offset((void *)buf, nread);
+		while (ptr < end) {
+			struct shim_linux_dirent64 *d = ptr;
 
 			if (d->d_type == DT_DIR &&
-			    stress_is_dot_filename(d->d_name)) {
+			    !stress_is_dot_filename(d->d_name)) {
 				char newpath[PATH_MAX];
 
 				(void)stress_mk_filename(newpath, sizeof(newpath), path, d->d_name);
@@ -235,7 +250,7 @@ static int stress_getdents64_dir(
 				if (rc < 0)
 					goto exit_free;
 			}
-			ptr += d->d_reclen;
+			ptr = (struct shim_linux_dirent64 *)stress_gendent_offset((void *)ptr, d->d_reclen);
 		}
 	} while (keep_stressing(args));
 exit_free:
