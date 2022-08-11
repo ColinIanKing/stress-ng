@@ -55,7 +55,7 @@ static const uint32_t boot_magic[] = {
  *  reboot_func()
  *	reboot a process in a PID namespace
  */
-static int reboot_clone_func(void *arg)
+static int NORETURN reboot_clone_func(void *arg)
 {
 	size_t i, j = stress_mwc8() % SIZEOF_ARRAY(boot_magic);
 
@@ -66,13 +66,12 @@ static int reboot_clone_func(void *arg)
 		errno = 0;
 		VOID_RET(int, shim_reboot((int)SHIM_LINUX_BOOT_MAGIC1,
 			(int)boot_magic[j],
-			SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL));
+			(int)SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL));
 		j = (j + 1) % SIZEOF_ARRAY(boot_magic);
 	}
 
 	/* Should never get here */
 	exit(errno);
-	return 0;
 }
 #endif
 
@@ -116,7 +115,7 @@ static int stress_reboot(const stress_args_t *args)
 			}
 		}
 #endif
-		ret = shim_reboot(0, 0, SHIM_LINUX_REBOOT_CMD_RESTART, 0);
+		ret = shim_reboot(0, 0, (int)SHIM_LINUX_REBOOT_CMD_RESTART, 0);
 		if (ret < 0) {
 			if (reboot_capable) {
 				if (errno != EINVAL) {
@@ -131,7 +130,7 @@ static int stress_reboot(const stress_args_t *args)
 			}
 		}
 
-		ret = shim_reboot(0, 0, SHIM_LINUX_REBOOT_CMD_SW_SUSPEND, 0);
+		ret = shim_reboot(0, 0, (int)SHIM_LINUX_REBOOT_CMD_SW_SUSPEND, 0);
 		if (ret < 0) {
 			if (reboot_capable) {
 				if (errno != EINVAL) {
@@ -153,7 +152,7 @@ static int stress_reboot(const stress_args_t *args)
 				errno = 0;
 				ret = shim_reboot((int)SHIM_LINUX_BOOT_MAGIC1,
 					(int)boot_magic[i],
-					SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL);
+					(int)SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL);
 				if (errno == EINVAL)
 					continue;
 				if (errno != EPERM) {
