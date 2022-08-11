@@ -32,7 +32,7 @@ static int stress_msyncmany_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	long max = sysconf(_SC_MAPPED_FILES);
-	uint8_t **mappings;
+	uint64_t **mappings;
 	int fd = *(int *)context;
 	size_t i, n;
 	uint64_t *mapped = NULL;
@@ -64,7 +64,7 @@ static int stress_msyncmany_child(const stress_args_t *args, void *context)
 			break;
 		if (!mapped)
 			mapped = ptr;
-		mappings[n] = (uint8_t *)ptr;
+		mappings[n] = ptr;
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
