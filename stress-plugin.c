@@ -140,7 +140,7 @@ static int stress_set_plugin_so(const char *opt)
 	Elf64_Sym * symtab = NULL;
 	ElfW(Dyn) *section;
 	char * strtab = NULL;
-	int symentries = 0;
+	unsigned long symentries = 0;
 	size_t i, size, n_funcs;
 
 	stress_plugin_methods = NULL;
@@ -180,7 +180,7 @@ static int stress_set_plugin_so(const char *opt)
 		fprintf(stderr, "plugin-so: cannot find symbol table entry count in file %s\n", opt);
 		return -1;
 	}
-	size = strtab - (char *)symtab;
+	size = (size_t)(strtab - (char *)symtab);
 
 	for (n_funcs = 0, i = 0; i < size / symentries; i++) {
 		if (ELF64_ST_TYPE(symtab[i].st_info) == STT_FUNC) {
@@ -214,7 +214,7 @@ static int stress_set_plugin_so(const char *opt)
 
 			if ((strlen(str) > 7) && !strncmp(str, "stress_", 7)) {
 				stress_plugin_methods[n_funcs].name = str + 7;
-				stress_plugin_methods[n_funcs].func = dlsym(stress_plugin_so, str);
+				stress_plugin_methods[n_funcs].func = (stress_plugin_func)dlsym(stress_plugin_so, str);
 				if (!stress_plugin_methods[n_funcs].func) {
 					fprintf(stderr, "plugin-so: cannot get address of function %s()\n", str);
 					return -1;
@@ -367,7 +367,7 @@ finish:
 	rc = EXIT_SUCCESS;
 
 	for (report_sigs = false, i = 0; i < MAX_SIGS; i++) {
-		if (sig_count[i] && stress_plugin_report_signum(i)) {
+		if (sig_count[i] && stress_plugin_report_signum((int)i)) {
 			report_sigs = true;
 			break;
 		}
@@ -376,9 +376,9 @@ finish:
 	if (report_sigs) {
 		pr_inf("%s: NOTE: Caught unexpected signal(s):\n", args->name);
 		for (i = 0; i < MAX_SIGS; i++) {
-			if (sig_count[i] && stress_plugin_report_signum(i)) {
+			if (sig_count[i] && stress_plugin_report_signum((int)i)) {
 				pr_dbg("%s:   %-25.25sx %" PRIu64 "\n",
-					args->name, strsignal(i), sig_count[i]);
+					args->name, strsignal((int)i), sig_count[i]);
 			}
 		}
 	}
