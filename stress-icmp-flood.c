@@ -41,7 +41,9 @@ static const stress_help_t help[] = {
     defined(HAVE_ICMPHDR)
 
 #define MAX_PAYLOAD_SIZE	(1000)
-
+#define MAX_PKT_LEN		(sizeof(struct iphdr) + \
+				 sizeof(struct icmphdr) + \
+				 MAX_PAYLOAD_SIZE + 1)
 /*
  *  stress_icmp_flood_supported()
  *      check if we can run this as root
@@ -69,9 +71,7 @@ static int stress_icmp_flood(const stress_args_t *args)
 	struct sockaddr_in servaddr;
 	uint64_t counter, sendto_fails = 0;
 
-	const size_t max_payload_len = MAX_PAYLOAD_SIZE + 1;
-	const size_t max_pkt_len = sizeof(struct iphdr) + sizeof(struct icmphdr) + max_payload_len;
-	char ALIGN64 pkt[max_pkt_len];
+	char ALIGN64 pkt[MAX_PKT_LEN];
 	struct iphdr *const ip_hdr = (struct iphdr *)pkt;
 	struct icmphdr *const icmp_hdr = (struct icmphdr *)(pkt + sizeof(struct iphdr));
 	char *const payload = pkt + sizeof(struct iphdr) + sizeof(struct icmphdr);
