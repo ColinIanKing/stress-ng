@@ -107,8 +107,9 @@ static int stress_set(const stress_args_t *args)
 	size_t i;
 	int ret_hostname;
 	const size_t hostname_len = stress_hostname_length();
-	char hostname[hostname_len];
-	char longname[hostname_len << 1];
+	const size_t longname_len = hostname_len << 1;
+	char *hostname;
+	char *longname;
 #if defined(HAVE_GETPGID) && 	\
     defined(HAVE_SETPGID)
 	const pid_t mypid = getpid();
@@ -126,12 +127,23 @@ static int stress_set(const stress_args_t *args)
 		rlimits[i].ret = getrlimit(rlimits[i].id, &rlimits[i].rlim);
 	}
 
-	(void)memset(hostname, 0, sizeof(hostname));
-	(void)memset(longname, 0, sizeof(longname));
-	ret_hostname = gethostname(hostname, sizeof(hostname) - 1);
+	hostname = calloc(hostname_len, sizeof(*hostname));
+	if (!hostname) {
+		pr_inf("%s: cannot allocate hostname array of %zu bytes, skipping stessor\n",
+			args->name, hostname_len);
+		return EXIT_NO_RESOURCE;
+	}
+	longname = calloc(longname_len, sizeof(*hostname));
+	if (!longname) {
+		pr_inf("%s: cannot allocate longname array of %zu bytes, skipping stessor\n",
+			args->name, longname_len);
+		free(hostname);
+		return EXIT_NO_RESOURCE;
+	}
+	ret_hostname = gethostname(hostname, hostname_len - 1);
 	if (ret_hostname == 0) {
-		hostname[sizeof(hostname) - 1] = '\0';
-		shim_strlcpy(longname, hostname, sizeof(longname));
+		hostname[hostname_len - 1] = '\0';
+		shim_strlcpy(longname, hostname, longname_len);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -159,7 +171,7 @@ static int stress_set(const stress_args_t *args)
 			break;
 
 		if (*longname) {
-			VOID_RET(int, sethostname(longname, sizeof(longname)));
+			VOID_RET(int, sethostname(longname, longname_len));
 			VOID_RET(int, sethostname(hostname, strlen(hostname)));
 		}
 
@@ -521,6 +533,9 @@ static int stress_set(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	free(longname);
+	free(hostname);
 
 	return EXIT_SUCCESS;
 }
