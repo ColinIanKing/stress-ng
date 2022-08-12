@@ -118,6 +118,8 @@ static const int timers[] = {
 };
 #endif
 
+#define MAX_TIMERS	(SIZEOF_ARRAY(timers))
+
 #if defined(HAVE_CLOCK_NANOSLEEP) || 	\
     (defined(HAVE_TIMER_CREATE) &&	\
     defined(HAVE_TIMER_DELETE) &&	\
@@ -432,16 +434,15 @@ static int stress_clock(const stress_args_t *args)
     defined(HAVE_TIMER_SETTIME)
 		{
 			size_t i;
-			const size_t n = SIZEOF_ARRAY(timers);
-			bool timer_fail[n];
-			timer_t timer_id[n];
+			bool timer_fail[MAX_TIMERS];
+			timer_t timer_id[MAX_TIMERS];
 			struct itimerspec its;
 			int ret;
 
 			/*
 			 *  Stress the timers
 			 */
-			for (i = 0; i < n; i++) {
+			for (i = 0; i < MAX_TIMERS; i++) {
 				struct sigevent sevp;
 
 				timer_fail[i] = false;
@@ -478,7 +479,7 @@ static int stress_clock(const stress_args_t *args)
 				}
 			}
 
-			for (i = 0; i < n; i++) {
+			for (i = 0; i < MAX_TIMERS; i++) {
 				if (timer_fail[i] || (timer_id[i] == (timer_t)-1))
 					continue;
 
@@ -494,7 +495,7 @@ static int stress_clock(const stress_args_t *args)
 				(void)ret;
 			}
 
-			for (i = 0; i < n; i++) {
+			for (i = 0; i < MAX_TIMERS; i++) {
 				if (timer_fail[i] || (timer_id[i] == (timer_t)-1))
 					continue;
 				ret = timer_delete(timer_id[i]);
