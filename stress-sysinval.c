@@ -590,8 +590,8 @@ static const stress_syscall_arg_t stress_syscall_args[] = {
 	{ SYS(fstat), 2, { ARG_FD, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(fstat64)
-	{ SYS(fstat), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
-	{ SYS(fstat), 2, { ARG_FD, ARG_PTR_WR, 0, 0, 0, 0 } },
+	{ SYS(fstat64), 2, { ARG_FD, ARG_PTR, 0, 0, 0, 0 } },
+	{ SYS(fstat64), 2, { ARG_FD, ARG_PTR_WR, 0, 0, 0, 0 } },
 #endif
 #if DEFSYS(fstatat)
 	{ SYS(fstatat), 4, { ARG_DIRFD, ARG_EMPTY_FILENAME, ARG_PTR, ARG_FLAG, 0, 0 } },
