@@ -33,11 +33,6 @@ static const stress_help_t help[] = {
 
 #define HASH_SYSCALL_SIZE	(1987)
 
-#define CALL_UNDEFINED		(0)
-#define CALL_BY_SYSCALL		(1)	/* syscall() call */
-#define CALL_BY_X86_SYSCALL	(2)	/* x86 syscall opcode */
-#define CALL_BY_X86_INT80	(3)	/* x86 int $80 */
-
 #if defined(__NR_syscalls)
 #define MAX_SYSCALL	__NR_syscalls
 #else
@@ -53,8 +48,15 @@ static const stress_help_t help[] = {
 
 #if defined(__linux__) &&       \
     defined(STRESS_ARCH_X86) &&	\
-    NEED_GNUC(9,3,0)
+    (NEED_GNUC(9, 3, 0) || NEED_CLANG(9, 0, 0))
 #define STRESS_EXERCISE_X86_0X80
+#endif
+
+#define CALL_UNDEFINED		(0)
+#define CALL_BY_SYSCALL		(1)	/* syscall() call */
+#define CALL_BY_X86_SYSCALL	(2)	/* x86 syscall opcode */
+#if defined(STRESS_EXERCISE_X86_0X80)
+#define CALL_BY_X86_INT80	(3)	/* x86 int $80 */
 #endif
 
 typedef struct hash_syscall {
