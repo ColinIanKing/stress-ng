@@ -20,7 +20,6 @@
 #include "stress-ng.h"
 
 #define MAX_SIGSUSPEND_PIDS	(4)
-#define CACHE_STRIDE_SHIFT	(6)
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigsuspend N",	    "start N workers exercising sigsuspend" },
