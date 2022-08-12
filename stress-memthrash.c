@@ -51,11 +51,16 @@ typedef struct {
 	const stress_memthrash_method_info_t *memthrash_method;
 } stress_memthrash_context_t;
 
+/* Per-pthread information */
+typedef struct {
+	pthread_t pthread;	/* pthread handle */
+	int ret;		/* pthread create return value */
+} stress_pthread_info_t;
+
 static const stress_memthrash_method_info_t memthrash_methods[];
 static void *mem;
 static volatile bool thread_terminate;
 static sigset_t set;
-
 
 #if (((defined(__GNUC__) || defined(__clang__)) && 	\
        defined(STRESS_ARCH_X86)) ||			\
@@ -687,23 +692,27 @@ static int stress_memthrash_child(const stress_args_t *args, void *ctxt)
 	stress_memthrash_context_t *context = (stress_memthrash_context_t *)ctxt;
 	const uint32_t max_threads = context->max_threads;
 	uint32_t i;
-	pthread_t pthreads[max_threads];
-	int pthreads_ret[max_threads], ret;
+	int ret;
 	stress_pthread_args_t pargs;
+	stress_pthread_info_t *pthread_info;
 
 	int flags = MAP_PRIVATE | MAP_ANONYMOUS;
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
 
+	pthread_info = calloc(max_threads, sizeof(*pthread_info));
+	if (!pthread_info) {
+		pr_inf("%s: failed to allocate pthread information array\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
 	ret = stress_sighandler(args->name, SIGALRM, stress_memthrash_sigalrm_handler, NULL);
 	(void)ret;
 
 	pargs.args = args;
 	pargs.data = (void *)context->memthrash_method->func;
-
-	(void)memset(pthreads, 0, sizeof(pthreads));
-	(void)memset(pthreads_ret, 0, sizeof(pthreads_ret));
 
 mmap_retry:
 	mem = mmap(NULL, MEM_SIZE, PROT_READ | PROT_WRITE, flags, -1, 0);
@@ -714,6 +723,7 @@ mmap_retry:
 		if (!keep_stressing_flag()) {
 			pr_dbg("%s: mmap failed: %d %s\n",
 				args->name, errno, strerror(errno));
+			free(pthread_info);
 			return EXIT_NO_RESOURCE;
 		}
 		(void)shim_usleep(100000);
@@ -723,15 +733,18 @@ mmap_retry:
 	}
 
 	for (i = 0; i < max_threads; i++) {
-		pthreads_ret[i] = pthread_create(&pthreads[i], NULL,
-				stress_memthrash_func, (void *)&pargs);
-		if (pthreads_ret[i]) {
+		pthread_info[i].ret = pthread_create(&pthread_info[i].pthread,
+						NULL, stress_memthrash_func,
+						(void *)&pargs);
+		if (pthread_info[i].ret) {
+			ret = pthread_info[i].ret;
+
 			/* Just give up and go to next thread */
-			if (pthreads_ret[i] == EAGAIN)
+			if (ret == EAGAIN)
 				continue;
 			/* Something really unexpected */
 			pr_fail("%s: pthread create failed, errno=%d (%s)\n",
-				args->name, pthreads_ret[i], strerror(pthreads_ret[i]));
+				args->name, ret, strerror(ret));
 			goto reap;
 		}
 		if (!keep_stressing_flag())
@@ -743,16 +756,17 @@ mmap_retry:
 reap:
 	thread_terminate = true;
 	for (i = 0; i < max_threads; i++) {
-		if (!pthreads_ret[i]) {
-			pthreads_ret[i] = pthread_join(pthreads[i], NULL);
-			if (pthreads_ret[i] && (pthreads_ret[i] != ESRCH)) {
+		if (!pthread_info[i].ret) {
+			pthread_info[i].ret = pthread_join(pthread_info[i].pthread, NULL);
+			if (pthread_info[i].ret && (pthread_info[i].ret != ESRCH)) {
 				pr_fail("%s: pthread join failed, errno=%d (%s)\n",
-					args->name, pthreads_ret[i], strerror(pthreads_ret[i]));
+					args->name, pthread_info[i].ret, strerror(pthread_info[i].ret));
 			}
 		}
 	}
 reap_mem:
 	(void)munmap(mem, MEM_SIZE);
+	free(pthread_info);
 
 	return EXIT_SUCCESS;
 }
