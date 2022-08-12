@@ -30,25 +30,25 @@
 /*
  *  8 bit rotate right
  */
-#define ROR8(val)				\
-do {						\
-	uint8_t tmpval = (val);			\
-	const uint8_t bit0 = (tmpval & 1) << 7;	\
-	tmpval >>= 1;				\
-	tmpval |= bit0;				\
-	(val) = tmpval;				\
+#define ROR8(val)					\
+do {							\
+	uint8_t tmpval = (val);				\
+	const uint8_t bit0 = (tmpval & 1);		\
+	const uint8_t bit7 = (uint8_t)(bit0 << 7);	\
+							\
+	(val) = (tmpval >> 1) | bit7;			\
 } while (0)
 
 /*
  *  8 bit rotate left
  */
-#define ROL8(val)				\
-do {						\
-	uint8_t tmpval = (val);			\
-	const uint8_t bit7 = (tmpval & 0x80) >> 7;\
-	tmpval <<= 1;				\
-	tmpval |= bit7;				\
-	(val) = tmpval;				\
+#define ROL8(val)					\
+do {							\
+	uint8_t tmpval = (val);				\
+	const uint8_t bit7 = (tmpval & 0x80);		\
+	const uint8_t bit0 = (uint8_t)(bit7 >> 7);	\
+							\
+	(val) = (uint8_t)(tmpval << 1) | bit0;		\
 } while (0)
 
 #define EXERCISE(data)	\
@@ -325,7 +325,7 @@ static int stress_cacheline_mix(
 	const size_t l1_cacheline_size)
 {
 	register int i;
-	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
+	volatile uint8_t *cacheline = (volatile uint8_t *)(uintptr_t)g_shared->cacheline;
 	volatile uint8_t *data8 = cacheline + index;
 	static uint8_t tmp = 0xa5;
 
@@ -358,9 +358,8 @@ static int stress_cacheline_rdrev64(
 	register int i;
 	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
 	volatile uint8_t *data8 = cacheline + index;
-	const size_t cacheline_size = g_shared->cacheline_size;
-	volatile uint8_t *aligned_cacheline = (volatile uint8_t *)
-		((intptr_t)cacheline & ~(l1_cacheline_size - 1));
+	const ssize_t cacheline_size = (ssize_t)g_shared->cacheline_size;
+	uintptr_t aligned_cacheline = (uintptr_t)cacheline & ~(l1_cacheline_size - 1);
 
 	(void)parent;
 	(void)l1_cacheline_size;
@@ -373,8 +372,8 @@ static int stress_cacheline_rdrev64(
 		val8 = *data8;
 
 		/* read cache line backwards */
-		for (j = (ssize_t)cacheline_size - 8; j >= 0; j -= 8) {
-			volatile uint64_t *data64 = (volatile uint64_t *)(aligned_cacheline + j);
+		for (j = cacheline_size - 8; j >= 0; j -= 8) {
+			volatile uint64_t *data64 = (volatile uint64_t *)(aligned_cacheline + (size_t)j);
 
 			(void)*data64;
 			shim_mb();
@@ -398,8 +397,7 @@ static int stress_cacheline_rdfwd64(
 	volatile uint8_t *cacheline = (volatile uint8_t *)g_shared->cacheline;
 	volatile uint8_t *data8 = cacheline + index;
 	const size_t cacheline_size = g_shared->cacheline_size;
-	volatile uint8_t *aligned_cacheline = (volatile uint8_t *)
-		((intptr_t)cacheline & ~(l1_cacheline_size - 1));
+	uintptr_t aligned_cacheline = (uintptr_t)cacheline & ~(l1_cacheline_size - 1);
 
 	(void)parent;
 	(void)l1_cacheline_size;
@@ -498,7 +496,7 @@ static int stress_cacheline_bits(
 
 		(void)*(data8);
 
-		val8 = 1U << (i & 7);
+		val8 = (uint8_t)(1U << (i & 7));
 		*data8 = val8;
 		shim_mb();
 		if (*data8 != val8) {
@@ -656,7 +654,7 @@ static int stress_cacheline_child(
 	int rc;
 #if defined(HAVE_AFFINITY) && \
     defined(HAVE_SCHED_GETAFFINITY)
-	const uint32_t cpus = (int)stress_get_processors_configured();
+	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
 #endif
 
 	(void)cacheline_affinity;
