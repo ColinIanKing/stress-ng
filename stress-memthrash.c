@@ -177,7 +177,7 @@ static void HOT OPTIMIZE3 stress_memthrash_memset64(
 	const size_t mem_size)
 {
 	register uint64_t *ptr = (uint64_t *)mem;
-	register const uint64_t *end = (uint64_t *)(((uint8_t *)mem) + mem_size);
+	register const uint64_t *end = (uint64_t *)(((uintptr_t)mem) + mem_size);
 	register uint64_t val = stress_mwc64();
 
 	(void)args;
@@ -217,7 +217,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_swap64(
 	const size_t mem_size)
 {
 	uint64_t *ptr = (uint64_t *)mem;
-	register const uint64_t *end = (uint64_t *)(((uint8_t *)mem) + mem_size);
+	register const uint64_t *end = (uint64_t *)(((uintptr_t)mem) + mem_size);
 
 	(void)args;
 
@@ -274,7 +274,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_memthrash_copy128(
 	const size_t mem_size)
 {
 	__uint128_t *ptr = (__uint128_t *)mem;
-	register const __uint128_t *end = (__uint128_t *)(((uint8_t *)mem) + mem_size - 128);
+	register const __uint128_t *end = (__uint128_t *)(((uintptr_t)mem) + mem_size - 128);
 
 	(void)args;
 
@@ -327,7 +327,7 @@ static void HOT OPTIMIZE3 stress_memthrash_flip_mem(
 	const size_t mem_size)
 {
 	volatile uint64_t *ptr = (volatile uint64_t *)mem;
-	const uint64_t *end = (uint64_t *)(((uint8_t *)mem) + mem_size);
+	const uint64_t *end = (uint64_t *)(((uintptr_t)mem) + mem_size);
 
 	(void)args;
 
@@ -473,7 +473,7 @@ static void HOT OPTIMIZE3 stress_memthrash_spinread(
 	const size_t size = mem_size - (8 * sizeof(*ptr));
 	const size_t offset = (stress_mwc32() % size) & ~(size_t)3;
 
-	ptr = (uint32_t *)(((uint8_t *)mem) + offset);
+	ptr = (uint32_t *)(((uintptr_t)mem) + offset);
 	(void)args;
 
 	for (i = 0; !thread_terminate && (i < 65536); i++) {
@@ -498,7 +498,7 @@ static void HOT OPTIMIZE3 stress_memthrash_spinwrite(
 	const size_t size = mem_size - (8 * sizeof(*ptr));
 	const size_t offset = (stress_mwc32() % size) & ~(size_t)3;
 
-	ptr = (uint32_t *)(((uint8_t *)mem) + offset);
+	ptr = (uint32_t *)(((uintptr_t)mem) + offset);
 	(void)args;
 
 	for (i = 0; !thread_terminate && (i < 65536); i++) {
