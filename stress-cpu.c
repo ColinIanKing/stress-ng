@@ -697,31 +697,33 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_collatz(const char *name)
  */
 static void OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 {
+#define IDCT_SIZE	(8)
+
 	const double invsqrt2 = 1.0 / shim_sqrt(2.0);
 	const double pi_over_16 = (double)PI / 16.0;
-	const int sz = 8;
 	int i, j, u, v;
-	float data[sz][sz], idct[sz][sz];
+	float data[IDCT_SIZE][IDCT_SIZE];
+	float idct[IDCT_SIZE][IDCT_SIZE];
 
 	/*
 	 *  Set up DCT
 	 */
-	for (i = 0; i < sz; i++) {
-		for (j = 0; j < sz; j++) {
+	for (i = 0; i < IDCT_SIZE; i++) {
+		for (j = 0; j < IDCT_SIZE; j++) {
 			data[i][j] = (i + j == 0) ? 2040: 0;
 		}
 	}
-	for (i = 0; i < sz; i++) {
+	for (i = 0; i < IDCT_SIZE; i++) {
 		const double pi_i = (i + i + 1) * pi_over_16;
 
-		for (j = 0; j < sz; j++) {
+		for (j = 0; j < IDCT_SIZE; j++) {
 			const double pi_j = (j + j + 1) * pi_over_16;
 			double sum = 0.0;
 
-			for (u = 0; u < sz; u++) {
+			for (u = 0; u < IDCT_SIZE; u++) {
 				const double cos_pi_i_u = shim_cos(pi_i * u);
 
-				for (v = 0; v < sz; v++) {
+				for (v = 0; v < IDCT_SIZE; v++) {
 					const double cos_pi_j_v =
 						shim_cos(pi_j * v);
 
@@ -736,8 +738,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 	}
 	/* Final output should be a 8x8 matrix of values 255 */
 	if (g_opt_flags & OPT_FLAGS_VERIFY) {
-		for (i = 0; i < sz; i++) {
-			for (j = 0; j < sz; j++) {
+		for (i = 0; i < IDCT_SIZE; i++) {
+			for (j = 0; j < IDCT_SIZE; j++) {
 				if ((int)idct[i][j] != 255) {
 					pr_fail("%s: IDCT error detected, "
 						"IDCT[%d][%d] was %d, "
@@ -749,6 +751,8 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_idct(const char *name)
 				return;
 		}
 	}
+
+#undef IDCT_SIZE
 }
 
 #define int_ops(_type, a, b, c1, c2, c3)\
