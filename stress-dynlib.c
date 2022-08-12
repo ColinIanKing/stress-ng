@@ -98,6 +98,8 @@ static const stress_lib_info_t libnames[] = {
 #endif
 };
 
+#define MAX_LIBNAMES	(SIZEOF_ARRAY(libnames))
+
 /*
  *  stress_segvhandler()
  *      SEGV handler
@@ -115,8 +117,7 @@ static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
  */
 static int stress_dynlib(const stress_args_t *args)
 {
-	const size_t n = SIZEOF_ARRAY(libnames);
-	void *handles[n];
+	void *handles[MAX_LIBNAMES];
 
 	(void)memset(handles, 0, sizeof(handles));
 
@@ -135,7 +136,7 @@ static int stress_dynlib(const stress_args_t *args)
 		if (ret)
 			goto tidy;
 
-		for (i = 0; i < n; i++) {
+		for (i = 0; i < MAX_LIBNAMES; i++) {
 			int flags;
 
 			flags = stress_mwc1() ? RTLD_LAZY : RTLD_NOW;
@@ -147,7 +148,7 @@ static int stress_dynlib(const stress_args_t *args)
 			(void)dlerror();
 		}
 
-		for (i = 0; i < n; i++) {
+		for (i = 0; i < MAX_LIBNAMES; i++) {
 			if (handles[i]) {
 				uint8_t *ptr;
 
@@ -163,7 +164,7 @@ static int stress_dynlib(const stress_args_t *args)
 			}
 		}
 tidy:
-		for (i = 0; i < n; i++) {
+		for (i = 0; i < MAX_LIBNAMES; i++) {
 			if (handles[i])
 				(void)dlclose(handles[i]);
 			handles[i] = NULL;
