@@ -627,14 +627,15 @@ static const stress_apparmor_func apparmor_funcs[] = {
 	apparmor_stress_corruption,
 };
 
+#define MAX_APPARMOR_FUNCS	(SIZEOF_ARRAY(apparmor_funcs))
+
 /*
  *  stress_apparmor()
  *	stress AppArmor
  */
 static int stress_apparmor(const stress_args_t *args)
 {
-	const size_t n = SIZEOF_ARRAY(apparmor_funcs);
-	pid_t pids[n];
+	pid_t pids[MAX_APPARMOR_FUNCS];
 	size_t i;
 	int rc = EXIT_NO_RESOURCE;
 
@@ -658,7 +659,7 @@ static int stress_apparmor(const stress_args_t *args)
 		goto err_free_data_prev;
 	}
 
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < MAX_APPARMOR_FUNCS; i++) {
 		pids[i] = apparmor_spawn(args, apparmor_funcs[i]);
 	}
 
@@ -675,12 +676,12 @@ static int stress_apparmor(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	/* Wakeup, time to die */
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < MAX_APPARMOR_FUNCS; i++) {
 		if (pids[i] >= 0)
 			(void)kill(pids[i], SIGALRM);
 	}
 	/* Now apply death grip */
-	for (i = 0; i < n; i++) {
+	for (i = 0; i < MAX_APPARMOR_FUNCS; i++) {
 		int status;
 
 		if (pids[i] >= 0) {
