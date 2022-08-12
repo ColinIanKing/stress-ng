@@ -410,6 +410,8 @@ static int stress_close(const stress_args_t *args)
 #endif
 			VOID_RET(int, fstat(fd, &statbuf));
 
+			VOID_RET(int, close(dup(STDOUT_FILENO)));
+
 			(void)close(fd);
 			if (dupfd != -1)
 				(void)close(dupfd);
