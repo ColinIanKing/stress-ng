@@ -1574,6 +1574,7 @@ static void stress_dev_mem_mmap_linux(
 	const bool write_page)
 {
 	void *ptr;
+	char *buffer;
 	const size_t page_size = stress_get_page_size();
 
 #if !defined(STRESS_ARCH_X86)
@@ -1582,18 +1583,20 @@ static void stress_dev_mem_mmap_linux(
 	(void)write_page;
 #endif
 
+	buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+		MAP_PRIVATE | MAP_ANONYMOUS, fd, 0);
+
 	ptr = mmap(NULL, page_size, PROT_READ, MAP_PRIVATE, fd, 0);
 	if (ptr != MAP_FAILED) {
 		(void)munmap(ptr, page_size);
 	}
-	if (read_page) {
+	if (read_page && (buffer != MAP_FAILED)) {
 		off_t off;
 
 		/* Try seeking */
 		off = lseek(fd, (off_t)0, SEEK_SET);
 #if defined(STRESS_ARCH_X86)
 		if (off == 0) {
-			char buffer[page_size];
 			ssize_t ret;
 
 			/* And try reading */
@@ -1609,24 +1612,25 @@ static void stress_dev_mem_mmap_linux(
 	if (ptr != MAP_FAILED)
 		(void)munmap(ptr, page_size);
 #if defined(STRESS_ARCH_X86)
-	if (write_page) {
+	if (write_page && (buffer != MAP_FAILED)) {
 		int fdwr;
 
 		fdwr = open(devpath, O_RDWR);
 		if (fdwr >= 0) {
 			if (lseek(fdwr, (off_t)0, SEEK_SET) == 0) {
-				char buffer[1];
 				ssize_t ret;
 
 				/* Page zero, offset zero should contain zero */
-				(void)memset(buffer, 0, sizeof(buffer));
-				ret = write(fdwr, buffer, sizeof(buffer));
+				buffer[0] = 0;
+				ret = write(fdwr, buffer, 1);
 				(void)ret;
 			}
 			(void)close(fdwr);
 		}
 	}
 #endif
+	if (buffer != MAP_FAILED)
+		(void)munmap((void *)buffer, page_size);
 }
 
 static void stress_dev_mem_linux(
