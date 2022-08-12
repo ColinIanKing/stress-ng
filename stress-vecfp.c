@@ -33,12 +33,22 @@ static const stress_help_t help[] = {
 #if defined(HAVE_VECMATH)
 
 typedef struct {
-	double r_init;	/* initialization value for r */
-	double r;	/* result of computation */
-	double add;	/* value to add */
-	double add_rev;	/* value to add to revert back */
-	double mul;	/* value to multiply */
-	double mul_rev;	/* value to multiply to revert back */
+	struct {
+		double r_init;	/* initialization value for r */
+		double r;	/* result of computation */
+		double add;	/* value to add */
+		double add_rev;	/* value to add to revert back */
+		double mul;	/* value to multiply */
+		double mul_rev;	/* value to multiply to revert back */
+	} d;
+	struct {
+		float r_init;	/* initialization value for r */
+		float r;	/* result of computation */
+		float add;	/* value to add */
+		float add_rev;	/* value to add to revert back */
+		float mul;	/* value to multiply */
+		float mul_rev;	/* value to multiply to revert back */
+	} f;
 } stress_vecfp_init;
 
 typedef double (*stress_vecfp_func_t)(
@@ -68,14 +78,11 @@ VEC_TYPE_T(double, 32)
 VEC_TYPE_T(double, 16)
 VEC_TYPE_T(double, 8)
 
-#define STRESS_FLT_RND(type)					\
-	1.0 + ((double)stress_mwc8() / 256000.0)
-
 static double stress_vecfp_all(
 	const stress_args_t *args,
 	stress_vecfp_init *vecfp_init);
 
-#define STRESS_VEC_ADD(name, type)				\
+#define STRESS_VEC_ADD(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
 	const stress_args_t *args,				\
 	stress_vecfp_init *vecfp_init)				\
@@ -87,9 +94,9 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	double t1, t2;						\
 								\
 	for (i = 0; i < n; i++) {				\
-		r.f[i] = vecfp_init[i].r_init;			\
-		add.f[i] = vecfp_init[i].add;			\
-		add_rev.f[i] = vecfp_init[i].add_rev;		\
+		r.f[i] = vecfp_init[i].field.r_init;		\
+		add.f[i] = vecfp_init[i].field.add;		\
+		add_rev.f[i] = vecfp_init[i].field.add_rev;	\
 	}							\
 								\
 	t1 = stress_time_now();					\
@@ -100,13 +107,13 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	t2 = stress_time_now();					\
 								\
 	for (i = 0; i < n; i++) {				\
-		vecfp_init[i].r = r.f[i];			\
+		vecfp_init[i].field.r = r.f[i];			\
 	}							\
 	inc_counter(args);					\
 	return t2 - t1;						\
 }
 
-#define STRESS_VEC_MUL(name, type)				\
+#define STRESS_VEC_MUL(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
 	const stress_args_t *args,				\
 	stress_vecfp_init *vecfp_init)				\
@@ -118,9 +125,9 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	double t1, t2;						\
 								\
 	for (i = 0; i < n; i++) {				\
-		r.f[i] = vecfp_init[i].r_init;			\
-		mul.f[i] = vecfp_init[i].mul;			\
-		mul_rev.f[i] = vecfp_init[i].mul_rev;		\
+		r.f[i] = vecfp_init[i].field.r_init;		\
+		mul.f[i] = vecfp_init[i].field.mul;		\
+		mul_rev.f[i] = vecfp_init[i].field.mul_rev;	\
 	}							\
 								\
 	t1 = stress_time_now();					\
@@ -131,13 +138,13 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	t2 = stress_time_now();					\
 								\
 	for (i = 0; i < n; i++) {				\
-		vecfp_init[i].r = r.f[i];			\
+		vecfp_init[i].field.r = r.f[i];			\
 	}							\
 	inc_counter(args);					\
 	return t2 - t1;						\
 }
 
-#define STRESS_VEC_DIV(name, type)				\
+#define STRESS_VEC_DIV(field, name, type)			\
 static double TARGET_CLONES OPTIMIZE3 name(			\
 	const stress_args_t *args,				\
 	stress_vecfp_init *vecfp_init)				\
@@ -149,9 +156,9 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	double t1, t2;						\
 								\
 	for (i = 0; i < n; i++) {				\
-		r.f[i] = vecfp_init[i].r_init;			\
-		mul.f[i] = vecfp_init[i].mul;			\
-		mul_rev.f[i] = vecfp_init[i].mul_rev;		\
+		r.f[i] = vecfp_init[i].field.r_init;		\
+		mul.f[i] = vecfp_init[i].field.mul;		\
+		mul_rev.f[i] = vecfp_init[i].field.mul_rev;	\
 	}							\
 								\
 	t1 = stress_time_now();					\
@@ -161,48 +168,48 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	}							\
 	t2 = stress_time_now();					\
 	for (i = 0; i < n; i++) {				\
-		vecfp_init[i].r = r.f[i];			\
+		vecfp_init[i].field.r = r.f[i];			\
 	}							\
 								\
 	inc_counter(args);					\
 	return t2 - t1;						\
 }
 
-STRESS_VEC_ADD(stress_vecfp_float_add_128, stress_vecfp_float_64_t)
-STRESS_VEC_ADD(stress_vecfp_float_add_64, stress_vecfp_float_64_t)
-STRESS_VEC_ADD(stress_vecfp_float_add_32, stress_vecfp_float_32_t)
-STRESS_VEC_ADD(stress_vecfp_float_add_16, stress_vecfp_float_16_t)
-STRESS_VEC_ADD(stress_vecfp_float_add_8, stress_vecfp_float_8_t)
+STRESS_VEC_ADD(f, stress_vecfp_float_add_128, stress_vecfp_float_64_t)
+STRESS_VEC_ADD(f, stress_vecfp_float_add_64, stress_vecfp_float_64_t)
+STRESS_VEC_ADD(f, stress_vecfp_float_add_32, stress_vecfp_float_32_t)
+STRESS_VEC_ADD(f, stress_vecfp_float_add_16, stress_vecfp_float_16_t)
+STRESS_VEC_ADD(f, stress_vecfp_float_add_8, stress_vecfp_float_8_t)
 
-STRESS_VEC_MUL(stress_vecfp_float_mul_128, stress_vecfp_float_64_t)
-STRESS_VEC_MUL(stress_vecfp_float_mul_64, stress_vecfp_float_64_t)
-STRESS_VEC_MUL(stress_vecfp_float_mul_32, stress_vecfp_float_32_t)
-STRESS_VEC_MUL(stress_vecfp_float_mul_16, stress_vecfp_float_16_t)
-STRESS_VEC_MUL(stress_vecfp_float_mul_8, stress_vecfp_float_8_t)
+STRESS_VEC_MUL(f, stress_vecfp_float_mul_128, stress_vecfp_float_64_t)
+STRESS_VEC_MUL(f, stress_vecfp_float_mul_64, stress_vecfp_float_64_t)
+STRESS_VEC_MUL(f, stress_vecfp_float_mul_32, stress_vecfp_float_32_t)
+STRESS_VEC_MUL(f, stress_vecfp_float_mul_16, stress_vecfp_float_16_t)
+STRESS_VEC_MUL(f, stress_vecfp_float_mul_8, stress_vecfp_float_8_t)
 
-STRESS_VEC_DIV(stress_vecfp_float_div_128, stress_vecfp_float_64_t)
-STRESS_VEC_DIV(stress_vecfp_float_div_64, stress_vecfp_float_64_t)
-STRESS_VEC_DIV(stress_vecfp_float_div_32, stress_vecfp_float_32_t)
-STRESS_VEC_DIV(stress_vecfp_float_div_16, stress_vecfp_float_16_t)
-STRESS_VEC_DIV(stress_vecfp_float_div_8, stress_vecfp_float_8_t)
+STRESS_VEC_DIV(f, stress_vecfp_float_div_128, stress_vecfp_float_64_t)
+STRESS_VEC_DIV(f, stress_vecfp_float_div_64, stress_vecfp_float_64_t)
+STRESS_VEC_DIV(f, stress_vecfp_float_div_32, stress_vecfp_float_32_t)
+STRESS_VEC_DIV(f, stress_vecfp_float_div_16, stress_vecfp_float_16_t)
+STRESS_VEC_DIV(f, stress_vecfp_float_div_8, stress_vecfp_float_8_t)
 
-STRESS_VEC_ADD(stress_vecfp_double_add_128, stress_vecfp_double_128_t)
-STRESS_VEC_ADD(stress_vecfp_double_add_64, stress_vecfp_double_64_t)
-STRESS_VEC_ADD(stress_vecfp_double_add_32, stress_vecfp_double_32_t)
-STRESS_VEC_ADD(stress_vecfp_double_add_16, stress_vecfp_double_16_t)
-STRESS_VEC_ADD(stress_vecfp_double_add_8, stress_vecfp_double_8_t)
+STRESS_VEC_ADD(d, stress_vecfp_double_add_128, stress_vecfp_double_128_t)
+STRESS_VEC_ADD(d, stress_vecfp_double_add_64, stress_vecfp_double_64_t)
+STRESS_VEC_ADD(d, stress_vecfp_double_add_32, stress_vecfp_double_32_t)
+STRESS_VEC_ADD(d, stress_vecfp_double_add_16, stress_vecfp_double_16_t)
+STRESS_VEC_ADD(d, stress_vecfp_double_add_8, stress_vecfp_double_8_t)
 
-STRESS_VEC_MUL(stress_vecfp_double_mul_128, stress_vecfp_double_128_t)
-STRESS_VEC_MUL(stress_vecfp_double_mul_64, stress_vecfp_double_64_t)
-STRESS_VEC_MUL(stress_vecfp_double_mul_32, stress_vecfp_double_32_t)
-STRESS_VEC_MUL(stress_vecfp_double_mul_16, stress_vecfp_double_16_t)
-STRESS_VEC_MUL(stress_vecfp_double_mul_8, stress_vecfp_double_8_t)
+STRESS_VEC_MUL(d, stress_vecfp_double_mul_128, stress_vecfp_double_128_t)
+STRESS_VEC_MUL(d, stress_vecfp_double_mul_64, stress_vecfp_double_64_t)
+STRESS_VEC_MUL(d, stress_vecfp_double_mul_32, stress_vecfp_double_32_t)
+STRESS_VEC_MUL(d, stress_vecfp_double_mul_16, stress_vecfp_double_16_t)
+STRESS_VEC_MUL(d, stress_vecfp_double_mul_8, stress_vecfp_double_8_t)
 
-STRESS_VEC_DIV(stress_vecfp_double_div_128, stress_vecfp_double_128_t)
-STRESS_VEC_DIV(stress_vecfp_double_div_64, stress_vecfp_double_64_t)
-STRESS_VEC_DIV(stress_vecfp_double_div_32, stress_vecfp_double_32_t)
-STRESS_VEC_DIV(stress_vecfp_double_div_16, stress_vecfp_double_16_t)
-STRESS_VEC_DIV(stress_vecfp_double_div_8, stress_vecfp_double_8_t)
+STRESS_VEC_DIV(d, stress_vecfp_double_div_128, stress_vecfp_double_128_t)
+STRESS_VEC_DIV(d, stress_vecfp_double_div_64, stress_vecfp_double_64_t)
+STRESS_VEC_DIV(d, stress_vecfp_double_div_32, stress_vecfp_double_32_t)
+STRESS_VEC_DIV(d, stress_vecfp_double_div_16, stress_vecfp_double_16_t)
+STRESS_VEC_DIV(d, stress_vecfp_double_div_8, stress_vecfp_double_8_t)
 
 typedef struct {
 	const char *name;
@@ -262,7 +269,7 @@ static void stress_vecfp_call_method(
 
 	dt = func->vecfp_func(args, vecfp_init);
 	func->duration += dt;
-	ops = LOOPS_PER_CALL * func->elements;
+	ops = (double)(LOOPS_PER_CALL * func->elements);
 	func->ops += ops;
 }
 
@@ -328,18 +335,32 @@ static int stress_vecfp(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (i = 0; i < max_elements; i++) {
-		double v;
+		double d;
+		float f;
+		uint32_t r;
 
-		v = (double)i + (double)stress_mwc32() / ((double)(1ULL << 38));
-		vecfp_init[i].r_init = v;
 
-		v = (double)stress_mwc32() / ((double)(1ULL << 31));
-		vecfp_init[i].add = v;
-		vecfp_init[i].add_rev = -(v * 0.992);
+		r = stress_mwc32();
+		d = (double)i + (double)r / ((double)(1ULL << 38));
+		vecfp_init[i].d.r_init = d;
+		f = (float)i + (float)r / ((float)(1ULL << 38));
+		vecfp_init[i].f.r_init = f;
 
-		v = (double)i + (double)stress_mwc32() / ((double)(1ULL << 36));
-		vecfp_init[i].mul = v;
-		vecfp_init[i].mul_rev = 0.9995 / v;
+		r = stress_mwc32();
+		d = (double)r / ((double)(1ULL << 31));
+		vecfp_init[i].d.add = d;
+		vecfp_init[i].d.add_rev = -(d * 0.992);
+		f = (float)r / ((float)(1ULL << 31));
+		vecfp_init[i].f.add = f;
+		vecfp_init[i].f.add_rev = -(f * (float)0.992);
+
+		r = stress_mwc32();
+		d = (double)i + (double)r / ((double)(1ULL << 36));
+		vecfp_init[i].d.mul = d;
+		vecfp_init[i].d.mul_rev = 0.9995 / d;
+		f = (float)i + (float)r / ((float)(1ULL << 36));
+		vecfp_init[i].f.mul = f;
+		vecfp_init[i].f.mul_rev = (float)0.9995 / f;
 	}
 
 	do {
