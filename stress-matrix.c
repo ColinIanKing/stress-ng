@@ -23,7 +23,7 @@
 
 #define MIN_MATRIX_SIZE		(16)
 #define MAX_MATRIX_SIZE		(8192)
-#define DEFAULT_MATRIX_SIZE	(256)
+#define DEFAULT_MATRIX_SIZE	(128)
 
 static const stress_help_t help[] = {
 	{ NULL,	"matrix N",		"start N workers exercising matrix operations" },
@@ -983,7 +983,7 @@ static int stress_matrix(const stress_args_t *args)
 	char *matrix_method_name = NULL;
 	const stress_matrix_method_info_t *matrix_method;
 	stress_matrix_func func;
-	size_t matrix_size = 128;
+	size_t matrix_size = DEFAULT_MATRIX_SIZE;
 	size_t matrix_yx = 0;
 	int rc;
 
