@@ -58,7 +58,7 @@ static int stress_vm_splice(const stress_args_t *args)
 	uint8_t *buf;
 	const size_t page_size = args->page_size;
 	size_t sz, vm_splice_bytes = DEFAULT_VM_SPLICE_BYTES;
-	char data[page_size];
+	char *data;
 
 	if (!stress_get_setting("vm-splice-bytes", &vm_splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -76,15 +76,22 @@ static int stress_vm_splice(const stress_args_t *args)
 	buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		int rc = stress_exit_status(errno);
-
-		pr_fail("%s: mmap failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return rc;
+		pr_fail("%s: mmap of %zd sized buffer failed, errno=%d (%s), skipping stressor\n",
+			args->name, sz, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	data = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+	if (data == MAP_FAILED) {
+		pr_inf("%s: mmap of %zd sized buffer failed, errno=%d (%s), skipping stressor\n",
+			args->name, page_size, errno, strerror(errno));
+		(void)munmap(buf, sz);
+		return EXIT_NO_RESOURCE;
 	}
 
 	if (pipe(fds) < 0) {
-		(void)munmap(buf, sz);
+		(void)munmap((void *)data, page_size);
+		(void)munmap((void *)buf, sz);
 		pr_fail("%s: pipe failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -94,13 +101,14 @@ static int stress_vm_splice(const stress_args_t *args)
 	if (fd < 0) {
 		pr_fail("%s: open /dev/null failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
-		(void)munmap(buf, sz);
+		(void)munmap((void *)data, page_size);
+		(void)munmap((void *)buf, sz);
 		(void)close(fds[0]);
 		(void)close(fds[1]);
 		return EXIT_FAILURE;
 	}
 
-	stress_strnrnd(data, sizeof(data));
+	stress_strnrnd(data, page_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -125,7 +133,7 @@ static int stress_vm_splice(const stress_args_t *args)
 		/*
 		 *  vmsplice from pipe to memory
 		 */
-		bytes = write(fds[1], data, sizeof(data));
+		bytes = write(fds[1], data, page_size);
 		if (bytes > 0) {
 			iov.iov_base = buf;
 			iov.iov_len = (size_t)bytes;
@@ -140,7 +148,8 @@ static int stress_vm_splice(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	(void)munmap(buf, sz);
+	(void)munmap((void *)data, page_size);
+	(void)munmap((void *)buf, sz);
 	(void)close(fd);
 	(void)close(fds[0]);
 	(void)close(fds[1]);
