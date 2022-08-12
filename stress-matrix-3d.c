@@ -23,7 +23,7 @@
 
 #define MIN_MATRIX3D_SIZE	(16)
 #define MAX_MATRIX3D_SIZE	(1024)
-#define DEFAULT_MATRIX3D_SIZE	(64)
+#define DEFAULT_MATRIX3D_SIZE	(128)
 
 static const stress_help_t help[] = {
 	{ NULL,	"matrix-3d N",		"start N workers exercising 3D matrix operations" },
@@ -969,7 +969,7 @@ static int stress_matrix(const stress_args_t *args)
 	char *matrix_3d_method_name = NULL;
 	const stress_matrix_3d_method_info_t *matrix_3d_method;
 	stress_matrix_3d_func func;
-	size_t matrix_3d_size = 128;
+	size_t matrix_3d_size = DEFAULT_MATRIX3D_SIZE;
 	size_t matrix_3d_yx = 0;
 	int rc;
 
