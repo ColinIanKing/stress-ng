@@ -214,8 +214,14 @@ static void *stress_alloc_aligned(const size_t nmemb, const size_t size, const s
 	const size_t sz = nmemb * size;
 	void *ptr;
 
+#if defined(HAVE_POSIX_MEMALIGN)
 	if (posix_memalign(&ptr, alignment, sz) == 0)
 		return ptr;
+#elif defined(HAVE_ALIGNED_ALLOC)
+	return aligned_alloc(alignment, sz);
+#elif defined(HAVE_MEMALIGN)
+	return memalign(aiglment, sz);
+#endif
 	return NULL;
 }
 
