@@ -647,6 +647,11 @@ static int open_with_open_proc_self_fd(void)
 }
 #endif
 
+static int open_dup(void)
+{
+	return dup(STDOUT_FILENO);
+}
+
 static stress_open_func_t open_funcs[] = {
 	open_flag_perm,
 	open_dev_zero_rd,
@@ -694,6 +699,7 @@ static stress_open_func_t open_funcs[] = {
 #if defined(__linux__)
 	open_with_open_proc_self_fd,
 #endif
+	open_dup,
 };
 
 /*
