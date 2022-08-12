@@ -67,6 +67,8 @@ static stress_init_mb_t init_mb[] = {
 	{ FEATURE_AVX512,	"avx512",	init_mb_mgr_avx512 },
 };
 
+#define FEATURES_MAX		(SIZEOF_ARRAY(init_mb))
+
 static int stress_set_ipsec_mb_feature(const char *opt)
 {
 	size_t i;
@@ -207,6 +209,18 @@ static void stress_jobs_done(
 			args->name, name, jobs_done, jobs);
 }
 
+static void *stress_alloc_aligned(const size_t nmemb, const size_t size, const size_t alignment)
+{
+	const size_t sz = nmemb * size;
+	void *ptr;
+
+	if (posix_memalign(&ptr, alignment, sz) == 0)
+		return ptr;
+	return NULL;
+}
+
+#define SHA_DIGEST_SIZE		(64)
+
 static void stress_sha(
 	const stress_args_t *args,
 	struct MB_MGR *mb_mgr,
@@ -215,13 +229,16 @@ static void stress_sha(
 	const int jobs)
 {
 	int j, jobs_done = 0;
-	const int sha_digest_size = 64;
 	struct JOB_AES_HMAC *job;
 	uint8_t padding[16];
-	const size_t alloc_len = sha_digest_size + (sizeof(padding) * 2);
+	const size_t alloc_len = SHA_DIGEST_SIZE + (sizeof(padding) * 2);
 	uint8_t *auth;
-	uint8_t auth_data[alloc_len * jobs];
+	uint8_t *auth_data;
 	static const char name[] = "sha";
+
+	auth_data = (uint8_t *)stress_alloc_aligned((size_t)jobs, alloc_len, 16);
+	if (!auth_data)
+		return;
 
 	stress_job_empty(mb_mgr);
 
@@ -230,7 +247,7 @@ static void stress_sha(
 		job->cipher_direction = ENCRYPT;
 		job->chain_order = HASH_CIPHER;
 		job->auth_tag_output = auth + sizeof(padding);
-		job->auth_tag_output_len_in_bytes = sha_digest_size;
+		job->auth_tag_output_len_in_bytes = SHA_DIGEST_SIZE;
 		job->src = data;
 		job->msg_len_to_hash_in_bytes = data_len;
 		job->cipher_mode = NULL_CIPHER;
@@ -246,6 +263,7 @@ static void stress_sha(
 
 	stress_jobs_done(args, name, jobs, jobs_done);
 	stress_job_empty(mb_mgr);
+	free(auth_data);
 }
 
 static void stress_des(
@@ -258,13 +276,17 @@ static void stress_des(
 	int j, jobs_done = 0;
 	struct JOB_AES_HMAC *job;
 
-	uint8_t encoded[jobs * data_len] ALIGNED(16);
+	uint8_t *encoded;
 	uint8_t k[32] ALIGNED(16);
 	uint8_t iv[16] ALIGNED(16);
-	uint32_t enc_keys[15*4] ALIGNED(16);
-	uint32_t dec_keys[15*4] ALIGNED(16);
+	uint32_t enc_keys[15 * 4] ALIGNED(16);
+	uint32_t dec_keys[15 * 4] ALIGNED(16);
 	uint8_t *dst;
 	static const char name[] = "des";
+
+	encoded = (uint8_t *)stress_alloc_aligned((size_t)jobs, data_len, 16);
+	if (!encoded)
+		return;
 
 	stress_rnd_fill(k, sizeof(k));
 	stress_rnd_fill(iv, sizeof(iv));
@@ -298,6 +320,7 @@ static void stress_des(
 
 	stress_jobs_done(args, name, jobs, jobs_done);
 	stress_job_empty(mb_mgr);
+	free(encoded);
 }
 
 static void stress_cmac(
@@ -314,9 +337,13 @@ static void stress_cmac(
 	uint32_t expkey[4 * 15] ALIGNED(16);
 	uint32_t dust[4 * 15] ALIGNED(16);
 	uint32_t skey1[4], skey2[4];
-	uint8_t output[jobs * data_len] ALIGNED(16);
+	uint8_t *output;
 	static const char name[] = "cmac";
 	uint8_t *dst;
+
+	output = (uint8_t *)stress_alloc_aligned((size_t)jobs, data_len, 16);
+	if (!output)
+		return;
 
 	stress_rnd_fill(key, sizeof(key));
 	IMB_AES_KEYEXP_128(mb_mgr, key, expkey, dust);
@@ -348,6 +375,7 @@ static void stress_cmac(
 
 	stress_jobs_done(args, name, jobs, jobs_done);
 	stress_job_empty(mb_mgr);
+	free(output);
 }
 
 static void stress_ctr(
@@ -360,13 +388,17 @@ static void stress_ctr(
 	int j, jobs_done = 0;
 	struct JOB_AES_HMAC *job;
 
-	uint8_t encoded[jobs * data_len] ALIGNED(16);
+	uint8_t *encoded;
 	uint8_t key[32] ALIGNED(16);
 	uint8_t iv[12] ALIGNED(16);		/* 4 byte nonce + 8 byte IV */
 	uint32_t expkey[4 * 15] ALIGNED(16);
 	uint32_t dust[4 * 15] ALIGNED(16);
 	uint8_t *dst;
 	static const char name[] = "ctr";
+
+	encoded = (uint8_t *)stress_alloc_aligned((size_t)jobs, data_len, 16);
+	if (!encoded)
+		return;
 
 	stress_rnd_fill(key, sizeof(key));
 	stress_rnd_fill(iv, sizeof(iv));
@@ -398,7 +430,11 @@ static void stress_ctr(
 
 	stress_jobs_done(args, name, jobs, jobs_done);
 	stress_job_empty(mb_mgr);
+	free(encoded);
 }
+
+#define HMAC_MD5_DIGEST_SIZE	(16)
+#define MMAC_MD5_BLOCK_SIZE	(64)
 
 static void stress_hmac_md5(
 	const stress_args_t *args,
@@ -411,15 +447,17 @@ static void stress_hmac_md5(
 	size_t i;
 	struct JOB_AES_HMAC *job;
 
-	const int digest_size = 16;
-	const int block_size = 64;
-	uint8_t key[block_size] ALIGNED(16);
-	uint8_t buf[block_size] ALIGNED(16);
-	uint8_t ipad_hash[digest_size] ALIGNED(16);
-	uint8_t opad_hash[digest_size] ALIGNED(16);
-	uint8_t output[jobs * digest_size] ALIGNED(16);
+	uint8_t key[MMAC_MD5_BLOCK_SIZE] ALIGNED(16);
+	uint8_t buf[MMAC_MD5_BLOCK_SIZE] ALIGNED(16);
+	uint8_t ipad_hash[HMAC_MD5_DIGEST_SIZE] ALIGNED(16);
+	uint8_t opad_hash[HMAC_MD5_DIGEST_SIZE] ALIGNED(16);
+	uint8_t *output;
 	uint8_t *dst;
 	static const char name[] = "hmac_md5";
+
+	output = (uint8_t *)stress_alloc_aligned((size_t)jobs, HMAC_MD5_DIGEST_SIZE, 16);
+	if (!output)
+		return;
 
 	stress_rnd_fill(key, sizeof(key));
 	for (i = 0; i < sizeof(key); i++)
@@ -431,7 +469,7 @@ static void stress_hmac_md5(
 
 	stress_job_empty(mb_mgr);
 
-	for (dst = output, j = 0; j < jobs; j++, dst += digest_size) {
+	for (dst = output, j = 0; j < jobs; j++, dst += HMAC_MD5_DIGEST_SIZE) {
 		job = stress_job_get_next(mb_mgr);
 		job->aes_enc_key_expanded = NULL;
 		job->aes_dec_key_expanded = NULL;
@@ -440,7 +478,7 @@ static void stress_hmac_md5(
 		job->dst = NULL;
 		job->aes_key_len_in_bytes = 0;
 		job->auth_tag_output = dst;
-		job->auth_tag_output_len_in_bytes = digest_size;
+		job->auth_tag_output_len_in_bytes = HMAC_MD5_DIGEST_SIZE;
 		job->iv = NULL;
 		job->iv_len_in_bytes = 0;
 		job->src = data;
@@ -463,7 +501,11 @@ static void stress_hmac_md5(
 
 	stress_jobs_done(args, name, jobs, jobs_done);
 	stress_job_empty(mb_mgr);
+	free(output);
 }
+
+#define HMAC_SHA1_DIGEST_SIZE	(20)
+#define HMAC_SHA1_BLOCK_SIZE	(64)
 
 static void stress_hmac_sha1(
 	const stress_args_t *args,
@@ -476,15 +518,17 @@ static void stress_hmac_sha1(
 	size_t i;
 	struct JOB_AES_HMAC *job;
 
-	const int digest_size = 20;
-	const int block_size = 64;
-	uint8_t key[block_size] ALIGNED(16);
-	uint8_t buf[block_size] ALIGNED(16);
-	uint8_t ipad_hash[digest_size] ALIGNED(16);
-	uint8_t opad_hash[digest_size] ALIGNED(16);
-	uint8_t output[jobs * digest_size] ALIGNED(16);
+	uint8_t key[HMAC_SHA1_BLOCK_SIZE] ALIGNED(16);
+	uint8_t buf[HMAC_SHA1_BLOCK_SIZE] ALIGNED(16);
+	uint8_t ipad_hash[HMAC_SHA1_DIGEST_SIZE] ALIGNED(16);
+	uint8_t opad_hash[HMAC_SHA1_DIGEST_SIZE] ALIGNED(16);
+	uint8_t *output;
 	uint8_t *dst;
 	static const char name[] = "hmac_sha1";
+
+	output = (uint8_t *)stress_alloc_aligned((size_t)jobs, HMAC_SHA1_DIGEST_SIZE, 16);
+	if (!output)
+		return;
 
 	stress_rnd_fill(key, sizeof(key));
 	for (i = 0; i < sizeof(key); i++)
@@ -496,7 +540,7 @@ static void stress_hmac_sha1(
 
 	stress_job_empty(mb_mgr);
 
-	for (dst = output, j = 0; j < jobs; j++, dst += digest_size) {
+	for (dst = output, j = 0; j < jobs; j++, dst += HMAC_SHA1_DIGEST_SIZE) {
 		job = stress_job_get_next(mb_mgr);
 		job->aes_enc_key_expanded = NULL;
 		job->aes_dec_key_expanded = NULL;
@@ -505,7 +549,7 @@ static void stress_hmac_sha1(
 		job->dst = NULL;
 		job->aes_key_len_in_bytes = 0;
 		job->auth_tag_output = dst;
-		job->auth_tag_output_len_in_bytes = digest_size;
+		job->auth_tag_output_len_in_bytes = HMAC_SHA1_DIGEST_SIZE;
 		job->iv = NULL;
 		job->iv_len_in_bytes = 0;
 		job->src = data;
@@ -528,6 +572,7 @@ static void stress_hmac_sha1(
 
 	stress_jobs_done(args, name, jobs, jobs_done);
 	stress_job_empty(mb_mgr);
+	free(output);
 }
 
 static void stress_hmac_sha512(
@@ -541,16 +586,18 @@ static void stress_hmac_sha512(
 	size_t i;
 	struct JOB_AES_HMAC *job;
 
-	const int digest_size = SHA512_DIGEST_SIZE_IN_BYTES;
-	const int block_size = SHA_512_BLOCK_SIZE;
-	uint8_t rndkey[block_size] ALIGNED(16);
-	uint8_t key[block_size] ALIGNED(16);
-	uint8_t buf[block_size] ALIGNED(16);
-	uint8_t ipad_hash[digest_size] ALIGNED(16);
-	uint8_t opad_hash[digest_size] ALIGNED(16);
-	uint8_t output[jobs * digest_size] ALIGNED(16);
+	uint8_t rndkey[SHA_512_BLOCK_SIZE] ALIGNED(16);
+	uint8_t key[SHA_512_BLOCK_SIZE] ALIGNED(16);
+	uint8_t buf[SHA_512_BLOCK_SIZE] ALIGNED(16);
+	uint8_t ipad_hash[SHA512_DIGEST_SIZE_IN_BYTES] ALIGNED(16);
+	uint8_t opad_hash[SHA512_DIGEST_SIZE_IN_BYTES] ALIGNED(16);
+	uint8_t *output;
 	uint8_t *dst;
 	static const char name[] = "hmac_sha512";
+
+	output = (uint8_t *)stress_alloc_aligned((size_t)jobs, SHA512_DIGEST_SIZE_IN_BYTES, 16);
+	if (!output)
+		return;
 
 	stress_rnd_fill(rndkey, sizeof(rndkey));
 	(void)memset(key, 0, sizeof(key));
@@ -566,7 +613,7 @@ static void stress_hmac_sha512(
 
 	stress_job_empty(mb_mgr);
 
-	for (dst = output, j = 0; j < jobs; j++, dst += digest_size) {
+	for (dst = output, j = 0; j < jobs; j++, dst += SHA512_DIGEST_SIZE_IN_BYTES) {
 		job = stress_job_get_next(mb_mgr);
 		job->aes_enc_key_expanded = NULL;
 		job->aes_dec_key_expanded = NULL;
@@ -575,7 +622,7 @@ static void stress_hmac_sha512(
 		job->dst = NULL;
 		job->aes_key_len_in_bytes = 0;
 		job->auth_tag_output = dst;
-		job->auth_tag_output_len_in_bytes = digest_size;
+		job->auth_tag_output_len_in_bytes = SHA512_DIGEST_SIZE_IN_BYTES;
 		job->iv = NULL;
 		job->iv_len_in_bytes = 0;
 		job->src = data;
@@ -598,6 +645,7 @@ static void stress_hmac_sha512(
 
 	stress_jobs_done(args, name, jobs, jobs_done);
 	stress_job_empty(mb_mgr);
+	free(output);
 }
 
 /*
@@ -609,8 +657,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 	MB_MGR *p_mgr = NULL;
 	uint64_t features;
 	uint8_t data[8192] ALIGNED(64);
-	const size_t n_features = SIZEOF_ARRAY(init_mb);
-	double t[n_features];
+	double t[FEATURES_MAX];
 	size_t i;
 	uint64_t count = 0;
 	bool got_features = false;
@@ -631,11 +678,11 @@ static int stress_ipsec_mb(const stress_args_t *args)
 	}
 
 	features = stress_ipsec_mb_features(args, p_mgr);
-	for (i = 0; i < n_features; i++) {
+	for (i = 0; i < FEATURES_MAX; i++) {
 		t[i] = 0.0;
 	}
 
-	for (i = 0; i < n_features; i++) {
+	for (i = 0; i < FEATURES_MAX; i++) {
 		if ((init_mb[i].features & features) == init_mb[i].features) {
 			got_features = true;
 			break;
@@ -668,7 +715,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		for (i = 0; i < n_features; i++) {
+		for (i = 0; i < FEATURES_MAX; i++) {
 			if ((init_mb[i].features & features) == init_mb[i].features) {
 				double t1, t2;
 
@@ -689,7 +736,7 @@ static int stress_ipsec_mb(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 
-	for (i = 0; i < n_features; i++) {
+	for (i = 0; i < FEATURES_MAX; i++) {
 		if (((init_mb[i].features & features) == init_mb[i].features) && (t[i] > 0.0)) {
 			char tmp[32];
 
