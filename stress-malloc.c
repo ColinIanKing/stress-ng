@@ -41,7 +41,7 @@
 
 typedef struct {
 	uintptr_t *addr;		/* Address of allocation */
-	ssize_t len;			/* Allocation length */
+	size_t len;			/* Allocation length */
 } stress_malloc_info_t;
 
 static size_t malloc_max;		/* Maximum number of allocations */
@@ -91,7 +91,7 @@ static int stress_set_malloc_bytes(const char *opt)
 
 	bytes = (size_t)stress_get_uint64_byte_memory(opt, 1);
 	stress_check_range_bytes("malloc-bytes", bytes,
-		MIN_MALLOC_BYTES, MAX_MEM_LIMIT);
+		MIN_MALLOC_BYTES, MAX_MALLOC_BYTES);
 	return stress_set_setting("malloc-bytes", TYPE_ID_SIZE_T, &bytes);
 }
 
