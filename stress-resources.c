@@ -609,20 +609,22 @@ static void NORETURN waste_resources(
 #if defined(HAVE_LIB_RT) &&	\
     defined(HAVE_MQ_POSIX) &&	\
     defined(HAVE_MQUEUE_H)
-		struct mq_attr attr;
+		{
+			struct mq_attr attr;
 
-		(void)snprintf(info[i].mq_name, sizeof(info[i].mq_name),
-			"/%s-%i-%" PRIu32 "-%zu",
-			args->name, getpid(), args->instance, i);
-		attr.mq_flags = 0;
-		attr.mq_maxmsg = 1;
-		attr.mq_msgsize = 32;
-		attr.mq_curmsgs = 0;
-
-		info[i].mq = mq_open(info[i].mq_name,
-			O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR, &attr);
-		if (!keep_stressing_flag())
-			break;
+			(void)snprintf(info[i].mq_name, sizeof(info[i].mq_name),
+				"/%s-%i-%" PRIu32 "-%zu",
+				args->name, getpid(), args->instance, i);
+			attr.mq_flags = 0;
+			attr.mq_maxmsg = 1;
+			attr.mq_msgsize = 32;
+			attr.mq_curmsgs = 0;
+	
+			info[i].mq = mq_open(info[i].mq_name,
+				O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR, &attr);
+			if (!keep_stressing_flag())
+				break;
+		}
 #endif
 #if defined(HAVE_PKEY_ALLOC) &&	\
     defined(HAVE_PKEY_FREE)
