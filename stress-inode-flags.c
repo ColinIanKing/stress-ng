@@ -52,7 +52,8 @@ static volatile bool keep_running;
 static sigset_t set;
 static shim_pthread_spinlock_t spinlock;
 
-static int inode_flag_count, *inode_flag_perms;
+static size_t inode_flag_count;
+static int *inode_flag_perms;
 
 static const int inode_flags[] = {
 #if defined(FS_DIRSYNC_FL)
