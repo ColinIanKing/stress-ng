@@ -37,7 +37,8 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,			NULL }
 };
 
-static int open_count, *open_perms;
+static size_t open_count;
+static int *open_perms;
 
 static int open_flags[] = {
 #if defined(O_APPEND)
@@ -318,7 +319,7 @@ static inline int open_arg3(const char *pathname, const int flags, const mode_t 
 
 static int open_flag_perm(void)
 {
-	static int index = 0;
+	static size_t index = 0;
 	int fd;
 	const int mode = S_IRUSR | S_IWUSR;
 	const int flags = open_perms[index];
