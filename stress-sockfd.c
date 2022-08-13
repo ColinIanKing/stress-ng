@@ -90,7 +90,7 @@ static inline ssize_t stress_socket_fd_sendmsg(const int fd, const int fd_send)
 	cmsg->cmsg_type = SCM_RIGHTS;
 	cmsg->cmsg_len = CMSG_LEN(sizeof(int));
 
-	ptr = (int *)CMSG_DATA(cmsg);
+	ptr = (int *)(uintptr_t)CMSG_DATA(cmsg);
 	*ptr = fd_send;
 	return sendmsg(fd, &msg, 0);
 }
@@ -130,7 +130,7 @@ static inline int stress_socket_fd_recv(const int fd)
 	    (cmsg->cmsg_level == SOL_SOCKET) &&
 	    (cmsg->cmsg_type == SCM_RIGHTS) &&
 	    ((size_t)cmsg->cmsg_len >= (size_t)CMSG_LEN(sizeof(int)))) {
-		int *const ptr = (int *)CMSG_DATA(cmsg);
+		int *const ptr = (int *)(uintptr_t)CMSG_DATA(cmsg);
 		return *ptr;
 	}
 
@@ -145,7 +145,9 @@ static int stress_socket_client(
 	const stress_args_t *args,
 	const pid_t mypid,
 	const ssize_t max_fd,
-	const int socket_fd_port)
+	const int socket_fd_port,
+	int *fds,
+	const size_t fds_size)
 {
 	struct sockaddr *addr = NULL;
 
@@ -153,12 +155,12 @@ static int stress_socket_client(
 	(void)sched_settings_apply(true);
 
 	do {
-		int fd, retries = 0, fds[max_fd];
+		int fd, retries = 0;
 		ssize_t i, n;
 		socklen_t addr_len = 0;
 		int so_reuseaddr = 1;
 
-		(void)memset(fds, 0, sizeof(fds));
+		(void)memset(fds, 0, fds_size);
 retry:
 		if (!keep_stressing_flag())
 			return EXIT_FAILURE;
@@ -370,6 +372,8 @@ static int stress_sockfd(const stress_args_t *args)
 	ssize_t max_fd = (ssize_t)stress_get_file_limit();
 	int socket_fd_port = DEFAULT_SOCKET_FD_PORT;
 	int ret = EXIT_SUCCESS;
+	int *fds;
+	size_t fds_size;
 
 	(void)stress_get_setting("sockfd-port", &socket_fd_port);
 
@@ -383,6 +387,14 @@ static int stress_sockfd(const stress_args_t *args)
 		max_fd /= args->num_instances ? args->num_instances : 1;
 		if (max_fd < 0)
 			max_fd = 1;
+	}
+
+	fds_size = sizeof(*fds) * (size_t)max_fd;
+	fds = malloc(fds_size);
+	if (!fds) {
+		pr_inf("%s: cannot allocate %zd file descriptors, skipping stressor\n",
+			args->name, max_fd);
+		return EXIT_NO_RESOURCE;
 	}
 
 	socket_fd_port += args->instance;
@@ -405,7 +417,7 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		stress_set_oom_adjustment(args->name, false);
-		ret = stress_socket_client(args, mypid, max_fd, socket_fd_port);
+		ret = stress_socket_client(args, mypid, max_fd, socket_fd_port, fds, fds_size);
 
 		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);
@@ -417,6 +429,8 @@ again:
 
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	free(fds);
 
 	return ret;
 }
