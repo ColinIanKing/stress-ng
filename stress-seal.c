@@ -64,13 +64,22 @@ static int stress_seal(const stress_args_t *args)
 	int rc = EXIT_FAILURE;
 	const size_t page_size = args->page_size;
 	char filename[PATH_MAX];
+	char *buf;
+
+	buf = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (buf == MAP_FAILED) {
+		pr_inf("%s: failed to allocate %zd sized buffer, skipping stressor\n",
+			args->name, page_size);
+		return EXIT_NO_RESOURCE;
+	}
+	(void)memset(buf, 0xff, page_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
 		const off_t sz = (off_t)page_size;
 		uint8_t *ptr;
-		char buf[page_size];
 		ssize_t wret;
 
 		(void)snprintf(filename, sizeof(filename), "%s-%" PRIdMAX "-%" PRIu32 "-%" PRIu32,
@@ -174,8 +183,7 @@ static int stress_seal(const stress_args_t *args)
 			(void)close(fd);
 			goto err;
 		}
-		(void)memset(buf, 0xff, sizeof(buf));
-		wret = write(fd, buf, sizeof(buf));
+		wret = write(fd, buf, page_size);
 		if ((wret == 0) || ((wret < 0) && (errno != EPERM))) {
 			pr_fail("%s: write on sealed file did not fail with EPERM as expected, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -195,6 +203,7 @@ next:
 
 	rc = EXIT_SUCCESS;
 err:
+	(void)munmap((void *)buf, page_size);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return rc;
