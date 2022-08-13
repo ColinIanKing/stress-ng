@@ -528,7 +528,7 @@ stress-personality.c: personality.h
 #
 io-uring.h:
 	$(PRE_V)$(CPP) $(CFLAGS) core-io-uring.c  | $(GREP) IORING_OP | sed 's/,//' | \
-	sed 's/IORING_OP_/#define HAVE_IORING_OP_/' > io-uring.h
+	sed 's/.*\(IORING_OP_.*\)/#define HAVE_\1/' > io-uring.h
 	$(PRE_Q)echo "MK io-uring.h"
 
 stress-io-uring.c: io-uring.h
