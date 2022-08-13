@@ -43,11 +43,16 @@ static void MLOCKED_TEXT stress_sigrthandler(int signum)
  */
 static int stress_sigrt(const stress_args_t *args)
 {
-	pid_t pids[MAX_RTPIDS];
+	pid_t *pids;
 	union sigval s;
 	int i, status;
 
-	(void)memset(pids, 0, sizeof pids);
+	pids = calloc((size_t)MAX_RTPIDS, sizeof(*pids));
+	if (!pids) {
+		pr_inf("%s: cannot allocate array of %zd pids, skipping stressor\n",
+			args->name, (size_t)MAX_RTPIDS);
+		return EXIT_NO_RESOURCE;
+	}
 
 	for (i = 0; i < MAX_RTPIDS; i++) {
 		if (stress_sighandler(args->name, i + SIGRTMIN, stress_sigrthandler, NULL) < 0) {
@@ -139,6 +144,7 @@ reap:
 			(void)shim_waitpid(pids[i], &status, 0);
 		}
 	}
+	free(pids);
 
 	return EXIT_SUCCESS;
 }
