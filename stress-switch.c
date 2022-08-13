@@ -137,6 +137,7 @@ static int stress_switch_pipe(
 	pid_t pid;
 	int pipefds[2];
 	size_t buf_size;
+	char *buf;
 
 	(void)memset(pipefds, 0, sizeof(pipefds));
 #if defined(HAVE_PIPE2) &&	\
@@ -160,6 +161,15 @@ static int stress_switch_pipe(
 	}
 	buf_size = args->page_size;
 #endif
+
+	buf = malloc(buf_size);
+	if (!buf) {
+		pr_fail("%s: pipe read/write buffer allocation failed\n",
+			args->name);
+		(void)close(pipefds[0]);
+		(void)close(pipefds[1]);
+		return EXIT_FAILURE;
+	}
 
 #if defined(F_SETPIPE_SZ)
 	if (fcntl(pipefds[0], F_SETPIPE_SZ, buf_size) < 0) {
@@ -188,8 +198,6 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		char buf[buf_size];
-
 		stress_parent_died_alarm();
 		(void)sched_settings_apply(true);
 
@@ -198,7 +206,7 @@ again:
 		while (keep_stressing_flag()) {
 			ssize_t ret;
 
-			ret = read(pipefds[0], buf, sizeof(buf));
+			ret = read(pipefds[0], buf, buf_size);
 			if (ret <= 0) {
 				if (errno == 0)	/* ret == 0 case */
 					break;
@@ -214,7 +222,6 @@ again:
 		(void)close(pipefds[0]);
 		_exit(EXIT_SUCCESS);
 	} else {
-		char buf[buf_size];
 		int status;
 		double t_start;
 		uint64_t delay = switch_delay;
@@ -229,7 +236,7 @@ again:
 
 			inc_counter(args);
 
-			ret = write(pipefds[1], buf, sizeof(buf));
+			ret = write(pipefds[1], buf, buf_size);
 			if (ret <= 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
@@ -256,6 +263,8 @@ again:
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	free(buf);
 
 	return EXIT_SUCCESS;
 }
