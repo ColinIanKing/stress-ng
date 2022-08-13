@@ -37,9 +37,9 @@ static const stress_help_t help[] = {
 typedef struct madvise_ctxt {
 	const stress_args_t *args;
 	void *buf;
+	char *smaps;
 	size_t sz;
 	bool  is_thread;
-	char *smaps;
 } madvise_ctxt_t;
 
 static sigjmp_buf jmp_env;
@@ -192,9 +192,8 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
 static void stress_read_proc_smaps(const char *smaps)
 {
 	static bool ignore = false;
-	const size_t sz = 4096;
 	ssize_t ret;
-	char buffer[sz];
+	char buffer[4096];
 	int fd;
 
 	if (ignore)
@@ -206,8 +205,8 @@ static void stress_read_proc_smaps(const char *smaps)
 		return;
 	}
 	do {
-		ret = read(fd, buffer, sz);
-	} while (ret == (ssize_t)sz);
+		ret = read(fd, buffer, sizeof(buffer));
+	} while (ret == (ssize_t)sizeof(buffer));
 	(void)close(fd);
 }
 #endif
@@ -237,7 +236,7 @@ static int stress_random_advise(
 		const size_t page_size = args->page_size;
 		const size_t vec_size = (size + page_size - 1) / page_size;
 		size_t i;
-		unsigned char vec[vec_size];
+		unsigned char *vec;
 		int ret;
 		uint8_t *ptr = (uint8_t *)addr;
 
@@ -248,33 +247,43 @@ static int stress_random_advise(
 		 * else we run out of free memory
 		 */
 		if ((args->instance > 0) ||
-		    (poison_count >= NUM_POISON_MAX))
+		    (poison_count >= NUM_POISON_MAX)) {
 			return madv_normal;
+		}
 
-		/*
-		 * Don't poison page if it's not physically backed
-		 */
-		(void)memset(vec, 0, vec_size);
-		ret = shim_mincore(addr, size, vec);
-		if (ret < 0)
-			return madv_normal;
-		for (i = 0; i < vec_size; i++) {
-			if (vec[i] == 0)
+		vec = (unsigned char *)calloc(vec_size, sizeof(*vec));
+		if (vec) {
+			/*
+			 * Don't poison mapping if it's not physically backed
+			 */
+			ret = shim_mincore(addr, size, vec);
+			if (ret < 0) {
+				free(vec);
 				return madv_normal;
+			}
+			for (i = 0; i < vec_size; i++) {
+				if (vec[i] == 0) {
+					free(vec);
+					return madv_normal;
+				}
+			}
+			/*
+			 * Don't poison page if it's all zero as it may
+			 * be mapped to the common zero page and poisoning
+			 * this shared page can cause issues.
+			 */
+			for (i = 0; i < size; i++) {
+				if (ptr[i])
+					break;
+			}
+			/* ..all zero? then don't madvise it */
+			if (i == size) {
+				free(vec);
+				return madv_normal;
+			}
+			poison_count++;
+			free(vec);
 		}
-		/*
-		 * Don't poison page if it's all zero as it may
-		 * be mapped to the common zero page and poisoning
-		 * this shared page can cause issues.
-		 */
-		for (i = 0; i < size; i++) {
-			if (ptr[i])
-				break;
-		}
-		/* ..all zero? then don't madvise it */
-		if (i == size)
-			return madv_normal;
-		poison_count++;
 	}
 #else
 	UNEXPECTED
@@ -443,8 +452,8 @@ static int stress_madvise(const stress_args_t *args)
 	NOCLOBBER int flags;
 	NOCLOBBER int num_mem_retries;
 	char filename[PATH_MAX];
-	char page[page_size];
 	char smaps[PATH_MAX];
+	char *page;
 	size_t n;
 	madvise_ctxt_t ctxt;
 #if defined(MADV_FREE)
@@ -461,16 +470,27 @@ static int stress_madvise(const stress_args_t *args)
 	madv_tries = 0;
 #endif
 
+	page = (char *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (page == MAP_FAILED) {
+		pr_inf("%s: cannot allocate %zd byte page, skipping stressor\n",
+			args->name, page_size);
+		return EXIT_NO_RESOURCE;
+	}
+
 	(void)snprintf(smaps, sizeof(smaps), "/proc/%" PRIdMAX "/smaps", (intmax_t)pid);
 
 	ret = sigsetjmp(jmp_env, 1);
 	if (ret) {
 		pr_fail("%s: sigsetjmp failed\n", args->name);
+		(void)munmap((void *)page, page_size);
 		return EXIT_FAILURE;
 	}
 
-	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
+	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0) {
+		(void)munmap((void *)page, page_size);
 		return EXIT_FAILURE;
+	}
 
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
@@ -482,8 +502,10 @@ static int stress_madvise(const stress_args_t *args)
 	(void)memset(page, 0xa5, page_size);
 
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
+	if (ret < 0) {
+		(void)munmap((void *)page, page_size);
 		return stress_exit_status(-ret);
+	}
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
@@ -494,6 +516,7 @@ static int stress_madvise(const stress_args_t *args)
 			args->name, filename, errno, strerror(errno));
 		(void)shim_unlink(filename);
 		(void)stress_temp_dir_rm_args(args);
+		(void)munmap((void *)page, page_size);
 		return ret;
 	}
 
@@ -642,6 +665,7 @@ madv_free_out:
 
 	(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
+	(void)munmap((void *)page, page_size);
 
 #if defined(MADV_FREE)
 	if (madv_frees_raced)
