@@ -35,6 +35,8 @@ static const stress_help_t help[] = {
     defined(HAVE_ICMPHDR) &&	\
     defined(__linux__)
 
+#define PING_PAYLOAD_SIZE	(4)
+
 /*
  *  stress_ping_sock
  *	UDP flood
@@ -44,9 +46,8 @@ static int stress_ping_sock(const stress_args_t *args)
 	int fd, rc = EXIT_SUCCESS, j = 0;
 	struct sockaddr_in addr;
 	struct icmphdr *icmp_hdr;
-	const size_t sz = 4;
 	int rand_port;
-	char ALIGN64 buf[sizeof(*icmp_hdr) + sz];
+	char ALIGN64 buf[sizeof(*icmp_hdr) + PING_PAYLOAD_SIZE];
 
 	static const char ALIGN64 data[64] =
 		"0123456789ABCDEFGHIJKLMNOPQRSTUV"
@@ -83,7 +84,7 @@ static int stress_ping_sock(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		(void)memset(buf + sizeof(*icmp_hdr), data[j++ & 63], sz);
+		(void)memset(buf + sizeof(*icmp_hdr), data[j++ & 63], PING_PAYLOAD_SIZE);
 		addr.sin_port = htons(rand_port);
 
 		if (sendto(fd, buf, sizeof(buf), 0, (struct sockaddr *)&addr, sizeof(addr)) > 0)
