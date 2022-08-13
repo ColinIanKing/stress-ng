@@ -32,6 +32,19 @@ UNEXPECTED
 #include <attr/xattr.h>
 #endif
 
+/* mapping address and mmap'd state information */
+typedef struct {
+	uint8_t *addr;		/* mmap address */
+	uint8_t	state;		/* mmap state, e.g. unmapped, mapped, etc */
+#if defined(UINTPTR_MAX)
+#if (UINTPTR_MAX == 0xFFFFFFFFUL)
+	uint8_t pad[3];		/* make struct 8 bytes in size */
+#else
+	uint8_t pad[7];		/* make struct 16 bytes in size */
+#endif
+#endif
+} mapping_info_t;
+
 static const stress_help_t help[] = {
 	{ NULL,	"tmpfs N",	    "start N workers mmap'ing a file on tmpfs" },
 	{ NULL,	"tmpfs-ops N",	    "stop after N tmpfs bogo ops" },
@@ -89,8 +102,8 @@ static const int mmap_flags[] = {
 };
 
 typedef struct {
-	int 	fd;
-	off_t	sz;
+	off_t	sz;	/* size of mapping */
+	int 	fd;	/* mmap file descriptor */
 } stress_tmpfs_context_t;
 
 /*
@@ -191,10 +204,18 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 	int no_mem_retries = 0;
 	int ms_flags;
 	int flags = MAP_SHARED;
+	mapping_info_t *mappings;
 
 #if defined(MAP_POPULATE)
 	flags |= MAP_POPULATE;
 #endif
+
+	mappings = calloc(pages4k, sizeof(*mappings));
+	if (!mappings) {
+		pr_inf("%s: failed to allocate mapping array, skipping stressor\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
 
 	(void)stress_get_setting("tmpfs-mmap-async", &tmpfs_mmap_async);
 	(void)stress_get_setting("tmpfs-mmap-file", &tmpfs_mmap_file);
@@ -202,8 +223,6 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 	ms_flags = tmpfs_mmap_async ? MS_ASYNC : MS_SYNC;
 
 	do {
-		uint8_t mapped[pages4k];
-		uint8_t *mappings[pages4k];
 		size_t n;
 		const int rnd = stress_mwc32() % SIZEOF_ARRAY(mmap_flags); /* cppcheck-suppress moduloofone */
 		const int rnd_flag = mmap_flags[rnd];
@@ -289,9 +308,10 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 		}
 		(void)stress_madvise_random(buf, sz);
 		(void)stress_mincore_touch_pages(buf, sz);
-		(void)memset(mapped, PAGE_MAPPED, sizeof(mapped));
-		for (n = 0; n < pages4k; n++)
-			mappings[n] = buf + (n * page_size);
+		for (n = 0; n < pages4k; n++) {
+			mappings[n].state = PAGE_MAPPED;
+			mappings[n].addr = buf + (n * page_size);
+		}
 
 		/* Ensure we can write to the mapped pages */
 		stress_mmap_set(buf, sz, page_size);
@@ -311,10 +331,10 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
 
-				if (mapped[page] == PAGE_MAPPED) {
-					mapped[page] = 0;
-					(void)stress_madvise_random(mappings[page], page_size);
-					(void)munmap((void *)mappings[page], page_size);
+				if (mappings[page].state == PAGE_MAPPED) {
+					mappings[page].state = 0;
+					(void)stress_madvise_random(mappings[page].addr, page_size);
+					(void)munmap((void *)mappings[page].addr, page_size);
 					n--;
 					break;
 				}
@@ -333,30 +353,30 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 			for (j = 0; j < n; j++) {
 				uint64_t page = (i + j) % pages4k;
 
-				if (!mapped[page]) {
+				if (!mappings[page].state) {
 					offset = tmpfs_mmap_file ? (off_t)(page * page_size) : 0;
 					/*
 					 * Attempt to map them back into the original address, this
 					 * may fail (it's not the most portable operation), so keep
 					 * track of failed mappings too
 					 */
-					mappings[page] = (uint8_t *)mmap((void *)mappings[page],
+					mappings[page].addr = (uint8_t *)mmap((void *)mappings[page].addr,
 						page_size, PROT_READ | PROT_WRITE, MAP_FIXED | flags, fd, offset);
-					if (mappings[page] == MAP_FAILED) {
-						mapped[page] = PAGE_MAPPED_FAIL;
-						mappings[page] = NULL;
+					if (mappings[page].addr == MAP_FAILED) {
+						mappings[page].state = PAGE_MAPPED_FAIL;
+						mappings[page].addr = NULL;
 					} else {
-						(void)stress_mincore_touch_pages(mappings[page], page_size);
-						(void)stress_madvise_random(mappings[page], page_size);
-						mapped[page] = PAGE_MAPPED;
+						(void)stress_mincore_touch_pages(mappings[page].addr, page_size);
+						(void)stress_madvise_random(mappings[page].addr, page_size);
+						mappings[page].state = PAGE_MAPPED;
 						/* Ensure we can write to the mapped page */
-						stress_mmap_set(mappings[page], page_size, page_size);
-						if (stress_mmap_check(mappings[page], page_size, page_size) < 0)
+						stress_mmap_set(mappings[page].addr, page_size, page_size);
+						if (stress_mmap_check(mappings[page].addr, page_size, page_size) < 0)
 							pr_fail("%s: mmap'd region of %zu bytes does "
 								"not contain expected data\n", args->name, page_size);
 						if (tmpfs_mmap_file) {
-							(void)memset(mappings[page], (int)n, page_size);
-							(void)shim_msync((void *)mappings[page], page_size, ms_flags);
+							(void)memset(mappings[page].addr, (int)n, page_size);
+							(void)shim_msync((void *)mappings[page].addr, page_size, ms_flags);
 						}
 					}
 					n--;
@@ -372,15 +392,16 @@ cleanup:
 		 *  Step #3, unmap them all
 		 */
 		for (n = 0; n < pages4k; n++) {
-			if (mapped[n] & PAGE_MAPPED) {
-				(void)stress_madvise_random(mappings[n], page_size);
-				(void)munmap((void *)mappings[n], page_size);
+			if (mappings[n].state & PAGE_MAPPED) {
+				(void)stress_madvise_random(mappings[n].addr, page_size);
+				(void)munmap((void *)mappings[n].addr, page_size);
 			}
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
 
 	(void)close(fd);
+	free(mappings);
 
 	return EXIT_SUCCESS;
 }
