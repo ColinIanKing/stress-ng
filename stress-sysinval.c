@@ -32,6 +32,8 @@ static const stress_help_t help[] = {
 
 #define ARG_BITMASK(x, bitmask)	(((x) & (bitmask)) == (bitmask))
 
+#define SYSCALL_ARGS_SIZE	(SIZEOF_ARRAY(stress_syscall_args))
+
 #define SYSCALL_HASH_TABLE_SIZE	(10007)	/* Hash table size (prime) */
 #define HASH_TABLE_POOL_SIZE	(32768) /* Hash table pool size */
 #define SYSCALL_FAIL		(0x00)	/* Expected behaviour */
@@ -2126,7 +2128,7 @@ typedef struct {
 	volatile uint64_t skip_crashed;
 	volatile uint64_t skip_errno_zero;
 	volatile uint64_t skip_timed_out;
-	uint64_t crash_count[SIZEOF_ARRAY(stress_syscall_args)];
+	uint64_t crash_count[SYSCALL_ARGS_SIZE];
 	unsigned long args[6];
 	unsigned char filler[4096];
 } syscall_current_context_t;
@@ -2553,7 +2555,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 		_exit(EXIT_NO_RESOURCE);
 	} else if (pid == 0) {
 		size_t i, n;
-		size_t reorder[SIZEOF_ARRAY(stress_syscall_args)];
+		size_t reorder[SYSCALL_ARGS_SIZE];
 
 		/* We don't want bad ops clobbering this region */
 		stress_set_stack_smash_check_flag(false);
@@ -2601,7 +2603,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 				}
 			}
 
-			for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(stress_syscall_args)); i++) {
+			for (i = 0; keep_stressing(args) && (i < SYSCALL_ARGS_SIZE); i++) {
 				const size_t j = reorder[i];
 
 				(void)memset(current_context->args, 0, sizeof(current_context->args));
@@ -2641,7 +2643,7 @@ static inline int stress_do_syscall(const stress_args_t *args)
 				current_context->args,
 				SYSCALL_CRASH);
 
-			if (idx < SIZEOF_ARRAY(stress_syscall_args))
+			if (idx < SYSCALL_ARGS_SIZE)
 				current_context->crash_count[idx]++;
 		}
 		rc = WEXITSTATUS(status);
@@ -2676,10 +2678,9 @@ static int stress_sysinval(const stress_args_t *args)
 	size_t small_ptr_size = page_size << 1;		/* cppcheck-suppress duplicateAssignExpression */
 	size_t page_ptr_wr_size = page_size << 1;	/* cppcheck-suppress duplicateAssignExpression */
 	char filename[PATH_MAX];
-	const size_t stress_syscall_args_sz = SIZEOF_ARRAY(stress_syscall_args);
-	const size_t stress_syscall_exercised_sz = stress_syscall_args_sz * sizeof(*stress_syscall_exercised);
-	bool syscall_exercised[stress_syscall_args_sz];
-	bool syscall_unique[stress_syscall_args_sz];
+	const size_t stress_syscall_exercised_sz = SYSCALL_ARGS_SIZE * sizeof(*stress_syscall_exercised);
+	bool syscall_exercised[SYSCALL_ARGS_SIZE];
+	bool syscall_unique[SYSCALL_ARGS_SIZE];
 	bool lock = false;
 
 	time_end = stress_time_now() + (double)g_opt_timeout;
@@ -2688,7 +2689,7 @@ static int stress_sysinval(const stress_args_t *args)
 	 *  Run-time sanity check of zero syscalls, maybe __NR or SYS_ is not
 	 *  defined.
 	 */
-	if (stress_syscall_args_sz == 0) {
+	if (SYSCALL_ARGS_SIZE == (0)) {
 		if (args->instance == 0)
 			pr_inf_skip("%s: no system calls detected during build, skipping stressor\n",
 				args->name);
@@ -2778,7 +2779,6 @@ static int stress_sysinval(const stress_args_t *args)
 	page_ptr_wr_size -= page_size;
 #endif
 
-
 	sockaddrs[0] = (long)(small_ptr + page_size - 1);
 	sockaddrs[1] = (long)page_ptr;
 	ptrs[0] = (unsigned long)(small_ptr + page_size -1);
@@ -2804,12 +2804,12 @@ static int stress_sysinval(const stress_args_t *args)
 	 *  Determine the number of syscalls that we can test vs
  	 *  the number of syscalls actually exercised
 	 */
-	for (i = 0; i < stress_syscall_args_sz; i++) {
+	for (i = 0; i < SYSCALL_ARGS_SIZE; i++) {
 		unsigned long syscall_num = stress_syscall_args[i].syscall;
 		size_t exercised = 0, unique = 0;
 		size_t j;
 
-		for (j = 0; j < stress_syscall_args_sz; j++) {
+		for (j = 0; j < SYSCALL_ARGS_SIZE; j++) {
 			if (syscall_num == stress_syscall_args[j].syscall) {
 				if (!syscall_unique[j]) {
 					syscall_unique[j] = true;
