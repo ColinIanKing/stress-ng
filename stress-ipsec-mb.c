@@ -25,17 +25,38 @@
 #include <intel-ipsec-mb.h>
 #endif
 
+typedef struct {
+	uint64_t	ops;
+	double		duration;
+} feature_stats_t;
+
+
 static const stress_help_t help[] = {
-	{ NULL,	"ipsec-mb N",	  "start N workers exercising the IPSec MB encoding" },
-	{ NULL,	"ipsec-mb-ops N", "stop after N ipsec bogo encoding operations" },
-	{ NULL, "ipsec-mb-feature F","specify CPU feature F" },
+	{ NULL,	"ipsec-mb N",		"start N workers exercising the IPSec MB encoding" },
+	{ NULL,	"ipsec-mb-ops N",	"stop after N ipsec bogo encoding operations" },
+	{ NULL, "ipsec-mb-feature F",	"specify CPU feature F" },
+	{ NULL,	"ipsec-mb-jobs",	"specify number of jobs to run per round (default 1)" },
 	{ NULL,	NULL,		  NULL }
 };
 
 static int stress_set_ipsec_mb_feature(const char *opt);
 
+/*
+ *  stress_set_ipsec_mb_jobs()
+ *      set number of jobs per round
+ */
+static int stress_set_ipsec_mb_jobs(const char *opt)
+{
+	int ipsec_mb_jobs;
+
+	ipsec_mb_jobs = (int)stress_get_int32(opt);
+	stress_check_range("ipsec-mb-jobs", ipsec_mb_jobs, 1, 1024);
+	return stress_set_setting("ipsec-mb-jobs", TYPE_ID_INT, &ipsec_mb_jobs);
+}
+
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_ipsec_mb_feature,	stress_set_ipsec_mb_feature },
+	{ OPT_ipsec_mb_jobs,	stress_set_ipsec_mb_jobs },
 	{ 0,                    NULL }
 };
 
@@ -186,11 +207,13 @@ static void stress_job_check_status(
 	struct JOB_AES_HMAC *job,
 	int *jobs_done)
 {
-	(*jobs_done)++;
 
 	if (job->status != STS_COMPLETED) {
 		pr_err("%s: %s: job not completed\n",
 			args->name, name);
+	} else {
+		(*jobs_done)++;
+		inc_counter(args);
 	}
 }
 
@@ -663,11 +686,13 @@ static int stress_ipsec_mb(const stress_args_t *args)
 	MB_MGR *p_mgr = NULL;
 	uint64_t features;
 	uint8_t data[8192] ALIGNED(64);
-	double t[FEATURES_MAX];
+	feature_stats_t stats[FEATURES_MAX];
 	size_t i;
-	uint64_t count = 0;
 	bool got_features = false;
 	uint64_t ipsec_mb_feature = ~0ULL;
+	int ipsec_mb_jobs = 128;
+
+	(void)stress_get_setting("ipsec-mb-jobs", &ipsec_mb_jobs);
 
 	p_mgr = alloc_mb_mgr(0);
 	if (!p_mgr) {
@@ -685,7 +710,8 @@ static int stress_ipsec_mb(const stress_args_t *args)
 
 	features = stress_ipsec_mb_features(args, p_mgr);
 	for (i = 0; i < FEATURES_MAX; i++) {
-		t[i] = 0.0;
+		stats[i].ops = 0;
+		stats[i].duration = 0.0;
 	}
 
 	for (i = 0; i < FEATURES_MAX; i++) {
@@ -724,34 +750,52 @@ static int stress_ipsec_mb(const stress_args_t *args)
 		for (i = 0; i < FEATURES_MAX; i++) {
 			if ((init_mb[i].features & features) == init_mb[i].features) {
 				double t1, t2;
+				uint64_t c1, c2;
 
-				t1 = stress_time_now();
 				init_mb[i].init_func(p_mgr);
-				stress_cmac(args, p_mgr, data, sizeof(data), 1);
-				stress_ctr(args, p_mgr, data, sizeof(data), 1);
-				stress_des(args, p_mgr, data, sizeof(data), 1);
-				stress_hmac_md5(args, p_mgr, data, sizeof(data), 1);
-				stress_hmac_sha1(args, p_mgr, data, sizeof(data), 1);
-				stress_hmac_sha512(args, p_mgr, data, sizeof(data), 1);
-				stress_sha(args, p_mgr, data, sizeof(data), 1);
+
+				c1 = get_counter(args);
+				t1 = stress_time_now();
+				stress_cmac(args, p_mgr, data, sizeof(data), ipsec_mb_jobs);
+				if (!keep_stressing(args))
+					goto do_stats;
+				stress_ctr(args, p_mgr, data, sizeof(data), ipsec_mb_jobs);
+				if (!keep_stressing(args))
+					goto do_stats;
+				stress_des(args, p_mgr, data, sizeof(data), ipsec_mb_jobs);
+				if (!keep_stressing(args))
+					goto do_stats;
+				stress_hmac_md5(args, p_mgr, data, sizeof(data), ipsec_mb_jobs);
+				if (!keep_stressing(args))
+					goto do_stats;
+				stress_hmac_sha1(args, p_mgr, data, sizeof(data), ipsec_mb_jobs);
+				if (!keep_stressing(args))
+					goto do_stats;
+				stress_hmac_sha512(args, p_mgr, data, sizeof(data), ipsec_mb_jobs);
+				if (!keep_stressing(args))
+					goto do_stats;
+				stress_sha(args, p_mgr, data, sizeof(data), ipsec_mb_jobs);
+
+do_stats:
+				c2 = get_counter(args);
 				t2 = stress_time_now();
-				t[i] += (t2 - t1);
+				stats[i].duration += (t2 - t1);
+				stats[i].ops += (c2 - c1);
 			}
 		}
-		count++;
-		inc_counter(args);
 	} while (keep_stressing(args));
 
 	for (i = 0; i < FEATURES_MAX; i++) {
-		if (((init_mb[i].features & features) == init_mb[i].features) && (t[i] > 0.0)) {
+		if (((init_mb[i].features & features) == init_mb[i].features) &&
+		    (stats[i].duration > 0.0)) {
 			char tmp[32];
+			double rate = (double)stats[i].ops / stats[i].duration;
 
 			pr_dbg("%s: %s %.3f bogo/ops per second\n",
-				args->name, init_mb[i].name,
-				(double)count / t[i]);
+				args->name, init_mb[i].name, rate);
 
 			(void)snprintf(tmp, sizeof(tmp), "%s bogo/ops per second", init_mb[i].name);
-			stress_misc_stats_set(args->misc_stats, i, tmp, (double)count / t[i]);
+			stress_misc_stats_set(args->misc_stats, i, tmp, rate);
 		}
 	}
 

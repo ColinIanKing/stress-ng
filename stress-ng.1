@@ -2321,6 +2321,10 @@ routines.
 Just use the specified processor CPU feature. By default, all the available
 features for the CPU are exercised.
 .TP
+.B \-\-ipsec\-mb\-jobs N
+Procrss N multi-block rounds of cryptographic processing per iteration. The
+default is 256.
+.TP
 .B \-\-itimer N
 start N workers that exercise the system interval timers. This sets up an
 ITIMER_PROF itimer that generates a SIGPROF signal.  The default frequency for
