@@ -311,7 +311,11 @@ static inline int stress_io_uring_complete(
 			break;
 
 		cqe = &cring->cqes[head & *submit->cq_ring.ring_mask];
-		if ((cqe->res < 0) && (opcode != IORING_OP_FALLOCATE)) {
+		if ((cqe->res < 0)
+#ifdef HAVE_IORING_OP_FALLOCATE
+			&& (opcode != IORING_OP_FALLOCATE)
+#endif
+		) {
 			const int err = abs(cqe->res);
 
 			/* Silently ignore EOPNOTSUPP completion errors */
