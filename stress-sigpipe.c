@@ -137,21 +137,30 @@ finish:
  */
 static int stress_sigpipe(const stress_args_t *args)
 {
-	char buf[args->page_size * 2];
+	const size_t buf_size = args->page_size * 2;
+	char *buf;
+
+	buf = (char *)mmap(NULL, buf_size, PROT_READ | PROT_WRITE,
+			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
+	if (buf == MAP_FAILED) {
+		pr_inf("%s: failed to allocate buffer of %zd bytes, skipping stressor\n",
+			args->name, buf_size);
+		return EXIT_NO_RESOURCE;
+	}
 
 	s_args = args;
 	if (stress_sighandler(args->name, SIGPIPE, stress_sigpipe_handler, NULL) < 0)
 		return EXIT_FAILURE;
 
-	(void)memset(buf, 0, sizeof buf);
-
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stress_sigpipe_write(args, buf, sizeof buf);
+		stress_sigpipe_write(args, buf, buf_size);
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	(void)munmap((void *)buf, buf_size);
 
 	return EXIT_SUCCESS;
 }
