@@ -121,6 +121,10 @@ static const int madvise_options[] = {
 #if defined(MADV_DONTNEED_LOCKED)
 	MADV_DONTNEED_LOCKED,
 #endif
+/* Linux 6.0 */
+#if defined(MADV_COLLAPSE)
+	MADV_COLLAPSE,
+#endif
 /* FreeBSD */
 #if defined(MADV_AUTOSYNC)
 	MADV_AUTOSYNC,
