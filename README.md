@@ -375,6 +375,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [request_module DoS](https://www.spinics.net/lists/kernel/msg4349826.html)
 * [NUMA Benchmark Regression In Linux 5.18](https://lore.kernel.org/lkml/YmrWK%2FKoU1zrAxPI@fuller.cnet)
 * [Underflow in mas_spanning_rebalance() and test](https://lore.kernel.org/linux-mm/20220625003854.1230114-1-Liam.Howlett@oracle.com/)
+* [How much power does your server consume? Estimating wall socket power using RAPL measurements](https://www.researchgate.net/publication/306004997_How_much_power_does_your_server_consume_Estimating_wall_socket_power_using_RAPL_measurements)
 
 ## Kernel improvements that used stress-ng
 
