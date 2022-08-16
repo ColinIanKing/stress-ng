@@ -319,6 +319,7 @@ typedef unsigned long int __kernel_ulong_t;
 #define OPT_FLAGS_STDOUT	 STRESS_BIT_ULL(43)	/* --stdout */
 #define OPT_FLAGS_KLOG_CHECK	 STRESS_BIT_ULL(44)	/* --klog-check */
 #define OPT_FLAGS_DRY_RUN	 STRESS_BIT_ULL(45)	/* Don't actually run */
+#define OPT_FLAGS_OOM_AVOID	 STRESS_BIT_ULL(46)	/* --oom-avoid */
 
 #define OPT_FLAGS_MINMAX_MASK		\
 	(OPT_FLAGS_MINIMIZE | OPT_FLAGS_MAXIMIZE)
@@ -1589,6 +1590,7 @@ typedef enum {
 	OPT_numa_ops,
 
 	OPT_oomable,
+	OPT_oom_avoid,
 
 	OPT_oom_pipe,
 	OPT_oom_pipe_ops,
@@ -2508,6 +2510,7 @@ extern WARN_UNUSED size_t stress_get_extents(const int fd);
 extern WARN_UNUSED bool stress_redo_fork(const int err);
 extern void stress_sighandler_nop(int sig);
 extern int stress_killpid(const pid_t pid);
+extern WARN_UNUSED bool stress_low_memory(const size_t requested);
 
 /* kernel module helpers */
 extern int stress_module_load(const char *name, const char *alias,

@@ -208,6 +208,7 @@ static void *stress_malloc_loop(void *ptr)
 #if defined(HAVE_MALLOC_TRIM)
 		const unsigned int do_trim = (rnd & 0x7);
 #endif
+		const bool low_mem = ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(malloc_bytes / 2));
 
 		/*
 		 * With many instances running it is wise to
@@ -225,7 +226,7 @@ static void *stress_malloc_loop(void *ptr)
 
 		if (info[i].addr) {
 			/* 50% free, 50% realloc */
-			if (action) {
+			if (action || low_mem) {
 				if (verify && (uintptr_t)info[i].addr != *info[i].addr) {
 					pr_fail("%s: allocation at %p does not contain correct value\n",
 						args->name, (void *)info[i].addr);
@@ -257,7 +258,7 @@ static void *stress_malloc_loop(void *ptr)
 			}
 		} else {
 			/* 50% free, 50% alloc */
-			if (action) {
+			if (action && !low_mem) {
 				size_t n, len = stress_alloc_size(malloc_bytes);
 
 				switch (do_calloc) {

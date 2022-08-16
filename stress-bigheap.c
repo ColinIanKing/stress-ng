@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+#if defined(HAVE_MALLOC_H)
+#include <malloc.h>
+#endif
+
 #define MIN_BIGHEAP_GROWTH	(4 * KB)
 #define MAX_BIGHEAP_GROWTH	(64 * MB)
 #define DEFAULT_BIGHEAP_GROWTH	(64 * KB)
@@ -71,7 +75,6 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 
 	do {
 		void *old_ptr = ptr;
-		size += (size_t)bigheap_growth;
 
 		/*
 		 * With many instances running it is wise to
@@ -82,6 +85,17 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 		 */
 		if (!keep_stressing(args))
 			goto abort;
+
+		/* Low memory avoidance, re-start */
+		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory((size_t)bigheap_growth)) {
+			free(old_ptr);
+#if defined(HAVE_MALLOC_TRIM)
+			(void)malloc_trim(0);
+#endif
+			old_ptr = 0;
+			size = 0;
+		}
+		size += (size_t)bigheap_growth;
 
 		ptr = realloc(old_ptr, size);
 		if (ptr == NULL) {
@@ -104,14 +118,6 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 			}
 			if (!keep_stressing(args))
 				goto abort;
-
-			if (page_size > 0) {
-				size_t sz = page_size - 1;
-				uintptr_t pg_ptr = ((uintptr_t)ptr + sz) & ~sz;
-				size_t len = size - (pg_ptr - (uintptr_t)ptr);
-
-				(void)stress_mincore_touch_pages_interruptible((void *)pg_ptr, len);
-			}
 
 			for (i = 0; i < n; i+= stride, u8ptr += stride) {
 				if (!keep_stressing(args))

@@ -2811,10 +2811,14 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 		if (!vm_keep || (buf == NULL)) {
 			if (!keep_stressing_flag())
 				return EXIT_SUCCESS;
-			buf = (uint8_t *)mmap(NULL, buf_sz,
-				PROT_READ | PROT_WRITE,
-				MAP_PRIVATE | MAP_ANONYMOUS |
-				vm_flags, -1, 0);
+			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz)) {
+				buf = MAP_FAILED;
+			} else {
+				buf = (uint8_t *)mmap(NULL, buf_sz,
+					PROT_READ | PROT_WRITE,
+					MAP_PRIVATE | MAP_ANONYMOUS |
+					vm_flags, -1, 0);
+			}
 			if (buf == MAP_FAILED) {
 				buf = NULL;
 				no_mem_retries++;

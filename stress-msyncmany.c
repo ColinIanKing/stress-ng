@@ -57,6 +57,8 @@ static int stress_msyncmany_child(const stress_args_t *args, void *context)
 
 		if (!keep_stressing(args))
 			break;
+		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
+			break;
 
 		ptr = (uint64_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_SHARED, fd, 0);

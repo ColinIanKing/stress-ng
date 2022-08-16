@@ -342,6 +342,10 @@ static int clone_func(void *arg)
 
 	(void)arg;
 
+	if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory((size_t)(1 * MB))) {
+		return 0;
+	}
+
 	stress_set_oom_adjustment(clone_arg->args->name, true);
 #if defined(HAVE_SETNS)
 	{
@@ -438,7 +442,10 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 		(void)stress_mincore_touch_pages(ptr, mmap_size);
 
 	do {
-		if (clones.length < clone_max) {
+		const bool low_mem_reap = ((g_opt_flags & OPT_FLAGS_OOM_AVOID) &&
+					   stress_low_memory((size_t)(1 * MB)));
+
+		if (!low_mem_reap && (clones.length < clone_max)) {
 			static size_t index;
 			stress_clone_t *clone_info;
 			stress_clone_args_t clone_arg = { args };

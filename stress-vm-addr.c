@@ -372,6 +372,8 @@ static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 				args->name);
 			break;
 		}
+		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz))
+			buf_sz = MIN_VM_ADDR_BYTES;
 
 		buf = (uint8_t *)mmap(vm_base_addr, buf_sz,
 			PROT_READ | PROT_WRITE,

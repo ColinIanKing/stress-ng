@@ -99,6 +99,10 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 	do {
 		uint8_t *ptr;
 
+		/* Low memory avoidance, re-start */
+		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
+			VOID_RET(int, shim_brk(start_ptr));
+
 		i++;
 		if (i < 8) {
 			/* Expand brk by 1 page */
@@ -119,11 +123,7 @@ static int stress_brk_child(const stress_args_t *args, void *context)
 
 		if (ptr == (void *)-1) {
 			if ((errno == ENOMEM) || (errno == EAGAIN)) {
-				int ignore;
-
-				ignore = shim_brk(start_ptr);
-				(void)ignore;
-
+				VOID_RET(int, shim_brk(start_ptr));
 			} else {
 				pr_fail("%s: sbrk(%d) failed: errno=%d (%s)\n",
 					args->name, (int)page_size, errno,

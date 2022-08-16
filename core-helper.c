@@ -635,7 +635,6 @@ void stress_get_memlimits(
 	*freemem = 0;
 	*totalmem = 0;
 	*freeswap = 0;
-
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
 	(void)memset(&info, 0, sizeof(info));
@@ -657,6 +656,72 @@ void stress_get_memlimits(
 	(void)fclose(fp);
 #else
 	UNEXPECTED
+#endif
+}
+
+/*
+ *  stress_low_memory()
+ *	return true if running low on memory
+ */
+bool stress_low_memory(const size_t requested)
+{
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO)
+	static size_t prev_freeram = 0;
+	static size_t prev_freeswap = 0;
+	struct sysinfo info;
+	bool low_memory = false;
+
+	(void)memset(&info, 0, sizeof(info));
+	if (sysinfo(&info) == 0) {
+		const size_t freeram = info.freeram * info.mem_unit;
+		const size_t freeswap = info.freeswap * info.mem_unit;
+		const size_t totalram = info.totalram * info.mem_unit;
+
+		/*
+		 *  Stats from previous call valid, then check for memory
+		 *  changes
+		 */
+		if ((prev_freeram + prev_freeswap) > 0) {
+			ssize_t delta;
+
+			delta = (ssize_t)prev_freeram - (ssize_t)freeram;
+			delta = (delta * 2) + requested;
+			/* memory shrinking quickly? */
+			if (delta  > (ssize_t)freeram) {
+				low_memory = true;
+				goto update;
+			}
+			/* swap shrinking quickly? */
+			delta = (ssize_t)prev_freeswap - (ssize_t)freeswap;
+			if (delta > 0) {
+				low_memory = true;
+				goto update;
+			}
+		}
+		/* Not enough for allocation and slop? */
+		if (freeram < ((2 * MB) + requested)) {
+			low_memory = true;
+			goto update;
+		}
+		/* Less than 1% left? */
+		if (((double)freeram * 100.0 / (double)(totalram - requested)) < 1.0) {
+			low_memory = true;
+			goto update;
+		}
+		/* Swap running low? */
+		if (freeswap < (2 * MB) + requested) {
+			low_memory = true;
+			goto update;
+		}
+update:
+		prev_freeram = freeram;
+		prev_freeswap = freeswap;
+	}
+
+	return low_memory;
+#else
+	return false;
 #endif
 }
 

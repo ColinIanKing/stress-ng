@@ -96,8 +96,6 @@ static int stress_env_child(const stress_args_t *args, void *context)
 		char tmp;
 		int ret;
 		const size_t sz = stress_env_size(arg_max);
-		bool low_mem = false;
-		size_t shmall, freemem, totalmem, freeswap;
 
 		(void)snprintf(name, sizeof(name), "STRESS_ENV_%" PRIx64, i);
 		/*
@@ -108,11 +106,13 @@ static int stress_env_child(const stress_args_t *args, void *context)
 		ret = setenv(name, value, 1);
 		value[sz] = tmp;
 
-		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
-		if ((totalmem > 0) && (freemem < totalmem / 16))
-			low_mem = true;
+		/* Low memory avoidance, re-start */
+		if (stress_low_memory(arg_max * 2)) {
+			(void)kill(getpid(), SIGKILL);
+			_exit(EXIT_SUCCESS);
+		}
 
-		if (low_mem || (i > env_max) || (ret < 0)) {
+		if ((i > env_max) || (ret < 0)) {
 			uint64_t j;
 
 			stress_mwc_set_seed(seed_w, seed_z);
@@ -149,10 +149,6 @@ static int stress_env_child(const stress_args_t *args, void *context)
 			i = 0;
 			env_max = stress_env_max();
 			stress_mwc_get_seed(&seed_w, &seed_z);
-			if (low_mem) {
-				(void)kill(getpid(), SIGKILL);
-				_exit(EXIT_SUCCESS);
-			}
 		} else {
 			i++;
 			inc_counter(args);

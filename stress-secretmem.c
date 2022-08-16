@@ -128,6 +128,9 @@ static int stress_secretmem_child(const stress_args_t *args, void *context)
 			if (ftruncate(fd, sz) != 0)
 				break;
 
+			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size3))
+				break;
+
 			mappings[n] = (uint8_t *)mmap(NULL, page_size3,
 				PROT_READ | PROT_WRITE, MAP_SHARED, fd, offset);
 			if (mappings[n] == MAP_FAILED) {

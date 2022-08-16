@@ -404,6 +404,9 @@ retry:
 		if (!keep_stressing_flag())
 			break;
 
+		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(sz))
+			goto retry;
+
 		/*
 		 *  ret is 1 if SIGBUS occurs, so re-try mmap. This
 		 *  can occur when Hugepages are allocated but not

@@ -216,6 +216,10 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 			if (!keep_stressing(args))
 				break;
 
+			/* Low memory avoidance, re-start */
+			if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size * 3))
+				break;
+
 			mappings[n] = (uint8_t *)mmap(NULL, page_size * 3,
 				PROT_READ | PROT_WRITE,
 				MAP_SHARED | MAP_ANONYMOUS, -1, 0);

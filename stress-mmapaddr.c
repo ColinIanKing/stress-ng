@@ -141,6 +141,8 @@ static int stress_mmapaddr_child(const stress_args_t *args, void *context)
 #if defined(MAP_LOCKED)
 		flags |= ((rnd & 0x20) ? MAP_LOCKED : 0);
 #endif
+		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size))
+			continue;
 		map_addr = (uint8_t *)mmap((void *)addr, page_size, PROT_READ, flags, -1, 0);
 		if (!map_addr || (map_addr == MAP_FAILED))
 			continue;

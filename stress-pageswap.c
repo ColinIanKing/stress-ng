@@ -81,6 +81,11 @@ static int stress_pageswap_child(const stress_args_t *args, void *context)
 	do {
 		page_info_t *pi;
 
+		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(page_size)) {
+			stress_pageswap_unmap(args, &head);
+			max = 0;
+		}
+
 		pi = (page_info_t *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 		if (pi == MAP_FAILED) {

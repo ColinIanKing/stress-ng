@@ -92,6 +92,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_no_oom_adjust,	OPT_FLAGS_NO_OOM_ADJUST },
 	{ OPT_no_rand_seed,	OPT_FLAGS_NO_RAND_SEED },
 	{ OPT_oomable,		OPT_FLAGS_OOMABLE },
+	{ OPT_oom_avoid,	OPT_FLAGS_OOM_AVOID },
 	{ OPT_page_in,		OPT_FLAGS_MMAP_MINCORE },
 	{ OPT_pathological,	OPT_FLAGS_PATHOLOGICAL },
 #if defined(STRESS_PERF_STATS) && 	\
@@ -698,6 +699,7 @@ static const struct option long_options[] = {
 	{ "numa",		1,	0,	OPT_numa },
 	{ "numa-ops",		1,	0,	OPT_numa_ops },
 	{ "oomable",		0,	0,	OPT_oomable },
+	{ "oom-avoid",		0,	0,	OPT_oom_avoid },
 	{ "oom-pipe",		1,	0,	OPT_oom_pipe },
 	{ "oom-pipe-ops",	1,	0,	OPT_oom_pipe_ops },
 	{ "opcode",		1,	0,	OPT_opcode },
@@ -1161,6 +1163,7 @@ static const stress_help_t help_generic[] = {
 	{ NULL,		"no-madvise",		"don't use random madvise options for each mmap" },
 	{ NULL,		"no-rand-seed",		"seed random numbers with the same constant" },
 	{ NULL,		"oomable",		"Do not respawn a stressor if it gets OOM'd" },
+	{ NULL,		"oom-avoid",		"Try to avoid stressors from being OOM'" },
 	{ NULL,		"page-in",		"touch allocated pages that are not in core" },
 	{ NULL,		"parallel N",		"synonym for 'all N'" },
 	{ NULL,		"pathological",		"enable stressors that are known to hang a machine" },

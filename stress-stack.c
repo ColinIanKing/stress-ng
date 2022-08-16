@@ -75,6 +75,9 @@ static void stress_stack_alloc(
 	const size_t page_size4 = page_size << 2;
 	uint8_t data[sz];
 
+	if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(sz))
+		return;
+
 	if (stack_fill) {
 		(void)memset(data, 0, sz);
 	} else {
