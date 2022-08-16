@@ -46,7 +46,8 @@ typedef struct {			/* vmstat column */
 	uint64_t	swap_used;	/* swpd used = total - free */
 	uint64_t	memory_free;	/* free */
 	uint64_t	memory_buff;	/* buff */
-	uint64_t	memory_cache;	/* cache */
+	uint64_t	memory_cached;	/* cached */
+	uint64_t	memory_reclaimable; /* reclaimabled cached */
 	uint64_t	swap_in;	/* si */
 	uint64_t	swap_out;	/* so */
 	uint64_t	block_in;	/* bi */
@@ -517,12 +518,22 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 			if (!strncmp(buffer, "Cached", 6)) {
 				if (!stress_next_field(&ptr))
 					continue;
-				vmstat->memory_cache = (uint64_t)atoll(ptr);
+				vmstat->memory_cached = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "KReclaimable", 12)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				vmstat->memory_reclaimable = (uint64_t)atoll(ptr);
 			}
 			if (!strncmp(buffer, "SwapTotal", 9)) {
 				if (!stress_next_field(&ptr))
 					continue;
 				vmstat->swap_total = (uint64_t)atoll(ptr);
+			}
+			if (!strncmp(buffer, "SwapFree", 8)) {
+				if (!stress_next_field(&ptr))
+					continue;
+				vmstat->swap_free = (uint64_t)atoll(ptr);
 			}
 			if (!strncmp(buffer, "SwapUsed", 8)) {
 				if (!stress_next_field(&ptr))
@@ -531,6 +542,12 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 			}
 		}
 		(void)fclose(fp);
+
+		if ((vmstat->swap_used == 0) &&
+		    (vmstat->swap_free > 0) &&
+		    (vmstat->swap_total > 0)) {
+			vmstat->swap_used = vmstat->swap_total - vmstat->swap_free;
+		}
 	}
 
 	fp = fopen("/proc/vmstat", "r");
@@ -615,9 +632,11 @@ static void stress_get_vmstat(stress_vmstat_t *vmstat)
 	STRESS_VMSTAT_COPY(procs_blocked);
 	STRESS_VMSTAT_COPY(swap_total);
 	STRESS_VMSTAT_COPY(swap_used);
+	STRESS_VMSTAT_COPY(swap_free);
 	STRESS_VMSTAT_COPY(memory_free);
 	STRESS_VMSTAT_COPY(memory_buff);
-	STRESS_VMSTAT_COPY(memory_cache);
+	STRESS_VMSTAT_COPY(memory_cached);
+	STRESS_VMSTAT_COPY(memory_reclaimable);
 	STRESS_VMSTAT_DELTA(swap_in);
 	STRESS_VMSTAT_DELTA(swap_out);
 	STRESS_VMSTAT_DELTA(block_in);
@@ -837,10 +856,10 @@ void stress_vmstat_start(void)
 			       " %2.0f\n",			/* st */
 				vmstat.procs_running,
 				vmstat.procs_blocked,
-				vmstat.swap_total - vmstat.swap_used,
+				vmstat.swap_used,
 				vmstat.memory_free,
 				vmstat.memory_buff,
-				vmstat.memory_cache,
+				vmstat.memory_cached + vmstat.memory_reclaimable,
 				vmstat.swap_in / (uint64_t)vmstat_delay,
 				vmstat.swap_out / (uint64_t)vmstat_delay,
 				vmstat.block_in / (uint64_t)vmstat_delay,
