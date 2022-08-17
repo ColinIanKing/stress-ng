@@ -341,6 +341,12 @@ start seed, but instead seed it with constant values. This forces tests to
 run each time using the same start conditions which can be useful when one
 requires reproducible stress tests.
 .TP
+.B \-\-oom\-avoid
+Attempt to avoid out-of-memory conditions that can lead to the Out-of-Memory
+(OOM) killer terminating stressors. This checks for low memory scenarios and
+swapping before making memory allocations and hence adds some overhead to the
+stressors and will slow down stressor allocation speeds.
+.TP
 .B \-\-oomable
 Do not respawn a stressor if it gets killed by the Out-of-Memory (OOM) killer.
 The default behaviour is to restart a new instance of a stressor if the kernel
