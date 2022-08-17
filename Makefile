@@ -402,6 +402,7 @@ STRESS_SRC = \
 	stress-vdso.c \
 	stress-vecfp.c \
 	stress-vecmath.c \
+	stress-vecshuf.c \
 	stress-vecwide.c \
 	stress-verity.c \
 	stress-vforkmany.c \

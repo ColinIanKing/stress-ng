@@ -294,6 +294,7 @@
 	MACRO(vdso)		\
 	MACRO(vecfp)		\
 	MACRO(vecmath)		\
+	MACRO(vecshuf)		\
 	MACRO(vecwide)		\
 	MACRO(verity)		\
 	MACRO(vfork)		\

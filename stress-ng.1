@@ -5136,6 +5136,47 @@ and the vector math optimisations produced by the compiler.
 .B \-\-vecmath\-ops N
 stop after N bogo vector integer math operations.
 .TP
+.B \-\-vecshuf N
+start N workers that shuffle data on various 64 byte vectors comprised of
+8, 16, 32, 64 and 128 bit unsigned integers. The integers are shuffled
+around the vector with 4 shuffle operations per loop, 65536 loops make
+up one bogo-op of shuffling. The data shuffling rates and shuffle operation
+rates are logged when using the \-v option.  This stressor exercises vector
+load, shuffle/permute, packing/unpacking and store operations.
+.TP
+.B \-\-vecshuf\-ops N
+stop after N bogo vector shuffle ops. One bogo-op is equavlent of 4 \(mu
+65536 vector shuffle operations on 64 bytes of vector data.
+.TP
+.B \-\-vecshuf\-method method
+specify a vector shuffling stress method. By default, all the stress
+methods are exercised sequentially, however one can specify just one
+method to be used if required.
+.TS
+expand;
+lB2 lB lB
+l l s.
+Method	Description
+all	T{
+iterate through all of the following vector methods
+T}
+u8x64	T{
+shuffle a vector of 64 unsigned 8 bit integers
+T}
+u16x32	T{
+shuffle a vector of 32 unsigned 16 bit integers
+T}
+u32x16	T{
+shuffle a vector of 16 unsigned 32 bit integers
+T}
+u64x8	T{
+shuffle a vector of 8 unsigned 64 bit integers
+T}
+u128x4	T{
+shuffle a vector of 4 unsigned 128 bit integers (when supported)
+T}
+.TE
+.TP
 .B \-\-vecwide N
 start N workers that perform various 8 bit math operations on vectors
 of 4, 8, 16, 32, 64, 128, 256, 512, 1024 and 2048 bytes. With the -v option

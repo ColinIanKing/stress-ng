@@ -2071,6 +2071,10 @@ typedef enum {
 	OPT_vecmath,
 	OPT_vecmath_ops,
 
+	OPT_vecshuf,
+	OPT_vecshuf_ops,
+	OPT_vecshuf_method,
+
 	OPT_vecwide,
 	OPT_vecwide_ops,
 
