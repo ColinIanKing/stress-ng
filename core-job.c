@@ -197,7 +197,7 @@ int stress_parse_jobfile(
 			}
 
 			tmp = malloc(len);
-			if (!new_argv[1]) {
+			if (!tmp) {
 				(void)fprintf(stderr, "Out of memory parsing '%s'\n", jobfile);
 				return -1;
 			}
@@ -208,6 +208,7 @@ int stress_parse_jobfile(
 			if (stress_parse_opts(new_argc, new_argv, true) != EXIT_SUCCESS) {
 				stress_parse_error(lineno, txt);
 				ret = -1;
+				free(tmp);
 				goto err;
 			}
 			free(tmp);

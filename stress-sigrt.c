@@ -56,6 +56,7 @@ static int stress_sigrt(const stress_args_t *args)
 
 	for (i = 0; i < MAX_RTPIDS; i++) {
 		if (stress_sighandler(args->name, i + SIGRTMIN, stress_sigrthandler, NULL) < 0) {
+			free(pids);
 			return EXIT_FAILURE;
 		}
 	}
