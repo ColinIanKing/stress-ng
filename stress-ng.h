@@ -2812,13 +2812,14 @@ extern long shim_sgetmask(void);
 extern long shim_ssetmask(long newmask);
 extern int shim_stime(const time_t *t);
 extern int shim_sched_yield(void);
+extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
 extern int shim_set_mempolicy(int mode, unsigned long *nodemask,
 	unsigned long maxnode);
-extern int shim_seccomp(unsigned int operation, unsigned int flags, void *args);
-extern int shim_statx(int dfd, const char *filename, int flags,
-	unsigned int mask, shim_statx_t *buffer);
+extern int shim_setgroups(int size, const gid_t *list);
 extern int shim_setxattr(const char *path, const char *name, const void *value,
 	size_t size, int flags);
+extern int shim_statx(int dfd, const char *filename, int flags,
+	unsigned int mask, shim_statx_t *buffer);
 extern size_t shim_strlcat(char *dst, const char *src, size_t len);
 extern size_t shim_strlcpy(char *dst, const char *src, size_t len);
 extern int shim_sync_file_range(int fd, shim_off64_t offset,

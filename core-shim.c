@@ -31,6 +31,12 @@
 #define HAVE_PKEY_SET
 #endif
 
+#if defined(HAVE_GRP_H)
+#include <grp.h>
+#else
+UNEXPECTED
+#endif
+
 #if defined(HAVE_USTAT_H)
 #if defined(__sun__)
 /* ustat and long file support on sun does not build */
@@ -70,6 +76,7 @@
 #elif defined(HAVE_ATTR_XATTR_H)
 #include <attr/xattr.h>
 #endif
+
 /*  Sanity check */
 #if defined(HAVE_SYS_XATTR_H) &&        \
     defined(HAVE_ATTR_XATTR_H)
@@ -2384,5 +2391,24 @@ int shim_setdomainname(const char *name, size_t len)
 	return (int)syscall(__NR_setdomainname, name, len);
 #else
 	return (int)shim_enosys(0, name, len);
+#endif
+}
+
+/*
+ *  shim_setgroups()
+ *	shim for POSIX version of setgroups
+ */
+int shim_setgroups(int size, const gid_t *list)
+{
+#if defined(HAVE_GRP_H)
+#if defined(__linux__)
+	/* Linux passes size as size_t */
+	return setgroups((size_t)size, list);
+#else
+	/* POSIX variant, as used by BSD etc */
+	return setgroups(size, list);
+#endif
+#else
+	return (int)shim_enosys(size, list);
 #endif
 }
