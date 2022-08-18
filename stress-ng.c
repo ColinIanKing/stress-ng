@@ -2231,6 +2231,7 @@ static void MLOCKED_TEXT stress_run(
 			int32_t ionice_level = UNDEFINED;
 			stress_stats_t *const stats = g_stressor_current->stats[j];
 			double run_duration, fork_time_start;
+			bool ok;
 
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
@@ -2318,10 +2319,12 @@ again:
 					(void)memset(*checksum, 0, sizeof(**checksum));
 					rc = g_stressor_current->stressor->info->stressor(&args);
 					pr_fail_check(&rc);
-					if (rc == EXIT_SUCCESS) {
-						stats->run_ok = true;
-						(*checksum)->data.run_ok = true;
-					}
+
+					ok = (rc == EXIT_SUCCESS);
+					stats->run_ok = ok;
+					(*checksum)->data.run_ok = ok;
+					/* Ensure reserved padding is zero to not confuse checksum */
+					(void)memset((*checksum)->data.reserved, 0, sizeof((*checksum)->data.reserved));
 
 					/*
 					 *  We're done, cancel SIGALRM
