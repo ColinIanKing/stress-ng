@@ -721,6 +721,8 @@ update:
 
 	return low_memory;
 #else
+	(void)requested;
+
 	return false;
 #endif
 }
