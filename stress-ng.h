@@ -889,7 +889,8 @@ typedef struct {
 		uint8_t	 padding2;			/* more padding */
 	} atomic;					/* Shared atomic temp vars */
 	struct {
-		uint32_t futex[STRESS_PROCS_MAX];	/* Shared futexes */
+		/* futexes must be aligned to avoid -EINVAL */
+		uint32_t futex[STRESS_PROCS_MAX] ALIGNED(4);/* Shared futexes */
 		uint64_t timeout[STRESS_PROCS_MAX];	/* Shared futex timeouts */
 	} futex;
 #if defined(HAVE_SEM_SYSV) && 	\
