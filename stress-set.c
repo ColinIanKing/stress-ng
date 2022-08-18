@@ -259,7 +259,7 @@ static int stress_set(const stress_args_t *args)
 				gid_t bad_groups[1] = { (gid_t)-1 };
 
 				/* Exercise invalid groups */
-				VOID_RET(int, setgroups((size_t)-1, groups));
+				VOID_RET(int, setgroups((size_t)INT_MIN, groups));
 				VOID_RET(int, setgroups(0, groups));
 				VOID_RET(int, setgroups(1, bad_groups));
 				VOID_RET(int, setgroups((size_t)n, groups));
