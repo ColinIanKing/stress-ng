@@ -250,10 +250,19 @@ again:
 			ss.ss_flags = 0;
 			(void)sigaltstack(&ss, NULL);
 
+#if defined(SIGSEGV)
 			if (stress_sighandler(args->name, SIGSEGV, stress_signal_handler, NULL) < 0)
 				return EXIT_FAILURE;
+#endif
+#if defined(SIGBUS)
 			if (stress_sighandler(args->name, SIGBUS, stress_signal_handler, NULL) < 0)
 				return EXIT_FAILURE;
+#endif
+#if defined(SIGILL)
+			/* Some BSD kernels trigger SIGILL on bad alternative stack jmps */
+			if (stress_sighandler(args->name, SIGILL, stress_signal_handler, NULL) < 0)
+				return EXIT_FAILURE;
+#endif
 #if defined(SIGXCPU) &&	\
     defined(RLIMIT_CPU)
 			if (stress_sighandler(args->name, SIGXCPU, stress_xcpu_handler, NULL) < 0)
