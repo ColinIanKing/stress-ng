@@ -275,6 +275,9 @@ static void stress_strcpy(
 	register size_t i;
 	char * (*test_strcpy)(char *dest, const char *src) = libc_func;
 
+	(void)len2;
+	(void)strdstlen;
+
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
 		STRCHK(name, strdst == test_strcpy(strdst, str1), failed);
 		STRCHK(name, strdst == test_strcpy(strdst, str2), failed);
@@ -344,6 +347,9 @@ static void stress_strcat(
 
 	register size_t i;
 	test_strcat_t test_strcat = (test_strcat_t)libc_func;
+
+	(void)len2;
+	(void)strdstlen;
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
 		*strdst = '\0';
