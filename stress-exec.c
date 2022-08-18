@@ -65,7 +65,6 @@ typedef struct {
 	uint8_t rnd8;			/* random value */
 	bool no_pthread;		/* do not use pthread */
 } stress_exec_context_t;
-#endif
 
 typedef struct stress_pid_hash {
 	struct stress_pid_hash *next;	/* next entry */
@@ -79,6 +78,7 @@ static size_t stress_pid_cache_items = 0;
 static stress_pid_hash_t *stress_pid_cache;
 static stress_pid_hash_t *stress_pid_hash_table[HASH_EXECS];
 static stress_pid_hash_t *free_list;
+#endif
 
 typedef struct {
 	const char *name;
