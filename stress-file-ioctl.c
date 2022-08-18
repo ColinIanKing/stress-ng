@@ -103,6 +103,8 @@ struct shim_space_resv {
 #define FS_IOC_ZERO_RANGE	_IOW('X', 57, struct shim_space_resv)
 #endif
 
+#endif
+
 /*
  *  stress_file_ioctl
  *	stress file ioctls
@@ -512,8 +514,6 @@ static int stress_file_ioctl(const stress_args_t *args)
 		}
 #else
 		UNEXPECTED
-#endif
-
 #endif
 
 #if defined(FIBMAP)
