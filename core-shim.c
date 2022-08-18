@@ -2367,7 +2367,7 @@ int shim_getdomainname(char *name, size_t len)
       defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_getdomainname, name, len);
 #else
-	return (int)shim_enosys(0, name, name);
+	return (int)shim_enosys(0, name, len);
 #endif
 }
 
@@ -2383,6 +2383,6 @@ int shim_setdomainname(const char *name, size_t len)
       defined(HAVE_SYSCALL)
 	return (int)syscall(__NR_setdomainname, name, len);
 #else
-	return (int)shim_enosys(0, name, name);
+	return (int)shim_enosys(0, name, len);
 #endif
 }
