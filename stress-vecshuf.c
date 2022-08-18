@@ -156,7 +156,9 @@ static stress_vecshuf_funcs_t stress_vecshuf_funcs[] = {
 	{ "u16x32",	stress_vecshuf_u16_32, 32, 0.0, 0.0, 0.0 },
 	{ "u32x16",	stress_vecshuf_u32_16, 16, 0.0, 0.0, 0.0 },
 	{ "u64x8",	stress_vecshuf_u64_8,   8, 0.0, 0.0, 0.0 },
+#if defined(HAVE_INT128_T)
 	{ "u128x4",	stress_vecshuf_u128_4,  4, 0.0, 0.0, 0.0 },
+#endif
 };
 
 static void stress_vecshuf_call_method(
@@ -302,7 +304,9 @@ bool stress_vecshuf_check_data(
 	VEC_CHECK(u16, 32, fail);
 	VEC_CHECK(u32, 16, fail);
 	VEC_CHECK(u64,  8, fail);
+#if defined(HAVE_INT128_T)
 	VEC_CHECK(u128, 4, fail);
+#endif
 
 	return fail;
 }
