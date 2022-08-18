@@ -526,7 +526,7 @@ static int stress_madvise(const stress_args_t *args)
 
 	(void)shim_unlink(filename);
 	for (n = 0; n < sz; n += page_size) {
-		VOID_RET(ssize_t, write(fd, page, sizeof(page)));
+		VOID_RET(ssize_t, write(fd, page, page_size));
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
