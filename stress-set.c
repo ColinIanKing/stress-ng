@@ -450,7 +450,7 @@ static int stress_set(const stress_args_t *args)
 		{
 			char name[2048];
 
-			ret = getdomainname(name, sizeof(name));
+			ret = shim_getdomainname(name, sizeof(name));
 			if (ret == 0) {
 				/* Exercise zero length name (OK-ish) */
 				VOID_RET(int, shim_setdomainname(name, 0));
