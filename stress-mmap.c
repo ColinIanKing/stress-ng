@@ -390,11 +390,7 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 		int rnd, rnd_flag;
 		uint8_t *buf = NULL;
 
-#if defined(MAP_HUGETLB) ||		\
-    defined(MAP_UNINITIALIZED) || 	\
-    defined(MAP_DENYWRITE)
 retry:
-#endif
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 			pr_inf("%s: gave up trying to mmap, no available memory\n",
 				args->name);
