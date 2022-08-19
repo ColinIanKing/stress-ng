@@ -22,7 +22,7 @@
 typedef struct {
 	const stress_args_t *args;	/* stress-ng arguments */
 	size_t page_shift;		/* log2(page_size) */
-	char exe_path[PATH_MAX];	/* name of executable */
+	char *exe_path;			/* path of executable */
 } munmap_context_t;
 
 static const stress_help_t help[] = {
@@ -205,7 +205,6 @@ static inline void stress_munmap_clean_path(char *path)
  */
 static int stress_munmap(const stress_args_t *args)
 {
-	ssize_t len;
 	munmap_context_t *ctxt;
 
 	ctxt = mmap(NULL, sizeof(*ctxt), PROT_READ | PROT_WRITE,
@@ -217,9 +216,8 @@ static int stress_munmap(const stress_args_t *args)
 	}
 	ctxt->args = args;
 	ctxt->page_shift = stress_munmap_log2(args->page_size);
-
-	len = shim_readlink("/proc/self/exe", ctxt->exe_path, sizeof(ctxt->exe_path));
-        if ((len < 0) || (len > PATH_MAX)) {
+	ctxt->exe_path = stress_proc_self_exe();
+	if (!ctxt->exe_path) {
 		pr_inf("%s: skipping stressor, cannot determine child executable path\n",
 			args->name);
 		(void)munmap((void *)ctxt, sizeof(*ctxt));

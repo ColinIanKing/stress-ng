@@ -606,9 +606,8 @@ do_exec:
  */
 static int stress_exec(const stress_args_t *args)
 {
-	char exec_prog[PATH_MAX + 1];
+	char *exec_prog;
 	char garbage_prog[PATH_MAX];
-	ssize_t len;
 	int ret, rc = EXIT_FAILURE;
 #if defined(HAVE_EXECVEAT) &&	\
     defined(O_PATH)
@@ -626,6 +625,17 @@ static int stress_exec(const stress_args_t *args)
 	(void)stress_get_setting("exec-method", &exec_method);
 	(void)stress_get_setting("exec-fork-method", &exec_fork_method);
 	(void)stress_get_setting("exec-no-pthread", &exec_no_pthread);
+
+	/*
+	 *  Determine our own self as the executable, e.g. run stress-ng
+	 */
+	exec_prog = stress_proc_self_exe();
+	if (!exec_prog) {
+		if (args->instance == 0)
+			pr_inf_skip("%s: skipping stressor, can't determine stress-ng "
+				"executable name\n", args->name);
+		return EXIT_NOT_IMPLEMENTED;
+	}
 
 	/* Remind folk that vfork can only do execve in this stressor */
 	if ((exec_fork_method == EXEC_FORK_METHOD_VFORK) &&
@@ -661,18 +671,6 @@ static int stress_exec(const stress_args_t *args)
 		exec_method = EXEC_METHOD_EXECVE;
 	}
 #endif
-
-	/*
-	 *  Determine our own self as the executable, e.g. run stress-ng
-	 */
-	len = shim_readlink("/proc/self/exe", exec_prog, sizeof(exec_prog));
-	if ((len < 0) || (len > PATH_MAX)) {
-		pr_fail("%s: readlink on /proc/self/exe failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
-		return EXIT_FAILURE;
-	}
-	exec_prog[len] = '\0';
-
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);

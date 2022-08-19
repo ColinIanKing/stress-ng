@@ -58,8 +58,7 @@ static int stress_spawn_supported(const char *name)
  */
 static int stress_spawn(const stress_args_t *args)
 {
-	char path[PATH_MAX + 1];
-	ssize_t len;
+	char *path;
 	uint64_t spawn_fails = 0, spawn_calls = 0;
 	static char *argv_new[] = { NULL, "--exec-exit", NULL };
 	static char *env_new[] = { NULL };
@@ -75,20 +74,15 @@ static int stress_spawn(const stress_args_t *args)
 	}
 
 	/*
-	 *  Determine our own self as the spawnutable, e.g. run stress-ng
+	 *  Determine our own self as the executable, e.g. run stress-ng
 	 */
-	len = shim_readlink("/proc/self/exe", path, sizeof(path));
-	if ((len < 0) || (len > PATH_MAX)) {
-		if (errno == ENOENT) {
-			if (args->instance == 0)
-				pr_inf_skip("%s: skipping stressor, can't determine stress-ng "
-					"executable name\n", args->name);
-			return EXIT_NOT_IMPLEMENTED;
-		}
-		pr_fail("%s: readlink on /proc/self/exe failed\n", args->name);
-		return EXIT_FAILURE;
+	path = stress_proc_self_exe();
+	if (!path) {
+		if (args->instance == 0)
+			pr_inf_skip("%s: skipping stressor, can't determine stress-ng "
+				"executable name\n", args->name);
+		return EXIT_NOT_IMPLEMENTED;
 	}
-	path[len] = '\0';
 	argv_new[0] = path;
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

@@ -3271,3 +3271,37 @@ int stress_exit_status(const int err)
 	}
 	return EXIT_FAILURE;	/* cppcheck-suppress ConfigurationNotChecked */
 }
+
+static char *stress_proc_self_exe_path(const char *proc_path)
+{
+	static char path[PATH_MAX];
+	ssize_t len;
+
+	len = shim_readlink(proc_path, path, sizeof(path));
+	if ((len < 0) || (len > PATH_MAX))
+		return NULL;
+	path[len] = '\0';
+	return path;
+}
+
+/*
+ *  stress_proc_self_exe()
+ *  	determine the path to the executable, return NULL if not possible/failed
+ */
+char *stress_proc_self_exe(void)
+{
+#if defined(__linux__)
+	return stress_proc_self_exe_path("/proc/self/exe");
+#elif defined(__NetBSD__)
+	return stress_proc_self_exe_path("/proc/curproc/exe");
+#elif defined(__DragonFly__)
+	return stress_proc_self_exe_path("/proc/curproc/file");
+#elif defined(__FreeBSD__)
+	return stress_proc_self_exe_path("/proc/curproc/file");
+#elif defined(__sun__) && 	\
+      defined(HAVE_GETEXECNAME)
+	return getexecname();
+#else
+	return NULL;
+#endif
+}
