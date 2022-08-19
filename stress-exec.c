@@ -38,7 +38,9 @@ UNEXPECTED
 #define EXEC_FORK_METHOD_CLONE	(0x10)
 #endif
 #define EXEC_FORK_METHOD_FORK	(0x11)
+#if defined(HAVE_VFORK)
 #define EXEC_FORK_METHOD_VFORK	(0x12)
+#endif
 #if defined(HAVE_SPAWN_H) &&	\
     defined(HAVE_POSIX_SPAWN)
 #define EXEC_FORK_METHOD_SPAWN	(0x13)
@@ -48,7 +50,6 @@ UNEXPECTED
 
 #define CLONE_STACK_SIZE	(8 * 1024)
 
-#if defined(__linux__)
 /*
  *   exec* family of args to pass
  */
@@ -82,7 +83,6 @@ static size_t stress_pid_cache_items = 0;
 static stress_pid_hash_t *stress_pid_cache;
 static stress_pid_hash_t *stress_pid_hash_table[HASH_EXECS];
 static stress_pid_hash_t *free_list;
-#endif
 
 typedef struct {
 	const char *name;
@@ -105,7 +105,9 @@ static const stress_exec_method_t stress_exec_fork_methods[] = {
     defined(HAVE_POSIX_SPAWN)
 	{ "spawn",	EXEC_FORK_METHOD_SPAWN },
 #endif
+#if defined(HAVE_VFORK)
 	{ "vfork",	EXEC_FORK_METHOD_VFORK },
+#endif
 	{ NULL,		-1 },
 };
 
@@ -114,16 +116,19 @@ static const stress_help_t help[] = {
 	{ NULL,	"exec-ops N",		"stop after N exec bogo operations" },
 	{ NULL,	"exec-max P",		"create P workers per iteration, default is 4096" },
 	{ NULL,	"exec-method M",	"select exec method: all, execve, execveat" },
-	{ NULL,	"exec-fork-method M",	"select exec fork method: "
+	{ NULL,	"exec-fork-method M",	"select exec fork method:"
 #if defined(HAVE_CLONE)
-					"clone, "
+					" clone"
 #endif
-					"fork, "
+					" fork"
 #if defined(HAVE_SPAWN_H) &&	\
     defined(HAVE_POSIX_SPAWN)
-					"spawn, "
+					" spawn"
 #endif
-					"vfork" },
+#if defined(HAVE_VFORK)
+					" vfork"
+#endif
+					"" },
 	{ NULL,	"exec-no-pthread",	"do not use pthread_create" },
 	{ NULL,	NULL,			NULL }
 };
@@ -200,8 +205,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_exec_no_pthread,	stress_set_exec_no_pthread },
 	{ 0,			NULL }
 };
-
-#if defined(__linux__)
 
 /*
  *  stress_exec_free_list_add()
@@ -655,12 +658,14 @@ static int stress_exec(const stress_args_t *args)
 		return EXIT_NOT_IMPLEMENTED;
 	}
 
+#if defined(HAVE_VFORK)
 	/* Remind folk that vfork can only do execve in this stressor */
 	if ((exec_fork_method == EXEC_FORK_METHOD_VFORK) &&
 	    (exec_method != EXEC_METHOD_EXECVE) &&
 	    (args->instance == 0)) {
 		pr_inf("%s: limiting vfork to only use execve()\n", args->name);
 	}
+#endif
 
 	cache_max = sizeof(*stress_pid_cache) * exec_max;
 	stress_pid_cache =
@@ -753,6 +758,7 @@ static int stress_exec(const stress_args_t *args)
 					_exit(stress_exec_child(&sph->arg));
 				}
 				break;
+#if defined(HAVE_VFORK)
 			case EXEC_FORK_METHOD_VFORK:
 				pid = shim_vfork();
 				if (pid == 0) {
@@ -763,6 +769,7 @@ static int stress_exec(const stress_args_t *args)
 					_exit(execve(exec_prog, sph->arg.argv, sph->arg.env));
 				}
 				break;
+#endif
 #if defined(HAVE_CLONE)
 			case EXEC_FORK_METHOD_CLONE:
 				stack_top = (char *)stress_get_stack_top(sph->stack, CLONE_STACK_SIZE);
@@ -848,11 +855,3 @@ stressor_info_t stress_exec_info = {
 	.verify = VERIFY_OPTIONAL,
 	.help = help
 };
-#else
-stressor_info_t stress_exec_info = {
-	.stressor = stress_not_implemented,
-	.class = CLASS_SCHEDULER | CLASS_OS,
-	.opt_set_funcs = opt_set_funcs,
-	.help = help
-};
-#endif
