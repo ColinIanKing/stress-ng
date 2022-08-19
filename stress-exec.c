@@ -34,7 +34,9 @@ UNEXPECTED
 #define EXEC_METHOD_EXECVE	(0x01)
 #define EXEC_METHOD_EXECVEAT	(0x02)
 
+#if defined(HAVE_CLONE)
 #define EXEC_FORK_METHOD_CLONE	(0x10)
+#endif
 #define EXEC_FORK_METHOD_FORK	(0x11)
 #define EXEC_FORK_METHOD_VFORK	(0x12)
 #if defined(HAVE_SPAWN_H) &&	\
@@ -70,7 +72,9 @@ typedef struct stress_pid_hash {
 	struct stress_pid_hash *next;	/* next entry */
 	pid_t	pid;			/* child pid */
 	stress_exec_context_t arg;	/* exec info context */
+#if defined(HAVE_CLONE)
 	void	*stack;			/* stack for clone */
+#endif
 } stress_pid_hash_t;
 
 static size_t stress_pid_cache_index = 0;
@@ -93,7 +97,9 @@ static const stress_exec_method_t stress_exec_methods[] = {
 };
 
 static const stress_exec_method_t stress_exec_fork_methods[] = {
+#if defined(HAVE_CLONE)
 	{ "clone",	EXEC_FORK_METHOD_CLONE },
+#endif
 	{ "fork",	EXEC_FORK_METHOD_FORK },
 #if defined(HAVE_SPAWN_H) &&	\
     defined(HAVE_POSIX_SPAWN)
@@ -108,12 +114,16 @@ static const stress_help_t help[] = {
 	{ NULL,	"exec-ops N",		"stop after N exec bogo operations" },
 	{ NULL,	"exec-max P",		"create P workers per iteration, default is 4096" },
 	{ NULL,	"exec-method M",	"select exec method: all, execve, execveat" },
+	{ NULL,	"exec-fork-method M",	"select exec fork method: "
+#if defined(HAVE_CLONE)
+					"clone, "
+#endif
+					"fork, "
 #if defined(HAVE_SPAWN_H) &&	\
     defined(HAVE_POSIX_SPAWN)
-	{ NULL,	"exec-fork-method M",	"select exec fork method: clone, fork, vfork" },
-#else
-	{ NULL,	"exec-fork-method M",	"select exec fork method: clone, fork, spawn, vfork" },
+					"spawn, "
 #endif
+					"vfork" },
 	{ NULL,	"exec-no-pthread",	"do not use pthread_create" },
 	{ NULL,	NULL,			NULL }
 };
@@ -209,11 +219,15 @@ static inline void stress_exec_free_list_add(stress_pid_hash_t *sph)
  */
 static void stress_exec_free_pid_list(stress_pid_hash_t *sph)
 {
+#if defined(HAVE_CLONE)
 	while (sph) {
 		if (sph->stack)
 			(void)munmap(sph->stack, CLONE_STACK_SIZE);
 		sph = sph->next;
 	}
+#else
+	(void)sph;
+#endif
 }
 
 /*
@@ -244,6 +258,7 @@ static stress_pid_hash_t *stress_exec_alloc_pid(const bool alloc_stack)
 		}
 	}
 
+#if defined(HAVE_CLONE)
 	if (sph && alloc_stack && !sph->stack) {
 		sph->stack = mmap(NULL, CLONE_STACK_SIZE, PROT_READ | PROT_WRITE,
 				MAP_PRIVATE | MAP_ANONYMOUS | MAP_STACK, -1, 0);
@@ -253,6 +268,9 @@ static stress_pid_hash_t *stress_exec_alloc_pid(const bool alloc_stack)
 			return NULL;
 		}
 	}
+#else
+	(void)alloc_stack;
+#endif
 	return sph;
 }
 
@@ -692,10 +710,14 @@ static int stress_exec(const stress_args_t *args)
 		NOCLOBBER uint32_t i;
 
 		for (i = 0; i < exec_max; i++) {
-			char *stack_top;
 			int status;
 			pid_t pid;
+#if defined(HAVE_CLONE)
+			char *stack_top;
 			const bool alloc_stack = (exec_fork_method == EXEC_FORK_METHOD_CLONE);
+#else
+			const bool alloc_stack = false;
+#endif
 			NOCLOBBER stress_pid_hash_t *sph;
 
 			if (!keep_stressing_flag())
@@ -732,7 +754,7 @@ static int stress_exec(const stress_args_t *args)
 				}
 				break;
 			case EXEC_FORK_METHOD_VFORK:
-				pid = vfork();
+				pid = shim_vfork();
 				if (pid == 0) {
 					/*
 					 *  vfork has to be super simple to avoid clobbering
@@ -741,11 +763,13 @@ static int stress_exec(const stress_args_t *args)
 					_exit(execve(exec_prog, sph->arg.argv, sph->arg.env));
 				}
 				break;
+#if defined(HAVE_CLONE)
 			case EXEC_FORK_METHOD_CLONE:
 				stack_top = (char *)stress_get_stack_top(sph->stack, CLONE_STACK_SIZE);
 				stack_top = stress_align_stack(stack_top);
 				pid = clone(stress_exec_child, stack_top, CLONE_VM | SIGCHLD, &sph->arg);
 				break;
+#endif
 #if defined(HAVE_SPAWN_H) &&	\
     defined(HAVE_POSIX_SPAWN)
 			case EXEC_FORK_METHOD_SPAWN:
