@@ -137,6 +137,15 @@ static int stress_getrandom(const stress_args_t *args)
 					errno, strerror(errno));
 				return EXIT_FAILURE;
 			}
+#if defined(HAVE_GETENTROPY)
+			/*
+			 *  getentropy() on Linux is implemented using
+			 *  getrandom() but it's worth exercising it for
+			 *  completeness sake and it's also available on
+			 *  other systems such as OpenBSD.
+			 */
+			VOID_RET(int, getentropy(buffer, 1));
+#endif
 			inc_counter(args);
 		}
 	} while (keep_stressing(args));
