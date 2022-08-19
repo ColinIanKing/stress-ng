@@ -21,6 +21,7 @@
 #include "core-ftrace.h"
 #include "core-hash.h"
 #include "core-perf.h"
+#include "core-pragma.h"
 #include "core-put.h"
 #include "core-smart.h"
 #include "core-stressors.h"
@@ -2942,7 +2943,15 @@ static inline void stress_shared_map(const int32_t num_procs)
 	/* Paraniod */
 	(void)memset(g_shared, 0, sz);
 	g_shared->length = sz;
+
+	/*
+	 * libc on some systems warn that vfork is deprecated,
+	 * we know this, force warnings off where possible
+	 */
+STRESS_PRAGMA_PUSH
+STRESS_PRAGMA_WARN_OFF
 	g_shared->vfork = vfork;
+STRESS_PRAGMA_POP
 
 #if defined(HAVE_MPROTECT)
 	last_page = ((uint8_t *)g_shared) + sz - page_size;
