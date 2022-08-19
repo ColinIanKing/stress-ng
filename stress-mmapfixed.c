@@ -90,8 +90,6 @@ static bool stress_mmapfixed_is_mapped(
 		return stress_mmapfixed_is_mapped_slow(addr, len, page_size);
 	if (ret == 0)
 		return true;
-	if (errno == ENOMEM)
-		return false;
 	return stress_mmapfixed_is_mapped_slow(addr, len, page_size);
 }
 
