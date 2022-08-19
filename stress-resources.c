@@ -619,7 +619,7 @@ static void NORETURN waste_resources(
 			attr.mq_maxmsg = 1;
 			attr.mq_msgsize = 32;
 			attr.mq_curmsgs = 0;
-	
+
 			info[i].mq = mq_open(info[i].mq_name,
 				O_CREAT | O_RDWR | flag, S_IRUSR | S_IWUSR, &attr);
 			if (!keep_stressing_flag())
