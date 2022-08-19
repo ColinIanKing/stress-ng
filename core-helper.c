@@ -3272,7 +3272,7 @@ int stress_exit_status(const int err)
 	return EXIT_FAILURE;	/* cppcheck-suppress ConfigurationNotChecked */
 }
 
-static char *stress_proc_self_exe_path(const char *proc_path)
+char *stress_proc_self_exe_path(const char *proc_path)
 {
 	static char path[PATH_MAX];
 	ssize_t len;
@@ -3300,7 +3300,14 @@ char *stress_proc_self_exe(void)
 	return stress_proc_self_exe_path("/proc/curproc/file");
 #elif defined(__sun__) && 	\
       defined(HAVE_GETEXECNAME)
-	return getexecname();
+	static char path[PATH_MAX];
+	const char *execname = getexecname();
+
+	if (!execname)
+		return NULL;
+	/* Need to perform a string copy to deconstify execname */
+	(void)shim_strlcpy(path, execname, sizeof(path));
+	return  path;
 #else
 	return NULL;
 #endif
