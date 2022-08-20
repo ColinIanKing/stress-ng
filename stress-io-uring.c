@@ -799,7 +799,7 @@ static int stress_io_uring(const stress_args_t *args)
 	 *  Assume all opcodes are supported
 	 */
 	for (j = 0; j < SIZEOF_ARRAY(stress_io_uring_setups); j++) {
-		supported[i] = true;
+		supported[j] = true;
 	}
 
 	rc = EXIT_SUCCESS;
