@@ -216,7 +216,6 @@ static void stress_swap_check_swapped(
 {
 	unsigned char *vec;
 	register size_t n = 0;
-	register uint32_t i;
 
 	*swapped_total += npages;
 
@@ -224,9 +223,12 @@ static void stress_swap_check_swapped(
 	if (!vec)
 		return;
 
-	shim_mincore(addr, page_size * (size_t)npages, vec);
-	for (i = 0; i < npages; i++)
-		n += ((vec[i] & 1) == 0);
+	if (shim_mincore(addr, page_size * (size_t)npages, vec) == 0) {
+		register uint32_t i;
+
+		for (i = 0; i < npages; i++)
+			n += ((vec[i] & 1) == 0);
+	}
 
 	*swapped_out += n;
 	free(vec);
