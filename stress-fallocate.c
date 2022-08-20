@@ -113,7 +113,7 @@ static int stress_fallocate(const stress_args_t *args)
 	char filename[PATH_MAX];
 	uint64_t ftrunc_errs = 0;
 	off_t fallocate_bytes = DEFAULT_FALLOCATE_BYTES;
-	int *mode_perms, all_modes;
+	int *mode_perms = NULL, all_modes;
 	size_t i, mode_count;
 	const char *fs_type;
 
@@ -144,8 +144,10 @@ static int stress_fallocate(const stress_args_t *args)
 	if (fallocate_bytes < (off_t)MIN_FALLOCATE_BYTES)
 		fallocate_bytes = (off_t)MIN_FALLOCATE_BYTES;
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
+	if (ret < 0) {
+		free(mode_perms);
 		return stress_exit_status(-ret);
+	}
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
@@ -154,6 +156,7 @@ static int stress_fallocate(const stress_args_t *args)
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
 		(void)stress_temp_dir_rm_args(args);
+		free(mode_perms);
 		return ret;
 	}
 	fs_type = stress_fs_type(filename);
@@ -328,9 +331,7 @@ done:
 	 */
 	(void)stress_temp_dir_args(args, filename, sizeof(filename));
 	(void)shim_rmdir(filename);
-
-	if (mode_perms)
-		free(mode_perms);
+	free(mode_perms);
 
 	return EXIT_SUCCESS;
 }
