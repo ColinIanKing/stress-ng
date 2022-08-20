@@ -98,7 +98,15 @@ static int stress_copy_file_range_verify(
 
 #if defined(HAVE_PREAD)
 		bytes_in = pread(fd_in, buf_in, sizeof(buf_in), *off_in);
+		if (bytes_in == 0)
+			return 0;
+		if (bytes_in < 0)
+			break;
 		bytes_out = pread(fd_out, buf_out, sizeof(buf_out), *off_out);
+		if (bytes_out == 0)
+			return 0;
+		if (bytes_out <= 0)
+			break;
 #else
 		off_t off_ret;
 
@@ -108,18 +116,17 @@ static int stress_copy_file_range_verify(
 		off_ret = lseek(fd_out, *off_out, SEEK_SET);
 		if (off_ret != *off_out)
 			return -1;
-
 		bytes_in = read(fd_in, buf_in, sizeof(buf_in));
 		if (bytes_in == 0)
 			return 0;
 		if (bytes_in < 0)
 			break;
 		bytes_out = read(fd_out, buf_out, sizeof(buf_out));
-#endif
 		if (bytes_out == 0)
 			return 0;
 		if (bytes_out <= 0)
 			break;
+#endif
 
 		n = STRESS_MINIMUM(bytes_in, bytes_out);
 		if (memcmp(buf_in, buf_out, (size_t)n) != 0)
