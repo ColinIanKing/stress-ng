@@ -517,6 +517,7 @@ retry:
 		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
 				socket_domain, socket_port, socket_if,
 				&addr, &addr_len, NET_ADDR_ANY) < 0) {
+			(void)close(fd);
 			goto free_controls;
 		}
 		if (connect(fd, addr, addr_len) < 0) {
