@@ -360,6 +360,10 @@ static int get_config(const stress_args_t *args, EGLConfig *config)
 
 	/* Use calloc to avoid multiplication overflow */
 	configs = calloc((size_t)num_configs, sizeof(EGLConfig));
+	if (!configs) {
+		pr_inf("%s: EGL: EGL allocation failed, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
 	if ((eglChooseConfig(display, egl_config_attribs,
 			     configs, num_configs,
 			     &num_configs) == EGL_FALSE) || (num_configs == 0)) {
