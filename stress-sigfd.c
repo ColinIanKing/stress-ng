@@ -91,7 +91,7 @@ static int stress_sigfd(const stress_args_t *args)
 	 *  Exercise with invalid sizemask
 	 */
 #if defined(HAVE_SIGNALFD4)
-	sfd = shim_signalfd4(-1, &mask, sizeof(&mask) + 1, 0);
+	sfd = shim_signalfd4(-1, &mask, sizeof(mask) + 1, 0);
 	if (sfd >= 0)
 		(void)close(sfd);
 #endif
