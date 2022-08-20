@@ -195,7 +195,7 @@ static int stress_chmod(const stress_args_t *args)
 	mode_t all_mask = 0;
 	char filename[PATH_MAX], pathname[PATH_MAX], longpath[PATH_MAX + 16];
 	char tmp[PATH_MAX], *filebase;
-	int *mode_perms;
+	int *mode_perms = NULL;
 	size_t mode_count;
 
 	for (i = 0; modes[i]; i++)
@@ -212,6 +212,7 @@ static int stress_chmod(const stress_args_t *args)
 			rc = stress_exit_status(errno);
 			pr_fail("%s: mkdir %s failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
+			free(mode_perms);
 			return rc;
 		}
 	}
@@ -312,9 +313,7 @@ tidy:
 	}
 	(void)shim_unlink(filename);
 	(void)shim_rmdir(pathname);
-
-	if (mode_perms)
-		free(mode_perms);
+	free(mode_perms);
 
 	return rc;
 }
