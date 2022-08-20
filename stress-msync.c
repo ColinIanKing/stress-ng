@@ -211,13 +211,13 @@ static int stress_msync(const stress_args_t *args)
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
-		ret = read(fd, data, sizeof(data));
-		if (ret < (ssize_t)sizeof(data)) {
+		ret = read(fd, data, page_size);
+		if (ret < (ssize_t)page_size) {
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto do_invalidate;
 		}
-		if (stress_page_check(data, val, sizeof(data)) < 0) {
+		if (stress_page_check(data, val, page_size) < 0) {
 			pr_fail("%s: msync'd data in file different "
 				"to data in memory\n", args->name);
 		}
@@ -239,8 +239,8 @@ do_invalidate:
 			rc = EXIT_NO_RESOURCE;
 			break;
 		}
-		ret = read(fd, data, sizeof(data));
-		if (ret < (ssize_t)sizeof(data)) {
+		ret = read(fd, data, page_size);
+		if (ret < (ssize_t)page_size) {
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			goto do_next;
@@ -253,7 +253,7 @@ do_invalidate:
 				strerror(errno));
 			goto do_next;
 		}
-		if (stress_page_check(buf + offset, val, sizeof(data)) < 0) {
+		if (stress_page_check(buf + offset, val, page_size) < 0) {
 			pr_fail("%s: msync'd data in memory "
 				"different to data in file\n", args->name);
 		}
