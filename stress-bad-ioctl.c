@@ -73,6 +73,8 @@ static dev_ioctl_info_t *stress_bad_ioctl_dev_new(
 		head = (cmp > 0) ? &(*head)->left : &(*head)->right;
 	}
 	node = calloc(1, sizeof(*node));
+	if (!node)
+		return NULL;
 	node->dev_path = strdup(dev_path);
 	if (!node->dev_path) {
 		free(node);
