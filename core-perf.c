@@ -423,8 +423,7 @@ int stress_perf_open(stress_perf_t *sp)
 
 		ret = stress_lock_acquire(g_shared->perf.lock);
 		if (ret) {
-			pr_dbg("perf: lock on perf lock failed: %d (%s)\n",
-				ret, strerror(ret));
+			pr_dbg("perf: lock on perf lock failed\n");
 			return -1;
 		}
 		if (!g_shared->perf.no_perf) {
@@ -434,8 +433,7 @@ int stress_perf_open(stress_perf_t *sp)
 		}
 		ret = stress_lock_release(g_shared->perf.lock);
 		if (ret) {
-			pr_dbg("perf: unlock on perf lock failed: %d (%s)\n",
-				ret, strerror(ret));
+			pr_dbg("perf: unlock on perf lock failed\n");
 			return -1;
 		}
 		return -1;
