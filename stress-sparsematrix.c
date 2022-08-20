@@ -1141,7 +1141,7 @@ static int stress_sparsematrix(const stress_args_t *args)
 			sparsematrix_items= MIN_SPARSEMATRIX_ITEMS;
 	}
 
-	capacity = sparsematrix_size * sparsematrix_size;
+	capacity = (uint64_t)sparsematrix_size * (uint64_t)sparsematrix_size;
 
 	if (sparsematrix_items > capacity) {
 		uint64_t new_items = capacity;
