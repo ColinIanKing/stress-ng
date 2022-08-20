@@ -421,6 +421,7 @@ retry:
 		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
 				sctp_domain, sctp_port, sctp_if,
 				&addr, &addr_len, NET_ADDR_LOOPBACK) < 0) {
+			(void)close(fd);
 			return EXIT_FAILURE;
 		}
 		if (connect(fd, addr, addr_len) < 0) {
