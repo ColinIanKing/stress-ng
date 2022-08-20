@@ -139,6 +139,9 @@ static int do_chmod(
 {
 	static int index;
 
+	if (!mode_count)
+		return 0;
+
 	(void)chmod(filename, (mode_t)mode_perms[index]);
 	index++;
 	index %= mode_count;
