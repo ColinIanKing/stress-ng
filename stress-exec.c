@@ -541,6 +541,8 @@ static int stress_exec_child(void *arg)
 		n = write(fd, buffer, sizeof(buffer));
 		if (n < (ssize_t)sizeof(buffer)) {
 			exec_garbage = false;
+			(void)close(fd);
+			fd = -1;
 			goto do_exec;
 		}
 
@@ -616,7 +618,6 @@ do_exec:
 			(void)close(fd);
 		(void)shim_unlink(argp->garbage_prog);
 	}
-
 
 	return rc;
 }
