@@ -138,6 +138,7 @@ static int stress_udp_client(
 		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
 				udp_domain, udp_port, udp_if,
 				&addr, &len, NET_ADDR_ANY) < 0) {
+			(void)close(fd);
 			goto child_die;
 		}
 #if defined(IPPROTO_UDPLITE) &&	\
