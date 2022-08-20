@@ -1190,14 +1190,14 @@ static int stress_sparsematrix(const stress_args_t *args)
 
 	if (method == 0) {	/* All methods */
 		begin = 1;
-		end = ~0U;
+		end = SIZEOF_ARRAY(sparsematrix_methods);
 	} else {
 		begin = method;
 		end = method + 1;
 	}
 
 	pr_lock(&lock);
-	for (i = begin; i < end && sparsematrix_methods[i].name; i++) {
+	for (i = begin; sparsematrix_methods[i].name && (i < end); i++) {
 		char str[12];
 
 		if (test_info[i].max_objmem) {
