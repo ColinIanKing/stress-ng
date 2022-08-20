@@ -424,6 +424,10 @@ mmap_test:
                         (void)sigemptyset(&sigmask);
                         (void)sigaddset(&sigmask, SIGPIPE);
 
+			fds[0].fd = fd;
+			fds[0].events = POLLIN;
+			fds[0].revents = 0;
+
 			VOID_RET(int, ppoll(fds, 1, &ts, &sigmask));
 		}
 #endif
