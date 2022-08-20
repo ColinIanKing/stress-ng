@@ -320,7 +320,7 @@ static int stress_udp_server(
 	if (stress_set_sockaddr_if(args->name, args->instance, mypid,
 			udp_domain, udp_port, udp_if,
 			&addr, &addr_len, NET_ADDR_ANY) < 0) {
-		goto die;
+		goto die_close;
 	}
 #if defined(IPPROTO_UDPLITE)
 	if (udp_proto == IPPROTO_UDPLITE) {
