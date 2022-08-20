@@ -311,8 +311,8 @@ static int stress_touch(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	stress_get_setting("touch-opts", &open_flags);
-	stress_get_setting("touch-method", &touch_method);
+	(void)stress_get_setting("touch-opts", &open_flags);
+	(void)stress_get_setting("touch-method", &touch_method);
 
 	if ((args->instance == 0) &&
 	    (touch_method == TOUCH_CREAT) &&

@@ -331,7 +331,7 @@ static int stress_vecshuf(const stress_args_t *args)
 		stress_vecshuf_funcs[i].bytes = 0.0;
 	}
 
-	stress_get_setting("vecshuf-method", &vecshuf_method);
+	(void)stress_get_setting("vecshuf-method", &vecshuf_method);
 
 	stress_vecshuf_set_data(data);
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);

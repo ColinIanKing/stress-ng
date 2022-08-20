@@ -604,7 +604,7 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	stress_get_setting("hash-method", &hash_method);
+	(void)stress_get_setting("hash-method", &hash_method);
 	hm = &hash_methods[hash_method];
 
 	for (i = 0; hash_methods[i].name; i++) {

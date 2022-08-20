@@ -233,7 +233,7 @@ static int OPTIMIZE3 stress_goto(const stress_args_t *args)
 	}
 
 	goto_direction = STRESS_GOTO_RANDOM;
-	stress_get_setting("goto-direction", &goto_direction);
+	(void)stress_get_setting("goto-direction", &goto_direction);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 

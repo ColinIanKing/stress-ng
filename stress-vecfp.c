@@ -330,7 +330,7 @@ static int stress_vecfp(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	stress_get_setting("vecfp-method", &vecfp_method);
+	(void)stress_get_setting("vecfp-method", &vecfp_method);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
