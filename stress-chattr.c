@@ -170,7 +170,7 @@ static int stress_chattr(const stress_args_t *args)
 	const pid_t ppid = getppid();
 	int rc = EXIT_SUCCESS;
 	char filename[PATH_MAX], pathname[PATH_MAX];
-	int all_flags, *flag_perms;
+	int all_flags, *flag_perms = NULL;
 	size_t i, index, flag_count;
 
 	for (all_flags = 0, i = 0; i < SIZEOF_ARRAY(flags); i++)
@@ -187,6 +187,7 @@ static int stress_chattr(const stress_args_t *args)
 			rc = stress_exit_status(errno);
 			pr_fail("%s: mkdir of %s failed, errno=%d (%s)\n",
 				args->name, pathname, errno, strerror(errno));
+			free(flag_perms);
 			return rc;
 		}
 	}
@@ -225,9 +226,7 @@ static int stress_chattr(const stress_args_t *args)
 
 	(void)shim_unlink(filename);
 	(void)shim_rmdir(pathname);
-
-	if (flag_perms)
-		free(flag_perms);
+	free(flag_perms);
 
 	return rc;
 }
