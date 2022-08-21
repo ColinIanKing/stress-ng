@@ -88,11 +88,11 @@ static int stress_netlink_sendcmd(
 	const stress_args_t *args,
 	const int sock,
 	const uint16_t nlmsg_type,
-	const uint16_t nlmsg_pid,
+	const uint32_t nlmsg_pid,
 	const uint8_t cmd,
 	const uint16_t nla_type,
 	const void *nla_data,
-	const int nla_len)
+	const uint16_t nla_len)
 {
 	struct nlattr *na;
 	char *nlmsgbuf;
@@ -181,7 +181,7 @@ static void stress_parse_payload(
 			break;
 		}
 		len += new_len;
-		na = (struct nlattr *)((char *)na + new_len);
+		na = (struct nlattr *)(uintptr_t)((char *)na + new_len);
 	}
 }
 
@@ -203,8 +203,11 @@ static int stress_netlink_taskstats_monitor(
 		pid_t pid_data = pid;
 		struct nlattr *na;
 
-		ret = stress_netlink_sendcmd(args, sock, id, pid, TASKSTATS_CMD_GET,
-			TASKSTATS_CMD_ATTR_PID, &pid_data, sizeof(pid_data));
+		ret = stress_netlink_sendcmd(args, sock, id, (uint32_t)pid,
+						TASKSTATS_CMD_GET,
+						TASKSTATS_CMD_ATTR_PID,
+						&pid_data,
+						(uint16_t)sizeof(pid_data));
 		if (ret < 0) {
 			pr_fail("%s: sendto TASKSTATS_CMD_GET failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -271,8 +274,10 @@ static int stress_netlink_task(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
-	ret = stress_netlink_sendcmd(args, sock, GENL_ID_CTRL, pid, CTRL_CMD_GETFAMILY,
-		CTRL_ATTR_FAMILY_NAME, (const void *)name, sizeof(name));
+	ret = stress_netlink_sendcmd(args, sock, GENL_ID_CTRL, (uint32_t)pid,
+					CTRL_CMD_GETFAMILY,
+					CTRL_ATTR_FAMILY_NAME,
+					(const void *)name, sizeof(name));
 	if (ret < 0) {
 		pr_fail("%s: sendto CTRL_CMD_GETFAMILY failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -290,8 +295,8 @@ static int stress_netlink_task(const stress_args_t *args)
 		(void)close(sock);
 		return EXIT_FAILURE;
 	}
-	na = (struct nlattr *)GENL_MSG_DATA(&nlmsg);
-	na = (struct nlattr *)((char *) na + NLA_ALIGN(na->nla_len));
+	na = (struct nlattr *)(uintptr_t)GENL_MSG_DATA(&nlmsg);
+	na = (struct nlattr *)(uintptr_t)((char *) na + NLA_ALIGN(na->nla_len));
 	if (na->nla_type == CTRL_ATTR_FAMILY_ID) {
 		uint16_t *id_ptr = (uint16_t *)NLA_DATA(na);
 
