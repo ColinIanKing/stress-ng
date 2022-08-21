@@ -57,7 +57,7 @@ static const stress_help_t help[] = {
 #define PAGES		(16)
 #define TRACK_SIGCOUNT	(0)
 
-typedef void(*stress_opcode_func)(uint8_t *ops_begin, const uint8_t *ops_end, uint32_t *op);
+typedef void(*stress_opcode_func)(uint32_t *ops_begin, const uint32_t *ops_end, uint32_t *op);
 
 typedef struct {
 	const char *name;
@@ -150,24 +150,24 @@ static inline uint32_t reverse32(register uint64_t x)
 }
 
 static void stress_opcode_random(
-	uint8_t *ops_begin,
-	const uint8_t *ops_end,
+	uint32_t *ops_begin,
+	const uint32_t *ops_end,
 	uint32_t *op)
 {
-	register uint8_t *ops = (uint8_t *)ops_begin;
+	register uint32_t *ops = ops_begin;
 	(void)op;
 
 	while (ops < ops_end)
-		*(ops++) = stress_mwc8();
+		*(ops++) = stress_mwc32();
 }
 
 static void stress_opcode_inc(
-	uint8_t *ops_begin,
-	const uint8_t *ops_end,
+	uint32_t *ops_begin,
+	const uint32_t *ops_end,
 	uint32_t *op)
 {
 	register uint32_t tmp = *op;
-	register uint32_t *ops = (uint32_t *)ops_begin;
+	register uint32_t *ops = ops_begin;
 
 	while (ops < (const uint32_t *)ops_end)
 		*(ops++) = tmp++;
@@ -176,14 +176,14 @@ static void stress_opcode_inc(
 }
 
 static void stress_opcode_mixed(
-	uint8_t *ops_begin,
-	const uint8_t *ops_end,
+	uint32_t *ops_begin,
+	const uint32_t *ops_end,
 	uint32_t *op)
 {
 	register uint32_t tmp = *op;
-	register uint32_t *ops = (uint32_t *)ops_begin;
+	register uint32_t *ops = ops_begin;
 
-	while (ops < (const uint32_t *)ops_end) {
+	while (ops < ops_end) {
 		register uint32_t rnd = stress_mwc32();
 
 		*(ops++) = tmp;
@@ -200,8 +200,8 @@ static void stress_opcode_mixed(
 }
 
 static void stress_opcode_text(
-	uint8_t *ops_begin,
-	const uint8_t *ops_end,
+	uint32_t *ops_begin,
+	const uint32_t *ops_end,
 	uint32_t *op)
 {
 	char *text_start, *text_end;
@@ -219,7 +219,7 @@ static void stress_opcode_text(
 	offset &= ~(0x7ULL);
 
 	(void)memcpy(ops_begin, text_start + offset, ops_len);
-	for (ops = ops_begin; ops < ops_end; ops++) {
+	for (ops = (uint8_t *)ops_begin; ops < (const uint8_t *)ops_end; ops++) {
 		uint8_t rnd = stress_mwc8();
 
 		/* 1 in 8 chance of random bit corruption */
@@ -314,7 +314,7 @@ again:
 		}
 		if (pid == 0) {
 			struct itimerval it;
-			uint8_t *opcodes, *ops_begin, *ops_end;
+			uint32_t *opcodes, *ops_begin, *ops_end;
 
 			(void)sched_settings_apply(true);
 
@@ -343,16 +343,16 @@ again:
 			/* Force pages resident */
 			(void)memset(opcodes, 0x00, page_size * PAGES);
 
-			ops_begin = opcodes + page_size;
-			ops_end = opcodes + (page_size * (PAGES - 1));
+			ops_begin = (uint32_t *)((uintptr_t)opcodes + page_size);
+			ops_end = (uint32_t *)((uintptr_t)opcodes + (page_size * (PAGES - 1)));
 
-			(void)mprotect(opcodes, page_size, PROT_NONE);
-			(void)mprotect(ops_end, page_size, PROT_NONE);
-			(void)mprotect(ops_begin, page_size, PROT_WRITE);
+			(void)mprotect((void *)opcodes, page_size, PROT_NONE);
+			(void)mprotect((void *)ops_end, page_size, PROT_NONE);
+			(void)mprotect((void *)ops_begin, page_size, PROT_WRITE);
 
 			opcode_method->func(ops_begin, ops_end, &op);
 
-			(void)mprotect(ops_begin, page_size, PROT_READ | PROT_EXEC);
+			(void)mprotect((void *)ops_begin, page_size, PROT_READ | PROT_EXEC);
 			shim_flush_icache((char *)ops_begin, (char *)ops_end);
 			stress_parent_died_alarm();
 
@@ -403,7 +403,7 @@ again:
 			 * wrong because libc or the stack has been
 			 * trashed, so just skip it.
 			 *
-			(void)munmap(opcodes, page_size * PAGES);
+			(void)munmap((void *)opcodes, page_size * PAGES);
 			 */
 			_exit(0);
 		}
