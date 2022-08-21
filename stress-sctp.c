@@ -453,7 +453,7 @@ retry:
 			struct sctp_assoc_value val;
 
 			(void)memset(&val, 0, sizeof(val));
-			val.assoc_value = sctp_sched;
+			val.assoc_value = (uint32_t)sctp_sched;
 			(void)setsockopt(fd, SOL_SCTP, SCTP_STREAM_SCHEDULER, &val, sizeof(val));
 		}
 #endif
@@ -572,7 +572,7 @@ static int stress_sctp_server(
 		struct sctp_assoc_value val;
 
 		(void)memset(&val, 0, sizeof(val));
-		val.assoc_value = sctp_sched;
+		val.assoc_value = (uint32_t)sctp_sched;
 		(void)setsockopt(fd, SOL_SCTP, SCTP_STREAM_SCHEDULER, &val, sizeof(val));
 	}
 #endif
