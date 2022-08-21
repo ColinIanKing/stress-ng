@@ -21,7 +21,7 @@
 
 #define MIN_SKIPLIST_SIZE	(1 * KB)
 #define MAX_SKIPLIST_SIZE	(4 * MB)
-#define DEFAULT_SKIPLIST_SIZE	(64 * KB)
+#define DEFAULT_SKIPLIST_SIZE	(1 * KB)
 
 typedef struct skip_node {
 	unsigned long value;
@@ -217,7 +217,7 @@ static void skip_list_free(skip_list_t *list)
 static int stress_skiplist(const stress_args_t *args)
 {
 	unsigned long n, i, ln2n;
-	uint64_t skiplist_size = 1024;
+	uint64_t skiplist_size = DEFAULT_SKIPLIST_SIZE;
 
 	if (!stress_get_setting("skiplist-size", &skiplist_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
