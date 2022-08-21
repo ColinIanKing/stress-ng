@@ -290,13 +290,19 @@ static int stress_schedpolicy(const stress_args_t *args)
     defined(HAVE_SCHED_SETATTR)
 		/* Exercise too large attr > page size */
 		{
-			char large_attr[args->page_size + 16];
+			const size_t large_attr_size = args->page_size + 16;
+			char *large_attr;
 
-			(void)memset(large_attr, 0, sizeof(large_attr));
+			large_attr = calloc(large_attr_size, sizeof(*large_attr));
+			if (large_attr) {
+				(void)memset(large_attr, 0, large_attr_size);
 
-			VOID_RET(int, shim_sched_getattr(pid,
-				(struct shim_sched_attr *)large_attr,
-				(unsigned int)sizeof(large_attr), 0));
+				VOID_RET(int, shim_sched_getattr(pid,
+					(struct shim_sched_attr *)large_attr,
+					(unsigned int)large_attr_size, 0));
+
+				free(large_attr);
+			}
 		}
 
 		/* Exercise invalid sched_getattr syscalls */
