@@ -64,7 +64,7 @@ static int do_readahead(
 	int i;
 
 	for (i = 0; i < MAX_OFFSETS; i++) {
-		offsets[i] = (stress_mwc64() % (rounded_readahead_bytes - BUF_SIZE)) & ~(BUF_SIZE - 1);
+		offsets[i] = (off_t)(stress_mwc64() % (rounded_readahead_bytes - BUF_SIZE)) & ~(BUF_SIZE - 1);
 		if (readahead(fd, offsets[i], BUF_SIZE) < 0) {
 			pr_fail("%s: ftruncate failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
@@ -140,7 +140,7 @@ static int stress_readahead(const stress_args_t *args)
 
 #if defined(HAVE_POSIX_FADVISE) &&	\
     defined(POSIX_FADV_DONTNEED)
-	if (posix_fadvise(fd, 0, readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
+	if (posix_fadvise(fd, 0, (off_t)readahead_bytes, POSIX_FADV_DONTNEED) < 0) {
 		pr_fail("%s: posix_fadvise failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno), fs_type);
 		goto close_finish;
@@ -167,9 +167,9 @@ seq_wr_retry:
 		}
 
 		for (j = 0; j < (BUF_SIZE / sizeof(*buf)); j++)
-			buf[j] = (buffer_t)(o + j);
+			buf[j] = (buffer_t)o + j;
 
-		pret = pwrite(fd, buf, BUF_SIZE, i);
+		pret = pwrite(fd, buf, BUF_SIZE, (off_t)i);
 		if (pret <= 0) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				goto seq_wr_retry;
@@ -191,7 +191,7 @@ seq_wr_retry:
 
 	/* Round to write size to get no partial reads */
 	rounded_readahead_bytes = (uint64_t)statbuf.st_size -
-		(statbuf.st_size % BUF_SIZE);
+		(uint64_t)(statbuf.st_size % BUF_SIZE);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -202,11 +202,12 @@ seq_wr_retry:
 			goto close_finish;
 
 		for (i = 0; i < MAX_OFFSETS; i++) {
+			ssize_t pret;
 rnd_rd_retry:
 			if (!keep_stressing(args))
 				break;
-			ret = pread(fd, buf, BUF_SIZE, offsets[i]);
-			if (ret <= 0) {
+			pret = pread(fd, buf, BUF_SIZE, offsets[i]);
+			if (pret <= 0) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					goto rnd_rd_retry;
 				if (errno) {
@@ -216,7 +217,7 @@ rnd_rd_retry:
 				}
 				continue;
 			}
-			if (ret != BUF_SIZE)
+			if (pret != BUF_SIZE)
 				misreads++;
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
@@ -224,7 +225,7 @@ rnd_rd_retry:
 				const off_t o = offsets[i] / BUF_SIZE;
 
 				for (j = 0; j < (BUF_SIZE / sizeof(*buf)); j++) {
-					const buffer_t v = o + j;
+					const buffer_t v = (buffer_t)o + j;
 					if (buf[j] != v)
 						baddata++;
 				}
@@ -240,7 +241,7 @@ rnd_rd_retry:
 
 #if defined(HAVE_POSIX_FADVISE) &&	\
     defined(POSIX_FADV_DONTNEED)
-		VOID_RET(int, posix_fadvise(fd, 0, readahead_bytes, POSIX_FADV_DONTNEED));
+		VOID_RET(int, posix_fadvise(fd, 0, (off_t)readahead_bytes, POSIX_FADV_DONTNEED));
 #endif
 
                 /* Exercise illegal fd */
