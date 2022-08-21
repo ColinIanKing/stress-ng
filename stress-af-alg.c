@@ -455,7 +455,7 @@ retry_bind:
 		cmsg->cmsg_level = SOL_ALG;
 		cmsg->cmsg_type = ALG_SET_OP;
 		cmsg->cmsg_len = CMSG_LEN(4);
-		u32ptr = (__u32 *)CMSG_DATA(cmsg);
+		u32ptr = (__u32 *)(uintptr_t)CMSG_DATA(cmsg);
 		*u32ptr = ALG_OP_ENCRYPT;
 
 		/* Set up random Initialization Vector */
@@ -506,7 +506,7 @@ retry_bind:
 		cmsg->cmsg_level = SOL_ALG;
 		cmsg->cmsg_type = ALG_SET_OP;
 		cmsg->cmsg_len = CMSG_LEN(4);
-		u32ptr = (__u32 *)CMSG_DATA(cmsg);
+		u32ptr = (__u32 *)(uintptr_t)CMSG_DATA(cmsg);
 		*u32ptr = ALG_OP_DECRYPT;
 
 		/* Set up random Initialization Vector */
