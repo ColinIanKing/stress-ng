@@ -263,10 +263,10 @@ static void NORETURN stress_rawpkt_client(
 {
 	int rc = EXIT_FAILURE;
 	uint16_t id = 12345;
-	char buf[PACKET_SIZE];
+	uint32_t buf[PACKET_SIZE / sizeof(uint32_t)];
 	struct ethhdr *eth = (struct ethhdr *)buf;
-	struct iphdr *ip = (struct iphdr *)(buf + sizeof(struct ethhdr));
-	struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
+	struct iphdr *ip = (struct iphdr *)((uintptr_t)buf + sizeof(struct ethhdr));
+	struct udphdr *udp = (struct udphdr *)((uintptr_t)buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
 	struct sockaddr_ll sadr;
 	int fd;
 
@@ -346,10 +346,10 @@ static int stress_rawpkt_server(
 {
 	int fd;
 	int rc = EXIT_SUCCESS;
-	char buf[PACKET_SIZE];
+	uint32_t buf[PACKET_SIZE / sizeof(uint32_t)];
 	struct ethhdr *eth = (struct ethhdr *)buf;
-	const struct iphdr *ip = (struct iphdr *)(buf + sizeof(struct ethhdr));
-	const struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
+	const struct iphdr *ip = (struct iphdr *)((uintptr_t)buf + sizeof(struct ethhdr));
+	const struct udphdr *udp = (struct udphdr *)((uintptr_t)buf + sizeof(struct ethhdr) + sizeof(struct iphdr));
 	struct sockaddr saddr;
 	int saddr_len = sizeof(saddr);
 	const uint32_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifaddr->ifr_addr))->sin_addr)));
