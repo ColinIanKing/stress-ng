@@ -139,9 +139,9 @@ static int stress_lockbus(const stress_args_t *args)
 
 #if defined(STRESS_ARCH_X86)
 	/* Split lock on a page boundary */
-	splitlock_ptr1 = (uint32_t *)(((uint8_t *)buffer) + args->page_size - (sizeof(*splitlock_ptr1) >> 1));
+	splitlock_ptr1 = (uint32_t *)(uintptr_t)(((uint8_t *)buffer) + args->page_size - (sizeof(*splitlock_ptr1) >> 1));
 	/* Split lock on a cache boundary */
-	splitlock_ptr2 = (uint32_t *)(((uint8_t *)buffer) + 64 - (sizeof(*splitlock_ptr2) >> 1));
+	splitlock_ptr2 = (uint32_t *)(uintptr_t)(((uint8_t *)buffer) + 64 - (sizeof(*splitlock_ptr2) >> 1));
 	do_splitlock = true;
 	if (sigsetjmp(jmp_env, 1) && !keep_stressing(args))
 		goto done;
