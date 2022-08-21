@@ -293,7 +293,7 @@ do {								\
 	}							\
 } while (0)
 
-bool stress_vecshuf_check_data(
+static bool stress_vecshuf_check_data(
 	const stress_args_t *args,
 	const stress_vec_data_t *data)
 {
