@@ -598,13 +598,13 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 	bucket.n_keys = 128;
 	bucket.n_buckets = 256;
 	bucket.size = (size_t)bucket.n_buckets * sizeof(*bucket.buckets);
-	bucket.buckets = malloc(bucket.size);
+	bucket.buckets = calloc((size_t)bucket.n_buckets, sizeof(*bucket.buckets));
 	if (!bucket.buckets) {
 		pr_inf("%s: failed to allocate %" PRIu32 " buckets, skipping stressor\n",
 			args->name, bucket.n_buckets);
 		return EXIT_NO_RESOURCE;
 	}
-	buffer = malloc(bucket.n_keys + 64);
+	buffer = calloc(bucket.n_keys + 64, sizeof(*buffer));
 	if (!buffer) {
 		pr_inf("%s: failed to allocate %" PRIu32 " byte bufffer, skipping stressor\n",
 			args->name, bucket.n_keys);
