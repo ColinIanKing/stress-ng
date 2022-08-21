@@ -96,7 +96,7 @@ static int sockdiag_send(const stress_args_t *args, const int fd)
 		.msg_iovlen = 1
 	};
 
-	static const int families[] = {
+	static const uint8_t families[] = {
 #if defined(AF_UNIX)
 		AF_UNIX,
 #endif
