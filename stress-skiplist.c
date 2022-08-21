@@ -112,9 +112,13 @@ static skip_list_t *skip_list_init(skip_list_t *list, const size_t max_level)
  */
 static skip_node_t *skip_list_insert(skip_list_t *list, const unsigned long value)
 {
-	skip_node_t *skip_nodes[list->max_level + 1];
+	skip_node_t **skip_nodes;
 	skip_node_t *skip_node = list->head;
 	register size_t i, level;
+
+	skip_nodes = calloc(list->max_level + 1, sizeof(*skip_nodes));
+	if (!skip_nodes)
+		return NULL;
 
 	for (i = list->level; i >= 1; i--) {
 		while (skip_node->skip_nodes[i]->value < value)
@@ -126,6 +130,7 @@ static skip_node_t *skip_list_insert(skip_list_t *list, const unsigned long valu
 
 	if (value == skip_node->value) {
 		skip_node->value = value;
+		free(skip_nodes);
 		return skip_node;
 	}
 
@@ -137,16 +142,21 @@ static skip_node_t *skip_list_insert(skip_list_t *list, const unsigned long valu
 		list->level = level;
 	}
 
-	if (level < 1)
+	if (level < 1) {
+		free(skip_nodes);
 		return NULL;
+	}
 	skip_node = skip_node_alloc(level);
-	if (!skip_node)
+	if (!skip_node) {
+		free(skip_nodes);
 		return NULL;
+	}
 	skip_node->value = value;
 	for (i = 1; i <= level; i++) {
 		skip_node->skip_nodes[i] = skip_nodes[i]->skip_nodes[i];
 		skip_nodes[i]->skip_nodes[i] = skip_node;
 	}
+	free(skip_nodes);
 	return skip_node;
 }
 
