@@ -31,7 +31,7 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 {
 	const size_t page_size = args->page_size;
 	long max = STRESS_MAXIMUM(sysconf(_SC_MAPPED_FILES), MMAP_MAX);
-	uint8_t **mappings;
+	uint64_t **mappings;
 	const uint64_t pattern0 = stress_mwc64();
 	const uint64_t pattern1 = stress_mwc64();
 	const size_t offset2pages = (page_size * 2) / sizeof(uint64_t);
@@ -59,12 +59,12 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 				MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 			if (ptr == MAP_FAILED)
 				break;
-			mappings[n] = (uint8_t *)ptr;
+			mappings[n] = ptr;
 			*ptr = pattern0 ^ (uint64_t)n;
 			ptr += offset2pages;
 			*ptr = pattern1 ^ (uint64_t)n;
 
-			if (munmap((void *)(mappings[n] + page_size), page_size) < 0)
+			if (munmap((void *)(((uintptr_t)mappings[n]) + page_size), page_size) < 0)
 				break;
 			inc_counter(args);
 		}
@@ -86,8 +86,8 @@ static int stress_mmapmany_child(const stress_args_t *args, void *context)
 			}
 
 			(void)munmap((void *)mappings[i], page_size);
-			(void)munmap((void *)(mappings[i] + page_size), page_size);
-			(void)munmap((void *)(mappings[i] + page_size + page_size), page_size);
+			(void)munmap((void *)(((uintptr_t)mappings[i]) + page_size), page_size);
+			(void)munmap((void *)(((uintptr_t)mappings[i]) + page_size + page_size), page_size);
 		}
 	} while (keep_stressing(args));
 
