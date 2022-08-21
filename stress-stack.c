@@ -75,7 +75,7 @@ static void stress_stack_alloc(
 
 	const size_t page_size = args->page_size;
 	const size_t page_size4 = page_size << 2;
-	uint8_t data[STRESS_DATA_SIZE];
+	uint32_t data[STRESS_DATA_SIZE / sizeof(uint32_t)];
 
 	if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(STRESS_DATA_SIZE))
 		return;
@@ -91,7 +91,7 @@ static void stress_stack_alloc(
 		 *  kernel same page merging
 		 */
 		for (i = 0; i < STRESS_DATA_SIZE; i += page_size4) {
-			uint32_t *ptr = (uint32_t *)(data + i);
+			uint32_t *ptr = data + i;
 
 			*ptr = stress_mwc32();
 			*(ptr + 1) = stress_mwc32() | 1;
