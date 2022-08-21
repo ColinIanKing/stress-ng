@@ -543,12 +543,16 @@ static void stress_rt_dist(
 	ssize_t dist_size = STRESS_MINIMUM(MAX_BUCKETS, dist_max_size);
 	const ssize_t dist_min = STRESS_MINIMUM(5, dist_max_size);
 	ssize_t i, n;
-	int64_t dist[dist_size];
+	int64_t *dist;
 
 	if (!cyclic_dist)
 		return;
 
-	(void)memset(dist, 0, sizeof(dist));
+	dist = (int64_t *)calloc(dist_size, sizeof(*dist));
+	if (!dist) {
+		pr_inf_lock(lock, "%s: cannot allocat distribution stats buffer, cannot log distribution\n", name);
+		return;
+	}
 
 	for (i = 0; i < (ssize_t)rt_stats->index; i++) {
 		int64_t lat = rt_stats->latencies[i] / cyclic_dist;
@@ -586,6 +590,7 @@ static void stress_rt_dist(
 				name, cyclic_dist * i, (int64_t)0);
 		}
 	}
+	free(dist);
 }
 
 /*
