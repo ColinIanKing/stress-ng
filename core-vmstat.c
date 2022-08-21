@@ -875,42 +875,45 @@ void stress_vmstat_start(void)
 
 		if (thermalstat_delay == thermalstat_sleep) {
 			double min1, min5, min15, ghz;
-			char therms[1 + (tz_num * 7)];
+			size_t therms_len = 1 + (tz_num * 7);
+			char *therms;
 			char cpuspeed[6];
 #if defined(__linux__)
 			char *ptr;
 #endif
 			static uint32_t thermalstat_count = 0;
 
-			(void)memset(therms, 0, sizeof(therms));
+			therms = calloc(therms_len, sizeof(*therms));
+			if (therms) {
+#if defined(__linux__)
+				for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
+					(void)snprintf(ptr, 8, " %6.6s", tz_info->type);
+					ptr += 7;
+				}
+#endif
+				if ((thermalstat_count++ % 25) == 0)
+					pr_inf("therm:   GHz  LdA1  LdA5 LdA15 %s\n", therms);
 
 #if defined(__linux__)
-			for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
-				(void)snprintf(ptr, 8, " %6.6s", tz_info->type);
-				ptr += 7;
-			}
+				for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
+					(void)snprintf(ptr, 8, " %6.2f", stress_get_tz_info(tz_info));
+					ptr += 7;
+				}
 #endif
-			if ((thermalstat_count++ % 25) == 0)
-				pr_inf("therm:   GHz  LdA1  LdA5 LdA15 %s\n", therms);
+				ghz = stress_get_cpu_ghz_average();
+				if (ghz > 0.0)
+					(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.2f", ghz);
+				else
+					(void)shim_strlcpy(cpuspeed, "n/a", sizeof(cpuspeed));
 
-#if defined(__linux__)
-			for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
-				(void)snprintf(ptr, 8, " %6.2f", stress_get_tz_info(tz_info));
-				ptr += 7;
-			}
-#endif
-			ghz = stress_get_cpu_ghz_average();
-			if (ghz > 0.0)
-				(void)snprintf(cpuspeed, sizeof(cpuspeed), "%5.2f", ghz);
-			else
-				(void)shim_strlcpy(cpuspeed, "n/a", sizeof(cpuspeed));
-
-			if (stress_get_load_avg(&min1, &min5, &min15) < 0)  {
-				pr_inf("therm: %5s %5.5s %5.5s %5.5s %s\n",
-					cpuspeed, "n/a", "n/a", "n/a", therms);
-			} else {
-				pr_inf("therm: %5s %5.2f %5.2f %5.2f %s\n",
-					cpuspeed, min1, min5, min15, therms);
+				if (stress_get_load_avg(&min1, &min5, &min15) < 0)  {
+					pr_inf("therm: %5s %5.5s %5.5s %5.5s %s\n",
+						cpuspeed, "n/a", "n/a", "n/a", therms);
+				} else {
+					pr_inf("therm: %5s %5.2f %5.2f %5.2f %s\n",
+						cpuspeed, min1, min5, min15, therms);
+				}
+				free(therms);
 			}
 		}
 
