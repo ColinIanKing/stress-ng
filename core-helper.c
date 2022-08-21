@@ -1516,7 +1516,7 @@ void pr_yaml_runinfo(FILE *yaml)
 	time_t t;
 	struct tm *tm = NULL;
 	const size_t hostname_len = stress_hostname_length();
-	char hostname[hostname_len];
+	char *hostname;
 	const char *user = shim_getlogin();
 
 	pr_yaml(yaml, "system-info:\n");
@@ -1532,8 +1532,14 @@ void pr_yaml_runinfo(FILE *yaml)
 			tm->tm_hour, tm->tm_min, tm->tm_sec);
 		pr_yaml(yaml, "      epoch-secs: %ld\n", (long)t);
 	}
-	if (!gethostname(hostname, sizeof(hostname)))
+
+	hostname = malloc(hostname_len + 1);
+	if (hostname && !gethostname(hostname, hostname_len)) {
 		pr_yaml(yaml, "      hostname: %s\n", hostname);
+		free(hostname);
+	} else
+		pr_yaml(yaml, "      hostname: %s\n", "unknown");
+
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
 	if (uname(&uts) == 0) {
