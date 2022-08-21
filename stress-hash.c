@@ -33,6 +33,7 @@ typedef struct {
 	uint32_t 	n_keys;
 	uint32_t	n_buckets;
 	size_t		size;
+	char 		*buffer;
 } stress_bucket_t;
 
 struct stress_hash_method_info;
@@ -68,7 +69,6 @@ static void stress_hash_generic(
 	const uint32_t le_result,
 	const uint32_t be_result)
 {
-	char ALIGN64 buffer[bucket->n_keys];
 	double sum = 0.0, n, m, divisor;
 	uint32_t i_sum = 0;
 	size_t i;
@@ -85,17 +85,17 @@ static void stress_hash_generic(
 
 	(void)memset(bucket->buckets, 0, bucket->size);
 
-	stress_uint8rnd4((uint8_t *)buffer, sizeof(buffer));
+	stress_uint8rnd4((uint8_t *)bucket->buffer, bucket->n_keys);
 	/* Make it ASCII range ' '..'_' */
-	for (i = 0; i < SIZEOF_ARRAY(buffer); i++)
-		buffer[i] = (buffer[i] & 0x3f) + ' ';
+	for (i = 0; i < bucket->n_keys; i++)
+		bucket->buffer[i] = (bucket->buffer[i] & 0x3f) + ' ';
 
 	t1 = stress_time_now();
-	for (i = SIZEOF_ARRAY(buffer) - 1; i; i--) {
+	for (i = bucket->n_keys - 1; i; i--) {
 		uint32_t hash;
-		buffer[i] = '\0';
+		bucket->buffer[i] = '\0';
 
-		hash = hash_func(buffer, i);
+		hash = hash_func(bucket->buffer, i);
 		i_sum += hash;
 
 		hash %= bucket->n_buckets;
@@ -593,6 +593,7 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 	size_t hash_method = 0;
 	bool lock = false;
 	stress_bucket_t bucket;
+	void *buffer;
 
 	bucket.n_keys = 128;
 	bucket.n_buckets = 256;
@@ -603,6 +604,14 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 			args->name, bucket.n_buckets);
 		return EXIT_NO_RESOURCE;
 	}
+	buffer = malloc(bucket.n_keys + 64);
+	if (!buffer) {
+		pr_inf("%s: failed to allocate %" PRIu32 " byte bufffer, skipping stressor\n",
+			args->name, bucket.n_keys);
+		free(bucket.buckets);
+		return EXIT_NO_RESOURCE;
+	}
+	bucket.buffer = (char *)stress_align_address(buffer, 64);
 
 	(void)stress_get_setting("hash-method", &hash_method);
 	hm = &hash_methods[hash_method];
@@ -643,6 +652,7 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	free(buffer);
 	free(bucket.buckets);
 
 	return EXIT_SUCCESS;
