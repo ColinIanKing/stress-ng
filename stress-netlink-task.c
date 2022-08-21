@@ -89,7 +89,7 @@ static int stress_netlink_sendcmd(
 	const int sock,
 	const uint16_t nlmsg_type,
 	const uint16_t nlmsg_pid,
-	const uint16_t cmd,
+	const uint8_t cmd,
 	const uint16_t nla_type,
 	const void *nla_data,
 	const int nla_len)
