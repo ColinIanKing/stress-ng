@@ -25,6 +25,8 @@
 #include <sys/auxv.h>
 #endif
 
+#define STRESS_BAD_ALTSTACK_SIZE	(65536)
+
 static const stress_help_t help[] =
 {
 	{ NULL,	"bad-altstack N",	"start N workers exercising bad signal stacks" },
@@ -72,14 +74,14 @@ static void NORETURN MLOCKED_TEXT stress_xcpu_handler(int signum)
 
 static void NORETURN MLOCKED_TEXT stress_signal_handler(int signum)
 {
-	uint8_t data[STRESS_MINSIGSTKSZ * 2];
+	uint8_t data[STRESS_BAD_ALTSTACK_SIZE];
 
 	/*
 	 * Linux does not allow setting the alternative stack
 	 * while in this context. Not sure if this is portable
 	 * so ignore this for now.
 	{
-		VOID_RET(int, stress_sigaltstack(stack, STRESS_MINSIGSTKSZ));
+		VOID_RET(int, stress_sigaltstack(stack, STRESS_BAD_ALTSTACK_SIZE));
 	}
 	 */
 
