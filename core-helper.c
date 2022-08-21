@@ -1097,6 +1097,19 @@ char *stress_munge_underscore(const char *str)
 	return munged;
 }
 
+static inline char stress_chr_munge(const char ch)
+{
+	return (ch == '_') ? '-' : ch;
+}
+
+int stress_strcmp_munged(const char *s1, const char *s2)
+{
+	for (; *s1 && (stress_chr_munge(*s1) == stress_chr_munge(*s2)); s1++, s2++)
+		;
+
+	return (unsigned char)stress_chr_munge(*s1) - (unsigned char)stress_chr_munge(*s2);
+}
+
 /*
  *  stress_get_stack_direction_helper()
  *	helper to determine direction of stack

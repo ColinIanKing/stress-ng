@@ -2416,6 +2416,7 @@ extern WARN_UNUSED size_t stress_min_pthread_stack_size(void);
 extern void stress_shared_unmap(void);
 extern void stress_log_system_mem_info(void);
 extern WARN_UNUSED char *stress_munge_underscore(const char *str);
+extern WARN_UNUSED int stress_strcmp_munged(const char *s1, const char *s2);
 extern size_t stress_get_page_size(void);
 extern WARN_UNUSED int32_t stress_get_processors_online(void);
 extern WARN_UNUSED int32_t stress_get_processors_configured(void);

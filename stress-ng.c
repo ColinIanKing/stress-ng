@@ -1224,23 +1224,14 @@ static inline void stress_hash_checksum(stress_checksum_t *checksum)
  *  stressor_name_find()
  *  	Find index into stressors by name
  */
-static inline int32_t stressor_name_find(const char *name)
+static inline size_t stressor_name_find(const char *name)
 {
-	int32_t i;
-	const char *tmp = stress_munge_underscore(name);
-	size_t len = strlen(tmp) + 1;
-	char munged_name[len];
-
-	(void)shim_strlcpy(munged_name, tmp, len);
+	size_t i;
 
 	for (i = 0; stressors[i].name; i++) {
-		const char *munged_stressor_name =
-			stress_munge_underscore(stressors[i].name);
-
-		if (!strcmp(munged_stressor_name, munged_name))
+		if (!stress_strcmp_munged(name, stressors[i].name))
 			break;
 	}
-
 	return i;	/* End of array is a special "NULL" entry */
 }
 
@@ -1345,7 +1336,7 @@ static int stress_exclude(void)
 	for (str = opt_exclude; (token = strtok(str, ",")) != NULL; str = NULL) {
 		unsigned int id;
 		stress_stressor_t *ss = stressors_head;
-		const int32_t i = stressor_name_find(token);
+		const size_t i = stressor_name_find(token);
 
 		if (!stressors[i].name) {
 			(void)fprintf(stderr, "Unknown stressor: '%s', "
