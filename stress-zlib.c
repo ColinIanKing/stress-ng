@@ -1570,7 +1570,7 @@ static int stress_zlib_deflate(
 
 			int gen_sz = (int)((diff >= DATA_SIZE)
 					|| (diff == 0) /* cppcheck-suppress knownConditionTrueFalse */
-					|| (zlib_args.stream_bytes == 0)) ? DATA_SIZE : (int)diff;
+					|| (zlib_args.stream_bytes == 0)) ? (int)DATA_SIZE : (int)diff;
 
 			if (zlib_args.stream_bytes > 0) {
 				flush = (stream_bytes_out + (uint64_t)gen_sz < zlib_args.stream_bytes)
