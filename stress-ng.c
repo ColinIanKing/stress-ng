@@ -2819,10 +2819,14 @@ static void stress_times_dump(
  */
 static void stress_log_args(int argc, char **argv)
 {
-	size_t i, len, buflen, arglen[argc];
+	size_t i, len, buflen, *arglen;
 	char *buf;
 	const char *user = shim_getlogin();
 	const uid_t uid = getuid();
+
+	arglen = calloc((size_t)argc, sizeof(*arglen));
+	if (!arglen)
+		return;
 
 	for (buflen = 0, i = 0; i < (size_t)argc; i++) {
 		arglen[i] = strlen(argv[i]);
@@ -2830,8 +2834,10 @@ static void stress_log_args(int argc, char **argv)
 	}
 
 	buf = calloc(buflen, sizeof(*buf));
-	if (!buf)
+	if (!buf) {
+		free(arglen);
 		return;
+	}
 
 	for (len = 0, i = 0; i < (size_t)argc; i++) {
 		if (i) {
@@ -2849,6 +2855,7 @@ static void stress_log_args(int argc, char **argv)
 		pr_dbg("invoked with '%s' by user %d\n", buf, uid);
 	}
 	free(buf);
+	free(arglen);
 }
 
 /*
