@@ -1549,9 +1549,10 @@ void pr_yaml_runinfo(FILE *yaml)
 	hostname = malloc(hostname_len + 1);
 	if (hostname && !gethostname(hostname, hostname_len)) {
 		pr_yaml(yaml, "      hostname: %s\n", hostname);
-		free(hostname);
-	} else
+	} else {
 		pr_yaml(yaml, "      hostname: %s\n", "unknown");
+	}
+	free(hostname);
 
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
