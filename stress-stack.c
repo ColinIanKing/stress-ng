@@ -19,6 +19,8 @@
  */
 #include "stress-ng.h"
 
+#define STRESS_DATA_SIZE	(256 * KB)
+
 static sigjmp_buf jmp_env;
 
 static const stress_help_t help[] = {
@@ -70,16 +72,16 @@ static void stress_stack_alloc(
 	bool stack_mlock,
 	ssize_t last_size)
 {
-	const size_t sz = 256 * KB;
+
 	const size_t page_size = args->page_size;
 	const size_t page_size4 = page_size << 2;
-	uint8_t data[sz];
+	uint8_t data[STRESS_DATA_SIZE];
 
-	if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(sz))
+	if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(STRESS_DATA_SIZE))
 		return;
 
 	if (stack_fill) {
-		(void)memset(data, 0, sz);
+		(void)memset(data, 0, STRESS_DATA_SIZE);
 	} else {
 		register size_t i;
 
@@ -88,7 +90,7 @@ static void stress_stack_alloc(
 		 *  is random and non-zero to avoid
 		 *  kernel same page merging
 		 */
-		for (i = 0; i < sz; i += page_size4) {
+		for (i = 0; i < STRESS_DATA_SIZE; i += page_size4) {
 			uint32_t *ptr = (uint32_t *)(data + i);
 
 			*ptr = stress_mwc32();
