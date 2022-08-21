@@ -562,8 +562,10 @@ static int stress_shm_sysv_child(
 		return EXIT_NO_RESOURCE;
 	}
 
-	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
+	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
+		free(buffer);
 		return EXIT_FAILURE;
+	}
 
 	(void)memset(addrs, 0, sizeof(addrs));
 	(void)memset(keys, 0, sizeof(keys));
