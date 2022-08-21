@@ -169,11 +169,10 @@ static int stress_shm_sysv_check(
  */
 static void exercise_shmat(
 	const int shm_id,
-	const size_t page_size,
-	const size_t sz)
+	const size_t sz,
+	uint64_t *buffer)
 {
 	void *addr;
-	uint64_t buffer[(page_size / sizeof(uint64_t)) + 1];
 	/* Unaligned buffer */
 	const uint8_t *unaligned = ((uint8_t *)buffer) + 1;
 
@@ -553,6 +552,15 @@ static int stress_shm_sysv_child(
 	int mask = ~0;
 	uint32_t instances = args->num_instances;
 	const bool cap_ipc_lock = stress_check_capability(SHIM_CAP_IPC_LOCK);
+	const size_t buffer_size = (page_size / sizeof(uint64_t)) + 1;
+	uint64_t *buffer;
+
+	buffer = calloc(buffer_size, sizeof(*buffer));
+	if (!buffer) {
+		pr_inf("%s: cannot allocate %zu sized buffer, skipping stressor\n",
+			args->name, buffer_size);
+		return EXIT_NO_RESOURCE;
+	}
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0)
 		return EXIT_FAILURE;
@@ -656,7 +664,7 @@ errno = 0;
 				goto reap;
 			}
 
-			exercise_shmat(shm_id, args->page_size, sz);
+			exercise_shmat(shm_id, sz, buffer);
 
 			addr = shmat(shm_id, NULL, 0);
 			if (addr == (char *) -1) {
@@ -853,6 +861,7 @@ reap:
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	}
+	free(buffer);
 
 	return rc;
 }
