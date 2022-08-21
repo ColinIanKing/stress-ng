@@ -939,11 +939,27 @@ stress_cpu_fp(__float128, float128, shim_sinl, shim_cosl)
     defined(HAVE_COMPLEX) &&		\
     defined(__STDC_IEC_559_COMPLEX__) &&\
     !defined(__UCLIBC__)
+
+static inline void stress_cpu_complex_float_put(complex float v)
+{
+	stress_float_put((float)(v * v));
+}
+
+static inline void stress_cpu_complex_double_put(complex double v)
+{
+	stress_double_put((double)(v * v));
+}
+
+static inline void stress_cpu_complex_long_double_put(complex long double v)
+{
+	stress_long_double_put((long double)(v * v));
+}
+
 /*
  *  Generic complex stressor macro
  */
-#define stress_cpu_complex(_type, _ltype, _name, _csin, _ccos)	\
-static void OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
+#define stress_cpu_complex(_type, _ltype, _name, _csin, _ccos, _put)	\
+static void OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name) \
 {								\
 	int i;							\
 	const uint32_t r1 = stress_mwc32(),			\
@@ -963,12 +979,12 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_ ## _name(const char *name)\
 			_csin, _ccos);				\
 	}							\
 	r = a + b + c + d;					\
-	stress_double_put((double)r);				\
+	_put(r);						\
 }
 
-stress_cpu_complex(complex float, f, complex_float, shim_csinf, shim_ccosf)
-stress_cpu_complex(complex double, , complex_double, shim_csin, shim_ccos)
-stress_cpu_complex(complex long double, l, complex_long_double, shim_csinl, shim_ccosl)
+stress_cpu_complex(complex float, f, complex_float, shim_csinf, shim_ccosf, stress_cpu_complex_float_put)
+stress_cpu_complex(complex double, , complex_double, shim_csin, shim_ccos, stress_cpu_complex_double_put)
+stress_cpu_complex(complex long double, l, complex_long_double, shim_csinl, shim_ccosl, stress_cpu_complex_long_double_put)
 #endif
 
 #define int_float_ops(_ftype, flt_a, flt_b, flt_c, flt_d,	\
