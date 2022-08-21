@@ -58,7 +58,7 @@ typedef struct {
 } stress_zlib_checksum_t;
 
 typedef struct {
-	char		*data_func;	/* pointer to data generator function */
+	stress_zlib_rand_data_info_t	*info;	/* data generator info */
 	int32_t		window_bits;	/* zlib window bits */
 	uint32_t	level;		/* zlib compression level */
 	uint32_t	mem_level;	/* zlib memory usage */
@@ -701,7 +701,7 @@ static void TARGET_CLONES stress_rand_data_pink(
 	uint64_t sum = 0;
 	const uint64_t max = (PINK_MAX_ROWS + 1) * (1 << (PINK_BITS - 1));
 	uint64_t rows[PINK_MAX_ROWS];
-	const float scalar = 256.0 / (float)max;
+	const float scalar = 256.0F / (float)max;
 
 	(void)args;
 	(void)memset(rows, 0, sizeof(rows));
@@ -723,7 +723,7 @@ static void TARGET_CLONES stress_rand_data_pink(
 			rows[j] = (uint64_t)rnd;
 		}
 		rnd = (int64_t)stress_mwc64() >> PINK_SHIFT;
-		*(ptr++) = (uint8_t)(int)((scalar * ((int64_t)sum + rnd)) + 128.0);
+		*(ptr++) = (uint8_t)(int)((scalar * (float)((int64_t)sum + rnd)) + 128.0F);
 	}
 }
 
@@ -1358,7 +1358,7 @@ static const char *stress_zlib_err(const int zlib_err)
 static void stress_zlib_get_args(stress_zlib_args_t *params) {
 	(void)stress_get_setting("zlib-level", &params->level);
 	(void)stress_get_setting("zlib-mem-level", &params->mem_level);
-	(void)stress_get_setting("zlib-method", &params->data_func);
+	(void)stress_get_setting("zlib-method", &params->info);
 	(void)stress_get_setting("zlib-window-bits", &params->window_bits);
 	(void)stress_get_setting("zlib-stream-bytes", &params->stream_bytes);
 	(void)stress_get_setting("zlib-strategy", &params->strategy);
@@ -1526,7 +1526,7 @@ static int stress_zlib_deflate(
 	stress_zlib_rand_data_info_t *info;
 
 	(void)stress_zlib_get_args(&zlib_args);
-	info = (stress_zlib_rand_data_info_t *)zlib_args.data_func;
+	info = (stress_zlib_rand_data_info_t *)zlib_args.info;
 
 	(void)memset(&zlib_checksum, 0, sizeof(zlib_checksum));
 	zlib_checksum.zlib_checksum = 0;
@@ -1570,11 +1570,11 @@ static int stress_zlib_deflate(
 
 			int gen_sz = (int)((diff >= DATA_SIZE)
 					|| (diff == 0) /* cppcheck-suppress knownConditionTrueFalse */
-					|| (zlib_args.stream_bytes == 0)) ? DATA_SIZE : diff;
+					|| (zlib_args.stream_bytes == 0)) ? DATA_SIZE : (int)diff;
 
 			if (zlib_args.stream_bytes > 0) {
-				flush = (stream_bytes_out + gen_sz < zlib_args.stream_bytes
-					&& keep_stressing(args))
+				flush = (stream_bytes_out + (uint64_t)gen_sz < zlib_args.stream_bytes)
+					&& keep_stressing(args)
 					? Z_NO_FLUSH : Z_FINISH;
 			} else {
 				flush = keep_stressing(args) ? Z_NO_FLUSH : Z_FINISH;
