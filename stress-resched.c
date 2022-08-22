@@ -204,29 +204,28 @@ static int stress_resched(const stress_args_t *args)
 	 */
 	if ((yields != NULL) && (args->instance == 0)) {
 		uint64_t total_yields = 0;
-		bool lock = false;
 
 		for (i = 0; i < pids_max; i++)
 			total_yields += yields[i];
 
-		pr_lock(&lock);
+		pr_lock();
 		for (i = 0; i < pids_max; i++) {
 			if (yields[i] > 0) {
 				double percent = 100.0 * ((double)yields[i] / (double)total_yields);
 
 				if (i == 0) {
-					pr_dbg_lock(&lock, "%s: prio %2d: %5.2f%% yields\n",
+					pr_dbg("%s: prio %2d: %5.2f%% yields\n",
 						args->name, i, percent);
 				} else {
 					double scale = (double)yields[i] / (double)yields[i - 1];
 
-					pr_dbg_lock(&lock, "%s: prio %2d: %5.2f%% yields (prio %2d x %f)%s\n",
+					pr_dbg("%s: prio %2d: %5.2f%% yields (prio %2d x %f)%s\n",
 						args->name, i, percent, i - 1, scale,
 						(scale < 1.0) ? " bad" : "");
 				}
 			}
 		}
-		pr_unlock(&lock);
+		pr_unlock();
 	}
 
 	if (yields != NULL)

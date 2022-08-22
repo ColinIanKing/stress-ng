@@ -2216,7 +2216,7 @@ static void MLOCKED_TEXT stress_run(
 		for (j = 0; j < g_stressor_current->num_instances; j++, (*checksum)++) {
 			int rc = EXIT_SUCCESS;
 			size_t i;
-			pid_t pid;
+			pid_t pid, child_pid;
 			char name[64];
 			int64_t backoff = DEFAULT_BACKOFF;
 			int32_t ionice_class = UNDEFINED;
@@ -2255,6 +2255,8 @@ again:
 				goto wait_for_stressors;
 			case 0:
 				/* Child */
+				child_pid = getpid();
+
 				(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
 					stress_munge_underscore(g_stressor_current->stressor->name));
 				stress_set_proc_state(name, STRESS_STATE_START);
@@ -2280,7 +2282,7 @@ again:
 				(void)umask(0077);
 
 				pr_dbg("%s: started [%d] (instance %" PRIu32 ")\n",
-					name, (int)getpid(), j);
+					name, (int)child_pid, j);
 
 				stats->start = stats->finish = stress_time_now();
 #if defined(STRESS_PERF_STATS) &&	\
@@ -2302,7 +2304,7 @@ again:
 						.max_ops = g_stressor_current->bogo_ops,
 						.instance = (uint32_t)j,
 						.num_instances = (uint32_t)g_stressor_current->num_instances,
-						.pid = getpid(),
+						.pid = child_pid,
 						.page_size = page_size,
 						.mapped = &g_shared->mapped,
 						.misc_stats = stats->misc_stats
@@ -2364,7 +2366,7 @@ again:
 				}
 #endif
 				pr_dbg("%s: exited [%d] (instance %" PRIu32 ")\n",
-					name, (int)getpid(), j);
+					name, (int)child_pid, j);
 
 				/* Allow for some slops of ~0.5 secs */
 				run_duration = (stats->finish - fork_time_start) + 0.5;
@@ -2396,6 +2398,7 @@ child_exit:
 				stress_set_proc_state(name, STRESS_STATE_EXIT);
 				if (terminate_signum)
 					rc = EXIT_SIGNALED;
+				pr_lock_exited(child_pid);
 				_exit(rc);
 			default:
 				if (pid > -1) {
@@ -2580,9 +2583,8 @@ static void stress_metrics_dump(
 {
 	stress_stressor_t *ss;
 	bool misc_metrics = false;
-	bool lock = false;
 
-	pr_lock(&lock);
+	pr_lock();
 	if (g_opt_flags & OPT_FLAGS_METRICS_BRIEF) {
 		pr_inf("%-13s %9.9s %9.9s %9.9s %9.9s %12s %14s\n",
 			"stressor", "bogo ops", "real time", "usr time",
@@ -2741,7 +2743,7 @@ static void stress_metrics_dump(
 			}
 		}
 	}
-	pr_unlock(&lock);
+	pr_unlock();
 }
 
 /*
@@ -4009,6 +4011,11 @@ int main(int argc, char **argv, char **envp)
 	 *  across all the child stressors
 	 */
 	stress_shared_map(stress_get_total_num_instances(stressors_head));
+
+	/*
+	 *  And now shared memory is created, initialize pr_* lock mechanism
+	 */
+	pr_lock_init();
 
 	/*
 	 *  Initialize global locks

@@ -671,9 +671,7 @@ typedef struct {
 #define shim_vfork()		g_shared->vfork()
 
 /* Logging helpers */
-extern int pr_msg(FILE *fp, const uint64_t flag,
-	const char *const fmt, va_list va) FORMAT(printf, 3, 0);
-extern int pr_yaml(FILE *fp, const char *const fmt, ...) FORMAT(printf, 2, 3);
+extern int  pr_yaml(FILE *fp, const char *const fmt, ...) FORMAT(printf, 2, 3);
 extern void pr_yaml_runinfo(FILE *fp);
 extern void pr_runinfo(void);
 extern void pr_openlog(const char *filename);
@@ -690,10 +688,10 @@ extern void pr_fail(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_tidy(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_warn(const char *fmt, ...) FORMAT(printf, 1, 2);
 
-extern void pr_lock(bool *locked);
-extern void pr_unlock(bool *locked);
-extern void pr_inf_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3);
-extern void pr_dbg_lock(bool *locked, const char *fmt, ...)  FORMAT(printf, 2, 3);
+extern void pr_lock_init();
+extern void pr_lock(void);
+extern void pr_unlock(void);
+extern void pr_lock_exited(const pid_t pid);
 
 /* Memory size constants */
 #define KB			(1ULL << 10)
@@ -873,6 +871,13 @@ typedef struct {
 	uint32_t mem_cache_ways;			/* cache ways size */
 	uint64_t zero;					/* zero'd data */
 	void *nullptr;					/* Null pointer */
+#if defined(HAVE_ATOMIC_COMPARE_EXCHANGE) &&	\
+    defined(HAVE_ATOMIC_STORE)
+	double pr_whence;				/* pr_* lock time */
+	int pr_atomic_lock;				/* pr_* atomic spinlock */
+	int pr_lock_count;				/* pr_* lock count, release when zero */
+	pid_t pr_pid;					/* pid owning the lock */
+#endif
 	bool     klog_error;				/* True if error detected in klog */
 	pid_t (*vfork)(void);				/* vfork syscall */
 	stress_mapped_t mapped;				/* mmap'd pages to help testing */

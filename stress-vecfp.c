@@ -368,11 +368,9 @@ static int stress_vecfp(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	if (args->instance == 0) {
-		bool lock = false;
-
-		pr_lock(&lock);
-		pr_dbg_lock(&lock, "%s: compute throughput for just stressor instance 0:\n", args->name);
-		pr_dbg_lock(&lock, "%s: %14.14s %13.13s\n",
+		pr_lock();
+		pr_dbg("%s: compute throughput for just stressor instance 0:\n", args->name);
+		pr_dbg("%s: %14.14s %13.13s\n",
 			args->name, "Method", "Mfp-ops/sec");
 		for (i = 1; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
 			const double ops = stress_vecfp_funcs[i].ops;
@@ -380,10 +378,10 @@ static int stress_vecfp(const stress_args_t *args)
 			if (duration > 0.0 && ops > 0.0) {
 				double rate = stress_vecfp_funcs[i].ops / stress_vecfp_funcs[i].duration;
 
-				pr_dbg_lock(&lock, "%s: %14.14s %13.3f\n", args->name, stress_vecfp_funcs[i].name, rate / 1000000.0);
+				pr_dbg("%s: %14.14s %13.3f\n", args->name, stress_vecfp_funcs[i].name, rate / 1000000.0);
 			}
 		}
-		pr_unlock(&lock);
+		pr_unlock();
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

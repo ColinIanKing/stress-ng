@@ -677,7 +677,6 @@ static int stress_memrate(const stress_args_t *args)
 {
 	int rc;
 	size_t i, stats_size;
-	bool lock = false;
 	stress_memrate_context_t context;
 
 	context.memrate_bytes = DEFAULT_MEMRATE_BYTES;
@@ -709,7 +708,7 @@ static int stress_memrate(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	pr_lock(&lock);
+	pr_lock();
 	for (i = 0; i < memrate_items; i++) {
 		if (!context.stats[i].valid)
 			continue;
@@ -717,17 +716,17 @@ static int stress_memrate(const stress_args_t *args)
 			char tmp[32];
 			const double rate = context.stats[i].kbytes / (context.stats[i].duration * KB);
 
-			pr_inf_lock(&lock, "%s: %10.10s: %12.2f MB/sec\n",
+			pr_inf("%s: %10.10s: %12.2f MB/sec\n",
 				args->name, memrate_info[i].name, rate);
 
 			(void)snprintf(tmp, sizeof(tmp), "%s MB/sec", memrate_info[i].name);
 			stress_misc_stats_set(args->misc_stats, i, tmp, rate);
 		} else {
-			pr_inf_lock(&lock, "%s: %10.10s: interrupted early\n",
+			pr_inf("%s: %10.10s: interrupted early\n",
 				args->name, memrate_info[i].name);
 		}
 	}
-	pr_unlock(&lock);
+	pr_unlock();
 
 	(void)munmap((void *)context.stats, stats_size);
 

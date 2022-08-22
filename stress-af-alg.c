@@ -775,9 +775,7 @@ static int stress_af_alg(const stress_args_t *args)
 	stress_af_alg_count_crypto(&count, &internal);
 
 	if (args->instance == 0) {
-		bool lock;
-
-		pr_lock(&lock);
+		pr_lock();
 		pr_inf("%s: %zd cryptographic algorithms found in /proc/crypto\n",
 			args->name, proc_count);
 		pr_inf("%s: %zd cryptographic algorithms in total (with defconfigs)\n",
@@ -785,7 +783,7 @@ static int stress_af_alg(const stress_args_t *args)
 		if (internal)
 			pr_inf("%s: %zd cryptographic algorithms are internal and may be unused\n",
 				args->name, internal);
-		pr_unlock(&lock);
+		pr_unlock();
 	}
 
 	for (;;) {

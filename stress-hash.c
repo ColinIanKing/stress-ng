@@ -591,7 +591,6 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 	size_t i;
 	const stress_hash_method_info_t *hm;
 	size_t hash_method = 0;
-	bool lock = false;
 	stress_bucket_t bucket;
 	void *buffer;
 
@@ -633,8 +632,8 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	if (args->instance == 0) {
-		pr_lock(&lock);
-		pr_inf_lock(&lock, "%s: %12.12s %15s %10s\n",
+		pr_lock();
+		pr_inf("%s: %12.12s %15s %10s\n",
 			args->name, "hash", "hashes/sec", "chi squared");
 		for (i = 1; hash_methods[i].name; i++) {
 			stress_hash_stats_t *stats = hash_methods[i].stats;
@@ -643,11 +642,11 @@ static int HOT OPTIMIZE3 stress_hash(const stress_args_t *args)
 				const double rate = (double)((stats->duration > 0.0) ?
 					(double)stats->total / stats->duration : (double)0.0);
 
-				pr_inf_lock(&lock, "%s: %12.12s %15.2f %10.2f\n",
+				pr_inf("%s: %12.12s %15.2f %10.2f\n",
 					args->name, hash_methods[i].name, rate, stats->chi_squared);
 			}
 		}
-		pr_unlock(&lock);
+		pr_unlock();
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

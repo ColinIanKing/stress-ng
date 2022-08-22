@@ -1114,7 +1114,6 @@ static int stress_sparsematrix(const stress_args_t *args)
 	test_info_t test_info[SIZEOF_ARRAY(sparsematrix_methods)];
 	size_t i, begin, end;
 	size_t method = 0;	/* All methods */
-	bool lock = false;
 
 	for (i = 0; i < SIZEOF_ARRAY(test_info); i++) {
 		test_info[i].skip_no_mem = false;
@@ -1196,7 +1195,7 @@ static int stress_sparsematrix(const stress_args_t *args)
 		end = method + 1;
 	}
 
-	pr_lock(&lock);
+	pr_lock();
 	for (i = begin; sparsematrix_methods[i].name && (i < end); i++) {
 		char str[12];
 
@@ -1207,10 +1206,10 @@ static int stress_sparsematrix(const stress_args_t *args)
 		}
 
 		if (test_info[i].skip_no_mem) {
-			pr_inf_lock(&lock, "%s: %-6s skipped (out of memory)\n",
+			pr_inf("%s: %-6s skipped (out of memory)\n",
 				args->name, sparsematrix_methods[i].name);
 		} else {
-			pr_inf_lock(&lock, "%s: %-6s %8.8s %15.2f Get/s %15.2f Put/s\n",
+			pr_inf("%s: %-6s %8.8s %15.2f Get/s %15.2f Put/s\n",
 				args->name,
 				sparsematrix_methods[i].name, str,
 				test_info[i].get_duration > 0.0 ?
@@ -1219,7 +1218,7 @@ static int stress_sparsematrix(const stress_args_t *args)
 					(double)test_info[i].put_ops / test_info[i].put_duration : 0.0);
 		}
 	}
-	pr_unlock(&lock);
+	pr_unlock();
 
 	rc = EXIT_SUCCESS;
 err:

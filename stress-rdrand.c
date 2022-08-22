@@ -335,7 +335,6 @@ static int stress_rdrand(const stress_args_t *args)
 
 	if (rdrand_supported) {
 		double time_start, duration, million_bits;
-		bool lock = false;
 		register int i;
 		uint64_t c;
 
@@ -380,18 +379,18 @@ static int stress_rdrand(const stress_args_t *args)
 		c = get_counter(args);
 		million_bits = ((double)c * 64.0 * 256.0) * ONE_MILLIONTH;
 
-		pr_lock(&lock);
-		pr_dbg_lock(&lock, "%s: %.3f million random bits read "
+		pr_lock();
+		pr_dbg("%s: %.3f million random bits read "
 			"(instance %" PRIu32")\n",
 			args->name, million_bits, args->instance);
 		if (duration > 0.0) {
-			pr_dbg_lock(&lock, "%s: %.3f million random bits per "
+			pr_dbg("%s: %.3f million random bits per "
 				"second (instance %" PRIu32")\n",
 				args->name,
 				(double)million_bits / duration,
 				args->instance);
 		}
-		pr_unlock(&lock);
+		pr_unlock();
 		stress_misc_stats_set(args->misc_stats, 0, "million random bits read", million_bits);
 		stress_misc_stats_set(args->misc_stats, 1, "million random bits / sec", million_bits / duration);
 	}

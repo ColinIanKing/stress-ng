@@ -344,14 +344,13 @@ static int stress_vecshuf(const stress_args_t *args)
 
 
 	if (args->instance == 0) {
-		bool lock = false;
 		double total_duration = 0.0;
 		double total_ops = 0.0;
 		double total_bytes = 0.0;
 
-		pr_lock(&lock);
-		pr_dbg_lock(&lock, "%s: shuffle throughput for just stressor instance 0:\n", args->name);
-		pr_dbg_lock(&lock, "%s: %14.14s %13.13s %13.13s %13.13s\n",
+		pr_lock();
+		pr_dbg("%s: shuffle throughput for just stressor instance 0:\n", args->name);
+		pr_dbg("%s: %14.14s %13.13s %13.13s %13.13s\n",
 			args->name, "Method", "MB/sec", "Mshuffles/sec", "% exec time");
 
 		for (i = 1; i < SIZEOF_ARRAY(stress_vecshuf_funcs); i++) {
@@ -371,7 +370,7 @@ static int stress_vecshuf(const stress_args_t *args)
 				const double ops_rate = (ops / duration) / 1000000.0;
 				const double bytes_rate = (bytes / duration) / (1.0 * MB);
 
-				pr_dbg_lock(&lock, "%s: %14.14s %13.3f %13.3f %13.3f\n", args->name,
+				pr_dbg("%s: %14.14s %13.3f %13.3f %13.3f\n", args->name,
 					stress_vecshuf_funcs[i].name, bytes_rate, ops_rate,
 					100.0 * duration / total_duration);
 			}
@@ -381,10 +380,10 @@ static int stress_vecshuf(const stress_args_t *args)
 			const double ops_rate = (total_ops / total_duration) / 1000000.0;
 			const double bytes_rate = (total_bytes / total_duration) / (1.0 * MB);
 
-			pr_dbg_lock(&lock, "%s: %14.14s %13.3f %13.3f\n", args->name,
+			pr_dbg("%s: %14.14s %13.3f %13.3f\n", args->name,
 				"Mean:", bytes_rate, ops_rate);
 		}
-		pr_unlock(&lock);
+		pr_unlock();
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);

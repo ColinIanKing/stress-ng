@@ -20,6 +20,8 @@
 #include "stress-ng.h"
 #include "core-syslog.h"
 
+#define PR_TIMEOUT	(0.5)	/* pr_lock timeout in seconds */
+
 #if defined(HAVE_SYSLOG_H)
 #include <syslog.h>
 #endif
@@ -33,58 +35,185 @@ static inline FILE *pr_file(void)
 	return (g_opt_flags & OPT_FLAGS_STDOUT) ? stdout : stderr;
 }
 
+
+#if defined(HAVE_ATOMIC_COMPARE_EXCHANGE) &&	\
+    defined(HAVE_ATOMIC_STORE)
+
+/*
+ *  pr_lock_init()
+ */
+void pr_lock_init(void)
+{
+	g_shared->pr_pid = -1;
+	g_shared->pr_lock_count = 0;
+	g_shared->pr_atomic_lock = 0;
+	g_shared->pr_whence = -1.0;
+}
+
+/*
+ *  pr_spin_lock()
+ *	simple spin lock
+ */
+static void pr_spin_lock(void)
+{
+	for (;;) {
+		int zero = 0, one = 1;
+
+		if (__atomic_compare_exchange(&g_shared->pr_atomic_lock, &zero,
+		    &one, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+			return;
+		shim_sched_yield();
+	}
+}
+
+/*
+ *  pr_spin_unlock()
+ *	spin unlock
+ */
+static void pr_spin_unlock(void)
+{
+	int zero = 0;
+
+	__atomic_store(&g_shared->pr_atomic_lock, &zero, __ATOMIC_SEQ_CST);
+}
+
+/*
+ *  pr_lock_acquire()
+ *	acquire a pr lock in a timely way, force lock ownership
+ *	if we wait for too long
+ */
+void pr_lock_acquire(const pid_t pid)
+{
+	for (;;) {
+		int32_t count;
+		double whence, now;
+
+		pr_spin_lock();
+		count = g_shared->pr_lock_count;
+		whence = g_shared->pr_whence;
+		now = stress_time_now();
+
+		/*
+		 * Locks held for too long are broken and holding logging
+		 * up, so pass ownership over
+		 */
+		if (((now - whence) > PR_TIMEOUT) || count == 0) {
+			g_shared->pr_pid = pid;	/* Indicate we now own lock */
+			g_shared->pr_lock_count++;
+			g_shared->pr_whence = now;
+			pr_spin_unlock();
+			return;
+		}
+		pr_spin_unlock();
+		shim_usleep(100000);
+	}
+}
+
 /*
  *  pr_lock()
  *	attempt to get a lock, it's just too bad
  *	if it fails, this is just to stop messages
  *	getting intermixed.
+ *
+ *  pr_lock can be called multiple times by a process, only
+ *  the first call acquires the lock
  */
-void pr_lock(bool *lock)
+void pr_lock(void)
 {
-#if defined(HAVE_FLOCK) &&	\
-    defined(LOCK_EX) &&		\
-    defined(LOCK_UN)
-	int fd, ret;
+	const pid_t pid = getpid();
+	double now;
 
-	*lock = false;
-
-	fd = fileno(pr_file());
-	if (fd < 0)
+	if (!g_shared)
 		return;
 
-	ret = flock(fd, LOCK_EX);
-	if (ret == 0)
-		*lock = true;
-#else
-	(void)lock;
-#endif
+	pr_spin_lock();
+	/* Already own lock? */
+	if (g_shared->pr_pid == pid) {
+		g_shared->pr_lock_count++;
+		pr_spin_unlock();
+		return;
+	}
+
+	if (g_shared->pr_pid == -1) {
+		/* No owner, acquire lock */
+		g_shared->pr_pid = pid;
+		pr_spin_unlock();
+		pr_lock_acquire(pid);
+		return;
+	}
+
+	/*
+	 *  Sanity check, has the lock been owned for too long
+	 *  or has the owenr pid died, then force unlock and
+	 *  take ownership.
+	 */
+	now = stress_time_now();
+	if (((now - g_shared->pr_whence) > PR_TIMEOUT) ||
+	    (kill(g_shared->pr_pid, 0) == ESRCH)) {
+		/* force acquire */
+		g_shared->pr_pid = pid;
+		g_shared->pr_lock_count = 0;
+		g_shared->pr_whence = now;
+		pr_spin_unlock();
+		return;
+	}
+	/* Wait on lock */
+	pr_spin_unlock();
+	pr_lock_acquire(pid);
 }
 
 /*
  *  pr_unlock()
  *	attempt to unlock
  */
-void pr_unlock(bool *lock)
+void pr_unlock(void)
 {
-#if defined(HAVE_FLOCK) &&	\
-    defined(LOCK_EX) &&		\
-    defined(LOCK_UN)
-	int fd, ret;
+	const pid_t pid = getpid();
 
-	if (!*lock)
+	if (!g_shared)
 		return;
 
-	fd = fileno(pr_file());
-	if (fd < 0)
-		return;
-
-	ret = flock(fd, LOCK_UN);
-	if (ret == 0)
-		*lock = false;
-#else
-	(void)lock;
-#endif
+	pr_spin_lock();
+	/* Do we own the lock? */
+	if (g_shared->pr_pid == pid) {
+		g_shared->pr_lock_count--;
+		if (g_shared->pr_lock_count == 0) {
+			g_shared->pr_pid = -1;
+			g_shared->pr_whence = -1.0;
+		}
+	}
+	pr_spin_unlock();
 }
+
+/*
+ *  pr_lock_exited()
+ *	process has terminated, ensure locks are cleared on it
+ */
+void pr_lock_exited(const pid_t pid)
+{
+	pr_spin_lock();
+	if (g_shared->pr_pid == pid) {
+		g_shared->pr_pid = -1;
+		g_shared->pr_lock_count = 0;
+		g_shared->pr_whence = 0.0;
+	}
+	pr_spin_unlock();
+}
+#else
+
+void pr_lock_init(void)
+{
+}
+
+void pr_lock(void)
+{
+}
+
+void pr_unlock(void)
+{
+}
+
+#endif
 
 /*
  *  pr_fail_check()
@@ -148,26 +277,20 @@ void pr_openlog(const char *filename)
 	}
 }
 
-static int pr_msg_lockable(
-	FILE *fp,
-	const uint64_t flag,
-	const bool locked,
-	const char *const fmt,
-	va_list ap) FORMAT(printf, 4, 0);
-
 /*
  *  pr_msg_lockable()
  *	print some debug or info messages with locking
  */
-static int pr_msg_lockable(
+static int pr_msg(
 	FILE *fp,
 	const uint64_t flag,
-	const bool locked,
 	const char *const fmt,
 	va_list ap)
 {
 	int ret = 0;
 	char ts[32];
+
+	pr_lock();
 
 	if (g_opt_flags & OPT_FLAGS_TIMESTAMP) {
 		struct timeval tv;
@@ -195,10 +318,6 @@ static int pr_msg_lockable(
 	if ((flag & (PR_FAIL | PR_WARN)) || (g_opt_flags & flag)) {
 		char buf[4096];
 		const char *type = "";
-		bool lock = false;
-
-		if (!locked)
-			pr_lock(&lock);
 
 		if (flag & PR_ERROR)
 			type = "error:";
@@ -251,9 +370,8 @@ static int pr_msg_lockable(
 			syslog(LOG_INFO, "%s", buf);
 		}
 #endif
-		if (!locked)
-			pr_unlock(&lock);
 	}
+	pr_unlock();
 	return ret;
 }
 
@@ -266,7 +384,7 @@ void pr_dbg(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(pr_file(), PR_DEBUG, false, fmt, ap);
+	(void)pr_msg(pr_file(), PR_DEBUG, fmt, ap);
 	va_end(ap);
 }
 
@@ -280,7 +398,7 @@ void pr_dbg_skip(const char *fmt, ...)
 
 	va_start(ap, fmt);
 	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
-		(void)pr_msg_lockable(pr_file(), PR_DEBUG, false, fmt, ap);
+		(void)pr_msg(pr_file(), PR_DEBUG, fmt, ap);
 	va_end(ap);
 }
 
@@ -288,15 +406,12 @@ void pr_dbg_skip(const char *fmt, ...)
  *  pr_dbg_lock()
  *	print debug messages with a lock
  */
-void pr_dbg_lock(bool *lock, const char *fmt, ...)
+void pr_dbg_lock(const char *fmt, ...)
 {
 	va_list ap;
 
-	/* currently we ignore the locked flag */
-	(void)lock;
-
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(pr_file(), PR_DEBUG, true, fmt, ap);
+	(void)pr_msg(pr_file(), PR_DEBUG, fmt, ap);
 	va_end(ap);
 }
 
@@ -309,7 +424,7 @@ void pr_inf(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(pr_file(), PR_INFO, false, fmt, ap);
+	(void)pr_msg(pr_file(), PR_INFO, fmt, ap);
 	va_end(ap);
 }
 
@@ -323,7 +438,7 @@ void pr_inf_skip(const char *fmt, ...)
 
 	va_start(ap, fmt);
 	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
-		(void)pr_msg_lockable(pr_file(), PR_INFO, false, fmt, ap);
+		(void)pr_msg(pr_file(), PR_INFO, fmt, ap);
 	va_end(ap);
 }
 
@@ -331,15 +446,12 @@ void pr_inf_skip(const char *fmt, ...)
  *  pr_inf()
  *	print info messages with a lock
  */
-void pr_inf_lock(bool *lock, const char *fmt, ...)
+void pr_inf_lock(const char *fmt, ...)
 {
 	va_list ap;
 
-	/* currently we ignore the locked flag */
-	(void)lock;
-
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(pr_file(), PR_INFO, true, fmt, ap);
+	(void)pr_msg(pr_file(), PR_INFO, fmt, ap);
 	va_end(ap);
 }
 
@@ -352,7 +464,7 @@ void pr_err(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(pr_file(), PR_ERROR, false, fmt, ap);
+	(void)pr_msg(pr_file(), PR_ERROR, fmt, ap);
 	va_end(ap);
 }
 
@@ -366,7 +478,7 @@ void pr_err_skip(const char *fmt, ...)
 
 	va_start(ap, fmt);
 	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
-		(void)pr_msg_lockable(pr_file(), PR_ERROR, false, fmt, ap);
+		(void)pr_msg(pr_file(), PR_ERROR, fmt, ap);
 	va_end(ap);
 }
 
@@ -379,7 +491,7 @@ void pr_fail(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(pr_file(), PR_FAIL, false, fmt, ap);
+	(void)pr_msg(pr_file(), PR_FAIL, fmt, ap);
 	va_end(ap);
 }
 
@@ -392,7 +504,7 @@ void pr_tidy(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(pr_file(), g_caught_sigint ? PR_INFO : PR_DEBUG, true, fmt, ap);
+	(void)pr_msg(pr_file(), g_caught_sigint ? PR_INFO : PR_DEBUG, fmt, ap);
 	va_end(ap);
 }
 
@@ -405,7 +517,7 @@ void pr_warn(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg_lockable(pr_file(), PR_WARN, false, fmt, ap);
+	(void)pr_msg(pr_file(), PR_WARN, fmt, ap);
 	va_end(ap);
 }
 
