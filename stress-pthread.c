@@ -515,17 +515,19 @@ static int stress_pthread(const stress_args_t *args)
 
 			ret = pthread_attr_init(&attr);
 			if (ret) {
+				(void)pthread_mutex_unlock(&mutex);
 				pr_fail("%s: pthread_attr_init failed, errno=%d (%s)\n",
 					args->name, ret, strerror(ret));
 				stop_running();
-				break;
+				goto reap;
 			}
 			ret = pthread_attr_setstack(&attr, pthreads[i].stack, stack_size);
 			if (ret) {
+				(void)pthread_mutex_unlock(&mutex);
 				pr_fail("%s: pthread_attr_setstack failed, errno=%d (%s)\n",
 					args->name, ret, strerror(ret));
 				stop_running();
-				break;
+				goto reap;
 			}
 #endif
 
@@ -538,10 +540,11 @@ static int stress_pthread(const stress_args_t *args)
 					break;
 				}
 				/* Something really unexpected */
+				(void)pthread_mutex_unlock(&mutex);
 				pr_fail("%s: pthread_create failed, errno=%d (%s)\n",
 					args->name, pthreads[i].ret, strerror(pthreads[i].ret));
 				stop_running();
-				break;
+				goto reap;
 			}
 			if (i + 1 > maximum)
 				maximum = i + 1;

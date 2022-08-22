@@ -139,11 +139,13 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
 			if (pthreads[i].ret == EAGAIN)
 				break;
 			/* Something really unexpected */
+			stop_running();
+			(void)pthread_mutex_unlock(&mutex);
 			pr_fail("%s: pthread_create failed, errno=%d (%s)\n",
 				args->name, pthreads[i].ret, strerror(pthreads[i].ret));
-			stop_running();
 			shim_exit_group(0);
 			exit_group_failed++;
+			_exit(0);
 		}
 		if (!(keep_running() && keep_stressing(args)))
 			break;
@@ -154,6 +156,7 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
 		shim_exit_group(0);
 		exit_group_failed++;
 	}
+
 	/*
 	 *  Wait until they are all started or
 	 *  we get bored waiting..
