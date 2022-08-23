@@ -1830,10 +1830,189 @@ static void stress_clean_dir(
 	const size_t temp_path_len = strlen(temp_path);
 
 	(void)stress_temp_dir(path, sizeof(path), name, pid, instance);
-
 	if (access(path, F_OK) == 0) {
 		pr_dbg("%s: removing temporary files in %s\n", name, path);
 		stress_clean_dir_files(temp_path, temp_path_len, path, strlen(path));
+	}
+}
+
+#if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    NEED_GLIBC(2,3,0)
+/*
+ *  stress_wait_aggressive()
+ *	while waiting for stressors to complete add some aggressive
+ *	CPU affinity changing to exercise the scheduler placement
+ */
+static void stress_wait_aggressive(stress_stressor_t *stressors_list)
+{
+	stress_stressor_t *ss;
+	cpu_set_t proc_mask;
+	const int32_t ticks_per_sec = stress_get_ticks_per_second() * 5;
+	const useconds_t usec_sleep =
+		ticks_per_sec ? 1000000 / (useconds_t)ticks_per_sec : 1000000 / 250;
+
+	while (wait_flag) {
+		const int32_t cpus = stress_get_processors_configured();
+		bool procs_alive = false;
+
+		/*
+		 *  If we can't get the mask, then don't do
+		 *  any affinity twiddling
+		 */
+		if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0)
+			return;
+		if (!CPU_COUNT(&proc_mask))	/* Highly unlikely */
+			return;
+
+		(void)shim_usleep(usec_sleep);
+
+		for (ss = stressors_list; ss; ss = ss->next) {
+			int32_t j;
+
+			for (j = 0; j < ss->started_instances; j++) {
+				const stress_stats_t *const stats = ss->stats[j];
+				const pid_t pid = stats->pid;
+
+				if (pid) {
+					cpu_set_t mask;
+					int32_t cpu_num;
+					int status, ret;
+
+					ret = waitpid(pid, &status, WNOHANG);
+					if ((ret < 0) && (errno == ESRCH))
+						continue;
+					procs_alive = true;
+
+					do {
+						cpu_num = (int32_t)stress_mwc32() % cpus;
+					} while (!(CPU_ISSET(cpu_num, &proc_mask)));
+
+					CPU_ZERO(&mask);
+					CPU_SET(cpu_num, &mask);
+					if (sched_setaffinity(pid, sizeof(mask), &mask) < 0)
+						return;
+				}
+			}
+		}
+		if (!procs_alive)
+			break;
+	}
+}
+#endif
+
+/*
+ *   stress_wait_pid()
+ *	wait for a stressor by their given pid
+ */
+static void stress_wait_pid(
+	const pid_t pid,
+	const char *stressor_name,
+	stress_stats_t *stats,
+	bool *success,
+	bool *resource_success,
+	bool *metrics_success)
+{
+	int status, ret;
+	bool do_abort = false;
+
+redo:
+	ret = shim_waitpid(pid, &status, 0);
+	if (ret > 0) {
+		int wexit_status = WEXITSTATUS(status);
+
+		if (WIFSIGNALED(status)) {
+#if defined(WTERMSIG)
+			const int wterm_signal = WTERMSIG(status);
+
+			if (wterm_signal != SIGALRM) {
+#if NEED_GLIBC(2,1,0)
+				const char *signame = strsignal(wterm_signal);
+
+				pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d (%s)\n",
+					ret, stressor_name, wterm_signal, signame);
+#else
+				pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d\n",
+					ret, stressor_name, wterm_signal);
+#endif
+			}
+#else
+			pr_dbg("process [%d] (stress-ng-%s) terminated on signal\n",
+				ret, stressor_name);
+#endif
+			/*
+			 *  If the stressor got killed by OOM or SIGKILL
+			 *  then somebody outside of our control nuked it
+			 *  so don't necessarily flag that up as a direct
+			 *  failure.
+			 */
+			if (stress_process_oomed(ret)) {
+				pr_dbg("process [%d] (stress-ng-%s) was killed by the OOM killer\n",
+					ret, stressor_name);
+			} else if (WTERMSIG(status) == SIGKILL) {
+				pr_dbg("process [%d] (stress-ng-%s) was possibly killed by the OOM killer\n",
+					ret, stressor_name);
+			} else {
+				*success = false;
+			}
+		}
+		switch (wexit_status) {
+		case EXIT_SUCCESS:
+			break;
+		case EXIT_NO_RESOURCE:
+			pr_err_skip("process [%d] (stress-ng-%s) aborted early, out of system resources\n",
+				ret, stressor_name);
+			*resource_success = false;
+			do_abort = true;
+			break;
+		case EXIT_NOT_IMPLEMENTED:
+			do_abort = true;
+			break;
+			case EXIT_SIGNALED:
+			do_abort = true;
+#if defined(STRESS_REPORT_EXIT_SIGNALED)
+			pr_dbg("process [%d] (stress-ng-%s) aborted via a termination signal\n",
+				ret, stressor_name);
+#endif
+			break;
+		case EXIT_BY_SYS_EXIT:
+			pr_dbg("process [%d] (stress-ng-%s) aborted via exit() which was not expected\n",
+				ret, stressor_name);
+			do_abort = true;
+			break;
+		case EXIT_METRICS_UNTRUSTWORTHY:
+			*metrics_success = false;
+			break;
+		case EXIT_FAILURE:
+			/*
+			 *  Stressors should really return EXIT_NOT_SUCCESS
+			 *  as EXIT_FAILURE should indicate a core stress-ng
+			 *  problem.
+			 */
+			wexit_status = EXIT_NOT_SUCCESS;
+		CASE_FALLTHROUGH;
+			default:
+			pr_err("process [%d] (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
+				ret, stressor_name, wexit_status,
+				stress_exit_status_to_string(wexit_status));
+			*success = false;
+			do_abort = true;
+			break;
+		}
+		if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
+			keep_stressing_set_flag(false);
+			wait_flag = false;
+			stress_kill_stressors(SIGALRM);
+		}
+
+		stress_stressor_finished(&stats->pid);
+		pr_dbg("process [%d] terminated\n", ret);
+	} else if (ret == -1) {
+		/* Somebody interrupted the wait */
+		if (errno == EINTR)
+			goto redo;
+		/* This child did not exist, mark it done anyhow */
+		if (errno == ECHILD)
+			stress_stressor_finished(&stats->pid);
 	}
 }
 
@@ -1841,16 +2020,13 @@ static void stress_clean_dir(
  *  stress_wait_stressors()
  * 	wait for stressor child processes
  */
-static void MLOCKED_TEXT stress_wait_stressors(
+static void stress_wait_stressors(
 	stress_stressor_t *stressors_list,
 	bool *success,
 	bool *resource_success,
 	bool *metrics_success)
 {
 	stress_stressor_t *ss;
-
-	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
-		stress_ignite_cpu_start();
 
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
     NEED_GLIBC(2,3,0)
@@ -1860,61 +2036,8 @@ static void MLOCKED_TEXT stress_wait_stressors(
 	 *  to impact on memory locality (e.g. NUMA) to
 	 *  try to thrash the system when in aggressive mode
 	 */
-	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE) {
-		cpu_set_t proc_mask;
-		const int32_t ticks_per_sec =
-			stress_get_ticks_per_second() * 5;
-		const useconds_t usec_sleep =
-			ticks_per_sec ? 1000000 / (useconds_t)ticks_per_sec : 1000000 / 250;
-
-		while (wait_flag) {
-			const int32_t cpus = stress_get_processors_configured();
-			bool procs_alive = false;
-
-			/*
-			 *  If we can't get the mask, then don't do
-			 *  any affinity twiddling
-			 */
-			if (sched_getaffinity(0, sizeof(proc_mask), &proc_mask) < 0)
-				goto do_wait;
-			if (!CPU_COUNT(&proc_mask))	/* Highly unlikely */
-				goto do_wait;
-
-			(void)shim_usleep(usec_sleep);
-
-			for (ss = stressors_list; ss; ss = ss->next) {
-				int32_t j;
-
-				for (j = 0; j < ss->started_instances; j++) {
-					const stress_stats_t *const stats = ss->stats[j];
-					const pid_t pid = stats->pid;
-
-					if (pid) {
-						cpu_set_t mask;
-						int32_t cpu_num;
-						int status, ret;
-
-						ret = waitpid(pid, &status, WNOHANG);
-						if ((ret < 0) && (errno == ESRCH))
-							continue;
-						procs_alive = true;
-
-						do {
-							cpu_num = (int32_t)stress_mwc32() % cpus;
-						} while (!(CPU_ISSET(cpu_num, &proc_mask)));
-
-						CPU_ZERO(&mask);
-						CPU_SET(cpu_num, &mask);
-						if (sched_setaffinity(pid, sizeof(mask), &mask) < 0)
-							goto do_wait;
-					}
-				}
-			}
-			if (!procs_alive)
-				break;
-		}
-	}
-do_wait:
+	if (g_opt_flags & OPT_FLAGS_AGGRESSIVE)
+		stress_wait_aggressive(stressors_list);
 #endif
 	for (ss = stressors_list; ss; ss = ss->next) {
 		int32_t j;
@@ -1922,117 +2045,15 @@ do_wait:
 		for (j = 0; j < ss->started_instances; j++) {
 			stress_stats_t *const stats = ss->stats[j];
 			const pid_t pid = stats->pid;
-redo:
+
 			if (pid) {
-				int status, ret;
-				bool do_abort = false;
 				const char *stressor_name = stress_munge_underscore(ss->stressor->name);
 				char name[64];
 
-				(void)snprintf(name, sizeof(name), "%s-%s", g_app_name,
-                                        stress_munge_underscore(stressor_name));
+				(void)snprintf(name, sizeof(name), "%s-%s", g_app_name, stressor_name);
+				stress_wait_pid(pid, name, stats, success, resource_success, metrics_success);
+				stress_clean_dir(name, pid, (uint32_t)j);
 
-				ret = shim_waitpid(pid, &status, 0);
-				if (ret > 0) {
-					int wexit_status = WEXITSTATUS(status);
-
-					if (WIFSIGNALED(status)) {
-#if defined(WTERMSIG)
-						const int wterm_signal = WTERMSIG(status);
-
-						if (wterm_signal != SIGALRM) {
-#if NEED_GLIBC(2,1,0)
-							const char *signame = strsignal(wterm_signal);
-
-							pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d (%s)\n",
-								ret, stressor_name, wterm_signal, signame);
-#else
-							pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d\n",
-								ret, stressor_name, wterm_signal);
-#endif
-						}
-#else
-						pr_dbg("process [%d] (stress-ng-%s) terminated on signal\n",
-							ret, stressor_name);
-#endif
-						/*
-						 *  If the stressor got killed by OOM or SIGKILL
-						 *  then somebody outside of our control nuked it
-						 *  so don't necessarily flag that up as a direct
-						 *  failure.
-						 */
-						if (stress_process_oomed(ret)) {
-							pr_dbg("process [%d] (stress-ng-%s) was killed by the OOM killer\n",
-								ret, stressor_name);
-						} else if (WTERMSIG(status) == SIGKILL) {
-							pr_dbg("process [%d] (stress-ng-%s) was possibly killed by the OOM killer\n",
-								ret, stressor_name);
-						} else {
-							*success = false;
-						}
-					}
-					switch (wexit_status) {
-					case EXIT_SUCCESS:
-						break;
-					case EXIT_NO_RESOURCE:
-						pr_err_skip("process [%d] (stress-ng-%s) aborted early, out of system resources\n",
-							ret, stressor_name);
-						*resource_success = false;
-						do_abort = true;
-						break;
-					case EXIT_NOT_IMPLEMENTED:
-						do_abort = true;
-						break;
-					case EXIT_SIGNALED:
-						do_abort = true;
-#if defined(STRESS_REPORT_EXIT_SIGNALED)
-						pr_dbg("process [%d] (stress-ng-%s) aborted via a termination signal\n",
-							ret, stressor_name);
-#endif
-						break;
-					case EXIT_BY_SYS_EXIT:
-						pr_dbg("process [%d] (stress-ng-%s) aborted via exit() which was not expected\n",
-							ret, stressor_name);
-						do_abort = true;
-						break;
-					case EXIT_METRICS_UNTRUSTWORTHY:
-						*metrics_success = false;
-						break;
-					case EXIT_FAILURE:
-						/*
-						 *  Stressors should really return EXIT_NOT_SUCCESS
-						 *  as EXIT_FAILURE should indicate a core stress-ng
-						 *  problem.
-						 */
-						wexit_status = EXIT_NOT_SUCCESS;
-						CASE_FALLTHROUGH;
-					default:
-						pr_err("process [%d] (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
-							ret, stressor_name, wexit_status,
-							stress_exit_status_to_string(wexit_status));
-						*success = false;
-						do_abort = true;
-						break;
-					}
-					if ((g_opt_flags & OPT_FLAGS_ABORT) && do_abort) {
-						keep_stressing_set_flag(false);
-						wait_flag = false;
-						stress_kill_stressors(SIGALRM);
-					}
-
-					stress_stressor_finished(&stats->pid);
-					pr_dbg("process [%d] terminated\n", ret);
-
-					stress_clean_dir(name, pid, (uint32_t)j);
-
-				} else if (ret == -1) {
-					/* Somebody interrupted the wait */
-					if (errno == EINTR)
-						goto redo;
-					/* This child did not exist, mark it done anyhow */
-					if (errno == ECHILD)
-						stress_stressor_finished(&stats->pid);
-				}
 			}
 		}
 	}
@@ -2428,6 +2449,9 @@ abort:
 		 started_instances == 1 ? "" : "s");
 
 wait_for_stressors:
+	if (g_opt_flags & OPT_FLAGS_IGNITE_CPU)
+		stress_ignite_cpu_start();
+
 	stress_wait_stressors(stressors_list, success, resource_success, metrics_success);
 	time_finish = stress_time_now();
 
