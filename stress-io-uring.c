@@ -318,8 +318,8 @@ static inline int stress_io_uring_complete(
 		) {
 			const int err = abs(cqe->res);
 
-			/* Silently ignore EOPNOTSUPP completion errors */
-			if (errno == EOPNOTSUPP) {
+			/* Silently ignore some completion errors */
+			if ((err == EOPNOTSUPP) || (err == ENOTDIR)) {
 				*supported = false;
 			} else  {
 				pr_fail("%s: completion opcode=%d (%s), error=%d (%s)\n",
