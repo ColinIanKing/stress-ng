@@ -2220,10 +2220,17 @@ static void MLOCKED_TEXT stress_run(
 	double time_start, time_finish;
 	int32_t started_instances = 0;
 	const size_t page_size = stress_get_page_size();
+	int64_t backoff = DEFAULT_BACKOFF;
+	int32_t ionice_class = UNDEFINED;
+	int32_t ionice_level = UNDEFINED;
 
 	wait_flag = true;
 	time_start = stress_time_now();
 	pr_dbg("starting stressors\n");
+
+	(void)stress_get_setting("backoff", &backoff);
+	(void)stress_get_setting("ionice-class", &ionice_class);
+	(void)stress_get_setting("ionice-level", &ionice_level);
 
 	/*
 	 *  Work through the list of stressors to run
@@ -2239,19 +2246,12 @@ static void MLOCKED_TEXT stress_run(
 			size_t i;
 			pid_t pid, child_pid;
 			char name[64];
-			int64_t backoff = DEFAULT_BACKOFF;
-			int32_t ionice_class = UNDEFINED;
-			int32_t ionice_level = UNDEFINED;
 			stress_stats_t *const stats = g_stressor_current->stats[j];
 			double run_duration, fork_time_start;
 			bool ok;
 
 			if (g_opt_timeout && (stress_time_now() - time_start > (double)g_opt_timeout))
 				goto abort;
-
-			(void)stress_get_setting("backoff", &backoff);
-			(void)stress_get_setting("ionice-class", &ionice_class);
-			(void)stress_get_setting("ionice-level", &ionice_level);
 
 			stats->counter_ready = true;
 			stats->counter = 0;
