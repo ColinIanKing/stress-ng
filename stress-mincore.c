@@ -70,6 +70,32 @@ static int stress_mincore_file(const stress_args_t *args)
 }
 
 /*
+ *  stress_mincore_expect()
+ *	check for expected return code/errors
+ */
+void stress_mincore_expect(
+	const stress_args_t *args,
+	const int ret,		/* return value */
+	const int ret_expected,	/* exepected return value */
+	const int err,		/* returned errno */
+	const int err_expected,	/* expected errno */
+	char *msg)		/* test message */
+{
+	if (ret == ret_expected) {
+		if (ret_expected == 0)
+			return;	/* Success! */
+		pr_fail("%s: unexpected success exercising %s\n",
+			args->name, msg);
+	}
+	/* Silently ignore ENOSYS for now */
+	if (err == ENOSYS)
+		return;
+	if (err != err_expected)
+		pr_fail("%s: expected errno %d, got %d instead while exercising %s\n",
+			args->name, err_expected, err, msg);
+}
+
+/*
  *  stress_mincore()
  *	stress mincore system call
  */
@@ -161,7 +187,7 @@ redo: 			errno = 0;
 #endif
 				ret = shim_mincore((void *)fdmapped, page_size, vec);
 				if (ret < 0) {
-					/* Should no return ENOMEM on a mapped page */
+					/* Should not return ENOMEM on a mapped page */
 					if (errno == ENOMEM) {
 						pr_fail("%s: mincore on address %p failed, errno=$%d (%s)\n",
 							args->name, (void *)fdmapped, errno,
@@ -189,30 +215,56 @@ redo: 			errno = 0;
 				addr += page_size;
 			}
 
-			/*
-			 *  Exercise with zero length, ignore return
-			 */
-			(void)shim_mincore((void *)addr, 0, vec);
+			if (mapped != MAP_FAILED) {
+				/*
+				 *  Exercise with zero length, ignore return
+				 */
+				ret = shim_mincore((void *)mapped, 0, vec);
+				stress_mincore_expect(args, ret, 0, errno, EINVAL,
+					"zero length for vector size");
 
-			/*
-			 *  Exercise with NULL vec, ignore return
-			 */
-			(void)shim_mincore((void *)addr, page_size, NULL);
+				/*
+				 *  Exercise with huge length, ignore return
+				 */
+				ret = shim_mincore((void *)mapped, ~0, vec);
+				stress_mincore_expect(args, ret, 0, errno, ENOMEM,
+					"invalid length for vector size");
+
+				/*
+				 *  Exercise with masaligned address, ignore return
+				 */
+				ret = shim_mincore((void *)(mapped + 1), 0, vec);
+				stress_mincore_expect(args, ret, 0, errno, EINVAL,
+					"misaligned address");
+
+				/*
+				 *  Exercise with NULL vec, ignore return
+				 */
+				ret = shim_mincore((void *)mapped, page_size, NULL);
+				stress_mincore_expect(args, ret, 0, errno, EFAULT,
+					"NULL vector address");
+
+				/*
+				 *  Exercise with invalid page
+				 */
+				ret = shim_mincore(mapped, page_size, args->mapped->page_none);
+				stress_mincore_expect(args, ret, 0, errno, EFAULT,
+					"invalid vector address");
+			}
 
 			/*
 			 *  Exercise with NULL address
 			 */
-			(void)shim_mincore(NULL, page_size, vec);
+			ret = shim_mincore(NULL, page_size, vec);
+			stress_mincore_expect(args, ret, 0, errno, ENOMEM,
+				"NULL memory address");
 
 			/*
-			 *  Exercise with zero arguments
+			 *  Exercise with NULL/zero arguments
 			 */
-			(void)shim_mincore(NULL, 0, NULL);
-
-			/*
-			 *  Exercise with invalid page
-			 */
-			(void)shim_mincore(NULL, page_size, args->mapped->page_none);
+			ret = shim_mincore(NULL, 0, NULL);
+			stress_mincore_expect(args, ret, 0, errno, EINVAL,
+				"NULL and zero arguments");
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
