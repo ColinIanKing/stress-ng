@@ -270,6 +270,7 @@
 	MACRO(sync_file)	\
 	MACRO(syncload)		\
 	MACRO(sysbadaddr)	\
+	MACRO(syscall)		\
 	MACRO(sysinfo)		\
 	MACRO(sysinval)		\
 	MACRO(sysfs)		\

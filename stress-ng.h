@@ -1966,6 +1966,10 @@ typedef enum {
 	OPT_sysbadaddr,
 	OPT_sysbadaddr_ops,
 
+	OPT_syscall,
+	OPT_syscall_ops,
+	OPT_syscall_method,
+
 	OPT_sysinfo,
 	OPT_sysinfo_ops,
 

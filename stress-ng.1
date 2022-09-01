@@ -4698,6 +4698,44 @@ memory addresses.
 .B \-\-sysbadaddr\-ops N
 stop the sysbadaddr stressors after N bogo system calls.
 .TP
+.B \-\-syscall N
+start N workers that exercise a range of available system calls. System calls
+that fail due to lack of capabilities or errors are ignored. The stressor will
+try to maximize the rate of system calls being executed based the entire time
+taken to setup, run and cleanup after each system call.
+.TP
+.B \-\-syscall\-ops N
+stop after N system calls
+.TP
+.B \-\-syscall\-method method
+select the choice of system calls to executed based on the fasted test duration times.
+Note that this includes the time to setup, execute the system call and cleanup afterwards.
+The available methods are as follows:
+.TS
+expand;
+lB lB lB
+l l s.
+Method	Description
+all	select all the available system calls
+fast10	select the fastest 10% system call tests
+fast25	select the fastest 25% system call tests
+fast50	select the fastest 50% system call tests
+fast75	select the fastest 75% system call tests
+fast90	select the fastest 90% system call tests
+geomean1	T{
+select tests that are less or equal to the
+geometric mean of all the test times
+T}
+geomean1	T{
+select tests that are less or equal to 2 \(mu
+the geometric mean of all the test times
+T}
+geomean1	T{
+select tests that are less or equal to 3 \(mu
+geometric mean of all the test times
+T}
+.TE
+.TP
 .B \-\-sysinfo N
 start N workers that continually read system and process specific information.
 This reads the process user and system times using the times(2) system call.

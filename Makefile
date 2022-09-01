@@ -378,6 +378,7 @@ STRESS_SRC = \
 	stress-sync-file.c \
 	stress-syncload.c \
 	stress-sysbadaddr.c \
+	stress-syscall.c \
 	stress-sysinfo.c \
 	stress-sysinval.c \
 	stress-sysfs.c \
