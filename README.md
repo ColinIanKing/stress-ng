@@ -443,7 +443,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [Semi-dynamic load balancing: efficient distributed learning in non-dedicated environments](https://dl.acm.org/doi/10.1145/3419111.3421299)
 * [Streamline: A Fast, Flushless Cache Covert-Channel Attack by Enabling Asynchronous Collusion](https://dl.acm.org/doi/pdf/10.1145/3445814.3446742)
 * [Experimental Analysis in Hadoop MapReduce: A Closer Look at Fault Detection and Recovery Techniques](https://www.mdpi.com/1131714)
-* [Performance Characteristics of theBlueField-2 SmartNIC](https://arxiv.org/pdf/2105.06619.pdf)
+* [Performance Characteristics of the BlueField-2 SmartNIC](https://arxiv.org/pdf/2105.06619.pdf)
 * [Evaluating Latency in Multiprocessing Embedded Systems for the Smart Grid](https://www.mdpi.com/1996-1073/14/11/3322)
 * [Work-in-Progress: Timing Diversity as a Protective Mechanism](https://dl.acm.org/doi/pdf/10.1145/3477244.3477614)
 * [Sequential Deep Learning Architectures for Anomaly Detection in Virtual Network Function Chains](https://arxiv.org/pdf/2109.14276.pdf)
@@ -462,6 +462,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [Introducing k4.0s: a Model for Mixed-Criticality Container Orchestration in Industry 4.0 ](https://arxiv.org/pdf/2205.14188.pdf)
 * [Real-time performance assessment using fast interrupt request on a standard Linux kernel](https://onlinelibrary.wiley.com/doi/full/10.1002/eng2.12114)
 * [Mixed time-criticality process interferences characterization on a multicore Linux system](https://re.public.polimi.it/retrieve/handle/11311/1033069/292404/paper-accepted-version.pdf)
+* [FedComm: Understanding Communication Protocols for Edge-based Federated Learning](https://arxiv.org/pdf/2208.08764.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
