@@ -242,14 +242,14 @@ static int stress_numa(const stress_args_t *args)
 
 	status = (int *)calloc(num_pages, sizeof(*status));
 	if (!status) {
-		pr_inf("%s: cannot allocate status array of %zu elements, skipping stressor\n",
+		pr_inf("%s: cannot allocate status array of %lu elements, skipping stressor\n",
 			args->name, num_pages);
 		rc = EXIT_NO_RESOURCE;
 		goto numa_free;
 	}
 	dest_nodes = (int *)calloc(num_pages, sizeof(*dest_nodes));
 	if (!dest_nodes) {
-		pr_inf("%s: cannot allocate dest_nodes array of %zu elements, skipping stressor\n",
+		pr_inf("%s: cannot allocate dest_nodes array of %lu elements, skipping stressor\n",
 			args->name, num_pages);
 		rc = EXIT_NO_RESOURCE;
 		goto status_free;
