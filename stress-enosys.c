@@ -1278,9 +1278,6 @@ static const long skip_syscalls[] = {
 #if defined(SYS_sched_rr_get_interval)
 	SYS_sched_rr_get_interval,
 #endif
-#if defined(SYS_sched_rr_stress_get_interval)
-	SYS_sched_rr_stress_get_interval,
-#endif
 #if defined(SYS_sched_setaffinity)
 	SYS_sched_setaffinity,
 #endif
