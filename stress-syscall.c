@@ -4609,8 +4609,7 @@ static int syscall_rmdir(void)
 	return ret;
 }
 
-#if defined(HAVE_AFFINITY) &&		\
-    defined(HAVE_SCHED_GETAFFINITY)
+#if defined(HAVE_SCHED_GETAFFINITY)
 #define HAVE_SYSCALL_SCHED_GETAFFINITY
 static int syscall_sched_getaffinity(void)
 {
@@ -4741,10 +4740,8 @@ static int syscall_sched_rr_get_interval(void)
 }
 #endif
 
-// FIXME ADD HAVE_SCHED_SETAFFINITY check to config.h/Makefile.config
-
-#if defined(HAVE_AFFINITY) &&		\
-    defined(HAVE_SCHED_GETAFFINITY)
+#if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    defined(HAVE_SCHED_SETAFFINITY)
 #define HAVE_SYSCALL_SCHED_SETAFFINITY
 static int syscall_sched_setaffinity(void)
 {

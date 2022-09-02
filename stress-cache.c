@@ -794,6 +794,7 @@ static int stress_cache(const stress_args_t *args)
 			}
 		}
 #if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    defined(HAVE_SCHED_SETAFFINITY) &&	\
     defined(HAVE_SCHED_GETCPU)
 		if ((cache_flags & FLAGS_CACHE_NOAFF) && !pinned) {
 			int current;

@@ -21,7 +21,7 @@
 
 static const char option[] = "taskset";
 
-#if defined(HAVE_AFFINITY)
+#if defined(HAVE_SCHED_SETAFFINITY)
 
 /*
  * stress_check_cpu_affinity_range()

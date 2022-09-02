@@ -1,6 +1,5 @@
 /*
- * Copyright (C) 2013-2021 Canonical, Ltd.
- * Copyright (C)      2022 Colin Ian King.
+ * Copyright (C)      2022 Colin Ian King
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -17,27 +16,16 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
  *
  */
-#define _GNU_SOURCE
-#include <sched.h>
 
-#if defined(__gnu_hurd__)
-#error sched_getaffinity and sched_setaffinity are not implemented
-#endif
+#define _GNU_SOURCE
+
+#include <string.h>
+#include <sched.h>
 
 int main(void)
 {
 	cpu_set_t mask;
-	int rc;
 
-	CPU_ZERO(&mask);
-	CPU_SET(0, &mask);
-	rc = sched_setaffinity(0, sizeof(mask), &mask);
-	(void)rc;
-
-	rc = sched_getaffinity(0, sizeof(mask), &mask);
-	if (rc == 0) {
-		rc = CPU_ISSET(0, &mask);
-		(void)rc;
-	}
-	return 0;
+	(void)memset(&mask, 0, sizeof(mask));
+	return sched_setaffinity(0, sizeof(mask), &mask);
 }

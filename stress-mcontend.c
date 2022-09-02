@@ -273,7 +273,7 @@ static void *stress_memory_contend_thread(void *arg)
 {
 	static void *nowt = NULL;
 	const stress_pthread_args_t *pa = (const stress_pthread_args_t *)arg;
-#if defined(HAVE_AFFINITY)
+#if defined(HAVE_SCHED_SETAFFINITY)
 	const uint32_t cpus = (uint32_t)stress_get_processors_configured();
 #endif
 
@@ -284,13 +284,13 @@ static void *stress_memory_contend_thread(void *arg)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	while (keep_stressing_flag()) {
-#if defined(HAVE_AFFINITY)
+#if defined(HAVE_SCHED_SETAFFINITY)
 		cpu_set_t mask;
 		const uint32_t cpu = stress_mwc32() % cpus;
 #endif
 		stress_memory_contend(pa);
 
-#if defined(HAVE_AFFINITY)
+#if defined(HAVE_SCHED_SETAFFINITY)
 
 		CPU_ZERO(&mask);
 		CPU_SET(cpu, &mask);

@@ -82,8 +82,8 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress on sched_affinity()
  *	stress system by changing CPU affinity periodically
  */
-#if defined(HAVE_AFFINITY) && \
-    defined(HAVE_SCHED_GETAFFINITY)
+#if defined(HAVE_SCHED_GETAFFINITY) &&	\
+    defined(HAVE_SCHED_SETAFFINITY)
 
 static void *counter_lock;	/* Counter lock */
 
