@@ -2670,6 +2670,8 @@ static void stress_metrics_dump(
 			continue;
 
 #if defined(HAVE_GETRUSAGE)
+		(void)ticks_per_sec;
+
 		u_time = u_total;
 		s_time = s_total;
 #else
@@ -2681,9 +2683,9 @@ static void stress_metrics_dump(
 		/* Total usr + sys time of all procs */
 		bogo_rate_r_time = (r_total > 0.0) ? (double)c_total / r_total : 0.0;
 		{
-			double us_total = u_total + s_total;
+			double us_total = u_time + s_time;
 
-			bogo_rate = (us_total > 0.0) ? (double)c_total / (us_total / (double)ticks_per_sec) : 0.0;
+			bogo_rate = (us_total > 0.0) ? (double)c_total / us_total : 0.0;
 		}
 
 		cpu_usage = (r_total > 0) ? 100.0 * t_time / r_total : 0.0;
