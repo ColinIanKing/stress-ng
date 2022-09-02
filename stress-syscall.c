@@ -4305,7 +4305,8 @@ static int syscall_pwritev(void)
 #endif
 
 #if defined(HAVE_SYS_QUOTA_H) &&	\
-    defined(Q_SYNC)
+    defined(Q_SYNC) &&			\
+    defined(__linux__)
 #define HAVE_SYSCALL_QUOTACTL
 static int syscall_quotactl(void)
 {
