@@ -213,6 +213,11 @@ void pr_unlock(void)
 {
 }
 
+void pr_lock_exited(const pid_t pid)
+{
+	(void)pid;
+}
+
 #endif
 
 /*
