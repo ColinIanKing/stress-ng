@@ -274,7 +274,8 @@ static void *stress_malloc_loop(void *ptr)
 						info[i].addr = NULL;
 					break;
 #endif
-#if defined(HAVE_ALIGNED_ALLOC)
+#if defined(HAVE_ALIGNED_ALLOC) &&	\
+    !defined(__OpenBSD__)
 				case 2:
 					/* C11 aligned allocation */
 					info[i].addr = aligned_alloc(MK_ALIGN(i), len);
