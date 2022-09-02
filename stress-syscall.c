@@ -6842,7 +6842,7 @@ static const syscall_t syscalls[] = {
 	SYSCALL(syscall_fstat),
 #endif
 #if defined(HAVE_SYSCALL_FSTATAT)
-	SYSCALL(syscall_fstatat),	/* FIXME ADD HAVE_FSTATAT detection */
+	SYSCALL(syscall_fstatat),
 #endif
 #if defined(HAVE_SYSCALL_FSTATFS)
 	SYSCALL(syscall_fstatfs),
