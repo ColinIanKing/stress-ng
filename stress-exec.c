@@ -669,7 +669,7 @@ static int stress_exec(const stress_args_t *args)
 #endif
 
 	cache_max = sizeof(*stress_pid_cache) * exec_max;
-	stress_pid_cache =
+	stress_pid_cache = (stress_pid_hash_t*)
 		mmap(NULL, cache_max, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (stress_pid_cache == MAP_FAILED) {
