@@ -404,10 +404,15 @@ static mode_t syscall_umask_mask;		/* current umask */
 static syscall_shared_info_t *syscall_shared_info = NULL;
 
 #if (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H)) && \
-     defined(HAVE_LGETXATTR) ||		\
-     defined(HAVE_LSETXATTR) ||		\
-     defined(HAVE_LREMOVEXATTR)
+    (defined(HAVE_FGETXATTR) ||		\
+     defined(HAVE_FSETXATTR) ||		\
+     defined(HAVE_FREMOVEXATTR))
 static const char *syscall_xattr_name = "user.val";	/* xattr name */
+#endif
+#if (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H)) && \
+    (defined(HAVE_LGETXATTR) ||		\
+     defined(HAVE_LSETXATTR) ||		\
+     defined(HAVE_LREMOVEXATTR))
 static const char *syscall_lxattr_name = "trusted.val";	/* lxattr name */
 #endif
 
