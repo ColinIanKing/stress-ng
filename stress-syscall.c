@@ -7465,7 +7465,7 @@ static const syscall_t syscalls[] = {
 #if defined(HAVE_SYSCALL_SYMLINK)
 	SYSCALL(syscall_symlink),
 #endif
-#if defined(HAVE_SYSCALL_SYMLINKAT)		/* FIXME ADD HAVE_SYMLINKAT auto detect*/
+#if defined(HAVE_SYSCALL_SYMLINKAT)
 	SYSCALL(syscall_symlinkat),
 #endif
 #if defined(HAVE_SYSCALL_SYNC)
