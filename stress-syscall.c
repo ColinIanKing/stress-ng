@@ -1760,7 +1760,7 @@ static int syscall_fstatat(void)
 	int ret;
 
 	t1 = syscall_time_now();
-	ret = fstatat(syscall_dirfd, syscall_filename, &statbuf, 0);
+	ret = fstatat(syscall_dir_fd, syscall_filename, &statbuf, 0);
 	t2 = syscall_time_now();
 	return ret;
 }
