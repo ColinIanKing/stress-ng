@@ -382,6 +382,9 @@ static int stress_dentry(const stress_args_t *args)
 				path, sizeof(path), dentry_offset + i);
 			/* The following should fail, ignore error return */
 			VOID_RET(int, access(path, R_OK));
+
+			/* The following should fail, ignore error return */
+			VOID_RET(int, unlink(path));
 		}
 		dentry_offset += dentries;
 
