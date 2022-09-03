@@ -384,7 +384,7 @@ static int stress_dentry(const stress_args_t *args)
 			VOID_RET(int, access(path, R_OK));
 
 			/* The following should fail, ignore error return */
-			VOID_RET(int, unlink(path));
+			VOID_RET(int, shim_unlink(path));
 		}
 		dentry_offset += dentries;
 
