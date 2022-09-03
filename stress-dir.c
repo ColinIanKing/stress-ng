@@ -243,7 +243,6 @@ static void stress_invalid_mkdirat(const int bad_fd)
 #endif
 }
 
-
 /*
  *  stress_invalid_rmdir()
  *	exercise invalid rmdir paths
@@ -266,6 +265,25 @@ static void stress_invalid_rmdir(const char *path)
 }
 
 /*
+ *  stress_dir_read_concurrent()
+ *	read a directory concurrently with directory
+ *	file activity to exercise kernel locking on
+ *	the directory
+ */
+static void stress_dir_read_concurrent(
+	const stress_args_t *args,
+	const char *pathname)
+{
+	shim_nice(1);
+	shim_nice(1);
+	shim_nice(1);
+
+	do {
+		stress_dir_read(args, pathname);
+	} while (keep_stressing(args));
+}
+
+/*
  *  stress_dir
  *	stress directory mkdir and rmdir
  */
@@ -276,9 +294,16 @@ static int stress_dir(const stress_args_t *args)
 	char pathname[PATH_MAX];
 	int dir_fd = -1;
 	const int bad_fd = stress_get_bad_fd();
+	pid_t pid;
 
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	(void)stress_get_setting("dir-dirs", &dir_dirs);
+
+	pid = fork();
+	if (pid == 0) {
+		stress_dir_read_concurrent(args, pathname);
+		_exit(0);
+	}
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -346,6 +371,13 @@ static int stress_dir(const stress_args_t *args)
 		(void)close(dir_fd);
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	if (pid >= 0) {
+		int status;
+
+		VOID_RET(int, kill(pid, SIGKILL));
+		VOID_RET(int, waitpid(pid, &status, 0));
+	}
 
 	(void)stress_temp_dir_rm_args(args);
 
