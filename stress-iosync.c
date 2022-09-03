@@ -39,6 +39,9 @@ static int stress_io(const stress_args_t *args)
 	int fds[MAX_MNTS];
 	const int bad_fd = stress_get_bad_fd();
 
+	if (args->instance == 0)
+		pr_inf("%s: this is a legacy I/O sync stressor, consider using iomix instead\n", args->name);
+
 	n_mnts = stress_mount_get(mnts, MAX_MNTS);
 	for (i = 0; i < n_mnts; i++)
 		fds[i] = openat(AT_FDCWD, mnts[i], O_RDONLY | O_NONBLOCK | O_DIRECTORY);
