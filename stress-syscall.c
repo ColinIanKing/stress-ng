@@ -306,7 +306,7 @@ static const shim_itimer_which_t itimers[] = {
 /*
  *  various ulimit/rlimit limit types
  */
-static const int limits[] = {
+static const shim_rlimit_resource_t limits[] = {
 #if defined(RLIMIT_AS)
 	RLIMIT_AS,
 #endif
@@ -2068,7 +2068,7 @@ static int syscall_getrlimit(void)
 
 	struct rlimit rlim;
 	int ret;
-	const int limit = limits[i];
+	const shim_rlimit_resource_t limit = limits[i];
 
 	i++;
 	if (i >= SIZEOF_ARRAY(limits))
@@ -4145,7 +4145,7 @@ static int syscall_prlimit(void)
 
 	struct rlimit old_rlim, new_rlim;
 	int ret;
-	const int limit = limits[i];
+	const shim_rlimit_resource_t limit = limits[i];
 
 	i++;
 	if (i >= SIZEOF_ARRAY(limits))
@@ -5244,7 +5244,7 @@ static int syscall_setrlimit(void)
 
 	struct rlimit old_rlim, new_rlim;
 	int ret;
-	const int limit = limits[i];
+	const shim_rlimit_resource_t limit = limits[i];
 
 	i++;
 	if (i >= SIZEOF_ARRAY(limits))
