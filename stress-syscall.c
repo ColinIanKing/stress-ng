@@ -1851,16 +1851,24 @@ static int syscall_getcwd(void)
 static int syscall_getdents(void)
 {
 	int fd, ret;
-	struct shim_linux_dirent buf[32];
+	struct shim_linux_dirent *buf;
+	const size_t ndents = 32;
 
-	fd = open("/", O_RDONLY | O_DIRECTORY);
-	if (fd < 0)
+	buf = calloc(ndents, sizeof(*buf));
+	if (!buf)
 		return -1;
 
+	fd = open("/", O_RDONLY | O_DIRECTORY);
+	if (fd < 0) {
+		free(buf);
+		return -1;
+	}
+
 	t1 = syscall_time_now();
-	ret = shim_getdents(fd, buf, sizeof(buf));
+	ret = shim_getdents(fd, buf, ndents * sizeof(*buf));
 	t2 = syscall_time_now();
 	(void)close(fd);
+	free(buf);
 	return ret;
 }
 #endif
