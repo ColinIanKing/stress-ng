@@ -830,8 +830,6 @@ static int syscall_alarm(void)
 	if (pid < 0)
 		return -1;
 	if (pid == 0) {
-		int ret;
-
 		syscall_shared_info->t1 = syscall_time_now();
 		ret = alarm(1);
 		syscall_shared_info->t2 = syscall_time_now();
