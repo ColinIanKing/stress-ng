@@ -2093,8 +2093,14 @@ static ptrdiff_t stress_cpu_callfunc_func(
 {
 	if (LIKELY(n > 0))
 		return stress_cpu_callfunc_func(n - 1,
-			u64arg, u32arg, u16arg, u8arg,
-			p_u64arg, p_u32arg, p_u16arg, p_u8arg);
+			u64arg + (uint64_t)u32arg,
+			u32arg,
+			u16arg,
+			u8arg,
+			p_u64arg,
+			p_u32arg,
+			p_u16arg,
+			p_u8arg);
 	else
 		return &u64arg - p_u64arg;
 }
