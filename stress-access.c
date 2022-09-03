@@ -141,13 +141,84 @@ static int shim_faccessat(int dir_fd, const char *pathname, int mode, int flags)
 #endif
 
 /*
+ *  stress_access_spawn()
+ *	start a child process that sets the file mode and then
+ *	exercises acesss on it. There are two of these running
+ *	with a lower priority than the main process and these
+ *	two processes exercise chmod/access contention on a
+ *	single file
+ */
+static pid_t stress_access_spawn(
+	const stress_args_t *args,
+	const char *filename)
+{
+	pid_t pid;
+
+	pid = fork();
+	if (pid < 0) {
+		pr_inf("%s: fork failed %d (%s), skipping concurrent access stressing\n",
+			args->name, errno, strerror(errno));
+		return -1;
+	} else if (pid == 0) {
+		/* Concurrent stressor */
+
+		size_t j = 0;
+
+		stress_mwc_reseed();
+		shim_nice(1);
+		shim_nice(1);
+
+		do {
+			const size_t i = stress_mwc8() % SIZEOF_ARRAY(modes);
+			int ret;
+
+			ret = chmod(filename, modes[i].chmod_mode);
+			switch (ret) {
+			case EACCES:
+			case EFAULT:
+			case EIO:
+			case ELOOP:
+			case ENAMETOOLONG:
+			case ENOENT:
+			case ENOTDIR:
+			case EPERM:
+			case EROFS:
+				_exit(0);
+			default:
+				break;
+			}
+			VOID_RET(int, access(filename, modes[i].access_mode));
+			VOID_RET(int, access(filename, modes[j].access_mode));
+			j++;
+			if (j >= SIZEOF_ARRAY(modes))
+				j = 0;
+			shim_sched_yield();
+		} while(keep_stressing(args));
+		_exit(0);
+	}
+	return pid;
+}
+
+static void stress_access_reap(int *pid)
+{
+	int status;
+
+	if (*pid == -1)
+		return;
+	(void)kill(*pid, SIGKILL);
+	(void)waitpid(*pid, &status, 0);
+	*pid = -1;
+}
+
+/*
  *  stress_access
  *	stress access family of system calls
  */
 static int stress_access(const stress_args_t *args)
 {
-	int fd = -1, ret, rc = EXIT_FAILURE;
-	char filename[PATH_MAX];
+	int fd1 = -1, fd2 = -1, ret, rc = EXIT_FAILURE;
+	char filename1[PATH_MAX];
+	char filename2[PATH_MAX];
 	const mode_t all_mask = 0700;
 	size_t i;
 #if defined(HAVE_FACCESSAT)
@@ -155,22 +226,39 @@ static int stress_access(const stress_args_t *args)
 #endif
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 	const char *fs_type;
+	pid_t pid[2] = { -1, -1 };
+	uint32_t rnd32 = stress_mwc32();
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
 	(void)stress_temp_filename_args(args,
-		filename, sizeof(filename), stress_mwc32());
+		filename1, sizeof(filename1), rnd32);
+	(void)stress_temp_filename_args(args,
+		filename2, sizeof(filename2), rnd32 + 1);
 
 	(void)umask(0700);
-	if ((fd = creat(filename, S_IRUSR | S_IWUSR)) < 0) {
+	if ((fd1 = creat(filename1, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
-		pr_fail("%s: creat failed, errno=%d (%s)\n",
-			args->name, errno, strerror(errno));
+		pr_fail("%s: creat on %s failed, errno=%d (%s)\n",
+			args->name, filename1, errno, strerror(errno));
 		goto tidy;
 	}
-	fs_type = stress_fs_type(filename);
+	if ((fd2 = creat(filename2, S_IRUSR | S_IWUSR)) < 0) {
+		rc = stress_exit_status(errno);
+		pr_fail("%s: creat on %s failed, errno=%d (%s)\n",
+			args->name, filename2, errno, strerror(errno));
+		goto tidy;
+	}
+	fs_type = stress_fs_type(filename1);
+
+	pid[0] = stress_access_spawn(args, filename2);
+	if (pid[0] >= 0) {
+		pid[1] = stress_access_spawn(args, filename2);
+		if (pid[1] < 0)
+			stress_access_reap(&pid[0]);
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
@@ -180,14 +268,14 @@ static int stress_access(const stress_args_t *args)
 			size_t j;
 #endif
 
-			ret = fchmod(fd, modes[i].chmod_mode);
+			ret = fchmod(fd1, modes[i].chmod_mode);
 			if (CHMOD_ERR(ret)) {
 				pr_fail("%s: fchmod %3.3o failed: %d (%s)%s\n",
 					args->name, (unsigned int)modes[i].chmod_mode,
 					errno, strerror(errno), fs_type);
 				goto tidy;
 			}
-			ret = access(filename, modes[i].access_mode);
+			ret = access(filename1, modes[i].access_mode);
 			if (ret < 0) {
 				pr_fail("%s: access %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
 					args->name,
@@ -196,7 +284,7 @@ static int stress_access(const stress_args_t *args)
 					errno, strerror(errno), fs_type);
 			}
 #if defined(HAVE_FACCESSAT)
-			ret = shim_faccessat(AT_FDCWD, filename, modes[i].access_mode, 0);
+			ret = shim_faccessat(AT_FDCWD, filename1, modes[i].access_mode, 0);
 			if ((ret < 0) && (errno != ENOSYS)) {
 				pr_fail("%s: faccessat %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
 					args->name,
@@ -210,19 +298,19 @@ static int stress_access(const stress_args_t *args)
 			 *  first choice if it is possible.
 			 */
 			for (j = 0; j < SIZEOF_ARRAY(access_flags); j++) {
-				VOID_RET(int, shim_faccessat(AT_FDCWD, filename, modes[i].access_mode, access_flags[j]));
+				VOID_RET(int, shim_faccessat(AT_FDCWD, filename1, modes[i].access_mode, access_flags[j]));
 			}
 
 			/*
 			 *  Exercise bad dir_fd
 			 */
-			VOID_RET(int, shim_faccessat(bad_fd, filename, modes[i].access_mode, 0));
+			VOID_RET(int, shim_faccessat(bad_fd, filename1, modes[i].access_mode, 0));
 #else
-	UNEXPECTED
+			UNEXPECTED
 #endif
 #if defined(HAVE_FACCESSAT2) &&	\
     defined(AT_SYMLINK_NOFOLLOW)
-			ret = faccessat2(AT_FDCWD, filename, modes[i].access_mode,
+			ret = faccessat2(AT_FDCWD, filename1, modes[i].access_mode,
 				AT_SYMLINK_NOFOLLOW);
 			if ((ret < 0) && (errno != ENOSYS)) {
 				pr_fail("%s: faccessat2 %3.3o on chmod mode %3.3o failed: %d (%s)%s\n",
@@ -234,7 +322,7 @@ static int stress_access(const stress_args_t *args)
 			/*
 			 *  Exercise bad dir_fd
 			 */
-			VOID_RET(int, faccessat2(bad_fd, filename, modes[i].access_mode,
+			VOID_RET(int, faccessat2(bad_fd, filename1, modes[i].access_mode,
 				AT_SYMLINK_NOFOLLOW));
 #else
 			/* UNEXPECTED */
@@ -244,14 +332,14 @@ static int stress_access(const stress_args_t *args)
 				const bool s_ixusr = chmod_mode & S_IXUSR;
 				const bool dont_ignore = !(is_root && s_ixusr);
 
-				ret = fchmod(fd, chmod_mode);
+				ret = fchmod(fd1, chmod_mode);
 				if (CHMOD_ERR(ret)) {
 					pr_fail("%s: fchmod %3.3o failed: %d (%s)%s\n",
 						args->name, (unsigned int)chmod_mode,
 						errno, strerror(errno), fs_type);
 					goto tidy;
 				}
-				ret = access(filename, modes[i].access_mode);
+				ret = access(filename1, modes[i].access_mode);
 				if ((ret == 0) && dont_ignore) {
 					pr_fail("%s: access %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)%s\n",
 						args->name,
@@ -260,7 +348,7 @@ static int stress_access(const stress_args_t *args)
 						errno, strerror(errno), fs_type);
 				}
 #if defined(HAVE_FACCESSAT)
-				ret = faccessat(AT_FDCWD, filename, modes[i].access_mode,
+				ret = faccessat(AT_FDCWD, filename1, modes[i].access_mode,
 					AT_SYMLINK_NOFOLLOW);
 				if ((ret == 0) && dont_ignore) {
 					pr_fail("%s: faccessat %3.3o on chmod mode %3.3o was ok (not expected): %d (%s)%s\n",
@@ -280,11 +368,20 @@ static int stress_access(const stress_args_t *args)
 	rc = EXIT_SUCCESS;
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	if (fd >= 0) {
-		(void)fchmod(fd, S_IRUSR | S_IWUSR);
-		(void)close(fd);
+
+	stress_access_reap(&pid[1]);
+	stress_access_reap(&pid[0]);
+
+	if (fd2 >= 0) {
+		(void)fchmod(fd2, S_IRUSR | S_IWUSR);
+		(void)close(fd2);
 	}
-	(void)shim_unlink(filename);
+	if (fd1 >= 0) {
+		(void)fchmod(fd1, S_IRUSR | S_IWUSR);
+		(void)close(fd1);
+	}
+	(void)shim_unlink(filename2);
+	(void)shim_unlink(filename1);
 	(void)stress_temp_dir_rm_args(args);
 
 	return rc;
