@@ -2854,7 +2854,7 @@ static const stress_cpu_method_info_t cpu_methods[] = {
 	{ "ackermann",		stress_cpu_ackermann,		2008.64	},
 	{ "apery",		stress_cpu_apery,		9344.95	},
 	{ "bitops",		stress_cpu_bitops,		6573.24	},
-	{ "callfunc",		stress_cpu_callfunc,		3132911.03 },
+	{ "callfunc",		stress_cpu_callfunc,		1246.34 },
 #if defined(HAVE_COMPLEX_H) &&		\
     defined(HAVE_COMPLEX) &&		\
     defined(__STDC_IEC_559_COMPLEX__) &&\
