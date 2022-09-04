@@ -73,7 +73,7 @@ static int stress_mincore_file(const stress_args_t *args)
  *  stress_mincore_expect()
  *	check for expected return code/errors
  */
-void stress_mincore_expect(
+static void stress_mincore_expect(
 	const stress_args_t *args,
 	const int ret,		/* return value */
 	const int ret_expected,	/* exepected return value */
