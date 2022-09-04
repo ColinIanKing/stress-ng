@@ -82,7 +82,7 @@ static void pr_spin_unlock(void)
  *	acquire a pr lock in a timely way, force lock ownership
  *	if we wait for too long
  */
-void pr_lock_acquire(const pid_t pid)
+static void pr_lock_acquire(const pid_t pid)
 {
 	for (;;) {
 		int32_t count;
@@ -282,6 +282,11 @@ void pr_openlog(const char *filename)
 	}
 }
 
+static int pr_msg(
+	FILE *fp,
+	const uint64_t flag,
+	const char *const fmt,
+	va_list ap) FORMAT(printf, 3, 0);
 /*
  *  pr_msg_lockable()
  *	print some debug or info messages with locking
@@ -408,19 +413,6 @@ void pr_dbg_skip(const char *fmt, ...)
 }
 
 /*
- *  pr_dbg_lock()
- *	print debug messages with a lock
- */
-void pr_dbg_lock(const char *fmt, ...)
-{
-	va_list ap;
-
-	va_start(ap, fmt);
-	(void)pr_msg(pr_file(), PR_DEBUG, fmt, ap);
-	va_end(ap);
-}
-
-/*
  *  pr_inf()
  *	print info messages
  */
@@ -444,19 +436,6 @@ void pr_inf_skip(const char *fmt, ...)
 	va_start(ap, fmt);
 	if (!(g_opt_flags & OPT_FLAGS_SKIP_SILENT))
 		(void)pr_msg(pr_file(), PR_INFO, fmt, ap);
-	va_end(ap);
-}
-
-/*
- *  pr_inf()
- *	print info messages with a lock
- */
-void pr_inf_lock(const char *fmt, ...)
-{
-	va_list ap;
-
-	va_start(ap, fmt);
-	(void)pr_msg(pr_file(), PR_INFO, fmt, ap);
 	va_end(ap);
 }
 
