@@ -50,7 +50,7 @@ static int stress_set_ipsec_mb_jobs(const char *opt)
 	int ipsec_mb_jobs;
 
 	ipsec_mb_jobs = (int)stress_get_int32(opt);
-	stress_check_range("ipsec-mb-jobs", ipsec_mb_jobs, 1, 1024);
+	stress_check_range("ipsec-mb-jobs", (uint64_t)ipsec_mb_jobs, 1, 1024);
 	return stress_set_setting("ipsec-mb-jobs", TYPE_ID_INT, &ipsec_mb_jobs);
 }
 
