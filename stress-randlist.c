@@ -60,8 +60,7 @@ static int stress_set_randlist_items(const char *opt)
 	size_t randlist_items;
 
 	items = stress_get_uint32(opt);
-	stress_check_range("randlist-size", items, 1, 0xffffffff);
-
+	stress_check_range("randlist-size", (uint64_t)items, 1, 0xffffffff);
 	randlist_items = (size_t)items;
 	return stress_set_setting("randlist-items", TYPE_ID_SIZE_T, &randlist_items);
 }

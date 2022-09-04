@@ -108,7 +108,7 @@ static int stress_set_stream_index(const char *opt)
 	uint32_t stream_index;
 
 	stream_index = stress_get_uint32(opt);
-	stress_check_range("stream-index", stream_index, 0, 3);
+	stress_check_range("stream-index", (uint64_t)stream_index, 0, 3);
 	return stress_set_setting("stream-index", TYPE_ID_UINT32, &stream_index);
 }
 

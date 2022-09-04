@@ -195,7 +195,7 @@ static int stress_set_sparsematrix_size(const char *opt)
 	uint32_t sparsematrix_size;
 
 	sparsematrix_size = stress_get_uint32(opt);
-	stress_check_range("sparsematrix-size", sparsematrix_size,
+	stress_check_range("sparsematrix-size", (uint64_t)sparsematrix_size,
 		MIN_SPARSEMATRIX_SIZE, MAX_SPARSEMATRIX_SIZE);
 	return stress_set_setting("sparsematrix-size", TYPE_ID_UINT32, &sparsematrix_size);
 }

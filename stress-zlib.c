@@ -1213,7 +1213,7 @@ static int stress_set_zlib_level(const char *opt)
 	uint32_t zlib_level;
 
 	zlib_level = stress_get_uint32(opt);
-	stress_check_range("zlib-level", zlib_level, 0, Z_BEST_COMPRESSION);
+	stress_check_range("zlib-level", (uint64_t)zlib_level, 0, Z_BEST_COMPRESSION);
 	return stress_set_setting("zlib-level", TYPE_ID_UINT32, &zlib_level);
 }
 
@@ -1227,7 +1227,7 @@ static int stress_set_zlib_mem_level(const char *opt)
 	uint32_t zlib_mem_level;
 
 	zlib_mem_level = stress_get_uint32(opt);
-	stress_check_range("zlib-mem-level", zlib_mem_level, 1, 9);
+	stress_check_range("zlib-mem-level", (uint64_t)zlib_mem_level, 1, 9);
 	return stress_set_setting("zlib-mem-level", TYPE_ID_UINT32, &zlib_mem_level);
 }
 
@@ -1308,7 +1308,7 @@ static int stress_set_zlib_strategy(const char *opt)
 	uint32_t zlib_strategy;
 
 	zlib_strategy = stress_get_uint32(opt);
-	stress_check_range("zlib-strategy", zlib_strategy, Z_DEFAULT_STRATEGY, Z_FIXED);
+	stress_check_range("zlib-strategy", (uint64_t)zlib_strategy, Z_DEFAULT_STRATEGY, Z_FIXED);
 	return stress_set_setting("zlib-strategy", TYPE_ID_UINT32, &zlib_strategy);
 }
 

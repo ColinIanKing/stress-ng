@@ -38,9 +38,8 @@ static int stress_set_poll_fds(const char *opt)
 {
 	size_t max_fds;
 
-        max_fds = stress_get_uint32(opt);
-        stress_check_range("poll-fds", max_fds,
-                1, 8192);
+        max_fds = (size_t)stress_get_uint32(opt);
+        stress_check_range("poll-fds", (uint64_t)max_fds, 1, 8192);
         return stress_set_setting("poll-fds", TYPE_ID_SIZE_T, &max_fds);
 }
 

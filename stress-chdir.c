@@ -37,10 +37,10 @@ static const stress_help_t help[] = {
  */
 static int stress_set_chdir_dirs(const char *opt)
 {
-	uint64_t chdir_dirs;
+	uint32_t chdir_dirs;
 
 	chdir_dirs = stress_get_uint32(opt);
-	stress_check_range("chdir-dirs", chdir_dirs,
+	stress_check_range("chdir-dirs", (uint64_t)chdir_dirs,
 		MIN_CHDIR_DIRS, MAX_CHDIR_DIRS);
 	return stress_set_setting("chdir-dirs", TYPE_ID_UINT32, &chdir_dirs);
 }
