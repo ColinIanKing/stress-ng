@@ -3802,7 +3802,7 @@ static int syscall_pidfd_open(void)
 	int pidfd;
 
 	t1 = syscall_shared_info->t1;
-	pidfd = stress_pidfd_open(syscall_pid, 0);
+	pidfd = shim_pidfd_open(syscall_pid, 0);
 	t2 = syscall_shared_info->t1;
 	if (pidfd >= 0)
 		(void)close(pidfd);
