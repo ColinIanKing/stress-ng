@@ -478,7 +478,11 @@ timed_out:
 			/*
 			 *  Exercise invalid nsops, E2BIG
 			 */
+#if defined(__DragonFly__)
+			VOID_RET(int, semop(sem_id, &semwait, (unsigned int)-1));
+#else
 			VOID_RET(int, semop(sem_id, &semwait, (size_t)-1));
+#endif
 		}
 
 		/*
