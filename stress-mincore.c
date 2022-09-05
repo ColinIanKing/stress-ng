@@ -138,7 +138,7 @@ static int stress_mincore(const stress_args_t *args)
 
 		for (i = 0; (i < 100) && keep_stressing_flag(); i++) {
 			int ret, redo = 0;
-			unsigned char vec[1];
+			static unsigned char vec[1];
 
 redo: 			errno = 0;
 			ret = shim_mincore((void *)addr, page_size, vec);
