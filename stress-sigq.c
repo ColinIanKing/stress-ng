@@ -75,10 +75,10 @@ static int stress_sigq(const stress_args_t *args)
 again:
 	pid = fork();
 	if (pid < 0) {
-		if (stress_redo_fork(errno))
-			goto again;
 		if (!keep_stressing(args))
 			goto finish;
+		if (stress_redo_fork(errno))
+			goto again;
 		pr_err("%s: fork failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
@@ -97,7 +97,7 @@ again:
 			_exit(EXIT_FAILURE);
 		}
 
-		while (keep_stressing_flag()) {
+		while (keep_stressing(args)) {
 			siginfo_t info;
 			int ret;
 
