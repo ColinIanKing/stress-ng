@@ -21,7 +21,8 @@
 #include "core-capabilities.h"
 
 #define DEFAULT_DELAY_NS	(100000)
-#define MAX_SAMPLES		(10000)
+#define MAX_SAMPLES		(10000000)
+#define DEFAULT_SAMPLES		(10000)
 #define MAX_BUCKETS		(250)
 
 typedef struct {
@@ -33,7 +34,9 @@ typedef struct {
 typedef struct {
 	int64_t		min_ns;		/* min latency */
 	int64_t		max_ns;		/* max latency */
-	int64_t		latencies[MAX_SAMPLES];
+	int64_t		*latencies;	/* latency samples */
+	size_t		latencies_size;	/* size of latencies allocation */
+	size_t		cyclic_samples;	/* number of latency samples */
 	size_t		index;		/* index into latencies */
 	int32_t		min_prio;	/* min priority allowed */
 	int32_t		max_prio;	/* max priority allowed */
@@ -58,6 +61,7 @@ static const stress_help_t help[] = {
 	{ NULL,	"cyclic-policy P",	"used rr or fifo scheduling policy" },
 	{ NULL,	"cyclic-prio N",	"real time scheduling priority 1..100" },
 	{ NULL,	"cyclic-sleep N",	"sleep time of real time timer in nanosecs" },
+	{ NULL, "cyclic-samples N",	"number of latency samples to take" },
 	{ NULL,	NULL,			NULL }
 };
 
@@ -121,6 +125,15 @@ static int stress_set_cyclic_dist(const char *opt)
 	return stress_set_setting("cyclic-dist", TYPE_ID_UINT64, &cyclic_dist);
 }
 
+static int stress_set_cyclic_samples(const char *opt)
+{
+	size_t cyclic_samples;
+
+	cyclic_samples = (size_t)stress_get_uint64(opt);
+	stress_check_range("cyclic-samples", cyclic_samples, 1, MAX_SAMPLES);
+	return stress_set_setting("cyclic-samples", TYPE_ID_SIZE_T, &cyclic_samples);
+}
+
 #if (defined(HAVE_CLOCK_GETTIME) && defined(HAVE_CLOCK_NANOSLEEP)) ||	\
     (defined(HAVE_CLOCK_GETTIME) && defined(HAVE_NANOSLEEP)) ||		\
     (defined(HAVE_CLOCK_GETTIME) && defined(HAVE_PSELECT)) ||		\
@@ -137,7 +150,7 @@ static void stress_cyclic_stats(
 		   (t2->tv_nsec - t1->tv_nsec);
 	delta_ns -= cyclic_sleep;
 
-	if (rt_stats->index < MAX_SAMPLES)
+	if (rt_stats->index < rt_stats->cyclic_samples)
 		rt_stats->latencies[rt_stats->index++] = delta_ns;
 
 	rt_stats->ns += (double)delta_ns;
@@ -237,7 +250,7 @@ static int stress_cyclic_poll(
 		if (delta_ns >= (int64_t)cyclic_sleep) {
 			delta_ns -= cyclic_sleep;
 
-			if (rt_stats->index < MAX_SAMPLES)
+			if (rt_stats->index < rt_stats->cyclic_samples)
 				rt_stats->latencies[rt_stats->index++] = delta_ns;
 
 			rt_stats->ns += (double)delta_ns;
@@ -336,7 +349,7 @@ static int stress_cyclic_itimer(
 		(itimer_time.tv_nsec - t1.tv_nsec);
 	delta_ns -= cyclic_sleep;
 
-	if (rt_stats->index < MAX_SAMPLES)
+	if (rt_stats->index < rt_stats->cyclic_samples)
 		rt_stats->latencies[rt_stats->index++] = delta_ns;
 
 	rt_stats->ns += (double)delta_ns;
@@ -618,6 +631,7 @@ static int stress_cyclic(const stress_args_t *args)
 	uint64_t cyclic_sleep = DEFAULT_DELAY_NS;
 	uint64_t cyclic_dist = 0;
 	int32_t cyclic_prio = INT32_MAX;
+	size_t cyclic_samples = DEFAULT_SAMPLES;
 	int policy;
 	size_t cyclic_policy = 0;
 	const double start = stress_time_now();
@@ -625,13 +639,19 @@ static int stress_cyclic(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const size_t size = (sizeof(*rt_stats) + page_size - 1) & (~(page_size - 1));
 	stress_cyclic_func func;
+#if defined(MAP_POPULATE)
+	const int mmap_flags = MAP_SHARED | MAP_ANONYMOUS | MAP_POPULATE;
+#else
+	const int mmap_flags = MAP_SHARED | MAP_ANONYMOUS;
+#endif
 
 	timeout  = g_opt_timeout;
-	(void)stress_get_setting("cyclic-sleep", &cyclic_sleep);
-	(void)stress_get_setting("cyclic-prio", &cyclic_prio);
-	(void)stress_get_setting("cyclic-policy", &cyclic_policy);
 	(void)stress_get_setting("cyclic-dist", &cyclic_dist);
 	(void)stress_get_setting("cyclic-method", &cyclic_method);
+	(void)stress_get_setting("cyclic-policy", &cyclic_policy);
+	(void)stress_get_setting("cyclic-prio", &cyclic_prio);
+	(void)stress_get_setting("cyclic-samples", &cyclic_samples);
+	(void)stress_get_setting("cyclic-sleep", &cyclic_sleep);
 
 	func = cyclic_method->func;
 	policy = policies[cyclic_policy].policy;
@@ -656,11 +676,21 @@ static int stress_cyclic(const stress_args_t *args)
 			"this stressor\n", args->name);
 	}
 
-	rt_stats = (stress_rt_stats_t *)mmap(NULL, size, PROT_READ | PROT_WRITE,
-			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	rt_stats = (stress_rt_stats_t *)mmap(NULL, size,
+						PROT_READ | PROT_WRITE, mmap_flags, -1, 0);
 	if (rt_stats == MAP_FAILED) {
-		pr_inf("%s: mmap of shared policy data failed: %d (%s)\n",
+		pr_inf("%s: mmap of shared statistics data failed: %d (%s)\n",
 			args->name, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
+	rt_stats->cyclic_samples = cyclic_samples;
+	rt_stats->latencies_size = cyclic_samples * sizeof(*rt_stats->latencies);
+	rt_stats->latencies = (int64_t *)mmap(NULL, rt_stats->latencies_size,
+						PROT_READ | PROT_WRITE, mmap_flags, -1, 0);
+	if (rt_stats->latencies == MAP_FAILED) {
+		pr_inf("%s: mmap of %zd samples failed: %d (%s)\n",
+			args->name, cyclic_samples, errno, strerror(errno));
+		(void)munmap((void *)rt_stats, size);
 		return EXIT_NO_RESOURCE;
 	}
 	rt_stats->min_ns = INT64_MAX;
@@ -872,6 +902,7 @@ tidy:
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	(void)munmap((void *)rt_stats->latencies, rt_stats->latencies_size);
 	(void)munmap((void *)rt_stats, size);
 
 	return EXIT_SUCCESS;
@@ -883,6 +914,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_cyclic_policy,	stress_set_cyclic_policy },
 	{ OPT_cyclic_prio, 	stress_set_cyclic_prio },
 	{ OPT_cyclic_sleep,	stress_set_cyclic_sleep },
+	{ OPT_cyclic_samples,	stress_set_cyclic_samples },
 	{ 0,			NULL }
 };
 

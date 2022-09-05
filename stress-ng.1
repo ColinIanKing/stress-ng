@@ -1371,7 +1371,7 @@ stop after N bogo encryption operations.
 .B \-\-cyclic N
 start N workers that exercise the real time FIFO or Round Robin schedulers
 with cyclic nanosecond sleeps. Normally one would just use 1 worker instance
-with this stressor to get reliable statistics.  This stressor measures the
+with this stressor to get reliable statistics. By default this stressor measures the
 first 10 thousand latencies and calculates the mean, mode, minimum, maximum
 latencies along with various latency percentiles for the just the first
 cyclic stressor instance. One has to run this stressor with CAP_SYS_NICE
@@ -1422,6 +1422,9 @@ or rr (round robin).
 .TP
 .B \-\-cyclic\-prio P
 specify the scheduling priority P. Range from 1 (lowest) to 100 (highest).
+.TP
+.B \-\-cyclic\-samples N
+measure N samples. Range from 1 to 10000000 samples.
 .TP
 .B \-\-cyclic\-sleep N
 sleep for N nanoseconds per test cycle using clock_nanosleep(2) with the

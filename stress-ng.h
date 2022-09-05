@@ -1108,11 +1108,12 @@ typedef enum {
 
 	OPT_cyclic,
 	OPT_cyclic_ops,
+	OPT_cyclic_dist,
 	OPT_cyclic_method,
 	OPT_cyclic_policy,
 	OPT_cyclic_prio,
+	OPT_cyclic_samples,
 	OPT_cyclic_sleep,
-	OPT_cyclic_dist,
 
 	OPT_daemon,
 	OPT_daemon_ops,

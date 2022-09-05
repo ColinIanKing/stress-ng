@@ -337,6 +337,7 @@ static const struct option long_options[] = {
 	{ "cyclic-policy",	1,	0,	OPT_cyclic_policy },
 	{ "cyclic-prio",	1,	0,	OPT_cyclic_prio },
 	{ "cyclic-sleep",	1,	0,	OPT_cyclic_sleep },
+	{ "cyclic-samples",	1,	0,	OPT_cyclic_samples },
 	{ "daemon",		1,	0,	OPT_daemon },
 	{ "daemon-ops",		1,	0,	OPT_daemon_ops },
 	{ "dccp",		1,	0,	OPT_dccp },
