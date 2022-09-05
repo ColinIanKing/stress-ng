@@ -56,7 +56,9 @@ void pr_lock_init(void)
  */
 static void pr_spin_lock(void)
 {
-	for (;;) {
+	double timeout_time = stress_time_now() + 2.0;
+
+	while (stress_time_now() < timeout_time) {
 		int zero = 0, one = 1;
 
 		if (__atomic_compare_exchange(&g_shared->pr_atomic_lock, &zero,
@@ -64,6 +66,11 @@ static void pr_spin_lock(void)
 			return;
 		shim_sched_yield();
 	}
+	/*
+	 *  Owner won't let go of spinlock, we bail out with
+	 *  a timeout.  The caller of pr_spin_lock will sort
+	 *  out the lock owner mess.
+	 */
 }
 
 /*
