@@ -28,7 +28,8 @@ static const char option[] = "option --mbind";
     defined(__NR_mbind) &&              \
     defined(__NR_migrate_pages) &&      \
     defined(__NR_move_pages) &&         \
-    defined(__NR_set_mempolicy)
+    defined(__NR_set_mempolicy) &&	\
+    defined(HAVE_LINUX_MEMPOLICY_H)
 
 
 /*
