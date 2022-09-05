@@ -116,7 +116,6 @@ static int stress_kcmp(const stress_args_t *args)
 {
 	pid_t pid1;
 	int fd1;
-	const pid_t mypid = getpid();
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\
     NEED_GLIBC(2,3,2)
@@ -125,6 +124,7 @@ static int stress_kcmp(const stress_args_t *args)
 	struct epoll_event ev;
 	struct sockaddr *addr = NULL;
 	socklen_t addr_len = 0;
+	const pid_t mypid = getpid();
 #endif
 	int ret = EXIT_SUCCESS;
 	const int bad_fd = stress_get_bad_fd();
