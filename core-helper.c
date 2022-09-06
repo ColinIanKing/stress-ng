@@ -2597,7 +2597,8 @@ bool stress_warn_once_hash(const char *filename, const int line)
 	if (!g_shared)
 		return true;
 
-	stress_lock_acquire(g_shared->warn_once.lock);
+	if (stress_lock_acquire(g_shared->warn_once.lock) < 0)
+		return true;
 	free_slot = STRESS_WARN_HASH_MAX;
 
 	/*

@@ -137,7 +137,10 @@ again:
 		while (keep_stressing(args)) {
 			uint32_t ready;
 
-			(void)stress_lock_acquire(rawsock_lock);
+			if (stress_lock_acquire(rawsock_lock) < 0) {
+				(void)kill(getppid(), SIGALRM);
+				_exit(EXIT_FAILURE);
+			}
 			ready = g_shared->rawsock.ready;
 			(void)stress_lock_release(rawsock_lock);
 
