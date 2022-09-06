@@ -223,12 +223,14 @@ redo: 			errno = 0;
 				stress_mincore_expect(args, ret, 0, errno, EINVAL,
 					"zero length for vector size");
 
+#if 0
 				/*
 				 *  Exercise with huge length, ignore return
 				 */
 				ret = shim_mincore((void *)mapped, ~0, vec);
 				stress_mincore_expect(args, ret, 0, errno, ENOMEM,
 					"invalid length for vector size");
+#endif
 
 				/*
 				 *  Exercise with masaligned address, ignore return
