@@ -43,6 +43,10 @@
 #include <keyutils.h>
 #endif
 
+#if defined(HAVE_LIBAIO_H)
+#include <libaio.h>
+#endif
+
 #if defined(HAVE_MQUEUE_H)
 #include <mqueue.h>
 #endif
@@ -146,6 +150,19 @@
 
 #if defined(HAVE_UTIME_H)
 #include <utime.h>
+#endif
+
+
+#if defined(HAVE_LINUX_AUDIT_H)
+#include <linux/audit.h>
+#endif
+
+#if defined(HAVE_LINUX_FILTER_H)
+#include <linux/filter.h>
+#endif
+
+#if defined(HAVE_LINUX_SECCOMP_H)
+#include <linux/seccomp.h>
 #endif
 
 #if defined(HAVE_LINUX_FUTEX_H)
@@ -536,6 +553,7 @@ static int stress_set_syscall_method(const char *opt)
 #define SOCK_MEASURE_SENDMSG		(11)
 #define SOCK_MEASURE_GETPEERNAME	(12)
 #define SOCK_MEASURE_SHUTDOWN		(13)
+#define SOCK_MEASURE_ACCEPT4		(14)
 
 /*
  *  syscall_socket_measure()
@@ -676,7 +694,8 @@ close_sfd_child:
 				goto close_sfd;
 		}
 
-		if (measure == SOCK_MEASURE_ACCEPT) {
+		switch (measure) {
+		case SOCK_MEASURE_ACCEPT:
 			syscall_shared_info->t1 = syscall_time_now();
 			fd = accept(sfd, NULL, NULL);
 			syscall_shared_info->t2 = syscall_time_now();
@@ -684,7 +703,19 @@ close_sfd_child:
 				syscall_shared_error(fd);
 				goto close_sfd;
 			}
-		} else {
+			break;
+#if defined(HAVE_ACCEPT4)
+		case SOCK_MEASURE_ACCEPT4:
+			syscall_shared_info->t1 = syscall_time_now();
+			fd = accept4(sfd, NULL, NULL, 0);
+			syscall_shared_info->t2 = syscall_time_now();
+			if (fd < 0) {
+				syscall_shared_error(fd);
+				goto close_sfd;
+			}
+			break;
+#endif
+		default:
 			fd = accept(sfd, NULL, NULL);
 			if (fd < 0)
 				goto close_sfd;
@@ -777,6 +808,16 @@ static void syscall_sigusr1_handler(int num)
 static int syscall_accept(void)
 {
 	return syscall_socket_measure(SOCK_MEASURE_ACCEPT);
+}
+#endif
+
+#if defined(HAVE_SYS_UN_H) &&	\
+    defined(AF_UNIX) &&		\
+    defined(HAVE_ACCEPT4)
+#define HAVE_SYSCALL_ACCEPT4
+static int syscall_accept4(void)
+{
+	return syscall_socket_measure(SOCK_MEASURE_ACCEPT4);
 }
 #endif
 
@@ -1584,6 +1625,7 @@ static int syscall_fchownat(void)
 }
 #endif
 
+#if defined(F_GETFL)
 #define HAVE_SYSCALL_FCNTL
 static int syscall_fcntl(void)
 {
@@ -1594,6 +1636,7 @@ static int syscall_fcntl(void)
 	t2 = syscall_time_now();
 	return ret;
 }
+#endif
 
 #if defined(HAVE_FDATASYNC)
 #define HAVE_SYSCALL_FDATASYNC
@@ -2322,6 +2365,129 @@ static int syscall_inotify_rm_watch(void)
 }
 #endif
 
+#if defined(HAVE_LIB_AIO) &&		\
+    defined(HAVE_LIBAIO_H) &&		\
+    defined(HAVE_SYSCALL) &&		\
+    defined(__NR_io_cancel) &&		\
+    defined(__NR_io_submit) &&		\
+    defined(__NR_io_setup) &&		\
+    defined(__NR_io_destroy)
+#define HAVE_SYSCALL_IO_CANCEL
+static int syscall_io_cancel(void)
+{
+	int ret;
+	io_context_t ctx = 0;
+	struct iocb cb[1];
+	struct iocb *cbs[1];
+	struct io_event event;
+	uint32_t buffer[128];
+
+	ret = syscall(__NR_io_setup, 1, &ctx);
+	if (ret < 0)
+		return -1;
+
+	stress_uint8rnd4((uint8_t *)buffer, sizeof(buffer));
+	(void)memset(&cb, 0, sizeof(cb));
+	cb[0].aio_fildes = syscall_fd;
+	cb[0].aio_lio_opcode = IO_CMD_PWRITE;
+	cb[0].u.c.buf = buffer;
+	cb[0].u.c.offset = 0;
+	cb[0].u.c.nbytes = sizeof(buffer);
+	cbs[0] = &cb[0];
+	cb[0].key = 0xff;
+
+	ret = syscall(__NR_io_submit, ctx, 1, cbs);
+	if (ret < 0) {
+		VOID_RET(int, syscall(__NR_io_destroy, ctx));
+		return -1;
+	}
+
+	t1 = syscall_time_now();
+	ret = syscall(__NR_io_cancel, ctx, &cb[0], &event);
+	t2 = syscall_time_now();
+
+	VOID_RET(int, syscall(__NR_io_destroy, ctx));
+	return 0;
+}
+#endif
+
+#if defined(HAVE_LIB_AIO) &&		\
+    defined(HAVE_LIBAIO_H) &&		\
+    defined(HAVE_SYSCALL) &&		\
+    defined(__NR_io_destroy) &&		\
+    defined(__NR_io_setup)
+#define HAVE_SYSCALL_IO_DESTROY
+static int syscall_io_destroy(void)
+{
+	int ret;
+	io_context_t ctx = 0;
+
+	ret = syscall(__NR_io_setup, 1, &ctx);
+	if (ret < 0)
+		return -1;
+	t1 = syscall_time_now();
+	ret = syscall(__NR_io_destroy, ctx);
+	t2 = syscall_time_now();
+	return ret;
+}
+#endif
+
+#if defined(HAVE_LIB_AIO) &&		\
+    defined(HAVE_LIBAIO_H) &&		\
+    defined(HAVE_SYSCALL) &&		\
+    defined(__NR_io_getevents) &&	\
+    defined(__NR_io_destroy) &&		\
+    defined(__NR_io_setup)
+#define HAVE_SYSCALL_IO_GETEVENTS
+static int syscall_io_getevents(void)
+{
+	int ret;
+	io_context_t ctx = 0;
+	struct io_event events;
+	struct timespec timeout;
+
+	ret = syscall(__NR_io_setup, 1, &ctx);
+	if (ret < 0)
+		return -1;
+	timeout.tv_sec = 0;
+	timeout.tv_nsec = 1;
+	t1 = syscall_time_now();
+	ret = syscall(__NR_io_getevents, ctx, 1, 1, &events, &timeout);
+	t2 = syscall_time_now();
+	VOID_RET(int, syscall(__NR_io_destroy, ctx));
+	return ret;
+}
+#endif
+
+#if defined(HAVE_LIB_AIO) &&		\
+    defined(HAVE_LIBAIO_H) &&		\
+    defined(HAVE_SYSCALL) &&		\
+    defined(__NR_io_pgetevents) &&	\
+    defined(__NR_io_destroy) &&		\
+    defined(__NR_io_setup)
+#define HAVE_SYSCALL_IO_PGETEVENTS
+static int syscall_io_pgetevents(void)
+{
+	int ret;
+	io_context_t ctx = 0;
+	struct io_event events;
+	struct timespec timeout;
+
+	ret = syscall(__NR_io_setup, 1, &ctx);
+	if (ret < 0)
+		return -1;
+
+	timeout.tv_sec = 0;
+	timeout.tv_nsec = 1;
+
+	t1 = syscall_time_now();
+	ret = syscall(__NR_io_pgetevents, ctx, 1, 1, &events, &timeout, NULL);
+	t2 = syscall_time_now();
+	VOID_RET(int, syscall(__NR_io_destroy, ctx));
+	return ret;
+}
+#endif
+
 #if defined(HAVE_IOPRIO_GET)
 #define HAVE_SYSCALL_IOPRIO_GET
 static int syscall_ioprio_get(void)
@@ -2348,6 +2514,81 @@ static int syscall_ioprio_set(void)
 	t1 = syscall_time_now();
 	ret = shim_ioprio_set(IOPRIO_WHO_PROCESS, syscall_pid, ret);
 	t2 = syscall_time_now();
+	return ret;
+}
+#endif
+
+#if defined(HAVE_LIB_AIO) &&		\
+    defined(HAVE_LIBAIO_H) &&		\
+    defined(HAVE_SYSCALL) &&		\
+    defined(__NR_io_setup) &&		\
+    defined(__NR_io_destroy)
+#define HAVE_SYSCALL_IO_SETUP
+static int syscall_io_setup(void)
+{
+	int ret;
+	io_context_t ctx = 0;
+
+	t1 = syscall_time_now();
+	ret = syscall(__NR_io_setup, 1, &ctx);
+	t2 = syscall_time_now();
+	if (ret >= 0)
+		VOID_RET(int, syscall(__NR_io_destroy, ctx));
+	return ret;
+}
+#endif
+
+#if defined(HAVE_LIB_AIO) &&		\
+    defined(HAVE_LIBAIO_H) &&		\
+    defined(HAVE_SYSCALL) &&		\
+    defined(__NR_io_submit) &&		\
+    defined(__NR_io_setup) &&		\
+    defined(__NR_io_getevents) &&	\
+    defined(__NR_io_destroy)
+#define HAVE_SYSCALL_IO_SUBMIT
+static int syscall_io_submit(void)
+{
+	int ret, i;
+	io_context_t ctx = 0;
+	struct iocb cb[1];
+	struct iocb *cbs[1];
+	uint32_t buffer[128];
+
+	ret = syscall(__NR_io_setup, 1, &ctx);
+	if (ret < 0)
+		return -1;
+
+	stress_uint8rnd4((uint8_t *)buffer, sizeof(buffer));
+	(void)memset(&cb, 0, sizeof(cb));
+	cb[0].aio_fildes = syscall_fd;
+	cb[0].aio_lio_opcode = IO_CMD_PWRITE;
+	cb[0].u.c.buf = buffer;
+	cb[0].u.c.offset = 0;
+	cb[0].u.c.nbytes = sizeof(buffer);
+	cbs[0] = &cb[0];
+
+	t1 = syscall_time_now();
+	ret = syscall(__NR_io_submit, ctx, 1, cbs);
+	t2 = syscall_time_now();
+
+	if (ret < 0) {
+		VOID_RET(int, syscall(__NR_io_destroy, ctx));
+		return -1;
+	}
+
+	for (i = 0; i < 1000; i++) {
+		struct timespec timeout;
+		struct io_event events;
+
+		timeout.tv_sec = 0;
+		timeout.tv_nsec = 10000;
+		ret = syscall(__NR_io_getevents, ctx, 1, 1, &events, &timeout);
+		if (ret != 0)
+			break;
+		if (!keep_stressing_flag())
+			break;
+	}
+	VOID_RET(int, syscall(__NR_io_destroy, ctx));
 	return ret;
 }
 #endif
@@ -3894,6 +4135,69 @@ static int syscall_pkey_free(void)
 }
 #endif
 
+#if defined(HAVE_PKEY_GET) &&	\
+    defined(HAVE_PKEY_FREE) &&	\
+    defined(HAVE_PKEY_ALLOC)
+#define HAVE_SYSCALL_PKEY_GET
+static int syscall_pkey_get(void)
+{
+	int pkey, rights;
+
+	pkey = shim_pkey_alloc(0, 0);
+	if (pkey < 0)
+		return -1;
+
+	t1 = syscall_time_now();
+	rights = shim_pkey_get(pkey);
+	t2 = syscall_time_now();
+
+	(void)shim_pkey_free(pkey);
+	return rights;
+}
+#endif
+
+#if defined(HAVE_PKEY_MPROTECT)
+#define HAVE_SYSCALL_PKEY_MPROTECT
+static int syscall_pkey_mprotect(void)
+{
+	int ret;
+
+	t1 = syscall_time_now();
+	ret = shim_pkey_mprotect(syscall_2_pages,
+		syscall_2_pages_size, PROT_READ | PROT_WRITE, -1);
+	t2 = syscall_time_now();
+	return ret;
+}
+#endif
+
+
+#if defined(HAVE_PKEY_GET) &&	\
+    defined(HAVE_PKEY_SET) &&	\
+    defined(HAVE_PKEY_FREE) &&	\
+    defined(HAVE_PKEY_ALLOC)
+#define HAVE_SYSCALL_PKEY_SET
+static int syscall_pkey_set(void)
+{
+	int pkey, rights, ret;
+
+	pkey = shim_pkey_alloc(0, 0);
+	if (pkey < 0)
+		return -1;
+
+	rights = shim_pkey_get(pkey);
+	if (rights < 0) {
+		(void)shim_pkey_free(pkey);
+		return -1;
+	}
+	t1 = syscall_time_now();
+	ret = shim_pkey_set(pkey, (unsigned int)rights);
+	t2 = syscall_time_now();
+
+	(void)shim_pkey_free(pkey);
+	return ret;
+}
+#endif
+
 #if defined(HAVE_POLL_H)
 #define HAVE_SYSCALL_POLL
 static int syscall_poll(void)
@@ -4849,6 +5153,34 @@ static int syscall_sched_yield(void)
 	t2 = syscall_time_now();
 	return ret;
 }
+
+#if defined(HAVE_LINUX_SECCOMP_H) &&	\
+    defined(HAVE_LINUX_AUDIT_H) &&	\
+    defined(HAVE_LINUX_FILTER_H) &&	\
+    defined(SECCOMP_SET_MODE_FILTER) &&	\
+    defined(SECCOMP_RET_ALLOW) &&	\
+    defined(BPF_RET) &&			\
+    defined(BPF_K)
+#define HAVE_SYSCALL_SECCOMP
+static int syscall_seccomp(void)
+{
+	static struct sock_filter filter_allow_all[] = {
+		BPF_STMT(BPF_RET+BPF_K, SECCOMP_RET_ALLOW)
+	};
+
+	static struct sock_fprog prog_allow_all = {
+		.len = (unsigned short)SIZEOF_ARRAY(filter_allow_all),
+		.filter = filter_allow_all
+	};
+	int ret;
+
+	t1 = syscall_time_now();
+	ret = shim_seccomp(SECCOMP_SET_MODE_FILTER, 0, &prog_allow_all);
+	t2 = syscall_time_now();
+
+	return ret;
+}
+#endif
 
 #define HAVE_SYSCALL_SELECT
 static int syscall_select(void)
@@ -6685,7 +7017,9 @@ static const syscall_t syscalls[] = {
 #if defined(HAVE_SYSCALL_ACCEPT)
 	SYSCALL(syscall_accept),
 #endif
-	/* syscall_accept4,*/
+#if defined(HAVE_SYSCALL_ACCEPT)
+	SYSCALL(syscall_accept4),
+#endif
 #if defined(HAVE_SYSCALL_ACCESS)
 	SYSCALL(syscall_access),
 #endif
@@ -6972,18 +7306,30 @@ static const syscall_t syscalls[] = {
 #if defined(HAVE_SYSCALL_INOTIFY_RM_WATCH)
 	SYSCALL(syscall_inotify_rm_watch),
 #endif
-	/* syscall_io_cancel, */
-	/* syscall_io_destroy, */
-	/* syscall_io_getevents, */
-	/* syscall_io_pgetevents, */
+#if defined(HAVE_SYSCALL_IO_CANCEL)
+	SYSCALL(syscall_io_cancel),
+#endif
+#if defined(HAVE_SYSCALL_IO_DESTROY)
+	SYSCALL(syscall_io_destroy),
+#endif
+#if defined(HAVE_SYSCALL_IO_GETEVENTS)
+	SYSCALL(syscall_io_getevents),
+#endif
+#if defined(HAVE_SYSCALL_IO_PGETEVENTS)
+	SYSCALL(syscall_io_pgetevents),
+#endif
 #if defined(HAVE_SYSCALL_IOPRIO_GET)
 	SYSCALL(syscall_ioprio_get),
 #endif
 #if defined(HAVE_SYSCALL_IOPRIO_SET)
 	SYSCALL(syscall_ioprio_set),
 #endif
-	/* syscall_io_setup, */
-	/* syscall_io_submit, */
+#if defined(HAVE_SYSCALL_IO_SETUP)
+	SYSCALL(syscall_io_setup),
+#endif
+#if defined(HAVE_SYSCALL_IO_SUBMIT)
+	SYSCALL(syscall_io_submit),
+#endif
 	/* syscall_io_uring_enter, */
 	/* syscall_io_uring_register, */
 #if defined(HAVE_SYSCALL_IO_URING_SETUP)
@@ -7195,9 +7541,15 @@ static const syscall_t syscalls[] = {
 #if defined(HAVE_SYSCALL_PKEY_FREE)
 	SYSCALL(syscall_pkey_free),
 #endif
-	/* syscall_pkey_get, */
-	/* syscall_pkey_mprotect, */
-	/* syscall_pkey_set, */
+#if defined(HAVE_SYSCALL_PKEY_GET)
+	SYSCALL(syscall_pkey_get),
+#endif
+#if defined(HAVE_SYSCALL_PKEY_MPROTECT)
+	SYSCALL(syscall_pkey_mprotect),
+#endif
+#if defined(HAVE_SYSCALL_PKEY_SET)
+	SYSCALL(syscall_pkey_set),
+#endif
 #if defined(HAVE_SYSCALL_POLL)
 	SYSCALL(syscall_poll),
 #endif
@@ -7331,7 +7683,9 @@ static const syscall_t syscalls[] = {
 #if defined(HAVE_SYSCALL_SCHED_YIELD)
 	SYSCALL(syscall_sched_yield),
 #endif
-	/* syscall_seccomp, */
+#if defined(HAVE_SYSCALL_SECCOMP)
+	SYSCALL(syscall_seccomp),
+#endif
 #if defined(HAVE_SYSCALL_SELECT)
 	SYSCALL(syscall_select),
 #endif
