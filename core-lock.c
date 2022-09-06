@@ -152,6 +152,10 @@ static int stress_atomic_lock_acquire(stress_lock_t *lock)
 #else
 			shim_sched_yield();
 #endif
+			if (!keep_stressing_flag()) {
+				errno = EAGAIN;
+				return -1;
+			}
 		}
 		return 0;
 	}
