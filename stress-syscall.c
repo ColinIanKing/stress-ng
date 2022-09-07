@@ -152,7 +152,6 @@
 #include <utime.h>
 #endif
 
-
 #if defined(HAVE_LINUX_AUDIT_H)
 #include <linux/audit.h>
 #endif
@@ -2403,7 +2402,7 @@ static int syscall_io_cancel(void)
 	}
 
 	t1 = syscall_time_now();
-	ret = syscall(__NR_io_cancel, ctx, &cb[0], &event);
+	VOID_RET(int, syscall(__NR_io_cancel, ctx, &cb[0], &event));
 	t2 = syscall_time_now();
 
 	VOID_RET(int, syscall(__NR_io_destroy, ctx));
@@ -3938,26 +3937,21 @@ static int syscall_open_by_handle_at(void)
 
 	fhp->handle_bytes = 0;
 	ret = name_to_handle_at(AT_FDCWD, syscall_filename, fhp, &mount_id, 0);
-	if ((ret < 0) && (errno != EOVERFLOW)) {
-		free(fhp);
-		return -1;
-	}
+	if ((ret < 0) && (errno != EOVERFLOW))
+		goto err_free_fhp;
 	tmp = realloc(fhp, sizeof(*tmp) + fhp->handle_bytes);
-	if (!tmp) {
-		free(fhp);
-		return -1;
-	}
+	if (!tmp)
+		goto err_free_fhp;
 	fhp = tmp;
 	ret = name_to_handle_at(AT_FDCWD, syscall_filename, fhp, &mount_id, 0);
-	if (ret < 0) {
-		free(fhp);
-		return -1;
-	}
+	if (ret < 0)
+		goto err_free_fhp;
 
 	fp = fopen("/proc/self/mountinfo", "r");
 	if (!fp)
-		return -1;
+		goto err_free_fhp;
 
+	(void)memset(path, 0, sizeof(path));
 	while (fgets(buffer, sizeof(buffer), fp) != NULL) {
 		ssize_t n;
 		int id;
@@ -3971,19 +3965,24 @@ static int syscall_open_by_handle_at(void)
 	(void)fclose(fp);
 
 	if (!*path)
-		return -1;
+		goto err_free_fhp;
 
 	mount_fd = open(path, O_RDONLY);
 	if (mount_fd < 0)
-		return -1;
+		goto err_free_fhp;
 	t1 = syscall_time_now();
 	fd = open_by_handle_at(mount_fd, fhp, O_RDONLY);
 	t2 = syscall_time_now();
 	if (fd >= 0)
 		(void)close(fd);
 	(void)close(mount_fd);
+	free(fhp);
 
 	return fd;
+
+err_free_fhp:
+	free(fhp);
+	return -1;
 }
 #undef XSTR
 #undef STR
