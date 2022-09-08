@@ -1454,6 +1454,27 @@ static int syscall_eventfd(void)
 }
 #endif
 
+static void syscall_execve_silence_stdio(void)
+{
+	int fd_in, fd_out;
+
+	fd_in = open("/dev/zero", O_RDONLY);
+	if (fd_in < 0) {
+		syscall_shared_error(fd_in);
+		_exit(0);
+	}
+	fd_out = open("/dev/null", O_WRONLY);
+	if (fd_out < 0) {
+		syscall_shared_error(fd_out);
+		_exit(0);
+	}
+
+	(void)dup2(fd_out, STDOUT_FILENO);
+	(void)dup2(fd_out, STDERR_FILENO);
+	(void)dup2(fd_in, STDIN_FILENO);
+	(void)close(fd_out);
+	(void)close(fd_in);
+}
 
 #define HAVE_SYSCALL_EXECVE
 static int syscall_execve(void)
@@ -1478,6 +1499,8 @@ static int syscall_execve(void)
 		argv[2] = NULL;
 		env[0] = NULL;
 
+		syscall_execve_silence_stdio();
+
 		syscall_shared_info->t1 = syscall_time_now();
 		ret = execve(syscall_exec_prog, argv, env);
 		if (ret < 0)
@@ -1492,6 +1515,69 @@ static int syscall_execve(void)
 	}
 	return syscall_shared_info->syscall_ret;
 }
+
+#if defined(HAVE_EXECVEAT)
+#define HAVE_SYSCALL_EXECVEAT
+static int syscall_execveat(void)
+{
+	pid_t pid;
+
+	syscall_shared_error(0);
+
+	if (!syscall_exec_prog)
+		return -1;
+
+	pid = fork();
+	if (pid < 0)
+		return -1;
+	else if (pid == 0) {
+		int ret;
+#if defined(O_PATH) &&	\
+    defined(AT_EMPTY_PATH)
+		int fd;
+#endif
+		char *argv[3];
+		char *env[1];
+
+#if defined(O_PATH) &&	\
+    defined(AT_EMPTY_PATH)
+		fd = open(syscall_exec_prog, O_PATH);
+#endif
+		argv[0] = syscall_exec_prog;
+		argv[1] = "--exec-exit";
+		argv[2] = NULL;
+		env[0] = NULL;
+
+		syscall_execve_silence_stdio();
+
+#if defined(O_PATH) &&	\
+    defined(AT_EMPTY_PATH)
+		if (fd < 0) {
+			syscall_shared_info->t1 = syscall_time_now();
+			ret = shim_execveat(0, syscall_exec_prog, argv, env, 0);
+		} else {
+			syscall_shared_info->t1 = syscall_time_now();
+			ret = shim_execveat(fd, "", argv, env, AT_EMPTY_PATH);
+		}
+#else
+		syscall_shared_info->t1 = syscall_time_now();
+		ret = shim_execveat(0, syscall_exec_prog, argv, env, 0);
+#endif
+		if (ret < 0)
+			syscall_shared_error(ret);
+		if (fd >= 0)
+			(void)close(fd);
+		_exit(0);
+	} else {
+		int status;
+
+		VOID_RET(int, waitpid(pid, &status, 0));
+		t1 = syscall_shared_info->t1;
+		t2 = syscall_time_now();
+	}
+	return syscall_shared_info->syscall_ret;
+}
+#endif
 
 #define HAVE_SYSCALL_EXIT
 static int syscall_exit(void)
@@ -7164,7 +7250,9 @@ static const syscall_t syscalls[] = {
 #if defined(HAVE_SYSCALL_EXECVE)
 	SYSCALL(syscall_execve),
 #endif
-	/* syscall_execveat, ignore, time expensive */
+#if defined(HAVE_SYSCALL_EXECVEAT)
+	SYSCALL(syscall_execveat),
+#endif
 #if defined(HAVE_SYSCALL_EXIT)
 	SYSCALL(syscall_exit),
 #endif
