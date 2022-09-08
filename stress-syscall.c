@@ -1164,6 +1164,7 @@ static int syscall_clone_func(void *arg)
 
 	syscall_shared_info->t2 = syscall_time_now();
 	syscall_shared_info->t_set = true;
+
 	return 0;
 }
 #endif
@@ -1215,7 +1216,7 @@ static int syscall_clone3(void)
 	syscall_shared_info->t_set = false;
 
 	(void)memset(&cl_args, 0, sizeof(cl_args));
-	cl_args.flags = CLONE_FS;
+	cl_args.flags = 0;
 	cl_args.pidfd = (uint64_t)(uintptr_t)&pidfd;
 	cl_args.child_tid = (uint64_t)(uintptr_t)&child_tid;
 	cl_args.parent_tid = (uint64_t)(uintptr_t)&parent_tid;
@@ -1226,8 +1227,13 @@ static int syscall_clone3(void)
 
 	t1 = syscall_time_now();
 	pid = shim_clone3(&cl_args, sizeof(cl_args));
-	if (pid < 0)
+	if (pid < 0) {
 		return -1;
+	} else if (pid == 0) {
+		syscall_shared_info->t2 = syscall_time_now();
+		syscall_shared_info->t_set = true;
+		_exit(0);
+	}
 	VOID_RET(int, waitpid(pid, &status, 0));
 	t2 = syscall_shared_info->t2;
 	return pid;
