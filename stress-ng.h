@@ -874,7 +874,7 @@ typedef struct {
 #if defined(HAVE_ATOMIC_COMPARE_EXCHANGE) &&	\
     defined(HAVE_ATOMIC_STORE)
 	double pr_whence;				/* pr_* lock time */
-	int pr_atomic_lock;				/* pr_* atomic spinlock */
+	pid_t pr_atomic_lock;				/* pr_* atomic spinlock */
 	int pr_lock_count;				/* pr_* lock count, release when zero */
 	pid_t pr_pid;					/* pid owning the lock */
 #endif

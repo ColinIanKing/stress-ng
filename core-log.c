@@ -56,21 +56,33 @@ void pr_lock_init(void)
  */
 static void pr_spin_lock(void)
 {
-	double timeout_time = stress_time_now() + 2.0;
+	double timeout_time = stress_time_now() + PR_TIMEOUT;
+	pid_t val, orig, pid = getpid();
 
-	while (stress_time_now() < timeout_time) {
-		int zero = 0, one = 1;
+	for (;;) {
+		while (stress_time_now() < timeout_time) {
+			pid_t orig = 0;
 
-		if (__atomic_compare_exchange(&g_shared->pr_atomic_lock, &zero,
-		    &one, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
-			return;
-		shim_sched_yield();
+			val = pid;
+			if (__atomic_compare_exchange(&g_shared->pr_atomic_lock, &orig,
+			    &val, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
+				return;
+			/* Owner dead? force unlock and retry */
+			if ((kill(orig, 0) < 0) && (errno == ESRCH)) {
+				val = 0;
+				__atomic_exchange(&g_shared->pr_atomic_lock, &val, &orig, __ATOMIC_SEQ_CST);
+				continue;
+			}
+			shim_sched_yield();
+		}
+
+		/*
+		 *  Owner won't let go of spinlock, we force the lock to be unlocked
+		 *  and re-try. Urgh.
+		 */
+		val = 0;
+		__atomic_exchange(&g_shared->pr_atomic_lock, &val, &orig, __ATOMIC_SEQ_CST);
 	}
-	/*
-	 *  Owner won't let go of spinlock, we bail out with
-	 *  a timeout.  The caller of pr_spin_lock will sort
-	 *  out the lock owner mess.
-	 */
 }
 
 /*
