@@ -65,7 +65,7 @@ static int stress_io(const stress_args_t *args)
 				if ((errno != ENOSPC) &&
 				    (errno != EDQUOT) &&
 				    (errno != EINTR)) {
-					pr_fail("%s syncfs failed, errno=%d (%s)\n",
+					pr_fail("%s: syncfs failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
 			}
