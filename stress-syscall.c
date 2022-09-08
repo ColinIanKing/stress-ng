@@ -89,6 +89,10 @@
 #include <linux/io_uring.h>
 #endif
 
+#if defined(HAVE_LINUX_RSEQ_H)
+#include <linux/rseq.h>
+#endif
+
 #if defined(HAVE_SYS_IPC_H)
 #include <sys/ipc.h>
 #endif
@@ -5050,6 +5054,26 @@ static int syscall_rmdir(void)
 	return ret;
 }
 
+#if defined(HAVE_LINUX_RSEQ_H) &&	\
+    defined(__NR_rseq) &&		\
+    defined(HAVE_SYSCALL)
+#define HAVE_SYSCALL_RSEQ
+static int syscall_rseq(void)
+{
+	static struct rseq rseq;
+	uint32_t signature = stress_mwc32();
+	int ret;
+
+	t1 = syscall_time_now();
+	ret = (int)syscall(__NR_rseq, &rseq, sizeof(rseq), 0, signature);
+	t2 = syscall_time_now();
+	if (ret < 0)
+		return -1;
+	VOID_RET(int, (int)syscall(__NR_rseq, &rseq, sizeof(rseq), RSEQ_FLAG_UNREGISTER, signature));
+	return 0;
+}
+#endif
+
 #if defined(HAVE_SCHED_GETAFFINITY)
 #define HAVE_SYSCALL_SCHED_GETAFFINITY
 static int syscall_sched_getaffinity(void)
@@ -7775,7 +7799,9 @@ static const syscall_t syscalls[] = {
 #if defined(HAVE_SYSCALL_RMDIR)
 	SYSCALL(syscall_rmdir),
 #endif
-	/* syscall_rseq, */
+#if defined(HAVE_SYSCALL_RSEQ)
+	SYSCALL(syscall_rseq),
+#endif
 #if defined(HAVE_SYSCALL_SCHED_GETAFFINITY)
 	SYSCALL(syscall_sched_getaffinity),
 #endif
