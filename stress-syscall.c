@@ -418,6 +418,7 @@ static void *syscall_mmap_page = MAP_FAILED;	/* mmap() family test page */
 static int syscall_errno;			/* errno from syscall */
 static mode_t syscall_umask_mask;		/* current umask */
 static syscall_shared_info_t *syscall_shared_info = NULL;
+static char *syscall_exec_prog;			/* stress-ng exec path */
 
 #if (defined(HAVE_SYS_XATTR_H) || defined(HAVE_ATTR_XATTR_H)) && \
     (defined(HAVE_FGETXATTR) ||		\
@@ -1452,6 +1453,45 @@ static int syscall_eventfd(void)
 	return fd;
 }
 #endif
+
+
+#define HAVE_SYSCALL_EXECVE
+static int syscall_execve(void)
+{
+	pid_t pid;
+
+	syscall_shared_error(0);
+
+	if (!syscall_exec_prog)
+		return -1;
+
+	pid = fork();
+	if (pid < 0)
+		return -1;
+	else if (pid == 0) {
+		int ret;
+		char *argv[3];
+		char *env[1];
+
+		argv[0] = syscall_exec_prog;
+		argv[1] = "--exec-exit";
+		argv[2] = NULL;
+		env[0] = NULL;
+
+		syscall_shared_info->t1 = syscall_time_now();
+		ret = execve(syscall_exec_prog, argv, env);
+		if (ret < 0)
+			syscall_shared_error(ret);
+		_exit(0);
+	} else {
+		int status;
+
+		VOID_RET(int, waitpid(pid, &status, 0));
+		t1 = syscall_shared_info->t1;
+		t2 = syscall_time_now();
+	}
+	return syscall_shared_info->syscall_ret;
+}
 
 #define HAVE_SYSCALL_EXIT
 static int syscall_exit(void)
@@ -7121,7 +7161,9 @@ static const syscall_t syscalls[] = {
 #if defined(HAVE_SYSCALL_EVENTFD2)
 	SYSCALL(syscall_eventfd2),	/* not yet implemented */
 #endif
-	/* syscall_execve, ignore, time expensive */
+#if defined(HAVE_SYSCALL_EXECVE)
+	SYSCALL(syscall_execve),
+#endif
 	/* syscall_execveat, ignore, time expensive */
 #if defined(HAVE_SYSCALL_EXIT)
 	SYSCALL(syscall_exit),
@@ -8286,6 +8328,7 @@ static int stress_syscall(const stress_args_t *args)
 	syscall_gid = getgid();
 	syscall_sid = getsid(syscall_pid);
 	syscall_umask_mask = umask(0);
+	syscall_exec_prog = stress_proc_self_exe();
 
 	if (stress_sighandler(args->name, SIGUSR1, syscall_sigusr1_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
