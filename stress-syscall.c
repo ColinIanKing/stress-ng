@@ -1197,6 +1197,43 @@ static int syscall_clone(void)
 }
 #endif
 
+/* If we have clone support then we can call shim_clone3 */
+#if defined(HAVE_CLONE) &&	\
+    defined(__linux__) &&	\
+    defined(CLONE_FS)
+#define HAVE_SYSCALL_CLONE3
+static int syscall_clone3(void)
+{
+	pid_t pid;
+	pid_t parent_tid = -1;
+	pid_t child_tid = -1;
+	int status, pidfd = -1;
+	struct shim_clone_args cl_args;
+
+	syscall_shared_info->t1 = ~0ULL;
+	syscall_shared_info->t2 = ~0ULL;
+	syscall_shared_info->t_set = false;
+
+	(void)memset(&cl_args, 0, sizeof(cl_args));
+	cl_args.flags = CLONE_FS;
+	cl_args.pidfd = (uint64_t)(uintptr_t)&pidfd;
+	cl_args.child_tid = (uint64_t)(uintptr_t)&child_tid;
+	cl_args.parent_tid = (uint64_t)(uintptr_t)&parent_tid;
+	cl_args.exit_signal = SIGCHLD;
+	cl_args.stack = (uint64_t)(uintptr_t)NULL;
+	cl_args.stack_size = 0;
+	cl_args.tls = (uint64_t)(uintptr_t)NULL;
+
+	t1 = syscall_time_now();
+	pid = shim_clone3(&cl_args, sizeof(cl_args));
+	if (pid < 0)
+		return -1;
+	VOID_RET(int, waitpid(pid, &status, 0));
+	t2 = syscall_shared_info->t2;
+	return pid;
+}
+#endif
+
 #define HAVE_SYSCALL_CLOSE
 static int syscall_close(void)
 {
@@ -7225,7 +7262,7 @@ static const syscall_t syscalls[] = {
 	SYSCALL(syscall_clone),
 #endif
 #if defined(HAVE_SYSCALL_CLONE3)
-	/* syscall_clone3 */
+	SYSCALL(syscall_clone3),
 #endif
 #if defined(HAVE_SYSCALL_CLOSE)
 	SYSCALL(syscall_close),

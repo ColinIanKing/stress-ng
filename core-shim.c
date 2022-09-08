@@ -1617,10 +1617,10 @@ int shim_move_mount(
 }
 
 /*
- *  sys_clone3()
+ *  shim_clone3()
  *	Linux clone3 system call wrapper
  */
-int sys_clone3(struct shim_clone_args *cl_args, size_t size)
+int shim_clone3(struct shim_clone_args *cl_args, size_t size)
 {
 #if defined(__NR_clone3) &&	\
     defined(HAVE_SYSCALL)

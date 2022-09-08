@@ -2723,7 +2723,7 @@ extern void shim_flush_icache(void *begin, void *end);
 extern int shim_clock_getres(clockid_t clk_id, struct timespec *res);
 extern int shim_clock_gettime(clockid_t clk_id, struct timespec *tp);
 extern int shim_clock_settime(clockid_t clk_id, struct timespec *tp);
-extern int sys_clone3(struct shim_clone_args *cl_args, size_t size);
+extern int shim_clone3(struct shim_clone_args *cl_args, size_t size);
 extern int shim_close_range(unsigned int fd, unsigned int max_fd, unsigned int flags);
 extern ssize_t shim_copy_file_range(int fd_in, shim_loff_t *off_in,
 	int fd_out, shim_loff_t *off_out, size_t len, unsigned int flags);

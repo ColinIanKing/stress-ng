@@ -469,7 +469,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				struct shim_clone_args cl_args;
 				int pidfd = -1;
 
-				memset(&cl_args, 0, sizeof(cl_args));
+				(void)memset(&cl_args, 0, sizeof(cl_args));
 
 				cl_args.flags = flag;
 				cl_args.pidfd = uint64_ptr(&pidfd);
@@ -480,7 +480,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				cl_args.stack_size = 0;
 				cl_args.tls = uint64_ptr(NULL);
 
-				clone_info->pid = sys_clone3(&cl_args, sizeof(cl_args));
+				clone_info->pid = shim_clone3(&cl_args, sizeof(cl_args));
 				if (clone_info->pid < 0) {
 					/* Not available, don't use it again */
 					if (errno == ENOSYS)
