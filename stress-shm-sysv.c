@@ -628,7 +628,6 @@ static int stress_shm_sysv_child(
 						goto reap;
 				} while (!unique);
 
-errno = 0;
 				shm_id = shmget(key, sz,
 					IPC_CREAT | IPC_EXCL |
 					S_IRUSR | S_IWUSR | rnd_flag);
@@ -666,13 +665,11 @@ errno = 0;
 				goto reap;
 			}
 
-			exercise_shmat(shm_id, sz, buffer);
-
 			addr = shmat(shm_id, NULL, 0);
 			if (addr == (char *) -1) {
 				ok = false;
-				pr_fail("%s: shmat failed, errno=%d (%s)\n",
-					args->name, errno, strerror(errno));
+				pr_fail("%s: shmat failed on id %d, errno=%d (%s)\n",
+					args->name, shm_id, errno, strerror(errno));
 				rc = EXIT_FAILURE;
 				goto reap;
 			}
@@ -787,6 +784,7 @@ errno = 0;
 #if defined(__linux__)
 			stress_shm_sysv_linux_proc_map(addr, sz);
 #endif
+			exercise_shmat(shm_id, sz, buffer);
 			inc_counter(args);
 		}
 
@@ -985,6 +983,8 @@ fork_again:
 					restarts++;
 				}
 			}
+			if (WIFEXITED(status))
+				rc = WEXITSTATUS(status);
 			(void)close(pipefds[0]);
 			/*
 			 *  The child may have been killed by the OOM killer or
