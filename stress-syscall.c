@@ -7209,7 +7209,7 @@ static const syscall_t syscalls[] = {
 #if defined(HAVE_SYSCALL_ACCEPT)
 	SYSCALL(syscall_accept),
 #endif
-#if defined(HAVE_SYSCALL_ACCEPT)
+#if defined(HAVE_SYSCALL_ACCEPT4)
 	SYSCALL(syscall_accept4),
 #endif
 #if defined(HAVE_SYSCALL_ACCESS)
