@@ -61,8 +61,7 @@ static void pr_spin_lock(void)
 
 	for (;;) {
 		while (stress_time_now() < timeout_time) {
-			pid_t orig = 0;
-
+			orig = 0;
 			val = pid;
 			if (__atomic_compare_exchange(&g_shared->pr_atomic_lock, &orig,
 			    &val, 0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST))
