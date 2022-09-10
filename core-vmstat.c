@@ -679,7 +679,7 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	freebsd_getsysctl_cpu_time(&vmstat->user_time, &vmstat->system_time, &vmstat->idle_time);
 
 #if defined(HAVE_SYS_VMMETER_H)
-	freebsd_getsysctl("vm.vmmeter", &t, sizeof(t));
+	freebsd_getsysctl("vm.vmtotal", &t, sizeof(t));
 	vmstat->procs_running = t.t_rq - 1;
 	vmstat->procs_blocked = t.t_dw + t.t_pw;
 #endif
