@@ -2164,15 +2164,15 @@ int shim_vhangup(void)
  */
 int shim_arch_prctl(int code, unsigned long addr)
 {
-#if defined(HAVE_ARCH_PRCTL) &&		\
-    defined(__linux__)
-        extern int arch_prctl();
-
-        return arch_prctl(code, addr);
-#elif defined(__NR_arch_prctl) && 	\
+#if defined(__NR_arch_prctl) && 	\
       defined(__linux__) &&		\
       defined(HAVE_SYSCALL)
         return (int)syscall(__NR_arch_prctl, code, addr);
+#elif defined(HAVE_ARCH_PRCTL) &&	\
+       defined(__linux__)
+        extern int arch_prctl();
+
+        return arch_prctl(code, addr);
 #else
         return (int)shim_enosys(0, code, addr);
 #endif
