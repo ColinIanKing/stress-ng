@@ -6171,6 +6171,7 @@ static int syscall_sigsuspend(void)
 			ret = waitpid(pid, &status, WNOHANG);
 			if (ret == pid)
 				break;
+			shim_sched_yield();
 		}
 	}
 	t1 = syscall_shared_info->t1;
@@ -7045,6 +7046,7 @@ static int syscall_waitid(void)
 			ret = waitid(P_PID, pid, &info, WEXITED);
 			if ((ret == 0) && (info.si_pid == pid))
 				break;
+			shim_sched_yield();
 		}
 		t2 = syscall_time_now();
 		t1 = syscall_shared_info->t1;
@@ -7072,6 +7074,7 @@ static int syscall_wait(void)
 			ret = wait(&status);
 			if (ret == pid)
 				break;
+			shim_sched_yield();
 		}
 		t2 = syscall_time_now();
 		t1 = syscall_shared_info->t1;
@@ -7100,6 +7103,7 @@ static int syscall_wait3(void)
 			ret = wait3(&status, 0, &usage);
 			if (ret == pid)
 				break;
+			shim_sched_yield();
 		}
 		t2 = syscall_time_now();
 		t1 = syscall_shared_info->t1;
@@ -7129,6 +7133,7 @@ static int syscall_wait4(void)
 			ret = wait4(pid, &status, 0, &usage);
 			if (ret == pid)
 				break;
+			shim_sched_yield();
 		}
 		t2 = syscall_time_now();
 		t1 = syscall_shared_info->t1;
@@ -7158,6 +7163,7 @@ static int syscall_waitpid(void)
 			ret = waitpid(pid, &status, 0);
 			if (ret == pid)
 				break;
+			shim_sched_yield();
 		}
 		t2 = syscall_time_now();
 		t1 = syscall_shared_info->t1;
