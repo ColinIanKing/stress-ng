@@ -38,8 +38,8 @@ static int stress_yield(const stress_args_t *args)
 	uint64_t max_ops_per_yielder;
 	size_t counters_sz;
 	int32_t cpus = stress_get_processors_configured();
-	const size_t instances = args->num_instances;
-	size_t yielders = 2;
+	const uint32_t instances = args->num_instances;
+	uint32_t yielders = 2;
 #if defined(HAVE_SCHED_GETAFFINITY)
 	cpu_set_t mask;
 #endif
@@ -56,8 +56,8 @@ static int stress_yield(const stress_args_t *args)
 			PRId32 " yielder%s (instance %" PRIu32 ")\n",
 			args->name, cpus, (cpus == 1) ? "" : "s", args->instance);
 	} else {
-		if (CPU_COUNT(&mask) < cpus)
-			cpus = CPU_COUNT(&mask);
+		if (CPU_COUNT(&mask) < (int)cpus)
+			cpus = (int32_t)CPU_COUNT(&mask);
 		pr_inf("%s: limiting to %" PRId32 " child yielder%s (instance %"
 			PRIu32 ")\n", args->name, cpus, (cpus == 1) ? "" : "s", args->instance);
 	}
@@ -71,11 +71,12 @@ static int stress_yield(const stress_args_t *args)
 	 */
 	if (cpus > 0) {
 		cpus *= 2;
-		yielders = (size_t)cpus / instances;
+		yielders = cpus / instances;
 		if (yielders < 1)
 			yielders = 1;
 		if (!args->instance) {
-			size_t residual = (size_t)cpus - (yielders * instances);
+			/* residual may be -ve, ensure it is signed */
+			int32_t residual = cpus - (int32_t)(yielders * instances);
 
 			if (residual > 0)
 				yielders += residual;
