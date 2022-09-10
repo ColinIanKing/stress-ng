@@ -8474,6 +8474,7 @@ static int stress_syscall(const stress_args_t *args)
 	size_t i;
 	int syscall_method = SYSCALL_METHOD_FAST75;
 	const uint32_t rnd_filenum = stress_mwc32();
+	const double time_end = stress_time_now() + (double)g_opt_timeout;
 
 	(void)stress_get_setting("syscall-method", &syscall_method);
 
@@ -8581,11 +8582,13 @@ static int stress_syscall(const stress_args_t *args)
 
 	/*
 	 *  Now benchmark and shuffle the desired system calls
+	 *  We need to check for time out because timers may share the
+ 	 *  alarm() timer so we can't rely on this on some systems.
 	 */
 	do {
 		(void)stress_syscall_benchmark_calls(args);
 		stress_syscall_shuffle_calls();
-	} while (keep_stressing(args));
+	} while (keep_stressing(args) && (stress_time_now() < time_end));
 
 	for (i = 0; i < STRESS_SYSCALLS_MAX; i++) {
 		syscall_stats_t *ss = &syscall_stats[i];
