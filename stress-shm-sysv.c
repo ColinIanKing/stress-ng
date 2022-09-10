@@ -262,7 +262,8 @@ static void exercise_shmat(
 	 * Exercise valid shmat syscall with unaligned
 	 * page address but specifying SHM_RND flag
 	 */
-#if defined(SHM_RND)
+#if defined(SHM_RND) &&	\
+    !defined(__FreeBSD__)
 	addr = shmat(shm_id, unaligned, SHM_RND);
 	if (addr != (void *) -1)
 		(void)shmdt(addr);
