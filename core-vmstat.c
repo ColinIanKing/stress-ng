@@ -96,24 +96,76 @@ static int freebsd_getsysctl(const char *name, void *ptr, size_t size)
 
 	ret = sysctlbyname(name, ptr, &nsize, NULL, 0);
 	if ((ret < 0) || (nsize != size)) {
+pr_inf("%d %d %s\n", ret,errno, strerror(errno));
 		(void)memset(ptr, 0, size);
 		return -1;
 	}
 	return 0;
 }
 
-/*
- *  freebsd_getsysctl_uint()
- *	get an unsigned int sysctl value by name
- */
+static uint64_t freebsd_getsysctl_uint64(const char *name)
+{
+	uint64_t val;
+
+	if (freebsd_getsysctl(name, &val, sizeof(val)) == 0)
+		return val;
+	return 0ULL;
+}
+
+static uint32_t freebsd_getsysctl_uint32(const char *name)
+{
+	uint32_t val;
+
+	if (freebsd_getsysctl(name, &val, sizeof(val)) == 0)
+		return val;
+	return 0UL;
+}
+
 static unsigned int freebsd_getsysctl_uint(const char *name)
 {
 	unsigned int val;
 
-	freebsd_getsysctl(name, &val, sizeof(val));
-
-	return val;
+	if (freebsd_getsysctl(name, &val, sizeof(val)) == 0)
+		return val;
+	return 0;
 }
+
+static int freebsd_getsysctl_int(const char *name)
+{
+	int val;
+
+	if (freebsd_getsysctl(name, &val, sizeof(val)) == 0)
+		return val;
+	return 0;
+}
+
+static void freebsd_getsysctl_cpu_times(
+	uint64_t *user_time,
+	uint64_t *system_time,
+	uint64_t *idle_time)
+{
+	const int cpus = freebsd_getsysctl_int("kern.smp.cpus");
+	long int *vals;
+	int i;
+
+	*user_time = 0;
+	*system_time = 0;
+	*idle_time = 0;
+
+	vals = (long int *)calloc(cpus * 5, sizeof(*vals));
+	if (!vals)
+		return;
+
+	if (freebsd_getsysctl("kern.cp_times", vals, cpus * 5 * sizeof(*vals)) < 0)
+		return;
+	for (i = 0; i < cpus * 5; i += 5) {
+		*user_time += vals[i];
+		*system_time += vals[i + 2];
+		*idle_time += vals[i + 4];
+	}
+	free(vals);
+}
+
 #endif
 
 static int stress_set_generic_stat(
@@ -588,13 +640,16 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 {
 	struct vmtotal t;
 
-	vmstat->interrupt = freebsd_getsysctl_uint("vm.stats.sys.v_intr");
-	vmstat->context_switch = freebsd_getsysctl_uint("vm.stats.sys.v_swtch");
-	vmstat->swap_in = freebsd_getsysctl_uint("vm.stats.vm.v_swapin");
-	vmstat->swap_out = freebsd_getsysctl_uint("vm.stats.vm.v_swapout");
-	vmstat->block_in = freebsd_getsysctl_uint("vm.stats.vm.v_vnodepgsin");
-	vmstat->block_out = freebsd_getsysctl_uint("vm.stats.vm.v_vnodepgsin");
-	vmstat->memory_free = freebsd_getsysctl_uint("vm.stats.vm.v_free_count");
+	vmstat->interrupt = freebsd_getsysctl_uint64("vm.stats.sys.v_intr");
+	vmstat->context_switch = freebsd_getsysctl_uint64("vm.stats.sys.v_swtch");
+	vmstat->swap_in = freebsd_getsysctl_uint64("vm.stats.vm.v_swapin");
+	vmstat->swap_out = freebsd_getsysctl_uint64("vm.stats.vm.v_swapout");
+	vmstat->block_in = freebsd_getsysctl_uint64("vm.stats.vm.v_vnodepgsin");
+	vmstat->block_out = freebsd_getsysctl_uint64("vm.stats.vm.v_vnodepgsin");
+	vmstat->memory_free = (uint64_t)freebsd_getsysctl_uint32("vm.stats.vm.v_free_count");
+	vmstat->memory_cached = (uint64_t)freebsd_getsysctl_uint("vm.stats.vm.v_cache_count");
+
+	freebsd_getsysctl_cpu_times(&vmstat->user_time, &vmstat->system_time, &vmstat->idle_time);
 
 	freebsd_getsysctl("vm.vmtotal", &t, sizeof(t));
 	vmstat->procs_running = t.t_rq - 1;
