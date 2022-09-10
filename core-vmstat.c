@@ -33,6 +33,10 @@
 #include <sys/vmmeter.h>
 #endif
 
+#if defined(HAVE_UVM_UVM_EXTERN_H)
+#include <uvm/uvm_extern.h>
+#endif
+
 #if defined(HAVE_MNTENT_H)
 #include <mntent.h>
 #endif
@@ -84,7 +88,8 @@ static int32_t vmstat_delay = 0;
 static int32_t thermalstat_delay = 0;
 static int32_t iostat_delay = 0;
 
-#if defined(__FreeBSD__)
+#if defined(__FreeBSD__) ||	\
+    defined(__NetBSD__)
 static int freebsd_getsysctl(const char *name, void *ptr, size_t size)
 {
 	int ret;
@@ -96,13 +101,14 @@ static int freebsd_getsysctl(const char *name, void *ptr, size_t size)
 
 	ret = sysctlbyname(name, ptr, &nsize, NULL, 0);
 	if ((ret < 0) || (nsize != size)) {
-pr_inf("%d %d %s\n", ret,errno, strerror(errno));
 		(void)memset(ptr, 0, size);
 		return -1;
 	}
 	return 0;
 }
+#endif
 
+#if defined(__FreeBSD__)
 static uint64_t freebsd_getsysctl_uint64(const char *name)
 {
 	uint64_t val;
@@ -139,7 +145,7 @@ static int freebsd_getsysctl_int(const char *name)
 	return 0;
 }
 
-static void freebsd_getsysctl_cpu_times(
+static void freebsd_getsysctl_cpu_time(
 	uint64_t *user_time,
 	uint64_t *system_time,
 	uint64_t *idle_time)
@@ -165,7 +171,26 @@ static void freebsd_getsysctl_cpu_times(
 	}
 	free(vals);
 }
+#endif
 
+#if defined(__NetBSD__)
+static void netbsd_getsysctl_cpu_time(
+	uint64_t *user_time,
+	uint64_t *system_time,
+	uint64_t *idle_time)
+{
+	long int vals[5];
+
+	*user_time = 0;
+	*system_time = 0;
+	*idle_time = 0;
+
+	if (freebsd_getsysctl("kern.cp_time", vals, sizeof(vals)) < 0)
+		return;
+	*user_time = vals[0];
+	*system_time = vals[2];
+	*idle_time = vals[4];;
+}
 #endif
 
 static int stress_set_generic_stat(
@@ -638,7 +663,9 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
  */
 static void stress_read_vmstat(stress_vmstat_t *vmstat)
 {
+#if defined(HAVE_SYS_VMMETER_H)
 	struct vmtotal t;
+#endif
 
 	vmstat->interrupt = freebsd_getsysctl_uint64("vm.stats.sys.v_intr");
 	vmstat->context_switch = freebsd_getsysctl_uint64("vm.stats.sys.v_swtch");
@@ -649,11 +676,44 @@ static void stress_read_vmstat(stress_vmstat_t *vmstat)
 	vmstat->memory_free = (uint64_t)freebsd_getsysctl_uint32("vm.stats.vm.v_free_count");
 	vmstat->memory_cached = (uint64_t)freebsd_getsysctl_uint("vm.stats.vm.v_cache_count");
 
-	freebsd_getsysctl_cpu_times(&vmstat->user_time, &vmstat->system_time, &vmstat->idle_time);
+	freebsd_getsysctl_cpu_time(&vmstat->user_time, &vmstat->system_time, &vmstat->idle_time);
 
-	freebsd_getsysctl("vm.vmtotal", &t, sizeof(t));
+#if defined(HAVE_SYS_VMMETER_H)
+	freebsd_getsysctl("vm.vmmeter", &t, sizeof(t));
 	vmstat->procs_running = t.t_rq - 1;
 	vmstat->procs_blocked = t.t_dw + t.t_pw;
+#endif
+}
+#elif defined(__NetBSD__)
+/*
+ *  stress_read_vmstat()
+ *	read vmstat statistics, NetBSD variant, partially implemented
+ */
+static void stress_read_vmstat(stress_vmstat_t *vmstat)
+{
+#if defined(HAVE_SYS_VMMETER_H)
+	struct vmtotal t;
+#endif
+#if defined(HAVE_UVM_UVM_EXTERN_H)
+	struct uvmexp_sysctl u;
+#endif
+	netbsd_getsysctl_cpu_time(&vmstat->user_time, &vmstat->system_time, &vmstat->idle_time);
+#if defined(HAVE_UVM_UVM_EXTERN_H)
+	freebsd_getsysctl("vm.uvmexp2", &u, sizeof(u));
+	vmstat->memory_cached = u.filepages;	/* Guess */
+	vmstat->interrupt = u.intrs;
+	vmstat->context_switch = u.swtch;
+	vmstat->swap_in = u.pgswapin;
+	vmstat->swap_out = u.pgswapout;
+	vmstat->swap_used = u.swpginuse;
+	vmstat->memory_free = u.free;
+#endif
+
+#if defined(HAVE_SYS_VMMETER_H)
+	freebsd_getsysctl("vm.vmmeter", &t, sizeof(t));
+	vmstat->procs_running = t.t_rq - 1;
+	vmstat->procs_blocked = t.t_dw + t.t_pw;
+#endif
 }
 #else
 /*
@@ -768,7 +828,8 @@ static double stress_get_cpu_ghz_average(void)
 
 	return (n == 0) ? 0.0 : (total_freq / n) * ONE_MILLIONTH;
 }
-#elif defined(__FreeBSD__)
+#elif defined(__FreeBSD__) ||	\
+      defined(__NetBSD__)
 static double stress_get_cpu_ghz_average(void)
 {
 	const int32_t ncpus = stress_get_processors_configured();
