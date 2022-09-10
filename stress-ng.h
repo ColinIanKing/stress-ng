@@ -688,7 +688,7 @@ extern void pr_fail(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_tidy(const char *fmt, ...) FORMAT(printf, 1, 2);
 extern void pr_warn(const char *fmt, ...) FORMAT(printf, 1, 2);
 
-extern void pr_lock_init();
+extern void pr_lock_init(void);
 extern void pr_lock(void);
 extern void pr_unlock(void);
 extern void pr_lock_exited(const pid_t pid);
