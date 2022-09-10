@@ -738,9 +738,6 @@ retry_open:
 			j = 0;
 			if (do_sync) {
 				(void)memset(cb, 0, aio_linux_requests * sizeof(*cb));
-
-				aio_linux_fill_buffer(0, bufptr, BUFFER_SZ);
-
 				cb[0].aio_fildes = fds[0];
 				cb[0].aio_lio_opcode = stress_mwc1() ? IO_CMD_FDSYNC : IO_CMD_FSYNC;
 				cb[0].u.c.buf = NULL;
