@@ -828,8 +828,7 @@ static double stress_get_cpu_ghz_average(void)
 
 	return (n == 0) ? 0.0 : (total_freq / n) * ONE_MILLIONTH;
 }
-#elif defined(__FreeBSD__) ||	\
-      defined(__NetBSD__)
+#elif defined(__FreeBSD__)
 static double stress_get_cpu_ghz_average(void)
 {
 	const int32_t ncpus = stress_get_processors_configured();
