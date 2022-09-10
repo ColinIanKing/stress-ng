@@ -88,21 +88,22 @@ static int stress_copy_file_range_verify(
 	off_t *off_out,
 	const ssize_t bytes)
 {
-	ssize_t bytes_left = bytes;
+	size_t bytes_left = (size_t)bytes;
 
 	while (bytes_left > 0) {
 		ssize_t n, bytes_in, bytes_out;
+		size_t sz = STRESS_MINIMUM(bytes_left, COPY_FILE_MAX_BUF_SIZE);
 
 		char buf_in[COPY_FILE_MAX_BUF_SIZE];
 		char buf_out[COPY_FILE_MAX_BUF_SIZE];
 
 #if defined(HAVE_PREAD)
-		bytes_in = pread(fd_in, buf_in, sizeof(buf_in), *off_in);
+		bytes_in = pread(fd_in, buf_in, sz, *off_in);
 		if (bytes_in == 0)
 			return 0;
 		if (bytes_in < 0)
 			break;
-		bytes_out = pread(fd_out, buf_out, sizeof(buf_out), *off_out);
+		bytes_out = pread(fd_out, buf_out, sz, *off_out);
 		if (bytes_out == 0)
 			return 0;
 		if (bytes_out <= 0)
@@ -116,12 +117,12 @@ static int stress_copy_file_range_verify(
 		off_ret = lseek(fd_out, *off_out, SEEK_SET);
 		if (off_ret != *off_out)
 			return -1;
-		bytes_in = read(fd_in, buf_in, sizeof(buf_in));
+		bytes_in = read(fd_in, buf_in, sz);
 		if (bytes_in == 0)
 			return 0;
 		if (bytes_in < 0)
 			break;
-		bytes_out = read(fd_out, buf_out, sizeof(buf_out));
+		bytes_out = read(fd_out, buf_out, sz);
 		if (bytes_out == 0)
 			return 0;
 		if (bytes_out <= 0)
@@ -213,7 +214,6 @@ static int stress_copy_file(const stress_args_t *args)
 		off_out = off_out_orig;
 
 		stress_copy_file_fill(fd_in, (off_t)off_in, DEFAULT_COPY_FILE_SIZE);
-
 		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
 						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
 		if (copy_ret < 0) {
@@ -234,11 +234,13 @@ static int stress_copy_file(const stress_args_t *args)
 			goto tidy_out;
 		}
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
+			int verify_ret;
 			off_in = off_in_orig;
 			off_out = off_out_orig;
-			copy_ret = stress_copy_file_range_verify(fd_in, &off_in,
-					fd_out, &off_out, DEFAULT_COPY_FILE_SIZE);
-			if (copy_ret < 0) {
+
+			verify_ret = stress_copy_file_range_verify(fd_in, &off_in,
+					fd_out, &off_out, copy_ret);
+			if (verify_ret < 0) {
 				pr_fail("%s: copy_file_range verify failed, input offset=%jd, output offset=%jd\n",
 					args->name, (intmax_t)off_in_orig, (intmax_t)off_out_orig);
 			}
