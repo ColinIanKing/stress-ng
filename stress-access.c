@@ -199,7 +199,7 @@ static pid_t stress_access_spawn(
 	return pid;
 }
 
-static void stress_access_reap(int *pid)
+static void stress_access_reap(pid_t *pid)
 {
 	int status;
 
