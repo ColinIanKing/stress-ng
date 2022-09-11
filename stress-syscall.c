@@ -843,7 +843,8 @@ static int syscall_access(void)
 #if defined(HAVE_KEYUTILS_H) &&		\
     defined(HAVE_SYSCALL) &&		\
     defined(__NR_add_key) &&		\
-    defined(__NR_keyctl)
+    defined(__NR_keyctl) &&		\
+    defined(KEYCTL_INVALIDATE)
 #define HAVE_SYSCALL_ADD_KEY
 static int syscall_add_key(void)
 {
@@ -2851,7 +2852,8 @@ static int syscall_kcmp(void)
 #if defined(HAVE_KEYUTILS_H) &&	\
     defined(HAVE_SYSCALL) &&	\
     defined(__NR_keyctl) &&	\
-    defined(__NR_add_key)
+    defined(__NR_add_key) &&	\
+    defined(KEYCTL_INVALIDATE)
 #define HAVE_SYSCALL_KEYCTL
 static int syscall_keyctl(void)
 {
@@ -5059,7 +5061,8 @@ static int syscall_renameat2(void)
     defined(HAVE_SYSCALL) &&		\
     defined(__NR_request_key) &&	\
     defined(__NR_keyctl) &&		\
-    defined(__NR_add_key)
+    defined(__NR_add_key) &&		\
+    defined(KEYCTL_INVALIDATE)
 #define HAVE_SYSCALL_REQUEST_KEY
 static int syscall_request_key(void)
 {
