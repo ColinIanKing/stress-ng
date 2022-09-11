@@ -130,7 +130,7 @@ void stress_klog_start(void)
 			continue;
 
 log_err:
-			if (stress_klog_err_no_exceptions(msg)) {
+			if (stress_klog_err_no_exceptions(buf)) {
 				pr_err("klog-check: %s: %s '%s'\n", msg, ts, ptr);
 				g_shared->klog_error = true;
 				continue;
