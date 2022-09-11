@@ -20,7 +20,6 @@
 
 #if defined(__linux__)
 static pid_t klog_pid = -1;
-#endif
 
 /*
  *  strings that are to be ignored as an error
@@ -45,6 +44,7 @@ static bool stress_klog_err_no_exceptions(const char *str)
 	}
 	return true;
 }
+#endif
 
 void stress_klog_start(void)
 {
