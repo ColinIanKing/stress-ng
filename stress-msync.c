@@ -168,7 +168,7 @@ static int stress_msync(const stress_args_t *args)
 		goto err;
 	}
 	data = (uint8_t *)mmap(NULL, page_size,
-		PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
+		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
 		pr_err("%s: failed to mmap memory of size %zu, errno=%d (%s)\n",
 			args->name, page_size, errno, strerror(errno));
