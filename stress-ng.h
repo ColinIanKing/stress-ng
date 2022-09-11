@@ -2293,7 +2293,13 @@ static inline bool inc_counter_lock(const stress_args_t *args, void *lock, const
 {
 	bool ret;
 
-	stress_lock_acquire(lock);
+	/*
+	 *  Failure in lock acquire, don't bump counter
+	 *  and get racy keep_stressing state, that's
+	 *  probably the best we can do in this failure mode
+	 */
+	if (stress_lock_acquire(lock) < 0)
+		return keep_stressing(args);
 	ret = keep_stressing(args);
 	if (inc && ret)
 		inc_counter(args);
