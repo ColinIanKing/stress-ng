@@ -148,10 +148,13 @@ static inline void ALWAYS_INLINE shim_mfence(void)
 #define HAVE_SHIM_MFENCE
 #endif
 
+/* Disabled for now */
+#if 0
 #if defined(STRESS_ARCH_PPC64) &&	\
     !defined(HAVE_SHIM_MFENCE)
 	__asm__ __volatile__ ("msync" : : : "memory");
 #define HAVE_SHIM_MFENCE
+#endif
 #endif
 
 #if defined(STRESS_ARCH_SPARC) &&	\
