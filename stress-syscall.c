@@ -4541,16 +4541,15 @@ static int syscall_prctl(void)
 #endif
 #if defined(PR_GET_THP_DISABLE)
 	case PR_GET_THP_DISABLE:
-		{
-			t1 = syscall_time_now();
-			t2 = syscall_time_now();
-		}
+		t1 = syscall_time_now();
+		ret = prctl(PR_GET_THP_DISABLE, 0, 0, 0, 0);
+		t2 = syscall_time_now();
 		break;
 #endif
 #if defined(PR_GET_TIMERSLACK)
 	case PR_GET_TIMERSLACK:
 		t1 = syscall_time_now();
-		ret = prctl(PR_GET_THP_DISABLE, 0, 0, 0, 0);
+		ret = prctl(PR_GET_TIMERSLACK, 0, 0, 0, 0);
 		t2 = syscall_time_now();
 		break;
 #endif
