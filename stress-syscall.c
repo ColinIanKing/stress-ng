@@ -35,6 +35,46 @@
 /* 1 day in nanoseconds */
 #define SYSCALL_DAY_NS		(8.64E13)
 
+#if defined(HAVE_LINUX_AUDIT_H)
+#include <linux/audit.h>
+#endif
+
+#if defined(HAVE_LINUX_FILTER_H)
+#include <linux/filter.h>
+#endif
+
+#if defined(HAVE_LINUX_FUTEX_H)
+#include <linux/futex.h>
+#endif
+
+#if defined(HAVE_LINUX_IO_URING_H)
+#include <linux/io_uring.h>
+#endif
+
+#if defined(HAVE_LINUX_MEMBARRIER_H)
+#include <linux/membarrier.h>
+#endif
+
+#if defined(HAVE_LINUX_MEMPOLICY_H)
+#include <linux/mempolicy.h>
+#endif
+
+#if defined(HAVE_LINUX_RSEQ_H)
+#include <linux/rseq.h>
+#endif
+
+#if defined(HAVE_LINUX_SECCOMP_H)
+#include <linux/seccomp.h>
+#endif
+
+#if defined(HAVE_LINUX_SYSCTL_H)
+#include <linux/sysctl.h>
+#endif
+
+#if defined(HAVE_LINUX_USERFAULTFD_H)
+#include <linux/userfaultfd.h>
+#endif
+
 #if defined(HAVE_MODIFY_LDT)
 #include <asm/ldt.h>
 #endif
@@ -83,14 +123,6 @@
 
 #if defined(HAVE_SYS_UN_H)
 #include <sys/un.h>
-#endif
-
-#if defined(HAVE_LINUX_IO_URING_H)
-#include <linux/io_uring.h>
-#endif
-
-#if defined(HAVE_LINUX_RSEQ_H)
-#include <linux/rseq.h>
 #endif
 
 #if defined(HAVE_SYS_IPC_H)
@@ -154,38 +186,6 @@
 
 #if defined(HAVE_UTIME_H)
 #include <utime.h>
-#endif
-
-#if defined(HAVE_LINUX_AUDIT_H)
-#include <linux/audit.h>
-#endif
-
-#if defined(HAVE_LINUX_FILTER_H)
-#include <linux/filter.h>
-#endif
-
-#if defined(HAVE_LINUX_SECCOMP_H)
-#include <linux/seccomp.h>
-#endif
-
-#if defined(HAVE_LINUX_FUTEX_H)
-#include <linux/futex.h>
-#endif
-
-#if defined(HAVE_LINUX_MEMBARRIER_H)
-#include <linux/membarrier.h>
-#endif
-
-#if defined(HAVE_LINUX_MEMPOLICY_H)
-#include <linux/mempolicy.h>
-#endif
-
-#if defined(HAVE_LINUX_SYSCTL_H)
-#include <linux/sysctl.h>
-#endif
-
-#if defined(HAVE_LINUX_USERFAULTFD_H)
-#include <linux/userfaultfd.h>
 #endif
 
 #if defined(__NR_ioprio_get) &&	\
