@@ -22,6 +22,30 @@
 static pid_t klog_pid = -1;
 #endif
 
+/*
+ *  strings that are to be ignored as an error
+ */
+static const char *err_exceptions[] = {
+	"audit: backlog",
+};
+
+/*
+ *  stress_klog_err_no_exceptions()
+ *	check for str in the err_exceptions array, returns
+ *	false if a match is found, and hence can be ignored
+ *	as an error.
+ */
+static bool stress_klog_err_no_exceptions(const char *str)
+{
+	size_t i;
+
+	for (i = 0; i < SIZEOF_ARRAY(err_exceptions); i++) {
+		if (strstr(str, err_exceptions[i]))
+			return false;
+	}
+	return true;
+}
+
 void stress_klog_start(void)
 {
 #if defined(__linux__)
@@ -105,12 +129,15 @@ void stress_klog_start(void)
 			}
 			continue;
 
+log_err:
+			if (stress_klog_err_no_exceptions(msg)) {
+				pr_err("klog-check: %s: %s '%s'\n", msg, ts, ptr);
+				g_shared->klog_error = true;
+				continue;
+			}
 log_info:
 			pr_inf("klog-check: %s: %s '%s'\n", msg, ts, ptr);
 			continue;
-log_err:
-			pr_err("klog-check: %s: %s '%s'\n", msg, ts, ptr);
-			g_shared->klog_error = true;
 		}
 	}
 	(void)fclose(klog_fp);
