@@ -1196,7 +1196,7 @@ static int stress_sparsematrix(const stress_args_t *args)
 	}
 
 	pr_lock();
-	for (i = begin; sparsematrix_methods[i].name && (i < end); i++) {
+	for (i = begin; (i < end) && sparsematrix_methods[i].name; i++) {
 		char str[12];
 
 		if (test_info[i].max_objmem) {
