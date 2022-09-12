@@ -123,9 +123,7 @@ static double TARGET_CLONES OPTIMIZE3 stress_vecshuf_ ## tag ## _ ## elements (	
 		stress_vec_ ## tag ## _ ## elements ## _t tmp;		\
 									\
 		tmp.v = __builtin_shuffle(s->v, mask1->v);		\
-		tmp.v = __builtin_shuffle(s->v, mask2->v);		\
-		tmp.v = __builtin_shuffle(s->v, mask2->v);		\
-		s->v = __builtin_shuffle(tmp.v, mask1->v);		\
+		s->v = __builtin_shuffle(tmp.v, mask2->v);		\
 	}								\
 	t2 = stress_time_now();						\
 									\
