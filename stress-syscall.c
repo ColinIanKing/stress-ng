@@ -5830,7 +5830,7 @@ static int syscall_setsid(void)
 	t1 = syscall_time_now();
 	ret = setsid(sid);
 	t2 = syscall_time_now();
-	return -1;
+	return ret;
 }
 #endif
 
