@@ -137,7 +137,6 @@ log_err:
 			}
 log_info:
 			pr_inf("klog-check: %s: %s '%s'\n", msg, ts, ptr);
-			continue;
 		}
 	}
 	(void)fclose(klog_fp);
