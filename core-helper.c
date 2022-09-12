@@ -3110,7 +3110,7 @@ int stress_tty_width(void)
 	if (ret < 0)
 		return max_width;
 	ret = (int)ws.ws_col;
-	if ((ret < 0) || (ret > 1024))
+	if ((ret <= 0) || (ret > 1024))
 		return max_width;
 	return ret;
 #else
