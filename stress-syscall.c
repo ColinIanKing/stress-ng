@@ -2924,10 +2924,10 @@ static int syscall_lchown(void)
 #define HAVE_SYSCALL_LGETXATTR
 static int syscall_lgetxattr(void)
 {
-	char buf[64];
-	int ret;
-
 	if (*syscall_symlink_filename) {
+		char buf[64];
+		int ret;
+
 		if (shim_lsetxattr(syscall_symlink_filename, syscall_lxattr_name, "123", 3, 0) < 0)
 			return -1;
 		t1 = syscall_time_now();
@@ -3034,9 +3034,9 @@ static int syscall_lookup_dcookie(void)
 #define HAVE_SYSCALL_LREMOVEXATTR
 static int syscall_lremovexattr(void)
 {
-	int ret;
-
 	if (*syscall_symlink_filename) {
+		int ret;
+
 		VOID_RET(int, shim_lsetxattr(syscall_symlink_filename, syscall_lxattr_name, "123", 3, 0));
 		t1 = syscall_time_now();
 		ret = shim_lremovexattr(syscall_symlink_filename, syscall_lxattr_name);
@@ -3085,9 +3085,9 @@ static int syscall_lseek(void)
 #define HAVE_SYSCALL_LSETXATTR
 static int syscall_lsetxattr(void)
 {
-	int ret;
-
 	if (*syscall_symlink_filename) {
+		int ret;
+
 		t1 = syscall_time_now();
 		ret = shim_lsetxattr(syscall_symlink_filename, syscall_lxattr_name, "123", 3, 0);
 		t2 = syscall_time_now();
@@ -4943,10 +4943,10 @@ static int syscall_readahead(void)
 #define HAVE_SYSCALL_READLINK
 static int syscall_readlink(void)
 {
-	char path[PATH_MAX];
-	int ret;
-
 	if (*syscall_symlink_filename) {
+		char path[PATH_MAX];
+		int ret;
+
 		t1 = syscall_time_now();
 		ret = readlink(syscall_symlink_filename, path, sizeof(path));
 		t2 = syscall_time_now();
@@ -4959,10 +4959,10 @@ static int syscall_readlink(void)
 #define HAVE_SYSCALL_READLINKAT
 static int syscall_readlinkat(void)
 {
-	char path[PATH_MAX];
-	int ret;
-
 	if (*syscall_symlink_filename) {
+		char path[PATH_MAX];
+		int ret;
+
 		t1 = syscall_time_now();
 		ret = readlinkat(syscall_dir_fd, syscall_symlink_filename, path, sizeof(path));
 		t2 = syscall_time_now();
@@ -8214,7 +8214,6 @@ static void stress_syscall_rank_calls_by_geomean(const double scale)
 	size_t n;
 	double geomean;
 	double mant = 1.0;	/* geomean mantissa */
-	double inverse_n;
 	int64_t expon = 0;	/* goemean exponent */
 
 	stress_syscall_reset_index();
@@ -8233,7 +8232,8 @@ static void stress_syscall_rank_calls_by_geomean(const double scale)
 		}
 	}
 	if (n) {
-		inverse_n = 1.0 / (double)n;
+		const double inverse_n = 1.0 / (double)n;
+
 		geomean = pow(mant, inverse_n) *
 			  pow(2.0, (double)expon * inverse_n);
 		geomean *= scale;
