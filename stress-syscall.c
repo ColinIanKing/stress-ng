@@ -8255,19 +8255,12 @@ static void stress_syscall_rank_calls_by_geomean(const double scale)
 	}
 }
 
-static int cmp_syscall_time(const void *p1, const void *p2)
+static inline int cmp_syscall_time(const void *p1, const void *p2)
 {
-	const size_t i1 = *(const size_t *)p1;
-	const size_t i2 = *(const size_t *)p2;
+	register const size_t i1 = *(const size_t *)p1;
+	register const size_t i2 = *(const size_t *)p2;
 
-	const double v1 = syscall_stats[i1].average_duration;
-	const double v2 = syscall_stats[i2].average_duration;
-
-	if (v1 > v2)
-		return 1;
-	if (v2 < v1)
-		return -1;
-	return 0;
+	return syscall_stats[i1].average_duration > syscall_stats[i2].average_duration;
 }
 
 /*
