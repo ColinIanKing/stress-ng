@@ -210,6 +210,8 @@ do {									\
 	SHIM_ATOMIC_FETCH_OR(var, (type)32, __ATOMIC_ACQUIRE);		\
 	SHIM_ATOMIC_FETCH_NAND(var, (type)128, __ATOMIC_ACQUIRE);	\
 	SHIM_ATOMIC_CLEAR(var, __ATOMIC_RELAXED);			\
+									\
+	(void)tmp;							\
 } while (0)
 
 static const stress_help_t help[] = {
