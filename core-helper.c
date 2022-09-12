@@ -3299,7 +3299,7 @@ char *stress_proc_self_exe_path(const char *proc_path)
 	ssize_t len;
 
 	len = shim_readlink(proc_path, path, sizeof(path));
-	if ((len < 0) || (len > PATH_MAX))
+	if ((len < 0) || (len >= PATH_MAX))
 		return NULL;
 	path[len] = '\0';
 	return path;
