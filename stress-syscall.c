@@ -5414,7 +5414,7 @@ static int syscall_select(void)
     defined(HAVE_SYS_IPC_H)
 static int syscall_new_sem_sysv(key_t *key)
 {
-	int ret, i;
+	int i;
 	static key_t saved_key = 0;
 
 	if (saved_key == 0)
@@ -5422,6 +5422,8 @@ static int syscall_new_sem_sysv(key_t *key)
 	else
 		*key = saved_key;
 	for (i = 0; i < 65536; i++) {
+		int ret;
+
 		ret = semget(*key, 1, IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR);
 		if (ret != -1) {
 			saved_key = *key;
@@ -5883,7 +5885,7 @@ static int syscall_setxattr(void)
     defined(HAVE_SYS_SHM_H)
 static int syscall_new_shm_sysv(key_t *key)
 {
-	int ret, i;
+	int i;
 	static key_t saved_key = 0;
 
 	if (saved_key == 0)
@@ -5891,6 +5893,8 @@ static int syscall_new_shm_sysv(key_t *key)
 	else
 		*key = saved_key;
 	for (i = 0; i < 65536; i++) {
+		int ret;
+
 		ret = shmget(*key, 1 * MB, IPC_CREAT | S_IRUSR | S_IWUSR);
 		if (ret != -1) {
 			saved_key = *key;
@@ -5898,7 +5902,7 @@ static int syscall_new_shm_sysv(key_t *key)
 		}
 		if ((errno == ENFILE) ||
 		    (errno == ENOMEM) ||
-		    (errno == ENFILE) ||
+		    (errno == ENOENT) ||
 		    (errno == EACCES) ||
 		    (errno == EPERM)  ||
 		    (errno == ENOSPC))
