@@ -365,8 +365,8 @@ static int stress_set(const stress_args_t *args)
 				VOID_RET(int, setresgid((gid_t)-1, (gid_t)-1, sgid));
 				if (geteuid() != 0) {
 					VOID_RET(int, setresgid((gid_t)-2, egid, sgid));
-					VOID_RET(int, ret = setresgid(rgid, (gid_t)-2, sgid));
-					VOID_RET(int, ret = setresgid(rgid, egid, (gid_t)-2));
+					VOID_RET(int, setresgid(rgid, (gid_t)-2, sgid));
+					VOID_RET(int, setresgid(rgid, egid, (gid_t)-2));
 				}
 				VOID_RET(int, setresgid(rgid, egid, sgid));
 			}
