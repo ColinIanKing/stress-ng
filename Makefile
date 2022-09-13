@@ -106,13 +106,17 @@ HEADERS = \
 	core-hash.h \
 	core-io-priority.h \
 	core-io-uring.c \
+	core-nt-load.h \
 	core-nt-store.h \
 	core-net.h \
 	core-perf.h \
 	core-personality.c \
 	core-pragma.h \
+	core-pthread.h \
 	core-put.h \
 	core-smart.h \
+	core-stressors.h \
+	core-syslog.h \
 	core-target-clones.h \
 	core-thermal-zone.h \
 	core-thrash.h \
