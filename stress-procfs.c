@@ -247,6 +247,15 @@ static inline void stress_proc_rw(
 #endif
 
 		/*
+		 *  Random sized reads at non-power of two integers
+		 *  on /proc/bus/pci/00 on SH4 5.16 kernels trips
+		 *  SIGBUS/SIGSEGV faults. Currenly skip this test.
+		 */
+#if defined(STRESS_ARCH_SH4)
+		if (!strncmp(path, "/proc/bus/pci/00", 16))
+			goto next;
+#endif
+		/*
 		 *  Multiple randomly sized reads
 		 */
 		for (i = 0; i < 4096 * PROC_BUF_SZ; i++) {
