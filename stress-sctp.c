@@ -503,7 +503,6 @@ static int stress_sctp_server(
 	int so_reuseaddr = 1;
 	socklen_t addr_len = 0;
 	struct sockaddr *addr = NULL;
-	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
 
 	(void)sctp_sched;
@@ -593,11 +592,10 @@ static int stress_sctp_server(
 				ssize_t ret = sctp_sendmsg(sfd, buf, i,
 						NULL, 0, 0, 0,
 						LOCALTIME_STREAM, 0, 0);
-				if (ret < 0)
+				if (ret < 0) {
 					break;
-				else {
+				} else {
 					inc_counter(args);
-					msgs++;
 				}
 			}
 			stress_sctp_sockopts(sfd);
