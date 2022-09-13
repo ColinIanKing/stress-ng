@@ -17,11 +17,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.14.03
+VERSION=0.14.04
 #
-# Codename "hungry hypnotized hedgehog"
+# Codename "annus horribilis"
 #
-
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
 
 #
