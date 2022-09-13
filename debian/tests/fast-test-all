@@ -58,7 +58,7 @@ do
 	then
 		echo "$s at $(date)"
 		sync
-		${STRESS_NG} -v -t 1 --${s} 4 --verify --timestamp --klog-check --metrics 2>&1
+		${STRESS_NG} -v -t 1 --${s} 4 --verify --timestamp --klog-check --metrics --vmstat 1 2>&1
 		ret=$?
 
 		case $ret in
