@@ -1,3 +1,10 @@
+stress-ng (0.14.05-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * Debian/control: remove gold linker from build depends (Closes: #1019727)
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Wed, 14 Sep 2022 11:59:59 +0100
+
 stress-ng (0.14.04-1) unstable; urgency=medium
 
   [Alexandru Ardelean]
