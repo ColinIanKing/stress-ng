@@ -6,7 +6,6 @@ Maintainer: Colin Ian King <colin.i.king@gmail.com>
 Standards-Version: 4.6.0
 Build-Depends: debhelper (>= 13),
                debhelper-compat (=13),
-               binutils-gold,
                zlib1g-dev,
                libbsd-dev,
                libgcrypt20-dev,
