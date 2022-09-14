@@ -247,6 +247,9 @@ static void stress_wcscpy(
 	register size_t i;
 	test_wcscpy_t test_wcscpy = (test_wcscpy_t)libc_func;
 
+	(void)len2;
+	(void)strdstlen;
+
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
 		WCSCHK(name, strdst == test_wcscpy(strdst, str1), failed);
 		WCSCHK(name, strdst == test_wcscpy(strdst, str2), failed);
@@ -316,6 +319,9 @@ static void stress_wcscat(
 
 	register size_t i;
 	test_wcscat_t test_wcscat = (test_wcscat_t)libc_func;
+
+	(void)len2;
+	(void)strdstlen;
 
 	for (i = 0; keep_stressing_flag() && (i < len1 - 1); i++) {
 		*strdst = L'\0';
