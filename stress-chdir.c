@@ -159,7 +159,7 @@ static int stress_chdir(const stress_args_t *args)
 			uint32_t j = stress_mwc32() % chdir_dirs;
 			const int fd = fds[j] >= 0 ? fds[j] : fds[0];
 
-			if (mkdir_ok[i] && (chdir(paths[i]) < 0)) {
+			if (mkdir_ok[i] && paths[i] && (chdir(paths[i]) < 0)) {
 				if (errno != ENOMEM) {
 					pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
 						args->name, paths[i],
