@@ -362,11 +362,12 @@ sizes.  This uses mincore(2) to determine the pages that are not in core and
 hence need touching to page them back in.
 .TP
 .B \-\-pathological
-enable stressors that are known to hang systems.  Some stressors can quickly
-consume resources in such a way that they can rapidly hang a system before
-the kernel can OOM kill them. These stressors are not enabled by default,
-this option enables them, but you probably don't want to do this. You have
-been warned.
+enable stressors that are known to hang systems. Some stressors can
+rapidly consume resources that may hang a system, or perform actions that
+can lock a system up or cause it to reboot. These stressors are not enabled
+by default, this option enables them, but you probably don't want to do this.
+You have been warned. This option applies to the stressors: bad\-ioctl, 
+bind\-mount, cpu\-online, mlockmany, oom\-pipe, smi, sysinval and watchdog.
 .TP
 .B \-\-perf
 measure processor and system activity using perf events. Linux only and
