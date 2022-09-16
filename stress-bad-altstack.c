@@ -342,7 +342,7 @@ again:
 				CASE_FALLTHROUGH;
 			case 7:
 				/* Small stack */
-				for (sz = 0; sz <= STRESS_SIGSTKSZ; sz += 256) {
+				for (ret = -1, sz = 0; sz <= STRESS_SIGSTKSZ; sz += 256) {
 					ret = stress_sigaltstack_no_check(stack, sz);
 					if (ret == 0)
 						break;
