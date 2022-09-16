@@ -60,6 +60,8 @@ endif
 
 ifeq ($(findstring icc,$(CC)),icc)
 CFLAGS += -no-inline-max-size -no-inline-max-total-size
+CFLAGS += -axAVX,CORE-AVX2,CORE-AVX-I,CORE-AVX512,SSE2,SSE3,SSSE3,SSE4.1,SSE4.2,SANDYBRIDGE,SKYLAKE,SKYLAKE-AVX512,TIGERLAKE,SAPPHIRERAPIDS
+CFLAGS += -ip -falign-loops -funroll-loops -ansi-alias
 endif
 
 #ifeq ($(findstring clang,$(CC)),clang)
