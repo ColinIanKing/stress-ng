@@ -232,65 +232,58 @@ static int stress_set_socket_zerocopy(const char *opt)
 }
 
 /*
- *  stress_free_congestion_controls()
- *	free congestion controls array
- */
-static void stress_free_congestion_controls(char *ctrls[], const size_t n)
-{
-	size_t i;
-
-	if (!ctrls)
-		return;
-
-	for (i = 0; i < n; i++)
-		free(ctrls[i]);
-
-	free(ctrls); /* cppcheck-suppress autovarInvalidDeallocation */
-}
-
-/*
  *  stress_get_congestion_controls()
  *	get congestion controls, currently only for AF_INET. ctrls is a
  *	pointer to an array of pointers to available congestion control names -
  *	the array is allocated by this function, or NULL if it fails. Returns
  *	the number of congestion controls, 0 if none found.
  */
-static size_t stress_get_congestion_controls(const int socket_domain, char **ctrls[])
+static char **stress_get_congestion_controls(const int socket_domain, size_t *n_ctrls)
 {
-	char ALIGN64 buf[4096], *ptr, *ctrl;
-	char **array = NULL;
-	size_t n_ctrls;
+	static char ALIGN64 buf[4096];
+	char *ptr, *ctrl;
+	char **ctrls, **tmp;
+	size_t i, n;
+	ssize_t buf_len;
 
-	*ctrls = NULL;
+	*n_ctrls = 0;
 
 	if (socket_domain != AF_INET)
-		return 0;
+		return NULL;
 
-	if (system_read(PROC_CONG_CTRLS, buf, sizeof(buf)) < 0)
-		return 0;
+	buf_len = system_read(PROC_CONG_CTRLS, buf, sizeof(buf));
+	if (buf_len <= 0)
+		return NULL;
 
-	for (n_ctrls = 0, ptr = buf; (ctrl = strtok(ptr, " ")) != NULL; ptr = NULL) {
-		char **tmp, *newline = strchr(ctrl, '\n');
+	/*
+	 *  Over-allocate ctrls, it is impossible to have more than
+	 *  buf_len strings strok'd from the array buf.
+	 */
+	ctrls = calloc((size_t)buf_len, sizeof(char *));
+	if (!ctrls)
+		return NULL;
+
+	for (n = 0, ptr = buf; (ctrl = strtok(ptr, " ")) != NULL; ptr = NULL) {
+		char *newline = strchr(ctrl, '\n');
 
 		if (newline)
 			*newline = '\0';
-
-		tmp = realloc(array , (sizeof(*array)) * (n_ctrls + 1));
-		if (!tmp) {
-			stress_free_congestion_controls(array, n_ctrls);
-			return 0;
-		}
-		array = tmp;
-		array[n_ctrls] = strdup(ctrl);
-		if (!array[n_ctrls]) {
-			stress_free_congestion_controls(array, n_ctrls);
-			return 0;
-		}
-		n_ctrls++;
+		ctrls[n++] = ctrl;
 	}
 
-	*ctrls = array;
-	return n_ctrls;
+	/* Shrink ctrls, hopefully should not fail, but check anyhow */
+	tmp = realloc(ctrls, n * sizeof(char *));
+	if (!tmp) {
+		free(ctrls);
+		return NULL;
+	}
+	ctrls = tmp;
+
+	for (i = 0; i < n; i++) {
+		printf("%zd <%s>\n", i, ctrls[i]);
+	}
+	*n_ctrls = n;
+	return ctrls;
 }
 
 /*
@@ -474,7 +467,13 @@ static int stress_sock_client(
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
-	n_ctrls = stress_get_congestion_controls(socket_domain, &ctrls);
+	ctrls = stress_get_congestion_controls(socket_domain, &n_ctrls);
+	{
+		size_t i;
+
+		for (i = 0; i < n_ctrls; i++)
+			printf("HERE: %zd %s\n", i, ctrls[i]);
+	}
 
 #if defined(MSG_ZEROCOPY)
 	if (socket_zerocopy)
@@ -544,6 +543,8 @@ retry:
 			const char *control = ctrls[idx];
 			char name[256];
 			socklen_t len;
+
+			printf("%d %zd\n", idx, n_ctrls);
 
 			len = (socklen_t)strlen(ctrls[idx]);
 			(void)setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, control, len);
@@ -856,7 +857,7 @@ retry:
 
 	rc = EXIT_SUCCESS;
 free_controls:
-	stress_free_congestion_controls(ctrls, n_ctrls);
+	free(ctrls);
 
 	return rc;
 }
