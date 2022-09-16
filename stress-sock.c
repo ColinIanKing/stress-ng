@@ -243,7 +243,7 @@ static char **stress_get_congestion_controls(const int socket_domain, size_t *n_
 	static char ALIGN64 buf[4096];
 	char *ptr, *ctrl;
 	char **ctrls, **tmp;
-	size_t i, n;
+	size_t n;
 	ssize_t buf_len;
 
 	*n_ctrls = 0;
@@ -277,13 +277,8 @@ static char **stress_get_congestion_controls(const int socket_domain, size_t *n_
 		free(ctrls);
 		return NULL;
 	}
-	ctrls = tmp;
-
-	for (i = 0; i < n; i++) {
-		printf("%zd <%s>\n", i, ctrls[i]);
-	}
 	*n_ctrls = n;
-	return ctrls;
+	return tmp;
 }
 
 /*
@@ -468,13 +463,6 @@ static int stress_sock_client(
 	(void)sched_settings_apply(true);
 
 	ctrls = stress_get_congestion_controls(socket_domain, &n_ctrls);
-	{
-		size_t i;
-
-		for (i = 0; i < n_ctrls; i++)
-			printf("HERE: %zd %s\n", i, ctrls[i]);
-	}
-
 #if defined(MSG_ZEROCOPY)
 	if (socket_zerocopy)
 		recvflag |= MSG_ZEROCOPY;
@@ -543,8 +531,6 @@ retry:
 			const char *control = ctrls[idx];
 			char name[256];
 			socklen_t len;
-
-			printf("%d %zd\n", idx, n_ctrls);
 
 			len = (socklen_t)strlen(ctrls[idx]);
 			(void)setsockopt(fd, IPPROTO_TCP, TCP_CONGESTION, control, len);
