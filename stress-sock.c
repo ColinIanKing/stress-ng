@@ -1115,7 +1115,7 @@ static int stress_sock_server(
 		 *  Exercise accept4 with invalid flags
 		 */
 		sfd = accept4(fd, (struct sockaddr *)NULL, NULL, ~0);
-		if (sfd)
+		if (sfd >= 0)
 			(void)close(sfd);
 #endif
 		inc_counter(args);
