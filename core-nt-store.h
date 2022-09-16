@@ -151,6 +151,7 @@ static inline void ALWAYS_INLINE OPTIMIZE3 stress_nt_store_double(double *addr, 
 {
 	__builtin_ia32_movnti64((long long int *)addr, value);
 }
+#define HAVE_NT_STORE_DOUBLE
 #endif
 
 #endif
