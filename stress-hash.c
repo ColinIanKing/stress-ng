@@ -528,7 +528,7 @@ static HOT OPTIMIZE3 void stress_hash_all(
  * Table of has stress methods
  */
 static stress_hash_method_info_t hash_methods[] = {
-	{ "all",		stress_hash_all,		NULL },	/* Special "all test */
+	{ "all",		stress_hash_all,		NULL },	/* Special "all" test */
 	{ "adler32",		stress_hash_method_adler32,	NULL },
 	{ "coffin",		stress_hash_method_coffin,	NULL },
 	{ "coffin32",		stress_hash_method_coffin32,	NULL },

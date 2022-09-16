@@ -485,6 +485,7 @@ static void stress_smart_read_devs(void)
  */
 static void stress_smart_free_devs(void)
 {
+#if defined(HAVE_SMART)
 	stress_smart_dev_t *dev = smart_devs.dev;
 
 	while (dev) {
@@ -497,6 +498,7 @@ static void stress_smart_free_devs(void)
 
 		dev = next;
 	}
+#endif
 	smart_devs.dev = NULL;
 }
 
@@ -522,11 +524,12 @@ void stress_smart_start(void)
 void stress_smart_stop(void)
 {
 	if (g_opt_flags & OPT_FLAGS_SMART) {
+#if defined(HAVE_SMART)
 		stress_smart_dev_t *dev;
-		size_t deltas;
-		size_t devs;
+		size_t deltas = 0;
+		size_t devs = 0;
 
-		for (devs = 0, deltas = 0, dev = smart_devs.dev; dev; dev = dev->next) {
+		for (dev = smart_devs.dev; dev; dev = dev->next) {
 			dev->data_end = stress_smart_data_read(dev->dev_name);
 			deltas += stress_smart_data_diff_count(dev);
 			devs++;
@@ -540,7 +543,6 @@ void stress_smart_stop(void)
 			}
 		} else {
 			if (devs == 0) {
-#if defined(HAVE_SMART)
 				char *extra;
 
 				if (stress_check_capability(SHIM_CAP_IS_ROOT)) {
@@ -549,12 +551,14 @@ void stress_smart_stop(void)
 					extra = " (try running as root)";
 				}
 				pr_inf("could not find any S.M.A.R.T. enabled devices%s\n", extra);
-#endif
 			} else {
 				pr_inf("no S.M.A.R.T. data statistics changed on %zd device%s\n",
 					devs, devs > 1 ? "s" : "");
 			}
 		}
 		stress_smart_free_devs();
+#else
+		pr_inf("S.M.A.R.T. functionality not available\n");
+#endif
 	}
 }
