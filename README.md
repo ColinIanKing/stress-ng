@@ -463,6 +463,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [Mixed time-criticality process interferences characterization on a multicore Linux system](https://re.public.polimi.it/retrieve/handle/11311/1033069/292404/paper-accepted-version.pdf)
 * [FedComm: Understanding Communication Protocols for Edge-based Federated Learning](https://arxiv.org/pdf/2208.08764.pdf)
 * [How much power does your server consume? Estimating wall socket power using RAPL measurements](https://www.researchgate.net/publication/306004997_How_much_power_does_your_server_consume_Estimating_wall_socket_power_using_RAPL_measurements)
+* [Performance Isolation of Co-located Workload in a Container-based Vehicle Software Architecture](https://www.thinkmind.org/articles/ambient_2019_2_20_40020.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
