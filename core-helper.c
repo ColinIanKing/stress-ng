@@ -616,6 +616,38 @@ int32_t stress_get_ticks_per_second(void)
 }
 
 /*
+ *  stress_get_meminfo()
+ *	wrapper for linux sysinfo
+ */
+static int stress_get_meminfo(
+	size_t *freemem,
+	size_t *totalmem,
+	size_t *freeswap,
+	size_t *totalswap)
+{
+#if defined(HAVE_SYS_SYSINFO_H) &&	\
+    defined(HAVE_SYSINFO)
+	struct sysinfo info;
+
+	(void)memset(&info, 0, sizeof(info));
+
+	if (sysinfo(&info) == 0) {
+		*freemem = info.freeram * info.mem_unit;
+		*totalmem = info.totalram * info.mem_unit;
+		*freeswap = info.freeswap * info.mem_unit;
+		*totalswap = info.totalswap * info.mem_unit;
+		return 0;
+	}
+#endif
+	*freemem = 0;
+	*totalmem = 0;
+	*freeswap = 0;
+	*totalswap = 0;
+
+	return -1;
+}
+
+/*
  *  stress_get_memlimits()
  *	get SHMALL and memory in system
  *	these are set to zero on failure
@@ -627,27 +659,11 @@ void stress_get_memlimits(
 	size_t *freeswap,
 	size_t *totalswap)
 {
-#if defined(HAVE_SYS_SYSINFO_H) &&	\
-    defined(HAVE_SYSINFO)
-	struct sysinfo info;
 	FILE *fp;
-#endif
+
+	(void)stress_get_meminfo(freemem, totalmem, freeswap, totalswap);
+
 	*shmall = 0;
-	*freemem = 0;
-	*totalmem = 0;
-	*freeswap = 0;
-	*totalswap = 0;
-#if defined(HAVE_SYS_SYSINFO_H) &&	\
-    defined(HAVE_SYSINFO)
-	(void)memset(&info, 0, sizeof(info));
-
-	if (sysinfo(&info) == 0) {
-		*freemem = info.freeram * info.mem_unit;
-		*totalmem = info.totalram * info.mem_unit;
-		*freeswap = info.freeswap * info.mem_unit;
-		*totalswap = info.totalswap * info.mem_unit;
-	}
-
 	fp = fopen("/proc/sys/kernel/shmall", "r");
 	if (!fp)
 		return;
@@ -657,9 +673,6 @@ void stress_get_memlimits(
 		return;
 	}
 	(void)fclose(fp);
-#else
-	UNEXPECTED
-#endif
 }
 
 /*
@@ -668,30 +681,23 @@ void stress_get_memlimits(
  */
 bool stress_low_memory(const size_t requested)
 {
-#if defined(HAVE_SYS_SYSINFO_H) &&	\
-    defined(HAVE_SYSINFO)
-	static size_t prev_freeram = 0;
+	static size_t prev_freemem = 0;
 	static size_t prev_freeswap = 0;
-	struct sysinfo info;
+	size_t freemem, totalmem, freeswap, totalswap;
 	bool low_memory = false;
 
-	(void)memset(&info, 0, sizeof(info));
-	if (sysinfo(&info) == 0) {
-		const size_t freeram = info.freeram * info.mem_unit;
-		const size_t freeswap = info.freeswap * info.mem_unit;
-		const size_t totalram = info.totalram * info.mem_unit;
-
+	if (stress_get_meminfo(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
 		/*
 		 *  Stats from previous call valid, then check for memory
 		 *  changes
 		 */
-		if ((prev_freeram + prev_freeswap) > 0) {
+		if ((prev_freemem + prev_freeswap) > 0) {
 			ssize_t delta;
 
-			delta = (ssize_t)prev_freeram - (ssize_t)freeram;
+			delta = (ssize_t)prev_freemem - (ssize_t)freemem;
 			delta = (delta * 2) + requested;
 			/* memory shrinking quickly? */
-			if (delta  > (ssize_t)freeram) {
+			if (delta  > (ssize_t)freemem) {
 				low_memory = true;
 				goto update;
 			}
@@ -703,31 +709,25 @@ bool stress_low_memory(const size_t requested)
 			}
 		}
 		/* Not enough for allocation and slop? */
-		if (freeram < ((2 * MB) + requested)) {
+		if (freemem < ((2 * MB) + requested)) {
 			low_memory = true;
 			goto update;
 		}
 		/* Less than 1% left? */
-		if (((double)freeram * 100.0 / (double)(totalram - requested)) < 1.0) {
+		if (((double)freemem * 100.0 / (double)(totalmem - requested)) < 1.0) {
 			low_memory = true;
 			goto update;
 		}
-		/* Swap running low? */
-		if (freeswap < (2 * MB) + requested) {
+		/* Any swap enabled and is it running low? */
+		if ((totalswap > 0) && (freeswap < (2 * MB) + requested)) {
 			low_memory = true;
 			goto update;
 		}
 update:
-		prev_freeram = freeram;
+		prev_freemem = freemem;
 		prev_freeswap = freeswap;
 	}
-
 	return low_memory;
-#else
-	(void)requested;
-
-	return false;
-#endif
 }
 
 #if defined(_SC_AVPHYS_PAGES)
@@ -1473,13 +1473,10 @@ void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
  */
 void pr_runinfo(void)
 {
+	size_t freemem, totalmem, freeswap, totalswap;
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
 	struct utsname uts;
-#endif
-#if defined(HAVE_SYS_SYSINFO_H) &&	\
-    defined(HAVE_SYSINFO)
-	struct sysinfo info;
 #endif
 	if (!(g_opt_flags & PR_DEBUG))
 		return;
@@ -1500,19 +1497,14 @@ void pr_runinfo(void)
 			uts.version, uts.machine);
 	}
 #endif
-#if defined(HAVE_SYS_SYSINFO_H) &&	\
-    defined(HAVE_SYSINFO)
-	/* Keep static analyzer happy */
-	(void)memset(&info, 0, sizeof(info));
-	if (sysinfo(&info) == 0) {
+	if (stress_get_meminfo(&freemem, &totalmem, &freeswap, &totalswap) == 0) {
 		char ram_t[32], ram_f[32], ram_s[32];
 
-		stress_uint64_to_str(ram_t, sizeof(ram_t), (uint64_t)info.totalram);
-		stress_uint64_to_str(ram_f, sizeof(ram_f), (uint64_t)info.freeram);
-		stress_uint64_to_str(ram_s, sizeof(ram_s), (uint64_t)info.freeswap);
+		stress_uint64_to_str(ram_t, sizeof(ram_t), (uint64_t)totalmem);
+		stress_uint64_to_str(ram_f, sizeof(ram_f), (uint64_t)freemem);
+		stress_uint64_to_str(ram_s, sizeof(ram_s), (uint64_t)freeswap);
 		pr_dbg("RAM total: %s, RAM free: %s, swap free: %s\n", ram_t, ram_f, ram_s);
 	}
-#endif
 }
 
 /*
