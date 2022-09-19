@@ -941,9 +941,9 @@ static void *mmap_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	const size_t page_size = stress_get_page_size();
 	static sparse_mmap_t m;
-	size_t shmall, freemem, totalmem, freeswap, max_phys;
+	size_t shmall, freemem, totalmem, freeswap, totalswap, max_phys;
 
-	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
 	(void)n;
 

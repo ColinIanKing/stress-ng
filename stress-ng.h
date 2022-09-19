@@ -2440,7 +2440,7 @@ extern WARN_UNUSED int32_t stress_get_ticks_per_second(void);
 extern WARN_UNUSED ssize_t stress_get_stack_direction(void);
 extern WARN_UNUSED void *stress_get_stack_top(void *start, size_t size);
 extern void stress_get_memlimits(size_t *shmall, size_t *freemem,
-	size_t *totalmem, size_t *freeswap);
+	size_t *totalmem, size_t *freeswap, size_t *totalswap);
 extern WARN_UNUSED int stress_get_load_avg(double *min1, double *min5,
 	double *min15);
 extern void stress_set_max_limits(void);

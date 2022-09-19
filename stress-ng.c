@@ -1401,7 +1401,7 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 	char *ptr = buffer;
 	int ret;
 	double min1, min5, min15;
-	size_t shmall, freemem, totalmem, freeswap;
+	size_t shmall, freemem, totalmem, freeswap, totalswap;
 
 	(void)signum;
 
@@ -1414,7 +1414,7 @@ static void MLOCKED_TEXT stress_stats_handler(int signum)
 		if (ret > 0)
 			ptr += ret;
 	}
-	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
 	(void)snprintf(ptr, (size_t)(buffer - ptr),
 		"MemFree: %zu MB, MemTotal: %zu MB",

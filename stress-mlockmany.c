@@ -95,11 +95,11 @@ static int stress_mlockmany(const stress_args_t *args)
 
 	do {
 		unsigned int i, n;
-		size_t shmall, freemem, totalmem, freeswap, last_freeswap;
+		size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
 
 		(void)memset(pids, 0, sizeof(*pids) * mlockmany_procs);
 
-		stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap);
+		stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
 
 		for (n = 0; n < mlockmany_procs; n++) {
 			pid_t pid;
@@ -107,7 +107,7 @@ static int stress_mlockmany(const stress_args_t *args)
 			if (!keep_stressing(args))
 				break;
 
-			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
 			/* We detected swap being used, bail out */
 			if (last_freeswap > freeswap)
@@ -127,7 +127,7 @@ static int stress_mlockmany(const stress_args_t *args)
 				(void)sched_settings_apply(true);
 
 				shim_mlockall(0);
-				stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+				stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 				/* We detected swap being used, bail out */
 				if (last_freeswap > freeswap)
 					_exit(0);

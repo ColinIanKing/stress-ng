@@ -185,9 +185,9 @@ static int stress_mlock_child(const stress_args_t *args, void *context)
 	const size_t page_size = args->page_size;
 	const size_t max = stress_mlock_max_lockable();
 	const size_t mappings_len = max * sizeof(*mappings);
-	size_t shmall, freemem, totalmem, freeswap;
+	size_t shmall, freemem, totalmem, freeswap, totalswap;
 
-	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
 	(void)context;
 

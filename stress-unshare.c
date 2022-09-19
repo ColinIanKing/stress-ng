@@ -112,10 +112,10 @@ static void check_unshare(const stress_args_t *args, int flags, const char *flag
  */
 static inline bool enough_memory(void)
 {
-	size_t shmall, freemem, totalmem, freeswap;
+	size_t shmall, freemem, totalmem, freeswap, totalswap;
 	bool enough;
 
-	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
 	enough = (freemem == 0) ? true : freemem > (8 * MB);
 

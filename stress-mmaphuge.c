@@ -104,11 +104,11 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 			bufs[i].buf = MAP_FAILED;
 
 		for (i = 0; keep_stressing(args) && (i < ctxt->mmaphuge_mmaps); i++) {
-			size_t shmall, freemem, totalmem, freeswap, last_freeswap;
+			size_t shmall, freemem, totalmem, freeswap, totalswap, last_freeswap, last_totalswap;
 			int flags;
 			size_t j;
 
-			stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap);
+			stress_get_memlimits(&shmall, &freemem, &totalmem, &last_freeswap, &last_totalswap);
 
 			for (j = 0; j < SIZEOF_ARRAY(stress_mmap_settings); j++) {
 				uint8_t *buf;
@@ -142,7 +142,7 @@ static int stress_mmaphuge_child(const stress_args_t *args, void *v_ctxt)
 					break;
 				}
 			}
-			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
 			/* Check if we eat into swap */
 			if (last_freeswap > freeswap)

@@ -624,7 +624,8 @@ void stress_get_memlimits(
 	size_t *shmall,
 	size_t *freemem,
 	size_t *totalmem,
-	size_t *freeswap)
+	size_t *freeswap,
+	size_t *totalswap)
 {
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
@@ -635,6 +636,7 @@ void stress_get_memlimits(
 	*freemem = 0;
 	*totalmem = 0;
 	*freeswap = 0;
+	*totalswap = 0;
 #if defined(HAVE_SYS_SYSINFO_H) &&	\
     defined(HAVE_SYSINFO)
 	(void)memset(&info, 0, sizeof(info));
@@ -643,6 +645,7 @@ void stress_get_memlimits(
 		*freemem = info.freeram * info.mem_unit;
 		*totalmem = info.totalram * info.mem_unit;
 		*freeswap = info.freeswap * info.mem_unit;
+		*totalswap = info.totalswap * info.mem_unit;
 	}
 
 	fp = fopen("/proc/sys/kernel/shmall", "r");

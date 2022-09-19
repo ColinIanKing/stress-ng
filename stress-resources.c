@@ -182,7 +182,7 @@ static void NORETURN waste_resources(
 #endif
 	size_t mlock_size;
 	size_t i, n = 0;
-	size_t shmall, freemem, totalmem, freeswap;
+	size_t shmall, freemem, totalmem, freeswap, totalswap;
 	const pid_t pid = getpid();
 	static const int domains[] = { AF_INET, AF_INET6 };
 	static const int types[] = { SOCK_STREAM, SOCK_DGRAM };
@@ -214,7 +214,7 @@ static void NORETURN waste_resources(
       defined(HAVE_MQUEUE_H))
 	(void)args;
 #endif
-	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
 	if ((shmall + freemem + totalmem > 0) &&
 	    (freemem > 0) && (freemem < mem_slack))
@@ -318,7 +318,7 @@ static void NORETURN waste_resources(
 		 */
 		n = i + 1;
 
-		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+		stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 
 		(void)snprintf(tmpfilename, sizeof(tmpfilename),
 			"/tmp/stress-ng-%8.8x%8.8x-", (int)pid, (int)stress_mwc32());
@@ -807,9 +807,9 @@ static int stress_resources(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const size_t pipe_size = stress_probe_max_pipe_size();
 	size_t mem_slack;
-	size_t shmall, freemem, totalmem, freeswap, resource_forks = 0;
+	size_t shmall, freemem, totalmem, freeswap, totalswap, resource_forks = 0;
 
-	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+	stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 	if (totalmem > 0) {
 		resource_forks = totalmem / (args->num_instances * MAX_LOOPS * 16 * KB);
 	}
@@ -828,7 +828,7 @@ static int stress_resources(const stress_args_t *args)
 		for (i = 0; i < resource_forks; i++) {
 			pid_t pid;
 
-			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap);
+			stress_get_memlimits(&shmall, &freemem, &totalmem, &freeswap, &totalswap);
 			if (totalmem > 0 && totalmem < mem_slack)
 				break;
 
