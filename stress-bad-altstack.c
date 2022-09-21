@@ -156,6 +156,15 @@ static int stress_bad_altstack(const stress_args_t *args)
 		zero_stack = MAP_FAILED;
 	}
 
+	/*
+	 *  Ensure that mumap is fixed up by the dynamic loader
+	 *  before it needs to be called in the signal handler.
+	 *  If the alternative stack is broken then sorting out the
+	 *  symbol with lazy dl fixup breaks sparc64, so force
+	 *  fixup with an illegal munmap call
+	 */
+	(void)munmap(MAP_FAILED, 0);
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
