@@ -173,7 +173,7 @@ static void stress_dir_tidy(
 
 	for (i = 0; i < n; i++) {
 		char path[PATH_MAX];
-		uint64_t gray_code = (i >> 1) ^ i;
+		const uint64_t gray_code = (i >> 1) ^ i;
 
 		(void)stress_temp_filename_args(args,
 			path, sizeof(path), gray_code);
@@ -323,7 +323,7 @@ static int stress_dir(const stress_args_t *args)
 
 		for (i = 0; keep_stressing(args) && (i < n); i++) {
 			char path[PATH_MAX];
-			uint64_t gray_code = (i >> 1) ^ i;
+			const uint64_t gray_code = (i >> 1) ^ i;
 
 			(void)stress_temp_filename_args(args,
 				path, sizeof(path), gray_code);
