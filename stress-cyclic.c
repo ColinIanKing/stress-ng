@@ -550,9 +550,9 @@ static void stress_rt_dist(
 	stress_rt_stats_t *rt_stats,
 	const int64_t cyclic_dist)
 {
-	ssize_t dist_max_size = (cyclic_dist > 0) ?
+	const ssize_t dist_max_size = (cyclic_dist > 0) ?
 		((ssize_t)rt_stats->max_ns / (ssize_t)cyclic_dist) + 1 : 1;
-	ssize_t dist_size = STRESS_MINIMUM(MAX_BUCKETS, dist_max_size);
+	const ssize_t dist_size = STRESS_MINIMUM(MAX_BUCKETS, dist_max_size);
 	const ssize_t dist_min = STRESS_MINIMUM(5, dist_max_size);
 	ssize_t i, n;
 	int64_t *dist;
