@@ -106,8 +106,8 @@ static int stress_chdir(const stress_args_t *args)
 
 	/* Populate */
 	for (i = 0; keep_stressing(args) && (i < chdir_dirs); i++) {
-		uint64_t rnd = (uint64_t)stress_mwc32() << 32;
-		uint32_t gray_code = (i >> 1) ^ i;
+		const uint64_t rnd = (uint64_t)stress_mwc32() << 32;
+		const uint32_t gray_code = (i >> 1) ^ i;
 		int flags = O_RDONLY;
 
 #if defined(O_DIRECTORY)
@@ -156,7 +156,7 @@ static int stress_chdir(const stress_args_t *args)
 
 	do {
 		for (i = 0; keep_stressing(args) && (i < chdir_dirs); i++) {
-			uint32_t j = stress_mwc32() % chdir_dirs;
+			const uint32_t j = stress_mwc32() % chdir_dirs;
 			const int fd = fds[j] >= 0 ? fds[j] : fds[0];
 
 			if (mkdir_ok[i] && paths[i] && (chdir(paths[i]) < 0)) {
