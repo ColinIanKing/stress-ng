@@ -665,7 +665,6 @@ static int stress_get_meminfo(
 		return 0;
 	}
 #endif
-pr_inf("%s %d - no info\n", __func__, __LINE__);
 	*freemem = 0;
 	*totalmem = 0;
 	*freeswap = 0;
