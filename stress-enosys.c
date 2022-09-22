@@ -362,10 +362,9 @@ static inline void HOT OPTIMIZE3 syscall_add(const long number)
 static inline void syscall_free(void)
 {
 	size_t i;
-	stress_hash_syscall_t *h;
 
 	for (i = 0; i < HASH_SYSCALL_SIZE; i++) {
-		h = hash_syscall_table[i];
+		stress_hash_syscall_t *h = hash_syscall_table[i];
 
 		while (h) {
 			stress_hash_syscall_t *next = h->next;
