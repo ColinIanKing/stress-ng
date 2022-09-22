@@ -309,7 +309,7 @@ static void HOT stress_cpu_trig(const char *name)
 	(void)name;
 
 	for (i = 0; i < 1500; i++) {
-		long double theta = (2.0L * PI * (long double)i)/1500.0L;
+		const long double theta = (2.0L * PI * (long double)i)/1500.0L;
 		{
 			double thetad = (double)theta;
 			float thetaf = (float)theta;
@@ -352,7 +352,7 @@ static void HOT stress_cpu_hyperbolic(const char *name)
 	(void)name;
 
 	for (i = 0; i < 1500; i++) {
-		long double theta = (2.0L * PI * (long double)i)/1500.0L;
+		const long double theta = (2.0L * PI * (long double)i)/1500.0L;
 		{
 			double thetad = (double)theta;
 			float thetaf = (float)theta;
@@ -487,7 +487,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_nsqrt(const char *name)
 	const int max_iter = 56;
 
 	for (i = 16300; i < 16384; i++) {
-		long double n = (long double)i;
+		const long double n = (long double)i;
 		long double lo = (n < 1.0L) ? n : 1.0L;
 		long double hi = (n < 1.0L) ? 1.0L : n;
 		long double rt;
@@ -637,7 +637,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_euler(const char *name)
 {
 	long double e = 1.0L, last_e;
 	long double fact = 1.0L;
-	long double precision = 1.0e-20L;
+	const long double precision = 1.0e-20L;
 	int n = 1;
 
 	do {
@@ -1184,7 +1184,7 @@ static void OPTIMIZE3 TARGET_CLONES stress_cpu_matrix_prod(const char *name)
 	static long double a[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE],
 		    	   b[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE],
 		    	   r[MATRIX_PROD_SIZE][MATRIX_PROD_SIZE];
-	long double v = 1 / (long double)((uint32_t)~0);
+	const long double v = 1 / (long double)((uint32_t)~0);
 	long double sum = 0.0L;
 
 	(void)name;
@@ -1243,7 +1243,7 @@ static void OPTIMIZE3 stress_cpu_psi(const char *name)
 {
 	long double f1 = 0.0L, f2 = 1.0L;
 	long double psi = 0.0L, last_psi;
-	long double precision = 1.0e-20L;
+	const long double precision = 1.0e-20L;
 	int i = 0;
 	const int max_iter = 100;
 
@@ -1944,7 +1944,7 @@ static void HOT OPTIMIZE3 stress_cpu_pi(const char *name)
 		s += (factorial(4 * k) *
 			((26390.0L * (long double)k) + 1103)) /
 			(shim_powl(factorial(k), 4.0L) * shim_powl(396.0L, 4.0L * k));
-		pi = 1 / (s * c);
+		pi = 1.0 / (s * c);
 		k++;
 	} while ((k < max_iter) && (shim_fabsl(pi - last_pi) > precision));
 
@@ -1979,7 +1979,7 @@ static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
 	 */
 	do {
 		last_omega = omega;
-		omega = (1 + omega) / (1 + shim_expl(omega));
+		omega = (1.0L + omega) / (1.0L + shim_expl(omega));
 		n++;
 	} while ((n < max_iter) && (shim_fabsl(omega - last_omega) > precision));
 
@@ -1999,6 +1999,7 @@ static void HOT OPTIMIZE3 stress_cpu_omega(const char *name)
 #define HAMMING(G, i, nybble, code) 			\
 do {							\
 	int8_t res;					\
+							\
 	res = (((G[3] >> i) & (nybble >> 3)) & 1) ^	\
 	      (((G[2] >> i) & (nybble >> 2)) & 1) ^	\
 	      (((G[1] >> i) & (nybble >> 1)) & 1) ^	\
@@ -2281,13 +2282,13 @@ static void TARGET_CLONES stress_cpu_dither(const char *name)
 	 */
 	for (y = 0; y < STRESS_CPU_DITHER_Y; y++) {
 		for (x = 0; x < STRESS_CPU_DITHER_X; x++) {
-			uint8_t pixel = pixels[x][y];
-			uint8_t quant = (pixel < 128) ? 0 : 255;
-			int32_t error = pixel - quant;
+			const uint8_t pixel = pixels[x][y];
+			const uint8_t quant = (pixel < 128) ? 0 : 255;
+			const int32_t error = pixel - quant;
 
-			bool xok1 = x < (STRESS_CPU_DITHER_X - 1);
-			bool xok2 = x > 0;
-			bool yok1 = y < (STRESS_CPU_DITHER_Y - 1);
+			const bool xok1 = x < (STRESS_CPU_DITHER_X - 1);
+			const bool xok2 = x > 0;
+			const bool yok1 = y < (STRESS_CPU_DITHER_Y - 1);
 
 			if (xok1)
 				pixels[x + 1][y] +=
@@ -2347,6 +2348,7 @@ static void TARGET_CLONES stress_cpu_div16(const char *name)
 	while (i > 0) {
 		const uint16_t n = STRESS_MINIMUM(i, 224);
 		register uint16_t k, l;
+
 		for (l = 0, k = 1; l < n; l++, k += delta) {
 			register uint16_t r = j / k;
 			sum += r;
@@ -2373,6 +2375,7 @@ static void TARGET_CLONES stress_cpu_div32(const char *name)
 	while (i > 0) {
 		const uint32_t n = STRESS_MINIMUM(i, 224);
 		register uint32_t k, l;
+
 		for (l = 0, k = 1; l < n; l++, k += delta) {
 			register uint32_t r = j / k;
 			sum += r;
@@ -2399,6 +2402,7 @@ static void TARGET_CLONES stress_cpu_div64(const char *name)
 	while (i > 0) {
 		const uint64_t n = STRESS_MINIMUM(i, 224);
 		register uint64_t k, l;
+
 		for (l = 0, k = 1; l < n; l++, k += delta) {
 			register uint64_t r = j / k;
 			sum += r;
@@ -2427,6 +2431,7 @@ static void TARGET_CLONES stress_cpu_div128(const char *name)
 	while (i > 0) {
 		const __uint128_t n = STRESS_MINIMUM(i, 224);
 		register __uint128_t k, l;
+
 		for (l = 0, k = 1; l < n; l++, k += delta) {
 			register __uint128_t r = j / k;
 			sum += r;
@@ -2742,7 +2747,7 @@ static void stress_cpu_factorial(const char *name)
 	const long double sqrt_pi = shim_sqrtl(PI);
 
 	for (n = 1; n < 150; n++) {
-		long double np1 = (long double)(n + 1);
+		const long double np1 = (long double)(n + 1);
 		long double fact = shim_roundl(shim_expl(shim_lgammal(np1)));
 		long double dn;
 
