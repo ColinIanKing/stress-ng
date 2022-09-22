@@ -160,7 +160,7 @@ static int stress_hrtimer_process(const stress_args_t *args, uint64_t *counter)
 			if (sl_ret == 0)
 				hrtimer_interrupt = true;
 		} else {
-			long ns_adjust = ns_delay >> 2;
+			const long ns_adjust = ns_delay >> 2;
 			double now;
 
 			/* The sleep will be interrupted on each hrtimer tick */
