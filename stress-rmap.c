@@ -189,7 +189,7 @@ static int stress_rmap(const stress_args_t *args)
 	}
 
 	for (i = 0; i < MAPPINGS_MAX; i++) {
-		off_t offset = (off_t)(i * page_size);
+		const off_t offset = (off_t)(i * page_size);
 
 		if (!keep_stressing(args))
 			goto cleanup;
