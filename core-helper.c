@@ -40,6 +40,16 @@
 #include <sys/loadavg.h>
 #endif
 
+#if defined(__FreeBSD__)
+#if defined(HAVE_SYS_MOUNT_H)
+#include <sys/mount.h>
+#endif
+
+#if defined(HAVE_SYS_PARAM_H)
+#include <sys/param.h>
+#endif
+#endif
+
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
 #endif
@@ -3303,10 +3313,19 @@ const char *stress_fs_type(const char *filename)
 	struct statfs buf;
 	static char tmp[64];
 
-	if (statfs(filename, &buf) != 0) {
+	if (statfs(filename, &buf) != 0)
 		return "";
-	}
 	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s", stress_fs_magic_to_name((unsigned long)buf.f_type));
+	return tmp;
+#elif defined(__FreeBSD__) &&		\
+      defined(HAVE_SYS_MOUNT_H) &&	\
+      defined(HAVE_SYS_PARAM_H)
+	struct statfs buf;
+	static char tmp[64];
+
+	if (statfs(filename, &buf) != 0)
+		return "";
+	(void)snprintf(tmp, sizeof(tmp), ", filesystem type: %s", buf.f_fstypename);
 	return tmp;
 #else
 	(void)filename;
