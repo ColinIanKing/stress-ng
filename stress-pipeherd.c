@@ -186,7 +186,7 @@ static int stress_pipeherd(const stress_args_t *args)
 		(void)memset(&usage, 0, sizeof(usage));
 		if (getrusage(RUSAGE_SELF, &usage) == 0) {
 			const uint64_t count = get_counter(args);
-			double dt = t2 - t1;
+			const double dt = t2 - t1;
 
 			total += usage.ru_nvcsw + usage.ru_nivcsw;
 			if (total) {
