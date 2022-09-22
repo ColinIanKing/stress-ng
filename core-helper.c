@@ -643,6 +643,29 @@ static int stress_get_meminfo(
 		return 0;
 	}
 #endif
+#if defined(__FreeBSD__)
+	{
+		const size_t page_size = (size_t)stress_bsd_getsysctl_uint("vm.stats.vm.v_page_size");
+#if 0
+		/*
+		 *  Enable total swap only when we can determine free swap
+		 */
+		const size_t max_size_t = (size_t)-1;
+		const uint64_t vm_swap_total = stress_bsd_getsysctl_uint64("vm.swap_total");
+
+		*totalswap = (vm_swap_total >= max_size_t) ? max_size_t : (size_t)vm_swap_total;
+#endif
+		*freemem = page_size * stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count");
+		*totalmem = page_size *
+			(stress_bsd_getsysctl_uint32("vm.stats.vm.v_active_count") +
+			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_inactive_count") +
+			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_laundry_count") +
+			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_wire_count") +
+			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count"));
+		return 0;
+	}
+#endif
+pr_inf("%s %d - no info\n", __func__, __LINE__);
 	*freemem = 0;
 	*totalmem = 0;
 	*freeswap = 0;
