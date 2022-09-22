@@ -565,7 +565,7 @@ static int epoll_client(
 		int fd, saved_errno;
 		int retries = 0;
 		int ret;
-		int port = epoll_port + port_counter +
+		const int port = epoll_port + port_counter +
 				(max_servers * (int)args->instance);
 		socklen_t addr_len = 0;
 
