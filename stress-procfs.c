@@ -259,7 +259,8 @@ static inline void stress_proc_rw(
 		 *  Multiple randomly sized reads
 		 */
 		for (i = 0; i < 4096 * PROC_BUF_SZ; i++) {
-			ssize_t sz = 1 + (stress_mwc32() % sizeof(buffer));
+			const ssize_t sz = 1 + (stress_mwc32() % sizeof(buffer));
+
 			if (!keep_stressing_flag())
 				break;
 			ret = read(fd, buffer, (size_t)sz);
@@ -644,6 +645,7 @@ static char *stress_random_pid(void)
 	 */
 	for (i = 0, j = 0; i < 32; i++) {
 		char *name;
+
 		j += (size_t)stress_mwc32();
 		j %= (size_t)n;
 
