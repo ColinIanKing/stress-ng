@@ -89,10 +89,10 @@ static void stress_rawdev_sweep(
 {
 	size_t i;
 	ssize_t ret;
-	off_t offset;
 
 	for (i = 0; i < blks && keep_stressing(args); i += shift_ul(blks, 8)) {
-		offset = (off_t)i * (off_t)blksz;
+		const off_t offset = (off_t)i * (off_t)blksz;
+
 		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
 			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
@@ -101,7 +101,8 @@ static void stress_rawdev_sweep(
 		inc_counter(args);
 	}
 	for (; i > 0 && keep_stressing(args); i -= shift_ul(blks, 8)) {
-		offset = (off_t)i * (off_t)blksz;
+		const off_t offset = (off_t)i * (off_t)blksz;
+
 		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
 			pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
@@ -124,13 +125,13 @@ static void stress_rawdev_wiggle(
 {
 	size_t i;
 	ssize_t ret;
-	off_t offset;
 
 	for (i = shift_ul(blks, 8); i < blks && keep_stressing(args); i += shift_ul(blks, 8)) {
 		unsigned long j;
 
 		for (j = 0; j < shift_ul(blks, 8) && keep_stressing(args); j += shift_ul(blks, 10)) {
-			offset = (off_t)(i - j) * (off_t)blksz;
+			const off_t offset = (off_t)(i - j) * (off_t)blksz;
+
 			ret = pread(fd, buffer, blksz, offset);
 			if (ret < 0) {
 				pr_err("%s: pread at %ju failed, errno=%d (%s)\n",
@@ -154,10 +155,10 @@ static void stress_rawdev_ends(
 	const size_t blksz)
 {
 	size_t i;
-	off_t offset;
 
 	for (i = 0; i < 128; i++) {
 		ssize_t ret;
+		off_t offset;
 
 		offset = (off_t)i * (off_t)blksz;
 		ret = pread(fd, buffer, blksz, offset);
@@ -192,7 +193,7 @@ static void stress_rawdev_random(
 
 	for (i = 0; i < 256 && keep_stressing(args); i++) {
 		ssize_t ret;
-		off_t offset = (off_t)(blksz * (stress_mwc64() % blks));
+		const off_t offset = (off_t)(blksz * (stress_mwc64() % blks));
 
 		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
@@ -219,7 +220,7 @@ static void stress_rawdev_burst(
 
 	for (i = 0; i < 256 && keep_stressing(args); i++) {
 		ssize_t ret;
-		off_t offset = blk * (off_t)blksz;
+		const off_t offset = blk * (off_t)blksz;
 
 		ret = pread(fd, buffer, blksz, offset);
 		if (ret < 0) {
