@@ -114,7 +114,7 @@ static void *stress_loadavg_func(void *arg)
 	const int fd = *(int *)pargs->data;
 	char buf[1];
 #endif
-	double t_end = stress_time_now() + (double)g_opt_timeout;
+	const double t_end = stress_time_now() + (double)g_opt_timeout;
 
 #if defined(LOADAVG_IO)
 	buf[0] = (char)stress_mwc8();
