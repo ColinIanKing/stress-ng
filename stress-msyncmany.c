@@ -79,7 +79,7 @@ static int stress_msyncmany_child(const stress_args_t *args, void *context)
 
 	do {
 		int ret;
-		uint64_t pattern = stress_mwc64();
+		const uint64_t pattern = stress_mwc64();
 
 		*mapped = pattern;
 
