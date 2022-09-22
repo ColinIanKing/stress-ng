@@ -205,7 +205,7 @@ static int stress_chroot_test5(const stress_args_t *args)
 static int stress_chroot_test6(const stress_args_t *args)
 {
 	int ret1, ret2, errno1, errno2;
-	const char dev[] = "/dev/null";
+	static const char dev[] = "/dev/null";
 
 	do_chroot(dev, &ret1, &ret2, &errno1, &errno2);
 
@@ -239,7 +239,6 @@ static int stress_chroot_test7(const stress_args_t *args)
 	path[0] = '/';
 
 	do_chroot(path, &ret1, &ret2, &errno1, &errno2);
-
 
 	if ((ret1 >= 0) || ((errno1 != ENOTDIR) &&
 			    (errno1 != ENAMETOOLONG) &&
