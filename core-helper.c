@@ -68,6 +68,10 @@
 #include <linux/magic.h>
 #endif
 
+#if defined(HAVE_UVM_UVM_EXTERN_H)
+#include <uvm/uvm_extern.h>
+#endif
+
 /* prctl(2) timer slack support */
 #if defined(HAVE_SYS_PRCTL_H) && \
     defined(HAVE_PRCTL) && \
@@ -663,6 +667,20 @@ static int stress_get_meminfo(
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_wire_count") +
 			 stress_bsd_getsysctl_uint32("vm.stats.vm.v_free_count"));
 		return 0;
+	}
+#endif
+#if defined(__NetBSD__) &&	\
+    defined(HAVE_UVM_UVM_EXTERN_H)
+	{
+		struct uvmexp_sysctl u;
+
+		if (stress_bsd_getsysctl("vm.uvmexp2", &u, sizeof(u)) == 0) {
+			*freemem = (size_t)u.free * u.pagesize;
+			*totalmem = (size_t)u.npages * u.pagesize;
+			*totalswap = (size_t)u.swpages * u.pagesize;
+			*freeswap = *totalswap - (size_t)u.swpginuse * u.pagesize;
+			return 0;
+		}
 	}
 #endif
 	*freemem = 0;
