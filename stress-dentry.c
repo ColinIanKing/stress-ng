@@ -127,8 +127,8 @@ static void stress_dentry_unlink(
 		prime = stress_get_prime64(n);
 		for (i = 0, j = prime; i < n; i++, j += prime) {
 			char path[PATH_MAX];
-			uint64_t k = j % n;
-			uint64_t gray_code = (k >> 1) ^ k;
+			const uint64_t k = j % n;
+			const uint64_t gray_code = (k >> 1) ^ k;
 
 			stress_temp_filename_args(args,
 				path, sizeof(path), gray_code * 2);
@@ -139,7 +139,7 @@ static void stress_dentry_unlink(
 	default:
 		for (i = 0; i < n; i++) {
 			char path[PATH_MAX];
-			uint64_t gray_code = (i >> 1) ^ i;
+			const uint64_t gray_code = (i >> 1) ^ i;
 
 			stress_temp_filename_args(args,
 				path, sizeof(path), gray_code * 2);
