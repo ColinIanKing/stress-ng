@@ -128,9 +128,7 @@ static const char *stress_get_ipsec_mb_feature(const uint64_t feature)
  */
 static uint64_t stress_ipsec_mb_features(const stress_args_t *args, MB_MGR *p_mgr)
 {
-	uint64_t features;
-
-	features = p_mgr->features;
+	const uint64_t features = p_mgr->features;
 
 	if (args->instance == 0) {
 		char str[128] = "";
@@ -189,11 +187,9 @@ static inline void stress_job_empty(struct MB_MGR *mb_mgr)
 
 static inline struct JOB_AES_HMAC *stress_job_get_next(struct MB_MGR *mb_mgr)
 {
-	struct JOB_AES_HMAC *job;
+	struct JOB_AES_HMAC *job = IMB_GET_NEXT_JOB(mb_mgr);
 
-	job = IMB_GET_NEXT_JOB(mb_mgr);
 	(void)memset(job, 0, sizeof(*job));
-
 	return job;
 }
 
@@ -207,7 +203,6 @@ static void stress_job_check_status(
 	struct JOB_AES_HMAC *job,
 	int *jobs_done)
 {
-
 	if (job->status != STS_COMPLETED) {
 		pr_err("%s: %s: job not completed\n",
 			args->name, name);
@@ -789,7 +784,7 @@ do_stats:
 		if (((init_mb[i].features & features) == init_mb[i].features) &&
 		    (stats[i].duration > 0.0)) {
 			char tmp[32];
-			double rate = (double)stats[i].ops / stats[i].duration;
+			const double rate = (double)stats[i].ops / stats[i].duration;
 
 			pr_dbg("%s: %s %.3f bogo/ops per second\n",
 				args->name, init_mb[i].name, rate);
