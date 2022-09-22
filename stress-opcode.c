@@ -184,7 +184,7 @@ static void stress_opcode_mixed(
 	register uint32_t *ops = ops_begin;
 
 	while (ops < ops_end) {
-		register uint32_t rnd = stress_mwc32();
+		register const uint32_t rnd = stress_mwc32();
 
 		*(ops++) = tmp;
 		*(ops++) = tmp ^ 0xffffffff;	/* Inverted */
@@ -220,7 +220,7 @@ static void stress_opcode_text(
 
 	(void)memcpy(ops_begin, text_start + offset, ops_len);
 	for (ops = (uint8_t *)ops_begin; ops < (const uint8_t *)ops_end; ops++) {
-		uint8_t rnd = stress_mwc8();
+		const uint8_t rnd = stress_mwc8();
 
 		/* 1 in 8 chance of random bit corruption */
 		if (rnd < 32) {
