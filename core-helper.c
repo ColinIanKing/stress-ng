@@ -2793,7 +2793,7 @@ int stress_get_unused_uid(uid_t *uid)
 /*
  *  stress_read_buffer()
  *	In addition to read() this function makes sure all bytes have been
- *	written. You're also able to ignore EINTR interrupts which could happen
+ *	read. You're also able to ignore EINTR interrupts which could happen
  *	on alarm() in the parent process.
  */
 ssize_t stress_read_buffer(int fd, void* buffer, ssize_t size, bool ignore_int)
