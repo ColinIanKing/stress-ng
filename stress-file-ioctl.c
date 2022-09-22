@@ -118,7 +118,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 	int dfd;
 #endif
 	const off_t file_sz = 1024 * 1024;
-	uint32_t rnd = stress_mwc32();
+	const uint32_t rnd = stress_mwc32();
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -286,7 +286,7 @@ static int stress_file_ioctl(const stress_args_t *args)
 		{
 			struct file_clone_range fcr;
 			const off_t sz = 4096 * (stress_mwc8() & 0x3);
-			off_t offset = (stress_mwc8() * 4096) & (file_sz - 1);
+			const off_t offset = (stress_mwc8() * 4096) & (file_sz - 1);
 
 			(void)memset(&fcr, 0, sizeof(fcr));
 			fcr.src_fd = fd;
