@@ -34,6 +34,11 @@
 #define SENSE_BUF_SZ		(0x20)
 #define BUF_SZ			(0x200)
 
+#if defined(HAVE_SCSI_SG_H) &&	\
+    defined(HAVE_SCSI_SCSI_IOCTL_H)
+#define HAVE_SMART	(1)
+#endif
+
 /*
  *  See https://www.t10.org/ftp/t10/document.04/04-262r8.pdf
  */
@@ -89,13 +94,10 @@ typedef struct {
 	stress_smart_dev_t *dev;
 } stress_smart_devs_t;
 
+
+#if defined(HAVE_SMART)
+
 static stress_smart_devs_t smart_devs;
-
-#if defined(HAVE_SCSI_SG_H) &&	\
-    defined(HAVE_SCSI_SCSI_IOCTL_H)
-
-#define HAVE_SMART	(1)
-
 /*
  *  S.M.A.R.T. ID Descriptions, see:
  *  https://en.wikipedia.org/wiki/S.M.A.R.T.#Known_ATA_S.M.A.R.T._attributes
@@ -353,52 +355,6 @@ static void stress_smart_data_diff(stress_smart_dev_t *dev)
 	}
 }
 
-#else
-
-/*
- *  stress_smart_data_diff_count()
- *	count smart data changes between begin and end runs, no-op
- */
-static size_t stress_smart_data_diff_count(stress_smart_dev_t *dev)
-{
-	(void)dev;
-
-	return 0;
-}
-
-/*
- *  stress_smart_data_free()
- *	free smart data, no-op
- */
-static void stress_smart_data_free(stress_smart_data_t **data)
-{
-	(void)data;
-}
-
-/*
- *  stress_smart_data_read()
- *	read smart data from a device, no-op
- */
-static stress_smart_data_t *stress_smart_data_read(const char *path)
-
-{
-	(void)path;
-
-	return NULL;
-}
-
-/*
- *  stress_smart_data_diff()
- *	print device and smart attributes that changed, no-op
- */
-static void stress_smart_data_diff(stress_smart_dev_t *dev)
-{
-	(void)dev;
-}
-
-#endif
-
-#if defined(HAVE_SMART)
 /*
  *  stress_smart_dev_filter()
  * 	discard entries that don't look like device names
@@ -477,7 +433,6 @@ static void stress_smart_read_devs(void)
 	}
 	free(devs);
 }
-#endif
 
 /*
  *  stress_smart_free_devs()
@@ -485,7 +440,6 @@ static void stress_smart_read_devs(void)
  */
 static void stress_smart_free_devs(void)
 {
-#if defined(HAVE_SMART)
 	stress_smart_dev_t *dev = smart_devs.dev;
 
 	while (dev) {
@@ -498,9 +452,9 @@ static void stress_smart_free_devs(void)
 
 		dev = next;
 	}
-#endif
 	smart_devs.dev = NULL;
 }
+#endif
 
 /*
  *  stress_smart_start()
