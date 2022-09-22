@@ -2513,6 +2513,14 @@ extern WARN_UNUSED bool stress_is_dev_tty(const int fd);
 extern WARN_UNUSED bool stress_little_endian(void);
 extern WARN_UNUSED char *stress_proc_self_exe_path(const char *proc_path);
 extern WARN_UNUSED char *stress_proc_self_exe(void);
+#if defined(__FreeBSD__) ||	\
+    defined(__NetBSD__)
+extern WARN_UNUSED int stress_bsd_getsysctl(const char *name, void *ptr, size_t size);
+extern WARN_UNUSED uint64_t stress_bsd_getsysctl_uint64(const char *name);
+extern WARN_UNUSED uint32_t stress_bsd_getsysctl_uint32(const char *name);
+extern WARN_UNUSED unsigned int stress_bsd_getsysctl_uint(const char *name);
+extern WARN_UNUSED int stress_bsd_getsysctl_int(const char *name);
+#endif
 
 extern WARN_UNUSED int stress_try_open(const stress_args_t *args,
 	const char *path, const int flags, const unsigned long timeout_ns);

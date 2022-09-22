@@ -48,6 +48,10 @@
 #include <sys/statvfs.h>
 #endif
 
+#if defined(HAVE_SYS_SYSCTL_H)
+#include <sys/sysctl.h>
+#endif
+
 #if defined(HAVE_SYS_UTSNAME_H)
 #include <sys/utsname.h>
 #endif
@@ -3328,3 +3332,79 @@ char *stress_proc_self_exe(void)
 	return NULL;
 #endif
 }
+
+#if defined(__FreeBSD__) ||	\
+    defined(__NetBSD__)
+/*
+ *  stress_bsd_getsysctl()
+ *	get sysctl using name, ptr to obj, size = size of obj
+ */
+int stress_bsd_getsysctl(const char *name, void *ptr, size_t size)
+{
+	int ret;
+	size_t nsize = size;
+	if (!ptr)
+		return -1;
+
+	(void)memset(ptr, 0, size);
+
+	ret = sysctlbyname(name, ptr, &nsize, NULL, 0);
+	if ((ret < 0) || (nsize != size)) {
+		(void)memset(ptr, 0, size);
+		return -1;
+	}
+	return 0;
+}
+
+/*
+ *  stress_bsd_getsysctl_uint64()
+ *	get sysctl by name, return uint64 value
+ */
+uint64_t stress_bsd_getsysctl_uint64(const char *name)
+{
+	uint64_t val;
+
+	if (stress_bsd_getsysctl(name, &val, sizeof(val)) == 0)
+		return val;
+	return 0ULL;
+}
+
+/*
+ *  stress_bsd_getsysctl_uint32()
+ *	get sysctl by name, return uint32 value
+ */
+uint32_t stress_bsd_getsysctl_uint32(const char *name)
+{
+	uint32_t val;
+
+	if (stress_bsd_getsysctl(name, &val, sizeof(val)) == 0)
+		return val;
+	return 0UL;
+}
+
+/*
+ *  stress_bsd_getsysctl_uint()
+ *	get sysctl by name, return unsigned int value
+ */
+unsigned int stress_bsd_getsysctl_uint(const char *name)
+{
+	unsigned int val;
+
+	if (stress_bsd_getsysctl(name, &val, sizeof(val)) == 0)
+		return val;
+	return 0;
+}
+
+/*
+ *  stress_bsd_getsysctl_int()
+ *	get sysctl by name, return int value
+ */
+int stress_bsd_getsysctl_int(const char *name)
+{
+	int val;
+
+	if (stress_bsd_getsysctl(name, &val, sizeof(val)) == 0)
+		return val;
+	return 0;
+}
+#endif
