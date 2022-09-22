@@ -66,7 +66,7 @@ static int stress_personality(const stress_args_t *args)
 		size_t i, fails = 0;
 
 		for (i = 0; i < n; i++) {
-			unsigned long p = personalities[i];
+			const unsigned long p = personalities[i];
 			int ret;
 
 			if (!keep_stressing_flag())
