@@ -79,10 +79,8 @@ static uint32_t path_sum(const char *path)
 
 static int mixup_sort(const struct dirent **d1, const struct dirent **d2)
 {
-	uint32_t s1, s2;
-
-	s1 = path_sum((*d1)->d_name);
-	s2 = path_sum((*d2)->d_name);
+	const uint32_t s1 = path_sum((*d1)->d_name);
+	const uint32_t s2 = path_sum((*d2)->d_name);
 
 	if (s1 == s2)
 		return 0;
@@ -181,7 +179,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		 *  Multiple randomly sized reads
 		 */
 		while (i < (4096 * SYS_BUF_SZ)) {
-			ssize_t sz = 1 + (stress_mwc32() % (sizeof(buffer) - 1));
+			const ssize_t sz = 1 + (stress_mwc32() % (sizeof(buffer) - 1));
 
 			if (!keep_stressing_flag())
 				break;
@@ -761,7 +759,7 @@ again:
 
 			do {
 				int j = (int)args->instance % n;
-				int inc = (int)stress_get_prime64((((uint64_t)(args->instance + 1) * 50U) + 1200));
+				const int inc = (int)stress_get_prime64((((uint64_t)(args->instance + 1) * 50U) + 1200));
 
 				for (i = 0; i < n; i++) {
 					char sysfspath[PATH_MAX];
