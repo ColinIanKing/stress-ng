@@ -116,6 +116,7 @@ static void NORETURN killer(
 		 */
 		if (last_counter == get_counter(args)) {
 			const double now = stress_time_now();
+
 			if (now - start > ABORT_TIMEOUT) {
 				/* unblock waiting parent */
 				(void)kill(ppid, SIGUSR1);
