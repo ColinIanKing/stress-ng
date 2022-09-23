@@ -392,7 +392,7 @@ static void stress_stream_init_data(
 	const double divisor = 1.0 / (double)(4294967296ULL);
 
 	for (i = 0; i < n; i++) {
-		const uint32_t r1 = stress_mwc32();
+		register const uint32_t r1 = stress_mwc32();
 
 		STORE(data[i], (double)r1 * divisor);
 	}
@@ -487,10 +487,9 @@ static void stress_stream_init_index(
 		idx[i] = i;
 
 	for (i = 0; i < n; i++) {
-		register uint64_t j = stress_mwc64() % n;
-		register uint64_t tmp;
+		register const uint64_t j = stress_mwc64() % n;
+		register const uint64_t tmp = idx[i];
 
-		tmp = idx[i];
 		idx[i] = idx[j];
 		idx[j] = tmp;
 	}
