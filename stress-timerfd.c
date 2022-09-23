@@ -120,7 +120,7 @@ static void stress_timerfd_set(
 
 	if (timerfd_rand) {
 		/* Mix in some random variation */
-		double r = ((double)(stress_mwc32() % 10000) - 5000.0) / 40000.0;
+		const double r = ((double)(stress_mwc32() % 10000) - 5000.0) / 40000.0;
 		rate = rate_ns + (rate_ns * r);
 	} else {
 		rate = rate_ns;
