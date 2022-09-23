@@ -306,9 +306,8 @@ static int stress_x86syscall(const stress_args_t *args)
 		return EXIT_FAILURE;
 
 	if (args->instance == 0) {
-		char *str;
+		char *str = x86syscall_list_str();
 
-		str = x86syscall_list_str();
 		if (str) {
 			pr_inf("%s: exercising syscall on: %s\n",
 				args->name, str);
@@ -320,7 +319,7 @@ static int stress_x86syscall(const stress_args_t *args)
 
 	t1 = stress_time_now();
 	do {
-		size_t i;
+		register size_t i;
 
 		for (i = 0; x86syscalls[i].name; i++) {
 			if (x86syscalls[i].exercise) {
@@ -337,7 +336,7 @@ static int stress_x86syscall(const stress_args_t *args)
 	 */
 	counter = get_counter(args);
 	do {
-		int j;
+		register int j;
 
 		for (j = 0; j < 1000000; j++) {
 			if (dummy_x86syscalls[0].exercise) {
