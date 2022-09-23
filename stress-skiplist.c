@@ -240,7 +240,7 @@ static int stress_skiplist(const stress_args_t *args)
 		}
 
 		for (i = 0; i < n; i++) {
-			unsigned long v = (i >> 1) ^ i;
+			const unsigned long v = (i >> 1) ^ i;
 
 			if (!skip_list_insert(&list, v)) {
 				pr_inf("%s: out of memory initializing the skip list\n",
@@ -251,7 +251,7 @@ static int stress_skiplist(const stress_args_t *args)
 		}
 
 		for (i = 0; i < n; i++) {
-			unsigned long v = (i >> 1) ^ i;
+			const unsigned long v = (i >> 1) ^ i;
 
 			if (!skip_list_search(&list, v))
 				pr_fail("%s node containing value %lu was not found\n",
