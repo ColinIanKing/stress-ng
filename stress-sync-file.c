@@ -162,7 +162,7 @@ static int stress_sync_file(const stress_args_t *args)
 		}
 		for (offset = 0; keep_stressing_flag() &&
 		     (offset < (shim_off64_t)sync_file_bytes); ) {
-			shim_off64_t sz = (stress_mwc32() & 0x1fc00) + KB;
+			const shim_off64_t sz = (stress_mwc32() & 0x1fc00) + KB;
 
 			ret = shim_sync_file_range(fd, offset, sz, mode);
 			if (ret < 0) {
@@ -202,7 +202,7 @@ static int stress_sync_file(const stress_args_t *args)
 		}
 		for (offset = 0; keep_stressing_flag() &&
 		     (offset < (shim_off64_t)sync_file_bytes); ) {
-			shim_off64_t sz = (stress_mwc32() & 0x1fc00) + KB;
+			const shim_off64_t sz = (stress_mwc32() & 0x1fc00) + KB;
 
 			ret = shim_sync_file_range(fd, sync_file_bytes - offset, sz, mode);
 			if (ret < 0) {
@@ -228,7 +228,8 @@ static int stress_sync_file(const stress_args_t *args)
 		}
 		for (i = 0; keep_stressing_flag() && i <
 		     (shim_off64_t)sync_file_bytes / (shim_off64_t)(128 * KB); i++) {
-			offset = (shim_off64_t)((stress_mwc64() % (uint64_t)sync_file_bytes) & ~((128 * KB) - 1));
+			const shim_off64_t offset = (shim_off64_t)((stress_mwc64() % (uint64_t)sync_file_bytes) & ~((128 * KB) - 1));
+
 			ret = shim_sync_file_range(fd, offset, 128 * KB, mode);
 			if (ret < 0) {
 				if (errno == ENOSYS) {
