@@ -268,7 +268,7 @@ static int hash_put(void *handle, const uint32_t x, const uint32_t y, const uint
 	sparse_hash_node_t *node;
 	sparse_hash_table_t *table = (sparse_hash_table_t *)handle;
 	size_t hash;
-	uint64_t xy = ((uint64_t)x << 32) | y;
+	const uint64_t xy = ((uint64_t)x << 32) | y;
 
 	if (!table)
 		return -1;
@@ -303,7 +303,7 @@ static sparse_hash_node_t *hash_get_node(void *handle, const uint32_t x, const u
 	sparse_hash_table_t *table = (sparse_hash_table_t *)handle;
 	sparse_hash_node_t *node;
 	size_t hash;
-	uint64_t xy = ((uint64_t)x << 32) | y;
+	const uint64_t xy = ((uint64_t)x << 32) | y;
 
 	if (!table)
 		return NULL;
@@ -346,7 +346,7 @@ static void hash_del(void *handle, const uint32_t x, const uint32_t y)
 static void *qhash_create(const uint64_t n, const uint32_t x, const uint32_t y)
 {
 	sparse_qhash_table_t *table;
-	uint64_t n_prime = stress_get_prime64(n);
+	const uint64_t n_prime = stress_get_prime64(n);
 
 	(void)x;
 	(void)y;
@@ -412,7 +412,7 @@ static int qhash_put(void *handle, const uint32_t x, const uint32_t y, const uin
 	sparse_qhash_node_t *node;
 	sparse_qhash_table_t *table = (sparse_qhash_table_t *)handle;
 	size_t hash;
-	uint64_t xy = ((uint64_t)x << 32) | y;
+	const uint64_t xy = ((uint64_t)x << 32) | y;
 
 	if (!table)
 		return -1;
@@ -447,7 +447,7 @@ static sparse_qhash_node_t *qhash_get_node(void *handle, const uint32_t x, const
 	sparse_qhash_table_t *table = (sparse_qhash_table_t *)handle;
 	sparse_qhash_node_t *node;
 	size_t hash;
-	uint64_t xy = ((uint64_t)x << 32) | y;
+	const uint64_t xy = ((uint64_t)x << 32) | y;
 
 	if (!table)
 		return NULL;
@@ -833,7 +833,6 @@ UNEXPECTED
 static uint64_t value_map(const uint32_t x, const uint32_t y)
 {
 	return ((uint64_t)x << 32) ^ y;
-	//return ((uint64_t)~x << 11) ^ y;
 }
 
 static int stress_sparse_method_test(
