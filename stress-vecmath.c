@@ -202,6 +202,7 @@ static int TARGET_CLONES stress_vecmath(const stress_args_t *args)
 
 	do {
 		int i;
+
 		for (i = 1000; i; i--) {
 			/* Good mix of vector ops */
 			OPS(a8, b8, c8, s8, v23_8, v3_8);
