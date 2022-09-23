@@ -25,10 +25,12 @@
 #define MAX_VM_ADDR_BYTES	(64 * MB)
 #define NO_MEM_RETRIES_MAX	(100)
 
+#define ALIGN_VM	ALIGNED(64)
+
 /*
  *  the VM stress test has diffent methods of vm stressor
  */
-typedef size_t (*stress_vm_addr_func)(uint8_t *buf, const size_t sz);
+typedef size_t (*stress_vm_addr_func)(void *buf, const size_t sz);
 
 typedef struct {
 	const char *name;
@@ -62,19 +64,22 @@ static bool HOT OPTIMIZE3 keep_stressing_vm(const stress_args_t *args)
  *  stress_vm_addr_pwr2()
  *	set data on power of 2 addresses
  */
-static size_t TARGET_CLONES stress_vm_addr_pwr2(
-	uint8_t *buf,
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2(
+	void *ptr,
 	const size_t sz)
 {
-	size_t n, errs = 0;
+	size_t n, errs = 0, step;
 	uint8_t rnd = stress_mwc8();
+	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
-	for (n = 1; n < sz; n++) {
+	for (step = 1, n = 0; n < sz; n += step) {
 		*(buf + n) = rnd;
+		step = (step >= 4096) ? 1 : step << 1;
 	}
-	for (n = 1; n < sz; n++) {
-		if (*(buf + n) != rnd)
+	for (step = 1, n = 0; n < sz; n += step) {
+		if (UNLIKELY(*(buf + n) != rnd))
 			errs++;
+		step = (step >= 4096) ? 1 : step << 1;
 	}
 	return errs;
 }
@@ -83,19 +88,23 @@ static size_t TARGET_CLONES stress_vm_addr_pwr2(
  *  stress_vm_addr_pwr2inv()
  *	set data on inverted power of 2 addresses
  */
-static size_t TARGET_CLONES stress_vm_addr_pwr2inv(
-	uint8_t *buf,
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_pwr2inv(
+	void *ptr,
 	const size_t sz)
 {
-	size_t mask = sz - 1, n, errs = 0;
+	const size_t mask = sz - 1;
+	size_t n, errs = 0, step;
 	uint8_t rnd = stress_mwc8();
+	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
-	for (n = 1; n < sz; n++) {
+	for (step = 1, n = 0; n < sz; n += step) {
 		*(buf + (n ^ mask)) = rnd;
+		step = (step >= 4096) ? 1 : step << 1;
 	}
-	for (n = 1; n < sz; n++) {
-		if (*(buf + (n ^ mask)) != rnd)
+	for (step = 1, n = 0; n < sz; n += step) {
+		if (UNLIKELY(*(buf + (n ^ mask)) != rnd))
 			errs++;
+		step = (step >= 4096) ? 1 : step << 1;
 	}
 	return errs;
 }
@@ -105,20 +114,24 @@ static size_t TARGET_CLONES stress_vm_addr_pwr2inv(
  *	set data on gray coded addresses,
  *	each address changes by just 1 bit
  */
-static size_t TARGET_CLONES stress_vm_addr_gray(
-	uint8_t *buf,
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_gray(
+	void *ptr,
 	const size_t sz)
 {
-	size_t mask = sz - 1, n, errs = 0;
+	size_t errs = 0, n;
+	const size_t mask = sz - 1;
 	uint8_t rnd = stress_mwc8();
+	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (n = 0; n < sz; n++) {
 		size_t gray = ((n >> 1) ^ n) & mask;
+
 		*(buf + gray) = rnd;
 	}
 	for (n = 0; n < sz; n++) {
 		size_t gray = ((n >> 1) ^ n) & mask;
-		if (*(buf + gray) != rnd)
+
+		if (UNLIKELY(*(buf + gray) != rnd))
 			errs++;
 	}
 	return errs;
@@ -129,20 +142,24 @@ static size_t TARGET_CLONES stress_vm_addr_gray(
  *	set data on inverted gray coded addresses,
  *	each address changes by as many bits possible
  */
-static size_t TARGET_CLONES stress_vm_addr_grayinv(
-	uint8_t *buf,
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_grayinv(
+	void *ptr,
 	const size_t sz)
 {
-	size_t mask = sz - 1, n, errs = 0;
+	size_t n, errs = 0;
+	const size_t mask = sz - 1;
 	uint8_t rnd = stress_mwc8();
+	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (n = 0; n < sz; n++) {
 		size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
+
 		*(buf + gray) = rnd;
 	}
 	for (n = 0; n < sz; n++) {
 		size_t gray = (((n >> 1) ^ n) ^ mask) & mask;
-		if (*(buf + gray) != rnd)
+
+		if (UNLIKELY(*(buf + gray) != rnd))
 			errs++;
 	}
 	return errs;
@@ -155,23 +172,26 @@ static size_t TARGET_CLONES stress_vm_addr_grayinv(
  *	0x00000001 -> 0x1000000
  * 	0x00000002 -> 0x2000000
  */
-static size_t TARGET_CLONES stress_vm_addr_rev(
-	uint8_t *buf,
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_rev(
+	void *ptr,
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0, shift;
 	uint8_t rnd = stress_mwc8();
+	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (shift = 0, n = sz; n; shift++, n <<= 1)
 		;
 
 	for (n = 0; n < sz; n++) {
 		size_t i = stress_reverse64(n << shift) & mask;
+
 		*(buf + i) = rnd;
 	}
 	for (n = 0; n < sz; n++) {
 		size_t i = stress_reverse64(n << shift) & mask;
-		if (*(buf + i) != rnd)
+
+		if (UNLIKELY(*(buf + i) != rnd))
 			errs++;
 	}
 	return errs;
@@ -184,23 +204,26 @@ static size_t TARGET_CLONES stress_vm_addr_rev(
  *	0x00000001 -> 0xeffffff
  * 	0x00000002 -> 0xdffffff
  */
-static size_t TARGET_CLONES stress_vm_addr_revinv(
-	uint8_t *buf,
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_revinv(
+	void *ptr,
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0, shift;
 	uint8_t rnd = stress_mwc8();
+	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (shift = 0, n = sz; n; shift++, n <<= 1)
 		;
 
 	for (n = 0; n < sz; n++) {
 		size_t i = (stress_reverse64(n << shift) ^ mask) & mask;
+
 		*(buf + i) = rnd;
 	}
 	for (n = 0; n < sz; n++) {
 		size_t i = (stress_reverse64(n << shift) ^ mask) & mask;
-		if (*(buf + i) != rnd)
+
+		if (UNLIKELY(*(buf + i) != rnd))
 			errs++;
 	}
 	return errs;
@@ -210,18 +233,20 @@ static size_t TARGET_CLONES stress_vm_addr_revinv(
  *  stress_vm_addr_inc()
  *	set data on incrementing addresses
  */
-static size_t TARGET_CLONES stress_vm_addr_inc(
-	uint8_t *buf,
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_inc(
+	void *ptr,
 	const size_t sz)
 {
-	size_t n, errs = 0;
+	size_t errs = 0;
 	uint8_t rnd = stress_mwc8();
+	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
+	uint8_t *ALIGN_VM buf_end = (uint8_t *)ptr + sz;
 
-	for (n = 0; n < sz; n++) {
-		*(buf + n) = rnd;
+	for (buf = ptr; buf < buf_end; buf++) {
+		*buf = rnd;
 	}
-	for (n = 0; n < sz; n++) {
-		if (*(buf + n) != rnd)
+	for (buf = ptr; LIKELY(buf < buf_end); buf++) {
+		if (UNLIKELY(*buf != rnd))
 			errs++;
 	}
 	return errs;
@@ -231,20 +256,23 @@ static size_t TARGET_CLONES stress_vm_addr_inc(
  *  stress_vm_addr_inc()
  *	set data on inverted incrementing addresses
  */
-static size_t TARGET_CLONES stress_vm_addr_incinv(
-	uint8_t *buf,
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_incinv(
+	void *ptr,
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0;
 	uint8_t rnd = stress_mwc8();
+	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (n = 0; n < sz; n++) {
 		size_t i = (n ^ mask) & mask;
+
 		*(buf + i) = rnd;
 	}
 	for (n = 0; n < sz; n++) {
 		size_t i = (n ^ mask) & mask;
-		if (*(buf + i) != rnd)
+
+		if (UNLIKELY(*(buf + i) != rnd))
 			errs++;
 	}
 	return errs;
@@ -254,18 +282,20 @@ static size_t TARGET_CLONES stress_vm_addr_incinv(
  *  stress_vm_addr_dec()
  *	set data on decrementing addresses
  */
-static size_t TARGET_CLONES stress_vm_addr_dec(
-	uint8_t *buf,
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_dec(
+	void *ptr,
 	const size_t sz)
 {
-	size_t n, errs = 0;
+	size_t errs = 0;
 	uint8_t rnd = stress_mwc8();
+	uint8_t *ALIGN_VM buf_end = (uint8_t *)ptr;
+	uint8_t *ALIGN_VM buf = (uint8_t *)ptr + sz - 1;
 
-	for (n = sz; n; n--) {
-		*(buf + n - 1) = rnd;
+	for (buf = (uint8_t *)ptr + sz - 1; buf != buf_end; buf--) {
+		*buf = rnd;
 	}
-	for (n = sz; n; n--) {
-		if (*(buf + n - 1) != rnd)
+	for (buf = (uint8_t *)ptr + sz - 1; buf != buf_end; buf--) {
+		if (UNLIKELY(*buf != rnd))
 			errs++;
 	}
 
@@ -276,20 +306,23 @@ static size_t TARGET_CLONES stress_vm_addr_dec(
  *  stress_vm_addr_dec()
  *	set data on inverted decrementing addresses
  */
-static size_t TARGET_CLONES stress_vm_addr_decinv(
-	uint8_t *buf,
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_decinv(
+	void *ptr,
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0;
 	uint8_t rnd = stress_mwc8();
+	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (n = sz; n; n--) {
-		size_t i = ((n - 1) ^ mask) & mask;
+		const size_t i = ((n - 1) ^ mask) & mask;
+
 		*(buf + i) = rnd;
 	}
 	for (n = sz; n; n--) {
-		size_t i = ((n - 1) ^ mask) & mask;
-		if (*(buf + i) != rnd)
+		const size_t i = ((n - 1) ^ mask) & mask;
+
+		if (UNLIKELY(*(buf + i) != rnd))
 			errs++;
 	}
 	return errs;
@@ -300,13 +333,13 @@ static size_t TARGET_CLONES stress_vm_addr_decinv(
  *	work through all vm stressors sequentially
  */
 static size_t stress_vm_addr_all(
-	uint8_t *buf,
+	void *ptr,
 	const size_t sz)
 {
 	static int i = 1;
 	size_t bit_errors = 0;
 
-	bit_errors = vm_addr_methods[i].func(buf, sz);
+	bit_errors = vm_addr_methods[i].func(ptr, sz);
 	i++;
 	if (vm_addr_methods[i].func == NULL)
 		i = 1;
@@ -358,7 +391,7 @@ static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 	int no_mem_retries = 0;
 	void *vm_base_addr;
 	size_t buf_sz;
-	uint8_t *buf = NULL;
+	void *buf = NULL;
 	stress_vm_addr_context_t *context = (stress_vm_addr_context_t *)ctxt;
 	const stress_vm_addr_func func = context->vm_addr_method->func;
 
@@ -375,7 +408,7 @@ static int stress_vm_addr_child(const stress_args_t *args, void *ctxt)
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory(buf_sz))
 			buf_sz = MIN_VM_ADDR_BYTES;
 
-		buf = (uint8_t *)mmap(vm_base_addr, buf_sz,
+		buf = (void *)mmap(vm_base_addr, buf_sz,
 			PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 		if (buf == MAP_FAILED) {
