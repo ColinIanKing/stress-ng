@@ -115,16 +115,15 @@ static int stress_tsearch(const stress_args_t *args)
 		}
 		/* Step #2, find */
 		for (i = 0; keep_stressing_flag() && i < n; i++) {
-			void **result;
+			const void **result = tfind(&data[i], &root, cmp);
 
-			result = tfind(&data[i], &root, cmp);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (!result) {
 					pr_fail("%s: element %zu could not be found\n",
 						args->name, i);
 				} else {
-					int32_t *val;
-					val = *result;
+					const int32_t *val = *result;
+
 					if (*val != data[i]) {
 						pr_fail("%s: element "
 							"%zu found %" PRIu32
@@ -136,9 +135,8 @@ static int stress_tsearch(const stress_args_t *args)
 		}
 		/* Step #3, delete */
 		for (i = 0; i < n; i++) {
-			void **result;
+			const void **result = tdelete(&data[i], &root, cmp);
 
-			result = tdelete(&data[i], &root, cmp);
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) && (result == NULL)) {
 				pr_fail("%s: element %zu could not be found\n",
 					args->name, i);
