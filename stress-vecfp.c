@@ -317,6 +317,7 @@ static int stress_vecfp(const stress_args_t *args)
 
 	for (i = 0; i < SIZEOF_ARRAY(stress_vecfp_funcs); i++) {
 		const size_t elements = stress_vecfp_funcs[i].elements;
+
 		if (max_elements < elements)
 			max_elements = elements;
 	}
@@ -338,7 +339,6 @@ static int stress_vecfp(const stress_args_t *args)
 		double d;
 		float f;
 		uint32_t r;
-
 
 		r = stress_mwc32();
 		d = (double)i + (double)r / ((double)(1ULL << 38));
