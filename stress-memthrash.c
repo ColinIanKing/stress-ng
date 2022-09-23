@@ -33,10 +33,13 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_LIB_PTHREAD)
 
-#define MATRIX_SIZE_MAX_SHIFT	(14)
+#define MATRIX_SIZE_MAX_SHIFT	(14)	/* No more than 16 */
 #define MATRIX_SIZE_MIN_SHIFT	(10)
 #define MATRIX_SIZE		(1 << MATRIX_SIZE_MAX_SHIFT)
 #define MEM_SIZE		(MATRIX_SIZE * MATRIX_SIZE)
+#define MEM_SIZE_PRIMES		(1 + MATRIX_SIZE_MAX_SHIFT - MATRIX_SIZE_MIN_SHIFT)
+#define CACHE_LINE_SHIFT	(6)	/* Typical 64 byte size */
+#define CACHE_LINE_SIZE		(1 << CACHE_LINE_SHIFT)
 
 typedef void (*stress_memthrash_func_t)(const stress_args_t *args, size_t mem_size);
 
@@ -57,10 +60,17 @@ typedef struct {
 	int ret;		/* pthread create return value */
 } stress_pthread_info_t;
 
+typedef struct {
+	size_t	mem_size;	/* memory size */
+	size_t  prime_stride;	/* prime cache sized stride */
+} stress_memthrash_primes_t;
+
 static const stress_memthrash_method_info_t memthrash_methods[];
 static void *mem;
 static volatile bool thread_terminate;
 static sigset_t set;
+
+static stress_memthrash_primes_t stress_memthrash_primes[MEM_SIZE_PRIMES];
 
 #if (((defined(__GNUC__) || defined(__clang__)) && 	\
        defined(STRESS_ARCH_X86)) ||			\
@@ -519,6 +529,41 @@ static void HOT OPTIMIZE3 stress_memthrash_spinwrite(
 	}
 }
 
+static void HOT OPTIMIZE3 stress_memthrash_tlb(
+	const stress_args_t *args,
+	const size_t mem_size)
+{
+	const size_t cache_lines = mem_size >> CACHE_LINE_SHIFT;
+	const size_t mask = mem_size - 1;		/* assuming mem_size is a power of 2 */
+	const size_t offset = (size_t)stress_mwc16() & (CACHE_LINE_SIZE - 1);
+	size_t prime_stride = 65537 * CACHE_LINE_SIZE;	/* prime default */
+	register int i;
+	volatile uint8_t *ptr;
+	register size_t j, k;
+
+	(void)args;
+
+	/* Find size of stride for the given memory size */
+	for (i = 0; i < MEM_SIZE_PRIMES; i++) {
+		if (mem_size == stress_memthrash_primes[i].mem_size) {
+			prime_stride = stress_memthrash_primes[i].prime_stride;
+			break;
+		}
+	}
+
+	/* Stride around memory in prime cache line strides, reads */
+	for (j = 0, k = offset; j < cache_lines; j++) {
+		ptr = (volatile uint8_t *)mem + k;
+		(void)*ptr;
+		k = (k + prime_stride) & mask;
+	}
+	/* Stride around memory in prime cache line strides, writes */
+	for (j = 0, k = offset; j < cache_lines; j++) {
+		ptr = (volatile uint8_t *)mem + k;
+		*ptr = j;
+		k = (k + prime_stride) & mask;
+	}
+}
 
 static void stress_memthrash_all(const stress_args_t *args, size_t mem_size);
 static void stress_memthrash_random(const stress_args_t *args, size_t mem_size);
@@ -552,6 +597,7 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "spinwrite",	stress_memthrash_spinwrite },
 	{ "swap",	stress_memthrash_swap },
 	{ "swap64",	stress_memthrash_swap64 },
+	{ "tlb",	stress_memthrash_tlb },
 };
 
 static void stress_memthrash_all(const stress_args_t *args, size_t mem_size)
@@ -607,6 +653,20 @@ static int stress_set_memthrash_method(const char *name)
 	(void)fprintf(stderr, "\n");
 
 	return -1;
+}
+
+static void stress_memthrash_find_primes(void)
+{
+	size_t i;
+
+	for (i = 0; i < MEM_SIZE_PRIMES; i++) {
+		const size_t mem_size = 1 << (2 * (i + MATRIX_SIZE_MIN_SHIFT));
+		const size_t cache_lines = (mem_size / CACHE_LINE_SIZE) + 137;
+
+		stress_memthrash_primes[i].mem_size = mem_size;
+		stress_memthrash_primes[i].prime_stride =
+			(size_t)stress_get_prime64((uint64_t)cache_lines) * CACHE_LINE_SIZE;
+	}
 }
 
 /*
@@ -780,6 +840,8 @@ static int stress_memthrash(const stress_args_t *args)
 {
 	stress_memthrash_context_t context;
 	int rc;
+
+	stress_memthrash_find_primes();
 
 	context.total_cpus = (uint32_t)stress_get_processors_online();
 	context.max_threads = stress_memthrash_max(args->num_instances, context.total_cpus);

@@ -3022,6 +3022,11 @@ T}
 swap64	T{
 work through memory swapping adjacent 64 byte chunks
 T}
+tlb	T{
+work through memory in sub-optimial strides of prime multiples of the cache
+line size with reads and then writes to cause translation lookaside buffer
+misses.
+T}
 .TE
 .TP
 .B -\-mergesort N
