@@ -85,7 +85,7 @@ again:
 			pr_err("%s: fork failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 			return EXIT_NO_RESOURCE;
-		}else if (pid > 0) {
+		} else if (pid > 0) {
 			int status, ret;
 	
 			/* Parent, wait for child */
