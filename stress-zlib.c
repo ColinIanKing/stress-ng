@@ -219,7 +219,7 @@ static void TARGET_CLONES stress_rand_data_utf8(
 	(void)args;
 
 	while (ptr < end) {
-		uint8_t ch = stress_mwc8();
+		register const uint8_t ch = stress_mwc8();
 
 		if (ch <= 0x7f)
 			*ptr++ = ch;
@@ -350,7 +350,7 @@ static void TARGET_CLONES stress_rand_data_00_ff(
 	(void)args;
 
 	while (ptr < end) {
-		register uint8_t v = stress_mwc8();
+		register const uint8_t v = stress_mwc8();
 
 		*(ptr + 0) = (v & 1) ? 0x00 : 0xff;
 		*(ptr + 1) = (v & 2) ? 0x00 : 0xff;
@@ -573,7 +573,7 @@ static void TARGET_CLONES stress_rand_data_double(
 	(void)args;
 
 	while (ptr < end) {
-		double s = sin(theta);
+		const double s = sin(theta);
 
 		(void)memcpy((void *)ptr, &s, sizeof(*ptr));
 
@@ -596,7 +596,7 @@ static void TARGET_CLONES stress_rand_data_gray(
 	static uint16_t val = 0;
 	register uint16_t *ptr = (uint16_t *)data;
 	register const uint16_t *end = (uint16_t *)data_end;
-	register uint16_t v = val;
+	register const uint16_t v = val;
 	register uint32_t i;
 
 	(void)args;
@@ -631,7 +631,7 @@ static void TARGET_CLONES stress_rand_data_parity(
 	(void)args;
 
 	while (ptr < end) {
-		register uint8_t v = stress_mwc8();
+		register const uint8_t v = stress_mwc8();
 		register uint8_t p = v & 0xfe;
 
 		p ^= p >> 4;
@@ -817,7 +817,8 @@ static void TARGET_CLONES stress_rand_data_lfsr32(
 {
 	register uint32_t *ptr = (uint32_t *)data;
 	register const uint32_t *end = (uint32_t *)data_end;
-	static uint32_t lfsr = 0xf63acb01;
+	static uint32_t s_lfsr = 0xf63acb01;
+	register uint32_t lfsr = s_lfsr;
 
 	(void)args;
 
@@ -831,6 +832,7 @@ static void TARGET_CLONES stress_rand_data_lfsr32(
 		lfsr = (lfsr >> 1) ^ (unsigned int)(-(lfsr & 1u) & 0xd0000001U);
 		*(ptr++) = lfsr;
 	}
+	s_lfsr = lfsr;
 }
 
 /*
@@ -1566,7 +1568,7 @@ static int stress_zlib_deflate(
 			static uint64_t ALIGN64 in[DATA_SIZE / sizeof(uint64_t)];
 			uint64_t *in_end = (uint64_t *)((uintptr_t)&in + sizeof(in));
 			unsigned char *zlib_checksum_in = (unsigned char *)in;
-			uint64_t diff = zlib_args.stream_bytes - stream_bytes_out;
+			const uint64_t diff = zlib_args.stream_bytes - stream_bytes_out;
 
 			int gen_sz = (int)((diff >= DATA_SIZE)
 					|| (diff == 0) /* cppcheck-suppress knownConditionTrueFalse */
