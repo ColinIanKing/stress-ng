@@ -546,7 +546,7 @@ static btree_node_t * OPTIMIZE3 btree_split_node(
 {
 	btree_node_t *new_node;
 	register int j;
-	int median = (pos > BTREE_MIN) ? BTREE_MIN + 1 : BTREE_MIN;
+	const int median = (pos > BTREE_MIN) ? BTREE_MIN + 1 : BTREE_MIN;
 
 	new_node = (btree_node_t *)calloc(1, sizeof(*new_node));
 	if (UNLIKELY(!new_node))
