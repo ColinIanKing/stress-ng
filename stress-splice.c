@@ -73,7 +73,7 @@ static unsigned int stress_splice_flag(void)
 static int stress_splice_pipe_size(const int fd)
 {
 #if defined(F_SETPIPE_SZ)
-	size_t pipe_size = (1 + (stress_mwc8() & 3)) * SPLICE_BUFFER_LEN;
+	const size_t pipe_size = (1 + (stress_mwc8() & 3)) * SPLICE_BUFFER_LEN;
 
 	return fcntl(fd, F_SETPIPE_SZ, pipe_size);
 #else
@@ -96,7 +96,7 @@ static inline int stress_splice_write(
 	ssize_t ret = 0;
 
 	while (size > 0) {
-		size_t n = (size_t)(size > buffer_len ? buffer_len : size);
+		const size_t n = (size_t)(size > buffer_len ? buffer_len : size);
 
 		ret = write(fd, buffer, n);
 		if (ret < 0)
