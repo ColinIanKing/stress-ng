@@ -72,7 +72,6 @@ static int stress_verity(const stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int ret, fd;
-	uint32_t rnd = stress_mwc32();
 	size_t hash = 0;
 
 	if (SIZEOF_ARRAY(hash_algorithms) == (0)) {
@@ -86,7 +85,7 @@ static int stress_verity(const stress_args_t *args)
 	if (ret < 0)
 		return stress_exit_status(-ret);
 
-	(void)stress_temp_filename_args(args, filename, sizeof(filename), rnd);
+	(void)stress_temp_filename_args(args, filename, sizeof(filename), stress_mwc32());
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
