@@ -255,7 +255,7 @@ static int dl_wrapback(struct dl_phdr_info* info, size_t info_size, void *vdso)
 						ElfW(Word) ch;
 
 						for (ch = bucket[j]; ch != STN_UNDEF; ch = chain[ch]) {
-							ElfW(Sym) *sym = &symtab[ch];
+							const ElfW(Sym) *sym = &symtab[ch];
 							stress_vdso_sym_t *vdso_sym;
 							char *name = strtab + sym->st_name;
 							stress_vdso_func_t func;
@@ -507,7 +507,7 @@ static int stress_vdso(const stress_args_t *args)
 			}
 		}
 		t3 = stress_time_now();
-	} while (t3 - t2 < 0.1);
+	} while ((t3 - t2) < 0.1);
 
 	overhead_ns = (double)STRESS_NANOSECOND * ((t3 - t2) / (double)(get_counter(args) - counter));
 	set_counter(args, counter);
