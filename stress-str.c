@@ -89,7 +89,7 @@ static void stress_strcasecmp(
 	typedef int (*test_strcasecmp_t)(const char *s1, const char *s2);
 
 	register size_t i;
-	test_strcasecmp_t test_strcasecmp = (test_strcasecmp_t)libc_func;
+	const test_strcasecmp_t test_strcasecmp = (test_strcasecmp_t)libc_func;
 
 	(void)len2;
 	(void)strdst;
@@ -131,7 +131,7 @@ static void stress_strncasecmp(
 	typedef int (*test_strncasecmp_t)(const char *s1, const char *s2, size_t n);
 
 	register size_t i;
-	test_strncasecmp_t test_strncasecmp = (test_strncasecmp_t)libc_func;
+	const test_strncasecmp_t test_strncasecmp = (test_strncasecmp_t)libc_func;
 
 	(void)len2;
 	(void)strdst;
@@ -173,7 +173,7 @@ static void stress_index(
 	typedef char * (*test_index_t)(const char *s, int c);
 
 	register size_t i;
-	test_index_t test_index = (test_index_t)libc_func;
+	const test_index_t test_index = (test_index_t)libc_func;
 
 	(void)len2;
 	(void)strdst;
@@ -208,7 +208,7 @@ static void stress_rindex(
 	typedef char * (*test_rindex_t)(const char *s, int c);
 
 	register size_t i;
-	test_rindex_t test_rindex = (test_rindex_t)libc_func;
+	const test_rindex_t test_rindex = (test_rindex_t)libc_func;
 
 	(void)len2;
 	(void)strdst;
@@ -244,7 +244,7 @@ static void stress_strlcpy(
 	typedef size_t (*test_strlcpy_t)(char *dest, const char *src, size_t len);
 
 	register size_t i;
-	test_strlcpy_t test_strlcpy = (test_strlcpy_t)libc_func;
+	const test_strlcpy_t test_strlcpy = (test_strlcpy_t)libc_func;
 
 	const size_t str_len1 = strlen(str1);
 	const size_t str_len2 = strlen(str2);
@@ -273,7 +273,7 @@ static void stress_strcpy(
 	bool *failed)
 {
 	register size_t i;
-	char * (*test_strcpy)(char *dest, const char *src) = libc_func;
+	const char * (*test_strcpy)(char *dest, const char *src) = libc_func;
 
 	(void)len2;
 	(void)strdstlen;
@@ -305,7 +305,7 @@ static void stress_strlcat(
 {
 	typedef size_t (*test_strlcat_t)(char *dest, const char *src, size_t len);
 
-	test_strlcat_t test_strlcat = (test_strlcat_t)libc_func;
+	const test_strlcat_t test_strlcat = (test_strlcat_t)libc_func;
 	register size_t i;
 
 	const size_t str_len1 = strlen(str1);
@@ -346,7 +346,7 @@ static void stress_strcat(
 	typedef char * (*test_strcat_t)(char *dest, const char *src);
 
 	register size_t i;
-	test_strcat_t test_strcat = (test_strcat_t)libc_func;
+	const test_strcat_t test_strcat = (test_strcat_t)libc_func;
 
 	(void)len2;
 	(void)strdstlen;
@@ -384,7 +384,7 @@ static void stress_strncat(
 	typedef char * (*test_strncat_t)(char *dest, const char *src, size_t n);
 
 	register size_t i;
-	test_strncat_t test_strncat = (test_strncat_t)libc_func;
+	const test_strncat_t test_strncat = (test_strncat_t)libc_func;
 
 	(void)strdstlen;
 
@@ -420,7 +420,7 @@ static void stress_strchr(
 	typedef char * (*test_strchr_t)(const char *s, int c);
 
 	register size_t i;
-	test_strchr_t test_strchr = (test_strchr_t)libc_func;
+	const test_strchr_t test_strchr = (test_strchr_t)libc_func;
 
 	(void)len2;
 	(void)strdst;
@@ -453,7 +453,7 @@ static void stress_strrchr(
 	typedef char * (*test_strrchr_t)(const char *s, int c);
 
 	register size_t i;
-	test_strrchr_t test_strrchr = (test_strrchr_t)libc_func;
+	const test_strrchr_t test_strrchr = (test_strrchr_t)libc_func;
 
 	(void)len2;
 	(void)strdst;
@@ -486,7 +486,7 @@ static void stress_strcmp(
 	typedef int (*test_strcmp_t)(const char *s1, const char *s2);
 
 	register size_t i;
-	test_strcmp_t test_strcmp = (test_strcmp_t)libc_func;
+	const test_strcmp_t test_strcmp = (test_strcmp_t)libc_func;
 
 	(void)len2;
 	(void)strdst;
@@ -526,7 +526,7 @@ static void stress_strncmp(
 	typedef int (*test_strncmp_t)(const char *s1, const char *s2, size_t n);
 
 	register size_t i;
-	test_strncmp_t test_strncmp = (test_strncmp_t)libc_func;
+	const test_strncmp_t test_strncmp = (test_strncmp_t)libc_func;
 
 	(void)strdst;
 	(void)strdstlen;
@@ -564,7 +564,7 @@ static void stress_strcoll(
 	typedef int (*test_strcoll_t)(const char *s1, const char *s2);
 
 	register size_t i;
-	test_strcoll_t test_strcoll = (test_strcoll_t)libc_func;
+	const test_strcoll_t test_strcoll = (test_strcoll_t)libc_func;
 
 	(void)len2;
 	(void)strdst;
@@ -604,7 +604,7 @@ static void stress_strlen(
 	typedef size_t (*test_strlen_t)(const char *s);
 
 	register size_t i;
-	test_strlen_t test_strlen = (test_strlen_t)libc_func;
+	const test_strlen_t test_strlen = (test_strlen_t)libc_func;
 
 	(void)strdst;
 	(void)strdstlen;
@@ -638,7 +638,7 @@ static void stress_strxfrm(
 	typedef size_t (*test_strxfrm_t)(char *dest, const char *src, size_t n);
 
 	register size_t i;
-	test_strxfrm_t test_strxfrm = (test_strxfrm_t)libc_func;
+	const test_strxfrm_t test_strxfrm = (test_strxfrm_t)libc_func;
 
 	(void)len2;
 
