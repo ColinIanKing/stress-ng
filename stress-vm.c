@@ -352,14 +352,14 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 
 	stress_mwc_set_seed(w, z);
 	for (bit_errors = 0, ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ) {
-		uint64_t val = stress_mwc64();
+		const uint64_t val = stress_mwc64();
 
 		if (UNLIKELY(*ptr != val))
 			bit_errors++;
 		*(ptr++) = ~val;
 		c++;
 	}
-	if (UNLIKELY(max_ops && c >= max_ops))
+	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto ret;
 	if (UNLIKELY(!keep_stressing_flag()))
 		goto ret;
@@ -370,13 +370,13 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 
 	stress_mwc_set_seed(w, z);
 	for (bit_errors = 0, ptr = (uint64_t *)buf; ptr < (uint64_t *)buf_end; ) {
-		uint64_t val = stress_mwc64();
+		const uint64_t val = stress_mwc64();
 
 		if (UNLIKELY(*(ptr++) != ~val))
 			bit_errors++;
 		c++;
 	}
-	if (UNLIKELY(max_ops && c >= max_ops))
+	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto ret;
 	if (UNLIKELY(!keep_stressing_flag()))
 		goto ret;
@@ -393,34 +393,34 @@ static size_t TARGET_CLONES stress_vm_moving_inversion(
 	(void)stress_mincore_touch_pages(buf, sz);
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint64_t *)buf_end; ptr > (uint64_t *)buf; ) {
-		uint64_t val = stress_mwc64();
+		register const uint64_t val = stress_mwc64();
 
 		if (UNLIKELY(*--ptr != val))
 			bit_errors++;
 		*ptr = ~val;
 		c++;
 	}
-	if (UNLIKELY(max_ops && c >= max_ops))
+	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto ret;
 	if (UNLIKELY(!keep_stressing_flag()))
 		goto ret;
 
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint64_t *)buf_end; ptr > (uint64_t *)buf; ) {
-		uint64_t val = stress_mwc64();
+		register const uint64_t val = stress_mwc64();
 
 		if (UNLIKELY(*--ptr != ~val))
 			bit_errors++;
 		c++;
 	}
-	if (UNLIKELY(max_ops && c >= max_ops))
+	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto ret;
 	if (UNLIKELY(!keep_stressing_flag()))
 		goto ret;
 
 ret:
 	stress_vm_check("moving inversion", bit_errors);
-	if (UNLIKELY(max_ops && c >= max_ops))
+	if (UNLIKELY(max_ops && (c >= max_ops)))
 		c = max_ops;
 	set_counter(args, c);
 
@@ -480,11 +480,11 @@ static size_t TARGET_CLONES stress_vm_modulo_x(
 		}
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			break;
 	}
 
-	if (UNLIKELY(max_ops && c >= max_ops))
+	if (UNLIKELY(max_ops && (c >= max_ops)))
 		c = max_ops;
 	stress_vm_check("modulo X", bit_errors);
 ret:
@@ -521,7 +521,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_data(
 		SET_AND_TEST(ptr, 0x40, bit_errors);
 		SET_AND_TEST(ptr, 0x80, bit_errors);
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			break;
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
@@ -560,7 +560,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_data(
 		SET_AND_TEST(ptr, 0xbf, bit_errors);
 		SET_AND_TEST(ptr, 0x7f, bit_errors);
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			break;
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
@@ -596,7 +596,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
 
 		*ptr = d1;
 		for (mask = 1, i = 1; i < 64; i++) {
-			uintptr_t uintptr = ((uintptr_t)ptr) ^ mask;
+			const uintptr_t uintptr = ((uintptr_t)ptr) ^ mask;
 			uint8_t *addr = (uint8_t *)uintptr;
 			if ((addr < (uint8_t *)buf) || (addr >= (uint8_t *)buf_end) || (addr == ptr))
 				continue;
@@ -606,7 +606,7 @@ static size_t TARGET_CLONES stress_vm_walking_one_addr(
 			mask <<= 1;
 		}
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			break;
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
@@ -648,7 +648,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 
 		*ptr = d1;
 		for (mask = 1, i = 1; i < 64; i++) {
-			uintptr_t uintptr = ((uintptr_t)ptr) ^ (~mask & sz_mask);
+			const uintptr_t uintptr = ((uintptr_t)ptr) ^ (~mask & sz_mask);
 			uint8_t *addr = (uint8_t *)uintptr;
 			if ((addr < (uint8_t *)buf) || (addr >= (uint8_t *)buf_end) || (addr == ptr))
 				continue;
@@ -658,7 +658,7 @@ static size_t TARGET_CLONES stress_vm_walking_zero_addr(
 			mask <<= 1;
 		}
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			break;
 		if (UNLIKELY(!keep_stressing_flag()))
 			break;
@@ -703,7 +703,7 @@ static size_t TARGET_CLONES stress_vm_gray(
 		if (UNLIKELY(*ptr != ((v >> 1) ^ v)))
 			bit_errors++;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			break;
 	}
 	val++;
@@ -761,7 +761,7 @@ static size_t TARGET_CLONES stress_vm_grayflip(
 		if (UNLIKELY(*(ptr++) != gray))
 			bit_errors++;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			break;
 	}
 	val++;
@@ -804,7 +804,7 @@ static size_t TARGET_CLONES stress_vm_incdec(
 		*ptr -= val;
 	}
 	c += sz;
-	if (UNLIKELY(max_ops && c >= max_ops))
+	if (UNLIKELY(max_ops && (c >= max_ops)))
 		c = max_ops;
 
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr++) {
@@ -848,7 +848,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	for (i = 0; i < sz; i++) {
 		ptr[i] += val;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			return 0;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
@@ -861,7 +861,7 @@ static size_t TARGET_CLONES stress_vm_prime_incdec(
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
 		ptr[j % sz] -= val;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			return 0;
 	}
 
@@ -910,7 +910,8 @@ static size_t TARGET_CLONES stress_vm_swap(
 
 	stress_mwc_set_seed(w1, z1);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
-		uint8_t val = stress_mwc8();
+		const uint8_t val = stress_mwc8();
+
 		(void)memset((void *)ptr, val, chunk_sz);
 	}
 
@@ -923,12 +924,13 @@ static size_t TARGET_CLONES stress_vm_swap(
 		const volatile uint8_t *src_end = src + chunk_sz;
 
 		while (src < src_end) {
-			uint8_t tmp = *src;
+			const uint8_t tmp = *src;
+
 			*src++ = *dst;
 			*dst++ = tmp;
 		}
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -942,12 +944,13 @@ static size_t TARGET_CLONES stress_vm_swap(
 		const volatile uint8_t *src_end = src + chunk_sz;
 
 		while (src < src_end) {
-			uint8_t tmp = *src;
+			const uint8_t tmp = *src;
+			
 			*src++ = *dst;
 			*dst++ = tmp;
 		}
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -1002,7 +1005,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
-		uint8_t val = stress_mwc8();
+		const uint8_t val = stress_mwc8();
 
 		*(ptr + 0) = val;
 		*(ptr + 1) = val;
@@ -1013,7 +1016,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 		*(ptr + 6) = val;
 		*(ptr + 7) = val;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -1024,7 +1027,7 @@ static size_t TARGET_CLONES stress_vm_rand_set(
 
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
-		uint8_t val = stress_mwc8();
+		const uint8_t val = stress_mwc8();
 
 		bit_errors += (*(ptr + 0) != val);
 		bit_errors += (*(ptr + 1) != val);
@@ -1070,7 +1073,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 
 	stress_mwc_set_seed(w, z);
 	for (ptr = (uint8_t *)buf; ptr < (uint8_t *)buf_end; ptr += chunk_sz) {
-		uint8_t val = stress_mwc8();
+		const uint8_t val = stress_mwc8();
 
 		*(ptr + 0) = val;
 		*(ptr + 1) = val;
@@ -1081,7 +1084,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 		*(ptr + 6) = val;
 		*(ptr + 7) = val;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -1099,7 +1102,7 @@ static size_t TARGET_CLONES stress_vm_ror(
 		ROR8(*(ptr + 7));
 
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -1176,7 +1179,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 		ROR8(val);
 		*(ptr + 7) = val;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -1195,7 +1198,7 @@ static size_t TARGET_CLONES stress_vm_flip(
 			*(ptr + 6) ^= bit;
 			*(ptr + 7) ^= bit;
 			c++;
-			if (UNLIKELY(max_ops && c >= max_ops))
+			if (UNLIKELY(max_ops && (c >= max_ops)))
 				goto abort;
 			if (UNLIKELY(!keep_stressing_flag()))
 				goto abort;
@@ -1321,8 +1324,8 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 
 	for (i = 0; i < bits_bad; i++) {
 		for (;;) {
-			size_t offset = stress_mwc64() % sz;
-			uint8_t bit = stress_mwc32() & 3;
+			const size_t offset = stress_mwc64() % sz;
+			const uint8_t bit = stress_mwc32() & 3;
 			register uint8_t *ptr8 = (uint8_t *)buf + offset;
 
 			if (!*ptr8) {
@@ -1354,7 +1357,7 @@ static size_t TARGET_CLONES stress_vm_galpat_zero(
 
 	stress_vm_check("galpat-zero", bit_errors);
 ret:
-	if (UNLIKELY(max_ops && c >= max_ops))
+	if (UNLIKELY(max_ops && (c >= max_ops)))
 		c = max_ops;
 	set_counter(args, c);
 
@@ -1385,8 +1388,8 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 
 	for (i = 0; i < bits_bad; i++) {
 		for (;;) {
-			size_t offset = stress_mwc64() % sz;
-			uint8_t bit = stress_mwc32() & 3;
+			const size_t offset = stress_mwc64() % sz;
+			const uint8_t bit = stress_mwc32() & 3;
 			register uint8_t *ptr8 = (uint8_t *)buf + offset;
 
 			if (*ptr8 == 0xff) {
@@ -1418,7 +1421,7 @@ static size_t TARGET_CLONES stress_vm_galpat_one(
 
 	stress_vm_check("galpat-one", bit_errors);
 ret:
-	if (UNLIKELY(max_ops && c >= max_ops))
+	if (UNLIKELY(max_ops && (c >= max_ops)))
 		c = max_ops;
 	set_counter(args, c);
 
@@ -1457,7 +1460,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 		INC_LO_NYBBLE(*(ptr + 6));
 		INC_LO_NYBBLE(*(ptr + 7));
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -1473,7 +1476,7 @@ static size_t TARGET_CLONES stress_vm_inc_nybble(
 		INC_HI_NYBBLE(*(ptr + 6));
 		INC_HI_NYBBLE(*(ptr + 7));
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -1536,7 +1539,7 @@ static size_t TARGET_CLONES stress_vm_rand_sum(
 		*(ptr + 6) = stress_mwc64();
 		*(ptr + 7) = stress_mwc64();
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -1595,7 +1598,8 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 	(void)memset(buf, 0xff, sz);
 
 	for (j = 0; j < 8; j++) {
-		uint8_t mask = (uint8_t)~(1 << j);
+		const uint8_t mask = (uint8_t)~(1 << j);
+
 		/*
 		 *  Step through memory in prime sized steps
 		 *  in a totally sub-optimal way to exercise
@@ -1604,7 +1608,7 @@ static size_t TARGET_CLONES stress_vm_prime_zero(
 		for (i = 0, k = prime; i < sz; i++, k += prime) {
 			ptr[k % sz] &= mask;
 			c++;
-			if (UNLIKELY(max_ops && c >= max_ops))
+			if (UNLIKELY(max_ops && (c >= max_ops)))
 				goto abort;
 			if (UNLIKELY(!keep_stressing_flag()))
 				goto abort;
@@ -1655,7 +1659,8 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 	(void)memset(buf, 0x00, sz);
 
 	for (j = 0; j < 8; j++) {
-		uint8_t mask = (uint8_t)(1 << j);
+		const uint8_t mask = (uint8_t)(1 << j);
+
 		/*
 		 *  Step through memory in prime sized steps
 		 *  in a totally sub-optimal way to exercise
@@ -1664,7 +1669,7 @@ static size_t TARGET_CLONES stress_vm_prime_one(
 		for (i = 0, k = prime; i < sz; i++, k += prime) {
 			ptr[k % sz] |= mask;
 			c++;
-			if (UNLIKELY(max_ops && c >= max_ops))
+			if (UNLIKELY(max_ops && (c >= max_ops)))
 				goto abort;
 			if (UNLIKELY(!keep_stressing_flag()))
 				goto abort;
@@ -1725,7 +1730,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		if (!keep_stressing_flag())
 			goto abort;
 		c++;
-		if (max_ops && c >= max_ops)
+		if (max_ops && (c >= max_ops))
 			goto abort;
 	}
 	for (i = 0, j = prime; i < sz; i++, j += prime) {
@@ -1738,7 +1743,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_zero(
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
@@ -1796,7 +1801,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
@@ -1810,7 +1815,7 @@ static size_t TARGET_CLONES stress_vm_prime_gray_one(
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
@@ -1842,8 +1847,9 @@ static size_t OPTIMIZE3 TARGET_CLONES stress_vm_write64(
 {
 	static uint64_t val;
 	uint64_t *ptr = (uint64_t *)buf;
-	register uint64_t v = val;
-	register size_t i = 0, n = sz / (sizeof(*ptr) * 32);
+	register const uint64_t v = val;
+	register size_t i = 0;
+	register const size_t n = sz / (sizeof(*ptr) * 32);
 
 	(void)buf_end;
 
@@ -1908,8 +1914,9 @@ static size_t TARGET_CLONES stress_vm_write64nt(
 	if (stress_cpu_x86_has_sse2()) {
 		static uint64_t val;
 		uint64_t *ptr = (uint64_t *)buf;
-		register uint64_t v = val;
-		register size_t i = 0, n = sz / (sizeof(*ptr) * 32);
+		register const uint64_t v = val;
+		register size_t i = 0;
+		register const size_t n = sz / (sizeof(*ptr) * 32);
 
 		(void)buf_end;
 
@@ -1975,7 +1982,8 @@ static size_t OPTIMIZE3 TARGET_CLONES stress_vm_read64(
 	const uint64_t max_ops)
 {
 	uint64_t *ptr = (uint64_t *)buf;
-	register size_t i = 0, n = sz / (sizeof(*ptr) * 32);
+	register size_t i = 0;
+	register const size_t n = sz / (sizeof(*ptr) * 32);
 
 	(void)buf_end;
 
@@ -2051,7 +2059,8 @@ static size_t TARGET_CLONES stress_vm_write1024v(
 	stress_vint8w1024_t v;
 	static uint64_t val = 0;
 	uint64x16_t *vptr = (uint64x16_t *)&v;
-	register size_t i = 0, n = sz / sizeof(*ptr);
+	register size_t i = 0;
+	register const size_t n = sz / sizeof(*ptr);
 
 	/* 16 x 64 = 1024 bits, unrolled loop */
 	vptr->v[0x0] = val;
@@ -2103,7 +2112,7 @@ static size_t TARGET_CLONES stress_vm_rowhammer(
 	register size_t j;
 	register volatile uint32_t *addr0, *addr1;
 	register size_t errors = 0;
-	const size_t n = sz / sizeof(*addr0);
+	register const size_t n = sz / sizeof(*addr0);
 
 	(void)buf_end;
 	(void)max_ops;
@@ -2325,7 +2334,7 @@ static size_t TARGET_CLONES stress_vm_cache_stripe(
 		ptr[0x20] = 0x30;
 
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -2429,7 +2438,7 @@ static size_t TARGET_CLONES stress_vm_cache_lines(
 		*ptr = i++;
 	}
 	c++;
-	if (UNLIKELY(max_ops && c >= max_ops))
+	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto abort;
 	if (UNLIKELY(!keep_stressing_flag()))
 		goto abort;
@@ -2474,8 +2483,8 @@ static size_t TARGET_CLONES stress_vm_wrrd128nt(
 
 	register __uint128_t val;
 	register __uint128_t *ptr128;
-	__uint128_t *buf128 = (__uint128_t *)buf;
-	__uint128_t *buf_end128 = (__uint128_t *)buf_end;
+	register __uint128_t *buf128 = (__uint128_t *)buf;
+	register const __uint128_t *buf_end128 = (__uint128_t *)buf_end;
 
 	for (val = 0, ptr128 = buf128; ptr128 < buf_end128; ptr128 += 4) {
 		/* Write 128 bits x 4 times to hammer the memory */
@@ -2517,7 +2526,7 @@ static size_t TARGET_CLONES stress_vm_wrrd128nt(
 		val++;
 		c++;
 	}
-	if (UNLIKELY(max_ops && c >= max_ops))
+	if (UNLIKELY(max_ops && (c >= max_ops)))
 		goto abort;
 	if (UNLIKELY(!keep_stressing_flag()))
 		goto abort;
@@ -2583,9 +2592,9 @@ static size_t TARGET_CLONES stress_vm_fwdrev(
 	const uint64_t max_ops)
 {
 	size_t bit_errors = 0;
-	uint8_t *fwdptr, *revptr;
+	register uint8_t *fwdptr, *revptr;
 	uint64_t c = get_counter(args);
-	uint32_t rnd = stress_mwc32();
+	register const uint32_t rnd = stress_mwc32();
 
 	(void)sz;
 
@@ -2625,7 +2634,7 @@ static size_t TARGET_CLONES stress_vm_fwdrev(
 		fwdptr += 16;
 		revptr -= 16;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
@@ -2667,7 +2676,7 @@ static size_t TARGET_CLONES stress_vm_fwdrev(
 		fwdptr += 16;
 		revptr -= 16;
 		c++;
-		if (UNLIKELY(max_ops && c >= max_ops))
+		if (UNLIKELY(max_ops && (c >= max_ops)))
 			goto abort;
 		if (UNLIKELY(!keep_stressing_flag()))
 			goto abort;
