@@ -114,7 +114,7 @@ static int shellsort32(void *base, size_t nmemb,
 
 		for (i = gap; i < nmemb; i++) {
 			register size_t j;
-			uint32_t temp = array[i];
+			const uint32_t temp = array[i];
 
 			for (j = i; j >= gap && compar(&array[j - gap], &temp) > 0; j -= gap) {
 				array[j] = array[j - gap];
@@ -136,7 +136,7 @@ static int shellsort8(void *base, size_t nmemb,
 
 		for (i = gap; i < nmemb; i++) {
 			register size_t j;
-			uint8_t temp = array[i];
+			const uint8_t temp = array[i];
 
 			for (j = i; j >= gap && compar(&array[j - gap], &temp) > 0; j -= gap) {
 				array[j] = array[j - gap];
@@ -150,12 +150,11 @@ static int shellsort8(void *base, size_t nmemb,
 static int shellsort(void *base, size_t nmemb, size_t size,
 	int (*compar)(const void *, const void *))
 {
-
 	if (size == sizeof(uint32_t))
 		return shellsort32(base, nmemb, compar);
-	if (size == sizeof(uint8_t))
+	else if (size == sizeof(uint8_t))
 		return shellsort8(base, nmemb, compar);
-	return -1;
+	else return -1;
 }
 
 /*
