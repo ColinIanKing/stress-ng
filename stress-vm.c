@@ -43,6 +43,8 @@
 
 #define NO_MEM_RETRIES_MAX	(100)
 
+static size_t stress_vm_cache_line_size;
+
 /*
  *  the VM stress test has diffent methods of vm stressor
  */
@@ -2434,7 +2436,7 @@ static size_t TARGET_CLONES stress_vm_cache_lines(
 	uint8_t i;
 	static size_t offset = 0;
 
-	for (i = 0, ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += 64) {
+	for (i = 0, ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += stress_vm_cache_line_size) {
 		*ptr = i++;
 	}
 	c++;
@@ -2443,7 +2445,7 @@ static size_t TARGET_CLONES stress_vm_cache_lines(
 	if (UNLIKELY(!keep_stressing_flag()))
 		goto abort;
 
-	for (i = 0, ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += 64) {
+	for (i = 0, ptr = (uint8_t *)buf + offset; ptr < (uint8_t *)buf_end; ptr += stress_vm_cache_line_size) {
 		bit_errors += (*ptr != i++);
 	}
 	(void)stress_mincore_touch_pages(buf, sz);
@@ -2866,6 +2868,32 @@ static int stress_vm_child(const stress_args_t *args, void *ctxt)
 }
 
 /*
+ *  stress_vm_get_cache_line_size()
+ *	determine size of a cache line, default to 64 if information
+ *	is not available
+ */
+static void stress_vm_get_cache_line_size(void)
+{
+#if defined(__linux__)
+        stress_cpus_t *cpu_caches;
+        stress_cpu_cache_t *cache;
+
+	stress_vm_cache_line_size = 64;	/* Default guess */
+
+	cpu_caches = stress_get_all_cpu_cache_details();
+	if (!cpu_caches)
+		return;
+	cache = stress_get_cpu_cache(cpu_caches, 1);
+	if (cache && cache->line_size)
+		stress_vm_cache_line_size = (size_t)cache->line_size;
+
+	stress_free_cpu_caches(cpu_caches);
+#else
+	stress_vm_cache_line_size = 64;	/* Default guess */
+#endif
+}
+
+/*
  *  stress_vm()
  *	stress virtual memory
  */
@@ -2876,6 +2904,8 @@ static int stress_vm(const stress_args_t *args)
 	size_t retries;
 	int err = 0, ret = EXIT_SUCCESS;
 	stress_vm_context_t context;
+
+	stress_vm_get_cache_line_size();
 
 	context.vm_method = &vm_methods[0];
 	context.bit_error_count = MAP_FAILED;
