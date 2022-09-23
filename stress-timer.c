@@ -88,7 +88,7 @@ static void stress_timer_set(struct itimerspec *timer)
 
 	if (timer_rand) {
 		/* Mix in some random variation */
-		double r = ((double)(stress_mwc32() % 10000) - 5000.0) / 40000.0;
+		const double r = ((double)(stress_mwc32() % 10000) - 5000.0) / 40000.0;
 		rate = rate_ns + (rate_ns * r);
 	} else {
 		rate = rate_ns;
@@ -152,7 +152,7 @@ static void MLOCKED_TEXT stress_timer_handler(int sig)
 		stress_proc_self_timer_read();
 	}
 	if (keep_stressing_flag()) {
-		int ret = timer_getoverrun(timerid);
+		const int ret = timer_getoverrun(timerid);
 
 		if (ret > 0)
 			overruns += (uint64_t)ret;
