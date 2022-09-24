@@ -947,7 +947,7 @@ static size_t TARGET_CLONES stress_vm_swap(
 
 		while (src < src_end) {
 			const uint8_t tmp = *src;
-			
+
 			*src++ = *dst;
 			*dst++ = tmp;
 		}
