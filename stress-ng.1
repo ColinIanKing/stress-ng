@@ -4284,7 +4284,9 @@ other child processes also via sigqueue(2).
 stop sigrt stress workers after N bogo sigqueue signal send operations.
 .TP
 .B \-\-sigsegv N
-start N workers that rapidly create and catch segmentation faults.
+start N workers that rapidly create and catch segmentation faults generated
+via illegal memory access, illegal interrupts or access to x86 time stamp
+counter.
 .TP
 .B \-\-sigsegv\-ops N
 stop sigsegv stress workers after N bogo segmentation faults.

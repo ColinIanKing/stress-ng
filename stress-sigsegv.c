@@ -22,6 +22,10 @@
 #include "core-cpu.h"
 #include "core-nt-store.h"
 
+#if defined(HAVE_SYS_PRCTL_H)
+#include <sys/prctl.h>
+#endif
+
 static sigjmp_buf jmp_env;
 #if defined(SA_SIGINFO)
 static volatile void *fault_addr;
@@ -162,6 +166,21 @@ static void stress_sigsegv_misaligned128nt(void)
 }
 #endif
 
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(__linux__) && 		\
+    defined(HAVE_SYS_PRCTL_H) &&	\
+    defined(PR_SET_TSC) &&		\
+    defined(PR_TSC_SIGSEGV)
+#define HAVE_SIGSEGV_READ_TSC
+static void stress_sigsegv_readtsc(void)
+{
+	/* SEGV reading tsc when tsc is not allowed */
+	if (prctl(PR_SET_TSC, PR_TSC_SIGSEGV, 0, 0, 0) == 0) {
+		__asm__ __volatile__("rdtsc\n" : : : "%edx", "%eax");
+	}
+}
+#endif
+
 /*
  *  stress_sigsegv
  *	stress by generating segmentation faults by
@@ -264,7 +283,7 @@ static int stress_sigsegv(const stress_args_t *args)
 			code = -1;
 			fault_addr = 0;
 #endif
-			switch (stress_mwc8() >> 6) {
+			switch (stress_mwc8() % 6) {
 #if defined(STRESS_ARCH_X86) &&	\
     defined(__linux__)
 			case 0:
@@ -287,6 +306,11 @@ static int stress_sigsegv(const stress_args_t *args)
 					stress_sigsegv_misaligned128nt();
 				CASE_FALLTHROUGH;
 #endif
+#endif
+#if defined(HAVE_SIGSEGV_READ_TSC)
+			case 4:
+				stress_sigsegv_readtsc();
+				CASE_FALLTHROUGH;
 #endif
 			default:
 				*ptr = 0;
