@@ -22,6 +22,10 @@
 #include "core-cpu.h"
 #include "core-nt-store.h"
 
+#if defined(HAVE_SYS_IO_H)
+#include <sys/io.h>
+#endif
+
 #if defined(HAVE_SYS_PRCTL_H)
 #include <sys/prctl.h>
 #endif
@@ -69,6 +73,7 @@ static void NORETURN MLOCKED_TEXT stress_segvhandler(int signum)
 
 #if defined(STRESS_ARCH_X86) &&	\
     defined(__linux__)
+#define HAVE_SIGSEGV_X86_TRAP
 /*
  *  stress_sigsegv_x86_trap()
  *	cause an x86 instruction trap by executing an
@@ -121,6 +126,7 @@ static NOINLINE OPTIMIZE0 void stress_sigsegv_x86_trap(void)
 
 #if defined(STRESS_ARCH_X86) &&	\
     defined(__linux__)
+#define HAVE_SIGSEGV_X86_INT88
 /*
  *  stress_sigsegv_x86_int88()
  *	making an illegal int trap causes a SIGSEGV on
@@ -137,6 +143,7 @@ static NOINLINE OPTIMIZE0 void stress_sigsegv_x86_int88(void)
 
 #if defined(STRESS_ARCH_X86) &&	\
     defined(__linux__)
+#define HAVE_SIGSEGV_RDMSR
 static void stress_sigsegv_rdmsr(void)
 {
 	uint32_t ecx = 0x00000010, eax, edx;
@@ -152,6 +159,7 @@ static void stress_sigsegv_rdmsr(void)
     defined(__linux__) &&		\
     defined(HAVE_NT_STORE128) &&	\
     defined(HAVE_INT128_T)
+#define HAVE_SIGSEGV_MISALIGNED128NT
 static void stress_sigsegv_misaligned128nt(void)
 {
 	/* Misaligned non-temporal 128 bit store */
@@ -178,6 +186,18 @@ static void stress_sigsegv_readtsc(void)
 	if (prctl(PR_SET_TSC, PR_TSC_SIGSEGV, 0, 0, 0) == 0) {
 		__asm__ __volatile__("rdtsc\n" : : : "%edx", "%eax");
 	}
+}
+#endif
+
+#if defined(STRESS_ARCH_X86) &&		\
+    defined(__linux__) && 		\
+    defined(HAVE_SYS_IO_H) &&		\
+    defined(HAVE_IOPORT)
+#define HAVE_SIGSEGV_READ_IO
+static void stress_sigsegv_read_io(void)
+{
+	/* SIGSEGV on illegal port read access */
+	(void)inb(0x80);
 }
 #endif
 
@@ -283,33 +303,40 @@ static int stress_sigsegv(const stress_args_t *args)
 			code = -1;
 			fault_addr = 0;
 #endif
-			switch (stress_mwc8() % 6) {
-#if defined(STRESS_ARCH_X86) &&	\
-    defined(__linux__)
+			switch (stress_mwc8() % 7) {
+#if defined(HAVE_SIGSEGV_X86_TRAP)
 			case 0:
 				/* Trip a SIGSEGV/SIGILL/SIGBUS */
 				stress_sigsegv_x86_trap();
 				CASE_FALLTHROUGH;
+#endif
+#if defined(HAVE_SIGSEGV_X86_INT88)
 			case 1:
 				/* Illegal int $88 */
 				stress_sigsegv_x86_int88();
 				CASE_FALLTHROUGH;
+#endif
+#if defined(HAVE_SIGSEGV_RDMSR)
 			case 2:
 				/* Privileged instruction -> SIGSEGV */
 				if (has_msr)
 					stress_sigsegv_rdmsr();
 				CASE_FALLTHROUGH;
-#if defined(HAVE_NT_STORE128) &&	\
-    defined(HAVE_INT128_T)
+#endif
+#if defined(HAVE_SIGSEGV_MISALIGNED128NT)
 			case 3:
 				if (has_sse2)
 					stress_sigsegv_misaligned128nt();
 				CASE_FALLTHROUGH;
 #endif
-#endif
 #if defined(HAVE_SIGSEGV_READ_TSC)
 			case 4:
 				stress_sigsegv_readtsc();
+				CASE_FALLTHROUGH;
+#endif
+#if defined(HAVE_SIGSEGV_READ_IO)
+			case 5:
+				stress_sigsegv_read_io();
 				CASE_FALLTHROUGH;
 #endif
 			default:
