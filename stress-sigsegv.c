@@ -30,6 +30,10 @@
 #include <sys/prctl.h>
 #endif
 
+#if defined(HAVE_SYS_AUXV_H)
+#include <sys/auxv.h>
+#endif
+
 static sigjmp_buf jmp_env;
 #if defined(SA_SIGINFO)
 static volatile void *fault_addr;
@@ -187,6 +191,11 @@ static void stress_sigsegv_readtsc(void)
 		__asm__ __volatile__("rdtsc\n" : : : "%edx", "%eax");
 	}
 }
+
+static void stress_enable_readtsc(void)
+{
+	(void)prctl(PR_SET_TSC, PR_TSC_ENABLE, 0, 0, 0);
+}
 #endif
 
 #if defined(STRESS_ARCH_X86) &&		\
@@ -198,6 +207,46 @@ static void stress_sigsegv_read_io(void)
 {
 	/* SIGSEGV on illegal port read access */
 	(void)inb(0x80);
+}
+#endif
+
+#if defined(__linux__) &&	\
+    defined(HAVE_SYS_AUXV_H)
+#define HAVE_SIGSEGV_VDSO
+static void stress_sigsegv_vdso(void)
+{
+	const uintptr_t vdso = (uintptr_t)getauxval(AT_SYSINFO_EHDR);
+
+	/* No vdso, don't bother */
+	if (!vdso)
+		return;
+
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    (defined(STRESS_ARCH_ARM) ||	\
+     defined(STRESS_ARCH_MIPS) ||	\
+     defined(STRESS_ARCH_PPC64) || 	\
+     defined(STRESS_ARCH_RISCV) ||	\
+     defined(STRESS_ARCH_S390) ||	\
+     defined(STRESS_ARCH_X86))
+	{
+		void *bad_addr1 = (void *)8;
+
+		(void)clock_gettime(CLOCK_REALTIME, bad_addr1);
+	}
+#endif
+#if defined(STRESS_ARCH_ARM) ||		\
+    defined(STRESS_ARCH_MIPS) ||	\
+    defined(STRESS_ARCH_PPC64) || 	\
+    defined(STRESS_ARCH_RISCV) ||	\
+    defined(STRESS_ARCH_S390) ||	\
+    defined(STRESS_ARCH_X86)
+	{
+		void *bad_addr1 = (void *)8;
+		void *bad_addr2 = (void *)16;
+
+		(void)gettimeofday(bad_addr1, bad_addr2);
+	}
+#endif
 }
 #endif
 
@@ -303,7 +352,7 @@ static int stress_sigsegv(const stress_args_t *args)
 			code = -1;
 			fault_addr = 0;
 #endif
-			switch (stress_mwc8() % 7) {
+			switch (stress_mwc8() & 7) {
 #if defined(HAVE_SIGSEGV_X86_TRAP)
 			case 0:
 				/* Trip a SIGSEGV/SIGILL/SIGBUS */
@@ -339,6 +388,11 @@ static int stress_sigsegv(const stress_args_t *args)
 				stress_sigsegv_read_io();
 				CASE_FALLTHROUGH;
 #endif
+#if defined(HAVE_SIGSEGV_VDSO)
+			case 6:
+				stress_sigsegv_vdso();
+				CASE_FALLTHROUGH;
+#endif
 			default:
 				*ptr = 0;
 				break;
@@ -347,6 +401,9 @@ static int stress_sigsegv(const stress_args_t *args)
 	}
 	rc = EXIT_SUCCESS;
 tidy:
+#if defined(HAVE_SIGSEGV_READ_TSC)
+	stress_enable_readtsc();
+#endif
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap((void *)ptr, args->page_size);
 
