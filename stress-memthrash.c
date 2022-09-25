@@ -565,6 +565,30 @@ static void HOT OPTIMIZE3 stress_memthrash_tlb(
 	}
 }
 
+static void OPTIMIZE3 TARGET_CLONES stress_memthrash_swapfwdrev(
+	const stress_args_t *args,
+	const size_t mem_size)
+{
+	uint64_t *fwd, *rev, *end = (uint64_t *)((uintptr_t)mem + mem_size);
+
+	(void)args;
+	for (fwd = (uint64_t *)mem, rev = end - 1; fwd < end; rev--, fwd++) {
+		register uint64_t tmp;
+
+		tmp = *fwd;
+		*fwd = *rev;
+		*rev = tmp;
+	}
+	for (fwd = (uint64_t *)mem, rev = end - 1; fwd < end; rev--, fwd++) {
+		register uint64_t tmp;
+
+		tmp = *rev;
+		*rev = *fwd;
+		*fwd = tmp;
+	}
+}
+
+
 static void stress_memthrash_all(const stress_args_t *args, size_t mem_size);
 static void stress_memthrash_random(const stress_args_t *args, size_t mem_size);
 
@@ -597,6 +621,7 @@ static const stress_memthrash_method_info_t memthrash_methods[] = {
 	{ "spinwrite",	stress_memthrash_spinwrite },
 	{ "swap",	stress_memthrash_swap },
 	{ "swap64",	stress_memthrash_swap64 },
+	{ "swapfwdrev",	stress_memthrash_swapfwdrev },
 	{ "tlb",	stress_memthrash_tlb },
 };
 
