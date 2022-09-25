@@ -350,7 +350,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_bitposn(
 
 	for (bits = nbits; --bits >= 0; ) {
 		register size_t stride = 1U << bits;
-		register uint8_t *ALIGN_VM buf;
+		register uint8_t *buf;
 
 		for (buf = ptr; buf < buf_end; buf += stride)
 			*buf = rnd;
@@ -358,7 +358,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_bitposn(
 
 	for (bits = 0; bits < nbits; bits++) {
 		register size_t stride = 1U << bits;
-		register uint8_t *ALIGN_VM buf;
+		register uint8_t *buf;
 
 		for (buf = ptr; buf < buf_end; buf += stride) {
 			if (UNLIKELY(*buf != rnd))
@@ -379,7 +379,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_flip(
 {
 	register size_t n;
 	const uint8_t rnd = stress_mwc8();
-	register uint8_t *ALIGN_VM buf = ptr;
+	register uint8_t *buf = ptr;
 	size_t errs = 0;
 	register const size_t mask = sz - 1;
 
