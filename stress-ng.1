@@ -5553,11 +5553,16 @@ where max_stride is half the size of the memory mapped region. All
 bit positions of the memory address space are bit flipped in the
 striding.
 T}
-pwr2	T{
-work through memory addresses in steps of powers of two.
+dec	T{
+work through the address range backwards sequentially, byte
+by byte.
 T}
-pwr2inv	T{
-like pwr2, but with the all relevant address bits inverted.
+decinv	T{
+like dec, but with all the relevant address bits inverted.
+T}
+flip	T{
+address memory using gray coded addresses and their inverse
+to flip as many address bits per write/read operation
 T}
 gray	T{
 work through memory with gray coded addresses so that each
@@ -5568,13 +5573,6 @@ grayinv	T{
 like gray, but with the all relevant address bits inverted,
 hence all bits change apart from 1 in the address range.
 T}
-rev	T{
-work through the address range with the bits in the address
-range reversed.
-T}
-revinv	T{
-like rev, but with all the relevant address bits inverted.
-T}
 inc	T{
 work through the address range forwards sequentially, byte
 by byte.
@@ -5582,12 +5580,18 @@ T}
 incinv 	T{
 like inc, but with all the relevant address bits inverted.
 T}
-dec	T{
-work through the address range backwards sequentially, byte
-by byte.
+pwr2	T{
+work through memory addresses in steps of powers of two.
 T}
-decinv	T{
-like dec, but with all the relevant address bits inverted.
+pwr2inv	T{
+like pwr2, but with the all relevant address bits inverted.
+T}
+rev	T{
+work through the address range with the bits in the address
+range reversed.
+T}
+revinv	T{
+like rev, but with all the relevant address bits inverted.
 T}
 .TE
 .RE

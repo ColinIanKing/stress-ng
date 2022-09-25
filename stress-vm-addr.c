@@ -369,6 +369,39 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_bitposn(
 }
 
 /*
+ *  stress_vm_addr_flip()
+ * 	address memory using gray coded increments and inverse
+ *	to flip as many address bits per write/read cycle
+ */
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_flip(
+	void *ptr,
+	const size_t sz)
+{
+	register size_t n;
+	const uint8_t rnd = stress_mwc8();
+	register uint8_t *ALIGN_VM buf = ptr;
+	size_t errs = 0;
+	register const size_t mask = sz - 1;
+
+	for (n = 0; n < sz; n++) {
+		register size_t gray = ((n >> 1) ^ n);
+
+		buf[gray & mask] = rnd;
+		buf[(gray ^ mask) & mask] = rnd;
+	}
+
+	for (n = 0; n < sz; n++) {
+		register size_t gray = ((n >> 1) ^ n);
+
+		if (UNLIKELY(buf[gray & mask] != rnd))
+			errs++;
+		if (UNLIKELY(buf[(gray ^ mask) & mask] != rnd))
+			errs++;
+	}
+	return errs;
+}
+
+/*
  *  stress_vm_addr_all()
  *	work through all vm stressors sequentially
  */
@@ -392,6 +425,7 @@ static const stress_vm_addr_method_info_t vm_addr_methods[] = {
 	{ "bitposn",	stress_vm_addr_bitposn },
 	{ "pwr2",	stress_vm_addr_pwr2 },
 	{ "pwr2inv",	stress_vm_addr_pwr2inv },
+	{ "flip",	stress_vm_addr_flip },
 	{ "gray",	stress_vm_addr_gray },
 	{ "grayinv",	stress_vm_addr_grayinv },
 	{ "rev",	stress_vm_addr_rev },
