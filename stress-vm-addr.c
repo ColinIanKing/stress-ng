@@ -311,7 +311,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_decinv(
 	const size_t sz)
 {
 	size_t mask = sz - 1, n, errs = 0;
-	uint8_t rnd = stress_mwc8();
+	const uint8_t rnd = stress_mwc8();
 	uint8_t *ALIGN_VM buf = (uint8_t *)ptr;
 
 	for (n = sz; n; n--) {
@@ -324,6 +324,46 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_decinv(
 
 		if (UNLIKELY(*(buf + i) != rnd))
 			errs++;
+	}
+	return errs;
+}
+
+/*
+ *  stress_vm_addr_bitposn()
+ *	write across addresses in bit posn strides, in repeated
+ *      strides	of log2(sz / 2) down to 1 and check in strides of 1
+ *	to log2(sz / 2)
+ */
+static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_bitposn(
+	void *ptr,
+	const size_t sz)
+{
+	int bits, nbits;
+	size_t mask;
+	size_t errs = 0;
+	const uint8_t *buf_end = (uint8_t *)ptr + sz;
+	const uint8_t rnd = stress_mwc8();
+
+	/* log2(sz / 2) */
+	for (mask = sz - 1, nbits = 0; mask; mask >>= 1)
+		nbits++;
+
+	for (bits = nbits; --bits >= 0; ) {
+		register size_t stride = 1U << bits;
+		register uint8_t *ALIGN_VM buf;
+
+		for (buf = ptr; buf < buf_end; buf += stride)
+			*buf = rnd;
+	}
+
+	for (bits = 0; bits < nbits; bits++) {
+		register size_t stride = 1U << bits;
+		register uint8_t *ALIGN_VM buf;
+
+		for (buf = ptr; buf < buf_end; buf += stride) {
+			if (UNLIKELY(*buf != rnd))
+				errs++;
+		}
 	}
 	return errs;
 }
@@ -349,6 +389,7 @@ static size_t stress_vm_addr_all(
 
 static const stress_vm_addr_method_info_t vm_addr_methods[] = {
 	{ "all",	stress_vm_addr_all },
+	{ "bitposn",	stress_vm_addr_bitposn },
 	{ "pwr2",	stress_vm_addr_pwr2 },
 	{ "pwr2inv",	stress_vm_addr_pwr2inv },
 	{ "gray",	stress_vm_addr_gray },
