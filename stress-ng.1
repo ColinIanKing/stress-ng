@@ -3488,6 +3488,21 @@ try to open a maximum of N files (or up to the maximum per-process open file sys
 limit). The value can be the number of files or a percentage of the
 maximum per-process open file system limit.
 .TP
+.B \-\-pagemove N
+start N workers that mmap a memory region (default 4 MB) and then shuffle pages 
+to the virtual address of the previous page. Each page shuffle uses 3 mremap operations
+to move a page. This exercises page tables and Translation Lookaside Buffer (TLB)
+flushing.
+.TP
+.B \-\-pagemove\-ops N
+stop after N pagemove shuffling operations, where suffling all the pages in
+the mmap'd region is equivalent to 1 bogo-operation.
+.TP
+.B \-\-pagemove\-bytes
+specify the size of the memory mapped region to be exercised. One can
+specify the size as % of total available memory or in units of Bytes, KBytes,
+MBytes and GBytes using the suffix b, k, m or g.
+.TP
 .B \-\-pageswap N
 start N workers that exercise page swap in and swap out. Pages are allocated
 and paged out using madvise MADV_PAGEOUT. One the maximum per process number

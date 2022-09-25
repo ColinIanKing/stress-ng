@@ -179,6 +179,7 @@
 	MACRO(oom_pipe)		\
 	MACRO(opcode)		\
 	MACRO(open)		\
+	MACRO(pagemove)		\
 	MACRO(pageswap)		\
 	MACRO(pci)		\
 	MACRO(personality)	\

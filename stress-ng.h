@@ -1613,6 +1613,10 @@ typedef enum {
 	OPT_page_in,
 	OPT_pathological,
 
+	OPT_pagemove,
+	OPT_pagemove_ops,
+	OPT_pagemove_bytes,
+
 	OPT_pageswap,
 	OPT_pageswap_ops,
 
