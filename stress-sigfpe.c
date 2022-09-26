@@ -44,8 +44,9 @@ static const stress_help_t help[] = {
 	{ NULL,	NULL,		NULL }
 };
 
-#if !defined(__UCLIBC__) &&	\
-    defined(HAVE_FENV_H) &&     \
+#if !defined(__UCLIBC__) &&		\
+    !defined(STRESS_ARCH_ARC64) &&	\
+    defined(HAVE_FENV_H) &&     	\
     defined(HAVE_FLOAT_H)
 
 #define SNG_INTDIV	(0x40000000)
