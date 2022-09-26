@@ -32,6 +32,11 @@
 #define STRESS_ARCH_X86_32	(1)
 #endif
 
+/* Arch specific, ARC64 */
+#if defined(__ARC64__) || defined(__ARC64)
+#define STRESS_ARCH_ARC64
+#endif
+
 /* Arch specific, ARM */
 #if defined(__ARM_ARCH_6__)   || defined(__ARM_ARCH_6J__)  || \
     defined(__ARM_ARCH_6K__)  || defined(__ARM_ARCH_6Z__)  || \
