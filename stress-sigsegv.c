@@ -37,9 +37,12 @@
 static sigjmp_buf jmp_env;
 #if defined(SA_SIGINFO)
 static volatile void *fault_addr;
+static void *expected_addr;
 static volatile int signo;
 static volatile int code;
 #endif
+
+#define BAD_ADDR	((void *)(0x08))
 
 static const stress_help_t help[] = {
 	{ NULL,	"sigsegv N",	 "start N workers generating segmentation faults" },
@@ -228,11 +231,7 @@ static void stress_sigsegv_vdso(void)
      defined(STRESS_ARCH_RISCV) ||	\
      defined(STRESS_ARCH_S390) ||	\
      defined(STRESS_ARCH_X86))
-	{
-		void *bad_addr1 = (void *)8;
-
-		(void)clock_gettime(CLOCK_REALTIME, bad_addr1);
-	}
+	(void)clock_gettime(CLOCK_REALTIME, BAD_ADDR);
 #endif
 #if defined(STRESS_ARCH_ARM) ||		\
     defined(STRESS_ARCH_MIPS) ||	\
@@ -240,12 +239,7 @@ static void stress_sigsegv_vdso(void)
     defined(STRESS_ARCH_RISCV) ||	\
     defined(STRESS_ARCH_S390) ||	\
     defined(STRESS_ARCH_X86)
-	{
-		void *bad_addr1 = (void *)8;
-		void *bad_addr2 = (void *)16;
-
-		(void)gettimeofday(bad_addr1, bad_addr2);
-	}
+	(void)gettimeofday(BAD_ADDR, NULL);
 #endif
 }
 #endif
@@ -326,9 +320,9 @@ static int stress_sigsegv(const stress_args_t *args)
 		if (ret) {
 			/* Signal was tripped */
 #if defined(SA_SIGINFO)
-			if (verify && fault_addr && fault_addr != ptr) {
+			if (verify && expected_addr && fault_addr && fault_addr != expected_addr) {
 				pr_fail("%s: expecting fault address %p, got %p instead\n",
-					args->name, fault_addr, (void *)ptr);
+					args->name, (void *)expected_addr, (void *)fault_addr);
 			}
 			if (verify &&
 			    (signo != -1) &&
@@ -350,7 +344,8 @@ static int stress_sigsegv(const stress_args_t *args)
 #if defined(SA_SIGINFO)
 			signo = -1;
 			code = -1;
-			fault_addr = 0;
+			fault_addr = NULL;
+			expected_addr = NULL;
 #endif
 			switch (stress_mwc8() & 7) {
 #if defined(HAVE_SIGSEGV_X86_TRAP)
@@ -390,10 +385,12 @@ static int stress_sigsegv(const stress_args_t *args)
 #endif
 #if defined(HAVE_SIGSEGV_VDSO)
 			case 6:
+				expected_addr = BAD_ADDR;
 				stress_sigsegv_vdso();
 				CASE_FALLTHROUGH;
 #endif
 			default:
+				expected_addr = ptr;
 				*ptr = 0;
 				break;
 			}
