@@ -56,112 +56,117 @@ Debian, Ubuntu:
 
   * libaio-dev
   * libapparmor-dev
+  * libatomic1
   * libattr1-dev
   * libbsd-dev
   * libcap-dev
+  * libgbm-dev
   * libgcrypt-dev
+  * libglvnd-dev
   * libipsec-mb-dev
   * libjpeg-dev
   * libjudy-dev
   * libkeyutils-dev
-  * libsctp-dev
-  * libatomic1
-  * libglvnd-dev
-  * libgbm-dev
-  * zlib1g-dev
   * libkmod-dev
+  * libmd-dev
+  * libsctp-dev
   * libxxhash-dev
+  * zlib1g-dev
 
 RHEL, Fedora, Centos:
 
+  * Judy-devel
+  * keyutils-libs-devel
+  * kmod-devel
   * libaio-devel
+  * libatomic
   * libattr-devel
   * libbsd-devel
   * libcap-devel
-  * libgcrypt-devel
-  * libjpeg-devel
-  * Judy-devel
-  * keyutils-libs-devel
-  * lksctp-tools-devel
-  * libatomic
   * libgbm-devel
+  * libgcrypt-devel
   * libglvnd-core-devel
   * libglvnd-devel
+  * libjpeg-devel
+  * libmd-devel
   * libX11-devel
   * libXau-devel
   * libxcb-devel
+  * lksctp-tools-devel
   * xorg-x11-proto-devel
-  * zlib-devel
-  * kmod-devel
   * xxhash-devel
+  * zlib-devel
 
 RHEL, Fedora, Centos (static builds):
 
+  * glibc-static
+  * Judy-devel
+  * keyutils-libs-devel
   * libaio-devel
+  * libatomic-static
   * libattr-devel
   * libbsd-devel
   * libcap-devel
-  * libgcrypt-devel
-  * libjpeg-devel
-  * Judy-devel
-  * keyutils-libs-devel
-  * lksctp-tools-devel
-  * libatomic-static
   * libgbm-devel
+  * libgcrypt-devel
   * libglvnd-core-devel
   * libglvnd-devel
+  * libjpeg-devel
+  * libmd-devel
   * libX11-devel
   * libXau-devel
   * libxcb-devel
+  * lksctp-tools-devel
   * xorg-x11-proto-devel
-  * zlib-devel
-  * glibc-static
   * xxhash-devel
+  * zlib-devel
 
 SUSE:
   * keyutils-devel
   * libaio-devel
   * libapparmor-devel
+  * libatomic1
   * libattr-devel
   * libbsd-devel
   * libcap-devel
-  * libseccomp-devel
-  * libjpeg-turbo
-  * lksctp-tools-devel
-  * libatomic1
-  * libglvnd-devel
   * libgbm-devel
-  * zlib-devel
+  * libglvnd-devel
+  * libjpeg-turbo
   * libkmod-devel
+  * libmd-devel
+  * libseccomp-devel
+  * lksctp-tools-devel
   * xxhash-devel
+  * zlib-devel
 
 ClearLinux:
+  * devpkg-Judy
+  * devpkg-kmod
   * devpkg-libattr
   * devpkg-libbsd
-  * devpkg-libsctp
-  * devpkg-libjpeg-turbo
-  * devpkg-Judy
   * devpkg-libgcrypt
-  * devpkg-kmod
+  * devpkg-libjpeg-turbo
+  * devpkg-libsctp
   * devpkg-mesa
 
 Alpine Linux:
   * build-base
-  * libaio-dev
-  * libattr
-  * libbsd-dev
-  * libcap-dev
-  * libseccomp-dev
-  * libgcrypt-dev
   * jpeg-dev
   * judy-dev (presently in testing, see [#13779](https://gitlab.alpinelinux.org/alpine/aports/-/issues/13779))
   * keyutils-dev
-  * lksctp-tools-dev
-  * libatomic
-  * mesa-dev
-  * zlib-dev
   * kmod-dev
+  * libaio-dev
+  * libatomic
+  * libattr
+  * libbsd-dev
+  * libcap-dev
+  * libgcrypt-dev
+  * libmd-dev
+  * libseccomp-dev
+  * lksctp-tools-dev
+  * mesa-dev
   * xxhash-dev
+  * zlib-dev
 
 NOTE: the build will try to detect build dependencies and will build an image
 with functionality disabled if the support libraries are not installed.
