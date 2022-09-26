@@ -89,7 +89,7 @@ static void stress_fp_check(
 #if defined(__linux__) &&		\
     !defined(STRESS_ARCH_M68K) &&	\
     !defined(__ICC) &&			\
-    !defined(STRESS_ARCH_ARC64)
+    !defined(STRESS_ARCH_ARC64) &&	\
     NEED_GNUC(4,8,0)
 	if (stress_double_same(val, val_expected, is_nan, is_inf) &&
 	    (fetestexcept(excepts_expected) & excepts_expected) &&
