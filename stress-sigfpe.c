@@ -129,6 +129,22 @@ static char *stress_sigfpe_errstr(const int err)
 }
 #endif
 
+static void NOINLINE OPTIMIZE0 stress_int_div_by_zero(void)
+{
+	uint8_t k = stress_mwc8();
+	uint64_t zero = stress_uint64_zero();
+
+	stress_uint64_put(k / zero);
+}
+
+static void NOINLINE OPTIMIZE0 stress_float_div_by_zero(void)
+{
+	float k = (float)stress_mwc8();
+	float zero = (float)stress_uint64_zero();
+
+	stress_float_put(k / zero);
+}
+
 /*
  *  stress_sigfpe
  *	stress by generating floating point errors
@@ -138,7 +154,7 @@ static int stress_sigfpe(const stress_args_t *args)
 	struct sigaction action;
 	static int i = 0;
 	int ret;
-	const uint64_t zero = stress_uint64_zero();
+	double time_end;
 
 	typedef struct {
 		unsigned int exception;
@@ -210,6 +226,8 @@ static int stress_sigfpe(const stress_args_t *args)
 		return EXIT_FAILURE;
 	}
 
+	(void)alarm(0);
+	time_end = stress_time_now() + g_opt_timeout;
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (;;) {
@@ -230,7 +248,9 @@ static int stress_sigfpe(const stress_args_t *args)
 		 * We return here if we get SIGFPE, so
 		 * first check if we need to terminate
 		 */
-		if (!keep_stressing(args))
+		if (UNLIKELY(!keep_stressing(args)))
+			break;
+		if (UNLIKELY(stress_time_now() > time_end))
 			break;
 
 		if (ret) {
@@ -255,7 +275,6 @@ static int stress_sigfpe(const stress_args_t *args)
 #if defined(STRESS_CHECK_SIGINFO)
 			siginfo.si_code = 0;
 #endif
-
 			switch (exception) {
 			case SNG_FLTDIV:
 				/*
@@ -263,19 +282,16 @@ static int stress_sigfpe(const stress_args_t *args)
 				 * occur, should not generate a division by zero trap but
 				 * exercise it anyhow just to cover this scenario
 				 */
-				stress_float_put((float)1.0 / (float)zero);
+				stress_float_div_by_zero();
 				break;
 			case SNG_INTDIV:
-				stress_uint64_put(1 / zero);
+				stress_int_div_by_zero();
 				break;
 			default:
 				/* Raise fault otherwise */
 				(void)feraiseexcept((int)exception);
 				break;
 			}
-#if defined(STRESS_ARCH_M68K)
-			shim_sched_yield();
-#endif
 		}
 		i++;
 		i %= SIZEOF_ARRAY(fpe_errs);
