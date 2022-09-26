@@ -1935,10 +1935,10 @@ redo:
 #if NEED_GLIBC(2,1,0)
 				const char *signame = strsignal(wterm_signal);
 
-				pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d (%s)\n",
+				pr_dbg("process [%d] (%s) terminated on signal: %d (%s)\n",
 					ret, stressor_name, wterm_signal, signame);
 #else
-				pr_dbg("process [%d] (stress-ng-%s) terminated on signal: %d\n",
+				pr_dbg("process [%d] (%s) terminated on signal: %d\n",
 					ret, stressor_name, wterm_signal);
 #endif
 			}
@@ -1953,10 +1953,10 @@ redo:
 			 *  failure.
 			 */
 			if (stress_process_oomed(ret)) {
-				pr_dbg("process [%d] (stress-ng-%s) was killed by the OOM killer\n",
+				pr_dbg("process [%d] (%s) was killed by the OOM killer\n",
 					ret, stressor_name);
 			} else if (WTERMSIG(status) == SIGKILL) {
-				pr_dbg("process [%d] (stress-ng-%s) was possibly killed by the OOM killer\n",
+				pr_dbg("process [%d] (%s) was possibly killed by the OOM killer\n",
 					ret, stressor_name);
 			} else {
 				*success = false;
@@ -1966,7 +1966,7 @@ redo:
 		case EXIT_SUCCESS:
 			break;
 		case EXIT_NO_RESOURCE:
-			pr_err_skip("process [%d] (stress-ng-%s) aborted early, out of system resources\n",
+			pr_err_skip("process [%d] (%s) aborted early, out of system resources\n",
 				ret, stressor_name);
 			*resource_success = false;
 			do_abort = true;
@@ -1977,12 +1977,12 @@ redo:
 			case EXIT_SIGNALED:
 			do_abort = true;
 #if defined(STRESS_REPORT_EXIT_SIGNALED)
-			pr_dbg("process [%d] (stress-ng-%s) aborted via a termination signal\n",
+			pr_dbg("process [%d] (%s) aborted via a termination signal\n",
 				ret, stressor_name);
 #endif
 			break;
 		case EXIT_BY_SYS_EXIT:
-			pr_dbg("process [%d] (stress-ng-%s) aborted via exit() which was not expected\n",
+			pr_dbg("process [%d] (%s) aborted via exit() which was not expected\n",
 				ret, stressor_name);
 			do_abort = true;
 			break;
@@ -1998,7 +1998,7 @@ redo:
 			wexit_status = EXIT_NOT_SUCCESS;
 		CASE_FALLTHROUGH;
 			default:
-			pr_err("process [%d] (stress-ng-%s) terminated with an error, exit status=%d (%s)\n",
+			pr_err("process [%d] (%s) terminated with an error, exit status=%d (%s)\n",
 				ret, stressor_name, wexit_status,
 				stress_exit_status_to_string(wexit_status));
 			*success = false;
