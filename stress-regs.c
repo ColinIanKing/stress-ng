@@ -115,10 +115,10 @@ static void regs_check128(
 #else
 #define regs_check128(args, reg, expected, value) 		\
 do {								\
-	(void)args;						\
-	(void)reg;						\
-	(void)expected;						\
-	(void)value;						\
+	(void)(args);						\
+	(void)(reg);						\
+	(void)(expected);					\
+	(void)(value);						\
 } while (0)
 #endif
 
