@@ -34,7 +34,8 @@ static const stress_help_t help[] = {
 };
 
 #if defined(HAVE_LINK_H) &&	\
-    defined(HAVE_LIB_DL)
+    defined(HAVE_LIB_DL) &&	\
+    !defined(BUILD_STATIC)
 
 typedef int (*stress_plugin_func)(void);
 
