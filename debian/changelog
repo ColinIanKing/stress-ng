@@ -1,3 +1,120 @@
+stress-ng (0.14.06-1) unstable; urgency=medium
+
+  * Makefile: bump version
+  * stress-sigsegv: only used expected_addr if SA_SIGINFO is defined
+  * stress-*: rename CACHE_LINE* macros to STRESS_CACHE_LINE*
+  * README.md: update number of stressors and arches supported
+  * stress-vm-addr: remove redundant initialization of pointer buf
+  * stress-pagemove: remove redundant assignment to variable page_num
+  * stress-sync-file: remove redundant redeclaration of offset
+  * stress-sigsegv: remove redundant (void *) cast
+  * stress-sigfpe: force division by zero for x86, disable alarm for m68K
+  * stress-ng: remove duplicated application name in error message
+  * stress-sigsegv: compare sigsegv address with expected address
+  * stress-fp-error: fix missing continuation
+  * stress-fp-error: disable stressor for arc64
+  * stress-sigfpe: disable this stressor for arc64 as feraiseexcept is
+    not implemented
+  * core-arch: add ARC64 arch support macro STRESS_ARCH_ARC64
+  * stress-regs: fix compilation error with gcc-8 on armel and ppc
+  * Makefile.config: sort libraries
+  * Add libmd dependency for static builds
+  * stress-plug: disable for static builds as it requires dlopen
+  * stress-vm-addr: remove align attribute from register pointers
+  * stress-pagemove: add a stressor to exercise page moving using remap
+    fixed move ops
+  * stress-memthrash: add a new swapfwdrev 64 bit mempory swapping method
+  * stress-vm-addr: add address bit flip vm-addr method
+  * stress-vm-addr: add a bitposn bit flipping powers of 2 address space
+    striding method
+  * stress-sigsegv: perform illegal vdso calls that can cause SEGVs
+  * stress-sigsegv: generate SIGSEGV on illegal port read access
+  * stress-sigsegv: generate SIGSEGV via TSC when TSC access is disabled
+  * stress-vm: remove tabs in empty line
+  * stress-tlb-shootdown: optimize for higher TLB read/write misses
+  * stress-memthrash: add a translation lookaside buffer thrashing method
+  * stress-vm: determine cache line size from cache info or default to 64
+    bytes
+  * stress-vm-addr: add a bunch of optimizations to improve throughput
+  * stress-zlib: minor register optimizations
+  * stress-x86syscall: add register hint to loop counters
+  * stress-wcstr: constify wide string function pointers
+  * stress-wait: add missing line
+  * stress-vm-segv: add missing space before {
+  * stress-vm: add some constifications and add some parentheses
+  * stress-verity: factor out variable rnd
+  * stress-vecmath: add missing empty line
+  * stress-vecfp: clean up some line white spacing
+  * stress-vdso: make pointer sym const, add extra parenthesis on time
+    expression
+  * stress-tsearch: make pointers const
+  * stress-tree: make variable median const
+  * stress-timerfd: make variable r const
+  * stress-itimer: make variables r and ret const
+  * stress-sysfs: constify some variables
+  * stress-sync-file: make variable offset const
+  * stress-stream: constify some variables
+  * stress-str: constify function pointers
+  * stress-splice: Make variabls pipe_size and n const
+  * stress-sparsematrix: constify some misc. variables
+  * stress-skiplist: make variable v const
+  * stress-shellsort: make variable temp const
+  * stress-secretmem: make variable offset const
+  * stress-rmap: make variable offset const
+  * stress-rawdev: make variable offset const
+  * stress-randlist: fix comment the describes the stressor
+  * stress-procfs: make variable sz const
+  * stress-pipeherd: make variable dt const
+  * stress-personality: make variable p const
+  * stress-opcode: constify a couple of variables
+  * stress-msyncmany: make variable pattern const
+  * stress-mlock: constify variable rnd
+  * stress-loadavg: make variable t_end const
+  * stress-ipsec-mb: constify some variables and minor code cleanup
+  * stress-inotify: add parentheses to clarify logic
+  * stress-hrtimes: make ns_adjust const
+  * stress-file-ioctl: constify variables rnd and offset
+  * stress-epoll: constify variable port
+  * stress-enosys: reduce scope of pointer h
+  * stress-dir: constify gray_code variable
+  * stress-dentry: constify some variables
+  * stress-cyclic: make some variables const
+  * stress-cpu-online: make cpu const
+  * stress-chroot: make dev static
+  * stress-chdir: add some constifications
+  * stress-cpu: constify some constant values
+  * core-helper: implement stress_fs_type for OpenBSD
+  * core-helper: implement stress_fs_type for FreeBSD
+  * core-helper: fix cut-n-paste error in comment
+  * core-helper: implement stress_get_meminfo for NetBSD
+  * core-helper: remove debug info
+  * core-helper: partially implement stress_get_meminfo for FreeBSD
+  * core-smart: remove unnecessary empty smart helper functions for
+    non-SMART builds
+  * core-helper: move netbsd/freebsd sysctl helpers from core-vmstat.c
+  * stress-bad-altstack: for munmap symbol to be fixed up before it is
+    required
+  * core-helper: add static helper stress_get_meminfo to get memory info
+  * core-helper: extend stress_get_memlimits to return totalswap
+    information
+  * README.md: add another citation
+  * Makefile: add -fma and -qoverride-limits icc optimization flags
+  * Makefile: icc: enable various cpu specific optimizations
+  * core-nt-store: restore HAVE_NT_STORE_DOUBLE
+  * core-nt-store: add ICC compiler support for non-temporal stores
+  * stress-hash: fix comment, add missing "
+  * stress-sock: only close sfd if it was open
+  * stress-sock: remove debug, checked in the wrong version with debug
+  * stress-sock: simplify the ctrls fetching and free'ing
+  * stress-bad-altstack: ensure ret is initialized
+  * stress-chdir: clean up pedantic static analysis warning on chdir of
+    null string
+  * Manual. Update --pathological option documentation, add stressor
+    names
+  * stress-wcstr: voidify len2 and strdstlen unused function arguments
+
+ -- Colin Ian King <colin.i.king@gmail.com>  Tue, 27 Sep 2022 17:22:23 +0100
+
 stress-ng (0.14.05-1) unstable; urgency=medium
 
   * Makefile: bump version
