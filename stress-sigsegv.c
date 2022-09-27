@@ -385,12 +385,16 @@ static int stress_sigsegv(const stress_args_t *args)
 #endif
 #if defined(HAVE_SIGSEGV_VDSO)
 			case 6:
+#if defined(SA_SIGINFO)
 				expected_addr = BAD_ADDR;
+#endif
 				stress_sigsegv_vdso();
 				CASE_FALLTHROUGH;
 #endif
 			default:
+#if defined(SA_SIGINFO)
 				expected_addr = ptr;
+#endif
 				*ptr = 0;
 				break;
 			}
