@@ -31,8 +31,8 @@ static const stress_help_t help[] = {
 #define MAX_TLB_PROCS		(8)
 #define MIN_TLB_PROCS		(2)
 #define MMAP_PAGES		(512)
-#define CACHE_LINE_SHIFT	(6)	/* Typical 64 byte size */
-#define CACHE_LINE_SIZE		(1 << CACHE_LINE_SHIFT)
+#define STRESS_CACHE_LINE_SHIFT	(6)	/* Typical 64 byte size */
+#define STRESS_CACHE_LINE_SIZE	(1 << STRESS_CACHE_LINE_SHIFT)
 
 /*
  *  stress_tlb_shootdown()
@@ -42,7 +42,7 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 	const size_t mmap_size = page_size * MMAP_PAGES;
-	const size_t cache_lines = mmap_size >> CACHE_LINE_SHIFT;
+	const size_t cache_lines = mmap_size >> STRESS_CACHE_LINE_SHIFT;
 	const int32_t max_cpus = stress_get_processors_configured();
 	pid_t pids[MAX_TLB_PROCS];
 	const pid_t pid = getpid();
@@ -94,7 +94,7 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 
 	for (i = 0; i < tlb_procs; i++) {
 		int32_t j, cpu = -1;
-		const size_t stride = (137 + (size_t)stress_get_prime64((uint64_t)cache_lines)) << CACHE_LINE_SHIFT;
+		const size_t stride = (137 + (size_t)stress_get_prime64((uint64_t)cache_lines)) << STRESS_CACHE_LINE_SHIFT;
 		const size_t mem_mask = (mmap_size - 1);
 
 		for (j = 0; j < max_cpus; j++) {
@@ -132,14 +132,14 @@ static int stress_tlb_shootdown(const stress_args_t *args)
 				for (vmem = mem; vmem < mem + mmap_size; vmem += page_size) {
 					size_t m;
 
-					for (m = 0; m < page_size; m += CACHE_LINE_SIZE)
+					for (m = 0; m < page_size; m += STRESS_CACHE_LINE_SIZE)
 						(void)vmem[m];
 				}
 				(void)mprotect(mem, mmap_size, PROT_WRITE);
 				for (vmem = mem; vmem < mem + mmap_size; vmem += page_size) {
 					size_t m;
 
-					for (m = 0; m < page_size; m += CACHE_LINE_SIZE)
+					for (m = 0; m < page_size; m += STRESS_CACHE_LINE_SIZE)
 						vmem[m] = m;
 				}
 

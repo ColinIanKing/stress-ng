@@ -38,8 +38,8 @@ static const stress_help_t help[] = {
 #define MATRIX_SIZE		(1 << MATRIX_SIZE_MAX_SHIFT)
 #define MEM_SIZE		(MATRIX_SIZE * MATRIX_SIZE)
 #define MEM_SIZE_PRIMES		(1 + MATRIX_SIZE_MAX_SHIFT - MATRIX_SIZE_MIN_SHIFT)
-#define CACHE_LINE_SHIFT	(6)	/* Typical 64 byte size */
-#define CACHE_LINE_SIZE		(1 << CACHE_LINE_SHIFT)
+#define STRESS_CACHE_LINE_SHIFT	(6)	/* Typical 64 byte size */
+#define STRESS_CACHE_LINE_SIZE	(1 << STRESS_CACHE_LINE_SHIFT)
 
 typedef void (*stress_memthrash_func_t)(const stress_args_t *args, size_t mem_size);
 
@@ -533,10 +533,10 @@ static void HOT OPTIMIZE3 stress_memthrash_tlb(
 	const stress_args_t *args,
 	const size_t mem_size)
 {
-	const size_t cache_lines = mem_size >> CACHE_LINE_SHIFT;
+	const size_t cache_lines = mem_size >> STRESS_CACHE_LINE_SHIFT;
 	const size_t mask = mem_size - 1;		/* assuming mem_size is a power of 2 */
-	const size_t offset = (size_t)stress_mwc16() & (CACHE_LINE_SIZE - 1);
-	size_t prime_stride = 65537 * CACHE_LINE_SIZE;	/* prime default */
+	const size_t offset = (size_t)stress_mwc16() & (STRESS_CACHE_LINE_SIZE - 1);
+	size_t prime_stride = 65537 * STRESS_CACHE_LINE_SIZE;	/* prime default */
 	register int i;
 	volatile uint8_t *ptr;
 	register size_t j, k;
@@ -686,11 +686,11 @@ static void stress_memthrash_find_primes(void)
 
 	for (i = 0; i < MEM_SIZE_PRIMES; i++) {
 		const size_t mem_size = 1 << (2 * (i + MATRIX_SIZE_MIN_SHIFT));
-		const size_t cache_lines = (mem_size / CACHE_LINE_SIZE) + 137;
+		const size_t cache_lines = (mem_size / STRESS_CACHE_LINE_SIZE) + 137;
 
 		stress_memthrash_primes[i].mem_size = mem_size;
 		stress_memthrash_primes[i].prime_stride =
-			(size_t)stress_get_prime64((uint64_t)cache_lines) * CACHE_LINE_SIZE;
+			(size_t)stress_get_prime64((uint64_t)cache_lines) * STRESS_CACHE_LINE_SIZE;
 	}
 }
 
