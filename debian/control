@@ -23,7 +23,6 @@ Build-Depends: debhelper (>= 13),
                libxxhash-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
                libglvnd-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64],
                libgbm-dev [!hurd-i386 !kfreebsd-i386 !kfreebsd-amd64]
-Build-Recommends: libmd-dev
 
 Homepage: https://github.com/ColinIanKing/stress-ng
 Package: stress-ng
