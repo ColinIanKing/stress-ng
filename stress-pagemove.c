@@ -123,7 +123,7 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 		 *    buf = buf + page_size;
 		 *    buf + page_size = tmp
 		 */
-		for (page_num = 0, ptr = buf; ptr < buf_end - page_size; ptr += page_size) {
+		for (ptr = buf; ptr < buf_end - page_size; ptr += page_size) {
 			void *remap_addr1, *remap_addr2, *remap_addr3;
 
 			remap_addr1 = mremap((void *)ptr, page_size, page_size,
