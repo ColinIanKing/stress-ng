@@ -289,7 +289,7 @@ static size_t TARGET_CLONES OPTIMIZE3 stress_vm_addr_dec(
 	size_t errs = 0;
 	uint8_t rnd = stress_mwc8();
 	uint8_t *ALIGN_VM buf_end = (uint8_t *)ptr;
-	uint8_t *ALIGN_VM buf = (uint8_t *)ptr + sz - 1;
+	uint8_t *ALIGN_VM buf;
 
 	for (buf = (uint8_t *)ptr + sz - 1; buf != buf_end; buf--) {
 		*buf = rnd;
