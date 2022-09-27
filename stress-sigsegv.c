@@ -322,7 +322,7 @@ static int stress_sigsegv(const stress_args_t *args)
 #if defined(SA_SIGINFO)
 			if (verify && expected_addr && fault_addr && fault_addr != expected_addr) {
 				pr_fail("%s: expecting fault address %p, got %p instead\n",
-					args->name, (void *)expected_addr, (void *)fault_addr);
+					args->name, (void *)expected_addr, fault_addr);
 			}
 			if (verify &&
 			    (signo != -1) &&
