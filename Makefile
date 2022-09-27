@@ -17,9 +17,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
 #
 
-VERSION=0.14.05
+VERSION=0.14.06
 #
-# Codename "annus horribilis"
+# Codename "mundus est ad insaniam convertunt"
 #
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
 
