@@ -22,7 +22,7 @@
 int main(int argc, char **argv)
 {
 	__uint128_t data[2];
-	__uint128_t val = (__uint128_t)main | (((__uint128_t)data) << 64);
+	__uint128_t val = (__uint128_t)main | (((__uint128_t)main) << 64);
 
 	_mm_stream_si128((__m128i *)&data[0], (__m128i)val);
 	_mm_stream_si128((__m128i *)&data[1], (__m128i)~val);
