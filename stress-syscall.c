@@ -8319,7 +8319,7 @@ static int cmp_test_duration(const void *p1, const void *p2)
 
 	if (v1 > v2)
 		return 1;
-	if (v2 < v1)
+	if (v1 < v2)
 		return -1;
 	return 0;
 }
