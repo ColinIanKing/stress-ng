@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-sort.h"
 
 #if defined(HAVE_SEARCH_H)
 #include <search.h>
@@ -57,15 +58,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_LSEARCH)
 
 /*
- *  cmp()
- *	lsearch int32 comparison for sorting
- */
-static int cmp(const void *p1, const void *p2)
-{
-	return (int)(*(const int32_t *)p1 - *(const int32_t *)p2);
-}
-
-/*
  *  stress_lsearch()
  *	stress lsearch
  */
@@ -101,13 +93,13 @@ static int stress_lsearch(const stress_args_t *args)
 		/* Step #1, populate with data */
 		for (i = 0; keep_stressing_flag() && i < max; i++) {
 			data[i] = (int32_t)(((stress_mwc16() & 0xfff) << LSEARCH_SIZE_SHIFT) ^ i);
-			VOID_RET(void *, lsearch(&data[i], root, &n, sizeof(*data), cmp));
+			VOID_RET(void *, lsearch(&data[i], root, &n, sizeof(*data), stress_sort_cmp_int32));
 		}
 		/* Step #2, find */
 		for (i = 0; keep_stressing_flag() && i < n; i++) {
 			int32_t *result;
 
-			result = lfind(&data[i], root, &n, sizeof(*data), cmp);
+			result = lfind(&data[i], root, &n, sizeof(*data), stress_sort_cmp_int32);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
 					pr_fail("%s: element %zu could not be found\n", args->name, i);

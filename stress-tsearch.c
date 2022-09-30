@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-sort.h"
 
 #if defined(HAVE_SEARCH_H)
 #include <search.h>
@@ -57,23 +58,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 #if defined(HAVE_TSEARCH)
 
 /*
- *  cmp()
- *	sort on int32 values
- */
-static int cmp(const void *p1, const void *p2)
-{
-	const int32_t *i1 = (const int32_t *)p1;
-	const int32_t *i2 = (const int32_t *)p2;
-
-	if (*i1 > *i2)
-		return 1;
-	else if (*i1 < *i2)
-		return -1;
-	else
-		return 0;
-}
-
-/*
  *  stress_tsearch()
  *	stress tsearch
  */
@@ -104,19 +88,19 @@ static int stress_tsearch(const stress_args_t *args)
 		/* Step #1, populate tree */
 		for (i = 0; i < n; i++) {
 			data[i] = (int32_t)(((stress_mwc16() & 0xfff) << TSEARCH_SIZE_SHIFT) ^ i);
-			if (tsearch(&data[i], &root, cmp) == NULL) {
+			if (tsearch(&data[i], &root, stress_sort_cmp_int32) == NULL) {
 				size_t j;
 
 				pr_err("%s: cannot allocate new "
 					"tree node\n", args->name);
 				for (j = 0; j < i; j++)
-					tdelete(&data[j], &root, cmp);
+					tdelete(&data[j], &root, stress_sort_cmp_int32);
 				goto abort;
 			}
 		}
 		/* Step #2, find */
 		for (i = 0; keep_stressing_flag() && i < n; i++) {
-			const void **result = tfind(&data[i], &root, cmp);
+			const void **result = tfind(&data[i], &root, stress_sort_cmp_int32);
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (!result) {
@@ -136,7 +120,7 @@ static int stress_tsearch(const stress_args_t *args)
 		}
 		/* Step #3, delete */
 		for (i = 0; i < n; i++) {
-			const void **result = tdelete(&data[i], &root, cmp);
+			const void **result = tdelete(&data[i], &root, stress_sort_cmp_int32);
 
 			if ((g_opt_flags & OPT_FLAGS_VERIFY) && (result == NULL)) {
 				pr_fail("%s: element %zu could not be found\n",

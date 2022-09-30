@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-sort.h"
 
 #if defined(HAVE_SEARCH_H)
 #include <search.h>
@@ -54,23 +55,6 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 };
 
 #if defined(HAVE_BSEARCH)
-
-/*
- *  cmp()
- *	compare int32 values for bsearch
- */
-static int cmp(const void *p1, const void *p2)
-{
-	const int32_t *i1 = (const int32_t *)p1;
-	const int32_t *i2 = (const int32_t *)p2;
-
-	if (*i1 > *i2)
-		return 1;
-	else if (*i1 < *i2)
-		return -1;
-	else
-		return 0;
-}
 
 /*
  *  Monotonically increasing values
@@ -130,7 +114,7 @@ static int stress_bsearch(const stress_args_t *args)
 		for (ptr = data, i = 0; i < n; i++, ptr++) {
 			int32_t *result;
 
-			result = bsearch(ptr, data, n, sizeof(*ptr), cmp);
+			result = bsearch(ptr, data, n, sizeof(*ptr), stress_sort_cmp_int32);
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				if (result == NULL)
 					pr_fail("%s: element %zu could not be found\n",
