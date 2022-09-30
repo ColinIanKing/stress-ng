@@ -21,8 +21,8 @@
 #define STRESS_SORT_CMP(name, type)				\
 int stress_sort_cmp_ ## name(const void *p1, const void *p2)	\
 {								\
-	const type v1 = *(type *)p1;				\
-	const type v2 = *(type *)p2;				\
+	const type v1 = *(const type *)p1;			\
+	const type v2 = *(const type *)p2;			\
 								\
 	if (v1 > v2)						\
 		return 1;					\
@@ -35,8 +35,8 @@ int stress_sort_cmp_ ## name(const void *p1, const void *p2)	\
 #define STRESS_SORT_CMP_REV(name, type)				\
 int stress_sort_cmp_rev_ ## name(const void *p1, const void *p2)\
 {								\
-	const type v1 = *(type *)p1;				\
-	const type v2 = *(type *)p2;				\
+	const type v1 = *(const type *)p1;			\
+	const type v2 = *(const type *)p2;			\
 								\
 	if (v1 < v2)						\
 		return 1;					\
