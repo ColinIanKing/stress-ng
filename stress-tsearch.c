@@ -23,8 +23,9 @@
 #include <search.h>
 #endif
 
+#define TSEARCH_SIZE_SHIFT	(22)
 #define MIN_TSEARCH_SIZE	(1 * KB)
-#define MAX_TSEARCH_SIZE	(4 * MB)
+#define MAX_TSEARCH_SIZE	(1U << TSEARCH_SIZE_SHIFT)	/* 4 MB */
 #define DEFAULT_TSEARCH_SIZE	(64 * KB)
 
 static const stress_help_t help[] = {
@@ -102,7 +103,7 @@ static int stress_tsearch(const stress_args_t *args)
 
 		/* Step #1, populate tree */
 		for (i = 0; i < n; i++) {
-			data[i] = (int32_t)(((stress_mwc32() & 0xfff) << 20) ^ i);
+			data[i] = (int32_t)(((stress_mwc16() & 0xfff) << TSEARCH_SIZE_SHIFT) ^ i);
 			if (tsearch(&data[i], &root, cmp) == NULL) {
 				size_t j;
 
