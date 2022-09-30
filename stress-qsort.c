@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-sort.h"
 
 #define MIN_QSORT_SIZE		(1 * KB)
 #define MAX_QSORT_SIZE		(4 * MB)
@@ -59,45 +60,6 @@ static int stress_set_qsort_size(const char *opt)
 	stress_check_range("qsort-size", qsort_size,
 		MIN_QSORT_SIZE, MAX_QSORT_SIZE);
 	return stress_set_setting("qsort-size", TYPE_ID_UINT64, &qsort_size);
-}
-
-/*
- *  stress_qsort_cmp_1()
- *	qsort comparison - sort on int32 values
- */
-static int stress_qsort_cmp_1(const void *p1, const void *p2)
-{
-	const int32_t *i1 = (const int32_t *)p1;
-	const int32_t *i2 = (const int32_t *)p2;
-
-	if (*i1 > *i2)
-		return 1;
-	else if (*i1 < *i2)
-		return -1;
-	else
-		return 0;
-}
-
-/*
- *  stress_qsort_cmp_2()
- *	qsort comparison - reverse sort on int32 values
- */
-static int stress_qsort_cmp_2(const void *p1, const void *p2)
-{
-	return stress_qsort_cmp_1(p2, p1);
-}
-
-/*
- *  stress_qsort_cmp_3()
- *	qsort comparison - sort on int8 values
- */
-static int stress_qsort_cmp_3(const void *p1, const void *p2)
-{
-	const int8_t *i1 = (const int8_t *)p1;
-	const int8_t *i2 = (const int8_t *)p2;
-
-	/* Force re-ordering on 8 bit value */
-	return *i1 - *i2;
 }
 
 /*
@@ -147,7 +109,7 @@ static int stress_qsort(const stress_args_t *args)
 
 	do {
 		/* Sort "random" data */
-		qsort(data, n, sizeof(*data), stress_qsort_cmp_1);
+		qsort(data, n, sizeof(*data), stress_sort_cmp_int32);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr > *(ptr+1)) {
@@ -162,7 +124,7 @@ static int stress_qsort(const stress_args_t *args)
 			break;
 
 		/* Reverse sort */
-		qsort(data, n, sizeof(*data), stress_qsort_cmp_2);
+		qsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr+1)) {
@@ -176,10 +138,10 @@ static int stress_qsort(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 		/* And re-order by byte compare */
-		qsort((uint8_t *)data, n * 4, sizeof(uint8_t), stress_qsort_cmp_3);
+		qsort((uint8_t *)data, n * 4, sizeof(uint8_t), stress_sort_cmp_int8);
 
 		/* Reverse sort this again */
-		qsort(data, n, sizeof(*data), stress_qsort_cmp_2);
+		qsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32);
 		if (g_opt_flags & OPT_FLAGS_VERIFY) {
 			for (ptr = data, i = 0; i < n - 1; i++, ptr++) {
 				if (*ptr < *(ptr+1)) {

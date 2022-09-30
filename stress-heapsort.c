@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-sort.h"
 
 #define MIN_HEAPSORT_SIZE	(1 * KB)
 #define MAX_HEAPSORT_SIZE	(4 * MB)
@@ -71,45 +72,6 @@ static void MLOCKED_TEXT stress_heapsort_handler(int signum)
 }
 
 /*
- *  stress_heapsort_cmp_1()
- *	heapsort comparison - sort on int32 values
- */
-static int stress_heapsort_cmp_1(const void *p1, const void *p2)
-{
-	const int32_t *i1 = (const int32_t *)p1;
-	const int32_t *i2 = (const int32_t *)p2;
-
-	if (*i1 > *i2)
-		return 1;
-	else if (*i1 < *i2)
-		return -1;
-	else
-		return 0;
-}
-
-/*
- *  stress_heapsort_cmp_2()
- *	heapsort comparison - reverse sort on int32 values
- */
-static int stress_heapsort_cmp_2(const void *p1, const void *p2)
-{
-	return stress_heapsort_cmp_1(p2, p1);
-}
-
-/*
- *  stress_heapsort_cmp_3()
- *	heapsort comparison - sort on int8 values
- */
-static int stress_heapsort_cmp_3(const void *p1, const void *p2)
-{
-	const int8_t *i1 = (const int8_t *)p1;
-	const int8_t *i2 = (const int8_t *)p2;
-
-	/* Force re-ordering on 8 bit value */
-	return *i1 - *i2;
-}
-
-/*
  *  stress_heapsort()
  *	stress heapsort
  */
@@ -156,7 +118,7 @@ static int stress_heapsort(const stress_args_t *args)
 
 	do {
 		/* Sort "random" data */
-		if (heapsort(data, n, sizeof(*data), stress_heapsort_cmp_1) < 0) {
+		if (heapsort(data, n, sizeof(*data), stress_sort_cmp_int32) < 0) {
 			pr_fail("%s: heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -175,7 +137,7 @@ static int stress_heapsort(const stress_args_t *args)
 			break;
 
 		/* Reverse sort */
-		if (heapsort(data, n, sizeof(*data), stress_heapsort_cmp_2) < 0) {
+		if (heapsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -193,13 +155,13 @@ static int stress_heapsort(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 		/* And re-order by byte compare */
-		if (heapsort(data, n * 4, sizeof(uint8_t), stress_heapsort_cmp_3) < 0) {
+		if (heapsort(data, n * 4, sizeof(uint8_t), stress_sort_cmp_int8) < 0) {
 			pr_fail("%s: heapsort failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 
 		/* Reverse sort this again */
-		if (heapsort(data, n, sizeof(*data), stress_heapsort_cmp_2) < 0) {
+		if (heapsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed heapsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {

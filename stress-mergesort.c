@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-sort.h"
 
 #define MIN_MERGESORT_SIZE	(1 * KB)
 #define MAX_MERGESORT_SIZE	(4 * MB)
@@ -74,46 +75,6 @@ static void MLOCKED_TEXT stress_mergesort_handler(int signum)
 #endif
 
 /*
- *  stress_mergesort_cmp_1()
- *	mergesort comparison - sort on int32 values
- */
-static int stress_mergesort_cmp_1(const void *p1, const void *p2)
-{
-	const int32_t *i1 = (const int32_t *)p1;
-	const int32_t *i2 = (const int32_t *)p2;
-
-	if (*i1 > *i2)
-		return 1;
-	else if (*i1 < *i2)
-		return -1;
-	else
-		return 0;
-}
-
-/*
- *  stress_mergesort_cmp_2()
- *	mergesort comparison - reverse sort on int32 values
- */
-static int stress_mergesort_cmp_2(const void *p1, const void *p2)
-{
-	return stress_mergesort_cmp_1(p2, p1);
-}
-
-/*
- *  stress_mergesort_cmp_3()
- *	mergesort comparison - random sort(!)
- */
-static int stress_mergesort_cmp_3(const void *p1, const void *p2)
-{
-	int r = ((int)stress_mwc8() % 3) - 1;
-
-	(void)p1;
-	(void)p2;
-
-	return r;
-}
-
-/*
  *  stress_mergesort()
  *	stress mergesort
  */
@@ -163,7 +124,7 @@ static int stress_mergesort(const stress_args_t *args)
 
 	do {
 		/* Sort "random" data */
-		if (mergesort(data, n, sizeof(*data), stress_mergesort_cmp_1) < 0) {
+		if (mergesort(data, n, sizeof(*data), stress_sort_cmp_int32) < 0) {
 			pr_fail("%s: mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -182,7 +143,7 @@ static int stress_mergesort(const stress_args_t *args)
 			break;
 
 		/* Reverse sort */
-		if (mergesort(data, n, sizeof(*data), stress_mergesort_cmp_2) < 0) {
+		if (mergesort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -199,14 +160,14 @@ static int stress_mergesort(const stress_args_t *args)
 		}
 		if (!keep_stressing_flag())
 			break;
-		/* And re-order by random compare to remix the data */
-		if (mergesort(data, n, sizeof(*data), stress_mergesort_cmp_3) < 0) {
+		/* And re-order by byte compare */
+		if (mergesort(data, n / 2, sizeof(int64_t), stress_sort_cmp_int64) < 0) {
 			pr_fail("%s: mergesort failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 
 		/* Reverse sort this again */
-		if (mergesort(data, n, sizeof(*data), stress_mergesort_cmp_2) < 0) {
+		if (mergesort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed mergesort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		}

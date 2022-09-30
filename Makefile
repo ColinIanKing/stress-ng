@@ -461,6 +461,7 @@ CORE_SRC = \
 	core-setting.c \
 	core-shim.c \
 	core-smart.c \
+	core-sort.c \
 	core-thermal-zone.c \
 	core-time.c \
 	core-thrash.c \

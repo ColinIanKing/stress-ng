@@ -18,6 +18,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-sort.h"
 
 #define MIN_SHELLSORT_SIZE	(1 * KB)
 #define MAX_SHELLSORT_SIZE	(4 * MB)
@@ -64,43 +65,6 @@ static void MLOCKED_TEXT stress_shellsort_handler(int signum)
 		do_jmp = false;
 		siglongjmp(jmp_env, 1);		/* Ugly, bounce back */
 	}
-}
-
-/*
- *  stress_shellsort_cmp_1()
- *	shellsort comparison - sort on int32 values
- */
-static int stress_shellsort_cmp_1(const void *p1, const void *p2)
-{
-	const int32_t *i1 = (const int32_t *)p1;
-	const int32_t *i2 = (const int32_t *)p2;
-
-	return *i1 > *i2;
-}
-
-/*
- *  stress_shellsort_cmp_2()
- *	shellsort comparison - reverse sort on int32 values
- */
-static int stress_shellsort_cmp_2(const void *p1, const void *p2)
-{
-	const int32_t *i1 = (const int32_t *)p1;
-	const int32_t *i2 = (const int32_t *)p2;
-
-	return *i1 < *i2;
-}
-
-/*
- *  stress_shellsort_cmp_3()
- *	shellsort comparison - sort on int8 values
- */
-static int stress_shellsort_cmp_3(const void *p1, const void *p2)
-{
-	const int8_t *i1 = (const int8_t *)p1;
-	const int8_t *i2 = (const int8_t *)p2;
-
-	/* Force re-ordering on 8 bit value */
-	return *i1 > *i2;
 }
 
 static int shellsort32(void *base, size_t nmemb,
@@ -205,7 +169,7 @@ static int stress_shellsort(const stress_args_t *args)
 
 	do {
 		/* Sort "random" data */
-		if (shellsort(data, n, sizeof(*data), stress_shellsort_cmp_1) < 0) {
+		if (shellsort(data, n, sizeof(*data), stress_sort_cmp_int32) < 0) {
 			pr_fail("%s: shellsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -224,7 +188,7 @@ static int stress_shellsort(const stress_args_t *args)
 			break;
 
 		/* Reverse sort */
-		if (shellsort(data, n, sizeof(*data), stress_shellsort_cmp_2) < 0) {
+		if (shellsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed shellsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
@@ -242,13 +206,13 @@ static int stress_shellsort(const stress_args_t *args)
 		if (!keep_stressing_flag())
 			break;
 		/* And re-order by byte compare */
-		if (shellsort(data, n * 4, sizeof(uint8_t), stress_shellsort_cmp_3) < 0) {
+		if (shellsort(data, n * 4, sizeof(uint8_t), stress_sort_cmp_int8) < 0) {
 			pr_fail("%s: shellsort failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		}
 
 		/* Reverse sort this again */
-		if (shellsort(data, n, sizeof(*data), stress_shellsort_cmp_2) < 0) {
+		if (shellsort(data, n, sizeof(*data), stress_sort_cmp_rev_int32) < 0) {
 			pr_fail("%s: reversed shellsort of random data failed: %d (%s)\n",
 				args->name, errno, strerror(errno));
 		} else {
