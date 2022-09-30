@@ -23,8 +23,9 @@
 #include <search.h>
 #endif
 
+#define LSEARCH_SIZE_SHIFT	(20)
 #define MIN_LSEARCH_SIZE	(1 * KB)
-#define MAX_LSEARCH_SIZE	(1 * MB)
+#define MAX_LSEARCH_SIZE	(1U << LSEARCH_SIZE_SHIFT)	/* 1 MB */
 #define DEFAULT_LSEARCH_SIZE	(8 * KB)
 
 static const stress_help_t help[] = {
@@ -99,7 +100,7 @@ static int stress_lsearch(const stress_args_t *args)
 
 		/* Step #1, populate with data */
 		for (i = 0; keep_stressing_flag() && i < max; i++) {
-			data[i] = (int32_t)(((stress_mwc32() & 0xfff) << 20) ^ i);
+			data[i] = (int32_t)(((stress_mwc16() & 0xfff) << LSEARCH_SIZE_SHIFT) ^ i);
 			VOID_RET(void *, lsearch(&data[i], root, &n, sizeof(*data), cmp));
 		}
 		/* Step #2, find */
