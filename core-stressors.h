@@ -129,6 +129,7 @@
 	MACRO(lease)		\
 	MACRO(link)		\
 	MACRO(list)		\
+	MACRO(llc_affinity)	\
 	MACRO(loadavg)		\
 	MACRO(locka)		\
 	MACRO(lockbus)		\

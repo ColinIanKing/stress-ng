@@ -2533,6 +2533,15 @@ to be added into the list.
 specify the list to be used. By default, all the list methods are
 used (the 'all' option).
 .TP
+.B \-\-llc\-affinity N
+start N workers that exercise the lower-level cache (LLC) by read/write
+activity across a LLC sized buffer and then changing CPU affinity after
+each round of read/writes. This can cause non-local memory stalls and
+LLC read/write misses.
+.TP
+.B \-\-llc\-affinity\-ops N
+stop after N rounds of LLC read/writes.
+.TP
 .B \-\-loadavg N
 start N workers that attempt to create thousands of pthreads that run
 at the lowest nice priority to force very high load averages. Linux

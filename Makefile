@@ -243,6 +243,7 @@ STRESS_SRC = \
 	stress-lease.c \
 	stress-link.c \
 	stress-list.c \
+	stress-llc-affinity.c \
 	stress-loadavg.c \
 	stress-lockbus.c \
 	stress-locka.c \
