@@ -41,10 +41,6 @@ static const stress_help_t help[] = {
 #endif
 #endif
 
-#if defined(__BYTE_ORDER__) && defined(__ORDER_LITTLE_ENDIAN__)
-#define STRESS_ARCH_LE
-#endif
-
 #if defined(HAVE_MPROTECT) &&					\
     ((defined(STRESS_ARCH_ARM) && defined(__aarch64___)) ||	\
      defined(STRESS_ARCH_ALPHA) ||				\
