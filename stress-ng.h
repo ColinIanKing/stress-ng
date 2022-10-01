@@ -1198,6 +1198,9 @@ typedef enum {
 	OPT_fanotify,
 	OPT_fanotify_ops,
 
+	OPT_far_branch,
+	OPT_far_branch_ops,
+
 	OPT_fault,
 	OPT_fault_ops,
 

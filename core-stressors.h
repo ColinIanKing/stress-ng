@@ -79,6 +79,7 @@
 	MACRO(exit_group)	\
 	MACRO(fallocate)	\
 	MACRO(fanotify)		\
+	MACRO(far_branch)	\
 	MACRO(fault)		\
 	MACRO(fcntl)		\
 	MACRO(fiemap)		\

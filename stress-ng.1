@@ -1730,6 +1730,19 @@ with CAP_SYS_ADMIN capability.
 .B \-\-fanotify-ops N
 stop fanotify stress workers after N bogo fanotify events.
 .TP
+.B \-\-far\-branch N
+start N workers that exercise calls to tens of thousands of 
+functions that are relatively far from the caller. All functions
+are 1 op instructions that return to the caller. The functions
+are placed in pages that are memory mapped with a wide spread of
+fixed virtual addresses.  Function calls are pre-shuffled
+to create a randomized mix of addresses to call. This stresses the
+instruction cache and any instruction TLBs.
+.TP
+.B \-\-far\-branch\-ops N
+stop after N far branch bogo-ops. One full cycle of calling all
+the tens of thousands of functions equates to one bogo-op.
+.TP
 .B \-\-fault N
 start N workers that generates minor and major page faults.
 .TP

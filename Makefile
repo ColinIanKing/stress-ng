@@ -193,6 +193,7 @@ STRESS_SRC = \
 	stress-exit-group.c \
 	stress-fallocate.c \
 	stress-fanotify.c \
+	stress-far-branch.c \
 	stress-fault.c \
 	stress-fcntl.c \
 	stress-file-ioctl.c \
