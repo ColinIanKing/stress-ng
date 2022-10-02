@@ -56,42 +56,74 @@ static const stress_help_t help[] = {
 typedef struct {
 	const size_t stride;		/* Bytes between each function */
 	const size_t len;		/* Length of return function */
+	const char *assembler;		/* Assembler */
 	const uint8_t opcodes[];	/* Opcodes of return function */
 } ret_opcode_t;
 
 static ret_opcode_t ret_opcode =
 #if defined(STRESS_ARCH_ALPHA)
-        { 16, 4, { 0x01, 0x80, 0xfa, 0x6b } };	/* ret */
+        { 16, 4, "ret", { 0x01, 0x80, 0xfa, 0x6b } };
 #endif
 #if defined(STRESS_ARCH_ARM) && defined(__aarch64___)
-	{ 8, 4, { 0xc0, 0x03, 0x5f, 0xd6 } };	/* ret */
+	{ 8, 4, "ret", { 0xc0, 0x03, 0x5f, 0xd6 } };
 #endif
 #if defined(STRESS_ARCH_HPPA)
-	{ 8, 4, { 0xe8, 0x40, 0xc0, 0x02 } };	/* bv,n r0(rp) */
+	{ 8, 4, "bv,n r0(rp)", { 0xe8, 0x40, 0xc0, 0x02 } };
 #endif
 #if defined(STRESS_ARCH_M68K)
-	{ 8, 2, { 0x4e, 0x75 } };		/* rts */
+	{ 8, 2, "rts", { 0x4e, 0x75 } };
 #endif
 #if defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_LE)
-	{ 8, 4, { 0x08, 0x00, 0xe0, 0x03 } };	/* jr ra */
+	{ 8, 4, "jr ra", { 0x08, 0x00, 0xe0, 0x03 } };
 #endif
 #if defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_BE)
-	{ 8, 4, { 0x03, 0xe0, 0x00, 0x08 } };	/* jr ra */
+	{ 8, 4, "jr ra", { 0x03, 0xe0, 0x00, 0x08 } };
 #endif
 #if defined(STRESS_ARCG_RISCV)
-	{ 8, 2, { 0x82, 0x080 } };		/* ret */
+	{ 8, 2, "ret", { 0x82, 0x080 } };
 #endif
 #if defined(STRESS_ARCH_S390)
-	{ 8, 2, { 0x07, 0xfe } };		/* br %r14 */
+	{ 8, 2, "br %r14", { 0x07, 0xfe } };
 #endif
 #if defined(STRESS_ARCH_SH4)
-	{ 8, 4, { 0x0b, 0x00, 0x09, 0x00 } };	/* rts, nop */
+	{ 8, 4, "rts", { 0x0b, 0x00, 0x09, 0x00 } };	/* rts, nop */
 #endif
 #if defined(STRESS_ARCH_X86)
-	{ 8, 1, { 0xc3 } };			/* ret */
+	{ 8, 1, "ret", { 0xc3 } };
 #endif
 
 typedef void (*ret_func_t)(void);
+
+static int sigs[] = {
+#if defined(SIGILL)
+	SIGILL,
+#endif
+#if defined(SIGSEGV)
+	SIGSEGV,
+#endif
+#if defined(SIGBUS)
+	SIGBUS,
+#endif
+};
+
+static void *sig_addr = NULL;
+static int sig_num = -1;
+static sigjmp_buf jmp_env;
+
+static void MLOCKED_TEXT stress_sig_handler(
+        int sig,
+        siginfo_t *info,
+        void *ucontext)
+{
+	(void)ucontext;
+
+	sig_num = sig;
+	sig_addr = (info) ? info->si_addr : (void *)~(uintptr_t)0;
+
+	keep_stressing_set_flag(false);
+
+	siglongjmp(jmp_env, 1);
+}
 
 /*
  *  stress_far_mmap()
@@ -172,13 +204,70 @@ static int stress_far_branch(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	const uintptr_t mask = ~((uintptr_t)page_size - 1);
 	uintptr_t base;
-	size_t total_funcs = 0;
 	const size_t max_funcs = (n_pages * page_size) / ret_opcode.stride;
-	ret_func_t *funcs;
-	void **pages;
-	double calls = 0.0, t_start, duration, rate;
+	double t_start, duration, rate;
+	struct sigaction sa;
+	int ret;
+	NOCLOBBER ret_func_t *funcs = NULL;
+	NOCLOBBER void **pages = NULL;
+	NOCLOBBER size_t total_funcs = 0;
+	NOCLOBBER double calls = 0.0;
 
 	base = (uintptr_t)stress_far_branch & mask;
+
+	ret = sigsetjmp(jmp_env, 1);
+	if (ret) {
+		const char *sig_name = stress_signal_name(sig_num);
+		static bool dumped = false;
+
+		if (dumped)
+			goto cleanup;
+
+		dumped = true;
+		if (!sig_name)
+			sig_name = "(unknown)";
+
+		pr_inf("%s: caught signal %d %s at %p\n",
+			args->name, sig_num, sig_name, sig_addr);
+		if (sig_num == SIGILL) {
+			char buffer[256], *ptr = buffer;
+			uint8_t *data = (uint8_t *)sig_addr;
+			size_t buflen = sizeof(buffer);
+			int len;
+
+			len = snprintf(ptr, buflen, "%s: %p:", args->name, sig_addr);
+			if (len < 0)
+				goto cleanup;
+
+			buflen -= len;
+			ptr += len;
+			for (i = 0; i < 8; i++, data++) {
+				len = snprintf(ptr, buflen, " %2.2x", *data);
+				if (len < 0)
+					goto cleanup;
+				buflen -= len;
+				ptr += len;
+			}
+			pr_inf("%s\n", buffer);
+		}
+		goto cleanup;
+	}
+
+	if (args->instance == 0)
+		pr_dbg("%s: using assembler opcode '%s' as function return code\n", args->name, ret_opcode.assembler);
+
+	(void)memset(&sa, 0, sizeof(sa));
+	sa.sa_sigaction = stress_sig_handler;
+#if defined(SA_SIGINFO)
+	sa.sa_flags = SA_SIGINFO;
+#endif
+	for (i = 0; i < SIZEOF_ARRAY(sigs); i++) {
+		if (sigaction(sigs[i], &sa, NULL) < 0) {
+			pr_err("%s: cannot install signal handler, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
+			return EXIT_FAILURE;
+		}
+	}
 
 	funcs = calloc(max_funcs, sizeof(*funcs));
 	if (!funcs) {
@@ -246,12 +335,14 @@ static int stress_far_branch(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
-	for (i = 0; i < n_pages; i++) {
-		if (pages[i])
-			(void)munmap((void *)pages[i], page_size);
+cleanup:
+	if (pages) {
+		for (i = 0; i < n_pages; i++) {
+			if (pages[i])
+				(void)munmap((void *)pages[i], page_size);
+		}
+		free(pages);
 	}
-
-	free(pages);
 	free(funcs);
 
 	return EXIT_SUCCESS;
