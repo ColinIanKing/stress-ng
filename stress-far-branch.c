@@ -51,6 +51,7 @@ static const stress_help_t help[] = {
      defined(STRESS_ARCH_RISCV) ||				\
      defined(STRESS_ARCH_S390) ||				\
      defined(STRESS_ARCH_SH4) ||				\
+     defined(STRESS_ARCH_SPARC) ||				\
      defined(STRESS_ARCH_X86))
 
 typedef struct {
@@ -87,6 +88,9 @@ static ret_opcode_t ret_opcode =
 #endif
 #if defined(STRESS_ARCH_SH4)
 	{ 8, 4, "rts", { 0x0b, 0x00, 0x09, 0x00 } };	/* rts, nop */
+#endif
+#if defined(STRESS_ARCH_SPARC)
+	{ 16, 8, "retl; add %o7, %l7, %l7", { 0x81, 0xc3, 0xe0, 0x08, 0xae, 0x03, 0xc0, 0x17 } };
 #endif
 #if defined(STRESS_ARCH_X86)
 	{ 8, 1, "ret", { 0xc3 } };
