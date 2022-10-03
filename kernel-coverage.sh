@@ -306,8 +306,8 @@ do
 		do_stress --verity -1 --temp-path $MNT --iostat 1
 		do_stress --utime -1 --utime-fsync --temp-path $MNT --iostat 1
 		DURATION=10
-		sudo $STRESS_NG --class filesystem --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1
-		sudo $STRESS_NG --class io --ftrace --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1
+		sudo $STRESS_NG --class filesystem --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1
+		sudo $STRESS_NG --class io --seq -1 -v --timestamp --syslog -t $DURATION --temp-path $MNT --iostat 1
 		DURATION=5
 		do_stress --sysinfo -1 --temp-path $MNT
 		umount_filesystem $FS
