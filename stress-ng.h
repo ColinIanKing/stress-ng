@@ -1395,6 +1395,7 @@ typedef enum {
 
 	OPT_link,
 	OPT_link_ops,
+	OPT_link_sync,
 
 	OPT_list,
 	OPT_list_ops,
@@ -1964,6 +1965,7 @@ typedef enum {
 
 	OPT_symlink,
 	OPT_symlink_ops,
+	OPT_symlink_sync,
 
 	OPT_sync_file,
 	OPT_sync_file_ops,

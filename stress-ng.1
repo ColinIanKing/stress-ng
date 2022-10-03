@@ -2525,6 +2525,9 @@ start N workers creating and removing hardlinks.
 .B \-\-link\-ops N
 stop link stress workers after N bogo operations.
 .TP
+.B \-\-link\-sync
+sync dirty data and metadata to disk.
+.TP
 .B \-\-list N
 start N workers that exercise list data structures. The default is
 to add, find and remove 5,000 64 bit integers into circleq (doubly
@@ -4709,6 +4712,9 @@ start N workers creating and removing symbolic links.
 .TP
 .B \-\-symlink\-ops N
 stop symlink stress workers after N bogo operations.
+.TP
+.B \-\-symlink\-sync
+sync dirty data and metadata to disk.
 .TP
 .B \-\-sync\-file N
 start N workers that perform a range of data syncs across a file using
