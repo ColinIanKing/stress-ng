@@ -138,7 +138,9 @@ static void stress_fiemap_ioctl(
 	const stress_args_t *args,
 	const int fd)
 {
+#if !defined(O_SYNC)
 	int c = stress_mwc32() % COUNT_MAX;
+#endif
 
 	do {
 		struct fiemap *fiemap, *tmp;
@@ -196,10 +198,14 @@ static void stress_fiemap_ioctl(
 			break;
 		}
 		free(fiemap);
+		if (!keep_stressing(args))
+			break;
+#if !defined(O_SYNC)
 		if (c++ > COUNT_MAX) {
 			c = 0;
 			fdatasync(fd);
 		}
+#endif
 	} while (inc_counter_lock(args, counter_lock, true));
 }
 
@@ -237,6 +243,11 @@ static int stress_fiemap(const stress_args_t *args)
 	uint64_t fiemap_bytes = DEFAULT_FIEMAP_SIZE;
 	struct fiemap fiemap;
 	const char *fs_type;
+#if defined(O_SYNC)
+	const int flags = O_CREAT | O_RDWR | O_SYNC;
+#else
+	const int flags = O_CREAT | O_RDWR;
+#endif
 
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
@@ -262,7 +273,7 @@ static int stress_fiemap(const stress_args_t *args)
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
-	if ((fd = open(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR)) < 0) {
+	if ((fd = open(filename, flags, S_IRUSR | S_IWUSR)) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: open %s failed, errno=%d (%s)\n",
 			args->name, filename, errno, strerror(errno));
