@@ -55,7 +55,11 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
  *  stress_copy_file_fill()
  *	fill chunk of file with random value
  */
-static int stress_copy_file_fill(const int fd, const off_t off, const ssize_t size)
+static int stress_copy_file_fill(
+	const stress_args_t *args,
+	const int fd,
+	const off_t off,
+	const ssize_t size)
 {
 	char buf[COPY_FILE_MAX_BUF_SIZE];
 	ssize_t sz = size;
@@ -72,6 +76,8 @@ static int stress_copy_file_fill(const int fd, const off_t off, const ssize_t si
 		if (n < 0)
 			return -1;
 		sz -= n;
+		if (!keep_stressing(args))
+			return 0;
 	}
 	return 0;
 }
@@ -186,12 +192,14 @@ static int stress_copy_file(const stress_args_t *args)
 			stress_fs_type(tmp));
 		goto tidy_in;
 	}
+	/*
 	if (shim_fsync(fd_in) < 0) {
 		pr_fail("%s: fsync failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno),
 			stress_fs_type(tmp));
 		goto tidy_in;
 	}
+	*/
 
 	(void)snprintf(tmp, sizeof(tmp), "%s-copy", filename);
 	if ((fd_out = open(tmp, O_CREAT | O_RDWR,  S_IRUSR | S_IWUSR)) < 0) {
@@ -213,7 +221,11 @@ static int stress_copy_file(const stress_args_t *args)
 		off_out_orig = (shim_loff_t)(stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE));
 		off_out = off_out_orig;
 
-		stress_copy_file_fill(fd_in, (off_t)off_in, DEFAULT_COPY_FILE_SIZE);
+		if (!keep_stressing(args))
+			break;
+		stress_copy_file_fill(args, fd_in, (off_t)off_in, DEFAULT_COPY_FILE_SIZE);
+		if (!keep_stressing(args))
+			break;
 		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
 						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
 		if (copy_ret < 0) {
@@ -245,6 +257,8 @@ static int stress_copy_file(const stress_args_t *args)
 					args->name, (intmax_t)off_in_orig, (intmax_t)off_out_orig);
 			}
 		}
+		if (!keep_stressing(args))
+			break;
 
 		/*
 		 *  Exercise with bad fds
@@ -261,6 +275,8 @@ static int stress_copy_file(const stress_args_t *args)
 		 */
 		VOID_RET(ssize_t, shim_copy_file_range(fd_in, &off_in, fd_out,
 						&off_out, DEFAULT_COPY_FILE_SIZE, ~0U));
+		if (!keep_stressing(args))
+			break;
 		(void)shim_fsync(fd_out);
 		inc_counter(args);
 	} while (keep_stressing(args));
