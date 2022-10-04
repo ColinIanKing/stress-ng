@@ -524,7 +524,7 @@ static int stress_set_syscall_method(const char *opt)
 {
 	size_t i;
 
-	for (i = 0; syscall_methods[i].opt; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(syscall_methods); i++) {
 		if (!strcmp(syscall_methods[i].opt, opt)) {
 			stress_set_setting("syscall-method", TYPE_ID_INT, &syscall_methods[i].method);
 			return 0;
@@ -532,7 +532,7 @@ static int stress_set_syscall_method(const char *opt)
 	}
 
 	(void)fprintf(stderr, "syscall-method must be one of:");
-	for (i = 0; syscall_methods[i].opt; i++) {
+	for (i = 0; i < SIZEOF_ARRAY(syscall_methods); i++) {
 		(void)fprintf(stderr, " %s", syscall_methods[i].opt);
 	}
 	(void)fprintf(stderr, "\n");
