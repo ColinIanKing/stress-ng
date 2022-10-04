@@ -135,7 +135,7 @@ static inline void stress_dir_mmap(const int dir_fd, const size_t page_size)
  *  stress_dir_read()
  *	read and stat all dentries
  */
-static void stress_dir_read(
+static int stress_dir_read(
 	const stress_args_t *args,
 	const char *path)
 {
@@ -144,7 +144,7 @@ static void stress_dir_read(
 
 	dp = opendir(path);
 	if (!dp)
-		return;
+		return -1;
 
 	while (keep_stressing(args) && ((de = readdir(dp)) != NULL)) {
 		char filename[PATH_MAX];
@@ -159,6 +159,8 @@ static void stress_dir_read(
 	}
 
 	(void)closedir(dp);
+
+	return 0;
 }
 
 /*
@@ -279,7 +281,8 @@ static void stress_dir_read_concurrent(
 	shim_nice(1);
 
 	do {
-		stress_dir_read(args, pathname);
+		if (stress_dir_read(args, pathname) < 0)
+			return;
 	} while (keep_stressing(args));
 }
 
@@ -299,20 +302,20 @@ static int stress_dir(const stress_args_t *args)
 	stress_temp_dir(pathname, sizeof(pathname), args->name, args->pid, args->instance);
 	(void)stress_get_setting("dir-dirs", &dir_dirs);
 
-	pid = fork();
-	if (pid == 0) {
-		stress_dir_read_concurrent(args, pathname);
-		_exit(0);
-	}
-
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
+	if (ret < 0) 
 		return stress_exit_status(-ret);
 
 #if defined(O_DIRECTORY)
 	dir_fd = open(pathname, O_DIRECTORY | O_RDONLY);
 #endif
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	pid = fork();
+	if (pid == 0) {
+		stress_dir_read_concurrent(args, pathname);
+		_exit(0);
+	}
 
 	do {
 		uint64_t i, n = dir_dirs;
