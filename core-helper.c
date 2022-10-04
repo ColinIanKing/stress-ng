@@ -1529,7 +1529,7 @@ void OPTIMIZE3 stress_uint8rnd4(uint8_t *data, const size_t len)
 void pr_runinfo(void)
 {
 	const char *temp_path = stress_get_temp_path();
-	const char *fs_type = fs_type = stress_fs_type(temp_path);
+	const char *fs_type = stress_fs_type(temp_path);
 	size_t freemem, totalmem, freeswap, totalswap;
 #if defined(HAVE_UNAME) &&	\
     defined(HAVE_SYS_UTSNAME_H)
