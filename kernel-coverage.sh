@@ -47,6 +47,38 @@ if [ ! -x "$STRESS_NG" ]; then
 fi
 STRESSORS=$($STRESS_NG --stressors)
 
+get_stress_ng_pids()
+{
+	ps -e | grep stress-ng | awk '{ print $1}'
+}
+
+kill_stress_ng()
+{
+	for J in $(seq 10)
+	do
+		for I in $(seq 10)
+		do
+			pids=$(get_stress_ng_pids)
+			if [ -z "$pids" ]; then
+				return
+			fi
+			kill -ALRM $pids >& /dev/null
+			sleep 1
+		done
+
+		for I in $(seq 10)
+		do
+			pids=$(get_stress_ng_pids)
+			if [ -z "$pids" ]; then
+				return
+			fi
+
+			kill -KILL $pids >& /dev/null
+			sleep 1
+		done
+	done
+}
+
 mount_filesystem()
 {
 	rm -f ${FSIMAGE}
@@ -202,7 +234,17 @@ mount_filesystem()
 
 umount_filesystem()
 {
-	sudo umount ${MNT}
+	for I in $(seq 10)
+	do
+		kill_stress_ng
+		sudo umount ${MNT}
+		if [ $? -eq 0 ]; then
+			break;
+		else
+			echo umount of ${MNT} failed, retrying...
+		fi
+		sleep 1
+	done
 	rmdir ${MNT}
 	rm -f ${FSIMAGE}
 
