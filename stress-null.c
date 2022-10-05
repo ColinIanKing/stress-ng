@@ -38,6 +38,7 @@ static int stress_null(const stress_args_t *args)
 	int fd;
 	char ALIGN64 buffer[4096];
 	int fcntl_mask = 0;
+	double duration = 0.0, bytes = 0.0, rate;
 
 #if defined(O_APPEND)
 	fcntl_mask |= O_APPEND;
@@ -59,6 +60,7 @@ static int stress_null(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+		double t;
 		ssize_t ret;
 		int flag;
 #if defined(__linux__)
@@ -66,8 +68,9 @@ static int stress_null(const stress_args_t *args)
 		const size_t page_size = args->page_size;
 #endif
 
+		t = stress_time_now();
 		ret = write(fd, buffer, sizeof(buffer));
-		if (ret <= 0) {
+		if (UNLIKELY(ret <= 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			if (errno) {
@@ -77,6 +80,9 @@ static int stress_null(const stress_args_t *args)
 				return EXIT_FAILURE;
 			}
 			continue;
+		} else {
+			duration += stress_time_now() - t;
+			bytes += (double)ret;
 		}
 
 		VOID_RET(off_t, lseek(fd, (off_t)0, SEEK_SET));
@@ -132,6 +138,9 @@ static int stress_null(const stress_args_t *args)
 	(void)close(fd);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "MB/sec /dev/null write rate", rate);
 
 	return EXIT_SUCCESS;
 }
