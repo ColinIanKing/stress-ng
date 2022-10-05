@@ -740,8 +740,9 @@ static int stress_mmap(const stress_args_t *args)
 #if defined(HAVE_MMAP2)
 		context.mmap = (mmap_func_t)mmap2_try;
 #else
-		pr_inf("%s: using mmap instead of mmap2 as it is not available\n",
-			args->name);
+		if (args->instance == 0)
+			pr_inf("%s: using mmap instead of mmap2 as it is not available\n",
+				args->name);
 #endif
 	}
 
