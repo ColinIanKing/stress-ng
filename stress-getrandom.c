@@ -109,6 +109,8 @@ static const getrandom_flags_t getrandom_flags[] = {
  */
 static int stress_getrandom(const stress_args_t *args)
 {
+	double duration = 0.0, bytes = 0.0, rate;
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
@@ -117,9 +119,11 @@ static int stress_getrandom(const stress_args_t *args)
 
 		for (i = 0; keep_stressing(args) && (i < SIZEOF_ARRAY(getrandom_flags)); i++) {
 			ssize_t ret;
+			double t;
 
+			t = stress_time_now();
 			ret = shim_getrandom(buffer, sizeof(buffer), getrandom_flags[i].flag);
-			if (ret < 0) {
+			if (UNLIKELY(ret < 0)) {
 				if ((errno == EAGAIN) ||
 				    (errno == EINTR) ||
 				    (errno == EINVAL))
@@ -136,6 +140,9 @@ static int stress_getrandom(const stress_args_t *args)
 					args->name, getrandom_flags[i].flag_str,
 					errno, strerror(errno));
 				return EXIT_FAILURE;
+			} else {
+				duration += stress_time_now() - t;
+				bytes += (double)ret;
 			}
 #if defined(HAVE_GETENTROPY)
 			/*
@@ -151,6 +158,9 @@ static int stress_getrandom(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (duration > 0.0) ? (8.0 * bytes) / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "getrandom bits per second", rate);
 
 	return EXIT_SUCCESS;
 }
