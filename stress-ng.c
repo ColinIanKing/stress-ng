@@ -2776,7 +2776,7 @@ static void stress_metrics_dump(
 						total += stats->misc_stats[i].value;
 					}
 					metric = ss->started_instances ? total / ss->started_instances : 0.0;
-					pr_inf("%-13s %9.2f %s (average per stressor)\n",
+					pr_inf("%-13s %11.2f %s (average per stressor)\n",
 						munged, metric, description);
 				}
 			}
