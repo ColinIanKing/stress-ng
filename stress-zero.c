@@ -80,6 +80,7 @@ static const mmap_flags_t mmap_flags[] = {
 static int stress_zero(const stress_args_t *args)
 {
 	int fd;
+	double bytes = 0.0, duration = 0.0, rate;
 	const size_t page_size = args->page_size;
 	void *rd_buffer, *wr_buffer;
 #if defined(__minix__)
@@ -114,19 +115,24 @@ static int stress_zero(const stress_args_t *args)
 
 	do {
 		ssize_t ret;
+		double t;
 #if defined(__linux__)
 		int32_t *ptr;
 		size_t i;
 #endif
 
+		t = stress_time_now();
 		ret = read(fd, rd_buffer, page_size);
-		if (ret < 0) {
+		if (UNLIKELY(ret < 0)) {
 			if ((errno == EAGAIN) || (errno == EINTR))
 				continue;
 			pr_fail("%s: read failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
 			return EXIT_FAILURE;
+		} else {
+			duration += stress_time_now() - t;
+			bytes += (double)ret;
 		}
 		if (stress_is_not_zero((uint64_t *)rd_buffer, (size_t)ret)) {
 			pr_fail("%s: non-zero value from a read of /dev/zero\n",
@@ -194,6 +200,9 @@ static int stress_zero(const stress_args_t *args)
 
 	(void)munmap(wr_buffer, page_size);
 	(void)munmap(rd_buffer, page_size);
+
+	rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "MB/sec /dev/zero read rate", rate);
 
 	return EXIT_SUCCESS;
 }
