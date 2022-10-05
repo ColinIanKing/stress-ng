@@ -48,6 +48,7 @@ static int stress_ping_sock(const stress_args_t *args)
 	struct icmphdr *icmp_hdr;
 	int rand_port;
 	char ALIGN64 buf[sizeof(*icmp_hdr) + PING_PAYLOAD_SIZE];
+	double t, duration = 0.0, rate;
 
 	static const char ALIGN64 data[64] =
 		"0123456789ABCDEFGHIJKLMNOPQRSTUV"
@@ -83,6 +84,7 @@ static int stress_ping_sock(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t = stress_time_now();
 	do {
 		(void)memset(buf + sizeof(*icmp_hdr), data[j++ & 63], PING_PAYLOAD_SIZE);
 		addr.sin_port = htons(rand_port);
@@ -95,8 +97,12 @@ static int stress_ping_sock(const stress_args_t *args)
 		if (rand_port > 65535)
 			rand_port = 0;
 	} while (keep_stressing(args));
+	duration = stress_time_now() - t;
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (duration > 0.0) ? (double)get_counter(args) / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "ping sendto calls/sec", rate);
 
 	(void)close(fd);
 
