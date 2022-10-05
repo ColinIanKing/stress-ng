@@ -161,7 +161,7 @@ mount_filesystem()
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
 		ntfs)	MKFS_CMD="mkfs.ntfs"
-			MKFS_ARGS="-F -C -s -v 1024 ${FSIMAGE}"
+			MKFS_ARGS="-F -C -s 1024 -v ${FSIMAGE}"
 			MNT_CMD="sudo mount -o loop ${FSIMAGE} ${MNT}"
 			dd if=/dev/zero of=${FSIMAGE} bs=1M count=1024
 			;;
