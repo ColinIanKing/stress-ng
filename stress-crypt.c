@@ -33,6 +33,11 @@ static const stress_help_t help[] = {
     defined(HAVE_CRYPT_H)
 
 typedef struct {
+	double duration;	/* duration of each crypt */
+	double count;		/* number of crypts executed */
+} crypt_metrics_t;
+
+typedef struct {
 	const char id;
 	const char *method;
 } crypt_method_t;
@@ -55,21 +60,28 @@ static int stress_crypt_id(
 	const char id,
 	const char *method,
 	const char *passwd,
-	char *salt)
+	char *salt,
+	crypt_metrics_t *metrics)
 {
 	char *encrypted;
+	double t1, t2;
 #if defined (HAVE_CRYPT_R)
 	static struct crypt_data data;
 
 	(void)memset(&data, 0, sizeof(data));
 	errno = 0;
 	salt[1] = id;
+
+	t1 = stress_time_now();
 	encrypted = crypt_r(passwd, salt, &data);
+	t2 = stress_time_now();
 #else
 	salt[1] = id;
+	t1 = stress_time_now();
 	encrypted = crypt(passwd, salt);
+	t2 = stress_time_now();
 #endif
-	if (!encrypted) {
+	if (UNLIKELY(!encrypted)) {
 		switch (errno) {
 		case 0:
 			break;
@@ -88,6 +100,9 @@ static int stress_crypt_id(
 				args->name, method, errno, strerror(errno));
 			return -1;
 		}
+	} else {
+		metrics->duration += (t2 - t1);
+		metrics->count += 1.0;
 	}
 	return 0;
 }
@@ -98,6 +113,21 @@ static int stress_crypt_id(
  */
 static int stress_crypt(const stress_args_t *args)
 {
+	crypt_metrics_t *crypt_metrics;
+	size_t i;
+
+	crypt_metrics = calloc(SIZEOF_ARRAY(crypt_methods), sizeof(*crypt_metrics));
+	if (!crypt_metrics) {
+		pr_inf("%s: cannot allocate crypt metrics "
+			"array, skipping stressor\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
+	for (i = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
+		crypt_metrics[i].duration = 0.0;
+		crypt_metrics[i].count = 0.0;
+	}
+
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
@@ -107,7 +137,7 @@ static int stress_crypt(const stress_args_t *args)
 		char passwd[16];
 		char salt[] = "$x$........";
 		uint64_t seed[2];
-		size_t i, failed = 0;
+		size_t failed = 0;
 
 		seed[0] = stress_mwc64();
 		seed[1] = stress_mwc64();
@@ -124,7 +154,7 @@ static int stress_crypt(const stress_args_t *args)
 			ret = stress_crypt_id(args,
 					      crypt_methods[i].id,
 					      crypt_methods[i].method,
-					      passwd, salt);
+					      passwd, salt, &crypt_metrics[i]);
 			if (ret < 0)
 				failed++;
 			else
@@ -135,6 +165,17 @@ static int stress_crypt(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	for (i = 0; i < SIZEOF_ARRAY(crypt_methods); i++) {
+		char str[40];
+		const double duration = crypt_metrics[i].duration;
+		const double rate = duration > 0 ? crypt_metrics[i].count / duration : 0.0;
+
+		snprintf(str, sizeof(str), "%s encrypts/sec", crypt_methods[i].method);
+		stress_misc_stats_set(args->misc_stats, i, str, rate);
+	}
+
+	free(crypt_metrics);
 
 	return EXIT_SUCCESS;
 }
