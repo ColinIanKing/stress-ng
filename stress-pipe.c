@@ -41,7 +41,7 @@ static int stress_set_pipe_size(const char *opt)
 	size_t pipe_size;
 
 	pipe_size = (size_t)stress_get_uint64_byte(opt);
-	stress_check_range_bytes("pipe-size", pipe_size, 4, 1024 * 1024);
+	stress_check_range_bytes("pipe-size", pipe_size, 4096, 1024 * 1024);
 	return stress_set_setting("pipe-size", TYPE_ID_SIZE_T, &pipe_size);
 }
 
@@ -140,6 +140,7 @@ static int stress_pipe(const stress_args_t *args)
 	int pipefds[2];
 	size_t pipe_data_size = 512;
 	char *buf;
+	double duration = 0.0, bytes = 0.0, rate;
 
 	(void)stress_get_setting("pipe-data-size", &pipe_data_size);
 
@@ -250,16 +251,18 @@ again:
 		_exit(EXIT_SUCCESS);
 	} else {
 		int val = 0, status;
+		double t;
 
 		/* Parent */
 		(void)close(pipefds[0]);
 
+		t = stress_time_now();
 		do {
 			ssize_t ret;
 
 			pipe_memset(buf, (char)val++, pipe_data_size);
 			ret = write(pipefds[1], buf, pipe_data_size);
-			if (ret <= 0) {
+			if (UNLIKELY(ret <= 0)) {
 				if ((errno == EAGAIN) || (errno == EINTR))
 					continue;
 				if (errno) {
@@ -268,9 +271,14 @@ again:
 					break;
 				}
 				continue;
+			} else {
+				bytes += (double)ret;
 			}
 			inc_counter(args);
 		} while (keep_stressing(args));
+		duration = stress_time_now() - t;
+		rate = (duration > 0.0) ? (bytes / duration) / (double)MB : 0.0;
+		stress_misc_stats_set(args->misc_stats, 0, "MB/sec pipe write rate", rate);
 
 		(void)memset(buf, 0, pipe_data_size);
 		(void)memcpy(buf, PIPE_STOP, sizeof(PIPE_STOP));
