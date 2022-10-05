@@ -28,7 +28,7 @@
 #define DEFAULT_BIGHEAP_GROWTH	(64 * KB)
 
 static const stress_help_t help[] = {
-	{ "B N","bigheap N",		"start N workers that grow the heap using calloc()" },
+	{ "B N","bigheap N",		"start N workers that grow the heap using realloc()" },
 	{ NULL,	"bigheap-ops N",	"stop after N bogo bigheap operations" },
 	{ NULL,	"bigheap-growth N",	"grow heap by N bytes per iteration" },
 	{ NULL,	NULL,			NULL }
