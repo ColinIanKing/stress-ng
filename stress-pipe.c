@@ -233,9 +233,9 @@ again:
 #if defined(FIONREAD)
 			/* Occasionally exercise FIONREAD on read end */
 			if ((i++ & 0x1ff) == 0) {
-				int bytes;
+				int readbytes;
 
-				VOID_RET(int, ioctl(pipefds[0], FIONREAD, &bytes));
+				VOID_RET(int, ioctl(pipefds[0], FIONREAD, &readbytes));
 			}
 #endif
 			if (!strncmp(buf, PIPE_STOP, 3))
