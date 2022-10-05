@@ -76,6 +76,7 @@ static int OPTIMIZE3 stress_goto(const stress_args_t *args)
 {
 	size_t i;
 	int goto_direction;
+	double t1, t2, duration, rate;
 
 	static const void ALIGN64 *default_labels[MAX_LABELS] = {
 		&&L0x000, &&L0x001, &&L0x002, &&L0x003, &&L0x004, &&L0x005, &&L0x006, &&L0x007,
@@ -237,12 +238,13 @@ static int OPTIMIZE3 stress_goto(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t1 = stress_time_now();
 	for (;;) {
 		uint8_t rnd;
 L0x000:
-		inc_counter(args);
 		if (!keep_stressing(args))
 			break;
+		inc_counter(args);
 
 		switch (goto_direction) {
 		case STRESS_GOTO_FORWARD:
@@ -407,6 +409,12 @@ L0x000:
 		G(0x3f0) G(0x3f1) G(0x3f2) G(0x3f3) G(0x3f4) G(0x3f5) G(0x3f6) G(0x3f7)
 		G(0x3f8) G(0x3f9) G(0x3fa) G(0x3fb) G(0x3fc) G(0x3fd) G(0x3fe) G(0x3ff)
 	}
+	t2 = stress_time_now();
+
+	duration = t2 - t1;
+	rate = (duration > 0.0) ? (1024.0 * (double)get_counter(args)) / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "million gotos/sec", rate / 1000000.0);
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	return EXIT_SUCCESS;
