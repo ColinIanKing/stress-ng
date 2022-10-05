@@ -3464,7 +3464,6 @@ static void stress_dev_parport_linux(
 	if (args->instance == 0) {
 		int ret;
 
-printf("LOCK\n");
 		ret = shim_pthread_spin_lock(&parport_lock);
 		if (ret == 0) {
 			ret = ioctl(fd, PPCLAIM);
