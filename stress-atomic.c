@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 
 #define STRESS_ATOMIC_MAX_PROCS		(3)
+#define STRESS_ATOMIC_MAX_FUNCS		(SIZEOF_ARRAY(atomic_func_info))
 
 #define DO_NOTHING()	do { } while (0)
 
@@ -143,6 +144,10 @@
 #define SHIM_ATOMIC_XOR_FETCH(ptr, val, memorder)	DO_NOTHING()
 #endif
 
+/* 60 atomic operations */
+
+#define STRESS_ATOMIC_OPS_COUNT		(60)
+
 #define DO_ATOMIC_OPS(type, var)					\
 do {									\
 	type tmp = (type)stress_mwc64();				\
@@ -254,14 +259,44 @@ static void ATOMIC_OPTIMIZE stress_atomic_uint8(void)
 	DO_ATOMIC_OPS(uint8_t, &g_shared->atomic.val8);
 }
 
-static void stress_atomic_exercise(const stress_args_t *args)
-{
-	do {
-		stress_atomic_uint64();
-		stress_atomic_uint32();
-		stress_atomic_uint16();
-		stress_atomic_uint8();
+typedef struct {
+	void (*func)(void);
+	char *name;
+} atomic_func_info_t;
 
+static atomic_func_info_t atomic_func_info[] = {
+	{ stress_atomic_uint64,	"uint64" },
+	{ stress_atomic_uint32,	"uint32" },
+	{ stress_atomic_uint16,	"uint16" },
+	{ stress_atomic_uint8,	"uint8"  },
+};
+
+typedef struct {
+	double duration[STRESS_ATOMIC_MAX_FUNCS];
+	double count[STRESS_ATOMIC_MAX_FUNCS];
+	pid_t pid;
+} stress_atomic_metrics_t;
+
+static void stress_atomic_exercise(
+	const stress_args_t *args,
+	stress_atomic_metrics_t *metrics)
+{
+	const int rounds = 1000;
+	do {
+		size_t i;
+
+		for (i = 0; i < STRESS_ATOMIC_MAX_FUNCS; i++) {
+			double t1, t2;
+			int j;
+
+			t1 = stress_time_now();
+			for (j = 0; j < rounds; j++)
+				atomic_func_info[i].func();
+			t2 = stress_time_now();
+
+			metrics->duration[i] += t2 - t1;
+			metrics->count[i] += (double)(STRESS_ATOMIC_OPS_COUNT * rounds);
+		}
 		inc_counter(args);
 	} while (keep_stressing(args));
 }
@@ -272,35 +307,69 @@ static void stress_atomic_exercise(const stress_args_t *args)
  */
 static int stress_atomic(const stress_args_t *args)
 {
-	pid_t pids[STRESS_ATOMIC_MAX_PROCS];
-	size_t i;
+	size_t i, j, metrics_sz;
+	stress_atomic_metrics_t *metrics;
+	const size_t n_metrics = STRESS_ATOMIC_MAX_PROCS + 1;
 
-	for (i = 0; i < STRESS_ATOMIC_MAX_PROCS; i++)
-		pids[i] = -1;
+	metrics_sz = sizeof(stress_atomic_metrics_t) * n_metrics;
+	metrics = mmap(NULL, metrics_sz, PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (metrics == MAP_FAILED) {
+		pr_inf("%s: could not mmap share metrics of "
+			"%zu bytes, skipping stressor\n",
+			args->name, metrics_sz);
+		return EXIT_NO_RESOURCE;
+	}
+
+	for (i = 0; i < n_metrics; i++) {
+		metrics[i].pid = -1;
+		for (j = 0; j < STRESS_ATOMIC_MAX_FUNCS; j++) {
+			metrics[i].duration[j] = 0.0;
+			metrics[i].count[j] = 0.0;
+		}
+	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	for (i = 0; i < STRESS_ATOMIC_MAX_PROCS; i++) {
-		pids[i] = fork();
+		pid_t pid;
 
-		if (pids[i] == 0) {
-			stress_atomic_exercise(args);
+		pid = fork();
+
+		if (pid == 0) {
+			stress_atomic_exercise(args, &metrics[i]);
 			_exit(0);
+		}
+		metrics[i].pid = pid;
+	}
+
+	stress_atomic_exercise(args, &metrics[n_metrics - 1]);
+
+	for (i = 0; i < STRESS_ATOMIC_MAX_PROCS; i++) {
+		if (metrics[i].pid > 0) {
+			int status;
+
+			(void)kill(metrics[i].pid, SIGKILL);
+			(void)waitpid(metrics[i].pid, &status, 0);
 		}
 	}
 
-	stress_atomic_exercise(args);
+	for (j = 0; j < STRESS_ATOMIC_MAX_FUNCS; j++) {
+		double duration = 0.0, count = 0.0, rate;
+		char str[60];
 
-	for (i = 0; i < STRESS_ATOMIC_MAX_PROCS; i++) {
-		if (pids[i] > 0) {
-			int status;
-
-			(void)kill(pids[i], SIGKILL);
-			(void)waitpid(pids[i], &status, 0);
+		for (i = 0; i < n_metrics; i++) {
+			duration += metrics[i].duration[j];
+			count += metrics[i].count[j];
 		}
+		rate = (duration > 0.0) ? count / duration : 0.0;
+		snprintf(str, sizeof(str), "%s atomic ops/sec", atomic_func_info[j].name);
+		stress_misc_stats_set(args->misc_stats, j, str, rate);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	(void)munmap((void *)metrics, metrics_sz);
 
 	return EXIT_SUCCESS;
 }
