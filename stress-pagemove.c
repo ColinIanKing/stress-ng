@@ -61,6 +61,7 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 	size_t page_num;
 	uint8_t *buf, *buf_end, *unmapped_page = NULL, *ptr;
 	int rc = EXIT_FAILURE;
+	double duration = 0.0, count = 0.0, rate;
 
 	(void)context;
 
@@ -125,23 +126,38 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 		 */
 		for (ptr = buf; ptr < buf_end - page_size; ptr += page_size) {
 			void *remap_addr1, *remap_addr2, *remap_addr3;
+			double t1, t2;
 
+			t1 = stress_time_now();
 			remap_addr1 = mremap((void *)ptr, page_size, page_size,
 					MREMAP_FIXED | MREMAP_MAYMOVE, unmapped_page);
+			t2 = stress_time_now();
+			duration += (t2 - t1);
+			count += 1.0;
 			if (remap_addr1 == MAP_FAILED) {
 				pr_fail("%s: mremap of address %p to %p failed, errno=%d (%s)\n",
 					args->name, ptr, unmapped_page, errno, strerror(errno));
 				goto fail;
 			}
+
+			t1 = stress_time_now();
 			remap_addr2 = mremap((void *)(ptr + page_size), page_size,
 				page_size, MREMAP_FIXED | MREMAP_MAYMOVE, ptr);
+			t2 = stress_time_now();
+			duration += (t2 - t1);
+			count += 1.0;
 			if (remap_addr2 == MAP_FAILED) {
 				pr_fail("%s: mremap of address %p to %p failed, errno=%d (%s)\n",
 					args->name, ptr + page_size, ptr, errno, strerror(errno));
 				goto fail;
 			}
+
+			t1 = stress_time_now();
 			remap_addr3 = mremap((void *)remap_addr1, page_size, page_size,
 				MREMAP_FIXED | MREMAP_MAYMOVE, (void *)(ptr + page_size));
+			t2 = stress_time_now();
+			duration += (t2 - t1);
+			count += 1.0;
 			if (remap_addr3 == MAP_FAILED) {
 				pr_fail("%s: mremap of address %p to %p failed, errno=%d (%s)\n",
 					args->name, remap_addr1, ptr + page_size, errno, strerror(errno));
@@ -163,6 +179,9 @@ static int stress_pagemove_child(const stress_args_t *args, void *context)
 fail:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)munmap(buf, sz);
+
+	rate = (duration > 0.0) ? count / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "page remaps per sec", rate);
 
 	return rc;
 }
