@@ -38,17 +38,20 @@ typedef struct {
 } crypt_metrics_t;
 
 typedef struct {
-	const char id;
+	const char *prefix;
+	const size_t prefix_len;
 	const char *method;
 } crypt_method_t;
 
 static const crypt_method_t crypt_methods[] = {
-	{ '1', "MD5" },
-	{ '5', "SHA-256" },
-	{ '6', "SHA-512" },
-	{ '7', "scrypt" },
-	{ '3', "NT" },
-	{ 'y', "yescrypt" },
+	{ "$1$",	3,	"MD5" },
+	{ "$3$",	3,	"NT" },
+	{ "$sha1",	5,	"SHA-1" },
+	{ "$5$",	3,	"SHA-256" },
+	{ "$6$",	3,	"SHA-512" },
+	{ "$7$",	3,	"scrypt" },
+	{ "$md5",	5,	"SunMD5" },
+	{ "$y$",	3,	"yescrypt" },
 };
 
 /*
@@ -57,7 +60,8 @@ static const crypt_method_t crypt_methods[] = {
  */
 static int stress_crypt_id(
 	const stress_args_t *args,
-	const char id,
+	const char *prefix,
+	const size_t prefix_len,
 	const char *method,
 	const char *passwd,
 	char *salt,
@@ -65,20 +69,21 @@ static int stress_crypt_id(
 {
 	char *encrypted;
 	double t1, t2;
+	char newsalt[12];
 #if defined (HAVE_CRYPT_R)
 	static struct crypt_data data;
 
 	(void)memset(&data, 0, sizeof(data));
+	(void)strcpy(newsalt, salt);
+	(void)memcpy(newsalt, prefix, prefix_len);
 	errno = 0;
-	salt[1] = id;
 
 	t1 = stress_time_now();
-	encrypted = crypt_r(passwd, salt, &data);
+	encrypted = crypt_r(passwd, newsalt, &data);
 	t2 = stress_time_now();
 #else
-	salt[1] = id;
 	t1 = stress_time_now();
-	encrypted = crypt(passwd, salt);
+	encrypted = crypt(passwd, newsalt);
 	t2 = stress_time_now();
 #endif
 	if (UNLIKELY(!encrypted)) {
@@ -152,7 +157,8 @@ static int stress_crypt(const stress_args_t *args)
 			int ret;
 
 			ret = stress_crypt_id(args,
-					      crypt_methods[i].id,
+					      crypt_methods[i].prefix,
+					      crypt_methods[i].prefix_len,
 					      crypt_methods[i].method,
 					      passwd, salt, &crypt_metrics[i]);
 			if (ret < 0)
