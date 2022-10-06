@@ -31,8 +31,16 @@
 
 #if defined(HAVE_CLONE)
 
+typedef struct {
+	void *lock;
+	double duration;
+	double count;
+	double t_start;
+} stress_clone_metrics_t;
+
 typedef struct stress_clone_args {
 	const stress_args_t *args;
+	stress_clone_metrics_t *metrics;
 } stress_clone_args_t;
 
 typedef struct clone {
@@ -339,8 +347,13 @@ static int clone_func(void *arg)
 {
 	size_t i;
 	stress_clone_args_t *clone_arg = arg;
+	stress_clone_metrics_t *metrics = clone_arg->metrics;
 
-	(void)arg;
+	if (metrics->lock && (stress_lock_acquire(metrics->lock) == 0)) {
+		metrics->duration += stress_time_now() - metrics->t_start;
+		metrics->count += 1.0;
+		stress_lock_release(metrics->lock);
+	}
 
 	if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory((size_t)(1 * MB))) {
 		return 0;
@@ -423,8 +436,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 #else
 	const int mflags = MAP_ANONYMOUS | MAP_PRIVATE;
 #endif
-
-	(void)context;
+	stress_clone_metrics_t *metrics = (stress_clone_metrics_t *)context;
 
 	if (!stress_get_setting("clone-max", &clone_max)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -448,7 +460,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 		if (!low_mem_reap && (clones.length < clone_max)) {
 			static size_t index;
 			stress_clone_t *clone_info;
-			stress_clone_args_t clone_arg = { args };
+			stress_clone_args_t clone_arg = { args, metrics };
 			const uint32_t rnd = stress_mwc32();
 			uint64_t flag;
 			const bool try_clone3 = rnd >> 31;
@@ -480,6 +492,7 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				cl_args.stack_size = 0;
 				cl_args.tls = uint64_ptr(NULL);
 
+				metrics->t_start = stress_time_now();
 				clone_info->pid = shim_clone3(&cl_args, sizeof(cl_args));
 				if (clone_info->pid < 0) {
 					/* Not available, don't use it again */
@@ -493,9 +506,11 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 				char *stack_top = (char *)stress_get_stack_top((char *)clone_info->stack, CLONE_STACK_SIZE);
 #if defined(__FreeBSD_kernel__) || 	\
     defined(__NetBSD__)
+				metrics->t_start = stress_time_now();
 				clone_info->pid = clone(clone_func,
 					stress_align_stack(stack_top), (int)flag, &clone_arg);
 #else
+				metrics->t_start = stress_time_now();
 				clone_info->pid = clone(clone_func,
 					stress_align_stack(stack_top), (int)flag, &clone_arg, &parent_tid,
 					NULL, &child_tid);
@@ -536,17 +551,36 @@ static int stress_clone_child(const stress_args_t *args, void *context)
 static int stress_clone(const stress_args_t *args)
 {
 	int rc;
+	stress_clone_metrics_t *metrics;
+	double average;
+
+	metrics = mmap(NULL, sizeof(*metrics), PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (metrics == MAP_FAILED) {
+		pr_fail("%s: failed to memory map %zd bytes, skipping stressor\n",
+			args->name, sizeof(*metrics));
+		return EXIT_NO_RESOURCE;
+	}
+	metrics->lock = stress_lock_create();
+	metrics->duration = 0.0;
+	metrics->count = 0.0;
+	metrics->t_start = 0.0;
 
 	flag_count = stress_flag_permutation((int)all_flags, &flag_perms);
 
 	stress_set_oom_adjustment(args->name, false);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-	rc = stress_oomable_child(args, NULL, stress_clone_child, STRESS_OOMABLE_DROP_CAP);
+	rc = stress_oomable_child(args, metrics, stress_clone_child, STRESS_OOMABLE_DROP_CAP);
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if (flag_perms)
 		free(flag_perms);
+
+	average = (metrics->count > 0.0) ? metrics->duration / metrics->count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "microseconds per clone" , average * 1000000);
+
+	(void)munmap((void *)metrics, sizeof(*metrics));
 
 	return rc;
 }
