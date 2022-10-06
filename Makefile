@@ -225,10 +225,10 @@ STRESS_SRC = \
 	stress-idle-page.c \
 	stress-inode-flags.c \
 	stress-inotify.c \
+	stress-io.c \
 	stress-iomix.c \
 	stress-ioport.c \
 	stress-ioprio.c \
-	stress-iosync.c \
 	stress-io-uring.c \
 	stress-ipsec-mb.c \
 	stress-itimer.c \
