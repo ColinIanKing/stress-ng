@@ -143,7 +143,7 @@ STRESS_SRC = \
 	stress-affinity.c \
 	stress-af-alg.c \
 	stress-aio.c \
-	stress-aio-linux.c \
+	stress-aiol.c \
 	stress-alarm.c \
 	stress-apparmor.c \
 	stress-atomic.c \
