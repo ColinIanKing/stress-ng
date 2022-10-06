@@ -66,7 +66,11 @@ static stress_settings_t settings[] = {
 	SETTING(NULL, NULL)
 };
 
-
+/*
+ *  stress_ignite_cpu_set()
+ *	attempt to apply settings, disable settings in settings_flag
+ *	if we cannot apply them.
+ */
 static void stress_ignite_cpu_set(
 	bool maximize_freq,
 	const int32_t cpu,
