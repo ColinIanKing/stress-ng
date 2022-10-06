@@ -352,6 +352,7 @@ static int stress_jpeg(const stress_args_t *args)
 {
 	int32_t x_max = 512;
 	int32_t y_max = 512;
+	uint64_t pixels;
 	uint8_t *rgb;
 	double size_compressed = 0.0;
 	double size_uncompressed = 0.0;
@@ -359,6 +360,7 @@ static int stress_jpeg(const stress_args_t *args)
 	int32_t jpeg_quality = 95;
 	size_t rgb_size;
 	int jpeg_image = JPEG_IMAGE_PLASMA;
+	double total_pixels = 0.0, t_start, duration, rate;
 
 	(void)stress_get_setting("jpeg-width", &x_max);
 	(void)stress_get_setting("jpeg-height", &y_max);
@@ -401,6 +403,8 @@ static int stress_jpeg(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	t_jpeg = 0.0;
+	t_start = stress_time_now();
+	pixels = (uint64_t)x_max * (uint64_t)y_max;
 	do {
 		int size;
 		double t1, t2;
@@ -412,9 +416,15 @@ static int stress_jpeg(const stress_args_t *args)
 		if (size > 0) {
 			size_uncompressed += (double)rgb_size;
 			size_compressed += (double)size;
+			total_pixels += (double)pixels;
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+	duration = stress_time_now() - t_start;
+
+	rate = (duration > 0) ? total_pixels / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "megapixels compressed per sec" , rate / 1000000.0);
+
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 	if ((size_compressed > 0) && (size_uncompressed > 0)) {
