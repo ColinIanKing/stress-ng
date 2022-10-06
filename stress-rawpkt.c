@@ -355,6 +355,7 @@ static int stress_rawpkt_server(
 	const uint32_t addr = inet_addr(inet_ntoa((((struct sockaddr_in *)&(ifaddr->ifr_addr))->sin_addr)));
 	uint64_t all_pkts = 0;
 	const ssize_t min_size = sizeof(struct ethhdr) + sizeof(struct iphdr) + sizeof(struct udphdr);
+	double t_start, duration, bytes = 0.0, rate;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -367,6 +368,7 @@ static int stress_rawpkt_server(
 		goto die;
 	}
 
+	t_start = stress_time_now();
 	do {
 		ssize_t n;
 
@@ -378,6 +380,7 @@ static int stress_rawpkt_server(
 			    (ip->protocol == SOL_UDP) &&
 			    (ntohs(udp->source) == port)) {
 				inc_counter(args);
+				bytes += (double)n;
 			}
 		}
 #if defined(SIOCINQ)
@@ -389,6 +392,10 @@ static int stress_rawpkt_server(
 		}
 #endif
 	} while (keep_stressing(args));
+
+	duration = stress_time_now() - t_start;
+	rate = (duration > 0.0) ? bytes / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "MB recv'd per sec", rate / (double)MB);
 
 	stress_rawpkt_sockopts(fd);
 	(void)close(fd);
