@@ -19,6 +19,10 @@
  */
 #include "stress-ng.h"
 
+/*
+ *  stress_try_kill()
+ *	hammer away and try to kill a process
+ */
 static void stress_try_kill(
 	const stress_args_t *args,
 	const pid_t pid,
