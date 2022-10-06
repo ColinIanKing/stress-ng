@@ -36,4 +36,7 @@ STRESS_SORT_CMP_REV(int16, int16_t)
 STRESS_SORT_CMP_REV(int32, int32_t)
 STRESS_SORT_CMP_REV(int64, int64_t)
 
+#undef STRESS_SORT_CMP
+#undef STRESS_SORT_CMP_REV
+
 #endif

@@ -17,6 +17,7 @@
  *
  */
 #include "stress-ng.h"
+#include "core-sort.h"
 
 #define STRESS_SORT_CMP(name, type)				\
 int stress_sort_cmp_ ## name(const void *p1, const void *p2)	\
