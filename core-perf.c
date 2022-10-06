@@ -61,9 +61,9 @@ typedef struct {
 } stress_perf_data_t;
 
 typedef struct {
-	const double	threshold;
-	const double	scale;
-	const char 	*suffix;
+	const double	threshold;	/* scaling threshold */
+	const double	scale;		/* scaling value */
+	const char 	*suffix;	/* scaling suffix, GB, MB, etc */
 } stress_perf_scale_t;
 
 /* Tracepoint */
@@ -306,6 +306,10 @@ static stress_perf_info_t perf_info[STRESS_PERF_MAX] = {
 	{ 0, 0, NULL, NULL }
 };
 
+/*
+ *  stress_perf_type_tracepoint_resolve_config()
+ *	resolve tracing event config value
+ */
 static inline void stress_perf_type_tracepoint_resolve_config(stress_perf_info_t *pi)
 {
 	char path[PATH_MAX];
@@ -328,6 +332,10 @@ static inline void stress_perf_type_tracepoint_resolve_config(stress_perf_info_t
 	pi->config = config;
 }
 
+/*
+ *  stress_perf_init()
+ *	perf initialize, resolve all configs
+ */
 void stress_perf_init(void)
 {
 	size_t i;
@@ -339,6 +347,10 @@ void stress_perf_init(void)
 	}
 }
 
+/*
+ *  stress_sys_perf_event_open()
+ *	perf_event_open syscall wrapper
+ */
 static inline int stress_sys_perf_event_open(
 	struct perf_event_attr *attr,
 	pid_t pid,
@@ -590,6 +602,10 @@ static const char *stress_perf_stat_scale(const uint64_t counter, const double d
 	return buffer;
 }
 
+/*
+ *  stress_perf_stat_dump()
+ *	emit perf statistics
+ */
 void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const double duration)
 {
 	bool no_perf_stats = true;
