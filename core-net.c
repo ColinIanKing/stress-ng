@@ -150,7 +150,8 @@ int stress_set_net_domain(
 }
 
 /*
- *  setup socket address
+ *  stress_set_sockaddr_if()
+ * 	setup socket address with optional interface name
  */
 int stress_set_sockaddr_if(
 	const char *name,
@@ -246,6 +247,10 @@ int stress_set_sockaddr_if(
 	return 0;
 }
 
+/*
+ *  stress_set_sockaddr()
+ * 	setup socket address without interface name
+ */
 int stress_set_sockaddr(
 	const char *name,
 	const uint32_t instance,
@@ -260,7 +265,8 @@ int stress_set_sockaddr(
 }
 
 /*
- *  setup just the socket address port
+ *  stress_set_sockaddr_port()
+ *	setup just the socket address port
  */
 void HOT stress_set_sockaddr_port(
 	const int domain,
