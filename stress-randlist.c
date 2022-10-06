@@ -23,8 +23,8 @@
 #define STRESS_RANDLIST_MAX_SIZE	(8192)
 #define STRESS_RANDLIST_DEFAULT_SIZE	(64)
 
-#define STRESS_RANDLIST_ALLOC_HEAP	(1)
-#define STRESS_RANDLIST_ALLOC_MMAP	(2)
+#define STRESS_RANDLIST_ALLOC_HEAP	(0)
+#define STRESS_RANDLIST_ALLOC_MMAP	(1)
 
 static const stress_help_t help[] = {
 	{ NULL,	"randlist N",		"start N workers that exercise random ordered list" },
@@ -37,7 +37,7 @@ static const stress_help_t help[] = {
 
 typedef struct stress_randlist_item {
 	struct stress_randlist_item *next;
-	uint8_t alloc_type:2;
+	uint8_t alloc_type:1;
 	uint8_t data[];
 } stress_randlist_item_t;
 
