@@ -1155,11 +1155,19 @@ char *stress_munge_underscore(const char *str)
 	return munged;
 }
 
+/*
+ *  stress_chr_munge()
+ *	convert ch _ to -, otherwise don't change it
+ */
 static inline char stress_chr_munge(const char ch)
 {
 	return (ch == '_') ? '-' : ch;
 }
 
+/*
+ *  stress_strcmp_munged()
+ *	compare strings with _ comcompared to -
+ */
 int stress_strcmp_munged(const char *s1, const char *s2)
 {
 	for (; *s1 && (stress_chr_munge(*s1) == stress_chr_munge(*s2)); s1++, s2++)
@@ -1490,6 +1498,10 @@ bool stress_little_endian(void)
 	return *y == 0x78;
 }
 
+/*
+ *  stress_swap32()
+ *	swap order of bytes of a uint32_t value
+ */
 static inline uint32_t OPTIMIZE3 stress_swap32(uint32_t val)
 {
 	register uint32_t swap;
@@ -2441,6 +2453,10 @@ bool stress_check_capability(const int capability)
 }
 #endif
 
+/*
+ *  stress_drop_capabilities()
+ *	drop all capabilities and disable any new privileges
+ */
 #if defined(HAVE_SYS_CAPABILITY_H)
 int stress_drop_capabilities(const char *name)
 {
@@ -2705,6 +2721,10 @@ uint16_t HOT OPTIMIZE3 stress_ipv4_checksum(uint16_t *ptr, const size_t sz)
 	return (uint16_t)~sum;
 }
 
+/*
+ *  stress_uid_comp()
+ *	uid comparison for sorting
+ */
 #if defined(HAVE_SETPWENT) &&	\
     defined(HAVE_GETPWENT) &&	\
     defined(HAVE_ENDPWENT) &&	\
@@ -3152,6 +3172,10 @@ void stress_set_stack_smash_check_flag(const bool flag)
 	stress_stack_check_flag = flag;
 }
 
+/*
+ *  stress_tty_width()
+ *	get tty column width
+ */
 int stress_tty_width(void)
 {
 	const int max_width = 80;
@@ -3358,6 +3382,10 @@ int stress_exit_status(const int err)
 	return EXIT_FAILURE;	/* cppcheck-suppress ConfigurationNotChecked */
 }
 
+/*
+ *  stress_proc_self_exe_path()
+ *	get proceess' executable path via readlink
+ */
 char *stress_proc_self_exe_path(const char *proc_path)
 {
 	static char path[PATH_MAX];
