@@ -69,7 +69,8 @@ static int stress_icmp_flood(const stress_args_t *args)
 	const int set_on = 1;
 	const unsigned long addr = inet_addr("127.0.0.1");
 	struct sockaddr_in servaddr;
-	uint64_t counter, sendto_fails = 0;
+	uint64_t counter, sendto_fails = 0, sendto_ok;
+	double bytes = 0.0, t_start, duration, rate;
 
 	char ALIGN64 pkt[MAX_PKT_LEN];
 	struct iphdr *const ip_hdr = (struct iphdr *)pkt;
@@ -104,10 +105,12 @@ static int stress_icmp_flood(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
+	t_start = stress_time_now();
 	do {
 		const size_t payload_len = (stress_mwc32() % MAX_PAYLOAD_SIZE) + 1;
 		const size_t pkt_len =
 			sizeof(struct iphdr) + sizeof(struct icmphdr) + payload_len;
+		ssize_t ret;
 
 		(void)memset(pkt, 0, sizeof(pkt));
 
@@ -135,19 +138,27 @@ static int stress_icmp_flood(const stress_args_t *args)
 		icmp_hdr->checksum = stress_ipv4_checksum((uint16_t *)icmp_hdr,
 			sizeof(struct icmphdr) + payload_len);
 
-		if ((sendto(fd, pkt, pkt_len, 0,
-			   (struct sockaddr*)&servaddr, sizeof(servaddr))) < 1) {
+		ret = sendto(fd, pkt, pkt_len, 0, (struct sockaddr*)&servaddr, sizeof(servaddr));
+		if (UNLIKELY(ret < 0)) {
 			sendto_fails++;
+		} else {
+			bytes += (double)ret;
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+	duration = stress_time_now() - t_start;
 
 	counter = get_counter(args);
+	sendto_ok = counter - sendto_fails;
+
+	rate = (duration > 0.0) ? sendto_ok / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "sendto calls per sec" , rate);
+	rate = (duration > 0.0) ? bytes / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 1, "MB written per sec" , rate / (double)MB);
 
 	pr_dbg("%s: %.2f%% of %" PRIu64 " sendto messages succeeded.\n",
 		args->name,
-		100.0 * (double)(counter - sendto_fails) / (double)counter,
-		counter);
+		100.0 * (double)sendto_ok / (double)counter, counter);
 
 	rc = EXIT_SUCCESS;
 
