@@ -59,6 +59,7 @@ static int stress_chdir(const stress_args_t *args)
 	struct stat statbuf;
 	const bool is_root = stress_check_capability(SHIM_CAP_IS_ROOT);
 	bool got_statbuf = false;
+	double count = 0.0, duration = 0.0, rate;
 
 	(void)stress_get_setting("chdir-dirs", &chdir_dirs);
 	paths = calloc(chdir_dirs, sizeof(*paths));
@@ -158,14 +159,21 @@ static int stress_chdir(const stress_args_t *args)
 		for (i = 0; keep_stressing(args) && (i < chdir_dirs); i++) {
 			const uint32_t j = stress_mwc32() % chdir_dirs;
 			const int fd = fds[j] >= 0 ? fds[j] : fds[0];
+			double t;
 
-			if (mkdir_ok[i] && paths[i] && (chdir(paths[i]) < 0)) {
-				if (errno != ENOMEM) {
-					pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
-						args->name, paths[i],
-						errno, strerror(errno),
-						stress_fs_type(path));
-					goto abort;
+			if (mkdir_ok[i] && paths[i]) {
+				t = stress_time_now();
+				if (chdir(paths[i]) == 0) {
+					duration += stress_time_now() - t;
+					count += 1.0;
+				} else {
+					if (errno != ENOMEM) {
+						pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
+							args->name, paths[i],
+							errno, strerror(errno),
+							stress_fs_type(path));
+						goto abort;
+					}
 				}
 			}
 
@@ -182,7 +190,11 @@ static int stress_chdir(const stress_args_t *args)
 			/*
 			 *  chdir to / should always work, surely?
 			 */
-			if (chdir("/") < 0) {
+			t = stress_time_now();
+			if (chdir("/") == 0) {
+				duration += stress_time_now() - t;
+				count += 1.0;
+			} else {
 				if ((errno != ENOMEM) && (errno != EACCES)) {
 					pr_fail("%s: chdir / failed, errno=%d (%s)%s\n",
 						args->name,
@@ -205,8 +217,12 @@ static int stress_chdir(const stress_args_t *args)
 
 			while (keep_stressing(args)) {
 				/* We need chdir to cwd to always succeed */
-				if (chdir(cwd) == 0)
+				t = stress_time_now();
+				if (chdir(cwd) == 0) {
+					duration += stress_time_now() - t;
+					count += 1.0;
 					break;
+				}
 				/* Maybe low memory, force retry */
 				if (errno != ENOMEM) {
 					pr_fail("%s: chdir %s failed, errno=%d (%s)%s\n",
@@ -266,6 +282,9 @@ tidy:
 		}
 	}
 	(void)stress_temp_dir_rm_args(args);
+
+	rate = (duration > 0.0) ? count / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "chdir calls per sec", rate);
 err:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	free(mkdir_ok);
