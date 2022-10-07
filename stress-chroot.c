@@ -28,7 +28,13 @@ static const stress_help_t help[] = {
 
 #if defined(HAVE_CHROOT)
 
-typedef int (*stress_chroot_test_func)(const stress_args_t *args);
+typedef struct {
+	double duration;
+	double count;
+} chroot_metrics_t;
+
+typedef int (*stress_chroot_test_func)(const stress_args_t *args,
+				       chroot_metrics_t *metrics);
 
 static char temppath[PATH_MAX];
 static char longpath[PATH_MAX + 32];
@@ -57,10 +63,19 @@ static int stress_chroot_supported(const char *name)
 static void do_chroot(
 	const char *path,
 	int *ret1, int *ret2,
-	int *errno1, int *errno2)
+	int *errno1, int *errno2,
+	chroot_metrics_t *metrics)
 {
+	double t1, t2;
+
+	t1 = stress_time_now();
 	*ret1 = chroot(path);
 	*errno1 = errno;
+	t2 = stress_time_now();
+	if (*ret1 == 0) {
+		metrics->duration += t2 - t1;
+		metrics->count += 1.0;
+	}
 
 	/*
 	 * we must do chdir immediately after a chroot
@@ -75,12 +90,14 @@ static void do_chroot(
  *  stress_chroot_test1()
  *	check if we can chroot to a valid directory
  */
-static int stress_chroot_test1(const stress_args_t *args)
+static int stress_chroot_test1(
+	const stress_args_t *args,
+	chroot_metrics_t *metrics)
 {
 	char cwd[PATH_MAX];
 	int ret1, ret2, errno1, errno2;
 
-	do_chroot(temppath, &ret1, &ret2, &errno1, &errno2);
+	do_chroot(temppath, &ret1, &ret2, &errno1, &errno2, metrics);
 
 	/*
 	 * We check for error, ENOENT can happen on termination
@@ -112,12 +129,14 @@ static int stress_chroot_test1(const stress_args_t *args)
  *  stress_chroot_test2()
  *	check if path out of address space throws EFAULT error
  */
-static int stress_chroot_test2(const stress_args_t *args)
+static int stress_chroot_test2(
+	const stress_args_t *args,
+	chroot_metrics_t *metrics)
 {
 #if defined(__linux__)
 	int ret1, ret2, errno1, errno2;
 
-	do_chroot((void *)1, &ret1, &ret2, &errno1, &errno2);
+	do_chroot((void *)1, &ret1, &ret2, &errno1, &errno2, metrics);
 
 	if ((ret1 >= 0) || (errno1 != EFAULT)) {
 		pr_fail("%s: chroot(\"(void *)1\"), expected EFAULT"
@@ -135,11 +154,13 @@ static int stress_chroot_test2(const stress_args_t *args)
  *  stress_chroot_test3()
  *	see if long path is handled correctly
  */
-static int stress_chroot_test3(const stress_args_t *args)
+static int stress_chroot_test3(
+	const stress_args_t *args,
+	chroot_metrics_t *metrics)
 {
 	int ret1, ret2, errno1, errno2;
 
-	do_chroot(longpath, &ret1, &ret2, &errno1, &errno2);
+	do_chroot(longpath, &ret1, &ret2, &errno1, &errno2, metrics);
 
 #if defined(__HAIKU__)
 	if ((ret1 >= 0) || (errno1 != EINVAL)) {
@@ -158,11 +179,13 @@ static int stress_chroot_test3(const stress_args_t *args)
  *  stress_chroot_test4()
  *	check if chroot to a path that does not exist returns ENOENT
  */
-static int stress_chroot_test4(const stress_args_t *args)
+static int stress_chroot_test4(
+	const stress_args_t *args,
+	chroot_metrics_t *metrics)
 {
 	int ret1, ret2, errno1, errno2;
 
-	do_chroot(badpath, &ret1, &ret2, &errno1, &errno2);
+	do_chroot(badpath, &ret1, &ret2, &errno1, &errno2, metrics);
 
 	if ((ret1 >= 0) || (errno1 != ENOENT)) {
 		pr_fail("%s: chroot(\"%s\"), expected ENOENT"
@@ -177,11 +200,13 @@ static int stress_chroot_test4(const stress_args_t *args)
  *  stress_chroot_test5()
  *	check if chroot to a file returns ENOTDIR
  */
-static int stress_chroot_test5(const stress_args_t *args)
+static int stress_chroot_test5(
+	const stress_args_t *args,
+	chroot_metrics_t *metrics)
 {
 	int ret1, ret2, errno1, errno2;
 
-	do_chroot(filename, &ret1, &ret2, &errno1, &errno2);
+	do_chroot(filename, &ret1, &ret2, &errno1, &errno2, metrics);
 
 	/*
 	 * We check for error, ENOENT can happen on termination
@@ -202,12 +227,14 @@ static int stress_chroot_test5(const stress_args_t *args)
  *  stress_chroot_test6()
  *	check if chroot to a device path fails with ENOTDIR
  */
-static int stress_chroot_test6(const stress_args_t *args)
+static int stress_chroot_test6(
+	const stress_args_t *args,
+	chroot_metrics_t *metrics)
 {
 	int ret1, ret2, errno1, errno2;
 	static const char dev[] = "/dev/null";
 
-	do_chroot(dev, &ret1, &ret2, &errno1, &errno2);
+	do_chroot(dev, &ret1, &ret2, &errno1, &errno2, metrics);
 
 	if ((ret1 >= 0) || ((errno1 != ENOTDIR) &&
 			    (errno1 != ENOENT) &&
@@ -224,7 +251,9 @@ static int stress_chroot_test6(const stress_args_t *args)
  *  stress_chroot_test7()
  *	try with a stupidly long path
  */
-static int stress_chroot_test7(const stress_args_t *args)
+static int stress_chroot_test7(
+	const stress_args_t *args,
+	chroot_metrics_t *metrics)
 {
 	const size_t path_len = 256 * KB;
 	int ret1, ret2, errno1, errno2;
@@ -238,7 +267,7 @@ static int stress_chroot_test7(const stress_args_t *args)
 	stress_strnrnd(path, path_len);
 	path[0] = '/';
 
-	do_chroot(path, &ret1, &ret2, &errno1, &errno2);
+	do_chroot(path, &ret1, &ret2, &errno1, &errno2, metrics);
 
 	if ((ret1 >= 0) || ((errno1 != ENOTDIR) &&
 			    (errno1 != ENAMETOOLONG) &&
@@ -272,6 +301,16 @@ static int stress_chroot(const stress_args_t *args)
 {
 	size_t i = 0;
 	int fd, ret = EXIT_FAILURE;
+	chroot_metrics_t *metrics;
+	double rate;
+
+	metrics = mmap(NULL, sizeof(*metrics), PROT_READ | PROT_WRITE,
+			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (metrics == MAP_FAILED) {
+		pr_inf("%s: cannot mmap metrics shared data, skipping stressor\n",
+			args->name);
+		return EXIT_FAILURE;
+	}
 
 	stress_strnrnd(longpath, sizeof(longpath));
 	(void)stress_temp_dir(badpath, sizeof(badpath), "badpath", args->pid, 0xbad);
@@ -302,7 +341,7 @@ again:
 			stress_set_oom_adjustment(args->name, true);
 			(void)sched_settings_apply(true);
 
-			ret = test_chroot_test_funcs[i](args);
+			ret = test_chroot_test_funcs[i](args, metrics);
 
 			/* Children */
 			_exit(ret);
@@ -327,6 +366,9 @@ again:
 		i %= SIZEOF_ARRAY(test_chroot_test_funcs);
 	} while (keep_stressing(args));
 
+	rate = (metrics->duration > 0.0) ? metrics->count / metrics->duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "chroot calls per sec", rate);
+
 	ret = EXIT_SUCCESS;
 tidy_all:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
@@ -337,6 +379,7 @@ tidy_dir:
 
 	(void)shim_rmdir(temppath);
 tidy_ret:
+	(void)munmap((void *)metrics, sizeof(*metrics));
 	return ret;
 }
 
