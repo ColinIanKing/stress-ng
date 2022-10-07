@@ -60,11 +60,13 @@ static const stress_help_t help[] = {
 
 /* per pthread data */
 typedef struct {
-	pthread_t pthread;	/* The pthread */
-	int	  ret;		/* pthread create return */
-	uint64_t index;		/* which pthread */
+	pthread_t pthread;		/* The pthread */
+	int	  ret;			/* pthread create return */
+	uint64_t  index;		/* which pthread */
+	volatile double	t_create;	/* time when created */
+	volatile double	t_run;		/* time when thread started running */
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)
-	void 	 *stack;	/* pthread stack */
+	void 	 *stack;		/* pthread stack */
 #endif
 } stress_pthread_info_t;
 
@@ -194,6 +196,7 @@ static void *stress_pthread_func(void *parg)
 {
 	static void *nowt = NULL;
 	int ret;
+        double t_run = stress_time_now();
 	const pid_t tgid = getpid();
 #if defined(HAVE_GETTID)
 	const pid_t tid = shim_gettid();
@@ -207,8 +210,10 @@ static void *stress_pthread_func(void *parg)
 #endif
 	const stress_pthread_args_t *spa = (stress_pthread_args_t *)parg;
 	const stress_args_t *args = spa->args;
-	const stress_pthread_info_t *pthread_info = (stress_pthread_info_t *)spa->data;
+	stress_pthread_info_t *pthread_info = (stress_pthread_info_t *)spa->data;
 	char str[16];
+
+	pthread_info->t_run = t_run;
 
 	snprintf(str, sizeof(str), "%" PRIu64, pthread_info->index);
 	stress_set_proc_state_str(args->name, str);
@@ -410,6 +415,7 @@ static int stress_pthread(const stress_args_t *args)
 	int ret;
 	stress_pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
+	double count = 0.0, duration = 0.0, average;
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)
 	const size_t stack_size = STRESS_MAXIMUM(DEFAULT_STACK_MIN, stress_min_pthread_stack_size());
 #endif
@@ -531,6 +537,8 @@ static int stress_pthread(const stress_args_t *args)
 			}
 #endif
 
+			pthreads[i].t_create = stress_time_now();
+			pthreads[i].t_run = pthreads[i].t_create;
 			pthreads[i].ret = pthread_create(&pthreads[i].pthread, NULL,
 				stress_pthread_func, (void *)&pargs);
 			if (pthreads[i].ret) {
@@ -623,11 +631,19 @@ reap:
 		}
 		for (j = 0; j < i; j++) {
 			if (pthreads[j].ret == 0) {
+				double t;
+
 				ret = pthread_join(pthreads[j].pthread, NULL);
 				if ((ret) && (ret != ESRCH)) {
 					pr_fail("%s: pthread_join failed (parent), errno=%d (%s)\n",
 						args->name, ret, strerror(ret));
 					stop_running();
+				}
+
+				t = pthreads[j].t_run - pthreads[j].t_create;
+				if (t > 0.0) {
+					duration += t;
+					count += 1;
 				}
 			}
 #if defined(HAVE_PTHREAD_ATTR_SETSTACK)
@@ -636,6 +652,9 @@ reap:
 #endif
 		}
 	} while (!locked && keep_running() && keep_stressing(args));
+
+	average = (count > 0.0) ? duration / count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "ns to start a pthread", average * 1000000000.0);
 
 	pr_inf("%s: maximum of %" PRIu64 " concurrent pthreads created\n",
 		args->name, maximum);
