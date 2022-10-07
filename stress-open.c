@@ -27,7 +27,7 @@
 #include <utime.h>
 #endif
 
-typedef int (*stress_open_func_t)(void);
+typedef int (*stress_open_func_t)(const stress_args_t *args);
 
 static const stress_help_t help[] = {
 	{ "o N", "open N",		"start N workers exercising open/close" },
@@ -317,13 +317,16 @@ static inline int open_arg3(const char *pathname, const int flags, const mode_t 
 	return fd;
 }
 
-static int open_flag_perm(void)
+#if defined(O_CREAT)
+static int open_flag_perm(const stress_args_t *args)
 {
 	static size_t index = 0;
 	int fd;
 	const int mode = S_IRUSR | S_IWUSR;
 	const int flags = open_perms[index];
 	char filename[PATH_MAX];
+
+	(void)args;
 
 	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
 		(int)getpid(), stress_mwc32());
@@ -362,10 +365,13 @@ static int open_flag_perm(void)
 
 	return fd;
 }
+#endif
 
-static int open_dev_zero_rd(void)
+static int open_dev_zero_rd(const stress_args_t *args)
 {
 	int flags = 0;
+
+	(void)args;
 
 #if defined(O_ASYNC)
 	flags |= O_ASYNC;
@@ -391,9 +397,11 @@ static int open_dev_zero_rd(void)
 	return open_arg2("/dev/zero", flags);
 }
 
-static int open_dev_null_wr(void)
+static int open_dev_null_wr(const stress_args_t *args)
 {
 	int flags = 0;
+
+	(void)args;
 
 #if defined(O_ASYNC)
 	flags |= O_ASYNC;
@@ -423,9 +431,11 @@ static int open_dev_null_wr(void)
 }
 
 #if defined(O_TMPFILE)
-static int open_tmp_rdwr(void)
+static int open_tmp_rdwr(const stress_args_t *args)
 {
 	int flags = 0;
+
+	(void)args;
 
 #if defined(O_TRUNC)
 	flags |= O_TRUNC;
@@ -446,8 +456,10 @@ static int open_tmp_rdwr(void)
 #endif
 
 #if defined(O_TMPFILE)
-static int open_tmpfile_no_rdwr(void)
+static int open_tmpfile_no_rdwr(const stress_args_t *args)
 {
+	(void)args;
+
 	/* Force -EINVAL, need O_WRONLY or O_RDWR to succeed */
 	return open_arg3("/tmp", O_TMPFILE, S_IRUSR | S_IWUSR);
 }
@@ -456,49 +468,98 @@ static int open_tmpfile_no_rdwr(void)
 #if defined(HAVE_POSIX_OPENPT) &&	\
     defined(O_RDWR) &&			\
     defined(N_NOCTTY)
-static int open_pt(void)
+static int open_pt(const stress_args_t *args)
 {
+	(void)args;
+
 	return posix_openpt(O_RDWR | O_NOCTTY);
 }
 #endif
 
 #if defined(O_TMPFILE) &&	\
     defined(O_EXCL)
-static int open_tmp_rdwr_excl(void)
+static int open_tmp_rdwr_excl(const stress_args_t *args)
 {
+	(void)args;
+
 	return open_arg3("/tmp", O_TMPFILE | O_EXCL | O_RDWR, S_IRUSR | S_IWUSR);
 }
 #endif
 
 #if defined(O_DIRECTORY)
-static int open_dir(void)
+static int open_dir(const stress_args_t *args)
 {
+	(void)args;
+
 	return open_arg2(".", O_DIRECTORY | O_RDONLY);
 }
 #endif
 
-#if defined(O_PATH)
-static int open_path(void)
+#if defined(O_DIRECTORY) &&	\
+    defined(__linux__)
+static int open_dir_proc_self_fd(const stress_args_t *args)
 {
+	(void)args;
+
+	return open_arg2("/proc/self/fd", O_DIRECTORY | O_RDONLY);
+}
+#endif
+
+#if defined(O_PATH)
+static int open_path(const stress_args_t *args)
+{
+	(void)args;
+
 	return open_arg2(".", O_DIRECTORY | O_PATH);
 }
 #endif
 
 #if defined(O_CREAT)
-static int open_create_eisdir(void)
+static int open_create_eisdir(const stress_args_t *args)
 {
+	(void)args;
+
 	return open_arg3(".", O_CREAT, S_IRUSR | S_IWUSR);
 }
 #endif
 
+#if defined(O_DIRECT) &&	\
+    defined(O_CREAT)
+static int open_direct(const stress_args_t *args)
+{
+	char filename[PATH_MAX];
+	int fd;
+
+	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
+		(int)getpid(), stress_mwc32());
+
+	fd = open(filename, O_RDWR | O_CREAT | O_TRUNC | O_DIRECT, S_IRUSR | S_IWUSR);
+	if (fd < 0) {
+		int ret;
+		struct stat statbuf;
+
+		ret = stat(filename, &statbuf);
+		if (ret == 0) {
+			pr_inf("%s: open with O_DIRECT failed but file '%s' was created\n",
+				args->name, filename);
+		}
+	}
+	(void)shim_unlink(filename);
+	return fd;
+}
+#endif
+
 #if defined(HAVE_OPENAT) &&	\
-    defined(AT_FDCWD)
-static int open_with_openat_cwd(void)
+    defined(AT_FDCWD) &&	\
+    defined(O_CREAT)
+static int open_with_openat_cwd(const stress_args_t *args)
 {
 	char cwd[PATH_MAX];
 	char filename[PATH_MAX];
 	const char *temp_path = stress_get_temp_path();
 	int fd, ret;
+
+	(void)args;
 
 	if (!temp_path)
 		return -1;
@@ -535,11 +596,14 @@ static int open_with_openat_cwd(void)
 #if defined(HAVE_OPENAT) &&	\
     defined(AT_FDCWD) &&	\
     defined(O_PATH) &&		\
-    defined(O_DIRECTORY)
-static int open_with_openat_dir_fd(void)
+    defined(O_DIRECTORY) &&	\
+    defined(O_CREAT)
+static int open_with_openat_dir_fd(const stress_args_t *args)
 {
 	char filename[PATH_MAX];
 	int fd, dir_fd;
+
+	(void)args;
 
 	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
 		(int)getpid(), stress_mwc32());
@@ -562,8 +626,9 @@ static int open_with_openat_dir_fd(void)
     defined(HAVE_LINUX_OPENAT2_H) &&	\
     defined(RESOLVE_NO_SYMLINKS) &&	\
     defined(__NR_openat2) &&		\
-    defined(HAVE_SYSCALL)
-static int open_with_openat2_cwd(void)
+    defined(HAVE_SYSCALL) &&		\
+    defined(O_CREAT)
+static int open_with_openat2_cwd(const stress_args_t *args)
 {
 	static const unsigned int resolve_flags[] = {
 #if defined(RESOLVE_BENEATH)
@@ -595,6 +660,8 @@ static int open_with_openat2_cwd(void)
 	size_t i = 0;
 	static size_t j;
 	struct open_how how;
+
+	(void)args;
 
 	if (!temp_path)
 		return -1;
@@ -641,19 +708,49 @@ static int open_with_openat2_cwd(void)
 #endif
 
 #if defined(__linux__)
-static int open_with_open_proc_self_fd(void)
+static int open_with_open_proc_self_fd(const stress_args_t *args)
 {
+	(void)args;
+
 	return open("/proc/self/fd/0", O_RDONLY);
 }
 #endif
 
-static int open_dup(void)
+static int open_dup(const stress_args_t *args)
 {
+	(void)args;
+
 	return dup(STDOUT_FILENO);
 }
 
+#if defined(O_CREAT) &&	\
+    defined(O_TRUNC)
+static int open_rdonly_trunc(const stress_args_t *args)
+{
+	char filename[PATH_MAX];
+	int fd;
+
+	(void)args;
+
+	(void)snprintf(filename, sizeof(filename), "stress-open-%d-%" PRIu32,
+		(int)getpid(), stress_mwc32());
+
+	fd = open_arg3(filename, O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+	if (fd < 0)
+		return fd;
+
+	/* undefined behaviour, will open, may truncate on some systems */
+	fd = open_arg2(filename, O_RDONLY | O_TRUNC);
+	if (fd >= 0)
+		(void)shim_unlink(filename);
+	return fd;
+}
+#endif
+
 static stress_open_func_t open_funcs[] = {
+#if defined(O_CREAT)
 	open_flag_perm,
+#endif
 	open_dev_zero_rd,
 	open_dev_null_wr,
 #if defined(O_TMPFILE)
@@ -681,25 +778,40 @@ static stress_open_func_t open_funcs[] = {
 	open_create_eisdir,
 #endif
 #if defined(HAVE_OPENAT) &&		\
-    defined(AT_FDCWD)
+    defined(AT_FDCWD) &&		\
+    defined(O_CREAT)
 	open_with_openat_cwd,
 #endif
 #if defined(HAVE_OPENAT) &&	\
     defined(AT_FDCWD) &&	\
     defined(O_PATH) &&		\
-    defined(O_DIRECTORY)
+    defined(O_DIRECTORY) &&	\
+    defined(O_CREAT)
 	open_with_openat_dir_fd,
 #endif
 #if defined(HAVE_OPENAT2) &&		\
     defined(HAVE_LINUX_OPENAT2_H) &&	\
     defined(RESOLVE_NO_SYMLINKS) &&	\
-    defined(__NR_openat2)
+    defined(__NR_openat2) &&		\
+    defined(O_CREAT)
 	open_with_openat2_cwd,
 #endif
 #if defined(__linux__)
 	open_with_open_proc_self_fd,
 #endif
 	open_dup,
+#if defined(O_DIRECT) &&        \
+    defined(O_CREAT)
+	open_direct,
+#endif
+#if defined(O_DIRECTORY) &&	\
+    defined(__linux__)
+	open_dir_proc_self_fd,
+#endif
+#if defined(O_CREAT) &&	\
+    defined(O_TRUNC)
+	open_rdonly_trunc,
+#endif
 };
 
 /*
@@ -811,7 +923,7 @@ static int stress_open(const stress_args_t *args)
 				}
 
 				idx = stress_mwc32() % SIZEOF_ARRAY(open_funcs);
-				fds[i] = open_funcs[idx]();
+				fds[i] = open_funcs[idx](args);
 
 				if (fds[i] >= 0)
 					break;
