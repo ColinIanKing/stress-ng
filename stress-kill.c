@@ -44,6 +44,7 @@ static int stress_kill(const stress_args_t *args)
 	pid_t pid;
 	const pid_t ppid = getpid();
 	int ret;
+	double duration = 0.0, count = 0.0, rate;
 
 	if (stress_sighandler(args->name, SIGUSR1, SIG_IGN, NULL) < 0)
 		return EXIT_FAILURE;
@@ -64,6 +65,7 @@ static int stress_kill(const stress_args_t *args)
 
 	do {
 		pid_t bad_pid;
+		double t;
 
 		/*
 		 *  With many kill stressors we get into a state
@@ -84,13 +86,29 @@ static int stress_kill(const stress_args_t *args)
 			udelay -= 500;
 		}
 
+		t = stress_time_now();
 		ret = kill(args->pid, SIGUSR1);
+		if (ret == 0) {
+			int saved_errno = errno;
+
+			duration += stress_time_now() - t;
+			count += 1.0;
+			errno = saved_errno;
+		}
 		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
 			pr_fail("%s: kill PID %d with SIGUSR1 failed, errno=%d (%s)\n",
 				args->name, (int)args->pid, errno, strerror(errno));
 
 		/* Zero signal can be used to see if process exists */
+		t = stress_time_now();
 		ret = kill(args->pid, 0);
+		if (ret == 0) {
+			int saved_errno = errno;
+
+			duration += stress_time_now() - t;
+			count += 1.0;
+			errno = saved_errno;
+		}
 		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
 			pr_fail("%s: kill PID %d with signal 0 failed, errno=%d (%s)\n",
 				args->name, (int)args->pid, errno, strerror(errno));
@@ -100,7 +118,15 @@ static int stress_kill(const stress_args_t *args)
 		 * -1 pid means signal sent to every process caller has
 		 * permission to send to
 		 */
+		t = stress_time_now();
 		ret = kill(-1, 0);
+		if (ret == 0) {
+			int saved_errno = errno;
+
+			duration += stress_time_now() - t;
+			count += 1.0;
+			errno = saved_errno;
+		}
 		if ((ret < 0) && (g_opt_flags & OPT_FLAGS_VERIFY))
 			pr_fail("%s: kill PID -1 with signal 0 failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -146,6 +172,9 @@ static int stress_kill(const stress_args_t *args)
 		VOID_RET(int, kill(pid, SIGKILL));
 		VOID_RET(int, waitpid(pid, &status, 0));
 	}
+
+	rate = (duration > 0.0) ? count / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "kill calls per sec", rate);
 
 	return EXIT_SUCCESS;
 }
