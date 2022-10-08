@@ -148,7 +148,7 @@ static int stress_resched(const stress_args_t *args)
 	pids_max = max_prio + 1; /* 0.. max_prio */
 	pids = calloc((size_t)pids_max, sizeof(*pids));
 	if (!pids) {
-		pr_inf("%s: cannot allocate pids array, skipping stressor, errno=%d (%s)\n",
+		pr_inf_skip("%s: cannot allocate pids array, skipping stressor, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

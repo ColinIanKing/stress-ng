@@ -371,7 +371,7 @@ static int stress_jpeg(const stress_args_t *args)
 	rgb = mmap(NULL, rgb_size, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rgb == MAP_FAILED) {
-		pr_inf("%s: cannot allocate RGB buffer of size %" PRId32 " x %" PRId32 " x %d, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate RGB buffer of size %" PRId32 " x %" PRId32 " x %d, skipping stressor\n",
 			args->name, x_max, y_max, 3);
 		return EXIT_NO_RESOURCE;
 	}

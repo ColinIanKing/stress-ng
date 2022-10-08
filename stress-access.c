@@ -156,7 +156,7 @@ static pid_t stress_access_spawn(
 
 	pid = fork();
 	if (pid < 0) {
-		pr_inf("%s: fork failed %d (%s), skipping concurrent access stressing\n",
+		pr_inf_skip("%s: fork failed %d (%s), skipping concurrent access stressing\n",
 			args->name, errno, strerror(errno));
 		return -1;
 	} else if (pid == 0) {

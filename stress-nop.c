@@ -318,7 +318,7 @@ static int stress_nop(const stress_args_t *args)
 		/* We reach here on an SIGILL trap */
 		if (current_instr == &nop_instr[0]) {
 			/* Really should be able to do nop, skip */
-			pr_inf("%s 'nop' instruction was illegal, skipping stressor\n",
+			pr_inf_skip("%s 'nop' instruction was illegal, skipping stressor\n",
 				args->name);
 			return EXIT_NO_RESOURCE;
 		} else {

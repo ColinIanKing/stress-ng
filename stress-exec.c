@@ -673,7 +673,7 @@ static int stress_exec(const stress_args_t *args)
 		mmap(NULL, cache_max, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (stress_pid_cache == MAP_FAILED) {
-		pr_inf("%s: failed to allocate pid hash cache, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to allocate pid hash cache, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	stress_pid_cache_index = 0;

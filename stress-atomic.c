@@ -315,7 +315,7 @@ static int stress_atomic(const stress_args_t *args)
 	metrics = mmap(NULL, metrics_sz, PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
-		pr_inf("%s: could not mmap share metrics of "
+		pr_inf_skip("%s: could not mmap share metrics of "
 			"%zu bytes, skipping stressor\n",
 			args->name, metrics_sz);
 		return EXIT_NO_RESOURCE;

@@ -181,7 +181,7 @@ static int stress_llc_affinity(const stress_args_t *args)
 
 	stress_llc_size(&llc_size, &cache_line_size);
 	if (llc_size == 0) {
-		pr_inf("%s: cannot determine cache details, skipping stressor\n",
+		pr_inf_skip("%s: cannot determine cache details, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}

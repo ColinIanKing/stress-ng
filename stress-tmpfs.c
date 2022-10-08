@@ -212,7 +212,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 
 	mappings = calloc(pages4k, sizeof(*mappings));
 	if (!mappings) {
-		pr_inf("%s: failed to allocate mapping array, skipping stressor\n",
+		pr_inf_skip("%s: failed to allocate mapping array, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}

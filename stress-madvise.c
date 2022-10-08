@@ -477,7 +477,7 @@ static int stress_madvise(const stress_args_t *args)
 	page = (char *)mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (page == MAP_FAILED) {
-		pr_inf("%s: cannot allocate %zd byte page, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate %zd byte page, skipping stressor\n",
 			args->name, page_size);
 		return EXIT_NO_RESOURCE;
 	}

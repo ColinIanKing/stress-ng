@@ -88,7 +88,7 @@ static int stress_klog(const stress_args_t *args)
 	}
 	if (len == 0) {
 		if (!args->instance)
-			pr_inf("%s: zero sized syslog buffer, skipping stressor.\n", args->name);
+			pr_inf_skip("%s: zero sized syslog buffer, skipping stressor.\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	if (len > (ssize_t)(4 * MB)) {

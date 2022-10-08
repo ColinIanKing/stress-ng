@@ -326,7 +326,7 @@ static int stress_vecfp(const stress_args_t *args)
 	vecfp_init = (stress_vecfp_init *)mmap(NULL, mmap_size, PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (vecfp_init == MAP_FAILED) {
-		pr_inf("%s: failed to allocate %zd initializing elements, skipping stressor\n",
+		pr_inf_skip("%s: failed to allocate %zd initializing elements, skipping stressor\n",
 			args->name, max_elements);
 		return EXIT_NO_RESOURCE;
 	}

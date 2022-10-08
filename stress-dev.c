@@ -4418,7 +4418,7 @@ static int stress_dev(const stress_args_t *args)
 
 	/* This should be rare */
 	if (n_devs == 0) {
-		pr_inf("%s: cannot allocate device information or find any "
+		pr_inf_skip("%s: cannot allocate device information or find any "
 			"testable devices, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}

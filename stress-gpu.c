@@ -166,7 +166,7 @@ static GLuint compile_shader(
 
 			infoLog = malloc((size_t)infoLen);
 			if (!infoLog) {
-				pr_inf("%s: failed to allocate infoLog, skipping stressor\n", args->name);
+				pr_inf_skip("%s: failed to allocate infoLog, skipping stressor\n", args->name);
 				glDeleteShader(shader);
 				return 0;
 			}
@@ -190,14 +190,14 @@ static int load_shaders(const stress_args_t *args)
 	vertexShader = compile_shader(args, vert_shader, sizeof(vert_shader),
 			    GL_VERTEX_SHADER);
 	if (vertexShader == 0) {
-		pr_inf("%s: failed to compile vertex shader, skipping stressor\n", name);
+		pr_inf_skip("%s: failed to compile vertex shader, skipping stressor\n", name);
 		return EXIT_NO_RESOURCE;
 	}
 
 	fragmentShader = compile_shader(args, frag_shader, sizeof(frag_shader),
 			    GL_FRAGMENT_SHADER);
 	if (fragmentShader == 0) {
-		pr_inf("%s: failed to compile fragment shader, skipping stressor\n", name);
+		pr_inf_skip("%s: failed to compile fragment shader, skipping stressor\n", name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -220,7 +220,7 @@ static int load_shaders(const stress_args_t *args)
 
 			infoLog = malloc((size_t)infoLen);
 			if (!infoLog) {
-				pr_inf("%s: failed to allocate infoLog, skipping stressor\n", name);
+				pr_inf_skip("%s: failed to allocate infoLog, skipping stressor\n", name);
 				glDeleteProgram(program);
 				return EXIT_NO_RESOURCE;
 			}
@@ -315,7 +315,7 @@ static int gles2_init(
 		bytesPerImage = texsize * texsize * 4;
 		teximage = malloc((size_t)bytesPerImage);
 		if (!teximage) {
-			pr_inf("%s: failed to allocate teximage, skipping stressor\n", args->name);
+			pr_inf_skip("%s: failed to allocate teximage, skipping stressor\n", args->name);
 			return EXIT_NO_RESOURCE;
 		}
 	}
@@ -354,20 +354,20 @@ static int get_config(const stress_args_t *args, EGLConfig *config)
 	EGLConfig *configs;
 
 	if (eglGetConfigs(display, NULL, 0, &num_configs) == EGL_FALSE) {
-		pr_inf("%s: EGL: no EGL configs found, skipping stressor\n", args->name);
+		pr_inf_skip("%s: EGL: no EGL configs found, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
 	/* Use calloc to avoid multiplication overflow */
 	configs = calloc((size_t)num_configs, sizeof(EGLConfig));
 	if (!configs) {
-		pr_inf("%s: EGL: EGL allocation failed, skipping stressor\n", args->name);
+		pr_inf_skip("%s: EGL: EGL allocation failed, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	if ((eglChooseConfig(display, egl_config_attribs,
 			     configs, num_configs,
 			     &num_configs) == EGL_FALSE) || (num_configs == 0)) {
-		pr_inf("%s: EGL: can't choose EGL config, skipping stressor\n", args->name);
+		pr_inf_skip("%s: EGL: can't choose EGL config, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -377,7 +377,7 @@ static int get_config(const stress_args_t *args, EGLConfig *config)
 		if (eglGetConfigAttrib(display, configs[i],
 				       EGL_NATIVE_VISUAL_ID,
 				       &gbm_format) == EGL_FALSE) {
-			pr_inf("%s: EGL: eglGetConfigAttrib failed, skipping stressor\n", args->name);
+			pr_inf_skip("%s: EGL: eglGetConfigAttrib failed, skipping stressor\n", args->name);
 			return EXIT_NO_RESOURCE;
 		}
 
@@ -390,7 +390,7 @@ static int get_config(const stress_args_t *args, EGLConfig *config)
 		return EXIT_SUCCESS;
 	}
 
-	pr_inf("%s: EGL: cannot get configuration, skipping stressor\n", args->name);
+	pr_inf_skip("%s: EGL: cannot get configuration, skipping stressor\n", args->name);
 	return EXIT_NO_RESOURCE;
 }
 
@@ -413,24 +413,24 @@ static int egl_init(
 
 	fd = open(gpu_devnode, O_RDWR);
 	if (fd < 0) {
-		pr_inf("%s: couldn't open device %s, skipping stressor\n", args->name, gpu_devnode);
+		pr_inf_skip("%s: couldn't open device %s, skipping stressor\n", args->name, gpu_devnode);
 		return EXIT_NO_RESOURCE;
 	}
 
 	gbm = gbm_create_device(fd);
 	if (!gbm) {
-		pr_inf("%s: couldn't create gbm device, skipping stressor\n", args->name);
+		pr_inf_skip("%s: couldn't create gbm device, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
 	display = eglGetPlatformDisplay(EGL_PLATFORM_GBM_KHR, gbm, NULL);
 	if (display == EGL_NO_DISPLAY) {
-		pr_inf("%s: EGL: eglGetPlatformDisplay failed with vendor, skipping stressor\n", args->name);
+		pr_inf_skip("%s: EGL: eglGetPlatformDisplay failed with vendor, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
 	if (eglInitialize(display, &majorVersion, &minorVersion) == EGL_FALSE) {
-		pr_inf("%s: EGL: failed to initialize EGL, skipping stressor\n", args->name);
+		pr_inf_skip("%s: EGL: failed to initialize EGL, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -447,7 +447,7 @@ static int egl_init(
 				GBM_BO_USE_LINEAR | GBM_BO_USE_SCANOUT |
 				GBM_BO_USE_RENDERING);
 	if (!gs) {
-		pr_inf("%s: could not create gbm surface, skipping stressor\n", args->name);
+		pr_inf_skip("%s: could not create gbm surface, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

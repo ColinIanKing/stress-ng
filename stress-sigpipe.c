@@ -143,7 +143,7 @@ static int stress_sigpipe(const stress_args_t *args)
 	buf = (char *)mmap(NULL, buf_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf("%s: failed to allocate buffer of %zd bytes, skipping stressor\n",
+		pr_inf_skip("%s: failed to allocate buffer of %zd bytes, skipping stressor\n",
 			args->name, buf_size);
 		return EXIT_NO_RESOURCE;
 	}

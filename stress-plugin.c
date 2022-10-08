@@ -276,7 +276,7 @@ static int stress_plugin(const stress_args_t *args)
 	bool report_sigs;
 
 	if (!stress_plugin_so) {
-		pr_inf("%s: plugin shared library failed to open, skipping stressor\n", args->name);
+		pr_inf_skip("%s: plugin shared library failed to open, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

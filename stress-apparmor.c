@@ -644,18 +644,18 @@ static int stress_apparmor(const stress_args_t *args)
 
 	data_copy = malloc(g_apparmor_data_len);
 	if (!data_copy) {
-		pr_inf("%s: failed to allocate apparmor data copy buffer, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to allocate apparmor data copy buffer, skipping stressor\n", args->name);
 		return rc;
 	}
 	data_prev = malloc(g_apparmor_data_len);
 	if (!data_prev) {
-		pr_inf("%s: failed to allocate apparmor data prev buffer, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to allocate apparmor data prev buffer, skipping stressor\n", args->name);
 		goto err_free_data_copy;
 	}
 
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
-		pr_inf("%s: failed to create counter lock. skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
 		goto err_free_data_prev;
 	}
 

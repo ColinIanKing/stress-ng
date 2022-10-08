@@ -318,7 +318,7 @@ static int stress_vecshuf(const stress_args_t *args)
 	data = (stress_vec_data_t *)mmap(NULL, sizeof(*data), PROT_READ | PROT_WRITE,
 			MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
-		pr_inf("%s: failed to allocate %zd bytes for vectors, skipping stressor\n",
+		pr_inf_skip("%s: failed to allocate %zd bytes for vectors, skipping stressor\n",
 			args->name, sizeof(*data));
 		return EXIT_NO_RESOURCE;
 	}

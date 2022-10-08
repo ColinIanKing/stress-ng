@@ -208,7 +208,7 @@ static int stress_smi(const stress_args_t *args)
 	}
 
 	if (ioperm(APM_PORT, 2, 1) < 0) {
-		pr_inf("%s: stressor will be skipped, cannot enable write "
+		pr_inf_skip("%s: stressor will be skipped, cannot enable write "
 			"permissions on the APM port 0x%2x\n",
 			args->name, APM_PORT);
 	}

@@ -112,7 +112,7 @@ static int stress_mprotect(const stress_args_t *args)
 
 	n_flags = stress_flag_permutation(prot_bits, &prot_flags);
 	if (!prot_flags) {
-		pr_inf("%s: cannot allocate protection masks, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate protection masks, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
@@ -120,7 +120,7 @@ static int stress_mprotect(const stress_args_t *args)
 	mem = (uint8_t *)mmap(NULL, mem_size, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (mem == MAP_FAILED) {
-		pr_inf("%s: cannot allocate %zd pages, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate %zd pages, skipping stressor\n",
 			args->name, mem_pages);
 		free(prot_flags);
 		return EXIT_NO_RESOURCE;

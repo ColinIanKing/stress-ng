@@ -307,7 +307,7 @@ static int stress_touch(const stress_args_t *args)
 
 	touch_lock = stress_lock_create();
 	if (!touch_lock) {
-		pr_inf("%s: cannot create lock, skipping stressor\n", args->name);
+		pr_inf_skip("%s: cannot create lock, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

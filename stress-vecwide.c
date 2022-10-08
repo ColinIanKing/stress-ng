@@ -144,7 +144,7 @@ static int stress_vecwide(const stress_args_t *args)
 	vec_args = (vec_args_t *)mmap(NULL, vec_args_size, PROT_READ | PROT_WRITE,
 					MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (vec_args == MAP_FAILED) {
-		pr_inf("%s: skipping stressor, failed to allocate vectors, errno=%d (%s)\n",
+		pr_inf_skip("%s: skipping stressor, failed to allocate vectors, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}

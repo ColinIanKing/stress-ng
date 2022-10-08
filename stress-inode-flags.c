@@ -220,7 +220,7 @@ static int stress_inode_flags(const stress_args_t *args)
 	inode_flag_count = stress_flag_permutation(all_inode_flags, &inode_flag_perms);
 
 	if ((inode_flag_count == 0) || (!inode_flag_perms)) {
-		pr_inf("%s: no inode flags to exercise, skipping stressor\n", args->name);
+		pr_inf_skip("%s: no inode flags to exercise, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

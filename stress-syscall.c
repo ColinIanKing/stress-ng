@@ -8503,7 +8503,7 @@ static int stress_syscall(const stress_args_t *args)
 	syscall_page_size = args->page_size;
 	syscall_2_pages_size = args->page_size * 2;
 	if (!getcwd(syscall_cwd, sizeof(syscall_cwd))) {
-		pr_inf("%s: failed to get current working directory, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to get current working directory, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -8529,7 +8529,7 @@ static int stress_syscall(const stress_args_t *args)
 	syscall_2_pages = mmap(NULL, args->page_size * 2, PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (syscall_2_pages == MAP_FAILED) {
-		pr_inf("%s: failed to allocate 2 pages, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to allocate 2 pages, skipping stressor\n", args->name);
 		goto err_rmdir;
 	}
 	stress_uint8rnd4(syscall_2_pages, syscall_2_pages_size);
@@ -8539,13 +8539,13 @@ static int stress_syscall(const stress_args_t *args)
 				PROT_READ | PROT_WRITE,
 				MAP_ANONYMOUS | MAP_SHARED, -1, 0);
 	if (syscall_shared_info == MAP_FAILED) {
-		pr_inf("%s: failed to allocate single page, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to allocate single page, skipping stressor\n", args->name);
 		goto err_unmap_syscall_page;
 	}
 
 	syscall_fd = open(syscall_filename, O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 	if (syscall_fd < 0) {
-		pr_inf("%s: cannot create file %s, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: cannot create file %s, errno=%d (%s), skipping stressor\n",
 			args->name, syscall_filename, errno, strerror(errno));
 		goto err_unmap_syscall_shared_info;
 	}

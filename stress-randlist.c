@@ -117,7 +117,7 @@ static void stress_randlist_free_ptrs(
 
 static void stress_randlist_enomem(const stress_args_t *args)
 {
-	pr_inf("%s: cannot allocate the list, skipping stressor\n",
+	pr_inf_skip("%s: cannot allocate the list, skipping stressor\n",
 		args->name);
 }
 
@@ -147,7 +147,7 @@ static int stress_randlist(const stress_args_t *args)
 
 	ptrs = calloc(randlist_items, sizeof(stress_randlist_item_t *));
 	if (!ptrs) {
-		pr_inf("%s: cannot allocate %zd temporary pointers, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate %zd temporary pointers, skipping stressor\n",
 			args->name, randlist_items);
 		return EXIT_NO_RESOURCE;
 	}

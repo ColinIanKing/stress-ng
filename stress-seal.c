@@ -69,7 +69,7 @@ static int stress_seal(const stress_args_t *args)
 	buf = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf("%s: failed to allocate %zd sized buffer, skipping stressor\n",
+		pr_inf_skip("%s: failed to allocate %zd sized buffer, skipping stressor\n",
 			args->name, page_size);
 		return EXIT_NO_RESOURCE;
 	}

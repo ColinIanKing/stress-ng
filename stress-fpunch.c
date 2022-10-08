@@ -244,7 +244,7 @@ static int stress_fpunch(const stress_args_t *args)
 
 	/* Zero sized file is a bit concerning, so abort */
 	if (n == 0) {
-		pr_inf("%s: cannot allocate file of %jd bytes, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate file of %jd bytes, skipping stressor\n",
 			args->name, (intmax_t)punch_length);
 		rc = EXIT_NO_RESOURCE;
 		goto tidy;

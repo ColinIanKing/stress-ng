@@ -92,14 +92,14 @@ static int stress_zero(const stress_args_t *args)
 	rd_buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (rd_buffer == MAP_FAILED) {
-		pr_fail("%s: cannot allocate page sized read buffer, skipping test\n",
+		pr_inf_skip("%s: cannot allocate page sized read buffer, skipping test\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	wr_buffer = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (wr_buffer == MAP_FAILED) {
-		pr_fail("%s: cannot allocate page sized write buffer, skipping test\n",
+		pr_inf_skip("%s: cannot allocate page sized write buffer, skipping test\n",
 			args->name);
 		(void)munmap(rd_buffer, page_size);
 		return EXIT_NO_RESOURCE;

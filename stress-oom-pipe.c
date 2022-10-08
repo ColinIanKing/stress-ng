@@ -194,7 +194,7 @@ static int stress_oom_pipe(const stress_args_t *args)
 	buffer = mmap(NULL, buffer_size, PROT_READ | PROT_WRITE,
 			MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buffer == MAP_FAILED) {
-		pr_inf("%s: cannot allocate pipe write buffer, skipping stressor\n", args->name);
+		pr_inf_skip("%s: cannot allocate pipe write buffer, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 	context.wr_buffer = (uint32_t *)buffer;
@@ -205,7 +205,7 @@ static int stress_oom_pipe(const stress_args_t *args)
 
 	context.fds = calloc(context.max_fd, sizeof(*context.fds));
 	if (!context.fds) {
-		pr_inf("%s: cannot allocate %zd file descriptors, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate %zd file descriptors, skipping stressor\n",
 			args->name, context.max_fd);
 		(void)munmap(buffer, buffer_size);
 		return EXIT_NO_RESOURCE;

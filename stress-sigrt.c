@@ -49,7 +49,7 @@ static int stress_sigrt(const stress_args_t *args)
 
 	pids = calloc((size_t)MAX_RTPIDS, sizeof(*pids));
 	if (!pids) {
-		pr_inf("%s: cannot allocate array of %zd pids, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate array of %zd pids, skipping stressor\n",
 			args->name, (size_t)MAX_RTPIDS);
 		return EXIT_NO_RESOURCE;
 	}

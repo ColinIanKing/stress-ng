@@ -558,7 +558,7 @@ static int stress_shm_sysv_child(
 
 	buffer = calloc(buffer_size, sizeof(*buffer));
 	if (!buffer) {
-		pr_inf("%s: cannot allocate %zu sized buffer, skipping stressor\n",
+		pr_inf_skip("%s: cannot allocate %zu sized buffer, skipping stressor\n",
 			args->name, buffer_size);
 		return EXIT_NO_RESOURCE;
 	}

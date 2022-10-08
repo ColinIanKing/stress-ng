@@ -76,14 +76,14 @@ static int stress_vm_splice(const stress_args_t *args)
 	buf = mmap(NULL, sz, PROT_READ | PROT_WRITE,
 		MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_fail("%s: mmap of %zd sized buffer failed, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap of %zd sized buffer failed, errno=%d (%s), skipping stressor\n",
 			args->name, sz, errno, strerror(errno));
 		return EXIT_NO_RESOURCE;
 	}
 	data = mmap(NULL, page_size, PROT_READ | PROT_WRITE,
 		MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
 	if (data == MAP_FAILED) {
-		pr_inf("%s: mmap of %zd sized buffer failed, errno=%d (%s), skipping stressor\n",
+		pr_inf_skip("%s: mmap of %zd sized buffer failed, errno=%d (%s), skipping stressor\n",
 			args->name, page_size, errno, strerror(errno));
 		(void)munmap(buf, sz);
 		return EXIT_NO_RESOURCE;

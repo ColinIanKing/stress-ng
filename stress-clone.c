@@ -557,7 +557,7 @@ static int stress_clone(const stress_args_t *args)
 	metrics = mmap(NULL, sizeof(*metrics), PROT_READ | PROT_WRITE,
 			MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (metrics == MAP_FAILED) {
-		pr_fail("%s: failed to memory map %zd bytes, skipping stressor\n",
+		pr_inf_skip("%s: failed to memory map %zd bytes, skipping stressor\n",
 			args->name, sizeof(*metrics));
 		return EXIT_NO_RESOURCE;
 	}

@@ -389,7 +389,7 @@ static int stress_malloc(const stress_args_t *args)
 
 	counter_lock = stress_lock_create();
 	if (!counter_lock) {
-		pr_inf("%s: failed to create counter lock. skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to create counter lock. skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 

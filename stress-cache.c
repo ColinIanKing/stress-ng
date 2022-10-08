@@ -637,7 +637,7 @@ static int stress_cache(const stress_args_t *args)
 	disabled_flags = 0;
 
 	if (sigsetjmp(jmp_env, 1)) {
-		pr_inf("%s: premature SIGSEGV caught, skipping stressor\n",
+		pr_inf_skip("%s: premature SIGSEGV caught, skipping stressor\n",
 			args->name);
 		return EXIT_NO_RESOURCE;
 	}

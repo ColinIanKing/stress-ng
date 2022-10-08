@@ -165,21 +165,21 @@ static int stress_ring_pipe(const stress_args_t *args)
 	buf = mmap(NULL, (size_t)STRESS_RING_PIPE_SIZE_MAX,
 		PROT_READ | PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	if (buf == MAP_FAILED) {
-		pr_inf("%s: cannot mmap %d size buffer, "
+		pr_inf_skip("%s: cannot mmap %d size buffer, "
 			"skipping stresor\n", args->name, STRESS_RING_PIPE_SIZE_MAX);
 		return EXIT_NO_RESOURCE;
 	}
 
 	pipe_fds = calloc(ring_pipe_num, sizeof(*pipe_fds));
 	if (!pipe_fds) {
-		pr_inf("%s: cannot allocate %zd pipe file descriptors, "
+		pr_inf_skip("%s: cannot allocate %zd pipe file descriptors, "
 			"skipping stresor\n", args->name, ring_pipe_num);
 		(void)munmap((void *)buf, STRESS_RING_PIPE_SIZE_MAX);
 		return EXIT_NO_RESOURCE;
 	}
 	poll_fds = calloc(ring_pipe_num, sizeof(*poll_fds));
 	if (!poll_fds) {
-		pr_inf("%s: cannot allocate %zd poll descriptors, "
+		pr_inf_skip("%s: cannot allocate %zd poll descriptors, "
 			"skipping stresor\n", args->name, ring_pipe_num);
 		(void)munmap((void *)buf, STRESS_RING_PIPE_SIZE_MAX);
 		free(pipe_fds);
@@ -205,7 +205,7 @@ static int stress_ring_pipe(const stress_args_t *args)
 	}
 
 	if (n_pipes == 0) {
-		pr_inf("%s: not enough pipes were created, "
+		pr_inf_skip("%s: not enough pipes were created, "
 			"skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	} else if (n_pipes < ring_pipe_num) {

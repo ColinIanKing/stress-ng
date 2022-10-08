@@ -81,7 +81,7 @@ static int stress_rawsock(const stress_args_t *args)
 	int rc = EXIT_SUCCESS;
 
 	if (!rawsock_lock) {
-		pr_inf("%s: failed to create rawsock lock, skipping stressor\n", args->name);
+		pr_inf_skip("%s: failed to create rawsock lock, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
