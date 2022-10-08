@@ -218,6 +218,7 @@
 	MACRO(resched)		\
 	MACRO(resources)	\
 	MACRO(revio)		\
+	MACRO(ring_pipe)	\
 	MACRO(rlimit)		\
 	MACRO(rmap)		\
 	MACRO(rseq)		\

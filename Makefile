@@ -332,6 +332,7 @@ STRESS_SRC = \
 	stress-resched.c \
 	stress-resources.c \
 	stress-revio.c \
+	stress-ring-pipe.c \
 	stress-rlimit.c \
 	stress-rmap.c \
 	stress-rseq.c \

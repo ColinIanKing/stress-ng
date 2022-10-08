@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "13 Sep 2022"
+.TH STRESS-NG 1 "8 Oct 2022"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -366,7 +366,7 @@ enable stressors that are known to hang systems. Some stressors can
 rapidly consume resources that may hang a system, or perform actions that
 can lock a system up or cause it to reboot. These stressors are not enabled
 by default, this option enables them, but you probably don't want to do this.
-You have been warned. This option applies to the stressors: bad\-ioctl, 
+You have been warned. This option applies to the stressors: bad\-ioctl,
 bind\-mount, cpu\-online, mlockmany, oom\-pipe, smi, sysinval and watchdog.
 .TP
 .B \-\-perf
@@ -1731,7 +1731,7 @@ with CAP_SYS_ADMIN capability.
 stop fanotify stress workers after N bogo fanotify events.
 .TP
 .B \-\-far\-branch N
-start N workers that exercise calls to tens of thousands of 
+start N workers that exercise calls to tens of thousands of
 functions that are relatively far from the caller. All functions
 are 1 op instructions that return to the caller. The functions
 are placed in pages that are memory mapped with a wide spread of
@@ -3514,7 +3514,7 @@ limit). The value can be the number of files or a percentage of the
 maximum per-process open file system limit.
 .TP
 .B \-\-pagemove N
-start N workers that mmap a memory region (default 4 MB) and then shuffle pages 
+start N workers that mmap a memory region (default 4 MB) and then shuffle pages
 to the virtual address of the previous page. Each page shuffle uses 3 mremap operations
 to move a page. This exercises page tables and Translation Lookaside Buffer (TLB)
 flushing.
@@ -4011,6 +4011,27 @@ stop revio stress workers after N bogo operations.
 .TP
 .B \-\-revio\-write\-size N
 specify size of each write in bytes. Size can be from 1 byte to 4MB.
+.TP
+.B \-\-ring\-pipe N
+start N workers that move data around a ring of pipes using poll to detect
+when data is ready to copy. By default, 256 pipes are used with two
+4096 byte items of data being copied around the ring of pipes. Data is
+copied using read and write system calls. If the splice system call is
+available then one can use splice to use more efficient in-kernel data
+passing instead of buffer copying.
+.TP
+.B \-\-ring\-pipe\-ops N
+stop after N pipe data transfers.
+.TP
+.B \-\-ring\-pipe\-num N
+specify the number of pipes to use. Ranges from 4 to 262144, default is 256.
+.TP
+.B \-\-ring\-pipe\-size N
+specify the size of data being copied in bytes. Ranges from 1 to 4096, default
+is 4096.
+.TP
+.B \-\-ring\-pipe\-splice
+enable splice to move data between pipes (only if splice() is available).
 .TP
 .B \-\-rlimit N
 start N workers that exceed CPU and file size resource imits, generating
@@ -6088,9 +6109,9 @@ Fabrice Fontaine, Francis Laniel, Iyán Méndez Veiga, Helmut Grohne,
 James Hunt, James Wang, Jan Luebbe, Jianshen Liu, Jim Rowan, John Kacur,
 Joseph DeVincentis, Jules Maselbas, Khalid Elmously, Khem Raj,
 Luca Pizzamiglio, Luis Henriques, Manoj Iyer, Matthew Tippett,
-Mauricio Faria de Oliveira, Maxime Chevallier, Maya Rashish, 
+Mauricio Faria de Oliveira, Maxime Chevallier, Maya Rashish,
 Mayuresh Chitale, Mike Koreneff, Paul Menzel, Piyush Goyal,
-Ralf Ramsauer, Rob Colclaser, Rosen Penev, Siddhesh Poyarekar 
+Ralf Ramsauer, Rob Colclaser, Rosen Penev, Siddhesh Poyarekar,
 Thadeu Lima de Souza Cascardo, Thia Wyrod, Thinh Tran, Tim Gardner,
 Tim Gates, Tim Orling, Tommi Rantala, Witold Baryluk, Zhiyi Sun and others.
 .SH NOTES

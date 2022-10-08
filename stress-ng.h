@@ -1754,6 +1754,12 @@ typedef enum {
 	OPT_revio_opts,
 	OPT_revio_bytes,
 
+	OPT_ring_pipe,
+	OPT_ring_pipe_num,
+	OPT_ring_pipe_ops,
+	OPT_ring_pipe_size,
+	OPT_ring_pipe_splice,
+
 	OPT_rlimit,
 	OPT_rlimit_ops,
 
