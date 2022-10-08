@@ -152,6 +152,7 @@ int stress_set_vmstat(const char *const opt)
 
 int stress_set_thermalstat(const char *const opt)
 {
+	g_opt_flags |= OPT_FLAGS_TZ_INFO;
 	return stress_set_generic_stat(opt, "thermalstat", &thermalstat_delay);
 }
 
@@ -804,7 +805,7 @@ void stress_vmstat_start(void)
 {
 	stress_vmstat_t vmstat;
 	size_t tz_num = 0;
-	stress_tz_info_t *tz_info, *tz_info_list;
+	stress_tz_info_t *tz_info;
 	int32_t vmstat_sleep, thermalstat_sleep, iostat_sleep;
 	double t1, t2;
 #if defined(HAVE_SYS_SYSMACROS_H) &&	\
@@ -818,7 +819,6 @@ void stress_vmstat_start(void)
 	    (iostat_delay == 0))
 		return;
 
-	tz_info_list = NULL;
 	vmstat_sleep = vmstat_delay;
 	thermalstat_sleep = thermalstat_delay;
 	iostat_sleep = iostat_delay;
@@ -831,9 +831,7 @@ void stress_vmstat_start(void)
 		stress_get_vmstat(&vmstat);
 
 	if (thermalstat_delay) {
-		stress_tz_init(&tz_info_list);
-
-		for (tz_info = tz_info_list; tz_info; tz_info = tz_info->next)
+		for (tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next)
 			tz_num++;
 	}
 
@@ -943,7 +941,7 @@ void stress_vmstat_start(void)
 			therms = calloc(therms_len, sizeof(*therms));
 			if (therms) {
 #if defined(__linux__)
-				for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
+				for (ptr = therms, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
 					(void)snprintf(ptr, 8, " %6.6s", tz_info->type);
 					ptr += 7;
 				}
@@ -952,7 +950,7 @@ void stress_vmstat_start(void)
 					pr_inf("therm:   GHz  LdA1  LdA5 LdA15 %s\n", therms);
 
 #if defined(__linux__)
-				for (ptr = therms, tz_info = tz_info_list; tz_info; tz_info = tz_info->next) {
+				for (ptr = therms, tz_info = g_shared->tz_info; tz_info; tz_info = tz_info->next) {
 					(void)snprintf(ptr, 8, " %6.2f", stress_get_tz_info(tz_info));
 					ptr += 7;
 				}

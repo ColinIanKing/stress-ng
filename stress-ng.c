@@ -110,7 +110,7 @@ static const stress_opt_flag_t opt_flags[] = {
 	{ OPT_thrash, 		OPT_FLAGS_THRASH },
 	{ OPT_times,		OPT_FLAGS_TIMES },
 	{ OPT_timestamp,	OPT_FLAGS_TIMESTAMP },
-	{ OPT_thermal_zones,	OPT_FLAGS_THERMAL_ZONES },
+	{ OPT_thermal_zones,	OPT_FLAGS_THERMAL_ZONES | OPT_FLAGS_TZ_INFO },
 	{ OPT_verbose,		PR_ALL },
 	{ OPT_verify,		OPT_FLAGS_VERIFY | PR_FAIL },
 };
@@ -4098,7 +4098,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Setup thermal zone data
 	 */
-	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
+	if (g_opt_flags & OPT_FLAGS_TZ_INFO)
 		stress_tz_init(&g_shared->tz_info);
 #endif
 
@@ -4148,10 +4148,10 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Dump thermal zone measurements
 	 */
-	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES) {
+	if (g_opt_flags & OPT_FLAGS_THERMAL_ZONES)
 		stress_tz_dump(yaml, stressors_head);
+	if (g_opt_flags & OPT_FLAGS_TZ_INFO)
 		stress_tz_free(&g_shared->tz_info);
-	}
 #endif
 	/*
 	 *  Dump run times
