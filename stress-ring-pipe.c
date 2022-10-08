@@ -155,6 +155,7 @@ static int stress_ring_pipe(const stress_args_t *args)
 	char *buf;
 	pipe_fds_t *pipe_fds;
 	int ret, max_fd;
+	int rc = EXIT_NO_RESOURCE;
 	ssize_t sret;
 	struct pollfd *poll_fds;
 
@@ -167,23 +168,20 @@ static int stress_ring_pipe(const stress_args_t *args)
 	if (buf == MAP_FAILED) {
 		pr_inf_skip("%s: cannot mmap %d size buffer, "
 			"skipping stresor\n", args->name, STRESS_RING_PIPE_SIZE_MAX);
-		return EXIT_NO_RESOURCE;
+		goto err_ret;
 	}
 
 	pipe_fds = calloc(ring_pipe_num, sizeof(*pipe_fds));
 	if (!pipe_fds) {
 		pr_inf_skip("%s: cannot allocate %zd pipe file descriptors, "
 			"skipping stresor\n", args->name, ring_pipe_num);
-		(void)munmap((void *)buf, STRESS_RING_PIPE_SIZE_MAX);
-		return EXIT_NO_RESOURCE;
+		goto err_unmap_buf;
 	}
 	poll_fds = calloc(ring_pipe_num, sizeof(*poll_fds));
 	if (!poll_fds) {
 		pr_inf_skip("%s: cannot allocate %zd poll descriptors, "
 			"skipping stresor\n", args->name, ring_pipe_num);
-		(void)munmap((void *)buf, STRESS_RING_PIPE_SIZE_MAX);
-		free(pipe_fds);
-		return EXIT_NO_RESOURCE;
+		goto err_free_pipe_fds;
 	}
 
 	for (max_fd = 0, n_pipes = 0; n_pipes < ring_pipe_num; n_pipes++) {
@@ -207,7 +205,7 @@ static int stress_ring_pipe(const stress_args_t *args)
 	if (n_pipes == 0) {
 		pr_inf_skip("%s: not enough pipes were created, "
 			"skipping stressor\n", args->name);
-		return EXIT_NO_RESOURCE;
+		goto err_close_pipes;
 	} else if (n_pipes < ring_pipe_num) {
 		pr_inf("%s: limiting to %zd pipes due to file descriptor limit\n",
 			args->name, n_pipes);
@@ -232,9 +230,9 @@ static int stress_ring_pipe(const stress_args_t *args)
 	(void)memset(buf, 0xa5, STRESS_RING_PIPE_SIZE_MAX);
 
 	if (stress_pipe_write(args, pipe_fds[0].fds[1], buf, ring_pipe_size) < 0)
-		goto tidy;
+		goto err_deinit;
 	if (stress_pipe_write(args, pipe_fds[n_pipes >> 1].fds[1], buf, ring_pipe_size) < 0)
-		goto tidy;
+		goto err_deinit;
 
 	do {
 		ret = poll(poll_fds, n_pipes, 100);
@@ -281,6 +279,7 @@ static int stress_ring_pipe(const stress_args_t *args)
 			}
 		}
 	} while (keep_stressing(args));
+	rc = EXIT_SUCCESS;
 
 finish:
 	rate = (duration > 0.0) ? (double)get_counter(args) / duration : 0.0;
@@ -288,18 +287,20 @@ finish:
 	rate = (duration > 0.0) ? (double)bytes / duration : 0.0;
 	stress_misc_stats_set(args->misc_stats, 1, "MB data pipe'd per sec", rate / (double)MB);
 
-tidy:
+err_deinit:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-
+err_close_pipes:
 	for (i = 0; i < n_pipes; i++) {
 		(void)close(pipe_fds[i].fds[0]);
 		(void)close(pipe_fds[i].fds[1]);
 	}
 	free(poll_fds);
+err_free_pipe_fds:
 	free(pipe_fds);
+err_unmap_buf:
 	(void)munmap((void *)buf, STRESS_RING_PIPE_SIZE_MAX);
-
-	return EXIT_SUCCESS;
+err_ret:
+	return rc;
 }
 
 stressor_info_t stress_ring_pipe_info = {
