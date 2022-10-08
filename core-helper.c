@@ -1504,6 +1504,9 @@ bool stress_little_endian(void)
  */
 static inline uint32_t OPTIMIZE3 stress_swap32(uint32_t val)
 {
+#if defined(HAVE_BUILTIN_BSWAP32)
+	return __builtin_bswap32(val);
+#else
 	register uint32_t swap;
 
 	swap = ((val >> 24) & 0x000000ff) |
@@ -1512,6 +1515,7 @@ static inline uint32_t OPTIMIZE3 stress_swap32(uint32_t val)
 	       ((val << 24) & 0xff000000);
 
 	return swap;
+#endif
 }
 
 /*
