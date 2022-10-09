@@ -1002,7 +1002,7 @@ static const stress_opt_set_func_t opt_set_funcs[] = {
 
 stressor_info_t stress_hdd_info = {
 	.stressor = stress_hdd,
-	.class = CLASS_IO | CLASS_OS,
+	.class = CLASS_IO | CLASS_FILESYSTEM | CLASS_OS,
 	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_OPTIONAL,
 	.help = help
