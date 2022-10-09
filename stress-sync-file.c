@@ -94,6 +94,8 @@ static int stress_sync_allocate(
 
 	ret = shim_fallocate(fd, 0, (off_t)0, sync_file_bytes);
 	if (ret < 0) {
+		if (errno == EINTR)
+			return 0;
 		if (errno == ENOSPC)
 			return -errno;
 		pr_err("%s: fallocate failed: errno=%d (%s)%s\n",
