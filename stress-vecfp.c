@@ -175,6 +175,34 @@ static double TARGET_CLONES OPTIMIZE3 name(			\
 	return t2 - t1;						\
 }
 
+#define STRESS_VEC_NEG(field, name, type)			\
+static double TARGET_CLONES OPTIMIZE3 name(			\
+	const stress_args_t *args,				\
+	stress_vecfp_init *vecfp_init)				\
+{								\
+	type r;							\
+	register int i;						\
+	const int n = sizeof(r.f) / (sizeof(r.f[0]));		\
+	const int loops = LOOPS_PER_CALL >> 1;			\
+	double t1, t2;						\
+								\
+	for (i = 0; i < n; i++) {				\
+		r.f[i] = vecfp_init[i].field.r_init;		\
+	}							\
+								\
+	t1 = stress_time_now();					\
+	for (i = 0; i < loops ; i++) {				\
+		r.v = -r.v;					\
+	}							\
+	t2 = stress_time_now();					\
+	for (i = 0; i < n; i++) {				\
+		vecfp_init[i].field.r = r.f[i];			\
+	}							\
+								\
+	inc_counter(args);					\
+	return t2 - t1;						\
+}
+
 STRESS_VEC_ADD(f, stress_vecfp_float_add_128, stress_vecfp_float_64_t)
 STRESS_VEC_ADD(f, stress_vecfp_float_add_64, stress_vecfp_float_64_t)
 STRESS_VEC_ADD(f, stress_vecfp_float_add_32, stress_vecfp_float_32_t)
@@ -193,6 +221,12 @@ STRESS_VEC_DIV(f, stress_vecfp_float_div_32, stress_vecfp_float_32_t)
 STRESS_VEC_DIV(f, stress_vecfp_float_div_16, stress_vecfp_float_16_t)
 STRESS_VEC_DIV(f, stress_vecfp_float_div_8, stress_vecfp_float_8_t)
 
+STRESS_VEC_NEG(f, stress_vecfp_float_neg_128, stress_vecfp_float_64_t)
+STRESS_VEC_NEG(f, stress_vecfp_float_neg_64, stress_vecfp_float_64_t)
+STRESS_VEC_NEG(f, stress_vecfp_float_neg_32, stress_vecfp_float_32_t)
+STRESS_VEC_NEG(f, stress_vecfp_float_neg_16, stress_vecfp_float_16_t)
+STRESS_VEC_NEG(f, stress_vecfp_float_neg_8, stress_vecfp_float_8_t)
+
 STRESS_VEC_ADD(d, stress_vecfp_double_add_128, stress_vecfp_double_128_t)
 STRESS_VEC_ADD(d, stress_vecfp_double_add_64, stress_vecfp_double_64_t)
 STRESS_VEC_ADD(d, stress_vecfp_double_add_32, stress_vecfp_double_32_t)
@@ -210,6 +244,12 @@ STRESS_VEC_DIV(d, stress_vecfp_double_div_64, stress_vecfp_double_64_t)
 STRESS_VEC_DIV(d, stress_vecfp_double_div_32, stress_vecfp_double_32_t)
 STRESS_VEC_DIV(d, stress_vecfp_double_div_16, stress_vecfp_double_16_t)
 STRESS_VEC_DIV(d, stress_vecfp_double_div_8, stress_vecfp_double_8_t)
+
+STRESS_VEC_NEG(d, stress_vecfp_double_neg_128, stress_vecfp_double_128_t)
+STRESS_VEC_NEG(d, stress_vecfp_double_neg_64, stress_vecfp_double_64_t)
+STRESS_VEC_NEG(d, stress_vecfp_double_neg_32, stress_vecfp_double_32_t)
+STRESS_VEC_NEG(d, stress_vecfp_double_neg_16, stress_vecfp_double_16_t)
+STRESS_VEC_NEG(d, stress_vecfp_double_neg_8, stress_vecfp_double_8_t)
 
 typedef struct {
 	const char *name;
@@ -240,6 +280,12 @@ static stress_vecfp_funcs_t stress_vecfp_funcs[] = {
 	{ "floatv16div",	stress_vecfp_float_div_16, 16, 0.0, 0.0 },
 	{ "floatv8div",		stress_vecfp_float_div_8, 8, 0.0, 0.0 },
 
+	{ "floatv128neg",	stress_vecfp_float_neg_128, 128, 0.0, 0.0 },
+	{ "floatv64neg",	stress_vecfp_float_neg_64, 64, 0.0, 0.0 },
+	{ "floatv32neg",	stress_vecfp_float_neg_32, 32, 0.0, 0.0 },
+	{ "floatv16neg",	stress_vecfp_float_neg_16, 16, 0.0, 0.0 },
+	{ "floatv8neg",		stress_vecfp_float_neg_8, 8, 0.0, 0.0 },
+
 	{ "doublev128add",	stress_vecfp_double_add_128, 128, 0.0, 0.0 },
 	{ "doublev64add",	stress_vecfp_double_add_64, 64, 0.0, 0.0 },
 	{ "doublev32add",	stress_vecfp_double_add_32, 32, 0.0, 0.0 },
@@ -257,6 +303,12 @@ static stress_vecfp_funcs_t stress_vecfp_funcs[] = {
 	{ "doublev32div",	stress_vecfp_double_div_32, 32, 0.0, 0.0 },
 	{ "doublev16div",	stress_vecfp_double_div_16, 16, 0.0, 0.0 },
 	{ "doublev8div",	stress_vecfp_double_div_8, 8, 0.0, 0.0 },
+
+	{ "doublev128neg",	stress_vecfp_double_neg_128, 128, 0.0, 0.0 },
+	{ "doublev64neg",	stress_vecfp_double_neg_64, 64, 0.0, 0.0 },
+	{ "doublev32neg",	stress_vecfp_double_neg_32, 32, 0.0, 0.0 },
+	{ "doublev16neg",	stress_vecfp_double_neg_16, 16, 0.0, 0.0 },
+	{ "doublev8neg",	stress_vecfp_double_neg_8, 8, 0.0, 0.0 },
 };
 
 static void stress_vecfp_call_method(

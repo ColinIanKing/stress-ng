@@ -5129,11 +5129,12 @@ getcpu, gettimeofday and time.
 .TP
 .B \-\-vecfp N
 start N workers that exericise floating point (single and double precision)
-addition, multiplication and division on vectors of 128, 64, 32, 16 and 8
-floating point values. The -v option will show the approximate throughput
-in millions of floating pointer operations per second for each operation.
-For x86, the gcc/clang target clones attribute has been used to produced
-vector optimizations for a range of mmx, sse, avx and processor features.
+addition, multiplication, division and negation on vectors of 128, 64, 32,
+16 and 8 floating point values. The -v option will show the approximate
+throughput in millions of floating pointer operations per second for each
+operation.  For x86, the gcc/clang target clones attribute has been used to
+produced vector optimizations for a range of mmx, sse, avx and processor
+features.
 .TP
 .B -\-vecfp\-ops N
 stop after N vector floating point bogo-operations. Each bogo-op is equivalent
@@ -5240,6 +5241,21 @@ division of a vector of 16 double precision floating point values
 T}
 doublev8div	T{
 division of a vector of 8 double precision floating point values
+T}
+doublev128neg	T{
+negation of a vector of 128 double precision floating point values
+T}
+doublev64neg	T{
+negation of a vector of 64 double precision floating point values
+T}
+doublev32neg	T{
+negation of a vector of 32 double precision floating point values
+T}
+doublev16neg	T{
+negation of a vector of 16 double precision floating point values
+T}
+doublev8neg	T{
+negation of a vector of 8 double precision floating point values
 T}
 .TE
 .TP
