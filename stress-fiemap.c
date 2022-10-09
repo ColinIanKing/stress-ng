@@ -157,7 +157,7 @@ static void stress_fiemap_ioctl(
 		if (ioctl(fd, FS_IOC_FIEMAP, fiemap) < 0) {
 			if (errno == EOPNOTSUPP) {
 				if (args->instance == 0)
-					pr_inf_skip("%s: FS_IOC_FIEMAP not supported on the file system, skipping stressor\n",
+					pr_inf_skip("%s: ioctl FS_IOC_FIEMAP not supported on the file system, skipping stressor\n",
 						args->name);
 				free(fiemap);
 				break;
