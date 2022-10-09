@@ -331,6 +331,22 @@ static const stress_fs_name_t stress_fs_names[] = {
 #else
 	{ 0x24051905,		"ubifs" },
 #endif
+	{ 0x1badface,		"bfs" },
+#if defined(HFS_SUPER_MAGIC)
+	{ HFS_SUPER_MAGIC,	"hfs" },
+#else
+	{ 0x4244,		"hfs" },
+#endif
+#if defined(HFSPLUS_SUPER_MAGIC)
+	{ HFSPLUS_SUPER_MAGIC,	"hfsplus" },
+#else
+	{ 0x482b,		"hfsplus" },
+#endif
+#if defined(JFS_SUPER_MAGIC)
+	{ JFS_SUPER_MAGIC,	"jfs" },
+#else
+	{ 0x3153464a,		"jfs" },
+#endif
 };
 #endif
 
