@@ -326,6 +326,11 @@ static const stress_fs_name_t stress_fs_names[] = {
 #if defined(UDF_SUPER_MAGIC)
 	{ UDF_SUPER_MAGIC,	"udf" },
 #endif
+#if defined(UBIFS_SUPER_MAGIC)
+	{ UBIFS_SUPER_MAGIC,	"ubifs" },
+#else
+	{ 0x24051905,		"ubifs" },
+#endif
 };
 #endif
 
