@@ -64,6 +64,7 @@ static int stress_fault(const stress_args_t *args)
     defined(HAVE_RUSAGE_RU_MINFLT)
 	double t1 = 0.0, t2 = 0.0, dt;
 #endif
+	double duration = 0.0, count = 0.0, average_duration;
 
 	ret = stress_temp_dir_mk_args(args);
 	if (ret < 0)
@@ -91,6 +92,7 @@ static int stress_fault(const stress_args_t *args)
 	do {
 		int fd;
 		uint8_t *ptr;
+		double t;
 
 		ret = sigsetjmp(jmp_env, 1);
 		if (ret) {
@@ -169,7 +171,10 @@ redo:
 			break;
 
 		}
+		t = stress_time_now();
 		*ptr = 0;	/* Cause the page fault */
+		duration += stress_time_now() - t;
+		count += 1.0;
 
 		if (munmap((void *)ptr, 1) < 0) {
 			pr_err("%s: munmap failed: errno=%d (%s)\n",
@@ -227,6 +232,9 @@ next:
 			(double)usage.ru_minflt / dt);
 		stress_misc_stats_set(args->misc_stats, 1, "major page faults per sec",
 			(double)usage.ru_majflt / dt);
+
+		average_duration = (count > 0.0) ? duration / count : 0.0;
+		stress_misc_stats_set(args->misc_stats, 2, "nanosecs per page fault", average_duration * 1000000000.0);
 	}
 #endif
 	return EXIT_SUCCESS;
