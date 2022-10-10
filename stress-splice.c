@@ -170,6 +170,7 @@ static int stress_splice(const stress_args_t *args)
 	bool use_splice_loop;
 	char *buffer;
 	ssize_t buffer_len;
+	double duration = 0.0, bytes = 0.0, rate;
 
 	if (!stress_get_setting("splice-bytes", &splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -253,6 +254,7 @@ static int stress_splice(const stress_args_t *args)
 	do {
 		ssize_t ret;
 		loff_t off_in, off_out;
+		double t;
 
 		/*
 		 *  Linux 5.9 dropped the ability to splice from /dev/zero to
@@ -283,16 +285,25 @@ static int stress_splice(const stress_args_t *args)
 				break;
 		}
 
+		t = stress_time_now();
 		ret = splice(fds1[0], NULL, fds2[1], NULL,
 			splice_bytes, stress_splice_flag());
-		if (ret < 0)
+		if (LIKELY(ret >= 0)) {
+			duration += stress_time_now() - t;
+			bytes += (double)ret;
+		} else {
 			break;
+		}
 
-
+		t = stress_time_now();
 		ret = splice(fds2[0], NULL, fd_out, NULL,
 			splice_bytes, stress_splice_flag());
-		if (ret < 0)
+		if (LIKELY(ret >= 0)) {
+			duration += stress_time_now() - t;
+			bytes += (double)ret;
+		} else {
 			break;
+		}
 
 		/* Exercise -ESPIPE errors */
 		off_in = 1;
@@ -336,6 +347,10 @@ static int stress_splice(const stress_args_t *args)
 	rc = EXIT_SUCCESS;
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (duration > 0.0) ? bytes / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "MB splice'd per second", rate / (double)MB);
+
 	(void)close(fd_out);
 close_fds4:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
