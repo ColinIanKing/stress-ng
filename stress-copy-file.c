@@ -157,6 +157,7 @@ static int stress_copy_file(const stress_args_t *args)
 	const int fd_bad = stress_get_bad_fd();
 	char filename[PATH_MAX - 5], tmp[PATH_MAX];
 	uint64_t copy_file_bytes = DEFAULT_COPY_FILE_BYTES;
+	double duration = 0.0, bytes = 0.0, rate;
 
 	if (!stress_get_setting("copy-file-bytes", &copy_file_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -215,6 +216,7 @@ static int stress_copy_file(const stress_args_t *args)
 	do {
 		ssize_t copy_ret;
 		shim_loff_t off_in, off_out, off_in_orig, off_out_orig;
+		double t;
 
 		off_in_orig = (shim_loff_t)(stress_mwc64() % (copy_file_bytes - DEFAULT_COPY_FILE_SIZE));
 		off_in = off_in_orig;
@@ -226,9 +228,13 @@ static int stress_copy_file(const stress_args_t *args)
 		stress_copy_file_fill(args, fd_in, (off_t)off_in, DEFAULT_COPY_FILE_SIZE);
 		if (!keep_stressing(args))
 			break;
+		t = stress_time_now();
 		copy_ret = shim_copy_file_range(fd_in, &off_in, fd_out,
 						&off_out, DEFAULT_COPY_FILE_SIZE, 0);
-		if (copy_ret < 0) {
+		if (LIKELY(copy_ret >= 0)) {
+			duration += stress_time_now() - t;
+			bytes += (double)copy_ret;
+		} else {
 			if ((errno == EAGAIN) ||
 			    (errno == EINTR) ||
 			    (errno == ENOSPC))
@@ -281,6 +287,9 @@ static int stress_copy_file(const stress_args_t *args)
 		inc_counter(args);
 	} while (keep_stressing(args));
 	rc = EXIT_SUCCESS;
+
+	rate = (duration > 0.0) ? bytes / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "MB/sec copy rate", rate / (double)MB);
 
 tidy_out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
