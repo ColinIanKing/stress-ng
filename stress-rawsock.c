@@ -79,6 +79,7 @@ static int stress_rawsock(const stress_args_t *args)
 {
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
+	double t_start, duration = 0.0, bytes = 0.0, rate;
 
 	if (!rawsock_lock) {
 		pr_inf_skip("%s: failed to create rawsock lock, skipping stressor\n", args->name);
@@ -199,6 +200,7 @@ again:
 		g_shared->rawsock.ready++;
 		(void)stress_lock_release(rawsock_lock);
 
+		t_start = stress_time_now();
 		while (keep_stressing(args)) {
 			stress_raw_packet_t ALIGN64 pkt;
 			socklen_t len = sizeof(addr);
@@ -213,8 +215,9 @@ again:
 					pr_fail("%s: recvfrom failed, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				break;
+			} else  {
+				bytes += n;
 			}
-
 #if defined(SIOCINQ)
 			/* Occasionally exercise SIOCINQ */
 			if ((pkt.data & 0xff) == 0) {
@@ -228,7 +231,9 @@ again:
 #endif
 			inc_counter(args);
 		}
-
+		duration = stress_time_now() - t_start;
+		rate = (duration > 0.0) ? bytes / duration : 0.0;
+		stress_misc_stats_set(args->misc_stats, 0, "MB recv'd per sec", rate / (double)MB);
 die:
 		if (pid) {
 			(void)kill(pid, SIGKILL);
