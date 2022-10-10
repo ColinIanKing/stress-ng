@@ -23,6 +23,9 @@
 #define MAX_SEEK_SIZE		(MAX_FILE_LIMIT)
 #define DEFAULT_SEEK_SIZE	(16 * MB)
 
+static double duration;
+static double count;
+
 static const stress_help_t help[] = {
 	{ NULL,	"seek N",	"start N workers performing random seek r/w IO" },
 	{ NULL,	"seek-ops N",	"stop after N seek bogo operations" },
@@ -41,7 +44,6 @@ static int stress_set_seek_size(const char *opt)
 	return stress_set_setting("seek-size", TYPE_ID_UINT64, &seek_size);
 }
 
-
 static int stress_set_seek_punch(const char *opt)
 {
 	return stress_set_setting_true("seek-punch", opt);
@@ -55,6 +57,20 @@ static inline off_t max_off_t(void)
 		;
 
 	return v;
+}
+
+static off_t stress_shim_lseek(int fd, off_t offset, int whence)
+{
+	off_t ret;
+	double t;
+
+	t = stress_time_now();
+	ret = lseek(fd, offset, whence);
+	if (ret >= 0) {
+		duration += stress_time_now() - t;
+		count += 1.0;
+	}
+	return ret;
 }
 
 /*
@@ -106,7 +122,7 @@ static int stress_seek(const stress_args_t *args)
 	fs_type = stress_fs_type(filename);
 	(void)shim_unlink(filename);
 	/* Generate file with hole at the end */
-	if (lseek(fd, (off_t)len, SEEK_SET) < 0) {
+	if (stress_shim_lseek(fd, (off_t)len, SEEK_SET) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 			args->name, errno, strerror(errno), fs_type);
@@ -131,7 +147,7 @@ static int stress_seek(const stress_args_t *args)
 		ssize_t rwret;
 
 		offset = (off_t)(stress_mwc64() % len);
-		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
+		if (stress_shim_lseek(fd, (off_t)offset, SEEK_SET) < 0) {
 			pr_fail("%s: lseek failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			goto close_finish;
@@ -154,7 +170,7 @@ re_write:
 
 do_read:
 		offset = (off_t)(stress_mwc64() % len);
-		if (lseek(fd, (off_t)offset, SEEK_SET) < 0) {
+		if (stress_shim_lseek(fd, (off_t)offset, SEEK_SET) < 0) {
 			pr_fail("%s: lseek SEEK_SET failed, errno=%d (%s)%s\n",
 				args->name, errno, strerror(errno), fs_type);
 			goto close_finish;
@@ -177,7 +193,7 @@ re_read:
 			pr_fail("%s: incorrect read size, expecting 512 bytes\n", args->name);
 		}
 #if defined(SEEK_END)
-		if (lseek(fd, 0, SEEK_END) < 0) {
+		if (stress_shim_lseek(fd, 0, SEEK_END) < 0) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek SEEK_END failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
@@ -186,7 +202,7 @@ re_read:
 		UNEXPECTED
 #endif
 #if defined(SEEK_CUR)
-		if (lseek(fd, 0, SEEK_CUR) < 0) {
+		if (stress_shim_lseek(fd, 0, SEEK_CUR) < 0) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek SEEK_CUR failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
@@ -232,7 +248,7 @@ re_read:
 #endif
 #if defined(SEEK_HOLE) &&	\
     !defined(__APPLE__)
-		if (lseek(fd, 0, SEEK_HOLE) < 0) {
+		if (stress_shim_lseek(fd, 0, SEEK_HOLE) < 0) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek SEEK_HOLE failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
@@ -242,7 +258,7 @@ re_read:
 #endif
 #if defined(SEEK_DATA) &&	\
     !defined(__APPLE__)
-		if (lseek(fd, 0, SEEK_DATA) < 0) {
+		if (stress_shim_lseek(fd, 0, SEEK_DATA) < 0) {
 			if (errno != EINVAL)
 				pr_fail("%s: lseek SEEK_DATA failed, errno=%d (%s)%s\n",
 					args->name, errno, strerror(errno), fs_type);
@@ -258,10 +274,10 @@ re_read:
 
 			offset = (off_t)(stress_mwc64() % seek_size);
 			for (i = 0; i < 20 && keep_stressing(args); i++) {
-				offset = lseek(fd, offset, SEEK_DATA);
+				offset = stress_shim_lseek(fd, offset, SEEK_DATA);
 				if (offset < 0)
 					break;
-				offset = lseek(fd, offset, SEEK_HOLE);
+				offset = stress_shim_lseek(fd, offset, SEEK_HOLE);
 				if (offset < 0)
 					break;
 			}
@@ -269,7 +285,7 @@ re_read:
 #endif
 #if defined(FALLOC_FL_PUNCH_HOLE)
 		if (!seek_punch)
-			continue;
+			goto inc;
 
 		offset = (off_t)(stress_mwc64() % len);
 		if (shim_fallocate(fd, FALLOC_FL_PUNCH_HOLE |
@@ -309,6 +325,7 @@ re_read:
 		 */
 		VOID_RET(off_t, lseek(fd, 0, ~0));
 
+inc:
 		inc_counter(args);
 	} while (keep_stressing(args));
 
@@ -317,6 +334,9 @@ close_finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)close(fd);
 finish:
+	duration = (count > 0.0) ? duration / count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "ns per seek", duration * 1000000000);
+	
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 	(void)stress_temp_dir_rm_args(args);
 	return rc;
