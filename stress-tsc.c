@@ -227,16 +227,25 @@ static inline void rdtsc(void)
  */
 static int stress_tsc(const stress_args_t *args)
 {
+	double duration = 0.0, count;
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	if (tsc_supported) {
 		do {
+			const double t = stress_time_now();
+
 			TSCx32()
 			TSCx32()
 			TSCx32()
 			TSCx32()
+
+			duration += stress_time_now() - t;
 			inc_counter(args);
 		} while (keep_stressing(args));
+
+		count = 32.0 * 4.0 * (double)get_counter(args);
+		duration = (count > 0.0) ? duration / count : 0.0;
+		stress_misc_stats_set(args->misc_stats, 0, "ns per time counter read", duration * 1000000000.0);
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
