@@ -87,10 +87,10 @@ flistxattr			xattr
 flock				flock
 fork				fork
 fremovexattr			xattr
-fsconfig
+fsconfig			ramfs
 fsetxattr			xattr
-fsmount
-fsopen
+fsmount				ramfs
+fsopen				ramfs
 fspick
 fstat				fallocate
 fstatfs				sysinfo
@@ -143,9 +143,9 @@ io_getevents			aiol
 io_pgetevents			aiol
 io_setup			aiol
 io_submit			aiol
-io_uring_enter			io_uring	TODO MORE
+io_uring_enter			io_uring
 io_uring_register
-io_uring_setup			io_uring	TODO MORE
+io_uring_setup			io_uring
 ioctl				pty, fiemap, rtc, urandom, userfaultfd
 ioperm				ioport
 iopl				ioport
@@ -164,7 +164,7 @@ lchown				chown
 lgetxattr			xattr
 link				link
 linkat				dirdeep
-listen				sock		TODO MORE
+listen				sock	
 listxattr			xattr
 llistxattr			xattr
 lookup_dcookie			get
@@ -191,7 +191,7 @@ mmap				bigheap, mmap
 mmap2				mmap
 modify_ldt			clone
 mount				bind-mount
-move_mount
+move_mount			ramfs
 move_pages			numa
 mprotect			mmap
 mq_getsetattr			mq
@@ -225,7 +225,7 @@ openat2				open
 open_tree
 
 pause				kcmp, wait
-perf_event_open			--perf option		TODO MORE
+perf_event_open			--perf option	
 personality			personality
 pidfd_getfd			pidfd
 pidfd_open			pidfd
@@ -256,7 +256,7 @@ pwrite				readahead, aio
 pwritev				hdd, ioprio
 pwritev2			hdd
 
-quotactl			quota			TODO
+quotactl			quota
 
 read				pipe, zero, ..
 readahead			readahead
@@ -266,12 +266,12 @@ readlinkat			symlink
 readv				hdd
 reboot				reboot
 recv				sock
-recvfrom			udp			TODO
+recvfrom			udp	
 recvmsg				socket-fd
 recvmmsg			sock
 remap_file_pages		remap
 removexattr			xattr
-rename				rename			TODO
+rename				rename	
 renameat			rename			as above
 renameat2			rename			as above
 request_key			key			callout info non-null case
@@ -299,7 +299,7 @@ sched_setattr			schedpolicy
 sched_setparam			schedpolicy
 sched_setscheduler		sched, schedpolicy
 sched_yield			yield
-seccomp				seccomp (prctl)		TODO
+seccomp				seccomp (prctl)	
 select				poll
 semctl				sem-sysv
 semget				sem-sysv
