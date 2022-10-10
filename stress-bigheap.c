@@ -56,6 +56,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 	const size_t stride = page_size;
 	size_t size = 0;
 	uint8_t *last_ptr_end = NULL;
+	double duration = 0.0, count = 0.0, rate;
 
 	(void)context;
 
@@ -75,6 +76,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 
 	do {
 		void *old_ptr = ptr;
+		double t;
 
 		/*
 		 * With many instances running it is wise to
@@ -84,7 +86,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 		 * exerting any more memory pressure
 		 */
 		if (!keep_stressing(args))
-			goto abort;
+			goto finish;
 
 		/* Low memory avoidance, re-start */
 		if ((g_opt_flags & OPT_FLAGS_OOM_AVOID) && stress_low_memory((size_t)bigheap_growth)) {
@@ -97,6 +99,7 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 		}
 		size += (size_t)bigheap_growth;
 
+		t = stress_time_now();
 		ptr = realloc(old_ptr, size);
 		if (ptr == NULL) {
 			pr_dbg("%s: out of memory at %" PRIu64
@@ -109,6 +112,9 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 			size_t i, n;
 			uint8_t *u8ptr, *tmp;
 
+			duration += stress_time_now() - t;
+			count += 1.0;
+
 			if (last_ptr == ptr) {
 				tmp = u8ptr = last_ptr_end;
 				n = (size_t)bigheap_growth;
@@ -117,18 +123,18 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 				n = size;
 			}
 			if (!keep_stressing(args))
-				goto abort;
+				goto finish;
 
 			for (i = 0; i < n; i+= stride, u8ptr += stride) {
 				if (!keep_stressing(args))
-					goto abort;
+					goto finish;
 				*u8ptr = (uint8_t)i;
 			}
 
 			if (g_opt_flags & OPT_FLAGS_VERIFY) {
 				for (i = 0; i < n; i+= stride, tmp += stride) {
 					if (!keep_stressing(args))
-						goto abort;
+						goto finish;
 					if (*tmp != (uint8_t)i)
 						pr_fail("%s: byte at location %p was 0x%" PRIx8
 							" instead of 0x%" PRIx8 "\n",
@@ -140,8 +146,11 @@ static int stress_bigheap_child(const stress_args_t *args, void *context)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
-abort:
+
+finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	rate = (duration > 0.0) ? count / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "realloc calls per sec", rate);
 
 	free(ptr);
 
