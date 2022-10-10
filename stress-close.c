@@ -211,7 +211,7 @@ static int stress_close(const stress_args_t *args)
 	const uid_t uid = getuid();
 	const gid_t gid = getgid();
 	const bool not_root = !stress_check_capability(SHIM_CAP_IS_ROOT);
-	double max_duration = 0.0;
+	double max_duration = 0.0, duration = 0.0, count = 0.0, rate;
 #if defined(HAVE_FACCESSAT)
 	int file_fd = -1;
 	char filename[PATH_MAX];
@@ -267,7 +267,7 @@ static int stress_close(const stress_args_t *args)
 		size_t domain, type;
 		int pipefds[2];
 		struct stat statbuf;
-		double t1, t2, duration;
+		double t1, t2, dt;
 
 		fd = -1;
 		t1 = stress_time_now();
@@ -372,6 +372,8 @@ static int stress_close(const stress_args_t *args)
 			fd = open("/dev/null", O_RDWR);
 
 		if (fd != -1) {
+			double t;
+
 			dupfd = dup(fd);
 			if (not_root) {
 #if defined(HAVE_FCHOWNAT)
@@ -412,14 +414,19 @@ static int stress_close(const stress_args_t *args)
 
 			VOID_RET(int, close(dup(STDOUT_FILENO)));
 
-			(void)close(fd);
+			t = stress_time_now();
+			if (close(fd) == 0) {
+				duration += stress_time_now() - t;
+				count += 1.0;
+			}
+
 			if (dupfd != -1)
 				(void)close(dupfd);
 		}
 		t2 = stress_time_now();
-		duration = t2 - t1;
-		if (duration > max_duration) {
-			max_duration = duration;
+		dt = t2 - t1;
+		if (dt > max_duration) {
+			max_duration = dt ;
 			/* max delay is 75% of the duration in microseconds */
 			max_delay_us = (uint64_t)(duration * 750000);
 		}
@@ -433,6 +440,9 @@ static int stress_close(const stress_args_t *args)
 	rc = EXIT_SUCCESS;
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (duration > 0.0) ? count / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "close calls per sec", rate);
 
 	for (i = 0; i < MAX_PTHREADS; i++) {
 		if (rets[i] == -1)
