@@ -65,6 +65,7 @@ static int stress_sendfile(const stress_args_t *args)
 	int i = 0, fdin, fdout, ret, bad_fd, rc = EXIT_SUCCESS;
 	size_t sz;
 	int64_t sendfile_size = DEFAULT_SENDFILE_SIZE;
+	double duration = 0.0, bytes = 0.0, rate;
 
 	if (!stress_get_setting("sendfile-size", &sendfile_size)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -119,8 +120,15 @@ static int stress_sendfile(const stress_args_t *args)
 
 	do {
 		off_t offset = 0;
+		ssize_t nbytes;
+		double t;
 
-		if (sendfile(fdout, fdin, &offset, sz) < 0) {
+		t = stress_time_now();
+		nbytes = sendfile(fdout, fdin, &offset, sz);
+		if (LIKELY(nbytes >= 0)) {
+			duration += stress_time_now() - t;
+			bytes += (double)nbytes;
+		} else {
 			if (errno == ENOSYS) {
 				if (args->instance == 0)
 					pr_inf_skip("%s: skipping stressor, sendfile not implemented\n",
@@ -172,6 +180,9 @@ static int stress_sendfile(const stress_args_t *args)
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	rate = (duration > 0.0) ? bytes / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "MB sent to /dev/null per sec", rate / (double)MB);
 
 close_out:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
