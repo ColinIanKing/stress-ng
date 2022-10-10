@@ -183,6 +183,7 @@ static int stress_rawudp_server(
 	char buf[PACKET_SIZE];
 	const struct iphdr *ip = (struct iphdr *)buf;
 	const struct udphdr *udp = (struct udphdr *)(buf + sizeof(struct iphdr));
+	double t_start, duration = 0.0, bytes = 0.0, rate;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -207,6 +208,7 @@ static int stress_rawudp_server(
 		goto die_close;
 	}
 
+	t_start = stress_time_now();
 	do {
 		ssize_t n;
 
@@ -215,10 +217,15 @@ static int stress_rawudp_server(
 			if ((ip->saddr == addr) &&
 			    (ip->protocol == SOL_UDP) &&
 			    (ntohs(udp->source) == port)) {
+				bytes += (double)n;
 				inc_counter(args);
 			}
 		}
 	} while (keep_stressing(args));
+
+	duration = stress_time_now() - t_start;
+	rate = (duration > 0.0) ? bytes / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "MB recv'd per sec", rate / (double)MB);
 
 die_close:
 	(void)close(fd);
