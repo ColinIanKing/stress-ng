@@ -2379,6 +2379,7 @@ extern void stress_mwc_reseed(void);
 
 /* Time handling */
 extern WARN_UNUSED double stress_timeval_to_double(const struct timeval *tv);
+extern WARN_UNUSED double stress_timespec_to_double(const struct timespec *ts);
 extern WARN_UNUSED double stress_time_now(void);
 extern const char *stress_duration_to_str(const double duration);
 

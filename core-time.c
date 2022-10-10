@@ -25,20 +25,26 @@
 #define SECONDS_IN_YEAR		(365.2425 * SECONDS_IN_DAY)
 				/* Approx, for Gregorian calendar */
 
+
 /*
  *  stress_timeval_to_double()
  *      convert timeval to seconds as a double
  */
-double stress_timeval_to_double(const struct timeval *tv)
+double OPTIMIZE3 stress_timeval_to_double(const struct timeval *tv)
 {
 	return (double)tv->tv_sec + ((double)tv->tv_usec * ONE_MILLIONTH);
 }
 
 /*
- *  stress_time_now()
- *	time in seconds as a double
+ *  stress_timespec_to_double()
+ *      convert timespec to seconds as a double
  */
-double stress_time_now(void)
+double OPTIMIZE3 stress_timespec_to_double(const struct timespec *ts)
+{
+	return (double)ts->tv_sec + ((double)ts->tv_nsec * ONE_BILLIONTH);
+}
+
+static OPTIMIZE3 double stress_time_now_timeval(void)
 {
 	struct timeval now;
 
@@ -46,6 +52,51 @@ double stress_time_now(void)
 		return -1.0;
 
 	return stress_timeval_to_double(&now);
+}
+
+static OPTIMIZE3 double stress_time_now_timespec(void)
+{
+#if defined(HAVE_CLOCK_GETTIME) &&     \
+    defined(CLOCK_MONOTONIC)
+	struct timespec ts;
+
+	if (clock_gettime(CLOCK_REALTIME, &ts) < 0)
+		return -1.0;
+
+	return stress_timespec_to_double(&ts);
+#else
+	return -1.0;
+#endif
+}
+
+static double (*stress_time_now_func)(void) = stress_time_now_timespec;
+
+/*
+ *  stress_time_now()
+ *	time in seconds as a double
+ */
+double OPTIMIZE3 stress_time_now(void)
+{
+	double now;
+
+	now = stress_time_now_func();
+	if (LIKELY(now) >= 0.0)
+		return now;
+
+	/*
+	 *  It failed, check if we used clock_gettime and if so
+	 *  drop back to use gettimeofday instead
+	 */
+	if (LIKELY(stress_time_now_func == stress_time_now_timespec)) {
+		/*
+		 *  Drop to older 1/1000000th second resolution clock
+		 */
+		stress_time_now_func = stress_time_now_timeval;
+		return stress_time_now_timeval();
+	}
+
+	/* Unlikey, no time available! */
+	return -1.0;
 }
 
 /*
