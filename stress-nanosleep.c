@@ -28,6 +28,11 @@ typedef struct {
 	const stress_args_t *args;
 	uint64_t counter;
 	pthread_t pthread;
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(CLOCK_MONOTONIC)
+	double overrun_nsec;
+	double count;
+#endif
 } stress_ctxt_t;
 
 static volatile bool thread_terminate;
@@ -64,14 +69,40 @@ static void *stress_pthread_func(void *c)
 	while (keep_stressing(args) &&
 	       !thread_terminate &&
 	       (!max_ops || (ctxt->counter < max_ops))) {
-		struct timespec tv;
 		unsigned long i;
 
 		for (i = 1 << 18; i > 0; i >>=1) {
+			struct timespec tv;
+			long nsec = (long)(stress_mwc32() % i) + 8;
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(CLOCK_MONOTONIC)
+			struct timespec t1;
+
 			tv.tv_sec = 0;
-			tv.tv_nsec = (stress_mwc32() % i) + 8;
-			if (nanosleep(&tv, NULL) < 0)
+			tv.tv_nsec = nsec;
+
+			(void)clock_gettime(CLOCK_MONOTONIC, &t1);
+			if (LIKELY(nanosleep(&tv, NULL) == 0)) {
+				struct timespec t2;
+				long dt_nsec;
+
+				(void)clock_gettime(CLOCK_MONOTONIC, &t2);
+
+				dt_nsec = (t2.tv_sec - t1.tv_sec) * 1000000000;
+				dt_nsec += t2.tv_nsec - t1.tv_nsec;
+				dt_nsec -= nsec;
+				ctxt->overrun_nsec += (double)dt_nsec;
+				ctxt->count += 1.0;
+			} else {
 				break;
+			}
+#else
+			tv.tv_sec = 0;
+			tv.tv_nsec = nsec;
+
+			if (UNLIKELY(nanosleep(&tv, NULL) < 0))
+				break;
+#endif
 		}
 		ctxt->counter++;
 	}
@@ -87,6 +118,11 @@ static int stress_nanosleep(const stress_args_t *args)
 	uint64_t i, n, limited = 0;
 	static stress_ctxt_t ctxts[MAX_NANOSLEEP_THREADS];
 	int ret = EXIT_SUCCESS;
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(CLOCK_MONOTONIC)
+	double overhead_nsec, overrun_nsec, count;
+	const uint64_t benchmark_loops = 10000;
+#endif
 
 	if (stress_sighandler(args->name, SIGALRM, stress_sigalrm_handler, NULL) < 0)
 		return EXIT_FAILURE;
@@ -95,7 +131,13 @@ static int stress_nanosleep(const stress_args_t *args)
 	(void)sigfillset(&set);
 
 	for (n = 0; n < MAX_NANOSLEEP_THREADS; n++) {
+		ctxts[n].counter = 0;
 		ctxts[n].args = args;
+#if defined(HAVE_CLOCK_GETTIME) && 	\
+    defined(CLOCK_MONOTONIC)
+		ctxts[n].overrun_nsec = 0.0;
+		ctxts[n].count = 0.0;
+#endif
 		ret = pthread_create(&ctxts[n].pthread, NULL,
 			stress_pthread_func, &ctxts[n]);
 		if (ret) {
@@ -125,6 +167,8 @@ static int stress_nanosleep(const stress_args_t *args)
 	}  while (!thread_terminate && keep_stressing(args));
 
 	ret = EXIT_SUCCESS;
+
+
 tidy:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
@@ -132,6 +176,34 @@ tidy:
 	for (i = 0; i < n; i++) {
 		VOID_RET(int, pthread_join(ctxts[i].pthread, NULL));
 	}
+
+#if defined(HAVE_CLOCK_GETTIME) &&	\
+    defined(CLOCK_MONOTONIC)
+	overhead_nsec = 0.0;
+	for (i = 0; i < benchmark_loops; i++) {
+		struct timespec t1, t2;
+		long dt_nsec;
+
+		(void)clock_gettime(CLOCK_MONOTONIC, &t1);
+		(void)clock_gettime(CLOCK_MONOTONIC, &t2);
+
+		dt_nsec = (t2.tv_sec - t1.tv_sec) * 1000000000;
+		dt_nsec += t2.tv_nsec - t1.tv_nsec;
+
+		overhead_nsec += dt_nsec;
+	}
+	overhead_nsec /= (double)benchmark_loops;
+
+	count = 0.0;
+	overrun_nsec = 0.0;
+	for (i = 0; i < n; i++) {
+		overrun_nsec += ctxts[i].overrun_nsec;
+		count += (double)ctxts[i].count;
+	}
+	overrun_nsec -= overhead_nsec;
+	overrun_nsec = (count > 0.0) ? overrun_nsec / count : 0.0;
+	stress_misc_stats_set(args->misc_stats, 2, "nanosecond timer overrun", overrun_nsec);
+#endif
 
 	if (limited) {
 		pr_inf("%s: %.2f%% of iterations could not reach "
