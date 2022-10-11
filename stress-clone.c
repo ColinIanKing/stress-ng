@@ -35,7 +35,7 @@ typedef struct {
 	void *lock;
 	double duration;
 	double count;
-	double t_start;
+	volatile double t_start;
 } stress_clone_metrics_t;
 
 typedef struct stress_clone_args {
@@ -350,8 +350,12 @@ static int clone_func(void *arg)
 	stress_clone_metrics_t *metrics = clone_arg->metrics;
 
 	if (metrics->lock && (stress_lock_acquire(metrics->lock) == 0)) {
-		metrics->duration += stress_time_now() - metrics->t_start;
-		metrics->count += 1.0;
+		double duration = stress_time_now() - metrics->t_start;
+		/* On WSL we get can get -ve durations, so check for this! */
+		if (duration >= 0.0) {
+			metrics->duration += stress_time_now() - metrics->t_start;
+			metrics->count += 1.0;
+		}
 		stress_lock_release(metrics->lock);
 	}
 
