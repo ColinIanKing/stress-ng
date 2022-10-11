@@ -2827,7 +2827,7 @@ extern int shim_msync(void *addr, size_t length, int flags);
 extern int shim_munlock(const void *addr, size_t len);
 extern int shim_munlockall(void);
 extern int shim_modify_ldt(int func, void *ptr, unsigned long bytecount);
-extern int shim_nanosleep_uint64(uint64_t usec);
+extern int shim_nanosleep_uint64(uint64_t nsec);
 extern int shim_nice(int inc);
 extern time_t shim_time(time_t *tloc);
 extern int shim_gettimeofday(struct timeval *tv, struct timezone *tz);
