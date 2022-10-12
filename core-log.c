@@ -81,6 +81,8 @@ static void pr_spin_lock(void)
 		 */
 		val = 0;
 		__atomic_exchange(&g_shared->pr_atomic_lock, &val, &orig, __ATOMIC_SEQ_CST);
+		/* reset the timeout */
+		timeout_time = stress_time_now() + PR_TIMEOUT;
 	}
 }
 
