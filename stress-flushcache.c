@@ -111,7 +111,7 @@ static inline int stress_flush_icache(
 	if (stress_flushcache_mprotect(args, page_addr, page_size, PROT_READ | PROT_WRITE | PROT_EXEC) < 0)
 		return -1;
 
-	while (ptr < ptr_end) {
+	while ((ptr < ptr_end) && keep_stressing_flag()) {
 		volatile uint8_t *vptr = (volatile uint8_t *)ptr;
 		uint8_t val;
 
@@ -195,7 +195,7 @@ static inline int stress_flush_dcache(
 	register uint8_t *ptr = (uint8_t *)addr;
 	const uint8_t *ptr_end = ptr + d_size;
 
-	while (ptr < ptr_end) {
+	while ((ptr < ptr_end) && keep_stressing_flag()) {
 #if defined(HAVE_ASM_X86_CLFLUSH)
 		if (x86_clfsh)
 			clflush_page((void *)ptr, page_size, cl_size);
