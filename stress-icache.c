@@ -20,6 +20,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-cache.h"
+#include "core-icache.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"icache N",	"start N CPU instruction cache thrashing workers" },
@@ -35,11 +36,6 @@ static const stress_help_t help[] = {
      defined(__GNUC__) && 		\
      NEED_GNUC(4,6,0) &&		\
      defined(HAVE_MPROTECT)
-
-#define SIZE_1K		(1024)
-#define SIZE_4K		(4 * SIZE_1K)
-#define SIZE_16K	(16 * SIZE_1K)
-#define SIZE_64K	(64 * SIZE_1K)
 
 static int icache_madvise_nohugepage(
 	const stress_args_t *args,
@@ -82,19 +78,6 @@ static int NOINLINE icache_mprotect(
 	}
 	return ret;
 }
-
-/*
- *  STRESS_ICACHE_FUNC()
- *	generates a simple function that is page aligned in its own
- *	section so we can change the code mapping and make it
- *	modifiable to force I-cache refreshes by modifying the code
- */
-#define STRESS_ICACHE_FUNC(func_name, page_size)			\
-static void SECTION(stress_icache_callee) ALIGNED(page_size)		\
-func_name(void)								\
-{									\
-	return;								\
-}									\
 
 /*
  *  STRESS_ICACHE()
@@ -168,12 +151,6 @@ func_name(const stress_args_t *args)					\
 									\
 	return EXIT_SUCCESS;						\
 }
-
-#if defined(HAVE_ALIGNED_64K)
-STRESS_ICACHE_FUNC(stress_icache_func_64K, SIZE_64K)
-#endif
-STRESS_ICACHE_FUNC(stress_icache_func_16K, SIZE_16K)
-STRESS_ICACHE_FUNC(stress_icache_func_4K, SIZE_4K)
 
 #if defined(HAVE_ALIGNED_64K)
 STRESS_ICACHE(stress_icache_64K, SIZE_64K, stress_icache_func_64K)

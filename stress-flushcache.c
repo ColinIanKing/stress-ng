@@ -19,6 +19,7 @@
 #include "stress-ng.h"
 #include "core-arch.h"
 #include "core-cache.h"
+#include "core-icache.h"
 
 static const stress_help_t help[] = {
 	{ NULL,	"flushcache N",		"start N CPU instruction + data cache flush workers" },
@@ -35,31 +36,7 @@ static const stress_help_t help[] = {
      NEED_GNUC(4,6,0) &&		\
      defined(HAVE_MPROTECT)
 
-#define SIZE_1K		(1024)
-#define SIZE_4K		(4 * SIZE_1K)
-#define SIZE_16K	(16 * SIZE_1K)
-#define SIZE_64K	(64 * SIZE_1K)
-
 typedef void (*icache_func_ptr)(void);
-
-/*
- *  STRESS_ICACHE_FUNC()
- *	generates a simple function that is page aligned in its own
- *	section so we can change the code mapping and make it
- *	modifiable to force I-cache refreshes by modifying the code
- */
-#define STRESS_ICACHE_FUNC(func_name, page_size)			\
-static void SECTION(stress_icache_callee) ALIGNED(page_size)		\
-func_name(void)								\
-{									\
-	return;								\
-}									\
-
-#if defined(HAVE_ALIGNED_64K)
-STRESS_ICACHE_FUNC(stress_icache_func_64K, SIZE_64K)
-#endif
-STRESS_ICACHE_FUNC(stress_icache_func_16K, SIZE_16K)
-STRESS_ICACHE_FUNC(stress_icache_func_4K, SIZE_4K)
 
 static int stress_flushcache_nohugepage(void *addr, size_t size)
 {

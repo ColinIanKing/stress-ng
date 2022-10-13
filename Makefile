@@ -105,6 +105,7 @@ HEADERS = \
 	core-cpu.h \
 	core-ftrace.h \
 	core-hash.h \
+	core-icache.h \
 	core-io-priority.h \
 	core-io-uring.c \
 	core-nt-load.h \
@@ -441,6 +442,7 @@ CORE_SRC = \
 	core-cpu.c \
 	core-hash.c \
 	core-helper.c \
+	core-icache.c \
 	core-ignite-cpu.c \
 	core-io-priority.c \
 	core-job.c \
