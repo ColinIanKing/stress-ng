@@ -35,11 +35,31 @@ static const stress_help_t help[] = {
      NEED_GNUC(4,6,0) &&		\
      defined(HAVE_MPROTECT)
 
-static void SECTION(stress_flushcache_callee) ALIGNED(4096)
-stress_icache_func(void)
-{
-        return;
-}
+#define SIZE_1K		(1024)
+#define SIZE_4K		(4 * SIZE_1K)
+#define SIZE_16K	(16 * SIZE_1K)
+#define SIZE_64K	(64 * SIZE_1K)
+
+typedef void (*icache_func_ptr)(void);
+
+/*
+ *  STRESS_ICACHE_FUNC()
+ *	generates a simple function that is page aligned in its own
+ *	section so we can change the code mapping and make it
+ *	modifiable to force I-cache refreshes by modifying the code
+ */
+#define STRESS_ICACHE_FUNC(func_name, page_size)			\
+static void SECTION(stress_icache_callee) ALIGNED(page_size)		\
+func_name(void)								\
+{									\
+	return;								\
+}									\
+
+#if defined(HAVE_ALIGNED_64K)
+STRESS_ICACHE_FUNC(stress_icache_func_64K, SIZE_64K)
+#endif
+STRESS_ICACHE_FUNC(stress_icache_func_16K, SIZE_16K)
+STRESS_ICACHE_FUNC(stress_icache_func_4K, SIZE_4K)
 
 static int stress_flushcache_nohugepage(void *addr, size_t size)
 {
@@ -84,6 +104,7 @@ static void clear_cache_page(
 
 	while (ptr < ptr_end) {
 		(*(volatile uint8_t *)ptr)++;
+		(*(volatile uint8_t *)ptr)--;
 		__builtin___clear_cache((void *)ptr, (void *)(ptr + cl_size));
 		ptr += cl_size;
 	}
@@ -102,13 +123,15 @@ static inline int stress_flush_icache(
 	const stress_args_t *args,
 	void *addr,
 	const size_t page_size,
-	const size_t cl_size)
+	const size_t cl_size,
+	const size_t i_size,
+	icache_func_ptr icache_func)
 {
 	void *page_addr = (void *)((uintptr_t)addr & ~(page_size - 1));
 	uint8_t *ptr = (uint8_t *)addr;
-	uint8_t *ptr_end = ptr + page_size;
+	uint8_t *ptr_end = ptr + i_size;
 
-	if (stress_flushcache_mprotect(args, page_addr, page_size, PROT_READ | PROT_WRITE | PROT_EXEC) < 0)
+	if (stress_flushcache_mprotect(args, page_addr, i_size, PROT_READ | PROT_WRITE | PROT_EXEC) < 0)
 		return -1;
 
 	while ((ptr < ptr_end) && keep_stressing_flag()) {
@@ -116,7 +139,6 @@ static inline int stress_flush_icache(
 		uint8_t val;
 
 		val = *vptr;
-		shim_mb();
 		*vptr ^= ~0;
 		shim_flush_icache((char *)ptr, (char *)ptr + cl_size);
 		*vptr = val;
@@ -126,13 +148,13 @@ static inline int stress_flush_icache(
 	}
 
 #if defined(HAVE_BUILTIN___CLEAR_CACHE)
-	clear_cache_page(addr, page_size, cl_size);
+	clear_cache_page(addr, i_size, cl_size);
 #endif
-	if (stress_flushcache_mprotect(args, page_addr, page_size, PROT_READ | PROT_EXEC) < 0)
+	(void)shim_cacheflush((char *)addr, i_size, SHIM_ICACHE);
+	if (stress_flushcache_mprotect(args, page_addr, i_size, PROT_READ | PROT_EXEC) < 0)
 		return -1;
 
-	(void)shim_cacheflush((char *)addr, page_size, SHIM_ICACHE);
-	stress_icache_func();
+	icache_func();
 
 	return 0;
 }
@@ -226,11 +248,39 @@ static int stress_flushcache(const stress_args_t *args)
 {
 	const size_t page_size = args->page_size;
 
-	void *i_addr = (void *)stress_icache_func;
-	void *d_addr;
+	void *d_addr, *i_addr;
+	size_t d_size, i_size, cl_size;
 	const bool x86_clfsh = stress_cpu_x86_has_clfsh();
 	const bool x86_demote = stress_cpu_x86_has_cldemote();
-	size_t d_size, cl_size;
+	icache_func_ptr icache_func;
+
+	switch (page_size) {
+	case SIZE_4K:
+		icache_func = stress_icache_func_4K;
+		break;
+	case SIZE_16K:
+		icache_func = stress_icache_func_16K;
+		break;
+#if defined(HAVE_ALIGNED_64K)
+	case SIZE_64K:
+		icache_func = stress_icache_func_64K;
+		break;
+#endif
+	default:
+#if defined(HAVE_ALIGNED_64K)
+		pr_inf("%s: page size %zu is not %u or %u or %u, cannot test\n",
+			args->name, args->page_size,
+			SIZE_4K, SIZE_16K, SIZE_64K);
+#else
+		pr_inf("%s: page size %zu is not %u or %u, cannot test\n",
+			args->name, args->page_size,
+			SIZE_4K, SIZE_16K);
+#endif
+		return EXIT_NO_RESOURCE;
+	}
+
+	i_size = page_size;
+	i_addr = (void *)icache_func;
 
 	stress_get_llc_size(&d_size, &cl_size);
 	if (d_size < page_size)
@@ -246,17 +296,16 @@ static int stress_flushcache(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 	}
 
-	(void)stress_flushcache_nohugepage(i_addr, page_size);
+	(void)stress_flushcache_nohugepage(i_addr, i_size);
 	(void)stress_flushcache_nohugepage(d_addr, d_size);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		stress_flush_icache(args, i_addr, page_size, cl_size);
-		stress_flush_dcache(args, d_addr, page_size, cl_size,
-			d_size, x86_clfsh, x86_demote);
+		stress_flush_icache(args, i_addr, page_size, cl_size, i_size, icache_func);
+		stress_flush_dcache(args, d_addr, page_size, cl_size, d_size, x86_clfsh, x86_demote);
 
-		shim_cacheflush(i_addr, page_size, SHIM_ICACHE | SHIM_DCACHE);
+		shim_cacheflush(i_addr, i_size, SHIM_ICACHE | SHIM_DCACHE);
 		shim_cacheflush(d_addr, d_size, SHIM_ICACHE | SHIM_DCACHE);
 
 		inc_counter(args);
