@@ -201,6 +201,7 @@ STRESS_SRC = \
 	stress-fifo.c \
 	stress-filename.c \
 	stress-flock.c \
+	stress-flushcache.c \
 	stress-fork.c \
 	stress-fp-error.c \
 	stress-fpunch.c \

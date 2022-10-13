@@ -35,33 +35,6 @@ typedef void (*cache_line_func_t)(
         double *duration,
         const size_t cache_line_size);
 
-static void stress_llc_size(size_t *llc_size, size_t *cache_line_size)
-{
-	uint16_t max_cache_level;
-	stress_cpus_t *cpu_caches;
-	stress_cpu_cache_t *cache = NULL;
-
-	*llc_size = 0;
-	*cache_line_size = 0;
-
-	cpu_caches = stress_get_all_cpu_cache_details();
-	if (!cpu_caches)
-		return;
-
-	max_cache_level = stress_get_max_cache_level(cpu_caches);
-	if (max_cache_level < 1)
-		goto free_cpu_caches;
-	cache = stress_get_cpu_cache(cpu_caches, max_cache_level);
-	if (!cache)
-		goto free_cpu_caches;
-
-	*llc_size = cache->size;
-	*cache_line_size = cache->line_size ? cache->line_size : 64;
-
-free_cpu_caches:
-	stress_free_cpu_caches(cpu_caches);
-}
-
 static void TARGET_CLONES OPTIMIZE3 stress_llc_write_cache_line_64(
 	uint64_t *buf,
 	uint64_t *buf_end,
@@ -179,7 +152,7 @@ static int stress_llc_affinity(const stress_args_t *args)
 	double write_duration, read_duration, rate, writes, reads, t_start, duration;
 	cache_line_func_t write_func, read_func;
 
-	stress_llc_size(&llc_size, &cache_line_size);
+	stress_get_llc_size(&llc_size, &cache_line_size);
 	if (llc_size == 0) {
 		pr_inf_skip("%s: cannot determine cache details, skipping stressor\n",
 			args->name);
@@ -204,7 +177,6 @@ static int stress_llc_affinity(const stress_args_t *args)
 	buf_end = (uint64_t *)((uintptr_t)buf + mmap_sz);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
-
 
 	writes = 0.0;
 	write_duration = 0.0;

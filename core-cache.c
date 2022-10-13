@@ -812,3 +812,35 @@ void stress_free_cpu_caches(stress_cpus_t *cpus)
 }
 
 #endif
+
+/*
+ *  stress_get_llc_size()
+ * 	get Lower Level Cache size and Cache Line size (sizes in bytes)
+ *	sizes are zero if not available.
+ */
+void stress_get_llc_size(size_t *llc_size, size_t *cache_line_size)
+{
+	uint16_t max_cache_level;
+	stress_cpus_t *cpu_caches;
+	stress_cpu_cache_t *cache = NULL;
+
+	*llc_size = 0;
+	*cache_line_size = 0;
+
+	cpu_caches = stress_get_all_cpu_cache_details();
+	if (!cpu_caches)
+		return;
+
+	max_cache_level = stress_get_max_cache_level(cpu_caches);
+	if (max_cache_level < 1)
+		goto free_cpu_caches;
+	cache = stress_get_cpu_cache(cpu_caches, max_cache_level);
+	if (!cache)
+		goto free_cpu_caches;
+
+	*llc_size = cache->size;
+	*cache_line_size = cache->line_size ? cache->line_size : 64;
+
+free_cpu_caches:
+	stress_free_cpu_caches(cpu_caches);
+}

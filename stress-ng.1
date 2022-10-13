@@ -1828,6 +1828,14 @@ start N workers locking on a single file.
 .B \-\-flock\-ops N
 stop flock stress workers after N bogo flock operations.
 .TP
+.B \-\-flush\-cache N
+start N workers that flush the data and instruction cache (where possible).
+Some architectures may not support cache flushing on either cache, in
+which case these become no-ops.
+.TP
+.B \-\-flush\-cache\-ops N
+stop after N cache flush iterations.
+.TP
 .B \-f N, \-\-fork N
 start N workers continually forking children that immediately exit.
 .TP

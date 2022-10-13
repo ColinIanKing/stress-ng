@@ -421,6 +421,8 @@ static const struct option long_options[] = {
 	{ "filename-opts",	1,	0,	OPT_filename_opts },
 	{ "flock",		1,	0,	OPT_flock },
 	{ "flock-ops",		1,	0,	OPT_flock_ops },
+	{ "flushcache",		1,	0,	OPT_flushcache },
+	{ "flushcache-ops",	1,	0,	OPT_flushcache_ops },
 	{ "fanotify",		1,	0,	OPT_fanotify },
 	{ "fanotify-ops",	1,	0,	OPT_fanotify_ops },
 	{ "fork",		1,	0,	OPT_fork },

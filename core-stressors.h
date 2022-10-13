@@ -87,6 +87,7 @@
 	MACRO(file_ioctl)	\
 	MACRO(filename)		\
 	MACRO(flock)		\
+	MACRO(flushcache)	\
 	MACRO(fork)		\
 	MACRO(fp_error)		\
 	MACRO(fpunch)		\
