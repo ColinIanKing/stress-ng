@@ -195,6 +195,8 @@ static inline int stress_flush_dcache(
 	register uint8_t *ptr = (uint8_t *)addr;
 	const uint8_t *ptr_end = ptr + d_size;
 
+	(void)cl_size;
+
 	while ((ptr < ptr_end) && keep_stressing_flag()) {
 #if defined(HAVE_ASM_X86_CLFLUSH)
 		if (x86_clfsh)
@@ -210,9 +212,6 @@ static inline int stress_flush_dcache(
 		(void)x86_demote;
 #endif
 		shim_cacheflush((void *)ptr, page_size, SHIM_DCACHE);
-#if defined(HAVE_BUILTIN___CLEAR_CACHE)
-		clear_cache_page((void *)ptr, page_size, cl_size);
-#endif
 		ptr += page_size;
 	}
 	return 0;
