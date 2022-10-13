@@ -88,6 +88,82 @@ static void clear_cache_page(
 }
 #endif
 
+#if defined(HAVE_ASM_PPC64_DCBST)
+static inline void dcbst(void *addr)
+{
+	__asm__ __volatile__ ("dcbst %y0" : : "Z"(*(uint8_t *)addr) : "memory");
+}
+
+static inline void dcbst_page(
+	void *addr,
+	const size_t page_size,
+	const size_t cl_size)
+{
+	register uint8_t *ptr = (uint8_t *)addr;
+	const uint8_t *ptr_end = ptr + page_size;
+
+	while (ptr < ptr_end) {
+		(*(volatile uint8_t *)ptr)++;
+		(*(volatile uint8_t *)ptr)--;
+		dcbst((void *)ptr);
+		ptr += cl_size;
+	}
+}
+#endif
+
+#if defined(HAVE_ASM_PPC64_ICBI)
+static inline void icbi(void *addr)
+{
+	__asm__ __volatile__ ("icbi %y0" : : "Z"(*(uint8_t *)addr) : "memory");
+}
+#endif
+
+#if defined(HAVE_ASM_X86_CLDEMOTE)
+static inline void cldemote(void *p)
+{
+        __asm__ __volatile__("cldemote (%0)\n" : : "r"(p) : "memory");
+}
+
+static inline void cldemote_page(
+	void *addr,
+	const size_t page_size,
+	const size_t cl_size)
+{
+	register uint8_t *ptr = (uint8_t *)addr;
+	const uint8_t *ptr_end = ptr + page_size;
+
+	while (ptr < ptr_end) {
+		(*(volatile uint8_t *)ptr)++;
+		(*(volatile uint8_t *)ptr)--;
+		cldemote((void *)ptr);
+		ptr += cl_size;
+	}
+}
+#endif
+
+#if defined(HAVE_ASM_X86_CLFLUSH)
+static inline void clflush(void *p)
+{
+        __asm__ __volatile__("clflush (%0)\n" : : "r"(p) : "memory");
+}
+
+static inline void clflush_page(
+	void *addr,
+	const size_t page_size,
+	const size_t cl_size)
+{
+	register uint8_t *ptr = (uint8_t *)addr;
+	const uint8_t *ptr_end = ptr + page_size;
+
+	while (ptr < ptr_end) {
+		(*(volatile uint8_t *)ptr)++;
+		(*(volatile uint8_t *)ptr)--;
+		clflush((void *)ptr);
+		ptr += cl_size;
+	}
+}
+#endif
+
 /*
  *  stress_flush_icache()
  *	macro to generate functions that stress instruction cache
@@ -118,9 +194,14 @@ static inline int stress_flush_icache(
 		val = *vptr;
 		*vptr ^= ~0;
 		shim_flush_icache((char *)ptr, (char *)ptr + cl_size);
+#if defined(HAVE_ASM_PPC64_ICBI)
+		icbi((void *)ptr);
+#endif
 		*vptr = val;
 		shim_flush_icache((char *)ptr, (char *)ptr + cl_size);
-
+#if defined(HAVE_ASM_PPC64_ICBI)
+		icbi((void *)ptr);
+#endif
 		ptr += cl_size;
 	}
 
@@ -135,50 +216,6 @@ static inline int stress_flush_icache(
 
 	return 0;
 }
-
-#if defined(HAVE_ASM_X86_CLFLUSH)
-static inline void clflush(void *p)
-{
-        __asm__ __volatile__("clflush (%0)\n" : : "r"(p) : "memory");
-}
-
-static inline void clflush_page(
-	void *addr,
-	const size_t page_size,
-	const size_t cl_size)
-{
-	register uint8_t *ptr = (uint8_t *)addr;
-	const uint8_t *ptr_end = ptr + page_size;
-
-	while (ptr < ptr_end) {
-		(*(volatile uint8_t *)ptr)++;
-		clflush((void *)ptr);
-		ptr += cl_size;
-	}
-}
-#endif
-
-#if defined(HAVE_ASM_X86_CLDEMOTE)
-static inline void cldemote(void *p)
-{
-        __asm__ __volatile__("cldemote (%0)\n" : : "r"(p) : "memory");
-}
-
-static inline void cldemote_page(
-	void *addr,
-	const size_t page_size,
-	const size_t cl_size)
-{
-	register uint8_t *ptr = (uint8_t *)addr;
-	const uint8_t *ptr_end = ptr + page_size;
-
-	while (ptr < ptr_end) {
-		(*(volatile uint8_t *)ptr)++;
-		cldemote((void *)ptr);
-		ptr += cl_size;
-	}
-}
-#endif
 
 static inline int stress_flush_dcache(
 	const stress_args_t *args,
@@ -209,6 +246,9 @@ static inline int stress_flush_dcache(
 			cldemote_page((void *)ptr, page_size, cl_size);
 #else
 		(void)x86_demote;
+#endif
+#if defined(HAVE_ASM_PPC64_DCBST)
+		dcbst_page((void *)ptr, page_size, cl_size);
 #endif
 		shim_cacheflush((void *)ptr, page_size, SHIM_DCACHE);
 		ptr += page_size;
