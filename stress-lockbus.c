@@ -129,10 +129,10 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
 static int stress_lockbus(const stress_args_t *args)
 {
 	uint32_t *buffer;
-	bool lockbus_nosplit = false;
 	int flags = MAP_ANONYMOUS | MAP_SHARED;
 #if defined(STRESS_ARCH_X86)
 	uint32_t *splitlock_ptr1, *splitlock_ptr2;
+	bool lockbus_nosplit = false;
 
 	(void)stress_get_setting("lockbus-nosplit", &lockbus_nosplit);
 
