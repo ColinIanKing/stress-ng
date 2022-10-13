@@ -2576,6 +2576,9 @@ cause cacheline misses and stalling of CPUs.
 .B \-\-lockbus-ops N
 stop lockbus workers after N bogo operations.
 .TP
+.B \-\-lockbus\-nosplit
+disable split locks that lock across cache line boundaries.
+.TP
 .B \-\-locka N
 start N workers that randomly lock and unlock regions of a file using the
 POSIX advisory locking mechanism (see fcntl(2), F_SETLK, F_GETLK). Each

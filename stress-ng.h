@@ -1411,6 +1411,7 @@ typedef enum {
 
 	OPT_lockbus,
 	OPT_lockbus_ops,
+	OPT_lockbus_nosplit,
 
 	OPT_locka,
 	OPT_locka_ops,

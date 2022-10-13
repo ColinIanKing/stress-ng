@@ -21,9 +21,20 @@
 #include "core-arch.h"
 
 static const stress_help_t help[] = {
-	{ NULL,	"lockbus N",	 "start N workers locking a memory increment" },
-	{ NULL,	"lockbus-ops N", "stop after N lockbus bogo operations" },
-	{ NULL, NULL,		 NULL }
+	{ NULL,	"lockbus N",	 	"start N workers locking a memory increment" },
+	{ NULL,	"lockbus-ops N", 	"stop after N lockbus bogo operations" },
+	{ NULL, "lockbus-nosplit",	"disable split locks" },
+	{ NULL, NULL,			NULL }
+};
+
+static int stress_set_lockbus_nosplit(const char *opt)
+{
+	return stress_set_setting_true("lockbus-nosplit", opt);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_lockbus_nosplit,	stress_set_lockbus_nosplit },
+	{ 0,			NULL },
 };
 
 #if (((defined(__GNUC__) || defined(__clang__)) && 	\
@@ -118,9 +129,12 @@ static void NORETURN MLOCKED_TEXT stress_sigbus_handler(int signum)
 static int stress_lockbus(const stress_args_t *args)
 {
 	uint32_t *buffer;
+	bool lockbus_nosplit = false;
 	int flags = MAP_ANONYMOUS | MAP_SHARED;
 #if defined(STRESS_ARCH_X86)
 	uint32_t *splitlock_ptr1, *splitlock_ptr2;
+
+	(void)stress_get_setting("lockbus-nosplit", &lockbus_nosplit);
 
 	if (stress_sighandler(args->name, SIGBUS, stress_sigbus_handler, NULL) < 0)
 		return EXIT_FAILURE;
@@ -142,7 +156,9 @@ static int stress_lockbus(const stress_args_t *args)
 	splitlock_ptr1 = (uint32_t *)(uintptr_t)(((uint8_t *)buffer) + args->page_size - (sizeof(*splitlock_ptr1) >> 1));
 	/* Split lock on a cache boundary */
 	splitlock_ptr2 = (uint32_t *)(uintptr_t)(((uint8_t *)buffer) + 64 - (sizeof(*splitlock_ptr2) >> 1));
-	do_splitlock = true;
+	do_splitlock = !lockbus_nosplit;
+	pr_dbg("%s: splitlocks %s\n", args->name,
+		do_splitlock ? "enabled" : "disabled");
 	if (sigsetjmp(jmp_env, 1) && !keep_stressing(args))
 		goto done;
 #endif
@@ -207,12 +223,14 @@ done:
 stressor_info_t stress_lockbus_info = {
 	.stressor = stress_lockbus,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
 stressor_info_t stress_lockbus_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_CPU_CACHE | CLASS_MEMORY,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #endif

@@ -565,6 +565,7 @@ static const struct option long_options[] = {
 	{ "locka-ops",		1,	0,	OPT_locka_ops },
 	{ "lockbus",		1,	0,	OPT_lockbus },
 	{ "lockbus-ops",	1,	0,	OPT_lockbus_ops },
+	{ "lockbus-nosplit",	0,	0,	OPT_lockbus_nosplit },
 	{ "lockf",		1,	0,	OPT_lockf },
 	{ "lockf-nonblock", 	0,	0,	OPT_lockf_nonblock },
 	{ "lockf-ops",		1,	0,	OPT_lockf_ops },
