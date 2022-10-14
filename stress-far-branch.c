@@ -80,7 +80,7 @@ static ret_opcode_t ret_opcode =
 #if defined(STRESS_ARCH_MIPS) && defined(STRESS_ARCH_BE)
 	{ 8, 4, "jr ra", { 0x03, 0xe0, 0x00, 0x08 } };
 #endif
-#if defined(STRESS_ARCG_RISCV)
+#if defined(STRESS_ARCH_RISCV)
 	{ 8, 2, "ret", { 0x82, 0x080 } };
 #endif
 #if defined(STRESS_ARCH_S390)
