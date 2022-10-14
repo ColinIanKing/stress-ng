@@ -1399,7 +1399,7 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 {
 	if (getpid() == main_pid) {
 		/* Parent */
-		stress_sigint_handler(signum);
+		wait_flag = false;
 	} else {
 		/* Child */
 		g_caught_signal = true;
