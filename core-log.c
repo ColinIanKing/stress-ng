@@ -508,7 +508,7 @@ void pr_tidy(const char *fmt, ...)
 	va_list ap;
 
 	va_start(ap, fmt);
-	(void)pr_msg(pr_file(), g_caught_sigint ? PR_INFO : PR_DEBUG, fmt, ap);
+	(void)pr_msg(pr_file(), g_caught_signal ? PR_INFO : PR_DEBUG, fmt, ap);
 	va_end(ap);
 }
 

@@ -65,7 +65,7 @@ int32_t g_opt_parallel = DEFAULT_PARALLEL;	/* # of parallel stressors */
 uint64_t g_opt_timeout = TIMEOUT_NOT_SET;	/* timeout in seconds */
 uint64_t g_opt_flags = PR_ERROR | PR_INFO | OPT_FLAGS_MMAP_MADVISE;
 volatile bool g_keep_stressing_flag = true;	/* false to exit stressor */
-volatile bool g_caught_sigint = false;		/* true if stopped by SIGINT */
+volatile bool g_caught_signal = false;		/* true if stopped by SIGINT */
 const char g_app_name[] = "stress-ng";		/* Name of application */
 stress_shared_t *g_shared;			/* shared memory */
 jmp_buf g_error_env;				/* parsing error env */
@@ -1383,7 +1383,7 @@ static int stress_exclude(void)
 static void MLOCKED_TEXT stress_sigint_handler(int signum)
 {
 	(void)signum;
-	g_caught_sigint = true;
+	g_caught_signal = true;
 	keep_stressing_set_flag(false);
 	wait_flag = false;
 
@@ -1399,9 +1399,10 @@ static void MLOCKED_TEXT stress_sigalrm_handler(int signum)
 {
 	if (getpid() == main_pid) {
 		/* Parent */
-		wait_flag = false;
+		stress_sigint_handler(signum);
 	} else {
 		/* Child */
+		g_caught_signal = true;
 		stress_handle_stop_stressing(signum);
 	}
 }
@@ -2416,7 +2417,7 @@ again:
 				 * Apparently succeeded but terminated early?
 				 * Could be a bug, so report a warning
 				 */
-				if (stats->run_ok && !g_caught_sigint &&
+				if (stats->run_ok && !g_caught_signal &&
 				    (run_duration < (double)g_opt_timeout) &&
 				    (!(g_stressor_current->bogo_ops && stats->counter >= g_stressor_current->bogo_ops))) {
 
