@@ -102,7 +102,7 @@ static stress_smart_devs_t smart_devs;
  *  S.M.A.R.T. ID Descriptions, see:
  *  https://en.wikipedia.org/wiki/S.M.A.R.T.#Known_ATA_S.M.A.R.T._attributes
  */
-static const char *id_str[256] = {
+static const char * const id_str[256] = {
 	[0x01] = "Read Error Rate",
 	[0x02] = "Throughput Performance",
 	[0x03] = "Spin-Up Time",
