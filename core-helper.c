@@ -567,7 +567,7 @@ size_t stress_get_page_size(void)
 #if defined(_SC_PAGESIZE)
 	{
 		/* Use modern sysconf */
-		long sz = sysconf(_SC_PAGESIZE);
+		const long sz = sysconf(_SC_PAGESIZE);
 		if (sz > 0) {
 			page_size = (size_t)sz;
 			return page_size;
@@ -579,7 +579,7 @@ size_t stress_get_page_size(void)
 #if defined(HAVE_GETPAGESIZE)
 	{
 		/* Use deprecated getpagesize */
-		long sz = getpagesize();
+		const long sz = getpagesize();
 		if (sz > 0) {
 			page_size = (size_t)sz;
 			return page_size;
@@ -1140,7 +1140,7 @@ void stress_set_proc_state_str(const char *name, const char *str)
  */
 void stress_set_proc_state(const char *name, const int state)
 {
-	static const char *stress_states[] = {
+	static const char * const stress_states[] = {
 		"start",
 		"init",
 		"run",
@@ -1288,12 +1288,9 @@ static void stress_temp_hash_truncate(char *filename)
 #endif
 
 	if (strlen(filename) > f_namemax) {
-		uint32_t upper, lower;
-		uint64_t val;
-
-		upper = stress_hash_jenkin((uint8_t *)filename, len);
-		lower = stress_hash_pjw(filename);
-		val = ((uint64_t)upper << 32) | lower;
+		const uint32_t upper = stress_hash_jenkin((uint8_t *)filename, len);
+		const uint32_t lower = stress_hash_pjw(filename);
+		const uint64_t val = ((uint64_t)upper << 32) | lower;
 
 		stress_base36_encode_uint64(filename, val);
 	}
@@ -1528,14 +1525,10 @@ static inline uint32_t OPTIMIZE3 stress_swap32(uint32_t val)
 #if defined(HAVE_BUILTIN_BSWAP32)
 	return __builtin_bswap32(val);
 #else
-	register uint32_t swap;
-
-	swap = ((val >> 24) & 0x000000ff) |
+	return ((val >> 24) & 0x000000ff) |
 	       ((val << 8)  & 0x00ff0000) |
 	       ((val >> 8)  & 0x0000ff00) |
 	       ((val << 24) & 0xff000000);
-
-	return swap;
 #endif
 }
 
@@ -1878,7 +1871,7 @@ bool stress_is_prime64(const uint64_t n)
 uint64_t stress_get_prime64(const uint64_t n)
 {
 	static uint64_t p = 1009;
-	uint64_t odd_n = (n & ~1UL) + 1;
+	const uint64_t odd_n = (n & ~1UL) + 1;
 
 	if (p < odd_n)
 		p = odd_n;
@@ -2413,7 +2406,7 @@ char *stress_uint64_to_str(char *str, size_t len, const uint64_t val)
 	uint64_t scale = 1;
 
 	for (i = 0; i < SIZEOF_ARRAY(size_info); i++) {
-		uint64_t scaled = val / size_info[i].size;
+		const uint64_t scaled = val / size_info[i].size;
 
 		if ((scaled >= 1) && (scaled < 1024)) {
 			suffix = size_info[i].suffix;
@@ -2509,8 +2502,8 @@ int stress_drop_capabilities(const char *name)
 	 *  bits to zero to show the intent
 	 */
 	for (i = 0; i <= CAP_LAST_CAP; i++) {
-		uint32_t idx = CAP_TO_INDEX(i);
-		uint32_t mask = CAP_TO_MASK(i);
+		const uint32_t idx = CAP_TO_INDEX(i);
+		const uint32_t mask = CAP_TO_MASK(i);
 
 		ucd[idx].inheritable &= ~mask;
 		ucd[idx].permitted &= ~mask;
@@ -3048,7 +3041,7 @@ static inline long stress_min_aux_sig_stack_size(void)
 #if defined(HAVE_SYS_AUXV_H) && \
     defined(HAVE_GETAUXVAL) &&	\
     defined(AT_MINSIGSTKSZ)
-	long sz = (long)getauxval(AT_MINSIGSTKSZ);
+	const long sz = (long)getauxval(AT_MINSIGSTKSZ);
 
 	if (sz > 0)
 		return sz;
