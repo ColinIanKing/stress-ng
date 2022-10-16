@@ -468,7 +468,7 @@ int stress_perf_enable(stress_perf_t *sp)
 		return 0;
 
 	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
-		int fd = sp->perf_stat[i].fd;
+		const int fd = sp->perf_stat[i].fd;
 
 		if (fd > -1) {
 			if (ioctl(fd, PERF_EVENT_IOC_RESET,
@@ -501,7 +501,7 @@ int stress_perf_disable(stress_perf_t *sp)
 		return 0;
 
 	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
-		int fd = sp->perf_stat[i].fd;
+		const int fd = sp->perf_stat[i].fd;
 
 		if (fd > -1) {
 			if (ioctl(fd, PERF_EVENT_IOC_DISABLE,
@@ -531,7 +531,8 @@ int stress_perf_close(stress_perf_t *sp)
 		goto out_ok;
 
 	for (i = 0; i < STRESS_PERF_MAX && perf_info[i].label; i++) {
-		int fd = sp->perf_stat[i].fd;
+		const int fd = sp->perf_stat[i].fd;
+
 		if (fd < 0 ) {
 			sp->perf_stat[i].counter = STRESS_PERF_INVALID;
 			continue;
@@ -668,7 +669,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 
 		for (p = 0; p < STRESS_PERF_MAX && perf_info[p].label; p++) {
 			const char *l = perf_info[p].label;
-			uint64_t ct = counter_totals[p];
+			const uint64_t ct = counter_totals[p];
 
 			if (l && (ct != STRESS_PERF_INVALID)) {
 				char extra[32];
@@ -716,7 +717,7 @@ void stress_perf_stat_dump(FILE *yaml, stress_stressor_t *stressors_list, const 
 			ssize_t ret;
 			bool paranoid = false;
 			int level = 0;
-			static char *path = "/proc/sys/kernel/perf_event_paranoid";
+			static const char *path = "/proc/sys/kernel/perf_event_paranoid";
 
 			ret = system_read(path, buffer, sizeof(buffer) - 1);
 			if (ret > 0) {
