@@ -77,9 +77,8 @@ static double (*stress_time_now_func)(void) = stress_time_now_timespec;
  */
 double OPTIMIZE3 stress_time_now(void)
 {
-	double now;
+	const double now = stress_time_now_func();
 
-	now = stress_time_now_func();
 	if (LIKELY(now) >= 0.0)
 		return now;
 
