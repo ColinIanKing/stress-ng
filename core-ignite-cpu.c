@@ -84,7 +84,7 @@ static void stress_ignite_cpu_set(
 	char buffer[128];
 
 	if (((*setting_flag & SETTING_FREQ) == SETTING_FREQ) && (max_freq > 0) && (min_freq <= max_freq)) {
-		uint64_t freq_delta = (max_freq - min_freq) / 10;
+		const uint64_t freq_delta = (max_freq - min_freq) / 10;
 		uint64_t freq;
 
 		(void)snprintf(path, sizeof(path),
