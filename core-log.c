@@ -57,7 +57,8 @@ void pr_lock_init(void)
 static void pr_spin_lock(void)
 {
 	double timeout_time = stress_time_now() + PR_TIMEOUT;
-	pid_t val, orig, pid = getpid();
+	pid_t val, orig;
+	const pid_t pid = getpid();
 
 	for (;;) {
 		while (stress_time_now() < timeout_time) {
