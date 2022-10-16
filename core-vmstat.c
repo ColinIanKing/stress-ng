@@ -746,7 +746,7 @@ static double stress_get_cpu_ghz_average(void)
 
 	n_cpus = scandir("/sys/devices/system/cpu", &cpu_list, NULL, alphasort);
 	for (i = 0; i < n_cpus; i++) {
-		char *name = cpu_list[i]->d_name;
+		const char *name = cpu_list[i]->d_name;
 
 		if (!strncmp(name, "cpu", 3) && isdigit(name[3])) {
 			char path[PATH_MAX];
