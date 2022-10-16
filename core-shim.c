@@ -206,7 +206,7 @@ static int shim_emulate_fallocate(int fd, off_t offset, off_t len)
 
 	while (keep_stressing_flag() && (n > 0)) {
 		ssize_t ret;
-		size_t count = (size_t)STRESS_MINIMUM(n, FALLOCATE_BUF_SIZE);
+		const size_t count = (size_t)STRESS_MINIMUM(n, FALLOCATE_BUF_SIZE);
 
 		ret = write(fd, buffer, count);
 		if (ret >= 0) {
@@ -784,7 +784,7 @@ int shim_nanosleep_uint64(uint64_t nsec)
 		errno = 0;
 		if (usleep(usec) < 0) {
 			if (errno == EINTR) {
-				double t_left = t_end - stress_time_now();
+				const double t_left = t_end - stress_time_now();
 
 				if (t_left < 0.0)
 					return 0;
@@ -1155,13 +1155,10 @@ int shim_brk(void *addr)
 #elif defined(HAVE_BRK)
 	return brk(addr);
 #else
-	uintptr_t brkaddr;
-	intptr_t inc;
-	void *newbrk;
+	const uintptr_t brkaddr = (uintptr_t)shim_sbrk(0);
+	intptr_t inc = brkaddr - (intptr_t)addr;
+	const void *newbrk = shim_sbrk(inc);
 
-	brkaddr = (uintptr_t)shim_sbrk(0);
-	inc = brkaddr - (intptr_t)addr;
-	newbrk = shim_sbrk(inc);
 	if (newbrk == (void *)-1) {
 		if (errno != ENOSYS)
 			errno = ENOMEM;
@@ -1247,16 +1244,14 @@ size_t shim_strlcat(char *dst, const char *src, size_t len)
 	register const char *s = src;
 	register size_t n = len, tmplen;
 
-	while (n-- && *d != '\0') {
+	while (n-- && *d != '\0')
 		d++;
-	}
 
 	tmplen = d - dst;
 	n = len - tmplen;
 
-	if (!n) {
+	if (!n)
 		return strlen(s) + tmplen;
-	}
 
 	while (*s != '\0') {
 		if (n != 1) {
