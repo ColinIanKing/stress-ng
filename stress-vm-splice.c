@@ -59,6 +59,7 @@ static int stress_vm_splice(const stress_args_t *args)
 	const size_t page_size = args->page_size;
 	size_t sz, vm_splice_bytes = DEFAULT_VM_SPLICE_BYTES;
 	char *data;
+	double duration = 0.0, bytes = 0.0, vm_splices = 0.0, rate;
 
 	if (!stress_get_setting("vm-splice-bytes", &vm_splice_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -113,8 +114,9 @@ static int stress_vm_splice(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		ssize_t ret, bytes;
+		ssize_t ret, n_bytes;
 		struct iovec iov;
+		double t;
 
 		/*
 		 *  vmsplice from memory to pipe
@@ -122,9 +124,14 @@ static int stress_vm_splice(const stress_args_t *args)
 		(void)memset(buf, 0, sz);
 		iov.iov_base = buf;
 		iov.iov_len = sz;
-		bytes = vmsplice(fds[1], &iov, 1, 0);
-		if (bytes < 0)
+		t = stress_time_now();
+		n_bytes = vmsplice(fds[1], &iov, 1, 0);
+		if (UNLIKELY(n_bytes < 0))
 			break;
+		duration += stress_time_now() - t;
+		bytes += (double)n_bytes;
+		vm_splices += 1.0;
+		
 		ret = splice(fds[0], NULL, fd, NULL,
 			vm_splice_bytes, SPLICE_F_MOVE);
 		if (ret < 0)
@@ -133,18 +140,27 @@ static int stress_vm_splice(const stress_args_t *args)
 		/*
 		 *  vmsplice from pipe to memory
 		 */
-		bytes = write(fds[1], data, page_size);
-		if (bytes > 0) {
+		n_bytes = write(fds[1], data, page_size);
+		if (n_bytes > 0) {
 			iov.iov_base = buf;
-			iov.iov_len = (size_t)bytes;
+			iov.iov_len = (size_t)n_bytes;
 
-			bytes = vmsplice(fds[0], &iov, 1, 0);
-			if (bytes < 0)
+			t = stress_time_now();
+			n_bytes = vmsplice(fds[0], &iov, 1, 0);
+			if (n_bytes < 0)
 				break;
+			duration += stress_time_now() - t;
+			bytes += (double)n_bytes;
+			vm_splices += 1.0;
 		}
 
 		inc_counter(args);
 	} while (keep_stressing(args));
+
+	rate = (duration > 0.0) ? bytes / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "MB vm-splice'd per second", rate / (double)MB);
+	rate = (duration > 0.0) ? vm_splices / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 1, "vm-splice calls per second", rate);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
