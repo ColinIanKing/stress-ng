@@ -240,9 +240,8 @@ static stress_cpu_cache_t * stress_get_cache_by_cpu(const stress_cpu_t *cpu, con
 		return NULL;
 
 	for (i = 0; i < cpu->cache_count; i++) {
-		stress_cpu_cache_t *p;
+		stress_cpu_cache_t *p = &cpu->caches[i];
 
-		p = &cpu->caches[i];
 		if (p->level != cache_level)
 			continue;
 
@@ -274,9 +273,8 @@ uint16_t stress_get_max_cache_level(const stress_cpus_t *cpus)
 	cpu = &cpus->cpus[stress_cache_get_cpu(cpus)];
 
 	for (i = 0; i < cpu->cache_count; i++) {
-		stress_cpu_cache_t *cache;
+		const stress_cpu_cache_t *cache = &cpu->caches[i];
 
-		cache = &cpu->caches[i];
 		max = cache->level > max ? cache->level : max;
 	}
 
