@@ -55,11 +55,14 @@ static context_info_t context[3];
 static ucontext_t uctx_main;
 static uint64_t context_counter;
 static uint64_t stress_max_ops;
+double duration, t1, t2, t3;
 
 static void thread1(void)
 {
 	do {
+		duration += stress_time_now() - t3;
 		context_counter++;
+		t1 = stress_time_now();
 		(void)swapcontext(&context[0].cu.uctx, &context[1].cu.uctx);
 	} while (keep_stressing_flag() && (!stress_max_ops || (context_counter < stress_max_ops)));
 	(void)swapcontext(&context[0].cu.uctx, &uctx_main);
@@ -68,7 +71,9 @@ static void thread1(void)
 static void thread2(void)
 {
 	do {
+		duration += stress_time_now() - t1;
 		context_counter++;
+		t2 = stress_time_now();
 		(void)swapcontext(&context[1].cu.uctx, &context[2].cu.uctx);
 	} while (keep_stressing_flag() && (!stress_max_ops || (context_counter < stress_max_ops)));
 	(void)swapcontext(&context[1].cu.uctx, &uctx_main);
@@ -77,7 +82,9 @@ static void thread2(void)
 static void thread3(void)
 {
 	do {
+		duration += stress_time_now() - t2;
 		context_counter++;
+		t3 = stress_time_now();
 		(void)swapcontext(&context[2].cu.uctx, &context[0].cu.uctx);
 	} while (keep_stressing_flag() && (!stress_max_ops || (context_counter < stress_max_ops)));
 	(void)swapcontext(&context[2].cu.uctx, &uctx_main);
@@ -118,12 +125,14 @@ static int stress_context_init(
 static int stress_context(const stress_args_t *args)
 {
 	size_t i;
+	double rate;
 
 	(void)memset(&uctx_main, 0, sizeof(uctx_main));
 	(void)memset(context, 0, sizeof(context));
 
 	context_counter = 0;
 	stress_max_ops = args->max_ops * 1000;
+
 
 	/* Create 3 micro threads */
 	if (stress_context_init(args, thread1, &uctx_main, &context[0]) < 0)
@@ -133,6 +142,10 @@ static int stress_context(const stress_args_t *args)
 	if (stress_context_init(args, thread3, &uctx_main, &context[2]) < 0)
 		return EXIT_FAILURE;
 
+	duration = 0.0;
+	t1 = 0.0;
+	t2 = 0.0;
+	t3 = stress_time_now();
 	/* And start.. */
 	if (swapcontext(&uctx_main, &context[0].cu.uctx) < 0) {
 		pr_fail("%s: swapcontext failed: %d (%s)\n",
@@ -155,6 +168,9 @@ static int stress_context(const stress_args_t *args)
 		}
 	}
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = (duration > 0.0) ? (double)context_counter / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "swapcontext calls per second", rate);
 
 	return EXIT_SUCCESS;
 }
