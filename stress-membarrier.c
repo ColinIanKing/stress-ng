@@ -37,6 +37,13 @@ static const stress_help_t help[] = {
 #if defined(HAVE_LIB_PTHREAD) && \
     defined(HAVE_MEMBARRIER)
 
+typedef struct {
+	pthread_t pthread;	/* thread handle */
+	int pthread_ret;	/* thread create return */
+	double duration;	/* membarrier duration */
+	double count;		/* membarrier call count */
+} membarrier_info_t;
+
 #define MAX_MEMBARRIER_THREADS	(4)
 
 static volatile bool keep_running;
@@ -62,7 +69,7 @@ enum membarrier_cmd_flag {
 };
 #endif
 
-static int stress_membarrier_exercise(const stress_args_t *args)
+static int stress_membarrier_exercise(const stress_args_t *args, membarrier_info_t *info)
 {
 	int ret;
 	unsigned int i, mask;
@@ -76,7 +83,12 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 	mask = (unsigned int)ret;
 	for (i = 1; i; i <<= 1) {
 		if (i & mask) {
+			double t;
+
+			t = stress_time_now();
 			VOID_RET(int, shim_membarrier((int)i, 0, 0));
+			info->duration += stress_time_now() - t;
+			info->count += 1.0;
 
 			/* Exercise illegal flags */
 			VOID_RET(int, shim_membarrier((int)i, ~0, 0));
@@ -86,7 +98,10 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 
 #if defined(MEMBARRIER_CMD_FLAG_CPU)
 			/* Exercise MEMBARRIER_CMD_FLAG_CPU flag */
+			t = stress_time_now();
 			VOID_RET(int, shim_membarrier((int)i, MEMBARRIER_CMD_FLAG_CPU, 0));
+			info->duration += stress_time_now() - t;
+			info->count += 1.0;
 #endif
 		}
 	}
@@ -101,10 +116,12 @@ static int stress_membarrier_exercise(const stress_args_t *args)
 	return 0;
 }
 
-static void *stress_membarrier_thread(void *parg)
+static void *stress_membarrier_thread(void *arg)
 {
 	static void *nowt = NULL;
-	const stress_args_t *args = ((stress_pthread_args_t *)parg)->args;
+	const stress_pthread_args_t *pargs = (stress_pthread_args_t *)arg;
+	const stress_args_t *args = pargs->args;
+	membarrier_info_t *info = (membarrier_info_t *)pargs->data;
 
 	/*
 	 *  Block all signals, let controlling thread
@@ -113,7 +130,7 @@ static void *stress_membarrier_thread(void *parg)
 	(void)sigprocmask(SIG_BLOCK, &set, NULL);
 
 	while (keep_running && keep_stressing_flag()) {
-		if (stress_membarrier_exercise(args) < 0)
+		if (stress_membarrier_exercise(args, info) < 0)
 			break;
 	}
 
@@ -127,10 +144,11 @@ static void *stress_membarrier_thread(void *parg)
 static int stress_membarrier(const stress_args_t *args)
 {
 	int ret;
-	pthread_t pthreads[MAX_MEMBARRIER_THREADS];
+	/* We have MAX_MEMBARRIER_THREADS plus the stressor process */
+	membarrier_info_t info[MAX_MEMBARRIER_THREADS + 1];
 	size_t i;
-	int pthread_ret[MAX_MEMBARRIER_THREADS];
 	stress_pthread_args_t pargs = { args, NULL, 0 };
+	double duration = 0.0, count = 0.0, rate;
 
 	ret = shim_membarrier(MEMBARRIER_CMD_QUERY, 0, 0);
 	if (ret < 0) {
@@ -152,19 +170,25 @@ static int stress_membarrier(const stress_args_t *args)
 	}
 
 	(void)sigfillset(&set);
-	(void)memset(pthread_ret, 0, sizeof(pthread_ret));
+	for (i = 0; i < MAX_MEMBARRIER_THREADS + 1; i++) {
+		info[i].pthread_ret = -1;
+		(void)memset(&info[i].pthread, 0, sizeof(info[i].pthread));
+		info[i].duration = 0.0;
+		info[i].count = 0.0;
+	}
 	keep_running = true;
 
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
-		pthread_ret[i] =
-			pthread_create(&pthreads[i], NULL,
+		pargs.data = &info[i];
+		info[i].pthread_ret =
+			pthread_create(&info[i].pthread, NULL,
 				stress_membarrier_thread, (void *)&pargs);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
-		if (stress_membarrier_exercise(args) < 0) {
+		if (stress_membarrier_exercise(args, &info[MAX_MEMBARRIER_THREADS]) < 0) {
 			pr_fail("%s: membarrier failed: errno=%d: (%s)\n",
 				args->name, errno, strerror(errno));
 		}
@@ -175,9 +199,16 @@ static int stress_membarrier(const stress_args_t *args)
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
+	for (i = 0; i < MAX_MEMBARRIER_THREADS + 1; i++) {
+		duration += info[i].duration;
+		count += info[i].count;
+	}
+	rate = (duration > 0) ? count / duration : 0.0;
+	stress_misc_stats_set(args->misc_stats, 0, "membarrier calls per second", rate);
+
 	for (i = 0; i < MAX_MEMBARRIER_THREADS; i++) {
-		if (pthread_ret[i] == 0)
-			(void)pthread_join(pthreads[i], NULL);
+		if (info[i].pthread_ret == 0)
+			(void)pthread_join(info[i].pthread, NULL);
 	}
 	return EXIT_SUCCESS;
 }
