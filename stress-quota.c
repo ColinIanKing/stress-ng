@@ -63,14 +63,6 @@ struct shim_nextdqblk {
 };
 
 /*
-#define DO_Q_GETQUOTA	0x0001
-#define DO_Q_GETFMT	0x0002
-#define DO_Q_GETINFO	0x0004
-#define DO_Q_GETSTATS	0x0008
-#define DO_Q_SYNC	0x0010
-*/
-
-/*
  *  stress_quota_supported()
  *      check if we can run this with SHIM_CAP_SYS_ADMIN capability
  */
