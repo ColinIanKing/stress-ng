@@ -473,6 +473,7 @@ stress-ng has found several Linux Kernel bugs and appropriate fixes have been la
 * [How much power does your server consume? Estimating wall socket power using RAPL measurements](https://www.researchgate.net/publication/306004997_How_much_power_does_your_server_consume_Estimating_wall_socket_power_using_RAPL_measurements)
 * [Performance Isolation of Co-located Workload in a Container-based Vehicle Software Architecture](https://www.thinkmind.org/articles/ambient_2019_2_20_40020.pdf)
 * [Achieving Isolation in Mixed-Criticality Industrial Edge Systems with Real-Time Containers](https://drops.dagstuhl.de/opus/volltexte/2022/16332/pdf/LIPIcs-ECRTS-2022-15.pdf)
+* [UIE: User-centric Interference Estimation for Cloud Applications](https://www3.cs.stonybrook.edu/~anshul/ic2e16_uie.pdf)
 
 I am keen to add to the stress-ng project page any citations to research or
 projects that use stress-ng.  I also appreciate information concerning kernel
