@@ -389,7 +389,7 @@ static int stress_mmap_child(const stress_args_t *args, void *ctxt)
 		size_t n;
 		int rnd, rnd_flag;
 		uint8_t *buf = NULL;
-
+		uint64_t *buf64;
 retry:
 		if (no_mem_retries >= NO_MEM_RETRIES_MAX) {
 			pr_inf("%s: gave up trying to mmap, no available memory\n",
@@ -676,6 +676,42 @@ cleanup:
 				(void)close(tmpfd);
 			index++;
 			index %= context->mmap_flag_count;
+		}
+		/*
+		 *  Step #9, mmap write-only page, write data,
+		 *  change to read-only page, read data.
+		 */
+		buf64 = (uint64_t *)mmap(NULL, page_size, PROT_WRITE,
+					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		if (buf64 != MAP_FAILED) {
+			uint64_t val = stress_mwc64();
+
+			*buf64 = val;
+			ret = mprotect((void *)buf64, page_size, PROT_READ);
+			if ((ret < 0) && (errno != ENOMEM)) {
+				pr_fail("%s: cannot set write-only page to read-only, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			} else {
+				if (*buf64 != val) {
+					pr_fail("%s: unexpected value in read-only page, "
+						"got %" PRIx64 ", expected %" PRIx64 "\n",
+						args->name, *buf64, val);
+				}
+			}
+			(void)munmap((void *)buf64, page_size);
+		}
+		/*
+		 *  Step #10, mmap read-only page, change to write-only page, write data.
+		 */
+		buf64 = (uint64_t *)mmap(NULL, page_size, PROT_READ,
+					MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+		if (buf64 != MAP_FAILED) {
+			ret = mprotect((void *)buf64, page_size, PROT_WRITE);
+			if ((ret < 0) && (errno != ENOMEM)) {
+				pr_fail("%s: cannot set read-only page to write-only, errno=%d (%s)\n",
+					args->name, errno, strerror(errno));
+			}
+			(void)munmap((void *)buf64, page_size);
 		}
 		inc_counter(args);
 	} while (keep_stressing(args));
