@@ -131,7 +131,7 @@ static int stress_vm_splice(const stress_args_t *args)
 		duration += stress_time_now() - t;
 		bytes += (double)n_bytes;
 		vm_splices += 1.0;
-		
+
 		ret = splice(fds[0], NULL, fd, NULL,
 			vm_splice_bytes, SPLICE_F_MOVE);
 		if (ret < 0)
