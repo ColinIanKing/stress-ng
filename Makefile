@@ -21,6 +21,7 @@ VERSION=0.14.06
 #
 # Codename "mundus est ad insaniam convertunt"
 #
+
 CFLAGS += -Wall -Wextra -DVERSION='"$(VERSION)"' -O2 -std=gnu99
 
 #
@@ -206,6 +207,7 @@ STRESS_SRC = \
 	stress-fork.c \
 	stress-fp-error.c \
 	stress-fpunch.c \
+	stress-fsize.c \
 	stress-fstat.c \
 	stress-full.c \
 	stress-funccall.c \

@@ -433,6 +433,8 @@ static const struct option long_options[] = {
 	{ "fp-error-ops",	1,	0,	OPT_fp_error_ops },
 	{ "fpunch",		1,	0,	OPT_fpunch },
 	{ "fpunch-ops",		1,	0,	OPT_fpunch_ops },
+	{ "fsize",		1,	0,	OPT_fsize },
+	{ "fsize-ops",		1,	0,	OPT_fsize_ops },
 	{ "fstat",		1,	0,	OPT_fstat },
 	{ "fstat-dir",		1,	0,	OPT_fstat_dir },
 	{ "fstat-ops",		1,	0,	OPT_fstat_ops },

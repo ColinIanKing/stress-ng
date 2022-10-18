@@ -2,7 +2,7 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH STRESS-NG 1 "8 Oct 2022"
+.TH STRESS-NG 1 "18 Oct 2022"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .\" Some roff macros, for reference:
@@ -1873,6 +1873,14 @@ and breaks it into multiple extents.
 .TP
 .B \-\-fpunch\-ops N
 stop fpunch workers after N punch and fill bogo operations.
+.TP
+.B \-\-fsize N
+start N workers that exercise file size limits (via setrlimit RLIMIT_FSIZE)
+with file sizes that are fixed, random and powers of 2. The files are
+truncated and allocated to trigger SIGXFSZ signals.
+.TP
+.B \-\-fsize\-ops N
+stop after N bogo file size test iterations.
 .TP
 .B \-\-fstat N
 start N workers fstat'ing files in a directory (default is /dev).

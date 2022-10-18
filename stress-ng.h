@@ -1239,6 +1239,9 @@ typedef enum {
 	OPT_fpunch,
 	OPT_fpunch_ops,
 
+	OPT_fsize,
+	OPT_fsize_ops,
+
 	OPT_fstat,
 	OPT_fstat_ops,
 	OPT_fstat_dir,

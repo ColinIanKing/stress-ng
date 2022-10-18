@@ -91,6 +91,7 @@
 	MACRO(fork)		\
 	MACRO(fp_error)		\
 	MACRO(fpunch)		\
+	MACRO(fsize)		\
 	MACRO(fstat)		\
 	MACRO(full)		\
 	MACRO(funccall)		\
