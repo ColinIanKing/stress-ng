@@ -74,7 +74,7 @@ static int stress_crypt_id(
 	static struct crypt_data data;
 
 	(void)memset(&data, 0, sizeof(data));
-	(void)strcpy(newsalt, salt);
+	(void)shim_strlcpy(newsalt, salt, sizeof(newsalt));
 	(void)memcpy(newsalt, prefix, prefix_len);
 	errno = 0;
 
