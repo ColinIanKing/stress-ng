@@ -116,8 +116,6 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
 	sigaddset(&set, SIGALRM);
 	sigprocmask(SIG_BLOCK, &set, NULL);
 
-	pthread_count = 0;
-
 	(void)memset(&pthreads, 0, sizeof(pthreads));
 	ret = pthread_mutex_lock(&mutex);
 	if (ret) {
@@ -125,6 +123,7 @@ static void NORETURN stress_exit_group_child(const stress_args_t *args)
 		shim_exit_group(0);
 		exit_group_failed++;
 	}
+	pthread_count = 0;
 	for (i = 0; i < STRESS_PTHREAD_EXIT_GROUP_MAX; i++)
 		pthreads[i].ret = -1;
 
