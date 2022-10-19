@@ -235,9 +235,7 @@ rewait:
 					args->name, errno, strerror(errno));
 
 			(void)kill(pid, signals[signal_idx]);
-			if (signal_idx < SIZEOF_ARRAY(signals))
-				signal_idx++;
-			else
+			if (++signal_idx >= SIZEOF_ARRAY(signals))
 				goto report;
 
 			/*
