@@ -685,6 +685,17 @@ static int stress_dirent_proc_prune(struct dirent **dlist, const int n)
 }
 
 /*
+ *  stress_procfs_no_entries()
+ *	report when no /proc entries are found
+ */
+static int stress_procfs_no_entries(const stress_args_t *args)
+{
+	if (args->instance == 0)
+		pr_inf_skip("%s: no /proc entries found, skipping stressor\n", args->name);
+	return EXIT_NO_RESOURCE;
+}
+
+/*
  *  stress_procfs
  *	stress reading all of /proc
  */
@@ -697,12 +708,11 @@ static int stress_procfs(const stress_args_t *args)
 	struct dirent **dlist = NULL;
 
 	n = scandir("/proc", &dlist, NULL, alphasort);
-	if (n <= 0) {
-		if (args->instance == 0)
-			pr_inf_skip("%s: no /proc entries found, skipping stressor\n", args->name);
-		return EXIT_NO_RESOURCE;
-	}
+	if (n <= 0)
+		return stress_procfs_no_entries(args);
 	n = stress_dirent_proc_prune(dlist, n);
+	if (n <= 0)
+		return stress_procfs_no_entries(args);
 
 	(void)sigfillset(&set);
 
