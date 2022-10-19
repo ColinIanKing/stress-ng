@@ -298,8 +298,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		{
 			int isz;
 
-			ret = ioctl(fd, FIGETBSZ, &isz);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, FIGETBSZ, &isz));
 		}
 #else
 		UNEXPECTED
@@ -308,8 +307,7 @@ static inline bool stress_sys_rw(stress_ctxt_t *ctxt)
 		{
 			int isz;
 
-			ret = ioctl(fd, FIONREAD , &isz);
-			(void)ret;
+			VOID_RET(int, ioctl(fd, FIONREAD , &isz));
 		}
 #else
 		UNEXPECTED
@@ -341,8 +339,7 @@ err:
 			 */
 			if ((fd = open(path, O_WRONLY | O_NONBLOCK)) < 0)
 				goto next;
-			ret = write(fd, buffer, 0);
-			(void)ret;
+			VOID_RET(ssize_t, write(fd, buffer, 0));
 			(void)close(fd);
 
 			if (stress_time_now() - t_start > threshold)
@@ -368,8 +365,7 @@ err:
 				 *  Accessing ROM memory may be slow,
 				 *  so just do one read for now.
 				 */
-				ret = read(fd, buffer, sizeof(buffer));
-				(void)ret;
+				VOID_RET(ssize_t, read(fd, buffer, sizeof(buffer)));
 
 				/* Disable ROM read */
 				ret = write(fd, "0", 1);
@@ -732,8 +728,7 @@ again:
 						args->name, errno, strerror(errno));
 				/* Ring ring, time to die */
 				(void)kill(pid, SIGALRM);
-				ret = shim_waitpid(pid, &status, 0);
-				(void)ret;
+				VOID_RET(int, shim_waitpid(pid, &status, 0));
 			} else {
 				if (stress_sysfs_bad_signal(status)) {
 					pr_inf("%s: killed by %s exercising '%s'\n",
@@ -783,8 +778,7 @@ again:
 				pr_dbg("%s: failed to lock spin lock for sysfs_path\n", args->name);
 			} else {
 				shim_strlcpy(ctxt->sysfs_path, "", sizeof(ctxt->sysfs_path));
-				ret = shim_pthread_spin_unlock(&lock);
-				(void)ret;
+				VOID_RET(int, shim_pthread_spin_unlock(&lock));
 			}
 
 			/* Forcefully kill threads */

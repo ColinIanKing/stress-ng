@@ -37,6 +37,10 @@
 #include <syslog.h>
 #endif
 
+#if defined(HAVE_LINUX_FS_H)
+#include <linux/fs.h>
+#endif
+
 #include <float.h>
 
 /* Stress test classes */
@@ -1721,14 +1725,13 @@ static void stress_unset_inode_flags(const char *filename, const int flag)
 {
 #if defined(FS_IOC_SETFLAGS)
 	int fd;
-        const long int flag = 0;
+        const long int new_flag = 0;
 
-	fd = open(filenae, O_RDWR | flag);
+	fd = open(filename, O_RDWR | flag);
 	if (fd < 0)
 		return;
 
-        ret = ioctl(fd, FS_IOC_SETFLAGS, &flag);
-        (void)ret;
+        VOID_RET(int, ioctl(fd, FS_IOC_SETFLAGS, &new_flag));
 	(void)close(fd);
 #else
 	(void)filename;

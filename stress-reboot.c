@@ -150,16 +150,15 @@ static int stress_reboot(const stress_args_t *args)
 
 			for (i = 0; i < SIZEOF_ARRAY(boot_magic); i++) {
 				errno = 0;
-				ret = shim_reboot((int)SHIM_LINUX_BOOT_MAGIC1,
+				VOID_RET(int, shim_reboot((int)SHIM_LINUX_BOOT_MAGIC1,
 					(int)boot_magic[i],
-					(int)SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL);
+					(int)SHIM_LINUX_REBOOT_CMD_POWER_OFF, NULL));
 				if (errno == EINVAL)
 					continue;
 				if (errno != EPERM) {
 					pr_fail("%s: reboot when not reboot capable didn't return EPERM, errno=%d (%s)\n",
 						args->name, errno, strerror(errno));
 				}
-				(void)ret;
 			}
 		}
 		inc_counter(args);

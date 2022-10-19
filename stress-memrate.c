@@ -606,10 +606,8 @@ static inline void *stress_memrate_mmap(const stress_args_t *args, uint64_t sz)
 	} else {
 #if defined(HAVE_MADVISE) &&	\
     defined(MADV_HUGEPAGE)
-		int ret, advice = MADV_NORMAL;
 
-		ret = madvise(ptr, sz, advice);
-		(void)ret;
+		VOID_RET(int, madvise(ptr, sz, MADV_HUGEPAGE));
 #endif
 	}
 	return ptr;

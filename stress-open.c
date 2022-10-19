@@ -567,7 +567,7 @@ static int open_with_openat_cwd(const stress_args_t *args, const pid_t pid)
 	char cwd[PATH_MAX];
 	char filename[PATH_MAX];
 	const char *temp_path = stress_get_temp_path();
-	int fd, ret;
+	int fd;
 
 	(void)args;
 
@@ -597,8 +597,7 @@ static int open_with_openat_cwd(const stress_args_t *args, const pid_t pid)
 		(void)shim_force_unlink(filename);
 	}
 
-	ret = chdir(cwd);
-	(void)ret;
+	VOID_RET(int, chdir(cwd));
 	return fd;
 }
 #endif
@@ -666,7 +665,7 @@ static int open_with_openat2_cwd(const stress_args_t *args, const pid_t pid)
 	char cwd[PATH_MAX];
 	char filename[PATH_MAX];
 	const char *temp_path = stress_get_temp_path();
-	int fd = -1, ret;
+	int fd = -1;
 	size_t i = 0;
 	static size_t j;
 	struct open_how how;
@@ -710,9 +709,7 @@ static int open_with_openat2_cwd(const stress_args_t *args, const pid_t pid)
 		}
 	}
 
-	ret = chdir(cwd);
-	(void)ret;
-
+	VOID_RET(int, chdir(cwd));
 	return fd;
 }
 #endif

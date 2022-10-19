@@ -128,10 +128,8 @@ static int stress_fallocate(const stress_args_t *args)
 		 */
 		goto done;
 	}
-	ret = stress_sighandler(args->name, SIGALRM, stress_fallocate_handler, NULL);
-	(void)ret;
-	ret = stress_sighandler(args->name, SIGINT, stress_fallocate_handler, NULL);
-	(void)ret;
+	VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_fallocate_handler, NULL));
+	VOID_RET(int, stress_sighandler(args->name, SIGINT, stress_fallocate_handler, NULL));
 
 	if (!stress_get_setting("fallocate-bytes", &fallocate_bytes)) {
 		if (g_opt_flags & OPT_FLAGS_MAXIMIZE)
@@ -264,11 +262,10 @@ static int stress_fallocate(const stress_args_t *args)
 		 *  coverage
 		 */
 #if defined(HAVE_POSIX_FALLOCATE)
-		ret = posix_fallocate(bad_fd, (off_t)0, fallocate_bytes);
+		VOID_RET(int, posix_fallocate(bad_fd, (off_t)0, fallocate_bytes));
 #else
-		ret = shim_fallocate(bad_fd, 0, (off_t)0, fallocate_bytes);
+		VOID_RET(int, shim_fallocate(bad_fd, 0, (off_t)0, fallocate_bytes));
 #endif
-		(void)ret;
 		if (!keep_stressing_flag())
 			break;
 
@@ -277,8 +274,7 @@ static int stress_fallocate(const stress_args_t *args)
 		 */
 		if (SIZEOF_ARRAY(illegal_modes) > 1) {
 			for (i = 0; i < SIZEOF_ARRAY(illegal_modes); i++) {
-				ret = shim_fallocate(fd, illegal_modes[i], (off_t)0, fallocate_bytes);
-				(void)ret;
+				VOID_RET(int, shim_fallocate(fd, illegal_modes[i], (off_t)0, fallocate_bytes));
 				if (!keep_stressing_flag())
 					break;
 			}
@@ -288,24 +284,19 @@ static int stress_fallocate(const stress_args_t *args)
 		 *  fallocate on a pipe is illegal
 		 */
 		if (pipe_ret == 0) {
-			ret = posix_fallocate(pipe_fds[0], (off_t)0, fallocate_bytes);
-			(void)ret;
-			ret = posix_fallocate(pipe_fds[1], (off_t)0, fallocate_bytes);
-			(void)ret;
+			VOID_RET(int, posix_fallocate(pipe_fds[0], (off_t)0, fallocate_bytes));
+			VOID_RET(int, posix_fallocate(pipe_fds[1], (off_t)0, fallocate_bytes));
 		}
 		/*
 		 *  exercise illegal negative offset and lengths
 		 */
-		ret = posix_fallocate(fd, (off_t)-1, (off_t)0);
-		(void)ret;
+		VOID_RET(int, posix_fallocate(fd, (off_t)-1, (off_t)0));
 		if (!keep_stressing_flag())
 			break;
-		ret = posix_fallocate(fd, (off_t)0, (off_t)-1);
-		(void)ret;
+		VOID_RET(int, posix_fallocate(fd, (off_t)0, (off_t)-1));
 		if (!keep_stressing_flag())
 			break;
-		ret = posix_fallocate(fd, (off_t)-1, (off_t)-1);
-		(void)ret;
+		VOID_RET(int, posix_fallocate(fd, (off_t)-1, (off_t)-1));
 
 		inc_counter(args);
 	} while (keep_stressing(args));

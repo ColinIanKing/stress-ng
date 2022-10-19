@@ -106,10 +106,8 @@ static int stress_nice(const stress_args_t *args)
 					 * range 40..1 for -20..19, so negate and offset
 					 * by 20 to get back into setpriority prio level
 					 */
-					ret = setpriority(prio_which[i], 0, -ret + 20);
+					VOID_RET(int, setpriority(prio_which[i], 0, -ret + 20));
 				}
-
-				(void)ret;
 			}
 #endif
 

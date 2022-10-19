@@ -3576,9 +3576,7 @@ static inline int stress_do_syscall(
 		ret = waitpid(pid, &status, 0);
 		if (ret < 0) {
 			(void)kill(pid, SIGKILL);
-			ret = waitpid(pid, &status, 0);
-			(void)ret;
-
+			(void)waitpid(pid, &status, 0);
 		}
 		rc = WEXITSTATUS(status);
 

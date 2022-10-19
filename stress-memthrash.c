@@ -793,8 +793,7 @@ static int stress_memthrash_child(const stress_args_t *args, void *ctxt)
 		return EXIT_NO_RESOURCE;
 	}
 
-	ret = stress_sighandler(args->name, SIGALRM, stress_memthrash_sigalrm_handler, NULL);
-	(void)ret;
+	VOID_RET(int, stress_sighandler(args->name, SIGALRM, stress_memthrash_sigalrm_handler, NULL));
 
 	pargs.args = args;
 	pargs.data = (void *)context->memthrash_method->func;

@@ -835,10 +835,9 @@ tidy:
 		(void)fflush(stdout);
 		_exit(rc);
 	} else {
-		int status, ret;
+		int status;
 
-		ret = stress_set_sched(args->pid, policy, rt_stats->max_prio, true);
-		(void)ret;
+		VOID_RET(int, stress_set_sched(args->pid, policy, rt_stats->max_prio, true));
 
 		(void)pause();
 		(void)kill(pid, SIGKILL);

@@ -767,8 +767,7 @@ close_sfd_child:
 			break;
 #endif
 		default:
-			ret = recv(fd, buffer, sizeof(buffer), 0);
-			(void)ret;
+			VOID_RET(ssize_t, recv(fd, buffer, sizeof(buffer), 0));
 			break;
 		}
 		(void)close(fd);

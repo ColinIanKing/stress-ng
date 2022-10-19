@@ -263,8 +263,7 @@ static int stress_tmpfs_child(const stress_args_t *args, void *ctxt)
 			/* Not supported, but exercise it anyhow */
 			ret = shim_fsetxattr(fd, attrname, attrdata, strlen(attrdata), XATTR_CREATE);
 			if (ret == 0)
-				ret = shim_fremovexattr(fd, attrname);
-			(void)ret;
+				VOID_RET(int, shim_fremovexattr(fd, attrname));
 		}
 #endif
 		offset = (off_t)(stress_mwc64() % (sz + 1));

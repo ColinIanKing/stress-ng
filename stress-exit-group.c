@@ -75,16 +75,13 @@ static void stress_exit_group_sleep(void)
  */
 static void *stress_exit_group_func(void *arg)
 {
-	int ret;
 	static void *nowt = NULL;
 
 	(void)arg;
 
-	ret = pthread_mutex_lock(&mutex);
-	if (ret == 0) {
+	if (pthread_mutex_lock(&mutex) == 0) {
 		pthread_count++;
-		ret = pthread_mutex_unlock(&mutex);
-		(void)ret;
+		VOID_RET(int, pthread_mutex_unlock(&mutex));
 	}
 
 	while (keep_running_flag &&

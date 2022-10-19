@@ -467,29 +467,23 @@ static int stress_xattr(const stress_args_t *args)
 		/*
 		 *  Exercise invalid filename, ENOENT
 		 */
-		ret = shim_removexattr("", "user.var_1234");
-		(void)ret;
-		ret = shim_lremovexattr("", "user.var_1234");
-		(void)ret;
+		VOID_RET(int, shim_removexattr("", "user.var_1234"));
+		VOID_RET(int, shim_lremovexattr("", "user.var_1234"));
 
 #if defined(XATTR_SIZE_MAX)
 		/*
 		 *  Exercise long attribute, ERANGE
 		 */
 		(void)memset(large_tmp, 'X', XATTR_SIZE_MAX + 1);
-		ret = shim_removexattr(filename, large_tmp);
-		(void)ret;
-		ret = shim_lremovexattr(filename, large_tmp);
-		(void)ret;
-		ret = shim_fremovexattr(fd, large_tmp);
-		(void)ret;
+		VOID_RET(int, shim_removexattr(filename, large_tmp));
+		VOID_RET(int, shim_lremovexattr(filename, large_tmp));
+		VOID_RET(int, shim_fremovexattr(fd, large_tmp));
 #endif
 
 		/*
 		 *  Exercise bad/invalid fd
 		 */
-		ret = shim_fremovexattr(bad_fd, "user.var_bad");
-		(void)ret;
+		VOID_RET(int, shim_fremovexattr(bad_fd, "user.var_bad"));
 
 #if defined(HAVE_LLISTXATTR)
 		sret = shim_llistxattr(filename, NULL, 0);

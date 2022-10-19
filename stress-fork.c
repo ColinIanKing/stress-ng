@@ -100,8 +100,6 @@ static int stress_fork_fn(
 	const bool vm)
 {
 	static fork_info_t info[MAX_FORKS];
-
-	int ret;
 #if defined(__APPLE__)
 	double time_end = stress_time_now() + (double)g_opt_timeout;
 #endif
@@ -109,8 +107,7 @@ static int stress_fork_fn(
 	stress_set_oom_adjustment(args->name, true);
 
 	/* Explicitly drop capabilities, makes it more OOM-able */
-	ret = stress_drop_capabilities(args->name);
-	(void)ret;
+	VOID_RET(int, stress_drop_capabilities(args->name));
 
 	do {
 		NOCLOBBER uint32_t i, n;
@@ -207,21 +204,17 @@ static int stress_fork_fn(
 				}
 
 				/* exercise some setpgid calls before we die */
-				ret = setpgid(0, 0);
-				(void)ret;
+				VOID_RET(int, setpgid(0, 0));
 #if defined(HAVE_GETPGID)
-				ret = setpgid(my_pid, my_pgid);
-				(void)ret;
+				VOID_RET(int, setpgid(my_pid, my_pgid));
 #else
 				UNEXPECTED
 #endif
 
 				/* -ve pgid is EINVAL */
-				ret = setpgid(0, -1);
-				(void)ret;
+				VOID_RET(int, setpgid(0, -1));
 				/* -ve pid is EINVAL */
-				ret = setpgid(-1, 0);
-				(void)ret;
+				VOID_RET(int, setpgid(-1, 0));
 
 				(void)shim_sched_yield();
 				_exit(0);

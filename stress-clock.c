@@ -491,8 +491,7 @@ static int stress_clock(const stress_args_t *args)
 						errno, strerror(errno));
 					break;
 				}
-				ret = timer_getoverrun(timer_id[i]);
-				(void)ret;
+				VOID_RET(int, timer_getoverrun(timer_id[i]));
 			}
 
 			for (i = 0; i < MAX_TIMERS; i++) {
@@ -527,8 +526,7 @@ static int stress_clock(const stress_args_t *args)
 				pollfds[0].events = POLLIN;
 				pollfds[0].revents = 0;
 
-				ret = poll(pollfds, 1, 0);
-				(void)ret;
+				VOID_RET(int, poll(pollfds, 1, 0));
 #else
 				UNEXPECTED
 #endif
