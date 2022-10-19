@@ -272,7 +272,7 @@ err_unlink:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
 
 #if defined(O_DIRECTORY)
-	if (temp_dir_fd > 0)
+	if (temp_dir_fd >= 0)
 		(void)close(temp_dir_fd);
 #endif
 	(void)shim_unlink(oldpath);
