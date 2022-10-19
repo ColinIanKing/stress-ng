@@ -488,7 +488,8 @@ static uint64_t syscall_time_now(void)
 	uint64_t sec, ns;
 
 	syscall_errno = errno;
-	clock_gettime(CLOCK_MONOTONIC, &ts);
+	if (UNLIKELY(clock_gettime(CLOCK_MONOTONIC, &ts) < 0))
+		return 0.0;
 	if (base_ts.tv_sec == 0)
 		base_ts = ts;	/* first call, save the baseline time */
 
