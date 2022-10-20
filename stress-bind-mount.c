@@ -56,9 +56,9 @@ static void MLOCKED_TEXT stress_bind_mount_child_handler(int signum)
  */
 static int stress_bind_mount_child(void *parg)
 {
-	const stress_args_t *args = ((stress_pthread_args_t *)parg)->args;
-	char path[PATH_MAX];
-	int ret;
+	stress_pthread_args_t *pargs = (stress_pthread_args_t *)parg;
+	const stress_args_t *args = pargs->args;
+	const char *path = (const char *)pargs->data;
 
 	if (stress_sighandler(args->name, SIGALRM,
 				stress_bind_mount_child_handler, NULL) < 0) {
@@ -73,15 +73,6 @@ static int stress_bind_mount_child(void *parg)
 		return EXIT_FAILURE;
 	}
 	stress_parent_died_alarm();
-
-	(void)stress_temp_dir(path, sizeof(path), args->name, getpid(), args->instance);
-	ret = mkdir(path, S_IRUSR | S_IRWXU);
-	if (ret < 0) {
-		(void)shim_rmdir(path);
-		pr_err("%s: mkdir %s failed, errno=%d (%s)\n",
-			args->name, path, errno, strerror(errno));
-		return EXIT_NO_RESOURCE;
-	}
 
 	do {
 		int rc, retries;
@@ -141,6 +132,7 @@ bind_umount:
 	} while (keep_stressing_flag() &&
 		 (!args->max_ops || (get_counter(args) < args->max_ops)));
 
+	/* Remove path in child process just in case parent fails to reap it */
 	(void)shim_rmdir(path);
 	return 0;
 }
@@ -151,10 +143,20 @@ bind_umount:
  */
 static int stress_bind_mount(const stress_args_t *args)
 {
-	int pid = 0, status;
-	stress_pthread_args_t pargs = { args, NULL, 0 };
+	int pid = 0, status, ret;
+	char path[PATH_MAX];
+	stress_pthread_args_t pargs = { args, path, 0 };
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
+
+	(void)stress_temp_dir(path, sizeof(path), args->name, getpid(), args->instance);
+	ret = mkdir(path, S_IRUSR | S_IRUSR | S_IRGRP | S_IWGRP);
+	if (ret < 0) {
+		(void)shim_rmdir(path);
+		pr_err("%s: mkdir %s failed, errno=%d (%s)\n",
+			args->name, path, errno, strerror(errno));
+		return EXIT_NO_RESOURCE;
+	}
 
 	do {
 		static char stack[CLONE_STACK_SIZE];
@@ -177,6 +179,8 @@ static int stress_bind_mount(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	(void)shim_rmdir(path);
 
 	return EXIT_SUCCESS;
 }
