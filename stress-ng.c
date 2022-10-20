@@ -2427,7 +2427,7 @@ again:
 				    (!(g_stressor_current->bogo_ops && stats->counter >= g_stressor_current->bogo_ops))) {
 
 					pr_warn("%s: WARNING: finished prematurely after just %.2fs%s\n",
-						name, run_duration, stress_duration_to_str((double)g_opt_timeout));
+						name, run_duration, stress_duration_to_str(run_duration));
 				}
 
 child_exit:
