@@ -146,6 +146,7 @@ static int stress_chroot_test2(
 	}
 #else
 	(void)args;
+	(void)metrics;
 #endif
 	return EXIT_SUCCESS;
 }
