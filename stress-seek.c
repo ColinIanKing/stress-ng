@@ -325,7 +325,9 @@ re_read:
 		 */
 		VOID_RET(off_t, lseek(fd, 0, ~0));
 
+#if defined(FALLOC_FL_PUNCH_HOLE)
 inc:
+#endif
 		inc_counter(args);
 	} while (keep_stressing(args));
 
