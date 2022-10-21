@@ -39,10 +39,8 @@ typedef enum {
 	CACHE_WAYS
 } cache_size_type_t;
 
-#if defined(__linux__)
 #define SYS_CPU_PREFIX               "/sys/devices/system/cpu"
 #define SYS_CPU_CACHE_DIR            "cache"
-#endif
 
 static const stress_generic_map_t cache_type_map[] = {
 	{ "data",		CACHE_TYPE_DATA },
@@ -818,6 +816,7 @@ void stress_free_cpu_caches(stress_cpus_t *cpus)
  */
 void stress_get_llc_size(size_t *llc_size, size_t *cache_line_size)
 {
+#if defined(__linux__)
 	uint16_t max_cache_level;
 	stress_cpus_t *cpu_caches;
 	stress_cpu_cache_t *cache = NULL;
@@ -841,4 +840,8 @@ void stress_get_llc_size(size_t *llc_size, size_t *cache_line_size)
 
 free_cpu_caches:
 	stress_free_cpu_caches(cpu_caches);
+#else
+	*llc_size = 0;
+	*cache_line_size = 0;
+#endif
 }
