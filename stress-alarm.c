@@ -39,7 +39,7 @@ static const stress_help_t help[] = {
 
 /*
  *  stress_alarm
- *	stress alarm(3)
+ *	stress alarm()
  */
 static int stress_alarm(const stress_args_t *args)
 {
