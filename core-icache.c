@@ -31,7 +31,7 @@
  *	modifiable to force I-cache refreshes by modifying the code
  */
 #define STRESS_ICACHE_FUNC(func_name, page_size)			\
-void SECTION(stress_icache_callee) ALIGNED(page_size)			\
+void SECTION(icache_callee) ALIGNED(page_size)				\
 func_name(void)								\
 {									\
 	return;								\

@@ -611,6 +611,9 @@ typedef struct {
 
 #if (defined(__GNUC__) && NEED_GNUC(4, 6, 0)) ||	\
     (defined(__clang__) && NEED_CLANG(3, 0, 0))
+#if (defined(__APPLE__) && defined(__MACH__))
+#define SECTION(s)	__attribute__((__section__(# s "," # s)))
+#else
 #define SECTION(s)	__attribute__((__section__(# s)))
 #else
 #define SECTION(s)

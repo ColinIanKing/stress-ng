@@ -88,7 +88,7 @@ static int NOINLINE icache_mprotect(
  *      perf stat -e L1-icache-load-misses stress-ng --icache 0 -t 1
  */
 #define STRESS_ICACHE(func_name, size, icache_func)			\
-static int SECTION(stress_icache_caller) ALIGNED(size) 			\
+static int SECTION(icache_caller) ALIGNED(size) 			\
 func_name(const stress_args_t *args)					\
 {									\
 	uint32_t *addr = (uint32_t *)icache_func;			\
