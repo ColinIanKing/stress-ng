@@ -1666,7 +1666,7 @@ messages between them via the eventfd mechanism (Linux only).
 .B \-\-eventfd\-ops N
 stop eventfd workers after N bogo operations.
 .TP
-.B \-\-eventfd\-nonblock N
+.B \-\-eventfd\-nonblock
 enable EFD_NONBLOCK to allow non-blocking on the event file descriptor. This
 will cause reads and writes to return with EAGAIN rather the blocking and hence
 causing a high rate of polling I/O.
