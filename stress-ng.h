@@ -1937,8 +1937,9 @@ typedef enum {
 	OPT_sockfd_port,
 
 	OPT_sockmany,
-	OPT_sockmany_ops,
 	OPT_sockmany_if,
+	OPT_sockmany_ops,
+	OPT_sockmany_port,
 
 	OPT_sockpair,
 	OPT_sockpair_ops,

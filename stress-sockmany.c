@@ -26,7 +26,10 @@
 UNEXPECTED
 #endif
 
+#define MIN_SOCKMANY_PORT	(1024)
+#define MAX_SOCKMANY_PORT	(65535)
 #define DEFAULT_SOCKET_MANY_PORT (11000)
+
 #define SOCKET_MANY_BUF		(8)
 #define SOCKET_MANY_FDS		(100000)
 
@@ -37,10 +40,24 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL, "sockmany N",		"start N workers exercising many socket connections" },
-	{ NULL,	"sockmany-ops N",	"stop after N sockmany bogo operations" },
 	{ NULL,	"sockmany-if I",	"use network interface I, e.g. lo, eth0, etc." },
+	{ NULL,	"sockmany-ops N",	"stop after N sockmany bogo operations" },
+	{ NULL,	"sockmany-port",	"use socket ports P to P + number of workers - 1" },
 	{ NULL,	NULL,			NULL }
 };
+
+/*
+ *  stress_set_sockmany_port()
+ *	set port to use
+ */
+static int stress_set_sockmany_port(const char *opt)
+{
+	int sockmany_port;
+
+	stress_set_net_port("sockmany-port", opt,
+		MIN_SOCKMANY_PORT, MAX_SOCKMANY_PORT, &sockmany_port);
+	return stress_set_setting("sockmany-port", TYPE_ID_INT, &sockmany_port);
+}
 
 static int stress_set_sockmany_if(const char *name)
 {
@@ -70,7 +87,7 @@ static void stress_sockmany_cleanup(int fds[], const int n)
  */
 static int stress_sockmany_client(
 	const stress_args_t *args,
-	const int socket_port,
+	const int sockmany_port,
 	const pid_t mypid,
 	stress_sock_fds_t *sock_fds,
 	const char *sockmany_if)
@@ -112,7 +129,7 @@ retry:
 			}
 
 			if (stress_set_sockaddr_if(args->name, args->instance, mypid,
-					AF_INET, socket_port, sockmany_if,
+					AF_INET, sockmany_port, sockmany_if,
 					&addr, &addr_len, NET_ADDR_ANY) < 0) {
 				return EXIT_FAILURE;
 			}
@@ -160,7 +177,7 @@ retry:
  */
 static int stress_sockmany_server(
 	const stress_args_t *args,
-	const int socket_port,
+	const int sockmany_port,
 	const pid_t pid,
 	const pid_t mypid,
 	const char *sockmany_if)
@@ -192,7 +209,7 @@ static int stress_sockmany_server(
 	}
 
 	if (stress_set_sockaddr_if(args->name, args->instance, mypid,
-			AF_INET, socket_port, sockmany_if,
+			AF_INET, sockmany_port, sockmany_if,
 			&addr, &addr_len, NET_ADDR_ANY) < 0) {
 		rc = EXIT_FAILURE;
 		goto die_close;
@@ -292,11 +309,12 @@ static int stress_sockmany(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	stress_sock_fds_t *sock_fds;
-	int socket_port = DEFAULT_SOCKET_MANY_PORT;
+	int sockmany_port = DEFAULT_SOCKET_MANY_PORT;
 	int rc = EXIT_SUCCESS, reserved_port;
 	char *sockmany_if = NULL;
 
 	(void)stress_get_setting("sockmany-if", &sockmany_if);
+	(void)stress_get_setting("sockmany-port", &sockmany_port);
 
 	if (sockmany_if) {
 		int ret;
@@ -310,16 +328,17 @@ static int stress_sockmany(const stress_args_t *args)
 		}
 	}
 
-	socket_port += args->instance;
-	reserved_port = stress_net_reserve_ports(socket_port, socket_port);
+	sockmany_port += args->instance;
+	reserved_port = stress_net_reserve_ports(sockmany_port, sockmany_port);
 	if (reserved_port < 0) {
 		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
-			args->name, socket_port);
+			args->name, sockmany_port);
 		return EXIT_NO_RESOURCE;
 	}
-	socket_port = reserved_port;
+	sockmany_port = reserved_port;
+
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, socket_port);
+		args->name, (int)args->pid, sockmany_port);
 
 	sock_fds = (stress_sock_fds_t *)mmap(NULL, sizeof(*sock_fds), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -346,20 +365,20 @@ again:
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	} else if (pid == 0) {
-		rc = stress_sockmany_client(args, socket_port, ppid, sock_fds, sockmany_if);
+		rc = stress_sockmany_client(args, sockmany_port, ppid, sock_fds, sockmany_if);
 
 		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);
 
 		_exit(rc);
 	} else {
-		rc = stress_sockmany_server(args, socket_port, pid, ppid, sockmany_if);
+		rc = stress_sockmany_server(args, sockmany_port, pid, ppid, sockmany_if);
 	}
 	pr_dbg("%s: %d sockets opened at one time\n", args->name, sock_fds->max_fd);
 
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	stress_net_release_ports(socket_port, socket_port);
+	stress_net_release_ports(sockmany_port, sockmany_port);
 
 	(void)munmap((void *)sock_fds, args->page_size);
 	return rc;
@@ -367,6 +386,7 @@ finish:
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
 	{ OPT_sockmany_if,	stress_set_sockmany_if },
+	{ OPT_sockmany_port,	stress_set_sockmany_port },
 	{ 0,			NULL },
 };
 
