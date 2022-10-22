@@ -948,6 +948,7 @@ static const struct option long_options[] = {
 	{ "sock-zerocopy", 	0,	0,	OPT_sock_zerocopy },
 	{ "sockabuse",		1,	0,	OPT_sockabuse },
 	{ "sockabuse-ops",	1,	0,	OPT_sockabuse_ops },
+	{ "sockabuse-port",	1,	0,	OPT_sockabuse_port },
 	{ "sockdiag",		1,	0,	OPT_sockdiag },
 	{ "sockdiag-ops",	1,	0,	OPT_sockdiag_ops },
 	{ "sockfd",		1,	0,	OPT_sockfd },

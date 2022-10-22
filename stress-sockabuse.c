@@ -32,15 +32,32 @@
 #error cannot have both HAVE_SYS_XATTR_H and HAVE_ATTR_XATTR_H
 #endif
 
+#define MIN_SOCKABUSE_PORT	(1024)
+#define MAX_SOCKABUSE_PORT	(65535)
 #define DEFAULT_SOCKABUSE_PORT	(12000)
+
 #define MSGVEC_SIZE		(4)
 #define SOCKET_BUF		(8192)	/* Socket I/O buffer size */
 
 static const stress_help_t help[] = {
 	{ NULL, "sockabuse N",		"start N workers abusing socket I/O" },
 	{ NULL,	"sockabuse-ops N",	"stop after N socket abusing bogo operations" },
+	{ NULL,	"sockabuse-port P",	"use socket ports P to P + number of workers - 1" },
 	{ NULL,	NULL,			NULL }
 };
+
+/*
+ *  stress_set_sockabuse_port()
+ *	set port to use
+ */
+static int stress_set_sockabuse_port(const char *opt)
+{
+	int sockabuse_port;
+
+	stress_set_net_port("sockabuse-port", opt,
+		MIN_SOCKABUSE_PORT, MAX_SOCKABUSE_PORT, &sockabuse_port);
+	return stress_set_setting("sockabuse-port", TYPE_ID_INT, &sockabuse_port);
+}
 
 /*
  *  stress_sockabuse_fd
@@ -159,7 +176,7 @@ static void stress_sockabuse_fd(const int fd)
 static int stress_sockabuse_client(
 	const stress_args_t *args,
 	const pid_t mypid,
-	const int socket_port)
+	const int sockabuse_port)
 {
 	struct sockaddr *addr;
 
@@ -183,7 +200,7 @@ retry:
 		}
 
 		if (stress_set_sockaddr(args->name, args->instance, mypid,
-				AF_INET, socket_port,
+				AF_INET, sockabuse_port,
 				&addr, &addr_len, NET_ADDR_ANY) < 0) {
 			return EXIT_FAILURE;
 		}
@@ -223,7 +240,7 @@ static int stress_sockabuse_server(
 	const stress_args_t *args,
 	const pid_t pid,
 	const pid_t mypid,
-	const int socket_port)
+	const int sockabuse_port)
 {
 	char buf[SOCKET_BUF];
 	int fd, status;
@@ -259,7 +276,7 @@ static int stress_sockabuse_server(
 		}
 
 		if (stress_set_sockaddr(args->name, args->instance, mypid,
-				AF_INET, socket_port,
+				AF_INET, sockabuse_port,
 				&addr, &addr_len, NET_ADDR_ANY) < 0) {
 			(void)close(fd);
 			continue;
@@ -362,19 +379,22 @@ static void stress_sockabuse_sigpipe_handler(int signum)
 static int stress_sockabuse(const stress_args_t *args)
 {
 	pid_t pid, mypid = getpid();
-	int socket_port = DEFAULT_SOCKABUSE_PORT + (int)args->instance;
+	int sockabuse_port = DEFAULT_SOCKABUSE_PORT;
 	int rc = EXIT_SUCCESS, reserved_port;
 
-	reserved_port = stress_net_reserve_ports(socket_port, socket_port);
+	(void)stress_get_setting("sockabuse-port", &sockabuse_port);
+
+	sockabuse_port += args->instance;
+	reserved_port = stress_net_reserve_ports(sockabuse_port, sockabuse_port);
 	if (reserved_port < 0) {
 		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
-			args->name, socket_port);
+			args->name, sockabuse_port);
 		return EXIT_NO_RESOURCE;
-        }
-	socket_port = reserved_port;
+	}
+	sockabuse_port = reserved_port;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, socket_port);
+		args->name, (int)args->pid, sockabuse_port);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sockabuse_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -394,7 +414,7 @@ again:
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
 		rc = stress_sockabuse_client(args, mypid,
-			socket_port);
+			sockabuse_port);
 
 		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);
@@ -402,18 +422,24 @@ again:
 		_exit(rc);
 	} else {
 		rc = stress_sockabuse_server(args, pid, mypid,
-			socket_port);
+			sockabuse_port);
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	stress_net_release_ports(socket_port, socket_port);
+	stress_net_release_ports(sockabuse_port, sockabuse_port);
 
 	return rc;
 }
 
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_sockabuse_port,	stress_set_sockabuse_port },
+	{ 0,			NULL },
+};
+
 stressor_info_t stress_sockabuse_info = {
 	.stressor = stress_sockabuse,
 	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.verify = VERIFY_ALWAYS,
 	.help = help
 };

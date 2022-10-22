@@ -4482,6 +4482,10 @@ illegal and unexpected calls gracefully.
 .B \-\-sockabuse\-ops N
 stop after N iterations of the socket abusing stressor loop.
 .TP
+.B \-\-sockabuse\-port P
+start at socket port P. For N sockabuse worker processes, ports P to P - 1 are
+used.
+.TP
 .B \-\-sockdiag N
 start N workers that exercise the Linux sock_diag netlink socket diagnostics
 (Linux only).  This currently requests diagnostics using UDIAG_SHOW_NAME,

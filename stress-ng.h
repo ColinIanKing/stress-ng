@@ -1927,6 +1927,7 @@ typedef enum {
 
 	OPT_sockabuse,
 	OPT_sockabuse_ops,
+	OPT_sockabuse_port,
 
 	OPT_sockdiag,
 	OPT_sockdiag_ops,
