@@ -28,9 +28,9 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"vecshuf N",		"start N workers performing vector shuffle ops" },
-	{ NULL,	"vecshuf-ops N",	"stop after N vector shuffle bogo operations" },
 	{ NULL,	"vecshuf-method M",	"select vector shuffling method" },
-	{ NULL,	NULL,		 NULL }
+	{ NULL,	"vecshuf-ops N",	"stop after N vector shuffle bogo operations" },
+	{ NULL,	NULL,			NULL }
 };
 
 #if defined(HAVE_VECMATH) &&		\

@@ -82,9 +82,9 @@ static void *touch_lock;
 
 static const stress_help_t help[] = {
 	{ NULL,	"touch N",	"start N stressors that touch and remove files" },
+	{ NULL, "touch-method",	"specify method to touch tile file, open | create" },
 	{ NULL,	"touch-ops N",	"stop after N touch bogo operations" },
 	{ NULL, "touch-opts",	"touch open options all,direct,dsync,excl,noatime,sync,trunc" },
-	{ NULL, "touch-method",	"specify method to touch tile file, open | create" },
 	{ NULL,	NULL,		NULL }
 };
 

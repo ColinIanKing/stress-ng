@@ -50,8 +50,8 @@ typedef struct stress_hash_method_info {
 
 static const stress_help_t help[] = {
 	{ NULL,  "hash N",		"start N workers that exercise various hash functions" },
-	{ NULL,  "hash-ops N",		"stop after N hash bogo operations" },
 	{ NULL,  "hash-method M",	"specify stress hash method M, default is all" },
+	{ NULL,  "hash-ops N",		"stop after N hash bogo operations" },
 	{ NULL,	 NULL,			NULL }
 };
 

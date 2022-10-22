@@ -60,12 +60,12 @@ UNEXPECTED
 
 static const stress_help_t help[] = {
 	{ NULL,	"udp N",	"start N workers performing UDP send/receives " },
-	{ NULL,	"udp-ops N",	"stop after N udp bogo operations" },
 	{ NULL,	"udp-domain D",	"specify domain, default is ipv4" },
 	{ NULL, "udp-gro",	"enable UDP-GRO" },
-	{ NULL,	"udp-lite",	"use the UDP-Lite (RFC 3828) protocol" },
-	{ NULL,	"udp-port P",	"use ports P to P + number of workers - 1" },
 	{ NULL,	"udp-if I",	"use network interface I, e.g. lo, eth0, etc." },
+	{ NULL,	"udp-lite",	"use the UDP-Lite (RFC 3828) protocol" },
+	{ NULL,	"udp-ops N",	"stop after N udp bogo operations" },
+	{ NULL,	"udp-port P",	"use ports P to P + number of workers - 1" },
 	{ NULL,	NULL,		NULL }
 };
 

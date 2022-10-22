@@ -24,11 +24,11 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"dirdeep N",		"start N directory depth stressors" },
-	{ NULL,	"dirdeep-ops N",	"stop after N directory depth bogo operations" },
 	{ NULL, "dirdeep-bytes N",	"size of files to create per level (see --dirdeep-files)" },
 	{ NULL,	"dirdeep-dirs N",	"create N directories per level" },
 	{ NULL, "dirdeep-files N",	"create N files per level (see --dirdeep-bytes) " },
 	{ NULL,	"dirdeep-inodes N",	"create a maximum N inodes (N can also be %)" },
+	{ NULL,	"dirdeep-ops N",	"stop after N directory depth bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

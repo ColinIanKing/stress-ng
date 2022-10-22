@@ -40,11 +40,11 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"epoll N",	  	"start N workers doing epoll handled socket activity" },
+	{ NULL,	"epoll-domain D", 	"specify socket domain, default is unix" },
 	{ NULL,	"epoll-ops N",	  	"stop after N epoll bogo operations" },
 	{ NULL,	"epoll-port P",	  	"use socket ports P upwards" },
-	{ NULL,	"epoll-domain D", 	"specify socket domain, default is unix" },
 	{ NULL, "epoll-sockets N",	"specify maximum number of open sockets" },
-	{ NULL,	NULL,		  NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 #if defined(HAVE_SYS_EPOLL_H) &&	\

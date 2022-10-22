@@ -36,8 +36,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"fiemap N",	  "start N workers exercising the FIEMAP ioctl" },
-	{ NULL,	"fiemap-ops N",	  "stop after N FIEMAP ioctl bogo operations" },
 	{ NULL,	"fiemap-bytes N", "specify size of file to fiemap" },
+	{ NULL,	"fiemap-ops N",	  "stop after N FIEMAP ioctl bogo operations" },
 	{ NULL,	NULL,		   NULL }
 };
 

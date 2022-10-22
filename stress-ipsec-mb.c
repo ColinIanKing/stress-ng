@@ -33,9 +33,9 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"ipsec-mb N",		"start N workers exercising the IPSec MB encoding" },
-	{ NULL,	"ipsec-mb-ops N",	"stop after N ipsec bogo encoding operations" },
 	{ NULL, "ipsec-mb-feature F",	"specify CPU feature F" },
-	{ NULL,	"ipsec-mb-jobs",	"specify number of jobs to run per round (default 1)" },
+	{ NULL,	"ipsec-mb-jobs N",	"specify number of jobs to run per round (default 1)" },
+	{ NULL,	"ipsec-mb-ops N",	"stop after N ipsec bogo encoding operations" },
 	{ NULL,	NULL,		  NULL }
 };
 

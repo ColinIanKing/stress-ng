@@ -78,8 +78,8 @@ static const stress_help_t help[] = {
 	{ NULL,	"malloc-bytes N",	"allocate up to N bytes per allocation" },
 	{ NULL,	"malloc-max N",		"keep up to N allocations at a time" },
 	{ NULL,	"malloc-ops N",		"stop after N malloc bogo operations" },
-	{ NULL,	"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
 	{ NULL, "malloc-pthreads N",	"number of pthreads to run concurrently" },
+	{ NULL,	"malloc-thresh N",	"threshold where malloc uses mmap instead of sbrk" },
 	{ NULL, "malloc-touch",		"touch pages force pages to be populated" },
 	{ NULL,	"malloc-zerofree",	"zero free'd memory" },
 	{ NULL,	NULL,			NULL }

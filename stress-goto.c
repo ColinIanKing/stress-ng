@@ -19,8 +19,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"goto N",		"start N workers that exercise heavy branching" },
-	{ NULL,	"goto-ops N",		"stop after 1024 x N goto bogo operations" },
 	{ NULL, "goto-direction D",	"select goto direction forward, backward, random" },
+	{ NULL,	"goto-ops N",		"stop after 1024 x N goto bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

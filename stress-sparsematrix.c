@@ -89,11 +89,11 @@ static const stress_sparsematrix_method_info_t sparsematrix_methods[];
 
 static const stress_help_t help[] = {
 	{ NULL,	"sparsematrix N",	 "start N workers that exercise a sparse matrix" },
-	{ NULL,	"sparsematrix-ops N",	 "stop after N bogo sparse matrix operations" },
-	{ NULL,	"sparsematrix-method M", "select storage method: all, hash, judy, list or rb" },
 	{ NULL,	"sparsematrix-items N",	 "N is the number of items in the spare matrix" },
+	{ NULL,	"sparsematrix-method M", "select storage method: all, hash, judy, list or rb" },
+	{ NULL,	"sparsematrix-ops N",	 "stop after N bogo sparse matrix operations" },
 	{ NULL,	"sparsematrix-size N",	 "M is the width and height X x Y of the matrix" },
-	{ NULL,	NULL,		 NULL }
+	{ NULL,	NULL,		 	 NULL }
 };
 
 #if defined(HAVE_RB_TREE)

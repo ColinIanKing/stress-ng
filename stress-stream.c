@@ -50,10 +50,10 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"stream N",		"start N workers exercising memory bandwidth" },
-	{ NULL,	"stream-ops N",		"stop after N bogo stream operations" },
 	{ NULL,	"stream-index",		"specify number of indices into the data (0..3)" },
 	{ NULL,	"stream-l3-size N",	"specify the L3 cache size of the CPU" },
 	{ NULL,	"stream-madvise M",	"specify mmap'd stream buffer madvise advice" },
+	{ NULL,	"stream-ops N",		"stop after N bogo stream operations" },
 	{ NULL,	NULL,                   NULL }
 };
 

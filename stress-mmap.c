@@ -30,13 +30,13 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmap N",	 "start N workers stressing mmap and munmap" },
-	{ NULL,	"mmap-ops N",	 "stop after N mmap bogo operations" },
 	{ NULL,	"mmap-async",	 "using asynchronous msyncs for file based mmap" },
 	{ NULL,	"mmap-bytes N",	 "mmap and munmap N bytes for each stress iteration" },
 	{ NULL,	"mmap-file",	 "mmap onto a file using synchronous msyncs" },
 	{ NULL,	"mmap-mprotect", "enable mmap mprotect stressing" },
-	{ NULL, "mmap-osync",	 "enable O_SYNC on file" },
 	{ NULL, "mmap-odirect",	 "enable O_DIRECT on file" },
+	{ NULL,	"mmap-ops N",	 "stop after N mmap bogo operations" },
+	{ NULL, "mmap-osync",	 "enable O_SYNC on file" },
 	{ NULL,	NULL,		 NULL }
 };
 

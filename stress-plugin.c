@@ -27,9 +27,9 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"plugin N",	   "start N workers exercising random plugins" },
+	{ NULL,	"plugin-method M", "set plugin stress method" },
 	{ NULL,	"plugin-ops N",	   "stop after N plugin bogo operations" },
 	{ NULL, "plugin-so file",  "specify plugin shared object file" },
-	{ NULL,	"plugin-method M", "set plugin stress method" },
 	{ NULL, NULL,		   NULL }
 };
 

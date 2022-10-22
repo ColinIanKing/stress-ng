@@ -30,8 +30,8 @@
 
 static const stress_help_t fork_help[] = {
 	{ "f N","fork N",	"start N workers spinning on fork() and exit()" },
-	{ NULL,	"fork-ops N",	"stop after N fork bogo operations" },
 	{ NULL,	"fork-max P",	"create P workers per iteration, default is 1" },
+	{ NULL,	"fork-ops N",	"stop after N fork bogo operations" },
 	{ NULL, "fork-vm",	"enable extra virtual memory pressure" },
 	{ NULL,	NULL,		NULL }
 };

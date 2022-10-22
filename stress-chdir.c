@@ -26,8 +26,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL, "chdir N",	"start N workers thrashing chdir on many paths" },
-	{ NULL, "chdir-ops N",	"stop chdir workers after N bogo chdir operations" },
 	{ NULL,	"chdir-dirs N",	"select number of directories to exercise chdir on" },
+	{ NULL, "chdir-ops N",	"stop chdir workers after N bogo chdir operations" },
 	{ NULL,	NULL,		NULL }
 };
 

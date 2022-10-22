@@ -28,9 +28,9 @@ typedef struct {
 #endif
 
 static const stress_help_t help[] = {
-	{ NULL,	"memhotplug N",	"start N workers that exercise memory hotplug" },
+	{ NULL,	"memhotplug N",		"start N workers that exercise memory hotplug" },
 	{ NULL,	"memhotplug-ops N",	"stop after N memory hotplug operations" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 #if defined(__linux__)

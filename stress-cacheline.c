@@ -63,9 +63,9 @@ do {			\
 
 static const stress_help_t help[] = {
 	{ NULL,	"cacheline N",		"start N workers that exercise cachelines" },
-	{ NULL,	"cacheline-ops N",	"stop after N cacheline bogo operations" },
 	{ NULL,	"cacheline-affinity",	"modify CPU affinity" },
 	{ NULL,	"cacheline-method M",	"use cacheline stressing method M" },
+	{ NULL,	"cacheline-ops N",	"stop after N cacheline bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

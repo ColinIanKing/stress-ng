@@ -26,8 +26,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"copy-file N",		"start N workers that copy file data" },
-	{ NULL,	"copy-file-ops N",	"stop after N copy bogo operations" },
 	{ NULL,	"copy-file-bytes N",	"specify size of file to be copied" },
+	{ NULL,	"copy-file-ops N",	"stop after N copy bogo operations" },
 	{ NULL,	NULL,			NULL }
 
 };

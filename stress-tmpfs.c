@@ -47,9 +47,9 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"tmpfs N",	    "start N workers mmap'ing a file on tmpfs" },
-	{ NULL,	"tmpfs-ops N",	    "stop after N tmpfs bogo ops" },
 	{ NULL,	"tmpfs-mmap-async", "using asynchronous msyncs for tmpfs file based mmap" },
 	{ NULL,	"tmpfs-mmap-file",  "mmap onto a tmpfs file using synchronous msyncs" },
+	{ NULL,	"tmpfs-ops N",	    "stop after N tmpfs bogo ops" },
 	{ NULL,	NULL,		    NULL }
 };
 

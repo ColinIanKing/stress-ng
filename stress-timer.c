@@ -25,8 +25,8 @@
 
 static const stress_help_t help[] = {
 	{ "T N", "timer N",	"start N workers producing timer events" },
-	{ NULL, "timer-ops N",	"stop after N timer bogo events" },
 	{ NULL, "timer-freq F",	"run timer(s) at F Hz, range 1 to 1000000000" },
+	{ NULL, "timer-ops N",	"stop after N timer bogo events" },
 	{ NULL, "timer-rand",	"enable random timer frequency" },
 	{ NULL, NULL,		NULL }
 };

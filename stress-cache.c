@@ -61,7 +61,6 @@ static uint64_t disabled_flags;
 
 static const stress_help_t help[] = {
 	{ "C N","cache N",	 	"start N CPU cache thrashing workers" },
-	{ NULL,	"cache-ops N",	 	"stop after N cache bogo operations" },
 #if defined(HAVE_ASM_X86_CLDEMOTE)
 	{ NULL,	"cache-cldemote",	"cache line demote (x86 only)" },
 #endif
@@ -75,13 +74,14 @@ static const stress_help_t help[] = {
 #endif
 	{ NULL,	"cache-level N",	"only exercise specified cache" },
 	{ NULL, "cache-no-affinity",	"do not change CPU affinity" },
+	{ NULL,	"cache-ops N",	 	"stop after N cache bogo operations" },
 	{ NULL,	"cache-prefetch",	"prefetch on memory reads/writes" },
 #if defined(HAVE_BUILTIN_SFENCE)
 	{ NULL,	"cache-sfence",		"serialize stores with sfence" },
 #endif
 	{ NULL,	"cache-ways N",		"only fill specified number of cache ways" },
 	{ NULL, "cache-wb",		"cache line writeback (x86 only)" },
-	{ NULL,	NULL,		 NULL }
+	{ NULL,	NULL,			NULL }
 };
 
 static int stress_cache_set_flag(const uint32_t flag)

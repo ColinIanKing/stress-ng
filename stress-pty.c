@@ -29,8 +29,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"pty N",	"start N workers that exercise pseudoterminals" },
-	{ NULL,	"pty-ops N",	"stop pty workers after N pty bogo operations" },
 	{ NULL,	"pty-max N",	"attempt to open a maximum of N ptys" },
+	{ NULL,	"pty-ops N",	"stop pty workers after N pty bogo operations" },
 	{ NULL,	NULL,          NULL }
 };
 

@@ -33,10 +33,10 @@ UNEXPECTED
 
 static const stress_help_t help[] = {
 	{ "s N","switch N",	 	"start N workers doing rapid context switches" },
-	{ NULL,	"switch-ops N",	 	"stop after N context switch bogo operations" },
 	{ NULL, "switch-freq N", 	"set frequency of context switches" },
 	{ NULL, "switch-method M",	"mq | pipe | sem-sysv" },
-	{ NULL, NULL, 		 NULL }
+	{ NULL,	"switch-ops N",	 	"stop after N context switch bogo operations" },
+	{ NULL, NULL, 			NULL }
 };
 
 typedef struct {

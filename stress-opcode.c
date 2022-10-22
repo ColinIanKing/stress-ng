@@ -37,8 +37,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"opcode N",	   "start N workers exercising random opcodes" },
-	{ NULL,	"opcode-ops N",	   "stop after N opcode bogo operations" },
 	{ NULL,	"opcode-method M", "set opcode stress method (M = random, inc, mixed, text)" },
+	{ NULL,	"opcode-ops N",	   "stop after N opcode bogo operations" },
 	{ NULL, NULL,		   NULL }
 };
 

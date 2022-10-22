@@ -23,9 +23,9 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"x86syscall N",		"start N workers exercising functions using syscall" },
-	{ NULL,	"x86syscall-ops N",	"stop after N syscall function calls" },
 	{ NULL,	"x86syscall-func F",	"use just syscall function F" },
-	{ NULL,	NULL,		NULL }
+	{ NULL,	"x86syscall-ops N",	"stop after N syscall function calls" },
+	{ NULL,	NULL,			NULL }
 };
 
 /*

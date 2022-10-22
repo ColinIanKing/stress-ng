@@ -28,10 +28,10 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"randlist N",		"start N workers that exercise random ordered list" },
-	{ NULL,	"randlist-ops N",	"stop after N randlist bogo no-op operations" },
 	{ NULL, "randlist-compact",	"reduce mmap and malloc overheads" },
-	{ NULL, "randlist-items",	"number of items in the random ordered list" },
-	{ NULL, "randlist-size",	"size of data in each item in the list" },
+	{ NULL, "randlist-items N",	"number of items in the random ordered list" },
+	{ NULL,	"randlist-ops N",	"stop after N randlist bogo no-op operations" },
+	{ NULL, "randlist-size N",	"size of data in each item in the list" },
 	{ NULL,	NULL,			NULL }
 };
 

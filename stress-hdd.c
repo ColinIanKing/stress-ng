@@ -78,8 +78,8 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ "d N","hdd N",		"start N workers spinning on write()/unlink()" },
-	{ NULL,	"hdd-ops N",		"stop after N hdd bogo operations" },
 	{ NULL,	"hdd-bytes N",		"write N bytes per hdd worker (default is 1GB)" },
+	{ NULL,	"hdd-ops N",		"stop after N hdd bogo operations" },
 	{ NULL,	"hdd-opts list",	"specify list of various stressor options" },
 	{ NULL,	"hdd-write-size N",	"set the default write size to N bytes" },
 	{ NULL, NULL,			NULL }

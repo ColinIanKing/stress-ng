@@ -82,11 +82,11 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ "c N", "cpu N",		"start N workers that perform CPU only loading" },
-	{ NULL,  "cpu-ops N",		"stop after N cpu bogo operations" },
 	{ "l P", "cpu-load P",		"load CPU by P %, 0=sleep, 100=full load (see -c)" },
 	{ NULL,	 "cpu-load-slice S",	"specify time slice during busy load" },
 	{ NULL,  "cpu-method M",	"specify stress cpu method M, default is all" },
 	{ NULL,	 "cpu-old-metrics",	"use old CPU metrics instead of normalized metrics" },
+	{ NULL,  "cpu-ops N",		"stop after N cpu bogo operations" },
 	{ NULL,	 NULL,			NULL }
 };
 

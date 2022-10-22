@@ -23,8 +23,8 @@
 
 static const stress_help_t help[] = {
 	{ "p N", "pipe N",		"start N workers exercising pipe I/O" },
-	{ NULL,	"pipe-ops N",		"stop after N pipe I/O bogo operations" },
 	{ NULL,	"pipe-data-size N",	"set pipe size of each pipe write to N bytes" },
+	{ NULL,	"pipe-ops N",		"stop after N pipe I/O bogo operations" },
 #if defined(F_SETPIPE_SZ)
 	{ NULL,	"pipe-size N",		"set pipe size to N bytes" },
 #endif

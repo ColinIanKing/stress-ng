@@ -28,8 +28,8 @@ UNEXPECTED
 
 static const stress_help_t help[] = {
 	{ NULL,	"utime N",	"start N workers updating file timestamps" },
-	{ NULL,	"utime-ops N",	"stop after N utime bogo operations" },
 	{ NULL,	"utime-fsync",	"force utime meta data sync to the file system" },
+	{ NULL,	"utime-ops N",	"stop after N utime bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
 

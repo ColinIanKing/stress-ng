@@ -26,8 +26,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"ramfs N",	 "start N workers exercising ramfs mounts" },
-	{ NULL,	"ramfs-ops N",	 "stop after N bogo ramfs mount operations" },
 	{ NULL, "ramfs-bytes N", "set the ramfs size in bytes, e.g. 2M is 2MB" },
+	{ NULL,	"ramfs-ops N",	 "stop after N bogo ramfs mount operations" },
 	{ NULL,	NULL,		 NULL }
 };
 

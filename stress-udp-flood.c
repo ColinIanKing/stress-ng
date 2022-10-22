@@ -30,9 +30,9 @@ UNEXPECTED
 
 static const stress_help_t help[] = {
 	{ NULL,	"udp-flood N",		"start N workers that performs a UDP flood attack" },
-	{ NULL,	"udp-flood-ops N",	"stop after N udp flood bogo operations" },
 	{ NULL,	"udp-flood-domain D",	"specify domain, default is ipv4" },
 	{ NULL, "udp-flood-if I",	"use network interface I, e.g. lo, eth0, etc." },
+	{ NULL,	"udp-flood-ops N",	"stop after N udp flood bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

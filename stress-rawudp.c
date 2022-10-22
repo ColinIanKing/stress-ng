@@ -42,8 +42,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL, "rawudp N",	"start N workers exercising raw UDP socket I/O" },
-	{ NULL,	"rawudp-ops N",	"stop after N raw socket UDP bogo operations" },
 	{ NULL,	"rawudp-if I",	"use network interface I, e.g. lo, eth0, etc." },
+	{ NULL,	"rawudp-ops N",	"stop after N raw socket UDP bogo operations" },
 	{ NULL,	"rawudp-port P","use raw socket ports P to P + number of workers - 1" },
 	{ NULL,	NULL,		NULL }
 };

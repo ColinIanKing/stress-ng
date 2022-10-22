@@ -60,8 +60,8 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"clone N",	"start N workers that rapidly create and reap clones" },
-	{ NULL,	"clone-ops N",	"stop after N bogo clone operations" },
 	{ NULL,	"clone-max N",	"set upper limit of N clones per worker" },
+	{ NULL,	"clone-ops N",	"stop after N bogo clone operations" },
 	{ NULL,	NULL,		NULL }
 };
 

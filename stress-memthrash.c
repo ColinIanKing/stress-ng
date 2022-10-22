@@ -26,8 +26,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"memthrash N",		"start N workers thrashing a 16MB memory buffer" },
-	{ NULL,	"memthrash-ops N",	"stop after N memthrash bogo operations" },
 	{ NULL,	"memthrash-method M",	"specify memthrash method M, default is all" },
+	{ NULL,	"memthrash-ops N",	"stop after N memthrash bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

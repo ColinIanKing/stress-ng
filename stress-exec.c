@@ -113,9 +113,6 @@ static const stress_exec_method_t stress_exec_fork_methods[] = {
 
 static const stress_help_t help[] = {
 	{ NULL,	"exec N",		"start N workers spinning on fork() and exec()" },
-	{ NULL,	"exec-ops N",		"stop after N exec bogo operations" },
-	{ NULL,	"exec-max P",		"create P workers per iteration, default is 4096" },
-	{ NULL,	"exec-method M",	"select exec method: all, execve, execveat" },
 	{ NULL,	"exec-fork-method M",	"select exec fork method:"
 #if defined(HAVE_CLONE)
 					" clone"
@@ -129,7 +126,10 @@ static const stress_help_t help[] = {
 					" vfork"
 #endif
 					"" },
+	{ NULL,	"exec-max P",		"create P workers per iteration, default is 4096" },
+	{ NULL,	"exec-method M",	"select exec method: all, execve, execveat" },
 	{ NULL,	"exec-no-pthread",	"do not use pthread_create" },
+	{ NULL,	"exec-ops N",		"stop after N exec bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

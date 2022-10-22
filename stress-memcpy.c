@@ -24,8 +24,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"memcpy N",	   "start N workers performing memory copies" },
-	{ NULL,	"memcpy-ops N",	   "stop after N memcpy bogo operations" },
 	{ NULL,	"memcpy-method M", "set memcpy method (M = all, libc, builtin, naive..)" },
+	{ NULL,	"memcpy-ops N",	   "stop after N memcpy bogo operations" },
 	{ NULL,	NULL,		   NULL }
 };
 

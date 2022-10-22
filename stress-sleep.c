@@ -45,8 +45,8 @@ static sigset_t set;
 
 static const stress_help_t help[] = {
 	{ NULL,	"sleep N",	"start N workers performing various duration sleeps" },
-	{ NULL,	"sleep-ops N",	"stop after N bogo sleep operations" },
 	{ NULL,	"sleep-max P",	"create P threads at a time by each worker" },
+	{ NULL,	"sleep-ops N",	"stop after N bogo sleep operations" },
 	{ NULL,	NULL,		NULL }
 };
 

@@ -55,13 +55,13 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"cyclic N",		"start N cyclic real time benchmark stressors" },
-	{ NULL,	"cyclic-ops N",		"stop after N cyclic timing cycles" },
-	{ NULL,	"cyclic-method M",	"specify cyclic method M, default is clock_ns" },
 	{ NULL,	"cyclic-dist N",	"calculate distribution of interval N nanosecs" },
+	{ NULL,	"cyclic-method M",	"specify cyclic method M, default is clock_ns" },
+	{ NULL,	"cyclic-ops N",		"stop after N cyclic timing cycles" },
 	{ NULL,	"cyclic-policy P",	"used rr or fifo scheduling policy" },
 	{ NULL,	"cyclic-prio N",	"real time scheduling priority 1..100" },
-	{ NULL,	"cyclic-sleep N",	"sleep time of real time timer in nanosecs" },
 	{ NULL, "cyclic-samples N",	"number of latency samples to take" },
+	{ NULL,	"cyclic-sleep N",	"sleep time of real time timer in nanosecs" },
 	{ NULL,	NULL,			NULL }
 };
 

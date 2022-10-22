@@ -29,8 +29,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"dir N",	"start N directory thrashing stressors" },
-	{ NULL,	"dir-ops N",	"stop after N directory bogo operations" },
 	{ NULL,	"dir-dirs N",	"select number of directories to exercise dir on" },
+	{ NULL,	"dir-ops N",	"stop after N directory bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
 

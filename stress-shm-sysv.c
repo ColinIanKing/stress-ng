@@ -49,8 +49,8 @@ UNEXPECTED
 
 static const stress_help_t help[] = {
 	{ NULL,	"shm-sysv N",		"start N workers that exercise System V shared memory" },
-	{ NULL,	"shm-sysv-ops N",	"stop after N shared memory bogo operations" },
 	{ NULL,	"shm-sysv-bytes N",	"allocate and free N bytes of shared memory per loop" },
+	{ NULL,	"shm-sysv-ops N",	"stop after N shared memory bogo operations" },
 	{ NULL,	"shm-sysv-segs N",	"allocate N shared memory segments per iteration" },
 	{ NULL,	NULL,			NULL }
 };

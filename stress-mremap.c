@@ -25,9 +25,9 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"mremap N",	  "start N workers stressing mremap" },
-	{ NULL,	"mremap-ops N",	  "stop after N mremap bogo operations" },
 	{ NULL,	"mremap-bytes N", "mremap N bytes maximum for each stress iteration" },
 	{ NULL, "mremap-lock",	  "mlock remap pages, force pages to be unswappable" },
+	{ NULL,	"mremap-ops N",	  "stop after N mremap bogo operations" },
 	{ NULL,	NULL,		  NULL }
 };
 

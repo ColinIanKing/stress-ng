@@ -33,8 +33,8 @@ UNEXPECTED
 
 static const stress_help_t help[] = {
 	{ NULL,	"vdso N",	"start N workers exercising functions in the VDSO" },
-	{ NULL,	"vdso-ops N",	"stop after N vDSO function calls" },
 	{ NULL,	"vdso-func F",	"use just vDSO function F" },
+	{ NULL,	"vdso-ops N",	"stop after N vDSO function calls" },
 	{ NULL,	NULL,		NULL }
 };
 

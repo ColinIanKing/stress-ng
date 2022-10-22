@@ -51,9 +51,9 @@ typedef struct {
 
 static const stress_help_t help[] = {
 	{ NULL,	"sctp N",	 "start N workers performing SCTP send/receives " },
-	{ NULL,	"sctp-ops N",	 "stop after N SCTP bogo operations" },
-	{ NULL,	"sctp-if I",	 "use network interface I, e.g. lo, eth0, etc." },
 	{ NULL,	"sctp-domain D", "specify sctp domain, default is ipv4" },
+	{ NULL,	"sctp-if I",	 "use network interface I, e.g. lo, eth0, etc." },
+	{ NULL,	"sctp-ops N",	 "stop after N SCTP bogo operations" },
 	{ NULL,	"sctp-port P",	 "use SCTP ports P to P + number of workers - 1" },
 	{ NULL, "sctp-sched S",	 "specify sctp scheduler" },
 	{ NULL,	NULL, 		 NULL }

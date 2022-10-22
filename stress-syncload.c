@@ -31,9 +31,9 @@ static bool stress_sysload_x86_has_rdrand;
 
 static const stress_help_t help[] = {
 	{ NULL,	"syncload N",		"start N workers that synchronize load spikes" },
-	{ NULL,	"syncload-ops N",	"stop after N syncload bogo operations" },
 	{ NULL, "syncload-msbusy M",	"maximum busy duration in milliseconds" },
 	{ NULL, "syncload-mssleep M",	"maximum sleep duration in milliseconds" },
+	{ NULL,	"syncload-ops N",	"stop after N syncload bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

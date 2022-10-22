@@ -27,8 +27,8 @@ static sigset_t set;
 
 static const stress_help_t help[] = {
 	{ NULL,	"fstat N",	  "start N workers exercising fstat on files" },
-	{ NULL,	"fstat-ops N",	  "stop after N fstat bogo operations" },
 	{ NULL,	"fstat-dir path", "fstat files in the specified directory" },
+	{ NULL,	"fstat-ops N",	  "stop after N fstat bogo operations" },
 	{ NULL,	NULL,		  NULL }
 };
 

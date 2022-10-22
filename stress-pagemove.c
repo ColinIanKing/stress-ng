@@ -24,8 +24,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"pagemove N",	  	"start N workers that shuffle move pages" },
-	{ NULL,	"pagemove-ops N",	"stop after N page move bogo operations" },
 	{ NULL,	"pagemove-bytes N",	"size of mmap'd region to exercise page moving in bytes" },
+	{ NULL,	"pagemove-ops N",	"stop after N page move bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

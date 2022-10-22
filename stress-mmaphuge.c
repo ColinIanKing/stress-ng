@@ -21,8 +21,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"mmaphuge N",		"start N workers stressing mmap with huge mappings" },
-	{ NULL,	"mmaphuge-ops N",	"stop after N mmaphuge bogo operations" },
 	{ NULL, "mmaphuge-mmaps N",	"select number of memory mappings per iteration" },
+	{ NULL,	"mmaphuge-ops N",	"stop after N mmaphuge bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

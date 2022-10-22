@@ -169,8 +169,8 @@ typedef struct dev_info {
 
 static const stress_help_t help[] = {
 	{ NULL,	"dev N",	"start N device entry thrashing stressors" },
-	{ NULL,	"dev-ops N",	"stop after N device thrashing bogo ops" },
 	{ NULL, "dev-file name","specify the /dev/ file to exercise" },
+	{ NULL,	"dev-ops N",	"stop after N device thrashing bogo ops" },
 	{ NULL,	NULL,		NULL }
 };
 

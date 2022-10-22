@@ -39,8 +39,8 @@ static stress_zombie_list_t zombies;
 
 static const stress_help_t help[] = {
 	{ NULL,	"zombie N",	"start N workers that rapidly create and reap zombies" },
-	{ NULL,	"zombie-ops N",	"stop after N bogo zombie fork operations" },
 	{ NULL,	"zombie-max N",	"set upper limit of N zombies per worker" },
+	{ NULL,	"zombie-ops N",	"stop after N bogo zombie fork operations" },
 	{ NULL,	NULL,		NULL }
 };
 

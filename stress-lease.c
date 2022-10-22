@@ -31,8 +31,8 @@ static uint64_t lease_sigio;
 
 static const stress_help_t help[] = {
 	{ NULL,	"lease N",	    "start N workers holding and breaking a lease" },
-	{ NULL,	"lease-ops N",	    "stop after N lease bogo operations" },
 	{ NULL,	"lease-breakers N", "number of lease breaking workers to start" },
+	{ NULL,	"lease-ops N",	    "stop after N lease bogo operations" },
 	{ NULL, NULL,		    NULL }
 };
 

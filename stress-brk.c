@@ -21,9 +21,9 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"brk N",	"start N workers performing rapid brk calls" },
-	{ NULL,	"brk-ops N",	"stop after N brk bogo operations" },
 	{ NULL, "brk-mlock",	"attempt to mlock newly mapped brk pages" },
 	{ NULL,	"brk-notouch",	"don't touch (page in) new data segment page" },
+	{ NULL,	"brk-ops N",	"stop after N brk bogo operations" },
 	{ NULL,	NULL,		NULL }
 };
 

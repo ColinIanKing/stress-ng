@@ -31,13 +31,13 @@ typedef struct {
 } stress_affinity_info_t;
 
 static const stress_help_t help[] = {
-	{ NULL,	"affinity N",	  "start N workers that rapidly change CPU affinity" },
-	{ NULL,	"affinity-ops N", "stop after N affinity bogo operations" },
-	{ NULL,	"affinity-rand",  "change affinity randomly rather than sequentially" },
-	{ NULL, "affinity-delay", "delay in nanoseconds between affinity changes" },
-	{ NULL, "affinity-pin",   "keep per stressor threads pinned to same CPU" },
-	{ NULL,	"affinity-sleep", "sleep in nanoseconds between affinity changes" },
-	{ NULL,	NULL,		  NULL }
+	{ NULL,	"affinity N",	  	"start N workers that rapidly change CPU affinity" },
+	{ NULL, "affinity-delay D",	"delay in nanoseconds between affinity changes" },
+	{ NULL,	"affinity-ops N",	"stop after N affinity bogo operations" },
+	{ NULL, "affinity-pin",		"keep per stressor threads pinned to same CPU" },
+	{ NULL,	"affinity-rand",	"change affinity randomly rather than sequentially" },
+	{ NULL,	"affinity-sleep",	"sleep in nanoseconds between affinity changes" },
+	{ NULL,	NULL,			NULL }
 };
 
 static int stress_set_affinity_delay(const char *opt)

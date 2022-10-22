@@ -31,8 +31,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"misaligned N",	   	"start N workers performing misaligned read/writes" },
-	{ NULL,	"misaligned-ops N",	"stop after N misaligned bogo operations" },
 	{ NULL,	"misaligned-method M",	"use misaligned memory read/write method" },
+	{ NULL,	"misaligned-ops N",	"stop after N misaligned bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

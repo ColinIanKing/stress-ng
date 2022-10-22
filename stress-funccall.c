@@ -35,8 +35,8 @@ static const stress_funccall_method_info_t funccall_methods[];
 
 static const stress_help_t help[] = {
 	{ NULL,	"funccall N",		"start N workers exercising 1 to 9 arg functions" },
-	{ NULL,	"funccall-ops N",	"stop after N function call bogo operations" },
 	{ NULL,	"funccall-method M",	"select function call method M" },
+	{ NULL,	"funccall-ops N",	"stop after N function call bogo operations" },
 	{ NULL,	NULL,			NULL }
 };
 

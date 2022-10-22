@@ -51,8 +51,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"pthread N",	 "start N workers that create multiple threads" },
-	{ NULL,	"pthread-ops N", "stop pthread workers after N bogo threads created" },
 	{ NULL,	"pthread-max P", "create P threads at a time by each worker" },
+	{ NULL,	"pthread-ops N", "stop pthread workers after N bogo threads created" },
 	{ NULL,	NULL,		 NULL }
 };
 

@@ -29,8 +29,8 @@
 
 static const stress_help_t help[] = {
 	{ NULL,	"rawdev N",	   "start N workers that read a raw device" },
-	{ NULL,	"rawdev-ops N",	   "stop after N rawdev read operations" },
 	{ NULL,	"rawdev-method M", "specify the rawdev read method to use" },
+	{ NULL,	"rawdev-ops N",	   "stop after N rawdev read operations" },
 	{ NULL,	NULL,		   NULL }
 };
 

@@ -73,12 +73,12 @@ static const stress_help_t help[] = {
 	{ NULL,	 "vm-bytes N",	 "allocate N bytes per vm worker (default 256MB)" },
 	{ NULL,	 "vm-hang N",	 "sleep N seconds before freeing memory" },
 	{ NULL,	 "vm-keep",	 "redirty memory instead of reallocating" },
-	{ NULL,	 "vm-ops N",	 "stop after N vm bogo operations" },
 #if defined(MAP_LOCKED)
 	{ NULL,	 "vm-locked",	 "lock the pages of the mapped region into memory" },
 #endif
 	{ NULL,	 "vm-madvise M", "specify mmap'd vm buffer madvise advice" },
 	{ NULL,	 "vm-method M",	 "specify stress vm method M, default is all" },
+	{ NULL,	 "vm-ops N",	 "stop after N vm bogo operations" },
 #if defined(MAP_POPULATE)
 	{ NULL,	 "vm-populate",	 "populate (prefault) page tables for a mapping" },
 #endif
