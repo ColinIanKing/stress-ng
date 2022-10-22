@@ -29,10 +29,33 @@
 #include <netinet/ip.h>
 #endif
 
+#define MIN_RAWSOCK_PORT		(1024)
+#define MAX_RAWSOCK_PORT		(65535)
+#define DEFAULT_RAWSOCK_PORT		(45000)
+
 static const stress_help_t help[] = {
 	{ NULL,	"rawsock N",		"start N workers performing raw socket send/receives " },
 	{ NULL,	"rawsock-ops N",	"stop after N raw socket bogo operations" },
+	{ NULL,	"rawsock-port P",	"use socket P to P + number of workers - 1" },
 	{ NULL,	NULL,			NULL }
+};
+
+/*
+ *  stress_set_rawsock_port()
+ *	set port to use
+ */
+static int stress_set_rawsock_port(const char *opt)
+{
+	int rawsock_port;
+
+	stress_set_net_port("rawsock-port", opt,
+		MIN_RAWSOCK_PORT, MAX_RAWSOCK_PORT, &rawsock_port);
+	return stress_set_setting("rawsock-port", TYPE_ID_INT, &rawsock_port);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_rawsock_port,	stress_set_rawsock_port },
+	{ 0,			NULL },
 };
 
 #if defined(SOCK_RAW) &&	\
@@ -79,20 +102,27 @@ static int stress_rawsock_supported(const char *name)
 static int stress_rawsock(const stress_args_t *args)
 {
 	pid_t pid;
-	int rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS, reserved_port;
 	double t_start, duration = 0.0, bytes = 0.0, rate;
-	int port = 45000;
+	int rawsock_port = DEFAULT_RAWSOCK_PORT;
 
 	if (!rawsock_lock) {
 		pr_inf_skip("%s: failed to create rawsock lock, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
+	(void)stress_get_setting("rawsock-port", &rawsock_port);
 
-	port = stress_net_reserve_ports(port, port);
-	if (port < 0) {
-		pr_inf("%s: cannot reserve port 45000, skipping stressor\n", args->name);
+	rawsock_port += args->instance;
+	reserved_port = stress_net_reserve_ports(rawsock_port, rawsock_port);
+	if (reserved_port < 0) {
+		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+			args->name, rawsock_port);
 		return EXIT_NO_RESOURCE;
 	}
+	rawsock_port = reserved_port;
+
+	pr_dbg("%s: process [%d] using socket port %d\n",
+		args->name, (int)args->pid, rawsock_port);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:
@@ -126,7 +156,7 @@ again:
 
 		(void)memset(&addr, 0, sizeof(addr));
 		addr.sin_family = AF_INET;
-		addr.sin_port = port;
+		addr.sin_port = rawsock_port;
 		addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
 		(void)memset(&pkt, 0, sizeof(pkt));
@@ -253,7 +283,7 @@ die:
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	stress_net_release_ports(port, port);
+	stress_net_release_ports(rawsock_port, rawsock_port);
 
 	return rc;
 }
@@ -261,6 +291,7 @@ finish:
 stressor_info_t stress_rawsock_info = {
 	.stressor = stress_rawsock,
 	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.supported = stress_rawsock_supported,
 	.help = help,
 	.init = stress_rawsock_init,
@@ -270,6 +301,7 @@ stressor_info_t stress_rawsock_info = {
 stressor_info_t stress_rawsock_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_NETWORK | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #endif

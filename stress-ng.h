@@ -1735,6 +1735,7 @@ typedef enum {
 
 	OPT_rawsock,
 	OPT_rawsock_ops,
+	OPT_rawsock_port,
 
 	OPT_rawudp,
 	OPT_rawudp_ops,

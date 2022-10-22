@@ -3900,6 +3900,10 @@ localhost. Requires CAP_NET_RAW to run.
 .B \-\-rawsock-ops N
 stop rawsock workers after N packets are received.
 .TP
+.B \-\-rawsock\-port P
+start at socket port P. For N rawsock worker processes, ports P to P - 1 are
+used.
+.TP
 .B \-\-rawpkt N
 start N workers that sends and receives ethernet packets
 using raw packets on the localhost via the loopback device. Requires
