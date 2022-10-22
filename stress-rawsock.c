@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-net.h"
 
 #if defined(HAVE_LINUX_SOCKIOS_H)
 #include <linux/sockios.h>
@@ -80,9 +81,16 @@ static int stress_rawsock(const stress_args_t *args)
 	pid_t pid;
 	int rc = EXIT_SUCCESS;
 	double t_start, duration = 0.0, bytes = 0.0, rate;
+	int port = 45000;
 
 	if (!rawsock_lock) {
 		pr_inf_skip("%s: failed to create rawsock lock, skipping stressor\n", args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
+	port = stress_net_reserve_ports(port, port);
+	if (port < 0) {
+		pr_inf("%s: cannot reserve port 45000, skipping stressor\n", args->name);
 		return EXIT_NO_RESOURCE;
 	}
 
@@ -118,7 +126,7 @@ again:
 
 		(void)memset(&addr, 0, sizeof(addr));
 		addr.sin_family = AF_INET;
-		addr.sin_port = 45000;
+		addr.sin_port = port;
 		addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 
 		(void)memset(&pkt, 0, sizeof(pkt));
@@ -245,6 +253,7 @@ die:
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	stress_net_release_ports(port, port);
 
 	return rc;
 }

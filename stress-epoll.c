@@ -78,9 +78,7 @@ static int stress_set_epoll_port(const char *opt)
 	int epoll_port;
 
 	stress_set_net_port("epoll-port", opt,
-		MIN_EPOLL_PORT,
-		MAX_EPOLL_PORT - (STRESS_PROCS_MAX * MAX_SERVERS),
-		&epoll_port);
+		MIN_EPOLL_PORT, MAX_EPOLL_PORT, &epoll_port);
 	return stress_set_setting("epoll-port", TYPE_ID_INT, &epoll_port);
 }
 
@@ -1005,6 +1003,7 @@ static int stress_epoll(const stress_args_t *args)
 	int epoll_domain = AF_UNIX;
 	int epoll_port = DEFAULT_EPOLL_PORT;
 	int epoll_sockets = DEFAULT_EPOLL_SOCKETS;
+	int start_port, end_port, reserved_port;
 
 	(void)stress_get_setting("epoll-domain", &epoll_domain);
 	(void)stress_get_setting("epoll-port", &epoll_port);
@@ -1014,14 +1013,38 @@ static int stress_epoll(const stress_args_t *args)
 		return EXIT_NO_RESOURCE;
 
 	if (max_servers == 1) {
+		start_port = epoll_port + (int)args->instance;
+		reserved_port = stress_net_reserve_ports(start_port, start_port);
+		if (reserved_port < 0) {
+			pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+				args->name, start_port);
+			return EXIT_NO_RESOURCE;
+		}
+		/* adjust for reserved port range */
+		start_port = reserved_port;
+		end_port = reserved_port;
+		epoll_port = start_port - (int)args->instance;
+
 		pr_dbg("%s: process [%" PRIdMAX "] using socket port %d\n",
 			args->name, (intmax_t)args->pid,
 			epoll_port + (int)args->instance);
 	} else {
+		start_port = epoll_port + (max_servers * (int)args->instance);
+		end_port = start_port + max_servers - 1;
+
+		reserved_port = stress_net_reserve_ports(start_port, end_port);
+		if (reserved_port < 0) {
+			pr_inf("%s: cannot reserve ports %d..%d, skipping stressor\n",
+				args->name, start_port, end_port);
+			return EXIT_NO_RESOURCE;
+		}
+		/* adjust for reserved port range */
+		start_port = reserved_port;
+		end_port = reserved_port + max_servers - 1;
+		epoll_port = start_port - (max_servers * (int)args->instance);
+
 		pr_dbg("%s: process [%" PRIdMAX "] using socket ports %d..%d\n",
-			args->name, (intmax_t)args->pid,
-			epoll_port + (max_servers * (int)args->instance),
-			epoll_port + (max_servers * (int)(args->instance + 1)) - 1);
+			args->name, (intmax_t)args->pid, start_port, end_port);
 	}
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
@@ -1053,6 +1076,7 @@ static int stress_epoll(const stress_args_t *args)
 	epoll_client(args, mypid, epoll_port, epoll_domain);
 reap:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	stress_net_release_ports(start_port, end_port);
 
 	for (i = 0; i < max_servers; i++) {
 		int status;

@@ -70,13 +70,13 @@ static void stress_sockmany_cleanup(int fds[], const int n)
  */
 static int stress_sockmany_client(
 	const stress_args_t *args,
+	const int socket_port,
 	const pid_t mypid,
 	stress_sock_fds_t *sock_fds,
 	const char *sockmany_if)
 {
 	struct sockaddr *addr;
 	static int fds[SOCKET_MANY_FDS];
-	const int socket_port = DEFAULT_SOCKET_MANY_PORT + (int)args->instance;
 
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
@@ -160,6 +160,7 @@ retry:
  */
 static int stress_sockmany_server(
 	const stress_args_t *args,
+	const int socket_port,
 	const pid_t pid,
 	const pid_t mypid,
 	const char *sockmany_if)
@@ -171,7 +172,6 @@ static int stress_sockmany_server(
 	struct sockaddr *addr = NULL;
 	uint64_t msgs = 0;
 	int rc = EXIT_SUCCESS;
-	const int socket_port = DEFAULT_SOCKET_MANY_PORT + (int)args->instance;
 
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
@@ -292,7 +292,8 @@ static int stress_sockmany(const stress_args_t *args)
 {
 	pid_t pid, ppid = getppid();
 	stress_sock_fds_t *sock_fds;
-	int rc = EXIT_SUCCESS;
+	int socket_port = DEFAULT_SOCKET_MANY_PORT;
+	int rc = EXIT_SUCCESS, reserved_port;
 	char *sockmany_if = NULL;
 
 	(void)stress_get_setting("sockmany-if", &sockmany_if);
@@ -308,6 +309,17 @@ static int stress_sockmany(const stress_args_t *args)
 			sockmany_if = NULL;
 		}
 	}
+
+	socket_port += args->instance;
+	reserved_port = stress_net_reserve_ports(socket_port, socket_port);
+	if (reserved_port < 0) {
+		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+			args->name, socket_port);
+		return EXIT_NO_RESOURCE;
+	}
+	socket_port = reserved_port;
+	pr_dbg("%s: process [%d] using socket port %d\n",
+		args->name, (int)args->pid, socket_port);
 
 	sock_fds = (stress_sock_fds_t *)mmap(NULL, sizeof(*sock_fds), PROT_READ | PROT_WRITE,
 		MAP_SHARED | MAP_ANONYMOUS, -1, 0);
@@ -334,19 +346,20 @@ again:
 			args->name, errno, strerror(errno));
 		rc = EXIT_FAILURE;
 	} else if (pid == 0) {
-		rc = stress_sockmany_client(args, ppid, sock_fds, sockmany_if);
+		rc = stress_sockmany_client(args, socket_port, ppid, sock_fds, sockmany_if);
 
 		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);
 
 		_exit(rc);
 	} else {
-		rc = stress_sockmany_server(args, pid, ppid, sockmany_if);
+		rc = stress_sockmany_server(args, socket_port, pid, ppid, sockmany_if);
 	}
 	pr_dbg("%s: %d sockets opened at one time\n", args->name, sock_fds->max_fd);
 
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	stress_net_release_ports(socket_port, socket_port);
 
 	(void)munmap((void *)sock_fds, args->page_size);
 	return rc;

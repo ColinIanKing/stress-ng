@@ -173,8 +173,7 @@ static int stress_set_socket_port(const char *opt)
 	int socket_port;
 
 	stress_set_net_port("sock-port", opt,
-		MIN_SOCKET_PORT, MAX_SOCKET_PORT - STRESS_PROCS_MAX,
-		&socket_port);
+		MIN_SOCKET_PORT, MAX_SOCKET_PORT, &socket_port);
 	return stress_set_setting("sock-port", TYPE_ID_INT, &socket_port);
 }
 
@@ -1191,7 +1190,7 @@ static int stress_sock(const stress_args_t *args)
 	int socket_protocol = 0;
 #endif
 	int socket_zerocopy = false;
-	int rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS, reserved_port;
 	const bool rt = stress_sock_kernel_rt();
 	char *mmap_buffer;
 	char *socket_if = NULL;
@@ -1216,6 +1215,13 @@ static int stress_sock(const stress_args_t *args)
 		}
 	}
 	socket_port += args->instance;
+	reserved_port = stress_net_reserve_ports(socket_port, socket_port);
+	if (reserved_port < 0) {
+		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+			args->name, socket_port);
+		return EXIT_NO_RESOURCE;
+	}
+	socket_port = reserved_port;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, socket_port);
@@ -1262,6 +1268,7 @@ again:
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	stress_net_release_ports(socket_port, socket_port);
 
 	return rc;
 }

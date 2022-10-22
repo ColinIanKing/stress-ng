@@ -46,4 +46,7 @@ extern void stress_set_sockaddr_port(const int domain, const int port,
 extern int stress_net_interface_exists(const char *interface, const int domain, struct sockaddr *addr);
 extern WARN_UNUSED const char *stress_net_domain(const int domain);
 
+extern WARN_UNUSED int stress_net_reserve_ports(const int start_port, const int end_port);
+extern void stress_net_release_ports(const int start_port, const int end_port);
+
 #endif

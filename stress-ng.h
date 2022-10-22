@@ -934,6 +934,10 @@ typedef struct {
 	stress_checksum_t *checksums;			/* per stressor counter checksum */
 	size_t	checksums_length;			/* size of checksums mapping */
 	struct {
+		uint8_t allocated[65536 / 8];
+		void *lock;
+	} net_port_map;
+	struct {
 		uint32_t ready;				/* incremented when rawsock stressor is ready */
 	} rawsock;
 	stress_stats_t stats[];				/* Shared statistics */

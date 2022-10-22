@@ -74,8 +74,7 @@ static int stress_set_udp_port(const char *opt)
 	int udp_port;
 
 	stress_set_net_port("udp-port", opt,
-		MIN_UDP_PORT, MAX_UDP_PORT - STRESS_PROCS_MAX,
-		&udp_port);
+		MIN_UDP_PORT, MAX_UDP_PORT, &udp_port);
 	return stress_set_setting("udp-port", TYPE_ID_INT, &udp_port);
 }
 
@@ -417,7 +416,7 @@ static int stress_udp(const stress_args_t *args)
 	int udp_port = DEFAULT_UDP_PORT;
 	int udp_domain = AF_INET;
 	pid_t pid, mypid = getpid();
-	int rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS, reserved_port;
 	int udp_proto = 0;
 #if defined(IPPROTO_UDPLITE)
 	bool udp_lite = false;
@@ -443,6 +442,16 @@ static int stress_udp(const stress_args_t *args)
 		}
 	}
 #endif
+	udp_port += args->instance;
+	reserved_port = stress_net_reserve_ports(udp_port, udp_port);
+	if (reserved_port < 0) {
+		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+			args->name, udp_port);
+		return EXIT_NO_RESOURCE;
+	}
+        udp_port = reserved_port;
+	pr_dbg("%s: process [%d] using udp port %d\n",
+		args->name, (int)args->pid, udp_port);
 
 #if defined(UDP_GRO)
 	(void)stress_get_setting("udp-gro", &udp_gro);
@@ -458,11 +467,6 @@ static int stress_udp(const stress_args_t *args)
 			udp_if = NULL;
 		}
 	}
-
-	udp_port += args->instance;
-
-	pr_dbg("%s: process [%d] using udp port %d\n",
-		args->name, (int)args->pid, udp_port);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:

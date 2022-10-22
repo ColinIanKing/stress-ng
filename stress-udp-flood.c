@@ -120,10 +120,18 @@ static int stress_udp_flood(const stress_args_t *args)
 	t = stress_time_now();
 	do {
 		char buf[MAX_UDP_SIZE];
-		int rand_port;
+		int rand_port, reserved_port;
 		ssize_t n;
 
+		if (++port > 65535)
+			port = 1024;
+
 		(void)memset(buf, data[j++ & 63], sz);
+
+		reserved_port = stress_net_reserve_ports(port, port);
+		if (reserved_port < 0)
+			continue;	/* try again */
+		port = reserved_port;
 
 		stress_set_sockaddr_port(udp_flood_domain, port, addr);
 		n = sendto(fd, buf, sz, 0, addr, addr_len);
@@ -131,8 +139,6 @@ static int stress_udp_flood(const stress_args_t *args)
 			inc_counter(args);
 			bytes += (double)n;
 		}
-		if (++port > 65535)
-			port = 1024;
 
 #if defined(SIOCOUTQ)
 		if ((port & 0x1f) == 0) {
@@ -143,17 +149,23 @@ static int stress_udp_flood(const stress_args_t *args)
 #else
 		UNEXPECTED
 #endif
+		stress_net_release_ports(port, port);
 
 		if (!keep_stressing(args))
 			break;
 
 		rand_port = 1024 + (stress_mwc16() % (65535 - 1024));
+		reserved_port = stress_net_reserve_ports(rand_port, rand_port);
+		if (reserved_port < 0)
+			continue;	/* try again */
+		rand_port = reserved_port;
 		stress_set_sockaddr_port(udp_flood_domain, rand_port, addr);
 		n = sendto(fd, buf, sz, 0, addr, addr_len);
 		if (n > 0) {
 			inc_counter(args);
 			bytes += (double)n;
 		}
+		stress_net_release_ports(rand_port, rand_port);
 
 		if (++sz >= sz_max)
 			sz = 1;

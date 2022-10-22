@@ -100,8 +100,7 @@ static int stress_set_dccp_port(const char *opt)
 	int dccp_port;
 
 	stress_set_net_port("dccp-port", opt,
-		MIN_DCCP_PORT, MAX_DCCP_PORT - STRESS_PROCS_MAX,
-		&dccp_port);
+		MIN_DCCP_PORT, MAX_DCCP_PORT, &dccp_port);
 	return stress_set_setting("dccp-port", TYPE_ID_INT, &dccp_port);
 }
 
@@ -432,7 +431,7 @@ static int stress_dccp(const stress_args_t *args)
 	int dccp_port = DEFAULT_DCCP_PORT;
 	int dccp_domain = AF_INET;
 	int dccp_opts = DCCP_OPT_SEND;
-	int rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS, reserved_port;
 	char *dccp_if = NULL;
 
 	(void)stress_get_setting("dcpp-if", &dccp_if);
@@ -453,6 +452,13 @@ static int stress_dccp(const stress_args_t *args)
 	}
 
 	dccp_port += args->instance;
+	reserved_port = stress_net_reserve_ports(dccp_port, dccp_port);
+	if (reserved_port < 0) {
+		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+			args->name, dccp_port);
+		return EXIT_NO_RESOURCE;
+	}
+	dccp_port = reserved_port;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, dccp_port);
@@ -480,6 +486,7 @@ again:
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	stress_net_release_ports(dccp_port, dccp_port);
 	return rc;
 }
 

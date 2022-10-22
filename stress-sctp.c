@@ -641,7 +641,7 @@ static int stress_sctp(const stress_args_t *args)
 	int sctp_port = DEFAULT_SCTP_PORT;
 	int sctp_domain = AF_INET;
 	int sctp_sched = -1;	/* Undefined */
-	int ret;
+	int ret, reserved_port;
 	char *sctp_if = NULL;
 
 	(void)stress_get_setting("sctp-domain", &sctp_domain);
@@ -664,6 +664,13 @@ static int stress_sctp(const stress_args_t *args)
 		return EXIT_FAILURE;
 
 	sctp_port += args->instance;
+	reserved_port = stress_net_reserve_ports(sctp_port, sctp_port);
+	if (reserved_port < 0) {
+		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+			args->name, sctp_port);
+		return EXIT_NO_RESOURCE;
+	}
+	sctp_port = reserved_port;
 
 	pr_dbg("%s: process [%" PRIdMAX "] using socket port %d\n",
 		args->name, (intmax_t)args->pid, sctp_port);
@@ -694,6 +701,7 @@ finish:
 		pr_dbg("%s: caught %" PRIu64 " SIGPIPE signals\n", args->name, sigpipe_count);
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	stress_net_release_ports(sctp_port, sctp_port);
 
 	return ret;
 }

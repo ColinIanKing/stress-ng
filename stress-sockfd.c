@@ -46,8 +46,7 @@ static int stress_set_socket_fd_port(const char *opt)
 	int socket_fd_port;
 
 	stress_set_net_port("sockfd-port", opt,
-		MIN_SOCKET_FD_PORT, MAX_SOCKET_FD_PORT - STRESS_PROCS_MAX,
-		&socket_fd_port);
+		MIN_SOCKET_FD_PORT, MAX_SOCKET_FD_PORT, &socket_fd_port);
 	return stress_set_setting("sockfd-port", TYPE_ID_INT, &socket_fd_port);
 }
 
@@ -371,11 +370,23 @@ static int stress_sockfd(const stress_args_t *args)
 	pid_t pid, mypid = getpid();
 	ssize_t max_fd = (ssize_t)stress_get_file_limit();
 	int socket_fd_port = DEFAULT_SOCKET_FD_PORT;
-	int ret = EXIT_SUCCESS;
+	int ret = EXIT_SUCCESS, reserved_port;
 	int *fds;
 	size_t fds_size;
 
 	(void)stress_get_setting("sockfd-port", &socket_fd_port);
+
+	socket_fd_port += args->instance;
+	reserved_port = stress_net_reserve_ports(socket_fd_port, socket_fd_port);
+	if (reserved_port < 0) {
+		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+			args->name, socket_fd_port);
+		return EXIT_NO_RESOURCE;
+	}
+	socket_fd_port = reserved_port;
+
+	pr_dbg("%s: process [%" PRIdMAX "] using socket port %d and %zd file descriptors\n",
+		args->name, (intmax_t)args->pid, socket_fd_port, max_fd);
 
 	/*
 	 * When run as root, we really don't want to use up all
@@ -396,11 +407,6 @@ static int stress_sockfd(const stress_args_t *args)
 			args->name, max_fd);
 		return EXIT_NO_RESOURCE;
 	}
-
-	socket_fd_port += args->instance;
-
-	pr_dbg("%s: process [%" PRIdMAX "] using socket port %d and %zd file descriptors\n",
-		args->name, (intmax_t)args->pid, socket_fd_port, max_fd);
 
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 again:

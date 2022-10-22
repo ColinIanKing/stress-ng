@@ -4085,6 +4085,11 @@ int main(int argc, char **argv, char **envp)
 		pr_err("failed to create warn_once lock\n");
 		goto exit_destroy_perf_lock;
 	}
+	g_shared->net_port_map.lock = stress_lock_create();
+	if (!g_shared->warn_once.lock) {
+		pr_err("failed to create net_port_map lock\n");
+		goto exit_destroy_warn_once_lock;
+	}
 
 	/*
 	 *  Assign procs with shared stats memory
@@ -4180,6 +4185,7 @@ int main(int argc, char **argv, char **envp)
 	/*
 	 *  Tidy up
 	 */
+	(void)stress_lock_destroy(g_shared->net_port_map.lock);
 	(void)stress_lock_destroy(g_shared->warn_once.lock);
 #if defined(STRESS_PERF_STATS) && 	\
     defined(HAVE_LINUX_PERF_EVENT_H)
@@ -4210,6 +4216,9 @@ int main(int argc, char **argv, char **envp)
 	if (!metrics_success)
 		exit(EXIT_METRICS_UNTRUSTWORTHY);
 	exit(EXIT_SUCCESS);
+
+exit_destroy_warn_once_lock:
+	(void)stress_lock_destroy(g_shared->warn_once.lock);
 
 exit_destroy_perf_lock:
 #if defined(STRESS_PERF_STATS) && 	\

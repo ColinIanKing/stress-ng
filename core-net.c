@@ -99,10 +99,7 @@ void stress_set_net_port(
 {
 	const uint64_t val = stress_get_uint64(opt);
 
-	stress_check_range(optname, val,
-		(uint64_t)min_port,
-		(uint64_t)(max_port - STRESS_PROCS_MAX));
-
+	stress_check_range(optname, val, (uint64_t)min_port, (uint64_t)max_port);
 	*port = (int)val;
 }
 
@@ -296,5 +293,84 @@ void HOT stress_set_sockaddr_port(
 #endif
 	default:
 		break;
+	}
+}
+
+/*
+ *  stress_net_port_range_ok()
+ *	port range sanity check, returns true if OK
+ */
+static bool stress_net_port_range_ok(const int start_port, const int end_port)
+{
+	if ((start_port > end_port))
+		return false;
+	if ((start_port < 0) || (start_port >= 65536))
+		return false;
+	if ((end_port < 0) || (end_port >= 65536))
+		return false;
+	return true;
+}
+
+/*
+ *   stress_net_reserve_ports()
+ *	attempt to reserve ports, returns nearest available contiguous
+ *	ports that are availble or -1 if none could be found
+ */
+int stress_net_reserve_ports(const int start_port, const int end_port)
+{
+	int i, j = 0, port = -1;
+
+	if (!stress_net_port_range_ok(start_port, end_port))
+		return -1;
+
+	if (stress_lock_acquire(g_shared->net_port_map.lock) < 0)
+		return -1;
+
+	if (LIKELY(start_port == end_port)) {
+		/* most cases just request one port */
+		for (i = start_port; i < 65536; i++) {
+			if (STRESS_GETBIT(g_shared->net_port_map.allocated, i) == 0) {
+				STRESS_SETBIT(g_shared->net_port_map.allocated, i);
+				port = i;
+				break;
+			}
+		}
+	} else {
+		const int quantity = (end_port - start_port) + 1;
+
+		/* otherwise scan for contiguous port range */
+		for (i = start_port; i < 65536; i++) {
+			if (STRESS_GETBIT(g_shared->net_port_map.allocated, i) == 0) {
+				j++;
+				if (j == quantity) {
+					port = i + 1 - quantity;
+					break;
+				}
+			} else {
+				port = -1;
+				j = 0;
+			}
+		}
+		if (port != -1) {
+			for (i = port; i < port + quantity; i++)
+				STRESS_SETBIT(g_shared->net_port_map.allocated, i);
+		}
+	}
+	(void)stress_lock_release(g_shared->net_port_map.lock);
+
+	return port;
+}
+
+/*
+ *   stress_net_reserve_ports()
+ *	release allocated ports
+ */
+void stress_net_release_ports(const int start_port, const int end_port)
+{
+	if (stress_net_port_range_ok(start_port, end_port)) {
+		int i;
+
+		for (i = start_port; i <= end_port; i++)
+			STRESS_CLRBIT(g_shared->net_port_map.allocated, i);
 	}
 }

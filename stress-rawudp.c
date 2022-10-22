@@ -72,8 +72,7 @@ static int stress_set_rawudp_port(const char *opt)
 	int port;
 
 	stress_set_net_port("rawudp-port", opt,
-		MIN_RAWUDP_PORT, MAX_RAWUDP_PORT - STRESS_PROCS_MAX,
-		&port);
+		MIN_RAWUDP_PORT, MAX_RAWUDP_PORT, &port);
 	return stress_set_setting("rawudp-port", TYPE_ID_INT, &port);
 }
 
@@ -248,7 +247,7 @@ static int stress_rawudp(const stress_args_t *args)
 {
 	pid_t pid;
 	int rawudp_port = DEFAULT_RAWUDP_PORT;
-	int rc = EXIT_FAILURE;
+	int rc = EXIT_FAILURE, reserved_port;
 	in_addr_t addr = (in_addr_t)inet_addr("127.0.0.1");
 	char *rawudp_if = NULL;
 
@@ -270,6 +269,13 @@ static int stress_rawudp(const stress_args_t *args)
 	}
 
 	rawudp_port += args->instance;
+	reserved_port = stress_net_reserve_ports(rawudp_port, rawudp_port);
+	if (reserved_port < 0) {
+		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+			args->name, rawudp_port);
+		return EXIT_NO_RESOURCE;
+	}
+	rawudp_port = reserved_port;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, rawudp_port);
@@ -301,6 +307,7 @@ again:
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	stress_net_release_ports(rawudp_port, rawudp_port);
 
 	return rc;
 }

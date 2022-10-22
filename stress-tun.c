@@ -19,6 +19,7 @@
  */
 #include "stress-ng.h"
 #include "core-capabilities.h"
+#include "core-net.h"
 
 #if defined(HAVE_LINUX_IF_TUN_H)
 #include <linux/if_tun.h>
@@ -112,10 +113,15 @@ static int stress_tun(const stress_args_t *args)
 		struct sockaddr_in *tun_addr;
 		int port = 2000 + (stress_mwc16() & 0xfff);
 
+		port = stress_net_reserve_ports(port, port);
+		if (port < 0)
+			continue;	/* try again */
+
 		fd = open(tun_dev, O_RDWR);
 		if (fd < 0) {
 			pr_fail("%s: cannot open %s, errno=%d (%s)\n",
 				args->name, tun_dev, errno, strerror(errno));
+			stress_net_release_ports(port, port);
 			return EXIT_FAILURE;
 		}
 
@@ -127,12 +133,10 @@ static int stress_tun(const stress_args_t *args)
 			pr_fail("%s: ioctl TUNSETIFF failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
 			(void)close(fd);
+			stress_net_release_ports(port, port);
 			rc = EXIT_FAILURE;
 			break;
 		}
-#if 0
-		pr_inf("%s: using interface %s\n", args->name, ifr.ifr_name);
-#endif
 
 		ret = ioctl(fd, TUNSETOWNER, owner);
 		if (ret < 0) {
@@ -375,6 +379,7 @@ child_reap:
 
 clean_up:
 		(void)close(fd);
+		stress_net_release_ports(port, port);
 		inc_counter(args);
 	} while (keep_stressing(args));
 

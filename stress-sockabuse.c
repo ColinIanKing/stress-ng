@@ -363,7 +363,15 @@ static int stress_sockabuse(const stress_args_t *args)
 {
 	pid_t pid, mypid = getpid();
 	int socket_port = DEFAULT_SOCKABUSE_PORT + (int)args->instance;
-	int rc = EXIT_SUCCESS;
+	int rc = EXIT_SUCCESS, reserved_port;
+
+	reserved_port = stress_net_reserve_ports(socket_port, socket_port);
+	if (reserved_port < 0) {
+		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
+			args->name, socket_port);
+		return EXIT_NO_RESOURCE;
+        }
+	socket_port = reserved_port;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
 		args->name, (int)args->pid, socket_port);
@@ -398,6 +406,7 @@ again:
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+	stress_net_release_ports(socket_port, socket_port);
 
 	return rc;
 }
