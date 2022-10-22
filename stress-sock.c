@@ -80,7 +80,7 @@ UNEXPECTED
 typedef struct {
 	const char *optname;
 	const int   optval;
-} stress_socket_options_t;
+} stress_sock_options_t;
 
 static const stress_help_t help[] = {
 	{ "S N", "sock N",		"start N workers exercising socket I/O" },
@@ -97,12 +97,12 @@ static const stress_help_t help[] = {
 };
 
 /*
- *  stress_set_socket_option()
+ *  stress_set_sock_option()
  *	generic helper to set an option
  */
-static int stress_set_socket_option(
+static int stress_set_sock_option(
 	const char *setting,
-	const stress_socket_options_t options[],
+	const stress_sock_options_t options[],
 	const char *opt)
 {
 	size_t i;
@@ -125,12 +125,12 @@ static int stress_set_socket_option(
 }
 
 /*
- *  stress_set_socket_opts()
+ *  stress_set_sock_opts()
  *	parse --sock-opts
  */
-static int stress_set_socket_opts(const char *opt)
+static int stress_set_sock_opts(const char *opt)
 {
-	static const stress_socket_options_t socket_opts[] = {
+	static const stress_sock_options_t sock_opts[] = {
 		{ "random",	SOCKET_OPT_RANDOM },
 		{ "send",	SOCKET_OPT_SEND },
 		{ "sendmsg",	SOCKET_OPT_SENDMSG },
@@ -142,16 +142,16 @@ static int stress_set_socket_opts(const char *opt)
 		{ NULL,		0 }
 	};
 
-	return stress_set_socket_option("sock-opts", socket_opts, opt);
+	return stress_set_sock_option("sock-opts", sock_opts, opt);
 }
 
 /*
- *  stress_set_socket_type()
+ *  stress_set_sock_type()
  *	parse --sock-type
  */
-static int stress_set_socket_type(const char *opt)
+static int stress_set_sock_type(const char *opt)
 {
-	static const stress_socket_options_t socket_types[] = {
+	static const stress_sock_options_t sock_types[] = {
 #if defined(SOCK_STREAM)
 		{ "stream",	SOCK_STREAM  },
 #endif
@@ -161,20 +161,20 @@ static int stress_set_socket_type(const char *opt)
 		{ NULL,		0 }
 	};
 
-	return stress_set_socket_option("sock-type", socket_types, opt);
+	return stress_set_sock_option("sock-type", sock_types, opt);
 }
 
 /*
- *  stress_set_socket_port()
+ *  stress_set_sock_port()
  *	set port to use
  */
-static int stress_set_socket_port(const char *opt)
+static int stress_set_sock_port(const char *opt)
 {
-	int socket_port;
+	int sock_port;
 
 	stress_set_net_port("sock-port", opt,
-		MIN_SOCKET_PORT, MAX_SOCKET_PORT, &socket_port);
-	return stress_set_setting("sock-port", TYPE_ID_INT, &socket_port);
+		MIN_SOCKET_PORT, MAX_SOCKET_PORT, &sock_port);
+	return stress_set_setting("sock-port", TYPE_ID_INT, &sock_port);
 }
 
 static int stress_set_sock_if(const char *name)
@@ -183,12 +183,12 @@ static int stress_set_sock_if(const char *name)
 }
 
 /*
- *  stress_set_socket_protocol()
+ *  stress_set_sock_protocol()
  *	parse --sock-protocol
  */
-static int stress_set_socket_protocol(const char *opt)
+static int stress_set_sock_protocol(const char *opt)
 {
-	static const stress_socket_options_t socket_protocols[] = {
+	static const stress_sock_options_t sock_protocols[] = {
 		{ "tcp",	IPPROTO_TCP},
 #if defined(IPPROTO_MPTCP)
 		{ "mptcp",	IPPROTO_MPTCP},
@@ -196,30 +196,30 @@ static int stress_set_socket_protocol(const char *opt)
 		{ NULL,		0 }
 	};
 
-	return stress_set_socket_option("sock-protocol", socket_protocols, opt);
+	return stress_set_sock_option("sock-protocol", sock_protocols, opt);
 }
 
 
 /*
- *  stress_set_socket_domain()
- *	set the socket domain option
+ *  stress_set_sock_domain()
+ *	set the sock domain option
  */
-static int stress_set_socket_domain(const char *name)
+static int stress_set_sock_domain(const char *name)
 {
-	int ret, socket_domain;
+	int ret, sock_domain;
 
 	ret = stress_set_net_domain(DOMAIN_ALL, "sock-domain",
-				     name, &socket_domain);
-	stress_set_setting("sock-domain", TYPE_ID_INT, &socket_domain);
+				     name, &sock_domain);
+	stress_set_setting("sock-domain", TYPE_ID_INT, &sock_domain);
 
 	return ret;
 }
 
 /*
- *  stress_set_socket_zerocopy()
- *	set the socket zerocopy option
+ *  stress_set_sock_zerocopy()
+ *	set the sock zerocopy option
  */
-static int stress_set_socket_zerocopy(const char *opt)
+static int stress_set_sock_zerocopy(const char *opt)
 {
 #if defined(MSG_ZEROCOPY)
 	return stress_set_setting_true("sock-zerocopy", opt);
@@ -237,7 +237,7 @@ static int stress_set_socket_zerocopy(const char *opt)
  *	the array is allocated by this function, or NULL if it fails. Returns
  *	the number of congestion controls, 0 if none found.
  */
-static char **stress_get_congestion_controls(const int socket_domain, size_t *n_ctrls)
+static char **stress_get_congestion_controls(const int sock_domain, size_t *n_ctrls)
 {
 	static char ALIGN64 buf[4096];
 	char *ptr, *ctrl;
@@ -247,7 +247,7 @@ static char **stress_get_congestion_controls(const int socket_domain, size_t *n_
 
 	*n_ctrls = 0;
 
-	if (socket_domain != AF_INET)
+	if (sock_domain != AF_INET)
 		return NULL;
 
 	buf_len = system_read(PROC_CONG_CTRLS, buf, sizeof(buf));
@@ -286,11 +286,11 @@ static char **stress_get_congestion_controls(const int socket_domain, size_t *n_
  */
 static void stress_sock_ioctl(
 	const int fd,
-	const int socket_domain,
+	const int sock_domain,
 	const bool rt)
 {
 	(void)fd;
-	(void)socket_domain;
+	(void)sock_domain;
 	(void)rt;
 
 #if defined(FIOGETOWN)
@@ -368,7 +368,7 @@ static void stress_sock_ioctl(
 #endif
 
 #if defined(SIOCUNIXFILE)
-	if (socket_domain == AF_UNIX) {
+	if (sock_domain == AF_UNIX) {
 		int fd_unixfile;
 
 		fd_unixfile = ioctl(fd, SIOCUNIXFILE, 0);
@@ -444,14 +444,14 @@ static int stress_sock_client(
 	const stress_args_t *args,
 	char *buf,
 	const pid_t mypid,
-	const int socket_opts,
-	const int socket_domain,
-	const int socket_type,
-	const int socket_protocol,
-	const int socket_port,
-	const char *socket_if,
+	const int sock_opts,
+	const int sock_domain,
+	const int sock_type,
+	const int sock_protocol,
+	const int sock_port,
+	const char *sock_if,
 	const bool rt,
-	const bool socket_zerocopy)
+	const bool sock_zerocopy)
 {
 	struct sockaddr *addr;
 	size_t n_ctrls;
@@ -461,12 +461,12 @@ static int stress_sock_client(
 	stress_parent_died_alarm();
 	(void)sched_settings_apply(true);
 
-	ctrls = stress_get_congestion_controls(socket_domain, &n_ctrls);
+	ctrls = stress_get_congestion_controls(sock_domain, &n_ctrls);
 #if defined(MSG_ZEROCOPY)
-	if (socket_zerocopy)
+	if (sock_zerocopy)
 		recvflag |= MSG_ZEROCOPY;
 #else
-	(void)socket_zerocopy;
+	(void)sock_zerocopy;
 #endif
 
 	do {
@@ -479,21 +479,21 @@ retry:
 			goto free_controls;
 
 		/* Exercise illegal socket family  */
-		fd = socket(~0, socket_type, socket_protocol);
+		fd = socket(~0, sock_type, sock_protocol);
 		if (fd >= 0)
 			(void)close(fd);
 
 		/* Exercise illegal socket type */
-		fd = socket(socket_domain, ~0, socket_protocol);
+		fd = socket(sock_domain, ~0, sock_protocol);
 		if (fd >= 0)
 			(void)close(fd);
 
 		/* Exercise illegal socket protocol */
-		fd = socket(socket_domain, socket_type, ~0);
+		fd = socket(sock_domain, sock_type, ~0);
 		if (fd >= 0)
 			(void)close(fd);
 
-		fd = socket(socket_domain, socket_type, socket_protocol);
+		fd = socket(sock_domain, sock_type, sock_protocol);
 		if (fd < 0) {
 			pr_fail("%s: socket failed, errno=%d (%s)\n",
 				args->name, errno, strerror(errno));
@@ -501,7 +501,7 @@ retry:
 		}
 
 		if (stress_set_sockaddr_if(args->name, args->instance, mypid,
-				socket_domain, socket_port, socket_if,
+				sock_domain, sock_port, sock_if,
 				&addr, &addr_len, NET_ADDR_ANY) < 0) {
 			(void)close(fd);
 			goto free_controls;
@@ -581,7 +581,7 @@ retry:
 				&cpu, &optlen);
 		}
 #endif
-		if ((socket_domain == AF_INET) || (socket_domain == AF_INET6)) {
+		if ((sock_domain == AF_INET) || (sock_domain == AF_INET6)) {
 #if defined(TCP_NODELAY)
 			{
 				int val = 0, ret;
@@ -728,8 +728,8 @@ retry:
 #else
 			const int max_opt = 2;
 #endif
-			const int opt = (socket_opts == SOCKET_OPT_RANDOM) ?
-					stress_mwc8() % max_opt: socket_opts;
+			const int opt = (sock_opts == SOCKET_OPT_RANDOM) ?
+					stress_mwc8() % max_opt: sock_opts;
 
 #if defined(FIONREAD)
 			/*
@@ -814,12 +814,12 @@ retry:
 			count++;
 		} while (keep_stressing(args));
 
-		stress_sock_ioctl(fd, socket_domain, rt);
+		stress_sock_ioctl(fd, sock_domain, rt);
 #if defined(AF_INET) && 	\
     defined(IPPROTO_IP)	&&	\
     defined(IP_MTU)
 		/* Exercise IP_MTU */
-		if (socket_domain == AF_INET) {
+		if (sock_domain == AF_INET) {
 			int mtu;
 			socklen_t mtu_len = sizeof(mtu);
 
@@ -833,7 +833,7 @@ retry:
 
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
-	if (socket_domain == AF_UNIX) {
+	if (sock_domain == AF_UNIX) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
 		(void)shim_unlink(addr_un->sun_path);
@@ -863,14 +863,14 @@ static int stress_sock_server(
 	char *buf,
 	const pid_t pid,
 	const pid_t ppid,
-	const int socket_opts,
-	const int socket_domain,
-	const int socket_type,
-	const int socket_protocol,
-	const int socket_port,
-	const char *socket_if,
+	const int sock_opts,
+	const int sock_domain,
+	const int sock_type,
+	const int sock_protocol,
+	const int sock_port,
+	const char *sock_if,
 	const bool rt,
-	const bool socket_zerocopy)
+	const bool sock_zerocopy)
 {
 	int fd, status;
 	int so_reuseaddr = 1;
@@ -884,17 +884,17 @@ static int stress_sock_server(
 	int sendflag = 0;
 
 #if defined(MSG_ZEROCOPY)
-	if (socket_zerocopy)
+	if (sock_zerocopy)
 		sendflag |= MSG_ZEROCOPY;
 #else
-	(void)socket_zerocopy;
+	(void)sock_zerocopy;
 #endif
 	if (stress_sig_stop_stressing(args->name, SIGALRM) < 0) {
 		rc = EXIT_FAILURE;
 		goto die;
 	}
 
-	if ((fd = socket(socket_domain, socket_type, socket_protocol)) < 0) {
+	if ((fd = socket(sock_domain, sock_type, sock_protocol)) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: socket failed, errno=%d (%s)\n",
 			args->name, errno, strerror(errno));
@@ -921,14 +921,14 @@ static int stress_sock_server(
 	(void)setsockopt(fd, SOL_SOCKET, -1, &so_reuseaddr, sizeof(so_reuseaddr));
 
 	if (stress_set_sockaddr_if(args->name, args->instance, ppid,
-			socket_domain, socket_port, socket_if,
+			sock_domain, sock_port, sock_if,
 			&addr, &addr_len, NET_ADDR_ANY) < 0) {
 		goto die_close;
 	}
 	if (bind(fd, addr, addr_len) < 0) {
 		rc = stress_exit_status(errno);
 		pr_fail("%s: bind failed on port %d, errno=%d (%s)\n",
-			args->name, socket_port, errno, strerror(errno));
+			args->name, sock_port, errno, strerror(errno));
 		goto die_close;
 	}
 	if (listen(fd, 10) < 0) {
@@ -1033,10 +1033,10 @@ static int stress_sock_server(
 #endif
 			(void)memset(buf, 'A' + (get_counter(args) % 26), MMAP_IO_SIZE);
 
-			if (socket_opts == SOCKET_OPT_RANDOM)
+			if (sock_opts == SOCKET_OPT_RANDOM)
 				opt = stress_mwc8() % 3;
 			else
-				opt = socket_opts;
+				opt = sock_opts;
 
 			switch (opt) {
 			case SOCKET_OPT_SEND:
@@ -1087,7 +1087,7 @@ static int stress_sock_server(
 #endif
 			default:
 				/* Should never happen */
-				pr_err("%s: bad option %d\n", args->name, socket_opts);
+				pr_err("%s: bad option %d\n", args->name, sock_opts);
 				(void)close(sfd);
 				goto die_close;
 			}
@@ -1103,7 +1103,7 @@ static int stress_sock_server(
 				VOID_RET(int, ioctl(sfd, SIOCOUTQ, &pending));
 			}
 #endif
-			stress_sock_ioctl(fd, socket_domain, rt);
+			stress_sock_ioctl(fd, sock_domain, rt);
 			stress_read_fdinfo(self, sfd);
 
 			(void)close(sfd);
@@ -1127,7 +1127,7 @@ die:
 		(void)munmap(ptr, page_size);
 #if defined(AF_UNIX) &&		\
     defined(HAVE_SOCKADDR_UN)
-	if (addr && (socket_domain == AF_UNIX)) {
+	if (addr && (sock_domain == AF_UNIX)) {
 		struct sockaddr_un *addr_un = (struct sockaddr_un *)addr;
 
 		(void)shim_unlink(addr_un->sun_path);
@@ -1180,51 +1180,51 @@ static bool stress_sock_kernel_rt(void)
 static int stress_sock(const stress_args_t *args)
 {
 	pid_t pid, mypid = getpid();
-	int socket_opts = SOCKET_OPT_SEND;
-	int socket_domain = AF_INET;
-	int socket_type = SOCK_STREAM;
-	int socket_port = DEFAULT_SOCKET_PORT;
+	int sock_opts = SOCKET_OPT_SEND;
+	int sock_domain = AF_INET;
+	int sock_type = SOCK_STREAM;
+	int sock_port = DEFAULT_SOCKET_PORT;
 #if defined(IPPROTO_TCP)
-	int socket_protocol = IPPROTO_TCP;
+	int sock_protocol = IPPROTO_TCP;
 #else
-	int socket_protocol = 0;
+	int sock_protocol = 0;
 #endif
-	int socket_zerocopy = false;
+	int sock_zerocopy = false;
 	int rc = EXIT_SUCCESS, reserved_port;
 	const bool rt = stress_sock_kernel_rt();
 	char *mmap_buffer;
-	char *socket_if = NULL;
+	char *sock_if = NULL;
 
-	(void)stress_get_setting("sock-if", &socket_if);
-	(void)stress_get_setting("sock-domain", &socket_domain);
-	(void)stress_get_setting("sock-type", &socket_type);
-	(void)stress_get_setting("sock-protocol", &socket_protocol);
-	(void)stress_get_setting("sock-port", &socket_port);
-	(void)stress_get_setting("sock-opts", &socket_opts);
-	(void)stress_get_setting("sock-zerocopy", &socket_zerocopy);
+	(void)stress_get_setting("sock-if", &sock_if);
+	(void)stress_get_setting("sock-domain", &sock_domain);
+	(void)stress_get_setting("sock-type", &sock_type);
+	(void)stress_get_setting("sock-protocol", &sock_protocol);
+	(void)stress_get_setting("sock-port", &sock_port);
+	(void)stress_get_setting("sock-opts", &sock_opts);
+	(void)stress_get_setting("sock-zerocopy", &sock_zerocopy);
 
-	if (socket_if) {
+	if (sock_if) {
 		int ret;
 		struct sockaddr if_addr;
 
-		ret = stress_net_interface_exists(socket_if, socket_domain, &if_addr);
+		ret = stress_net_interface_exists(sock_if, sock_domain, &if_addr);
 		if (ret < 0) {
 			pr_inf("%s: interface '%s' is not enabled for domain '%s', defaulting to using loopback\n",
-				args->name, socket_if, stress_net_domain(socket_domain));
-			socket_if = NULL;
+				args->name, sock_if, stress_net_domain(sock_domain));
+			sock_if = NULL;
 		}
 	}
-	socket_port += args->instance;
-	reserved_port = stress_net_reserve_ports(socket_port, socket_port);
+	sock_port += args->instance;
+	reserved_port = stress_net_reserve_ports(sock_port, sock_port);
 	if (reserved_port < 0) {
 		pr_inf("%s: cannot reserve port %d, skipping stressor\n",
-			args->name, socket_port);
+			args->name, sock_port);
 		return EXIT_NO_RESOURCE;
 	}
-	socket_port = reserved_port;
+	sock_port = reserved_port;
 
 	pr_dbg("%s: process [%d] using socket port %d\n",
-		args->name, (int)args->pid, socket_port);
+		args->name, (int)args->pid, sock_port);
 
 	if (stress_sighandler(args->name, SIGPIPE, stress_sock_sigpipe_handler, NULL) < 0)
 		return EXIT_NO_RESOURCE;
@@ -1251,36 +1251,36 @@ again:
 			args->name, errno, strerror(errno));
 		return EXIT_FAILURE;
 	} else if (pid == 0) {
-		rc = stress_sock_client(args, mmap_buffer, mypid, socket_opts,
-			socket_domain, socket_type, socket_protocol,
-			socket_port, socket_if, rt, socket_zerocopy);
+		rc = stress_sock_client(args, mmap_buffer, mypid, sock_opts,
+			sock_domain, sock_type, sock_protocol,
+			sock_port, sock_if, rt, sock_zerocopy);
 		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 
 		/* Inform parent we're all done */
 		(void)kill(getppid(), SIGALRM);
 		_exit(rc);
 	} else {
-		rc = stress_sock_server(args, mmap_buffer, pid, mypid, socket_opts,
-			socket_domain, socket_type, socket_protocol,
-			socket_port, socket_if, rt, socket_zerocopy);
+		rc = stress_sock_server(args, mmap_buffer, pid, mypid, sock_opts,
+			sock_domain, sock_type, sock_protocol,
+			sock_port, sock_if, rt, sock_zerocopy);
 		(void)munmap((void *)mmap_buffer, MMAP_BUF_SIZE);
 
 	}
 finish:
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
-	stress_net_release_ports(socket_port, socket_port);
+	stress_net_release_ports(sock_port, sock_port);
 
 	return rc;
 }
 
 static const stress_opt_set_func_t opt_set_funcs[] = {
-	{ OPT_sock_domain,	stress_set_socket_domain },
+	{ OPT_sock_domain,	stress_set_sock_domain },
 	{ OPT_sock_if,		stress_set_sock_if },
-	{ OPT_sock_opts,	stress_set_socket_opts },
-	{ OPT_sock_type,	stress_set_socket_type },
-	{ OPT_sock_port,	stress_set_socket_port },
-	{ OPT_sock_protocol,	stress_set_socket_protocol },
-	{ OPT_sock_zerocopy,	stress_set_socket_zerocopy },
+	{ OPT_sock_opts,	stress_set_sock_opts },
+	{ OPT_sock_type,	stress_set_sock_type },
+	{ OPT_sock_port,	stress_set_sock_port },
+	{ OPT_sock_protocol,	stress_set_sock_protocol },
+	{ OPT_sock_zerocopy,	stress_set_sock_zerocopy },
 	{ 0,			NULL }
 };
 
