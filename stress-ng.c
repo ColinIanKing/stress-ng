@@ -569,6 +569,7 @@ static const struct option long_options[] = {
 	{ "llc-affinity-ops",	1,	0,	OPT_llc_affinity_ops },
 	{ "loadavg",		1,	0,	OPT_loadavg },
 	{ "loadavg-ops",	1,	0,	OPT_loadavg_ops },
+	{ "loadavg-max",	1,	0,	OPT_loadavg_max },
 	{ "locka",		1,	0,	OPT_locka },
 	{ "locka-ops",		1,	0,	OPT_locka_ops },
 	{ "lockbus",		1,	0,	OPT_lockbus },

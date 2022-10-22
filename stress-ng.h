@@ -1423,6 +1423,7 @@ typedef enum {
 
 	OPT_loadavg,
 	OPT_loadavg_ops,
+	OPT_loadavg_max,
 
 	OPT_lockbus,
 	OPT_lockbus_ops,

@@ -2584,6 +2584,11 @@ factored into system load accounting.
 stop loadavg workers after N bogo scheduling yields by the pthreads
 have been reached.
 .TP
+.B \-\-loadavg\-max N
+set the maximum number of pthreads to create to N. N may be reduced
+if there is as system limit on the number of pthreads that can be
+created.
+.TP
 .B \-\-lockbus N
 start N workers that rapidly lock and increment 64 bytes of randomly chosen
 memory from a 16MB mmap'd region (Intel x86 and ARM CPUs only).  This will

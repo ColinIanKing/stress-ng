@@ -20,15 +20,35 @@
 #include "stress-ng.h"
 #include "core-pthread.h"
 
+#define MAX_LOADAVG	(1000000)
+
 static const stress_help_t help[] = {
 	{ NULL,	"loadavg N",	 "start N workers that create a large load average" },
 	{ NULL,	"loadavg-ops N", "stop load average workers after N bogo operations" },
+	{ NULL, "loadavg-max N", "set upper limit on number of pthreads to create" },
 	{ NULL,	NULL,		 NULL }
 };
 
-#if defined(HAVE_LIB_PTHREAD)
+/*
+ *  stress_set_loadavg_max()
+ *      set upper limit on number of pthreads to create
+ */
+static int stress_set_loadavg_max(const char *opt)
+{
+	uint64_t loadavg_max;
 
-#define MAX_LOADAVG		(65536)
+        loadavg_max = stress_get_uint64(opt);
+
+        stress_check_range("loadavg-max", loadavg_max, 1, MAX_LOADAVG);
+        return stress_set_setting("loadavg-max", TYPE_ID_UINT64, &loadavg_max);
+}
+
+static const stress_opt_set_func_t opt_set_funcs[] = {
+	{ OPT_loadavg_max,	stress_set_loadavg_max },
+	{ 0,			NULL }
+};
+
+#if defined(HAVE_LIB_PTHREAD)
 
 /*
  *  Linux includes blocked I/O tasks in load average, so
@@ -46,7 +66,6 @@ typedef struct {
 
 static volatile bool keep_thread_running_flag;
 static volatile bool keep_running_flag;
-static stress_loadavg_info_t pthreads[MAX_LOADAVG];
 
 static inline void stop_running(void)
 {
@@ -145,10 +164,12 @@ static void *stress_loadavg_func(void *arg)
  */
 static int stress_loadavg(const stress_args_t *args)
 {
+	static stress_loadavg_info_t *pthreads;
 	uint64_t i, j, pthread_max;
 	const uint64_t threads_max = stress_loadavg_threads_max();
 	const uint32_t instances = (args->num_instances > 1 ?
 				   args->num_instances : 1);
+	uint64_t loadavg_max = 65536 * instances;
 	int ret;
 #if defined(LOADAVG_IO)
 	int fd;
@@ -157,26 +178,46 @@ static int stress_loadavg(const stress_args_t *args)
 	stress_pthread_args_t pargs = { args, NULL, 0 };
 	sigset_t set;
 
+	(void)stress_get_setting("loadavg-max", &loadavg_max);
+
+	if (loadavg_max > threads_max) {
+		loadavg_max = threads_max;
+		if (args->instance == 0) {
+			pr_inf("%s: not enough pthreads, reducing loadavg-max\n",
+				args->name);
+		}
+	}
+
 	keep_running_flag = true;
 	if (threads_max > 0)
-		pthread_max = stress_loadavg_threads_max() / instances;
+		pthread_max = loadavg_max / instances;
 	else
-		pthread_max = MAX_LOADAVG;
+		pthread_max = loadavg_max;
 
 	if (pthread_max < 1)
 		pthread_max = 1;
-	if (pthread_max > MAX_LOADAVG)
-		pthread_max = MAX_LOADAVG;
+	if (pthread_max * instances > loadavg_max)
+		pthread_max = loadavg_max / instances;
 
 	if (args->instance == 0) {
 		pr_inf("%s: attempting to create %" PRIu64 " pthreads per "
 			"worker (%" PRIu64 " in total)\n",
 			args->name, pthread_max, pthread_max * instances);
 	}
+
+	pthreads = calloc((size_t)pthread_max, sizeof(*pthreads));
+	if (!pthreads) {
+		pr_inf_skip("%s: out of memory allocating pthreads array, skipping stressor\n",
+			args->name);
+		return EXIT_NO_RESOURCE;
+	}
+
 #if defined(LOADAVG_IO)
 	ret = stress_temp_dir_mk_args(args);
-	if (ret < 0)
+	if (ret < 0) {
+		free(pthreads);
 		return stress_exit_status((int)-ret);
+	}
 
 	(void)stress_temp_filename_args(args,
 		filename, sizeof(filename), stress_mwc32());
@@ -201,8 +242,6 @@ static int stress_loadavg(const stress_args_t *args)
 
 	for (i = 0; i < pthread_max; i++)
 		pthreads[i].ret = -1;
-
-	(void)memset(&pthreads, 0, sizeof(pthreads));
 
 	for (i = 0; i < pthread_max; i++) {
 #if defined(LOADAVG_IO)
@@ -252,6 +291,7 @@ static int stress_loadavg(const stress_args_t *args)
 		(void)close(fd);
 	(void)stress_temp_dir_rm_args(args);
 #endif
+	free(pthreads);
 
 	return EXIT_SUCCESS;
 }
@@ -259,12 +299,14 @@ static int stress_loadavg(const stress_args_t *args)
 stressor_info_t stress_loadavg_info = {
 	.stressor = stress_loadavg,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #else
 stressor_info_t stress_loadavg_info = {
 	.stressor = stress_not_implemented,
 	.class = CLASS_SCHEDULER | CLASS_OS,
+	.opt_set_funcs = opt_set_funcs,
 	.help = help
 };
 #endif
