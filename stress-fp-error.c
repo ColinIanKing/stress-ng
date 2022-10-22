@@ -28,7 +28,6 @@
 #include <float.h>
 #endif
 
-
 static const stress_help_t help[] = {
 	{ NULL,	"fp-error N",	  "start N workers exercising floating point errors" },
 	{ NULL,	"fp-error-ops N", "stop after N fp-error bogo operations" },
@@ -128,43 +127,36 @@ static int stress_fp_error(const stress_args_t *args)
 #if defined(FE_INEXACT)
 		volatile double d1, d2;
 #endif
-
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log(-1.0)", log(-1.0), (double)NAN,
 			true, false, EDOM, FE_INVALID);
 #endif
-
 #if defined(ERANGE) && defined(FE_DIVBYZERO)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log(0.0)", log(0.0), -HUGE_VAL,
 			false, false, ERANGE, FE_DIVBYZERO);
 #endif
-
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log2(-1.0)", log2(-1.0), (double)NAN,
 			true, false, EDOM, FE_INVALID);
 #endif
-
 #if defined(ERANGE) && defined(FE_DIVBYZERO)
 		stress_fp_clear_error();
 		stress_fp_check(args, "log2(0.0)", log2(0.0), -HUGE_VAL,
 			false, false, ERANGE, FE_DIVBYZERO);
 #endif
-
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
 		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), (double)NAN,
 			true, false, EDOM, FE_INVALID);
 #endif
-
 #if defined(EDOM) && defined(FE_INVALID)
 		stress_fp_clear_error();
 		stress_fp_check(args, "sqrt(-1.0)", sqrt(-1.0), (double)NAN,
 			true, false, EDOM, FE_INVALID);
 #endif
-
 #if defined(FE_INEXACT)
 #if !defined(STRESS_ARCH_ALPHA)
 		/*
@@ -177,7 +169,6 @@ static int stress_fp_error(const stress_args_t *args)
 		stress_fp_check(args, "1.0 / M_PI", d1 / d2, d1 / d2,
 			false, false, 0, FE_INEXACT);
 #endif
-
 		/*
 		 * Use volatiles to force compiler to generate code
 		 * to perform run time overflow computation
@@ -189,19 +180,16 @@ static int stress_fp_error(const stress_args_t *args)
 			d1 + d2, (double)INFINITY,
 			false, true, 0, FE_OVERFLOW | FE_INEXACT);
 #endif
-
 #if defined(ERANGE) && defined(FE_UNDERFLOW)
 		stress_fp_clear_error();
 		stress_fp_check(args, "exp(-1000000.0)", exp(-1000000.0), 0.0,
 			false, false, ERANGE, FE_UNDERFLOW);
 #endif
-
 #if defined(ERANGE) && defined(FE_OVERFLOW)
 		stress_fp_clear_error();
 		stress_fp_check(args, "exp(DBL_MAX)", exp(DBL_MAX), HUGE_VAL,
 			false, false, ERANGE, FE_OVERFLOW);
 #endif
-
 		/*
 		 *  Some implementations of fegetrount return
 		 *  long long unsigned int, so cast the return
