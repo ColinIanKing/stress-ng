@@ -111,6 +111,10 @@ static int stress_ioport(const stress_args_t *args)
 	int ret, fd;
 	uint32_t flag = 0;
 	unsigned char v;
+	double duration_in = 0.0, count_in = 0.0;
+	double duration_out = 0.0, count_out = 0.0;
+	double rate;
+	char msg[40];
 
 	(void)stress_get_setting("ioport-opts", &flag);
 	if (!flag)
@@ -130,7 +134,10 @@ static int stress_ioport(const stress_args_t *args)
 	stress_set_proc_state(args->name, STRESS_STATE_RUN);
 
 	do {
+		double t;
+
 		if (flag & IOPORT_OPT_IN) {
+			t = stress_time_now();
 			(void)inb(IO_PORT);
 			(void)inb(IO_PORT);
 			(void)inb(IO_PORT);
@@ -147,24 +154,61 @@ static int stress_ioport(const stress_args_t *args)
 			(void)inb(IO_PORT);
 			(void)inb(IO_PORT);
 			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			(void)inb(IO_PORT);
+			duration_in += stress_time_now() - t;
+			count_in += 32.0;
 		}
 		if (flag & IOPORT_OPT_OUT) {
-			outb(v + 15, IO_PORT);
-			outb(v + 14, IO_PORT);
-			outb(v + 13, IO_PORT);
-			outb(v + 12, IO_PORT);
-			outb(v + 11, IO_PORT);
-			outb(v + 10, IO_PORT);
-			outb(v + 9, IO_PORT);
-			outb(v + 8, IO_PORT);
-			outb(v + 7, IO_PORT);
-			outb(v + 6, IO_PORT);
-			outb(v + 5, IO_PORT);
-			outb(v + 4, IO_PORT);
-			outb(v + 3, IO_PORT);
-			outb(v + 2, IO_PORT);
-			outb(v + 1, IO_PORT);
+			t = stress_time_now();
 			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			outb(v, IO_PORT);
+			duration_out += stress_time_now() - t;
+			count_out += 32;
 		}
 
 		if (fd >= 0) {
@@ -190,7 +234,6 @@ static int stress_ioport(const stress_args_t *args)
 					}
 				}
 			}
-
 		}
 
 		/*
@@ -222,6 +265,14 @@ static int stress_ioport(const stress_args_t *args)
 	} while (keep_stressing(args));
 
 	stress_set_proc_state(args->name, STRESS_STATE_DEINIT);
+
+	rate = count_in > 0.0 ? duration_in / count_in : 0.0;
+	snprintf(msg, sizeof(msg), "nanosecs per inb(0x%x) op", IO_PORT);
+	stress_misc_stats_set(args->misc_stats, 0, msg, rate * 1000000000.0);
+
+	rate = count_out > 0.0 ? duration_out / count_out : 0.0;
+	snprintf(msg, sizeof(msg), "nanosecs per outb(0x%x) op", IO_PORT);
+	stress_misc_stats_set(args->misc_stats, 1, msg, rate * 1000000000.0);
 
 	if (fd >= 0)
 		(void)close(fd);
