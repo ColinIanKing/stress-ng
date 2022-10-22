@@ -54,6 +54,7 @@ static int stress_full(const stress_args_t *args)
 		off_t offset;
 		char ALIGN64 buffer[4096];
 		uint8_t *ptr;
+		struct stat statbuf;
 
 		if ((fd = open("/dev/full", O_RDWR)) < 0) {
 			if (errno == ENOENT) {
@@ -88,10 +89,10 @@ static int stress_full(const stress_args_t *args)
 			return EXIT_FAILURE;
 		}
 
+try_read:
 		/*
 		 *  Reads should always work
 		 */
-try_read:
 		ret = read(fd, buffer, sizeof(buffer));
 		if (ret < 0) {
 			pr_fail("%s: read failed, errno=%d (%s)\n",
@@ -107,7 +108,29 @@ try_read:
 				return EXIT_FAILURE;
 			}
 		}
+#if defined(HAVE_PREAD)
+		{
+			off_t offset;
 
+			offset = (sizeof(offset) == sizeof(uint64_t)) ?
+				(off_t)(stress_mwc64() & 0x7fffffffffffffff) :
+				(off_t)(stress_mwc32() & 0x7fffffffUL);
+			ret = pread(fd, buffer, sizeof(buffer), offset);
+			if (ret < 0) {
+				pr_fail("%s: read failed at offset %jd, errno=%d (%s)\n",
+					args->name, (intmax_t)offset, errno, strerror(errno));
+				(void)close(fd);
+				return EXIT_FAILURE;
+			}
+		}
+#endif
+		/*
+		 *  Try fstat
+		 */
+		ret = fstat(fd, &statbuf);
+		if (ret < 0)
+			pr_fail("%s: fstat failed, errno=%d (%s)\n",
+				args->name, errno, strerror(errno));
 		/*
 		 *  Try mmap'ing and msync on fd
 		 */
